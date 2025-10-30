@@ -5436,7 +5436,7 @@ int DlContext::CreateDbDictionary(const char * pDictPath, const char * pDataPath
 			for(uint sgli = 0; sgli < sqlgen_list.getCount(); sgli++) {
 				Generator_SQL * p_sqlgen = sqlgen_list.at(sgli);
 				if(p_sqlgen) {
-					p_sqlgen->CreateTable(tbl, tbl.GetTableName(), Generator_SQL::ctfIndent);
+					p_sqlgen->CreateTable(tbl, tbl.GetTableName(), Generator_SQL::ctfIndent, 0/*pCollationSymb*/);
 					p_sqlgen->Eos().Cr();
 					uint j;
 					for(j = 0; j < tbl.GetIndices().getNumKeys(); j++) {
@@ -5449,7 +5449,7 @@ int DlContext::CreateDbDictionary(const char * pDictPath, const char * pDataPath
 							}
 						}
 						if(!do_skip_index) {
-							p_sqlgen->CreateIndex(tbl, tbl.GetTableName(), j);
+							p_sqlgen->CreateIndex(tbl, tbl.GetTableName(), j, 0/*pCollationSymb*/);
 							p_sqlgen->Eos();
 						}
 					}

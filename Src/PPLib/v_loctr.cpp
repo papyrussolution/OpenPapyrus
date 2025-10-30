@@ -141,9 +141,9 @@ public:
 		grpGoods,
 		grpPallet
 	};
-	explicit LocTransfDialog(int domain, const PPBillPacket * pPack) : 
+	explicit LocTransfDialog(int domain, PPBillPacket * pPack, int billItemIdx/* [0..] || -1 */) : 
 		TDialog((domain == LOCTRFRDOMAIN_BAILMENT) ? DLG_LOCTRANSF_BAILMENT : DLG_LOCTRANSF), 
-		Domain(domain), State(0), P_Pack(pPack), WarehouseID(pPack ? pPack->Rec.LocID : 0), Data(domain, 0, 0)
+		Domain(domain), State(0), P_Pack(pPack), WarehouseID(pPack ? pPack->Rec.LocID : 0), Data(domain, 0, 0), BillItemNo(billItemIdx)
 	{
 		P_BObj = BillObj;
 		if(Domain == LOCTRFRDOMAIN_BAILMENT) {
@@ -247,6 +247,7 @@ public:
 			disableCtrls(CTL_LOCTRANSF_OP, CTL_LOCTRANSF_LOCCODE, CTLSEL_LOCTRANSF_LOC, CTLSEL_LOCTRANSF_PSN, 0);
 			selectCtrl(CTL_LOCTRANSF_QTTY);
 		}
+		showCtrl(STDCTL_TAGSBUTTON, (P_Pack && P_Pack->OpTypeID == PPOPT_WAREHOUSE)); // @v12.4.7 
 		return ok;
 	}
 	DECL_DIALOG_GETDTS()
@@ -315,6 +316,19 @@ private:
 				}
 			}
 		}
+		else if(event.isCmd(cmTags)) { // @v12.4.7
+			if(P_Pack && P_Pack->OpTypeID == PPOPT_WAREHOUSE && ((BillItemNo == -1) || 
+				(P_Pack && P_Pack->P_LocTrfrList && BillItemNo >= 0 && BillItemNo < P_Pack->P_LocTrfrList->getCountI()))) {
+				int    item_no = (BillItemNo >= 0) ? BillItemNo : -1;
+				ObjTagList tag_list;
+				ObjTagList * p_list = P_Pack->LTagL.Get(item_no);
+				RVALUEPTR(tag_list, p_list);
+				tag_list.Oid.Obj = PPOBJ_LOT;
+				if(EditObjTagValList(&tag_list, 0) > 0) {
+					P_Pack->LTagL.Set(item_no, &tag_list);
+				}
+			}
+		}
 		else if(event.isCmd(cmCtlColor)) {
 			TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 			if(p_dc && getCtrlHandle(CTL_LOCTRANSF_SERIAL) == p_dc->H_Ctl && State & stSerialUndef) {
@@ -377,7 +391,9 @@ private:
 	}
 
 	const int Domain;
-	const PPBillPacket * P_Pack;
+	PPBillPacket * P_Pack;
+	int    BillItemNo; // @v12.4.7 Порядковый номер редактируемого элемента в пакете документа. А именно, индекс [0..] в контейнере PPBillPacket::P_LocTrfrList.
+		// Если P_Pack == 0 || элемент новый для документа, то BillItemNo < 0.
 	PPID   WarehouseID;
 	enum {
 		dummyFirst = 1,
@@ -392,19 +408,29 @@ private:
 	PPObjPerson PsnObj;
 };
 
-/*static*/int PPViewLocTransf::EditLocTransf(const PPBillPacket * pPack, LocTransfTbl::Rec & rData) 
+/*static*/int PPViewLocTransf::EditLocTransf(PPBillPacket * pPack, int billItemIdx/*[0..] || -1*/, LocTransfTbl::Rec & rData) 
 {
 	LocTransfOpBlock internal_data(rData);
-	int    r = PPViewLocTransf::EditLocTransf(pPack, internal_data);
+	int    r = PPViewLocTransf::EditLocTransf(pPack, billItemIdx, internal_data);
 	if(r > 0) {
 		internal_data.CopyTo(rData);
 	}
 	return r;
 }
 
-/*static*/int PPViewLocTransf::EditLocTransf(const PPBillPacket * pPack, LocTransfOpBlock & rData)
+/*static*/int PPViewLocTransf::EditLocTransf(PPBillPacket * pPack, int billItemIdx/*[0..] || -1*/, LocTransfOpBlock & rData)
 {
-	DIALOG_PROC_BODY_P2(LocTransfDialog, rData.Domain, pPack, &rData); 
+	//DIALOG_PROC_BODY_P2(LocTransfDialog, rData.Domain, pPack, &rData); 
+	int    ok = -1;
+	LocTransfDialog * dlg = new LocTransfDialog(rData.Domain, pPack, billItemIdx);
+	if(CheckDialogPtrErr(&dlg) && dlg->setDTS(&rData)) {
+		while(ok <= 0 && ExecView(dlg) == cmOK)
+			if(dlg->getDTS(&rData)) 
+				ok = 1;
+	}
+	else 
+		ok = 0;
+	delete dlg; return ok;
 }
 //
 //
@@ -1039,7 +1065,7 @@ int PPViewLocTransf::AddItem(PPID curLocID, long curRByLoc)
 	if(Filt.Mode == LocTransfFilt::modeGeneral) {
 		if(rec.Domain == LOCTRFRDOMAIN_WMS)
 			rec.LocID = NZOR(curLocID, Filt.LocList.GetSingle());
-		ok = EditLocTransf(0, rec);
+		ok = EditLocTransf(0, -1, rec);
 		if(ok > 0) {
 			LocTransfOpBlock blk(Filt.Domain, rec.LTOp, rec.LocID);
 			if(rec.Domain == LOCTRFRDOMAIN_BAILMENT)
@@ -1081,7 +1107,7 @@ int PPViewLocTransf::AddItem(PPID curLocID, long curRByLoc)
 			if(Tbl.Search(curLocID, curRByLoc, &cur_rec) > 0)
 				rec.GoodsID = cur_rec.GoodsID;
 		}
-		ok = EditLocTransf(0, rec);
+		ok = EditLocTransf(0, -1, rec);
 		if(ok > 0) {
 			LocTransfOpBlock blk(Filt.Domain, rec.LTOp, rec.LocID);
 			if(rec.Domain == LOCTRFRDOMAIN_BAILMENT)
@@ -1098,7 +1124,7 @@ int PPViewLocTransf::AddItem(PPID curLocID, long curRByLoc)
 		rec.LTOp = LOCTRFROP_PUT;
 		if(rec.Domain == LOCTRFRDOMAIN_WMS)
 			rec.LocID = NZOR(curLocID, Filt.LocList.GetSingle());
-		ok = EditLocTransf(0, rec);
+		ok = EditLocTransf(0, -1, rec);
 		if(ok > 0) {
 			LocTransfOpBlock blk(Filt.Domain, rec.LTOp, rec.LocID);
 			blk.GoodsID = rec.GoodsID;
@@ -1118,7 +1144,7 @@ int PPViewLocTransf::EditItem(PPID tempRecID, PPID curLocID, long curRByLoc)
 	LocTransfTbl::Rec rec;
 	if(Filt.Mode == LocTransfFilt::modeGeneral) {
 		if(Tbl.Search(curLocID, curRByLoc, &rec) > 0) {
-			ok = EditLocTransf(0, rec);
+			ok = EditLocTransf(0, -1, rec);
 			if(ok > 0) {
 				LocTransfOpBlock blk(Filt.Domain, rec.LTOp, rec.LocID);
 				if(rec.Domain == LOCTRFRDOMAIN_BAILMENT)
@@ -1146,7 +1172,7 @@ int PPViewLocTransf::EditItem(PPID tempRecID, PPID curLocID, long curRByLoc)
 					p_pack = &pack;
 				}
 				if(temp_rec.LocID && Tbl.Search(temp_rec.LocID, temp_rec.RByLoc, &rec) > 0) {
-					ok = EditLocTransf(p_pack, rec);
+					ok = EditLocTransf(p_pack, -100, rec);
 					if(ok > 0) {
 						LocTransfOpBlock blk(Filt.Domain, rec.LTOp, rec.LocID);
 						PPTransaction tra(1);
@@ -1180,7 +1206,7 @@ int PPViewLocTransf::EditItem(PPID tempRecID, PPID curLocID, long curRByLoc)
 								rec.LotID = r_ti.LotID;
 						}
 					}
-					ok = EditLocTransf(p_pack, rec);
+					ok = EditLocTransf(p_pack, -100, rec);
 					if(ok > 0) {
 						LocTransfOpBlock blk(Filt.Domain, rec.LTOp, rec.LocID);
 						PPTransaction tra(1);

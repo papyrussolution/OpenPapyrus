@@ -9,6 +9,15 @@
 
 class PPLogger;
 struct MACAddr;
+//
+// Специфические флаги, хранимые в UED вместе с энкодированными значением.
+//
+// ru-inn бывает либо 10- либо 12-значными.
+// Есть контрольная цифра, но замечены реальные ситуации, когда действительный ИНН имеет неверную контрольную цифру.
+//
+#define UED_SPCF_INN_010   0x01
+#define UED_SPCF_INN_012   0x02
+#define UED_SPCF_INN_BADCD 0x04
 
 class UED {
 public:
@@ -94,8 +103,8 @@ public:
 	static uint64 SetRaw_Oid(SObjID oid);
 	static bool   GetRaw_Oid(uint64 ued, SObjID & rOid);
 
-	static uint64 SetRaw_Ru_INN(const char * pT);
-	static bool   GetRaw_Ru_INN(uint64 ued, SString & rT);
+	static uint64 SetRaw_Ru_INN(const char * pT, bool forceBadCD);
+	static bool   GetRaw_Ru_INN(uint64 ued, SString & rT, uint * pSpcFlags);
 	static uint64 SetRaw_Ru_KPP(const char * pT);
 	static bool   GetRaw_Ru_KPP(uint64 ued, SString & rT);
 	static uint64 SetRaw_Ru_SNILS(const char * pT);

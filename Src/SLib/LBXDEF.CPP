@@ -1090,7 +1090,7 @@ DBQListBoxDef::~DBQListBoxDef()
 		delete query;
 }
 
-int DBQListBoxDef::GetFrameSize() const { return query->P_Frame->Count; }
+int DBQListBoxDef::GetFrameSize() const { return query->P_Frame->CountF; }
 
 int DBQListBoxDef::GetFrameState()
 {

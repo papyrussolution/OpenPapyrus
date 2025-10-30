@@ -2180,12 +2180,15 @@ int PPObjGoods::EditVad(PPID goodsID)
 		GoodsVadDialog * dlg = new GoodsVadDialog;
 		if(CheckDialogPtrErr(&dlg)) {
 			dlg->setDTS(&pack);
-			for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;)
-				if(dlg->getDTS(&pack))
-					if(PutPacket(&goodsID, &pack, 1))
+			for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
+				if(dlg->getDTS(&pack)) {
+					if(PutPacket(&goodsID, &pack, 1)) {
 						ok = valid_data = 1;
+					}
 					else
 						PPError();
+				}
+			}
 			delete dlg;
 		}
 		else
@@ -3050,7 +3053,8 @@ int GoodsAsscDialog::setupAssoc(PPID asscType, uint asscText, PPID objType)
 {
 	int    ok = 1;
 	PPObjGoodsStruc gs_obj;
-	SString name, assc_name;
+	SString name;
+	SString assc_name;
 	char   temp_buf[128];
 	StringSet ss(SLBColumnDelim);
 	ObjAssocTbl::Rec assc_rec;
@@ -3085,7 +3089,7 @@ int GoodsAsscDialog::setupList()
 {
 	int    ok = 1;
 	LastItemId = 0;
-	AsscList.freeAll();
+	AsscList.clear();
 	THROW(setupAssoc(PPASS_ALTGOODSGRP, PPGDSASSC_ALTGOODSGRP, PPOBJ_GOODSGROUP));
 	THROW(setupAssoc(PPASS_GOODSSTRUC,  PPGDSASSC_GOODSSTRUC,  PPOBJ_GOODSSTRUC));
 	THROW(setupAssoc(PPASS_GENGOODS,    PPGDSASSC_GENGOODS,    PPOBJ_GOODS));
@@ -3116,28 +3120,26 @@ int GoodsAsscDialog::editItem(long pos, long /*id*/)
 
 int GoodsAsscDialog::addItem(long * pPos, long * pID)
 {
-	int    r = -1;
-	int    valid_data = 0;
+	int    ok = -1;
+	bool   valid_data = false;
 	PPID   alt_grp = 0;
-	while(!valid_data && ListBoxSelDialog::Run(PPOBJ_GOODSGROUP, &alt_grp, reinterpret_cast<void *>(GGRTYP_SEL_ALT)) > 0)
+	while(!valid_data && ListBoxSelDialog::Run(PPOBJ_GOODSGROUP, &alt_grp, reinterpret_cast<void *>(GGRTYP_SEL_ALT)) > 0) {
 		if(P_GObj && P_GObj->IsAltGroup(alt_grp) > 0) {
-			r = P_GObj->AssignGoodsToAltGrp(GoodsID, alt_grp, 0, 1);
-			valid_data = 1;
+			ok = P_GObj->AssignGoodsToAltGrp(GoodsID, alt_grp, 0, 1);
+			valid_data = true;
 		}
 		else
 			PPError(PPERR_NOTALTGRP);
-	return r;
+	}
+	return ok;
 }
 
 int PPObjGoods::ShowGoodsAsscInfo(PPID goodsID)
 {
 	int    ok = -1;
 	if(goodsID) {
-		GoodsAsscDialog * dlg = new GoodsAsscDialog(goodsID, this);
-		if(CheckDialogPtrErr(&dlg)) {
-			ExecViewAndDestroy(dlg);
+		if(CheckExecAndDestroyDialog(new GoodsAsscDialog(goodsID, this), 1, 0))
 			ok = 1;
-		}
 		else
 			ok = 0;
 	}
@@ -3380,9 +3382,10 @@ int GoodsFilterAdvDialog(GoodsFilt * pFilt, int disable)
 	int    ok = -1;
 	GoodsFiltAdvDialog * dlg = new GoodsFiltAdvDialog(pFilt, disable);
 	if(CheckDialogPtrErr(&dlg)) {
-		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;)
+		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 			if(dlg->getDTS(pFilt))
 			   	ok = valid_data = 1;
+		}
 	}
 	else
 		ok = 0;

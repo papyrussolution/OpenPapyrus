@@ -1270,21 +1270,23 @@
 // Если добавляете новые значения, то согласуйте их с соответствующим набором констант.
 // @persistent
 //
-#define PPOBJATTR_NAME         1L // Наименование
-#define PPOBJATTR_SYMB         2L // Символ
-#define PPOBJATTR_LONGNAME     3L // Длинное наименование
-#define PPOBJATTR_MEMO         4L
-#define PPOBJATTR_RAWADDR      6L
-#define PPOBJATTR_DESCR        8L
-#define PPOBJATTR_CODE         9L
-#define PPOBJATTR_ID          21L // Целочисленный уникальный идентификатор
-#define PPOBJATTR_FLAGS       22L
-#define PPOBJATTR_PHONE       23L
-#define PPOBJATTR_EMAIL       24L
-#define PPOBJATTR_GLN         25L
-#define PPOBJATTR_RUINN       26L
-#define PPOBJATTR_RUKPP       27L
-#define PPOBJATTR_RUSNILS     28L
+#define PPOBJATTR_NAME          1L // Наименование
+#define PPOBJATTR_SYMB          2L // Символ
+#define PPOBJATTR_LONGNAME      3L // Длинное наименование
+#define PPOBJATTR_MEMO          4L
+#define PPOBJATTR_RAWADDR       6L
+#define PPOBJATTR_DESCR         8L
+#define PPOBJATTR_CODE          9L
+#define PPOBJATTR_RAWDATA_XML  10L // @v12.4.7 Исходные данные использованные для формирования объекта в xml-формате
+#define PPOBJATTR_RAWDATA_JSON 11L // @v12.4.7 Исходные данные использованные для формирования объекта в json-формате
+#define PPOBJATTR_ID           21L // Целочисленный уникальный идентификатор
+#define PPOBJATTR_FLAGS        22L
+#define PPOBJATTR_PHONE        23L
+#define PPOBJATTR_EMAIL        24L
+#define PPOBJATTR_GLN          25L
+#define PPOBJATTR_RUINN        26L
+#define PPOBJATTR_RUKPP        27L
+#define PPOBJATTR_RUSNILS      28L
 //
 // Descr: Зарезервированные значения текстовых свойств объектов
 // Attention! Чтобы минимизировать разногласия между методами идентификации константы PPOBJATTR_XXX (ppdefs.h) имеют значения, совпадающие с данным набором констант.
@@ -1292,21 +1294,23 @@
 // @v11.3.0 Переместил сюда коды PPTRPROP_XXX с целью согласования с идентификаторами семейства PPOBJATTR_XXX
 // @persistent
 //
-#define PPTRPROP_DEFAULT       0
-#define PPTRPROP_NAME          1 // Если у объекта есть и короткое и длинное наименования, то короткое заносится в PPTRPROP_NAME, а длинное - в PPTRPROP_LONGNAME
-#define PPTRPROP_SYMB          2 // Единственный уникальный символьный идентификатор объекта (может быть пустым, но если нет, то обязательно уникальным)
-#define PPTRPROP_LONGNAME      3
-#define PPTRPROP_MEMO          4
-#define PPTRPROP_COMBINE       5 // Комбинированная строка, содержащая набор текстовых свойств
-#define PPTRPROP_RAWADDR       6 // Простое текстовое представление адреса
-#define PPTRPROP_TIMESERIES    7 // Временная серия - специальное свойство, для которого хранится не строка, а STimeSeries.
+#define PPTRPROP_DEFAULT        0
+#define PPTRPROP_NAME           1 // Если у объекта есть и короткое и длинное наименования, то короткое заносится в PPTRPROP_NAME, а длинное - в PPTRPROP_LONGNAME
+#define PPTRPROP_SYMB           2 // Единственный уникальный символьный идентификатор объекта (может быть пустым, но если нет, то обязательно уникальным)
+#define PPTRPROP_LONGNAME       3
+#define PPTRPROP_MEMO           4
+#define PPTRPROP_COMBINE        5 // Комбинированная строка, содержащая набор текстовых свойств
+#define PPTRPROP_RAWADDR        6 // Простое текстовое представление адреса
+#define PPTRPROP_TIMESERIES     7 // Временная серия - специальное свойство, для которого хранится не строка, а STimeSeries.
 	// Применяется только для таблицы UnxTextRefTbl (но не TextRefTbl).
 	// Для оперирования этим свойством объект UnxTextRefCore имеет несколько специализированных методов. Попытка работать с этим
 	// свойством как со строкой инициирует ошибку.
-#define PPTRPROP_DESCR         8 // Строка описания (не путать с PPTRPROP_NAME и PPTRPROP_LONGNAME). Используется, например, в проектах и задачах.
-#define PPTRPROP_CODE          9 // @v11.3.0 Отличается от SYMB тем, что в общем случае может существовать более одного кода для одного объекта
+#define PPTRPROP_DESCR          8 // Строка описания (не путать с PPTRPROP_NAME и PPTRPROP_LONGNAME). Используется, например, в проектах и задачах.
+#define PPTRPROP_CODE           9 // @v11.3.0 Отличается от SYMB тем, что в общем случае может существовать более одного кода для одного объекта
+#define PPTRPROP_RAWDATA_XML   10 // @v12.4.7 Исходные данные использованные для формирования объекта в xml-формате
+#define PPTRPROP_RAWDATA_JSON  11 // @v12.4.7 Исходные данные использованные для формирования объекта в json-формате
 
-#define PPTRPROP_USER        100 // Стартовое значение, с которого можно использовать пользовательские идентификаторы текстовых свойств
+#define PPTRPROP_USER         100 // Стартовое значение, с которого можно использовать пользовательские идентификаторы текстовых свойств
 //
 // Зарезервированные теги объектов
 //
@@ -1937,6 +1941,7 @@
 #define STDCTL_MAPONGEOLOCBUTTON  165 // @v11.6.2 Кнопка запуска функции открытия карты с координатами (cmExecMapOnGeoLoc)
 #define STDCTL_SINGLELISTBOX      166 // @v12.2.2 Список (SmartListBox)
 #define STDCTL_HEADERSTATICTEXT   167 // @v12.2.5 Статический текст (TStaticText) в заголовочной части окна.
+#define STDCTL_TODOBUTTON         168 // @v12.4.7 Кнопка 'Задача' cmToDo
 
 #define cmPPAccSelected          1101 // Сообщение, посылаемое группой
 	// AcctCtrlGroup диалогу-владельцу когда пользователь выбрал новый счет. (AcctCtrlGroup*)InfoPtr
@@ -2038,6 +2043,7 @@
 #define cmRun                    1197 // @v12.3.12 Кнопка запуска основной функции (что бы это не значило)
 #define cmCcExtList              1198 // @v11.8.8
 #define cmCcLnExtList            1199 // @v12.4.1
+#define cmToDo                   1200 // @v12.4.7 Кнопка 'Задача' в документах или еще где-нибудь. Введена ради документов.
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -11890,6 +11896,9 @@
 	// CTL_OPKMORE_XXX
 #define DLG_SELWHOBSMPL           1485 // @v12.4.2 Выбор способа создания документа по образцу документа заказа размещения основных фондов
 	// Ctrls same as for DLG_SELBBSMPL
+#define DLG_TESTSVRPRINT          1586 // @v12.4.7 Параметры теста серверной печати
+	#define CTL_TESTSVRPRINT_PRINTER            (1 + WINDOWS_ID_BIAS)
+	#define CTLSEL_TESTSVRPRINT_PRINTER         (2 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

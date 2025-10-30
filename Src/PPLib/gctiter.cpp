@@ -496,8 +496,8 @@ int FASTCALL GCTIterator::SetupGoodsRest(TransferTbl::Rec * pRec)
 int GCTIterator::InitQuery(int cpMode)
 {
 	int    ok = 1;
-	const  int soft_restr = BIN(Filt.SoftRestrict);
-	const  int calc_links = BIN(OpList.GetCount() && Filt.Flags & OPG_COMPAREWROFF);
+	const  bool soft_restr = LOGIC(Filt.SoftRestrict);
+	const  bool calc_links = (OpList.GetCount() && Filt.Flags & OPG_COMPAREWROFF);
 	struct {
 		PPID  obj;
 		LDATE dt;
@@ -561,9 +561,9 @@ int GCTIterator::InitQuery(int cpMode)
 		else {
 			const LDATE e = NZOR(Period.upp, MAXDATE);
 			if(Filt.GoodsID && !(State & stUseGoodsList)) {
-				dbq   = & (rt->Dt <= e && rt->SupplID == Filt.SupplID);
+				dbq   = &(rt->Dt <= e && rt->SupplID == Filt.SupplID);
 				if(!soft_restr) {
-					dbq = & (rt->GoodsID == Filt.GoodsID);
+					dbq = &(rt->GoodsID == Filt.GoodsID);
 					k.obj = Filt.GoodsID;
 				}
 				else
@@ -679,7 +679,7 @@ int GCTIterator::InitQuery(int cpMode)
 int GCTIterator::NextOuter()
 {
 	int    ok = -1;
-	const  int soft_restr = BIN(Filt.SoftRestrict);
+	const  bool soft_restr = LOGIC(Filt.SoftRestrict);
 	Cbb.Clear();
 	switch(ByWhat_) {
 		case bwLot:
@@ -711,7 +711,7 @@ int GCTIterator::NextOuter()
 int GCTIterator::AcceptTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
 {
 	int    ok = -1;
-	const  int    soft_restr = BIN(Filt.SoftRestrict);
+	const  bool soft_restr = LOGIC(Filt.SoftRestrict);
 	TransferTbl::Rec & rec = Trfr->data;
 	const  PPID goods_id = rec.GoodsID;
 	const  PPID bill_id = rec.BillID;
@@ -819,7 +819,7 @@ int GCTIterator::AcceptTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBill
 int GCTIterator::AcceptCpTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
 {
 	int    ok = -1;
-	const  int    soft_restr = BIN(Filt.SoftRestrict);
+	const  bool soft_restr = LOGIC(Filt.SoftRestrict);
 	CpTransfTbl::Rec & r_cprec = CpTrfr->data;
 	const  PPID goods_id = r_cprec.GoodsID;
 	const  PPID bill_id = r_cprec.BillID;

@@ -342,6 +342,40 @@ const BNField & BNKeyList::field(int key, int seg) const
 		return *static_cast<BNField *>(0);
 }
 
+bool BNKeyList::HasAcsSegWithField(int fldId) const
+{
+	bool    ok = false;
+	const   uint kc = getNumKeys();
+	for(uint i = 0; !ok && i < kc; i++) {
+		const BNKey key = getKey(i);
+		for(uint si = 0; !ok && si < static_cast<uint>(key.getNumSeg()); si++) {
+			const BNField & r_fld = field(i, si);
+			if(r_fld.Id == fldId && key.getFlags(static_cast<int>(si)) & XIF_ACS)
+				ok = true;
+		}
+	}
+	return ok;
+}
+
+bool BNKeyList::GetKeyPosListByField(int fldId, LongArray & rPosList) const
+{
+	rPosList.Z();
+	bool    ok = false;
+	const   uint kc = getNumKeys();
+	for(uint i = 0; i < kc; i++) {
+		const BNKey key = getKey(i);
+		for(uint si = 0; si < static_cast<uint>(key.getNumSeg()); si++) {
+			const BNField & r_fld = field(i, si);
+			if(r_fld.Id == fldId) {
+				rPosList.add(static_cast<long>(i));
+				ok = true;
+				break;
+			}
+		}
+	}
+	return ok;
+}
+
 uint FASTCALL BNKeyList::getKeySize(int key) const
 {
 	BNKey  k = getKey(key);

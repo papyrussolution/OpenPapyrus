@@ -980,22 +980,18 @@ int PPViewCCheck::ProcessCheckRec(const CCheckTbl::Rec * pRec, BExtInsert * pBei
 				PPIDArray goods_id_list;
 				const uint c = CcPack.GetCount();
 				if(c && ((Filt.LowLinesCount <= 0 && Filt.UppLinesCount <= 0) || (c >= Filt.LowLinesCount && c <= Filt.UppLinesCount))) {
-					// @v11.0.0 {
 					SString temp_buf;
 					bool suitable_by_mark = (Filt.Flags & CCheckFilt::fWithMarkOnly) ? false : true;
 					StrAssocArray text_by_row_list;
 					if(Filt.Flags & CCheckFilt::fWithMarkOnly) {
-						PPRef->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, rec.ID, PPTRPROP_CC_LNEXT), temp_buf);
+						PPRef->UtrC.SearchUtf8(TextRefIdent(PPOBJ_CCHECK, rec.ID, PPTRPROP_CC_LNEXT), temp_buf);
 						temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 						CCheckPacket::Helper_UnpackTextExt(temp_buf, 0, &text_by_row_list);
 					}
-					// } @v11.0.0 
 					for(uint i = 0; CcPack.EnumLines(&i, &ln_rec);) {
 						const double ln_q = ln_rec.Quantity;
-						// @v11.0.0 {
 						if(!suitable_by_mark && CCheckPacket::Helper_GetLineTextExt(ln_rec.RByCheck, CCheckPacket::lnextChZnMark, text_by_row_list, temp_buf) > 0)
 							suitable_by_mark = true;
-						// } @v11.0.0 
 						if(CheckLineForFilt(ln_rec)) {
 							const double ln_p = intmnytodbl(ln_rec.Price);
 							qtty  += ln_q;
@@ -2079,7 +2075,7 @@ int FASTCALL PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 								bool suitable_by_goods = (State & stUseGoodsList) ? false : true;
 								bool suitable_by_mark  = (Filt.Flags & CCheckFilt::fWithMarkOnly) ? false : true;
 								if(Filt.Flags & CCheckFilt::fWithMarkOnly) {
-									PPRef->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, _rec.ID, PPTRPROP_CC_LNEXT), temp_buf);
+									PPRef->UtrC.SearchUtf8(TextRefIdent(PPOBJ_CCHECK, _rec.ID, PPTRPROP_CC_LNEXT), temp_buf);
 									temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 									CCheckPacket::Helper_UnpackTextExt(temp_buf, 0, &text_by_row_list);
 									text_by_row_list_loaded = true;
@@ -2087,10 +2083,8 @@ int FASTCALL PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 								for(uint i = 0; CcPack.EnumLines(&i, &ln_rec);) {
 									if(!suitable_by_goods && (!(State & stUseGoodsList) || GoodsList.Has((uint)ln_rec.GoodsID)))
 										suitable_by_goods = true;
-									// @v11.0.0 {
 									if(!suitable_by_mark && CCheckPacket::Helper_GetLineTextExt(ln_rec.RByCheck, CCheckPacket::lnextChZnMark, text_by_row_list, temp_buf) > 0)
 										suitable_by_mark = true;
-									// } @v11.0.0 
 									if((suitable_by_goods && suitable_by_mark) || (Filt.Flags & CCheckFilt::fFiltByCheck)) {
 										qtty  += ln_rec.Quantity;
 										amt   += ln_rec.Quantity * intmnytodbl(ln_rec.Price);
@@ -2116,7 +2110,7 @@ int FASTCALL PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 						}
 						if(suitable) {
 							if(!text_by_row_list_loaded) {
-								PPRef->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, _rec.ID, PPTRPROP_CC_LNEXT), temp_buf);
+								PPRef->UtrC.SearchUtf8(TextRefIdent(PPOBJ_CCHECK, _rec.ID, PPTRPROP_CC_LNEXT), temp_buf);
 								temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 								CCheckPacket::Helper_UnpackTextExt(temp_buf, 0, &text_by_row_list);
 								text_by_row_list_loaded = true;
@@ -2618,7 +2612,7 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			if(r_col.OrgOffs == 5) { // ccheck-code // @v12.3.4
 				if(p_row->CashID == PPPOSN_SHADOW) { // Зарезервированный ид кассового узла для теневых чеков егаис
 					SString temp_buf;
-					PPRef->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, p_row->ID, PPTRPROP_CC_LNEXT), temp_buf);
+					PPRef->UtrC.SearchUtf8(TextRefIdent(PPOBJ_CCHECK, p_row->ID, PPTRPROP_CC_LNEXT), temp_buf);
 					temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 					PPExtStrContainer sc;
 					CCheckPacket::Helper_UnpackTextExt(temp_buf, &sc, 0);
@@ -4220,7 +4214,7 @@ int PPViewCCheck::EditItemInfo(PPID id)
 				if(dr & 0x0010) {
 					SString new_cctext;
 					pack.PackTextExt(new_cctext);
-					THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_CCHECK, pack.Rec.ID, PPTRPROP_CC_LNEXT), new_cctext.Transf(CTRANSF_INNER_TO_UTF8), 0));
+					THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_CCHECK, pack.Rec.ID, PPTRPROP_CC_LNEXT), new_cctext.Transf(CTRANSF_INNER_TO_UTF8), 0));
 				}
 				// } @v12.2.8 
 				THROW(tra.Commit());

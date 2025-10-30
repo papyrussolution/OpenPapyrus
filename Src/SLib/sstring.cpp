@@ -8628,6 +8628,9 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 							if(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), toklen)) {
 								rResultList.AddTok(SNTOK_RU_INN, 1.0f, 0/*flags*/);
 							}
+							else {
+								rResultList.AddTok(SNTOK_RU_INN, 0.01f, 0/*flags*/); // @v12.4.7
+							}
 							break;
 						case 11:
 							{
@@ -8675,8 +8678,11 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 								else
 									rResultList.AddTok(SNTOK_EAN8, 1.0f, 0/*flags*/);
 							}
-							else if(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), toklen)) {
+							if(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), toklen)) {
 								rResultList.AddTok(SNTOK_RU_INN, 1.0f, 0/*flags*/);
+							}
+							else {
+								rResultList.AddTok(SNTOK_RU_INN, 0.01f, 0/*flags*/); // @v12.4.7
 							}
 							break;
 						case 13:

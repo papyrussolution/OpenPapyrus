@@ -911,19 +911,19 @@ void FASTCALL PPObject::Dirty(PPID id)
 	CALLPTRMEMB(p_cache, Dirty(id));
 }
 
-int PPObject::CheckRights(long rt, int oprRights)
+bool PPObject::CheckRights(long rt, int oprRights)
 {
 	Helper_GetRights(0);
-	return (((oprRights ? ORt_ : Rt_) & rt) == rt) ? 1 : PPSetError(PPERR_NORIGHTS);
+	return (((oprRights ? ORt_ : Rt_) & rt) == rt) ? true : PPSetError(PPERR_NORIGHTS);
 }
 
-int FASTCALL PPObject::CheckRights(long rt)
+bool FASTCALL PPObject::CheckRights(long rt)
 {
 	Helper_GetRights(0);
-	return ((Rt_ & rt) == rt) ? 1 : PPSetError(PPERR_NORIGHTS);
+	return ((Rt_ & rt) == rt) ? true : PPSetError(PPERR_NORIGHTS);
 }
 
-int FASTCALL PPObject::CheckRightsModByID(const  PPID * pID)
+bool FASTCALL PPObject::CheckRightsModByID(const  PPID * pID)
 {
 	return pID ? CheckRights(*pID ? PPR_MOD : PPR_INS) : PPSetErrorInvParam();
 }

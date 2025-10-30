@@ -330,7 +330,7 @@ bool FASTCALL DateRange::IsEq(const DateRange & rS) const
 
 long DateRange::GetLength() const
 {
-	// @v12.3.8 Внес изменение: длина детерменированного периода должна быть на 1 больше, чем разница дат.
+	// @v12.3.8 Внес изменение: длина детерминированного периода должна быть на 1 больше, чем разница дат.
 	long   len = 0;
 	if(low == upp) {
 		len = (!low) ? (MAXLONG-1) : 1; // @v12.3.8 0-->1

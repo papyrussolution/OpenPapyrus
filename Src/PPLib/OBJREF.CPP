@@ -31,9 +31,9 @@ ObjViewDialog::ObjViewDialog(uint dlgRez, PPObject * pObj, void * extraPtr) : TD
 		// @v11.3.2 @obsolete P_List->ViewOptions |= ofFramed;
 		P_List->setDef(P_Obj->Selector(0, 0, ExtraPtr));
 		P_List->Draw_();
-		enableCommand(cmaInsert, Rt & PPR_INS);
-		enableCommand(cmaEdit,   Rt & PPR_MOD);
-		enableCommand(cmaDelete, Rt & PPR_DEL);
+		enableCommand(cmaInsert, LOGIC(Rt & PPR_INS));
+		enableCommand(cmaEdit,   LOGIC(Rt & PPR_MOD));
+		enableCommand(cmaDelete, LOGIC(Rt & PPR_DEL));
 	}
 }
 
@@ -2250,7 +2250,7 @@ int PPObjGlobalUserAcc::PutPacket(PPID * pID, PPGlobalUserAccPacket * pPack, int
 				THROW(P_Ref->RemoveItem(Obj, _id, 0));
 				// @v11.9.9 @fix (Reference::RemoveItem does it) THROW(P_Ref->RemoveProperty(Obj, _id, 0, 0));
 				THROW(P_Ref->Ot.PutList(Obj, _id, 0, 0));
-				THROW(P_Ref->UtrC.SetText(TextRefIdent(Obj, _id, PPTRPROP_GUAEXT), static_cast<const wchar_t *>(0), 0)); // @v11.9.9
+				THROW(P_Ref->UtrC.Remove(TextRefIdent(Obj, _id, PPTRPROP_GUAEXT), 0)); // @v11.9.9
 				THROW(RemoveSync(_id));
 				DS.LogAction(PPACN_OBJRMV, Obj, *pID, hid, 0);
 			}
@@ -2278,7 +2278,7 @@ int PPObjGlobalUserAcc::PutPacket(PPID * pID, PPGlobalUserAccPacket * pPack, int
 					THROW(P_Ref->Ot.PutList(Obj, _id, &pPack->TagL, 0));
 					// @v11.9.9 {
 					(ext_buffer = pPack->GetBuffer()).Strip();
-					THROW(P_Ref->UtrC.SetText(TextRefIdent(Obj, _id, PPTRPROP_GUAEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+					THROW(P_Ref->UtrC.SetTextUtf8(TextRefIdent(Obj, _id, PPTRPROP_GUAEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 					// } @v11.9.9 
 					DS.LogAction(PPACN_OBJUPD, Obj, _id, 0, 0);
 				}
@@ -2289,7 +2289,7 @@ int PPObjGlobalUserAcc::PutPacket(PPID * pID, PPGlobalUserAccPacket * pPack, int
 				THROW(P_Ref->Ot.PutList(Obj, _id, &pPack->TagL, 0));
 				// @v11.9.9 {
 				(ext_buffer = pPack->GetBuffer()).Strip();
-				THROW(P_Ref->UtrC.SetText(TextRefIdent(Obj, _id, PPTRPROP_GUAEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0)); // @v11.9.9
+				THROW(P_Ref->UtrC.SetTextUtf8(TextRefIdent(Obj, _id, PPTRPROP_GUAEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0)); // @v11.9.9
 				// } @v11.9.9 
 				THROW(SendObjMessage(DBMSG_GLOBALACCADDED, PPOBJ_ARTICLE, Obj, _id) == DBRPL_OK);
 				DS.LogAction(PPACN_OBJADD, Obj, _id, 0, 0);
@@ -2318,7 +2318,7 @@ int PPObjGlobalUserAcc::GetPacket(PPID id, PPGlobalUserAccPacket * pPack)
 		// @v11.9.9 {
 		{
 			SString text_buf;
-			THROW(P_Ref->UtrC.GetText(TextRefIdent(Obj, id, PPTRPROP_GUAEXT), text_buf));
+			THROW(P_Ref->UtrC.SearchUtf8(TextRefIdent(Obj, id, PPTRPROP_GUAEXT), text_buf));
 			text_buf.Transf(CTRANSF_UTF8_TO_INNER);
 			pPack->SetBuffer(text_buf.Strip());
 		}

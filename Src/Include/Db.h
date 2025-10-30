@@ -1303,7 +1303,7 @@ public:
 	int    removeKey(int key);
 	uint   FASTCALL getKeySize(int key) const;
 	uint   getSegOffset(int key, int seg) const;
-	const BNField & field(int key, int seg) const;
+	const  BNField & field(int key, int seg) const;
 	//
 	// makeKey returns:
 	//   0 - segment can not be assigned (parameter seg > 0 || cmp == _NE_)
@@ -1317,6 +1317,12 @@ public:
 	//
 	BNKey  FASTCALL getKey(int position) const;
 	BNKey  FASTCALL operator[](int i) const { return getKey(i); }
+	bool   GetKeyPosListByField(int fldId, LongArray & rPosList) const;
+	//
+	// Descr: Возвращает true если существует хотя бы один индекс, в котором есть ACS-сегмент (alternate collating)
+	//   с полем fldId.
+	//
+	bool   HasAcsSegWithField(int fldId) const;
 
 	uint   setBound(int key, int seg, int min_max /*0 - min, !0 - max*/, void * dest) const;
 	void   FASTCALL setTableRef(uint);
@@ -1849,7 +1855,7 @@ private:
 	long   State;
 	DbProvider * P_Db;      // @notowned Указатель на провайдера БД
 	SelectStmt * P_Stmt;    // Последний SQL-оператор, использовавшийся для поиска
-	SelectStmt * P_OppStmt; // SQL-оператор, сохраняемый при переключении направления выборки.
+	// @v12.4.7 SelectStmt * P_OppStmt; // SQL-оператор, сохраняемый при переключении направления выборки.
 	DBRowId CurRowId;       // Текущая позиция записи (используется для SQL-серверов)
 	DBRowId LastLockedRow;  // Позиция последней заблокированной записи. Используется для разблокировки, если не было изменения.
 	BTBLID tableID;         // X$FILE.XfId
@@ -1860,9 +1866,9 @@ private:
 	RECORDSIZE FixRecSize; // @*DBTable::open
 	uint16 PageSize;       // Размер страницы, определенный в спецификации.
 #if CXX_ARCH_BITS==64
-	uint8  Reserve[30];    // @alignment // @v12.4.3 [14]->[30] 
+	uint8  Reserve[38];    // @alignment // @v12.4.3 [14]->[30] // @v12.4.7 [30]-->[38]
 #else
-	uint8  Reserve[2];     // @alignment // @v12.4.3 [18]->[2] 
+	uint8  Reserve[6];     // @alignment // @v12.4.3 [18]->[2] // @v12.4.7 [2]-->[6]
 #endif
 	BTABLENAME tableName;
 	BNFieldList2 fields; // @v12.4.3 BNFieldList->BNFieldList2
@@ -2579,6 +2585,7 @@ public:
 		tokIndexedBy, // @v12.4.0 sqlite "indexed by"
 		tokOrderBy, // @v12.4.0
 		tokTemp,    // @v12.4.4
+		tokCollate, // @v12.4.7
 		
 		tokCountOfTokens,
 	};
@@ -2622,8 +2629,8 @@ public:
 		ctfIndent      = 0x0004
 	};
 
-	int    CreateTable(const DBTable & rTbl, const char * pFileName, uint flags/*ctfXXX*/);
-	int    CreateIndex(const DBTable & rTbl, const char * pFileName, uint n);
+	int    CreateTable(const DBTable & rTbl, const char * pFileName, uint flags/*ctfXXX*/, const char * pCollationSymb);
+	int    CreateIndex(const DBTable & rTbl, const char * pFileName, uint n, const char * pCollationSymb);
 	int    GetIndexName(const DBTable & rTbl, uint n, SString & rBuf);
 	int    CreateSequenceOnField(const DBTable & rTbl, const char * pFileName, uint fldN, long newVal);
 	int    GetSequenceNameOnField(const DBTable & rTbl, uint fldN, SString & rBuf);
@@ -3004,19 +3011,9 @@ private:
 	int    ResetStatement(SSqlStmt & rS);
 
 	struct SearchQueryBlock {
-		SearchQueryBlock() : Flags(0), SrchMode(0), P_KeyData(0), SqlG(sqlstSQLite, 0)
-		{
-			memzero(TempKey, sizeof(TempKey));
-		}
-		SearchQueryBlock & Z()
-		{
-			Flags = 0;
-			SrchMode = 0;
-			P_KeyData = 0;
-			SqlG.Z();
-			memzero(TempKey, sizeof(TempKey));
-			return *this;
-		}
+		SearchQueryBlock();
+		SearchQueryBlock & Z();
+
 		enum {
 			fCanContinue = 0x0001
 		};
@@ -3894,20 +3891,20 @@ public:
 			stTop,
 			stBottom
 		};
-		const  uint Size;        // Size of buffer (records)
-		char * P_Buf;            // Data buffer
+		const  uint Size;   // Size of buffer (records)
+		char * P_Buf;       // Data buffer
 		DBRowId * P_PosBuf; // Position buffer // @v12.4.6 RECORDNUMBER-->DBRowId
 		uint   Zero;
 		uint   State;
 		uint   Inc;
-		uint   Height;  // Size of frame of view
+		uint   Height;       // Size of frame of view
 		uint   Top;
 		uint   Cur;
 		uint   SDelta;
 		uint   SRange;
 		uint   SPos;
 		uint   Last;
-		uint   Count; // Number of records in buffer
+		uint   CountF;       // Number of records in buffer. Suffix 'F' для уникальности (рефакторинг)
 	};
 	struct Tbl {
 		Tbl();

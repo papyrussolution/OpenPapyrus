@@ -115,8 +115,8 @@ static BOOL CALLBACK CloseTooltipWnd2(HWND hwnd, LPARAM lParam)
 
 /*static*/void FASTCALL SMessageWindow::DestroyByParent(HWND parent)
 {
-	EnumWindows(CloseTooltipWnd, reinterpret_cast<LPARAM>(parent));
-	EnumChildWindows(parent, CloseTooltipWnd2, 0);
+	::EnumWindows(CloseTooltipWnd, reinterpret_cast<LPARAM>(parent));
+	::EnumChildWindows(parent, CloseTooltipWnd2, 0);
 }
 
 /*static*/LRESULT CALLBACK ImgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)

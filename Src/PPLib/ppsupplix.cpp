@@ -13524,6 +13524,7 @@ public:
 		};
 
 		TSCollection <OrderItem> OrderList;
+		SString RawData_Xml; // Оригинальный xml-документ. Нужен для сохранения для последующего использования при формировании ответа.
 	};
 	COCACOLA(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger);
 	~COCACOLA();
@@ -13546,22 +13547,27 @@ private:
 	//
 	int    Test_CreateAddresses(const TSCollection <BailmentOrderSet> & rOrdSetList);
 	int    MakeLocationPacket(const BailmentOrderSet::PartnerItem & rI, PPLocationPacket & rLocPack);
-	int    MakeReply(PPID billID, StringSet & rSsResultFileNames);
+	int    MakeReply(const BillTbl::Rec & rOrderBillRec, PPID billID, StringSet & rSsResultFileNames);
+	int    ImportBailmentOrders();
+	int    ExportBailentReplies();
+	int    Helper_CreateToDoOnOrderEntry(const BailmentOrderSet::OrderItem * pOrd, PPID todoCodeTagID, const LocTransfOpBlock & rLti, long todoSerial, SString & rTodoCode, int use_ta);
 
 	PPLogger & R_Logger;
 	TokenSymbHashTable TsHt;
 	PPID   LocCodeTagID;
+	PPObjPrjTask TodoObj;
 };
 
-int COCACOLA::MakeReply(PPID billID, StringSet & rSsResultFileNames)
+int COCACOLA::MakeReply(const BillTbl::Rec & rOrderBillRec, PPID billID, StringSet & rSsResultFileNames)
 {
 	int    ok = -1;
+	const  LDATETIME _now_dtm = getcurdatetime_();
 	SString temp_buf;
 	if(billID) {
 		PPBillPacket bpack;
-		if(P_BObj->ExtractPacket(billID, &bpack) > 0) {
+		if(P_BObj->ExtractPacket(billID, &bpack) > 0 && bpack.Rec.LinkBillID == rOrderBillRec.ID) {
 			PPOprKind op_rec;
-			if(GetOpType(bpack.OpTypeID, &op_rec) == PPOPT_WAREHOUSE && oneof2(op_rec.SubType, OPSUBT_BAILMENT_PUT, OPSUBT_BAILMENT_GET)) {
+			if(GetOpType(bpack.Rec.OpID, &op_rec) == PPOPT_WAREHOUSE && oneof2(op_rec.SubType, OPSUBT_BAILMENT_PUT, OPSUBT_BAILMENT_GET)) {
 				const uint ltc = SVectorBase::GetCount(bpack.P_LocTrfrList);
 				if(ltc) {
 					SString svc_file_name; // SERVICE    "Data_xxxx_date"
@@ -13572,6 +13578,8 @@ int COCACOLA::MakeReply(PPID billID, StringSet & rSsResultFileNames)
 						const LocTransfOpBlock & r_lti = bpack.P_LocTrfrList->at(lti);
 						{
 							// EQUIPMENT "MOV_xxxx_date"
+							temp_buf.Z().Cat("MOV").CatChar('_').Cat(rOrderBillRec.Code).CatChar('_').Cat(_now_dtm.d, DATF_YMD|DATF_NODIV).DotCat("xml");
+							PPGetFilePath(PPPATH_OUT, temp_buf, equ_file_name);
 							xmlTextWriter * p_x = xmlNewTextWriterFilename(equ_file_name, 0);
 							if(p_x) {
 								/*
@@ -13596,13 +13604,26 @@ int COCACOLA::MakeReply(PPID billID, StringSet & rSsResultFileNames)
 									SXml::WNode n_m(p_x, "EQUI_MOVE"); // Тип файла
 									{
 										SXml::WNode n_i(p_x, "ITEM");
-										n_i.PutInner("TYPE", ""); // Тип движения : (GI- Выдача (при установки на клиента) GR - Получение (снятие на склад с клиента))
+										{
+											const char * p_item_type = 0;
+											if(r_lti.LTOp == LOCTRFROP_PUT)
+												p_item_type = "GI";
+											else if(r_lti.LTOp == LOCTRFROP_GET)
+												p_item_type = "GR";
+											n_i.PutInner("TYPE", p_item_type); // Тип движения : (GI- Выдача (при установки на клиента) GR - Получение (снятие на склад с клиента))
+										}
 										n_i.PutInner("EQUNR", ""); // Номер единицы оборудования 
 										n_i.PutInner("BARCODE", ""); // Штрих код оборудования/инвентарный номер
 										n_i.PutInner("PLANT", ""); // Завод (доп. файл Мултон IH08)
 										n_i.PutInner("SLOCATION", ""); // Склад (доп. файл Мултон IH08)
-										n_i.PutInner("ORDER", ""); // Номер заказа (из файла XML Мултон <SORDER>)
-										n_i.PutInner("STTXU", ""); // Новый статус оборудования (при GI – поле должно быть пустое <STTXU/>, при GR – TBRF)
+										n_i.PutInner("ORDER", (temp_buf = rOrderBillRec.Code)); // Номер заказа (из файла XML Мултон <SORDER>)
+										{
+											const char * p_item_sstxu = 0;
+											if(r_lti.LTOp == LOCTRFROP_GET) {
+												p_item_sstxu = "TBRF";
+											}
+											n_i.PutInner("STTXU", p_item_sstxu); // Новый статус оборудования (при GI – поле должно быть пустое <STTXU/>, при GR – TBRF)
+										}
 									}
 								}
 							}
@@ -13610,6 +13631,8 @@ int COCACOLA::MakeReply(PPID billID, StringSet & rSsResultFileNames)
 						}
 						{
 							// SERVICE "Data_xxxx_date"
+							temp_buf.Z().Cat("SERVICE").CatChar('_').Cat(rOrderBillRec.Code).CatChar('_').Cat(_now_dtm.d, DATF_YMD|DATF_NODIV).DotCat("xml");
+							PPGetFilePath(PPPATH_OUT, temp_buf, svc_file_name);
 							xmlTextWriter * p_x = xmlNewTextWriterFilename(svc_file_name, 0);
 							if(p_x) {
 								/*
@@ -13776,34 +13799,82 @@ int COCACOLA::IdentifyAddress(const BailmentOrderSet::PartnerItem & rOuterItem, 
 	return ok;
 }
 
-int COCACOLA::ProcessBailmentExchange()
+int COCACOLA::Helper_CreateToDoOnOrderEntry(const BailmentOrderSet::OrderItem * pOrd, PPID todoCodeTagID, const LocTransfOpBlock & rLti, long todoSerial, SString & rTodoCode, int use_ta)
+{
+	rTodoCode.Z();
+	int    ok = -1;
+	SString temp_buf;
+	if(todoCodeTagID) { // @construction
+		{
+			if(pOrd->QMNUM.NotEmpty())
+				rTodoCode = pOrd->QMNUM;
+			else
+				rTodoCode = pOrd->SOrdNo;
+			if(todoSerial) {
+				rTodoCode.CatChar('-').CatLongZ(todoSerial+1, 2);
+			}
+			rTodoCode.Transf(CTRANSF_UTF8_TO_INNER);
+		}
+		PPID   todo_id = 0;
+		PPPrjTaskPacket todo_pack;
+		TodoObj.InitPacket_(todo_pack, TODOKIND_TASK, 0, rLti.LocOwnerPersonID, 0, use_ta);
+		todo_pack.Rec.Kind = TODOKIND_TASK;
+		STRNSCPY(todo_pack.Rec.Code, rTodoCode);
+		todo_pack.Rec.Dt = pOrd->MsgCrDate;
+		todo_pack.Rec.EstFinishDt = pOrd->DueDate;
+		todo_pack.Rec.ClientID = rLti.LocOwnerPersonID;
+		todo_pack.Rec.DlvrAddrID = rLti.LocID;
+		todo_pack.Rec.Amount = pOrd->Price;
+		{
+			temp_buf.Z();
+			if(pOrd->Service.NotEmpty())
+				temp_buf.Cat(pOrd->Service).CatDiv(':', 2);
+			if(pOrd->TaskListText.NotEmpty()) 
+				temp_buf.Cat(pOrd->TaskListText);
+			todo_pack.SDescr = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+		}
+		{
+			(todo_pack.SMemo = pOrd->LText).Transf(CTRANSF_UTF8_TO_INNER);
+		}
+		THROW(TodoObj.PutPacket(&todo_id, &todo_pack, use_ta));
+		//bpack.LTagL.SetString(todoCodeTagID, local_lt_pos, todo_code);
+		ok = 1;
+	}
+	CATCHZOK
+	return ok;
+}
+
+int COCACOLA::ImportBailmentOrders()
 {
 	int    ok = -1;
-	bool   debug_mark = false;
+	Reference * p_ref = PPRef;
+	PPObjTag tag_obj;
 	SString temp_buf;
 	SString fmt_buf;
 	SString msg_buf;
 	SString bill_text;
 	TSCollection <BailmentOrderSet> ordset_list;
-	SString in_dir("D:/Papyrus/Src/VBA/0-Coke-Sannikova/TASK/esi-samples"); // @debug
-	SDirEntry de;
-	(temp_buf = in_dir).SetLastSlash().CatChar('*').DotCat("*");
-	for(SDirec dir(temp_buf); dir.Next(&de) > 0;) {
-		if(!de.IsSelf() && !de.IsUpFolder()) {
-			if(de.IsFile()) {
-				de.GetNameUtf8(in_dir, temp_buf);
-				PPXmlFileDetector xfd;
-				int    format = 0;
-				if(xfd.Run(temp_buf, &format)) {
-					if(format == xfd.SAP_Order_Cocacola) {
-						//ParseBailmentOrder(const char * pInBuf, BailmentOrderSet & rR)
-						uint    new_ord_set_pos = 0;
-						BailmentOrderSet * p_new_ord_set = ordset_list.CreateNewItem(&new_ord_set_pos);
-						if(ParseBailmentOrderFile(temp_buf, *p_new_ord_set)) {
-							; // PPTXT_
-						}
-						else {
-							ordset_list.atFree(new_ord_set_pos);
+	{
+		SDirEntry de;
+		SString in_dir("D:/Papyrus/Src/VBA/0-Coke-Sannikova/TASK/esi-samples"); // @debug
+		(temp_buf = in_dir).SetLastSlash().CatChar('*').DotCat("*");
+		for(SDirec dir(temp_buf); dir.Next(&de) > 0;) {
+			if(!de.IsSelf() && !de.IsUpFolder()) {
+				if(de.IsFile()) {
+					de.GetNameUtf8(in_dir, temp_buf);
+					PPXmlFileDetector xfd;
+					int    format = 0;
+					if(xfd.Run(temp_buf, &format)) {
+						if(format == xfd.SAP_Order_Cocacola) {
+							//ParseBailmentOrder(const char * pInBuf, BailmentOrderSet & rR)
+							uint    new_ord_set_pos = 0;
+							BailmentOrderSet * p_new_ord_set = ordset_list.CreateNewItem(&new_ord_set_pos);
+							if(ParseBailmentOrderFile(temp_buf, *p_new_ord_set)) {
+								; // PPTXT_
+							}
+							else {
+								ordset_list.atFree(new_ord_set_pos);
+							}
 						}
 					}
 				}
@@ -13813,6 +13884,7 @@ int COCACOLA::ProcessBailmentExchange()
 	{
 		const  PPID suppl_id = P.SupplID;
 		const  PPID order_op_id = FindBailmentOrderOp();
+		PPID   todo_code_tag_id = 0;
 		PPOprKind op_rec;
 		THROW_PP(GetOpData(order_op_id, &op_rec) > 0, PPERR_SUPPLIX_UNDEFOPBAILMENTORD);
 		if(P.Flags & SupplInterchangeFilt::fTestMode) {
@@ -13826,248 +13898,356 @@ int COCACOLA::ProcessBailmentExchange()
 			THROW_PP(loc_id, PPERR_SUPPLIX_WAREHOUSEUNDEF);
 			THROW_PP(LocCodeTagID, PPERR_SUPPLIX_UNDEFLOCCTAG_COCACOLA);
 			THROW(ArObj.Fetch(suppl_id, &suppl_ar_rec) > 0);
-			for(uint i = 0; i < ordset_list.getCount(); i++) {
-				const BailmentOrderSet * p_ordset = ordset_list.at(i);
-				if(p_ordset) {
-					for(uint ordi = 0; ordi < p_ordset->OrderList.getCount(); ordi++) {
-						const BailmentOrderSet::OrderItem * p_ord = p_ordset->OrderList.at(ordi);
-						if(p_ord) {
-							PPBillPacket bpack;
-							if(bpack.CreateBlank_WithoutCode(order_op_id, 0, loc_id, 1)) {
-								PPID   ex_bill_id = 0;
-								BillTbl::Rec ex_bill_rec;
-								int    edi_op = 0;
+			{
+				PPID    _tag_id = 0;
+				if(tag_obj.FetchBySymb("SERVICE-TODO-CODE", &_tag_id) > 0) {
+					PPObjectTag tag_rec;
+					if(tag_obj.Fetch(_tag_id, &tag_rec) > 0 && tag_rec.TagDataType == OTTYP_STRING) {
+						todo_code_tag_id = _tag_id;	
+					}
+				}
+			}
+			{
+				// Все проделываем в одной транзакции. Тому есть как минимум одна причина, при создании строк документов, вероятно,
+				// придется создавать задачи сервисного обслуживания. Если документ не пройдет, то и задачи не должны сохраниться.
+				PPTransaction tra(1);
+				THROW(tra);
+				for(uint i = 0; i < ordset_list.getCount(); i++) {
+					const BailmentOrderSet * p_ordset = ordset_list.at(i);
+					if(p_ordset) {
+						for(uint ordi = 0; ordi < p_ordset->OrderList.getCount(); ordi++) {
+							const BailmentOrderSet::OrderItem * p_ord = p_ordset->OrderList.at(ordi);
+							if(p_ord) {
+								PPBillPacket bpack;
+								long   todo_serial = 0; // Порядковый номер, добвляемый в качестве суффикса номара задачи в случае, 
+									// если с заказом связано более одной задачи.
+								if(bpack.CreateBlank_WithoutCode(order_op_id, 0, loc_id, 1)) {
+									PPID   ex_bill_id = 0;
+									BillTbl::Rec ex_bill_rec;
+									int    edi_op = 0;
 
-								bpack.Rec.Dt = p_ord->MsgCrDate;
-								bpack.Rec.DueDate = p_ord->DueDate;
-								STRNSCPY(bpack.Rec.Code, p_ord->SOrdNo);
-								if(op_rec.AccSheetID == suppl_ar_rec.AccSheetID) {
-									bpack.Rec.Object = suppl_ar_rec.ID;
-								}
-								(bpack.SMemo = p_ord->LText).Transf(CTRANSF_UTF8_TO_INNER);
-								PPObjBill::MakeCodeString(&bpack.Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
-								if(P_BObj->P_Tbl->SearchAnalog(&bpack.Rec, BillCore::safDefault, &ex_bill_id, &ex_bill_rec) > 0) {
-									(temp_buf = bill_text).Quot('(', ')');
-									if(PPGetMessage(mfError, PPERR_DOC_ALREADY_EXISTS, temp_buf, 1, msg_buf))
-										R_Logger.Log(msg_buf);
-								}
-								else if(p_ord->Eq.IsEmpty()) {
-									; // @todo @msg
-								}
-								else {
-									PPID    goods_id = 0;
-									PPID    lot_id = 0;
-									Goods2Tbl::Rec goods_rec;
-									ReceiptTbl::Rec lot_rec;
-									PPIDArray lot_by_serial_list;
-									PPIDArray goods_by_serial_list;
-									if(p_ord->Eq.Serial.NotEmpty()) {
-										P_BObj->SearchLotsBySerialExactly(p_ord->Eq.Serial, &lot_by_serial_list);
-										for(uint lotidx = 0; lotidx < lot_by_serial_list.getCount(); lotidx++) {
-											const PPID local_lot_id = lot_by_serial_list.get(lotidx);
-											if(P_BObj->trfr->Rcpt.Search(local_lot_id, &lot_rec) > 0)
-												goods_by_serial_list.add(lot_rec.GoodsID);
-										}
-										goods_by_serial_list.sortAndUndup();
+									bpack.Rec.Dt = p_ord->MsgCrDate;
+									bpack.Rec.DueDate = p_ord->DueDate;
+									STRNSCPY(bpack.Rec.Code, p_ord->SOrdNo);
+									if(op_rec.AccSheetID == suppl_ar_rec.AccSheetID) {
+										bpack.Rec.Object = suppl_ar_rec.ID;
 									}
-									if(p_ord->Eq.Barcode.NotEmpty() && GObj.SearchByBarcode(p_ord->Eq.Barcode, 0, &goods_rec, 0) > 0) {
-										goods_id = goods_rec.ID;
+									(bpack.SMemo = p_ord->LText).Transf(CTRANSF_UTF8_TO_INNER);
+									PPObjBill::MakeCodeString(&bpack.Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
+									if(P_BObj->P_Tbl->SearchAnalog(&bpack.Rec, BillCore::safDefault, &ex_bill_id, &ex_bill_rec) > 0) {
+										(temp_buf = bill_text).Quot('(', ')');
+										if(PPGetMessage(mfError, PPERR_DOC_ALREADY_EXISTS, temp_buf, 1, msg_buf))
+											R_Logger.Log(msg_buf);
+									}
+									else if(p_ord->Eq.IsEmpty()) {
+										; // @todo @msg
 									}
 									else {
-										PPIDArray local_goods_list;
-										if(p_ord->Eq.Model.NotEmpty()) {
-											GObj.P_Tbl->GetListBySubstring(p_ord->Eq.Model, &local_goods_list, -1, false);
-										}
-										else if(p_ord->Eq.Cat.NotEmpty()) {
-											GObj.P_Tbl->GetListBySubstring(p_ord->Eq.Cat, &local_goods_list, -1, false);
-										}
-										if(local_goods_list.getCount()) {
-											if(local_goods_list.getCount() == 1) {
-												goods_id = local_goods_list.get(0);
-											}
-											else {
-												assert(local_goods_list.getCount());
-												if(goods_by_serial_list.getCount()) {
-													PPIDArray temp_list(local_goods_list);
-													temp_list.intersect(&goods_by_serial_list);
-													if(temp_list.getCount() == 1) {
-														goods_id = temp_list.get(0);
-													}
-													else if(temp_list.getCount() > 0) {
-														; // Не знаю пока что делать в этом случае
-													}
-												}
-											}
-										}
-									}
-									if(!goods_id) {
-										//PPTXT_LOG_SUPPLIX_GOODSNFOUND
-										PPFormatT(PPTXT_LOG_SUPPLIX_GOODSNFOUND, &msg_buf, bill_text.cptr());
-										if(p_ord->Eq.Barcode.NotEmpty()) {
-											msg_buf.Space().Cat(p_ord->Eq.Barcode);
-										}
-										temp_buf.Z();
-										if(p_ord->Eq.Cat.NotEmpty())
-											temp_buf.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Cat);
-										if(p_ord->Eq.Model.NotEmpty())
-											temp_buf.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Model);
-										if(p_ord->Eq.Brand.NotEmpty())
-											temp_buf.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Brand);
-										if(p_ord->Eq.Barcode.NotEmpty())
-											temp_buf.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Barcode);
-										if(p_ord->Eq.Serial.NotEmpty())
-											temp_buf.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Serial);
-										if(temp_buf.NotEmptyS()) {
-											msg_buf.Space().CatChar('[').Cat(temp_buf).CatChar(']');
-										}
-										R_Logger.Log(msg_buf);
-									}
-									else {
-										PPID    final_lot_id = 0;
-										if(lot_by_serial_list.getCount()) {
-											for(uint lotidx = 0; !final_lot_id && lotidx < lot_by_serial_list.getCount(); lotidx++) {
+										PPID    goods_id = 0;
+										PPID    lot_id = 0;
+										Goods2Tbl::Rec goods_rec;
+										ReceiptTbl::Rec lot_rec;
+										PPIDArray lot_by_serial_list;
+										PPIDArray goods_by_serial_list;
+										if(p_ord->Eq.Serial.NotEmpty()) {
+											P_BObj->SearchLotsBySerialExactly(p_ord->Eq.Serial, &lot_by_serial_list);
+											for(uint lotidx = 0; lotidx < lot_by_serial_list.getCount(); lotidx++) {
 												const PPID local_lot_id = lot_by_serial_list.get(lotidx);
-												if(P_BObj->trfr->Rcpt.Search(local_lot_id, &lot_rec) > 0 && lot_rec.GoodsID == goods_id && lot_rec.LocID == loc_id)
-													final_lot_id = local_lot_id;
+												if(P_BObj->trfr->Rcpt.Search(local_lot_id, &lot_rec) > 0)
+													goods_by_serial_list.add(lot_rec.GoodsID);
 											}
+											goods_by_serial_list.sortAndUndup();
 										}
-										if(p_ord->AUART == BailmentOrderSet::opMov) {
-											// there is a dedicated branch for the opMov operation because of this op constists of two sub-ops:
-											// LOCTRFROP_GET and LOCTRFROP_PUT
-											edi_op = PPEDIOP_POS2POSMOVEMENTORDER;
-											//
-											// Здесь будет сдвоенная операция: get & put
-											//
-											PPID   lt_loc_donor_id = 0; // Точка с которой забирают оборудование (SP)
-											PPID   lt_loc_rcpnt_id = 0; // Точка на которую передают оборудование (YP)
-											for(uint pi = 0; pi < p_ord->PartnerList.getCount(); pi++) {
-												const BailmentOrderSet::PartnerItem * p_pi = p_ord->PartnerList.at(pi);
-												if(p_pi) {
-													if(p_pi->Itic == PPEanComDocument::iticSP) {
-														if(IdentifyAddress(*p_pi, &lt_loc_donor_id) > 0) {
-															;
-														}
-														else {
-															; // @errmsg
-														}
-													}
- 													else if(p_pi->Itic == PPEanComDocument::iticYP) {
-														if(IdentifyAddress(*p_pi, &lt_loc_rcpnt_id) > 0) {
-															;
-														}
-														else {
-															; // @errmsg
-														}
-													}
-												}
+										if(p_ord->Eq.Barcode.NotEmpty() && GObj.SearchByBarcode(p_ord->Eq.Barcode, 0, &goods_rec, 0) > 0) {
+											goods_id = goods_rec.ID;
+										}
+										else {
+											PPIDArray local_goods_list;
+											if(p_ord->Eq.Model.NotEmpty()) {
+												GObj.P_Tbl->GetListBySubstring(p_ord->Eq.Model, &local_goods_list, -1, false);
 											}
-											if(lt_loc_donor_id && lt_loc_rcpnt_id) {
-												LocationTbl::Rec loc_donor_rec;
-												LocationTbl::Rec loc_rcpnt_rec;
-												LocTransfOpBlock lti_get(LOCTRFRDOMAIN_BAILMENT, LOCTRFROP_GET, lt_loc_donor_id);
-												LocTransfOpBlock lti_put(LOCTRFRDOMAIN_BAILMENT, LOCTRFROP_PUT, lt_loc_rcpnt_id);
-												if(LocObj.Search(lt_loc_donor_id, &loc_donor_rec) <= 0) {
-													; // @erro
-												}
-												else if(LocObj.Search(lt_loc_rcpnt_id, &loc_rcpnt_rec) <= 0) {
-													; // @erro
-												}
-												else if(!loc_donor_rec.OwnerID) {
-													; // @erro
-												}
-												else if(!loc_rcpnt_rec.OwnerID) {
-													; // @erro
+											else if(p_ord->Eq.Cat.NotEmpty()) {
+												GObj.P_Tbl->GetListBySubstring(p_ord->Eq.Cat, &local_goods_list, -1, false);
+											}
+											if(local_goods_list.getCount()) {
+												if(local_goods_list.getCount() == 1) {
+													goods_id = local_goods_list.get(0);
 												}
 												else {
-													lti_get.LocOwnerPersonID = loc_donor_rec.OwnerID;
-													lti_get.GoodsID = goods_id;
-													lti_get.LotID = final_lot_id;
-													lti_get.Qtty = 1.0;
-													lti_get.Flags |= (LOCTRF_ORDER|LOCTRF_OWNEDBYBILL);
+													assert(local_goods_list.getCount());
+													if(goods_by_serial_list.getCount()) {
+														PPIDArray temp_list(local_goods_list);
+														temp_list.intersect(&goods_by_serial_list);
+														if(temp_list.getCount() == 1) {
+															goods_id = temp_list.get(0);
+														}
+														else if(temp_list.getCount() > 0) {
+															; // Не знаю пока что делать в этом случае
+														}
+													}
+												}
+											}
+										}
+										if(!goods_id) {
+											//PPTXT_LOG_SUPPLIX_GOODSNFOUND
+											PPFormatT(PPTXT_LOG_SUPPLIX_GOODSNFOUND, &msg_buf, bill_text.cptr());
+											if(p_ord->Eq.Barcode.NotEmpty()) {
+												msg_buf.Space().Cat(p_ord->Eq.Barcode);
+											}
+											temp_buf.Z();
+											if(p_ord->Eq.Cat.NotEmpty())
+												temp_buf.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Cat);
+											if(p_ord->Eq.Model.NotEmpty())
+												temp_buf.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Model);
+											if(p_ord->Eq.Brand.NotEmpty())
+												temp_buf.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Brand);
+											if(p_ord->Eq.Barcode.NotEmpty())
+												temp_buf.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Barcode);
+											if(p_ord->Eq.Serial.NotEmpty())
+												temp_buf.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Serial);
+											if(temp_buf.NotEmptyS()) {
+												msg_buf.Space().CatChar('[').Cat(temp_buf).CatChar(']');
+											}
+											R_Logger.Log(msg_buf);
+										}
+										else {
+											PPID    final_lot_id = 0;
+											if(lot_by_serial_list.getCount()) {
+												for(uint lotidx = 0; !final_lot_id && lotidx < lot_by_serial_list.getCount(); lotidx++) {
+													const PPID local_lot_id = lot_by_serial_list.get(lotidx);
+													if(P_BObj->trfr->Rcpt.Search(local_lot_id, &lot_rec) > 0 && lot_rec.GoodsID == goods_id && lot_rec.LocID == loc_id)
+														final_lot_id = local_lot_id;
+												}
+											}
+											if(p_ord->AUART == BailmentOrderSet::opMov) {
+												// there is a dedicated branch for the opMov operation because of this op constists of two sub-ops:
+												// LOCTRFROP_GET and LOCTRFROP_PUT
+												edi_op = PPEDIOP_POS2POSMOVEMENTORDER;
+												//
+												// Здесь будет сдвоенная операция: get & put
+												//
+												PPID   lt_loc_donor_id = 0; // Точка с которой забирают оборудование (SP)
+												PPID   lt_loc_rcpnt_id = 0; // Точка на которую передают оборудование (YP)
+												for(uint pi = 0; pi < p_ord->PartnerList.getCount(); pi++) {
+													const BailmentOrderSet::PartnerItem * p_pi = p_ord->PartnerList.at(pi);
+													if(p_pi) {
+														if(p_pi->Itic == PPEanComDocument::iticSP) {
+															if(IdentifyAddress(*p_pi, &lt_loc_donor_id) > 0) {
+																;
+															}
+															else {
+																; // @errmsg
+															}
+														}
+ 														else if(p_pi->Itic == PPEanComDocument::iticYP) {
+															if(IdentifyAddress(*p_pi, &lt_loc_rcpnt_id) > 0) {
+																;
+															}
+															else {
+																; // @errmsg
+															}
+														}
+													}
+												}
+												if(lt_loc_donor_id && lt_loc_rcpnt_id) {
+													LocationTbl::Rec loc_donor_rec;
+													LocationTbl::Rec loc_rcpnt_rec;
+													LocTransfOpBlock lti_get(LOCTRFRDOMAIN_BAILMENT, LOCTRFROP_GET, lt_loc_donor_id);
+													LocTransfOpBlock lti_put(LOCTRFRDOMAIN_BAILMENT, LOCTRFROP_PUT, lt_loc_rcpnt_id);
+													if(LocObj.Search(lt_loc_donor_id, &loc_donor_rec) <= 0) {
+														; // @erro
+													}
+													else if(LocObj.Search(lt_loc_rcpnt_id, &loc_rcpnt_rec) <= 0) {
+														; // @erro
+													}
+													else if(!loc_donor_rec.OwnerID) {
+														; // @erro
+													}
+													else if(!loc_rcpnt_rec.OwnerID) {
+														; // @erro
+													}
+													else {
+														lti_get.LocOwnerPersonID = loc_donor_rec.OwnerID;
+														lti_get.GoodsID = goods_id;
+														lti_get.LotID = final_lot_id;
+														lti_get.Qtty = 1.0;
+														lti_get.Flags |= (LOCTRF_ORDER|LOCTRF_OWNEDBYBILL);
 
-													lti_put.LocOwnerPersonID = loc_rcpnt_rec.OwnerID;
-													lti_put.GoodsID = goods_id;
-													lti_put.LotID = final_lot_id;
-													lti_put.Qtty = 1.0;
-													lti_put.Flags |= (LOCTRF_ORDER|LOCTRF_OWNEDBYBILL);
+														lti_put.LocOwnerPersonID = loc_rcpnt_rec.OwnerID;
+														lti_put.GoodsID = goods_id;
+														lti_put.LotID = final_lot_id;
+														lti_put.Qtty = 1.0;
+														lti_put.Flags |= (LOCTRF_ORDER|LOCTRF_OWNEDBYBILL);
 
-													SETIFZQ(bpack.P_LocTrfrList, new TSVector <LocTransfOpBlock>());
-													bpack.P_LocTrfrList->insert(&lti_get);
-													bpack.P_LocTrfrList->insert(&lti_put);
+														SETIFZQ(bpack.P_LocTrfrList, new TSVector <LocTransfOpBlock>());
+														bpack.P_LocTrfrList->insert(&lti_get);
+														{
+															SString todo_code;
+															assert(SVectorBase::GetCount(bpack.P_LocTrfrList));
+															const uint local_lt_pos = bpack.P_LocTrfrList->getCount()-1;
+															const int  todo_cr = Helper_CreateToDoOnOrderEntry(p_ord, todo_code_tag_id, lti_get, todo_serial, todo_code, 0/*use_ta*/);
+															if(todo_cr > 0) {
+																todo_serial++;
+																bpack.LTagL.SetString(todo_code_tag_id, local_lt_pos, todo_code);
+															}
+														}
+														bpack.P_LocTrfrList->insert(&lti_put);
+														{
+															SString todo_code;
+															assert(SVectorBase::GetCount(bpack.P_LocTrfrList));
+															const uint local_lt_pos = bpack.P_LocTrfrList->getCount()-1;
+															const int  todo_cr = Helper_CreateToDoOnOrderEntry(p_ord, todo_code_tag_id, lti_put, todo_serial, todo_code, 0/*use_ta*/);
+															if(todo_cr > 0) {
+																todo_serial++;
+																bpack.LTagL.SetString(todo_code_tag_id, local_lt_pos, todo_code);
+															}
+														}
+													}
+												}
+											}
+											else {
+												int    lt_op = 0;
+												PPID   lt_loc_id = 0;
+												if(p_ord->AUART == BailmentOrderSet::opPut) {
+													lt_op = LOCTRFROP_PUT;
+													edi_op = PPEDIOP_PLACEMENTORDER;
+												}
+												else if(p_ord->AUART == BailmentOrderSet::opGet) {
+													lt_op = LOCTRFROP_GET;
+													edi_op = PPEDIOP_REMOVALORDER;
+												}
+												else if(p_ord->AUART == BailmentOrderSet::opInstallation) {
+													// ???
+													edi_op = PPEDIOP_INSTALLATIONORDER;
+												}
+												if(lt_op) {
+													for(uint pi = 0; pi < p_ord->PartnerList.getCount(); pi++) {
+														const BailmentOrderSet::PartnerItem * p_pi = p_ord->PartnerList.at(pi);
+														if(p_pi && p_pi->Itic == PPEanComDocument::iticSP) {
+															if(IdentifyAddress(*p_pi, &lt_loc_id) > 0) {
+																;
+															}
+															else {
+																; // @errmsg
+															}
+															break;
+														}
+													}
+													if(lt_loc_id) {
+														LocTransfOpBlock lti(LOCTRFRDOMAIN_BAILMENT, lt_op, lt_loc_id);
+														LocationTbl::Rec loc_rec;
+														lti.Flags |= (LOCTRF_ORDER|LOCTRF_OWNEDBYBILL);
+														if(LocObj.Search(lt_loc_id, &loc_rec) > 0) {
+															if(!loc_rec.OwnerID) {
+																;  // Это - проблема. Надо уходить по ошибке и выдавать сообщение.
+															}
+															else {
+																SString todo_code;
+																lti.LocOwnerPersonID = loc_rec.OwnerID;
+																lti.GoodsID = goods_id;
+																lti.LotID = final_lot_id;
+																lti.Qtty = 1.0;
+																//
+																SETIFZQ(bpack.P_LocTrfrList, new TSVector <LocTransfOpBlock>());
+																bpack.P_LocTrfrList->insert(&lti);
+																assert(SVectorBase::GetCount(bpack.P_LocTrfrList));
+																const uint local_lt_pos = bpack.P_LocTrfrList->getCount()-1;
+																const int  todo_cr = Helper_CreateToDoOnOrderEntry(p_ord, todo_code_tag_id, lti, todo_serial, todo_code, 0/*use_ta*/);
+																if(todo_cr > 0) {
+																	todo_serial++;
+																	bpack.LTagL.SetString(todo_code_tag_id, local_lt_pos, todo_code);
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+									if(SVectorBase::GetCount(bpack.P_LocTrfrList)) {
+										bpack.SetupEdiAttributes(edi_op, "COCACOLA", 0);
+										bpack.InitAmounts();
+										if(P_BObj->TurnPacket(&bpack, 0/*use_ta - используется общая транзакция*/)) {
+											const PPID bill_id = bpack.Rec.ID;
+											// Сохранить вместе с документом оригинальный xml-файл (BailmentOrderSet::RawData_Xml)
+											if(p_ordset->RawData_Xml.NotEmpty() && p_ordset->RawData_Xml.IsLegalUtf8()) {
+												if(!p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_BILL, bill_id, PPTRPROP_RAWDATA_XML), p_ordset->RawData_Xml, 0)) {
+													; // @todo @errmsg
 												}
 											}
 										}
 										else {
-											int    lt_op = 0;
-											PPID   lt_loc_id = 0;
-											if(p_ord->AUART == BailmentOrderSet::opPut) {
-												lt_op = LOCTRFROP_PUT;
-												edi_op = PPEDIOP_PLACEMENTORDER;
-											}
-											else if(p_ord->AUART == BailmentOrderSet::opGet) {
-												lt_op = LOCTRFROP_GET;
-												edi_op = PPEDIOP_REMOVALORDER;
-											}
-											else if(p_ord->AUART == BailmentOrderSet::opInstallation) {
-												// ???
-												edi_op = PPEDIOP_INSTALLATIONORDER;
-											}
-											if(lt_op) {
-												for(uint pi = 0; pi < p_ord->PartnerList.getCount(); pi++) {
-													const BailmentOrderSet::PartnerItem * p_pi = p_ord->PartnerList.at(pi);
-													if(p_pi && p_pi->Itic == PPEanComDocument::iticSP) {
-														if(IdentifyAddress(*p_pi, &lt_loc_id) > 0) {
-															;
-														}
-														else {
-															; // @errmsg
-														}
-														break;
-													}
-												}
-												if(lt_loc_id) {
-													LocTransfOpBlock lti(LOCTRFRDOMAIN_BAILMENT, lt_op, lt_loc_id);
-													LocationTbl::Rec loc_rec;
-													lti.Flags |= (LOCTRF_ORDER|LOCTRF_OWNEDBYBILL);
-													if(LocObj.Search(lt_loc_id, &loc_rec) > 0) {
-														if(!loc_rec.OwnerID) {
-															;  // Это - проблема. Надо уходить по ошибке и выдавать сообщение.
-														}
-														else {
-															lti.LocOwnerPersonID = loc_rec.OwnerID;
-															lti.GoodsID = goods_id;
-															lti.LotID = final_lot_id;
-															lti.Qtty = 1.0;
-															//
-															SETIFZQ(bpack.P_LocTrfrList, new TSVector <LocTransfOpBlock>());
-															bpack.P_LocTrfrList->insert(&lti);
-														}
-													}
-												}
-											}
+											; // @todo @errmsg
 										}
 									}
 								}
-								if(SVectorBase::GetCount(bpack.P_LocTrfrList)) {
-									bpack.SetupEdiAttributes(edi_op, "COCACOLA", 0);
-									bpack.InitAmounts();
-									if(P_BObj->TurnPacket(&bpack, 1)) {
-										;
-									}
-									else {
-										; // @todo @errmsg
-									}
+								else {
+									;
 								}
 							}
-							else {
-								;
-							}
+						}
+					}
+				}
+				THROW(tra.Commit());
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int COCACOLA::ExportBailentReplies()
+{
+	int    ok = -1;
+	const  PPID suppl_id = P.SupplID;
+	const  PPID order_op_id = FindBailmentOrderOp();
+	PPIDArray bill_id_list;
+	assert(suppl_id); // Не понятно как мы могли вообще сюда попасть если suppl_id == 0
+	if(order_op_id) {
+		{
+			PPViewBill view;
+			BillViewItem view_item;
+			BillFilt filt;
+			filt.Period = P.ExpPeriod;
+			filt.ObjectID = P.SupplID;
+			filt.OpID = order_op_id;
+			filt.Flags |= BillFilt::fNoTempTable;
+			THROW(view.Init_(&filt));
+			for(view.InitIteration(PPViewBill::OrdByDefault); view.NextIteration(&view_item) > 0;) {
+				if(oneof3(view_item.EdiOp, PPEDIOP_PLACEMENTORDER, PPEDIOP_REMOVALORDER, PPEDIOP_POS2POSMOVEMENTORDER)) {
+					bill_id_list.add(view_item.ID);
+				}
+			}
+		}
+		if(bill_id_list.getCount()) {
+			bill_id_list.sortAndUndup();
+			StringSet ss_result_file_list;
+			for(uint bi = 0; bi < bill_id_list.getCount(); bi++) {
+				const PPID order_bill_id = bill_id_list.get(bi);
+				BillTbl::Rec order_bill_rec;
+				BillTbl::Rec bill_rec;
+				if(P_BObj->Search(order_bill_id, &order_bill_rec) > 0) {
+					for(DateIter di; P_BObj->P_Tbl->EnumLinks(order_bill_id, &di, BLNK_ALL, &bill_rec) > 0;) {
+						if(MakeReply(order_bill_rec, bill_rec.ID, ss_result_file_list)) {
+							;
+						}
+						else {
+							;
 						}
 					}
 				}
 			}
 		}
 	}
+	CATCHZOK
+	return ok;
+}
+
+int COCACOLA::ProcessBailmentExchange()
+{
+	int    ok = 1;
+	THROW(ImportBailmentOrders());
+	THROW(ExportBailentReplies());
 	CATCH
 		R_Logger.LogLastError();
 		ok = 0;
@@ -14292,9 +14472,21 @@ int COCACOLA::ParseBailmentOrderFile(const char * pInFileName, BailmentOrderSet 
 	xmlParserCtxt * p_ctx = xmlNewParserCtxt();
 	xmlDoc * p_doc = 0;
 	if(!isempty(pInFileName)) {
-		p_doc = xmlCtxtReadFile(p_ctx, pInFileName, 0, XML_PARSE_NOENT);
-		THROW_LXML(p_doc, p_ctx);	
-		THROW(ParseBailmentOrder(p_doc, rR));
+		STempBuffer buf_in(SKILOBYTE(8));
+		size_t actual_in_size = 0;
+		int    rr = 0;
+		{
+			SFile  f_in(pInFileName, SFile::mRead|SFile::mBinary);
+			if(f_in.IsValid())
+				rr = f_in.ReadAll(buf_in, 0, &actual_in_size);
+		}
+		if(rr) {
+			p_doc = xmlCtxtReadMemory(p_ctx, buf_in, actual_in_size, 0, "UTF-8", XML_PARSE_NOENT);
+			//p_doc = xmlCtxtReadFile(p_ctx, pInFileName, 0, XML_PARSE_NOENT);
+			THROW_LXML(p_doc, p_ctx);	
+			THROW(ParseBailmentOrder(p_doc, rR));
+			rR.RawData_Xml.Z().CatN(buf_in, actual_in_size);
+		}
 	}
 	CATCHZOK
 	xmlFreeDoc(p_doc);

@@ -760,6 +760,19 @@ int ObjTagItem::Read__(SBuffer & rBuf)
 //
 //
 //
+/*static*/bool FASTCALL ObjTagList::ArePtrsEqual(const ObjTagList * pP1, const ObjTagList * pP2)
+{
+	bool   eq = true;
+	if(LOGIC(pP1) != LOGIC(pP2))
+		eq = false;	
+	else if(pP1) {
+		assert(pP2); // see condition above
+		if(!pP1->IsEq(*pP2))
+			eq = false;
+	}
+	return eq;
+}
+
 ObjTagList::ObjTagList() : SArray(sizeof(ObjTagItem), /*8,*/aryDataOwner|aryEachItem)
 {
 }

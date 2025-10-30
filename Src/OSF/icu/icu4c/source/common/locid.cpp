@@ -647,11 +647,9 @@ void AliasDataBuilder::readLanguageAlias(UResourceBundle * alias, UniqueCharStri
 			assert(test.getLanguage()[0] != '\0' || test.getCountry()[0] == '\0');
 		},
 #else
-		[](const char *) {
-		},
+		[](const char *) {},
 #endif
-		[](const UnicodeString &) {
-		}, status);
+		[](const UnicodeString &) {}, status);
 }
 
 /**
@@ -712,10 +710,8 @@ void AliasDataBuilder::readVariantAlias(UResourceBundle * alias, UniqueCharStrin
 			assert(replacement.length() != 4 || (replacement.charAt(0) >= u'0' && replacement.charAt(0) <= u'9'));
 		},
 #else
-		[](const char *) {
-		},
-		[](const UnicodeString &) {
-		},
+		[](const char *) {},
+		[](const UnicodeString &) {},
 #endif
 		status);
 }

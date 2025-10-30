@@ -4926,6 +4926,43 @@ static int SelectPrintPoolVerb(int * pVerb)
 	return ok;
 }
 
+int PPViewBill::Test_ServerPrint(PPID billID) // @v12.4.7 // @construction
+{
+	int    ok = -1;
+	SString temp_buf;
+	TDialog * dlg = 0;
+	if(billID) {
+		PPBillPacket pack;
+		if(P_BObj->ExtractPacket(billID, &pack) > 0) {
+			dlg = new TDialog(DLG_TESTSVRPRINT);
+			if(CheckDialogPtr(&dlg)) {
+				PPID    printer_id = 0;
+				StrAssocArray list;
+				{
+					TSVector <SPrinting::PrnInfo> prn_list;
+					SString last_selected_printer;
+					SPrinting::GetListOfPrinters(&prn_list);
+					long   sel_prn_id = 0;
+					SForEachVectorItem(prn_list, j) { list.Add(j+1, temp_buf.Z().Cat(prn_list.at(j).PrinterName).Transf(CTRANSF_OUTER_TO_INNER)); }
+					SetupStrAssocCombo(dlg, CTLSEL_TESTSVRPRINT_PRINTER, list, printer_id, 0);
+				}
+				if(ExecView(dlg) == cmOK) {
+					printer_id = dlg->getCtrlLong(CTLSEL_TESTSVRPRINT_PRINTER);
+					if(printer_id) {
+						SString printer_name;
+						list.GetText(printer_id, printer_name);
+						if(printer_name.NotEmpty()) {
+							// @todo
+						}
+					}
+				}
+			}
+		}
+	}
+	delete dlg;
+	return ok;
+}
+
 int PPViewBill::PrintBill(PPID billID)
 {
 	int    ok = 1;
@@ -5125,7 +5162,8 @@ int PPViewBill::UpdateAttributes()
 		PPID   Object2ID;
 		long   ModCodeStartCounter;
 	};
-	int    ok = 1, frrl_tag = 0;
+	int    ok = 1;
+	int    frrl_tag = 0;
 	UpdAttr ua;
 	MEMSZERO(ua);
 	TDialog * dlg = 0;
@@ -5345,8 +5383,8 @@ void PPViewBill::ViewTotal()
 {
 	class BillTotalDialog : public AmtListDialog {
 	public:
-		BillTotalDialog(uint resID, uint listCtlId, BillTotal * pTotal, PPViewBill * pV) :
-			AmtListDialog(resID, listCtlId, 1, &pTotal->Amounts, 0, 0, 0), P_Total(pTotal), P_V(pV)
+		BillTotalDialog(uint listCtlId, BillTotal * pTotal, PPViewBill * pV) :
+			AmtListDialog(DLG_BILLTOTAL2, listCtlId, 1, &pTotal->Amounts, 0, 0, 0), P_Total(pTotal), P_V(pV)
 		{
 			setCtrlLong(CTL_BILLTOTAL2_COUNT, pTotal->Count);
 			setCtrlReal(CTL_BILLTOTAL2_SUM,   pTotal->Sum);
@@ -5390,7 +5428,7 @@ void PPViewBill::ViewTotal()
 					total.Sum = 0.0;
 			}
 			total.Amounts.Remove(PPAMT_PCTDIS, 0L);
-			BillTotalDialog * dlg = new BillTotalDialog(DLG_BILLTOTAL2, CTL_BILLTOTAL2_AMTLIST, &total, this);
+			BillTotalDialog * dlg = new BillTotalDialog(CTL_BILLTOTAL2_AMTLIST, &total, this);
 			if(CheckDialogPtrErr(&dlg))
 				ExecViewAndDestroy(dlg);
 		}
@@ -6880,7 +6918,17 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 			case PPVCMD_TRANSMIT:          ok = Transmit(hdr.ID, 0); break;
 			case PPVCMD_TRANSMITCHARRY:    ok = Transmit(hdr.ID, 1); break;
 			case PPVCMD_EXPORT:            ok = ExportGoodsBill(0, 0); break;
-			case PPVCMD_PRINT:             ok = PrintBill(hdr.ID); break;
+			case PPVCMD_PRINT:
+				if(State & stCtrlX) {
+					if(hdr.ID) {
+						ok = Test_ServerPrint(hdr.ID);
+					}
+					State &= ~stCtrlX;
+				}
+				else {
+					ok = PrintBill(hdr.ID);
+				}
+				break;
 			case PPVCMD_PRINTLIST:         ok = Print(); break;
 			case PPVCMD_PRINTINFOLIST:     ok = PrintBillInfoList(); break;
 			case PPVCMD_PRINTALLBILLS:     ok = PrintAllBills(); break;
@@ -8085,7 +8133,7 @@ int PPALDD_Bill::InitData(PPFilt & rFilt, long rsrv)
 		p_ext->CrEventSurID = 0;
 		BillTbl::Rec rec;
 		if(p_billcore->Search(rFilt.ID, &rec) > 0) {
-			const  int accs_cost = BillObj->CheckRights(BILLRT_ACCSCOST);
+			const  bool accs_cost = BillObj->CheckRights(BILLRT_ACCSCOST);
 			PPID   freight_bill_id = 0;
 			AmtList amt_list;
 			PPFreight freight;
@@ -8470,7 +8518,7 @@ int PPALDD_GoodsBillModif::InitData(PPFilt & rFilt, long rsrv)
 		H.CntragntID  = ObjectToPerson(p_pack->Rec.Object);
 		H.CntragntReq = H.CntragntID;
 	}
-	const  int  accs_cost = BillObj->CheckRights(BILLRT_ACCSCOST);
+	const  bool accs_cost = BillObj->CheckRights(BILLRT_ACCSCOST);
 	PPTransferItem * p_ti;
 	for(uint i = 0; p_pack->EnumTItems(&i, &p_ti);) {
 		double amount = 0.0;

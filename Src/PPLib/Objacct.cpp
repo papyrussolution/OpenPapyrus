@@ -824,9 +824,8 @@ int AccountDialog::validate()
 int AccountDialog::setDTS(const PPAccountPacket * pAccPack)
 {
 	ushort v = 0;
-	int    is_cur_acc = 0;
+	bool   is_cur_acc = false;
 	AccPack = *pAccPack;
-
 	setCtrlData(CTL_ACCOUNT_CODE,      AccPack.Rec.Code);
 	setCtrlData(CTL_ACCOUNT_NUMBER,    &AccPack.Rec.A.Ac);
 	setCtrlData(CTL_ACCOUNT_SUBNUMBER, &AccPack.Rec.A.Sb);
@@ -848,7 +847,7 @@ int AccountDialog::setDTS(const PPAccountPacket * pAccPack)
 	setCtrlUInt16(CTL_ACCOUNT_OUTBAL, BIN(AccPack.Rec.Type == ACY_OBAL));
 	disableCtrl(CTL_ACCOUNT_OUTBAL, true);
 	updateList(-1);
-	is_cur_acc = (AccPack.Rec.Flags & ACF_CURRENCY) ? 1 : 0;
+	is_cur_acc = LOGIC(AccPack.Rec.Flags & ACF_CURRENCY);
 	disableCtrls(!is_cur_acc, CTL_ACCOUNT_CURLIST, 0);
 	enableCommand(cmaInsert, is_cur_acc);
 	enableCommand(cmaDelete, is_cur_acc);
@@ -905,15 +904,17 @@ IMPL_HANDLE_EVENT(AccountDialog)
 	PPListDialog::handleEvent(event);
 	if(event.isClusterClk(CTL_ACCOUNT_FLAGS)) {
 		ushort v = getCtrlUInt16(CTL_ACCOUNT_FLAGS);
-		int    is_cur_acc = BIN(v & 1);
-		if(!is_cur_acc)
-			for(uint i = 0; i < AccPack.CurList.getCount(); i++)
+		bool   is_cur_acc = LOGIC(v & 1);
+		if(!is_cur_acc) {
+			for(uint i = 0; i < AccPack.CurList.getCount(); i++) {
 				if(!AtObj.VerifyRevokingCurFromAccount(AccPack.Rec.ID, AccPack.CurList.at(i))) {
 					PPError();
-					is_cur_acc = 1;
+					is_cur_acc = true;
 					setCtrlUInt16(CTL_ACCOUNT_FLAGS, 1);
 					break;
 				}
+			}
+		}
 		disableCtrls(!is_cur_acc, CTL_ACCOUNT_CURLIST, 0);
 		enableCommand(cmaInsert, is_cur_acc);
 		enableCommand(cmaDelete, is_cur_acc);

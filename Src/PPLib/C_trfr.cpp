@@ -207,7 +207,7 @@ int Transfer::CorrectReverse()
 						PPTransferItem ti;
 						PPObjBill::TBlock tb_;
 						THROW(p_bobj->BeginTFrame(rec.BillID, tb_));
-						if(EnumItems(rec.BillID, &_rbb, &ti) > 0 && UpdateItem(&ti, tb_.Rbb(), 1, 0)) {
+						if(EnumItems(rec.BillID, &_rbb, &ti) > 0 && UpdateTransferItem(&ti, tb_.Rbb(), 1, 0)) {
 							// recovered
 						}
 						else
@@ -386,7 +386,7 @@ int Transfer::CorrectByLot(PPID lotID, int (*MsgProc)(int err, PPID lot, const T
 							THROW(EnumItems(billID, &_rbb, &ti) > 0);
 							ti.Cost  = R5(rcptr.Cost);
 							ti.Price = R5(rcptr.Price);
-							THROW(UpdateItem(&ti, tb_.Rbb(), fUpdEnableUpdChildLot, 0));
+							THROW(UpdateTransferItem(&ti, tb_.Rbb(), fUpdEnableUpdChildLot, 0));
 							THROW(p_bobj->RecalcTurns(billID, 0, 0));
 							THROW(p_bobj->FinishTFrame(billID, tb_));
 						}

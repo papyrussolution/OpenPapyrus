@@ -580,30 +580,27 @@ file:
 table PersonPost {         //
 	// @# (Finish && Closed) || (!Finsh && !Closed)
 	autolong ID;           // @id
-	string Code[16];       // Personal Code
+	string Code[48];       // Personal Code // @v12.4.7 [16]-->[48]
 	long   StaffID;        // ->StaffList.ID
 	long   PersonID;       // ->Person.ID
 	date   Dt;             // Дата приема в штат
 	date   Finish;         // Дата, когда персоналия PersonID оставила назначение
-	long   ChargeGrpID;    // ->Ref(PPOBJ_SALCHARGEGRP) Группа начислений, используемая для этого назначения.
-		// Если 0, то используется StaffList(PostID).ChargeGrpID.
+	long   ChargeGrpID;    // ->Ref(PPOBJ_SALCHARGEGRP) Группа начислений, используемая для этого назначения. Если 0, то используется StaffList(PostID).ChargeGrpID.
 	long   Flags;          // Бит (0x10000000L) зарезервирован как признак того, что список сумм не отконвертирован
 	int16  Closed;         // Закрытое назначение (Finish != 0). Если персоналия через некоторое время //
 		// снова вступает в должность, то для нее создается новая запись назначения. Если и после этого она
 		// покидает должность, то значение Closed увеличивается на единицу по сравнению с предыдущим оставлением поста.
 	int16  Reserve1;       // @alignment
-	long   PsnEventID;     // ->PersonEventID ИД персональной операции, которая сформировала это назначение. При изменении
-		// персональной операции, вероятно, будет меняться и это назначение
-	raw    Reserve2[28];   // @reserve
+	long   PsnEventID;     // ->PersonEventID ИД персональной операции, которая сформировала это назначение. При изменении персональной операции, вероятно, будет меняться и это назначение
+	raw    Reserve2[32];   // @reserve // @v12.4.7 [28]-->[32]
 index:
-	ID (unique);
-	StaffID, PersonID, Closed (unique mod);
-	PersonID, StaffID, Closed (unique mod);
-	PsnEventID (anysegnull unique mod);
+	ID (unique);                             // #0
+	StaffID, PersonID, Closed (unique mod);  // #1
+	PersonID, StaffID, Closed (unique mod);  // #2
+	PsnEventID (anysegnull dup mod);         // #3 // @v12.4.7 (anysegnull unique mod)-->(anysegnull dup mod)
 file:
 	"psnpost.btr";
 	acstable = "rusncase.alt";
-	balanced;
 }
 //
 // Элементы штатных календарей
@@ -1044,8 +1041,8 @@ index:
 	LinkBillID, Dt, BillNo (anysegnull unique mod);                // #4
 	LocID, Dt, BillNo (unique mod);                                // #5 @v4.1.08
 	SCardID, Dt, BillNo (anysegnull unique mod);                   // #6 @v4.1.08
-	// @v11.1.12 MainOrgID, Dt, BillNo (anysegnull unique mod);                 // #7 @v4.9.10
-	Code acs, Dt, BillNo (anysegnull unique mod); // #7 @v11.1.12
+	// @v11.1.12 MainOrgID, Dt, BillNo (anysegnull unique mod);       // #7 @v4.9.10
+	Code acs, Dt, BillNo (anysegnull unique mod);                  // #7 @v11.1.12
 	//
 	// При изменении структуры или порядка следования индексов
 	// аналогичные изменения необходимо сделать в таблице TempBill
@@ -1324,9 +1321,9 @@ table VetisProduct {
 index:
 	EntityID (unique);
 	LinkGoodsID (dup mod);
-	ProductID (dup mod anysegnull);
-	SubProductID (dup mod anysegnull);
-	GTIN (dup mod anysegnull);
+	ProductID (anysegnull dup mod);
+	SubProductID (anysegnull dup mod);
+	GTIN (anysegnull dup mod);
 file:
 	"vetisprd.btr";
 	access=1;
@@ -1397,15 +1394,15 @@ table VetisDocument {
 	raw    Reserve2[8];       // @v10.5.8 [36]-->[28] // @v10.5.9 [28]-->[12] // @v10.6.3 [12]-->[8]
 index:
 	EntityID (unique);                                 // #0
-	LinkBillID, LinkBillRow (dup mod allsegnull);      // #1
-	IssueDate, IssueNumber (dup mod allsegnull);       // #2
-	WayBillDate, WayBillNumber (dup mod allsegnull);   // #3
-	FromEntityID (dup mod anysegnull);                 // #4
-	FromEnterpriseID (dup mod anysegnull);             // #5
-	ToEntityID (dup mod anysegnull);                   // #6
-	ToEnterpriseID (dup mod anysegnull);               // #7
-	ProductItemID (dup mod anysegnull);                // #8
-	OrgDocEntityID (dup mod anysegnull);               // #9
+	LinkBillID, LinkBillRow (allsegnull dup mod);      // #1
+	IssueDate, IssueNumber (allsegnull dup mod);       // #2
+	WayBillDate, WayBillNumber (allsegnull dup mod);   // #3
+	FromEntityID (anysegnull dup mod);                 // #4
+	FromEnterpriseID (anysegnull dup mod);             // #5
+	ToEntityID (anysegnull dup mod);                   // #6
+	ToEnterpriseID (anysegnull dup mod);               // #7
+	ProductItemID (anysegnull dup mod);                // #8
+	OrgDocEntityID (anysegnull dup mod);               // #9
 file:
 	"vetisdoc.btr";
 	access=1;
@@ -1877,7 +1874,7 @@ file:
 //
 // @done @todo Descr и Memo перенести в UnxTextRef
 //
-table PrjTask {         // size =
+table PrjTask {         // size = 144
 	autolong ID;        //
 	long   ProjectID;   // ->Project.ID
 	long   Kind;        // {Task=1, Template=2}
@@ -1910,7 +1907,8 @@ table PrjTask {         // size =
 	double Amount;
 	int32  OpenCount;   // Количество просмотров (увеличивается, когда кто-либо открывает диалог с задачей)
 	long   BillArID;    // ->Article.ID Статья разноски закрытой задачи: при закрытии задачи формируется связанный документ со основной статьей =BillArID.
-	raw    Reserve[16]; // @reserve
+	long   LinkBillID;  // @v12.4.7 ->Bill.ID Связанный документ.
+	raw    Reserve[12]; // @reserve // @v12.4.7 [16]-->[12]
 	// @v10.7.2 string Descr_[256];  // Описание задания // @v6.2.2 Descr[224]-->Descr[256]
 	// @v10.7.2 note   Memo_[1024];  // @v6.2.2 Memo[128]-->Memo[1024]
 index:
@@ -1921,6 +1919,7 @@ index:
 	EmployerID, Dt, Tm (unique mod);  // #4
 	ClientID, Dt, Tm (unique mod);    // #5
 	LinkTaskID, Dt, Tm (unique mod);  // #6
+	LinkBillID, Dt, Tm (unique mod);  // #7 // @v12.4.7
 file:
 	"prjtask.btr";
 	// @v10.7.2 vlr;
@@ -3552,14 +3551,14 @@ table StyloQSec {
 index:
 	ID (unique);                                // #0
 	Kind, BI, TimeStamp (unique);               // #1
-	CorrespondID, BI (unique mod anysegnull);   // #2
-	DocType, BI, TimeStamp (unique anysegnull); // #3
+	CorrespondID, BI (anysegnull unique mod);   // #2
+	DocType, BI, TimeStamp (anysegnull unique); // #3
 
 	//ID (unique);                                // #0
 	//BI (unique);                                // #1
 	//Kind, BI (unique);                          // #2
 	//CorrespondID, BI (unique mod);              // #3
-	//DocType, BI, TimeStamp (unique anysegnull); // #4
+	//DocType, BI, TimeStamp (anysegnull unique); // #4
 file:
 	"styloqsec.btr";
 	vlr;

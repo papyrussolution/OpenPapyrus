@@ -2054,6 +2054,7 @@ static void InitTest()
 	STATIC_ASSERT(sizeof(PPGeoTrackingMode) == 8);
 	STATIC_ASSERT(sizeof(PPCycleFilt) == 4);
 	STATIC_ASSERT(sizeof(PPBill::Agreement) == offsetof(PropertyTbl::Rec, VT));
+	STATIC_ASSERT(sizeof(PrjTaskTbl::Rec) == 144); // @v12.4.7 (проверка в предверье конвертации - вводится поле LinkBillID за счет резерва)
 	//
 	// Гарантируем, что функции семейства PPSetError всегда возвращают 0
 	// БОльшая часть кода закладывается на этот факт.
@@ -2225,6 +2226,7 @@ static void FpeCatcher(int sig, int fpe)
 int PPCallHelp(void * hWnd, uint cmd, uint ctx); // @prototype(pptvutil.cpp)
 //@v12.3.7 int ExecDateCalendar(void * hParentWnd, LDATE * pDate); // @prototype(calendar.cpp)
 int PPExecSupplementWindow(int supplementKind, void * hParentWnd, uint linkCtlId, SUiCtrlSupplement::DataBlock * pData); // @v12.3.7 // @prototype(calendar.cpp)
+void * PPFindSupplementWindow(int supplementKind, void * hParentWnd, uint linkCtlId); // @v12.4.7 // @prototype(calendar.cpp)
 static int PPLoadStringFunc(const char * pSignature, SString & rBuf) { return PPLoadString(pSignature, rBuf); }
 static int PPExpandStringFunc(SString & rBuf, int ctransf) { return PPExpandString(rBuf, ctransf); }
 
@@ -2339,6 +2341,7 @@ int PPSession::Init(long internalAppId, long flags, HINSTANCE hInst, const char 
 			epb.F_CallCalc = PPCalculator;
 			// @v12.3.7 epb.F_CallCalendar = ExecDateCalendar;
 			epb.F_UiSupplementWindow = PPExecSupplementWindow; // @v12.3.7 @todo
+			epb.F_UiFindSupplementWindow = PPFindSupplementWindow; // @v12.4.7
 		}
         epb.F_GetDefaultEncrKey = PPGetDefaultEncrKey;
         epb.F_QueryPath = PPQueryPathFunc;
@@ -4110,6 +4113,7 @@ int PPSession::PPLogin(const char * pDbSymb, const char * pUserName, const char 
 						THROW(Convert12005()); // @v12.0.5 SCardOp
 						THROW(Convert12207()); // @v12.2.7 VATBook
 						THROW(Convert12401()); // @v12.4.1 LocTransf
+						THROW(Convert12407()); // @v12.4.7 PrjTask
 						{
 							PPVerHistory verh;
 							PPVerHistory::Info vh_info;
@@ -4325,8 +4329,8 @@ int PPSession::PPLogin(const char * pDbSymb, const char * pUserName, const char 
 						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_RCPTDLVRLOCASWAREHOUSE,  ECF_RCPTDLVRLOCASWAREHOUSE, 999);
 						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_USESJLOGINEVENT,         ECF_USESJLOGINEVENT,        999);
 						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_PAPERLESSCHEQUE,         ECF_PAPERLESSCHEQUE,        1); // @v11.3.7
-						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_STYLOQSVCLOGGING,        ECF_STYLOQSVCLOGGING,       1); // @v11.9.2
-						
+						if(!SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_STYLOQSVCLOGGING_, ECF_STYLOQSVCLOGGING, 1)) // @v11.9.2
+							SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_STYLOQSVCLOGGING, ECF_STYLOQSVCLOGGING, 1); // // @v12.4.7
 						if(!SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_CODEPREFIXEDLIST, ECF_CODEPREFIXEDLIST, 999))
 							SetExtFlag(ECF_CODEPREFIXEDLIST, 0);
 						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DISABLEASYNCADVQUEUE, &(iv = 0)) > 0 && iv != 0)

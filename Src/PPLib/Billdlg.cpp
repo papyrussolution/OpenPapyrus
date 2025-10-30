@@ -620,6 +620,7 @@ private:
 	int    editItems();
 	int    editPaymOrder(int forceUpdateRcvr);
 	int    EditFreight();
+	int    EditLinkedToDo(); // @v12.4.7
 	//
 	// Returns:
 	//   Номинальная сумма документа
@@ -865,6 +866,7 @@ BillDialog::BillDialog(uint dlgID, PPBillPacket * pPack, int isEdit) : PPListDia
 	}
 	disableCtrl(CTL_BILL_ADV_TOUT, true);
 	disableCtrl(CTL_BILL_DEBTSUM, true);
+	enableCommand(cmToDo, (op_rec.ExtFlags & OPKFX_USETODOLINK)); // @v12.4.7
 	setupPosition();
 	DefaultRect = getRect();
 	showLinkFilesList();
@@ -917,7 +919,7 @@ void BillDialog::SetupDiscountCtrls()
 		disableCtrls(1, CTL_BILL_TTLDISCOUNT, CTL_BILL_DISCOUNT, 0);
 	}
 	else {
-		int rt = P_BObj->CheckRights(BILLOPRT_TOTALDSCNT, 1);
+		bool   rt = P_BObj->CheckRights(BILLOPRT_TOTALDSCNT, 1);
 		if(P_Pack->GetSyncStatus() > 0) {
 			//
 			// Если у пользователя нет прав на изменение синхронизированного документа,
@@ -926,7 +928,7 @@ void BillDialog::SetupDiscountCtrls()
 			if(oneof6(P_Pack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF,
 				PPOPT_GOODSRETURN, PPOPT_GOODSORDER)) {
 				if(!P_BObj->CheckRights(BILLOPRT_MODTRANSM, 1))
-					rt = 0;
+					rt = false;
 			}
 		}
 		const ushort v = getCtrlUInt16(CTL_BILL_TTLDISCOUNT);
@@ -1810,6 +1812,34 @@ int BillDialog::EditFreight()
 	return ok;
 }
 
+int BillDialog::EditLinkedToDo() // @v12.4.7 @construction
+{
+	//
+	// Горькие сожаления: я просчитался. Для учета размещения основных фондов у клиентов мне нужны задачи, привязанные 
+	// к строкам документа, а не к документу. Таким образом, задачи, привязанные к документу я замораживаю в текущем виде
+	// до более подходящего случая когда они понадобятся.
+	//
+	int    ok = -1;
+	/* 
+	PPOprKind op_rec;
+	if(GetOpData(P_Pack->Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_USETODOLINK) {
+		PPObjPrjTask todo_obj;
+		const PPID bill_id = P_Pack->Rec.ID;
+		PPID  todo_id = 0;
+		if(bill_id) {
+			PPIDArray todo_id_list;
+			todo_obj.P_Tbl->SearchByLinkBillID(bill_id, todo_id_list);
+			if(todo_id_list.getCount())
+				todo_id = todo_id_list.getLast(); // Задачи возвращаются в хронологическом порядку, ergo нам нужна последняя (самая новая то есть).
+		}
+		if(todo_obj.Edit(&todo_id, 0) > 0) {
+			;
+		}
+	}
+	*/
+	return ok;
+}
+
 IMPL_HANDLE_EVENT(BillDialog)
 {
 	PPID   id;
@@ -1836,13 +1866,13 @@ IMPL_HANDLE_EVENT(BillDialog)
 	else if(event.isCbSelected(CTLSEL_BILL_OBJECT))
 		ReplyCntragntSelection(0);
 	else if(event.isCbSelected(CTLSEL_BILL_OBJ2)) {
-		PPID   ar_id = getCtrlLong(CTLSEL_BILL_OBJ2);
+		const PPID ar_id = getCtrlLong(CTLSEL_BILL_OBJ2);
 		if(!P_Pack->SetupObject2(ar_id)) {
 			PPError();
 			setCtrlLong(CTLSEL_BILL_OBJ2, P_Pack->Rec.Object2);
 		}
 	}
-	else if(event.isCbSelected(CTLSEL_BILL_CUR)) { // @v10.5.8 @construction
+	else if(event.isCbSelected(CTLSEL_BILL_CUR)) {
 		if(P_Pack->GetTCount()) {
 			const  PPID cur_id = getCtrlLong(CTLSEL_BILL_CUR);
 			for(uint tiidx = 0; tiidx < P_Pack->GetTCount(); tiidx++) {
@@ -1858,7 +1888,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 				break;
 			case cmEdiAckBill:
 				{
-					long   recadv_status = BillCore::GetRecadvStatus(P_Pack->Rec);
+					const long recadv_status = BillCore::GetRecadvStatus(P_Pack->Rec);
 					if(recadv_status == PPEDI_RECADV_STATUS_PARTACCEPT) {
 						BillTbl::Rec recadv_rec;
 						DateIter di;
@@ -1952,7 +1982,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 			case cmCalcPrevAdvRest: calcAdvanceRepRest(); break;
 			case cmPrevAdvBills:
 				{
-					PPID   obj_id = getCtrlLong(CTLSEL_BILL_OBJECT);
+					const PPID obj_id = getCtrlLong(CTLSEL_BILL_OBJECT);
 					if(obj_id) {
 						AccAnlzFilt flt;
 						if(P_BObj->atobj->ConvertAcct(&CConfig.ImprestAcct, 0 /*@curID*/, &flt.AcctId, &flt.AccSheetID) > 0) {
@@ -2042,6 +2072,9 @@ IMPL_HANDLE_EVENT(BillDialog)
 					}
 				}
 				break;
+			case cmToDo: // @v12.4.7 @construction
+				EditLinkedToDo(); // @see comment to BillDialog::EditLinkedToDo()
+				break;
 			case cmCtlColor:
 				{
 					TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
@@ -2050,8 +2083,8 @@ IMPL_HANDLE_EVENT(BillDialog)
 							if(PaymTerm >= 0) {
 								// @v12.1.12 getCtrlData(CTL_BILL_DATE, &P_Pack->Rec.Dt);
 								if(GetDateAndDueDate()) { // @v12.1.12 
-									LDATE paymdate = getCtrlDate(CTL_BILL_PAYDATE);
-									LDATE new_paymdate = P_Pack->CalcDefaultPayDate(PaymTerm, PayDateBase);
+									const LDATE paymdate = getCtrlDate(CTL_BILL_PAYDATE);
+									const LDATE new_paymdate = P_Pack->CalcDefaultPayDate(PaymTerm, PayDateBase);
 									if(!paymdate || paymdate != new_paymdate) {
 										::SetBkMode(p_dc->H_DC, TRANSPARENT);
 										::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
@@ -2066,7 +2099,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 								return;
 						}
 						else if(getCtrlHandle(CTL_BILL_DOC) == p_dc->H_Ctl) {
-							int    ss = P_Pack->GetSyncStatus();
+							const int ss = P_Pack->GetSyncStatus();
 							if(ss > 0) {
 								::SetBkMode(p_dc->H_DC, TRANSPARENT);
 								p_dc->H_Br = (HBRUSH)Ptb.Get(brushSynced);
@@ -2089,7 +2122,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 			if(event.isCtlEvent(CTL_BILL_DISCOUNT))
 				CalcAmounts();
 			else if(P_Pack->Rec.Flags & BILLF_ADVANCEREP && P_Pack->P_AdvRep) {
-				uint ctl_id = event.getCtlID();
+				const uint ctl_id = event.getCtlID();
 				if(oneof3(ctl_id, CTL_BILL_ADV_RCPAMT1, CTL_BILL_ADV_RCPAMT2, CTL_BILL_ADV_INREST))
 					setupAdvanceRepTotal(P_Pack->P_AdvRep);
 			}
@@ -2130,10 +2163,10 @@ IMPL_HANDLE_EVENT(BillDialog)
 						case CTL_BILL_OBJECT:
 							{
 								SString code;
-								PPID   ar_id = 0;
-								PPID   reg_type_id = P_BObj->Cfg.ClCodeRegTypeID;
+								const  PPID reg_type_id = P_BObj->Cfg.ClCodeRegTypeID;
 								if(P_Pack->AccSheetID && reg_type_id > 0 && BarcodeInputDialog(0, code) > 0) {
 									ArticleTbl::Rec ar_rec;
+									PPID   ar_id = 0;
 									if(ArObj.SearchByRegCode(P_Pack->AccSheetID, reg_type_id, code, &ar_id, &ar_rec) > 0) {
 										setCtrlLong(CTLSEL_BILL_OBJECT, ar_rec.ID);
 										ReplyCntragntSelection(0);
@@ -2185,8 +2218,8 @@ void BillDialog::setupParentOfContragent()
 {
 	if(getCtrlView(CTL_BILL_ST_PARENTPERSON)) {
 		PPID   rel_ar_id = 0;
+		const  PPID client_id = getCtrlLong(CTLSEL_BILL_OBJECT);
 		SString rel_ar_name;
-		PPID   client_id = getCtrlLong(CTLSEL_BILL_OBJECT);
 		if(ArObj.GetRelPersonSingle(client_id, PPPSNRELTYP_AFFIL, 0, &rel_ar_id) > 0)
 			GetArticleName(rel_ar_id, rel_ar_name);
 		setStaticText(CTL_BILL_ST_PARENTPERSON, rel_ar_name);
@@ -2725,8 +2758,8 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 			}
 		}
 		showCtrl(CTL_BILL_DUEDATE, local_do_show);
+		// @v12.4.7 ShowCalCtrl(CTLCAL_BILL_DUEDATE, this, /*!oneof2(P_Pack->OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT)*/local_do_show);
 	}
-	ShowCalCtrl(CTLCAL_BILL_DUEDATE, this, !oneof2(P_Pack->OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT));
 	SetupInfoText();
 	{
 		int r = setupDebt();
@@ -3927,7 +3960,7 @@ int PPObjBill::EditBillFreight(PPID billID)
 				THROW_MEM(p_preserve_freight = new PPFreight(*pack.P_Freight));
 			}
 			int   do_turn_packet = 0;
-			const bool   rt_mod = LOGIC(CheckRights(PPR_MOD));
+			const bool   rt_mod = CheckRights(PPR_MOD);
 			const bool   prev_freight_state = LOGIC(pack.Rec.Flags & BILLF_FREIGHT);
 			const bool   prev_shipped_state = LOGIC(pack.Rec.Flags & BILLF_SHIPPED);
 			const double prev_freight_cost = pack.P_Freight ? pack.P_Freight->Cost : 0.0;

@@ -1629,14 +1629,14 @@ SString & SOraDbProvider::GetTemporaryFileName(SString & rFileNameBuf, long * pS
 int SOraDbProvider::CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode)
 {
 	int    ok = 1;
-	THROW(SqlGen.Z().CreateTable(*pTbl, 0, Generator_SQL::ctfIndent));
+	THROW(SqlGen.Z().CreateTable(*pTbl, 0, Generator_SQL::ctfIndent, 0/*pCollationSymb*/));
 	{
 		SSqlStmt stmt(this, SqlGen);
 		THROW(stmt.Exec(1, OCI_DEFAULT));
 	}
 	uint j;
 	for(j = 0; j < pTbl->indexes.getNumKeys(); j++) {
-		THROW(SqlGen.Z().CreateIndex(*pTbl, pFileName, j));
+		THROW(SqlGen.Z().CreateIndex(*pTbl, pFileName, j, 0/*pCollationSymb*/));
 		{
 			SSqlStmt stmt(this, SqlGen);
 			THROW(stmt.Exec(1, OCI_DEFAULT));

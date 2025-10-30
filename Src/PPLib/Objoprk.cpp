@@ -1423,8 +1423,8 @@ void OprKindDialog::setup()
 {
 	PPIDArray types;
 	SString temp_buf;
-	const  int  modatt = OpObj.CheckRights(OPKRT_MODIFYATT);
-	const  PPID op_type_id = P_Data->Rec.OpTypeID;
+	const  bool  modatt = LOGIC(OpObj.CheckRights(OPKRT_MODIFYATT));
+	const  PPID  op_type_id = P_Data->Rec.OpTypeID;
 	setCtrlData(CTL_OPRKIND_NAME, P_Data->Rec.Name);
 	setCtrlData(CTL_OPRKIND_SYMB, P_Data->Rec.Symb);
 	{
@@ -2101,7 +2101,8 @@ void OprKindDialog::moreDialog()
 				subtypelist.addzlist(OPSUBT_GENERALWMSOP, OPSUBT_BAILMENT_ORDER, OPSUBT_BAILMENT_PUT, OPSUBT_BAILMENT_GET, 0L);
 				options_list.addzlist(OPKF_NEEDPAYMENT, OPKF_PROFITABLE, OPKF_ONORDER, OPKF_CALCSTAXES, OPKF_AUTOWL, OPKF_USEEXT,
 					OPKF_EXTACCTURN, OPKF_RENT, OPKF_NOCALCTIORD, OPKF_FREIGHT, OPKF_ATTACHFILES, 0L);
-				EditOptions2(DLG_OPKMORE_WH, 1, &subtypelist, &options_list, 0);
+				ext_options_list.addzlist(OPKFX_AUTOGENUUID, OPKFX_USETODOLINK, 0L);
+				EditOptions2(DLG_OPKMORE_WH, 1, &subtypelist, &options_list, &ext_options_list);
 				break;
 			default:
 				options_list.addzlist(OPKF_NEEDPAYMENT, OPKF_PROFITABLE, OPKF_ONORDER, OPKF_CALCSTAXES, OPKF_AUTOWL, OPKF_USEEXT,
@@ -2115,7 +2116,7 @@ void OprKindDialog::moreDialog()
 void OprKindDialog::exAmountList()
 {
 	ListToListData lld(PPOBJ_AMOUNTTYPE, 0, &P_Data->Amounts);
-	lld.Flags  |= ListToListData::fCanInsertNewItem;
+	lld.Flags |= ListToListData::fCanInsertNewItem;
 	lld.TitleStrID = PPTXT_SELOPAMOUNTS;
 	if(!ListToListDialog(&lld))
 		PPError();
@@ -2235,7 +2236,8 @@ private:
 IMPL_HANDLE_EVENT(OpListDialog)
 {
 	if(event.isCmd(cmaEdit)) {
-		long p, id;
+		long   p;
+		long   id;
 		if(getCurItem(&p, &id) && id > 0 && editItem(p, id) > 0)
 			updateList(p);
 	}
@@ -2267,7 +2269,7 @@ int OpListDialog::setupList()
 {
 	SString name_buf;
 	for(uint i = 0; i < OpListData.getCount(); i++) {
-		const  PPID id = OpListData.at(i);
+		const PPID id = OpListData.at(i);
 		if(GetObjectName(PPOBJ_OPRKIND, id, name_buf) <= 0)
 			ideqvalstr(id, name_buf);
 		if(!addStringToList(id, name_buf))
@@ -2280,7 +2282,7 @@ int OpListDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = -1;
 	if(P_Box) {
-		PPID   op_id = SelectOpKind(0L, &OpTypesList, 0);
+		const PPID op_id = SelectOpKind(0L, &OpTypesList, 0);
 		if(op_id > 0) {
 			int    dup = 0;
 			for(uint i = 0; !dup && i < OpListData.getCount(); i++)

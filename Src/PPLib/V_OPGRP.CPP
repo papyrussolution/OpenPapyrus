@@ -145,7 +145,7 @@ int PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 			THROW(tra);
 			for(cycle_no = 0; cycle_no < period_list.getCount(); cycle_no++) {
 				const DateRange & r_period = period_list.at(cycle_no);
-				const  int accs_cost = BillObj->CheckRights(BILLRT_ACCSCOST);
+				const bool accs_cost = BillObj->CheckRights(BILLRT_ACCSCOST);
 				GoodsGrpngEntry * p_entry = 0;
 				GoodsGrpngArray ary(&logger);
 				GCTFilt gct_flt;
@@ -635,7 +635,8 @@ void OpGroupingFiltDialog::ReplyOprKindSelection()
 
 int OpGroupingFiltDialog::EditAdvOptions()
 {
-	int    valid_data = 0, ok = -1;
+	int    ok = -1;
+	int    valid_data = 0;
 	TDialog * p_dlg = new TDialog(DLG_OPGRPNGFLTA);
 	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->SetupCalPeriod(CTLCAL_OPGRPNGFLTA_PRD, CTL_OPGRPNGFLTA_PRD);

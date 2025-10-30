@@ -122,110 +122,231 @@ int BExtQuery::CreateSqlExpr(Generator_SQL & rSg, int reverse, const char * pIni
 	}
 	int _where_tok = 0;
 	if(pInitKey && initSpMode != -1) {
-		//
-		// Oracle не "хочет" применять hint INDEX если в ограничениях не присутствует поле из этого индекса.
-		//
-		//BNKey  key = P_Tbl->indexes[index];
-		size_t offs = 0;
-		char   temp[512];
+		auto   make_key_seg_value = [](Generator_SQL & rSg, const BNField & rFld, size_t offs, const char * pInitKey, void * pBuffer)
+		{
+			assert(pBuffer);
+			const  int st = GETSTYPE(rFld.T);
+			bool   local_done = false;
+			if(rSg.GetServerType() == sqlstSQLite) {
+				if(oneof2(st, S_DATE, S_TIME)) {
+					sttostr(MKSTYPE(S_INT, 4), PTR8C(pInitKey)+offs, COMF_SQL, static_cast<char *>(pBuffer));
+					local_done = true;
+				}
+			}
+			if(!local_done)
+				sttostr(rFld.T, PTR8C(pInitKey)+offs, COMF_SQL, static_cast<char *>(pBuffer));
+		};
+		char   temp[1024];
 		rSg.Sp().Tok(Generator_SQL::tokWhere).Sp();
 		_where_tok = 1;
 		rSg.LPar();
-		for(int i = 0; i < ns; i++) {
-			const int fldid = r_key.getFieldID(i);
-			const BNField & r_fld = r_indices.field(Index_, i);
-			if(i > 0) { // НЕ первый сегмент
-				rSg.Tok(Generator_SQL::tokAnd).Sp();
-				if(initSpMode != spEq)
-					rSg.LPar();
-			}
-			if(r_key.getFlags(i) & XIF_ACS) {
-				//
-				// Для ORACLE нечувствительность к регистру символов
-				// реализуется функциональным сегментом индекса nls_lower(fld).
-				// Аналогичная конструкция применяется при генерации скрипта создания индекса
-				// См. Generator_SQL::CreateIndex(const DBTable &, const char *, uint)
-				//
-				int   _func_tok = 0;
-				if(rSg.GetServerType() == sqlstORA)
-					_func_tok = Generator_SQL::tokNlsLower;
-				else
-					_func_tok = Generator_SQL::tokLower;
-				rSg.Func(_func_tok, r_fld.Name);
-			}
-			else
-				rSg.Text(r_fld.Name);
-
-			int   cmps = _EQ_;
-			if(initSpMode == spEq)
-				cmps = _EQ_;
-			else if(initSpMode == spLt)
-				cmps = _LE_; //cmps = (i == ns-1) ? _LT_ : _LE_;
-			else if(oneof2(initSpMode, spLe, spLast))
-				cmps = _LE_;
-			else if(initSpMode == spGt)
-				cmps = _GE_; //cmps = (i == ns-1) ? _GT_ : _GE_;
-			else if(oneof2(initSpMode, spGe, spFirst))
-				cmps = _GE_;
-			rSg._Symb(cmps);
+		if(true) { // @construction
+			const char * p_collation = 0/*P_CollationSymb*/;
+			const bool   use_collation_term = isempty(p_collation) ? false : true;
+			/*if(oneof2(initSpMode, spFirst, spLast)) {
+				r_indices.setBound(Index_, 0, BIN(initSpMode == spLast), rBlk.TempKey);
+				rBlk.P_KeyData = rBlk.TempKey;
+			}*/
 			{
-				const  int st = GETSTYPE(r_fld.T);
-				bool   local_done = false;
-				if(rSg.GetServerType() == sqlstSQLite) {
-					if(oneof2(st, S_DATE, S_TIME)) {
-						sttostr(MKSTYPE(S_INT, 4), PTR8C(pInitKey)+offs, COMF_SQL, temp);
-						local_done = true;
-					}
-				}
-				if(!local_done)
-					sttostr(r_fld.T, PTR8C(pInitKey)+offs, COMF_SQL, temp);
-			}
-			rSg.Text(temp);
-			if(i > 0 && initSpMode != spEq) {
-				//
-				// При каскадном сравнении ключа второй и последующие сегменты
-				// должны удовлетворять условиям неравенства только при равенстве
-				// всех предыдущих сегментов.
-				//
-				// Пример:
-				//
-				// index {X, Y, Z}
-				// X > :A and (Y > :B or (X <> :A)) and (Z > :C or (X <> :A and Y <> :B))
-				//
-				rSg.Sp().Tok(Generator_SQL::tokOr).Sp().LPar();
-				for(int j = 0; j < i; j++) {
-					const BNField & r_fld2 = r_indices.field(Index_, j);
-					if(j > 0)
-						rSg.Tok(Generator_SQL::tokAnd).Sp();
-					if(r_key.getFlags(j) & XIF_ACS) {
-						int   _func_tok = 0;
-						if(rSg.GetServerType() == sqlstORA)
-							_func_tok = Generator_SQL::tokNlsLower;
-						else
-							_func_tok = Generator_SQL::tokLower;
-						rSg.Func(_func_tok, r_fld2.Name);
+				auto cat_field_term = [](Generator_SQL & rSg, const BNKey & rKey, int segN, const BNField & rFld)
+				{
+					if(rKey.getFlags(segN) & XIF_ACS) {
+						//int   _func_tok = Generator_SQL::tokLower;
+						//rSg.Func(_func_tok, rFld.Name);
+						rSg.Text(rFld.Name);
 					}
 					else
-						rSg.Text(r_fld2.Name);
-					rSg._Symb(_NE_);
-					{
-						const  int st = GETSTYPE(r_fld2.T);
-						bool   local_done = false;
-						if(rSg.GetServerType() == sqlstSQLite) {
-							if(oneof2(st, S_DATE, S_TIME)) {
-								sttostr(MKSTYPE(S_INT, 4), PTR8C(pInitKey) + r_indices.getSegOffset(Index_, j), COMF_SQL, temp);
-								local_done = true;
-							}
+						rSg.Text(rFld.Name);
+				};
+				if(initSpMode == spEq) {
+					for(int i = 0; i < ns; i++) {
+						const BNField & r_fld = r_indices.field(Index_, i);
+						if(i > 0) { // НЕ первый сегмент
+							rSg.Sp().Tok(Generator_SQL::tokAnd).Sp();
 						}
-						if(!local_done)
-							sttostr(r_fld2.T, PTR8C(pInitKey) + r_indices.getSegOffset(Index_, j), COMF_SQL, temp);
+						cat_field_term(rSg, r_key, i, r_fld);
+						rSg._Symb(_EQ_);
+						//rSg.Param(temp_buf.NumberToLat(i));
+						make_key_seg_value(rSg, r_fld, r_indices.getSegOffset(Index_, i), pInitKey, temp);
+						rSg.Text(temp);
+						//
+						if(use_collation_term && r_key.getFlags(i) & XIF_ACS) {
+							rSg.Sp().Tok(Generator_SQL::tokCollate).Sp().Text(p_collation);
+						}
+						//rBlk.SegMap.add(i);
 					}
-					rSg.Text(temp);
-					rSg.Sp();
 				}
-				rSg.RPar().RPar().Sp();
+				else if(oneof6(initSpMode, spLt, spLe, spLast, spGt, spGe, spFirst)) {
+					// 
+					// {s1, s2, s3} <  {V1, V2, V3} => (s1 <= V1) AND (s1 < V1 OR s2 <= V2) AND (s1 < V1 OR s2 < V2 OR s3 < V3)
+					// {s1, s2, s3} <= {V1, V2, V3} => (s1 <= V1) AND (s1 < V1 OR s2 <= V2) AND (s1 < V1 OR s2 < V2 OR s3 <= V3)
+					// {s1, s2, s3} >  {V1, V2, V3} => (s1 >= V1) AND (s1 > V1 OR s2 >= V2) AND (s1 > V1 OR s2 > V2 OR s3 > V3)
+					// {s1, s2, s3} >= {V1, V2, V3} => (s1 >= V1) AND (s1 > V1 OR s2 >= V2) AND (s1 > V1 OR s2 > V2 OR s3 >= V3)
+					// [ Для справки ниже приведена идентичная логика, но объедиенная оператором OR. Я стал использовать вышеприведенные
+					//   варианты из-за того, что SQLite неадекватно реагирует на OR-связку отказывасью применять тот индекс, который я указал.
+					//   {s1, s2, s3} <  {V1, V2, V3} => (s1 < V1) OR (s1 = V1 AND s2 < V2) OR (s1 = V1 AND s2 = V2 AND s3 < V3)
+					//   {s1, s2, s3} <= {V1, V2, V3} => (s1 < V1) OR (s1 = V1 AND s2 < V2) OR (s1 = V1 AND s2 = V2 AND s3 <= V3)
+					//   {s1, s2, s3} >  {V1, V2, V3} => (s1 > V1) OR (s1 = V1 AND s2 > V2) OR (s1 = V1 AND s2 = V2 AND s3 > V3)
+					//   {s1, s2, s3} >= {V1, V2, V3} => (s1 > V1) OR (s1 = V1 AND s2 > V2) OR (s1 = V1 AND s2 = V2 AND s3 >= V3)
+					// ]
+					//cmps = (i == ns-1) ? _LT_ : _LE_;
+					for(int i = 0; i < ns; i++) {
+						const BNField & r_fld = r_indices.field(Index_, i);
+						if(i) {
+							rSg.Sp().Tok(Generator_SQL::tokAnd).Sp();
+						}
+						{
+							rSg.LPar();
+							if(i) {
+								for(int j = 0; j < i; j++) {
+									const BNField & r_fld_j = r_indices.field(Index_, j); // J!
+									if(j) {
+										rSg.Sp().Tok(Generator_SQL::tokOr).Sp();
+									}
+									cat_field_term(rSg, r_key, j, r_fld_j); // J!
+									{
+										int   cmps = 0;
+										switch(initSpMode) {
+											case spLt: 
+											case spLe:
+											case spLast: cmps = _LT_; break;
+											case spGt: 
+											case spGe:
+											case spFirst: cmps = _GT_; break;
+										}
+										assert(cmps != 0);
+										rSg._Symb(cmps);
+									}
+									//rSg.Param(temp_buf.NumberToLat(j)); // J!
+									make_key_seg_value(rSg, r_fld_j, r_indices.getSegOffset(Index_, j), pInitKey, temp); // J!
+									rSg.Text(temp);
+									if(use_collation_term && r_key.getFlags(j) & XIF_ACS) { // J!
+										rSg.Sp().Tok(Generator_SQL::tokCollate).Sp().Text(p_collation);
+									}
+								}
+								rSg.Sp().Tok(Generator_SQL::tokOr).Sp();
+							}
+							{
+								cat_field_term(rSg, r_key, i, r_fld); // I!
+								{
+									int   cmps = 0;
+									switch(initSpMode) {
+										case spLt: cmps = (i == (ns-1)) ? _LT_ : _LE_; break; // !
+										case spLe: cmps = _LE_; break;
+										case spLast: cmps = _LE_; break;
+										case spGt: cmps = (i == (ns-1)) ? _GT_ : _GE_; break;
+										case spGe: cmps = _GE_; break;
+										case spFirst: cmps = _GE_; break;
+									}
+									assert(cmps != 0);
+									rSg._Symb(cmps);
+								}
+								//rSg.Param(temp_buf.NumberToLat(i)); // I!
+								make_key_seg_value(rSg, r_fld, r_indices.getSegOffset(Index_, i), pInitKey, temp); // I!
+								rSg.Text(temp);
+								if(use_collation_term && r_key.getFlags(i) & XIF_ACS) { // I!
+									rSg.Sp().Tok(Generator_SQL::tokCollate).Sp().Text(p_collation);
+								}
+								rSg.RPar();
+							}
+							//
+							//rBlk.SegMap.add(i);
+						}
+					}
+				}
 			}
-			offs += stsize(r_fld.T);
+			/*if(oneof3(initSpMode, spLe, spLt, spLast)) { // Обратное направление поиска
+				rSg.Tok(Generator_SQL::tokOrderBy);
+				for(int i = 0; i < ns; i++) {
+					const BNField & r_fld = r_indices.field(Index_, i);
+					if(i)
+						rSg.Com();
+					rSg.Sp().Text(r_fld.Name).Sp().Tok(Generator_SQL::tokDesc);
+				}
+				rSg.Sp();
+			}*/
+			//rBlk.Flags |= SearchQueryBlock::fCanContinue;
+		}
+		else {
+			//
+			// Oracle не "хочет" применять hint INDEX если в ограничениях не присутствует поле из этого индекса.
+			//
+			//BNKey  key = P_Tbl->indexes[index];
+			size_t offs = 0;
+			for(int i = 0; i < ns; i++) {
+				const int fldid = r_key.getFieldID(i);
+				const BNField & r_fld = r_indices.field(Index_, i);
+				if(i > 0) { // НЕ первый сегмент
+					rSg.Tok(Generator_SQL::tokAnd).Sp();
+					if(initSpMode != spEq)
+						rSg.LPar();
+				}
+				if(r_key.getFlags(i) & XIF_ACS) {
+					//
+					// Для ORACLE нечувствительность к регистру символов
+					// реализуется функциональным сегментом индекса nls_lower(fld).
+					// Аналогичная конструкция применяется при генерации скрипта создания индекса
+					// См. Generator_SQL::CreateIndex(const DBTable &, const char *, uint)
+					//
+					int   _func_tok = 0;
+					if(rSg.GetServerType() == sqlstORA)
+						_func_tok = Generator_SQL::tokNlsLower;
+					else
+						_func_tok = Generator_SQL::tokLower;
+					rSg.Func(_func_tok, r_fld.Name);
+				}
+				else
+					rSg.Text(r_fld.Name);
+
+				int   cmps = _EQ_;
+				if(initSpMode == spEq)
+					cmps = _EQ_;
+				else if(initSpMode == spLt)
+					cmps = _LE_; //cmps = (i == ns-1) ? _LT_ : _LE_;
+				else if(oneof2(initSpMode, spLe, spLast))
+					cmps = _LE_;
+				else if(initSpMode == spGt)
+					cmps = _GE_; //cmps = (i == ns-1) ? _GT_ : _GE_;
+				else if(oneof2(initSpMode, spGe, spFirst))
+					cmps = _GE_;
+				rSg._Symb(cmps);
+				make_key_seg_value(rSg, r_fld, offs, pInitKey, temp);
+				rSg.Text(temp);
+				if(i > 0 && initSpMode != spEq) {
+					//
+					// При каскадном сравнении ключа второй и последующие сегменты
+					// должны удовлетворять условиям неравенства только при равенстве
+					// всех предыдущих сегментов.
+					//
+					// Пример:
+					//
+					// index {X, Y, Z}
+					// X > :A and (Y > :B or (X <> :A)) and (Z > :C or (X <> :A and Y <> :B))
+					//
+					rSg.Sp().Tok(Generator_SQL::tokOr).Sp().LPar();
+					for(int j = 0; j < i; j++) {
+						const BNField & r_fld2 = r_indices.field(Index_, j);
+						if(j > 0)
+							rSg.Tok(Generator_SQL::tokAnd).Sp();
+						if(r_key.getFlags(j) & XIF_ACS) {
+							int   _func_tok = 0;
+							if(rSg.GetServerType() == sqlstORA)
+								_func_tok = Generator_SQL::tokNlsLower;
+							else
+								_func_tok = Generator_SQL::tokLower;
+							rSg.Func(_func_tok, r_fld2.Name);
+						}
+						else
+							rSg.Text(r_fld2.Name);
+						rSg._Symb(_NE_);
+						make_key_seg_value(rSg, r_fld2, r_indices.getSegOffset(Index_, j), pInitKey, temp);
+						rSg.Text(temp);
+						rSg.Sp();
+					}
+					rSg.RPar().RPar().Sp();
+				}
+				offs += stsize(r_fld.T);
+			}
 			rSg.Sp();
 		}
 		rSg.RPar();

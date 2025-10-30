@@ -5774,7 +5774,7 @@ private:
 			SString ext_buffer;
 			es.PutExtStrData(PPSCardPacket::extssPassword, pw_buf);
 			(ext_buffer = es.GetBuffer()).Strip();
-			THROW(UtrC.SetText(TextRefIdent(PPOBJ_SCARD, p_data->ID, PPTRPROP_SCARDEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(UtrC.SetTextUtf8(TextRefIdent(PPOBJ_SCARD, p_data->ID, PPTRPROP_SCARDEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 		}
 		CATCHZOK
 		return ok;
@@ -6181,8 +6181,8 @@ public:
 			STRNSCPY(p_data->Code, code_buf);
 		}
 		{
-			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_PRJTASK, id, PPTRPROP_DESCR), descr_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
-			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_PRJTASK, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_PRJTASK, id, PPTRPROP_DESCR), descr_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_PRJTASK, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
 		}
 		CATCH
 			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
@@ -6323,8 +6323,8 @@ public:
 			memo_buf = p_old_rec->Memo;
 		}
 		{
-			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_PROJECT, id, PPTRPROP_DESCR), descr_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
-			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_PROJECT, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_PROJECT, id, PPTRPROP_DESCR), descr_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_PROJECT, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
 		}
 		CATCH
 			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
@@ -7009,7 +7009,7 @@ public:
 				p_data->Flags2 |= BILLF2_FORCEDRECEIPT;
 				memo_buf.Z();
 			}
-			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_BILL, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_BILL, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
 		}
 		CATCHZOK
 		return ok;
@@ -7119,7 +7119,7 @@ public:
 			p_data->ParentID = 0;
 			p_data->OrderN = ++OrderN_Counter;
 		}
-		THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_TECH, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+		THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_TECH, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
 		CATCHZOK
 		return ok;
 		#undef CF
@@ -7228,7 +7228,7 @@ public:
 			STRNSCPY(p_data->Name, p_old_rec->Name);
 			(memo_buf = p_old_rec->Memo).Strip();
 		}
-		THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_PERSON, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+		THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_PERSON, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
 		CATCHZOK
 		return ok;
 		#define CF(f) p_data->f = p_old_rec->f
@@ -7306,7 +7306,7 @@ public:
 			CF(ScndSCardID);
 			(memo_buf = p_old_rec->Memo).Strip();
 		}
-		THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_PERSONEVENT, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+		THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_PERSONEVENT, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
 		CATCHZOK
 		return ok;
 		#define CF(f) p_data->f = p_old_rec->f
@@ -7791,3 +7791,156 @@ public:
 };
 
 CONVERT_PROC(Convert12401, PPCvtLocTransf12401);
+//
+//
+//
+class PPCvtPrjTask12407 : public PPTableConversion {
+public:
+	struct PrjTaskRec_Before12407 {
+		int32  ID;
+		int32  ProjectID;
+		int32  Kind;
+		char   Code[24];
+		int32  CreatorID;
+		int32  GroupID;
+		int32  EmployerID;
+		int32  ClientID;
+		int32  TemplateID;
+		LDATE  Dt;
+		LTIME  Tm;
+		LDATE  StartDt;
+		LTIME  StartTm;
+		LDATE  EstFinishDt;
+		LTIME  EstFinishTm;
+		LDATE  FinishDt;
+		LTIME  FinishTm;
+		int16  Priority;
+		int16  Status;
+		int16  DrPrd;
+		int16  DrKind;
+		int32  DrDetail;
+		int32  Flags;
+		int32  DlvrAddrID;
+		int32  LinkTaskID;
+		double Amount;
+		int32  OpenCount;
+		int32  BillArID;
+		uint8  Reserve[16]; // raw
+	};
+	DBTable * CreateTableInstance(int * pNeedConversion)
+	{
+		DBTable * p_tbl = new PrjTaskTbl;
+		if(!p_tbl)
+			PPSetErrorNoMem();
+		else if(pNeedConversion) {
+			//const RECORDSIZE recsz = p_tbl->getRecSize();
+			int16  num_keys;
+			p_tbl->getNumKeys(&num_keys);
+			*pNeedConversion = BIN(num_keys < 8);
+		}
+		return p_tbl;
+	}
+	int ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+	{
+		const PrjTaskRec_Before12407 * p_old_rec = static_cast<const PrjTaskRec_Before12407 *>(pRec);
+		PrjTaskTbl::Rec * p_data = static_cast<PrjTaskTbl::Rec *>(pTbl->getDataBuf());
+		memzero(p_data, sizeof(*p_data));
+#define CPYFLD(f)    p_data->f = p_old_rec->f
+		CPYFLD(ID);
+		CPYFLD(ProjectID);
+		CPYFLD(Kind);
+		CPYFLD(CreatorID);
+		CPYFLD(GroupID);
+		CPYFLD(EmployerID);
+		CPYFLD(ClientID);
+		CPYFLD(TemplateID);
+		CPYFLD(Dt);
+		CPYFLD(Tm);
+		CPYFLD(StartDt);
+		CPYFLD(StartTm);
+		CPYFLD(EstFinishDt);
+		CPYFLD(EstFinishTm);
+		CPYFLD(FinishDt);
+		CPYFLD(FinishTm);
+		CPYFLD(Priority);
+		CPYFLD(Status);
+		CPYFLD(DrPrd);
+		CPYFLD(DrKind);
+		CPYFLD(DrDetail);
+		CPYFLD(Flags);
+		CPYFLD(DlvrAddrID);
+		CPYFLD(LinkTaskID);
+		CPYFLD(Amount);
+		CPYFLD(OpenCount);
+		CPYFLD(BillArID);
+#undef CPYFLD
+		STRNSCPY(p_data->Code, p_old_rec->Code);
+		return 1;
+	}
+};
+
+class PPCvtPersonPost12407 : public PPTableConversion { // @construction
+public:
+	struct PersonPostRec_Before12407 {
+		int32  ID;
+		char   Code[16];
+		int32  StaffID;
+		int32  PersonID;
+		LDATE  Dt;
+		LDATE  Finish;
+		int32  ChargeGrpID;
+		int32  Flags;
+		int16  Closed;
+		int16  Reserve1;
+		int32  PsnEventID;
+		uint8  Reserve2[28]; // raw
+	};
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
+	{
+		DBTable * p_tbl = new PersonPostTbl;
+		if(!p_tbl)
+			PPSetErrorNoMem();
+		else if(pNeedConversion) {
+			const RECORDSIZE recsz = p_tbl->getRecSize();
+			*pNeedConversion = BIN(recsz < sizeof(PersonPostTbl::Rec)); // Новый размер БОЛЬШЕ предыдущего
+		}
+		return p_tbl;
+	}
+	virtual int ConvertRec(DBTable * newTbl, void * pRec, int * pNewRecLen)
+	{
+		const PersonPostRec_Before12407 * p_old_rec = static_cast<const PersonPostRec_Before12407 *>(pRec);
+		PersonPostTbl::Rec * p_data = static_cast<PersonPostTbl::Rec *>(newTbl->getDataBuf());
+		newTbl->clearDataBuf();
+		#define CPYFLD(f)    p_data->f = p_old_rec->f
+			CPYFLD(ID);
+			CPYFLD(StaffID);
+			CPYFLD(PersonID);
+			CPYFLD(Dt);
+			CPYFLD(Finish);
+			CPYFLD(ChargeGrpID);
+			CPYFLD(Flags);
+			CPYFLD(Closed);
+			CPYFLD(PsnEventID);
+		#undef CPYFLD
+		STRNSCPY(p_data->Code, p_old_rec->Code);
+		*pNewRecLen = sizeof(PersonPostTbl::Rec);
+		return 1;
+	}
+};
+
+int Convert12407()
+{
+	int    ok = 1;
+	PPWaitStart();
+	{
+		PPCvtPrjTask12407 cvt01;
+		THROW(cvt01.Convert());
+	}
+	{
+		PPCvtPersonPost12407 cvt02;
+		THROW(cvt02.Convert());
+	}
+	PPWaitStop();
+	CATCHZOK
+	return ok;
+}

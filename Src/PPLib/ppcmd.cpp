@@ -2286,7 +2286,7 @@ public:
 		THROW_INVARG(pParam);
         sav_offs = pParam->GetRdOffs();
 		if(pParam->GetAvailableSize() == 0)
-			TodoObj.InitPacket(&pack, TODOKIND_TASK, 0, 0, 0, 0);
+			TodoObj.InitPacket_(pack, TODOKIND_TASK, 0, 0, 0, 0);
 		else
 			THROW(ReadPrjTaskPacket(&pack, *pParam, 0));
 		getcurdatetime(&pack.Rec.Dt, &pack.Rec.Tm);

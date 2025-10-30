@@ -47,10 +47,8 @@ struct sqlite3_api_routines {
 	int (* busy_timeout)(sqlite3*, int ms);
 	int (* changes)(sqlite3*);
 	int (* close)(sqlite3*);
-	int (* collation_needed)(sqlite3*, void*, void (*)(void*, sqlite3*,
-	    int eTextRep, const char*));
-	int (* collation_needed16)(sqlite3*, void*, void (*)(void*, sqlite3*,
-	    int eTextRep, const void*));
+	int (* collation_needed)(sqlite3*, void*, void (*)(void*, sqlite3*, int eTextRep, const char*));
+	int (* collation_needed16)(sqlite3*, void*, void (*)(void*, sqlite3*, int eTextRep, const void*));
 	const void * (* column_blob)(sqlite3_stmt*, int iCol);
 	int (* column_bytes)(sqlite3_stmt*, int iCol);
 	int (* column_bytes16)(sqlite3_stmt*, int iCol);

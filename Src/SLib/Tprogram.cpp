@@ -1095,7 +1095,7 @@ void TProgram::HandleWindowNcCalcSize(/*struct window * data,*/WPARAM wParam, LP
 			if(wParam != SIZE_MINIMIZED) {
 				p_pgm = static_cast<TProgram *>(TView::GetWindowUserData(hWnd));
 				p_pgm->SizeMainWnd(hWnd);
-				EnumWindows(SendMainWndSizeMessage, reinterpret_cast<LPARAM>(hWnd));
+				::EnumWindows(SendMainWndSizeMessage, reinterpret_cast<LPARAM>(hWnd));
 			}
 			break;
 		case WM_DRAWITEM:
@@ -1173,7 +1173,7 @@ void TProgram::HandleWindowNcCalcSize(/*struct window * data,*/WPARAM wParam, LP
 			p_pgm = static_cast<TProgram *>(TView::GetWindowUserData(hWnd));
 			if(p_pgm->H_FrameWnd)
 				PostMessage(p_pgm->H_FrameWnd, WM_MOVE, 0, 0);
-			EnumWindows(SendMainWndSizeMessage, reinterpret_cast<LPARAM>(hWnd));
+			::EnumWindows(SendMainWndSizeMessage, reinterpret_cast<LPARAM>(hWnd));
 			result = DefWindowProc(hWnd, message, wParam, lParam);
 			break;
 		//case WM_INPUTLANGCHANGE: {} break; // @v6.4.4 AHTOXA

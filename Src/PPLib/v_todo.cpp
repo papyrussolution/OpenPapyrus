@@ -580,41 +580,48 @@ int PrjTaskFilt::InclInList(int16 * pList, size_t listSize, int16 val)
 
 int PrjTaskFilt::ExclFromList(int16 * pList, size_t listSize, int16 minVal, int16 maxVal, int16 val)
 {
-	int    is_empty = 1;
+	bool   is_empty = true;
 	size_t i;
-	for(i = 0; is_empty && i < listSize; i++)
+	for(i = 0; is_empty && i < listSize; i++) {
 		if(pList[i] != 0)
-			is_empty = 0;
+			is_empty = false;
+	}
 	if(is_empty) {
 		int16 v = minVal;
 		for(i = 0; v <= maxVal && i < listSize; i++)
 			pList[i] = v++;
 	}
-	for(i = 0; i < listSize; i++)
+	for(i = 0; i < listSize; i++) {
 		if(pList[i] == val) {
 			pList[i] = 0;
 			return 1;
 		}
+	}
 	return -1;
 }
 
-int PrjTaskFilt::GetList(const int16 * pList, size_t listSize, PPIDArray * pDestList) const
+int PrjTaskFilt::GetList(const int16 * pList, size_t listSize, PPIDArray & rResultList) const
 {
-	pDestList->freeAll();
-	int    is_empty = 1;
+	rResultList.Z();
+	bool   is_empty = true;
 	size_t i;
-	for(i = 0; is_empty && i < listSize; i++)
+	for(i = 0; is_empty && i < listSize; i++) {
 		if(pList[i] != 0)
-			is_empty = 0;
+			is_empty = false;
+	}
 	if(is_empty)
 		return -1;
 	else {
-		for(i = 0; i < listSize; i++)
+		for(i = 0; i < listSize; i++) {
 			if(pList[i])
-				pDestList->addUnique(pList[i]);
+				rResultList.addUnique(pList[i]);
+		}
 		return 1;
 	}
 }
+
+void PrjTaskFilt::ClearSet_Status() { memzero(StatusList, sizeof(StatusList)); }
+void PrjTaskFilt::ClearSet_Prior() { memzero(PriorList, sizeof(PriorList)); }
 
 int PrjTaskFilt::IncludeStatus(long status)
 {
@@ -644,15 +651,15 @@ int PrjTaskFilt::ExcludePrior(long prior)
 	return ExclFromList(PriorList, SIZEOFARRAY(PriorList), 1, 5, (int16)prior);
 }
 
-int PrjTaskFilt::GetStatusList(PPIDArray * pList) const
+int PrjTaskFilt::GetStatusList(PPIDArray & rList) const
 {
-	return GetList(StatusList, SIZEOFARRAY(StatusList), pList);
+	return GetList(StatusList, SIZEOFARRAY(StatusList), rList);
 }
 
 SString & PrjTaskFilt::GetStatusListText(SString & rDest) const
 {
 	PPIDArray id_list;
-	GetStatusList(&id_list);
+	GetStatusList(id_list);
 	rDest.Z();
 	SString temp_buf;
 	for(uint i = 0; i < id_list.getCount(); i++)
@@ -663,7 +670,7 @@ SString & PrjTaskFilt::GetStatusListText(SString & rDest) const
 SString & PrjTaskFilt::GetPriorListText(SString & rDest) const
 {
 	PPIDArray id_list;
-	GetPriorList(&id_list);
+	GetPriorList(id_list);
 	rDest.Z();
 	SString temp_buf;
 	for(uint i = 0; i < id_list.getCount(); i++)
@@ -671,9 +678,9 @@ SString & PrjTaskFilt::GetPriorListText(SString & rDest) const
 	return rDest;
 }
 
-int PrjTaskFilt::GetPriorList(PPIDArray * pList) const
+int PrjTaskFilt::GetPriorList(PPIDArray & rList) const
 {
-	return GetList(PriorList, SIZEOFARRAY(PriorList), pList);
+	return GetList(PriorList, SIZEOFARRAY(PriorList), rList);
 }
 //
 //
@@ -747,14 +754,14 @@ int PPViewPrjTask::CheckRecForFilt(const PrjTaskTbl::Rec * pRec)
 		return 0;
 
 	PPIDArray f_list;
-	if(Filt.GetStatusList(&f_list) > 0 && !f_list.lsearch(pRec->Status))
+	if(Filt.GetStatusList(f_list) > 0 && !f_list.lsearch(pRec->Status))
 		return 0;
-	f_list.freeAll();
-	if(Filt.GetPriorList(&f_list) > 0 && !f_list.lsearch(pRec->Priority))
+	if(Filt.GetPriorList(f_list) > 0 && !f_list.lsearch(pRec->Priority))
 		return 0;
 	if(Filt.CliCityID)
 		if(pRec->ClientID) {
-			PPID addr_id = 0, city_id = 0;
+			PPID   addr_id = 0;
+			PPID   city_id = 0;
 			PPObjPerson psn_obj;
 			if(psn_obj.GetAddrID(pRec->ClientID, pRec->DlvrAddrID, PSNGETADDRO_DLVRADDR, &addr_id) > 0) {
 				psn_obj.GetCityByAddr(addr_id, &city_id, 0);
@@ -1113,8 +1120,8 @@ int PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 	if(!(Filt.Flags & PrjTaskFilt::fNotShowPPWaitOnInit))
 		PPWaitStart();
 	BExtQuery::ZDelete(&P_IterQuery);
-	UndefPriorList  = (Filt.GetPriorList(&PriorList) > 0) ? 0 : 1;
-	UndefStatusList = (Filt.GetStatusList(&StatusList) > 0) ? 0 : 1;
+	UndefPriorList  = (Filt.GetPriorList(PriorList) > 0) ? 0 : 1;
+	UndefStatusList = (Filt.GetStatusList(StatusList) > 0) ? 0 : 1;
 	CreatorList.Set(0);
 	EmployerList.Set(0);
 	ClientList.Set(0);
@@ -1253,6 +1260,7 @@ int PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 }
 
 class PrjTaskFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(PrjTaskFilt);
 public:
 	PrjTaskFiltDialog() : TDialog(DLG_TODOFILT)
 	{
@@ -1261,13 +1269,109 @@ public:
 		SetupCalPeriod(CTLCAL_TODOFILT_ESTFINISH, CTL_TODOFILT_ESTFINISH);
 		SetupCalPeriod(CTLCAL_TODOFILT_FINISH, CTL_TODOFILT_FINISH);
 	}
-	int    setDTS(const PrjTaskFilt *);
-	int    getDTS(PrjTaskFilt *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		AddClusterAssoc(CTL_TODOFILT_KIND, 0, TODOKIND_TASK);
+		AddClusterAssoc(CTL_TODOFILT_KIND, 1, TODOKIND_TEMPLATE);
+		AddClusterAssoc(CTL_TODOFILT_FLAGS, 0, PrjTaskFilt::fUnbindedOnly);
+		AddClusterAssoc(CTL_TODOFILT_FLAGS, 1, PrjTaskFilt::fUnviewedOnly);
+		AddClusterAssoc(CTL_TODOFILT_FLAGS, 2, PrjTaskFilt::fUnviewedEmployerOnly);
+		SetClusterData(CTL_TODOFILT_FLAGS, Data.Flags);
+		SetPeriodInput(this, CTL_TODOFILT_PERIOD, Data.Period);
+		SetPeriodInput(this, CTL_TODOFILT_START,  Data.StartPeriod);
+		SetPeriodInput(this, CTL_TODOFILT_ESTFINISH, Data.EstFinishPeriod);
+		SetPeriodInput(this, CTL_TODOFILT_FINISH,  Data.FinishPeriod);
+		SetupPPObjCombo(this,  CTLSEL_TODOFILT_TEMPLATE, PPOBJ_PRJTASK, Data.TemplateID, 0, reinterpret_cast<void *>(TODOKIND_TEMPLATE));
+		SetupPersonCombo(this, CTLSEL_TODOFILT_CREATOR,  Data.CreatorID, 0, PPPRK_EMPL, 0);
+		SetupPersonCombo(this, CTLSEL_TODOFILT_EMPLOYER, Data.EmployerID, 0, PPPRK_EMPL, 0);
+		SetupPersonCombo(this, CTLSEL_TODOFILT_CLIENT,   Data.ClientID, 0, PPPRK_CLIENT, 0);
+		SetupPPObjCombo(this,  CTLSEL_TODOFILT_CITY,     PPOBJ_WORLD,     Data.CliCityID, OLW_WORDSELECTOR, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
+		SetupPPObjCombo(this, CTLSEL_TODOFILT_PRJ,       PPOBJ_PROJECT, Data.ProjectID, OLW_CANINSERT, 0);
+		SetupStringCombo(this, CTLSEL_TODOFILT_ORDER,    PPTXT_TODOORDER,     Data.Order);
+		SetupStringCombo(this, CTLSEL_TODOFILT_CROSSTAB, PPTXT_TODOCROSSTAB,  Data.TabType);
+		SetupStringCombo(this, CTLSEL_TODOFILT_CTPAR,    PPTXT_TODOCTPARAMS,  Data.TabParam);
+		SetupSubstDateCombo(this, CTLSEL_TODOFILT_SUBST, Data.Sgd);
+
+		ushort v = 0;
+		PPIDArray list;
+		if(Data.GetPriorList(list) < 0)
+			v = 0x001f;
+		else {
+			for(long i = 1; i <= 5; i++)
+				if(list.lsearch(i))
+					v |= (1 << (i-1));
+		}
+		setCtrlData(CTL_TODOFILT_PRIOR, &v);
+		v = 0;
+		if(Data.GetStatusList(list) < 0)
+			v = 0x001f;
+		else {
+			for(long i = 1; i <= 5; i++)
+				if(list.lsearch(i))
+					v |= (1 << (i-1));
+		}
+		setCtrlData(CTL_TODOFILT_STATUS, &v);
+		SetupCtrls();
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		GetClusterData(CTL_TODOFILT_KIND, &Data.Kind);
+		GetClusterData(CTL_TODOFILT_FLAGS, &Data.Flags);
+		THROW(GetPeriodInput(this, sel = CTL_TODOFILT_PERIOD, &Data.Period));
+		THROW(GetPeriodInput(this, sel = CTL_TODOFILT_START,  &Data.StartPeriod));
+		THROW(GetPeriodInput(this, sel = CTL_TODOFILT_ESTFINISH, &Data.EstFinishPeriod));
+		THROW(GetPeriodInput(this, sel = CTL_TODOFILT_FINISH,    &Data.FinishPeriod));
+		getCtrlData(CTLSEL_TODOFILT_TEMPLATE, &Data.TemplateID);
+		getCtrlData(CTLSEL_TODOFILT_CREATOR,  &Data.CreatorID);
+		getCtrlData(CTLSEL_TODOFILT_EMPLOYER, &Data.EmployerID);
+		getCtrlData(CTLSEL_TODOFILT_CLIENT,   &Data.ClientID);
+		getCtrlData(CTLSEL_TODOFILT_CITY,     &Data.CliCityID);
+		getCtrlData(CTLSEL_TODOFILT_PRJ,      &Data.ProjectID);
+		getCtrlData(CTLSEL_TODOFILT_ORDER,    &Data.Order);
+		getCtrlData(CTLSEL_TODOFILT_CROSSTAB, &Data.TabType);
+		if(Data.StartPeriod.IsZero() && Data.TabType != PrjTaskFilt::crstNone) {
+			const LDATE oper_date = getcurdate_();
+			if(oneof2(Data.TabType, PrjTaskFilt::crstDateHour, PrjTaskFilt::crstEmployerHour))
+				Data.StartPeriod.low = Data.StartPeriod.upp = oper_date;
+			else {
+				LDATE odt = oper_date;
+				encodedate(1, odt.month(), odt.year(), &Data.StartPeriod.low);
+				encodedate(dayspermonth(odt.month(), odt.year()), odt.month(), odt.year(), &Data.StartPeriod.upp);
+			}
+		}
+		getCtrlData(CTLSEL_TODOFILT_SUBST,          &Data.Sgd);
+		getCtrlData(sel = CTLSEL_TODOFILT_CTPAR,    &Data.TabParam);
+		{
+			const ushort v = getCtrlUInt16(CTL_TODOFILT_PRIOR);
+			Data.ClearSet_Prior(); // @v12.4.7
+			for(int i = 1; i <= 5; i++) {
+				if(v & (1 << (i-1)))
+					Data.IncludePrior(i);
+				/* @v12.4.7 else
+					Data.ExcludePrior(i);*/
+			}
+		}
+		{
+			const ushort v = getCtrlUInt16(CTL_TODOFILT_STATUS);
+			Data.ClearSet_Status(); // @v12.4.7
+			for(int i = 1; i <= 5; i++) {
+				if(v & (1 << (i-1)))
+					Data.IncludeStatus(i);
+				/* @v12.4.7 else
+					Data.ExcludeStatus(i);*/
+			}
+		}
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	void   SetupCtrls();
-
-	PrjTaskFilt Data;
 };
 
 IMPL_HANDLE_EVENT(PrjTaskFiltDialog)
@@ -1305,100 +1409,6 @@ void PrjTaskFiltDialog::SetupCtrls()
 	disableCtrl(CTLSEL_TODOFILT_SUBST, !oneof2(Data.TabType, PrjTaskFilt::crstClientDate, PrjTaskFilt::crstEmployerDate));
 	if(Data.TabType != PrjTaskFilt::crstClientDate && Data.TabType != PrjTaskFilt::crstEmployerDate)
 		setCtrlLong(CTLSEL_TODOFILT_SUBST, 0);
-}
-
-int PrjTaskFiltDialog::setDTS(const PrjTaskFilt * pData)
-{
-	Data = *pData;
-	AddClusterAssoc(CTL_TODOFILT_KIND, 0, TODOKIND_TASK);
-	AddClusterAssoc(CTL_TODOFILT_KIND, 1, TODOKIND_TEMPLATE);
-	AddClusterAssoc(CTL_TODOFILT_FLAGS, 0, PrjTaskFilt::fUnbindedOnly);
-	AddClusterAssoc(CTL_TODOFILT_FLAGS, 1, PrjTaskFilt::fUnviewedOnly);
-	AddClusterAssoc(CTL_TODOFILT_FLAGS, 2, PrjTaskFilt::fUnviewedEmployerOnly);
-	SetClusterData(CTL_TODOFILT_FLAGS, Data.Flags);
-	SetPeriodInput(this, CTL_TODOFILT_PERIOD, Data.Period);
-	SetPeriodInput(this, CTL_TODOFILT_START,  Data.StartPeriod);
-	SetPeriodInput(this, CTL_TODOFILT_ESTFINISH, Data.EstFinishPeriod);
-	SetPeriodInput(this, CTL_TODOFILT_FINISH,  Data.FinishPeriod);
-	SetupPPObjCombo(this,  CTLSEL_TODOFILT_TEMPLATE, PPOBJ_PRJTASK, Data.TemplateID, 0, reinterpret_cast<void *>(TODOKIND_TEMPLATE));
-	SetupPersonCombo(this, CTLSEL_TODOFILT_CREATOR,  Data.CreatorID, 0, PPPRK_EMPL, 0);
-	SetupPersonCombo(this, CTLSEL_TODOFILT_EMPLOYER, Data.EmployerID, 0, PPPRK_EMPL, 0);
-	SetupPersonCombo(this, CTLSEL_TODOFILT_CLIENT,   Data.ClientID, 0, PPPRK_CLIENT, 0);
-	SetupPPObjCombo(this,  CTLSEL_TODOFILT_CITY,     PPOBJ_WORLD,     Data.CliCityID, OLW_WORDSELECTOR, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
-	SetupPPObjCombo(this, CTLSEL_TODOFILT_PRJ,       PPOBJ_PROJECT, Data.ProjectID, OLW_CANINSERT, 0);
-	SetupStringCombo(this, CTLSEL_TODOFILT_ORDER,    PPTXT_TODOORDER,     Data.Order);
-	SetupStringCombo(this, CTLSEL_TODOFILT_CROSSTAB, PPTXT_TODOCROSSTAB,  Data.TabType);
-	SetupStringCombo(this, CTLSEL_TODOFILT_CTPAR,    PPTXT_TODOCTPARAMS,  Data.TabParam);
-	SetupSubstDateCombo(this, CTLSEL_TODOFILT_SUBST, Data.Sgd);
-
-	int    i;
-	ushort v = 0;
-	PPIDArray list;
-	if(Data.GetPriorList(&list) < 0)
-		v = 0x001f;
-	else
-		for(i = 1; i <= 5; i++)
-			if(list.lsearch(i))
-				v |= (1 << (i-1));
-	setCtrlData(CTL_TODOFILT_PRIOR, &v);
-	v = 0;
-	if(Data.GetStatusList(&list) < 0)
-		v = 0x001f;
-	else
-		for(i = 1; i <= 5; i++)
-			if(list.lsearch(i))
-				v |= (1 << (i-1));
-	setCtrlData(CTL_TODOFILT_STATUS, &v);
-	SetupCtrls();
-	return 1;
-}
-
-int PrjTaskFiltDialog::getDTS(PrjTaskFilt * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	GetClusterData(CTL_TODOFILT_KIND, &Data.Kind);
-	GetClusterData(CTL_TODOFILT_FLAGS, &Data.Flags);
-	THROW(GetPeriodInput(this, sel = CTL_TODOFILT_PERIOD, &Data.Period));
-	THROW(GetPeriodInput(this, sel = CTL_TODOFILT_START,  &Data.StartPeriod));
-	THROW(GetPeriodInput(this, sel = CTL_TODOFILT_ESTFINISH, &Data.EstFinishPeriod));
-	THROW(GetPeriodInput(this, sel = CTL_TODOFILT_FINISH,    &Data.FinishPeriod));
-	getCtrlData(CTLSEL_TODOFILT_TEMPLATE, &Data.TemplateID);
-	getCtrlData(CTLSEL_TODOFILT_CREATOR,  &Data.CreatorID);
-	getCtrlData(CTLSEL_TODOFILT_EMPLOYER, &Data.EmployerID);
-	getCtrlData(CTLSEL_TODOFILT_CLIENT,   &Data.ClientID);
-	getCtrlData(CTLSEL_TODOFILT_CITY,     &Data.CliCityID);
-	getCtrlData(CTLSEL_TODOFILT_PRJ,      &Data.ProjectID);
-	getCtrlData(CTLSEL_TODOFILT_ORDER,    &Data.Order);
-	getCtrlData(CTLSEL_TODOFILT_CROSSTAB, &Data.TabType);
-	if(Data.StartPeriod.IsZero() && Data.TabType != PrjTaskFilt::crstNone) {
-		const LDATE oper_date = getcurdate_();
-		if(oneof2(Data.TabType, PrjTaskFilt::crstDateHour, PrjTaskFilt::crstEmployerHour))
-			Data.StartPeriod.low = Data.StartPeriod.upp = oper_date;
-		else {
-			LDATE odt = oper_date;
-			encodedate(1, odt.month(), odt.year(), &Data.StartPeriod.low);
-			encodedate(dayspermonth(odt.month(), odt.year()), odt.month(), odt.year(), &Data.StartPeriod.upp);
-		}
-	}
-	getCtrlData(CTLSEL_TODOFILT_SUBST,          &Data.Sgd);
-	getCtrlData(sel = CTLSEL_TODOFILT_CTPAR,    &Data.TabParam);
-	int    i;
-	ushort v = getCtrlUInt16(CTL_TODOFILT_PRIOR);
-	for(i = 1; i <= 5; i++)
-		if(v & (1 << (i-1)))
-			Data.IncludePrior(i);
-		else
-			Data.ExcludePrior(i);
-	getCtrlData(CTL_TODOFILT_STATUS, &(v = 0));
-	for(i = 1; i <= 5; i++)
-		if(v & (1 << (i-1)))
-			Data.IncludeStatus(i);
-		else
-			Data.ExcludeStatus(i);
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
 }
 
 int PPViewPrjTask::EditBaseFilt(PPBaseFilt * pBaseFilt)
@@ -2347,7 +2357,7 @@ int PPViewPrjTask::EditTimeGridItem(PPID * pID, PPID rowID, const LDATETIME & rD
 		PPPrjTaskPacket pack;
 		PPID   cli_id = (Filt.Order == PrjTaskFilt::ordByClient) ? rowID : 0;
 		PPID   emp_id = (Filt.Order == PrjTaskFilt::ordByClient) ? 0 : rowID;
-		THROW(TodoObj.InitPacket(&pack, TODOKIND_TASK, Filt.ProjectID, cli_id, emp_id, 1));
+		THROW(TodoObj.InitPacket_(pack, TODOKIND_TASK, Filt.ProjectID, cli_id, emp_id, 1));
 		pack.Rec.StartDt = rDtm.d;
 		pack.Rec.StartTm = rDtm.t;
 		while(ok < 0 && TodoObj.EditDialog(&pack) > 0)

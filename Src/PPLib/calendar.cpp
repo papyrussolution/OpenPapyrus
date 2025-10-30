@@ -1732,12 +1732,94 @@ int ExecDateCalendar(void * hParentWnd, LDATE * pDate)
 void ShowCalCtrl(int buttCtlID, TDialog * pDlg, int show)
 	{ ShowWindow(GetDlgItem(pDlg->H(), buttCtlID), show ? SW_SHOW : SW_HIDE); }
 
+struct CalendarCtrlPrivateBlock {
+	CalendarCtrlPrivateBlock(TDialog * pDlg, uint editCtlId, uint calType, WNDPROC fPrevWndProc) : 
+		Dlg(pDlg), EditID(editCtlId), CalType(calType), PrevWndProc(fPrevWndProc)
+	{
+		STRNSCPY(Signature, GetCalCtrlSignature(calType));
+	}
+	char   Signature[24]; // @firstmember (instance is identified by this signature)
+	TDialog * Dlg;
+	const uint EditID;
+	const uint CalType;
+	WNDPROC PrevWndProc;
+};
+//
+// Descr: Ищет управляющую кнопку календаря, привязанную к полю ввода inputCtlID.
+// ARG(calendarCtlType IN): 0 - date, 1 - period
+//
+static HWND FindCalendarCtrlByInputLineId(HWND hParent, int supplementKind, uint inputCtlID) // @v12.4.7 @construction
+{
+	HWND   h_result = 0;
+	if(hParent) {
+		struct CallbackParam {
+			CallbackParam(int supplementKind, uint inputCtlID) : H_Ctl(0), SupplementKind(supplementKind), InputCtlID(inputCtlID)
+			{
+			}
+			const   int  SupplementKind;
+			const   uint InputCtlID;
+			HWND    H_Ctl;
+		};
+		//BOOL CALLBACK EnumChildProc(_In_ HWND hwnd, _In_ LPARAM lParam);
+		auto callback_f = [](HWND hwnd, LPARAM lParam) -> BOOL
+		{
+			BOOL   result = TRUE;
+			CallbackParam * p_param = reinterpret_cast<CallbackParam *>(lParam);
+			if(!p_param) {
+				result = FALSE; // Нечего тут больше делать.
+			}
+			else {
+				const char * p_s = 0;
+				if(p_param->SupplementKind == SUiCtrlSupplement::kDateCalendar) {
+					p_s = GetCalCtrlSignature(/*p_param->CalendarCtlType*/0);
+				}
+				else if(p_param->SupplementKind == SUiCtrlSupplement::kDateRangeCalendar) {
+					p_s = GetCalCtrlSignature(/*p_param->CalendarCtlType*/1);
+				}
+				if(isempty(p_s)) {
+					result = FALSE; // Нечего тут больше делать.
+				}
+				else {
+					const  void * p_user_data = TView::GetWindowUserData(hwnd);
+					if(p_user_data) {
+						const CalendarCtrlPrivateBlock * p_ctl_blk = static_cast<const CalendarCtrlPrivateBlock *>(p_user_data);
+						if(sstreq(p_ctl_blk->Signature, p_s)) {
+							if(p_ctl_blk->EditID == p_param->InputCtlID) {
+								p_param->H_Ctl = hwnd;
+								result = FALSE; // exit func
+							}
+						}
+					}
+				}
+			}
+			return result;
+		};
+		CallbackParam cb_param(supplementKind, inputCtlID);
+		//HWND h_wnd = pDlg->H();
+		::EnumChildWindows(hParent, callback_f, reinterpret_cast<LPARAM>(&cb_param));
+		if(cb_param.H_Ctl) {
+			h_result = cb_param.H_Ctl;
+		}
+	}
+	return h_result;
+}
+
+//typedef void * (*FindSupplementWindowFunc)(int supplementKind, void * hParentWnd, uint linkCtlId); // @v12.4.7
+void * PPFindSupplementWindow(int supplementKind, void * hParentWnd, uint linkCtlId) // @v12.4.7
+{
+	void * p_result = 0;
+	if(oneof2(supplementKind, SUiCtrlSupplement::kDateCalendar, SUiCtrlSupplement::kDateRangeCalendar)) {
+		HWND h_ctl = FindCalendarCtrlByInputLineId(reinterpret_cast<HWND>(hParentWnd), supplementKind, linkCtlId);
+		p_result = reinterpret_cast<void *>(h_ctl);
+	}
+	return p_result;
+}
+
 static void STDCALL SetupCalCtrl(int buttCtlID, TDialog * pDlg, uint editCtlID, uint T, bool dlgProcOnly)
 {
-	struct CalButtonWndEx {
-		CalButtonWndEx(TDialog * pDlg, uint editCtlId, uint calType, WNDPROC fPrevWndProc) : Dlg(pDlg), EditID(editCtlId), CalType(calType), PrevWndProc(fPrevWndProc)
+	struct CalButtonWndEx : public CalendarCtrlPrivateBlock {
+		CalButtonWndEx(TDialog * pDlg, uint editCtlId, uint calType, WNDPROC fPrevWndProc) : CalendarCtrlPrivateBlock(pDlg, editCtlId, calType, fPrevWndProc)
 		{
-			STRNSCPY(Signature, GetCalCtrlSignature(calType));
 		}
 		static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
@@ -1801,11 +1883,6 @@ static void STDCALL SetupCalCtrl(int buttCtlID, TDialog * pDlg, uint editCtlID, 
 			}
 			return CallWindowProc(p_cbwe->PrevWndProc, hWnd, message, wParam, lParam);
 		}
-		char   Signature[24];
-		TDialog * Dlg;
-		const uint EditID;
-		const uint CalType;
-		WNDPROC PrevWndProc;
 	};
 
 	HWND   hwnd = GetDlgItem(pDlg->H(), buttCtlID);

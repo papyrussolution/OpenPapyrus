@@ -1025,14 +1025,37 @@ IMPL_HANDLE_EVENT(TInputLine)
 	clearEvent(event);
 }
 
-void TInputLine::setState(uint aState, bool enable)
+void TInputLine::setState(uint newState, bool enable)
 {
-	TView::setState(aState, enable);
-	HWND h_wnd = getHandle();
-	if(aState == sfReadOnly)
+	TView::setState(newState, enable);
+	HWND   h_wnd = getHandle();
+	if(newState == sfReadOnly)
 		::SendMessage(h_wnd, EM_SETREADONLY, enable, 0);
+	// @v12.4.7 {
+	if(newState == sfVisible) {
+		if(Parent) {
+			SlExtraProcBlock epb;
+			SLS.GetExtraProcBlock(&epb);
+			if(epb.F_UiFindSupplementWindow) {
+				const int supplement_type_list[] = {
+					SUiCtrlSupplement::kDateCalendar, SUiCtrlSupplement::kDateRangeCalendar
+				};
+				HWND h_parent = Parent;
+				for(uint i = 0; i < SIZEOFARRAY(supplement_type_list); i++) {
+					const int st = supplement_type_list[i];
+					void * h_ctl = epb.F_UiFindSupplementWindow(st, Parent, Id);
+					if(h_ctl) {
+						if(newState & sfVisible) {
+							::ShowWindow(reinterpret_cast<HWND>(h_ctl), enable ? SW_SHOW : SW_HIDE);
+						}
+					}
+				}
+			}
+		}
+	}
+	// } @v12.4.7 
 	// @v12.3.7 {
-	if(aState & (sfSelected|sfActive|sfDisabled))
+	if(newState & (sfSelected|sfActive|sfDisabled))
 		::RedrawWindow(h_wnd, 0, 0, RDW_FRAME|RDW_INVALIDATE);
 	// } @v12.3.7 
 }

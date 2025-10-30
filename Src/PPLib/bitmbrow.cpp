@@ -2424,9 +2424,17 @@ void BillItemBrowser::addItem_(int fromOrder, TIDlgInitData * pInitData, int sig
 						}
 					}
 					if(!local_done) {
-						if(PPViewLocTransf::EditLocTransf(&R_Pack, lti) > 0) {
+						if(PPViewLocTransf::EditLocTransf(&R_Pack, -1, lti) > 0) {
 							SETIFZQ(R_Pack.P_LocTrfrList, new TSVector <LocTransfOpBlock>());
+							if(lti.RByBillLT == 0) {
+								int    rbb_max = 0;
+								for(uint ltli = 0; ltli < R_Pack.P_LocTrfrList->getCount(); ltli++) {
+									SETMAX(rbb_max, R_Pack.P_LocTrfrList->at(ltli).RByBillLT);
+								}
+								lti.RByBillLT = rbb_max+1;
+							}
 							R_Pack.P_LocTrfrList->insert(&lti);
+							R_Pack.LTagL.ReplacePosition(-1, R_Pack.P_LocTrfrList->getCount()-1);
 							State |= stIsModified;
 							update(pos_bottom);
 						}
@@ -2572,7 +2580,7 @@ void BillItemBrowser::editItem()
 			if(oneof2(BillDetailType, PPBillPacket::detailtypeLocTrfr, PPBillPacket::detailtypeLocTrfr_Bailment)) {
 				if(c < static_cast<int>(SVectorBase::GetCount(R_Pack.P_LocTrfrList))) {
 					LocTransfOpBlock & r_lti = R_Pack.P_LocTrfrList->at(c);
-					if(PPViewLocTransf::EditLocTransf(&R_Pack, r_lti) > 0) {
+					if(PPViewLocTransf::EditLocTransf(&R_Pack, c, r_lti) > 0) {
 						State |= stIsModified;
 						update(pos_bottom);
 					}

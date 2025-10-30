@@ -1,5 +1,6 @@
 // TEST-SQLITE.CPP
 // Copyright (c) A.Sobolev 2024, 2025
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -56,6 +57,7 @@ SLTEST_R(SQLite)
 			{ Generator_SQL::tokIndexedBy, "INDEXED BY" }, // @v12.4.0 sqlite "indexed by"
 			{ Generator_SQL::tokOrderBy, "ORDER BY" },      // @v12.4.0
 			{ Generator_SQL::tokTemp, "TEMP" }, // @v12.4.4 tokTemp
+			{ Generator_SQL::tokCollate, "COLLATE" }, // @v12.4.7 tokCollate
 		};
 		//Generator_SQL gen(sqlstSQLite, 0);
 		for(uint i = 0; i < SIZEOFARRAY(tok_list); i++) {
@@ -78,12 +80,12 @@ SLTEST_R(SQLite)
 	TSCollection <TestRef01Tbl::Rec> ref01_rec_list;
 	TSCollection <TestRef02Tbl::Rec> ref02_rec_list;
 	SLS.QueryPath("testroot", db_file_name);
-	db_file_name.SetLastSlash().Cat("out").SetLastSlash().Cat("SQLite").SetLastSlash().Cat("test-sqlite-db"); // Без расширения!
+	db_file_name.SetLastSlash().Cat("out").SetLastSlash().Cat("SQLite").SetLastSlash().Cat("test-sqlite-db"); // Р‘РµР· СЂР°СЃС€РёСЂРµРЅРёСЏ!
     const SString db_path(db_file_name);
 	dblb.SetAttr(DbLoginBlock::attrDbPath, db_path);
 	SSqliteDbProvider dbp;
 	{
-		// Создать базу данных
+		// РЎРѕР·РґР°С‚СЊ Р±Р°Р·Сѓ РґР°РЅРЅС‹С…
 		THROW(SLCHECK_NZ(dbp.DbLogin(&dblb, DbProvider::openfMainThread)));
 	}
 	{
@@ -96,10 +98,10 @@ SLTEST_R(SQLite)
 			const char * p_tbl_name = p_tbl_name_list[i];
 			int efer = dbp.IsFileExists_(p_tbl_name);
 			if(!efer) {
-				// Создать таблицу
+				// РЎРѕР·РґР°С‚СЊ С‚Р°Р±Р»РёС†Сѓ
 				DBTable dbt;
 				if(dbp.LoadTableSpec(&dbt, p_tbl_name, p_tbl_name, /*createIfNExists*/0)) {
-					if(dbp.CreateDataFile(&dbt, p_tbl_name, SET_CRM_TEMP(crmNoReplace), 0)) {
+					if(dbp.CreateDataFile(&dbt, p_tbl_name, /*SET_CRM_TEMP(crmNoReplace)*/crmNoReplace, 0)) {
 						debug_mark = true;
 					}
 				}
@@ -127,7 +129,7 @@ SLTEST_R(SQLite)
 	}
 	{
 		//
-		// Генерация записей таблиц TestRef01, TestRef02, TestTa01
+		// Р“РµРЅРµСЂР°С†РёСЏ Р·Р°РїРёСЃРµР№ С‚Р°Р±Р»РёС† TestRef01, TestRef02, TestTa01
 		//
 		const  uint ref01_rec_list_max_count = 8000;
 		const  uint ref02_rec_list_max_count = 2500;
@@ -190,11 +192,11 @@ SLTEST_R(SQLite)
 
 		uint   ref02_insert_fault_count = 0;
 		uint   ta02_insert_fault_count = 0;
-		// Загрузить в таблицу большой набор известных записей (из record_list)
+		// Р—Р°РіСЂСѓР·РёС‚СЊ РІ С‚Р°Р±Р»РёС†Сѓ Р±РѕР»СЊС€РѕР№ РЅР°Р±РѕСЂ РёР·РІРµСЃС‚РЅС‹С… Р·Р°РїРёСЃРµР№ (РёР· record_list)
 		if(dbp.StartTransaction()) {
 			{
 				//
-				// Для таблицы TestRef01 применяем BExtInsert
+				// Р”Р»СЏ С‚Р°Р±Р»РёС†С‹ TestRef01 РїСЂРёРјРµРЅСЏРµРј BExtInsert
 				//
 				const bool use_bextinsert = true;
 				TestRef01Tbl::Key0 k0;
@@ -296,7 +298,7 @@ SLTEST_R(SQLite)
 		TestTa01Tbl::Key0 k0;
 		TestTa01Tbl::Rec * p_rec_buf = static_cast<TestTa01Tbl::Rec *>(p_tbl->getDataBuf());
 		{
-			// Найти каждую из записей
+			// РќР°Р№С‚Рё РєР°Р¶РґСѓСЋ РёР· Р·Р°РїРёСЃРµР№
 			MEMSZERO(k0);
 			k0.Dt = first_pattern_dtm.d;
 			k0.Tm = first_pattern_dtm.t;
@@ -325,7 +327,7 @@ SLTEST_R(SQLite)
 			SLCHECK_Z(uneq_rec_count);
 		}
 		{
-			// Здесь делаем тоже самое, что и в предыдущем блоке, но перебираем записи в обратном порядке
+			// Р—РґРµСЃСЊ РґРµР»Р°РµРј С‚РѕР¶Рµ СЃР°РјРѕРµ, С‡С‚Рѕ Рё РІ РїСЂРµРґС‹РґСѓС‰РµРј Р±Р»РѕРєРµ, РЅРѕ РїРµСЂРµР±РёСЂР°РµРј Р·Р°РїРёСЃРё РІ РѕР±СЂР°С‚РЅРѕРј РїРѕСЂСЏРґРєРµ
 			MEMSZERO(k0);
 			k0.Dt = MAXDATE;
 			k0.Tm = MAXTIME;
@@ -353,9 +355,31 @@ SLTEST_R(SQLite)
 			} while(srch_count < rec_list_count && p_tbl->search(0, &k0, spPrev) && (p_rec_buf->Dt > first_pattern_dtm.d || (p_rec_buf->Dt == first_pattern_dtm.d && p_rec_buf->Tm >= first_pattern_dtm.t)));
 			SLCHECK_Z(uneq_rec_count);
 		}
+		if(p_tbl_ref01) {
+			//
+			// РўРµРїРµСЂСЊ РёС‰РµРј РїРѕ С‚РµРєСЃС‚РѕРІРѕРјСѓ РёРЅРґРµРєСЃСѓ РІ С‚Р°Р±Р»РёС†Рµ Ref01
+			//
+			for(uint i = 0; i < ref01_rec_list.getCount(); i++) {
+				const TestRef01Tbl::Rec * p_ref01_patten_rec = ref01_rec_list.at(i);
+				if(p_ref01_patten_rec && !isempty(p_ref01_patten_rec->S48)) {
+					TestRef01Tbl::Key5 ref01_k5;
+					MEMSZERO(ref01_k5);
+					STRNSCPY(ref01_k5.S48, p_ref01_patten_rec->S48);
+					const int sr = p_tbl_ref01->search(5, &ref01_k5, spEq);
+					SLCHECK_NZ(sr);
+					if(sr) {
+						TestRef01Tbl::Rec * p_ref01_rec_buf = static_cast<TestRef01Tbl::Rec *>(p_tbl_ref01->getDataBuf());
+						SLCHECK_Z(stricmp866(p_ref01_rec_buf->S48, p_ref01_patten_rec->S48));
+					}
+					else {
+						;
+					}
+				}
+			}
+		}
 	}
 	{
-		// Изменить записи и убедиться, что она действительно изменилась
+		// РР·РјРµРЅРёС‚СЊ Р·Р°РїРёСЃРё Рё СѓР±РµРґРёС‚СЊСЃСЏ, С‡С‚Рѕ РѕРЅР° РґРµР№СЃС‚РІРёС‚РµР»СЊРЅРѕ РёР·РјРµРЅРёР»Р°СЃСЊ
 		uint   inprop_updated_count = 0;
 		if(dbp.StartTransaction()) {
 			for(uint i = 0; i < record_list.getCount(); i++) {
@@ -396,14 +420,14 @@ SLTEST_R(SQLite)
 		}
 	}
 	{
-		// Найти несколько выборок записей по критериям
+		// РќР°Р№С‚Рё РЅРµСЃРєРѕР»СЊРєРѕ РІС‹Р±РѕСЂРѕРє Р·Р°РїРёСЃРµР№ РїРѕ РєСЂРёС‚РµСЂРёСЏРј
 		{
-			// @20250916 Увы, сейчас генератор записей не создает дубликатов - придется менять генератор дабы он спонтанно 
-			// создавал дубликаты
+			// @20250916 РЈРІС‹, СЃРµР№С‡Р°СЃ РіРµРЅРµСЂР°С‚РѕСЂ Р·Р°РїРёСЃРµР№ РЅРµ СЃРѕР·РґР°РµС‚ РґСѓР±Р»РёРєР°С‚РѕРІ - РїСЂРёРґРµС‚СЃСЏ РјРµРЅСЏС‚СЊ РіРµРЅРµСЂР°С‚РѕСЂ РґР°Р±С‹ РѕРЅ СЃРїРѕРЅС‚Р°РЅРЅРѕ 
+			// СЃРѕР·РґР°РІР°Р» РґСѓР±Р»РёРєР°С‚С‹
 
-			// Поле TestTa01::I64Val проиндексировано. Многие значения имеют дубликаты (выяснено экспериментально).
-			// В общем, то что нужно.
-			// Ищем с списке record_list дублированные значения, затем осуществляем поиск в таблице по индексу 2
+			// РџРѕР»Рµ TestTa01::I64Val РїСЂРѕРёРЅРґРµРєСЃРёСЂРѕРІР°РЅРѕ. РњРЅРѕРіРёРµ Р·РЅР°С‡РµРЅРёСЏ РёРјРµСЋС‚ РґСѓР±Р»РёРєР°С‚С‹ (РІС‹СЏСЃРЅРµРЅРѕ СЌРєСЃРїРµСЂРёРјРµРЅС‚Р°Р»СЊРЅРѕ).
+			// Р’ РѕР±С‰РµРј, С‚Рѕ С‡С‚Рѕ РЅСѓР¶РЅРѕ.
+			// РС‰РµРј СЃ СЃРїРёСЃРєРµ record_list РґСѓР±Р»РёСЂРѕРІР°РЅРЅС‹Рµ Р·РЅР°С‡РµРЅРёСЏ, Р·Р°С‚РµРј РѕСЃСѓС‰РµСЃС‚РІР»СЏРµРј РїРѕРёСЃРє РІ С‚Р°Р±Р»РёС†Рµ РїРѕ РёРЅРґРµРєСЃСѓ 2
 			if(false/* @construction */) {
 				const uint max_test_count = 10;
 				uint test_count = 0;
@@ -460,7 +484,7 @@ SLTEST_R(SQLite)
 		}
 	}
 	{
-		// Удалить каждую сотую запись и убедиться, что ее больше нет в таблице
+		// РЈРґР°Р»РёС‚СЊ РєР°Р¶РґСѓСЋ СЃРѕС‚СѓСЋ Р·Р°РїРёСЃСЊ Рё СѓР±РµРґРёС‚СЊСЃСЏ, С‡С‚Рѕ РµРµ Р±РѕР»СЊС€Рµ РЅРµС‚ РІ С‚Р°Р±Р»РёС†Рµ
 		if(dbp.StartTransaction()) {
 			LongArray deleted_idx_list;
 			uint    delete_fault_count = 0;
@@ -524,7 +548,7 @@ SLTEST_R(SQLite)
 	}
 	{
 		//
-		// Найти записи в таблице TestTa01 по запросу RVal1 в диапазоне [2.5..2.6]
+		// РќР°Р№С‚Рё Р·Р°РїРёСЃРё РІ С‚Р°Р±Р»РёС†Рµ TestTa01 РїРѕ Р·Р°РїСЂРѕСЃСѓ RVal1 РІ РґРёР°РїР°Р·РѕРЅРµ [2.5..2.6]
 		// 
 		//BExtQuery q(p_tbl, 0);
 		//q.selectAll().where(p_tbl->RVal1 >= 2.5 && p_tbl->)
@@ -543,7 +567,7 @@ SLTEST_R(SQLite)
 	}
 	{
 		//
-		// Удалить записи из таблицы TestTa01 по запросу RVal1 в диапазоне [2.5..2.6]
+		// РЈРґР°Р»РёС‚СЊ Р·Р°РїРёСЃРё РёР· С‚Р°Р±Р»РёС†С‹ TestTa01 РїРѕ Р·Р°РїСЂРѕСЃСѓ RVal1 РІ РґРёР°РїР°Р·РѕРЅРµ [2.5..2.6]
 		// 
 #if 0 // @construction {
 		RealRange range;
@@ -557,11 +581,11 @@ SLTEST_R(SQLite)
 				}
 			}
 			if(idx_list_to_remove.getCount()) {
-				TestTa01Tbl ta_tbl; // В отличии от p_tbl здесь есть заданные дескрипторы полей
+				TestTa01Tbl ta_tbl; // Р’ РѕС‚Р»РёС‡РёРё РѕС‚ p_tbl Р·РґРµСЃСЊ РµСЃС‚СЊ Р·Р°РґР°РЅРЅС‹Рµ РґРµСЃРєСЂРёРїС‚РѕСЂС‹ РїРѕР»РµР№
 				int dfr = deleteFrom(&ta_tbl, 1/*use_ta*/, (ta_tbl.RVal1 >= range.low && ta_tbl.RVal1 <= range.upp));
 				if(dfr) {
 					{
-						// Найти каждую из записей
+						// РќР°Р№С‚Рё РєР°Р¶РґСѓСЋ РёР· Р·Р°РїРёСЃРµР№
 						TestTa01Tbl::Key0 k0;
 						MEMSZERO(k0);
 						k0.Dt = first_pattern_dtm.d;
@@ -596,10 +620,10 @@ SLTEST_R(SQLite)
 #endif // } 0 @construction
 	}
 	{
-		// Удалить все записи
+		// РЈРґР°Р»РёС‚СЊ РІСЃРµ Р·Р°РїРёСЃРё
 	}
 	{
-		// Удалить таблицу
+		// РЈРґР°Р»РёС‚СЊ С‚Р°Р±Р»РёС†Сѓ
 	}
 	CATCH
 		CurrentStatus = 0;

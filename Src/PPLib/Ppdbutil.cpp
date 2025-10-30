@@ -955,6 +955,7 @@ int PrcssrDbDump::Run()
 {
 	int    ok = 1;
 	int    db_locked = 0;
+	PPLogger logger; // @v12.4.7
 	THROW(OpenStream(P.FileName));
 	if(P.SpcOb == spcobNone) {
 		DbLoginBlock dlb;
@@ -993,7 +994,9 @@ int PrcssrDbDump::Run()
 			}
 			else {
 				for(uint j = 0; j < TblNameList.getCount(); j++) {
-					THROW(Helper_Undump(TblNameList.Get(j).Id));
+					if(!Helper_Undump(TblNameList.Get(j).Id)) { // @v12.4.7 Не закрываем работу при ошибке в надежде, что следующие таблицы отработают нормально
+						logger.LogLastError();
+					}
 				}
 			}
 		}
@@ -1004,6 +1007,7 @@ int PrcssrDbDump::Run()
 	THROW(CloseStream());
 	PPWaitStop();
 	CATCH
+		logger.LogLastError();
 		CloseStream();
 		ok = 0;
 	ENDCATCH
@@ -1105,35 +1109,38 @@ int PrcssrDbDump::Helper_Undump(long tblID)
 				if(tbl.HasLob(&lob_fld) > 0) {
 					has_lob = 1;
 				}
-				THROW_DB(p_dict->RenewFile(tbl, 0, 0));
+				THROW_DB(p_dict->RenewFile(tbl, crmNoReplace, 0));
 				{
-					PPTransaction tra(1);
-					THROW(tra);
 					cntr.Init((long)r_entry.NumRecs); // @32-64
 					for(int64 i = 0; i < r_entry.NumChunks; i++) {
 						int64  local_count = 0;
 						buffer.Z();
 						THROW_SL(FDump.Read(&local_count, sizeof(local_count)));
 						THROW_SL(FDump.Read(buffer));
-						for(int64 j = 0; j < local_count; j++) {
-							tbl.clearDataBuf();
-							THROW_SL(Ctx.Unserialize(tbl.GetTableName(), &tbl.GetFields(), tbl.getDataBuf(), buffer));
-							if(has_lob) {
-								const SLob * p_lob = static_cast<const SLob *>(lob_fld.getValuePtr());
-								tbl.setLobSize(lob_fld, p_lob ? p_lob->GetPtrSize() : 0);
+						{
+							PPTransaction tra(1);
+							THROW(tra);
+							for(int64 j = 0; j < local_count; j++) {
+								tbl.clearDataBuf();
+								THROW_SL(Ctx.Unserialize(tbl.GetTableName(), &tbl.GetFields(), tbl.getDataBuf(), buffer));
+								if(has_lob) {
+									const SLob * p_lob = static_cast<const SLob *>(lob_fld.getValuePtr());
+									tbl.setLobSize(lob_fld, p_lob ? p_lob->GetPtrSize() : 0);
+								}
+								THROW_DB(tbl.insertRec());
+								if(has_lob) {
+									//
+									// Так как сериализация LOB-поля восстанавливает его в канонизированном
+									// виде, то очищаем канонизированный буфер во избежании утечки памяти.
+									//
+									// @v12.4.7 tbl.writeLobData(lob_fld, 0, 0, 0);
+									tbl.destroyLobData(lob_fld); // @v12.4.7
+								}
+								PPWaitPercent(cntr.Increment(), tbl_name);
 							}
-							THROW_DB(tbl.insertRec());
-							if(has_lob) {
-								//
-								// Так как сериализация LOB-поля восстанавливает его в канонизированном
-								// виде, то очищаем канонизированный буфер во избежании утечки памяти.
-								//
-								tbl.writeLobData(lob_fld, 0, 0, 0);
-							}
-							PPWaitPercent(cntr.Increment(), tbl_name);
+							THROW(tra.Commit());
 						}
 					}
-					THROW(tra.Commit());
 				}
 				THROW(p_dict->PostProcessAfterUndump(&tbl));
 			}

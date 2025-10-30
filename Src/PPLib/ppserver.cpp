@@ -344,6 +344,7 @@ int PPServerCmd::ParseLine(const SString & rLine, long flags)
 		tExecJobImm,          // @v11.3.9
 		tGetDbInfo,           // @v12.0.6 
 		tEgaisMarkAutoSelection, // @v12.2.11
+		tTestServerPrint, // @v12.4.7
 	};
 	enum {
 		cmdfNeedAuth = 0x0001, // Команда требует авторизованного сеанса
@@ -469,6 +470,7 @@ int PPServerCmd::ParseLine(const SString & rLine, long flags)
 		{ PPHS_EXECJOBIMM               ,                                  tExecJobImm,              PPSCMD_EXECJOBIMM,                       0 }, // @v11.3.9
 		{ PPHS_GETDBINFO                ,                                  tGetDbInfo,               PPSCMD_GETDBINFO,              cmdfNeedAuth }, // @v12.0.6
 		{ PPHS_EGAISMARKAUTOSELECTION   ,                                  tEgaisMarkAutoSelection,  PPSCMD_EGAISMARKAUTOSELECTION, cmdfNeedAuth }, // @v12.2.11  
+		{ PPHS_TESTSERVERPRINT          ,                                  tTestServerPrint,         PPSCMD_TESTSERVERPRINT,        cmdfNeedAuth }, // @v12.4.7
 	};
 	int    ok = 1;
 	size_t p = 0;
@@ -951,7 +953,9 @@ int PPJobSession::MailNotify(const char * pTmpLogFileName)
 int PPJobSession::DoJob(PPJobMngr * pMngr, PPJob * pJob)
 {
 	int    ok = 1;
-	SString tmp_log_fpath, fmt_buf, msg_buf;
+	SString fmt_buf;
+	SString msg_buf;
+	SString tmp_log_fpath;
 	PPJob  inner_job;
 	THROW_INVARG(pMngr && pJob);
 	if(pJob->NextJobID) {
@@ -1005,8 +1009,7 @@ int PPJobSession::DoJob(PPJobMngr * pMngr, PPJob * pJob)
 			//
 			{
 				const uint64 tm_start = SLS.GetProfileTime();
-				// @v11.0.0 ok = pMngr->DoJob(p_job->Descr.CmdID, *p_job, &p_job->Param); 
-				ok = pMngr->DoJob(*p_job); // @v11.0.0
+				ok = pMngr->DoJob(*p_job);
 				const uint64 tm_finish = SLS.GetProfileTime();
 				msg_buf.Printf(PPLoadTextS(PPTXT_JOBFINISHED, fmt_buf), p_job->Descr.Text.cptr(), p_job->Name.cptr(),
 					p_job->DbSymb.cptr(), (int64)(tm_finish-tm_start));
@@ -1116,12 +1119,13 @@ int PPJobServer::RemoveOldStat(PPID jobID, uint countToRemove)
 	uint   count = 0;
 	if(P_Stat) {
 		StatItem * p_item;
-		for(uint i = 0; count < countToRemove && P_Stat->enumItems(&i, (void **)&p_item);)
+		for(uint i = 0; count < countToRemove && P_Stat->enumItems(&i, (void **)&p_item);) {
 			if(p_item->JobID == jobID) {
 				P_Stat->atFree(--i);
 				count++;
 				ok = 1;
 			}
+		}
 	}
 	return ok;
 }
@@ -3386,6 +3390,12 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 					rReply.SetDataType(PPJobSrvReply::htGeneric, 0);
 					ok = cmdretOK;
 				}
+			}
+			break;
+		case PPSCMD_TESTSERVERPRINT: // @v12.4.7
+			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
+			{
+				// @construction
 			}
 			break;
 		case PPSCMD_WSCTL_INIT: // @v11.7.3

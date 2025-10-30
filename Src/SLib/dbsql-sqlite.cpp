@@ -14,6 +14,49 @@
 	#define DEBUG_LOG(msg)
 #endif
 
+const char * P_CollationSymb = "SLIB_UTF8_NOCASE";
+
+//int (* create_collation)(sqlite3*, const char*, int, void*, int (*)(void*, int, const void*, int, const void*));
+//int (* create_collation16)(sqlite3*, const void*, int, void*, int (*)(void*, int, const void*, int, const void*));
+
+extern "C" int SQLite_CmpCollationUtf8(void *, int len1, const void * pT1, int len2, const void * pT2)
+{
+	int    result = 0;
+	if(pT1) {
+		if(!pT2)
+			result = 1;
+		else {
+			if(len1 > 0) {
+				if(len2 <= 0)
+					result = 1;
+				else {
+					// main body
+					SStringU s1;
+					SStringU s2;
+					s1.CopyFromUtf8Strict(static_cast<const char *>(pT1), len1);
+					s2.CopyFromUtf8Strict(static_cast<const char *>(pT2), len2);
+					s1.ToLower();
+					s2.ToLower();
+					result = s1.Cmp(s2);
+				}
+			}
+			else if(len2 > 0) {
+				result = -1;
+			}
+			else {
+				result = 0; // equal empty
+			}
+		}
+	}
+	else if(pT2) {
+		result = -1;
+	}
+	else {
+		result = 0; // equal empty
+	}
+	return result;
+}
+
 /*static*/bool SSqliteDbProvider::IsInitialized = false;
 
 SSqliteDbProvider::SSqliteDbProvider() : DbProvider(sqlstSQLite, DbDictionary::CreateInstance(0, 0), 
@@ -214,6 +257,7 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 			sqlite3_exec(h, "PRAGMA journal_mode=WAL", 0, 0, 0);
 			sqlite3_exec(h, "PRAGMA synchronous=NORMAL", 0, 0, 0);
 		}
+		const int ccr = sqlite3_create_collation(h, P_CollationSymb, SQLITE_UTF8, nullptr, SQLite_CmpCollationUtf8);
 		{
 			DbName.Z();
 			DbPathID = 0;
@@ -274,14 +318,14 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 		ctf |= Generator_SQL::ctfIfNotExists;
 	if(is_temp_table)
 		ctf |= Generator_SQL::ctfTemporary;
-	THROW(SqlGen.Z().CreateTable(*pTbl, 0, ctf));
+	THROW(SqlGen.Z().CreateTable(*pTbl, 0, ctf, P_CollationSymb/*pCollationSymb*/));
 	{
 		SSqlStmt stmt(this, SqlGen);
 		THROW(stmt.Exec(1, OCI_DEFAULT));
 	}
 	uint j;
 	for(j = 0; j < pTbl->indexes.getNumKeys(); j++) {
-		THROW(SqlGen.Z().CreateIndex(*pTbl, pFileName, j));
+		THROW(SqlGen.Z().CreateIndex(*pTbl, pFileName, j, P_CollationSymb/*pCollationSymb*/));
 		{
 			SSqlStmt stmt(this, SqlGen);
 			THROW(stmt.Exec(1, OCI_DEFAULT));
@@ -311,7 +355,16 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 	
 /*virtual*/int SSqliteDbProvider::DropFile(const char * pFileName)
 {
-	int    ok = 0;
+	int    ok = 1;
+	if(IsFileExists_(pFileName) > 0) {
+		SqlGen.Z().Tok(Generator_SQL::tokDrop).Sp().Tok(Generator_SQL::tokTable).Sp().Text(pFileName);
+			//Sp().Text("PURGE");
+		SSqlStmt stmt(this, SqlGen);
+		THROW(stmt.Exec(1, OCI_DEFAULT));
+	}
+	else
+		ok = -1;
+	CATCHZOK
 	return ok;
 }
 	
@@ -465,10 +518,27 @@ int SSqliteDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt,
 	return ok;
 }
 
+SSqliteDbProvider::SearchQueryBlock::SearchQueryBlock() : Flags(0), SrchMode(0), P_KeyData(0), SqlG(sqlstSQLite, 0)
+{
+	memzero(TempKey, sizeof(TempKey));
+}
+
+SSqliteDbProvider::SearchQueryBlock & SSqliteDbProvider::SearchQueryBlock::Z()
+{
+	Flags = 0;
+	SrchMode = 0;
+	P_KeyData = 0;
+	SqlG.Z();
+	memzero(TempKey, sizeof(TempKey));
+	return *this;
+}
+
 int SSqliteDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf, SearchQueryBlock & rBlk)
 {
 	rBlk.Z();
 	int    ok = 1;
+	const char * p_collation = P_CollationSymb;
+	const bool   use_collation_term = isempty(p_collation) ? false : true;
 	SString temp_buf;
 	const  BNKeyList & r_indices = pTbl->indexes;
 	const  BNKey & r_key = r_indices[idx];
@@ -498,61 +568,104 @@ int SSqliteDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pK
 		}
 		rBlk.SqlG.Sp().Tok(Generator_SQL::tokWhere).Sp();
 		{
-			for(int i = 0; i < ns; i++) {
-				const BNField & r_fld = r_indices.field(idx, i);
-				if(i > 0) { // НЕ первый сегмент
-					rBlk.SqlG.Tok(Generator_SQL::tokAnd).Sp();
-					if(rBlk.SrchMode != spEq)
-						rBlk.SqlG.LPar();
-				}
-				if(r_key.getFlags(i) & XIF_ACS) {
-					int   _func_tok = Generator_SQL::tokLower;
-					rBlk.SqlG.Func(_func_tok, r_fld.Name);
+			auto cat_field_term = [](Generator_SQL & rSg, const BNKey & rKey, int segN, const BNField & rFld)
+			{
+				if(rKey.getFlags(segN) & XIF_ACS) {
+					//int   _func_tok = Generator_SQL::tokLower;
+					//rSg.Func(_func_tok, rFld.Name);
+					rSg.Text(rFld.Name);
 				}
 				else
-					rBlk.SqlG.Text(r_fld.Name);
-				int   cmps = _EQ_;
-				if(rBlk.SrchMode == spEq)
-					cmps = _EQ_;
-				else if(rBlk.SrchMode == spLt)
-					cmps = (i == ns-1) ? _LT_ : _LE_;
-				else if(oneof2(rBlk.SrchMode, spLe, spLast))
-					cmps = _LE_;
-				else if(rBlk.SrchMode == spGt) {
-					cmps = (i == ns-1) ? _GT_ : _GE_;
-				}
-				else if(oneof2(rBlk.SrchMode, spGe, spFirst))
-					cmps = _GE_;
-				rBlk.SqlG._Symb(cmps);
-				rBlk.SqlG.Param(temp_buf.NumberToLat(i));
-				rBlk.SegMap.add(i);
-				if(i > 0 && rBlk.SrchMode != spEq) {
-					//
-					// При каскадном сравнении ключа второй и последующие сегменты
-					// должны удовлетворять условиям неравенства только при равенстве
-					// всех предыдущих сегментов.
-					// Пример:
-					//   index {X, Y, Z}
-					//   X > :A and (Y > :B or (X <> :A)) and (Z > :C or (X <> :A and Y <> :B))
-					//
-					rBlk.SqlG.Sp().Tok(Generator_SQL::tokOr).Sp().LPar();
-					for(int j = 0; j < i; j++) {
-						const BNField & r_fld2 = r_indices.field(idx, j);
-						if(j > 0)
-							rBlk.SqlG.Tok(Generator_SQL::tokAnd).Sp();
-						if(r_key.getFlags(j) & XIF_ACS) {
-							rBlk.SqlG.Func(Generator_SQL::tokLower, r_fld2.Name);
-						}
-						else
-							rBlk.SqlG.Text(r_fld2.Name);
-						rBlk.SqlG._Symb(_NE_);
-						rBlk.SqlG.Param(temp_buf.NumberToLat(j));
-						// @v12.4.4 @fix (этот сегмент уже добавлен в список ибо j < i) seg_map.add(j);
-						rBlk.SqlG.Sp();
+					rSg.Text(rFld.Name);
+			};
+			if(rBlk.SrchMode == spEq) {
+				for(int i = 0; i < ns; i++) {
+					const BNField & r_fld = r_indices.field(idx, i);
+					if(i > 0) { // НЕ первый сегмент
+						rBlk.SqlG.Sp().Tok(Generator_SQL::tokAnd).Sp();
 					}
-					rBlk.SqlG.RPar().RPar().Sp();
+					cat_field_term(rBlk.SqlG, r_key, i, r_fld);
+					rBlk.SqlG._Symb(_EQ_);
+					rBlk.SqlG.Param(temp_buf.NumberToLat(i));
+					if(use_collation_term && r_key.getFlags(i) & XIF_ACS) {
+						rBlk.SqlG.Sp().Tok(Generator_SQL::tokCollate).Sp().Text(p_collation);
+					}
+					rBlk.SegMap.add(i);
 				}
-				rBlk.SqlG.Sp();
+			}
+			else if(oneof6(rBlk.SrchMode, spLt, spLe, spLast, spGt, spGe, spFirst)) {
+				// 
+				// {s1, s2, s3} <  {V1, V2, V3} => (s1 <= V1) AND (s1 < V1 OR s2 <= V2) AND (s1 < V1 OR s2 < V2 OR s3 < V3)
+				// {s1, s2, s3} <= {V1, V2, V3} => (s1 <= V1) AND (s1 < V1 OR s2 <= V2) AND (s1 < V1 OR s2 < V2 OR s3 <= V3)
+				// {s1, s2, s3} >  {V1, V2, V3} => (s1 >= V1) AND (s1 > V1 OR s2 >= V2) AND (s1 > V1 OR s2 > V2 OR s3 > V3)
+				// {s1, s2, s3} >= {V1, V2, V3} => (s1 >= V1) AND (s1 > V1 OR s2 >= V2) AND (s1 > V1 OR s2 > V2 OR s3 >= V3)
+				// [ Для справки ниже приведена идентичная логика, но объедиенная оператором OR. Я стал использовать вышеприведенные
+				//   варианты из-за того, что SQLite неадекватно реагирует на OR-связку отказывасью применять тот индекс, который я указал.
+				//   {s1, s2, s3} <  {V1, V2, V3} => (s1 < V1) OR (s1 = V1 AND s2 < V2) OR (s1 = V1 AND s2 = V2 AND s3 < V3)
+				//   {s1, s2, s3} <= {V1, V2, V3} => (s1 < V1) OR (s1 = V1 AND s2 < V2) OR (s1 = V1 AND s2 = V2 AND s3 <= V3)
+				//   {s1, s2, s3} >  {V1, V2, V3} => (s1 > V1) OR (s1 = V1 AND s2 > V2) OR (s1 = V1 AND s2 = V2 AND s3 > V3)
+				//   {s1, s2, s3} >= {V1, V2, V3} => (s1 > V1) OR (s1 = V1 AND s2 > V2) OR (s1 = V1 AND s2 = V2 AND s3 >= V3)
+				// ]
+				//cmps = (i == ns-1) ? _LT_ : _LE_;
+				for(int i = 0; i < ns; i++) {
+					const BNField & r_fld = r_indices.field(idx, i);
+					if(i) {
+						rBlk.SqlG.Sp().Tok(Generator_SQL::tokAnd).Sp();
+					}
+					{
+						rBlk.SqlG.LPar();
+						if(i) {
+							for(int j = 0; j < i; j++) {
+								const BNField & r_fld_j = r_indices.field(idx, j); // J!
+								if(j) {
+									rBlk.SqlG.Sp().Tok(Generator_SQL::tokOr).Sp();
+								}
+								cat_field_term(rBlk.SqlG, r_key, j, r_fld_j); // J!
+								{
+									int   cmps = 0;
+									switch(rBlk.SrchMode) {
+										case spLt: 
+										case spLe:
+										case spLast: cmps = _LT_; break;
+										case spGt: 
+										case spGe:
+										case spFirst: cmps = _GT_; break;
+									}
+									assert(cmps != 0);
+									rBlk.SqlG._Symb(cmps);
+								}
+								rBlk.SqlG.Param(temp_buf.NumberToLat(j)); // J!
+								if(use_collation_term && r_key.getFlags(j) & XIF_ACS) { // J!
+									rBlk.SqlG.Sp().Tok(Generator_SQL::tokCollate).Sp().Text(p_collation);
+								}
+							}
+							rBlk.SqlG.Sp().Tok(Generator_SQL::tokOr).Sp();
+						}
+						{
+							cat_field_term(rBlk.SqlG, r_key, i, r_fld); // I!
+							{
+								int   cmps = 0;
+								switch(rBlk.SrchMode) {
+									case spLt: cmps = (i == (ns-1)) ? _LT_ : _LE_; break; // !
+									case spLe: cmps = _LE_; break;
+									case spLast: cmps = _LE_; break;
+									case spGt: cmps = (i == (ns-1)) ? _GT_ : _GE_; break;
+									case spGe: cmps = _GE_; break;
+									case spFirst: cmps = _GE_; break;
+								}
+								assert(cmps != 0);
+								rBlk.SqlG._Symb(cmps);
+							}
+							rBlk.SqlG.Param(temp_buf.NumberToLat(i)); // I!
+							if(use_collation_term && r_key.getFlags(i) & XIF_ACS) { // I!
+								rBlk.SqlG.Sp().Tok(Generator_SQL::tokCollate).Sp().Text(p_collation);
+							}
+							rBlk.SqlG.RPar();
+						}
+						//
+						rBlk.SegMap.add(i);
+					}
+				}
 			}
 		}
 		if(oneof3(rBlk.SrchMode, spLe, spLt, spLast)) { // Обратное направление поиска
@@ -677,9 +790,9 @@ int SSqliteDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pK
 					const BNField & r_fld = r_indices.field(idx, seg);
 					const size_t seg_offs = r_indices.getSegOffset(idx, seg);
 					key_len += stsize(r_fld.T);
-					if(r_key.getFlags(seg) & XIF_ACS) {
+					/* (это, вроде, не надо - я установил collation-func) if(r_key.getFlags(seg) & XIF_ACS) {
 						strlwr866((char *)(PTR8(sqb.P_KeyData) + seg_offs));
-					}
+					}*/
 					SSqlStmt::Bind b;
 					b.Pos = -(int16)(i+1);
 					b.Typ = r_fld.T;

@@ -314,10 +314,12 @@ SString & Generator_SQL::GetType(TYPEID typ, SString & rBuf)
 	return rBuf;
 }
 
-int Generator_SQL::CreateTable(const DBTable & rTbl, const char * pFileName, uint flags)
+int Generator_SQL::CreateTable(const DBTable & rTbl, const char * pFileName, uint flags, const char * pCollationSymb)
 {
 	const char * p_name = NZOR(pFileName, rTbl.GetName());
+	const BNKeyList & r_indices = rTbl.GetIndices();
 	SString type_name;
+	//const DBI
 	Tok(tokCreate).Sp();
 	// @v12.4.4 {
 	if(flags & ctfTemporary)
@@ -332,19 +334,16 @@ int Generator_SQL::CreateTable(const DBTable & rTbl, const char * pFileName, uin
 	if(flags & ctfIndent)
 		Cr();
 	const  uint c = rTbl.GetFields().getCount();
+	LongArray idx_pos_list;
 	for(uint i = 0; i < c; i++) {
 		const BNField & r_fld = rTbl.GetFields()[i];
 		const int st = GETSTYPE(r_fld.T);
 		if(flags & ctfIndent)
 			Tab();
 		Buf.Cat(r_fld.Name).Space().Cat(GetType(r_fld.T, type_name));
-		// @v12.4.4 {
-		/*if(Sqlst == sqlstSQLite) {
-			if(oneof4(st, S_INT, S_UINT, S_DATE, S_TIME)) {
-				Buf.Space().Cat("default 0 not null");
-			}
-		}*/
-		// } @v12.4.4 
+		if(Sqlst == sqlstSQLite && !isempty(pCollationSymb) && r_indices.HasAcsSegWithField(r_fld.Id)) {
+			Sp().Tok(tokCollate).Sp().Text(pCollationSymb);
+		}
 		if(i < (c-1))
 			Com();
 		if(flags & ctfIndent)
@@ -361,15 +360,15 @@ Generator_SQL & Generator_SQL::Eos()
 	return *this;
 }
 
-int Generator_SQL::CreateIndex(const DBTable & rTbl, const char * pFileName, uint n)
+int Generator_SQL::CreateIndex(const DBTable & rTbl, const char * pFileName, uint n, const char * pCollationSymb)
 {
 	int    ok = 1;
 	if(n < rTbl.GetIndices().getNumKeys()) {
 		SString temp_buf;
-		const  BNKey   key = rTbl.GetIndices().getKey(n);
-		const  int     fl = key.getFlags();
-		const  int     ns = key.getNumSeg();
-		const  char  * p_name = NZOR(pFileName, rTbl.GetName());
+		const  BNKey  key = rTbl.GetIndices().getKey(n);
+		const  int    fl = key.getFlags();
+		const  int    ns = key.getNumSeg();
+		const  char * p_name = NZOR(pFileName, rTbl.GetName());
 		Tok(tokCreate).Sp();
 		if(!(fl & XIF_DUP))
 			Tok(tokUnique).Sp();
@@ -392,6 +391,9 @@ int Generator_SQL::CreateIndex(const DBTable & rTbl, const char * pFileName, uin
 					//
 					Buf.Cat("nls_lower(").Cat(r_f.Name).CatChar(')');
 				}
+				if(Sqlst == sqlstSQLite && key.getFlags(i) & XIF_ACS && !isempty(pCollationSymb)) { // @v12.4.7
+					Buf.Cat(r_f.Name).Space().Cat("COLLATE").Space().Cat(pCollationSymb);
+				}
 				else
 					Buf.Cat(r_f.Name);
 				if(key.getFlags(i) & XIF_DESC) {
@@ -407,26 +409,28 @@ int Generator_SQL::CreateIndex(const DBTable & rTbl, const char * pFileName, uin
 		// @v12.4.3 {
 		if(fl & (XIF_ALLSEGNULL|XIF_ANYSEGNULL)) {
 			if(Sqlst == sqlstSQLite) {
-				SString where_expr_buf;
-				uint    reckoned_seg_count = 0;
-				for(int i = 0; i < ns; i++) {
-					const BNField & r_f = rTbl.GetIndices().field(n, i);
-					if(reckoned_seg_count) {
-						if(fl & XIF_ALLSEGNULL) 
-							where_expr_buf.Space().Cat("or").Space();
-						else if(fl & XIF_ANYSEGNULL) 
-							where_expr_buf.Space().Cat("and").Space();
+				if(false) { // Нельзя добавлять условия к индексам из-за того, что в select-выражениях не будет срабатывать "indexed by"
+					SString where_expr_buf;
+					uint    reckoned_seg_count = 0;
+					for(int i = 0; i < ns; i++) {
+						const BNField & r_f = rTbl.GetIndices().field(n, i);
+						if(reckoned_seg_count) {
+							if(fl & XIF_ALLSEGNULL) 
+								where_expr_buf.Space().Cat("or").Space();
+							else if(fl & XIF_ANYSEGNULL) 
+								where_expr_buf.Space().Cat("and").Space();
+						}
+						if(GETSTYPE(r_f.T) == S_INT) {
+							where_expr_buf.CatChar('(').Cat(r_f.Name).Cat("!=").Cat(0L).Space().Cat("and").Space().Cat(r_f.Name).Space().Cat("is not null").CatChar(')');
+						}
+						else {
+							where_expr_buf.CatChar('(').Cat(r_f.Name).Space().Cat("is not null").CatChar(')');
+						}
+						reckoned_seg_count++;
 					}
-					if(GETSTYPE(r_f.T) == S_INT) {
-						where_expr_buf.CatChar('(').Cat(r_f.Name).Cat("!=").Cat(0L).Space().Cat("and").Space().Cat(r_f.Name).Space().Cat("is not null").CatChar(')');
+					if(where_expr_buf.NotEmpty()) {
+						Buf.Space().Cat("where").Space().Cat(where_expr_buf);
 					}
-					else {
-						where_expr_buf.CatChar('(').Cat(r_f.Name).Space().Cat("is not null").CatChar(')');
-					}
-					reckoned_seg_count++;
-				}
-				if(where_expr_buf.NotEmpty()) {
-					Buf.Space().Cat("where").Space().Cat(where_expr_buf);
 				}
 			}
 		}
@@ -551,6 +555,7 @@ const char * Generator_SQL::P_Tokens[] = {
 	"INDEXED BY",    // @v12.4.0 SQLITE  
 	"ORDER BY",      // @v12.4.0
 	"TEMP",          // @v12.4.4 tokTemp
+	"COLLATE",       // @v12.4.7 tokCollate
 };
 
 Generator_SQL & Generator_SQL::HintBegin()

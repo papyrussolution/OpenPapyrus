@@ -149,7 +149,7 @@ BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(sqlstNone
 	return rFileName;
 }
 
-/*virtual*/ int BDictionary::CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode)
+/*virtual*/int BDictionary::CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode)
 {
 	int    ok = 1;
 	DBFileSpec * p_h = new DBFileSpec; // разрушается функцией Btrieve::CreateTable

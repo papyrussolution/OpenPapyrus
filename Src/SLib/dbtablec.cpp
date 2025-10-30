@@ -467,13 +467,15 @@ void DBTable::SetStmt(SelectStmt * pStmt)
 
 void DBTable::ToggleStmt(bool release)
 {
+	ZDELETE(P_Stmt); // @v12.4.7
+	/* @v12.4.7
 	if(release)
 		ZDELETE(P_OppStmt);
 	else {
 		SelectStmt * p_temp = P_OppStmt;
 		P_OppStmt = P_Stmt;
 		P_Stmt = p_temp;
-	}
+	}*/
 }
 
 int (*DBTable::OpenExceptionProc)(const char * pFileName, int btrErr) = 0; // @global
@@ -487,7 +489,7 @@ int DBTable::Init(DbProvider * pDbP)
 	FixRecSize = 0;
 	P_Db = NZOR(pDbP, CurDict);
 	P_Stmt = 0;
-	P_OppStmt = 0;
+	// @v12.4.7 P_OppStmt = 0;
 	handle  = 0;
 	flags   = 0;
 	tableID = 0;
@@ -541,7 +543,7 @@ DBTable::~DBTable()
 	if(State & sOwnDataBuf)
 		ZFREE(P_DBuf);
 	ZDELETE(P_Stmt);
-	ZDELETE(P_OppStmt);
+	// @v12.4.7 ZDELETE(P_OppStmt);
 }
 
 int DBTable::Debug_Output(SString & rBuf) const

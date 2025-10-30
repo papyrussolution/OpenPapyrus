@@ -191,11 +191,7 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8 * s, int32_t start, int3
 	((uint32_t)(c)<=0x7ff ? 2 : \
 	((uint32_t)(c)<=0xd7ff ? 3 : \
 	((uint32_t)(c)<=0xdfff || (uint32_t)(c)>0x10ffff ? 0 : \
-	((uint32_t)(c)<=0xffff ? 3 : 4) \
-	) \
-	) \
-	) \
-	)
+	((uint32_t)(c)<=0xffff ? 3 : 4)))))
 
 /**
  * The maximum number of UTF-8 code units (bytes) per Unicode code point (U+0000..U+10ffff).

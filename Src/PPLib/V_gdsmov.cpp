@@ -165,7 +165,7 @@ int PPViewGoodsMov::Init_(const PPBaseFilt * pFilt)
 	int    ok = 1;
 	int    is_link = 0;
 	uint   i;
-	const  int accs_cost = P_BObj->CheckRights(BILLRT_ACCSCOST);
+	const  bool accs_cost = P_BObj->CheckRights(BILLRT_ACCSCOST);
 	GCTFilt temp_filt;
 	AdjGdsGrpng agg;
 	GoodsGrpngEntry * p_entry;

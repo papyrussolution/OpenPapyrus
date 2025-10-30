@@ -71,7 +71,7 @@ int PPJobMngr::EditJobParam(PPJob & rJob)
 {
 	PPJobHandler * p_jobh = CreateInstance(rJob.Descr.CmdID, 0);
 	if(p_jobh) {
-		p_jobh->SetJobDbSymb(rJob.DbSymb); // @v11.0.0
+		p_jobh->SetJobDbSymb(rJob.DbSymb);
 		return p_jobh->EditParam(&rJob.Param, 0);
 	}
 	else
@@ -968,22 +968,6 @@ IMPLEMENT_JOB_HDL_FACTORY(OBJRECV);
 //
 //
 //
-class JOB_HDL_CLS(DUMMY) : public PPJobHandler {
-public:
-	JOB_HDL_CLS(DUMMY)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
-	{
-	}
-	virtual int Run(SBuffer * pParam, void * extraPtr)
-	{
-		PPLogMessage(PPFILNAM_INFO_LOG, "Job DUMMY completed", LOGMSGF_TIME);
-		return 1;
-	}
-};
-
-IMPLEMENT_JOB_HDL_FACTORY(DUMMY);
-//
-//
-//
 class JOB_HDL_CLS(MAINTAINPRJTASK) : public PPJobHandler {
 public:
 	JOB_HDL_CLS(MAINTAINPRJTASK)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
@@ -1307,7 +1291,8 @@ public:
 	}
 	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
-		int    ok = -1, r = 0;
+		int    ok = -1;
+		int    r = 0;
 		DBMaintainParam param;
 		const size_t sav_offs = pParam->GetRdOffs();
 		MEMSZERO(param);
@@ -1352,7 +1337,8 @@ struct CashNodeParam {
 	{
 		int    ok = -1;
 		if(rBuf.GetAvailableSize()) {
-			long upp = 0, low = 0;
+			long   upp = 0;
+			long   low = 0;
 			if(rBuf.Read(CashNodeID) && rBuf.Read(upp) && rBuf.Read(low)) {
 				Period.upp.v = upp;
 				Period.low.v = low;
@@ -1450,11 +1436,13 @@ int CashNodeDialog::GetPeriod()
 {
 	int    ok = -1;
 	char   buf[64];
-	long   upp = 0, low = 0;
+	long   upp = 0;
+	long   low = 0;
 	getCtrlData(CTL_SELCNODE_PERIOD, buf);
-	char * d = strstr(buf, "..");
+	const  char * d = strstr(buf, "..");
 	if(d) {
-		char  low_buf[64], upp_buf[64];
+		char  low_buf[64];
+		char  upp_buf[64];
 		low_buf[0] = upp_buf[0] = 0;
 		char * b = low_buf;
 		for(char * p = buf; p < d;)
@@ -1518,12 +1506,13 @@ public:
 	}
 	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
-		int    ok = -1, r = 0;
+		int    ok = -1;
 		PrcssrPrediction::Param param;
 		PrcssrPrediction prcssr;
 		MEMSZERO(param);
 		const size_t sav_offs = pParam->GetRdOffs();
-		if((r = ReadParam(*pParam, &param, sizeof(param))) != 0) {
+		const int    r = ReadParam(*pParam, &param, sizeof(param));
+		if(r) {
 			if((ok = prcssr.EditParam(&param)) > 0) {
 				WriteParam(pParam->Z(), &param, sizeof(param));
 			}
@@ -1556,12 +1545,13 @@ public:
 	}
 	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
-		int    ok = -1, r = 0;
+		int    ok = -1;
 		PrcssrPrediction::Param param;
 		PrcssrPrediction prcssr;
 		MEMSZERO(param);
-		const size_t sav_offs = pParam->GetRdOffs();
-		if((r = ReadParam(*pParam, &param, sizeof(param))) != 0) {
+		const  size_t sav_offs = pParam->GetRdOffs();
+		const  int    r = ReadParam(*pParam, &param, sizeof(param));
+		if(r) {
 			param.Process |= param.prcsTest;
 			if((ok = prcssr.EditParam(&param)) > 0) {
 				WriteParam(pParam->Z(), &param, sizeof(param));
@@ -2125,7 +2115,8 @@ public:
 	static int GetParamsByName(const char * pBillParamName, const char * pBRowParamName, PPBillImpExpParam * pBillParam, PPBillImpExpParam * pBRowParam)
 	{
 		int    ok = 0;
-		SString ini_file_name, sect;
+		SString ini_file_name;
+		SString sect;
 		THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
 		if(pBillParamName && pBRowParamName && pBillParam && pBRowParam) {
 			PPIniFile ini_file(ini_file_name, 0, 1, 1);
@@ -2220,7 +2211,8 @@ public:
 private:
 	DECL_HANDLE_EVENT;
 	ExpBillsFilt Data;
-	StrAssocArray HdrList, LineList;
+	StrAssocArray HdrList;
+	StrAssocArray LineList;
 	PPViewBill View;
 };
 
@@ -3444,11 +3436,12 @@ public:
 	}
 	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
-		int    ok = -1, r = 1;
+		int    ok = -1;
+		int    r = 1;
 		uint   val = 0;
 		PPViewGoodsRest gr_view;
 		GoodsRestFilt filt;
-		size_t sav_offs = pParam->GetRdOffs();
+		const  size_t sav_offs = pParam->GetRdOffs();
 		if(pParam->GetAvailableSize() == 0) {
 			;
 		}
@@ -4375,3 +4368,19 @@ public:
 };
 
 IMPLEMENT_JOB_HDL_FACTORY(GATHERCLIENTACTIVITYSTAT);
+//
+//
+//
+class JOB_HDL_CLS(DUMMY) : public PPJobHandler {
+public:
+	JOB_HDL_CLS(DUMMY)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	{
+	}
+	virtual int Run(SBuffer * pParam, void * extraPtr)
+	{
+		PPLogMessage(PPFILNAM_INFO_LOG, "Job DUMMY completed", LOGMSGF_TIME);
+		return 1;
+	}
+};
+
+IMPLEMENT_JOB_HDL_FACTORY(DUMMY);

@@ -2507,7 +2507,7 @@ int VetisEntityCore::Get(PPID id, VetisVetDocument & rItem)
 				sub_entity.Get(r_crtc.Batch.ProductItem);
 			}
 			else {
-				p_ref->UtrC.Search(TextRefIdent(PPOBJ_VETISENTITY, id, VetisEntityCore::txtprpProductItemName), temp_buf_u);
+				p_ref->UtrC.SearchU(TextRefIdent(PPOBJ_VETISENTITY, id, VetisEntityCore::txtprpProductItemName), temp_buf_u);
 				if(temp_buf_u.Len()) {
 					temp_buf_u.CopyToUtf8(temp_buf, 0);
 					temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
@@ -2529,7 +2529,7 @@ int VetisEntityCore::Get(PPID id, VetisVetDocument & rItem)
 				};
 				for(uint tti = 0; tti < SIZEOFARRAY(transp_num_tab); tti++) {
 					const TranspNumTabEntry & r_tt_entry = transp_num_tab[tti];
-					p_ref->UtrC.Search(TextRefIdent(PPOBJ_VETISENTITY, id, r_tt_entry.TxtIdent), temp_buf_u);
+					p_ref->UtrC.SearchU(TextRefIdent(PPOBJ_VETISENTITY, id, r_tt_entry.TxtIdent), temp_buf_u);
 					if(temp_buf_u.Len()) {
 						temp_buf_u.CopyToUtf8(temp_buf, 0);
 						temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
@@ -2538,7 +2538,7 @@ int VetisEntityCore::Get(PPID id, VetisVetDocument & rItem)
 				}
 			}
 			{
-				p_ref->UtrC.Search(TextRefIdent(PPOBJ_VETISENTITY, id, VetisEntityCore::txtprpGoodsCodeList), temp_buf_u);
+				p_ref->UtrC.SearchU(TextRefIdent(PPOBJ_VETISENTITY, id, VetisEntityCore::txtprpGoodsCodeList), temp_buf_u);
 				if(temp_buf_u.Len()) {
 					temp_buf_u.CopyToUtf8(temp_buf, 0);
 					temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
@@ -2569,7 +2569,7 @@ int VetisEntityCore::Put(PPID * pID, const S_GUID & rBusEntGuid, const S_GUID & 
 	PPID   result_id = 0;
 	Reference * p_ref = PPRef;
 	SString temp_buf;
-	SStringU temp_buf_u;
+	//SStringU temp_buf_u;
 	PPIDArray id_list;
 	VetisDocumentTbl::Rec rec;
 	LocationTbl::Rec loc_rec;
@@ -2647,8 +2647,7 @@ int VetisEntityCore::Put(PPID * pID, const S_GUID & rBusEntGuid, const S_GUID & 
 			if(!rec.ProductItemID) {
 				temp_buf = r_bat.ProductItem.Name;
 				if(temp_buf.NotEmptyS()) {
-					temp_buf_u.CopyFromUtf8(temp_buf.ToLower().Transf(CTRANSF_INNER_TO_UTF8));
-					int sr = p_ref->UtrC.SetText(TextRefIdent(PPOBJ_VETISENTITY, entity.ID, txtprpProductItemName), temp_buf_u, 0);
+					int sr = p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_VETISENTITY, entity.ID, txtprpProductItemName), temp_buf.ToLower().Transf(CTRANSF_INNER_TO_UTF8), 0);
 					THROW(sr);
 					if(sr > 0 && ok < 0)
 						ok = 1;
@@ -2666,8 +2665,7 @@ int VetisEntityCore::Put(PPID * pID, const S_GUID & rBusEntGuid, const S_GUID & 
 					}
 				}
 				if(code_list_buf.NotEmptyS()) {
-					temp_buf_u.CopyFromUtf8(code_list_buf.ToLower().Transf(CTRANSF_INNER_TO_UTF8));
-					int sr = p_ref->UtrC.SetText(TextRefIdent(PPOBJ_VETISENTITY, entity.ID, txtprpGoodsCodeList), temp_buf_u, 0);
+					int sr = p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_VETISENTITY, entity.ID, txtprpGoodsCodeList), code_list_buf.ToLower().Transf(CTRANSF_INNER_TO_UTF8), 0);
 					THROW(sr);
 					if(sr > 0 && ok < 0)
 						ok = 1;
@@ -2735,7 +2733,7 @@ int VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long flags,
 	Reference * p_ref = PPRef;
 	PPObjBill * p_bobj = BillObj;
 	SString temp_buf;
-	SStringU temp_buf_u;
+	//SStringU temp_buf_u;
 	PPIDArray by_inn_psn_list;
 	PPIDArray id_list;
 	VetisDocumentTbl::Rec rec;
@@ -2902,8 +2900,7 @@ int VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long flags,
 			if(!rec.ProductItemID) {
 				temp_buf = r_bat.ProductItem.Name;
 				if(temp_buf.NotEmptyS()) {
-					temp_buf_u.CopyFromUtf8(temp_buf.ToLower().Transf(CTRANSF_INNER_TO_UTF8));
-					int sr = p_ref->UtrC.SetText(TextRefIdent(PPOBJ_VETISENTITY, entity.ID, txtprpProductItemName), temp_buf_u, 0);
+					int sr = p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_VETISENTITY, entity.ID, txtprpProductItemName), temp_buf.ToLower().Transf(CTRANSF_INNER_TO_UTF8), 0);
 					THROW(sr);
 					if(sr > 0 && ok < 0)
 						ok = 1;
@@ -2926,8 +2923,7 @@ int VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long flags,
 					const TranspNumTabEntry & r_tt_entry = transp_num_tab[tti];
 					temp_buf = r_tt_entry.R_Text;
 					if(temp_buf.NotEmptyS()) {
-						temp_buf_u.CopyFromUtf8(temp_buf.ToLower().Transf(CTRANSF_INNER_TO_UTF8));
-						int sr = p_ref->UtrC.SetText(TextRefIdent(PPOBJ_VETISENTITY, entity.ID, r_tt_entry.TxtIdent), temp_buf_u, 0);
+						int sr = p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_VETISENTITY, entity.ID, r_tt_entry.TxtIdent), temp_buf.ToLower().Transf(CTRANSF_INNER_TO_UTF8), 0);
 						THROW(sr);
 						if(sr > 0 && ok < 0)
 							ok = 1;
@@ -2945,8 +2941,7 @@ int VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long flags,
 					}
 				}
 				if(code_list_buf.NotEmptyS()) {
-					temp_buf_u.CopyFromUtf8(code_list_buf.ToLower().Transf(CTRANSF_INNER_TO_UTF8));
-					int sr = p_ref->UtrC.SetText(TextRefIdent(PPOBJ_VETISENTITY, entity.ID, txtprpGoodsCodeList), temp_buf_u, 0);
+					int sr = p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_VETISENTITY, entity.ID, txtprpGoodsCodeList), code_list_buf.ToLower().Transf(CTRANSF_INNER_TO_UTF8), 0);
 					THROW(sr);
 					if(sr > 0 && ok < 0)
 						ok = 1;
@@ -3033,8 +3028,7 @@ int VetisEntityCore::Put(PPID * pID, const VetisBusinessEntity & rItem, TSVector
 			{
 				temp_buf = rItem.JuridicalAddress.AddressView;
 				if(temp_buf.NotEmptyS()) {
-					temp_buf_u.CopyFromUtf8(temp_buf.ToLower().Transf(CTRANSF_INNER_TO_UTF8));
-					int sr = p_ref->UtrC.SetText(TextRefIdent(PPOBJ_VETISENTITY, entity.ID, PPTRPROP_RAWADDR), temp_buf_u, 0);
+					int sr = p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_VETISENTITY, entity.ID, PPTRPROP_RAWADDR), temp_buf.ToLower().Transf(CTRANSF_INNER_TO_UTF8), 0);
 					THROW(sr);
 					if(sr > 0 && ok < 0)
 						ok = 1;
@@ -3070,7 +3064,7 @@ int VetisEntityCore::Get(PPID id, VetisEnterprise & rItem)
 			rItem.Type = rec.EnterpriseType;
 			ResolveEntityByID(rec.CountryID, rItem.Address.Country);
 			ResolveEntityByID(rec.RegionID, rItem.Address.Region);
-			p_ref->UtrC.Search(TextRefIdent(PPOBJ_VETISENTITY, entity.ID, PPTRPROP_RAWADDR), temp_buf_u);
+			p_ref->UtrC.SearchU(TextRefIdent(PPOBJ_VETISENTITY, entity.ID, PPTRPROP_RAWADDR), temp_buf_u);
 			if(temp_buf_u.Len()) {
 				temp_buf_u.CopyToUtf8(rItem.Address.AddressView, 0);
 				rItem.Address.AddressView.Transf(CTRANSF_UTF8_TO_INNER);
@@ -3087,7 +3081,7 @@ int VetisEntityCore::Put(PPID * pID, const VetisEnterprise & rItem, TSVector <Un
 	int    ok = 1;
 	Reference * p_ref = PPRef;
 	SString temp_buf;
-	SStringU temp_buf_u;
+	//SStringU temp_buf_u;
 	VetisPersonTbl::Rec rec;
 	Entity entity(kEnterprise, rItem);
 	{
@@ -3123,8 +3117,7 @@ int VetisEntityCore::Put(PPID * pID, const VetisEnterprise & rItem, TSVector <Un
 				}
 			}
 			if((temp_buf = rItem.Address.AddressView).NotEmptyS()) {
-				temp_buf_u.CopyFromUtf8(temp_buf.ToLower().Transf(CTRANSF_INNER_TO_UTF8));
-				int sr = p_ref->UtrC.SetText(TextRefIdent(PPOBJ_VETISENTITY, entity.ID, PPTRPROP_RAWADDR), temp_buf_u, 0);
+				int sr = p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_VETISENTITY, entity.ID, PPTRPROP_RAWADDR), temp_buf.ToLower().Transf(CTRANSF_INNER_TO_UTF8), 0);
 				THROW(sr);
 				if(sr > 0 && ok < 0)
 					ok = 1;
@@ -11232,7 +11225,7 @@ static IMPL_DBE_PROC(dbqf_vetis_vet_uuid_i)
 		if(tptab[i].ObjID) {
 			int   sr = (tptab[i].TxtProp == PPTRPROP_NAME) ?
 				p_ref->TrT.Search(TextRefIdent(tptab[i].ObjType, tptab[i].ObjID, tptab[i].TxtProp), temp_buf_u) :
-				p_ref->UtrC.Search(TextRefIdent(tptab[i].ObjType, tptab[i].ObjID, tptab[i].TxtProp), temp_buf_u);
+				p_ref->UtrC.SearchU(TextRefIdent(tptab[i].ObjType, tptab[i].ObjID, tptab[i].TxtProp), temp_buf_u);
 			if(sr > 0) {
 				if(temp_buf_u.Len()) {
 					temp_buf_u.CopyToUtf8(rBuf, 0);
@@ -12571,7 +12564,7 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 			if(!temp_buf_u.Len() && enterprise_id) {
 				VetisPersonTbl::Rec vp_rec;
 				if(EC.SearchPerson(enterprise_id, &vp_rec) > 0) {
-					p_ref->UtrC.Search(TextRefIdent(PPOBJ_VETISENTITY, enterprise_id, PPTRPROP_RAWADDR), temp_buf_u);
+					p_ref->UtrC.SearchU(TextRefIdent(PPOBJ_VETISENTITY, enterprise_id, PPTRPROP_RAWADDR), temp_buf_u);
 					if(temp_buf_u.Len()) {
 						temp_buf_u.CopyToUtf8(mb.SrcAddr, 0);
 						mb.SrcAddr.Transf(CTRANSF_UTF8_TO_INNER);

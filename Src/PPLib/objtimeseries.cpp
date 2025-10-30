@@ -1627,7 +1627,7 @@ int PPObjTimeSeries::SetTimeSeries(PPID id, STimeSeries * pTs, int use_ta)
 int PPObjTimeSeries::GetTimeSeries(PPID id, STimeSeries & rTs)
 {
 	TextRefIdent tri(Obj, id, PPTRPROP_TIMESERIES);
-	return P_Ref->UtrC.Search(tri, rTs);
+	return P_Ref->UtrC.SearchTS(tri, rTs);
 }
 //
 //

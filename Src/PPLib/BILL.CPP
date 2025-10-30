@@ -127,7 +127,7 @@ int BillCore::PutItemMemo(PPID id, SString * pBuf, int use_ta) // @v11.1.12
 		(ext_buffer = *pBuf).Strip();
 	else
 		ext_buffer.Z();
-	THROW(PPRef->UtrC.SetText(TextRefIdent(PPOBJ_BILL, id, PPTRPROP_MEMO), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), use_ta));
+	THROW(PPRef->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_BILL, id, PPTRPROP_MEMO), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), use_ta));
 	CATCHZOK
 	return ok;
 }
@@ -136,7 +136,7 @@ SString & BillCore::GetItemMemo(PPID id, SString & rBuf) // @v11.1.12
 {
 	rBuf.Z();
 	if(id) {
-		PPRef->UtrC.GetText(TextRefIdent(PPOBJ_BILL, id, PPTRPROP_MEMO), rBuf);
+		PPRef->UtrC.SearchUtf8(TextRefIdent(PPOBJ_BILL, id, PPTRPROP_MEMO), rBuf);
 		rBuf.Transf(CTRANSF_UTF8_TO_INNER);
 	}
 	return rBuf;

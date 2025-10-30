@@ -1359,7 +1359,7 @@ int PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArray * pH
 							}
 						}
 						if(ln_exttext_buf.NotEmptyS()) {
-							THROW(PPRef->UtrC.SetText(TextRefIdent(PPOBJ_CCHECK, p_ccln_extt_item->CheckID, PPTRPROP_CC_LNEXT), ln_exttext_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+							THROW(PPRef->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_CCHECK, p_ccln_extt_item->CheckID, PPTRPROP_CC_LNEXT), ln_exttext_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
 						}
 					}
 				}

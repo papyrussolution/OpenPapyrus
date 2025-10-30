@@ -124,14 +124,14 @@ int FASTCALL SMySqlDbProvider::ProcessError(int status)
 	uint   ctf = Generator_SQL::ctfIndent;
 	if(oneof2(cm, crmNoReplace, crmTTSNoReplace))
 		ctf |= Generator_SQL::ctfIfNotExists;
-	THROW(SqlGen.Z().CreateTable(*pTbl, 0, ctf));
+	THROW(SqlGen.Z().CreateTable(*pTbl, 0, ctf, 0/*pCollationSymb*/));
 	{
 		SSqlStmt stmt(this, SqlGen);
 		THROW(stmt.Exec(1, OCI_DEFAULT));
 	}
 	uint j;
 	for(j = 0; j < pTbl->indexes.getNumKeys(); j++) {
-		THROW(SqlGen.Z().CreateIndex(*pTbl, pFileName, j));
+		THROW(SqlGen.Z().CreateIndex(*pTbl, pFileName, j, 0/*pCollationSymb*/));
 		{
 			SSqlStmt stmt(this, SqlGen);
 			THROW(stmt.Exec(1, OCI_DEFAULT));

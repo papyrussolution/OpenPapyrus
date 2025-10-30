@@ -3845,7 +3845,7 @@ int PPObjSCard::GetPacket(PPID id, PPSCardPacket * pPack)
 		if(Search(id, &pPack->Rec) > 0) {
 			{
 				SString text_buf;
-				THROW(PPRef->UtrC.GetText(TextRefIdent(Obj, id, PPTRPROP_SCARDEXT), text_buf));
+				THROW(PPRef->UtrC.SearchUtf8(TextRefIdent(Obj, id, PPTRPROP_SCARDEXT), text_buf));
 				text_buf.Transf(CTRANSF_UTF8_TO_INNER);
 				pPack->SetBuffer(text_buf.Strip());
 			}
@@ -3927,7 +3927,7 @@ int PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 					}
 					THROW(UpdateByID(P_Tbl, Obj, id, &pPack->Rec, 0));
 					(ext_buffer = pPack->GetBuffer()).Strip();
-					THROW(p_ref->UtrC.SetText(TextRefIdent(Obj, id, PPTRPROP_SCARDEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+					THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(Obj, id, PPTRPROP_SCARDEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 					if(do_index_phones) {
 						SString org_pack_phone;
 						org_pack.GetExtStrData(PPSCardPacket::extssPhone, org_pack_phone);
@@ -3962,7 +3962,7 @@ int PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 			THROW_PP_S(r < 0, PPERR_DUPLSCARDFOUND, pPack->Rec.Code);
 			THROW(AddObjRecByID(P_Tbl, Obj, &id, &pPack->Rec, 0));
 			(ext_buffer = pPack->GetBuffer()).Strip();
-			THROW(p_ref->UtrC.SetText(TextRefIdent(Obj, id, PPTRPROP_SCARDEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(Obj, id, PPTRPROP_SCARDEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 			if(do_index_phones) {
 				pPack->GetExtStrData(PPSCardPacket::extssPhone, temp_buf);
 				PPObjID objid(Obj, id);
@@ -3999,7 +3999,7 @@ int PPObjSCard::DeleteObj(PPID id)
 	}
 	else {
 		THROW(RemoveByID(P_Tbl, id, 0));
-		THROW(PPRef->UtrC.SetText(TextRefIdent(Obj, id, PPTRPROP_SCARDEXT), (const wchar_t *)0, 0));
+		THROW(PPRef->UtrC.Remove(TextRefIdent(Obj, id, PPTRPROP_SCARDEXT), 0));
 		THROW(P_Tbl->RemoveOpAll(id, 0));
 		DS.LogAction(PPACN_OBJRMV, Obj, id, 0, 0);
 	}
@@ -4638,7 +4638,7 @@ private:
 		virtual int Implement_Get(PPID id, SString & rBuf, void * extraPtr)
 		{
 			int    ok = -1;
-			if(PPRef->UtrC.GetText(TextRefIdent(PPOBJ_SCARD, id, PPTRPROP_SCARDEXT), rBuf) > 0 && rBuf.NotEmpty()) {
+			if(PPRef->UtrC.SearchUtf8(TextRefIdent(PPOBJ_SCARD, id, PPTRPROP_SCARDEXT), rBuf) > 0 && rBuf.NotEmpty()) {
 				rBuf.Transf(CTRANSF_UTF8_TO_INNER);
 				ok = 1;
 			}

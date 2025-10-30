@@ -1486,8 +1486,8 @@ int FastEditRightsDlg::loadData(PPID grpUserID, int load)
 				}
 			}
 			else {
-				const PPSecurPacket * p_sp = Data.at(pos);
-				int    disable = (EditWhat == cConfig) ? BIN(p_sp->Secur.Flags & USRF_INHCFG) : BIN(p_sp->Secur.Flags & USRF_INHRIGHTS);
+				const  PPSecurPacket * p_sp = Data.at(pos);
+				bool   disable = LOGIC((EditWhat == cConfig) ? (p_sp->Secur.Flags & USRF_INHCFG) : (p_sp->Secur.Flags & USRF_INHRIGHTS));
 				PPObject * p_obj = GetPPObject(EditWhat - OBJTYPE_OFFSET, 0);
 				if(P_ChildDlg)
 					P_ChildDlg->TransmitData(+1, ptr);
@@ -1672,7 +1672,8 @@ int SaveGrpUsrRights(SecurCollection * pRights)
 int FastEditRightsDialog()
 {
 	int    ok = -1;
-	int    valid_data = 0, read_only = 0;
+	int    valid_data = 0;
+	int    read_only = 0;
 	SecurCollection grp_usr_rights;
 	FastEditRightsDlg * p_dlg = 0;
 	THROW(read_only = LoadGrpUsrRights(&grp_usr_rights));

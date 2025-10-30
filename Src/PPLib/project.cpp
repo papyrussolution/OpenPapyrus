@@ -305,7 +305,7 @@ int PPObjProject::InitPacket(PPProjectPacket * pPack, int kind, PPID parentID, i
 SString & PPObjProject::GetItemDescr(PPID id, SString & rBuf)
 {
 	rBuf.Z();
-	PPRef->UtrC.GetText(TextRefIdent(Obj, id, PPTRPROP_DESCR), rBuf);
+	PPRef->UtrC.SearchUtf8(TextRefIdent(Obj, id, PPTRPROP_DESCR), rBuf);
 	rBuf.Transf(CTRANSF_UTF8_TO_INNER);
 	return rBuf;
 }
@@ -313,7 +313,7 @@ SString & PPObjProject::GetItemDescr(PPID id, SString & rBuf)
 SString & PPObjProject::GetItemMemo(PPID id, SString & rBuf)
 {
 	rBuf.Z();
-	PPRef->UtrC.GetText(TextRefIdent(Obj, id, PPTRPROP_MEMO), rBuf);
+	PPRef->UtrC.SearchUtf8(TextRefIdent(Obj, id, PPTRPROP_MEMO), rBuf);
 	rBuf.Transf(CTRANSF_UTF8_TO_INNER);
 	return rBuf;
 }
@@ -368,12 +368,12 @@ int PPObjProject::PutPacket(PPID * pID, PPProjectPacket * pPack, int use_ta)
 				(ext_buffer = pPack->SDescr).Strip();
 			else
 				ext_buffer.Z();
-			THROW(p_ref->UtrC.SetText(TextRefIdent(Obj, *pID, PPTRPROP_DESCR), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(Obj, *pID, PPTRPROP_DESCR), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 			if(pPack)
 				(ext_buffer = pPack->SMemo).Strip();
 			else
 				ext_buffer.Z();
-			THROW(p_ref->UtrC.SetText(TextRefIdent(Obj, *pID, PPTRPROP_MEMO), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(Obj, *pID, PPTRPROP_MEMO), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 		}
 		DS.LogAction(acn_id, Obj, *pID, 0, 0);
 		THROW(tra.Commit());
@@ -955,6 +955,20 @@ int PrjTaskCore::SearchByTime(const LDATETIME & dtm, PPID * pID, PrjTaskTbl::Rec
 	return ok;
 }
 
+int PrjTaskCore::SearchByLinkBillID(PPID billID, PPIDArray & rIdList) // @v12.4.7
+{
+	rIdList.Z();
+	int    ok = -1;
+	PrjTaskTbl::Key7 k7;
+	MEMSZERO(k7);
+	k7.LinkBillID = billID;
+	if(search(7, &k7, spGe) > 0 && data.LinkBillID == billID) do {
+		rIdList.add(data.ID);
+		ok = 1;
+	} while(search(7, &k7, spNext) > 0 && data.LinkBillID == billID);
+	return ok;
+}
+
 int PrjTaskCore::SearchByTemplate(PPID templID, LDATE startDt, PrjTaskTbl::Rec * pRec)
 {
 	PrjTaskTbl::Key3 k3;
@@ -1022,6 +1036,7 @@ int PrjTaskCore::SearchAnyRef(PPID objType, PPID objID, PPID * pID)
 		PrjTaskTbl::Key2 k2;
 		PrjTaskTbl::Key3 k3;
 		PrjTaskTbl::Key6 k6;
+		PrjTaskTbl::Key7 k7; // @v12.4.7
 	} k_;
 	MEMSZERO(k_);
 	if(objType == PPOBJ_PERSON) {
@@ -1071,6 +1086,13 @@ int PrjTaskCore::SearchAnyRef(PPID objType, PPID objID, PPID * pID)
 				ok = 1;
 			}
 		}
+	}
+	else if(objType == PPOBJ_BILL) { // @v12.4.7
+		k_.k7.LinkBillID = objID;
+		if(search(7, &k_.k7, spGe) && k_.k7.LinkBillID == objID) {
+			ASSIGN_PTR(pID, data.ID);
+			ok = 1;
+		}		
 	}
 	return ok;
 }
@@ -1497,7 +1519,7 @@ int PPObjPrjTask::ImportFromOuterFormat(const char * pInput, const iCalendarImpo
 									current_ic_state = icstateUNDEF;
 									assert(p_curr_todo_pack);
 									if(p_curr_todo_pack) {
-										THROW(InitPacket(p_curr_todo_pack, TODOKIND_TASK, 0, 0, 0, 0));
+										THROW(InitPacket_(*p_curr_todo_pack, TODOKIND_TASK, 0, 0, 0, 0));
 										p_curr_todo_pack->Rec.CreatorID = 0;
 										if(checkdate(pb.DtmCreated.d)) {
 											p_curr_todo_pack->Rec.Dt = pb.DtmCreated.d;
@@ -1958,20 +1980,21 @@ int PPObjPrjTask::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext *
 int PPObjPrjTask::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
 	int    ok = 1;
-	PPPrjTaskPacket * p_pack = 0;
 	THROW(p && p->Data);
-	p_pack = static_cast<PPPrjTaskPacket *>(p->Data);
-	if(stream == 0) {
-		p_pack->Rec.ID = *pID;
-		if(!PutPacket(pID, p_pack, 1)) {
-			pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTPRJTASK, p_pack->Rec.ID, p_pack->Rec.Code);
-			ok = -1;
+	{
+		PPPrjTaskPacket * p_pack = static_cast<PPPrjTaskPacket *>(p->Data);
+		if(stream == 0) {
+			p_pack->Rec.ID = *pID;
+			if(!PutPacket(pID, p_pack, 1)) {
+				pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTPRJTASK, p_pack->Rec.ID, p_pack->Rec.Code);
+				ok = -1;
+			}
 		}
-	}
-	else {
-		SBuffer buffer;
-		THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
-		THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0));
+		else {
+			SBuffer buffer;
+			THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
+			THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0));
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -2349,29 +2372,29 @@ int PPObjPrjTask::WritePacketWithPredefinedFormat(const PPPrjTaskPacket * pPack,
 	return ok;
 }
 
-int PPObjPrjTask::InitPacket(PPPrjTaskPacket * pPack, int kind, PPID prjID, PPID clientID, PPID employerID, int use_ta)
+int PPObjPrjTask::InitPacket_(PPPrjTaskPacket & rPack, int kind, PPID prjID, PPID clientID, PPID employerID, int use_ta)
 {
 	PPProjectConfig cfg;
 	PPObjProject::ReadConfig(&cfg);
 	PPObjOpCounter opc_obj;
 	long   counter = 0;
 	PPID   cntr_id = 0;
-	pPack->Z();
-	pPack->Rec.Kind = NZOR(kind, TODOKIND_TASK);
-	if(pPack->Rec.Kind == TODOKIND_TASK)
+	rPack.Z();
+	rPack.Rec.Kind = NZOR(kind, TODOKIND_TASK);
+	if(rPack.Rec.Kind == TODOKIND_TASK)
 		cntr_id = cfg.TaskCntrID;
-	else if(pPack->Rec.Kind == TODOKIND_TEMPLATE)
+	else if(rPack.Rec.Kind == TODOKIND_TEMPLATE)
 		cntr_id = cfg.TemplCntrID;
 	if(cntr_id)
-		opc_obj.GetCode(cntr_id, &counter, pPack->Rec.Code, sizeof(pPack->Rec.Code), 0, use_ta);
-	pPack->Rec.ProjectID  = prjID;
-	pPack->Rec.ClientID   = clientID;
-	pPack->Rec.EmployerID = employerID;
-	pPack->Rec.Priority   = TODOPRIOR_NORMAL;
-	pPack->Rec.Status     = TODOSTTS_NEW;
-	pPack->Rec.LinkTaskID = LinkTaskID;
-	PPObjPerson::GetCurUserPerson(&pPack->Rec.CreatorID, 0);
-	getcurdatetime(&pPack->Rec.Dt, &pPack->Rec.Tm);
+		opc_obj.GetCode(cntr_id, &counter, rPack.Rec.Code, sizeof(rPack.Rec.Code), 0, use_ta);
+	rPack.Rec.ProjectID  = prjID;
+	rPack.Rec.ClientID   = clientID;
+	rPack.Rec.EmployerID = employerID;
+	rPack.Rec.Priority   = TODOPRIOR_NORMAL;
+	rPack.Rec.Status     = TODOSTTS_NEW;
+	rPack.Rec.LinkTaskID = LinkTaskID;
+	PPObjPerson::GetCurUserPerson(&rPack.Rec.CreatorID, 0);
+	getcurdatetime(&rPack.Rec.Dt, &rPack.Rec.Tm);
 	return 1;
 }
 
@@ -2413,12 +2436,12 @@ int PPObjPrjTask::PutPacket(PPID * pID, PPPrjTaskPacket * pPack, int use_ta)
 				(ext_buffer = pPack->SDescr).Strip();
 			else
 				ext_buffer.Z();
-			THROW(p_ref->UtrC.SetText(TextRefIdent(Obj, *pID, PPTRPROP_DESCR), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(Obj, *pID, PPTRPROP_DESCR), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 			if(pPack)
 				(ext_buffer = pPack->SMemo).Strip();
 			else
 				ext_buffer.Z();
-			THROW(p_ref->UtrC.SetText(TextRefIdent(Obj, *pID, PPTRPROP_MEMO), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(Obj, *pID, PPTRPROP_MEMO), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 		}
 		DS.LogAction(acn_id, Obj, *pID, 0, 0);
 		THROW(tra.Commit());
@@ -2430,7 +2453,7 @@ int PPObjPrjTask::PutPacket(PPID * pID, PPPrjTaskPacket * pPack, int use_ta)
 SString & PPObjPrjTask::GetItemDescr(PPID id, SString & rBuf)
 {
 	rBuf.Z();
-	PPRef->UtrC.GetText(TextRefIdent(Obj, id, PPTRPROP_DESCR), rBuf);
+	PPRef->UtrC.SearchUtf8(TextRefIdent(Obj, id, PPTRPROP_DESCR), rBuf);
 	rBuf.Transf(CTRANSF_UTF8_TO_INNER);
 	return rBuf;
 }
@@ -2438,7 +2461,7 @@ SString & PPObjPrjTask::GetItemDescr(PPID id, SString & rBuf)
 SString & PPObjPrjTask::GetItemMemo(PPID id, SString & rBuf)
 {
 	rBuf.Z();
-	PPRef->UtrC.GetText(TextRefIdent(Obj, id, PPTRPROP_MEMO), rBuf);
+	PPRef->UtrC.SearchUtf8(TextRefIdent(Obj, id, PPTRPROP_MEMO), rBuf);
 	rBuf.Transf(CTRANSF_UTF8_TO_INNER);
 	return rBuf;
 }
@@ -2447,7 +2470,6 @@ int PPObjPrjTask::GetPacket(PPID id, PPPrjTaskPacket * pPack)
 {
 	int    ok = -1;
 	if(pPack) {
-		Reference * p_ref = PPRef;
 		pPack->Z();
 		if(Search(id, &pPack->Rec) > 0) {
 			GetItemDescr(id, pPack->SDescr);
@@ -2514,20 +2536,20 @@ int PPObjPrjTask::SubstDescr(PPPrjTaskPacket * pPack)
 	return ok;
 }
 
-int PPObjPrjTask::InitPacketByTemplate(const PPPrjTaskPacket * pTemplPack, LDATE startDt, PPPrjTaskPacket * pPack, int use_ta)
+int PPObjPrjTask::InitPacketByTemplate(const PPPrjTaskPacket & rTemplPack, LDATE startDt, PPPrjTaskPacket & rPack, int use_ta)
 {
 	int    ok = 1;
-	THROW_INVARG(pTemplPack && pPack && startDt != ZERODATE);
-	THROW(InitPacket(pPack, TODOKIND_TASK, pTemplPack->Rec.ProjectID, pTemplPack->Rec.ClientID, pTemplPack->Rec.EmployerID, use_ta));
-	getcurdatetime(&pPack->Rec.Dt, &pPack->Rec.Tm);
-	pPack->Rec.TemplateID = pTemplPack->Rec.ID;
-	pPack->Rec.DlvrAddrID = pTemplPack->Rec.DlvrAddrID;
-	pPack->Rec.ProjectID  = pTemplPack->Rec.ProjectID;
-	pPack->Rec.BillArID   = pTemplPack->Rec.BillArID;
-	pPack->Rec.StartDt    = startDt;
-	pPack->Rec.Priority   = pTemplPack->Rec.Priority;
-	pPack->SDescr = pTemplPack->SDescr;
-	THROW(SubstDescr(pPack));
+	THROW_INVARG(/*pTemplPack && pPack &&*/startDt != ZERODATE);
+	THROW(InitPacket_(rPack, TODOKIND_TASK, rTemplPack.Rec.ProjectID, rTemplPack.Rec.ClientID, rTemplPack.Rec.EmployerID, use_ta));
+	getcurdatetime(&rPack.Rec.Dt, &rPack.Rec.Tm);
+	rPack.Rec.TemplateID = rTemplPack.Rec.ID;
+	rPack.Rec.DlvrAddrID = rTemplPack.Rec.DlvrAddrID;
+	rPack.Rec.ProjectID  = rTemplPack.Rec.ProjectID;
+	rPack.Rec.BillArID   = rTemplPack.Rec.BillArID;
+	rPack.Rec.StartDt    = startDt;
+	rPack.Rec.Priority   = rTemplPack.Rec.Priority;
+	rPack.SDescr = rTemplPack.SDescr;
+	THROW(SubstDescr(&rPack));
 	CATCHZOK
 	return ok;
 }
@@ -2535,6 +2557,7 @@ int PPObjPrjTask::InitPacketByTemplate(const PPPrjTaskPacket * pTemplPack, LDATE
 int PPObjPrjTask::CreateByTemplate(PPID templID, const DateRange * pPeriod, PPIDArray * pIdList, int use_ta)
 {
 	int    ok = -1;
+	const  LDATETIME now_dtm = getcurdatetime_();
 	PPPrjTaskPacket templ_pack;
 	{
 		PPTransaction tra(use_ta);
@@ -2544,20 +2567,20 @@ int PPObjPrjTask::CreateByTemplate(PPID templID, const DateRange * pPeriod, PPID
 			DateRange period;
 			if(pPeriod) {
 				period = *pPeriod;
-				SETIFZ(period.upp, getcurdate_());
+				SETIFZ(period.upp, now_dtm.d);
 			}
 			else
-				period.Set(ZERODATE, getcurdate_());
+				period.Set(ZERODATE, now_dtm.d);
 			const DateRepeating rept = *reinterpret_cast<const DateRepeating *>(&templ_pack.Rec.DrPrd);
 			DateRepIterator dr_iter(rept, templ_pack.Rec.Dt, period.upp);
 			for(LDATE dt = dr_iter.Next(); dt; dt = dr_iter.Next()) {
 				if(period.CheckDate(dt)) {
-					const int r = P_Tbl->SearchByTemplate(templID, dt, 0);
+					const  int r = P_Tbl->SearchByTemplate(templID, dt, 0);
 					PPID   id = 0;
 					THROW(r);
 					if(r < 0) {
 						PPPrjTaskPacket pack;
-						THROW(InitPacketByTemplate(&templ_pack, dt, &pack, 0));
+						THROW(InitPacketByTemplate(templ_pack, dt, pack, 0));
 						THROW(PutPacket(&id, &pack, 0));
 						CALLPTRMEMB(pIdList, add(id));
 						ok = 1;
@@ -2645,7 +2668,7 @@ public:
 		setCtrlString(CTL_TODO_MEMO,    Data.SMemo);
 		setCtrlData(CTL_TODO_AMOUNT, &Data.Rec.Amount);
 		{
-			PPID   accsheet = 0;
+			PPID   acs_id = 0;
 			PPID   billop = 0;
 			ProjectTbl::Rec prj_rec;
 			for(billop = 0, prj_id = Data.Rec.ProjectID; !billop && PrjObj.Search(prj_id, &prj_rec) > 0; prj_id = prj_rec.ParentID)
@@ -2658,10 +2681,10 @@ public:
 			if(billop) {
 				PPOprKind opr_kind;
 				GetOpData(billop, &opr_kind);
-				accsheet = opr_kind.AccSheetID;
+				acs_id = opr_kind.AccSheetID;
 			}
-			Data.Rec.BillArID = accsheet ? Data.Rec.BillArID : 0;
-			SetupArCombo(this, CTLSEL_TODO_BILLAR, Data.Rec.BillArID, OLW_LOADDEFONOPEN|OLW_CANINSERT, accsheet, sacfDisableIfZeroSheet);
+			Data.Rec.BillArID = acs_id ? Data.Rec.BillArID : 0;
+			SetupArCombo(this, CTLSEL_TODO_BILLAR, Data.Rec.BillArID, OLW_LOADDEFONOPEN|OLW_CANINSERT, acs_id, sacfDisableIfZeroSheet);
 		}
 		return 1;
 	}
@@ -2731,11 +2754,12 @@ int PrjTaskDialog::editRepeating()
 		RepeatingDialog * dlg = new RepeatingDialog(RepeatingDialog::fEditRepeatAfterItem);
 		if(CheckDialogPtrErr(&dlg)) {
 			dlg->setDTS(&dr);
-			for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;)
+			for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 				if(dlg->getDTS(&dr)) {
 					*reinterpret_cast<DateRepeating *>(&Data.Rec.DrPrd) = dr;
 					ok = valid_data = 1;
 				}
+			}
 		}
 		delete dlg;
 	}
@@ -2757,7 +2781,7 @@ IMPL_HANDLE_EVENT(PrjTaskDialog)
 	else if(event.isCbSelected(CTLSEL_TODO_TEMPLATE) && !Data.Rec.ID) {
 		getCtrlData(CTLSEL_TODO_TEMPLATE, &Data.Rec.TemplateID);
 		if(Data.Rec.TemplateID) {
-			PPObjPrjTask     todo_obj;
+			PPObjPrjTask todo_obj;
 			PPPrjTaskPacket templ_pack;
 			if(todo_obj.GetPacket(Data.Rec.TemplateID, &templ_pack) > 0) {
 				getCtrlData(CTLSEL_TODO_EMPLOYER, &Data.Rec.EmployerID);
@@ -2841,7 +2865,7 @@ int PPObjPrjTask::Edit(PPID * pID, void * extraPtr)
 		else
 			parent_prj = extra_param & ~(PRJTASKBIAS_CLIENT|PRJTASKBIAS_EMPLOYER|PRJTASKBIAS_TEMPLATE);
 		int    kind = (extra_param & PRJTASKBIAS_TEMPLATE) ? TODOKIND_TEMPLATE : TODOKIND_TASK;
-		InitPacket(&pack, kind, parent_prj, client, employer, 1);
+		InitPacket_(pack, kind, parent_prj, client, employer, 1);
 		is_new = true;
 	}
 	task_finished = BIN(pack.Rec.Status == TODOSTTS_COMPLETED && pack.Rec.FinishDt != ZERODATE);
@@ -2900,7 +2924,7 @@ int PPObjPrjTask::Edit(PPID * pID, void * extraPtr)
 					LDATE  dt = (dr.Dtl.RA.AfterStart == 0) ? pack.Rec.FinishDt : ((pack.Rec.StartDt == ZERODATE) ? pack.Rec.Dt : pack.Rec.StartDt);
 					plusperiod(&dt, dr.RepeatKind, dr.Dtl.RA.NumPrd, 0);
 					memzero(pack.Rec.Code, sizeof(pack.Rec.Code));
-					InitPacketByTemplate(&pack, dt, &new_task_packet, 0);
+					InitPacketByTemplate(pack, dt, new_task_packet, 0);
 					new_task_packet.Rec.StartTm = pack.Rec.StartTm;
 					new_task_packet.Rec.TemplateID = pack.Rec.TemplateID;
 					new_task_packet.Rec.Amount = pack.Rec.Amount;

@@ -250,7 +250,7 @@ const PageSzInfo Btrieve::LimitPgInfo[NUMPGSIZES] =
 		} while(oneof2(be, BE_INVKEYLEN, BE_INVRECLEN) && (reinterpret_cast<DBFileSpec *>(p_buf)->PageSize += 512) <= 8192);
 		ok = BRet(be);
 		DBTable::InitErrFileName(pFileName);
-		SAlloc::F(p_buf); // @v9.0.7 delete-->free
+		SAlloc::F(p_buf);
 	}
 	else
 		ok = BRet(BE_NOMEM);

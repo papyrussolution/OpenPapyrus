@@ -64,7 +64,7 @@ int PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
 	int    ok = 1;
 	int    is_link = 0;
 	uint   i;
-	const  int accs_cost = P_BObj->CheckRights(BILLRT_ACCSCOST);
+	const  bool accs_cost = P_BObj->CheckRights(BILLRT_ACCSCOST);
 	SString temp_buf;
 	GCTFilt temp_filt;
 	AdjGdsGrpng agg;
@@ -75,7 +75,6 @@ int PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
 	GoodsIterator  iter(static_cast<GoodsFilt *>(0), 0);
 	Goods2Tbl::Rec gr;
 	PPObjGoods gobj;
-
 	THROW(Helper_InitBaseFilt(pFilt));
 	THROW(p_tbl = CreateTempFile());
 	Total.Init();
@@ -90,10 +89,8 @@ int PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
 	temp_filt.Flags |= (OPG_CALCINREST | OPG_CALCOUTREST | OPG_SETTAXES | OPG_PROCESSGENOP);
 	if(Filt.Flags & GoodsMovFilt::fCostWoVat)
 		temp_filt.Flags |= OPG_SETCOSTWOTAXES;
-	// @v10.6.6 {
 	if(Filt.Flags & GoodsMovFilt::fPriceWoVat)
 		temp_filt.Flags |= OPG_SETPRICEWOTAXES;
-	// } @v10.6.6 
 	{
 		ObjRestrictArray op_list;
 		BExtInsert bei(p_tbl);

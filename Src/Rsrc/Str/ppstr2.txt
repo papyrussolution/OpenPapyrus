@@ -1365,7 +1365,8 @@ PPERR_PPDEVICEUNIMPL               "Интерфейс с устройством
 // @v12.4.5 (replaced with PPERR_GOODSNEEDED) PPERR_GOODSNOTSEL                  "Товар не указан"
 PPERR_INVDEVQUOT                   "Не указана цена для устройства %s"
 PPERR_INVRELECOUNT                 "Количество срабатываний реле должно лежать в диапазоне 1-255"
-PPERR_INVQTTY                      "Недопустимое значение количества" // "Количество единиц товара должно быть больше нуля"
+PPERR_INVQTTY                      "Недопустимое значение количества при изменении документа (%s)" // "Количество единиц товара должно быть больше нуля"
+PPERR_INVPHQTTY                    "Недопустимое значение физического количества при изменении документа (%s)" // "Количество единиц товара должно быть больше нуля"
 PPERR_QTTYMUSTBEGEZ                "Количество должно быть не меньше нуля"
 PPERR_QTTYMUSTBEGTZ                "Количество должно быть больше нуля"
 PPERR_QTTYMUSTBEINT                "Количество должно быть целым"
@@ -3164,7 +3165,8 @@ PPINIPARAM_PAPERLESSCHEQUE_FAKEEADDR     "paperlesscheque_fakeeaddr" // @v11.3.7
 PPINIPARAM_BLINDLOGINMODE                "blindloginmode" // @v11.3.12 [config] "слепой" режим авторизации: пользователь не видит список баз данных. после ввода имени и пароля
 	// система самостоятельно находит базу или базы данных, для которых это имя подходит и, если есть более одной базы - дает возможность выбрать.
 PPINIPARAM_DISABLESTQQRLOGIN             "disablestqqrlogin" // @v11.6.9 [config] Запрет авторизации по QR-коду через Stylo-Q
-PPINIPARAM_STYLOQSVCLOGGING              "StyloQSvcLoggin"   // @v11.9.2 [config]
+PPINIPARAM_STYLOQSVCLOGGING_             "StyloQSvcLoggin"   // @v11.9.2 [config] // @v12.4.7 (ошибка) PPINIPARAM_STYLOQSVCLOGGING-->PPINIPARAM_STYLOQSVCLOGGING_
+PPINIPARAM_STYLOQSVCLOGGING              "StyloQSvcLogging"  // @v12.4.7 [config] В старом варианте была ошибка (see above)
 PPINIPARAM_CCLISTBYMARKBACKDAYS          "CcListByMarkBackDays" // @v12.0.5 Количество дней для отсчета назад от текущей даты для поиска марок в чеках
 PPINIPARAM_UNITECHZNCIGBLK10             "UniteChZnCigBlk10" // @v12.1.9 [config] CCFLG2_UNITECHZNCIGBLK10 При продаже 10 пачек сигарет одной позицией с одной chzn-маркой сигаретного блока
 	// в кассовом чеке заменять количество на 1, цену умножать на 10.
@@ -6089,7 +6091,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_billamtlist                     "32,L,@amounttype;6,L,@currency;12,R,@amount" // DLG_BILLINFO
 @lbt_bucfgselect                     "32,L,@scenario;31,L,@database" // DLG_BUCFG_SELECT
 @lbt_attchfilelist                   "68,L,@attachedfile"           // Диалоги заголовков документов
-@lbt_impexpcfglist                   "30,L,@appellation;10,L,@{import}/@{export};10,L,@{format};60,L,@file"
+@lbt_impexpcfglist                   "30,L,@appellation;10,L,@{import}/@{export};10,L,@{format};60,L,@file" // DLG_IMPEXPCFGS
 @lbt_jobpool                         "40,L,@appellation;20,L,@symbol;45,L,@jobitem_schedule;40,L,@jobitem_nextjob"     // DLG_JOBPOOL
 @lbt_filtpool                        "6,L,@id;40,L,@appellation;20,L,@symbol;40,L,@{cmd}" // DLG_FILTPOOL
 @lbt_exprreg                         "30,L,@register_regtype;12,L,@series;32,L,@number" // DLG_EXPIRYREG
@@ -8369,6 +8371,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @but_selcurrate                     "Выбрать курс..."
 @but_stq_commitdocument             "Отправить документ"
 @but_stq_canceldocument             "Отменить документ"
+@but_todo                           "@{prjtask}..."
 
 @close                              "Закрыть"
 @closed_fem                         "Закрыта"
@@ -12739,6 +12742,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @oprkind_opkfx_accautovat                 "Автоматически рассчитывать суммы налогов"
 @oprkind_opkfx_mngprefsuppl               "Управление предпочтительным поставщиком для дозаказа"
 @oprkind_opkfx_setctxagent                "Устанавливать агента в новых документах по контексту" // @v12.3.4
+@oprkind_opkfx_usetodolink                "Допускает привязку задачи (todo)" // @v12.4.7
 
 @oprkind_prnorder                         "Сортировка товарных строк"
 @oprkind_prnorder_default                 "@{bydefault}"
@@ -17929,6 +17933,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 
 @testglobalserviceaccessibility               "Тест доступности глобальных сервисов"
 
+@testserverprint                              "Тест серверной печати"
+
 @gdspckgtype                                  "@{packagetype}"
 @gdspckgtype_id                               ""
 @gdspckgtype_name                             "@{appellation}"
@@ -18816,6 +18822,7 @@ PPHS_TIMEZONES                   "timezones" // @v11.3.6
 PPHS_EXECJOBIMM                  "execjobimmediately" // @v11.3.9
 PPHS_GETDBINFO                   "getdbinfo" // @v12.0.6 Команда job-server'а для получения информации о текущей базе данных
 PPHS_EGAISMARKAUTOSELECTION      "EgaisMarkAutoSelection" // @v12.2.11
+PPHS_TESTSERVERPRINT             "TestServerPrint" // @v12.4.7 Команда job-server'а для отладки серверной печати
 #!}
 
 [124:hash] // PPSTR_HASHTOKEN_C

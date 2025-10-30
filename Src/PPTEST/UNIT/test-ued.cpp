@@ -8,7 +8,7 @@
 #include <sartre.h>
 
 uint64 UedEncodeRange(uint64 upp, uint granulation, uint bits, double value);
-bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * pResult);
+bool   UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * pResult);
 
 #include <unicode\uclean.h>
 #include <unicode\brkiter.h>
@@ -199,7 +199,7 @@ SLTEST_R(UED)
 		}
 	}
 	{
-		const double angle_list[] = { -11.9, -45.0, -180.1, 10.5, 0.0, 30.0, 45.0, 60.0, 180.0, 10.0, 270.25, 359.9 };
+		const double angle_list[] = { -80.7123, 31.98754321, -11.9, -45.0, -180.1, 10.5, 0.0, 30.0, 45.0, 60.0, 180.0, 10.0, 270.25, 359.9 };
 		for(uint i = 0; i < SIZEOFARRAY(angle_list); i++) {
 			uint64 ued_a = UED::SetRaw_PlanarAngleDeg(angle_list[i]);
 			double angle_;
@@ -347,6 +347,58 @@ SLTEST_R(UED)
 			}
 			SLCHECK_NZ(UED::GetRaw_Oid(ued, oid));
 			SLCHECK_EQ(oid, r_oid_pattern);
+		}
+	}
+	{ // @v12.4.7
+		SString line_buf;
+		SString _file_name(MakeInputFilePath("ru-kpp.txt"));
+		SFile f_in(_file_name, SFile::mRead);
+		if(f_in.IsValid()) {
+			while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+				const  uint64 ued = UED::SetRaw_Ru_KPP(line_buf);
+				SLCHECK_NZ(ued);
+				SLCHECK_EQ(UED::GetMeta(ued), UED_META_RU_KPP);
+				SLCHECK_NZ(UED::GetRaw_Ru_KPP(ued, temp_buf));
+				SLCHECK_EQ(temp_buf, line_buf);
+			}
+		}
+	}
+	{ // @v12.4.7
+		SString line_buf;
+		SString _file_name(MakeInputFilePath("ru-inn.txt"));
+		SFile f_in(_file_name, SFile::mRead);
+		if(f_in.IsValid()) {
+			while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+				{
+					const  uint64 ued = UED::SetRaw_Ru_INN(line_buf, false);
+					uint   spc_flags = 0;
+					SLCHECK_NZ(ued);
+					SLCHECK_EQ(UED::GetMeta(ued), UED_META_RU_INN);
+					SLCHECK_NZ(UED::GetRaw_Ru_INN(ued, temp_buf, &spc_flags));
+					SLCHECK_EQ(temp_buf, line_buf);
+					if(line_buf.Len() == 10) {
+						SLCHECK_EQ(spc_flags, (uint)UED_SPCF_INN_010);
+					}
+					else if(line_buf.Len() == 12) {
+						SLCHECK_EQ(spc_flags, (uint)UED_SPCF_INN_012);
+					}
+				}
+				{
+					// Искусственно 'портим' контрольную цифру и требуем сохранить ИНН с плохой контрольной цифрой
+					const uint len = line_buf.Len();
+					uint cd_c = line_buf.Last() - '0';
+					line_buf.Trim(len-1);
+					line_buf.CatChar(((cd_c + 1) % 10) + '0');
+					//
+					const  uint64 ued = UED::SetRaw_Ru_INN(line_buf, true);
+					uint   spc_flags = 0;
+					SLCHECK_NZ(ued);
+					SLCHECK_EQ(UED::GetMeta(ued), UED_META_RU_INN);
+					SLCHECK_NZ(UED::GetRaw_Ru_INN(ued, temp_buf, &spc_flags));
+					SLCHECK_EQ(temp_buf, line_buf);
+					SLCHECK_NZ(spc_flags & UED_SPCF_INN_BADCD);
+				}
+			}
 		}
 	}
 	return CurrentStatus;

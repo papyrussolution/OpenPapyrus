@@ -3300,7 +3300,7 @@ int PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 	PPLocationPacket loc_pack;
 	PPIDArray dlvr_loc_list;
 	PPIDArray * p_dlvr_loc_list = 0;
-	const int is_rt_mod = CheckRights(PPR_MOD, 0);
+	const bool is_rt_mod = CheckRights(PPR_MOD, 0);
 	if(pPack && (*pID || pPack->GetSCard())) {
 		THROW_MEM(SETIFZ(P_ScObj, new PPObjSCard));
 	}
@@ -4949,8 +4949,8 @@ int PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 			}
 			p_dlg->setDTS(&pack);
 			while(!valid_data && (r = ExecView(p_dlg)) == cmOK) {
-				const  PPID dup_id = p_dlg->GetDupID();
-				const  int  rt_mod = CheckRights(PPR_MOD);
+				const PPID dup_id = p_dlg->GetDupID();
+				const bool rt_mod = CheckRights(PPR_MOD);
 				if((valid_data = p_dlg->getDTS(&pack)) != 0) {
 					PPID   psn_id = pack.Rec.ID;
 					THROW((is_new && !dup_id) || (rt_mod || pack.GetSCard()));

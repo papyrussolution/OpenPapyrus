@@ -536,8 +536,10 @@ bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * 
 		if(flagsBits <= 8) {
 			uint64 raw = 0;
 			if(GetRawValue(ued, &raw)) {
-				flags = static_cast<uint>(raw >> (bits - flagsBits));
-				uint64 val = raw & (_FFFF64 << (64 - bits) >> (64 - bits));
+				const uint value_bits = (bits - flagsBits);
+				flags = static_cast<uint>(raw >> value_bits);
+				// @v12.4.7 uint64 val = raw & (_FFFF64 << (64 - bits) >> (64 - bits));
+				uint64 val = raw & (_FFFF64 << (64 - value_bits) >> (64 - value_bits)); // @v12.4.7 
 				rT.Cat(val);
 				ok = true;
 			}
@@ -547,23 +549,53 @@ bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * 
 	return ok;
 }
 
-/*static*/uint64 UED::SetRaw_Ru_INN(const char * pT)
+/*static*/uint64 UED::SetRaw_Ru_INN(const char * pT, bool forceBadCD)
 {
+	// 10 or 12 десятичных знаков (40bits) + flags 4 bits
 	uint64 result = 0;
 	if(!isempty(pT)) {
 		STokenRecognizer tr;
 		SNaturalTokenArray nta;
-		tr.Run(reinterpret_cast<const uchar *>(pT), sstrlen(pT), nta, 0);
-		if(nta.Has(SNTOK_RU_INN))
-			result = Helper_SetRaw_DecimalString(UED_META_RU_INN, pT, 4, 0);
+		const size_t len = sstrlen(pT);
+		tr.Run(reinterpret_cast<const uchar *>(pT), len, nta, 0);
+		const float p = nta.Has(SNTOK_RU_INN);
+		if(p > 0.0f) {
+			uint    spc_flags = 0;
+			if(len == 10)
+				spc_flags |= UED_SPCF_INN_010;
+			else if(len == 12)
+				spc_flags |= UED_SPCF_INN_012;
+			assert(oneof2(len, 10, 12));
+			if(spc_flags) {
+				if(p < 0.1f) {
+					if(forceBadCD) {
+						spc_flags |= UED_SPCF_INN_BADCD;
+						result = Helper_SetRaw_DecimalString(UED_META_RU_INN, pT, 4, spc_flags);
+					}
+				}
+				else {
+					result = Helper_SetRaw_DecimalString(UED_META_RU_INN, pT, 4, spc_flags);
+				}
+			}
+		}
 	}
 	return result;
 }
 
-/*static*/bool UED::GetRaw_Ru_INN(uint64 ued, SString & rT)
+/*static*/bool UED::GetRaw_Ru_INN(uint64 ued, SString & rT, uint * pSpcFlags)
 {
-	uint flags = 0;
-	bool ok = Helper_GetRaw_DecimalString(UED_META_RU_INN, ued, rT, 4, &flags);
+	uint   flags = 0;
+	bool   ok = Helper_GetRaw_DecimalString(UED_META_RU_INN, ued, rT, 4, &flags);
+	if(ok) {
+		const  uint _pre_len = rT.Len();
+		if(flags & UED_SPCF_INN_010 && _pre_len < 10) {
+			rT.PadLeft(10 - _pre_len, '0');
+		}
+		else if(flags & UED_SPCF_INN_012 && _pre_len < 12) {
+			rT.PadLeft(12 - _pre_len, '0');
+		}
+	}
+	ASSIGN_PTR(pSpcFlags, flags);
 	return ok;
 }
 
@@ -584,6 +616,12 @@ bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * 
 {
 	uint flags = 0;
 	bool ok = Helper_GetRaw_DecimalString(UED_META_RU_KPP, ued, rT, 4, &flags);
+	if(ok) {
+		const  uint _pre_len = rT.Len();
+		if(_pre_len < 9) {
+			rT.PadLeft(9 - _pre_len, '0');
+		}
+	}
 	return ok;
 }
 

@@ -2688,7 +2688,7 @@ int CPosProcessor::TurnCorrectionStorno(PPID * pCcID, int ccOp /*CCOP_XXX*/, PPI
 							{
 								blk.Pack.PackTextExt(new_cctext);
 								if(new_cctext != org_cctext) {
-									THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_CCHECK, blk.Pack.Rec.ID, PPTRPROP_CC_LNEXT), new_cctext.Transf(CTRANSF_INNER_TO_UTF8), 0));
+									THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_CCHECK, blk.Pack.Rec.ID, PPTRPROP_CC_LNEXT), new_cctext.Transf(CTRANSF_INNER_TO_UTF8), 0));
 								}
 							}
 							THROW(tra.Commit());
@@ -3123,10 +3123,10 @@ int CPosProcessor::TurnCorrectionStorno(PPID * pCcID, int ccOp /*CCOP_XXX*/, PPI
 					epb.Pack.PackTextExt(new_cctext);
 					epb.ExtPack.PackTextExt(new_ext_cctext);
 					if(new_cctext != org_cctext) {
-						THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_CCHECK, epb.Pack.Rec.ID, PPTRPROP_CC_LNEXT), new_cctext.Transf(CTRANSF_INNER_TO_UTF8), 0));
+						THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_CCHECK, epb.Pack.Rec.ID, PPTRPROP_CC_LNEXT), new_cctext.Transf(CTRANSF_INNER_TO_UTF8), 0));
 					}
 					if(new_ext_cctext != org_ext_cctext) {
-						THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_CCHECK, epb.ExtPack.Rec.ID, PPTRPROP_CC_LNEXT), new_ext_cctext.Transf(CTRANSF_INNER_TO_UTF8), 0));
+						THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_CCHECK, epb.ExtPack.Rec.ID, PPTRPROP_CC_LNEXT), new_ext_cctext.Transf(CTRANSF_INNER_TO_UTF8), 0));
 					}
 				}
 				THROW(tra.Commit());
@@ -5623,7 +5623,7 @@ int SelCheckListDialog::getDTS(_SelCheck * pSelCheck)
 									do_remove = !(P_AddParam && P_AddParam->Flags & P_AddParam->fAllowReturns);
 								}
 								if(!do_remove && CPosProcessor::IsCorrectionOp(Op)) { 
-									PPRef->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, r_rec.ID, PPTRPROP_CC_LNEXT), temp_buf);
+									PPRef->UtrC.SearchUtf8(TextRefIdent(PPOBJ_CCHECK, r_rec.ID, PPTRPROP_CC_LNEXT), temp_buf);
 									temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 									CCheckPacket::Helper_UnpackTextExt(temp_buf, &sc, &cc_fld_list);
 									if(sc.GetExtStrData(CCheckPacket::extssFiscalSign, temp_buf) > 0) {
@@ -8626,7 +8626,7 @@ int CPosProcessor::RestoreSuspendedCheck(PPID ccID, CCheckPacket * pPack, int un
 	return ok;
 }
 
-int CPosProcessor::CheckRights(long rights) const { return ((OperRightsFlags & rights) ==  rights) ? 1 : PPSetError(PPERR_NORIGHTS); }
+bool CPosProcessor::CheckRights(long rights) const { return ((OperRightsFlags & rights) ==  rights) ? true : PPSetError(PPERR_NORIGHTS); }
 
 int CheckPaneDialog::SelectSuspendedCheck()
 {
@@ -11078,8 +11078,8 @@ int SCardInfoDialog::SetupCard(PPID scardID, SCardSpecialTreatment::IdentifyRepl
 		setStaticText(CTL_SCARDVIEW_OWNERINFO, info_buf);
 		setGroupData(ctlgroupIBG, &ibg_rec);
 		{
-			const int enbl_psn = BIN(OwnerID && PsnObj.CheckRights(PPR_MOD));
-			const int enbl_pic = BIN(PsnObj.CheckRights(PSNRT_UPDIMAGE));
+			const bool enbl_psn = (OwnerID && PsnObj.CheckRights(PPR_MOD));
+			const bool enbl_pic = PsnObj.CheckRights(PSNRT_UPDIMAGE);
 			enableCommand(cmAddImage, enbl_pic);
 			enableCommand(cmDelImage, enbl_pic);
 			enableCommand(cmPasteImage, enbl_pic);

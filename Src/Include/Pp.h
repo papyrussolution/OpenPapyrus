@@ -141,7 +141,6 @@
 #include <ppdbs.h>
 #include <ppdefs.h>
 #include <ued.h>
-//#include <report.h>
 #include <snet.h>
 #include <stylopalm.h>
 #include <stylobhtii.h>
@@ -3044,19 +3043,22 @@ private:
 class UnxTextRefCore : public UnxTextRefTbl {
 public:
 	UnxTextRefCore();
-	int    Search(const TextRefIdent & rI, SStringU & rBuf);
-	int    Search(const TextRefIdent & rI, STimeSeries & rTs);
-	int    SetText(const TextRefIdent & rI, const wchar_t * pText, int use_ta);
 	//
 	// Descr: Возвращает текст в кодировке utf-8
 	//
-	int    GetText(const TextRefIdent & rI, SString & rBuf);
-	int    FilterIdList(PPID objType, int prop, const char * pPattern, const PPIDArray * pFiltIdList, PPIDArray & rResultIdList);
-	int    FilterIdRange(PPID objType, int prop, const char * pPattern, const IntRange * pFiltIdRange, PPIDArray & rResultIdList);
+	int    SearchUtf8(const TextRefIdent & rI, SString & rBufUtf8); // @v12.4.7
+	int    SearchU(const TextRefIdent & rI, SStringU & rBuf);
+	int    SearchTS(const TextRefIdent & rI, STimeSeries & rTs);
 	//
 	// Descr: Сохраняет текст, заданный в кодировке utf-8
 	//
-	int    SetText(const TextRefIdent & rI, const char * pText, int use_ta);
+	int    SetTextUtf8(const TextRefIdent & rI, const SString & rTextUtf8, int use_ta); // @v12.4.7
+	//
+	// Descr: Удаляет запись, идентифицируемую как rI.
+	//
+	int    Remove(const TextRefIdent & rI, int use_ta); // @v12.4.7
+	int    FilterIdList(PPID objType, int prop, const char * pPattern, const PPIDArray * pFiltIdList, PPIDArray & rResultIdList);
+	int    FilterIdRange(PPID objType, int prop, const char * pPattern, const IntRange * pFiltIdRange, PPIDArray & rResultIdList);
 	//
 	// Descr: Сохраняет временную серию в записи.
 	//
@@ -3068,6 +3070,7 @@ public:
 	int    InitEnum(PPID objType, int prop, PPID minObjID, long * pHandle);
 	int    NextEnum(long enumHandle, TextRefEnumItem * pRec);
 private:
+
 	class _Enum : public SEnum::Imp {
 	public:
 		_Enum(UnxTextRefCore * pT, long h);
@@ -3077,7 +3080,8 @@ private:
 		UnxTextRefCore * P_T;
 		long   H;
 	};
-	int    FASTCALL PostprocessRead(SStringU & rBuf);
+	// @v12.4.7 int    FASTCALL PostprocessReadU(SStringU & rBuf);
+	//int    FASTCALL PostprocessReadUtf8(SString & rBufUtf8);
 	int    Helper_Filter(PPID objType, int prop, const char * pPattern, const IntRange & rRange, const PPIDArray * pFiltIdList, PPIDArray & rResultIdList);
 
 	PPTblEnumList EnumList;
@@ -3491,6 +3495,8 @@ public:
 //
 class ObjTagList : SArray {
 public:
+	static bool FASTCALL ArePtrsEqual(const ObjTagList * pP1, const ObjTagList * pP2);
+
 	ObjTagList();
 	ObjTagList(const ObjTagList & s);
 	~ObjTagList();
@@ -5574,6 +5580,8 @@ private:
 #define PPSCMD_WSCTL_REGISTERCOMPUTER 10137 // @v12.0.0 WSCTL Регистрация рабочей станции
 #define PPSCMD_GETDBINFO              10138 // @v12.0.6 Возвращает информацию о базе данных, в которой авторизован сеанс. Возвращает json
 #define PPSCMD_EGAISMARKAUTOSELECTION 10139 // @v12.2.11 Серверный вызов EgaisMarkAutoSelector::Run для ускорения обработки.
+#define PPSCMD_TESTSERVERPRINT        10140 // @v12.4.7 Тестовая команда для посылки серверу директивы печати какого-либо отчета исключительно с целью 
+	// функционала тестирования печати со стороны сервера.
 
 #define PPSCMD_TEST                   11000 // Сеанс тестирования //
 #define PPSCMD___LASTIDENTIFIER       99999 // @v12.0.3 Максимальный допустимый идентификатор серверной команды. Этот лимит нужен для ситуативного 
@@ -8575,11 +8583,11 @@ public:
 	//   Если в параметре rt задано более одного флага, то функция возвращает
 	//   положительный ответ только если все эти права у пользователя есть.
 	//
-	int    CheckRights(long rt, int oprRights);
+	bool   CheckRights(long rt, int oprRights);
 	//
 	// Descr: == CheckRight(rt, 0)
 	//
-	int    FASTCALL CheckRights(long rt);
+	bool   FASTCALL CheckRights(long rt);
 	//
 	// Descr: Утилитная функция, текст которой выглядит так:
 	//   {return pID ? CheckRights(*pID, PPR_MOD : PPR_INS) : (PPErrCode = PPERR_INVPARAM, 0);}
@@ -8587,7 +8595,7 @@ public:
 	//   очень часто встречается.
 	//   Кроме того, эта функция защищает вызывающую функцию от нулевого указателя pID.
 	//
-	int    FASTCALL CheckRightsModByID(const  PPID * pID);
+	bool   FASTCALL CheckRightsModByID(const  PPID * pID);
 	int    GetLastModifEvent(PPID objID, LDATETIME *, int * pCr, SysJournalTbl::Rec * = 0);
 	//
 	// Descr: используя виртуальные функции Search и GetNamePtr находит и возвращает
@@ -14135,7 +14143,7 @@ public:
 	enum {
 		fUpdEnableUpdChildLot = 0x0001
 	};
-	int    UpdateItem(PPTransferItem * pTI, int16 & rByBill, long flags, int use_ta);
+	int    UpdateTransferItem(PPTransferItem * pTI, int16 & rByBill, long flags, int use_ta);
 	int    RemoveItem(PPID billID, int rByBill, int force, int use_ta);
 	int    CorrectReverse();
 	int    CorrectIntrUnite();
@@ -14304,7 +14312,7 @@ private:
 	int    UpdateForward(const TransferTbl::Rec &, double addendum, double phAdd);
 	int    UpdateCurRest(PPID goodsID, PPID loc, double addendum);
 	int    RemoveItem(PPID bill, int rvrs, short rByBill, int force, int use_ta);
-	int    UpdateItem(PPTransferItem *, int16 & rByBill, int rvrs, long flags, int use_ta);
+	int    UpdateTransferItem(PPTransferItem *, int16 & rByBill, int rvrs, long flags, int use_ta);
 	int    UpdateReceipt(PPID lotID, PPTransferItem *, PPID prevLotID, long flags);
 		// @<<Transfer::UpdateItem(PPTransferItem *, int, long, int)
 	int    EnumIncorrectReverse(PPID * billID, short * rByBill, TransferTbl::Rec * orgRec);
@@ -14806,6 +14814,7 @@ public:
 	SEnum::Imp * EnumByClient(PPID cliPersonID, const DateRange * pPeriod, int options);
 	SEnum::Imp * EnumByEmployer(PPID emplPersonID, const DateRange * pPeriod, int options);
 	int    SearchByTime(const LDATETIME &, PPID * pID, PrjTaskTbl::Rec *);
+	int    SearchByLinkBillID(PPID billID, PPIDArray & rIdList);
 	int    SearchAnyRef(PPID objType, PPID objID, PPID * pID);
 	int    ReplaceRefs(PPID objType, PPID replacedID, PPID newID, int use_ta);
 	//
@@ -17237,8 +17246,9 @@ struct ObjTagFilt {
 		// @#{fOnlyGroups^fOnlyTags}
 		fAnyObjects   = 0x0004, // Исторически ObjTypeID == 0 трактуется как ObjTypeID = PPOBJ_PERSON,
 			// по этому, чтобы получить теги по всем типам объектов необходимо установить данный флаг.
-		fObjTypeRoots = 0x0008  // Добавить узлы, соответствующие типам объектов.
+		fObjTypeRoots = 0x0008, // Добавить узлы, соответствующие типам объектов.
 			// Идентификаторы узлов формируются по следующему правилу: ObjType * 100000
+		fSkipPassive  = 0x0010, // @v12.4.7 Скрывать пассивные теги
 	};
 
 #define TAG_OBJTYPEROOT_MULT 100000
@@ -17254,6 +17264,14 @@ struct ObjTagFilt {
 };
 
 class PPObjTag : public PPObjReference {
+	/* Зарезервированные символы тегов:
+		ASTRAZENECAGOODS
+		GAZPROMNEFT-WHUUID
+		HEINEKEN-RORDN
+		LOC-AGENT-VLDSTD
+		setretail-prodtagb
+		SERVICE-TODO-CODE // @v12.4.7
+	*/
 public:
 	static int     CheckForTagFilt(PPID objType, PPID objID, const TagFilt * pFilt);
 	//
@@ -19571,6 +19589,7 @@ public:
 	// администрирования предпочтительного поставщика для дозаказа товара поставщику.
 #define OPKFX_SETCTXAGENT      0x00040000L // @v12.3.4 При создании документа присваивать ему агента в соответствии с контекстом (видимо, под контекстом пока
 	// будем подразумевать пользователя, который создает документ - дальше посмотрим как пойдет).
+#define OPKFX_USETODOLINK      0x00080000L // @v12.4.7 Документы этого вида могут быть привязаны к задачам (PrjTask::LinkBillID)
 
 #define OPKF_PRT_INCINVC       0x00000001L // Входящая счет-фактура на предоплату
 #define OPKF_PRT_NEGINVC       0x00000002L // Счет-фактура с отрицательными суммами
@@ -35773,8 +35792,8 @@ struct LocTransfViewItem : public LocTransfTbl::Rec {
 
 class PPViewLocTransf : public PPView {
 public:
-	static int EditLocTransf(const PPBillPacket * pPack, LocTransfTbl::Rec & rData);
-	static int EditLocTransf(const PPBillPacket * pPack, LocTransfOpBlock & rData);
+	static int EditLocTransf(PPBillPacket * pPack, int billItemIdx/*[0..] || -1*/, LocTransfTbl::Rec & rData);
+	static int EditLocTransf(PPBillPacket * pPack, int billItemIdx/*[0..] || -1*/, LocTransfOpBlock & rData);
 
 	struct Hdr {
 		PPID   ID__;
@@ -40122,6 +40141,7 @@ private:
 	int    UniteInventory();    // @<<PPViewBill::UniteBills
 	int    Helper_ExportBnkOrder(const char * pSection, StringSet * pResultFileList, PPLogger & rLogger);
 	int    EvaluateOrderFulfillmentStatus(PPID billID);
+	int    Test_ServerPrint(PPID billID); // @v12.4.7
 
 	BillFilt Filt;
 	PPIDArray UpdateBillList; // для обновления измененнных документов в броузере
@@ -48180,8 +48200,8 @@ public:
 	int    WritePacketWithPredefinedFormat(const PPPrjTaskPacket * pPack, int format, SString & rBuf, void * pCtx);
 	int    ImportFromOuterFormat(const char * pInput, const iCalendarImportParam * pParam, TSCollection <PPPrjTaskPacket> & rList); // @v11.0.3
 	int    SearchAnalog(const PPPrjTaskPacket * pPack, PPID * pAnalogID);
-	int    InitPacket(PPPrjTaskPacket * pPack, int kind /* TODOKIND_XXX */, PPID prjID, PPID clientID, PPID employerID, int use_ta);
-	int    InitPacketByTemplate(const PPPrjTaskPacket * pTemplPack, LDATE startDt, PPPrjTaskPacket * pPack, int use_ta);
+	int    InitPacket_(PPPrjTaskPacket & rPack, int kind /* TODOKIND_XXX */, PPID prjID, PPID clientID, PPID employerID, int use_ta);
+	int    InitPacketByTemplate(const PPPrjTaskPacket & rTemplPack, LDATE startDt, PPPrjTaskPacket & rPack, int use_ta);
 	int    AddBySample(PPID * pID, PPID sampleID);
 	SString & GetItemDescr(PPID id, SString & rBuf);
 	SString & GetItemMemo(PPID id, SString & rBuf);
@@ -48219,12 +48239,14 @@ struct PrjTaskFilt : public PPBaseFilt {
 public:
 	PrjTaskFilt();
 	virtual int Init(int fullyDestroy, long extraData);
+	void   ClearSet_Status();
+	void   ClearSet_Prior();
 	int    IncludeStatus(long status);
 	int    ExcludeStatus(long status);
 	int    IncludePrior(long prior);
 	int    ExcludePrior(long prior);
-	int    GetStatusList(PPIDArray *) const;
-	int    GetPriorList(PPIDArray *) const;
+	int    GetStatusList(PPIDArray & rList) const;
+	int    GetPriorList(PPIDArray & rList) const;
 	SString & GetStatusListText(SString &) const;
 	SString & GetPriorListText(SString &) const;
 	//
@@ -48287,7 +48309,7 @@ public:
 private:
 	int    InclInList(int16 * pList, size_t listSize, int16 val);
 	int    ExclFromList(int16 * pList, size_t listSize, int16, int16, int16 val);
-	int    GetList(const int16 * pList, size_t listSize, PPIDArray *) const;
+	int    GetList(const int16 * pList, size_t listSize, PPIDArray & rResultList) const;
 };
 
 typedef PrjTaskTbl::Rec PrjTaskViewItem;
@@ -56707,7 +56729,7 @@ public:
 	int    GetGuestCount() const;
 	PPID   GetAuthAgentID() const;
 	PPID   FASTCALL GetCnLocID(PPID goodsID) const;
-	int    CheckRights(long rights) const;
+	bool   CheckRights(long rights) const;
 	int    InitIteration();
 	int    FASTCALL NextIteration(CCheckItem * pItem);
 	int    SetupCTable(int tableNo, int guestCount);
@@ -64401,6 +64423,7 @@ int Convert12000(); // @v12.0.0 Регистры (увеличились дли�
 int Convert12005(); // @v12.0.5 SCardOp (добавлены поля CtAmount & CtRest для количественного учета)
 int Convert12207(); // @v12.2.7 VATBook (добавлены дополнительные поля для новых ставок НДС, увеличены длины номеров документов, перестроен порядок полей)
 int Convert12401(); // @v12.4.1 LocTransf
+int Convert12407(); // @v12.4.7 PrjTask
 int DoChargeSalary();
 int DoDebtRate();
 int DoBizScore(PPID bzsID);

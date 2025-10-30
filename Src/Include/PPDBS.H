@@ -998,7 +998,7 @@ public:
 		Rec();
 		Rec & Clear();
 		int32  ID;
-		char   Code[16];
+		char   Code[48];
 		int32  StaffID;
 		int32  PersonID;
 		LDATE  Dt;
@@ -1008,7 +1008,7 @@ public:
 		int16  Closed;
 		int16  Reserve1;
 		int32  PsnEventID;
-		uint8  Reserve2[28]; // raw
+		uint8  Reserve2[32]; // raw
 	} data;
 	struct Key0 {
 		int32  ID;
@@ -3473,7 +3473,8 @@ public:
 		double Amount;
 		int32  OpenCount;
 		int32  BillArID;
-		uint8  Reserve[16]; // raw
+		int32  LinkBillID;
+		uint8  Reserve[12]; // raw
 	} data;
 	struct Key0 {
 		int32  ID;
@@ -3507,6 +3508,11 @@ public:
 		LDATE  Dt;
 		LTIME  Tm;
 	};
+	struct Key7 {
+		int32  LinkBillID;
+		LDATE  Dt;
+		LTIME  Tm;
+	};
 	DBField ID;
 	DBField ProjectID;
 	DBField Kind;
@@ -3535,6 +3541,7 @@ public:
 	DBField Amount;
 	DBField OpenCount;
 	DBField BillArID;
+	DBField LinkBillID;
 	DBField Reserve;
 };
 #pragma pack(pop)

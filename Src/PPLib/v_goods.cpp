@@ -2213,11 +2213,13 @@ int PPViewGoods::RemoveAll()
 	}
 	THROW(CheckDialogPtr(&(dlg = new GoodsMoveDialog)));
 	dlg->setDTS(&GmParam);
-	while(!valid_data && ExecView(dlg) == cmOK)
+	while(!valid_data && ExecView(dlg) == cmOK) {
 		if(dlg->getDTS(&GmParam))
 			valid_data = 1;
+	}
 	if(valid_data == 1) {
-		long   success_count = 0, skip_count = 0;
+		long   success_count = 0;
+		long   skip_count = 0;
 		PPWaitStart();
 		GoodsViewItem item;
 		PPGoodsPacket pack;

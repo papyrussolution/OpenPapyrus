@@ -2484,10 +2484,11 @@ int DebtDimDialog::editItem(long pos, long id)
 				}
 			}
 			if(!valid_data) {
-				SString temp_buf, msg;
+				SString temp_buf;
+				SString msg_buf;
 				PPLoadString(PPMSG_CONFIRMATION, PPCFM_DEBTDIMINTERSECTAGENTS, temp_buf);
-				msg.Printf(temp_buf.cptr(), agent_name.cptr(), dd_rec.Name);
-				if(PPOutputMessage(msg, mfConf|mfYes|mfNo) == cmYes)
+				msg_buf.Printf(temp_buf.cptr(), agent_name.cptr(), dd_rec.Name);
+				if(PPOutputMessage(msg_buf, mfConf|mfYes|mfNo) == cmYes)
 					valid_data = 1;
 			}
 			if(valid_data) {

@@ -98,7 +98,7 @@ static IMPL_DBE_PROC(dbqf_unxtext_iii)
 		PPID   obj_id    = params[1].lval;
 		PPID   text_prop = params[2].lval;
         SString & r_temp_buf = SLS.AcquireRvlStr();
-		PPRef->UtrC.GetText(TextRefIdent(obj_type, obj_id, static_cast<int16>(text_prop)), r_temp_buf);
+		PPRef->UtrC.SearchUtf8(TextRefIdent(obj_type, obj_id, static_cast<int16>(text_prop)), r_temp_buf);
 		r_temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 		STRNSCPY(text_buf, r_temp_buf);
 		result->init(text_buf);
@@ -1219,7 +1219,7 @@ static IMPL_DBE_PROC(dbqf_objmemo_bill_i)
 			// @v11.1.12 {
 			SString & r_temp_buf = SLS.AcquireRvlStr();
 			if(id) {
-				PPRef->UtrC.GetText(TextRefIdent(PPOBJ_BILL, id, PPTRPROP_MEMO), r_temp_buf);
+				PPRef->UtrC.SearchUtf8(TextRefIdent(PPOBJ_BILL, id, PPTRPROP_MEMO), r_temp_buf);
 				r_temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 			}
 			STRNSCPY(name_buf, r_temp_buf);
@@ -1239,7 +1239,7 @@ static IMPL_DBE_PROC(dbqf_billmemosubstr_is) // @v11.7.4
 	else {
 		SString & r_temp_buf = SLS.AcquireRvlStr();
 		if(id) {
-			PPRef->UtrC.GetText(TextRefIdent(PPOBJ_BILL, id, PPTRPROP_MEMO), r_temp_buf);
+			PPRef->UtrC.SearchUtf8(TextRefIdent(PPOBJ_BILL, id, PPTRPROP_MEMO), r_temp_buf);
 			if(r_temp_buf.NotEmptyS()) {
 				r_temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 				local_result = ExtStrSrch(r_temp_buf, p_pattern, 0);
@@ -1257,7 +1257,7 @@ static IMPL_DBE_PROC(dbqf_objmemo_person_i) // @v11.1.12
 		if(id) {
 			SString & r_temp_buf = SLS.AcquireRvlStr();
 			if(id) {
-				PPRef->UtrC.GetText(TextRefIdent(PPOBJ_PERSON, id, PPTRPROP_MEMO), r_temp_buf);
+				PPRef->UtrC.SearchUtf8(TextRefIdent(PPOBJ_PERSON, id, PPTRPROP_MEMO), r_temp_buf);
 				r_temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 			}
 			STRNSCPY(name_buf, r_temp_buf);
@@ -1274,7 +1274,7 @@ static IMPL_DBE_PROC(dbqf_objmemo_personevent_i) // @v11.1.12
 		if(id) {
 			SString & r_temp_buf = SLS.AcquireRvlStr();
 			if(id) {
-				PPRef->UtrC.GetText(TextRefIdent(PPOBJ_PERSONEVENT, id, PPTRPROP_MEMO), r_temp_buf);
+				PPRef->UtrC.SearchUtf8(TextRefIdent(PPOBJ_PERSONEVENT, id, PPTRPROP_MEMO), r_temp_buf);
 				r_temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 			}
 			STRNSCPY(name_buf, r_temp_buf);

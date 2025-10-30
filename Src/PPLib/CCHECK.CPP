@@ -2577,7 +2577,7 @@ int CCheckCore::LoadPacket(PPID id, long flags, CCheckPacket * pPack)
 		if(!(flags & lpfNoLines))
 			LoadLines(id, 0, pPack);
 		if(!(flags & lpfNoStrExt)) { // @v12.0.5
-			THROW(PPRef->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, id, PPTRPROP_CC_LNEXT), text_buf));
+			THROW(PPRef->UtrC.SearchUtf8(TextRefIdent(PPOBJ_CCHECK, id, PPTRPROP_CC_LNEXT), text_buf));
 			text_buf.Transf(CTRANSF_UTF8_TO_INNER);
 			pPack->UnpackTextExt(text_buf);
 		}
@@ -3039,7 +3039,7 @@ int CCheckCore::UpdateCheck(CCheckPacket * pPack, int use_ta)
 			SString text_buf;
 			pPack->PackTextExt(text_buf);
 			if(text_buf.NotEmptyS()) {
-				THROW(PPRef->UtrC.SetText(TextRefIdent(PPOBJ_CCHECK, id, PPTRPROP_CC_LNEXT), text_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+				THROW(PPRef->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_CCHECK, id, PPTRPROP_CC_LNEXT), text_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
 			}
 		}
 		{
@@ -3075,14 +3075,14 @@ int CCheckCore::UpdateExtText(PPID id, int fldId, const char * pText, int use_ta
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		//
-		p_ref->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, id, PPTRPROP_CC_LNEXT), text_buf);
+		p_ref->UtrC.SearchUtf8(TextRefIdent(PPOBJ_CCHECK, id, PPTRPROP_CC_LNEXT), text_buf);
 		text_buf.Transf(CTRANSF_UTF8_TO_INNER);
 		cc_pack.UnpackTextExt(text_buf);
 		//
 		cc_pack.PutExtStrData(fldId, pText);
 		//
 		cc_pack.PackTextExt(text_buf);
-		THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_CCHECK, id, PPTRPROP_CC_LNEXT), text_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+		THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_CCHECK, id, PPTRPROP_CC_LNEXT), text_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
 		THROW(tra.Commit());
 	}
 	CATCHZOK
@@ -3181,7 +3181,7 @@ int CCheckCore::TurnCheck(CCheckPacket * pPack, int use_ta)
 			//
 			text_buf.Strip(); // @v11.8.10 
 			if(/*text_buf.NotEmptyS()*/true) {  // @v11.8.10 text_buf.NotEmptyS()-->true
-				THROW(PPRef->UtrC.SetText(TextRefIdent(PPOBJ_CCHECK, id, PPTRPROP_CC_LNEXT), text_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+				THROW(PPRef->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_CCHECK, id, PPTRPROP_CC_LNEXT), text_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
 			}
 		}
 		{
@@ -3232,7 +3232,7 @@ int CCheckCore::RemovePacket(PPID id, int use_ta)
 		if(P_LnExt) {
 			THROW_DB(deleteFrom(P_LnExt, 0, P_LnExt->CheckID == id));
 		}
-		THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_CCHECK, id, PPTRPROP_CC_LNEXT), static_cast<const wchar_t *>(0), 0));
+		THROW(p_ref->UtrC.Remove(TextRefIdent(PPOBJ_CCHECK, id, PPTRPROP_CC_LNEXT), 0));
 		THROW(Cards.RemoveOpByLinkObj(PPOBJ_CCHECK, id, 0));
 		if(SearchByID_ForUpdate(this, PPOBJ_CCHECK, id, 0) > 0) {
 			if(data.Flags & CCHKF_JUNK)
@@ -3860,7 +3860,7 @@ int CCheckCore::CalcActiveExpendByGoods(PPID goodsID, PPID locID, const char * p
 							if(isempty(pSerial)) {
 								result += r_line_rec.Quantity;
 							}
-							else if(p_ref->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, cc_id, PPTRPROP_CC_LNEXT), text_buf) > 0) {
+							else if(p_ref->UtrC.SearchUtf8(TextRefIdent(PPOBJ_CCHECK, cc_id, PPTRPROP_CC_LNEXT), text_buf) > 0) {
 								text_buf.Transf(CTRANSF_UTF8_TO_INNER);
 								CCheckPacket::Helper_UnpackTextExt(text_buf, 0, &ln_text_ext);
 								CCheckPacket::Helper_GetLineTextExt(r_line_rec.RByCheck, CCheckPacket::lnextSerial, ln_text_ext, serial_buf);
@@ -4071,7 +4071,7 @@ int CCheckCore::GroupingToGoodsLines(PPID sessID, CSessTotal * pTotal, CCheckGoo
 				const  PPID cc_id = Lines.data.CheckID;
 				if(chk_list.bsearch(&cc_id, &pos, CMPF_LONG)) {
 					if(cc_id != prev_cc_id) {
-						THROW(p_ref->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, cc_id, PPTRPROP_CC_LNEXT), temp_buf));
+						THROW(p_ref->UtrC.SearchUtf8(TextRefIdent(PPOBJ_CCHECK, cc_id, PPTRPROP_CC_LNEXT), temp_buf));
 						// (Использовать будем в виде utf8-строк) temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 						CCheckPacket::Helper_UnpackTextExt(temp_buf, 0, &cc_ln_text_ext);
 					}

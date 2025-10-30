@@ -1547,7 +1547,7 @@ STime::STime() : DataType(4) {}
 char * STime::tostr(const void * v, long f, char * b) const { return timefmt(*(LTIME *)v, f, b); }
 int STime::fromstr(void * v, long f, const char * b) const { return strtotime(b, f, (LTIME *)v); }
 void STime::minval(void * d) const { (((LTIME *)d)->v = 0UL); }
-void STime::maxval(void * d) const { ((LTIME *)d)->v = ULONG_MAX; }
+void STime::maxval(void * d) const { ((LTIME *)d)->v = static_cast<ulong>(LONG_MAX); } // @v12.4.7 ULONG_MAX-->LONG_MAX (причина: переполнение при трактовке величины как знаковое целое)
 int STime::comp(const void * i1, const void * i2) const { return CMPSIGN(*(ulong *)i1, *(ulong *)i2); }
 
 int STime::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx)

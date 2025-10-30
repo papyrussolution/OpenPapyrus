@@ -790,8 +790,8 @@ long DBQuery::_defaultBufSize  = 64L;
 long DBQuery::_defaultBufDelta =  4L;
 
 inline uint FASTCALL DBQuery::addr(uint p) const { return ((P_Frame->Zero+p) % P_Frame->Size); }
-void * FASTCALL DBQuery::getRecord(uint r) { return (r < P_Frame->Count) ? (P_Frame->P_Buf + recSize * addr(r)) : 0; }
-const void * FASTCALL DBQuery::getRecordC(uint r) const { return (r < P_Frame->Count) ? (P_Frame->P_Buf + recSize * addr(r)) : 0; }
+void * FASTCALL DBQuery::getRecord(uint r) { return (r < P_Frame->CountF) ? (P_Frame->P_Buf + recSize * addr(r)) : 0; }
+const void * FASTCALL DBQuery::getRecordC(uint r) const { return (r < P_Frame->CountF) ? (P_Frame->P_Buf + recSize * addr(r)) : 0; }
 void * DBQuery::getCurrent() { return getRecord(P_Frame->Cur); }
 void * DBQuery::getBuffer() { return P_Frame->P_Buf; }
 
@@ -806,13 +806,13 @@ int DBQuery::setFrame(uint viewHight, uint bufSize, uint bufDelta)
 				P_Frame->Inc = bufDelta;
 			if(viewHight != UNDEF) {
 				P_Frame->Height = smin(viewHight, P_Frame->Size);
-				if(P_Frame->Cur != P_Frame->Top ||/*P_Frame->Top < 0 ||*/P_Frame->Top > P_Frame->Count) {
-					if((P_Frame->Cur - P_Frame->Top) >= P_Frame->Height)
+				if(P_Frame->Cur != P_Frame->Top ||/*P_Frame->Top < 0 ||*/P_Frame->Top > P_Frame->CountF) {
+					if((P_Frame->Cur-P_Frame->Top) >= P_Frame->Height)
 						P_Frame->Top = P_Frame->Cur-P_Frame->Height+1;
 					else if(P_Frame->Cur < P_Frame->Height)
 						P_Frame->Top = 0;
-					else if((P_Frame->Count - P_Frame->Top) < P_Frame->Height)
-						P_Frame->Top = (P_Frame->Count - P_Frame->Height);
+					else if((P_Frame->CountF-P_Frame->Top) < P_Frame->Height)
+						P_Frame->Top = (P_Frame->CountF - P_Frame->Height);
 				}
 			}
 		}
@@ -832,7 +832,7 @@ int DBQuery::allocFrame(uint bufSize)
 			THROW(P_Frame);
 			P_Frame->P_Buf = static_cast<char *>(SAlloc::R(P_Frame->P_Buf, bufSize * recSize));
 			THROW(P_Frame->P_Buf);
-			P_Frame->Count = smin(P_Frame->Count, bufSize);
+			P_Frame->CountF = smin(P_Frame->CountF, bufSize);
 			if(options & fSavePositions) {
 				P_Frame->P_PosBuf = static_cast<DBRowId *>(SAlloc::R(P_Frame->P_PosBuf, P_Frame->Size * tblCount * sizeof(DBRowId)));
 				THROW(P_Frame->P_PosBuf);
@@ -878,7 +878,7 @@ void DBQuery::moveBuf(uint dest, uint src, uint recs)
 
 void FASTCALL DBQuery::frameOnBottom(int undefSDelta)
 {
-	const uint c = P_Frame->Count;
+	const uint c = P_Frame->CountF;
 	if(c) {
 		const uint ht = smin(P_Frame->Height, c);
 		P_Frame->SDelta = undefSDelta ? 0x8000 : (c - ht - P_Frame->Top);
@@ -904,7 +904,7 @@ void FASTCALL DBQuery::setCount(uint c)
 		P_Frame->Top = 0;
 		P_Frame->Cur = 0;
 	}
-	P_Frame->Count = c;
+	P_Frame->CountF = c;
 }
 
 #define LBUFPTR(p) (P_Frame->P_Buf+addr(p)*recSize)
@@ -986,11 +986,11 @@ int FASTCALL DBQuery::normalizeFrame(int dir)
 	uint   pos;
 	if(dir == spNext) {
 		if(P_Frame->Last == _lprev) {
-			recs = P_Frame->Count-1;
+			recs = P_Frame->CountF-1;
 			pos = 1;
 		}
 		else if(P_Frame->Last == _ltop) {
-			recs = P_Frame->Count-1;
+			recs = P_Frame->CountF-1;
 			pos = 1;
 		}
 		else
@@ -1001,18 +1001,18 @@ int FASTCALL DBQuery::normalizeFrame(int dir)
 	}
 	else { // dir == spPrev
 		if(P_Frame->Last == _lnext) {
-			recs = P_Frame->Count-1;
-			pos = P_Frame->Count-2;
+			recs = P_Frame->CountF-1;
+			pos = P_Frame->CountF-2;
 		}
 		else if(P_Frame->Last == _lbottom) {
-			recs = P_Frame->Count-1;
-			pos = P_Frame->Count-2;
+			recs = P_Frame->CountF-1;
+			pos = P_Frame->CountF-2;
 		}
 		else
 			return 1;
 		_fetch_prev(recs, pos);
 		if(ActualCount < recs) {
-			P_Frame->Zero = addr(P_Frame->Count-ActualCount);
+			P_Frame->Zero = addr(P_Frame->CountF-ActualCount);
 			setCount(ActualCount);
 		}
 	}
@@ -1032,9 +1032,9 @@ int DBQuery::refresh()
 		P_Frame->Zero = addr(s - ActualCount);
 		setCount(ActualCount);
 	}
-	else if(P_Frame->Last == _ltop || P_Frame->Last == _lprev) {
+	else if(oneof2(P_Frame->Last, _ltop, _lprev)) {
 		_fetch_prev(1, 0);
-		_fetch_next(P_Frame->Count, 0, spNext);
+		_fetch_next(P_Frame->CountF, 0, spNext);
 		setCount(ActualCount);
 	}
 	else {
@@ -1051,7 +1051,7 @@ int DBQuery::top()
 	else {
 		P_Frame->SDelta = 0x8000;
 		_fetch_next(P_Frame->Size, 0, spFirst);
-		P_Frame->Count = ActualCount;
+		P_Frame->CountF = ActualCount;
 	}
 	P_Frame->Top = 0;
 	P_Frame->Cur = 0;
@@ -1066,7 +1066,7 @@ int DBQuery::bottom()
 			const uint s = P_Frame->Size;
 			_fetch_last(s, s-1);
 			P_Frame->Zero  = addr(s - ActualCount);
-			P_Frame->Count = ActualCount;
+			P_Frame->CountF = ActualCount;
 		}
 		frameOnBottom(!(P_Frame->State & Frame::stBottom));
 		P_Frame->SPos = P_Frame->SRange;
@@ -1085,26 +1085,27 @@ int DBQuery::step(long delta)
 			P_Frame->SDelta = 0;
 			const  uint _cur = P_Frame->Cur;
 			const  uint s = P_Frame->Size;
-			uint   c = P_Frame->Count;
 			if(delta > 0) {
 				delta = smin(static_cast<uint>(delta), s);
-				const int diff = (_cur+delta-c);
-				if(diff >= 0) {
-					if(!(P_Frame->State & Frame::stBottom)) {
-						normalizeFrame(spNext);
-						_fetch_next(diff+1, c = P_Frame->Count, spNext);
-						const uint temp = c + ActualCount;
-						if(temp > s)
-							P_Frame->Zero = addr(temp % s);
-						P_Frame->Count = smin(temp, s);
-					}
-					if(P_Frame->State & Frame::stBottom) {
-						frameOnBottom(0);
-						P_Frame->SPos = P_Frame->SRange;
-						return error ? 0 : -1;
+				{
+					const  int diff = (_cur+delta-P_Frame->CountF);
+					if(diff >= 0) {
+						if(!(P_Frame->State & Frame::stBottom)) {
+							normalizeFrame(spNext);
+							_fetch_next(diff+1, P_Frame->CountF, spNext);
+							const uint temp = P_Frame->CountF + ActualCount;
+							if(temp > s)
+								P_Frame->Zero = addr(temp % s);
+							P_Frame->CountF = smin(temp, s);
+						}
+						if(P_Frame->State & Frame::stBottom) {
+							frameOnBottom(0);
+							P_Frame->SPos = P_Frame->SRange;
+							return error ? 0 : -1;
+						}
 					}
 				}
-				P_Frame->Cur = smin(P_Frame->Count - 1, static_cast<uint>(P_Frame->Cur + delta));
+				P_Frame->Cur = smin(P_Frame->CountF-1, static_cast<uint>(P_Frame->Cur+delta));
 				if(P_Frame->Cur >= (P_Frame->Top + ht)) {
 					const uint temp = P_Frame->Cur - ht + 1;
 					P_Frame->SDelta = temp - P_Frame->Top;
@@ -1150,10 +1151,8 @@ int DBQuery::step(long delta)
 	return result;
 }
 
-#pragma warn .sig
-
 DBQuery::Frame::Frame(uint sizeInRecs) : Size(sizeInRecs), P_Buf(0), P_PosBuf(0), Zero(0), State(stUndef), Inc(0),
-	Height(0), Top(0), Cur(0), SDelta(0), SRange(0), SPos(0), Last(0), Count(0)
+	Height(0), Top(0), Cur(0), SDelta(0), SRange(0), SPos(0), Last(0), CountF(0)
 {
 }
 
@@ -1165,11 +1164,11 @@ DBQuery::Frame::~Frame()
 
 void FASTCALL DBQuery::Frame::TopByCur(int dir)
 {
-	if(!Count)
+	if(!CountF)
 		Top = 0;
 	else if(dir == spNext) {
 		if(Cur >= Height) {
-			Top = (Count < Height) ? 0 : smin(Cur, Count-Height);
+			Top = (CountF < Height) ? 0 : smin(Cur, CountF-Height);
 		}
 	}
 	else
@@ -1208,7 +1207,7 @@ int DBQuery::search(const void * pPattern, CompFunc fcmp, int fld, uint srchMode
 		}
 		else if(!(P_Frame->State & _eof) && !error) {
 			if(nxt == spNext) {
-				P_Frame->Cur = P_Frame->Count-1;
+				P_Frame->Cur = P_Frame->CountF-1;
 				P_Frame->TopByCur(spPrev);
 			}
 			else {
@@ -1228,34 +1227,36 @@ int DBQuery::search(const void * pPattern, CompFunc fcmp, int fld, uint srchMode
 
 int DBQuery::searchOnPage(const void * pPattern, uint * pPos, CompFunc fcmp, uint ofs, int srchMode, int nxt, void * pExtraData)
 {
-	int  r = 0;
-	uint p = addr(P_Frame->Cur);
-	uint count = (P_Frame->Count - P_Frame->Cur);
-	uint s = MIN(count, P_Frame->Size-p);
+	int    r = 0;
+	uint   p = addr(P_Frame->Cur);
+	const  uint count = (P_Frame->CountF-P_Frame->Cur);
+	uint   s = smin(count, P_Frame->Size-p);
 	if(count) {
 		do {
 			SArray ary(P_Frame->P_Buf + p * recSize, recSize, s);
 			uint _p = 0;
 			if(srchMode & srchBinary) {
 				r = ary.imp_bsearch(pPattern, &_p, fcmp, ofs, pExtraData);
-				if((nxt == spNext && r > 0) || (nxt == spPrev && r < 0))
+				if((nxt == spNext && r > 0) || (nxt == spPrev && r < 0)) {
 					//
 					// При бинарном поиске больше ничего хорошего не ожидается //
 					//
 					return 0;
+				}
 				r = BIN(r == 0);
 			}
 			else
 				r = ary.lsearch(pPattern, &_p, fcmp, ofs, pExtraData);
 			if(r)
 				*pPos = (_p + p + P_Frame->Size - P_Frame->Zero) % P_Frame->Size;
-			else if(s < count)
+			else if(s < count) {
 				if(p) {
 					p = 0;
 					s = count - s;
 				}
 				else
 					break;
+			}
 		} while(!r && s < count);
 	}
 	return r;

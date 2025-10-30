@@ -888,42 +888,6 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				}
 			}
 		}
-// @v11.0.0 xeos-функции полностью исключены из проекта
-#if 0 // @v10.8.1 После включения оптимизатора по скорости, похоже, xeos_xxx-функции стали все ломать
-		{
-			//
-			// Тест функций xeos_strlen и xeos_memchr
-			//
-			uint64 total_len1 = 0;
-			uint64 total_len2 = 0;
-			char buffer1[2048];
-			char buffer2[2048];
-			for(uint i = 0; i < F.P_StrList->getCount(); i++) {
-				size_t proof_len = strlen(F.P_StrList->at(i));
-				assert(proof_len < sizeof(buffer1));
-				//assert(proof_len > 16);
-				strcpy(buffer1, F.P_StrList->at(i));
-				total_len1 += strlen(buffer1);
-				buffer2[0] = 0;
-				strcpy(buffer2, F.P_StrList->at(i));
-				total_len2 += xeos_strlen(buffer2);
-				SLCHECK_NZ(sstreq(buffer1, buffer2));
-				SLCHECK_Z(strcmp(buffer1, buffer2));
-				{
-					for(uint offs = 0; offs < 8; offs++) {
-						const char * p_buf1 = buffer1+offs;
-						const char * p_buf2 = buffer2+offs;
-						for(int j = 0; j < 256; j++) {
-							const char * p1 = (const char *)memchr(p_buf1, j, proof_len+1-offs);
-							const char * p2 = (const char *)xeos_memchr(p_buf2, j, proof_len+1-offs);
-							SLCHECK_NZ((!p1 && !p2) || ((p1 && p2) && (p1-p_buf1) == (p2-p_buf2)));
-						}
-					}
-				}
-			}
-			SLCHECK_EQ(total_len1, total_len2);
-		}
-#endif // } @v10.8.1
 		{
 			//
 			// Кроме "законных" вариантов представления символов в строки добавлены ложные цели для проверки корректной работы
@@ -1182,6 +1146,71 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 					for(uint i = 0; i < SIZEOFARRAY(p_base64_url_wp_invalid); i++) {
 						tr.Run((const uchar *)p_base64_url_wp_invalid[i], -1, nta.Z(), 0);
 						SLCHECK_Z(nta.Has(SNTOK_BASE64_URL_WP));
+					}
+				}
+			}
+			{ // @v12.4.7 
+				SString line_buf;
+				{ 
+					// ru-inn
+					/* Этот блок нужен только для того, чтобы сформировать файл валидных КПП
+					{
+						SString out_buf;
+						SString raw_file_name(MakeInputFilePath("ru-kpp.txt"));
+						SString out_file_name(MakeInputFilePath("ru-kpp-out.txt"));
+						SFile f_in_raw(raw_file_name, SFile::mRead);
+						SFile f_out(out_file_name, SFile::mWrite);
+						if(f_in_raw.IsValid() && f_out.IsValid()) {
+							while(f_in_raw.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+								tr.Run(line_buf.ucptr(), line_buf.Len(), nta.Z(), 0);
+								const float p = nta.Has(SNTOK_RU_KPP);
+								if(p >= 0.1f) {
+									//out_buf.Z().Cat(line_buf).Tab().Cat(p, MKSFMTD(0, 2, NMBF_NOZERO)).CR();
+									out_buf.Z().Cat(line_buf).CR();
+									f_out.WriteLine(out_buf);
+								}
+							}
+						}
+					}
+					*/
+					SFile f_in(MakeInputFilePath("ru-kpp.txt"), SFile::mRead);
+					if(f_in.IsValid()) {
+						while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+							tr.Run(line_buf.ucptr(), line_buf.Len(), nta.Z(), 0);
+							const float p = nta.Has(SNTOK_RU_KPP);
+							SLCHECK_LE(0.1f, p);
+						}
+					}
+				}
+				{
+					// ru-inn
+					/* Этот блок нужен только для того, чтобы сформировать файл валидных ИНН
+					{
+						SString out_buf;
+						SString raw_file_name(MakeInputFilePath("ru-inn.txt"));
+						SString out_file_name(MakeInputFilePath("ru-inn-out.txt"));
+						SFile f_in_raw(raw_file_name, SFile::mRead);
+						SFile f_out(out_file_name, SFile::mWrite);
+						if(f_in_raw.IsValid() && f_out.IsValid()) {
+							while(f_in_raw.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+								tr.Run(line_buf.ucptr(), line_buf.Len(), nta.Z(), 0);
+								const float p = nta.Has(SNTOK_RU_INN);
+								if(p >= 0.1f) {
+									//out_buf.Z().Cat(line_buf).Tab().Cat(p, MKSFMTD(0, 2, NMBF_NOZERO)).CR();
+									out_buf.Z().Cat(line_buf).CR();
+									f_out.WriteLine(out_buf);
+								}
+							}
+						}
+					}
+					*/
+					SFile f_in(MakeInputFilePath("ru-inn.txt"), SFile::mRead);
+					if(f_in.IsValid()) {
+						while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+							tr.Run(line_buf.ucptr(), line_buf.Len(), nta.Z(), 0);
+							const float p = nta.Has(SNTOK_RU_INN);
+							SLCHECK_LE(0.1f, p);
+						}
 					}
 				}
 			}

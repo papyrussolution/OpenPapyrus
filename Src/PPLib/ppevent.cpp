@@ -579,7 +579,7 @@ int PPEventCore::Put(PPID * pID, const Packet * pPack, int use_ta)
 				destroyLobData(VT);
 				{
 					(temp_buf = pPack->Text).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-					THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EVENT, id, PPTRPROP_DESCR), temp_buf, 0));
+					THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_EVENT, id, PPTRPROP_DESCR), temp_buf, 0));
 				}
 				ASSIGN_PTR(pID, id);
 			}
@@ -597,13 +597,13 @@ int PPEventCore::Put(PPID * pID, const Packet * pPack, int use_ta)
 					destroyLobData(VT);
 					{
 						(temp_buf = pPack->Text).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-						THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EVENT, *pID, PPTRPROP_DESCR), temp_buf, 0));
+						THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_EVENT, *pID, PPTRPROP_DESCR), temp_buf, 0));
 					}
 				}
 				else {
 					if(SearchByID_ForUpdate(this, PPOBJ_EVENT, *pID, 0) > 0) {
 						THROW_DB(deleteRec());
-						THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EVENT, *pID, PPTRPROP_DESCR), temp_buf.Z(), 0));
+						THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_EVENT, *pID, PPTRPROP_DESCR), temp_buf.Z(), 0));
 					}
 				}
 			}
@@ -623,7 +623,7 @@ int PPEventCore::Get(PPID id, Packet * pPack)
 			RecToPacket(data, *pPack);
 			readLobData(this->VT, pPack->ExtData);
 			destroyLobData(this->VT);
-			p_ref->UtrC.GetText(TextRefIdent(PPOBJ_EVENT, id, PPTRPROP_DESCR), pPack->Text);
+			p_ref->UtrC.SearchUtf8(TextRefIdent(PPOBJ_EVENT, id, PPTRPROP_DESCR), pPack->Text);
 			pPack->Text.Transf(CTRANSF_UTF8_TO_INNER);
 		}
 		ok = 1;

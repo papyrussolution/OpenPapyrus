@@ -27,7 +27,7 @@ int PersonEventCore::Remove(PPID id, int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(RemoveByID(this, id, 0)); 
-		PPRef->UtrC.SetText(TextRefIdent(PPOBJ_PERSONEVENT, id, PPTRPROP_MEMO), static_cast<const wchar_t *>(0), 0);
+		PPRef->UtrC.Remove(TextRefIdent(PPOBJ_PERSONEVENT, id, PPTRPROP_MEMO), 0);
 		THROW(tra.Commit());
 	}
 	CATCHZOK
@@ -38,7 +38,7 @@ SString & PersonEventCore::GetItemMemo(PPID id, SString & rBuf) // @v11.1.12
 {
 	rBuf.Z();
 	if(id) {
-		PPRef->UtrC.GetText(TextRefIdent(PPOBJ_PERSONEVENT, id, PPTRPROP_MEMO), rBuf);
+		PPRef->UtrC.SearchUtf8(TextRefIdent(PPOBJ_PERSONEVENT, id, PPTRPROP_MEMO), rBuf);
 		rBuf.Transf(CTRANSF_UTF8_TO_INNER);
 	}
 	return rBuf;	
@@ -1434,7 +1434,7 @@ int PPObjPersonEvent::PutPacket(PPID * pID, PPPsnEventPacket * pPack, int use_ta
 					THROW(IncDateKey(P_Tbl, 1, pPack->Rec.Dt, &pPack->Rec.OprNo));
 				}
 				THROW(P_Tbl->Update(id, &pPack->Rec, 0));
-				THROW(p_ref->UtrC.SetText(TextRefIdent(Obj, id, PPTRPROP_MEMO), pPack->SMemo.Transf(CTRANSF_INNER_TO_UTF8), 0)); // @v11.1.12
+				THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(Obj, id, PPTRPROP_MEMO), pPack->SMemo.Transf(CTRANSF_INNER_TO_UTF8), 0)); // @v11.1.12
 				log_action_id = PPACN_OBJUPD;
 				THROW(Helper_PutPacket(id, log_action_id, pPack, &pok_pack));
 			}
@@ -1475,7 +1475,7 @@ int PPObjPersonEvent::PutPacket(PPID * pID, PPPsnEventPacket * pPack, int use_ta
 			if(log_action_id != PPACN_PERSONEVENTREDO) {
 				pPack->Rec.OprNo = 0;
 				THROW(P_Tbl->Add(&id, &pPack->Rec, 0));
-				THROW(p_ref->UtrC.SetText(TextRefIdent(Obj, id, PPTRPROP_MEMO), pPack->SMemo.Transf(CTRANSF_INNER_TO_UTF8), 0)); // @v11.1.12
+				THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(Obj, id, PPTRPROP_MEMO), pPack->SMemo.Transf(CTRANSF_INNER_TO_UTF8), 0)); // @v11.1.12
 				pPack->Rec.ID = id;
 			}
 			op_dt = pPack->Rec.Dt;

@@ -315,7 +315,6 @@ U_CAPI UText * U_EXPORT2 utext_openCharacterIterator(UText * ut, icu::CharacterI
  *  @stable ICU 3.4
  */
 U_CAPI UText * U_EXPORT2 utext_clone(UText * dest, const UText * src, bool deep, bool readOnly, UErrorCode * status);
-
 /**
  *  Compare two UText objects for equality.
  *  UTexts are equal if they are iterating over the same text, and
@@ -357,7 +356,6 @@ U_CAPI int64_t U_EXPORT2 utext_nativeLength(UText * ut);
  * @stable ICU 3.4
  */
 U_CAPI bool U_EXPORT2 utext_isLengthExpensive(const UText * ut);
-
 /**
  * Returns the code point at the requested index,
  * or U_SENTINEL (-1) if it is out of bounds.
@@ -384,7 +382,6 @@ U_CAPI bool U_EXPORT2 utext_isLengthExpensive(const UText * ut);
  * @stable ICU 3.4
  */
 U_CAPI UChar32 U_EXPORT2 utext_char32At(UText * ut, int64_t nativeIndex);
-
 /**
  *
  * Get the code point at the current iteration position,
@@ -396,7 +393,6 @@ U_CAPI UChar32 U_EXPORT2 utext_char32At(UText * ut, int64_t nativeIndex);
  * @stable ICU 3.4
  */
 U_CAPI UChar32 U_EXPORT2 utext_current32(UText * ut);
-
 /**
  * Get the code point at the current iteration position of the UText, and
  * advance the position to the first index following the character.
@@ -416,7 +412,6 @@ U_CAPI UChar32 U_EXPORT2 utext_current32(UText * ut);
  * @stable ICU 3.4
  */
 U_CAPI UChar32 U_EXPORT2 utext_next32(UText * ut);
-
 /**
  *  Move the iterator position to the character (code point) whose
  *  index precedes the current position, and return that character.
@@ -435,7 +430,6 @@ U_CAPI UChar32 U_EXPORT2 utext_next32(UText * ut);
  *  @stable ICU 3.4
  */
 U_CAPI UChar32 U_EXPORT2 utext_previous32(UText * ut);
-
 /**
  * Set the iteration index and return the code point at that index.
  * Leave the iteration index at the start of the following code point.
@@ -455,7 +449,6 @@ U_CAPI UChar32 U_EXPORT2 utext_previous32(UText * ut);
  * @stable ICU 3.4
  */
 U_CAPI UChar32 U_EXPORT2 utext_next32From(UText * ut, int64_t nativeIndex);
-
 /**
  * Set the iteration index, and return the code point preceding the
  * one specified by the initial index.  Leave the iteration position
@@ -472,7 +465,6 @@ U_CAPI UChar32 U_EXPORT2 utext_next32From(UText * ut, int64_t nativeIndex);
  * @stable ICU 3.4
  */
 U_CAPI UChar32 U_EXPORT2 utext_previous32From(UText * ut, int64_t nativeIndex);
-
 /**
  * Get the current iterator position, which can range from 0 to
  * the length of the text.
@@ -486,7 +478,6 @@ U_CAPI UChar32 U_EXPORT2 utext_previous32From(UText * ut, int64_t nativeIndex);
  * @stable ICU 3.4
  */
 U_CAPI int64_t U_EXPORT2 utext_getNativeIndex(const UText * ut);
-
 /**
  * Set the current iteration position to the nearest code point
  * boundary at or preceding the specified index.
@@ -511,7 +502,6 @@ U_CAPI int64_t U_EXPORT2 utext_getNativeIndex(const UText * ut);
  * @stable ICU 3.4
  */
 U_CAPI void U_EXPORT2 utext_setNativeIndex(UText * ut, int64_t nativeIndex);
-
 /**
  * Move the iterator position by delta code points.  The number of code points
  * is a signed number; a negative delta will move the iterator backwards,
@@ -529,7 +519,6 @@ U_CAPI void U_EXPORT2 utext_setNativeIndex(UText * ut, int64_t nativeIndex);
  * @stable ICU 3.4
  */
 U_CAPI bool U_EXPORT2 utext_moveIndex32(UText * ut, int32_t delta);
-
 /**
  * Get the native index of the character preceding the current position.
  * If the iteration position is already at the start of the text, zero
@@ -553,7 +542,6 @@ U_CAPI bool U_EXPORT2 utext_moveIndex32(UText * ut, int32_t delta);
  * @stable ICU 3.6
  */
 U_CAPI int64_t U_EXPORT2 utext_getPreviousNativeIndex(UText * ut);
-
 /**
  *
  * Extract text from a UText into a char16_t buffer.  The range of text to be extracted
@@ -588,14 +576,12 @@ U_CAPI int64_t U_EXPORT2 utext_getPreviousNativeIndex(UText * ut);
  *
  * @stable ICU 3.4
  */
-U_CAPI int32_t U_EXPORT2 utext_extract(UText * ut, int64_t nativeStart, int64_t nativeLimit,
-    char16_t * dest, int32_t destCapacity, UErrorCode * status);
+U_CAPI int32_t U_EXPORT2 utext_extract(UText * ut, int64_t nativeStart, int64_t nativeLimit, char16_t * dest, int32_t destCapacity, UErrorCode * status);
 
 /************************************************************************************
 *
 *  #define inline versions of selected performance-critical text access functions
-*          Caution:  do not use auto increment++ or decrement-- expressions
-*                    as parameters to these macros.
+*          Caution:  do not use auto increment++ or decrement-- expressions as parameters to these macros.
 *
 *          For most use, where there is no extreme performance constraint, the
 *          normal, non-inline functions are a better choice.  The resulting code
@@ -749,9 +735,7 @@ U_CAPI bool U_EXPORT2 utext_hasMetaData(const UText * ut);
  *
  * @stable ICU 3.4
  */
-U_CAPI int32_t U_EXPORT2 utext_replace(UText * ut, int64_t nativeStart, int64_t nativeLimit,
-    const char16_t * replacementText, int32_t replacementLength, UErrorCode * status);
-
+U_CAPI int32_t U_EXPORT2 utext_replace(UText * ut, int64_t nativeStart, int64_t nativeLimit, const char16_t * replacementText, int32_t replacementLength, UErrorCode * status);
 /**
  * Copy or move a substring from one position to another within the text,
  * while retaining any metadata associated with the text.
@@ -1088,14 +1072,12 @@ struct UTextFuncs {
 	 *   @stable ICU 3.6
 	 */
 	int32_t tableSize;
-
 	/**
 	 *   (private)  Alignment padding.
 	 *              Do not use, reserved for use by the UText framework only.
 	 *   @internal
 	 */
 	int32_t reserved1, /** @internal */ reserved2, /** @internal */ reserved3;
-
 	/**
 	 * (public) Function pointer for UTextClone
 	 *
@@ -1103,7 +1085,6 @@ struct UTextFuncs {
 	 * @stable ICU 3.6
 	 */
 	UTextClone * clone;
-
 	/**
 	 * (public) function pointer for UTextLength
 	 * May be expensive to compute!
@@ -1112,7 +1093,6 @@ struct UTextFuncs {
 	 * @stable ICU 3.6
 	 */
 	UTextNativeLength * nativeLength;
-
 	/**
 	 * (public) Function pointer for UTextAccess.
 	 *
@@ -1120,7 +1100,6 @@ struct UTextFuncs {
 	 * @stable ICU 3.6
 	 */
 	UTextAccess * access;
-
 	/**
 	 * (public) Function pointer for UTextExtract.
 	 *
@@ -1294,20 +1273,17 @@ struct UText {
 	 *  @stable ICU 3.6
 	 */
 	const char16_t    * chunkContents;
-
 	/**
 	 * (public)     Pointer to Dispatch table for accessing functions for this UText.
 	 * @stable ICU 3.6
 	 */
 	const UTextFuncs     * pFuncs;
-
 	/**
 	 *  (protected)  Pointer to additional space requested by the
 	 *               text provider during the utext_open operation.
 	 * @stable ICU 3.4
 	 */
 	void   * pExtra;
-
 	/**
 	 * (protected) Pointer to string or text-containing object or similar.
 	 * This is the source of the text that this UText is wrapping, in a format
@@ -1315,7 +1291,6 @@ struct UText {
 	 * @stable ICU 3.4
 	 */
 	const void   * context;
-
 	/* --- 16 byte alignment boundary--- */
 
 	/**
@@ -1343,7 +1318,6 @@ struct UText {
 	 * @internal ICU 3.4
 	 */
 	void   * privP;
-
 	/* --- 16 byte alignment boundary--- */
 
 	/**
@@ -1352,21 +1326,18 @@ struct UText {
 	 * @stable ICU 3.4
 	 */
 	int64_t a;
-
 	/**
 	 * (protected) Integer field reserved for use by the text provider.
 	 * Not used by the UText framework, or by the client (user) of the UText.
 	 * @stable ICU 3.4
 	 */
 	int32_t b;
-
 	/**
 	 * (protected) Integer field reserved for use by the text provider.
 	 * Not used by the UText framework, or by the client (user) of the UText.
 	 * @stable ICU 3.4
 	 */
 	int32_t c;
-
 	/*  ---- 16 byte alignment boundary---- */
 
 	/**

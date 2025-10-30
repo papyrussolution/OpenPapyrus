@@ -104,9 +104,7 @@ static int LookAheadTest(const std::string& msg, size_t startpos, int currentMod
 		if((startpos + charsProcessed) == msg.length()) {
 			int min = std::numeric_limits<int>::max();
 			std::transform(charCounts.begin(), charCounts.end(), intCharCounts.begin(),
-			    [](float x) {
-					return static_cast<int>(std::ceil(x));
-				});
+			    [](float x) { return static_cast<int>(std::ceil(x)); });
 			min = FindMinimums(intCharCounts, min, mins);
 			int minCount = Reduce(mins);
 

@@ -360,7 +360,7 @@ private:
 								PPID   emplr_id = 0;
 								PPID   new_task_id = 0;
 								PPObjPerson::GetCurUserPerson(&emplr_id, 0);
-								if(TodoObj.InitPacket(&pack, 0, 0, param.PersonID, emplr_id, 1)) {
+								if(TodoObj.InitPacket_(pack, 0, 0, param.PersonID, emplr_id, 1)) {
 									S.Flags |= S.fLockAutoExit;
 									if(TodoObj.EditDialog(&pack) > 0) {
 										if(TodoObj.PutPacket(&new_task_id, &pack, 1)) {

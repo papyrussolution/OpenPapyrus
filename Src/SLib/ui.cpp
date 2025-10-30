@@ -7,6 +7,11 @@
 //
 //
 //
+SUiCtrlSupplement::DataBlock::DataBlock() : Dtm(ZERODATETIME), RValue(0.0)
+{
+	Period.Z();
+}
+
 SUiCtrlSupplement::SUiCtrlSupplement() : Version(CurrentVersion), Kind(kUndef), Ident(0), Cmd(0)
 {
 }

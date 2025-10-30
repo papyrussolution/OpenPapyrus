@@ -1181,24 +1181,17 @@ size_t PrintIntegralDigits(Int digits, Buffer* out) {
 }
 
 // Back out 'extra_digits' digits and round up if necessary.
-void RemoveExtraPrecision(size_t extra_digits,
-    bool has_leftover_value,
-    Buffer* out,
-    int* exp_out) {
+void RemoveExtraPrecision(size_t extra_digits, bool has_leftover_value, Buffer* out, int* exp_out) 
+{
 	// Back out the extra digits
 	out->end -= extra_digits;
-
 	bool needs_to_round_up = [&] {
 		    // We look at the digit just past the end.
 		    // There must be 'extra_digits' extra valid digits after end.
 		    if(*out->end > '5') return true;
 		    if(*out->end < '5') return false;
-		    if(has_leftover_value || std::any_of(out->end + 1, out->end + extra_digits,
-			[](char c) {
-						return c != '0';
-					}))
+		    if(has_leftover_value || std::any_of(out->end + 1, out->end + extra_digits, [](char c) { return c != '0'; }))
 			    return true;
-
 		    // Ends in ...50*, round to even.
 		    return out->last_digit() % 2 == 1;
 	    } ();
@@ -1211,22 +1204,15 @@ void RemoveExtraPrecision(size_t extra_digits,
 // Print the value into the buffer.
 // This will not include the exponent, which will be returned in 'exp_out' for
 // Precision mode.
-template <typename Int, typename Float, FormatStyle mode>
-bool FloatToBufferImpl(Int int_mantissa,
-    int exp,
-    size_t precision,
-    Buffer* out,
-    int* exp_out) {
+template <typename Int, typename Float, FormatStyle mode> bool FloatToBufferImpl(Int int_mantissa,
+    int exp, size_t precision, Buffer* out, int* exp_out) 
+{
 	assert((CanFitMantissa<Float, Int>()));
-
 	const int int_bits = std::numeric_limits<Int>::digits;
-
 	// In precision mode, we start printing one char to the right because it will
 	// also include the '.'
 	// In fixed mode we put the dot afterwards on the right.
-	out->begin = out->end =
-		out->data + 1 + kMaxFixedPrecision + (mode == FormatStyle::Precision);
-
+	out->begin = out->end = out->data + 1 + kMaxFixedPrecision + (mode == FormatStyle::Precision);
 	if(exp >= 0) {
 		if(std::numeric_limits<Float>::digits + exp > int_bits) {
 			// The value will overflow the Int

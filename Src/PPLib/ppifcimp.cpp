@@ -7057,7 +7057,7 @@ int32 DL6ICLS_PPObjPrjTask::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 		PPTransaction tra((flags & 0x0001) ? 0 : 1);
 		THROW(tra);
 		FillPrjTaskRec(p_rec, &pack);
-		THROW(p_obj->InitPacket(&init_pack, pack.Rec.Kind, pack.Rec.ProjectID, pack.Rec.ClientID, pack.Rec.EmployerID, 0));
+		THROW(p_obj->InitPacket_(init_pack, pack.Rec.Kind, pack.Rec.ProjectID, pack.Rec.ClientID, pack.Rec.EmployerID, 0));
 		STRNSCPY(pack.Rec.Code, init_pack.Rec.Code);
 		pack.Rec.Kind = init_pack.Rec.Kind;
 		THROW(p_obj->PutPacket(pID, &pack, 0));

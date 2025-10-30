@@ -2597,101 +2597,103 @@ int Transfer::UpdateReceipt(PPID lotID, PPTransferItem * ti, PPID prevLotID, lon
 // В считанной записи TransferTbl::Rec проверяется поле Flags на флажок PPTFR_RECEIPT.
 // Если этот флажок установлен, то будет модифицироваться приходная запись.
 //
-int Transfer::UpdateItem(PPTransferItem * ti, int16 & rByBill, long flags, int use_ta)
+int Transfer::UpdateTransferItem(PPTransferItem * pTi, int16 & rByBill, long flags, int use_ta)
 {
-	return UpdateItem(ti, rByBill, 0, flags, use_ta);
+	return UpdateTransferItem(pTi, rByBill, 0, flags, use_ta);
 }
 //
 // Функция UpdateItem умеет выправлять несоответствующие зеркальные проводки.
 // Для этой цели необходимо параметр reverse установить в значение 1.
 //
-int Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, long flags, int use_ta)
+int Transfer::UpdateTransferItem(PPTransferItem * pTi, int16 & rRByBill, int reverse, long flags, int use_ta)
 {
 	int    ok = 1;
 	int    r;
-	short  _rbb = ti->RByBill;
+	short  _rbb = pTi->RByBill;
 	double rest    = 0.0;
 	double ph_rest = 0.0;
 	double qtty    = 0.0;
 	double ph_qtty = 0.0;
-	double new_qtty    = ti->Quantity_;
-	double new_ph_qtty = R6(ti->WtQtty);
+	double new_qtty    = pTi->Quantity_;
+	double new_ph_qtty = R6(pTi->WtQtty);
 	long   upd_oprno   = 0;
 	int    sav = 0;
 	double save_dis;
 	SString temp_buf;
+	SString err_detail_addendum;
 	DBRowId pos;
 	TransferTbl::Rec rec;
 	ReceiptTbl::Rec lot_rec;
+	err_detail_addendum.Z().Cat("TransferItem").CatChar('{').Cat(pTi->BillID).Semicol().Cat(_rbb).CatChar('}');
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(reverse == 0) {
-			THROW(SearchByBill(ti->BillID, 0, _rbb, &rec) > 0);
-			const  PPID   org_lot_id  = rec.LotID;
+			THROW(SearchByBill(pTi->BillID, 0, _rbb, &rec) > 0);
+			const PPID   org_lot_id  = rec.LotID;
 			const LDATE  org_dt      = rec.Dt;
 			const long   org_oprno   = rec.OprNo;
 			const double org_qtty    = rec.Quantity;
 			const double org_ph_qtty = R6(rec.WtQtty);
-			rec.GoodsID = ti->GoodsID;
+			rec.GoodsID = pTi->GoodsID;
 			rest    = rec.Rest;
 			ph_rest = R6(rec.WtRest);
 			if(!(rec.Flags & PPTFR_REVAL)) {
-				if(!__DontCheckQttyInUpdateTransferItem__ && !ti->IsCorrectionExp()) {
-					THROW_PP((org_qtty * new_qtty) > 0, PPERR_INVQTTY);
-					THROW_PP((rec.WtQtty * new_ph_qtty) >= 0, PPERR_INVQTTY);
+				if(!__DontCheckQttyInUpdateTransferItem__ && !pTi->IsCorrectionExp()) {
+					THROW_PP_S((org_qtty * new_qtty) > 0.0, PPERR_INVQTTY, (temp_buf = err_detail_addendum).Space().Cat(new_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
+					THROW_PP_S((rec.WtQtty * new_ph_qtty) >= 0.0, PPERR_INVPHQTTY, (temp_buf = err_detail_addendum).Space().Cat(new_ph_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
 				}
 				qtty    = new_qtty - org_qtty;
 				ph_qtty = new_ph_qtty - R6(rec.WtQtty);
 				if(rec.Flags & PPTFR_RECEIPT) {
-					if(ti->LotID || org_lot_id) {
-						ti->LotID = org_lot_id;
-						if(ti->Date != rec.Dt) {
+					if(pTi->LotID || org_lot_id) {
+						pTi->LotID = org_lot_id;
+						if(pTi->Date != rec.Dt) {
 							LDATE temp_dt = rec.Dt;
 							long  temp_oprno = rec.OprNo;
 							TransferTbl::Rec temp_trfr_rec;
-							if(EnumByLot(ti->LotID, &temp_dt, &temp_oprno, &temp_trfr_rec) > 0) {
-								if(ti->Date >= temp_dt) {
-									Rcpt.Search(ti->LotID, &lot_rec);
+							if(EnumByLot(pTi->LotID, &temp_dt, &temp_oprno, &temp_trfr_rec) > 0) {
+								if(pTi->Date >= temp_dt) {
+									Rcpt.Search(pTi->LotID, &lot_rec);
 									CALLEXCEPT_PP_S(PPERR_INVLOTDTUPD, BillObj->MakeLotText(&lot_rec, PPObjBill::ltfGoodsName, temp_buf));
 								}
 							}
-							THROW(GetOprNo(ti->Date, &upd_oprno));
+							THROW(GetOprNo(pTi->Date, &upd_oprno));
 							rec.OprNo = upd_oprno;
-							if(P_Lcr2T) { // @v10.1.5 {
+							if(P_Lcr2T) {
 								LcrBlock2 lcr(LcrBlockBase::opUpdate, P_Lcr2T, 0);
 								THROW(lcr.Update(org_lot_id, org_dt, -fmul1000i(org_qtty)));
-								THROW(lcr.Update(org_lot_id, ti->Date, fmul1000i(new_qtty)));
+								THROW(lcr.Update(org_lot_id, pTi->Date, fmul1000i(new_qtty)));
 							}
 							else if(P_LcrT) {
 								LcrBlock lcr(LcrBlockBase::opUpdate, P_LcrT, 0);
 								THROW(lcr.Update(org_lot_id, org_dt, -org_qtty));
-								THROW(lcr.Update(org_lot_id, ti->Date, new_qtty));
+								THROW(lcr.Update(org_lot_id, pTi->Date, new_qtty));
 							}
 						}
-						THROW(UpdateReceipt(rec.LotID, ti, 0, flags));
+						THROW(UpdateReceipt(rec.LotID, pTi, 0, flags));
 					}
 				}
-				else if(ti->LotID != org_lot_id || ti->Date != org_dt) {
+				else if(pTi->LotID != org_lot_id || pTi->Date != org_dt) {
 					qtty    = new_qtty;
 					ph_qtty = new_ph_qtty;
-					if(ti->IsUnlimWoLot()) {
+					if(pTi->IsUnlimWoLot()) {
 						rest   = 0.0;
-						rec.Dt = ti->Date;
-						THROW(GetOprNo(ti->Date, &upd_oprno));
+						rec.Dt = pTi->Date;
+						THROW(GetOprNo(pTi->Date, &upd_oprno));
 						rec.OprNo = upd_oprno;
 					}
 					else {
-						THROW(Rcpt.Search(ti->LotID) > 0);
+						THROW(Rcpt.Search(pTi->LotID) > 0);
 						const LDATE lot_dt = Rcpt.data.Dt;
 						THROW(UpdateForward(rec, -org_qtty, -org_ph_qtty));
-						if(ti->Date == lot_dt || ti->Date != org_dt) {
-							THROW(GetOprNo(ti->Date, &upd_oprno));
+						if(pTi->Date == lot_dt || pTi->Date != org_dt) {
+							THROW(GetOprNo(pTi->Date, &upd_oprno));
 							rec.OprNo = upd_oprno;
 						}
-						rec.LotID = ti->LotID;
-						rec.Dt    = ti->Date;
-						THROW(r = GetRest(ti->LotID, rec.Dt, rec.OprNo, &rest, &ph_rest));
+						rec.LotID = pTi->LotID;
+						rec.Dt    = pTi->Date;
+						THROW(r = GetRest(pTi->LotID, rec.Dt, rec.OprNo, &rest, &ph_rest));
 						if(r > 0 && data.Dt == org_dt && data.OprNo == org_oprno) {
 							rest    -= org_qtty;
 							ph_rest -= org_ph_qtty;
@@ -2701,39 +2703,39 @@ int Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, lon
 			}
 			else { // (rec.Flags & PPTFR_REVAL)
 				uint   uf = 0;
-				THROW_PP(ti->Date == rec.Dt, PPERR_REVALDTUPD);
-				THROW_PP(ti->Flags & (PPTFR_ASSETEXPL|PPTFR_CORRECTION) || ti->Price != ti->Discount || ti->Cost != ti->RevalCost, PPERR_ZEROREVAL);
-				THROW(UpdateFwRevalCostAndPrice2(rec.LotID, plusdate(rec.Dt, 1), 0, ti->Cost, ti->Price, &uf));
-				if(ti->Flags & PPTFR_INDEPPHQTTY && ti->IsRecomplete()) {
+				THROW_PP(pTi->Date == rec.Dt, PPERR_REVALDTUPD);
+				THROW_PP(pTi->Flags & (PPTFR_ASSETEXPL|PPTFR_CORRECTION) || pTi->Price != pTi->Discount || pTi->Cost != pTi->RevalCost, PPERR_ZEROREVAL);
+				THROW(UpdateFwRevalCostAndPrice2(rec.LotID, plusdate(rec.Dt, 1), 0, pTi->Cost, pTi->Price, &uf));
+				if(pTi->Flags & PPTFR_INDEPPHQTTY && pTi->IsRecomplete()) {
 					//
 					// При рекомплектации количество измениться не может, однако может измениться //
 					// независимое физическое количество.
 					//
 					ph_qtty = new_ph_qtty - R6(rec.WtQtty);
 				}
-				if(ti->Flags & PPTFR_CORRECTION) {
-					THROW(Rcpt.Search(ti->LotID, &lot_rec) > 0);
-					THROW_PP(ti->Cost != ti->RevalCost || ti->Quantity_ != lot_rec.Quantity, PPERR_ZEROTICORRECTION);
+				if(pTi->Flags & PPTFR_CORRECTION) {
+					THROW(Rcpt.Search(pTi->LotID, &lot_rec) > 0);
+					THROW_PP(pTi->Cost != pTi->RevalCost || pTi->Quantity_ != lot_rec.Quantity, PPERR_ZEROTICORRECTION);
 					THROW_PP(qtty >= 0.0, PPERR_QTTYMUSTBEGEZ);
-					new_qtty = ti->Quantity_ - lot_rec.Quantity;
+					new_qtty = pTi->Quantity_ - lot_rec.Quantity;
 					qtty     = new_qtty - rec.Quantity;
-					ti->SetSignFlags(0, (new_qtty < 0.0) ? TISIGN_MINUS : TISIGN_PLUS);
+					pTi->SetSignFlags(0, (new_qtty < 0.0) ? TISIGN_MINUS : TISIGN_PLUS);
 				}
 				else {
 					qtty = 0.0;
 					new_qtty = 0.0;
 				}
 			}
-			THROW(SearchByBill(ti->BillID, 0, _rbb, 0) > 0);
-			data.LotID = ti->LotID;
+			THROW(SearchByBill(pTi->BillID, 0, _rbb, 0) > 0);
+			data.LotID = pTi->LotID;
 			if(rec.Flags & PPTFR_RECEIPT)
-				data.GoodsID = ti->GoodsID;
-			data.Dt    = ti->Date;
+				data.GoodsID = pTi->GoodsID;
+			data.Dt    = pTi->Date;
 			if(upd_oprno)
 				data.OprNo = upd_oprno;
-			data.CurID = ti->CurID;
-			ti->ConvertMoney(&data);
-			if(ti->IsUnlimWoLot()) {
+			data.CurID = pTi->CurID;
+			pTi->ConvertMoney(&data);
+			if(pTi->IsUnlimWoLot()) {
 				data.Rest   = 0.0;
 				data.WtRest = 0.0;
 			}
@@ -2744,49 +2746,49 @@ int Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, lon
 			}
 			data.Quantity = new_qtty;
 			data.WtQtty   = (float)R6(new_ph_qtty);
-			data.Flags = MASK_TFR_FLAGS(ti->Flags);
+			data.Flags = MASK_TFR_FLAGS(pTi->Flags);
 			THROW_DB(updateRec());
 			THROW(UpdateForward(rec, qtty, ph_qtty));
 		}
 		//
 		// Ищем зеркальную проводку
 		//
-		_rbb = ti->RByBill;
-		THROW(r = SearchByBill(ti->BillID, 1, _rbb, &rec));
+		_rbb = pTi->RByBill;
+		THROW(r = SearchByBill(pTi->BillID, 1, _rbb, &rec));
 		if(r > 0) {
 			int    is_row_rebuilded = 0;
 			upd_oprno = 0;
 			THROW_DB(getPosition(&pos));
-			rec.GoodsID  = ti->GoodsID;
+			rec.GoodsID  = pTi->GoodsID;
 			new_qtty     = -new_qtty;
 			new_ph_qtty  = -new_ph_qtty;
-			ti->Quantity_ = -ti->Quantity_;
-			ti->WtQtty   = -ti->WtQtty;
+			pTi->Quantity_ = -pTi->Quantity_;
+			pTi->WtQtty   = -pTi->WtQtty;
 			if(!__DontCheckQttyInUpdateTransferItem__) {
-				THROW_PP((rec.Quantity * new_qtty) > 0, PPERR_INVQTTY);
-				THROW_PP((rec.WtQtty * new_ph_qtty) >= 0, PPERR_INVQTTY);
+				THROW_PP_S((rec.Quantity * new_qtty) > 0.0, PPERR_INVQTTY, (temp_buf = err_detail_addendum).Space().Cat(new_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
+				THROW_PP_S((rec.WtQtty * new_ph_qtty) >= 0.0, PPERR_INVPHQTTY, (temp_buf = err_detail_addendum).Space().Cat(new_ph_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
 			}
 			qtty    = new_qtty - rec.Quantity;
 			ph_qtty = new_ph_qtty - R6(rec.WtQtty);
 			if(rec.Flags & PPTFR_RECEIPT) {
-				if(ti->Date != rec.Dt) {
+				if(pTi->Date != rec.Dt) {
 					LDATE  temp_dt = rec.Dt;
 					long   temp_oprno = rec.OprNo;
 					if(EnumByLot(rec.LotID, &temp_dt, &temp_oprno, 0) > 0) {
-						if(ti->Date >= temp_dt) {
+						if(pTi->Date >= temp_dt) {
 							Rcpt.Search(rec.LotID, &lot_rec);
 							CALLEXCEPT_PP_S(PPERR_INVLOTDTUPD, BillObj->MakeLotText(&lot_rec, PPObjBill::ltfGoodsName, temp_buf));
 						}
 					}
-					THROW(GetOprNo(ti->Date, &upd_oprno));
-					rec.Dt    = ti->Date;
+					THROW(GetOprNo(pTi->Date, &upd_oprno));
+					rec.Dt    = pTi->Date;
 					rec.OprNo = upd_oprno;
 				}
-				save_dis     = ti->Discount;
-				ti->Price   -= ti->Discount;
-				ti->Discount = 0;
+				save_dis     = pTi->Discount;
+				pTi->Price   -= pTi->Discount;
+				pTi->Discount = 0;
 				sav  = 1;
-				THROW(UpdateReceipt(rec.LotID, ti, ti->LotID, fUpdEnableUpdChildLot));
+				THROW(UpdateReceipt(rec.LotID, pTi, pTi->LotID, fUpdEnableUpdChildLot));
 			}
 			else if(rec.LotID) {
 				//
@@ -2802,38 +2804,38 @@ int Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, lon
 				//
 				THROW(Rcpt.Search(rec.LotID, &tmp_lot_rec) > 0);
 				THROW(GetLotPrices(&tmp_lot_rec, rec.Dt, rec.OprNo));
-				if(dbl_cmp(tmp_lot_rec.Cost, ti->Cost) != 0 || dbl_cmp(tmp_lot_rec.Price, ti->NetPrice()) != 0) {
+				if(dbl_cmp(tmp_lot_rec.Cost, pTi->Cost) != 0 || dbl_cmp(tmp_lot_rec.Price, pTi->NetPrice()) != 0) {
 					THROW(UpdateForward(rec, -rec.Quantity, -rec.WtQtty));
 					THROW_DB(getDirect(0, 0, pos));
 					THROW_DB(deleteRec());
-					THROW_PP(!(ti->Flags & PPTFR_UNLIM), PPERR_UNLIMINTROP);
+					THROW_PP(!(pTi->Flags & PPTFR_UNLIM), PPERR_UNLIMINTROP);
 					{
-						const  PPID   save_lot     = ti->LotID;
-						const double save_dis     = ti->Discount;
-						const double save_qtty    = ti->Quantity_;
-						const double save_ph_qtty = ti->WtQtty;
-						ti->LotID    = 0;
-						ti->Price   -= ti->Discount;
-						ti->Discount = 0.0;
-						if(ti->CorrLoc)
-							SExchange(&ti->LocID, &ti->CorrLoc);
-						ti->Quantity_ = fabs(ti->Quantity_);
-						ti->WtQtty   = fabs(ti->WtQtty);
-						ti->Flags   &= ~PPTFR_UNITEINTR;
-						INVERSEFLAG(ti->Flags, PPTFR_RECEIPT);
+						const  PPID   save_lot     = pTi->LotID;
+						const double save_dis     = pTi->Discount;
+						const double save_qtty    = pTi->Quantity_;
+						const double save_ph_qtty = pTi->WtQtty;
+						pTi->LotID    = 0;
+						pTi->Price   -= pTi->Discount;
+						pTi->Discount = 0.0;
+						if(pTi->CorrLoc)
+							SExchange(&pTi->LocID, &pTi->CorrLoc);
+						pTi->Quantity_ = fabs(pTi->Quantity_);
+						pTi->WtQtty   = fabs(pTi->WtQtty);
+						pTi->Flags   &= ~PPTFR_UNITEINTR;
+						INVERSEFLAG(pTi->Flags, PPTFR_RECEIPT);
 						//
-						// Откладываем обработку ошибки в AddItem до восстановления значений ti
+						// Откладываем обработку ошибки в AddItem до восстановления значений pTi
 						//
-						r = AddItem(ti, rRByBill, 0);
-						INVERSEFLAG(ti->Flags, PPTFR_RECEIPT);
-						ti->Flags   |= PPTFR_UNITEINTR;
-						ti->Quantity_ = save_qtty;
-						ti->WtQtty   = save_ph_qtty;
-						ti->Discount = save_dis;
-						ti->Price   += save_dis;
-						if(ti->CorrLoc)
-							SExchange(&ti->LocID, &ti->CorrLoc);
-						ti->LotID    = save_lot;
+						r = AddItem(pTi, rRByBill, 0);
+						INVERSEFLAG(pTi->Flags, PPTFR_RECEIPT);
+						pTi->Flags   |= PPTFR_UNITEINTR;
+						pTi->Quantity_ = save_qtty;
+						pTi->WtQtty   = save_ph_qtty;
+						pTi->Discount = save_dis;
+						pTi->Price   += save_dis;
+						if(pTi->CorrLoc)
+							SExchange(&pTi->LocID, &pTi->CorrLoc);
+						pTi->LotID    = save_lot;
 						is_row_rebuilded = 1;
 					}
 					THROW(r);
@@ -2842,11 +2844,11 @@ int Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, lon
 			if(!is_row_rebuilded) {
 				THROW(UpdateForward(rec, qtty, ph_qtty));
 				THROW_DB(getDirect(0, 0, pos));
-				ti->ConvertMoney(&data);
+				pTi->ConvertMoney(&data);
 				PPObject::SetLastErrObj(PPOBJ_GOODS, labs(data.GoodsID));
 				THROW_PP((data.Rest = R6(data.Rest + qtty)) >= 0, PPERR_LOTRESTBOUND);
 				data.WtRest = (float)R6(data.WtRest + ph_qtty);
-				data.Dt = ti->Date;
+				data.Dt = pTi->Date;
 				if(upd_oprno)
 					data.OprNo = upd_oprno;
 				data.Quantity = new_qtty;
@@ -2858,8 +2860,8 @@ int Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, lon
 	}
 	CATCHZOK
 	if(sav) {
-		ti->Discount = save_dis;
-		ti->Price   += save_dis;
+		pTi->Discount = save_dis;
+		pTi->Price   += save_dis;
 	}
 	return ok;
 }
@@ -3004,7 +3006,7 @@ int Transfer::MoveOp(LotOpMovParam * param, int use_ta)
 			PPObjBill * p_bobj = BillObj;
 			PPObjBill::TBlock tb_;
 			THROW(p_bobj->BeginTFrame(ti.BillID, tb_));
-			THROW(UpdateItem(&ti, tb_.Rbb(), 0, 0));
+			THROW(UpdateTransferItem(&ti, tb_.Rbb(), 0, 0));
 			THROW(p_bobj->RecalcTurns(ti.BillID, 0, 0));
 			THROW(p_bobj->FinishTFrame(ti.BillID, tb_));
 		}
@@ -3043,7 +3045,7 @@ int Transfer::MergeLots(LotOpMovParam * param, uint flags, int use_ta)
 			}
 			ti.Quantity_ = sum_qtty;
 			THROW(p_bobj->BeginTFrame(ti.BillID, tb_));
-			THROW(UpdateItem(&ti, tb_.Rbb(), 0, 0));
+			THROW(UpdateTransferItem(&ti, tb_.Rbb(), 0, 0));
 			THROW(p_bobj->FinishTFrame(ti.BillID, tb_));
 		}
 		THROW(tra.Commit());

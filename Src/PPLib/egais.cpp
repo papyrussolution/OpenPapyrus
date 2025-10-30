@@ -9473,11 +9473,11 @@ int EgaisPersonCore::RecToItem(const EgaisPersonTbl::Rec & rRec, EgaisPersonCore
 	rItem.ActualDate = rRec.ActualDate;
 	{
 		Reference * p_ref = PPRef;
-		THROW(p_ref->UtrC.GetText(TextRefIdent(PPOBJ_EGAISPERSON, rRec.ID, PPTRPROP_NAME), rItem.Name));
+		THROW(p_ref->UtrC.SearchUtf8(TextRefIdent(PPOBJ_EGAISPERSON, rRec.ID, PPTRPROP_NAME), rItem.Name));
 		rItem.Name.Transf(CTRANSF_UTF8_TO_INNER);
-		THROW(p_ref->UtrC.GetText(TextRefIdent(PPOBJ_EGAISPERSON, rRec.ID, PPTRPROP_LONGNAME), rItem.FullName));
+		THROW(p_ref->UtrC.SearchUtf8(TextRefIdent(PPOBJ_EGAISPERSON, rRec.ID, PPTRPROP_LONGNAME), rItem.FullName));
 		rItem.FullName.Transf(CTRANSF_UTF8_TO_INNER);
-		THROW(p_ref->UtrC.GetText(TextRefIdent(PPOBJ_EGAISPERSON, rRec.ID, txtprpAddressDescr), rItem.AddressDescr));
+		THROW(p_ref->UtrC.SearchUtf8(TextRefIdent(PPOBJ_EGAISPERSON, rRec.ID, txtprpAddressDescr), rItem.AddressDescr));
 		rItem.AddressDescr.Transf(CTRANSF_UTF8_TO_INNER);
 	}
 	CATCHZOK
@@ -9557,9 +9557,9 @@ int EgaisPersonCore::Put(PPID * pID, EgaisPersonCore::Item * pItem, long * pConf
 			if(!pItem) {
 				THROW_DB(rereadForUpdate(0, 0));
 				THROW_DB(deleteRec());
-				THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, *pID, PPTRPROP_NAME), static_cast<const wchar_t *>(0), 0));
-				THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, *pID, PPTRPROP_LONGNAME), static_cast<const wchar_t *>(0), 0));
-				THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, *pID, txtprpAddressDescr), static_cast<const wchar_t *>(0), 0));
+				THROW(p_ref->UtrC.Remove(TextRefIdent(PPOBJ_EGAISPERSON, *pID, PPTRPROP_NAME), 0));
+				THROW(p_ref->UtrC.Remove(TextRefIdent(PPOBJ_EGAISPERSON, *pID, PPTRPROP_LONGNAME), 0));
+				THROW(p_ref->UtrC.Remove(TextRefIdent(PPOBJ_EGAISPERSON, *pID, txtprpAddressDescr), 0));
 			}
 			else if(pItem->IsEq(org_item, 0)) {
 				ok = -1;
@@ -9583,15 +9583,15 @@ int EgaisPersonCore::Put(PPID * pID, EgaisPersonCore::Item * pItem, long * pConf
 				//
 				if(pItem->Name.NotEmptyS()) {
 					(temp_buf = pItem->Name).Transf(CTRANSF_INNER_TO_UTF8);
-					THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, *pID, PPTRPROP_NAME), temp_buf, 0));
+					THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_EGAISPERSON, *pID, PPTRPROP_NAME), temp_buf, 0));
 				}
 				if(pItem->FullName.NotEmptyS()) {
 					(temp_buf = pItem->FullName).Transf(CTRANSF_INNER_TO_UTF8);
-					THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, *pID, PPTRPROP_LONGNAME), temp_buf, 0));
+					THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_EGAISPERSON, *pID, PPTRPROP_LONGNAME), temp_buf, 0));
 				}
 				if(pItem->AddressDescr.NotEmptyS()) {
 					(temp_buf = pItem->AddressDescr).Transf(CTRANSF_INNER_TO_UTF8);
-					THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, *pID, txtprpAddressDescr), temp_buf, 0));
+					THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_EGAISPERSON, *pID, txtprpAddressDescr), temp_buf, 0));
 				}
 			}
 		}
@@ -9692,22 +9692,22 @@ int EgaisPersonCore::Put(PPID * pID, EgaisPersonCore::Item * pItem, long * pConf
 				}
 				{
 					SString name, full_name, address_descr;
-					THROW(p_ref->UtrC.GetText(TextRefIdent(PPOBJ_EGAISPERSON, rec.ID, PPTRPROP_NAME), name));
+					THROW(p_ref->UtrC.SearchUtf8(TextRefIdent(PPOBJ_EGAISPERSON, rec.ID, PPTRPROP_NAME), name));
 					name.Transf(CTRANSF_UTF8_TO_INNER);
-					THROW(p_ref->UtrC.GetText(TextRefIdent(PPOBJ_EGAISPERSON, rec.ID, PPTRPROP_LONGNAME), full_name));
+					THROW(p_ref->UtrC.SearchUtf8(TextRefIdent(PPOBJ_EGAISPERSON, rec.ID, PPTRPROP_LONGNAME), full_name));
 					full_name.Transf(CTRANSF_UTF8_TO_INNER);
-					THROW(p_ref->UtrC.GetText(TextRefIdent(PPOBJ_EGAISPERSON, rec.ID, txtprpAddressDescr), address_descr));
+					THROW(p_ref->UtrC.SearchUtf8(TextRefIdent(PPOBJ_EGAISPERSON, rec.ID, txtprpAddressDescr), address_descr));
 					address_descr.Transf(CTRANSF_UTF8_TO_INNER);
 					if(pItem->Name.Len() > name.Len()) {
-						THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, rec.ID, PPTRPROP_NAME), (temp_buf = pItem->Name).Transf(CTRANSF_INNER_TO_UTF8), 0));
+						THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_EGAISPERSON, rec.ID, PPTRPROP_NAME), (temp_buf = pItem->Name).Transf(CTRANSF_INNER_TO_UTF8), 0));
 						ok = 1;
 					}
 					if(pItem->FullName.Len() > full_name.Len()) {
-						THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, rec.ID, PPTRPROP_LONGNAME), (temp_buf = pItem->FullName).Transf(CTRANSF_INNER_TO_UTF8), 0));
+						THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_EGAISPERSON, rec.ID, PPTRPROP_LONGNAME), (temp_buf = pItem->FullName).Transf(CTRANSF_INNER_TO_UTF8), 0));
 						ok = 1;
 					}
 					if(pItem->AddressDescr.Len() > address_descr.Len()) {
-						THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, rec.ID, txtprpAddressDescr), (temp_buf = pItem->AddressDescr).Transf(CTRANSF_INNER_TO_UTF8), 0));
+						THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_EGAISPERSON, rec.ID, txtprpAddressDescr), (temp_buf = pItem->AddressDescr).Transf(CTRANSF_INNER_TO_UTF8), 0));
 						ok = 1;
 					}
 				}
@@ -9728,9 +9728,9 @@ int EgaisPersonCore::Put(PPID * pID, EgaisPersonCore::Item * pItem, long * pConf
 				rec.Flags = pItem->Flags;
 				rec.ActualDate = pItem->ActualDate;
 				THROW_DB(insertRecBuf(&rec, 0, pID));
-				THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, *pID, PPTRPROP_NAME), (temp_buf = pItem->Name).Transf(CTRANSF_INNER_TO_UTF8), 0));
-				THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, *pID, PPTRPROP_LONGNAME), (temp_buf = pItem->FullName).Transf(CTRANSF_INNER_TO_UTF8), 0));
-				THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, *pID, txtprpAddressDescr), (temp_buf = pItem->AddressDescr).Transf(CTRANSF_INNER_TO_UTF8), 0));
+				THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_EGAISPERSON, *pID, PPTRPROP_NAME), (temp_buf = pItem->Name).Transf(CTRANSF_INNER_TO_UTF8), 0));
+				THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_EGAISPERSON, *pID, PPTRPROP_LONGNAME), (temp_buf = pItem->FullName).Transf(CTRANSF_INNER_TO_UTF8), 0));
+				THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_EGAISPERSON, *pID, txtprpAddressDescr), (temp_buf = pItem->AddressDescr).Transf(CTRANSF_INNER_TO_UTF8), 0));
 			}
 		}
 		THROW(tra.Commit());
@@ -9758,9 +9758,9 @@ int EgaisPersonCore::Clear(int use_ta)
 			const  PPID id = data.ID;
 			THROW_DB(rereadForUpdate(0, 0));
 			THROW_DB(deleteRec());
-			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, id, PPTRPROP_NAME), static_cast<const wchar_t *>(0), 0));
-			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, id, PPTRPROP_LONGNAME), static_cast<const wchar_t *>(0), 0));
-			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, id, txtprpAddressDescr), static_cast<const wchar_t *>(0), 0));
+			THROW(p_ref->UtrC.Remove(TextRefIdent(PPOBJ_EGAISPERSON, id, PPTRPROP_NAME), 0));
+			THROW(p_ref->UtrC.Remove(TextRefIdent(PPOBJ_EGAISPERSON, id, PPTRPROP_LONGNAME), 0));
+			THROW(p_ref->UtrC.Remove(TextRefIdent(PPOBJ_EGAISPERSON, id, txtprpAddressDescr), 0));
 			PPWaitPercent(cntr.Increment(), msg_buf);
 			ok = 1;
 		} while(search(0, &k0, spNext));
@@ -9870,9 +9870,9 @@ int EgaisProductCore::RecToItem(const EgaisProductTbl::Rec & rRec, EgaisProductC
 	STRNSCPY(rItem.CategoryCode, rRec.CategoryCode);
 	{
 		Reference * p_ref = PPRef;
-		THROW(p_ref->UtrC.GetText(TextRefIdent(PPOBJ_EGAISPRODUCT, rRec.ID, PPTRPROP_NAME), rItem.Name));
+		THROW(p_ref->UtrC.SearchUtf8(TextRefIdent(PPOBJ_EGAISPRODUCT, rRec.ID, PPTRPROP_NAME), rItem.Name));
 		rItem.Name.Transf(CTRANSF_UTF8_TO_INNER);
-		THROW(p_ref->UtrC.GetText(TextRefIdent(PPOBJ_EGAISPRODUCT, rRec.ID, PPTRPROP_LONGNAME), rItem.FullName));
+		THROW(p_ref->UtrC.SearchUtf8(TextRefIdent(PPOBJ_EGAISPRODUCT, rRec.ID, PPTRPROP_LONGNAME), rItem.FullName));
 		rItem.FullName.Transf(CTRANSF_UTF8_TO_INNER);
 	}
 	CATCHZOK
@@ -9954,8 +9954,8 @@ int EgaisProductCore::Put(PPID * pID, const EgaisProductCore::Item * pItem, long
 			if(!pItem) {
 				THROW_DB(rereadForUpdate(0, 0));
 				THROW_DB(deleteRec());
-				THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPRODUCT, *pID, PPTRPROP_NAME), static_cast<const wchar_t *>(0), 0));
-				THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPRODUCT, *pID, PPTRPROP_LONGNAME), static_cast<const wchar_t *>(0), 0));
+				THROW(p_ref->UtrC.Remove(TextRefIdent(PPOBJ_EGAISPRODUCT, *pID, PPTRPROP_NAME), 0));
+				THROW(p_ref->UtrC.Remove(TextRefIdent(PPOBJ_EGAISPRODUCT, *pID, PPTRPROP_LONGNAME), 0));
 			}
 			else if(pItem->IsEq(org_item, 0)) {
 				ok = -1;
@@ -9973,8 +9973,8 @@ int EgaisProductCore::Put(PPID * pID, const EgaisProductCore::Item * pItem, long
 				rec.Flags = pItem->Flags;
 				THROW_DB(rereadForUpdate(0, 0));
 				THROW_DB(updateRecBuf(&rec));
-				THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPRODUCT, *pID, PPTRPROP_NAME), (temp_buf = pItem->Name).Transf(CTRANSF_INNER_TO_UTF8), 0));
-				THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPRODUCT, *pID, PPTRPROP_LONGNAME), (temp_buf = pItem->FullName).Transf(CTRANSF_INNER_TO_UTF8), 0));
+				THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_EGAISPRODUCT, *pID, PPTRPROP_NAME), (temp_buf = pItem->Name).Transf(CTRANSF_INNER_TO_UTF8), 0));
+				THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_EGAISPRODUCT, *pID, PPTRPROP_LONGNAME), (temp_buf = pItem->FullName).Transf(CTRANSF_INNER_TO_UTF8), 0));
 			}
 		}
 		else {
@@ -10067,17 +10067,18 @@ int EgaisProductCore::Put(PPID * pID, const EgaisProductCore::Item * pItem, long
 					}
 				}
 				{
-					SString name, full_name;
-					THROW(p_ref->UtrC.GetText(TextRefIdent(PPOBJ_EGAISPRODUCT, rec.ID, PPTRPROP_NAME), name));
+					SString name;
+					SString full_name;
+					THROW(p_ref->UtrC.SearchUtf8(TextRefIdent(PPOBJ_EGAISPRODUCT, rec.ID, PPTRPROP_NAME), name));
 					name.Transf(CTRANSF_UTF8_TO_INNER);
-					THROW(p_ref->UtrC.GetText(TextRefIdent(PPOBJ_EGAISPRODUCT, rec.ID, PPTRPROP_LONGNAME), full_name));
+					THROW(p_ref->UtrC.SearchUtf8(TextRefIdent(PPOBJ_EGAISPRODUCT, rec.ID, PPTRPROP_LONGNAME), full_name));
 					full_name.Transf(CTRANSF_UTF8_TO_INNER);
 					if(pItem->Name.Len() > name.Len()) {
-						THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPRODUCT, rec.ID, PPTRPROP_NAME), (temp_buf = pItem->Name).Transf(CTRANSF_INNER_TO_UTF8), 0));
+						THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_EGAISPRODUCT, rec.ID, PPTRPROP_NAME), (temp_buf = pItem->Name).Transf(CTRANSF_INNER_TO_UTF8), 0));
 						ok = 1;
 					}
 					if(pItem->FullName.Len() > full_name.Len()) {
-						THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPRODUCT, rec.ID, PPTRPROP_LONGNAME), (temp_buf = pItem->FullName).Transf(CTRANSF_INNER_TO_UTF8), 0));
+						THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_EGAISPRODUCT, rec.ID, PPTRPROP_LONGNAME), (temp_buf = pItem->FullName).Transf(CTRANSF_INNER_TO_UTF8), 0));
 						ok = 1;
 					}
 				}
@@ -10102,8 +10103,8 @@ int EgaisProductCore::Put(PPID * pID, const EgaisProductCore::Item * pItem, long
 				rec.ActualDate = pItem->ActualDate;
 				rec.Flags = pItem->Flags;
 				THROW_DB(insertRecBuf(&rec, 0, pID));
-				THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPRODUCT, *pID, PPTRPROP_NAME), (temp_buf = pItem->Name).Transf(CTRANSF_INNER_TO_UTF8), 0));
-				THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPRODUCT, *pID, PPTRPROP_LONGNAME), (temp_buf = pItem->FullName).Transf(CTRANSF_INNER_TO_UTF8), 0));
+				THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_EGAISPRODUCT, *pID, PPTRPROP_NAME), (temp_buf = pItem->Name).Transf(CTRANSF_INNER_TO_UTF8), 0));
+				THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_EGAISPRODUCT, *pID, PPTRPROP_LONGNAME), (temp_buf = pItem->FullName).Transf(CTRANSF_INNER_TO_UTF8), 0));
 			}
 		}
 		THROW(tra.Commit());
@@ -10131,8 +10132,8 @@ int EgaisProductCore::Clear(int use_ta)
 			const  PPID id = data.ID;
 			THROW_DB(rereadForUpdate(0, 0));
 			THROW_DB(deleteRec());
-			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPRODUCT, id, PPTRPROP_NAME), static_cast<const wchar_t *>(0), 0));
-			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPRODUCT, id, PPTRPROP_LONGNAME), static_cast<const wchar_t *>(0), 0));
+			THROW(p_ref->UtrC.Remove(TextRefIdent(PPOBJ_EGAISPRODUCT, id, PPTRPROP_NAME), 0));
+			THROW(p_ref->UtrC.Remove(TextRefIdent(PPOBJ_EGAISPRODUCT, id, PPTRPROP_LONGNAME), 0));
 			PPWaitPercent(cntr.Increment(), msg_buf);
 			ok = 1;
 		} while(search(0, &k0, spNext));

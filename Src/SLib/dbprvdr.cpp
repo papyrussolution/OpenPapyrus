@@ -517,15 +517,25 @@ int DbProvider::CreateTempFile(const char * pTblName, SString & rFileNameBuf, bo
 int DbProvider::RenewFile(DBTable & rTbl, int createMode, const char * pAltCode)
 {
 	int    ok = 1;
+	bool   is_ta = false;
 	char   acst[512];
 	SString tbl_fname(rTbl.GetName());
 	SString tbl_name(rTbl.GetTableName());
 	rTbl.close();
-	THROW(DropFile(tbl_fname));
-	THROW(LoadTableSpec(&rTbl, tbl_name, tbl_fname, 0));
-	THROW(CreateDataFile(&rTbl, tbl_fname, createMode, NZOR(pAltCode, GetRusNCaseACS(acst))));
+	{
+		THROW(StartTransaction());
+		is_ta = true;
+		THROW(DropFile(tbl_fname));
+		THROW(LoadTableSpec(&rTbl, tbl_name, tbl_fname, 0));
+		THROW(CreateDataFile(&rTbl, tbl_fname, createMode, NZOR(pAltCode, GetRusNCaseACS(acst))));
+		THROW(CommitWork());
+		is_ta = false;
+	}
 	THROW(rTbl.open(tbl_name));
-	CATCHZOK
+	CATCH
+		if(is_ta)
+			RollbackWork();
+	ENDCATCH
 	return ok;
 }
 

@@ -258,8 +258,8 @@ int Reference::FreeDynamicObj(PPID dynObjType, int use_ta)
 
 int Reference::_GetFreeID(PPID objType, PPID * pID, PPID firstID)
 {
-	int    ok;
-	int    r2;
+	int    ok = 0;
+	int    r2 = 0;
 	if(*pID) {
 		ok = -_Search(objType, *pID, spEq, 0);
 	}
@@ -267,11 +267,14 @@ int Reference::_GetFreeID(PPID objType, PPID * pID, PPID firstID)
 		long   inc = 0;
 		PPID   potential_key = 0;
 		ObjSyncTbl::Rec objsync_rec;
-		THROW(ok = _Search(objType+1, 0, spLt, 0));
+		ok = _Search(objType+1, 0, spLt, 0);
+		THROW(ok);
 		if(ok > 0 && data.ObjType == objType)
 			potential_key = MAX(firstID, data.ObjID+1);
-		else
+		else {
 			potential_key = firstID;
+			ok = 1; // @v12.4.7 В случае пустой таблицы Reference2 необходимо скорректировать возврат иначе получим ошибку на верхних уровнях.
+		}
 		//
 		// Проверяем не является ли новый идент дубликатом удаленного до этого
 		// (и имеющего общий синхронизирующий идентификатор). Если "да", то
@@ -2550,7 +2553,7 @@ UnxTextRefCore::UnxTextRefCore() : UnxTextRefTbl()
 {
 }
 
-int FASTCALL UnxTextRefCore::PostprocessRead(SStringU & rBuf)
+/* @v12.4.7 int FASTCALL UnxTextRefCore::PostprocessReadU(SStringU & rBuf)
 {
 	int    ok = 1;
 	SBuffer temp_buf;
@@ -2559,17 +2562,11 @@ int FASTCALL UnxTextRefCore::PostprocessRead(SStringU & rBuf)
 	const size_t actual_size = temp_buf.GetAvailableSize();
 	rBuf.CopyFromUtf8(static_cast<const char *>(temp_buf.GetBuf(0)), actual_size);
 	return ok;
-}
+}*/
 
-int UnxTextRefCore::Search(const TextRefIdent & rI, SStringU & rBuf)
+int UnxTextRefCore::SearchUtf8(const TextRefIdent & rI, SString & rBufUtf8) // @v12.4.7
 {
-	//
-	// Так как текст в этой таблице по определению не индексируемый, то
-	// с версии 9.0.0 в записях хранится не "сырой" unicode, а utf8 (ради экономии пространства и производительности).
-	// При этом интерфейсные функции по-прежнему оперируют форматом unicode (для совместимости с TextRefCore).
-	//
-	rBuf.Z();
-
+	rBufUtf8.Z();
 	int    ok = 1;
 	if(rI.P == PPTRPROP_TIMESERIES) {
 		SString temp_buf;
@@ -2583,15 +2580,69 @@ int UnxTextRefCore::Search(const TextRefIdent & rI, SStringU & rBuf)
 		k0.Prop = rI.P;
 		k0.ObjID = rI.O.Id;
 		k0.Lang = rI.L;
-		if(search(0, &k0, spEq))
-			PostprocessRead(rBuf);
+		if(search(0, &k0, spEq)) {
+			//PostprocessReadUtf8(rBufUtf8);
+			//int FASTCALL UnxTextRefCore::PostprocessReadUtf8(SString & rBufUtf8)
+			{
+				SBuffer temp_sbuf;
+				readLobData(VT, temp_sbuf);
+				destroyLobData(VT);
+				const size_t actual_size = temp_sbuf.GetAvailableSize();
+				{
+					const size_t cs_size = SSerializeContext::GetCompressPrefix(0);
+					if(actual_size > cs_size && SSerializeContext::IsCompressPrefix(temp_sbuf.GetBuf(temp_sbuf.GetRdOffs()))) {
+						SCompressor compr(SCompressor::tZLib);
+						SBuffer dbuf;
+						THROW_SL(compr.DecompressBlock(temp_sbuf.GetBuf(temp_sbuf.GetRdOffs()+cs_size), actual_size-cs_size, dbuf));
+						rBufUtf8.CatN(static_cast<const char *>(dbuf.GetBuf(0)), dbuf.GetAvailableSize());
+					}
+					else {
+						rBufUtf8.CatN(static_cast<const char *>(temp_sbuf.GetBuf(0)), actual_size);
+					}
+				}
+			}
+		}
 		else
 			ok = PPDbSearchError();
 	}
+	CATCHZOK
 	return ok;
 }
 
-int UnxTextRefCore::Search(const TextRefIdent & rI, STimeSeries & rTs)
+int UnxTextRefCore::SearchU(const TextRefIdent & rI, SStringU & rBuf)
+{
+	rBuf.Z();
+	int    ok = 1;
+	// @v12.4.7 {
+	SString temp_buf;
+	ok = SearchUtf8(rI, temp_buf);
+	if(ok > 0) {
+		rBuf.CopyFromUtf8(temp_buf);
+	}
+	// } @v12.4.7 
+	/* @v12.4.7
+	if(rI.P == PPTRPROP_TIMESERIES) {
+		SString temp_buf;
+		SObjID_ToStr(rI.O, temp_buf).CatDiv(';', 2).Cat(rI.P);
+		ok = PPSetError(PPERR_INVTXREFPROPVALUE, temp_buf);
+	}
+	else {
+		UnxTextRefTbl::Key0 k0;
+		MEMSZERO(k0);
+		k0.ObjType = static_cast<int16>(rI.O.Obj);
+		k0.Prop = rI.P;
+		k0.ObjID = rI.O.Id;
+		k0.Lang = rI.L;
+		if(search(0, &k0, spEq))
+			PostprocessReadU(rBuf);
+		else
+			ok = PPDbSearchError();
+	}
+	*/
+	return ok;
+}
+
+int UnxTextRefCore::SearchTS(const TextRefIdent & rI, STimeSeries & rTs)
 {
 	rTs.Z();
 	int    ok = 1;
@@ -2632,17 +2683,6 @@ int UnxTextRefCore::Search(const TextRefIdent & rI, STimeSeries & rTs)
 	return ok;
 }
 
-int UnxTextRefCore::GetText(const TextRefIdent & rI, SString & rBuf)
-{
-	rBuf.Z();
-	SStringU temp_buf_u;
-	int    ok = Search(rI, temp_buf_u);
-	if(ok > 0) {
-        temp_buf_u.CopyToUtf8(rBuf, 1);
-	}
-	return ok;
-}
-
 int UnxTextRefCore::Helper_Filter(PPID objType, int prop, const char * pPattern, const IntRange & rRange, const PPIDArray * pFiltIdList, PPIDArray & rResultIdList)
 {
 	int    ok = -1;
@@ -2658,7 +2698,7 @@ int UnxTextRefCore::Helper_Filter(PPID objType, int prop, const char * pPattern,
 		if(!pFiltIdList || pFiltIdList->bsearch(data.ObjID)) {
 			if(!isempty(pPattern)) {
 				TextRefIdent tri(objType, data.ObjID, prop);
-				if(GetText(tri, temp_buf) > 0) {
+				if(SearchUtf8(tri, temp_buf) > 0) {
 					temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 					if(ExtStrSrch(temp_buf, pPattern, 0)) {
 						rResultIdList.add(data.ObjID);
@@ -2717,56 +2757,60 @@ int UnxTextRefCore::FilterIdRange(PPID objType, int prop, const char * pPattern,
 	return ok;
 }
 
-int UnxTextRefCore::SetText(const TextRefIdent & rI, const char * pText, int use_ta)
+int UnxTextRefCore::Remove(const TextRefIdent & rI, int use_ta) // @v12.4.7
 {
-	int    ok = -1;
-	const  size_t src_len = sstrlen(pText);
-	if(src_len) {
-		SStringU & r_temp_buf = SLS.AcquireRvlStrU();
-		r_temp_buf.CopyFromUtf8(pText, src_len);
-		ok = SetText(rI, r_temp_buf, use_ta);
-	}
-	else
-		ok = SetText(rI, static_cast<const wchar_t *>(0), use_ta);
-	return ok;
+	return SetTextUtf8(rI, SString(), use_ta);
 }
 
-int UnxTextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText, int use_ta)
+int UnxTextRefCore::SetTextUtf8(const TextRefIdent & rI, const SString & rTextUtf8, int use_ta) // @v12.4.7
 {
-	//
-	// Так как текст в этой таблице по определению не индексируемый, то
-	// с версии 9.0.0 в записях хранится не "сырой" unicode, а utf8 (ради экономии пространства и производительности).
-	// При этом интерфейсные функции по-прежнему оперируют форматом unicode (для совместимости с TextRefCore).
-	//
-    int    ok = 1;
-	SString utf_buf;
-    SStringU _t;
+	int    ok = 1;
+	SBuffer cbuf;
     THROW_INVARG(rI.L >= 0);
     THROW_INVARG(rI.P >= 0);
     THROW_INVARG(rI.O.Obj > 0);
     THROW_INVARG(rI.O.Id > 0);
+	const  size_t tl = rTextUtf8.Len();
+	// @v12.4.7 compression {
+	if(tl) {
+		if(tl > 128) {
+			SCompressor compr(SCompressor::tZLib);
+			uint8 cs[32];
+			const size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
+			THROW_SL(cbuf.Write(cs, cs_size));
+			THROW_SL(compr.CompressBlock(rTextUtf8.cptr(), tl, cbuf, 0, 0));
+		}
+		else {
+			cbuf.Z();
+			cbuf.Write(rTextUtf8.cptr(), tl);
+		}
+	}
+	// @v12.4.7 } compression 
     {
-    	_t = pText;
-        _t.CopyToUtf8(utf_buf, 1);
-    }
-	const  size_t tl = utf_buf.Len();
-    {
+		SString ex_text;
     	PPTransaction tra(use_ta);
     	THROW(tra);
-		if(Search(rI, _t) > 0) {
+		if(SearchUtf8(rI, ex_text) > 0) {
 			if(tl == 0) {
 				THROW_DB(rereadForUpdate(0, 0));
 				THROW_DB(deleteRec()); // @sfu
 			}
-			else if(_t.IsEq(pText)) {
+			else if(ex_text.IsEq(rTextUtf8)) {
 				ok = -1;
 			}
 			else {
 				THROW_DB(rereadForUpdate(0, 0));
 				{
 					assert(tl); // Ранее мы проверили длину текста на 0
-					THROW(writeLobData(VT, utf_buf.cptr(), tl));
-					data.Size = static_cast<long>(tl);
+					// @v12.4.7 THROW(writeLobData(VT, rTextUtf8.cptr(), tl));
+					// @v12.4.7 data.Size = static_cast<long>(tl);
+					// @v12.4.7 {
+					{
+						const size_t size_to_write = cbuf.GetAvailableSize();
+						THROW(writeLobData(VT, cbuf.constptr(), size_to_write)); 
+						data.Size = static_cast<int32>(size_to_write);
+					}
+					// } @v12.4.7 
 				}
 				THROW_DB(updateRec()); // @sfu
 				destroyLobData(VT);
@@ -2783,16 +2827,23 @@ int UnxTextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText, int 
 			data.Lang = rI.L;
 			{
 				assert(tl); // Ранее мы проверили длину текста на 0
-				THROW(writeLobData(VT, utf_buf.cptr(), tl));
-				data.Size = static_cast<long>(tl);
+				// @v12.4.7 THROW(writeLobData(VT, rTextUtf8.cptr(), tl));
+				// @v12.4.7 data.Size = static_cast<long>(tl);
+				// @v12.4.7 {
+				{
+					const size_t size_to_write = cbuf.GetAvailableSize();
+					THROW(writeLobData(VT, cbuf.constptr(), size_to_write)); 
+					data.Size = static_cast<int32>(size_to_write);
+				}
+				// } @v12.4.7 
 			}
 			THROW_DB(insertRec());
 			destroyLobData(VT);
 		}
 		THROW(tra.Commit());
     }
-    CATCHZOK
-    return ok;
+	CATCHZOK
+	return ok;
 }
 
 int UnxTextRefCore::SetTimeSeries(const TextRefIdent & rI, STimeSeries * pTs, int use_ta)
@@ -2823,7 +2874,7 @@ int UnxTextRefCore::SetTimeSeries(const TextRefIdent & rI, STimeSeries * pTs, in
     {
     	PPTransaction tra(use_ta);
     	THROW(tra);
-		int    sr = Search(rI, ex_ts);
+		int    sr = SearchTS(rI, ex_ts);
 		THROW(sr);
 		if(sr > 0) {
 			if(tl == 0) {
@@ -2884,7 +2935,7 @@ int UnxTextRefCore::_Enum::Next(void * pRec)
 		p_result->O.Set(P_T->data.ObjType, P_T->data.ObjID);
 		p_result->P = P_T->data.Prop;
 		p_result->L = P_T->data.Lang;
-		if(P_T->GetText(*p_result, p_result->S) > 0)
+		if(P_T->SearchUtf8(*p_result, p_result->S) > 0)
 			ok = 1;
 	}
 	return ok;

@@ -75,6 +75,7 @@ void SlExtraProcBlock::Reset()
 	F_CallCalc = 0;
 	// @v12.3.7 F_CallCalendar = 0;
 	F_UiSupplementWindow = 0; // @v12.3.7
+	F_UiFindSupplementWindow = 0; // @v12.4.7
 	F_GetGlobalSecureConfig = 0;
 	F_GetDefaultEncrKey = 0;
 	F_QueryPath = 0;
@@ -90,6 +91,7 @@ void SlExtraProcBlock::Set(const SlExtraProcBlock * pS)
 		F_CallCalc = pS->F_CallCalc;
 		// @v12.3.7 F_CallCalendar = pS->F_CallCalendar;
 		F_UiSupplementWindow = pS->F_UiSupplementWindow; // @v12.3.7
+		F_UiFindSupplementWindow = pS->F_UiFindSupplementWindow; // @v12.4.7
 		F_GetGlobalSecureConfig = pS->F_GetGlobalSecureConfig;
 		F_GetDefaultEncrKey = pS->F_GetDefaultEncrKey;
 		F_QueryPath = pS->F_QueryPath;

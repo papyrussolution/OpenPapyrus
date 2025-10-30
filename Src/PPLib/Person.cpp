@@ -968,7 +968,7 @@ SString & PersonCore::GetItemMemo(PPID id, SString & rBuf) // @v11.1.12
 {
 	rBuf.Z();
 	if(id) {
-		PPRef->UtrC.GetText(TextRefIdent(PPOBJ_PERSON, id, PPTRPROP_MEMO), rBuf);
+		PPRef->UtrC.SearchUtf8(TextRefIdent(PPOBJ_PERSON, id, PPTRPROP_MEMO), rBuf);
 		rBuf.Transf(CTRANSF_UTF8_TO_INNER);
 	}
 	return rBuf;
@@ -1081,13 +1081,13 @@ int PersonCore::Put(PPID * pID, PPPerson * pPack, int use_ta)
 				strip(pPack->Rec.Name);
 				pPack->Rec.ID = *pID;
 				THROW_DB(updateRecBuf(&pPack->Rec)); // @sfu
-				THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_PERSON, *pID, PPTRPROP_MEMO), memo_buf_utf8, 0)); // @v11.1.12
+				THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_PERSON, *pID, PPTRPROP_MEMO), memo_buf_utf8, 0)); // @v11.1.12
 				THROW(PutKinds(*pID, pPack));
 				THROW(PutRelList(*pID, &pPack->GetRelList(), 0));
 			}
 			else {
 				THROW_DB(deleteRec()); // @sfu
-				THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_PERSON, *pID, PPTRPROP_MEMO), static_cast<const wchar_t *>(0), 0)); // @v11.1.12
+				THROW(p_ref->UtrC.Remove(TextRefIdent(PPOBJ_PERSON, *pID, PPTRPROP_MEMO), 0)); // @v11.1.12
 				THROW(RemoveKind(*pID, 0, 0));
 				THROW(PutRelList(*pID, 0, 0));
 			}
@@ -1098,7 +1098,7 @@ int PersonCore::Put(PPID * pID, PPPerson * pPack, int use_ta)
 			CopyBufFrom(&pPack->Rec, sizeof(pPack->Rec));
 			THROW_DB(insertRec(0, pID));
 			pPack->Rec.ID = *pID;
-			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_PERSON, *pID, PPTRPROP_MEMO), memo_buf_utf8, 0)); // @v11.1.12
+			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_PERSON, *pID, PPTRPROP_MEMO), memo_buf_utf8, 0)); // @v11.1.12
 			THROW(PutKinds(*pID, pPack));
 			THROW(PutRelList(*pID, &pPack->GetRelList(), 0));
 		}
@@ -1106,7 +1106,9 @@ int PersonCore::Put(PPID * pID, PPPerson * pPack, int use_ta)
 	}
 	CATCHZOK
 	if(ok == 2 && CConfig.Flags & CCFLG_DEBUG) {
-		SString msg_buf, fmt_buf, obj_title;
+		SString msg_buf;
+		SString fmt_buf;
+		SString obj_title;
 		PPLoadText(PPTXT_LOG_ADDOBJREC_JUMPED_ID, fmt_buf);
 		GetObjectTitle(PPOBJ_PERSON, obj_title);
 		msg_buf.Printf(fmt_buf, obj_title.cptr());

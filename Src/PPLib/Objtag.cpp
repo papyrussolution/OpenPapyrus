@@ -1232,6 +1232,8 @@ int PPObjTag::CheckForFilt(const ObjTagFilt * pFilt, const PPObjectTag & rRec) c
 			ok = 0;
 		else if(pFilt->Flags & ObjTagFilt::fOnlyGroups && rRec.TagDataType != OTTYP_GROUP)
 			ok = 0;
+		else if((pFilt->Flags & ObjTagFilt::fSkipPassive) && (rRec.Flags & OTF_PASSIVE)) // @v12.4.7
+			ok = 0;
 		else if(pFilt->ParentID && (rRec.TagGroupID != pFilt->ParentID && rRec.ID != pFilt->ParentID))
 			ok = 0;
 		else if(!(pFilt->Flags & ObjTagFilt::fAnyObjects)) {
@@ -2692,7 +2694,9 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 		PPID   tag_id = 0;
 		pItem->Destroy();
 		ObjTagFilt ot_filt(objType);
-		if((r = SelectObjTag(&tag_id, pAllowedTags, &ot_filt)) > 0) {
+		ot_filt.Flags |= ObjTagFilt::fSkipPassive; // @v12.4.7
+		r = SelectObjTag(&tag_id, pAllowedTags, &ot_filt);
+		if(r > 0) {
 			THROW(pItem->Init(tag_id));
 		}
 		else

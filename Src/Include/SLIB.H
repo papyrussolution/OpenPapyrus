@@ -12357,7 +12357,8 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 #define SNTOK_EAN8                       4
 #define SNTOK_UPCA                       5
 #define SNTOK_UPCE                       6
-#define SNTOK_RU_INN                     7
+#define SNTOK_RU_INN                     7 // Note: ru-inn реальное значение может быть с инвалидной контрольной цифрой! 
+	// Из-за этого, если контрольная цифра не годится, STokenRecognizer все равно вернет вероятное значение SNTOK_RU_INN с надежностью меньшей чем 0.1 (0.01)
 #define SNTOK_EGAISWARECODE              8 // Код алкогольной продукции ЕГАИС
 #define SNTOK_EGAISMARKCODE              9 // Код акцизной марки алкогольной продукции ЕГАИС
 #define SNTOK_LUHN                      10 // Цифровая последовательность с контрольной цифрой по алгоритму LUHN в конце
@@ -18056,16 +18057,10 @@ public:
 	uint32 Ident;
 	uint32 Cmd;
 
-	static bool IsValidKind(int kind)
-	{
-		return oneof8(kind, kUndef, kDateCalendar, kDateRangeCalendar, kTime, kList, kCalc, kAsterisk, kText);
-	}
+	static bool IsValidKind(int kind) { return oneof8(kind, kUndef, kDateCalendar, kDateRangeCalendar, kTime, kList, kCalc, kAsterisk, kText); }
 
 	struct DataBlock {
-		DataBlock() : Dtm(ZERODATETIME), RValue(0.0)
-		{
-			Period.Z();
-		}
+		DataBlock();
 		LDATETIME Dtm;
 		DateRange Period;
 		double RValue;
@@ -18075,7 +18070,7 @@ public:
 // Descr: Спецификация функции, которая вызывается в ответ на нажание дополнительной кнопки для реализации
 //   необходимого функционала (выбор даты, или еще чего).
 // ARG(supplementKind IN): SUiCtrlSupplement::kXXX Вид дополнительной функции.
-// ARG(hParentWin     IN): Родительское окно относительно которого вызывается фукнция.
+// ARG(hParentWin     IN): Родительское окно относительно которого вызывается функция.
 // ARG(linkCtlId      IN): Ид управляющего элемента, к которому привязана дополнительная функция.
 // ARG(pData       INOUT): Блок для обмена данными, специфичными дополнительной функции.
 // Returns:
@@ -18084,6 +18079,16 @@ public:
 //    0 - error
 //
 typedef int (*CallSupplementWindowFunc)(int supplementKind, void * hParentWnd, uint linkCtlId, SUiCtrlSupplement::DataBlock * pData);
+//
+// Descr: Спецификация функции, которая должна найти дополнительный управляющий элемент, привязанный к основному с идентификатором linkCtlId.
+// ARG(supplementKind IN): SUiCtrlSupplement::kXXX Вид дополнительной функции.
+// ARG(hParentWin     IN): Родительское окно относительно которого вызывается функция.
+// ARG(linkCtlId      IN): Ид управляющего элемента, к которому привязана дополнительная функция.
+// Returns:
+//   0 - дополнительный управляющий элемент не найден (возможно, просто параметры не правильные)
+//   !0 - HWND искомого управляющего элемента.
+//
+typedef void * (*FindSupplementWindowFunc)(int supplementKind, void * hParentWnd, uint linkCtlId); // @v12.4.7
 //
 // Descr: Расширение класса SUiCtrlSupplement, содержащее nonflat-поля. 
 //
@@ -18157,6 +18162,7 @@ public:
 	CallCalculatorFunc F_CallCalc;
 	// @v12.3.7 (элиминирован в пользу F_UiSupplementWindow) CallCalendarFunc F_CallCalendar;
 	CallSupplementWindowFunc F_UiSupplementWindow; // @v12.3.7
+	FindSupplementWindowFunc F_UiFindSupplementWindow; // @v12.4.7
 	GetGlobalSecureConfigFunc F_GetGlobalSecureConfig;
 	GetDefaultEncrKeyFunc F_GetDefaultEncrKey;
 	QueryPathFunc F_QueryPath;

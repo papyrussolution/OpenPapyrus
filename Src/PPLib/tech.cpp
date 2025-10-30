@@ -245,8 +245,7 @@ int PPObjTech::CreateAutoTech(PPID prcID, PPID goodsID, PPID * pTechID, int use_
 
 SString & PPObjTech::GetItemMemo(PPID id, SString & rBuf) // @v11.1.12
 {
-	rBuf.Z();
-	PPRef->UtrC.GetText(TextRefIdent(Obj, id, PPTRPROP_MEMO), rBuf);
+	PPRef->UtrC.SearchUtf8(TextRefIdent(Obj, id, PPTRPROP_MEMO), rBuf);
 	rBuf.Transf(CTRANSF_UTF8_TO_INNER);
 	return rBuf;
 }
@@ -555,7 +554,7 @@ int PPObjTech::PutPacket(PPID * pID, PPTechPacket * pPack, int use_ta)
 				(ext_buffer = pPack->SMemo).Strip();
 			else
 				ext_buffer.Z();
-			THROW(p_ref->UtrC.SetText(TextRefIdent(Obj, *pID, PPTRPROP_MEMO), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(Obj, *pID, PPTRPROP_MEMO), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 		}
 		// } @v11.1.12 
 		DS.LogAction(log_action_id, Obj, *pID, 0, 0);
