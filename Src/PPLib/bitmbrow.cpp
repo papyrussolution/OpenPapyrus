@@ -845,12 +845,12 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket & r
 				uint  _colidx_cost = 0;
 				uint  _colidx_price = 0;
 				for(uint ci = 0; ci < _c; ci++) {
-					BroColumn & r_col = p_def->at(ci);
-					if(r_col.OrgOffs == 5)
+					const BroColumn & r_column = p_def->at(ci);
+					if(r_column.OrgOffs == 5)
 						_colidx_discount = ci;
-					else if(r_col.OrgOffs == 4)
+					else if(r_column.OrgOffs == 4)
 						_colidx_price = ci;
-					else if(r_col.OrgOffs == 3)
+					else if(r_column.OrgOffs == 3)
 						_colidx_cost = ci;
 				}
 				if(_colidx_cost && _colidx_price) {
@@ -1064,14 +1064,30 @@ SArray * BillItemBrowser::MakeList()
 	THROW_MEM(p_packed_list = new BillGoodsBrwItemArray);
 	// @v12.4.1 {
 	if(oneof2(BillDetailType, PPBillPacket::detailtypeLocTrfr, PPBillPacket::detailtypeLocTrfr_Bailment)) {
+		PPOprKind op_rec;
+		PPOprKind link_op_rec;
+		const bool is_order = (GetOpData(r_pack.Rec.OpID, &op_rec) > 0 && op_rec.SubType == OPSUBT_BAILMENT_ORDER);
+		const bool is_link_op_get = (P_LinkPack && GetOpData(P_LinkPack->Rec.OpID, &link_op_rec) > 0 && link_op_rec.SubType == OPSUBT_BAILMENT_GET);
+		const bool is_link_op_put = (P_LinkPack && GetOpData(P_LinkPack->Rec.OpID, &link_op_rec) > 0 && link_op_rec.SubType == OPSUBT_BAILMENT_PUT);
 		for(uint ltii = 0; ltii < SVectorBase::GetCount(r_pack.P_LocTrfrList); ltii++) {
 			const LocTransfOpBlock & r_lti = r_pack.P_LocTrfrList->at(ltii);
-			MEMSZERO(item);
-			item.Pos = ltii;
-			item.RByBill = r_lti.RByBillLT;
-			//
-			THROW_SL(p_packed_list->insert(&item));
-			lines_count++;
+			bool  skip = false;
+			if(AsSelector && is_order && P_LinkPack && P_LinkPack->OpTypeID == PPOPT_WAREHOUSE) { // @v12.4.7 
+				if(is_link_op_get && r_lti.LTOp != LOCTRFROP_GET) {
+					skip = true;
+				}
+				else if(is_link_op_put && r_lti.LTOp != LOCTRFROP_PUT) {
+					skip = true;
+				}
+			}
+			if(!skip) {
+				MEMSZERO(item);
+				item.Pos = ltii;
+				item.RByBill = r_lti.RByBillLT;
+				//
+				THROW_SL(p_packed_list->insert(&item));
+				lines_count++;
+			}
 		}
 	}
 	else { // } @v12.4.1 
@@ -2194,7 +2210,7 @@ int BillItemBrowser::PostprocessModifItemAdding(const PPTransferItem & rTi, uint
 				THROW(R_Pack.InsertComplete(*gs_list.at(0), pos, 0, 0, 0/*goods-replacement-array*/, recursive));
 			}
 			else if(gs_list.getCount() > 1) {
-				int    do_select = 1;
+				bool   do_select = true;
 				SString source_serial;
 				R_Pack.LTagL.GetTagStr(pos, PPTAG_LOT_SOURCESERIAL, source_serial);
 				if(source_serial.NotEmptyS()) {
@@ -2216,7 +2232,7 @@ int BillItemBrowser::PostprocessModifItemAdding(const PPTransferItem & rTi, uint
 					if(potential_gs_pos_list.getCount() == 1) {
 						const uint gs_pos = static_cast<uint>(potential_gs_pos_list.get(0)-1);
 						THROW(R_Pack.InsertComplete(*gs_list.at(gs_pos), pos, 0, 0, 0/*goods-replacement-array*/, recursive));
-						do_select = 0;
+						do_select = false;
 					}
 				}
 				if(do_select) {
@@ -2236,9 +2252,7 @@ int BillItemBrowser::PostprocessModifItemAdding(const PPTransferItem & rTi, uint
 
 void BillItemBrowser::addItem_(int fromOrder, TIDlgInitData * pInitData, int sign)
 {
-	int    r;
 	int    lc;
-	//int    i;
 	BillItemBrowser * brw = 0;
 	if(GetOpType(R_Pack.Rec.OpID) == PPOPT_GOODSEXPEND && CheckOpFlags(R_Pack.Rec.OpID, OPKF_PCKGMOUNTING) && !P_Pckg)
 		selectPckg(0);
@@ -2251,7 +2265,7 @@ void BillItemBrowser::addItem_(int fromOrder, TIDlgInitData * pInitData, int sig
 				brw->changeBounds(TRect(0, 0, 80, 10)); // Здесь важны не точные размеры, а ориентация на верхнюю часть экрана с одновременным ограничением высоты (чтоб не закрывать this).
 				brw->State |= BillItemBrowser::stOrderSelector;
 				while(ExecView(brw) == cmOK) {
-					r  = brw->AsSelector;
+					int    r = brw->AsSelector;
 					brw->AsSelector = 1;
 					lc = order_bpack.GetTCount();
 					int    gr = 0;
@@ -2280,11 +2294,11 @@ void BillItemBrowser::addItem_(int fromOrder, TIDlgInitData * pInitData, int sig
 	// Возврат товара
 	//
 	else if(State & stUseLinkSelection && P_LinkPack) {
-		uint   res_id = (LConfig.Flags & CFGFLG_SHOWPHQTTY) ? BROWSER_GOODSITEMPH_W2 : BROWSER_GOODSITEM_W2;
+		const uint res_id = (LConfig.Flags & CFGFLG_SHOWPHQTTY) ? BROWSER_GOODSITEMPH_W2 : BROWSER_GOODSITEM_W2;
 		THROW_MEM(brw = new BillItemBrowser(res_id, P_BObj, *P_LinkPack, 0, -1, 1, /*editMode*/0));
 		brw->changeBounds(TRect(0, 0, 80, 10));
 		while(ExecView(brw) == cmOK) {
-			r = brw->AsSelector;
+			int    r = brw->AsSelector;
 			brw->AsSelector = 1;
 			lc = P_LinkPack->GetTCount();
 			if(r >= 0 && r < lc) {
@@ -2294,8 +2308,9 @@ void BillItemBrowser::addItem_(int fromOrder, TIDlgInitData * pInitData, int sig
 				update(pos_bottom);
 			}
 			else if(r == -1) {
-				for(r = 0; r < lc; r++)
+				for(r = 0; r < lc; r++) {
 					THROW(_moveItem2(r));
+				}
 				State |= stIsModified;
 				update(pos_bottom);
 				break;
@@ -2312,7 +2327,8 @@ void BillItemBrowser::addItem_(int fromOrder, TIDlgInitData * pInitData, int sig
 		if(R_Pack.OpTypeID == PPOPT_GOODSMODIF && sign == 0) {
 			RVALUEPTR(temp_tidi, pInitData);
 			sign = temp_tidi.GetTiSign();
-			THROW(r = addModifItem(&sign, temp_tidi));
+			const int r = addModifItem(&sign, temp_tidi);
+			THROW(r);
 			if(r < 0)
 				skip = true;
 			else {
@@ -2383,7 +2399,7 @@ void BillItemBrowser::addItem_(int fromOrder, TIDlgInitData * pInitData, int sig
 										brw->changeBounds(TRect(0, 0, 80, 10)); // Здесь важны не точные размеры, а ориентация на верхнюю часть экрана с одновременным ограничением высоты (чтоб не закрывать this).
 										brw->State |= BillItemBrowser::stOrderSelector;
 										while(ExecView(brw) == cmOK) {
-											r  = brw->AsSelector;
+											const int r = brw->AsSelector;
 											brw->AsSelector = 1;
 											int    gr = 0;
 											if(r >= 0 && r < static_cast<int>(ord_lt_count)) {
@@ -2959,7 +2975,7 @@ enum {
 int ImportStyloScannerEntriesForBillPacket(PPBillPacket & rBp, PPLotExtCodeContainer * pLxc, int mode)
 {
 	int    ok = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	PPObjGoods goods_obj;
 	SString temp_buf;
 	SString msg_buf;
@@ -3908,7 +3924,7 @@ int BillItemBrowser::SelectPrefSuppl(uint rowId)
 int BillItemBrowser::SpecialGeneration() // @v12.1.12
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	enum {
 		actionNone                        = 0,
 		actionGenerateSerials             = 1,
@@ -4056,7 +4072,10 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 			// Далее управление передается базовому классу
 		}
 		BrowserWindow::handleEvent(event);
-		if(event.isCmd(cmSort)) {
+		if(event.isCmd(cmModalPostCreate)) {
+			;
+		}
+		else if(event.isCmd(cmSort)) {
 			update(pos_cur);
 		}
 		else if(TVCOMMAND && EditMode < 2) {
@@ -4143,7 +4162,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 						if(c >= 0 && c < R_Pack.GetTCountI()) {
 							const PPTransferItem & r_ti = R_Pack.ConstTI(static_cast<uint>(c));
 							if(oneof4(R_Pack.Rec.OpID, PPOPK_EDI_STOCK, PPOPK_EDI_ACTCHARGEON, PPOPK_EDI_ACTCHARGEONSHOP, PPOPK_EDI_SHOPCHARGEON)) {
-								Reference * p_ref = PPRef;
+								Reference * p_ref(PPRef);
 								uint   i;
 								SString ref_b, egais_code;
 								StringSet ss_egais_codes;
@@ -5305,7 +5324,7 @@ int PPObjBill::EditExtCodeList(PPBillPacket * pPack, int rowIdx/*[1..]*/, uint f
 		}
 		int    EditItemDialog(LotExtCodeTbl::Rec & rRec, char firstChar, PPLotExtCodeContainer::MarkSet & rSet)
 		{
-			PPObjBill * p_bobj = BillObj;
+			PPObjBill * p_bobj(BillObj);
 			int    ok = -1;
 			uint   sel = 0;
 			TDialog * dlg = new TDialog(DLG_LOTEXTCODE);

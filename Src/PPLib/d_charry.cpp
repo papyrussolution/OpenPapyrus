@@ -754,7 +754,7 @@ int PPDS_CrrBill::IdentifySuppl(PPID * pArID, int use_ta)
 int PPDS_CrrBill::InitData(Ido op, void * /*dataPtr*/, long addedParam)
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	if(op == idoAlloc) {
 		Data.destroy();
 		SellerArID = 0;

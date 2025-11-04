@@ -114,7 +114,7 @@ LocValEntry * FASTCALL LocValList::GetEntry(PPID locID)
 {
 	int    ok = 1;
 	int    is_new = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPPredictConfig prev_cfg;
 	PPPredictConfig cfg = *pCfg;
 	{

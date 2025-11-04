@@ -182,7 +182,7 @@ int GoodsIterator::FilterList(PPIDArray * pSrcList, PPIDArray * pDestList, long 
 int GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID grpID, PPIDArray * pList, int doIntersect)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPIDArray grp_list, goods_list;
 	if(pGrpList) {
 		THROW(grp_list.add(pGrpList));
@@ -367,7 +367,7 @@ int GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 {
 	int    ok = 1;
 	int    r;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	SString temp_buf;
 	Goods2Tbl::Rec goods_rec;
 	PPIDArray len_list, temp_list;

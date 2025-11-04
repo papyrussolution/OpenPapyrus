@@ -86,9 +86,8 @@ const PPViewUnitEc::Indicator * PPViewUnitEc::IndicatorVector::GetClsEntryC(long
 	const PPViewUnitEc::Indicator * p_result = 0;
 	for(uint i = 0; !p_result && i < getCount(); i++) {
 		const PPViewUnitEc::Indicator & r_item = at(i);
-		if(r_item.Cls == cls) {
+		if(r_item.Cls == cls)
 			p_result = &r_item;
-		}
 	}
 	return p_result;
 }
@@ -128,6 +127,19 @@ double PPViewUnitEc::IndicatorVector::GetTotalExpense() const
 			result += r_item.Value;
 	}
 	return result;
+}
+
+PPViewUnitEc::FactorSet::FactorSet() : DaysCount(0), SaleQtty(0.0), RcptQtty(0.0), StorageDaysQtty(0.0)
+{
+}
+		
+PPViewUnitEc::FactorSet & PPViewUnitEc::FactorSet::Z()
+{
+	DaysCount = 0;
+	SaleQtty = 0.0;
+	RcptQtty = 0.0;
+	StorageDaysQtty = 0.0;
+	return *this;
 }
 
 PPViewUnitEc::PPViewUnitEc() : PPView(0, &Filt, PPVIEW_UNITEC, (implBrowseArray), 0), P_DsList(0)
@@ -177,12 +189,15 @@ int FASTCALL PPViewUnitEc::NextIteration(UnitEcViewItem * pItem)
 			int    ok = 1;
 			RVALUEPTR(Data, pData);
 			SetPeriodInput(this, CTL_UNITECFILT_PERIOD, Data.Period);
+			AddClusterAssoc(CTL_UNITECFILT_FLAGS, 0, UnitEcFilt::fPivot);
+			SetClusterData(CTL_UNITECFILT_FLAGS, Data.Flags);
 			return ok;
 		}
 		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			GetPeriodInput(this, CTL_UNITECFILT_PERIOD, &Data.Period);
+			GetClusterData(CTL_UNITECFILT_FLAGS, &Data.Flags);
 			ASSIGN_PTR(pData, Data);
 			return ok;
 		}
@@ -488,17 +503,50 @@ int PPViewUnitEc::MakeProcessingList(TSCollection <IndicatorVector> & rList)
 int PPViewUnitEc::MakeList(PPViewBrowser * pBrw)
 {
 	int    ok = -1;
+	LongArray cls_list;
+	bool   is_any_bscls = false;
 	if(P_DsList)
 		P_DsList->clear();
 	else
 		P_DsList = new SArray(sizeof(BrwItem));
-	{
-		for(uint i = 0; i < IndicatorList.getCount(); i++) {
-			const IndicatorVector * p_indicator_vec = IndicatorList.at(i);
-			if(p_indicator_vec) {
+	if(Filt.Flags & UnitEcFilt::fPivot) {
+		GetCommonIndicatorClsList(cls_list);
+	}
+	for(uint i = 0; i < IndicatorList.getCount(); i++) {
+		const IndicatorVector * p_indicator_vec = IndicatorList.at(i);
+		if(p_indicator_vec) {
+			if(Filt.Flags & UnitEcFilt::fPivot) {
+				if(p_indicator_vec->getCount()) {
+					for(uint clsi = 0; clsi < cls_list.getCount(); clsi++) {
+						const int cls = cls_list.get(clsi);
+						double value = 0.0;
+						const Indicator * p_ind = p_indicator_vec->GetClsEntryC(cls);
+						if(p_ind) {
+							value = p_ind->Value;
+							BrwItem bi;
+							bi.ID = p_indicator_vec->ID;
+							bi.GStrucID = p_indicator_vec->AddendumID;
+							bi.Cls = cls;
+							bi.IndicatorID = p_ind->ID;
+							P_DsList->insert(&bi);
+						}
+					}
+				}
+				else {
+					BrwItem bi;
+					bi.ID = p_indicator_vec->ID;
+					bi.GStrucID = p_indicator_vec->AddendumID;
+					bi.Cls = 0;
+					bi.IndicatorID = 0;
+					P_DsList->insert(&bi);
+				}
+			}
+			else {
 				BrwItem bi;
 				bi.ID = p_indicator_vec->ID;
 				bi.GStrucID = p_indicator_vec->AddendumID;
+				bi.Cls = 0;
+				bi.IndicatorID = 0;
 				P_DsList->insert(&bi);
 			}
 		}
@@ -519,7 +567,6 @@ int PPViewUnitEc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 			break;
 		case 2: // InitialGoodsParam::RcptQtty
 			{
-					
 				const IndicatorVector * p_vec = GetEntryByID_Const(p_item->ID);
 				double value = p_vec ? p_vec->IgP.RcptQtty : 0.0;
 				pBlk->Set(value);
@@ -529,6 +576,27 @@ int PPViewUnitEc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 			{
 				const IndicatorVector * p_vec = GetEntryByID_Const(p_item->ID);
 				double value = p_vec ? p_vec->IgP.ExpectedDemandPerWeek : 0.0;
+				pBlk->Set(value);
+			}
+			break;
+		case 1001: // @construction (pivot) indicator name
+			temp_buf.Z();
+			if(p_item->Cls) {
+				PPObjBizScore2::GetBscClsResultName(p_item->Cls, temp_buf);
+				if(temp_buf.IsEmpty())
+					temp_buf.CatChar('#').Cat("bscls").CatChar('-').Cat(p_item->Cls);
+			}
+			pBlk->Set(temp_buf);
+			break;
+		case 1002: // @construction (pivot) indicator value
+			if(p_item->Cls) {
+				const IndicatorVector * p_vec = GetEntryByID_Const(p_item->ID);
+				double value = 0.0;
+				if(p_vec) {
+					const Indicator * p_ind = p_vec->GetClsEntryC(p_item->Cls);
+					if(p_ind)
+						value = p_ind->Value;
+				}
 				pBlk->Set(value);
 			}
 			break;
@@ -569,35 +637,44 @@ void PPViewUnitEc::PreprocessBrowser(PPViewBrowser * pBrw)
 			}, this);
 		//pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
 	}
-	LongArray cls_list;
-	GetCommonIndicatorClsList(cls_list);
-	bool is_any_bscls = false;
-	for(uint i = 0; i < cls_list.getCount(); i++) {
-		const int cls = cls_list.get(i);
-		const int column_id = (cls + 2000);
-		PPObjBizScore2::GetBscClsResultName(cls, temp_buf);
-		if(temp_buf.IsEmpty())
-			temp_buf.CatChar('#').Cat("bscls").CatChar('-').Cat(cls);
-		pBrw->InsColumn(-1, temp_buf, column_id, T_DOUBLE, MKSFMTD(0, 2, 0), BCO_USERPROC);
-		is_any_bscls = true;
-	}
-	if(is_any_bscls) {
-		const int column_id = 4000;
-		PPLoadString("profit", temp_buf);
-		pBrw->InsColumn(-1, temp_buf, column_id, T_DOUBLE, MKSFMTD(0, 2, 0), BCO_USERPROC);
+	if(!(Filt.Flags & UnitEcFilt::fPivot)) {
+		LongArray cls_list;
+		GetCommonIndicatorClsList(cls_list);
+		bool is_any_bscls = false;
+		for(uint i = 0; i < cls_list.getCount(); i++) {
+			const int cls = cls_list.get(i);
+			const int column_id = (cls + 2000);
+			PPObjBizScore2::GetBscClsResultName(cls, temp_buf);
+			if(temp_buf.IsEmpty())
+				temp_buf.CatChar('#').Cat("bscls").CatChar('-').Cat(cls);
+			pBrw->InsColumn(-1, temp_buf, column_id, T_DOUBLE, MKSFMTD(0, 2, 0), BCO_USERPROC);
+			is_any_bscls = true;
+		}
+		if(is_any_bscls) {
+			const int column_id = 4000;
+			PPLoadString("profit", temp_buf);
+			pBrw->InsColumn(-1, temp_buf, column_id, T_DOUBLE, MKSFMTD(0, 2, 0), BCO_USERPROC);
+		}
 	}
 }
 
 /*virtual*/SArray * PPViewUnitEc::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	SArray * p_array = 0;
+	uint   brw_id = 0;
+	if(Filt.Flags & UnitEcFilt::fPivot) {
+		brw_id = BROWSER_UNITEC_PVT;
+	}
+	else {
+		brw_id = BROWSER_UNITEC;
+	}
 	THROW(MakeList(0));
 	p_array = new SArray(*P_DsList);
 	CATCH
 		ZDELETE(p_array);
 		ZDELETE(P_DsList);
 	ENDCATCH
-	ASSIGN_PTR(pBrwId, BROWSER_UNITEC);
+	ASSIGN_PTR(pBrwId, brw_id);
 	return p_array;
 }
 

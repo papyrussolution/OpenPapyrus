@@ -2579,7 +2579,7 @@ BizScore2Core::BizScore2Core() : BizScore2Tbl()
 int BizScore2Core::PutPacket(PPID * pID, BizScore2ValuePacket * pPack, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	constexpr PPID obj_type = PPOBJ_BIZSCORE2VAL;
 	SString temp_buf;
 	PPObjBizScore2 bs_obj;
@@ -2624,7 +2624,7 @@ int BizScore2Core::GetPacket(PPID id, BizScore2ValuePacket * pPack)
 {
 	CALLPTRMEMB(pPack, Z());
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	constexpr PPID obj_type = PPOBJ_BIZSCORE2VAL;
 	BizScore2Tbl::Rec rec;
 	const int sr = SearchByID(this, obj_type, id, &rec);

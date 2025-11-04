@@ -810,7 +810,7 @@ int PPViewLot::RecoverLots()
 		logger.Log(msg_buf);
 		{
 			Transfer * p_trfr = P_BObj->trfr;
-			Reference * p_ref = PPRef;
+			Reference * p_ref(PPRef);
 			SString ref_a;
 			SString lot_str;
 			SString psn_name_buf;
@@ -1332,7 +1332,7 @@ int PPViewLot::MakeLotListForEgaisRetReg2ToWh(PPEgaisProcessor & rEp, PPID opID,
 {
 	int    ok = -1;
 	if(opID) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		const LDATE _curdate = getcurdate_();
 		PPViewBill bill_view;
 		BillFilt bill_filt;
@@ -1396,7 +1396,7 @@ int PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pB
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
 		SString temp_buf;
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		PPID   lot_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			// @debug {
@@ -2951,7 +2951,7 @@ int PPALDD_Lot::InitData(PPFilt & rFilt, long rsrv)
 	if(rFilt.ID == H.ID)
 		ok = DlRtm::InitData(rFilt, rsrv);
 	else {
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
 		ReceiptTbl::Rec rec;
@@ -3293,8 +3293,8 @@ int PPLotExporter::Init(const PPLotImpExpParam * pParam)
 int PPLotExporter::Export(const LotViewItem * pItem)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
-	PPObjBill * p_bobj = BillObj;
+	Reference * p_ref(PPRef);
+	PPObjBill * p_bobj(BillObj);
 	SString temp_buf;
 	Sdr_Lot  sdr_lot;
 	THROW_INVARG(pItem && P_IE);

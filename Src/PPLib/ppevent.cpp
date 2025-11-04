@@ -560,7 +560,7 @@ void PPEventCore::RecToPacket(const EventTbl::Rec & rRec, Packet & rPack) const
 int PPEventCore::Put(PPID * pID, const Packet * pPack, int use_ta)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	EventTbl::Rec rec;
 	SString temp_buf;
 	{
@@ -619,7 +619,7 @@ int PPEventCore::Get(PPID id, Packet * pPack)
 	int    ok = -1;
 	if(SearchByID(this, PPOBJ_EVENT, id, 0) > 0) {
 		if(pPack) {
-			Reference * p_ref = PPRef;
+			Reference * p_ref(PPRef);
 			RecToPacket(data, *pPack);
 			readLobData(this->VT, pPack->ExtData);
 			destroyLobData(this->VT);

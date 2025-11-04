@@ -317,7 +317,7 @@ int PPObjGoods::ViewGoodsRestByLocList(PPID goodsID)
 	Goods2Tbl::Rec goods_rec;
 	if(goodsID && Search(goodsID, &goods_rec) > 0) {
 		TSVector <GoodsRestByLocEntry> list;
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		GoodsRestParam gp;
 		gp.GoodsID = goodsID;
 		gp.DiffParam |= GoodsRestParam::_diffLoc;
@@ -3022,7 +3022,7 @@ IMPL_HANDLE_EVENT(GoodsAsscDialog)
 	PPListDialog::handleEvent(event);
 	if(event.isCmd(cmEditPLU)) {
 		if(SmartListBox::IsValidS(P_Box)) {
-			Reference * p_ref = PPRef;
+			Reference * p_ref(PPRef);
 			const uint pos = P_Box->P_Def->_curItem();
 			if(pos < AsscList.getCount()) {
 				LAssoc item = AsscList.at(pos);

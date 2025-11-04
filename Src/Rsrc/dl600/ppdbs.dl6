@@ -5417,9 +5417,10 @@ table TestTa01 {
 	string S[32];
 	clob   TextField; // @v11.9.8
 index:
-	Dt, Tm (unique mod);
-	Ref1ID, Dt, Tm (unique mod);
-	I64Val (dup mod);
+	Dt, Tm (unique mod);          // #0
+	Ref1ID, Dt, Tm (unique mod);  // #1
+	I64Val (dup mod);             // #2
+	GuidVal (dup mod);            // #3
 file:
 	"testta1.btr";
 	page=4096;

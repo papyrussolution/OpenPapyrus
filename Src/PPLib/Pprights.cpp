@@ -1625,7 +1625,7 @@ int FastEditRightsDlg::getDTS(SecurCollection * pData)
 int LoadGrpUsrRights(SecurCollection * pRights)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPObjSecur grp_obj(PPOBJ_USRGRP, 0);
 	PPObjSecur usr_obj(PPOBJ_USR, 0);
 	StrAssocArray * p_usr_list = 0;
@@ -1654,7 +1654,7 @@ int SaveGrpUsrRights(SecurCollection * pRights)
 {
 	int    ok = -1;
 	if(pRights) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		PPSecurPacket * p_pack = 0;
 		PPTransaction tra(1);
 		THROW(tra);

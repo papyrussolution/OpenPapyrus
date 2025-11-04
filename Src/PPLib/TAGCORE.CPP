@@ -354,7 +354,7 @@ int ObjTagItem::SetStr(PPID tagID, const char * pStrVal)
 	else if(TagDataType == OTTYP_NUMBER)
 		Val.RealVal = pStrVal ? satof(pStrVal) : 0.0;
 	else if(TagDataType == OTTYP_ENUM) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		PPID   _id = 0;
 		SString text(pStrVal);
 		if(text.NotEmptyS()) {

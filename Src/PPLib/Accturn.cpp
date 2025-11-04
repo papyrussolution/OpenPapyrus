@@ -1873,7 +1873,7 @@ int AccTurnCore::RevalCurRest(const CurRevalParam & rParam, const Acct * pAcc, c
 	double cur_rest;
 	double new_base_rest = 0.0;
 	{
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(ConvertAcct(pAcc, 0L, &base_acc_id, 0));

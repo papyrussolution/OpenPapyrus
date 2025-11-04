@@ -570,15 +570,7 @@ extern struct ODC OwnerDrawCtrls[32]; // @defined(TDIALOG.CPP)
 //
 // Browse columns options
 //
-//#define CALC_AVERAGE        1
-//#define CALC_SUMM           2
-//#define CALC_SIGMA          3
-//#define CALC_MIN            4
-//#define CALC_MAX            5
 #define BCO_EDIT         0x00000001
-//#define BCO_LEFT       0x00000002
-//#define BCO_RIGHT      0x00000004
-//#define BCO_CENTER     0x00000008
 #define BCO_CAPLEFT      0x00000010
 #define BCO_CAPRIGHT     0x00000020
 #define BCO_CAPCENTER    0x00000040
@@ -587,7 +579,6 @@ extern struct ODC OwnerDrawCtrls[32]; // @defined(TDIALOG.CPP)
 #define BCO_CAPVCENTER   0x00000200
 #define BCO_SORTABLE     0x00000400 // По содержимому колонки допускается сортировка таблицы
 #define BCO_USERPROC     0x00001000
-//#define BCO_SKIP       0x00002000
 #define BCO_DEFOPT       (BCO_CAPBOTTOM | BCO_CAPCENTER)
 #define BCO_DONTSHOWDUPL 0x00004000
 #define BCO_RESIZEABLE   0x00008000

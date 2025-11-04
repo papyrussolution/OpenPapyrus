@@ -442,7 +442,7 @@ struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 	int    ok = 1;
 	int    is_new = 0;
 	int    r;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	size_t sz = sizeof(Storage_PPPersonConfig);
 	Storage_PPPersonConfig * p_cfg = 0;
 	{
@@ -524,7 +524,7 @@ struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 	const  long prop_cfg_id = PPPRP_PERSONCFG;
 	int    ok = -1;
 	int    r;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	size_t sz = sizeof(Storage_PPPersonConfig) + 256;
 	Storage_PPPersonConfig * p_cfg = static_cast<Storage_PPPersonConfig *>(SAlloc::M(sz));
@@ -1952,7 +1952,7 @@ int PPObjPerson::Resolve(const ResolverParam & rP, PPIDArray & rCandidateIdList,
 {
 	rCandidateIdList.Z();
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	ResolvePersonList resolve_list;
 	PPIDArray temp_list;
 	PPIDArray temp_loc_list;
@@ -2149,7 +2149,7 @@ int PPObjPerson::GetActualTradeLic(PPID id, LDATE dt, RegisterTbl::Rec * rec)
 int PPObjPerson::AddToAddrBook(PPID personID, PPID userID, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPID   usr_id = (userID >= 0) ? userID : LConfig.UserID;
 	if(p_ref->Assc.Search(PPASS_ADDRESSBOOK, usr_id, personID) > 0)
 		ok = -1;
@@ -2176,7 +2176,7 @@ int PPObjPerson::AddToAddrBook(PPID personID, PPID userID, int use_ta)
 int PPObjPerson::RemoveFromAddrBook(PPID personID, PPID userID, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPID   usr_id = (userID >= 0) ? userID : LConfig.UserID;
 	ObjAssocTbl::Rec rec;
 	if(p_ref->Assc.Search(PPASS_ADDRESSBOOK, usr_id, personID, &rec) > 0) {
@@ -3007,7 +3007,7 @@ int PPObjPerson::GetPersonListByDlvrLoc(PPID dlvrLocID, PPIDArray & rList)
 {
 	rList.Z();
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	LongArray temp_list;
 	PropertyTbl::Key1 k1;
 	MEMSZERO(k1);
@@ -3046,7 +3046,7 @@ int PPObjPerson::GetDlvrLocList(PPID personID, PPIDArray * pList)
 int PPObjPerson::GetPacket(PPID id, PPPersonPacket * pPack, uint flags)
 {
 	int    ok = 1, r;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	uint   i;
 	PPIDArray dlvr_loc_list;
 	if(PPCheckGetObjPacketID(Obj, id)) {
@@ -3293,7 +3293,7 @@ int PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 	SString temp_buf;
 	PPID   hid = 0; // Версионный идентификатор для сохранения в системном журнале
 	SBuffer hist_buf;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	ObjVersioningCore * p_ovc = p_ref->P_OvT;
 	PPPersonPacket org_pack;
 	// @v11.3.10 PPObjSCard * p_sc_obj = 0;
@@ -6379,7 +6379,7 @@ int PPObjPerson::RemoveRelation(PPID prmrID, PPID scndID, PPID relTypeID)
 int PPObjPerson::SearchEmail(const char * pEmail, long flags, PPIDArray * pPsnList, PPIDArray * pLocList)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPIDArray result_psn_list;
 	PPIDArray result_loc_list;
 	SString email(pEmail);
@@ -6451,7 +6451,7 @@ int PPObjPerson::SearchEmail(const char * pEmail, long flags, PPIDArray * pPsnLi
 int PPObjPerson::IndexPhones(PPLogger * pLogger, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	SString phone;
 	SString main_city_prefix;
@@ -8400,7 +8400,7 @@ struct ClientActivityStatistics_StorageBlock {
 int PPObjPerson::StoreClientActivityStatistics(PPID personID, const ClientActivityStatistics & rTotalEntry, const TSVector <uint16> & rDateList, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SBuffer cbuf;
 	if(rTotalEntry.EventCount && rDateList.getCount()) {
 		SSerializeContext sctx;
@@ -8431,7 +8431,7 @@ int PPObjPerson::ReadClientActivityStatistics(PPID personID, ClientActivityStati
 {
 	int    ok = 1;
 	SBuffer cbuf;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	ClientActivityStatistics_StorageBlock sb(0, 0);
 	if(p_ref->GetPropSBuffer(PPOBJ_PERSON, personID, PSNPRP_ACTIVITYSTAT, cbuf) > 0) {
 		SSerializeContext sctx;

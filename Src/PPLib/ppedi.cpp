@@ -1113,17 +1113,18 @@ PPEdiProcessor::ProviderImplementation::~ProviderImplementation()
 
 const SString & FASTCALL PPEdiProcessor::ProviderImplementation::EncXmlText(const char * pS)
 {
-	EncBuf = pS;
-	EncBuf.ReplaceChar('\x07', ' ');
-	XMLReplaceSpecSymb(EncBuf, "&<>\'");
-	return EncBuf.Transf(CTRANSF_INNER_TO_UTF8);
+	return SXml::Helper_EncXmlText(pS, CTRANSF_INNER_TO_UTF8, EncBuf); // @v12.4.7
+	//(EncBuf = pS).ReplaceChar('\x07', ' ');
+	//XMLReplaceSpecSymb(EncBuf, "&<>\'");
+	//return EncBuf.Transf(CTRANSF_INNER_TO_UTF8);
 }
 
 const SString & FASTCALL PPEdiProcessor::ProviderImplementation::EncXmlText(const SString & rS)
 {
-	(EncBuf = rS).ReplaceChar('\x07', ' ');
-	XMLReplaceSpecSymb(EncBuf, "&<>\'");
-	return EncBuf.Transf(CTRANSF_INNER_TO_UTF8);
+	return SXml::Helper_EncXmlText(rS, CTRANSF_INNER_TO_UTF8, EncBuf); // @v12.4.7
+	//(EncBuf = rS).ReplaceChar('\x07', ' ');
+	//XMLReplaceSpecSymb(EncBuf, "&<>\'");
+	//return EncBuf.Transf(CTRANSF_INNER_TO_UTF8);
 }
 
 int16 FASTCALL PPEdiProcessor::ProviderImplementation::StringToRByBill(const SString & rS) const
@@ -3834,7 +3835,7 @@ int EdiProviderImplementation_SBIS::Write_ORDERRSP(xmlTextWriter * pX, const S_G
 int EdiProviderImplementation_SBIS::ProcessDocument(DocNalogRu_Reader::DocumentInfo * pNrDoc, TSCollection <PPEdiProcessor::Packet> & rList)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	bool   debug_mark = false; // @v12.0.2 @debug 
 	PPEdiProcessor::Packet * p_pack = 0;
 	SString temp_buf;
@@ -4583,13 +4584,11 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_DESADV(xmlTextWriter * pX,
 		}
 		{
 			SXml::WNode n_i(_doc, "deliveryInfo");
-			// @v10.0.10 {
 			if(checkdate(order_bill_rec.DueDate, 0)) {
 				LDATETIME temp_dtm;
 				temp_dtm.Set(order_bill_rec.DueDate, ZEROTIME);
 				n_i.PutInner("estimatedDeliveryDateTime", temp_buf.Z().Cat(temp_dtm, DATF_ISO8601CENT, TIMF_HMS));
 			}
-			// } @v10.0.10
 			THROW(WriteOwnFormatContractor(_doc, "shipFrom", 0, rBp.Rec.LocID));
 			if(rBp.GetDlvrAddrID()) {
 				THROW(WriteOwnFormatContractor(_doc, "shipTo", 0, rBp.GetDlvrAddrID()));
@@ -5336,7 +5335,7 @@ int PPEdiProcessor::GetDocumentList(const PPBillIterchangeFilt & rP, DocumentInf
 int PPEdiProcessor::SendOrders(const PPBillIterchangeFilt & rP, const PPIDArray & rArList)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	BillTbl::Rec bill_rec;
 	PPIDArray temp_bill_list;
@@ -5431,7 +5430,7 @@ int PPEdiProcessor::CheckBillStatusForRecadvSending(const BillTbl::Rec & rBillRe
 int PPEdiProcessor::SendRECADV(const PPBillIterchangeFilt & rP, const PPIDArray & rArList)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	SString edi_ack;
 	BillTbl::Rec bill_rec;
@@ -5571,7 +5570,7 @@ int PPEdiProcessor::SendRECADV(const PPBillIterchangeFilt & rP, const PPIDArray 
 int PPEdiProcessor::SendOrderRsp(const PPBillIterchangeFilt & rP, const PPIDArray & rArList)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	BillTbl::Rec bill_rec;
 	PPIDArray temp_bill_list;
 	PPIDArray op_list;
@@ -5636,7 +5635,7 @@ int PPEdiProcessor::SendOrderRsp(const PPBillIterchangeFilt & rP, const PPIDArra
 int PPEdiProcessor::SendDESADV(int ediOp, const PPBillIterchangeFilt & rP, const PPIDArray & rArList)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	BillTbl::Rec bill_rec;
 	SString temp_buf;
 	PPIDArray temp_bill_list;
@@ -7172,7 +7171,7 @@ int PPEdiProcessor::ProviderImplementation::SearchLinkedBill(const char * pCode,
 	int    ok = -1;
 	char   scode[64];
 	BillCore * p_bt = P_BObj->P_Tbl;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	DBQ  * dbq = 0;
 	union {
 		BillTbl::Key1 k1;

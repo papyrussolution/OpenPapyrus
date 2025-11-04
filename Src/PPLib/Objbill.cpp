@@ -3677,7 +3677,7 @@ struct __PPBillConfig {    // @persistent @store(PropertyTbl)
 /*static*/int FASTCALL PPObjBill::ReadConfig(PPBillConfig * pCfg)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	pCfg->Z();
 	size_t sz = 0;
 	const  size_t fix_size = sizeof(__PPBillConfig);
@@ -5659,7 +5659,7 @@ private:
 		virtual int FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 		{
 			int    ok = -1;
-			PPObjBill * p_bobj = BillObj;
+			PPObjBill * p_bobj(BillObj);
 			if(p_bobj) {
 				Data * p_cache_rec = static_cast<Data *>(pEntry);
 				PPBillExt ext_rec;
@@ -5713,7 +5713,7 @@ private:
 		virtual int FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 		{
 			int    ok = -1;
-			PPObjBill * p_bobj = BillObj;
+			PPObjBill * p_bobj(BillObj);
 			if(p_bobj) {
 				Data * p_cache_rec = static_cast<Data *>(pEntry);
 				PPFreight freight;
@@ -5818,7 +5818,7 @@ void FASTCALL BillCache::Dirty(PPID id)
 int BillCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	if(p_bobj) {
 		Data * p_cache_rec = static_cast<Data *>(pEntry);
 		BillTbl::Rec rec;
@@ -6036,7 +6036,7 @@ const StrAssocArray * BillCache::GetFullSerialList()
 	const  StrAssocArray * p_result = 0;
 	if(FullSerialList.Use) {
 		if(!FullSerialList.Inited || FullSerialList.DirtyTable.GetCount()) {
-			Reference * p_ref = PPRef;
+			Reference * p_ref(PPRef);
 			//FslLock.WriteLock();
 			SRWLOCKER(FslLock, SReadWriteLocker::Write);
 			if(!FullSerialList.Inited || FullSerialList.DirtyTable.GetCount()) {
@@ -6721,7 +6721,7 @@ int PPObjBill::GetTagListByLot(PPID lotID, int skipReserveTags, ObjTagList * pLi
 int PPObjBill::GetClbNumberByLot(PPID lotID, bool * pIsParentLot, SString & rBuf)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	bool   is_parent_lot = false;
 	rBuf.Z();
 	if(lotID) {
@@ -7192,7 +7192,7 @@ static void PreprocessLTagListBeforeStoreInProps(PPBillPacket * pPack, int16 rbb
 int PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPObjTag * p_tag_obj = 0;
 	const  bool is_intrexpnd = IsIntrExpndOp(pPack->Rec.OpID);
 	// @v11.1.12 const  int do_force_unmirr = BIN(strstr(pPack->Rec.Memo, "#MIRROR-REFAB"));
@@ -8448,7 +8448,7 @@ int PPObjBill::RemoveTransferItem(PPID billID, int rByBill, int force)
 {
 	int    ok = 1;
 	if(trfr->SearchByBill(billID, 0, rByBill, 0) > 0) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		ReceiptTbl::Rec lot_rec;
 		PPID   lot_id   = trfr->data.LotID;
 		long   ti_flags = trfr->data.Flags;
@@ -8501,7 +8501,7 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 	uint   i;
 	uint   pos;
 	const  PPRights & r_rt = ObjRts;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	ObjVersioningCore * p_ovc = p_ref->P_OvT;
 	const  PPID  id = pPack->Rec.ID;
 	TBlock tb_;
@@ -8972,7 +8972,7 @@ int PPObjBill::RemovePacket(PPID id, int use_ta)
 	InventoryCore * p_inv_tbl = 0;
 	THROW(P_Tbl->Search(id, &brec) > 0);
 	{
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		const  PPRights & r_rt = ObjRts;
 		ObjVersioningCore * p_ovc = p_ref->P_OvT;
 		SBuffer hist_buf;
@@ -10728,7 +10728,7 @@ int PPObjBill::ConvertUuid7601()
 	PPObjectTag tag_rec;
 	THROW_PP(tag_obj.Fetch(PPTAG_BILL_UUID, &tag_rec) > 0, PPERR_BILLTAGUUIDABS);
 	{
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		PropertyTbl::Key1 pk1;
 		PPTransaction tra(1);
 		THROW(tra);

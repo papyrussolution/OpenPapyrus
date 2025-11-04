@@ -423,7 +423,8 @@ int PPJobSrvClient::ExecSrvCmd(PPJobSrvCmd & rCmd, const char * pTerminal, PPJob
 	int    ok = 1;
 	int    do_log_error = 0;
 	const  int preserve_so_timeout = So.GetTimeout();
-	SString log_buf, temp_buf;
+	SString temp_buf;
+	SString log_buf;
 	ExecLock.Lock();
 	State |= stLockExec;
 	rReply.Z();

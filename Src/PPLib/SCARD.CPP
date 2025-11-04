@@ -146,7 +146,7 @@ int SCardCore::GetListByText(int textFldId, const char * pKey, PPIDArray * pList
 {
 	int    ok = -1;
 	if(!isempty(pKey) && oneof3(textFldId, PPSCardPacket::extssMemo, PPSCardPacket::extssPhone, PPSCardPacket::extssOuterId)) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		if(p_ref) {
 			SString temp_buf;
 			PPExtStrContainer exsc;

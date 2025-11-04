@@ -89,7 +89,7 @@ SJson * PPStyloQInterchange::ProcessCommand_GetGoodsInfo(const SBinaryChunk & rO
 	SJson * p_js_result = 0;//SJson::CreateObj();
 	PPBaseFilt * p_base_filt = 0;
 	if(goodsID || !isempty(pGoodsCode)) {
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		bool   goods_pack_inited = false;
 		PPGoodsPacket goods_pack;
 		PPObjGoods goods_obj;
@@ -609,8 +609,8 @@ SJson * PPStyloQInterchange::ProcessCommand_RequestDocumentStatusList(const SBin
 		{
 			assert(db_symb.NotEmpty());
 			// Декларация объектов должна располагаться после проверки авторизации в базе данных (see above)
-			Reference * p_ref = PPRef;
-			PPObjBill * p_bobj = BillObj;
+			Reference * p_ref(PPRef);
+			PPObjBill * p_bobj(BillObj);
 			PPObjTSession tses_obj;
 			PPIDArray shipments; // Документы отгрузки по заказу
 			BillTbl::Rec shipm_bill_rec;
@@ -1131,7 +1131,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 					}
 				}
 				{
-					PPObjBill * p_bobj = BillObj;
+					PPObjBill * p_bobj(BillObj);
 					PPObjPerson psn_obj;
 					PPObjArticle ar_obj;
 					PPBillPacket bpack_; // Пакет нового документа
@@ -1765,7 +1765,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 	int    ok = 1;
 	const LDATETIME now_dtm = getcurdatetime_();
 	const bool hide_stock = LOGIC(rParam.Flags & StyloQDocumentPrereqParam::fHideStock); // @v11.6.4
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	SString temp_buf;
 	MakeInnerGoodsEntryBlock mige_blk;
 	PPObjQuotKind qk_obj;
@@ -2483,7 +2483,7 @@ int PPStyloQInterchange::ProcessCommand_IncomingListCCheck(const StyloQCommandLi
 		THROW(cn_obj.GetSync(posnode_id, &cn_sync_pack) > 0);
 		{
 			SJson js(SJson::tOBJECT);
-			PPObjBill * p_bobj = BillObj;
+			PPObjBill * p_bobj(BillObj);
 			MakeInnerGoodsEntryBlock mige_blk;
 			Goods2Tbl::Rec goods_rec;
 			CPosProcessor cpp(cn_sync_pack.ID, 0, 0, CPosProcessor::ctrfForceInitGroupList, /*pDummy*/0);
@@ -2626,7 +2626,7 @@ int PPStyloQInterchange::ProcessCommand_RequestNotificationList(const StyloQComm
 	int    ok = -1;
 	SString temp_buf;
 	if(pJsArray) {
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		switch(rCmdItem.BaseCmdId) {
 			case StyloQCommandList::sqbcIncomingListOrder:
 				{
@@ -2835,10 +2835,7 @@ int PPStyloQInterchange::ProcessCommand_IncomingListOrder(const StyloQCommandLis
 	THROW(GetOwnIdent(bc_own_ident, 0));
 	THROW(rCmdItem.GetSpecialParam<StyloQIncomingListParam>(param));
 	{
-		PPObjBill * p_bobj = BillObj;
-		//PPID   op_id = 0;
-		//PPID   loc_id = 0;
-		//int    lookback_days = 365; // @debug value 365
+		PPObjBill * p_bobj(BillObj);
 		SString temp_buf;
 		PPOprKind op_rec;
 		PPID   local_person_id = 0;
@@ -2867,34 +2864,37 @@ int PPStyloQInterchange::ProcessCommand_IncomingListOrder(const StyloQCommandLis
 			SVector temp_entry_list(sizeof(ListEntry));
 			PPIDArray goods_id_list;
 			PPIDArray cli_id_list; // Список идентификаторов аналитический статей клиентов
-			BillFilt bill_filt;
-			PPViewBill bill_view;
-			BillViewItem bill_item;
-			if(CConfig.Flags & CCFLG_DEBUG && !param.Period.IsZero()) {
-				bill_filt.Period = param.Period;
-			}
-			else if(param.LookbackDays > 0) {
-				bill_filt.Period.low = plusdate(now_dtm.d, -param.LookbackDays);
-				bill_filt.Period.upp = ZERODATE;
-			}
-			else {
-				bill_filt.Period.low = now_dtm.d;
-				bill_filt.Period.upp = ZERODATE;
-			}
-			bill_filt.OpID = param.P_BF->OpID;
-			bill_filt.LocList = param.P_BF->LocList;
-			if(op_rec.OpTypeID == PPOPT_GOODSORDER) {
-				bill_filt.Flags |= (BillFilt::fOrderOnly|BillFilt::fUnshippedOnly);
-				bill_filt.Bbt = bbtOrderBills;
-			}
-			else if(op_rec.OpTypeID == PPOPT_INVENTORY) {
-				bill_filt.Flags |= (BillFilt::fInvOnly);
-				bill_filt.Bbt = bbtInventoryBills;
-			}
-			THROW(bill_view.Init_(&bill_filt));
-			for(bill_view.InitIteration(PPViewBill::OrdByDefault); bill_view.NextIteration(&bill_item) > 0;) {
-				ListEntry new_entry(bill_item);
-				temp_entry_list.insert(&new_entry);
+			{
+				BillFilt bill_filt;
+				PPViewBill bill_view;
+				BillViewItem bill_item;
+				if(CConfig.Flags & CCFLG_DEBUG && !param.Period.IsZero()) {
+					bill_filt.Period = param.Period;
+				}
+				else if(param.LookbackDays > 0) {
+					bill_filt.Period.low = plusdate(now_dtm.d, -param.LookbackDays);
+					bill_filt.Period.upp = ZERODATE;
+				}
+				else {
+					bill_filt.Period.low = now_dtm.d;
+					bill_filt.Period.upp = ZERODATE;
+				}
+				bill_filt.OpID = param.P_BF->OpID;
+				bill_filt.LocList = param.P_BF->LocList;
+				if(op_rec.OpTypeID == PPOPT_GOODSORDER) {
+					bill_filt.Flags |= (BillFilt::fOrderOnly|BillFilt::fUnshippedOnly);
+					bill_filt.Bbt = bbtOrderBills;
+				}
+				else if(op_rec.OpTypeID == PPOPT_INVENTORY) {
+					bill_filt.Flags |= (BillFilt::fInvOnly);
+					bill_filt.Bbt = bbtInventoryBills;
+				}
+				bill_filt.Flags |= BillFilt::fNoTempTable; // @v12.4.7
+				THROW(bill_view.Init_(&bill_filt));
+				for(bill_view.InitIteration(PPViewBill::OrdByDefault); bill_view.NextIteration(&bill_item) > 0;) {
+					ListEntry new_entry(bill_item);
+					temp_entry_list.insert(&new_entry);
+				}
 			}
 			if(temp_entry_list.getCount()) {
 				// @v11.6.2 {
@@ -3094,7 +3094,7 @@ int PPStyloQInterchange::ProcessCommand_DebtList(const StyloQCommandList::Item &
 	const  bool use_omt_paym_amt = LOGIC(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT);
 	PPID   ar_id = 0;
 	SString temp_buf;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	PPObjArticle ar_obj;
 	ArticleTbl::Rec ar_rec;
 	SBinaryChunk bc_own_ident;

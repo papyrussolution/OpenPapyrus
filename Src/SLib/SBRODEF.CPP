@@ -57,8 +57,9 @@ uint BroGroup::NextColumn() const { return (First+Count); }
 //
 //
 //
-BrowserDef::BrowserDef(int captionHight, uint aOptions, void * extraPtr /*=0*/) : SArray(sizeof(BroColumn), aryDataOwner|aryEachItem),
-	capHight(captionHight), options(aOptions), NumGroups(0), P_Groups(0), viewHight(1), topItem(0), curItem(0), scrollDelta(0), P_CtList(0),
+BrowserDef::BrowserDef(uint signature, int captionHight, uint aOptions, void * extraPtr /*=0*/) : Signature(signature), 
+	SArray(sizeof(BroColumn), aryDataOwner|aryEachItem), capHight(captionHight), options(aOptions), NumGroups(0), 
+	P_Groups(0), viewHight(1), topItem(0), curItem(0), scrollDelta(0), P_CtList(0),
 	ExtraPtr(extraPtr), UserProc(0), isBOQ(false), isEOQ(false)
 {
 }
@@ -99,7 +100,7 @@ int BrowserDef::addColumn(const BroColumn * pCol, int pos)
 		else
 			SETSFMTFLAG(f, SFMTFLAG(f) | ALIGN_LEFT);
 	}
-	col.width = SFMTLEN(f);
+	col.CWidth = SFMTLEN(f);
 	col.format = f;
 	if(atInsert(pos, &col))
 		initOffset(pos);
@@ -255,9 +256,11 @@ const BroGroup * BrowserDef::groupOf(uint column, uint * pGrpPos) const
 
 uint BrowserDef::groupWidth(const BroGroup * pGroup, uint atColumn) const
 {
-	int    _n = 0, wd = 0;
-	for(uint i = atColumn, c = pGroup->NextColumn(); i < c; i++) {
-		wd += at(i).width;
+	int    _n = 0;
+	int    wd = 0;
+	const  uint c = pGroup->NextColumn();
+	for(uint i = atColumn; i < c; i++) {
+		wd += at(i).CWidth;
 		_n++;
 	}
 	wd += (_n - 1) * 3;
@@ -535,7 +538,7 @@ int BrowserDef::search(const void * pPattern, CompFunc /*cfn*/, int srchMode, in
 //
 //
 AryBrowserDef::AryBrowserDef(SArray * pAry, const BNFieldList2 * pFl, int captionHight, uint aOptions, void * extraPtr /*=0*/) :
-	BrowserDef(captionHight, aOptions, extraPtr), P_Array(0), P_Fields(0)
+	BrowserDef(BrowserDefSignature_ARY, captionHight, aOptions, extraPtr), P_Array(0), P_Fields(0)
 {
 	setArray(pAry, pFl, 1);
 }

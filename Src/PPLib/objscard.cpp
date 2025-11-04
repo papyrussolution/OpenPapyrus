@@ -80,7 +80,7 @@ PPSCardPacket & PPSCardPacket::Z()
 {
 	int    ok = 1;
 	int    r;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPSCardConfig ex_cfg;
 	THROW(CheckCfgRights(PPCFGOBJ_SCARD, PPR_MOD, 0));
 	{
@@ -1030,7 +1030,7 @@ int PPObjSCardSeries::Search(PPID id, void * b)
 int PPObjSCardSeries::GetPacket(PPID id, PPSCardSerPacket * pPack)
 {
 	int    ok = -1, r = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PropPPIDArray * p_rec = 0;
 	Storage_SCardRule * p_strg = 0;
 	PPSCardSerPacket pack;
@@ -1113,7 +1113,7 @@ int PPObjSCardSeries::GetPacket(PPID id, PPSCardSerPacket * pPack)
 int PPObjSCardSeries::PutPacket(PPID * pID, PPSCardSerPacket * pPack, int use_ta)
 {
 	int    ok = -1, eq = 0;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	int    rec_updated = 0;
 	PPID   acn_id = 0;
 	Storage_SCardRule * p_strg = 0;
@@ -2319,8 +2319,8 @@ int PPObjSCard::FinishSCardUpdNotifyList(const TSVector <SCardCore::UpdateRestNo
 			PPAlbatrossConfig  albtr_cfg;
 			SmsClient sms_cli(0);
 			if(PPAlbatrosCfgMngr::Get(&albtr_cfg) && sms_cli.SmsInit_(albtr_cfg.Hdr.SmsAccID, "UHTT") > 0) {
-				Reference * p_ref = PPRef;
-				PPObjBill * p_bobj = BillObj;
+				Reference * p_ref(PPRef);
+				PPObjBill * p_bobj(BillObj);
 				GtaJournalCore * p_gtaj = DS.GetGtaJ();
 				SString phone_buf;
 				SString status_buf;
@@ -2802,7 +2802,7 @@ int PPObjSCard::CreateTurnoverList(const DateRange * pPeriod, RAssocArray * pLis
 int PPObjSCard::GetTurnover(const SCardTbl::Rec & rRec, int alg, const DateRange & rPeriod, PPID restrGoodsGrpID, double * pDebit, double * pCredit)
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	double dbt = 0.0, crd = 0.0;
 	double bill_dbt = 0.0, bill_crd = 0.0;
 	DateRange period;
@@ -3859,7 +3859,7 @@ int PPObjSCard::GetPacket(PPID id, PPSCardPacket * pPack)
 int PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 {
 	int    ok = 1, r;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	ObjVersioningCore * p_ovc = p_ref->P_OvT;
 	LocationCore * p_loc_core = LocObj.P_Tbl;
 	PPID   hid = 0; // Версионный идентификатор для сохранения в системном журнале

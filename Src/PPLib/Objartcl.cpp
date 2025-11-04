@@ -395,7 +395,7 @@ int ArticleAutoAddDialog::makeQuery()
 	else
 		CALLEXCEPT_PP(PPERR_INVACCSHEETASSOC);
 	THROW_MEM(P_Query);
-	THROW_PP(!P_Query->error, PPERR_DBQUERY);
+	THROW_PP(!P_Query->Error_, PPERR_DBQUERY);
 	THROW_MEM(P_Buf = new char[sizeof(PPID) + 128]);
 	CATCH
 		ok = 0;
@@ -437,7 +437,7 @@ int ArticleAutoAddDialog::fetch(int sp)
 		while((r = extractFromQuery()) < 0 && P_Query->fetch(1, P_Buf, spNext))
 			;
 	}
-	if(P_Query->error)
+	if(P_Query->Error_)
 		r = PPSetError(PPERR_DBQUERY);
 	if(r <= 0 && sp == spNext)
 		endModal(r ? cmOK : cmError);
@@ -912,7 +912,7 @@ int PPObjArticle::EditGrpArticle(PPID * pID, PPID sheetID)
 		ListToListData  Data;
 	};
 	int    ok = -1, valid = 0;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	uint   i;
 	GrpArticleDialog * dlg = 0;
 	ArticleTbl::Rec    ar_rec;
@@ -1662,7 +1662,7 @@ int PPObjArticle::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 					break;
 				case PPOBJ_DEBTDIM:
 					{
-						Reference * p_ref = PPRef;
+						Reference * p_ref(PPRef);
 						PropertyTbl::Key1 k1;
 						{
 							const  PPID prop_id = ARTPRP_DEBTLIMLIST2;
@@ -2694,7 +2694,7 @@ int CorrectZeroDebtDimRefs()
 {
 	int    ok = -1;
 	{
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		PPObjDebtDim dd_obj;
 		PPDebtDim dd_rec;
 		PropertyTbl::Key1 k1;

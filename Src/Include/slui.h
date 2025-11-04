@@ -5479,7 +5479,7 @@ struct BroColumn {
 	long   format;         // Output format
 	uint   Options;        //
 	char * text;           // Column's title
-	uint   width;          // Width of display field (Internal use)
+	uint   CWidth;         // Width of display field (Internal use) // @v12.4.7 width-->CWidth
 	uint   x;              // Internal use
 	uint   index;          // Internal use
 	uint   OrgOffs;        // Смещение поля, заданное при создании столбца
@@ -5506,7 +5506,6 @@ struct BroCrosstab {
 
 class BrowserDef : public SArray {
 public:
-	BrowserDef(int captionHight, uint aOptions, void * extraPtr = 0);
 	~BrowserDef();
 	//
 	// Descr: Функция должна добавить новую колонку в список.
@@ -5533,6 +5532,7 @@ public:
 	virtual int    search(const void * pPattern, CompFunc, int srchMode, int srchCol);
 	virtual int    search2(const void * pSrchData, CompFunc, int srchMode, size_t offs);
 	BroColumn & FASTCALL at(uint) const;
+	bool   IsSignature(uint signature) const { return Signature == signature; }
 	void   initOffset(int);
 	int    addColumn(const BroColumn *, int = UNDEF);
 	int    removeColumn(int);
@@ -5577,6 +5577,9 @@ public:
 	//
 	int    FindColumnByOrgOffs(uint orgOffs) const;
 protected:
+	BrowserDef(uint signature, int captionHight, uint aOptions, void * extraPtr = 0);
+
+	const  uint Signature;
 	SBrowserDataProc UserProc;
 	void * ExtraPtr;
 	int    capHight;
@@ -5598,6 +5601,9 @@ private:
 public:
 	uint   options;
 };
+
+constexpr uint BrowserDefSignature_ARY = 0x3E9226A9;
+constexpr uint BrowserDefSignature_DBQ = 0xDC1A1C9F;
 
 class AryBrowserDef : public BrowserDef {
 public:
@@ -5657,11 +5663,6 @@ protected:
 #define BRWCLASS_CEXTRA    0 // Дополнительные данные класса "BROWSE"
 #define BRWCLASS_WEXTRA    8 // Дополнительные данные окна класса "BROWSE"
 #define BRWL_USERDATA      4 // Смещение в BrowseWindow для данных пользователя //
-
-struct BrowserRectCursors {
-	RECT   CellCursor;
-	RECT   LineCursor;
-};
 
 struct BrowserPens {
 	BrowserPens();
@@ -5809,8 +5810,8 @@ public:
 	void   SetupColumnsWith();
 	int    SetColumnTitle(int conNo, const char * pText);
 	void   SetFreeze(uint);
-	LPRECT ItemRect(int hPos, int vPos, LPRECT, BOOL isFocus) const;
-	LPRECT LineRect(int vPos, LPRECT, BOOL isFocus);
+	RECT * ItemRect(int hPos, int vPos, RECT * pRect, bool isFocus) const;
+	RECT * LineRect(int vPos, RECT * pRect, bool isFocus);
 	int    GetColumnByX(int x) const;
 	int    ItemByPoint(SPoint2S point, long * pHorzPos, long * pVertPos) const;
 	enum {
@@ -5890,9 +5891,23 @@ protected:
 	void   WMHScroll(int sbType, int sbEvent, int thumbPos);
 	int    WMHScrollMult(int sbEvent, int thumbPos, long * pOldTop);
 	int    LoadResource(uint rezID, void * pData, int dataKind, uint uOptions/*= 0*/);
+	int    EvaluateColumnSizes(bool recalcDataStat); // @v12.4.7
 
 	uint   RezID;
 private:
+	//
+	// Descr: Структура, описывающая статистические параметры ширины столбца в пикселях.
+	//   Необходима для динамического вычисления ширин столцов.
+	//
+	struct ColumnWidthStat { // @v12.4.7 @flat
+		ColumnWidthStat() : OrgId(0), Max(0.0f), Avg(0.0f), StdDev(0.0f)
+		{
+		}
+		uint   OrgId;
+		float  Max;
+		float  Avg;
+		float  StdDev;
+	};
 	virtual void Insert_(TView *p);
 	virtual TBaseBrowserWindow::IdentBlock & GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk);
 	void   __Init();
@@ -5911,10 +5926,11 @@ private:
 	bool   DrawTextUnderCursor(HDC hdc, char * pBuf, RECT * pTextRect, uint fmt, int isLineCursor);
 	void   AdjustCursorsForHdr();
 	int    CalcRowsHeight(long topItem, long bottom = 0);
-	void   DrawMultiLinesText(HDC hdc, char * pBuf, RECT * pTextRect, uint fmt);
+	void   DrawMultiLinesText(HDC hdc, const char * pBuf, RECT * pTextRect, uint fmt);
 	int    FASTCALL CellRight(const BroColumn & rC) const;
 	int    FASTCALL GetRowHeightMult(long row) const;
 	int    FASTCALL GetRowTop(long row) const;
+	int    EvaluateColumnSizeStat(TSVector <ColumnWidthStat> & rStat); // @v12.4.7
 
 	long   InitPos;
 	TView * P_Header;
@@ -5929,6 +5945,10 @@ private:
 	HFONT   DefFont;
 	HCURSOR MainCursor;
 	HCURSOR ResizeCursor;
+	struct BrowserRectCursors {
+		RECT   CellCursor;
+		RECT   LineCursor;
+	};
 	BrowserRectCursors RectCursors;
 	int    ResizedCol;
 	SPoint2S CliSz;   // Размер клиентской области окна
@@ -5954,6 +5974,7 @@ private:
 	LongArray SelectedColumns;  // Выбранные столбцы, для копирования в буфер обмена
 	LongArray SettledOrder;     // Индексы столбцов, по которым задана сортировка.
 		// Если индекс <0, то сортировка в обратном направлении (какое направление прямое а какое обратное определяет конкретный класс-наследник).
+	TSVector <ColumnWidthStat> CwsL;
 };
 //
 //

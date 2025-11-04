@@ -1042,7 +1042,7 @@ int WsCtlSrvBlock::SearchPrcByWsCtlUuid(const S_GUID & rWsCtlUuid, PPID * pPrcID
 	ASSIGN_PTR(pPrcID, 0);
 	CALLPTRMEMB(pPrcNameUtf8, Z());
 	if(!!rWsCtlUuid) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		ProcessorTbl::Rec prc_rec;
 		PPIDArray prc_list;
 		SString dup_prc_id_list;
@@ -1288,7 +1288,7 @@ int WsCtlSrvBlock::StartSess(StartSessBlock & rBlk)
 int WsCtlSrvBlock::RegisterComputer(ComputerRegistrationBlock & rBlk)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	PPObjComputerCategory compcat_obj;
 	PPComputerCategory compcat_rec;
@@ -1683,7 +1683,7 @@ int WsCtlSrvBlock::SendClientPolicy(const S_GUID & rComputerUuid, SString & rRes
 {
 	rResult.Z();
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SJson * p_js = 0;
 	SString temp_buf;
 	SString path;

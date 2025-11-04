@@ -63,7 +63,7 @@ static SString & MakeOrderAutocreationTag(const _OrdArEntry & rEntry, LDATE dt, 
 		r = view.EditBaseFilt(p_filt);
 	PPWaitStart();
 	if(r > 0) {
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		if(p_filt->SupplID)
 			list.add(p_filt->SupplID);
 		else {
@@ -225,7 +225,7 @@ int PrcssrBillAutoCreate::CreateDraftByTrfrAnlz()
 				if(speciality == 1) {
 					//if(P.P_TaF->SupplID) {
 					if(!P.P_TaF->Grp && !P.P_TaF->Sgg && !P.P_TaF->Sgd && !P.P_TaF->Sgp) {
-						PPObjBill * p_bobj = BillObj;
+						PPObjBill * p_bobj(BillObj);
 						PPObjGoods goods_obj;
 						const   PPID loc_id = LConfig.Location;
 						LDATE   last_rep_date = ZERODATE; // Дата самой поздней операции в отчете

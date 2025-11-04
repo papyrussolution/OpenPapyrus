@@ -181,11 +181,11 @@ int PPViewBrowser::Helper_Export_Excel_OXLSX(SString & rResultFileName)
 					// Выводим название столбцов
 					//
 					for(uint i = 0; i < cn_count; i++) {
-						const BroColumn & r_c = p_def->at(i);
-						const long type = GETSTYPE(r_c.T);
+						const BroColumn & r_column = p_def->at(i);
+						const long type = GETSTYPE(r_column.T);
 						const uint16 column_idx = i+1;
 						SETMAX(hdr_col_range.upp, column_idx);
-						(temp_buf = r_c.text).Transf(CTRANSF_INNER_TO_UTF8);
+						(temp_buf = r_column.text).Transf(CTRANSF_INNER_TO_UTF8);
 						width_ary.add((PPID)temp_buf.Len());
 						/*
 						fmt.Z();
@@ -248,55 +248,57 @@ int PPViewBrowser::Helper_Export_Excel_OXLSX(SString & rResultFileName)
 					do {
 						PROFILE_START
 						for(long cn = 0; cn < static_cast<long>(cn_count); cn++) {
-							const BroColumn & r_bc = p_def->at(cn);
+							const BroColumn & r_column = p_def->at(cn);
 							TYPEID typ = 0;
 							if(p_def->GetCellData(p_def->_curItem(), cn, &typ, cell_data, sizeof(cell_data))) {
-								if(GETSTYPE(typ) == S_FLOAT) {
+								const int  _st = GETSTYPE(typ);
+								const uint _ss = GETSSIZE(typ);
+								if(_st == S_FLOAT) {
 									double v = 0.0;
-									if(GETSSIZE(typ) == 8) {
+									if(_ss == 8) {
 										v = *reinterpret_cast<const double *>(cell_data);
 									}
-									else if(GETSSIZE(typ) == 4) {
+									else if(_ss == 4) {
 										v = *reinterpret_cast<const float *>(cell_data);
 									}
 									wks.cell(row + beg_row, static_cast<uint16>(cn+1)).value() = v;
 								}
-								else if(GETSTYPE(typ) == S_INT) {
+								else if(_st == S_INT) {
 									int64 v = 0;
-									if(GETSSIZE(typ) == 8) {
+									if(_ss == 8) {
 										v = *reinterpret_cast<const int64 *>(cell_data);
 									}
-									else if(GETSSIZE(typ) == 4) {
+									else if(_ss == 4) {
 										v = *reinterpret_cast<const int32 *>(cell_data);
 									}
-									else if(GETSSIZE(typ) == 2) {
+									else if(_ss == 2) {
 										v = *reinterpret_cast<const int16 *>(cell_data);
 									}
-									else if(GETSSIZE(typ) == 1) {
+									else if(_ss == 1) {
 										v = *reinterpret_cast<const int8 *>(cell_data);
 									}
 									wks.cell(row + beg_row, static_cast<uint16>(cn+1)).value() = v;
 								}
-								else if(GETSTYPE(typ) == S_INT64) {
+								else if(_st == S_INT64) {
 									int64 v = 0;
 									v = *reinterpret_cast<const int64 *>(cell_data);
 									wks.cell(row + beg_row, static_cast<uint16>(cn+1)).value() = v;
 								}
-								else if(GETSTYPE(typ) == S_DATE) {
+								else if(_st == S_DATE) {
 									LDATE v = ZERODATE;
 									v = *reinterpret_cast<const LDATE *>(cell_data);
 									if(checkdate(v)) {
 										wks.cell(row + beg_row, static_cast<uint16>(cn+1)).value() = XLDateTime(v.GetOleDate());
 									}
 								}
-								else if(GETSTYPE(typ) == S_TIME) {
+								else if(_st == S_TIME) {
 									LTIME v = ZEROTIME;
 									v = *reinterpret_cast<const LTIME *>(cell_data);
 									if(checktime(v)) {
 										wks.cell(row + beg_row, static_cast<uint16>(cn+1)).value() = XLDateTime(v.GetOleDate());
 									}
 								}
-								else if(GETSTYPE(typ) == S_DATETIME) {
+								else if(_st == S_DATETIME) {
 									LDATETIME v;
 									v = *reinterpret_cast<const LDATETIME *>(cell_data);
 									if(checkdate(v.d)) {
@@ -307,9 +309,9 @@ int PPViewBrowser::Helper_Export_Excel_OXLSX(SString & rResultFileName)
 									//p_def->getFullText(p_def->_curItem(), cn, val_buf);
 									char   dest_text[1024];
 									dest_text[0] = 0;
-									long   fmt = r_bc.format;
+									long   fmt = r_column.format;
 									SETSFMTLEN(fmt, 0);
-									sttostr(r_bc.T, cell_data, fmt, dest_text);
+									sttostr(r_column.T, cell_data, fmt, dest_text);
 									val_buf = dest_text;
 									//
 									val_buf.Strip().Transf(CTRANSF_INNER_TO_UTF8);
@@ -348,10 +350,10 @@ int PPViewBrowser::Helper_Export_Excel_OXLSX(SString & rResultFileName)
 					{
 						uint    seq_fmt_id = nfmtid_date;
 						for(long cn = 0; cn < static_cast<long>(cn_count); cn++) {
-							const BroColumn & r_c = p_def->at(cn);
-							const long type = GETSTYPE(r_c.T);
+							const BroColumn & r_column = p_def->at(cn);
+							const long type = GETSTYPE(r_column.T);
 							if(type == S_FLOAT) {
-								const int prec = SFMTPRC(r_c.format);
+								const int prec = SFMTPRC(r_column.format);
 								temp_buf.Z();
 								if(prec > 0) {
 									temp_buf.Z().Cat("0").Dot().CatCharN('0', prec);
@@ -463,9 +465,9 @@ int PPViewBrowser::Helper_Export_Excel(SString & rResultFileName)
 			beg_row++;
 		// Выводим название столбцов
 		for(i = 0; i < cn_count; i++) {
-			const BroColumn & r_c = p_def->at(i);
-			const long type = GETSTYPE(r_c.T);
-			(temp_buf = r_c.text).Transf(CTRANSF_INNER_TO_OUTER);
+			const BroColumn & r_column = p_def->at(i);
+			const long type = GETSTYPE(r_column.T);
+			(temp_buf = r_column.text).Transf(CTRANSF_INNER_TO_OUTER);
 			width_ary.add((PPID)temp_buf.Len());
 			fmt.Z();
 			fmt_rus.Z();
@@ -477,7 +479,7 @@ int PPViewBrowser::Helper_Export_Excel(SString & rResultFileName)
 			else if(oneof3(type, S_INT, S_UINT, S_AUTOINC))
 				fmt.CatChar('0');
 			else if(type == S_FLOAT) {
-				size_t prec = SFMTPRC(r_c.format);
+				const size_t prec = SFMTPRC(r_column.format);
 				fmt_rus = fmt.CatChar('0').CatChar(dec.C(0)).CatCharN('0', prec);
 			}
 			else

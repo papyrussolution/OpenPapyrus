@@ -7234,6 +7234,8 @@ protected:
 	//
 	CmdRet TransmitFile(int verb, int contentType /*tfctXXX*/, const void * pParam, PPJobSrvReply & rReply);
 	int    FinishReceivingFile(const PPJobSrvReply::TransmitFileBlock & rBlk, const SString & rFilePath, PPJobSrvReply & rReply);
+	CmdRet TestPrinting(PPServerCmd * pEv, PPJobSrvReply & rReply);
+
 	enum {
 		stLoggedIn  = 0x0001,
 		stDebugMode = 0x0002  // Отладочный режим (вывод дополнительных данных в журналы)
@@ -14814,6 +14816,14 @@ public:
 	SEnum::Imp * EnumByClient(PPID cliPersonID, const DateRange * pPeriod, int options);
 	SEnum::Imp * EnumByEmployer(PPID emplPersonID, const DateRange * pPeriod, int options);
 	int    SearchByTime(const LDATETIME &, PPID * pID, PrjTaskTbl::Rec *);
+	//
+	// Descr: Находит все задачи, чей код эквивалентен аргументу pCode.
+	// Returns:
+	//   >0 - найдена по крайней мере одна запись с кодом pCode
+	//   <0 - не найдено ни одной записи с кодом pCode либо isempty(pCode)
+	//    0 - error
+	//
+	int    SearchByCode(const char * pCode, PPIDArray & rIdList); // @v12.4.7
 	int    SearchByLinkBillID(PPID billID, PPIDArray & rIdList);
 	int    SearchAnyRef(PPID objType, PPID objID, PPID * pID);
 	int    ReplaceRefs(PPID objType, PPID replacedID, PPID newID, int use_ta);
@@ -32249,6 +32259,7 @@ struct GoodsStrucProcessingBlock {
 	int    AddItem(PPID goodsID, PPID strucID, PPID filtScndGroupID, PPID filtScndID, uint flags/*bool checkExistance, bool recursive*/);
 	PPObjGoodsStruc GSObj;
 	PPObjGoods GObj;
+	PPObjBizScore2 BsObj; // @v12.4.7
 	PPObjTech * P_TecObj; // @v11.7.6
 	TSVector <StrucEntry> StrucList;
 	TSArray  <ItemEntry> ItemList; // must be SArray (not SVector), because it'll be handed to AryBrowserDef
@@ -34332,6 +34343,7 @@ public:
 	LocTransfCore();
 	~LocTransfCore();
 	int    Search(PPID locID, long rByLoc, LocTransfTbl::Rec * pRec);
+	int    SearchByBill(PPID billID, long rByBill, LocTransfTbl::Rec * pRec);
 	int    SearchRestByGoods(int domain, PPID goodsID, PPID locID, long rByLoc, LocTransfTbl::Rec * pRec);
 	int    SearchRestByLot(int domain, PPID lotID, PPID locID, long rByLoc, LocTransfTbl::Rec * pRec);
 	int    EnumByBill(PPID billID, int16 * pRByBill, LocTransfTbl::Rec * pRec);
@@ -35795,11 +35807,21 @@ public:
 	static int EditLocTransf(PPBillPacket * pPack, int billItemIdx/*[0..] || -1*/, LocTransfTbl::Rec & rData);
 	static int EditLocTransf(PPBillPacket * pPack, int billItemIdx/*[0..] || -1*/, LocTransfOpBlock & rData);
 
+	#pragma pack(push, 1)
 	struct Hdr {
 		PPID   ID__;
 		PPID   LocID;
-		long   RByLoc;
+		int32  RByLoc;
+		int16  LTOp;
+		int32  Flags;
+		double Qtty;
+		double RestByGoods;
+		double RestByLot;
+		LDATE  Dt;
+		LTIME  Tm;
 	};
+	#pragma pack(pop)
+
 	PPViewLocTransf();
 	~PPViewLocTransf();
 	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
@@ -46404,6 +46426,9 @@ class UnitEcFilt : public PPBaseFilt {
 public:
 	UnitEcFilt();
 	UnitEcFilt & FASTCALL operator = (const UnitEcFilt & rS);
+	enum {
+		fPivot = 0x0001 // Таблица выглядит так: { товар; наименование показателя; значение показателя }, в противном случае показатели развернуты в столбцах
+	};
 	uint8  ReserveStart[32]; // @anchor
 	DateRange Period;        //
 	PPID   GoodsGroupID;     // Товарная группа, ограничивающая список анализируемых товаров
@@ -46420,6 +46445,8 @@ public:
 	struct BrwItem {
 		PPID   ID;
 		PPID   GStrucID;
+		int    Cls;         // @v12.4.7 Для Pivot-варианта таблицы  
+		PPID   IndicatorID; // @v12.4.7 Для Pivot-варианта таблицы
 	};
 	PPViewUnitEc();
 	~PPViewUnitEc();
@@ -46461,17 +46488,9 @@ private:
 	// Descr: Набор факторов для расчета итоговых значений по бизнес-показателям.
 	//
 	struct FactorSet {
-		FactorSet() : DaysCount(0), SaleQtty(0.0), RcptQtty(0.0), StorageDaysQtty(0.0)
-		{
-		}
-		FactorSet & Z()
-		{
-			DaysCount = 0;
-			SaleQtty = 0.0;
-			RcptQtty = 0.0;
-			StorageDaysQtty = 0.0;
-			return *this;
-		}
+		FactorSet();
+		FactorSet & Z();
+
 		uint   DaysCount;
 		double SaleQtty;
 		double RcptQtty;
@@ -48230,7 +48249,7 @@ private:
 public:
 	TLP_MEMB(PrjTaskCore, P_Tbl);
 	void * ExtraPtr;
-	PPID   LinkTaskID;
+	PPID   LinkTaskID__; // Фильтрующий идентификатор
 };
 //
 // @ModuleDecl(PPViewPrjTask)
@@ -48273,18 +48292,18 @@ public:
 		crstEmployerHour,
 	} TabType;
 	enum EnumTabParam {
-		ctpNone   = 0,
+		ctpNone           = 0,
 		ctpUnComplTask    = 1,
 		ctpComplTaskRatio = 2,
 		ctpWrofBillPrct   = 3,
 		ctpTaskCount      = 4
 	} TabParam;
 	enum {
-		fUnbindedOnly = 0x0001, // Показывать только задачи, не привязанные к проектам
-		fUnviewedOnly = 0x0002, // Показывать только те задачи, которые не были кем-либо просмотрены
+		fUnbindedOnly         = 0x0001, // Показывать только задачи, не привязанные к проектам
+		fUnviewedOnly         = 0x0002, // Показывать только те задачи, которые не были кем-либо просмотрены
 		fUnviewedEmployerOnly = 0x0004, // Показывать только те задачи, которые не были просмотрены исполнителем
 		fNotShowPPWaitOnInit  = 0x0008, // Не выдавать сообщение "Подождите" в PPViewPrjTask::Init()
-		fNoTempTable  = 0x0010  // Не строить временную таблицу
+		fNoTempTable          = 0x0010  // Не строить временную таблицу
 	};
 	long   Kind;               // TODOKIND_XXX
 	PPID   ProjectID;          // ->Project.ID Проект, к которому привязана задача
@@ -63499,16 +63518,16 @@ enum {
 };
 //
 int    STDCALL SelectAmountSymb(PPID * pID, long options, int * pKind, SString & rSymbBuf);
-int    STDCALL PrintCashOrderByGoodsBill(PPBillPacket * pPack, int prnflags = 0);
-int    STDCALL PrepareBillMultiPrint(PPBillPacket * pFirstPack, SVector ** ppAry, long * pOutPrnFlags);
-int    STDCALL MultiPrintGoodsBill(PPBillPacket * pPack, const SVector * pAry, long outPrnFlags);
-int    STDCALL PrintGoodsBill(PPBillPacket * pPack);
+int    STDCALL PrintCashOrderByGoodsBill(PPBillPacket & rPack, int prnflags = 0);
+int    STDCALL PrepareBillMultiPrint(PPBillPacket & rFirstPack, SVector ** ppAry, long * pOutPrnFlags);
+int    STDCALL MultiPrintGoodsBill(PPBillPacket & rPack, const SVector * pAry, long outPrnFlags);
+int    STDCALL PrintGoodsBill(PPBillPacket & rPack);
 //
 // Descr: печатает расходный или приходный кассовый ордер.
 //   Если pay_rcv != 0, то печатается расходный ордер (pay), в противном
 //   случае - приходный.
 //
-int    STDCALL PrintCashOrder(PPBillPacket *, int pay_rcv, int prnflags = 0);
+int    STDCALL PrintCashOrder(PPBillPacket &, int pay_rcv, int prnflags = 0);
 int    STDCALL ViewGoodsBills(BillFilt *, bool modeless);
 int    STDCALL BrowseBills(BrowseBillsType);
 int    STDCALL ViewBillsByPool(PPID poolType, PPID poolOwnerID);

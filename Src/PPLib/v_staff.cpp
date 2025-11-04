@@ -113,7 +113,7 @@ int PPViewStaffList::FetchData(PPID id)
 	if(id == 0) {
 		Data.clear();
 		SEnum en;
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		if(Filt.DivID)
 			en = p_ref->EnumByIdxVal(PPOBJ_STAFFLIST2, 2, Filt.DivID);
 		else if(Filt.OrgID)
@@ -155,7 +155,7 @@ int PPViewStaffList::Init_(const PPBaseFilt * pFilt)
 	Data.freeAll();
 	{
 		SEnum en;
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		if(Filt.DivID)
 			en = p_ref->EnumByIdxVal(PPOBJ_STAFFLIST2, 2, Filt.DivID);
 		else if(Filt.OrgID)
@@ -1264,7 +1264,7 @@ int FastEditDivBySumDlg::PutDivListByAmt(PPID objType, PPID propID, PPID amtID, 
 	StaffAmtList amt_list;
 	DBQ * dbq = 0;
 	PropertyTbl::Key0 k0;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PropertyTbl & r_prop = p_ref->Prop;
 	BExtQuery bext(&r_prop, 0, 64);
 	MEMSZERO(k0);

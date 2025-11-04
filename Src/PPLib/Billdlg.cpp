@@ -362,7 +362,7 @@ private:
 int BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagList * pTagList, int asFilt)
 {
 	int    ok = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	uint   dlg_id = 0;
 	PPObjSCard sc_obj;
 	SString temp_buf;
@@ -759,7 +759,7 @@ int EditGoodsBill(PPBillPacket * pPack, long egbFlags)
 	int    ok = -1;
 	int    r;
 	const  PPRights & r_rt = ObjRts;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	uint   prn_form = 0;
 	BillDialog * dlg = 0;
 	uint   dlg_id = 0;
@@ -1383,7 +1383,7 @@ int PPLinkFilesArray::ReadFromProp(PPID billID)
 	int    ok = -1;
 	char * p_buf = 0;
 	_Entry _e;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	if(p_ref->GetProperty(PPOBJ_BILL, billID, BILLPRP_LINKFILES, &_e, sizeof(_e)) > 0 && _e.ItemsCount > 0) {
 		THROW_MEM(p_buf = new char[_e.Size]);
 		if(p_ref->GetProperty(PPOBJ_BILL, billID, BILLPRP_LINKFILES, p_buf, _e.Size) > 0) {
@@ -1409,7 +1409,7 @@ int PPLinkFilesArray::WriteToProp(PPID billID, int useTa)
 	PPLinkFilesArray prev_ary;
 	THROW(prev_ary.ReadFromProp(billID));
 	{
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		PPTransaction tra(useTa);
 		THROW(tra);
 		if(getCount()) {
@@ -2135,7 +2135,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 			/* @v6.2.4 Функция печати из документа блокирована из-за возможности распечатаь непроведенный док.
 			case kbF7:
 				if(getDTS(0))
-					PrintGoodsBill(P_Pack, 0, 0);
+					PrintGoodsBill(*P_Pack, 0, 0);
 				else
 					PPError();
 				break;

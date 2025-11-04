@@ -88,7 +88,7 @@ static int64 calcNeededSize(int isEmpty)
 int CreateByExample(const char * pPath)
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	SString file_name;
 	SString src_path;
 	SString dst_path;

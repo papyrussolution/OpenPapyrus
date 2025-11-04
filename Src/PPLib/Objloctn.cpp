@@ -2174,7 +2174,7 @@ int PPObjLocation::GetPacket(PPID id, PPLocationPacket * pPack)
 	int    ok = 1;
 	pPack->destroy();
 	if(PPCheckGetObjPacketID(Obj, id)) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		int    sr = Search(id, pPack);
 		THROW(sr);
 		if(sr > 0) {
@@ -2201,7 +2201,7 @@ int PPObjLocation::GetPacket(PPID id, PPLocationPacket * pPack)
 int PPObjLocation::PutPacket(PPID * pID, PPLocationPacket * pPack, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	const  bool do_index_phones = LOGIC(CConfig.Flags2 & CCFLG2_INDEXEADDR);
 	SString temp_buf;
 	THROW_MEM(SETIFZ(P_RegObj, new PPObjRegister()));
@@ -2762,7 +2762,7 @@ int PPObjLocation::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCont
 	int    ok = 1, r = 1;
 	if(p && p->Data) {
 		PPLocationPacket * p_pack = static_cast<PPLocationPacket *>(p->Data);
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		if(stream == 0) {
 			PPID   same_id = 0;
 			LocationTbl::Rec same_rec;
@@ -6467,7 +6467,7 @@ int PPFiasReference::SearchObjByTextRefList(const TSVector <TextRefIdent> & rTRe
 int PPFiasReference::SearchObjByText(const char * pText, long flags, PPID upperID, PPIDArray & rList)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	int    do_post_process = 0;
     SStringU pattern;
     SString temp_buf;

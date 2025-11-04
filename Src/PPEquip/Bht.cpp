@@ -3987,7 +3987,7 @@ int PPObjBHT::AcceptInvent(PPID opID, PPObjBHT::InventRec * pRec, BillTbl::Rec *
 /*static*/int PPObjBHT::AcceptInventPalm(const char * pHName, const char * pLName, PPID opID, PPLogger * pLog)
 {
 	int    ok = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	PPBillPacket pack;
 	DbfTable bill_tbl(pHName);
 	DbfTable line_tbl(pLName);
@@ -4228,7 +4228,7 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 	THROW_INVARG(pList);
 	THROW(InitImpExpDbfParam(PPREC_SBIIBILLROW, &ie_param_brow, pLName, 0));
 	{
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		long   rows_count = 0;
 		PPID   common_goods_id = 0;
 		SString serial;
@@ -4297,7 +4297,7 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 	const  PPConfig & r_cfg = LConfig;
 	const  PPID loc_id = r_cfg.Location;
 	long   count = 0;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	SString temp_buf;
 	SString bill_code;
 	SString msg_buf;
@@ -4626,7 +4626,7 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 /*static*/int PPObjBHT::AddEBLineToPacket(PPBillPacket * pPack, const char * pBarcode, double qtty, double price, PPLogger * pLog)
 {
 	int    ok = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	double rest = 0.0;
 	PPObjGoods g_obj;
 	PUGL   deficit_list;
@@ -4713,7 +4713,7 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 /*static*/int PPObjBHT::AcceptExpendBillsPalm(const char * pHName, const char * pLName, const PPBhtTerminal * pBhtRec, PPLogger * pLog)
 {
 	int    ok = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	const PPConfig & r_cfg = LConfig;
 	PPID   op_id = 0;
 	DbfTable ebill_tbl(pHName);
@@ -4882,7 +4882,7 @@ int IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID, Goods
 			goods_id = temp_buf.ShiftLeft(2).ToLong();
 		}
 		if(!goods_id) {
-			PPObjBill * p_bobj = BillObj;
+			PPObjBill * p_bobj(BillObj);
 			PPIDArray lot_list;
 			Goods2Tbl::Rec goods_rec;
 			rBarcode.ShiftLeft();
@@ -5083,7 +5083,7 @@ int IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID, Goods
 /*static*/int PPObjBHT::AcceptInvent(const char * pHName, const char * pLName, PPID opID, PPLogger * pLog)
 {
 	int    ok = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	uint   bi, li;
 	uint   line_counter = 0;
 	uint   nr_bill = 0, nr_line = 0; // Количество записей, соответственно, в файле документов и строк
@@ -5199,7 +5199,7 @@ int IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID, Goods
 /*static*/int PPObjBHT::AcceptExpendBills(const char * pHName, const char * pLName, const PPBhtTerminal * pBhtRec, PPLogger * pLog)
 {
 	int    ok = -1, r = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	char   op_id[24];
 	uint   bi, li;
 	BhtFile bf_bill(pHName);

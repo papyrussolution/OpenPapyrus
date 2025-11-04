@@ -1465,7 +1465,7 @@ int BarcodeLabelPrinter::Helper_PrintRgiCollection(const BarcodeLabelPrintParam 
 /*static*/int BarcodeLabelPrinter::PrintLabelByBill2(const PPBillPacket * pPack, uint pos)
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	TSCollection <RetailGoodsInfo> rgi_list;
 	PPID   cor_loc_id = 0;
 	PPBarcodePrinter rec;
@@ -1564,7 +1564,7 @@ int BarcodeLabelPrinter::Helper_PrintRgiCollection(const BarcodeLabelPrintParam 
 /*static*/int BarcodeLabelPrinter::PrintLabelByBill__(const PPBillPacket * pPack, uint pos)
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	PPID   cor_loc_id = 0;
 	PPBarcodePrinter rec;
 	BarcodeLabelPrinter * p_prn = 0;

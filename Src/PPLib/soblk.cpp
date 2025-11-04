@@ -1348,7 +1348,7 @@ struct LocalSelectorDescr {
 				PPID tag_id = 0;
 				PPObjTag tag_obj;
 				PPObjectTag tag_rec;
-				Reference * p_ref = PPRef;
+				Reference * p_ref(PPRef);
 				if(tag_obj.FetchBySymb(txt_buf, &tag_id) > 0 && tag_obj.Fetch(tag_id, &tag_rec) > 0 && tag_rec.TagDataType == OTTYP_ENUM && tag_rec.TagEnumID) {
 					parent_id_list.sortAndUndup();
 					named_id_list.sortAndUndup();
@@ -1794,7 +1794,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	int    use_filt = 1;
 	SString temp_buf, o_buf, txt_buf;
 	Goods2Tbl::Rec goods_rec;
@@ -2024,8 +2024,8 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 {
 	int     ok = 1;
-	Reference * p_ref = PPRef;
-	PPObjBill * p_bobj = BillObj;
+	Reference * p_ref(PPRef);
+	PPObjBill * p_bobj(BillObj);
 	int    done = 0; // Признак того, что результирующий список сформирован
 	int    use_filt = 0;
 	PPGta  gta_blk;
@@ -4442,7 +4442,7 @@ int Backend_SelectObjectBlock::ResolveCrit_Person(int subcriterion, const SStrin
 int Backend_SelectObjectBlock::ResolveCrit_Tag(int subcriterion, const SString & rArg, PPID * pID)
 {
 	PPID   id = 0;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	switch(subcriterion) {
 		case 0:
 		case scID: id = rArg.ToLong(); break;
@@ -4716,7 +4716,7 @@ void FASTCALL Backend_SelectObjectBlock::AddSrchCode_BySymb(const SString & rArg
 int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion, const SString & rArg)
 {
 	int    ok = 1, r;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPID   temp_id = 0;
 	long   local_flags = 0;
 	SString temp_buf;

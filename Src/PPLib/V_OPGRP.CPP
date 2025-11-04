@@ -288,11 +288,9 @@ int PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 
 int PPViewOpGrouping::InitIteration()
 {
-	// @v10.6.8 char   k[MAXKEYLEN];
-	BtrDbKey k_; // @v10.6.8
+	BtrDbKey k_;
 	P_IterQuery = new BExtQuery(P_TempTbl, 0, 16);
 	P_IterQuery->selectAll();
-	// @v10.6.8 @ctr memzero(k, sizeof(k));
 	P_IterQuery->initIteration(false, k_, spFirst);
 	return 1;
 }

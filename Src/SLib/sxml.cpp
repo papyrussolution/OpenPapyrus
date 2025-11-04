@@ -120,6 +120,20 @@ int XMLWriteSpecSymbEntities(void * pWriter)
 	return r_buf.Cat("xmlns").Colon().Cat(pT);
 }
 
+/*static*/const SString & SXml::Helper_EncXmlText(const SString & rS, int ctransf, SString & rBuf)
+{
+	(rBuf = rS).ReplaceChar('\x07', ' ');
+	XMLReplaceSpecSymb(rBuf, "&<>\'");
+	return ctransf ? rBuf.Transf(ctransf) : rBuf;
+}
+
+/*static*/const SString & SXml::Helper_EncXmlText(const char * pS, int ctransf, SString & rBuf)
+{
+	(rBuf = pS).ReplaceChar('\x07', ' ');
+	XMLReplaceSpecSymb(rBuf, "&<>\'");
+	return ctransf ? rBuf.Transf(ctransf) : rBuf;
+}
+
 SXml::WDoc::WDoc(xmlTextWriter * pWriter, SCodepage cp) : State(0), Lx(pWriter)
 {
 	if(Lx) {

@@ -40,8 +40,8 @@ int ConvertCipher(const char * pDbSymb, const char * pMasterPassword, const char
 				PPSecur sec_rec;
 				THROW_MEM(PPRef = new Reference);
 				THROW_MEM(BillObj = new PPObjBill(0));
-				Reference * p_ref = PPRef;
-				PPObjBill * p_bobj = BillObj;
+				Reference * p_ref(PPRef);
+				PPObjBill * p_bobj(BillObj);
 				{
 					const  PPID secur_obj_list[] = { PPOBJ_CONFIG, PPOBJ_USRGRP, PPOBJ_USR };
 					PPTransaction tra(1);
@@ -153,7 +153,7 @@ protected:
 	void   RestoreCommonRefFlags()
 	{
 		if(State & stCommonRefFlagsUpdated) {
-			Reference * p_ref = PPRef;
+			Reference * p_ref(PPRef);
 			if(p_ref) {
 				p_ref->ResetFlag(XTF_DISABLEOUTOFTAMSG);
 				p_ref->Ot.ResetFlag(XTF_DISABLEOUTOFTAMSG);
@@ -5929,7 +5929,7 @@ int Convert10507()
 		THROW_MEM(PPRef = new Reference);
 		ppref_allocated = 0;
 	}
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	if(p_ref) {
 		SString temp_buf;
 		Scale_Before10507 sc_rec;

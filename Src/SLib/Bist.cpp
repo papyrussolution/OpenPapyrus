@@ -451,6 +451,7 @@ void SZString::minval(void * d) const
 
 void SZString::maxval(void * d) const
 {
+	
 	memset(d, 255, S-1);
 	PTR8(d)[S-1] = 0;
 	// ((char *) d)[0] = (char)254;

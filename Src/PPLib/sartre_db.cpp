@@ -3451,7 +3451,6 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 						uint   idx_first = 0;
 						uint   idx_count = 0;
 						tknz.Reset(0).RunSString(0, 0, text, &idx_first, &idx_count);
-						// @v10.0.11 {
 						const int gngftr = ResolveNgFromTokenizer(tknz, idx_first, idx_count, &wordform, rngftoSkipDotAfterWord, ng);
 						THROW(gngftr);
 						if(gngftr > 0) {
@@ -3463,52 +3462,6 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 								THROW(SetConceptProp(main_cid, PropInstance, 0, sr_type_cid));
 							}
 						}
-						// } @v10.0.11
-						/* @v10.0.11
-						ng.Z();
-						for(uint tidx = 0; tidx < idx_count; tidx++) {
-							LEXID word_id = 0;
-							if(tknz.Get(idx_first+tidx, titem)) {
-								if(titem.Token == STokenizer::tokWord) {
-									if(tidx < (idx_count-1) && tknz.Get(idx_first+tidx+1, titem_next)) {
-										if(titem_next.Token == STokenizer::tokDelim && titem_next.Text.Single() == '.')
-											tidx++; // Следующую за словом точку пропускаем (например "а.невского"-->"а" "невского")
-									}
-									if(FetchWord(titem.Text, &word_id) < 0) {
-										THROW(P_WdT->Add(titem.Text, &word_id));
-										// Было создано новое слово - добавим к нему известные нам признаки (пока только язык)
-										wordform.Clear();
-										wordform.SetTag(SRWG_LANGUAGE, slangRU);
-										THROW(SetSimpleWordFlexiaModel(word_id, wordform, 0));
-									}
-									assert(word_id);
-								}
-								else if(titem.Token == STokenizer::tokDelim) {
-									const char dc = titem.Text.Single();
-									if(oneof4(dc, ' ', '\t', '\n', '\r'))
-										; // просто пропускаем
-									else if(titem.Text.Len()) {
-										if(FetchWord(titem.Text, &word_id) < 0) {
-											THROW(P_WdT->Add(titem.Text, &word_id));
-										}
-										assert(word_id);
-									}
-								}
-							}
-							ng.WordIdList.addnz(word_id);
-						}
-						if(ng.WordIdList.getCount()) {
-							NGID   ngram_id = 0;
-							THROW(ResolveNGram(ng.WordIdList, &ngram_id));
-							assert(ngram_id);
-							THROW(P_CNgT->Set(main_cid, ngram_id));
-							{
-								assert(PropInstance);
-								assert(sr_type_cid);
-								THROW(SetConceptProp(main_cid, PropInstance, 0, sr_type_cid));
-							}
-						}
-						*/
 					}
 				}
 				else {

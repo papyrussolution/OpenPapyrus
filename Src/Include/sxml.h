@@ -41,6 +41,8 @@ public:
 	//
 	static const SString & FASTCALL nst(const char * pNs, const char * pT);
 	static const SString & FASTCALL nst_xmlns(const char * pT); // SXml::nst("xmlns", pT)
+	static const SString & Helper_EncXmlText(const SString & rS, int ctransf, SString & rBuf);
+	static const SString & Helper_EncXmlText(const char * pS, int ctransf, SString & rBuf);
 
 	class WDoc {
 	public:

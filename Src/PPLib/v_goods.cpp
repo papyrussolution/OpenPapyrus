@@ -768,7 +768,7 @@ int GoodsFilt::ReadFromProp(PPID obj, PPID id, PPID prop, PPID propBefore8604)
 int GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	uint   i, c;
 	__GoodsFilt * p_buf = 0;
 	const uint8 * p = 0;
@@ -3591,7 +3591,7 @@ int PPViewGoods::Export(const PPGoodsImpExpParam * pExpCfg)
 int PPViewGoods::ExportUhtt()
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	Transfer * p_trfr = BillObj->trfr;
 	TSCollection <UhttGoodsPacket> uhtt_goods_list;
 	BarcodeArray bc_list;
@@ -4941,7 +4941,7 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 	#define _RET_LONG    (*static_cast<long *>(rS.GetPtr(pApl->Get(0))))
 	#define _RET_DBL     (*static_cast<double *>(rS.GetPtr(pApl->Get(0))))
 
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	ReceiptTbl::Rec lot_rec;
 	if(pF->Name == "?GetArCode") {
 		_RET_STR.Z();
@@ -5406,7 +5406,7 @@ static int SetOuterGoodsTag(PPID tagID, const SString & rTagStrValue, PPGoodsPac
 	PPObjTag tag_obj;
 	PPObjectTag tag_rec;
 	if(tagID && rTagStrValue.NotEmpty() && tag_obj.Fetch(tagID, &tag_rec) > 0) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		ObjTagItem pgg_tag_value;
 		if(rTagStrValue.HasPrefix("/h|")) {
 			StringSet ss("/h>");
@@ -5466,7 +5466,7 @@ static int SetOuterGoodsTag(PPID tagID, const SString & rTagStrValue, PPGoodsPac
 int PPALDD_UhttGoods::Set(long iterId, int commit)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	UhttGoodsBlock & r_blk = *static_cast<UhttGoodsBlock *>(Extra[0].Ptr);
 	const  PPID glob_acc_id = DS.GetConstTLA().GlobAccID;

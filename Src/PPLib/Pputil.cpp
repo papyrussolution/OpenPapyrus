@@ -729,7 +729,7 @@ int FASTCALL CheckQueryPtr(const DBQuery * q)
 {
 	if(q == 0)
 		return PPSetErrorNoMem();
-	else if(q->error)
+	else if(q->Error_)
 		return PPSetError(PPERR_DBQUERY);
 	else
 		return 1;
@@ -1564,8 +1564,8 @@ int PPChainDatabase(const char * pPassword)
 	// 1.
 	if(PPCheckDatabaseChain() < 0) {
 
-		PPObjBill * p_bobj = BillObj;
-		Reference * p_ref = PPRef;
+		PPObjBill * p_bobj(BillObj);
+		Reference * p_ref(PPRef);
 		// 2.
 		id_max = 0;
 		r = p_bobj->P_Tbl->search(0, &id_max, spLast);
@@ -4014,7 +4014,7 @@ UhttTagItem * PPUhttClient::GetUhttTagText(PPID objType, PPID objID, PPID tagID,
 {
 	UhttTagItem * p_result = 0;
 	if(tagID && objType && objID && !isempty(pTagSymb)) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		ObjTagItem tag_item;
 		if(p_ref->Ot.GetTag(objType, objID, tagID, &tag_item) > 0) {
 			SString temp_buf;

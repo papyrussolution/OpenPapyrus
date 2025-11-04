@@ -308,7 +308,7 @@ Transfer::GetLotPricesCache::GetLotPricesCache(LDATE dt, const PPIDArray * pLocL
 	UintHashTable bill_list;
 	PPOprKind2 op_rec;
 	{
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		{
 			for(SEnum en = p_ref->EnumByIdxVal(PPOBJ_OPRKIND, 1, PPOPT_GOODSREVAL); en.Next(&op_rec) > 0;)
 				op_list.addUnique(op_rec.ID);
@@ -323,7 +323,7 @@ Transfer::GetLotPricesCache::GetLotPricesCache(LDATE dt, const PPIDArray * pLocL
 		}
 	}
 	{
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		//
 		// Находим список документов переоценки с датой, не превышающей Date
 		//
@@ -716,7 +716,7 @@ int GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotRec, do
 	if(DiffParam & (_diffPrice|_diffCost|_diffPack|_diffLoc|_diffSerial|_diffExpiry|_diffLotID) || DiffByTag()) { // @v11.0.5 _diffLotID
 		SString temp_buf;
 		if(DiffParam & _diffSerial) {
-			PPObjBill * p_bobj = BillObj;
+			PPObjBill * p_bobj(BillObj);
 			if(p_bobj->GetSerialNumberByLot(pLotRec->ID, temp_buf, 1) > 0)
 				temp_buf.CopyTo(add.Serial, sizeof(add.Serial));
 			else if(pLotRec->PrevLotID) {
@@ -763,7 +763,7 @@ int GoodsRestParam::CheckBill(const ReceiptTbl::Rec * pRec, LDATE * pOrgLotDate)
 	// Условия fLabelOnly и AgentID не проверяются для лотов заказов
 	//
 	if(pRec->GoodsID > 0 && ((Flags_ & (fLabelOnly|fZeroAgent)) || AgentID)) {
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		if(!p_bobj->trfr->Rcpt.GetOriginDate(pRec, &org_lot_date, &org_bill_id))
 			ok = 0;
 		else if(Flags_ & fLabelOnly && !p_bobj->P_Tbl->HasWLabel(org_bill_id))
@@ -852,7 +852,7 @@ static int FASTCALL CR_MakeLocList(const GoodsRestParam & rP, PPIDArray * pList)
 int ReceiptCore::Helper_GetList(PPID goodsID, PPID locID, PPID supplID, LDATE beforeDt, /*int closedTag, int nzRestOnly,*/uint flags, LotArray * pRecList)
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	ReceiptTbl::Key3 k3;
 	MEMSZERO(k3);
 	BExtQuery q(this, 3);
@@ -1278,7 +1278,7 @@ int Transfer::UpdateForward(PPID lotID, LDATE dt, long oprno, int check, double 
 	double ph_neck = fabs(*pPhAdd);
 	if(check || neck != 0.0 || ph_neck != 0.0) {
 		const int dont_recalc_reval = BIN(CConfig.Flags & CCFLG_TRFR_DONTRECALCREVAL);
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		if(!check) {
 			if(P_Lcr2T) {
 				LcrBlock2 lcr(LcrBlockBase::opUpdate, P_Lcr2T, 0);
@@ -2466,7 +2466,7 @@ int Transfer::UpdateCascadeLot(PPID lotID, PPID ownBillID, TrUCL_Param * p, uint
 					// нулю и товарная проводка порождает лот.
 					//
 					if(flags & TRUCLF_UPDCP) {
-						PPObjBill * p_bobj = BillObj;
+						PPObjBill * p_bobj(BillObj);
 						DateIter diter;
 						BillTbl::Rec bill_rec;
 						THROW(p_bobj->RecalcTurns(bill_id, 0, 0));
@@ -3003,7 +3003,7 @@ int Transfer::MoveOp(LotOpMovParam * param, int use_ta)
 		THROW_PP(((q > 0 || -q <= down_lim) || (q < 0 || q <= up_lim)), PPERR_LOTRESTBOUND);
 		THROW(ti.SetupLot(param->DestLotID, &param->DestLot, TISL_ADJPRICE));
 		{
-			PPObjBill * p_bobj = BillObj;
+			PPObjBill * p_bobj(BillObj);
 			PPObjBill::TBlock tb_;
 			THROW(p_bobj->BeginTFrame(ti.BillID, tb_));
 			THROW(UpdateTransferItem(&ti, tb_.Rbb(), 0, 0));
@@ -3019,7 +3019,7 @@ int Transfer::MoveOp(LotOpMovParam * param, int use_ta)
 int Transfer::MergeLots(LotOpMovParam * param, uint flags, int use_ta)
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	LDATE  dt = ZERODATE;
 	long   oprno = 0;
 	{
@@ -3110,7 +3110,7 @@ int Transfer::MoveLotOp(PPID srcLotID, LDATE dt, long oprno, PPID destLotID, int
 int Transfer::MoveLotOps(PPID srcLotID, PPID destLotID, long flags, int use_ta)
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	LotOpMovParam param;
 	LDATE  dt;
 	long   oprno;

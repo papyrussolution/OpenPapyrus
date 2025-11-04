@@ -3117,7 +3117,7 @@ int OpCache::FetchReckonOpList()
 {
 	int    ok = 1;
 	if(!(State & stReckonListInited)) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		PPIDArray temp_list;
 		PropertyTbl::Key0 k;
 		BExtQuery q(&p_ref->Prop, 0);
@@ -3340,7 +3340,7 @@ int FASTCALL CheckOpPrnFlags(PPID op, long andF)
 int STDCALL EnumOperations(PPID opTypeID, PPID * pID, PPOprKind * pOpData)
 {
 	int    r;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPOprKind op_rec;
 	while((r = p_ref->EnumItems(PPOBJ_OPRKIND, pID, &op_rec)) > 0) {
 		if(!opTypeID || op_rec.OpTypeID == opTypeID) {

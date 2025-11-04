@@ -631,6 +631,8 @@
 	#define HELP_BROWSER_STYLOQCOMMANDS                         292
 #define BROWSER_UNITEC                                 293 // Unit-анализ
 	#define HELP_BROWSER_UNITEC                                 293
+#define BROWSER_UNITEC_PVT                             294 // Unit-анализ
+	#define HELP_BROWSER_UNITEC_PVT                             294
 
 //
 // PPVIEW COMMAND definitions

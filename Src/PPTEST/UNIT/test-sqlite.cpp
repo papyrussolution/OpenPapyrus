@@ -84,6 +84,7 @@ SLTEST_R(SQLite)
     const SString db_path(db_file_name);
 	dblb.SetAttr(DbLoginBlock::attrDbPath, db_path);
 	SSqliteDbProvider dbp;
+	SFile::Remove(db_path); // Если файл базы данных уже существует - удаляем
 	{
 		// Создать базу данных
 		THROW(SLCHECK_NZ(dbp.DbLogin(&dblb, DbProvider::openfMainThread)));
@@ -354,6 +355,32 @@ SLTEST_R(SQLite)
 				srch_count++;
 			} while(srch_count < rec_list_count && p_tbl->search(0, &k0, spPrev) && (p_rec_buf->Dt > first_pattern_dtm.d || (p_rec_buf->Dt == first_pattern_dtm.d && p_rec_buf->Tm >= first_pattern_dtm.t)));
 			SLCHECK_Z(uneq_rec_count);
+		}
+		{ // @v12.4.7 
+			// Поиск по GUID-полю (TestTa01Tbl::GuidVal)
+			uint   srch_count = 0;
+			uint   uneq_rec_count = 0;
+			uint   nfound_count = 0;
+			for(uint i = 0; i < record_list.getCount(); i++) {
+				const TestTa01Tbl::Rec * p_pattern_rec = record_list.at(i);
+				if(p_pattern_rec) {
+					//BExtQuery q(p_tbl, 0);
+					//q.selectAll().
+					TestTa01Tbl::Key3 k3;
+					k3.GuidVal = p_pattern_rec->GuidVal;
+					if(p_tbl->search(3, &k3, spEq)) {
+						if(!__PrcssrTestDb_Are_TestTa01_RecsEqual(*p_rec_buf, *p_pattern_rec)) {							
+							uneq_rec_count++;
+						}
+					}
+					else {
+						nfound_count++;
+					}
+					srch_count++;
+				}
+			}
+			SLCHECK_Z(uneq_rec_count);
+			SLCHECK_Z(nfound_count);
 		}
 		if(p_tbl_ref01) {
 			//

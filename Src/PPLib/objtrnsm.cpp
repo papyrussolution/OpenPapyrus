@@ -178,7 +178,7 @@ struct __PPDBXchgConfig {  // @persistent @store(PropertyTbl)
 /*static*/int FASTCALL PPObjectTransmit::WriteConfig(const PPDBXchgConfig * pCfg, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	int    is_new = 1;
 	__PPDBXchgConfig p, prev_cfg;
 	{
@@ -2403,7 +2403,7 @@ int BillTransmitParam::Edit() { DIALOG_PROC_BODY(BillTransDialog, this); }
 /*static*/int PPObjectTransmit::TransmitBills(PPID destDBDiv, const BillTransmitParam * pFilt)
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	int    is_generic_op = 0;
 	uint   gen_op_iterator = 0;
 	PPID   op_id = 0;
@@ -3189,7 +3189,7 @@ static int FASTCALL SyncRefObj(ObjSyncCore * pSyncTbl, PPID obj, PPID dest)
 {
 	int    ok = 1;
 	int    r;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	//SString msg_buf;
 	PPWaitMsg(GetObjectTitle(obj, SLS.AcquireRvlStr())); // @v11.2.12 msg_buf-->SLS.AcquireRvlStr()
 	for(PPID id = 0; (r = p_ref->EnumItems(obj, &id)) > 0;)
@@ -3262,7 +3262,7 @@ int SynchronizeObjects(PPID dest)
 		PPObjTSession tses_obj;
 		PPObjProcessor prc_obj;
 		PPObjTech tec_obj;
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		PPIDArray ref_obj_list;
 		{
 			PPTransaction tra(1);

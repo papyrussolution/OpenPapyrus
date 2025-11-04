@@ -178,7 +178,7 @@ int BVATAccmArray::CalcBill(const PPBillPacket & rPack)
 int BVATAccmArray::CalcBill(PPID id)
 {
 	int    r = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	PPTransferItem ti;
 	BillTbl::Rec bill_rec;
 	if(p_bobj->Search(id, &bill_rec) > 0) {

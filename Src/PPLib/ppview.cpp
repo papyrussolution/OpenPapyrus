@@ -1564,7 +1564,7 @@ public:
 static int PublishNfViewToMqb(const PPNamedFilt * pNf, const char * pFileName)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	if(pNf && pNf->DestGuaList.GetCount()) {
 		int    is_there_acceptable_gua = 0;

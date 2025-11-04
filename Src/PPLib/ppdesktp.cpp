@@ -92,7 +92,7 @@ int PPDesktopAssocCmd::ParseCode(CodeBlock & rBlk) const
 				rBlk.LenRange.upp = static_cast<int>(low);
 			}
 		}
-		else if(isdec(scan[0])) { // @v10.9.0 @fix (scan[0] >= 0)-->(scan[0] >= '0')
+		else if(isdec(scan[0])) {
 			temp_buf.Z();
 			while(isalnum(scan[0])) {
 				temp_buf.CatChar(scan[0]);
@@ -278,12 +278,10 @@ struct DesktopAssocCmdPool_Strg {
 	SVerT  Ver;
 };
 
-// @v10.9.3 (replaced with PPConst::CommonCmdAssocDesktopID) #define COMMON_DESKCMDASSOC 100000L
-
 int PPDesktopAssocCmdPool::WriteToProp(int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	DesktopAssocCmdPool_Strg * p_strg = 0;
 	SSerializeContext sctx;
 	PPID   desktop_id = DesktopID_Obsolete;
@@ -331,7 +329,7 @@ int PPDesktopAssocCmdPool::WriteToProp(int use_ta)
 int PPDesktopAssocCmdPool::ReadFromProp(const S_GUID & rDesktopUuid)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	size_t sz = 0;
 	DesktopAssocCmdPool_Strg * p_strg = 0;
 	PPID   desktop_id = 0;//(desktopId >= 0) ? desktopId : DesktopID;
@@ -356,17 +354,14 @@ int PPDesktopAssocCmdPool::ReadFromProp(const S_GUID & rDesktopUuid)
 			THROW_SL(sctx.Serialize(-1, &L, tail_buf));
 			THROW_SL(P.Serialize(-1, tail_buf, &sctx));
 			DesktopID_Obsolete = desktop_id;
-			DesktopUuid = desktop_uuid; // @v10.9.3
+			DesktopUuid = desktop_uuid;
 			ok = 1;
 		}
 	}
-	// @v10.9.3 {
 	else {
 		DesktopID_Obsolete = desktop_id;
 		DesktopUuid = desktop_uuid;
 	}
-	// } @v10.9.3 
-	//DesktopID = desktopId;
 	CATCHZOK
 	SAlloc::F(p_strg);
 	return ok;
@@ -671,7 +666,7 @@ int PPDesktop::Init__(const S_GUID & rDesktopUuid)
 		ZDELETE(P_ActiveDesktop);
 		if(PPErrCode == PPERR_DESKNOTFOUND) {
 			DS.GetTLA().Lc.DesktopID_Obsolete = 0;
-			DS.GetTLA().Lc.DesktopUuid_.Z(); // @v10.9.3
+			DS.GetTLA().Lc.DesktopUuid_.Z();
 		}
 		ok = 0;
 	ENDCATCH
@@ -840,7 +835,7 @@ void PPDesktop::DrawIcon(TCanvas & rC, long id, SPoint2S coord, const SString & 
 		if(h_icon) {
 			SString text;
 			(text = rText).Transf(CTRANSF_INNER_TO_OUTER);
-			::SetBkMode(rC, TRANSPARENT); // @v10.7.8
+			::SetBkMode(rC, TRANSPARENT);
 			::DrawIconEx(rC, cr.left + coord.x + IconSize / 2, cr.top + coord.y + 2, h_icon, 0, 0, 0, 0, DI_DEFAULTSIZE|DI_IMAGE|DI_MASK);
 			PPDesktop::DrawText(rC, coord, static_cast<COLORREF>(text_color), text);
 			AddTooltip(id, coord, text);
@@ -1318,7 +1313,6 @@ int PPDesktop::Advise()
 		if((ok = DS.Advise(&cookie, &adv_blk)) > 0)
 			Cookies.addUnique(cookie);
 	}
-	// @v10.9.0 {
 	{
 		long   cookie = 0;
 		PPAdviseBlock adv_blk;
@@ -1330,7 +1324,6 @@ int PPDesktop::Advise()
 		if((ok = DS.Advise(&cookie, &adv_blk)) > 0)
 			Cookies.addUnique(cookie);
 	}
-	// } @v10.9.0 
 	return ok;
 }
 
@@ -1348,14 +1341,10 @@ void PPDesktop::Unadvise()
 			if(pEv->ObjType) {
 				PPDesktop * p_desk = static_cast<PPDesktop *>(procExtPtr);
 				if(p_desk) {
-					// @v10.9.0 ok = p_desk->LoadBizScoreData();
-					// @v10.9.0 int PPDesktop::LoadBizScoreData()
-					// @v10.9.0 {
 					{
 						PPBizScoreWindow * p_wnd = static_cast<PPBizScoreWindow *>(p_desk->GetServiceView(svcviewBizScore));//p_desk->GetBizScoreWnd();
 						ok = p_wnd ? p_wnd->LoadData() : 0;
 					}
-					// } @v10.9.0 
 					ok = 1;
 				}
 			}
@@ -1858,7 +1847,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 					if(p_cmd) {
 						if(!is_first) {
 							POINT coord;
-							PPCommandFolder::Direction direction = PPCommandFolder::nextUp; // @v10.3.0 @fix init
+							PPCommandFolder::Direction direction = PPCommandFolder::nextUp;
 							coord.x = p_cmd->P.x;
 							coord.y = p_cmd->P.y;
 							ZDELETE(p_cmd);

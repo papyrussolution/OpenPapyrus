@@ -3439,7 +3439,7 @@ int PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 		}
 	};
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	uint   i;
 	SString line_buf, op_name, ar_name;
 	PPDebtorStatArray list;
@@ -3759,7 +3759,7 @@ int PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 int PrcssrDebtRate::Run()
 {
 	int    ok = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	PPLogger logger;
 	PPWaitStart();
 	if(P.AccSheetID) {

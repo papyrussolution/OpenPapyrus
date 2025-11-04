@@ -1,5 +1,5 @@
 // BNKEY.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -557,21 +557,29 @@ int BNKeyList::makeKey(int key, int seg, int cmp, const void * val, void * dest)
 
 int FASTCALL BNKeyList::compareKey(int key, const void * k1, const void * k2) const
 {
-	return getKey(key).compareKey(&table(), k1, k2);
+	return getKey(key).compareKey(table(), k1, k2);
 }
 
-int BNKey::compareKey(const DBTable * tbl, const void * k1, const void * k2) const
+int BNKey::compareKey(const DBTable & rTbl, const void * k1, const void * k2) const
 {
 	int    ns = HEAD.numSeg;
 	uint   ofs = 0;
 	for(int i = 0; i < ns; i++) {
 		BNKeySeg s = SEG(i);
-		const BNField & f = tbl->GetFields()[s.fldID];
-		int    c = stcomp(f.T, PTR8C(k1) + ofs, PTR8C(k2) + ofs);
+		const  BNField & r_fld = rTbl.GetFields()[s.fldID];
+		const  uint fld_data_size = r_fld.size();
+		int    c = 0;
+		/*@v12.4.7{*/
+		if(GETSTYPE(r_fld.T) == S_ZSTRING && (s.flags & XIF_ACS)) {
+			c = strnicmp866(PTRCHRC_(k1) + ofs, PTRCHRC_(k2) + ofs, fld_data_size);
+		}
+		else /*}@v12.4.7*/{
+			c = stcomp(r_fld.T, PTR8C(k1) + ofs, PTR8C(k2) + ofs);
+		}
 		if(c)
 			return (s.flags & XIF_DESC) ? -c : c;
 		if(i < (ns - 1))
-			ofs += f.size();
+			ofs += fld_data_size;
 	}
 	return 0;
 }

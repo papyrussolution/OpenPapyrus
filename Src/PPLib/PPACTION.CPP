@@ -722,7 +722,7 @@ int PPObjBill::CheckInGta(const PPGta & rGta, int use_ta)
 int GtaJournalCore::CheckInOp(PPGta & rGta, int use_ta)
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	{
 		GtaJournalTbl::Rec rec;
 		GtaJournalTbl::Key1 k1;
@@ -806,8 +806,8 @@ int ObjVersioningCore::InitSerializeContext(int use_ta)
 			THROW(SCtx.SerializeStateOfContext(-1, ctx_buf));
 		}
 		else {
-			Reference * p_ref = PPRef;
-			PPObjBill * p_bobj = BillObj;
+			Reference * p_ref(PPRef);
+			PPObjBill * p_bobj(BillObj);
 			if(p_bobj && p_ref) {
 				PPObjGoods goods_obj;
 				PPObjPerson psn_obj;

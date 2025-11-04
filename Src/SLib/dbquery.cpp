@@ -13,7 +13,6 @@ DBQuery::DBQuery()
 
 DBQuery::~DBQuery()
 {
-	uint   i;
 	if(w_restrict) {
 		w_restrict->destroy(1);
 		delete w_restrict;
@@ -26,7 +25,7 @@ DBQuery::~DBQuery()
 	delete P_Frame;
 	if(tbls) {
 		const bool do_destroy_tbl = LOGIC(options & fDestroyTables);
-		for(i = 0; i < tblCount; i++) {
+		for(uint i = 0; i < tblCount; i++) {
 			Tbl  & r_t = tbls[i];
 			// @v12.4.6 if((t->flg & DBQTF_OVRRD_DESTROY_TAG) ? !do_destroy_tbl : do_destroy_tbl)
 			if(do_destroy_tbl) {
@@ -39,7 +38,7 @@ DBQuery::~DBQuery()
 		SAlloc::F(tbls);
 	}
 	if(flds) {
-		i = fldCount;
+		uint i = fldCount;
 		if(i) do {
 			flds[--i].cell.I.destroy();
 		} while(i);
@@ -301,15 +300,15 @@ int FASTCALL DBQuery::analyzeOrder(int * pKeyArray)
 		const  uint num_keys = tbls[0].P_Tbl->GetIndices().getNumKeys();
 		for(i = 0; i < ordCount; i++) {
 			if(order[i].getTable() != tbls[0].P_Tbl) {
-				status |= s_tmp_table_needed;
+				Status_ |= stTmpTableNeeded;
 				return 0;
 			}
 		}
 		for(i = 0; i < num_keys; i++) {
 			int    ok = 1;
-			const  BNKey key = tbls[0].P_Tbl->GetIndices()[i];
-			for(uint j = 0; j < static_cast<uint>(key.getNumSeg()) && j < ordCount; j++) {
-				if(order[j].fld != key.getFieldID(j)) {
+			const  BNKey & r_key = tbls[0].P_Tbl->GetIndices()[i];
+			for(uint j = 0; j < static_cast<uint>(r_key.getNumSeg()) && j < ordCount; j++) {
+				if(order[j].fld != r_key.getFieldID(j)) {
 					ok = 0;
 					break;
 				}
@@ -321,7 +320,7 @@ int FASTCALL DBQuery::analyzeOrder(int * pKeyArray)
 			}
 		}
 		if(!count)
-			status |= s_add_index_needed;
+			Status_ |= stAddIndexNeeded;
 	}
 	return count;
 }
@@ -381,7 +380,7 @@ DBQuery & FASTCALL select(const DBFieldList & list)
 			q.fldCount = list.GetCount();
 		}
 		else {
-			q.error = 1;
+			q.Error_ = 1;
 			q.fldCount = 0;
 		}
 		q.syntax |= DBQuery::tSelect;
@@ -400,7 +399,7 @@ DBQuery & FASTCALL selectbycell(int count, const DBDataCell * pList)
 				fld.type = pList[i].I.stype();
 			}
 		else {
-			q.error = 1;
+			q.Error_ = 1;
 			count   = 0;
 		}
 		q.fldCount = count;
@@ -414,8 +413,8 @@ DBQuery & CDECL select(DBField first_arg, ...)
 	va_list list = reinterpret_cast<va_list>(&first_arg);
 	DBQuery & q = *new DBQuery;
 	if(&q != 0) {
-		int  id;
-		int  i = 0;
+		int    id;
+		int    i = 0;
 		size_t delta = 0;
 		while((id = *reinterpret_cast<const int *>(list)) != 0) {
 			q.flds = static_cast<DBQuery::Fld *>(SAlloc::R(q.flds, sizeof(DBQuery::Fld) * (i+1)));
@@ -488,7 +487,7 @@ int FASTCALL DBQuery::addTable(DBTable * pTbl)
 {
 	int    ok = 1;
 	if(pTbl) {
-		uint   i = tblCount;
+		const uint i = tblCount;
 		tbls = static_cast<Tbl *>(SAlloc::R(tbls, sizeof(Tbl) * (i+1)));
 		if(tbls != 0) {
 			tbls[i].P_Tbl = pTbl;
@@ -566,7 +565,7 @@ DBQuery & FASTCALL DBQuery::where(DBQ & q)
 			}
 			tbls[i].tree.init(w_restrict);
 			if(!makeNode(i, &w_restrict->tree->Root, 0, &tbls[i].tree.Root)) {
-				error = 1;
+				Error_ = 1;
 				break;
 			}
 		}
@@ -629,7 +628,7 @@ int DBQuery::_search(uint n, int dir)
 	int    outer_rec = 0;
 	int    sp;
 	const  bool is_first = (dir == spFirst || dir == spLast);
-	int    more; // Флаг, предписывающий обновить значение ключа
+	int    more = 0; // Флаг, предписывающий обновить значение ключа
 	if(is_first) {
 		r_tbl.flg &= ~(DBQTF_PREVDOWN | DBQTF_PREVUP);
 		r_tbl.P_Tbl->ToggleStmt(true/*release*/);
@@ -642,7 +641,7 @@ int DBQuery::_search(uint n, int dir)
 			dir  = (dir == spFirst) ? spNext : spPrev;
 		}
 		else {
-			error = 1;
+			Error_ = 1;
 			return 0;
 		}
 	}
@@ -650,7 +649,7 @@ int DBQuery::_search(uint n, int dir)
 		if((n+1) < tblCount) {
 			if(_search(n+1, dir)) // @recursion
 				return 1;
-			else if(error)
+			else if(Error_)
 				return 0;
 		}
 		// @todo Этот участок кода блокирует выбор второй и далее записей из таблиц, следующих
@@ -687,7 +686,7 @@ int DBQuery::_search(uint n, int dir)
 			if(sp & SKIP_ONE_REC) {
 				sp &= ~SKIP_ONE_REC;
 			   	if(!r_tbl.Srch(r_tbl.KeyBuf, sp) && !BTRNFOUND)
-					error = 1;
+					Error_ = 1;
 				sp = dir;
 			}
 			if(sp & ONLY_ONE_REC) {
@@ -699,7 +698,7 @@ int DBQuery::_search(uint n, int dir)
 			r_tbl.flg &= ~ONLY_ONE_REC;
 			return 0;
 		}
-		while(!error && r_tbl.Srch(r_tbl.KeyBuf, sp) && r_tbl.key.checkKey(r_tbl.KeyBuf)) {
+		while(!Error_ && r_tbl.Srch(r_tbl.KeyBuf, sp) && r_tbl.key.checkKey(r_tbl.KeyBuf)) {
 			if(r_tbl.tree.checkRestriction()) {
 __get_next_tbl:
 				if((n+1 == tblCount || _search(n+1, (dir == spNext ? spFirst : spLast)))) { // @recursion
@@ -714,9 +713,9 @@ __get_next_tbl:
 			sp = dir;
 		}
 		if(!btrokornfound())
-			error = 1;
-	} while((more = error ? 0 : ((dir == spNext) ? ++r_tbl.key : --r_tbl.key)) != 0);
-	if(!error && (r_tbl.flg & DBQTF_OUTER_JOIN) && is_first) {
+			Error_ = 1;
+	} while((more = Error_ ? 0 : ((dir == spNext) ? ++r_tbl.key : --r_tbl.key)) != 0);
+	if(!Error_ && (r_tbl.flg & DBQTF_OUTER_JOIN) && is_first) {
 		outer_rec = 1;
 		r_tbl.P_Tbl->clearDataBuf();
 		goto __get_next_tbl;
@@ -751,7 +750,7 @@ void DBQuery::fillRecord(char * pBuf, /*RECORDNUMBER*/DBRowId * pPos)
 
 #define INVALID_DIRECTION_CODE 0
 
-int DBQuery::single_fetch(char * pBuf, /*RECORDNUMBER*/DBRowId * pPos, int dir)
+int DBQuery::single_fetch(char * pBuf, DBRowId * pPos, int dir)
 {
 	if(_search(0, dir)) {
 		fillRecord(pBuf, pPos);
@@ -928,13 +927,13 @@ int DBQuery::_fetch_next(uint count, uint p, int dir)
 	P_Frame->State = (dir == spFirst) ? Frame::stTop : Frame::stUndef;
 	if(i < count) {
 		P_Frame->Last = _lbottom;
-		if(!error)
+		if(!Error_)
 			P_Frame->State |= Frame::stBottom;
 	}
 	else
 		P_Frame->Last = _lnext;
 	ActualCount = i;
-	return !error;
+	return !Error_;
 }
 
 int DBQuery::_fetch_prev(uint count, uint p)
@@ -948,13 +947,13 @@ int DBQuery::_fetch_prev(uint count, uint p)
 	P_Frame->State = Frame::stUndef;
 	if(i < count) {
 		P_Frame->Last = _ltop;
-		if(!error)
+		if(!Error_)
 			P_Frame->State |= Frame::stTop;
 	}
 	else
 		P_Frame->Last = _lprev;
 	ActualCount = i;
-	return !error;
+	return !Error_;
 }
 
 int DBQuery::_fetch_last(uint count, uint p)
@@ -968,16 +967,14 @@ int DBQuery::_fetch_last(uint count, uint p)
 	P_Frame->State = Frame::stBottom;
 	if(i < count) {
 		P_Frame->Last = _ltop;
-		if(!error)
+		if(!Error_)
 			P_Frame->State |= Frame::stTop;
 	}
 	else
 		P_Frame->Last = _lprev;
 	ActualCount = i;
-	return !error;
+	return !Error_;
 }
-
-#pragma warn -sig
 
 int FASTCALL DBQuery::normalizeFrame(int dir)
 {
@@ -1016,7 +1013,7 @@ int FASTCALL DBQuery::normalizeFrame(int dir)
 			setCount(ActualCount);
 		}
 	}
-	return !error;
+	return !Error_;
 }
 
 int DBQuery::refresh()
@@ -1041,7 +1038,7 @@ int DBQuery::refresh()
 		normalizeFrame(spPrev);
 		normalizeFrame(spNext);
 	}
-	return !error;
+	return !Error_;
 }
 
 int DBQuery::top()
@@ -1056,12 +1053,12 @@ int DBQuery::top()
 	P_Frame->Top = 0;
 	P_Frame->Cur = 0;
 	P_Frame->SPos = 0;
-	return !error;
+	return !Error_;
 }
 
 int DBQuery::bottom()
 {
-	if(!error) {
+	if(!Error_) {
 		if(!(P_Frame->State & Frame::stBottom)) {
 			const uint s = P_Frame->Size;
 			_fetch_last(s, s-1);
@@ -1071,13 +1068,13 @@ int DBQuery::bottom()
 		frameOnBottom(!(P_Frame->State & Frame::stBottom));
 		P_Frame->SPos = P_Frame->SRange;
 	}
-	return !error;
+	return !Error_;
 }
 
 int DBQuery::step(long delta)
 {
 	int    result = 0;
-	if(!error) {
+	if(!Error_) {
 		const uint ht = P_Frame->Height;
 		if(delta == 0)
 			result = 1;
@@ -1101,7 +1098,7 @@ int DBQuery::step(long delta)
 						if(P_Frame->State & Frame::stBottom) {
 							frameOnBottom(0);
 							P_Frame->SPos = P_Frame->SRange;
-							return error ? 0 : -1;
+							return Error_ ? 0 : -1;
 						}
 					}
 				}
@@ -1134,7 +1131,7 @@ int DBQuery::step(long delta)
 							P_Frame->SPos = 0;
 						}
 					}
-					return !error;
+					return !Error_;
 				}
 				P_Frame->Cur = P_Frame->Cur-delta;
 				if(P_Frame->Cur < P_Frame->Top) {
@@ -1145,7 +1142,7 @@ int DBQuery::step(long delta)
 				P_Frame->SPos = P_Frame->SRange / 2;
 			}
 			P_Frame->SPos = smin(P_Frame->SRange, P_Frame->SPos);
-			result = !error;
+			result = !Error_;
 		}
 	}
 	return result;
@@ -1205,7 +1202,7 @@ int DBQuery::search(const void * pPattern, CompFunc fcmp, int fld, uint srchMode
 			P_Frame->Cur = pos;
 			P_Frame->TopByCur(spNext);
 		}
-		else if(!(P_Frame->State & _eof) && !error) {
+		else if(!(P_Frame->State & _eof) && !Error_) {
 			if(nxt == spNext) {
 				P_Frame->Cur = P_Frame->CountF-1;
 				P_Frame->TopByCur(spPrev);
@@ -1221,7 +1218,7 @@ int DBQuery::search(const void * pPattern, CompFunc fcmp, int fld, uint srchMode
 		}
 		else
 			break;
-	} while(!r && !error);
+	} while(!r && !Error_);
 	return r;
 }
 
@@ -1350,7 +1347,7 @@ int updateForCb(DBTable * pTbl, int useTA, DBQ & query, DBUpdateSet & rSet, Upda
 			THROW(Btrieve::StartTransaction(1));
 			ta = 1;
 		}
-		for(int dir = spFirst; ok && q->single_fetch(0, 0, dir); dir = spNext) {
+		if(q->single_fetch(0, 0, spFirst)) do {
 			if(rec_before_buf.GetSize()) {
 				memcpy(rec_before_buf, pTbl->getDataBufConst(), rec_before_buf.GetSize());
 			}
@@ -1367,14 +1364,13 @@ int updateForCb(DBTable * pTbl, int useTA, DBQ & query, DBUpdateSet & rSet, Upda
 			//
 			// Здесь необходимо использовать функцию без изменения текущей позиции.
 			// Связано это с тем, что если записи извлекаются по индексу, значение которого
-			// меняется, то произойдет сбой в запросе после чего результат может оказаться не
-			// адекватным.
+			// меняется, то произойдет сбой в запросе после чего результат может оказаться не адекватным.
 			//
 			THROW(pTbl->updateRecNCC());
 			if(cbProc)
-				cbProc(pTbl, rec_before_buf, pTbl->getDataBufConst(), extraPtr);
-		}
-		THROW(!q->error);
+				cbProc(pTbl, rec_before_buf, pTbl->getDataBufConst(), extraPtr);			
+		} while(q->single_fetch(0, 0, spNext));
+		THROW(!q->Error_);
 		if(ta) {
 			THROW(Btrieve::CommitWork());
 			ta = 0;

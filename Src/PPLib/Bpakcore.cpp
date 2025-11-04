@@ -660,7 +660,7 @@ void PPBill::BaseDestroy()
 int FASTCALL PPBill::IsEq(const PPBill & rS) const
 {
 	int    yes = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	if(p_bobj) {
 		if(!p_bobj->P_Tbl->GetFields().IsEqualRecords(&Rec, &rS.Rec))
 			yes = 0;
@@ -849,7 +849,7 @@ PPID PPBill::GetDlvrAddrID() const
 {
 	// @v12.1.11 {
 	PPID   result = 0;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	return (p_bobj && p_bobj->GetDlvrAddrID(Rec, P_Freight, &result) > 0) ? result : 0;
 	// } @v12.1.11 
 	// @v12.1.11 return P_Freight ? P_Freight->DlvrAddrID__ : 0; 
@@ -2859,7 +2859,7 @@ int PPBillPacket::CreateBlankByFilt(PPID opID, const BillFilt * pFilt, int use_t
 int PPBillPacket::CreateBlankBySample(PPID sampleBillID, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPID   op_type_id = 0;
 	BillTbl::Rec rec;
 	THROW(P_BObj->Search(sampleBillID, &rec) > 0);
@@ -2974,7 +2974,7 @@ int PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int dontI
 			// @v11.9.2 Добавлено условие для проверки уникальности номера: в счетчике операций должен стоять флаг OPCNTF_VERIFYUNIQ
 			const bool _check_dup_code = (global_check_dup_code && opc_obj.Search(op_counter_id, &opc_rec) > 0 && opc_rec.Flags & OPCNTF_VERIFYUNIQ);
 			if(_check_dup_code) {
-				PPObjBill * p_bobj = BillObj;
+				PPObjBill * p_bobj(BillObj);
 				//
 				// Так как код документа формируется по заданному человеком шаблону, то
 				// не исключена возможность того, что при каждой новой итерации счетчика
@@ -3601,7 +3601,7 @@ int PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int sign, 
 							PPGoodsStrucHeader gs_hdr;
 							ObjAssocTbl::Rec assc_rec;
 							int    local_ok = 0;
-							Reference * p_ref = PPRef;
+							Reference * p_ref(PPRef);
 							{
 								for(SEnum en = p_ref->Assc.Enum(PPASS_GOODSSTRUC, _id1, 1); !local_ok && en.Next(&assc_rec) > 0;) {
 									const  PPID gs_id = assc_rec.PrmrObjID;
@@ -5024,7 +5024,7 @@ int TiIter::OrderRows_Mem(const PPBillPacket * pPack, Order o)
 						}
 						else if(o == ordByQCert) {
 							if(p_qcert_obj) {
-								PPObjBill * p_bobj = BillObj;
+								PPObjBill * p_bobj(BillObj);
 								ReceiptTbl::Rec lot_rec;
 								PPIDArray qcert_list;
 								QualityCertTbl::Rec qcert_rec;
@@ -5130,7 +5130,7 @@ int TiIter::Init(const PPBillPacket * pPack, long flags, long filtGrpID, Order o
 	DispList.clear();
 	UseIndex = 0;
 	int    ok = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	if(FiltGrpID && Flags & ETIEF_SALDOFILTGRP) {
 		const  PPID dlvr_loc_id = pPack->GetDlvrAddrID();
 		PPIDArray temp_list;

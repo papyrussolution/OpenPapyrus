@@ -356,7 +356,7 @@ int PPObject::SerializeSignature::Write(SBuffer & rBuf) const
 /*static*/int PPObject::Helper_PutConfig(PPID cfgPropID, PPID cfgObjType, int isNew, const void * pData, size_t sz, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	if(p_ref) {
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -588,7 +588,7 @@ int PPObject::CreateReservedObjects(long flags)
 		if(sec_obj.Search(PPCFG_MAIN, &sec_rec) > 0) {
 			PPConfig cfg_rec;
 			PPCommConfig comm_cfg;
-			Reference * p_ref = PPRef;
+			Reference * p_ref(PPRef);
 			PPIDArray loc_acs_list;
 			PPIDArray sell_acs_list;
 			PPIDArray suppl_acs_list;
@@ -1200,7 +1200,7 @@ int FASTCALL PPGetObjTypeList(PPIDArray * pList, long flags)
 				pList->add(obj_type);
 		}
 		if(!(flags & gotlfExcludeDyn)) {
-			Reference * p_ref = PPRef;
+			Reference * p_ref(PPRef);
 			for(PPID dyn_obj_type = 0; p_ref->EnumItems(PPOBJ_DYNAMICOBJS, &dyn_obj_type) > 0;)
 				pList->add(dyn_obj_type);
 		}
@@ -1352,7 +1352,7 @@ static int STDCALL Implement_GetObjectName(PPID objType, PPID objID, SString & r
 				case PPOBJ_ARTICLE: ok = GetArticleName(objID, _t); break;
 				case PPOBJ_LOT:
 					{
-						PPObjBill * p_bobj = BillObj;
+						PPObjBill * p_bobj(BillObj);
 						if(p_bobj) {
 							ReceiptTbl::Rec lot_rec;
 							if(p_bobj->trfr->Rcpt.Search(objID, &lot_rec) > 0) {
@@ -1452,7 +1452,7 @@ PPID FASTCALL GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
 /*static*/int PPObject::Identify(const char * pObjType, const char * pObjIdent, PPObjID * pIdent)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPObjID ident;
 	ident.Z();
 	long   obj_type_ext = 0;
@@ -1612,7 +1612,7 @@ int EditPPObj(PPID objType, PPID objID)
 	int    ok = -1;
 	if(objType && objID) {
 		if(objType == PPOBJ_LOT) {
-			PPObjBill * p_bobj = BillObj;
+			PPObjBill * p_bobj(BillObj);
 			if(p_bobj) {
 				ok = p_bobj->EditLotSystemInfo(objID);
 			}

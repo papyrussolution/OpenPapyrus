@@ -425,7 +425,7 @@ int StyloBhtIIExchanger::SetTable(TcpSocket & rSo, int16 cmd, uint fileNameCode,
 int StyloBhtIIExchanger::FindGoods(PPID goodsID, const char * pBarcode, SBIIGoodsRec * pRec)
 {
 	int    ok = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	int    is_serial = 0;
 	double rest = 0;
 	PPID   goods_id = 0;
@@ -545,7 +545,7 @@ int StyloBhtIIExchanger::FindLocCell(PPID locID, const char * pName, SBIILocCell
 int StyloBhtIIExchanger::PrintBarcode(const char * pBarcode)
 {
 	int    ok = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	bool   is_serial = false;
 	PPID   goods_id = 0;
 	SString temp_buf;

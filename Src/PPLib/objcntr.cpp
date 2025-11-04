@@ -372,6 +372,7 @@ int PPObjOpCounter::MakeReserved(long flags)
 		PPOpCounter temp_rec;
 		const PPID id = p_rez->getLONG();
 		p_rez->getString(name, 2);
+		PPExpandString(name, CTRANSF_UTF8_TO_INNER); // @v12.4.7 @fix
 		p_rez->getString(symb, 2);
 		p_rez->getString(templ, 2);
 		pack.Head.ID = id;
@@ -380,8 +381,7 @@ int PPObjOpCounter::MakeReserved(long flags)
 		templ.CopyTo(pack.Head.CodeTemplate, sizeof(pack.Head.CodeTemplate));
 		if(id && Search(id, &temp_rec) <= 0 && SearchBySymb(symb, 0, &temp_rec) <= 0) {
 			//
-			// Здесь нельзя использовать PutPacket поскольку добавляется запись
-			// с предопределенным идентификатором.
+			// Здесь нельзя использовать PutPacket поскольку добавляется запись с предопределенным идентификатором.
 			//
 			THROW(StoreItem(Obj, 0, &pack.Head, 1));
 		}

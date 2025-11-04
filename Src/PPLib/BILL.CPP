@@ -538,7 +538,7 @@ int BillCore::PutExtraData(PPID id, const PPBillExt * pExt, int use_ta)
 {
 	int    ok = 1;
 	{
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(pExt && !pExt->IsEmpty()) {
@@ -591,7 +591,7 @@ int BillCore::Extract(PPID id, PPBill * pInfo)
 {
 	int    ok = 1;
 	int    r = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	pInfo->BaseDestroy();
 	THROW(Search(id, &pInfo->Rec) > 0);
 	// @v11.1.12 BillCore::GetCode(pInfo->Rec.Code);
@@ -716,7 +716,7 @@ int BillCore::EditRec(PPID * pID, BillTbl::Rec * pRec, int use_ta)
 		THROW(tra.Commit());
 	}
 	if(!is_new) {
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		CALLPTRMEMB(p_bobj, Dirty(*pID));
 	}
 	CATCHZOK
@@ -731,7 +731,7 @@ int BillCore::EditRec(PPID * pID, BillTbl::Rec * pRec, int use_ta)
 
 int BillCore::PutBillProp(PPID billID, PPID propID, long isThere, void * pBuf, size_t bufSize)
 {
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	return isThere ? p_ref->PutProp(PPOBJ_BILL, billID, propID, pBuf, bufSize) : p_ref->RemoveProperty(PPOBJ_BILL, billID, propID, 0);
 }
 
@@ -741,7 +741,7 @@ int BillCore::Edit(PPID * pID, PPBill * pInfo, int use_ta)
 	const  bool is_new = (*pID == 0);
 	AmtEntry * p_ae;
 	{
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		SETFLAG(pInfo->Rec.Flags, BILLF_EXTRA, !pInfo->Ext.IsEmpty());
@@ -1512,7 +1512,7 @@ int BillCore::IsMemberOfPool(PPID billID, PPID poolType, PPID * pPoolOwnerID)
 {
 	int    yes = 0;
 	PPID   owner_id = DEREFPTRORZ(pPoolOwnerID);
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	if(owner_id) {
 		if(p_ref->Assc.Search(poolType, owner_id, billID) > 0)
 			yes = 1;
@@ -1534,7 +1534,7 @@ int BillCore::UpdatePool(PPID billID, PPID pullType, PPID pullOwnerID, int use_t
 	PPID   assc_id = 0;
 	size_t max_va_sz = sizeof(ObjAssocTbl::Rec) - offsetof(ObjAssocTbl::Rec, /*Name*/Text);
 	ObjAssocTbl::Rec assc_rec;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	if(p_ref->Assc.Search(pullType, pullOwnerID, billID, &assc_rec) > 0) {
 		const ObjAssocTbl::Rec org_assc_rec(assc_rec);
 		assc_id = assc_rec.ID;
@@ -1603,7 +1603,7 @@ int BillCore::GetAdvanceBillList(PPID objID, PPID exclBillID, const DateRange * 
 {
 	int    ok = 1;
 	double rest = 0.0;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPAdvanceRep advrep;
 	BillTbl::Key3 k3;
 	BExtQuery q(this, 3);

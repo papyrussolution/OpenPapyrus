@@ -485,7 +485,7 @@ int PPObjTech::GetPacket(PPID id, PPTechPacket * pPack)
 int PPObjTech::PutPacket(PPID * pID, PPTechPacket * pPack, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPID   log_action_id = 0;
 	TechTbl::Rec rec;
 	SString ext_buffer;

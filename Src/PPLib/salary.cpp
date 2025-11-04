@@ -90,7 +90,7 @@ int SalaryCore::Put(PPID * pID, SalaryTbl::Rec * pRec, int use_ta)
 				//
 				// Не будем считать ошибкой отсутствие документа при попытке его удалить
 				//
-				PPObjBill * p_bobj = BillObj;
+				PPObjBill * p_bobj(BillObj);
 				if(org_rec.GenBillID && p_bobj->Search(org_rec.GenBillID, 0) > 0)
 					THROW(p_bobj->RemovePacket(org_rec.GenBillID, 0));
 				THROW_DB(deleteRec()); // @sfu
@@ -1074,7 +1074,7 @@ int PrcssrSalary::WriteOff(const UintHashTable * pIdList, int undoOnly, int use_
 	SString memo_buf;
 	SalaryTbl::Rec s_rec;
 	PPIDArray charge_list, removed_bill_list;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -1596,7 +1596,7 @@ int PrcssrSalary::Helper_CalcPayment(PPID opID, const DateRange & rPeriod, int k
 	const PPIDArray & rArList, const PPIDArray * pExtBillList, const FuncDescr & rFc, double * pResult)
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	double result = 0.0;
 	SString fmt_buf, msg_buf;
 	for(uint i = 0; i < rArList.getCount(); i++) {

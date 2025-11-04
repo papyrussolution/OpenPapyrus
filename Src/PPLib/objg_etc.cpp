@@ -1170,7 +1170,7 @@ int PPObjComputer::Implement_GetByMacAddr(const MACAddr & rKey, PPID * pID, PPCo
 	CALLPTRMEMB(pIdList, Z());
 	if(pIdList || (pID || pPack)) {
 		const  bool   first_only = (pIdList == 0 && (pID || pPack));
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		DBQ * dbq = 0;
 		PropertyTbl::Key0 k0;
 		PropertyTbl & r_prop = p_ref->Prop;
@@ -1234,7 +1234,7 @@ int PPObjComputer::Get(PPID id, PPComputerPacket * pPack)
 					p_tag_item->GetGuid(&pPack->Rec.Uuid);
 			}
 			{
-				Reference * p_ref = PPRef;
+				Reference * p_ref(PPRef);
 				PPComputerSysBlock csblk;
 				if(p_ref->GetProperty(PPOBJ_COMPUTER, id, COMPUTERPRP_SYS, &csblk, sizeof(csblk)) > 0) {
 					pPack->Rec.IpAdr = csblk.IpAdr;
@@ -1265,7 +1265,7 @@ int PPObjComputer::Put(PPID * pID, PPComputerPacket * pPack, int use_ta)
 {
 	//CategoryID
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	Goods2Tbl::Rec raw_rec;
 	PPComputerSysBlock csblk;
 	PPComputerSysBlock * p_csblk = 0;
@@ -2062,7 +2062,7 @@ int PPObjSwProgram::Get(PPID id, PPSwProgramPacket * pPack)
 {
 	SJson * p_result = SJson::CreateObj();
 	if(p_result) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		SString temp_buf;
 		p_result->InsertInt("id", rPack.Rec.ID);
 		if(rPack.Rec.CategoryID) {
@@ -2144,7 +2144,7 @@ SJson * PPObjSwProgram::ExportToJson(const char * pImgPath)
 {
 	SJson * p_result = SJson::CreateObj();
 	DbProvider * p_dict = CurDict;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	SString img_file_name;
 	SString img_file_symb; // Имя (с расширением) файла изображения, скопированного в каталог pImgPath

@@ -956,7 +956,7 @@ int PPViewPerson::UpdateList()
 						break;
 					case UpdPersonListParam::acnGenerateUUID:
 						{
-							Reference * p_ref = PPRef;
+							Reference * p_ref(PPRef);
 							const  PPID obj_type = PPOBJ_PERSON;
 							const  PPID tag_id = PPTAG_PERSON_UUID;
 							PPTransaction tra(1);
@@ -3295,7 +3295,7 @@ int PPViewPerson::Recover()
 		}
 	}
 	{
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		dlvr_addr_list.Sort();
 		LAssocArray bill_dlvr_addr_list;
 		BillTbl::Rec bill_rec;
@@ -4541,7 +4541,7 @@ int FASTCALL PPViewClientActivityDetails::NextIteration(ClientActivityDetailsVie
 int PPViewClientActivityDetails::MakeList()
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	PPIDArray result_list;
 	SString temp_buf;
 	SString obj_buf;

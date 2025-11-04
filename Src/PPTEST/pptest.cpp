@@ -1044,7 +1044,7 @@ double RandNumbGen::Gaussian(const Rng * P_r, const double sigma)
 int GenerateGoodsBills()
 {
 	int    ok = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	PPViewOpGrouping * p_vop = 0;
 	PPViewGoodsOpAnalyze * p_vgoods = 0;
 	Rng * p_rng = 0;

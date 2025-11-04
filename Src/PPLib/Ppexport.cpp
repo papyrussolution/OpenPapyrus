@@ -251,7 +251,7 @@ PPDbTableXmlExporter_Transfer::PPDbTableXmlExporter_Transfer(const PPDbTableXmlE
 	PPDbTableXmlExporter(), P_Q(0), P(rParam)
 {
 	P.Period.Actualize(ZERODATE);
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	P_T = p_bobj ? p_bobj->trfr : 0;
 }
 
@@ -289,7 +289,7 @@ PPDbTableXmlExporter_Bill::PPDbTableXmlExporter_Bill(const PPDbTableXmlExportPar
 	PPDbTableXmlExporter(), P(rParam), P_Q(0)
 {
 	P.Period.Actualize(ZERODATE);
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	P_T = p_bobj ? p_bobj->P_Tbl : 0;
 }
 

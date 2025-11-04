@@ -1628,7 +1628,7 @@ static SString & MakeBillCode(const PPStyloPalm & rDvcRec, int orderCodeFormatTy
 int PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID locID, const PPStyloPalmConfig & rCfg, PPID * pResultID, PPLogger * pLogger, int use_ta)
 {
 	int    ok = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	int    r = 1;
 	PPID   result_id = 0;
 	PPBillPacket pack;
@@ -1790,7 +1790,7 @@ int PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID locID
 int PPObjStyloPalm::ImportInventory(PalmBillPacket * pSrcPack, PPID opID, PPID locID, PPLogger * pLogger, int use_ta)
 {
 	int    ok = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	const  PPID palm_id = pSrcPack->Hdr.PalmID;
 	PPObjStyloPalm palm_obj;
 	PPStyloPalm palm_rec;
@@ -3619,7 +3619,7 @@ static PalmCfgItem * FASTCALL GetPalmConfigItem(TSCollection <PalmCfgItem> & rLi
 int PPObjStyloPalm::ExportClients(PPID acsID, long palmFlags, ExportBlock & rBlk)
 {
 	int    ok = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	const  bool use_omt_paym_amt = LOGIC(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT);
 	DbfTable * p_client_tbl = 0, * p_debt_tbl = 0, * p_addr_tbl = 0;
 	DebtTrnovrViewItem debt_item;

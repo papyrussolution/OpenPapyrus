@@ -1594,7 +1594,7 @@ int32 DL6ICLS_PPUtil::GetTagGUID(PpyObjectIdent objType, int32 objID, int32 tagI
 	PPObjTag tag_obj;
 	PPObjectTag tag_rec;
 	if(tag_obj.Fetch(tagID, &tag_rec) > 0 && tag_rec.ObjTypeID == objType && tag_rec.TagDataType == OTTYP_GUID) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		ObjTagItem tag_item;
         if(p_ref->Ot.GetTag(objType, objID, tagID, &tag_item) > 0) {
             ok = tag_item.GetStr(tagv);
@@ -4020,7 +4020,7 @@ int32 DL6ICLS_PPObjGoods::SetVad(int32 goodsID, SPpyO_Goods * pGRec)
 	int    ok = 1;
 	PPObjGoods * p_obj = static_cast<PPObjGoods *>(ExtraPtr);
 	if(p_obj) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		GoodsStockExt gse;
 		SString ext_string, temp_buf;
 		SStringU temp_u_buf;

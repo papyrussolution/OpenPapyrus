@@ -219,7 +219,7 @@ PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempGoodsTaxAnlz);
 int PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	int    by_comlex_paym = 0;
 	SString temp_buf;
 	const  bool is_price_wo_excise = LOGIC(CConfig.Flags & CCFLG_PRICEWOEXCISE);

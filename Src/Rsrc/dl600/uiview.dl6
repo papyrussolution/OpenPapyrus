@@ -477,9 +477,12 @@ dialog DLG_BIZSC2 [vertical title: "@{bizscore}" size: (774, 492) minsize: (723,
 	}
 }
 
-dialog DLG_UNITECFILT [vertical size: (300, 140)] {
+dialog DLG_UNITECFILT [vertical size: (300, 140) minsize: (300, 140) title: "@view_unitec"] {
 	view [vertical width: bycontainer growfactor: 1 alignitems: start] {
 		input CTL_UNITECFILT_PERIOD [width: 240 height: 21 margin: 4 tabstop label: "@daterange"] string[48] supplement daterangecalbutton(CTLCAL_UNITECFILT_PERIOD);
+	}
+	checkcluster CTL_UNITECFILT_FLAGS [width: bycontainer margin: 4] {
+		checkbox [title: "@unitec_fpivot" height: 16];
 	}
 	view [horizontal width: bycontainer(100) height: 28 margin_right: 12 justifycontent: end] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
@@ -1314,9 +1317,6 @@ dialog DLG_OPKMORE_WH [vertical title: "@{oprkind_options}" size: (650, 540) min
 	}
 }
 
-// @20251023 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
-// Дилоги, представленные здесь с изменными символами (DLG_CASHREPORTS_L__, например) в ppdlg.list не отмечены поскольку находятся в работе.
-
 dialog DLG_OPKMORE_DEX [vertical title: "@{oprkind_options} (@{roptype_draftexpend})" size: (552, 473) minsize: (552, 473) font: "MS Shell Dlg 2,8"] {
 	view [horizontal width: bycontainer height: 80] {
 		radiocluster CTL_OPKMORE_AMOUNT [title: "@nominalamount" vertical growfactor: 1 height: bycontainer margin: 4] {
@@ -1451,6 +1451,29 @@ dialog DLG_SELPRNTSES [vertical title: "@printtsesslist" size: (335, 180) minsiz
 	}
 }
 
+dialog DLG_GSTRUCPRN [vertical title: "@printgoodsstruc" size: (340, 165) minsize: (340, 165) font: "MS Shell Dlg,8"] {
+	radiocluster CTL_GSTRUCPRN_WHAT [title: "@printgoodsstruc_what" vertical width: bycontainer margin: 4] {
+		radiobutton [title: "@printgoodsstruc_onlystruc" height: 16];
+		radiobutton [title: "@printgoodsstruc_hierarchy" height: 16];
+	}
+	view [horizontal width: bycontainer(100) growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: (4, 4, 8, 4) command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: (8, 4, 4, 4) command: cmCancel];
+	}
+}
+
+dialog DLG_GGRPKIND [vertical title: "@ttl_selnewgoodsgroup" size: (335, 180) minsize: (335, 180) font: "MS Shell Dlg,8"] {
+	radiocluster CTL_GGRPKIND_KIND [vertical width: bycontainer margin: 4] {
+		radiobutton [title: "@gpkind_ordinarygroup" height: 16];
+		radiobutton [title: "@gpkind_foldergroup" height: 16];
+		radiobutton [title: "@gpkind_altgroup" height: 16];
+	}
+	view [horizontal width: bycontainer(100) growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: (4, 4, 8, 4) command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: (8, 4, 4, 4) command: cmCancel];
+	}
+}
+
 dialog DLG_MRKTPLCIX [vertical title: "@filter_marketplaceinterchange" size: (400, 140) minsize: (400, 140) font: "MS Shell Dlg 2,8" aligncontent: center] {
 	combobox CTLSEL_MRKTPLCIX_GUA [tabstop width: bycontainer height: 21 margin: 4 label: "@globaluseracc" labelsize: (0, 13) cblinesymb: CTL_MRKTPLCIX_GUA];
 	view [horizontal width: bycontainer(100) growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
@@ -1466,3 +1489,95 @@ dialog DLG_TESTSVRPRINT [vertical title: "@testserverprint" size: (400, 140) min
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: (8, 4, 4, 4) command: cmCancel];
 	}
 }
+
+dialog DLG_TODOFILT [vertical title: "@prjtaskfilt" size: (740, 580) minsize: (740, 580) font: "MS Shell Dlg,8"] {
+	view [horizontal width: bycontainer height: 40] {
+		view [horizontal growfactor: 1] {
+		}
+		view [vertical growfactor: 1 height: bycontainer] {
+			input CTL_TODOFILT_PERIOD [tabstop width: bycontainer height: 21 margin: 4 label: "@prjtaskfilt_period" labelsize: (0, 13) ] string[30]
+				supplement daterangecalbutton(CTLCAL_TODOFILT_PERIOD);
+		}
+		view [vertical growfactor: 1 height: bycontainer] {
+			combobox CTLSEL_TODOFILT_TEMPLATE [tabstop width: bycontainer height: 21 margin: 4 label: "@prjtaskfilt_template" labelsize: (0, 13) cblinesymb: CTL_TODOFILT_TEMPLATE ];
+		}
+	}
+	view [horizontal width: bycontainer growfactor: 3] {
+		view [vertical growfactor: 1 height: bycontainer] {
+			radiocluster CTL_TODOFILT_KIND [vertical width: bycontainer margin: 4] {
+				radiobutton [title: "@prjtaskfilt_kind_tasks" height: 16];
+				radiobutton [title: "@prjtaskfilt_kind_templates" height: 16];
+				radiobutton [title: "@all" height: 16];
+			}
+			framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
+				input CTL_TODOFILT_START [width: bycontainer height: 21 margin: 4 tabstop label: "@prjtaskfilt_startperiod" labelsize: (0, 13) ] string[30]
+					supplement daterangecalbutton(CTLCAL_TODOFILT_START);
+				input CTL_TODOFILT_ESTFINISH [width: bycontainer height: 21 margin: 4 tabstop label: "@prjtaskfilt_estfinishperiod" labelsize: (0, 13) ] string[30]
+					supplement daterangecalbutton(CTLCAL_TODOFILT_ESTFINISH);
+				input CTL_TODOFILT_FINISH [width: bycontainer height: 21 margin: 4 tabstop label: "@prjtaskfilt_finishperiod" labelsize: (0, 13) ] string[30]
+					supplement daterangecalbutton(CTLCAL_TODOFILT_FINISH);
+			}
+		}
+		view [vertical growfactor: 1 height: bycontainer] {
+			framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
+				combobox CTLSEL_TODOFILT_CREATOR [tabstop width: bycontainer height: 21 margin: 4 label: "@prjtaskfilt_creator" labelsize: (0, 13) cblinesymb: CTL_TODOFILT_CREATOR ];
+				combobox CTLSEL_TODOFILT_EMPLOYER [tabstop width: bycontainer height: 21 margin: 4 label: "@prjtaskfilt_employer" labelsize: (0, 13) cblinesymb: CTL_TODOFILT_EMPLOYER ];
+			}
+			framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
+				combobox CTLSEL_TODOFILT_CROSSTAB [tabstop width: bycontainer height: 21 margin: 4 label: "@crosstab" labelsize: (0, 13) cblinesymb: CTL_TODOFILT_CROSSTAB ];
+				combobox CTLSEL_TODOFILT_CTPAR [tabstop width: bycontainer height: 21 margin: 4 label: "@indicator" labelsize: (0, 13) cblinesymb: CTL_TODOFILT_CTPAR ];
+			}
+		}
+		view [vertical growfactor: 1 height: bycontainer] {
+			framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
+				combobox CTLSEL_TODOFILT_CLIENT [tabstop width: bycontainer height: 21 margin: 4 label: "@prjtaskfilt_client" labelsize: (0, 13) cblinesymb: CTL_TODOFILT_CLIENT ];
+				combobox CTLSEL_TODOFILT_CITY [tabstop width: bycontainer height: 21 margin: 4 label: "@prjtaskfilt_clicity" labelsize: (0, 13) cblinesymb: CTL_TODOFILT_CITY ];
+			}
+			framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
+				combobox CTLSEL_TODOFILT_ORDER [tabstop width: bycontainer height: 21 margin: 4 label: "@sorting" labelsize: (0, 13) cblinesymb: CTL_TODOFILT_ORDER ];
+				combobox CTLSEL_TODOFILT_SUBST [tabstop width: bycontainer height: 21 margin: 4 label: "@prjtaskfilt_sgd" labelsize: (0, 13) cblinesymb: CTL_TODOFILT_SUBST ];
+			}
+		}
+	}
+	view [horizontal width: bycontainer height: 40] {
+		view [horizontal growfactor: 1 height: bycontainer] {
+		}
+		view [vertical growfactor: 2 height: bycontainer] {
+			combobox CTLSEL_TODOFILT_PRJ [tabstop growfactor: 2 height: 21 margin: 4 label: "@project" labelsize: (0, 13) cblinesymb: CTL_TODOFILT_PRJ];
+		}
+	}
+	view [horizontal width: bycontainer growfactor: 2] {
+		view [vertical growfactor: 1 height: bycontainer] {
+			checkcluster CTL_TODOFILT_PRIOR [tabstop title: "@prjtaskfilt_priorlist" width: bycontainer margin: 4] {
+				checkbox [title: "@todoprior_highest" height: 16];
+				checkbox [title: "@todoprior_high" height: 16];
+				checkbox [title: "@todoprior_normal" height: 16];
+				checkbox [title: "@todoprior_low" height: 16];
+				checkbox [title: "@todoprior_lowest" height: 16];
+			}
+		}
+		view [vertical growfactor: 1 height: bycontainer] {
+			checkcluster CTL_TODOFILT_STATUS [tabstop title: "@prjtaskfilt_statuslist" width: bycontainer margin: 4 ] {
+				checkbox [title: "@new_fem" height: 16];
+				checkbox [title: "@tsks_canceled" height: 16];
+				checkbox [title: "@inprogress" height: 16];
+				checkbox [title: "@tsks_pending" height: 16];
+				checkbox [title: "@completed_fem" height: 16];
+			}
+		}
+		view [vertical growfactor: 1 height: bycontainer] {
+			checkcluster CTL_TODOFILT_FLAGS [tabstop width: bycontainer margin: 4 ] {
+				checkbox [title: "@prjtaskfilt_funbindedonly" height: 16];
+				checkbox [title: "@prjtaskfilt_funviewedonly" height: 16];
+				checkbox [title: "@prjtaskfilt_funviewedemployeronly" height: 16];
+			}
+		}
+	}
+	view [horizontal width: bycontainer(100) height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: (4, 4, 8, 4) command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: (8, 4, 4, 4) command: cmCancel];
+	}
+}
+
+// @20251103 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
+// Диалоги, представленные здесь с изменными символами (DLG_CASHREPORTS_L__, например) в ppdlg.list не отмечены поскольку находятся в работе.

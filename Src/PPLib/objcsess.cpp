@@ -235,7 +235,7 @@ int PPObjCSession::Edit(PPID * pID, void * extraPtr)
 int PPObjCSession::Recalc(PPID sessID, int use_ta)
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	uint   i;
 	const  PPID ret_op_id = GetCashRetOp();
 	const  PPID wroff_acc_op_id = GetEqCfg().WrOffAccOpID;
@@ -322,7 +322,7 @@ int PPObjCSession::VerifyAmounts(PPID sessID, const CSessTotal & rTotal, PPLogge
 int PPObjCSession::Recover(const PPIDArray & rSessList)
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	PPWaitStart();
 	CGoodsLine cgl;
 	SString added_msg_buf, temp_buf;
@@ -455,7 +455,7 @@ int PPObjCSession::RemoveWrOffBills(PPID sessID, int use_ta)
 	PPID   bill_id = 0;
 	BillTbl::Rec bill_rec;
 	PPIDArray modif_bill_ids, ret_bill_ids, dfct_bill_list;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -642,7 +642,7 @@ int PPObjCSession::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 static int StoreCcDate2MaxIdIndex(LAssocArray & rIndex)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SBuffer cbuf;
 	if(rIndex.getCount()) {
 		SBuffer _sbuf;
@@ -674,7 +674,7 @@ static int RecallCcDate2MaxIdIndex(LAssocArray & rIndex)
 	rIndex.clear();
 	int    ok = 1;
 	SBuffer cbuf;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	if(p_ref->GetPropSBuffer(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CCDATETOMAXIDINDEX, cbuf) > 0) {
 		SSerializeContext sctx;
 		const size_t actual_size = cbuf.GetAvailableSize();

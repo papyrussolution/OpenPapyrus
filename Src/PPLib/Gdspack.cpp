@@ -830,7 +830,7 @@ int PPGdsClsPacket::PropNameToID(int prop, const char * pName, PPID * pID, int f
 	}
 	if(obj_type && IS_REF_OBJTYPE(obj_type)) {
 		PPID   id = 0;
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		if(p_ref->SearchName(obj_type, &id, pName, 0) > 0) {
 			ASSIGN_PTR(pID, id);
 			ok = 1;

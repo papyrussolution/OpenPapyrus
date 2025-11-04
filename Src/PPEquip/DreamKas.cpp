@@ -649,7 +649,7 @@ int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 int ACS_DREAMKAS::AcceptCheck(const SJson * pJsonObj)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPID   cc_id = 0;
 	long   cc_flags = 0;
 	long   foreign_cc_id = 0;

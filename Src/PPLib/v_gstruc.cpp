@@ -468,7 +468,21 @@ int FASTCALL PPViewGoodsStruc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 			if(p_item->StrucEntryP < Cb.StrucList.getCount())
 				pBlk->Set(GetGoodsName(Cb.StrucList.at(p_item->StrucEntryP).PrmrGoodsID, temp_buf));
 			break;
-		case 2: pBlk->Set(GetGoodsName(p_item->GoodsID, temp_buf)); break; // Secondary goods name
+		case 2: // Secondary goods name
+			if(p_item->StrucFlags & GSF_PRICEPLANNING) { // @v12.4.7
+				PPBizScore2Packet bs_pack;
+				if(Cb.BsObj.Fetch(p_item->GoodsID, &bs_pack) > 0) {
+					temp_buf = bs_pack.Rec.Name;
+				}
+				else {
+					ideqvalstr(p_item->GoodsID, temp_buf.Z());
+				}
+				pBlk->Set(temp_buf);
+			}
+			else {
+				pBlk->Set(GetGoodsName(p_item->GoodsID, temp_buf)); 
+			}
+			break; 
 		case 3: // Simple representation of component qtty per one primary ware item
 			{
 				double qtty = 0.0;

@@ -3518,7 +3518,7 @@ void PPPosProtocol::ResolveGoodsParam::SetupGoodsPack(const PPPosProtocol::ReadB
 int PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int asRefOnly, const ResolveGoodsParam & rP, PPID * pNativeID)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPID   native_id = rBlk.NativeID;
 	SString temp_buf;
 	SString fmt_buf, msg_buf;
@@ -5894,7 +5894,7 @@ int RunInputProcessThread(PPID posNodeID)
 	TSCollection <PPThread::Info> thread_info_list;
 	DS.GetThreadInfoList(PPThread::kPpppProcessor, thread_info_list);
 	if(!thread_info_list.getCount()) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		PPID   user_id = 0;
 		PPSecur usr_rec;
 		char    pw[128];

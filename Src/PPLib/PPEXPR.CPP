@@ -361,7 +361,7 @@ int BillContext::ProcessLink(PPID linkBillID, PPID amtID, int artefactSymb, PPID
 	int    ok = 1;
 	double result = 0.0;
 	if(linkBillID) {
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		if(artefactSymb) {
 			BillTotalData btd;
 			PPBillPacket link_pack;
@@ -1590,7 +1590,7 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 				}
 			}
 			else if(spcref == spcrefLotTag) {
-				PPObjBill * p_bobj = BillObj;
+				PPObjBill * p_bobj(BillObj);
 				PPObjTag tag_obj;
 				PPID   tag_id = 0;
 				ObjTagList tag_list;

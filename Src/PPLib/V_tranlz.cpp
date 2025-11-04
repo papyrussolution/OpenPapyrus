@@ -2786,7 +2786,7 @@ int PPViewTrfrAnlz::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser
 							common_tag_list.Oid.Obj = obj_type;
 							PPIDArray id_list;
 							TrfrAnlzViewItem item;
-							Reference * p_ref = PPRef;
+							Reference * p_ref(PPRef);
 							for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
 								if(obj_type == PPOBJ_LOCATION)
 									obj_id = item.DlvrLocID;
@@ -4669,7 +4669,7 @@ int PrcssrAlcReport::SearchPersonByRarCode(const char * pCode, PPID * pPsnID, PP
     PPID   psn_id = 0;
     PPID   loc_id = 0;
     if(!isempty(pCode)) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		PPIDArray psn_id_list;
 		PPIDArray loc_id_list;
 		p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_PERSON, PPTAG_PERSON_FSRARID, pCode, &psn_id_list);
@@ -4915,7 +4915,7 @@ int PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const ObjTagL
 	rItem.Z();
 
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString fmt_buf, msg_buf, temp_buf;
 	GoodsExtTbl::Rec goods_ext_rec;
 	Goods2Tbl::Rec goods_rec;

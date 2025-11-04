@@ -4,7 +4,8 @@
 #include <slib-internal.h>
 #pragma hdrstop
 
-DBQBrowserDef::DBQBrowserDef(DBQuery & rQuery, int captionHight, uint aOptions, uint aBufSize) : BrowserDef(captionHight, aOptions), P_Query(0)
+DBQBrowserDef::DBQBrowserDef(DBQuery & rQuery, int captionHight, uint aOptions, uint aBufSize) : 
+	BrowserDef(BrowserDefSignature_DBQ, captionHight, aOptions), P_Query(0)
 {
 	setQuery(rQuery, aBufSize);
 }
@@ -123,7 +124,7 @@ int DBQBrowserDef::refresh()
 	return r;
 }
 
-bool   DBQBrowserDef::IsValid() const { return !P_Query->error; }
+bool   DBQBrowserDef::IsValid() const { return !P_Query->Error_; }
 int    DBQBrowserDef::go(long p) { return step(p-curItem); }
 long   DBQBrowserDef::GetRecsCount() const { return P_Query->P_Frame->SRange+1; }
 const  void * DBQBrowserDef::getRow(long r) const { return P_Query->getRecord(static_cast<uint>(r)); }

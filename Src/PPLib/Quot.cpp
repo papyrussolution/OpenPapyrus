@@ -865,7 +865,7 @@ int UpdateQuots(const QuotUpdFilt * pFilt)
 	int    ok = 1;
 	int    r = 0;
 	int    for_all = 0;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	SString log_msg_buf, temp_buf;
 	PPObjQuotKind qk_obj;
 	PPObjGoods goods_obj;

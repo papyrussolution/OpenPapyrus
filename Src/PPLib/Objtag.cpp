@@ -228,7 +228,7 @@ int TagFilt::Helper_CheckTagItemForRestrict_EnumID(const ObjTagItem * pItem, lon
 			PPObjectTag tag_rec;
 			if(tag_obj.Fetch(pItem->TagID, &tag_rec) > 0 && tag_rec.Flags & OTF_HIERENUM) {
 				assert(tag_rec.TagEnumID == pItem->TagEnumID);
-				Reference * p_ref = PPRef;
+				Reference * p_ref(PPRef);
 				ReferenceTbl::Rec rec;
 				PPIDArray recur_list;
 				if(p_ref->GetItem(tag_rec.TagEnumID, item_id, &rec) > 0 && rec.Val2) {
@@ -403,7 +403,7 @@ int PPTagEnumList::PutItem(PPID * pID, const char * pName, PPID parentID)
 int PPTagEnumList::Read(PPID enumID)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	Z();
 	if(enumID)
 		SetEnumID(enumID);
@@ -423,7 +423,7 @@ int PPTagEnumList::Read(PPID enumID)
 int PPTagEnumList::Write(int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	uint   i;
 	PPID   item_id;
 	SString name;
@@ -743,7 +743,7 @@ ObjTagFilt & ObjTagFilt::Z()
 /*static*/PPID PPObjTag::Helper_GetTag(PPID objType, PPID objID, const char * pTagSymb)
 {
 	long   sur_id = 0;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	if(p_ref) {
 		PPObjTag tag_obj;
 		PPID   tag_id = 0;
@@ -758,7 +758,7 @@ ObjTagFilt & ObjTagFilt::Z()
 {
 	long   sur_id = 0;
 	if(tagID) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		if(p_ref) {
 			PPObjTag tag_obj;
 			ObjTagTbl::Rec tag_rec;
@@ -1514,7 +1514,7 @@ static int EditRecoverHungedUpTagsParam(SString & rLogFileName, long * pFlags)
 /*static*/int PPObjTag::RecoverHungedUpTags() // @v12.2.5
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPLogger logger;
 	SString temp_buf;
 	SString msg_buf;
@@ -1616,7 +1616,7 @@ static int EditRecoverHungedUpTagsParam(SString & rLogFileName, long * pFlags)
 /*static*/int PPObjTag::RecoverLostUnifiedLinks()
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPLogger logger;
 	StrAssocArray * p_tags_list = 0;
 	SysJournal * p_sj = DS.GetTLA().P_SysJ;
@@ -2950,7 +2950,7 @@ int EditObjTagValUpdateList(ObjTagList * pList, const PPIDArray * pAllowedTags, 
 int EditObjTagValList(PPID objType, PPID objID, const PPIDArray * pAllowedTags)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	ObjTagList list;
 	THROW(p_ref->Ot.GetList(objType, objID, &list));
 	list.Oid.Set(objType, objID);
@@ -3536,7 +3536,7 @@ int PPObjTag::FetchTag(PPID objID, PPID tagID, ObjTagItem * pItem)
 	if(p_cache)
 		ok = p_cache->FetchTag(objID, tagID, pItem);
 	else {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		if(p_ref) {
 			PPObjectTag tag_rec;
 			if(Fetch(tagID, &tag_rec) > 0)

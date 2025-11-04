@@ -861,7 +861,7 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 		}
 		int    IsMenuUsed(PPID obj, PPID menuID/*, int isDesktop*/)
 		{
-			Reference * p_ref = PPRef;
+			Reference * p_ref(PPRef);
 			const S_GUID uuid = List.GetUuidBySurrId(menuID);
 			int    used = (CmdGrpC == cmdgrpcDesktop) ? BIN(LConfig.DesktopUuid_ == uuid) : 0;
 			for(PPID id = 0; !used && p_ref->EnumItems(obj, &id) > 0;) {

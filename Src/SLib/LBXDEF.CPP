@@ -1126,7 +1126,7 @@ int DBQListBoxDef::setQuery(DBQuery & rQuery, uint aBufSize)
 }
 
 int    DBQListBoxDef::setRestrict(DBQ & rQ) { return query ? (query->where(rQ), query->top(), 1) : 0; }
-bool   DBQListBoxDef::IsValid() const { return (query && !query->error); }
+bool   DBQListBoxDef::IsValid() const { return (query && !query->Error_); }
 int    DBQListBoxDef::go(long p) { return step(p-CurItem); }
 
 void DBQListBoxDef::setViewHight(int h)

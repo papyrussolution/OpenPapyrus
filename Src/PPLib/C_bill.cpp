@@ -260,7 +260,7 @@ int RecalcBillTurns(int checkAmounts)
 {
 	int    ok = 1;
 	int    ta = 0;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	int    frrl_tag = 0, r;
 	PPLogger logger;
 	BillRecalcParam flt;
@@ -704,7 +704,7 @@ int RecoverAbsenceBills()
 int RemoveBadReckons()
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	IterCounter cntr;
 	PPObjOprKind op_obj;
 	ObjAssoc & a = PPRef->Assc;

@@ -300,7 +300,7 @@ int PPCashMachine::_SyncCloseBill(int ret, int use_ta)
 	int    ok = 1;
 	const  PPID op_id = ret ? GetCashRetOp() : GetCashOp();
 	if(op_id > 0) {
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		PPID   id;
 		int    count = 0;
 		double sum = 0.0;
@@ -637,7 +637,7 @@ int PPCashMachine::SyncViewSessionStat(long options)
 int PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long checkPanFlags)
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	const  PPConfig & r_cfg = LConfig;
 	int    r = cmOK;
 	int    deny_ops = 0;
@@ -1212,7 +1212,7 @@ int PPCashMachine::SyncPreprocessChZnCode(int op, const char * pCode, double qtt
 int PPCashMachine::SyncAllowPrint()
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	THROW(p_bobj->CheckRights(BILLRT_CASH));
 	THROW(GetNode() > 0);
 	if((NodeRec.Flags & CASHF_DAYCLOSED) || !NodeRec.CurDate || (NodeRec.Flags & CASHF_CHKPAN && !NodeRec.CurSessID)) {

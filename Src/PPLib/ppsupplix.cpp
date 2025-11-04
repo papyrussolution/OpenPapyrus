@@ -2596,7 +2596,7 @@ int iSalesPepsi::Init()
 	if(P.SupplID) {
 		PPID suppl_psn_id = ObjectToPerson(P.SupplID, 0);
 		if(suppl_psn_id) {
-			Reference * p_ref = PPRef;
+			Reference * p_ref(PPRef);
 			if(p_ref) {
 				PPObjTag tag_obj;
 				PPID   tag_id = 0;
@@ -3846,7 +3846,7 @@ IMPL_CMPFUNC(iSalesBillDebt, p1, p2)
 int iSalesPepsi::SendDebts()
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString * p_result = 0;
 	PPSoapClientSession sess;
 	SString temp_buf;
@@ -4633,7 +4633,7 @@ int iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArra
 	int    ok = -1;
 	const  PPID bill_ack_tag_id = NZOR(Ep.Fb.BillAckTagID, PPTAG_BILL_EDIACK);
 	if(opID && outerDocType >= 0) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		SString temp_buf;
 		SString isales_code;
 		S_GUID test_uuid;
@@ -4783,7 +4783,7 @@ int iSalesPepsi::SendInvoices()
 		Возврат по акту (5) – это документ, c привязкой к расходной накладной, в тегах REFS в этом случае должны быть данные с номером расходной накладной, датой накладной, и тип документа расх. накладная = 1 (<DOC_TP> = 5)
 	*/
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	const  PPID bill_ack_tag_id = NZOR(Ep.Fb.BillAckTagID, PPTAG_BILL_EDIACK);
 	PPSoapClientSession sess;
 	PPObjOprKind op_obj;
@@ -5211,7 +5211,7 @@ SapEfes::~SapEfes()
 
 void SapEfes::Init()
 {
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	State = 0;
 	SvcUrl.Z();
 	UserName.Z();
@@ -5275,7 +5275,7 @@ int SapEfes::MakeOrderReply(TSCollection <SapEfesBillStatus> & rList, const SapE
 int SapEfes::ReceiveOrders()
 {
     int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	const  PPID agent_acs_id = GetAgentAccSheet();
 	PPSoapClientSession sess;
 	SString temp_buf;
@@ -5491,7 +5491,7 @@ int SapEfes::ReceiveOrders()
 int SapEfes::SendSales_ByDlvrLoc()
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	const  LDATE _curdate = getcurdate_();
 	TSCollection <SapEfesLogMsg> * p_result = 0;
 	TSCollection <SapEfesGoodsReportEntry> outp_packet;
@@ -5651,7 +5651,7 @@ int SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacket> & r
 {
 	rToCancelBillList.clear();
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	const  PPID bill_ack_tag_id = Ep.Fb.BillAckTagID;
 	THROW_PP_S(Ep.Fb.CliCodeTagID, PPERR_SUPPLIX_UNDEFCLICTAG, ArName);
 	THROW_PP_S(Ep.Fb.LocCodeTagID, PPERR_SUPPLIX_UNDEFLOCCTAG, ArName);
@@ -5814,7 +5814,7 @@ int SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacket> & r
 int SapEfes::SendInvoices()
 {
     int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
     const  PPID bill_ack_tag_id = Ep.Fb.BillAckTagID;
 	PPIDArray to_cancel_bill_list;
 	SString temp_buf;
@@ -6318,7 +6318,7 @@ SfaHeineken::~SfaHeineken()
 
 void SfaHeineken::Init()
 {
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	State = 0;
 	SvcUrl.Z();
 	UserName.Z();
@@ -6351,7 +6351,7 @@ int SfaHeineken::ReceiveOrders()
 {
 	int    ok = -1;
 	LDATE  query_date = ZERODATE;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPSoapClientSession sess;
 	SString temp_buf;
 	SString msg_buf;
@@ -6607,7 +6607,7 @@ int SfaHeineken::Helper_MakeDeliveryList(PPBillPacket & rPack, const StrAssocArr
 int SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollection <SfaHeinekenInvoice> & rList, TSCollection <SfaHeinekenInvoice> & rToDeleteList)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	const  PPID bill_ack_tag_id = Ep.Fb.BillAckTagID; //NZOR(Ep.Fb.BillAckTagID, PPTAG_BILL_EDIACK);
 	int    do_cancel = BIN(outerDocType < 0);
 	SString temp_buf;
@@ -6747,7 +6747,7 @@ int SfaHeineken::Helper_MakeBillList(PPID opID, int outerDocType, TSCollection <
 	int    ok = -1;
 	const  PPID bill_ack_tag_id = Ep.Fb.BillAckTagID;
 	if(opID && outerDocType >= 0) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		SString temp_buf;
 		SString isales_code;
 		S_GUID test_uuid;
@@ -6816,7 +6816,7 @@ int SfaHeineken::SendDebts()
 	THROW(P_Lib);
 	THROW_SL(func = reinterpret_cast<SFAHEINEKENSENDALLCONTRAGENTDEBET_PROC>(P_Lib->GetProcAddr("SfaHeineken_SendAllContragentDebet")));
 	{
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		PPViewDebtTrnovr debt_view;
 		DebtTrnovrViewItem debt_item;
 		DebtTrnovrFilt debt_filt;
@@ -6972,7 +6972,7 @@ int SfaHeineken::SendStocks()
 	THROW_SL(func = reinterpret_cast<SFAHEINEKENSENDWAREHOUSEBALANCE_PROC>(P_Lib->GetProcAddr("SfaHeineken_SendWarehousesBalance")));
 	sess.Setup(SvcUrl, UserName, Password);
 	if(Ep.Fb.LocCodeTagID) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		PPViewGoodsRest gr_view;
 		GoodsRestFilt gr_filt;
 		GoodsRestViewItem gr_item;
@@ -10168,7 +10168,7 @@ class EfopMayTea : public PrcssrSupplInterchange::ExecuteBlock { // @v12.0.7 @co
 		int    ok = -1;
 		const LDATETIME now_dtm = getcurdatetime_();
 		const PPID sell_acs_id = GetSellAccSheet();
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		uint   new_pack_idx = 0;
 		SString temp_buf;
 		PPBillPacket pack__;
@@ -11329,7 +11329,7 @@ int Ostankino::SendSales(StringSet & rSsFileName)
 {
 	const LDATETIME now_dtm = getcurdatetime_();
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	SString out_file_name;
 	SString cli_code;
@@ -11506,7 +11506,7 @@ int Ostankino::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, const TSVec
 {
 	int    ok = -1;
 	const LDATETIME now_dtm = getcurdatetime_();
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	uint   new_pack_idx = 0;
 	SString temp_buf;
 	PPBillPacket pack__;
@@ -12155,7 +12155,7 @@ private:
 		int    ok = -1;
 		const LDATETIME now_dtm = getcurdatetime_();
 		const PPID sell_acs_id = GetSellAccSheet();
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		uint   new_pack_idx = 0;
 		SString temp_buf;
 		PPBillPacket pack__;
@@ -12926,7 +12926,7 @@ int VladimirskiyStandard::SendSales(StringSet & rSsFileName)
 {
 	const LDATETIME now_dtm = getcurdatetime_();
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	SString out_file_name;
 	SString cli_code;
@@ -13227,7 +13227,7 @@ int VladimirskiyStandard::MakeGoodsList(TSVector <VladimirskiyStandard::ObjEntry
 int VladimirskiyStandard::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, const TSVector <VladimirskiyStandard::ObjEntry> & rGoodsList, BillPacketCollection & rList)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	uint   new_pack_idx = 0;
 	SString temp_buf;
 	PPBillPacket pack__;
@@ -13489,7 +13489,8 @@ public:
 			SString Contact;       // <CONTACT/>	Контактное лицо 
 			SString ClosingDay;    // <CLOSING_DAY/>	 
 			SString VisitFee;      // <VISIT_FEE/>	Платный визит
-			SString INN;           // <VAT/>	 
+			//SString INN;           // <VAT/>	 
+			uint64 UedRuInn;       // <VAT/>	 
 			uint64 UedGeoLoc;      // <GC_LONGITUD>37.786406</GC_LONGITUD>	Долгота; <GC_LATITUDE>44.701622</GC_LATITUDE>	Широта		
 		};
 		struct OrderItem {
@@ -13533,6 +13534,7 @@ public:
 	int    IdentifyAddress(const BailmentOrderSet::PartnerItem & rOuterItem, PPID * pLocID);
 	int    ProcessBailmentExchange();
 private:
+	const SString & FASTCALL EncXmlText(const SString & rS) { return SXml::Helper_EncXmlText(rS, CTRANSF_INNER_TO_UTF8, SLS.AcquireRvlStr()); }
 	//
 	// Descr: Функция разбирает заявку на размещение холодильного оборудования у клиентов (supplier - Мултон)
 	//
@@ -13549,8 +13551,9 @@ private:
 	int    MakeLocationPacket(const BailmentOrderSet::PartnerItem & rI, PPLocationPacket & rLocPack);
 	int    MakeReply(const BillTbl::Rec & rOrderBillRec, PPID billID, StringSet & rSsResultFileNames);
 	int    ImportBailmentOrders();
-	int    ExportBailentReplies();
-	int    Helper_CreateToDoOnOrderEntry(const BailmentOrderSet::OrderItem * pOrd, PPID todoCodeTagID, const LocTransfOpBlock & rLti, long todoSerial, SString & rTodoCode, int use_ta);
+	int    ExportBailmentReplies();
+	int    Helper_CreateToDoOnOrderEntry(const BailmentOrderSet::OrderItem * pOrd, PPID todoCodeTagID, const LocTransfOpBlock & rLti, 
+		long todoSerial, PPID * pTodoID, SString & rTodoCode, int use_ta);
 
 	PPLogger & R_Logger;
 	TokenSymbHashTable TsHt;
@@ -13561,10 +13564,12 @@ private:
 int COCACOLA::MakeReply(const BillTbl::Rec & rOrderBillRec, PPID billID, StringSet & rSsResultFileNames)
 {
 	int    ok = -1;
+	Reference * p_ref(PPRef);
 	const  LDATETIME _now_dtm = getcurdatetime_();
 	SString temp_buf;
-	if(billID) {
+	if(rOrderBillRec.ID && billID) {
 		PPBillPacket bpack;
+		PPBillPacket ord_bpack;
 		if(P_BObj->ExtractPacket(billID, &bpack) > 0 && bpack.Rec.LinkBillID == rOrderBillRec.ID) {
 			PPOprKind op_rec;
 			if(GetOpType(bpack.Rec.OpID, &op_rec) == PPOPT_WAREHOUSE && oneof2(op_rec.SubType, OPSUBT_BAILMENT_PUT, OPSUBT_BAILMENT_GET)) {
@@ -13572,10 +13577,62 @@ int COCACOLA::MakeReply(const BillTbl::Rec & rOrderBillRec, PPID billID, StringS
 				if(ltc) {
 					SString svc_file_name; // SERVICE    "Data_xxxx_date"
 					SString equ_file_name; // EQUIPMENT  "MOV_xxxx_date"
+					SString todo_code;
+					PPObjTag tag_obj;
+					PPID   todo_code_tag_id = 0;
+					PPPrjTaskPacket todo_pack;
+					PPIDArray todo_id_list;
+					BailmentOrderSet raw_order_set;
+					const BailmentOrderSet::OrderItem * p_raw_order = 0;
 					//PPGetFilePath(PPPATH_OUT, "")
-					
+					THROW(P_BObj->ExtractPacket(rOrderBillRec.ID, &ord_bpack) > 0);
+					{
+						PPID    _tag_id = 0;
+						PPObjectTag tag_rec;
+						if(tag_obj.FetchBySymb("SERVICE-TODO-CODE", &_tag_id) > 0 && tag_obj.Fetch(_tag_id, &tag_rec) > 0 && tag_rec.TagDataType == OTTYP_STRING)
+							todo_code_tag_id = _tag_id;	
+					}
+					{
+						p_ref->UtrC.SearchUtf8(TextRefIdent(PPOBJ_BILL, rOrderBillRec.ID, PPTRPROP_RAWDATA_XML), temp_buf);
+						ParseBailmentOrderBuf(temp_buf, raw_order_set);
+						for(uint i = 0; i < raw_order_set.OrderList.getCount(); i++) {
+							const BailmentOrderSet::OrderItem * p_iter_item = raw_order_set.OrderList.at(i);
+							if(sstreqi_ascii(p_iter_item->SOrdNo, rOrderBillRec.Code)) {
+								p_raw_order = p_iter_item;
+								break;
+							}
+						}
+					}
 					for(uint lti = 0; lti < ltc; lti++) {
-						const LocTransfOpBlock & r_lti = bpack.P_LocTrfrList->at(lti);
+						const  LocTransfOpBlock & r_lti = bpack.P_LocTrfrList->at(lti);
+						const  LocTransfOpBlock * p_ord_lti = 0;
+						uint   ord_lti_idx = 0;
+						todo_code.Z();
+						todo_pack.Rec.ID = 0;
+						if(r_lti.OrderRByBill && SVectorBase::GetCount(ord_bpack.P_LocTrfrList)) {
+							for(uint ord_lti = 0; ord_lti < SVectorBase::GetCount(ord_bpack.P_LocTrfrList); ord_lti++) {
+								const LocTransfOpBlock & r_iter_ord_lti = ord_bpack.P_LocTrfrList->at(ord_lti);
+								if(r_iter_ord_lti.RByBillLT == r_lti.OrderRByBill) {
+									p_ord_lti = &r_iter_ord_lti;
+									ord_lti_idx = ord_lti;
+									if(todo_code_tag_id && ord_bpack.LTagL.GetTagStr(ord_lti_idx, todo_code_tag_id, todo_code) > 0) {
+										if(TodoObj.P_Tbl->SearchByCode(todo_code, todo_id_list) > 0) {
+											PPID todo_id = 0;
+											if(todo_id_list.getCount() == 1) {
+												todo_id = todo_id_list.get(0);
+											}
+											if(todo_id && TodoObj.GetPacket(todo_id, &todo_pack) > 0) {
+												;
+											}
+											else {
+												todo_pack.Rec.ID = 0;
+											}
+										}
+									}
+									break;
+								}
+							}
+						}
 						{
 							// EQUIPMENT "MOV_xxxx_date"
 							temp_buf.Z().Cat("MOV").CatChar('_').Cat(rOrderBillRec.Code).CatChar('_').Cat(_now_dtm.d, DATF_YMD|DATF_NODIV).DotCat("xml");
@@ -13612,10 +13669,34 @@ int COCACOLA::MakeReply(const BillTbl::Rec & rOrderBillRec, PPID billID, StringS
 												p_item_type = "GR";
 											n_i.PutInner("TYPE", p_item_type); // Тип движения : (GI- Выдача (при установки на клиента) GR - Получение (снятие на склад с клиента))
 										}
-										n_i.PutInner("EQUNR", ""); // Номер единицы оборудования 
-										n_i.PutInner("BARCODE", ""); // Штрих код оборудования/инвентарный номер
-										n_i.PutInner("PLANT", ""); // Завод (доп. файл Мултон IH08)
-										n_i.PutInner("SLOCATION", ""); // Склад (доп. файл Мултон IH08)
+										{
+											if(p_raw_order)
+												temp_buf = p_raw_order->Eq.ItemId;
+											else
+												temp_buf.Z();
+											n_i.PutInner("EQUNR", temp_buf); // Номер единицы оборудования 
+										}
+										{
+											if(p_raw_order)
+												temp_buf = p_raw_order->Eq.Barcode;
+											else
+												temp_buf.Z();
+											n_i.PutInner("BARCODE", temp_buf); // Штрих код оборудования/инвентарный номер
+										}
+										{
+											if(p_raw_order)
+												temp_buf = p_raw_order->EqF.PlantEqLayout; // ???
+											else
+												temp_buf.Z();
+											n_i.PutInner("PLANT", temp_buf); // Завод (доп. файл Мултон IH08)
+										}
+										{
+											if(p_raw_order)
+												temp_buf = p_raw_order->Warehouse; // ???
+											else
+												temp_buf.Z();
+											n_i.PutInner("SLOCATION", temp_buf); // Склад (доп. файл Мултон IH08)
+										}
 										n_i.PutInner("ORDER", (temp_buf = rOrderBillRec.Code)); // Номер заказа (из файла XML Мултон <SORDER>)
 										{
 											const char * p_item_sstxu = 0;
@@ -13680,11 +13761,38 @@ int COCACOLA::MakeReply(const BillTbl::Rec & rOrderBillRec, PPID billID, StringS
 									SXml::WNode n_s(p_x, "SERVICE");
 									{
 										SXml::WNode n_i(p_x, "ITEM");
-										n_i.PutInner("QMNUM", ""); // Номер заявки (из файла XML Мултон <QMNUM>)
-										n_i.PutInner("START_DATE", ""); // Дата фактического начала работы
-										n_i.PutInner("START_TIME", ""); // Время фактического начала работы 
-										n_i.PutInner("END_DATE", "");
-										n_i.PutInner("END_TIME", "");
+										{
+											if(p_raw_order) {
+												temp_buf = p_raw_order->QMNUM;
+											}
+											else
+												temp_buf.Z();
+											n_i.PutInner("QMNUM", temp_buf); // Номер заявки (из файла XML Мултон <QMNUM>)
+										}
+										{
+											temp_buf.Z();
+											if(todo_pack.Rec.ID && checkdate(todo_pack.Rec.StartDt)) 
+												temp_buf.Cat(todo_pack.Rec.StartDt, DATF_ISO8601CENT);
+											n_i.PutInner("START_DATE", temp_buf); // Дата фактического начала работы
+										}
+										{
+											temp_buf.Z();
+											if(todo_pack.Rec.ID && checkdate(todo_pack.Rec.StartDt) && checktime(todo_pack.Rec.StartTm)) 
+												temp_buf.Cat(todo_pack.Rec.StartTm, TIMF_HMS);
+											n_i.PutInner("START_TIME", temp_buf); // Время фактического начала работы 
+										}
+										{
+											temp_buf.Z();
+											if(todo_pack.Rec.ID && checkdate(todo_pack.Rec.FinishDt)) 
+												temp_buf.Cat(todo_pack.Rec.FinishDt, DATF_ISO8601CENT);
+											n_i.PutInner("END_DATE", temp_buf);
+										}
+										{
+											temp_buf.Z();
+											if(todo_pack.Rec.ID && checkdate(todo_pack.Rec.FinishDt) && checktime(todo_pack.Rec.FinishTm)) 
+												temp_buf.Cat(todo_pack.Rec.FinishTm, TIMF_HMS);
+											n_i.PutInner("END_TIME", temp_buf);
+										}
 										n_i.PutInner("DATE_COMPLETE", "");
 										n_i.PutInner("ASTXT", "");
 										{
@@ -13699,8 +13807,20 @@ int COCACOLA::MakeReply(const BillTbl::Rec & rOrderBillRec, PPID billID, StringS
 											SXml::WNode n_e(p_x, "EQUIPMENT");
 											{
 												SXml::WNode n_i2(p_x, "ITEM");
-												n_i2.PutInner("EQUNR", ""); // Номер единицы оборудования (доп. файл Мултон IH08)
-												n_i2.PutInner("TIDNR", ""); // Штрих код оборудования (доп. файл Мултон IH08)
+												{
+													if(p_raw_order)
+														temp_buf = p_raw_order->Eq.ItemId;
+													else
+														temp_buf.Z();
+													n_i2.PutInner("EQUNR", temp_buf); // Номер единицы оборудования (доп. файл Мултон IH08)
+												}
+												{
+													if(p_raw_order)
+														temp_buf = p_raw_order->Eq.Barcode;
+													else
+														temp_buf.Z();
+													n_i2.PutInner("TIDNR", ""); // Штрих код оборудования (доп. файл Мултон IH08)
+												}
 											}
 										}
 										n_i.PutInner("PL_MATNR", "");
@@ -13709,12 +13829,29 @@ int COCACOLA::MakeReply(const BillTbl::Rec & rOrderBillRec, PPID billID, StringS
 										n_i.PutInner("PL_PLANT", "");
 										n_i.PutInner("PL_SLOC", "");
 										n_i.PutInner("MENGE", "");
-										n_i.PutInner("PRICE", "");
-										n_i.PutInner("PO_NUMBER", "");
-										n_i.PutInner("PO_ITEM", "");
-										n_i.PutInner("DELIVERY_DOC", "");
-										n_i.PutInner("DELIV_DOC_DT", "");
-										n_i.PutInner("COMMENTS", "");
+										{
+											temp_buf.Z();
+											if(todo_pack.Rec.ID && checkdate(todo_pack.Rec.StartDt)) 
+												temp_buf.Cat(todo_pack.Rec.Amount, MKSFMTD(0, 2, 0));
+											n_i.PutInner("PRICE", temp_buf);
+										}
+										{
+											if(p_raw_order)
+												temp_buf = p_raw_order->PoCode;
+											else
+												temp_buf.Z();
+											n_i.PutInner("PO_NUMBER", temp_buf);
+										}
+										{
+											if(p_raw_order)
+												temp_buf = p_raw_order->PoRowN;
+											else
+												temp_buf.Z();
+											n_i.PutInner("PO_ITEM", temp_buf);
+										}
+										n_i.PutInner("DELIVERY_DOC", EncXmlText(temp_buf.Z().Cat(bpack.Rec.Code)));
+										n_i.PutInner("DELIV_DOC_DT", temp_buf.Z().Cat(bpack.Rec.Dt, DATF_ISO8601CENT));
+										n_i.PutInner("COMMENTS", EncXmlText(bpack.SMemo));
 									}
 								}
 							}
@@ -13725,11 +13862,11 @@ int COCACOLA::MakeReply(const BillTbl::Rec & rOrderBillRec, PPID billID, StringS
 			}
 		}
 	}
-	//CATCHZOK
+	CATCHZOK
 	return ok;
 }
 
-COCACOLA::BailmentOrderSet::PartnerItem::PartnerItem() : UedGeoLoc(0), Itic(0)
+COCACOLA::BailmentOrderSet::PartnerItem::PartnerItem() : UedRuInn(0), UedGeoLoc(0), Itic(0)
 {
 }
 			
@@ -13774,7 +13911,7 @@ int COCACOLA::IdentifyAddress(const BailmentOrderSet::PartnerItem & rOuterItem, 
 {
 	int    ok = -1;
 	PPID   result_id = 0;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	if(rOuterItem.Code.NotEmpty()) {
 		if(LocCodeTagID) { // COCACOLA-LOC-CODE
 			PPIDArray loc_id_list;
@@ -13799,10 +13936,12 @@ int COCACOLA::IdentifyAddress(const BailmentOrderSet::PartnerItem & rOuterItem, 
 	return ok;
 }
 
-int COCACOLA::Helper_CreateToDoOnOrderEntry(const BailmentOrderSet::OrderItem * pOrd, PPID todoCodeTagID, const LocTransfOpBlock & rLti, long todoSerial, SString & rTodoCode, int use_ta)
+int COCACOLA::Helper_CreateToDoOnOrderEntry(const BailmentOrderSet::OrderItem * pOrd, PPID todoCodeTagID, const LocTransfOpBlock & rLti, 
+	long todoSerial, PPID * pTodoID, SString & rTodoCode, int use_ta)
 {
 	rTodoCode.Z();
 	int    ok = -1;
+	PPID   todo_id = 0;
 	SString temp_buf;
 	if(todoCodeTagID) { // @construction
 		{
@@ -13815,7 +13954,6 @@ int COCACOLA::Helper_CreateToDoOnOrderEntry(const BailmentOrderSet::OrderItem * 
 			}
 			rTodoCode.Transf(CTRANSF_UTF8_TO_INNER);
 		}
-		PPID   todo_id = 0;
 		PPPrjTaskPacket todo_pack;
 		TodoObj.InitPacket_(todo_pack, TODOKIND_TASK, 0, rLti.LocOwnerPersonID, 0, use_ta);
 		todo_pack.Rec.Kind = TODOKIND_TASK;
@@ -13841,13 +13979,14 @@ int COCACOLA::Helper_CreateToDoOnOrderEntry(const BailmentOrderSet::OrderItem * 
 		ok = 1;
 	}
 	CATCHZOK
+	ASSIGN_PTR(pTodoID, todo_id);
 	return ok;
 }
 
 int COCACOLA::ImportBailmentOrders()
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPObjTag tag_obj;
 	SString temp_buf;
 	SString fmt_buf;
@@ -13885,6 +14024,7 @@ int COCACOLA::ImportBailmentOrders()
 		const  PPID suppl_id = P.SupplID;
 		const  PPID order_op_id = FindBailmentOrderOp();
 		PPID   todo_code_tag_id = 0;
+		PPIDArray todo_id_list; // Список идентификаторов созданных задач
 		PPOprKind op_rec;
 		THROW_PP(GetOpData(order_op_id, &op_rec) > 0, PPERR_SUPPLIX_UNDEFOPBAILMENTORD);
 		if(P.Flags & SupplInterchangeFilt::fTestMode) {
@@ -13902,9 +14042,8 @@ int COCACOLA::ImportBailmentOrders()
 				PPID    _tag_id = 0;
 				if(tag_obj.FetchBySymb("SERVICE-TODO-CODE", &_tag_id) > 0) {
 					PPObjectTag tag_rec;
-					if(tag_obj.Fetch(_tag_id, &tag_rec) > 0 && tag_rec.TagDataType == OTTYP_STRING) {
+					if(tag_obj.Fetch(_tag_id, &tag_rec) > 0 && tag_rec.TagDataType == OTTYP_STRING)
 						todo_code_tag_id = _tag_id;	
-					}
 				}
 			}
 			{
@@ -14084,22 +14223,26 @@ int COCACOLA::ImportBailmentOrders()
 														{
 															SString todo_code;
 															assert(SVectorBase::GetCount(bpack.P_LocTrfrList));
-															const uint local_lt_pos = bpack.P_LocTrfrList->getCount()-1;
-															const int  todo_cr = Helper_CreateToDoOnOrderEntry(p_ord, todo_code_tag_id, lti_get, todo_serial, todo_code, 0/*use_ta*/);
+															const  uint local_lt_pos = bpack.P_LocTrfrList->getCount()-1;
+															PPID   todo_id = 0;
+															const  int  todo_cr = Helper_CreateToDoOnOrderEntry(p_ord, todo_code_tag_id, lti_get, todo_serial, &todo_id, todo_code, 0/*use_ta*/);
 															if(todo_cr > 0) {
 																todo_serial++;
 																bpack.LTagL.SetString(todo_code_tag_id, local_lt_pos, todo_code);
+																todo_id_list.addnz(todo_id);
 															}
 														}
 														bpack.P_LocTrfrList->insert(&lti_put);
 														{
 															SString todo_code;
 															assert(SVectorBase::GetCount(bpack.P_LocTrfrList));
-															const uint local_lt_pos = bpack.P_LocTrfrList->getCount()-1;
-															const int  todo_cr = Helper_CreateToDoOnOrderEntry(p_ord, todo_code_tag_id, lti_put, todo_serial, todo_code, 0/*use_ta*/);
+															const  uint local_lt_pos = bpack.P_LocTrfrList->getCount()-1;
+															PPID   todo_id = 0;
+															const  int  todo_cr = Helper_CreateToDoOnOrderEntry(p_ord, todo_code_tag_id, lti_put, todo_serial, &todo_id, todo_code, 0/*use_ta*/);
 															if(todo_cr > 0) {
 																todo_serial++;
 																bpack.LTagL.SetString(todo_code_tag_id, local_lt_pos, todo_code);
+																todo_id_list.addnz(todo_id);
 															}
 														}
 													}
@@ -14151,11 +14294,13 @@ int COCACOLA::ImportBailmentOrders()
 																SETIFZQ(bpack.P_LocTrfrList, new TSVector <LocTransfOpBlock>());
 																bpack.P_LocTrfrList->insert(&lti);
 																assert(SVectorBase::GetCount(bpack.P_LocTrfrList));
-																const uint local_lt_pos = bpack.P_LocTrfrList->getCount()-1;
-																const int  todo_cr = Helper_CreateToDoOnOrderEntry(p_ord, todo_code_tag_id, lti, todo_serial, todo_code, 0/*use_ta*/);
+																const  uint local_lt_pos = bpack.P_LocTrfrList->getCount()-1;
+																PPID   todo_id = 0;
+																const  int  todo_cr = Helper_CreateToDoOnOrderEntry(p_ord, todo_code_tag_id, lti, todo_serial, &todo_id, todo_code, 0/*use_ta*/);
 																if(todo_cr > 0) {
 																	todo_serial++;
 																	bpack.LTagL.SetString(todo_code_tag_id, local_lt_pos, todo_code);
+																	todo_id_list.addnz(todo_id);
 																}
 															}
 														}
@@ -14175,9 +14320,24 @@ int COCACOLA::ImportBailmentOrders()
 													; // @todo @errmsg
 												}
 											}
+											{
+												PPPrjTaskPacket todo_pack;
+												for(uint todoidx = 0; todoidx < todo_id_list.getCount(); todoidx++) {
+													PPID iter_todo_id = todo_id_list.get(todoidx);
+													if(TodoObj.GetPacket(iter_todo_id, &todo_pack) > 0) {
+														todo_pack.Rec.LinkBillID = bill_id;
+														TodoObj.PutPacket(&iter_todo_id, &todo_pack, 0);
+													}
+												}
+											}
 										}
 										else {
+											for(uint todoidx = 0; todoidx < todo_id_list.getCount(); todoidx++) {
+												PPID iter_todo_id = todo_id_list.get(todoidx);
+												TodoObj.PutPacket(&iter_todo_id, 0, 0);
+											}
 											; // @todo @errmsg
+											
 										}
 									}
 								}
@@ -14196,7 +14356,7 @@ int COCACOLA::ImportBailmentOrders()
 	return ok;
 }
 
-int COCACOLA::ExportBailentReplies()
+int COCACOLA::ExportBailmentReplies()
 {
 	int    ok = -1;
 	const  PPID suppl_id = P.SupplID;
@@ -14247,7 +14407,7 @@ int COCACOLA::ProcessBailmentExchange()
 {
 	int    ok = 1;
 	THROW(ImportBailmentOrders());
-	THROW(ExportBailentReplies());
+	THROW(ExportBailmentReplies());
 	CATCH
 		R_Logger.LogLastError();
 		ok = 0;
@@ -14312,8 +14472,11 @@ int COCACOLA::Test_CreatePartnerItem(const BailmentOrderSet::PartnerItem & rI, P
 			PPIDArray psn_list_by_inn;
 			PPIDArray psn_list_by_name;
 			PersonTbl::Rec psn_rec;
-			if(rI.INN.NotEmpty()) {
+			/*if(rI.INN.NotEmpty()) {
 				PsnObj.GetListByRegNumber(PPREGT_TPID, 0, rI.INN, psn_list_by_inn);
+			}*/
+			if(UED::GetRaw_Ru_INN(rI.UedRuInn, temp_buf, 0)) {
+				PsnObj.GetListByRegNumber(PPREGT_TPID, 0, temp_buf, psn_list_by_inn);
 			}
 			if(outer_name.NotEmpty()) {
 				PsnObj.P_Tbl->SearchByName(outer_name, psn_list_by_name);
@@ -14342,11 +14505,12 @@ int COCACOLA::Test_CreatePartnerItem(const BailmentOrderSet::PartnerItem & rI, P
 					if(PsnObj.Search(psn_id, &psn_rec) > 0) {
 						target_psn_id = psn_id;
 						// Персоналия идентифицирована по имени, а не по ИНН. Стало быть, установим в ней ИНН, если в текущей записи таковой имеется.
-						if(rI.INN.NotEmpty()) {
+						// @v12.4.7 if(rI.INN.NotEmpty()) {
+						if(UED::GetRaw_Ru_INN(rI.UedRuInn, temp_buf, 0)) { // @v12.4.7 
 							RegisterTbl::Rec reg_rec;
 							if(PsnObj.GetRegister(psn_id, PPREGT_TPID, &reg_rec) > 0 && !isempty(reg_rec.Num)) {
-								assert(!sstreq(reg_rec.Num, rI.INN)); // Мы пытались найти запись по этому ИНН и не нашли. ergo, невыполнение assert'а будет означать, что мы сошли с ума.
-								if(sstreq(reg_rec.Num, rI.INN)) { // Здесь чуть более вменяемая проверка для релиза
+								assert(!sstreq(reg_rec.Num, temp_buf)); // Мы пытались найти запись по этому ИНН и не нашли. ergo, невыполнение assert'а будет означать, что мы сошли с ума.
+								if(sstreq(reg_rec.Num, temp_buf)) { // Здесь чуть более вменяемая проверка для релиза
 									; // Как-бы это - целевая персоналия, но мы все равно свихнемся //
 								}
 								else {
@@ -14366,13 +14530,15 @@ int COCACOLA::Test_CreatePartnerItem(const BailmentOrderSet::PartnerItem & rI, P
 			if(target_psn_id) {
 				PPID    temp_id = target_psn_id;
 				THROW(PsnObj.GetPacket(target_psn_id, &pack, 0) > 0);
-				if(rI.INN.NotEmpty()) {
-					pack.AddRegister(PPREGT_TPID, rI.INN, 1);
+				//if(rI.INN.NotEmpty()) {
+				if(UED::GetRaw_Ru_INN(rI.UedRuInn, temp_buf, 0)) {
+					pack.AddRegister(PPREGT_TPID, temp_buf, 1);
 				}
 				{
 					PPLocationPacket new_loc_pack;
 					if(MakeLocationPacket(rI, new_loc_pack) > 0) {
-						if(rI.INN.NotEmpty()) {
+						//if(rI.INN.NotEmpty()) {
+						if(UED::GetRaw_Ru_INN(rI.UedRuInn, temp_buf, 0)) {
 							pack.Loc = new_loc_pack;
 						}
 						else {
@@ -14388,13 +14554,15 @@ int COCACOLA::Test_CreatePartnerItem(const BailmentOrderSet::PartnerItem & rI, P
 					pack.Rec.Status = PPPRS_LEGAL;
 					STRNSCPY(pack.Rec.Name, outer_name);
 					pack.Kinds.add(sell_pk_id);
-					if(rI.INN.NotEmpty()) {
-						pack.AddRegister(PPREGT_TPID, rI.INN, 1);
+					//if(rI.INN.NotEmpty()) {
+					if(UED::GetRaw_Ru_INN(rI.UedRuInn, temp_buf, 0)) {
+						pack.AddRegister(PPREGT_TPID, temp_buf, 1);
 					}
 					{
 						PPLocationPacket new_loc_pack;
 						if(MakeLocationPacket(rI, new_loc_pack) > 0) {
-							if(rI.INN.NotEmpty()) {
+							//if(rI.INN.NotEmpty()) {
+							if(UED::GetRaw_Ru_INN(rI.UedRuInn, temp_buf, 0)) {
 								pack.Loc = new_loc_pack;
 							}
 							else {
@@ -14624,7 +14792,8 @@ int COCACOLA::ParseBailmentOrder(xmlDoc * pDoc, BailmentOrderSet & rR)
 												p_partner->BizType = temp_buf;
 											}
 											else if(SXml::GetContentByName(p_pi, "VAT", temp_buf)) {
-												p_partner->INN = temp_buf;
+												//p_partner->INN = temp_buf;
+												p_partner->UedRuInn = UED::SetRaw_Ru_INN(temp_buf, true);
 											}
 											else if(SXml::GetContentByName(p_pi, "ISSCOM_CHANNEL", temp_buf)) {
 												p_partner->IsscomChannel = temp_buf;

@@ -755,7 +755,7 @@ int DbProvider::Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ)
 			else if(pTbl->deleteRec() == 0) // @sfu
 				ok = 0;
 		} while(ok && q->single_fetch(0, 0, spNext));
-		if(q->error)
+		if(q->Error_)
 			ok = 0;
 		if(useTa) {
 			if(ok) {

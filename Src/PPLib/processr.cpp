@@ -636,7 +636,7 @@ int PPObjProcessor::GetListByOwnerGuaID(PPID guaID, PPIDArray & rList)
 	rList.clear();
 	int    ok = -1;
 	if(guaID) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		SBuffer buffer;
 		SSerializeContext sctx;
 		PPProcessorPacket::ExtBlock ext;
@@ -892,7 +892,7 @@ int PPObjProcessor::PutPacket(PPID * pID, PPProcessorPacket * pPack, int use_ta)
 	int    ta = 0;
 	PPID   log_action_id = 0;
 	const  int has_ext = pPack ? BIN(!pPack->Ext.IsEmpty()) : 0;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPProcessorPacket org_pack;
 	{
 		PPTransaction tra(use_ta);
@@ -991,7 +991,7 @@ int PPObjProcessor::PutExtention(PPID id, PPProcessorPacket::ExtBlock * pExt, in
 int PPObjProcessor::GetExtention(PPID id, PPProcessorPacket::ExtBlock * pExt)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	Strg_ProcessorExt * p_strg = 0;
 	size_t sz = 0;
 	SBuffer buffer;
@@ -1028,7 +1028,7 @@ int PPObjProcessor::GetExtention(PPID id, PPProcessorPacket::ExtBlock * pExt)
 int PPObjProcessor::GetPacket(PPID id, PPProcessorPacket * pPack)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	pPack->Z();
 	if(PPCheckGetObjPacketID(Obj, id)) {
 		ok = Search(id, &pPack->Rec);
@@ -1163,7 +1163,7 @@ int PPObjProcessor::SearchAutocreateGroupListByObjGroup(PPID objType, PPID objGr
 int PPObjProcessor::AutocreateByObjGroup(PPID linkObjType, PPID linkObjID, const PPIDArray & rGrpIdList, int use_ta)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString name_buf;
 	ProcessorTbl::Rec grp_rec;
 	for(uint i = 0; i < rGrpIdList.getCount(); i++) {

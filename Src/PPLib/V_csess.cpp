@@ -853,7 +853,7 @@ int PPViewCSess::CalcCheckAmounts(TempCSessChecksTbl::Rec * pRec)
 int PPViewCSess::Add(BExtInsert * pBei, const CSessionTbl::Rec * pRec)
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	TempCSessChecksTbl::Rec csch_rec;
 	csch_rec.ID  = pRec->ID;
 	csch_rec.SuperSessID = pRec->SuperSessID;
@@ -1324,7 +1324,7 @@ int PPObjDraftCreateRule::AddBySample(PPID * pID, PPID sampleID)
 int PPObjDraftCreateRule::GetPacket(PPID id, PPDfCreateRulePacket * pPack)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPDfCreateRulePacket rule;
 	THROW((ok = p_ref->GetItem(PPOBJ_DFCREATERULE, id, &rule.Rec)));
 	if(ok > 0) {
@@ -1443,7 +1443,7 @@ int PPViewCSess::CreateDrafts(PPID ruleGrpID, PPID ruleID, PPID sessID)
 int PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMsg1, const SString & rMsg2, int use_ta)
 {
 	int    ok = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	PPCashNode cn_rec;
 	PPObjCashNode cn_obj;
 	PPObjGoods g_obj;

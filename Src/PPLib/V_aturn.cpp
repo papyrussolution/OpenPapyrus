@@ -201,7 +201,7 @@ int PPViewAccturn::PrintItem(PPID billID)
 	int    ok = -1;
 	ushort v = 0;
 	PPBillPacket pack;
-	TDialog    * dlg = 0;
+	TDialog * dlg = 0;
 	if(Filt.GrpAco)
 		ok = Print(0);
 	else {
@@ -210,7 +210,7 @@ int PPViewAccturn::PrintItem(PPID billID)
 		dlg->setCtrlData(CTL_PRNCASH_FORM, &v);
 		if(ExecView(dlg) == cmOK) {
 			dlg->getCtrlData(CTL_PRNCASH_FORM, &v);
-			THROW(PrintCashOrder(&pack, BIN(v == 0)));
+			THROW(PrintCashOrder(pack, BIN(v == 0)));
 			ok = 1;
 		}
 	}

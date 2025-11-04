@@ -37,7 +37,7 @@ static int PPObjProject_WriteConfig(PPProjectConfig * pCfg, PPOpCounterPacket * 
 	int    ok = 1;
 	int    ta = 0;
 	bool   is_new = true;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPObjOpCounter opc_obj;
 	PPProjectConfig prev_cfg;
 	{
@@ -322,7 +322,7 @@ int PPObjProject::GetPacket(PPID id, PPProjectPacket * pPack)
 {
 	int    ok = -1;
 	if(pPack) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		pPack->Z();
 		if(Search(id, &pPack->Rec) > 0) {
 			GetItemDescr(id, pPack->SDescr);
@@ -340,7 +340,7 @@ int PPObjProject::GetPacket(PPID id, PPProjectPacket * pPack)
 int PPObjProject::PutPacket(PPID * pID, PPProjectPacket * pPack, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
     PPID   acn_id = 0;
 	SString ext_buffer;
 	{
@@ -955,6 +955,25 @@ int PrjTaskCore::SearchByTime(const LDATETIME & dtm, PPID * pID, PrjTaskTbl::Rec
 	return ok;
 }
 
+int PrjTaskCore::SearchByCode(const char * pCode, PPIDArray & rIdList) // @v12.4.7
+{
+	rIdList.Z();
+	int    ok = -1;
+	if(!isempty(pCode)) {
+		PrjTaskTbl::Key0 k0;
+		MEMSZERO(k0);
+		BExtQuery q(this, 0);
+		q.select(this->ID, this->Code, this->Kind, 0L);
+		for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
+			if(sstreqi_ascii(data.Code, pCode)) {
+				rIdList.add(data.ID);
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
 int PrjTaskCore::SearchByLinkBillID(PPID billID, PPIDArray & rIdList) // @v12.4.7
 {
 	rIdList.Z();
@@ -1438,7 +1457,7 @@ int PPObjPrjTask::ImportFromOuterFormat(const char * pInput, const iCalendarImpo
 	};
 
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	int    format = 0;
 	PPObjPerson psn_obj;
 	SString temp_buf;
@@ -1905,7 +1924,7 @@ PPPrjTaskPacket & PPPrjTaskPacket::Z()
 
 TLP_IMPL(PPObjPrjTask, PrjTaskCore, P_Tbl);
 
-PPObjPrjTask::PPObjPrjTask(void * extraPtr) : PPObject(PPOBJ_PRJTASK), ExtraPtr(extraPtr)
+PPObjPrjTask::PPObjPrjTask(void * extraPtr) : PPObject(PPOBJ_PRJTASK), ExtraPtr(extraPtr), LinkTaskID__(0)/*@v12.4.7 @fix*/
 {
 	TLP_OPEN(P_Tbl);
 	ImplementFlags |= implStrAssocMakeList;
@@ -2208,7 +2227,7 @@ int PPObjPerson::Helper_WritePersonInfoInICalendarFormat(PPID personID, int ical
 int PPObjPrjTask::WritePacketWithPredefinedFormat(const PPPrjTaskPacket * pPack, int format, SString & rBuf, void * pCtx)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	if(pPack) {
 		if(format == piefICalendar) {
 			SysJournal * p_sj = DS.GetTLA().P_SysJ;
@@ -2392,7 +2411,7 @@ int PPObjPrjTask::InitPacket_(PPPrjTaskPacket & rPack, int kind, PPID prjID, PPI
 	rPack.Rec.EmployerID = employerID;
 	rPack.Rec.Priority   = TODOPRIOR_NORMAL;
 	rPack.Rec.Status     = TODOSTTS_NEW;
-	rPack.Rec.LinkTaskID = LinkTaskID;
+	rPack.Rec.LinkTaskID = LinkTaskID__;
 	PPObjPerson::GetCurUserPerson(&rPack.Rec.CreatorID, 0);
 	getcurdatetime(&rPack.Rec.Dt, &rPack.Rec.Tm);
 	return 1;
@@ -2401,7 +2420,7 @@ int PPObjPrjTask::InitPacket_(PPPrjTaskPacket & rPack, int kind, PPID prjID, PPI
 int PPObjPrjTask::PutPacket(PPID * pID, PPPrjTaskPacket * pPack, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPID   acn_id = 0;
 	SString ext_buffer;
 	/*// Участок кода на переходный период пока не будет сконвертирована таблица PrjTaskTbl {
@@ -2952,7 +2971,7 @@ int PPObjPrjTask::AddBySample(PPID * pID, PPID sampleID)
 		pack = sample_pack;
 		pack.Rec.ID = 0;
 		pack.Rec.Status = TODOSTTS_NEW;
-		pack.Rec.LinkTaskID = LinkTaskID;
+		pack.Rec.LinkTaskID = LinkTaskID__;
 		PPObjPerson::GetCurUserPerson(&pack.Rec.CreatorID, 0);
 		getcurdatetime(&pack.Rec.Dt, &pack.Rec.Tm);
 		{

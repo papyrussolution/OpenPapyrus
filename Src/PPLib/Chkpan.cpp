@@ -1902,7 +1902,7 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 	int    result = 1;
 	CPosProcessor_SetupDiscontBlock & r_blk = *static_cast<CPosProcessor_SetupDiscontBlock *>(pBlk);
 	if(mode == 0 || (mode == 1 && r_blk.P_Scst)) {
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		CCheckItem * p_item;
 		double min_qtty  = SMathConst::Max;
 		double max_price = 0.0;
@@ -2639,7 +2639,7 @@ int CPosProcessor::AutosaveCheck()
 int CPosProcessor::TurnCorrectionStorno(PPID * pCcID, int ccOp /*CCOP_XXX*/, PPID ccToStornoID) // @v12.2.12
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	CCheckCore & r_cc = GetCc();
 	assert(oneof2(ccOp, CCOP_CORRECTION_SELLSTORNO, CCOP_CORRECTION_RETSTORNO));
 	if(oneof2(ccOp, CCOP_CORRECTION_SELLSTORNO, CCOP_CORRECTION_RETSTORNO)) {
@@ -2712,7 +2712,7 @@ int CPosProcessor::TurnCorrectionStorno(PPID * pCcID, int ccOp /*CCOP_XXX*/, PPI
 /*virtual*/int CPosProcessor::AcceptCheck(PPID * pCcID, const CcAmountList * pPl, PPID altPosNodeID, double cash, int mode /* accmXXX */)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	const  bool turn_check_before_printing = true;
 	const  bool reprint_regular = (mode == accmAveragePrinting && Flags & fReprinting);
 	int    was_turned_before_printing = 0;
@@ -4694,7 +4694,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 						}
 					}
 					else {
-						PPObjBill * p_bobj = BillObj;
+						PPObjBill * p_bobj(BillObj);
 						PPID   lot_id = 0;
 						ReceiptTbl::Rec lot_rec;
 						PPIDArray  lot_list;
@@ -5360,7 +5360,7 @@ SelCheckListDialog::SelCheckListDialog(uint dlgId, const PPIDArray & rBillIdList
 	Helper_Constructor(pSrv, pAddParam);
 	State |= stSelectBill;
 	if(rBillIdList.getCount()) {
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		for(uint i = 0; i < rBillIdList.getCount(); i++) {
 			const  PPID bill_id = rBillIdList.get(i);
 			BillTbl::Rec bill_rec;
@@ -5556,7 +5556,7 @@ int SelCheckListDialog::getDTS(_SelCheck * pSelCheck)
 	SString temp_buf;
 	StringSet ss(SLBColumnDelim);
 	if(State & stSelectBill) {
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		for(uint i = 0; i < BPackList.getCount(); i++) {
 			const PPBillPacket * p_bpack = BPackList.at(i);
 			if(p_bpack) {
@@ -8457,8 +8457,8 @@ int CheckPaneDialog::SelectBill(PPID * pBillID, const char * pTitle) // @v11.8.7
 	const uint dlg_id = (DlgFlags & fLarge) ? DLG_SELCHECK_L : DLG_SELCHECK;
 	const PPEquipConfig & r_cfg = CsObj.GetEqCfg();
 	if(r_cfg.ChkPanImpOpID && r_cfg.ChkPanImpBillTagID) {
-		PPObjBill * p_bobj = BillObj;
-		Reference * p_ref = PPRef;
+		PPObjBill * p_bobj(BillObj);
+		Reference * p_ref(PPRef);
 		const LDATE now_dt = getcurdate_();
 		PPViewBill v_bill;
 		BillFilt f_bill;
@@ -9630,7 +9630,7 @@ int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPri
 {
 	rSerial.Z();
 	int    ok = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	const  SelLotBrowser::Entry * p_sel = 0;
 	int    r;
 	uint   s = 0;
@@ -9759,7 +9759,7 @@ int CheckPaneDialog::ChZnMarkAutoSelect(PPID goodsID, double qtty, SString & rCh
 					// @todo Тут надо что-то в лог вывести
 				}
 				else {
-					PPObjBill * p_bobj = BillObj;
+					PPObjBill * p_bobj(BillObj);
 					LotExtCodeCore * p_lotxct = p_bobj->P_LotXcT;
 					if(!p_lotxct) {
 						// @todo Тут надо что-то в лог вывести
@@ -9894,7 +9894,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 				if(ok > 0) {
 					// @v12.0.12 {
 					/*if(rBlk.ChZnMark.NotEmpty()) {
-						PPObjBill * p_bobj = BillObj;
+						PPObjBill * p_bobj(BillObj);
 						LotExtCodeCore * p_lotxct = p_bobj->P_LotXcT;
 						if(p_lotxct) {
 							TSVector <LotExtCodeTbl::Rec> rec_list;
@@ -13469,7 +13469,7 @@ int CheckPaneDialog::PrintCashReports()
 					{
 						bool done = false;
 						bool err = false;
-						Reference * p_ref = PPRef;
+						Reference * p_ref(PPRef);
 						if(PNP.ChZnGuaID) {
 							PPObjGlobalUserAcc gua_obj;
 							PPGlobalUserAcc gua_rec;

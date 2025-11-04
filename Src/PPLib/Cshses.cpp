@@ -1683,7 +1683,7 @@ int PPAsyncCashSession::CloseSession(int asTempSess, DateRange * pPrd /*=0*/)
 		LOG_DEBUG(FinishImportSession);
 		PPWaitMsg(PPSTR_TEXT, PPTXT_ACSCLS_TOBILLS, 0);
 		{
-			Reference * p_ref = PPRef;
+			Reference * p_ref(PPRef);
 			//
 			// Блок перестроен так, чтобы исполняться в общей транзакции {
 			//
@@ -2068,7 +2068,7 @@ bool AsyncCashGoodsIterator::IsSimplifiedDraftBeer(PPID goodsID) const // @v11.9
 int AsyncCashGoodsIterator::Init(long flags)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	int    is_redo = 0; // Признак того, что выгрузка осуществляется в режиме REDO (товары, выгруженные ранее, начиная с заданной sinceDlsID)
 	SString temp_buf;
 	PPIniFile ini_file;
@@ -2452,7 +2452,7 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 {
 	int    ok = -1;
 	const LDATETIME now_dtm = getcurdatetime_();
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	int    r;
 	PPIDArray acn_goodsnodisrmvd;
 	acn_goodsnodisrmvd.add(PPACN_GOODSNODISRMVD);
@@ -2876,7 +2876,7 @@ int AsyncCashSCardsIterator::Next(AsyncCashSCardInfo * pInfo)
 	int    ok = -1;
 	if(pInfo) {
 		pInfo->Z();
-		Reference * p_ref = PPRef; // @v11.3.5
+		Reference * p_ref(PPRef); // @v11.3.5
 		PersonTbl::Rec psn_rec;
 		PPSCardPacket sc_pack;
 		PPELinkArray ela;

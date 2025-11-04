@@ -119,7 +119,7 @@ static const char * P_Az_DebugFileName = "astrazeneca-debug.log";
 int SCardSpecialTreatment_AstraZeneca::PrepareHtmlFields(StrStrAssocArray & rHdrFlds)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString login;
 	SString secret;
 	SString temp_buf;
@@ -387,7 +387,7 @@ int SCardSpecialTreatment_AstraZeneca::DoesWareBelongToScope(PPID goodsID)
 	int    ok = 0;
 	PPID   tag_id = 0;
 	PPObjTag tag_obj;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	THROW_PP_S(tag_obj.FetchBySymb(P_AstraZenecaGoodsTagSymb, &tag_id) > 0, PPERR_SPCGOODSTAGNDEF, P_AstraZenecaGoodsTagSymb);
 	if(p_ref->Ot.GetTag(PPOBJ_GOODS, goodsID, tag_id, 0) > 0) {
 		PPObjGoods goods_obj;
@@ -410,7 +410,7 @@ int SCardSpecialTreatment_AstraZeneca::DoesWareBelongToScope(PPID goodsID)
 int SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pScBlk, TSVector <DiscountBlock> & rDL, long * pRetFlags, StringSet * pRetMsgList)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SJson * p_reply = 0;
 	SString temp_buf;
 	PPObjGoods goods_obj;
@@ -1816,7 +1816,7 @@ public:
 		}
 	}
 	if(maybe_uds) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		PPObjSCard sc_obj;
 		PPObjPerson psn_obj;
 		SCardTbl::Rec sc_rec;

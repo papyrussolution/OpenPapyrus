@@ -440,7 +440,7 @@ static int ResolveAssocCollision(SVector * pA, const BankStmntItem * pItem)
 static int TurnBankImportPacket(const Assoc * pAssoc, BankStmntItem * pItem, PPID obj2ID, PPID agentID, PPLogger & rLogger)
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	SString temp_buf;
 	SString msg_buf;
 	SString log_buf;
@@ -523,7 +523,7 @@ static int IsOurINN(const char * pINN)
 		PPID   OpID;             //
 	};
 	int    ok = -1, r;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SVector prev_list(sizeof(BankStmntAssocItem_Pre578));
 	SVector temp_list(sizeof(BankStmntAssocItem));
 	THROW(r = p_ref->GetPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CLIBNKASSCCFG2, &temp_list));
@@ -556,7 +556,7 @@ static int IsOurINN(const char * pINN)
 /*static*/int ClientBankImportDef::WriteAssocList(const SVector * pList, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -1394,7 +1394,7 @@ int GenerateCliBnkImpData()
 		double Amount;
 	};
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	const  LDATE cd = getcurdate_();
 	SString temp_buf;
 	SString imp_cfg_name;

@@ -1233,7 +1233,7 @@ int LotExtCodeCore::FindMarkToTransfer(const char * pCode, PPID goodsID, PPID lo
 	int    ok = -1;
 	rResult.Z();
 	if(!isempty(pCode)) {
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		BillTbl::Rec bill_rec;
 		TransferTbl::Rec trfr_rec;
 		int    goods_detected = 0;

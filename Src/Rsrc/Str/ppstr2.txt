@@ -18300,6 +18300,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @unitec_igp                                   "Факторы unit-планирования продаж товара"
 @unitec_igp_rcptqtty                          "Планируемая закупка, шт"
 @unitec_igp_expecteddemandperweek             "Ожидаемый еженедельный спрос, шт"
+@unitec_fpivot                                "Развернуть таблицу (показатели - в колонку)"
 
 @cristal2setretailgateway                     "Шлюз Кристалл <-> Set-Retail" // @v12.3.7 Специальный функционал
 @cristal2setretailgateway_runparam            "Парамеры запуска шлюза Кристалл <-> Set-Retail"

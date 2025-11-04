@@ -1900,7 +1900,7 @@ browser GOODSBILL north(100), 1, 0, "@{commoditydocument_pl} {%s}", OWNER|GRID, 
 	"@date",          1, notype, DATF_DMY, 8
 	"@billno",        2, notype, 0,  8
 	"@oprkind",       5, notype, 0, 12
-	"@amount",        3, notype, 0, 10.2
+	"@amount",        3, notype, NMBF_NOZERO, 10.2
 	"@contractor",    6, notype, 0, 20
 	"@memo",          4, notype, 0, 30
 	toolbar GOODSBILL
@@ -3176,7 +3176,7 @@ browser GOODSMOV_CT north(100), 3, 1, "@{view_goodsmov2} {%s}", OWNER|GRID, 0
 	}
 }
 
-browser OPGRPNG north(100), 3, 1, "@{opgrouping} {%s}", OWNER|GRID, 0
+browser OPGRPNG north(100), 3, 1, "@{opgrouping} {%s}", OWNER|GRID, 0 // PPViewOpGrouping
 {
 	"@oprkind",         3, notype, 0, 30
 	group "@qtty" {
@@ -3192,7 +3192,7 @@ browser OPGRPNG north(100), 3, 1, "@{opgrouping} {%s}", OWNER|GRID, 0
 	toolbar OPGRPNG
 }
 
-browser OPGRPNGCYCLE north(100), 3, 1, "@{opgrouping} {%s}", OWNER|GRID, 0
+browser OPGRPNGCYCLE north(100), 3, 1, "@{opgrouping} {%s}", OWNER|GRID, 0 // PPViewOpGrouping
 {
 	"@daterange",           1, notype, 0, 8
 	"@oprkind",         3, notype, 0, 30
@@ -3209,7 +3209,7 @@ browser OPGRPNGCYCLE north(100), 3, 1, "@{opgrouping} {%s}", OWNER|GRID, 0
 	toolbar OPGRPNG
 }
 
-browser BILLOPGRPNG north(100), 3, 1, "@{opgrouping_bydocs} {%s}", OWNER|GRID, 0
+browser BILLOPGRPNG north(100), 3, 1, "@{opgrouping_bydocs} {%s}", OWNER|GRID, 0 // PPViewOpGrouping
 {
 	"@oprkind",                3, notype, 0, 30
 	"@documentcount",          9, notype, NMBF_NOZERO, 10
@@ -3223,7 +3223,7 @@ browser BILLOPGRPNG north(100), 3, 1, "@{opgrouping_bydocs} {%s}", OWNER|GRID, 0
 	toolbar OPGRPNG
 }
 
-browser BILLOPGRPNGCYCLE north(100), 3, 1, "@{opgrouping_bydocs}", OWNER|GRID, 0
+browser BILLOPGRPNGCYCLE north(100), 3, 1, "@{opgrouping_bydocs}", OWNER|GRID, 0 // PPViewOpGrouping
 {
 	"@daterange",              1, notype, 0, 8
 	"@oprkind",                3, notype, 0, 30
@@ -3238,7 +3238,7 @@ browser BILLOPGRPNGCYCLE north(100), 3, 1, "@{opgrouping_bydocs}", OWNER|GRID, 0
 	toolbar OPGRPNG
 }
 
-browser BILLOPGRPNGEXT north(100), 3, 1, "@{opgrouping_bydocs} {%s}", OWNER|GRID, 0
+browser BILLOPGRPNGEXT north(100), 3, 1, "@{opgrouping_bydocs} {%s}", OWNER|GRID, 0 // PPViewOpGrouping
 {
 	"@oprkind",                3, notype, 0, 30
 	"@documentcount",          9, notype, NMBF_NOZERO, 10
@@ -3256,7 +3256,7 @@ browser BILLOPGRPNGEXT north(100), 3, 1, "@{opgrouping_bydocs} {%s}", OWNER|GRID
 	toolbar OPGRPNG
 }
 
-browser BILLOPGRPNGCYCLEEXT north(100), 3, 1, "@{opgrouping_bydocs}", OWNER|GRID, 0
+browser BILLOPGRPNGCYCLEEXT north(100), 3, 1, "@{opgrouping_bydocs}", OWNER|GRID, 0 // PPViewOpGrouping
 {
 	"@daterange",          1, notype, 0, 8
 	"@oprkind",            3, notype, 0, 30
@@ -5995,16 +5995,16 @@ browser DEBTORSTAT north(100), 3, 1, "@{view_debtorstat}", OWNER|GRID, 0
 
 browser LOCTRANSF north(100), 3, 1, "@{view_loctransf} {%s}", OWNER|GRID, 0
 {
-	"@whcell",        10, notype, 0, 20
-	"@ware",          11, notype, 0, 30
-	"@barcode",       14, notype, 0, 10
-	"@qtty",          04, notype, NMBF_NOTRAILZ, 10.6
-	"@rest",          05, notype, NMBF_NOTRAILZ, 10.6
-	"@document",      12, notype, 0, 20
+	"@whcell",        11, notype, 0, 20
+	"@ware",          12, notype, 0, 30
+	"@barcode",       15, notype, 0, 10
+	"@qtty",          05, notype, NMBF_NOTRAILZ, 10.6
+	"@rest",          06, notype, NMBF_NOTRAILZ, 10.6
+	"@document",      13, notype, 0, 20
 	group "@loctransf_timeandoperator" {
-		"@date",          07, notype, DATF_DMY, 8
-		"@time",          08, notype, TIMF_HMS, 8
-		"@operator",      13, notype, 0, 8
+		"@date",          08, notype, DATF_DMY, 8
+		"@time",          09, notype, TIMF_HMS, 8
+		"@operator",      14, notype, 0, 8
 	}
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM      : kbEnter,  PPDV_EDITFILE02,    "@{doeditop}\tEnter"
@@ -6024,15 +6024,15 @@ browser LOCTRANSF north(100), 3, 1, "@{view_loctransf} {%s}", OWNER|GRID, 0
 
 browser LOCTRANSF_BAILMENT north(100), 3, 1, "@{view_loctransf_bailment} {%s}", OWNER|GRID, 0
 {
-	"@contractor",    16, notype, 0, 20
-	"@address",       10, notype, 0, 20
-	"@ware",          11, notype, 0, 30
-	"@barcode",       14, notype, 0, 10
-	"@qtty",          04, notype, NMBF_NOTRAILZ, 10.6
-	"@rest",          05, notype, NMBF_NOTRAILZ, 10.6
-	"@document",      12, notype, 0, 20
-	"@date",          07, notype, DATF_DMY, 8
-	"@time",          08, notype, TIMF_HMS, 8
+	"@contractor",    17, notype, 0, 20
+	"@address",       11, notype, 0, 20
+	"@ware",          12, notype, 0, 30
+	"@barcode",       15, notype, 0, 10
+	"@qtty",          05, notype, NMBF_NOTRAILZ, 10.6
+	"@rest",          06, notype, NMBF_NOTRAILZ, 10.6
+	"@document",      13, notype, 0, 20
+	"@date",          08, notype, DATF_DMY, 8
+	"@time",          09, notype, TIMF_HMS, 8
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM      : kbEnter,  PPDV_EDITFILE02,    "@{doeditop}\tEnter"
 		ADDITEM       : kbIns,    PPDV_ADDFILE02,     "@{doaddop}\tInsert"
@@ -6051,10 +6051,10 @@ browser LOCTRANSF_BAILMENT north(100), 3, 1, "@{view_loctransf_bailment} {%s}", 
 
 browser LOCTRANSFREST north(100), 3, 1, "Состояние складских ячеек {%s}", OWNER|GRID, 0
 {
-	"@whcell",        10, notype, 0, 20
-	"@ware",          11, notype, 0, 30
+	"@whcell",        11, notype, 0, 20
+	"@ware",          12, notype, 0, 30
 	//"Лот",
-	"@rest",          05, notype, NMBF_NOTRAILZ, 10.6
+	"@rest",          06, notype, NMBF_NOTRAILZ, 10.6
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL        : kbEnter,  PPDV_LINS01,       "@{op_pl}\tEnter"
 		EDITWHCELL    : kbF5,     TBBM_WHCELL,       "@{whcell}\tF5"
@@ -6068,7 +6068,7 @@ browser LOCTRANSFREST north(100), 3, 1, "Состояние складских ячеек {%s}", OWNER|
 
 browser LOCTRANSF_EMPTY north(100), 3, 1, "Пустые складские ячейки {%s}", OWNER|GRID, 0
 {
-	"@whcell",          10, notype, 0, 20
+	"@whcell",          11, notype, 0, 20
 	toolbar TB_FIRST_TOOLBAR {
 		ADDITEM       : kbIns,    PPDV_ADDFILE02, "@{doaddop}\tInsert"
 		DETAIL        : kbEnter,  PPDV_LINS01,    "@{op_pl}\tEnter"
@@ -6082,17 +6082,17 @@ browser LOCTRANSF_EMPTY north(100), 3, 1, "Пустые складские ячейки {%s}", OWNER|
 
 browser LOCTRANSF_DISP north(100), 3, 1, "Складское размещение документов {%s}", OWNER|GRID, 0
 {
-	"@document",      12, notype, 0, 20
-	"@ware",          11, notype, 0, 30
-	"@barcode",       14, notype, 0, 10
-	"Количество\nв документе", 15, notype, NMBF_NOTRAILZ, 10.6
-	"Размещенное\nколичество", 04, notype, NMBF_NOTRAILZ, 10.6
-	"@rest",          05, notype, NMBF_NOTRAILZ, 10.6
-	"@whcell",        10, notype, 0, 20
+	"@document",      13, notype, 0, 20
+	"@ware",          12, notype, 0, 30
+	"@barcode",       15, notype, 0, 10
+	"Количество\nв документе", 16, notype, NMBF_NOTRAILZ, 10.6
+	"Размещенное\nколичество", 05, notype, NMBF_NOTRAILZ, 10.6
+	"@rest",          06, notype, NMBF_NOTRAILZ, 10.6
+	"@whcell",        11, notype, 0, 20
 	group "@loctransf_timeandoperator" {
-		"@date",          07, notype, DATF_DMY, 8
-		"@time",          08, notype, TIMF_HMS, 8
-		"@operator",      13, notype, 0, 8
+		"@date",          08, notype, DATF_DMY, 8
+		"@time",          09, notype, TIMF_HMS, 8
+		"@operator",      14, notype, 0, 8
 	}
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM      : kbEnter,  PPDV_EDITFILE02,    "@{doeditop}\tEnter"
@@ -6837,6 +6837,20 @@ browser UNITEC north(100), 3, 1, "Unit-анализ", OWNER|GRID, 0
 		DETAIL        : kbEnter,   PPDV_LINS01,         "@{detail}\tEnter"
 		EDITGOODS     : kbF2,      PPDV_WARESINGLE01,   "@{ware}\tF2"
 		UNIIEC_IGP    : kbF3,      PPDV_NOICON,         "@{unitec_igp}\tF3"
+		CHANGEFILT    : kbCtrlV,   PPDV_FILTER01,       "@{filter}\tCtrl-V"
+	}
+}
+
+browser UNITEC_PVT north(100), 3, 1, "Unit-анализ", OWNER|GRID, 0 // @v12.4.7 @construction
+{
+	"@ware",                             1, zstring(128), 0, 30, BCO_USERPROC|BCO_DONTSHOWDUPL
+	"Indicator Name",                 1001, zstring(128), 0, 30, BCO_USERPROC
+	"Indicator Value",                1002,       double, 0, 10.2, BCO_USERPROC
+	toolbar TB_FIRST_TOOLBAR {
+		DETAIL        : kbEnter,   PPDV_LINS01,         "@{detail}\tEnter"
+		EDITGOODS     : kbF2,      PPDV_WARESINGLE01,   "@{ware}\tF2"
+		UNIIEC_IGP    : kbF3,      PPDV_NOICON,         "@{unitec_igp}\tF3"
+		CHANGEFILT    : kbCtrlV,   PPDV_FILTER01,       "@{filter}\tCtrl-V"
 	}
 }
 //

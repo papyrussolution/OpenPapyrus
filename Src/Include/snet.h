@@ -135,12 +135,12 @@ public:
 		protLDAPS     = 35,
 		protMailFrom  = 36, // Фиктивный протокол (не имеющий соответствия в стандартах). Применяется
 			// для внутреннего представления описания параметров приема данных из почтовых сообщений.
-		prot_p_PapyrusServer = 37, // @v10.2.3 private-протокол системы Papyrus
-		protAMQP      = 38, // @v10.5.3
-		protAMQPS     = 39, // @v10.5.3
-		prot_p_MYSQL  = 40, // @v10.9.2 private: идентифицирует url доступа к серверу MySQL
-		prot_p_SQLITE = 41, // @v10.9.2 private: идентифицирует url доступа к базе данных SQLite
-		prot_p_ORACLE = 42, // @v10.9.2 private: идентифицирует url доступа к серверу базы данных ORACLE
+		prot_p_PapyrusServer = 37, // private-протокол системы Papyrus
+		protAMQP      = 38, // 
+		protAMQPS     = 39, // 
+		prot_p_MYSQL  = 40, // private: идентифицирует url доступа к серверу MySQL
+		prot_p_SQLITE = 41, // private: идентифицирует url доступа к базе данных SQLite
+		prot_p_ORACLE = 42, // private: идентифицирует url доступа к серверу базы данных ORACLE
 		protGit       = 43, // @v11.1.11 
 	};
 	//
@@ -661,7 +661,6 @@ struct SMailMessage : SStrGroup {
 	~SMailMessage();
 	void   Init();
 	int    IsPpyData() const;
-	// @v10.0.0 SString & MakeBoundaryCode(SString & rBuf) const;
 	//
 	// Parameters:
 	//     start: 0 - pure boundary, 1 - start boundary, 2 - finish boundary
@@ -698,7 +697,6 @@ struct SMailMessage : SStrGroup {
 	//
 	int    IsFrom(const char * pEmail) const;
 	int    IsSubj(const char * pSubj, int substr) const;
-	// @v10.0.0 int    PutToFile(SFile & rF);
 	int    ReadFromFile(SFile & rF);
 	int    DebugOutput(SString & rBuf) const;
 	uint   GetAttachmentCount() const;

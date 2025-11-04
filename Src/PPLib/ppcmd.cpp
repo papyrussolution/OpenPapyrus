@@ -1487,8 +1487,8 @@ int PPCommandGroup::Write2(void * pHandler, const long rwFlag) const
 				XMLReplaceSpecSymb(temp_buf.Z().Cat(db_symb), "&<>\'");
 				temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 				command_group_node.PutInner("DbSymb", temp_buf);
-				command_group_node.PutInner("Uuid", guid_str); // @v10.9.3 Начиная с этой версии поле в xml-файле называется Uuid вместо DeskGuid
-				SVerT version_ppy = DS.GetVersion();
+				command_group_node.PutInner("Uuid", guid_str);
+				const SVerT version_ppy(DS.GetVersion());
 				version_ppy.ToStr(temp_buf.Z());
 				command_group_node.PutInner("PpyVersion", temp_buf);
 			}
@@ -3431,7 +3431,7 @@ public:
 		if(D.MenuCm && APPL) {
 			int    ok = -1;
 			int    r = cmCancel;
-			PPObjBill * p_bobj = BillObj;
+			PPObjBill * p_bobj(BillObj);
 			BillTbl::Rec bill_rec;
 			SString srch_str;
 			LongArray dt_list;

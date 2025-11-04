@@ -280,7 +280,7 @@ int LocTransfCore::MakeOpBlockByOrder(const PPBillPacket & rOrderBPack, uint src
 			rBlk.OrderBillID = r_src_blk.BillID;
 			rBlk.OrderRByBill = r_src_blk.RByBillLT;
 			// @todo Необходимо посчитать сколько уже было выполненно по этому заказу и скорректировать количество
-			rBlk.Qtty = r_src_blk.Qtty;
+			rBlk.Qtty = fabs(r_src_blk.Qtty);
 			ok = 1;
 		}
 	}
@@ -362,6 +362,23 @@ int LocTransfCore::GetLastOpByGoods(PPID locID, PPID goodsID, LocTransfTbl::Rec 
 	return ok;
 }
 
+int LocTransfCore::SearchByBill(PPID billID, long rByBill, LocTransfTbl::Rec * pRec)
+{
+	int    ok = -1;
+	if(billID && rByBill > 0) {
+		LocTransfTbl::Key3 k3;
+		k3.BillID = billID;
+		k3.RByBillLT = rByBill;
+		if(search(3, &k3, spEq)) {
+			if(data.BillID == billID && data.RByBillLT == rByBill) { // @paranoic
+				CopyBufTo(pRec);
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
 int LocTransfCore::GetLastOpByBill(PPID billID, int16 * pRByBill, LocTransfTbl::Rec * pRec)
 {
 	int    ok = -1;
@@ -396,7 +413,11 @@ int LocTransfCore::PrepareRec(PPID locID, const LocTransfOpBlock * pBlk, LocTran
 	// @v12.4.2 {
 	if(pBlk && pBlk->Flags & LOCTRF_OWNEDBYBILL && pBlk->BillID) {
 		pRec->BillID = pBlk->BillID;
-		if(pBlk->RByBillLT <= 0) {
+		LocTransfTbl::Rec ex_rec;
+		if(pBlk->RByBillLT > 0 && SearchByBill(pBlk->BillID, pBlk->RByBillLT, &ex_rec) > 0) { // @v12.4.7
+			rbybill = pRec->RByBillLT;
+		}
+		else /*if(pBlk->RByBillLT <= 0)*/ {
 			THROW(GetLastOpByBill(pBlk->BillID, &rbybill, 0));
 			pRec->RByBillLT = rbybill+1;
 		}
@@ -623,6 +644,11 @@ int LocTransfCore::PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int * pRB
 				k0.LocID = loc_id;
 				k0.RByLoc = rbyloc;
 				THROW(SearchByKey_ForUpdate(this, 0, &k0, &rec) > 0);
+				// Вообще то, OrderBillID и OrderRByBill не должны меняться при изменении записи, ну да пусть пока так побудет - 
+				//   нужна эксплуатационная фактура дабы понять как тут правильно поступать.
+				rec.OrderBillID = rBlk.OrderBillID;
+				rec.OrderRByBill = rBlk.OrderRByBill;
+				//
 				rec.GoodsID = rBlk.GoodsID;
 				rec.LotID   = rBlk.LotID;
 				rec.PalletTypeID = rBlk.PalletTypeID;
@@ -659,6 +685,8 @@ int LocTransfCore::PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int * pRB
 			}
 			// } @v12.4.1 
 			rec.LTOp   = rBlk.LTOp;
+			rec.OrderBillID = rBlk.OrderBillID;
+			rec.OrderRByBill = rBlk.OrderRByBill;
 			rec.GoodsID      = rBlk.GoodsID;
 			rec.LotID        = rBlk.LotID;
 			rec.PalletTypeID = rBlk.PalletTypeID;
@@ -900,7 +928,7 @@ int LocTransfDisposer::SetupOpBlock(LocTransfDisposeItem & rItem, PPID whCellID,
 int LocTransfDisposer::Dispose(const PPIDArray & rBillList, PPLogger * pLogger, int use_ta)
 {
 	int    ok = -1, r;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	uint   i;
 	SString fmt_buf, msg_buf;
 	PPIDArray out_bill_list;

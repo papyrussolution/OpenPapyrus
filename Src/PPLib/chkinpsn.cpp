@@ -643,7 +643,7 @@ int PPCheckInPersonMngr::Search(/*int kind, PPID prmrID, PPID personID*/const PP
 int PPCheckInPersonMngr::GetList(int kind, PPID prmrID, PPCheckInPersonArray & rList)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	TSVector <ObjAssocTbl::Rec> items_list;
 	PPID   assc_type = GetAssocType(kind);
 	rList.Init(kind, prmrID);
@@ -679,7 +679,7 @@ int PPCheckInPersonMngr::Put(PPCheckInPersonItem & rItem, int use_ta)
 		THROW_PP(rItem.InvariantC(&invp), PPERR_CHKINP_ITEMINVARIANT);
 	}
 	{
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if((r = Search(rItem, &org_item)) > 0) {
@@ -725,7 +725,7 @@ int PPCheckInPersonMngr::Put(PPCheckInPersonArray & rList, int use_ta)
 		THROW_PP(rList.InvariantC(&invp), PPERR_CHKINP_LISTINVARIANT);
 	}
 	{
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		int    is_any_memo = 0;
 		uint   i;
 		SString memo_buf, memo_buf2;

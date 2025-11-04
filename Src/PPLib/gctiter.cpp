@@ -394,7 +394,7 @@ GCTIterator::GCTIterator(const GCTFilt * pFilt, const DateRange * pDRange) : Sta
 	Filt = *pFilt;
 	Period = *pDRange;
 	{
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		Trfr = p_bobj->trfr;
 		CpTrfr = p_bobj->P_CpTrfr;
 		BT   = p_bobj->P_Tbl;
@@ -467,7 +467,7 @@ int FASTCALL GCTIterator::CheckBillForFilt(const BillTbl::Rec & rBillRec) const
 	else if(!Filt.AcceptIntr3(rBillRec))
 		return 0;
 	else if(!soft_restr) {
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		PPBillExt ext_rec;
 		if(Filt.Flags & OPG_BYZEROAGENT) {
 			if(p_bobj->FetchExt(rBillRec.ID, &ext_rec) > 0 && ext_rec.AgentID)
@@ -746,7 +746,7 @@ int GCTIterator::AcceptTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBill
 			}
 		}
 		if(ok > 0) {
-			PPObjBill * p_bobj = BillObj;
+			PPObjBill * p_bobj(BillObj);
 			ok = (BCache && BCache->Get(bill_id, pBillRec) > 0) ? 1 : -1;
 			if(ok > 0) {
 				Trfr->CopyBufTo(pTrfrRec);
@@ -846,7 +846,7 @@ int GCTIterator::AcceptCpTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBi
 			pTrfrRec->CurPrice = r_cprec.CurPrice;
 		}
 		if(soft_restr) {
-			PPObjBill * p_bobj = BillObj;
+			PPObjBill * p_bobj(BillObj);
 			PPBillExt ext_rec;
 			const bool article_notvalid = !ArList.CheckID(pBillRec->Object);
 			const bool goods_notvalid = (Filt.GoodsID && labs(Filt.GoodsID) != goods_id || (State & stUseGoodsList) && !goods_found); // @todo Надо перепроверить этот оператор!
@@ -923,7 +923,7 @@ int GCTIterator::TrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec,
 			PPOprKind op_rec;
 			GetOpData(bill_rec.OpID, &op_rec);
 			if(op_rec.OpTypeID == PPOPT_GOODSORDER) {
-				PPObjBill * p_bobj = BillObj;
+				PPObjBill * p_bobj(BillObj);
 				PPTransferItem ti;
 				THROW_MEM(SETIFZ(Cbb.P_Pack, new PPBillPacket));
 				if(p_bobj->ExtractPacket(CurrID, Cbb.P_Pack) > 0) {
@@ -1050,7 +1050,7 @@ int GCTIterator::CpTrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRe
 			GetOpData(bill_rec.OpID, &op_rec);
 			const  PPID opt_id = op_rec.OpTypeID;
 			if(oneof3(opt_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT) || (opt_id == PPOPT_GOODSORDER && op_rec.ExtFlags & OPKFX_WROFFTODRAFTORD)) {
-				PPObjBill * p_bobj = BillObj;
+				PPObjBill * p_bobj(BillObj);
 				PPTransferItem ti;
 				THROW_MEM(SETIFZ(Cbb.P_Pack, new PPBillPacket));
 				if(p_bobj->ExtractPacket(CurrID, Cbb.P_Pack) > 0) {
@@ -1171,7 +1171,7 @@ int GCTIterator::NextCpTrfr(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec
 				pTrfrRec->Discount = ti.Discount;
 				pTrfrRec->CurPrice = ti.CurPrice;
 				if(soft_restr) {
-					PPObjBill * p_bobj = BillObj;
+					PPObjBill * p_bobj(BillObj);
 					PPBillExt ext_rec;
 					const bool article_notvalid = !ArList.CheckID(pBillRec->Object);
 					const bool goods_notvalid = (Filt.GoodsID && labs(Filt.GoodsID) != goods_id || (State & stUseGoodsList) && !goods_found); // @todo Перепроверить условие (смущает || без скобок)

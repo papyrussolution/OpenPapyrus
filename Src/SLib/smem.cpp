@@ -37,6 +37,23 @@ bool FASTCALL ismemzero(const void * p, size_t s)
 	return true;
 }
 
+bool ismemchr(const void * p, size_t s, uint8 C)
+{
+	const uint32 __c = static_cast<uint32>(C);
+	const uint32 pattern32 = (__c << 24) | (__c << 16) | (__c << 8) | __c;
+	size_t v = s / 4;
+	size_t m = s % 4;
+	size_t i;
+	for(i = 0; i < v; i++) {
+		if(PTR32C(p)[i] != pattern32)
+			return false;
+	}
+	for(i = 0; i < m; i++)
+		if(PTR8C(p)[(v*4)+i] != C)
+			return false;
+	return true;
+}
+
 void * FASTCALL memrandomize(void * p, size_t s)
 {
 	if(p && s)

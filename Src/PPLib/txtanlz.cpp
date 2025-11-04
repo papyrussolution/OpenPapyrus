@@ -3855,16 +3855,7 @@ int PPAutoTranslSvc_Microsoft::Request(int srcLang, int destLang, const SString 
 		const LDATETIME now_dtm = getcurdatetime_();
         const long sec = diffdatetimesec(now_dtm, AuthTime);
         if(sec > (ExpirySec * 9 / 10)) {
-			/* @v10.4.4 
-			//
-			// Функция Auth затрет AuthName и AuthSecret на входе.
-			// Потому необходимо скопировать эти значения во временные буферы _nam и _secr.
-			//
-			const SString _nam = AuthName;
-			const SString _secr = AuthSecret;
-			THROW(Auth(_nam, _secr));
-			*/
-			THROW(Helper_PPAutoTranslSvc_Microsoft_Auth(*this)); // @v10.4.4
+			THROW(Helper_PPAutoTranslSvc_Microsoft_Auth(*this));
         }
 	}
 	THROW(GetLinguaCode(srcLang, temp_buf));
@@ -3970,7 +3961,6 @@ static int FASTCALL Helper_CollectLldFileStat(const char * pPath, SFile * pOutFi
 				}
 				temp_buf.Z().CatLongZ(static_cast<long>(ff), 3).Tab().CatLongZ(static_cast<long>(ffr), 3).Tab().Cat(file_type_symb).Tab().Cat(dest_path).CR();
 				pDetectTypeOutFile->WriteLine(temp_buf);
-				// @v10.0.02 {
 				if(ff == SFileFormat::Xml) {
 					PPXmlFileDetector xfd;
 					int   xml_format = 0;
@@ -3980,7 +3970,6 @@ static int FASTCALL Helper_CollectLldFileStat(const char * pPath, SFile * pOutFi
                         pDetectTypeOutFile->WriteLine(temp_buf);
 					}
 				}
-				// } @v10.0.02
 			}
 			aa.Clear();
 			if(aa.CollectFileData(dest_path)) {
@@ -4020,7 +4009,6 @@ static int FASTCALL Helper_CollectLldFileStat(const char * pPath, SFile * pOutFi
 						item_buf.Z();
 						if(c == 0)
 							item_buf.CatHex(c);
-                        // @v10.9.8 else if(isdec(c) || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || sstrchr(p_psymb, (int)c)) {
 						else if(isasciialnum(c) || sstrchr(p_psymb, (int)c)) {
 							item_buf.Space().CatChar(c);
                         }

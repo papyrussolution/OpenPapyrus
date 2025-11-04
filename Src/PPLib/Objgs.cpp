@@ -1529,7 +1529,7 @@ int GSDialog::setupList()
 	PPObjBizScore2 bs_obj;
 	PPBizScore2Packet bs_pack;
 	for(uint i = 0; i < Data.Items.getCount(); i++) {
-		const PPGoodsStrucItem & r_item = Data.Items.at(i);
+		const  PPGoodsStrucItem & r_item = Data.Items.at(i);
 		double price = 0.0;
 		double sum = 0.0;
 		int    local_uncert = 0;

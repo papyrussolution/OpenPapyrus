@@ -364,7 +364,7 @@ int PrcssrGoodsSaldo::Test(PPID goodsID, PPID arID, PPID dlvrLocID, const DateRa
 	PPLogger logger;
     DateRange period;
     if(goodsID && arID) {
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		SString msg_buf, fmt_buf;
 		if(pPeriod) {
 			if(!checkdate(pPeriod->upp))

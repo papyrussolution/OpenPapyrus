@@ -14,7 +14,7 @@ int Transfer::CorrectIntrUnite()
 	int    ok = 1;
 	SString fmt_buf;
 	SString msg_buf;
-	PPObjBill * p_bill_obj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	ReceiptTbl::Key4 k4;
 	BExtQuery q(&Rcpt, 4);
 	PPLogger logger;
@@ -29,7 +29,7 @@ int Transfer::CorrectIntrUnite()
 			if(prev_lot_id) {
 				const  PPID lot_id = Rcpt.data.ID;
 				const  PPID bill_id = Rcpt.data.BillID;
-				const  int  r = p_bill_obj->Search(bill_id, 0);
+				const  int  r = p_bobj->Search(bill_id, 0);
 				THROW(r);
 				if(r < 0) {
 					DBRowId trfr_pos;
@@ -58,7 +58,7 @@ int Transfer::CorrectIntrUnite()
 							//
 							di.Init(trfr_rec.Dt, trfr_rec.Dt);
 							while(EnumByLot(prev_lot_id, &di, &org_trfr_rec) > 0) {
-								if(p_bill_obj->Search(org_trfr_rec.BillID, &org_bill_rec) > 0) {
+								if(p_bobj->Search(org_trfr_rec.BillID, &org_bill_rec) > 0) {
 									if(IsIntrOp(org_bill_rec.OpID) == INTREXPND) {
 										const int r2 = SearchByBill(org_trfr_rec.BillID, 1, org_trfr_rec.RByBill, 0);
 										THROW(r2);
@@ -124,7 +124,7 @@ int Transfer::CorrectReverse()
 		SString LogFileName;
 	};
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	int    do_process = 0;
 	Param param;
 	param.Period.Z();
@@ -148,8 +148,7 @@ int Transfer::CorrectReverse()
 				do_process = 1;
 			}
 		}
-		delete dlg;
-		dlg = 0;
+		ZDELETE(dlg);
 	}
 	if(do_process) {
 		SString msg_buf;
@@ -240,7 +239,7 @@ int RecoverAbsenceLots()
 {
 	int    ok = -1;
 	int    valid_data = 0;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	TDialog * dlg = 0;
 	TransferTbl::Key1 k1;
 	Transfer * trfr = p_bobj->trfr;
@@ -341,7 +340,7 @@ int Transfer::CorrectByLot(PPID lotID, int (*MsgProc)(int err, PPID lot, const T
 {
 	int    ok = 1;
 	int    ta = 0;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	int    reply = 1;
 	int    closed;
 	int    err;
@@ -555,7 +554,7 @@ int CorrectCurRest()
 int CorrectLotsCloseTags()
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	int    err;
 	PPID   id = 0;
 	IterCounter cntr;
@@ -620,7 +619,7 @@ static int test_taxgrp(const ReceiptTbl::Rec * pRec, void * extraPtr)
 int Transfer::CorrectLotTaxGrp()
 {
 	int    ok = 1, ta = 0, frrl_tag = 0;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	ReceiptTbl::Key4 k;
 	long   total_count = 0, _count = 0;
 	PPIDArray bill_list_to_recalc;
@@ -663,7 +662,7 @@ int Transfer::CorrectLotTaxGrp()
 int CorrectLotSuppl()
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	PPOprKind op_rec;
 	BillTbl::Rec bill_rec;
 	SString msg_buf;
@@ -1059,8 +1058,8 @@ int Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flags, PPL
 	LcrBlock * p_lcr = 0;
 	LcrBlock2 * p_lcr2 = 0;
 	if(lotID) {
-		PPObjBill * p_bobj = BillObj;
-		Reference * p_ref = PPRef;
+		PPObjBill * p_bobj(BillObj);
+		Reference * p_ref(PPRef);
 		const  PPCommConfig & r_ccfg = CConfig;
 		ReceiptTbl::Rec rec;
 		Goods2Tbl::Rec goods_rec; // Запись товара, к которому привязан лот
@@ -1395,8 +1394,8 @@ int Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long flags, i
 	PPObjGoods goods_obj;
 	Goods2Tbl::Rec goods_rec;
 	if(lotID && pFaultList && pFaultList->getCount() && flags & (TLRF_REPAIR|TLRF_ADJUNUQSERIAL|TLRF_SETALCCODETOGOODS|TLRF_SETALCCODETOLOTS)) {
-		PPObjBill * p_bobj = BillObj;
-		Reference * p_ref = PPRef;
+		PPObjBill * p_bobj(BillObj);
+		Reference * p_ref(PPRef);
 		PPLotFault fault;
 		uint   fault_pos = 0;
 		//THROW(PPStartTransaction(&ta, use_ta));

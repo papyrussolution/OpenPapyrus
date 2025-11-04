@@ -279,7 +279,7 @@ void AdvBillItemDialog::setupLinkBill()
 void AdvBillItemDialog::editLink()
 {
 	int    r = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	PPObjAdvBillKind abk_obj;
 	PPAdvBillKind abk_rec;
 	getCtrlData(CTLSEL_ADVBITEM_BILLKIND, &Data.AdvBillKindID);
@@ -378,7 +378,7 @@ void AdvBillItemDialog::editLink()
 
 void AdvBillItemDialog::removeLink()
 {
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	if(Data.AdvBillID && p_bobj->Search(Data.AdvBillID, 0) > 0) {
 		uint v = 0;
 		if(SelectorDialog(DLG_SELLINKBILLRMV, STDCTL_SELECTOR_WHAT, &v) > 0) {

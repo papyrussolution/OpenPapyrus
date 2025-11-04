@@ -263,7 +263,7 @@ private:
 	{
 		ActionByPhoneDialog * dlg = new ActionByPhoneDialog;
 		if(CheckDialogPtrErr(&dlg)) {
-			PPObjBill * p_bobj = BillObj;
+			PPObjBill * p_bobj(BillObj);
 			const char * p_phone = S.ConnectedLine.cptr();
 			ActionByPhoneDialog::Param param;
 			param.Phone = p_phone;
@@ -800,7 +800,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 			}
 			S.Mode = mode;
 			if(S.PersonID) {
-				PPObjBill * p_bobj = BillObj;
+				PPObjBill * p_bobj(BillObj);
 				InfoListData new_list;
 				PPIDArray person_id_list;
 				PPIDArray ar_id_list;

@@ -1275,7 +1275,7 @@ public:
 	int    getFlags(int seg = UNDEF) const;
 	int    setFlags(int flags, int seg = UNDEF);
 	int    containsField(int fldID, int * pSeg) const;
-	int    compareKey(const DBTable *, const void *, const void *) const;
+	int    compareKey(const DBTable & rTbl, const void *, const void *) const;
 private:
 	void   destroy();
 	int    reset();
@@ -3832,8 +3832,8 @@ public:
 	const void * FASTCALL getRecordC(uint r) const;
 	void * getCurrent();
 	int    fetch(uint count, char * pBuf, int dir);
-	int    fetch(uint count, char * pBuf, /*RECORDNUMBER*/DBRowId *, int dir);
-	int    single_fetch(char * pBuf, /*RECORDNUMBER*/DBRowId *, int);
+	int    fetch(uint count, char * pBuf, DBRowId *, int dir);
+	int    single_fetch(char * pBuf, DBRowId *, int);
 	int    top();
 	int    bottom();
 	int    step(long);
@@ -3878,9 +3878,9 @@ public:
 		tDistinct = 0x0080
 	};
 	enum {
-		s_add_index_needed = 0x0001,
-		s_tmp_table_needed = 0x0002,
-		s_rec_cut          = 0x0004
+		stAddIndexNeeded = 0x0001,
+		stTmpTableNeeded = 0x0002,
+		sRecCut          = 0x0004
 	};
 	struct Frame {
 		explicit Frame(uint sizeInRecs);
@@ -3923,8 +3923,8 @@ public:
 	};
 	uint   syntax;
 	uint   options;
-	uint   status;
-	int    error;
+	uint   Status_;
+	int    Error_;     // Признак того, что при последнем запросе к DBMS возникла ошибка   
 	DBQ  * w_restrict; // 'Where' restriction
 	// @v12.4.4 @unused DBQ  * h_restrict; // 'Having' restriction
 	uint   tblCount;

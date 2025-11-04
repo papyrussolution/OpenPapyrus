@@ -1396,8 +1396,31 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 			if(action == 0) {
 			}
 			else if(action < 0) {
+				bool    debug_mark = false; // @debug
 				SString & r_temp_buf = SLS.AcquireRvlStr();
-				(r_temp_buf = static_cast<const char *>(p_data)).Transf(CTRANSF_INNER_TO_UTF8);
+				if(sz > 1 && ismemchr(p_data, sz-1, 255U)) {
+					//
+					// ≈сли вс€ строка, подающа€с€ на вход sql-выражени€ заполнена символами '\xff' то 
+					// это (с веро€тностью очень близкой к 100%) свидетельствует о том, что мы хотим, чтоб
+					// sql перебирал все строковые ключи с конца к началу. «амен€ем такое значение на utf8-строку,
+					// состо€щую из максимального unicode-символа.
+					//
+					r_temp_buf = "\xF4\x8F\xBF\xBF";
+				}
+				else {
+					(r_temp_buf = static_cast<const char *>(p_data)).Transf(CTRANSF_INNER_TO_UTF8);
+					// @debug {
+					//
+					// ѕроблема следующа€: если не удалось правильно отконвертировать p_data в utf8 то
+					// мы напоремс€ на ошибку позиционировани€ в запросе.
+					//
+					/*
+					const size_t org_len = sstrlen(static_cast<const char *>(p_data));
+					if(r_temp_buf.Len() < org_len) {
+						debug_mark = true;
+					}*/
+					// } @debug 
+				}
 				sqlite3_bind_text(h_stmt, idx, r_temp_buf.cptr(), r_temp_buf.Len(), SQLITE_TRANSIENT);
 				//const int len = sstrlen(static_cast<const char *>(p_data));
 				//sqlite3_bind_text(h_stmt, idx, static_cast<const char *>(p_data), len, SQLITE_STATIC);

@@ -333,7 +333,7 @@ int PPPaths::Get__(PPID obj, PPID id, PPID pathID, SString & rBuf)
 int PPPaths::Get(PPID securType, PPID securID)
 {
 	int    ok = 1, r;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	size_t sz = 2048;
 	uint   s;
 	//

@@ -7436,7 +7436,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportClients(const SBinaryCh
 {
 	int    ok = 1;
 	SString temp_buf;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	const  bool use_omt_paym_amt = LOGIC(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT);
 	DebtTrnovrViewItem debt_item;
 	PPViewDebtTrnovr * p_debt_view = 0; // @stub
@@ -7648,7 +7648,7 @@ int PPStyloQInterchange::MakeRsrvIndoorSvcPrereqResponse_ExportGoods(const SBina
 		goods_list [ { id; nm; parid; uomid; code_list [ { cod; qty } ]; brandid; upp; price; stock; (ordqtymult|ordminqty); quot_list [ { id; val } ] ]
 	*/
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	SString temp_buf;
 	PPIDArray  grp_id_list;
 	PPIDArray  brand_id_list;
@@ -9236,7 +9236,7 @@ int PPStyloQInterchange::Document::FromBillPacket(const PPBillPacket & rS, const
 {
 	Z();
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	PPObjGoods goods_obj;
 	Goods2Tbl::Rec goods_rec;
 	ID = rS.Rec.ID;
@@ -9764,7 +9764,7 @@ SJson * PPStyloQInterchange::Stq_ReqBlobInfoList::MakeRequestInfoListQuery() con
 int PPStyloQInterchange::StoreOidListWithBlob(const PPObjIDArray & rList)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPObjIDArray _list;
 	bool   do_update = false;
 	THROW(p_ref);
@@ -9808,7 +9808,7 @@ int PPStyloQInterchange::GetOidListWithBlob(PPObjIDArray & rList)
 {
 	rList.clear();
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SBuffer sbuf;
 	THROW(p_ref);
 	if(p_ref->GetPropSBuffer(PPOBJ_CURRENTSTATE, 1, CSTATEPRP_STQOBJBLOBLIST, sbuf) > 0) {

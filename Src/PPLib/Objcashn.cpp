@@ -402,7 +402,7 @@ int PPSyncCashNode::CTblListFromString(const char * pBuf)
 //
 /*static*/int PPObjCashNode::IsExtCashNode(PPID nodeID, PPID * pParentID)
 {
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	int    is_ext_cash_node = 0;
 	PPID   parent_id = 0;
 	PPCashNode cn_rec;

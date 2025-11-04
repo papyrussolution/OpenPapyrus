@@ -556,6 +556,7 @@ IMPLEMENT_PPFILT_FACTORY(PrjTask); PrjTaskFilt::PrjTaskFilt() : PPBaseFilt(PPFIL
 int PrjTaskFilt::Init(int fullyDestroy, long extraData)
 {
 	PPBaseFilt::Init(fullyDestroy, extraData);
+	Kind = TODOKIND_TASK; // @v12.4.7
 	ExcludeStatus(TODOSTTS_REJECTED);
 	ExcludeStatus(TODOSTTS_COMPLETED);
 	return 1;
@@ -1116,7 +1117,7 @@ int PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 	Filt.StartPeriod.Actualize(ZERODATE);
 	Filt.EstFinishPeriod.Actualize(ZERODATE);
 	Filt.FinishPeriod.Actualize(ZERODATE);
-	TodoObj.LinkTaskID = Filt.LinkTaskID;
+	TodoObj.LinkTaskID__ = Filt.LinkTaskID;
 	if(!(Filt.Flags & PrjTaskFilt::fNotShowPPWaitOnInit))
 		PPWaitStart();
 	BExtQuery::ZDelete(&P_IterQuery);
@@ -1274,6 +1275,7 @@ public:
 		RVALUEPTR(Data, pData);
 		AddClusterAssoc(CTL_TODOFILT_KIND, 0, TODOKIND_TASK);
 		AddClusterAssoc(CTL_TODOFILT_KIND, 1, TODOKIND_TEMPLATE);
+		AddClusterAssoc(CTL_TODOFILT_KIND, 2, 0); // @v12.4.7
 		AddClusterAssoc(CTL_TODOFILT_FLAGS, 0, PrjTaskFilt::fUnbindedOnly);
 		AddClusterAssoc(CTL_TODOFILT_FLAGS, 1, PrjTaskFilt::fUnviewedOnly);
 		AddClusterAssoc(CTL_TODOFILT_FLAGS, 2, PrjTaskFilt::fUnviewedEmployerOnly);

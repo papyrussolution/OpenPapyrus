@@ -61,7 +61,7 @@ int PPMarketplaceInterface::CreateWarehouseFolder(PPID * pID, int use_ta)
 int PPMarketplaceInterface::GetMarketplacePerson(PPID * pID, int use_ta)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	const  PPID person_kind = PPPRK_MARKETPLACE;
 	SString temp_buf;
 	PPObjPersonKind pk_obj;
@@ -4889,7 +4889,7 @@ int PPMarketplaceInterface_Wildberries::InsertReceiptItem(PPBillPacket & rPack, 
 PPID PPMarketplaceInterface_Wildberries::CreateReceipt(int64 incomeId, const WareBase & rWare, LDATE dt, PPID locID, PPID goodsID, double qtty, bool surrogateAutoLot, int use_ta)
 {
 	PPID   result_lot_id = 0;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	SString temp_buf;
 	const  PPID rcpt_op_id = CConfig.ReceiptOp;
 	PPID   suppl_id = 0;
@@ -4940,7 +4940,7 @@ PPID PPMarketplaceInterface_Wildberries::CreateReceipt(int64 incomeId, const War
 int PPMarketplaceInterface_Wildberries::ImportReceipts()
 {
 	int    ok = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	SString temp_buf;
 	PPID   suppl_id = 0;
 	SString bill_code;
@@ -5154,12 +5154,12 @@ int PPMarketplaceInterface_Wildberries::SearchOriginalLotForMp(const char * pSer
 {
 	int    ok = -1;
 	PPID   target_lot_id = 0;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	if(goodsID) {
 		PPID   transf_op_id = R_Prc.GetConfig().TransferToMpOpID;
 		if(transf_op_id) {
-			PPObjBill * p_bobj = BillObj;
+			PPObjBill * p_bobj(BillObj);
 			BillCore * p_billc = p_bobj->P_Tbl;
 			Transfer * p_trfr = p_bobj->trfr;
 			LDATE recent_date = ZERODATE;
@@ -5203,7 +5203,7 @@ PPID PPMarketplaceInterface_Wildberries::AdjustReceiptOnExpend(
 	/*const Sale & rWbItem,*/const WareBase & rW, int64 incomeId, LDATE dt, PPID locID, PPID goodsID, double neededQtty, double nominalPrice, int use_ta)
 {
 	PPID   result_lot_id = 0;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	SString serial_buf;
 	const  PPID rcpt_op_id = CConfig.ReceiptOp;
 	THROW_SL(checkdate(dt)); 
@@ -5391,8 +5391,8 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 {
 	int    ok = -1;
 	bool   debug_mark = false; // @debug
-	Reference * p_ref = PPRef;
-	PPObjBill * p_bobj = BillObj;
+	Reference * p_ref(PPRef);
+	PPObjBill * p_bobj(BillObj);
 	SString temp_buf;
 	SString fmt_buf;
 	SString msg_buf;
@@ -5726,7 +5726,7 @@ int PPMarketplaceInterface_Wildberries::ImportOrders()
 {
 	int    ok = -1;
 	bool   debug_mark = false;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	SString temp_buf;
 	SString fmt_buf;
 	SString msg_buf;
@@ -5882,8 +5882,8 @@ int PPMarketplaceInterface_Wildberries::FindShipmentBillByOrderIdent(const char 
 	int    ok = -1;
 	rShipmBillIdList.Z();
 	if(!isempty(pOrgOrdIdent)) {
-		Reference * p_ref = PPRef;
-		PPObjBill * p_bobj = BillObj;
+		Reference * p_ref(PPRef);
+		PPObjBill * p_bobj(BillObj);
 		Transfer * p_trfr = p_bobj->trfr;
 		PPIDArray lot_id_list;
 		PPIDArray temp_list;
@@ -5939,7 +5939,7 @@ int PPMarketplaceInterface_Wildberries::ImportStocks() // @construction
 	if(stock_op_id) {
 		int    r = RequestStocks(stock_list, &error_status);
 		if(r && stock_list.getCount()) {
-			PPObjBill * p_bobj = BillObj;
+			PPObjBill * p_bobj(BillObj);
 			BillCore * p_billc = p_bobj->P_Tbl;
 			PPIDArray wh_list;
 			PPTransaction tra(1);
@@ -6036,7 +6036,7 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 {
 	int    ok = -1;
 	bool   debug_mark = false;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	const  LDATETIME now_dtm = getcurdatetime_();
 	SString temp_buf;
 	SString bill_code;
@@ -6048,7 +6048,7 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 	PPID   acc_id = 0;
 	PPID   acs_id = 0;
 	PPID   op_id = 0;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	Transfer * p_trfr = p_bobj->trfr;
 	PPObjOprKind op_obj;
 	PPObjAccSheet acs_obj;
@@ -6613,7 +6613,7 @@ bool PPMarketplaceConfig::IsEq_ForStorage(const PPMarketplaceConfig & rS) const
 /*static*/int FASTCALL PrcssrMarketplaceInterchange::WriteConfig(PPMarketplaceConfig * pCfg, int use_ta)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPMarketplaceConfig org_cfg;
 	const  int  rcr = ReadConfig(&org_cfg);
 	const  bool is_exists = (rcr > 0);
@@ -7013,7 +7013,7 @@ PPID PrcssrMarketplaceInterchange::GetRetOpID() // @v12.1.11
 /*static*/PPID PrcssrMarketplaceInterchange::GetMarketplaceAccSheetID()
 {
 	PPID   acs_id = 0;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPAccSheet2 acs_rec;
 	for(SEnum en = p_ref->EnumByIdxVal(PPOBJ_ACCSHEET, 1, PPOBJ_PERSON); !acs_id && en.Next(&acs_rec) > 0;) {
 		if(acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup == PPPRK_MARKETPLACE) {
@@ -7026,7 +7026,7 @@ PPID PrcssrMarketplaceInterchange::GetRetOpID() // @v12.1.11
 /*static*/PPID PrcssrMarketplaceInterchange::Helper_GetMarketplaceWarehousesAccSheetID(bool createIfNExists, int use_ta)
 {
 	PPID   acs_id = 0;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	PPObjLocation loc_obj;
 	PPObjAccSheet acs_obj;
@@ -7096,7 +7096,7 @@ PPID PrcssrMarketplaceInterchange::Helper_GetMarketplaceOpsAccSheetID(bool creat
 //PPTXT_ACCSHEET_MP_AR_NAMES           "1,Комиссионное вознаграждение;2,Стоимость эквайринга;3,Стоимость хранения;4,Стоимость приемки на склад хранения"
 	const char * p_symb = "MARKETPLACE-OPS";
 	PPID   acs_id = 0;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	PPObjAccSheet acs_obj;
 	PPAccSheet2 acs_rec;
@@ -7251,7 +7251,7 @@ int PrcssrMarketplaceInterchange::EvaluateAverageRest(PPID goodsID, const DateRa
 {
 	int   ok = 1;
 	double result = 0.0;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	Transfer * p_trfr = p_bobj->trfr;
 	DateRange period(rPeriod);
 	PPID   folder_loc_id = 0;

@@ -4397,7 +4397,7 @@ void ObjTagSelExtra::SetupLotSerialParam(PPID locID, long flags)
 StrAssocArray * ObjTagSelExtra::GetList(const char * pText)
 {
 	const bool by_lot_serial = (ObjType == PPOBJ_LOT && TagID == PPTAG_LOT_SN);
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	SString temp_buf, obj_name_buf;
 	StrAssocArray * p_list = 0;
 	SString pattern(pText);

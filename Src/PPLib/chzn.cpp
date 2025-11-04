@@ -1086,7 +1086,7 @@ int ChZnInterface::Document::Parse(const char * pBuffer)
 int ChZnInterface::Document::GetTransactionPartyCode(PPID psnID, PPID locID, SString & rCode)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	rCode.Z();
 	if(locID && p_ref->Ot.GetTagStr(PPOBJ_LOCATION, locID, PPTAG_LOC_CHZNCODE, rCode) > 0)
 		ok = 1;
@@ -2373,7 +2373,7 @@ int ChZnInterface::ParseTicket(const char * pTicket, Packet ** ppP)
 int ChZnInterface::CommitTicket(const char * pPath, const char * pIdent, const char * pTicket)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	SString temp_path;
 	SString pending_path;
@@ -3326,7 +3326,7 @@ int PPChZnPrcssr::PrepareBillPacketForSending(PPID billID, void * pChZnPacket)
 {
 	int    suited = 0;
 	ChZnInterface::Packet * p_chzn_packet = static_cast<ChZnInterface::Packet *>(pChZnPacket);
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	PPBillPacket * p_bp = static_cast<PPBillPacket *>(p_chzn_packet->P_Data);
 	long chzn_prod_type = 0; // @v11.1.11
 	PPObjGoods goods_obj; // @v11.1.11
@@ -3368,7 +3368,7 @@ int PPChZnPrcssr::PrepareBillPacketForSending(PPID billID, void * pChZnPacket)
 int PPChZnPrcssr::TransmitCcList(const Param & rP, const TSCollection <CCheckPacket> & rList)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	ChZnInterface::Packet * p_pack = 0;
 	SString temp_buf;
 	SString fmt_buf;
@@ -3427,8 +3427,8 @@ int PPChZnPrcssr::TransmitCcList(const Param & rP, const TSCollection <CCheckPac
 int PPChZnPrcssr::Run(const Param & rP)
 {
 	int    ok = -1;
-	PPObjBill * p_bobj = BillObj;
-	Reference * p_ref = PPRef;
+	PPObjBill * p_bobj(BillObj);
+	Reference * p_ref(PPRef);
 	ChZnInterface::Packet * p_pack = 0;
 	SString temp_buf;
 	SString result_doc_ident;
@@ -4005,7 +4005,7 @@ int PPChZnPrcssr::PermissiveModeInterface::FetchCdnHost(PPID guaID, SString & rR
 	rResult.Z();
 	int    ok = -1;
 	const  LDATETIME now_dtm = getcurdatetime_();
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	SString tag_buf;
 	LDATETIME upd_time = ZERODATETIME;
@@ -4940,7 +4940,7 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 										CatEq("orgratio", org_goods_liter_ratio, MKSFMTD_030).Space().CatEq("mainratio", main_goods_liter_ratio, MKSFMTD_030);
 								}
 								//
-								PPObjBill * p_bobj = BillObj;
+								PPObjBill * p_bobj(BillObj);
 								LotExtCodeCore * p_lotxct = p_bobj->P_LotXcT;
 								PPObjCSession cs_obj;
 								if(p_lotxct) {

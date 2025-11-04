@@ -1964,7 +1964,7 @@ VetisEntityCore::VetisEntityCore()
 int VetisEntityCore::CollectUnresolvedEntityList(TSVector <UnresolvedEntity> & rList)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SStringU temp_buf_u;
 	VetisEntityTbl::Key0 k0;
 	MEMSZERO(k0);
@@ -2083,7 +2083,7 @@ int VetisEntityCore::GetEntity(PPID id, Entity & rE)
 int VetisEntityCore::DeleteEntity(PPID id, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	VetisEntityTbl::Rec rec;
 	VetisDocumentTbl::Rec doc_rec;
 	struct TranspNumTabEntry {
@@ -2149,7 +2149,7 @@ int VetisEntityCore::SetEntity(Entity & rE, TSVector <UnresolvedEntity> * pUreLi
 	int    ok = 1;
 	int    is_new_entity = 0;
 	int    is_unresolved = 0;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	SString name_buf;
 	SStringU temp_buf_u;
@@ -2231,7 +2231,7 @@ int VetisEntityCore::SearchDocument(PPID id, VetisDocumentTbl::Rec * pRec) { ret
 int VetisEntityCore::MatchDocument(PPID docEntityID, PPID billID, int rowN, int fromBill, int use_ta)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	VetisDocumentTbl::Rec rec;
 	VetisDocumentTbl::Rec org_rec;
 	VetisDocumentTbl::Key0 k0;
@@ -2297,7 +2297,7 @@ int VetisEntityCore::MatchPersonInDocument(PPID docEntityID, int side /*0 - from
 {
 	assert(oneof2(side, 0, 1));
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	VetisDocumentTbl::Rec rec;
 	VetisDocumentTbl::Key0 k0;
 	VetisPersonTbl::Key0 vp_key0;
@@ -2446,7 +2446,7 @@ int VetisEntityCore::ResolveEntityByID(PPID entityID, VetisNamedGenericVersionin
 
 int VetisEntityCore::Get(PPID id, VetisVetDocument & rItem)
 {
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	Entity entity;
 	int    ok = GetEntity(id, entity);
 	if(ok > 0) {
@@ -2567,7 +2567,7 @@ int VetisEntityCore::Put(PPID * pID, const S_GUID & rBusEntGuid, const S_GUID & 
 {
 	int    ok = 1;
 	PPID   result_id = 0;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	//SStringU temp_buf_u;
 	PPIDArray id_list;
@@ -2730,8 +2730,8 @@ int VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long flags,
 {
 	int    ok = 1;
 	PPID   result_id = 0;
-	Reference * p_ref = PPRef;
-	PPObjBill * p_bobj = BillObj;
+	Reference * p_ref(PPRef);
+	PPObjBill * p_bobj(BillObj);
 	SString temp_buf;
 	//SStringU temp_buf_u;
 	PPIDArray by_inn_psn_list;
@@ -2958,7 +2958,7 @@ int VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long flags,
 int VetisEntityCore::Get(PPID id, VetisBusinessEntity & rItem)
 {
 	rItem.Z();
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	Entity entity;
 	int    ok = GetEntity(id, entity);
 	if(ok > 0) {
@@ -2986,7 +2986,7 @@ int VetisEntityCore::Get(PPID id, VetisBusinessEntity & rItem)
 int VetisEntityCore::Put(PPID * pID, const VetisBusinessEntity & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	SStringU temp_buf_u;
 	VetisPersonTbl::Rec rec;
@@ -3045,7 +3045,7 @@ int VetisEntityCore::Put(PPID * pID, const VetisBusinessEntity & rItem, TSVector
 int VetisEntityCore::Get(PPID id, VetisEnterprise & rItem)
 {
 	rItem.Z();
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	Entity entity;
 	int    ok = GetEntity(id, entity);
 	if(ok > 0) {
@@ -3079,7 +3079,7 @@ int VetisEntityCore::Get(PPID id, VetisEnterprise & rItem)
 int VetisEntityCore::Put(PPID * pID, const VetisEnterprise & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	//SStringU temp_buf_u;
 	VetisPersonTbl::Rec rec;
@@ -3132,7 +3132,7 @@ int VetisEntityCore::Put(PPID * pID, const VetisEnterprise & rItem, TSVector <Un
 
 int VetisEntityCore::Get(PPID id, VetisProductItem & rItem)
 {
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	Entity entity;
 	int    ok = GetEntity(id, entity);
 	if(ok > 0) {
@@ -3167,7 +3167,7 @@ int VetisEntityCore::Get(PPID id, VetisProductItem & rItem)
 int VetisEntityCore::Put(PPID * pID, int kind, const VetisProductItem & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	SStringU temp_buf_u;
 	VetisProductTbl::Rec rec;
@@ -3615,7 +3615,7 @@ int PPVetisInterface::LogMessage(const char * pPrefix, const SString & rMsg)
 {
 	rP.Z();
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	PPAlbatrossConfig acfg;
 	THROW(DS.FetchAlbatrosConfig(&acfg) > 0);
@@ -4602,7 +4602,7 @@ int PPVetisInterface::ParseStockEntry(const xmlNode * pParentNode, VetisStockEnt
 int PPVetisInterface::ParseVetDocument(const xmlNode * pParentNode, VetisVetDocument * pResult)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	THROW_MEM(pResult);
 	VetisCertifiedConsignment & r_crtc = pResult->CertifiedConsignment;
@@ -4655,7 +4655,7 @@ int PPVetisInterface::ParseVetDocument(const xmlNode * pParentNode, VetisVetDocu
 		}
 	}
 	{
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		PPIDArray lot_list;
 		if(p_ref->Ot.SearchObjectsByGuid(PPOBJ_LOT, PPTAG_LOT_VETIS_UUID, pResult->Uuid, &lot_list) > 0) {
 			ReceiptTbl::Rec lot_rec;
@@ -5264,7 +5264,7 @@ static SString & FASTCALL VGuidToStr(const S_GUID & rGuid, SString & rBuf)
 int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplicationBlock & rResult)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	THROW_PP(State & stInited, PPERR_VETISIFCNOTINITED);
 	THROW(PrepareApplicationBlockForReq(rAppBlk));
@@ -6867,7 +6867,7 @@ int PPVetisInterface::LogFaults(const VetisApplicationBlock & rAb, const Outcomi
 		if(P_Logger) {
 			SString temp_buf;
 			SString link_bill_text;
-			PPObjBill * p_bobj = BillObj;
+			PPObjBill * p_bobj(BillObj);
 			for(uint fi = 0; fi < rAb.FaultList.getCount(); fi++) {
 				const VetisFault * p_f = rAb.FaultList.at(fi);
 				if(p_f) {
@@ -7941,8 +7941,8 @@ int PPVetisInterface::WriteOffIncomeCert(PPID docEntityID, TSVector <VetisEntity
 int PPVetisInterface::RegisterProduction(PPID docEntityID, const PPIDArray & rExpenseDocEntityList, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
-	PPObjBill * p_bobj = BillObj;
+	Reference * p_ref(PPRef);
+	PPObjBill * p_bobj(BillObj);
 	SString temp_buf;
 	VetisRegisterProductionRequest app_data;
 	VetisApplicationBlock blk(SVerT(2, 1), &app_data);
@@ -8412,8 +8412,8 @@ int PPVetisInterface::PrepareOutgoingConsignment2(OutcomingEntry & rEntry, TSVec
 int PPVetisInterface::PrepareOutgoingTransportData(PPID billID, VetisPrepareOutgoingConsignmentRequest & rReq)
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
-	Reference * p_ref = PPRef;
+	PPObjBill * p_bobj(BillObj);
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	PPID   transport_id = 0;
 	PPID   dlvr_loc_id = 0;
@@ -9080,8 +9080,8 @@ double PPVetisInterface::CalcVolumeByGoodsQtty(PPID goodsID, double quantity)
 int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long flags, PutBillRowBlock & rPbrBlk, int use_ta)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
-	PPObjBill * p_bobj = BillObj;
+	Reference * p_ref(PPRef);
+	PPObjBill * p_bobj(BillObj);
 	const PPTransferItem & r_ti = rBp.ConstTI(rowIdx);
 	if(r_ti.LotID) {
 		SString temp_buf;
@@ -9586,7 +9586,7 @@ int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long fla
 {
 	rBillList.clear();
 	int    ok = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	for(uint i = 0; i < rOpList.getCount(); i++) {
 		const  PPID op_id = rOpList.get(i);
 		PPOprKind op_rec;
@@ -9610,7 +9610,7 @@ int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long fla
 int PPVetisInterface::Helper_PutOutgoingBillList(PPIDArray & rBillList, const long putBillRowFlags)
 {
 	int    ok = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	BillTbl::Rec bill_rec;
 	{
 		assert(rBillList.getCount());
@@ -9709,7 +9709,7 @@ int PPVetisInterface::SetupOutgoingEntries(PPID locID, const DateRange & rPeriod
 int VetisEntityCore::SetupEnterpriseEntry(PPID psnID, PPID locID, VetisEnterprise & rEntry)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	S_GUID issuer_uuid;
 	S_GUID loc_uuid;
 	rEntry.Z();
@@ -9810,7 +9810,7 @@ int EditVetisProductItem(VetisEntityCore & rEc, VetisProductItem & rData)
 		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
-			Reference * p_ref = PPRef;
+			Reference * p_ref(PPRef);
 			PPObjGoods goods_obj;
 			Goods2Tbl::Rec goods_rec;
 			SString temp_buf;
@@ -9912,7 +9912,7 @@ int EditVetisProductItem(VetisEntityCore & rEc, VetisProductItem & rData)
 		}
 		void   Setup()
 		{
-			Reference * p_ref = PPRef;
+			Reference * p_ref(PPRef);
 			SString temp_buf;
 			S_GUID guid;
 			const  PPID ex_loc_id = getCtrlLong(CTLSEL_VETISENT_LOC);
@@ -10098,7 +10098,7 @@ int EditVetisEnterprise(VetisEntityCore & rEc, VetisEnterprise & rData)
 		}
 		void   Setup()
 		{
-			Reference * p_ref = PPRef;
+			Reference * p_ref(PPRef);
 			SString temp_buf;
 			S_GUID guid;
 			const  PPID ex_loc_id = getCtrlLong(CTLSEL_VETISENT_LOC);
@@ -10346,7 +10346,7 @@ static int EditVetisVetDocument(VetisVetDocument & rData, PPID mainOrgID, PPID l
 		{
 			TDialog::handleEvent(event);
 			if(event.isCmd(cmLinkedBill)) {
-				PPObjBill * p_bobj = BillObj;
+				PPObjBill * p_bobj(BillObj);
 				PPID   bill_id = R_Data.NativeBillID;
 				BillTbl::Rec bill_rec;
 				if(bill_id && p_bobj->Fetch(bill_id, &bill_rec) > 0) {
@@ -11030,7 +11030,7 @@ int PPViewVetisDocument::EditBaseFilt(PPBaseFilt * pBaseFilt)
 int PPViewVetisDocument::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	BExtQuery::ZDelete(&P_IterQuery);
 	THROW(Helper_InitBaseFilt(pBaseFilt));
 	Filt.Period.Actualize(ZERODATE);
@@ -11098,7 +11098,7 @@ static IMPL_DBE_PROC(dbqf_vetis_entitytextfld_ip)
 		result->init(static_cast<long>(sizeof(result_buf)));
 	}
 	else {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		const  PPID entity_id = params[0].lval;
 		VetisEntityCore * p_ec = reinterpret_cast<VetisEntityCore *>(params[1].ptrv);
 		SString temp_buf;
@@ -11122,7 +11122,7 @@ static IMPL_DBE_PROC(dbqf_vetis_businessmembtextfld_iip)
 		result->init(static_cast<long>(sizeof(result_buf)));
 	}
 	else {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		PPID   enterprise_id = params[0].lval;
 		PPID   bent_id = params[1].lval;
 		const VetisEntityCore * p_ec = static_cast<const VetisEntityCore *>(params[2].ptrval);
@@ -11173,7 +11173,7 @@ static IMPL_DBE_PROC(dbqf_vetis_vet_uuid_i)
 		result->init(static_cast<long>(sizeof(result_buf)));
 	}
 	else {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		const  PPID entity_id = params[0].lval;
 		VetisEntityCore * p_ec = const_cast<VetisEntityCore *>(static_cast<const VetisEntityCore *>(params[1].ptrval));
 		SString temp_buf;
@@ -11208,7 +11208,7 @@ static IMPL_DBE_PROC(dbqf_vetis_vet_uuid_i)
 {
 	rBuf.Z();
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SStringU temp_buf_u;
 	const struct {
 		PPID   ObjType;
@@ -11727,8 +11727,8 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 				use_alg2 = 100;
 		}
 	}
-	Reference * p_ref = PPRef;
-	PPObjBill * p_bobj = BillObj;
+	Reference * p_ref(PPRef);
+	PPObjBill * p_bobj(BillObj);
 	VetisDocumentViewItem vi;
 	PPIDArray entity_id_list;
 	PPIDArray manuf_id_list; // Список документов выхода из производства
@@ -11803,7 +11803,7 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 		}
 	}
 	if(entity_id_list.getCount()) {
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		Transfer * trfr = p_bobj->trfr;
 		entity_id_list.sortAndUndup();
 		TSVector <VetisEntityCore::UnresolvedEntity> ure_list;
@@ -12493,7 +12493,7 @@ int PPViewVetisDocument::ForceResolveObject(const VetisDocumentTbl::Rec & rRec, 
 {
 	int    ok = -1;
 	if(oneof2(objToMatch, otmFrom, otmTo)) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		const  int  side = (objToMatch == otmTo) ? 1 : 0;
 		const  PPID enterprise_id = (side == 1) ? rRec.ToEnterpriseID : rRec.FromEnterpriseID;
 		const  PPID bent_id = (side == 1) ? rRec.ToEntityID : rRec.FromEntityID;
@@ -12547,7 +12547,7 @@ int PPViewVetisDocument::ForceResolveObject(const VetisDocumentTbl::Rec & rRec, 
 int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int objToMatch)
 {
 	int    ok = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	PPObjAccSheet acs_obj;
 	SString temp_buf;
 	PPIDArray locked_bill_list;
@@ -12557,7 +12557,7 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 		const  PPID acs_id = (objToMatch == otmTo) ? GetSellAccSheet() : GetSupplAccSheet();
 		PPAccSheet acs_rec;
 		{
-			Reference * p_ref = PPRef;
+			Reference * p_ref(PPRef);
 			const  PPID enterprise_id = (side == 1) ? rRec.ToEnterpriseID : rRec.FromEnterpriseID;
 			const  PPID bent_id = (side == 1) ? rRec.ToEntityID : rRec.FromEntityID;
 			SStringU temp_buf_u;

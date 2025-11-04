@@ -268,7 +268,7 @@ int VkInterface::Setup(PPID guaID, uint flags)
 	THROW(Ib.GuaPack.GetAccessKey(Ib.CliAccsKey) > 0);
 	//Ib.EndPoint = InetUrl::MkHttps("api.uds.app", "partner/v2");
 	{
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		PPObjTag obj_tag;
 		PPID   tag_outer_goods_id = 0;
 		if(Ib.GuaPack.TagL.GetItemStr(PPTAG_GUA_SOCIALGROUPCODE, Ib.GroupId) > 0) {
@@ -1923,7 +1923,7 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 {
 	assert(rParam.GlobalService == PPGLS_VK);
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPObjGoods goods_obj;
 	VkInterface ifc;
 	SString temp_buf;
@@ -2020,7 +2020,7 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 	PPObjGoods goods_obj;
 	UdsGameInterface ifc;
 	SString temp_buf;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	if(ifc.Setup(0)) {
 		SString ex_outer_goods_id;
 		SString category_name;
@@ -2474,8 +2474,8 @@ int AptekaRuInterface::MakeBillCodeList(const PPIDArray & rIdList, StringSet & r
 	rSs.Z();
 	rResultIdList.Z();
 	if(rIdList.getCount()) {
-		PPObjBill * p_bobj = BillObj;
-		Reference * p_ref = PPRef;
+		PPObjBill * p_bobj(BillObj);
+		Reference * p_ref(PPRef);
 		if(p_bobj && p_ref) {
 			SString temp_buf;
 			BillTbl::Rec bill_rec;
@@ -2770,8 +2770,8 @@ int PrcssrAptekaRu::EditParam(PrcssrAptekaRuFilt * pParam)
 int PrcssrAptekaRu::Run()
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
-	PPObjBill * p_bobj = BillObj;
+	Reference * p_ref(PPRef);
+	PPObjBill * p_bobj(BillObj);
 	const int   unclaimed_order_gap_days = 14; // Период в течении которого заказ должен быть либо востребован покупателем либо отправляется поставщику.
 	const bool is_test = LOGIC(P.Flags & PrcssrAptekaRuFilt::fTest);
 	THROW(P.GuaID); // @todo @err

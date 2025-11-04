@@ -429,7 +429,7 @@ int ObjCache::RefSymbArray::FetchBySymb(const char * pSymb, PPID * pID)
 		if(!Inited || DirtyTable.getCount()) {
 			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			if(!Inited || DirtyTable.getCount()) {
-				Reference * p_ref = PPRef;
+				Reference * p_ref(PPRef);
 				Reference2Tbl::Rec rec;
 				if(!Inited) {
 					Z();

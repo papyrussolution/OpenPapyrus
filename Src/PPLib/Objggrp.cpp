@@ -1292,7 +1292,7 @@ struct Storage_PPTranspConfig { // @persistent @store(PropertyTbl)
 	const  long prop_cfg_id = PPPRP_TRANSPCFG;
 	int    ok = -1;
 	int    r;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	size_t sz = sizeof(Storage_PPTranspConfig) + 256;
 	Storage_PPTranspConfig * p_cfg = static_cast<Storage_PPTranspConfig *>(SAlloc::M(sz));
 	THROW_MEM(p_cfg);
@@ -2607,7 +2607,7 @@ int PPObjSuprWare::Put(PPID * pID, const PPSuprWarePacket * pPack, int use_ta)
 	STATIC_ASSERT(sizeof(_GCompItem)==sizeof(ObjAssocTbl::Rec));
 	const  PPID assoc_type = PPASS_GOODSCOMP;
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	int    action = 0;
 	int    skip_items = 0;
 	uint   i;
@@ -2724,7 +2724,7 @@ int PPObjSuprWare::PutAssoc(const PPSuprWareAssoc & rItem, int use_ta)
 	STATIC_ASSERT(sizeof(_GCompItem)==sizeof(ObjAssocTbl::Rec));
 	const  PPID assoc_type = PPASS_GOODSCOMP;
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPID   assc_id = 0;
 	{
 		_GCompItem gci, org_gci;

@@ -796,7 +796,7 @@ int WinInetFTP::CreateDir(const char * pDir)
 /*static*/int PpyInetDataPrcssr::PutCfg(const PPInetConnConfig * pCfg, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	int    is_new = 1;
 	PPInetConnConfig prev_cfg;
 	PPInetConnConfig cfg = *pCfg;

@@ -1475,18 +1475,26 @@ int ChangeDBListDialog::DoEditDB(PPID dbid)
 		if(!temp_buf.NotEmptyS())
 			PPErrorByDialog(dlg, CTL_CREATEDB_ENTRYNAME, PPERR_NAMENEEDED);
 		else {
+			SString db_path;
 			dlb.SetAttr(DbLoginBlock::attrDbSymb, temp_buf);
 			dlg->getCtrlString(CTL_CREATEDB_NAME, temp_buf.Z());
 			dlb.SetAttr(DbLoginBlock::attrDbFriendlyName, temp_buf);
 			dlg->getCtrlString(CTL_CREATEDB_DICT, temp_buf.Z());
 			dlb.SetAttr(DbLoginBlock::attrDictPath, temp_buf);
-			dlg->getCtrlString(CTL_CREATEDB_DATA, temp_buf.Z());
-			dlb.SetAttr(DbLoginBlock::attrDbPath, temp_buf);
+			dlg->getCtrlString(CTL_CREATEDB_DATA, db_path.Z());
+			// Путь к базе данных устанавливается в зависимости от типа DBMS-сервера, потому dlb.SetAttr(DbLoginBlock::attrDbPath, db_path) распределены по веткам ниже
 			if(server_type == sqlstSQLite) {
+				{
+					if(SFile::IsDir(db_path)) {
+						db_path.SetLastSlash().Cat("ppdb-sqlt");
+					}
+					dlb.SetAttr(DbLoginBlock::attrDbPath, db_path);
+				}
 				dlg->getCtrlString(CTL_CREATEDB_DBNAME, temp_buf.Z());
 				dlb.SetAttr(DbLoginBlock::attrDbName, temp_buf);
 			}
 			else if(oneof3(server_type, sqlstORA, sqlstMSS, sqlstMySQL)) {
+				dlb.SetAttr(DbLoginBlock::attrDbPath, db_path);
 				dlg->getCtrlString(CTL_CREATEDB_DBNAME, temp_buf.Z());
 				dlb.SetAttr(DbLoginBlock::attrDbName, temp_buf);
 				dlg->getCtrlString(CTL_CREATEDB_DBUSER, temp_buf.Z());
@@ -1496,6 +1504,9 @@ int ChangeDBListDialog::DoEditDB(PPID dbid)
 				temp_buf.Z();
 				dlg->getCtrlString(CTL_CREATEDB_SRVURL, temp_buf.Z());
 				dlb.SetAttr(DbLoginBlock::attrServerUrl, temp_buf);
+			}
+			else {
+				dlb.SetAttr(DbLoginBlock::attrDbPath, db_path);
 			}
 			if(Dbes.RegisterEntry(&F, &dlb) && Dbes.Add(0, &dlb, 1)) {
 				ok = valid_data = 1;
@@ -3038,7 +3049,7 @@ int TestLargeVlrInputOutput()
 	const  long test_prop_id = 1;
 
     int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SBuffer src_buf, dest_buf;
 	{
 		PPTransaction tra(1);

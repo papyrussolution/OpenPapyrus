@@ -319,7 +319,7 @@ int PPObjBill::AutoCharge(PPID id)
 int PPObjBill::AutoCharge()
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPID   parent_op = 0;
 	PPID   charge_op = 0;
 	PPLogger logger;

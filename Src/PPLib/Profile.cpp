@@ -895,7 +895,7 @@ int PPUserProfileCore::ReadState()
 int PPUserProfileCore::ClearState(const S_GUID * pDbId, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SSerializeContext sctx;
 	SBuffer buf;
 	{

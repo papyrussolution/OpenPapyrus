@@ -616,7 +616,7 @@ int PPViewLocTransf::ProcessDispBill(PPID billID, BExtInsert * pBei, int use_ta)
 			pBei = p_local_bei;
 		}
 		{
-			PPObjBill * p_bobj = BillObj;
+			PPObjBill * p_bobj(BillObj);
 			Transfer * p_tr = p_bobj->trfr;
 			TempLocTransfTbl::Rec rec;
 			BillTbl::Rec bill_rec;
@@ -894,8 +894,12 @@ int PPViewLocTransf::CellStyleFunc_(const void * pData, long col, int paintActio
 		const BrowserDef * p_def = pBrw->getDef();
 		if(col < static_cast<long>(p_def->getCount())) {
 			const BroColumn & r_col = p_def->at(col);
-			if(r_col.OrgOffs == 4) { // qtty
-				// @todo Установить цветовой индикатор в случае, если строка имеет флаг LOCTRF_ORDER
+			if(r_col.OrgOffs == 5) { // qtty
+				const long flags = static_cast<const Hdr *>(pData)->Flags;
+				if(flags & LOCTRF_ORDER) {
+					pCellStyle->Color = GetColorRef(SClrBlueviolet);
+					ok = 1;
+				}
 			}
 		}
 	}
@@ -963,19 +967,20 @@ DBQuery * PPViewLocTransf::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 			tmpt->LocID,            // #01
 			tmpt->RByLoc,           // #02
 			tmpt->LTOp,             // #03
-			tmpt->DispQtty,         // #04
-			tmpt->RestByGoods,      // #05
-			tmpt->RestByLot,        // #06
-			tmpt->Dt,               // #07
-			tmpt->Tm,               // #08
-			*p_dbe_op,              // #09
-			dbe_loc,                // #10
-			dbe_goods,              // #11
-			dbe_bill,               // #12
-			dbe_user,               // #13
-			dbe_barcode,            // #14
-			tmpt->BillQtty,         // #15
-			dbe_locownerpsn,        // #16 @v12.4.1
+			tmpt->Flags,            // #04 // @v12.4.7
+			tmpt->DispQtty,         // #05 // @v12.4.7 #+1
+			tmpt->RestByGoods,      // #06
+			tmpt->RestByLot,        // #07
+			tmpt->Dt,               // #08
+			tmpt->Tm,               // #09
+			*p_dbe_op,              // #10
+			dbe_loc,                // #11
+			dbe_goods,              // #12
+			dbe_bill,               // #13
+			dbe_user,               // #14
+			dbe_barcode,            // #15
+			tmpt->BillQtty,         // #16
+			dbe_locownerpsn,        // #17 @v12.4.1
 			0).from(tmpt, 0L).where(*dbq);
 	}
 	else {
@@ -1033,19 +1038,20 @@ DBQuery * PPViewLocTransf::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 			t->LocID,            // #01
 			t->RByLoc,           // #02
 			t->LTOp,             // #03
-			t->Qtty,             // #04
-			t->RestByGoods,      // #05
-			t->RestByLot,        // #06
-			t->Dt,               // #07
-			t->Tm,               // #08
-			*p_dbe_op,           // #09
-			dbe_loc,             // #10
-			dbe_goods,           // #11
-			dbe_bill,            // #12
-			dbe_user,            // #13
-			dbe_barcode,         // #14
-			t->Qtty,             // #15 @stub
-			dbe_locownerpsn,     // #16 @v12.4.1
+			t->Flags,            // #04 // @v12.4.7
+			t->Qtty,             // #05 // @v12.4.7 #+1
+			t->RestByGoods,      // #06
+			t->RestByLot,        // #07
+			t->Dt,               // #08
+			t->Tm,               // #09
+			*p_dbe_op,           // #10
+			dbe_loc,             // #11
+			dbe_goods,           // #12
+			dbe_bill,            // #13
+			dbe_user,            // #14
+			dbe_barcode,         // #15
+			t->Qtty,             // #16 @stub
+			dbe_locownerpsn,     // #17 @v12.4.1
 			0).from(t, 0L).where(*dbq);
 		if(single_loc_crit)
 			p_q->orderBy(t->LocID, 0);

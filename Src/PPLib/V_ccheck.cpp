@@ -4184,7 +4184,7 @@ int PPViewCCheck::EditCCheckSystemInfo(CCheckPacket & rPack)
 int PPViewCCheck::EditItemInfo(PPID id)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	TDialog * dlg = 0;
 	if(!Filt.Grp) {
 		CCheckPacket pack, org_pack;
@@ -4422,7 +4422,7 @@ int PPViewCCheck::CreateDraftBySuspCheck(PPViewCCheck * pV, PPID chkID)
 			CCheckViewItem chk_rec;
 			PPBillPacket  pack;
 			BillFilt    b_filt;
-			PPObjBill * p_bobj = BillObj;
+			PPObjBill * p_bobj(BillObj);
 			THROW(p_bobj->CheckRights(PPR_INS));
 			if(select_all) {
 				PPLoadText(PPTXT_CCHECKSELFORPERIOD, temp_buf);

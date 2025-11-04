@@ -558,7 +558,7 @@ int GTaxVect::CalcTI_Implement(const PPTransferItem & rTi, PPID opID, int tiamt,
 {
 	int    ok = 1;
 	const  PPCommConfig & r_ccfg = CConfig;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	const  bool calcti_costwovat_byprice = (r_ccfg.Flags & CCFLG_COSTWOVATBYSUM) ? false : true;
 	const  LDATE date_of_relevance = ValidDateOr(rTi.LotDate, rTi.Date); // Драфт-документы имеют нулевой LotDate
 	bool   is_cost_wo_vat = false;
@@ -741,7 +741,7 @@ LDATE GTaxVect::EvalBlock::GetOpDate()
 	const  PPTransferItem * p_ti = GetTI();
 	LDATE  link_bill_date = ZERODATE;
 	{
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		const BillTbl::Rec * p_bill_rec = 0;
 		BillTbl::Rec bill_rec;
 		if(P_BPack) {
@@ -787,7 +787,7 @@ int GTaxVect::EvaluateTaxes(const EvalBlock & rBlk__) // @v12.2.4
 	EvalBlock lblk(rBlk__); // локальная копия расчетного блока (rBlk__ более в функции не используется)
 	{
 		const  PPCommConfig & r_ccfg = CConfig;
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		const  bool calcti_costwovat_byprice = (r_ccfg.Flags & CCFLG_COSTWOVATBYSUM) ? false : true;
 		bool   is_cost_wo_vat = false;
 		long   amt_flags = ~0L;

@@ -952,7 +952,7 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 		}
 		if(extraPtr) {
 			const PPBillPacket * p_pack = static_cast<const PPBillPacket *>(extraPtr);
-			PPObjBill * p_bobj = BillObj;
+			PPObjBill * p_bobj(BillObj);
 			ps.Nam.Transf(CTRANSF_OUTER_TO_INNER);
 			if(p_bobj && p_bobj->SubstText(p_pack, ps.Nam, temp_buf) == 2) {
 				ps.Nam = temp_buf;
@@ -4194,7 +4194,7 @@ int PPBillImpExpBaseProcessBlock::SetFixTagOnExportedBill(const PPIDArray & rBil
 		const  PPID tag_id = GetFixTagID(&tag_rec);
 		if(tag_id && oneof6(tag_rec.TagDataType, OTTYP_BOOL, OTTYP_NUMBER, OTTYP_INT, OTTYP_DATE, OTTYP_TIMESTAMP, OTTYP_STRING)) {
 			//exported_bill_id_list.sortAndUndup();
-			Reference * p_ref = PPRef;
+			Reference * p_ref(PPRef);
 			BillTbl::Rec bill_rec;
 			PPTransaction tra(use_ta);
 			THROW(tra);
@@ -4384,7 +4384,7 @@ int PPBillImporter::CheckBill(const Sdr_Bill * pBill)
 				// @v12.2.1 {
 				{
 					SString ex_tag_buf;
-					Reference * p_ref = PPRef;
+					Reference * p_ref(PPRef);
 					ObjTagItem tag_item;
 					PPTransaction tra(1);
 					THROW(tra);
@@ -4634,7 +4634,7 @@ int PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * pPack)
 int PPBillImporter::DoFullEdiProcess()
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPEdiProcessor::ProviderImplementation * p_prvimp = 0;
 	SString temp_buf;
 	SString msg_buf;
@@ -5017,7 +5017,7 @@ public:
 int PPBillImporter::Helper_AcceptCokeData(const SCollection * pRowList, PPID opID, PPID supplArID)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	if(pRowList && pRowList->getCount()) {
 		//rec_list.sort(PredefImportRecord_Coke::Compare);
 		SString prev_order_ident;
@@ -5236,7 +5236,7 @@ int PPBillImporter::Helper_AcceptCokeData(const SCollection * pRowList, PPID opI
 int PPBillImporter::Run()
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString file_name;
 	SString temp_buf;
 	SString msg_buf;
@@ -5950,7 +5950,7 @@ int PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, ImpExpDll
 	SString temp_buf, err_msg;
 	Sdr_Bill bill;
 	PPTransferItem * p_ti = 0;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	ReceiptCore * p_rcpt = (P_BObj && P_BObj->trfr) ? &P_BObj->trfr->Rcpt : 0;
 	GTaxVect gtv;
 	THROW_INVARG(pPack && P_IEBill && (P_IEBRow || (sessId && pImpExpDll)));
@@ -6747,7 +6747,7 @@ int DocNalogRu_Generator::GetIdentifier(PPID psnID, PPID dtoPersonID, SString & 
 int DocNalogRu_Generator::CreateHeaderInfo(const char * pFormatPrefix, PPID senderID, PPID rcvrID, PPID providerID, const char * pBaseFileName, FileInfo & rInfo)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	rInfo.CurDtm = getcurdatetime_();
 	rInfo.SenderPersonID = senderID;
@@ -6820,7 +6820,7 @@ DocNalogRu_Generator::File::File(DocNalogRu_Generator & rG, const FileInfo & rHi
 		N7 - Формируется свободное двузначное число, которое принимает значение в соответствии со списком в электронной форме, размещенным на официальном сайте Федеральной налоговой службы в информационно-телекоммуникационной сети "Интернет" в виде отдельного файла (при отсутствии показателя принимает однозначное значение "00").
 	*/
 	if(!(rHi.Flags & FileInfo::fIndepFormatProvider)) { // @v11.9.9 Для независимого провайдера атрибуты тега <Файл> вносятся прикладной функцией //
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		SString temp_buf;
 		N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_IDFILE)/*"ИдФайл"*/, rHi.FileId);
 		{
@@ -7047,7 +7047,7 @@ int DocNalogRu_Generator::WriteWareInfoAddendum(const PPBillImpExpParam & rParam
 	const SString & rGoodsCode, const SString & rBarcodeForMarking, bool correction) // @v12.2.12
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	if(itemIdx < rBp.GetTCount()) {
 		const PPTransferItem & r_ti = rBp.ConstTI(itemIdx);
@@ -7238,7 +7238,7 @@ int DocNalogRu_Generator::WriteWareInfoAddendum(const PPBillImpExpParam & rParam
 int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, const FileInfo & rHi, const PPBillPacket & rBp, bool correction/*= false*/)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	double total_amt = 0.0;
 	double total_amt_before = 0.0;
 	double total_amt_after = 0.0;
@@ -7259,7 +7259,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 	SString barcode_for_exchange; // @v11.5.9 Валидный штрихкод для передачи контрагенту с целью идентификации товара
 	PPLotExtCodeContainer::MarkSet::Entry msentry;
 	PPLotExtCodeContainer::MarkSet ext_codes_set;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	PPIDArray correction_bill_chain;
 	if(correction) {
 		p_bobj->GetCorrectionBackChain(rBp.Rec, correction_bill_chain);
@@ -8508,7 +8508,7 @@ int DocNalogRu_WriteBillBlock::Do_DP_REZRUISP(SString & rResultFileName)
 int DocNalogRu_WriteBillBlock::Do_Invoice2(SString & rResultFileName)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	rResultFileName.Z();
 	{
 		SString temp_buf;
@@ -8980,8 +8980,8 @@ int DocNalogRu_WriteBillBlock::Do_Invoice(SString & rResultFileName)
 int DocNalogRu_WriteBillBlock::Do_UPD(SString & rResultFileName)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
-	PPObjBill * p_bobj = BillObj;
+	Reference * p_ref(PPRef);
+	PPObjBill * p_bobj(BillObj);
 	BillTbl::Rec order_bill_rec;
 	rResultFileName.Z();
 	{

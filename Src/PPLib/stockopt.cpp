@@ -168,7 +168,7 @@ struct __StockOptConfig {   // @persistent
 {
 	int    ok = 1;
 	if(pCfg) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		__StockOptConfig rec, prev_rec;
 		MEMSZERO(rec);
 		rec.Tag = PPOBJ_CONFIG;

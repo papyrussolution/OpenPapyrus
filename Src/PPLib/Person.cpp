@@ -1067,7 +1067,7 @@ int PersonCore::PutKinds(PPID id, PPPerson * pPack)
 int PersonCore::Put(PPID * pID, PPPerson * pPack, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString memo_buf_utf8;
 	if(pPack) {
 		(memo_buf_utf8 = pPack->SMemo).Transf(CTRANSF_INNER_TO_UTF8);
@@ -1262,7 +1262,7 @@ int PersonCore::GetVATFreePersonList(PPIDArray * list)
 int PersonCore::PutRelList(PPID id, const LAssocArray * pList, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -1302,7 +1302,7 @@ int PersonCore::PutRelList(PPID id, const LAssocArray * pList, int use_ta)
 int PersonCore::GetRelList(PPID id, LAssocArray * pList, int reverse)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	RelationRecord rel_rec;
 	STATIC_ASSERT(sizeof(rel_rec) == sizeof(ObjAssocTbl::Rec));
 	pList->clear();
@@ -1347,7 +1347,7 @@ int PersonCore::GetELinkList(int elnkrt, PPID personKindID, StrAssocArray & rLis
 {
 	rList.Z();
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPELinkArray temp_list;
 	PPIDArray additional_psn_list; 
 	size_t buf_sz = SKILOBYTE(8);
@@ -1436,7 +1436,7 @@ int PersonCore::GetELinkList(int elnkrt, PPID personKindID, StrAssocArray & rLis
 {
 	int    ok = 1;
 	int    r;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	size_t sz = SKILOBYTE(4);
 	PropertyTbl::Rec * p_buf = 0;
 	rEla.clear();

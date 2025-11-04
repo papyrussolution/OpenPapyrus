@@ -206,7 +206,7 @@ struct Storage_PPTSessionConfig { // @persistent @store(PropertyTbl)
 	const  long prop_cfg_id = PPPRP_TSESSCFG;
 	int    ok = -1;
 	int    r;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	size_t sz = 0;
 	Storage_PPTSessionConfig * p_cfg = 0;
 	if(p_ref->GetPropActualSize(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, &sz) > 0) {
@@ -2553,7 +2553,7 @@ SString & PPObjTSession::GetItemMemo(PPID id, SString & rBuf)
 int PPObjTSession::GetPacket(PPID id, TSessionPacket * pPack, long options)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	pPack->Z();
 	if(PPCheckGetObjPacketID(Obj, id)) {
 		const int  r = Search(id, &pPack->Rec);
@@ -2582,7 +2582,7 @@ int PPObjTSession::GetPacket(PPID id, TSessionPacket * pPack, long options)
 int PPObjTSession::PutPacket(PPID * pID, TSessionPacket * pPack, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef; // @11.0.4
+	Reference * p_ref(PPRef); // @11.0.4
 	int    acn = 0;
 	long   preserve_cfg_flags = Cfg.Flags;
 	SString ext_buffer; // @v11.0.4
@@ -2823,7 +2823,7 @@ int PPObjTSession::GenerateSerial(TSessLineTbl::Rec * pRec)
 {
 	int    ok = -1;
 	if(pRec->Sign >= 0) {
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		char   templt[128]; // [48]-->[128]
 		char   tses_code[32];
 		SString serial;
@@ -3337,7 +3337,7 @@ int PPObjTSession::SelectBySerial(SelectBySerialParam * pParam)
 {
 	int    ok = -1;
 	int    r = 0;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	TSessLineTbl::Rec line_rec;
 	PPIDArray lot_list;
 	PPID   loc_id = 0;
@@ -3416,7 +3416,7 @@ int PPObjTSession::SelectBySerial(SelectBySerialParam * pParam)
 int PPObjTSession::UndoWritingOff(PPID sessID, int use_ta)
 {
 	int    ok = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	TSessionTbl::Rec rec;
 	{
 		PPTransaction tra(use_ta);
@@ -3548,7 +3548,7 @@ SString & PPObjTSession::MakeListName(const PPIDArray * pList, SString & rBuf)
 int PPObjTSession::LoadExistedDeficitBills(PPID sessID, PPBillPacketCollection & rList, PPLogger & rLogger)
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	PPBillPacket * p_pack = 0;
 	SString bill_code;
 	for(PPID bill_id = 0; p_bobj->EnumMembersOfPool(PPASS_TSDBILLPOOL, sessID, &bill_id) > 0;) {
@@ -3581,7 +3581,7 @@ int PPObjTSession::LoadExistedDeficitBills(PPID sessID, PPBillPacketCollection &
 int PPObjTSession::ConvertWrOffDeficit(PPID sessID, PPID locID, const PUGL * pDfctList, PPLogger & rLogger)
 {
 	int    ok = -1, r;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	const PPConfig & r_lcfg = LConfig;
 	PPEquipConfig eq_cfg;
 	ReadEquipConfig(&eq_cfg);
@@ -3687,7 +3687,7 @@ int PPObjTSession::ConvertWrOffDeficit(PPID sessID, PPID locID, const PUGL * pDf
 int PPObjTSession::CalcBalance(PPID sessID, double * pDebt, double * pBillPaym, double * pCcPaym)
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	double debt = 0.0;
 	double bill_paym = 0.0;
 	double cc_paym = 0.0;
@@ -3836,7 +3836,7 @@ int PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger & rLo
 	SString ses_name;
 	SString fmt_buf;
 	SString msg_buf;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	ReceiptCore & rcpt_core = p_bobj->trfr->Rcpt;
 	PPLoadText(PPTXT_LOG_TSES_WROFF_LINE, fmt_buf);
 	// @v11.0.4 THROW(Search(sessID, &tses_rec) > 0);
@@ -4837,7 +4837,7 @@ int PPObjTSession::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 
 int PPObjTSession::GetSerialListByGoodsID(PPID goodsID, PPID locID, SVector * pList)
 {
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	SerialByGoodsListItem item;
 	ReceiptCore & r_rcpt = p_bobj->trfr->Rcpt;
 	SString temp_buf;

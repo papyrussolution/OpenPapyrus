@@ -804,7 +804,7 @@ int ExecuteGenericDeviceCommand(PPID dvcID, const char * pCmd, long options)
 int PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKind * pPok, const PoClause_ * pClause, int action, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPID   psn_id = 0;
 	PPID   sc_id = 0;
 	if(pClause->Subj == POCOBJ_PRIMARY) {
@@ -1375,7 +1375,7 @@ int PPObjPersonEvent::CheckRestrictions(const PPPsnEventPacket * pPack, const PP
 int PPObjPersonEvent::PutPacket(PPID * pID, PPPsnEventPacket * pPack, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	uint   i, j;
 	LDATE  op_dt = ZERODATE;
 	long   op_no = 0;

@@ -6222,6 +6222,10 @@ int    memdword(void * p, size_t size, uint32 k, size_t * pOffs);
 //
 void * FASTCALL memzero(void * p, size_t s);
 bool   FASTCALL ismemzero(const void * p, size_t s);
+//
+// Descr: Выясняет не заполнен ли весь отрезок памяти p длиной s байтами одного и того же значения C
+//
+bool   ismemchr(const void * p, size_t s, uint8 C);
 void * FASTCALL memrandomize(void * p, size_t s);
 // @v11.8.1 {
 static constexpr uint8  _FFFF8   = static_cast<uint8>(0xff);

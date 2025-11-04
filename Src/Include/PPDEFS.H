@@ -11819,6 +11819,7 @@
 #define DLG_UNITECFILT            1466 // @v12.3.7 Фильтр unit-анализа
 	#define CTL_UNITECFILT_PERIOD        (1 + WINDOWS_ID_BIAS)
 	#define CTLCAL_UNITECFILT_PERIOD     (2 + WINDOWS_ID_BIAS)
+	#define CTL_UNITECFILT_FLAGS         (3 + WINDOWS_ID_BIAS)
 #define DLG_SALESRESTR            1467 // @v12.3.7 PPSalesRestriction
 	#define CTL_SALESRESTR_NAME          (1 + WINDOWS_ID_BIAS)
 	#define CTL_SALESRESTR_SYMB          (2 + WINDOWS_ID_BIAS)

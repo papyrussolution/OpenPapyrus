@@ -1641,7 +1641,7 @@ customParameters 	Пользовательские параметры 	object[]
 int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	const  bool   use_json_cmd = LOGIC(Flags & sfUseJson);
 	bool   is_format = false;
 	bool   enabled = true;

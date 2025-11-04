@@ -1077,7 +1077,6 @@ int FASTCALL SVector::atFree(uint idx)
 		count--;
 		if(idx < count)
 			memmove(item, PTR8(item) + isize, (count-idx) * isize);
-		// @v10.7.3 shrink();
 		return 1;
 	}
 	else
@@ -1121,7 +1120,6 @@ int SVector::freeChunk(uint lowPos, uint uppPos)
 			if(upp_pos < (org_count-1)) {
 				memmove(p_low_item, PTR8(p_low_item) + _fc * isize, (org_count-1-upp_pos) * isize);
 			}
-			// @v10.7.3 shrink();
 		}
 		ok = 1;
 	}
@@ -1255,7 +1253,6 @@ int FASTCALL SArray::atFree(uint idx)
 		count--;
 		if(idx < count)
 			memmove(item, PTR8(item) + isize, (count-idx) * isize);
-		// @v10.7.3 shrink();
 		return 1;
 	}
 	else
@@ -1285,7 +1282,6 @@ int SArray::freeChunk(uint lowPos, uint uppPos)
 			if(upp_pos < (org_count-1)) {
 				memmove(p_low_item, PTR8(p_low_item) + _fc * isize, (org_count-1-upp_pos) * isize);
 			}
-			// @v10.7.3 shrink();
 		}
 		ok = 1;
 	}

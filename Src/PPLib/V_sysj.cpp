@@ -957,7 +957,7 @@ int PPViewSysJournal::ViewBillHistory(PPID histID, LDATETIME evDtm)
 			PPBillPacket pack;
 			ObjVersioningCore * p_ovc = PPRef->P_OvT;
 			if(p_ovc && p_ovc->InitSerializeContext(1)) {
-				PPObjBill * p_bobj = BillObj;
+				PPObjBill * p_bobj(BillObj);
 				SSerializeContext & r_sctx = p_ovc->GetSCtx();
 				PPObjID oid;
 				long   vv = 0;

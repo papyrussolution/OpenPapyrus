@@ -280,7 +280,7 @@ int PPObjBill::CmpSnrWithLotSnr(PPID lotID, const char * pSerial, bool serialIsR
 {
 	bool is_eq = false;
 	if(serialIsRefB) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		SString lot_ref_b;
 		if(p_ref->Ot.GetTagStr(PPOBJ_LOT, lotID, PPTAG_LOT_FSRARINFB, lot_ref_b) > 0) {
 			is_eq = lot_ref_b.IsEqiAscii(pSerial);
@@ -639,7 +639,7 @@ private:
 int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pBp, LongArray * pRows, uint flags, const char * pSerial, const GoodsReplacementArray * pGra)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef; // @v11.4.0
+	Reference * p_ref(PPRef); // @v11.4.0
 	int    full_sync = 0; // Признак того, что сформированная строка документа полностью идентична ilti
 	uint   i = 0;
 	LongArray rows;
@@ -1285,7 +1285,7 @@ int ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 	PPAccTurn at;
 	PPTransferItem ti;
 	destroy();
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	PPBillPacket bpack;
 	THROW(p_bobj->P_Tbl->Extract(billID, this) > 0);
 	const  PPID op_type_id = GetOpType(Rec.OpID);
@@ -1535,7 +1535,7 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 	PPID   op_type_id = 0;
 	ILTI * p_ilti;
 	PPAccTurn * p_at, at;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	PPObjAccount acc_obj;
 	if(!_update) {
 		THROW(rPack.CreateBlank_WithoutCode(Rec.OpID, Rec.LinkBillID, Rec.LocID, use_ta));

@@ -706,8 +706,8 @@ int BrowserWindow::search2(const void * pSrchData, CompFunc cmpFunc, int srchMod
 		long scrollDelta, scrollPos;
 		P_Def->getScrollData(&scrollDelta, &scrollPos);
 		VScrollPos = P_Def->_curFrameItem();
-		ItemRect(HScrollPos, VScrollPos, &RectCursors.CellCursor, TRUE);
-		LineRect(VScrollPos, &RectCursors.LineCursor, TRUE);
+		ItemRect(HScrollPos, VScrollPos, &RectCursors.CellCursor, true);
+		LineRect(VScrollPos, &RectCursors.LineCursor, true);
 		AdjustCursorsForHdr();
 		TRect inv_rec;
 		invalidateRect(inv_rec.setwidthrel(0, CliSz.x).setheightrel(CapOffs + hdr_width, ViewHeight * YCell).setmarginy(-3), true);
@@ -763,7 +763,7 @@ const  BrowserDef * BrowserWindow::getDefC() const { return P_Def; }
 void   BrowserWindow::SetDefUserProc(SBrowserDataProc proc, void * extraPtr) { CALLPTRMEMB(P_Def, SetUserProc(proc, extraPtr)); }
 int    BrowserWindow::SetColumnTitle(int colNo, const char * pText) { return P_Def ? P_Def->setColumnTitle(colNo, pText) : 0; }
 int    BrowserWindow::IsLastPage(uint viewHeight) { return P_Def && P_Def->IsEOQ() && (!P_Def->getRow(P_Def->_topItem() + viewHeight)) ? 1 : 0; }
-int    FASTCALL BrowserWindow::CellRight(const BroColumn & rC) const { return (ChrSz.x*rC.width + rC.x); }
+int    FASTCALL BrowserWindow::CellRight(const BroColumn & rC) const { return (ChrSz.x*rC.CWidth + rC.x); }
 int    FASTCALL BrowserWindow::GetRowHeightMult(long row) const { return (P_RowsHeightAry && row < P_RowsHeightAry->getCountI()) ? static_cast<const RowHeightInfo *>(P_RowsHeightAry->at(row))->HeightMult : 1; }
 int    FASTCALL BrowserWindow::GetRowTop(long row) const { return (P_RowsHeightAry && row < P_RowsHeightAry->getCountI()) ? static_cast<const RowHeightInfo *>(P_RowsHeightAry->at(row))->Top : (YCell * row); }
 
@@ -898,7 +898,7 @@ BrowserWindow::~BrowserWindow()
 		// Восстановление ширин колонок броузера
 		//
 		for(uint i = 0; i < P_Def->getCount(); i++)
-			SetColumnWidth(i, (P_Def->at(i).width - 1) / 2);
+			SetColumnWidth(i, (P_Def->at(i).CWidth - 1) / 2);
 		ResetOwnerCurrent();
 		if(!IsInState(sfModal))
 			APPL->P_DeskTop->remove(this);
@@ -976,9 +976,9 @@ int BrowserWindow::CopyToClipboard()
 			for(i = 0; i < cn_count; i++) {
 				uint col_num = SelectedColumns.at(i);
 				if(col_num < p_def_->getCount()) {
-					const BroColumn & r_c = p_def_->at(col_num);
-					const long type = GETSTYPE(r_c.T);
-					val_buf = r_c.text;
+					const BroColumn & r_column = p_def_->at(col_num);
+					const long type = GETSTYPE(r_column.T);
+					val_buf = r_column.text;
 					sw.PutFormat("FC0L", 1, i + 1, row + 1);
 					sw.PutVal(val_buf.cptr(), 1);
 					width_ary.Add(col_num, (long)val_buf.Len(), 0);
@@ -1084,8 +1084,8 @@ IMPL_HANDLE_EVENT(BrowserWindow)
 						ChrSz.Set(tm.tmAveCharWidth, tm.tmHeight + tm.tmExternalLeading);
 						YCell = ChrSz.y + 2;
 						CalcRight();
-						ItemRect(0, 0, &RectCursors.CellCursor, TRUE);
-						LineRect(0, &RectCursors.LineCursor, TRUE);
+						ItemRect(0, 0, &RectCursors.CellCursor, true);
+						LineRect(0, &RectCursors.LineCursor, true);
 						SetupScroll();
 						if(p_sfe->DoRedraw) {
 							invalidateAll(true);
@@ -1136,12 +1136,12 @@ void BrowserWindow::CalcRight()
 		uint   i = 0;
 		BroColumn * p_column = &p_def_->at(i);
 		p_column->x = x;
-		while(i < Freeze && (x += (ChrSz.x * p_column->width + 3)) < CliSz.x) {
+		while(i < Freeze && (x += (ChrSz.x * p_column->CWidth + 3)) < CliSz.x) {
 			p_column = &p_def_->at(++i);
 			p_column->x = x;
 		}
 		(p_column = &p_def_->at(i = Left))->x = x;
-		while(++i < cnt && (x += (ChrSz.x * p_column->width + 3)) < CliSz.x) {
+		while(++i < cnt && (x += (ChrSz.x * p_column->CWidth + 3)) < CliSz.x) {
 			p_column = &p_def_->at(i);
 			p_column->x = x;
 		}
@@ -1362,20 +1362,21 @@ void BrowserWindow::WMHCreate()
 		}
 	}
 	CalcRight();
-	ItemRect(0, 0, &RectCursors.CellCursor, TRUE);
-	LineRect(0, &RectCursors.LineCursor, TRUE);
+	ItemRect(0, 0, &RectCursors.CellCursor, true);
+	LineRect(0, &RectCursors.LineCursor, true);
 	AdjustCursorsForHdr();
 	SetupScroll();
 }
 
 void BrowserWindow::SetupColumnsWith()
 {
-	if(P_Def) {
-		for(uint i = 0; i < P_Def->getCount(); i++) {
-			BroColumn & r_c = P_Def->at(i);
-			if(!(r_c.Options & BCO_SIZESET)) {
-				const int cw = r_c.width;
-				const TYPEID ct = r_c.T;
+	const   uint cc = SVectorBase::GetCount(P_Def);
+	if(cc) {
+		for(uint i = 0; i < cc; i++) {
+			BroColumn & r_column = P_Def->at(i);
+			if(!(r_column.Options & BCO_SIZESET)) {
+				const int cw = r_column.CWidth;
+				const TYPEID ct = r_column.T;
 				int    w;
 				if(GETSTYPE(ct) == S_ZSTRING)
 					w = cw * 2 + 1;
@@ -1383,22 +1384,23 @@ void BrowserWindow::SetupColumnsWith()
 					w = 10;
 				else
 					w = static_cast<int>(cw * 6 / 5 + 1);
-				r_c.width = MAX(6, w);
+				r_column.CWidth = smax(6, w);
 				CalcRight();
-				SETSFMTLEN(r_c.format, r_c.width);
-				r_c.Options |= BCO_SIZESET;
+				SETSFMTLEN(r_column.format, r_column.CWidth);
+				r_column.Options |= BCO_SIZESET;
 			}
 		}
+		EvaluateColumnSizes(true/*recalcDataStat*/); // @v12.4.7
 	}
 }
 
 void BrowserWindow::SetColumnWidth(int colNo, int newWidth)
 {
-	if(colNo >= 0 && colNo < static_cast<int>(P_Def->getCount())) {
-		BroColumn & c = P_Def->at(colNo);
-		c.width = MAX(6, newWidth);
+	if(colNo >= 0 && colNo < P_Def->getCountI()) {
+		BroColumn & r_column = P_Def->at(colNo);
+		r_column.CWidth = smax(6, newWidth);
 		CalcRight();
-		SETSFMTLEN(c.format, c.width);
+		SETSFMTLEN(r_column.format, r_column.CWidth);
 	}
 }
 
@@ -1463,10 +1465,10 @@ void BrowserWindow::SetFreeze(uint numFreezeCols)
 	CalcRight();
 }
 
-LPRECT BrowserWindow::ItemRect(int hPos, int vPos, LPRECT pRect, BOOL isFocus) const
+RECT * BrowserWindow::ItemRect(int hPos, int vPos, RECT * pRect, bool isFocus) const
 {
 	if(hPos >= 0 && hPos < P_Def->getCountI()) {
-		const BroColumn & c = P_Def->at(hPos);
+		const BroColumn & r_column = P_Def->at(hPos);
 		if(P_RowsHeightAry && vPos < static_cast<long>(P_RowsHeightAry->getCount())) {
 			pRect->top    = CapOffs + static_cast<const RowHeightInfo *>(P_RowsHeightAry->at(vPos))->Top;
 			pRect->bottom = pRect->top + ChrSz.y + YCell * (static_cast<const RowHeightInfo *>(P_RowsHeightAry->at(vPos))->HeightMult-1);
@@ -1475,8 +1477,8 @@ LPRECT BrowserWindow::ItemRect(int hPos, int vPos, LPRECT pRect, BOOL isFocus) c
 			pRect->top    = CapOffs + (YCell * vPos);
 			pRect->bottom = pRect->top + ChrSz.y;
 		}
-		pRect->left   = c.x + 1;
-		pRect->right  = CellRight(c) - 1;
+		pRect->left   = r_column.x + 1;
+		pRect->right  = CellRight(r_column) - 1;
 		if(isFocus) {
 			SInflateRect(*pRect, 3, 2);
 			pRect->bottom--;
@@ -1488,7 +1490,7 @@ LPRECT BrowserWindow::ItemRect(int hPos, int vPos, LPRECT pRect, BOOL isFocus) c
 	return pRect;
 }
 
-LPRECT BrowserWindow::LineRect(int vPos, LPRECT pRect, BOOL isFocus)
+LPRECT BrowserWindow::LineRect(int vPos, RECT * pRect, bool isFocus)
 {
 	BrowserDef * p_def_ = P_Def;
 	const  uint count = p_def_->getCount();
@@ -1563,8 +1565,9 @@ void BrowserWindow::DrawCapBk(HDC hDC, const RECT & rR, bool isPressed)
 
 void BrowserWindow::ClearFocusRect(const RECT & rR)
 {
-	::InvalidateRect(H(), &rR, false);
-	DrawFocus(::GetDC(H()), rR, false);
+	HWND h_wnd = H();
+	::InvalidateRect(h_wnd, &rR, false);
+	DrawFocus(::GetDC(h_wnd), rR, false);
 }
 
 static int FASTCALL GetCapAlign(int option)
@@ -1580,8 +1583,8 @@ void BrowserWindow::Refresh()
 	BrowserDef * p_def_ = P_Def;
 	if(p_def_) {
 		p_def_->refresh();
-		ItemRect(HScrollPos, p_def_->_curFrameItem(), &RectCursors.CellCursor, TRUE);
-		LineRect(p_def_->_curFrameItem(), &RectCursors.LineCursor, TRUE);
+		ItemRect(HScrollPos, p_def_->_curFrameItem(), &RectCursors.CellCursor, true);
+		LineRect(p_def_->_curFrameItem(), &RectCursors.LineCursor, true);
 		AdjustCursorsForHdr();
 	}
 	invalidateAll(true);
@@ -1596,19 +1599,19 @@ bool BrowserWindow::DrawTextUnderCursor(HDC hdc, char * pBuf, RECT * pTextRect, 
 		const  COLORREF old_color = SetTextColor(hdc, isLineCursor ? _ClrLineCursorOverText : _ClrCursorOverText); // @v12.3.10
 		HFONT  old_font = 0;
 		HFONT  curs_over_txt_font = 0;
-		TCHAR  buf[64];
-		LOGFONT log_font;
+		wchar_t buf[64];
+		LOGFONTW log_font;
 		TEXTMETRIC metrics;
 		MEMSZERO(log_font);
 		MEMSZERO(metrics);
 		memzero(&buf, sizeof(buf));
-		GetTextMetrics(hdc, &metrics);
-		GetTextFace(hdc, sizeof(buf), buf); // @unicodeproblem
+		GetTextMetricsW(hdc, &metrics);
+		GetTextFaceW(hdc, SIZEOFARRAY(buf), buf);
 		log_font.lfCharSet = RUSSIAN_CHARSET;
 		STRNSCPY(log_font.lfFaceName, buf);
 		log_font.lfWeight = FW_MEDIUM;
 		log_font.lfHeight = metrics.tmHeight;
-		curs_over_txt_font = ::CreateFontIndirect(&log_font);
+		curs_over_txt_font = ::CreateFontIndirectW(&log_font);
 		if(curs_over_txt_font)
 			old_font = static_cast<HFONT>(SelectObject(hdc, curs_over_txt_font));
 		DrawMultiLinesText(hdc, pBuf, pTextRect, _fmt);
@@ -1621,19 +1624,140 @@ bool BrowserWindow::DrawTextUnderCursor(HDC hdc, char * pBuf, RECT * pTextRect, 
 	return ok;
 }
 
-void BrowserWindow::DrawMultiLinesText(HDC hdc, char * pBuf, RECT * pTextRect, uint _fmt)
+int BrowserWindow::EvaluateColumnSizeStat(TSVector <ColumnWidthStat> & rStat) // @v12.4.7
+{
+	rStat.clear();
+	int    ok = -1;
+	const  uint cc = SVectorBase::GetCount(P_Def);
+	if(cc) {
+		HWND  h_wnd = H();
+		HDC   h_dc = h_wnd ? GetDC(h_wnd) : 0;
+		if(h_dc) {
+			char  cbuf[1024];
+			TSCollection <StatBase> raw_stat_list;
+			{
+				for(uint ci = 0; ci < cc; ci++) {
+					const BroColumn & r_column = P_Def->at(ci);
+					ColumnWidthStat si;
+					si.OrgId = r_column.OrgOffs;
+					rStat.insert(&si);
+					raw_stat_list.CreateNewItem();
+				}
+			}
+			{
+				const long recs_count = P_Def->GetRecsCount();
+				for(long ri = 0; ri < recs_count; ri++) {
+					for(uint ci = 0; ci < cc; ci++) {
+						uint   height_mult = 0;
+						uint   new_row_height = 0;
+						P_Def->getMultiLinesText(ri, ci, cbuf, height_mult, &new_row_height);
+						strip(cbuf);
+
+						uint   _fmt = DT_NOPREFIX|DT_SINGLELINE|DT_CALCRECT;
+						RECT   rect;
+						MEMSZERO(rect);
+						::DrawTextW(h_dc, SUcSwitchW(cbuf), sstrleni(cbuf), &rect, _fmt);
+						const long width_px = rect.right - rect.left;
+						{
+							StatBase * p_raw_stat_entry = raw_stat_list.at(ci);
+							if(p_raw_stat_entry) {
+								p_raw_stat_entry->Step(static_cast<double>(width_px));
+							}
+						}
+					}
+				}
+			}
+			{
+				for(uint ci = 0; ci < cc; ci++) {
+					StatBase * p_raw_stat_entry = raw_stat_list.at(ci);
+					if(p_raw_stat_entry) {
+						p_raw_stat_entry->Finish();
+						ColumnWidthStat & r_se = rStat.at(ci);
+						r_se.Max = static_cast<float>(p_raw_stat_entry->GetMax());
+						r_se.Avg = static_cast<float>(p_raw_stat_entry->GetExp());
+						r_se.StdDev = static_cast<float>(p_raw_stat_entry->GetStdDev());
+					}
+				}
+			}
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+int BrowserWindow::EvaluateColumnSizes(bool recalcDataStat) // @v12.4.7 @construction
+{
+	int     ok = -1;
+	const   uint cc = SVectorBase::GetCount(P_Def);
+	if(cc && P_Def->IsSignature(BrowserDefSignature_ARY) && ChrSz.x > 0) {
+		const float min_col_size = 8.0;
+		HWND  h_wnd = H();
+		TSVector <ColumnWidthStat> * p_cstat = 0;
+		if(h_wnd) {
+			bool skip = false;
+			if(recalcDataStat || CwsL.getCount() != cc) {
+				if(EvaluateColumnSizeStat(CwsL) > 0) {
+					;
+				}
+				else {
+					skip = true;
+				}
+			}
+			if(!skip) {
+				// Это - код из SmartListBox::CalculateColumnsWidth для адаптации здесь
+				{
+					RECT view_rect;
+					::GetClientRect(h_wnd, &view_rect);
+					const int vscroll_width = GetSystemMetrics(SM_CXVSCROLL);
+					const float szy = 20.0f; // any positive value 
+					SUiLayout layout;
+					SUiLayoutParam alb(DIREC_HORZ, SUiLayoutParam::alignStart, 0);
+					alb.SetFixedSizeX(static_cast<float>(view_rect.right - view_rect.left - vscroll_width) / (ChrSz.x + 1)); // (+1) - запас. Иначе результат чуть шире допустимого получается //
+					alb.SetFixedSizeY(szy);
+					layout.SetLayoutBlock(alb);
+					{
+						for(uint cidx = 0; cidx < cc; cidx++) {
+							SUiLayoutParam alb_c;
+							alb_c.SetVariableSizeX(SUiLayoutParam::szUndef, 0.0f);
+							alb_c.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+							const ColumnWidthStat & r_se = CwsL.at(cidx);
+							float _w = smax(r_se.Max, min_col_size);
+							alb_c.GrowFactor = _w;
+							SUiLayout * p_lo = layout.InsertItem();
+							p_lo->SetLayoutBlock(alb_c);
+						}
+						layout.Evaluate(0);
+						assert(layout.GetChildrenCount() == cc);
+					}
+					{
+						for(uint cidx = 0; cidx < cc; cidx++) {
+							const SUiLayout * p_lo = layout.GetChildC(cidx);
+							const FRect lo_frame = p_lo->GetFrame();
+							//ListView_SetColumnWidth(h_lb, cidx, static_cast<int>(lo_frame.Width()));
+							SetColumnWidth(cidx, static_cast<int>(lo_frame.Width()));
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+void BrowserWindow::DrawMultiLinesText(HDC hdc, const char * pBuf, RECT * pTextRect, uint _fmt)
 {
 	if(pTextRect && !isempty(pBuf)) {
 		if(sstrchr(pBuf, '\n')) { // @v12.3.8
 			SString temp_buf;
 			RECT   rect = *pTextRect;
 			StringSet ss('\n', pBuf);
-			for(uint i = 0; ss.get(&i, temp_buf); rect.top += YCell, rect.bottom += YCell)
-				::DrawText(hdc, SUcSwitch(temp_buf), static_cast<int>(temp_buf.Len()), &rect, _fmt);
+			for(uint i = 0; ss.get(&i, temp_buf); rect.top += YCell, rect.bottom += YCell) {
+				::DrawTextW(hdc, SUcSwitchW(temp_buf), static_cast<int>(temp_buf.Len()), &rect, _fmt);
+			}
 		}
 		// @v12.3.8 {
 		else {
-			::DrawText(hdc, SUcSwitch(pBuf), strlen(pBuf), pTextRect, _fmt);
+			::DrawTextW(hdc, SUcSwitchW(pBuf), strlen(pBuf), pTextRect, _fmt);
 		}
 		// } @v12.3.8 
 	}
@@ -1661,15 +1785,11 @@ int BrowserWindow::PaintCell(HDC hdc, RECT r, long row, long col, int paintActio
 		ok = 1;
 		CellStyle style;
 		if(F_CellStyle && F_CellStyle(p_row, col, paintAction, &style, CellStyleFuncExtraPtr) > 0) {
-			HPEN   pen = 0;
-			HPEN   oldpen = 0;
-			HBRUSH br = 0;
-			HBRUSH oldbr = 0;
 			if(style.Color && !(style.Flags & CellStyle::fCorner)) {
-				pen = CreatePen(PS_SOLID, 1, style.Color);
-				oldpen = static_cast<HPEN>(SelectObject(hdc, pen));
-				br = CreateSolidBrush(style.Color);
-				oldbr = static_cast<HBRUSH>(SelectObject(hdc, br));
+				HPEN   pen = CreatePen(PS_SOLID, 1, style.Color);
+				HPEN   oldpen = static_cast<HPEN>(SelectObject(hdc, pen));
+				HBRUSH br = CreateSolidBrush(style.Color);
+				HBRUSH oldbr = static_cast<HBRUSH>(SelectObject(hdc, br));
 				Rectangle(hdc, r.left, r.top, r.right-1, r.bottom);
 
 				SelectObject(hdc, oldpen);
@@ -1678,18 +1798,19 @@ int BrowserWindow::PaintCell(HDC hdc, RECT r, long row, long col, int paintActio
 				ZDeleteWinGdiObject(&br);
 			}
 			if(style.Flags & (CellStyle::fCorner|CellStyle::fLeftBottomCorner|CellStyle::fRightFigCircle|CellStyle::fRightFigTriangle)) {
-				if(oneof2(paintAction, BrowserWindow::paintFocused, BrowserWindow::paintClear))
+				if(oneof2(paintAction, BrowserWindow::paintFocused, BrowserWindow::paintClear)) {
 					if(paintAction == BrowserWindow::paintClear)
 						ClearFocusRect(r);
 					else
 						DrawFocus(hdc, r, true, (col != -1));
+				}
 				POINT points[4];
 				if(style.Flags & CellStyle::fCorner) {
-					COLORREF color = style.Color;
-					pen = CreatePen(PS_SOLID, 1, color);
-					oldpen = static_cast<HPEN>(SelectObject(hdc, pen));
-					br = CreateSolidBrush(color);
-					oldbr = static_cast<HBRUSH>(SelectObject(hdc, br));
+					const  COLORREF color = style.Color;
+					HPEN   pen = CreatePen(PS_SOLID, 1, color);
+					HPEN   oldpen = static_cast<HPEN>(SelectObject(hdc, pen));
+					HBRUSH br = CreateSolidBrush(color);
+					HBRUSH oldbr = static_cast<HBRUSH>(SelectObject(hdc, br));
 
 					const int    t = r.top+2;
 					points[0].x = r.left;
@@ -1708,11 +1829,11 @@ int BrowserWindow::PaintCell(HDC hdc, RECT r, long row, long col, int paintActio
 					ZDeleteWinGdiObject(&br);
 				}
 				if(style.Flags & CellStyle::fLeftBottomCorner) {
-					COLORREF color = style.Color2;
-					pen = CreatePen(PS_SOLID, 1, color);
-					oldpen = static_cast<HPEN>(SelectObject(hdc, pen));
-					br = CreateSolidBrush(color);
-					oldbr = static_cast<HBRUSH>(SelectObject(hdc, br));
+					const  COLORREF color = style.Color2;
+					HPEN   pen = CreatePen(PS_SOLID, 1, color);
+					HPEN   oldpen = static_cast<HPEN>(SelectObject(hdc, pen));
+					HBRUSH br = CreateSolidBrush(color);
+					HBRUSH oldbr = static_cast<HBRUSH>(SelectObject(hdc, br));
 
 					const int    b = r.bottom-2;
 					points[0].x = r.left;
@@ -1731,11 +1852,11 @@ int BrowserWindow::PaintCell(HDC hdc, RECT r, long row, long col, int paintActio
 					ZDeleteWinGdiObject(&br);
 				}
 				if(style.Flags & CellStyle::fRightFigCircle) {
-					COLORREF color = style.RightFigColor;
-					pen = CreatePen(PS_SOLID, 1, color);
-					oldpen = static_cast<HPEN>(SelectObject(hdc, pen));
-					br = CreateSolidBrush(color);
-					oldbr = static_cast<HBRUSH>(SelectObject(hdc, br));
+					const  COLORREF color = style.RightFigColor;
+					HPEN   pen = CreatePen(PS_SOLID, 1, color);
+					HPEN   oldpen = static_cast<HPEN>(SelectObject(hdc, pen));
+					HBRUSH br = CreateSolidBrush(color);
+					HBRUSH oldbr = static_cast<HBRUSH>(SelectObject(hdc, br));
 					const int _diam = 6;
 					const int _right = r.right - 6;
 					const int _left = _right - _diam;
@@ -1748,11 +1869,11 @@ int BrowserWindow::PaintCell(HDC hdc, RECT r, long row, long col, int paintActio
 					ZDeleteWinGdiObject(&br);
 				}
 				else if(style.Flags & CellStyle::fRightFigTriangle) { // @v11.1.12
-					COLORREF color = style.RightFigColor;
-					pen = CreatePen(/*PS_SOLID*/PS_NULL, 1, color);
-					oldpen = static_cast<HPEN>(SelectObject(hdc, pen));
-					br = CreateSolidBrush(color);
-					oldbr = static_cast<HBRUSH>(SelectObject(hdc, br));
+					const  COLORREF color = style.RightFigColor;
+					HPEN   pen = CreatePen(/*PS_SOLID*/PS_NULL, 1, color);
+					HPEN   oldpen = static_cast<HPEN>(SelectObject(hdc, pen));
+					HBRUSH br = CreateSolidBrush(color);
+					HBRUSH oldbr = static_cast<HBRUSH>(SelectObject(hdc, br));
 					const int _diam = 6;
 					int   _right = r.right - 6;
 					int   _left = _right - _diam;
@@ -1775,11 +1896,12 @@ int BrowserWindow::PaintCell(HDC hdc, RECT r, long row, long col, int paintActio
 				}
 			}
 		}
-		else if(oneof2(paintAction, BrowserWindow::paintFocused, BrowserWindow::paintClear))
+		else if(oneof2(paintAction, BrowserWindow::paintFocused, BrowserWindow::paintClear)) {
 			if(paintAction == BrowserWindow::paintClear)
 				ClearFocusRect(r);
 			else
 				DrawFocus(hdc, r, true, (col != -1));
+		}
 	}
 	return ok;
 }
@@ -1825,21 +1947,21 @@ void BrowserWindow::Paint()
 		r.top    += hdr_width;
 		r.bottom += hdr_width;
 		if(SIntersectRect(ps.rcPaint, r)) {
-			const uint32 schema_num = UICfg.GetBrwColorSchemaIdx();
-			const COLORREF oldColor = SetBkColor(ps.hdc, _ClrTitle/*BrwColorsSchemas[schema_num].Title*/);
+			const  uint32 schema_num = UICfg.GetBrwColorSchemaIdx();
+			const  COLORREF oldColor = SetBkColor(ps.hdc, _ClrTitle/*BrwColorsSchemas[schema_num].Title*/);
 			uint   i = 0;
 			for(uint cn = Freeze ? 0 : Left; cn <= Right && cn < count;) {
-				const  BroColumn & c = p_def_->at(cn);
+				const  BroColumn & r_column = p_def_->at(cn);
 				uint   gidx;
-				r.left    = c.x - 1;
-				r.right   = CellRight(c);
+				r.left    = r_column.x - 1;
+				r.right   = CellRight(r_column);
 				r.bottom  = YCell * p_def_->GetCapHeight();
 				r.top     = p_def_->IsColInGroup(cn, &gidx) ? (YCell * p_def_->GetGroup(gidx)->Height + 1) : 0;
 				r.top    += hdr_width;
 				r.bottom += hdr_width;
 				DrawCapBk(ps.hdc, r, false);
 				int   sort_status = 0;
-				if(c.Options & BCO_SORTABLE) {
+				if(r_column.Options & BCO_SORTABLE) {
 					uint soidx = 0;
 					if(SettledOrder.lsearch(cn+1, &soidx))
 						sort_status = 1;
@@ -1909,8 +2031,8 @@ void BrowserWindow::Paint()
 				r.top++;
 				r.right -= 3;
 				r.bottom--;
-				(temp_buf = c.text).Transf(CTRANSF_INNER_TO_OUTER);
-				::DrawText(ps.hdc, SUcSwitch(temp_buf), (int)temp_buf.Len(), &r, GetCapAlign(c.Options));
+				(temp_buf = r_column.text).Transf(CTRANSF_INNER_TO_OUTER);
+				::DrawTextW(ps.hdc, SUcSwitchW(temp_buf), (int)temp_buf.Len(), &r, GetCapAlign(r_column.Options));
 				cn = (++i == Freeze) ? Left : (cn + 1);
 			}
 			if(r.right < CliSz.x) {
@@ -1946,7 +2068,7 @@ void BrowserWindow::Paint()
 			{
 				const uint view_height = (P_RowsHeightAry && P_RowsHeightAry->getCount()) ? P_RowsHeightAry->getCount() : ViewHeight;
 				for(uint row = 0; row < view_height; row++) {
-					ItemRect(Left, row, &r, FALSE);
+					ItemRect(Left, row, &r, false);
 					r.left    = 0;
 					r.right   = CliSz.x;
 					r.top    += hdr_width;
@@ -1958,36 +2080,36 @@ void BrowserWindow::Paint()
 						if(is_focused)
 							paint_rect = RectCursors.LineCursor;
 						else {
-							LineRect(row, &paint_rect, TRUE);
+							LineRect(row, &paint_rect, true);
 							paint_rect.top    += hdr_width;
 							paint_rect.bottom += hdr_width - 1;
 							paint_rect.right -= 2;
 						}
 						PaintCell(ps.hdc, paint_rect, row, -1, paint_action);
-						uint i = 0;
-						uint cn = Freeze ? 0 : Left;
-						const long _row_idx = p_def_->_topItem() + row;
+						uint   i = 0;
+						uint   cn = Freeze ? 0 : Left;
+						const  long _row_idx = p_def_->_topItem() + row;
 						for(; cn <= Right && cn < count; cn = (++i == Freeze) ? Left : (cn + 1)) {
 							const int paint_action = (is_focused && cn == HScrollPos) ? BrowserWindow::paintFocused : BrowserWindow::paintNormal;
-							ItemRect(cn, row, &r, TRUE);
+							ItemRect(cn, row, &r, true);
 							r.top    += hdr_width;
 							r.bottom += hdr_width;
 							if(SIntersectRect(ps.rcPaint, r))
 								PaintCell(ps.hdc, r, row, cn, paint_action);
-							ItemRect(cn, row, &r, FALSE);
+							ItemRect(cn, row, &r, false);
 							r.top    += hdr_width;
 							r.bottom += hdr_width;
 							if(SIntersectRect(ps.rcPaint, r)) {
-								const BroColumn & r_bc = p_def_->at(cn);
+								const BroColumn & r_column = p_def_->at(cn);
 								const uint height_mult = GetRowHeightMult(row);
 								strip(p_def_->getMultiLinesText(_row_idx, cn, cbuf, height_mult));
-								if(row > 0 && (r_bc.Options & BCO_DONTSHOWDUPL)) {
+								if(row > 0 && (r_column.Options & BCO_DONTSHOWDUPL)) {
 									char   prev_buf[512];
 									strip(p_def_->getText(_row_idx-1, cn, prev_buf));
 									if(sstreq(cbuf, prev_buf))
 										cbuf[0] = 0;
 								}
-								const  int opt = r_bc.format;
+								const  int opt = r_column.format;
 								const  int align = SFMTALIGN(opt);
 								uint   tfmt;
 								if(align == ALIGN_LEFT)
@@ -1999,7 +2121,7 @@ void BrowserWindow::Paint()
 								else
 									tfmt = DT_LEFT;
 								SOemToChar(cbuf);
-								tfmt |= (DT_NOPREFIX | DT_SINGLELINE);
+								tfmt |= (DT_NOPREFIX|DT_SINGLELINE);
 								if(is_focused && cn == HScrollPos)
 									SetBkMode(ps.hdc, TRANSPARENT);
 								bool   already_drawn = false;
@@ -2008,7 +2130,7 @@ void BrowserWindow::Paint()
 								else if(SIntersectRect(RectCursors.LineCursor, r))
 									already_drawn = DrawTextUnderCursor(ps.hdc, cbuf, &r, tfmt, 1);
 								if(!already_drawn) {
-									ItemRect(cn, row, &paint_rect, TRUE);
+									ItemRect(cn, row, &paint_rect, true);
 									paint_rect.top    += hdr_width;
 									paint_rect.bottom += hdr_width - 1;
 									paint_rect.right -= 2;
@@ -2024,7 +2146,7 @@ void BrowserWindow::Paint()
 			// Drawing grid
 			//
 			{
-				ItemRect(Left, 0, &r, FALSE);
+				ItemRect(Left, 0, &r, false);
 				//uint   r_h_count = P_RowsHeightAry ? P_RowsHeightAry->getCount() : 0;
 				const  uint r_h_count = SVectorBase::GetCount(P_RowsHeightAry);
 				const  uint sel_col_count = SelectedColumns.getCount();
@@ -2032,10 +2154,10 @@ void BrowserWindow::Paint()
 				r.top += hdr_width - 2 + YCell * GetRowHeightMult(0);
 				r.left = 0;
 				const uint _right = (Right < p_def_->getCount()) ? Right : (p_def_->getCount()-1);
-				const BroColumn & c = p_def_->at(_right);
+				const BroColumn & r_column = p_def_->at(_right);
 				const int  bottom = smin(ViewHeight, static_cast<uint>(p_def_->GetRecsCount()));
 				uint   view_height = r_h_count ? r_h_count : ViewHeight;
-				r.right = smin(static_cast<int>(CliSz.x), CellRight(c));
+				r.right = smin(static_cast<int>(CliSz.x), CellRight(r_column));
 				HPEN   old_pen = static_cast<HPEN>(SelectObject(ps.hdc, Pens.GridHorzPen));
 				view_height = (!r_h_count && sel_col_count) ? (view_height - 1) : view_height;
 				for(uint row = 0; row < view_height; row++) {
@@ -2045,7 +2167,7 @@ void BrowserWindow::Paint()
 				}
 				const  int  topold = (!r_h_count && sel_col_count) ? r.top : r.top - YCell;
 				long   prev_left = r.left;
-				ItemRect(Left, 0, &r, FALSE);
+				ItemRect(Left, 0, &r, false);
 				HPEN   black_pen = ::CreatePen(PS_SOLID, 1, GetColorRef(SClrBlack));
 				HPEN   dot_line_pen = ::CreatePen(PS_SOLID, 3, GetColorRef(SClrBlack));
 				r.bottom = topold;
@@ -2106,7 +2228,7 @@ int BrowserWindow::SelColByPoint(const POINT * point, int action)
 	int    ok = -1;
 	if(!action) {
 		if(SelectedColumns.getCount()) {
-			SelectedColumns.freeAll();
+			SelectedColumns.Z();
 			ok = 1;
 		}
 	}
@@ -2115,7 +2237,7 @@ int BrowserWindow::SelColByPoint(const POINT * point, int action)
 		if(point->y <= hdr_width + P_Def->GetCapHeight() * YCell) {
 			if(action == -1) {
 				if(SelectedColumns.getCount())
-					SelectedColumns.freeAll();
+					SelectedColumns.Z();
 				else
 					for(uint i = 0; i < P_Def->getCount(); i++)
 						SelectedColumns.add(static_cast<long>(i));
@@ -2143,15 +2265,15 @@ int BrowserWindow::GetColumnByX(int x) const
 {
 	if(Freeze) {
 		for(int i = 0; i <= static_cast<int>(Right) && i < static_cast<int>(Freeze); i++) {
-			const BroColumn & c = P_Def->at(i);
-			if(x >= static_cast<int>(c.x) - 2 && x <= (CellRight(c) + 2))
+			const BroColumn & r_col = P_Def->at(i);
+			if(x >= static_cast<int>(r_col.x) - 2 && x <= (CellRight(r_col) + 2))
 				return i;
 		}
 	}
 	{
 		for(int i = static_cast<int>(Left); i <= static_cast<int>(Right); i++) {
-			const BroColumn & c = P_Def->at(i);
-			if(x >= static_cast<int>(c.x) - 2 && x <= (CellRight(c) + 2))
+			const BroColumn & r_col = P_Def->at(i);
+			if(x >= static_cast<int>(r_col.x) - 2 && x <= (CellRight(r_col) + 2))
 				return i;
 		}
 	}
@@ -2193,16 +2315,16 @@ int BrowserWindow::ItemByPoint(SPoint2S point, long * pHorzPos, long * pVertPos)
 {
 	int    ok = 1;
 	const  long hdr_width = CalcHdrWidth(1);
-	int    i = GetColumnByX(point.x);
+	const  int  i = GetColumnByX(point.x);
 	long   vpos = 0;
 	if(i >= 0) {
 		ASSIGN_PTR(pHorzPos, static_cast<long>(i));
-		const  uint   r_h_count = SVectorBase::GetCount(P_RowsHeightAry);
+		const  uint r_h_count = SVectorBase::GetCount(P_RowsHeightAry);
 		if(r_h_count) {
-			uint   y = point.y - hdr_width;
+			const uint y = point.y - hdr_width;
 			for(uint row = 0; row < r_h_count; row++) {
 				RECT rect;
-				ItemRect(HScrollPos, row, &rect, FALSE);
+				ItemRect(HScrollPos, row, &rect, false);
 				if(static_cast<LONG>(y) <= rect.bottom || row == r_h_count - 1) {
 					vpos = static_cast<long>(P_Def->_topItem() + row);
 					break;
@@ -2249,15 +2371,14 @@ void BrowserWindow::Resize(SPoint2S p, int mode)
 {
 	RECT   r;
 	const  long hdr_width = CalcHdrWidth(1);
-	int    newSz;
-	const  BroColumn & r_c = P_Def->at(ResizedCol - 1);
+	const  BroColumn & r_column = P_Def->at(ResizedCol - 1);
 	r.top = 0;
 	r.bottom = CliSz.y;
 	r.top    += hdr_width;
 	r.bottom += hdr_width;
 	if(LastResizeColumnPos != -1 || mode == 1) {
 		if(mode == 1) {
-			int    pos = CellRight(r_c) - 1;
+			const int pos = CellRight(r_column) - 1;
 			p.x = LastResizeColumnPos = pos;
 			POINT tmp = p;
 			::ClientToScreen(H(), &tmp);
@@ -2269,16 +2390,17 @@ void BrowserWindow::Resize(SPoint2S p, int mode)
 			LastResizeColumnPos = -1;
 			if(p.x > 8192)
 				p.x = 0;
-			if((newSz = MAX(p.x - r_c.x, 6)) != static_cast<int>(ChrSz.x * r_c.width)) {
-				newSz /= ChrSz.x;
-				SetColumnWidth(ResizedCol - 1, newSz);
+			int    new_sz = smax(static_cast<uint>(p.x) - r_column.x, 6U);
+			if(new_sz != static_cast<int>(ChrSz.x * r_column.CWidth)) {
+				new_sz /= ChrSz.x;
+				SetColumnWidth(ResizedCol - 1, new_sz);
 				IsUserSettingsChanged = 1;
 				{
-					const BroColumn & c = P_Def->at(HScrollPos);
+					const BroColumn & r_column = P_Def->at(HScrollPos);
 					RectCursors.LineCursor.left  = P_Def->at(Freeze ? 0 : Left).x + 1;
 					RectCursors.LineCursor.right = CellRight(P_Def->at(Right)) - 1;
-					RectCursors.CellCursor.left  = c.x + 1;
-					RectCursors.CellCursor.right = CellRight(c) - 1;
+					RectCursors.CellCursor.left  = r_column.x + 1;
+					RectCursors.CellCursor.right = CellRight(r_column) - 1;
 					SInflateRect(RectCursors.CellCursor, 3, 0);
 					SInflateRect(RectCursors.LineCursor, 3, 0);
 				}
@@ -2485,8 +2607,8 @@ void BrowserWindow::WMHScroll(int sbType, int sbEvent, int thumbPos)
 			p_def_->getScrollData(&scrll_delta, reinterpret_cast<long *>(&VScrollPos));
 			if(res) {
 				// AHTOXA {
-				RECT prev_line_rect = RectCursors.LineCursor;
-				RECT prev_cell_rect = RectCursors.CellCursor;
+				const RECT prev_line_rect = RectCursors.LineCursor;
+				const RECT prev_cell_rect = RectCursors.CellCursor;
 				// } AHTOXA
 				r.top = CapOffs;
 				r.bottom = r.top + ViewHeight * YCell;
@@ -2495,8 +2617,8 @@ void BrowserWindow::WMHScroll(int sbType, int sbEvent, int thumbPos)
 				r.left = 0;
 				r.right = CliSz.x;
 				::SendMessage(GetParent(H()), BRO_ROWCHANGED, reinterpret_cast<WPARAM>(H()), MAKELPARAM(VScrollPos, 0));
-				ItemRect(HScrollPos, p_def_->_curFrameItem(), &RectCursors.CellCursor, TRUE);
-				LineRect(p_def_->_curFrameItem(), &RectCursors.LineCursor, TRUE);
+				ItemRect(HScrollPos, p_def_->_curFrameItem(), &RectCursors.CellCursor, true);
+				LineRect(p_def_->_curFrameItem(), &RectCursors.LineCursor, true);
 				AdjustCursorsForHdr();
 				if(p_def_->_topItem() != old_top)
 					InvalidateRect(H(), &r, TRUE);
@@ -2558,11 +2680,11 @@ void BrowserWindow::WMHScroll(int sbType, int sbEvent, int thumbPos)
 				SendMessage(GetParent(H()), BRO_ROWCHANGED, reinterpret_cast<WPARAM>(H()), MAKELPARAM(HScrollPos, 0));
 				ClearFocusRect(RectCursors.CellCursor);
 				ClearFocusRect(RectCursors.LineCursor);
-				ItemRect(HScrollPos, p_def_->_curFrameItem(), &RectCursors.CellCursor, TRUE);
-				LineRect(p_def_->_curFrameItem(), &RectCursors.LineCursor, TRUE);
+				ItemRect(HScrollPos, p_def_->_curFrameItem(), &RectCursors.CellCursor, true);
+				LineRect(p_def_->_curFrameItem(), &RectCursors.LineCursor, true);
 				AdjustCursorsForHdr();
 				if(Left != oldLeft) {
-					// ItemRect(Left, p_def_->_curFrameItem(), &r, TRUE);
+					// ItemRect(Left, p_def_->_curFrameItem(), &r, true);
 					r.left   = p_def_->at(Left).x+1;
 					r.top    = ToolBarWidth;
 					r.bottom = CliSz.y;
@@ -2729,6 +2851,7 @@ HWND FASTCALL GetNextBrowser(HWND hw, int reverse)
 				lParam = p_view->CliSz.towparam();
 				p_view->SetupScroll();
 				p_view->CalcRight();
+				p_view->EvaluateColumnSizes(false/*recalcDataStat*/); // @v12.4.7
 				HWND hw = p_view->P_Toolbar ? p_view->P_Toolbar->H() : 0;
 				if(::IsWindowVisible(hw)) {
 					::MoveWindow(hw, 0, 0, LOWORD(lParam), p_view->ToolBarWidth, 0);
@@ -2773,8 +2896,8 @@ HWND FASTCALL GetNextBrowser(HWND hw, int reverse)
 			{
 				long vpos = 0;
 				if(p_view->HeaderByPoint(tp, hdrzoneAny, &vpos) && vpos >= 0 && vpos < p_view->P_Def->getCountI()) {
-					const BroColumn & c = p_view->P_Def->at(vpos);
-					SString temp_buf(c.text);
+					const BroColumn & r_column = p_view->P_Def->at(vpos);
+					SString temp_buf(r_column.text);
 					SMessageWindow * p_win = new SMessageWindow;
 					if(p_win) {
 						temp_buf.ReplaceChar('\003', ' ').Strip();
@@ -2900,8 +3023,8 @@ HWND FASTCALL GetNextBrowser(HWND hw, int reverse)
 					}
 					int done = 0;
 					if(p_view->HeaderByPoint(tp, hdrzoneSortPoint, &vPos) && vPos >= 0 && vPos < p_view->P_Def->getCountI()) {
-						const BroColumn & c = p_view->P_Def->at(vPos);
-						if(c.Options & BCO_SORTABLE) {
+						const BroColumn & r_column = p_view->P_Def->at(vPos);
+						if(r_column.Options & BCO_SORTABLE) {
 							long   vp1 = vPos+1;
 							uint   sopos = 0;
 							if(p_view->SettledOrder.lsearch(vp1, &(sopos = 0)) || p_view->SettledOrder.lsearch(-vp1, &(sopos = 0))) {
@@ -3030,16 +3153,17 @@ int BrowserWindow::search(void * pPattern, CompFunc fcmp, int srchMode)
 {
 	int    ok = 0;
 	if(P_Def && P_Def->search(pPattern, fcmp, srchMode, HScrollPos)) {
-		long   scrll_delta, scrll_pos;
+		long   scrll_delta;
+		long   scrll_pos;
 		P_Def->getScrollData(&scrll_delta, &scrll_pos);
 		VScrollPos = P_Def->_curFrameItem();
-		ItemRect(HScrollPos, VScrollPos, &RectCursors.CellCursor, TRUE);
-		LineRect(VScrollPos, &RectCursors.LineCursor, TRUE);
+		ItemRect(HScrollPos, VScrollPos, &RectCursors.CellCursor, true);
+		LineRect(VScrollPos, &RectCursors.LineCursor, true);
 		AdjustCursorsForHdr();
 		ok = 1;
 	}
 	else if(fcmp == SrchFunc) {
-		SendMessage(H(), WM_KEYDOWN, VK_END, 0L);
+		::SendMessageW(H(), WM_KEYDOWN, VK_END, 0L);
 		// @v11.2.6 UserInterfaceSettings ui_cfg;
 		// @v11.2.6 ui_cfg.Restore();
 		// @v11.2.6 if(!(ui_cfg.Flags & UserInterfaceSettings::fDisableNotFoundWindow)) {

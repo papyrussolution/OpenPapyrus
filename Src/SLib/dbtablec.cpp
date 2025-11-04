@@ -1127,7 +1127,7 @@ int DBTable::deleteByQuery(int useTa, DBQ & rQ)
 						ok = 0;
 				}
 			}
-			if(q->error)
+			if(q->Error_)
 				ok = 0;
 			if(useTa)
 				if(ok) {

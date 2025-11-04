@@ -333,7 +333,7 @@ int AdjGdsGrpng::CorrectionList(const GCTFilt & rF)
 	PPID   op_id = 0;
 	PPOprKind op_rec;
 	PPIDArray op_list;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	BillCore * p_bc = p_bobj->P_Tbl;
 	BillTbl::Rec bill_rec;
 	CorrectionBillList.clear();

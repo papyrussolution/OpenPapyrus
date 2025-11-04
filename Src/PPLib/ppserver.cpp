@@ -2533,6 +2533,56 @@ int PPWorkerSession::FinishReceivingFile(const PPJobSrvReply::TransmitFileBlock 
 	return ok;
 }
 
+int STDCALL PrintGoodsBillNonInteractive(PPBillPacket & rPack, const char * pPrinterName); // prnbill.cpp
+
+PPWorkerSession::CmdRet PPWorkerSession::TestPrinting(PPServerCmd * pEv, PPJobSrvReply & rReply) // @v12.4.7
+{
+	CmdRet ok = cmdretOK;
+	PPObjBill * p_bobj(BillObj);
+	SJson * p_js_param = 0;
+	SString temp_buf;
+	SString raw_text;
+	if(pEv && pEv->ReadLine(raw_text)) {
+
+		raw_text.Chomp().Strip();
+		STempBuffer bin_buf(raw_text.Len()*3);
+		size_t actual_len = 0;
+		THROW_SL(raw_text.DecodeMime64(bin_buf, bin_buf.GetSize(), &actual_len));
+		temp_buf.Z().CatN(bin_buf.cptr(), actual_len);
+		THROW_SL(p_js_param = SJson::Parse(temp_buf));
+		if(p_bobj) {
+			PPID   bill_id = 0;
+			SString printer;
+			PPBillPacket bpack;
+			const SJson * p_c = p_js_param->FindChildByKey("billid");
+			if(SJson::IsNumber(p_c)) {
+				bill_id = p_c->Text.ToLong();
+			}
+			p_c = p_js_param->FindChildByKey("printer");
+			if(SJson::IsString(p_c)) {
+				(printer = p_c->Text).Unescape();
+			}
+			if(bill_id && p_bobj->ExtractPacket(bill_id, &bpack) > 0) {
+				PrintGoodsBillNonInteractive(bpack, printer);
+			}
+		}
+		//
+		/*{
+			SJson * p_js_reply = _blk.ToJsonObj(true);
+			THROW(p_js_reply);
+			p_js_reply->ToStr(temp_buf);
+			ZDELETE(p_js_reply);
+			rReply.SetString(temp_buf);
+			ok = cmdretOK;
+		}*/
+	}
+	CATCH
+		ok = cmdretError;
+	ENDCATCH
+	delete p_js_param;
+	return ok;
+}
+
 PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJobSrvReply & rReply)
 {
 	CmdRet ok = cmdretOK;
@@ -2670,14 +2720,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 						DS.GetVersion().ToStr(temp_buf.Z());
 						p_js_reply->InsertString("server_version", temp_buf);
 					}
-					// @v12.1.11 {
-					{
-						PPID main_org_id = GetMainOrgID();
-						if(main_org_id) {
-							p_js_reply->InsertInt("main_org_id", main_org_id);
-						}
-					}
-					// } @v12.1.11 
+					p_js_reply->InsertIntNz("main_org_id", GetMainOrgID()); // @v12.1.11 
 					p_js_reply->ToStr(temp_buf);
 					rReply.SetString(temp_buf);
 				}
@@ -3146,13 +3189,13 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				dev_uuid = dev_name; // @todo
 				PPGetPath(PPPATH_SPII, palm_path);
 				{
-					(log_path = palm_path).SetLastSlash().Cat(dev_uuid).SetLastSlash().Cat("stylo.log");
+					(log_path = palm_path).SetLastSlash().Cat(dev_uuid).SetLastSlash().Cat("stylo").DotCat("log");
 					SyncTable::LogMessage(log_path, "EXPORT");
 				}
 				path = palm_path;
 				path.SetLastSlash().Cat(dev_uuid).SetLastSlash();
-				(temp_path = path).Cat("temp_in.zip");
-				path.Cat("in.xml");
+				(temp_path = path).Cat("temp_in").DotCat("zip");
+				path.Cat("in").DotCat("xml");
 				if(fileExists(temp_path))
 					SFile::Remove(temp_path);
 				if(fileExists(path)) {
@@ -3250,7 +3293,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 			{
 				const  PPThreadLocalArea & r_tla_c = DS.GetConstTLA();
 				PPGta  gta_blk;
-				PPObjBill * p_bobj = BillObj;
+				PPObjBill * p_bobj(BillObj);
 				if(r_tla_c.GlobAccID && r_tla_c.CheckStateFlag(PPThreadLocalArea::stExpTariffTa)) {
 					gta_blk.GlobalUserID = r_tla_c.GlobAccID;
 					gta_blk.Op = GTAOP_SMSSEND;
@@ -3395,6 +3438,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 		case PPSCMD_TESTSERVERPRINT: // @v12.4.7
 			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
 			{
+				ok = TestPrinting(pEv, rReply); // @v12.4.7
 				// @construction
 			}
 			break;
@@ -4679,7 +4723,8 @@ PPServerSession::CmdRet PPServerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 			case PPSCMD_TIMESERIESTANOTIFY:  ok = SetTimeSeriesTaNotification(rReply); break; // @v10.4.0
 			case PPSCMD_GETDISPLAYINFO:
 				{
-					SString str_id, str_buf;
+					SString str_id;
+					SString str_buf;
 					pEv->GetParam(1, str_id); // PPGetExtStrData(1, pEv->Params, str_id);
 					long   id = str_id.ToLong();
 					if(id > 0) {

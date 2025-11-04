@@ -1,5 +1,5 @@
 // OBJBILST.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2018, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2018, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // PPObjBillStatus - Статусы документов
 //
@@ -50,7 +50,7 @@ int PPObjBillStatus::Edit(PPID * pID, void * extraPtr)
 	dlg->AddClusterAssoc(CTL_BILLSTATUS_FLAGS, 6, BILSTF_LOCK_PAYMENT);
 	dlg->AddClusterAssoc(CTL_BILLSTATUS_FLAGS, 7, BILSTF_LOCDISPOSE);
 	dlg->AddClusterAssoc(CTL_BILLSTATUS_FLAGS, 8, BILSTF_READYFOREDIACK);
-	dlg->AddClusterAssoc(CTL_BILLSTATUS_FLAGS, 9, BILSTF_STRICTPRICECONSTRAINS); // @v10.2.5
+	dlg->AddClusterAssoc(CTL_BILLSTATUS_FLAGS, 9, BILSTF_STRICTPRICECONSTRAINS);
 	dlg->SetClusterData(CTL_BILLSTATUS_FLAGS, rec.Flags);
 
 	dlg->AddClusterAssoc(CTL_BILLSTATUS_CHECKFLDS,  0, BILCHECKF_AGENT);
@@ -75,14 +75,12 @@ int PPObjBillStatus::Edit(PPID * pID, void * extraPtr)
 	dlg->SetClusterData(CTL_BILLSTATUS_CHECKF2, rec.CheckFields);
 	SetupPPObjCombo(dlg, CTLSEL_BILLSTATUS_OPCNTR, PPOBJ_OPCOUNTER, rec.CounterID, OLW_CANINSERT, 0);
 	SetupOprKindCombo(dlg, CTLSEL_BILLSTATUS_OP, rec.RestrictOpID, 0, 0, 0);
-	// @v10.2.4 {
 	{
 		ColorCtrlGroup::Rec color_rec;
 		color_rec.SetupStdColorList();
 		color_rec.C = (COLORREF)rec.IndColor;
 		dlg->setGroupData(ctlgroupColor, &color_rec);
 	}
-	// } @v10.2.4 
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 		THROW(is_new || CheckRights(PPR_MOD));
 		dlg->getCtrlData(CTL_BILLSTATUS_NAME, rec.Name);
@@ -100,7 +98,6 @@ int PPObjBillStatus::Edit(PPID * pID, void * extraPtr)
 			dlg->GetClusterData(CTL_BILLSTATUS_CHECKF2,   &rec.CheckFields);
 			rec.CounterID = dlg->getCtrlLong(CTLSEL_BILLSTATUS_OPCNTR);
 			rec.RestrictOpID = dlg->getCtrlLong(CTLSEL_BILLSTATUS_OP);
-			// @v10.2.4 {
 			{
 				ColorCtrlGroup::Rec color_rec;
 				dlg->getGroupData(ctlgroupColor, &color_rec);
@@ -109,7 +106,6 @@ int PPObjBillStatus::Edit(PPID * pID, void * extraPtr)
 				else
 					rec.IndColor = SColor((COLORREF)color_rec.C);
 			}
-			// } @v10.2.4 
 			if(*pID)
 				*pID = rec.ID;
 			THROW(StoreItem(PPOBJ_BILLSTATUS, *pID, &rec, 1));

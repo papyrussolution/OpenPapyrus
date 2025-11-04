@@ -1087,7 +1087,7 @@ int PPEgaisProcessor::PutQuery(PPEgaisProcessor::Packet & rPack, PPID locID, con
 					PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3, PPEDIOP_EGAIS_WAYBILLACT_V4,
 					PPEDIOP_EGAIS_ACTFIXBARCODE, PPEDIOP_EGAIS_ACTUNFIXBARCODE, 0);
 				{
-					Reference * p_ref = PPRef;
+					Reference * p_ref(PPRef);
 					PPTransaction tra(1);
 					THROW(tra);
 					if(rPack.DocType == PPEDIOP_EGAIS_REQUESTREPEALWB) {
@@ -1436,7 +1436,7 @@ int PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlT
 {
 	// woifDontSendWithoutFSRARID
 	int   ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPPersonPacket psn_pack;
 	SString temp_buf;
 	SString inn, kpp;
@@ -1991,7 +1991,7 @@ int PPEgaisProcessor::GetUtmList(PPID locID, TSVector <UtmEntry> & rList)
 {
 	rList.clear();
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString fsrar_id;
 	SString url_buf;
 	PPIDArray main_psn_list;
@@ -2087,7 +2087,7 @@ int PPEgaisProcessor::GetFSRARID(PPID locID, SString & rBuf, PPID * pMainOrgID)
 {
 	rBuf.Z();
 	int    ok = 0;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	ObjTagItem rarid_tag;
 	PPID   main_org_id = GetMainOrgID();
 	if(locID && (!P_UtmEntry || P_UtmEntry->Flags & UtmEntry::fDefault)) {
@@ -2114,7 +2114,7 @@ int PPEgaisProcessor::GetFSRARID(PPID locID, SString & rBuf, PPID * pMainOrgID)
 int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * pX)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	const  int doc_type = rPack.DocType;
 	SString doc_type_tag;
 	PPID   main_org_id = 0;
@@ -3802,7 +3802,7 @@ int PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID, int 
 	PrcssrAlcReport::RefCollection * pRefC, SFile * pOutFile)
 {
 	int   ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPID  psn_id = 0;
 	PPID  loc_id = 0;
 	SString temp_buf;
@@ -5052,7 +5052,7 @@ int PPEgaisProcessor::Helper_AreArticlesEq(PPID ar1ID, PPID ar2ID)
 	else if(ar1ID && ar2ID) {
 		const  PPID psn1_id = ObjectToPerson(ar1ID);
 		const  PPID psn2_id = ObjectToPerson(ar2ID);
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		if(psn1_id && psn2_id) {
 			SString code1, code2;
 			p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn1_id, PPTAG_PERSON_FSRARID, code1);
@@ -5284,7 +5284,7 @@ int PPEgaisProcessor::Helper_AcceptTtnRefB(const Packet * pPack, const TSCollect
 		}
 	}
 	if(!do_skip) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		const SString edi_ident = p_inf->WBRegId;
 		SString bill_text;
 		BillTbl::Rec ex_bill_rec;
@@ -5506,7 +5506,7 @@ int PPEgaisProcessor::Helper_CreateWriteOff_ByCCheck(const PPBillPacket * pCurre
 int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPacket * pCurrentRestPack, const DateRange * pPeriod) // @indevelopment
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	const  PPID loc_id = pCurrentRestPack ? pCurrentRestPack->Rec.LocID : 0;
 	const  bool use_lotxcode = LOGIC(CConfig.Flags2 & CCFLG2_USELOTXCODE);
 	PPID   op_id = 0;
@@ -6049,7 +6049,7 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 int PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentRestPack)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	const  PPID loc_id = pCurrentRestPack ? pCurrentRestPack->Rec.LocID : 0;
 	PPID   op_id = 0;
 	SString temp_buf;
@@ -6951,7 +6951,7 @@ int PPEgaisProcessor::Helper_FinishBillProcessingByTicket(int ticketType, const 
 	const SString & rBillText, const PPEgaisProcessor::Ticket * pT, int conclusion, int use_ta)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	int    selfreject_ticket = 0;
 	if(ticketType > 1000) {
 		ticketType = ticketType - 1000;
@@ -7083,7 +7083,7 @@ int PPEgaisProcessor::Helper_FinishConfirmProcessingByTicket(const BillTbl::Rec 
 	const  PPID bill_id = rRec.ID;
 	SString temp_buf;
 	{
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		int    log_msg_code = 0;
 		PPTransaction tra(1);
 		THROW(tra);
@@ -7110,7 +7110,7 @@ int PPEgaisProcessor::FinishBillProcessingByTicket(const PPEgaisProcessor::Ticke
 {
 	int    ok = -1;
 	if(pT) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		SString fmt_buf, bill_text, temp_buf;
 		PPIDArray bill_id_list;
 		ObjTagItem tag_item;
@@ -7373,7 +7373,7 @@ int PPEgaisProcessor::RemoveOutputMessages(PPID locID, bool debugMode)
 int PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, long flags)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	SString temp_path;
 	xmlParserCtxt * p_ctx = 0;
@@ -7778,7 +7778,7 @@ int PPEgaisProcessor::GetActChargeOnOp(PPID * pID, int egaisOp, int use_ta)
 int PPEgaisProcessor::CreateActChargeOnBill(PPID * pBillID, int ediOp, PPID locID, LDATE restDate, const PPIDArray & rLotList, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPID   op_id = 0;
 	PPID   bill_id = 0;
 	SString ref_a, ref_b, egais_code;
@@ -7899,7 +7899,7 @@ int PPEgaisProcessor::GetAcceptedBillList(const PPBillIterchangeFilt & rP, long 
 {
 	rList.clear();
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	uint   i;
 	SString temp_buf;
 	PPIDArray temp_bill_list;
@@ -8068,7 +8068,7 @@ int PPEgaisProcessor::GetBillListForTransmission(const PPBillIterchangeFilt & rP
 {
 	rList.clear();
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	uint   i;
 	SString edi_ack;
 	SString edi_rejectack;
@@ -8207,7 +8207,7 @@ int PPEgaisProcessor::GetBillListForConfirmTicket(const PPBillIterchangeFilt & r
 {
 	rList.clear();
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	uint   i;
 	BillTbl::Rec bill_rec;
 	SString temp_buf;
@@ -8309,7 +8309,7 @@ int PPEgaisProcessor::Helper_SendBills(PPID billID, int ediOp, PPID locID, const
 int PPEgaisProcessor::Helper_SendBillsByPattern(const PPBillIterchangeFilt & rP, const PPEgaisProcessor::BillTransmissionPattern & rPattern)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString file_name;
 	SString temp_buf;
 	PPIDArray totransm_bill_list;
@@ -8939,7 +8939,7 @@ int PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam)
 						}
 						if(!db_was_cleared && rParam.DbActualizeFlags & (rParam._afQueryRefA|rParam._afQueryPerson|rParam._afQueryGoods)) {
 							if(rParam.P_LotFilt && rParam.DbActualizeFlags & rParam._afQueryRefA) {
-								Reference * p_ref = PPRef;
+								Reference * p_ref(PPRef);
 								PPViewLot lot_view;
 								LotFilt l;
 								if(lot_view.Init_(rParam.P_LotFilt)) {
@@ -9472,7 +9472,7 @@ int EgaisPersonCore::RecToItem(const EgaisPersonTbl::Rec & rRec, EgaisPersonCore
 	rItem.Flags = rRec.Flags;
 	rItem.ActualDate = rRec.ActualDate;
 	{
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		THROW(p_ref->UtrC.SearchUtf8(TextRefIdent(PPOBJ_EGAISPERSON, rRec.ID, PPTRPROP_NAME), rItem.Name));
 		rItem.Name.Transf(CTRANSF_UTF8_TO_INNER);
 		THROW(p_ref->UtrC.SearchUtf8(TextRefIdent(PPOBJ_EGAISPERSON, rRec.ID, PPTRPROP_LONGNAME), rItem.FullName));
@@ -9548,7 +9548,7 @@ int EgaisPersonCore::Put(PPID * pID, EgaisPersonCore::Item * pItem, long * pConf
 	long   conflict_flags = 0;
 	SString temp_buf;
 	{
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(*pID) {
@@ -9743,7 +9743,7 @@ int EgaisPersonCore::Put(PPID * pID, EgaisPersonCore::Item * pItem, long * pConf
 int EgaisPersonCore::Clear(int use_ta)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	IterCounter cntr;
 	SString msg_buf;
 	EgaisPersonTbl::Key0 k0;
@@ -9869,7 +9869,7 @@ int EgaisProductCore::RecToItem(const EgaisProductTbl::Rec & rRec, EgaisProductC
 	STRNSCPY(rItem.ImporterRarIdent, rRec.ImporterRarIdent);
 	STRNSCPY(rItem.CategoryCode, rRec.CategoryCode);
 	{
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		THROW(p_ref->UtrC.SearchUtf8(TextRefIdent(PPOBJ_EGAISPRODUCT, rRec.ID, PPTRPROP_NAME), rItem.Name));
 		rItem.Name.Transf(CTRANSF_UTF8_TO_INNER);
 		THROW(p_ref->UtrC.SearchUtf8(TextRefIdent(PPOBJ_EGAISPRODUCT, rRec.ID, PPTRPROP_LONGNAME), rItem.FullName));
@@ -9942,7 +9942,7 @@ int EgaisProductCore::SearchByCode(const char * pAlcoCode, TSVector <EgaisProduc
 int EgaisProductCore::Put(PPID * pID, const EgaisProductCore::Item * pItem, long * pConflictFlags, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	long   conflict_flags = 0;
 	{
@@ -10117,7 +10117,7 @@ int EgaisProductCore::Put(PPID * pID, const EgaisProductCore::Item * pItem, long
 int EgaisProductCore::Clear(int use_ta)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	IterCounter cntr;
 	SString msg_buf;
 	EgaisProductTbl::Key0 k0;
@@ -10847,7 +10847,7 @@ int EgaisMarkAutoSelector::Helper_ProcessLot(PPID goodsStrucID, const ReceiptTbl
 	if(r_tagc.GetTagStr(PPOBJ_LOT, rLotRec.ID, PPTAG_LOT_FSRARINFB, temp_buf) > 0) {
 		uint  refb_idx = 0;
 		if(SearchRefB(RecentEgaisStock, temp_buf, &refb_idx)) {
-			PPObjBill * p_bobj = BillObj;
+			PPObjBill * p_bobj(BillObj);
 			_TerminalEntry * p_te = 0;
 			SString mark_buf;
 			StringSet ss_ext_codes;
@@ -10889,7 +10889,7 @@ int EgaisMarkAutoSelector::Helper(PPID goodsID, double qtty, DocItem & rResult)
 	if(qtty != 0.0) {
 		PPEgaisProcessor * p_egprc = DS.GetTLA().GetEgaisProcessor();
 		if(p_egprc) {
-			PPObjBill * p_bobj = BillObj;
+			PPObjBill * p_bobj(BillObj);
 			Transfer * p_trfr = p_bobj->trfr;
 			SString temp_buf;
 			SString mark_buf;
@@ -11039,7 +11039,7 @@ int EgaisMarkAutoSelector::GetRecentEgaisStock(TSVector <RefBEntry> & rResultLis
 		}
 	}
 	if(stock_op_id) {
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		BillCore * p_billc = p_bobj->P_Tbl;
 		ObjTagCore & r_tagc = PPRef->Ot;
 		const long back_days = SlDebugMode::CT() ? 60 : 1;

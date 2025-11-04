@@ -801,7 +801,7 @@ int PPObjGoods::SearchGListByStruc(PPID strucID, bool expandGenerics, PPIDArray 
 int PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SString * pGoodsExTitles, PPOpCounterPacket * pOwnAcCntr, int rebuild, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	int    r;
 	int    is_new = 0;
 	PPGoodsConfig cfg = *pCfg;
@@ -859,7 +859,7 @@ int PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SString * p
 /*static*/int FASTCALL PPObjGoods::ReadConfig(PPGoodsConfig * pCfg)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	assert(pCfg);
 	pCfg->Z();
 	pCfg->Ver__ = DS.GetVersion();
@@ -911,7 +911,7 @@ int PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SString * p
 
 /*static*/int FASTCALL PPObjGoods::ReadGoodsExTitles(PPID grpID, SString & rBuf)
 {
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString temp_buf;
 	if(p_ref->GetPropVlrString(PPOBJ_GOODSGROUP, grpID, GGPRP_EXSTRTITLES, temp_buf) <= 0) {
 		if(p_ref->GetPropVlrString(PPOBJ_GOODSGROUP, 0, GGPRP_EXSTRTITLES, temp_buf) <= 0)
@@ -2902,8 +2902,8 @@ int RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, double qtt
 {
 	int    use_quot_cache = 1000;
 	int    ok = -1;
-	Reference * p_ref = PPRef;
-	PPObjBill * p_bobj = BillObj;
+	Reference * p_ref(PPRef);
+	PPObjBill * p_bobj(BillObj);
 	int    r = -1;
 	uint   i;
 	uint   gp_flags = GPRET_INDEF;

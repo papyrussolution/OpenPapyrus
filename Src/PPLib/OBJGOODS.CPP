@@ -838,7 +838,7 @@ int PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 	PPGoodsPacket old_pack;
 	PPGoodsStrucHeader gs_rec;
 	PPID   def_prc_id = 0;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	ObjVersioningCore * p_ovc = p_ref->P_OvT;
 	PPObjTech * p_tec_obj = 0;
 	PPObjProcessor * p_prc_obj = 0;
@@ -1261,7 +1261,7 @@ int PPObjGoods::CombineTaxEntry(const PPGoodsTaxEntry & rGtx, PPID taxPayerPerso
 			PPID   payer_tax_grp_id = 0;
 			PPID   loc_tax_grp_id = 0; // Имеет приоритет перед payer_tax_grp_id
 			//
-			Reference * p_ref = PPRef;
+			Reference * p_ref(PPRef);
 			ObjTagItem tag_item;
 			SETIFZ(P_PsnObj, new PPObjPerson);
 			if(P_PsnObj) {
@@ -1442,7 +1442,7 @@ int PPObjGoods::FetchTaxEntry2(PPID goodsID, PPID lotID, PPID taxPayerPsnID, LDA
 		goods_tax_grp_id = goods_rec.TaxGrpID;
 	}
 	if(lotID) {
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		if(p_bobj) {
 			ReceiptTbl::Rec lot_rec;
 			if(p_bobj->trfr->Rcpt.Search(lotID, &lot_rec) > 0) {
@@ -1916,7 +1916,7 @@ int PPObjGoods::SubstGoods(PPID srcID, PPID * pDestID, SubstGrpGoods sgg, const 
 	if(sgg == sggNone)
 		ok = -1;
 	else {
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		GoodsSubstList::AssocItem assoc_item;
 		MEMSZERO(assoc_item);
 		assoc_item.SrcGoodsID = srcID;
@@ -2866,7 +2866,7 @@ int PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFlags)
 int PPObjGoods::GetUuid(PPID goodsID, S_GUID & rUuid, bool generateIfAbsent, int use_ta)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	const  PPID uuid_tag_id = PPTAG_GOODS_UUID;
 	ObjTagItem tag_item;
 	S_GUID temp_uuid;
@@ -4519,7 +4519,7 @@ int PPObjGoods::GetStrucSubstList(PPID goodsID, RAssocArray & rList)
 int PPObjGoods::GetSubstList(PPID goodsID, int substStrucOnly, RAssocArray & rList)
 {
 	int    ok = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	rList.clear();
 	if(substStrucOnly || p_bobj->GetConfig().GoodsSubstMethod == PPBillConfig::gsmSubstStruc) {
 		ok = GetStrucSubstList(goodsID, rList);

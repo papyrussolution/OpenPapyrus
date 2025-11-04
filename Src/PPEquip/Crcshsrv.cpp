@@ -654,7 +654,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 	assert(oneof3(mode, 0, 1, 2));
 	rResultFileName.Z();
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	XmlWriter * p_writer = 0;
 	long   plu_num = 1;
 	SString temp_buf;
@@ -1208,7 +1208,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	int    add_time_to_fname = 0;
 	int    use_new_dscnt_code_alg = 0;
 	int    diff_goods_export = 0;
@@ -4906,7 +4906,7 @@ int Cristal2SetRetailGateway::CmdParam::Serialize(int dir, SBuffer & rBuf, SSeri
 /*static*/int Cristal2SetRetailGateway::SearchPosNode(PPID * pID, PPAsyncCashNode * pAcnPack)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPObjTag tag_obj;
 	PPID   tag_id = 0;
 	PPObjectTag tag_rec;
@@ -5047,7 +5047,7 @@ int Cristal2SetRetailGateway::SearchNativeGoodsID(long nativeID, Goods2Tbl::Rec 
 int Cristal2SetRetailGateway::Process(const CmdParam & rParam)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPObjTag tag_obj;
 	PPObjectTag tag_rec;
 	PPObjGoodsGroup gg_obj;
@@ -5863,7 +5863,7 @@ int Test_Cristal2SetRetailGateway()
 	//
 	Cristal2SetRetailGateway_CSessDictionaryOutput(p_dict_path, dict_info_file_path);
 	/* (moved to Cristal2SetRetailGateway::Process) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		PPObjTag tag_obj;
 		PPID   tag_id = 0;
 		PPObjectTag tag_rec;

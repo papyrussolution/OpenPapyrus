@@ -9960,6 +9960,9 @@ public:
 	struct Key2 {
 		int64  I64Val;
 	};
+	struct Key3 {
+		S_GUID GuidVal;
+	};
 	DBField Dt;
 	DBField Tm;
 	DBField Ref1ID;

@@ -3068,7 +3068,7 @@ int CCheckCore::UpdateCheck(CCheckPacket * pPack, int use_ta)
 int CCheckCore::UpdateExtText(PPID id, int fldId, const char * pText, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	SString text_buf;
 	CCheckPacket cc_pack;
 	if(fldId > 0) {
@@ -3209,7 +3209,7 @@ int CCheckCore::TurnCheck(CCheckPacket * pPack, int use_ta)
 int CCheckCore::RemovePacket(PPID id, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	int    r = 0;
 	CCheckPacket pack;
 	if(DoCCheckTextLog())
@@ -3832,7 +3832,7 @@ int CCheckCore::CalcActiveExpendByGoods(PPID goodsID, PPID locID, const char * p
 		if(LoadChecksByList(&sess_list, 0, &check_list, 0) > 0) {
 			CCheckLineArray lines_list;
 			if(LoadLinesByList(goodsID, &check_list, &lines_list) > 0) {
-				Reference * p_ref = PPRef;
+				Reference * p_ref(PPRef);
 				PPObjCashNode cn_obj;
 				PPCashNode cn_rec;
 				CSessionTbl::Rec cs_rec;
@@ -4023,8 +4023,8 @@ int CCheckCore::GroupingToGoodsLines(PPID sessID, CSessTotal * pTotal, CCheckGoo
 		int16  DtOffs;
 	};
 	int    ok = 1;
-	Reference * p_ref = PPRef;
-	PPObjBill * p_bobj = BillObj; // @v11.4.0
+	Reference * p_ref(PPRef);
+	PPObjBill * p_bobj(BillObj); // @v11.4.0
 	LotExtCodeCore * p_lotxct = p_bobj ? p_bobj->P_LotXcT : 0; // @v11.4.0
 	uint   i;
 	LDATE  curdt = getcurdate_();
@@ -5014,7 +5014,7 @@ int CSessGrouping::TurnBill(PPBillPacket * pPack, CSessTotal * pTotal, int isRet
 {
 	int    ok = -1;
 	if(pPack && pPack->GetTCount()) {
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		pPack->SetQuantitySign(-1);
 		if(CC.GetEqCfg().Flags & PPEquipConfig::fWrOffPartStrucs)
 			pPack->InsertPartitialStruc();
@@ -5042,7 +5042,7 @@ int CSessGrouping::ConvertSign(const int sign, const  PPID sessID, const  PPID l
 	int    ok = 1, r;
 	const  PPID  op_id = (sign < 0) ? RetOpID : SellOpID;
 	if(op_id > 0) {
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		//
 		// Конвертация осуществляется в несколько этапов:
 		//   1. (stgMain)  Основной цикл, в процессе которого функция пытается внести в товарные документы
@@ -5204,7 +5204,7 @@ int CSessGrouping::ConvertSign(const int sign, const  PPID sessID, const  PPID l
 int CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pTotal)
 {
 	int    ok = -1, r = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	const PPConfig & r_cfg = LConfig;
 	const PPEquipConfig & r_eq_cfg = CC.GetEqCfg();
 	if(r_eq_cfg.OpOnDfctThisLoc || r_eq_cfg.OpOnDfctOthrLoc) {
@@ -5365,7 +5365,7 @@ int CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pTotal)
 int CSessGrouping::Convert(PPID sessID, PPID locID, const void * pData, CSessTotal * pTotal, int use_ta)
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	const PPConfig & r_cfg = LConfig;
 	const  PPID   save_loc  = r_cfg.Location;
 	const LDATE  save_date = r_cfg.OperDate;
@@ -5464,7 +5464,7 @@ int CSessGrouping::TurnAccBill(PPID sessID, PPID locID, int use_ta) // @v11.0.4
 		const bool do_calc_vat = (r_eq_cfg.WrOffAccOpID && tais.HasAnyVatAmountTypes());
 		THROW(GetSess(sessID, &sess_rec) > 0);
 		if(sess_rec.Incomplete == CSESSINCMPL_COMPLETE) {
-			PPObjBill * p_bobj = BillObj;
+			PPObjBill * p_bobj(BillObj);
 			int   is_new_bill = 1;
 			PPID  bill_id_to_remove = 0;
 			PPBillPacket pack;
@@ -5573,7 +5573,7 @@ int CSessGrouping::ConvertToBills(PPID sessID, PPID locID, const char * pMsg, ui
 	const PPEquipConfig & r_eq_cfg = CC.GetEqCfg();
 	if(!(r_eq_cfg.Flags & PPEquipConfig::fCloseSessTo10Level)) {
 		WMsg = pMsg;
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		if(sessCount > 1 && sessNo <= sessCount)
 			WMsg.Space().Cat(sessNo+1).Slash().Cat(sessCount);
 		PPObjAmountType amt_obj;
@@ -5703,7 +5703,7 @@ int CSessGrouping::ConvertTempSessToBills(const PPIDArray * pSessList, PPID locI
 	const  PPEquipConfig & r_eq_cfg = CC.GetEqCfg();
 	PPID  bill_id = DEREFPTRORZ(pBillID);
 	if(r_eq_cfg.OpOnTempSess) {
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		BillTbl::Rec bill_rec;
 		THROW_PP(IsDraftOp(r_eq_cfg.OpOnTempSess), PPERR_INVCSESSTEMPOP);
 		{

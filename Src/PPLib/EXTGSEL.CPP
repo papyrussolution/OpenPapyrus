@@ -42,7 +42,7 @@ private:
 {
 	int    ok = 1;
 	if(!pAry->lsearch(&pRec->ID, 0, CMPF_LONG, offsetof(Entry, LotID))) {
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		int    sr = 0;
 		SString serial;
 		ReceiptTbl::Rec lot_rec = *pRec;
@@ -131,7 +131,7 @@ PickLotParam::PickLotParam(int mode) : Mode(mode), LocID(0), Price(0.0)
 int PickLot(PickLotParam & rParam, TIDlgInitData * pResult)
 {
 	int    ok = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	PickLotBrowser * p_brw = 0;
 	ReceiptCore & rcpt = p_bobj->trfr->Rcpt;
 	SArray * p_list = PickLotBrowser::CreateArray();

@@ -556,9 +556,9 @@ int PPViewLinkedBill::Print(const void * pHdr)
 		if(bill_id) {
 			if(P_BObj->ExtractPacket(bill_id, &pack))
 				if(Filt.Kind__ == LinkedBillFilt::lkWrOffDraft || pack.Rec.Flags & BILLF_BANKING || CheckOpPrnFlags(pack.Rec.OpID, OPKF_PRT_INVOICE))
-					PrintGoodsBill(&pack);
+					PrintGoodsBill(pack);
 				else
-					PrintCashOrderByGoodsBill(&pack);
+					PrintCashOrderByGoodsBill(pack);
 			else
 				ok = PPErrorZ();
 		}

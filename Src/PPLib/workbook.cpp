@@ -224,7 +224,7 @@ static int PPObjWorkbook_WriteConfig(PPWorkbookConfig * pCfg, PPOpCounterPacket 
 	PPObjOpCounter opc_obj;
 	PPWorkbookConfig prev_cfg;
 	{
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		PPTransaction tra(1);
 		THROW(tra);
 		if(p_ref->GetPropMainConfig(PPPRP_WORKBOOKCFG, &prev_cfg, sizeof(prev_cfg)) > 0)
@@ -1262,7 +1262,7 @@ int PPObjWorkbook::PutPacket(PPID * pID, PPWorkbookPacket * pPack, int use_ta)
 	const  bool is_removing = (_id && pPack == 0);
 	SString ext_string;
 	PPWorkbookPacket org_pack;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	THROW_PP(!pPack || pPack->Rec.Name[0], PPERR_WORKBOOKEMPTYNAME);
 	{
 		PPTransaction tra(use_ta);
@@ -1344,7 +1344,7 @@ int PPObjWorkbook::GetPacket(PPID id, PPWorkbookPacket * pPack)
 	pPack->ExtString.Z();
 	int    ok = -1;
 	if(Search(id, &pPack->Rec) > 0) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		THROW(p_ref->Ot.GetList(Obj, id, &pPack->TagL));
 		THROW(p_ref->GetPropVlrString(Obj, id, WBPRP_EXTSTRDATA, pPack->ExtString));
 		ok = 1;

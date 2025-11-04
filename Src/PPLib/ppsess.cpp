@@ -4135,7 +4135,7 @@ int PPSession::PPLogin(const char * pDbSymb, const char * pUserName, const char 
 		}
 		THROW_MEM(PPRef = new Reference);
 		{
-			Reference * p_ref = PPRef;
+			Reference * p_ref(PPRef);
 			if(oneof2(logmode, logmService, logmEmptyBaseCreation)) {
 				char   secret[64];
 				PPVersionInfo vi = Ver;

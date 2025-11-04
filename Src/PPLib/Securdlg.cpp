@@ -12,7 +12,7 @@ int UpdatePassword()
 	char   password[64];
 	PPSecurPacket spack;
 	PPAccessRestriction accsr;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	const  PPID user_id = LConfig.UserID;
 	THROW(p_ref->LoadSecur(PPOBJ_USR, user_id, &spack));
 	if(spack.Rights.IsEmpty())
@@ -252,7 +252,7 @@ int EditSecurDialog(PPID objType, PPID * pID, void * extraPtr)
 	int    ok = 1;
 	int    valid_data = 0;
 	int    r;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	int    dlg_id = 0;
 	PPID   _id = DEREFPTRORZ(pID);
 	SecurDialog * dlg = 0;
@@ -298,7 +298,7 @@ int EditSecurDialog(PPID objType, PPID * pID, void * extraPtr)
 		else {
 			if(param.Flags & PPObjSecur::ExtraParam::fSelectNewType) {
 				uint   v = 0;
-				obj = 0; // @v10.4.0
+				obj = 0;
 				if(SelectorDialog(DLG_SELNEWSEC, CTL_SELNEWSEC_SEL, &v) > 0) {
 					switch(v) {
 						case 0: obj = PPOBJ_USR; break;

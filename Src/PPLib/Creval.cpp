@@ -197,7 +197,7 @@ int CRevalDialog::setupList()
 int CRevalDialog::setupCRateList(PPID accID, int * pIsCurAcc)
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	uint   i;
 	double crate;
 	PPIDArray cur_list;
@@ -311,7 +311,7 @@ int GetCurRevalConfig(CurRevalParam * pData)
 int CurReval()
 {
 	int    ok = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	CurRevalParam param;
 	GetCurRevalConfig(&param);
 	param.Dt = getcurdate_();

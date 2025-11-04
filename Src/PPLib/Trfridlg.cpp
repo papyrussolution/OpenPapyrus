@@ -206,7 +206,7 @@ int TrfrItemDialog::ProcessRevalOnAllLots(const PPTransferItem * pItem)
 int EditTransferItem(PPBillPacket & rPack, int itemNo, TIDlgInitData * pInitData, const PPTransferItem * pOrder, int sign)
 {
 	const PPConfig & r_cfg = LConfig;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	const  PPID   op_id = rPack.Rec.OpID;
 	const long   ccfgflags = CConfig.Flags;
 	const bool   allow_suppl_sel = (CanUpdateSuppl(&rPack, itemNo) && p_bobj->CheckRights(BILLOPRT_ACCSSUPPL, 1));
@@ -2825,7 +2825,7 @@ IMPL_CMPFUNC(SelLotBrowser_Entry_dt_oprno, i1, i2)
 {
 	int    ok = 1;
 	if(pRec && !pAry->lsearch(&pRec->ID, 0, CMPF_LONG, offsetof(Entry, LotID))) {
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		int    sr = 0;
 		SString temp_buf;
 		ReceiptTbl::Rec lot_rec = *pRec;
@@ -2960,7 +2960,7 @@ int SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 /*static*/int SelLotBrowser::StyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	SelLotBrowser * p_brw = static_cast<SelLotBrowser *>(extraPtr);
 	if(p_brw && pData && pStyle) {
 		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(p_brw->getDef());

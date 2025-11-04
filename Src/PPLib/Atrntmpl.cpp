@@ -244,7 +244,7 @@ static int FASTCALL IsAccAssocArticle(PPID arID, PPID * pAccID)
 int PPAccTurnTempl::GetSubstObjects(ATBillParam * pParam, ATSubstObjects * pAtso, int byAcc) const
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	int    count = 0;
 	int    ord = 0;
 	int    is_prim_list_present = 0;
@@ -350,7 +350,7 @@ int PPAccTurnTempl::GetSubstObjects(ATBillParam * pParam, ATSubstObjects * pAtso
 int PPAccTurnTempl::SubstAcct(int side, PPAccTurn * at, const ATSubstObjects * atso, const AcctID * pDbt, const AcctID * pCrd) const
 {
 	int      ok    = 1;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	int      subst = 0;		// 1 - prim, 2 - foreign, 3 - both
 	PPID   & r_sheet_id  = (side == PPDEBIT) ? at->DbtSheet : at->CrdSheet;
 	AcctID & r_acctid = (side == PPDEBIT) ? at->DbtID    : at->CrdID;
@@ -674,7 +674,7 @@ int PPAccTurnTempl::EnumerateExtLines(const PPBillPacket * pPack, ExtLinesBlock 
 			}
 		}
 		else {
-			PPObjBill * p_bobj = BillObj;
+			PPObjBill * p_bobj(BillObj);
 			PPObjAdvBillKind abk_obj;
 			while(!ok && pBlk->Idx < pBlk->P_Pack->AdvList.GetCount()) {
 				const PPAdvBillItemList::Item & r_abi = pBlk->P_Pack->AdvList.Get(pBlk->Idx);

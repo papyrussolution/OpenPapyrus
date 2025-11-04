@@ -216,7 +216,7 @@ struct _PPClientAgt {      // @persistent @store(PropertyTbl) @#{size=PROPRECFIX
 	pAgt->PaymDateBase = p_agt->PaymDateBase;
 	pAgt->EdiPrvID = p_agt->EdiPrvID;
 	if(loadDebtLimList) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		if(pAgt->Flags & AGTF_DDLIST715) {
 			p_ref->GetPropArray(PPOBJ_ARTICLE, pAgt->ClientID, ARTPRP_DEBTLIMLIST2, &pAgt->DebtLimList);
 		}
@@ -294,7 +294,7 @@ struct _PPClientAgt {      // @persistent @store(PropertyTbl) @#{size=PROPRECFIX
 			pAgt->PaymDateBase = p_agt->PaymDateBase;
 			pAgt->EdiPrvID = p_agt->EdiPrvID;
 			if(loadDebtLimList) {
-				Reference * p_ref = PPRef;
+				Reference * p_ref(PPRef);
 				if(pAgt->Flags & AGTF_DDLIST715) {
 					p_ref->GetPropArray(PPOBJ_ARTICLE, pAgt->ClientID, ARTPRP_DEBTLIMLIST2, &pAgt->DebtLimList);
 				}
@@ -381,7 +381,7 @@ int PPObjArticle::HasClientAgreement(PPID id)
 {
 	int    yes = 0;
 	if(id > 0) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		SBuffer sbuf;
 		if(p_ref->GetPropSBuffer(PPOBJ_ARTICLE, id, ARTPRP_CLIAGT2, sbuf) > 0) {
 			SSerializeContext sctx;
@@ -401,7 +401,7 @@ int PPObjArticle::GetClientAgreement(PPID id, PPClientAgreement & rAgt, int use_
 	int    r;
 	int    is_default = 0;
 	int    r2 = 0;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PPClientAgreement _agt;
 	PPClientAgreement def_agt;
 	PPPersonRelTypePacket rt_pack;
@@ -471,7 +471,7 @@ int PPObjArticle::GetClientAgreement(PPID id, PPClientAgreement * pAgt, int use_
 	int    r;
 	int    is_default = 0;
 	int    r2 = 0;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	PropertyTbl::Rec prop_rec, def_prop_rec;
 	PPClientAgreement def_agt;
 	PPPersonRelTypePacket rt_pack;
@@ -537,7 +537,7 @@ int PPObjArticle::GetClientAgreement(PPID id, PPClientAgreement * pAgt, int use_
 /*static*/int PPObjArticle::PutClientAgreement(PPID id, PPClientAgreement * pAgt, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	if(pAgt && !pAgt->IsEmpty()) {
 		SSerializeContext sctx;
 		SBuffer sbuf;
@@ -583,7 +583,7 @@ int PPObjArticle::PutClientAgreement(PPID id, PPClientAgreement * pAgt, int use_
 		memzero(_agt.Code__, sizeof(_agt.Code__));
 	}
 	{
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(p_ref->PutProp(PPOBJ_ARTICLE, id, ARTPRP_CLIAGT, (pAgt ? &_agt : 0), sizeof(_agt), 0));
@@ -849,7 +849,7 @@ int PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 		DECL_DIALOG_SETDTS()
 		{
 			RVALUEPTR(Data, pData);
-			PPObjBill * p_bobj = BillObj;
+			PPObjBill * p_bobj(BillObj);
 			SString ar_name;
 			double added_limit_val = 0.0;
 			int    added_limit_term = 0;
@@ -1509,7 +1509,7 @@ struct _PPSupplAgt {       // @persistent @store(PropertyTbl)
 	if(id > 0) {
 		SBuffer _buf;
 		PropertyTbl::Rec prop_rec;
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		if(p_ref->GetPropSBuffer(PPOBJ_ARTICLE, id, ARTPRP_SUPPLAGT2, _buf) > 0)
 			yes = 1;
 		else if(p_ref->GetProperty(PPOBJ_ARTICLE, id, ARTPRP_SUPPLAGT, &prop_rec, sizeof(prop_rec)) > 0)
@@ -1525,7 +1525,7 @@ struct _PPSupplAgt {       // @persistent @store(PropertyTbl)
 		pAgt->Z();
 		int    r = 0;
 		SBuffer _buf;
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		THROW(r = p_ref->GetPropSBuffer(PPOBJ_ARTICLE, id, ARTPRP_SUPPLAGT2, _buf));
 		if(r > 0) {
 			SSerializeContext ctx;
@@ -1574,7 +1574,7 @@ struct _PPSupplAgt {       // @persistent @store(PropertyTbl)
 int PPObjArticle::PutSupplAgreement(PPID id, PPSupplAgreement * pAgt, int use_ta)
 {
 	int    ok = 1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	THROW(CheckRights(ARTRT_CLIAGT));
 #if 1
 	{

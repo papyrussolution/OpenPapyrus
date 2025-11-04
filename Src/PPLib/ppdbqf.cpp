@@ -505,7 +505,7 @@ static IMPL_DBE_PROC(dbqf_objtagtextnocache_ii)
 		const  PPID tag_id = params[0].lval;
 		const  PPID obj_id = params[1].lval;
 		if(tag_id && obj_id) {
-			Reference * p_ref = PPRef;
+			Reference * p_ref(PPRef);
 			if(p_ref) {
 				PPObjTag tag_obj;
 				PPObjectTag tag_rec;
@@ -567,7 +567,7 @@ static IMPL_DBE_PROC(dbqf_trfrprice_irrr)
 	double discount = params[p++].rval;
 	double r = 0;
 	if(GetOpType(op_id) == PPOPT_GOODSREVAL) {
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		ReceiptTbl::Rec lot_rec;
 		lot_rec.ID = lot_id;
 		if(p_bobj->trfr->GetLotPrices(&lot_rec, dt, oprno) > 0)
@@ -1183,7 +1183,7 @@ static IMPL_DBE_PROC(dbqf_objcodecmplx_bill_i)
 	if(!DbeInitSize(option, result, sizeof(name_buf))) {
 		const  PPID id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
 		if(id) {
-			PPObjBill * p_bobj = BillObj;
+			PPObjBill * p_bobj(BillObj);
 			p_bobj->Fetch(id, &rec);
 			SString temp_buf;
 			p_bobj->MakeCodeString(&rec, 0, temp_buf);

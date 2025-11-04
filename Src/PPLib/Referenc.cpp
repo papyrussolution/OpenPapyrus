@@ -1308,7 +1308,7 @@ struct ObjRights_Pre855 { // @persistent
 int PPRights::ReadRights(PPID securType, PPID securID, int ignoreCheckSum)
 {
 	int    ok = -1;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	int    r = 0;
 	size_t sz = 2048;
 	THROW(Resize(sz));
@@ -1367,7 +1367,7 @@ int PPRights::ReadRights(PPID securType, PPID securID, int ignoreCheckSum)
 int PPRights::Get(PPID securType, PPID securID, int ignoreCheckSum)
 {
 	int    ok = 1, r;
-	Reference * p_ref = PPRef;
+	Reference * p_ref(PPRef);
 	ulong  chksum = 0;
 	ObjRestrictArray temp_orlist;
 	THROW(r = ReadRights(securType, securID, ignoreCheckSum));
@@ -1460,7 +1460,7 @@ int PPRights::Put(PPID securType, PPID securID)
 {
 	int    ok = 1;
 	if(!IsEmpty()) {
-		Reference * p_ref = PPRef;
+		Reference * p_ref(PPRef);
 		P_Rt->OprFlags &= ~(PPORF_DEFAULT | PPORF_INHERITED);
 		P_Rt->SecurObj  = securType;
 		P_Rt->SecurID   = securID;

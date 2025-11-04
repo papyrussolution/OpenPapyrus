@@ -1098,7 +1098,7 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 		// Экспорт цены поступления, реализации, остатка, грузовой таможенной декларации и серийного номера, сертификата качества
 		//
 		{
-			PPObjBill * p_bobj = BillObj;
+			PPObjBill * p_bobj(BillObj);
 			ReceiptTbl::Rec rcpt_rec;
 			PPIDArray loc_list;
 			PPIDArray * p_loc_list = 0;
@@ -1283,7 +1283,7 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 		//
 		if(altGrpID) {
 			long plu = 0L;
-			Reference * p_ref = PPRef;
+			Reference * p_ref(PPRef);
 			if(P_GObj->IsAltGroup(altGrpID) > 0 && p_ref->Assc.Search(PPASS_ALTGOODSGRP, altGrpID, pPack->Rec.ID) > 0)
 				plu = p_ref->Assc.data.InnerNum;
 			sdr_goods.AltGrpPLU = plu;

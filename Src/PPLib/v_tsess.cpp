@@ -715,7 +715,7 @@ int FASTCALL PPViewTSession::NextIteration(TSessionViewItem * pItem)
 						Ib.CipList.NextIteration(Ib.CurItem.CipItem);
 					}
 					else if(Ib.Order & ordfWithBill) {
-						PPObjBill * p_bobj = BillObj;
+						PPObjBill * p_bobj(BillObj);
 						Ib.WrOffBillList.clear();
 						for(PPID memb_id = 0; p_bobj->EnumMembersOfPool(PPASS_TSESSBILLPOOL, Ib.CurItem.ID, &memb_id) > 0;) {
 							BillTbl::Rec bill_rec;
@@ -2202,7 +2202,7 @@ void PPALDD_TSession::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack
 
 	_RET_INT = 0;
 	if(pF->Name == "?GetWrOffMemberByOp") {
-		PPObjBill * p_bobj = BillObj;
+		PPObjBill * p_bobj(BillObj);
 		if(p_bobj) {
 			PPObjOprKind op_obj;
 			PPID   op_id = 0;

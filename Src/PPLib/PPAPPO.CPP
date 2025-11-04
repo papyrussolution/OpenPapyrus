@@ -379,7 +379,7 @@ static void ShowTags_(PPID objType)
 int PPApp::processCommand(uint cmd)
 {
 	LastCmd = cmd;
-	PPObjBill * p_bobj = BillObj;
+	PPObjBill * p_bobj(BillObj);
 	switch(cmd) {
 		case cmTextBrowserTest:      PPViewTextBrowser(0, 0, 0, -1);      break;
 		case cmOpenTextFile:         PPEditTextFile(0);                   break;
