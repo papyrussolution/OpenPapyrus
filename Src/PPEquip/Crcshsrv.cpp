@@ -800,34 +800,6 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 								AddCheckDigToBarcode(bc.Code);
 								if(r_cur_entry.Flags_ & AsyncCashGoodsInfo::fGMarkedType) {
 									const char * p_mark_type = 0;
-									/*
-										FOOTWEAR    Обувь
-										TOBACCO    Табак
-										LIGHT_INDUSTRY    Легкая промышленность
-										MILK    Молоко
-										PERFUMES    Парфюмерия
-										PHOTO    Фототехника
-										TYRES    Шины/диски
-										JEWELRY    Ювелирные изделия
-										WATER    Маркированная бутилированная вода
-										BICYCLES    Велосипеды
-										WHEELCHAIRS    Кресла-коляски
-										DIETARYSUP    БАДы (биологически-активные добавки)
-										ANTISEPTIC    Антисептики
-										DRAFT_BEER    Разливное пиво
-										BEER    Бутылочное или баночное пиво
-										MEDICAL_DEVICES    Медицинские изделия
-										WATER_AND_BEVERAGES    Безалкогольные напитки
-										CAVIAR     Икра осетровых и лососевых рыб (штучный товар)
-										DRAFT_CAVIAR    Икра осетровых и лососевых рыб (фасованный товар)
-										PET_FOOD    Корма для животных
-										OIL    Растительные масла
-										CANNED_FOOD    Консервированные продукты
-										NONALCOHOLIC_BEER    Безалкогольное пиво
-										VETERINARY_DRUGS    Ветеринарные препараты
-										REHABILITATION_MEANS    Технические средства реабилитации
-										DRAFT_BEVERAGES    Разливные безалкогольные напитки
-									*/ 
 									switch(r_cur_entry.ChZnProdType) {
 										case GTCHZNPT_SHOE: p_mark_type = "FOOTWEAR"; break;
 										case GTCHZNPT_TEXTILE: p_mark_type = "LIGHT_INDUSTRY"; break;
@@ -844,6 +816,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 										case GTCHZNPT_NONALCBEER: p_mark_type = "NONALCOHOLIC_BEER"; break; // @v12.2.6 
 										case GTCHZNPT_DIETARYSUPPLEMENT: p_mark_type = "DIETARYSUP"; break; // @v12.2.6
 										case GTCHZNPT_PETFOOD: p_mark_type = "PET_FOOD"; break; // @v12.3.9
+										case GTCHZNPT_VEGETABLEOIL: p_mark_type = "OIL"; break; // @v12.4.8
 									}
 									if(p_mark_type)
 										p_writer->PutElement("mark-type", p_mark_type);

@@ -3447,26 +3447,38 @@ int ScURL::SmtpSend(const InetUrl & rUrl, int mflags, const SMailMessage & rMsg)
 //
 //
 //
-SUniformFileTransmParam::ResultItem::ResultItem()
+SUniformFileTransmission::ResultItem::ResultItem()
 {
 	THISZERO();
 }
 
-SUniformFileTransmParam::SUniformFileTransmParam() : Flags(0), Format(SFileFormat::Unkn), Pop3TopMaxLines(0)
+SUniformFileTransmission::SUniformFileTransmission() : Flags(0), Format(SFileFormat::Unkn), Pop3TopMaxLines(0)
 {
 }
 
-int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
+int SUniformFileTransmission::List(StringSet & rSs)
+{
+	int    ok = -1;
+
+    SString path_src(SrcPath);
+    SString path_dest(DestPath);
+    THROW_S(path_src.NotEmptyS(), SLERR_UFT_SRCISEMPTY);
+    THROW_S(path_dest.NotEmptyS(), SLERR_UFT_DESTISEMPTY);
+
+	CATCHZOK
+	return ok;
+}
+
+int SUniformFileTransmission::Run(SDataMoveProgressProc pf, void * extraPtr)
 {
 	Reply.Z();
-
 	/*
-#define SLERR_UFT_SRCISEMPTY                   581 // @v11.8.10 SUniformFileTransmParam: src is empty 
-#define SLERR_UFT_DESTISEMPTY                  582 // @v11.8.10 SUniformFileTransmParam: dest is empty
-#define SLERR_UFT_SRCORDESTMUSTBEFILE          583 // @v11.8.10 SUniformFileTransmParam: src or dest must be file
+#define SLERR_UFT_SRCISEMPTY                   581 // @v11.8.10 SUniformFileTransmission: src is empty 
+#define SLERR_UFT_DESTISEMPTY                  582 // @v11.8.10 SUniformFileTransmission: dest is empty
+#define SLERR_UFT_SRCORDESTMUSTBEFILE          583 // @v11.8.10 SUniformFileTransmission: src or dest must be file
 
-#define SLERR_UFT_INVSRCPROT                   584 // @v11.8.10 SUniformFileTransmParam: invalid src protocol
-#define SLERR_UFT_INVDESTPROT                  585 // @v11.8.10 SUniformFileTransmParam: invalid dest protocol
+#define SLERR_UFT_INVSRCPROT                   584 // @v11.8.10 SUniformFileTransmission: invalid src protocol
+#define SLERR_UFT_INVDESTPROT                  585 // @v11.8.10 SUniformFileTransmission: invalid dest protocol
 	*/
 	int    ok = -1;
     SString path_src(SrcPath);
@@ -3507,7 +3519,7 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 				ps_dest.Ext = ps_src.Ext;
 				SString local_path_dest;
 				ps_dest.Merge(&ps_src, SFsPath::fNam|SFsPath::fExt, local_path_dest);
-				SCopyFile(local_path_src, local_path_dest, /*SDataMoveProgressProc*/0, /*shareMode*/0, /*pExtra*/0);
+				SCopyFile(local_path_src, local_path_dest, pf, /*shareMode*/0, extraPtr);
 			}
 			else if(oneof3(prot_dest, InetUrl::protFtp, InetUrl::protFtps, InetUrl::protTFtp)) {
 				ScURL curl;
@@ -3578,13 +3590,13 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 					ps.Split(temp_buf);
 					if(ps.Nam.IsEmpty()) {
 						has_wildcard = 1;
-						ps.Nam = "*";
+						ps.Nam.Z().CatChar('*');
 					}
 					else if(ps.Nam.HasChr('*') || ps.Nam.HasChr('?'))
 						has_wildcard = 1;
 					if(ps.Ext.IsEmpty()) {
 						has_wildcard = 1;
-						ps.Ext = "*";
+						ps.Ext.Z().CatChar('*');
 					}
 					else if(ps.Ext.HasChr('*') || ps.Ext.HasChr('?'))
 						has_wildcard = 1;
@@ -3628,7 +3640,6 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
                     url_src.SetComponent(InetUrl::cUserName, AccsName);
                     url_src.SetComponent(InetUrl::cPassword, AccsPassword);
                 }
-				// @v11.0.9 {
 				{
 					SFsPath ps_dest(local_path_dest);
 					if(ps_dest.Nam.IsEmpty()) {
@@ -3641,7 +3652,6 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 						}
 					}
 				}
-				// } @v11.0.9
 				SFile wr_stream(local_path_dest, SFile::mWrite|SFile::mBinary);
 				THROW(wr_stream.IsValid());
 				THROW(curl.HttpGet(url_src, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, 0, &wr_stream));

@@ -5478,10 +5478,11 @@ struct BroColumn {
 	SBrowserDataProc _ColumnUserProc; // @v12.3.8 UserProc-->_ColumnUserProc
 	long   format;         // Output format
 	uint   Options;        //
-	char * text;           // Column's title
-	uint   CWidth;         // Width of display field (Internal use) // @v12.4.7 width-->CWidth
-	uint   x;              // Internal use
-	uint   index;          // Internal use
+	char * P_Text;         // Column's title
+	uint   CWidth;         // Width of display field (in characters) (Internal use) // @v12.4.7 width-->CWidth
+	uint   CWidthPx;       // @v12.4.8 Optional width of display field in pixels (Internal use) 
+	uint   X_;             // Internal use
+	uint   CIndex;         // Internal use
 	uint   OrgOffs;        // Смещение поля, заданное при создании столбца
 };
 
@@ -5539,8 +5540,8 @@ public:
 	int    setColumnTitle(int colN, const char * pText);
 	int    AddColumnGroup(BroGroup *);
 	const  BroGroup * groupOf(uint column, uint * pGrpPos = 0) const;
-	uint   groupWidth(uint group, uint atColumn) const;
-	uint   groupWidth(const BroGroup *, uint atColumn) const;
+	// @v12.4.8 (unused) uint   groupWidth(uint group, uint atColumn) const;
+	// @v12.4.8 (unused) uint   groupWidth(const BroGroup *, uint atColumn) const;
 	int    GetCellData(const void * pRowData, int column, TYPEID * pType, void * pDataBuf, size_t dataBufLen);
 	int    GetCellData(long row, int column, TYPEID * pType, void * pDataBuf, size_t dataBufLen);
 	char * getText(long row, int column, char * pBuf);
@@ -5564,7 +5565,7 @@ public:
 	int    AddCrosstab(BroCrosstab *);
 	uint   GetCrosstabCount() const;
 	const  BroCrosstab * GetCrosstab(uint) const;
-	int    FreeAllCrosstab();
+	void   FreeAllCrosstab();
 	bool   IsBOQ() const;
 	bool   IsEOQ() const;
 	bool   CheckFlag(uint f) const;
@@ -5748,6 +5749,7 @@ protected:
 };
 
 class BrowserWindow : public TBaseBrowserWindow {
+	static constexpr uint MinCWidthChr = 6; // @v12.4.8 Минимальная ширина колонки в условных символах (ChrSz.x)
 public:
 	class CellStyle {
 		friend class BrowserWindow;
@@ -5806,7 +5808,7 @@ public:
 	int    insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt, SBrowserDataProc proc); // @v12.3.8
 	int    insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt);
 	int    removeColumn(int atPos);
-	void   SetColumnWidth(int colNo, int width);
+	void   SetCWidth(uint colNo, uint newWidthChr, uint newWidthPx);
 	void   SetupColumnsWith();
 	int    SetColumnTitle(int conNo, const char * pText);
 	void   SetFreeze(uint);
@@ -5828,7 +5830,7 @@ public:
 	//
 	int    SelColByPoint(const POINT *, int action);
 	void   FocusItem(int hPos, int vPos);
-	int    IsResizePos(SPoint2S);
+	uint   IsResizePos(SPoint2S p) const;
 	void   Resize(SPoint2S p, int mode); // mode: 0 - toggle off, 1 - toggle on, 2 - process
 	void   Refresh();
 	BrowserDef * getDef();
@@ -5913,7 +5915,7 @@ private:
 	void   __Init();
 	void   WMHCreate();
 	long   CalcHdrWidth(int plusToolbar) const;
-	int    IsLastPage(uint viewHeight); // AHTOXA
+	bool   IsLastPage(uint viewHeight) const; // AHTOXA
 	void   ClearFocusRect(const RECT & rR);
 	void   DrawCapBk(HDC, const RECT & rR, bool);
 	void   DrawFocus(HDC, const RECT & rR, bool drawOrClear, bool isCellCursor = false);
@@ -5927,6 +5929,13 @@ private:
 	void   AdjustCursorsForHdr();
 	int    CalcRowsHeight(long topItem, long bottom = 0);
 	void   DrawMultiLinesText(HDC hdc, const char * pBuf, RECT * pTextRect, uint fmt);
+	//
+	// Descr: Возвращает ширину колонки в пикселях
+	//
+	uint   FASTCALL CellWidth(const BroColumn & rC) const;
+	//
+	// Descr: Возвращает правую позицию колонки в пикселях.
+	//
 	int    FASTCALL CellRight(const BroColumn & rC) const;
 	int    FASTCALL GetRowHeightMult(long row) const;
 	int    FASTCALL GetRowTop(long row) const;
@@ -5950,7 +5959,7 @@ private:
 		RECT   LineCursor;
 	};
 	BrowserRectCursors RectCursors;
-	int    ResizedCol;
+	uint   ResizedCol; // @v12.4.8 int-->uint
 	SPoint2S CliSz;   // Размер клиентской области окна
 	SPoint2S ChrSz;   // Средний размер символов.
 	int    YCell;   // Hight of cell

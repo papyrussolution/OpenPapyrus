@@ -5679,18 +5679,18 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 									ia_pack.GetExtField(FTPAEXSTR_HOST, ftp_path);
 								}
 								{
-									SUniformFileTransmParam param;
+									SUniformFileTransmission uft;
 									char   pwd[256];
-									(param.SrcPath = temp_buf).Transf(CTRANSF_OUTER_TO_UTF8);
-									SFsPath::NormalizePath(ftp_path, SFsPath::npfSlash|SFsPath::npfKeepCase, param.DestPath);
-									param.Flags = 0;
-									param.Format = SFileFormat::Unkn;
+									(uft.SrcPath = temp_buf).Transf(CTRANSF_OUTER_TO_UTF8);
+									SFsPath::NormalizePath(ftp_path, SFsPath::npfSlash|SFsPath::npfKeepCase, uft.DestPath);
+									uft.Flags = 0;
+									uft.Format = SFileFormat::Unkn;
 									ia_pack.GetExtField(FTPAEXSTR_USER, accs_name);
 									ia_pack.GetPassword_(pwd, sizeof(pwd), FTPAEXSTR_PASSWORD);
-									param.AccsName.EncodeUrl(accs_name, 0);
-									param.AccsPassword.EncodeUrl(pwd, 0);
+									uft.AccsName.EncodeUrl(accs_name, 0);
+									uft.AccsPassword.EncodeUrl(pwd, 0);
 									memzero(pwd, sizeof(pwd));
-									if(param.Run(0, 0)) {
+									if(uft.Run(0, 0)) {
 										; // @todo @succ
 									}
 									else {

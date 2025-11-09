@@ -1235,7 +1235,8 @@ int PPObjLocation::ResolveWarehouseList(const PPIDArray * pList, PPIDArray & rDe
 int PPObjLocation::ResolveWhCellList(const PPIDArray * pList, long options, PPIDArray & rDestList)
 {
 	int    ok = 1;
-	PPIDArray temp_list, wh_list;
+	PPIDArray temp_list;
+	PPIDArray wh_list;
 	if(!pList) {
 		GetWarehouseList(&wh_list, 0);
 		pList = &wh_list;

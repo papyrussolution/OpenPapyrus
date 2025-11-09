@@ -3967,7 +3967,7 @@ int PPSession::PPLogin(const char * pDbSymb, const char * pUserName, const char 
 		const long db_path_id = DBS.GetDbPathID();
 		DbProvider * p_dict = CurDict;
 		assert(p_dict);
-		p_dict->GetDatabaseState(&db_state);
+		p_dict->GetDatabaseState(0, &db_state);
 		{
 			//
 			// Имя SYSTEM является встроенным аналогом имени MASTER и отличается //

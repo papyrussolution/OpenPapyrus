@@ -253,7 +253,7 @@ SLTEST_R(ScURL_Mail)
 			THROW(SLCHECK_NZ(curl.Pop3List(url, ScURL::mfDontVerifySslPeer, mail_list)));
 		}
 		{
-			SUniformFileTransmParam uftp;
+			SUniformFileTransmission uftp;
 			uftp.DestPath = MakeOutputFilePath("");
 			temp_buf.EncodeUrl("/*.zip", 0);
 			url.SetComponent(InetUrl::cPath, temp_buf);
@@ -327,7 +327,7 @@ SLTEST_R(ScURL_Ftp)
 	SFileEntryPool pool;
 	{
 		{
-			SUniformFileTransmParam uftp;
+			SUniformFileTransmission uftp;
 			uftp.DestPath = "http://posttestserver.com/post.php";
 			uftp.SrcPath = MakeInputFilePath("test11.jpg");
 			uftp.Format = SFileFormat::Jpeg;
@@ -335,7 +335,7 @@ SLTEST_R(ScURL_Ftp)
 			temp_buf = uftp.Reply;
 		}
 		{
-			SUniformFileTransmParam uftp;
+			SUniformFileTransmission uftp;
 			uftp.DestPath = "https://posttestserver.com/post.php";
 			uftp.SrcPath = MakeInputFilePath("test10.jpg");
 			uftp.Format = SFileFormat::Jpeg;
@@ -345,7 +345,7 @@ SLTEST_R(ScURL_Ftp)
 	}
 	{
 		{
-			SUniformFileTransmParam uftp;
+			SUniformFileTransmission uftp;
 			uftp.DestPath = MakeOutputFilePath("remote-image.png");
 			uftp.SrcPath = "https://www.nasa.gov/sites/default/files/thumbnails/image/pia21775.png";
 			THROW(SLCHECK_NZ(uftp.Run(0, 0)));

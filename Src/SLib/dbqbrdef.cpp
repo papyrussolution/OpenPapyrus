@@ -50,7 +50,7 @@ int DBQBrowserDef::setQuery(DBQuery & rQuery, uint aBufSize)
 	}
 	bc.format = fmt;
 	bc.Options = (opt|BCO_CAPLEFT);
-	bc.text = newStr(pTxt);
+	bc.P_Text = newStr(pTxt);
 	if(addColumn(&bc, (atPos >= 0) ? atPos : UNDEF)) {
 		if(GETSTYPE(typ))
 			at(getCount()-1).T = typ;

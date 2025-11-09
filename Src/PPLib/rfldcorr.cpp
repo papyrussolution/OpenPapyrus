@@ -783,7 +783,7 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 		const int url_prot = (urlpr > 0) ? url.GetProtocol() : 0;
 		{
 			SString pw_buf;
-			SUniformFileTransmParam uftp;
+			SUniformFileTransmission uftp;
 			bool   do_process_remote_downloading = true;
 			if(url_prot <= 0 || url_prot == InetUrl::protFile) {
 				SString path;
@@ -948,7 +948,7 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 				THROW_SL(uftp.Run(ProgressInfo::Proc, 0));
 				//temp_buf = uftp.Reply;
 				for(uint i = 0; i < uftp.ResultList.getCount(); i++) {
-					const SUniformFileTransmParam::ResultItem & r_ri = uftp.ResultList.at(i);
+					const SUniformFileTransmission::ResultItem & r_ri = uftp.ResultList.at(i);
 					uftp.GetS(r_ri.DestPathP, temp_buf);
 					rList.add(temp_buf);
 					ok = 1;
@@ -1004,19 +1004,19 @@ int PPImpExpParam::DistributeFile(PPLogger * pLogger)
 				ia_pack.GetExtField(FTPAEXSTR_HOST, ftp_path);
 			}
 			{
-				SUniformFileTransmParam param;
+				SUniformFileTransmission uft;
 				SString accs_name;
 				char   pwd[256];
-				(param.SrcPath = FileName).Transf(CTRANSF_OUTER_TO_UTF8); // @v11.8.10 Transf(CTRANSF_OUTER_TO_UTF8)
-				SFsPath::NormalizePath(ftp_path, SFsPath::npfSlash|SFsPath::npfKeepCase, param.DestPath);
-				param.Flags = 0;
-				param.Format = SFileFormat::Unkn;
+				(uft.SrcPath = FileName).Transf(CTRANSF_OUTER_TO_UTF8); // @v11.8.10 Transf(CTRANSF_OUTER_TO_UTF8)
+				SFsPath::NormalizePath(ftp_path, SFsPath::npfSlash|SFsPath::npfKeepCase, uft.DestPath);
+				uft.Flags = 0;
+				uft.Format = SFileFormat::Unkn;
 				ia_pack.GetExtField(FTPAEXSTR_USER, accs_name);
 				ia_pack.GetPassword_(pwd, sizeof(pwd), FTPAEXSTR_PASSWORD);
-				param.AccsName.EncodeUrl(accs_name, 0);
-				param.AccsPassword.EncodeUrl(pwd, 0);
+				uft.AccsName.EncodeUrl(accs_name, 0);
+				uft.AccsPassword.EncodeUrl(pwd, 0);
 				memzero(pwd, sizeof(pwd));
-				THROW_SL(param.Run(0, 0));
+				THROW_SL(uft.Run(0, 0));
 			}
 			ok = 1;
 			// @v11.1.10 }

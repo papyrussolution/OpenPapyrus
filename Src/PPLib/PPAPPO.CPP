@@ -317,7 +317,8 @@ static int PPAbout()
 		const int is_open = DS.CheckExtFlag(ECF_OPENSOURCE);
 		//char  c_buf[512];
 		SString _c_buf;
-		SString fmt, text;
+		SString fmt;
+		SString text;
 		SString temp_buf;
 		PPLicData lic;
 		PPVersionInfo vi = DS.GetVersionInfo();

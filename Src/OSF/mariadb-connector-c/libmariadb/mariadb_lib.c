@@ -3073,8 +3073,7 @@ my_ulonglong STDCALL mysql_affected_rows(MYSQL * mysql)
 
 bool STDCALL mysql_autocommit(MYSQL * mysql, bool mode)
 {
-	return((bool)mysql_real_query(mysql, (mode) ? "SET autocommit=1" :
-	       "SET autocommit=0", 16));
+	return((bool)mysql_real_query(mysql, (mode) ? "SET autocommit=1" : "SET autocommit=0", 16));
 }
 
 bool STDCALL mysql_commit(MYSQL * mysql)

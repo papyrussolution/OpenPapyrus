@@ -3233,7 +3233,7 @@ int iSalesPepsi::GetOrderFilesFromMailServer(PPID mailAccID, const char * pDestP
 	PPWaitStart();
 	{
 		InetUrl url;
-		SUniformFileTransmParam uftp;
+		SUniformFileTransmission uftp;
 		uftp.DestPath = pDestPath;
 		{
 			mac_rec.GetExtField(MAEXSTR_RCVSERVER, temp_buf);
@@ -9311,7 +9311,7 @@ public:
 		SString accs_name;
 		SString accs_passw;
 		SString dest_root;
-		SUniformFileTransmParam uftp;
+		SUniformFileTransmission uftp;
 		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssRemoteAddr, remote_addr);
 		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssAccsName, accs_name);
 		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssAccsPassw, accs_passw);
@@ -11000,7 +11000,7 @@ public:
 		SString accs_name;
 		SString accs_passw;
 		SString dest_root;
-		SUniformFileTransmParam uftp;
+		SUniformFileTransmission uftp;
 		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssRemoteAddr, remote_addr);
 		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssAccsName, accs_name);
 		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssAccsPassw, accs_passw);
@@ -11106,7 +11106,7 @@ public:
 		SString accs_name;
 		SString accs_passw;
 		SString dest_root;
-		SUniformFileTransmParam uftp;
+		SUniformFileTransmission uftp;
 		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssRemoteAddr, remote_addr);
 		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssAccsName, accs_name);
 		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssAccsPassw, accs_passw);
@@ -12040,7 +12040,7 @@ public:
 		SString accs_name;
 		SString accs_passw;
 		SString dest_root;
-		SUniformFileTransmParam uftp;
+		SUniformFileTransmission uftp;
 		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssRemoteAddr, remote_addr);
 		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssAccsName, accs_name);
 		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssAccsPassw, accs_passw);
@@ -13115,7 +13115,7 @@ int VladimirskiyStandard::TransmitFiles(const StringSet & rFileNameSet)
 	SString accs_passw;
 	SString dest_root;
 	SString cli_code;
-	SUniformFileTransmParam uftp;
+	SUniformFileTransmission uftp;
 	Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssRemoteAddr, remote_addr);
 	Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssAccsName, accs_name);
 	Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssAccsPassw, accs_passw);
@@ -13994,33 +13994,55 @@ int COCACOLA::ImportBailmentOrders()
 	SString bill_text;
 	TSCollection <BailmentOrderSet> ordset_list;
 	{
-		SDirEntry de;
-		SString in_dir("D:/Papyrus/Src/VBA/0-Coke-Sannikova/TASK/esi-samples"); // @debug
-		(temp_buf = in_dir).SetLastSlash().CatChar('*').DotCat("*");
-		for(SDirec dir(temp_buf); dir.Next(&de) > 0;) {
-			if(!de.IsSelf() && !de.IsUpFolder()) {
-				if(de.IsFile()) {
-					de.GetNameUtf8(in_dir, temp_buf);
-					PPXmlFileDetector xfd;
-					int    format = 0;
-					if(xfd.Run(temp_buf, &format)) {
-						if(format == xfd.SAP_Order_Cocacola) {
-							//ParseBailmentOrder(const char * pInBuf, BailmentOrderSet & rR)
-							uint    new_ord_set_pos = 0;
-							BailmentOrderSet * p_new_ord_set = ordset_list.CreateNewItem(&new_ord_set_pos);
-							if(ParseBailmentOrderFile(temp_buf, *p_new_ord_set)) {
-								; // PPTXT_
+		StringSet ss_fn_src;
+		{
+			SString remote_addr;
+			SString accs_name;
+			SString accs_passw;
+			Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssRemoteAddr, remote_addr);
+			Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssAccsName, accs_name);
+			Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssAccsPassw, accs_passw);
+			if(remote_addr.NotEmptyS()) {
+				InetUrl url_src;
+				if(url_src.Parse(remote_addr) > 0) {
+					const int prot_src = url_src.GetProtocol();
+					if(prot_src == InetUrl::protFile) {
+						SFileEntryPool fep;
+						fep.Scan(remote_addr, 0);
+						for(uint fi = 0; fi < fep.GetCount(); fi++) {
+							if(fep.Get(fi, 0, &temp_buf)) {
+								ss_fn_src.add(temp_buf);
 							}
-							else {
-								ordset_list.atFree(new_ord_set_pos);
-							}
+						}
+					}
+					else {
+						//SUniformFileTransmission uftp; // cocacola
+					}
+				}
+			}
+		}
+		if(ss_fn_src.IsCountGreaterThan(0)) {
+			//SString in_dir("D:/Papyrus/Src/VBA/0-Coke-Sannikova/TASK/esi-samples"); // @debug
+			for(uint ssp = 0; ss_fn_src.get(&ssp, temp_buf);) {
+				PPXmlFileDetector xfd;
+				int    format = 0;
+				if(xfd.Run(temp_buf, &format)) {
+					if(format == xfd.SAP_Order_Cocacola) {
+						//ParseBailmentOrder(const char * pInBuf, BailmentOrderSet & rR)
+						uint    new_ord_set_pos = 0;
+						BailmentOrderSet * p_new_ord_set = ordset_list.CreateNewItem(&new_ord_set_pos);
+						if(ParseBailmentOrderFile(temp_buf, *p_new_ord_set)) {
+							; // PPTXT_
+						}
+						else {
+							ordset_list.atFree(new_ord_set_pos);
 						}
 					}
 				}
 			}
 		}
 	}
-	{
+	if(ordset_list.getCount()) {
 		const  PPID suppl_id = P.SupplID;
 		const  PPID order_op_id = FindBailmentOrderOp();
 		PPID   todo_code_tag_id = 0;

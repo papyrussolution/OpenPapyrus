@@ -1071,7 +1071,7 @@ int SOraDbProvider::PostProcessAfterUndump(const DBTable * pTbl)
 				}
 				{
 					// select max(ID) from tbl
-					sg.Z().Tok(Generator_SQL::tokSelect).Sp().Func(Generator_SQL::tokMax, r_fld.Name).Sp().From(pTbl->fileName);
+					sg.Z().Tok(Generator_SQL::tokSelect).Sp().Func(Generator_SQL::tokMax, r_fld.Name).Sp().From(pTbl->FileName_);
 					SSqlStmt stmt(this, sg);
 					THROW(stmt.Exec(0, OCI_DEFAULT));
 					THROW(stmt.BindItem(+1, 1, T_INT32, &max_val));
@@ -1089,7 +1089,7 @@ int SOraDbProvider::PostProcessAfterUndump(const DBTable * pTbl)
 					//
 					//
 					{
-						sg.Z().CreateSequenceOnField(*pTbl, pTbl->fileName, i, max_val+1);
+						sg.Z().CreateSequenceOnField(*pTbl, pTbl->FileName_, i, max_val+1);
 						SSqlStmt stmt(this, sg);
 						THROW(stmt.Exec(1, OCI_DEFAULT));
 					}
@@ -1132,7 +1132,7 @@ int SOraDbProvider::GetDirect(DBTable & rTbl, const DBRowId & rPos, int forUpdat
 	SString temp_buf;
 	THROW(rPos.IsI32());
 	rPos.ToStr__(temp_buf);
-	SqlGen.Z().Tok(Generator_SQL::tokSelect).Sp().Aster().Sp().From(rTbl.fileName).Sp().Tok(Generator_SQL::tokWhere).Sp().Tok(Generator_SQL::tokRowId)._Symb(_EQ_).QText(temp_buf);
+	SqlGen.Z().Tok(Generator_SQL::tokSelect).Sp().Aster().Sp().From(rTbl.FileName_).Sp().Tok(Generator_SQL::tokWhere).Sp().Tok(Generator_SQL::tokRowId)._Symb(_EQ_).QText(temp_buf);
 	if(forUpdate)
 		SqlGen.Tok(Generator_SQL::tokFor).Sp().Tok(Generator_SQL::tokUpdate);
 	{
@@ -1635,7 +1635,7 @@ int SOraDbProvider::CreateDataFile(const DBTable * pTbl, const char * pFileName,
 		THROW(stmt.Exec(1, OCI_DEFAULT));
 	}
 	uint j;
-	for(j = 0; j < pTbl->indexes.getNumKeys(); j++) {
+	for(j = 0; j < pTbl->Indices.getNumKeys(); j++) {
 		THROW(SqlGen.Z().CreateIndex(*pTbl, pFileName, j, 0/*pCollationSymb*/));
 		{
 			SSqlStmt stmt(this, SqlGen);
@@ -1713,8 +1713,8 @@ int SOraDbProvider::GetFileStat(DBTable * pTbl, long reqItems, DbTableStat * pSt
 
 int SOraDbProvider::Implement_Open(DBTable * pTbl, const char * pFileName, int openMode, char * pPassword)
 {
-	pTbl->fileName = NZOR(pFileName, pTbl->tableName);
-	pTbl->OpenedFileName = pTbl->fileName;
+	pTbl->FileName_ = NZOR(pFileName, pTbl->tableName);
+	pTbl->OpenedFileName = pTbl->FileName_;
 	pTbl->FixRecSize = pTbl->fields.CalculateFixedRecSize();
 	return 1;
 }
@@ -1767,7 +1767,7 @@ int SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey, int s
 	uint   actual = 0;
 	LongArray seg_map; // Карта номеров сегментов индекса, которые должны быть привязаны
 	DBTable::SelectStmt * p_stmt = 0;
-	const BNKeyList & r_indices = pTbl->indexes;
+	const BNKeyList & r_indices = pTbl->Indices;
 	THROW(idx < (int)r_indices.getNumKeys());
 	if(oneof2(srchMode, spNext, spPrev)) {
 		p_stmt = pTbl->GetStmt();
@@ -1839,7 +1839,7 @@ int SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey, int s
 			SqlGen.Text(p_alias).Dot().Aster().Com().Text(p_alias).Dot().Tok(Generator_SQL::tokRowId);
 		else
 			SqlGen.Aster();
-		SqlGen.Sp().From(pTbl->fileName, p_alias);
+		SqlGen.Sp().From(pTbl->FileName_, p_alias);
 		if(sf & DBTable::sfDirect) {
 			DBRowId * p_rowid = static_cast<DBRowId *>(pKey);
 			THROW(p_rowid && p_rowid->IsI32());
@@ -2009,7 +2009,7 @@ int SOraDbProvider::Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf,
 		if(r > 0)
 			do_process_lob = 1;
 	}
-	SqlGen.Z().Tok(Generator_SQL::tokInsert).Sp().Tok(Generator_SQL::tokInto).Sp().Text(pTbl->fileName).Sp();
+	SqlGen.Z().Tok(Generator_SQL::tokInsert).Sp().Tok(Generator_SQL::tokInto).Sp().Text(pTbl->FileName_).Sp();
 	SqlGen.Tok(Generator_SQL::tokValues).Sp().LPar();
 	stmt.BL.Dim = 1;
 	stmt.BL.P_Lob = pTbl->getLobBlock();
@@ -2038,16 +2038,16 @@ int SOraDbProvider::Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf,
 	let_buf.NumberToLat(subst_no++);
 	temp_buf.Z().Colon().Cat(let_buf);
 	stmt.BindRowId(-subst_no, 1, pTbl->getCurRowIdPtr());
-	if(pKeyBuf && idx >= 0 && idx < (int)pTbl->indexes.getNumKeys()) {
+	if(pKeyBuf && idx >= 0 && idx < (int)pTbl->Indices.getNumKeys()) {
 		map_ret_key = 1;
-		key = pTbl->indexes[idx];
+		key = pTbl->Indices[idx];
 		ns = (uint)key.getNumSeg();
 		for(i = 0; i < ns; i++) {
-			const BNField & r_fld = pTbl->indexes.field(idx, i);
+			const BNField & r_fld = pTbl->Indices.field(idx, i);
 			SqlGen.Com().Text(r_fld.Name);
 			let_buf.NumberToLat(subst_no++);
 			temp_buf.CatDiv(',', 0).Colon().Cat(let_buf);
-			stmt.BindItem(-subst_no, 1, r_fld.T, PTR8(pKeyBuf)+pTbl->indexes.getSegOffset(idx, i));
+			stmt.BindItem(-subst_no, 1, r_fld.T, PTR8(pKeyBuf)+pTbl->Indices.getSegOffset(idx, i));
 		}
 	}
 	SqlGen.Sp().Tok(Generator_SQL::tokInto).Sp().Text(temp_buf);
@@ -2080,7 +2080,7 @@ int SOraDbProvider::Implement_UpdateRec(DBTable * pTbl, const void * pDataBuf, i
 	SString temp_buf;
 	if(pDataBuf)
 		pTbl->CopyBufFrom(pDataBuf);
-	SqlGen.Z().Tok(Generator_SQL::tokUpdate).Sp().Text(pTbl->fileName).Sp().Tok(Generator_SQL::tokSet).Sp();
+	SqlGen.Z().Tok(Generator_SQL::tokUpdate).Sp().Text(pTbl->FileName_).Sp().Tok(Generator_SQL::tokSet).Sp();
 	{
 		const uint fld_count = pTbl->fields.getCount();
 		for(uint i = 0; i < fld_count; i++) {
@@ -2108,7 +2108,7 @@ int SOraDbProvider::Implement_DeleteRec(DBTable * pTbl)
 	int    ok = 1;
 	const  uint fld_count = pTbl->fields.getCount();
 	SString temp_buf;
-	SqlGen.Z().Tok(Generator_SQL::tokDelete).Sp().From(pTbl->fileName, 0).Sp();
+	SqlGen.Z().Tok(Generator_SQL::tokDelete).Sp().From(pTbl->FileName_, 0).Sp();
 	THROW(pTbl->getCurRowIdPtr()->IsI32());
 	pTbl->getCurRowIdPtr()->ToStr__(temp_buf);
 	SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp().Tok(Generator_SQL::tokRowId)._Symb(_EQ_).QText(temp_buf);
@@ -2128,7 +2128,7 @@ int SOraDbProvider::Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ)
 		THROW(StartTransaction());
 		ta = 1;
 	}
-	SqlGen.Z().Tok(Generator_SQL::tokDelete).Sp().From(pTbl->fileName, 0);
+	SqlGen.Z().Tok(Generator_SQL::tokDelete).Sp().From(pTbl->FileName_, 0);
 	if(&rQ && rQ.tree) {
 		SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp();
 		rQ.tree->CreateSqlExpr(SqlGen, -1);
@@ -2165,7 +2165,7 @@ int SOraDbProvider::Implement_BExtInsert(BExtInsert * pBei)
 		DBTable * p_tbl = pBei->getTable();
 		const  uint fld_count = p_tbl->fields.getCount();
 		SString temp_buf;
-		SqlGen.Z().Tok(Generator_SQL::tokInsert).Sp().Tok(Generator_SQL::tokInto).Sp().Text(p_tbl->fileName).Sp();
+		SqlGen.Z().Tok(Generator_SQL::tokInsert).Sp().Tok(Generator_SQL::tokInto).Sp().Text(p_tbl->FileName_).Sp();
 		SqlGen.Tok(Generator_SQL::tokValues).Sp().LPar();
 		for(i = 0; i < fld_count; i++) {
 			if(i)

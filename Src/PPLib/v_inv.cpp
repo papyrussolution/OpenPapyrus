@@ -1164,12 +1164,12 @@ IMPL_HANDLE_EVENT(InventoryItemDialog)
 	TDialog::handleEvent(event);
 	if(event.isCmd(cmLot)) {
 		if(Data.GoodsID) {
-			LotFilt filt;
-			filt.GoodsID = Data.GoodsID;
-			filt.LocList.Add(P_Pack ? P_Pack->Rec.LocID : 0);
+			LotFilt lot_filt;
+			lot_filt.GoodsID = Data.GoodsID;
+			lot_filt.LocList.Add(P_Pack ? P_Pack->Rec.LocID : 0);
 			if(St & stUseSerial)
-				filt.Flags |= LotFilt::fShowSerialN;
-			ViewLots(&filt, 0, 0);
+				lot_filt.Flags |= LotFilt::fShowSerialN;
+			ViewLots(&lot_filt, 0, 0);
 		}
 	}
 	else if(event.isCbSelected(CTLSEL_INVITEM_GOODS)) {
@@ -1869,6 +1869,35 @@ int PPViewInventory::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 					}
 				}
 				break;
+			case PPVCMD_VIEWLOTS: // @v12.4.8
+				ok = -1;
+				if(hdr.BillID && hdr.OprNo) {
+					InventoryTbl::Rec inv_rec;
+					if(InvTbl.Search(hdr.BillID, hdr.OprNo, &inv_rec) > 0 && inv_rec.GoodsID) {
+						LotFilt lot_filt;
+						lot_filt.GoodsID = inv_rec.GoodsID;
+						{
+							PPObjOprKind op_obj;
+							PPIDArray local_loc_list;
+							for(uint bi = 0; bi < Filt.BillList.GetCount(); bi++) {
+								const PPID iter_bill_id = Filt.BillList.Get(bi);
+								BillTbl::Rec iter_bill_rec;
+								PPInventoryOpEx inv_op_ex;
+								if(P_BObj->Fetch(iter_bill_id, &iter_bill_rec) > 0) {
+									local_loc_list.add(iter_bill_rec.LocID);
+									if(op_obj.FetchInventoryData(iter_bill_rec.OpID, &inv_op_ex) > 0) {
+										if(inv_op_ex.Flags & INVOPF_USESERIAL)
+											lot_filt.Flags |= LotFilt::fShowSerialN;
+									}
+								}
+							}
+							if(local_loc_list.getCount())
+								lot_filt.LocList.Set(&local_loc_list);
+						}
+						ViewLots(&lot_filt, 0, 0);
+					}
+				}
+				break;
 			case PPVCMD_BUILD:
 				ok = Build();
 				break;
@@ -2053,7 +2082,8 @@ DBQuery * PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	DBE    dbe_empty;
 	uint   brw_id = 0;
 	const  PPID single_bill_id = Filt.GetSingleBillID();
-	const  int is_subst = Filt.HasSubst();
+	const  int  is_subst = Filt.HasSubst();
+	const  long ccfg_flags2 = CConfig.Flags2;
 	{
 		dbe_empty.init();
 		dbe_empty.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
@@ -2062,7 +2092,7 @@ DBQuery * PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 		assert(P_TempSubstTbl);
 		brw_id = BROWSER_INVNTRYLINESSUBST;
 		THROW(CheckTblPtr(st = new TempInventorySubstTbl(P_TempSubstTbl->GetName())));
-		if(CConfig.Flags2 & CCFLG2_HIDEINVENTORYSTOCK) {
+		if(ccfg_flags2 & CCFLG2_HIDEINVENTORYSTOCK) {
 			q = & select(
 				st->GoodsID,       // #00
 				st->Name,          // #01
@@ -2138,7 +2168,7 @@ DBQuery * PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 			it->WrOffPrice, // #07 
 			*dbe_tmp1,      // #08 
 			*dbe_tmp2,      // #09 
-			(CConfig.Flags2 & CCFLG2_HIDEINVENTORYSTOCK) ? dbe_empty : dbe_diffqtty, // #10
+			(ccfg_flags2 & CCFLG2_HIDEINVENTORYSTOCK) ? dbe_empty : dbe_diffqtty, // #10
 			//dbe_diffqtty,   // #10 
 			it->Serial,     // #11 
 			dbe_barcode,    // #12 

@@ -208,31 +208,24 @@ UnicodeString & Win32DateFormat::format(Calendar &cal, UnicodeString & appendTo,
 	TIME_ZONE_INFORMATION tzi = *fTZI;
 	UErrorCode status = U_ZERO_ERROR;
 	const TimeZone &tz = cal.getTimeZone();
-	int64_t uct, uft;
-
+	int64_t uct;
+	int64_t uft;
 	setTimeZoneInfo(&tzi, tz);
-
 	uct = utmscale_fromInt64((int64_t)cal.getTime(status), UDTS_ICU4C_TIME, &status);
 	uft = utmscale_toInt64(uct, UDTS_WINDOWS_FILE_TIME, &status);
-
 	ft.dwLowDateTime =  (DWORD)(uft & 0xFFFFFFFF);
 	ft.dwHighDateTime = (DWORD)((uft >> 32) & 0xFFFFFFFF);
-
 	FileTimeToSystemTime(&ft, &st_gmt);
 	SystemTimeToTzSpecificLocalTime(&tzi, &st_gmt, &st_local);
-
 	if(fDateStyle != DateFormat::kNone && fTimeStyle != DateFormat::kNone) {
 		UnicodeString date;
 		UnicodeString time;
 		UnicodeString * pattern = fDateTimeMsg;
-
 		formatDate(&st_local, date);
 		formatTime(&st_local, time);
-
 		if(strcmp(fCalendar->getType(), cal.getType()) != 0) {
 			pattern = getTimeDateFormat(&cal, &fLocale, status);
 		}
-
 		SimpleFormatter(*pattern, 2, 2, status).format(time, date, appendTo, status);
 	}
 	else if(fDateStyle != DateFormat::kNone) {
@@ -241,7 +234,6 @@ UnicodeString & Win32DateFormat::format(Calendar &cal, UnicodeString & appendTo,
 	else if(fTimeStyle != DateFormat::kNone) {
 		formatTime(&st_local, appendTo);
 	}
-
 	return appendTo;
 }
 

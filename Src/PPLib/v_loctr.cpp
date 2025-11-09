@@ -705,9 +705,14 @@ int PPViewLocTransf::Init_(const PPBaseFilt * pFilt)
 	ZDELETE(P_TempTbl);
 	{
 		if(Filt.LocList.IsExists()) {
-			PPIDArray domain;
-			LocObj.ResolveWhCellList(&Filt.LocList.Get(), 0, domain);
-			LocList_.Set(&domain);
+			if(Filt.Domain == LOCTRFRDOMAIN_BAILMENT) {
+				LocList_ = Filt.LocList;
+			}
+			else {
+				PPIDArray loc_list;
+				LocObj.ResolveWhCellList(&Filt.LocList.Get(), 0, loc_list);
+				LocList_.Set(&loc_list);
+			}
 		}
 		else
 			LocList_.Set(0);
@@ -942,7 +947,7 @@ DBQuery * PPViewLocTransf::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	DBE    dbe_chkloc;   // Проверка критерия Filt.LocID
 	DBE    dbe_locownerpsn; // @v12.4.1
 	DBQ  * dbq = 0;
-	int    single_loc_crit = 0;
+	bool   single_loc_crit = false;
 	LocTransfTbl * t = 0;
 	TempLocTransfTbl * tmpt = 0;
 	if(P_TempTbl) {
@@ -1000,11 +1005,13 @@ DBQuery * PPViewLocTransf::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 		{
 			const  PPID single_loc_id = Filt.LocList.GetSingle();
 			LocationTbl::Rec loc_rec;
-			if(single_loc_id && LocObj.Fetch(single_loc_id, &loc_rec) > 0 && loc_rec.Type == LOCTYP_WHCELL) {
-				dbq = &(*dbq && t->LocID == single_loc_id);
-				single_loc_crit = 1;
+			if(single_loc_id && LocObj.Fetch(single_loc_id, &loc_rec) > 0) {
+				if(Filt.Domain == LOCTRFRDOMAIN_BAILMENT || loc_rec.Type == LOCTYP_WHCELL) {
+					dbq = &(*dbq && t->LocID == single_loc_id);
+					single_loc_crit = true;
+				}
 			}
-			else if(Filt.LocList.GetCount() > 0) {
+			if(!single_loc_crit && Filt.LocList.GetCount() > 0) {
 				if(DbqFuncTab::RegisterDyn(&DynCheckCellParent, BTS_INT, dbqf_checkcellparent_ii, 2, BTS_INT, BTS_INT)) {
 					CellList.clear();
 					PPIDArray temp_cell_list;
@@ -1277,9 +1284,10 @@ int PPViewLocTransf::Detail(const void * pHdr, PPViewBrowser * pBrw)
 		MEMSZERO(hdr);
 	if(hdr.LocID) {
 		LocTransfFilt filt;
+		filt.Domain = Filt.Domain;
 		filt.Mode = LocTransfFilt::modeGeneral;
 		filt.LocList.Add(hdr.LocID);
-		if(!PPView::Execute(PPVIEW_LOCTRANSF, &filt, 1, 0))
+		if(!PPView::Execute(PPVIEW_LOCTRANSF, &filt, /*PPView::exefModeless*/0, 0))
 			ok = 0;
 	}
 	return ok;

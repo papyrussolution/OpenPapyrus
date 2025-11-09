@@ -218,7 +218,7 @@ int GetFilesFromMailServer2(PPID mailAccID, const char * pDestPath, long filtFla
 	PPWaitStart();
 	{
 		InetUrl url;
-		SUniformFileTransmParam uftp;
+		SUniformFileTransmission uftp;
 		uftp.DestPath = pDestPath;
 		{
 			mac_rec.GetExtField(MAEXSTR_RCVSERVER, temp_buf);

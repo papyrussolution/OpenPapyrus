@@ -931,6 +931,7 @@ int btrnfound__();
 #define BE_BDB_INVALID_CURSOR              9003 // Внутренняя ошибка: объект курсора BDB разрушен
 #define BE_BDB_NOMEM                       9004 // Ошибка BerkeleyDB: недостаточно памяти.
 #define BE_SQLITE_TEXT                     9005 // @v12.3.10 Ошибка SQLITE. Текст сообщения заносится в DBS.AddedMsgString
+#define BE_MYSQL_TEXT                      9006 // @v12.4.8 Ошибка MySQL. Текст сообщения заносится в DBS.AddedMsgString
 //
 // Коды ошибок, формируемые модулем интерфейса с BerkeleyDB
 //
@@ -1065,8 +1066,8 @@ struct XFile {
 	BTABLENAME XfName;  // Table name
 	BFILENAME  XfLoc;   // File location (pathname)
 	int8   XfFlags;     // File flags. If (XfFlags & 0x0010) then dictionary file else user-defined
-	int16  XfOwnrLvl;   // Owner access level (A. Sobolev)
-	int16  XfBTFlags;   // Btrieve File flags (A. Sobolev)
+	int16  XfOwnrLvl;   // Owner access level (@sobolev) // @unused
+	int16  XfBTFlags;   // Btrieve File flags (@sobolev)
 	int8   reserv[6];   // Real file has record size 97 bytes
 	// Indexes: { XfId } { XfName }
 };
@@ -1317,7 +1318,7 @@ public:
 	//
 	BNKey  FASTCALL getKey(int position) const;
 	BNKey  FASTCALL operator[](int i) const { return getKey(i); }
-	bool   GetKeyPosListByField(int fldId, LongArray & rPosList) const;
+	bool   GetKeyPosListByField(int fldId, LongArray * pPosList) const;
 	//
 	// Descr: Возвращает true если существует хотя бы один индекс, в котором есть ACS-сегмент (alternate collating)
 	//   с полем fldId.
@@ -1786,14 +1787,15 @@ public:
 	int    GetHandle() const { return handle; }
 	BTBLID GetTableID() const { return tableID; }
 	void   FASTCALL SetTableID(BTBLID _id);
-	const  BNKeyList & GetIndices() const { return indexes; }
+	const  BNKeyList & GetIndices() const { return Indices; }
+	BNKeyList & GetIndicesNonConst() { return Indices; }
 	void   SetIndicesTblRef();
 	const  BNFieldList2 & GetFields() const { return fields; }
 	BNFieldList2 & GetFieldsNonConst() { return fields; }
 	//
 	// Descr: returns fileName
 	//
-	const SString & GetName() const { return fileName; }
+	const SString & GetName() const { return FileName_; }
 	//
 	// Descr: set fileName
 	//
@@ -1852,28 +1854,27 @@ private:
 	void * P_DBuf;
 	int    handle;
 	int    flags;
-	long   State;
+	int    State;           // @v12.4.8 long-->int 
 	DbProvider * P_Db;      // @notowned Указатель на провайдера БД
 	SelectStmt * P_Stmt;    // Последний SQL-оператор, использовавшийся для поиска
-	// @v12.4.7 SelectStmt * P_OppStmt; // SQL-оператор, сохраняемый при переключении направления выборки.
 	DBRowId CurRowId;       // Текущая позиция записи (используется для SQL-серверов)
 	DBRowId LastLockedRow;  // Позиция последней заблокированной записи. Используется для разблокировки, если не было изменения.
 	BTBLID tableID;         // X$FILE.XfId
-	int16  ownrLvl;
+	// @v12.4.8 int16  ownrLvl;
 	int16  index;
 	RECORDSIZE DBufSize;   // @v12.4.1 bufLen-->DBufSize
 	RECORDSIZE RetBufSize; // @v12.4.1 retBufLen-->RetBufSize
 	RECORDSIZE FixRecSize; // @*DBTable::open
 	uint16 PageSize;       // Размер страницы, определенный в спецификации.
 #if CXX_ARCH_BITS==64
-	uint8  Reserve[38];    // @alignment // @v12.4.3 [14]->[30] // @v12.4.7 [30]-->[38]
+	uint8  Reserve[40];    // @alignment // @v12.4.3 [14]->[30] // @v12.4.7 [30]-->[38] // @v12.4.8 [38]-->[40]
 #else
-	uint8  Reserve[6];     // @alignment // @v12.4.3 [18]->[2] // @v12.4.7 [2]-->[6]
+	uint8  Reserve[8];     // @alignment // @v12.4.3 [18]->[2] // @v12.4.7 [2]-->[6] // @v12.4.8 [6]-->[8]
 #endif
 	BTABLENAME tableName;
 	BNFieldList2 fields; // @v12.4.3 BNFieldList->BNFieldList2
-	BNKeyList   indexes;
-	SString fileName;
+	BNKeyList   Indices; // @v12.4.8 indexes-->Indices
+	SString FileName_;   // @v12.4.8 fileName-->FileName_
 	SString OpenedFileName;
 	DBLobBlock LobB;
 	char   FPB[256];
@@ -2139,7 +2140,8 @@ public:
 	//
 	enum {
 		dbstNormal     = 0x0000,
-		dbstContinuous = 0x0001  // Одна или более таблиц базы данных находится в состоянии continuous-открытия (для резервного копирования)
+		dbstContinuous = 0x0001, // Одна или более таблиц базы данных находится в состоянии continuous-открытия (для резервного копирования)
+		dbstNotExists  = 0x0002, // @v12.4.8 База данных не существует.
 	};
 	//
 	// Descr: Флаги открытия базы данных
@@ -2151,12 +2153,18 @@ public:
 	//
 	// Descr: Возвращает флаги состояния базы данных по указателю pStateFlags.
 	//   Флаги могут иметь значения DbProvider::dbstXXX (see enum above).
+	// Note: Если база данных не существует, но иных ошибок нет, то функция возвращает 1 и устанавливает флаг состояния dbstNotExists.
+	// ARG(pDbName IN): Имя базы данных. В зависимости от провайдера формать этого имени может быть разным.
+	//   Так, для btrieve или sqlite это - путь на диске к каталогу или файлу. Для sql-серверов - имя базы
+	//   данных в области действия сервера.
+	//   Если isempty(pDbName), то предполается, что речь идет о текущей базе данных (если таковая определена).
+	// ARG(pStateFlags OUT): Функция присваивает по этому указателю флаги состояния базы данных.
 	// Returns:
 	//   >0 - состояние базы данных успешно идентифицировано и флаги присвоены по указателю pStateFlags
 	//   <0 - функция не поддерживается
 	//    0 - error
 	//
-	virtual int GetDatabaseState(uint * pStateFlags);
+	virtual int GetDatabaseState(const char * pDbName, uint * pStateFlags);
 	virtual SString & MakeFileName_(const char * pTblName, SString & rBuf) = 0;
 	virtual int IsFileExists_(const char * pFileName) = 0;
 	virtual SString & GetTemporaryFileName(SString & rFileNameBuf, long * pStart, bool forceInDataPath) = 0;
@@ -2298,6 +2306,15 @@ protected:
 	//   этого класса разрушит объект по адресу pDict.
 	//
 	DbProvider(SqlServerType sqlServerType, DbDictionary * pDict, long capability);
+	//
+	// Descr: Функция вызывается при успешном завершении LoadTableSpec() для выполнения дополнительных 
+	//   действий над спецификацией таблицы базы данных. Есл так нужно конкретному провайдеру.
+	// Returns:
+	//   <0 - функция ничего не сделала (не посчитала нужным)
+	//   >0 - функция внесла какие-то изменения в спецификацию таблицы
+	//    0 - ошибка. В этом случае LoadTableSpec() так же вернет ошибку. 
+	// 
+	virtual int PostProcess_LoadTableSpec(DBTable * pTbl); // @v12.4.8
 	int    GetProtectData();
 	int    GetProtectData(FILE * f, uint16 * buf);
 	void   Common_Login(const DbLoginBlock * pBlk);
@@ -2332,7 +2349,7 @@ public:
 	static BDictionary * CreateBtrDictInstance(const char * pPath);
 	explicit BDictionary(const char * pPath, const char * pDataPath = 0, const char * pTempPath = 0);
 	~BDictionary();
-	virtual int GetDatabaseState(uint * pStateFlags);
+	virtual int GetDatabaseState(const char * pDbName, uint * pStateFlags);
 	virtual SString & MakeFileName_(const char * pTblName, SString & rBuf);
 	virtual int IsFileExists_(const char * pFileName);
 	virtual SString & GetTemporaryFileName(SString & rFileNameBuf, long * pStart, bool forceInDataPath);
@@ -2583,9 +2600,16 @@ public:
 		tokRollback, // @v12.3.12
 		tokTransaction, // @v12.3.12
 		tokIndexedBy, // @v12.4.0 sqlite "indexed by"
-		tokOrderBy, // @v12.4.0
-		tokTemp,    // @v12.4.4
-		tokCollate, // @v12.4.7
+		tokOrderBy,   // @v12.4.0
+		tokTemp,      // @v12.4.4
+		tokCollate,   // @v12.4.7
+		tokCharacter, // @v12.4.8
+		tokIfExists,  // @v12.4.8 if exists
+		tokShow,      // @v12.4.8 show
+		tokLike,      // @v12.4.8 like
+		tokDatabases, // @v12.4.8 databases
+		tokUse,       // @v12.4.8 use
+		tokStart,     // @v12.4.8 start
 		
 		tokCountOfTokens,
 	};
@@ -2630,7 +2654,7 @@ public:
 	};
 
 	int    CreateTable(const DBTable & rTbl, const char * pFileName, uint flags/*ctfXXX*/, const char * pCollationSymb);
-	int    CreateIndex(const DBTable & rTbl, const char * pFileName, uint n, const char * pCollationSymb);
+	int    CreateIndex(const DBTable & rTbl, const char * pFileName, uint idxNo, const char * pCollationSymb);
 	int    GetIndexName(const DBTable & rTbl, uint n, SString & rBuf);
 	int    CreateSequenceOnField(const DBTable & rTbl, const char * pFileName, uint fldN, long newVal);
 	int    GetSequenceNameOnField(const DBTable & rTbl, uint fldN, SString & rBuf);
@@ -2652,7 +2676,14 @@ public:
 	//
 	Generator_SQL & FASTCALL _Symb(int s);
 	Generator_SQL & FASTCALL Text(const char * pName);
+	//
+	// Descr: присоединяет к оператору текст, обрамленый обычными одинарными кавычками (\')
+	//
 	Generator_SQL & FASTCALL QText(const char * pName);
+	//
+	// Descr: присоединяет к оператору текст, обрамленый обратными одинарными кавычками (`)
+	//
+	Generator_SQL & FASTCALL QbText(const char * pName);
 	Generator_SQL & FASTCALL Param(const char * pParam);
 	Generator_SQL & FASTCALL Select(const BNFieldList2 * pFldList);
 	Generator_SQL & FASTCALL Select(const char * pSelectArgText);
@@ -2839,7 +2870,7 @@ public:
 	~SMySqlDbProvider();
 	virtual int DbLogin(const DbLoginBlock * pBlk, long options);
 	virtual int Logout();
-	virtual int GetDatabaseState(uint * pStateFlags);
+	virtual int GetDatabaseState(const char * pDbName, uint * pStateFlags);
 	virtual SString & MakeFileName_(const char * pTblName, SString & rBuf);
 	virtual int IsFileExists_(const char * pFileName);
 	virtual SString & GetTemporaryFileName(SString & rFileNameBuf, long * pStart, bool forceInDataPath);
@@ -2868,6 +2899,10 @@ public:
 	virtual int ExecStmt(SSqlStmt & rS, uint count, int mode);
 	virtual int Describe(SSqlStmt & rS, SdRecord &);
 	virtual int Fetch(SSqlStmt & rS, uint count, uint * pActualCount);
+	//
+	int    CreateDatabase(const char * pDbName); // @v12.4.8
+	int    DropDatabase(const char * pDbName); // @v12.4.8
+	int    UseDatabase(const char * pDbName); // @v12.4.8
 private:
 	struct OD {
 		OD() : H(0), T(0)
@@ -2879,7 +2914,8 @@ private:
 		uint32 T;
 	};
 	int    FASTCALL ProcessError(int status);
-	static MYSQL_STMT * FASTCALL StmtHandle(const SSqlStmt & rS);
+	static  MYSQL_STMT * FASTCALL StmtHandle(const SSqlStmt & rS);
+	virtual int PostProcess_LoadTableSpec(DBTable * pTbl); // @v12.4.8
 	int    ProcessBinding_SimpleType(int action, uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind, uint ntvType);
 	enum {
 		descrMYSQLTIME = 1
@@ -2892,6 +2928,7 @@ private:
 	int    GetFileStat(const char * pFileName, long reqItems, DbTableStat * pStat);
 	long   Flags;
 	void * H;
+	SString CurrentDatabase;
 	Generator_SQL SqlGen;
 };
 //
@@ -2971,7 +3008,7 @@ public:
 	~SSqliteDbProvider();
 	virtual int DbLogin(const DbLoginBlock * pBlk, long options);
 	virtual int Logout();
-	virtual int GetDatabaseState(uint * pStateFlags);
+	virtual int GetDatabaseState(const char * pDbName, uint * pStateFlags);
 	virtual SString & MakeFileName_(const char * pTblName, SString & rBuf);
 	virtual int IsFileExists_(const char * pFileName);
 	virtual SString & GetTemporaryFileName(SString & rFileNameBuf, long * pStart, bool forceInDataPath);

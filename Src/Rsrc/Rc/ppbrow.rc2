@@ -1966,6 +1966,7 @@ browser INVNTRYLINES north(100), 1, 1, "@{view_inventory} {%s}", OWNER|GRID, 0
 		EDITGOODS     : kbShiftF2, PPDV_WARESINGLE01,     "@{ware}\tShift-F2"
 		ADDFROMBASKET : kbAltF8,   TBBM_ADDTISFROMBASKET, "@{dogetfrombasket}\tAlt-F8"
 		ADDTOBASKET   : kbCtrlF8,  PPDV_SHOPPINGCARTINTO01, "@{doputtobasket}\tCtrl-F8"
+		VIEWLOTS      : kbCtrlL,   PPDV_LOTS,             "@{lots}\tCtrl-L" // @v12.4.8
 		separator
 		BUILD         : kbF8,      TBBM_REFRESH,      "@{doinventoryautofill}\tF8"
 		RECALCREST    : kbCtrlR,   PPDV_REPAIR02,     "@{doinventoryrecalcstock}\tCtrl-R"
@@ -2235,7 +2236,7 @@ browser GOODSLOT north(43), 1, 0, "@{lots} {%s}", OWNER|GRID, 0
 {
 	"@date",             0, date, DATF_DMY, 8
 	"@supplier",         4, zstring(128), 0, 20
-	"@rest",           132, double, NMBF_NOTRAILZ, 7.3
+	"@rest",           132, double, NMBF_NOZERO|NMBF_NOTRAILZ, 7.3 // @v12.4.8
 	"@munit",          140, zstring(48), 0, 6
 	"@serial",         188, zstring(32), 0, 20
 	"@termcost",       220, double, NMBF_NOZERO, 8.2
@@ -2348,7 +2349,7 @@ browser LOT2 north(100), 1, 0, "@{view_lot} {%s}", OWNER|GRID, 0
 	"@ware",           4, notype, 0, 20
 	"@supplier",       5, notype, 0, 18
 	"@lot_initqtty",   6, notype, NMBF_NOTRAILZ,  6.3
-	"@rest",           7, notype, NMBF_NOTRAILZ, 10.7
+	"@rest",           7, notype, NMBF_NOZERO|NMBF_NOTRAILZ, 10.7 // @v12.4.8 NMBF_NOZERO
 	"@lot_closedate", 11, notype, DATF_DMY, 8
 	"@termcost",       8, notype, NMBF_NOZERO, 8.2
 	"@termprice",      9, notype, NMBF_NOZERO, 8.2
@@ -2364,7 +2365,7 @@ browser LOTOPER2 north(100), 3, 0, "@{view_lot} {%s}", OWNER|GRID, 0
 	"@warehouse",      3, notype, 0, 16
 	"@ware",           4, notype, 0, 20
 	"@supplier",       5, notype, 0, 18
-	"@lot_initqtty",   6, notype, NMBF_NOTRAILZ, 6.3
+	"@lot_initqtty",   6, notype, NMBF_NOZERO|NMBF_NOTRAILZ, 6.3
 	group "@rest" {
 		"На начало",  13, notype, NMBF_NOTRAILZ|NMBF_NOZERO, 10.7 // @v11.1.6 12-->13
 		"На конец",   14, notype, NMBF_NOTRAILZ|NMBF_NOZERO, 10.7 // @v11.1.6 13-->14

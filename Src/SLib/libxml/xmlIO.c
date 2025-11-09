@@ -161,7 +161,7 @@ static const char * IOerr[] = {
 #if defined(_WIN32) && !defined (__CYGWIN__)
 /**
  * __xmlIOWin32UTF8ToWChar:
- * @u8String:  uft-8 string
+ * @u8String:  utf-8 string
  *
  * Convert a string from utf-8 to wchar (WINDOWS ONLY!)
  */

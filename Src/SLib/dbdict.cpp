@@ -97,7 +97,7 @@ BDictionary::BDictionary(const char * pPath, const char * pDataPath, const char 
 BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(sqlstNone, new DbDict_Btrieve(pPath), 0)
 	{ Init(0, 0); }
 
-/*virtual*/int BDictionary::GetDatabaseState(uint * pStateFlags)
+/*virtual*/int BDictionary::GetDatabaseState(const char * pDbName, uint * pStateFlags)
 {
 	int    ok = 1;
 	uint   state = 0;
@@ -128,7 +128,9 @@ BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(sqlstNone
 		if(::fileExists(redirect_file)) {
 			SFile f(redirect_file, SFile::mRead);
 			if(f.IsValid()) {
-				SString buf, tbl_name, tbl_path;
+				SString buf;
+				SString tbl_name;
+				SString tbl_path;
 				while(!path_from_redirect && f.ReadLine(buf) > 0) {
 					uint j = 0;
 					buf.Divide('=', tbl_name, tbl_path);
@@ -157,8 +159,8 @@ BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(sqlstNone
 	p_h->PageSize = pTbl->PageSize;
 	p_h->RecSize = pTbl->fields.CalculateFixedRecSize();
 	p_h->Flags   = pTbl->flags;
-	for(uint i = 0; i < pTbl->indexes.getNumKeys(); i++) {
-		BNKey k = pTbl->indexes.getKey(i);
+	for(uint i = 0; i < pTbl->Indices.getNumKeys(); i++) {
+		BNKey k = pTbl->Indices.getKey(i);
 		for(int j = 0; j < k.getNumSeg(); j++) {
 			const BNField & f = pTbl->fields[k.getFieldID(j)];
 			int16  offs = static_cast<int16>(f.Offs + 1);
@@ -202,7 +204,7 @@ BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(sqlstNone
 			}
 		}
 	}
-	SString b(NZOR(pFileName, pTbl->fileName.cptr()));
+	SString b(NZOR(pFileName, pTbl->FileName_.cptr()));
 	MakeFileName_(pTbl->tableName, b);
 	if(!Btrieve::CreateTable(b, *p_h, RESET_CRM_TEMP(createMode), pAltCode))
 		ok = 0;

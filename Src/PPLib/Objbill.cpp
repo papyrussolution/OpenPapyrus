@@ -3594,9 +3594,9 @@ int PPObjBill::GetCorrectionBackChain(const BillTbl::Rec & rBillRec, PPIDArray &
 	BillTbl::Rec temp_bill_rec;
 	if(rBillRec.LinkBillID && Fetch(rBillRec.LinkBillID, &correction_org_bill_rec) > 0) {
 		ok = 1;
-		const LDATE tbdt = rBillRec.Dt;
+		const  LDATE tbdt = rBillRec.Dt;
 		const  PPID  tbop_id = rBillRec.OpID;
-		const long  tbbillno = NZOR(rBillRec.BillNo, MAXLONG);
+		const  long  tbbillno = NZOR(rBillRec.BillNo, MAXLONG);
 		rChainList.add(correction_org_bill_rec.ID);
 		for(DateIter di(correction_org_bill_rec.Dt, ZERODATE); P_Tbl->EnumLinks(correction_org_bill_rec.ID, &di, BLNK_CORRECTION, &temp_bill_rec) > 0;) {
 			if(temp_bill_rec.OpID == tbop_id && temp_bill_rec.ID != rBillRec.ID &&
@@ -6773,14 +6773,13 @@ int PPObjBill::GetSerialNumberByLot(PPID lotID, SString & rBuf, int useCache)
 int PPObjBill::SelectLotBySerial(const char * pSerial, PPID goodsID, PPID locID, ReceiptTbl::Rec * pRec)
 {
 	int    ok = -1;
-	int    r = -1;
 	if(!isempty(pSerial)) {
 		PPIDArray lot_list;
 		PPID   lot_id = 0;
 		ReceiptTbl::Rec lot_rec;
 		// @todo @20251007 Ниже - очень плохой блок: если лотов много, то осуществляется значительное число повторных обращений к базе данных за одними и теми же лотами.
 		if(SearchLotsBySerialExactly(pSerial, &lot_list) > 0) {
-			while(ok < 0 && (r = SelectLotFromSerialList(&lot_list, locID, &lot_id, &lot_rec)) > 0) {
+			while(ok < 0 && SelectLotFromSerialList(&lot_list, locID, &lot_id, &lot_rec) > 0) {
 				if((!goodsID || lot_rec.GoodsID == goodsID) && (!locID || lot_rec.LocID == locID)) { // @v12.4.3 (&& (!locID || lot_rec.LocID == locID))
 					ASSIGN_PTR(pRec, lot_rec);
 					ok = 1;
@@ -6792,10 +6791,16 @@ int PPObjBill::SelectLotBySerial(const char * pSerial, PPID goodsID, PPID locID,
 	}
 	return ok;
 }
-
+//
+// Returns:
+//  0 - ни одни лот не подходит даже примерно
+//  1 - выбран наиболее подходящий последний открытый лот  
+// -2 - выбран лот по другому складу 
+// -3 - выбран самый позний закрытый лот
+// 
 int PPObjBill::SelectLotFromSerialList(const PPIDArray * pList, PPID locID, PPID * pLotID, ReceiptTbl::Rec * pRec)
 {
-	int    ok = -1;
+	int    ok = 0; // @v12.4.8 -1-->0
 	LDATE  last_date = ZERODATE;
 	long   last_oprno = 0;
 	PPID   last_id = 0;
@@ -6805,14 +6810,14 @@ int PPObjBill::SelectLotFromSerialList(const PPIDArray * pList, PPID locID, PPID
 		const PPID lot_id = pList->at(i);
 		ReceiptTbl::Rec lot_rec;
 		if(trfr->Rcpt.Search(lot_id, &lot_rec) > 0) {
-			if(ok < 0 && locID && lot_rec.LocID != locID) {
+			if(ok <= 0 && locID && lot_rec.LocID != locID) { // @v12.4.8 (ok<0)-->(ok<=0)
 				if(!last_id) {
 					last_id = lot_rec.ID;
 					ASSIGN_PTR(pRec, lot_rec);
 				}
 				ok = -2;
 			}
-			else if(ok < 0 && lot_rec.Closed) {
+			else if(ok <= 0 && lot_rec.Closed) { // @v12.4.8 (ok<0)-->(ok<=0)
 				if(lot_rec.Dt > last_clsd_date || (lot_rec.Dt == last_clsd_date && lot_rec.OprNo > last_clsd_oprno)) {
 					last_clsd_date  = lot_rec.Dt;
 					last_clsd_oprno = lot_rec.OprNo;

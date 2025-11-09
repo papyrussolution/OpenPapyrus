@@ -3353,7 +3353,8 @@ int PPObjTSession::SelectBySerial(SelectBySerialParam * pParam)
 	if(p_bobj->SearchLotsBySerial(pParam->Serial, &lot_list) > 0) {
 		PPID   lot_id = 0;
 		ReceiptTbl::Rec lot_rec;
-		if((r = p_bobj->SelectLotFromSerialList(&lot_list, loc_id, &lot_id, &lot_rec)) > 0) {
+		r = p_bobj->SelectLotFromSerialList(&lot_list, loc_id, &lot_id, &lot_rec);
+		if(r > 0) {
 			pParam->CodeType = 2;
 			pParam->GoodsID  = labs(lot_rec.GoodsID);
 			pParam->LotID    = lot_id;

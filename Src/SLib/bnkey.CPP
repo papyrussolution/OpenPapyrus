@@ -357,9 +357,9 @@ bool BNKeyList::HasAcsSegWithField(int fldId) const
 	return ok;
 }
 
-bool BNKeyList::GetKeyPosListByField(int fldId, LongArray & rPosList) const
+bool BNKeyList::GetKeyPosListByField(int fldId, LongArray * pPosList) const
 {
-	rPosList.Z();
+	CALLPTRMEMB(pPosList, Z());
 	bool    ok = false;
 	const   uint kc = getNumKeys();
 	for(uint i = 0; i < kc; i++) {
@@ -367,10 +367,13 @@ bool BNKeyList::GetKeyPosListByField(int fldId, LongArray & rPosList) const
 		for(uint si = 0; si < static_cast<uint>(key.getNumSeg()); si++) {
 			const BNField & r_fld = field(i, si);
 			if(r_fld.Id == fldId) {
-				rPosList.add(static_cast<long>(i));
+				CALLPTRMEMB(pPosList, add(static_cast<long>(i)));
 				ok = true;
 				break;
 			}
+		}
+		if(ok && !pPosList) { // Если не куда скидывать позиции индексов, то, видимо, достатоно единственного прецедента дабы ответить клиент "да"
+			break;
 		}
 	}
 	return ok;

@@ -73,17 +73,17 @@ void FASTCALL DBTable::SetPageSize(uint newPageSize)
 }
 
 void   FASTCALL DBTable::SetTableID(BTBLID _id) { tableID = _id; }
-void   DBTable::SetIndicesTblRef() { indexes.setTableRef(offsetof(DBTable, indexes)); }
+void   DBTable::SetIndicesTblRef() { Indices.setTableRef(offsetof(DBTable, Indices)); }
 //
 // Descr: set fileName
 //
-void   FASTCALL DBTable::SetName(const char * pN) { fileName = pN; }
+void   FASTCALL DBTable::SetName(const char * pN) { FileName_ = pN; }
 void   FASTCALL DBTable::SetTableName(const char * pN) { STRNSCPY(tableName, pN); }
 void   FASTCALL DBTable::SetFlag(int f) { flags |= f; }
 void   FASTCALL DBTable::ResetFlag(int f) { flags &= ~f; }
 int    DBTable::AddField(const char * pName, TYPEID fldType, int fldId) { return fields.addField(pName, fldType, fldId); }
 int    FASTCALL DBTable::AddField(const BNField & rF) { return fields.addField(rF); }
-int    FASTCALL DBTable::AddKey(BNKey & rK) { return indexes.addKey(rK); }
+int    FASTCALL DBTable::AddKey(BNKey & rK) { return Indices.addKey(rK); }
 
 int DBTable::Btr_Open(const char * pName, int openMode, char * pPassword)
 {
@@ -275,7 +275,7 @@ int DBTable::Btr_Implement_Search(int idx, void * pKey, int srchMode, long sf)
 	if(_err == BE_RECLOCK) {
 		SString msg_buf;
 		msg_buf.CatCurDateTime().Tab().Cat("Btrieve locking failed").CatDiv(':', 2).
-			Cat(tableName).CatParStr(fileName).Space().
+			Cat(tableName).CatParStr(FileName_).Space().
 			CatChar('[').Cat(r_dbcfg.NWaitLockTries).CatChar(',').Cat(r_dbcfg.NWaitLockTryTimeout).CatChar(']');
 		SLS.LogMessage("dbwarn.log", msg_buf);
 	}
@@ -283,7 +283,7 @@ int DBTable::Btr_Implement_Search(int idx, void * pKey, int srchMode, long sf)
 		if(nwl_try_n) {
 			SString msg_buf;
 			msg_buf.CatCurDateTime().Tab().Cat("Btrieve locking acquired after").Space().Cat(nwl_try_n).Space().Cat("tries").CatDiv(':', 2).
-				Cat(tableName).CatParStr(fileName).Space().
+				Cat(tableName).CatParStr(FileName_).Space().
 				CatChar('[').Cat(r_dbcfg.NWaitLockTries).CatChar(',').Cat(r_dbcfg.NWaitLockTryTimeout).CatChar(']');
 			SLS.LogMessage("dbwarn.log", msg_buf);
 		}

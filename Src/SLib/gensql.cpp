@@ -60,6 +60,12 @@ Generator_SQL & FASTCALL Generator_SQL::QText(const char * pName)
 	return *this;
 }
 
+Generator_SQL & FASTCALL Generator_SQL::QbText(const char * pName)
+{
+	Buf.CatChar('`').Cat(pName).CatChar('`');
+	return *this;
+}
+
 Generator_SQL & FASTCALL Generator_SQL::Param(const char * pParam)
 {
 	if(Sqlst == sqlstORA)
@@ -316,42 +322,51 @@ SString & Generator_SQL::GetType(TYPEID typ, SString & rBuf)
 
 int Generator_SQL::CreateTable(const DBTable & rTbl, const char * pFileName, uint flags, const char * pCollationSymb)
 {
-	const char * p_name = NZOR(pFileName, rTbl.GetName());
+	int    ok = 1;
+	const BNFieldList2 & r_fld_list = rTbl.GetFields();
 	const BNKeyList & r_indices = rTbl.GetIndices();
-	SString type_name;
-	//const DBI
-	Tok(tokCreate).Sp();
-	// @v12.4.4 {
-	if(flags & ctfTemporary)
-		Tok(tokTemp).Sp();
-	// } @v12.4.4 
-	Tok(tokTable).Sp();
-	if(flags & ctfIfNotExists) {
-		Tok(tokIfNotExists).Sp();		
+	const char * p_file_name = NZOR(pFileName, rTbl.GetName());
+	if(isempty(p_file_name)) {
+		ok = 0; // @todo @err
 	}
-	Buf.Cat(p_name);
-	Sp().LPar();
-	if(flags & ctfIndent)
-		Cr();
-	const  uint c = rTbl.GetFields().getCount();
-	LongArray idx_pos_list;
-	for(uint i = 0; i < c; i++) {
-		const BNField & r_fld = rTbl.GetFields()[i];
-		const int st = GETSTYPE(r_fld.T);
-		if(flags & ctfIndent)
-			Tab();
-		Buf.Cat(r_fld.Name).Space().Cat(GetType(r_fld.T, type_name));
-		if(Sqlst == sqlstSQLite && !isempty(pCollationSymb) && r_indices.HasAcsSegWithField(r_fld.Id)) {
-			Sp().Tok(tokCollate).Sp().Text(pCollationSymb);
+	else {
+		SString type_name;
+		//const DBI
+		Tok(tokCreate).Sp();
+		// @v12.4.4 {
+		if(flags & ctfTemporary)
+			Tok(tokTemp).Sp();
+		// } @v12.4.4 
+		Tok(tokTable).Sp();
+		if(flags & ctfIfNotExists) {
+			Tok(tokIfNotExists).Sp();		
 		}
-		if(i < (c-1))
-			Com();
+		Buf.Cat(p_file_name);
+		Sp().LPar();
 		if(flags & ctfIndent)
 			Cr();
+		const  uint c = r_fld_list.getCount();
+		LongArray idx_pos_list;
+		for(uint i = 0; i < c; i++) {
+			const BNField & r_fld = r_fld_list[i];
+			const int st = GETSTYPE(r_fld.T);
+			if(flags & ctfIndent)
+				Tab();
+			Buf.Cat(r_fld.Name).Space().Cat(GetType(r_fld.T, type_name));
+			if(Sqlst == sqlstSQLite) {
+				if(!isempty(pCollationSymb) && r_indices.HasAcsSegWithField(r_fld.Id)) {
+					Sp().Tok(tokCollate).Sp().Text(pCollationSymb);
+				}
+			}
+			if(i < (c-1))
+				Com();
+			if(flags & ctfIndent)
+				Cr();
+		}
+		RPar();
+		Typ = typCreateTable; // @v12.3.12
 	}
-	RPar();
-	Typ = typCreateTable; // @v12.3.12
-	return 1;
+	return ok;
 }
 
 Generator_SQL & Generator_SQL::Eos()
@@ -360,22 +375,35 @@ Generator_SQL & Generator_SQL::Eos()
 	return *this;
 }
 
-int Generator_SQL::CreateIndex(const DBTable & rTbl, const char * pFileName, uint n, const char * pCollationSymb)
+int Generator_SQL::CreateIndex(const DBTable & rTbl, const char * pFileName, uint idxNo, const char * pCollationSymb)
 {
 	int    ok = 1;
-	if(n < rTbl.GetIndices().getNumKeys()) {
+	const  char * p_name = NZOR(pFileName, rTbl.GetName());
+	const  char * p_suffix = 0;
+	const  BNKeyList & r_indices = rTbl.GetIndices();
+	if(isempty(p_name)) {
+		ok = 0; // @todo @err
+	}
+	else if(idxNo >= r_indices.getNumKeys()) {
+		ok = 0; // @todo @err
+	}
+	else {
 		SString temp_buf;
-		const  BNKey  key = rTbl.GetIndices().getKey(n);
-		const  int    fl = key.getFlags();
-		const  int    ns = key.getNumSeg();
-		const  char * p_name = NZOR(pFileName, rTbl.GetName());
+		const  BNKey key = r_indices.getKey(idxNo);
+		const  int fl = key.getFlags();
+		const  int ns = key.getNumSeg();
 		Tok(tokCreate).Sp();
 		if(!(fl & XIF_DUP))
 			Tok(tokUnique).Sp();
 		Tok(tokIndex).Sp();
 		{
 			SString & r_prefix = SLS.AcquireRvlStr();
-			PrefixName(temp_buf.Z().Cat(p_name).Cat("Key").Cat(n), pfxIndex, r_prefix, 0);
+			temp_buf.Z().Cat(p_name).Cat("Key");
+			if(!isempty(p_suffix))
+				temp_buf.Cat(p_suffix);
+			else
+				temp_buf.Cat(idxNo);
+			PrefixName(temp_buf, pfxIndex, r_prefix, 0);
 			Buf.Cat(r_prefix).Space();
 		}
 		Tok(tokOn).Sp();
@@ -383,11 +411,10 @@ int Generator_SQL::CreateIndex(const DBTable & rTbl, const char * pFileName, uin
 		Sp().LPar();
 		{
 			for(int i = 0; i < ns; i++) {
-				const BNField & r_f = rTbl.GetIndices().field(n, i);
+				const BNField & r_f = r_indices.field(idxNo, i);
 				if(Sqlst == sqlstORA && key.getFlags(i) & XIF_ACS) {
 					//
-					// Для ORACLE нечувствительность к регистру символов
-					// реализуется функциональным сегментом индекса nls_lower(fld)
+					// Для ORACLE нечувствительность к регистру символов реализуется функциональным сегментом индекса nls_lower(fld)
 					//
 					Buf.Cat("nls_lower(").Cat(r_f.Name).CatChar(')');
 				}
@@ -413,7 +440,7 @@ int Generator_SQL::CreateIndex(const DBTable & rTbl, const char * pFileName, uin
 					SString where_expr_buf;
 					uint    reckoned_seg_count = 0;
 					for(int i = 0; i < ns; i++) {
-						const BNField & r_f = rTbl.GetIndices().field(n, i);
+						const BNField & r_f = r_indices.field(idxNo, i);
 						if(reckoned_seg_count) {
 							if(fl & XIF_ALLSEGNULL) 
 								where_expr_buf.Space().Cat("or").Space();
@@ -437,8 +464,6 @@ int Generator_SQL::CreateIndex(const DBTable & rTbl, const char * pFileName, uin
 		// } @v12.4.3 
 		Typ = typCreateIndex;
 	}
-	else
-		ok = 0;
 	return ok;
 }
 
@@ -556,6 +581,13 @@ const char * Generator_SQL::P_Tokens[] = {
 	"ORDER BY",      // @v12.4.0
 	"TEMP",          // @v12.4.4 tokTemp
 	"COLLATE",       // @v12.4.7 tokCollate
+	"CHARACTER",     // @v12.4.8 tokCharacter
+	"IF EXISTS",     // @v12.4.8 tokIfExists
+	"SHOW",	         // @v12.4.8 tokShow
+	"LIKE",          // @v12.4.8 tokLike
+	"DATABASES",     // @v12.4.8 tokDatabases
+	"USE",           // @v12.4.8 tokUse
+	"START",         // @v12.4.8 tokStart
 };
 
 Generator_SQL & Generator_SQL::HintBegin()

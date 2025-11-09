@@ -118,8 +118,7 @@ int DbLoginBlock::SetAttr(int attr, const char * pVal)
 		S_GUID uuid;
 		if(attr == attrPassword) {
 			len = ATTR_PW_LEN;
-			// @v11.1.1 IdeaRandMem(temp_buf, len);
-			SObfuscateBuffer(temp_buf, len); // @v11.1.1
+			SObfuscateBuffer(temp_buf, len);
 			strnzcpy(temp_buf, pVal, len);
 			IdeaEncrypt(0, temp_buf, len);
 			p_val_buf = temp_buf;
@@ -351,7 +350,7 @@ DbProvider::~DbProvider()
 }
 
 //virtual default-implementation
-int DbProvider::GetDatabaseState(uint * pStateFlags)
+int DbProvider::GetDatabaseState(const char * pDbName, uint * pStateFlags)
 {
 	ASSIGN_PTR(pStateFlags, 0);
 	return -1;
@@ -443,9 +442,15 @@ void DbProvider::RemoveTempFiles()
 	TempFileList = temp_list;
 }
 
+/*virtual*/int DbProvider::PostProcess_LoadTableSpec(DBTable * pTbl) // @v12.4.8
+{
+	return -1;
+}
+
 int DbProvider::LoadTableSpec(DBTable * pTbl, const char * pTblName, const char * pFileName, int createIfNExists)
 {
 	int    ok = 1;
+	THROW(P_Dict); // @v12.4.8 @todo @err
 	THROW(P_Dict->LoadTableSpec(pTbl, pTblName));
 	{
 		SString tbl_loc;
@@ -455,8 +460,9 @@ int DbProvider::LoadTableSpec(DBTable * pTbl, const char * pTblName, const char 
 			tbl_loc = pTblName;
 		else
 			tbl_loc = pTbl->GetName();
-		pTbl->fileName = MakeFileName_(pTblName, tbl_loc);
+		pTbl->FileName_ = MakeFileName_(pTblName, tbl_loc);
 	}
+	THROW(PostProcess_LoadTableSpec(pTbl)); // @v12.4.8
 	if(createIfNExists) {
 		// @v12.4.4 const char * p_file_name = pTbl->GetName();
 		const char * p_file_name = isempty(pFileName) ? pTbl->GetName() : pFileName; // @v12.4.4 

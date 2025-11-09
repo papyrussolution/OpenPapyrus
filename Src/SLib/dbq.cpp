@@ -473,7 +473,7 @@ int FASTCALL DBE::call(int option, DBConst * r)
 //
 int DBField::getIndex(BNKey * pKey, int * pKeyPos, int * pSeg)
 {
-	BNKeyList & key_list = _GetTable(Id)->indexes;
+	BNKeyList & key_list = _GetTable(Id)->Indices;
 	uint   nk = key_list.getNumKeys();
 	int    key_num = (!*pKey) ? -1 : pKey->getKeyNumber();
 	uint   i = 0;

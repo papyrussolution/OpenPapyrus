@@ -1781,29 +1781,29 @@ int32 DL6ICLS_PPUtil::IsExpendOp(int32 opID) { return ::IsExpendOp(opID); } // @
 
 int32 DL6ICLS_PPUtil::UniformFileTransm(SString & srcUrl, SString & destUrl, int32 flags, IFileFormat iff, SString & accsName, SString & accsPassw)
 {
-	SUniformFileTransmParam param;
-	(param.SrcPath = srcUrl).Transf(CTRANSF_INNER_TO_OUTER);
-	(param.DestPath = destUrl).Transf(CTRANSF_INNER_TO_OUTER);
-	param.Flags = flags;
-	param.Format = iff;
-	param.AccsName.EncodeUrl(accsName, 0);
-	param.AccsPassword.EncodeUrl(accsPassw, 0);
-	return param.Run(0, 0);
+	SUniformFileTransmission uft;
+	(uft.SrcPath = srcUrl).Transf(CTRANSF_INNER_TO_OUTER);
+	(uft.DestPath = destUrl).Transf(CTRANSF_INNER_TO_OUTER);
+	uft.Flags = flags;
+	uft.Format = iff;
+	uft.AccsName.EncodeUrl(accsName, 0);
+	uft.AccsPassword.EncodeUrl(accsPassw, 0);
+	return uft.Run(0, 0);
 }
 
 int32 DL6ICLS_PPUtil::UniformFileTransmW(SStringU & srcUrl, SStringU & destUrl, int32 flags, IFileFormat iff, SStringU & accsName, SStringU & accsPassw)
 {
-	SUniformFileTransmParam param;
-	srcUrl.CopyToUtf8(param.SrcPath, 1);
-	destUrl.CopyToUtf8(param.DestPath, 1);
-	param.Flags = flags;
-	param.Format = iff;
+	SUniformFileTransmission uft;
+	srcUrl.CopyToUtf8(uft.SrcPath, 1);
+	destUrl.CopyToUtf8(uft.DestPath, 1);
+	uft.Flags = flags;
+	uft.Format = iff;
 	SString temp_buf;
 	accsName.CopyToUtf8(temp_buf, 1);
-	param.AccsName.EncodeUrl(temp_buf, 0);
+	uft.AccsName.EncodeUrl(temp_buf, 0);
 	accsPassw.CopyToUtf8(temp_buf, 1);
-	param.AccsPassword.EncodeUrl(temp_buf, 0);
-	return param.Run(0, 0);
+	uft.AccsPassword.EncodeUrl(temp_buf, 0);
+	return uft.Run(0, 0);
 }
 //
 //

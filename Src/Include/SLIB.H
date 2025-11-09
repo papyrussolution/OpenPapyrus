@@ -926,11 +926,11 @@ typedef int32               TYPEID;
 #define SLERR_URI_REMOVEBASE_REL_SOURCE        578 // Given base is not absolute
 #define SLERR_URL_NOTUTF8                      579 // @v11.8.10 Строка url не соответствует кодировке utf-8
 #define SLERR_URL_EMPTY                        580 // @v11.8.10 Строка url пустая //
-#define SLERR_UFT_SRCISEMPTY                   581 // @v11.8.10 SUniformFileTransmParam: src is empty 
-#define SLERR_UFT_DESTISEMPTY                  582 // @v11.8.10 SUniformFileTransmParam: dest is empty
-#define SLERR_UFT_SRCORDESTMUSTBEFILE          583 // @v11.8.10 SUniformFileTransmParam: src or dest must be file
-#define SLERR_UFT_INVSRCPROT                   584 // @v11.8.10 SUniformFileTransmParam: invalid src protocol
-#define SLERR_UFT_INVDESTPROT                  585 // @v11.8.10 SUniformFileTransmParam: invalid dest protocol
+#define SLERR_UFT_SRCISEMPTY                   581 // @v11.8.10 SUniformFileTransmission: src is empty 
+#define SLERR_UFT_DESTISEMPTY                  582 // @v11.8.10 SUniformFileTransmission: dest is empty
+#define SLERR_UFT_SRCORDESTMUSTBEFILE          583 // @v11.8.10 SUniformFileTransmission: src or dest must be file
+#define SLERR_UFT_INVSRCPROT                   584 // @v11.8.10 SUniformFileTransmission: invalid src protocol
+#define SLERR_UFT_INVDESTPROT                  585 // @v11.8.10 SUniformFileTransmission: invalid dest protocol
 
 //#define SLERR_ZIP_OK             0  // N No error
 #define SLERR_ZIP_FIRSTERROR                   591  // @anchor
@@ -5156,6 +5156,10 @@ struct SFsPath {
 	//   в стиле dos/windows (X:/ or X:\).
 	//
 	static bool IsWindowsPathPrefix(const char * pText);
+	//
+	// Descr: Функция выясняет есть ли в строке pText символы, специфичные для шаблонов имен файлов ('*', '?').
+	//
+	static bool FASTCALL HasPathWildcards(const char * pText);
 	static int  ReplaceExt(SString & rPath, const char * pExt, int force);
 	static int  ReplacePath(SString & rPath, const char * pNewPath, int force);
 	static int  GetRelativePath(const char * pFrom, uint dwAttrFrom, const char * pTo, uint dwAttrTo, SString & rPath);
@@ -13334,6 +13338,19 @@ public:
 	//
 	int    Scan(const char * pPath, const char * pWildcard, long flags);
 	int    Scan(const char * pPath, const StringSet & rSsWildcards, long flags);
+	//
+	// Descr: Упрощенная в смысле интерфейса (но усложненная внутри) функция, сканирующая //
+	//   путь, заданный как pPath. При этом pPath может быть в следующих формах:
+	//   - просто каталог: тогда функция сканирует все файлы (только файлы без подкаталогов) в этом каталоге.
+	//   - каталог с wildcard'ом вместо файла в последнем терме (d:/path/subpath/*.ab?): в этом случае
+	//     функция сканирует каталог на предмет всех файлов, соответствующих wildcard'у
+	//   - имя файла: функция просто включит в this этот файл (если он существует)
+	// Returns:
+	//   >0 - найден по крайней мере один файл, удовлетворяющий условиям
+	//   <0 - не найдено ни одного файла
+	//   0  - ошибка
+	//
+	int    Scan(const char * pPath, long flags); // @v12.4.8
 	int    Add(const char * pPath, const SDirEntry & rDe, long flags);
 	//
 	// Descr: Вставляет в пул файл с полным путем pPath.

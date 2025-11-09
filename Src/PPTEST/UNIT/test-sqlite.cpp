@@ -55,9 +55,16 @@ SLTEST_R(SQLite)
 			{ Generator_SQL::tokRollback, "ROLLBACK" }, // @v12.3.12
 			{ Generator_SQL::tokTransaction, "TRANSACTION" }, // @v12.3.12
 			{ Generator_SQL::tokIndexedBy, "INDEXED BY" }, // @v12.4.0 sqlite "indexed by"
-			{ Generator_SQL::tokOrderBy, "ORDER BY" },      // @v12.4.0
-			{ Generator_SQL::tokTemp, "TEMP" }, // @v12.4.4 tokTemp
-			{ Generator_SQL::tokCollate, "COLLATE" }, // @v12.4.7 tokCollate
+			{ Generator_SQL::tokOrderBy, "ORDER BY" }, // @v12.4.0
+			{ Generator_SQL::tokTemp, "TEMP" }, // @v12.4.4 
+			{ Generator_SQL::tokCollate, "COLLATE" }, // @v12.4.7 
+			{ Generator_SQL::tokCharacter, "CHARACTER" }, // @v12.4.8 
+			{ Generator_SQL::tokIfExists, "IF EXISTS" }, // @v12.4.8 
+			{ Generator_SQL::tokShow, "SHOW" }, // @v12.4.8 
+			{ Generator_SQL::tokLike, "LIKE" }, // @v12.4.8 
+			{ Generator_SQL::tokDatabases, "DATABASES" }, // @v12.4.8 
+			{ Generator_SQL::tokUse, "USE" }, // @v12.4.8 
+			{ Generator_SQL::tokStart, "START" }, // @v12.4.8 
 		};
 		//Generator_SQL gen(sqlstSQLite, 0);
 		for(uint i = 0; i < SIZEOFARRAY(tok_list); i++) {

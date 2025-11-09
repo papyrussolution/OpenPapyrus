@@ -185,7 +185,7 @@ int PPViewBrowser::Helper_Export_Excel_OXLSX(SString & rResultFileName)
 						const long type = GETSTYPE(r_column.T);
 						const uint16 column_idx = i+1;
 						SETMAX(hdr_col_range.upp, column_idx);
-						(temp_buf = r_column.text).Transf(CTRANSF_INNER_TO_UTF8);
+						(temp_buf = r_column.P_Text).Transf(CTRANSF_INNER_TO_UTF8);
 						width_ary.add((PPID)temp_buf.Len());
 						/*
 						fmt.Z();
@@ -467,7 +467,7 @@ int PPViewBrowser::Helper_Export_Excel(SString & rResultFileName)
 		for(i = 0; i < cn_count; i++) {
 			const BroColumn & r_column = p_def->at(i);
 			const long type = GETSTYPE(r_column.T);
-			(temp_buf = r_column.text).Transf(CTRANSF_INNER_TO_OUTER);
+			(temp_buf = r_column.P_Text).Transf(CTRANSF_INNER_TO_OUTER);
 			width_ary.add((PPID)temp_buf.Len());
 			fmt.Z();
 			fmt_rus.Z();

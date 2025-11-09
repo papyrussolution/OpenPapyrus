@@ -4467,7 +4467,7 @@ SString & SString::EncodeUrl(const char * pSrc, int mode)
 		char c = pSrc[spos];
 		if(isasciialnum(c) || oneof4(c, '-', '_', '.', '~'))
 			CatChar(c);
-		else if(mode == 0 && oneof8(c, '#', '&', ',', ':', ';', '=', '?', '/')) // @v10.7.10 '/'
+		else if(mode == 0 && oneof8(c, '#', '&', ',', ':', ';', '=', '?', '/'))
 			CatChar(c);
 		else
 			CatChar('%').CatHexUpper(static_cast<uchar>(c));
@@ -5798,6 +5798,12 @@ void FASTCALL SFsPath::Split(const char * pPath)
 				Flags |= fNam;
 		}
 	}
+}
+
+/*static*/bool FASTCALL SFsPath::HasPathWildcards(const char * pText)
+{
+	const  size_t len = sstrlen(pText);
+	return (len && (smemchr(pText, '?', len) || smemchr(pText, '*', len)));
 }
 
 /*static*/bool SFsPath::IsWindowsPathPrefix(const char * pText)

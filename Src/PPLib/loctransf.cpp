@@ -466,7 +466,7 @@ int LocTransfCore::RemoveOp(PPID locID, long rByLoc, int use_ta)
 				if(!(rec.Flags & LOCTRF_ORDER)) { // @v12.4.2 (condition)
 					double addendum = -rec.Qtty;
 					THROW(UpdateForward(locID, rByLoc, rec.GoodsID, rec.LotID, 0, &addendum));
-					THROW(UpdateCurrent(rec.Domain, locID, rec.GoodsID, rec.LotID, addendum));
+					THROW(UpdateCurrent(rec.Domain, 0/*locOwnerID*/, locID, rec.GoodsID, rec.LotID, addendum));
 				}
 				THROW_DB(getDirectForUpdate(0, 0, pos));
 				THROW_DB(deleteRec()); // @sfu
@@ -484,7 +484,7 @@ int LocTransfCore::RemoveOp(PPID locID, long rByLoc, int use_ta)
 	return ok;
 }
 
-int LocTransfCore::UpdateCurrent(int domain, PPID locID, PPID goodsID, PPID lotID, double addendum)
+int LocTransfCore::UpdateCurrent(int domain, PPID locOwnerID, PPID locID, PPID goodsID, PPID lotID, double addendum)
 {
 	int    ok = 1;
 	const  LDATETIME now_dtm = getcurdatetime_();
@@ -670,8 +670,9 @@ int LocTransfCore::PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int * pRB
 				//
 				THROW_DB(updateRecBuf(&rec));
 				if(!(rec.Flags & LOCTRF_ORDER)) { // @v12.4.2 (condition)
+					const PPID loc_owner_id = (rBlk.Domain == LOCTRFRDOMAIN_BAILMENT) ? rBlk.LocOwnerPersonID : 0;
 					THROW(UpdateForward(rec.LocID, rec.RByLoc, rec.GoodsID, rec.LotID, 0, &addendum));
-					THROW(UpdateCurrent(rec.Domain, rec.LocID, rec.GoodsID, rec.LotID, addendum));
+					THROW(UpdateCurrent(rec.Domain, loc_owner_id, rec.LocID, rec.GoodsID, rec.LotID, addendum));
 				}
 			}
 		}
@@ -720,7 +721,8 @@ int LocTransfCore::PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int * pRB
 			THROW_PP(rec.RestByGoods >= 0.0, PPERR_WHCELLRESTGOODS);
 			THROW_DB(insertRecBuf(&rec));
 			if(!(rec.Flags & LOCTRF_ORDER)) { // @v12.4.2 (condition)
-				THROW(UpdateCurrent(rec.Domain, rec.LocID, rec.GoodsID, rec.LotID, rec.Qtty));
+				const PPID loc_owner_id = (rBlk.Domain == LOCTRFRDOMAIN_BAILMENT) ? rBlk.LocOwnerPersonID : 0;
+				THROW(UpdateCurrent(rec.Domain, loc_owner_id, rec.LocID, rec.GoodsID, rec.LotID, rec.Qtty));
 			}
 		}
 		THROW(tra.Commit());

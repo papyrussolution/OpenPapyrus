@@ -307,27 +307,25 @@ int DbDict_Btrieve::LoadTableSpec(DBTable * pTbl, const char * pTblName)
 	THROW(GetTableID(pTblName, &tbl_id, &tbl_stat));
 	pTbl->tableID = static_cast<BTBLID>(tbl_id);
 	STRNSCPY(pTbl->tableName, pTblName);
-	pTbl->fileName = tbl_stat.Location;
+	pTbl->FileName_ = tbl_stat.Location;
 	pTbl->flags = tbl_stat.Flags;
 	pTbl->PageSize = static_cast<uint16>(tbl_stat.PageSize);
 	p_clone = DBS.GetTLA().GetCloneEntry(static_cast<BTBLID>(tbl_id));
 	if(p_clone) {
 		pTbl->fields = p_clone->fields;
-		pTbl->indexes.copy(&p_clone->indexes);
+		pTbl->Indices.copy(&p_clone->Indices);
 	}
 	else {
 		pTbl->fields.Z();
-		pTbl->indexes.Z();
+		pTbl->Indices.Z();
 		THROW(getFieldList(static_cast<BTBLID>(tbl_id), &pTbl->fields));
-		THROW(getIndexList(static_cast<BTBLID>(tbl_id), &pTbl->indexes));
+		THROW(getIndexList(static_cast<BTBLID>(tbl_id), &pTbl->Indices));
 		//
-		// Функция getIndexList инициализирует сегменты
-		// индексов через внутренние идентификаторы полей. Здесь
-		// мы конвертируем эти ссылки так, чтобы индексы ссылась
-		// на поля по номеру поля в списке fields
+		// Функция getIndexList инициализирует сегменты индексов через внутренние идентификаторы полей. Здесь
+		// мы конвертируем эти ссылки так, чтобы индексы ссылась на поля по номеру поля в списке fields
 		//
-		for(uint i = 0, nk = pTbl->indexes.getNumKeys(); i < nk; i++) {
-			BNKey key = pTbl->indexes[i];
+		for(uint i = 0, nk = pTbl->Indices.getNumKeys(); i < nk; i++) {
+			BNKey key = pTbl->Indices[i];
 			for(uint j = 0, ns = key.getNumSeg(); j < ns; j++) {
 				uint   pos = 0;
 				pTbl->fields.getFieldPosition(key.getFieldID(j), &pos);
@@ -335,7 +333,7 @@ int DbDict_Btrieve::LoadTableSpec(DBTable * pTbl, const char * pTblName)
 			}
 		}
 	}
-	pTbl->indexes.setTableRef(offsetof(DBTable, indexes));
+	pTbl->Indices.setTableRef(offsetof(DBTable, Indices));
 	//
 	pTbl->InitLob();
 	CATCH
@@ -375,7 +373,7 @@ int DbDict_Btrieve::CreateTableSpec(DBTable * pTbl)
 	};
 	long   tbl_id = 0;
 	BNFieldList2 & r_fl = pTbl->fields;
-	BNKeyList   & r_kl = pTbl->indexes;
+	BNKeyList   & r_kl = pTbl->Indices;
 	BNKey  key;
 	BExtInsert * p_bei = 0;
 	THROW(IsValid() && GetTableID(pTbl->tableName, &tbl_id, 0) == 0);
@@ -385,10 +383,10 @@ int DbDict_Btrieve::CreateTableSpec(DBTable * pTbl)
 	THROW(tbl_id);
 	fileBuf.XfId = pTbl->tableID = static_cast<BTBLID>(tbl_id);
 	memcpy(memset(fileBuf.XfName, ' ', sizeof(fileBuf.XfName)), pTbl->tableName, sstrlen(pTbl->tableName));
-	memcpy(memset(fileBuf.XfLoc, ' ', sizeof(fileBuf.XfLoc)), pTbl->fileName, sstrlen(pTbl->fileName));
+	memcpy(memset(fileBuf.XfLoc, ' ', sizeof(fileBuf.XfLoc)), pTbl->FileName_, sstrlen(pTbl->FileName_));
 	fileBuf.XfFlags   = pTbl->flags;
 	fileBuf.XfBTFlags = pTbl->flags;
-	fileBuf.XfOwnrLvl = pTbl->ownrLvl;
+	fileBuf.XfOwnrLvl = 0; // // @v12.4.8 pTbl->ownrLvl-->0
 	memzero(fileBuf.reserv, sizeof(fileBuf.reserv));
 	THROW(xfile.insertRec());
 	THROW(p_bei = new BExtInsert(&xfield));

@@ -348,12 +348,10 @@ int readdir_r(DIR * dirp, struct dirent * entry, struct dirent ** result)
 		entry->d_reclen = sizeof(struct dirent);
 	}
 	else {
-		/*
-		 * Cannot convert file name to multi-byte string so construct
-		 * an erroneous directory entry and return that.  Note that
-		 * we cannot return NULL as that would stop the processing
-		 * of directory entries completely.
-		 */
+		// 
+		// Cannot convert file name to multi-byte string so construct an erroneous directory entry and return that.  Note that
+		// we cannot return NULL as that would stop the processing of directory entries completely.
+		// 
 		entry->d_name[0] = '?';
 		entry->d_name[1] = '\0';
 		entry->d_namlen = 1;
@@ -362,9 +360,9 @@ int readdir_r(DIR * dirp, struct dirent * entry, struct dirent ** result)
 		entry->d_off = -1;
 		entry->d_reclen = 0;
 	}
-	/* Return pointer to directory entry */
+	// Return pointer to directory entry
 	*result = entry;
-	return /*OK*/ 0;
+	return /*OK*/0;
 }
 // 
 // Close directory stream 

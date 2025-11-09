@@ -86,9 +86,9 @@ int BrowserDef::addColumn(const BroColumn * pCol, int pos)
 		pos = count;
 	BroColumn col = *pCol; // @attention Передача указателя BroColumn::text //
 	SString subst;
-	if(SLS.SubstString(col.text, 0, subst) > 0) {
-		delete col.text;
-		col.text = newStr(subst);
+	if(SLS.SubstString(col.P_Text, 0, subst) > 0) {
+		delete col.P_Text;
+		col.P_Text = newStr(subst);
 	}
 	long   f = col.format;
 	if(SFMTLEN(f) == 0)
@@ -133,8 +133,8 @@ int BrowserDef::setColumnTitle(int colN, const char * pText)
 {
 	if(colN >= 0 && colN < static_cast<int>(getCount())) {
 		BroColumn & r_column = at(colN);
-		ZDELETE(r_column.text);
-		r_column.text = newStr(pText);
+		ZDELETE(r_column.P_Text);
+		r_column.P_Text = newStr(pText);
 		return 1;
 	}
 	else
@@ -181,19 +181,16 @@ uint * BrowserDef::GetGroupIndexPtr(uint grpN) { return (grpN < NumGroups) ? &P_
 bool   BrowserDef::IsBOQ() const { return isBOQ; }
 bool   BrowserDef::IsEOQ() const { return isEOQ; }
 bool   BrowserDef::CheckFlag(uint f) const { return LOGIC(options & f); }
-uint   BrowserDef::groupWidth(uint grpN, uint atColumn) const { return groupWidth(P_Groups + grpN, atColumn); }
+// @v12.4.8 (unused) uint   BrowserDef::groupWidth(uint grpN, uint atColumn) const { return groupWidth(P_Groups + grpN, atColumn); }
 void   BrowserDef::setViewHight(int newHight) { viewHight = newHight; }
 
-int BrowserDef::FreeAllCrosstab()
+void BrowserDef::FreeAllCrosstab()
 {
 	if(P_CtList) {
 		for(uint i = 0; i < P_CtList->getCount(); i++)
 			delete static_cast<BroCrosstab *>(P_CtList->at(i))->P_Text;
 		P_CtList->freeAll();
-		return 1;
 	}
-	else
-		return -1;
 }
 
 void BrowserDef::getScrollData(long * pScrollDelta, long * pScrollPos)
@@ -238,7 +235,7 @@ void BrowserDef::SetUserProc(SBrowserDataProc proc, void * extraPtr)
 /*virtual*/void FASTCALL BrowserDef::freeItem(void * pItem)
 {
 	if(pItem)
-		delete static_cast<BroColumn *>(pItem)->text;
+		delete static_cast<BroColumn *>(pItem)->P_Text;
 }
 
 const BroGroup * BrowserDef::groupOf(uint column, uint * pGrpPos) const
@@ -254,7 +251,7 @@ const BroGroup * BrowserDef::groupOf(uint column, uint * pGrpPos) const
 	return 0;
 }
 
-uint BrowserDef::groupWidth(const BroGroup * pGroup, uint atColumn) const
+/* @v12.4.8 (unused) uint BrowserDef::groupWidth(const BroGroup * pGroup, uint atColumn) const
 {
 	int    _n = 0;
 	int    wd = 0;
@@ -265,7 +262,7 @@ uint BrowserDef::groupWidth(const BroGroup * pGroup, uint atColumn) const
 	}
 	wd += (_n - 1) * 3;
 	return wd;
-}
+}*/
 
 const void * BrowserDef::Helper_GetCellData(const void * pRowData, int columnIdx, TYPEID * pTypeID, long * pFmt, uint * pCOptions, void * pOuterBuf, size_t outerBufSize)
 {
@@ -578,9 +575,9 @@ bool  AryBrowserDef::IsValid() const { return (P_Array != 0); }
 	c.Offs = fldNo;
 	c.format = fmt;
 	c.Options = (opt | BCO_CAPLEFT);
-	c.text = newStr(pTxt);
+	c.P_Text = newStr(pTxt);
 	if(addColumn(&c, (atPos >= 0) ? atPos : UNDEF)) {
-		if(P_Groups)
+		if(P_Groups) {
 			for(uint i = 0; i < NumGroups; i++) {
 				BroGroup & grp = P_Groups[i];
 				if(atPos <= static_cast<int>(grp.First))
@@ -588,6 +585,7 @@ bool  AryBrowserDef::IsValid() const { return (P_Array != 0); }
 				else if(atPos > static_cast<int>(grp.First) && atPos <= static_cast<int>(grp.NextColumn()))
 					grp.Count++;
 			}
+		}
 		return 1;
 	}
 	else

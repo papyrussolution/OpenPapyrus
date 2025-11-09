@@ -942,14 +942,15 @@ private:
 //
 // Descr: Класс реализующий максимально простой интерфейс для копирования файла с одного URL на другой.
 //
-class SUniformFileTransmParam : public SStrGroup {
+class SUniformFileTransmission : public SStrGroup {
 public:
-	SUniformFileTransmParam();
+	SUniformFileTransmission();
 	int    Run(SDataMoveProgressProc pf, void * extraPtr);
+	int    List(StringSet & rSs);
 
 	enum {
 		fRenameExistantFiles = 0x0001,
-		fDeleteAfter = 0x0002
+		fDeleteAfter         = 0x0002
 	};
 	long   Flags;
 	int    Format; // SFileFormat::XXX
@@ -964,7 +965,7 @@ public:
 	SString Reply; // @out
 	//
 	// @construction
-	// Descr: Стрктура результата копирования одного файла.
+	// Descr: Структура результата копирования одного файла.
 	//   Поля с суффиксом 'P' представляют позицию строки во внутреннме пуле экземпляра.
 	//
 	struct ResultItem {
@@ -979,44 +980,5 @@ public:
 	};
 	TSVector <ResultItem> ResultList;
 };
-//
-//
-//
-#if 0 // {
-
-class SFtpClient {
-public:
-	enum {
-		stConnected = 0x0001
-	};
-	SFtpClient();
-	~SFtpClient();
-	int    Connect(const char *);
-	void   Disconnect();
-	int    PutFile(const char * pLocSrc, const char * pFtpDst);
-	int    GetFile(const char * pFtpSrc, const char * pLocDst);
-
-    class Enum : public SEnum::Imp {
-	public:
-		Enum(const char * pWildcard);
-		virtual ~Enum();
-        virtual int Next(void * pDirEntry);
-	private:
-        void * P;
-    };
-	int    DeleteFile(const char * pFtpFile);
-	int    RenameFile(const char * pFtpFileName, const char * pNewFtpFileName);
-private:
-	long   State;
-    SString Login;
-	SString Password;
-	void * H_Conn;
-	void * H_Sess;
-	//HINTERNET HInternet;
-    //HINTERNET HFtpSession;
-	//HINTERNET HFtpFind;
-};
-
-#endif // } 0
 
 #endif // __SNET_H

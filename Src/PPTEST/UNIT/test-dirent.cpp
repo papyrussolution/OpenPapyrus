@@ -1548,6 +1548,40 @@ SLTEST_R(SFile)
 			}
 #endif // } 0
 		}
+		{ // @v12.4.8
+			// Тест функции int SFileEntryPool::Scan(const char * pPath, long flags)
+			SFileEntryPool fep;
+			SFileEntryPool::Entry fe;
+			{	
+				// "D:/Papyrus/Src/PPTEST/DATA/Test Directory/Test Directory Level 2/Directory With Many Files/symb-11-foldercl.bmp"
+				(file_path = GetSuiteEntry()->InPath).SetLastSlash().Cat("Test Directory").SetLastSlash().Cat("Test Directory Level 2").
+					SetLastSlash().Cat("Directory With Many Files").SetLastSlash().Cat("symb-11-foldercl.bmp");
+				fep.Scan(file_path, SFileEntryPool::scanfRecursive);
+				SLCHECK_EQ(fep.GetCount(), 1U);
+			}
+			{	
+				// "D:/Papyrus/Src/PPTEST/DATA/Test Directory/Test Directory Level 2/Directory With Many Files/"
+				(file_path = GetSuiteEntry()->InPath).SetLastSlash().Cat("Test Directory").SetLastSlash().Cat("Test Directory Level 2").
+					SetLastSlash().Cat("Directory With Many Files").SetLastSlash();
+				fep.Scan(file_path, SFileEntryPool::scanfRecursive);
+				SLCHECK_LE(20U, fep.GetCount());
+			}
+			{	
+				// "D:/Papyrus/Src/PPTEST/DATA/Test Directory/Test Directory Level 2/Directory With Many Files"
+				(file_path = GetSuiteEntry()->InPath).SetLastSlash().Cat("Test Directory").SetLastSlash().Cat("Test Directory Level 2").
+					SetLastSlash().Cat("Directory With Many Files");
+				fep.Scan(file_path, SFileEntryPool::scanfRecursive);
+				SLCHECK_LE(20U, fep.GetCount());
+			}
+			//
+			{	
+				// "D:/Papyrus/Src/PPTEST/DATA/Test Directory/Test Directory Level 2/Directory With Many Files/abc-*.gif"
+				(file_path = GetSuiteEntry()->InPath).SetLastSlash().Cat("Test Directory").SetLastSlash().Cat("Test Directory Level 2").
+					SetLastSlash().Cat("Directory With Many Files").SetLastSlash().Cat("abc-*.gif");
+				fep.Scan(file_path, SFileEntryPool::scanfRecursive);
+				SLCHECK_EQ(fep.GetCount(), 65U);
+			}
+		}
 		{
 			SFileEntryPool fep;
 			SFileEntryPool::Entry fe;

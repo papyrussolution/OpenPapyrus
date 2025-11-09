@@ -463,6 +463,7 @@ int PPObjBill::GetInventoryStockRest(const InvBlock & rBlk, InvItem * pItem, Goo
 			trfr->GetRest(lot_rec.ID, NZOR(_dt, MAXDATE), _oprno, &rest, 0);
 			pRestParam->Total.Init(&lot_rec, rest);
 			// @v12.4.3 (при инвентаризации по сериям нам не нужны default-позиции с других складов и по иным серийным номерам - see below) undef_item = false; 
+			undef_item = false; // @v12.4.8 Я наверное пьяный был, когда стоящий выше оператор закомментил :(
 		}
 	}
 	else {
@@ -1447,7 +1448,8 @@ int PrcssrInvImport::IdentifyBySerial(const char * pSerial, PPObjBill::InvItem *
 			if(r > 0 || r == -3) { // -3 - закрытый лот
 				Goods2Tbl::Rec goods_rec;
 				if(GObj.Fetch(labs(lot_rec.GoodsID), &goods_rec) > 0) {
-					SString fmt_buf, log_msg;
+					SString fmt_buf;
+					SString log_msg;
 					// @log Товар '%s' идентифицирован по серийному номеру '%s'
 					PPLoadText((r == -3) ? PPTXT_LOG_IMPINV_GOODSIDBYSERIALCL : PPTXT_LOG_IMPINV_GOODSIDBYSERIAL, fmt_buf);
 					rLogger.Log(log_msg.Printf(fmt_buf, goods_rec.Name, pSerial));

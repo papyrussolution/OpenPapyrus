@@ -5555,11 +5555,11 @@ PPSSYM_FORMAT "int64;int;hex;real;sstr;zstr;date;time;datetime;person;goods;unit
 578  "URI: given base is not absolute"
 579  "Строка url не соответствует кодировке utf-8 (%s)" // @v11.8.10
 580  "Строка url пустая"// @v11.8.10
-581  "SUniformFileTransmParam: строка определения источника пустая" // @v11.8.10
-582  "SUniformFileTransmParam: строка определения получателя пустая" // @v11.8.10
-583  "SUniformFileTransmParam: либо источник, либо получатель должен быть файлом" // @v11.8.10
-584  "SUniformFileTransmParam: недопустимый протокол источника" // @v11.8.10
-585  "SUniformFileTransmParam: недопустимый протокол получателя" // @v11.8.10
+581  "SUniformFileTransmission: строка определения источника пустая" // @v11.8.10
+582  "SUniformFileTransmission: строка определения получателя пустая" // @v11.8.10
+583  "SUniformFileTransmission: либо источник, либо получатель должен быть файлом" // @v11.8.10
+584  "SUniformFileTransmission: недопустимый протокол источника" // @v11.8.10
+585  "SUniformFileTransmission: недопустимый протокол получателя" // @v11.8.10
 591  "Multi-disk zip archives not supported"
 592  "Renaming temporary file failed"
 593  "Closing zip archive failed"
@@ -5807,6 +5807,7 @@ PPSSYM_FORMAT "int64;int;hex;real;sstr;zstr;date;time;datetime;person;goods;unit
 9000 "Ошибка SLIB"
 9001 "Ошибка ORACLE: %s"
 9005 "Ошибка SQLITE: %s"
+9006 "Ошибка MySQL: %s"
 
 10000 "BDB: Неизвестная ошибка"
 10001 "(EINVAL) Недопустимое значение параметра вызова функции"
@@ -18934,6 +18935,8 @@ PPHSC_RU_WARECODE              "КодТов"
 PPHSC_RU_WAREARTICLE           "АртикулТов" // @v11.5.10
 PPHSC_RU_WAREARTICLE2          "код_материала" // @v12.1.11 азбука вкуса требует такой тег для указания ее товарного кода
 PPHSC_RU_WAREIDENTBLOCK        "НомСредИдентТов"
+PPHSC_RU_WAREIDENTBLOCK_BEFORE "НомСредИдентТовДо" // @v12.4.8
+PPHSC_RU_WAREIDENTBLOCK_AFTER  "НомСредИдентТовПосле" // @v12.4.8
 PPHSC_RU_WAREIDENT_PACKCODE    "НомУпак"
 PPHSC_RU_WAREIDENT_TPACKCODE   "ИдентТрансУпак" // @v11.5.1
 PPHSC_RU_WAREIDENT_KIZ         "КИЗ"

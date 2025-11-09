@@ -502,6 +502,48 @@ int SFileEntryPool::Scan(const char * pPath, const StringSet & rSsWildcards, lon
 	return ok;
 }
 
+int SFileEntryPool::Scan(const char * pPath, long flags) // @v12.4.8 @construction
+{
+	Z();
+	int    ok = -1;
+	if(!isempty(pPath)) {
+		SString _path(pPath);
+		if(oneof2(_path.Last(), '/', '\\')) {
+			ok = Scan(pPath, 0, flags);
+		}
+		else {
+			SString _dir;  // Каталог
+			SString nmext; // Имя.Расширение
+			SFsPath ps(_path);
+			ps.Merge(SFsPath::fDrv|SFsPath::fDir, _dir);
+			ps.Merge(SFsPath::fNam|SFsPath::fExt, nmext);
+			if(SFsPath::HasPathWildcards(ps.Nam) || SFsPath::HasPathWildcards(ps.Ext)) {
+				if(SFile::IsDir(_dir)) {
+					ok = Scan(_dir, nmext, flags);
+				}
+				else {
+					; // нечего сканировать - нет такого каталога
+				}
+			}
+			else {
+				SFile::Stat fs;
+				if(SFile::GetStat(_path, 0, &fs, 0)) {
+					if(fs.IsFolder()) {
+						ok = Scan(_path, 0, flags);
+					}
+					else {
+						ok = Scan(_dir, nmext, flags);
+					}
+				}
+				else {
+					; // Нам подсунули что-то, что не файл и не каталог - уходим
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int SFileEntryPool::Scan(const char * pPath, const char * pWildcard, long flags)
 {
 	Z();

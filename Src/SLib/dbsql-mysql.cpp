@@ -23,15 +23,71 @@ SMySqlDbProvider::SMySqlDbProvider() :
 
 SMySqlDbProvider::~SMySqlDbProvider()
 {
+	Logout();
 }
 
 int FASTCALL SMySqlDbProvider::ProcessError(int status)
 {
-	if(status == 0)
-		return 1;
-	else {
-		return 0;
+	int    ok = 1;
+	if(status) {
+		LastErr.Code = status;
+		LastErr.Descr = mysql_error(static_cast<MYSQL *>(H));
+		if(LastErr.Descr.NotEmpty()) {
+			DBS.SetError(BE_MYSQL_TEXT, LastErr.Descr);
+		}
+		ok = 0;
 	}
+	return ok;	
+}
+
+int SMySqlDbProvider::DropDatabase(const char * pDbName) // @v12.4.8
+{
+	//DROP DATABASE IF EXISTS `%s`
+	int    ok = 1;
+	if(isempty(pDbName)) {
+		ok = -1;
+	}
+	else {
+		SqlGen.Z().Tok(Generator_SQL::tokDrop).Sp().Tok(Generator_SQL::tokDatabase).Sp().Tok(Generator_SQL::tokIfExists).Sp().QbText(pDbName);
+		SSqlStmt stmt(this, SqlGen);
+		THROW(stmt.Exec(0, 0));
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SMySqlDbProvider::CreateDatabase(const char * pDbName)
+{
+	int    ok = 1;
+	if(isempty(pDbName)) {
+		ok = -1;
+	}
+	else {
+		SqlGen.Z().Tok(Generator_SQL::tokCreate).Sp().Tok(Generator_SQL::tokDatabase).Sp().QbText(pDbName).
+			Sp().Tok(Generator_SQL::tokCharacter).Sp().Tok(Generator_SQL::tokSet).Sp().Text("utf8mb4");
+		SSqlStmt stmt(this, SqlGen);
+		THROW(stmt.Exec(0, 0));
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SMySqlDbProvider::UseDatabase(const char * pDbName) // @v12.4.8
+{
+	int    ok = 1;
+	if(isempty(pDbName)) {
+		ok = -1;
+	}
+	else {
+		MYSQL * p_h = static_cast<MYSQL *>(H);
+		THROW(ProcessError(mysql_select_db(p_h, pDbName)));
+		CurrentDatabase = pDbName;
+		//SqlGen.Z().Tok(Generator_SQL::tokUse).Sp().QbText(pDbName);
+		//SSqlStmt stmt(this, SqlGen);
+		//THROW(stmt.Exec(0, 0));
+	}
+	CATCHZOK
+	return ok;
 }
 
 /*virtual*/int SMySqlDbProvider::DbLogin(const DbLoginBlock * pBlk, long options)
@@ -85,6 +141,7 @@ int FASTCALL SMySqlDbProvider::ProcessError(int status)
 			pBlk->GetAttr(DbLoginBlock::attrUserName, user);
 			pBlk->GetAttr(DbLoginBlock::attrPassword, pw);
 			if(mysql_real_connect(p_h, host, user, pw, db_name, port, 0/*unix-socket*/, 0/*client_flags*/)) {
+				CurrentDatabase = db_name;
 				ok = 1;
 			}
 		}
@@ -98,6 +155,7 @@ int FASTCALL SMySqlDbProvider::ProcessError(int status)
 	if(H) {
 		mysql_close(static_cast<MYSQL *>(H));
 		H = 0;
+		CurrentDatabase.Z();
 		ok = 1;
 	}
 	return ok;
@@ -116,10 +174,64 @@ int FASTCALL SMySqlDbProvider::ProcessError(int status)
 	return ok;
 }
 
+/*virtual*/int SMySqlDbProvider::PostProcess_LoadTableSpec(DBTable * pTbl) // @v12.4.8
+{
+	// @construction
+	int    ok = -1;
+	if(pTbl) {
+		BNFieldList2 & r_fld_list = pTbl->GetFieldsNonConst();
+		BNKeyList & r_indices = pTbl->GetIndicesNonConst();
+		if(r_fld_list.getCount()) {
+			bool   is_autoinc_in_idx = false;
+			uint   autoinc_fld_id = 0;
+			int    max_fld_id = 0;
+			int    max_key_number = 0;
+			for(int ii = 0; ii < r_indices.getNumKeys(); ii++) {
+				SETMAX(max_key_number, r_indices.getKey(ii).getKeyNumber());
+			}
+			for(uint fi = 0; fi < r_fld_list.getCount(); fi++) {
+				const BNField & r_fld = r_fld_list.getField(fi);
+				SETMAX(max_fld_id, r_fld.Id);
+				if(GETSTYPE(r_fld.T) == S_AUTOINC && GETSSIZE(r_fld.T) >= 4) {
+					autoinc_fld_id = r_fld.Id;
+				}
+			}
+			if(autoinc_fld_id) {
+				if(r_indices.GetKeyPosListByField(autoinc_fld_id, 0)) {
+					is_autoinc_in_idx = true;
+				}
+				else {
+					// 
+				}
+			}
+			else {
+				const int new_fld_id = 10000;
+				if(!r_fld_list.addField("MsqRowId", MKSTYPE(S_AUTOINC, 8), new_fld_id))
+					ok = 0;
+				else {
+					BNKey new_key;
+					new_key.addSegment(new_fld_id, XIF_EXT);
+					new_key.setKeyParams(max_key_number+1, 0);
+					r_indices.addKey(new_key);
+					ok = 1;
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 /*virtual*/int SMySqlDbProvider::CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode)
 {
+	//
+	// В MySQL (MariaDB) нет понятия rowid. В связи с этим будем поступать следующим образом:
+	//   -- если таблица имеет поле ID (autoincrement unique) и существует индекс по этому единственному полю (primary index),
+	//     то значение этого поля трактуем как rowid
+	//   -- в противном случае, добавляем искусственное поле (int64 MsqRowId) в начале таблицы и дополнительный (последний) индекс с именем
+	//     idx[tbl_name]MsqRowId
+	//
 	int    ok = 1;
-	// @construction {
+
 	const int cm = RESET_CRM_TEMP(createMode);
 	uint   ctf = Generator_SQL::ctfIndent;
 	if(oneof2(cm, crmNoReplace, crmTTSNoReplace))
@@ -129,39 +241,35 @@ int FASTCALL SMySqlDbProvider::ProcessError(int status)
 		SSqlStmt stmt(this, SqlGen);
 		THROW(stmt.Exec(1, OCI_DEFAULT));
 	}
-	uint j;
-	for(j = 0; j < pTbl->indexes.getNumKeys(); j++) {
-		THROW(SqlGen.Z().CreateIndex(*pTbl, pFileName, j, 0/*pCollationSymb*/));
-		{
-			SSqlStmt stmt(this, SqlGen);
-			THROW(stmt.Exec(1, OCI_DEFAULT));
-		}
-	}
-	for(j = 0; j < pTbl->fields.getCount(); j++) {
-		TYPEID _t = pTbl->fields[j].T;
-		if(GETSTYPE(_t) == S_AUTOINC) {
-			THROW(SqlGen.Z().CreateSequenceOnField(*pTbl, pFileName, j, 0));
+	{
+		for(uint j = 0; j < pTbl->Indices.getNumKeys(); j++) {
+			THROW(SqlGen.Z().CreateIndex(*pTbl, pFileName, j, 0/*pCollationSymb*/));
 			{
 				SSqlStmt stmt(this, SqlGen);
 				THROW(stmt.Exec(1, OCI_DEFAULT));
 			}
 		}
 	}
+	/* (В mysql нет sequence) {
+		for(uint j = 0; j < pTbl->fields.getCount(); j++) {
+			TYPEID _t = pTbl->fields[j].T;
+			if(GETSTYPE(_t) == S_AUTOINC) {
+				THROW(SqlGen.Z().CreateSequenceOnField(*pTbl, pFileName, j, 0));
+				{
+					SSqlStmt stmt(this, SqlGen);
+					THROW(stmt.Exec(1, OCI_DEFAULT));
+				}
+			}
+		}
+	}*/
 	if(createMode < 0 && IS_CRM_TEMP(createMode)) {
 		//
 		// Регистрируем имя временного файла в драйвере БД для последующего удаления //
 		//
 		AddTempFileName(pFileName);
 	}
-	// } @construction 
 	CATCHZOK
 	return ok;
-}
-
-/*virtual*/int SMySqlDbProvider::GetDatabaseState(uint * pStateFlags)
-{
-	ASSIGN_PTR(pStateFlags, dbstNormal);
-	return 1;
 }
 
 /*virtual*/SString & SMySqlDbProvider::MakeFileName_(const char * pTblName, SString & rBuf)
@@ -191,23 +299,95 @@ int FASTCALL SMySqlDbProvider::ProcessError(int status)
 
 /*virtual*/int SMySqlDbProvider::StartTransaction()
 {
-	return 0;
+	int    ok = 0;
+	if(H) {
+		if(!(State & stTransaction)) {
+			SqlGen.Z().Tok(Generator_SQL::tokStart).Sp().Tok(Generator_SQL::tokTransaction);
+			if(ProcessError(mysql_query(static_cast<MYSQL *>(H), SqlGen.GetTextC()))) {
+				ok = 1;
+				State |= stTransaction;
+			}
+		}
+		else
+			ok = -1;
+	}
+	return ok;
 }
 
 /*virtual*/int SMySqlDbProvider::CommitWork()
 {
-	return 0;
+	int    ok = 0;
+	int    rbr = 0; // rollback-result
+	if(H) {
+		if(State & stTransaction) {
+			SqlGen.Z().Tok(Generator_SQL::tokCommit);
+			if(ProcessError(mysql_query(static_cast<MYSQL *>(H), SqlGen.GetTextC()))) {
+				ok = 1;
+			}
+			else {
+				rbr = RollbackWork();
+			}
+			State &= ~stTransaction;
+		}
+		else
+			ok = -1;
+	}
+	return ok;
 }
 
 /*virtual*/int SMySqlDbProvider::RollbackWork()
 {
-	return 0;
+	int    ok = 0;
+	if(H) {
+		if(State & stTransaction) {
+			SqlGen.Z().Tok(Generator_SQL::tokRollback);
+			if(ProcessError(mysql_query(static_cast<MYSQL *>(H), SqlGen.GetTextC()))) {
+				ok = 1;
+			}
+			State &= ~stTransaction;
+		}
+		else
+			ok = -1;
+	}
+	return ok;
+}
+
+/*virtual*/int SMySqlDbProvider::GetDatabaseState(const char * pDbName, uint * pStateFlags) // @construction
+{
+	int    ok = -1;
+	uint   state = dbstNormal;
+	if(isempty(pDbName)) {
+		state |= dbstNotExists;
+	}
+	else {
+		char    database_name[128];
+		database_name[0];
+		uint   actual = 0;
+		BNFieldList2 fld_list;
+		fld_list.addField("SCHEMATA", MKSTYPE(S_ZSTRING, 128));
+		// SHOW DATABASES LIKE '%s'
+		SqlGen.Z().Tok(Generator_SQL::tokShow).Sp().Tok(Generator_SQL::tokDatabases).Sp().Tok(Generator_SQL::tokLike).Sp().QText(pDbName);
+		SSqlStmt stmt(this, SqlGen);
+		THROW(stmt.Exec(0, 0));
+		THROW(stmt.BindData(+1, 1, fld_list, database_name, 0));
+		if(Fetch(stmt, 1, &actual) && actual) {
+			THROW(stmt.GetData(0));
+			ok = 1;
+		}
+		else {
+			state |= dbstNotExists;
+		}
+	}
+	CATCHZOK
+	ASSIGN_PTR(pStateFlags, state);
+	return ok;
 }
 
 int SMySqlDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTableStat * pStat)
 {
 	int    ok = 0;
 	uint   actual = 0;
+	SString temp_buf;
 	BNFieldList2 fld_list;
 	struct MySqlTblEntry {
 		char   TableCatalog[32];
@@ -241,6 +421,10 @@ int SMySqlDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTable
 	fld_list.addField("TABLE_COLLATION", MKSTYPE(S_ZSTRING, 32));
 	fld_list.addField("TEMPORARY", MKSTYPE(S_ZSTRING, 8));
 	SqlGen.Z().Select(&fld_list).From("information_schema.tables").Sp().Tok(Generator_SQL::tokWhere).Sp().Eq("TABLE_NAME", name);
+	if(CurrentDatabase.NotEmpty()) {
+		(temp_buf = CurrentDatabase).ToUpper(); // @debug
+		SqlGen.Sp().Tok(Generator_SQL::tokAnd).Sp().Eq("TABLE_SCHEMA", temp_buf);
+	}
 	SSqlStmt stmt(this, SqlGen);
 	THROW(stmt.Exec(0, 0));
 	THROW(stmt.BindData(+1, 1, fld_list, &rec_buf, 0));
@@ -271,8 +455,8 @@ int SMySqlDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTable
 
 /*virtual*/int SMySqlDbProvider::Implement_Open(DBTable * pTbl, const char * pFileName, int openMode, char * pPassword)
 {
-	pTbl->fileName = NZOR(pFileName, pTbl->tableName);
-	pTbl->OpenedFileName = pTbl->fileName;
+	pTbl->FileName_ = NZOR(pFileName, pTbl->tableName);
+	pTbl->OpenedFileName = pTbl->FileName_;
 	pTbl->FixRecSize = pTbl->fields.CalculateFixedRecSize();
 	return 1;
 }
@@ -325,7 +509,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 	uint   actual = 0;
 	LongArray seg_map; // Карта номеров сегментов индекса, которые должны быть привязаны
 	DBTable::SelectStmt * p_stmt = 0;
-	THROW(idx < (int)pTbl->indexes.getNumKeys());
+	THROW(idx < (int)pTbl->Indices.getNumKeys());
 	if(oneof2(srchMode, spNext, spPrev)) {
 		p_stmt = pTbl->GetStmt();
 		if(p_stmt) {
@@ -334,7 +518,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 				int    r = 1;
 				pTbl->copyBufToKey(idx, pKey);
 				if(oneof5(p_stmt->Sp, spGt, spGe, spLt, spLe, spEq)) {
-					int kc = pTbl->indexes.compareKey(p_stmt->Idx, pKey, p_stmt->Key);
+					int kc = pTbl->Indices.compareKey(p_stmt->Idx, pKey, p_stmt->Key);
 					if(kc == 0) {
 						if(oneof2(p_stmt->Sp, spGt, spLt))
 							r = 0;
@@ -382,7 +566,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 		SString temp_buf;
 		uint8  temp_key[1024];
 		void * p_key_data = pKey;
-		BNKey  key = pTbl->indexes[idx];
+		BNKey  key = pTbl->Indices[idx];
 		const  int ns = key.getNumSeg();
 		SqlGen.Z().Tok(Generator_SQL::tokSelect);
 		if(!(sf & DBTable::sfDirect)) {
@@ -397,7 +581,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 		}
 		else
 			SqlGen.Aster();
-		SqlGen.Sp().From(pTbl->fileName, p_alias);
+		SqlGen.Sp().From(pTbl->FileName_, p_alias);
 		if(sf & DBTable::sfDirect) {
 			DBRowId * p_rowid = static_cast<DBRowId *>(pKey);
 			THROW(p_rowid && p_rowid->IsI32());
@@ -407,13 +591,13 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 		else {
 			if(oneof2(srchMode, spFirst, spLast)) {
 				memzero(temp_key, sizeof(temp_key));
-				pTbl->indexes.setBound(idx, 0, BIN(srchMode == spLast), temp_key);
+				pTbl->Indices.setBound(idx, 0, BIN(srchMode == spLast), temp_key);
 				p_key_data = temp_key;
 			}
 			SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp();
 			for(int i = 0; i < ns; i++) {
 				const int fldid = key.getFieldID(i);
-				const BNField & r_fld = pTbl->indexes.field(idx, i);
+				const BNField & r_fld = pTbl->Indices.field(idx, i);
 				if(i > 0) { // НЕ первый сегмент
 					SqlGen.Tok(Generator_SQL::tokAnd).Sp();
 					if(srchMode != spEq)
@@ -464,7 +648,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 					//
 					SqlGen.Sp().Tok(Generator_SQL::tokOr).Sp().LPar();
 					for(int j = 0; j < i; j++) {
-						const BNField & r_fld2 = pTbl->indexes.field(idx, j);
+						const BNField & r_fld2 = pTbl->Indices.field(idx, j);
 						if(j > 0)
 							SqlGen.Tok(Generator_SQL::tokAnd).Sp();
 						if(key.getFlags(j) & XIF_ACS) {
@@ -499,8 +683,8 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 				p_stmt->BL.Dim = 1;
 				for(uint i = 0; i < seg_map.getCount(); i++) {
 					const int  seg = seg_map.get(i);
-					const BNField & r_fld = pTbl->indexes.field(idx, seg);
-					const size_t seg_offs = pTbl->indexes.getSegOffset(idx, seg);
+					const BNField & r_fld = pTbl->Indices.field(idx, seg);
+					const size_t seg_offs = pTbl->Indices.getSegOffset(idx, seg);
 					key_len += stsize(r_fld.T);
 					if(key.getFlags(seg) & XIF_ACS) {
 						strlwr866((char *)(PTR8(p_key_data) + seg_offs));
@@ -570,7 +754,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 		if(r > 0)
 			do_process_lob = 1;
 	}
-	SqlGen.Z().Tok(Generator_SQL::tokInsert).Sp().Tok(Generator_SQL::tokInto).Sp().Text(pTbl->fileName).Sp();
+	SqlGen.Z().Tok(Generator_SQL::tokInsert).Sp().Tok(Generator_SQL::tokInto).Sp().Text(pTbl->FileName_).Sp();
 	SqlGen.Tok(Generator_SQL::tokValues).Sp().LPar();
 	stmt.BL.Dim = 1;
 	stmt.BL.P_Lob = pTbl->getLobBlock();
@@ -599,16 +783,16 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 	let_buf.NumberToLat(subst_no++);
 	temp_buf.Z().Colon().Cat(let_buf);
 	stmt.BindRowId(-subst_no, 1, pTbl->getCurRowIdPtr());
-	if(pKeyBuf && idx >= 0 && idx < (int)pTbl->indexes.getNumKeys()) {
+	if(pKeyBuf && idx >= 0 && idx < (int)pTbl->Indices.getNumKeys()) {
 		map_ret_key = 1;
-		key = pTbl->indexes[idx];
+		key = pTbl->Indices[idx];
 		ns = (uint)key.getNumSeg();
 		for(i = 0; i < ns; i++) {
-			const BNField & r_fld = pTbl->indexes.field(idx, i);
+			const BNField & r_fld = pTbl->Indices.field(idx, i);
 			SqlGen.Com().Text(r_fld.Name);
 			let_buf.NumberToLat(subst_no++);
 			temp_buf.CatDiv(',', 0).Colon().Cat(let_buf);
-			stmt.BindItem(-subst_no, 1, r_fld.T, PTR8(pKeyBuf)+pTbl->indexes.getSegOffset(idx, i));
+			stmt.BindItem(-subst_no, 1, r_fld.T, PTR8(pKeyBuf)+pTbl->Indices.getSegOffset(idx, i));
 		}
 	}
 	SqlGen.Sp().Tok(Generator_SQL::tokInto).Sp().Text(temp_buf);

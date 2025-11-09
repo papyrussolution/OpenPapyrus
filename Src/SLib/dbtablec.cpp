@@ -464,18 +464,15 @@ void DBTable::SetStmt(SelectStmt * pStmt)
 		ZDELETE(P_Stmt);
 	}
 }
-
+//
+// Descr: Эта функция была сделана для того, чтобы правильно менять направление перемещения по
+//   таблице при работе с фреймом. Проблему я решил другим способом, а функцию оставил временно
+//   потому, что она маркирует в коде места, где меняется направление навигации по таблице.
+//   В то же время удаление текущего P_Stmt актуально (хотя его можно было бы просто в код заинлайнить)
+//
 void DBTable::ToggleStmt(bool release)
 {
 	ZDELETE(P_Stmt); // @v12.4.7
-	/* @v12.4.7
-	if(release)
-		ZDELETE(P_OppStmt);
-	else {
-		SelectStmt * p_temp = P_OppStmt;
-		P_OppStmt = P_Stmt;
-		P_Stmt = p_temp;
-	}*/
 }
 
 int (*DBTable::OpenExceptionProc)(const char * pFileName, int btrErr) = 0; // @global
@@ -489,14 +486,13 @@ int DBTable::Init(DbProvider * pDbP)
 	FixRecSize = 0;
 	P_Db = NZOR(pDbP, CurDict);
 	P_Stmt = 0;
-	// @v12.4.7 P_OppStmt = 0;
 	handle  = 0;
 	flags   = 0;
 	tableID = 0;
-	ownrLvl = 0;
+	// @v12.4.8 ownrLvl = 0;
 	tableName[0] = 0;
-	fileName.Z();
-	indexes.setTableRef(offsetof(DBTable, indexes));
+	FileName_.Z();
+	Indices.setTableRef(offsetof(DBTable, Indices));
 	PageSize = 0;
 	LastLockedRow.Z();
 	return 1;
@@ -543,7 +539,6 @@ DBTable::~DBTable()
 	if(State & sOwnDataBuf)
 		ZFREE(P_DBuf);
 	ZDELETE(P_Stmt);
-	// @v12.4.7 ZDELETE(P_OppStmt);
 }
 
 int DBTable::Debug_Output(SString & rBuf) const
@@ -554,9 +549,9 @@ int DBTable::Debug_Output(SString & rBuf) const
 	CAT_FLD(handle, rBuf).CR();
 	CAT_FLD(flags, rBuf).CR();
 	CAT_FLD(tableID, rBuf).CR();
-	CAT_FLD(ownrLvl, rBuf).CR();
+	// @v12.4.8 CAT_FLD(ownrLvl, rBuf).CR();
 	CAT_FLD(tableName, rBuf).CR();
-	CAT_FLD(fileName, rBuf).CR();
+	CAT_FLD(FileName_, rBuf).CR();
 	CAT_FLD(fields.getCount(), rBuf).CR();
 	for(i = 0; i < fields.getCount(); i++) {
 		CAT_FLD(fields.getField(i).Id, rBuf.Tab()).CR();
@@ -564,14 +559,14 @@ int DBTable::Debug_Output(SString & rBuf) const
 		CAT_FLD(fields.getField(i).Offs, rBuf.Tab()).CR();
 		CAT_FLD_HEX(fields.getField(i).T, rBuf.Tab()).CR();
 	}
-	CAT_FLD(indexes.getNumKeys(), rBuf).CR();
-	for(i = 0; i < indexes.getNumKeys(); i++) {
-		CAT_FLD(indexes[i].getKeyNumber(), rBuf.Tab()).CR();
-		CAT_FLD_HEX((long)indexes[i].getFlags(), rBuf.Tab()).CR();
-		CAT_FLD(indexes[i].getNumSeg(), rBuf.Tab()).CR();
-		for(int j = 0; j < indexes[i].getNumSeg(); j++) {
-			CAT_FLD(indexes[i].getFieldID(j), rBuf.Tab_(2)).CR();
-			CAT_FLD_HEX((long)indexes[i].getFlags(j), rBuf.Tab_(2)).CR();
+	CAT_FLD(Indices.getNumKeys(), rBuf).CR();
+	for(i = 0; i < Indices.getNumKeys(); i++) {
+		CAT_FLD(Indices[i].getKeyNumber(), rBuf.Tab()).CR();
+		CAT_FLD_HEX((long)Indices[i].getFlags(), rBuf.Tab()).CR();
+		CAT_FLD(Indices[i].getNumSeg(), rBuf.Tab()).CR();
+		for(int j = 0; j < Indices[i].getNumSeg(); j++) {
+			CAT_FLD(Indices[i].getFieldID(j), rBuf.Tab_(2)).CR();
+			CAT_FLD_HEX((long)Indices[i].getFlags(j), rBuf.Tab_(2)).CR();
 		}
 	}
 	return ok;
@@ -597,14 +592,14 @@ int DBTable::open(const char * pTblName, const char * pFileName, int openMode)
 		}
 		else {
 			assert(pFileName != 0);
-			fileName = pFileName;
+			FileName_ = pFileName;
 		}
 		DBS.GetProtectData(p, 1);
 		if(P_Db) {
-			THROW(P_Db->Implement_Open(this, fileName, openMode, p));
+			THROW(P_Db->Implement_Open(this, FileName_, openMode, p));
 		}
 		else {
-			THROW(Btr_Open(fileName, openMode, p));
+			THROW(Btr_Open(FileName_, openMode, p));
 		}
 		State |= sOpened_;
 		memzero(p, sizeof(p));
@@ -613,8 +608,8 @@ int DBTable::open(const char * pTblName, const char * pFileName, int openMode)
 	CATCH
 		handle = 0;
 		if(OpenExceptionProc) {
-			fileName.SetIfEmpty(NZOR(pFileName, pTblName));
-			OpenExceptionProc(fileName, BtrError);
+			FileName_.SetIfEmpty(NZOR(pFileName, pTblName));
+			OpenExceptionProc(FileName_, BtrError);
 		}
 	ENDCATCH
 	return handle;
@@ -632,9 +627,9 @@ int DBTable::close()
 	}
 	if(handle) {
 		tableName[0] = 0;
-		fileName.Z();
+		FileName_.Z();
 		fields.Z();
-		indexes.Z();
+		Indices.Z();
 		DBS.GetTLA().FreeTableEntry(handle);
 		handle = 0;
 	}
@@ -828,13 +823,13 @@ int DBTable::copyBufToKey(int idx, void * pKey) const
 	int    ok = 1;
 	if(!pKey)
 		ok = -1;
-	else if(idx >= 0 && idx < (int)indexes.getNumKeys()) {
-		const BNKey k = indexes.getKey(idx);
+	else if(idx >= 0 && idx < (int)Indices.getNumKeys()) {
+		const BNKey k = Indices.getKey(idx);
 		const int ns = k.getNumSeg();
 		size_t offs = 0;
 		for(int i = 0; i < ns; i++) {
 			size_t sz;
-			indexes.field(idx, i).getValue(P_DBuf, PTR8(pKey)+offs, &sz);
+			Indices.field(idx, i).getValue(P_DBuf, PTR8(pKey)+offs, &sz);
 			offs += sz;
 		}
 	}
@@ -1076,7 +1071,7 @@ void FASTCALL DBTable::OutOfTransactionLogging(const char * pOp) const
 	if(!(flags & (XTF_TEMP|XTF_DICT|XTF_DISABLEOUTOFTAMSG)) && !(DBS.GetTLA().GetState() & DbThreadLocalArea::stTransaction)) {
 		SString msg_buf;
 		msg_buf.CatCurDateTime().Tab().Cat(pOp).Space().Cat("executed out of transaction").CatDiv(':', 2).
-			Cat(tableName).CatChar('(').Cat(fileName).CatChar(')');
+			Cat(tableName).CatChar('(').Cat(FileName_).CatChar(')');
 		SLS.LogMessage("dbwarn.log", msg_buf);
 	}
 }
@@ -1157,7 +1152,7 @@ int DBTable::getDirect(int idx, void * pKey, const DBRowId & rPos)
 	memcpy(k, &rPos, sizeof(rPos));
 	const int ok = P_Db ? P_Db->Implement_Search(this, idx, k, 0, sfDirect) : Btr_Implement_Search(idx, k, 0, sfDirect);
 	if(pKey && ok)
-		memcpy(pKey, k, indexes.getKeySize((idx >= 0) ? idx : index));
+		memcpy(pKey, k, Indices.getKeySize((idx >= 0) ? idx : index));
 	return ok;
 }
 
@@ -1186,7 +1181,7 @@ int DBTable::getDirectForUpdate(int idx, void * pKey, const DBRowId & rPos)
 	memcpy(k, &rPos, sizeof(rPos));
 	int    ok = P_Db ? P_Db->Implement_Search(this, idx, k, 0, (sfDirect|sfForUpdate)) : Btr_Implement_Search(idx, k, 0, (sfDirect|sfForUpdate));
 	if(pKey && ok)
-		memcpy(pKey, k, indexes.getKeySize((idx >= 0) ? idx : index));
+		memcpy(pKey, k, Indices.getKeySize((idx >= 0) ? idx : index));
 	return ok;
 }
 
@@ -1212,9 +1207,9 @@ int DBTable::SerializeSpec(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 	THROW(pCtx->Serialize(dir, tbl_name, rBuf));
 	if(dir < 0)
 		tbl_name.CopyTo(tableName, sizeof(tableName));
-	THROW(pCtx->Serialize(dir, fileName, rBuf));
+	THROW(pCtx->Serialize(dir, FileName_, rBuf));
 	THROW(pCtx->SerializeFieldList(dir, &fields, rBuf));
-	THROW(indexes.Serialize(dir, rBuf, pCtx));
+	THROW(Indices.Serialize(dir, rBuf, pCtx));
 	CATCHZOK
 	return ok;
 }

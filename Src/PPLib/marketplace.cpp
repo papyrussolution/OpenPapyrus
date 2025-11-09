@@ -2199,16 +2199,16 @@ bool PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::FromJsonObj(const SJs
 		}
 	}
 	if(ok < 0) {
-		SUniformFileTransmParam param;
-		param.SrcPath = InetUrl::MkHttps("static-basket-01.wbbasket.ru", "vol0/data/all-poo-fr-v11.json");
-		PPGetFilePath(PPPATH_OUT, "wildberries-pickuppoint-list.json", param.DestPath);
-		param.Flags = 0;
-		param.Format = SFileFormat::Unkn;
-		if(param.Run(0, 0)) {
-			p_js_result = SJson::ParseFile(param.DestPath);
+		SUniformFileTransmission uft;
+		uft.SrcPath = InetUrl::MkHttps("static-basket-01.wbbasket.ru", "vol0/data/all-poo-fr-v11.json");
+		PPGetFilePath(PPPATH_OUT, "wildberries-pickuppoint-list.json", uft.DestPath);
+		uft.Flags = 0;
+		uft.Format = SFileFormat::Unkn;
+		if(uft.Run(0, 0)) {
+			p_js_result = SJson::ParseFile(uft.DestPath);
 			if(rResult.FromJson(p_js_result, 0)) {
 				if(cache_file_name.NotEmpty())
-					SCopyFile(param.DestPath, cache_file_name, 0, FILE_SHARE_READ, 0);
+					SCopyFile(uft.DestPath, cache_file_name, 0, FILE_SHARE_READ, 0);
 				ok = 1;
 			}
 		}
@@ -2251,17 +2251,17 @@ bool PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::FromJsonObj(const SJs
 		}
 	}
 	if(ok < 0) {
-		SUniformFileTransmParam param;
-		//param.SrcPath = "https://static-basket-01.wbbasket.ru/vol0/data/main-menu-ru-ru-v3.json";
-		param.SrcPath = InetUrl::MkHttps("static-basket-01.wbbasket.ru", "vol0/data/main-menu-ru-ru-v3.json");
-		PPGetFilePath(PPPATH_OUT, "wildberries-goodscategory-list.json", param.DestPath);
-		param.Flags = 0;
-		param.Format = SFileFormat::Unkn;
-		if(param.Run(0, 0)) {
-			p_js_cat = SJson::ParseFile(param.DestPath);
+		SUniformFileTransmission uft;
+		//uft.SrcPath = "https://static-basket-01.wbbasket.ru/vol0/data/main-menu-ru-ru-v3.json";
+		uft.SrcPath = InetUrl::MkHttps("static-basket-01.wbbasket.ru", "vol0/data/main-menu-ru-ru-v3.json");
+		PPGetFilePath(PPPATH_OUT, "wildberries-goodscategory-list.json", uft.DestPath);
+		uft.Flags = 0;
+		uft.Format = SFileFormat::Unkn;
+		if(uft.Run(0, 0)) {
+			p_js_cat = SJson::ParseFile(uft.DestPath);
 			if(rResult.FromJson(p_js_cat)) {
 				if(cache_file_name.NotEmpty())
-					SCopyFile(param.DestPath, cache_file_name, 0, FILE_SHARE_READ, 0);
+					SCopyFile(uft.DestPath, cache_file_name, 0, FILE_SHARE_READ, 0);
 				ok = 1;
 			}
 		}

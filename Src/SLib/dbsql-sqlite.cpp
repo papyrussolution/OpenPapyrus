@@ -279,7 +279,7 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 	return ok;
 }
 
-/*virtual*/int SSqliteDbProvider::GetDatabaseState(uint * pStateFlags)
+/*virtual*/int SSqliteDbProvider::GetDatabaseState(const char * pDbName, uint * pStateFlags)
 {
 	int    ok = 0;
 	return ok;
@@ -310,9 +310,8 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 /*virtual*/int SSqliteDbProvider::CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode)
 {
 	int    ok = 1;
-	// @construction {
-	const bool is_temp_table = IS_CRM_TEMP(createMode);
-	const int  cm = RESET_CRM_TEMP(createMode);
+	const  bool is_temp_table = IS_CRM_TEMP(createMode);
+	const  int  cm = RESET_CRM_TEMP(createMode);
 	uint   ctf = Generator_SQL::ctfIndent;
 	if(oneof2(cm, crmNoReplace, crmTTSNoReplace))
 		ctf |= Generator_SQL::ctfIfNotExists;
@@ -323,32 +322,19 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 		SSqlStmt stmt(this, SqlGen);
 		THROW(stmt.Exec(1, OCI_DEFAULT));
 	}
-	uint j;
-	for(j = 0; j < pTbl->indexes.getNumKeys(); j++) {
+	for(uint j = 0; j < pTbl->Indices.getNumKeys(); j++) {
 		THROW(SqlGen.Z().CreateIndex(*pTbl, pFileName, j, P_CollationSymb/*pCollationSymb*/));
 		{
 			SSqlStmt stmt(this, SqlGen);
 			THROW(stmt.Exec(1, OCI_DEFAULT));
 		}
 	}
-	/* для sqlite sequence'ы не нужны
-	for(j = 0; j < pTbl->fields.getCount(); j++) {
-		TYPEID _t = pTbl->fields[j].T;
-		if(GETSTYPE(_t) == S_AUTOINC) {
-			THROW(SqlGen.Z().CreateSequenceOnField(*pTbl, pFileName, j, 0));
-			{
-				SSqlStmt stmt(this, SqlGen);
-				THROW(stmt.Exec(1, OCI_DEFAULT));
-			}
-		}
-	}*/
 	if(createMode < 0 && IS_CRM_TEMP(createMode)) {
 		//
 		// Регистрируем имя временного файла в драйвере БД для последующего удаления //
 		//
 		AddTempFileName(pFileName);
 	}
-	// } @construction 
 	CATCHZOK
 	return ok;
 }
@@ -485,8 +471,8 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 {
 	int    ok = 1;
 	if(pTbl) {
-		pTbl->fileName = NZOR(pFileName, pTbl->tableName);
-		pTbl->OpenedFileName = pTbl->fileName;
+		pTbl->FileName_ = NZOR(pFileName, pTbl->tableName);
+		pTbl->OpenedFileName = pTbl->FileName_;
 		pTbl->FixRecSize = pTbl->fields.CalculateFixedRecSize();
 	}
 	else
@@ -540,7 +526,7 @@ int SSqliteDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pK
 	const char * p_collation = P_CollationSymb;
 	const bool   use_collation_term = isempty(p_collation) ? false : true;
 	SString temp_buf;
-	const  BNKeyList & r_indices = pTbl->indexes;
+	const  BNKeyList & r_indices = pTbl->Indices;
 	const  BNKey & r_key = r_indices[idx];
 	const  int  ns = r_key.getNumSeg();
 	const  char * p_alias = "t";
@@ -549,7 +535,7 @@ int SSqliteDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pK
 	rBlk.SqlG.Z().Tok(Generator_SQL::tokSelect);
 	rBlk.SqlG.Sp();
 	rBlk.SqlG.Text(p_alias).Dot().Aster().Com().Text(p_alias).Dot().Tok(Generator_SQL::tokRowId);
-	rBlk.SqlG.Sp().From(pTbl->fileName, p_alias);
+	rBlk.SqlG.Sp().From(pTbl->FileName_, p_alias);
 	if(sf & DBTable::sfDirect) {
 		DBRowId * p_rowid = static_cast<DBRowId *>(pKey);
 		THROW(p_rowid && (p_rowid->IsI32() || p_rowid->IsI64())); // @todo @err
@@ -702,7 +688,7 @@ int SSqliteDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pK
 	bool   new_stmt = false;
 	uint   actual = 0;
 	DBTable::SelectStmt * p_stmt = 0;
-	const BNKeyList & r_indices = pTbl->indexes;
+	const BNKeyList & r_indices = pTbl->Indices;
 	const char * p_alias = "t";
 	SString temp_buf;
 	const  BNKey & r_key = r_indices[idx];
@@ -842,7 +828,7 @@ int SSqliteDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pK
 	SString temp_buf;
 	if(pDataBuf)
 		pTbl->CopyBufFrom(pDataBuf);
-	SqlGen.Z().Tok(Generator_SQL::tokUpdate).Sp().Text(pTbl->fileName).Sp().Tok(Generator_SQL::tokSet).Sp();
+	SqlGen.Z().Tok(Generator_SQL::tokUpdate).Sp().Text(pTbl->FileName_).Sp().Tok(Generator_SQL::tokSet).Sp();
 	{
 		const uint fld_count = pTbl->fields.getCount();
 		for(uint i = 0; i < fld_count; i++) {
@@ -870,7 +856,7 @@ int SSqliteDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pK
 	int    ok = 1;
 	const  uint fld_count = pTbl->fields.getCount();
 	SString temp_buf;
-	SqlGen.Z().Tok(Generator_SQL::tokDelete).Sp().From(pTbl->fileName, 0).Sp();
+	SqlGen.Z().Tok(Generator_SQL::tokDelete).Sp().From(pTbl->FileName_, 0).Sp();
 	//THROW(pTbl->getCurRowIdPtr()->IsI32());
 	pTbl->getCurRowIdPtr()->ToStr__(temp_buf);
 	SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp().Tok(Generator_SQL::tokRowId)._Symb(_EQ_).Text(temp_buf);
@@ -911,8 +897,6 @@ int SSqliteDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pK
 				THROW(writeLobData(last_fld, PTR8C(pBuf)+frs, (srcBufSize > frs) ? (srcBufSize-frs) : 0));
 			*/
 		}
-		// @construction @20250910 Здесь я остановился возясь с LOB'ами
-
 		//pTbl->CopyBufLobFrom(const void * pBuf, size_t srcBufSize);
 	}
 	/*if(pTbl->State & DBTable::sHasLob) {
@@ -921,7 +905,7 @@ int SSqliteDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pK
 		if(r > 0)
 			do_process_lob = 1;
 	}*/
-	SqlGen.Z().Tok(Generator_SQL::tokInsert).Sp().Tok(Generator_SQL::tokInto).Sp().Text(pTbl->fileName).Sp();
+	SqlGen.Z().Tok(Generator_SQL::tokInsert).Sp().Tok(Generator_SQL::tokInto).Sp().Text(pTbl->FileName_).Sp();
 	SqlGen.Tok(Generator_SQL::tokValues).Sp().LPar();
 	stmt.BL.Dim = 1;
 	stmt.BL.P_Lob = pTbl->getLobBlock();
@@ -957,16 +941,16 @@ int SSqliteDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pK
 		let_buf.NumberToLat(out_subst_no++);
 		temp_buf.Z().Colon().Cat(let_buf);
 		stmt.BindRowId(out_subst_no, 1, pTbl->getCurRowIdPtr());
-		if(pKeyBuf && idx >= 0 && idx < static_cast<int>(pTbl->indexes.getNumKeys())) {
+		if(pKeyBuf && idx >= 0 && idx < static_cast<int>(pTbl->Indices.getNumKeys())) {
 			map_ret_key = 1;
-			key = pTbl->indexes[idx];
+			key = pTbl->Indices[idx];
 			ns = static_cast<uint>(key.getNumSeg());
 			for(i = 0; i < ns; i++) {
-				const BNField & r_fld = pTbl->indexes.field(idx, i);
+				const BNField & r_fld = pTbl->Indices.field(idx, i);
 				SqlGen.Com().Text(r_fld.Name);
 				let_buf.NumberToLat(out_subst_no++);
 				temp_buf.CatDiv(',', 0).Colon().Cat(let_buf);
-				stmt.BindItem(out_subst_no, 1, r_fld.T, PTR8(pKeyBuf)+pTbl->indexes.getSegOffset(idx, i));
+				stmt.BindItem(out_subst_no, 1, r_fld.T, PTR8(pKeyBuf)+pTbl->Indices.getSegOffset(idx, i));
 			}
 		}
 	}
@@ -1020,7 +1004,7 @@ int SSqliteDbProvider::ResetStatement(SSqlStmt & rS)
 		const  uint fld_count = p_tbl->fields.getCount();
 		SString temp_buf;
 		SSqlStmt stmt(this);
-		SqlGen.Z().Tok(Generator_SQL::tokInsert).Sp().Tok(Generator_SQL::tokInto).Sp().Text(p_tbl->fileName).Sp();
+		SqlGen.Z().Tok(Generator_SQL::tokInsert).Sp().Tok(Generator_SQL::tokInto).Sp().Text(p_tbl->FileName_).Sp();
 		SqlGen.Tok(Generator_SQL::tokValues).Sp().LPar();
 		//
 			stmt.BL.Dim = 1;
@@ -1104,7 +1088,7 @@ int SSqliteDbProvider::ResetStatement(SSqlStmt & rS)
 		THROW(StartTransaction());
 		ta = 1;
 	}
-	SqlGen.Z().Tok(Generator_SQL::tokDelete).Sp().From(pTbl->fileName, 0);
+	SqlGen.Z().Tok(Generator_SQL::tokDelete).Sp().From(pTbl->FileName_, 0);
 	if(&rQ && rQ.tree) {
 		SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp();
 		rQ.tree->CreateSqlExpr(SqlGen, -1);

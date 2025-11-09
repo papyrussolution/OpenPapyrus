@@ -1939,19 +1939,19 @@ static int TestTransferFileToFtp() // @v12.2.5 проверка отправки
 					ia_pack.GetExtField(FTPAEXSTR_HOST, ftp_path);
 				}
 				{
-					SUniformFileTransmParam param;
+					SUniformFileTransmission uft;
 					SString accs_name;
 					char   pwd[256];
-					(param.SrcPath = p_src_file_path).Transf(CTRANSF_OUTER_TO_UTF8);
-					SFsPath::NormalizePath(ftp_path, SFsPath::npfSlash|SFsPath::npfKeepCase, param.DestPath);
-					param.Flags = 0;
-					param.Format = SFileFormat::Unkn;
+					(uft.SrcPath = p_src_file_path).Transf(CTRANSF_OUTER_TO_UTF8);
+					SFsPath::NormalizePath(ftp_path, SFsPath::npfSlash|SFsPath::npfKeepCase, uft.DestPath);
+					uft.Flags = 0;
+					uft.Format = SFileFormat::Unkn;
 					ia_pack.GetExtField(FTPAEXSTR_USER, accs_name);
 					ia_pack.GetPassword_(pwd, sizeof(pwd), FTPAEXSTR_PASSWORD);
-					param.AccsName.EncodeUrl(accs_name, 0);
-					param.AccsPassword.EncodeUrl(pwd, 0);
+					uft.AccsName.EncodeUrl(accs_name, 0);
+					uft.AccsPassword.EncodeUrl(pwd, 0);
 					memzero(pwd, sizeof(pwd));
-					if(param.Run(0, 0))
+					if(uft.Run(0, 0))
 						ok = 1;
 				}
 			}

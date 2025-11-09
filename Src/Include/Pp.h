@@ -19928,7 +19928,7 @@ public:
 	int    GetPacket(PPID, PPOprKindPacket *);
 	int    PutPacket(PPID *, PPOprKindPacket *, int use_ta);
 	int    SerializePacket(int dir, PPOprKindPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
-	int    FetchInventoryData(PPID, PPInventoryOpEx *);
+	int    FetchInventoryData(PPID opID, PPInventoryOpEx *);
 	int    FetchReckonExData(PPID opID, PPReckonOpEx * pData); // @v11.7.11
 	int    GetPaymentOpList(PPID linkOpID, PPIDArray *);
 	int    GetCorrectionOpList(PPID linkOpID, PPIDArray * pList);
@@ -24503,6 +24503,7 @@ private:
 #define GTCHZNPT_SOFTDRINKS         UED::GetRawValue32(UED_RUCHZNPRODTYPE_SOFTDRINKS)/*17*/ // @v12.1.10 Соковая продукция и безалкогольные напитки
 #define GTCHZNPT_NONALCBEER         UED::GetRawValue32(UED_RUCHZNPRODTYPE_NONALCBEER)/*18*/ // @v12.2.6 Пиво безалкогольное
 #define GTCHZNPT_PETFOOD            UED::GetRawValue32(UED_RUCHZNPRODTYPE_PETFOOD)/*19*/ // @v12.3.9 Корм для животных
+#define GTCHZNPT_VEGETABLEOIL       UED::GetRawValue32(UED_RUCHZNPRODTYPE_VEGETABLEOIL)/*20*/ // @v12.4.8 Растительное масло
 
 struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	PPGoodsType2();
@@ -34382,7 +34383,7 @@ private:
 	int    GetLastOpByLot(PPID locID, PPID lotID, LocTransfTbl::Rec * pRec);
 	int    GetLastOpByGoods(PPID locID, PPID goodsID, LocTransfTbl::Rec * pRec);
 	int    UpdateForward(PPID locID, long rByLoc, PPID goodsID, PPID lotID, int check, double * pAddendum);
-	int    UpdateCurrent(int domain, PPID locID, PPID goodsID, PPID lotID, double addendum);
+	int    UpdateCurrent(int domain, PPID locOwnerID, PPID locID, PPID goodsID, PPID lotID, double addendum);
 
 	PPObjLocation LocObj;
 };
@@ -34951,6 +34952,13 @@ public:
 	//
 	int    SearchLotsBySerial(const char * pSerial, PPIDArray * pList);
 	int    SearchLotsBySerialExactly(const char * pSerial, PPIDArray * pList);
+	//
+	// Returns:
+	//  0 - ни одни лот не подходит даже примерно
+	//  1 - выбран наиболее подходящий последний открытый лот  
+	// -2 - выбран лот по другому складу 
+	// -3 - выбран самый позний закрытый лот
+	// 
 	int    SelectLotFromSerialList(const PPIDArray *, PPID locID, PPID * pLotID, ReceiptTbl::Rec * pRec = 0);
 	int    SelectLotBySerial(const char * pSerial, PPID goodsID, PPID locID, ReceiptTbl::Rec * pRec);
 
@@ -43453,7 +43461,6 @@ public:
 	int    GetLastQCertID(PPID goodsID, LDATE dt, PPID * pQCertID);
 	int    SendPList();
 	int    Export();
-	// @v12.1.2 int    Export_Pre9302();
 	int    ExportUhtt();
 	int    ConvertLinesToBasket();
 	int    ConvertBasketToLines();
@@ -58282,7 +58289,7 @@ public:
 	// ARG(correction IN): Если true, то формирование строк документа будет в варианте корректирующей счет-фактуры. 
 	//   В этой схеме отличаются некоторые теги.
 	//
-	int    WriteInvoiceItems(const PPBillImpExpParam & rParam, const FileInfo & rHi, const PPBillPacket & rBp, bool correction = false);
+	int    WriteInvoiceItems(const PPBillImpExpParam & rParam, const FileInfo & rHi, const PPBillPacket & rBp, bool correction);
 	int    WriteAddress(const PPLocationPacket & rP, int regionCode, int hdrTag /*PPHSC_RU_ADDRESS||PPHSC_RU_ORGADDR*/);
 	//
 	// Descr: Специализированная функция, реализующая запись адреса в формате EDI SBIS
@@ -58336,7 +58343,8 @@ public:
 private:
 	void   WriteExcise(SXml::WNode & rParentNode, double value);
 	int    WriteWareInfoAddendum(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, uint itemIdx, 
-		const SString & rGoodsCode, const SString & rBarcodeForMarking, bool correction); // @v12.2.12
+		const SString & rGoodsCode, const SString & rBarcodeForMarking, bool correction, const PPBillPacket * pOrgBp); // @v12.2.12
+	void   WriteMarkListOnInvoiceItem(SXml::WNode & rN, const PPBillImpExpParam & rParam, int chznProdType, int chznIntQtty, const PPLotExtCodeContainer::MarkSet & rSet);
 	//
 	// Descr: Извлекает из базы данных идентификатор участника документооборота.
 	//   Сложность в том, что этот идентификатор может быть задан либо в виде тега персоналии (PPTAG_PERSON_ENALOGID),

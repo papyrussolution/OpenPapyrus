@@ -347,9 +347,7 @@ int STDCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int r
 							else {
 								group   = addcode = PPSTR_DBENGINE;
 								msgcode = _btr_err_code;
-								if(msgcode == BE_ORA_TEXT)
-									pAddInfo = DBS.GetAddedMsgString();
-								else if(msgcode == BE_SQLITE_TEXT) // @v12.4.3
+								if(oneof3(msgcode, BE_ORA_TEXT, BE_SQLITE_TEXT, BE_MYSQL_TEXT))
 									pAddInfo = DBS.GetAddedMsgString();
 								else if(!pAddInfo && DBTable::GetLastErrorFileName())
 									pAddInfo = DBTable::GetLastErrorFileName();
