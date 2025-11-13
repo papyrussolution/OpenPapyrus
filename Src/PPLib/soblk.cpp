@@ -156,7 +156,7 @@ public:
 	// ARG(pEndPos OUT): Не используется.
 	// Returns:
 	//  >0 - команда разобрана успешно.
-	//  0  - ошибка
+	//  0  - error
 	//
 	int    Parse(const char * pStr);
 	//

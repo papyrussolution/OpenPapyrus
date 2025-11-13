@@ -57,15 +57,17 @@ int BNKey::reset()
 int BNKey::addSegment(int fldID, int flags)
 {
 	BNKeyCell cell;
-	if(data == 0)
+	if(!data)
 		reset();
-	uint pos = NUMCELLS;
-	for(int i = pos - 2; i >= 0; i--)
+	const uint pos = NUMCELLS;
+	for(int i = pos - 2; i >= 0; i--) {
 		if(SEG(i).fldID == fldID)
 			return SLS.SetError(SLERR_DUPIDXSEG);
+	}
 	cell.s.fldID = fldID;
 	cell.s.flags = flags;
-	if((data = SAlloc::R(data, sizeof(BNKeyCell) * (pos + 1))) != 0) {
+	data = SAlloc::R(data, sizeof(BNKeyCell) * (pos + 1));
+	if(data) {
 		memcpy(PTR8(data) + sizeof(BNKeyCell) * pos, &cell, sizeof(BNKeyCell));
 		HEAD.numSeg++;
 		return 1;
@@ -277,14 +279,17 @@ int FASTCALL BNKeyList::addKey(BNKey & key)
 			ok = ary.insert(&cell);
 		}
 		for(int i = 0; ok && i < kc->h.numSeg + 1; i++) {
-			if(i > 0)
+			if(i > 0) {
 				if(i < kc->h.numSeg)
 					kc[i].s.flags |= XIF_SEG;
 				else
 					kc[i].s.flags &= ~XIF_SEG;
-			if((ok = ary.insert(kc + i)) == 0)
-				for(int j = i - 1; j >= 0; i--)	// Rollback work
+			}
+			ok = ary.insert(kc + i);
+			if(!ok) {
+				for(int j = i-1; j >= 0; i--)	// Rollback work
 					ary.atFree(j);
+			}
 		}
 		P_Data = ary.dataPtr();
 		if(ok)
@@ -335,8 +340,12 @@ const DBTable & BNKeyList::table() const
 const BNField & BNKeyList::field(int key, int seg) const
 {
 	if(P_Data) {
-		const DBTable * p_tbl = reinterpret_cast<const DBTable *>(reinterpret_cast<const char *>(this) - static_cast<BNKeyCell *>(P_Data)->ih.tblBackOffset);
-		return p_tbl->GetFields()[getKey(key).getFieldID(seg)];
+		const  DBTable * p_tbl = reinterpret_cast<const DBTable *>(reinterpret_cast<const char *>(this) - static_cast<BNKeyCell *>(P_Data)->ih.tblBackOffset);
+		const  BNKey _k = getKey(key);
+		const  int fld_id = _k.getFieldID(seg);
+		const  BNFieldList2 & r_fld_list = p_tbl->GetFields();
+		uint   fld_pos = 0;
+		return r_fld_list.GetFieldPosition(fld_id, &fld_pos) ? r_fld_list.GetFieldByPosition(fld_pos) : *static_cast<const BNField *>(0);
 	}
 	else
 		return *static_cast<BNField *>(0);

@@ -1868,7 +1868,7 @@ public:
 	//   возвращается идентификатор, ассоциированный с ним.
 	// Returns:
 	//   >0 - идентификатор, который может быть использован для создания нового объекта.
-	//   0  - ошибка.
+	//   0  - error.
 	//
 	int    FASTCALL CreateDynIdent(const char * pSymb = 0);
 	//
@@ -2868,7 +2868,7 @@ public:
 	//   то таймаут "замирания" определяется системными параметрами.
 	// Returns:
 	//   !0 - функция успешно выполнена.
-	//   0  - ошибка.
+	//   0  - error.
 	//
 	int    RegisterMouseTracking(int leaveNotify, int hoverTimeout);
 	//
@@ -3245,14 +3245,14 @@ public:
 	// Returns:
 	//   >0 - редактирование элемента прошло успешно. Следует принять изменения.
 	//   <0 - отказ от редактирования. Никакие изменения не принимаются.
-	//   0  - ошибка.
+	//   0  - error.
 	//
 	int    EditTool(TWhatmanToolArray::Item * pItem); // @>>HandleCommand(cmdEditTool, pItem)
 	//
 	// Descr: Редактирует параметры объекта.
 	//   >0 - редактирование параметров прошло успешно. Следует принять изменения.
 	//   <0 - откраз от редактирования. Никакие изменения не принимаются.
-	//   0  - ошибка.
+	//   0  - error.
 	//
 	int    Edit(); // @>>HandleCommand(cmdEdit, 0)
 	//
@@ -5010,10 +5010,8 @@ public:
 		fUpdateReminder           = 0x00000020, // Отображать напоминание об имеющихся обновлениях программы
 		fTcbInterlaced            = 0x00000040, // Горизонтальные полосы временной диаграммы отображать с черезстрочным изменением цвета. В противном случае = отделять строки линиями.
 		fShowLeftTree             = 0x00000080, // Показывать древовидную навигацию в левой части окна
-		// @v10.9.3 fShowObjectsInLeftWindow = 0x00000100, // @unused @v8.x.x Показывать диалоги редактирования списка объектов в левой части окна
 		fDisableBeep              = 0x00000200, // Запретить звуковые сигналы (ограниченная реализация)
-		fBasketItemFocusPckg      = 0x00000400, // При вводе нового элемента товарной корзины фокус ввода устанавливать на
-			// количество упаковок (а не единиц, как по умолчанию).
+		fBasketItemFocusPckg      = 0x00000400, // При вводе нового элемента товарной корзины фокус ввода устанавливать на количество упаковок (а не единиц, как по умолчанию).
 		fOldModifSignSelection    = 0x00000800, // Использовать технику выбора знака для строки документа модификации
 			// товара, применявшуюся до v8.4.12 (выбор товара - выбор знака)
 		fPollVoipService          = 0x00001000, // Опрашивать VoIP сервис для обработки событий вызовов и звонков
@@ -5025,7 +5023,8 @@ public:
 			// If (fEnalbeBillMultiPrint ^ fDisableBillMultiPrint), то применяется общая конфигурация PPBillConfig
 		fExtGoodsSelHideGenerics  = 0x00010000, // В списке расширенного выбора товара не показывать обобщенные товары
 		fStringHistoryDisabled    = 0x00020000, // Запрет на использоватеня StringHistory (может быть проигнорирова при настройке более высокого уровня)
-		fDateTimePickerBefore1124 = 0x00040000  // @v11.2.6 Использовать старые (до v11.2.4) виджеты подбора даты/периода/времени 
+		fDateTimePickerBefore1124 = 0x00040000, // @v11.2.6 Использовать старые (до v11.2.4) виджеты подбора даты/периода/времени 
+		fAutoWidthBrwColumns      = 0x00080000, // @v12.4.9 Автоматически расчитывать ширины колонок в таблицах BrowserWindow
 	};
 	enum {
 		wndVKDefault = 0,
@@ -5135,7 +5134,7 @@ private:
 	ListWindowItem * GetListWinByCmd(long cmd, uint * pPos);
 	ListWindowItem * GetListWinByHwnd(HWND hWnd, uint * pPos);
 	void   MenuToList(HMENU hMenu, long parentId, StrAssocArray * pList);
-	void   SetupCmdList(HMENU hMenu, void * hP); // @v10.9.4 HTREEITEM-->(void *)
+	void   SetupCmdList(HMENU hMenu, /*HTREEITEM*/void * hP);
 	void   CloseItem(HWND hWnd);
 	void   SelItem(HWND hWnd);
 	void   ShowList(ListWindow * pLw);
@@ -5478,9 +5477,16 @@ struct BroColumn {
 	SBrowserDataProc _ColumnUserProc; // @v12.3.8 UserProc-->_ColumnUserProc
 	long   format;         // Output format
 	uint   Options;        //
+	enum {
+		stSizeSet       = 0x0001, // Размер колонки скорректирован функцией SutupColumnWidth
+		stEvaluatedAuto = 0x0002,
+		stSetManually   = 0x0004,
+	};
+	uint   State;          // @v12.4.9
 	char * P_Text;         // Column's title
 	uint   CWidth;         // Width of display field (in characters) (Internal use) // @v12.4.7 width-->CWidth
 	uint   CWidthPx;       // @v12.4.8 Optional width of display field in pixels (Internal use) 
+	uint   CWidthOrg;      // @v12.4.9 Оригинальный размер колонки, который был указан при создании столбца. Может понадобиться для установки ширины по умолчанию.
 	uint   X_;             // Internal use
 	uint   CIndex;         // Internal use
 	uint   OrgOffs;        // Смещение поля, заданное при создании столбца
@@ -5716,7 +5722,7 @@ public:
 	//        после выхода из функции.
 	//   >0 - окно было загружено в МОДАЛЬНОМ режиме. Этим значением возвращается //
 	//        команда, по которой был завершен модальный цикл.
-	//   0  - ошибка.
+	//   0  - error.
 	//
 	int    Insert();
 	uint   GetResID() const;
@@ -5881,6 +5887,7 @@ public:
 	//   в случае, если его параметры были изменены.
 	//
 	void   EvaluateSomeMetricsOnInit();
+	int    EvaluateColumnSizes(bool recalcDataStat); // @v12.4.7
 
 	enum {
 		paintFocused = 0,
@@ -5893,7 +5900,6 @@ protected:
 	void   WMHScroll(int sbType, int sbEvent, int thumbPos);
 	int    WMHScrollMult(int sbEvent, int thumbPos, long * pOldTop);
 	int    LoadResource(uint rezID, void * pData, int dataKind, uint uOptions/*= 0*/);
-	int    EvaluateColumnSizes(bool recalcDataStat); // @v12.4.7
 
 	uint   RezID;
 private:
@@ -5902,10 +5908,11 @@ private:
 	//   Необходима для динамического вычисления ширин столцов.
 	//
 	struct ColumnWidthStat { // @v12.4.7 @flat
-		ColumnWidthStat() : OrgId(0), Max(0.0f), Avg(0.0f), StdDev(0.0f)
+		ColumnWidthStat() : OrgId(0), NonZeroCount(0), Max(0.0f), Avg(0.0f), StdDev(0.0f)
 		{
 		}
 		uint   OrgId;
+		uint   NonZeroCount;
 		float  Max;
 		float  Avg;
 		float  StdDev;

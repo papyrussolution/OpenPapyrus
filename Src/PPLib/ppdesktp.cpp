@@ -1368,7 +1368,7 @@ void PPDesktop::Unadvise()
 								PPEventCore::Packet ec_pack;
 								if(ec.Get(pEv->ExtInt_, &ec_pack) > 0) {
 									if(ec_pack.Oid.IsFullyDefined()) {
-										GetObjectName(ec_pack.Oid.Obj, ec_pack.Oid.Id, temp_buf);
+										GetObjectName(ec_pack.Oid, temp_buf);
 										msg_buf.CR().Cat(temp_buf);
 									}
 								}

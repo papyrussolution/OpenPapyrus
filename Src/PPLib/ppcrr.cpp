@@ -2,6 +2,8 @@
 // Copyright (c) A.Sobolev 2025
 // @codepage UTF-8
 // Модуль изоляции обращений к CrystalReports
+// 
+// Следующий шаг: вызывать функции по их именам в dll.
 //
 #include <pp.h>
 #pragma hdrstop
@@ -53,7 +55,7 @@ SVerT QueryCrrVersion() // @v12.4.1
 	return result;
 }
 
-int OpenCrrEngine()     // @v12.4.1
+int OpenCrrEngine() // @v12.4.1
 {
 	int    ok = 1;
 	PPThreadLocalArea & r_tla = DS.GetTLA();
@@ -762,7 +764,7 @@ static int DoPhisicalPrintingJob(const CrystalReportPrintParamBlock & rBlk, shor
 		msg_buf.Z().Cat("Report").Space().CatParStr(isCrr32Support ? "crr32_support" : "local").CatChar('=').Cat(rBlk.ReportPath);
 		msg_buf.Space().CatEq("result", spj_result ? "ok" : "fail");
 		if(rBlk.Printer.NotEmpty()) // Ранее был pPrinter @erik v10.4.10
-			msg_buf.CatDiv(';', 2).CatEq("Printer", rBlk.Printer.NotEmpty()); // Ранее был pPrinter @erik v10.4.10
+			msg_buf.CatDiv(';', 2).CatEq("Printer", rBlk.Printer); // Ранее был pPrinter @erik v10.4.10 // @v12.4.8 @fix (rBlk.Printer.NotEmpty())-->(rBlk.Printer)
 		if(rBlk.NumCopies > 1)
 			msg_buf.CatDiv(';', 2).CatEq("Copies", rBlk.NumCopies);
 		msg_buf.CatDiv(';', 2).CatEq("Mks", (profile_end - profile_start));
@@ -981,6 +983,27 @@ int CrystalReportPrint2_Server(const CrystalReportPrintParamBlock & rBlk, Crysta
 	//SJson  js_reply(SJson::tOBJECT); // @v12.3.12
 	PEReportOptions ro;
 	ro.StructSize = sizeof(ro);
+	{
+		/*
+			uint32 Ver;           // Версия формата для сериализации
+			int32  Action;
+			uint32 InternalFlags;
+			uint32 NumCopies;
+			uint32 Options;
+			DEVMODEA DevMode;     // @flat 
+			SString ReportPath;
+			SString ReportName;
+			SString EmailAddr;    // for Action == actionExport
+			SString Dir;
+			SString Printer;
+			PPInternetAccount2 InetAcc; // @v12.3.11
+			CrystalReportExportParam ExpParam; // @v12.3.10
+		*/ 
+		msg_buf.Z().Cat("CrystalReportPrint2_Server").CatDiv(':', 2).CatEq("Ver", rBlk.Ver).Space().CatEq("Action", rBlk.Action).Space().
+			CatEq("ReportName", rBlk.ReportName).Space().CatEq("ReportPath", rBlk.ReportPath).
+			Space().CatEq("Printer", rBlk.Printer).Space();
+		PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+	}
 	if(rBlk.Action == CrystalReportPrintParamBlock::actionExport) {
 		bool   silent = false;
 		bool   do_export = true;

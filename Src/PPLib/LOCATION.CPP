@@ -630,7 +630,7 @@ int LocationCore::DumpEaList(const char * pFileName)
 				reinterpret_cast<const PPEAddr *>(P_Eac->data.Addr)->GetPhone(phone_buf);
 				;
 				line_buf.Z().Cat(P_Eac->data.ID).Tab().Cat(phone_buf).Tab().Cat(SObjID_ToStr(oid, temp_buf));
-				GetObjectName(oid.Obj, oid.Id, temp_buf.Z());
+				GetObjectName(oid, temp_buf.Z());
 				line_buf.Tab().Cat(temp_buf);
 				f_out.WriteLine(line_buf.CR());
 			}

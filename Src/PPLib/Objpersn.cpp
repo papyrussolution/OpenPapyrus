@@ -952,7 +952,7 @@ int ClientActivityDetectionListDialog::setupList()
 		}
 		else if(item.Obj == PPOBJ_SCARDSERIES) {
 			if(item.Id)
-				GetObjectName(item.Obj, item.Id, temp_buf.Z());
+				GetObjectName(item, temp_buf.Z());
 			else
 				PPLoadString("all", temp_buf);
 			ss.add(temp_buf);

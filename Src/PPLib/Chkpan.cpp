@@ -4705,7 +4705,8 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 							}
 							else {
 								if(ExtCashNodeID && PNP.ExtCnLocID) {
-									if(p_bobj->SelectLotFromSerialList(&lot_list, PNP.ExtCnLocID, &lot_id, &lot_rec) > 0 && BelongToExtCashNode(labs(lot_rec.GoodsID))) {
+									if(p_bobj->SelectLotFromSerialList(&lot_list, PNP.ExtCnLocID, false/*closedAllowed*/, &lot_id, &lot_rec) > 0 && 
+										BelongToExtCashNode(labs(lot_rec.GoodsID))) {
 										goods_id = labs(lot_rec.GoodsID);
 										price  = lot_rec.Price;
 										loc_id = PNP.ExtCnLocID;
@@ -4713,7 +4714,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 										r = 1;
 									}
 								}
-								if(!goods_id && p_bobj->SelectLotFromSerialList(&lot_list, PNP.CnLocID, &lot_id, &lot_rec) > 0) {
+								if(!goods_id && p_bobj->SelectLotFromSerialList(&lot_list, PNP.CnLocID, false/*closedAllowed*/, &lot_id, &lot_rec) > 0) {
 									goods_id = labs(lot_rec.GoodsID);
 									price  = lot_rec.Price;
 									loc_id = PNP.CnLocID;

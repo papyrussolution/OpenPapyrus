@@ -101,6 +101,7 @@ int BrowserDef::addColumn(const BroColumn * pCol, int pos)
 			SETSFMTFLAG(f, SFMTFLAG(f) | ALIGN_LEFT);
 	}
 	col.CWidth = SFMTLEN(f);
+	col.CWidthOrg = col.CWidth; // @v12.4.9
 	col.format = f;
 	if(atInsert(pos, &col))
 		initOffset(pos);
@@ -569,6 +570,7 @@ bool  AryBrowserDef::IsValid() const { return (P_Array != 0); }
 
 /*virtual*/int AryBrowserDef::insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt)
 {
+	int    ok = 1;
 	BroColumn c;
 	c.OrgOffs = fldNo;
 	c.T = typ;
@@ -586,10 +588,10 @@ bool  AryBrowserDef::IsValid() const { return (P_Array != 0); }
 					grp.Count++;
 			}
 		}
-		return 1;
 	}
 	else
-		return 0;
+		ok = 0;
+	return ok;
 }
 
 long AryBrowserDef::GetRecsCount() const { return static_cast<long>(SVectorBase::GetCount(P_Array)); }

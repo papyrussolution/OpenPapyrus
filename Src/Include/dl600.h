@@ -1001,7 +1001,7 @@ public:
 	// Descr: Создает описание диалогового управляющего элемента в текущей области видимости.
 	// Returns:
 	//   ID созданного элемента описания.
-	//   0  - ошибка.
+	//   0  - error.
 	//
 	uint   AddUiCtrl(int kind, const CtmToken & rSymb, const CtmToken & rText, DLSYMBID typeID, const UiRelRect & rRect);
 	uint   AddUiButton(const CtmToken & rSymb, const CtmToken & rText, const UiRelRect & rRect, const CtmToken & rCmdSymb);
@@ -1406,7 +1406,7 @@ protected:
 	// Returns:
 	//   >0 - функция успешно выполнена.
 	//   <0 - функция успешно выполнена. При этом Extra[rID-].IsFirst изменено с 1 на 0.
-	//   0  - ошибка
+	//   0  - error
 	//
 	int    FASTCALL IterProlog(/*PPIterID*/long & rID, int doInit);
 	int    Helper_WriteXML(ExportParam & rParam, void * /*xmlWriter*/);

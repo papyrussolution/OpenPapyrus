@@ -1900,7 +1900,7 @@ browser GOODSBILL north(100), 1, 0, "@{commoditydocument_pl} {%s}", OWNER|GRID, 
 	"@date",          1, notype, DATF_DMY, 8
 	"@billno",        2, notype, 0,  8
 	"@oprkind",       5, notype, 0, 12
-	"@amount",        3, notype, NMBF_NOZERO, 10.2
+	"@amount",        3, notype, 0, 10.2
 	"@contractor",    6, notype, 0, 20
 	"@memo",          4, notype, 0, 30
 	toolbar GOODSBILL

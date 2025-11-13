@@ -1439,6 +1439,7 @@ public:
 	static constexpr const char * P_WrKey_MsWin_DisallowRun = "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\DisallowRun"; // @v11.8.12 HKEY_CURRENT_USER
 	static constexpr const char * P_WrKey_MsWin_RestrictRun = "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\RestrictRun"; // @v11.8.12 HKEY_CURRENT_USER
 	static constexpr const char * P_WrKey_MsWin_ProfileList = "Software\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList"; // @v12.4.0 HKEY_LOCAL_MACHINE
+	static constexpr const char * P_WrKey_BrwUserSetting = "Software\\Papyrus\\Table2"; // Пользовательские параметры таблиц (BrowserWindow)
 	static constexpr const char * P_WrKey_Prefix_SobolevEngineering = "Software\\SobolevEngineering"; // @v12.3.10 HKEY_CURRENT_USER
 	static constexpr const char * WinClsName_Desktop    = "PPYDESKTOPWINDOW"; // @v12.3.8
 	static constexpr const char * WinClsName_TextEditor = "STextBrowser"; // @v12.3.8
@@ -3787,7 +3788,7 @@ struct DateRange { // @persistent @size=8
 	// ARG(rel IN): дата, относительно которой вычисляется период. Если rel == 0, то применяется текущая системная дата.
 	// Returns:
 	//   >0 - период успешно установлен
-	//   0  - ошибка. Ошибка может быть связана с недопустимыми значениями параметров predefPrdId или rel.
+	//   0  - error. Ошибка может быть связана с недопустимыми значениями параметров predefPrdId или rel.
 	//     В случае ошибки период this остается неизменным.
 	//
 	int    SetPredefined(int predefPrdId, LDATE rel);
@@ -3824,7 +3825,7 @@ struct DateRange { // @persistent @size=8
 	//   Период в строке может быть определен со специальными шаблонами.
 	// Returns:
 	//   >0 - строка преобразована успешно
-	//   0  - ошибка
+	//   0  - error
 	//
 	int    FASTCALL FromStr(const char * pStr, uint flags/*strtoprdfXXX*/); // @v12.3.7
 	SString & ToStr(uint fmt/*DATF_XXX, DATRANGF_EXTENDED*/, SString & rBuf) const; // @v12.3.7
@@ -4386,7 +4387,7 @@ public:
 	//   >0 - в строке имелся символ разделителя и строка успешно разбита на две части.
 	//   <0 - в строке не было символа разделителя и вся строка скопирована в буфер rLeft.
 	//     Буфер rRight стал пустым.
-	//   0  - ошибка. Буферы rLeft и rRight стали пустыми.
+	//   0  - error. Буферы rLeft и rRight стали пустыми.
 	//
 	int    Divide(int divChr, SString & rLeft, SString & rRight) const;
 	int    Wrap(uint maxLen, SString & rHead, SString & rTail) const;
@@ -4599,7 +4600,7 @@ public:
 	// Returns:
 	//   1 - исходная строка (this) представлена либо ascii либо utf8-символами. Успешно преобразована в rBuf.
 	//   2 - кодировка исходной строки (this) не определена, либо определена приблизительно. Успешно преобразована в rBuf.
-	//   0 - ошибка
+	//   0 - error
 	//
 	int    CopyToUnicode(SStringU & rBuf) const;
 	//
@@ -4778,7 +4779,7 @@ public:
 	// Returns:
 	//   >0 - строка считана успешно
 	//   <0 - либо fStream, либо size равны нулю. Буфер обнуляется //
-	//   0  - ошибка (SLibError)
+	//   0  - error (SLibError)
 	//
 	int    Read(FILE * fStream, size_t size);
 	//
@@ -5677,7 +5678,7 @@ SString & STDCALL SGetMonthText(int mon, long fmt, SString & rBuf);
 //   Период в строке может быть определен со специальными шаблонами.
 // Returns:
 //   >0 - строка преобразована успешно
-//   0  - ошибка
+//   0  - error
 //
 // @v12.3.7 (static now. use DateRange::FromStr) int    STDCALL strtoperiod(const char * pStr, DateRange * pPeriod, long flags);
 //
@@ -5758,7 +5759,7 @@ uint   FASTCALL dayspermonth(uint month, uint year);
 // ARG(rBuf      OUT): буфер, в который будет занесен текст.
 // Returns:
 //   !0 - функция успешно отработала - в буфер занесена требуемая строка
-//   0  - ошибка - rBuf пустой.
+//   0  - error - rBuf пустой.
 //
 enum {
 	dowtEnFull = 1,
@@ -6620,8 +6621,7 @@ struct SBaseBuffer {
 };
 //
 // Descr: Буфер, хранящий бинарные данные определенной длины. Унаследован от SBaseBuffer, содержит
-//   конструктор, деструктор и фактическую длину данных, которая меньше или равна распределенному
-//   объему буфера.
+//   конструктор, деструктор и фактическую длину данных, которая меньше или равна распределенному объему буфера.
 //
 class SBinaryChunk : private SBaseBuffer {
 public:
@@ -6690,7 +6690,7 @@ public:
 	//   в результате функция просто очистит буфер this.
 	// Returns:
 	//   >0 - данные успешно извлечены из строки и помещены в буфер.
-	//   0  - ошибка (либо не удалось декодировать pHexString, либо не достаточно памяти, либо ошибка во внутреннем состоянии буфера).
+	//   0  - error (либо не удалось декодировать pHexString, либо не достаточно памяти, либо ошибка во внутреннем состоянии буфера).
 	//
 	bool   FromHex(const char * pHexString);
 	//
@@ -6706,7 +6706,9 @@ public:
 	bool   Ensure(size_t len);
 	//
 	// Descr: Формирует отрезок длиной len и копирует в него данные из указателя pData.
-	//   Если pData == 0 и len == 0 то буфер становится пустым (память не освобождается, то есть вызов Put(0, 0) эквивалентен Z()).
+	//   Если len == 0 то буфер становится пустым (память не освобождается, то есть вызов Put(0, 0) эквивалентен Z()).
+	// 
+	//   Если len > 0 && pData == 0, то это эквивалентно установке поля длиной len заполненного нулями (@v12.4.9)
 	// 
 	//   Если pData == SBaseBuffer::P_Buf, то копирования данных не происходит - устанавливается лишь
 	//   фактический размер данных L. 
@@ -6730,6 +6732,7 @@ public:
 	//
 	// Descr: В хвост текущего отрезка дописывает данные из указателя pData длиной len.
 	//   При успешном завершении длина данных в отрезке становится равной предшествующей длине плюс len.
+	//   Если len > 0 && pData == 0, то вновь добавленный отрезок памяти заполняется нулями (@v12.4.9)
 	// Returns:
 	//   true - функция выполнена успешно
 	//   false - ошибка
@@ -6938,7 +6941,7 @@ public:
 	// ARG(pActualBytes OUT): Полное количество байт записанное в файл.
 	// Returns:
 	//   !0 - операция успешно завершена.
-	//   0  - ошибка.
+	//   0  - error.
 	//
 	int    WriteToFile(FILE * f, uint sign, uint32 * pActualBytes);
 	int    ReadFromFile(FILE * f, uint sign);
@@ -7150,7 +7153,7 @@ public:
 	// Note: Если в преобразовать строку в GUID не удалось, то this обнуляется (SetZero())
 	// Returns:
 	//   !0 - преобразование осуществлено успешно
-	//   0  - ошибка
+	//   0  - error
 	//
 	int    FASTCALL FromStr(const char * pStr);
 	int    Generate();
@@ -7310,7 +7313,7 @@ public:
 	//   В дальнейшем количество функций увеличится.
 	// Returns:
 	//   >0 - значение хэш-функции соответствует заданному буферу данных
-	//   0  - ошибка (возможно, не допустимые параметры, либо просто значение хэш-функции не соответствует заданному буферу данных).
+	//   0  - error (возможно, не допустимые параметры, либо просто значение хэш-функции не соответствует заданному буферу данных).
 	//
 	static int VerifyBuffer(int hashFuncIdent, const void * pHash, size_t hashLen, const void * pBuf, size_t bufLen);
 	static int CalcBufferHash(int hashFuncIdent, const void * pBuf, size_t bufLen, SBinaryChunk & rResult);
@@ -8320,7 +8323,7 @@ public:
 	// Returns:
 	//   !0 - перемещение осуществлено успешно. По указателю pNewPos присвоено значение новой
 	//        позиции элемента, которых до этого находился в позиции pos.
-	//   0  - ошибка позиционирования: либо pos >= getCount(), либо (dir == 0 && pos == getCount()-1),
+	//   0  - error позиционирования: либо pos >= getCount(), либо (dir == 0 && pos == getCount()-1),
 	//        либо (dir != 0 && pos == 0).
 	//
 	int    moveItem(uint pos, int dir, uint * pNewPos); // @>>SArray::swap
@@ -8329,7 +8332,7 @@ public:
 	// Returns:
 	//   >0 - перемещение осуществлено успешно.
 	//   <0 - ничего не произошло поскольку srcPos == destPos
-	//    0 - ошибка позиционирования: либо srcPos >= getCount() либо destPos >= getCount();
+	//    0 - error позиционирования: либо srcPos >= getCount() либо destPos >= getCount();
 	//
 	int    moveItemTo(uint srcPos, uint destPos);
 	int    ordInsert(const void *, uint *, CompFunc, void * pExtraData = 0);
@@ -8424,7 +8427,7 @@ public:
 	//   сдвигаются на одну позицию вниз.
 	// Returns:
 	//   !0 - элемент успешно удален
-	//   0  - ошибка. Единственная возможная причина ошибки: pos >= getCount().
+	//   0  - error. Единственная возможная причина ошибки: pos >= getCount().
 	//      В этом случае код ошибки SLibError = SLERR_BOUNDS.
 	//
 	int    FASTCALL atFree(uint pos);
@@ -8530,7 +8533,7 @@ public:
 	//   сдвигаются на одну позицию вниз.
 	// Returns:
 	//   !0 - элемент успешно удален
-	//   0  - ошибка. Единственная возможная причина ошибки: pos >= getCount().
+	//   0  - error. Единственная возможная причина ошибки: pos >= getCount().
 	//      В этом случае код ошибки SLibError = SLERR_BOUNDS.
 	//
 	int    FASTCALL atFree(uint pos);
@@ -8851,46 +8854,7 @@ struct BNField { // @flat
 	TYPEID T;
 };
 //
-// Descr: Обобщенное представление записи таблицы данных. Используется в основном для работы
-//   с таблицами баз данных.
-// Note: Перенесено из db.h для реализации универсального сериализатора данных SSerializeContext.
-//
-#if 0 // @v12.4.4 {
-class BNFieldList_Obsolete {
-public:
-	BNFieldList_Obsolete();
-	BNFieldList_Obsolete(const BNFieldList_Obsolete & rS);
-	~BNFieldList_Obsolete();
-	BNFieldList_Obsolete & FASTCALL operator = (const BNFieldList_Obsolete &);
-	int    FASTCALL copy(const BNFieldList_Obsolete *);
-	bool   IsEq(const BNFieldList_Obsolete & rS, bool nameAndTypeOnly = false) const;
-	BNFieldList_Obsolete & Z();
-	int    addField(const char * pName, TYPEID type, int id = UNDEF);
-	int    FASTCALL addField(const BNField &);
-	bool   getFieldPosition(int fldId, uint * pPos) const;
-	const  BNField & getField(uint, bool byPosition = true) const;
-	const  BNField & getField(const char * pName, uint * pPos = 0) const;
-	const  BNField & FASTCALL operator[](uint i) const { return getField(i); }
-	uint   getCount() const { return count; }
-	RECORDSIZE CalculateFixedRecSize() const;
-	int    setFieldId(uint fldNo /* 0..(count-1) */, int fldId);
-	bool   IsEqualRecords(const void * pRec1, const void * pRec2, LongArray * pNeqFldList = 0) const;
-	//
-	// Descr: Выводит значения полей записи pRec в строковый буфер rBuf.
-	//   Если pRec == 0, то в буфер выводятся наименования полей.
-	//
-	//void   RecordToStr(const void * pRec, SString & rBuf) const;
-private:
-	uint   count;
-	BNField * fields;
-};
-#endif // } 0 @v12.4.4
-//
-// Descr: Обобщенное представление записи таблицы данных. Используется в основном для работы
-//   с таблицами баз данных.
-// Note: Перенесено из db.h для реализации универсального сериализатора данных SSerializeContext.
-// @v12.4.3 @construction (in order to replace BNFieldList2)
-//
+// Descr: Обобщенное представление записи таблицы данных. Используется в основном для работы с таблицами баз данных.
 //
 class BNFieldList2 : public TSVector <BNField> {
 public:
@@ -8899,10 +8863,11 @@ public:
 	BNFieldList2 & Z();
 	int    addField(const char * pName, TYPEID type, int id = UNDEF);
 	int    FASTCALL addField(const BNField &);
-	bool   getFieldPosition(int fldId, uint * pPos) const;
-	const  BNField & getField(uint, bool byPosition = true) const;
-	const  BNField & getField(const char * pName, uint * pPos = 0) const;
-	const  BNField & FASTCALL operator[](uint i) const { return getField(i); }
+	bool   GetFieldPosition(int fldId, uint * pPos) const;
+	//const  BNField & getField__(uint, bool byPosition = true) const;
+	const  BNField & GetFieldByPosition(uint fldIdx) const;
+	const  BNField & GetFieldByName(const char * pName, uint * pPos = 0) const;
+	const  BNField & FASTCALL operator[](uint i) const { return GetFieldByPosition(i); }
 	RECORDSIZE CalculateFixedRecSize() const;
 	int    setFieldId(uint fldNo/*[0..(count-1)]*/, int fldId);
 	bool   IsEqualRecords(const void * pRec1, const void * pRec2, LongArray * pNeqFldList = 0) const;
@@ -9714,7 +9679,7 @@ public:
 	// Returns:
 	//   >0 - элемент успешно удален
 	//   <0 - элемент и идентификатором id не найден
-	//   0  - ошибка
+	//   0  - error
 	//
 	int    Remove(long id);
 	int    Swap(uint p1, uint p2);
@@ -9937,7 +9902,7 @@ public:
 	// Returns:
 	//   >0 - новый элемент успешно добавлен
 	//   <0 - новый элемент не добавлен поскольку пересекается с одним из существующих элементов
-	//   0  - ошибка
+	//   0  - error
 	//
 	int    Add(const STimeChunk * pItem, int checkForFree);
 	//
@@ -12635,7 +12600,7 @@ public:
 	// Returns:
 	//   >0 - функция успешно прочитала данные 
 	//   <0 - не удалось ничего прочитать до завершения таймаута
-	//    0 - ошибка
+	//    0 - error
 	//
 	static int  AsyncReadFileWithTimeout(SIntHandle hFile, void * pBuf, size_t bufSize, int timeoutMs, size_t * pActualReadSize);
 	//
@@ -12901,7 +12866,7 @@ public:
 		//   состоящих из одного пробела (иначе невозможно).
 		// Returns:
 		//   >0 - число просканированных и помещенных в rSs значений.
-		//    0 - ошибка
+		//    0 - error
 		//
 		uint   ImplementScan(const char * pLine, StringSet & rSs);
 	private:
@@ -12936,7 +12901,7 @@ public:
 	//   Сначала записывает размер буфера, затем - данные.
 	// Returns:
 	//   >0 - буфер записан успешно
-	//   0  - ошибка
+	//   0  - error
 	//
 	int    Write(const SBuffer & rBuf);
 	//
@@ -12944,7 +12909,7 @@ public:
 	//   Сначала считывает размер буфера, распределяет необходимый размер в буфере и считывает данные.
 	// Returns:
 	//   >0 - буфер считан успешно
-	//   0  - ошибка
+	//   0  - error
 	//
 	int    Read(SBuffer & rBuf);
 	//
@@ -12973,7 +12938,7 @@ public:
 	// ARG(offs IN): @#{>0} смещение в файле, по которому должна быть установлена блокировка
 	// ARG(size IN): @#{>0} размер блокируемого участка в файле
 	// Returns:
-	//   0  - ошибка
+	//   0  - error
 	//   >0 - значение дескриптора блокировки
 	//
 	int    Lock(int64 offs, int32 size);
@@ -13003,7 +12968,7 @@ public:
 	// Returns:
 	//   >0 - CRC32 успешно рассчитан
 	//   <0 - размер файла меньше offs
-	//   0  - ошибка
+	//   0  - error
 	//
 	int    CalcCRC(long offs, uint32 * pCrc);
 	//
@@ -13334,7 +13299,7 @@ public:
 	// Returns:
 	//   >0 - найден по крайней мере один файл, удовлетворяющий условиям
 	//   <0 - не найдено ни одного файла
-	//   0  - ошибка
+	//   0  - error
 	//
 	int    Scan(const char * pPath, const char * pWildcard, long flags);
 	int    Scan(const char * pPath, const StringSet & rSsWildcards, long flags);
@@ -13348,7 +13313,7 @@ public:
 	// Returns:
 	//   >0 - найден по крайней мере один файл, удовлетворяющий условиям
 	//   <0 - не найдено ни одного файла
-	//   0  - ошибка
+	//   0  - error
 	//
 	int    Scan(const char * pPath, long flags); // @v12.4.8
 	int    Add(const char * pPath, const SDirEntry & rDe, long flags);
@@ -13474,7 +13439,7 @@ public:
 	// Descr: Возвращает реальное имя файла с символом pName.
 	// Returns:
 	//   !0 - файл существует и его полное имя присвоено по ссылке rFilePath
-	//    0 - ошибка (строка по ссылке rFilePath обнулена)
+	//    0 - error (строка по ссылке rFilePath обнулена)
 	//
 	int    GetFilePath(const char * pName, SString & rFilePath); // @v12.0.8
 	bool   Read(SPtrHandle handle, void * pBuf, size_t bufSize, size_t * pActualSize);
@@ -14768,7 +14733,7 @@ public:
 	// Returns:
 	//   >0 - функция выполнена успешно
 	//   <0 - не нашлось достаточное количество элементов, начиная с startItemIdx
-	//   0  - ошибка
+	//   0  - error
 	//
 	int    GetLVect(uint vecIdx, uint startItemIdx, LVect & rV) const;
 	int    GetRealArray(uint vecIdx, uint startItemIdx, uint idxCount, RealArray & rV) const;
@@ -16754,7 +16719,7 @@ int    SCheckSystemCredentials(const char * pDomain, const char * pUserName, con
 // Returns:
 //   >0 - время на сервере pServerName успешно определено и присвоено по указателю pDtm
 //   <0 - указатель pServerName нулевой либо пустой (pServerName[0] == 0)
-//   0  - ошибка. Если ошибка системная, то SLibError содержит ссылку на системную ошибку,
+//   0  - error. Если ошибка системная, то SLibError содержит ссылку на системную ошибку,
 //        а SLS.GetTLA().LastOsErr содержит код этой ошибки.
 //
 int    SGetTimeFromRemoteServer(const char * pServerName, LDATETIME * pDtm);
@@ -16994,7 +16959,7 @@ public:
 	//   операции с сервисом недоступны.
 	// Returns:
 	//   !0 - сервис успешно удален
-	//   0  - ошибка
+	//   0  - error
 	//
 	int    Delete();
 	//
@@ -17139,7 +17104,7 @@ public:
 	// Returns:
 	//   >0 - объект был освобожден
 	//   <0 - ожидание прекратилось по таймауту
-	//   0  - ошибка
+	//   0  - error
 	//
 	int    FASTCALL Wait(long timeout = -1);
 protected:
@@ -17303,7 +17268,7 @@ public:
 	// Returns:
 	//   >0 - блокировка успешно установлена
 	//   <0 - блокировка не установлена из-за превышения ожидания timeout ms
-	//   0  - ошибка
+	//   0  - error
 	//
 	int    FASTCALL ReadLockT_(long timeout);
 	//
@@ -17312,21 +17277,21 @@ public:
 	// Returns:
 	//   >0 - блокировка успешно установлена
 	//   <0 - блокировка не установлена из-за превышения ожидания timeout ms
-	//   0  - ошибка
+	//   0  - error
 	//
 	int    FASTCALL WriteLockT_(long timeout);
 	//
 	// Descr: Блокирует объект на чтение с бесконечным ожиданием.
 	// Returns:
 	//   >0 - блокировка успешно установлена
-	//   0  - ошибка
+	//   0  - error
 	//
 	int    ReadLock_();
 	//
 	// Descr: Блокирует объект на запись с бесконечным ожиданием.
 	// Returns:
 	//   >0 - блокировка успешно установлена
-	//   0  - ошибка
+	//   0  - error
 	//
 	int    WriteLock_();
 	//
@@ -18132,7 +18097,7 @@ public:
 // Returns:
 //   >0 - функция успешно загрузила строку с сигнатурой pSignature
 //   <0 - функция не смогла распознать сигнатуру, или такой сигнатуре не сопоставлено никакой строки
-//   0  - ошибка загрузки строки по идентифицированной сигнатуре из внешнего хранилища
+//   0  - error загрузки строки по идентифицированной сигнатуре из внешнего хранилища
 //
 typedef int (*LoadStringFunc)(const char * pSignature, SString & rBuf);
 typedef int (*ExpandStringFunc)(SString & rBuf, int ctransf);
@@ -18165,7 +18130,7 @@ typedef int (*QueryPathFunc)(const char * pSignature, SString & rBuf);
 // Returns:
 //   >0 - инициализация завершилась успешно 
 //   <0 - не удалось обнаружить описание диалога по идентификатору pIdent
-//    0 - ошибка
+//    0 - error
 // 
 typedef int (*InitializeDialogFunc)(TDialog * pThis, const void * pIdent, void * extraPtr); // @v12.3.6
 //
@@ -18340,7 +18305,7 @@ public:
 	//   выполнения функции. При ошибке этот буфер усекается до нулевой длины.
 	// Returns:
 	//   !0 - запрос каталога успешно выполнен
-	//   0  - ошибка (в т.ч. возможно, из-за того, что модуль верхнего уровня не предоставил
+	//   0  - error (в т.ч. возможно, из-за того, что модуль верхнего уровня не предоставил
 	//      соответствующей функции.
 	//
 	int    QueryPath(const char * pSignature, SString & rBuf) const;
@@ -19011,7 +18976,7 @@ public:
 	// Returns:
 	//   >0 - элемент найден и успешно удален
 	//   <0 - элемент по символу pSid не найден
-	//   0  - ошибка
+	//   0  - error
 	//
 	int    Remove(const char * pSid, int recur);
 	void   Clear();

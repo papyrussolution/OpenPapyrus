@@ -204,7 +204,16 @@ SString & Generator_SQL::GetType(TYPEID typ, SString & rBuf)
 				case S_ZSTRING:  rBuf.Cat("VARCHAR").CatParStr(_s); break;
 				case S_INT:
 				case S_UINT:     rBuf.Cat("INT"); break; 
-				case S_AUTOINC:  rBuf.Cat("INT AUTO_INCREMENT UNIQUE"); break;
+				case S_AUTOINC:  
+					if(_s == 4)
+						rBuf.Cat("INT");
+					else if(_s == 8)
+						rBuf.Cat("BIGINT");
+					else
+						rBuf.Cat("INT");
+					rBuf.Space().Cat("AUTO_INCREMENT").Space().Cat("UNIQUE");
+					//rBuf.Cat("INT AUTO_INCREMENT UNIQUE"); 
+					break;
 				case S_INT64:
 				case S_UINT64:   rBuf.Cat("BIGINT"); break; 
 				case S_UUID_:    rBuf.Cat("BINARY").CatParStr(16); break; 

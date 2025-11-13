@@ -953,7 +953,7 @@ int ViewObjSyncTab(PPObjID oid)
 			_ObjSyncEntry entry(rec);
 			list.insert(&entry);
 		}
-		GetObjectName(oid.Obj, oid.Id, temp_buf);
+		GetObjectName(oid, temp_buf);
 		{
 			THROW(CheckDialogPtr(&(dlg = new ObjSyncTabDialog)));
 			dlg->setStaticText(CTL_OBJSYNCTAB_ST_INFO, temp_buf);

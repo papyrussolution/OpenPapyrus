@@ -858,9 +858,28 @@ int SBinaryChunk::Set(uint8 byte, size_t len)
 bool SBinaryChunk::Put(const void * pData, size_t len)
 {
 	bool   ok = true;
-	assert(pData || len == 0);
+	// @v12.4.9 {
+	if(len) {
+		if(len <= Size || Alloc(len)) {
+			if(!pData) {
+				memzero(P_Buf, len);
+			}
+			else if(P_Buf != pData) {
+				memcpy(P_Buf, pData, len);
+			}
+			L = len;
+		}
+		else
+			ok = false;
+	}
+	else {
+		L = 0;
+	}
+	// } @v12.4.9 
+	/* @v12.4.9
+	assert(pData || !len);
 	CheckInvariants();
-	if(len == 0 || !pData)
+	if(!len || !pData)
 		L = 0;
 	else if(len <= Size || Alloc(len)) {
 		if(P_Buf != pData) // @v11.8.9
@@ -869,6 +888,7 @@ bool SBinaryChunk::Put(const void * pData, size_t len)
 	}
 	else
 		ok = false;
+	*/
 	return ok;
 }
 
@@ -890,10 +910,15 @@ bool SBinaryChunk::Cat(const void * pData, size_t len)
 {
 	bool   ok = true;
 	CheckInvariants();
-	if(len && pData) {
+	if(len/*&& pData*/) {
 		const size_t new_len = L + len;
 		if(new_len <= Size || Alloc(new_len)) {
-			memcpy(PTR8(P_Buf)+L, pData, len);
+			if(pData) {
+				memcpy(PTR8(P_Buf)+L, pData, len);
+			}
+			else {
+				memzero(PTR8(P_Buf)+L, len);
+			}
 			L = new_len;
 		}
 		else
@@ -1484,7 +1509,7 @@ int SSerializeContext::SerializeFieldList(int dir, BNFieldList2 * pFldList, SBuf
 		const uint16 fld_count = pFldList->getCount();
 		rBuf.Write(fld_count);
 		for(uint i = 0; i < fld_count; i++) {
-			const BNField & r_fld = pFldList->getField(i);
+			const BNField & r_fld = pFldList->GetFieldByPosition(i);
 			THROW(rBuf.Write(r_fld.Id));
 			temp_buf = r_fld.Name;
 			THROW(rBuf.Write(temp_buf));
@@ -1701,7 +1726,7 @@ int SSerializeContext::Serialize(const char * pDbtName, BNFieldList2 * pFldList,
 			p_ind_list = st_ind_list;
 		memzero(p_ind_list, ind_len);
 		for(uint i = 0; i < fld_count; i++) {
-			const BNField & r_fld = pFldList->getField(i);
+			const BNField & r_fld = pFldList->GetFieldByPosition(i);
 			THROW(Serialize(+1, r_fld.T, const_cast<uint8 *>(PTR8C(pData)+r_fld.Offs), p_ind_list+i, temp_buf)); // @badcast
 		}
 		rBuf.Write(p_ind_list, ind_len);
@@ -1767,7 +1792,7 @@ int SSerializeContext::Unserialize(const char * pDbtName, const BNFieldList2 * p
 				TempDataBuf.Alloc(8192);
 			}
 			for(uint i = 0; i < fld_count; i++) {
-				const BNField & r_fld = inner_fld_list.getField(i);
+				const BNField & r_fld = inner_fld_list.GetFieldByPosition(i);
 				if(is_eq_struc) {
 					THROW(Serialize(-1, r_fld.T, PTR8(pData)+r_fld.Offs, p_ind_list+i, temp_buf));
 				}
@@ -1777,7 +1802,7 @@ int SSerializeContext::Unserialize(const char * pDbtName, const BNFieldList2 * p
 					// то придется преобразовывать данные, ориентируясь на имена полей.
 					//
 					THROW(Serialize(-1, r_fld.T, TempDataBuf, p_ind_list+i, temp_buf));
-					const BNField & r_dest_fld = pFldList->getField(r_fld.Name, 0);
+					const BNField & r_dest_fld = pFldList->GetFieldByName(r_fld.Name, 0);
 					if(&r_dest_fld)
 						stcast(r_fld.T, r_dest_fld.T, TempDataBuf, PTR8(pData)+r_dest_fld.Offs, 0);
 				}

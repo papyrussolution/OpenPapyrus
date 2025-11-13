@@ -912,7 +912,7 @@ int SSqliteDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pK
 	{
 		bool is_first_fld_enum_item = true;
 		for(i = 0; i < fld_count; i++) {
-			const BNField & r_fld = pTbl->fields.getField(i);
+			const BNField & r_fld = pTbl->fields.GetFieldByPosition(i);
 			bool  do_skip_this_fld = false;
 			if(GETSTYPE(r_fld.T) == S_AUTOINC) {
 				long   val = 0;
@@ -1012,7 +1012,7 @@ int SSqliteDbProvider::ResetStatement(SSqlStmt & rS)
 			{
 				bool is_first_fld_enum_item = true;
 				for(i = 0; i < fld_count; i++) {
-					const BNField & r_fld = p_tbl->fields.getField(i);
+					const BNField & r_fld = p_tbl->fields.GetFieldByPosition(i);
 					bool  do_skip_this_fld = false;
 					if(GETSTYPE(r_fld.T) == S_AUTOINC) {
 						long   val = 0;

@@ -493,14 +493,12 @@ int LoadToolbar(TVRez * rez, uint tbType, uint tbID, ToolbarList * pList)
 	return rez->findResource(tbID, tbType, 0, 0) ? ImpLoadToolbar(*rez, pList) : 0;
 }
 
-static const char * WrSubKey_BrwUserSetting = "Software\\Papyrus\\Table2"; // @global @v6.3.11 Table --> Table2
-
 int BrowserWindow::SaveUserSettings(int ifChangedOnly)
 {
 	int    ok = -1;
 	if(!ifChangedOnly || IsUserSettingsChanged) {
 		char   param[32];
-		WinRegKey reg_key(HKEY_CURRENT_USER, WrSubKey_BrwUserSetting, 0);
+		WinRegKey reg_key(HKEY_CURRENT_USER, SlConst::P_WrKey_BrwUserSetting, 0);
 		ltoa(RezID, param, 10);
 		// version, num_columns, column1_size, ...
 		char   ver[32];
@@ -510,8 +508,10 @@ int BrowserWindow::SaveUserSettings(int ifChangedOnly)
 		temp_buf.Cat(ver).Semicol().Cat(P_Def->getCount());
 		for(uint i = 0; i < P_Def->getCount(); i++) {
 			const BroColumn & r_col = P_Def->at(i);
-			const long _p = (r_col.OrgOffs == 0xffff) ? r_col.Offs : r_col.OrgOffs;
-			temp_buf.Semicol().Cat(_p).Comma().Cat(SFMTLEN(r_col.format));
+			if(!(r_col.State & BroColumn::stEvaluatedAuto)) { // @v12.4.9
+				const long _p = (r_col.OrgOffs == 0xffff) ? r_col.Offs : r_col.OrgOffs;
+				temp_buf.Semicol().Cat(_p).Comma().Cat(SFMTLEN(r_col.format));
+			}
 		}
 		ok = reg_key.PutString(param, temp_buf);
 	}
@@ -523,7 +523,7 @@ int BrowserWindow::RestoreUserSettings()
 	int    ok = -1;
 	SString spec_buf;
 	char   param[32];
-	WinRegKey reg_key(HKEY_CURRENT_USER, WrSubKey_BrwUserSetting, 1);
+	WinRegKey reg_key(HKEY_CURRENT_USER, SlConst::P_WrKey_BrwUserSetting, 1);
 	ltoa(RezID, param, 10);
 	if(reg_key.GetString(param, spec_buf)) {
 		// version, num_columns, column1_size, ...
@@ -548,7 +548,7 @@ int BrowserWindow::RestoreUserSettings()
 					if(_p == org_offs) {
 						if(cwidth_chr > 0 && cwidth_chr < 0x0fffL) {
 							SetCWidth(i, static_cast<uint>(cwidth_chr), 0/*newWidthPx*/);
-							p_def_->at(i).Options |= BCO_SIZESET;
+							p_def_->at(i).State |= BroColumn::stSizeSet;
 						}
 						break;
 					}
@@ -1385,7 +1385,7 @@ void BrowserWindow::SetupColumnsWith()
 	if(cc) {
 		for(uint i = 0; i < cc; i++) {
 			BroColumn & r_column = P_Def->at(i);
-			if(!(r_column.Options & BCO_SIZESET)) {
+			if(!(r_column.State & BroColumn::stSizeSet)) {
 				const  uint cw = r_column.CWidth;
 				const  TYPEID ct = r_column.T;
 				uint   w;
@@ -1398,7 +1398,7 @@ void BrowserWindow::SetupColumnsWith()
 				r_column.CWidth = smax(BrowserWindow::MinCWidthChr, w);
 				CalcRight();
 				SETSFMTLEN(r_column.format, r_column.CWidth);
-				r_column.Options |= BCO_SIZESET;
+				r_column.State |= BroColumn::stSizeSet;
 			}
 		}
 		EvaluateColumnSizes(true/*recalcDataStat*/); // @v12.4.7
@@ -1686,6 +1686,7 @@ int BrowserWindow::EvaluateColumnSizeStat(TSVector <ColumnWidthStat> & rStat) //
 					if(p_raw_stat_entry) {
 						p_raw_stat_entry->Finish();
 						ColumnWidthStat & r_se = rStat.at(ci);
+						r_se.NonZeroCount = static_cast<uint>(p_raw_stat_entry->GetCount());
 						r_se.Max = static_cast<float>(p_raw_stat_entry->GetMax());
 						r_se.Avg = static_cast<float>(p_raw_stat_entry->GetExp());
 						r_se.StdDev = static_cast<float>(p_raw_stat_entry->GetStdDev());
@@ -1701,96 +1702,109 @@ int BrowserWindow::EvaluateColumnSizeStat(TSVector <ColumnWidthStat> & rStat) //
 int BrowserWindow::EvaluateColumnSizes(bool recalcDataStat) // @v12.4.7 @construction
 {
 	int     ok = -1;
-	const   uint cc = SVectorBase::GetCount(P_Def);
-	if(cc && /*P_Def->IsSignature(BrowserDefSignature_ARY) && @debug*/ ChrSz.x > 0) {
-		const float min_col_size_chr = static_cast<float>(BrowserWindow::MinCWidthChr);
-		const uint  delta = 12;
-		const float min_col_size_px = 30.0f;
-		HWND  h_wnd = H();
-		TSVector <ColumnWidthStat> * p_cstat = 0;
-		if(h_wnd) {
-			bool skip = false;
-			if(recalcDataStat || CwsL.getCount() != cc) {
-				if(EvaluateColumnSizeStat(CwsL) > 0) {
-					;
-				}
-				else {
-					skip = true;
-				}
-			}
-			if(!skip) {
-				RECT  view_rect;
-				::GetClientRect(h_wnd, &view_rect);
-				const int   vscroll_width = GetSystemMetrics(SM_CXVSCROLL);
-				const float szy = 20.0f; // any positive value 
-				float total_max_size = 0.0f; // Общая ширина максимальных размеров всех колонок
-				float max_size = 0.0f;
-				uint  max_size_cidx = _FFFF32;
-				bool  is_fit = false; // Признак того, что все колонки (даже если брать по max-ширине) вмещаются в один экран
-				SUiLayout layout;
-				SUiLayoutParam alb(DIREC_HORZ, SUiLayoutParam::alignStart, 0);
-				uint total_width_px = (view_rect.right - view_rect.left - vscroll_width - cc * delta); // -(cc * delta) запас
-				//alb.SetFixedSizeX(static_cast<float>(view_rect.right - view_rect.left - vscroll_width) / (ChrSz.x + 1)); // (+1) - запас. Иначе результат чуть шире допустимого получается //
-				{
-					for(uint cidx = 0; cidx < cc; cidx++) {
-						const ColumnWidthStat & r_se = CwsL.at(cidx);
-						const float _wmax = smax(r_se.Max, min_col_size_px) + delta;
-						total_max_size += _wmax;
-						if(_wmax > max_size) {
-							max_size = _wmax;
-							max_size_cidx = cidx;
-						}
+	const   UserInterfaceSettings * p_ui_cfg = GetUIConfig();
+	if(p_ui_cfg && (p_ui_cfg->Flags & UserInterfaceSettings::fAutoWidthBrwColumns)) {
+		const   uint cc = SVectorBase::GetCount(P_Def);
+		if(cc && /*P_Def->IsSignature(BrowserDefSignature_ARY) && @debug*/ ChrSz.x > 0) {
+			const float min_col_size_chr = static_cast<float>(BrowserWindow::MinCWidthChr);
+			const uint  delta = 12;
+			const float min_col_size_px = 30.0f;
+			HWND  h_wnd = H();
+			TSVector <ColumnWidthStat> * p_cstat = 0;
+			if(h_wnd) {
+				bool skip = false;
+				if(recalcDataStat || CwsL.getCount() != cc) {
+					if(EvaluateColumnSizeStat(CwsL) > 0) {
+						;
+					}
+					else {
+						skip = true;
 					}
 				}
-				if(total_max_size > static_cast<float>(total_width_px)) {
-					alb.SetFixedSizeX(total_max_size);
-					is_fit = false;
-				}
-				else {
-					alb.SetFixedSizeX(static_cast<float>(total_width_px));
-					is_fit = true;
-				}
+				if(!skip) {
+					RECT  view_rect;
+					::GetClientRect(h_wnd, &view_rect);
+					const int   vscroll_width = GetSystemMetrics(SM_CXVSCROLL);
+					const float szy = 20.0f; // any positive value 
+					float total_max_size = 0.0f; // Общая ширина максимальных размеров всех колонок
+					float max_size = 0.0f;
+					uint  max_size_cidx = _FFFF32;
+					bool  is_fit = false; // Признак того, что все колонки (даже если брать по max-ширине) вмещаются в один экран
+					SUiLayout layout;
+					SUiLayoutParam alb(DIREC_HORZ, SUiLayoutParam::alignStart, 0);
+					uint total_width_px = (view_rect.right - view_rect.left - vscroll_width - cc * delta); // -(cc * delta) запас
+					//alb.SetFixedSizeX(static_cast<float>(view_rect.right - view_rect.left - vscroll_width) / (ChrSz.x + 1)); // (+1) - запас. Иначе результат чуть шире допустимого получается //
+					{
+						for(uint cidx = 0; cidx < cc; cidx++) {
+							const ColumnWidthStat & r_se = CwsL.at(cidx);
+							const float _wmax = smax(r_se.Max, min_col_size_px) + delta;
+							total_max_size += _wmax;
+							if(_wmax > max_size) {
+								max_size = _wmax;
+								max_size_cidx = cidx;
+							}
+						}
+					}
+					if(total_max_size > static_cast<float>(total_width_px)) {
+						alb.SetFixedSizeX(total_max_size);
+						is_fit = false;
+					}
+					else {
+						alb.SetFixedSizeX(static_cast<float>(total_width_px));
+						is_fit = true;
+					}
 				
-				alb.SetFixedSizeY(szy);
-				layout.SetLayoutBlock(alb);
-				{
-					for(uint cidx = 0; cidx < cc; cidx++) {
-						SUiLayoutParam alb_c;
-						alb_c.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-						const ColumnWidthStat & r_se = CwsL.at(cidx);
-						//const float _w = smax(r_se.Max, (min_col_size_chr * ChrSz.x));
-						const float _w = smax(r_se.Max, min_col_size_px);
-						/*if(is_fit && cidx == max_size_cidx) {
-							alb_c.SetVariableSizeX(SUiLayoutParam::szUndef, 0.0f);
-							alb_c.GrowFactor = 1.0f;
+					alb.SetFixedSizeY(szy);
+					layout.SetLayoutBlock(alb);
+					{
+						for(uint cidx = 0; cidx < cc; cidx++) {
+							SUiLayoutParam alb_c;
+							alb_c.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+							const ColumnWidthStat & r_se = CwsL.at(cidx);
+							//const float _w = smax(r_se.Max, (min_col_size_chr * ChrSz.x));
+							const float _w = smax(r_se.Max, min_col_size_px);
+							/*if(is_fit && cidx == max_size_cidx) {
+								alb_c.SetVariableSizeX(SUiLayoutParam::szUndef, 0.0f);
+								alb_c.GrowFactor = 1.0f;
+							}
+							else*/if((_w / total_max_size) >= 0.4f && !is_fit) {
+								alb_c.SetFixedSizeX(smax(r_se.Avg, min_col_size_px) + delta);
+							}
+							else {
+								alb_c.SetFixedSizeX(_w + delta);
+							}
+							/*
+							if(r_se.Avg > 0.0f && (r_se.StdDev / r_se.Avg) <= 0.25f) {
+								alb_c.SetFixedSizeX(_w + delta);
+							}
+							else {
+								alb_c.SetVariableSizeX(SUiLayoutParam::szUndef, 0.0f);
+								alb_c.GrowFactor = _w;
+							}
+							*/
+							SUiLayout * p_lo = layout.InsertItem();
+							p_lo->SetLayoutBlock(alb_c);
 						}
-						else*/if((_w / total_max_size) >= 0.4f && !is_fit) {
-							alb_c.SetFixedSizeX(smax(r_se.Avg, min_col_size_px) + delta);
-						}
-						else {
-							alb_c.SetFixedSizeX(_w + delta);
-						}
-						/*
-						if(r_se.Avg > 0.0f && (r_se.StdDev / r_se.Avg) <= 0.25f) {
-							alb_c.SetFixedSizeX(_w + delta);
-						}
-						else {
-							alb_c.SetVariableSizeX(SUiLayoutParam::szUndef, 0.0f);
-							alb_c.GrowFactor = _w;
-						}
-						*/
-						SUiLayout * p_lo = layout.InsertItem();
-						p_lo->SetLayoutBlock(alb_c);
+						layout.Evaluate(0);
+						assert(layout.GetChildrenCount() == cc);
 					}
-					layout.Evaluate(0);
-					assert(layout.GetChildrenCount() == cc);
-				}
-				{
-					for(uint cidx = 0; cidx < cc; cidx++) {
-						const SUiLayout * p_lo = layout.GetChildC(cidx);
-						const FRect lo_frame = p_lo->GetFrame();
-						const float _w = lo_frame.Width();
-						SetCWidth(cidx, static_cast<uint>(_w/ChrSz.x), static_cast<uint>(_w)/*newWidthPx*/);
+					{
+						for(uint cidx = 0; cidx < cc; cidx++) {
+							BroColumn & r_column = P_Def->at(cidx);
+							const uint cwidth_org = r_column.CWidthOrg;
+							const ColumnWidthStat & r_se = CwsL.at(cidx);
+							const SUiLayout * p_lo = layout.GetChildC(cidx);
+							const FRect lo_frame = p_lo->GetFrame();
+							const float _w = lo_frame.Width();
+							if(r_se.NonZeroCount == 0 && cwidth_org) {
+								SetCWidth(cidx, cwidth_org, cwidth_org * ChrSz.x);
+								r_column.State |= BroColumn::stEvaluatedAuto;
+							}
+							else {
+								SetCWidth(cidx, static_cast<uint>(_w/ChrSz.x), static_cast<uint>(_w)/*newWidthPx*/);
+								r_column.State |= BroColumn::stEvaluatedAuto;
+							}
+						}
 					}
 				}
 			}
@@ -3194,16 +3208,16 @@ HWND FASTCALL GetNextBrowser(HWND hw, int reverse)
 
 /*static*/int BrowserWindow::RegWindowClass(HINSTANCE hInst)
 {
-	WNDCLASSEX wc;
+	WNDCLASSEXW wc;
 	INITWINAPISTRUCT(wc);
 	wc.lpszClassName = BrowserWindow::WndClsName;
-	wc.hInstance     = hInst;
-	wc.lpfnWndProc   = BrowserWindow::BrowserWndProc;
-	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
-	wc.hIcon = LoadIcon(hInst, MAKEINTRESOURCE(/*ICON_MAIN_P2*/ 102));
-	wc.cbClsExtra    = BRWCLASS_CEXTRA;
-	wc.cbWndExtra    = BRWCLASS_WEXTRA;
-	return ::RegisterClassEx(&wc);
+	wc.hInstance   = hInst;
+	wc.lpfnWndProc = BrowserWindow::BrowserWndProc;
+	wc.style = CS_HREDRAW|CS_VREDRAW|CS_OWNDC|CS_DBLCLKS;
+	wc.hIcon = LoadIcon(hInst, MAKEINTRESOURCE(/*ICON_MAIN_P2*/102));
+	wc.cbClsExtra  = BRWCLASS_CEXTRA;
+	wc.cbWndExtra  = BRWCLASS_WEXTRA;
+	return ::RegisterClassExW(&wc);
 }
 
 int BrowserWindow::search(void * pPattern, CompFunc fcmp, int srchMode)

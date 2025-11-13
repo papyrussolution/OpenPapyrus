@@ -171,9 +171,9 @@ extern "C" {
 //
 // Open and close print engine
 //
-BOOL CRPE_API PEOpenEngine(void);
-void CRPE_API PECloseEngine(void);
-BOOL CRPE_API PECanCloseEngine(void);
+BOOL CRPE_API PEOpenEngine();
+void CRPE_API PECloseEngine();
+BOOL CRPE_API PECanCloseEngine();
 //
 // Get version info
 //
@@ -219,17 +219,17 @@ BOOL CRPE_API PESetReportOptions(short printJob, PEReportOptions * reportOptions
 // print job
 //
 short CRPE_API PEOpenPrintJob(const char * reportFilePath);
-BOOL CRPE_API PEClosePrintJob(short printJob);
-BOOL CRPE_API PEStartPrintJob(short printJob, BOOL waitUntilDone);
-void CRPE_API PECancelPrintJob(short printJob);
+BOOL  CRPE_API PEClosePrintJob(short printJob);
+BOOL  CRPE_API PEStartPrintJob(short printJob, BOOL waitUntilDone);
+void  CRPE_API PECancelPrintJob(short printJob);
 
 // open and close subreport
 short CRPE_API PEOpenSubreport(short parentJob, const char * subreportName);
-BOOL CRPE_API PECloseSubreport(short printJob);
+BOOL  CRPE_API PECloseSubreport(short printJob);
 //
 // Print job status
 //
-BOOL CRPE_API PEIsPrintJobFinished(short printJob);
+BOOL  CRPE_API PEIsPrintJobFinished(short printJob);
 
 #define PE_JOBNOTSTARTED 1
 #define PE_JOBINPROGRESS 2

@@ -5599,7 +5599,7 @@ static void Cristal2SetRetailGateway_CSessDictionaryOutput(const char * pDictPat
 							line_buf.Tab().CatEq("recsize", /*tbl.getRecSize()*/r_fld_list.CalculateFixedRecSize()).CR();
 							{
 								for(uint fi = 0; fi < r_fld_list.getCount(); fi++) {
-									const BNField & r_fld = r_fld_list.getField(fi, true);
+									const BNField & r_fld = r_fld_list.GetFieldByPosition(fi);
 									GetBinaryTypeString(r_fld.T, 1, temp_buf, r_fld.Name, 0);
 									line_buf.Tab().Cat(temp_buf).CR();
 								}
@@ -5637,12 +5637,12 @@ static void Cristal2SetRetailGateway_CSessDictionaryOutput(const char * pDictPat
 										const int fldid = k.getFieldID(si);
 										const int segf = k.getFlags(si);
 										uint fld_pos = 0;
-										if(r_fld_list.getFieldPosition(fldid, &fld_pos)) {
-											const BNField & r_fld = r_fld_list.getField(fld_pos, true);
+										if(r_fld_list.GetFieldPosition(fldid, &fld_pos)) {
+											const BNField & r_fld = r_fld_list.GetFieldByPosition(fld_pos);
 											index_buf.Space().Cat(r_fld.Name);
 										}
 										else if(fldid < static_cast<int>(r_fld_list.getCount())) {
-											const BNField & r_fld = r_fld_list.getField(fldid, true);
+											const BNField & r_fld = r_fld_list.GetFieldByPosition(fldid);
 											index_buf.Space().Cat(r_fld.Name);
 										}
 										else {

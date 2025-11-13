@@ -287,7 +287,7 @@ public:
 	//   Индексы нумеруются от 0 до GetTagCount()-1.
 	// Returns:
 	//   >0 - тег и его значение по индексу idx успешно получены
-	//   0  - ошибка (скорее всего аргумент idx нарушил границы)
+	//   0  - error (скорее всего аргумент idx нарушил границы)
 	//
 	int    FASTCALL GetTagByIdx(uint idx, int * pTag, int * pVal) const;
 	int    FASTCALL GetTag(int tag) const;
@@ -768,7 +768,7 @@ public:
 	// Descr: Формирует текст специальной лексемы с префиксом, определенным параметром spcTag.
 	// Returns:
 	//   >0 - специальная лексема успешно сформирована
-	//   0  - ошибка (недопустимое значение spcTag)
+	//   0  - error (недопустимое значение spcTag)
 	//
 	static int MakeSpecialWord(int spcTag, const char * pWordUtf8, SString & rBuf);
 	//
@@ -868,7 +868,7 @@ public:
 	// Returns:
 	//   >0 - найдена по крайней мере одна концепция, ассоциированная с ngID
 	//   <0 - не найдено ни одной концепции, удовлетворяющей условиям
-	//   0  - ошибка
+	//   0  - error
 	//
 	int    GetNgConceptList(NGID ngID, long flags, Int64Array & rConceptList);
 	int    GetConceptHier(CONCEPTID cID, Int64Array & rConceptHier);

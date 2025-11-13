@@ -802,9 +802,36 @@ int RegisterCore::SearchByObj(PPObjID oid, PPID regTypeID, RegisterTbl::Rec * pR
 	return ok;
 }
 
+int RegisterCore::SearchAnyByNumber(const char * pNumber, PPIDArray * pResList, PPObjIDArray * pOidList)
+{
+	CALLPTRMEMB(pResList, Z());
+	CALLPTRMEMB(pOidList, clear());
+	int    ok = -1;
+	if(!isempty(pNumber)) {
+		RegisterTbl::Key4 k4;
+		BExtQuery q(this, 4);
+		q.selectAll();
+		for(q.initIteration(false, &k4, spFirst); q.nextIteration() > 0;) {
+			if(sstreqi_ascii(data.Num, pNumber)) {
+				CALLPTRMEMB(pResList, add(data.ID));
+				if(pOidList) {
+					const PPID obj_type = NZOR(data.ObjType, PPOBJ_PERSON);
+					pOidList->Add(obj_type, data.ObjID);
+				}
+				ok = 1;
+				if(!pResList && !pOidList) {
+					break;
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int RegisterCore::SearchByFilt(const RegisterFilt * pFilt, PPIDArray * pResList, PPIDArray * pObjList)
 {
-	int    c = 0, sp;
+	int    c = 0;
+	int    sp;
 	DBQ  * dbq = 0;
 	union {
 		RegisterTbl::Key0 k0;

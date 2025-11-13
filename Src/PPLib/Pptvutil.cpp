@@ -3731,6 +3731,10 @@ public:
 		AddClusterAssoc(CTL_UICFG_FLAGS, 14, UserInterfaceSettings::fDateTimePickerBefore1124); // @v11.2.6
 		INVERSEFLAG(Data.Flags, UserInterfaceSettings::fDontExitBrowserByEsc);
 		SetClusterData(CTL_UICFG_FLAGS, Data.Flags);
+		// @v12.4.9 {
+		AddClusterAssoc(CTL_UICFG_FLAGS2, 0, UserInterfaceSettings::fAutoWidthBrwColumns);
+		SetClusterData(CTL_UICFG_FLAGS2, Data.Flags);
+		// } @v12.4.9 
 		{
 			const  long t = CHKXORFLAGS(Data.Flags, UserInterfaceSettings::fEnalbeBillMultiPrint, UserInterfaceSettings::fDisableBillMultiPrint);
 			AddClusterAssocDef(CTL_UICFG_MULTBILLPRINT, 0, 0);
@@ -3759,6 +3763,7 @@ public:
 		Data.WindowViewStyle = (id > 0) ? (id - 1) : 0;
 		getCtrlData(CTL_UICFG_LISTELEMCOUNT, &Data.ListElemCount);
 		GetClusterData(CTL_UICFG_FLAGS, &Data.Flags);
+		GetClusterData(CTL_UICFG_FLAGS2, &Data.Flags); // @v12.4.9
 		INVERSEFLAG(Data.Flags, UserInterfaceSettings::fDontExitBrowserByEsc);
 		{
 			const long t = GetClusterData(CTL_UICFG_MULTBILLPRINT);

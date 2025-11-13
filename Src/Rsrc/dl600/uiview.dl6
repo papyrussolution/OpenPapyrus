@@ -1533,6 +1533,89 @@ dialog DLG_INVFLT [vertical title: "@billfiltinventory" size: (380, 230) minsize
 	}
 }
 
+dialog DLG_UNIFINDOBJ [vertical title: "@unifindobjparam" size: (625, 350) minsize: (400, 350) font: "MS Shell Dlg,8"] {
+	input CTL_UNIFINDOBJ_MPATTERN [width: bycontainer height: 21 margin: 4 tabstop label: "@unifindobjparam_mainpattern" labelsize: (0, 13)] string[252];
+	view [horizontal width: bycontainer growfactor: 1] {
+		checkcluster CTL_UNIFINDOBJ_WFLAGS [vertical growfactor: 1 margin: 4 padding: 4 title: "@unifindobjparam_wflags"] {
+			checkbox [title: "@unifindobjparam_wfeverything" height: 16];
+			checkbox [title: "@unifindobjparam_wfbill" height: 16];
+			checkbox [title: "@unifindobjparam_wfgoods" height: 16];
+			checkbox [title: "@unifindobjparam_wfperson" height: 16];
+			checkbox [title: "@unifindobjparam_wfscard" height: 16];
+			checkbox [title: "@unifindobjparam_wfccheck" height: 16];
+			checkbox [title: "@unifindobjparam_wfpersonevent" height: 16];
+			checkbox [title: "@unifindobjparam_wfproject" height: 16];
+			checkbox [title: "@unifindobjparam_wftodo" height: 16];
+		}
+		view [vertical growfactor: 1 height: bycontainer] {
+			input CTL_UNIFINDOBJ_PERIOD [width: bycontainer height: 21 margin: 4 tabstop label: "@unifindobjparam_period" labelsize: (0, 13) ] string[32]
+				supplement daterangecalbutton(CTLCAL_UNIFINDOBJ_PERIOD);
+		}
+	}
+	input CTL_UNIFINDOBJ_INFO [width: bycontainer height: 21 margin: 4 tabstop readonly] string[252];
+	view [horizontal width: bycontainer(100) height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: (4, 4, 8, 4) command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: (8, 4, 4, 4) command: cmCancel];
+	}
+}
+
+dialog DLG_UICFG [vertical title: "@uicfg" size: (600, 650) minsize: (600, 650)  font: "MS Shell Dlg 2,8"] {
+	view [horizontal width: bycontainer height: 40] {
+		combobox CTLSEL_UICFG_SELBCLRSHM [tabstop growfactor: 1 height: 21 margin: 4 label: "@uicfg_tableviewstyle" labelsize: (0, 13) cblinesymb: CTL_UICFG_SELBCLRSHM];
+		combobox CTLSEL_UICFG_WNDVIEWKIND [tabstop growfactor: 1 height: 21 margin: 4 label: "@uicfg_windowviewstyle" labelsize: (0, 13) cblinesymb: CTL_UICFG_WNDVIEWKIND];
+	}
+	checkcluster CTL_UICFG_FLAGS [vertical width: bycontainer margin: (4, 4, 4, 2)] {
+		checkbox [title: "@uicfg_fexitbrowserbyesc" height: 16];
+		checkbox [title: "@uicfg_fshowshortcuts" height: 16];
+		checkbox [title: "@uicfg_faddtobasketitemcurbrwitemasqtty" height: 16];
+		checkbox [title: "@uicfg_fshowbizscoreondesktop" height: 16];
+		checkbox [title: "@uicfg_fdisablenotfoundwindow" height: 16];
+		checkbox [title: "@uicfg_fupdatereminder" height: 16];
+		checkbox [title: "@uicfg_ftcbinterlaced" height: 16];
+		checkbox [title: "@uicfg_fdisablebeep" height: 16];
+		checkbox [title: "@uicfg_fbasketitemfocuspckg" height: 16];
+		checkbox [title: "@uicfg_foldmodifsignselection" height: 16];
+		checkbox [title: "@uicfg_fextgoodsselmainname" height: 16];
+		checkbox [title: "@uicfg_fextgoodsselhidegenerics" height: 16];
+		checkbox [title: "@uicfg_fpollvoipservice" height: 16];
+		checkbox [title: "@uicfg_fstringhistorydisabled" height: 16];
+		checkbox [title: "@uicfg_fdatetimepickerbefore1124" height: 16];
+	}
+	checkcluster CTL_UICFG_FLAGS2 [vertical width: bycontainer margin: (4, 2, 4, 4)] {
+		checkbox [title: "@uicfg_fautowidthbrwcolumns" height: 16];
+	}
+	view [horizontal width: bycontainer growfactor: 1] {
+		radiocluster CTL_UICFG_MULTBILLPRINT [vertical title: "@uicfg_billmultiprint" growfactor: 2 margin: 4] {
+			radiobutton [title: "@uicfg_billmultiprintdefault" height: 16];
+			radiobutton [title: "@uicfg_fenalbebillmultiprint" height: 16];
+			radiobutton [title: "@uicfg_fdisablebillmultiprint" height: 16];
+		}
+		view [vertical growfactor: 3 height: bycontainer margin: 4] {
+			view [horizontal growfactor: 1 width: bycontainer] {
+				button CTL_CMD_SELBROWSERFONT [title: "@{uicfg_tablefont}..." tabstop size: (120, 21) margin: 4 command: cmSelBrowserFont];
+				statictext CTL_UICFG_ST_TABLEFONT [growfactor: 1 height: 21 margin: 4 staticedge];
+			}
+			view [horizontal growfactor: 1 width: bycontainer] {
+				button CTL_CMD_SELLISTFONT [title: "@{uicfg_listfont}..." tabstop size: (120, 21) margin: 4 command: cmSelListFont];
+				statictext CTL_UICFG_ST_LISTFONT [growfactor: 1 height: 21 margin: 4 staticedge];
+			}
+		}
+	}
+	view [vertical width: bycontainer height: 80 margin: 4] {
+		input CTL_UICFG_LISTELEMCOUNT [design: B width: 80 height: 21 margin: 4 tabstop label: "@uicfg_listelemcount" labelsize: (0, 13)] int16;
+		input CTL_UICFG_SPCINPDRV [design: B width: 200 height: 21 margin: 4 tabstop label: "@uicfg_specialinputdevicesymb" labelsize: (0, 13)] string[64];
+	}
+	view [horizontal width: bycontainer(100) height: 30] {
+		view [horizontal growfactor: 1 height: bycontainer(100) gravity: left justifycontent: start alignitems: end] {
+			button CTL_CMD_UICFGBITF [title: "@uicfg_billitemtableflags" tabstop size: (210, 21) margin: 4 command: cmUiCfgBITF];
+		}
+		view [horizontal growfactor: 2 height: bycontainer(100) margin_right: 12 gravity: right justifycontent: end alignitems: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
 // @20251107 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
 // Диалоги, представленные здесь с изменными символами (DLG_CASHREPORTS_L__, например) в ppdlg.list не отмечены поскольку находятся в работе.
 

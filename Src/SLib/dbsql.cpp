@@ -425,7 +425,7 @@ int SSqlStmt::BindData(int dir, uint count, const BNFieldList2 & rFldList, const
 	BL.P_Lob = pLob;
 	assert(checkirange(count, 1U, 1024U));
 	for(uint i = 0; i < fld_count; i++) {
-		const BNField & r_fld = rFldList.getField(i);
+		const BNField & r_fld = rFldList.GetFieldByPosition(i);
 		BindItem((dir < 0) ? -(int16)(i+1) : +(int16)(i+1), count, r_fld.T, const_cast<uint8 *>(PTR8C(pDataBuf) + r_fld.Offs)); // @badcast
 	}
 	THROW(P_Db->Binding(*this, dir));
@@ -1053,7 +1053,7 @@ int SOraDbProvider::PostProcessAfterUndump(const DBTable * pTbl)
 		const  uint fld_count = pTbl->fields.getCount();
 		SString seq_name;
 		for(uint i = 0; i < fld_count; i++) {
-			const BNField & r_fld = pTbl->fields.getField(i);
+			const BNField & r_fld = pTbl->fields.GetFieldByPosition(i);
 			if(GETSTYPE(r_fld.T) == S_AUTOINC) {
 				long   seq = 0;
 				long   max_val = 0;
@@ -2017,7 +2017,7 @@ int SOraDbProvider::Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf,
 		if(i)
 			SqlGen.Com();
 		SqlGen.Param(temp_buf.NumberToLat(subst_no++));
-		const BNField & r_fld = pTbl->fields.getField(i);
+		const BNField & r_fld = pTbl->fields.GetFieldByPosition(i);
 		if(GETSTYPE(r_fld.T) == S_AUTOINC) {
 			long   val = 0;
 			size_t val_sz = 0;

@@ -1,5 +1,5 @@
 // CROSSTAB.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -325,24 +325,24 @@ int Crosstab::CreateTable()
 	}
 	{
 		BNKey key;
-		key.addSegment(P_RTbl->GetFields().getField(0U).Id, XIF_EXT);
+		key.addSegment(P_RTbl->GetFields().GetFieldByPosition(0U).Id, XIF_EXT);
 		P_RTbl->AddKey(key);
 		key.setKeyParams(0, 0);
 		for(i = 0; i < IdxFldList.GetCount(); i++)
-			key.addSegment(P_RTbl->GetFields().getField(start_fld_pos+i).Id, XIF_EXT | XIF_MOD);
+			key.addSegment(P_RTbl->GetFields().GetFieldByPosition(start_fld_pos+i).Id, XIF_EXT | XIF_MOD);
 		key.setKeyParams(1, 0);
 		P_RTbl->AddKey(key);
 		if(SortIdxList.getCount()) {
 			SString seg_name;
 			if(Flags & fHasExtSortField) {
 				uint   fld_pos = 0;
-				const  BNField * p_fld = &P_RTbl->GetFields().getField("CTIX", &fld_pos);
+				const  BNField * p_fld = &P_RTbl->GetFields().GetFieldByName("CTIX", &fld_pos);
 				THROW(p_fld);
 				key.addSegment(p_fld->Id, XIF_EXT | XIF_MOD | XIF_DUP);
 			}
 			for(uint p = 0; SortIdxList.get(&p, seg_name);) {
 				uint   fld_pos = 0;
-				const  BNField * p_fld = &P_RTbl->GetFields().getField(seg_name, &fld_pos);
+				const  BNField * p_fld = &P_RTbl->GetFields().GetFieldByName(seg_name, &fld_pos);
 				THROW(p_fld);
 				key.addSegment(p_fld->Id, XIF_EXT | XIF_MOD | XIF_DUP);
 			}
@@ -504,7 +504,7 @@ int Crosstab::Create(int use_ta)
 		const uint idx_fld_count = IdxFldList.GetCount();
 		const long zero = 0;
 		uint  ext_sort_fld_pos = 0;
-		if(Flags & fHasExtSortField && &P_RTbl->GetFields().getField("CTIX", &ext_sort_fld_pos) == 0)
+		if(Flags & fHasExtSortField && &P_RTbl->GetFields().GetFieldByName("CTIX", &ext_sort_fld_pos) == 0)
 			ext_sort_fld_pos = 0;
 		for(q.initIteration(false, 0, -1); q.nextIteration() > 0; PPWaitPercent(cntr.Increment(), msg_buf)) {
 			uint   ct_val_pos = 0;
@@ -634,14 +634,14 @@ DBQuery * Crosstab::CreateBrowserQuery()
 			SString seg_name;
 			if(Flags & fHasExtSortField) {
 				uint   fld_pos = 0;
-				if(&p_tbl->GetFields().getField("CTIX", &fld_pos) != 0) {
+				if(&p_tbl->GetFields().GetFieldByName("CTIX", &fld_pos) != 0) {
 					p_tbl->getField(fld_pos, &fld);
 					p_q->addOrderField(fld);
 				}
 			}
 			for(uint p = 0; SortIdxList.get(&p, seg_name);) {
 				uint   fld_pos = 0;
-				if(&p_tbl->GetFields().getField(seg_name, &fld_pos) != 0) {
+				if(&p_tbl->GetFields().GetFieldByName(seg_name, &fld_pos) != 0) {
 					p_tbl->getField(fld_pos, &fld);
 					p_q->addOrderField(fld);
 				}

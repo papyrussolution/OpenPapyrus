@@ -1408,10 +1408,8 @@ static int STDCALL Implement_GetObjectName(PPID objType, PPID objID, SString & r
 	return ok;
 }
 
-int STDCALL GetObjectName(PPID objType, PPID objID, SString & rBuf)
-{
-	return Implement_GetObjectName(objType, objID, rBuf, false);
-}
+int STDCALL GetObjectName(PPID objType, PPID objID, SString & rBuf) { return Implement_GetObjectName(objType, objID, rBuf, false); }
+int STDCALL GetObjectName(const PPObjID & rOid, SString & rBuf) { return Implement_GetObjectName(rOid.Obj, rOid.Id, rBuf, false); }
 
 int STDCALL CatObjectName(PPID objType, PPID objID, SString & rBuf) // @v12.0.1 Вместо GetObjectName(PPID objType, PPID objID, SString & rBuf, int cat);
 {
@@ -2668,58 +2666,257 @@ struct UniFindObjParam {
 		Period.Z();
 	}
 	enum {
-		wfBill        = 0x0001,
-		wfGoods       = 0x0002,
-		wfPerson      = 0x0004,
-		wfSCard       = 0x0008,
-		wfCCheck      = 0x0010,
-		wfPersonEvent = 0x0020,
-		wfProject     = 0x0040,
-		wfToDo        = 0x0080
+		wfEverything  = 0x0001,
+		wfBill        = 0x0002,
+		wfGoods       = 0x0004,
+		wfPerson      = 0x0008,
+		wfSCard       = 0x0010,
+		wfCCheck      = 0x0020,
+		wfPersonEvent = 0x0040,
+		wfProject     = 0x0080,
+		wfToDo        = 0x0100,
+		wfLocation    = 0x0200, // @v12.4.9
 	};
 	enum {
 		dfInteractive = 0x0001
 	};
-	long   WFlags;
-	long   DFlags;
+	long   WFlags; // wfXXXX Флаги, определяющие места поиска (where-flag) 
+	long   DFlags; // dfXXXX
 	SString MainPattern;
 	DateRange Period;
 };
 
-class UniFindObjParamDialog : public TDialog {
-	DECL_DIALOG_DATA(UniFindObjParam);
+class PrcssrUniFindObj {
 public:
-	UniFindObjParamDialog() : TDialog(DLG_UNIFINDOBJ)
+	PrcssrUniFindObj()
 	{
 	}
-	DECL_DIALOG_SETDTS()
-	{
-		int    ok = 1;
-		RVALUEPTR(Data, pData);
-		return ok;
-	}
-	DECL_DIALOG_GETDTS()
-	{
-		int    ok = 1;
-		ASSIGN_PTR(pData, Data);
-		return ok;
-	}
+	int    InitParam(UniFindObjParam * pParam);
+	int    EditParam(UniFindObjParam * pParam);
+	int    Init(const UniFindObjParam * pParam);
+	int    Run();
+private:
+	UniFindObjParam P;
 };
+
+int PrcssrUniFindObj::Init(const UniFindObjParam * pParam)
+{
+	int    ok = 1;
+	RVALUEPTR(P, pParam);
+	P.Period.Actualize(ZERODATE);
+	return ok;
+}
+
+int PrcssrUniFindObj::InitParam(UniFindObjParam * pParam)
+{
+	int    ok = -1;
+	if(pParam) {
+		pParam->WFlags = UniFindObjParam::wfEverything;
+		ok = 1;
+	}
+	return ok;
+}
+
+int PrcssrUniFindObj::EditParam(UniFindObjParam * pParam)
+{
+	class UniFindObjParamDialog : public TDialog {
+		DECL_DIALOG_DATA(UniFindObjParam);
+	public:
+		UniFindObjParamDialog() : TDialog(DLG_UNIFINDOBJ)
+		{
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			int    ok = 1;
+			RVALUEPTR(Data, pData);
+			setCtrlString(CTL_UNIFINDOBJ_MPATTERN, Data.MainPattern);
+			AddClusterAssoc(CTL_UNIFINDOBJ_WFLAGS, 0, UniFindObjParam::wfEverything);
+			AddClusterAssoc(CTL_UNIFINDOBJ_WFLAGS, 1, UniFindObjParam::wfBill);
+			AddClusterAssoc(CTL_UNIFINDOBJ_WFLAGS, 2, UniFindObjParam::wfGoods);
+			AddClusterAssoc(CTL_UNIFINDOBJ_WFLAGS, 3, UniFindObjParam::wfPerson);
+			AddClusterAssoc(CTL_UNIFINDOBJ_WFLAGS, 4, UniFindObjParam::wfSCard);
+			AddClusterAssoc(CTL_UNIFINDOBJ_WFLAGS, 5, UniFindObjParam::wfCCheck);
+			AddClusterAssoc(CTL_UNIFINDOBJ_WFLAGS, 6, UniFindObjParam::wfPersonEvent);
+			AddClusterAssoc(CTL_UNIFINDOBJ_WFLAGS, 7, UniFindObjParam::wfProject);
+			AddClusterAssoc(CTL_UNIFINDOBJ_WFLAGS, 8, UniFindObjParam::wfToDo);
+			SetClusterData(CTL_UNIFINDOBJ_WFLAGS, Data.WFlags);
+			SetPeriodInput(this, CTL_UNIFINDOBJ_PERIOD, Data.Period);
+			return ok;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			uint   sel = 0;
+			getCtrlString(sel = CTL_UNIFINDOBJ_MPATTERN, Data.MainPattern);
+			GetClusterData(sel = CTL_UNIFINDOBJ_WFLAGS, &Data.WFlags);
+			GetPeriodInput(this, sel = CTL_UNIFINDOBJ_PERIOD, &Data.Period);
+			THROW(Data.MainPattern.NotEmptyS());
+			ASSIGN_PTR(pData, Data);
+			CATCHZOKPPERRBYDLG
+			return ok;
+		}
+	};
+	DIALOG_PROC_BODY(UniFindObjParamDialog, pParam);
+}
+
+int PrcssrUniFindObj::Run()
+{
+	int    ok = -1;
+	SString temp_buf;
+	SString msg_buf;
+	SString obj_title_buf;
+	PPObjIDArray oid_list;
+	if(P.MainPattern.IsEmpty()) {
+		;
+	}
+	else if(!P.WFlags) {
+		;
+	}
+	else {
+		PPObjBill * p_bobj = BillObj;
+		PPIDArray temp_id_list;
+		PPIDArray result_id_list;
+		SNaturalTokenArray nta;
+		PPTokenRecognizer trgn;
+		double _real_val = 0.0;
+		int64  _int_val = 0;
+		S_GUID _uuid_val;
+		bool   is_chzn_mark = false;
+		trgn.Run(P.MainPattern.ucptr(), static_cast<int>(P.MainPattern.Len()), nta, 0);
+		if(nta.Has(SNTOK_REALNUMBER)) {
+			_real_val = P.MainPattern.ToReal_Plain();
+		}
+		if(nta.Has(SNTOK_INTNUMBER)) {
+			_int_val = P.MainPattern.ToInt64();
+		}
+		if(nta.Has(SNTOK_GUID)) {
+			_uuid_val.FromStr(P.MainPattern);
+		}
+		if(nta.Has(SNTOK_PHONE)) {
+		}
+		else if(nta.Has(SNTOK_EMAIL)) {
+		}
+		{
+			GtinStruc gts;
+			const int ichzncr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(P.MainPattern, gts, 0));
+			if(ichzncr != PPChZnPrcssr::chznciNone) {
+				is_chzn_mark = true;
+				result_id_list.Z();
+				TSVector<LotExtCodeTbl::Rec> lxc_rec_list;
+				p_bobj->P_LotXcT->GetRecListByMark(P.MainPattern, lxc_rec_list);
+				for(uint i = 0; i < lxc_rec_list.getCount(); i++) {
+					result_id_list.add(lxc_rec_list.at(i).BillID);
+				}
+				result_id_list.sortAndUndup();
+				oid_list.Add(PPOBJ_BILL, result_id_list);
+			}
+		}
+		if(P.WFlags & (UniFindObjParam::wfEverything|UniFindObjParam::wfBill)) {
+			BillTbl::Rec bill_rec;
+			result_id_list.Z();
+			if(_int_val > 0 && _int_val < LONG_MAX) {
+				if(p_bobj->Search(static_cast<long>(_int_val), &bill_rec) > 0) {
+					result_id_list.add(bill_rec.ID);
+				}
+			}
+			if(P.MainPattern.Len() < 48) {
+				if(p_bobj->P_Tbl->SearchByCode(P.MainPattern, temp_id_list) > 0) {
+					result_id_list.add(&temp_id_list);
+				}
+			}
+			if(!!_uuid_val) {
+				if(p_bobj->SearchByGuid(_uuid_val, temp_id_list) > 0) {
+					result_id_list.add(&temp_id_list);
+				}
+			}
+			//
+			result_id_list.sortAndUndup();
+			oid_list.Add(PPOBJ_BILL, result_id_list);
+		}
+		if(P.WFlags & (UniFindObjParam::wfEverything|UniFindObjParam::wfGoods)) {
+			PPObjGoods goods_obj;
+			Goods2Tbl::Rec goods_rec;
+			result_id_list.Z();
+			temp_id_list.Z();
+			if(_int_val > 0 && _int_val < LONG_MAX) {
+				if(goods_obj.Search(static_cast<long>(_int_val), &goods_rec) > 0) {
+					result_id_list.add(goods_rec.ID);
+				}
+			}
+			if(goods_obj.SearchByBarcode(P.MainPattern, 0, &goods_rec, 1) > 0) {
+				result_id_list.add(goods_rec.ID);
+			}
+			if(goods_obj.P_Tbl->SearchByName(PPGDSK_GOODS, P.MainPattern, 0, &goods_rec) > 0) {
+				result_id_list.add(goods_rec.ID);
+			}
+			//
+			result_id_list.sortAndUndup();
+			oid_list.Add(PPOBJ_GOODS, result_id_list);
+		}
+		if(P.WFlags & (UniFindObjParam::wfEverything|UniFindObjParam::wfPerson|UniFindObjParam::wfPersonEvent|UniFindObjParam::wfLocation)) {
+			PPObjRegister reg_obj;
+			PPObjIDArray temp_oid_list;
+			if(reg_obj.P_Tbl->SearchAnyByNumber(P.MainPattern, &temp_id_list, &temp_oid_list) > 0) {
+				temp_oid_list.SortAndUndup();
+				for(uint i = 0; i < temp_oid_list.getCount(); i++) {
+					const PPObjID oid = temp_oid_list.at(i);
+					oid_list.insert(&oid);
+				}
+			}
+		}
+		if(P.WFlags & (UniFindObjParam::wfEverything|UniFindObjParam::wfPerson)) {
+			PPObjPerson psn_obj;
+			PersonTbl::Rec psn_rec;
+			result_id_list.Z();
+			temp_id_list.Z();
+			if(_int_val > 0 && _int_val < LONG_MAX) {
+				if(psn_obj.Search(static_cast<long>(_int_val), &psn_rec) > 0) {
+					result_id_list.add(psn_rec.ID);
+				}
+			}
+			if(psn_obj.P_Tbl->SearchByName(P.MainPattern, temp_id_list) > 0) {
+				result_id_list.add(&temp_id_list);
+			}
+		}
+		if(P.WFlags & (UniFindObjParam::wfEverything|UniFindObjParam::wfSCard)) {
+			//
+		}
+		if(P.WFlags & (UniFindObjParam::wfEverything|UniFindObjParam::wfCCheck)) {
+			//
+		}
+		if(P.WFlags & (UniFindObjParam::wfEverything|UniFindObjParam::wfPersonEvent)) {
+			//
+		}
+		if(P.WFlags & (UniFindObjParam::wfEverything|UniFindObjParam::wfProject)) {
+			//
+		}
+		if(P.WFlags & (UniFindObjParam::wfEverything|UniFindObjParam::wfToDo)) {
+			//
+		}
+	}
+	{
+		PPLogger logger; // Это - только для отладки. В конечном варианте данные будут выводится в BrowserWindow
+		for(uint i = 0; i < oid_list.getCount(); i++) {
+			const PPObjID oid = oid_list.at(i);
+			GetObjectTitle(oid.Obj, obj_title_buf.Z());
+			GetObjectName(oid, temp_buf.Z());
+			msg_buf.Z().Cat(obj_title_buf).CatDiv('-', 1).Cat(temp_buf);
+			logger.Log(msg_buf);
+		}
+	}
+	return ok;
+}
 
 int UniFindObj()
 {
 	int    ok = -1;
-	UniFindObjParamDialog * dlg = new UniFindObjParamDialog();
 	UniFindObjParam param;
-	if(CheckDialogPtrErr(&dlg)) {
-		dlg->setDTS(&param);
-		if(ExecView(dlg) == cmOK) {
-			if(dlg->getDTS(&param)) {
-				//
-			}
-		}
+	PrcssrUniFindObj prcssr;
+	prcssr.InitParam(&param);
+	if(prcssr.EditParam(&param) > 0) {
+		prcssr.Init(&param);
+		prcssr.Run();
 	}
-	delete dlg;
 	return ok;
 }
 // } @construction

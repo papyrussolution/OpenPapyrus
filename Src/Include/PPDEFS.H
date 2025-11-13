@@ -7483,6 +7483,7 @@
 	#define CTL_UICFG_ST_LISTFONT        (8 + WINDOWS_ID_BIAS)
 	#define CTL_UICFG_SPCINPDRV          (9 + WINDOWS_ID_BIAS)
 	#define CTL_UICFG_MULTBILLPRINT      (10 + WINDOWS_ID_BIAS)
+	#define CTL_UICFG_FLAGS2             (11 + WINDOWS_ID_BIAS) // @v12.4.9
 #define DLG_SMPLLEDG              727
 	#define CTL_SMPLLEDG_DT               (1 + WINDOWS_ID_BIAS)
 	#define CTL_SMPLLEDG_CODE             (2 + WINDOWS_ID_BIAS)

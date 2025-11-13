@@ -1444,7 +1444,7 @@ int PrcssrInvImport::IdentifyBySerial(const char * pSerial, PPObjBill::InvItem *
 		PPIDArray lot_list;
 		if(P_BObj->SearchLotsBySerialExactly(serial, &lot_list) > 0) {
 			ReceiptTbl::Rec lot_rec;
-			int r = P_BObj->SelectLotFromSerialList(&lot_list, P.LocID, 0, &lot_rec);
+			int    r = P_BObj->SelectLotFromSerialList(&lot_list, P.LocID, false/*closedAllowed*/, 0, &lot_rec);
 			if(r > 0 || r == -3) { // -3 - закрытый лот
 				Goods2Tbl::Rec goods_rec;
 				if(GObj.Fetch(labs(lot_rec.GoodsID), &goods_rec) > 0) {

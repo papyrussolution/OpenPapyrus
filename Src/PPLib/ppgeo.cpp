@@ -1630,7 +1630,7 @@ int PPViewGeoTracking::Export()
 	if(GetCounter().GetTotal()) {
 		SString fn_suffix;
         if(Filt.Oi.IsFullyDefined()) {
-			GetObjectName(Filt.Oi.Obj, Filt.Oi.Id, fn_suffix);
+			GetObjectName(Filt.Oi, fn_suffix);
         }
 		out_file_name.Z().Cat("geo-tracking");
 		if(fn_suffix.NotEmptyS()) {
@@ -1675,7 +1675,7 @@ int PPViewGeoTracking::Export()
 						THROW_MEM(p_n_trk = new SXml::WNode(p_writer, "trk"));
 						{
 							GetObjectTitle(oid.Obj, out_buf.Z());
-							GetObjectName(oid.Obj, oid.Id, temp_buf);
+							GetObjectName(oid, temp_buf);
 							out_buf.Space().CatBrackStr(temp_buf).Transf(CTRANSF_INNER_TO_UTF8);
 							p_n_trk->PutInner("name", out_buf);
 						}

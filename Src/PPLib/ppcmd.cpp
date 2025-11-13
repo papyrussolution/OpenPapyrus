@@ -3489,10 +3489,10 @@ public:
 			else
 				pParam->SetRdOffs(sav_offs);
 			if(dt_list.getCount()) {
-				BillFilt   filt;
+				BillFilt filt;
 				uint dts_count = dt_list.getCount();
 				for(uint i = 0; i < dts_count; i++) {
-					LDATE dt = ZERODATE;
+					LDATE  dt = ZERODATE;
 					DateIter di;
 					dt.v = dt_list.at(i);
 					di.dt  = dt;
@@ -3505,7 +3505,7 @@ public:
 					ok = PPView::Execute(PPVIEW_BILL, &filt, 1, 0);
 			}
 			else if(codes_list.getCount()) {
-				BillFilt   filt;
+				BillFilt filt;
 				for(uint i = 0; i < codes_list.getCount(); i++) {
 					BillTbl::Key7 k7;
 					MEMSZERO(k7);

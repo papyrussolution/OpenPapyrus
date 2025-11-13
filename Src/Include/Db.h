@@ -16,8 +16,7 @@ struct DBFCreateFld;
 class  DbfTable;
 class  DBTable;
 struct DBField;
-// @v12.4.3 class  BNFieldList_Obsolete;
-class  BNFieldList2; // @v12.4.3
+class  BNFieldList2;
 class  DBFieldList;
 class  BExtInsert;
 class  SOraDbProvider;
@@ -226,7 +225,7 @@ public:
 	// ARG(pFld     IN): @#{!0}    Тип нового поля. (см STYPE.H)
 	// Returns:
 	//   >0 - поле успешно добавлено в структуру
-	//   0  - ошибка (SLibError)
+	//   0  - error (SLibError)
 	//
 	int    AddField(uint * pID, const SdbField * pFld);
 	//
@@ -234,7 +233,7 @@ public:
 	//   Уникальность pFld->ID и pFld->Name проверяется аналогично тому, как это делается в методе AddField
 	// Returns:
 	//   >0 - поле успешно модифицировано
-	//   0  - ошибка (SLibError)
+	//   0  - error (SLibError)
 	//
 	int    UpdateField(uint pos, const SdbField * pFld);
 	//
@@ -251,7 +250,7 @@ public:
 	//   позиция перемещенного поля.
 	// Returns:
 	//   !0 - поле успешно перемещено
-	//   0  - ошибка (поле не перемещено).
+	//   0  - error (поле не перемещено).
 	//
 	int    MoveField(uint pos, int up, uint * pNewPos); // @>>Items.moveItem
 	//
@@ -346,7 +345,7 @@ public:
 	// Returns:
 	//   >0 - по крайней мере к одному полю записи была применеа процедура конвертации
 	//   <0 - ни одно из полей буфера не было изменено
-	//   0  - ошибка
+	//   0  - error
 	//
 	int    ConvertDataFields(int cvt, void * pBuf) const;
 	//
@@ -1260,8 +1259,7 @@ public:
 	BNKey();
 	int    operator !() const { return (data == 0); }
 	//
-	// Don't call BNKey::addSegment for
-	// object returned by BNKeyList::getKey
+	// Don't call BNKey::addSegment for object returned by BNKeyList::getKey
 	//
 	int    addSegment(int fldID, int flags);
 	int    setFieldID(int seg, int newID);
@@ -1674,7 +1672,7 @@ public:
 	//   если size < 0, то необходимый размер буфера определяется спецификацией записи (BNFieldList2 fields).
 	// Returns:
 	//   >0 - функция успешно выполнена
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    AllocateOwnBuffer(int size);
 	int    InitLob();
@@ -2312,7 +2310,7 @@ protected:
 	// Returns:
 	//   <0 - функция ничего не сделала (не посчитала нужным)
 	//   >0 - функция внесла какие-то изменения в спецификацию таблицы
-	//    0 - ошибка. В этом случае LoadTableSpec() так же вернет ошибку. 
+	//    0 - error. В этом случае LoadTableSpec() так же вернет ошибку. 
 	// 
 	virtual int PostProcess_LoadTableSpec(DBTable * pTbl); // @v12.4.8
 	int    GetProtectData();
@@ -2904,6 +2902,12 @@ public:
 	int    DropDatabase(const char * pDbName); // @v12.4.8
 	int    UseDatabase(const char * pDbName); // @v12.4.8
 private:
+	//
+	// 
+	//
+	static constexpr int PrimaryAutoincFldId = 10000;
+	static constexpr int PrimaryAutoincIdxId = 10000;
+
 	struct OD {
 		OD() : H(0), T(0)
 		{
@@ -3144,7 +3148,7 @@ public:
 	// Returns:
 	//   >0 - успешно осуществлен запуск транзакции
 	//   <0 - транзакция не запущена по причине того, что провайдер БД не требует этого
-	//   0  - ошибка
+	//   0  - error
 	//
 	int    StartTransaction_DbDepend();
 	int    CommitWork();
@@ -4508,7 +4512,7 @@ public:
 	// ARG(flags     IN): Опции открытия таблицы (ofXXX see above).
 	// Returns:
 	//   >0 - таблица открыта успешно
-	//   0  - ошибка
+	//   0  - error
 	//
 	int    Open(const char * pFileName, int flags);
 	int    Close();
@@ -4661,7 +4665,7 @@ private:
 	// ARG(flags     IN): Флаги открытия таблицы (BDbTable::ofXXX)
 	// Returns:
 	//   !0 - внутренний манипулятор таблицы
-	//   0  - ошибка
+	//   0  - error
 	//
 	void * Helper_Open(const char * pFileName, BDbTable * pTbl, int flags);
 	void   Helper_Close(void * pH);
@@ -4769,7 +4773,7 @@ public:
 		//    2 - блок существует в списке, был задан нулевой размер freeSize - блок удален
 		//    3 - блок не найден в списке - создана новая запись списка
 		//   -2 - блок не найден в списке, был задан нулевой размер freeSize - делать ничего не надо было
-		//    0 - ошибка
+		//    0 - error
 		//
 		int    Put(uint64 rowId, uint32 freeSize);
 		//
@@ -5060,7 +5064,7 @@ public:
 	// Returns:
 	//   >0 - функции удалось изменить запись на странице
 	//   <0 - запись не может быть изменена в пределах одной страницы
-	//    0 - ошибка
+	//    0 - error
 	//
 	int    UpdateOnPage(SDataPage_ * pPage, uint64 rowId, const void * pData, size_t dataLen);  
 	int    Update(uint64 rowId, uint64 * pNewRowId, uint pageType, const void * pData, size_t dataLen); // @construction

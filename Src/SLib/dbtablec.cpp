@@ -554,10 +554,10 @@ int DBTable::Debug_Output(SString & rBuf) const
 	CAT_FLD(FileName_, rBuf).CR();
 	CAT_FLD(fields.getCount(), rBuf).CR();
 	for(i = 0; i < fields.getCount(); i++) {
-		CAT_FLD(fields.getField(i).Id, rBuf.Tab()).CR();
-		CAT_FLD(fields.getField(i).Name, rBuf.Tab()).CR();
-		CAT_FLD(fields.getField(i).Offs, rBuf.Tab()).CR();
-		CAT_FLD_HEX(fields.getField(i).T, rBuf.Tab()).CR();
+		CAT_FLD(fields.GetFieldByPosition(i).Id, rBuf.Tab()).CR();
+		CAT_FLD(fields.GetFieldByPosition(i).Name, rBuf.Tab()).CR();
+		CAT_FLD(fields.GetFieldByPosition(i).Offs, rBuf.Tab()).CR();
+		CAT_FLD_HEX(fields.GetFieldByPosition(i).T, rBuf.Tab()).CR();
 	}
 	CAT_FLD(Indices.getNumKeys(), rBuf).CR();
 	for(i = 0; i < Indices.getNumKeys(); i++) {
@@ -669,7 +669,7 @@ bool DBTable::getField(uint fldN, DBField * pFld) const
 int DBTable::getFieldByName(const char * pName, DBField * pFld) const
 {
 	uint   pos = 0;
-	const  BNField * f = &fields.getField(pName, &pos);
+	const  BNField * f = &fields.GetFieldByName(pName, &pos);
 	if(f) {
 		DBField fld;
 		fld.Id = handle;
@@ -688,13 +688,13 @@ int DBTable::setFieldValue(uint fldN, const void * pBuf)
 
 int DBTable::getFieldValByName(const char * pName, void * pVal, size_t * pSize) const
 {
-	const  BNField * f = &fields.getField(pName, 0);
+	const  BNField * f = &fields.GetFieldByName(pName, 0);
 	return (P_DBuf && f) ? f->getValue(P_DBuf, pVal, pSize) : 0;
 }
 
 int DBTable::setFieldValByName(const char * pName, const void * pVal)
 {
-	const  BNField * f = &fields.getField(pName, 0);
+	const  BNField * f = &fields.GetFieldByName(pName, 0);
 	return (f && P_DBuf) ? f->setValue(P_DBuf, pVal) : 0;
 }
 
@@ -703,7 +703,7 @@ int DBTable::putRecToString(SString & rBuf, int withFieldNames)
 	rBuf.Z();
 	for(uint i = 0; i < fields.getCount(); i++) {
 		char   temp_buf[1024];
-		const BNField & f = fields[i];
+		const  BNField & f = fields[i];
 		f.putValueToString(P_DBuf, temp_buf);
 		if(withFieldNames)
 			rBuf.CatEq(f.Name, temp_buf);

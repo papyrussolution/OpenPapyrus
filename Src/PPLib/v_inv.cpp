@@ -1690,7 +1690,6 @@ int PPViewInventory::Build()
 	int    ok = -1;
 	const  PPID bill_id = Filt.GetSingleBillID();
 	if(P_BObj && bill_id) {
-		int    r = 0;
 		SString temp_buf;
 		BillTbl::Rec bill_rec;
 		AutoFillInvFilt filt;
@@ -1700,15 +1699,18 @@ int PPViewInventory::Build()
 		THROW_PP_S(!bill_rec.StatusID || !P_BObj->CheckStatusFlag(bill_rec.StatusID, BILSTF_DENY_MOD), PPERR_BILLST_DENY_MOD, PPObjBill::MakeCodeString(&bill_rec, 1, temp_buf));
 		filt.BillID = bill_id;
 		filt.Method = ioe.AutoFillMethod;
-		THROW((r = AutoFillInventryDlg(&filt)));
-		if(r > 0) {
-			PPWaitStart();
-			filt.DueDate = bill_rec.DueDate;
-			THROW(P_BObj->AutoFillInventory(&filt));
-			UpdateTempTable(bill_id, 0);
-			PPWaitStop();
-			Flags |= fWasUpdated;
-			ok = 1;
+		{
+			const int r = AutoFillInventryDlg(&filt);
+			THROW(r);
+			if(r > 0) {
+				PPWaitStart();
+				filt.DueDate = bill_rec.DueDate;
+				THROW(P_BObj->AutoFillInventory(&filt));
+				UpdateTempTable(bill_id, 0);
+				PPWaitStop();
+				Flags |= fWasUpdated;
+				ok = 1;
+			}
 		}
 	}
 	CATCHZOKPPERR
@@ -1791,7 +1793,7 @@ int PPViewInventory::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 					if(bill_id) {
 						BillTbl::Rec bill_rec;
 						if(P_BObj->Search(bill_id, &bill_rec) > 0) {
-							int    sel_by_name = BIN(ppvCmd == PPVCMD_SELECTBYNAME);
+							bool   sel_by_name = (ppvCmd == PPVCMD_SELECTBYNAME);
 							StrAssocArray goods_list;
 							if(sel_by_name) {
 								SString sub;
@@ -1801,11 +1803,11 @@ int PPViewInventory::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 								if(InputStringDialog(isd_param, sub) > 0 && sub.NotEmptyS()) {
 									if(!GObj.P_Tbl->GetListBySubstring(sub, &goods_list, -1)) {
 										PPError();
-										sel_by_name = 0;
+										sel_by_name = false;
 									}
 								}
 								else
-									sel_by_name = 0;
+									sel_by_name = false;
 							}
 							long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags();
 							SETFLAG(egsd_flags, ExtGoodsSelDialog::fExistsOnly, (Filt.Flags & InventoryFilt::fSelExistsGoodsOnly));
@@ -1900,6 +1902,8 @@ int PPViewInventory::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 				break;
 			case PPVCMD_BUILD:
 				ok = Build();
+				if(ok > 0)
+					ok = 100; // Пересчитать размеры колонок
 				break;
 			case PPVCMD_RECALCREST:
 			case PPVCMD_RECALCPRICE:

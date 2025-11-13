@@ -4397,7 +4397,7 @@ int PPViewBill::UniteSellBills()
 				PPWaitPercent(i, src_ids.getCount());
 				THROW(P_BObj->UniteGoodsBill(&pack, src_ids.at(i), 0));
 				if(pack.CheckLargeBill(0)) {
-					if(P_BObj->P_LotXcT) { // @v11.0.0
+					if(P_BObj->P_LotXcT) {
 						THROW(P_BObj->P_LotXcT->PutContainer(pack.Rec.ID, &pack.XcL, 0)); // Здесь надо сохранить расширенные коды лотов для pack
 					}
 					THROW(pack.CreateBlank2(Filt.OpID, last_bill.Rec.Dt, last_bill.Rec.LocID, 0));
@@ -4410,7 +4410,7 @@ int PPViewBill::UniteSellBills()
 					dest_ids.addUnique(pack.Rec.ID);
 				}
 			}
-			if(P_BObj->P_LotXcT) { // @v11.0.0
+			if(P_BObj->P_LotXcT) {
 				THROW(P_BObj->P_LotXcT->PutContainer(pack.Rec.ID, &pack.XcL, 0)); // Здесь надо сохранить расширенные коды лотов для pack
 			}
 			for(i = 0; i < dest_ids.getCount(); i++) {

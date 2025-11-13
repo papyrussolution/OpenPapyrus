@@ -2041,6 +2041,7 @@ void BillItemBrowser::update(int pos)
 			else if(pos >= 0 && pos < p_list->getCountI())
 				go(pos);
 			// }
+			EvaluateColumnSizes(true); // @v12.4.9
 		}
 	}
 }

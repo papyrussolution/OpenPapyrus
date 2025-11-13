@@ -2942,7 +2942,7 @@ int DlContext::Helper_LoadDbTableSpec(const DlScope * pScope, DBTable * pTbl, in
 				// тот идентификатор поля, который был установлен предшествующим вызовом
 				// p_tbl->fields.addField()
 				//
-				const BNField * p_f = &pTbl->GetFields().getField(fld.Name);
+				const BNField * p_f = &pTbl->GetFields().GetFieldByName(fld.Name);
 				THROW(p_f);
 				const long seg_flags = p_index->GetDbIndexSegOptions(j-1);
 				THROW_SL(key.addSegment(p_f->Id, seg_flags));

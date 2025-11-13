@@ -2792,7 +2792,7 @@ public:
 		if(Data.Oid.Obj) {
 			SString obj_buf;
 			if(Data.Oid.Id) {
-				GetObjectName(Data.Oid.Obj, Data.Oid.Id, obj_buf);
+				GetObjectName(Data.Oid, obj_buf);
 			}
 			if(!obj_buf.NotEmptyS()) {
 				GetObjectTitle(Data.Oid.Obj, obj_buf);

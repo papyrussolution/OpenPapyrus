@@ -579,10 +579,10 @@ extern struct ODC OwnerDrawCtrls[32]; // @defined(TDIALOG.CPP)
 #define BCO_CAPVCENTER   0x00000200
 #define BCO_SORTABLE     0x00000400 // По содержимому колонки допускается сортировка таблицы
 #define BCO_USERPROC     0x00001000
-#define BCO_DEFOPT       (BCO_CAPBOTTOM | BCO_CAPCENTER)
+#define BCO_DEFOPT       (BCO_CAPBOTTOM|BCO_CAPCENTER)
 #define BCO_DONTSHOWDUPL 0x00004000
 #define BCO_RESIZEABLE   0x00008000
-#define BCO_SIZESET      0x00010000 // Размер колонки скорректирован функцией SutupColumnWidth
+// @v12.4.9 (replaced with BroColumn::stSizeSet) #define BCO_SIZESET      0x00010000 // Размер колонки скорректирован функцией SutupColumnWidth
 //
 // Browse options
 //

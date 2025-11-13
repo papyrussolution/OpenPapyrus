@@ -183,20 +183,20 @@ int SMySqlDbProvider::UseDatabase(const char * pDbName) // @v12.4.8
 		BNKeyList & r_indices = pTbl->GetIndicesNonConst();
 		if(r_fld_list.getCount()) {
 			bool   is_autoinc_in_idx = false;
-			uint   autoinc_fld_id = 0;
+			uint   autoinc_fld_id = _FFFFU;
 			int    max_fld_id = 0;
 			int    max_key_number = 0;
-			for(int ii = 0; ii < r_indices.getNumKeys(); ii++) {
+			for(uint ii = 0; ii < r_indices.getNumKeys(); ii++) {
 				SETMAX(max_key_number, r_indices.getKey(ii).getKeyNumber());
 			}
 			for(uint fi = 0; fi < r_fld_list.getCount(); fi++) {
-				const BNField & r_fld = r_fld_list.getField(fi);
+				const BNField & r_fld = r_fld_list.GetFieldByPosition(fi);
 				SETMAX(max_fld_id, r_fld.Id);
 				if(GETSTYPE(r_fld.T) == S_AUTOINC && GETSSIZE(r_fld.T) >= 4) {
 					autoinc_fld_id = r_fld.Id;
 				}
 			}
-			if(autoinc_fld_id) {
+			if(autoinc_fld_id != _FFFFU) {
 				if(r_indices.GetKeyPosListByField(autoinc_fld_id, 0)) {
 					is_autoinc_in_idx = true;
 				}
@@ -205,14 +205,15 @@ int SMySqlDbProvider::UseDatabase(const char * pDbName) // @v12.4.8
 				}
 			}
 			else {
-				const int new_fld_id = 10000;
-				if(!r_fld_list.addField("MsqRowId", MKSTYPE(S_AUTOINC, 8), new_fld_id))
+				if(!r_fld_list.addField("MsqRowId", MKSTYPE(S_AUTOINC, 8), PrimaryAutoincFldId))
 					ok = 0;
 				else {
+					/* Индекс создавать не надо - mysql автоматом создает индексы для autoinc-полей
 					BNKey new_key;
 					new_key.addSegment(new_fld_id, XIF_EXT);
 					new_key.setKeyParams(max_key_number+1, 0);
 					r_indices.addKey(new_key);
+					*/
 					ok = 1;
 				}
 			}
@@ -242,11 +243,29 @@ int SMySqlDbProvider::UseDatabase(const char * pDbName) // @v12.4.8
 		THROW(stmt.Exec(1, OCI_DEFAULT));
 	}
 	{
-		for(uint j = 0; j < pTbl->Indices.getNumKeys(); j++) {
-			THROW(SqlGen.Z().CreateIndex(*pTbl, pFileName, j, 0/*pCollationSymb*/));
+		const BNKeyList & r_indices = pTbl->Indices;
+		const uint nk = r_indices.getNumKeys();
+		for(uint j = 0; j < nk; j++) {
+			bool   do_skip_index = false;
+			// Если индекс построен по autoinc-полю, то явно не создаем его - MySQL сам это сделает.
+			// При этом у нас потом возникнут проблемы со ссылками на такие индексы.
 			{
-				SSqlStmt stmt(this, SqlGen);
-				THROW(stmt.Exec(1, OCI_DEFAULT));
+				const BNFieldList2 & r_fl = pTbl->GetFields();
+				LongArray index_pos_list;
+				for(uint fi = 0; !do_skip_index && fi < r_fl.getCount(); fi++) {
+					if(GETSTYPE(r_fl[fi].T) == S_AUTOINC) {
+						if(r_indices.GetKeyPosListByField(r_fl[fi].Id, &index_pos_list) && index_pos_list.lsearch(j)) {
+							do_skip_index = true;
+						}
+					}
+				}
+			}
+			if(!do_skip_index) {
+				THROW(SqlGen.Z().CreateIndex(*pTbl, pFileName, j, 0/*pCollationSymb*/));
+				{
+					SSqlStmt stmt(this, SqlGen);
+					THROW(stmt.Exec(1, OCI_DEFAULT));
+				}
 			}
 		}
 	}
@@ -743,8 +762,10 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 	BNKey  key;
 	uint   ns = 0;
 	const  uint fld_count = pTbl->fields.getCount();
+	uint   autoinc_fld_id = _FFFF32;
 	SString temp_buf;
 	SString let_buf;
+	SBinaryChunk ret_buf;
 	SSqlStmt  stmt(this);
 	if(pData)
 		pTbl->CopyBufFrom(pData);
@@ -762,9 +783,10 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 		if(i)
 			SqlGen.Com();
 		SqlGen.Param(temp_buf.NumberToLat(subst_no++));
-		const BNField & r_fld = pTbl->fields.getField(i);
+		const BNField & r_fld = pTbl->fields.GetFieldByPosition(i);
 		if(GETSTYPE(r_fld.T) == S_AUTOINC) {
-			long val = 0;
+			autoinc_fld_id = r_fld.Id;
+			long   val = 0;
 			size_t val_sz = 0;
 			r_fld.getValue(pTbl->getDataBufConst(), &val, &val_sz);
 			assert(val_sz == sizeof(val));
@@ -776,26 +798,59 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 		stmt.BindItem(-subst_no, 1, r_fld.T, PTR8(pTbl->getDataBuf()) + r_fld.Offs);
 	}
 	SqlGen.RPar();
-	SqlGen.Sp().Tok(Generator_SQL::tokReturning).Sp().Tok(Generator_SQL::tokRowId);
-	//
-	// temp_buf будет содержать список переменных, в которые должны заносится возвращаемые значения //
-	//
-	let_buf.NumberToLat(subst_no++);
-	temp_buf.Z().Colon().Cat(let_buf);
-	stmt.BindRowId(-subst_no, 1, pTbl->getCurRowIdPtr());
-	if(pKeyBuf && idx >= 0 && idx < (int)pTbl->Indices.getNumKeys()) {
-		map_ret_key = 1;
-		key = pTbl->Indices[idx];
-		ns = (uint)key.getNumSeg();
-		for(i = 0; i < ns; i++) {
-			const BNField & r_fld = pTbl->Indices.field(idx, i);
-			SqlGen.Com().Text(r_fld.Name);
-			let_buf.NumberToLat(subst_no++);
-			temp_buf.CatDiv(',', 0).Colon().Cat(let_buf);
-			stmt.BindItem(-subst_no, 1, r_fld.T, PTR8(pKeyBuf)+pTbl->Indices.getSegOffset(idx, i));
+	{
+		//
+		// RETURNING block
+		//
+		
+		//
+		// temp_buf будет содержать список переменных, в которые должны заносится возвращаемые значения //
+		//
+		//let_buf.NumberToLat(subst_no++);
+		//temp_buf.Z().Colon().Cat(let_buf);
+		//stmt.BindRowId(-subst_no, 1, pTbl->getCurRowIdPtr());
+		SString ret_fld_list;
+		LongArray fld_id_list;
+		{
+			uint    autoinc_fld_pos = 0;
+			if(pTbl->fields.GetFieldPosition(autoinc_fld_id, &autoinc_fld_pos)) {
+				const BNField & r_fld = pTbl->fields.GetFieldByPosition(autoinc_fld_pos);
+				subst_no++;
+				fld_id_list.add(autoinc_fld_id);
+				ret_fld_list.CatDivIfNotEmpty(',', 0).Cat(r_fld.Name);
+				const size_t ret_buf_offs = ret_buf.Len();
+				ret_buf.Cat(0, r_fld.size());
+				stmt.BindItem(-subst_no, 1, r_fld.T, ret_buf.Ptr(ret_buf_offs));
+			}
+			else 
+				autoinc_fld_id = _FFFF32;
+		}
+		if(pKeyBuf && idx >= 0 && idx < (int)pTbl->Indices.getNumKeys()) {
+			map_ret_key = 1;
+			key = pTbl->Indices[idx];
+			ns = static_cast<uint>(key.getNumSeg());
+			for(i = 0; i < ns; i++) {
+				const BNField & r_fld = pTbl->Indices.field(idx, i);
+				if(!fld_id_list.lsearch(r_fld.Id)) {
+					//
+					//SqlGen.Com().Text(r_fld.Name);
+					//let_buf.NumberToLat(subst_no++);
+					//temp_buf.CatDiv(',', 0).Colon().Cat(let_buf);
+					//stmt.BindItem(-subst_no, 1, r_fld.T, PTR8(pKeyBuf)+pTbl->Indices.getSegOffset(idx, i));
+					//
+					subst_no++;
+					fld_id_list.add(r_fld.Id);
+					ret_fld_list.CatDivIfNotEmpty(',', 0).Cat(r_fld.Name);
+					const size_t ret_buf_offs = ret_buf.Len();
+					ret_buf.Cat(0, r_fld.size());
+					stmt.BindItem(-subst_no, 1, r_fld.T, ret_buf.Ptr(ret_buf_offs));
+				}
+			}
+		}
+		if(ret_fld_list.NotEmpty()) {
+			SqlGen.Sp().Tok(Generator_SQL::tokReturning).Sp().Text(ret_fld_list);
 		}
 	}
-	SqlGen.Sp().Tok(Generator_SQL::tokInto).Sp().Text(temp_buf);
 	{
 		THROW(stmt.SetSqlText(SqlGen));
 		THROW(Binding(stmt, -1));

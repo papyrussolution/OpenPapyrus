@@ -186,6 +186,38 @@ SLTEST_R(MySQL) // @v12.4.7
 		uint   ref02_insert_fault_count = 0;
 		uint   ta02_insert_fault_count = 0;
 		// Загрузить в таблицу большой набор известных записей (из record_list)
+		// @debug {
+		if(dbp.StartTransaction()) {
+			{
+				const bool use_bextinsert = false;
+				TestRef01Tbl::Key0 k0;
+				DBRowId ret_row_id;
+				for(uint i = 0; i < 1; i++) {
+					TestRef01Tbl::Rec * p_rec = ref01_rec_list.at(i);
+					if(p_rec) {
+						MEMSZERO(k0);
+						p_tbl_ref01->CopyBufLobFrom(p_rec, sizeof(*p_rec));
+						int irr = p_tbl_ref01->insertRec(0, &k0);
+						const DBRowId * p_row_id = p_tbl_ref01->getCurRowIdPtr();
+						if(p_row_id)
+							ret_row_id = *p_row_id;
+						if(irr) {
+							p_rec->ID = k0.ID;
+							const uint32 _row_id = ret_row_id.GetI32();
+							assert(_row_id == p_rec->ID); // SQLite specific!
+						}
+						else {
+							ref01_insert_fault_count++;
+						}
+					}
+				}
+			}
+			int cwr = dbp.CommitWork();
+			if(!cwr) {
+				;
+			}
+		}
+		// } @debug 
 		if(dbp.StartTransaction()) {
 			{
 				//

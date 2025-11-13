@@ -351,12 +351,15 @@ int PPObjRegister::SearchByFilt(const RegisterFilt * pFilt, PPIDArray * pResList
 int PPObjRegister::CheckUnique(PPID regTypeID, const RegisterArray * pAry) const
 {
 	int    ok = 1;
-	PPRegisterType    rt;
 	PPObjRegisterType rt_obj;
-	if(rt_obj.Search(regTypeID, &rt) > 0 && rt.Flags & REGTF_UNIQUE)
-		for(uint i = 0; ok && i < pAry->getCount(); i++)
-			if(pAry->at(i).RegTypeID == regTypeID)
+	PPRegisterType rt;
+	if(rt_obj.Search(regTypeID, &rt) > 0 && rt.Flags & REGTF_UNIQUE) {
+		for(uint i = 0; ok && i < pAry->getCount(); i++) {
+			if(pAry->at(i).RegTypeID == regTypeID) {
 				ok = PPSetError(PPERR_DUPREGISTER);
+			}
+		}
+	}
 	return ok;
 }
 

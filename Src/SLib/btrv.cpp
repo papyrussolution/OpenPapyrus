@@ -328,7 +328,7 @@ int DbDict_Btrieve::LoadTableSpec(DBTable * pTbl, const char * pTblName)
 			BNKey key = pTbl->Indices[i];
 			for(uint j = 0, ns = key.getNumSeg(); j < ns; j++) {
 				uint   pos = 0;
-				pTbl->fields.getFieldPosition(key.getFieldID(j), &pos);
+				pTbl->fields.GetFieldPosition(key.getFieldID(j), &pos);
 				key.setFieldID(j, pos);
 			}
 		}
@@ -394,20 +394,20 @@ int DbDict_Btrieve::CreateTableSpec(DBTable * pTbl)
 	{
 		BTBLID fld_id = static_cast<BTBLID>(tbl_id);
 		for(i = 0; i < r_fl.getCount(); i++) {
-			const BNField & f = r_fl.getField(i);
-			const size_t fname_len = sstrlen(f.Name);
+			const BNField & r_f = r_fl.GetFieldByPosition(i);
+			const size_t fname_len = sstrlen(r_f.Name);
 			r_fl.setFieldId(i, fld_id);
-			if(GETSTYPE(f.T) == S_DATETIME) {
+			if(GETSTYPE(r_f.T) == S_DATETIME) {
 				{
 					MEMSZERO(fieldBuf);
 					fieldBuf.XeId   = fld_id++;
 					fieldBuf.XeFile = pTbl->tableID;
 					memset(fieldBuf.XeName, ' ', sizeof(fieldBuf.XeName));
-					memcpy(fieldBuf.XeName, f.Name, fname_len);
+					memcpy(fieldBuf.XeName, r_f.Name, fname_len);
 					fieldBuf.XeName[fname_len] = '$';
 					fieldBuf.XeName[fname_len+1] = 'd';
 					fieldBuf.XeDataType = SLib2BtrType(S_DATE);
-					fieldBuf.XeOffset = static_cast<int16>(f.Offs);
+					fieldBuf.XeOffset = static_cast<int16>(r_f.Offs);
 					fieldBuf.XeSize = sizeof(LDATE);
 					THROW(p_bei->insert(&fieldBuf));
 				}
@@ -416,11 +416,11 @@ int DbDict_Btrieve::CreateTableSpec(DBTable * pTbl)
 					fieldBuf.XeId   = fld_id++;
 					fieldBuf.XeFile = pTbl->tableID;
 					memset(fieldBuf.XeName, ' ', sizeof(fieldBuf.XeName));
-					memcpy(fieldBuf.XeName, f.Name, fname_len);
+					memcpy(fieldBuf.XeName, r_f.Name, fname_len);
 					fieldBuf.XeName[fname_len] = '$';
 					fieldBuf.XeName[fname_len+1] = 't';
 					fieldBuf.XeDataType = SLib2BtrType(S_TIME);
-					fieldBuf.XeOffset = static_cast<int16>(f.Offs+sizeof(LDATE));
+					fieldBuf.XeOffset = static_cast<int16>(r_f.Offs+sizeof(LDATE));
 					fieldBuf.XeSize = sizeof(LTIME);
 					THROW(p_bei->insert(&fieldBuf));
 				}
@@ -430,12 +430,12 @@ int DbDict_Btrieve::CreateTableSpec(DBTable * pTbl)
 				fieldBuf.XeId   = fld_id++;
 				fieldBuf.XeFile = pTbl->tableID;
 				memset(fieldBuf.XeName, ' ', sizeof(fieldBuf.XeName));
-				memcpy(fieldBuf.XeName, f.Name, fname_len);
-				_t = GETSTYPE(f.T);
+				memcpy(fieldBuf.XeName, r_f.Name, fname_len);
+				_t = GETSTYPE(r_f.T);
 				fieldBuf.XeDataType = SLib2BtrType(_t);
-				fieldBuf.XeOffset = static_cast<int16>(f.Offs);
-				fieldBuf.XeSize = static_cast<int16>(stsize(f.T));
-				fieldBuf.XeDec = oneof3(_t, S_DEC, S_MONEY, S_NUMERIC) ? static_cast<int8>(GETSPRECD(f.T)) : 0;
+				fieldBuf.XeOffset = static_cast<int16>(r_f.Offs);
+				fieldBuf.XeSize = static_cast<int16>(stsize(r_f.T));
+				fieldBuf.XeDec = oneof3(_t, S_DEC, S_MONEY, S_NUMERIC) ? static_cast<int8>(GETSPRECD(r_f.T)) : 0;
 				THROW(p_bei->insert(&fieldBuf));
 			}
 		}
@@ -447,7 +447,7 @@ int DbDict_Btrieve::CreateTableSpec(DBTable * pTbl)
 		for(key = r_kl.getKey(i), j = 0; j < key.getNumSeg(); j++) {
 			indexBuf.XiFile   = pTbl->tableID;
 			const int fld_id = key.getFieldID(j);
-			const BNField * p_fld = &r_fl.getField(fld_id);
+			const BNField * p_fld = &r_fl.GetFieldByPosition(fld_id);
 			THROW(p_fld);
 			indexBuf.XiField  = static_cast<int16>(p_fld->Id);
 			indexBuf.XiNumber = key.getKeyNumber();

@@ -177,6 +177,29 @@ PPObjBill::~PPObjBill()
 
 int PPObjBill::Search(PPID id, void * b) { return P_Tbl->Search(id, static_cast<BillTbl::Rec *>(b)); }
 
+int PPObjBill::SearchByGuid(const S_GUID & rUuid, PPIDArray & rIdList)
+{
+	rIdList.Z();
+	int    ok = -1;
+	ObjTagItem tag;
+	PPIDArray id_list;
+	THROW(tag.SetGuid(PPTAG_BILL_UUID, &rUuid));
+	if(PPRef->Ot.SearchObjectsByStr(Obj, PPTAG_BILL_UUID, tag.Val.PStr, &id_list) > 0) {
+		for(uint i = 0; i < id_list.getCount(); i++) {
+			BillTbl::Rec temp_rec;
+			const  PPID temp_id = id_list.get(i);
+			if(Search(temp_id, &temp_rec) > 0) {
+				rIdList.add(temp_rec.ID);
+				ok = 1;
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+//
+// @todo 20251111 Модифицировать реализацию функции с использованием PPObjBill::SearchByGuid(const S_GUID & rUuid, PPIDArray & rIdList)
+//
 int PPObjBill::SearchByGuid(const S_GUID & rUuid, BillTbl::Rec * pRec)
 {
 	int    ok = -1;
@@ -6779,7 +6802,7 @@ int PPObjBill::SelectLotBySerial(const char * pSerial, PPID goodsID, PPID locID,
 		ReceiptTbl::Rec lot_rec;
 		// @todo @20251007 Ниже - очень плохой блок: если лотов много, то осуществляется значительное число повторных обращений к базе данных за одними и теми же лотами.
 		if(SearchLotsBySerialExactly(pSerial, &lot_list) > 0) {
-			while(ok < 0 && SelectLotFromSerialList(&lot_list, locID, &lot_id, &lot_rec) > 0) {
+			while(ok < 0 && SelectLotFromSerialList(&lot_list, locID, true/*closedAllowed*/, &lot_id, &lot_rec) > 0) {
 				if((!goodsID || lot_rec.GoodsID == goodsID) && (!locID || lot_rec.LocID == locID)) { // @v12.4.3 (&& (!locID || lot_rec.LocID == locID))
 					ASSIGN_PTR(pRec, lot_rec);
 					ok = 1;
@@ -6798,7 +6821,7 @@ int PPObjBill::SelectLotBySerial(const char * pSerial, PPID goodsID, PPID locID,
 // -2 - выбран лот по другому складу 
 // -3 - выбран самый позний закрытый лот
 // 
-int PPObjBill::SelectLotFromSerialList(const PPIDArray * pList, PPID locID, PPID * pLotID, ReceiptTbl::Rec * pRec)
+int PPObjBill::SelectLotFromSerialList(const PPIDArray * pList, PPID locID, bool closedAllowed, PPID * pLotID, ReceiptTbl::Rec * pRec)
 {
 	int    ok = 0; // @v12.4.8 -1-->0
 	LDATE  last_date = ZERODATE;
@@ -6810,14 +6833,14 @@ int PPObjBill::SelectLotFromSerialList(const PPIDArray * pList, PPID locID, PPID
 		const PPID lot_id = pList->at(i);
 		ReceiptTbl::Rec lot_rec;
 		if(trfr->Rcpt.Search(lot_id, &lot_rec) > 0) {
-			if(ok <= 0 && locID && lot_rec.LocID != locID) { // @v12.4.8 (ok<0)-->(ok<=0)
+			if(ok <= 0 && (locID && lot_rec.LocID != locID)) { // @v12.4.8 (ok<0)-->(ok<=0)
 				if(!last_id) {
 					last_id = lot_rec.ID;
 					ASSIGN_PTR(pRec, lot_rec);
 				}
 				ok = -2;
 			}
-			else if(ok <= 0 && lot_rec.Closed) { // @v12.4.8 (ok<0)-->(ok<=0)
+			else if(ok <= 0 && (!closedAllowed && lot_rec.Closed)) { // @v12.4.8 (ok<0)-->(ok<=0)
 				if(lot_rec.Dt > last_clsd_date || (lot_rec.Dt == last_clsd_date && lot_rec.OprNo > last_clsd_oprno)) {
 					last_clsd_date  = lot_rec.Dt;
 					last_clsd_oprno = lot_rec.OprNo;
@@ -7329,31 +7352,7 @@ int PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
 	else if(oneof3(pPack->OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT)) {
         if(pPack->LTagL.GetCount()) {
 			for(uint i = 0; i < pPack->GetTCount(); i++) {
-				PreprocessLTagListBeforeStoreInProps(pPack, pPack->ConstTI(i).RByBill, pPack->LTagL.Get(i)); // @v11.7.3
-				/* @v11.7.3 
-				ObjTagList * p_tag_list = pPack->LTagL.Get(i);
-				if(p_tag_list) {
-					const PPTransferItem & r_ti = pPack->ConstTI(i);
-					for(uint j = 0; j < p_tag_list->GetCount(); j++) {
-						const ObjTagItem * p_tag_item = p_tag_list->GetItemByPos(j);
-						if(p_tag_item->TagDataType == OTTYP_IMAGE) {
-							ObjTagItem tag_item = *p_tag_item;
-							//
-							ObjLinkFiles _lf(PPOBJ_TAG);
-							img_tag_addendum.Z().Cat(pPack->Rec.ID).CatChar('-').Cat(r_ti.RByBill);
-							_lf.Load(tag_item.TagID, img_tag_addendum);
-							if(sstrlen(tag_item.Val.PStr)) {
-								fname = tag_item.Val.PStr;
-								_lf.Replace(0, fname);
-							}
-							else
-								_lf.Remove(0);
-							_lf.SaveSingle(tag_item.TagID, img_tag_addendum, 0, &fname);
-							tag_item.SetStr(tag_item.TagID, fname);
-							p_tag_list->PutItem(tag_item.TagID, &tag_item);
-						}
-					}
-				}*/
+				PreprocessLTagListBeforeStoreInProps(pPack, pPack->ConstTI(i).RByBill, pPack->LTagL.Get(i));
 			}
        		THROW(pPack->LTagL.Serialize(+1, tag_srlz_buf, &sctx));
         }

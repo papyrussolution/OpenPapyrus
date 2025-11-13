@@ -5440,12 +5440,12 @@ int DlContext::CreateDbDictionary(const char * pDictPath, const char * pDataPath
 					p_sqlgen->Eos().Cr();
 					uint j;
 					for(j = 0; j < tbl.GetIndices().getNumKeys(); j++) {
-						int   do_skip_index = 0;
+						bool   do_skip_index = false;
 						if(p_sqlgen->GetServerType() == sqlstMySQL && j == 0) {
 							const BNFieldList2 & r_fl = tbl.GetFields();
 							for(uint fi = 0; !do_skip_index && fi < r_fl.getCount(); fi++) {
 								if(GETSTYPE(r_fl[fi].T) == S_AUTOINC)
-									do_skip_index = 1;
+									do_skip_index = true;
 							}
 						}
 						if(!do_skip_index) {
