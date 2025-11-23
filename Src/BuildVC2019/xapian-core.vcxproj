@@ -360,7 +360,7 @@ cd $(ProjectDir)</Command>
       <OpenMPSupport>false</OpenMPSupport>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <EnableModules>false</EnableModules>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
@@ -578,7 +578,7 @@ cd $(ProjectDir)</Command>
       <OpenMPSupport>false</OpenMPSupport>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <EnableModules>false</EnableModules>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>

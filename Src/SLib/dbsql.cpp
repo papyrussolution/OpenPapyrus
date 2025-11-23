@@ -346,7 +346,6 @@ void * FASTCALL SSqlStmt::GetIndPtr(const Bind * pBind, uint rowN) const
 		return 0;
 }
 
-
 size_t FASTCALL SSqlStmt::GetBindOuterSize(const Bind * pBind) const
 {
 	return pBind->SubstOffs ? pBind->SubstSize : stsize(pBind->Typ);
@@ -399,7 +398,7 @@ int SSqlStmt::BindItem(int pos, uint count, TYPEID typ, void * pDataBuf)
 	b.Pos = pos;
 	b.Typ = typ;
 	b.P_Data = pDataBuf;
-	if(_typ == S_CLOB || _typ == S_BLOB) {
+	if(oneof2(_typ, S_CLOB, S_BLOB)) {
 		const SLob * p_lob = static_cast<const SLob *>(pDataBuf);
 		if(p_lob) {
 			is_lob = true; // @debug
@@ -1156,7 +1155,7 @@ int SOraDbProvider::GetDirect(DBTable & rTbl, const DBRowId & rPos, int forUpdat
 }
 
 SOraDbProvider::SOraDbProvider(const char * pDataPath) :
-	DbProvider(sqlstORA, DbDictionary::CreateInstance(0, 0), DbProvider::cSQL|DbProvider::cDbDependTa), SqlGen(sqlstORA, 0), Flags(0)
+	DbProvider(sqlstORA, cpANSI, DbDictionary::CreateInstance(0, 0), DbProvider::cSQL|DbProvider::cDbDependTa), SqlGen(sqlstORA, 0), Flags(0)
 {
 	DataPath = pDataPath;
 	DBS.GetDbPathID(DataPath, &DbPathID);
@@ -1715,7 +1714,7 @@ int SOraDbProvider::Implement_Open(DBTable * pTbl, const char * pFileName, int o
 {
 	pTbl->FileName_ = NZOR(pFileName, pTbl->tableName);
 	pTbl->OpenedFileName = pTbl->FileName_;
-	pTbl->FixRecSize = pTbl->fields.CalculateFixedRecSize();
+	pTbl->FixRecSize = pTbl->fields.CalculateFixedRecSize(0/*BNFieldList2::crsfXXX*/);
 	return 1;
 }
 

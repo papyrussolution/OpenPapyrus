@@ -1209,12 +1209,16 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 	}
 	{
 		THROW(tsl_par.Retranslate(iefFormat, symb_buf));
-		switch(DataFormat) {
-			case dfText: temp_buf = "TXT"; break;
-			case dfDbf: temp_buf = "DBF"; break;
-			case dfXml: temp_buf = "XML"; break;
-			case dfExcel: temp_buf = "XLS"; break;
-			default: temp_buf.Z(); break;
+		{
+			const char * p_ext = 0;
+			temp_buf.Z();
+			switch(DataFormat) {
+				case dfText: p_ext = "TXT"; break;
+				case dfDbf: p_ext = "DBF"; break;
+				case dfXml: p_ext = "XML"; break;
+				case dfExcel: p_ext = "XLS"; break;
+			}
+			temp_buf = p_ext;
 		}
 		if(temp_buf.NotEmpty())
 			THROW(pFile->AppendParam(pSect, symb_buf, temp_buf, 1));
@@ -1228,26 +1232,26 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 		}
 	}
 	{
-		if(DataFormat == dfText) {
-			THROW(tsl_par.Retranslate(iefCodepage, symb_buf));
-			if(TdfParam.Flags & TextDbFile::fCpUtf8) {
-				THROW(pFile->AppendParam(pSect, symb_buf, "utf8", 1));
+		{
+			const char * p_codepage = 0;
+			if(DataFormat == dfText) {
+				if(TdfParam.Flags & TextDbFile::fCpUtf8)
+					p_codepage = "utf8";
+				else if(TdfParam.Flags & TextDbFile::fCpOem)
+					p_codepage = "oem";
+				else
+					p_codepage = "ansi";
 			}
-			else if(TdfParam.Flags & TextDbFile::fCpOem) {
-				THROW(pFile->AppendParam(pSect, symb_buf, "oem", 1));
+			else if(DataFormat == dfDbf) {
+				if(TdfParam.Flags & TextDbFile::fCpOem)
+					p_codepage = "oem";
+				else
+					p_codepage = "ansi";
 			}
-			else {
-				THROW(pFile->AppendParam(pSect, symb_buf, "ansi", 1));
+			if(!isempty(p_codepage)) {
+				THROW(tsl_par.Retranslate(iefCodepage, symb_buf));
+				THROW(pFile->AppendParam(pSect, symb_buf, p_codepage, 1));
 			}
-		}
-		else if(DataFormat == dfDbf) {
-			THROW(tsl_par.Retranslate(iefCodepage, symb_buf));
-			if(TdfParam.Flags & TextDbFile::fCpOem) {
-				THROW(pFile->AppendParam(pSect, symb_buf, "oem", 1));
-			}
-			else {
-				THROW(pFile->AppendParam(pSect, symb_buf, "ansi", 1));
-			}			
 		}
 		THROW(tsl_par.Retranslate(iefFldNameRec, symb_buf));
 		THROW(pFile->AppendIntParam(pSect, symb_buf, BIN(TdfParam.Flags & TextDbFile::fFldNameRec)));

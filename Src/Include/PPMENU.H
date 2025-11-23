@@ -567,5 +567,6 @@
 #define cmTestGlobalSvcAccessibility   673 // @v12.3.12 Тест доступности глобальных сервисов
 #define cmWbPublicGoods                674 // @v12.4.1 Импорт товаров с маркетплейса Wildberries
 #define cmCSResetChZnPmSvrAddr         675 // @v12.4.1 Сбросить автоматически выбранный адрес сервера разрешительного режима честный знак (для того, чтоб система выбрала другой сервер)
+#define cmRecover_v12304               676 // @v12.4.10 Корректировка проблемы @v12.3.04
 
 #endif /* __PPMENU_H */

@@ -830,7 +830,7 @@ int xmlBufAddHead(xmlBuf * buf, const xmlChar * str, int len)
 	if(!len)
 		return 0;
 	if(len < 0)
-		len = sstrlen(str);
+		len = sstrleni(str);
 	if(len <= 0)
 		return -1;
 	if((buf->alloc == XML_BUFFER_ALLOC_IO) && buf->contentIO) {

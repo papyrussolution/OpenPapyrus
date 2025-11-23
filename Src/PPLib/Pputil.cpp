@@ -7,7 +7,6 @@
 #pragma hdrstop
 #include <ppsoapclient.h>
 #include <AccCtrl.h>
-#include <AclAPI.h>
 
 DBFCreateFld * LoadDBFStruct(uint rezID, uint * pNumFlds); // @prototype
 
@@ -4267,7 +4266,7 @@ int PPXmlFileDetector::Run(const char * pFileName, int * pResult)
 		TokPath.push(outofhttokCAM);
 		do_continue = true;
 	}
-	else if(sstreq(pName, "ORDERS")) {
+	else if(sstreq(pName, "ORDERS")) { // Этот токен встречается в начале форматов [SAP_Order_Cocacola, Eancom]
 		if(TokPath.getPointer() == 1 && TokPath.peek() == outofhttokCAM) {
 			Result = SAP_Order_Cocacola;
 		}

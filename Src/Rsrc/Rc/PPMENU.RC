@@ -41,7 +41,7 @@
 		MENUITEM "@cmd_removeemptyacctrels"							cmRemoveEmptyAcctRels
 		MENUITEM "@cmd_correctlotsuppl"								cmCorrectLotSuppl
 		MENUITEM "@cmd_correctzeroqcertrefs"						cmCorrectZeroQCertRefs
-		MENUITEM "@cmd_recover_v242"								cmRecover_v242
+		//MENUITEM "@cmd_recover_v242"								cmRecover_v242
 		MENUITEM "@cmd_correctabsencelots"							cmCorrectAbsenceLots
 		MENUITEM "@cmd_correctabsencegoods"							cmCorrectAbsenceGoods
 		MENUITEM "@cmd_recoverabsencebills"							cmRecoverAbsenceBills
@@ -58,6 +58,7 @@
 		MENUITEM "@cmd_correctccheckline01"							cmCorrectCCheckLine01
 		MENUITEM "@cmd_recoverlostunifiedlinks"						cmRecoverLostUnifiedLinks
 		MENUITEM "@cmd_correctzerodebtdimrefs"                      cmCorrectZeroDebtDimRefs
+		MENUITEM "@cmd_recover_v12304"								cmRecover_v12304 // @v12.4.10
 	}
 	POPUP "@cmdpu_other" {
 		MENUITEM "@cmd_selfsync"									cmSelfSync
@@ -587,6 +588,7 @@
 			MENUITEM "@cmd_validatexml",                    cmValidateXml
 			MENUITEM "@cmd_dump",                           cmDumpData
 			MENUITEM "@cmd_gathercliactivitystatistics",    cmGatherClientActivityStat // @v12.2.2
+			MENUITEM "@cmd_indexphones",                    cmIndexPhones // @v12.4.10 ранее этот пункт был только в SYSTEM
 			POPUP "@cmdpu_testing" {
 				MENUITEM "@cmd_generategoodsbills",			cmGenerateGoodsBills
 				MENUITEM "@cmd_generateclibnkimport",		cmGenerateCliBnkImport

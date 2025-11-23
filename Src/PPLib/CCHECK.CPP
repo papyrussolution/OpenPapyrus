@@ -40,6 +40,7 @@ static const SIntToSymbTabEntry CCheckExtSsList[] = {
 	{ CCheckPacket::extssOuterExtTag,        "OuterExtTag" },
 	{ CCheckPacket::extssLinkBillUuid,       "LinkBillUuid" },
 	{ CCheckPacket::extssFiscalSign,         "FiscalSign" }, // @v12.2.8
+	{ CCheckPacket::extssCorrect12304,       "Correct12304" }, // @v12.4.10
 };
 
 static const SIntToSymbTabEntry CCheckExtNameSymbList[] = {
@@ -62,6 +63,7 @@ static const SIntToSymbTabEntry CCheckExtNameSymbList[] = {
 	{ CCheckPacket::extssOuterExtTag,        "ccextss_outerexttag" },
 	{ CCheckPacket::extssLinkBillUuid,       "ccextss_linkbilluuid" },
 	{ CCheckPacket::extssFiscalSign,         "ccextss_fiscalsign" }, // @v12.2.8
+	{ CCheckPacket::extssCorrect12304,       "ccextss_correct12304" }, // @v12.4.10
 };
 
 /*static*/const SIntToSymbTabEntry * CCheckPacket::GetExtssNameSymbTab(uint * pTabEntryCount)
@@ -1976,7 +1978,7 @@ int CCheckCore::SearchByTimeAndCard(PPID cardID, LDATE dt, LTIME tm, CCheckTbl::
 	return SearchByKey(this, 4, &k, pRec);
 }
 
-int CCheckCore::SearchByDateAndCode(long code, LDATE dt, int unprintedOnly, TSVector <CCheckTbl::Rec> * pRecList)
+int CCheckCore::SearchByDateAndCode(long code, LDATE dt, bool unprintedOnly, TSVector <CCheckTbl::Rec> * pRecList)
 {
 	int    ok = -1;
 	if(pRecList) {
@@ -2474,18 +2476,44 @@ int CCheckCore::GetLastCheckByCode(long cashN, CCheckTbl::Rec * pRec)
 int CCheckCore::GetListByCode(long cashN, long code, TSVector <CCheckTbl::Rec> * pRecList)
 {
 	int    ok = -1;
-	CCheckTbl::Key2 k;
-	MEMSZERO(k);
-	k.PosNodeID = cashN;
-	k.Code = code;
-	if(search(2, &k, spGe) && k.PosNodeID == cashN && k.Code == code) {
-		do {
-			CALLPTRMEMB(pRecList, insert(&data));
-			ok = 1;
-		} while(search(2, &k, spNext) && k.PosNodeID == cashN && k.Code == code);
+	if(code != 0) {
+		if(cashN) {
+			CCheckTbl::Key2 k2;
+			MEMSZERO(k2);
+			k2.PosNodeID = cashN;
+			k2.Code = code;
+			if(search(2, &k2, spGe) && k2.PosNodeID == cashN && k2.Code == code) {
+				do {
+					ok = 1;
+					if(pRecList) {
+						pRecList->insert(&data);
+					}
+					else
+						break;
+				} while(search(2, &k2, spNext) && k2.PosNodeID == cashN && k2.Code == code);
+			}
+			else
+				ok = PPDbSearchError();
+		}
+		// @v12.4.10 {
+		else {
+			CCheckTbl::Key0 k0;
+			BExtQuery q(this, 0);
+			MEMSZERO(k0);
+			q.selectAll().where(this->Code == code);
+			for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
+				if(data.Code == code) { // @paranoic
+					ok = 1;
+					if(pRecList) {
+						pRecList->insert(&data);
+					}
+					else
+						break;
+				}
+			}
+		}
+		// } @v12.4.10 
 	}
-	else
-		ok = PPDbSearchError();
 	return ok;
 }
 
@@ -3657,7 +3685,7 @@ int CCheckCore::Helper_GetListByMark2(TSCollection <ListByMarkEntry> & rList, in
 	{
 		PPID   min_id = 0;
 		if(pCcDate2MaxIdIndex) {
-			LDATE first_date = plusdate(getcurdate_(), -static_cast<int>(backDays));
+			LDATE  first_date = plusdate(getcurdate_(), -static_cast<int>(backDays));
 			for(uint lidx = 0; lidx < rList.getCount(); lidx++) {
 				const ListByMarkEntry * p_lbm_entry = rList.at(lidx);
 				if(checkdate(p_lbm_entry->OrgLotDate) && p_lbm_entry->OrgLotDate < first_date)

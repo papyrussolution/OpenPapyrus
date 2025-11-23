@@ -1241,6 +1241,8 @@ public class SLib {
 	public static final int PPOBJATTR_RAWADDR     =   6;
 	public static final int PPOBJATTR_DESCR       =   8;
 	public static final int PPOBJATTR_CODE        =   9;
+	public static final int PPOBJATTR_RAWDATA_XML  = 10; // @v12.4.7 Исходные данные использованные для формирования объекта в xml-формате
+	public static final int PPOBJATTR_RAWDATA_JSON = 11; // @v12.4.7 Исходные данные использованные для формирования объекта в json-формате
 	public static final int PPOBJATTR_ID          =  21; // Целочисленный уникальный идентификатор
 	public static final int PPOBJATTR_FLAGS       =  22;
 	public static final int PPOBJATTR_PHONE       =  23;
@@ -1251,6 +1253,11 @@ public class SLib {
 	public static final int PPOBJATTR_RUSNILS     =  28;
 	public static final int PPOBJATTR_RAWMAINADDR =  29; // @v11.8.1 основной адрес персоналии
 	public static final int PPOBJATTR_RAWRADDR    =  30; // @v11.8.1 фактический адрес персоналии
+	public static final int PPOBJATTR_EGAISMARK   =  31; // @v12.4.10 марка егаис (один объект может иметь множество таких марок)
+	public static final int PPOBJATTR_CHZNMARK    =  32; // @v12.4.10 марка честный знак (один объект может иметь множество таких марок)
+	public static final int PPOBJATTR_UUID        =  33; // @v12.4.10 UUID объекта. Практически возможна ситуация, когда несколько объектов имеют один и тот же UUID,
+		// а так же, один объект может иметь несколько UUID'ов
+	public static final int PPOBJATTR_GENERICREG  =  34; // @v12.4.10 Некий регистрационный номер. Может относится к PPOBJ_PERSON, PPOBJ_LOCATION, PPOBJ_PERSONEVENT
 	//
 	// Descr: Идентификаторы системных событий. Заимствованы из ppdefs.h
 	// В stylo-q используется лишь небольшая часть этих значений (тем не менее, заимствование полное

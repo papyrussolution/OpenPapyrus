@@ -180,7 +180,7 @@ int FASTCALL PPViewGlobalUserAcc::NextIteration(GlobalUserAccViewItem * pItem)
 				//
 				{
 					const BrwHdr * p_row = static_cast<const BrwHdr *>(pBrw->getCurItem());
-					ok = PPView::Helper_ProcessQuickTagEdit(PPObjID(PPOBJ_GLOBALUSERACC, p_row ? p_row->ID : 0), pHdr/*(LongArray *)*/);
+					ok = PPView::Helper_ProcessQuickTagEdit(SObjID(PPOBJ_GLOBALUSERACC, p_row ? p_row->ID : 0), pHdr/*(LongArray *)*/);
 				}
 				break;
 			case PPVCMD_TAGS:

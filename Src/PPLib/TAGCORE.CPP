@@ -1433,7 +1433,7 @@ int ObjTagCore::GetList(PPID objType, PPID objID, ObjTagList * pList)
 		}
 	}
 	if(!ok) {
-		PPSetError(PPERR_GETTAGLISTBYOBJFAULT, SObjID_ToStr(PPObjID(objType, objID), SLS.AcquireRvlStr()));
+		PPSetError(PPERR_GETTAGLISTBYOBJFAULT, SObjID_ToStr(SObjID(objType, objID), SLS.AcquireRvlStr()));
 	}
 	return ok;
 }
@@ -1453,7 +1453,7 @@ int ObjTagCore::GetObjectList(PPID objType, PPID tagID, UintHashTable & rList)
 	return ok;
 }
 
-int ObjTagCore::SearchAnyRefToTagID(PPID tagID, PPObjID * pObjID)
+int ObjTagCore::SearchAnyRefToTagID(PPID tagID, SObjID * pObjID)
 {
 	int    ok = 1;
 	ObjTagTbl::Key1 k1;

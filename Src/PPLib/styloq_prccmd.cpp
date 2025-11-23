@@ -1960,7 +1960,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 			PPGoodsPacket goods_pack;
 			for(uint glidx = 0; glidx < goods_list.getCount(); glidx++) {
 				const InnerGoodsEntry & r_goods_entry = *static_cast<const InnerGoodsEntry *>(goods_list.at(glidx));
-				const PPObjID oid(PPOBJ_GOODS, r_goods_entry.GoodsID);
+				const SObjID oid(PPOBJ_GOODS, r_goods_entry.GoodsID);
 				if(mige_blk.GObj.GetPacket(r_goods_entry.GoodsID, &goods_pack, PPObjGoods::gpoSkipQuot) > 0) {
 					SJson * p_jsobj = MakeObjJson_Goods(rOwnIdent, goods_pack, &r_goods_entry, 0, 0, pStat);
 					THROW(p_jsobj);

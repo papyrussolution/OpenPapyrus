@@ -2318,7 +2318,7 @@ int GeoCityImportBlock::Import(const char * pPath)
 						else
 							eadr.Set(rec.V4Low, rec.V4Upp);
 						PPID   eat_id = 0;
-						PPObjID objid;
+						SObjID objid;
 						objid.Set(PPOBJ_WORLD, r_city_rec.PapyrusID);
 						THROW(EaT.Put(&eat_id, &eadr, &objid, 0));
 					}

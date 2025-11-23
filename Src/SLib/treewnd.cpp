@@ -423,7 +423,7 @@ TreeWindow::~TreeWindow()
 
 int TreeWindow::TranslateKeyCode(ushort keyCode, uint * pCmd) const
 {
-	return (P_Toolbar) ? P_Toolbar->TranslateKeyCode(keyCode, pCmd) : 0;
+	return P_Toolbar ? P_Toolbar->TranslateKeyCode(keyCode, pCmd) : 0;
 }
 
 void TreeWindow::SetupCmdList(HMENU hMenu, /*HTREEITEM*/void * hP)
@@ -431,21 +431,23 @@ void TreeWindow::SetupCmdList(HMENU hMenu, /*HTREEITEM*/void * hP)
 	HTREEITEM hti;
 	SString temp_buf;
 	HWND   h_tv = H_CmdList;
+	SETIFZQ(hP, TVI_ROOT); // @v12.4.10
 	if(!hP || hP == TVI_ROOT)
 		TreeView_DeleteAllItems(h_tv);
 	int    cnt = GetMenuItemCount(hMenu);
 	if(hP == TVI_ROOT)
 		cnt--;
 	for(int i = 0; i < cnt; i++) {
-		TCHAR  menu_name_buf[256];
-		MENUITEMINFO mii;
+		wchar_t menu_name_buf[256];
+		MENUITEMINFOW mii;
 		INITWINAPISTRUCT(mii);
 		mii.fMask = MIIM_DATA|MIIM_SUBMENU|MIIM_TYPE|MIIM_STATE|MIIM_ID;
 		mii.dwTypeData = menu_name_buf;
 		mii.cch = SIZEOFARRAY(menu_name_buf);
-		GetMenuItemInfo(hMenu, i, TRUE, &mii);
+		GetMenuItemInfoW(hMenu, i, TRUE, &mii);
 		if(menu_name_buf[0] != 0) {
-			TVINSERTSTRUCT is;
+			TVINSERTSTRUCTW is;
+			MEMSZERO(is);
 			is.hParent = static_cast<HTREEITEM>(hP);
 			is.hInsertAfter = TVI_LAST;
 			is.item.mask = TVIF_TEXT;
@@ -459,9 +461,9 @@ void TreeWindow::SetupCmdList(HMENU hMenu, /*HTREEITEM*/void * hP)
 				is.item.cChildren = 0;
 			}
 			{
-				TCHAR * chr = sstrchr(menu_name_buf, '&');
-				if(chr)
-					memmove(chr, chr+1, sstrlen(chr)*sizeof(TCHAR));
+				wchar_t * p_chr = sstrchr(menu_name_buf, '&');
+				if(p_chr)
+					memmove(p_chr, p_chr+1, sstrlen(p_chr) * sizeof(wchar_t)); 
 			}
 			is.item.pszText = menu_name_buf;
 			is.item.cchTextMax = mii.cch;
@@ -546,8 +548,8 @@ void TreeWindow::SelItem(HWND hWnd)
 
 void TreeWindow::ShowList(ListWindow * pLw)
 {
-	HWND prev_hwnd = P_CurLw ? P_CurLw->H() : H_CmdList;
-	HWND cur_hwnd  = pLw ? pLw->H() : H_CmdList;
+	HWND   prev_hwnd = P_CurLw ? P_CurLw->H() : H_CmdList;
+	HWND   cur_hwnd  = pLw ? pLw->H() : H_CmdList;
 	if(cur_hwnd) {
 		if(prev_hwnd)
 			::ShowWindow(prev_hwnd, SW_HIDE);
@@ -689,7 +691,7 @@ void TreeWindow::UpdateItemCmdList(const char * pTitle, void * ptr)
 void TreeWindow::DelItemCmdList(void * ptr)
 {
 	if(ptr) {
-		HWND hw_tree = H_CmdList;
+		HWND   hw_tree = H_CmdList;
 		for(HTREEITEM h_item = TreeView_GetRoot(hw_tree); h_item; h_item = TreeView_GetNextSibling(hw_tree, h_item)) {
 			TVITEM is;
 			MEMSZERO(is);

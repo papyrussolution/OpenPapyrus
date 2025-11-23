@@ -7,11 +7,11 @@
 //
 #include <pp.h>
 #pragma hdrstop
+
+#if CXX_ARCH_X86 // {
+
 #include <crpe.h>
 #include <crpe2.h>
-
-int  CopyDataStruct(const char *pSrc, const char *pDest, const char *pFileName); // Prototype(pputil.cpp)
-bool FindExeByExt2(const char * pExt, SString & rResult, const char * pAddedSearchString); // Prototype(ppreport.cpp)
 /*
 PEClosePrintJob
 PECloseSubreport
@@ -653,93 +653,6 @@ static int SetPrinterParam(short hJob, const char * pPrinter, long options, cons
 //
 //	
 //
-struct SvdtStrDlgAns { // @Vadim 13.09.02 @{savereportdata} 
-	int   SvDt;
-	int   EdRep;
-	SString SvDtPath_;
-	SString EdRepPath_;
-};
-
-static int GetSvdtStrOpt(SvdtStrDlgAns * pSsda) // @Vadim 13.09.02
-{ 
-	class SvdtStrDialog : public TDialog {
-		DECL_DIALOG_DATA(SvdtStrDlgAns);
-		enum {
-			ctlgroupFbb1 = 1,
-			ctlgroupFbb2 = 2
-		};
-	public:
-		explicit SvdtStrDialog(uint dlgID) : TDialog(dlgID)
-		{
-			FileBrowseCtrlGroup::Setup(this, CTLBRW_SAVEDATA_SVDTPATH, CTL_SAVEDATA_SVDTPATH, ctlgroupFbb1,
-				PPTXT_TITLE_DATASTRUCSAVING, PPTXT_FILPAT_DDFBTR, FileBrowseCtrlGroup::fbcgfPath);
-			FileBrowseCtrlGroup::Setup(this, CTLBRW_SAVEDATA_EDREPPTH, CTL_SAVEDATA_EDREPPATH, ctlgroupFbb2,
-				0, PPTXT_FILPAT_REPORT, FileBrowseCtrlGroup::fbcgfFile);
-		}
-		DECL_DIALOG_SETDTS()
-		{
-			RVALUEPTR(Data, pData);
-			setCtrlData(CTL_SAVEDATA_SVDT, &Data.SvDt);
-			setCtrlString(CTL_SAVEDATA_SVDTPATH, Data.SvDtPath_);
-			setCtrlString(CTL_SAVEDATA_EDREPPATH, Data.EdRepPath_);
-			if(Data.EdRep)
-				setCtrlData(CTL_SAVEDATA_EDREP, &Data.EdRep);
-			else {
-				disableCtrl(CTL_SAVEDATA_EDREP, true);
-				disableCtrl(CTL_SAVEDATA_EDREPPATH, true);
-				showCtrl(CTLBRW_SAVEDATA_EDREPPTH, false);
-			}
-			return 1;
-		}
-		DECL_DIALOG_GETDTS()
-		{
-			getCtrlData(CTL_SAVEDATA_SVDT, &Data.SvDt);
-			getCtrlString(CTL_SAVEDATA_SVDTPATH, Data.SvDtPath_);
-			getCtrlData(CTL_SAVEDATA_EDREP, &Data.EdRep);
-			getCtrlString(CTL_SAVEDATA_EDREPPATH, Data.EdRepPath_);
-			ASSIGN_PTR(pData, Data);
-			return 1;
-		}
-	};
-	DIALOG_PROC_BODY_P1(SvdtStrDialog, DLG_SAVEDATA, pSsda); 
-}
-
-int SaveReportDataStruct(const char * pDataName, const char * pTempPath, const char * pRepFileName)
-{
-	int    ok = -1;
-	SString path;
-	SString fname;
-	SString cr_path_;
-	SvdtStrDlgAns * p_ssda = 0;
-	PPGetPath(PPPATH_REPORTDATA, path);
-	if(path.NotEmptyS() && CrwError == PE_ERR_ERRORINDATABASEDLL) {
-		path.SetLastSlash().Cat(pDataName);
-		THROW_MEM(p_ssda = new SvdtStrDlgAns);
-		p_ssda->SvDt = 1;
-		p_ssda->SvDtPath_ = path;
-		p_ssda->EdRep = FindExeByExt2(sstrchr(pRepFileName, '.'), cr_path_, "CrystalReports.9.1");
-		p_ssda->EdRepPath_ = pRepFileName;
-		if(GetSvdtStrOpt(p_ssda) > 0) {
-			if(p_ssda->SvDt) {
-				path = p_ssda->SvDtPath_;
-				if(!fileExists(path))
-					THROW_SL(SFile::CreateDir(path));
-				CopyDataStruct(pTempPath, path, BDictionary::DdfTableFileName);
-				CopyDataStruct(pTempPath, path, BDictionary::DdfFieldFileName);
-				CopyDataStruct(pTempPath, path, BDictionary::DdfIndexFileName);
-				CopyDataStruct(pTempPath, path, PPGetFileName(PPFILNAM_HEAD_BTR, fname));
-				CopyDataStruct(pTempPath, path, PPGetFileName(PPFILNAM_ITER_BTR, fname));
-			}
-			if(p_ssda->EdRep)
-				spawnl(_P_NOWAIT, cr_path_, cr_path_, p_ssda->EdRepPath_, 0);
-		}
-		ok = 1;
-	}
-	CATCHZOKPPERR
-	delete p_ssda;
-	return ok;
-}
-
 static void DebugOutputCrrExportOptions(const PEExportOptions & rEo, const char * pFileName)
 {
 	if(!isempty(pFileName)) {
@@ -1416,3 +1329,105 @@ int CrystalReportExport(const char * pReportPath, const char * pDir, const char 
 	return ok;
 }
 #endif // } @v12.3.11 (see comments at report.h)
+#else
+
+int    OpenCrrEngine() { return -1; } // @v12.4.10 @x64stub
+int    CloseCrrEngine() { return -1; } // @v12.4.10 @x64stub
+int    CrystalReportPrint2_Local(const CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply, void * hParentWindowForPreview) { return -1; } // @v12.4.10 @x64stub
+SVerT  QueryCrrVersion() { return SVerT(10, 0); } // @v12.4.10 @x64stub
+
+#endif // } CXX_ARCH_X86_64 
+
+int  CopyDataStruct(const char *pSrc, const char *pDest, const char *pFileName); // Prototype(pputil.cpp)
+bool FindExeByExt2(const char * pExt, SString & rResult, const char * pAddedSearchString); // Prototype(ppreport.cpp)
+
+struct SvdtStrDlgAns { // @Vadim 13.09.02 @{savereportdata} 
+	int   SvDt;
+	int   EdRep;
+	SString SvDtPath_;
+	SString EdRepPath_;
+};
+
+static int GetSvdtStrOpt(SvdtStrDlgAns * pSsda) // @Vadim 13.09.02
+{ 
+	class SvdtStrDialog : public TDialog {
+		DECL_DIALOG_DATA(SvdtStrDlgAns);
+		enum {
+			ctlgroupFbb1 = 1,
+			ctlgroupFbb2 = 2
+		};
+	public:
+		explicit SvdtStrDialog(uint dlgID) : TDialog(dlgID)
+		{
+			FileBrowseCtrlGroup::Setup(this, CTLBRW_SAVEDATA_SVDTPATH, CTL_SAVEDATA_SVDTPATH, ctlgroupFbb1,
+				PPTXT_TITLE_DATASTRUCSAVING, PPTXT_FILPAT_DDFBTR, FileBrowseCtrlGroup::fbcgfPath);
+			FileBrowseCtrlGroup::Setup(this, CTLBRW_SAVEDATA_EDREPPTH, CTL_SAVEDATA_EDREPPATH, ctlgroupFbb2,
+				0, PPTXT_FILPAT_REPORT, FileBrowseCtrlGroup::fbcgfFile);
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			RVALUEPTR(Data, pData);
+			setCtrlData(CTL_SAVEDATA_SVDT, &Data.SvDt);
+			setCtrlString(CTL_SAVEDATA_SVDTPATH, Data.SvDtPath_);
+			setCtrlString(CTL_SAVEDATA_EDREPPATH, Data.EdRepPath_);
+			if(Data.EdRep)
+				setCtrlData(CTL_SAVEDATA_EDREP, &Data.EdRep);
+			else {
+				disableCtrl(CTL_SAVEDATA_EDREP, true);
+				disableCtrl(CTL_SAVEDATA_EDREPPATH, true);
+				showCtrl(CTLBRW_SAVEDATA_EDREPPTH, false);
+			}
+			return 1;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			getCtrlData(CTL_SAVEDATA_SVDT, &Data.SvDt);
+			getCtrlString(CTL_SAVEDATA_SVDTPATH, Data.SvDtPath_);
+			getCtrlData(CTL_SAVEDATA_EDREP, &Data.EdRep);
+			getCtrlString(CTL_SAVEDATA_EDREPPATH, Data.EdRepPath_);
+			ASSIGN_PTR(pData, Data);
+			return 1;
+		}
+	};
+	DIALOG_PROC_BODY_P1(SvdtStrDialog, DLG_SAVEDATA, pSsda); 
+}
+
+#ifndef PE_ERR_ERRORINDATABASEDLL
+	#define PE_ERR_ERRORINDATABASEDLL           534 // Определение из crpe.h
+#endif
+
+int SaveReportDataStruct(const char * pDataName, const char * pTempPath, const char * pRepFileName)
+{
+	int    ok = -1;
+	SString path;
+	SString fname;
+	SString cr_path_;
+	SvdtStrDlgAns * p_ssda = 0;
+	PPGetPath(PPPATH_REPORTDATA, path);
+	if(path.NotEmptyS() && CrwError == PE_ERR_ERRORINDATABASEDLL) {
+		path.SetLastSlash().Cat(pDataName);
+		THROW_MEM(p_ssda = new SvdtStrDlgAns);
+		p_ssda->SvDt = 1;
+		p_ssda->SvDtPath_ = path;
+		p_ssda->EdRep = FindExeByExt2(sstrchr(pRepFileName, '.'), cr_path_, "CrystalReports.9.1");
+		p_ssda->EdRepPath_ = pRepFileName;
+		if(GetSvdtStrOpt(p_ssda) > 0) {
+			if(p_ssda->SvDt) {
+				path = p_ssda->SvDtPath_;
+				if(!fileExists(path))
+					THROW_SL(SFile::CreateDir(path));
+				CopyDataStruct(pTempPath, path, BDictionary::DdfTableFileName);
+				CopyDataStruct(pTempPath, path, BDictionary::DdfFieldFileName);
+				CopyDataStruct(pTempPath, path, BDictionary::DdfIndexFileName);
+				CopyDataStruct(pTempPath, path, PPGetFileName(PPFILNAM_HEAD_BTR, fname));
+				CopyDataStruct(pTempPath, path, PPGetFileName(PPFILNAM_ITER_BTR, fname));
+			}
+			if(p_ssda->EdRep)
+				spawnl(_P_NOWAIT, cr_path_, cr_path_, p_ssda->EdRepPath_, 0);
+		}
+		ok = 1;
+	}
+	CATCHZOKPPERR
+	delete p_ssda;
+	return ok;
+}

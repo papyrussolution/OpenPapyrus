@@ -55,7 +55,7 @@ int PPViewGoodsBillCmp::GetBillCodes(const GoodsBillCmpFilt * pFilt, SString & r
 				SSerializeContext & r_sctx = p_ovc->GetSCtx();
 				SBuffer buf;
 				PPBillPacket pack;
-				PPObjID oid;
+				SObjID oid;
 				long   vv = 0;
 				if(p_ovc->Search(lh_bill_id, &oid, &vv, &buf) > 0 && P_BObj->SerializePacket__(-1, &pack, buf, &r_sctx)) {
 					bill_rec = pack.Rec;
@@ -85,7 +85,7 @@ int PPViewGoodsBillCmp::GetBillCodes(const GoodsBillCmpFilt * pFilt, SString & r
 				SSerializeContext & r_sctx = p_ovc->GetSCtx();
 				SBuffer buf;
 				PPBillPacket pack;
-				PPObjID oid;
+				SObjID oid;
 				long   vv = 0;
 				if(p_ovc->Search(rh_bill_id, &oid, &vv, &buf) > 0 && P_BObj->SerializePacket__(-1, &pack, buf, &r_sctx)) {
 					bill_rec = pack.Rec;
@@ -176,7 +176,7 @@ int PPViewGoodsBillCmp::PutBillToTempTable(PPID billID, int side /* 1 - lh, 2 - 
 			ObjVersioningCore * p_ovc = PPRef->P_OvT;
 			if(p_ovc && p_ovc->InitSerializeContext(1)) {
 				SSerializeContext & r_sctx = p_ovc->GetSCtx();
-				PPObjID oid;
+				SObjID oid;
 				long   vv = 0;
 				THROW(p_ovc->Search(billID, &oid, &vv, &buf) > 0);
 				THROW(BillObj->SerializePacket__(-1, &pack, buf, &r_sctx));

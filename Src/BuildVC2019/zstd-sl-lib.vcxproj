@@ -148,7 +148,7 @@
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FunctionLevelLinking>false</FunctionLevelLinking>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <GuardEHContMetadata>false</GuardEHContMetadata>
       <ControlFlowGuard>false</ControlFlowGuard>
@@ -227,7 +227,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <StructMemberAlignment>Default</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <GuardEHContMetadata>false</GuardEHContMetadata>
       <ControlFlowGuard>false</ControlFlowGuard>

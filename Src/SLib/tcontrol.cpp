@@ -2134,12 +2134,11 @@ void ComboBox::freeAll()
 					TCanvas2 canv(*p_tb, ps.hdc);
 					if(p_view->P_Fig) {
 						const  FRect rect_elem = rc;
-						FRect pic_bounds = rect_elem;
+						FRect  pic_bounds = rect_elem;
 						LMatrix2D mtx;
 						SViewPort vp;
 						if(!p_view->ReplacedColor.IsEmpty()) {
-							SColor replacement_color;
-							replacement_color = p_tb->GetColor(TProgram::tbiIconRegColor);
+							SColor replacement_color(p_tb->GetColor(TProgram::tbiIconRegColor));
 							canv.SetColorReplacement(p_view->ReplacedColor, replacement_color);
 						}
 						canv.PushTransform();

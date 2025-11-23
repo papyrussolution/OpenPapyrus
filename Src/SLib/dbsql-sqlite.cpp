@@ -59,7 +59,7 @@ extern "C" int SQLite_CmpCollationUtf8(void *, int len1, const void * pT1, int l
 
 /*static*/bool SSqliteDbProvider::IsInitialized = false;
 
-SSqliteDbProvider::SSqliteDbProvider() : DbProvider(sqlstSQLite, DbDictionary::CreateInstance(0, 0), 
+SSqliteDbProvider::SSqliteDbProvider() : DbProvider(sqlstSQLite, cpUTF8, DbDictionary::CreateInstance(0, 0), 
 	DbProvider::cSQL|DbProvider::cDbDependTa|DbProvider::cDirectSelectDataMapping), SqlGen(sqlstSQLite, 0), H(0), Flags(0)
 {
 	if(!IsInitialized) {
@@ -473,7 +473,7 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 	if(pTbl) {
 		pTbl->FileName_ = NZOR(pFileName, pTbl->tableName);
 		pTbl->OpenedFileName = pTbl->FileName_;
-		pTbl->FixRecSize = pTbl->fields.CalculateFixedRecSize();
+		pTbl->FixRecSize = pTbl->fields.CalculateFixedRecSize(0/*BNFieldList2::crsfXXX*/);
 	}
 	else
 		ok = 0;

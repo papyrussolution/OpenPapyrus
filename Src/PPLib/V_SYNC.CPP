@@ -899,7 +899,7 @@ struct _ObjSyncEntry {
 	LDATETIME ModDtm;
 };
 
-int ViewObjSyncTab(PPObjID oid)
+int ViewObjSyncTab(SObjID oid)
 {
 	class ObjSyncTabDialog : public PPListDialog {
 	public:

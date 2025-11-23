@@ -327,6 +327,10 @@ SLTEST_R(smath)
 			}
 			delete p_rng;
 		}
+		{
+			SLCHECK_EQ(round(0.5121, 0.001, -1), 0.512);
+			SLCHECK_EQ(round(0.5121, 0.001, +1), 0.513);
+		}
 	}
 	{
 		// 

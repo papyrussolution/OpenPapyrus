@@ -242,6 +242,8 @@ int STestCase::_check_eq(long a, long b, const char * pA, const char * pB) { ret
 int STestCase::_check_eq(ulong a, ulong b, const char * pA, const char * pB) { return Implement_check_eq(a, b, pA, pB); }
 int STestCase::_check_eq(int64 a, int64 b, const char * pA, const char * pB) { return Implement_check_eq(a, b, pA, pB); }
 int STestCase::_check_eq(uint64 a, uint64 b, const char * pA, const char * pB) { return Implement_check_eq(a, b, pA, pB); }
+int STestCase::_check_eq(uint a, uint64 b, const char * pA, const char * pB) { return Implement_check_eq(static_cast<uint64>(a), b, pA, pB); } // @v12.4.10
+int STestCase::_check_eq(uint64 a, uint b, const char * pA, const char * pB) { return Implement_check_eq(a, static_cast<uint64>(b), pA, pB); } // @v12.4.10
 int STestCase::_check_eq(double a, double b, const char * pA, const char * pB) { return Implement_check_eq(a, b, pA, pB); }
 int STestCase::_check_eq(float a, float b, const char * pA, const char * pB) { return Implement_check_eq(a, b, pA, pB); }
 int STestCase::_check_eq(LDATE a, LDATE b, const char * pA, const char * pB) { return Implement_check_eq(a, b, pA, pB); }

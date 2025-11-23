@@ -145,7 +145,7 @@ private:
 	}
 
 	PPObjRegister RObj;
-	PPObjID Oid;
+	SObjID Oid;
 	PPID   EventID;
 	RegisterArray StubData;
 	RegisterArray * P_Data;
@@ -276,7 +276,7 @@ private:
 	}
 
 	PPObjRegister RObj;
-	PPObjID Oid;
+	SObjID Oid;
 	PPID   EventID;
 	RegisterArray StubData;
 	RegisterArray * P_Data;
@@ -287,7 +287,7 @@ private:
 
 TLP_IMPL(PPObjRegister, RegisterCore, P_Tbl);
 
-/*static*/int PPObjRegister::InitPacket(RegisterTbl::Rec * pRec, PPID regTypeID, PPObjID oid, const char * pNumber)
+/*static*/int PPObjRegister::InitPacket(RegisterTbl::Rec * pRec, PPID regTypeID, SObjID oid, const char * pNumber)
 {
 	int    ok = 1;
 	if(pRec) {
@@ -737,7 +737,7 @@ int PPObjRegister::Edit(PPID * pID, PPID objType, PPID objID, PPID regTypeID)
 		}
 	}
 	else {
-		PPObjRegister::InitPacket(&rec, regTypeID, PPObjID(objType, objID), 0);
+		PPObjRegister::InitPacket(&rec, regTypeID, SObjID(objType, objID), 0);
 		if(regTypeID)
 			rt_obj.GetCode(regTypeID, &counter, rec.Num, sizeof(rec.Num));
 		local_obj_type = (oneof2(rec.ObjType, PPOBJ_PERSON, PPOBJ_LOCATION)) ? rec.ObjType : PPOBJ_PERSON;

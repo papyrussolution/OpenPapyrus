@@ -529,7 +529,7 @@ DBTable::DBTable(const char * pTblName, const char * pFileName, void * pFlds, vo
 			}
 		}
 		if(pData)
-			SetDBuf(pData, NZOR(s, fields.CalculateFixedRecSize()));
+			SetDBuf(pData, NZOR(s, fields.CalculateFixedRecSize(0/*BNFieldList2::crsfXXX*/)));
 	}
 }
 
@@ -717,7 +717,7 @@ int DBTable::putRecToString(SString & rBuf, int withFieldNames)
 int DBTable::AllocateOwnBuffer(int size)
 {
 	int    ok = 1;
-	const  RECORDSIZE fixed_rec_size = (size < 0) ? fields.CalculateFixedRecSize() : static_cast<RECORDSIZE>(size);
+	const  RECORDSIZE fixed_rec_size = (size < 0) ? fields.CalculateFixedRecSize(0/*BNFieldList2::crsfXXX*/) : static_cast<RECORDSIZE>(size);
 	RECORDSIZE real_rec_size = fixed_rec_size;
 	///* @v12.4.1 @construction 
 	DBLobItem temp_li(0); // @debug

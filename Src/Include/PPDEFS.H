@@ -1267,7 +1267,8 @@
 //
 // @v11.3.0 Общие (и, иногда, частные) атрибуты объектов. Вводятся для управления техникой поиска данных по текстовым запросам (fulltext index).
 // Attention! Чтобы минимизировать разногласия между методами идентификации многие атрибуты имеют значения, совпадающие с константами PPTRPROP_XXX
-// Если добавляете новые значения, то согласуйте их с соответствующим набором констант.
+//   Если добавляете новые значения, то согласуйте их с соответствующим набором констант.
+// Attention! (2) Кроме того, эти константы синхронизируются с проектом Stylo-Q (slib.java)
 // @persistent
 //
 #define PPOBJATTR_NAME          1L // Наименование
@@ -1287,6 +1288,13 @@
 #define PPOBJATTR_RUINN        26L
 #define PPOBJATTR_RUKPP        27L
 #define PPOBJATTR_RUSNILS      28L
+#define PPOBJATTR_RAWMAINADDR  29L // @v12.4.10 основной адрес персоналии
+#define PPOBJATTR_RAWRADDR     30L // @v12.4.10 фактический адрес персоналии
+#define PPOBJATTR_EGAISMARK    31L // @v12.4.10 марка егаис (один объект может иметь множество таких марок)
+#define PPOBJATTR_CHZNMARK     32L // @v12.4.10 марка честный знак (один объект может иметь множество таких марок)
+#define PPOBJATTR_UUID         33L // @v12.4.10 UUID объекта. Практически возможна ситуация, когда несколько объектов имеют один и тот же UUID,
+	// а так же, один объект может иметь несколько UUID'ов
+#define PPOBJATTR_GENERICREG   34L // @v12.4.10 Некий регистрационный номер. Может относится к PPOBJ_PERSON, PPOBJ_LOCATION, PPOBJ_PERSONEVENT
 //
 // Descr: Зарезервированные значения текстовых свойств объектов
 // Attention! Чтобы минимизировать разногласия между методами идентификации константы PPOBJATTR_XXX (ppdefs.h) имеют значения, совпадающие с данным набором констант.
@@ -1778,6 +1786,8 @@
 #define EDIPARTYQ_SHIPTO                     15
 #define EDIPARTYQ_BILLANDSHIPTO              16
 #define EDIPARTYQ_BROKERORSALESOFFICE        17
+#define EDIPARTYQ_ULTIMATECONSIGNEE          18 // @v12.4.10 Party who has been designated on the invoice or packing list as the final recipient of the stated merchandise.
+#define EDIPARTYQ_ULTIMATECUSTOMER           19 // @v12.4.10 The final recipient of goods. (похоже, это - тоже, что и EDIPARTYQ_ULTIMATECONSIGNEE)
 //
 // Menus
 //
@@ -11223,7 +11233,7 @@
 	#define CTL_TESTVETIS_PARAM       (3 + WINDOWS_ID_BIAS)
 #define DLG_UNIFINDOBJ            1368
 	#define CTL_UNIFINDOBJ_WFLAGS     (1 + WINDOWS_ID_BIAS)
-	#define CTL_UNIFINDOBJ_DFLAGS     (2 + WINDOWS_ID_BIAS)
+	#define CTL_UNIFINDOBJ_FLAGS      (2 + WINDOWS_ID_BIAS)
 	#define CTL_UNIFINDOBJ_MPATTERN   (3 + WINDOWS_ID_BIAS)
 	#define CTL_UNIFINDOBJ_PERIOD     (4 + WINDOWS_ID_BIAS)
 	#define CTLCAL_UNIFINDOBJ_PERIOD  (5 + WINDOWS_ID_BIAS)
@@ -11901,6 +11911,12 @@
 #define DLG_TESTSVRPRINT          1586 // @v12.4.7 Параметры теста серверной печати
 	#define CTL_TESTSVRPRINT_PRINTER            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TESTSVRPRINT_PRINTER         (2 + WINDOWS_ID_BIAS)
+#define DLG_CORRECT12304          1587 // @v12.4.10  @construction
+	#define CTL_CORRECT12304_POSNODE            (1 + WINDOWS_ID_BIAS)
+	#define CTLSEL_CORRECT12304_POSNODE         (2 + WINDOWS_ID_BIAS)
+	#define CTL_CORRECT12304_PERIOD             (3 + WINDOWS_ID_BIAS)
+	#define CTLCAL_CORRECT12304_PERIOD          (4 + WINDOWS_ID_BIAS)
+	#define CTL_CORRECT12304_FLAGS              (5 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //
@@ -12141,7 +12157,9 @@
 #define PPSTR_HASHTOKEN           123 // Специальный мета-символы, используемые системой для обработки данных и команд.
 #define PPSTR_HASHTOKEN_C         124 // Специальный мета-символы, используемые системой для обработки данных и команд (case seinsitive!).
 #define PPSTR_HASHTOKEN_AGENTPLUS 125 // @v11.5.11 Специальный мета-символы, используемые системой для экспорта данных Agent+ (в частности, VladimirskiyStandard).
+#define PPSTR_OBJATTR             126 // @v12.4.10 Наименования общих атрибутов объектов данных
 #define PPSTR_CRYSTAL_REPORT      342 // Ошибки Crystal Report
+
 //
 // PPSTR_TEXT   Просто текст
 //

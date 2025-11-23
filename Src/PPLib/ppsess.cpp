@@ -1965,8 +1965,8 @@ static void InitTest()
 	// размер DBTable был кратен 32 (для выравнивания по кэш-линии).
 	//
 	STATIC_ASSERT(sizeof(DBTable) % 32 == 0);
-	STATIC_ASSERT(sizeof(PPObjID_Base) == 8); // @v11.3.7
-	STATIC_ASSERT(sizeof(PPObjID) == 8); // @v11.3.7
+	STATIC_ASSERT(sizeof(SObjID_Base) == 8); // @v11.3.7
+	STATIC_ASSERT(sizeof(SObjID) == 8); // @v11.3.7
 	//
 	// Записи системного журнала и резервной
 	// таблицы системного журнала должны быть эквивалентны.
@@ -3815,12 +3815,12 @@ bool PPSession::GetSurrogateUserAgentString(SString & rBuf) // @v12.3.10
 	return ok;
 }
 
-int PPSession::Stq_GetBlob(const SBinaryChunk & rOwnIdent, PPObjID oid, uint blobN, StyloQBlobInfo & rBi)
+int PPSession::Stq_GetBlob(const SBinaryChunk & rOwnIdent, SObjID oid, uint blobN, StyloQBlobInfo & rBi)
 {
 	return StQCache.GetBlob(rOwnIdent, oid, blobN, rBi);
 }
 
-int PPSession::Stq_PutBlob(const SBinaryChunk & rOwnIdent, PPObjID oid, uint blobN, StyloQBlobInfo & rBi)
+int PPSession::Stq_PutBlob(const SBinaryChunk & rOwnIdent, SObjID oid, uint blobN, StyloQBlobInfo & rBi)
 {
 	return StQCache.PutBlob(rOwnIdent, oid, blobN, rBi);
 }

@@ -1487,7 +1487,7 @@ public:
 
 	struct Bind {
 		Bind();
-		void   SetNtvTypeAndSize(uint16 ntvTyp, uint16 ntvSize)
+		void   SetNtvTypeAndSize(uint16 ntvTyp, uint32 ntvSize)
 		{
 			NtvTyp = ntvTyp;
 			NtvSize = ntvSize;
@@ -1501,8 +1501,8 @@ public:
 		};
 		int16  Pos;        // Позиция привязки. <0 - входящая привязка, >0 - исходящая привязка
 		uint16 NtvTyp;     // Тип данных, специфичный для SQL-сервера
-		uint16 Flags;      //
-		uint16 NtvSize;    // Размер данных, специфичный для SQL-сервера
+		uint32 Flags;      // @v12.4.10 uint16-->uint32
+		uint32 NtvSize;    // Размер данных, специфичный для SQL-сервера // @v12.4.10 uint16-->uint32
 		uint32 H;          // Манипулятор элемента привязки
 		void * P_Data;     // Указатель на реальные данные поля, определенные приложением //
 		//uint32 * P_LobSz;  // Указатель на актуальную длину данных в поле типа LOB (используется только для S_BLOB S_CLOB)
@@ -2237,6 +2237,7 @@ public:
 	bool   IsValid() const;
 	long   GetState() const { return State; }
 	SqlServerType GetSqlServerType() const { return SqlSt; } // @v12.4.2
+	SCodepage GetCodepage() const { return Cp; } // @v12.4.10
 	const  SCompoundError & GetLastError() const { return LastErr; }
 	long   GetCapability() const { return Capability; }
 	int    LoadTableSpec(DBTable * pTbl, const char * pTblName, const char * pFileName, int createIfNExists);
@@ -2303,7 +2304,7 @@ protected:
 	// ARG(pDict IN): Передается в собственность экземпляру DbProvider. Т.е. деструктор
 	//   этого класса разрушит объект по адресу pDict.
 	//
-	DbProvider(SqlServerType sqlServerType, DbDictionary * pDict, long capability);
+	DbProvider(SqlServerType sqlServerType, SCodepage cp, DbDictionary * pDict, long capability);
 	//
 	// Descr: Функция вызывается при успешном завершении LoadTableSpec() для выполнения дополнительных 
 	//   действий над спецификацией таблицы базы данных. Есл так нужно конкретному провайдеру.
@@ -2319,6 +2320,9 @@ protected:
 	void   Common_Logout();
 
 	const  SqlServerType SqlSt;
+	const  SCodepage Cp; // @v12.4.10 Кодовая страница, используемая для хранения строк в базе данных.
+		// Этот параметр определяется конкретной имплементацией данного класса. 
+		// Фактически, на начальном этапе мы будем просто смотреть не равна ли Cp значению cpUTF8.
 	long   State;
 	long   DbPathID;   // Идентификатор каталога базы данных. Ссылается на таблицу DbSession::DbPathList
 	long   Capability;

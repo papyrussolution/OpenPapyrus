@@ -142,6 +142,7 @@
 			#include <wininet.h> 
 		#endif
 		#include <iphlpapi.h>
+		#include <AclAPI.h> // @v12.4.10
 		// @v11.7.3 {
 		#if _MSC_VER >= 1600
 			#include <intrin.h>
@@ -4321,6 +4322,7 @@ public:
 	// Descr: Возвращает длину строки.
 	//
 	size_t Len() const;
+	int    LenI() const { return static_cast<int>(Len()); } // @v12.4.10
 	size_t BufSize() const;
 	void   Obfuscate();
 	const  char * SearchChar(int c, size_t * pPos) const;
@@ -8868,7 +8870,14 @@ public:
 	const  BNField & GetFieldByPosition(uint fldIdx) const;
 	const  BNField & GetFieldByName(const char * pName, uint * pPos = 0) const;
 	const  BNField & FASTCALL operator[](uint i) const { return GetFieldByPosition(i); }
-	RECORDSIZE CalculateFixedRecSize() const;
+	//
+	// Descr: Флаги функции CalculateFixedRecSize()
+	//
+	enum {
+		crsfIncludeNote = 0x0001 // Включать в расчет поля типа S_NOTE.
+	};
+
+	RECORDSIZE CalculateFixedRecSize(uint flags/*BNFieldList2::crsfXXX*/) const;
 	int    setFieldId(uint fldNo/*[0..(count-1)]*/, int fldId);
 	bool   IsEqualRecords(const void * pRec1, const void * pRec2, LongArray * pNeqFldList = 0) const;
 };
@@ -12312,12 +12321,13 @@ int ApproxStrCmp(const char * pStr1, const char * pStr2, int noCase, double * pS
 // Descr: Флаги функции ExtStrSrch
 //
 enum {
-	essfCaseSensitive = 0x0001
+	essfCaseSensitive  = 0x0001,
+	essfWholeWords     = 0x0002 // @v12.4.10
 };
 //
 // Descr: Ищет образец pPattern в строке pBuffer.
 //
-int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags);
+int STDCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags);
 //
 // Descr: Идентификаторы распознаваемых натуральных токенов.
 //   @persistent
@@ -15985,7 +15995,7 @@ struct SColor : public SColorBase { // @persistent
 	static SColor Lerp(SColor c1, SColor c2, float factor);
 };
 
-extern const SColor ZEROCOLOR;
+extern const SColor ZEROCOLOR; // Неопределенный цвет. Отличается от черного значением alpha=0 (полная прозрачность)
 
 COLORREF FASTCALL GetColorRef(SColourCollection);
 COLORREF FASTCALL GetGrayColorRef(float whitePart);
@@ -18037,13 +18047,15 @@ public:
 		kAsterisk          = 6, // (ident cmd)       Кнопка со звездочкой (действие определяется контекстом)
 		kText              = 7, // (ident cmd title) Кнопка с текстом (действие определяется контекстом)
 		kFileBrowse        = 8, // @v12.3.10 (ident) Кнопка вызова диалога выбора файла или каталога
+		kFilt              = 9, // @v12.4.10 (ident) Кнопка расширенного фильтра для элемента
 	};
 	uint32 Version; // Номер версии для сериализации. При изменении формата обязательно увеличить значение и предпринять меры для правильного считывания старых версий!
 	uint32 Kind; // kXXX
 	uint32 Ident;
 	uint32 Cmd;
 
-	static bool IsValidKind(int kind) { return oneof8(kind, kUndef, kDateCalendar, kDateRangeCalendar, kTime, kList, kCalc, kAsterisk, kText); }
+	static bool IsValidKind(int kind) { return oneof10(kind, 
+		kUndef, kDateCalendar, kDateRangeCalendar, kTime, kList, kCalc, kAsterisk, kText, kFileBrowse, kFilt); }
 
 	struct DataBlock {
 		DataBlock();
@@ -20045,6 +20057,10 @@ public:
 	int    _check_eq(ulong a, ulong b, const char * pA, const char * pB);
 	int    _check_eq(int64 a, int64 b, const char * pA, const char * pB);
 	int    _check_eq(uint64 a, uint64 b, const char * pA, const char * pB);
+	
+	int    _check_eq(uint a, uint64 b, const char * pA, const char * pB); // @v12.4.10
+	int    _check_eq(uint64 a, uint b, const char * pA, const char * pB); // @v12.4.10
+	
 	int    _check_eq(double a, double b, const char * pA, const char * pB);
 	int    _check_eq(float a, float b, const char * pA, const char * pB);
 	int    _check_eq_tolerance(double a, double b, double tol, const char * pA, const char * pB);

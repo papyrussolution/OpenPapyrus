@@ -263,7 +263,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 	return p;
 }
 
-/*static*/SString & PPObject::MakeBlobSignature(const SBinaryChunk & rGlobalIdent, PPObjID oid, uint itemNumber, SString & rBuf)
+/*static*/SString & PPObject::MakeBlobSignature(const SBinaryChunk & rGlobalIdent, SObjID oid, uint itemNumber, SString & rBuf)
 {
 	rBuf.Z();
 	const uint32 inner_file_number = static_cast<uint32>(itemNumber);
@@ -1123,13 +1123,13 @@ int PPObject::RemoveSync(PPID id)
 	return r;
 }
 
-IMPL_CMPFUNC(PPObjID, i1, i2) { return memcmp(i1, i2, sizeof(PPObjID)); }
+IMPL_CMPFUNC(SObjID, i1, i2) { return memcmp(i1, i2, sizeof(SObjID)); }
 
 /*static*/int STDCALL PPObject::ProcessObjRefInArray(PPID objTypeID, long * pObjID, PPObjIDArray * pArray, int replace)
 {
 	int    ok = -1;
 	if(objTypeID) {
-		PPObjID * p_o;
+		SObjID * p_o;
 		if(!replace)
 			ok = pArray->Add(objTypeID, *pObjID);
 		else {
@@ -1149,7 +1149,7 @@ int STDCALL PPObject::ProcessObjRefInArray_NoPreprocess(PPID objTypeID, PPID * p
 {
 	int    ok = -1;
 	if(objTypeID) {
-		PPObjID * p_o;
+		SObjID * p_o;
 		if(!replace)
 			ok = pArray->Add_NotPreprocess(objTypeID, *pObjID);
 		else {
@@ -1409,7 +1409,7 @@ static int STDCALL Implement_GetObjectName(PPID objType, PPID objID, SString & r
 }
 
 int STDCALL GetObjectName(PPID objType, PPID objID, SString & rBuf) { return Implement_GetObjectName(objType, objID, rBuf, false); }
-int STDCALL GetObjectName(const PPObjID & rOid, SString & rBuf) { return Implement_GetObjectName(rOid.Obj, rOid.Id, rBuf, false); }
+int STDCALL GetObjectName(const SObjID & rOid, SString & rBuf) { return Implement_GetObjectName(rOid.Obj, rOid.Id, rBuf, false); }
 
 int STDCALL CatObjectName(PPID objType, PPID objID, SString & rBuf) // @v12.0.1 Вместо GetObjectName(PPID objType, PPID objID, SString & rBuf, int cat);
 {
@@ -1442,16 +1442,21 @@ SString & FASTCALL GetObjectTitle(PPID objType, SString & rBuf)
 	return rBuf;
 }
 
+SString & FASTCALL GetObjAttrName(PPID objAttr, SString & rBuf) // @v12.4.10 PPOBJATTR_XXX
+{
+	return PPLoadStringS(PPSTR_OBJATTR, objAttr, rBuf);
+}
+
 PPID FASTCALL GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
 {
 	return DS.GetObjectTypeBySymb(pSymb, pExtraParam);
 }
 
-/*static*/int PPObject::Identify(const char * pObjType, const char * pObjIdent, PPObjID * pIdent)
+/*static*/int PPObject::Identify(const char * pObjType, const char * pObjIdent, SObjID * pIdent)
 {
 	int    ok = 1;
 	Reference * p_ref(PPRef);
-	PPObjID ident;
+	SObjID ident;
 	ident.Z();
 	long   obj_type_ext = 0;
 	long   int_type_id = satoi(pObjType); // @v11.4.3 atol-->satoi
@@ -2658,48 +2663,272 @@ int PPALDD_UhttCurRateArray::NextIteration(long iterId)
 	return ok;
 }
 //
-// @construction {
 //
-struct UniFindObjParam {
-	UniFindObjParam() : WFlags(0), DFlags(0)
-	{
-		Period.Z();
-	}
-	enum {
-		wfEverything  = 0x0001,
-		wfBill        = 0x0002,
-		wfGoods       = 0x0004,
-		wfPerson      = 0x0008,
-		wfSCard       = 0x0010,
-		wfCCheck      = 0x0020,
-		wfPersonEvent = 0x0040,
-		wfProject     = 0x0080,
-		wfToDo        = 0x0100,
-		wfLocation    = 0x0200, // @v12.4.9
-	};
-	enum {
-		dfInteractive = 0x0001
-	};
-	long   WFlags; // wfXXXX Флаги, определяющие места поиска (where-flag) 
-	long   DFlags; // dfXXXX
-	SString MainPattern;
-	DateRange Period;
-};
+//
+IMPLEMENT_PPFILT_FACTORY(UniFindObj); UniFindObjFilt::UniFindObjFilt() : PPBaseFilt(PPFILT_UNIFINDOBJ, 0, 0)
+{
+	SetFlatChunk(offsetof(UniFindObjFilt, ReserveStart), offsetof(UniFindObjFilt, MainPattern) - offsetof(UniFindObjFilt, ReserveStart));
+	SetBranchSString(offsetof(UniFindObjFilt, MainPattern));
+	Init(1, 0);
+}
 
-class PrcssrUniFindObj {
-public:
-	PrcssrUniFindObj()
-	{
-	}
-	int    InitParam(UniFindObjParam * pParam);
-	int    EditParam(UniFindObjParam * pParam);
-	int    Init(const UniFindObjParam * pParam);
-	int    Run();
-private:
-	UniFindObjParam P;
-};
+PPViewUniFindObj::BrwItem::BrwItem() : Attr(0), Ident_(0), ObjNameP(0), AttrNameP(0), AddendumFeatureP(0)
+{
+}
 
-int PrcssrUniFindObj::Init(const UniFindObjParam * pParam)
+PPViewUniFindObj::BrwItem::BrwItem(const PrcssrUniFindObj::FoundEntry & rS) : Oid(rS.Oid), Attr(rS.Attr), Ident_(0), ObjNameP(0), AttrNameP(0), AddendumFeatureP(0)
+{
+}
+
+PPViewUniFindObj::PPViewUniFindObj(PrcssrUniFindObj * pOuterPrcssr) : PPView(0, &Filt, PPVIEW_UNIFINDOBJ, implBrowseArray, 0), P_DsList(0), State(0), P_Prcssr(0)
+{
+	if(pOuterPrcssr) {
+		P_Prcssr = pOuterPrcssr;
+		State |= stOuterPrcssr;
+	}
+	else {
+		P_Prcssr = new PrcssrUniFindObj();
+	}
+}
+	
+PPViewUniFindObj::~PPViewUniFindObj()
+{
+	ZDELETE(P_DsList);
+	if(!(State & stOuterPrcssr)) {
+		delete P_Prcssr;
+	}
+	P_Prcssr = 0;
+}
+
+/*virtual*/PPBaseFilt * PPViewUniFindObj::CreateFilt(const void * extraPtr) const
+{
+	UniFindObjFilt * p_filt = new UniFindObjFilt;
+	if(p_filt)
+		p_filt->WFlags = UniFindObjFilt::wfEverything;
+	return p_filt;
+}
+
+/*virtual*/int PPViewUniFindObj::EditBaseFilt(PPBaseFilt * pBaseFilt)
+{
+	int    ok = -1;
+	if(!Filt.IsA(pBaseFilt))
+		ok = 0;
+	else {
+		UniFindObjFilt * p_filt = static_cast<UniFindObjFilt *>(pBaseFilt);
+		if(!P_Prcssr) {
+			P_Prcssr = new PrcssrUniFindObj();
+			State &= ~stOuterPrcssr;
+		}
+		if(P_Prcssr) {
+			ok = P_Prcssr->EditParam(p_filt);
+		}
+	}
+	return ok;
+}
+
+/*virtual*/int PPViewUniFindObj::Init_(const PPBaseFilt * pBaseFilt)
+{
+	int    ok = 1;
+	THROW(Helper_InitBaseFilt(pBaseFilt));
+	Counter.Init();
+	{
+		if(!P_Prcssr) {
+			P_Prcssr = new PrcssrUniFindObj();
+			State &= ~stOuterPrcssr;
+		}
+		if(P_Prcssr) {
+			if(P_Prcssr->Init(&Filt)) {
+				ok = P_Prcssr->Run();
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPViewUniFindObj::MakeList(PPViewBrowser * pBrw)
+{
+	int    ok = 1;
+	{
+		if(P_DsList)
+			P_DsList->clear();
+		else 
+			P_DsList = new SArray(sizeof(BrwItem));
+		StrPool.ClearS();
+	}
+	if(P_Prcssr) {
+		const TSCollection <PrcssrUniFindObj::FoundEntry> & r_result = P_Prcssr->GetResult();
+		SString temp_buf;
+		for(uint i = 0; i < r_result.getCount(); i++) {
+			const PrcssrUniFindObj::FoundEntry * p_entry = r_result.at(i);
+			if(p_entry) {
+				BrwItem new_item(*p_entry);
+				new_item.Ident_ = static_cast<long>(i+1);
+				GetObjectTitle(new_item.Oid.Obj, temp_buf.Z());
+				GetObjectName(new_item.Oid, temp_buf.Z());
+				StrPool.AddS(temp_buf, &new_item.ObjNameP);
+				GetObjAttrName(new_item.Attr, temp_buf);
+				StrPool.AddS(temp_buf, &new_item.AttrNameP);
+				StrPool.AddS(p_entry->AddendumFeature, &new_item.AddendumFeatureP);
+				P_DsList->insert(&new_item);
+			}
+		}
+	}
+	return ok;
+}
+
+int PPViewUniFindObj::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	const  BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
+	SString temp_buf;
+	switch(pBlk->ColumnN) {
+		case 1: // @objtypename
+			GetObjectTitle(p_item->Oid.Obj, temp_buf);
+			pBlk->Set(temp_buf); 
+			break; 
+		case 2: // @id
+			pBlk->Set(p_item->Oid.Id);
+			break; 
+		case 3: // @appellation
+			StrPool.GetS(p_item->ObjNameP, temp_buf);
+			pBlk->Set(temp_buf);
+			break; 
+		case 4:  // Field description
+			StrPool.GetS(p_item->AttrNameP, temp_buf);
+			pBlk->Set(temp_buf);
+			break;
+		case 5:  // Addendum feature
+			StrPool.GetS(p_item->AddendumFeatureP, temp_buf);
+			pBlk->Set(temp_buf);
+			break;
+	}
+	return ok;
+}
+
+/*virtual*/SArray * PPViewUniFindObj::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+{
+	SArray * p_array = 0;
+	THROW(MakeList(0));
+	p_array = new SArray(*P_DsList);
+	CATCH
+		ZDELETE(p_array);
+		ZDELETE(P_DsList);
+	ENDCATCH
+	ASSIGN_PTR(pBrwId, BROWSER_UNIFINDOBJ);
+	return p_array;
+}
+
+/*virtual*/void PPViewUniFindObj::PreprocessBrowser(PPViewBrowser * pBrw)
+{
+	if(pBrw) {
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewUniFindObj *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
+	}
+}
+
+/*virtual*/int PPViewUniFindObj::Detail(const void * pHdr, PPViewBrowser * pBrw)
+{
+	int    ok = -1;
+	const BrwItem * p_item = pHdr ? static_cast<const BrwItem *>(pHdr) : 0;
+	if(p_item && p_item->Oid.IsFullyDefined()) {
+		PPID   temp_id = p_item->Oid.Id;
+		switch(p_item->Oid.Obj) {
+			case PPOBJ_BILL:
+				if(P_Prcssr) {
+					P_Prcssr->P_BObj->Edit(&temp_id, 0);
+				}
+				break;
+			case PPOBJ_GOODS:
+				if(P_Prcssr) {
+					P_Prcssr->P_BObj->GObj.Edit(&temp_id, 0);
+				}
+				break;
+			case PPOBJ_PERSON:
+				if(P_Prcssr) {
+					P_Prcssr->PsnObj.Edit(&temp_id, 0);
+				}
+				break;
+			case PPOBJ_LOT:
+				if(P_Prcssr) {
+					P_Prcssr->P_BObj->EditLotSystemInfo(temp_id);
+				}
+				break;
+			case PPOBJ_CCHECK:
+				if(P_Prcssr) {
+					CCheckCore * p_cc = P_Prcssr->ScObj.P_CcTbl;
+					if(p_cc) {
+						//P_Prcssr->ScObj.Edit(&temp_id, param);
+					}
+				}
+				break;				
+			case PPOBJ_SCARD:
+				if(P_Prcssr) {
+					PPObjSCard::AddParam param;
+					P_Prcssr->ScObj.Edit(&temp_id, param);
+				}
+				break;
+			case PPOBJ_PROJECT:
+				if(P_Prcssr) {
+					P_Prcssr->PrjObj.Edit(&temp_id, 0);
+				}
+				break;
+			case PPOBJ_PRJTASK:
+				if(P_Prcssr) {
+					P_Prcssr->TodoObj.Edit(&temp_id, 0);
+				}
+				break;
+		}
+	}
+	return ok;
+}
+
+/*virtual*/int PPViewUniFindObj::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+{
+	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
+	AryBrowserDef * p_def = pBrw ? static_cast<AryBrowserDef *>(pBrw->getDef()) : 0;
+	const  BrwItem * p_item = pHdr ? static_cast<const BrwItem *>(pHdr) : 0;
+	PPID   new_id = 0;
+	PPID   update_id = 0;
+	PPID   cur_id = p_item ? p_item->Ident_ : 0;
+	if(ok == -2) {
+		const  long cur_pos = p_def ? p_def->_curItem() : 0;
+		long   update_pos = cur_pos;
+		/*switch(ppvCmd) {
+		}*/
+	}
+	if(ok > 0) {
+		MakeList(pBrw);
+		if(pBrw) {
+			if(p_def) {
+				SArray * p_array = new SArray(*P_DsList);
+				p_def->setArray(p_array, 0, 1);
+				pBrw->setRange(p_array->getCount());
+				int    update_pos = -1;
+				uint   temp_pos = 0;
+				if(update_id > 0 && P_DsList->lsearch(&cur_id, &temp_pos, CMPF_LONG, offsetof(BrwItem, Ident_)))
+					update_pos = temp_pos;
+				if(update_pos >= 0)
+					pBrw->go(update_pos);
+				else if(update_pos == MAXLONG)
+					pBrw->go(p_array->getCount()-1);
+			}
+			pBrw->Update();
+		}
+	}
+	return ok;
+}
+//
+//
+//
+PrcssrUniFindObj::PrcssrUniFindObj() : P_BObj(BillObj)
+{
+}
+
+int PrcssrUniFindObj::Init(const UniFindObjFilt * pParam)
 {
 	int    ok = 1;
 	RVALUEPTR(P, pParam);
@@ -2707,20 +2936,20 @@ int PrcssrUniFindObj::Init(const UniFindObjParam * pParam)
 	return ok;
 }
 
-int PrcssrUniFindObj::InitParam(UniFindObjParam * pParam)
+int PrcssrUniFindObj::InitParam(UniFindObjFilt * pParam)
 {
 	int    ok = -1;
 	if(pParam) {
-		pParam->WFlags = UniFindObjParam::wfEverything;
+		pParam->WFlags = UniFindObjFilt::wfEverything;
 		ok = 1;
 	}
 	return ok;
 }
 
-int PrcssrUniFindObj::EditParam(UniFindObjParam * pParam)
+int PrcssrUniFindObj::EditParam(UniFindObjFilt * pParam)
 {
 	class UniFindObjParamDialog : public TDialog {
-		DECL_DIALOG_DATA(UniFindObjParam);
+		DECL_DIALOG_DATA(UniFindObjFilt);
 	public:
 		UniFindObjParamDialog() : TDialog(DLG_UNIFINDOBJ)
 		{
@@ -2730,16 +2959,18 @@ int PrcssrUniFindObj::EditParam(UniFindObjParam * pParam)
 			int    ok = 1;
 			RVALUEPTR(Data, pData);
 			setCtrlString(CTL_UNIFINDOBJ_MPATTERN, Data.MainPattern);
-			AddClusterAssoc(CTL_UNIFINDOBJ_WFLAGS, 0, UniFindObjParam::wfEverything);
-			AddClusterAssoc(CTL_UNIFINDOBJ_WFLAGS, 1, UniFindObjParam::wfBill);
-			AddClusterAssoc(CTL_UNIFINDOBJ_WFLAGS, 2, UniFindObjParam::wfGoods);
-			AddClusterAssoc(CTL_UNIFINDOBJ_WFLAGS, 3, UniFindObjParam::wfPerson);
-			AddClusterAssoc(CTL_UNIFINDOBJ_WFLAGS, 4, UniFindObjParam::wfSCard);
-			AddClusterAssoc(CTL_UNIFINDOBJ_WFLAGS, 5, UniFindObjParam::wfCCheck);
-			AddClusterAssoc(CTL_UNIFINDOBJ_WFLAGS, 6, UniFindObjParam::wfPersonEvent);
-			AddClusterAssoc(CTL_UNIFINDOBJ_WFLAGS, 7, UniFindObjParam::wfProject);
-			AddClusterAssoc(CTL_UNIFINDOBJ_WFLAGS, 8, UniFindObjParam::wfToDo);
+			AddClusterAssoc(CTL_UNIFINDOBJ_WFLAGS, 0, UniFindObjFilt::wfEverything);
+			AddClusterAssoc(CTL_UNIFINDOBJ_WFLAGS, 1, UniFindObjFilt::wfBill);
+			AddClusterAssoc(CTL_UNIFINDOBJ_WFLAGS, 2, UniFindObjFilt::wfGoods);
+			AddClusterAssoc(CTL_UNIFINDOBJ_WFLAGS, 3, UniFindObjFilt::wfPerson);
+			AddClusterAssoc(CTL_UNIFINDOBJ_WFLAGS, 4, UniFindObjFilt::wfSCard);
+			AddClusterAssoc(CTL_UNIFINDOBJ_WFLAGS, 5, UniFindObjFilt::wfCCheck);
+			AddClusterAssoc(CTL_UNIFINDOBJ_WFLAGS, 6, UniFindObjFilt::wfPersonEvent);
+			AddClusterAssoc(CTL_UNIFINDOBJ_WFLAGS, 7, UniFindObjFilt::wfProject);
+			AddClusterAssoc(CTL_UNIFINDOBJ_WFLAGS, 8, UniFindObjFilt::wfToDo);
 			SetClusterData(CTL_UNIFINDOBJ_WFLAGS, Data.WFlags);
+			AddClusterAssoc(CTL_UNIFINDOBJ_FLAGS, 0, UniFindObjFilt::fNameBySubstr);
+			SetClusterData(CTL_UNIFINDOBJ_FLAGS, Data.Flags);
 			SetPeriodInput(this, CTL_UNIFINDOBJ_PERIOD, Data.Period);
 			return ok;
 		}
@@ -2749,23 +2980,109 @@ int PrcssrUniFindObj::EditParam(UniFindObjParam * pParam)
 			uint   sel = 0;
 			getCtrlString(sel = CTL_UNIFINDOBJ_MPATTERN, Data.MainPattern);
 			GetClusterData(sel = CTL_UNIFINDOBJ_WFLAGS, &Data.WFlags);
+			GetClusterData(sel = CTL_UNIFINDOBJ_FLAGS, &Data.Flags);
 			GetPeriodInput(this, sel = CTL_UNIFINDOBJ_PERIOD, &Data.Period);
 			THROW(Data.MainPattern.NotEmptyS());
 			ASSIGN_PTR(pData, Data);
 			CATCHZOKPPERRBYDLG
 			return ok;
 		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_UNIFINDOBJ_MPATTERN)) {
+				SString temp_buf;
+				SString info_buf;
+				getCtrlString(CTL_UNIFINDOBJ_MPATTERN, temp_buf);
+				//
+				SNaturalTokenArray nta;
+				TRgn.Run(temp_buf.ucptr(), static_cast<int>(temp_buf.Len()), nta, 0);
+				{
+					for(uint i = 0; i < nta.getCount(); i++) {
+						const SNaturalToken & r_nt = nta.at(i);
+						{
+							r_nt.GetSymb(temp_buf);
+							if(temp_buf.NotEmpty()) {
+								info_buf.CatDivIfNotEmpty(',', 2).Cat(temp_buf);
+							}
+						}
+					}
+				}
+				//
+				setCtrlString(CTL_UNIFINDOBJ_INFO, info_buf);
+			}
+		}
+
+		PPTokenRecognizer TRgn;
 	};
 	DIALOG_PROC_BODY(UniFindObjParamDialog, pParam);
 }
 
+const PrcssrUniFindObj::FoundEntry * PrcssrUniFindObj::SearchResult(const SObjID oid, int attr, uint * pPos) const
+{
+	uint   pos = 0;
+	const  PrcssrUniFindObj::FoundEntry * p_result = 0;
+	for(uint i = 0; !p_result && i < Result.getCount(); i++) {
+		const FoundEntry * p_entry = Result.at(i);
+		if(p_entry && p_entry->Oid == oid && p_entry->Attr == attr) {
+			p_result = p_entry;
+			pos = i;
+		}
+	}
+	ASSIGN_PTR(pPos, pos);
+	return p_result;
+}
+
+int PrcssrUniFindObj::AddResult(PPID objType, PPID objID, int attr, const char * pAddendumFeature)
+{
+	int    ok = 1;
+	if(objType && objID) {
+		if(SearchResult(SObjID(objType, objID), attr, 0)) {
+			ok = -1;
+		}
+		else {
+			FoundEntry * p_new_entry = Result.CreateNewItem();
+			if(p_new_entry) {
+				p_new_entry->Oid.Set(objType, objID);
+				p_new_entry->Attr = attr;
+				if(!isempty(pAddendumFeature)) {
+					p_new_entry->AddendumFeature = pAddendumFeature;
+					PPExpandString(p_new_entry->AddendumFeature, CTRANSF_UTF8_TO_INNER);
+				}
+			}
+			else
+				ok = 0;
+		}
+	}
+	else
+		ok = -1;
+	return ok;
+}
+
+int PrcssrUniFindObj::AddResult(PPID objType, const PPIDArray & rIdList, int attr)
+{
+	int    ok = 1;
+	if(objType && rIdList.getCount()) {
+		for(uint i = 0; ok && i < rIdList.getCount(); i++) {
+			if(!AddResult(objType, rIdList.get(i), attr, 0))
+				ok = 0;
+		}
+	}
+	return ok;
+}
+
 int PrcssrUniFindObj::Run()
 {
+	Result.freeAll();
+	//
 	int    ok = -1;
 	SString temp_buf;
 	SString msg_buf;
 	SString obj_title_buf;
-	PPObjIDArray oid_list;
+	if(P_BObj == 0) {
+		;
+	}
 	if(P.MainPattern.IsEmpty()) {
 		;
 	}
@@ -2773,7 +3090,9 @@ int PrcssrUniFindObj::Run()
 		;
 	}
 	else {
-		PPObjBill * p_bobj = BillObj;
+		Reference * p_ref = PPRef;
+		PPObjRegister & r_reg_obj = PsnObj.RegObj;
+		PPObjGoods & r_goods_obj = P_BObj->GObj;
 		PPIDArray temp_id_list;
 		PPIDArray result_id_list;
 		SNaturalTokenArray nta;
@@ -2793,8 +3112,35 @@ int PrcssrUniFindObj::Run()
 			_uuid_val.FromStr(P.MainPattern);
 		}
 		if(nta.Has(SNTOK_PHONE)) {
+			PPEAddr::Phone::NormalizeStr(P.MainPattern, 0, temp_buf);
+			PPObjIDArray obj_list;
+			if(PsnObj.LocObj.P_Tbl->SearchPhoneObjList(temp_buf, 0, obj_list) > 0) {
+				for(uint i = 0; i < obj_list.getCount(); i++) {
+					const SObjID oid = obj_list.at(i);
+					if(oid.IsFullyDefined()) {
+						AddResult(oid.Obj, oid.Id, PPOBJATTR_PHONE, 0);
+					}
+				}
+			}
 		}
 		else if(nta.Has(SNTOK_EMAIL)) {
+			PPIDArray loc_id_list;
+			temp_id_list.Z();
+			PsnObj.SearchEmail(P.MainPattern, 0/*flags*/, &temp_id_list, &loc_id_list);
+			AddResult(PPOBJ_PERSON, temp_id_list, PPOBJATTR_EMAIL);
+			AddResult(PPOBJ_LOCATION, loc_id_list, PPOBJATTR_EMAIL);
+		}
+		if(nta.Has(SNTOK_EGAISMARKCODE)) {
+			result_id_list.Z();
+			TSVector<LotExtCodeTbl::Rec> lxc_rec_list;
+			P_BObj->P_LotXcT->GetRecListByMark(P.MainPattern, lxc_rec_list);
+			for(uint i = 0; i < lxc_rec_list.getCount(); i++) {
+				result_id_list.add(lxc_rec_list.at(i).BillID);
+			}
+			{
+				result_id_list.sortAndUndup();
+				AddResult(PPOBJ_BILL, result_id_list, PPOBJATTR_EGAISMARK);
+			}
 		}
 		{
 			GtinStruc gts;
@@ -2803,114 +3149,245 @@ int PrcssrUniFindObj::Run()
 				is_chzn_mark = true;
 				result_id_list.Z();
 				TSVector<LotExtCodeTbl::Rec> lxc_rec_list;
-				p_bobj->P_LotXcT->GetRecListByMark(P.MainPattern, lxc_rec_list);
+				P_BObj->P_LotXcT->GetRecListByMark(P.MainPattern, lxc_rec_list);
 				for(uint i = 0; i < lxc_rec_list.getCount(); i++) {
 					result_id_list.add(lxc_rec_list.at(i).BillID);
 				}
-				result_id_list.sortAndUndup();
-				oid_list.Add(PPOBJ_BILL, result_id_list);
+				{
+					result_id_list.sortAndUndup();
+					AddResult(PPOBJ_BILL, result_id_list, PPOBJATTR_CHZNMARK);
+				}
 			}
 		}
-		if(P.WFlags & (UniFindObjParam::wfEverything|UniFindObjParam::wfBill)) {
-			BillTbl::Rec bill_rec;
-			result_id_list.Z();
+		if(P.WFlags & UniFindObjFilt::wfEverything) {
 			if(_int_val > 0 && _int_val < LONG_MAX) {
-				if(p_bobj->Search(static_cast<long>(_int_val), &bill_rec) > 0) {
-					result_id_list.add(bill_rec.ID);
+				ReceiptTbl::Rec lot_rec;
+				if(P_BObj->trfr->Rcpt.Search(static_cast<long>(_int_val), &lot_rec) > 0) {
+					AddResult(PPOBJ_LOT, lot_rec.ID, PPOBJATTR_ID, 0);
+				}
+			}
+		}
+		if(P.WFlags & (UniFindObjFilt::wfEverything|UniFindObjFilt::wfBill)) {
+			BillTbl::Rec bill_rec;
+			if(_int_val > 0 && _int_val < LONG_MAX) {
+				if(P_BObj->Search(static_cast<long>(_int_val), &bill_rec) > 0) {
+					AddResult(PPOBJ_BILL, bill_rec.ID, PPOBJATTR_ID, 0);
 				}
 			}
 			if(P.MainPattern.Len() < 48) {
-				if(p_bobj->P_Tbl->SearchByCode(P.MainPattern, temp_id_list) > 0) {
-					result_id_list.add(&temp_id_list);
+				if(P_BObj->P_Tbl->SearchByCode(P.MainPattern, temp_id_list) > 0) {
+					AddResult(PPOBJ_BILL, temp_id_list, PPOBJATTR_CODE);
 				}
 			}
 			if(!!_uuid_val) {
-				if(p_bobj->SearchByGuid(_uuid_val, temp_id_list) > 0) {
-					result_id_list.add(&temp_id_list);
+				if(P_BObj->SearchByGuid(_uuid_val, temp_id_list) > 0) {
+					AddResult(PPOBJ_BILL, temp_id_list, PPOBJATTR_UUID);
 				}
 			}
-			//
-			result_id_list.sortAndUndup();
-			oid_list.Add(PPOBJ_BILL, result_id_list);
 		}
-		if(P.WFlags & (UniFindObjParam::wfEverything|UniFindObjParam::wfGoods)) {
-			PPObjGoods goods_obj;
+		if(P.WFlags & (UniFindObjFilt::wfEverything|UniFindObjFilt::wfGoods)) {
+			// @todo PPTAG_GOODS_UUID
 			Goods2Tbl::Rec goods_rec;
 			result_id_list.Z();
 			temp_id_list.Z();
 			if(_int_val > 0 && _int_val < LONG_MAX) {
-				if(goods_obj.Search(static_cast<long>(_int_val), &goods_rec) > 0) {
+				if(r_goods_obj.Search(static_cast<long>(_int_val), &goods_rec) > 0) {
+					AddResult(PPOBJ_GOODS, goods_rec.ID, PPOBJATTR_ID, 0);
 					result_id_list.add(goods_rec.ID);
 				}
 			}
-			if(goods_obj.SearchByBarcode(P.MainPattern, 0, &goods_rec, 1) > 0) {
+			if(r_goods_obj.SearchByBarcode(P.MainPattern, 0, &goods_rec, 1) > 0) {
+				AddResult(PPOBJ_GOODS, goods_rec.ID, PPOBJATTR_CODE, 0);
 				result_id_list.add(goods_rec.ID);
 			}
-			if(goods_obj.P_Tbl->SearchByName(PPGDSK_GOODS, P.MainPattern, 0, &goods_rec) > 0) {
+			if(P.Flags & UniFindObjFilt::fNameBySubstr) {
+				r_goods_obj.P_Tbl->GetListBySubstring(P.MainPattern, &temp_id_list, 0, false/*srchByExtStr*/);
+				AddResult(PPOBJ_GOODS, temp_id_list, PPOBJATTR_NAME);
+			}
+			else if(r_goods_obj.P_Tbl->SearchByName(PPGDSK_GOODS, P.MainPattern, 0, &goods_rec) > 0) {
+				AddResult(PPOBJ_GOODS, goods_rec.ID, PPOBJATTR_NAME, 0);
 				result_id_list.add(goods_rec.ID);
 			}
-			//
-			result_id_list.sortAndUndup();
-			oid_list.Add(PPOBJ_GOODS, result_id_list);
-		}
-		if(P.WFlags & (UniFindObjParam::wfEverything|UniFindObjParam::wfPerson|UniFindObjParam::wfPersonEvent|UniFindObjParam::wfLocation)) {
-			PPObjRegister reg_obj;
-			PPObjIDArray temp_oid_list;
-			if(reg_obj.P_Tbl->SearchAnyByNumber(P.MainPattern, &temp_id_list, &temp_oid_list) > 0) {
-				temp_oid_list.SortAndUndup();
-				for(uint i = 0; i < temp_oid_list.getCount(); i++) {
-					const PPObjID oid = temp_oid_list.at(i);
-					oid_list.insert(&oid);
+			if(!!_uuid_val) {
+				p_ref->Ot.SearchObjectsByGuid(PPOBJ_GOODS, PPTAG_GOODS_UUID, _uuid_val, &temp_id_list);
+				for(uint i = 0; i < temp_id_list.getCount(); i++) {
+					AddResult(PPOBJ_GOODS, temp_id_list, PPOBJATTR_UUID);
+					result_id_list.add(&temp_id_list);
 				}
 			}
 		}
-		if(P.WFlags & (UniFindObjParam::wfEverything|UniFindObjParam::wfPerson)) {
-			PPObjPerson psn_obj;
+		if(P.WFlags & (UniFindObjFilt::wfEverything|UniFindObjFilt::wfPerson|UniFindObjFilt::wfPersonEvent|UniFindObjFilt::wfLocation)) {
+			RegisterArray reg_list;
+			if(r_reg_obj.P_Tbl->SearchAnyByNumber(P.MainPattern, &reg_list) > 0) {
+				for(uint i = 0; i < reg_list.getCount(); i++) {
+					const RegisterTbl::Rec & reg_rec = reg_list.at(i);
+					const SObjID oid(NZOR(PPOBJ_PERSON, reg_rec.ObjType), reg_rec.ObjID);
+					if(oid.IsFullyDefined()) {
+						int   attr = 0;
+						if(reg_rec.RegTypeID == PPREGT_TPID)
+							attr = PPOBJATTR_RUINN;
+						else if(reg_rec.RegTypeID == PPREGT_KPP)
+							attr = PPOBJATTR_RUKPP;
+						else
+							attr = PPOBJATTR_GENERICREG;
+						AddResult(oid.Obj, oid.Id, attr, 0);
+					}
+				}
+			}
+		}
+		if(P.WFlags & (UniFindObjFilt::wfEverything|UniFindObjFilt::wfPerson)) {
 			PersonTbl::Rec psn_rec;
 			result_id_list.Z();
 			temp_id_list.Z();
 			if(_int_val > 0 && _int_val < LONG_MAX) {
-				if(psn_obj.Search(static_cast<long>(_int_val), &psn_rec) > 0) {
-					result_id_list.add(psn_rec.ID);
+				if(PsnObj.Search(static_cast<long>(_int_val), &psn_rec) > 0) {
+					AddResult(PPOBJ_PERSON, psn_rec.ID, PPOBJATTR_ID, 0);
 				}
 			}
-			if(psn_obj.P_Tbl->SearchByName(P.MainPattern, temp_id_list) > 0) {
-				result_id_list.add(&temp_id_list);
+			if(P.Flags & UniFindObjFilt::fNameBySubstr) {
+				StrAssocArray salist;
+				PsnObj.GetListBySubstring(P.MainPattern, 0/*kindID*/, &salist, 0/*fromBegStr*/);
+				if(salist.getCount()) {
+					for(uint i = 0; i < salist.getCount(); i++) {
+						const PPID psn_id = salist.at_WithoutParent(i).Id;
+						AddResult(PPOBJ_PERSON, psn_id, PPOBJATTR_NAME, 0);
+					}
+				}
+			}
+			else if(PsnObj.P_Tbl->SearchByName(P.MainPattern, temp_id_list) > 0) {
+				AddResult(PPOBJ_PERSON, temp_id_list, PPOBJATTR_NAME);
+			}
+			if(!!_uuid_val) {
+				p_ref->Ot.SearchObjectsByGuid(PPOBJ_PERSON, PPTAG_PERSON_UUID, _uuid_val, &temp_id_list);
+				for(uint i = 0; i < temp_id_list.getCount(); i++) {
+					AddResult(PPOBJ_PERSON, temp_id_list, PPOBJATTR_UUID);
+				}
 			}
 		}
-		if(P.WFlags & (UniFindObjParam::wfEverything|UniFindObjParam::wfSCard)) {
-			//
+		if(P.WFlags & (UniFindObjFilt::wfEverything|UniFindObjFilt::wfSCard)) {
+			SCardTbl::Rec sc_rec;
+			temp_id_list.Z();
+			if(_int_val > 0 && _int_val < LONG_MAX) {
+				if(ScObj.Search(static_cast<long>(_int_val), &sc_rec) > 0) {
+					AddResult(PPOBJ_SCARD, sc_rec.ID, PPOBJATTR_ID, 0);
+				}
+			}
+			if(ScObj.P_Tbl->GetListByCode(P.MainPattern, &temp_id_list) > 0) {
+				AddResult(PPOBJ_SCARD, temp_id_list, PPOBJATTR_CODE);
+			}
 		}
-		if(P.WFlags & (UniFindObjParam::wfEverything|UniFindObjParam::wfCCheck)) {
+		if(P.WFlags & (UniFindObjFilt::wfEverything|UniFindObjFilt::wfCCheck)) {
 			//
+			CCheckCore * p_cc = ScObj.P_CcTbl;
+			if(p_cc) {
+				CCheckTbl::Rec cc_rec;
+				result_id_list.Z();
+				temp_id_list.Z();
+				if(_int_val > 0 && _int_val < LONG_MAX) {
+					if(p_cc->Search(static_cast<long>(_int_val), &cc_rec) > 0) {
+						AddResult(PPOBJ_CCHECK, cc_rec.ID, PPOBJATTR_ID, 0);
+					}
+					TSVector <CCheckTbl::Rec> cc_rec_list;
+					if(p_cc->GetListByCode(0, static_cast<long>(_int_val), &cc_rec_list) > 0) {
+						for(uint i =  0; i < cc_rec_list.getCount(); i++) {
+							AddResult(PPOBJ_CCHECK, cc_rec.ID, PPOBJATTR_CODE, 0);
+						}
+					}
+				}
+			}
 		}
-		if(P.WFlags & (UniFindObjParam::wfEverything|UniFindObjParam::wfPersonEvent)) {
-			//
+		if(P.WFlags & (UniFindObjFilt::wfEverything|UniFindObjFilt::wfPersonEvent)) {
+			PPObjPersonEvent pe_obj;
+			PersonEventTbl::Rec pe_rec;
+			if(_int_val > 0 && _int_val < LONG_MAX) {
+				if(pe_obj.Search(static_cast<long>(_int_val), &pe_rec) > 0) {
+					AddResult(PPOBJ_PERSONEVENT, pe_rec.ID, PPOBJATTR_ID, 0);
+				}
+			}
 		}
-		if(P.WFlags & (UniFindObjParam::wfEverything|UniFindObjParam::wfProject)) {
-			//
+		if(P.WFlags & (UniFindObjFilt::wfEverything|UniFindObjFilt::wfProject)) {
+			PPObjProject prj_obj;
+			ProjectTbl::Rec prj_rec;
+			if(_int_val > 0 && _int_val < LONG_MAX) {
+				if(prj_obj.Search(static_cast<long>(_int_val), &prj_rec) > 0) {
+					AddResult(PPOBJ_PROJECT, prj_rec.ID, PPOBJATTR_ID, 0);
+				}
+			}
 		}
-		if(P.WFlags & (UniFindObjParam::wfEverything|UniFindObjParam::wfToDo)) {
+		if(P.WFlags & (UniFindObjFilt::wfEverything|UniFindObjFilt::wfToDo)) {
+			temp_id_list.Z();
+			PPObjPrjTask todo_obj;
+			PrjTaskTbl::Rec todo_rec;
+			if(_int_val > 0 && _int_val < LONG_MAX) {
+				if(todo_obj.Search(static_cast<long>(_int_val), &todo_rec) > 0) {
+					AddResult(PPOBJ_PRJTASK, todo_rec.ID, PPOBJATTR_ID, 0);
+				}
+			}
+			if(todo_obj.P_Tbl->SearchByCode(P.MainPattern, temp_id_list) > 0) {
+				AddResult(PPOBJ_PRJTASK, temp_id_list, PPOBJATTR_CODE);
+			}
+		}
+		if(P.WFlags & UniFindObjFilt::wfEverything) { 
 			//
+			// Other objects
+			//
+			if(!!_uuid_val) {
+				struct _TagSearchEntry {
+					PPID   ObjType;
+					PPID   TagID;
+					const  char * P_AddendumFeature;
+				};
+				static const _TagSearchEntry obj_to_tagid_list[] = {
+					{ PPOBJ_PROCESSOR, PPTAG_PRC_UUID, 0 },
+					{ PPOBJ_COMPUTER, PPTAG_COMPUTER_GUID, 0 },
+					{ PPOBJ_GLOBALUSERACC, PPTAG_GUA_GUID, 0 },
+					{ PPOBJ_LOCATION, PPTAG_LOC_UUID, 0 },
+					{ PPOBJ_TSESSION, PPTAG_TSESS_UUID, 0 },
+					{ PPOBJ_CASHNODE, PPTAG_POSNODE_UUID, 0 },
+					{ PPOBJ_CASHNODE, PPTAG_POSNODE_HOSTUUID, "@{rtag_posnodehostuuid}" },
+					{ PPOBJ_LOT, PPTAG_LOT_VETIS_UUID, "@{rtag_lotvetisuuid}" },
+					{ PPOBJ_LOT, PPTAG_LOC_VETIS_GUID, "@{rtag_locvetisguid}" },
+					{ PPOBJ_LOCATION, PPTAG_LOC_VETIS_REGIONGUID, "@{rtag_loc_vetisregionguid}" },
+					{ PPOBJ_BILL, PPTAG_BILL_LINKCCHECKUUID, "@{rtag_billlinkccheckuuid}" },
+					{ PPOBJ_GOODS, PPTAG_GOODS_VETISGUID, "@{rtag_goodsvetisguid}" },
+					{ PPOBJ_PERSON, PPTAG_PERSON_VETISUUID, "@{rtag_personvetisuuid}" },
+				};
+				for(uint ai = 0; ai < SIZEOFARRAY(obj_to_tagid_list); ai++) {
+					const _TagSearchEntry & r_item = obj_to_tagid_list[ai];
+					temp_id_list.Z();
+					p_ref->Ot.SearchObjectsByGuid(r_item.ObjType, r_item.TagID, _uuid_val, &temp_id_list);
+					for(uint i = 0; i < temp_id_list.getCount(); i++) {
+						AddResult(r_item.ObjType, temp_id_list.get(i), PPOBJATTR_UUID, r_item.P_AddendumFeature);
+					}
+				}
+			}
 		}
 	}
-	{
+	/*{
 		PPLogger logger; // Это - только для отладки. В конечном варианте данные будут выводится в BrowserWindow
-		for(uint i = 0; i < oid_list.getCount(); i++) {
-			const PPObjID oid = oid_list.at(i);
-			GetObjectTitle(oid.Obj, obj_title_buf.Z());
-			GetObjectName(oid, temp_buf.Z());
-			msg_buf.Z().Cat(obj_title_buf).CatDiv('-', 1).Cat(temp_buf);
-			logger.Log(msg_buf);
+		//for(uint i = 0; i < oid_list.getCount(); i++) {
+		for(uint i = 0; i < Result.getCount(); i++) {
+			const FoundEntry * p_fe = Result.at(i);
+			if(p_fe) {
+				GetObjectTitle(p_fe->Oid.Obj, obj_title_buf.Z());
+				GetObjectName(p_fe->Oid, temp_buf.Z());
+				msg_buf.Z().Cat(obj_title_buf).CatDiv('-', 1).Cat(temp_buf);
+				GetObjAttrName(p_fe->Attr, temp_buf);
+				if(temp_buf.NotEmptyS())
+					msg_buf.CatDiv('-', 1).Cat(temp_buf);
+				logger.Log(msg_buf);
+			}
 		}
-	}
+	}*/
 	return ok;
 }
 
 int UniFindObj()
 {
+	return PPView::Execute(PPVIEW_UNIFINDOBJ, 0, PPView::exefModeless, 0);
+	/*
 	int    ok = -1;
-	UniFindObjParam param;
+	UniFindObjFilt param;
 	PrcssrUniFindObj prcssr;
 	prcssr.InitParam(&param);
 	if(prcssr.EditParam(&param) > 0) {
@@ -2918,5 +3395,6 @@ int UniFindObj()
 		prcssr.Run();
 	}
 	return ok;
+	*/
 }
 // } @construction

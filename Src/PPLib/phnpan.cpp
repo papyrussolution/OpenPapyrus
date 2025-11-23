@@ -45,7 +45,7 @@ public:
 	~PhonePaneDialog();
 	int    SetupInfo();
 	void   Setup(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt);
-	void   SetupOidList(const PPObjID * pOidToSelect);
+	void   SetupOidList(const SObjID * pOidToSelect);
 private:
 	class ActionByPhoneDialog : public TDialog {
 	public:
@@ -171,7 +171,7 @@ private:
 			{
 			}
 			SString Phone;
-			PPObjID Oid;
+			SObjID Oid;
 			PPID   ExtSelector;
 			SString SearchStr;
 		};
@@ -256,7 +256,7 @@ private:
 	};
 
 	DECL_HANDLE_EVENT;
-	void   SelectContact(PPObjID oid, int onInit);
+	void   SelectContact(SObjID oid, int onInit);
 	void   OnContactSelection(int onInit);
 	void   ShowList(int mode, int onInit);
 	void   DoAction()
@@ -503,7 +503,7 @@ int PhonePaneDialog::SetupInfo()
 	return result;
 }
 
-void PhonePaneDialog::SetupOidList(const PPObjID * pOidToSelect)
+void PhonePaneDialog::SetupOidList(const SObjID * pOidToSelect)
 {
 	SString temp_buf;
 	SString name_buf;
@@ -511,7 +511,7 @@ void PhonePaneDialog::SetupOidList(const PPObjID * pOidToSelect)
 	PPID   init_id = 0;
 	SString list_item_buf;
 	for(uint i = 0; i < OidList.getCount(); i++) {
-		const PPObjID & r_oid = OidList.at(i);
+		const SObjID & r_oid = OidList.at(i);
 		list_item_buf.Z();
 		if(r_oid.Obj == PPOBJ_PERSON) {
 			GetPersonName(r_oid.Id, temp_buf);
@@ -735,7 +735,7 @@ void PhonePaneDialog::NewContact()
 				eb.InitPhone = p_phone;
 				if(PsnObj.Edit_(&psn_id, eb) > 0) {
 					OidList.Add(param.Oid.Obj, psn_id);
-					PPObjID sel_oid(param.Oid.Obj, psn_id);
+					SObjID sel_oid(param.Oid.Obj, psn_id);
 					SetupOidList(&sel_oid);
 				}
 			}
@@ -749,7 +749,7 @@ void PhonePaneDialog::NewContact()
 				ap.Phone = p_phone;
 				if(ScObj.Edit(&sc_id, ap) > 0) {
 					OidList.Add(param.Oid.Obj, sc_id);
-					PPObjID sel_oid(param.Oid.Obj, sc_id);
+					SObjID sel_oid(param.Oid.Obj, sc_id);
 					SetupOidList(&sel_oid);
 				}
 			}
@@ -762,7 +762,7 @@ void PhonePaneDialog::NewContact()
 				if(PsnObj.LocObj.EditDialog(LOCTYP_ADDRESS, &loc_pack, 0) > 0) {
 					if(PsnObj.LocObj.PutPacket(&loc_id, &loc_pack, 1)) {
 						OidList.Add(param.Oid.Obj, loc_id);
-						PPObjID sel_oid(param.Oid.Obj, loc_id);
+						SObjID sel_oid(param.Oid.Obj, loc_id);
 						SetupOidList(&sel_oid);
 					}
 					else
@@ -1147,7 +1147,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 	}
 }
 
-void PhonePaneDialog::SelectContact(PPObjID oid, int onInit)
+void PhonePaneDialog::SelectContact(SObjID oid, int onInit)
 {
 	S.PersonID = 0;
 	S.SCardID = 0;
@@ -1207,7 +1207,7 @@ void PhonePaneDialog::OnContactSelection(int onInit)
 	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 4, State::lmScOp);
 	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 5, State::lmScCCheck);
 	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 6, State::lmLocCCheck);*/
-	PPObjID oid;
+	SObjID oid;
 	if(item_id && item_id > 0 && item_id <= OidList.getCountI())
 		oid = OidList.at(item_id-1);
 	else
@@ -1332,7 +1332,7 @@ int PhoneServiceEventResponder::IdentifyCaller(const char * pCaller, PPObjIDArra
 					PPObjIDArray identified_caller_list;
 					if(p_self->IdentifyCaller(connected_line, identified_caller_list) > 0) {
 						for(uint i = 0; contact_buf.IsEmpty() && i < identified_caller_list.getCount(); i++) {
-							const PPObjID & r_oid = identified_caller_list.at(i);
+							const SObjID & r_oid = identified_caller_list.at(i);
 							if(r_oid.Obj == PPOBJ_PERSON) {
 								GetPersonName(r_oid.Id, contact_buf);
 							}
@@ -1472,7 +1472,7 @@ int PPViewPhnSvcMonitor::Update()
 					if(P_PsnObj->LocObj.P_Tbl->SearchPhoneObjList(caller_buf, 0, identified_caller_list) > 0) {
 						contact_buf.Z();
 						for(uint j = 0; contact_buf.IsEmpty() && j < identified_caller_list.getCount(); j++) {
-							const PPObjID & r_oid = identified_caller_list.at(j);
+							const SObjID & r_oid = identified_caller_list.at(j);
 							if(r_oid.Obj == PPOBJ_PERSON) {
 								GetPersonName(r_oid.Id, contact_buf);
 							}

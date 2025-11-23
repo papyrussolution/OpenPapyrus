@@ -62,12 +62,16 @@ struct Rc2BitmapItem {
 };
 
 struct Rc2DrawVectorItem {
-	Rc2DrawVectorItem() : SymbID(0), ReplacedColor(ZEROCOLOR)
+	Rc2DrawVectorItem() : SymbID(0), ReplacedColor(ZEROCOLOR), Flags(0)
 	{
-		PTR32(FileName)[0] = 0;
+		FileName[0] = 0;
 	}
+	enum {
+		fColorAsIs = 0x0001 // @v12.4.10 Цвета изображения оставить как есть не зависимо от того, к какой группе относится элемент
+	};
 	long   SymbID;
 	SColor ReplacedColor; // Цвет, который может быть изменен при отрисовке. Если ReplacedColor.Alpha == 0, то не определен
+	uint   Flags;
 	char   FileName[128];
 };
 //
@@ -304,14 +308,14 @@ public:
 	int    AddView(const ViewDefinition *, SString & rErrMsg);
 	int    AddReportStub(const ReportStubDefinition *, SString & rErrMsg);
 	void   InitCurCtrlMenu(const char * pName);
-	int    AddCtrlMenuItem(const char * pDescr, const char * pKeyCode, const char * pCmdCode); // @v10.8.11 pCmdCode
+	int    AddCtrlMenuItem(const char * pDescr, const char * pKeyCode, const char * pCmdCode);
 	int    AcceptCtrlMenu();
 	int    SetFieldDefinition(const char * pName, TYPEID typ, long fmt, const char * pDescr, SString & rErrMsg);
 	int    AddRecord(const char * pName, SString & rErrMsg); // @>>AddSymb
 	void   SetupBitmapGroup(const char * pPath);
 	int    AddBitmap(const char * pSymbol, SString & rErrMsg); // @>>AddSymb
 	int    SetupDrawVectorGroup(const char * pPath, SColor replacedColor);
-	int    AddDrawVector(const char * pSymbol, SColor replacedColor, SString & rErrMsg);
+	int    AddDrawVector(const char * pSymbol, bool dontReplaceColor, SColor replacedColor, SString & rErrMsg);
 	long   ResolveRFileOption(const char * pSymbol, SString & rErrMsg);
 	long   ResolveRPathSymb(const char * pSymbol, SString & rCppMnem, SString & rErrMsg);
 	int    AddRFileDefinition(const char * pSymbol, const char * pName, const char * pPathMnem, long flags, const char * pDescr, SString & rErrMsg);
@@ -341,7 +345,7 @@ private:
 	TSCollection <BitmapGroup> BitmapList;
 
 	struct DrawVectorGroup {
-		DrawVectorGroup() : ReplacedColor(0, 0, 0, 0)
+		DrawVectorGroup() : ReplacedColor(ZEROCOLOR)
 		{
 		}
 		SString Path;
@@ -351,7 +355,7 @@ private:
 	TSCollection <DrawVectorGroup> DrawVectorList;
 	FILE * pHdr; // Генерируемый заголовочный файл
 	FILE * pRc;  // Генерируемый RC файл
-	SFile F_RuText; // Файл, в который сбрасываются "голые" русские строки для последующего замещения на формализованные ресурсы
+	SFile  F_RuText; // Файл, в который сбрасываются "голые" русские строки для последующего замещения на формализованные ресурсы
 	SString InputFileName;
 	DeclareSymbList SymbolList;
 	CtrlMenuDefinition * P_CurCtrlMenuDef; // Текущее описание локального меню

@@ -1597,7 +1597,7 @@ int WsCtlSrvBlock::Auth(AuthBlock & rBlk)
 				bool   mult_sc_id_by_phone = false;
 				bool   mult_psn_id_by_phone = false;
 				for(uint i = 0; i < oid_list_by_phone.getCount(); i++) {
-					const PPObjID oid = oid_list_by_phone.at(i);
+					const SObjID oid = oid_list_by_phone.at(i);
 					if(oid.Obj == PPOBJ_SCARD && ScObj.Fetch(oid.Id, &sc_rec) > 0 && sc_rec.SeriesID == ScSerID) {
 						if(!single_sc_id) {
 							if(!mult_sc_id_by_phone)

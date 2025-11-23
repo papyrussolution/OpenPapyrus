@@ -161,12 +161,15 @@ const BNField & BNFieldList2::GetFieldByName(const char * pName, uint * pPos/*= 
 	return *reinterpret_cast<BNField *>(0);
 }
 
-RECORDSIZE BNFieldList2::CalculateFixedRecSize() const
+RECORDSIZE BNFieldList2::CalculateFixedRecSize(uint flags/*BNFieldList2::crsfXXX*/) const
 {
 	RECORDSIZE s = 0;
 	for(uint i = 0; i < count; i++) {
 		const int t = GETSTYPE(at(i).T);
-		if(!oneof3(t, S_NOTE, S_BLOB, S_CLOB)) // @stypeset
+		if(t == S_NOTE && flags & crsfIncludeNote) {
+			s += static_cast<RECORDSIZE>(stsize(at(i).T));
+		}
+		else if(!oneof2(t, S_BLOB, S_CLOB)) // @stypeset
 			s += static_cast<RECORDSIZE>(stsize(at(i).T));
 	}
 	return s;

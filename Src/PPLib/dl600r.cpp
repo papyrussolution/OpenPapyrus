@@ -343,7 +343,7 @@ int DlContext::EvaluateExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 				//
 				// Arguments evaluation
 				//
-				int    preproc_func = 0;
+				
 				uint   arg_no = 0;
 				CtmExpr * p_arg = pExpr->P_Arg;
 				SV_Uint32 arg_pos_list;
@@ -352,8 +352,7 @@ int DlContext::EvaluateExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 				DlScope * p_scope = GetScope(pExpr->U.F.ScopeID);
 				THROW(p_scope);
 				THROW(p_scope->GetFuncByPos(pExpr->U.F.Pos, &func));
-				if(func.ImplID >= DL6FI_FIRST && func.ImplID <= DL6FI_LAST)
-					preproc_func = func.ImplID;
+				const  uint64 preproc_func = (func.ImplID >= DL6FI_FIRST && func.ImplID <= DL6FI_LAST) ? func.ImplID : 0;
 				arg_pos_list.Add(ret_pos);
 				while(p_arg) {
 					arg_no++;

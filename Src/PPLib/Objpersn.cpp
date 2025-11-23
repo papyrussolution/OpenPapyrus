@@ -929,7 +929,7 @@ int ClientActivityDetectionListDialog::setupList()
 	PPLoadText(PPTXT_NEWCLNT_TRANSTYPE, title_line_buf);
 	for(uint i = 0; ok && i < Data.ClientActivityDetectionList.getCount(); i++) {
 		StringSet ss(SLBColumnDelim);
-		PPObjID item = Data.ClientActivityDetectionList.at(i).Oi;
+		SObjID item = Data.ClientActivityDetectionList.at(i).Oi;
 		temp_buf.Z();
 		for(uint idx = 0; PPGetSubStr(title_line_buf, idx, title_item_buf) > 0; idx++) {
 			if(title_item_buf.Divide(',', title_id_buf, title_txt_buf) > 0 && title_id_buf.ToLong() == item.Obj) {
@@ -2368,7 +2368,7 @@ int PPObjPerson::ReplyPersonELinkDel(PPID eLinkID)
 
 int PPObjPerson::ReplyPersonTagDel(PPID tagID)
 {
-	PPObjID objid;
+	SObjID objid;
 	int    r = PPRef->Ot.SearchAnyRefToTagID(tagID, &objid);
 	if(r > 0)
 		return RetRefsExistsErr(objid.Obj, objid.Id);
@@ -3483,7 +3483,7 @@ int PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 						StringSet phone_list;
 						pPack->ELA.GetListByType(ELNKRT_PHONE, phone_list);
 						pPack->ELA.GetListByType(ELNKRT_INTERNALEXTEN, phone_list);
-						PPObjID objid(Obj, id);
+						SObjID objid(Obj, id);
 						if(action != PPACN_OBJADD) {
 							StringSet org_phone_list;
 							org_pack.ELA.GetListByType(ELNKRT_PHONE, org_phone_list);
@@ -3552,7 +3552,7 @@ int PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 					THROW(P_Tbl->GetELinks(id, ela));
 					ela.GetListByType(ELNKRT_PHONE, phone_list);
 					ela.GetListByType(ELNKRT_INTERNALEXTEN, phone_list);
-					PPObjID objid(Obj, id);
+					SObjID objid(Obj, id);
 					for(uint plp = 0; phone_list.get(&plp, temp_buf);) {
 						THROW(LocObj.P_Tbl->IndexPhone(temp_buf, &objid, 1, 0));
 					}
@@ -3567,7 +3567,7 @@ int PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 			}
 			if(id && DoObjVer_Person && hist_buf.GetAvailableSize()) {
 				if(p_ovc && p_ovc->InitSerializeContext(0)) {
-					THROW(p_ovc->Add(&hid, PPObjID(Obj, id), &hist_buf, 0));
+					THROW(p_ovc->Add(&hid, SObjID(Obj, id), &hist_buf, 0));
 				}
 			}
 		}
@@ -3797,10 +3797,10 @@ int PPObjPerson::Subst(PPID srcID, PPID dlvrLocID, SubstParam * pParam, long fla
 	return ok;
 }
 
-int PPObjPerson::GetSubstObjType(long id, const SubstParam * pParam, PPObjID * pObjId) const
+int PPObjPerson::GetSubstObjType(long id, const SubstParam * pParam, SObjID * pObjId) const
 {
 	int    ok = 1;
-	PPObjID obj_id;
+	SObjID obj_id;
 	if(id & sgpArticleMask)
 		obj_id.Set(PPOBJ_ARTICLE, (id & ~sgpArticleMask));
 	else if(oneof3(pParam->Sgp, sgpCity, sgpCountry, sgpRegion))
@@ -5028,7 +5028,7 @@ int PPObjPerson::ViewVersion(PPID histID)
 		ObjVersioningCore * p_ovc = PPRef->P_OvT;
 		if(p_ovc && p_ovc->InitSerializeContext(1)) {
 			SSerializeContext & r_sctx = p_ovc->GetSCtx();
-			PPObjID oid;
+			SObjID oid;
 			long   vv = 0;
 			THROW(p_ovc->Search(histID, &oid, &vv, &buf) > 0);
 			THROW(SerializePacket(-1, &pack, buf, &r_sctx));
@@ -5105,7 +5105,7 @@ void PsnSelAnalogDialog::setupList()
 			P_PsnObj->LocObj.P_Tbl->SearchPhoneObjList(sap.NamePattern, 0, oid_byphone_list); 
 			if(oid_byphone_list.getCount()) {
 				for(uint i = 0; i < oid_byphone_list.getCount(); i++) {
-					const PPObjID oid = oid_byphone_list.at(i);
+					const SObjID oid = oid_byphone_list.at(i);
 					if(oid.Obj == PPOBJ_PERSON) {
 						id_list.add(oid.Id);
 					}
@@ -6379,70 +6379,76 @@ int PPObjPerson::RemoveRelation(PPID prmrID, PPID scndID, PPID relTypeID)
 int PPObjPerson::SearchEmail(const char * pEmail, long flags, PPIDArray * pPsnList, PPIDArray * pLocList)
 {
 	int    ok = -1;
-	Reference * p_ref(PPRef);
 	PPIDArray result_psn_list;
 	PPIDArray result_loc_list;
-	SString email(pEmail);
-	email.Strip().ToLower();
-	if(email.NotEmpty()) {
-		SString temp_buf;
-		if(pPsnList) {
-			PPELinkArray ela;
-			PPObjELinkKind elk_obj;
-			PPELinkKind elk_rec;
-			PPIDArray psn_id_list;
-			PropertyTbl::Key1 k1;
-			MEMSZERO(k1);
-			k1.ObjType = PPOBJ_PERSON;
-			k1.Prop = PSNPRP_ELINK;
-			//
-			// Сначала получим список персоналий, имеющих записи электронных адресов...
-			//
-			if(p_ref->Prop.search(1, &k1, spGe) && p_ref->Prop.data.ObjType == PPOBJ_PERSON && p_ref->Prop.data.Prop == PSNPRP_ELINK) do {
-				if(p_ref->Prop.data.Val2)
-					psn_id_list.addUnique(p_ref->Prop.data.ObjID);
-			} while(p_ref->Prop.search(1, &k1, spNext) && p_ref->Prop.data.ObjType == PPOBJ_PERSON && p_ref->Prop.data.Prop == PSNPRP_ELINK);
-			for(uint j = 0; j < psn_id_list.getCount(); j++) {
-				const  PPID psn_id = psn_id_list.get(j);
-				PersonTbl::Rec psn_rec;
-				P_Tbl->GetELinks(psn_id, ela);
-				for(uint i = 0; i < ela.getCount(); i++) {
-					const PPELink & r_item = ela.at(i);
-					if(elk_obj.Fetch(r_item.KindID, &elk_rec) > 0 && elk_rec.Type == ELNKRT_EMAIL) {
-						temp_buf = r_item.Addr;
+	if(!isempty(pEmail)) {
+		Reference * p_ref(PPRef);
+		SString email(pEmail);
+		email.Strip().ToLower();
+
+		SNaturalTokenArray nta;
+		PPTokenRecognizer trgn;
+		trgn.Run(email.ucptr(), static_cast<int>(email.Len()), nta, 0);
+		if(nta.Has(SNTOK_EMAIL)) {
+			SString temp_buf;
+			if(pPsnList) {
+				PPELinkArray ela;
+				PPObjELinkKind elk_obj;
+				PPELinkKind elk_rec;
+				PPIDArray psn_id_list;
+				PropertyTbl::Key1 k1;
+				MEMSZERO(k1);
+				k1.ObjType = PPOBJ_PERSON;
+				k1.Prop = PSNPRP_ELINK;
+				//
+				// Сначала получим список персоналий, имеющих записи электронных адресов...
+				//
+				if(p_ref->Prop.search(1, &k1, spGe) && p_ref->Prop.data.ObjType == PPOBJ_PERSON && p_ref->Prop.data.Prop == PSNPRP_ELINK) do {
+					if(p_ref->Prop.data.Val2)
+						psn_id_list.addUnique(p_ref->Prop.data.ObjID);
+				} while(p_ref->Prop.search(1, &k1, spNext) && p_ref->Prop.data.ObjType == PPOBJ_PERSON && p_ref->Prop.data.Prop == PSNPRP_ELINK);
+				for(uint j = 0; j < psn_id_list.getCount(); j++) {
+					const  PPID psn_id = psn_id_list.get(j);
+					PersonTbl::Rec psn_rec;
+					P_Tbl->GetELinks(psn_id, ela);
+					for(uint i = 0; i < ela.getCount(); i++) {
+						const PPELink & r_item = ela.at(i);
+						if(elk_obj.Fetch(r_item.KindID, &elk_rec) > 0 && elk_rec.Type == ELNKRT_EMAIL) {
+							temp_buf = r_item.Addr;
+							if(temp_buf.NotEmptyS()) {
+								temp_buf.ToLower();
+								if(temp_buf.Search(email, 0, 0, 0) && Search(psn_id, &psn_rec) > 0) {
+									result_psn_list.add(psn_id);
+								}
+							}
+						}
+					}
+				}
+			}
+			if(pLocList) {
+				LocationTbl * t = LocObj.P_Tbl;
+				LocationTbl::Key2 k2;
+				LocationTbl::Rec loc_rec;
+				BExtQuery lq(t, 2);
+				lq.select(t->ID, t->Tail, 0L).where(t->Type == LOCTYP_ADDRESS);
+				MEMSZERO(k2);
+				k2.Type = LOCTYP_ADDRESS;
+				for(lq.initIteration(false, &k2, spGe); lq.nextIteration() > 0;) {
+					if(LocationCore::GetExField(&t->data, LOCEXSTR_EMAIL, temp_buf) > 0) {
 						if(temp_buf.NotEmptyS()) {
 							temp_buf.ToLower();
-							if(temp_buf == email && Search(psn_id, &psn_rec) > 0) {
-								result_psn_list.add(psn_id);
+							const  PPID loc_id = t->data.ID;
+							if(temp_buf.Search(email, 0, 0, 0) && LocObj.Fetch(loc_id, &loc_rec) > 0) {
+								result_loc_list.add(loc_id);
 							}
 						}
 					}
 				}
 			}
 		}
-		if(pLocList) {
-			LocationTbl * t = LocObj.P_Tbl;
-			LocationTbl::Key2 k2;
-			LocationTbl::Rec loc_rec;
-            BExtQuery lq(t, 2);
-            lq.select(t->ID, t->Tail, 0L).where(t->Type == LOCTYP_ADDRESS);
-            MEMSZERO(k2);
-            k2.Type = LOCTYP_ADDRESS;
-            for(lq.initIteration(false, &k2, spGe); lq.nextIteration() > 0;) {
-				if(LocationCore::GetExField(&t->data, LOCEXSTR_EMAIL, temp_buf) > 0) {
-					if(temp_buf.NotEmptyS()) {
-						temp_buf.ToLower();
-						const  PPID loc_id = t->data.ID;
-						if(temp_buf == email && LocObj.Fetch(loc_id, &loc_rec) > 0) {
-							result_loc_list.add(loc_id);
-						}
-					}
-				}
-            }
-		}
+		if(result_psn_list.getCount() || result_loc_list.getCount())
+			ok = 1;
 	}
-	if(result_psn_list.getCount() || result_loc_list.getCount())
-		ok = 1;
 	ASSIGN_PTR(pPsnList, result_psn_list);
 	ASSIGN_PTR(pLocList, result_loc_list);
 	return ok;
@@ -6486,7 +6492,7 @@ int PPObjPerson::IndexPhones(PPLogger * pLogger, int use_ta)
 		for(uint j = 0; j < psn_id_list.getCount(); j++) {
 			PersonTbl::Rec psn_rec;
 			WorldTbl::Rec city_rec;
-			PPObjID objid(PPOBJ_PERSON, psn_id_list.get(j));
+			SObjID objid(PPOBJ_PERSON, psn_id_list.get(j));
 			if(Search(objid.Id, &psn_rec) > 0) {
 				const PPID city_addr_id = NZOR(psn_rec.RLoc, psn_rec.MainLoc);
 				city_prefix = 0;
@@ -8623,7 +8629,7 @@ int PrcssrClientActivityStatistics::Implement_ScanDetailedActivityListForSingleP
 								if(p_cc->search(4, &k4, spGe) && p_cc->data.SCardID == sc_id) do {
 									const LDATE _dt = p_cc->data.Dt;
 									if(rPeriod.CheckDate(_dt)) {
-										ClientActivityDetailedEntry new_entry(PPObjID(PPOBJ_CCHECK, p_cc->data.ID), _dt);
+										ClientActivityDetailedEntry new_entry(SObjID(PPOBJ_CCHECK, p_cc->data.ID), _dt);
 										rList.insert(&new_entry);												
 									}
 								} while(p_cc->search(4, &k4, spNext) && p_cc->data.SCardID == sc_id);
@@ -8689,7 +8695,7 @@ int PrcssrClientActivityStatistics::Implement_ScanDetailedActivityListForSingleP
 								if(p_view->Init_(&_filt)) {
 									BillViewItem view_item;
 									for(p_view->InitIteration(PPViewBill::OrdByDate); p_view->NextIteration(&view_item) > 0;) {
-										ClientActivityDetailedEntry new_entry(PPObjID(PPOBJ_BILL, view_item.ID), view_item.Dt);
+										ClientActivityDetailedEntry new_entry(SObjID(PPOBJ_BILL, view_item.ID), view_item.Dt);
 										rList.insert(&new_entry);
 									}
 								}
@@ -8703,7 +8709,7 @@ int PrcssrClientActivityStatistics::Implement_ScanDetailedActivityListForSingleP
 				PersonEventTbl::Rec pe_rec;
 				for(SEnum en = PeObj.P_Tbl->EnumByPerson(personID, &_period); en.Next(&pe_rec) > 0;) {
 					if(psn_op_list.bsearch(pe_rec.OpID)) {
-						ClientActivityDetailedEntry new_entry(PPObjID(PeObj.Obj, pe_rec.ID), pe_rec.Dt);
+						ClientActivityDetailedEntry new_entry(SObjID(PeObj.Obj, pe_rec.ID), pe_rec.Dt);
 						rList.insert(&new_entry);						
 					}
 				}

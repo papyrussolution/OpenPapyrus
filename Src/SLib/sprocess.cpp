@@ -7,7 +7,6 @@
 #include <UserEnv.h> // SlProcess
 #include <sddl.h> // SlProcess
 #include <AccCtrl.h>
-#include <AclAPI.h>
 #include <NTSecAPI.h>
 #include <strsafe.h>
 

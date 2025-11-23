@@ -5,7 +5,6 @@
 #include <pp.h>
 #pragma hdrstop
 #include <wsctl.h>
-#include <aclapi.h>
 
 SLTEST_R(SecurityAttributes) // @v12.4.4
 {

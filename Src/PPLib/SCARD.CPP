@@ -693,7 +693,7 @@ int SCardCore::EnumOpByCard(PPID cardID, LDATETIME * pDT, SCardOpTbl::Rec * pRec
 		return PPDbSearchError();
 }
 
-int SCardCore::GetOpByLinkObj(PPObjID oid, TSVector <OpBlock> & rList)
+int SCardCore::GetOpByLinkObj(SObjID oid, TSVector <OpBlock> & rList)
 {
 	int    ok = -1;
 	rList.clear();

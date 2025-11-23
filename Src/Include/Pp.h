@@ -638,7 +638,8 @@ enum PredefinedImpExpFormat { // @persistent
 	piefCokeOrder                =  9, // @v11.3.8 xml-заказы кока-кола
 	piefChicago                  = 10, // @v11.5.8 xml-заказы системы чикаго (системные технологии, калининград)
 	piefNalogR_ON_NKORSCHFDOPPR  = 11, // @v11.7.0 Корректировочная счет-фактура
-	piefCCheck_Contract01        = 12  // @v11.8.4 Заказной формат импорта внешних чеков. Фантазии на имя не хватило, потому пока называется назамысловато.
+	piefCCheck_Contract01        = 12, // @v11.8.4 Заказной формат импорта внешних чеков. Фантазии на имя не хватило, потому пока называется назамысловато.
+	piefEancom                   = 13, // @v12.4.10 xml EANCOM унифицированный формат EDI. 
 };
 //
 // Descr: Габаритные размеры (mm).
@@ -2033,76 +2034,24 @@ int STDCALL PPLogMessage(uint fileNameId, const char * pMsg, long options);
 int STDCALL PPLogMessageList(uint fileNameId, const SStrCollection & rList, long options);
 int STDCALL PPLogMessage(uint fileId, uint strGroup, uint strId, long options);
 //
+// 
 //
-//
-#if 0 // @v12.2.10 replaced with SObjID_Base {
-class PPObjID_Base { // @flat @noctr @persistent
-public:
-	PPObjID_Base Set(PPID objType, PPID objID);
-	PPObjID_Base & Z();
-	bool   IsZero() const;
-	bool   IsFullyDefined() const { return (Obj && Id); }
-	bool   IsEq(PPID objType, PPID objID) const;
-	bool   FASTCALL operator == (PPObjID_Base s) const;
-	bool   FASTCALL operator != (PPObjID_Base s) const;
-	double ToDouble() const;
-	bool   FromDouble(double oid);
-	operator double() const;
-	PPObjID_Base & FASTCALL operator = (double);
-	//
-	// GOODS(1204)
-	//
-	SString & FASTCALL ToStr(SString & rBuf) const;
-	int    FASTCALL FromStr(const char * pStr);
-
-	PPID   Obj;
-	PPID   Id;
-};
-#endif // } 0 @v12.2.10 replaced with SObjID_Base
-
-#if 0 // @v12.2.10 replaced with SObjID {
-class PPObjID : public PPObjID_Base { // @flat @persistent
-public:
-	PPObjID();
-	PPObjID(const PPObjID_Base & rS);
-	PPObjID(PPID objType, PPID objID);
-	PPObjID & FASTCALL operator = (const PPObjID_Base & rS);
-	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx); // @v11.7.0
-};
-#endif // } 0 @v12.2.10 replaced with SObjID
-
-typedef SObjID_Base PPObjID_Base;
-typedef SObjID PPObjID;
-
 SString & SObjID_ToStr(const SObjID & rOid, SString & rBuf);
 int   SObjID_FromStr(const char * pStr, SObjID & rOid);
-
-/*class PPObjID : public SObjID {
-public:
-	PPObjID() : SObjID()
-	{
-	}
-	PPObjID(int32 objType, int32 objID) : SObjID(objType, objID)
-	{
-	}
-	SString & FASTCALL ToStr(SString & rBuf) const;
-	int    FASTCALL FromStr(const char * pStr);	
-};*/
-
 //
 // Descr: Специализированная структура, используемая для индексации наименований
 //   объектов данных в строковых пулах.
 //
-struct PPObjNamePEntry : public PPObjID {
+struct PPObjNamePEntry : public SObjID {
 	PPObjNamePEntry(PPID objType, PPID objID);
 	uint   NameP;
 };
 
-class PPObjIDArray : public TSVector <PPObjID> {
+class PPObjIDArray : public TSVector <SObjID> {
 public:
 	friend class PPObjectTransmit;
 	PPObjIDArray();
-	bool   Search(PPObjID key, uint * pPos) const;
+	bool   Search(SObjID key, uint * pPos) const;
 	int    Add(PPID objType, PPID objID);
 	int    Add(PPID objType, const PPIDArray & rList);
 	int    Add_NotPreprocess(PPID objType, PPID objID);
@@ -3010,7 +2959,7 @@ public:
 	TextRefIdent(PPID objType, PPID objID, int16 prop);
 	int operator !() const;
 
-	PPObjID O; // Идентификатор объекта 
+	SObjID O; // Идентификатор объекта 
 	int16   P; // Идентификатор свойства PPTRPROP_XXX (ppdefs.h). В дальнейшем планируется объединение семейства PPTRPROP_XXX с PPOBJATTR_XXX
 	int16   L; // Идентификатор языка (slangXXX; 0 - default)
 };
@@ -3339,10 +3288,10 @@ public:
 	int    IsInited() const;
 	int    InitSerializeContext(int use_ta);
 	SSerializeContext & GetSCtx();
-	int    Add(PPID * pID, PPObjID oid, SBuffer * pBuf, int use_ta);
-	int    Search(PPID id, PPObjID * pOid, long * pVer, SBuffer * pPackBuf);
-	int    SearchOid(PPObjID oid, long ver, ObjVerTbl::Rec * pRec, SBuffer * pDataBuf);
-	int    GetNextVer(PPObjID oid, long * pVer);
+	int    Add(PPID * pID, SObjID oid, SBuffer * pBuf, int use_ta);
+	int    Search(PPID id, SObjID * pOid, long * pVer, SBuffer * pPackBuf);
+	int    SearchOid(SObjID oid, long ver, ObjVerTbl::Rec * pRec, SBuffer * pDataBuf);
+	int    GetNextVer(SObjID oid, long * pVer);
 private:
 	enum {
 		stSCtxInited = 0x0001
@@ -3561,7 +3510,7 @@ public:
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    ProcessObjRefs(PPObjIDArray * ary, int replace);
 
-	PPObjID  Oid;
+	SObjID  Oid;
 protected:
 	virtual void FASTCALL freeItem(void *);
 };
@@ -3666,7 +3615,7 @@ public:
 	// @obsolete since @v9.0.11 int    CreateUniqueStr(PPID objType, PPID tagID, PPID * pObjID, const char * pStr, int use_ta);
 	int    PutTag(PPID objType, PPID objID, const ObjTagItem *, int use_ta);
 	int    RemoveTag(PPID objType, PPID objID, PPID tagID/*if 0 then remove all*/, int use_ta);
-	int    SearchAnyRefToTagID(PPID tagID, PPObjID *);
+	int    SearchAnyRefToTagID(PPID tagID, SObjID *);
 protected:
 	int    PutTagToRec(PPID objType, PPID objID, long tagByObj, const ObjTagItem *);
 	int    GetNewTagByObjCounter(PPID objType, PPID objID, PPID tagID, long * tagByObj);
@@ -6048,9 +5997,9 @@ public:
 		rtrsrvRpc                = 4, // Короткие запросы
 		rtrsrvRpcListener        = (rtrsrvRpc | 0x8000), // Короткие запросы (только слушатель)
 		rtrsrvRpcReply           = 5, // Ответы на rtrsrvRpc
-		rtrsrvStyloQRpc          = 6, // @v11.0.9 Запросы в рамках проекта Stylo-Q
-		rtrsrvStyloQRpcReply     = 7, // @v11.0.9 Ответы на rtrsrvStyloQRpc
-		rtrsrvStyloQRpcListener  = (rtrsrvStyloQRpc | 0x8000), // @v11.0.9 Короткие запросы (только слушатель)
+		rtrsrvStyloQRpc          = 6, // Запросы в рамках проекта Stylo-Q
+		rtrsrvStyloQRpcReply     = 7, // Ответы на rtrsrvStyloQRpc
+		rtrsrvStyloQRpcListener  = (rtrsrvStyloQRpc | 0x8000), // Короткие запросы (только слушатель)
 	};
 	struct RoutingParamEntry {
 		RoutingParamEntry();
@@ -6062,7 +6011,7 @@ public:
 		int    SetupStyloQRpc(const SBinaryChunk & rSrcIdent, const SBinaryChunk & rDestIdent, RoutingParamEntry * pReplyEntry);
 
 		int    RtRsrv;
-		long   PreprocessFlags; // @v11.0.9 Флаги, управляющие предварительной обработкой параметров маршрутизации в функции PPMqbClient::ApplyRoutingParamEntry (создание очередей и т.д.)
+		long   PreprocessFlags; // Флаги, управляющие предварительной обработкой параметров маршрутизации в функции PPMqbClient::ApplyRoutingParamEntry (создание очередей и т.д.)
 		long   QueueFlags;
 		int    ExchangeType; // exgtXXX
 		long   ExchangeFlags;
@@ -6235,7 +6184,7 @@ struct PPAdviseEvent {
     LDATETIME Dtm;
 	LDATETIME MqbTimeStamp;   //
     int32  Action;
-    PPObjID Oid;
+    SObjID Oid;
     int32  UserID;
     int32  SjExtra;
     long   Flags;
@@ -6451,7 +6400,7 @@ private:
 		int    CrwErr;
 		int    BtrErr;
 		int    SlErr;
-		PPObjID LastErrObj;
+		SObjID LastErrObj;
 		SString AddedMsgString;
 		SString DbFileName;
 	};
@@ -6524,7 +6473,7 @@ public:
 	PPID   GlobAccID;            // Текущий ИД глобальной учетной записи
 	PPID   AgentAccSheetID;      // 0 - не инициализирован, -1 - не удалось идентифицировать, >0 - валидное значение
 	PPID   DefPhnSvcID;          // Ид телефонного сервиса по умолчанию (PPEquipConfig::PhnSvcID)
-	PPObjID LastErrObj;          // Object's ID, by last generated error
+	SObjID LastErrObj;          // Object's ID, by last generated error
 	int    PrnDirId;
 	SCodepageIdent DL600XmlCp;   // Кодовая страница для стандартного экспорта DL600 в XML
 	PPConfig     Lc;             // Текущая локальная конфигурация //
@@ -7675,8 +7624,8 @@ public:
 	//
 	//
 	bool   GetSurrogateUserAgentString(SString & rBuf); // @v12.3.10
-	int    Stq_GetBlob(const SBinaryChunk & rOwnIdent, PPObjID oid, uint blobN, StyloQBlobInfo & rBi);
-	int    Stq_PutBlob(const SBinaryChunk & rOwnIdent, PPObjID oid, uint blobN, StyloQBlobInfo & rBi);
+	int    Stq_GetBlob(const SBinaryChunk & rOwnIdent, SObjID oid, uint blobN, StyloQBlobInfo & rBi);
+	int    Stq_PutBlob(const SBinaryChunk & rOwnIdent, SObjID oid, uint blobN, StyloQBlobInfo & rBi);
 	//
 	// Descr: Функция копирует список адресов прослушивания сервера либо в this (dir>0), либо из this во внешний
 	//   источник (dir<0).
@@ -7818,12 +7767,12 @@ private:
 	public:
 		StyloQ_Cache();
 		~StyloQ_Cache();
-		int    GetBlob(const SBinaryChunk & rOwnIdent, PPObjID oid, uint blobN, StyloQBlobInfo & rBi);
-		int    PutBlob(const SBinaryChunk & rOwnIdent, PPObjID oid, uint blobN, const StyloQBlobInfo & rBi);
+		int    GetBlob(const SBinaryChunk & rOwnIdent, SObjID oid, uint blobN, StyloQBlobInfo & rBi);
+		int    PutBlob(const SBinaryChunk & rOwnIdent, SObjID oid, uint blobN, const StyloQBlobInfo & rBi);
 	private:
 		struct SvcEntry : public SStrGroup {
 			struct BlobInnerEntry {
-				PPObjID Oid;        // @firstmember
+				SObjID Oid;        // @firstmember
 				uint   BlobN;       // [0..] Номер BLOB'а в "обойме" объекта Oid
 				SFileFormat Ff;     // Идентификатор формата данных
 				uint   SignatureP;  // Сигнатура, используемая для идентификации BLOB'а сервисами и клиентами Stylo-Q
@@ -8494,7 +8443,7 @@ public:
 	//   бинарной конкатенации некоего глобального идентификатора rGlobalIdent, идентификатора объекта данных и 
 	//   порядкового номера относительно обеъекта данных (например, в случае если с одним объектом ассоциировано несколько blob'ов)
 	//
-	static SString & MakeBlobSignature(const SBinaryChunk & rGlobalIdent, PPObjID oid, uint itemNumber, SString & rBuf);
+	static SString & MakeBlobSignature(const SBinaryChunk & rGlobalIdent, SObjID oid, uint itemNumber, SString & rBuf);
 	//
 	// Descr: Создает сигнатуру объекта данных, хранящегося вне базы данных. Сигнатура формируется как текст base32
 	//   бинарной конкатенации некоего глобального идентификатора rGlobalIdent и текстового представления имени ресурса pResourceName.
@@ -8567,7 +8516,7 @@ public:
 	// Note: Функция пока очень не совершенна: умеет идентифицировать только
 	//   некоторые типы объектов.
 	//
-	static int  Identify(const char * pObjType, const char * pObjIdent, PPObjID * pIdent);
+	static int  Identify(const char * pObjType, const char * pObjIdent, SObjID * pIdent);
 	static void FASTCALL SetLastErrObj(PPID objType, PPID objID);
 	static int  IndexPhones();
 	//
@@ -8910,13 +8859,13 @@ struct ObjTransmContext {
 	int    OutputAcceptMsg(PPID objType, PPID objID, int upd);
 	int    OutputString(uint strId, const char * pAddedInfo);
 	operator SSerializeContext & () { return SCtx; }
-	int    GetPrevRestoredObj(PPObjID * pOi) const;
-	int    ForceRestore(PPObjID);
-	int    IsForced(PPObjID) const;
+	int    GetPrevRestoredObj(SObjID * pOi) const;
+	int    ForceRestore(SObjID);
+	int    IsForced(SObjID) const;
 	int    GetPrimaryObjID(PPID objType, PPID foreignID, PPID * pPrimID);
-	int    RegisterDependedNonObject(PPObjID objid, PPCommSyncID & rCommID, int use_ta);
+	int    RegisterDependedNonObject(SObjID objid, PPCommSyncID & rCommID, int use_ta);
 	int    ResolveDependedNonObject(PPID objType, PPID foreignID, PPID * pPrimID);
-	int    AcceptDependedNonObject(PPObjID foreignObjId, PPID primaryID, const LDATETIME * pModDtm, int use_ta);
+	int    AcceptDependedNonObject(SObjID foreignObjId, PPID primaryID, const LDATETIME * pModDtm, int use_ta);
 
 	LDATETIME TransmitSince;            // Момент, начиная с которого должны передаваться изменения //
 	PPDBXchgConfig Cfg;                 // Конфигурация обмена
@@ -8994,8 +8943,8 @@ struct PPGeoTrackItem { // @flat
         fNetworkProvider = 0x0001
 	};
 
-	PPObjID Oid;
-	PPObjID ExtOid;
+	SObjID Oid;
+	SObjID ExtOid;
 	LDATETIME Dtm;
 	long   ExtEvent;
 	long   Flags;
@@ -9011,7 +8960,7 @@ public:
 	static int16 FASTCALL GetStorageDate(LDATE dt);
 
     GeoTrackCore();
-    int    Search(PPObjID oid, LDATETIME dtm, PPGeoTrackItem * pItem);
+    int    Search(SObjID oid, LDATETIME dtm, PPGeoTrackItem * pItem);
     int    PutItem(const PPGeoTrackItem & rItem, int use_ta);
     int    PutChunk(const TSVector <PPGeoTrackItem> & rList, int use_ta);
 };
@@ -9172,7 +9121,7 @@ public:
 	int    PutByPerson(PPID personID, RegisterArray * pList, int use_ta);
 	int    PutByLocation(PPID locID, RegisterArray * pList, int use_ta);
 	int    SearchByNumber(PPID * pID, PPID regTypeID, const char * pSerial, const char * pNumber, RegisterTbl::Rec *);
-	int    SearchAnyByNumber(const char * pNumber, PPIDArray * pResList, PPObjIDArray * pOidList);
+	int    SearchAnyByNumber(const char * pNumber, RegisterArray * pList);
 	//
 	// Descr: Ищет список регистров, соответствующих фильтру pFilt.
 	// ARG(pFilt IN): Фильтр с набором критериев поиска
@@ -9185,7 +9134,7 @@ public:
 	// Note: Конкретному объекту может принадлежать более одного регистра заданного типа. Эта функция вернет только первый из них.
 	//   Справедливости ради надо сказать, что множественные комбинации такого вида встречаются не часто.
 	//
-	int    SearchByObj(PPObjID oid, PPID regTypeID, RegisterTbl::Rec * pRec);
+	int    SearchByObj(SObjID oid, PPID regTypeID, RegisterTbl::Rec * pRec);
 	//
 	// Descr: Функция аналогичная Add(), но с безусловным разрешением на дублирование номеров.
 	// Note: @really private Не следует использовть иначе, как в экстренных случаях, требущих
@@ -9435,7 +9384,7 @@ public:
 	int    SearchRef(PPID locType, PPID objType, PPID objID, PPID *);
 	int    SearchPersonRef(PPID locType, PPID personID, PPID *);
 	int    GetAddress_(PPID locID, uint flags, SString & rBuf);
-	int    IndexPhone(const char * pPhone, const PPObjID * pObjId, int doRemove, int use_ta);
+	int    IndexPhone(const char * pPhone, const SObjID * pObjId, int doRemove, int use_ta);
 	int    SearchPhoneIndex(const char * pPhone, long options, PPIDArray & rResultList);
 	int    SearchPhoneObjList(const char * pPhone, long options, PPObjIDArray & rList);
 	int    GetEAddr(PPID id, EAddrTbl::Rec * pRec);
@@ -9529,12 +9478,12 @@ class EAddrCore : public EAddrTbl {
 public:
 	EAddrCore();
 	int    Search(PPID id, EAddrTbl::Rec * pRec);
-	int    Search(const PPEAddr & rAddr, const PPObjID * pObjId, PPID * pID);
+	int    Search(const PPEAddr & rAddr, const SObjID * pObjId, PPID * pID);
 	int    SearchLink(PPID objType, PPID objID, LongArray & rResult);
 	int    SearchIpV4(uint32 ip, long options, LongArray & rResult);
 	int    SearchPhone(const char * pPhone, long options, LongArray & rResult);
 	int    SearchMaxLikePhone(const char * pPhonePattern, long options, LongArray & rResult);
-	int    Put(PPID * pID, const PPEAddr * pAddr, const PPObjID * pObjId, int use_ta);
+	int    Put(PPID * pID, const PPEAddr * pAddr, const SObjID * pObjId, int use_ta);
 };
 //
 // @v11.2.0
@@ -10288,6 +10237,8 @@ public:
 		extssFiscalSign         = 19, // @v12.2.8 Фискальный признак чека, присваиваемый ему в ОФД. На текущий момент предполагается, 
 			// что этот признак будет по необходимости устанавливаться в чеке в ручную, поскольку механизма автоматического получения //
 			// этого признака нет.
+		extssCorrect12304       = 20, // @v12.4.10 Чек создан для корректировки проблемы v12304 из-за которой не списывался алкоголь
+			// в егаис для horeca (автосписание). Количество списания всегда было нулевым.
 		// @attention: После вставки очередного элемента в enum добавьте этот элемент в 
 		//   таблицы CCheckExtSsList и CCheckExtNameSymbList ccheck.cpp). 
 		//   Иначе этот атрибут не будет сохраняться в чеке.
@@ -10778,7 +10729,7 @@ public:
 
 		uint32 Ver;
 		uint32 Flags;
-		PPObjID SrcOid; // Источник формирования подтверждения (пользователь, сторонний агент etc)
+		SObjID SrcOid; // Источник формирования подтверждения (пользователь, сторонний агент etc)
 		double Qtty;
 		double Cost;
 		double Price;
@@ -14513,7 +14464,7 @@ public:
 	int    Remove_S(const ObjSyncIdent * pIdent, int use_ta);
 	int    Update(const ObjSyncIdent *, const ObjSyncTbl::Rec * pRec, int use_ta);
 	int    AddRawRecord(ObjSyncTbl::Rec * pRec, int use_ta);
-	int    TransmitObj(PPObjID obj, PPCommSyncID * pCommID, int use_ta);
+	int    TransmitObj(SObjID obj, PPCommSyncID * pCommID, int use_ta);
 	int    SearchCommonObj(PPID, PPCommSyncID commID, PPID * pID, ObjSyncTbl::Rec * = 0);
 	int    AckObj(PPID objType, PPID foreinID, PPCommSyncID commID, PPID dbid, const LDATETIME * pDtm, int use_ta);
 	int    SelfSync(PPID obj, PPID id, PPID destDbID, int use_ta);
@@ -15157,7 +15108,7 @@ public:
 		};
 		PPID   SCardID;
 		PPID   DestSCardID;
-		PPObjID LinkOi;
+		SObjID LinkOi;
 		LDATETIME Dtm;
 		DateRange FreezingPeriod;
 		long   Flags;
@@ -15222,7 +15173,7 @@ public:
 	int    PutOpRec(const SCardOpTbl::Rec * pRec, TSVector <UpdateRestNotifyEntry> * pNotifyList, int use_ta);
 	int    GetOp(PPID cardID, const LDATETIME & rDtm, OpBlock * pBlk);
 	int    PutOpBlk(const OpBlock & rBlk, TSVector <UpdateRestNotifyEntry> * pNotifyList, int use_ta);
-	int    GetOpByLinkObj(PPObjID oid, TSVector <OpBlock> & rList);
+	int    GetOpByLinkObj(SObjID oid, TSVector <OpBlock> & rList);
 	int    GetFreezingOpList(PPID cardID, TSVector <OpBlock> & rList);
 	int    RemoveOp(PPID cardID, LDATE, LTIME, int use_ta);
 	int    RemoveOpByLinkObj(PPID objType, PPID objID, int use_ta);
@@ -15577,8 +15528,8 @@ public:
 	// Descr: Опции функции CCheckCore::MakeCodeString
 	//
 	enum {
-		mcsDefault      = 0x0000,
-		mcsID           = 0x0001,
+		mcsDefault = 0x0000,
+		mcsID      = 0x0001,
 	};
 	static SString & FASTCALL MakeCodeString(const CCheckTbl::Rec *, uint options, SString &);
 	static int FASTCALL FetchCTableStatus(long tableNo, CTableStatus * pStatus);
@@ -15595,10 +15546,10 @@ public:
 	//
 	const  PPEquipConfig & GetEqCfg() const;
 	CheckOpJrnl * GetOpJrnl(); // @v11.6.2
-	int    Search(PPID, CCheckTbl::Rec * pRec = 0);
+	int    Search(PPID id, CCheckTbl::Rec * pRec = 0);
 	int    Search(PPID cashID, LDATE, LTIME, CCheckTbl::Rec * pRec = 0);
 	int    SearchByTimeAndCard(PPID cardID, LDATE, LTIME, CCheckTbl::Rec * pRec = 0);
-	int    SearchByDateAndCode(long code, LDATE dt, int unprintedOnly, TSVector <CCheckTbl::Rec> * pRecList);
+	int    SearchByDateAndCode(long code, LDATE dt, bool unprintedOnly, TSVector <CCheckTbl::Rec> * pRecList);
 	int    SearchForwardZCheck(PPID cashID, LDATE, LTIME, CCheckTbl::Rec * pRec = 0);
 	int    GetExt(PPID id, CCheckExtTbl::Rec * pExt);
 	int    GetPaymList(PPID id, CcAmountList & rList);
@@ -16313,7 +16264,7 @@ protected:
 	int    GetLastUpdatedObjects(long extId, LongArray & rList) const;
 	void   Helper_FormatCycle(const PPCycleFilt & rCf, const PPCycleArray & rCa, LDATE dt, char * pBuf, size_t bufLen);
 	int    Implement_CmpSortIndexItems_OnArray(PPViewBrowser * pBrw, const void * pItem1, const void * pItem2);
-	int    Helper_ProcessQuickTagEdit(PPObjID oid, const void * pHdrPtr /*(LongArray *)*/);
+	int    Helper_ProcessQuickTagEdit(SObjID oid, const void * pHdrPtr /*(LongArray *)*/);
 
 	IterCounter Counter;
 	BExtQuery * P_IterQuery;
@@ -16382,7 +16333,7 @@ struct RegisterFilt : public PPBaseFilt {
     virtual bool IsEmpty() const;
 
 	uint8  ReserveStart[20]; // @anchor
-	PPObjID Oid;             //
+	SObjID Oid;             //
 	PPID   ExclLocID;        //
 	PPID   ExclPersonID;
 	PPID   RegTypeID;
@@ -17416,7 +17367,7 @@ public:
 		PPID   UserID;
 		PPID   GlobalUserID;
 		PPID   EvSubscrID;
-		PPObjID Oid;
+		SObjID Oid;
 		long   Flags;
 		SString Text;
 		SBuffer ExtData;
@@ -17506,7 +17457,7 @@ struct EventViewItem { // @flat
 	long   UserID;         // 0 - for all
 	long   GlobalUserID;   // 0 - for all
 	PPID   EventSubscrID;
-	PPObjID Oid;
+	SObjID Oid;
 	long   Flags;
 };
 
@@ -17533,7 +17484,7 @@ private:
 	virtual int  Detail(const void * pHdr, PPViewBrowser * pBrw);
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    MakeList(PPViewBrowser * pBrw);
-	int    EditObj(const PPObjID * pObjID);
+	int    EditObj(const SObjID * pObjID);
 	int    SelectStatus(PPID evID);
 
 	PPEventCore T;
@@ -20256,7 +20207,7 @@ public:
 	int    Search(LDATE actualDate, PPID scID, PPID objID, BizScoreTbl::Rec * pRec);
 	int    SetItem(LDATE actualDate, PPID scID, PPID userID, long flags, double val, int use_ta);
 	int    SetItem(LDATE actualDate, PPID scID, PPID userID, const char * pStr, int use_ta);
-	int    SetItem(LDATE actualDate, PPID scID, PPID userID, PPObjID obj, const char * pStr, int use_ta);
+	int    SetItem(LDATE actualDate, PPID scID, PPID userID, SObjID obj, const char * pStr, int use_ta);
 	int    DeleteItem(LDATE actualDate, PPID scID, PPID objID, int use_ta);
 };
 
@@ -20835,7 +20786,7 @@ struct PPGta {
 
 	int    Op;
 	PPID   GlobalUserID;
-	PPObjID ObjId;
+	SObjID ObjId;
 	LDATETIME Dtm;
 	long   Count;
 	long   Duration;
@@ -26426,7 +26377,7 @@ private:
 //
 class PPObjRegister : public PPObject {
 public:
-	static int InitPacket(RegisterTbl::Rec * pRec, PPID regTypeID, PPObjID oid, const char * pNumber);
+	static int InitPacket(RegisterTbl::Rec * pRec, PPID regTypeID, SObjID oid, const char * pNumber);
 	static int Format(const RegisterTbl::Rec & rRec, const char * pFormat, SString & rBuf);
 
 	PPObjRegister(void * extraPtr = 0);
@@ -27036,7 +26987,7 @@ struct PPPersonConfig { // @transient (для сохранения проеци�
 
 	struct ClientActivityDetectionItem {
 		ClientActivityDetectionItem();
-		PPObjID Oi;
+		SObjID Oi;
 		long   Flags;
 		uint8  Reserve[12];
 	};
@@ -27574,7 +27525,7 @@ public:
 		PPObjWorld WObj;
 	};
 	int    Subst(PPID psnID, PPID dlvrLocID, SubstParam *, long flags, PPID * pDestID);
-	int    GetSubstObjType(long id, const SubstParam * pParam, PPObjID * pObjId) const;
+	int    GetSubstObjType(long id, const SubstParam * pParam, SObjID * pObjId) const;
 	void   GetSubstText(PPID psnID, PPID dlvrLocID, SubstParam *, SString & rBuf);
 	//
 	// Descr: Сравнивает записи и возвращает их похожесть в диапазоне [0..1]
@@ -28339,7 +28290,7 @@ struct ScObjAssoc {
 		scCount // Общее количество элементов
 	};
 	struct H {
-		PPObjID Oi;
+		SObjID Oi;
 		PPID   CalID;
 		PPID   ProjCalID;
 	};
@@ -28368,7 +28319,7 @@ public:
 	//   <0 - календарь по заданным условиям не найден
 	//    0 - error
 	//
-	int    SearchByObj(PPID parentID, PPObjID linkObj, PPStaffCal * pRec);
+	int    SearchByObj(PPID parentID, SObjID linkObj, PPStaffCal * pRec);
 	//
 	// Descr: Извлекает список календарей дочерних по отношению к calID.
 	//   Идентификаторы найденных календарей заносятся в массив pList без дублирования.
@@ -28423,7 +28374,7 @@ public:
 	int    PutPacket(PPID * pID, PPStaffCalPacket * pPack, int useTa);
 	int    GetPacket(PPID id, PPStaffCalPacket * pPack);
 	int    SerializePacket(int dir, PPStaffCalPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
-	int    CreateChild(PPID * pID, PPID parentID, PPObjID linkObj, int use_ta);
+	int    CreateChild(PPID * pID, PPID parentID, SObjID linkObj, int use_ta);
 	//
 	// Descr: Инициализирует структуру иерархии поиска календаря по записи штатного назначения.
 	//
@@ -28467,7 +28418,7 @@ struct StaffCalViewItem {
 	LTIME  TmEnd;
 	long   Duration;
 	long   Flags;
-	PPObjID LinkObj;
+	SObjID LinkObj;
 	char   LinkObjName[64];
 	char   DtText[32];
 	long   Count;
@@ -29216,7 +29167,7 @@ private:
 	int    RemoveHangedAddr();
 	int    Recover();
 	int    Helper_InsertTempRec(const TempPersonTbl::Rec & rRec);
-	int    Helper_GetTagValue(PPObjID oid, PPID tagID, SString & rBuf);
+	int    Helper_GetTagValue(SObjID oid, PPID tagID, SString & rBuf);
 	
 	enum {
 		nifOmitCliActivityFlags = 0x0001,
@@ -29309,18 +29260,18 @@ struct ClientActivityDetailedEntry { // @flat @transient
 	ClientActivityDetailedEntry() : Dtm(ZERODATETIME)
 	{
 	}
-	ClientActivityDetailedEntry(PPObjID oid, LDATE dt) : Dtm(ZERODATETIME), Oid(oid)
+	ClientActivityDetailedEntry(SObjID oid, LDATE dt) : Dtm(ZERODATETIME), Oid(oid)
 	{
 		Dtm.d = dt;
 	}
-	ClientActivityDetailedEntry(PPObjID oid, LDATETIME dtm) : Dtm(dtm), Oid(oid)
+	ClientActivityDetailedEntry(SObjID oid, LDATETIME dtm) : Dtm(dtm), Oid(oid)
 	{
 	}
 	LDATETIME Dtm; // Дата/время нужны (по крайней мере) из-за того, что операцию по карте однозначно по дате не идентифицировать.
 	//
 	// Если Oid.Obj == PPOBJ_SCARD, то подразумеваемая транзакции - операции по этой карте на момент Dtm.
 	//
-	PPObjID Oid;
+	SObjID Oid;
 };
 //
 // @ModuleDecl(PPObjArticle)
@@ -29573,7 +29524,7 @@ public:
 		PPID   Action;
 		LDATETIME Dtm;
 	};
-	struct EvVerEntry : public PPObjID {
+	struct EvVerEntry : public SObjID {
 		enum {
 			fAmtUp = 0x0001,
 			fAmtDn = 0x0002
@@ -29591,7 +29542,7 @@ public:
 	int    InitIteration();
 	int    FASTCALL NextIteration(SysJournalViewItem *);
 	int    FASTCALL CheckRecForFilt(const SysJournalTbl::Rec * pRec);
-	int    GetObjName(const PPObjID & rOid, SString & rBuf) const;
+	int    GetObjName(const SObjID & rOid, SString & rBuf) const;
 	int    GetEvVerText(const EvVerEntry & rKey, SString & rBuf) const;
 	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw);
 private:
@@ -29604,7 +29555,7 @@ private:
 	virtual int SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	bool   IsTempTblNeeded() const;
 	int    RefreshTempTable(LDATETIME since);
-	int    EditObj(const PPObjID * pObjID);
+	int    EditObj(const SObjID * pObjID);
 	int	   ViewBillHistory(PPID histID, LDATETIME evDtm);
 	int    Transmit();
 
@@ -29637,7 +29588,7 @@ struct GtaJournalFilt : public PPBaseFilt {
 	DateRange Period;
 	LTIME  BegTm;
 	PPID   GlobalUserID;
-	PPObjID Oi;
+	SObjID Oi;
 	long   Flags;
 	int16  DayOfWeek;
 	int16  Reserve;
@@ -29666,7 +29617,7 @@ public:
 	int    InitIteration();
 	int    FASTCALL NextIteration(GtaJournalViewItem *);
 	int    FASTCALL CheckRecForFilt(const GtaJournalTbl::Rec * pRec);
-	int    GetObjName(const PPObjID & rOid, SString & rBuf) const;
+	int    GetObjName(const SObjID & rOid, SString & rBuf) const;
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	//virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
@@ -29754,8 +29705,8 @@ struct GeoTrackingFilt : public PPBaseFilt {
 	char   ReserveStart[32]; // @anchor
 	DateRange Period;
 	LTIME  BegTm;
-	PPObjID Oi;
-	PPObjID ExtOi;
+	SObjID Oi;
+	SObjID ExtOi;
 	long   Flags;
 	uint32 Reserve;           // @anchor
 };
@@ -35511,7 +35462,7 @@ public:
 	};
 
 	int    Subst(const PPBill * pPack, PPID * pDestID, SubstParam * pParam);
-	int    GetSubstObjType(long id, const SubstParam * pParam, PPObjID * pObjID) const;
+	int    GetSubstObjType(long id, const SubstParam * pParam, SObjID * pObjID) const;
 	void   GetSubstText(PPID srcID, SubstParam * pParam, SString & rBuf);
 	//
 	// Descr: Специализированная функция, реализующая минимально необходимую частичную загрузку
@@ -39060,7 +39011,7 @@ private:
 // Формат файла передачи объектов:
 //    PPObjectTransmit::Header                             32
 //    Количество элементов массива list                     2
-//    Массив list           list.getCount() * sizeof(PPObjID)
+//    Массив list           list.getCount() * sizeof(SObjID)
 //    Количество элементов массива addr                     2
 //    Массив addr              addr.getCount() * sizeof(long)
 //    Количество элементов массива commIDs                  2
@@ -39361,8 +39312,8 @@ public:
 	int    CommitQueue(const PPIDArray & rSrcDivList, int forceDestroyQueue);
 	int    CommitAck();
 	int    UpdateSyncCmpItem(TempSyncCmpTbl *, PPID objType, PPCommSyncID commID);
-	int    RegisterDependedNonObject(PPObjID objid, PPCommSyncID & rCommID, int use_ta);
-	int    AcceptDependedNonObject(PPObjID foreignObjId, PPID primaryID, const LDATETIME * pModDtm, int use_ta);
+	int    RegisterDependedNonObject(SObjID objid, PPCommSyncID & rCommID, int use_ta);
+	int    AcceptDependedNonObject(SObjID foreignObjId, PPID primaryID, const LDATETIME * pModDtm, int use_ta);
 	int    SearchQueueItem(PPID objType, PPID objID, PPID dbID, ObjSyncQueueTbl::Rec * pRec);
 	ObjSyncCore SyncTbl;
 private:
@@ -39377,7 +39328,7 @@ private:
 	};
 	struct RestoreObjItem {
 		PPID   QueueID;       // Идентификатор записи в таблице ObjSyncQueue
-		PPObjID Oi;           // Идентификатор "чужого" объекта
+		SObjID Oi;           // Идентификатор "чужого" объекта
 		PPCommSyncID CommID;  // Общий идентификатор объекта
 		int16  Flags;         // PPObjPack::fXXX
 		PPID   DBID;          // Раздел базы данных, из которого получен объект
@@ -39393,9 +39344,9 @@ public:
 		RestoreObjBlock(ObjSyncQueueCore * pQueue, PPObjectTransmit * pOt);
 		OtFilePoolItem * SearchFile(long fileId);
 		int    SetQueueItem(const ObjSyncQueueTbl::Rec &, RestoreObjItem * pItem);
-		int    PushRestoredObj(PPID dbID, PPObjID oi);
-		int    PopRestoredObj(PPID dbID, PPObjID oi);
-		int    DetectRecur(PPID dbID, PPObjID oi) const;
+		int    PushRestoredObj(PPID dbID, SObjID oi);
+		int    PopRestoredObj(PPID dbID, SObjID oi);
+		int    DetectRecur(PPID dbID, SObjID oi) const;
 
 		ObjSyncQueueCore * P_Queue;
 		TSCollection <OtFilePoolItem> Fp;
@@ -39419,9 +39370,9 @@ private:
 	int    UpdateInHeader(FILE * stream, const PPObjectTransmit::Header *);
 	int    MakeCommIDList(int use_ta);
 	int    RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & rItem, PPID * pPrimID);
-	int    PopRestoredObj(SStack *,  PPObjID oi);
+	int    PopRestoredObj(SStack *,  SObjID oi);
 	PPObjectTransmit::IndexItem * TmpTblRecToIdxItem(const ObjSyncQueueTbl::Rec * pRec, IndexItem * pItem);
-	int    EnumObjectsByIndex(PPObjID * pObjId, ObjSyncQueueTbl::Rec * pRec);
+	int    EnumObjectsByIndex(SObjID * pObjId, ObjSyncQueueTbl::Rec * pRec);
 	int    NeedRestoreObj(PPID objType, const PPObjectTransmit::RestoreObjItem & rItem, PPID * pPrimID);
 	//
 	// Descr: Возвращает информацию о синхронизации объекта из другого раздела БД.
@@ -49213,7 +49164,7 @@ public:
 	bool   Validate(const Item * pSelectedItem) const;
 	int    Store(const char * pFileName) const;
 	bool   Load(const char * pDbSymb, const char * pFileName);
-	StyloQCommandList * CreateSubListByContext(PPObjID oid, int baseCmdId, bool skipInternalCommands) const;
+	StyloQCommandList * CreateSubListByContext(SObjID oid, int baseCmdId, bool skipInternalCommands) const;
 	StyloQCommandList * CreateSubListByDbSymb(const char * pDbSymb, int baseCmdId) const;
 	bool   GetSubListByDbSymb(const char * pDbSymb, int baseCmdId, StyloQCommandList & rList) const;
 	//
@@ -49261,7 +49212,7 @@ public:
 struct StyloQBlobInfo {
 	StyloQBlobInfo();
 	StyloQBlobInfo & Z();
-	PPObjID Oid;        // Идентификатор объекта данных, которому соответствует BLOB
+	SObjID Oid;        // Идентификатор объекта данных, которому соответствует BLOB
 	uint   BlobN;       // [1..] Номер BLOB'а в "обойме" объекта Oid
 	SFileFormat Ff;     // Идентификатор формата данных  
 	int    HashAlg;     // Хэш-алгоритм, используемый для расчета хэша BLOB'а
@@ -49459,8 +49410,8 @@ public:
 	//  при подготовке данных.
 	//
 	struct Stq_CmdStat_MakeRsrv_Response {
-		static void RegisterOid(Stq_CmdStat_MakeRsrv_Response * pThis, PPObjID oid);
-		static void RegisterBlobOid(Stq_CmdStat_MakeRsrv_Response * pThis, PPObjID oid);
+		static void RegisterOid(Stq_CmdStat_MakeRsrv_Response * pThis, SObjID oid);
+		static void RegisterBlobOid(Stq_CmdStat_MakeRsrv_Response * pThis, SObjID oid);
 
 		Stq_CmdStat_MakeRsrv_Response();
 		uint   GoodsCount;
@@ -49488,7 +49439,7 @@ public:
 		S_GUID CmdUuid; // @v11.5.11 Этот uuid возвращается клиенту (он запрашивает извещения в привязке к команде) для того, чтобы он мог правильно обрабатывать
 			// клики по извещениям.
 		int    EventId;
-		PPObjID Oid;
+		SObjID Oid;
 		SString Message;
 		int    MessageId;
 	};
@@ -49653,8 +49604,8 @@ public:
 	enum {
 		gbifSignatureOnly = 0x0001 // Вызывающей функции нужна только сигнатура blob'а (не надо считать хэш и всякие иные сложные вещи)
 	};
-	bool   GetBlobInfo(const SBinaryChunk & rOwnIdent, PPObjID oid, uint blobN, uint flags, StyloQBlobInfo & rInfo, SBinaryChunk * pBlobBuf) const;
-	bool   FetchBlobSignature(const SBinaryChunk & rOwnIdent, PPObjID oid, uint blobN, SString & rSignature);
+	bool   GetBlobInfo(const SBinaryChunk & rOwnIdent, SObjID oid, uint blobN, uint flags, StyloQBlobInfo & rInfo, SBinaryChunk * pBlobBuf) const;
+	bool   FetchBlobSignature(const SBinaryChunk & rOwnIdent, SObjID oid, uint blobN, SString & rSignature);
 	static void  SetupMqbReplyProps(const RoundTripBlock & rB, PPMqbClient::MessageProperties & rProps);
 	static int   Edit_RsrvAttendancePrereqParam(StyloQAttendancePrereqParam & rParam);
 	static int   Edit_IndexingParam(StyloQIndexingParam & rParam);
@@ -49729,7 +49680,7 @@ private:
 		double OrderMinQty;
 		double Brutto;        // @v11.4.5
 	};	
-	int    AddImgBlobToReqBlobInfoList(const SBinaryChunk & rOwnIdent, PPObjID oid, Stq_ReqBlobInfoList & rList);
+	int    AddImgBlobToReqBlobInfoList(const SBinaryChunk & rOwnIdent, SObjID oid, Stq_ReqBlobInfoList & rList);
 	int    ExtractSessionFromPacket(const StyloQCore::StoragePacket & rPack, SSecretTagPool & rSessCtx);
 	int    StqInsertIntoJs_BaseCurrency(SJson * pJs); // @v11.3.12
 	//
@@ -50135,7 +50086,7 @@ struct StyloQBinderyViewItem { // @flat
 	long   Flags;   // @v11.4.5
 	uchar  BI[20];
 	LDATETIME Expiration;
-	PPObjID LinkOid;
+	SObjID LinkOid;
 };
 
 class PPViewStyloQBindery : public PPView {
@@ -50977,6 +50928,104 @@ private:
 	SArray Data;
 };
 //
+//
+//
+struct UniFindObjFilt : public PPBaseFilt {
+	UniFindObjFilt();
+	enum {
+		wfEverything  = 0x0001,
+		wfBill        = 0x0002,
+		wfGoods       = 0x0004,
+		wfPerson      = 0x0008,
+		wfSCard       = 0x0010,
+		wfCCheck      = 0x0020,
+		wfPersonEvent = 0x0040,
+		wfProject     = 0x0080,
+		wfToDo        = 0x0100,
+		wfLocation    = 0x0200, // @v12.4.9
+	};
+	enum {
+		fInteractive  = 0x0001,
+		fNameBySubstr = 0x0002, // Имена объектов искать по подстроке
+	};
+	uint8  ReserveStart[32]; // @anchor
+	long   WFlags;           // wfXXXX Флаги, определяющие места поиска (where-flag) 
+	long   Flags;            // fXXXX
+	DateRange Period;
+	uint8  Reseve[32];       // @anchor 
+	SString MainPattern;     // @anchor 
+};
+//
+//
+//
+class PrcssrUniFindObj {
+	friend class PPViewUniFindObj;
+public:
+	struct FoundEntry {
+		FoundEntry() : Attr(0)
+		{
+		}
+		SObjID Oid;
+		int    Attr; // PPOBJATTR_XXX
+		SString AddendumFeature;
+	};
+	PrcssrUniFindObj();
+	int    InitParam(UniFindObjFilt * pParam);
+	int    EditParam(UniFindObjFilt * pParam);
+	int    Init(const UniFindObjFilt * pParam);
+	int    Run();
+	const  TSCollection <FoundEntry> & GetResult() const { return Result; }
+private:
+	const FoundEntry * SearchResult(const SObjID oid, int attr, uint * pPos) const;
+	int    AddResult(PPID objType, PPID objID, int attr, const char * pAddendumFeature);
+	int    AddResult(PPID objType, const PPIDArray & rIdList, int attr);
+
+	UniFindObjFilt P;
+	TSCollection <FoundEntry> Result;
+	//
+	PPObjBill * P_BObj;
+	PPObjPerson PsnObj;
+	PPObjSCard ScObj;
+	PPObjProject PrjObj;
+	PPObjPrjTask TodoObj;
+};
+
+class PPViewUniFindObj : public PPView {
+public:
+	struct BrwItem { // @flat
+		BrwItem();
+		BrwItem(const PrcssrUniFindObj::FoundEntry & rS);
+		long   Ident_; // Суррогатный идентификатор элемента в общем списке
+		SObjID Oid;
+		int    Attr; // PPOBJATTR_XXX
+		uint   ObjNameP;  
+		uint   AttrNameP;
+		uint   AddendumFeatureP;
+	};
+	explicit PPViewUniFindObj(PrcssrUniFindObj * pOuterPrcssr);
+	~PPViewUniFindObj();
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
+	virtual int   EditBaseFilt(PPBaseFilt *);
+	virtual int   Init_(const PPBaseFilt * pBaseFilt);
+private:
+	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
+	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int   Detail(const void *, PPViewBrowser * pBrw);
+	int    MakeList(PPViewBrowser * pBrw);
+	//int    MakeListEntry(const BizScore2Tbl::Rec & rRec, BrwItem & rEntry);
+	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+
+	enum {
+		stOuterPrcssr = 0x0001 // Если установлен, то экземпляр использует указатель на внешний объект PrcssrUniFindObj. То есть, разрушать P_Prcssr нельзя!
+	};
+	uint   State;
+	UniFindObjFilt Filt;
+	SStrGroup StrPool;  // Пул строковых полей
+	SArray * P_DsList;
+	PrcssrUniFindObj * P_Prcssr;
+};
+//
 // @ModuleDecl(PPViewDialog)
 //
 class DialogFilt : public PPBaseFilt {
@@ -51201,7 +51250,7 @@ struct ClientActivityDetailsViewItem {
 		TransactionCode[0] = 0;
 		TransactionEtc[0] = 0;
 	}
-	PPObjID Oid;
+	SObjID Oid;
 	LDATETIME Dtm;
 	char   TransactionOp[48];
 	char   TransactionCode[48];
@@ -53709,7 +53758,7 @@ class PPObjectTokenizer : public PPTextAnalyzer {
 public:
 	PPObjectTokenizer();
 	~PPObjectTokenizer();
-	int    AddObject(PPObjID oi, const char * pName);
+	int    AddObject(SObjID oi, const char * pName);
 	int    SearchObjects(const char * pText, PPID objType, long flags, RAssocArray & rObjIdScoreList);
 	int    ProcessSuprWare(PPID swType, PPID swCls);
 	int    ProcessGoods(const GoodsFilt * pFilt);
@@ -54923,7 +54972,7 @@ public:
 		long   Flags;
 	};
 	enum {
-		fCanInsert = 0x0001, // OLW_CANINSERT
+		fCanInsert         = 0x0001, // OLW_CANINSERT
 		fLoadDefOnOpen     = 0x0002, // OLW_LOADDEFONOPEN
 		fDefComboFlags     = fCanInsert,
 		fUseByContextValue = 0x0004  // @v11.1.10 OLW_INSCONTEXTEDITEMS
@@ -56865,7 +56914,12 @@ public:
 	static double Helper_CalcSCardOpBonusAmount(const CCheckLineTbl::Rec & rItem, PPObjGoods & rGObj, PPID bonusGoodsGrpID, double * pNonCrdAmt);
 	static bool   IsValidOp(int op) { return oneof6(op, CCOP_GENERAL, CCOP_RETURN, CCOP_CORRECTION_SELL, CCOP_CORRECTION_SELLSTORNO, CCOP_CORRECTION_RET, CCOP_CORRECTION_RETSTORNO); }
 	static bool   IsCorrectionOp(int op) { return oneof4(op, CCOP_CORRECTION_SELL, CCOP_CORRECTION_SELLSTORNO, CCOP_CORRECTION_RET, CCOP_CORRECTION_RETSTORNO); }
-
+	//
+	// Descr: Функция корректировки проблемы, возникшей из-за ошибки, сделанной в релизе 12.3.04.
+	//   Из-за этой ошибки в ЕГАИС уходили чеки авто-списания алкоголя с нулевым количеством.
+	//   Функция корректировки передаст пересчитанные исправленные чеки в ЕГАИС.
+	//
+	int    CorrectProblem_v12304(const DateRange * pPeriod, bool testMode); // @v12.4.10 // @construction
 	// @v12.3.8 (moved into PosNodeParam) LongArray CTblList;
 	PPObjCSession CsObj;
 protected:
@@ -56988,6 +57042,7 @@ protected:
 	// ARG(op IN): Одно из значений CPosProcessor::opXXX
 	//
 	int    SetCurrentOp(int op); // @v12.2.9
+	int    TurnShadowEgaisMarkAutoselectionCcPacket(const CCheckPacket & rMainCcPack, CCheckPacket & rCcPack, int use_ta);
 	
 	struct GrpListItem { // @flat
 		GrpListItem();
@@ -57169,14 +57224,14 @@ protected:
 		fCorrection         = 0x80000000  // @v12.2.8 Признак ввода чека коррекции. Исключает fRetCheck.
 	};
 	enum {
-		uifCloseWOAsk = 0x0001, // Закрывать кассовую панель без подтверждения PPCFM_CLOSECCHKPANE
-		uifOnce       = 0x0004, // Панель открывается только для пробития единственного чека.
+		uifCloseWOAsk         = 0x0001, // Закрывать кассовую панель без подтверждения PPCFM_CLOSECCHKPANE
+		uifOnce               = 0x0004, // Панель открывается только для пробития единственного чека.
 			// После проведения чека панель закрывается без предупреждения. Если чек не проведен, то
 			// при попытке выхода из панели предупреждение запрашивается.
 		uifTSGGroupsAsButtons = 0x0008, // Отрисовывать элементы списка групп как кнопки
 		uifOneGroupLevel      = 0x0010, // В списке выбора группы отображается только один уровень групп,
 			// принадлежащих выбранной группе верхнего уровня. Если флаг не установлен, то выбор иерархический
-		uifAutoInput  = 0x0020  // Данные в поле ввода были внесены посредством сканирующего устройства.
+		uifAutoInput          = 0x0020  // Данные в поле ввода были внесены посредством сканирующего устройства.
 			// Например, сканером штрихкодов. Признак устанавливается и снимается функцией GetInput на основе
 			// анализа среднего времени между вводом символов. Если ввод осущствлялся методом PASTE, то флаг не устанавливается.
 	};
@@ -57245,7 +57300,7 @@ protected:
 	PPID   CheckID;
 	PPID   SuspCheckID;      // Загружен отложенный чек с указанным идентификатором
 	PPID   AuthAgentID;      // Агент, который изначально авторизовался в сессии (для поддержки мобильного официанта)
-	PPObjID OuterOi;         // Внешний объект, к которому привязывается чек.
+	SObjID OuterOi;         // Внешний объект, к которому привязывается чек.
 	LDATETIME LastGrpListUpdTime;     // Время последнего обновления списка групп товаров
 	S_GUID SessUUID;
 	PPGenCashNode::RoundParam R__;      // Параметры округления //
@@ -57269,9 +57324,9 @@ protected:
 	PPObjCashNode CnObj;
 	CardState CSt;
 	ManualDiscount ManDis; // @v11.0.9
-	PPCashMachine    * P_CM;
-	PPCashMachine    * P_CM_EXT;
-	PPCashMachine    * P_CM_ALT;
+	PPCashMachine * P_CM;     // Основной кассовый регистратор
+	PPCashMachine * P_CM_EXT; // Сдвоенный кассовый регистратор (на нем проходят чеки по заданным товарным группам)
+	PPCashMachine * P_CM_ALT; // Альтернативный кассовый регистратор (кассир принимает решение о проведении чека через него)
 	GoodsToObjAssoc  * P_GTOA;
 	PPObjTSession    * P_TSesObj;
 	SArray * P_DivGrpList;
@@ -57477,6 +57532,37 @@ private:
 // Import/Export Block (PPImpExpParam etc)
 //
 //
+// Descr: Класс, обеспечивающий минимальную вспомогательную инфраструктуру для обмена документами с контрагентом
+//
+class PPDocumentInterchangeContext {
+public:
+	explicit PPDocumentInterchangeContext(PPID mainOrgID);
+	~PPDocumentInterchangeContext();
+	PPID   GetMainOrgID_() const { return MainOrgID; }
+	int    ValidateGLN(const SString & rGLN);
+	int    GetMainOrgGLN(SString & rGLN);
+	int    GetPersonGLN(PPID psnID, SString & rGLN);
+	int    GetArticleGLN(PPID arID, SString & rGLN);
+	int    GetLocGLN(PPID locID, SString & rGLN);
+	int    GetGoodsInfo(PPID goodsID, PPID arID, Goods2Tbl::Rec * pRec, SString & rGtin, SString & rArCode);
+	int    SearchLinkedBill(const char * pCode, LDATE dt, PPID arID, int ediOp, BillTbl::Rec * pBillRec);
+	int    SearchLinkedOrder(const char * pCode, LDATE dt, PPID arID, BillTbl::Rec * pBillRec, PPBillPacket * pPack);
+	int    ResolveDlvrLoc(const char * pText, PPBillPacket * pPack);
+	int    ResolveContractor(const char * pText, int partyQ, PPBillPacket * pPack);
+
+	PPObjBill * P_BObj; // @notowned
+	PPObjLocation LocObj;
+	PPObjGoods GObj;
+	PPObjPerson PsnObj;
+	PPObjArticle ArObj;
+	PPAlbatrossConfig ACfg;
+	STokenRecognizer TR; // Для распознавания допустимых/недопустимых токенов
+protected:
+	int    Helper_GetPersonGLN(PPID psnID, SString & rGLN);
+private:
+	PPID   MainOrgID;
+};
+//
 // @vmiller
 // Descr: Вспомогательная структура, содержащая параметры для импорта/экспорта данных через dll
 //
@@ -57569,7 +57655,7 @@ public:
 	int    GetFilesFromSource(const char * pUrl, StringSet & rList, PPLogger * pLogger);
 	int    DistributeFile(PPLogger * pLogger);
 
-	enum {
+	enum { // @todo @20251118 Заменить на SFileFormat
 		dfText = 0,
 		dfDbf,
 		dfXml,
@@ -57577,7 +57663,7 @@ public:
 		dfExcel
 	};
 	enum {
-		bfDLL    = 0x0001,
+		bfDLL            = 0x0001,
 		bfDeleteSrcFiles = 0x0002
 	};
 	uint   RecId;
@@ -58494,7 +58580,7 @@ struct PPBillIterchangeFilt {
 	PPIDArray IdList;
 };
 
-class PPBillImpExpBaseProcessBlock {
+class PPBillImpExpBaseProcessBlock : public PPDocumentInterchangeContext {
 public:
 	enum {
 		fUhttImport     = 0x0001,  // Импорт документов из Universe-HTT
@@ -58549,12 +58635,7 @@ public:
 	SString CfgNameBill;
 	SString CfgNameBRow;
 	TransmitParam Tp;
-	PPObjBill * P_BObj;
-	PPObjLocation LocObj;
-	PPObjPerson PsnObj;
 	PPObjQCert  QcObj;
-	PPObjArticle ArObj;
-	PPObjGoods  GObj;
 	PPObjTag TagObj;
 };
 
@@ -58913,7 +58994,7 @@ public:
 		};
 		TSVector <Entry> L;
 	};
-	class ProviderImplementation {
+	class ProviderImplementation : public PPDocumentInterchangeContext {
 	public:
 		enum {
 			ctrfTestMode = 0x0001
@@ -58925,27 +59006,10 @@ public:
 		virtual int    SendDocument(DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack) { return -1; }
 		int    GetTempOutputPath(int docType, SString & rBuf);
 		int    GetTempInputPath(int docType, SString & rBuf);
-		int    GetPersonGLN(PPID psnID, SString & rGLN);
-		int    GetArticleGLN(PPID arID, SString & rGLN);
-		int    GetMainOrgGLN(SString & rGLN);
-		int    GetLocGLN(PPID locID, SString & rGLN);
-		int    GetGoodsInfo(PPID goodsID, PPID arID, Goods2Tbl::Rec * pRec, SString & rGtin, SString & rArCode);
-		int    ValidateGLN(const SString & rGLN);
 		int    GetOriginOrderBill(const PPBillPacket & rBp, BillTbl::Rec * pOrdBillRec);
-		int    SearchLinkedBill(const char * pCode, LDATE dt, PPID arID, int ediOp, BillTbl::Rec * pBillRec);
-		int    SearchLinkedOrder(const char * pCode, LDATE dt, PPID arID, BillTbl::Rec * pBillRec, PPBillPacket * pPack);
-		int    ResolveDlvrLoc(const char * pText, PPBillPacket * pPack);
-		int    ResolveContractor(const char * pText, int partyQ, PPBillPacket * pPack);
 
 		PPEdiProviderPacket Epp;
-		PPID   MainOrgID;
 		long   Flags;
-		PPObjBill * P_BObj; // @notowned
-		PPObjGoods GObj;
-		PPObjPerson PsnObj;
-		PPObjArticle ArObj;
-		STokenRecognizer TR; // Для распознавания допустимых/недопустимых токенов
-		PPAlbatrossConfig ACfg;
 		PrcssrAlcReport Arp;
 	protected:
 		struct DeferredPositionBlock {
@@ -59005,7 +59069,6 @@ public:
 		PPLogger * P_Logger; // @notowned
 	private:
 		int    GetIntermediatePath(const char * pSub, int docType, SString & rBuf);
-		int    Helper_GetPersonGLN(PPID psnID, SString & rGLN);
 	};
 
 	static int FASTCALL GetEdiMsgTypeByText(const char * pSymb);
@@ -59046,324 +59109,6 @@ public:
 	//
 	//
 	enum {
-		/*
-			2   = Delivery date/time, requested
-			10  = Shipment date/time, requested
-			11  = Despatch date and/or time
-			15  = Promotion start date/time
-			37  = Ship not before date/time
-			38  = Ship not later than date/time
-			61  = Cancel if not delivered by this date
-			63  = Delivery date/time, latest
-			64  = Delivery date/time, earliest
-			69  = Delivery date/time, promised for
-			76  = Delivery date/time, scheduled for
-			X14 = Requested for delivery week commencing (GS1 Temporary Code)
-			137 = Document/message date/time
-			200 = Pick-up/collection date/time of cargo
-			235 = Collection date/time, latest
-			263 = Invoicing period
-			273 = Validity period
-			282 = Confirmation date lead time
-			383 = Cancel if not shipped by this date
-			//
-			//
-			1 = Service completion date/time, actual. Actual date/time on which the service was completed. 	
-			2 = Delivery date/time, requested. Date on which buyer requests goods to be delivered. 	
-			3 = Invoice date/time. [2376] Date when a Commercial Invoice is issued. 	
-			4 = Order date/time. [2010] Date when an order is issued. 	
-			7 = Effective date/time. Date and/or time at which specified event or document becomes effective. 	
-			8 = Order received date/time. Date/time when the purchase order is received by the seller. 	
-			9 = Processing date/time. Date/time of processing. 	
-			10 = Shipment date/time, requested. Date on which goods should be shipped or despatched by the supplier. 	
-			11 = Despatch date and/or time. (2170) Date/time on which the goods are or are expected to be despatched or shipped. 	
-			12 = Terms discount due date/time. Date by which payment should be made if discount terms are to apply. 	
-			13 = Terms net due date. Date by which payment must be made. 	
-			14 = Payment date/time, deferred. Date/time when instalments are due. 	
-			15 = Promotion start date/time. Date/time when promotion activities begin. 	
-			16 = Promotion end date/time. Date/time when promotion activities end. 	
-			17 = Delivery date/time, estimated. Date and/or time when the shipper of the goods expects delivery will take place. 	
-			18 = Installation date/time/period. The date/time/period of the act, or an instance of installing something or someone. 	
-			35 = Delivery date/time, actual. Date/time on which goods or consignment are delivered at their destination. 	
-			36 = Expiry date. Date of expiry of the validity of a referenced document, price information or any other referenced data element with a limited validity period. 	
-			37 = Ship not before date/time. Goods should not be shipped before given date/time. 	
-			38 = Ship not later than date/time. Date/time by which the goods should have been shipped. 	
-			44 = Availability. Date/time when received item is available. 	
-			50 = Goods receipt date/time. Date/time upon which the goods were received by a given party. 	
-			55 = Confirmed date/time. Date/time which has been confirmed. 	
-			58 = Clearance date (Customs). (3080) Date on which Customs formalities necessary to allow goods to be exported, to enter home use, or to be placed under another Customs procedure has been accomplished (CCC). 	
-			59 = Inbond movement authorization date. Inland movement authorization date. 	
-			61 = Cancel if not delivered by this date. The date on which cancellation should take place, if delivery has not occurred. 	
-			63 = Delivery date/time, latest. Date identifying a point of time after which goods shall not or will not be delivered. 	
-			64 = Delivery date/time, earliest. Date identifying a point in time before which the goods shall not be delivered. 	
-			67 = Delivery date/time, current schedule. Delivery Date deriving from actual schedule. 	X15 	 
-			69 = Delivery date/time, promised for [2138]. Date by which, or period within which, the merchandise should be delivered to the buyer, as agreed between the seller and the buyer (generic term). 	
-			71 = Delivery date/time, requested for (after and including). Delivery is requested to happen after or on given date. 	
-			72 = Delivery date/time, promised for (after and including). Delivery might take place earliest at given date. 	
-			73 = Guarantee period. The period for which the guarantee is or will be granted. 	
-			74 = Delivery date/time, requested for (prior to and including). Delivery is requested to happen prior to or including the given date. 	
-			75 = Delivery date/time, promised for (prior to and including). Delivery might take place latest at given date. 	
-			76 = Delivery date/time, scheduled for. The date/time for which delivery is scheduled. 	
-			79 = Shipment date/time, promised for. Shipment might happen at given date/time. 	
-			90 = Report start date. The date on which a report is to begin. 	
-			91 = Report end date. The date on which a report is to end. 	
-			94 = Production/manufacture date. Date on which goods are produced. 	
-			95 = Bill of lading date. Date as specified on the bill of lading. 	
-			99 = Quotation opening date. The date on which the quotation has been or may be opened. 	
-			100 = Product ageing period before delivery. Period of time before delivery during which the product is ageing. 	
-			102 =  Health problem period. Period of time of health problem. GS1 Description: Period of time of exceptional health problems. 	
-			117 = Delivery date/time, first. First possible date/time for delivery. 	
-			119 = Test completion date. Date when a test has been completed. 	
-			124 = Despatch note date. [2218] Date when a Despatch Note is issued. 	
-			126 = Contract date. [2326] Date when a Contract is agreed. 	
-			128 = Delivery date/time, last. Date when the last delivery should be or has been accomplished. 	
-			129 = Exportation date. Date when imported vessel/merchandise last left the country of export for the country of import. 	
-			131 = Tax point date. Date on which tax is due or calculated. 	
-			132 = Arrival date/time, estimated. (2348) Date/time when carrier estimates that a means of transport should arrive at the port of discharge or place of destination. 	
-			133 = Departure date/time, estimated. Date/time when carrier estimates that a means of transport should depart at the place of departure. 	
-			134 = Rate of exchange date/time. Date/time on which the exchange rate was fixed. 	
-			136 = Departure date/time. [2280] Date (and time) of departure of means of transport. 	
-			137 = Document/message date/time. (2006) Date/time when a document/message is issued. This may include authentication. 	
-			138 = Payment date. [2034] Date on which an amount due is made available to the creditor, in accordance with the terms of payment. 	
-			140 = Payment due date. Date/time at which funds should be made available. 	
-			143 = Acceptance date/time of goods. [2126] Date on which the goods are taken over by the carrier at the place of acceptance (CMR 4). 	
-			147 = Expiry date of export licence. [2078] Date of expiry of the validity of an Export Licence. 	
-			151 = Importation date 	
-			Date on which goods are imported, as determined by the governing Customs administration. 	
-			152 = Exportation date for textiles 	
-			Date when imported textiles last left the country of origin for the country of importation. 	
-			154 = Acceptance date of document 	
-			The date on which a document was accepted. 	
-			GS1 Description:
-			Date on which a document was, or will be, accepted. 	
-			155 = Accounting period start date 	
-			The first date of an accounting period. 	
-			156 = Accounting period end date 	
-			The last date of an accounting period. 	
-			157 = Validity start date 	
-			The first date of a period for which something is valid. 	
-			162 = Release date of supplier 	
-			Date when the supplier released goods. 	
-			165 = Tax period start date. Date when a tax period begins. 	
-			166 = Tax period end date. Date when a tax period ends. 	
-			167 = Charge period start date. The charge period's first date. 	
-			168 = Charge period end date. The charge period's last date. 	
-			169 = Lead time. Time required between order entry till earliest goods delivery. 	
-			171 = Reference date/time. Date/time on which the reference was issued. 	
-			174 = Advise after date/time. The information must be advised after the date/time indicated. 	
-			175 = Advise before date/time. The information must be advised before the date/time indicated. 	
-			176 = Advise completed date/time. The advise has been completed at the date indicated. 	
-			177 = Advise on date/time. The information must be advised on the date/time indicated. 	
-			178 = Arrival date/time, actual. [2106] Date (and time) of arrival of means of transport. 	
-			179 = Booking date/time. Date at which the booking was made. 	
-			180 = Closing date/time 	
-			Final date for delivering cargo to a liner ship. 	
-			182 = Issue date 	
-			Date when a document/message has been or will be issued. 	
-			186 = Departure date/time, actual 	
-			(2280) Date (and time) of departure of means of transport. 	
-			189 = Departure date/time, scheduled 	
-			Date (and time) of scheduled departure of means of transport. 	
-			190 = Transhipment date/time 	
-			Date and time of the transfer of the goods from one means of transport to another. 	
-			191 = Delivery date/time, expected 	
-			Date/time on which goods are expected to be delivered. 	
-			192 = Expiration date/time of customs document 	
-			Date on which validity of a customs document expires. 	
-			193 = Execution date 	
-			The date when ordered bank initiated the transaction. 	
-			194 = Start date/time 	
-			Date/time on which a period starts. 	
-			195 = Expiry date of import licence 	
-			[2272] Date of expiry of the validity of an Import Licence. 	
-			199 = Positioning date/time of goods 	
-			The date and/or time the goods have to be or have been positioned. 	
-			200 = Pick-up/collection date/time of cargo 	
-			Date/time at which the cargo is picked up. 	
-			202 = Posting date 	
-			The date when an entry is posted to an account. 	
-			203 = Execution date/time, requested 	
-			The date/time on which the ordered bank is requested to initiate the payment order, as specified by the originator (e.g. the date of the debit). 	
-			206 = End date/time 	
-			Date/time on which a period (from - to) ends. 	
-			209 = Value date 	
-			Date on which the funds are at the disposal of the beneficiary or cease to be at the disposal of the ordering customer. 	
-			211 = 360/30 	
-			Calculation is based on year of 360 days, month of 30 days. 	
-			212 = 360/28-31 	
-			Calculation is based on year of 360 days, month of 28-31 days. 	
-			213 = 365-6/30 	
-			Calculation is based on year of 365-6 days, month of 30 days. 	
-			214 = 365-6/28-31 	
-			Calculation is based on year of 365-6 days, month of 28-31 days. 	
-			215 = 365/28-31 	
-			Calculation is based on year of 365 days, month of 28-31 days. 	
-			216 = 365/30 	
-			Calculation is based on year of 365 days, month of 30 days. 	
-			218 = Authentication/validation date/time 	
-			The date/time of authentication and/or validation. 	
-			219 = Crossborder date/time 	
-			Date/time at which goods are transferred across a country border. 	
-			221 = Interest period 	
-			Number of days used for the calculation of interests. 	
-			222 = Presentation date, latest 	
-			Latest date for presentation of a document. 	
-			223 = Delivery date/time, deferred 	
-			New date and time of delivery calculated on basis of a consignee's requirement (chargeable). 	
-			227 = Beneficiary's banks due date 	
-			Date on which funds should be made available to the beneficiary's bank. 	
-			231 = Arrival date/time, earliest 	
-			Date/time of earliest arrival of means of transport. 	
-			232 = Arrival date/time, scheduled 	
-			Date (and time) of scheduled arrival of means of transport. 	
-			234 = Collection date/time, earliest 	
-			The transport order may be issued before the goods are ready for picking up. This date/time indicates from when on the carrier can have access to the consignment. 	
-			235 = Collection date/time, latest 	
-			In relation with the arrangements agreed between buyer and seller or between sender and main transport it may be necessary to specify the latest collection date/time. 	
-			255 = Availability due date 	
-			Date when ordered items should be available at a specified location. 	
-			257 = Calculation date/time/period 	
-			The date/time/period on which a calculation will take, or has taken, place. 	
-			260 = Valuation date (Customs) 	
-			Date when Customs valuation was made. 	
-			261 = Release date/time 	
-			Date/time assigned to identify the release of a set of rules, conditions, conventions, productions, etc. 	
-			263 = Invoicing period 	
-			Period for which an invoice is issued. 	
-			265 = Due date 	
-			The date on which some action should occur. 	
-			266 = Validation date. The date on which something was made valid, ratified or confirmed. GS1 Description: The date on which the validation of a document or message has taken place. 	
-			267 = Rate/price date/time. Date/time on which a rate/price is determined. 	
-			273 = Validity period. Dates (from/to)/period referenced documents are valid. 	
-			282 = Confirmation date lead time. Lead time is referenced to the date of confirmation.
-			306 = Work period. Period of execution of works. 	
-			310 = Received date/time. Date/time of receipt. 	
-			315 = Agreement to pay date. Date on which the debtor agreed to pay. 	
-			321 = Promotion date/period. Date/period relevant for specific promotion activities. 	
-			322 = Accounting period. Self-explanatory. GS1 Description: Period related to a company's accounting procedures/fiscal calendar. 	
-			324 = Processing date/period. Date/period a specific process happened/will happen. 	
-			325 = Tax period. Period a tax rate/tax amount etc. is applicable. GS1 Description: A period which is designated by tax authorities, e.g. VAT period. 	
-			326 = Charge period. Period a specified charge is valid for.
-			328 = Payroll deduction date/time. Date/time of a monetary deduction made from the salary of a person on a payroll.
-			334 = Status change date/time. Date/time when a status changes. 	
-			349 = Packing end date. Date on which packing completed. 	
-			350 = Test start date. Date when a test has been started. 	
-			351 = Inspection date. Date of inspection. 	
-			356 = Sales date, and or time, and or period. The date, and or time, and or period on which a sale took place. 	
-			357 = Cancel if not published by this date. Cancel if not published by this date. 	
-			358 = Scheduled for delivery on or after. Scheduled for delivery on or after the specified date, and or time. 	
-			359 = Scheduled for delivery on or before. Scheduled for delivery on or before specified date and or time. 	
-			360 = Sell by date. The date by which a product should be sold. 	
-			361 = Best before date. The best before date. 	
-			362 = End availability date. The end date of availability. 	
-			363 = Total shelf life period. A period indicating the total shelf life of a product. 	
-			364 = Minimum shelf life remaining at time of despatch period. Period indicating the minimum shelf life remaining for a product at the time of leaving the supplier. 	
-			365 = Packaging date. The date on which the packaging of a product took place. 	
-			366 = Inventory report date. Date on which a inventory report is made. 	
-			367 = Previous meter reading date. Date on which the previous reading of a meter took place. 	
-			368 = Latest meter reading date. Date on which the latest reading of a meter took place. 	
-			369 = Date and or time of handling, estimated. The date and or time when the handling action is estimated to take place. 	
-			381 = Product Lifespan at time of production (GS1 Temporary Code). The total lifespan of a product at the time of its production. 	
-			382 = Earliest sale date. The earliest date on which the product may be made available for sale. 	
-			383 = Cancel if not shipped by this date. Cancel the order if goods not shipped by this date. GS1 Description: Cancel the identified order if it has not been shipped/despatched by this date. 	
-			417 = Previous booking date/time. Date/time at which the previous booking was made. 	
-			418 = Minimum shelf life remaining at time of receipt. The minimum shelf life remaining at the time of receipt. 	
-			419 = Forecast period. A period for which a forecast applies. GS1 Description: A validity period for a forecast. 	
-			423 = First date of ordering. The first date on which ordering may take place. 	
-			424 = Last date of ordering. The last date on which ordering may take place. 	
-			434 = Maturity date. Date at which maturity occurs. 	
-			447 = Creditor's requested value date. Date on which the creditor requests to be credited. 	
-			448 = Referenced item creation date. Creation date of referenced item. 	
-			454 = Accounting value date. Date against which the entry has to be legally allocated. 	
-			496 = Reinstatement date. Identifies the date of reinstatement. 	
-			506 = Back order delivery date/time/period. The date/time/period during which the delivery of a back order will take, or has taken, place. 	
-			530 = Fumigation date and/or time. The date/or time on which fumigation is to occur or has taken place. 	
-			531 = Payment period. A period of time in which a payment has been or will be made. 	
-			536 = Review date. Date the item was or will be reviewed. 	
-			541 = First published date. Date when material was first published. 	
-			557 = Returned date. Date return takes place. GS1 Description: Date by which goods must be, or have been, returned. 	
-			656 = Age. Length of time that a person or thing has existed. GS1 Description: Length of time that a person or animal has lived or a thing has existed. 	
-			684 = Deletion date. The date on which deletion occurs. 	
-			685 = First sale date and/or time and/or period. The first date, and/or time, and/or period a product was sold. 	
-			686 = Last sale date and/or time and/or period. The last date, and/or time, and/or period a product was sold. 	
-			706 = File generation date and/or time. Date and, or time of file generation. 	
-			743 = Purchase order latest possible change date. Date identifying a point of time after which a purchase order cannot be changed. 	
-			748 = Open period. Code identifying the period during which something is, was or will be open. 	
-			750 = Before date. The specified before date.
-			751 = After date. The specified after date. 	
-			753 = Maturity date, optimal . Date at which optimal maturity occurs. 	
-			754 = Product ageing duration, maximum. Maximum period of time during which the product is ageing. 	
-			755 = Product ageing duration, minimum. Minimum period of time during which the product is ageing. 	
-			758 = Trade item ship date/time, earliest possible. The earliest date/time that the trade item can be shipped. It indicates the earliest date that the trade item can be shipped. This is independent of any specific ship-from location. 	
-			759 = Trade item ship date/time, latest possible. The latest date/time that the trade item can be shipped. It indicates the latest date that the trade item can be shipped. This is independent of any specific ship-from location. 	
-			760 = Start date/time, maximum buying quantity. The date/time from which the maximum buying quantity may be purchased. The start date for when the maximum buying quantity is available to the trading partner. 	
-			761 = Start date/time, minimum buying quantity. The start date for when the minimum buying quantity is available to the trading partner. 	
-			762 = Marketing campaign end date/time, suggested. The date and or time suggested for the marketing campaign to end. The date suggested by the supplier for the campaign to end. It indicates the end of a marketing campaign. 	
-			763 = Marketing campaign start date/time, suggested. The date and or time suggested for the marketing campaign to start. The date suggested by the supplier for the campaign to start. It indicates the beginning of a marketing campaign. 	
-			764 = Start availability date. The start date of availability. Indicates the start date of the trade item's seasonal availability. 	
-			765 = Seasonal availabilty calendar year. The calendar year of the season in which the trade item is available. 	
-			766 = Goods pickup lead time. Minimum time required between order entry and goods release for pick-up. Time (in weeks, days, hours …) required between order entry and the earliest goods release (use for pick-up, not use for delivery). 	
-			767 = Change date/time, latest. Most recent date and/or time that the information has been changed. A system generated value identifying the date and time a record was last updated. 	
-			768 = End date/time, maximum buying quantity. The date and/or time until which the maximum buying quantity may be purchased. The end date for when the maximum buying quantity is no longer available to the trading partner. 	
-			769 = End dat/time, minimum buying quantity. The date and/or time until which the minimum buying quantity may be purchased. The end date for when the minimum buying quantity is no longer available to the trading partner. 	
-			770 = End date/time of exclusivity. The date and/or time until which a product is exclusive. The Date & Time at which a product is no longer exclusive to that trading partner. 	
-			772 = Handling start date and/or time, actual . The actual date and/or time when the start of the handling action takes place. 	
-			773 = Handling end date and/or time, estimated. The date and/or time when the end of the handling action is estimated to take place. 	
-			774 = Handling end date and/or time, actual. The actual date and/or time when the end of the handling action takes place. 	
-			775 = Minimum product lifespan for consumer. The minimum life span of the product remaining after selling it to the consumer, i.e. between the "sell by date" and the "use by date" of the product. 	
-			789 = Opened trade item life span. The number of days the trade item that had been opened can remain on the shelf and must then be removed. 	
-			793 = Reprocessing date/time. Date/time on which goods previously produced are re-processed. 	
-			794 = First returnable date/time. The first date/time on or after which items can be returned. 	
-			795 = Community visibility date/time. The date/time from which information becomes visible to the target community. 	
-			796 = Catch date/time. Date/time of catch. 	
-			799 = Validity end date. The last date of a period for which something is valid. 	
-			800 = Next status report date. Date of the next status report 	
-			801 = Service connection date/time, actual. The date/time on which a service was connected, e.g. telephone, water, etc. 	
-			802 = Service disconnection date/time, actual. The date/time on which a service was DISconnected, e.g. telephone, water, etc. 	
-			803 = Empty equipment required date/time/period. Date/time/period on which empty equipment is required. 	
-			804 = Product sterilisation date. Date on which a product was sterilised. 	
-			805 = Stock demand cover period, expected. A period of time when stocks are expected to cover demand for a product. 	
-			806 = Shipment date/time, expected. Date and/or time when shipment is expected 	
-			807 = Slaughtering date/time. Date/time of slaughtering 	
-			808 = Animal birth date/time. Date/time when an animal was born 	
-			809 = Seasonal availability end date. Indicates the end date of the trade item's seasonal availability 	
-			21E = End validity date (GS1 Temporary Code). Date indicating the end date of a validity period. GS1 Note: Code marked for deletion. Use value 799 instead. 	
-			40E = Next status date (GS1 Temporary Code). The next date on which a status report will be provided. GS1 Note: Code marked for deletion. Use value 800 instead. 	
-			41E = Product lifespan from time of production (GS1 Temporary Code). An indication of the lifespan of a product from its time of production. 	
-			44E = Connection date/time (GS1 Temporary Code). The date/time on which a service was connected, e.g. telephone, water, etc. Connection date/time (GS1 Temporary Code) 	
-			45E = Disconnection date/time (GS1 Temporary Code). The date/time on which a service was disconnected, e.g. telephone, water, etc.
-			GS1 Note: Code marked for deletion. Use value 802 instead. 	
-			46E = Order completion date/time (GS1 Temporary Code) . The date/time on which an order was completed. 	
-			50E = Empty equipment required date/time/period (GS1 Temporary Code) 	
-				Date on which empty equipment is required. GS1 Note: Code marked for deletion. Use value 803 instead. 	
-			54E = Stuffing date/time (GS1 Temporary Code). The date/time on which the stuffing of a container is to take place, or has taken place. 	
-			55E = Un-stuffing date/time (GS1 Temporary Code). The date/time on which the un-stuffing of a container is to take place, or has taken place. 	
-			61B = Cancel if not delivered by this date unless title not published at time (GS1 Temporary Code) 	
-			Cancel the product ordered if it has not been delivered by this date unless it had not been published at the time of order.
-			GS1 Note: Code marked for deletion. 	
-			63B = Latest availability date if not yet despatched (GS1 Temporary Code) . The latest availability date required for a product or order if it has not already been despatched. 	
-			90E = Product sterilisation date (GS1 Temporary Code). Date on which a product was sterilised. GS1 Note: Code marked for deletion. Use value 804 instead. 	
-			91E = First freezing date (GS1 Temporary Code) . Date on which a product was first frozen. 	
-			92E = Pension deduction payment date (GS1 Temporary Code). Date when the deduction was made from the salary of the employee. 	
-			93E = Professional risk deduction payment date (GS1 Temporary Code). Date when the risk deduction was made from the salary of the employee. 	
-			94E = Health care deduction payment date (GS1 Temporary Code). Date when health care deduction was made. 	
-			96E = Stock cover period (GS1 Temporary Code). A period of time when all stocks are expected to cover demand for a product.
-			GS1 Note: Code marked for deletion. Use value 805 instead. 	
-			98E = Discharge date/time, start (GS1 Temporary Code) 	
-			Date/time when all discharge operations on the transport means have actually been started. 	
-			X13 = Expect to ship by (GS1 Temporary Code). The consignement is expected to be shipped by this date and/or time. GS1 Note: Code marked for deletion. Use value 806 instead. 	
-			X14 = Requested for delivery week commencing (GS1 Temporary Code). Code requesting delivery of an order or order line during a specified week. 	
-			X19 = Material Safety Data Sheet issue date (GS1 Temporary Code) 	
-			A date when a Material Safety Data Sheet has been or will be issued. 	
-			X20 = Slaughter date/time (GS1 Temporary Code). Date/time of slaughtering of an animal.
-			GS1 Note: Code marked for deletion. Use value 807 instead. 	
-			X21 = Animal Birth date/time (GS1 Temporary Code). Date/time when an animal was born. For traceability purposes.
-			GS1 Note: Code marked for deletion. Use value 808 instead. 	
-			X49 = Seasonal availability end date (GS1 Temporary Code). Indicates the end date of the trade item's seasonal availability. GS1 Note: Code marked for deletion. Use value 809 instead. 	
-			X50 = Committed quantity announcement date (GS1 Temporary Code). The date when quantity committed by store could be announced to the supply chain of the retailer. 	
-			XF2 = Date of issue and maturity (SWIFT Code). Date when a document/message has been issued and becomes mature. 	
-			YB9 = Total credits (SWIFT Code). The total value of credits to a financial account.
-		*/
 		dtmqDlvry            =   2, // Delivery date/time, requested
 		dtmqShipment         =  10, // Shipment date/time, requested
 		dtmqDespatch         =  11, // Despatch date and/or time
@@ -59484,6 +59229,12 @@ public:
 		refqUC, // Ultimate customer's reference number
 		refqAKO, // Action authorization number
 		refqANJ, // Authorization number
+		refqACL, // Principal reference number. A number that identifies the principal reference.
+		refqACD, // Additional reference number. Reference number provided in addition to another given reference.
+		refqYC1, // Additional party identification (GS1 Temporary Code). Reference number to an additional party identification. This number may be the internal trading partner identification number used by a party to identify its trading parties.
+		refqYC3, // Farm approval number (GS1 Temporary Code). Veterinary licence number allocated by a national authority to an animal farm.
+		refqYC6, // Electrical and Electronic Equipment Producer  registration number (GS1 Temporary Code). National registration number of the producers of Electrical and Electronic Equipment
+		refqYC7, // Batteries and Accumulators Producer  registration number (GS1 Temporary Code). National registration number of the producers of Batteries and Accumulators
 	};
 	struct RefValue {
 		RefValue();
@@ -59623,6 +59374,35 @@ public:
 		int    Q; // Qualifier
 		SString Text;
 	};
+
+	enum { // Measurement purpose code qualifier
+		meaqPD = 1, // PD = Physical dimensions (product ordered)
+		meaqSO = 2, // SO = Storage limitation
+		meaqTL = 3  // TL = Transportation equipment limitations		
+	};
+	struct MeaValue { // Measurements
+		MeaValue();
+
+		int    Q;        // Qualifier 6311 meaqXXX
+		// C502 MEASUREMENT DETAILS
+		char   AttrCode[8]; // 6313 Measured attribute code
+		int    SignifCode;  // 6321 Measurement significance code
+			// 3 = Approximately. The measurement is approximately equal to that specified.
+			// 4 = Equal to. The measurement is equal to that specified.
+			// 5 = Greater than or equal to. The measurement is greater than or equal to that specified.
+			// 6 = Greater than. The measurement is greater than that specified.
+			// 7 = Less than. The measurement is less than that specified.
+			// 8 = Less than or equal to.The measurement is less than or equal to that specified.
+			// 12 = True value. The measurement reported is a true value.
+		SString NonDiscrUomCode; // 6155 Non-discrete measurement name code
+		SString NonDiscrUomName; // 6154 Non-discrete measurement name
+		// C174 VALUE/RANGE
+		char   UomCode[8];   //   6411 Measurement unit code
+		double Value;        //   6314 Measurement value
+		RealRange R;         //   6162 Range minimum value, 6152 Range maximum value
+		int    Precision;    //   6432 Significant digits quantity (Количество знаков после десятичной точки)
+		char   LayerCode[8]; // 7383 Surface or layer code
+	};
 	struct PartyValue {
 		PartyValue();
 		PartyValue & operator = (const PartyValue & rS);
@@ -59703,6 +59483,65 @@ public:
 		double Rate;
 
 	};
+
+	enum { // 5283
+		taxqCustomDuty = 5,
+		taxqFee        = 6, // Fee. Charge for services rendered.
+		taxqTax        = 7
+	};
+	enum { // 5153 Duty or tax or fee type name code
+		taxtGST = 1, // GST = Goods and services tax
+		taxtIMP,     // IMP = Import tax
+		taxtVAT,     // VAT = Value added tax
+		taxAAD,      // Tobacco tax. A tax levied on tobacco products.
+		taxAAF,      // Coffee tax. A tax levied specifically on coffee products.
+		taxAAJ,      // Tax on replacement part. A tax levied on a replacement part, where the original part is returned. GS1 Description: A tax levied on replacement parts, calculated as a second VAT.
+		taxAAK,      // Mineral oil tax. Tax that is levied specifically on products containing mineral oil.
+		taxACT,      // Alcohol tax (GS1 Temporary Code). A tax levied specifically on alcoholic products.
+		taxCAR,      // Car tax. A tax that is levied on the value of the automobile. GS1 Description: A tax levied on the ownership or use of cars.
+		taxENV,      // Environmental tax. Tax assessed for funding or assuring environmental protection or clean-up.
+		taxEXC,      // Excise duty. Customs or fiscal authorities code to identify a specific or ad valorem levy on a specific commodity, applied either domestically or at time of importation.
+		taxOTH,      // Other taxes. Unspecified, miscellaneous tax charges.
+	};
+
+	struct TaxValue {
+		TaxValue();
+
+		int    Q; // taxqXXX
+		int    T; // taxtXXX
+		double Rate;
+		double Value;
+	};
+	struct PaiValue { // PAI Payment conditions
+		PaiValue();
+		PaiValue & Z();
+		bool   IsEmpty() const;
+
+		// C534
+		char   PaymConditionCode[4]; // E4439 Payment conditions code
+				// 1 Direct payment. An assigned invoice has been paid by the buyer to the factor.
+				// 10 Irrevocable documentary credit. Written undertaking by a bank to pay a seller against stipulated documents that cannot be amended or cancelled without the consent of all parties involved.
+				// 	GS1 Description: Payment is made using an irrevocable documentary credit.
+				// 15 Irrevocable letter of credit-confirmed. Letter of credit that cannot be cancelled or amended without agreement by all the parties involved, and carries the endorsement of both the issuing bank and its correspondent, guaranteeing payment of all drafts written against.
+				// 	GS1 Description: Payment is made using an irrevocable letter of credit confirmed.
+				// 17 Revocable letter of credit. Letter of credit that can be cancelled or amended at any time by the issuing bank.
+				// 	GS1 Description: Payment is made using an revocable letter of credit.
+				// 19 Irrevocable letter of credit unconfirmed. Letter of credit that cannot be cancelled or amended before a specific date without agreement by all the parties involved, and carries no guarantee that a correspondent will honour drafts presented for payment.
+				// 	GS1 Description: Payment is made using an irrevocable letter of credit unconfirmed.
+				// 30 Other collection. Self explanatory. Notes: This code value will be removed effective with directory D.04B.
+				// 34 Seller to advise buyer. Payment conditions to be advised by the seller to the buyer.
+				// 35 Documents through banks. Also known as 'documents against presentation', the documents are sent to a bank, and the buyer obtains the documents by paying the invoice amount to the bank.
+				// 	GS1 Description: Payment is made using documents passed through the banks.
+				// 65 Reverse factoring. Condition of payment to suppliers in which a third party (for example, a bank) manages the payments that one company has to make to its suppliers.
+				// OA Open account (GS1 Temporary Code). Open account payment terms.
+			// 
+		char   PaymGaranteeMeansCode[4];  // E4431 Payment guarantee means code
+		char   PaymMeansCode[4];          // E4461 Payment means code
+		char   CodeListIdentCode[20];     // E1131 Code list identification code
+		char   CodeListRespAgencyCode[4]; // E3055 Code list responsible agency code
+		char   PaymChannelCode[4];        // E4435 Payment channel code
+	};
+
 	struct DocumentDetailValue {
 		DocumentDetailValue();
 		DocumentDetailValue & operator = (const DocumentDetailValue & rS);
@@ -59710,9 +59549,12 @@ public:
 		LinValue LinV;
 		TSArray <PiaValue> PiaL;
 		TSCollection <ImdValue> ImdL;
+		TSCollection <MeaValue> MeaL; // @v12.4.10
+		TSCollection <RefValue> RefL; // @v12.4.10
 		TSVector <QValue> MoaL;
 		TSVector <QValue> QtyL;
 		TSVector <QValue> PriL;
+		TSVector <TaxValue> TaxL; // @v12.4.10
 	};
 	struct DocumentValue {
 		DocumentValue();
@@ -59726,6 +59568,7 @@ public:
 		SString UnhIdent;
 		SString BgmIdent;
 		CuxValue Cux;
+		PaiValue Pai; // payment conditions
 		TSCollection <RefValue> RefL;
 		TSVector <DtmValue> DtmL;
 		TSVector <QValue> MoaL;
@@ -59744,84 +59587,12 @@ public:
 	static int FASTCALL GetPriceqSymb(int priceq, SString & rSymb);
 	static int FASTCALL GetPriceqBySymb(const char * pSymb);
 
-	explicit PPEanComDocument(PPEdiProcessor::ProviderImplementation * pPi);
+	explicit PPEanComDocument(/*PPEdiProcessor::ProviderImplementation*/PPDocumentInterchangeContext * pPi);
 	~PPEanComDocument();
+	bool   SetImportOpID(PPID opID);
+	bool   SetImportLocID(PPID locID);
 	int    Write_MessageHeader(SXml::WDoc & rDoc, int msgType, const char * pMsgId);
 	int    Read_MessageHeader(const xmlNode * pFirstNode, SString & rMsgType, SString & rMsgId); // @notimplemented
-	//
-	// Descr: Коды функций сообщения
-	// Message function code:
-	// 1 Cancellation. Message cancelling a previous transmission for a given transaction.
-	// 2 Addition. Message containing items to be added.
-	// 3 Deletion. Message containing items to be deleted.
-	// 4 Change. Message containing items to be changed.
-	// 5 Replace. Message replacing a previous message.
-	// 6 Confirmation. Message confirming the details of a previous transmission where such confirmation is required or
-	//	recommended under the terms of a trading partner agreement.
-	// 7 Duplicate. The message is a duplicate of a previously generated message.
-	// 8 Status. Code indicating that the referenced message is a status.
-	// 9 Original. Initial transmission related to a given transaction.
-	// 10 Not found. Message whose reference number is not filed.
-	// 11 Response. Message responding to a previous message or document.
-	// 12 Not processed. Message indicating that the referenced message was received but not yet processed.
-	// 13 Request. Code indicating that the referenced message is a request.
-	// 14 Advance notification. Code indicating that the information contained in the
-	//	message is an advance notification of information to follow.
-	// 15 Reminder. Repeated message transmission for reminding purposes.
-	// 16 Proposal. Message content is a proposal.
-	// 17 Cancel, to be reissued. Referenced transaction cancelled, reissued message will follow.
-	// 18 Reissue. New issue of a previous message (maybe cancelled).
-	// 19 Seller initiated change. Change information submitted by buyer but initiated by seller.
-	// 20 Replace heading section only. Message to replace the heading of a previous message.
-	// 21 Replace item detail and summary only. Message to replace item detail and summary of a previous message.
-	// 22 Final transmission. Final message in a related series of messages together
-	//	making up a commercial, administrative or transport transaction.
-	// 23 Transaction on hold. Message not to be processed until further release information.
-	// 24 Delivery instruction. Delivery schedule message only used to transmit short-term delivery instructions.
-	// 25 Forecast. Delivery schedule message only used to transmit long- term schedule information.
-	// 26 Delivery instruction and forecast. Combination of codes '24' and '25'.
-	// 27 Not accepted. Message to inform that the referenced message is not accepted by the recipient.
-	// 28 Accepted, with amendment in heading section. Message accepted but amended in heading section.
-	// 29 Accepted without amendment. Referenced message is entirely accepted.
-	// 30 Accepted, with amendment in detail section. Referenced message is accepted but amended in detail section.
-	// 31 Copy. Indicates that the message is a copy of an original message that has been sent, e.g. for action or information.
-	// 32 Approval. A message releasing an existing referenced message for action to the receiver.
-	// 33 Change in heading section. Message changing the referenced message heading section.
-	// 34 Accepted with amendment. The referenced message is accepted but amended.
-	// 35 Retransmission. Change-free transmission of a message previously sent.
-	// 36 Change in detail section. Message changing referenced detail section.
-	// 37 Reversal of a debit. Reversal of a previously posted debit.
-	// 38 Reversal of a credit. Reversal of a previously posted credit.
-	// 39 Reversal for cancellation. Code indicating that the referenced message is reversing
-	//	a cancellation of a previous transmission for a given transaction.
-	// 40 Request for deletion. The message is given to inform the recipient to delete the referenced transaction.
-	// 41 Finishing/closing order. Last of series of call-offs.
-	// 42 Confirmation via specific means. Message confirming a transaction previously agreed via other means (e.g. phone).
-	// 43 Additional transmission. Message already transmitted via another communication
-	//	channel. This transmission is to provide electronically processable data only.
-	// 44 Accepted without reserves. Message accepted without reserves.
-	// 45 Accepted with reserves. Message accepted with reserves.
-	// 46 Provisional. Message content is provisional.
-	// 47 Definitive. Message content is definitive.
-	// 48 Accepted, contents rejected. Message to inform that the previous message is received, but it cannot be processed due to regulations, laws, etc.
-	// 49 Settled dispute. The reported dispute is settled.
-	// 50 Withdraw. Message withdrawing a previously approved message.
-	// 51 Authorisation. Message authorising a message or transaction(s).
-	// 52 Proposed amendment. A code used to indicate an amendment suggested by the sender.
-	// 53 Test. Code indicating the message is to be considered as a test.
-	// 54 Extract. A subset of the original.
-	// 55 Notification only. The receiver may use the notification information for analysis only.
-	// 56 Advice of ledger booked items. An advice that items have been booked in the ledger.
-	// 57 Advice of items pending to be booked in the ledger. An advice that items are pending to be booked in the ledger.
-	// 58 Pre-advice of items requiring further information. A pre-advice that items require further information.
-	// 59 Pre-adviced items. A pre-advice of items.
-	// 60 No action since last message. Code indicating the fact that no action has taken place since the last message.
-	// 61 Complete schedule. The message function is a complete schedule.
-	// 62 Update schedule. The message function is an update to a schedule.
-	// 63 Not accepted, provisional. Not accepted, subject to confirmation.
-	// +64 Verification. The message is transmitted to verify information.
-	// +65 Unsettled dispute. To report an unsettled dispute.
-	//
 	enum {
 		fmsgcodeCancellation =  1, // Cancellation. Message cancelling a previous transmission for a given transaction.
 		fmsgcodeAddition     =  2, // Addition. Message containing items to be added.
@@ -59960,491 +59731,8 @@ public:
 	//
 	int    Read_MOA(const xmlNode * pFirstNode, TSVector <QValue> & rList);
 	enum {
-		/*
-			1	Discrete quantity. Individually separated and distinct quantity.
-			2	Charge. Quantity relevant for charge.
-			3	Cumulative quantity. Quantity accumulated.
-			4	Interest for overdrawn account. Interest for overdrawing the account.
-			5	Active ingredient dose per unit. The dosage of active ingredient per unit.
-			6	Auditor. The number of entities that audit accounts.
-			7	Branch locations, leased. The number of branch locations being leased by an entity.
-			8	Inventory quantity at supplier's subject to inspection by customer. Quantity of goods which the customer requires the supplier to have in inventory and which may be inspected by the customer if desired.
-			9	Branch locations, owned. The number of branch locations owned by an entity.
-			10	Judgements registered. The number of judgements registered against an entity.
-			11	Split quantity. Part of the whole quantity.
-			12	Despatch quantity. Quantity despatched by the seller.
-			13	Liens registered. The number of liens registered against an entity.
-			14	Livestock. The number of animals kept for use or profit.
-			15	Insufficient funds returned cheques. The number of cheques returned due to insufficient funds.
-			16	Stolen cheques. The number of stolen cheques.
-			17	Quantity on hand. The total quantity of a product on hand at a location. This includes as well units awaiting return to manufacturer, units unavailable due to inspection procedures and undamaged stock available for despatch, resale or use.
-			18	Previous quantity. Quantity previously referenced.
-			19	Paid-in security shares. The number of security shares issued and for which full payment has been made.
-			20	Unusable quantity. Quantity not usable.
-			21	Ordered quantity. The quantity which has been ordered.
-			22	Quantity at 100%. Equivalent quantity at 100% purity.
-			23	Active ingredient. Quantity at 100% active agent content.
-			24	Inventory quantity at supplier's not subject to inspection by customer. Quantity of goods which the customer requires the supplier to have in inventory but which will not be checked by the customer.
-			25	Retail sales. Quantity of retail point of sale activity.
-			26	Promotion quantity. A quantity associated with a promotional event.
-			27	On hold for shipment. Article received which cannot be shipped in its present form.
-			28	Military sales quantity. Quantity of goods or services sold to a military organization.
-			29	On premises sales. Sale of product in restaurants or bars.
-			30	Off premises sales. Sale of product directly to a store.
-			31	Estimated annual volume. Volume estimated for a year.
-			32	Minimum delivery batch. Minimum quantity of goods delivered at one time.
-			33	Maximum delivery batch. Maximum quantity of goods delivered at one time.
-			34	Pipes. The number of tubes used to convey a substance.
-			35	Price break from. The minimum quantity of a quantity range for a specified (unit) price.
-			36	Price break to. Maximum quantity to which the price break applies.
-			37	Poultry. The number of domestic fowl.
-			38	Secured charges registered. The number of secured charges registered against an entity.
-			39	Total properties owned. The total number of properties owned by an entity.
-			40	Normal delivery. Quantity normally delivered by the seller.
-			41	Sales quantity not included in the replenishment calculation. Sales which will not be included in the calculation of replenishment requirements.
-			42	Maximum supply quantity, supplier endorsed. Maximum supply quantity endorsed by a supplier.
-			43	Buyer. The number of buyers.
-			44	Debenture bond. The number of fixed-interest bonds of an entity backed by general credit rather than specified assets.
-			45	Debentures filed against directors. The number of notices of indebtedness filed against an entity?s directors.
-			46	Pieces delivered. Number of pieces actually received at the final destination.
-			47	Invoiced quantity. The quantity as per invoice.
-			48	Received quantity. The quantity which has been received.
-			49	Chargeable distance. Distance really charged by tariff appliance.
-			50	Disposition undetermined quantity. Product quantity that has not yet had its disposition determined.
-			51	Inventory category transfer. Inventory that has been moved from one inventory category to another.
-			52	Quantity per pack. Quantity for each pack.
-			53	Minimum order quantity. Minimum quantity of goods for an order.
-			54	Maximum order quantity. Maximum quantity of goods for an order.
-			55	Total sales. The summation of total quantity sales.
-			56	Wholesaler to wholesaler sales. Sale of product to other wholesalers by a wholesaler.
-			57	In transit quantity. A quantity that is en route.
-			58	Quantity withdrawn. Quantity withdrawn from a location.
-			59	Numbers of consumer units in the traded unit. Number of units for consumer sales in a unit for trading.
-			60	Current inventory quantity available for shipment. Current inventory quantity available for shipment.
-			61	Return quantity. Quantity of goods returned.
-			62	Sorted quantity. The quantity that is sorted.
-			63	Sorted quantity rejected. The sorted quantity that is rejected.
-			64	Scrap quantity. Remainder of the total quantity after split deliveries.
-			65	Destroyed quantity. Quantity of goods destroyed.
-			66	Committed quantity. Quantity a party is committed to.
-			67	Estimated reading quantity. The value that is estimated to be the reading of a measuring device (e.g. meter).
-			68	End quantity. The quantity recorded at the end of an agreement or period.
-			69	Start quantity. The quantity recorded at the start of an agreement or period.
-			70	Cumulative quantity received. Cumulative quantity of all deliveries of this article received by the buyer.
-			71	Cumulative quantity ordered. Cumulative quantity of all deliveries, outstanding and scheduled orders.
-			72	Cumulative quantity received end of prior year. Cumulative quantity of all deliveries of the product received by the buyer till end of prior year.
-			73	Outstanding quantity. Difference between quantity ordered and quantity received.
-			74	Latest cumulative quantity. Cumulative quantity after complete delivery of all scheduled quantities of the product.
-			75	Previous highest cumulative quantity. Cumulative quantity after complete delivery of all scheduled quantities of the product from a prior schedule period.
-			76	Adjusted corrector reading. A corrector reading after it has been adjusted.
-			77	Work days. Number of work days, e.g. per respective period.
-			78	Cumulative quantity scheduled. Adding the quantity actually scheduled to previous cumulative quantity.
-			79	Previous cumulative quantity. Cumulative quantity prior the actual order.
-			80	Unadjusted corrector reading. A corrector reading before it has been adjusted.
-			81	Extra unplanned delivery. Non scheduled additional quantity.
-			82	Quantity requirement for sample inspection. Required quantity for sample inspection.
-			83	Backorder quantity. The quantity of goods that is on back-order.
-			84	Urgent delivery quantity. Quantity for urgent delivery.
-			85	Previous order quantity to be cancelled. Quantity ordered previously to be cancelled.
-			86	Normal reading quantity. The value recorded or read from a measuring device (e.g. meter) in the normal conditions.
-			87	Customer reading quantity. The value recorded or read from a measuring device (e.g. meter) by the customer.
-			88	Information reading quantity. The value recorded or read from a measuring device (e.g. meter) for information purposes.
-			89	Quality control held. Quantity of goods held pending completion of a quality control assessment.
-			90	As is quantity. Quantity as it is in the existing circumstances.
-			91	Open quantity. Quantity remaining after partial delivery.
-			92	Final delivery quantity. Quantity of final delivery to a respective order.
-			93	Subsequent delivery quantity. Quantity delivered to a respective order after it's final delivery.
-			94	Substitutional quantity. Quantity delivered replacing previous deliveries.
-			95	Redelivery after post processing. Quantity redelivered after post processing.
-			96	Quality control failed. Quantity of goods which have failed quality control.
-			97	Minimum inventory. Minimum stock quantity on which replenishment is based.
-			98	Maximum inventory. Maximum stock quantity on which replenishment is based.
-			99	Estimated quantity. Quantity estimated.
-			100	Chargeable weight. The weight on which charges are based.
-			101	Chargeable gross weight. The gross weight on which charges are based.
-			102	Chargeable tare weight. The tare weight on which charges are based.
-			103	Chargeable number of axles. The number of axles on which charges are based.
-			104	Chargeable number of containers. The number of containers on which charges are based.
-			105	Chargeable number of rail wagons. The number of rail wagons on which charges are based.
-			106	Chargeable number of packages. The number of packages on which charges are based.
-			107	Chargeable number of units. The number of units on which charges are based.
-			108	Chargeable period. The period of time on which charges are based.
-			109	Chargeable volume. The volume on which charges are based.
-			110	Chargeable cubic measurements. The cubic measurements on which charges are based.
-			111	Chargeable surface. The surface area on which charges are based.
-			112	Chargeable length. The length on which charges are based.
-			113	Quantity to be delivered. The quantity to be delivered.
-			114	Number of passengers. Total number of passengers on the conveyance.
-			115	Number of crew. Total number of crew members on the conveyance.
-			116	Number of transport documents. Total number of air waybills, bills of lading, etc. being reported for a specific conveyance.
-			117	Quantity landed. Quantity of goods actually arrived.
-			118	Quantity manifested. Quantity of goods contracted for delivery by the carrier.
-			119	Short shipped. Indication that part of the consignment was not shipped.
-			120	Split shipment. Indication that the consignment has been split into two or more shipments.
-			121	Over shipped. Indication that more goods have been shipped than contracted for delivery.
-			122	Short-landed goods. If quantity of goods actually landed is less than the quantity which appears in the documentation. This quantity is the difference between these quantities.
-			123	Surplus goods. If quantity of goods actually landed is more than the quantity which appears in the documentation. This quantity is the difference between these quantities.
-			124	Damaged goods. Quantity of goods which have deteriorated in transport such that they cannot be used for the purpose for which they were originally intended.
-			125	Pilferage goods. Quantity of goods stolen during transport.
-			126	Lost goods. Quantity of goods that disappeared in transport.
-			127	Report difference. The quantity concerning the same transaction differs between two documents/messages and the source of this difference is a typing error.
-			128	Quantity loaded. Quantity of goods loaded onto a means of transport.
-			129	Units per unit price. Number of units per unit price.
-			130	Allowance. Quantity relevant for allowance.
-			131	Delivery quantity. Quantity required by buyer to be delivered.
-			132	Cumulative quantity, preceding period, planned. Cumulative quantity originally planned for the preceding period.
-			133	Cumulative quantity, preceding period, reached. Cumulative quantity reached in the preceding period.
-			134	Cumulative quantity, actual planned. Cumulative quantity planned for now.
-			135	Period quantity, planned. Quantity planned for this period.
-			136	Period quantity, reached. Quantity reached during this period.
-			137	Cumulative quantity, preceding period, estimated. Estimated cumulative quantity reached in the preceding period.
-			138	Cumulative quantity, actual estimated. Estimated cumulative quantity reached now.
-			139	Cumulative quantity, preceding period, measured. Surveyed cumulative quantity reached in the preceding period.
-			140	Cumulative quantity, actual measured. Surveyed cumulative quantity reached now.
-			141	Period quantity, measured. Surveyed quantity reached during this period.
-			142	Total quantity, planned. Total quantity planned.
-			143	Quantity, remaining. Quantity remaining.
-			144	Tolerance. Plus or minus tolerance expressed as a monetary amount.
-			145	Actual stock. The stock on hand, undamaged, and available for despatch, sale or use.
-			146	Model or target stock. The stock quantity required or planned to have on hand, undamaged and available for use.
-			147	Direct shipment quantity. Quantity to be shipped directly to a customer from a manufacturing site.
-			148	Amortization total quantity. Indication of final quantity for amortization.
-			149	Amortization order quantity. Indication of actual share of the order quantity for amortization.
-			150	Amortization cumulated quantity. Indication of actual cumulated quantity of previous and actual amortization order quantity.
-			151	Quantity advised. Quantity advised by supplier or shipper, in contrast to quantity actually received.
-			152	Consignment stock. Quantity of goods with an external customer which is still the property of the supplier.
-			153	Statistical sales quantity. Quantity of goods sold in a specified period.
-			154	Sales quantity planned. Quantity of goods required to meet future demands. -Market intelligence quantity.
-			155	Replenishment quantity. Quantity required to maintain the requisite on-hand stock of goods.
-			156	Inventory movement quantity. To specify the quantity of an inventory movement.
-			157	Opening stock balance quantity. To specify the quantity of an opening stock balance.
-			158	Closing stock balance quantity. To specify the quantity of a closing stock balance.
-			159	Number of stops. Number of times a means of transport stops before arriving at destination.
-			160	Minimum production batch. The quantity specified is the minimum output from a single production run.
-			161	Dimensional sample quantity. The quantity defined is a sample for the purpose of validating dimensions.
-			162	Functional sample quantity. The quantity defined is a sample for the purpose of validating function and performance.
-			163	Pre-production quantity. Quantity of the referenced item required prior to full production.
-			164	Delivery batch. Quantity of the referenced item which constitutes a standard batch for deliver purposes.
-			165	Delivery batch multiple. The multiples in which delivery batches can be supplied.
-			166	All time buy. The total quantity of the referenced covering all future needs. Further orders of the referenced item are not expected.
-			167	Total delivery quantity. The total quantity required by the buyer to be delivered.
-			168	Single delivery quantity. The quantity required by the buyer to be delivered in a single shipment.
-			169	Supplied quantity. Quantity of the referenced item actually shipped.
-			170	Allocated quantity. Quantity of the referenced item allocated from available stock for delivery.
-			171	Maximum stackability. The number of pallets/handling units which can be safely stacked one on top of another.
-			172	Amortisation quantity. The quantity of the referenced item which has a cost for tooling amortisation included in the item price.
-			173	Previously amortised quantity. The cumulative quantity of the referenced item which had a cost for tooling amortisation included in the item price.
-			174	Total amortisation quantity. The total quantity of the referenced item which has a cost for tooling amortisation included in the item price.
-			175	Number of moulds. The number of pressing moulds contained within a single piece of the referenced tooling.
-			176	Concurrent item output of tooling. The number of related items which can be produced simultaneously with a single piece of the referenced tooling.
-			177	Periodic capacity of tooling. Maximum production output of the referenced tool over a period of time.
-			178	Lifetime capacity of tooling. Maximum production output of the referenced tool over its productive lifetime.
-			179	Number of deliveries per despatch period. The number of deliveries normally expected to be despatched within each despatch period.
-			180	Provided quantity. The quantity of a referenced component supplied by the buyer for manufacturing of an ordered item.
-			181	Maximum production batch. The quantity specified is the maximum output from a single production run.
-			182	Cancelled quantity. Quantity of the referenced item which has previously been ordered and is now cancelled.
-			183	No delivery requirement in this instruction. This delivery instruction does not contain any delivery requirements.
-			184	Quantity of material in ordered time. Quantity of the referenced material within the ordered time.
-			185	Rejected quantity. The quantity of received goods rejected for quantity reasons.
-			186	Cumulative quantity scheduled up to accumulation start date. The cumulative quantity scheduled up to the accumulation start date.
-			187	Quantity scheduled. The quantity scheduled for delivery.
-			188	Number of identical handling units. Number of identical handling units in terms of type and contents.
-			189	Number of packages in handling unit. The number of packages contained in one handling unit.
-			190	Despatch note quantity. The item quantity specified on the despatch note.
-			191	Adjustment to inventory quantity. An adjustment to inventory quantity.
-			192	Free goods quantity. Quantity of goods which are free of charge.
-			193	Free quantity included. Quantity included to which no charge is applicable.
-			194	Received and accepted. Quantity which has been received and accepted at a given location.
-			195	Received, not accepted, to be returned. Quantity which has been received but not accepted at a given location and which will consequently be returned to the relevant party.
-			196	Received, not accepted, to be destroyed. Quantity which has been received but not accepted at a given location and which will consequently be destroyed.
-			197	Reordering level. Quantity at which an order may be triggered to replenish.
-			198 Quantity in transit. Quantity which is currently in transit. Note: 1. This code value will be removed effective with directory D.04A.
-			199	Inventory withdrawal quantity. Quantity which has been withdrawn from inventory since the last inventory report.
-			200	Free quantity not included. Free quantity not included in ordered quantity.
-			201	Recommended overhaul and repair quantity. To indicate the recommended quantity of an article required to support overhaul and repair activities.
-			202	Quantity per next higher assembly. To indicate the quantity required for the next higher assembly.
-			203	Quantity per unit of issue. Provides the standard quantity of an article in which one unit can be issued.
-			204	Cumulative scrap quantity. Provides the cumulative quantity of an item which has been identified as scrapped.
-			205	Publication turn size. The quantity of magazines or newspapers grouped together with the spine facing alternate directions in a bundle.
-			206	Recommended maintenance quantity. Recommended quantity of an article which is required to meet an agreed level of maintenance.
-			207	Labour hours. Number of labour hours.
-			208	Quantity requirement for maintenance and repair of equipment. Quantity of the material needed to maintain and repair equipment.
-			209	Additional replenishment demand quantity
-				Incremental needs over and above normal replenishment calculations, but not intended to permanently change the model parameters.
-			210	Returned by consumer quantity
-				Quantity returned by a consumer.
-			211	Replenishment override quantity
-				Quantity to override the normal replenishment model calculations, but not intended to permanently change the model parameters.
-			212	Quantity sold, net
-				Net quantity sold which includes returns of saleable inventory and other adjustments.
-			213	Transferred out quantity
-				Quantity which was transferred out of this location.
-			214	Transferred in quantity
-				Quantity which was transferred into this location.
-			215	Unsaleable quantity
-				Quantity of inventory received which cannot be sold in its present condition.
-			216	Consumer reserved quantity
-				Quantity reserved for consumer delivery or pickup and not yet withdrawn from inventory.
-			217	Out of inventory quantity
-				Quantity of inventory which was requested but was not available.
-			218	Quantity returned, defective or damaged
-				Quantity returned in a damaged or defective condition.
-			219	Taxable quantity
-				Quantity subject to taxation.
-			220	Meter reading
-				The numeric value of measure units counted by a meter.
-			221	Maximum requestable quantity
-				The maximum quantity which may be requested.
-			222	Minimum requestable quantity
-				The minimum quantity which may be requested.
-			223	Daily average quantity
-				The quantity for a defined period divided by the number of days of the period.
-			224	Budgeted hours
-				The number of budgeted hours.
-			225	Actual hours
-				The number of actual hours.
-			226	Earned value hours
-				The number of earned value hours.
-			227	Estimated hours
-				The number of estimated hours.
-			228	Level resource task quantity
-				Quantity of a resource that is level for the duration of the task.
-			229	Available resource task quantity
-				Quantity of a resource available to complete a task.
-			230	Work time units
-				Quantity of work units of time.
-			231	Daily work shifts
-				Quantity of work shifts per day.
-			232	Work time units per shift
-				Work units of time per work shift.
-			233	Work calendar units
-				Work calendar units of time.
-			234	Elapsed duration
-				Quantity representing the elapsed duration.
-			235	Remaining duration
-				Quantity representing the remaining duration.
-			236	Original duration
-				Quantity representing the original duration.
-			237	Current duration
-				Quantity representing the current duration.
-			238	Total float time
-				Quantity representing the total float time.
-			239	Free float time
-				Quantity representing the free float time.
-			240	Lag time. Quantity representing lag time.
-			241	Lead time. Quantity representing lead time.
-			242	Number of months. The number of months.
-			243	Reserved quantity customer direct delivery sales. Quantity of products reserved for sales delivered direct to the customer.
-			244	Reserved quantity retail sales. Quantity of products reserved for retail sales.
-			245	Consolidated discount inventory. A quantity of inventory supplied at consolidated discount terms.
-			246	Returns replacement quantity. A quantity of goods issued as a replacement for a returned quantity.
-			247	Additional promotion sales forecast quantity. A forecast of additional quantity which will be sold during a period of promotional activity.
-			248	Reserved quantity. Quantity reserved for specific purposes.
-			249	Quantity displayed not available for sale. Quantity displayed within a retail outlet but not available for sale.
-			250	Inventory discrepancy. The difference recorded between theoretical and physical inventory.
-			251	Incremental order quantity. The incremental quantity by which ordering is carried out.
-			252	Quantity requiring manipulation before despatch. A quantity of goods which needs manipulation before despatch.
-			253	Quantity in quarantine. A quantity of goods which are held in a restricted area for quarantine purposes.
-			254	Quantity withheld by owner of goods. A quantity of goods which has been withheld by the owner of the goods.
-			255	Quantity not available for despatch. A quantity of goods not available for despatch.
-			256	Quantity awaiting delivery. Quantity of goods which are awaiting delivery.
-			257	Quantity in physical inventory. A quantity of goods held in physical inventory.
-			258	Quantity held by logistic service provider. Quantity of goods under the control of a logistic service provider.
-			259	Optimal quantity. The optimal quantity for a given purpose.
-			260	Delivery quantity balance. The difference between the scheduled quantity and the quantity delivered to the consignee at a given date.
-			261	Cumulative quantity shipped. Cumulative quantity of all shipments.
-			262	Quantity suspended. The quantity of something which is suspended.
-			263	Control quantity. The quantity designated for control purposes.
-			264	Equipment quantity. A count of a quantity of equipment.
-			265	Factor. Number by which the measured unit has to be multiplied to calculate the units used.
-			266	Unsold quantity held by wholesaler. Unsold quantity held by the wholesaler.
-			267	Quantity held by delivery vehicle. Quantity of goods held by the delivery vehicle.
-			268	Quantity held by retail outlet. Quantity held by the retail outlet.
-			269	Rejected return quantity. A quantity for return which has been rejected.
-			270	Accounts. The number of accounts.
-			271	Accounts placed for collection. The number of accounts placed for collection.
-			272	Activity codes. The number of activity codes.
-			273	Agents. The number of agents.
-			274	Airline attendants. The number of airline attendants.
-			275	Authorised shares. The number of shares authorised for issue.
-			276	Employee average. The average number of employees.
-			277	Branch locations. The number of branch locations.
-			278	Capital changes. The number of capital changes made.
-			279	Clerks. The number of clerks.
-			280	Companies in same activity. The number of companies doing business in the same activity category.
-			281	Companies included in consolidated financial statement. The number of companies included in a consolidated financial statement.
-			282	Cooperative shares. The number of cooperative shares.
-			283	Creditors. The number of creditors.
-			284	Departments. The number of departments.
-			285	Design employees. The number of employees involved in the design process.
-			286	Physicians. The number of medical doctors.
-			287	Domestic affiliated companies. The number of affiliated companies located within the country.
-			288	Drivers. The number of drivers.
-			289	Employed at location. The number of employees at the specified location.
-			290	Employed by this company. The number of employees at the specified company.
-			291	Total employees. The total number of employees.
-			292	Employees shared. The number of employees shared among entities.
-			293	Engineers. The number of engineers.
-			294	Estimated accounts. The estimated number of accounts.
-			295	Estimated employees at location. The estimated number of employees at the specified location.
-			296	Estimated total employees. The total estimated number of employees.
-			297	Executives. The number of executives.
-			298	Agricultural workers. The number of agricultural workers.
-			299	Financial institutions. The number of financial institutions.
-			300	Floors occupied. The number of floors occupied.
-			301	Foreign related entities. The number of related entities located outside the country.
-			302	Group employees. The number of employees within the group.
-			303	Indirect employees. The number of employees not associated with direct production.
-			304	Installers. The number of employees involved with the installation process.
-			305	Invoices. The number of invoices.
-			306	Issued shares. The number of shares actually issued.
-			307	Labourers. The number of labourers.
-			308	Manufactured units. The number of units manufactured.
-			309	Maximum number of employees. The maximum number of people employed.
-			310	Maximum number of employees at location. The maximum number of people employed at a location.
-			311	Members in group. The number of members within a group.
-			312	Minimum number of employees at location. The minimum number of people employed at a location.
-			313	Minimum number of employees. The minimum number of people employed.
-			314	Non-union employees. The number of employees not belonging to a labour union.
-			315	Floors. The number of floors in a building.
-			316	Nurses. The number of nurses.
-			317	Office workers. The number of workers in an office.
-			318	Other employees. The number of employees otherwise categorised.
-			319	Part time employees. The number of employees working on a part time basis.
-			320	Accounts payable average overdue days. The average number of days accounts payable are overdue.
-			321	Pilots. The number of pilots.
-			322	Plant workers. The number of workers within a plant.
-			323	Previous number of accounts. The number of accounts which preceded the current count.
-			324	Previous number of branch locations. The number of branch locations which preceded the current count.
-			325	Principals included as employees. The number of principals which are included in the count of employees.
-			326	Protested bills. The number of bills which are protested.
-			327	Registered brands distributed. The number of registered brands which are being distributed.
-			328	Registered brands manufactured. The number of registered brands which are being manufactured.
-			329	Related business entities. The number of related business entities.
-			330	Relatives employed. The number of relatives which are counted as employees.
-			331	Rooms. The number of rooms.
-			332	Salespersons. The number of salespersons.
-			333	Seats. The number of seats.
-			334	Shareholders. The number of shareholders.
-			335	Shares of common stock. The number of shares of common stock.
-			336	Shares of preferred stock. The number of shares of preferred stock.
-			337	Silent partners. The number of silent partners.
-			338	Subcontractors. The number of subcontractors.
-			339	Subsidiaries. The number of subsidiaries.
-			340	Law suits. The number of law suits.
-			341	Suppliers. The number of suppliers.
-			342	Teachers. The number of teachers.
-			343	Technicians. The number of technicians.
-			344	Trainees. The number of trainees.
-			345	Union employees. The number of employees who are members of a labour union.
-			346	Number of units. The quantity of units.
-			347	Warehouse employees. The number of employees who work in a warehouse setting.
-			348	Shareholders holding remainder of shares. Number of shareholders owning the remainder of shares.
-			349	Payment orders filed. Number of payment orders filed.
-			350	Uncovered cheques. Number of uncovered cheques.
-			351	Auctions. Number of auctions.
-			352	Units produced. The number of units produced.
-			353	Added employees. Number of employees that were added to the workforce.
-			354	Number of added locations. Number of locations that were added.
-			355	Total number of foreign subsidiaries not included in financial statement. The total number of foreign subsidiaries not included in the financial statement.
-			356	Number of closed locations. Number of locations that were closed.
-			357	Counter clerks. The number of clerks that work behind a flat-topped fitment.
-			358	Payment experiences in the last 3 months. The number of payment experiences received for an entity over the last 3 months.
-			359	Payment experiences in the last 12 months. The number of payment experiences received for an entity over the last 12 months.
-			360	Total number of subsidiaries not included in the financial statement. The total number of subsidiaries not included in the financial statement.
-			361	Paid-in common shares. The number of paid-in common shares.
-			362	Total number of domestic subsidiaries not included in financial statement. The total number of domestic subsidiaries not included in the financial statement.
-			363	Total number of foreign subsidiaries included in financial statement. The total number of foreign subsidiaries included in the financial statement.
-			364	Total number of domestic subsidiaries included in financial statement. The total number of domestic subsidiaries included in the financial statement.
-			365	Total transactions. The total number of transactions.
-			366	Paid-in preferred shares. The number of paid-in preferred shares.
-			367	Employees. Code specifying the quantity of persons working for a company, whose services are used for pay.
-			368	Active ingredient dose per unit, dispensed. The dosage of active ingredient per dispensed unit.
-			369	Budget. Budget quantity.
-			370	Budget, cumulative to date. Budget quantity, cumulative to date.
-			371	Actual units. The number of actual units.
-			372	Actual units, cumulative to date. The number of cumulative to date actual units.
-			373	Earned value. Earned value quantity.
-			374	Earned value, cumulative to date. Earned value quantity accumulated to date.
-			375	At completion quantity, estimated. The estimated quantity when a project is complete.
-			376	To complete quantity, estimated. The estimated quantity required to complete a project.
-			377	Adjusted units. The number of adjusted units.
-			378	Number of limited partnership shares. Number of shares held in a limited partnership.
-			379	National business failure incidences. Number of firms in a country that discontinued with a loss to creditors.
-			380	Industry business failure incidences. Number of firms in a specific industry that discontinued with a loss to creditors.
-			381	Business class failure incidences. Number of firms in a specific class that discontinued with a loss to creditors.
-			382	Mechanics. Number of mechanics.
-			383	Messengers. Number of messengers.
-			384	Primary managers. Number of primary managers.
-			385	Secretaries. Number of secretaries.
-			386	Detrimental legal filings. Number of detrimental legal filings.
-			387	Branch office locations, estimated. Estimated number of branch office locations.
-			388	Previous number of employees. The number of employees for a previous period.
-			389	Asset seizers. Number of entities that seize assets of another entity.
-			390	Out-turned quantity. The quantity discharged.
-			391	Material on-board quantity, prior to loading. The material in vessel tanks, void spaces, and pipelines prior to loading.
-			392	Supplier estimated previous meter reading. Previous meter reading estimated by the supplier.
-			393	Supplier estimated latest meter reading. Latest meter reading estimated by the supplier.
-			394	Customer estimated previous meter reading. Previous meter reading estimated by the customer.
-			395	Customer estimated latest meter reading. Latest meter reading estimated by the customer.
-			396	Supplier previous meter reading. Previous meter reading done by the supplier.
-			397	Supplier latest meter reading. Latest meter reading recorded by the supplier.
-			398	Maximum number of purchase orders allowed. Maximum number of purchase orders that are allowed.
-			399	File size before compression. The size of a file before compression.
-			400	File size after compression. The size of a file after compression.
-			401	Securities shares. Number of shares of securities.
-			402	Patients. Number of patients.
-			403	Completed projects. Number of completed projects.
-			404	Promoters. Number of entities who finance or organize an event or a production.
-			405	Administrators. Number of administrators.
-			406	Supervisors. Number of supervisors.
-			407	Professionals. Number of professionals.
-			408	Debt collectors. Number of debt collectors.
-			409	Inspectors. Number of individuals who perform inspections.
-			410	Operators. Number of operators.
-			411	Trainers. Number of trainers.
-			412	Active accounts. Number of accounts in a current or active status.
-			413	Trademarks used. Number of trademarks used.
-			414	Machines. Number of machines.
-			415	Fuel pumps. Number of fuel pumps.
-			416	Tables available. Number of tables available for use.
-			417	Directors. Number of directors.
-			418	Freelance debt collectors. Number of debt collectors who work on a freelance basis.
-			419	Freelance salespersons. Number of salespersons who work on a freelance basis.
-			420	Travelling employees. Number of travelling employees.
-			421	Foremen. Number of workers with limited supervisory responsibilities.
-			422	Production workers. Number of employees engaged in production.
-			423	Employees not including owners. Number of employees excluding business owners.
-			424	Beds. Number of beds.
-			425	Resting quantity. A quantity of product that is at rest before it can be used.
-			426	Production requirements. Quantity needed to meet production requirements.
-			427	Corrected quantity. The quantity has been corrected.
-			428	Operating divisions. Number of divisions operating.
-			429	Quantitative incentive scheme base. Quantity constituting the base for the quantitative incentive scheme.
-			430	Petitions filed. Number of petitions that have been filed.
-			431	Bankruptcy petitions filed. Number of bankruptcy petitions that have been filed.
-			432	Projects in process. Number of projects in process.
-			433	Changes in capital structure. Number of modifications made to the capital structure of an entity.
-			434	Detrimental legal filings against directors. The number of legal filings that are of a detrimental nature that have been filed against the directors.
-			435	Number of failed businesses of directors. The number of failed businesses with which the directors have been associated.
-			436	Professor. The number of professors.
-			437	Seller. The number of sellers.
-			438	Skilled worker. The number of skilled workers.
-			439	Trademark represented. The number of trademarks represented.
-			440	Number of quantitative incentive scheme units. Number of units allocated to a quantitative incentive scheme.
-			441	Quantity in manufacturing process. Quantity currently in the manufacturing process.
-			442	Number of units in the width of a layer. Number of units which make up the width of a layer.
-			443	Number of units in the depth of a layer. Number of units which make up the depth of a layer.
-			444	Return to warehouse. A quantity of products sent back to the warehouse.
-			445	Return to the manufacturer. A quantity of products sent back from the manufacturer.
-			448	Pre-paid invoice annual consumption, estimated. The estimated annual consumption used for a prepayment invoice.
-			449	Total quoted quantity. The sum of quoted quantities.
-			450	Requests pertaining to entity in last 12 months. Number of requests received in last 12 months pertaining to the entity.
-			451	Total inquiry matches. Number of instances which correspond with the inquiry.
-			ZZZ	Mutually defined. As agreed by the trading partners.
-		*/
 		qtyqDiscrete      =  1, // Discrete quantity
-		qtyqSplit = 11, // Split quantity
+		qtyqSplit         = 11, // Split quantity
 		qtyqDespatch      = 12, // Despatch quantity
 		qtyqOrdered       = 21, // Ordered quantity
 		qtyqPerPack       = 52, // Quantity per pack
@@ -60466,6 +59754,9 @@ public:
 	};
 	int    Write_CNT(SXml::WDoc & rDoc, int countQ, double value);
 	int    Read_CNT(const xmlNode * pFirstNode, int * pCountQ, double * pValue);
+	int    Write_PAI(SXml::WDoc & rDoc, const PaiValue & rV);
+	int    Read_PAI(const xmlNode * pFirstNode, PaiValue & rV);
+
 	enum {
 		// Use the codes AAH, AAQ, ABL, ABM when dealing with CSA (customer specific articles).
 		priceqAAA = 1, // Calculation net. The price stated is the net price including all allowances and charges and excluding taxes.
@@ -60479,21 +59770,12 @@ public:
 	};
 	int    Write_PRI(SXml::WDoc & rDoc, int priceQ, double amount);
 	int    Read_PRI(const xmlNode * pFirstNode, TSVector <QValue> & rList);
-	enum {
-		taxqCustomDuty = 5,
-		taxqTax        = 7
-	};
-	enum {
-		taxtGST = 1, // GST = Goods and services tax
-		taxtIMP,     // IMP = Import tax
-		taxtVAT      // VAT = Value added tax
-	};
 	//
 	// Descr: Записывает сегмент определения налога.
 	// Note: Пока функция заточена только на НДС.
 	//
 	int    Write_TAX(SXml::WDoc & rDoc, int taxQ, int taxT, double value);
-	int    Read_TAX(const SXml::WDoc & rDoc, int * pPriceQ, double * pAmt); // @notimplemented
+	int    Read_TAX(const xmlNode * pFirstNode, TSVector <TaxValue> & rL); // @v12.4.10 @construction
 	int    Write_CUX(SXml::WDoc & rDoc, const CuxValue & rV);
 	int    Read_CUX(const xmlNode * pFirstNode, CuxValue & rV);
 	int    Write_LIN(SXml::WDoc & rDoc, const LinValue & rV);
@@ -60513,6 +59795,7 @@ public:
 	};
 	int    Write_IMD(SXml::WDoc & rDoc, int imdq, const char * pDescription);
 	int    Read_IMD(const xmlNode * pFirstNode, TSCollection <ImdValue> & rL);
+	int    Read_MEA(const xmlNode * pFirstNode, TSCollection <MeaValue> & rL); // @v12.4.10
 
 	struct BillGoodsItemsTotal {
 		BillGoodsItemsTotal();
@@ -60527,7 +59810,7 @@ public:
 	int    Write_DESADV(xmlTextWriter * pX, const PPBillPacket & rPack);
 	int    Write_ORDERS(xmlTextWriter * pX, const PPBillPacket & rPack);
 	int    Write_ORDERRSP(xmlTextWriter * pX, const PPBillPacket & rPack, const PPBillPacket * pExtPack);
-	int    Read_Document(PPEdiProcessor::ProviderImplementation * pProvider, void * pCtx, const char * pFileName, const char * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
+	int    Read_Document(/*PPEdiProcessor::ProviderImplementation * pProvider,*/void * pInputCtx, const char * pFileName, const char * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
 private:
 	int    PreprocessGoodsOnReading(const PPBillPacket * pPack, const DocumentDetailValue * pItem, PPID * pGoodsID);
 	struct PartyResolveBlock {
@@ -60547,7 +59830,9 @@ private:
 	void   SetupPartyAddedMsg(const PartyValue * pVal, SString & rBuf);
 	int    Read_CommonDocumentEntries(xmlNode * pFirstNode, DocumentValue & rVal);
 
-	PPEdiProcessor::ProviderImplementation * P_Pi;
+	/*PPEdiProcessor::ProviderImplementation*/PPDocumentInterchangeContext * P_Pi;
+	PPID   ImportOpID;  // @v12.4.10 Вид операции, применяемый для акцепта PPBillPacket при импорте. Если 0, то определяется из контекста.
+	PPID   ImportLocID; // @v12.4.10 Склад, применяемый для акцепта PPBillPacket при импорте. Если 0, то определяется из контекста.
 };
 //
 //
@@ -61059,13 +60344,12 @@ public:
 	EgaisMarkAutoSelector(/*@v12.2.11 PPEgaisProcessor * pEgPrc*/);
 	~EgaisMarkAutoSelector();
 	
-	int    Run(ResultBlock & rResult);
+	int    AddSourceItemToResultBlock(ResultBlock & rBlk, long rowId, PPID goodsID, double qtty);
+	int    Run(ResultBlock & rResult, LDATE actualDate);
+	int    MakeShadowCcPacket(const ResultBlock * pBlk, const CCheckPacket & rMainCcPack, CCheckPacket & rCcPack) const;
 private:
 	struct RefBEntry { // @flat
-		RefBEntry()
-		{
-			THISZERO();
-		}
+		RefBEntry();
 		PPID   LocID;
 		PPID   StockBillID;
 		LDATE  StockBillDt;
@@ -61079,11 +60363,22 @@ private:
 	int    Helper(PPID goodsID, double qtty, DocItem & rResult);
 	int    Helper_ProcessLot(PPID goodsStrucID, const ReceiptTbl::Rec & rLotRec, double qtty, Entry ** ppEntry, DocItem & rResult);
 	int    GetRecentEgaisStock(TSVector <RefBEntry> & rResultList);
+	int    InitActualDate(LDATE actualDate);
 
 	PPObjGoods GObj;
+	PPObjCSession CsObj;
 	// @v12.2.11 (DS.GetTLA().GetEgaisProcessor() used instead) PPEgaisProcessor * P_EgPrc; // @notowned
-	TSVector <RefBEntry> RecentEgaisStock;
-	bool   IsInitialized;
+	//bool   IsInitialized;
+	struct InitBlock {
+		InitBlock() : ActualDate(ZERODATE), Done(false)
+		{
+		}
+		LDATE  ActualDate;
+		bool   Done;
+		uint8  Reserve[3];
+		TSVector <RefBEntry> RecentEgaisStock;
+	};
+	InitBlock Ib;
 };
 //
 // Descr: Класс, реализующий высокоуровневые механизмы обмена с "честным знаком"
@@ -62857,7 +62152,7 @@ int CrystalReportPrint2_ClientExecution(CrystalReportPrintParamBlock & rBlk, Cry
 //
 // Standalone functions and supported structures
 //
-DECL_CMPFUNC(PPObjID);
+DECL_CMPFUNC(SObjID);
 DECL_CMPFUNC(PPQuot);
 DECL_CMPFUNC(PPLBItem);
 DECL_CMPFUNC(PPTLBItem);
@@ -63273,7 +62568,7 @@ SString & FASTCALL GetObjectTitle(PPID objType, SString & rBuf);
 PPID   FASTCALL GetObjectTypeBySymb(const char * pSymb, long * pExtra);
 // @v12.0.1 int    STDCALL  GetObjectName(PPID objType, PPID objID, char * pBuf, size_t bufLen);
 int    STDCALL  GetObjectName(PPID objType, PPID objID, SString & rBuf);
-int    STDCALL  GetObjectName(const PPObjID & rOid, SString & rBuf);
+int    STDCALL  GetObjectName(const SObjID & rOid, SString & rBuf);
 int    STDCALL  CatObjectName(PPID objType, PPID objID, SString & rBuf); // @v12.0.1 Вместо GetObjectName(PPID objType, PPID objID, SString & rBuf, int cat);
 SString & GetExtObjectName(const ObjIdListFilt & rObjList, PPID obj, size_t maxItems, SString & rBuf);
 int    FASTCALL ShowObjects(PPID objType, void * extraPtr);
@@ -64161,7 +63456,7 @@ int    ViewTSession(const TSessionFilt *);
 int    ViewManufPlan(const TSessionFilt *);
 int    ViewTSessLine(const TSessLineFilt *);
 int    AnalyzeObjSyncCmp(int _modeless);
-int    ViewObjSyncTab(PPObjID oid);
+int    ViewObjSyncTab(SObjID oid);
 int    ViewJobPool();                         // @defined(ppjob.cpp)
 int    ViewLogs();
 int    DatabaseCutting();

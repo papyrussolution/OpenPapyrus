@@ -1535,6 +1535,24 @@ SLTEST_R(strstr)
 	const size_t pos_list[] = {0, 6, 11};
 	SLCHECK_NZ(Test_strstr(p_haystack, p_needle, pos_list, SIZEOFARRAY(pos_list), strstr));
 	SLCHECK_NZ(Test_strstr(p_haystack, p_needle, pos_list, SIZEOFARRAY(pos_list), byteshift_strstr));
+	{
+		//ExtStrSrch()
+		const char * p_text = "The Perfetto Tracing SDK is a C++17 library that allows userspace applications to emit trace events and add more app-specific context to a Perfetto trace."
+			"When using the Tracing SDK there are two main aspects to consider:"
+			"Whether you are interested only in tracing events coming from your own app or want to collect full-stack traces that overlay app trace events with system trace events like scheduler traces, syscalls or any other Perfetto data source."
+			"For app-specific tracing, whether you need to trace simple types of timeline events (e.g., slices, counters) or need to define complex data sources with a custom strongly-typed schema (e.g., for dumping the state of a subsystem of your app into the trace)."
+			"For Android-only instrumentation, the advice is to keep using the existing android.os.Trace (SDK) / ATrace_* (NDK) if they are sufficient for your use cases. Atrace-based instrumentation is fully supported in Perfetto. See the Data Sources -> Android System -> Atrace Instrumentation for details.";
+		SLCHECK_NZ(ExtStrSrch(p_text, "n tRacing", 0));
+		SLCHECK_Z(ExtStrSrch(p_text, "n traCing", essfWholeWords));
+		SLCHECK_Z(ExtStrSrch(p_text, "n tRacing", essfCaseSensitive));
+		SLCHECK_Z(ExtStrSrch(p_text, "n traCing", essfCaseSensitive|essfWholeWords));
+		SLCHECK_NZ(ExtStrSrch(p_text, "when using", 0));
+		SLCHECK_NZ(ExtStrSrch(p_text, "when using", essfWholeWords));
+		SLCHECK_Z(ExtStrSrch(p_text, "hen using", essfWholeWords));
+		SLCHECK_NZ(ExtStrSrch(p_text, "consider", essfWholeWords));
+		SLCHECK_NZ(ExtStrSrch(p_text, "consider", essfCaseSensitive));
+		SLCHECK_Z(ExtStrSrch(p_text, "xzxaxaee", 0));
+	}
 	return CurrentStatus;	
 }
 

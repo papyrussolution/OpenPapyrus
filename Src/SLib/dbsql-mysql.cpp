@@ -6,6 +6,8 @@
 #pragma hdrstop
 //#include <snet.h>
 
+static const char * P_SurrogateRowIdFieldName = "MsqRowId";
+
 #if 1 // @construction {
 
 #include <mariadb/mysql.h>
@@ -17,7 +19,7 @@
 #endif
 
 SMySqlDbProvider::SMySqlDbProvider() :
-	DbProvider(sqlstMySQL, DbDictionary::CreateInstance(0, 0), DbProvider::cSQL|DbProvider::cDbDependTa), H(0), SqlGen(sqlstMySQL, 0), Flags(0)
+	DbProvider(sqlstMySQL, cpUTF8, DbDictionary::CreateInstance(0, 0), DbProvider::cSQL|DbProvider::cDbDependTa), H(0), SqlGen(sqlstMySQL, 0), Flags(0)
 {
 }
 
@@ -205,7 +207,7 @@ int SMySqlDbProvider::UseDatabase(const char * pDbName) // @v12.4.8
 				}
 			}
 			else {
-				if(!r_fld_list.addField("MsqRowId", MKSTYPE(S_AUTOINC, 8), PrimaryAutoincFldId))
+				if(!r_fld_list.addField(P_SurrogateRowIdFieldName, MKSTYPE(S_AUTOINC, 8), PrimaryAutoincFldId))
 					ok = 0;
 				else {
 					/* Индекс создавать не надо - mysql автоматом создает индексы для autoinc-полей
@@ -229,10 +231,9 @@ int SMySqlDbProvider::UseDatabase(const char * pDbName) // @v12.4.8
 	//   -- если таблица имеет поле ID (autoincrement unique) и существует индекс по этому единственному полю (primary index),
 	//     то значение этого поля трактуем как rowid
 	//   -- в противном случае, добавляем искусственное поле (int64 MsqRowId) в начале таблицы и дополнительный (последний) индекс с именем
-	//     idx[tbl_name]MsqRowId
+	//     idx[tbl_name]MsqRowId (P_SurrogateRowIdFieldName)
 	//
 	int    ok = 1;
-
 	const int cm = RESET_CRM_TEMP(createMode);
 	uint   ctf = Generator_SQL::ctfIndent;
 	if(oneof2(cm, crmNoReplace, crmTTSNoReplace))
@@ -476,7 +477,7 @@ int SMySqlDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTable
 {
 	pTbl->FileName_ = NZOR(pFileName, pTbl->tableName);
 	pTbl->OpenedFileName = pTbl->FileName_;
-	pTbl->FixRecSize = pTbl->fields.CalculateFixedRecSize();
+	pTbl->FixRecSize = pTbl->fields.CalculateFixedRecSize(0/*BNFieldList2::crsfXXX*/);
 	return 1;
 }
 
@@ -763,6 +764,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 	uint   ns = 0;
 	const  uint fld_count = pTbl->fields.getCount();
 	uint   autoinc_fld_id = _FFFF32;
+	uint64 row_id_zero = 0ULL;
 	SString temp_buf;
 	SString let_buf;
 	SBinaryChunk ret_buf;
@@ -782,81 +784,79 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 	for(i = 0; i < fld_count; i++) {
 		if(i)
 			SqlGen.Com();
-		SqlGen.Param(temp_buf.NumberToLat(subst_no++));
+		// @v12.4.10 SqlGen.Param(temp_buf.NumberToLat(subst_no));
+		SqlGen.Text("?"); // @v12.4.10 
+		subst_no++;
 		const BNField & r_fld = pTbl->fields.GetFieldByPosition(i);
+		const bool is_surrogate_rowid_field = sstreqi_ascii(r_fld.Name, P_SurrogateRowIdFieldName);
 		if(GETSTYPE(r_fld.T) == S_AUTOINC) {
 			autoinc_fld_id = r_fld.Id;
 			long   val = 0;
 			size_t val_sz = 0;
-			r_fld.getValue(pTbl->getDataBufConst(), &val, &val_sz);
-			assert(val_sz == sizeof(val));
-			if(val == 0) {
-				// (ora) THROW(GetAutolongVal(*pTbl, i, &val));
-				r_fld.setValue(pTbl->getDataBuf(), &val);
+			if(is_surrogate_rowid_field) {
+				;
 			}
-		}
-		stmt.BindItem(-subst_no, 1, r_fld.T, PTR8(pTbl->getDataBuf()) + r_fld.Offs);
-	}
-	SqlGen.RPar();
-	{
-		//
-		// RETURNING block
-		//
-		
-		//
-		// temp_buf будет содержать список переменных, в которые должны заносится возвращаемые значения //
-		//
-		//let_buf.NumberToLat(subst_no++);
-		//temp_buf.Z().Colon().Cat(let_buf);
-		//stmt.BindRowId(-subst_no, 1, pTbl->getCurRowIdPtr());
-		SString ret_fld_list;
-		LongArray fld_id_list;
-		{
-			uint    autoinc_fld_pos = 0;
-			if(pTbl->fields.GetFieldPosition(autoinc_fld_id, &autoinc_fld_pos)) {
-				const BNField & r_fld = pTbl->fields.GetFieldByPosition(autoinc_fld_pos);
-				subst_no++;
-				fld_id_list.add(autoinc_fld_id);
-				ret_fld_list.CatDivIfNotEmpty(',', 0).Cat(r_fld.Name);
-				const size_t ret_buf_offs = ret_buf.Len();
-				ret_buf.Cat(0, r_fld.size());
-				stmt.BindItem(-subst_no, 1, r_fld.T, ret_buf.Ptr(ret_buf_offs));
-			}
-			else 
-				autoinc_fld_id = _FFFF32;
-		}
-		if(pKeyBuf && idx >= 0 && idx < (int)pTbl->Indices.getNumKeys()) {
-			map_ret_key = 1;
-			key = pTbl->Indices[idx];
-			ns = static_cast<uint>(key.getNumSeg());
-			for(i = 0; i < ns; i++) {
-				const BNField & r_fld = pTbl->Indices.field(idx, i);
-				if(!fld_id_list.lsearch(r_fld.Id)) {
-					//
-					//SqlGen.Com().Text(r_fld.Name);
-					//let_buf.NumberToLat(subst_no++);
-					//temp_buf.CatDiv(',', 0).Colon().Cat(let_buf);
-					//stmt.BindItem(-subst_no, 1, r_fld.T, PTR8(pKeyBuf)+pTbl->Indices.getSegOffset(idx, i));
-					//
-					subst_no++;
-					fld_id_list.add(r_fld.Id);
-					ret_fld_list.CatDivIfNotEmpty(',', 0).Cat(r_fld.Name);
-					const size_t ret_buf_offs = ret_buf.Len();
-					ret_buf.Cat(0, r_fld.size());
-					stmt.BindItem(-subst_no, 1, r_fld.T, ret_buf.Ptr(ret_buf_offs));
+			else {
+				r_fld.getValue(pTbl->getDataBufConst(), &val, &val_sz);
+				// (здесь это не так!) assert(val_sz == sizeof(val));
+				if(val == 0) {
+					// (ora) THROW(GetAutolongVal(*pTbl, i, &val));
+					r_fld.setValue(pTbl->getDataBuf(), &val);
 				}
 			}
 		}
-		if(ret_fld_list.NotEmpty()) {
-			SqlGen.Sp().Tok(Generator_SQL::tokReturning).Sp().Text(ret_fld_list);
-		}
+		stmt.BindItem(-subst_no, 1, r_fld.T, is_surrogate_rowid_field ? static_cast<void *>(&row_id_zero) : PTR8(pTbl->getDataBuf()) + r_fld.Offs);
 	}
+	SqlGen.RPar();
+	// В MySQL нет RETURNING
 	{
 		THROW(stmt.SetSqlText(SqlGen));
 		THROW(Binding(stmt, -1));
 		THROW(stmt.SetDataDML(0));
 		THROW(stmt.Exec(1, OCI_DEFAULT));
 		THROW(stmt.GetOutData(0));
+		{
+			DBRowId * p_row_id = pTbl->getCurRowIdPtr();
+			const uint64 _last_inserted_id = mysql_stmt_insert_id(static_cast<MYSQL_STMT *>(stmt.H));
+			if(p_row_id && _last_inserted_id) {
+				p_row_id->SetI64(static_cast<int64>(_last_inserted_id));
+			}
+			if(pKeyBuf && idx >= 0 && idx < (int)pTbl->Indices.getNumKeys()) {
+				map_ret_key = 1;
+				key = pTbl->Indices[idx];
+				ns = static_cast<uint>(key.getNumSeg());
+				for(i = 0; i < ns; i++) {
+					const BNField & r_fld = pTbl->Indices.field(idx, i);
+					void * p_key_fld_data = PTR8(pKeyBuf)+pTbl->Indices.getSegOffset(idx, i);
+					if(GETSTYPE(r_fld.T) == S_AUTOINC) {
+						// В mysql нельзя в одну таблицу вставить больше одного autoinc-поля. По тому это - _last_inserted_id
+						if(GETSSIZE(r_fld.T) == 4) {
+							*static_cast<long *>(p_key_fld_data) = static_cast<long>(_last_inserted_id);
+						}
+						else if(GETSSIZE(r_fld.T) == 8) {
+							*static_cast<int64 *>(p_key_fld_data) = static_cast<int64>(_last_inserted_id);
+						}
+					}
+					else {
+						
+					}
+					/*if(!fld_id_list.lsearch(r_fld.Id)) {
+						//
+						//SqlGen.Com().Text(r_fld.Name);
+						//let_buf.NumberToLat(subst_no++);
+						//temp_buf.CatDiv(',', 0).Colon().Cat(let_buf);
+						//stmt.BindItem(-subst_no, 1, r_fld.T, PTR8(pKeyBuf)+pTbl->Indices.getSegOffset(idx, i));
+						//
+						subst_no++;
+						fld_id_list.add(r_fld.Id);
+						ret_fld_list.CatDivIfNotEmpty(',', 0).Cat(r_fld.Name);
+						const size_t ret_buf_offs = ret_buf.Len();
+						ret_buf.Cat(0, r_fld.size());
+						stmt.BindItem(-subst_no, 1, r_fld.T, ret_buf.Ptr(ret_buf_offs));
+					}*/
+				}
+			}
+		}
 		if(do_process_lob) {
 			//
 			// Если в записи были не пустые значения LOB-полей, то придется перечитать
@@ -952,7 +952,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 		for(uint i = 0; i < col_count; i++) {
 			SSqlStmt::Bind & r_bind = rS.BL.at(i);
 			if(r_bind.Pos < 0) {
-				OCIBind * p_bd = 0;
+				//OCIBind * p_bd = 0;
 				THROW(ProcessBinding(0, row_count, &rS, &r_bind));
 				{
 					void * p_data = rS.GetBindOuterPtr(&r_bind, 0);
@@ -961,18 +961,8 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 					bind_item.buffer_type = static_cast<enum enum_field_types>(r_bind.NtvTyp);
 					bind_item.buffer = p_data;
 					bind_item.buffer_length = r_bind.NtvSize;
+					// (все упало!) bind_item.length = &bind_item.buffer_length; // @v12.4.10 Важно! 
 					bind_list.insert(&bind_item);
-					#if 0 // {
-					{
-						uint16 * p_ind = r_bind.IndPos ? reinterpret_cast<uint16 *>(rS.BS.P_Buf + r_bind.IndPos) : 0;
-						THROW(ProcessError(OCIBindByPos(h_stmt, &p_bd, Err, -r_bind.Pos, p_data, r_bind.NtvSize, r_bind.NtvTyp,
-							p_ind, 0/*alenp*/, 0/*rcodep*/, 0/*maxarr_len*/, 0/*curelep*/, OCI_DEFAULT)));
-						r_bind.H = reinterpret_cast<uint32>(p_bd);
-					}
-					if(row_count > 1) {
-						THROW(ProcessError(OCIBindArrayOfStruct(p_bd, Err, r_bind.ItemSize, sizeof(uint16), 0, 0)));
-					}
-					#endif // } 0
 				}
 			}
 		}
@@ -983,7 +973,6 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 		for(uint i = 0; i < col_count; i++) {
 			SSqlStmt::Bind & r_bind = rS.BL.at(i);
 			if(r_bind.Pos > 0) {
-				//OCIDefine * p_bd = 0;
 				THROW(ProcessBinding(0, row_count, &rS, &r_bind));
 				{
 					void * p_data = rS.GetBindOuterPtr(&r_bind, 0);
@@ -996,17 +985,6 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 					//bind_item.length
 					//bind_item.error
 					bind_list.insert(&bind_item);
-					#if 0 // {
-					{
-						uint16 * p_ind = r_bind.IndPos ? reinterpret_cast<uint16 *>(rS.BS.P_Buf + r_bind.IndPos) : 0;
-						uint16 * p_fsl = r_bind.FslPos ? reinterpret_cast<uint16 *>(rS.BS.P_Buf + r_bind.FslPos) : 0;
-						THROW(ProcessError(OCIDefineByPos(h_stmt, &p_bd, Err, r_bind.Pos, p_data, r_bind.NtvSize, r_bind.NtvTyp, p_ind, p_fsl, 0, OCI_DEFAULT)));
-						r_bind.H = (uint32)p_bd;
-					}
-					if(row_count > 1) {
-						THROW(ProcessError(OCIDefineArrayOfStruct(p_bd, Err, r_bind.ItemSize, sizeof(uint16), sizeof(uint16), 0)));
-					}
-					#endif // } 0
 				}
 			}
 		}
@@ -1132,23 +1110,60 @@ enum enum_field_types {
 	const  size_t sz = stsize(pBind->Typ);
 	uint16 out_typ = 0;
 	pBind->NtvSize = static_cast<uint16>(sz); // default value
-	if(action == 0)
+	void * p_data = 0;
+	// (Эти 2 строчки должны быть перед вызовом pStmt->GetBindOuterPtr поскольку он полагается на поле pBind->Dim) {
+	if(action == 0) {
 		pBind->Dim_ = count;
+	}
+	else if(oneof3(action, -2, -1, +1)) {
+		p_data = pStmt->GetBindOuterPtr(pBind, count);
+	}
 	const int t = GETSTYPE(pBind->Typ);
 	switch(t) {
-		case S_CHAR: ProcessBinding_SimpleType(action, count, pStmt, pBind, MYSQL_TYPE_TINY); break;
+		case S_CHAR: 
+			ProcessBinding_SimpleType(action, count, pStmt, pBind, MYSQL_TYPE_TINY); 
+			break;
 		case S_INT:
-		case S_AUTOINC: ProcessBinding_SimpleType(action, count, pStmt, pBind, MYSQL_TYPE_LONG); break;
-		case S_UINT: ProcessBinding_SimpleType(action, count, pStmt, pBind, MYSQL_TYPE_LONG /*signed*/); break;
-		case S_INT64: ProcessBinding_SimpleType(action, count, pStmt, pBind, MYSQL_TYPE_LONGLONG); break;
-		case S_FLOAT: ProcessBinding_SimpleType(action, count, pStmt, pBind, MYSQL_TYPE_DOUBLE); break;
+		case S_AUTOINC: 
+			if(sz == 4)
+				ProcessBinding_SimpleType(action, count, pStmt, pBind, MYSQL_TYPE_LONG); 
+			else if(sz == 8)
+				ProcessBinding_SimpleType(action, count, pStmt, pBind, MYSQL_TYPE_LONGLONG);
+			else if(sz == 2)
+				ProcessBinding_SimpleType(action, count, pStmt, pBind, MYSQL_TYPE_SHORT); 
+			else if(sz == 1)
+				ProcessBinding_SimpleType(action, count, pStmt, pBind, MYSQL_TYPE_TINY);
+			break;
+		case S_UINT: 
+			if(sz == 4)
+				ProcessBinding_SimpleType(action, count, pStmt, pBind, MYSQL_TYPE_LONG/*signed*/);
+			else if(sz == 8)
+				ProcessBinding_SimpleType(action, count, pStmt, pBind, MYSQL_TYPE_LONGLONG/*signed*/);
+			else if(sz == 2)
+				ProcessBinding_SimpleType(action, count, pStmt, pBind, MYSQL_TYPE_SHORT/*signed*/);
+			else if(sz == 1)
+				ProcessBinding_SimpleType(action, count, pStmt, pBind, MYSQL_TYPE_TINY/*signed*/);
+			break;
+		case S_INT64: 
+			ProcessBinding_SimpleType(action, count, pStmt, pBind, MYSQL_TYPE_LONGLONG); 
+			break;
+		case S_FLOAT: 
+			if(sz == 8)
+				ProcessBinding_SimpleType(action, count, pStmt, pBind, MYSQL_TYPE_DOUBLE);
+			else if(sz == 4)
+				ProcessBinding_SimpleType(action, count, pStmt, pBind, MYSQL_TYPE_FLOAT);
+			else {
+				constexpr int InvalidSizeOfFloatType = 0;
+				assert(InvalidSizeOfFloatType);
+			}
+			break;
 		case S_DATE:
 			if(action == 0) {
 				pBind->SetNtvTypeAndSize(MYSQL_TYPE_DATE, sizeof(MYSQL_TIME));
 				pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
 			}
 			else if(action < 0) {
-				MYSQL_TIME * p_ocidt = static_cast<MYSQL_TIME *>(pStmt->GetBindOuterPtr(pBind, count));
+				MYSQL_TIME * p_ocidt = static_cast<MYSQL_TIME *>(p_data);
 				LDATE * p_dt = static_cast<LDATE *>(pBind->P_Data);
 				memzero(p_ocidt, sizeof(*p_ocidt));
 				p_ocidt->year = p_dt->year();
@@ -1157,7 +1172,7 @@ enum enum_field_types {
 				p_ocidt->time_type = MYSQL_TIMESTAMP_DATE;
 			}
 			else if(action == 1) {
-				const MYSQL_TIME * p_ocidt = static_cast<const MYSQL_TIME *>(pStmt->GetBindOuterPtr(pBind, count));
+				const MYSQL_TIME * p_ocidt = static_cast<const MYSQL_TIME *>(p_data);
 				*static_cast<LDATE *>(pBind->P_Data) = encodedate(p_ocidt->day, p_ocidt->month, p_ocidt->year);
 			}
 			else if(action == 1000)
@@ -1169,18 +1184,18 @@ enum enum_field_types {
 				pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
 			}
 			else if(action < 0) {
-				MYSQL_TIME * p_ocidt = static_cast<MYSQL_TIME *>(pStmt->GetBindOuterPtr(pBind, count));
+				MYSQL_TIME * p_ocidt = static_cast<MYSQL_TIME *>(p_data);
 				LTIME * p_dt = static_cast<LTIME *>(pBind->P_Data);
 				memzero(p_ocidt, sizeof(*p_ocidt));
 				p_ocidt->hour = p_dt->hour();
 				p_ocidt->minute = p_dt->minut();
 				p_ocidt->second = p_dt->sec();
-				p_ocidt->second_part = 0;
+				p_ocidt->second_part = p_dt->hs() * 10000; // second_part - микросекунды
 				p_ocidt->time_type = MYSQL_TIMESTAMP_TIME;
 			}
 			else if(action == 1) {
-				const MYSQL_TIME * p_ocidt = static_cast<const MYSQL_TIME *>(pStmt->GetBindOuterPtr(pBind, count));
-				*static_cast<LTIME *>(pBind->P_Data) = encodetime(p_ocidt->hour, p_ocidt->minute, p_ocidt->second, 0/*p_ocidt->second_part*/);
+				const MYSQL_TIME * p_ocidt = static_cast<const MYSQL_TIME *>(p_data);
+				*static_cast<LTIME *>(pBind->P_Data) = encodetime(p_ocidt->hour, p_ocidt->minute, p_ocidt->second, p_ocidt->second_part / 10000);
 			}
 			else if(action == 1000)
 				ProcessBinding_FreeDescr(count, pStmt, pBind);
@@ -1191,8 +1206,8 @@ enum enum_field_types {
 				pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
 			}
 			else if(action < 0) {
-				MYSQL_TIME * p_ocidt = static_cast<MYSQL_TIME *>(pStmt->GetBindOuterPtr(pBind, count));
-				LDATETIME * p_dt = static_cast<LDATETIME *>(pBind->P_Data);
+				MYSQL_TIME * p_ocidt = static_cast<MYSQL_TIME *>(p_data);
+				const LDATETIME * p_dt = static_cast<const LDATETIME *>(pBind->P_Data);
 				memzero(p_ocidt, sizeof(*p_ocidt));
 				p_ocidt->year = p_dt->d.year();
 				p_ocidt->month = p_dt->d.month();
@@ -1200,75 +1215,133 @@ enum enum_field_types {
 				p_ocidt->hour = p_dt->t.hour();
 				p_ocidt->minute = p_dt->t.minut();
 				p_ocidt->second = p_dt->t.sec();
-				p_ocidt->second_part = 0;
+				p_ocidt->second_part = p_dt->t.hs() * 10000; // second_part - микросекунды
 				p_ocidt->time_type = MYSQL_TIMESTAMP_DATETIME;
 			}
 			else if(action == 1) {
-				const MYSQL_TIME * p_ocidt = static_cast<const MYSQL_TIME *>(pStmt->GetBindOuterPtr(pBind, count));
+				const MYSQL_TIME * p_ocidt = static_cast<const MYSQL_TIME *>(p_data);
 				static_cast<LDATETIME *>(pBind->P_Data)->d = encodedate(p_ocidt->day, p_ocidt->month, p_ocidt->year);
-				static_cast<LDATETIME *>(pBind->P_Data)->t = encodetime(p_ocidt->hour, p_ocidt->minute, p_ocidt->second, 0/*p_ocidt->second_part*/);
+				static_cast<LDATETIME *>(pBind->P_Data)->t = encodetime(p_ocidt->hour, p_ocidt->minute, p_ocidt->second, p_ocidt->second_part / 10000);
 			}
 			else if(action == 1000)
 				ProcessBinding_FreeDescr(count, pStmt, pBind);
 			break;
 		case S_NOTE:
+			{
+				const uint32 ntv_size = (sz * 2); // Удваиваем размер из-за того, что в сервере хранится utf8 а наруже мы (пока) используем OEM-encoding
+				if(action == 0) {
+					pBind->SetNtvTypeAndSize(MYSQL_TYPE_VAR_STRING, ntv_size);
+					pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
+				}
+				else if(action < 0) {
+					if(p_data) {
+						SString & r_temp_buf = SLS.AcquireRvlStr();
+						r_temp_buf.CatN(static_cast<const char *>(pBind->P_Data), sz).Transf(CTRANSF_INNER_TO_UTF8);
+						strnzcpy(static_cast<char *>(p_data), r_temp_buf, ntv_size);
+					}
+				}
+				else if(action == 1) {
+					const int16 * p_ind = static_cast<const int16 *>(pStmt->GetIndPtr(pBind, count));
+					if(p_ind && *p_ind == -1) {
+						PTR8(pBind->P_Data)[0] = 0;
+					}
+					else {
+						SString & r_temp_buf = SLS.AcquireRvlStr();
+						r_temp_buf = static_cast<const char *>(p_data);
+						r_temp_buf.Transf(CTRANSF_UTF8_TO_INNER).TrimRight();
+						strnzcpy(static_cast<char *>(pBind->P_Data), r_temp_buf, sz);
+					}
+				}
+			}
+			break;
 		case S_ZSTRING:
-			if(action == 0) {
-				pBind->SetNtvTypeAndSize(MYSQL_TYPE_STRING, static_cast<uint16>(sz));
-				pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
-			}
-			else if(action < 0) {
-				char * p_outer = static_cast<char *>(pStmt->GetBindOuterPtr(pBind, count));
-				//
-				// 1. Необходимо защититься от ситуации, когда в конце буфера отсутствует '\0'
-				// 2. Необходимо конвертировать OEM кодировку (используется в btrieve данных и
-				//    в проекте в целом) в CHAR кодировку, которая используется для хранения строк
-				//    в SQL-базах.
-				// 3. Пустая строка для критериев запроса извлечения данных должна быть представлена единственным пробелом.
-				//
-				if(PTR8(pBind->P_Data)[0] == 0) {
-					if(action == -1) {
-						p_outer[0] = ' ';
-						p_outer[1] = 0;
-					}
-					else
-						p_outer[0] = 0;
+			{
+				const uint32 ntv_size = (sz * 2); // Удваиваем размер из-за того, что в сервере хранится utf8 а наруже мы (пока) используем OEM-encoding
+				if(action == 0) {
+					pBind->SetNtvTypeAndSize(MYSQL_TYPE_VAR_STRING, ntv_size);
+					pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
 				}
-				else {
+				else if(action < 0) {
+					char * p_outer = static_cast<char *>(p_data);
 					//
-					// Особый случай: все элементы заполнены символами 255.
-					// Это - максимальное значение, используемое в сравнениях.
-					// Его не следует преобразовывать функцией SOemToChar
+					// 1. Необходимо защититься от ситуации, когда в конце буфера отсутствует '\0'
+					// 2. Необходимо конвертировать OEM кодировку (используется в btrieve данных и
+					//    в проекте в целом) в CHAR кодировку, которая используется для хранения строк
+					//    в SQL-базах.
+					// 3. Пустая строка для критериев запроса извлечения данных должна быть представлена единственным пробелом.
 					//
-					int    is_max = 0;
-					if(PTR8C(pBind->P_Data)[0] == 255) {
-						is_max = 1;
-						for(uint k = 1; k < (sz-1); k++)
-							if(PTR8C(pBind->P_Data)[k] != 255) {
-								is_max = 0;
-								break;
+					if(PTR8(pBind->P_Data)[0] == 0) {
+						if(action == -1) {
+							p_outer[0] = ' ';
+							p_outer[1] = 0;
+						}
+						else
+							p_outer[0] = 0;
+					}
+					else {
+						//
+						// Особый случай: все элементы заполнены символами 255.
+						// Это - максимальное значение, используемое в сравнениях.
+						// Для него перекодировка не применяется!
+						//
+						const bool is_max = ismemchr(pBind->P_Data, sz-1, 255U);
+						{
+							SString & r_temp_buf = SLS.AcquireRvlStr();
+							r_temp_buf.CatN(static_cast<const char *>(pBind->P_Data), sz);
+							if(!is_max) {
+								r_temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 							}
+							strnzcpy(p_outer, r_temp_buf, ntv_size);
+							/*if(!is_max) {
+								SOemToChar(p_outer);
+							}*/
+						}
 					}
-					strnzcpy(p_outer, static_cast<const char *>(pBind->P_Data), sz);
-					if(!is_max)
-						SOemToChar(p_outer);
 				}
-				/*
-				const size_t len = sstrlen(p_outer);
-				if(len < sz-1) {
-					memset(p_outer + len, ' ', sz - len);
-					p_outer[sz-1] = 0;
+				else if(action == 1) {
+					const int16 * p_ind = static_cast<const int16 *>(pStmt->GetIndPtr(pBind, count));
+					if(p_ind && *p_ind == -1) {
+						PTR8(pBind->P_Data)[0] = 0;
+					}
+					else {
+						SString & r_temp_buf = SLS.AcquireRvlStr();
+						r_temp_buf = static_cast<const char *>(p_data);
+						r_temp_buf.Transf(CTRANSF_UTF8_TO_INNER).TrimRight();
+						strnzcpy(static_cast<char *>(pBind->P_Data), r_temp_buf, sz);
+						//CharToOemA(static_cast<char *>(p_data), static_cast<char *>(pBind->P_Data));
+						//trimright(static_cast<char *>(pBind->P_Data));
+					}
 				}
-				*/
 			}
-			else if(action == 1) {
-				const int16 * p_ind = static_cast<const int16 *>(pStmt->GetIndPtr(pBind, count));
-				if(p_ind && *p_ind == -1) {
-					PTR8(pBind->P_Data)[0] = 0;
+			break;
+		case S_UUID_:
+			{
+				const uint32 ntv_size = sizeof(S_GUID);
+				if(action == 0) {
+					pBind->SetNtvTypeAndSize(MYSQL_TYPE_BLOB, ntv_size);
+					pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
 				}
-				else {
-					CharToOemA(static_cast<char *>(pStmt->GetBindOuterPtr(pBind, count)), static_cast<char *>(pBind->P_Data)); // @unicodeproblem
-					trimright(static_cast<char *>(pBind->P_Data));
+				else if(action < 0) {
+					char * p_outer = static_cast<char *>(p_data);
+					if(p_outer && pBind->P_Data)
+						memcpy(p_outer, static_cast<const S_GUID *>(pBind->P_Data), ntv_size);
+				}
+				else if(action == 1) {
+					/*
+					const int csz = sqlite3_column_bytes(h_stmt, idx-1);
+					const void * p_sqlt_data = sqlite3_column_blob(h_stmt, idx-1);
+					if(p_sqlt_data && csz == sizeof(S_GUID))
+						*static_cast<S_GUID *>(p_data) = *static_cast<const S_GUID *>(p_sqlt_data);
+					else
+						static_cast<S_GUID *>(p_data)->Z();
+					*/
+					//const MYSQL_TIME * p_ocidt = static_cast<const MYSQL_TIME *>(p_data);
+					//static_cast<LDATETIME *>(pBind->P_Data)->d = encodedate(p_ocidt->day, p_ocidt->month, p_ocidt->year);
+					//static_cast<LDATETIME *>(pBind->P_Data)->t = encodetime(p_ocidt->hour, p_ocidt->minute, p_ocidt->second, p_ocidt->second_part / 10000);
+					const char * p_outer = static_cast<const char *>(p_data);
+					if(pBind->P_Data && p_outer && pBind->NtvSize == ntv_size) {
+						memcpy(pBind->P_Data, p_outer, ntv_size);
+					}
 				}
 			}
 			break;
@@ -1278,7 +1351,7 @@ enum enum_field_types {
 			if(action == 0)
 				ProcessBinding_AllocDescr(count, pStmt, pBind, MYSQL_TYPE_BLOB, OCI_DTYPE_LOB);
 			else if(action < 0) {
-				OD ocilob = *static_cast<const OD *>(pStmt->GetBindOuterPtr(pBind, count));
+				OD ocilob = *static_cast<const OD *>(p_data);
 				DBLobBlock * p_lob = pStmt->GetBindingLob();
 				size_t lob_sz = 0;
 				uint64 lob_loc = 0;
@@ -1291,7 +1364,7 @@ enum enum_field_types {
 				LobWrite(ocilob, pBind->Typ, static_cast<SLob *>(pBind->P_Data), lob_sz);
 			}
 			else if(action == 1) {
-				OD ocilob = *static_cast<const OD *>(pStmt->GetBindOuterPtr(pBind, count));
+				OD ocilob = *static_cast<const OD *>(p_data);
 				DBLobBlock * p_lob = pStmt->GetBindingLob();
 				size_t lob_sz = 0;
 				uint64 lob_loc = 0;
@@ -1316,9 +1389,9 @@ enum enum_field_types {
 				const int16 dec_len = static_cast<int16>(GETSSIZED(pBind->Typ));
 				const int16 dec_prc = static_cast<int16>(GETSPRECD(pBind->Typ));
 				if(action < 0)
-					*static_cast<double *>(pStmt->GetBindOuterPtr(pBind, count)) = dectobin(static_cast<const char *>(pBind->P_Data), dec_len, dec_prc);
+					*static_cast<double *>(p_data) = dectobin(static_cast<const char *>(pBind->P_Data), dec_len, dec_prc);
 				else if(action == 1)
-					dectodec(*static_cast<double *>(pStmt->GetBindOuterPtr(pBind, count)), static_cast<char *>(pBind->P_Data), dec_len, dec_prc);
+					dectodec(*static_cast<double *>(p_data), static_cast<char *>(pBind->P_Data), dec_len, dec_prc);
 			}
 			break;
 		case S_RAW:
@@ -1327,7 +1400,7 @@ enum enum_field_types {
 				pStmt->AllocBindSubst(count, (sz * 2), pBind);
 			}
 			else if(action < 0) {
-				uint16 * p_outer = static_cast<uint16 *>(pStmt->GetBindOuterPtr(pBind, count));
+				uint16 * p_outer = static_cast<uint16 *>(p_data);
 				memcpy(p_outer, pBind->P_Data, sz);
 				/*
 				for(uint i = 0; i < sz; i++)
@@ -1335,7 +1408,7 @@ enum enum_field_types {
 				*/
 			}
 			else if(action == 1) {
-				const uint16 * p_outer = static_cast<const uint16 *>(pStmt->GetBindOuterPtr(pBind, count));
+				const uint16 * p_outer = static_cast<const uint16 *>(p_data);
 				memcpy(pBind->P_Data, p_outer, sz);
 				/*
 				for(uint i = 0; i < sz; i++)
@@ -1350,7 +1423,7 @@ enum enum_field_types {
 				//assert(0);
 			}
 			else if(action == 1) {
-				OD ocirid = *static_cast<const OD *>(pStmt->GetBindOuterPtr(pBind, count));
+				OD ocirid = *static_cast<const OD *>(p_data);
 				uint16 len = sizeof(DBRowId);
 				OCIRowidToChar(ocirid, static_cast<OraText *>(pBind->P_Data), &len, Err);
 			}

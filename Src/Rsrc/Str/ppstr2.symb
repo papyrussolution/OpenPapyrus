@@ -1,6 +1,6 @@
 
 [hash]
-base=ppstr2.txt,ENMoqG1YZotKzSqKS3m5nTbuNu/Zwv05r8J0LuK4vmw=,ppstr2.bin,lxWQVVRbvWAqRysjWZYcFlS49iTOGUBcOz7PtJs2veY=
+base=ppstr2.txt,pxLjg1mWx8DuH2HCeqlLurZuio4BYLPR21mJnR4d+SE=,ppstr2.bin,3ayzfu68QeLEr4ctwGLiuTGSG9sM56ynFqwVnMxadOo=
 lang-de=ppstr2-de.txt,uiF+XJVJlyDjw7nInhf/AFcW9Tl0++UYflUahSBUK/Y=,ppstr2-de.bin,z5tTW3wrQRt4866sMd5LWX/oYCLHknIJxj6FbKYnSek=
 lang-en=ppstr2-en.txt,wNMuDQEJ8iXS8+Jpd9MAWdg8exLsMCYnqYI0euY1I0Y=,ppstr2-en.bin,5cMKdf3XAXJZe9nWJkS0b2yRiluKkMmBbOM4faM39TI=
 lang-es=ppstr2-es.txt,6DBYF21pt4umLyjG1Rx9bHiNzqHNfQg0oJPNpqQHaL8=,ppstr2-es.bin,jN0oN2zuyiQYf2BQ4rSZo9Fbb/rXRRQTRRg9UgDu54E=
@@ -11,8 +11,8 @@ java=ppstr2.java,ELpT7X1dPBp0nVM5zgAhPWYVxV1M+62YzeekWrsGTVE=
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147499082
-LastAutoCodeList=1,12447;102,10179;103,10073;110,10000;111,13043;112,10000;119,10000;114,10012;7,10000;4,10000;6,10000;342,10000;118,10313;120,10010;1001,10000;121,10000;122,10000;123,10661;124,10804;125,10128
+LastSignatureCode=2147499088
+LastAutoCodeList=1,12447;102,10179;103,10073;110,10000;111,13043;112,10000;119,10000;114,10012;7,10000;4,10000;6,10000;342,10000;118,10313;120,10010;1001,10000;121,10000;122,10000;123,10661;124,10804;125,10128;126,10000
 
 [SignatureList]
 testsign1=2147495071
@@ -106,6 +106,7 @@ lbt_goodsrestbyloclist=2147494658
 lbt_ccextlist=2147495074
 lbt_selorderprefsuppl=2147495075
 lbt_testglbsvcacsylist=2147499052
+lbt_fldcorrlist=2147499086
 entmanagementsys=2147483734
 pgmcopylic_owner=2147483735
 pgmcopylic_regnum=2147483736
@@ -1061,6 +1062,7 @@ dlvraddrpostzip=2147494164
 dlvraddrgeolon=2147494348
 dlvraddrgeolat=2147494349
 addressbook=2147484472
+gln=2147499083
 inn=2147484473
 kpp=2147484474
 snils=2147494404
@@ -2084,6 +2086,7 @@ doutilizevetdoc=2147494457
 domakeoutgoingvetdocs=2147494458
 dotransmitoutgoingvetdocs=2147494459
 forinternaluseonly=2147495200
+unifindobj=2147499084
 timechart=2147485244
 bizscore=2147485245
 bizscore_pl=2147485246
@@ -3009,6 +3012,7 @@ cmd_correctworldobj=2147485942
 cmd_correctzeroqcertrefs=2147485943
 cmd_correctzerodebtdimrefs=2147485944
 cmd_recover_v242=2147486126
+cmd_recover_v12304=2147499087
 cmd_recoverabsenceaccounts=2147486127
 cmd_recoverabsencebills=2147486128
 cmd_recoverabsenceprjtaskperson=2147486129
@@ -4409,6 +4413,7 @@ ccextss_outerident=2147496094
 ccextss_outerexttag=2147496095
 ccextss_linkbilluuid=2147496096
 ccextss_fiscalsign=2147496097
+ccextss_correct12304=2147499085
 cclnextss_serial=2147499058
 cclnextss_egaismark=2147499059
 cclnextss_remoteprocessingta=2147499060
@@ -9935,6 +9940,7 @@ unifindobjparam_wfpersonevent=2147498300
 unifindobjparam_wfproject=2147498301
 unifindobjparam_wftodo=2147498302
 unifindobjparam_dflags=2147498303
+unifindobjparam_fnamebysubstr=2147499088
 unifindobjparam_mainpattern=2147492352
 unifindobjparam_period=2147492353
 namedfilt=2147498304

@@ -126,7 +126,7 @@ public:
 			PPID   TechID;
 			PPID   TSessID;
 			PPID   CompCatID; // @v12.0.4 Категория компьютера (для регистрации комьютера)
-			PPObjID Oid; // @v12.0.6 Идентификатор объекта для общего запроса (инициатор: PPSCMD_GETIMAGE)
+			SObjID Oid; // @v12.0.6 Идентификатор объекта для общего запроса (инициатор: PPSCMD_GETIMAGE)
 			MACAddr MacAdrList[4]; // Список mac-адресов для самоидентификации
 			double Amount;
 			char   NameTextUtf8[128]; // @v11.9.10
@@ -485,11 +485,11 @@ public:
 				Status = rS.Status;
 				return ok;
 			}
-			PPObjID Oid;
+			SObjID Oid;
 			SBinaryChunk Img;
 			int    Status; // 0 - undef, -1 - error, 1 - ok
 		};
-		const Entry * SearchOid(PPObjID oid) const
+		const Entry * SearchOid(SObjID oid) const
 		{
 			for(uint i = 0; i < L.getCount(); i++) {
 				const Entry * p_entry = L.at(i);
@@ -850,7 +850,7 @@ private:
 	int    QueryProgramList2(WsCtl_ProgramCollection & rPgmL, WsCtl_ClientPolicy & rPolicyL);
 	void   LoadProgramList2();
 	void   EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayout & rTl);
-	void * QueryImageTextureByOid(PPObjID oid, const char * pImgSignature)
+	void * QueryImageTextureByOid(SObjID oid, const char * pImgSignature)
 	{
 		void * p_result = 0;
 		SString temp_buf;
@@ -916,7 +916,7 @@ private:
 			ImGuiWindowByLayout wbl(pLoParent, loidLogo, "##Logo", viewFlags|ImGuiWindowFlags_NoBackground);
 			if(wbl.IsValid()) {
 				if(conn_status.Dbi.MainOrgID) {
-					void * p_texture = QueryImageTextureByOid(PPObjID(PPOBJ_PERSON, conn_status.Dbi.MainOrgID), 0);
+					void * p_texture = QueryImageTextureByOid(SObjID(PPOBJ_PERSON, conn_status.Dbi.MainOrgID), 0);
 					if(p_texture) {
 						const float _x = ImGui::GetWindowWidth();
 						const float _y = ImGui::GetWindowHeight();
@@ -3033,7 +3033,7 @@ void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayo
 								if(p_pe_) {
 									bool do_default_frame = true; // Случай когда нет картинки
 									if(p_pe_->PicSymb.NotEmpty()) {
-										PPObjID oid(PPOBJ_SWPROGRAM, p_pe_->ID);
+										SObjID oid(PPOBJ_SWPROGRAM, p_pe_->ID);
 										void * p_texture = QueryImageTextureByOid(oid, p_pe_->PicSymb);
 										if(p_texture) {
 											if(p_pe_->Title.NotEmpty())

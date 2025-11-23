@@ -81,7 +81,7 @@ static xmlEntity * xmlCreateEntity(xmlDict * dict, const xmlChar * name, int typ
 				ret->SystemID = xmlDictLookupSL(dict, SystemID);
 		}
 		if(content) {
-			ret->length = sstrlen(content);
+			ret->length = sstrleni(content);
 			ret->content = (dict && (ret->length < 5)) ? (xmlChar *)xmlDictLookup(dict, content, ret->length) : xmlStrndup(content, ret->length);
 		}
 		else {

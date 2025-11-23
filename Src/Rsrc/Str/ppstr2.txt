@@ -1788,17 +1788,17 @@ PPERR_SMS_FROMMUSTBELATIN           "Адрес отправителя SMS-со�
 PPERR_EDI_SPRRECADVWOTTN            "Документ '%s' по может быть экспортирован по спецификации RECADV поскольку в нем отсутствует тег ТТН"
 PPERR_EDI_PRVUNDEF                  "@{err_internal}: не определен EDI-провайдер"
 PPERR_EDI_DOCIDENTLEN               "Идентификатор документа/сообщения '%s' пустой или имеет длину более 17 символов"
-PPERR_EDI_GLNISEMPTY                "Не допускается пустой GLN"
+PPERR_EDI_GLNISEMPTY                "Не допускается пустой @{gln}"
 PPERR_EDI_CURRCODEISEMPTY           "Не допускается пустой код валюты"
 PPERR_EDI_INVPARTYQ                 "@{err_internal}: недопустимое значение квалификатора стороны сделки '%s'"
 PPERR_EDI_INVPRICEQ                 "@{err_internal}: недопустимое значение квалификатора цены '%s'"
 PPERR_EDI_INVTAXQ                   "@{err_internal}: недопустимое значение квалификатора налога '%s'"
 PPERR_EDI_INVTAXTYPE                "@{err_internal}: недопустимое значение типа налога '%s'"
 PPERR_EDI_WAREHASNTVALIDCODE        "Товар '%s' не имеет допустимого кода"
-PPERR_EDI_ARHASNTVALUDGLN           "Статья '%s' не имеет валидного GLN"
-PPERR_EDI_PSNHASNTVALUDGLN          "Персоналия '%s' не имеет валидного GLN"
-PPERR_EDI_MAINORGHASNTVALUDGLN      "Главная организация '%s' не имеет валидного GLN"
-PPERR_EDI_LOCHASNTVALUDGLN          "Адрес или склад '%s' не имеет валидного GLN"
+PPERR_EDI_ARHASNTVALUDGLN           "Статья '%s' не имеет валидного @{gln}"
+PPERR_EDI_PSNHASNTVALUDGLN          "Персоналия '%s' не имеет валидного @{gln}"
+PPERR_EDI_MAINORGHASNTVALUDGLN      "Главная организация '%s' не имеет валидного @{gln}"
+PPERR_EDI_LOCHASNTVALUDGLN          "Адрес или склад '%s' не имеет валидного @{gln}"
 PPERR_EDI_THEREISNTPRVIMP           "Поддержка провайдера '%s' не реализована"
 PPERR_EDI_OPNDEF_DESADV             "Не определен вид операции DESADV в конфигурации глобального обмена"
 PPERR_EDI_OPNDEF_ORDER              "Не определен вид операции ORDER в конфигурации глобального обмена"
@@ -1974,10 +1974,10 @@ PPERR_INVWIDTH                      "Недопустимое значение �
 PPERR_INVHEIGHT                     "Недопустимое значение высоты '%s'"
 PPERR_DUPDEBTDIMINLIST              "Долговая размерность '%s' уже присутствует в списке"
 PPERR_FILEISNTPPAPI                 "Файл '%s' имеет формат, отличный от Papyrus Async POS Interchange"
-PPERR_DUPEGAISMARKINCC              "Марка @{brand_egais} уже была просканирована в этом чеке (%s)"
-PPERR_DUPEGAISMARKINOTHRCC          "Марка @{brand_egais} была просканирована в другом чеке (%s)"
-PPERR_DUPCHZNMARKINCC               "Марка @{brand_chzn} уже была просканирована в этом чеке (%s)"
-PPERR_DUPCHZNMARKINOTHRCC           "Марка @{brand_chzn} была просканирована в другом чеке (%s)"
+PPERR_DUPEGAISMARKINCC              "@{egaismark} уже была просканирована в этом чеке (%s)"
+PPERR_DUPEGAISMARKINOTHRCC          "@{egaismark} была просканирована в другом чеке (%s)"
+PPERR_DUPCHZNMARKINCC               "@{chznmark} уже была просканирована в этом чеке (%s)"
+PPERR_DUPCHZNMARKINOTHRCC           "@{chznmark} была просканирована в другом чеке (%s)"
 PPERR_EGAISMARKISEXHAUSTED          "Акцизная марка (или бокс) уже израсходована '%s'"
 PPERR_EGAISMARKNOTFOUND             "Акцизная марка (или бокс) не может быть израсходована поскольку не идентифицирована '%s'"
 PPERR_EGAISMARKMISSGOODS            "Акцизная марка (или бокс) найдена, но не принадлежит заданному товару '%s'"
@@ -4981,7 +4981,8 @@ PPTXT_PREDEFIMPEXPBILLFMT           "1,Nalog.ru @{invoice} (ON_SFAKT);\
 	8,Nalog.ru R_ON_NSCHFDOPPR (счет-фактура);\
 	9,Coca-Cola ORDER (только импорт);\
 	11,Nalog.ru ON_NKORSCHFDOPPR (корректировочная счет-фактура);\
-	12,Импорт чеков - заказной формат - контракт 01"
+	12,Импорт чеков - заказной формат - контракт 01;\
+	13,EANCOM"
 PPTXT_NALOGRU_WORKSWERETRANSFERED   "Результаты работ переданы (услуги оказаны)"
 PPTXT_NALOGRU_SHIPPINGBILL          "Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)"
 PPTXT_NALOGRU_UPDOPCONTENT          "Товары переданы и услуги оказаны в полном объеме"
@@ -6165,6 +6166,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_ccextlist                       "30,L,@datafield;30,L,@value"
 @lbt_selorderprefsuppl               "50,L,@supplier;20,R,@dealprice"
 @lbt_testglbsvcacsylist              "20,L,@appellation;10,L,Function;20,L,URL;10,L,Result"
+@lbt_fldcorrlist                     "25,L,Внутреннее поле;25,L,Внешнее поле;10,L,Тип данных;8,R,Длина данных;8,R,Смещение"
 
 @entmanagementsys                    "Система управления предприятием"
 @pgmcopylic_owner                    "Владелец лицензии"
@@ -6986,7 +6988,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @contractorcode                      "Код контрагента"
 @contractorarid                      "Ид статьи контрагента"
 @contractorarcode                    "Код статьи контрагента"
-@contractorgln                       "GLN контрагента"
+@contractorgln                       "@{gln} контрагента"
 @supplier                            "Поставщик"
 @supplier_pl                         "Поставщики"
 @supplierid                          "Ид поставщика"
@@ -7034,7 +7036,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @agentcode                           "Код агента"
 @agentname                           "Имя агента"
 @agentpersonid                       "Ид персоналии агента"
-@agentgln                            "GLN агента"
+@agentgln                            "@{gln} агента"
 @agentlist                           "Список агентов"
 @creator                             "Создатель"
 @executor                            "Исполнитель"
@@ -7103,7 +7105,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @mainorgphone                        "Телефон главной организации"
 @mainorgaddr                         "Адрес главной организации"
 @mainorginn                          "ИНН главной организации"
-@mainorggln                          "GLN главной организации"
+@mainorggln                          "@{gln} главной организации"
 @accountableperson                   "Подотчетное лицо"
 @whofrom                             "От кого"
 @psnkind                             "Вид персоналии"
@@ -7139,6 +7141,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @dlvraddrgeolon                      "GPS-долгота адреса доставки"
 @dlvraddrgeolat                      "GPS-широта адреса доставки"
 @addressbook                         "Адресная книга"
+@gln                                 "GLN"
 @inn                                 "ИНН"
 @kpp                                 "КПП"
 @snils                               "СНИЛС"
@@ -7498,7 +7501,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @extobject                           "Дополнительный объект"
 @docextobjname                       "Наименование дополнительного объекта по документу"
 @docextobjinn                        "ИНН дополнительного объекта по документу"
-@docextobjgln                        "GLN дополнительного объекта по документу"
+@docextobjgln                        "@{gln} дополнительного объекта по документу"
 @linkobject                          "Связанный объект"
 @parentobject                        "Родительский объект"
 @objid                               "ИД объекта"
@@ -8167,6 +8170,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @domakeoutgoingvetdocs               "Сформировать исходящие документы"
 @dotransmitoutgoingvetdocs           "Отправить запросы на подготовку исходящих документов"
 @forinternaluseonly                  "Только для внутреннего использования"
+@unifindobj                          "Универсальный поиск объектов"
 
 @timechart                           "Временная диаграмма"
 @bizscore                            "Бизнес-показатель"
@@ -8820,7 +8824,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rregt_kpp                                "Код КПП"
 @rregt_okato                              "Код ОКАТО"
 @rregt_certorgcode                        "Код сертифицирующей организации"
-@rregt_gln                                "Код GLN"
+@rregt_gln                                "Код @{gln}"
 @rregt_countryabbr                        "Символьный код страны"
 @rregt_countrycode                        "Цифровой код страны"
 @rregt_bankaccount                        "@{bankaccount}"
@@ -9174,7 +9178,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_correctworldobj                      "Корректировка географических объектов (не интерактивная)"
 @cmd_correctzeroqcertrefs  		          "Обнуление висячих ссылок на сертификаты в лотах"
 @cmd_correctzerodebtdimrefs               "Обнуление висячих ссылок на долговые размерности"
-@cmd_recover_v242 				          "Корректировка проблемы @v2.4.2"
+@cmd_recover_v242 				          "Корректировка проблемы v2.4.2"
+@cmd_recover_v12304                       "Корректировка проблемы v12.3.4"
 @cmd_recoverabsenceaccounts 	          "Восстановление отсутствующих счетов"
 @cmd_recoverabsencebills 		          "Восстановление отсутствующих документов"
 @cmd_recoverabsenceprjtaskperson          "Восстановление отсутствующих персоналий в задачах"
@@ -9505,7 +9510,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_quotereqanalyze                      "@{view_quotereqanalyze}"
 @cmd_rollbackquots                        "Откат изменений котировок"
 @cmd_taxsystemkind                        "@{taxsystemkind_pl}"
-@cmd_unifindobj                           "Унифицированный поиск объектов"
+@cmd_unifindobj                           "@{unifindobj}"
 @cmd_tssmodel                             "@{tssmodel_pl}"
 //@erikTEMP v10.7.7
 @cmd_gotovktest                           "Тест функций VK API"
@@ -10647,13 +10652,14 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @ccextss_outerexttag                       "Дополнительный внешний тег импортированного чека"
 @ccextss_linkbilluuid                      "UUID связанного документа"
 @ccextss_fiscalsign                        "Фискальный признак чека"
+@ccextss_correct12304                      "Коррекция проблемы 12.3.04"
 
 @cclnextss_serial                          "Серийный номер"
-@cclnextss_egaismark                       "Марка @{brand_egais}"
+@cclnextss_egaismark                       "@{egaismark}"
 @cclnextss_remoteprocessingta              "Символ транзакции удаленной обработки строки"
 @cclnextss_chznserial                      "Серийный номер @{brand_chzn}"
 @cclnextss_chzngtin                        "GTIN марки @{brand_chzn}"
-@cclnextss_chznmark                        "Марка @{brand_chzn}"
+@cclnextss_chznmark                        "@{chznmark}"
 @cclnextss_chznpm_reqid                    "Ответ разрешительного режима @{brand_chzn}: ид запроса"
 @cclnextss_chznpm_reqtimestamp             "Ответ разрешительного режима @{brand_chzn}: дата и время запроса"
 @cclnextss_chznpm_localmoduleinstance      "Ответ разрешительного режима @{brand_chzn}: ид локальной инсталляции"
@@ -16540,7 +16546,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @desktopassoccmd_dvcserial                "Серийный номер устройства ввода"
 @desktopassoccmd_cmdparam                 "Дополнительный параметр команды"
 
-@unifindobjparam                          "Универсальный поиск объектов"
+@unifindobjparam                          "@{unifindobj}"
 @unifindobjparam_wflags                   "Что искать"
 @unifindobjparam_wfeverything             "Все, что можно" // generic
 @unifindobjparam_wfbill                   "@{documents}"
@@ -16552,6 +16558,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @unifindobjparam_wfproject                "@{project_pl}"
 @unifindobjparam_wftodo                   "@{prjtask_pl}"
 @unifindobjparam_dflags                   ""
+@unifindobjparam_fnamebysubstr            "Наименования искать по подстроке"
 @unifindobjparam_mainpattern              "Строка поиска"
 @unifindobjparam_period                   "Период актуальности"
 
@@ -18235,7 +18242,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @styloqface_zip                               "@{postzip}"
 @styloqface_dob                               "@{dateofbirth}"
 @styloqface_phone                             "@{phone}"
-@styloqface_gln  /!/                          "GLN"
+@styloqface_gln  /!/                          "@{gln}"
 @styloqface_ruinn                             "@{inn}"
 @styloqface_rukpp                             "@{kpp}"
 @styloqface_rusnils                           "@{snils}"
@@ -18396,6 +18403,31 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 79  "StyloQ: подготовка данных для резервирования услуг" //PPUPRF_STYLOQ_CMD_ATTENDANCEPREREQ
 80  "Функция EgaisMarkAutoselector (local)"
 81  "Функция EgaisMarkAutoselector (server)"
+
+[126] // PPSTR_OBJATTR
+1   "@{appellation}" // PPOBJATTR_NAME          1L // Наименование
+2   "@{symbol}"      // PPOBJATTR_SYMB          2L // Символ
+3   "Длинное наименование" // PPOBJATTR_LONGNAME      3L // Длинное наименование
+4   "@{memo}" // PPOBJATTR_MEMO          4L
+6   "Адрес" // PPOBJATTR_RAWADDR       6L
+8   "@{description}" // PPOBJATTR_DESCR         8L
+9   "@{code}" // PPOBJATTR_CODE          9L
+10  "Исходный данные XML" // PPOBJATTR_RAWDATA_XML  10L // @v12.4.7 Исходные данные использованные для формирования объекта в xml-формате
+11  "Исходный данные JSON" // PPOBJATTR_RAWDATA_JSON 11L // @v12.4.7 Исходные данные использованные для формирования объекта в json-формате
+21  "@{identifier}" // PPOBJATTR_ID           21L // Целочисленный уникальный идентификатор
+22  "@{flags}" // PPOBJATTR_FLAGS        22L
+23  "@{phone}" // PPOBJATTR_PHONE        23L
+24  "@{email}" // PPOBJATTR_EMAIL        24L
+25  "@{gln}" // PPOBJATTR_GLN          25L
+26  "@{inn}" // PPOBJATTR_RUINN        26L
+27  "@{kpp}" // PPOBJATTR_RUKPP        27L
+28  "@{snils}" // PPOBJATTR_RUSNILS      28L
+29  "Адрес основной" // PPOBJATTR_RAWMAINADDR  29L // @v12.4.10 основной адрес персоналии
+30  "Адрес фактический" // PPOBJATTR_RAWRADDR     30L // @v12.4.10 фактический адрес персоналии
+31  "@{egaismark}" // PPOBJATTR_EGAISMARK    31L // @v12.4.10 марка егаис (один объект может иметь множество таких марок)
+32  "@{chznmark}"  // PPOBJATTR_CHZNMARK     32L // @v12.4.10 марка честный знак (один объект может иметь множество таких марок)
+33  "UUID"                             // PPOBJATTR_UUID         33L // @v12.4.10 UUID объекта. Практически возможна ситуация, когда несколько объектов имеют один и тот же UUID, а так же, один объект может иметь несколько UUID'ов
+34  "@{registerdocumentno}" // PPOBJATTR_GENERICREG   34L // @v12.4.10 Некий регистрационный номер. Может относится к PPOBJ_PERSON, PPOBJ_LOCATION, PPOBJ_PERSONEVENT
 
 [122]
 1   "@{err_curl}: не поддерживаемый протокол"

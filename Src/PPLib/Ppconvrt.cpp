@@ -6419,7 +6419,7 @@ int Convert10903()
 							SString oid_buf;
 							SString temp_buf;
 							for(uint oididx = 0; oididx < oid_list.getCount(); oididx++) {
-								const PPObjID oid = oid_list.at(oididx);
+								const SObjID oid = oid_list.at(oididx);
 								PPConfig cfg_rec;
 								oid_buf.Z().Cat(oid.Obj).Semicol().Cat(oid.Id);
 								if(obj_name_list.GetText(oididx+1, temp_buf)) {

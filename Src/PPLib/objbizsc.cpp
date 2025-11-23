@@ -1107,7 +1107,7 @@ int BizScoreCore::SetItem(LDATE actualDate, PPID scID, PPID userID, const char *
 	return ok;
 }
 
-int BizScoreCore::SetItem(LDATE actualDate, PPID scID, PPID userID, PPObjID obj, const char * pStr, int use_ta)
+int BizScoreCore::SetItem(LDATE actualDate, PPID scID, PPID userID, SObjID obj, const char * pStr, int use_ta)
 {
 	int    ok = -1;
 	int    r;

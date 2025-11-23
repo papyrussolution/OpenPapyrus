@@ -388,7 +388,7 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <GuardEHContMetadata>false</GuardEHContMetadata>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -589,7 +589,7 @@
       </SDLCheck>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <EnableModules>false</EnableModules>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <GuardEHContMetadata>false</GuardEHContMetadata>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>

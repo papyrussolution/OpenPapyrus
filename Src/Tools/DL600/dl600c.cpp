@@ -1851,6 +1851,9 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 				else if(supplement_kind.IsEqiAscii("filebrowsebutton")) { // @v12.3.10
 					sb.Kind = SUiCtrlSupplement::kFileBrowse;
 				}
+				else if(supplement_kind.IsEqiAscii("filtbutton")) { // @v12.4.10
+					sb.Kind = SUiCtrlSupplement::kFilt;
+				}
 				else {
 					Error(PPERR_DL6_UISUPPLEMENT_UNDEFKIND, supplement_kind.cptr(), erfLog);
 					local_fault = true;

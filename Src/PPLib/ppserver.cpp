@@ -3427,7 +3427,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				SSerializeContext sctx;
 				if(rblk.Serialize(-1, *pEv, &sctx)) {
 					EgaisMarkAutoSelector emas;
-					int r = emas.Run(rblk);
+					int r = emas.Run(rblk, ZERODATE);
 					THROW(r);
 					THROW(rblk.Serialize(+1, rReply, &sctx)); // PPSCMD_EGAISMARKAUTOSELECTION
 					rReply.SetDataType(PPJobSrvReply::htGeneric, 0);

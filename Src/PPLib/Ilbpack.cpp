@@ -2544,7 +2544,7 @@ int PPObjBill::AcceptLotSync(const PPBillPacket & rBp, const ILBillPacket & rIBp
 			const PPTransferItem & r_ti = rBp.TI(i);
 			if(r_ti.SrcIltiPos > 0 && r_ti.SrcIltiPos <= (int)rIBp.Lots.getCount()) {
 				ILTI & r_ilti = rIBp.Lots.at(r_ti.SrcIltiPos-1);
-				PPObjID frgn_objid;
+				SObjID frgn_objid;
 				if(r_ti.IsReceipt()) {
 					if(rIBp.IlbFlags & ILBillPacket::ilbfConvertedIntrExp) {
 						//
@@ -2886,10 +2886,10 @@ int PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext 
 				for(uint i = 0; p_pack->Lots.enumItems(&i, (void **)&p_ilti);) {
 					PPCommSyncID commid;
 					if(p_ilti->LotSyncID) {
-						THROW(pCtx->RegisterDependedNonObject(PPObjID(PPOBJ_LOT, p_ilti->LotSyncID), commid, 0));
+						THROW(pCtx->RegisterDependedNonObject(SObjID(PPOBJ_LOT, p_ilti->LotSyncID), commid, 0));
 					}
 					if(p_ilti->LotMirrID) {
-						THROW(pCtx->RegisterDependedNonObject(PPObjID(PPOBJ_LOT, p_ilti->LotMirrID), commid, 0));
+						THROW(pCtx->RegisterDependedNonObject(SObjID(PPOBJ_LOT, p_ilti->LotMirrID), commid, 0));
 					}
 				}
 				THROW(tra.Commit());

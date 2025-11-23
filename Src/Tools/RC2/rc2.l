@@ -79,6 +79,7 @@ R_DECLARE_CMD "declare command"
 "bitmap"     { return T_BITMAP; }
 "drawvector" { return T_DRAWVECTOR; }
 "file"       { return T_FILE; }
+"noreplacecolor" { return T_NOREPLACECOLOR; } // @v12.4.10
 {EOL}		{ ++yyline; }
 {COMMENT}	{ ++yyline; }
 {WHITE}		{ ; }

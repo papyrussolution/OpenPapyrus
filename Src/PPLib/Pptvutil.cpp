@@ -4821,8 +4821,42 @@ void PersonCtrlGroup::SetupAnonym(TDialog * pDlg, int a)
 	}
 }
 
+static int Helper_SelectPersonByCode(TDialog * pDlg, uint ctlselId, PPID personKindID)
+{
+	int    ok = -1;
+	ComboBox * p_combo = static_cast<ComboBox *>(pDlg->getCtrlView(ctlselId));
+	if(p_combo && p_combo->GetLink()) {
+		PPPersonKind psn_kind_rec;
+		PPID   reg_type_id = 0;
+		if(SearchObject(PPOBJ_PERSONKIND, personKindID, &psn_kind_rec) > 0)
+			reg_type_id = psn_kind_rec.CodeRegTypeID;
+		if(reg_type_id > 0) {
+			SString code;
+			SString title;
+			PPRegisterType reg_type_rec;
+			SearchObject(PPOBJ_REGISTERTYPE, reg_type_id, &reg_type_rec);
+			PPLoadText(PPTXT_SEARCHPERSON, title);
+			PPInputStringDialogParam isd_param(title, reg_type_rec.Name);
+			if(InputStringDialog(isd_param, code) > 0) {
+				PPIDArray psn_list;
+				PPObjPerson psn_obj;
+				if(psn_obj.GetListByRegNumber(reg_type_id, 0, code, psn_list) > 0) {
+					if(psn_list.getCount()) {
+						pDlg->setCtrlData(ctlselId, &psn_list.at(0));
+						TView::messageCommand(pDlg, cmCBSelected, p_combo);
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int PersonCtrlGroup::SelectByCode(TDialog * pDlg)
 {
+	return Helper_SelectPersonByCode(pDlg, Ctlsel, Data.PsnKindID); // @v12.4.10
+	/* @v12.4.10 
 	int    ok = -1;
 	ComboBox * p_combo = static_cast<ComboBox *>(pDlg->getCtrlView(Ctlsel));
 	if(p_combo && p_combo->GetLink()) {
@@ -4840,16 +4874,17 @@ int PersonCtrlGroup::SelectByCode(TDialog * pDlg)
 			if(InputStringDialog(isd_param, code) > 0) {
 				PPIDArray psn_list;
 				PPObjPerson psn_obj;
-				if(psn_obj.GetListByRegNumber(reg_type_id, 0, code, psn_list) > 0)
+				if(psn_obj.GetListByRegNumber(reg_type_id, 0, code, psn_list) > 0) {
 					if(psn_list.getCount()) {
 						pDlg->setCtrlData(Ctlsel, &psn_list.at(0));
 						TView::messageCommand(pDlg, cmCBSelected, p_combo);
 						ok = 1;
 					}
+				}
 			}
 		}
 	}
-	return ok;
+	return ok;*/
 }
 
 void PersonCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
@@ -4966,7 +5001,8 @@ int PersonListCtrlGroup::getData(TDialog * pDlg, void * pData)
 
 int PersonListCtrlGroup::SelectByCode(TDialog * pDlg)
 {
-	int    ok = -1;
+	return Helper_SelectPersonByCode(pDlg, Ctlsel, Data.PsnKindID); // @v12.4.10
+	/* @v12.4.10 int    ok = -1;
 	ComboBox * p_combo = static_cast<ComboBox *>(pDlg->getCtrlView(Ctlsel));
 	if(p_combo && p_combo->GetLink()) {
 		PPPersonKind psn_kind_rec;
@@ -4983,16 +5019,17 @@ int PersonListCtrlGroup::SelectByCode(TDialog * pDlg)
 			if(InputStringDialog(isd_param, code) > 0) {
 				PPIDArray psn_list;
 				PPObjPerson psn_obj;
-				if(psn_obj.GetListByRegNumber(reg_type_id, 0, code, psn_list) > 0)
+				if(psn_obj.GetListByRegNumber(reg_type_id, 0, code, psn_list) > 0) {
 					if(psn_list.getCount()) {
 						pDlg->setCtrlData(Ctlsel, &psn_list.at(0));
 						TView::messageCommand(pDlg, cmCBSelected, p_combo);
 						ok = 1;
 					}
+				}
 			}
 		}
 	}
-	return ok;
+	return ok;*/
 }
 
 void PersonListCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
@@ -8614,13 +8651,24 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						}
 						pDlg->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
 						is_inserted = true;
-						if(oneof6(supplement.Kind, SUiCtrlSupplement::kDateCalendar, SUiCtrlSupplement::kDateRangeCalendar,
-							SUiCtrlSupplement::kTime, SUiCtrlSupplement::kCalc, SUiCtrlSupplement::kAsterisk, SUiCtrlSupplement::kFileBrowse)) { // @v12.3.10 SUiCtrlSupplement::kFileBrowse
+						if(oneof7(supplement.Kind, SUiCtrlSupplement::kDateCalendar, SUiCtrlSupplement::kDateRangeCalendar,
+							SUiCtrlSupplement::kTime, SUiCtrlSupplement::kCalc, SUiCtrlSupplement::kAsterisk, 
+							SUiCtrlSupplement::kFileBrowse, SUiCtrlSupplement::kFilt)) { // @v12.3.10 SUiCtrlSupplement::kFileBrowse // @v12.4.10 SUiCtrlSupplement::kFilt
 							if(supplement.Ident) {
+								const char * p_supplement_title = 0;
 								TRect rc_sb;
 								rc_sb.a.x = rc.b.x+1;
 								rc_sb.a.y = rc.a.y;
-								rc_sb.b.x = rc_sb.a.x + 20;
+								if(supplement.Kind == SUiCtrlSupplement::kFilt) {
+									{
+										if(supplement.Text.IsEmpty())
+											PPLoadString("but_filt", supplement.Text);
+										p_supplement_title = supplement.Text;
+									}
+									rc_sb.b.x = rc_sb.a.x + 40;
+								}
+								else
+									rc_sb.b.x = rc_sb.a.x + 20;
 								rc_sb.b.y = rc_sb.a.y;
 								uint   pic_id = 0;
 								switch(supplement.Kind) {
@@ -8631,7 +8679,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 									case SUiCtrlSupplement::kAsterisk: pic_id = PPDV_ASTERISK01; break;
 									case SUiCtrlSupplement::kFileBrowse: pic_id = PPDV_FOLDER02; break;
 								}
-								TButton * p_sb = new TButton(rc_sb, 0, supplement.Cmd, 0, pic_id);
+								TButton * p_sb = new TButton(rc_sb, p_supplement_title, supplement.Cmd, 0, pic_id);
 								p_sb->SetSupplementFactors(supplement.Kind, item_id);
 								pDlg->InsertCtlWithCorrespondingNativeItem(p_sb, supplement.Ident, 0, /*extraPtr*/0);
 								/*{
@@ -8785,14 +8833,15 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						pDlg->InsertCtlWithCorrespondingNativeItem(p_cb, item_id, 0, /*extraPtr*/0);
 						is_inserted = true;
 						// @v12.4.1 {
-						if(supplement.Kind == SUiCtrlSupplement::kList) {
-							if(supplement.Ident) {
+						if(oneof2(supplement.Kind, SUiCtrlSupplement::kList, SUiCtrlSupplement::kFilt)) { // @v12.4.10 SUiCtrlSupplement::kFilt
+							if(supplement.Ident || supplement.Cmd) {
 								TRect rc_sb;
 								rc_sb.a.x = rc_cb.b.x+1;
 								rc_sb.a.y = rc_cb.a.y;
 								rc_sb.b.x = rc_sb.a.x + 60; // Длина кнопки 60px
 								rc_sb.b.y = rc_sb.a.y;
 								uint   pic_id = 0;
+								const  uint _local_id = NZOR(supplement.Ident, ++rLastDynId);
 								switch(supplement.Kind) {
 									case SUiCtrlSupplement::kList: 
 										pic_id = 0; 
@@ -8800,10 +8849,16 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 											PPLoadStringUtf8("but_list", supplement.Text);
 										}
 										break; 
+									case SUiCtrlSupplement::kFilt: // @v12.4.10
+										pic_id = 0; 
+										if(supplement.Text.IsEmpty()) {
+											PPLoadStringUtf8("but_filt", supplement.Text);
+										}
+										break; 
 								}
 								TButton * p_sb = new TButton(rc_sb, supplement.Text, supplement.Cmd, 0, pic_id);
 								p_sb->SetSupplementFactors(supplement.Kind, item_id);
-								pDlg->InsertCtlWithCorrespondingNativeItem(p_sb, supplement.Ident, 0, /*extraPtr*/0);
+								pDlg->InsertCtlWithCorrespondingNativeItem(p_sb, _local_id, 0, /*extraPtr*/0);
 							}
 						}
 						// } @v12.4.1 
@@ -9296,12 +9351,13 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 									if(supplement.Kind && supplement.Ident) {
 										p_supplemental_view = pDlg->getCtrlView(supplement.Ident);
 										if(TView::IsSubSign(p_supplemental_view, TV_SUBSIGN_BUTTON)) {
-											if(supplement.Kind == SUiCtrlSupplement::kList) {
-												sb_sz.Set(60.0f, FixedButtonY);
+											float supplemental_button_width = 20.0f;
+											switch(supplement.Kind) {
+												case SUiCtrlSupplement::kList: supplemental_button_width = 60.0f; break;
+												case SUiCtrlSupplement::kFilt: supplemental_button_width = 60.0f; break;
+												default: supplemental_button_width = 20.0f; break;
 											}
-											else {
-												sb_sz.Set(20.0f, FixedButtonY);
-											}
+											sb_sz.Set(supplemental_button_width, FixedButtonY);
 										}
 										else {
 											p_supplemental_view = 0;

@@ -7,7 +7,7 @@
 
 static IMPL_CMPFUNC(PPViewSysJournal_EvVerEntry, i1, i2)
 {
-	int    si = memcmp(i1, i2, sizeof(PPObjID));
+	int    si = memcmp(i1, i2, sizeof(SObjID));
 	SETIFZ(si, cmp(static_cast<const PPViewSysJournal::EvVerEntry *>(i1)->Dtm, static_cast<const PPViewSysJournal::EvVerEntry *>(i2)->Dtm));
 	return si;
 }
@@ -287,13 +287,13 @@ int PPViewSysJournal::Init_(const PPBaseFilt * pFilt)
 								if(objn_entry.Obj) {
 									objn_entry.NameP = 0;
 									uint   objn_pos = 0;
-									if(!ObjNameList.bsearch(&objn_entry, &objn_pos, PTR_CMPFUNC(PPObjID))) {
+									if(!ObjNameList.bsearch(&objn_entry, &objn_pos, PTR_CMPFUNC(SObjID))) {
 										char   name_buf[256];
 										PPObject * ppobj = P_ObjColl->GetObjectPtr(objn_entry.Obj);
 										if(ppobj && ppobj->GetName(objn_entry.Id, name_buf, sizeof(name_buf)) > 0) {
 											temp_buf = name_buf;
 											StrPool.AddS(temp_buf, &objn_entry.NameP);
-											ObjNameList.ordInsert(&objn_entry, 0, PTR_CMPFUNC(PPObjID));
+											ObjNameList.ordInsert(&objn_entry, 0, PTR_CMPFUNC(SObjID));
 										}
 									}
 								}
@@ -395,7 +395,7 @@ int PPViewSysJournal::Init_(const PPBaseFilt * pFilt)
 			}
 		}
 	}
-	ObjNameList.sort(PTR_CMPFUNC(PPObjID));
+	ObjNameList.sort(PTR_CMPFUNC(SObjID));
 	CATCHZOK
 	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(p_bei);
@@ -483,8 +483,8 @@ int FASTCALL PPViewSysJournal::NextIteration(SysJournalViewItem * pItem)
 			p_t->CopyBufTo(pItem);
 			if(!oneof2(p_t->data.Action, PPACN_OBJRMV, PPACN_RMVBILL)) {
 				uint   objn_pos = 0;
-				PPObjID oid(p_t->data.ObjType, p_t->data.ObjID);
-				if(ObjNameList.lsearch(&oid, &objn_pos, PTR_CMPFUNC(PPObjID)))
+				SObjID oid(p_t->data.ObjType, p_t->data.ObjID);
+				if(ObjNameList.lsearch(&oid, &objn_pos, PTR_CMPFUNC(SObjID)))
 					StrPool.GetS(ObjNameList.at(objn_pos).NameP, pItem->ObjName);
 			}
 			if(!Filt.BegTm || p_t->data.Dt > Filt.Period.low || p_t->data.Tm >= Filt.BegTm) {
@@ -497,11 +497,11 @@ int FASTCALL PPViewSysJournal::NextIteration(SysJournalViewItem * pItem)
 	return -1;
 }
 
-int PPViewSysJournal::GetObjName(const PPObjID & rOid, SString & rBuf) const
+int PPViewSysJournal::GetObjName(const SObjID & rOid, SString & rBuf) const
 {
 	rBuf.Z();
 	uint   p = 0;
-	if(ObjNameList.bsearch(&rOid, &p, PTR_CMPFUNC(PPObjID))) {
+	if(ObjNameList.bsearch(&rOid, &p, PTR_CMPFUNC(SObjID))) {
 		const PPObjNamePEntry & r_entry = ObjNameList.at(p);
 		StrPool.GetS(r_entry.NameP, rBuf);
 	}
@@ -515,7 +515,7 @@ static IMPL_DBE_PROC(dbqf_objnamefromlist_ppvsj_iip)
 		result->init(sizeof(buf));
 	}
 	else {
-		PPObjID oid(params[0].lval, params[1].lval);
+		SObjID oid(params[0].lval, params[1].lval);
 		const PPViewSysJournal * p_view = static_cast<const PPViewSysJournal *>(params[2].ptrval);
 		if(p_view) {
 			SString & r_temp_buf = SLS.AcquireRvlStr();
@@ -912,11 +912,11 @@ int PPViewSysJournal::Detail(const void * pHdr, PPViewBrowser * pBrw)
 			EditObjTagItem(hdr.Obj, hdr.Id, &tag_item, 0);
 		}
 		else {
-			EditObj(reinterpret_cast<PPObjID *>(&hdr));
+			EditObj(reinterpret_cast<SObjID *>(&hdr));
 		}
 	}
 	else if(!oneof2(hdr.Action, PPACN_OBJRMV, PPACN_RMVBILL))
-		EditObj(reinterpret_cast<PPObjID *>(&hdr));
+		EditObj(reinterpret_cast<SObjID *>(&hdr));
 	return -1;
 }
 
@@ -932,7 +932,7 @@ int PPViewSysJournal::Print(const void *)
 	return Helper_Print(rpt_id, 0);
 }
 
-int PPViewSysJournal::EditObj(const PPObjID * pObjID)
+int PPViewSysJournal::EditObj(const SObjID * pObjID)
 {
 	return pObjID ? EditPPObj(pObjID->Obj, pObjID->Id) : -1;
 }
@@ -959,7 +959,7 @@ int PPViewSysJournal::ViewBillHistory(PPID histID, LDATETIME evDtm)
 			if(p_ovc && p_ovc->InitSerializeContext(1)) {
 				PPObjBill * p_bobj(BillObj);
 				SSerializeContext & r_sctx = p_ovc->GetSCtx();
-				PPObjID oid;
+				SObjID oid;
 				long   vv = 0;
 				THROW(p_ovc->Search(histID, &oid, &vv, &buf) > 0);
 				THROW(p_bobj->SerializePacket__(-1, &pack, buf, &r_sctx));
@@ -1343,13 +1343,13 @@ int PPViewGtaJournal::Init_(const PPBaseFilt * pFilt)
 						if(objn_entry.Obj) {
 							objn_entry.NameP = 0;
 							uint   objn_pos = 0;
-							if(!ObjNameList.bsearch(&objn_entry, &objn_pos, PTR_CMPFUNC(PPObjID))) {
+							if(!ObjNameList.bsearch(&objn_entry, &objn_pos, PTR_CMPFUNC(SObjID))) {
 								char   name_buf[256];
 								PPObject * ppobj = P_ObjColl->GetObjectPtr(objn_entry.Obj);
 								if(ppobj && ppobj->GetName(objn_entry.Id, name_buf, sizeof(name_buf)) > 0) {
 									temp_buf = name_buf;
 									StrPool.AddS(temp_buf, &objn_entry.NameP);
-									ObjNameList.ordInsert(&objn_entry, 0, PTR_CMPFUNC(PPObjID));
+									ObjNameList.ordInsert(&objn_entry, 0, PTR_CMPFUNC(SObjID));
 								}
 							}
 						}
@@ -1423,8 +1423,8 @@ int FASTCALL PPViewGtaJournal::NextIteration(GtaJournalViewItem * pItem)
 		p_t->CopyBufTo(pItem);
 		pItem->ObjName.Z();
 		uint   objn_pos = 0;
-		PPObjID oid(p_t->data.ObjType, p_t->data.ObjID);
-		if(ObjNameList.lsearch(&oid, &objn_pos, PTR_CMPFUNC(PPObjID))) {
+		SObjID oid(p_t->data.ObjType, p_t->data.ObjID);
+		if(ObjNameList.lsearch(&oid, &objn_pos, PTR_CMPFUNC(SObjID))) {
 			StrPool.GetS(ObjNameList.at(objn_pos).NameP, pItem->ObjName);
 		}
 		if(!Filt.BegTm || p_t->data.Dt > Filt.Period.low || p_t->data.Tm >= Filt.BegTm) {
@@ -1436,11 +1436,11 @@ int FASTCALL PPViewGtaJournal::NextIteration(GtaJournalViewItem * pItem)
 	return -1;
 }
 
-int PPViewGtaJournal::GetObjName(const PPObjID & rOid, SString & rBuf) const
+int PPViewGtaJournal::GetObjName(const SObjID & rOid, SString & rBuf) const
 {
 	rBuf.Z();
 	uint   p = 0;
-	if(ObjNameList.bsearch(&rOid, &p, PTR_CMPFUNC(PPObjID))) {
+	if(ObjNameList.bsearch(&rOid, &p, PTR_CMPFUNC(SObjID))) {
 		const PPObjNamePEntry & r_entry = ObjNameList.at(p);
 		StrPool.GetS(r_entry.NameP, rBuf);
 	}
@@ -1454,7 +1454,7 @@ static IMPL_DBE_PROC(dbqf_objnamefromlist_ppvgtaj_iip)
 		result->init(sizeof(buf));
 	}
 	else {
-		PPObjID oid(params[0].lval, params[1].lval);
+		SObjID oid(params[0].lval, params[1].lval);
 		const PPViewGtaJournal * p_view = static_cast<const PPViewGtaJournal *>(params[2].ptrval);
 		if(p_view) {
 			SString temp_buf;

@@ -17,6 +17,8 @@ int __PrcssrTestDb_Are_TestTa01_RecsEqual(const TestTa01Tbl::Rec & rRec1, const 
 
 SLTEST_R(MySQL) // @v12.4.7
 {
+	const bool single_insertion_test = false; // Признак того, что мы - на фазе разработки и нужно отладить только вставку единственной записи.
+
 	PPIniFile ini_file;
 	DbLoginBlock dblb;
 	StrAssocArray some_text_list;
@@ -45,17 +47,23 @@ SLTEST_R(MySQL) // @v12.4.7
 	THROW(SLCHECK_NZ(dbp.DbLogin(&dblb, DbProvider::openfMainThread)));
 	gdbsr = dbp.GetDatabaseState(p_database_name, &database_state);
 	THROW(gdbsr);
-	if(!(database_state & DbProvider::dbstNotExists)) {
-		THROW(dbp.DropDatabase(p_database_name));
-		gdbsr = dbp.GetDatabaseState(p_database_name, &database_state);
-		THROW(gdbsr);
-		SLCHECK_NZ(database_state & DbProvider::dbstNotExists);
+	if(single_insertion_test) {
+		if(database_state & DbProvider::dbstNotExists) {
+			THROW(dbp.CreateDatabase(p_database_name));
+		}
 	}
-	THROW(dbp.CreateDatabase(p_database_name));
+	else {
+		if(!(database_state & DbProvider::dbstNotExists)) {
+			THROW(dbp.DropDatabase(p_database_name));
+			gdbsr = dbp.GetDatabaseState(p_database_name, &database_state);
+			THROW(gdbsr);
+			SLCHECK_NZ(database_state & DbProvider::dbstNotExists);
+		}
+		THROW(dbp.CreateDatabase(p_database_name));
+	}
 	gdbsr = dbp.GetDatabaseState(p_database_name, &database_state);
 	THROW(gdbsr);
 	SLCHECK_Z(database_state & DbProvider::dbstNotExists);
-	// todo USE `%s` - подключение к другой базе данных
 	THROW(dbp.UseDatabase(p_database_name));
 	{
 		// Проверяем работу функций управления транзакциями.
@@ -106,8 +114,11 @@ SLTEST_R(MySQL) // @v12.4.7
 	//
 	p_tbl_ref01 = new DBTable("TestRef01", 0, 0, &dbp);
 	p_tbl_ref01->AllocateOwnBuffer(-1);
-	p_tbl_ref02 = new DBTable("TestRef02", 0, 0, &dbp);
-	p_tbl_ref02->AllocateOwnBuffer(-1);
+	{
+		p_tbl_ref02 = new DBTable("TestRef02", 0, 0, &dbp);
+		const RECORDSIZE rs = p_tbl_ref02->GetFields().CalculateFixedRecSize(BNFieldList2::crsfIncludeNote);
+		p_tbl_ref02->AllocateOwnBuffer(rs);
+	}
 	{
 		(temp_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("phrases-ru-1251.txt");
 		SFile f_in(temp_buf, SFile::mRead);
@@ -187,57 +198,15 @@ SLTEST_R(MySQL) // @v12.4.7
 		uint   ta02_insert_fault_count = 0;
 		// Загрузить в таблицу большой набор известных записей (из record_list)
 		// @debug {
-		if(dbp.StartTransaction()) {
-			{
-				const bool use_bextinsert = false;
-				TestRef01Tbl::Key0 k0;
-				DBRowId ret_row_id;
-				for(uint i = 0; i < 1; i++) {
-					TestRef01Tbl::Rec * p_rec = ref01_rec_list.at(i);
-					if(p_rec) {
-						MEMSZERO(k0);
-						p_tbl_ref01->CopyBufLobFrom(p_rec, sizeof(*p_rec));
-						int irr = p_tbl_ref01->insertRec(0, &k0);
-						const DBRowId * p_row_id = p_tbl_ref01->getCurRowIdPtr();
-						if(p_row_id)
-							ret_row_id = *p_row_id;
-						if(irr) {
-							p_rec->ID = k0.ID;
-							const uint32 _row_id = ret_row_id.GetI32();
-							assert(_row_id == p_rec->ID); // SQLite specific!
-						}
-						else {
-							ref01_insert_fault_count++;
-						}
-					}
-				}
-			}
-			int cwr = dbp.CommitWork();
-			if(!cwr) {
-				;
-			}
-		}
-		// } @debug 
-		if(dbp.StartTransaction()) {
-			{
-				//
-				// Для таблицы TestRef01 применяем BExtInsert
-				//
-				const bool use_bextinsert = false;
-				TestRef01Tbl::Key0 k0;
-				DBRowId ret_row_id;
-				BExtInsert * p_bei = 0;
-				if(use_bextinsert)
-					p_bei = new BExtInsert(p_tbl_ref01, SKILOBYTE(2));
-				for(uint i = 0; i < ref01_rec_list.getCount(); i++) {
-					TestRef01Tbl::Rec * p_rec = ref01_rec_list.at(i);
-					if(p_rec) {
-						if(p_bei) {
-							if(!p_bei->insert(p_rec)) {
-								ref01_bextins_fault_count++;
-							}
-						}
-						else {
+		if(single_insertion_test) {
+			if(dbp.StartTransaction()) {
+				{
+					const bool use_bextinsert = false;
+					TestRef01Tbl::Key0 k0;
+					DBRowId ret_row_id;
+					for(uint i = 0; i < 1; i++) {
+						TestRef01Tbl::Rec * p_rec = ref01_rec_list.at(i);
+						if(p_rec) {
 							MEMSZERO(k0);
 							p_tbl_ref01->CopyBufLobFrom(p_rec, sizeof(*p_rec));
 							int irr = p_tbl_ref01->insertRec(0, &k0);
@@ -247,7 +216,7 @@ SLTEST_R(MySQL) // @v12.4.7
 							if(irr) {
 								p_rec->ID = k0.ID;
 								const uint32 _row_id = ret_row_id.GetI32();
-								assert(_row_id == p_rec->ID); // SQLite specific!
+								assert(_row_id == p_rec->ID); // MySQL specific!
 							}
 							else {
 								ref01_insert_fault_count++;
@@ -255,62 +224,108 @@ SLTEST_R(MySQL) // @v12.4.7
 						}
 					}
 				}
-				if(p_bei) {
-					if(!p_bei->flash())
-						ref01_bextins_fault_count++;
-					ZDELETE(p_bei);
+				int cwr = dbp.CommitWork();
+				if(!cwr) {
+					;
 				}
 			}
-			{
-				TestRef02Tbl::Key0 k0;
-				DBRowId ret_row_id;
-				for(uint i = 0; i < ref02_rec_list.getCount(); i++) {
-					TestRef02Tbl::Rec * p_rec = ref02_rec_list.at(i);
-					if(p_rec) {
-						MEMSZERO(k0);
-						p_tbl_ref02->CopyBufLobFrom(p_rec, sizeof(*p_rec));
-						int irr = p_tbl_ref02->insertRec(0, &k0);
-						const DBRowId * p_row_id = p_tbl_ref02->getCurRowIdPtr();
-						if(p_row_id)
-							ret_row_id = *p_row_id;
-						if(irr) {
-							p_rec->ID = k0.ID;
-							assert(ret_row_id.GetI32() == p_rec->ID); // SQLite specific!
+			// } @debug 
+		}
+		else {
+			if(dbp.StartTransaction()) {
+				{
+					//
+					// Для таблицы TestRef01 применяем BExtInsert
+					//
+					const bool use_bextinsert = false;
+					TestRef01Tbl::Key0 k0;
+					DBRowId ret_row_id;
+					BExtInsert * p_bei = 0;
+					if(use_bextinsert)
+						p_bei = new BExtInsert(p_tbl_ref01, SKILOBYTE(2));
+					for(uint i = 0; i < ref01_rec_list.getCount(); i++) {
+						TestRef01Tbl::Rec * p_rec = ref01_rec_list.at(i);
+						if(p_rec) {
+							if(p_bei) {
+								if(!p_bei->insert(p_rec)) {
+									ref01_bextins_fault_count++;
+								}
+							}
+							else {
+								MEMSZERO(k0);
+								p_tbl_ref01->CopyBufLobFrom(p_rec, sizeof(*p_rec));
+								int irr = p_tbl_ref01->insertRec(0, &k0);
+								const DBRowId * p_row_id = p_tbl_ref01->getCurRowIdPtr();
+								if(p_row_id)
+									ret_row_id = *p_row_id;
+								if(irr) {
+									p_rec->ID = k0.ID;
+									const uint32 _row_id = ret_row_id.GetI32();
+									assert(_row_id == p_rec->ID); // SQLite specific!
+								}
+								else {
+									ref01_insert_fault_count++;
+								}
+							}
 						}
-						else {
-							ref02_insert_fault_count++;
+					}
+					if(p_bei) {
+						if(!p_bei->flash())
+							ref01_bextins_fault_count++;
+						ZDELETE(p_bei);
+					}
+				}
+				{
+					TestRef02Tbl::Key0 k0;
+					DBRowId ret_row_id;
+					for(uint i = 0; i < ref02_rec_list.getCount(); i++) {
+						TestRef02Tbl::Rec * p_rec = ref02_rec_list.at(i);
+						if(p_rec) {
+							MEMSZERO(k0);
+							p_tbl_ref02->CopyBufLobFrom(p_rec, sizeof(*p_rec));
+							int irr = p_tbl_ref02->insertRec(0, &k0);
+							const DBRowId * p_row_id = p_tbl_ref02->getCurRowIdPtr();
+							if(p_row_id)
+								ret_row_id = *p_row_id;
+							if(irr) {
+								p_rec->ID = k0.ID;
+								assert(ret_row_id.GetI32() == p_rec->ID); // SQLite specific!
+							}
+							else {
+								ref02_insert_fault_count++;
+							}
 						}
 					}
 				}
-			}
-			{
-				TestTa01Tbl::Key0 k0;
-				DBRowId ret_row_id;
-				for(uint i = 0; i < record_list.getCount(); i++) {
-					const TestTa01Tbl::Rec * p_rec = record_list.at(i);
-					if(p_rec) {
-						MEMSZERO(k0);
-						p_tbl->CopyBufLobFrom(p_rec, sizeof(*p_rec));
-						int irr = p_tbl->insertRec(0, &k0);
-						const DBRowId * p_row_id = p_tbl->getCurRowIdPtr();
-						if(p_row_id)
-							ret_row_id = *p_row_id;
-						if(irr) {
-							;
-						}
-						else {
-							ta02_insert_fault_count++;
+				{
+					TestTa01Tbl::Key0 k0;
+					DBRowId ret_row_id;
+					for(uint i = 0; i < record_list.getCount(); i++) {
+						const TestTa01Tbl::Rec * p_rec = record_list.at(i);
+						if(p_rec) {
+							MEMSZERO(k0);
+							p_tbl->CopyBufLobFrom(p_rec, sizeof(*p_rec));
+							int irr = p_tbl->insertRec(0, &k0);
+							const DBRowId * p_row_id = p_tbl->getCurRowIdPtr();
+							if(p_row_id)
+								ret_row_id = *p_row_id;
+							if(irr) {
+								;
+							}
+							else {
+								ta02_insert_fault_count++;
+							}
 						}
 					}
 				}
+				int cwr = dbp.CommitWork();
+				if(!cwr) {
+					;
+				}
+				SLCHECK_Z(ta02_insert_fault_count);
+				SLCHECK_Z(ref01_insert_fault_count);
+				SLCHECK_Z(ref02_insert_fault_count);
 			}
-			int cwr = dbp.CommitWork();
-			if(!cwr) {
-				;
-			}
-			SLCHECK_Z(ta02_insert_fault_count);
-			SLCHECK_Z(ref01_insert_fault_count);
-			SLCHECK_Z(ref02_insert_fault_count);
 		}
 	}
 	CATCH

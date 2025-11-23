@@ -2172,7 +2172,7 @@ SJson * PPObjSwProgram::ExportToJson(const char * pImgPath)
 			for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 				PPSwProgram rec;
 				if(Helper_GetRec(p_tbl->data, &rec) && rec.CheckForFilt(&filt)) {
-					const PPObjID oid(PPOBJ_SWPROGRAM, rec.ID);
+					const SObjID oid(PPOBJ_SWPROGRAM, rec.ID);
 					PPSwProgramPacket pack;
 					if(Get(rec.ID, &pack) > 0) {
 						SJson * p_js_item = PPObjSwProgram::PackToJson(pack);

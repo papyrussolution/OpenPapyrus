@@ -729,7 +729,7 @@ void DBQuery::fillRecord(char * pBuf, /*RECORDNUMBER*/DBRowId * pPos)
 	if(pBuf) {
 		if(syntax & tAll) {
 			for(uint i = 0; i < tblCount; i++) {
-				const RECORDSIZE s = tbls[i].P_Tbl->GetFields().CalculateFixedRecSize();
+				const RECORDSIZE s = tbls[i].P_Tbl->GetFields().CalculateFixedRecSize(0/*BNFieldList2::crsfXXX*/);
 				memcpy(pBuf+p, tbls[i].P_Tbl->getDataBufConst(), s);
 				p += s;
 			}

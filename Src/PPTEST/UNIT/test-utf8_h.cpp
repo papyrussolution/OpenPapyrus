@@ -613,7 +613,7 @@ static utf8_int8_t * allocate_from_buffer(utf8_int8_t * user_data, size_t n)
 
 SLTEST_R(utf8_h)
 {
-	char invalid[6];
+	char   invalid[6];
 	SLCHECK_EQ(53U, utf8len(data));
 	SLCHECK_EQ(52U, utf8nlen(data, 103));
 	{
@@ -695,7 +695,7 @@ SLTEST_R(utf8_h)
 	SLCHECK_EQ(data + 90, utf8rchr(data, 0x20));
 	{
 		const char ascii[] = "Hello\0Hello ";
-		SLCHECK_EQ(4, utf8rchr(ascii, 'o') - ascii);
+		SLCHECK_EQ(static_cast<size_t>(4U), static_cast<size_t>(utf8rchr(ascii, 'o') - ascii));
 	}
 	{
 		const char ascii[] = "Helloo";

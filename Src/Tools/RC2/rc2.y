@@ -1,5 +1,5 @@
 // rc2.y
-// Copyright (c) V. Antonov, A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2020
+// Copyright (c) V. Antonov, A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2020, 2025
 // Part of project Papyrus
 // Процессор для языка описания броузеров
 //
@@ -52,8 +52,8 @@ static ExtTypeInfo SimpleTypes[] = {
 	{T_TIME,    "time",     "S_TIME"},
 	{T_DATETIME, "datetime", "S_DATETIME"},
 	{T_GUID,     "guid",     "S_UUID_"},
-	{T_INT64,   "int64",	"S_INT64" }, // @v10.9.5
-	{T_UINT64,  "uint64",   "S_UINT64" }, // @v10.9.5
+	{T_INT64,   "int64",	"S_INT64" },
+	{T_UINT64,  "uint64",   "S_UINT64" },
 };
 
 TYPEID GetSType(const char * pName)
@@ -133,13 +133,13 @@ static FormatFlag FormatFlagList[] = {
 
 static long GetFmtFlag(const char * pSymb)
 {
-	for(uint i = 0; i < sizeof(FormatFlagList) / sizeof(FormatFlag); i++) {
+	for(uint i = 0; i < SIZEOFARRAY(FormatFlagList); i++) {
 		if(strcmp(pSymb, FormatFlagList[i].P_Symb) == 0) {
 			return FormatFlagList[i].F;
 		}
 	}
 	{
-		char msg_buf[256];
+		char   msg_buf[256];
 		sprintf(msg_buf, "Invalid format flag '%s'", pSymb);
 		yyerror(msg_buf);
 	}
@@ -166,7 +166,7 @@ int  columnCount = 0;
 %union {
 	long   lval;
 	double dval;
-	LAssocBase las_val; // @v10.4.0 LAssoc-->LAssocBase (@noctr)
+	LAssocBase las_val; // @noctr
 	SColorBase scolor_val;
 	char   sval[256];
 	Rc2ToolbarItem tbi_val;
@@ -195,6 +195,7 @@ int  columnCount = 0;
 %token T_REPORTSTUB // "reportstub"
 %token T_DL600DATA  // "dl600data"
 %token T_HIDDEN     // "hidden"
+%token T_NOREPLACECOLOR // @v12.4.10 "noreplacecolor"
 
 %token T_BITMAP     // "bitmap"
 %token T_FILE       // "file" 
@@ -260,13 +261,17 @@ drawvector_entries_def : | drawvector_entries_def drawvector_entry_def
 drawvector_entry_def : T_IDENT
 	{
 		SString msg_buf;
-		SColor dummy_replaced_color(0, 0, 0, 0);
-		if(!Rc2.AddDrawVector($1, dummy_replaced_color, msg_buf))
+		if(!Rc2.AddDrawVector($1, false, ZEROCOLOR, msg_buf))
 			yyerror(msg_buf);	
 	} | T_IDENT T_COLOR
 	{
 		SString msg_buf;
-		if(!Rc2.AddDrawVector($1, $2, msg_buf))
+		if(!Rc2.AddDrawVector($1, false, $2, msg_buf))
+			yyerror(msg_buf);		
+	} | T_IDENT T_NOREPLACECOLOR
+	{
+		SString msg_buf;
+		if(!Rc2.AddDrawVector($1, true, ZEROCOLOR, msg_buf))
 			yyerror(msg_buf);		
 	}
 	

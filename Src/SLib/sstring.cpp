@@ -8744,11 +8744,14 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 				}
 			}
 			if(h & SNTOKSEQ_HEXHYPHEN) {
-				if(toklen == 36) {
+				if(oneof2(toklen, 36, 39)) {
+					//DC81EB17-2D15-4C1E-866F-FE89599761AC
+					//2AE8-90BC-0DB9-4032-9649-270B-DA6D-089D
 					uint   pos = 0;
 					long   val = 0;
-					if(r_chr_list.BSearch((long)'-', &val, &pos) && val == 4) {
-						rResultList.AddTok(SNTOK_GUID, 1.0f, 0/*flags*/);
+					if(r_chr_list.BSearch((long)'-', &val, &pos) && (val, 4, 7)) {
+						float prob = (toklen == 36) ? 1.0f : 0.5f;
+						rResultList.AddTok(SNTOK_GUID, prob, 0/*flags*/);
 					}
 				}
 			}

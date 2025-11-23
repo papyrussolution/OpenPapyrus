@@ -3949,7 +3949,7 @@ void PPViewGoods::Test_EgaisMarkAutoSelector(PPID goodsID)
 		p_result_item->ItemId = 1;
 		p_result_item->GoodsID = goodsID;
 		p_result_item->Qtty = 1.0;
-		s.Run(result_blk);
+		s.Run(result_blk, ZERODATE);
 		if(result_blk.getCount()) {
 			SString temp_buf;
 			SString line_buf;
@@ -4113,7 +4113,7 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 				//
 				{
 					const  PPID * p_id = static_cast<const PPID *>(pBrw->getCurItem());
-					ok = PPView::Helper_ProcessQuickTagEdit(PPObjID(PPOBJ_GOODS, DEREFPTRORZ(p_id)), pHdr/*(LongArray *)*/);
+					ok = PPView::Helper_ProcessQuickTagEdit(SObjID(PPOBJ_GOODS, DEREFPTRORZ(p_id)), pHdr/*(LongArray *)*/);
 				}
 				break;
 			case PPVCMD_TAGS:

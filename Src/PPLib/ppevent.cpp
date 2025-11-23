@@ -842,13 +842,13 @@ int PPViewEvent::MakeList(PPViewBrowser * pBrw)
 						PPObjNamePEntry objn_entry(new_item.Oid.Obj, new_item.Oid.Id);
 						objn_entry.NameP = 0;
 						uint   objn_pos = 0;
-						if(!ObjNameList.bsearch(&objn_entry, &objn_pos, PTR_CMPFUNC(PPObjID))) {
+						if(!ObjNameList.bsearch(&objn_entry, &objn_pos, PTR_CMPFUNC(SObjID))) {
 							char   name_buf[256];
 							PPObject * ppobj = P_ObjColl->GetObjectPtr(objn_entry.Obj);
 							if(ppobj && ppobj->GetName(objn_entry.Id, name_buf, sizeof(name_buf)) > 0) {
 								temp_buf = name_buf;
 								StrPool.AddS(temp_buf, &objn_entry.NameP);
-								ObjNameList.ordInsert(&objn_entry, 0, PTR_CMPFUNC(PPObjID));
+								ObjNameList.ordInsert(&objn_entry, 0, PTR_CMPFUNC(SObjID));
 							}
 						}
 						else
@@ -860,7 +860,7 @@ int PPViewEvent::MakeList(PPViewBrowser * pBrw)
 			}
 		}
 	}
-	ObjNameList.sort(PTR_CMPFUNC(PPObjID));
+	ObjNameList.sort(PTR_CMPFUNC(SObjID));
 	if(pBrw) {
 		pBrw->Helper_SetAllColumnsSortable();
 		if(is_sorting_needed) {
@@ -1006,7 +1006,7 @@ SArray * PPViewEvent::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 	return p_array;
 }
 
-int PPViewEvent::EditObj(const PPObjID * pObjID)
+int PPViewEvent::EditObj(const SObjID * pObjID)
 {
 	return pObjID ? EditPPObj(pObjID->Obj, pObjID->Id) : -1;
 }

@@ -1278,7 +1278,7 @@ GeoTrackCore::GeoTrackCore() : GeoTrackTbl()
 {
 }
 
-int GeoTrackCore::Search(PPObjID oid, LDATETIME dtm, PPGeoTrackItem * pItem)
+int GeoTrackCore::Search(SObjID oid, LDATETIME dtm, PPGeoTrackItem * pItem)
 {
 	int    ok = 1;
 	GeoTrackTbl::Key0 k0;
@@ -1585,7 +1585,7 @@ int PPViewGeoTracking::CalcTotal(GeoTrackingTotal * pTotal)
     PPObjIDArray obj_list;
     for(InitIteration(); NextIteration(&item) > 0;) {
 		total.Count++;
-		PPObjID oi;
+		SObjID oi;
 		oi.Set(item.ObjType, item.ObjID);
 		if(!obj_list.Search(oi, 0)) {
 			THROW(obj_list.Add(oi.Obj, oi.Id));
@@ -1665,9 +1665,9 @@ int PPViewGeoTracking::Export()
 					(temp_buf = schema_loc).Space().Cat(p_schema_url).Cat(gpx_ver_major).Slash().Cat(gpx_ver_minor).Slash().Cat("gpx.xsd");
 					n_gpx.PutAttrib("xsi:schemaLocation", temp_buf);
 				GeoTrackingViewItem item;
-				PPObjID last_oid;
+				SObjID last_oid;
 				while(NextIteration(&item) > 0) {
-					PPObjID oid(item.ObjType, item.ObjID);
+					SObjID oid(item.ObjType, item.ObjID);
 					LDATETIME dtm;
 					dtm.Set(GeoTrackCore::ConvertStorageDate(item.Dts2010), item.Tm);
 					if(!p_n_trk || oid != last_oid) {

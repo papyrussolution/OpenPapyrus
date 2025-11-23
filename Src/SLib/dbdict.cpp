@@ -92,10 +92,17 @@ int BDictionary::Init(const char * pDataPath, const char * pTempPath)
 	return IsValid();
 }
 
-BDictionary::BDictionary(const char * pPath, const char * pDataPath, const char * pTempPath) : DbProvider(sqlstNone, DbDictionary::CreateInstance(pPath, 0), 0)
-	{ Init(pDataPath, pTempPath); }
-BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(sqlstNone, new DbDict_Btrieve(pPath), 0)
-	{ Init(0, 0); }
+BDictionary::BDictionary(const char * pPath, const char * pDataPath, const char * pTempPath) : 
+	DbProvider(sqlstNone, cp866, DbDictionary::CreateInstance(pPath, 0), 0)
+{ 
+	Init(pDataPath, pTempPath); 
+}
+
+BDictionary::BDictionary(int btrDict, const char * pPath) : 
+	DbProvider(sqlstNone, cp866, new DbDict_Btrieve(pPath), 0)
+{ 
+	Init(0, 0); 
+}
 
 /*virtual*/int BDictionary::GetDatabaseState(const char * pDbName, uint * pStateFlags)
 {
@@ -157,7 +164,7 @@ BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(sqlstNone
 	DBFileSpec * p_h = new DBFileSpec; // разрушается функцией Btrieve::CreateTable
 	memzero(p_h, sizeof(*p_h));
 	p_h->PageSize = pTbl->PageSize;
-	p_h->RecSize = pTbl->fields.CalculateFixedRecSize();
+	p_h->RecSize = pTbl->fields.CalculateFixedRecSize(0/*BNFieldList2::crsfXXX*/);
 	p_h->Flags   = pTbl->flags;
 	for(uint i = 0; i < pTbl->Indices.getNumKeys(); i++) {
 		BNKey k = pTbl->Indices.getKey(i);

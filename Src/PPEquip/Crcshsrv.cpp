@@ -2798,7 +2798,7 @@ int ACS_CRCSHSRV::GetCashiersList()
 				ss.add(buf);
 				ss.get(&i, cshr_tabnum_); // Табельный номер
 				cshr_tabnum_.StripQuotes();
-				ss.get(&i, cshr_name_);                  // Имя кассира
+				ss.get(&i, cshr_name_); // Имя кассира
 				cshr_name_.Transf(CTRANSF_INNER_TO_OUTER).StripQuotes();
 				ss.get(&i, cshr_password_);   // Пароль
 				cshr_password_.StripQuotes();
@@ -2850,7 +2850,7 @@ int ACS_CRCSHSRV::GetCashiersList()
 					THROW_SL(psn_pack.Kinds.add(r_eq_cfg.CshrsPsnKindID));
 				}
 				if(!is_reg) {
-					THROW(PPObjRegister::InitPacket(&reg_rec, tabnum_reg_id, PPObjID(PPOBJ_PERSON, psn_id), cshr_tabnum_));
+					THROW(PPObjRegister::InitPacket(&reg_rec, tabnum_reg_id, SObjID(PPOBJ_PERSON, psn_id), cshr_tabnum_));
 					THROW_SL(psn_pack.Regs.insert(&reg_rec));
 				}
 				ConvertCrystalRightsSetToCashierRights(rights, &psn_pack.CshrInfo.Rights);
@@ -5596,7 +5596,7 @@ static void Cristal2SetRetailGateway_CSessDictionaryOutput(const char * pDictPat
 							line_buf.Z().Cat(tbl.GetName());
 							const BNFieldList2 & r_fld_list = tbl.GetFields();
 							const BNKeyList & r_idx_list = tbl.GetIndices();
-							line_buf.Tab().CatEq("recsize", /*tbl.getRecSize()*/r_fld_list.CalculateFixedRecSize()).CR();
+							line_buf.Tab().CatEq("recsize", /*tbl.getRecSize()*/r_fld_list.CalculateFixedRecSize(0/*BNFieldList2::crsfXXX*/)).CR();
 							{
 								for(uint fi = 0; fi < r_fld_list.getCount(); fi++) {
 									const BNField & r_fld = r_fld_list.GetFieldByPosition(fi);

@@ -833,9 +833,8 @@ static xmlAttr * xmlC14NFixupBaseAttr(xmlC14NCtxPtr ctx, xmlAttr * xml_base_attr
 				xmlC14NErrInternal("processing xml:base attribute - can't get attr value");
 				return 0;
 			}
-			/* we need to add '/' if our current base uri ends with '..' or '.'
-			   to ensure that we are forced to go "up" all the time */
-			tmp_str_len = sstrlen(tmp_str);
+			// we need to add '/' if our current base uri ends with '..' or '.' to ensure that we are forced to go "up" all the time 
+			tmp_str_len = sstrleni(tmp_str);
 			if(tmp_str_len > 1 && tmp_str[tmp_str_len - 2] == '.') {
 				tmp_str2 = xmlStrcat(tmp_str, reinterpret_cast<const xmlChar *>("/"));
 				if(tmp_str2 == NULL) {

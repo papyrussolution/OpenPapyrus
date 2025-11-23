@@ -802,7 +802,7 @@ int PPObjGoods::UpdateName(PPID id, const char * pNewName, int use_ta)
 						PPGoodsPacket old_pack;
 						THROW(GetPacket(id, &old_pack, 0) > 0);
 						THROW(SerializePacket(+1, &old_pack, hist_buf, &r_sctx, 0));
-						THROW(p_ovc->Add(&hid, PPObjID(Obj, id), &hist_buf, 0));
+						THROW(p_ovc->Add(&hid, SObjID(Obj, id), &hist_buf, 0));
 					}
 				}
 				THROW_DB(P_Tbl->getDirectForUpdate(0, 0, pos));
@@ -1058,7 +1058,7 @@ int PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 			}
 			if(!is_new && DoObjVer) {
 				if(p_ovc && p_ovc->InitSerializeContext(0)) {
-					THROW(p_ovc->Add(&hid, PPObjID(Obj, *pID), &hist_buf, 0));
+					THROW(p_ovc->Add(&hid, SObjID(Obj, *pID), &hist_buf, 0));
 				}
 			}
 			if(!is_removing) {
@@ -3593,7 +3593,7 @@ int PPObjGoods::ViewVersion(PPID histID)
 		ObjVersioningCore * p_ovc = PPRef->P_OvT;
 		if(p_ovc && p_ovc->InitSerializeContext(1)) {
 			SSerializeContext & r_sctx = p_ovc->GetSCtx();
-			PPObjID oid;
+			SObjID oid;
 			long   vv = 0;
 			THROW(p_ovc->Search(histID, &oid, &vv, &buf) > 0);
 			THROW(SerializePacket(-1, &pack, buf, &r_sctx, 0));

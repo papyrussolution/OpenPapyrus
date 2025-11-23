@@ -3765,7 +3765,7 @@ int PPObjSCard::ViewVersion(PPID histID)
 		ObjVersioningCore * p_ovc = PPRef->P_OvT;
 		if(p_ovc && p_ovc->InitSerializeContext(1)) {
 			SSerializeContext & r_sctx = p_ovc->GetSCtx();
-			PPObjID oid;
+			SObjID oid;
 			long   vv = 0;
 			THROW(p_ovc->Search(histID, &oid, &vv, &buf) > 0);
 			THROW(SerializePacket(-1, &pack, buf, &r_sctx));
@@ -3899,7 +3899,7 @@ int PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 				THROW(RemoveObjV(id, 0, 0, 0));
 				if(do_index_phones) {
 					org_pack.GetExtStrData(PPSCardPacket::extssPhone, temp_buf);
-					PPObjID objid(Obj, id);
+					SObjID objid(Obj, id);
 					THROW(p_loc_core->IndexPhone(temp_buf, &objid, 1, 0));
 				}
 				do_dirty = 1;
@@ -3933,7 +3933,7 @@ int PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 						org_pack.GetExtStrData(PPSCardPacket::extssPhone, org_pack_phone);
 						pPack->GetExtStrData(PPSCardPacket::extssPhone, temp_buf);
 						if(temp_buf != org_pack_phone) {
-							PPObjID objid(Obj, id);
+							SObjID objid(Obj, id);
 							THROW(p_loc_core->IndexPhone(org_pack_phone, &objid, 1, 0));
 							THROW(p_loc_core->IndexPhone(temp_buf, &objid, 0, 0));
 						}
@@ -3965,7 +3965,7 @@ int PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(Obj, id, PPTRPROP_SCARDEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 			if(do_index_phones) {
 				pPack->GetExtStrData(PPSCardPacket::extssPhone, temp_buf);
-				PPObjID objid(Obj, id);
+				SObjID objid(Obj, id);
 				THROW(p_loc_core->IndexPhone(temp_buf, &objid, 0, 0));
 			}
 			pPack->Rec.ID = id;
@@ -3974,7 +3974,7 @@ int PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 		}
 		if(id && DoObjVer_SCard && hist_buf.GetAvailableSize()) {
 			if(p_ovc && p_ovc->InitSerializeContext(0)) {
-				THROW(p_ovc->Add(&hid, PPObjID(Obj, id), &hist_buf, 0));
+				THROW(p_ovc->Add(&hid, SObjID(Obj, id), &hist_buf, 0));
 			}
 		}
 		if(log_action_id) {
@@ -4438,7 +4438,7 @@ int PPObjSCard::IndexPhones(PPLogger * pLogger, int use_ta)
 				if(phone.Len() >= 5) {
 					PPID   city_id = 0;
 					city_prefix = main_city_prefix;
-					PPObjID objid(iter_item.O);
+					SObjID objid(iter_item.O);
 					if(city_prefix.Len()) {
 						size_t sl = phone.Len() + city_prefix.Len();
 						if(oneof2(sl, 10, 11))

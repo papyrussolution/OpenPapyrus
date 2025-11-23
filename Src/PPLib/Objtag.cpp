@@ -1594,7 +1594,7 @@ static int EditRecoverHungedUpTagsParam(SString & rLogFileName, long * pFlags)
 					PPTransaction tra(1);
 					THROW(tra);
 					for(uint i = 0; i < oid_list_for_hanged_up_tags.getCount(); i++) {
-						const PPObjID oid = oid_list_for_hanged_up_tags.at(i);
+						const SObjID oid = oid_list_for_hanged_up_tags.at(i);
 						THROW(r_ot.PutList(oid.Obj, oid.Id, 0, 0));
 					}
 					THROW(tra.Commit());

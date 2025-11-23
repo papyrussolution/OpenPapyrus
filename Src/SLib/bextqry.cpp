@@ -567,7 +567,7 @@ int BExtQuery::search_first(const char * pInitKey, int initSpMode, int spMode)
 		}
 		else {
 			p_item = reinterpret_cast<BExtTailItem *>(p_tail + 1);
-			p_item->fldLen = P_Tbl->GetFields().CalculateFixedRecSize();
+			p_item->fldLen = P_Tbl->GetFields().CalculateFixedRecSize(0/*BNFieldList2::crsfXXX*/);
 			p_item->fldOfs = 0;
 			RecSize += p_item->fldLen;
 		}
@@ -885,7 +885,7 @@ int BExtQuery::fillTblBuf()
 					memcpy(b + f.Offs, p, s);
 				if(rs && GETSTYPE(f.T) == S_NOTE) {
 					if(rs < RecSize) {
-						PTR8(b+f.Offs)[s-RecSize+rs]=0;
+						PTR8(b+f.Offs)[s+rs-RecSize] = 0; // @v12.4.10 [s-RecSize+rs]-->[s+rs-RecSize]
 					}
 				}
 				p += s;

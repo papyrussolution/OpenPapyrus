@@ -1194,13 +1194,22 @@ int PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOffParam
 									else
 										ti.Cost = base_price;
 								}
-								ti.QCert = r_src_ti.QCert;
 								if(!(blk.P_WrOffParam->Flags & DROXF_DONTINHEXPIRY))
 									ti.Expiry = r_src_ti.Expiry;
+								/* @v12.4.10 @fix нельзя было так делать - затираются важные флаги, установленные в ti.Init()
 								ti.Flags = r_src_ti.Flags;
 								ti.Flags &= ~PPTFR_DRAFT;
+								*/
+								ti.Flags |= (r_src_ti.Flags & (PPTFR_COSTWOVAT|PPTFR_COSTWSTAX|PPTFR_INDEPPHQTTY|PPTFR_PRICEWOTAXES)); // @v12.4.10
 								ti.TFlags |= PPTransferItem::tfForceNew;
 								ti.TFlags &= ~PPTransferItem::tfDirty;
+								// @v12.4.10 ti.QCert = r_src_ti.QCert; 
+								{
+									// @v12.4.10 {
+									if(!(GetConfig().Flags & BCF_DONTINHQCERT) && (ti.Flags & PPTFR_RECEIPT))
+										trfr->Rcpt.GetLastQCert(labs(ti.GoodsID), ti.Date, ti.LocID, &ti.QCert, 0);
+									// } @v12.4.10 
+								}
 								THROW(p_pack->InsertRow(&ti, 0));
 								{
 									const uint dest_pos = p_pack->GetTCount()-1;

@@ -1575,8 +1575,8 @@ SLTEST_R(PPSync) // @v12.4.1 @construction
 		}
 		const SString Path;
 		PPObjIDArray MutexObjList;
-		const PPObjID LockedMutexObj;
-		const PPObjID UnlockedMutexObj;
+		const SObjID LockedMutexObj;
+		const SObjID UnlockedMutexObj;
 		const  uint MaxThrIterCount;
 		long   LockedMutexId;
 		long   UnlockedMutexId;
@@ -1631,7 +1631,7 @@ SLTEST_R(PPSync) // @v12.4.1 @construction
 						for(uint i = 0; i < idx_list.getCount(); i++) {
 							iter_no++;
 							const uint idx = idx_list.get(i);
-							const PPObjID & r_oid = R_Data.MutexObjList.at(idx);
+							const SObjID & r_oid = R_Data.MutexObjList.at(idx);
 							long  mtx_id = 0;
 							//const uint _delay_ms = SLS.GetTLA().Rg.GetUniformIntPos(6000) + 500/*гарантированно больше 500 чтоб другой поток успел снять блокировку если устанавливал*/;
 							const uint _delay_ms = 1000 + (idx * 50);

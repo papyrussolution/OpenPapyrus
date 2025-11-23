@@ -610,7 +610,7 @@ int PPObjPersonEvent::TC_SetCalendar(PPID psnID, const PPPsnOpKind * pPok, const
 		PPID   cal_id = 0;
 		CALDATE cdt;
 		StaffCalendarTbl::Rec entry;
-		PPObjID oi(PPOBJ_PERSON, psnID);
+		SObjID oi(PPOBJ_PERSON, psnID);
 		if(oneof4(pClause->VerbID, POVERB_SETCALENDAR, POVERB_SETCALENDAR_SKIP, POVERB_SETCALCONT, POVERB_SETCALCONT_SKIP)) {
 			THROW(StcObj.CreateChild(&cal_id, pClause->DirObj, oi, 0) > 0);
 			MEMSZERO(entry);
@@ -956,7 +956,7 @@ int PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKind * p
 				case POVERB_INCSCARDOP:
 				case POVERB_DECSCARDOP:
 					{
-						PPObjID oi(PPOBJ_PERSONEVENT, pPack->Rec.ID);
+						SObjID oi(PPOBJ_PERSONEVENT, pPack->Rec.ID);
 						if(oneof2(action, PPACN_OBJUPD, PPACN_OBJRMV)) {
 							TSVector <SCardCore::OpBlock> ex_link_op_list;
 							THROW(P_ScObj->P_Tbl->GetOpByLinkObj(oi, ex_link_op_list));
@@ -1050,15 +1050,12 @@ int PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKind * p
 									THROW(P_ScObj->P_Tbl->GetRest(sc_rec.ID, ZERODATE, &rest));
 									rest += sc_rec.MaxCredit;
 									if(value < 0.0) {
-										// @v10.9.3 {
 										if((rest + value) <= -0.01) {
 											SString msg_buf;
 											msg_buf.Z().Cat(sc_rec.Code).Space().
 												CatEq("amount", value, MKSFMTD(0, 8, NMBF_NOTRAILZ)).Space().CatEq("rest", rest, MKSFMTD(0, 8, NMBF_NOTRAILZ));
 											CALLEXCEPT_PP_S(PPERR_SCARDRESTNOTENOUGH, msg_buf);
 										}
-										// } @v10.9.3 
-										// @v10.9.3 THROW_PP_S((rest+value) >= 0.0, PPERR_SCARDRESTNOTENOUGH, sc_rec.Code);
 									}
 									{
 										SCardCore::OpBlock ob;

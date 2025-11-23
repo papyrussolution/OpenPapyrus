@@ -314,7 +314,7 @@ toolbar MAIN TB_GLOBAL {
 	separator
 	cmEventsForCurrentUser, "@{cmd_events}",        PPDV_SIGNAL01
 	cmOpenTextFile,     "@{cmd_opentextfile}",      PPDV_FILEDOCUMENTEDIT01
-
+	cmUniFindObj,       "@{cmd_unifindobj}",        PPDV_SEARCH
 }
 
 toolbar export ACCBILL TB_FIRST_TOOLBAR {
@@ -6854,6 +6854,19 @@ browser UNITEC_PVT north(100), 3, 1, "Unit-анализ", OWNER|GRID, 0 // @v12.4.7 @c
 		CHANGEFILT    : kbCtrlV,   PPDV_FILTER01,       "@{filter}\tCtrl-V"
 	}
 }
+
+browser UNIFINDOBJ north(100), 3, 1, "Универсальный поиск объектов", OWNER|GRID, 0
+{
+	"@object",                   1, zstring(128), 0, 30, BCO_USERPROC
+	"@id",                       2, long,         0,  8, BCO_USERPROC
+	"@appellation",              3, zstring(128), 0, 30, BCO_USERPROC
+	"Field description",         4, zstring(128), 0, 30, BCO_USERPROC
+	"Addendum feature",          5, zstring(128), 0, 30, BCO_USERPROC
+	toolbar TB_FIRST_TOOLBAR {
+		DETAIL        : kbEnter,   PPDV_LINS01,         "@{detail}\tEnter"
+		CHANGEFILT    : kbCtrlV,   PPDV_FILTER01,       "@{filter}\tCtrl-V"
+	}
+}
 //
 // -------------- Описания команд меню и рабочих столов
 //
@@ -7435,6 +7448,7 @@ view   BizSc2Val                    { "@{view_bizscore2val}" } // @v12.3.4
 view   UnitEc                       { "@{view_unitec}" } // @v12.3.7
 view   WbPublicGoods                { "" } // @v12.3.8
 filter MarketplaceGoodsSelection    { "@{filter_marketplacegoodsselection}" } // @v12.3.8
+view   UniFindObj                   { "@{unifindobj}" } // @v12.4.10
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //
@@ -9471,6 +9485,15 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_ACTIVITY01                   // @v12.2.2
 	PPDV_ARCHIVE01                    // @v12.2.2
 	PPDV_CLOSE01                      // @v12.2.12
+	PPDV_LOGOPAPYRUS noreplacecolor
+	PPDV_LOGOUDS noreplacecolor
+	PPDV_LOGOVK noreplacecolor
+	PPDV_LOGOVETIS noreplacecolor
+	PPDV_LOGOCHZN noreplacecolor
+	PPDV_LOGOGOOGLEMAPS01 noreplacecolor
+	PPDV_LOGOWILDBERRIES noreplacecolor // @v12.2.3
+	PPDV_LOGOAPTEKARU noreplacecolor // @v12.2.3
+	PPDV_SEARCH                      // @v12.4.10
 }
 
 // @todo При добавлении новой иконки в верхний реестр сбиваются идентификаторы нижнего реестра. Это надо исправлять!
@@ -9478,13 +9501,13 @@ drawvector "..\rsrc\svg" #000000 {
 //
 // Следующие изображения используются без замещения цвета
 //
-drawvector "..\rsrc\svg" {
-	PPDV_LOGOPAPYRUS
-	PPDV_LOGOUDS
-	PPDV_LOGOVK
-	PPDV_LOGOVETIS
-	PPDV_LOGOCHZN
-	PPDV_LOGOGOOGLEMAPS01
-	PPDV_LOGOWILDBERRIES // @v12.2.3
-	PPDV_LOGOAPTEKARU // @v12.2.3
-}
+//drawvector "..\rsrc\svg" {
+	//PPDV_LOGOPAPYRUS noreplacecolor
+	//PPDV_LOGOUDS noreplacecolor
+	//PPDV_LOGOVK noreplacecolor
+	//PPDV_LOGOVETIS noreplacecolor
+	//PPDV_LOGOCHZN noreplacecolor
+	//PPDV_LOGOGOOGLEMAPS01 noreplacecolor
+	//PPDV_LOGOWILDBERRIES noreplacecolor // @v12.2.3
+	//PPDV_LOGOAPTEKARU noreplacecolor // @v12.2.3
+//}

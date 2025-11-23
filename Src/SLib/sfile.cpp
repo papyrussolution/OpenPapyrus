@@ -4,7 +4,6 @@
 #include <slib-internal.h>
 #pragma hdrstop
 #include <share.h>
-#include <AclAPI.h>
 #include <../SLib/bzip2/bzlib.h>
 // @v11.7.1 #include <sys/locking.h>
 

@@ -406,7 +406,7 @@ int STDCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int r
 				case PPERR_DUPSYMB:
 				case PPERR_LOTRESTBOUND:
 					{
-						const PPObjID last_err_obj = r_ds_tla.LastErrObj;
+						const SObjID last_err_obj = r_ds_tla.LastErrObj;
 						GetObjectTitle(last_err_obj.Obj, temp_buf.Z()).CatCharN(' ', 2);
 						ideqvalstr(last_err_obj.Id, temp_buf).Space().CatChar('(');
 						CatObjectName(last_err_obj.Obj, last_err_obj.Id, temp_buf);

@@ -1470,7 +1470,7 @@ int PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pB
 				//
 				{
 					const BrwHdr * p_row = static_cast<const BrwHdr *>(pBrw->getCurItem());
-					ok = PPView::Helper_ProcessQuickTagEdit(PPObjID(PPOBJ_LOT, p_row ? p_row->ID : 0), pHdr/*(LongArray *)*/);
+					ok = PPView::Helper_ProcessQuickTagEdit(SObjID(PPOBJ_LOT, p_row ? p_row->ID : 0), pHdr/*(LongArray *)*/);
 				}
 				break;
 			case PPVCMD_TAGS: ok = EditObjTagValList(PPOBJ_LOT, lot_id, 0); break;

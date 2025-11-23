@@ -3328,7 +3328,7 @@ int PPObjBill::ViewBillInfo(PPID billID)
 			}
 			else if(event.isCmd(cmObjSyncTab)) {
 				if(P_Pack)
-					ViewObjSyncTab(PPObjID(PPOBJ_BILL, P_Pack->Rec.ID));
+					ViewObjSyncTab(SObjID(PPOBJ_BILL, P_Pack->Rec.ID));
 			}
 			// @v11.8.3 {
 			else if(event.isKeyDown(kbCtrlF12)) {
@@ -4377,7 +4377,7 @@ IMPL_HANDLE_EVENT(LotInfoDialog)
 	else if(event.isCmd(cmaBack))
 		setupLinkedLot(0);
 	else if(event.isCmd(cmObjSyncTab)) {
-		ViewObjSyncTab(PPObjID(PPOBJ_LOT, Data.ID));
+		ViewObjSyncTab(SObjID(PPOBJ_LOT, Data.ID));
 	}
 	else if(event.isCmd(cmTags)) {
 		ObjTagList tag_list;

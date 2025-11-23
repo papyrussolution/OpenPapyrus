@@ -1438,7 +1438,6 @@ uint8 FASTCALL hextobyte(const char * pBuf)
 }*/
 // @v11.3.6 (inlined) int FASTCALL isasciialpha(char ch) { return (((uchar)(ch | 32) - 97) < 26U); }
 // @v11.3.6 (inlined) int FASTCALL isasciialnum(char ch) { return ((ch >= '0' && ch <= '9') || (((uchar)(ch | 32) - 97) < 26U)); }
-// @v10.9.3 (replaced with isasciialpha) int FASTCALL IsLetterASCII(int ch) { return ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z')); }
 
 int FASTCALL ToLower1251(int alpha)
 {
@@ -2924,14 +2923,15 @@ int ApproxStrSrch(const char * pPattern, const char * pBuffer, ApproxStrSrchPara
 	return ok;
 }
 
-int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
+int STDCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 {
 	int    ok = 1;
 	int    done = 0;
 	// const  char * p_or_div = "€‹€"; // ИЛИ (cp866)
-	const  char * p_or_dir = "||";
-	const  char * p_and_dir = "&&";
-	if(pBuffer && pPattern) {
+	static const char * p_word_break = " \t.,;:?!/%^&*(){}[]+-=\"";
+	static const char * p_or_dir = "||";
+	static const char * p_and_dir = "&&";
+	if(!isempty(pBuffer) && !isempty(pPattern)) {
 		SString temp_buf;
 		uint   p = 0;
 		// div: 1 - OR, 2 - AND
@@ -2990,13 +2990,14 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 				sp.no_case = 1;
 				if(*p_srch_str == '(') {
 					int i, j;
-					for(i = j = 0, p_srch_str++; i < 2 && *p_srch_str != ')'; i++, p_srch_str++)
+					for(i = j = 0, p_srch_str++; i < 2 && *p_srch_str != ')'; i++, p_srch_str++) {
 						if(isdec(*p_srch_str))
 							j = j * 10 + *p_srch_str - '0';
 						else {
 							ok = 0;
 							break;
 						}
+					}
 					if(ok && *p_srch_str == ')') {
 						p_srch_str++;
 						sp.umin = fdiv100i(j);
@@ -3010,7 +3011,7 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 					ok = 0;
 			}
 			else {
-				if(p_srch_str[0] == '%' && p_srch_str[1] == '^') {
+				if(p_srch_str[0] == '%' && p_srch_str[1] == '^') { // Сопоставление префикса pBuffer с образцом 
 					p_srch_str += 2;
 					const size_t prefix_len = strlen(p_srch_str);
 					if(prefix_len) {
@@ -3025,11 +3026,37 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 						ok = 1; // Вырожденный паттерн - считаем, что любая строка для него годится //
 				}
 				else {
-					const char * p_local_r = (flags & essfCaseSensitive) ? strstr(pBuffer, p_srch_str) : stristr866(pBuffer, p_srch_str);
-					if(!p_local_r)
-						ok = 0;
-					/*if(!stristr866(pBuffer, p_srch_str))
-						ok = 0;*/
+					const size_t pattern_len = strlen(p_srch_str);
+					const char * p_text = pBuffer;
+					while(ok && p_text) {
+						const char * p_local_r = 0;
+						if(flags & essfCaseSensitive) {
+							p_local_r = strstr(p_text, p_srch_str);
+						}
+						else {
+							p_local_r = stristr866(p_text, p_srch_str);
+						}
+						if(!p_local_r) {
+							p_text = 0;
+							ok = 0;
+						}
+						else if(flags & essfWholeWords) {
+							if(p_local_r == pBuffer || sstrchr(p_word_break, p_local_r[-1])) { // Первый найденный символ - на границе слова - OK
+								if(p_local_r[pattern_len] == 0 || sstrchr(p_word_break, p_local_r[pattern_len])) { // Последний найденный символ - на границе слова - OK
+									assert(ok);
+									p_text = 0; // break
+								}
+								else
+									p_text = p_local_r+1;
+							}
+							else
+								p_text = p_local_r+1;
+						}
+						else {
+							assert(ok);
+							p_text = 0; // break
+						}
+					}
 				}
 			}
 		}

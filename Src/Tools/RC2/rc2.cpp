@@ -33,7 +33,7 @@ Rc2Data Rc2; // @global
 //
 int GetSubStr(const char * pStr, int idx, char * buf, size_t buflen)
 {
-	uint pos = 0;
+	uint   pos = 0;
 	StringSet ss(';', pStr);
 	for(int i = 0; ss.get(&pos, buf, buflen); i++)
 		if(i == idx)
@@ -72,24 +72,26 @@ int GetFlagValue(const char * pFlagText, const char * pVariants, int * pResult)
 
 static void GetFlagsAsString(int flag, const char * pVariants, char * pBuf, int maxBuf)
 {
-	char   buf[256];
-	PTR32(pBuf)[0] = 0;
-	if(flag) {
-		for(int i = 1, j = 0; i <= flag; i*=2, j++) {
-			if(i & flag) {
-				if(GetSubStr(pVariants, j - 1, buf, sizeof(buf)) <= 0)
-					yyerror("invalid flags");
-				else {
-					strncat(pBuf, buf, maxBuf - strlen(pBuf) - 1);
-					if((i * 2) <= flag)
-						strncat(pBuf, "|", maxBuf - strlen(pBuf) - 1);
+	if(pBuf) {
+		pBuf[0] = 0;
+		if(flag) {
+			char   buf[256];
+			for(int i = 1, j = 0; i <= flag; i*=2, j++) {
+				if(i & flag) {
+					if(GetSubStr(pVariants, j - 1, buf, sizeof(buf)) <= 0)
+						yyerror("invalid flags");
+					else {
+						strncat(pBuf, buf, maxBuf - strlen(pBuf) - 1);
+						if((i * 2) <= flag)
+							strncat(pBuf, "|", maxBuf - strlen(pBuf) - 1);
+					}
 				}
 			}
 		}
-	}
-	else {
-		pBuf[0] = '0';
-		// @v11.1.8 ({PTR32(pBuf)[0] = 0} above guarantees {pBuf[1] == 0}) pBuf[1] = 0;
+		else {
+			pBuf[0] = '0';
+			// @v11.1.8 ({PTR32(pBuf)[0] = 0} above guarantees {pBuf[1] == 0}) pBuf[1] = 0;
+		}
 	}
 }
 //
@@ -148,10 +150,10 @@ int Rc2Data::SetupDrawVectorGroup(const char * pPath, SColor replacedColor)
 	return 1;
 }
 
-int Rc2Data::AddDrawVector(const char * pSymbol, SColor replacedColor, SString & rErrMsg)
+int Rc2Data::AddDrawVector(const char * pSymbol, bool dontReplaceColor, SColor replacedColor, SString & rErrMsg)
 {
 	int    ok = 1;
-	const  SColor dummy_replaced_color(0, 0, 0, 0);
+	// @v12.4.10 (ZEROCOLOR) const  SColor dummy_replaced_color(0, 0, 0, 0);
 	SString symbol(pSymbol);
 	if(symbol.NotEmptyS()) {
 		DrawVectorGroup * p_group = 0;
@@ -161,7 +163,7 @@ int Rc2Data::AddDrawVector(const char * pSymbol, SColor replacedColor, SString &
 			if(c)
 				p_group = DrawVectorList.at(c-1);
 			if(!p_group) {
-				if(SetupDrawVectorGroup(0, dummy_replaced_color))
+				if(SetupDrawVectorGroup(0, ZEROCOLOR))
 					p_group = DrawVectorList.at(DrawVectorList.getCount()-1);
 			}
 		}
@@ -169,8 +171,9 @@ int Rc2Data::AddDrawVector(const char * pSymbol, SColor replacedColor, SString &
 			symbol.ToUpper();
 			int    r = AddSymb(DeclareSymb::kDrawVector, symbol, &item.SymbID, rErrMsg);
 			if(r > 0) {
-				SString prefix_buf, body_buf, file_name;
-				file_name = (symbol.Divide('_', prefix_buf, body_buf) > 0) ? body_buf : symbol;
+				SString prefix_buf;
+				SString body_buf;
+				SString file_name((symbol.Divide('_', prefix_buf, body_buf) > 0) ? body_buf : symbol);
 				file_name.ToLower();
 				SFsPath::ReplaceExt(file_name, "svg", 0);
 				if(p_group->Path.NotEmpty()) {
@@ -178,7 +181,12 @@ int Rc2Data::AddDrawVector(const char * pSymbol, SColor replacedColor, SString &
 					file_name = body_buf;
 				}
 				file_name.CopyTo(item.FileName, sizeof(item.FileName));
-				item.ReplacedColor = (replacedColor == dummy_replaced_color) ? p_group->ReplacedColor : replacedColor;
+				if(dontReplaceColor || item.Flags & Rc2DrawVectorItem::fColorAsIs) { // @v12.4.10
+					item.ReplacedColor = ZEROCOLOR;
+				}
+				else {
+					item.ReplacedColor = (replacedColor == ZEROCOLOR) ? p_group->ReplacedColor : replacedColor;
+				}
 				p_group->List.insert(&item);
 			}
 			else
@@ -938,7 +946,7 @@ int Rc2Data::GenerateDrawVectorFile(const char * pStorageFileName)
 			if(p_grp) {
 #if DO_CREATE_VECT_STORAGE
 				for(uint item_idx = 0; item_idx < p_grp->List.getCount(); item_idx++) {
-					const Rc2DrawVectorItem & r_item = p_grp->List.at(item_idx);
+					const  Rc2DrawVectorItem & r_item = p_grp->List.at(item_idx);
 					char   symb[128];
 					if(SymbolList.SearchSymbByID(DeclareSymb::kDrawVector, r_item.SymbID, symb, sizeof(symb))) {
 						TWhatmanToolArray::Item tool_item;

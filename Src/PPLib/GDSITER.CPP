@@ -1242,7 +1242,7 @@ int PPObjGoods::ReplaceName(PPGoodsPacket * pPack, const PPGoodsReplaceNameParam
 						PPGoodsPacket hist_pack;
 						ObjVersioningCore * p_ovc = PPRef->P_OvT;
 						if(p_ovc && p_ovc->InitSerializeContext(1)) {
-							PPObjID oid;
+							SObjID oid;
 							long   vv = 0;
 							if(p_ovc->Search(sj_rec.Extra, &oid, &vv, &buf) > 0) {
 								SSerializeContext & r_sctx = p_ovc->GetSCtx();

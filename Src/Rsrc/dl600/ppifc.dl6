@@ -44,9 +44,6 @@
 // interface IPpyFilt_Bill
 // interface IPpyFilt_GoodsOpAnlz
 //
-//
-//
-//
 import outerifc.dl6
 
 interface IUnknown;

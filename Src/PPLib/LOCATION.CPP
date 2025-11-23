@@ -273,8 +273,10 @@ int LocationCore::GetCodeByTemplate(const char * pTempl, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = -1;
-	size_t x_len = 0, r_len = 0;
-	double low = 0, upp = 0;
+	size_t x_len = 0;
+	size_t r_len = 0;
+	double low = 0.0;
+	double upp = 0.0;
 	char   pfx[32], t[32];
 	char * c = pfx;
 	char * p_dup_templ = newStr(pTempl);
@@ -343,7 +345,7 @@ int LocationCore::InitEnum(PPID locTyp, PPID parentID, int flags, long * pHandle
 		LocationTbl::Key3 k3;
 	} k;
 	MEMSZERO(k);
-	k.k2.Type = (int16)locTyp;
+	k.k2.Type = static_cast<int16>(locTyp);
 	if(!(flags & eoIgnoreParent)) {
 		if(flags & eoParentAsOwner) {
 			idx = 3;
@@ -384,7 +386,7 @@ int LocationCore::Add(PPID * pID, LocationTbl::Rec * pRec, int use_ta)
 		if(CConfig.Flags2 & CCFLG2_INDEXEADDR) {
 			SString temp_buf;
 			GetExField(pRec, LOCEXSTR_PHONE, temp_buf);
-			PPObjID objid(PPOBJ_LOCATION, *pID);
+			SObjID objid(PPOBJ_LOCATION, *pID);
 			THROW(IndexPhone(temp_buf, &objid, 0, 0));
 		}
 		THROW(tra.Commit());
@@ -456,13 +458,17 @@ int LocationCore::SearchMaxLike(const LocationTbl::Rec * pRec, long flags, PPID 
 			break;
 	}
 	if(ok) {
-		SString line_buf, item_buf, id_buf, txt_buf;
+		SString line_buf;
+		SString item_buf;
+		SString id_buf;
+		SString txt_buf;
 		PPLoadText(PPTXT_LOCTYPE, line_buf);
-		for(int idx = 0; PPGetSubStr(line_buf, idx, item_buf) > 0; idx++)
+		for(int idx = 0; PPGetSubStr(line_buf, idx, item_buf) > 0; idx++) {
 			if(item_buf.Divide(',', id_buf, txt_buf) > 0 && id_buf.ToLong() == locType) {
 				d.Name = txt_buf;
 				break;
 			}
+		}
 	}
 	ASSIGN_PTR(pDescr, d);
 	return 1;
@@ -550,9 +556,10 @@ int LocationCore::GetAddress_(PPID id, uint f, SString & rBuf)
 	return (!id || Search(id) > 0) ? LocationCore::GetAddress(data, f, rBuf) : 0;
 }
 
-int LocationCore::IndexPhone(const char * pPhone, const PPObjID * pObjId, int doRemove, int use_ta)
+int LocationCore::IndexPhone(const char * pPhone, const SObjID * pObjId, int doRemove, int use_ta)
 {
-	int    ok = 1, r = 1;
+	int    ok = 1;
+	int    r = 1;
 	PPID   addr_id = 0;
 	if(P_Eac) {
 		PPTransaction tra(use_ta);
@@ -626,7 +633,7 @@ int LocationCore::DumpEaList(const char * pFileName)
 			q.select(P_Eac->ID, P_Eac->LinkObjType, P_Eac->LinkObjID, P_Eac->Addr, 0L);
 			MEMSZERO(k1);
 			for(q.initIteration(false, &k1, spFirst); q.nextIteration() > 0;) {
-				PPObjID oid(P_Eac->data.LinkObjType, P_Eac->data.LinkObjID);
+				SObjID oid(P_Eac->data.LinkObjType, P_Eac->data.LinkObjID);
 				reinterpret_cast<const PPEAddr *>(P_Eac->data.Addr)->GetPhone(phone_buf);
 				;
 				line_buf.Z().Cat(P_Eac->data.ID).Tab().Cat(phone_buf).Tab().Cat(SObjID_ToStr(oid, temp_buf));
@@ -1026,7 +1033,7 @@ EAddrCore::EAddrCore() : EAddrTbl()
 
 int EAddrCore::Search(PPID id, EAddrTbl::Rec * pRec) { return SearchByID(this, PPOBJ_EADDR, id, pRec); }
 
-int EAddrCore::Put(PPID * pID, const PPEAddr * pAddr, const PPObjID * pObjId, int use_ta)
+int EAddrCore::Put(PPID * pID, const PPEAddr * pAddr, const SObjID * pObjId, int use_ta)
 {
 	int    ok = 1, r = 0;
 	{
@@ -1077,7 +1084,7 @@ int EAddrCore::SearchIpV4(uint32 ip, long options, LongArray & rResult)
 }
 */
 
-int EAddrCore::Search(const PPEAddr & rAddr, const PPObjID * pObjId, PPID * pID)
+int EAddrCore::Search(const PPEAddr & rAddr, const SObjID * pObjId, PPID * pID)
 {
 	int    ok = 0;
 	EAddrTbl::Key1 k1;

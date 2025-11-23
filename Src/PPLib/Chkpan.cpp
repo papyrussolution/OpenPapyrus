@@ -2709,6 +2709,326 @@ int CPosProcessor::TurnCorrectionStorno(PPID * pCcID, int ccOp /*CCOP_XXX*/, PPI
 	return ok;
 }
 
+void _CorrectProblem_v12304()
+{
+	TDialog * dlg = new TDialog(DLG_CORRECT12304);
+	DateRange period;
+	PPID   pos_node_id = 0;
+	enum {
+		fTestMode = 0x0001
+	};
+	long   flags = fTestMode;
+	period.Set(encodedate(1, 5, 2025), ZERODATE);
+	if(CheckDialogPtrErr(&dlg)) {
+		bool    do_process = false;
+		SetupPPObjCombo(dlg, CTLSEL_CORRECT12304_POSNODE, PPOBJ_CASHNODE, pos_node_id, 0);
+		SetPeriodInput(dlg, CTL_CORRECT12304_PERIOD, period);
+		dlg->AddClusterAssoc(CTL_CORRECT12304_FLAGS, 0, fTestMode);
+		dlg->SetClusterData(CTL_CORRECT12304_FLAGS, flags);
+		while(!do_process && ExecView(dlg) == cmOK) {
+			uint   sel = 0;
+			dlg->getCtrlData(sel = CTLSEL_CORRECT12304_POSNODE, &pos_node_id);
+			if(pos_node_id) {
+				GetPeriodInput(dlg, CTL_CORRECT12304_PERIOD, &period);
+				dlg->GetClusterData(CTL_CORRECT12304_FLAGS, &flags);
+				do_process = true;
+			}
+			else {
+				PPErrorByDialog(dlg, sel, PPERR_CASHNODENEEDED);
+			}
+		}
+		if(do_process) {
+			assert(pos_node_id);
+			CPosProcessor p(pos_node_id, 0, 0, 0, 0);
+			period.Actualize(ZERODATE);
+			p.CorrectProblem_v12304(&period, LOGIC(flags & fTestMode));
+		}
+	}
+	delete dlg;
+}
+
+int CPosProcessor::CorrectProblem_v12304(const DateRange * pPeriod, bool testMode) // @v12.4.10 // @construction
+{
+	// Дата возникновения проблемы май-июнь 2025
+	int    ok = -1;
+	Reference * p_ref = PPRef;
+	SString temp_buf;
+	SString msg_buf;
+	const char * p_log_file_name = "CorrectProblem_v12304.log";
+	PPWait(1);
+	if(P_EgMas) {
+		PPEgaisProcessor * p_eg_prc = DS.GetTLA().GetEgaisProcessor();
+		if(p_eg_prc) {
+			DateRange period;
+			const LDATE __start_problem_date = encodedate(1, 5, 2025);
+			if(pPeriod) {
+				if(checkdate(pPeriod->low) && pPeriod->low >= __start_problem_date)
+					period.low = pPeriod->low;
+				else
+					period.low = __start_problem_date;
+				if(!checkdate(pPeriod->upp) || pPeriod->upp < period.low)
+					period.upp = ZERODATE;
+				else
+					period.upp = pPeriod->upp;
+			}
+			else {
+				period.Set(__start_problem_date, ZERODATE);
+			}
+			const LDATE start_date = period.low;
+			CCheckCore & r_cc = GetCc();
+			PPIDArray shadow_cc_id_list;
+			LAssocArray processed_shadow_code_list; // Список теневых чеков, которые уже были созданы для решения проблемы. Key - ID, Val - Code
+			LAssocArray target_cc_id_list; // key - main_cc_id, val - shadow_cc_id
+			TSVector <CCheckTbl::Rec> temp_cc_rec_list;
+			CCheckPacket cc_pack;
+			CCheckTbl::Key2 k2;
+			MEMSZERO(k2);
+			k2.PosNodeID = PPPOSN_SHADOW;
+			/*
+				p_ref->UtrC.SearchUtf8(TextRefIdent(PPOBJ_CCHECK, r_rec.ID, PPTRPROP_CC_LNEXT), temp_buf);
+				temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+				CCheckPacket::Helper_UnpackTextExt(temp_buf, &sc, &cc_fld_list);
+				if(sc.GetExtStrData(CCheckPacket::extssFiscalSign, temp_buf) > 0) {
+				}
+			*/ 
+			if(r_cc.search(2, &k2, spGe) && r_cc.data.PosNodeID == PPPOSN_SHADOW) do {
+				PPExtStrContainer sc;
+				StrAssocArray cc_fld_list;
+				if(r_cc.data.PosNodeID == PPPOSN_SHADOW) {
+					const PPID cc_id = r_cc.data.ID;
+					const long cc_code = r_cc.data.Code;
+					const bool _is_in_period = period.CheckDate(r_cc.data.Dt);
+					if(_is_in_period) {
+						shadow_cc_id_list.add(cc_id);
+					}
+					{
+						p_ref->UtrC.SearchUtf8(TextRefIdent(PPOBJ_CCHECK, cc_id, PPTRPROP_CC_LNEXT), temp_buf);
+						CCheckPacket::Helper_UnpackTextExt(temp_buf, &sc, &cc_fld_list);
+						if(sc.GetExtStrData(CCheckPacket::extssCorrect12304, temp_buf) > 0 && temp_buf.IsEqiAscii("true")) {
+							processed_shadow_code_list.Add(cc_id, cc_code);
+						}
+					}
+				}
+			} while(r_cc.search(2, &k2, spNext) && r_cc.data.PosNodeID == PPPOSN_SHADOW);
+			shadow_cc_id_list.sortAndUndup();
+			uint   iter_idx = shadow_cc_id_list.getCount();
+			if(iter_idx) {
+				uint   shadow_cc_counter = 0;
+				do {
+					PPID   iter_cc_id = shadow_cc_id_list.at(--iter_idx);
+					if(r_cc.LoadPacket(iter_cc_id, 0, &cc_pack) > 0 && cc_pack.GetCount()) {
+						bool    all_zero = true;
+						for(uint clidx = 0; clidx < cc_pack.GetCount(); clidx++) {
+							const CCheckLineTbl::Rec & r_ccl = cc_pack.GetLineC(clidx);
+							if(r_ccl.Quantity != 0.0) {
+								all_zero = false;
+							}
+						}
+						if(all_zero) {
+							LDATETIME shadow_cc_dtm;
+							shadow_cc_dtm.Set(cc_pack.Rec.Dt, cc_pack.Rec.Tm);
+							temp_cc_rec_list.clear();
+							r_cc.SearchByDateAndCode(cc_pack.Rec.Code, shadow_cc_dtm.d, false, &temp_cc_rec_list);
+							PPID    main_cc_id = 0;
+							bool    ambiguity = false;
+							for(uint i = 0; i < temp_cc_rec_list.getCount(); i++) {
+								const CCheckTbl::Rec & r_iter_cc_rec = temp_cc_rec_list.at(i);
+								if(r_iter_cc_rec.ID != cc_pack.Rec.ID) {
+									LDATETIME iter_cc_dtm;	
+									iter_cc_dtm.Set(r_iter_cc_rec.Dt, r_iter_cc_rec.Tm);
+									const long _s = abs(diffdatetimesec(iter_cc_dtm, shadow_cc_dtm));
+									if(_s <= 60) {
+										if(main_cc_id) {
+											ambiguity = true;
+											break;
+										}
+										else {
+											main_cc_id = r_iter_cc_rec.ID;
+										}
+									}
+								}
+							}
+							if(main_cc_id && !ambiguity) {
+								target_cc_id_list.Add(main_cc_id, cc_pack.Rec.ID);
+							}
+						}
+					}
+				} while(iter_idx);
+				if(target_cc_id_list.getCount()) {
+					target_cc_id_list.SortByKeyVal();
+					for(uint tli = 0; tli < target_cc_id_list.getCount(); tli++) {
+						const PPID main_cc_id = target_cc_id_list.at(tli).Key;
+						const PPID shadow_cc_id = target_cc_id_list.at(tli).Val;
+						CCheckPacket main_cc_pack;
+						if(r_cc.LoadPacket(main_cc_id, 0, &main_cc_pack) > 0) {
+							uint   processed_shadow_code_pos = 0;
+							if(processed_shadow_code_list.SearchByVal(main_cc_pack.Rec.Code, &processed_shadow_code_pos)) {
+								LAssoc pi = processed_shadow_code_list.at(processed_shadow_code_pos);
+								CCheckCore::MakeCodeString(&main_cc_pack.Rec, CCheckCore::mcsID, temp_buf);
+								temp_buf.CatDiv(':', 2).Cat("corrected").CatParStr(pi.Key);
+								PPLogMessage(p_log_file_name, temp_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+							}
+							else {
+								{
+									CCheckCore::MakeCodeString(&main_cc_pack.Rec, CCheckCore::mcsID, temp_buf);
+									PPLogMessage(p_log_file_name, temp_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+								}
+								EgaisMarkAutoSelector::ResultBlock rb;
+								PPGoodsType gt_rec;
+								Goods2Tbl::Rec goods_rec;
+								{
+									for(uint i = 0; i < main_cc_pack.GetCount(); i++) {
+										const CCheckLineTbl::Rec & r_ccl = main_cc_pack.GetLineC(i);
+										P_EgMas->AddSourceItemToResultBlock(rb, i+1, r_ccl.GoodsID, r_ccl.Quantity);
+									}
+								}
+								if(rb.getCount()) {
+									{
+										for(uint i = 0; i < rb.getCount(); i++) {
+											const EgaisMarkAutoSelector::DocItem * p_src_item = rb.at(i);
+											if(p_src_item) {
+												msg_buf.Z();
+												GetObjectName(PPOBJ_GOODS, p_src_item->GoodsID, temp_buf);
+												msg_buf.Tab().Cat(temp_buf).Space().CatEq("qtty", p_src_item->Qtty, MKSFMTD(0, 3, 0)).Space().
+													CatEq("volume-qtty", p_src_item->VolumeQtty, MKSFMTD(0, 3, 0));
+												PPLogMessage(p_log_file_name, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+											}
+										}
+									}
+									int r = P_EgMas->Run(rb, /*main_cc_pack.Rec.Dt*/ZERODATE);
+									if(r > 0) {
+										{
+											msg_buf.Z().Tab_(2).Cat("EgaisMarkAutoSelector").Space().Cat("process completed successfully");
+											PPLogMessage(p_log_file_name, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+										}
+										CCheckPacket cc_shadow_egais;
+										if(P_EgMas->MakeShadowCcPacket(&rb, main_cc_pack, cc_shadow_egais) > 0) {
+											{
+												for(uint i = 0; i < cc_shadow_egais.GetCount(); i++) {
+													const CCheckLineTbl::Rec & r_ccl = cc_shadow_egais.GetLineC(i);
+													//
+													msg_buf.Z();
+													GetObjectName(PPOBJ_GOODS, r_ccl.GoodsID, temp_buf);
+													msg_buf.Tab_(2).Cat(temp_buf).Space().CatEq("qtty", r_ccl.Quantity, MKSFMTD(0, 3, 0));
+													PPLogMessage(p_log_file_name, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+												}
+											}
+											if(!testMode) {
+												const  LDATETIME now_dtm = getcurdatetime_();
+												cc_shadow_egais.Rec.Dt = now_dtm.d;
+												cc_shadow_egais.Rec.Tm = now_dtm.t;
+												cc_shadow_egais.PutExtStrData(CCheckPacket::extssCorrect12304, "true");
+												r_cc.AdjustRecTime(cc_shadow_egais.Rec);
+												const int tsemapr = TurnShadowEgaisMarkAutoselectionCcPacket(main_cc_pack, cc_shadow_egais, 1);
+												if(!tsemapr) {
+													PPLogMessage(p_log_file_name, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
+												}
+											}
+										}
+									}
+									else {
+										msg_buf.Z().Tab_(2).Cat("EgaisMarkAutoSelector").Space().Cat("process failed");
+										PPLogMessage(p_log_file_name, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+									}
+								}
+							}
+						}
+						PPWaitPercent(tli+1, target_cc_id_list.getCount());
+					}
+				}
+			}
+		}
+	}
+	PPWait(0);
+	return ok;
+}
+
+int CPosProcessor::TurnShadowEgaisMarkAutoselectionCcPacket(const CCheckPacket & rMainCcPack, CCheckPacket & rCcPack, int use_ta) // @v12.4.10 @construction
+{
+	int   ok = -1;
+	CCheckCore & r_cc = GetCc();
+	PPEgaisProcessor * p_eg_prc = DS.GetTLA().GetEgaisProcessor(); // @v12.2.11
+	SString fmt_buf;
+	SString msg_buf;
+	int    eg_prc_pccr = 0; // Результат отправки чека в егаис (утм)
+	{
+		//
+		// Если мы проводим аварийный исправительный чек (CorrectProblem_v12304), то можем нарушить уникальность идекса 2 {PosNodeID, Code, Dt, Tm}.
+		// На этот случай сделаем поправку времени.
+		//
+		CCheckTbl::Key2 k2;
+		ulong hs_incr = 0;
+		k2.PosNodeID = rCcPack.Rec.PosNodeID;
+		k2.Code = rCcPack.Rec.Code;
+		k2.Dt = rCcPack.Rec.Dt;
+		k2.Tm = rCcPack.Rec.Tm;
+		if(r_cc.search(2, &k2, spEq)) do {
+			k2.PosNodeID = rCcPack.Rec.PosNodeID;
+			k2.Code = rCcPack.Rec.Code;
+			k2.Dt = rCcPack.Rec.Dt;
+			k2.Tm.v = rCcPack.Rec.Tm.v + (++hs_incr);
+		} while(r_cc.search(2, &k2, spEq));
+		if(hs_incr)
+			rCcPack.Rec.Tm.v += hs_incr;
+	}
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		THROW(r_cc.TurnCheck(&rCcPack, 0));
+		{
+			// Для проведения чека через егаис нам нужен реальный кассовый узел, а не фейковый, каковым является PPPOSN_SHADOW
+			bool   local_do_update = false;
+			PPEgaisProcessor::Ack eg_ack;
+			const  PPID preserve_cn_id = rCcPack.Rec.PosNodeID;
+			rCcPack.Rec.PosNodeID = rMainCcPack.Rec.PosNodeID;
+			rCcPack.Rec.SessID = rMainCcPack.Rec.SessID; // @v12.1.2
+			PPLogMessage(PPFILNAM_DEBUG_LOG, "P_EgPrc->PutCCheck shadow autoselection", LOGMSGF_DIRECTOUTP);
+			{
+				// @v12.2.11 {
+				assert(p_eg_prc);
+				if(p_eg_prc) {
+					const bool org_eg_test_mode = p_eg_prc->GetTestSendingMode();
+					p_eg_prc->SetTestSendingMode((PNP.EgaisMode == 2));
+					eg_prc_pccr = p_eg_prc->PutCCheck(rCcPack, PNP.CnLocID, true/*horecaAutoWo*/, eg_ack);
+					p_eg_prc->SetTestSendingMode(org_eg_test_mode);
+					// @v12.3.4 THROW(eg_prc_pccr);
+					// @v12.3.4 {
+					if(!eg_prc_pccr) {
+						PPGetLastErrorMessage(1/*rmvSpcChrs*/, msg_buf);
+						PPLoadText(PPTXT_ERR_EGAIS_PUTCCSHADOW, fmt_buf);
+						fmt_buf.CatDiv(':', 2).Cat(msg_buf);
+						PPLogMessage(PPFILNAM_ERR_LOG, fmt_buf, LOGMSGF_TIME|LOGMSGF_USER);
+					}
+					// } @v12.3.4 
+				}
+				// } @v12.2.11 
+				// @v12.2.11 THROW(P_EgPrc_ToEliminate->PutCCheck(cc_shadow_egais, CnLocID, true/*horecaAutoWo*/, eg_ack));
+			}
+			rCcPack.Rec.PosNodeID = preserve_cn_id;
+			if(eg_prc_pccr) {
+				if(eg_ack.Sign[0] && eg_ack.SignSize) {
+					msg_buf.Z().CatN(reinterpret_cast<const char *>(eg_ack.Sign), eg_ack.SignSize);
+					rCcPack.PutExtStrData(CCheckPacket::extssSign, msg_buf);
+					local_do_update = true;
+				}
+				if(eg_ack.Url.NotEmpty()) {
+					rCcPack.PutExtStrData(CCheckPacket::extssEgaisUrl, eg_ack.Url);
+					local_do_update = true;
+				}
+			}
+			if(local_do_update) {
+				THROW(r_cc.UpdateCheck(&rCcPack, 0));
+			}
+		}
+		THROW(tra.Commit());
+	}
+	CATCH
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+
 /*virtual*/int CPosProcessor::AcceptCheck(PPID * pCcID, const CcAmountList * pPl, PPID altPosNodeID, double cash, int mode /* accmXXX */)
 {
 	int    ok = 1;
@@ -2860,20 +3180,12 @@ int CPosProcessor::TurnCorrectionStorno(PPID * pCcID, int ccOp /*CCOP_XXX*/, PPI
 						EgaisMarkAutoSelector::ResultBlock rb_server_reply;
 						EgaisMarkAutoSelector::ResultBlock * p_rb_result = 0; // В зависимости от того локально мы вызывали обработку или посредством сервера
 							// этот указатель может ссылаться либо на rb либо на rb_server_reply
-						PPObjGoodsType gt_obj;
 						PPGoodsType gt_rec;
 						Goods2Tbl::Rec goods_rec;
 						{
 							for(uint i = 0; i < P.getCount(); i++) {
 								const CCheckItem & r_cc_item = P.at(i);
-								if(GObj.Fetch(r_cc_item.GoodsID, &goods_rec) > 0 && GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_EGAISAUTOWO) {
-									EgaisMarkAutoSelector::DocItem * p_di = rb.CreateNewItem();
-									if(p_di) {
-										p_di->ItemId = i+1;
-										p_di->GoodsID = goods_rec.ID;
-										p_di->Qtty = fabs(r_cc_item.Quantity);
-									}
-								}
+								P_EgMas->AddSourceItemToResultBlock(rb, i+1, r_cc_item.GoodsID, r_cc_item.Quantity);
 							}
 						}
 						if(rb.getCount()) {
@@ -2912,7 +3224,7 @@ int CPosProcessor::TurnCorrectionStorno(PPID * pCcID, int ccOp /*CCOP_XXX*/, PPI
 								PROFILE_START
 								{
 									PPUserFuncProfiler ufp(PPUPRF_EGAISMARKAUTOSELECTOR);
-									r = P_EgMas->Run(rb);
+									r = P_EgMas->Run(rb, ZERODATE);
 									ufp.SetFactor(0, rb.getCount());
 									ufp.SetFactor(1, rb.GetTerminalEntryCount());
 								}
@@ -2924,89 +3236,8 @@ int CPosProcessor::TurnCorrectionStorno(PPID * pCcID, int ccOp /*CCOP_XXX*/, PPI
 							assert(p_rb_result);
 							if(r > 0) {
 								CCheckPacket cc_shadow_egais;
-								bool is_ccs_inited = false;
-								for(uint i = 0; i < p_rb_result->getCount(); i++) {
-									const EgaisMarkAutoSelector::DocItem * p_di = p_rb_result->at(i);
-									if(p_di) {
-										for(uint eidx = 0; eidx < p_di->getCount(); eidx++) {
-											// Каждый EgaisMarkAutoSelector::Entry - соответствует одной строке суррогатного чека для егаис
-											const EgaisMarkAutoSelector::Entry * p_e = p_di->at(eidx);
-											if(p_e) {
-												uint mark_entry_idx = 0;
-												const EgaisMarkAutoSelector::_TerminalEntry * p_te = p_e->SelectMark(&mark_entry_idx);
-												if(p_te) {
-													assert(mark_entry_idx < p_te->ML.getCount());
-													const EgaisMarkAutoSelector::_MarkEntry * p_me = p_te->ML.at(mark_entry_idx);
-													if(p_me) {
-														assert(p_me->Mark.NotEmpty());
-														if(!is_ccs_inited) {
-															cc_shadow_egais.Rec.Code = epb.Pack.Rec.Code;
-															cc_shadow_egais.Rec.PosNodeID = PPPOSN_SHADOW;
-															cc_shadow_egais.Rec.Dt = epb.Pack.Rec.Dt;
-															cc_shadow_egais.Rec.Tm = epb.Pack.Rec.Tm;
-															is_ccs_inited = true;
-														}
-														CCheckItem cc_item;
-														cc_item.GoodsID = p_te->GoodsID;
-														// @v12.3.4 cc_item.Quantity = fabs(p_te->Qtty); 
-														cc_item.Quantity = round(fabs(p_te->Qtty), 3, -1); // @v12.3.4 Округляем строго вниз чтоб не напороться на дефицит в доли миллилитра!
-														STRNSCPY(cc_item.EgaisMark, p_me->Mark);
-														cc_shadow_egais.InsertCcl(cc_item);
-													}
-												}
-											}
-										}
-									}
-								}
-								if(is_ccs_inited) {
-									CCheckCore & r_cc = GetCc();
-									int eg_prc_pccr = 0; // Результат отправки чека в егаис (утм)
-									if(r_cc.TurnCheck(&cc_shadow_egais, 1)) {
-										// Для проведения чека через егаис нам нужен реальный кассовый узел, а не фейковый, каковым является PPPOSN_SHADOW
-										const PPID preserve_cn_id = cc_shadow_egais.Rec.PosNodeID;
-										cc_shadow_egais.Rec.PosNodeID = epb.Pack.Rec.PosNodeID;
-										cc_shadow_egais.Rec.SessID = epb.Pack.Rec.SessID; // @v12.1.2
-										//
-										bool local_do_update = false;
-										PPEgaisProcessor::Ack eg_ack;
-										PPLogMessage(PPFILNAM_DEBUG_LOG, "P_EgPrc->PutCCheck shadow autoselection", LOGMSGF_DIRECTOUTP);
-										{
-											// @v12.2.11 {
-											assert(p_eg_prc);
-											if(p_eg_prc) {
-												const bool org_eg_test_mode = p_eg_prc->GetTestSendingMode();
-												p_eg_prc->SetTestSendingMode((PNP.EgaisMode == 2));
-												eg_prc_pccr = p_eg_prc->PutCCheck(cc_shadow_egais, PNP.CnLocID, true/*horecaAutoWo*/, eg_ack);
-												p_eg_prc->SetTestSendingMode(org_eg_test_mode);
-												// @v12.3.4 THROW(eg_prc_pccr);
-												// @v12.3.4 {
-												if(!eg_prc_pccr) {
-													PPGetLastErrorMessage(1/*rmvSpcChrs*/, msg_buf);
-													PPLoadText(PPTXT_ERR_EGAIS_PUTCCSHADOW, fmt_buf);
-													fmt_buf.CatDiv(':', 2).Cat(msg_buf);
-													PPLogMessage(PPFILNAM_ERR_LOG, fmt_buf, LOGMSGF_TIME|LOGMSGF_USER);
-												}
-												// } @v12.3.4 
-											}
-											// } @v12.2.11 
-											// @v12.2.11 THROW(P_EgPrc_ToEliminate->PutCCheck(cc_shadow_egais, CnLocID, true/*horecaAutoWo*/, eg_ack));
-										}
-										cc_shadow_egais.Rec.PosNodeID = preserve_cn_id;
-										if(eg_prc_pccr) {
-											if(eg_ack.Sign[0] && eg_ack.SignSize) {
-												msg_buf.Z().CatN(reinterpret_cast<const char *>(eg_ack.Sign), eg_ack.SignSize);
-												cc_shadow_egais.PutExtStrData(CCheckPacket::extssSign, msg_buf);
-												local_do_update = true;
-											}
-											if(eg_ack.Url.NotEmpty()) {
-												cc_shadow_egais.PutExtStrData(CCheckPacket::extssEgaisUrl, eg_ack.Url);
-												local_do_update = true;
-											}
-										}
-										if(local_do_update) {
-											r_cc.UpdateCheck(&cc_shadow_egais, 1);
-										}
-									}
+								if(P_EgMas->MakeShadowCcPacket(p_rb_result, epb.Pack, cc_shadow_egais) > 0) {
+									const int tsemapr = TurnShadowEgaisMarkAutoselectionCcPacket(epb.Pack, cc_shadow_egais, 1); // @v12.4.10
 								}
 							}
 						}
@@ -11426,7 +11657,8 @@ IMPL_HANDLE_EVENT(SCardInfoDialog)
 					if(text.Strip().Len() > 0/*2*/) {
 						OwnerList.Clear();
 						PersonTbl::Rec psn_rec;
-						PPIDArray psn_list, sc_list;
+						PPIDArray psn_list;
+						PPIDArray sc_list;
 						PPObjPerson::SrchAnalogPattern sap(text, 0);
 						PsnObj.GetListByPattern(&sap, &psn_list);
 						for(uint i = 0; i < psn_list.getCount(); i++) {

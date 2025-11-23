@@ -265,7 +265,7 @@ int ObjSyncCore::Update(const ObjSyncIdent * pIdent, const ObjSyncTbl::Rec * pRe
 	//return (Search(pIdent, 0) > 0) ? (updateRecBuf(pRec) ? 1 : PPSetErrorDB()) : -1;
 }
 
-int ObjSyncCore::TransmitObj(PPObjID obj, PPCommSyncID * pCommID, int use_ta)
+int ObjSyncCore::TransmitObj(SObjID obj, PPCommSyncID * pCommID, int use_ta)
 {
 	int    ok = 1, r;
 	PPCommSyncID ci;

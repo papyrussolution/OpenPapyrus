@@ -339,8 +339,8 @@ int DbLoginBlockArray::MakeList(StrAssocArray * pList, long options, const LongA
 //
 //
 //
-DbProvider::DbProvider(SqlServerType sqlServerType, DbDictionary * pDict, long capability) : SqlSt(sqlServerType), P_Dict(pDict), 
-	Capability(capability), State(0), DbPathID(0), OpenMode(0)
+DbProvider::DbProvider(SqlServerType sqlServerType, SCodepage cp, DbDictionary * pDict, long capability) : 
+	SqlSt(sqlServerType), Cp(cp), P_Dict(pDict), Capability(capability), State(0), DbPathID(0), OpenMode(0)
 {
 }
 

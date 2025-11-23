@@ -2687,7 +2687,7 @@ int SImageBuffer::LoadIco(SFile & rF, uint pageIdx)
 							case 16: ff = PixF(PixF::s16Idx); break;
 						}
 						SImageBuffer::Palette palette;
-						const size_t palette_size = (1 << bit_count) * sizeof(uint32);
+						const uint palette_size = (1U << bit_count) * sizeof(uint32);
 						THROW(palette.Alloc(palette_size));
 						THROW(rF.ReadV(palette.GetBuffer(), palette_size));
 						total_rc_size += palette_size;
@@ -2786,7 +2786,7 @@ int SImageBuffer::LoadJpeg(SFile & rF, int fileFmt)
 			else {
 				SBaseBuffer buf;
 				if(rF.GetBuffer(buf)) {
-					jpeg_mem_src(&di, reinterpret_cast<const uchar *>(buf.P_Buf), buf.Size);
+					jpeg_mem_src(&di, reinterpret_cast<const uchar *>(buf.P_Buf), static_cast<ulong>(buf.Size));
 				}
 			}
 			jpeg_read_header(&di, TRUE);
@@ -3121,7 +3121,7 @@ static int GifReadFunc(GifFileType * pF, uint8 * pData, int size)
 	SFile * p_f = static_cast<SFile *>(pF->UserData);
 	if(p_f && !p_f->Read(pData, (size_t)size, &actual_size))
 		actual_size = 0;
-	return actual_size;
+	return static_cast<int>(actual_size);
 }
 
 int SImageBuffer::LoadGif(SFile & rF)

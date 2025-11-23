@@ -19,7 +19,7 @@ public:
 		if(!_BtrCall || !_BtrCallID) {
 			ENTER_CRITICAL_SECTION
 			if(!_BtrCall || !_BtrCallID) {
-				HMODULE _btrv_dll_handle = ::LoadLibrary(_T("wbtrv32.dll"));
+				HMODULE _btrv_dll_handle = ::LoadLibrary((sizeof(void *) == 8) ? _T("w64btrv.dll") : _T("wbtrv32.dll"));
 				if(!_BtrCall) {
 					_BtrCall = reinterpret_cast<BtrCallProc>(GetProcAddress(_btrv_dll_handle, "BTRCALL"));
 					SETIFZ(_BtrCall, _BtrCall_Stub);

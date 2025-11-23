@@ -1338,7 +1338,7 @@ static xmlChar * xmlCatalogXMLResolve(xmlCatalogEntryPtr catal, const xmlChar * 
 				    }
 				    break;
 				case XML_CATA_REWRITE_SYSTEM:
-				    len = sstrlen(cur->name);
+				    len = sstrleni(cur->name);
 				    if((len > lenrewrite) && (!xmlStrncmp(sysID, cur->name, len))) {
 					    lenrewrite = len;
 					    rewrite = cur;
@@ -1545,7 +1545,7 @@ static xmlChar * xmlCatalogXMLResolveURI(xmlCatalogEntryPtr catal, const xmlChar
 			    }
 			    break;
 			case XML_CATA_REWRITE_URI:
-			    len = sstrlen(cur->name);
+			    len = sstrleni(cur->name);
 			    if((len > lenrewrite) && (!xmlStrncmp(URI, cur->name, len))) {
 				    lenrewrite = len;
 				    rewrite = cur;
@@ -2700,7 +2700,7 @@ void xmlLoadCatalogs(const char * pathss)
 					cur++;
 				path = xmlStrndup((const xmlChar *)paths, cur - paths);
 #ifdef _WIN32
-				iLen = sstrlen(path);
+				iLen = sstrleni(path);
 				for(i = 0; i < iLen; i++) {
 					if(path[i] == '\\') {
 						path[i] = '/';

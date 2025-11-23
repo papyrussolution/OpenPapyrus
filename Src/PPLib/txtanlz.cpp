@@ -2386,7 +2386,7 @@ int PrcssrObjText::Init(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	SignalProcBlock * p_blk = static_cast<SignalProcBlock *>(pExtraPtr);
-	PPObjID oi;
+	SObjID oi;
 	if(p_blk && SObjID_FromStr(pResource, oi)) {
 		if(oi.Obj == PPOBJ_GOODS) {
 			if(!p_blk->GObj.SetupAttrByTextDescr(oi.Id, pSignalStr, !(p_blk->State & p_blk->stOuterTransaction))) {
@@ -2413,7 +2413,7 @@ int PrcssrObjText::Run()
 			PPTextAnalyzer::FindBlock fb(*P_Rpl);
 			GoodsIterator goods_iter(P.P_GoodsF, 0, 0);
 			Goods2Tbl::Rec goods_rec;
-			PPObjID oi;
+			SObjID oi;
 			uint   c = 0;
 			PPWaitStart();
 			if(P.Flags & (P.fReplace|P.fSignal)) {
@@ -2465,7 +2465,7 @@ int PrcssrObjText::Run()
 				PersonFilt psn_filt;
 				PPPersonPacket psn_pack;
 				PPTextAnalyzer::FindBlock fb(*P_Rpl);
-				PPObjID oi;
+				SObjID oi;
 				PPIDArray id_list;
 				uint i;
 				RVALUEPTR(psn_filt, P.P_PsnF);
@@ -2545,12 +2545,12 @@ PPObjectTokenizer::~PPObjectTokenizer()
 {
 }
 
-SString & FASTCALL EncodeTokenizerResourceObj(PPObjID oi, SString & rBuf)
+SString & FASTCALL EncodeTokenizerResourceObj(SObjID oi, SString & rBuf)
 {
 	return rBuf.Z().CatChar('#').Cat("OBJ").Dot().Cat(oi.Obj).Dot().Cat(oi.Id);
 }
 
-int FASTCALL DecodeTokenizerResourceObj(const SString & rBuf, PPObjID & rOi)
+int FASTCALL DecodeTokenizerResourceObj(const SString & rBuf, SObjID & rOi)
 {
 	int    ok = 0;
 	SStrScan scan(rBuf);
@@ -2573,7 +2573,7 @@ int FASTCALL DecodeTokenizerResourceObj(const SString & rBuf, PPObjID & rOi)
 	return ok;
 }
 
-int PPObjectTokenizer::AddObject(PPObjID oi, const char * pName)
+int PPObjectTokenizer::AddObject(SObjID oi, const char * pName)
 {
 	int    ok = 1;
 	(TextBuf = pName).Strip().ToLower().Transf(CTRANSF_INNER_TO_OUTER);
@@ -2596,7 +2596,7 @@ int PPObjectTokenizer::ProcessSuprWare(PPID swType, PPID swCls)
 	f_sw.SuprWareCat = swCls;
 	THROW(v_sw.Init_(&f_sw));
 	for(v_sw.InitIteration(); v_sw.NextIteration(&sw_item) > 0;) {
-		THROW(AddObject(PPObjID(PPOBJ_COMPGOODS, sw_item.ID), sw_item.Name));
+		THROW(AddObject(SObjID(PPOBJ_COMPGOODS, sw_item.ID), sw_item.Name));
 	}
 	CATCHZOK
 	return ok;
@@ -2607,7 +2607,7 @@ int PPObjectTokenizer::ProcessGoods(const GoodsFilt * pFilt)
 	int    ok = 1;
 	Goods2Tbl::Rec goods_rec;
 	for(GoodsIterator iter(pFilt, 0); iter.Next(&goods_rec) > 0;) {
-		THROW(AddObject(PPObjID(PPOBJ_GOODS, goods_rec.ID), goods_rec.Name));
+		THROW(AddObject(SObjID(PPOBJ_GOODS, goods_rec.ID), goods_rec.Name));
 	}
 	CATCHZOK
 	return ok;
@@ -2644,7 +2644,7 @@ int PPObjectTokenizer::SearchObjects(const char * pText, PPID objType, long flag
 						PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf.Z().Tab().CatChar('$').Cat(p_entry->T), LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 				for(uint j = 0; j < p_entry->RL.getCount(); j++) {
 					if(GetTextById(p_entry->RL.at(j).RP, temp_buf) > 0) {
-						PPObjID oi;
+						SObjID oi;
 						if(DecodeTokenizerResourceObj(temp_buf, oi) && (!objType || objType == oi.Obj)) {
 							if(debug_output) {
 								if(objType && GetObjectName(objType, oi.Id, name_buf.Z()) > 0)

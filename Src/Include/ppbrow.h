@@ -633,6 +633,8 @@
 	#define HELP_BROWSER_UNITEC                                 293
 #define BROWSER_UNITEC_PVT                             294 // Unit-анализ
 	#define HELP_BROWSER_UNITEC_PVT                             294
+#define BROWSER_UNIFINDOBJ                             295 // ”ниверсальный поиск объектов
+	#define HELP_BROWSER_UNIFINDOBJ                             295
 
 //
 // PPVIEW COMMAND definitions
@@ -1979,6 +1981,9 @@
 	#define PPFILT_WBPUBLICGOODS                         1431
 	#define PPVIEWITEM_WBPUBLICGOODS                         1432
 #define PPFILT_MARKETPLACEGOODSSELECTION             1441
+#define PPVIEW_UNIFINDOBJ                            1450
+	#define PPFILT_UNIFINDOBJ                            1451
+	#define PPVIEWITEM_UNIFINDOBJ                            1452
 //
 // RECORD definitions
 //
@@ -5194,4 +5199,5 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_LOGOGOOGLEMAPS01                33027
 #define PPDV_LOGOWILDBERRIES                 33028
 #define PPDV_LOGOAPTEKARU                    33029
+#define PPDV_SEARCH                          33030
 

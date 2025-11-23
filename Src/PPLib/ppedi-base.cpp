@@ -353,6 +353,16 @@ int SEancomXmlSegment::GetNAD(NAD & rN)
 				}
 				ok = 1;
 			}
+			else if(seg.Is("C080")) { 
+			}
+			else if(seg.Is("C059")) { 
+			}
+			else if(seg.Is("E3164")) { 
+			}
+			else if(seg.Is("E3251")) { 
+			}
+			else if(seg.Is("E3207")) { 
+			}
 		}
 	}
 	return ok;

@@ -4053,7 +4053,7 @@ int PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID, int 
 							loc_pack.Flags |= LOCF_MANUALADDR;
 						}
 						{
-							PPObjRegister::InitPacket(&new_reg_rec, PPREGT_KPP, PPObjID(PPOBJ_LOCATION, 0), kpp);
+							PPObjRegister::InitPacket(&new_reg_rec, PPREGT_KPP, SObjID(PPOBJ_LOCATION, 0), kpp);
 							loc_pack.Regs.insert(&new_reg_rec);
 						}
 						{
@@ -4066,7 +4066,7 @@ int PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID, int 
 						pPack->AddDlvrLoc(loc_pack);
 					}
 					else {
-						PPObjRegister::InitPacket(&new_reg_rec, PPREGT_KPP, PPObjID(PPOBJ_PERSON, 0), kpp);
+						PPObjRegister::InitPacket(&new_reg_rec, PPREGT_KPP, SObjID(PPOBJ_PERSON, 0), kpp);
 						pPack->Regs.insert(&new_reg_rec);
 					}
 				}
@@ -4099,11 +4099,11 @@ int PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID, int 
 				temp_buf.Transf(CTRANSF_OUTER_TO_INNER);
 				STRNSCPY(pPack->Rec.Name, temp_buf);
 				if(inn.NotEmptyS()) {
-					PPObjRegister::InitPacket(&new_reg_rec, PPREGT_TPID, PPObjID(PPOBJ_PERSON, 0), inn);
+					PPObjRegister::InitPacket(&new_reg_rec, PPREGT_TPID, SObjID(PPOBJ_PERSON, 0), inn);
 					pPack->Regs.insert(&new_reg_rec);
 				}
 				if(kpp.NotEmptyS()) {
-					PPObjRegister::InitPacket(&new_reg_rec, PPREGT_KPP, PPObjID(PPOBJ_PERSON, 0), kpp);
+					PPObjRegister::InitPacket(&new_reg_rec, PPREGT_KPP, SObjID(PPOBJ_PERSON, 0), kpp);
 					pPack->Regs.insert(&new_reg_rec);
 				}
 				{
@@ -10830,12 +10830,37 @@ int EgaisMarkAutoSelector::ResultBlock::Serialize(int dir, SBuffer & rBuf, SSeri
 	return ok;
 }
 
-EgaisMarkAutoSelector::EgaisMarkAutoSelector(/*PPEgaisProcessor * pEgPrc*/) : /*P_EgPrc(pEgPrc),*/IsInitialized(false)
+EgaisMarkAutoSelector::RefBEntry::RefBEntry()
+{
+	THISZERO();
+}
+
+EgaisMarkAutoSelector::EgaisMarkAutoSelector(/*PPEgaisProcessor * pEgPrc*/) /*:*/ /*P_EgPrc(pEgPrc),*//*IsInitialized(false)*/
 {
 }
 
 EgaisMarkAutoSelector::~EgaisMarkAutoSelector()
 {
+}
+
+int EgaisMarkAutoSelector::AddSourceItemToResultBlock(ResultBlock & rBlk, long rowId, PPID goodsID, double qtty)
+{
+	int    ok = -1;
+	Goods2Tbl::Rec goods_rec;
+	PPGoodsType2 gt_rec;
+	if(goodsID && !feqeps(qtty, 0.0, 1E-5) && GObj.Fetch(goodsID, &goods_rec) > 0 && GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_EGAISAUTOWO) {
+		EgaisMarkAutoSelector::DocItem * p_di = rBlk.CreateNewItem();
+		if(p_di) {
+			if(rowId > 0)
+				p_di->ItemId = rowId;
+			p_di->GoodsID = goods_rec.ID;
+			p_di->Qtty = fabs(qtty);
+			ok = 1;
+		}
+		else
+			ok = 0;
+	}
+	return ok;
 }
 
 int EgaisMarkAutoSelector::Helper_ProcessLot(PPID goodsStrucID, const ReceiptTbl::Rec & rLotRec, double qtty, Entry ** ppEntry, DocItem & rResult)
@@ -10846,7 +10871,7 @@ int EgaisMarkAutoSelector::Helper_ProcessLot(PPID goodsStrucID, const ReceiptTbl
 	ObjTagCore & r_tagc = PPRef->Ot;
 	if(r_tagc.GetTagStr(PPOBJ_LOT, rLotRec.ID, PPTAG_LOT_FSRARINFB, temp_buf) > 0) {
 		uint  refb_idx = 0;
-		if(SearchRefB(RecentEgaisStock, temp_buf, &refb_idx)) {
+		if(SearchRefB(Ib.RecentEgaisStock, temp_buf, &refb_idx)) {
 			PPObjBill * p_bobj(BillObj);
 			_TerminalEntry * p_te = 0;
 			SString mark_buf;
@@ -11046,12 +11071,13 @@ int EgaisMarkAutoSelector::GetRecentEgaisStock(TSVector <RefBEntry> & rResultLis
 		const char * p_code_suffix = "-R1";
 		PPIDArray loc_list;
 		LAssocArray loc_to_date_list;
-		LDATE recent_date = ZERODATE;
+		LDATE  recent_date = ZERODATE;
 		BillTbl::Rec bill_rec;
+		const  LDATE max_date = MAXDATE;
 		{
 			BillTbl::Key2 k2;
 			k2.OpID = stock_op_id;
-			k2.Dt   = MAXDATE;
+			k2.Dt   = max_date;
 			k2.BillNo = MAXLONG;
 			const long max_days_for_survey = 30;
 			if(p_billc->search(2, &k2, spLe) && k2.OpID == stock_op_id) do {
@@ -11114,7 +11140,62 @@ int EgaisMarkAutoSelector::GetRecentEgaisStock(TSVector <RefBEntry> & rResultLis
 	return ok;
 }
 
-int EgaisMarkAutoSelector::Run(ResultBlock & rResult)
+int EgaisMarkAutoSelector::MakeShadowCcPacket(const ResultBlock * pBlk, const CCheckPacket & rMainCcPack, CCheckPacket & rCcPack) const
+{
+	int    ok = -1;
+	bool   is_ccs_inited = false;
+	if(pBlk && pBlk->getCount()) {
+		for(uint i = 0; i < pBlk->getCount(); i++) {
+			const EgaisMarkAutoSelector::DocItem * p_di = pBlk->at(i);
+			if(p_di) {
+				for(uint eidx = 0; eidx < p_di->getCount(); eidx++) {
+					// Каждый EgaisMarkAutoSelector::Entry - соответствует одной строке суррогатного чека для егаис
+					const EgaisMarkAutoSelector::Entry * p_e = p_di->at(eidx);
+					if(p_e) {
+						uint mark_entry_idx = 0;
+						const EgaisMarkAutoSelector::_TerminalEntry * p_te = p_e->SelectMark(&mark_entry_idx);
+						if(p_te) {
+							assert(mark_entry_idx < p_te->ML.getCount());
+							const EgaisMarkAutoSelector::_MarkEntry * p_me = p_te->ML.at(mark_entry_idx);
+							if(p_me) {
+								assert(p_me->Mark.NotEmpty());
+								if(!is_ccs_inited) {
+									rCcPack.Rec.Code = rMainCcPack.Rec.Code;
+									rCcPack.Rec.PosNodeID = PPPOSN_SHADOW;
+									rCcPack.Rec.Dt = rMainCcPack.Rec.Dt;
+									rCcPack.Rec.Tm = rMainCcPack.Rec.Tm;
+									is_ccs_inited = true;
+									ok = 1;
+								}
+								CCheckItem cc_item;
+								cc_item.GoodsID = p_te->GoodsID;
+								// @v12.3.4 cc_item.Quantity = fabs(p_te->Qtty); 
+								// @v12.4.10 @fix cc_item.Quantity = round(fabs(p_te->Qtty), 3, -1); // @v12.3.4 Округляем строго вниз чтоб не напороться на дефицит в доли миллилитра!
+								cc_item.Quantity = round(fabs(p_te->Qtty), 0.001, -1); // @v12.4.10 @fix
+								STRNSCPY(cc_item.EgaisMark, p_me->Mark);
+								rCcPack.InsertCcl(cc_item);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+int EgaisMarkAutoSelector::InitActualDate(LDATE actualDate) // @v12.4.10
+{
+	int    ok = -1;
+	if(!Ib.Done) {
+		GetRecentEgaisStock(Ib.RecentEgaisStock);
+		Ib.Done = true;
+		ok = 1;
+	}
+	return ok;
+}
+
+int EgaisMarkAutoSelector::Run(ResultBlock & rResult, LDATE actualDate)
 {
 	int    ok = -1;
 	if(/*P_EgPrc*/rResult.getCount()) {
@@ -11126,9 +11207,10 @@ int EgaisMarkAutoSelector::Run(ResultBlock & rResult)
 				if(p_item && p_item->Qtty != 0.0 && GObj.Fetch(p_item->GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID) {
 					PPGoodsType gt_rec;
 					if(GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_EGAISAUTOWO) {
-						if(!IsInitialized) {
+						/* @v12.4.10 if(!IsInitialized) {
 							GetRecentEgaisStock(RecentEgaisStock);
-						}
+						}*/
+						InitActualDate(actualDate); // @v12.4.10
 						const int r = Helper(p_item->GoodsID, p_item->Qtty, *p_item);
 						if(r > 0) {
 							assert(rResult.getCount());
@@ -11158,11 +11240,10 @@ int EgaisMarkAutoSelector::Run(ResultBlock & rResult)
 									}
 								}
 								if(lbm.getCount()) {
-									PPObjCSession csobj;
 									const uint back_days = PPObjCSession::GetCcListByMarkBackDays(lbm);
 									LAssocArray index;
-									LAssocArray * p_index = csobj.FetchCcDate2MaxIdIndex(index) ? &index : 0;
-									csobj.P_Cc->Helper_GetListByMark2(lbm, CCheckPacket::lnextEgaisMark, p_index, back_days, 0);
+									LAssocArray * p_index = CsObj.FetchCcDate2MaxIdIndex(index) ? &index : 0;
+									CsObj.P_Cc->Helper_GetListByMark2(lbm, CCheckPacket::lnextEgaisMark, p_index, back_days, 0);
 									for(uint lbmidx = 0; lbmidx < lbm.getCount(); lbmidx++) {
 										const CCheckCore::ListByMarkEntry * p_cclbm_entry = lbm.at(lbmidx);
 										if(p_cclbm_entry && p_cclbm_entry->P_Extra) {

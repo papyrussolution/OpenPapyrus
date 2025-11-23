@@ -346,7 +346,7 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <SDLCheck>
       </SDLCheck>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <CompileAs>CompileAsCpp</CompileAs>
       <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <GuardEHContMetadata>false</GuardEHContMetadata>
@@ -448,7 +448,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <CompileAs>CompileAsCpp</CompileAs>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <GuardEHContMetadata>false</GuardEHContMetadata>
       <ConformanceMode>true</ConformanceMode>

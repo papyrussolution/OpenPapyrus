@@ -1464,7 +1464,7 @@ void PPViewDebtTrnovr::InitViewItem(const TempSellTrnovrTbl::Rec * pRec, DebtTrn
 	memzero(pItem, sizeof(*pItem));
 	pItem->ID_       = pRec->ID;
 	{
-		PPObjID oid;
+		SObjID oid;
 		P_BObj->GetSubstObjType(pRec->ID, &Bsp, &oid);
 		pItem->ObjType = oid.Obj;
 	}

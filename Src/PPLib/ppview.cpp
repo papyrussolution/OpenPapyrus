@@ -521,6 +521,7 @@ int PPGetObjViewFiltMapping_Filt(int filtId, PPID * pObjType, int * pViewId)
 			case PPVIEW_CLIENTACTIVITYDETAILS: p_v = new PPViewClientActivityDetails(); break; // @v12.2.8
 			case PPVIEW_UNITEC:          p_v = new PPViewUnitEc(); break; // @v12.3.7
 			case PPVIEW_WBPUBLICGOODS:   p_v = new PPViewWbPublicGoods(); break; // @v12.3.9
+			case PPVIEW_UNIFINDOBJ:      p_v = new PPViewUniFindObj(0); break;
 			default: ok = PPSetError(PPERR_UNDEFVIEWID);
 		}
 		if(p_v) {
@@ -2011,7 +2012,7 @@ void PPView::Helper_FormatCycle(const PPCycleFilt & rCf, const PPCycleArray & rC
 		ASSIGN_PTR(pBuf, 0);
 }
 
-int PPView::Helper_ProcessQuickTagEdit(PPObjID oid, const void * pHdrPtr /*(LongArray *)*/)
+int PPView::Helper_ProcessQuickTagEdit(SObjID oid, const void * pHdrPtr /*(LongArray *)*/)
 {
 	int    ok = -1;
 	if(pHdrPtr && oid.IsFullyDefined()) {

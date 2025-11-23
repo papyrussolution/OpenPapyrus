@@ -10,31 +10,32 @@
 // @prototype {
 //
 // @v12.2.6 @unused(replaced with ExportDialogs2) int ExportDialogs(const char * pFileName);
-int ExportDialogs2(const char * pFileName); // @v11.0.5
-int TestAddressRecognition();
-int SelfBuild();
-int SelfbuildStaffForManual();
-int ConvertCipher(const char * pDbSymb, const char * pMasterPassword, const char * pSrcIniFileName, const char * pDestIniFileName);
-int RemoveZeroLinkCCLines();
-int ReceiptPacking();
-int PPTex2Html();
-int PPVer2Html();
-int Test_KeywordListGenerator(); // txtanlz.cpp
-int TestFias(); // objloctn.cpp
-int TestCURL(); // pputil.cpp
-int TestEGAIS(const PPEgaisProcessor::TestParam *); // egais.cpp
-int BuildLocalDL600(); // ppbuild.cpp
-int TestLogWindow(); // pplog.cpp
-int TestTddo2(); // tddo2.cpp
-int TestVetis(); // vetis.cpp
-int TestMqc(); // ppmqc.cpp
-int TestMarketplace(); // marketplace.cpp
-int TestGlobalServiceAccessibility(); // @v12.3.12 pptest.cpp
-int RecoverAbsenceTrfr();
-int PPValidateXml();
-int OpenPhonePane();
-int UniFindObj();
-int TSessionMaintenance(); // @v11.0.4
+int    ExportDialogs2(const char * pFileName); // @v11.0.5
+int    TestAddressRecognition();
+int    SelfBuild();
+int    SelfbuildStaffForManual();
+int    ConvertCipher(const char * pDbSymb, const char * pMasterPassword, const char * pSrcIniFileName, const char * pDestIniFileName);
+int    RemoveZeroLinkCCLines();
+int    ReceiptPacking();
+int    PPTex2Html();
+int    PPVer2Html();
+int    Test_KeywordListGenerator(); // txtanlz.cpp
+int    TestFias(); // objloctn.cpp
+int    TestCURL(); // pputil.cpp
+int    TestEGAIS(const PPEgaisProcessor::TestParam *); // egais.cpp
+int    BuildLocalDL600(); // ppbuild.cpp
+int    TestLogWindow(); // pplog.cpp
+int    TestTddo2(); // tddo2.cpp
+int    TestVetis(); // vetis.cpp
+int    TestMqc(); // ppmqc.cpp
+int    TestMarketplace(); // marketplace.cpp
+int    TestGlobalServiceAccessibility(); // @v12.3.12 pptest.cpp
+int    RecoverAbsenceTrfr();
+int    PPValidateXml();
+int    OpenPhonePane();
+int    UniFindObj();
+int    TSessionMaintenance(); // @v11.0.4
+void   _CorrectProblem_v12304(); // @v12.4.10
 //int ImportSartre();
 // } @prototype
 //
@@ -755,7 +756,8 @@ int PPApp::processCommand(uint cmd)
 		case cmRecoverAbsenceAccounts: RecoverAbsenceAccounts();        break;
 		case cmRecoverAbsencePrjTaskPerson: PPObjPrjTask::RecoverAbsencePerson(); break;
 		case cmCorrectAccturn:        CorrectAccturn();                  break;
-		case cmRecover_v242:          ViewOpersByLot(0, 1);              break;
+		// @v12.4.10 case cmRecover_v242:          ViewOpersByLot(0, 1);              break;
+		case cmRecover_v12304:        _CorrectProblem_v12304();          break; // @v12.4.10
 		case cmRemoveBadReckons:      RemoveBadReckons();                break;
 		case cmImportGoodsGrp:        Import(PPOBJ_GOODSGROUP);          break;
 		case cmImportGoodsOld:        Import(PPOBJ_GOODS, 1);            break;

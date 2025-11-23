@@ -29,7 +29,7 @@ SVerT PPSession::GetMinCompatVersion() const
 /*static*/const long PPObjectTransmit::DependedPriority = 2000;
 
 struct RestoreStackItem {
-	PPObjID Oi;
+	SObjID Oi;
 	PPID   DbID;
 };
 
@@ -368,7 +368,7 @@ int ObjTransmContext::OutputAcceptObjErrMsg(PPID objType, PPID objID, const char
 	return OutReceivingMsg(msg_buf.Printf(fmt_buf, obj_title.cptr(), objID, pObjName, err_msg.cptr()));
 }
 
-int ObjTransmContext::GetPrevRestoredObj(PPObjID * pOi) const
+int ObjTransmContext::GetPrevRestoredObj(SObjID * pOi) const
 {
 	int    ok = 0;
 	const PPObjectTransmit::RestoreObjBlock * p_rb = static_cast<const PPObjectTransmit::RestoreObjBlock *>(P_Rb);
@@ -385,7 +385,7 @@ int ObjTransmContext::GetPrevRestoredObj(PPObjID * pOi) const
 	return ok;
 }
 
-int ObjTransmContext::ForceRestore(PPObjID oi)
+int ObjTransmContext::ForceRestore(SObjID oi)
 {
 	int    ok = -1;
 	if(oi.IsFullyDefined()) {
@@ -428,13 +428,13 @@ int ObjTransmContext::GetPrimaryObjID(PPID objType, PPID foreignID, PPID * pPrim
 	return ok;
 }
 
-int ObjTransmContext::IsForced(PPObjID oi) const
+int ObjTransmContext::IsForced(SObjID oi) const
 	{ return BIN(P_ForceRestoreObj && P_ForceRestoreObj->lsearch(&oi, 0, PTR_CMPFUNC(_2long))); }
-int ObjTransmContext::RegisterDependedNonObject(PPObjID objid, PPCommSyncID & rCommID, int use_ta)
+int ObjTransmContext::RegisterDependedNonObject(SObjID objid, PPCommSyncID & rCommID, int use_ta)
 	{ return P_Ot ? P_Ot->RegisterDependedNonObject(objid, rCommID, use_ta) : 0; }
 int ObjTransmContext::ResolveDependedNonObject(PPID objType, PPID foreignID, PPID * pPrimID)
 	{ return GetPrimaryObjID(objType, foreignID, pPrimID); }
-int ObjTransmContext::AcceptDependedNonObject(PPObjID foreignObjId, PPID primaryID, const LDATETIME * pModDtm, int use_ta)
+int ObjTransmContext::AcceptDependedNonObject(SObjID foreignObjId, PPID primaryID, const LDATETIME * pModDtm, int use_ta)
 	{ return P_Ot ? P_Ot->AcceptDependedNonObject(foreignObjId, primaryID, pModDtm, use_ta) : 0; }
 //
 //
@@ -630,7 +630,7 @@ PPObjectTransmit::IndexItem * PPObjectTransmit::TmpTblRecToIdxItem(const ObjSync
 	return pItem;
 }
 
-int PPObjectTransmit::EnumObjectsByIndex(PPObjID * pObjId, ObjSyncQueueTbl::Rec * pRec)
+int PPObjectTransmit::EnumObjectsByIndex(SObjID * pObjId, ObjSyncQueueTbl::Rec * pRec)
 {
 	ObjSyncQueueTbl::Key1 k;
 	k.ObjType = static_cast<short>(pObjId->Obj);
@@ -705,7 +705,7 @@ int PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updProtocol
 	SString send_log_msg;
 	SString obj_name;
 	SString temp_buf;
-	PPObjID oi(objType, objID);
+	SObjID oi(objType, objID);
 	THROW_PP(DestDbDivID, PPERR_INVDESTDBDIV);
 	THROW_PP(!SyncCmpTransmit, PPERR_PPOS_NOBJTRANMODE);
 	THROW(SETIFZ(P_TmpIdxTbl, CreateTempIndex()));
@@ -874,7 +874,7 @@ int PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updProtocol
 			{
 				const uint oc = temp.getCount();
 				for(i = 0; i < oc; i++) {
-					const PPObjID & r_oi = temp.at(i);
+					const SObjID & r_oi = temp.at(i);
 					THROW(PutObjectToIndex(r_oi.Obj, r_oi.Id, innerUpdProtocol, PPOTUP_DEFAULT)); // @recursion
 				}
 			}
@@ -1199,7 +1199,7 @@ int PPObjectTransmit::PushObjectsToQueue(PPObjectTransmit::Header & rHdr, const 
 		}
 		{
 			TSVector <ObjSyncQueueTbl::Rec> idx_rec_list;
-			for(PPObjID objid; EnumObjectsByIndex(&objid, &idx_rec) > 0;) {
+			for(SObjID objid; EnumObjectsByIndex(&objid, &idx_rec) > 0;) {
 				THROW_SL(idx_rec_list.insert(&idx_rec));
 				if(idx_rec_list.getCount() >= max_idx_recs_per_ta) {
 					THROW(Helper_PushObjectsToQueue(rHdr, sys_file_id, idx_rec_list, use_ta));
@@ -1275,7 +1275,7 @@ int PPObjectTransmit::RestoreFromStream(const char * pInFileName, FILE * stream,
 	if(hdr.PacketType == PPOT_SYNCCMP) {
 		if(pTbl) {
 			uint32 count = 0;
-			for(PPObjID objid; EnumObjectsByIndex(&objid, &idx_rec) > 0;) {
+			for(SObjID objid; EnumObjectsByIndex(&objid, &idx_rec) > 0;) {
 				int    skip = 0;
 				TempSyncCmpTbl::Rec sct_rec, ex_rec;
 				TempSyncCmpTbl::Key0 k0;
@@ -1333,7 +1333,7 @@ PPObjectTransmit::RestoreObjBlock::RestoreObjBlock(ObjSyncQueueCore * pQueue, PP
 {
 }
 
-int PPObjectTransmit::RestoreObjBlock::PushRestoredObj(PPID dbID, PPObjID oi)
+int PPObjectTransmit::RestoreObjBlock::PushRestoredObj(PPID dbID, SObjID oi)
 {
 	RestoreStackItem i;
 	i.Oi = oi;
@@ -1341,7 +1341,7 @@ int PPObjectTransmit::RestoreObjBlock::PushRestoredObj(PPID dbID, PPObjID oi)
 	return S.push(&i) ? 1 : PPSetErrorSLib();
 }
 
-int PPObjectTransmit::RestoreObjBlock::DetectRecur(PPID dbID, PPObjID oi) const
+int PPObjectTransmit::RestoreObjBlock::DetectRecur(PPID dbID, SObjID oi) const
 {
 	for(uint n = 0; n < S.getPointer(); n++) {
 		const RestoreStackItem & r_si = *static_cast<const RestoreStackItem *>(S.at(n));
@@ -1351,7 +1351,7 @@ int PPObjectTransmit::RestoreObjBlock::DetectRecur(PPID dbID, PPObjID oi) const
 	return 0;
 }
 
-int PPObjectTransmit::RestoreObjBlock::PopRestoredObj(PPID dbID, PPObjID oi)
+int PPObjectTransmit::RestoreObjBlock::PopRestoredObj(PPID dbID, SObjID oi)
 {
 	int    ok = 1;
 	RestoreStackItem i;
@@ -1525,9 +1525,9 @@ int PPObjectTransmit::RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & rItem,
 	bool   mark_item_as_processed = false;
 	PPObject * ppobj = 0;
 	PPID   primary_id = 0;
-	PPObjID oi_f = rItem.Oi;
+	SObjID oi_f = rItem.Oi;
 	PPCommSyncID comm_id(rItem.CommID);
-	PPObjID dont_process_pair;
+	SObjID dont_process_pair;
 	SString added_buf;
 	SString msg_buf;
 	SString temp_buf;
@@ -1561,7 +1561,7 @@ int PPObjectTransmit::RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & rItem,
 			}
 			else if((ppobj = _GetObjectPtr(oi_f.Obj)) != 0) {
 				ObjSyncQueueTbl::Rec idx_rec;
-				PPObjID * p_entry;
+				SObjID * p_entry;
 				PPObjIDArray temp;
 				PPObjPack  pack;
 				pack.SrcVer = rItem.InVer;
@@ -1856,7 +1856,7 @@ int PPObjectTransmit::SearchQueueItem(PPID objType, PPID objID, PPID dbID, ObjSy
 	return P_Queue ? P_Queue->SearchObject_(objType, objID, dbID, pRec) : 0;
 }
 
-int PPObjectTransmit::RegisterDependedNonObject(PPObjID objid, PPCommSyncID & rCommID, int use_ta)
+int PPObjectTransmit::RegisterDependedNonObject(SObjID objid, PPCommSyncID & rCommID, int use_ta)
 {
 	rCommID.Z();
 	int    ok = 1;
@@ -1882,7 +1882,7 @@ int PPObjectTransmit::RegisterDependedNonObject(PPObjID objid, PPCommSyncID & rC
 	return ok;
 }
 
-int PPObjectTransmit::AcceptDependedNonObject(PPObjID foreignObjId, PPID primaryID, const LDATETIME * pModDtm, int use_ta)
+int PPObjectTransmit::AcceptDependedNonObject(SObjID foreignObjId, PPID primaryID, const LDATETIME * pModDtm, int use_ta)
 {
 	int    ok = -1;
 	THROW_PP(Ctx.P_SrcDbDivPack && Ctx.P_SrcDbDivPack->Rec.ID, PPERR_PPOS_UNDEFCTXSRCDIV);
@@ -1962,7 +1962,7 @@ int PPObjectTransmit::CreateTransmitPacket(long extra /*=0*/)
 			//
 			// До начала транзакции создадим экземляры всех необходимых объектов данных (что бы не открывать таблицы внутри транзакции).
 			//
-			for(PPObjID objid; EnumObjectsByIndex(&objid, &rec) > 0;) {
+			for(SObjID objid; EnumObjectsByIndex(&objid, &rec) > 0;) {
 				if(!(rec.Flags & PPObjPack::fNoObj)) {
 					THROW(_GetObjectPtr(objid.Obj));
 				}
@@ -1980,9 +1980,9 @@ int PPObjectTransmit::CreateTransmitPacket(long extra /*=0*/)
 			{
 				PPInitIterCounter(cntr, P_TmpIdxTbl);
 				if(!SyncCmpTransmit) {
-					PPObjID iter_objid;
+					SObjID iter_objid;
 					for(iter_objid.Z(); EnumObjectsByIndex(&iter_objid, &rec) > 0; PPWaitPercent(cntr.Increment(), wait_msg)) {
-						PPObjID objid = iter_objid; // objid внутри блока может измениться //
+						SObjID objid = iter_objid; // objid внутри блока может измениться //
 						if(!(rec.Flags & PPObjPack::fNoObj)) {
 							DBRowId rowid;
 							PPObjPack  pack;
@@ -2018,7 +2018,7 @@ int PPObjectTransmit::CreateTransmitPacket(long extra /*=0*/)
 				{
 					StringSet name_list;
 					name_list.add("$");
-					for(PPObjID objid; EnumObjectsByIndex(&objid, &rec) > 0;) {
+					for(SObjID objid; EnumObjectsByIndex(&objid, &rec) > 0;) {
 						PPObjectTransmit::IndexItem idx_item;
 						TmpTblRecToIdxItem(&rec, &idx_item);
 						if(*strip(rec.ObjName)) {
@@ -2515,7 +2515,7 @@ int PPObjectTransmit::Transmit(const PPIDArray * pDBDivAry, const PPObjIDArray *
 			SString msg_buf;
 			PPLoadText(PPTXT_DBDE_POSTOBJECTS, msg_buf);
 			for(uint i = 0; i < c; i++) {
-				const PPObjID & r_oid = pObjAry->at(i);
+				const SObjID & r_oid = pObjAry->at(i);
 				THROW(p_ot->PostObject(r_oid.Obj, r_oid.Id, pParam->UpdProtocol, BIN(pParam->Flags & ObjTransmitParam::fSyncCmp)));
 				PPWaitPercent((i+1), c, msg_buf);
 			}

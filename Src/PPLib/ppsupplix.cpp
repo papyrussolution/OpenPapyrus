@@ -4676,7 +4676,7 @@ int iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArra
 						for(uint rblidx = 0; rblidx < sj_list.getCount(); rblidx++) {
 							SysJournalTbl::Rec & r_ev = sj_list.at(rblidx);						
 							long   vv = 0;
-							PPObjID oid;
+							SObjID oid;
 							ov_buf.Z();
 							if(p_ovc->Search(r_ev.Extra, &oid, &vv, &ov_buf) > 0 && oid.IsEq(r_ev.ObjType, r_ev.ObjID)) {
 								if(P_BObj->SerializePacket__(-1, &pack, ov_buf, &r_sctx)) {

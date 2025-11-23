@@ -1761,7 +1761,7 @@ int ma_read_ok_packet(MYSQL * mysql, uchar * pos, ulong length)
 	uchar * end = mysql->net.read_pos+length;
 	size_t item_len;
 	mysql->affected_rows = net_field_length_ll(&pos);
-	mysql->insert_id =       net_field_length_ll(&pos);
+	mysql->insert_id     = net_field_length_ll(&pos);
 	mysql->server_status = uint2korr(pos);
 	pos += 2;
 	mysql->warning_count = uint2korr(pos);
@@ -1773,12 +1773,10 @@ int ma_read_ok_packet(MYSQL * mysql, uchar * pos, ulong length)
 			mysql->info = (char *)pos;
 		if(pos + item_len > end)
 			goto corrupted;
-
 		/* check if server supports session tracking */
 		if(mysql->server_capabilities & CLIENT_SESSION_TRACKING) {
 			ma_clear_session_state(mysql);
 			pos += item_len;
-
 			if(mysql->server_status & SERVER_SESSION_STATE_CHANGED) {
 				int i;
 				if(pos < end) {
@@ -1786,21 +1784,17 @@ int ma_read_ok_packet(MYSQL * mysql, uchar * pos, ulong length)
 					MYSQL_LEX_STRING * str = NULL;
 					enum enum_session_state_type si_type;
 					uchar * old_pos = pos;
-
 					item_len = net_field_length(&pos); /* length for all items */
 					if(pos + item_len > end)
 						goto corrupted;
 					end = pos + item_len;
-
 					/* length was already set, so make sure that info will be zero terminated */
 					if(mysql->info)
 						*old_pos = 0;
-
 					while(pos < end) {
 						size_t plen;
 						char * data;
 						si_type = (enum enum_session_state_type)net_field_length(&pos);
-
 						switch(si_type) {
 							case SESSION_TRACK_SCHEMA:
 							case SESSION_TRACK_STATE_CHANGE:
@@ -1809,9 +1803,7 @@ int ma_read_ok_packet(MYSQL * mysql, uchar * pos, ulong length)
 							case SESSION_TRACK_TRANSACTION_STATE:
 							case SESSION_TRACK_GTIDS:
 							    if(si_type != SESSION_TRACK_STATE_CHANGE) {
-								    net_field_length(&pos); /* ignore total length, item
-								                               length will follow next
-								                               */
+								    net_field_length(&pos); /* ignore total length, item length will follow next */
 							    }
 							    if(si_type == SESSION_TRACK_GTIDS) {
 								    /* skip encoding */

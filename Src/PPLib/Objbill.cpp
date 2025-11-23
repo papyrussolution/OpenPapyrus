@@ -1749,7 +1749,7 @@ int PPObjBill::GetOriginalPacket(PPID billID, SysJournalTbl::Rec * pSjRec, PPBil
 				SSerializeContext & r_sctx = p_ovc->GetSCtx();
 				long   vv = 0;
 				SBuffer ov_buf;
-				PPObjID oid;
+				SObjID oid;
 				ov_buf.Z();
 				if(p_ovc->Search(ev_mod.Extra, &oid, &vv, &ov_buf) > 0 && oid.IsEq(ev_mod.ObjType, ev_mod.ObjID)) {
 					PPBillPacket org_pack;
@@ -6375,10 +6375,10 @@ int PPObjBill::Subst(const PPBill * pPack, PPID * pDestID, SubstParam * pParam)
 	return ok;
 }
 
-int PPObjBill::GetSubstObjType(long id, const SubstParam * pParam, PPObjID * pObjID) const
+int PPObjBill::GetSubstObjType(long id, const SubstParam * pParam, SObjID * pObjID) const
 {
 	int    ok = 1;
-	PPObjID obj_id;
+	SObjID obj_id;
 	switch(pParam->Sgb.S) {
 		case SubstGrpBill::sgbNone: break;
 		case SubstGrpBill::sgbObject:
@@ -8873,7 +8873,7 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 			PPID   h_id = 0;
 			if(State2 & stDoObjVer) {
 				if(p_ovc && p_ovc->InitSerializeContext(0)) {
-					THROW(p_ovc->Add(&h_id, PPObjID(Obj, id), &hist_buf, 0));
+					THROW(p_ovc->Add(&h_id, SObjID(Obj, id), &hist_buf, 0));
 				}
 			}
 			if(CcFlags & CCFLG_DEBUG) {
@@ -9093,7 +9093,7 @@ int PPObjBill::RemovePacket(PPID id, int use_ta)
 			PPID   h_id = 0;
 			if(State2 & stDoObjVer) {
 				if(p_ovc && p_ovc->InitSerializeContext(0)) {
-					THROW(p_ovc->Add(&h_id, PPObjID(Obj, id), &hist_buf, 0));
+					THROW(p_ovc->Add(&h_id, SObjID(Obj, id), &hist_buf, 0));
 				}
 			}
 			DS.LogAction(PPACN_RMVBILL, PPOBJ_BILL, id, h_id, 0);

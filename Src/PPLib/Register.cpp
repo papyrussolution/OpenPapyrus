@@ -787,7 +787,7 @@ bool RegisterFilt::IsEmpty() const
 	return ok;
 }
 
-int RegisterCore::SearchByObj(PPObjID oid, PPID regTypeID, RegisterTbl::Rec * pRec)
+int RegisterCore::SearchByObj(SObjID oid, PPID regTypeID, RegisterTbl::Rec * pRec)
 {
 	int    ok = -1;
 	RegisterTbl::Key1 k1;
@@ -802,10 +802,9 @@ int RegisterCore::SearchByObj(PPObjID oid, PPID regTypeID, RegisterTbl::Rec * pR
 	return ok;
 }
 
-int RegisterCore::SearchAnyByNumber(const char * pNumber, PPIDArray * pResList, PPObjIDArray * pOidList)
+int RegisterCore::SearchAnyByNumber(const char * pNumber, RegisterArray * pList)
 {
-	CALLPTRMEMB(pResList, Z());
-	CALLPTRMEMB(pOidList, clear());
+	CALLPTRMEMB(pList, clear());
 	int    ok = -1;
 	if(!isempty(pNumber)) {
 		RegisterTbl::Key4 k4;
@@ -813,15 +812,12 @@ int RegisterCore::SearchAnyByNumber(const char * pNumber, PPIDArray * pResList, 
 		q.selectAll();
 		for(q.initIteration(false, &k4, spFirst); q.nextIteration() > 0;) {
 			if(sstreqi_ascii(data.Num, pNumber)) {
-				CALLPTRMEMB(pResList, add(data.ID));
-				if(pOidList) {
-					const PPID obj_type = NZOR(data.ObjType, PPOBJ_PERSON);
-					pOidList->Add(obj_type, data.ObjID);
-				}
 				ok = 1;
-				if(!pResList && !pOidList) {
-					break;
+				if(pList) {
+					pList->insert(&data);
 				}
+				else
+					break;
 			}
 		}
 	}

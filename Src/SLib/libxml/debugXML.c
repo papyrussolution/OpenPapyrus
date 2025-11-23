@@ -1250,7 +1250,7 @@ int xmlLsCountNode(xmlNode * pNode)
 		case XML_PI_NODE:
 		case XML_COMMENT_NODE:
 		    if(pNode->content) {
-			    ret = sstrlen(pNode->content);
+			    ret = sstrleni(pNode->content);
 		    }
 		    break;
 		case XML_ENTITY_REF_NODE:

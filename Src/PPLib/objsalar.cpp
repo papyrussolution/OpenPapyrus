@@ -943,7 +943,7 @@ int PPObjStaffCal::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			}
 		}
 		else if(oneof3(_obj, PPOBJ_PERSON, PPOBJ_STAFFLIST2, PPOBJ_PERSONPOST)) {
-			if(SearchByObj(0, PPObjID(_obj, _id), &rec) > 0) {
+			if(SearchByObj(0, SObjID(_obj, _id), &rec) > 0) {
 				ok = RetRefsExistsErr(Obj, rec.ID); 
 				assert(ok == 0); // @paranoic
 			}
@@ -1603,7 +1603,7 @@ int PPObjStaffCal::GetPacket(PPID id, PPStaffCalPacket * pPack)
 	return ok;
 }
 
-int PPObjStaffCal::SearchByObj(PPID parentID, PPObjID linkObj, PPStaffCal * pRec)
+int PPObjStaffCal::SearchByObj(PPID parentID, SObjID linkObj, PPStaffCal * pRec)
 {
 	int    ok = -1;
 	PPStaffCal rec;
@@ -1616,7 +1616,7 @@ int PPObjStaffCal::SearchByObj(PPID parentID, PPObjID linkObj, PPStaffCal * pRec
 	return ok;
 }
 
-int PPObjStaffCal::CreateChild(PPID * pID, PPID parentID, PPObjID linkObj, int use_ta)
+int PPObjStaffCal::CreateChild(PPID * pID, PPID parentID, SObjID linkObj, int use_ta)
 {
 	int    ok = 1;
 	int    r;
@@ -1682,7 +1682,7 @@ int PPObjStaffCal::SetEntriesByDutySched(PPID baseCalID, PPDutySchedPacket * pDs
 				PPID   cal_id = 0;
 				CALDATE cdt;
 				LTIME   tm;
-				THROW(CreateChild(&cal_id, baseCalID, PPObjID(PPOBJ_PERSON, ep.ObjID), 0) > 0);
+				THROW(CreateChild(&cal_id, baseCalID, SObjID(PPOBJ_PERSON, ep.ObjID), 0) > 0);
 				entry.CalID  = cal_id;
 				entry.ObjID  = pDsPack->Rec.ID;
 				entry.Flags |= STCALEF_BYDUTYSCHED;

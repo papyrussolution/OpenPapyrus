@@ -123,8 +123,9 @@ bool DocNalogRu_Base::FileInfo::ParseFileName(const char * pFileName, bool nonSt
 	Z();
 	bool   ok = false;
 	if(!isempty(pFileName)) {
+		SString temp_buf;
 		SString src_buf(pFileName);
-		bool is_prefix_valid = false;
+		bool   is_prefix_valid = false;
 		for(uint i = 0; !is_prefix_valid && i < SIZEOFARRAY(P_NalogRu_HeaderSymbList); i++) {
 			if(src_buf.HasPrefixIAscii(P_NalogRu_HeaderSymbList[i])) {
 				src_buf.ShiftLeft(sstrlen(P_NalogRu_HeaderSymbList[i]));
@@ -137,11 +138,10 @@ bool DocNalogRu_Base::FileInfo::ParseFileName(const char * pFileName, bool nonSt
 		}
 		if(is_prefix_valid) {
 			ok = true;
-			SString temp_buf;
 			const char * p_ext = ".xml";
 			if(src_buf.CmpSuffix(p_ext, 1) == 0)
 				src_buf.Trim(src_buf.Len() - sstrlen(p_ext));
-			StringSet ss('_', src_buf); // @v11.9.9 
+			const StringSet ss('_', src_buf); // @v11.9.9 
 			// @v11.9.9 (функция Tokenize трактует несколько последовательных разделителей как один - тут такое не прокатит) src_buf.Tokenize("_", ss);
 			// ON_ORDER_ 100400537995 _ 100100910817 _ 20240124 _ 10BACC44-756A-4ECC-86D0-6F97FC6FED9A.xml 
 			for(uint ssp = 0, c_ = 0; ss.get(&ssp, temp_buf); c_++) {
@@ -1498,7 +1498,7 @@ PPBillImpExpBaseProcessBlock::SearchBlock::SearchBlock() : Dt(ZERODATE), SurveyD
 {
 }
 
-PPBillImpExpBaseProcessBlock::PPBillImpExpBaseProcessBlock() : P_BObj(BillObj), DisabledOptions(0)
+PPBillImpExpBaseProcessBlock::PPBillImpExpBaseProcessBlock() : PPDocumentInterchangeContext(0L), DisabledOptions(0)
 {
 	Z();
 }
@@ -2056,9 +2056,11 @@ int PPBillImporter::RunUhttImport()
 	int    ok = -1;
 	const  PPID loc_id = NZOR(LocID, LConfig.Location);
 	int32  uhtt_loc_id = 0;
-	SString clb_buf, serial_buf;
-	SString fmt_buf, msg_buf;
 	SString temp_buf;
+	SString clb_buf;
+	SString serial_buf;
+	SString fmt_buf;
+	SString msg_buf;
 	PPOprKind op_rec;
 	PPObjAccSheet acs_obj;
 	LocationTbl::Rec loc_rec;
@@ -2073,7 +2075,9 @@ int PPBillImporter::RunUhttImport()
 	{
 		TSCollection <UhttBillPacket> result_list;
 		UhttBillFilter uhtt_filt;
-		PPIDArray psn_list, ar_list, kind_list;
+		PPIDArray psn_list;
+		PPIDArray ar_list;
+		PPIDArray kind_list;
 		uhtt_filt.Since = plusdate(getcurdate_(), -1);
 		uhtt_filt.OpSymb = "DRAFTORDER";
 		uhtt_filt.LocID = uhtt_loc_id;
@@ -3520,8 +3524,10 @@ int PPBillImporter::Import(int useTa)
 	SString goods_name_buf;
 	SString qc_code;
 	SString TTN;
-	SString fmt_buf, msg_buf;
-	SString serial, sn_templt;
+	SString fmt_buf;
+	SString msg_buf;
+	SString serial;
+	SString sn_templt;
 	PPObjAccSheet acs_obj;
 	PPAccSheet acs_rec;
 	ObjTransmContext ot_ctx(0, &Logger); // Контекст, необходимый для автоматического приходования дефицита классом BillTransmDeficit
@@ -3739,11 +3745,11 @@ int PPBillImporter::Import(int useTa)
 												STRNSCPY(psn_pack.Rec.Name, temp_buf);
 												psn_pack.Kinds.add(alc_manuf_kind_id);
 												{
-													PPObjRegister::InitPacket(&reg_rec, PPREGT_TPID, PPObjID(PPOBJ_PERSON, 0), r_row.ManufINN);
+													PPObjRegister::InitPacket(&reg_rec, PPREGT_TPID, SObjID(PPOBJ_PERSON, 0), r_row.ManufINN);
 													psn_pack.Regs.insert(&reg_rec);
 												}
 												if(r_row.ManufKPP[0]) {
-													PPObjRegister::InitPacket(&reg_rec, PPREGT_KPP, PPObjID(PPOBJ_PERSON, 0), r_row.ManufKPP);
+													PPObjRegister::InitPacket(&reg_rec, PPREGT_KPP, SObjID(PPOBJ_PERSON, 0), r_row.ManufKPP);
 													psn_pack.Regs.insert(&reg_rec);
 												}
 												THROW(PsnObj.PutPacket(&manuf_id, &psn_pack, 0));
@@ -4089,7 +4095,8 @@ int PPBillImporter::ResolveINN(const char * pINN, PPID dlvrLocID, const char * p
 			code = BillParam.Object1SrchCode;
 	}
 	if(code.NotEmptyS()) {
-		PPIDArray psn_list, ar_list;
+		PPIDArray psn_list;
+		PPIDArray ar_list;
 		THROW(PsnObj.GetListByRegNumber(reg_type_id, 0, code, psn_list));
 		THROW(ArObj.GetByPersonList(accSheetID, &psn_list, &ar_list));
 		if(ar_list.getCount()) {
@@ -4120,13 +4127,14 @@ int PPBillImporter::ResolveINN(const char * pINN, PPID dlvrLocID, const char * p
 	}
 	if(ok < 0 && logErr) {
 		char   stub[32];
-		SString msg, err;
-		PPLoadString(PPMSG_ERROR, PPERR_BILLNOTIMPORTED2, msg);
+		SString fmt_buf;
+		SString msg_buf;
+		PPLoadString(PPMSG_ERROR, PPERR_BILLNOTIMPORTED2, fmt_buf);
 		if(pBillId == 0) {
 			stub[0] = 0;
 			pBillId = stub;
 		}
-		Logger.Log(err.Printf(msg.cptr(), pBillId, pINN));
+		Logger.Log(msg_buf.Printf(fmt_buf.cptr(), pBillId, pINN));
 	}
 	CATCHZOK
 	return ok;
@@ -4649,12 +4657,11 @@ int PPBillImporter::DoFullEdiProcess()
 	PPBillIterchangeFilt be_filt;
 	be_filt.LocID = this->LocID;
 	be_filt.Period = this->Period;
-	PPID   main_org_id = GetMainOrgID();
 	long   ediprvimp_ctr_flags = 0;
 	if(Flags & fTestMode)
 		ediprvimp_ctr_flags |= PPEdiProcessor::ProviderImplementation::ctrfTestMode;
 	for(SEnum en = ediprv_obj.Enum(0); en.Next(&ediprv_rec) > 0;) {
-		p_prvimp = (ediprv_rec.Flags & PPEdiProvider::fPassive) ? 0 : PPEdiProcessor::CreateProviderImplementation(ediprv_rec.ID, main_org_id, ediprvimp_ctr_flags, &Logger);
+		p_prvimp = (ediprv_rec.Flags & PPEdiProvider::fPassive) ? 0 : PPEdiProcessor::CreateProviderImplementation(ediprv_rec.ID, GetMainOrgID_(), ediprvimp_ctr_flags, &Logger);
 		if(p_prvimp) {
 			PPEdiProcessor prc(p_prvimp, &Logger);
 			PPEdiProcessor::DocumentInfo doc_inf;
@@ -5237,9 +5244,11 @@ int PPBillImporter::Run()
 {
 	int    ok = 1;
 	Reference * p_ref(PPRef);
+	xmlParserCtxt * p_xml_ctx = 0;
 	SString file_name;
 	SString temp_buf;
 	SString msg_buf;
+	StringSet ss_files;
 	PPOprKind op_rec;
 	LineIdSeq = 0;
 	PPWaitStart();
@@ -5301,11 +5310,28 @@ int PPBillImporter::Run()
 		THROW(DoFullEdiProcess());
 	}
 	else if(BillParam.PredefFormat == piefChicago) { // @v11.5.8 @construction
-		
+		;		
+	}
+	else if(BillParam.PredefFormat == piefEancom) { // @v12.4.10 @construction
+		TSCollection <PPEdiProcessor::Packet>  edi_doc_list;
+		THROW(BillParam.PreprocessImportFileSpec(ss_files));
+		THROW(p_xml_ctx = xmlNewParserCtxt());
+		for(uint ssfp = 0; ss_files.get(&ssfp, temp_buf);) {
+			PPXmlFileDetector xfd;
+			int    format = 0;
+			if(xfd.Run(temp_buf, &format)) {
+				if(format == xfd.Eancom) {
+					PPEanComDocument s_doc(this);
+					s_doc.SetImportOpID(OpID);
+					s_doc.SetImportLocID(LocID);
+					SFsPath ps(temp_buf);
+					const SString edi_ident_buf(ps.Nam);
+					const int rdr = s_doc.Read_Document(p_xml_ctx, temp_buf, edi_ident_buf, edi_doc_list);
+				}
+			}
+		}
 	}
 	else if(BillParam.PredefFormat == piefCokeOrder) { // @v11.3.8
-		xmlParserCtxt * p_ctx = 0;
-		StringSet ss_files;
 		PPID   suppl_ar_id = 0;
 		THROW_PP_S(BillParam.ImpOpID, PPERR_UNDEFBILLIMPOP, BillParam.Name);
 		THROW(GetOpData(BillParam.ImpOpID, &op_rec) > 0);
@@ -5313,12 +5339,12 @@ int PPBillImporter::Run()
 		THROW_PP_S(BillParam.Object2SrchCode.NotEmpty(), PPERR_BILLIMPSRCCOD2NEEDED, BillParam.Name);
 		THROW(ResolveINN(BillParam.Object2SrchCode, 0, 0, 0, GetSupplAccSheet(), &suppl_ar_id, 0)); // @err
 		assert(suppl_ar_id);
-		THROW(p_ctx = xmlNewParserCtxt());
+		THROW(p_xml_ctx = xmlNewParserCtxt());
 		for(uint ssfp = 0; ss_files.get(&ssfp, temp_buf);) {
 			if(fileExists(temp_buf)) {
 				SString extra_key;
 				SString extra_val;
-				xmlDoc * p_xml_doc = xmlCtxtReadFile(p_ctx, temp_buf, 0, XML_PARSE_NOENT);
+				xmlDoc * p_xml_doc = xmlCtxtReadFile(p_xml_ctx, temp_buf, 0, XML_PARSE_NOENT);
 				if(p_xml_doc) {
 					const xmlNode * p_root = xmlDocGetRootElement(p_xml_doc);
 					if(p_root && SXml::IsName(p_root, "NewDataSet")) {
@@ -5344,18 +5370,15 @@ int PPBillImporter::Run()
 					p_xml_doc = 0;
 				}
 				else {
-					PPSetLibXmlError(p_ctx);
+					PPSetLibXmlError(p_xml_ctx);
 				}
 			}
 		}
-		xmlFreeParserCtxt(p_ctx);
-		//
 	}
 	//ON_NKORSCHFDOPPR // Корректировочная счет-фактура
 	// @v11.2.1 piefNalogR_ON_NSCHFDOPPR  // @v11.7.0 piefNalogR_ON_NKORSCHFDOPPR
 	else if(oneof4(BillParam.PredefFormat, piefNalogR, piefNalogR_ON_NSCHFDOPPRMARK, piefNalogR_ON_NSCHFDOPPR, piefNalogR_ON_NKORSCHFDOPPR)) { 
 		DocNalogRu_Reader reader;
-		StringSet ss_files;
 		StringSet ss_arc_files; 
 		TSCollection <DocNalogRu_Reader::DocumentInfo> doc_list;
 		const PPGoodsConfig & r_gcfg = GObj.GetConfig();
@@ -5400,7 +5423,6 @@ int PPBillImporter::Run()
 		}
 		{
 			const  PPID  contragent_acs_id = op_rec.AccSheetID;
-			const  PPID  main_org_id = GetMainOrgID();
 			if(!contragent_acs_id) {
 
 			}
@@ -5722,6 +5744,7 @@ int PPBillImporter::Run()
 	}
 	CATCHZOK
 	PPWaitStop();
+	xmlFreeParserCtxt(p_xml_ctx);
 	return ok;
 }
 
@@ -8865,7 +8888,7 @@ int DocNalogRu_WriteBillBlock::Do_CorrInvoice(SString & rResultFileName)
 					и документ об изменении стоимости отгруженных товаров (выполненных работ, оказанных услуг), переданных имущественных прав;
 				ДИС - документ об изменении стоимости отгруженных товаров (выполненных работ, оказанных услуг), переданных имущественных прав.
 			*/
-			docinfo.Function = "КСЧФ"; // @v11.7.1
+			docinfo.Function = "КСЧФ"; // @v11.7.1 // ? "КСЧФДИС"
 			DocNalogRu_Generator::Document d(G, docinfo);
 			{
 				DocNalogRu_Generator::Invoice inv(G, R_Bp, true/*correction*/);
@@ -8980,19 +9003,21 @@ int DocNalogRu_WriteBillBlock::Do_Invoice(SString & rResultFileName)
 					}
 					else if(R_Bp.OpTypeID == PPOPT_GOODSRETURN) {
 						if(OpRec.LinkOpID) {
-							if(LinkOpRec.OpTypeID == PPOPT_GOODSRECEIPT) {
-								consignee_psn_id = ObjectToPerson(R_Bp.Rec.Object, 0);
-								consignee_loc_id = R_Bp.GetDlvrAddrID();
-								buyer_psn_id = consignee_psn_id;
-								shipper_psn_id = MainOrgID;
-								shipper_loc_id = R_Bp.Rec.LocID;
-							}
-							else if(LinkOpRec.OpTypeID == PPOPT_GOODSEXPEND) {
-								consignee_psn_id = MainOrgID;
-								consignee_loc_id = R_Bp.Rec.LocID;
-								buyer_psn_id = consignee_psn_id;
-								shipper_psn_id = ObjectToPerson(R_Bp.Rec.Object, 0);
-								shipper_loc_id = R_Bp.GetDlvrAddrID();
+							switch(LinkOpRec.OpTypeID) {
+								case PPOPT_GOODSRECEIPT:
+									consignee_psn_id = ObjectToPerson(R_Bp.Rec.Object, 0);
+									consignee_loc_id = R_Bp.GetDlvrAddrID();
+									buyer_psn_id = consignee_psn_id;
+									shipper_psn_id = MainOrgID;
+									shipper_loc_id = R_Bp.Rec.LocID;
+									break;
+								case PPOPT_GOODSEXPEND:
+									consignee_psn_id = MainOrgID;
+									consignee_loc_id = R_Bp.Rec.LocID;
+									buyer_psn_id = consignee_psn_id;
+									shipper_psn_id = ObjectToPerson(R_Bp.Rec.Object, 0);
+									shipper_loc_id = R_Bp.GetDlvrAddrID();
+									break;
 							}
 						}
 					}

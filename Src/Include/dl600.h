@@ -151,7 +151,7 @@ struct DlFunc {
 	DLSYMBID TypID;
 	uint   Flags;          // DlFunc::fXXX // @v11.7.8 uint16-->uint
 	union {
-		uint   ImplID;
+		uint64 ImplID;     // @v12.4.10 uint-->uint64 выравнивание для разных разрядностей
 		DlFuncImpl Impl;
 	};
 private:
@@ -178,8 +178,8 @@ private:
 		uint16 ArgCount;
 		uint16 Flags;
 		union {
-			uint   ImplID;
-			DlFuncImpl Impl;
+			uint64 ImplID;   // @v12.4.10 uint-->uint64 для того, чтоб структура была не зависима от разрядности!
+			DlFuncImpl Impl; // @x64crit этот элемент меняет размер persistent-структуры в зависимости от разрадности архитектуры!
 		};
 	};
 	struct Arg {

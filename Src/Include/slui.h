@@ -3042,7 +3042,7 @@ public:
 		enum {
 			fDontEnlarge   = 0x0001, // Не увеличивать фигуру при изменении размеров объекта сверх предустановленного размере
 			fDontKeepRatio = 0x0002, // Не сохранять пропорции фигуры при изменении размера объекта
-			fGrayscale     = 0x0004  // (testing option) Преобразовывать фигуру в черно-белый цвет
+			fGrayscale     = 0x0004, // (testing option) Преобразовывать фигуру в черно-белый цвет
 		};
 		uint32  Id;              // Целочисленный идентификатор элемента
 		SString Symb;         	 // Уникальный символ элемента.
@@ -3050,13 +3050,13 @@ public:
 		SString WtmObjSymb;   	 // Символ класса семейства TWhatmanObject, который создается посредством данного инструмента.
 		SString FigPath;      	 // Имя файла, содержащего изображение фигуры инструмента
 		SString PicPath;      	 // Имя файла, содержащего изображение иконки инструмента
-		SPoint2S FigSize;       	 // Начальный размер фигуры инструмента.
-		SPoint2S PicSize;       	 // Если !isZero() то переопределяет TWhatmanToolArray::Param::PicSize
+		SPoint2S FigSize;        // Начальный размер фигуры инструмента.
+		SPoint2S PicSize;        // Если !isZero() то переопределяет TWhatmanToolArray::Param::PicSize
 		long   Flags;         	 // @flags
 		SColor ReplacedColor; 	 // Цвет, который должен замещаться на какой-либо внешний цвет. Если ReplacedColor.IsEmpty(), то замещаемый цвет не определен.
-		SUiLayoutParam Alb; // @v10.9.10
+		SUiLayoutParam Alb;      //
 		const  TWhatmanToolArray * P_Owner; // @notowned
-		uint32 ExtSize;         // Размер данных, используемый элементом в буфере ExtData
+		uint32 ExtSize;          // Размер данных, используемый элементом в буфере ExtData
 		uint8  ExtData[256];
 		
 	};

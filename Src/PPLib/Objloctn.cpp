@@ -2224,7 +2224,7 @@ int PPObjLocation::PutPacket(PPID * pID, PPLocationPacket * pPack, int use_ta)
 					if(pPack->Type == LOCTYP_ADDRESS && pPack->IsEmptyAddress()) {
 						if(do_index_phones) {
 							LocationCore::GetExField(&org_pack, LOCEXSTR_PHONE, temp_buf);
-							PPObjID objid(PPOBJ_LOCATION, *pID);
+							SObjID objid(PPOBJ_LOCATION, *pID);
 							THROW(P_Tbl->IndexPhone(temp_buf, &objid, 1, 0));
 						}
 						THROW(p_ref->Ot.PutList(Obj, *pID, 0, 0));
@@ -2239,7 +2239,7 @@ int PPObjLocation::PutPacket(PPID * pID, PPLocationPacket * pPack, int use_ta)
 						}
 						if(do_index_phones) {
 							LocationCore::GetExField(pPack, LOCEXSTR_PHONE, temp_buf);
-							PPObjID objid(PPOBJ_LOCATION, *pID);
+							SObjID objid(PPOBJ_LOCATION, *pID);
 							THROW(P_Tbl->IndexPhone(temp_buf, &objid, 0, 0));
 						}
 						THROW(UpdateByID(P_Tbl, Obj, *pID, pPack, 0));
@@ -2259,7 +2259,7 @@ int PPObjLocation::PutPacket(PPID * pID, PPLocationPacket * pPack, int use_ta)
 			else {
 				if(do_index_phones) {
 					LocationCore::GetExField(&org_pack, LOCEXSTR_PHONE, temp_buf);
-					PPObjID objid(PPOBJ_LOCATION, *pID);
+					SObjID objid(PPOBJ_LOCATION, *pID);
 					THROW(P_Tbl->IndexPhone(temp_buf, &objid, 1, 0));
 				}
 				THROW(p_ref->Ot.PutList(Obj, *pID, 0, 0));
@@ -2323,7 +2323,7 @@ int PPObjLocation::PutRecord(PPID * pID, LocationTbl::Rec * pPack, int use_ta)
 					if(pPack->Type == LOCTYP_ADDRESS && LocationCore::IsEmptyAddressRec(*pPack)) {
 						if(do_index_phones) {
 							LocationCore::GetExField(&org_rec, LOCEXSTR_PHONE, temp_buf);
-							PPObjID objid(PPOBJ_LOCATION, *pID);
+							SObjID objid(PPOBJ_LOCATION, *pID);
 							THROW(P_Tbl->IndexPhone(temp_buf, &objid, 1, 0));
 						}
 						THROW(RemoveByID(P_Tbl, *pID, 0));
@@ -2335,7 +2335,7 @@ int PPObjLocation::PutRecord(PPID * pID, LocationTbl::Rec * pPack, int use_ta)
 							THROW(SendObjMessage(DBMSG_OBJNAMEUPDATE, PPOBJ_ARTICLE, Obj, *pID, pPack->Name, 0) == DBRPL_OK);
 						if(do_index_phones) {
 							LocationCore::GetExField(pPack, LOCEXSTR_PHONE, temp_buf);
-							PPObjID objid(PPOBJ_LOCATION, *pID);
+							SObjID objid(PPOBJ_LOCATION, *pID);
 							THROW(P_Tbl->IndexPhone(temp_buf, &objid, 0, 0));
 						}
 						pPack->Counter = org_rec.Counter;
@@ -2359,7 +2359,7 @@ int PPObjLocation::PutRecord(PPID * pID, LocationTbl::Rec * pPack, int use_ta)
 				// } @v12.2.1 
 				if(do_index_phones) {
 					LocationCore::GetExField(&org_rec, LOCEXSTR_PHONE, temp_buf);
-					PPObjID objid(PPOBJ_LOCATION, *pID);
+					SObjID objid(PPOBJ_LOCATION, *pID);
 					THROW(P_Tbl->IndexPhone(temp_buf, &objid, 1, 0));
 				}
 				THROW(RemoveByID(P_Tbl, *pID, 0));
@@ -2845,12 +2845,12 @@ int PPObjLocation::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace
 		THROW(ProcessObjRefInArray(PPOBJ_WORLD,    &p_pack->CityID,   ary, replace));
 		{
 			int    dont_process_ref = 0;
-			PPObjID oi;
+			SObjID oi;
 			if(p_pack->Type == LOCTYP_ADDRESS && pCtx->GetPrevRestoredObj(&oi)) {
 				if(oi.Obj == PPOBJ_PERSON)
 					dont_process_ref = 1;
 				else if(!replace) {
-					pCtx->ForceRestore(PPObjID(PPOBJ_PERSON, p_pack->OwnerID));
+					pCtx->ForceRestore(SObjID(PPOBJ_PERSON, p_pack->OwnerID));
 				}
 			}
 			if(dont_process_ref) {
@@ -5842,7 +5842,7 @@ int PPObjLocation::IndexPhones(PPLogger * pLogger, int use_ta)
 				if(FetchCity(city_id, &city_rec) > 0 && city_rec.Phone[0])
 					PPEAddr::Phone::NormalizeStr(city_rec.Phone, 0, city_prefix);
 				city_prefix.SetIfEmpty(main_city_prefix);
-				PPObjID objid(PPOBJ_LOCATION, P_Tbl->data.ID);
+				SObjID objid(PPOBJ_LOCATION, P_Tbl->data.ID);
 				if(city_prefix.Len()) {
 					size_t sl = phone.Len() + city_prefix.Len();
 					if(oneof2(sl, 10, 11))

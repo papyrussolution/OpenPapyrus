@@ -307,7 +307,7 @@ int PPViewCashNode::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser
 				//
 				{
 					const BrwHdr * p_row = static_cast<const BrwHdr *>(pBrw->getCurItem());
-					ok = PPView::Helper_ProcessQuickTagEdit(PPObjID(PPOBJ_CASHNODE, p_row ? p_row->ID : 0), pHdr/*(LongArray *)*/);
+					ok = PPView::Helper_ProcessQuickTagEdit(SObjID(PPOBJ_CASHNODE, p_row ? p_row->ID : 0), pHdr/*(LongArray *)*/);
 				}
 				break;
 			case PPVCMD_TAGS: ok = EditObjTagValList(PPOBJ_CASHNODE, id, 0); break; // @v11.2.8

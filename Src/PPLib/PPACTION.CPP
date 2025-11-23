@@ -798,7 +798,7 @@ int ObjVersioningCore::InitSerializeContext(int use_ta)
 	if(!(State & stSCtxInited)) {
 		SCtx.Init(SSerializeContext::fSeparateDataStruct|SSerializeContext::fDontProcessAttachment, ZERODATE);
 		const uint32 sysver = DS.GetMinCompatVersion();
-		PPObjID oid_dummy;
+		SObjID oid_dummy;
 		oid_dummy.Z();
 		ObjVerTbl::Rec rec;
 		SBuffer ctx_buf;
@@ -841,7 +841,7 @@ int ObjVersioningCore::InitSerializeContext(int use_ta)
 	return ok;
 }
 
-int ObjVersioningCore::Add(PPID * pID, PPObjID oid, SBuffer * pBuf, int use_ta)
+int ObjVersioningCore::Add(PPID * pID, SObjID oid, SBuffer * pBuf, int use_ta)
 {
 	int    ok = 1;
 	ObjVerTbl::Rec rec;
@@ -876,7 +876,7 @@ int ObjVersioningCore::Add(PPID * pID, PPObjID oid, SBuffer * pBuf, int use_ta)
 	return ok;
 }
 
-int ObjVersioningCore::Search(PPID id, PPObjID * pOid, long * pVer, SBuffer * pPackBuf)
+int ObjVersioningCore::Search(PPID id, SObjID * pOid, long * pVer, SBuffer * pPackBuf)
 {
 	int    ok = -1;
 	ObjVerTbl::Key0 k;
@@ -894,7 +894,7 @@ int ObjVersioningCore::Search(PPID id, PPObjID * pOid, long * pVer, SBuffer * pP
 	return ok;
 }
 
-int ObjVersioningCore::SearchOid(PPObjID oid, long ver, ObjVerTbl::Rec * pRec, SBuffer * pPackBuf)
+int ObjVersioningCore::SearchOid(SObjID oid, long ver, ObjVerTbl::Rec * pRec, SBuffer * pPackBuf)
 {
 	int    ok = -1;
 	int    sp = 0;
@@ -921,7 +921,7 @@ int ObjVersioningCore::SearchOid(PPObjID oid, long ver, ObjVerTbl::Rec * pRec, S
 	return ok;
 }
 
-int ObjVersioningCore::GetNextVer(PPObjID oid, long * pVer)
+int ObjVersioningCore::GetNextVer(SObjID oid, long * pVer)
 {
 	int    ok = 1;
 	ObjVerTbl::Rec rec;

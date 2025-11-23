@@ -340,11 +340,12 @@ bool PPViewPerson::IsTempTblNeeded()
 					ObjTag.EnumItems(&DefaultTagID);
 				else
 					DefaultTagID = 0;
-				PPIDArray id_list, local_list;
+				PPIDArray id_list;
+				PPIDArray local_list;
 				int    use_list = 0;
 				if(Filt.P_SjF && !Filt.P_SjF->IsEmpty()) {
 					SysJournal * p_sj = DS.GetTLA().P_SysJ;
-					local_list.clear();
+					local_list.Z();
 					Filt.P_SjF->Period.Actualize(ZERODATE);
 					THROW(p_sj->GetObjListByEventPeriod(PPOBJ_PERSON, Filt.P_SjF->UserID, &Filt.P_SjF->ActionIDList, &Filt.P_SjF->Period, local_list));
 					if(use_list)
@@ -355,7 +356,7 @@ bool PPViewPerson::IsTempTblNeeded()
 					}
 				}
 				if(Filt.P_RegF) {
-					local_list.clear();
+					local_list.Z();
 					PsnObj.RegObj.SearchByFilt(Filt.P_RegF, 0, &local_list);
 					if(use_list)
 						id_list.intersect(&local_list);
@@ -365,7 +366,7 @@ bool PPViewPerson::IsTempTblNeeded()
 					}
 				}
 				if(Filt.PersonKindID) {
-					local_list.clear();
+					local_list.Z();
 					PersonKindTbl::Key0 k0, k0_;
 					MEMSZERO(k0);
 					k0.KindID = Filt.PersonKindID;
@@ -721,7 +722,7 @@ int PPViewPerson::EditRegs(PPID personID, PPID locID, int oneReg)
 					}
 					else {
 						RegisterTbl::Rec rec;
-						THROW(PPObjRegister::InitPacket(&rec, Filt.RegTypeID, PPObjID(PPOBJ_LOCATION, locID), 0));
+						THROW(PPObjRegister::InitPacket(&rec, Filt.RegTypeID, SObjID(PPOBJ_LOCATION, locID), 0));
 						do {
 							r = PsnObj.RegObj.EditDialog(&rec, &reg_list, &pack);
 							if(r > 0 && PsnObj.RegObj.CheckUnique(rec.RegTypeID, &reg_list)) {
@@ -768,7 +769,7 @@ int PPViewPerson::EditRegs(PPID personID, PPID locID, int oneReg)
 				r = PsnObj.RegObj.EditDialog(&pack.Regs.at(pos - 1), &pack.Regs, &pack);
 			else {
 				RegisterTbl::Rec rec;
-				THROW(PPObjRegister::InitPacket(&rec, Filt.RegTypeID, PPObjID(PPOBJ_PERSON, pack.Rec.ID), 0));
+				THROW(PPObjRegister::InitPacket(&rec, Filt.RegTypeID, SObjID(PPOBJ_PERSON, pack.Rec.ID), 0));
 				do {
 					r = PsnObj.RegObj.EditDialog(&rec, &pack.Regs, &pack);
 					if(r > 0 && PsnObj.RegObj.CheckUnique(rec.RegTypeID, &pack.Regs)) {
@@ -1374,7 +1375,7 @@ int PPViewPerson::CreateAddrRec(PPID addrID, const LocationTbl::Rec * pLocRec, c
 	return ok;
 }
 
-int PPViewPerson::Helper_GetTagValue(PPObjID oid, PPID tagID, SString & rBuf)
+int PPViewPerson::Helper_GetTagValue(SObjID oid, PPID tagID, SString & rBuf)
 {
 	rBuf.Z();
 	int   ok = -1;
@@ -1455,7 +1456,7 @@ int PPViewPerson::CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnAttrVie
 			ok = 0;
 	}
 	else if(Filt.GetAttribType() == PPPSNATTR_TAG && Filt.RegTypeID) {
-		Helper_GetTagValue(PPObjID(PPOBJ_PERSON, pPsnRec->ID), Filt.RegTypeID - TAGOFFSET, temp_buf);
+		Helper_GetTagValue(SObjID(PPOBJ_PERSON, pPsnRec->ID), Filt.RegTypeID - TAGOFFSET, temp_buf);
 		STRNSCPY(item.RegNumber, temp_buf);
 		//if(item.RegSerial[0] == 0 && item.RegNumber[0] == 0) {
 		if(item.RegNumber[0] == 0) {
@@ -1690,7 +1691,7 @@ int PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
 										local_ok = false;
 								}
 								else if(attr_type == PPPSNATTR_TAG && Filt.RegTypeID) {
-									Helper_GetTagValue(PPObjID(PPOBJ_LOCATION, p_attr_view->TabID), Filt.RegTypeID - TAGOFFSET, temp_buf);
+									Helper_GetTagValue(SObjID(PPOBJ_LOCATION, p_attr_view->TabID), Filt.RegTypeID - TAGOFFSET, temp_buf);
 									STRNSCPY(p_attr_view->RegNumber, temp_buf);
 									if(!p_attr_view->RegSerialP && p_attr_view->RegNumber[0] == 0) {
 										if(Filt.EmptyAttrib == EA_NOEMPTY)
@@ -3678,13 +3679,13 @@ int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 				//
 				{
 					const BrwHdr * p_row = static_cast<const BrwHdr *>(pBrw->getCurItem());
-					ok = PPView::Helper_ProcessQuickTagEdit(PPObjID(PPOBJ_PERSON, p_row ? p_row->ID : 0), pHdr/*(LongArray *)*/);
+					ok = PPView::Helper_ProcessQuickTagEdit(SObjID(PPOBJ_PERSON, p_row ? p_row->ID : 0), pHdr/*(LongArray *)*/);
 				}
 				break;
 			case PPVCMD_TAGS:
 				ok = -1;
 				{
-					PPObjID oid;
+					SObjID oid;
 					if(Filt.IsLocAttr() && Filt.Flags & PersonFilt::fLocTagF)
 						oid.Set(PPOBJ_LOCATION, static_cast<PPID>(pHdr ? PTR32C(pHdr)[1] : 0));
 					else

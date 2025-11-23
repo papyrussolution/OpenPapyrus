@@ -475,7 +475,7 @@ int TToolbar::SetupToolbarWnd(DWORD style, const ToolbarList * pList)
 					btns.idCommand = item.KeyCode;
 					btns.dwData  = reinterpret_cast<DWORD_PTR>(item.ToolTipText);
 					btns.fsStyle = TBSTYLE_BUTTON;
-					if(!h_menu || oneof2(item.KeyCode, cmEventsForCurrentUser, cmOpenTextFile) || isFindMenuID(item.KeyCode, h_menu))
+					if(!h_menu || oneof3(item.KeyCode, cmEventsForCurrentUser, cmOpenTextFile, cmUniFindObj) || isFindMenuID(item.KeyCode, h_menu))
 						btns.fsState |= TBSTATE_ENABLED;
 					prev_separator = 0;
 				}

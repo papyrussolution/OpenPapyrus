@@ -199,11 +199,21 @@ SString & Generator_SQL::GetType(TYPEID typ, SString & rBuf)
 	switch(Sqlst) {
 		case sqlstMySQL:
 			switch(_t) {
-				case S_CHAR:     rBuf.Cat("VARCHAR").CatParStr(_s); break;
-				case S_LSTRING:  rBuf.Cat("VARCHAR").CatParStr(_s); break;
-				case S_ZSTRING:  rBuf.Cat("VARCHAR").CatParStr(_s); break;
+				case S_CHAR:     
+					// @v12.4.10 rBuf.Cat("VARCHAR").CatParStr(_s); 
+					rBuf.Cat("TEXT"); // @v12.4.10
+					break;
+				case S_LSTRING:  
+					// @v12.4.10 rBuf.Cat("VARCHAR").CatParStr(_s); 
+					rBuf.Cat("TEXT"); // @v12.4.10
+					break;
+				case S_ZSTRING:  
+					// @v12.4.10 rBuf.Cat("VARCHAR").CatParStr(_s);
+					rBuf.Cat("TEXT"); // @v12.4.10
+					break;
 				case S_INT:
-				case S_UINT:     rBuf.Cat("INT"); break; 
+				case S_UINT:     
+					rBuf.Cat("INT"); break; 
 				case S_AUTOINC:  
 					if(_s == 4)
 						rBuf.Cat("INT");
@@ -224,17 +234,24 @@ SString & Generator_SQL::GetType(TYPEID typ, SString & rBuf)
 						rBuf.Cat("DOUBLE"); 
 					break;
 				case S_DATE:     rBuf.Cat("DATE"); break;
-				case S_TIME:     rBuf.Cat("TIME"); break; 
-				case S_DATETIME: rBuf.Cat("DATETIME"); break;
+				case S_TIME:     rBuf.Cat("TIME(3)"); break; // @v12.4.10 TIME-->TIME(3)
+				case S_DATETIME: rBuf.Cat("DATETIME(3)"); break; // @v12.4.10 DATETIME-->DATETIME(3)
 				case S_DEC:
 				case S_MONEY:
 					_s = GETSSIZED(typ);
 					rBuf.Cat("NUMERIC").CatChar('(').Cat(_s * 2 - 2).Comma().Cat(GETSPRECD(typ)).CatChar(')'); break;
 				case S_BOOL:
 				case S_BIT:   rBuf.Cat("NUMERIC").CatParStr(1); break;
-				case S_NOTE:  rBuf.Cat("VARCHAR").CatParStr(_s); break;
-				case S_WCHAR: rBuf.Cat("NCHAR").CatParStr(_s/2); break;
-				case S_WZSTRING: rBuf.Cat("CHAR").CatParStr(_s/2).Space().Cat("CHARACTER SET utf16"); break;
+				case S_NOTE:  
+					// @v12.4.10 rBuf.Cat("VARCHAR").CatParStr(_s); 
+					rBuf.Cat("MEDIUMTEXT"); // @v12.4.10
+					break;
+				case S_WCHAR: 
+					rBuf.Cat("NCHAR").CatParStr(_s/2); 
+					break;
+				case S_WZSTRING: 
+					rBuf.Cat("CHAR").CatParStr(_s/2).Space().Cat("CHARACTER SET utf16"); 
+					break;
 				case S_RAW:   rBuf.Cat("BINARY").CatParStr(_s); break;
 				case S_BLOB:  rBuf.Cat("MEDIUMBLOB"); break;
 				case S_CLOB:  rBuf.Cat("MEDIUMTEXT"); break;

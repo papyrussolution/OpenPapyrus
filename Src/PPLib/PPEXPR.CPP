@@ -325,7 +325,7 @@ int BillContext::ResolveFunc(int funcId, FC & rFc)
 			break;
 		case funcAmountByTVat:
 			{
-				PPObjID_Base objid;
+				SObjID_Base objid;
 				objid = arg;
 				double arg2 = (rFc.ArgList.getCount() > 1) ? rFc.ArgList.at(1) : 0.0;
 				THROW_PP(objid.Obj == PPOBJ_GOODSTYPE, PPERR_OBJEXPECTED_GOODSTYPE);
@@ -896,7 +896,7 @@ int FASTCALL PPExprParser::GetFactor(double * pResult)
 						break;
 					case funcOid:
 						{
-							PPObjID oid;
+							SObjID oid;
 							SString obj_type_symb;
 							SString obj_id_symb;
 							uint   pos = 0;
@@ -930,7 +930,7 @@ int FASTCALL PPExprParser::GetFactor(double * pResult)
 					case funcTagExpr: // @v12.0.11
 						{
 							if(arg_count >= 1) {
-								PPObjID oid;
+								SObjID oid;
 								oid.FromDouble(first_arg);
 								if(Fb.ExtToken.NotEmpty()) {
 									PPObjTag tag_obj;
@@ -1244,7 +1244,7 @@ int GoodsContext::ResolveFunc(int funcId, FC & rFc)
 		double price = P_Ti ? P_Ti->Price : 0.0;
 		for(uint i = 0; i < rFc.ArgList.getCount(); i++) {
 			const double arg = rFc.ArgList.at(i);
-			PPObjID_Base oid;
+			SObjID_Base oid;
 			oid = arg;
 			switch(oid.Obj) {
 				case PPOBJ_QUOTKIND: SETIFZ(qk_id, oid.Id); break;
@@ -1406,7 +1406,7 @@ int GoodsContext::ResolveGoodsAttr(const SString & rSymb, PPID goodsID, double *
 		if(p_local_gc_pack && p_local_ge_rec) {
 			const int local_dim_ref_list[] = {PPGdsCls::eKind, PPGdsCls::eGrade, PPGdsCls::eAdd, PPGdsCls::eAdd2};
 			for(uint i = 0; i < SIZEOFARRAY(local_dim_ref_list); i++) {
-				PPObjID oid;
+				SObjID oid;
 				switch(local_dim_ref_list[i]) {
 					case PPGdsCls::eKind : oid.Set(p_local_gc_pack->PropKind.ItemsListID, p_local_ge_rec->KindID); break;
 					case PPGdsCls::eGrade: oid.Set(p_local_gc_pack->PropGrade.ItemsListID, p_local_ge_rec->GradeID); break;
@@ -1428,7 +1428,7 @@ int GoodsContext::ResolveGoodsAttr(const SString & rSymb, PPID goodsID, double *
 	}
 	else if(rSymb.IsEqiAscii("TYPE")) {
 		PPID   goods_type = (GObj.Fetch(goodsID, &goods_rec) > 0) ? goods_rec.GoodsTypeID : 0;
-		PPObjID oid;
+		SObjID oid;
 		v = (double)oid.Set(PPOBJ_GOODSTYPE, goods_type);
 	}
 	else if(rSymb.IsEqiAscii("ID"))
@@ -1436,7 +1436,7 @@ int GoodsContext::ResolveGoodsAttr(const SString & rSymb, PPID goodsID, double *
 	else
 		ok = 0;
 	if(ref_dim) {
-		PPObjID oid;
+		SObjID oid;
 		if(goodsID) {
 			PPGdsClsPacket gc_pack;
 			if(GObj.FetchCls(goodsID, &goods_rec, &gc_pack) > 0) {
