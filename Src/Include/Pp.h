@@ -58072,7 +58072,7 @@ public:
 	int32   QuotCls;    // @v11.4.2 Категория котировок
 	int32   QuotKindID;
 	int32   CurrID;
-	int32   ArID;
+	int32   __ArID;     // Статья привязки кодов
 	int32   LocID;
 	int32   Flags;
 };
@@ -59109,13 +59109,13 @@ public:
 	//
 	//
 	enum {
-		dtmqDlvry            =   2, // Delivery date/time, requested
-		dtmqShipment         =  10, // Shipment date/time, requested
-		dtmqDespatch         =  11, // Despatch date and/or time
-		dtmqPromotionStart   =  15, // Promotion start date/time
-		dtmqDlvryEstimated   =  17, // Delivery date/time, estimated
-		dtmqShipNotBefore    =  37, // Ship not before date/time
-		dtmqShipNotLater     =  38, // Ship not later than date/time
+		dtmqDlvry                 =   2, // Delivery date/time, requested
+		dtmqShipment              =  10, // Shipment date/time, requested
+		dtmqDespatch              =  11, // Despatch date and/or time
+		dtmqPromotionStart        =  15, // Promotion start date/time
+		dtmqDlvryEstimated        =  17, // Delivery date/time, estimated
+		dtmqShipNotBefore         =  37, // Ship not before date/time
+		dtmqShipNotLater          =  38, // Ship not later than date/time
 		dtmqInbondMovementAuth    =  59, // Inbond movement authorization date
 		dtmqCancelIfNotDlvrd      =  61, // Cancel if not delivered by this date
 		dtmqDeliveryLatest        =  63, // Delivery date/time, latest
@@ -59177,13 +59177,14 @@ public:
 		21E         DDHHMM-DDHHMM (GS1 Temporary Code) 	Format of period to be given in actual message without hyphen.
 	*/
 	enum {
-		dtmfmtCCYYMMDD  = 102, // CCYYMMDD
+		dtmfmtCCYYMMDD          = 102, // CCYYMMDD
 		dtmfmtCCYYMMDDHHMM      = 203, // CCYYMMDDHHMM
-		dtmfmtCCYYWW    = 616, // CCYYWW
+		dtmfmtCCYYWW            = 616, // CCYYWW
 		dtmfmtCCYYMMDD_CCYYMMDD = 718, // CCYYMMDD-CCYYMMDD
 	};
 	struct DtmValue {
 		DtmValue();
+		DtmValue & Z();
 		int    Q; // Qualifier
 		LDATETIME Dtm;
 		LDATETIME DtmFinish;
@@ -59207,7 +59208,7 @@ public:
 		refqAWT, // Administrative Reference Code
 		refqCD, // Credit note number
 		refqCR, // Customer reference number
-		refqCT, // Contract number
+		refqCT, // Contract number. Reference number of a contract concluded between parties.
 		refqDL, // Debit note number
 		refqDQ, // Delivery note number
 		refqFC, // Fiscal number Tax payer's number. Number assigned to individual persons as well as to corporates by a public institution;
@@ -59238,7 +59239,9 @@ public:
 	};
 	struct RefValue {
 		RefValue();
+		RefValue & Z();
 		int    Q; // Qualifier
+		char   Ln[8]; // Document line identifier
 		SString Ref;
 	};
 	//
@@ -59484,6 +59487,81 @@ public:
 
 	};
 
+	struct TodValue { // Terms of delivery or transport
+		TodValue() : FunctionCode(0)
+		{
+			PaymMethodCode[0] = 0;
+			TermDescrCode[0] = 0;
+			CodeListIdCode[0] = 0;
+			CodeListRespAgcCode[0] = 0;
+		}
+		// 4055 Delivery or transport terms function code
+		/*
+			1 - Price condition. Specifies a condition related to the price which a seller must fulfil before the buyer will complete a purchase.
+				GS1 Description: Specific price condition under which goods must be delivered to the consignee.
+			2 - Despatch condition. Condition requested by the customer under which the supplier shall deliver: Extent of freight costs, means of transport.
+			3 - Price and despatch condition. Condition related to price and despatch that the seller must complete before the customer will agree payment.
+				GS1 Description: Terms of delivery relate to both price and despatch condition.
+			4 - Collected by customer. Indicates that the customer will pick up the goods at the supplier. He will take care of the means of transport.
+			5 - Transport condition. Specifies the conditions under which the transport takes place under the responsibility of the carrier.
+			6 - Delivery condition. Specifies the conditions under which the goods must be delivered to the consignee.
+			7 - Delivered by supplier. Indicates that the supplier will arrange the delivery of goods. He will take care of the means of transport.
+				GS1 Note: Replaces GS1 Temporary Code 10E.
+			8 - Delivery arranged by logistic service provider. Code indicating that the logistic service provider will arrange the delivery of goods.
+				GS1 Note: Replaces GS1 Temporary Code 11E.
+			10E - Delivered by supplier (GS1 Temporary Code). Indicates that the supplier will arrange the delivery of goods. He will take care of the means of transport.
+				GS1 Note: Code marked for deletion. Use value 7 instead
+			11E - Delivery arranged by logistic service provider (GS1 Temporary Code). Code indicating that the logistic service provider will arrange the delivery of goods.
+				GS1 Note: Code marked for deletion. Use value 8 instead.
+		*/ 
+		enum {
+			funcPriceCondition            = 1,
+			funcDispatchCondition         = 2,
+			funcPriceAndDispatchCondition = 3,
+			funcCollectedByCustomer       = 4,
+			funcTransportCondition        = 5,
+			funcDeliveryCondition         = 6,
+			funcDeliveredBySuppl          = 7,
+			funcDeliveredByLogisticSvc    = 8,
+		};
+		int    FunctionCode;
+		// 4215 Transport charges payment method code
+		/*
+			AA - Cash on delivery service charge paid by consignor. An indication that the consignor is responsible for the payment of the cash on delivery service charge.
+			AB - Cash on delivery service charge paid by consignee. An indication that the consignee is responsible for the payment of the cash on delivery service charge.
+			AC - Insurance costs paid by consignor. An indication that the consignor is responsible for the payment of the insurance costs.
+			AD - Insurance costs paid by consignee. An indication that the consignee is responsible for the payment of the insurance costs.
+			AE - Goods collected from store. Customer collects goods from the store.
+				GS1 Note: Replaces GS1 Temporary Code X1.
+			CA - Advance collect. The amount of freight or other charge on a shipment advanced by one transportation line to another or to the shipper, to be collected from consignee.
+			CC - Collect. A shipment on which freight charges will be paid by consignee.
+			CF - Collect, freight credited to payment customer. The freight is collect but has been paid by the shipper and will be credited to that party.
+				GS1 Description: A shipment on which freight charges will be paid by the consignee.
+			DF - Defined by buyer and supplier. The payment method for transport charges have been defined by the buyer and seller.
+			MX - Mixed. The consignment is partially collect and partially prepaid.
+			NC - Service freight, no charge. The consignment is shipped on a service basis and there is no freight charge.
+				GS1 Description: No charge is due owing to the use of service freight.
+			PC - Prepaid but charged to customer. Shipping charges have been paid in advance of shipment but are charged back to consignee usually as line item on invoice for the purchased goods.
+			PO - Prepaid only. Payment in advance of freight and/or other charges prior to delivery of shipment at destination, usually by shipper at point of origin.
+			PP - Prepaid (by seller). Seller of goods makes payment to carrier for freight charges prior to shipment.
+			PU - Pickup. Customer is responsible for payment of pickup charges at shipping point.
+			RC - Return container freight paid by customer. The freight for returning the container is paid by the customer.
+			RF - Return container freight free. There is no freight charge for returning the container.
+			RS - Return container freight paid by supplier. The freight charge for returning the container is paid by the supplier.
+			TP - Third party pay. A third party, someone other than buyer or seller, is identified as responsible for payment of shipping charges.
+			WD - Paid by supplier. Transport charges will be paid by the supplier.
+			WE - Paid by buyer. Transport charges will be paid by the buyer.
+			X1 - Goods collected from store (GS1 Temporary Code). Customer collects goods from the store.
+				GS1 Note: Code marked for deletion. Use value AE instead.
+		*/ 
+		char   PaymMethodCode[4];
+		// C100
+		char   TermDescrCode[4];       // 4053 Delivery or transport terms description code
+		char   CodeListIdCode[20];     // 1131 Code list identification code
+		char   CodeListRespAgcCode[4]; // 3055 Code list responsible agency code
+		SString TermDescr; // 4052 Delivery or transport terms description
+	};
+
 	enum { // 5283
 		taxqCustomDuty = 5,
 		taxqFee        = 6, // Fee. Charge for services rendered.
@@ -59541,6 +59619,10 @@ public:
 		char   CodeListRespAgencyCode[4]; // E3055 Code list responsible agency code
 		char   PaymChannelCode[4];        // E4435 Payment channel code
 	};
+	struct RffDtmPair { // Такая пара встречается в сегментах SG1. Там приходится держать оба поступивших значения вместе, дабы не утерять смысл прочинного.
+		RefValue Rv;
+		DtmValue Dv;
+	};
 
 	struct DocumentDetailValue {
 		DocumentDetailValue();
@@ -59558,6 +59640,7 @@ public:
 	};
 	struct DocumentValue {
 		DocumentValue();
+		DocumentValue & operator = (const DocumentValue & rS);
 		LDATE  GetBillDate() const;
 		LDATE  GetBillDueDate() const;
 		bool   GetLinkedOrderNumber(SString & rBuf) const;
@@ -59573,6 +59656,7 @@ public:
 		TSVector <DtmValue> DtmL;
 		TSVector <QValue> MoaL;
 		TSCollection <PartyValue> PartyL;
+		TSCollection <RffDtmPair> RfDtL; // @v12.4.11
 		TSCollection <DocumentDetailValue> DetailL;
 	};
 
@@ -59682,8 +59766,10 @@ public:
 	int    Read_UNT(const xmlNode * pFirstNode, SString & rDocCode, uint * pSegCount);
 	//
 	int    Write_DTM(SXml::WDoc & rDoc, int dtmKind, int dtmFmt, const LDATETIME & rDtm, const LDATETIME * pFinish);
+	int    Read_DTM(const xmlNode * pFirstNode, DtmValue & rV);
 	int    Read_DTM(const xmlNode * pFirstNode, TSVector <DtmValue> & rList);
 	int    Write_RFF(SXml::WDoc & rDoc, int refQ, const char * pRef); // reference
+	int    Read_RFF(const xmlNode * pFirstNode, RefValue & rV); // reference
 	int    Read_RFF(const xmlNode * pFirstNode, TSCollection <RefValue> & rList); // reference
 	int    Write_NAD(SXml::WDoc & rDoc, int partyQ, const char * pGLN);
 	int    Read_NAD(const xmlNode * pFirstNode, PartyValue & rV);

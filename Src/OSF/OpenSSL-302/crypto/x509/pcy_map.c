@@ -10,10 +10,9 @@
 #pragma hdrstop
 #include "crypto/x509.h"
 #include "pcy_local.h"
-/*
- * Set policy mapping entries in cache. Note: this modifies the passed
- * POLICY_MAPPINGS structure
- */
+// 
+// Set policy mapping entries in cache. Note: this modifies the passed POLICY_MAPPINGS structure
+// 
 int ossl_policy_cache_set_mapping(X509 * x, POLICY_MAPPINGS * maps)
 {
 	POLICY_MAPPING * map;
@@ -27,25 +26,25 @@ int ossl_policy_cache_set_mapping(X509 * x, POLICY_MAPPINGS * maps)
 	}
 	for(i = 0; i < sk_POLICY_MAPPING_num(maps); i++) {
 		map = sk_POLICY_MAPPING_value(maps, i);
-		/* Reject if map to or from anyPolicy */
+		// Reject if map to or from anyPolicy 
 		if((OBJ_obj2nid(map->subjectDomainPolicy) == NID_any_policy) || (OBJ_obj2nid(map->issuerDomainPolicy) == NID_any_policy)) {
 			ret = -1;
 			goto bad_mapping;
 		}
-		/* Attempt to find matching policy data */
+		// Attempt to find matching policy data 
 		data = ossl_policy_cache_find_data(cache, map->issuerDomainPolicy);
-		/* If we don't have anyPolicy can't map */
+		// If we don't have anyPolicy can't map 
 		if(data == NULL && !cache->anyPolicy)
 			continue;
-		/* Create a NODE from anyPolicy */
+		// Create a NODE from anyPolicy 
 		if(!data) {
 			data = ossl_policy_data_new(NULL, map->issuerDomainPolicy, cache->anyPolicy->flags & POLICY_DATA_FLAG_CRITICAL);
 			if(!data)
 				goto bad_mapping;
 			data->qualifier_set = cache->anyPolicy->qualifier_set;
-			/*
-			 * map->issuerDomainPolicy = NULL;
-			 */
+			//
+			// map->issuerDomainPolicy = NULL;
+			//
 			data->flags |= POLICY_DATA_FLAG_MAPPED_ANY;
 			data->flags |= POLICY_DATA_FLAG_SHARED_QUALIFIERS;
 			if(!sk_X509_POLICY_DATA_push(cache->data, data)) {
@@ -61,10 +60,11 @@ int ossl_policy_cache_set_mapping(X509 * x, POLICY_MAPPINGS * maps)
 	}
 	ret = 1;
 bad_mapping:
+	/* @v12.4.11 (this section of code, they say, led to a serious problem - CVE-2022-3996 ) 
 	if(ret == -1 && CRYPTO_THREAD_write_lock(x->lock)) {
 		x->ex_flags |= EXFLAG_INVALID_POLICY;
 		CRYPTO_THREAD_unlock(x->lock);
-	}
+	}*/
 	sk_POLICY_MAPPING_pop_free(maps, POLICY_MAPPING_free);
 	return ret;
 }

@@ -165,12 +165,10 @@ RECORDSIZE BNFieldList2::CalculateFixedRecSize(uint flags/*BNFieldList2::crsfXXX
 {
 	RECORDSIZE s = 0;
 	for(uint i = 0; i < count; i++) {
-		const int t = GETSTYPE(at(i).T);
-		if(t == S_NOTE && flags & crsfIncludeNote) {
-			s += static_cast<RECORDSIZE>(stsize(at(i).T));
-		}
-		else if(!oneof2(t, S_BLOB, S_CLOB)) // @stypeset
-			s += static_cast<RECORDSIZE>(stsize(at(i).T));
+		const TYPEID tid = at(i).T;
+		const int t = GETSTYPE(tid);
+		if(!oneof2(t, S_BLOB, S_CLOB) && (t != S_NOTE || (flags & crsfIncludeNote))) // @stypeset
+			s += static_cast<RECORDSIZE>(stsize(tid));
 	}
 	return s;
 }

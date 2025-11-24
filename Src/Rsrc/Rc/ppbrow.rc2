@@ -8216,6 +8216,7 @@ record QuotVal {
 	GoodsID      long  format(10)    "@{goodsid}";
 	GoodsCode    zstring(32)         "@{goodscode}";
 	GoodsName    zstring(128)        "@{goodsname}"; // @v11.3.1
+	GoodsArCode  zstring(32)         "@{goodsarcode}"; // @v12.4.11
 	LocID        long  format(10)    "@{warehouseid}";
 	LocCode      zstring(20)         "@{warehousesymb}";
 	CurrencyID   long  format(10)    "@{currencyid}";
@@ -8235,21 +8236,21 @@ record Goods2 {
 	CodeCD         zstring(32)         "Штрихкод с форсированной контрольной цифрой";
 	AddedCode      zstring(32)         "Дополнительный штрихкод";
 	AddedCodeQtty  double format(10.4) "Количество для доп штрихкода";
-	PreferredCode  zstring(32)         "@{preferredbarcode}"; // @v10.9.9
-	GrpID          long                "@{groupid}"; // @v7.9.1
+	PreferredCode  zstring(32)         "@{preferredbarcode}";
+	GrpID          long                "@{groupid}";
 	GrpCode        zstring(32)         "@{groupcode}";
 	GrpName        zstring(128)        "@{groupname}";
 	FolderGrpName  zstring(128)        "@{groupfoldername}";
-	Name           zstring(4096)       "@{appellation}";             // @v8.0.12 (128)-->(40196)
+	Name           zstring(4096)       "@{appellation}";
 	Abbr           zstring(128)        "@{shortappellation}";
 	UnitName       zstring(48)         "@{munitname}";
-	UnitCode       zstring(20)         "@{munitcode}"; // @v8.1.1
+	UnitCode       zstring(20)         "@{munitcode}";
 	PhUnitName     zstring(48)         "@{munitphname}";
 	PhUPerU        zstring(48)         "@{goods_phuperu}";
 	UnitsPerPack   double format(10.6) "Емкость упаковки лота";
 	Cost           double format(10.2) "@{termcost}";
 	Price          double format(10.2) "@{termprice}";
-	PriceByOpenLot double format(10.2) "Цена по последнему открытому лоту"; // @v10.9.2 Если открытого лота нет, то PriceByOpenLot = Price
+	PriceByOpenLot double format(10.2) "Цена по последнему открытому лоту"; // Если открытого лота нет, то PriceByOpenLot = Price
 	Rest           double format(10.4) "@{rest}";
 	QCNumber       zstring(32)         "@{qcert}: номер сертификата";
 	QCBlank        zstring(16)         "@{qcert}: @{qcert_blankcode}";
@@ -8273,7 +8274,7 @@ record Goods2 {
 	PckgLength     long                "@{goods_pckgln}";
 	PckgWidth      long                "@{goods_pckgwd}";
 	PckgHeight     long                "@{goods_pckght}";
-	MinStock       double              "@{minstock}"; // @v9.5.10 В контексте склада
+	MinStock       double              "@{minstock}"; // В контексте склада
 	MinShippmQtty  double              "@{goods_minshippmqtty}";
 	MultMinShippm  long                "MinShippmQtty одновременно определяет кратность отгужаемого количества";
 	ManufID        long                "@{manufacturerid}";
@@ -8308,9 +8309,9 @@ record Goods2 {
 	ExpiryFromCurDt  long              "@{goods_expiryperiodfromtoday}";
 	ForceReplace     zstring(12)       "Необходимо заменить товар в БД на импортируемый";
 	EgaisCode        zstring(24)       "@{egaiscode}";
-	FlgPassive       zstring(8)        "@{goodsfeature} '@{goods_gf_passiv}'";          // @v10.3.4
-	FlgNoDiscount    zstring(8)        "@{goodsfeature} '@{goods_gf_nodiscount}'";      // @v10.3.4
-	FlgWantVetisCert zstring(8)        "@{goodsfeature} '@{goods_gf_wantvetiscert}'";  // @v10.3.4
+	FlgPassive       zstring(8)        "@{goodsfeature} '@{goods_gf_passiv}'";
+	FlgNoDiscount    zstring(8)        "@{goodsfeature} '@{goods_gf_nodiscount}'";
+	FlgWantVetisCert zstring(8)        "@{goodsfeature} '@{goods_gf_wantvetiscert}'";
 }
 
 record Person {

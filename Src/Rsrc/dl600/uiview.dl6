@@ -1727,6 +1727,53 @@ dialog DLG_CORRECT12304 [vertical title: "@cmd_recover_v12304" size: (380, 160) 
 	}
 }
 
+dialog DLG_IMPEXPQUOT [vertical title: "@impexpparamquot" size: (490, 600) minsize: (490, 600) font: "MS Shell Dlg 2,8"] {
+	input CTL_IMPEXP_NAME [width: bycontainer height: 21 margin: 4 tabstop label: "@appellation" labelsize: (0, 13)] string[128];
+	view [vertical width: bycontainer growfactor: 1] {
+		view [horizontal width: bycontainer growfactor: 1] {
+			view [vertical growfactor: 3 height: bycontainer] {
+				radiocluster CTL_IMPEXP_DIR [tabstop width: bycontainer margin: 4] {
+					radiobutton [title: "@export" height: 16];
+					radiobutton [title: "@import" height: 16];
+				}
+				radiocluster CTL_IMPEXP_FORMAT [title: "@outerdataformat" tabstop width: bycontainer margin: 4] {
+					radiobutton [title: "Text" height: 16];
+					radiobutton [title: "DBF" height: 16];
+					radiobutton [title: "XML" height: 16];
+					radiobutton [title: "Excel" height: 16];
+				}
+			}
+			view [vertical growfactor: 5 height: bycontainer] {
+				checkcluster CTL_IMPEXP_FLAGS [tabstop width: bycontainer growfactor: 1 margin: 4] {
+					checkbox [title: "@codepage_oem" height: 16];
+					checkbox [title: "@removefilesafterimport" height: 16];
+				}
+				view [horizontal width: bycontainer height: 30 justifycontent: end alignitems: end] {
+					button CTL_IMPEXP_BUT_FLDCORR [title: "@but_fldcorr" tabstop size: (135, 21) margin: 4 command: cmImpExpFldCorr];
+					button CTL_IMPEXP_BUT_TXTDB [title: "@but_impexpfp" tabstop size: (135, 21) margin: 4 command: cmImpExpTxtDbParam];
+				}
+			}
+		}
+	}
+	radiocluster CTL_IMPEXPQUOT_QKCLS [tabstop width: bycontainer margin: 4] {
+		radiobutton [title: "@{quotes}" height: 16];
+		radiobutton [title: "@{qkcls_suppldeal}" height: 16];
+		radiobutton [title: "@{goodsmatrix}" height: 16];
+		radiobutton [title: "@{qkcls_predictcoeff}" height: 16];
+	}
+	combobox CTLSEL_IMPEXPQUOT_QK [tabstop width: bycontainer height: 21 margin: 4 label: "@impexpparamquot_quotkind" labelsize: (0, 13) cblinesymb: CTL_IMPEXPQUOT_QK];
+	combobox CTLSEL_IMPEXPQUOT_CURR [tabstop width: bycontainer height: 21 margin: 4 label: "@impexpparamquot_curr" labelsize: (0, 13) cblinesymb: CTL_IMPEXPQUOT_CURR];
+	combobox CTLSEL_IMPEXPQUOT_AR [tabstop width: bycontainer height: 21 margin: 4 label: "@impexpparamquot_ar" labelsize: (0, 13) cblinesymb: CTL_IMPEXPQUOT_AR];
+	combobox CTLSEL_IMPEXPQUOT_LOC [tabstop width: bycontainer height: 21 margin: 4 label: "@impexpparamquot_loc" labelsize: (0, 13) cblinesymb: CTL_IMPEXPQUOT_LOC];
+
+	input CTL_IMPEXP_FILENAME [width: bycontainer height: 21 margin: 4 tabstop label: "@filename" labelsize: (0, 13) ] string[128]
+		supplement filebrowsebutton(CTLBRW_IMPEXP_FILENAME);
+	view [horizontal width: bycontainer(100) height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: (4, 4, 8, 4) command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: (8, 4, 4, 4) command: cmCancel];
+	}
+}
+
 // @20251116 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
 // Диалоги, представленные здесь с изменными символами (DLG_CASHREPORTS_L__, например) в ppdlg.list не отмечены поскольку находятся в работе.
 

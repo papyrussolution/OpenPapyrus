@@ -1222,8 +1222,25 @@ PPEanComDocument::DtmValue::DtmValue() : Q(0), Dtm(ZERODATETIME), DtmFinish(ZERO
 {
 }
 
+PPEanComDocument::DtmValue & PPEanComDocument::DtmValue::Z()
+{
+	Q = 0;
+	Dtm = ZERODATETIME;
+	DtmFinish = ZERODATETIME;
+	return *this;
+}
+
 PPEanComDocument::RefValue::RefValue() : Q(refqUndef)
 {
+	Ln[0] = 0;
+}
+
+PPEanComDocument::RefValue & PPEanComDocument::RefValue::Z()
+{
+	Q = refqUndef;
+	Ln[0] = 0;
+	Ref.Z();
+	return *this;
 }
 
 PPEanComDocument::PiaValue::PiaValue() : Q(0), Itic(0)
@@ -1324,6 +1341,22 @@ PPEanComDocument::DocumentDetailValue & PPEanComDocument::DocumentDetailValue::o
 
 PPEanComDocument::DocumentValue::DocumentValue() : FuncMsgCode(0)
 {
+}
+
+PPEanComDocument::DocumentValue & PPEanComDocument::DocumentValue::operator = (const PPEanComDocument::DocumentValue & rS)
+{
+	FuncMsgCode = rS.FuncMsgCode;
+	UnhIdent = rS.UnhIdent;
+	BgmIdent = rS.BgmIdent;
+	Cux = rS.Cux;
+	Pai = rS.Pai;
+	TSCollection_Copy(RefL, rS.RefL);
+	DtmL = rS.DtmL;
+	MoaL = rS.MoaL;
+	TSCollection_Copy(PartyL, rS.PartyL);
+	TSCollection_Copy(RfDtL, rS.RfDtL);
+	TSCollection_Copy(DetailL, rS.DetailL);
+	return *this;
 }
 		
 LDATE PPEanComDocument::DocumentValue::GetBillDate() const
@@ -2262,18 +2295,18 @@ static int ParseDTM(int fmt, const SString & rBuf, LDATETIME & rDtm, LDATETIME &
 	return ok;
 }
 
-int PPEanComDocument::Read_DTM(const xmlNode * pFirstNode, TSVector <DtmValue> & rList)
+int PPEanComDocument::Read_DTM(const xmlNode * pFirstNode, DtmValue & rV)
 {
+	rV.Z();
 	int    ok = 1;
 	int    dtm_fmt = 0;
-	DtmValue dtm_val;
 	SString dtm_text;
 	SString temp_buf;
 	for(const xmlNode * p_n = pFirstNode; ok > 0 && p_n; p_n = p_n->next) {
 		if(SXml::IsName(p_n, "C507")) {
 			for(const xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
 				if(SXml::GetContentByName(p_n2, "E2005", temp_buf))
-					dtm_val.Q = temp_buf.ToLong();
+					rV.Q = temp_buf.ToLong();
 				else if(SXml::GetContentByName(p_n2, "E2379", temp_buf))
 					dtm_fmt = temp_buf.ToLong();
 				else if(SXml::GetContentByName(p_n2, "E2380", temp_buf))
@@ -2281,10 +2314,18 @@ int PPEanComDocument::Read_DTM(const xmlNode * pFirstNode, TSVector <DtmValue> &
 			}
 		}
 	}
-	ParseDTM(dtm_fmt, dtm_text, dtm_val.Dtm, dtm_val.DtmFinish);
-	if(dtm_val.Q) {
+	ParseDTM(dtm_fmt, dtm_text, rV.Dtm, rV.DtmFinish);
+	if(!rV.Q)
+		ok = 0;
+	return ok;
+}
+
+int PPEanComDocument::Read_DTM(const xmlNode * pFirstNode, TSVector <DtmValue> & rList)
+{
+	int    ok = 1;
+	DtmValue dtm_val;
+	if(Read_DTM(pFirstNode, dtm_val))
 		rList.insert(&dtm_val);
-	}
 	else
 		ok = 0;
 	return ok;
@@ -2308,30 +2349,43 @@ int PPEanComDocument::Write_RFF(SXml::WDoc & rDoc, int refQ, const char * pRef) 
 	return ok;
 }
 
-int PPEanComDocument::Read_RFF(const xmlNode * pFirstNode, TSCollection <RefValue> & rList) // reference
+int PPEanComDocument::Read_RFF(const xmlNode * pFirstNode, RefValue & rV) // reference
 {
+	rV.Z();
 	int    ok = 1;
-	RefValue * p_new_item = 0;
-	int    ref_q = 0;
-	SString ref_q_text;
-	SString ref_buf;
 	SString temp_buf;
 	for(const xmlNode * p_n = pFirstNode; ok > 0 && p_n; p_n = p_n->next) {
 		if(SXml::IsName(p_n, "C506")) {
 			for(const xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
 				if(SXml::GetContentByName(p_n2, "E1153", temp_buf)) {
-					ref_q_text = temp_buf;
-					ref_q = GetRefqBySymb(temp_buf);
+					rV.Q = GetRefqBySymb(temp_buf);
 				}
-				else if(SXml::GetContentByName(p_n2, "E1154", temp_buf))
-					ref_buf = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+				else if(SXml::GetContentByName(p_n2, "E1154", temp_buf)) // Reference identifier. (C|an..70)
+					rV.Ref = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+				else if(SXml::GetContentByName(p_n2, "1156", temp_buf)) { // Document line identifier. (C|an..6)
+					temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					STRNSCPY(rV.Ln, temp_buf);
+				}
+				else if(SXml::GetContentByName(p_n2, "4000", temp_buf)) { // Reference version identifier. (C|an..35)
+				}
+				else if(SXml::GetContentByName(p_n2, "1060", temp_buf)) { // Revision identifier. (C|an..6)
+				}
 			}
 		}
 	}
-	THROW_PP(ref_q, PPERR_EANCOM_RFFWOQ);
+	THROW_PP(rV.Q, PPERR_EANCOM_RFFWOQ);
+	CATCHZOK
+	return ok;
+}
+
+int PPEanComDocument::Read_RFF(const xmlNode * pFirstNode, TSCollection <RefValue> & rList) // reference
+{
+	int    ok = 1;
+	RefValue * p_new_item = 0;
+	RefValue v;
+	THROW(Read_RFF(pFirstNode, v));
 	THROW_SL(p_new_item = rList.CreateNewItem());
-	p_new_item->Q = ref_q;
-	p_new_item->Ref = ref_buf;
+	*p_new_item = v;
 	CATCHZOK
 	return ok;
 }
@@ -3673,7 +3727,48 @@ int PPEanComDocument::PreprocessPartiesOnReading(int ediOpID, const DocumentValu
 	SString addendum_msg_cli;
 	SString addendum_msg_main;
 	SString addendum_msg_wh;
-	if(ediOpID == PPEDIOP_DESADV) {
+	if(ediOpID == PPEDIOP_ORDER) {
+		for(uint i = 0; i < pV->PartyL.getCount(); i++) {
+			const PartyValue * p_val = pV->PartyL.at(i);
+			if(p_val && p_val->Code.NotEmpty()) {
+				PPID   ar_id = 0;
+				switch(p_val->PartyQ) {
+					case EDIPARTYQ_SUPPLIER:
+						{
+							SetupPartyAddedMsg(p_val, addendum_msg_main);
+							THROW(P_Pi->GetMainOrgGLN(temp_buf));
+							if(temp_buf == p_val->Code) {
+								pResult->MainOrgID = P_Pi->GetMainOrgID_();
+							}
+							else {
+								THROW(P_Pi->PsnObj.GetListByRegNumber(reg_type_id, PPPRK_MAIN, p_val->Code, psn_list.Z()));
+								if(psn_list.getCount())
+									pResult->MainOrgID = psn_list.get(0);
+							}
+						}
+						break;
+					case EDIPARTYQ_SELLER:
+						break;
+					case EDIPARTYQ_BUYER:
+						SetupPartyAddedMsg(p_val, addendum_msg_cli);
+						if(P_Pi->PsnObj.ResolveGLN_Article(p_val->Code, GetSellAccSheet(), &ar_id) > 0)
+							pResult->BillObjID = ar_id;
+						break;
+					case EDIPARTYQ_CONSIGNOR:
+						break;
+					case EDIPARTYQ_CONSIGNEE:
+						break;
+					case EDIPARTYQ_DELIVERY: // Точка доставки
+						break;
+					case EDIPARTYQ_ULTIMATECUSTOMER:
+						break;
+					case EDIPARTYQ_ULTIMATECONSIGNEE:
+						break;
+				}
+			}
+		}
+	}
+	else if(ediOpID == PPEDIOP_DESADV) {
 		for(uint i = 0; i < pV->PartyL.getCount(); i++) {
 			const PartyValue * p_val = pV->PartyL.at(i);
 			if(p_val && p_val->Code.NotEmpty()) {
@@ -3809,13 +3904,13 @@ int PPEanComDocument::Read_Document(/*PPEdiProcessor::ProviderImplementation * p
 		THROW(Read_CommonDocumentEntries(p_root->children, document));
 		for(const xmlNode * p_n = p_root->children; p_n; p_n = p_n->next) {
 			if(SXml::IsName(p_n, "SG1")) {
-				//dtm_temp_list.clear();
+				RffDtmPair * p_rdp = document.RfDtL.CreateNewItem();
 				for(const xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
 					if(SXml::IsName(p_n2, "RFF")) {
-						THROW(Read_RFF(p_n2->children, document.RefL));
+						THROW(Read_RFF(p_n2->children, p_rdp->Rv));
 					}
 					else if(SXml::IsName(p_n2, "DTM")) {
-						THROW(Read_DTM(p_n2->children, document.DtmL));
+						THROW(Read_DTM(p_n2->children, p_rdp->Dv));
 					}
 				}
 			}
@@ -4042,12 +4137,15 @@ int PPEanComDocument::Read_Document(/*PPEdiProcessor::ProviderImplementation * p
 			else if(SXml::IsName(p_n, "PAI")) {
 				THROW(Read_PAI(p_n->children, document.Pai));
 			}
-			else if(SXml::IsName(p_n, "SG1")) {
+			else if(SXml::IsName(p_n, "SG1")) { // A group of segments giving references where necessary, their dates relating to the whole message, e.g. despatch advice, contract number.
+				// RFF-DTM
+				RffDtmPair * p_rdp = document.RfDtL.CreateNewItem();
 				for(const xmlNode * p_inr = p_n->children; p_inr; p_inr = p_inr->next) {
 					if(SXml::IsName(p_inr, "RFF")) {
-						THROW(Read_RFF(p_inr->children, document.RefL));
+						THROW(Read_RFF(p_inr->children, p_rdp->Rv));
 					}
 					else if(SXml::IsName(p_inr, "DTM")) {
+						THROW(Read_DTM(p_inr->children, p_rdp->Dv));
 					}
 				}
 			}
@@ -4065,12 +4163,14 @@ int PPEanComDocument::Read_Document(/*PPEdiProcessor::ProviderImplementation * p
 			else if(SXml::IsName(p_n, "SG7")) {
 				for(const xmlNode * p_inr = p_n->children; p_inr; p_inr = p_inr->next) {
 					if(SXml::IsName(p_inr, "CUX")) {
+						THROW(Read_CUX(p_inr->children, document.Cux));
 					}
 				}
 			}
 			else if(SXml::IsName(p_n, "SG12")) {
 				for(const xmlNode * p_inr = p_n->children; p_inr; p_inr = p_inr->next) {
-					if(SXml::IsName(p_inr, "TOD")) {
+					if(SXml::IsName(p_inr, "TOD")) { // Terms of delivery or transport
+						// TodValue
 					}
 				}
 			}
@@ -4146,6 +4246,20 @@ int PPEanComDocument::Read_Document(/*PPEdiProcessor::ProviderImplementation * p
 			const LDATE  bill_due_dt = document.GetBillDueDate();
 			p_bpack->Rec.Dt = bill_dt;
 			p_bpack->Rec.DueDate = bill_due_dt;
+			THROW(p_bpack->SetupObject(parties_blk.BillObjID, sob));
+			for(uint i = 0; i < document.DetailL.getCount(); i++) {
+				const DocumentDetailValue * p_item = document.DetailL.at(i);
+				if(p_item) {
+					PPTransferItem ti;
+					PPID   goods_id = 0;
+					THROW(ti.Init(&p_bpack->Rec, 1));
+					THROW(PreprocessGoodsOnReading(p_bpack, p_item, &goods_id));
+					assert(goods_id);
+					if(goods_id) {
+						ti.SetupGoods(goods_id, 0);
+					}
+				}
+			}
 		}
 	}
 	else if(SXml::IsName(p_root, "ORDRSP")) { // @v11.2.7

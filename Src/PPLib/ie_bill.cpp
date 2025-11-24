@@ -2704,7 +2704,8 @@ int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, 
 		const  SString code(BillParam.Object2SrchCode);
 		const  PPID suppl_acs_id = GetSupplAccSheet();
 		if(PPObjArticle::GetSearchingRegTypeID(suppl_acs_id, 0, 1, &reg_type_id) > 0) {
-			PPIDArray psn_list, ar_list;
+			PPIDArray psn_list;
+			PPIDArray ar_list;
 			PsnObj.GetListByRegNumber(reg_type_id, 0, code, psn_list);
 			ArObj.GetByPersonList(suppl_acs_id, &psn_list, &ar_list);
 			if(ar_list.getCount() == 1)
@@ -4156,13 +4157,14 @@ int PPBillImporter::ResolveGLN(const char * pGLN, /*const char * pLocCode,*/cons
 		//ok = LocObj.ResolveWarehouseByCode(pLocCode, accSheetID, &ar_id);
 		if(/*ok < 0 &&*/logErr) {
 			char   stub[32];
-			SString msg, err;
-			PPLoadString(PPMSG_ERROR, PPERR_BILLNOTIMPORTED2, msg);
+			SString msg_buf;
+			SString err_buf;
+			PPLoadString(PPMSG_ERROR, PPERR_BILLNOTIMPORTED2, msg_buf);
 			if(pBillId == 0) {
 				stub[0] = 0;
 				pBillId = stub;
 			}
-			Logger.Log(err.Printf(msg.cptr(), pBillId, ""));
+			Logger.Log(err_buf.Printf(msg_buf.cptr(), pBillId, ""));
 		}
 	}
 	CATCHZOK

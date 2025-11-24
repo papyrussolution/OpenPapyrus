@@ -9,7 +9,7 @@
 //
 IMPLEMENT_IMPEXP_HDL_FACTORY(QUOTVAL, PPQuotImpExpParam);
 
-PPQuotImpExpParam::PPQuotImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags), QuotCls(PPQC_PRICE), QuotKindID(0), CurrID(0), ArID(0), LocID(0)
+PPQuotImpExpParam::PPQuotImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags), QuotCls(PPQC_PRICE), QuotKindID(0), CurrID(0), __ArID(0), LocID(0)
 {
 }
 
@@ -18,7 +18,7 @@ PPQuotImpExpParam & PPQuotImpExpParam::Z()
 	QuotCls = PPQC_PRICE; // @v11.4.2
 	QuotKindID = 0;
 	CurrID = 0;
-	ArID = 0;
+	__ArID = 0;
 	LocID = 0;
 	return *this;
 }
@@ -34,8 +34,8 @@ PPQuotImpExpParam & PPQuotImpExpParam::Z()
 			param_list.Add(PPQUOTPAR_QUOTKIND, temp_buf.Z().Cat(QuotKindID));
 		if(CurrID)
 			param_list.Add(PPQUOTPAR_CURRENCY, temp_buf.Z().Cat(CurrID));
-		if(ArID)
-			param_list.Add(PPQUOTPAR_ARTICLE, temp_buf.Z().Cat(ArID));
+		if(__ArID)
+			param_list.Add(PPQUOTPAR_ARTICLE, temp_buf.Z().Cat(__ArID));
 		if(LocID)
 			param_list.Add(PPQUOTPAR_LOC, temp_buf.Z().Cat(LocID));
 		if(Flags)
@@ -53,7 +53,7 @@ PPQuotImpExpParam & PPQuotImpExpParam::Z()
 			switch(item.Id) {
 				case PPQUOTPAR_QUOTKIND: QuotKindID = id_to_assign; break;
 				case PPQUOTPAR_CURRENCY: CurrID = id_to_assign; break;
-				case PPQUOTPAR_ARTICLE:  ArID = id_to_assign; break;
+				case PPQUOTPAR_ARTICLE:  __ArID = id_to_assign; break;
 				case PPQUOTPAR_LOC:      LocID = id_to_assign; break;
 				case PPQUOTPAR_FLAGS:    Flags = id_to_assign; break;
 				case PPQUOTPAR_QUOTCAT: // @v11.4.2
@@ -79,7 +79,7 @@ int PPQuotImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 	const LAssoc int_items[] = {
 		{PPQUOTPAR_QUOTKIND, QuotKindID},
 		{PPQUOTPAR_CURRENCY, CurrID},
-		{PPQUOTPAR_ARTICLE, ArID},
+		{PPQUOTPAR_ARTICLE, __ArID},
 		{PPQUOTPAR_LOC, LocID},
 		{PPQUOTPAR_FLAGS, Flags},
 		{PPQUOTPAR_QUOTCAT, QuotCls} // @v11.4.2
@@ -106,7 +106,7 @@ int PPQuotImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const Stri
 		} int_items[] = {
 			{PPQUOTPAR_QUOTKIND, &QuotKindID},
 			{PPQUOTPAR_CURRENCY, &CurrID},
-			{PPQUOTPAR_ARTICLE, &ArID},
+			{PPQUOTPAR_ARTICLE, &__ArID},
 			{PPQUOTPAR_LOC, &LocID},
 			{PPQUOTPAR_FLAGS, &Flags},
 			{PPQUOTPAR_QUOTCAT, &QuotCls} // @v11.4.2
@@ -148,7 +148,10 @@ int QuotImpExpDialog::setDTS(const PPQuotImpExpParam * pData)
 		SetClusterData(CTL_IMPEXPQUOT_QKCLS, Data.QuotCls);
 		// } @v11.4.2 
 		SetupPPObjCombo(this, CTLSEL_IMPEXPQUOT_QK, PPOBJ_QUOTKIND, new_qk_id, 0, reinterpret_cast<void *>(qk_sel_extra));
-		SetupArCombo(this, CTLSEL_IMPEXPQUOT_AR, Data.ArID, 0, GetSellAccSheet(), sacfDisableIfZeroSheet);
+		{
+			PPID    acs_id = GetSupplAccSheet(); // @v12.4.11 GetSellAccSheet()-->GetSupplAccSheet()
+			SetupArCombo(this, CTLSEL_IMPEXPQUOT_AR, Data.__ArID, 0, acs_id, sacfDisableIfZeroSheet);
+		}
 		SetupPPObjCombo(this, CTLSEL_IMPEXPQUOT_CURR,  PPOBJ_CURRENCY, Data.CurrID, 0);
 		SetupPPObjCombo(this, CTLSEL_IMPEXPQUOT_LOC,   PPOBJ_LOCATION,   Data.LocID, 0);
 		SetupCtrls(Data.Direction);
@@ -164,13 +167,13 @@ int QuotImpExpDialog::getDTS(PPQuotImpExpParam * pData)
 	if(Data.Direction != 0) {
 		Data.QuotCls = GetClusterData(CTL_IMPEXPQUOT_QKCLS); // @v11.4.2
 		getCtrlData(CTLSEL_IMPEXPQUOT_QK,     &Data.QuotKindID);
-		getCtrlData(CTLSEL_IMPEXPQUOT_AR,     &Data.ArID);
+		getCtrlData(CTLSEL_IMPEXPQUOT_AR,     &Data.__ArID);
 		getCtrlData(CTLSEL_IMPEXPQUOT_CURR,   &Data.CurrID);
 		getCtrlData(CTLSEL_IMPEXPQUOT_LOC,    &Data.LocID);
 	}
 	else {
 		Data.QuotKindID = 0;
-		Data.ArID = 0;
+		Data.__ArID = 0;
 		Data.CurrID = 0;
 		Data.LocID = 0;
 	}
@@ -213,7 +216,8 @@ int EditQuotImpExpParam(const char * pIniSection)
 	int    ok = -1;
 	QuotImpExpDialog * dlg = 0;
 	PPQuotImpExpParam param;
-	SString ini_file_name, sect;
+	SString ini_file_name;
+	SString sect;
    	THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
    	{
    		int    direction = 0;
@@ -227,12 +231,13 @@ int EditQuotImpExpParam(const char * pIniSection)
    		dlg->setDTS(&param);
    		while(ok <= 0 && ExecView(dlg) == cmOK)
    			if(dlg->getDTS(&param)) {
-   				int is_new = (pIniSection && *pIniSection && param.Direction == direction) ? 0 : 1;
-   				if(!isempty(pIniSection))
+   				const bool is_new = (pIniSection && *pIniSection && param.Direction == direction) ? false : true;
+   				if(!isempty(pIniSection)) {
    					if(is_new)
    						ini_file.RemoveSection(pIniSection);
    					else
    						ini_file.ClearSection(pIniSection);
+				}
    				PPSetError(PPERR_DUPOBJNAME);
    				if((!is_new || ini_file.IsSectExists(param.Name) == 0) && param.WriteIni(&ini_file, param.Name) && ini_file.FlashIniBuf())
    					ok = 1;
@@ -278,6 +283,7 @@ private:
 	PPQuotImpExpParam Param;
 	PPImpExp * P_IE;
 	PPObjGoods GObj;
+	PPObjPerson PsnObj;
 	PPObjArticle ArObj;
 	PPObjLocation LocObj;
 };
@@ -332,8 +338,11 @@ static int SelectQuotImportCfgs(PPQuotImpExpParam * pParam, int import)
 int PPQuotImporter::Run(const char * pCfgName, int use_ta)
 {
 	const uint _rec_ident = PPREC_QUOTVAL;
-	int    ok = 1, r = 0;
-	SString wait_msg, temp_buf, tok_buf;
+	int    ok = 1;
+	int    r = 0;
+	SString temp_buf;
+	SString wait_msg;
+	SString tok_buf;
 	ZDELETE(P_IE);
 	THROW(LoadSdRecord(_rec_ident, &Param.InrRec));
 	if(pCfgName) {
@@ -359,6 +368,19 @@ int PPQuotImporter::Run(const char * pCfgName, int use_ta)
 	else if(SelectQuotImportCfgs(&Param, 1) > 0)
 		r = 1;
 	if(r == 1) {
+		PPIDArray psn_by_code_list;
+		PPIDArray ar_by_code_list;
+		/*{
+			const  SString code(BillParam.Object2SrchCode);
+			const  PPID suppl_acs_id = GetSupplAccSheet();
+			if(PPObjArticle::GetSearchingRegTypeID(suppl_acs_id, 0, 1, &reg_type_id) > 0) {
+				PsnObj.GetListByRegNumber(reg_type_id, 0, code, psn_list);
+				ArObj.GetByPersonList(suppl_acs_id, &psn_list, &ar_list);
+				if(ar_list.getCount() == 1)
+					ar_id_by_code2 = ar_list.get(0);
+			}
+		}*/
+
 		THROW_MEM(P_IE = new PPImpExp(&Param, 0));
 		{
 			PPWaitStart();
@@ -367,7 +389,8 @@ int PPQuotImporter::Run(const char * pCfgName, int use_ta)
 			IterCounter cntr;
 			if(P_IE->OpenFileForReading(0)) {
 				PPObjQuotKind qk_obj;
-				PPQuotKind qk_rec;
+				PPQuotKind2 qk_rec;
+				PPQuotKindPacket qk_pack;
 				PPObjCurrency cur_obj;
 				PPCurrency cur_rec;
 				Goods2Tbl::Rec goods_rec;
@@ -399,8 +422,21 @@ int PPQuotImporter::Run(const char * pCfgName, int use_ta)
 							qk_id = qk_rec.ID;
 						}
 					}
-					if(SETIFZ(qk_id, Param.QuotKindID)) {
-						if(sdr_rec.GoodsID) {
+					if(SETIFZ(qk_id, Param.QuotKindID) && qk_obj.Fetch(qk_id, &qk_pack) > 0) {
+						//
+						PPID   reg_type_id = PPREGT_TPID;
+						const  PPID quot_acs_id = qk_pack.Rec.AccSheetID;
+						if(quot_acs_id) {
+							if(PPObjArticle::GetSearchingRegTypeID(quot_acs_id, 0, 1, &reg_type_id) > 0) {
+								;
+							}
+						}
+						//
+						// @v12.4.11 {
+						if(!goods_id && sdr_rec.GoodsArCode[0]) {
+						}
+						// } @v12.4.11 
+						if(!goods_id && sdr_rec.GoodsID) {
 							if(GObj.Search(sdr_rec.GoodsID, &goods_rec) > 0) {
 								if(goods_rec.Kind == PPGDSK_GOODS && !(goods_rec.Flags & GF_GENERIC)) {
 									goods_id = goods_rec.ID;
@@ -422,57 +458,75 @@ int PPQuotImporter::Run(const char * pCfgName, int use_ta)
 						}
 						// } @v11.3.1 
 						if(goods_id) {
+							bool   skip_because_ar_nfound = false;
 							if(sdr_rec.ArID) {
 								if(ArObj.Search(sdr_rec.ArID, &ar_rec) > 0)
 									ar_id = ar_rec.ID;
+								else
+									skip_because_ar_nfound = true;
 							}
 							if(!ar_id && sdr_rec.ArCode[0]) {
-								;
+								if(reg_type_id) {
+									PsnObj.GetListByRegNumber(reg_type_id, 0, sdr_rec.ArCode, psn_by_code_list);
+									ArObj.GetByPersonList(quot_acs_id, &psn_by_code_list, &ar_by_code_list);
+									if(ar_by_code_list.getCount() == 1)
+										ar_id = ar_by_code_list.get(0);
+									else if(ar_by_code_list.getCount() > 1) {
+										; // ambiguity
+									}
+									else { // ar_by_code_list.getCount() == 0
+										;
+									}
+								}
+								if(!ar_id)
+									skip_because_ar_nfound = true;
 							}
-							SETIFZ(ar_id, Param.ArID);
-							//
-							if(sdr_rec.CurrencyID && cur_obj.Fetch(sdr_rec.CurrencyID, &cur_rec) > 0) {
-								cur_id = cur_rec.ID;
-							}
-							if(!cur_id && sdr_rec.CurrencyCode) {
-								if(cur_obj.SearchCode(&temp_id, sdr_rec.CurrencyCode) > 0)
-									cur_id = temp_id;
-							}
-							if(!cur_id && sdr_rec.CurrencySymb[0]) {
-								if(cur_obj.SearchSymb(&temp_id, sdr_rec.CurrencySymb) > 0)
-									cur_id = temp_id;
-							}
-							SETIFZ(cur_id, Param.CurrID);
-							//
-							if(sdr_rec.LocID && LocObj.Search(sdr_rec.LocID, &loc_rec) > 0) {
-								loc_id = loc_rec.ID;
-							}
-							if(!loc_id && sdr_rec.LocCode[0]) {
-								if(LocObj.P_Tbl->SearchCode(LOCTYP_WAREHOUSE, sdr_rec.LocCode, &temp_id, &loc_rec) > 0) {
+							if(!skip_because_ar_nfound) {
+								//SETIFZ(ar_id, Param.__ArID);
+								//
+								if(sdr_rec.CurrencyID && cur_obj.Fetch(sdr_rec.CurrencyID, &cur_rec) > 0) {
+									cur_id = cur_rec.ID;
+								}
+								if(!cur_id && sdr_rec.CurrencyCode) {
+									if(cur_obj.SearchCode(&temp_id, sdr_rec.CurrencyCode) > 0)
+										cur_id = temp_id;
+								}
+								if(!cur_id && sdr_rec.CurrencySymb[0]) {
+									if(cur_obj.SearchSymb(&temp_id, sdr_rec.CurrencySymb) > 0)
+										cur_id = temp_id;
+								}
+								SETIFZ(cur_id, Param.CurrID);
+								//
+								if(sdr_rec.LocID && LocObj.Search(sdr_rec.LocID, &loc_rec) > 0) {
 									loc_id = loc_rec.ID;
 								}
-								else if(LocObj.P_Tbl->SearchCode(LOCTYP_ADDRESS, sdr_rec.LocCode, &temp_id, &loc_rec) > 0) {
-									loc_id = loc_rec.ID;
+								if(!loc_id && sdr_rec.LocCode[0]) {
+									if(LocObj.P_Tbl->SearchCode(LOCTYP_WAREHOUSE, sdr_rec.LocCode, &temp_id, &loc_rec) > 0) {
+										loc_id = loc_rec.ID;
+									}
+									else if(LocObj.P_Tbl->SearchCode(LOCTYP_ADDRESS, sdr_rec.LocCode, &temp_id, &loc_rec) > 0) {
+										loc_id = loc_rec.ID;
+									}
 								}
-							}
-							SETIFZ(loc_id, Param.LocID);
-							{
-								PPQuot quot(goods_id);
-								quot.Kind = qk_id;
-								quot.LocID = loc_id;
-								quot.ArID = ar_id;
-								if(checkdate(sdr_rec.DateLow, 1) && checkdate(sdr_rec.DateUpp, 1) && (!sdr_rec.DateUpp || sdr_rec.DateLow <= sdr_rec.DateUpp)) {
-									quot.Period.Set(sdr_rec.DateLow, sdr_rec.DateUpp);
+								SETIFZ(loc_id, Param.LocID);
+								{
+									PPQuot quot(goods_id);
+									quot.Kind = qk_id;
+									quot.LocID = loc_id;
+									quot.ArID = ar_id;
+									if(checkdate(sdr_rec.DateLow, 1) && checkdate(sdr_rec.DateUpp, 1) && (!sdr_rec.DateUpp || sdr_rec.DateLow <= sdr_rec.DateUpp)) {
+										quot.Period.Set(sdr_rec.DateLow, sdr_rec.DateUpp);
+									}
+									temp_buf = sdr_rec.ValueText;
+									if(temp_buf.NotEmptyS()) {
+										quot.GetValFromStr(temp_buf);
+									}
+									if(quot.IsEmpty()) {
+										quot.Quot = sdr_rec.Value;
+										quot.Flags = sdr_rec.ValueFlags;
+									}
+									THROW(GObj.P_Tbl->SetQuot(quot, 0));
 								}
-								temp_buf = sdr_rec.ValueText;
-								if(temp_buf.NotEmptyS()) {
-									quot.GetValFromStr(temp_buf);
-								}
-								if(quot.IsEmpty()) {
-									quot.Quot = sdr_rec.Value;
-									quot.Flags = sdr_rec.ValueFlags;
-								}
-                                THROW(GObj.P_Tbl->SetQuot(quot, 0));
 							}
 						}
 					}

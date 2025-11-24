@@ -3451,18 +3451,19 @@ struct Sdr_SBIIBillRow {
 	#define PPFLD_QUOTVAL_GOODSID                                  3
 	#define PPFLD_QUOTVAL_GOODSCODE                                4
 	#define PPFLD_QUOTVAL_GOODSNAME                                5
-	#define PPFLD_QUOTVAL_LOCID                                    6
-	#define PPFLD_QUOTVAL_LOCCODE                                  7
-	#define PPFLD_QUOTVAL_CURRENCYID                               8
-	#define PPFLD_QUOTVAL_CURRENCYSYMB                             9
-	#define PPFLD_QUOTVAL_CURRENCYCODE                            10
-	#define PPFLD_QUOTVAL_ARID                                    11
-	#define PPFLD_QUOTVAL_ARCODE                                  12
-	#define PPFLD_QUOTVAL_DATELOW                                 13
-	#define PPFLD_QUOTVAL_DATEUPP                                 14
-	#define PPFLD_QUOTVAL_VALUE                                   15
-	#define PPFLD_QUOTVAL_VALUEFLAGS                              16
-	#define PPFLD_QUOTVAL_VALUETEXT                               17
+	#define PPFLD_QUOTVAL_GOODSARCODE                              6
+	#define PPFLD_QUOTVAL_LOCID                                    7
+	#define PPFLD_QUOTVAL_LOCCODE                                  8
+	#define PPFLD_QUOTVAL_CURRENCYID                               9
+	#define PPFLD_QUOTVAL_CURRENCYSYMB                            10
+	#define PPFLD_QUOTVAL_CURRENCYCODE                            11
+	#define PPFLD_QUOTVAL_ARID                                    12
+	#define PPFLD_QUOTVAL_ARCODE                                  13
+	#define PPFLD_QUOTVAL_DATELOW                                 14
+	#define PPFLD_QUOTVAL_DATEUPP                                 15
+	#define PPFLD_QUOTVAL_VALUE                                   16
+	#define PPFLD_QUOTVAL_VALUEFLAGS                              17
+	#define PPFLD_QUOTVAL_VALUETEXT                               18
 
 struct Sdr_QuotVal {
 	Sdr_QuotVal() { THISZERO(); }
@@ -3471,6 +3472,7 @@ struct Sdr_QuotVal {
 	int32  GoodsID;
 	char   GoodsCode[32];
 	char   GoodsName[128];
+	char   GoodsArCode[32];
 	int32  LocID;
 	char   LocCode[20];
 	int32  CurrencyID;
