@@ -81,8 +81,8 @@ void   FASTCALL DBTable::SetName(const char * pN) { FileName_ = pN; }
 void   FASTCALL DBTable::SetTableName(const char * pN) { STRNSCPY(tableName, pN); }
 void   FASTCALL DBTable::SetFlag(int f) { flags |= f; }
 void   FASTCALL DBTable::ResetFlag(int f) { flags &= ~f; }
-int    DBTable::AddField(const char * pName, TYPEID fldType, int fldId) { return fields.addField(pName, fldType, fldId); }
-int    FASTCALL DBTable::AddField(const BNField & rF) { return fields.addField(rF); }
+int    DBTable::AddField(const char * pName, TYPEID fldType, int fldId) { return FldL.addField(pName, fldType, fldId); }
+int    FASTCALL DBTable::AddField(const BNField & rF) { return FldL.addField(rF); }
 int    FASTCALL DBTable::AddKey(BNKey & rK) { return Indices.addKey(rK); }
 
 int DBTable::Btr_Open(const char * pName, int openMode, char * pPassword)
@@ -144,7 +144,15 @@ int DBTable::Btr_ProcessLobOnReading()
 		size_t lob_sz = 0;
 		DBField last_fld;
 		DbThreadLocalArea & tla = DBS.GetTLA();
-		THROW(getField(fields.getCount()-1, &last_fld));
+		{
+			// @v12.4.11 THROW(getField(FldL.getCount()-1, &last_fld));
+			// @v12.4.11 {
+			uint   lfpos = 0;
+			const  BNField * p_lf = GetBLobField(&lfpos);
+			THROW(p_lf);
+			THROW(getField(lfpos, &last_fld));
+			// } @v12.4.11 
+		}
 		if(RetBufSize > FixRecSize && oneof2(tla.LastBtrErr, 0, BE_UBUFLEN)) {
 			STempBuffer temp_buf(0);
 			SBuffer lob_buffer;
@@ -588,8 +596,8 @@ int DBTable::Btr_GetStat(long reqItems, DbTableStat * pStat)
 		for(uint j = 0; j < pStat->IdxCount; j++) {
 			BNKey key;
 			do {
-				for(uint k = 0; k < fields.getCount(); k++) {
-					if(fields[k].Offs == (p->position-1)) {
+				for(uint k = 0; k < FldL.getCount(); k++) {
+					if(FldL[k].Offs == (p->position-1)) {
 						key.addSegment(k, p->flags);
 						break;
 					}

@@ -314,7 +314,7 @@ toolbar MAIN TB_GLOBAL {
 	separator
 	cmEventsForCurrentUser, "@{cmd_events}",        PPDV_SIGNAL01
 	cmOpenTextFile,     "@{cmd_opentextfile}",      PPDV_FILEDOCUMENTEDIT01
-	cmUniFindObj,       "@{cmd_unifindobj}",        PPDV_SEARCH
+	cmUniFindObj,       "@{cmd_unifindobj}",        PPDV_UNIFINDOBJ01
 }
 
 toolbar export ACCBILL TB_FIRST_TOOLBAR {
@@ -7215,7 +7215,7 @@ cmd FreightPackageType    { "@{cmd_freightpackagetype}"                    none 
 cmd ExportView            { "@{cmd_exportview}"                            none                   none cmExportView }
 cmd TestMqc               { "@{cmd_testmqc}"                               PPDV_TEST01            none cmTestMqc }
 cmd QuoteReqAnalyze       { "@{cmd_quotereqanalyze}"                       none                   none cmQuoteReqAnalyze }
-cmd UniFindObj            { "@{cmd_unifindobj}"                            none                   none cmUniFindObj }
+cmd UniFindObj            { "@{cmd_unifindobj}"                            PPDV_UNIFINDOBJ01      none cmUniFindObj }
 cmd QueryCHZN             { "@{cmd_querychzn}"                             PPDV_LOGOCHZN          none cmQueryCHZN }
 cmd TssModel              { "@{cmd_tssmodel}"                              none                   none cmTssModel  }
 cmd Events                { "@{cmd_events}"                                none                   none cmEvents }
@@ -9493,8 +9493,9 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_LOGOCHZN noreplacecolor
 	PPDV_LOGOGOOGLEMAPS01 noreplacecolor
 	PPDV_LOGOWILDBERRIES noreplacecolor // @v12.2.3
-	PPDV_LOGOAPTEKARU noreplacecolor // @v12.2.3
-	PPDV_SEARCH                      // @v12.4.10
+	PPDV_LOGOAPTEKARU noreplacecolor  // @v12.2.3
+	PPDV_SEARCH                       // @v12.4.10
+	PPDV_UNIFINDOBJ01 // @v12.4.11
 }
 
 // @todo ѕри добавлении новой иконки в верхний реестр сбиваютс€ идентификаторы нижнего реестра. Ёто надо исправл€ть!

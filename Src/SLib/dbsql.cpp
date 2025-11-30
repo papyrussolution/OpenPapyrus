@@ -1049,10 +1049,10 @@ int SOraDbProvider::PostProcessAfterUndump(const DBTable * pTbl)
 {
 	int    ok = -1;
 	if(pTbl->State & DBTable::sHasAutoinc) {
-		const  uint fld_count = pTbl->fields.getCount();
+		const  uint fld_count = pTbl->FldL.getCount();
 		SString seq_name;
 		for(uint i = 0; i < fld_count; i++) {
-			const BNField & r_fld = pTbl->fields.GetFieldByPosition(i);
+			const BNField & r_fld = pTbl->FldL.GetFieldByPosition(i);
 			if(GETSTYPE(r_fld.T) == S_AUTOINC) {
 				long   seq = 0;
 				long   max_val = 0;
@@ -1139,7 +1139,7 @@ int SOraDbProvider::GetDirect(DBTable & rTbl, const DBRowId & rPos, int forUpdat
 		uint   actual = 0;
 		SSqlStmt stmt(this, SqlGen);
 		THROW(stmt.Exec(0, OCI_DEFAULT));
-		THROW(stmt.BindData(+1, 1, rTbl.fields, rTbl.getDataBufConst(), rTbl.getLobBlock()));
+		THROW(stmt.BindData(+1, 1, rTbl.FldL, rTbl.getDataBufConst(), rTbl.getLobBlock()));
 		THROW(r = Fetch(stmt, 1, &actual));
 		if(r > 0) {
 			THROW(stmt.GetData(0));
@@ -1641,8 +1641,8 @@ int SOraDbProvider::CreateDataFile(const DBTable * pTbl, const char * pFileName,
 			THROW(stmt.Exec(1, OCI_DEFAULT));
 		}
 	}
-	for(j = 0; j < pTbl->fields.getCount(); j++) {
-		TYPEID _t = pTbl->fields[j].T;
+	for(j = 0; j < pTbl->FldL.getCount(); j++) {
+		TYPEID _t = pTbl->FldL[j].T;
 		if(GETSTYPE(_t) == S_AUTOINC) {
 			THROW(SqlGen.Z().CreateSequenceOnField(*pTbl, pFileName, j, 0));
 			{
@@ -1714,7 +1714,7 @@ int SOraDbProvider::Implement_Open(DBTable * pTbl, const char * pFileName, int o
 {
 	pTbl->FileName_ = NZOR(pFileName, pTbl->tableName);
 	pTbl->OpenedFileName = pTbl->FileName_;
-	pTbl->FixRecSize = pTbl->fields.CalculateFixedRecSize(0/*BNFieldList2::crsfXXX*/);
+	pTbl->FixRecSize = pTbl->FldL.CalculateFixedRecSize(0/*BNFieldList2::crsfXXX*/);
 	return 1;
 }
 
@@ -1959,10 +1959,10 @@ int SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey, int s
 			}
 			THROW(p_stmt->Exec(0, OCI_DEFAULT));
 			if(!(sf & DBTable::sfForUpdate)) {
-				int rowid_pos = pTbl->fields.getCount()+1;
+				const  int rowid_pos = pTbl->FldL.getCount()+1;
 				THROW(p_stmt->BindRowId(rowid_pos, 1, pTbl->getCurRowIdPtr()));
 			}
-			THROW(p_stmt->BindData(+1, 1, pTbl->fields, pTbl->getDataBufConst(), pTbl->getLobBlock()));
+			THROW(p_stmt->BindData(+1, 1, pTbl->FldL, pTbl->getDataBufConst(), pTbl->getLobBlock()));
 			THROW(ok = Helper_Fetch(pTbl, p_stmt, &actual));
 			if(ok > 0)
 				pTbl->copyBufToKey(idx, pKey);
@@ -1996,7 +1996,7 @@ int SOraDbProvider::Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf,
 	int    map_ret_key = 0;
 	BNKey  key;
 	uint   ns = 0;
-	const  uint fld_count = pTbl->fields.getCount();
+	const  uint fld_count = pTbl->FldL.getCount();
 	SString temp_buf;
 	SString let_buf;
 	SSqlStmt  stmt(this);
@@ -2016,7 +2016,7 @@ int SOraDbProvider::Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf,
 		if(i)
 			SqlGen.Com();
 		SqlGen.Param(temp_buf.NumberToLat(subst_no++));
-		const BNField & r_fld = pTbl->fields.GetFieldByPosition(i);
+		const BNField & r_fld = pTbl->FldL.GetFieldByPosition(i);
 		if(GETSTYPE(r_fld.T) == S_AUTOINC) {
 			long   val = 0;
 			size_t val_sz = 0;
@@ -2081,11 +2081,11 @@ int SOraDbProvider::Implement_UpdateRec(DBTable * pTbl, const void * pDataBuf, i
 		pTbl->CopyBufFrom(pDataBuf);
 	SqlGen.Z().Tok(Generator_SQL::tokUpdate).Sp().Text(pTbl->FileName_).Sp().Tok(Generator_SQL::tokSet).Sp();
 	{
-		const uint fld_count = pTbl->fields.getCount();
+		const  uint fld_count = pTbl->FldL.getCount();
 		for(uint i = 0; i < fld_count; i++) {
 			if(i)
 				SqlGen.Com();
-			SqlGen.Text(pTbl->fields[i].Name)._Symb(_EQ_).Param(temp_buf.NumberToLat(i));
+			SqlGen.Text(pTbl->FldL[i].Name)._Symb(_EQ_).Param(temp_buf.NumberToLat(i));
 		}
 	}
 	THROW(pTbl->getCurRowIdPtr()->IsI32());
@@ -2094,7 +2094,7 @@ int SOraDbProvider::Implement_UpdateRec(DBTable * pTbl, const void * pDataBuf, i
 	{
 		SSqlStmt stmt(this, SqlGen);
 		THROW(stmt.IsValid());
-		THROW(stmt.BindData(-1, 1, pTbl->fields, pTbl->getDataBufConst(), pTbl->getLobBlock()));
+		THROW(stmt.BindData(-1, 1, pTbl->FldL, pTbl->getDataBufConst(), pTbl->getLobBlock()));
 		THROW(stmt.SetDataDML(0));
 		THROW(stmt.Exec(1, /*OCI_COMMIT_ON_SUCCESS*/OCI_DEFAULT)); // @debug(OCI_COMMIT_ON_SUCCESS)
 	}
@@ -2105,7 +2105,7 @@ int SOraDbProvider::Implement_UpdateRec(DBTable * pTbl, const void * pDataBuf, i
 int SOraDbProvider::Implement_DeleteRec(DBTable * pTbl)
 {
 	int    ok = 1;
-	const  uint fld_count = pTbl->fields.getCount();
+	const  uint fld_count = pTbl->FldL.getCount();
 	SString temp_buf;
 	SqlGen.Z().Tok(Generator_SQL::tokDelete).Sp().From(pTbl->FileName_, 0).Sp();
 	THROW(pTbl->getCurRowIdPtr()->IsI32());
@@ -2162,7 +2162,7 @@ int SOraDbProvider::Implement_BExtInsert(BExtInsert * pBei)
 	if(num_recs) {
 		uint   i;
 		DBTable * p_tbl = pBei->getTable();
-		const  uint fld_count = p_tbl->fields.getCount();
+		const  uint fld_count = p_tbl->FldL.getCount();
 		SString temp_buf;
 		SqlGen.Z().Tok(Generator_SQL::tokInsert).Sp().Tok(Generator_SQL::tokInto).Sp().Text(p_tbl->FileName_).Sp();
 		SqlGen.Tok(Generator_SQL::tokValues).Sp().LPar();
@@ -2176,14 +2176,14 @@ int SOraDbProvider::Implement_BExtInsert(BExtInsert * pBei)
 			SSqlStmt stmt(this, SqlGen);
 			THROW(stmt.IsValid());
 			THROW(rec_buf.Alloc(p_tbl->getBufLen()));
-			THROW(stmt.BindData(-1, num_recs, p_tbl->fields, rec_buf.P_Buf, p_tbl->getLobBlock()));
+			THROW(stmt.BindData(-1, num_recs, p_tbl->FldL, rec_buf.P_Buf, p_tbl->getLobBlock()));
 			for(i = 0; i < num_recs; i++) {
 				SBaseBuffer b = pBei->Get(i);
 				assert(b.Size <= rec_buf.Size);
 				memcpy(rec_buf.P_Buf, b.P_Buf, b.Size);
 				if(p_tbl->State & DBTable::sHasAutoinc) {
 					for(uint j = 0; j < fld_count; j++) {
-						const BNField & r_fld = p_tbl->fields[j];
+						const BNField & r_fld = p_tbl->FldL[j];
 						if(GETSTYPE(r_fld.T) == S_AUTOINC) {
 							long val = 0;
 							size_t val_sz = 0;

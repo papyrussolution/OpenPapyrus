@@ -1106,7 +1106,7 @@ SArray * BillItemBrowser::MakeList()
 			const double qtty  = r_ti.Qtty();
 			const double __q = (r_pack.OpTypeID == PPOPT_GOODSMODIF) ? sqtty : qtty;
 			if(GObj.Fetch(r_ti.GoodsID, &goods_rec) <= 0)
-				MEMSZERO(goods_rec);
+				goods_rec.Clear();
 			if(r_ti.Flags & PPTFR_INDEPPHQTTY) {
 				Total.PhQtty += r_ti.WtQtty;
 				Total.Flags |= Total.fHasIndepPhQtty;
@@ -1344,13 +1344,13 @@ int BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 			const LocTransfOpBlock * p_lti = 0;
 			if(is_total) {
 				CurLine = -1;
-				MEMSZERO(ClGoodsRec);
+				ClGoodsRec.Clear();
 			}
 			else {
 				p_lti = &R_Pack.P_LocTrfrList->at(p_item->Pos);
 				if(p_item->Pos != CurLine) {
 					if(GObj.Fetch(p_lti->GoodsID, &ClGoodsRec) <= 0) {
-						MEMSZERO(ClGoodsRec);
+						ClGoodsRec.Clear();
 						ideqvalstr(p_lti->GoodsID, ClGoodsRec.Name, sizeof(ClGoodsRec.Name));
 					}
 					CurLine = p_item->Pos;
@@ -1470,13 +1470,13 @@ int BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 			const PPTransferItem * p_ti = 0;
 			if(is_total) {
 				CurLine = -1;
-				MEMSZERO(ClGoodsRec);
+				ClGoodsRec.Clear();
 			}
 			else {
 				p_ti = &R_Pack.ConstTI(p_item->Pos);
 				if(p_item->Pos != CurLine) {
 					if(GObj.Fetch(p_ti->GoodsID, &ClGoodsRec) <= 0) {
-						MEMSZERO(ClGoodsRec);
+						ClGoodsRec.Clear();
 						ideqvalstr(p_ti->GoodsID, ClGoodsRec.Name, sizeof(ClGoodsRec.Name));
 					}
 					CurLine = p_item->Pos;
@@ -3398,7 +3398,7 @@ public:
 	{
 		{
 			const long exstyle = TView::SGetWindowExStyle(H());
-			TView::SetWindowProp(H(), GWL_EXSTYLE, (exstyle | WS_EX_COMPOSITED));
+			TView::SetWindowProp(H(), GWL_EXSTYLE, reinterpret_cast<void *>(exstyle | WS_EX_COMPOSITED));
 		}
 		selectCtrl(CTL_LOTXCCKLIST_LIST);
 		AddClusterAssoc(CTL_LOTXCCKLIST_FLAGS, 0, vfShowUncheckedItems);

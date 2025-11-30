@@ -2861,7 +2861,9 @@ int PPViewUniFindObj::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				if(P_Prcssr) {
 					CCheckCore * p_cc = P_Prcssr->ScObj.P_CcTbl;
 					if(p_cc) {
-						//P_Prcssr->ScObj.Edit(&temp_id, param);
+						PPID   cn_id = 0;
+						p_cc->GetNodeID(temp_id, &cn_id);
+						CCheckPane(cn_id, temp_id);
 					}
 				}
 				break;				
@@ -2924,6 +2926,10 @@ int PPViewUniFindObj::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 //
 //
 //
+PrcssrUniFindObj::FoundEntry::FoundEntry() : Attr(0)
+{
+}
+
 PrcssrUniFindObj::PrcssrUniFindObj() : P_BObj(BillObj)
 {
 }
@@ -2979,10 +2985,11 @@ int PrcssrUniFindObj::EditParam(UniFindObjFilt * pParam)
 			int    ok = 1;
 			uint   sel = 0;
 			getCtrlString(sel = CTL_UNIFINDOBJ_MPATTERN, Data.MainPattern);
+			if(!(Data.Flags & UniFindObjFilt::f_Internal_AllowZeroPattern))
+				THROW_PP(Data.MainPattern.NotEmptyS(), PPERR_SEARCHPATTERNNEEDED);
 			GetClusterData(sel = CTL_UNIFINDOBJ_WFLAGS, &Data.WFlags);
 			GetClusterData(sel = CTL_UNIFINDOBJ_FLAGS, &Data.Flags);
 			GetPeriodInput(this, sel = CTL_UNIFINDOBJ_PERIOD, &Data.Period);
-			THROW(Data.MainPattern.NotEmptyS());
 			ASSIGN_PTR(pData, Data);
 			CATCHZOKPPERRBYDLG
 			return ok;

@@ -464,15 +464,16 @@ int PPNamedFiltMngr::SavePool(const PPNamedFiltPool * pPool) const
 
 int PPNamedFiltMngr::GetXmlPoolDir(SString &rXmlPoolPath)
 {
-	int ok = 1;
+	int    ok = 1;
 	THROW(PPGetFilePath(PPPATH_WORKSPACE, "namedfilt", rXmlPoolPath));  // получаем путь к workspace
 	THROW(SFile::CreateDir(rXmlPoolPath));
 	CATCHZOK
-		return ok;
+	return ok;
 }
 
 int PPNamedFiltMngr::LoadPool2(const char * pDbSymb, PPNamedFiltPool * pPool, bool readOnly) //@erik v10.7.4
 {
+	// @todo @20251127 Доработать: не возвращать ошибку если нет файла и, наверное, не надо больше пытаться конвертировать старый формат
 	int    ok = 1;
 	pPool->Flags &= ~PPNamedFiltPool::fReadOnly;
 	pPool->freeAll();
@@ -484,7 +485,8 @@ int PPNamedFiltMngr::LoadPool2(const char * pDbSymb, PPNamedFiltPool * pPool, bo
 	assert(p_xml_parser);
 	THROW(p_xml_parser);
 	THROW_SL(fileExists(XmlFilePath));
-	THROW_LXML((p_doc = xmlCtxtReadFile(p_xml_parser, XmlFilePath, 0, XML_PARSE_NOENT)), p_xml_parser) 
+	p_doc = xmlCtxtReadFile(p_xml_parser, XmlFilePath, 0, XML_PARSE_NOENT);
+	THROW_LXML(p_doc, p_xml_parser) 
 	for(const xmlNode * p_root = p_doc->children; p_root; p_root = p_root->next) {
 		if(SXml::IsName(p_root, "NamedFiltPool")) {
 			for(const xmlNode * p_node = p_root->children; p_node; p_node = p_node->next) {
@@ -509,7 +511,7 @@ int PPNamedFiltMngr::LoadPool2(const char * pDbSymb, PPNamedFiltPool * pPool, bo
 
 int PPNamedFiltMngr::ConvertBinToXml()
 {
-	int ok = 1;
+	int    ok = 1;
 	PPNamedFiltPool pool(0, 0);
 	THROW(LoadPool(0, &pool, 1));
 	THROW(SavePool2(&pool));
@@ -592,7 +594,7 @@ int FiltPoolDialog::setupList()
 {
 	int    ok = 1;
 	SString temp_buf;
-	PPNamedFilt  nfilt;
+	PPNamedFilt nfilt;
 	StringSet ss(SLBColumnDelim);
 	for(PPID id = 0; ok && P_Data->Enum(&id, &nfilt, 0/*1 - ForAllDb*/);) {
 		ss.Z();

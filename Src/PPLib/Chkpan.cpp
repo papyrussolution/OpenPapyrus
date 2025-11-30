@@ -573,7 +573,7 @@ CPosProcessor::ExtCcData & CPosProcessor::ExtCcData::Z()
 	InitUserID = 0;
 	DlvrDtm.Z();
 	InitDtm.Z();
-	MEMSZERO(Addr_);
+	Addr_.Clear();
 	Memo.Z();
 	return *this;
 }
@@ -6747,7 +6747,7 @@ private:
 					OrgLocRec = Data.Addr_;
 			}
 			else {
-				MEMSZERO(OrgLocRec);
+				OrgLocRec.Clear();
 				if(pEntry->CityID)
 					Data.Addr_.CityID = pEntry->CityID;
 				LocationCore::SetExField(&Data.Addr_, LOCEXSTR_SHORTADDR, pEntry->Addr);
@@ -10672,7 +10672,7 @@ int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, const CCheckIt
 				;
 			}
 			else {
-				MEMSZERO(goods_rec);
+				goods_rec.Clear();
 				MEMSZERO(u_rec);
 			}
 			//
@@ -14164,7 +14164,7 @@ void InfoKioskDialog::ResetButtonToTextStyle(uint ctrlID)
 {
 	long   style = TView::SGetWindowStyle(::GetDlgItem(H(), ctrlID));
 	style &= ~BS_BITMAP;
-	TView::SetWindowProp(::GetDlgItem(H(), ctrlID), GWL_STYLE, style);
+	TView::SetWindowProp(::GetDlgItem(H(), ctrlID), GWL_STYLE, reinterpret_cast<void *>(style));
 }
 
 bool InfoKioskDialog::GetInput()

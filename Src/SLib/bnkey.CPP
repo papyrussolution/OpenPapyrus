@@ -449,14 +449,14 @@ uint BNKeyList::setBound(int key, int seg, int min_max /* 0 - min, !0 - max */ ,
 	assert(key >= 0 && key < static_cast<int>(getNumKeys()));
 	BNKey  k = getKey(key);
 	uint   ofs = 0;
-	int    ns = k.getNumSeg();
+	const  int ns = k.getNumSeg();
 	for(int i = seg; i < ns; i++) {
-		const BNField & f = table().GetFields()[k.getFieldID(i)];
+		const BNField & r_fld = table().GetFields()[k.getFieldID(i)];
 		if(((k.getFlags(i) & XIF_DESC) ? !min_max : min_max) != 0)
-			stmaxval(f.T, PTR8(pDest) + ofs);
+			stmaxval(r_fld.T, PTR8(pDest) + ofs);
 		else
-			stminval(f.T, PTR8(pDest) + ofs);
-		ofs += f.size();
+			stminval(r_fld.T, PTR8(pDest) + ofs);
+		ofs += r_fld.size();
 	}
 	return ofs;
 }
@@ -511,12 +511,12 @@ int BNKeyList::makeKey(int key, int seg, int cmp, const void * val, void * dest)
 		use = 2;
 		keyLen = getKeySize(key);
 		for(int i = 0; i < seg; i++) {
-			const BNField & f = table().GetFields()[k.getFieldID(i)];
-			if(stcomp(f.T, d + o, d + o + keyLen) != 0) {
+			const BNField & r_fld = table().GetFields()[k.getFieldID(i)];
+			if(stcomp(r_fld.T, d + o, d + o + keyLen) != 0) {
 				use = 0;
 				break;
 			}
-			o += stsize(f.T);
+			o += stsize(r_fld.T);
 		}
 		segOfs = o - sizeof(I);
 		ofs = o;

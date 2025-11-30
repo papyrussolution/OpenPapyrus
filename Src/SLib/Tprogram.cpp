@@ -1366,12 +1366,12 @@ BOOL CALLBACK EnumCtrls(HWND hWnd, LPARAM lParam)
 			if(sstreqi_ascii(cls_name, "BUTTON"))
 				style |= BS_FLAT;
 			else if(sstreqi_ascii(cls_name, "EDIT")) {
-				TView::SetWindowProp(hWnd, GWL_STYLE, style | WS_BORDER);
+				TView::SetWindowProp(hWnd, GWL_STYLE, reinterpret_cast<void *>(style | WS_BORDER));
 				style &= ~WS_BORDER;
 				ex_style &= ~WS_EX_DLGMODALFRAME;
 			}
-			TView::SetWindowProp(hWnd, GWL_STYLE, style);
-			TView::SetWindowProp(hWnd, GWL_EXSTYLE, ex_style);
+			TView::SetWindowProp(hWnd, GWL_STYLE, reinterpret_cast<void *>(style));
+			TView::SetWindowProp(hWnd, GWL_EXSTYLE, reinterpret_cast<void *>(ex_style));
 			if(p_e->WindowType == TProgram::wndtypDialog) {
 				if(GetParent(hWnd) == p_e->Parent) {
 					RECT r;
@@ -1390,9 +1390,9 @@ BOOL CALLBACK EnumCtrls(HWND hWnd, LPARAM lParam)
 				style |= BS_OWNERDRAW;
 			else if(sstreqi_ascii(cls_name, "EDIT")) {
 				ex_style &= ~WS_EX_STATICEDGE;
-				TView::SetWindowProp(hWnd, GWL_EXSTYLE, ex_style);
+				TView::SetWindowProp(hWnd, GWL_EXSTYLE, reinterpret_cast<void *>(ex_style));
 			}
-			TView::SetWindowProp(hWnd, GWL_STYLE, style);
+			TView::SetWindowProp(hWnd, GWL_STYLE, reinterpret_cast<void *>(style));
 		}
 		else
 			r = false;
@@ -1439,7 +1439,7 @@ int TProgram::SetWindowViewByKind(HWND hWnd, int wndType)
 			if(oneof2(wndType, TProgram::wndtypDialog, TProgram::wndtypListDialog)) {
 				style &= ~(WS_CAPTION|DS_MODALFRAME|WS_SYSMENU);
 				style |= WS_BORDER;
-				TView::SetWindowProp(hWnd, GWL_STYLE, style);
+				TView::SetWindowProp(hWnd, GWL_STYLE, reinterpret_cast<void *>(style));
 				ex_style &= ~WS_EX_DLGMODALFRAME;
 				if(wndType == TProgram::wndtypDialog) {
 					HWND btn_hwnd = 0, title_hwnd = 0;
@@ -1465,8 +1465,8 @@ int TProgram::SetWindowViewByKind(HWND hWnd, int wndType)
 							title_rect.left, title_rect.top, title_rect.right, title_rect.bottom, hWnd, 0, TProgram::hInstance, 0);
 						font_face = "MS Sans Serif";
 						TView::setFont(title_hwnd, font_face, 24);
-						TView::SetWindowProp(title_hwnd, GWL_STYLE, TView::SGetWindowStyle(title_hwnd) & ~WS_TABSTOP);
-						TView::SetWindowProp(title_hwnd, GWL_ID, SPEC_TITLEWND_ID);
+						TView::SetWindowProp(title_hwnd, GWL_STYLE, reinterpret_cast<void *>(TView::SGetWindowStyle(title_hwnd) & ~WS_TABSTOP));
+						TView::SetWindowProp(title_hwnd, GWL_ID, reinterpret_cast<void *>(SPEC_TITLEWND_ID));
 						TView::SetWindowProp(title_hwnd, GWLP_USERDATA, TView::SetWindowProp(title_hwnd, GWLP_WNDPROC, SpecTitleWndProc));
 						ShowWindow(title_hwnd, SW_SHOWNORMAL);
 						ReleaseDC(title_hwnd, hdc);
@@ -1482,14 +1482,14 @@ int TProgram::SetWindowViewByKind(HWND hWnd, int wndType)
 							HBITMAP h_bm = APPL->FetchBitmap(CLOSEBTN_BITMAPID);
 							::SendMessageW(btn_hwnd, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_bm));
 						}
-						TView::SetWindowProp(btn_hwnd, GWL_STYLE, TView::SGetWindowStyle(btn_hwnd) & ~WS_TABSTOP);
-						TView::SetWindowProp(btn_hwnd, GWL_ID, SPEC_TITLEWND_ID + 1);
+						TView::SetWindowProp(btn_hwnd, GWL_STYLE, reinterpret_cast<void *>(TView::SGetWindowStyle(btn_hwnd) & ~WS_TABSTOP));
+						TView::SetWindowProp(btn_hwnd, GWL_ID, reinterpret_cast<void *>(SPEC_TITLEWND_ID + 1));
 						ShowWindow(btn_hwnd, SW_SHOWNORMAL);
 						MoveWindow(p_btn->getHandle(), r.right - r.left - 30, -e.CaptionHeight, 16, 16, 1);
 					}
 				}
 			}
-			TView::SetWindowProp(hWnd, GWL_EXSTYLE, ex_style);
+			TView::SetWindowProp(hWnd, GWL_EXSTYLE, reinterpret_cast<void *>(ex_style));
 			while(EnumChildWindows(hWnd, EnumCtrls, reinterpret_cast<LPARAM>(&e)) != 0)
 				;
 		}

@@ -201,7 +201,7 @@ PPProjectPacket::PPProjectPacket()
 
 PPProjectPacket & PPProjectPacket::Z()
 {
-	MEMSZERO(Rec);
+	Rec.Clear();
 	SDescr.Z();
 	SMemo.Z();
 	TagL.Z(); // @v12.2.6
@@ -1916,7 +1916,7 @@ PPPrjTaskPacket::PPPrjTaskPacket()
 
 PPPrjTaskPacket & PPPrjTaskPacket::Z()
 {
-	MEMSZERO(Rec);
+	Rec.Clear();
 	SDescr.Z();
 	SMemo.Z();
 	return *this;

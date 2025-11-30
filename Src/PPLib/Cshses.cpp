@@ -2805,11 +2805,11 @@ AsyncCashSCardsIterator::AsyncCashSCardsIterator(PPID cashNodeID, int updOnly, D
 	PersonTbl::Rec psn_rec;
 	if(PsnObj.Search(DefSCardPersonID, &psn_rec) > 0)
 		DefPersonName = psn_rec.Name;
-	MEMSZERO(NodeRec);
+	NodeRec.Z();
 	if(cashNodeID) {
 		PPObjCashNode cn_obj;
 		if(cn_obj.Search(cashNodeID, &NodeRec) <= 0)
-			MEMSZERO(NodeRec);
+			NodeRec.Z();
 	}
 	if(UpdatedOnly) {
 		if(UpdatedOnly == 2 && statID && P_DLS) {

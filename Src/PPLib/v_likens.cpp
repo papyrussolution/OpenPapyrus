@@ -238,7 +238,8 @@ int PPViewObjLikeness::CreateLikenessTable()
 		ObjLikenessTbl tbl;
 		ObjLikenessTbl::Rec lkns_rec;
 		Goods2Tbl::Key0 k0;
-		Goods2Tbl::Rec grec1, grec2;
+		Goods2Tbl::Rec grec1;
+		Goods2Tbl::Rec grec2;
 		SArray likeness_list(sizeof(ObjLikenessTbl::Rec), /*32,*/O_ARRAY);
 		StrAssocArray list;
 		PPObjGoods gobj;
@@ -255,7 +256,7 @@ int PPViewObjLikeness::CreateLikenessTable()
 		deleteFrom(&tbl, 0, tbl.ObjType == obj_type);
 		PROFILE_END
 		PROFILE_START
-		MEMSZERO(grec1);
+		grec1.Clear();
 #if 0 // {
 		for(i = 0; i < count; i++) {
 			StrAssocArray::Item item1, item2;

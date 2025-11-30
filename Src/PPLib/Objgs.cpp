@@ -1557,7 +1557,7 @@ int GSDialog::setupList()
 			if(GObj.Fetch(r_item.GoodsID, &goods_rec) > 0)
 				sub = goods_rec.Name;
 			else {
-				MEMSZERO(goods_rec);
+				goods_rec.Clear();
 				ideqvalstr(r_item.GoodsID, sub);
 			}
 		}

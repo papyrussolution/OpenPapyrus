@@ -1889,6 +1889,12 @@ CSessTotal::CSessTotal()
 	THISZERO();
 }
 
+CSessTotal & CSessTotal::Z()
+{
+	THISZERO();
+	return *this;
+}
+
 void FASTCALL CSessTotal::Add(const CSessTotal * pSubTotal)
 {
 	CheckCount     += pSubTotal->CheckCount;

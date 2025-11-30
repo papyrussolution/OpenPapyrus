@@ -9,7 +9,6 @@
 #include "libxml.h"
 #pragma hdrstop
 #include <libxml/xmlmemory.h>
-//#include <libxml/uri.h>
 #include <libxml/globals.h>
 
 static const char * base = NULL;

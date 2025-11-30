@@ -33,7 +33,7 @@ void ListWindow::executeNM(HWND parent)
 	MessageCommandToOwner(cmLBLoadDef);
 	Id = IsTreeList() ? DLGW_TREELBX : DLGW_LBX;
 	HW = APPL->CreateDlg(Id, hwnd_parent, TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
-	TView::SetWindowProp(H(), GWL_STYLE, WS_CHILD);
+	TView::SetWindowProp(H(), GWL_STYLE, reinterpret_cast<void *>(WS_CHILD));
 	TView::SetWindowProp(H(), GWL_EXSTYLE, 0L);
 	SetParent(H(), hwnd_parent);
 	if(oneof2(Id, DLGW_LBX, DLGW_TREELBX)) {

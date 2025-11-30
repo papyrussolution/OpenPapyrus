@@ -2850,7 +2850,9 @@ ListBoxSelDialog::ListBoxSelDialog(ListBoxDef * pDef, uint dlgID, uint flags/*PP
 	showCtrl(STDCTL_EDITBUTTON, false);
 	showCtrl(STDCTL_DELBUTTON,  false);
 	showCtrl(CTL_LBXSEL_UPBTN,   false);
+	showCtrl(STDCTL_UPBUTTON,   false); // @v12.4.11
 	showCtrl(CTL_LBXSEL_DOWNBTN, false);
+	showCtrl(STDCTL_DOWNBUTTON, false); // @v12.4.11
 	updateList(-1);
 }
 
@@ -3897,8 +3899,8 @@ int EmbedDialog::Embed(TDialog * pDlg)
 		HWND  hwnd_child = P_ChildDlg->H();
 		P_ChildDlg->destroyCtrl(STDCTL_OKBUTTON);
 		P_ChildDlg->destroyCtrl(STDCTL_CANCELBUTTON);
-		TView::SetWindowProp(hwnd_child, GWL_STYLE, WS_CHILD);
-		TView::SetWindowProp(hwnd_child, GWL_EXSTYLE, 0L);
+		TView::SetWindowProp(hwnd_child, GWL_STYLE, reinterpret_cast<void *>(WS_CHILD));
+		TView::SetWindowProp(hwnd_child, GWL_EXSTYLE, 0);
 		::SetParent(hwnd_child, H());
 		ok = 1;
 	}
@@ -5939,7 +5941,9 @@ public:
 		showCtrl(STDCTL_INSBUTTON,   false);
 		showCtrl(STDCTL_DELBUTTON,   false);
 		showCtrl(CTL_LBXSEL_UPBTN,   false);
+		showCtrl(STDCTL_UPBUTTON,   false); // @v12.4.11
 		showCtrl(CTL_LBXSEL_DOWNBTN, false);
+		showCtrl(STDCTL_DOWNBUTTON, false); // @v12.4.11
 		GObj.ReadConfig(&GoodsCfg);
 		updateList(-1);
 	}
@@ -6157,7 +6161,7 @@ int ResolveGoodsDialog::CreateGoods(long id, PPID goodsGrpID, int editAfterAdd)
 				if(GObj.P_Tbl->SearchByArCode(r_item.ArID, r_item.ArCode, &code_rec) > 0) {
 				}
 				else {
-					MEMSZERO(code_rec);
+					code_rec.Clear();
 					code_rec.ArID = r_item.ArID;
 					STRNSCPY(code_rec.Code, r_item.ArCode);
 					pack.ArCodes.insert(&code_rec);
@@ -7582,6 +7586,10 @@ int ExportDialogs2(const char * pFileName)
 										line_buf.Tab().Cat("input").Space().Cat(symb).Space().CatChar('[');
 										_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf, 0);
 										{
+											/*
+												@todo @20251130
+												ES_LEFT, ES_CENTER, ES_RIGHT
+											*/ 
 											static constexpr SIntToSymbTabEntry ws_symb_list[] = {
 												{ WS_TABSTOP, "tabstop" },
 												{ WS_DISABLED, "disabled" },

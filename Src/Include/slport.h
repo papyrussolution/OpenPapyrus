@@ -749,18 +749,24 @@
 	//
 	#if CXX_ARCH_X86
 		#if CXX_HAS_X_ATTRIBUTE
-			#define CDECL      __attribute__((__cdecl__))
+			#ifndef CDECL // @v12.4.11 может быть определен в minwindef.h
+				#define CDECL      __attribute__((__cdecl__))
+			#endif
 			#define STDCALL    __attribute__((__stdcall__))
 			#define FASTCALL   __attribute__((__fastcall__))
 			#define CXX_REGPARM(N) __attribute__((__regparm__(N)))
 		#else
-			#define CDECL      __cdecl
+			#ifndef CDECL // @v12.4.11 может быть определен в minwindef.h
+				#define CDECL      __cdecl
+			#endif
 			#define STDCALL    __stdcall
 			#define FASTCALL   __fastcall
 			#define CXX_REGPARM(N)
 		#endif
 	#else
-		#define CDECL
+		#ifndef CDECL // @v12.4.11 может быть определен в minwindef.h
+			#define CDECL
+		#endif
 		#define STDCALL
 		#define FASTCALL
 		#define CXX_REGPARM(N)
@@ -776,7 +782,9 @@
 	#else
 		#define CXX_FORCEINLINE inline
 	#endif
-	#define FORCEINLINE CXX_FORCEINLINE // @sobolev
+	#ifndef FORCEINLINE // @v12.4.11 может быть определен в winnt.h
+		#define FORCEINLINE CXX_FORCEINLINE // @sobolev
+	#endif
 	#if CXX_HAS_X_ATTRIBUTE_NOINLINE
 		#define CXX_NOINLINE __attribute__((__noinline__))
 	#elif CXX_HAS_X_DECLSPEC_NOINLINE
@@ -1381,4 +1389,8 @@
 	#define HAVE_GMTIME
 	#define HAVE_MBTOWC
 // } @v11.7.9
+#ifdef _MSC_VER
+	typedef int mode_t; // MSVC doesn't have mode_t
+	typedef intptr_t ssize_t;
+#endif
 #endif // } __SLPORT_H

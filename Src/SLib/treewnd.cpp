@@ -90,7 +90,7 @@ HWND TreeWindow::ShortcutsWindow::Create(HWND parentWnd)
 {
 	Hwnd = APPL->CreateDlg(DLG_SHORTCUTS, parentWnd, ShortcutsWindow::WndProc, reinterpret_cast<LPARAM>(this));
 	if(Hwnd) {
-		TView::SetWindowProp(Hwnd, GWL_STYLE, WS_CHILD);
+		TView::SetWindowProp(Hwnd, GWL_STYLE, reinterpret_cast<void *>(WS_CHILD));
 		SetParent(Hwnd, parentWnd);
 		HwndTT = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP|TTS_BALLOON,
 			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, Hwnd, NULL, TProgram::GetInst(), 0);
@@ -336,7 +336,7 @@ TreeWindow::~TreeWindow()
 	switch(message) {
 		case WM_INITDIALOG:
 			{
-				TView::SetWindowProp(hWnd, GWLP_USERDATA, lParam);
+				TView::SetWindowProp(hWnd, GWLP_USERDATA, reinterpret_cast<void *>(lParam));
 				HWND   h_tv = GetDlgItem(hWnd, MENU_TREELIST);
 				if(h_tv) {
 					TreeView_SetBkColor(h_tv, RGB(0xdd, 0xf3, 0xf5));
@@ -466,7 +466,7 @@ void TreeWindow::SetupCmdList(HMENU hMenu, /*HTREEITEM*/void * hP)
 					memmove(p_chr, p_chr+1, sstrlen(p_chr) * sizeof(wchar_t)); 
 			}
 			is.item.pszText = menu_name_buf;
-			is.item.cchTextMax = mii.cch;
+			is.item.cchTextMax = SIZEOFARRAY(menu_name_buf); //mii.cch;
 	  		if(mii.fType != MFT_SEPARATOR) {
 				hti = TreeView_InsertItem(h_tv, &is);
 				if(is.item.cChildren)

@@ -3286,8 +3286,7 @@ int PPDS_CrrDraftWrOffEntry::TransferField(long fldID, Tfd dir, uint * pIter, SS
 			{
 				SString buf;
 				if(dir == tfdDataToBuf) {
-					PPOprKind opk_rec;
-					MEMSZERO(opk_rec);
+					PPOprKind2 opk_rec;
 					if(OpKObj.Search(Data.OpID, &opk_rec) > 0)
 						buf.CopyFrom(opk_rec.Name);
 				}
@@ -3399,7 +3398,6 @@ int PPDS_CrrDraftWrOff::TransferField(long fldID, Tfd dir, uint * pIter, SString
 				SString buf;
 				if(dir == tfdDataToBuf) {
 					PPOprKind opk_rec;
-					MEMSZERO(opk_rec);
 					if(OpObj.Search((is_poolopid) ? Data.Rec.PoolOpID : Data.Rec.DfctCompensOpID, &opk_rec) > 0)
 						buf.CopyFrom(opk_rec.Name);
 				}

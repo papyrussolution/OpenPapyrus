@@ -4,6 +4,69 @@
 cinclude "../../include/tvdefs.h"
 cinclude "../../include/ppdefs.h"
 
+dialog DLG_LBXSEL [vertical title: "@{selection} %s" size: (530, 400) minsize: (530, 200) font: "MS Shell Dlg,8"] {
+	listbox CTL_LBXSEL_LIST [tabstop width: bycontainer growfactor: 1];
+	view [horizontal width: bycontainer height: 28] {
+		view [horizontal growfactor: 4 height: bycontainer(100) gravity: left justifycontent: start] {
+			button STDCTL_EDITBUTTON [title: "@but_edit" tabstop defaultitem size: (90, 21) margin: 4 command: cmaEdit];
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+			button STDCTL_UPBUTTON [title: "" tabstop size: (23, 21) margin: 4 command: cmUp];
+			button STDCTL_DOWNBUTTON [title: "" tabstop size: (23, 21) margin: 4 command: cmDown];
+		}
+		view [horizontal growfactor: 2 height: bycontainer(100) margin_right: 12 gravity: right justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_LBXSELT [vertical title: "@{selection} %s" size: (530, 400) minsize: (530, 200) font: "MS Shell Dlg,8"] {
+	treelistbox CTL_LBXSEL_LIST [tabstop width: bycontainer growfactor: 1];
+	//button CTL_LBXSEL_UPBTN [title: "@but_up" tabstop size: (23, 21)  command: cmUp];
+	//button CTL_LBXSEL_DOWNBTN [title: "@but_down" tabstop size: (23, 21)  command: cmDown];
+	view [horizontal width: bycontainer height: 28] {
+		view [horizontal growfactor: 4 height: bycontainer(100) gravity: left justifycontent: start] {
+			button STDCTL_EDITBUTTON [title: "@but_edit" tabstop defaultitem size: (90, 21) margin: 4 command: cmaEdit];
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+			button STDCTL_UPBUTTON [title: "" tabstop size: (23, 21) margin: 4 command: cmUp];
+			button STDCTL_DOWNBUTTON [title: "" tabstop size: (23, 21) margin: 4 command: cmDown];
+		}
+		view [horizontal growfactor: 2 height: bycontainer(100) margin_right: 12 gravity: right justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_SUBSTGL [vertical title: "@{selection} %s" size: (1000, 475) minsize: (800, 200)  font: "MS Shell Dlg,8"] {
+	listbox CTL_LBXSEL_LIST [tabstop width: bycontainer growfactor: 1 columns: "@lbt_substgoods"];
+	view [horizontal width: bycontainer height: 28] {
+		view [horizontal growfactor: 6 height: bycontainer(100) gravity: left justifycontent: start] {
+			button STDCTL_EDITBUTTON [title: "@but_edit" tabstop defaultitem size: (90, 21) margin: 4 command: cmaEdit];
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+			
+			button CTL_LBXSEL_CREATEBTN [title: "@{create}..." tabstop size: (90, 21) margin: 4 command: cmaAltInsert];
+			button CTL_LBXSEL_CREATEALLBTN [title: "@docreateall" tabstop size: (90, 21) margin: 4 command: cmCreateAll];
+			button CTL_CMD_SUBSTGOODS [title: "@{dosubst}..." tabstop size: (90, 21) margin: 4 command: cmSubstGoods];
+		}
+		view [horizontal growfactor: 2 height: bycontainer(100) margin_right: 12 gravity: right justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+	//button STDCTL_INSBUTTON [title: "@but_add" tabstop origin: (8, 406) size: (90, 21)  command: cmaInsert];
+	//button STDCTL_EDITBUTTON [title: "@but_edit" tabstop origin: (113, 406) size: (90, 21)  command: cmaEdit];
+	//button STDCTL_DELBUTTON [title: "@but_delete" tabstop origin: (218, 406) size: (90, 21)  command: cmaDelete];
+	//button CTL_LBXSEL_CREATEBTN [title: "@{create}..." tabstop defaultitem origin: (330, 406) size: (90, 21)  command: cmaAltInsert];
+	//button CTL_LBXSEL_CREATEALLBTN [title: "@docreateall" tabstop defaultitem origin: (428, 406) size: (90, 21)  command: cmCreateAll];
+	//button CTL_CMD_SUBSTGOODS [title: "@{dosubst}..." tabstop origin: (525, 406) size: (90, 21)  command: cmSubstGoods];
+	//button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem origin: (810, 406) size: (75, 21)  command: cmOK];
+	//button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop origin: (908, 406) size: (75, 21)  command: cmCancel];
+}
+
 dialog DLG_FLDCORRLIST [vertical title: "@sdbfieldiematchlist" size: (560, 430) minsize: (560, 430) font: "MS Shell Dlg,8"] {
 	listbox CTL_FLDCORRLIST_LIST [tabstop width: bycontainer(100) growfactor: 5 margin: 4 columns: "@lbt_fldcorrlist"];
 	view [horizontal width: bycontainer(100) height: 28] {
@@ -143,7 +206,7 @@ dialog DLG_CFM_RECKONING [title: "@confirm" vertical size: (519, 465)  font: "MS
 	}
 	listbox CTL_CFM_RECKONING_LIST [width: bycontainer(100) growfactor: 3 columns: "@lbt_reckon"];
 	view [vertical width: bycontainer(100) height: 52] {
-		statictext CTL_CFM_RECKONING_ST_04002 [title: "@cfmrcknparam_query" width: bycontainer(100) height: 13 margin: 4 ];
+		statictext CTL_CFM_RECKONING_ST_04002 [title: "@cfmrcknparam_query" width: bycontainer(100) height: 13 margin: 4];
 		view [horizontal width: bycontainer(100) height: 28 justifycontent: start] {
 			button CTL_CFM_RECKONING_SELBUT [title: "@cfmrcknparam_sel_selected" tabstop size: (98, 21) margin: 4 command: cmRcknSelectedBill];
 			button CTL_CFM_RECKONING_ALLBUT [title: "@cfmrcknparam_sel_all" tabstop defaultitem size: (98, 21) margin: 4 command: cmYes];
@@ -165,7 +228,7 @@ dialog DLG_CFM_RECKONDEBT [title: "@confirm" vertical size: (519, 465)  font: "M
 	}
 	listbox CTL_CFM_RECKONING_LIST [width: bycontainer(100) growfactor: 3 columns: "@lbt_reckon"];
 	view [vertical width: bycontainer(100) height: 52] {
-		statictext CTL_CFM_RECKONING_ST_04002 [title: "@cfmrcknparam_query" width: bycontainer(100) height: 13 margin: 4 ];
+		statictext CTL_CFM_RECKONING_ST_04002 [title: "@cfmrcknparam_query" width: bycontainer(100) height: 13 margin: 4];
 		view [horizontal width: bycontainer(100) height: 28 justifycontent: start] {
 			button CTL_CFM_RECKONING_SELBUT [title: "@cfmrcknparam_sel_selected" tabstop size: (98, 21) margin: 4 command: cmRcknSelectedBill];
 			button CTL_CFM_RECKONING_ALLBUT [title: "@cfmrcknparam_sel_all" tabstop defaultitem size: (98, 21) margin: 4 command: cmYes];
@@ -1182,11 +1245,11 @@ dialog DLG_SUPPLIX [vertical title: "@supplixfilt" size: (740, 440) minsize: (74
 dialog DLG_BILLTOTAL2 [vertical title: "@total_bill" size: (455, 425) minsize: (455, 425)  font: "MS Shell Dlg,8"] {
 	view [horizontal width: bycontainer margin: 4 height: 100] {
 		framebox [vertical width: bycontainer(100) growfactor: 1 padding: 4] {
-			input CTL_BILLTOTAL2_COUNT [width: bycontainer height: 21 margin: 4 tabstop readonly label: "@total_bill_count" labelsize: (0, 13) ] int32;
+			input CTL_BILLTOTAL2_COUNT [width: bycontainer height: 21 margin: 4 tabstop readonly label: "@total_bill_count" labelsize: (0, 13) fmtf: (align_right)] int32;
 		}
 		framebox [vertical width: bycontainer(100) growfactor: 1 padding: 4] {
-			input CTL_BILLTOTAL2_SUM [width: bycontainer height: 21 margin: 4 tabstop readonly fmtprec: 2 label: "@total_bill_nominal" labelsize: (0, 13) ] double;
-			input CTL_BILLTOTAL2_DEBT [width: bycontainer height: 21 margin: 4 tabstop readonly fmtprec: 2 label: "@total_bill_debt" labelsize: (0, 13) ] double;
+			input CTL_BILLTOTAL2_SUM [width: bycontainer height: 21 margin: 4 tabstop readonly fmtprec: 2 fmtf: (align_right) label: "@total_bill_nominal" labelsize: (0, 13)] double;
+			input CTL_BILLTOTAL2_DEBT [width: bycontainer height: 21 margin: 4 tabstop readonly fmtprec: 2 fmtf: (align_right) label: "@total_bill_debt" labelsize: (0, 13)] double;
 		}
 	}
 	listbox CTL_BILLTOTAL2_AMTLIST [width: bycontainer growfactor: 1 margin: 4 columns: "@lbt_billamounts"];
@@ -1768,6 +1831,74 @@ dialog DLG_IMPEXPQUOT [vertical title: "@impexpparamquot" size: (490, 600) minsi
 
 	input CTL_IMPEXP_FILENAME [width: bycontainer height: 21 margin: 4 tabstop label: "@filename" labelsize: (0, 13) ] string[128]
 		supplement filebrowsebutton(CTLBRW_IMPEXP_FILENAME);
+	view [horizontal width: bycontainer(100) height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: (4, 4, 8, 4) command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: (8, 4, 4, 4) command: cmCancel];
+	}
+}
+
+dialog DLG_IMPEXPBILH [vertical title: "@impexpparambillh" size: (700, 680) minsize: (700, 680)  font: "MS Shell Dlg 2,8"] {
+	input CTL_IMPEXP_NAME [width: bycontainer height: 21 margin: 4 tabstop label: "@appellation" labelsize: (0, 13)] string[128];
+	view [vertical width: bycontainer growfactor: 1] {
+		view [horizontal width: bycontainer growfactor: 1] {
+			view [vertical growfactor: 3 height: bycontainer] {
+				radiocluster CTL_IMPEXP_DIR [tabstop width: bycontainer margin: 4] {
+					radiobutton [title: "@export" height: 16];
+					radiobutton [title: "@import" height: 16];
+				}
+				radiocluster CTL_IMPEXP_FORMAT [title: "@outerdataformat" tabstop width: bycontainer margin: 4] {
+					radiobutton [title: "Text" height: 16];
+					radiobutton [title: "DBF" height: 16];
+					radiobutton [title: "XML" height: 16];
+					radiobutton [title: "Excel" height: 16];
+				}
+			}
+			view [vertical growfactor: 5 height: bycontainer] {
+				checkcluster CTL_IMPEXP_FLAGS [tabstop width: bycontainer growfactor: 1 margin: 4] {
+					checkbox [title: "@codepage_oem" height: 16];
+					checkbox [title: "@impexpparam_bfdeletesrcfiles" height: 16];
+				}
+				view [horizontal width: bycontainer height: 30 justifycontent: end alignitems: end] {
+				}
+			}
+		}
+		view [horizontal width: bycontainer height: 40] {
+			combobox CTLSEL_IMPEXPBILH_PDFMT [tabstop growfactor: 1 height: 21 margin: 4 label: "@impexpparambillh_predefformat" labelsize: (0, 13) cblinesymb: CTL_IMPEXPBILH_PDFMT];
+			view [horizontal growfactor: 1 height: 30 margin_top: 13 justifycontent: end] { // alignitems: end
+				button CTL_IMPEXP_BUT_FLDCORR [title: "@but_fldcorr" tabstop size: (135, 21) margin: 4 command: cmImpExpFldCorr];
+				button CTL_IMPEXP_BUT_TXTDB [title: "@but_impexpfp" tabstop size: (135, 21) margin: 4 command: cmImpExpTxtDbParam];
+			}
+		}
+	}
+	view [horizontal width: bycontainer height: 200] {
+		checkcluster CTL_IMPEXPBILH_FLAGS [tabstop growfactor: 5 height: bycontainer margin: 4] {
+			checkbox [title: "@impexpparambillh_fimprowsfromsamefile" height: 16];
+			checkbox [title: "@impexpparambillh_fimpexprowsonly" height: 16];
+			checkbox [title: "@impexpparambillh_frestrictbymatrix" height: 16];
+			checkbox [title: "@impexpparambillh_fexponebyone" height: 16];
+			checkbox [title: "@impexpparambillh_fdontidentgoodsbyname" height: 16];
+			checkbox [title: "@impexpparambillh_fcreateabsencegoods" height: 16];
+			checkbox [title: "@impexpparambillh_fchznmarkascdata" height: 16];
+			checkbox [title: "@impexpparambillh_fchznmarkgtinser" height: 16];
+			checkbox [title: "@impexpparambillh_fuseextgoodsname" height: 16];
+		}
+		view [vertical growfactor: 3 height: bycontainer] {
+			input CTL_IMPEXPBILH_SRCHCODE1 [width: bycontainer height: 21 margin: 4 tabstop label: "@impexpparambillh_obj1srchcode" labelsize: (0, 13) ] string[32];
+			input CTL_IMPEXPBILH_SRCHCODE2 [width: bycontainer height: 21 margin: 4 tabstop label: "@impexpparambillh_obj2srchcode" labelsize: (0, 13) ] string[32];
+			input CTL_IMPEXPBILH_OUTRFMTV [width: bycontainer height: 21 margin: 4 tabstop label: "@impexpparambillh_outerformatver" labelsize: (0, 13) ] string[32];
+		}
+	}
+	view [horizontal width: bycontainer height: 80] {
+		view [vertical growfactor: 1 height: bycontainer] {
+			combobox CTLSEL_IMPEXPBILH_IMPOP [tabstop width: bycontainer height: 21 margin: 4 label: "@impexpparambillh_impop" labelsize: (0, 13) cblinesymb: CTL_IMPEXPBILH_IMPOP];
+			combobox CTLSEL_IMPEXPBILH_REGTAG [tabstop width: bycontainer height: 21 margin: 4 label: "@impexpparambillh_regtag" labelsize: (0, 13) cblinesymb: CTL_IMPEXPBILH_REGTAG];
+		}
+		view [vertical growfactor: 1 height: bycontainer] {
+		}
+	}
+	input CTL_IMPEXP_FILENAME [width: bycontainer height: 21 margin: 4 tabstop label: "@filename" labelsize: (0, 13) ] string[128]
+		supplement filebrowsebutton(CTLBRW_IMPEXP_FILENAME);
+	combobox CTLSEL_IMPEXP_FTPACC [width: bycontainer height: 21 margin: 4 tabstop label: "@ftpaccount" labelsize: (0, 13) cblinesymb: CTL_IMPEXP_FTPACC];
 	view [horizontal width: bycontainer(100) height: 30 margin_right: 12 justifycontent: end alignitems: end] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: (4, 4, 8, 4) command: cmOK];
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: (8, 4, 4, 4) command: cmCancel];

@@ -6559,7 +6559,9 @@ int PPObjBill::Helper_GetPayoutPartOfLot(PPID lotID, PplBlock & rBlk, double * p
 				ok = non_org ? 2 : 1;
 			}
 			else {
-				BillTbl::Rec exp_rec, paym_rec/*, rckn_rec*/;
+				BillTbl::Rec exp_rec;
+				BillTbl::Rec paym_rec;
+				//BillTbl::Rec rckn_rec;
 				if(Fetch(org_lot_rec.BillID, &exp_rec) > 0) {
 					const bool   is_modif = (GetOpType(exp_rec.OpID) == PPOPT_GOODSMODIF);
 					const double _camt = is_modif ? fabs(org_lot_rec.Cost * org_lot_rec.Quantity) : exp_rec.Amount;
@@ -6605,7 +6607,7 @@ int PPObjBill::Helper_GetPayoutPartOfLot(PPID lotID, PplBlock & rBlk, double * p
 							}
 						}
 						else {
-							MEMSZERO(paym_rec);
+							paym_rec.Clear();
 							paym_rec.OpID = exp_rec.OpID;
 							paym_rec.Amount = rBlk.NominalAmount;
 							paym_rec.Dt = exp_rec.Dt;

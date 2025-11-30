@@ -174,8 +174,8 @@ PPPsnEventPacket::PPPsnEventPacket() : LinkFiles(PPOBJ_PERSONEVENT)
 
 void PPPsnEventPacket::Destroy()
 {
-	MEMSZERO(Rec);
-	MEMSZERO(Reg);
+	Rec.Clear();
+	Reg.Clear();
 	SMemo.Z();
 	TagL.Z();
 	LinkFiles.Clear();

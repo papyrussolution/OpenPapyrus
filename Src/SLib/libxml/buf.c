@@ -498,12 +498,9 @@ size_t xmlBufDump(FILE * file, xmlBuf * buf)
 /**
  * xmlBufContent:
  * @buf:  the buffer
- *
  * Function to extract the content of a buffer
- *
  * Returns the internal content
  */
-
 xmlChar * FASTCALL xmlBufContent(const xmlBuf * buf)
 {
 	return (buf && !buf->error) ? buf->content : 0;
@@ -511,9 +508,7 @@ xmlChar * FASTCALL xmlBufContent(const xmlBuf * buf)
 /**
  * xmlBufEnd:
  * @buf:  the buffer
- *
  * Function to extract the end of the content of a buffer
- *
  * Returns the end of the internal content or NULL in case of error
  */
 xmlChar * FASTCALL xmlBufEnd(xmlBuf * buf)
@@ -559,9 +554,7 @@ int FASTCALL xmlBufAddLen(xmlBuf * buf, size_t len)
  * xmlBufErase:
  * @buf:  the buffer
  * @len:  the size to erase at the end
- *
  * Sometime data need to be erased at the end of the buffer
- *
  * Returns -1 in case of error and 0 otherwise
  */
 int FASTCALL xmlBufErase(xmlBuf * buf, size_t len)
@@ -583,9 +576,7 @@ int FASTCALL xmlBufErase(xmlBuf * buf, size_t len)
 /**
  * xmlBufLength:
  * @buf:  the buffer
- *
  * Function to get the length of a buffer
- *
  * Returns the length of data in the internal content
  */
 size_t FASTCALL xmlBufLength(xmlBuf * buf)

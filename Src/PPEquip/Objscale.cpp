@@ -2530,13 +2530,13 @@ int TCPIPMToledo::NewAlgSendPLU(const ScalePLU * pPLU)
 		comm_head.ScaleNumber = 0;
 
 		MEMSZERO(as_entry);
-		as_entry.AddStrCode = (ushort)pPLU->GoodsNo;
+		as_entry.AddStrCode = static_cast<ushort>(pPLU->GoodsNo);
 		{
 			const char * p_full_buf = add_str.getBuf();
 			const size_t full_buf_len = sstrlen(p_full_buf);
 			if(use_ext_messages && full_buf_len > max_text) {
 				size_t _text_buf_offs = 0;
-				ushort _plu = (ushort)pPLU->GoodsNo;
+				ushort _plu = static_cast<ushort>(pPLU->GoodsNo);
 				uint   _n = 0;
 				const uint _max_n = 4;
 				SString _plu_text;

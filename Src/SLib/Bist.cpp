@@ -1264,8 +1264,8 @@ static void __ldblto(double v, void * d, int s)
 
 int SFloat::comp(const void * i1, const void * i2) const
 {
-	const LDBL v1 = __toldbl(i1, S);
-	const LDBL v2 = __toldbl(i2, S);
+	const long double v1 = __toldbl(i1, S);
+	const long double v2 = __toldbl(i2, S);
 	return CMPSIGN(v1, v2);
 }
 
@@ -1299,7 +1299,7 @@ void SFloat::minval(void * d) const
 	switch(S) {
 		case  8: *static_cast<double *>(d) = -SMathConst::Max; break;
 		case  4: *static_cast<float *>(d)  = -SMathConst::Max_f; break;
-		case 10: *static_cast<LDBL *>(d)   = -SMathConst::Max; break;
+		case 10: *static_cast<long double *>(d)   = -SMathConst::Max; break;
 		// default: assert(INVALID_DATA_SIZE);
 	}
 }
@@ -1309,7 +1309,7 @@ void SFloat::maxval(void * d) const
 	switch(S) {
 		case  8: *static_cast<double *>(d) = SMathConst::Max; break;
 		case  4: *static_cast<float *>(d)  = SMathConst::Max_f; break;
-		case 10: *static_cast<LDBL *>(d)   = SMathConst::Max; break;
+		case 10: *static_cast<long double *>(d) = SMathConst::Max; break;
 		// default: assert(INVALID_DATA_SIZE);
 	}
 }
@@ -1456,7 +1456,7 @@ static void FASTCALL _bound(void * d, int s, int sign)
 {
 	int    sz = (s & 0x00ff);
 	int    dec = (s >> 8);
-	LDBL   v = (pow(10.0, sz * 2 - 1) - 1) / pow(10.0, dec);
+	double v = (pow(10.0, sz * 2 - 1) - 1) / pow(10.0, dec);
 	dectodec(sign ? -v : v, static_cast<char *>(d), sz, dec);
 }
 

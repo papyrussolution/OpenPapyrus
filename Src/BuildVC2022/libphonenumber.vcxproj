@@ -232,7 +232,7 @@
       <SDLCheck>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil-20230909</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;I18N_PHONENUMBERS_USE_ICU_REGEXP;__STDC_LIMIT_MACROS;U_STATIC_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -261,7 +261,7 @@
       <SDLCheck>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil-20230909</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;I18N_PHONENUMBERS_USE_ICU_REGEXP;__STDC_LIMIT_MACROS;U_STATIC_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -292,7 +292,7 @@
       <SDLCheck>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil-20230909</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;I18N_PHONENUMBERS_USE_ICU_REGEXP;__STDC_LIMIT_MACROS;U_STATIC_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -323,7 +323,7 @@
       <SDLCheck>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil-20230909</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;I18N_PHONENUMBERS_USE_ICU_REGEXP;__STDC_LIMIT_MACROS;U_STATIC_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -352,7 +352,7 @@
       <SDLCheck>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil-20230909</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;I18N_PHONENUMBERS_USE_ICU_REGEXP;__STDC_LIMIT_MACROS;U_STATIC_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -383,7 +383,7 @@
       <SDLCheck>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil-20230909</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;I18N_PHONENUMBERS_USE_ICU_REGEXP;__STDC_LIMIT_MACROS;U_STATIC_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -416,7 +416,7 @@
       <SDLCheck>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil-20230909</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;I18N_PHONENUMBERS_USE_ICU_REGEXP;__STDC_LIMIT_MACROS;U_STATIC_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -446,7 +446,7 @@
       <SDLCheck>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil-20230909</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;I18N_PHONENUMBERS_USE_ICU_REGEXP;__STDC_LIMIT_MACROS;U_STATIC_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -478,7 +478,7 @@
       <SDLCheck>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil-20230909</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;I18N_PHONENUMBERS_USE_ICU_REGEXP;__STDC_LIMIT_MACROS;U_STATIC_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -510,7 +510,7 @@
       <SDLCheck>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil-20230909</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;I18N_PHONENUMBERS_USE_ICU_REGEXP;__STDC_LIMIT_MACROS;U_STATIC_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -540,7 +540,7 @@
       <SDLCheck>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil-20230909</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;I18N_PHONENUMBERS_USE_ICU_REGEXP;__STDC_LIMIT_MACROS;U_STATIC_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -572,7 +572,7 @@
       <SDLCheck>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libphonenumber;..\OSF\libphonenumber\phonenumbers\base;..\osf\protobuf-3.19.1\src;..\osf\abseil-20230909</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;I18N_PHONENUMBERS_USE_ICU_REGEXP;__STDC_LIMIT_MACROS;U_STATIC_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>

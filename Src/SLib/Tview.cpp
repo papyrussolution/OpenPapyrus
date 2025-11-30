@@ -289,7 +289,7 @@ void TView::Draw_()
 	{ return reinterpret_cast<void *>(::SetWindowLongPtr(hWnd, propIndex, reinterpret_cast<LONG_PTR>(ptr))); }
 /*static*/void * FASTCALL TView::SetWindowUserData(HWND hWnd, void * ptr)
 	{ return reinterpret_cast<void *>(::SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(ptr))); }
-/*static*/long TView::SetWindowProp(HWND hWnd, int propIndex, long value) { return ::SetWindowLongPtr(hWnd, propIndex, value); }
+// @v12.4.11 /*static*/long TView::SetWindowProp(HWND hWnd, int propIndex, long value) { return ::SetWindowLongPtr(hWnd, propIndex, value); }
 /*static*/void * FASTCALL TView::GetWindowProp(HWND hWnd, int propIndex) { return reinterpret_cast<void *>(::GetWindowLongPtr(hWnd, propIndex)); }
 /*static*/void * FASTCALL TView::GetWindowUserData(HWND hWnd) { return reinterpret_cast<void *>(::GetWindowLongPtr(hWnd, GWLP_USERDATA)); }
 /*static*/long FASTCALL TView::SGetWindowStyle(HWND hWnd) { return ::GetWindowLong(hWnd, GWL_STYLE); }

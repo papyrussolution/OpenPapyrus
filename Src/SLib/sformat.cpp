@@ -959,12 +959,13 @@ static char * FASTCALL fmtnumber(const char * ptr, int dec, int sign, long fmt, 
 	return _commfmt(fmt, buf);
 }
 
-char * STDCALL decfmt(const BCD_T val, int len, int prec, long fmt, char * pBuf)
+char * STDCALL decfmt(const char * pBcdVal, int len, int prec, long fmt, char * pBuf)
 {
 	char   str[64];
-	char * c, *s = str;
+	char * c;
+	char * s = str;
 	int    sign;
-	dectostr(val, (int16)len, (int16)prec, s);
+	dectostr(pBcdVal, (int16)len, (int16)prec, s);
 	if(*s == '-')
 		s++, sign = 1;
 	else

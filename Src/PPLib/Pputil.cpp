@@ -4261,69 +4261,84 @@ int PPXmlFileDetector::Run(const char * pFileName, int * pResult)
     int    tok = 0;
 	bool   do_continue = false;
 	// @v12.4.4 {
-	if(sstreq(pName, "CAM")) { 
+	if(sstreq(pName, "CAM")) {
 		// ?? Result = SAP_Order_Cocacola;
 		TokPath.push(outofhttokCAM);
 		do_continue = true;
 	}
-	else if(sstreq(pName, "ORDERS")) { // Этот токен встречается в начале форматов [SAP_Order_Cocacola, Eancom]
+	else if(sstreq(pName, "UNH")) {
+		if(TokPath.getPointer() == 1 && TokPath.peek() == PPHS_ORDERS) {
+			Result = Eancom;
+		}
+	}
+	else if(sstreq(pName, "BGM")) {
+		if(TokPath.getPointer() == 1 && TokPath.peek() == PPHS_ORDERS) {
+			Result = Eancom;
+		}
+	}
+	else if(sstreq(pName, "ORDERS")) { // Этот токен встречается в формате SAP_Order_Cocacola после <CAM>
 		if(TokPath.getPointer() == 1 && TokPath.peek() == outofhttokCAM) {
 			Result = SAP_Order_Cocacola;
 		}
 	}
 	// } @v12.4.4 
-    if(P_ShT) {
-		uint   _ut = 0;
-		uint   _ut2 = 0; // @v11.9.4
-		size_t colon_pos = 0;
-		SString & r_temp_buf = SLS.AcquireRvlStr();
-		r_temp_buf = pName;
-		// @v12.0.2 {
-		if(r_temp_buf.IsLegalUtf8()) {
-			r_temp_buf.Utf8ToLower();
-		}
-		// } @v12.0.2 
-		// @v12.0.2 r_temp_buf.ToLower();
-		if(r_temp_buf.SearchChar(':', &colon_pos))
-			r_temp_buf.ShiftLeft(colon_pos+1);
-		P_ShT->Search(r_temp_buf, &_ut, 0);
-		tok = _ut;
-		if(ElementCount == 1) {
-			if(tok)
-				TokPath.push(tok);
-			switch(tok) {
-				case PPHS_ORDERS:
-				case PPHS_ORDRSP:
-				case PPHS_DESADV:
-				case PPHS_ALCDES:
-				case PPHS_RECADV:
-				case PPHS_PARTIN: Result = Eancom; break;
-				case PPHS_EDIMESSAGE: Result = KonturEdi; break;
-				case PPHS_DOCUMENTS: Result = EgaisDoc; break;
-				case PPHS_PPPP_START: Result = PpyAsyncPosIx; break;
-				case PPHS_URLSET: Result = Sitemap; break;
-				case PPHS_PROJECT: Result = ProjectAbstract; break;
-				case PPHS_RESOURCES: Result = ResourcesAbstract; break;
-				case PPHS_VALUES: Result = ValuesAbstract; break;
-				case PPHS_CHEQUE: Result = EgaisCheque; break;
-				case PPHS_TIMEZONES: Result = TimezonesAbstract; break;
-				case 0: // @v11.9.4
-					{
-						// PPHSC_RU_DOCUMENT
-						P_ShT_C->Search(/*r_temp_buf*/pName, &_ut2, 0); // @v12.0.2 r_temp_buf-->pName (хэш-таблица P_ShT_C чувствительна к регистру)
-						if(_ut2 == PPHSC_RU_FILE) {
-							Result = NalogRu_Generic;
-							for(uint i = 0; ppAttrList[i] != 0; i += 2) {
-								const char * p_attr = ppAttrList[i];
-								const char * p_text_data = ppAttrList[i+1];
-								//
+	if(!Result) {
+		if(P_ShT) {
+			uint   _ut = 0;
+			uint   _ut2 = 0; // @v11.9.4
+			size_t colon_pos = 0;
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			r_temp_buf = pName;
+			// @v12.0.2 {
+			if(r_temp_buf.IsLegalUtf8()) {
+				r_temp_buf.Utf8ToLower();
+			}
+			// } @v12.0.2 
+			// @v12.0.2 r_temp_buf.ToLower();
+			if(r_temp_buf.SearchChar(':', &colon_pos))
+				r_temp_buf.ShiftLeft(colon_pos+1);
+			P_ShT->Search(r_temp_buf, &_ut, 0);
+			tok = _ut;
+			if(ElementCount == 1) {
+				if(tok)
+					TokPath.push(tok);
+				switch(tok) {
+					case PPHS_ORDERS:
+						// Этот токен встречается во многих форматах, поэтому идентификацию Eancom по нему я вынес наверх (see above)
+						do_continue = true;
+						break;
+					case PPHS_ORDRSP:
+					case PPHS_DESADV:
+					case PPHS_ALCDES:
+					case PPHS_RECADV:
+					case PPHS_PARTIN: Result = Eancom; break;
+					case PPHS_EDIMESSAGE: Result = KonturEdi; break;
+					case PPHS_DOCUMENTS: Result = EgaisDoc; break;
+					case PPHS_PPPP_START: Result = PpyAsyncPosIx; break;
+					case PPHS_URLSET: Result = Sitemap; break;
+					case PPHS_PROJECT: Result = ProjectAbstract; break;
+					case PPHS_RESOURCES: Result = ResourcesAbstract; break;
+					case PPHS_VALUES: Result = ValuesAbstract; break;
+					case PPHS_CHEQUE: Result = EgaisCheque; break;
+					case PPHS_TIMEZONES: Result = TimezonesAbstract; break;
+					case 0: // @v11.9.4
+						{
+							// PPHSC_RU_DOCUMENT
+							P_ShT_C->Search(/*r_temp_buf*/pName, &_ut2, 0); // @v12.0.2 r_temp_buf-->pName (хэш-таблица P_ShT_C чувствительна к регистру)
+							if(_ut2 == PPHSC_RU_FILE) {
+								Result = NalogRu_Generic;
+								for(uint i = 0; ppAttrList[i] != 0; i += 2) {
+									const char * p_attr = ppAttrList[i];
+									const char * p_text_data = ppAttrList[i+1];
+									//
+								}
 							}
 						}
-					}
-					break;
+						break;
+				}
 			}
 		}
-    }
+	}
 	if(!do_continue) {
 		SaxStop();
 	}

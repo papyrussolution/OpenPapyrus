@@ -629,7 +629,7 @@ struct CtmToken {
 		ulong  ILU;
 		float  F;
 		double FD;
-		LDBL   FDL;
+		long double FDL;
 		LDATE  D;
 		LTIME  T;
 		DLSYMBID ID;

@@ -264,7 +264,7 @@ struct JobStrgHeader { // @persistent @size=64
 }*/
 
 //@erik v10.7.4
-int PPJobMngr::LoadPool2(const char * pDbSymb, PPJobPool * pPool, bool readOnly)
+int PPJobMngr::LoadJobPool2(const char * pDbSymb, PPJobPool * pPool, bool readOnly)
 {
 	int    ok = 1;
 	xmlParserCtxt * p_xml_parser = 0;
@@ -274,56 +274,64 @@ int PPJobMngr::LoadPool2(const char * pDbSymb, PPJobPool * pPool, bool readOnly)
 	const long session_id = LConfig.SessionID;
 	pPool->Flags &= ~PPJobPool::fReadOnly;
 	pPool->freeAll();
-	/* @v12.3.1 @obsolete
-	if(!fileExists(XmlFilePath)) {
-		SString fmt_buf;
-		SString msg_buf;
-		// PPTXT_LOG_TRYTOCONVERTJOBPOOL       "xml-файл пула задач '%s' не найден - попытка найти и сконвертировать пул в старом формате '%s'"
-		PPLoadText(PPTXT_LOG_TRYTOCONVERTJOBPOOL, fmt_buf);
-		msg_buf.Printf(fmt_buf, XmlFilePath.cptr(), FilePath.cptr());
-		PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_COMP);
-		THROW(ConvertBinToXml());
-	}*/
-	if(!readOnly) {
-		THROW(Sync.CreateMutex_(session_id, PPCFGOBJ_JOBPOOL, 1, 0, 0));
+	if(!fileExists(XmlFilePath)) { // @v12.4.11 проверка вынесена наверх чтобы вернуть <0 если файла нет
+		PPSetErrorSLib(); // На случай если вызывающий модуль захочет сообщить об ошибке при таком исходе
+		LastLoading = getcurdatetime_();
+		pPool->DbSymb = pDbSymb;
+		ok = -1;
 	}
-	if(readOnly || Sync.IsMyLock(session_id, PPCFGOBJ_JOBPOOL, 1) > 0) {
-		THROW_SL(fileExists(XmlFilePath));
-		THROW(p_xml_parser = xmlNewParserCtxt());
-		THROW_LXML(p_doc = xmlCtxtReadFile(p_xml_parser, XmlFilePath, 0, XML_PARSE_NOENT), p_xml_parser);
-		for(const xmlNode * p_root = p_doc->children; p_root; p_root = p_root->next) {
-			if(SXml::IsName(p_root, "JobPool")) {
-				for(const xmlNode * p_node = p_root->children; p_node; p_node = p_node->next) {
-					if(SXml::IsName(p_node, "JobStrgHeader")) {
-						for(const xmlNode * p_hdr_node = p_node->children; p_hdr_node; p_hdr_node = p_hdr_node->next) {
-							if(SXml::GetContentByName(p_hdr_node, "Count", temp_buf))
-								hdr.Count = temp_buf.ToULong();
-							else if(SXml::GetContentByName(p_hdr_node, "Locking", temp_buf))
-								hdr.Locking = temp_buf.ToULong();
-							else if(SXml::GetContentByName(p_hdr_node, "LastID", temp_buf))
-								hdr.LastId = temp_buf.ToLong();
-							else if(SXml::GetContentByName(p_hdr_node, "PpyVersion", temp_buf)) {
-								hdr.Ver.FromStr(temp_buf);
+	else {
+		/* @v12.3.1 @obsolete
+		if(!fileExists(XmlFilePath)) {
+			SString fmt_buf;
+			SString msg_buf;
+			// PPTXT_LOG_TRYTOCONVERTJOBPOOL       "xml-файл пула задач '%s' не найден - попытка найти и сконвертировать пул в старом формате '%s'"
+			PPLoadText(PPTXT_LOG_TRYTOCONVERTJOBPOOL, fmt_buf);
+			msg_buf.Printf(fmt_buf, XmlFilePath.cptr(), FilePath.cptr());
+			PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_COMP);
+			THROW(ConvertBinToXml());
+		}*/
+		if(!readOnly) {
+			THROW(Sync.CreateMutex_(session_id, PPCFGOBJ_JOBPOOL, 1, 0, 0));
+		}
+		if(readOnly || Sync.IsMyLock(session_id, PPCFGOBJ_JOBPOOL, 1) != 0) { // @v12.4.11 (>0)->(!=0)
+			THROW_SL(fileExists(XmlFilePath)); // Повторная проверка (see above). Надо бы убрать, но @paranoic
+			THROW(p_xml_parser = xmlNewParserCtxt());
+			THROW_LXML(p_doc = xmlCtxtReadFile(p_xml_parser, XmlFilePath, 0, XML_PARSE_NOENT), p_xml_parser);
+			for(const xmlNode * p_root = p_doc->children; p_root; p_root = p_root->next) {
+				if(SXml::IsName(p_root, "JobPool")) {
+					for(const xmlNode * p_node = p_root->children; p_node; p_node = p_node->next) {
+						if(SXml::IsName(p_node, "JobStrgHeader")) {
+							for(const xmlNode * p_hdr_node = p_node->children; p_hdr_node; p_hdr_node = p_hdr_node->next) {
+								if(SXml::GetContentByName(p_hdr_node, "Count", temp_buf))
+									hdr.Count = temp_buf.ToULong();
+								else if(SXml::GetContentByName(p_hdr_node, "Locking", temp_buf))
+									hdr.Locking = temp_buf.ToULong();
+								else if(SXml::GetContentByName(p_hdr_node, "LastID", temp_buf))
+									hdr.LastId = temp_buf.ToLong();
+								else if(SXml::GetContentByName(p_hdr_node, "PpyVersion", temp_buf)) {
+									hdr.Ver.FromStr(temp_buf);
+								}
 							}
+							hdr.Signature = JOBSTRGSIGN;
+							LastId = hdr.LastId;
 						}
-						hdr.Signature = JOBSTRGSIGN;
-						LastId = hdr.LastId;
-					}
-					else if(SXml::IsName(p_node, "PPJob")) {
-						PPID   id = 0;
-						PPJob  job;
-						THROW(job.Read2(p_node));
-						id = job.ID;
-						THROW(pPool->PutJobItem(&id, &job));
+						else if(SXml::IsName(p_node, "PPJob")) {
+							PPID   id = 0;
+							PPJob  job;
+							THROW(job.Read2(p_node));
+							id = job.ID;
+							THROW(pPool->PutJobItem(&id, &job));
+						}
 					}
 				}
 			}
+			LastLoading = getcurdatetime_();
+			pPool->DbSymb = pDbSymb;
 		}
-		LastLoading = getcurdatetime_();
-		pPool->DbSymb = pDbSymb;
-	}
-	else {
-		CALLEXCEPT_PP(PPERR_JOBPOOLLOCKED);
+		else {
+			CALLEXCEPT_PP(PPERR_JOBPOOLLOCKED);
+		}
 	}
 	CATCHZOK
 	xmlFreeDoc(p_doc);
@@ -428,7 +436,7 @@ int PPJobMngr::IsPoolChanged() const
 }*/
 
 //@erik v10.7.0
-int PPJobMngr::SavePool2(const PPJobPool * pPool)
+int PPJobMngr::SaveJobPool2(const PPJobPool * pPool)
 {
 	int    ok = 1;
 	JobStrgHeader hdr;
@@ -438,7 +446,7 @@ int PPJobMngr::SavePool2(const PPJobPool * pPool)
 	hdr.Count = pPool->getCount();
 	hdr.LastId = LastId;
 	hdr.Ver = DS.GetVersion();
-	if(Sync.IsMyLock(LConfig.SessionID, PPCFGOBJ_JOBPOOL, 1) > 0) {
+	if(Sync.IsMyLock(LConfig.SessionID, PPCFGOBJ_JOBPOOL, 1) != 0) { // @v12.4.11 (>0)->(!=0)
 		THROW_SL(p_xml_writer = xmlNewTextWriterFilename(XmlFilePath, 0));
 		xmlTextWriterSetIndent(p_xml_writer, 1);
 		xmlTextWriterSetIndentTab(p_xml_writer);

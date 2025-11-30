@@ -164,14 +164,14 @@ BDictionary::BDictionary(int btrDict, const char * pPath) :
 	DBFileSpec * p_h = new DBFileSpec; // разрушается функцией Btrieve::CreateTable
 	memzero(p_h, sizeof(*p_h));
 	p_h->PageSize = pTbl->PageSize;
-	p_h->RecSize = pTbl->fields.CalculateFixedRecSize(0/*BNFieldList2::crsfXXX*/);
+	p_h->RecSize = pTbl->FldL.CalculateFixedRecSize(0/*BNFieldList2::crsfXXX*/);
 	p_h->Flags   = pTbl->flags;
 	for(uint i = 0; i < pTbl->Indices.getNumKeys(); i++) {
 		BNKey k = pTbl->Indices.getKey(i);
 		for(int j = 0; j < k.getNumSeg(); j++) {
-			const BNField & f = pTbl->fields[k.getFieldID(j)];
-			int16  offs = static_cast<int16>(f.Offs + 1);
-			if(GETSTYPE(f.T) == S_DATETIME) {
+			const BNField & r_fld = pTbl->FldL[k.getFieldID(j)];
+			int16  offs = static_cast<int16>(r_fld.Offs + 1);
+			if(GETSTYPE(r_fld.T) == S_DATETIME) {
 				//
 				// Для типа S_DATETIME в btrieve-таблице придется создать два сегмента: S_DATE; S_TIME
 				//
@@ -202,9 +202,9 @@ BDictionary::BDictionary(int btrDict, const char * pPath) :
 				DBIdxSpec & r_idx = *new DBIdxSpec;
 				MEMSZERO(r_idx);
 				r_idx.position  = offs;
-				r_idx.length    = static_cast<int16>(stsize(f.T));
+				r_idx.length    = static_cast<int16>(stsize(r_fld.T));
 				r_idx.flags     = k.getFlags(j);
-				r_idx.extType   = SLib2BtrType(GETSTYPE(f.T));
+				r_idx.extType   = SLib2BtrType(GETSTYPE(r_fld.T));
 				r_idx.keyNumber = k.getKeyNumber();
 				r_idx.acsNumber = k.getACSNumber();
 				p_h = &((*p_h) + r_idx);

@@ -236,7 +236,7 @@ int FASTCALL PPViewPalm::NextIteration(PalmViewItem * pItem)
 			if(pItem) {
 				PPStyloPalmPacket pack;
 				if(ObjPalm.GetPacket(P_TempTbl->data.ID, &pack) > 0) {
-					*(PPStyloPalm *)pItem = pack.Rec;
+					*static_cast<PPStyloPalm *>(pItem) = pack.Rec;
 					STRNSCPY(pItem->Path, pack.P_Path);
 					STRNSCPY(pItem->FtpPath, pack.P_FTPPath);
 					ok = 1;
@@ -343,11 +343,12 @@ int PPViewPalm::ExportUhtt()
 		PalmViewItem item;
 		for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter())) {
 			const  PPID _id = item.ID;
-			PPStyloPalm rec, parent_rec;
+			PPStyloPalm rec;
+			PPStyloPalm parent_rec;
 			if(ObjPalm.Search(_id, &rec) > 0) {
 				long    uhtt_stylo_id = 0;
-				UhttStyloDevicePacket uhtt_pack, ret_pack;
-
+				UhttStyloDevicePacket uhtt_pack;
+				UhttStyloDevicePacket ret_pack;
 				//PPTXT_UHTTEXPLOC_FOUND      "На сервере Universe-HTT адрес '@zstr' найден по коду"
 				//PPTXT_UHTTEXPLOC_EXPORTED   "Адрес '@zstr' экспортирован на сервер Universe-HTT"
 				//PPTXT_UHTTEXPLOC_CODEASSGN  "Адресу '@zstr' присвоен код с сервера Universe-HTT"
@@ -381,7 +382,7 @@ int PPViewPalm::ExportUhtt()
 					uhtt_pack.RegisterTime = rec.RegisterTime;
 					uhtt_pack.Name = rec.Name;
 					uhtt_pack.Symb = rec.Symb;
-					int    cr = uhtt_cli.CreateStyloDevice(&uhtt_stylo_id, uhtt_pack);
+					const int cr = uhtt_cli.CreateStyloDevice(&uhtt_stylo_id, uhtt_pack);
 					if(cr) {
 						PPLoadText(PPTXT_UHTTEXPSTYLO_EXPORTED, fmt_buf);
 						PPFormat(fmt_buf, &msg_buf, (const char *)rec.Name);

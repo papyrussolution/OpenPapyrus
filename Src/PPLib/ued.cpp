@@ -12,7 +12,11 @@
 	#include <unicode\unumberformatter.h>
 #endif
 //#include <sartre.h>
-#include <..\OSF\abseil\absl\numeric\int128.h>
+#if _MSC_VER < 1920 // less than vs 2019
+	#include <..\OSF\abseil\absl\numeric\int128.h>
+#else
+	#include <..\OSF\abseil-20230909\absl\numeric\int128.h>
+#endif
 
 IMPL_INVARIANT_C(UedSetBase)
 {

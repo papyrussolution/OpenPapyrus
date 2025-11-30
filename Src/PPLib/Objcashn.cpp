@@ -10,6 +10,12 @@ PPCashNode2::PPCashNode2()
 	THISZERO();
 }
 
+PPCashNode2 & PPCashNode2::Z()
+{
+	THISZERO();
+	return *this;
+}
+
 PPGenCashNode::PosIdentEntry::PosIdentEntry() : N_(0)
 {
 }
@@ -421,14 +427,14 @@ int PPSyncCashNode::CTblListFromString(const char * pBuf)
 {
 	int    ok = -1;
 	PPID   parent_id = 0;
+	const  long sess_id = LConfig.SessionID;
 	PPSyncItem sync_item;
 	PPSync & r_sync = DS.GetSync();
-	if(!IsExtCashNode(id, &parent_id) && r_sync.CreateMutex_(LConfig.SessionID, PPOBJ_CASHNODE, id, 0, &sync_item) > 0) {
+	if(!IsExtCashNode(id, &parent_id) && r_sync.CreateMutex_(sess_id, PPOBJ_CASHNODE, id, 0, &sync_item) > 0) {
 		r_sync.ReleaseMutex(PPOBJ_CASHNODE, id);
 		ok = 0;
 	}
-	else if(!r_sync.IsMyLock(LConfig.SessionID, PPOBJ_CASHNODE, id) &&
-		(!parent_id || !r_sync.IsMyLock(LConfig.SessionID, PPOBJ_CASHNODE, parent_id)))
+	else if(!r_sync.IsMyLock(sess_id, PPOBJ_CASHNODE, id) && (!parent_id || !r_sync.IsMyLock(sess_id, PPOBJ_CASHNODE, parent_id)))
 		ok = (PPSetError(PPERR_CASHNODE_LOCKED, sync_item.Name), 1);
 	return ok;
 }
@@ -3111,7 +3117,7 @@ PPObjTouchScreen::PPObjTouchScreen(void * extraPtr) : PPObjReference(PPOBJ_TOUCH
 int PPObjTouchScreen::GetPacket(PPID id, PPTouchScreenPacket * pPack)
 {
 	int    ok = 1;
-	PPTouchScreenPacket  ts_pack;
+	PPTouchScreenPacket ts_pack;
 	THROW(P_Ref->GetItem(Obj, id, &ts_pack.Rec) > 0);
 	THROW(P_Ref->GetPropArray(Obj, id, DBDPRP_LOCLIST, &ts_pack.GrpIDList));
 	CATCH

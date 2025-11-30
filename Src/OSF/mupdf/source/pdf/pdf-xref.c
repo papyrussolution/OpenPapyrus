@@ -3184,8 +3184,7 @@ static void check_field(fz_context * ctx, pdf_document * doc, pdf_changes * chan
 	int o_xref_base;
 	int obj_num;
 	char * field_name = NULL;
-	/* All fields MUST be indirections, either in the Fields array
-	 * or AcroForms, or in the Kids array of other Fields. */
+	// All fields MUST be indirections, either in the Fields array or AcroForms, or in the Kids array of other Fields.
 	if(!pdf_is_indirect(ctx, obj))
 		return;
 	obj_num = pdf_to_num(ctx, obj);
@@ -3257,7 +3256,6 @@ static void check_field(fz_context * ctx, pdf_document * doc, pdf_changes * chan
 			/* Kids arrays shouldn't change. */
 			if(pdf_name_eq(ctx, key, PDF_NAME(Kids))) {
 				int j, m;
-
 				/* Kids must be an array. If it's not, count it as a difference. */
 				if(!pdf_is_array(ctx, nval) || !pdf_is_array(ctx, oval)) {
 change_found:
@@ -3296,21 +3294,16 @@ change_found:
 			else
 				check_unchanged_between(ctx, doc, changes, nval, oval);
 		}
-
-		/* Now check all the fields in the old object to
-		 * make sure none were dropped. */
+		// Now check all the fields in the old object to make sure none were dropped. 
 		len = pdf_dict_len(ctx, old_obj);
 		for(i = 0; i < len; i++) {
 			pdf_obj * key = pdf_dict_get_key(ctx, old_obj, i);
 			pdf_obj * nval, * oval;
-
 			/* V is checked above */
 			if(pdf_name_eq(ctx, key, PDF_NAME(V)))
 				continue;
-
 			nval = pdf_dict_get(ctx, new_obj, key);
 			oval = pdf_dict_get(ctx, old_obj, key);
-
 			if(nval == NULL && oval != NULL)
 				changes->obj_changes[pdf_to_num(ctx, nval)] |= FIELD_CHANGE_INVALID;
 		}
@@ -3339,8 +3332,7 @@ static void merge_lock_specification(fz_context * ctx, pdf_locked_fields * field
 	if(lock) {
 		pdf_obj * action = pdf_dict_get(ctx, lock, PDF_NAME(Action));
 		if(pdf_name_eq(ctx, action, PDF_NAME(All))) {
-			/* All fields locked means we don't need any stored
-			 * includes/excludes. */
+			// All fields locked means we don't need any stored includes/excludes.
 			fields->all = 1;
 			free_char_list(ctx, &fields->includes);
 			free_char_list(ctx, &fields->excludes);
@@ -3350,8 +3342,7 @@ static void merge_lock_specification(fz_context * ctx, pdf_locked_fields * field
 			int len = pdf_array_len(ctx, f);
 			if(pdf_name_eq(ctx, action, PDF_NAME(Include))) {
 				if(fields->all) {
-					/* Current state = "All except <excludes> are locked".
-					 * We need to remove <Fields> from <excludes>. */
+					// Current state = "All except <excludes> are locked". We need to remove <Fields> from <excludes>.
 					for(i = 0; i < len; i++) {
 						const char * s = pdf_to_text_string(ctx, pdf_array_get(ctx, f, i));
 						int r, w;
@@ -3363,8 +3354,7 @@ static void merge_lock_specification(fz_context * ctx, pdf_locked_fields * field
 					}
 				}
 				else {
-					/* Current state = <includes> are locked.
-					 * We need to add <Fields> to <include> (avoiding repetition). */
+					// Current state = <includes> are locked. We need to add <Fields> to <include> (avoiding repetition).
 					for(i = 0; i < len; i++) {
 						const char * s = pdf_to_text_string(ctx, pdf_array_get(ctx, f, i));
 						for(r = 0; r < fields->includes.len; r++) {

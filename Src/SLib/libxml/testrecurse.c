@@ -18,7 +18,6 @@
 #include <fcntl.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
-//#include <libxml/uri.h>
 #ifdef LIBXML_READER_ENABLED
 #include <libxml/xmlreader.h>
 #endif

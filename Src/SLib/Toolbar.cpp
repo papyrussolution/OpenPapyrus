@@ -140,7 +140,7 @@ LRESULT TToolbar::OnLButtonDown(WPARAM wParam, LPARAM lParam)
 		RECT   status_rect;
 		long   fl = TView::SGetWindowStyle(H_Wnd);
 		fl |= WS_THICKFRAME;
-		TView::SetWindowProp(H_Wnd, GWL_STYLE, fl);
+		TView::SetWindowProp(H_Wnd, GWL_STYLE, reinterpret_cast<void *>(fl));
 		PostMessage(H_Wnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
 		GetClientRect(H_MainWnd, &ClientRect);
 		MEMSZERO(status_rect);
@@ -173,7 +173,7 @@ LRESULT TToolbar::OnMove(WPARAM wParam, LPARAM lParam)
 	if(ClientRect.right || ClientRect.left) {
 		long   fl = TView::SGetWindowStyle(H_Wnd);
 		fl &= ~WS_THICKFRAME;
-		TView::SetWindowProp(H_Wnd, GWL_STYLE, fl);
+		TView::SetWindowProp(H_Wnd, GWL_STYLE, reinterpret_cast<void *>(fl));
 		CurrRect.right  -= CurrRect.left;
 		CurrRect.bottom -= CurrRect.top;
 		CurrRect.left   -= ClientRect.left;
@@ -181,7 +181,7 @@ LRESULT TToolbar::OnMove(WPARAM wParam, LPARAM lParam)
 		MEMSZERO(ClientRect);
 		fl = TView::SGetWindowStyle(H_Toolbar);
 		SETFLAG(fl, TBSTYLE_WRAPABLE, CurrPos != TOOLBAR_ON_TOP && CurrPos != TOOLBAR_ON_BOTTOM);
-		TView::SetWindowProp(H_Toolbar, GWL_STYLE, fl);
+		TView::SetWindowProp(H_Toolbar, GWL_STYLE, reinterpret_cast<void *>(fl));
 		MoveWindow(H_Wnd, CurrRect.left, CurrRect.top, CurrRect.right, CurrRect.bottom, 1);
 		if(CurrPos == TOOLBAR_ON_FREE) {
 			DWORD r = static_cast<DWORD>(::SendMessageW(H_Toolbar, TB_GETROWS, 0, 0));

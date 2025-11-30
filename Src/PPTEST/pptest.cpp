@@ -2041,10 +2041,10 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
-	TestRestic();
-	//TestGlobalServiceAccessibility();
-	//TestGtinStruc();
+	TestGtinStruc();
 	//PPChZnPrcssr::Test();
+	//TestRestic();
+	//TestGlobalServiceAccessibility();
 	
 	//Test_ExecuteDialogByDl600Description();
 	//Test_Cristal2SetRetailGateway();

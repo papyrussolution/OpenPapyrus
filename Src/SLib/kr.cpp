@@ -500,10 +500,10 @@ int KR::rating()
 				const char * c1  = P_b + P_h->current+sizeof(I);
 				const char * c2  = c1 + P_h->keyLen;
 				for(int i = 0; i < ns; i++) {
-					const BNField & f = p_tbl->GetFields()[key.getFieldID(i)];
-					if(stcomp(f.T, c1+ofs, c2+ofs) == 0) {
+					const BNField & r_fld = p_tbl->GetFields()[key.getFieldID(i)];
+					if(stcomp(r_fld.T, c1+ofs, c2+ofs) == 0) {
 						s++;
-						ofs += stsize(f.T);
+						ofs += stsize(r_fld.T);
 					}
 					else
 						break;

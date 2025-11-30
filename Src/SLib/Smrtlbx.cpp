@@ -532,7 +532,7 @@ void SmartListBox::onInitDialog(int useScrollBar)
 	if(Parent) {
 		const long exstyle = TView::SGetWindowExStyle(Parent);
 		if(exstyle & WS_EX_COMPOSITED)
-			TView::SetWindowProp(Parent, GWL_EXSTYLE, (exstyle & ~WS_EX_COMPOSITED));
+			TView::SetWindowProp(Parent, GWL_EXSTYLE, reinterpret_cast<void *>(exstyle & ~WS_EX_COMPOSITED));
 	}
 	// } @v11.2.4 
 	if(State & stTreeList) {
@@ -1113,7 +1113,7 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 								break;
 							}
 					}
-					TView::SetWindowProp(Parent, DWLP_MSGRESULT, result);
+					TView::SetWindowProp(Parent, DWLP_MSGRESULT, reinterpret_cast<void *>(result));
 					return 0; // @v11.2.4
 				}
 				else

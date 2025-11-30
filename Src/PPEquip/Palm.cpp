@@ -187,23 +187,35 @@ PPGeoTrackingMode & PPGeoTrackingMode::Z()
 bool FASTCALL PPGeoTrackingMode::operator == (const PPGeoTrackingMode & rS) const { return (Mode == rS.Mode && Cycle == rS.Cycle); }
 bool FASTCALL PPGeoTrackingMode::operator != (const PPGeoTrackingMode & rS) const { return (Mode != rS.Mode || Cycle != rS.Cycle); }
 
+PPStyloPalm2::PPStyloPalm2()
+{
+	THISZERO();
+}
+
+PPStyloPalm2 & PPStyloPalm2::Z()
+{
+	THISZERO();
+	return *this;
+}
+
 PPStyloPalmPacket::PPStyloPalmPacket() : P_Path(0), P_FTPPath(0)
 {
-	destroy();
 }
 
 PPStyloPalmPacket::~PPStyloPalmPacket()
 {
-	destroy();
+	ZDELETE(P_Path);
+	ZDELETE(P_FTPPath);
 }
 
-void PPStyloPalmPacket::destroy()
+PPStyloPalmPacket & PPStyloPalmPacket::Z()
 {
-	MEMSZERO(Rec);
+	Rec.Z();
 	ZDELETE(P_Path);
 	ZDELETE(P_FTPPath);
 	LocList.Set(0);
 	QkList__.Set(0);
+	return *this;
 }
 
 PPStyloPalmPacket & FASTCALL PPStyloPalmPacket::operator = (const PPStyloPalmPacket & s)
@@ -1073,7 +1085,7 @@ int PPObjStyloPalm::ReadInputDebtMemo(PPStyloPalm * pRec, const char * pPath, Pa
 
 class AndroidReader {
 public:
-	AndroidReader(const char * pPath, PPStyloPalm * pRec) : P_Doc(0)
+	AndroidReader(const char * pPath, PPStyloPalm2 * pRec) : P_Doc(0)
 	{
 		if(!RVALUEPTR(PalmRec, pRec))
 			MEMSZERO(PalmRec);
@@ -1096,7 +1108,7 @@ public:
 	int ReadBills(PalmInputParam * pParam, long billIdBias, long * pOrdCount);
 	int ReadGeoTracks(PalmInputParam * pParam);
 private:
-	PPStyloPalm PalmRec;
+	PPStyloPalm2 PalmRec;
 	xmlDoc * P_Doc;
 };
 
@@ -4551,7 +4563,7 @@ struct UhttStyloDeviceBlock {
 	}
 	void Clear()
 	{
-		Pack.destroy();
+		Pack.Z();
 		State = stFetch;
 	}
 	PPObjStyloPalm SpObj;

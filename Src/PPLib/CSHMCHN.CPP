@@ -1452,8 +1452,7 @@ int SelectCSession(PPID cashNodeID, PPID extCashNodeID, CSessInfo * pInfo)
 	int    valid_data = 0;
 	LDATE  dt = getcurdate_();
 	PPObjCSession cs_obj;
-	CSessInfo     cs_info;
-	MEMSZERO(cs_info);
+	CSessInfo cs_info;
 	TDialog * dlg = new TDialog(SLS.CheckUiFlag(sluifUseLargeDialogs) ? DLG_SELSESNO_L : DLG_SELSESNO);
 	THROW(CheckDialogPtr(&dlg));
 	dlg->SetupCalDate(CTLCAL_SELSESNO_DATE, CTL_SELSESNO_DATE);

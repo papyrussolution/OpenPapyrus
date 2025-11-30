@@ -99,18 +99,20 @@ void CurTransBillDialog::swapCurrencies()
 	tmp_val   = Data.InCRate;
 	Data.InCRate      = Data.OutCRate;
 	Data.OutCRate     = tmp_val;
-
-	CurAmtCtrlGroup::Rec ca_cg_rec;
-	ca_cg_rec.CurID  = Data.InCurID;
-	ca_cg_rec.Amount = Data.InCurAmount;
-	ca_cg_rec.CRate  = Data.InCRate;
-	setGroupData(ctlgroupInCurAmt, &ca_cg_rec);
-
-	MEMSZERO(ca_cg_rec);
-	ca_cg_rec.CurID  = Data.OutCurID;
-	ca_cg_rec.Amount = Data.OutCurAmount;
-	ca_cg_rec.CRate  = Data.OutCRate;
-	setGroupData(ctlgroupOutCurAmt, &ca_cg_rec);
+	{
+		CurAmtCtrlGroup::Rec ca_cg_rec;
+		ca_cg_rec.CurID  = Data.InCurID;
+		ca_cg_rec.Amount = Data.InCurAmount;
+		ca_cg_rec.CRate  = Data.InCRate;
+		setGroupData(ctlgroupInCurAmt, &ca_cg_rec);
+	}
+	{
+		CurAmtCtrlGroup::Rec ca_cg_rec;
+		ca_cg_rec.CurID  = Data.OutCurID;
+		ca_cg_rec.Amount = Data.OutCurAmount;
+		ca_cg_rec.CRate  = Data.OutCRate;
+		setGroupData(ctlgroupOutCurAmt, &ca_cg_rec);
+	}
 	if(Data.InCurAmount > 0.0 && Data.OutCurAmount > 0.0)
 		Data.TransitCRate = R6(Data.OutCurAmount / Data.InCurAmount);
 	else if(Data.TransitCRate != 0.0)

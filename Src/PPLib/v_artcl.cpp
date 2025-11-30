@@ -515,7 +515,7 @@ int PPViewArticle::RecoverLinkObjects()
 						THROW(r);
 						if(r < 0) {
 							PPID   id = 0;
-							MEMSZERO(loc_rec);
+							loc_rec.Clear();
 							loc_rec.ID = item.ObjID;
 							loc_rec.Type = LOCTYP_WAREHOUSE;
 							STRNSCPY(loc_rec.Name, item.Name);

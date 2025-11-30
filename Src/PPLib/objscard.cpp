@@ -5209,9 +5209,8 @@ int PPSCardImporter::Run(const char * pCfgName, int use_ta)
 			PPID   owner_reg_type_id = 0;
 			PPID   def_series_id = 0;
 			PPIDArray psn_list;
-			PPSCardSeries def_series_rec;
-			PPSCardSeries scs_rec;
-			MEMSZERO(def_series_rec);
+			PPSCardSeries2 def_series_rec;
+			PPSCardSeries2 scs_rec;
 			if(Param.OwnerRegTypeCode.NotEmpty())
 				PPObjRegisterType::GetByCode(Param.OwnerRegTypeCode, &owner_reg_type_id);
 			if(Param.DefSeriesSymb.NotEmpty()) {

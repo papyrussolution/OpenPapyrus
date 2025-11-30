@@ -502,7 +502,8 @@ int PPObjGoodsGroup::Recover(const GoodsGroupRecoverParam * pParam, PPLogger * p
 		}
 		{
 			LAssocArray err_id_list;
-			Goods2Tbl::Rec goods_rec, grp_rec;
+			Goods2Tbl::Rec goods_rec;
+			Goods2Tbl::Rec grp_rec;
 			BExtQuery q(P_Tbl, 1);
 			MEMSZERO(k);
 			k.Kind = PPGDSK_GOODS;
@@ -518,12 +519,12 @@ int PPObjGoodsGroup::Recover(const GoodsGroupRecoverParam * pParam, PPLogger * p
 			if(param.Flags & GoodsGroupRecoverParam::fCorrect && err_id_list.getCount()) {
 				PPID   zero_parent_id = 0;
 				for(uint i = 0; i < err_id_list.getCount(); i++) {
-					MEMSZERO(grp_rec);
+					grp_rec.Clear();
 					PPID   parent_id = err_id_list.at(i).Key;
 					PPID   goods_id = err_id_list.at(i).Val;
 					if(parent_id) {
 						if(Search(parent_id, &grp_rec) < 0) {
-							MEMSZERO(grp_rec);
+							grp_rec.Clear();
 							grp_rec.ID   = parent_id;
 							grp_rec.Kind = PPGDSK_GROUP;
 							sprintf(grp_rec.Name, "Group Stub #%05ld", parent_id);
@@ -2378,7 +2379,8 @@ int PPObjBrand::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext
 	int    ok = 1;
 	if(pFilt && !pFilt->IsEmpty()) {
 		PPID   grp_id = 0;
-		SString grp_name, buf;
+		SString grp_name;
+		SString buf;
 		SYSTEMTIME sys_time;
 		GoodsFilt tmpf = *pFilt;
 		Goods2Tbl::Rec grec;
@@ -2386,7 +2388,7 @@ int PPObjBrand::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext
 		{
 			PPTransaction tra(useTa);
 			THROW(tra);
-			MEMSZERO(grec);
+			grec.Clear();
 			grec.Kind   = PPGDSK_GROUP;
 			grec.Flags |= GF_DYNAMICTEMPALTGRP;
 			grec.ManufID = owner;

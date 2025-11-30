@@ -29,6 +29,8 @@
 #ifdef _MSC_VER
     #include <intrin.h>
 #endif
+#include "absl/numeric/int128.h" // @sobolev
+#include "absl/numeric/bits.h" // @sobolev
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN
@@ -86,14 +88,11 @@ ABSL_MUST_USE_RESULT bool SimpleAtob(absl::string_view str, bool* out);
 // optionally include a leading "0x" (or "0X") number prefix, which is ignored
 // by this function. If any errors are encountered, this function returns
 // `false`, leaving `out` in an unspecified state.
-template <typename int_type>
-ABSL_MUST_USE_RESULT bool SimpleHexAtoi(absl::string_view str, int_type* out);
+template <typename int_type> ABSL_MUST_USE_RESULT bool SimpleHexAtoi(absl::string_view str, int_type* out);
 
 // Overloads of SimpleHexAtoi() for 128 bit integers.
-ABSL_MUST_USE_RESULT inline bool SimpleHexAtoi(absl::string_view str,
-    absl::int128* out);
-ABSL_MUST_USE_RESULT inline bool SimpleHexAtoi(absl::string_view str,
-    absl::uint128* out);
+ABSL_MUST_USE_RESULT inline bool SimpleHexAtoi(absl::string_view str, absl::int128* out);
+ABSL_MUST_USE_RESULT inline bool SimpleHexAtoi(absl::string_view str, absl::uint128* out);
 
 ABSL_NAMESPACE_END
 }  // namespace absl

@@ -383,6 +383,10 @@ int SLob::Serialize(int dir, size_t flatSize, uint8 * pInd, SBuffer & rBuf)
 //
 //
 //
+DBLobItem::DBLobItem(uint fldN) : FldN(fldN), Size(0), LocPtr(0), StrgInd(0)
+{
+}
+
 DBLobBlock::DBLobBlock() : SVector(sizeof(DBLobItem))
 {
 }
@@ -394,7 +398,8 @@ int FASTCALL DBLobBlock::SearchPos(uint fldIdx, uint * pPos) const
 	const  uint c = getCount();
 	if(c) {
 		for(uint i = 0; i < c; i++) {
-			if(static_cast<DBLobItem *>(at(i))->FldN == fldIdx) {
+			const DBLobItem * p_li = static_cast<const DBLobItem *>(at(i));
+			if(p_li->FldN == fldIdx) {
 				pos = i;
 				ok = 1;
 				break;
@@ -411,8 +416,10 @@ int DBLobBlock::SetSize(uint fldIdx, size_t sz)
 {
 	uint   pos = 0;
 	int    ok = SearchPos(fldIdx, &pos);
-	if(ok > 0)
-		static_cast<DBLobItem *>(at(pos))->Size = sz;
+	if(ok > 0) {
+		DBLobItem * p_item = static_cast<DBLobItem *>(at(pos));
+		p_item->Size = sz;
+	}
 	return ok;
 }
 
@@ -421,8 +428,10 @@ int DBLobBlock::GetSize(uint fldIdx, size_t * pSz) const
 	size_t sz = 0;
 	uint   pos = 0;
 	int    ok = SearchPos(fldIdx, &pos);
-	if(ok > 0)
-		sz = static_cast<DBLobItem *>(at(pos))->Size;
+	if(ok > 0) {
+		const DBLobItem * p_item = static_cast<const DBLobItem *>(at(pos));
+		sz = p_item->Size;
+	}
 	ASSIGN_PTR(pSz, sz);
 	return ok;
 }
@@ -431,8 +440,10 @@ int DBLobBlock::SetLocator(uint fldIdx, uint64 locator)
 {
 	uint   pos = 0;
 	int    ok = SearchPos(fldIdx, &pos);
-	if(ok > 0)
-		static_cast<DBLobItem *>(at(pos))->LocPtr = locator;
+	if(ok > 0) {
+		DBLobItem * p_item = static_cast<DBLobItem *>(at(pos));
+		p_item->LocPtr = locator;
+	}
 	return ok;
 }
 
@@ -441,8 +452,10 @@ int DBLobBlock::GetLocator(uint fldIdx, uint64 * pLocator) const
 	uint64 locator = 0;
 	uint   pos = 0;
 	int    ok = SearchPos(fldIdx, &pos);
-	if(ok > 0)
-		locator = static_cast<DBLobItem *>(at(pos))->LocPtr;
+	if(ok > 0) {
+		const DBLobItem * p_item = static_cast<const DBLobItem *>(at(pos));
+		locator = p_item->LocPtr;
+	}
 	ASSIGN_PTR(pLocator, locator);
 	return ok;
 }
@@ -494,6 +507,7 @@ int DBTable::Init(DbProvider * pDbP)
 	FileName_.Z();
 	Indices.setTableRef(offsetof(DBTable, Indices));
 	PageSize = 0;
+	BLobFieldIdx = 0; // @v12.4.11
 	LastLockedRow.Z();
 	return 1;
 }
@@ -522,14 +536,14 @@ DBTable::DBTable(const char * pTblName, const char * pFileName, void * pFlds, vo
 	RECORDSIZE s = 0;
 	if(open(pTblName, pFileName, om)) {
 		if(pFlds) {
-			for(int16 i = fields.getCount()-1; i >= 0; i--) {
+			for(int16 i = FldL.getCount()-1; i >= 0; i--) {
 				static_cast<_DBField *>(pFlds)[i].hTbl = handle;
 				static_cast<_DBField *>(pFlds)[i].hFld = i;
-				s += (RECORDSIZE)stsize(fields[i].T);
+				s += (RECORDSIZE)stsize(FldL[i].T);
 			}
 		}
 		if(pData)
-			SetDBuf(pData, NZOR(s, fields.CalculateFixedRecSize(0/*BNFieldList2::crsfXXX*/)));
+			SetDBuf(pData, NZOR(s, FldL.CalculateFixedRecSize(0/*BNFieldList2::crsfXXX*/)));
 	}
 }
 
@@ -552,12 +566,12 @@ int DBTable::Debug_Output(SString & rBuf) const
 	// @v12.4.8 CAT_FLD(ownrLvl, rBuf).CR();
 	CAT_FLD(tableName, rBuf).CR();
 	CAT_FLD(FileName_, rBuf).CR();
-	CAT_FLD(fields.getCount(), rBuf).CR();
-	for(i = 0; i < fields.getCount(); i++) {
-		CAT_FLD(fields.GetFieldByPosition(i).Id, rBuf.Tab()).CR();
-		CAT_FLD(fields.GetFieldByPosition(i).Name, rBuf.Tab()).CR();
-		CAT_FLD(fields.GetFieldByPosition(i).Offs, rBuf.Tab()).CR();
-		CAT_FLD_HEX(fields.GetFieldByPosition(i).T, rBuf.Tab()).CR();
+	CAT_FLD(FldL.getCount(), rBuf).CR();
+	for(i = 0; i < FldL.getCount(); i++) {
+		CAT_FLD(FldL.GetFieldByPosition(i).Id, rBuf.Tab()).CR();
+		CAT_FLD(FldL.GetFieldByPosition(i).Name, rBuf.Tab()).CR();
+		CAT_FLD(FldL.GetFieldByPosition(i).Offs, rBuf.Tab()).CR();
+		CAT_FLD_HEX(FldL.GetFieldByPosition(i).T, rBuf.Tab()).CR();
 	}
 	CAT_FLD(Indices.getNumKeys(), rBuf).CR();
 	for(i = 0; i < Indices.getNumKeys(); i++) {
@@ -628,7 +642,7 @@ int DBTable::close()
 	if(handle) {
 		tableName[0] = 0;
 		FileName_.Z();
-		fields.Z();
+		FldL.Z();
 		Indices.Z();
 		DBS.GetTLA().FreeTableEntry(handle);
 		handle = 0;
@@ -655,7 +669,7 @@ DBTable::SelectStmt * DBTable::GetStmt() { return P_Stmt; }
 
 bool DBTable::getField(uint fldN, DBField * pFld) const
 {
-	if(fldN < fields.getCount()) {
+	if(fldN < FldL.getCount()) {
 		DBField fld;
 		fld.Id = handle;
 		fld.fld = fldN;
@@ -669,8 +683,8 @@ bool DBTable::getField(uint fldN, DBField * pFld) const
 int DBTable::getFieldByName(const char * pName, DBField * pFld) const
 {
 	uint   pos = 0;
-	const  BNField * f = &fields.GetFieldByName(pName, &pos);
-	if(f) {
+	const  BNField * p_fld = &FldL.GetFieldByName(pName, &pos);
+	if(p_fld) {
 		DBField fld;
 		fld.Id = handle;
 		fld.fld = pos;
@@ -682,31 +696,31 @@ int DBTable::getFieldByName(const char * pName, DBField * pFld) const
 }
 
 int DBTable::getFieldValue(uint fldN, void * pBuf, size_t * pSize) const
-	{ return (P_DBuf && fldN < fields.getCount()) ? fields[fldN].getValue(P_DBuf, pBuf, pSize) : 0; }
+	{ return (P_DBuf && fldN < FldL.getCount()) ? FldL[fldN].getValue(P_DBuf, pBuf, pSize) : 0; }
 int DBTable::setFieldValue(uint fldN, const void * pBuf)
-	{ return (P_DBuf && fldN < fields.getCount()) ? fields[fldN].setValue(P_DBuf, pBuf) : 0; }
+	{ return (P_DBuf && fldN < FldL.getCount()) ? FldL[fldN].setValue(P_DBuf, pBuf) : 0; }
 
 int DBTable::getFieldValByName(const char * pName, void * pVal, size_t * pSize) const
 {
-	const  BNField * f = &fields.GetFieldByName(pName, 0);
-	return (P_DBuf && f) ? f->getValue(P_DBuf, pVal, pSize) : 0;
+	const  BNField * p_fld = &FldL.GetFieldByName(pName, 0);
+	return (P_DBuf && p_fld) ? p_fld->getValue(P_DBuf, pVal, pSize) : 0;
 }
 
 int DBTable::setFieldValByName(const char * pName, const void * pVal)
 {
-	const  BNField * f = &fields.GetFieldByName(pName, 0);
-	return (f && P_DBuf) ? f->setValue(P_DBuf, pVal) : 0;
+	const  BNField * p_fld = &FldL.GetFieldByName(pName, 0);
+	return (p_fld && P_DBuf) ? p_fld->setValue(P_DBuf, pVal) : 0;
 }
 
 int DBTable::putRecToString(SString & rBuf, int withFieldNames)
 {
 	rBuf.Z();
-	for(uint i = 0; i < fields.getCount(); i++) {
+	for(uint i = 0; i < FldL.getCount(); i++) {
 		char   temp_buf[1024];
-		const  BNField & f = fields[i];
-		f.putValueToString(P_DBuf, temp_buf);
+		const  BNField & r_fld = FldL[i];
+		r_fld.putValueToString(P_DBuf, temp_buf);
 		if(withFieldNames)
-			rBuf.CatEq(f.Name, temp_buf);
+			rBuf.CatEq(r_fld.Name, temp_buf);
 		else
 			rBuf.Cat(temp_buf);
 		rBuf.Semicol().Space();
@@ -717,7 +731,7 @@ int DBTable::putRecToString(SString & rBuf, int withFieldNames)
 int DBTable::AllocateOwnBuffer(int size)
 {
 	int    ok = 1;
-	const  RECORDSIZE fixed_rec_size = (size < 0) ? fields.CalculateFixedRecSize(0/*BNFieldList2::crsfXXX*/) : static_cast<RECORDSIZE>(size);
+	const  RECORDSIZE fixed_rec_size = (size < 0) ? FldL.CalculateFixedRecSize(0/*BNFieldList2::crsfXXX*/) : static_cast<RECORDSIZE>(size);
 	RECORDSIZE real_rec_size = fixed_rec_size;
 	///* @v12.4.1 @construction 
 	DBLobItem temp_li(0); // @debug
@@ -769,7 +783,7 @@ void FASTCALL DBTable::SetDBuf(SBaseBuffer & rBuf)
 const SBaseBuffer DBTable::getBuffer() const
 {
 	SBaseBuffer ret_buf;
-	ret_buf.P_Buf = (char *)P_DBuf; // @trick
+	ret_buf.P_Buf = static_cast<char *>(P_DBuf); // @trick
 	ret_buf.Size = DBufSize;
 	return ret_buf;
 }
@@ -791,16 +805,59 @@ void DBTable::CopyBufFrom(const void * pBuf, size_t srcBufSize)
 
 int DBTable::CopyBufLobFrom(const void * pBuf, size_t srcBufSize)
 {
+	constexpr bool experimental = false; // true in case of @debug MySQL 
+
 	int    ok = -1;
 	if(pBuf && P_DBuf) {
 		if(State & sHasLob) {
-			const RECORDSIZE frs = FixRecSize;
-			const size_t s = (frs && frs < DBufSize) ? frs : DBufSize;
-			memcpy(P_DBuf, pBuf, s);
-			DBField last_fld;
-			THROW(getField(fields.getCount()-1, &last_fld));
-			if(srcBufSize)
-				THROW(writeLobData(last_fld, PTR8C(pBuf)+frs, (srcBufSize > frs) ? (srcBufSize-frs) : 0));
+			if(experimental) {
+				for(uint i = 0; i < FldL.getCount(); i++) {
+					const BNField & r_fld = FldL.at(i);
+					const int  t_ = GETSTYPE(r_fld.T);
+					const uint offs_ = r_fld.Offs; 
+					//if(oneof3(t_, S_NOTE, S_CLOB, S_BLOB)) {
+					if(oneof2(t_, S_CLOB, S_BLOB)) {
+						const SLob * p_src_lob = reinterpret_cast<const SLob *>(PTR8C(pBuf)+offs_);
+						const size_t src_lob_sz = p_src_lob->GetPtrSize();
+						const void * p_src_lob_data = p_src_lob->GetRawDataPtrC();
+
+						DBField lob_fld2;
+						THROW(getField(i, &lob_fld2));
+						//THROW(writeLobData(lob_fld2, PTR8C(pBuf)+offs_, (srcBufSize > offs_) ? (srcBufSize-offs_) : 0));
+						THROW(writeLobData(lob_fld2, p_src_lob_data, src_lob_sz, 1/*forceCanonical*/));
+					}
+					else {
+						memcpy(PTR8(P_DBuf)+offs_, PTR8C(pBuf)+offs_, r_fld.size());
+					}
+				}
+			}
+			else {
+				const RECORDSIZE frs = FixRecSize;
+				const size_t s = (frs && frs < DBufSize) ? frs : DBufSize;
+				memcpy(P_DBuf, pBuf, s);
+				DBField last_fld;
+				THROW(getField(FldL.getCount()-1, &last_fld)); // since @v12.4.11 так не правильно. Правильный блок ниже в комментариях использует GetBLobField(&lfpos);
+				if(srcBufSize)
+					THROW(writeLobData(last_fld, PTR8C(pBuf)+frs, (srcBufSize > frs) ? (srcBufSize-frs) : 0));
+			}
+			//
+			/*{
+				DBField lob_fld;
+				const RECORDSIZE frs = FixRecSize;
+				const size_t s = (frs && frs < DBufSize) ? frs : DBufSize;
+				memcpy(P_DBuf, pBuf, s);
+				{
+					// @v12.4.11 THROW(getField(FldL.getCount()-1, &lob_fld));
+					// @v12.4.11 {
+					uint   lfpos = 0;
+					const  BNField * p_lf = GetBLobField(&lfpos);
+					THROW(p_lf);
+					THROW(getField(lfpos, &lob_fld));
+					// } @v12.4.11 
+				}
+				if(srcBufSize)
+					THROW(writeLobData(lob_fld, PTR8C(pBuf)+frs, (srcBufSize > frs) ? (srcBufSize-frs) : 0));
+			}*/
 		}
 		else {
 			const size_t s = (srcBufSize && srcBufSize < DBufSize) ? srcBufSize : DBufSize;
@@ -838,23 +895,61 @@ int DBTable::copyBufToKey(int idx, void * pKey) const
 	return ok;
 }
 
+const BNField * DBTable::GetBLobField(uint * pFldPos) const // @v12.4.11
+{
+	const  BNField * p_result = 0;
+	uint   fld_pos = 0;
+	if(BLobFieldIdx && BLobFieldIdx <= FldL.getCount()) {
+		p_result = &FldL.at(BLobFieldIdx-1);
+		const int t_ = GETSTYPE(p_result->T);
+		if(oneof3(t_, S_NOTE, S_CLOB, S_BLOB)) {
+			fld_pos = BLobFieldIdx-1;
+		}
+		else {
+			assert(0); // Так не должно быть. Если так, то надо искать где я ошибся.
+			p_result = 0;
+		}
+	}
+	ASSIGN_PTR(pFldPos, fld_pos);
+	return p_result;
+}
+
 int FASTCALL DBTable::HasNote(DBField * pLastFld) const
 {
 	int    ok = -1;
 	if(State & sHasNote) {
 		ok = 1;
 		if(pLastFld) {
-			const bool last_note_field_found = getField(fields.getCount()-1, pLastFld);
+			// @v12.4.11 {
+			uint   lfpos = 0;
+			const  BNField * p_last_lob_field = GetBLobField(&lfpos);
+			if(!p_last_lob_field) {
+				assert(p_last_lob_field);
+				ok = 0;				
+			}
+			else {
+				const int t_ = GETSTYPE(p_last_lob_field->T);
+				if(t_ != S_NOTE) {
+					assert(oneof2(t_, S_BLOB, S_CLOB));
+					ok = 0;
+				}
+				else if(!getField(lfpos, pLastFld)) {
+					ok = 0;
+				}
+			}
+			// } @v12.4.11 
+			/* @v12.4.11
+			const bool last_note_field_found = getField(FldL.getCount()-1, pLastFld);
 			if(!last_note_field_found) {
 				assert(last_note_field_found);
 				ok = 0;
 			}
 			else {
-				int    t_ = GETSTYPE(pLastFld->getField().T);
+				const int t_ = GETSTYPE(pLastFld->getField().T);
 				if(t_ != S_NOTE) {
 					ok = 0;
 				}
-			}
+			}*/
 		}
 	}
 	return ok;
@@ -866,18 +961,37 @@ int FASTCALL DBTable::HasLob(DBField * pLastFld) const
 	if(State & sHasLob) {
 		ok = 1;
 		if(pLastFld) {
-			const bool last_lob_field_found = getField(fields.getCount()-1, pLastFld);
+			// @v12.4.11 {
+			uint   lfpos = 0;
+			const  BNField * p_last_lob_field = GetBLobField(&lfpos);
+			if(!p_last_lob_field) {
+				assert(p_last_lob_field);
+				ok = 0;				
+			}
+			else {
+				const int t_ = GETSTYPE(p_last_lob_field->T);
+				if(!oneof2(t_, S_BLOB, S_CLOB)) {
+					assert(oneof2(t_, S_BLOB, S_CLOB));
+					ok = 0;
+				}
+				else if(!getField(lfpos, pLastFld)) {
+					ok = 0;
+				}
+			}
+			// } @v12.4.11 
+			/* @v12.4.11 
+			const bool last_lob_field_found = getField(FldL.getCount()-1, pLastFld);
 			if(!last_lob_field_found) {
 				assert(last_lob_field_found);
 				ok = 0;
 			}
 			else {
-				int    t_ = GETSTYPE(pLastFld->getField().T);
+				const int t_ = GETSTYPE(pLastFld->getField().T);
 				if(!oneof2(t_, S_BLOB, S_CLOB)) {
 					assert(oneof2(t_, S_BLOB, S_CLOB));
 					ok = 0;
 				}
-			}
+			}*/
 		}
 	}
 	return ok;
@@ -888,15 +1002,18 @@ int DBTable::InitLob()
 	int    ok = 0;
 	State &= ~(sHasLob | sHasNote);
 	LobB.clear();
-	for(uint i = 0; i < fields.getCount(); i++) {
-		int _t = GETSTYPE(fields[i].T);
+	BLobFieldIdx = 0;
+	for(uint i = 0; i < FldL.getCount(); i++) {
+		const int _t = GETSTYPE(FldL[i].T);
 		if(oneof2(_t, S_BLOB, S_CLOB)) {
 			DBLobItem item(i);
 			LobB.insert(&item);
 			State |= sHasLob;
+			BLobFieldIdx = (i+1);
 			ok = 1;
 		}
 		else if(_t == S_NOTE) {
+			BLobFieldIdx = (i+1);
 			State |= sHasNote;
 		}
 		else if(_t == S_AUTOINC)
@@ -915,8 +1032,8 @@ int DBTable::GetLobField(uint n, DBField * pFld) const
 		pFld->fld = 0;
 	}
 	if(n < LobB.getCount()) {
-		uint fld_n = ((DBLobItem *)LobB.at(n))->FldN;
-		if(fld_n < fields.getCount()) {
+		uint fld_n = static_cast<const DBLobItem *>(LobB.at(n))->FldN;
+		if(fld_n < FldL.getCount()) {
 			if(pFld) {
 				pFld->Id = handle;
 				pFld->fld = (int)fld_n;
@@ -990,8 +1107,8 @@ int DBTable::StoreAndTrimLob()
 	int    ok = -1;
 	if(State & sHasLob) {
 		LobB.Storage.Z();
-		for(uint i = 0; i < fields.getCount(); i++) {
-			const BNField & r_fld = fields[i];
+		for(uint i = 0; i < FldL.getCount(); i++) {
+			const BNField & r_fld = FldL[i];
 			if(oneof2(GETSTYPE(r_fld.T), S_BLOB, S_CLOB)) {
 				uint   lob_pos = 0;
 				THROW_DS(LobB.SearchPos(i, &lob_pos));
@@ -1017,8 +1134,8 @@ int DBTable::RestoreLob()
 	int    ok = -1;
 	if(State & sHasLob) {
 		assert(LobB.Storage.GetAvailableSize() != 0);
-		for(uint i = 0; i < fields.getCount(); i++) {
-			const BNField & r_fld = fields[i];
+		for(uint i = 0; i < FldL.getCount(); i++) {
+			const BNField & r_fld = FldL[i];
 			if(oneof2(GETSTYPE(r_fld.T), S_BLOB, S_CLOB)) {
 				uint   lob_pos = 0;
 				THROW_DS(LobB.SearchPos(i, &lob_pos));
@@ -1208,7 +1325,7 @@ int DBTable::SerializeSpec(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 	if(dir < 0)
 		tbl_name.CopyTo(tableName, sizeof(tableName));
 	THROW(pCtx->Serialize(dir, FileName_, rBuf));
-	THROW(pCtx->SerializeFieldList(dir, &fields, rBuf));
+	THROW(pCtx->SerializeFieldList(dir, &FldL, rBuf));
 	THROW(Indices.Serialize(dir, rBuf, pCtx));
 	CATCHZOK
 	return ok;
@@ -1218,10 +1335,10 @@ int DBTable::SerializeRecord(int dir, void * pRec, SBuffer & rBuf, SSerializeCon
 {
 	int    ok = -1;
 	if(dir > 0) {
-		ok = pCtx->Serialize(tableName, &fields, pRec, rBuf);
+		ok = pCtx->Serialize(tableName, &FldL, pRec, rBuf);
 	}
 	else if(dir < 0) {
-		ok = pCtx->Unserialize(tableName, &fields, pRec, rBuf);
+		ok = pCtx->Unserialize(tableName, &FldL, pRec, rBuf);
 	}
 	return ok;
 }
@@ -1233,7 +1350,7 @@ int DBTable::Helper_SerializeArrayOfRecords(int dir, SVectorBase * pList, SBuffe
 	STempBuffer temp_buf(0);
 	if(dir > 0 && c > 0) {
 		uint32 dbt_id = 0;
-		THROW(pCtx->AddDbtDescr(tableName, &fields, &dbt_id));
+		THROW(pCtx->AddDbtDescr(tableName, &FldL, &dbt_id));
 	}
 	THROW(pCtx->Serialize(dir, c, rBuf));
 	for(int32 i = 0; i < c; i++) {

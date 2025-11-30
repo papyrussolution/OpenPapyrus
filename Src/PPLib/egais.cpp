@@ -9353,7 +9353,8 @@ int TestEGAIS(const PPEgaisProcessor::TestParam * pParam)
 {
 	int    ok = 1;
 	TDialog * dlg = 0;
-	SString temp_buf, file_name;
+	SString temp_buf;
+	SString file_name;
 	PPEgaisProcessor::TestParam param;
 	if(!RVALUEPTR(param, pParam)) {
 		MEMSZERO(param);

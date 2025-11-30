@@ -6,7 +6,6 @@
 #define __SLUI_H
 
 #include <tvdefs.h>
-#include <commctrl.h>
 #include <db.h>
 
 class  TView;
@@ -2410,7 +2409,7 @@ public:
 	static void * CreateFont_(const SFontDescr & rFd);
 	static void * SetWindowProp(HWND hWnd, int propIndex, void * ptr);
 	static void * FASTCALL SetWindowUserData(HWND hWnd, void * ptr);
-	static long SetWindowProp(HWND hWnd, int propIndex, long value);
+	// @v12.4.11 static long SetWindowProp(HWND hWnd, int propIndex, long value);
 	static void * FASTCALL GetWindowProp(HWND hWnd, int propIndex);
 	static void * FASTCALL GetWindowUserData(HWND hWnd);
 	static long FASTCALL SGetWindowStyle(HWND hWnd);

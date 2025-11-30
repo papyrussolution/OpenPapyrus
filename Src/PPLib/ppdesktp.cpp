@@ -523,7 +523,7 @@ int PPBizScoreWindow::DoCommand(SPoint2S p)
 				WNDPROC prev_window_proc = static_cast<WNDPROC>(TView::SetWindowProp(ctl_hwnd, GWLP_WNDPROC, EditDlgProc));
 				TView::SetWindowUserData(ctl_hwnd,  prev_window_proc);
 				TView::SetWindowUserData(hWnd, reinterpret_cast<void *>(lParam));
-				TView::SetWindowProp(hWnd, DWLP_USER, DLG_TOOLTIP);
+				TView::SetWindowProp(hWnd, DWLP_USER, reinterpret_cast<void *>(DLG_TOOLTIP));
 			}
 			break;
 		case WM_DESTROY:

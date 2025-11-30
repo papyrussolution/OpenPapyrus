@@ -4435,7 +4435,7 @@ int PPViewBill::UniteReceiptBills()
 		PPWaitStart();
 		THROW(GetBillIDList(&ary));
 		if(ary.getCount() > 1) {
-			PPID   dest_id = ary.get(0);
+			const PPID dest_id = ary.get(0);
 			ary.reverse(0, ary.getCount());
 			ary.atFree(ary.getCount()-1);
 			THROW(P_BObj->UniteReceiptBill(dest_id, ary, 1));
@@ -4449,8 +4449,10 @@ int PPViewBill::UniteReceiptBills()
 
 int PPViewBill::ChangeFlags()
 {
-	int    ok = -1, r;
-	long   set = 0, reset = 0;
+	int    ok = -1;
+	int    r;
+	long   set = 0;
+	long   reset = 0;
 	PPID   new_status_id = 0;
 	THROW(P_BObj->CheckRights(BILLOPRT_MULTUPD, 1));
 	if(ChangeBillFlagsDialog(&set, &reset, &new_status_id) > 0 && (set || reset || new_status_id)) {
@@ -5476,6 +5478,50 @@ int WriteBill_ExportMarks(const PPBillImpExpParam & rParam, const PPBillPacket &
 
 static bool IsByEmailAddrByContext(const SString & rBuf) { return (rBuf.IsEqiAscii("@bycontext") || rBuf == "@@"); }
 
+static bool IsBillPacketHasChZnMarks(const PPBillPacket & rBp, bool isCorrectionExp)
+{
+	bool    result = false;
+	SString temp_buf;
+	PPLotExtCodeContainer::MarkSet ext_codes_set;
+	StringSet ss;
+	Goods2Tbl::Rec goods_rec;
+	PPGoodsType gt_rec;
+	BarcodeArray bc_list;
+	SString norm_code;
+	PPObjGoods goods_obj;
+	for(uint tiidx = 0; !result && tiidx < rBp.GetTCount(); tiidx++) {
+		const PPTransferItem & r_ti = rBp.ConstTI(tiidx);
+		const  PPID goods_id = r_ti.GoodsID;
+		if(rBp.XcL.Get(tiidx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount()) {
+			ext_codes_set.GetByBoxID(0, ss);
+			for(uint ecsp = 0; !result && ss.get(&ecsp, temp_buf);) {
+				if(temp_buf.NotEmptyS())
+					result = true;
+			}
+		}
+		if(!result && !isCorrectionExp) {
+			if(goods_obj.Fetch(goods_id, &goods_rec) > 0 && goods_rec.GoodsTypeID) {
+				if(goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && oneof3(gt_rec.ChZnProdType, GTCHZNPT_MILK, GTCHZNPT_WATER, GTCHZNPT_SOFTDRINKS)) {
+					goods_obj.P_Tbl->ReadBarcodes(goods_id, bc_list);
+					temp_buf.Z();
+					for(uint bcidx = 0; !result && bcidx < bc_list.getCount(); bcidx++) {
+						const BarcodeTbl::Rec & r_bc_rec = bc_list.at(bcidx);
+						int    diag = 0;
+						int    std = 0;
+						const  int dbcr = PPObjGoods::DiagBarcode(r_bc_rec.Code, &diag, &std, &norm_code);
+						if(dbcr > 0 && oneof4(std, BARCSTD_EAN13, BARCSTD_EAN8, BARCSTD_UPCA, BARCSTD_UPCE)) {
+							assert(norm_code.Len() < 14);
+							if(norm_code.Len() < 14)
+								result = true;
+						}
+					}
+				}
+			}
+		}
+	}
+	return result;
+}
+
 int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBillImpExpParam * pBRowParam)
 {
 	int    ok = -1;
@@ -5567,53 +5613,21 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 						// @v11.8.6 const  bool do_skip = (fix_tag_id && p_ref->Ot.GetTag(PPOBJ_BILL, bill_id, fix_tag_id, &fix_tag_item) > 0);
 						const  bool do_skip = b_e.SkipExportBillBecauseFixTag(bill_id); // @v11.8.6
 						if(!do_skip && P_BObj->ExtractPacketWithFlags(bill_id, &pack, BPLD_FORCESERIALS) > 0) {
+							const  bool is_exp_correction = (pack.OpTypeID == PPOPT_CORRECTION && pack.P_LinkPack && pack.P_LinkPack->OpTypeID == PPOPT_GOODSEXPEND);
 							int    r = 0;
 							THROW(b_e.Init(&bill_param, &brow_param, &pack, 0 /*&result_file_list*/));
 							{
 								const SString nominal_file_name = b_e.BillParam.FileName;
+								bool   pack_has_marks = IsBillPacketHasChZnMarks(pack, is_exp_correction);
+								if(is_exp_correction) {
+									if(!pack_has_marks && pack.P_LinkPack) {
+										pack_has_marks = IsBillPacketHasChZnMarks(*pack.P_LinkPack, is_exp_correction);
+									}
+								}
 								// @v11.2.2 {
 								if(oneof2(b_e.BillParam.PredefFormat, piefNalogR_ON_NSCHFDOPPRMARK, piefNalogR_ON_NSCHFDOPPR)) {
-									bool pack_has_marks = false;
-									PPLotExtCodeContainer::MarkSet ext_codes_set;
-									StringSet ss;
-									Goods2Tbl::Rec goods_rec;
-									PPGoodsType gt_rec;
-									BarcodeArray bc_list; // @v11.8.3
-									SString norm_code; // @v11.8.3
-									for(uint tiidx = 0; !pack_has_marks && tiidx < pack.GetTCount(); tiidx++) {
-										const PPTransferItem & r_ti = pack.ConstTI(tiidx);
-										const  PPID goods_id = r_ti.GoodsID;
-										if(pack.XcL.Get(tiidx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount()) {
-											ext_codes_set.GetByBoxID(0, ss);
-											for(uint ecsp = 0; !pack_has_marks && ss.get(&ecsp, temp_buf);) {
-												if(temp_buf.NotEmptyS())
-													pack_has_marks = true;
-											}
-										}
-										// @v11.8.3 {
-										if(GObj.Fetch(goods_id, &goods_rec) > 0 && goods_rec.GoodsTypeID) {
-											// @v12.2.9 GTCHZNPT_SOFTDRINKS
-											if(GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && oneof3(gt_rec.ChZnProdType, GTCHZNPT_MILK, GTCHZNPT_WATER, GTCHZNPT_SOFTDRINKS)) {
-												GObj.P_Tbl->ReadBarcodes(goods_id, bc_list);
-												temp_buf.Z();
-												for(uint bcidx = 0; !pack_has_marks && bcidx < bc_list.getCount(); bcidx++) {
-													const BarcodeTbl::Rec & r_bc_rec = bc_list.at(bcidx);
-													int    diag = 0;
-													int    std = 0;
-													const  int dbcr = PPObjGoods::DiagBarcode(r_bc_rec.Code, &diag, &std, &norm_code);
-													if(dbcr > 0 && oneof4(std, BARCSTD_EAN13, BARCSTD_EAN8, BARCSTD_UPCA, BARCSTD_UPCE)) {
-														assert(norm_code.Len() < 14);
-														if(norm_code.Len() < 14)
-															pack_has_marks = true;
-													}
-												}
-											}
-										}
-										// } @v11.5.9
-									}
-									const  bool is_exp_correction = (pack.OpTypeID == PPOPT_CORRECTION && pack.P_LinkPack->OpTypeID == PPOPT_GOODSEXPEND);
 									if(is_exp_correction) {
-										DocNalogRu_WriteBillBlock _blk(b_e.BillParam, pack, "ON_NKORSCHFDOPPR", nominal_file_name);
+										DocNalogRu_WriteBillBlock _blk(b_e.BillParam, pack, pack_has_marks ? "ON_NKORSCHFDOPPRMARK" : "ON_NKORSCHFDOPPR", nominal_file_name);
 										r = _blk.Do_CorrInvoice(result_file_name_);
 									}
 									else {
@@ -5646,7 +5660,7 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 											break; 
 										case piefNalogR_ON_NKORSCHFDOPPR: 
 											{
-												DocNalogRu_WriteBillBlock _blk(b_e.BillParam, pack, "ON_NKORSCHFDOPPR", nominal_file_name);
+												DocNalogRu_WriteBillBlock _blk(b_e.BillParam, pack, pack_has_marks ? "ON_NKORSCHFDOPPRMARK" : "ON_NKORSCHFDOPPR", nominal_file_name);
 												r = _blk.IsValid() ? _blk.Do_CorrInvoice(result_file_name_) : 0;
 											}
 											break;
@@ -6184,7 +6198,7 @@ static int SCardNumDlg(PPSCardPacket & rScPack, CCheckTbl::Rec * pChkRec, int is
 	}
 	while(ok < 0 && ExecView(p_dlg) == cmOK) {
 		ushort sel = 0;
-		MEMSZERO(cc_rec);
+		cc_rec.Clear();
 		p_dlg->getCtrlData(sel = CTL_SCARDNUM_SCARDNUM, sc_code);
 		if(strip(sc_code)[0] != 0) {
 			SString added_msg;

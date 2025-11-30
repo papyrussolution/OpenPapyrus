@@ -1078,7 +1078,7 @@ private:
 	int    AddStat(PPID jobID, const LDATETIME & lastTime, long duration);
 	int    SaveStat();
 	int    LoadStat();
-	int    Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray * pOnStartUpList, LDATE * pPlanDate);
+	int    Arrange(PPJobPool * pPool, LAssocArray & rPlan, PPIDArray * pOnStartUpList, LDATE * pPlanDate);
 
 	PPJobMngr Mngr;
 	SString StatFilePath;
@@ -1206,15 +1206,15 @@ int PPJobServer::LoadStat()
 	return ok;
 }
 
-int PPJobServer::Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray * pOnStartUpList, LDATE * pPlanDate)
+int PPJobServer::Arrange(PPJobPool * pPool, LAssocArray & rPlan, PPIDArray * pOnStartUpList, LDATE * pPlanDate)
 {
+	rPlan.freeAll();
 	int    ok = -1;
 	SString fmt_buf;
 	SString msg_buf;
 	const LDATETIME now_dtm = getcurdatetime_();
-	pPlan->freeAll();
-	int    r = Mngr.LoadPool2(0, pPool, true); 
-	if(r > 0) { //@erik v10.7.4
+	const  int lpr = Mngr.LoadJobPool2(0, pPool, true); 
+	if(lpr > 0) { //@erik v10.7.4
 		PPJob job;
 		for(PPID id = 0; pPool->Enum(&id, &job) > 0;) {
 			if(!(job.Flags & PPJob::fDisable)) {
@@ -1227,7 +1227,7 @@ int PPJobServer::Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray * pOn
 						while(job.Dtr.Next_(dtm, &dtm) > 0 && dtm.d <= now_dtm.d)
 							if(dtm.d == now_dtm.d) {
 								if(!job.ScheduleBeforeTime || dtm.t < job.ScheduleBeforeTime)
-									pPlan->Add(dtm.t.totalsec(), job.ID, 0);
+									rPlan.Add(dtm.t.totalsec(), job.ID, 0);
 							}
 					}
 					else {
@@ -1238,7 +1238,7 @@ int PPJobServer::Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray * pOn
 						while(job.Dtr.Next_(dtm, &dtm) > 0 && dtm.d <= now_dtm.d) {
 							if(cmp(dtm, now_dtm) > 0) {
 								if(!job.ScheduleBeforeTime || dtm.t < job.ScheduleBeforeTime)
-									pPlan->Add(dtm.t.totalsec(), job.ID, 0);
+									rPlan.Add(dtm.t.totalsec(), job.ID, 0);
 							}
 						}
 					}
@@ -1249,12 +1249,12 @@ int PPJobServer::Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray * pOn
 				ok = 1;
 			}
 		}
-		pPlan->Sort();
+		rPlan.Sort();
 		{
 			SString dt_buf;
 			PPLoadText(PPTXT_JOBPLANARRANGED, fmt_buf);
 			dt_buf.Cat(now_dtm.d);
-			msg_buf.Printf(fmt_buf, dt_buf.cptr(), pPlan->getCount());
+			msg_buf.Printf(fmt_buf, dt_buf.cptr(), rPlan.getCount());
 			PPLogMessage(PPFILNAM_SERVER_LOG, msg_buf, LOGMSGF_TIME);
 		}
 	}
@@ -1262,7 +1262,7 @@ int PPJobServer::Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray * pOn
 		PPLoadText(PPTXT_JOBPOOLLOADFAULT, fmt_buf);
 		msg_buf.Printf(fmt_buf, Mngr.GetFileName().cptr());
 		PPLogMessage(PPFILNAM_SERVER_LOG, msg_buf, LOGMSGF_TIME);
-		if(!r)
+		if(!lpr)
 			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME);
 	}
 	ASSIGN_PTR(pPlanDate, now_dtm.d);
@@ -1279,7 +1279,7 @@ void PPJobServer::Run()
 	LAssocArray plan;
 	PPIDArray on_startup_list;
 	LDATE plandate;
-	Arrange(&pool, &plan, &on_startup_list, &plandate);
+	Arrange(&pool, plan, &on_startup_list, &plandate);
 	uint   cur_plan_pos = 0;
 	DirChangeNotification * p_dcn = Mngr.CreateDcn();
 	LoadStat();
@@ -1324,7 +1324,7 @@ void PPJobServer::Run()
 		uint   r = WaitForMultipleObjects(h_count, h_list, 0, INFINITE);
 		if(r == WAIT_OBJECT_0 + 0) { // timer
 			if(arrange_job) {
- 				Arrange(&pool, &plan, 0, &plandate);
+ 				Arrange(&pool, plan, 0, &plandate);
  				cur_plan_pos = 0;
 			}
 			else {
@@ -1365,7 +1365,7 @@ void PPJobServer::Run()
 				// @v11.4.8 Вероятно, файл не успевает обновится на диске и из-за этого функция Arrange может не суметь правильно прочитать данные.
 				// Для избежания этой проблемы делаем небольшую задержку.
 				SDelay(500); 
- 				Arrange(&pool, &plan, 0, &plandate);
+ 				Arrange(&pool, plan, 0, &plandate);
  				cur_plan_pos = 0;
 			}
 			p_dcn->Next();
@@ -3406,7 +3406,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				PPJobMngr mngr;
 				PPJobPool pool(&mngr, 0, 1);					
 				THROW(job_id > 0);
-				THROW(mngr.LoadPool2(0, &pool, true));
+				THROW(mngr.LoadJobPool2(0, &pool, true) > 0);
 				{
 					const PPJob * p_job = pool.GetJobItem(job_id, true);
 					THROW(p_job);

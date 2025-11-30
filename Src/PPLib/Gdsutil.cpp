@@ -474,13 +474,13 @@ int PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 {
 	int    ok = -1;
 	if(pBlk) {
-		PTR32(pBlk->RetCode)[0] = 0;
+		pBlk->RetCode[0] = 0;
 		pBlk->GoodsID = 0;
 		pBlk->ScaleID = 0;
 		pBlk->Qtty = 0.0;
 		pBlk->Flags &= ~(GoodsCodeSrchBlock::fWeightCode | GoodsCodeSrchBlock::fArCode |
 			GoodsCodeSrchBlock::fOwnArCode | GoodsCodeSrchBlock::fGoodsId | GoodsCodeSrchBlock::fList);
-		MEMSZERO(pBlk->Rec);
+		pBlk->Rec.Clear();
 		char   code[128];
 		BarcodeTbl::Rec bcr;
 		Goods2Tbl::Rec goods_rec;
@@ -2804,7 +2804,7 @@ int PPObjGoods::SelectGoodsInPlaceOfRemoved(PPID rmvdGoodsID, PPID extGoodsID, P
 			} while(!found && p_sj && p_sj->GetLastObjUnifyEvent(PPOBJ_GOODS, subst_id, &subst_id, 0) > 0);
 			if(!found) {
 				subst_id = 0;
-				MEMSZERO(goods_rec);
+				goods_rec.Clear();
 			}
 		}
 		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_RMVDGDS))));

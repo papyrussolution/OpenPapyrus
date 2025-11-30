@@ -741,7 +741,8 @@ GoodsGrpngArray::AddEntryBlock::AddEntryBlock() : Part(0.0), Flags(0)
 
 int GoodsGrpngArray::ProcessTrfrRec(const GCTFilt & rF, const AdjGdsGrpng * pAgg, TransferTbl::Rec & rTrfrRec, PPID taxGrpID, double phuperu, double taxFactor)
 {
-	int    ok = 1, r;
+	int    ok = 1;
+	int    r;
 	BillCore * p_bc = P_BObj->P_Tbl;
 	AddEntryBlock blk;
 	blk.Part = 1.0;
@@ -777,7 +778,7 @@ int GoodsGrpngArray::ProcessTrfrRec(const GCTFilt & rF, const AdjGdsGrpng * pAgg
 				TSArray <AddEntryBlock> blk_list;
 				THROW((r = P_BObj->trfr->Rcpt.Search(rTrfrRec.LotID, &blk.LotRec)));
 				if(r < 0)
-					MEMSZERO(blk.LotRec);
+					blk.LotRec.Clear();
 				SETFLAG(rTrfrRec.Flags, PPTFR_COSTWOVAT, blk.LotRec.Flags & LOTF_COSTWOVAT);
 				THROW(GetOpData(op_id, &blk.OpRec));
 				if(rTrfrRec.Flags & PPTFR_REVAL) {
@@ -1175,7 +1176,6 @@ int GoodsGrpngArray::_ProcessBillGrpng(GCTFilt * pFilt)
 		}
 		if(pFilt->Flags & OPG_CALCBILLROWS) {
 			Transfer::BillTotal bt;
-			MEMSZERO(bt);
 			P_BObj->trfr->CalcBillTotal(r_bill_entry.BillID, &bt, 0);
 			entry.LnCount = bt.LineCount;
 		}

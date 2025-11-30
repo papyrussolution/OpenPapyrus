@@ -2354,7 +2354,7 @@ int PPViewCSessExc::AddItemToTempTable(const  PPID orgGoodsID, CGoodsLineTbl::Re
 	else {
 		SysJournal * p_sj = DS.GetTLA().P_SysJ;
 		PPID   key_goods_id = goods_id;
-		MEMSZERO(trec);
+		trec.Clear();
 		int    found = 0;
 		do {
 			Goods2Tbl::Rec goods_rec;

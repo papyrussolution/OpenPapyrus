@@ -139,23 +139,9 @@ int SEancomXmlSegment::GetMsgTypeContent() const
 
 int SEancomXmlSegment::GetMsgType(const char * pText) const
 {
-	int    msg_type = 0;
-	if(pText) {
-		if(IsText(pText, "DESADV"))
-			msg_type = PPEDIOP_DESADV;
-		else if(IsText(pText, "ORDRSP"))
-			msg_type = PPEDIOP_ORDERRSP;
-		else if(IsText(pText, "ALCDES"))
-			msg_type = PPEDIOP_ALCODESADV;
-		else if(IsText(pText, "ORDERS"))
-			msg_type = PPEDIOP_ORDER;
-		else if(IsText(pText, "RECADV"))
-			msg_type = PPEDIOP_RECADV;
-		else if(IsText(pText, "APERAK"))
-			msg_type = PPEDIOP_APERAK;
-		else if(IsText(pText, "PARTIN"))
-			msg_type = PPEDIOP_PARTIN;
-	}
+	int    msg_type = PPEanComDocument::GetMsgTypeBySymb(pText);
+	if(!msg_type && IsText(pText, "ALCDES"))
+		msg_type = PPEDIOP_ALCODESADV;
 	return msg_type;
 }
 

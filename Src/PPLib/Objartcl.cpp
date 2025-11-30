@@ -915,8 +915,8 @@ int PPObjArticle::EditGrpArticle(PPID * pID, PPID sheetID)
 	Reference * p_ref(PPRef);
 	uint   i;
 	GrpArticleDialog * dlg = 0;
-	ArticleTbl::Rec    ar_rec;
-	ObjAssocTbl::Rec   oa_rec;
+	ArticleTbl::Rec  ar_rec;
+	ObjAssocTbl::Rec oa_rec;
 	PPIDArray oa_ary;
 	PPID   id;
 	THROW_INVARG(pID);
@@ -949,7 +949,7 @@ int PPObjArticle::EditGrpArticle(PPID * pID, PPID sheetID)
 			ar_rec.ID = *pID;
 		}
 		for(i = 0; i < oa_ary.getCount(); i++) {
-			MEMSZERO(oa_rec);
+			oa_rec.Clear();
 			oa_rec.AsscType  = PPASS_GROUPARTICLE;
 			oa_rec.PrmrObjID = ar_rec.ID;
 			oa_rec.ScndObjID = oa_ary.at(i);

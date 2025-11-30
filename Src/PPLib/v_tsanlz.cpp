@@ -586,7 +586,7 @@ int PPViewTSessAnlz::ProcessSession(const TSessionTbl::Rec * pRec, TSessAnlzList
 		}
 	}
 	else
-		MEMSZERO(tec_rec);
+		tec_rec.Clear();
 	//
 	// Если не требуется дифференцировать отчет по основному товару,
 	// то реализуем это, обнуляя ид основного товара.

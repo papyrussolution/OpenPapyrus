@@ -312,13 +312,13 @@ int DbDict_Btrieve::LoadTableSpec(DBTable * pTbl, const char * pTblName)
 	pTbl->PageSize = static_cast<uint16>(tbl_stat.PageSize);
 	p_clone = DBS.GetTLA().GetCloneEntry(static_cast<BTBLID>(tbl_id));
 	if(p_clone) {
-		pTbl->fields = p_clone->fields;
+		pTbl->FldL = p_clone->FldL;
 		pTbl->Indices.copy(&p_clone->Indices);
 	}
 	else {
-		pTbl->fields.Z();
+		pTbl->FldL.Z();
 		pTbl->Indices.Z();
-		THROW(getFieldList(static_cast<BTBLID>(tbl_id), &pTbl->fields));
+		THROW(getFieldList(static_cast<BTBLID>(tbl_id), &pTbl->FldL));
 		THROW(getIndexList(static_cast<BTBLID>(tbl_id), &pTbl->Indices));
 		//
 		// Функция getIndexList инициализирует сегменты индексов через внутренние идентификаторы полей. Здесь
@@ -328,7 +328,7 @@ int DbDict_Btrieve::LoadTableSpec(DBTable * pTbl, const char * pTblName)
 			BNKey key = pTbl->Indices[i];
 			for(uint j = 0, ns = key.getNumSeg(); j < ns; j++) {
 				uint   pos = 0;
-				pTbl->fields.GetFieldPosition(key.getFieldID(j), &pos);
+				pTbl->FldL.GetFieldPosition(key.getFieldID(j), &pos);
 				key.setFieldID(j, pos);
 			}
 		}
@@ -372,7 +372,7 @@ int DbDict_Btrieve::CreateTableSpec(DBTable * pTbl)
 		int j;
 	};
 	long   tbl_id = 0;
-	BNFieldList2 & r_fl = pTbl->fields;
+	BNFieldList2 & r_fl = pTbl->FldL;
 	BNKeyList   & r_kl = pTbl->Indices;
 	BNKey  key;
 	BExtInsert * p_bei = 0;

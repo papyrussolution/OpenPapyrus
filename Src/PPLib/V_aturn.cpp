@@ -716,12 +716,13 @@ static IMPL_DBE_PROC(dbqf_accturn_checkrelrestriction_iii)
 	const  AccturnFilt * p_filt = reinterpret_cast<const AccturnFilt *>(params[2].lval); // @longtoptr
 	PPID   bill_id = params[0].lval;
 	if(p_filt && p_filt->GetSignature() == PPFILT_ACCTURN) {
-		AcctRelTbl::Rec dbt_rec, crd_rec;
+		AcctRelTbl::Rec dbt_rec;
+		AcctRelTbl::Rec crd_rec;
 		AcctRel & r_tbl = BillObj->atobj->P_Tbl->AccRel;
 		if(r_tbl.Fetch(dbt_acc_id, &dbt_rec) <= 0)
-			MEMSZERO(dbt_rec);
+			dbt_rec.Clear();
 		if(r_tbl.Fetch(crd_acc_id, &crd_rec) <= 0)
-			MEMSZERO(crd_rec);
+			crd_rec.Clear();
 		if(p_filt->Aco) {
 			if(dbt_rec.Ac != (long)p_filt->DbtAcct.ac || crd_rec.Ac != (long)p_filt->CrdAcct.ac)
 				ok = 0;

@@ -380,7 +380,6 @@ int PPQuotImporter::Run(const char * pCfgName, int use_ta)
 					ar_id_by_code2 = ar_list.get(0);
 			}
 		}*/
-
 		THROW_MEM(P_IE = new PPImpExp(&Param, 0));
 		{
 			PPWaitStart();
@@ -434,6 +433,14 @@ int PPQuotImporter::Run(const char * pCfgName, int use_ta)
 						//
 						// @v12.4.11 {
 						if(!goods_id && sdr_rec.GoodsArCode[0]) {
+							if(Param.__ArID) {
+								ArGoodsCodeTbl::Rec arcode_rec;
+								if(GObj.P_Tbl->SearchByArCode(Param.__ArID, sdr_rec.GoodsArCode, &arcode_rec, &goods_rec) > 0) {
+									if(goods_rec.Kind == PPGDSK_GOODS && !(goods_rec.Flags & GF_GENERIC)) {
+										goods_id = goods_rec.ID;
+									}
+								}
+							}
 						}
 						// } @v12.4.11 
 						if(!goods_id && sdr_rec.GoodsID) {
@@ -2654,7 +2661,8 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 							}
 							if(*strip(sdr_rec.AddedCode)) {
 								{
-									int    diag = 0, std = 0;
+									int    diag = 0;
+									int    std = 0;
 									int    r = PPObjGoods::DiagBarcode(sdr_rec.AddedCode, &diag, &std, &temp_buf2);
 									if(r <= 0) {
 										PPObjGoods::GetBarcodeDiagText(diag, err_msg_buf);
@@ -2779,7 +2787,7 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 												do {
 													suffix.Z().Space().CatChar('#').Cat(++uc);
 													(temp_buf2 = pack2.Rec.Name).Strip();
-													size_t sum_len = temp_buf2.Len() + suffix.Len();
+													const size_t sum_len = temp_buf2.Len() + suffix.Len();
 													if(sum_len > max_nm_len)
 														temp_buf2.Trim(max_nm_len-suffix.Len());
 													temp_buf2.Cat(suffix);
@@ -3058,7 +3066,7 @@ static IMPL_CMPFUNC(WordConcordAssoc_ByFreq, p1, p2)
 {
 	const LAssoc * p_a1 = static_cast<const LAssoc *>(p1);
 	const LAssoc * p_a2 = static_cast<const LAssoc *>(p2);
-	int si = (p_a1->Val < p_a2->Val) ? -1 : ((p_a1->Val > p_a2->Val) ? +1 : 0);
+	int    si = (p_a1->Val < p_a2->Val) ? -1 : ((p_a1->Val > p_a2->Val) ? +1 : 0);
 	if(si == 0) {
 		PPTextAnalyzer * p_ta = static_cast<PPTextAnalyzer *>(pExtraData);
 		if(p_ta) {
@@ -3168,15 +3176,15 @@ int ExportUhttForGitHub()
 	f_out_all.WriteLine(title_line);
 	PPWaitStart();
     while(giter.Next(&goods_rec) > 0) {
-		int is_there_valid_codes = 0;
-		uint i;
+		bool   is_there_valid_codes = false;
+		uint   i;
 		goods_obj.P_Tbl->ReadBarcodes(goods_rec.ID, codes);
 		for(i = 0; !is_there_valid_codes && i < codes.getCount(); i++) {
 			temp_buf = codes.at(i).Code;
 			int    diag = 0, std = 0;
 			const  int  dbr = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, &result_barcode);
 			if(dbr > 0)
-				is_there_valid_codes = 1;
+				is_there_valid_codes = true;
 		}
 		if(is_there_valid_codes) {
 			goods_name_utf = goods_rec.Name;

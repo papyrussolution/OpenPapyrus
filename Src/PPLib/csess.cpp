@@ -5,6 +5,17 @@
 //
 #include <pp.h>
 #pragma hdrstop
+
+CSessInfo::CSessInfo()
+{
+}
+
+CSessInfo & CSessInfo::Z()
+{
+	Rec.Clear();
+	Total.Z();
+	return *this;
+}
 //
 // CSessionCore
 //

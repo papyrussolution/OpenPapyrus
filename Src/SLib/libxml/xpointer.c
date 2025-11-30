@@ -1526,8 +1526,7 @@ static int xmlXPtrNbLocChildren(xmlNode * P_Node)
  * @ctxt:  the XPointer Parser context
  * @nargs:  the number of args
  *
- * Function implementing here() operation
- * as described in 5.4.3
+ * Function implementing here() operation as described in 5.4.3
  */
 static void xmlXPtrHereFunction(xmlXPathParserContext * ctxt, int nargs)
 {
@@ -1542,8 +1541,7 @@ static void xmlXPtrHereFunction(xmlXPathParserContext * ctxt, int nargs)
  * @ctxt:  the XPointer Parser context
  * @nargs:  the number of args
  *
- * Function implementing origin() operation
- * as described in 5.4.3
+ * Function implementing origin() operation as described in 5.4.3
  */
 static void xmlXPtrOriginFunction(xmlXPathParserContext * ctxt, int nargs)
 {
@@ -1558,8 +1556,7 @@ static void xmlXPtrOriginFunction(xmlXPathParserContext * ctxt, int nargs)
  * @ctxt:  the XPointer Parser context
  * @nargs:  the number of args
  *
- * Function implementing start-point() operation
- * as described in 5.4.3
+ * Function implementing start-point() operation as described in 5.4.3
  * ----------------
  * location-set start-point(location-set)
  *
@@ -1649,8 +1646,7 @@ static void xmlXPtrStartPointFunction(xmlXPathParserContext * ctxt, int nargs)
  * @ctxt:  the XPointer Parser context
  * @nargs:  the number of args
  *
- * Function implementing end-point() operation
- * as described in 5.4.3
+ * Function implementing end-point() operation as described in 5.4.3
  * ----------------------------
  * location-set end-point(location-set)
  *
@@ -2447,8 +2443,7 @@ static int xmlXPtrGetEndPoint(xmlXPathObject * obj, xmlNode ** P_Node, int * ind
  * @ctxt:  the XPointer Parser context
  * @nargs:  the number of args
  *
- * Function implementing the string-range() function
- * range as described in 5.4.2
+ * Function implementing the string-range() function range as described in 5.4.2
  *
  * ------------------------------
  * [Definition: For each location in the location-set argument,

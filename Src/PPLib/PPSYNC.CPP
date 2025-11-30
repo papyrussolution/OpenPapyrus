@@ -559,8 +559,17 @@ int PPSync::ReleaseMutex(long mutexid)
 
 int PPSync::IsMyLock(long sessID, long objtype, long objid)
 {
+	int    result = -1;
 	PPSyncItem item;
-	return BIN(SearchMutexByObj(objtype, objid, &item, 0) > 0 && item.UserID == sessID);
+	// @v12.4.11 return BIN(SearchMutexByObj(objtype, objid, &item, 0) > 0 && item.UserID == sessID);
+	// @v12.4.11 {
+	if(SearchMutexByObj(objtype, objid, &item, 0) > 0) {
+		result = (item.UserID == sessID) ? +1 : 0;
+	}
+	else
+		result = -1;
+	return result;
+	// } @v12.4.11 
 }
 
 int PPSync::GetLockingText(PPID mutexID, int resolveHostName, SString & rBuf)

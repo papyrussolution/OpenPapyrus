@@ -1219,7 +1219,7 @@ bool PPViewAccAnlz::IsDedicatedRestEvaluationNeeded() const
 			if(IsGenAcc) {
 				if(Filt.SingleArID) {
 					if(ArObj.Fetch(Filt.SingleArID, &ar_rec) > 0) {
-						MEMSZERO(acr_rec);
+						acr_rec.Clear();
 						acr_rec.ID = Filt.SingleArID;
 						acr_rec.Ac = acc_rec.A.Ac;
 						acr_rec.Sb = acc_rec.A.Sb;
@@ -1231,7 +1231,7 @@ bool PPViewAccAnlz::IsDedicatedRestEvaluationNeeded() const
 				}
 				else {
 					for(long ar = 0; P_ATC->Art.EnumBySheet(acc_rec.AccSheetID, &ar, &ar_rec) > 0;) {
-						MEMSZERO(acr_rec);
+						acr_rec.Clear();
 						acr_rec.ID = ar_rec.ID;
 						acr_rec.Ac = acc_rec.A.Ac;
 						acr_rec.Sb = acc_rec.A.Sb;

@@ -3355,7 +3355,7 @@ int STDCALL EnumOperations(PPID opTypeID, PPID * pID, PPOprKind * pOpData)
 PPID FASTCALL GetOpType(PPID opID, PPOprKind * pOpData)
 {
 	PPID   op_type_id = 0;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	if(opID && GetOpData(opID, &op_rec))
 		op_type_id = op_rec.OpTypeID;
 	else

@@ -116,12 +116,12 @@ struct UhttSpecSeriesBlock {
 	};
 	UhttSpecSeriesBlock() : State(stFetch)
 	{
-		// @v10.6.4 Clear();
 	}
-	void Clear()
+	UhttSpecSeriesBlock & Z()
 	{
-		MEMSZERO(Rec);
+		Rec.Clear();
 		State = stFetch;
+		return *this;
 	}
 	SpecSeriesCore SsCore;
 	SpecSeries2Tbl::Rec Rec;
@@ -146,7 +146,7 @@ int PPALDD_UhttSpecSeries::InitData(PPFilt & rFilt, long rsrv)
 {
 	int    ok = -1;
 	UhttSpecSeriesBlock & r_blk = *static_cast<UhttSpecSeriesBlock *>(Extra[0].Ptr);
-	r_blk.Clear();
+	r_blk.Z();
 	MEMSZERO(H);
 	if(r_blk.SsCore.Search(rFilt.ID, &r_blk.Rec) > 0) {
 		SString temp_buf;
@@ -178,7 +178,7 @@ int PPALDD_UhttSpecSeries::Set(long iterId, int commit)
 	int    ok = 1;
 	UhttSpecSeriesBlock & r_blk = *static_cast<UhttSpecSeriesBlock *>(Extra[0].Ptr);
 	if(r_blk.State != UhttSpecSeriesBlock::stSet) {
-		r_blk.Clear();
+		r_blk.Z();
 		r_blk.State = UhttSpecSeriesBlock::stSet;
 	}
 	if(commit == 0) {
@@ -210,6 +210,6 @@ int PPALDD_UhttSpecSeries::Set(long iterId, int commit)
 	}
 	CATCHZOK
 	if(commit || !ok)
-		r_blk.Clear();
+		r_blk.Z();
 	return ok;
 }

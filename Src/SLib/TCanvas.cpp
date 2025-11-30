@@ -20,7 +20,7 @@ int SetWindowTransparent(HWND hWnd, int transparent /*0..100*/)
 	SDynLibrary lib("user32.dll");
 	ProcDllSetLayeredWindowAttributes proc = reinterpret_cast<ProcDllSetLayeredWindowAttributes>(lib.GetProcAddr("SetLayeredWindowAttributes"));
 	if(proc) {
-		TView::SetWindowProp(hWnd, GWL_EXSTYLE, (exstyle | WS_EX_LAYERED));
+		TView::SetWindowProp(hWnd, GWL_EXSTYLE, reinterpret_cast<void *>(exstyle | WS_EX_LAYERED));
    		proc(hWnd, 0 , (255 * transparent) / 100, LWA_ALPHA);
 		ok = 1;
 	}

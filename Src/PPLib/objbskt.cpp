@@ -1321,7 +1321,7 @@ int PPViewGoodsBasket::CreateOrderTable()
 			if(goods_obj.Fetch(p_item->GoodsID, &goods_rec) > 0)
 				goods_name = goods_rec.Name;
 			else {
-				MEMSZERO(goods_rec);
+				goods_rec.Clear();
 				ideqvalstr(p_item->GoodsID, goods_name.Z());
 			}
 			if(Order == PPObjGoodsBasket::ordByGoods)

@@ -1329,8 +1329,9 @@ int PPViewGoodsOpAnalyze::InitIteration(IterOrder ord)
 		else {
 			IterIdx = 2;
 			Goods2Tbl::Rec grp_rec;
-			if(GObj.Fetch(Filt.GoodsGrpID, &grp_rec) <= 0)
-				MEMSZERO(grp_rec);
+			if(GObj.Fetch(Filt.GoodsGrpID, &grp_rec) <= 0) {
+				grp_rec.Clear();
+			}
 			if(!Filt.Sgg) {
 				PPID   parent_grp_id = (grp_rec.Flags & GF_ALTGROUP) ? 0 : Filt.GoodsGrpID;
 				THROW_MEM(P_GGIter = new GoodsGroupIterator(parent_grp_id, GoodsGroupIterator::fAddZeroGroup));
@@ -1647,13 +1648,13 @@ void ABCGroupingRecsStorage::Init(const ABCAnlzFilt * pFilt, double totalSum, lo
 	TotalRecsCount = (totalRecsCount > 0) ? totalRecsCount : 1;
 	GetMinFraction(&MinABCGrp);
 	if(MinABCGrp != -1) {
-		MEMSZERO(TempRec);
+		TempRec.Clear();
 		Filt.GetGroupName(MinABCGrp, TempRec.Text, sizeof(TempRec.Text));
 		TempRec.InOutTag = MinABCGrp + 1;
 		ABCGrpRecs->insert(&TempRec);
 	}
 	TotalFraction = GetMaxFraction(&ABCGrp);
-	MEMSZERO(TempRec);
+	TempRec.Clear();
 }
 
 double ABCGroupingRecsStorage::GetMaxFraction(short * pABCGrp)
@@ -1714,7 +1715,7 @@ int ABCGroupingRecsStorage::CalcBelongToABCGrp(const GoodsOpAnalyzeViewItem * pI
 		RecsCount = 0;
 		Fraction = 0.0;
 		TotalFraction = GetMaxFraction(&ABCGrp);
-		MEMSZERO(TempRec);
+		TempRec.Clear();
 		abc_grp = ABCGrp;
 	}
 	if(val > 0 && (Fraction + val / 2.0 <= TotalFraction) && ABCGrp != -1 && !finish) {

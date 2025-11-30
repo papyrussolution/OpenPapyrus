@@ -1304,7 +1304,7 @@ void FastEditRightsDlg::disableChild(int disable)
 		}
 		else
 			style &= ~WS_DISABLED;
-		TView::SetWindowProp(P_ChildDlg->H(), GWL_STYLE, style);
+		TView::SetWindowProp(P_ChildDlg->H(), GWL_STYLE, reinterpret_cast<void *>(style));
 	}
 	setStaticText(CTL_EDITRHTS_MSG, msg_buf);
 }

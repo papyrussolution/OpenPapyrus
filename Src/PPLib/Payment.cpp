@@ -219,7 +219,7 @@ int PPViewLinkedBill::Init_(const PPBaseFilt * pBaseFilt)
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
 	PrevKind = -1;
-	MEMSZERO(Rec);
+	Rec.Clear();
 	THROW(P_BObj->Search(Filt.BillID, &Rec) > 0);
 	THROW(MakeList());
 	CATCHZOK

@@ -473,7 +473,7 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 	if(pTbl) {
 		pTbl->FileName_ = NZOR(pFileName, pTbl->tableName);
 		pTbl->OpenedFileName = pTbl->FileName_;
-		pTbl->FixRecSize = pTbl->fields.CalculateFixedRecSize(0/*BNFieldList2::crsfXXX*/);
+		pTbl->FixRecSize = pTbl->FldL.CalculateFixedRecSize(0/*BNFieldList2::crsfXXX*/);
 	}
 	else
 		ok = 0;
@@ -794,10 +794,10 @@ int SSqliteDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pK
 			}
 			THROW(p_stmt->Exec(0, OCI_DEFAULT));
 			/*if(!(sf & DBTable::sfForUpdate))*/ { // rowid безусловно запрашивается (see above)
-				int rowid_pos = pTbl->fields.getCount()+1;
+				const  int rowid_pos = pTbl->FldL.getCount()+1;
 				THROW(p_stmt->BindRowId(rowid_pos, 1, pTbl->getCurRowIdPtr()));
 			}
-			THROW(p_stmt->BindData(+1, 1, pTbl->fields, pTbl->getDataBufConst(), pTbl->getLobBlock()));
+			THROW(p_stmt->BindData(+1, 1, pTbl->FldL, pTbl->getDataBufConst(), pTbl->getLobBlock()));
 			THROW(ok = Helper_Fetch(pTbl, p_stmt, &actual));
 			if(ok > 0)
 				pTbl->copyBufToKey(idx, pKey);
@@ -830,11 +830,11 @@ int SSqliteDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pK
 		pTbl->CopyBufFrom(pDataBuf);
 	SqlGen.Z().Tok(Generator_SQL::tokUpdate).Sp().Text(pTbl->FileName_).Sp().Tok(Generator_SQL::tokSet).Sp();
 	{
-		const uint fld_count = pTbl->fields.getCount();
+		const  uint fld_count = pTbl->FldL.getCount();
 		for(uint i = 0; i < fld_count; i++) {
 			if(i)
 				SqlGen.Com();
-			SqlGen.Text(pTbl->fields[i].Name)._Symb(_EQ_).Param(temp_buf.NumberToLat(i));
+			SqlGen.Text(pTbl->FldL[i].Name)._Symb(_EQ_).Param(temp_buf.NumberToLat(i));
 		}
 	}
 	//THROW(pTbl->getCurRowIdPtr()->IsI32());
@@ -843,7 +843,7 @@ int SSqliteDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pK
 	{
 		SSqlStmt stmt(this, SqlGen);
 		THROW(stmt.IsValid());
-		THROW(stmt.BindData(-1, 1, pTbl->fields, pTbl->getDataBufConst(), pTbl->getLobBlock()));
+		THROW(stmt.BindData(-1, 1, pTbl->FldL, pTbl->getDataBufConst(), pTbl->getLobBlock()));
 		THROW(stmt.SetDataDML(0));
 		THROW(stmt.Exec(1, /*OCI_COMMIT_ON_SUCCESS*/OCI_DEFAULT)); // @debug(OCI_COMMIT_ON_SUCCESS)
 	}
@@ -854,7 +854,7 @@ int SSqliteDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pK
 /*virtual*/int SSqliteDbProvider::Implement_DeleteRec(DBTable * pTbl)
 {
 	int    ok = 1;
-	const  uint fld_count = pTbl->fields.getCount();
+	const  uint fld_count = pTbl->FldL.getCount();
 	SString temp_buf;
 	SqlGen.Z().Tok(Generator_SQL::tokDelete).Sp().From(pTbl->FileName_, 0).Sp();
 	//THROW(pTbl->getCurRowIdPtr()->IsI32());
@@ -878,7 +878,7 @@ int SSqliteDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pK
 	int    map_ret_key = 0;
 	BNKey  key;
 	uint   ns = 0;
-	const  uint fld_count = pTbl->fields.getCount();
+	const  uint fld_count = pTbl->FldL.getCount();
 	SString temp_buf;
 	SString let_buf;
 	SSqlStmt stmt(this);
@@ -912,7 +912,7 @@ int SSqliteDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pK
 	{
 		bool is_first_fld_enum_item = true;
 		for(i = 0; i < fld_count; i++) {
-			const BNField & r_fld = pTbl->fields.GetFieldByPosition(i);
+			const BNField & r_fld = pTbl->FldL.GetFieldByPosition(i);
 			bool  do_skip_this_fld = false;
 			if(GETSTYPE(r_fld.T) == S_AUTOINC) {
 				long   val = 0;
@@ -1001,7 +1001,7 @@ int SSqliteDbProvider::ResetStatement(SSqlStmt & rS)
 		int    in_subst_no = 0;
 		int    out_subst_no = 0;
 		DBTable * p_tbl = pBei->getTable();
-		const  uint fld_count = p_tbl->fields.getCount();
+		const  uint fld_count = p_tbl->FldL.getCount();
 		SString temp_buf;
 		SSqlStmt stmt(this);
 		SqlGen.Z().Tok(Generator_SQL::tokInsert).Sp().Tok(Generator_SQL::tokInto).Sp().Text(p_tbl->FileName_).Sp();
@@ -1012,7 +1012,7 @@ int SSqliteDbProvider::ResetStatement(SSqlStmt & rS)
 			{
 				bool is_first_fld_enum_item = true;
 				for(i = 0; i < fld_count; i++) {
-					const BNField & r_fld = p_tbl->fields.GetFieldByPosition(i);
+					const BNField & r_fld = p_tbl->FldL.GetFieldByPosition(i);
 					bool  do_skip_this_fld = false;
 					if(GETSTYPE(r_fld.T) == S_AUTOINC) {
 						long   val = 0;
@@ -1043,11 +1043,11 @@ int SSqliteDbProvider::ResetStatement(SSqlStmt & rS)
 				assert(b.Size <= rec_buf.Size);
 				memcpy(rec_buf.P_Buf, b.P_Buf, b.Size);
 				//
-				THROW(stmt.BindData(-1, 1, p_tbl->fields, rec_buf.P_Buf, p_tbl->getLobBlock()));
+				THROW(stmt.BindData(-1, 1, p_tbl->FldL, rec_buf.P_Buf, p_tbl->getLobBlock()));
 				/*
 				if(p_tbl->State & DBTable::sHasAutoinc) {
 					for(uint j = 0; j < fld_count; j++) {
-						const BNField & r_fld = p_tbl->fields[j];
+						const BNField & r_fld = p_tbl->FldL[j];
 						if(GETSTYPE(r_fld.T) == S_AUTOINC) {
 							long val = 0;
 							size_t val_sz = 0;

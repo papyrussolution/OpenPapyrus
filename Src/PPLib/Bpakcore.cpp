@@ -2539,7 +2539,7 @@ void PPBillPacket::TiItemExt::Clear()
 {
 	Clb.Z();
 	Pckg.Z();
-	MEMSZERO(LctRec);
+	LctRec.Clear();
 	MergePosList.clear();
 }
 

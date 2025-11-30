@@ -389,12 +389,12 @@ TrfrAnlzViewItem_AlcRep::TrfrAnlzViewItem_AlcRep()
 void TrfrAnlzViewItem_AlcRep::Init()
 {
 	Item.Z();
-	MEMSZERO(GoodsRec);
+	GoodsRec.Clear();
 	GCPack.Z();
 	GoodsStock.Z();
-	MEMSZERO(GoodsExt);
-	MEMSZERO(BillRec);
-	MEMSZERO(OrgLotRec);
+	GoodsExt.Clear();
+	BillRec.Clear();
+	OrgLotRec.Clear();
 	PersonID = 0;
 	OrgLot_Prsn_SupplID = 0;
 	Flags = 0;

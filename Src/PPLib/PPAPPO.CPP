@@ -155,15 +155,16 @@ IMPL_HANDLE_EVENT(PPApp)
 //
 int RestoreGoods2()
 {
-	char   fname[MAX_PATH], out_fname[MAX_PATH];
+	char   fname[MAX_PATH];
+	char   out_fname[MAX_PATH];
 	GoodsCore goods_tbl;
 	PPObjUnit unit_obj;
 	PPObjPerson psn_obj;
 	Goods2Tbl::Rec rec;
 	Goods2Tbl::Rec temp_rec;
-	long recs_count = 0, update_count = 0;
-	long pos = 0;
-
+	long   recs_count = 0;
+	long   update_count = 0;
+	long   pos = 0;
 	STRNSCPY(fname, goods_tbl.fileName);
 	replaceExt(fname, ".BAD", 1);
 	replaceExt(STRNSCPY(out_fname, fname), ".OUT", 1);

@@ -493,22 +493,22 @@ int DBField::getIndex(BNKey * pKey, int * pKeyPos, int * pSeg)
 void * DBField::getValuePtr() const
 {
 	DBTable * tbl = _GetTable(Id);
-	return tbl ? (PTR8(tbl->getDataBuf()) + tbl->fields[fld].Offs) : 0;
+	return tbl ? (PTR8(tbl->getDataBuf()) + tbl->FldL[fld].Offs) : 0;
 }
 
 DBTable * DBField::getTable() const { return _GetTable(Id); }
-const  BNField & DBField::getField() const { return _GetTable(Id)->fields[fld]; }
+const  BNField & DBField::getField() const { return _GetTable(Id)->FldL[fld]; }
 
 int FASTCALL DBField::getValue(void * d, size_t * pSize) const
 {
 	DBTable * tbl = _GetTable(Id);
-	return tbl ? tbl->fields[fld].getValue(tbl->getDataBufConst(), d, pSize) : 0;
+	return tbl ? tbl->FldL[fld].getValue(tbl->getDataBufConst(), d, pSize) : 0;
 }
 
 int DBField::putValue(const void * pBuf) const
 {
 	DBTable * tbl = _GetTable(Id);
-	return tbl ? tbl->fields[fld].setValue(tbl->getDataBuf(), pBuf) : 0;
+	return tbl ? tbl->FldL[fld].setValue(tbl->getDataBuf(), pBuf) : 0;
 }
 //
 //

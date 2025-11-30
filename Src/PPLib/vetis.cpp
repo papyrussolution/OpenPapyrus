@@ -1842,7 +1842,7 @@ void VetisApplicationBlock::Clear()
 	PurposeList.freeAll();
 	CountryList.freeAll();
 	RegionList.freeAll();
-	R13RulesList.freeAll(); // @v11.0.11
+	R13RulesList.freeAll();
 	MEMSZERO(ListResult);
 	AppData.Z();
 }

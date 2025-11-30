@@ -76,7 +76,7 @@ int PPMarketplaceInterface::GetMarketplacePerson(PPID * pID, int use_ta)
 			PPObjAccSheet acs_obj;
 			PPAccSheet2 acs_rec;
 			if(!acs_id) {
-				MEMSZERO(acs_rec);
+				acs_rec.Z();
 				STRNSCPY(acs_rec.Name, pk_rec.Name);
 				acs_rec.Assoc = PPOBJ_PERSON;
 				acs_rec.ObjGroup = person_kind;
@@ -7067,7 +7067,7 @@ PPID PrcssrMarketplaceInterchange::GetRetOpID() // @v12.1.11
 			}
 			if(!acs_id) {
 				if(createIfNExists) {
-					MEMSZERO(acs_rec);
+					acs_rec.Z();
 					STRNSCPY(acs_rec.Name, _name);
 					STRNSCPY(acs_rec.Symb, p_symb);
 					acs_rec.Assoc = PPOBJ_LOCATION;
@@ -7107,7 +7107,7 @@ PPID PrcssrMarketplaceInterchange::Helper_GetMarketplaceOpsAccSheetID(bool creat
 			;
 		}
 		else if(createIfNExists) {
-			MEMSZERO(acs_rec);
+			acs_rec.Z();
 			PPLoadText(PPTXT_ACCSHEET_MP_NAME, temp_buf);
 			STRNSCPY(acs_rec.Name, temp_buf);
 			STRNSCPY(acs_rec.Symb, p_symb);

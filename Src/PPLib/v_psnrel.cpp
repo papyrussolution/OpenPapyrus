@@ -415,7 +415,8 @@ int PPViewPersonRel::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	int    reverse = 0;
-	PPID   prmr_id = 0, rel = 0;
+	PPID   prmr_id = 0;
+	PPID   rel = 0;
 	PPIDArray scnd_list;
 	if(ok == -2) {
 		BrwHdr brw_hdr;

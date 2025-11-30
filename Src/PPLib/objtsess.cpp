@@ -1470,7 +1470,8 @@ int PPObjTSession::CompleteSession(PPID sessID, int use_ta)
 			PPIDArray goods_id_list;
 			PPIDArray lines_to_remove;
 			TSessLineTbl::Rec line_rec;
-			TechTbl::Rec tec_rec, tec_rec2;
+			TechTbl::Rec tec_rec;
+			TechTbl::Rec tec_rec2;
 			TSessionTbl::Rec prev_sess_rec;
 			THROW_PP(!(tses_rec.Flags & TSESF_WRITEDOFF), PPERR_TSESSWRITEDOFF);
 			THROW_PP(!(tses_rec.Flags & TSESF_SUPERSESS), PPERR_INVOPONTSUPERSESS);
@@ -1480,7 +1481,7 @@ int PPObjTSession::CompleteSession(PPID sessID, int use_ta)
 				tec_struc_id = tec_rec.GStrucID;
 			}
 			else
-				MEMSZERO(tec_rec);
+				tec_rec.Clear();
 			if(TecObj.GetChildList(tses_rec.TechID, tec_child_list) > 0) {
 				for(uint i = 0; i < tec_child_list.getCount(); i++) {
 					const  PPID tec_child_id = tec_child_list.get(i);
@@ -3511,7 +3512,7 @@ int PPObjTSession::SnapshotRest(PPID sessID, PPLogger & rLogger, int use_ta)
 						}
 					}
 					else {
-						MEMSZERO(line_rec);
+						line_rec.Clear();
 						oprno = 0;
 						line_rec.TSessID = sessID;
 						line_rec.GoodsID = i_gr.GoodsID;
@@ -3866,7 +3867,7 @@ int PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger & rLo
 				order_price = lot_rec.Price;
 		}
 		else
-			MEMSZERO(tec_rec);
+			tec_rec.Clear();
 
 		PPIDArray goods_id_list;
 		TSessLineTbl::Rec line_rec;
@@ -4726,7 +4727,7 @@ int PPObjTSession::ProcessBhtRec(int signal, const BhtTSessRec * pRec, PPLogger 
 					;
 				}
 				else {
-					MEMSZERO(line_rec);
+					line_rec.Clear();
 					line_rec.TSessID = sess_id;
 					line_rec.UserID  = LConfig.UserID;
 					line_rec.Dt = pRec->Dtm.d;

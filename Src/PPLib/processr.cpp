@@ -482,7 +482,7 @@ PPProcessorPacket::PPProcessorPacket()
 
 PPProcessorPacket & PPProcessorPacket::Z()
 {
-	MEMSZERO(Rec);
+	Rec.Clear();
 	Ext.Z();
 	return *this;
 }

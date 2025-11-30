@@ -1242,7 +1242,7 @@ int PPViewGoodsRest::UpdateGoods(PPID goodsID)
 				group_id = goods_rec.ParentID;
 		}
 		else
-			MEMSZERO(goods_rec);
+			goods_rec.Clear();
 		if(Flags & fScalePrefixAltGroup && GObj.GenerateScaleBarcode(goodsID, ScalePrefixID, bc_buf) > 0) {
 			;
 		}
@@ -2029,7 +2029,7 @@ int PPViewGoodsRest::Helper_ProcessLot(ProcessLotBlock & rBlk, ReceiptTbl::Rec &
 				}
 				if(rRec.Flags & (LOTF_COSTWOVAT|LOTF_PRICEWOTAXES)) {
 					tax_grp_id = 0;
-					MEMSZERO(goods_rec);
+					goods_rec.Clear();
 					if(GObj.Fetch(rRec.GoodsID, &goods_rec) > 0)
 						tax_grp_id = goods_rec.TaxGrpID;
 					GObj.MultTaxFactor(rRec.GoodsID, &tax_factor);

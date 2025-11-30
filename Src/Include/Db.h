@@ -1395,9 +1395,7 @@ private:
 typedef TSVector <DBRowId> DBRowIdArray;
 
 struct DBLobItem {
-	DBLobItem(uint fldN) : FldN(fldN), Size(0), LocPtr(0), StrgInd(0)
-	{
-	}
+	explicit DBLobItem(uint fldN);
 	uint   FldN;
 	uint32 Size;
 	// @v12.4.1 uint32 Loc;
@@ -1677,6 +1675,17 @@ public:
 	int    AllocateOwnBuffer(int size);
 	int    InitLob();
 	uint   GetLobCount() const;
+	//
+	// Descr: Возвращает указатель на "каноническое" LOB-поле из списка полей. 
+	// Note: Тут необходимо пояснение: так как проект вырос из Btrieve, то изначально в таблице
+	//   могло быть только одно LOB-поле, находящееся в самом конце списка. При переходе на SQL-DBMS
+	//   такой подход стал сбоить. Функция появилась в ответ на необходимость создания суррогатного поля rowid
+	//   для DBMS MySQl. Такое поле добавляется в конец списка если в таблице нет autoinc-поля. 
+	// Returns:
+	//   0 - в списке полей нет LOB-поля //
+	//   !0 - const-указатель на найденное LOB-поле. При этом по указателю pFldPos присваивается позиция поля [0..]
+	//
+	const  BNField * GetBLobField(uint * pFldPos) const; // @v12.4.11
 	int    GetLobField(uint n, DBField * pFld) const;
 	int    setLobSize(DBField fld, size_t sz);
 	int    getLobSize(DBField fld, size_t * pSz) const;
@@ -1788,8 +1797,8 @@ public:
 	const  BNKeyList & GetIndices() const { return Indices; }
 	BNKeyList & GetIndicesNonConst() { return Indices; }
 	void   SetIndicesTblRef();
-	const  BNFieldList2 & GetFields() const { return fields; }
-	BNFieldList2 & GetFieldsNonConst() { return fields; }
+	const  BNFieldList2 & GetFields() const { return FldL; }
+	BNFieldList2 & GetFieldsNonConst() { return FldL; }
 	//
 	// Descr: returns fileName
 	//
@@ -1864,13 +1873,14 @@ private:
 	RECORDSIZE RetBufSize; // @v12.4.1 retBufLen-->RetBufSize
 	RECORDSIZE FixRecSize; // @*DBTable::open
 	uint16 PageSize;       // Размер страницы, определенный в спецификации.
+	uint32 BLobFieldIdx;   // @v12.4.11 [1..] 0 - udefined. Индекс "канонического" LOB-поля //
 #if CXX_ARCH_BITS==64
-	uint8  Reserve[40];    // @alignment // @v12.4.3 [14]->[30] // @v12.4.7 [30]-->[38] // @v12.4.8 [38]-->[40]
+	uint8  Reserve[36];    // @alignment // @v12.4.3 [14]->[30] // @v12.4.7 [30]-->[38] // @v12.4.8 [38]-->[40] // @v12.4.11 [40]-->[36]
 #else
-	uint8  Reserve[8];     // @alignment // @v12.4.3 [18]->[2] // @v12.4.7 [2]-->[6] // @v12.4.8 [6]-->[8]
+	uint8  Reserve[4];     // @alignment // @v12.4.3 [18]->[2] // @v12.4.7 [2]-->[6] // @v12.4.8 [6]-->[8] // @v12.4.11 [8]-->[4]
 #endif
 	BTABLENAME tableName;
-	BNFieldList2 fields; // @v12.4.3 BNFieldList->BNFieldList2
+	BNFieldList2 FldL;   // @v12.4.3 BNFieldList->BNFieldList2 // @v12.4.11 fields-->FldL
 	BNKeyList   Indices; // @v12.4.8 indexes-->Indices
 	SString FileName_;   // @v12.4.8 fileName-->FileName_
 	SString OpenedFileName;
@@ -2934,6 +2944,8 @@ private:
 	void   ProcessBinding_FreeDescr(uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind);
 	int    Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, uint * pActual);
 	int    GetFileStat(const char * pFileName, long reqItems, DbTableStat * pStat);
+	const  BNField * GetRowIdField(const DBTable * pTbl, uint * pFldPos) const; // @v12.4.11
+
 	long   Flags;
 	void * H;
 	SString CurrentDatabase;

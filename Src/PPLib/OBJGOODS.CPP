@@ -2238,7 +2238,9 @@ void PPObjGoods::GetSubstText(PPID id, SubstGrpGoods sgg, const GoodsSubstList *
 					}
 				}
 				else if(oneof2(sgg, sggClsKind_Grade_AddObj, sggClsKind_AddObj_Grade)) {
-					SString temp_buf2, grade_buf, add_buf;
+					SString temp_buf2;
+					SString grade_buf;
+					SString add_buf;
 					gext_rec.KindID   = gsitem.Par1;
 					gext_rec.GradeID  = (sgg == sggClsKind_Grade_AddObj) ? gsitem.U.L.Par2 : gsitem.U.L.Par3;
 					gext_rec.AddObjID = (sgg == sggClsKind_Grade_AddObj) ? gsitem.U.L.Par3 : gsitem.U.L.Par2;
@@ -2313,6 +2315,37 @@ int PPObjGoods::ValidateGoodsParent(PPID parentID)
 	}
 	else
 		ok = -1;
+	return ok;
+}
+
+int PPObjGoods::PreprocessNameForUniqueness(const char * pOrgName, PPID orgID, SString & rResult)
+{
+	int    ok = -1;
+	const  size_t max_nm_len = sizeof(static_cast<const Goods2Tbl::Rec *>(0)->Name)-1;
+	SString org_name;
+	(org_name = pOrgName).Strip();
+	rResult = org_name;
+	if(org_name.NotEmpty()) {
+		PPID   temp_nm_goods_id = 0;
+		long   uc = 1;
+		SString suffix;
+		rResult = org_name;
+		while(SearchByName(rResult, &temp_nm_goods_id, 0) > 0 && temp_nm_goods_id != orgID) {
+			{
+				// Параноидальные проверки на случай если что-то где-то совсем плохо
+				assert(temp_nm_goods_id);
+				THROW(temp_nm_goods_id); // @todo @err 
+			}
+			suffix.Z().Space().CatChar('#').Cat(++uc);
+			rResult = org_name;
+			const size_t sum_len = rResult.Len() + suffix.Len();
+			if(sum_len > max_nm_len)
+				rResult.Trim(max_nm_len-suffix.Len());
+			rResult.Cat(suffix);
+			ok = 1;
+		}
+	}
+	CATCHZOK
 	return ok;
 }
 

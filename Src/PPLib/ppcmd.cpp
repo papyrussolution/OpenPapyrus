@@ -2441,7 +2441,7 @@ int SelectPersonByCodeDialog::getDTS(Rec * pData)
 	int    ok = 1;
 	PPIDArray psn_list;
 	SCardTbl::Rec sc_rec;
-	MEMSZERO(pData->Sc);
+	pData->Sc.Clear();
 	getCtrlData(CTLSEL_SELPERSONC_PRSN, &Data.PrmrPsnID);
 	if(PsnScndKindRec.ID)
 		getCtrlData(CTLSEL_SELPERSONC_PRSNSC, &Data.ScndPsnID);
@@ -2480,9 +2480,13 @@ int CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 	int    ok = -1;
 	SelectPersonByCodeDialog * p_dlg = 0;
 	if(D.MenuCm && pParam) {
-		SString title, code, symb, prompt;
-		PPPsnOpKind  pop_rec;
-		PPPersonKind pk_rec, scnd_pk_rec;
+		SString title;
+		SString code;
+		SString symb;
+		SString prompt;
+		PPPsnOpKind2  pop_rec;
+		PPPersonKind2 pk_rec;
+		PPPersonKind2 scnd_pk_rec;
 		PPPsnOpKindPacket pop_pack;
 		PPRegisterTypePacket regtyp_pack;
 		PPObjPersonKind pk_obj;
@@ -4907,6 +4911,55 @@ public:
 };
 
 IMPLEMENT_CMD_HDL_FACTORY(EXPORTGOODS);
+//
+// 
+// 
+class CMD_HDL_CLS(UNIFINDOBJ) : public PPCommandHandler {
+public:
+	CMD_HDL_CLS(UNIFINDOBJ)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	{
+	}
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = -1;
+		const  size_t preserve_offs = pParam ? pParam->GetRdOffs() : 0;
+		PrcssrUniFindObj prcssr;
+		UniFindObjFilt param;
+		THROW_INVARG(pParam);
+		if(pParam->GetAvailableSize() != 0)
+			param.Read(*pParam, 0);
+		param.Flags |= UniFindObjFilt::f_Internal_AllowZeroPattern;
+		if(prcssr.EditParam(&param) > 0) {
+			THROW(param.Write(pParam->Z(), 0));
+			ok = 1;
+		}
+		else {
+			pParam->SetRdOffs(preserve_offs);
+		}
+		CATCH
+			CALLPTRMEMB(pParam, SetRdOffs(preserve_offs));
+			ok = 0;
+		ENDCATCH
+		return ok;
+	}
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = -1;
+		UniFindObjFilt param;
+		UniFindObjFilt * p_filt = 0;
+		PrcssrUniFindObj prcssr;
+		if(pParam && param.Read(*pParam, 0) > 0) {
+			param.Flags &= ~UniFindObjFilt::f_Internal_AllowZeroPattern;
+			p_filt = &param;
+			
+		}
+		ok = PPView::Execute(PPVIEW_UNIFINDOBJ, p_filt, PPView::exefModeless, 0);
+		CATCHZOK
+		return ok;
+	}
+};
+
+IMPLEMENT_CMD_HDL_FACTORY(UNIFINDOBJ);
 //
 //
 //

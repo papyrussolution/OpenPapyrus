@@ -87,6 +87,7 @@
 #ifndef ABSL_STRINGS_STR_CAT_H_
 #define ABSL_STRINGS_STR_CAT_H_
 
+#include "absl/strings/numbers.h" // @sobolev
 #include "absl/strings/internal/has_absl_stringify.h"
 #include "absl/strings/internal/resize_uninitialized.h"
 #include "absl/strings/internal/stringify_sink.h"
@@ -198,9 +199,7 @@ struct Hex {
 
 	template <typename S>
 	friend void AbslStringify(S& sink, Hex hex) {
-		static_assert(
-			numbers_internal::kFastToBufferSize >= 32,
-			"This function only works when output buffer >= 32 bytes long");
+		static_assert(numbers_internal::kFastToBufferSize >= 32, "This function only works when output buffer >= 32 bytes long");
 		char buffer[numbers_internal::kFastToBufferSize];
 		char* const end = &buffer[numbers_internal::kFastToBufferSize];
 		auto real_width =

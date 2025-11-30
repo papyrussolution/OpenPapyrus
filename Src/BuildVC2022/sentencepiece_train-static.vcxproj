@@ -82,7 +82,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\OSF\sentencepiece;..\OSF\sentencepiece\src;..\OSF\sentencepiece\src\..\third_party\protobuf-lite;..\OSF\sentencepiece\src\builtin_pb;..\OSF\sentencepiece\src\..\third_party;..\OSF\abseil;..\OSF\protobuf-3.19.1\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\sentencepiece;..\OSF\sentencepiece\src;..\OSF\sentencepiece\src\..\third_party\protobuf-lite;..\OSF\sentencepiece\src\builtin_pb;..\OSF\sentencepiece\src\..\third_party;..\OSF\abseil-20230909;..\OSF\protobuf-3.19.1\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /Zc:strictStrings /utf-8</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -124,7 +124,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\OSF\sentencepiece;..\OSF\sentencepiece\src;..\OSF\sentencepiece\src\..\third_party\protobuf-lite;..\OSF\sentencepiece\src\builtin_pb;..\OSF\sentencepiece\src\..\third_party;..\OSF\abseil;..\OSF\protobuf-3.19.1\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\sentencepiece;..\OSF\sentencepiece\src;..\OSF\sentencepiece\src\..\third_party\protobuf-lite;..\OSF\sentencepiece\src\builtin_pb;..\OSF\sentencepiece\src\..\third_party;..\OSF\abseil-20230909;..\OSF\protobuf-3.19.1\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /Zc:strictStrings /utf-8</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -166,7 +166,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\OSF\sentencepiece;..\OSF\sentencepiece\src;..\OSF\sentencepiece\src\..\third_party\protobuf-lite;..\OSF\sentencepiece\src\builtin_pb;..\OSF\sentencepiece\src\..\third_party;..\OSF\abseil;..\OSF\protobuf-3.19.1\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\sentencepiece;..\OSF\sentencepiece\src;..\OSF\sentencepiece\src\..\third_party\protobuf-lite;..\OSF\sentencepiece\src\builtin_pb;..\OSF\sentencepiece\src\..\third_party;..\OSF\abseil-20230909;..\OSF\protobuf-3.19.1\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /Zc:strictStrings /utf-8</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <DisableSpecificWarnings>4267;4244;4305;4018;4514</DisableSpecificWarnings>
@@ -207,7 +207,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\OSF\sentencepiece;..\OSF\sentencepiece\src;..\OSF\sentencepiece\src\..\third_party\protobuf-lite;..\OSF\sentencepiece\src\builtin_pb;..\OSF\sentencepiece\src\..\third_party;..\OSF\abseil;..\OSF\protobuf-3.19.1\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\sentencepiece;..\OSF\sentencepiece\src;..\OSF\sentencepiece\src\..\third_party\protobuf-lite;..\OSF\sentencepiece\src\builtin_pb;..\OSF\sentencepiece\src\..\third_party;..\OSF\abseil-20230909;..\OSF\protobuf-3.19.1\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /Zc:strictStrings /utf-8</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <DisableSpecificWarnings>4267;4244;4305;4018;4514</DisableSpecificWarnings>
@@ -280,8 +280,8 @@
     <ClCompile Include="..\OSF\sentencepiece\src\pretokenizer_for_training.cc" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="absl.vcxproj">
-      <Project>{3bb14255-1f39-4fc6-bb9d-6c8dac9e5d13}</Project>
+    <ProjectReference Include="abseil-20230909.vcxproj">
+      <Project>{e1464d54-bc95-462d-be39-d8509e6633a7}</Project>
     </ProjectReference>
     <ProjectReference Include="libprotobuf-lite.vcxproj">
       <Project>{f9fc604b-eb9a-3804-ad68-577835cbadf6}</Project>

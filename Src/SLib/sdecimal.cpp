@@ -1,11 +1,15 @@
 // SDECIMAL.CPP
-// Copyright (c) A.Sobolev 2023
+// Copyright (c) A.Sobolev 2023, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
 #include <cmath>
-#include <..\OSF\abseil\absl\numeric\int128.h>
+#if _MSC_VER < 1920 // less than vs 2019
+	#include <..\OSF\abseil\absl\numeric\int128.h>
+#else
+	#include <..\OSF\abseil-20230909\absl\numeric\int128.h>
+#endif
 #include <ued.h>
 
 void SlI128_Add(uint64 a, uint64 b, _baseuint128_le * pResult)

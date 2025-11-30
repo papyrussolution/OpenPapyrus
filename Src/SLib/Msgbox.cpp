@@ -70,7 +70,7 @@ BOOL CALLBACK MessageBoxDialogFunc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARA
 							if(SLS.LoadString_(button_list[i].P_Symb, title_buf) > 0) {
 								TView::SSetWindowText(w_ctl, title_buf.Transf(CTRANSF_INNER_TO_OUTER));
 								const long wl = TView::SGetWindowStyle(w_ctl);
-								TView::SetWindowProp(w_ctl, GWL_STYLE, wl|WS_VISIBLE);
+								TView::SetWindowProp(w_ctl, GWL_STYLE, reinterpret_cast<void *>(wl|WS_VISIBLE));
 							}
 						}
 					}

@@ -1055,6 +1055,18 @@
     <ClInclude Include="..\SLib\simplecpp\simplecpp.h">
       <Filter>SimpleCPP</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\sl-packing-reset.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\sl-packing-set_compiler_default.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\sl-packing-set01.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\sl-packing-set08.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\Osf\Asmlib\cachesize32.asm">

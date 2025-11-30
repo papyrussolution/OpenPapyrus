@@ -4,9 +4,6 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-//#include <snet.h>
-
-static const char * P_SurrogateRowIdFieldName = "MsqRowId";
 
 #if 1 // @construction {
 
@@ -105,8 +102,10 @@ int SMySqlDbProvider::UseDatabase(const char * pDbName) // @v12.4.8
 		pBlk->GetAttr(DbLoginBlock::attrServerUrl, url_buf);
 		{
 			int   port = 0;
-			SString host, sid;
-			SString user, pw;
+			SString host;
+			SString sid;
+			SString user;
+			SString pw;
 			SString dbsymb;
 			if(url_buf.NotEmpty()) {
 				InetUrl url(url_buf);
@@ -118,7 +117,7 @@ int SMySqlDbProvider::UseDatabase(const char * pDbName) // @v12.4.8
 			}
 			else {
 				StringSet ss(':', db_name);
-				uint ssp = 0;
+				uint   ssp = 0;
 				SString port_s;
 				if(ss.get(&ssp, host)) {
 					if(ss.get(&ssp, port_s)) {
@@ -207,7 +206,7 @@ int SMySqlDbProvider::UseDatabase(const char * pDbName) // @v12.4.8
 				}
 			}
 			else {
-				if(!r_fld_list.addField(P_SurrogateRowIdFieldName, MKSTYPE(S_AUTOINC, 8), PrimaryAutoincFldId))
+				if(!r_fld_list.addField(SlConst::P_SurrogateRowIdFieldName, MKSTYPE(S_AUTOINC, 8), PrimaryAutoincFldId))
 					ok = 0;
 				else {
 					/* Индекс создавать не надо - mysql автоматом создает индексы для autoinc-полей
@@ -222,6 +221,24 @@ int SMySqlDbProvider::UseDatabase(const char * pDbName) // @v12.4.8
 		}
 	}
 	return ok;
+}
+
+const BNField * SMySqlDbProvider::GetRowIdField(const DBTable * pTbl, uint * pFldPos) const // @v12.4.11
+{
+	const  BNField * p_result = 0;
+	uint   fld_pos = 0;
+	if(pTbl) {
+		const BNFieldList2 & r_fl = pTbl->GetFields();
+		for(uint i = 0; !p_result && i < r_fl.getCount(); i++) {
+			const BNField & r_fld = r_fl.at(i);
+			if(GETSTYPE(r_fld.T) == S_AUTOINC) {
+				p_result = &r_fld;
+				fld_pos = i;
+			}
+		}
+	}
+	ASSIGN_PTR(pFldPos, fld_pos);
+	return p_result;
 }
 
 /*virtual*/int SMySqlDbProvider::CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode)
@@ -251,11 +268,11 @@ int SMySqlDbProvider::UseDatabase(const char * pDbName) // @v12.4.8
 			// Если индекс построен по autoinc-полю, то явно не создаем его - MySQL сам это сделает.
 			// При этом у нас потом возникнут проблемы со ссылками на такие индексы.
 			{
-				const BNFieldList2 & r_fl = pTbl->GetFields();
 				LongArray index_pos_list;
-				for(uint fi = 0; !do_skip_index && fi < r_fl.getCount(); fi++) {
-					if(GETSTYPE(r_fl[fi].T) == S_AUTOINC) {
-						if(r_indices.GetKeyPosListByField(r_fl[fi].Id, &index_pos_list) && index_pos_list.lsearch(j)) {
+				for(uint fi = 0; !do_skip_index && fi < pTbl->GetFields().getCount(); fi++) {
+					const BNField & r_fld = pTbl->GetFields()[fi];
+					if(GETSTYPE(r_fld.T) == S_AUTOINC) {
+						if(r_indices.GetKeyPosListByField(r_fld.Id, &index_pos_list) && index_pos_list.lsearch(j)) {
 							do_skip_index = true;
 						}
 					}
@@ -477,7 +494,7 @@ int SMySqlDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTable
 {
 	pTbl->FileName_ = NZOR(pFileName, pTbl->tableName);
 	pTbl->OpenedFileName = pTbl->FileName_;
-	pTbl->FixRecSize = pTbl->fields.CalculateFixedRecSize(0/*BNFieldList2::crsfXXX*/);
+	pTbl->FixRecSize = pTbl->FldL.CalculateFixedRecSize(0/*BNFieldList2::crsfXXX*/);
 	return 1;
 }
 
@@ -588,6 +605,8 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 		void * p_key_data = pKey;
 		BNKey  key = pTbl->Indices[idx];
 		const  int ns = key.getNumSeg();
+		uint   rowid_fld_pos = 0;
+		const  BNField * p_rowid_fld = GetRowIdField(pTbl, &rowid_fld_pos);
 		SqlGen.Z().Tok(Generator_SQL::tokSelect);
 		if(!(sf & DBTable::sfDirect)) {
 			SqlGen.HintBegin().
@@ -604,9 +623,10 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 		SqlGen.Sp().From(pTbl->FileName_, p_alias);
 		if(sf & DBTable::sfDirect) {
 			DBRowId * p_rowid = static_cast<DBRowId *>(pKey);
-			THROW(p_rowid && p_rowid->IsI32());
+			THROW(p_rowid && (p_rowid->IsI32() || p_rowid->IsI64())); // @todo @err
 			p_rowid->ToStr__(temp_buf);
-			SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp().Tok(Generator_SQL::tokRowId)._Symb(_EQ_).QText(temp_buf);
+			THROW(p_rowid_fld); // @todo @err
+			SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp().Text(p_rowid_fld->Name)._Symb(_EQ_).QText(temp_buf);
 		}
 		else {
 			if(oneof2(srchMode, spFirst, spLast)) {
@@ -725,10 +745,10 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 			THROW(p_stmt->Exec(0, OCI_DEFAULT));
 			// @v11.6.0 mysql не позволяет извлекать rowid как в oracle!
 			/* @v11.6.0 if(!(sf & DBTable::sfForUpdate)) {
-				int rowid_pos = pTbl->fields.getCount()+1;
+				const  int rowid_pos = pTbl->fields.getCount()+1;
 				THROW(p_stmt->BindRowId(rowid_pos, 1, pTbl->getCurRowIdPtr()));
 			}*/
-			THROW(p_stmt->BindData(+1, 1, pTbl->fields, pTbl->getDataBufConst(), pTbl->getLobBlock()));
+			THROW(p_stmt->BindData(+1, 1, pTbl->FldL, pTbl->getDataBufConst(), pTbl->getLobBlock()));
 			THROW(ok = Helper_Fetch(pTbl, p_stmt, &actual));
 			if(ok > 0)
 				pTbl->copyBufToKey(idx, pKey);
@@ -762,7 +782,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 	int    map_ret_key = 0;
 	BNKey  key;
 	uint   ns = 0;
-	const  uint fld_count = pTbl->fields.getCount();
+	const  uint fld_count = pTbl->FldL.getCount();
 	uint   autoinc_fld_id = _FFFF32;
 	uint64 row_id_zero = 0ULL;
 	SString temp_buf;
@@ -787,8 +807,8 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 		// @v12.4.10 SqlGen.Param(temp_buf.NumberToLat(subst_no));
 		SqlGen.Text("?"); // @v12.4.10 
 		subst_no++;
-		const BNField & r_fld = pTbl->fields.GetFieldByPosition(i);
-		const bool is_surrogate_rowid_field = sstreqi_ascii(r_fld.Name, P_SurrogateRowIdFieldName);
+		const BNField & r_fld = pTbl->FldL.GetFieldByPosition(i);
+		const bool is_surrogate_rowid_field = sstreqi_ascii(r_fld.Name, SlConst::P_SurrogateRowIdFieldName);
 		if(GETSTYPE(r_fld.T) == S_AUTOINC) {
 			autoinc_fld_id = r_fld.Id;
 			long   val = 0;
@@ -1343,6 +1363,27 @@ enum enum_field_types {
 						memcpy(pBind->P_Data, p_outer, ntv_size);
 					}
 				}
+			}
+			break;
+		case S_CLOB:
+			if(action == 0) {
+				const uint32 ntv_size = 4; // @debug
+				pBind->SetNtvTypeAndSize(MYSQL_TYPE_VAR_STRING, ntv_size);
+				pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
+			}
+			else if(action < 0) {
+				if(p_data) {
+					SLob * p_lob = static_cast<SLob *>(p_data);
+					const size_t lob_size = p_lob->GetPtrSize();
+					const void * p_lob_data = p_lob->GetRawDataPtrC();
+					if(p_lob_data) {
+						SString & r_temp_buf = SLS.AcquireRvlStr();
+						r_temp_buf.CatN(static_cast<const char *>(p_lob_data), lob_size).Transf(CTRANSF_INNER_TO_UTF8);
+						//sqlite3_bind_text(h_stmt, idx, r_temp_buf.cptr(), r_temp_buf.Len(), SQLITE_TRANSIENT);
+					}
+				}
+			}
+			else if(action == 1) {
 			}
 			break;
 #if 0 // {

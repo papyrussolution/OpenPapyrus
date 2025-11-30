@@ -441,6 +441,7 @@ class EgaisMarkAutoSelector;
 class PPMarketplaceInterface;
 class PrcssrMarketplaceInterchange;
 struct PEExportOptions; // @v12.3.11
+class DocNalogRu_WriteBillBlock; // @v12.4.11
 
 typedef struct bignum_st BIGNUM; // OpenSSL
 typedef int32 PPID; // @v11.6.8 long-->int32
@@ -1801,7 +1802,13 @@ public:
 	int    ReleaseMutex(long objtype, long objid);
 	int    ReleaseMutex(long mutexid);
 	int    ClearMutex(long mutexID);
-	int    IsMyLock(long sessID, long objtype, long objid);
+	//
+	// Descr: Определяет заблокирован ли объект {objType, objID}. Если объект заблокирован, но 
+	//   блокировка приндалежит текущему сеансу, то возвращает (>0). 
+	//   Если объект вообще не заблокирован, то возвращает (<0).
+	//   Если объект заблокирован чужим сеансом или фатальная ошибка, то возвращает 0.
+	//
+	int    IsMyLock(long sessID, long objType, long objID);
 	int    GetLockingText(PPID mutexID, int resolveHostName, SString & rBuf);
 private:
 	SString & GetFileName(SString & rBuf) const;
@@ -14024,6 +14031,9 @@ public:
 	int    LoadItems(PPBillPacket & rPack, const PPIDArray * pGoodsList); // @<<PPObjBill::ExtractPacket
 	int    SetupItemByLot(PPTransferItem *, ReceiptTbl::Rec * pLotRec, int checkLotPrices, long oprno);
 	struct BillTotal {
+		BillTotal() : LineCount(0)
+		{
+		}
 		long   LineCount; // Количество строк в документе
 	};
 	//
@@ -15294,6 +15304,7 @@ PPID GetCashiersPsnKindID();
 //
 struct CSessTotal {
 	CSessTotal();
+	CSessTotal & Z();
 	void   FASTCALL Add(const CSessTotal * pSubTotal);
 
 	PPID   SessID;         // Для выборки сессий - 0
@@ -15325,6 +15336,8 @@ struct CSessTotal {
 };
 
 struct CSessInfo {
+	CSessInfo();
+	CSessInfo & Z();
 	CSessionTbl::Rec Rec;
 	CSessTotal Total;
 };
@@ -16818,8 +16831,15 @@ public:
 	int    LoadResource(PPID jobID, PPJobDescr * pJob);
 	int    GetResourceList(int loadText, StrAssocArray & rList);
 	// @v12.3.1 (@obsolete) int    SavePool(const PPJobPool *);
-	int    LoadPool2(const char * pDbSymb, PPJobPool *, bool readOnly); //@erik v10.7.4
-	int    SavePool2(const PPJobPool *); //@erik v10.7.4
+	//
+	// Descr: Загружает пул серверный задач по указателю pPool.
+	// Returns:
+	//   >0 - пул успешно загружен
+	//   <0 - не найден файл пула. При этом pPool инициализируется как пустой.
+	//    0 - error
+	//
+	int    LoadJobPool2(const char * pDbSymb, PPJobPool * pPool, bool readOnly); //@erik v10.7.4
+	int    SaveJobPool2(const PPJobPool *); //@erik v10.7.4
 	int    IsPoolChanged() const;
 	DirChangeNotification * CreateDcn();
 	PPJobHandler * CreateInstance(PPID jobID, const PPJobDescr * pDescr);
@@ -21342,6 +21362,7 @@ public:
 
 struct PPCashNode2 {       // @persistent @store(Reference2Tbl+)
 	PPCashNode2();
+	PPCashNode2 & Z();
 	//
 	// Descr: Варианты специализации кассового узла
 	//
@@ -23001,6 +23022,8 @@ struct PPGeoTrackingMode { // @persistent @size==8
 };
 
 struct PPStyloPalm2 {          // @persistent @store(Reference2Tbl+)
+	PPStyloPalm2();
+	PPStyloPalm2 & Z();
 	//
 	// Descr: Опции выбора вида котировки на устройстве
 	//
@@ -23038,7 +23061,7 @@ struct PPStyloPalmPacket {
 public:
 	PPStyloPalmPacket();
 	~PPStyloPalmPacket();
-	void   destroy();
+	PPStyloPalmPacket & Z();
 	PPStyloPalmPacket & FASTCALL operator = (const PPStyloPalmPacket &);
 	void   Setup();
 	//
@@ -23053,7 +23076,7 @@ public:
 	int    MakeInputPath(SString & rBuf) const;  // @>>PPStyloPalmPacket::MakePath
 	int    MakePath(const char * pSuffix, SString & rBuf) const;
 
-	PPStyloPalm Rec;
+	PPStyloPalm2 Rec;
 	char * P_Path;
 	char * P_FTPPath;
 	ObjIdListFilt LocList;
@@ -23387,7 +23410,7 @@ class PPTouchScreenPacket {
 public:
 	PPTouchScreenPacket();
 	PPTouchScreenPacket & FASTCALL operator = (const PPTouchScreenPacket &);
-	PPTouchScreen Rec;
+	PPTouchScreen2 Rec;
 	PPIDArray GrpIDList;
 };
 
@@ -25895,7 +25918,7 @@ public:
 	int    FASTCALL IsEq(const PPPsnOpKindPacket & rS) const;
 	void   destroy();
 	int    CheckExVal();
-	PPPsnOpKind  Rec;
+	PPPsnOpKind2 Rec;
 	PsnConstr    PCPrmr;     // Ограничения по первичной персоналии
 	PsnConstr    PCScnd;     // Ограничения по вторичной персоналии
 	PoClauseArray_ ClauseList;
@@ -25945,10 +25968,7 @@ private:
 // @ModuleDecl(PPObjWorldObjStatus)
 //
 struct PPWorldObjStatus2 { // @persistent @store(Reference2Tbl+)
-	PPWorldObjStatus2()
-	{
-		THISZERO();
-	}
+	PPWorldObjStatus2();
 	long   Tag;            // Const=PPOBJ_CITYSTATUS
 	long   ID;             // @id
 	char   Name[48];       // @name
@@ -27685,10 +27705,8 @@ protected:
 // @todo Реализовать синхронизацию объекта между разделами
 //
 struct PPStaffEntry {
-	PPStaffEntry()
-	{
-		THISZERO();
-	}
+	PPStaffEntry();
+
 	long   Tag;            // Const=PPOBJ_STAFFLIST
 	long   ID;             // @id
 	char   Name[48];       // @name @!refname
@@ -30639,6 +30657,22 @@ public:
 	int    GetGoodsByBarcode(const char * pBarcode, PPID arID, Goods2Tbl::Rec * pRec, double * pQtty, SString * pRetCode);
 	int    GetParentID(PPID, PPID * pParentID);
 	int    SearchByName(const char * pName, PPID * pID, Goods2Tbl::Rec * pRec = 0);
+	//
+	// Descr: Если наименование товара pOrgName имеет дубликат в базе данных, то функция дополняет его суффиксом #n
+	//   справа так, чтобы сделать наименование уникальным. Значение n увеличивается на единицу до тех пор, пока
+	//   не будет найдено уникальное значение. Если суммарная длина наименования "pOrgName #n" превышает максимально
+	//   допустимую длину для имени товара, то pOrgName обрезается справа на несколько символов.
+	// ARG(pOrgName IN): оригинальное наименование товара 
+	// ARG(orgID    IN): идентификатор товара, соответствующий оригинальному наименованию. Если orgID != 0 и
+	//   при проверке уникальности pOrgName функция нашла товар с ид == orgID, то считает, что все в порядке - наименование уникально.
+	// ARG(rResult OUT): результирующие наименование
+	// Note: Указатель pOrgName может быть равен rResult.cptr()
+	// Returns:
+	//   <0 - наименование pOrgName уже уникально (с поравкой на лидирующие и хвостовые пробелы)
+	//   >0 - пришлось изменить наименование
+	//    0 - error
+	//
+	int    PreprocessNameForUniqueness(const char * pOrgName, PPID orgID, SString & rResult);
 	int    SearchMaxLike(const PPGoodsPacket *, PPID *);
 	//
 	// Descr: Ищет товар, имеющий штрихкод pCode. Если штрихкод найден, то по указателям
@@ -37177,7 +37211,7 @@ public:
 	int    SetStat();
 	const  IterCounter & GetCounter() const { return Counter; }
 protected:
-	PPCashNode NodeRec;
+	PPCashNode2 NodeRec;
 	PPSCardSerPacket ScsPack;
 	SCardTbl::Rec Rec;
 	PPObjSCard SCObj;
@@ -50945,8 +50979,9 @@ struct UniFindObjFilt : public PPBaseFilt {
 		wfLocation    = 0x0200, // @v12.4.9
 	};
 	enum {
-		fInteractive  = 0x0001,
-		fNameBySubstr = 0x0002, // Имена объектов искать по подстроке
+		fInteractive                = 0x0001,
+		fNameBySubstr               = 0x0002, // Имена объектов искать по подстроке
+		f_Internal_AllowZeroPattern = 0x0004, // @internal Флаг позволяет принять пустое поле поиска при редактировании фильтра (для сохранения в команде на рабочем столе)
 	};
 	uint8  ReserveStart[32]; // @anchor
 	long   WFlags;           // wfXXXX Флаги, определяющие места поиска (where-flag) 
@@ -50962,9 +50997,7 @@ class PrcssrUniFindObj {
 	friend class PPViewUniFindObj;
 public:
 	struct FoundEntry {
-		FoundEntry() : Attr(0)
-		{
-		}
+		FoundEntry();
 		SObjID Oid;
 		int    Attr; // PPOBJATTR_XXX
 		SString AddendumFeature;
@@ -58390,10 +58423,20 @@ public:
 	int    StartDocument(xmlTextWriter * pOuterWriter, SCodepage cp); // @v11.9.9
 	void   EndDocument();
 	//
+	// Descr: Записывает в P_X (xmlTextWriter) тег pNodeName с атрибутами {ключ-значение} в виде:
+	//   <pNodeName Идентиф="pIdent" Значен="pVal"/>
+	// Note: Функция никак не пытается трактовать строки pNodeName, pIdent, pVal. То есть,
+	//   кодировка, проверка на пустой/непустой осуществляется вызывающим модулем.
+	// Returns:
+	//   true - ok
+	//   false - error
+	//
+	bool   WriteIdentifValPair(const char * pNodeName, const char * pIdent, const char * pVal);
+	//
 	// ARG(correction IN): Если true, то формирование строк документа будет в варианте корректирующей счет-фактуры. 
 	//   В этой схеме отличаются некоторые теги.
 	//
-	int    WriteInvoiceItems(const PPBillImpExpParam & rParam, const FileInfo & rHi, const PPBillPacket & rBp, bool correction);
+	// @v12.4.11 (replaced with DocNalogRu_WriteBillBlock::WriteInvoiceItems_) int    WriteInvoiceItems(const PPBillImpExpParam & rParam, const FileInfo & rHi, const PPBillPacket & rBp, bool correction);
 	int    WriteAddress(const PPLocationPacket & rP, int regionCode, int hdrTag /*PPHSC_RU_ADDRESS||PPHSC_RU_ORGADDR*/);
 	//
 	// Descr: Специализированная функция, реализующая запись адреса в формате EDI SBIS
@@ -58438,6 +58481,9 @@ public:
 	{
 		Di.Copy(rS);
 	}
+	void   WriteExcise(SXml::WNode & rParentNode, double value);
+	int    WriteWareInfoAddendum(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, uint itemIdx, 
+		const SString & rGoodsCode, const SString & rBarcodeForMarking, bool correction, const PPBillPacket * pOrgBp); // @v12.2.12
 //private:
 	PPObjGoods GObj;
 	PPObjPerson PsnObj;
@@ -58445,9 +58491,6 @@ public:
 	SXml::WDoc * P_Doc;
 	xmlTextWriter * P_X;
 private:
-	void   WriteExcise(SXml::WNode & rParentNode, double value);
-	int    WriteWareInfoAddendum(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, uint itemIdx, 
-		const SString & rGoodsCode, const SString & rBarcodeForMarking, bool correction, const PPBillPacket * pOrgBp); // @v12.2.12
 	void   WriteMarkListOnInvoiceItem(SXml::WNode & rN, const PPBillImpExpParam & rParam, int chznProdType, int chznIntQtty, const PPLotExtCodeContainer::MarkSet & rSet);
 	//
 	// Descr: Извлекает из базы данных идентификатор участника документооборота.
@@ -58497,6 +58540,17 @@ public:
 	int    Do_CorrInvoice(SString & rResultFileName);
 	int    Do_UPD(SString & rResultFileName);
 	int    Do_DP_REZRUISP(SString & rResultFileName);
+	//
+	// Descr: Ищет документ заказа, к которому привязан PPBillPacket & R_Bp.
+	//   Если документ заказа найден, то по ссылке rOrderBillRec присваивается заголовочная запись этого документа,
+	//   в противном случае rOrderBillRec.ID = 0.
+	// Returns:
+	//   >0 - документ заказа найден
+	//   <0 - документ заказа не найден
+	//    0 - error
+	//
+	int    GetOrderRec(BillTbl::Rec & rOrderBillRec);
+	int    WriteInvoiceItems_(bool correction);
 
 	enum {
 		stError                 = 0x0001, // В конструкторе возникла ошибка
@@ -58517,6 +58571,7 @@ public:
 	LDATE  AgtExpiry;
 	const  SString & R_NominalFileName;
 	SString HeaderSymb;
+	StringSet SsNotch; // @v12.4.11 Список специальных меток, управлящих нюансами формата данных. Извлекается из тегов PPTAG_PERSON_NOTCH
 	DocNalogRu_Generator::FileInfo _Hi;
 	DocNalogRu_Generator G;
 };
@@ -58718,6 +58773,7 @@ private:
 	int    DoFullEdiProcess();
 	int    CreateAbsenceGoods(ResolveGoodsItem & rRgi, int use_ta);
 	int    ReadTagItem(const char * pTagSymb, const SdRecord & rDynRec, uint dynFldN, PPID tagsObjType, ObjTagItem * pTagItem);
+	int    ReadSingleEancomFile(xmlParserCtxt * pXmlCtx, const SString & rFilePath, void * pDocPackList/*TSCollection <PPEdiProcessor::Packet>* */);
 
 	PPID   AccSheetID;
 	long   LineIdSeq;
@@ -59898,7 +59954,15 @@ public:
 	int    Write_ORDERRSP(xmlTextWriter * pX, const PPBillPacket & rPack, const PPBillPacket * pExtPack);
 	int    Read_Document(/*PPEdiProcessor::ProviderImplementation * pProvider,*/void * pInputCtx, const char * pFileName, const char * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
 private:
-	int    PreprocessGoodsOnReading(const PPBillPacket * pPack, const DocumentDetailValue * pItem, PPID * pGoodsID);
+	//
+	// Descr: Флаги функции PreprocessGoodsOnReading()
+	//
+	enum {
+		pgorfIncomingGoods = 0x0001, // Товар приходит к нам, в противном случае - уходит от нас. Важно для правильного определения своей и чужой кодировки.
+			// То есть, если (flags & pgorfIncomingGoods) то мы - либо заказчик, либо покупатель. В противном случае, мы - продавец.
+		pgorfCreateGoods   = 0x0002, // Создавать товар, если не найден (при наличии достаточных данных).
+	};
+	int    PreprocessGoodsOnReading(const PPBillPacket * pPack, uint flags, const DocumentDetailValue * pItem, PPID * pGoodsID, int use_ta);
 	struct PartyResolveBlock {
 		PartyResolveBlock()
 		{
@@ -62533,7 +62597,7 @@ int    FASTCALL GetOpName(PPID opID, SString &);
 //
 int    STDCALL  CheckOpFlags(PPID opID, long andF, long notF = 0);
 int    FASTCALL CheckOpPrnFlags(PPID opID, long andF);
-PPID   FASTCALL GetOpType(PPID opID, PPOprKind * = 0);
+PPID   FASTCALL GetOpType(PPID opID, PPOprKind2 * pRec = 0);
 int    FASTCALL GetOpSubType(PPID opID);
 int    FASTCALL GetOpList(PPID opTypeID, PPIDArray * pList);
 //

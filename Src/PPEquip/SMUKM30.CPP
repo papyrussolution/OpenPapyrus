@@ -123,7 +123,7 @@ int ACS_SMUKM30::ConvertWareList(int num)
 					if(prev_chk > 0)
 						THROW(FlashCheck(&chk_rec, &rows));
    					prev_chk = chk;
-					MEMSZERO(chk_rec);
+					chk_rec.Clear();
 					chk_rec.Code   = chk;
 					chk_rec.PosNodeID = csh;
 					chk_rec.SessID = z;

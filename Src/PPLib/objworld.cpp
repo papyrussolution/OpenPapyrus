@@ -7,6 +7,11 @@
 //
 // @ModuleDef(PPObjWorldObjStatus)
 //
+PPWorldObjStatus2::PPWorldObjStatus2()
+{
+	THISZERO();
+}
+
 PPObjWorldObjStatus::PPObjWorldObjStatus(void * extraPtr) : PPObjReference(PPOBJ_CITYSTATUS, extraPtr)
 {
 }
@@ -2018,7 +2023,7 @@ int GetAddrListByZIP(const char * pZip, PPIDArray & rList)
 				MEMSZERO(_k0);
 				for(p_q->initIteration(false, &_k0, spGe); p_q->nextIteration() > 0; id++) {
 					Country_ObsoleteTbl::Rec cntry_rec = cntry_tbl.data;
-					MEMSZERO(wrec);
+					wrec.Clear();
 					wrec.ID = id;
 					wrec.Kind = WORLDOBJ_COUNTRY;
 					STRNSCPY(wrec.Name,  cntry_rec.Name);
@@ -2037,7 +2042,7 @@ int GetAddrListByZIP(const char * pZip, PPIDArray & rList)
 				p_q->selectAll();
 				for(p_q->initIteration(false, &reg_k0, spGe); p_q->nextIteration() > 0; id++) {
 					Region_ObsoleteTbl::Rec reg_rec = reg_tbl.data;
-					MEMSZERO(wrec);
+					wrec.Clear();
 					wrec.ID   = id;
 					wrec.Kind = WORLDOBJ_REGION;
 					STRNSCPY(wrec.Name,  reg_rec.Name);
@@ -2058,7 +2063,7 @@ int GetAddrListByZIP(const char * pZip, PPIDArray & rList)
 				p_q->selectAll();
 				for(p_q->initIteration(false, &city_k0, spGe); p_q->nextIteration() > 0; id++) {
 					City_ObsoleteTbl::Rec city_rec = city_tbl.data;
-					MEMSZERO(wrec);
+					wrec.Clear();
 					wrec.ID   = city_rec.ID;
 					wrec.Kind = WORLDOBJ_CITY;
 					STRNSCPY(wrec.Name,  city_rec.Name);
@@ -2076,7 +2081,7 @@ int GetAddrListByZIP(const char * pZip, PPIDArray & rList)
 				//
 				// Фиксируем факт конвертации
 				//
-				MEMSZERO(wrec);
+				wrec.Clear();
 				wrec.ID = id;
 				wrec.Kind = WORLDOBJ_SPECIAL;
 				STRNSCPY(wrec.Name, p_spec_name);

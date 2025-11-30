@@ -2639,7 +2639,7 @@ int PPViewGoods::RemoveAll()
 									while(GObj.SearchByName(temp_buf, &temp_nm_goods_id, 0) > 0) {
 										suffix.Z().Space().CatChar('#').Cat(++uc);
 										temp_buf = goods_name;
-										size_t sum_len = temp_buf.Len() + suffix.Len();
+										const size_t sum_len = temp_buf.Len() + suffix.Len();
 										if(sum_len > max_nm_len)
 											temp_buf.Trim(max_nm_len-suffix.Len());
 										temp_buf.Cat(suffix);

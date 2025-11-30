@@ -354,8 +354,7 @@ void GtinStruc::SetSpecialMinLenToken(int token, int minLen)
 void GtinStruc::AddSpecialStopChar(uchar stopChar)
 {
 	if(stopChar) {
-		const uint slot_size = SIZEOFARRAY(SpecialStopChars);
-		for(uint i = 0; i < slot_size; i++) {
+		for(uint i = 0; i < SIZEOFARRAY(SpecialStopChars); i++) {
 			if(SpecialStopChars[i] == stopChar)
 				break;
 			else if(SpecialStopChars[i] == 0) {
@@ -447,10 +446,7 @@ int GtinStruc::GetToken(int tokenId, SString * pToken) const
 	return ok;
 }
 
-int GtinStruc::GetSpecialNaturalToken() const
-{
-	return SpecialNaturalToken;
-}
+int GtinStruc::GetSpecialNaturalToken() const { return SpecialNaturalToken; }
 
 uint GtinStruc::RecognizeFieldLen(const char * pSrc, int currentPrefixID) const
 {
@@ -835,22 +831,6 @@ int TestGtinStruc()
 							pr = gts.Parse(original_text);					
 						}
 					}
-					#if 0 // {
-					if(pr != 1 && gts.GetToken(GtinStruc::fldGTIN14, 0)) {
-						gts.SetSpecialFixedToken(GtinStruc::fldSerial, 12);
-						pr = gts.Parse(temp_buf);
-						if(pr != 1 && gts.GetToken(GtinStruc::fldGTIN14, 0)) {
-							gts.SetSpecialFixedToken(GtinStruc::fldSerial, 11);
-							pr = gts.Parse(temp_buf);
-							// @v10.8.2 {
-							/*if(pr != 1 && gts.GetToken(GtinStruc::fldGTIN14, 0)) {
-								gts.SetSpecialFixedToken(GtinStruc::fldSerial, 8);
-								pr = gts.Parse(temp_buf);
-							}*/
-							// } @v10.8.2 
-						}
-					}
-					#endif // } 0
 					out_buf.Z().CR().Cat(original_text).Space().CatEq("parse-result", pr);
 					gts.Debug_Output(temp_buf);
 					out_buf.CR().Cat(temp_buf);
@@ -1600,7 +1580,7 @@ int PPEdiProcessor::ProviderImplementation::GetOriginOrderBill(const PPBillPacke
 		assert(order_bill_id == order_bill_rec.ID);
 	}
 	else {
-		MEMSZERO(order_bill_rec);
+		order_bill_rec.Clear();
 	}
 	CATCHZOK
 	ASSIGN_PTR(pOrdBillRec, order_bill_rec);
@@ -3649,14 +3629,26 @@ int PPEanComDocument::Write_OrderGoodsItem(SXml::WDoc & rDoc, int ediOp, const P
 	return ok;
 }
 
-int PPEanComDocument::PreprocessGoodsOnReading(const PPBillPacket * pPack, const DocumentDetailValue * pItem, PPID * pGoodsID)
+int PPEanComDocument::PreprocessGoodsOnReading(const PPBillPacket * pPack, uint flags, const DocumentDetailValue * pItem, PPID * pGoodsID, int use_ta)
 {
 	int    ok = 1;
 	PPID   goods_id = 0;
+	PPID   in_goods_id = 0; // Идент товара, указанный во входном потоке
 	SString temp_buf;
+	SString goods_name;
+	SString ar_code;
 	SString addendum_msg_buf;
 	BarcodeTbl::Rec bc_rec;
 	Goods2Tbl::Rec goods_rec;
+	if(pItem->ImdL.getCount()) {
+		for(uint j = 0; j < pItem->ImdL.getCount(); j++) {
+			temp_buf = pItem->ImdL.at(j)->Text;
+			if(temp_buf.NotEmptyS()) {
+				goods_name = temp_buf;
+				break;
+			}
+		}
+	}
 	if(pItem->LinV.GoodsCode.NotEmpty() && P_Pi->GObj.SearchByBarcode(pItem->LinV.GoodsCode, &bc_rec, &goods_rec) > 0) {
 		goods_id = goods_rec.ID;
 	}
@@ -3666,11 +3658,21 @@ int PPEanComDocument::PreprocessGoodsOnReading(const PPBillPacket * pPack, const
 		for(uint j = 0; j < pItem->PiaL.getCount(); j++) {
 			const PiaValue & r_pia = pItem->PiaL.at(j);
 			if(oneof2(r_pia.Q, piaqAdditionalIdent, piaqProductIdent) && r_pia.Code[0]) {
-				if(r_pia.Itic == iticSA) {
-					if(P_Pi->GObj.P_Tbl->SearchByArCode(pPack->Rec.Object, r_pia.Code, 0, &goods_rec) > 0)
-						goods_id = goods_rec.ID;
-					else
-						addendum_msg_buf.CatDivIfNotEmpty('/', 1).Cat(r_pia.Code);
+				if(r_pia.Itic == iticSA) { // Supplier's article number
+					if(flags & pgorfIncomingGoods) {
+						ar_code = r_pia.Code;
+						if(P_Pi->GObj.P_Tbl->SearchByArCode(pPack->Rec.Object, ar_code, 0, &goods_rec) > 0)
+							goods_id = goods_rec.ID;
+						else
+							addendum_msg_buf.CatDivIfNotEmpty('/', 1).Cat(r_pia.Code);
+					}
+					else {
+						in_goods_id = (temp_buf = r_pia.Code).ToLong();
+						if(in_goods_id && P_Pi->GObj.Search(in_goods_id, &goods_rec) > 0)
+							goods_id = goods_rec.ID;
+						else
+							addendum_msg_buf.CatDivIfNotEmpty('/', 1).Cat(r_pia.Code);
+					}
 				}
 				else if(r_pia.Itic == iticSRV) {
 					if(P_Pi->GObj.SearchByBarcode(r_pia.Code, &bc_rec, &goods_rec) > 0)
@@ -3679,27 +3681,62 @@ int PPEanComDocument::PreprocessGoodsOnReading(const PPBillPacket * pPack, const
 						addendum_msg_buf.CatDivIfNotEmpty('/', 1).Cat(r_pia.Code);
 				}
 				else if(r_pia.Itic == iticIN) {
-					PPID   temp_id = (temp_buf = r_pia.Code).ToLong();
-					if(temp_id && P_Pi->GObj.Search(temp_id, &goods_rec) > 0)
-						goods_id = goods_rec.ID;
-					else
-						addendum_msg_buf.CatDivIfNotEmpty('/', 1).Cat(r_pia.Code);
+					if(flags & pgorfIncomingGoods) {
+						in_goods_id = (temp_buf = r_pia.Code).ToLong();
+						if(in_goods_id && P_Pi->GObj.Search(in_goods_id, &goods_rec) > 0)
+							goods_id = goods_rec.ID;
+						else
+							addendum_msg_buf.CatDivIfNotEmpty('/', 1).Cat(r_pia.Code);
+					}
+					else {
+						ar_code = r_pia.Code;
+						if(P_Pi->GObj.P_Tbl->SearchByArCode(pPack->Rec.Object, ar_code, 0, &goods_rec) > 0)
+							goods_id = goods_rec.ID;
+						else
+							addendum_msg_buf.CatDivIfNotEmpty('/', 1).Cat(r_pia.Code);
+					}
 				}
 			}
 		}
 	}
 	if(!goods_id) {
-		if(pItem->ImdL.getCount()) {
-			for(uint j = 0; j < pItem->ImdL.getCount(); j++) {
-				temp_buf = pItem->ImdL.at(j)->Text;
-				if(temp_buf.NotEmptyS()) {
-					addendum_msg_buf.CatDivIfNotEmpty('/', 1).Cat(temp_buf);
-					break;
+		if(flags & pgorfCreateGoods) {
+			if(goods_name.NotEmpty() && pItem->LinV.GoodsCode.NotEmpty()) {
+				const PPGoodsConfig & r_gcfg = P_Pi->GObj.GetConfig();
+				if(r_gcfg.DefGroupID && r_gcfg.DefUnitID) {
+					PPGoodsPacket gpack;
+					if(P_Pi->GObj.InitPacket(&gpack, gpkndGoods, r_gcfg.DefGroupID, 0, pItem->LinV.GoodsCode)) {
+						gpack.Rec.UnitID = r_gcfg.DefUnitID;
+						P_Pi->GObj.PreprocessNameForUniqueness(goods_name, 0, goods_name);
+						STRNSCPY(gpack.Rec.Name, goods_name);
+						STRNSCPY(gpack.Rec.Abbr, goods_name);
+						if(pPack->Rec.Object && ar_code.NotEmpty()) {
+							ArGoodsCodeTbl::Rec ar_code_rec;
+							ar_code_rec.ArID = pPack->Rec.Object;
+							ar_code_rec.Pack = 1000; // 1.0
+							STRNSCPY(ar_code_rec.Code, ar_code);
+							gpack.ArCodes.insert(&ar_code_rec);
+						}
+						if(P_Pi->GObj.PutPacket(&goods_id, &gpack, use_ta)) {
+							//PPLoadText(PPTXT_WAREAUTOCREATED, fmt_buf);
+							//Logger.Log(msg_buf.Printf(fmt_buf, gpack.Rec.Name));
+						}
+						else {
+							PPGetLastErrorMessage(1, temp_buf);
+							//PPLoadText(PPTXT_ERRACCEPTGOODS, fmt_buf);
+							//Logger.Log(msg_buf.Printf(fmt_buf, PPOBJ_GOODS, gpack.Rec.Name, temp_buf.cptr()));
+						}
+					}
 				}
 			}
 		}
-		addendum_msg_buf.CatDivIfNotEmpty(':', 1).Cat(pPack->Rec.Code).CatDiv('-', 1).Cat(pPack->Rec.Dt, DATF_DMY);
-		CALLEXCEPT_PP_S(PPERR_EDI_UNBLRSLV_GOODS, addendum_msg_buf);
+		if(!goods_id) {
+			if(goods_name.NotEmpty()) {
+				addendum_msg_buf.CatDivIfNotEmpty('/', 1).Cat(goods_name);
+			}
+			addendum_msg_buf.CatDivIfNotEmpty(':', 1).Cat(pPack->Rec.Code).CatDiv('-', 1).Cat(pPack->Rec.Dt, DATF_DMY);
+			CALLEXCEPT_PP_S(PPERR_EDI_UNBLRSLV_GOODS, addendum_msg_buf);
+		}
 	}
 	CATCHZOK
 	ASSIGN_PTR(pGoodsID, goods_id);
@@ -3717,6 +3754,8 @@ int PPEanComDocument::PreprocessPartiesOnReading(int ediOpID, const DocumentValu
 {
 	int    ok = 1;
 	const  PPID reg_type_id = PPREGT_GLN;
+	const  LDATE bill_date = pV->GetBillDate();
+	const  char * p_bill_code = pV->GetFinalBillCode();
 	SString temp_buf;
 	PPIDArray psn_list;
 	PPIDArray ar_list;
@@ -3757,8 +3796,16 @@ int PPEanComDocument::PreprocessPartiesOnReading(int ediOpID, const DocumentValu
 					case EDIPARTYQ_CONSIGNOR:
 						break;
 					case EDIPARTYQ_CONSIGNEE:
-						break;
 					case EDIPARTYQ_DELIVERY: // Точка доставки
+						SetupPartyAddedMsg(p_val, addendum_msg_wh);
+						if(P_Pi->PsnObj.LocObj.ResolveGLN(LOCTYP_ADDRESS, p_val->Code, loc_list.Z()) > 0) {
+							assert(loc_list.getCount());
+							consignee_loc_id = loc_list.get(0);
+						}
+						else if(P_Pi->PsnObj.LocObj.P_Tbl->GetListByCode(LOCTYP_ADDRESS, p_val->Code, &loc_list.Z()) > 0) {
+							assert(loc_list.getCount());
+							consignee_loc_id = loc_list.get(0);
+						}
 						break;
 					case EDIPARTYQ_ULTIMATECUSTOMER:
 						break;
@@ -3766,6 +3813,35 @@ int PPEanComDocument::PreprocessPartiesOnReading(int ediOpID, const DocumentValu
 						break;
 				}
 			}
+		}
+		if(!pResult->BillObjID) {
+			pResult->BillObjID = consignor_ar_id;
+			if(addendum_msg_cli.NotEmpty())
+				temp_buf = addendum_msg_cli;
+			else
+				temp_buf = "*";
+			temp_buf.CatDiv('-', 1).Cat(p_bill_code).CatDiv('-', 1).Cat(bill_date, DATF_DMY);
+			THROW_PP_S(pResult->BillObjID, PPERR_EDI_UNBLRSLV_BILLOBJ, temp_buf);
+		}
+		/*else if(consignor_ar_id && consignor_ar_id != pResult->BillObjID) {
+			// @todo message (Контрагент не тот же, что и грузоотправитель. В общем случае это - нормально, но возможны и проблемы).
+		}*/
+		if(!pResult->BillLocID) {
+			pResult->BillLocID = consignee_loc_id;
+			if(addendum_msg_cli.NotEmpty())
+				temp_buf = addendum_msg_wh;
+			else
+				temp_buf = "*";
+			temp_buf.CatDiv('-', 1).Cat(p_bill_code).CatDiv('-', 1).Cat(bill_date, DATF_DMY);
+			THROW_PP_S(pResult->BillLocID, PPERR_EDI_UNBLRSLV_BILLWH, temp_buf);
+		}
+		{
+			if(addendum_msg_cli.NotEmpty())
+				temp_buf = addendum_msg_main;
+			else
+				temp_buf = "*";
+			temp_buf.CatDiv('-', 1).Cat(p_bill_code).CatDiv('-', 1).Cat(bill_date, DATF_DMY);
+			THROW_PP_S(pResult->MainOrgID, PPERR_EDI_UNBLRSLV_BILLMAINORG, temp_buf);
 		}
 	}
 	else if(ediOpID == PPEDIOP_DESADV) {
@@ -3830,7 +3906,7 @@ int PPEanComDocument::PreprocessPartiesOnReading(int ediOpID, const DocumentValu
 				temp_buf = addendum_msg_cli;
 			else
 				temp_buf = "*";
-			temp_buf.CatDiv('-', 1).Cat(pV->GetFinalBillCode()).CatDiv('-', 1).Cat(pV->GetBillDate(), DATF_DMY);
+			temp_buf.CatDiv('-', 1).Cat(p_bill_code).CatDiv('-', 1).Cat(bill_date, DATF_DMY);
 			THROW_PP_S(pResult->BillObjID, PPERR_EDI_UNBLRSLV_BILLOBJ, temp_buf);
 		}
 		else if(consignor_ar_id && consignor_ar_id != pResult->BillObjID) {
@@ -3842,7 +3918,7 @@ int PPEanComDocument::PreprocessPartiesOnReading(int ediOpID, const DocumentValu
 				temp_buf = addendum_msg_wh;
 			else
 				temp_buf = "*";
-			temp_buf.CatDiv('-', 1).Cat(pV->GetFinalBillCode()).CatDiv('-', 1).Cat(pV->GetBillDate(), DATF_DMY);
+			temp_buf.CatDiv('-', 1).Cat(p_bill_code).CatDiv('-', 1).Cat(bill_date, DATF_DMY);
 			THROW_PP_S(pResult->BillLocID, PPERR_EDI_UNBLRSLV_BILLWH, temp_buf);
 		}
 		{
@@ -3850,7 +3926,7 @@ int PPEanComDocument::PreprocessPartiesOnReading(int ediOpID, const DocumentValu
 				temp_buf = addendum_msg_main;
 			else
 				temp_buf = "*";
-			temp_buf.CatDiv('-', 1).Cat(pV->GetFinalBillCode()).CatDiv('-', 1).Cat(pV->GetBillDate(), DATF_DMY);
+			temp_buf.CatDiv('-', 1).Cat(p_bill_code).CatDiv('-', 1).Cat(bill_date, DATF_DMY);
 			THROW_PP_S(pResult->MainOrgID, PPERR_EDI_UNBLRSLV_BILLMAINORG, temp_buf);
 		}
 	}
@@ -4048,7 +4124,7 @@ int PPEanComDocument::Read_Document(/*PPEdiProcessor::ProviderImplementation * p
 						PPTransferItem ti;
 						PPID   goods_id = 0;
 						THROW(ti.Init(&p_bpack->Rec, 1));
-						THROW(PreprocessGoodsOnReading(p_bpack, p_item, &goods_id));
+						THROW(PreprocessGoodsOnReading(p_bpack, pgorfIncomingGoods, p_item, &goods_id, 1/*use_ta*/));
 						assert(goods_id);
 						if(goods_id) {
 							ti.SetupGoods(goods_id, 0);
@@ -4247,16 +4323,60 @@ int PPEanComDocument::Read_Document(/*PPEdiProcessor::ProviderImplementation * p
 			p_bpack->Rec.Dt = bill_dt;
 			p_bpack->Rec.DueDate = bill_due_dt;
 			THROW(p_bpack->SetupObject(parties_blk.BillObjID, sob));
+			p_bpack->SetupDlvrAddr(parties_blk.BillLocID);
 			for(uint i = 0; i < document.DetailL.getCount(); i++) {
 				const DocumentDetailValue * p_item = document.DetailL.at(i);
 				if(p_item) {
 					PPTransferItem ti;
 					PPID   goods_id = 0;
 					THROW(ti.Init(&p_bpack->Rec, 1));
-					THROW(PreprocessGoodsOnReading(p_bpack, p_item, &goods_id));
+					THROW(PreprocessGoodsOnReading(p_bpack, pgorfCreateGoods, p_item, &goods_id, 1));
 					assert(goods_id);
 					if(goods_id) {
 						ti.SetupGoods(goods_id, 0);
+						double line_amount_total = 0.0; // amtqTotalLnItemsAmt. with VAT
+						double line_amount_total_ = 0.0; // amtqTotalAmt.
+						double line_amount = 0.0; // without VAT
+						double line_tax_amount = 0.0;
+						double line_price = 0.0; // without VAT
+						double line_qtty = 0.0;
+						double ordered_qtty = 0.0;
+						double consumer_u_in_traded_u = 0.0;
+						{
+							for(uint j = 0; j < p_item->QtyL.getCount(); j++) {
+								const QValue & r_qitem = p_item->QtyL.at(j);
+								if(r_qitem.Q == qtyqDespatch)
+									line_qtty = r_qitem.Value;
+								else if(r_qitem.Q == qtyqOrdered)
+									ordered_qtty = r_qitem.Value;
+								else if(r_qitem.Q == qtyqNumOfConsumerUInTradedU) // 59 Number of consumer units in the traded unit)
+									consumer_u_in_traded_u = r_qitem.Value;
+							}
+						}
+						{
+							for(uint j = 0; j < p_item->MoaL.getCount(); j++) {
+								const QValue & r_qitem = p_item->MoaL.at(j);
+								if(r_qitem.Q == amtqTotalLnItemsAmt)
+									line_amount_total = r_qitem.Value;
+								else if(r_qitem.Q == amtqTotalAmt)
+									line_amount_total_ = r_qitem.Value;
+								else if(r_qitem.Q == amtqUnitPrice) // without VAT
+									line_price = r_qitem.Value;
+								else if(r_qitem.Q == amtqLnItemAmt)
+									line_amount = r_qitem.Value;
+								else if(r_qitem.Q == amtqTaxAmt)
+									line_tax_amount = r_qitem.Value;
+							}
+						}
+						if(ordered_qtty > 0.0) { // Напоминаю: мы заказ принимаем от покупателя //
+							ti.Quantity_ = R6(fabs(ordered_qtty));
+							ti.Cost = 0.0;
+							if(line_amount_total > 0.0)
+								ti.Price = R5(line_amount_total / ti.Quantity_);
+							else if(line_amount > 0.0)
+								ti.Price = R5(line_amount / ti.Quantity_);
+							p_bpack->LoadTItem(&ti, 0, 0);
+						}
 					}
 				}
 			}

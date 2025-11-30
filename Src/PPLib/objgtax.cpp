@@ -588,7 +588,7 @@ int GTaxVect::CalcTI_Implement(const PPTransferItem & rTi, PPID opID, int tiamt,
 				is_exclvat = true;
 		}
 		else {
-			MEMSZERO(goods_rec);
+			goods_rec.Clear();
 		}
 	}
 	if(!(exclFlags & GTAXVF_NOMINAL) && PPObjLocation::CheckWarehouseFlags(rTi.LocID, LOCF_VATFREE))

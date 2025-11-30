@@ -2750,7 +2750,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	showCtrl(CTL_BILL_OBJ2NAME, !dsbl_object2);
 	{
 		bool   local_do_show = false;
-		if(oneof2(P_Pack->OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT))
+		if(!oneof2(P_Pack->OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT)) // @v12.4.12 @fix oneof2-->!oneof2
 			local_do_show = true;
 		else if(P_Pack->OpTypeID == PPOPT_WAREHOUSE) { // @v12.4.4
 			if(GetOpSubType(P_Pack->Rec.OpID) == OPSUBT_BAILMENT_ORDER) { 

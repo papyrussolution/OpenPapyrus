@@ -174,7 +174,7 @@ int MrpTabCore::AddLine(PPID id, PPID destID, PPID srcID, double destReqQtty, do
 			THROW_DB(Lines.updateRecBuf(&line_rec));
 		}
 		else {
-			MEMSZERO(line_rec);
+			line_rec.Clear();
 			line_rec.TabID  = id;
 			line_rec.DestID = destID;
 			line_rec.SrcID  = srcID;

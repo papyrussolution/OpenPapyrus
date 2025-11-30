@@ -31,17 +31,17 @@
 #include "absl/base/port.h"
 
 #if defined(_MSC_VER)
-// In very old versions of MSVC and when the /Zc:wchar_t flag is off, wchar_t is
-// a typedef for unsigned short.  Otherwise wchar_t is mapped to the __wchar_t
-// builtin type.  We need to make sure not to define operator wchar_t()
-// alongside operator unsigned short() in these instances.
-#define ABSL_INTERNAL_WCHAR_T __wchar_t
-#if defined(_M_X64) && !defined(_M_ARM64EC)
-#include <intrin.h>
-#pragma intrinsic(_umul128)
-#endif  // defined(_M_X64)
+	// In very old versions of MSVC and when the /Zc:wchar_t flag is off, wchar_t is
+	// a typedef for unsigned short.  Otherwise wchar_t is mapped to the __wchar_t
+	// builtin type.  We need to make sure not to define operator wchar_t()
+	// alongside operator unsigned short() in these instances.
+	#define ABSL_INTERNAL_WCHAR_T __wchar_t
+	#if defined(_M_X64) && !defined(_M_ARM64EC)
+		#include <intrin.h>
+		#pragma intrinsic(_umul128)
+	#endif  // defined(_M_X64)
 #else   // defined(_MSC_VER)
-#define ABSL_INTERNAL_WCHAR_T wchar_t
+	#define ABSL_INTERNAL_WCHAR_T wchar_t
 #endif  // defined(_MSC_VER)
 
 namespace absl {
@@ -254,51 +254,45 @@ ABSL_NAMESPACE_END
 
 // Specialized numeric_limits for uint128.
 namespace std {
-template <>
-class numeric_limits<absl::uint128> {
-public:
-	static constexpr bool is_specialized = true;
-	static constexpr bool is_signed = false;
-	static constexpr bool is_integer = true;
-	static constexpr bool is_exact = true;
-	static constexpr bool has_infinity = false;
-	static constexpr bool has_quiet_NaN = false;
-	static constexpr bool has_signaling_NaN = false;
-	static constexpr float_denorm_style has_denorm = denorm_absent;
-	static constexpr bool has_denorm_loss = false;
-	static constexpr float_round_style round_style = round_toward_zero;
-	static constexpr bool is_iec559 = false;
-	static constexpr bool is_bounded = true;
-	static constexpr bool is_modulo = true;
-	static constexpr int digits = 128;
-	static constexpr int digits10 = 38;
-	static constexpr int max_digits10 = 0;
-	static constexpr int radix = 2;
-	static constexpr int min_exponent = 0;
-	static constexpr int min_exponent10 = 0;
-	static constexpr int max_exponent = 0;
-	static constexpr int max_exponent10 = 0;
-#ifdef ABSL_HAVE_INTRINSIC_INT128
-	static constexpr bool traps = numeric_limits<unsigned __int128>::traps;
-#else   // ABSL_HAVE_INTRINSIC_INT128
-	static constexpr bool traps = numeric_limits<uint64_t>::traps;
-#endif  // ABSL_HAVE_INTRINSIC_INT128
-	static constexpr bool tinyness_before = false;
-
-	static constexpr absl::uint128(min)() {
-		return 0;
-	}
-	static constexpr absl::uint128 lowest() { return 0; }
-	static constexpr absl::uint128(max)() {
-		return absl::Uint128Max();
-	}
-	static constexpr absl::uint128 epsilon() { return 0; }
-	static constexpr absl::uint128 round_error() { return 0; }
-	static constexpr absl::uint128 infinity() { return 0; }
-	static constexpr absl::uint128 quiet_NaN() { return 0; }
-	static constexpr absl::uint128 signaling_NaN() { return 0; }
-	static constexpr absl::uint128 denorm_min() { return 0; }
-};
+	template <> class numeric_limits<absl::uint128> {
+	public:
+		static constexpr bool is_specialized = true;
+		static constexpr bool is_signed = false;
+		static constexpr bool is_integer = true;
+		static constexpr bool is_exact = true;
+		static constexpr bool has_infinity = false;
+		static constexpr bool has_quiet_NaN = false;
+		static constexpr bool has_signaling_NaN = false;
+		static constexpr float_denorm_style has_denorm = denorm_absent;
+		static constexpr bool has_denorm_loss = false;
+		static constexpr float_round_style round_style = round_toward_zero;
+		static constexpr bool is_iec559 = false;
+		static constexpr bool is_bounded = true;
+		static constexpr bool is_modulo = true;
+		static constexpr int digits = 128;
+		static constexpr int digits10 = 38;
+		static constexpr int max_digits10 = 0;
+		static constexpr int radix = 2;
+		static constexpr int min_exponent = 0;
+		static constexpr int min_exponent10 = 0;
+		static constexpr int max_exponent = 0;
+		static constexpr int max_exponent10 = 0;
+	#ifdef ABSL_HAVE_INTRINSIC_INT128
+		static constexpr bool traps = numeric_limits<unsigned __int128>::traps;
+	#else   // ABSL_HAVE_INTRINSIC_INT128
+		static constexpr bool traps = numeric_limits<uint64_t>::traps;
+	#endif  // ABSL_HAVE_INTRINSIC_INT128
+		static constexpr bool tinyness_before = false;
+		static constexpr absl::uint128(min)() { return 0; }
+		static constexpr absl::uint128 lowest() { return 0; }
+		static constexpr absl::uint128(max)() { return absl::Uint128Max(); }
+		static constexpr absl::uint128 epsilon() { return 0; }
+		static constexpr absl::uint128 round_error() { return 0; }
+		static constexpr absl::uint128 infinity() { return 0; }
+		static constexpr absl::uint128 quiet_NaN() { return 0; }
+		static constexpr absl::uint128 signaling_NaN() { return 0; }
+		static constexpr absl::uint128 denorm_min() { return 0; }
+	};
 }  // namespace std
 
 namespace absl {
@@ -341,7 +335,6 @@ ABSL_NAMESPACE_BEGIN
 class int128 {
 public:
 	int128() = default;
-
 	// Constructors from arithmetic types
 	constexpr int128(int v);           // NOLINT(runtime/explicit)
 	constexpr int128(unsigned int v);  // NOLINT(runtime/explicit)
@@ -450,36 +443,26 @@ public:
 	//
 	// Returns the minimum value for a 128-bit signed integer.
 	friend constexpr int128 Int128Min();
-
 	// Support for absl::Hash.
-	template <typename H>
-	friend H AbslHashValue(H h, int128 v) {
-		return H::combine(std::move(h), Int128High64(v), Int128Low64(v));
-	}
-
+	template <typename H> friend H AbslHashValue(H h, int128 v) { return H::combine(std::move(h), Int128High64(v), Int128Low64(v)); }
 	// Support for absl::StrCat() etc.
-	template <typename Sink>
-	friend void AbslStringify(Sink& sink, int128 v) {
-		sink.Append(v.ToString());
-	}
-
+	template <typename Sink> friend void AbslStringify(Sink& sink, int128 v) { sink.Append(v.ToString()); }
 private:
 	constexpr int128(int64_t high, uint64_t low);
-
 	std::string ToString() const;
 
 #if defined(ABSL_HAVE_INTRINSIC_INT128)
 	__int128 v_;
 #else  // ABSL_HAVE_INTRINSIC_INT128
-#if defined(ABSL_IS_LITTLE_ENDIAN)
-	uint64_t lo_;
-	int64_t hi_;
-#elif defined(ABSL_IS_BIG_ENDIAN)
-	int64_t hi_;
-	uint64_t lo_;
-#else  // byte order
-#error "Unsupported byte order: must be little-endian or big-endian."
-#endif  // byte order
+	#if defined(ABSL_IS_LITTLE_ENDIAN)
+		uint64_t lo_;
+		int64_t hi_;
+	#elif defined(ABSL_IS_BIG_ENDIAN)
+		int64_t hi_;
+		uint64_t lo_;
+	#else  // byte order
+		#error "Unsupported byte order: must be little-endian or big-endian."
+	#endif  // byte order
 #endif  // ABSL_HAVE_INTRINSIC_INT128
 };
 
@@ -838,7 +821,8 @@ constexpr inline bool operator!(uint128 val) {
 
 // Logical operators.
 
-constexpr inline uint128 operator~(uint128 val) {
+constexpr inline uint128 operator~(uint128 val) 
+{
 #if defined(ABSL_HAVE_INTRINSIC_INT128)
 	return ~static_cast<unsigned __int128>(val);
 #else
@@ -846,47 +830,47 @@ constexpr inline uint128 operator~(uint128 val) {
 #endif
 }
 
-constexpr inline uint128 operator|(uint128 lhs, uint128 rhs) {
+constexpr inline uint128 operator|(uint128 lhs, uint128 rhs) 
+{
 #if defined(ABSL_HAVE_INTRINSIC_INT128)
-	return static_cast<unsigned __int128>(lhs) |
-	       static_cast<unsigned __int128>(rhs);
+	return static_cast<unsigned __int128>(lhs) | static_cast<unsigned __int128>(rhs);
 #else
-	return MakeUint128(Uint128High64(lhs) | Uint128High64(rhs),
-		   Uint128Low64(lhs) | Uint128Low64(rhs));
+	return MakeUint128(Uint128High64(lhs) | Uint128High64(rhs), Uint128Low64(lhs) | Uint128Low64(rhs));
 #endif
 }
 
-constexpr inline uint128 operator&(uint128 lhs, uint128 rhs) {
+constexpr inline uint128 operator&(uint128 lhs, uint128 rhs) 
+{
 #if defined(ABSL_HAVE_INTRINSIC_INT128)
-	return static_cast<unsigned __int128>(lhs) &
-	       static_cast<unsigned __int128>(rhs);
+	return static_cast<unsigned __int128>(lhs) & static_cast<unsigned __int128>(rhs);
 #else
-	return MakeUint128(Uint128High64(lhs) & Uint128High64(rhs),
-		   Uint128Low64(lhs) & Uint128Low64(rhs));
+	return MakeUint128(Uint128High64(lhs) & Uint128High64(rhs), Uint128Low64(lhs) & Uint128Low64(rhs));
 #endif
 }
 
-constexpr inline uint128 operator^(uint128 lhs, uint128 rhs) {
+constexpr inline uint128 operator^(uint128 lhs, uint128 rhs) 
+{
 #if defined(ABSL_HAVE_INTRINSIC_INT128)
-	return static_cast<unsigned __int128>(lhs) ^
-	       static_cast<unsigned __int128>(rhs);
+	return static_cast<unsigned __int128>(lhs) ^ static_cast<unsigned __int128>(rhs);
 #else
-	return MakeUint128(Uint128High64(lhs) ^ Uint128High64(rhs),
-		   Uint128Low64(lhs) ^ Uint128Low64(rhs));
+	return MakeUint128(Uint128High64(lhs) ^ Uint128High64(rhs), Uint128Low64(lhs) ^ Uint128Low64(rhs));
 #endif
 }
 
-inline uint128& uint128::operator|=(uint128 other) {
+inline uint128& uint128::operator|=(uint128 other) 
+{
 	*this = *this | other;
 	return *this;
 }
 
-inline uint128& uint128::operator&=(uint128 other) {
+inline uint128& uint128::operator&=(uint128 other) 
+{
 	*this = *this & other;
 	return *this;
 }
 
-inline uint128& uint128::operator^=(uint128 other) {
+inline uint128& uint128::operator^=(uint128 other) 
+{
 	*this = *this ^ other;
 	return *this;
 }
@@ -899,36 +883,30 @@ constexpr uint128 operator<<(uint128 lhs, int amount) {
 #else
 	// uint64_t shifts of >= 64 are undefined, so we will need some
 	// special-casing.
-	return amount >= 64  ? MakeUint128(Uint128Low64(lhs) << (amount - 64), 0)
-	 : amount == 0 ? lhs
-		       : MakeUint128((Uint128High64(lhs) << amount) |
-		   (Uint128Low64(lhs) >> (64 - amount)),
-		   Uint128Low64(lhs) << amount);
+	return amount >= 64  ? MakeUint128(Uint128Low64(lhs) << (amount - 64), 0) : amount == 0 ? lhs : 
+		MakeUint128((Uint128High64(lhs) << amount) | (Uint128Low64(lhs) >> (64 - amount)), Uint128Low64(lhs) << amount);
 #endif
 }
 
-constexpr uint128 operator>>(uint128 lhs, int amount) {
+constexpr uint128 operator>>(uint128 lhs, int amount) 
+{
 #ifdef ABSL_HAVE_INTRINSIC_INT128
 	return static_cast<unsigned __int128>(lhs) >> amount;
 #else
 	// uint64_t shifts of >= 64 are undefined, so we will need some
 	// special-casing.
-	return amount >= 64  ? MakeUint128(0, Uint128High64(lhs) >> (amount - 64))
-	 : amount == 0 ? lhs
-		       : MakeUint128(Uint128High64(lhs) >> amount,
-		   (Uint128Low64(lhs) >> amount) |
-		   (Uint128High64(lhs) << (64 - amount)));
+	return amount >= 64  ? MakeUint128(0, Uint128High64(lhs) >> (amount - 64)) : amount == 0 ? 
+		lhs : MakeUint128(Uint128High64(lhs) >> amount, (Uint128Low64(lhs) >> amount) | (Uint128High64(lhs) << (64 - amount)));
 #endif
 }
 
 #if !defined(ABSL_HAVE_INTRINSIC_INT128)
 namespace int128_internal {
-constexpr uint128 AddResult(uint128 result, uint128 lhs) {
-	// check for carry
-	return (Uint128Low64(result) < Uint128Low64(lhs))
-	     ? MakeUint128(Uint128High64(result) + 1, Uint128Low64(result))
-	     : result;
-}
+	constexpr uint128 AddResult(uint128 result, uint128 lhs) {
+		// check for carry
+		return (Uint128Low64(result) < Uint128Low64(lhs)) ? 
+			MakeUint128(Uint128High64(result) + 1, Uint128Low64(result)) : result;
+	}
 }  // namespace int128_internal
 #endif
 
@@ -1119,9 +1097,9 @@ constexpr int64_t BitCastToSigned(uint64_t v) {
 }  // namespace int128_internal
 
 #if defined(ABSL_HAVE_INTRINSIC_INT128)
-#include "absl/numeric/int128_have_intrinsic.inc"  // IWYU pragma: export
+	#include "absl/numeric/int128_have_intrinsic.inc"  // IWYU pragma: export
 #else  // ABSL_HAVE_INTRINSIC_INT128
-#include "absl/numeric/int128_no_intrinsic.inc"  // IWYU pragma: export
+	#include "absl/numeric/int128_no_intrinsic.inc"  // IWYU pragma: export
 #endif  // ABSL_HAVE_INTRINSIC_INT128
 
 ABSL_NAMESPACE_END

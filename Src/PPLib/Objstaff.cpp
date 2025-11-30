@@ -178,6 +178,11 @@ uint PersonPostArray::GetBusyCount() const
 //
 //
 //
+PPStaffEntry::PPStaffEntry()
+{
+	THISZERO();
+}
+
 PPStaffPacket::PPStaffPacket()
 {
 	Init();

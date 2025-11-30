@@ -672,7 +672,8 @@ int32_t RuleBasedBreakIterator::handleNext() {
 	}
 }
 
-int32_t RuleBasedBreakIterator::handleSafePrevious(int32_t fromPosition) {
+int32_t RuleBasedBreakIterator::handleSafePrevious(int32_t fromPosition) 
+{
 	const RBBIStateTable * statetable = fData->fReverseTable;
 	bool use8BitsTrie = ucptrie_getValueWidth(fData->fTrie) == UCPTRIE_VALUE_BITS_8;
 	if(statetable->fFlags & RBBI_8BITS_ROWS) {
@@ -696,12 +697,11 @@ int32_t RuleBasedBreakIterator::handleSafePrevious(int32_t fromPosition) {
 //  handleNext()
 //     Run the state machine to find a boundary
 //
-template <typename RowType, RuleBasedBreakIterator::PTrieFunc trieFunc>
-int32_t RuleBasedBreakIterator::handleNext() {
+template <typename RowType, RuleBasedBreakIterator::PTrieFunc trieFunc> int32_t RuleBasedBreakIterator::handleNext() 
+{
 	int32_t state;
 	uint16 category        = 0;
 	RBBIRunMode mode;
-
 	RowType             * row;
 	UChar32 c;
 	int32_t result     = 0;

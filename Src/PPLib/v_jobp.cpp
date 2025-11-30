@@ -325,18 +325,24 @@ int ViewJobPool()
 	JobPoolDialog * dlg = 0;
 	THROW(CheckCfgRights(PPCFGOBJ_JOBPOOL, PPR_READ, 0));
 	THROW_PP(CurDict->GetDbSymb(db_symb), PPERR_DBSYMBUNDEF);
-	THROW(mngr.LoadPool2(db_symb, &pool, false)); //@erik v10.7.4 LoadPool-->LoadPool2
-	THROW(CheckDialogPtrErr(&(dlg = new JobPoolDialog(&mngr, &pool))));
-	while(ExecView(dlg) == cmOK) {
-		THROW(CheckCfgRights(PPCFGOBJ_JOBPOOL, PPR_MOD, 0));
-		//if(mngr.SavePool(&pool)) { //@erik v10.7.4
-		if(mngr.SavePool2(&pool)) { //@erik v10.7.4
-			DS.LogAction(PPACN_CONFIGUPDATED, PPCFGOBJ_JOBPOOL, 0, 0, 1);
-			ok = 1;
-			break;
+	{
+		const int ljpr = mngr.LoadJobPool2(db_symb, &pool, false);
+		THROW(ljpr); //@erik v10.7.4 LoadPool-->LoadPool2
+		{
+			dlg = new JobPoolDialog(&mngr, &pool);
+			THROW(CheckDialogPtrErr(&dlg));
+			while(ExecView(dlg) == cmOK) {
+				THROW(CheckCfgRights(PPCFGOBJ_JOBPOOL, PPR_MOD, 0));
+				//if(mngr.SavePool(&pool)) { //@erik v10.7.4
+				if(mngr.SaveJobPool2(&pool)) { //@erik v10.7.4
+					DS.LogAction(PPACN_CONFIGUPDATED, PPCFGOBJ_JOBPOOL, 0, 0, 1);
+					ok = 1;
+					break;
+				}
+				else
+					PPError();
+			}
 		}
-		else
-			PPError();
 	}
 	CATCHZOKPPERR
 	delete dlg;
@@ -426,8 +432,11 @@ int PPViewJob::LoadPool()
 	ZDELETE(P_Pool);
 	THROW_MEM(P_Pool = new PPJobPool(&Mngr, 0, 0));
 	THROW_PP(CurDict->GetDbSymb(db_symb), PPERR_DBSYMBUNDEF);
-	THROW(Mngr.LoadPool2(db_symb, P_Pool, false)); // @erik v10.7.4 LoadPool-->LoadPool2
-	Mngr.GetResourceList(0, CmdSymbList);
+	{
+		const int ljpr = Mngr.LoadJobPool2(db_symb, P_Pool, false);
+		THROW(ljpr); // @erik v10.7.4 LoadPool-->LoadPool2
+		Mngr.GetResourceList(0, CmdSymbList);
+	}
 	CATCH
 		ZDELETE(P_Pool);
 		ok = PPErrorZ();
@@ -440,7 +449,7 @@ int PPViewJob::SavePool()
 	int    ok = -1;
 	if(P_Pool) {
 		//if(Mngr.SavePool(P_Pool)) { //@erik v10.7.4
-		if(Mngr.SavePool2(P_Pool)) { //@erik v10.7.4
+		if(Mngr.SaveJobPool2(P_Pool)) { //@erik v10.7.4
 			IsChanged = 0;
 			DS.LogAction(PPACN_CONFIGUPDATED, PPCFGOBJ_JOBPOOL, 0, 0, 1);
 			ok = 1;

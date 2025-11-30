@@ -7,31 +7,26 @@
 //
 #ifndef __SLIB_H
 #define __SLIB_H
+#define SLIBINCLUDED
 //
 // Макросы, которые должны предшествовать включению slib.h для управления особенностями компиляции:
 // SLIB_INCLUDE_CPPSTDLIBS - определить (просто #define без значения), если требуется включить библиотеки std cpp
 // SLIB_INCLUDE_WINHTTP    - определить (просто #define без значения), если требуется включить библиотеки winhttp.h вместо wininet.h
 //
-#define SLIBINCLUDED
 // Специальное определение, необходимое на начальной фазе сборки openssl 3.0. Для этого сделан отдельный проект SLIB, в котором SLIB_OSSL_VER_30 определен.
 #define SLIB_OSSL_VER_30 // @v11.6.2 turned-on
-
 #ifndef __SLCONFIG_H
 	#include <slconfig.h>
 #endif
 // @v11.7.12 (defined at slconfig.h) #define WINDOWS_IGNORE_PACKING_MISMATCH // @v10.9.11
 #define U_STATIC_IMPLEMENTATION // @v11.3.0 ICU включается как статическая библиотека
-#ifndef RC_INVOKED
-	#include <slport.h>
-#else
-	#define SL_LITTLEENDIAN 1
-#endif
 //
 // Далее идут включения файлов из штатных библиотек компилятора и Windows API
 // Visual Studio требует default-выравнивания структур данных. Потому обрамляем эту зону 
 // парой sl-packing-set08.h/sl-packing-reset.h
 //
 #include <sl-packing-set_compiler_default.h> // @v11.7.0
+
 #ifndef RC_INVOKED
 	#include <stdio.h>
 	#include <io.h>
@@ -98,6 +93,7 @@
 	#include <tchar.h>
 	#include <wchar.h>
 	#include <stdint.h>
+	#include <inttypes.h> // @v12.4.11
 	#include <string.h> // @v11.0.7
 	#include <malloc.h> // @v11.7.1 
 	#ifdef HAVE_UNISTD_H
@@ -120,18 +116,9 @@
 			#define _WIN32_IE 0x0700 // =_WIN32_IE_IE70
 		#endif
 	#endif
-	/* @v11.7.0 (выше определена директива установки выравнивания по умолчанию для компилятора)
-	#if _M_X64
-		#pragma pack(push)
-		#pragma pack(8)
-	#endif*/
 	#include <winsock2.h>
-	#include <ws2tcpip.h>
-	/* @v11.7.0 (выше определена директива установки выравнивания по умолчанию для компилятора)
-	#if _M_X64
-		#pragma pack(pop)
-	#endif*/
 	#include <windows.h>
+	#include <ws2tcpip.h>
 	#include <versionhelpers.h> // @v12.3.4
 	// @v11.7.0 {
 	#ifndef RC_INVOKED
@@ -148,6 +135,7 @@
 			#include <intrin.h>
 		#endif
 		// } @v11.7.3
+		#include <commctrl.h> // @v12.4.11
 	#endif
 	// } @v11.7.0 
 	#define _Windows
@@ -238,6 +226,11 @@
 	#include <sl-packing-reset.h>
 	#include <sl-packing-set01.h> // @v11.7.7
 #endif
+#ifndef RC_INVOKED
+	#include <slport.h>
+#else
+	#define SL_LITTLEENDIAN 1
+#endif
 //
 //
 //
@@ -251,16 +244,16 @@ typedef unsigned short uint16;
 typedef unsigned int  uint32; // @v11.6.8
 typedef __int64        int64;
 typedef unsigned __int64 uint64;
-typedef long double         LDBL;
+// @v12.4.11 typedef long double         LDBL;
 typedef unsigned char       uchar;
 typedef unsigned short      ushort;
 typedef unsigned int        uint;
 typedef unsigned long       ulong;
 typedef unsigned long long  ulonglong;
-typedef char                BCD4[4];
-typedef char                BCD8[8];
-typedef char                BCD10[10];
-typedef char   * BCD_T;
+// @v12.4.11 typedef char                BCD4[4];
+// @v12.4.11 typedef char                BCD8[8];
+// @v12.4.11 typedef char                BCD10[10];
+// @v12.4.11 typedef char              * BCD_T;
 typedef unsigned short      RECORDSIZE;
 typedef unsigned long       RECORDNUMBER;
 typedef unsigned char       xmlChar; // Определение из libxml и для libxml (libxml now includes slib.h)
@@ -1422,6 +1415,7 @@ public:
 	static constexpr const char * P_HxDigU  = "0123456789ABCDEF";
 	static constexpr const char * P_Rdx36DigL = "0123456789abcdefghijklmnopqrstuvwxyz"; /* Lower-case digits.  */
 	static constexpr const char * P_Rdx36DigU = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"; /* Upper-case digits.  */
+	static constexpr const char * P_SurrogateRowIdFieldName = "MsqRowId"; // @v12.4.11 Суррогатное имя поля таблицы базы данных, создаваемое для эмуляции rowid (e.g. for MySQL)
 	static constexpr uint16 CrcPoly_ANSI16  = 0xA001;
 	static constexpr uint16 CrcPoly_CCITT16 = 0x1021;
 	static constexpr uint32 CrcPoly_CCITT32 = 0xEDB88320U;
@@ -3414,7 +3408,7 @@ inline constexpr TYPEID GetSTypeID(int)    { return MKSTYPE(S_INT, 4); }
 inline constexpr TYPEID GetSTypeID(long)   { return MKSTYPE(S_INT, 4); }
 inline constexpr TYPEID GetSTypeID(float)  { return MKSTYPE(S_FLOAT, 4); }
 inline constexpr TYPEID GetSTypeID(double) { return MKSTYPE(S_FLOAT, 8); }
-inline constexpr TYPEID GetSTypeID(LDBL)   { return MKSTYPE(S_FLOAT, 10); }
+inline constexpr TYPEID GetSTypeID(long double)   { return MKSTYPE(S_FLOAT, 10); }
 inline constexpr TYPEID GetSTypeID(char *, int s) { return MKSTYPE(S_ZSTRING, s); }
 inline constexpr TYPEID GetSTypeID(LDATE)  { return MKSTYPE(S_DATE, 4); }
 inline constexpr TYPEID GetSTypeID(LTIME)  { return MKSTYPE(S_TIME, 4); }
@@ -5907,7 +5901,7 @@ char * STDCALL int64fmt(int64 val, long fmt, char * pBuf);
 char * STDCALL  longfmtz(long val, int numDigits, char * pBuf, size_t bufLen);
 char * STDCALL  uintfmt(ulong val, long fmt, char * pBuf);
 char * STDCALL  uint64fmt(uint64 val, long fmt, char * pBuf);
-char * STDCALL  decfmt(const BCD_T val, int len, int prec, long fmt, char * pBuf);
+char * STDCALL  decfmt(const char * pBcdVal, int len, int prec, long fmt, char * pBuf);
 char * STDCALL  datefmt(const void *, long fmt, char *);
 char * STDCALL  timefmt(LTIME, long fmt, char *);
 char * STDCALL  datetimefmt(LDATETIME dtm, long dtfmt, long tmfmt, char * pBuf, size_t bufLen);

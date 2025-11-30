@@ -234,6 +234,27 @@ SLTEST_R(MySQL) // @v12.4.7
 		else {
 			if(dbp.StartTransaction()) {
 				{
+					TestTa01Tbl::Key0 k0;
+					DBRowId ret_row_id;
+					for(uint i = 0; i < record_list.getCount(); i++) {
+						const TestTa01Tbl::Rec * p_rec = record_list.at(i);
+						if(p_rec) {
+							MEMSZERO(k0);
+							p_tbl->CopyBufLobFrom(p_rec, sizeof(*p_rec));
+							int irr = p_tbl->insertRec(0, &k0);
+							const DBRowId * p_row_id = p_tbl->getCurRowIdPtr();
+							if(p_row_id)
+								ret_row_id = *p_row_id;
+							if(irr) {
+								;
+							}
+							else {
+								ta02_insert_fault_count++;
+							}
+						}
+					}
+				}
+				{
 					//
 					// Для таблицы TestRef01 применяем BExtInsert
 					//
@@ -293,27 +314,6 @@ SLTEST_R(MySQL) // @v12.4.7
 							}
 							else {
 								ref02_insert_fault_count++;
-							}
-						}
-					}
-				}
-				{
-					TestTa01Tbl::Key0 k0;
-					DBRowId ret_row_id;
-					for(uint i = 0; i < record_list.getCount(); i++) {
-						const TestTa01Tbl::Rec * p_rec = record_list.at(i);
-						if(p_rec) {
-							MEMSZERO(k0);
-							p_tbl->CopyBufLobFrom(p_rec, sizeof(*p_rec));
-							int irr = p_tbl->insertRec(0, &k0);
-							const DBRowId * p_row_id = p_tbl->getCurRowIdPtr();
-							if(p_row_id)
-								ret_row_id = *p_row_id;
-							if(irr) {
-								;
-							}
-							else {
-								ta02_insert_fault_count++;
 							}
 						}
 					}

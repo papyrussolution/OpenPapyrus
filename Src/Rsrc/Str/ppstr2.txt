@@ -204,6 +204,7 @@ PPERR_APIKEYNEEDED                 "Необходимо указать ключ
 PPERR_GLOBALUSERACCNEEDED          "Необходимо выбрать глобальную учетную запись"
 PPERR_LOCTRFR_BAILMENT_PSNNEEDED   "Необходимо выбрать персоналию-владельца адреса ответственного хранения"
 PPERR_LOCTRFR_BAILMENT_LOCNEEDED   "Необходимо выбрать адрес ответственного хранения"
+PPERR_SEARCHPATTERNNEEDED          "Необходимо указать строку для поиска"
 // } -NEEDED messages
 PPERR_BALNOTEXISTS                 "Указанный балансовый счет (%s) не существует"
 PPERR_INVALIDVATAX                 "НДС должен находиться в пределах 0..50%"
@@ -8809,6 +8810,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_loc_spctaxgroup                     "Специальная налоговая группа локации"           // @v12.2.4
 @rtag_goods_salesrestr                    "@{salesrestriction}" // @v12.3.7
 @rtag_gua_chznlocpmurl                    "URL offline-проверки марок честный знак"        // @v12.3.11
+@rtag_person_notch                        "NOTCH" // @v12.4.11 PPTAG_PERSON_NOTCH
 //
 // Зарезервированные типы регистрационных документов
 //
@@ -18927,6 +18929,8 @@ PPHSC_RU_NAMEOFDOC_S           "НаимДок"
 PPHSC_RU_NAMEOFDOC_S_SRVC      "Документ о передаче результатов работ (Документ об оказании услуг)"
 PPHSC_RU_NAMEOFDOC             "НаимДокОпр"
 PPHSC_RU_NAMEOFDOC_INVCSHIPM   "Счет-фактура и документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)"
+PPHSC_RU_NAMEOFDOC_INVCCORR    "Корректировочный счет-фактура и документ об изменении стоимости отгруженных товаров (выполненных работ, оказанных услуг), переданных имущественных прав"
+PPHSC_RU_NAMEOFDOC2_INVCCORR   "Документ, подтверждающий согласие (факт уведомления) покупателя на изменение стоимости отгруженных товаров (выполненных работ, оказанных услуг), переданных имущественных прав"
 PPHSC_RU_NAMEOFDOC2            "ПоФактХЖ" // Наименование документа по факту хозяйственной жизни (блядь! какие же твари сидят на наших налогах и придумывают нереальную дрянь)
 PPHSC_RU_NAMEOFDOC2_SHIPM      "Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)"
 PPHSC_RU_SELLERINFODATE        "ДатаИнфПр"
@@ -18967,7 +18971,7 @@ PPHSC_RU_WAREOKEI_BEFORE       "ОКЕИ_ТовДо"    // @v11.7.0
 PPHSC_RU_WAREOKEI_AFTER        "ОКЕИ_ТовПосле" // @v11.7.0
 PPHSC_RU_WARECODE              "КодТов"
 PPHSC_RU_WAREARTICLE           "АртикулТов" // @v11.5.10
-PPHSC_RU_WAREARTICLE2          "код_материала" // @v12.1.11 азбука вкуса требует такой тег для указания ее товарного кода
+// @v12.4.11 (see PPHSC_RU_EXTRA_MATERIALCODE) PPHSC_RU_WAREARTICLE2          "код_материала" // @v12.1.11 азбука вкуса требует такой тег для указания ее товарного кода
 PPHSC_RU_WAREIDENTBLOCK        "НомСредИдентТов"
 PPHSC_RU_WAREIDENTBLOCK_BEFORE "НомСредИдентТовДо" // @v12.4.8
 PPHSC_RU_WAREIDENTBLOCK_AFTER  "НомСредИдентТовПосле" // @v12.4.8
@@ -19146,7 +19150,9 @@ PPHSC_RU_EXTRA_TRACING         "СведПрослеж"         // @v11.7.1
 PPHSC_RU_EXTRA_GENDATE         "ДатаГен"             // @v11.9.12 SBIS
 PPHSC_RU_EXTRA_ORDERCODE       "ЗаказНомер"          // @v11.9.12 SBIS
 PPHSC_RU_EXTRA_ORDERDATE       "ЗаказДата"           // @v11.9.12 SBIS
+PPHSC_RU_EXTRA_ORDERDATE3      "дата_заказа"         // @v12.4.11 так требует то ли провайдер корус, то ли ритейлер градусы
 PPHSC_RU_EXTRA_ORDERCODE2      "заказ_номер"         // @v12.1.11 азбука вкуса требует такой тег для указания номера заказа
+PPHSC_RU_EXTRA_ORDERCODE3      "номер_заказа"        // @v12.4.11 так требует то ли провайдер корус, то ли ритейлер градусы
 PPHSC_RU_EXTRA_SHIPDATE        "ОтгрузкаДата"        // @v11.9.12 SBIS
 PPHSC_RU_EXTRA_VATRATE         "СтавкаНДС"           // @v11.9.12 SBIS
 PPHSC_RU_EXTRA_WHNAME          "СкладНаименование"   // @v11.9.12 SBIS
