@@ -378,10 +378,10 @@ int ean13(struct ZintSymbol * symbol, uchar source[], char dest[])
 int ean8(struct ZintSymbol * symbol, uchar source[], char dest[])
 {
 	/* EAN-8 is basically the same as UPC-A but with fewer digits */
-	int length;
-	char gtin[10];
-	sstrcpy(gtin, (char *)source);
-	length = strlen(gtin);
+	int    length;
+	char   gtin[10];
+	sstrcpy(gtin, reinterpret_cast<const char *>(source));
+	length = sstrleni(gtin);
 	if(length == 7) {
 		gtin[length] = upc_check(gtin);
 		gtin[length + 1] = '\0';

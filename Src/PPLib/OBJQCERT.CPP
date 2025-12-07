@@ -125,7 +125,7 @@ ListBoxDef * PPObjQCert::Selector(ListBoxDef * pOrgDef, long flags, void * extra
 	}
 	else {
 		THROW(CheckTblPtr(t = new QualityCertTbl));
-		q = & select(t->ID, t->Code, 0L).from(t, 0L).where(t->Passive == 0L).orderBy(t->Passive, t->Code, 0L);
+		q = & Select_(t->ID, t->Code, 0L).from(t, 0L).where(t->Passive == 0L).orderBy(t->Passive, t->Code, 0L);
 		THROW(CheckQueryPtr(q));
 		def = new DBQListBoxDef(*q, lbtDblClkNotify|lbtFocNotify|lbtDisposeData);
 		THROW_MEM(def);

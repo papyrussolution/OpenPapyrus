@@ -394,10 +394,9 @@ void TransliterationRuleSet::freeze(UParseError& parseError, UErrorCode & status
  * indicating that transliteration should stop until more text
  * arrives.
  */
-bool TransliterationRuleSet::transliterate(Replaceable& text,
-    UTransPosition& pos,
-    bool incremental) {
-	int16 indexByte = (int16)(text.char32At(pos.start) & 0xFF);
+bool TransliterationRuleSet::transliterate(Replaceable& text, UTransPosition& pos, bool incremental) 
+{
+	int16 indexByte = static_cast<int16>(text.char32At(pos.start) & 0xFF);
 	for(int32_t i = index[indexByte]; i<index[indexByte+1]; ++i) {
 		UMatchDegree m = rules[i]->matchAndReplace(text, pos, incremental);
 		switch(m) {

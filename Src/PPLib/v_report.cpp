@@ -670,7 +670,7 @@ int PPViewReport::CreateRptList(ReportViewItemArray * pList)
 	THROW(P_TempTbl);
 	THROW(CheckTblPtr(p_tbl = new TempReportTbl(P_TempTbl->GetName())));
 	PPDbqFuncPool::InitLongFunc(dbe_type, PPDbqFuncPool::IdReportTypeName, p_tbl->Type);
-	q = & select(p_tbl->ID, 0L);   // #00
+	q = & Select_(p_tbl->ID, 0L);   // #00
 	q->addField(p_tbl->StdName);   // #01
 	q->addField(p_tbl->ModifDt);   // #02
 	q->addField(p_tbl->Descr);     // #03

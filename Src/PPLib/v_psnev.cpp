@@ -384,7 +384,7 @@ DBQuery * PPViewPersonEvent::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 		THROW(CheckTblPtr(P_TempGrpTbl));
 		THROW(CheckTblPtr(t = new TempPersonEventTbl(P_TempGrpTbl->GetName())));
 		PPDbqFuncPool::InitObjNameFunc(dbe_avg_tm, PPDbqFuncPool::IdDurationToTime, t->AvgEvTime);
-		q = & select(
+		q = & Select_(
 			t->ID,       // #0
 			t->ID2,      // #1
 			t->Dt,       // #2
@@ -408,7 +408,7 @@ DBQuery * PPViewPersonEvent::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 		PPDbqFuncPool::InitObjNameFunc(dbe_psn_scnd, PPDbqFuncPool::IdObjNamePerson, pe->SecondID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_op, PPDbqFuncPool::IdObjNamePsnOpKind, pe->OpID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_memo, PPDbqFuncPool::IdObjMemoPersonEvent, pe->ID); // @v11.1.12
-		q = & select(
+		q = & Select_(
 			pe->ID,       // #0
 			pe->Flags,    // #1 
 			pe->Dt,       // #2

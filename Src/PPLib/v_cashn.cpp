@@ -212,7 +212,7 @@ DBQuery * PPViewCashNode::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	DBE dbe_loc;
 	THROW(CheckTblPtr(t = new TempCashNodeTbl(P_TempTbl->GetName())));
 	PPDbqFuncPool::InitObjNameFunc(dbe_loc,  PPDbqFuncPool::IdObjNameLoc, t->LocID);
-	q = & select(
+	q = & Select_(
 		t->ID,            // #0
 		t->Name,          // #1
 		t->CashTypeName,  // #2

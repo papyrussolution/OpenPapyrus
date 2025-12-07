@@ -839,7 +839,7 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 					uftp.AccsName = pw_buf.Transf(CTRANSF_INNER_TO_UTF8);
 					url.SetComponent(InetUrl::cUserName, temp_buf.EncodeUrl(pw_buf, 0));
 					{
-						char temp_pw_buf[64];
+						char   temp_pw_buf[64];
 						ia_pack.GetPassword_(temp_pw_buf, sizeof(temp_pw_buf), FTPAEXSTR_PASSWORD);
 						pw_buf = temp_pw_buf;
 						//ia_pack.GetExtField(FTPAEXSTR_PASSWORD, temp_buf);

@@ -1809,7 +1809,7 @@ DBQuery * PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		// } @v12.4.1 
 		PPDbqFuncPool::InitFunc2Arg(dbe_memo, PPDbqFuncPool::IdSCardExtString, p_t->ID, dbconst((long)PPSCardPacket::extssMemo));
 		dbe_dis = & (p_t->PDis / 100);
-		q = & select(
+		q = & Select_(
 			p_t->ID,        // #0
 			p_t->Code,      // #1
 			p_t->Expiry,    // #2
@@ -1888,7 +1888,7 @@ DBQuery * PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		// } @v12.4.1 
 		PPDbqFuncPool::InitFunc2Arg(dbe_memo, PPDbqFuncPool::IdSCardExtString, p_c->ID, dbconst((long)PPSCardPacket::extssMemo));
 		dbe_dis = & (p_c->PDis / 100);
-		q = & select(
+		q = & Select_(
 			p_c->ID,        // #0
 			p_c->Code,      // #1
 			p_c->Expiry,    // #2
@@ -2954,7 +2954,7 @@ DBQuery * PPViewSCardOp::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbq = & (*dbq && p_c->SCardID == p_s->ID && p_s->SeriesID == Filt.SCardSerID);
 	}
 	dbq = & (*dbq && realrange(p_c->Amount, Filt.AmtR.low, Filt.AmtR.upp));
-	q = & select(
+	q = & Select_(
 		p_c->SCardID,     // #0
 		p_c->Dt,          // #1
 		p_c->Tm,          // #2

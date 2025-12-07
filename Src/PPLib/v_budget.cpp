@@ -1422,7 +1422,7 @@ int FASTCALL PPViewBudget::NextIteration(BudgetViewItem * pItem)
 	if(Filt.Kind == BudgetFilt::kBudget) {
 		THROW(P_TempBudgTbl);
 		THROW(CheckTblPtr(tt = new TempBudgetTbl(P_TempBudgTbl->GetName())));
-		q = &select(
+		q = &Select_(
 			tt->ID,
 			tt->Name,
 			tt->Code,
@@ -1439,7 +1439,7 @@ int FASTCALL PPViewBudget::NextIteration(BudgetViewItem * pItem)
 		}
 		else {
 			THROW(CheckTblPtr(tit = new TempBudgItemTbl(P_TempBudgItemTbl->GetName())));
-			q = &select(
+			q = &Select_(
 				tit->ID,
 				tit->Acc,
 				tit->Dt,

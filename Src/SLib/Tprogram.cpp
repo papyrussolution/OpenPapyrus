@@ -2108,11 +2108,20 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			hbmp = (HBITMAP)::SendMessageW(pDi->hwndItem, BM_GETIMAGE, IMAGE_BITMAP, 0);
 		else */
 		if(p_user_data) {
-			TButton * p_btn = static_cast<TButton *>(p_user_data);
-			if(p_btn->IsConsistent()) {
-				if(item_state == 0 && p_btn->IsDefault())
+			TView * p_view = static_cast<TView *>(p_user_data);
+			TButton * p_btn_ = 0; // static_cast<TButton *>(p_user_data);
+			ComboBox * p_combo_ = 0;
+			if(p_view->IsSubSign(TV_SUBSIGN_BUTTON))
+				p_btn_ = static_cast<TButton *>(p_view);
+			else if(p_view->IsSubSign(TV_SUBSIGN_COMBOBOX))
+				p_combo_ = static_cast<ComboBox *>(p_view);
+			if(p_combo_ && p_combo_->IsConsistent()) {
+				dv_id = PPDV_DROPDOWN01;
+			}
+			else if(p_btn_ && p_btn_->IsConsistent()) {
+				if(item_state == 0 && p_btn_->IsDefault())
 					item_state = tbisDefault;
-				const uint bmp_id = p_btn->GetBmpID();
+				const uint bmp_id = p_btn_->GetBmpID();
 				switch(bmp_id) {
 					case IDB_MENU:          dv_id = PPDV_FUNCTION01; break;
 					case IDB_FILEBROWSE:    dv_id = PPDV_FOLDER02; break;
@@ -2152,7 +2161,7 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 							dv_id = bmp_id;
 						}
 						else {
-							const uint button_id = p_btn->GetId();
+							const uint button_id = p_btn_->GetId();
 							switch(button_id) {
 								case STDCTL_CANCELBUTTON:    dv_id = PPDV_CANCEL01; break;
 								case STDCTL_OKBUTTON:        dv_id = PPDV_OK01; break;
@@ -2182,7 +2191,7 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 										erase_text = 1;
 									break;
 								default:
-									if(p_btn->GetSubSign() == TV_SUBSIGN_COMBOBOX) {
+									if(p_btn_->GetSubSign() == TV_SUBSIGN_COMBOBOX) {
 										dv_id = PPDV_DROPDOWN01;
 									}
 									else if(bmp_id == OBM_UPARROWD) {

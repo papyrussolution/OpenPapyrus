@@ -9,7 +9,7 @@ int SFormat_TranslateFlagsToStringSet(long fmt, TYPEID typeId, StringSet & rSs)
 {
 	rSs.Z();
 	int    ok = 1;
-	const   int  bt = stbase(typeId);
+	const  int  bt = stbase(typeId);
 	{
 		if(SFMTFLAG(fmt) & ALIGN_RIGHT)
 			rSs.add("align_right");
@@ -152,11 +152,11 @@ int SFormat_TranslateFlagsToStringSet(long fmt, TYPEID typeId, StringSet & rSs)
 
 long SFormat_TranslateFlagFromString(const char * pText, TYPEID typeId)
 {
-	long    flags = 0;
-	long    date_style = 0;
-	long    time_style = 0;
-	int     int_base = 0;
-	const   int  bt = stbase(typeId);
+	long   flags = 0;
+	long   date_style = 0;
+	long   time_style = 0;
+	int    int_base = 0;
+	const  int  bt = stbase(typeId);
 	if(sstreqi_ascii(pText, "align_center")) {
 		flags = ALIGN_CENTER;
 	}

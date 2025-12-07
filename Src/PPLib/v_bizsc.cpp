@@ -1076,7 +1076,7 @@ DBQuery * PPViewBizScTempl::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 	TempBizScTemplTbl * tt  = 0;
 	THROW(P_TempTbl);
 	THROW(CheckTblPtr(tt = new TempBizScTemplTbl(P_TempTbl->GetName())));
-	q = &select(tt->ID, tt->Name, tt->Symb, 0L).from(tt, 0L).where(*dbq);
+	q = &Select_(tt->ID, tt->Name, tt->Symb, 0L).from(tt, 0L).where(*dbq);
 	brw_id = BROWSER_BIZSCTEMPL;
 	THROW(CheckQueryPtr(q));
 	CATCH

@@ -518,7 +518,7 @@ int  SmartListBox::GetMaxListHeight()
 	// @v12.2.4 {
 	if(item_height <= 0) {
 		int sihr = ::SendMessageW(h_lb, LB_SETITEMHEIGHT, 0, static_cast<LPARAM>(20));
-		item_height = ::SendMessageW(h_lb, LB_GETITEMHEIGHT, 0, 0);
+		item_height = static_cast<int>(::SendMessageW(h_lb, LB_GETITEMHEIGHT, 0, 0));
 	}
 	// } @v12.2.4 
 	return (P_Def && P_Def->Options & lbtHSizeAlreadyDef) ? P_Def->ViewHight : (item_height ? (list_height-5) / item_height : 0);
@@ -1357,7 +1357,7 @@ UiSearchTextBlock::~UiSearchTextBlock()
 		char   text[512];
 		rText.CopyTo(text, sizeof(text));
 		UiSearchTextBlock sd(hWnd, ctlId, text, (isFirstLetter ? text[0] : 0), pBlk, linkToList);
-		r = APPL->DlgBoxParam(MAKE_BUTTON_ID(0,1)-2, hWnd, reinterpret_cast<DLGPROC>(UiSearchTextBlock::DialogProc), reinterpret_cast<LPARAM>(&sd));
+		r = static_cast<int>(APPL->DlgBoxParam(MAKE_BUTTON_ID(0,1)-2, hWnd, reinterpret_cast<DLGPROC>(UiSearchTextBlock::DialogProc), reinterpret_cast<LPARAM>(&sd)));
 		rText = sd.Text;
 	}
 	return r;

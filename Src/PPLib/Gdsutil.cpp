@@ -1533,9 +1533,9 @@ int QuotListDialog::setupList()
 	PPObjQuotKind qk_obj;
 	SString temp_buf, qk_text;
 	for(uint i = 0; i < QuotKindsAry.getCount(); i++) {
-		const   PPID qk_id = QuotKindsAry.get(i);
-		double  price = 0.0;
-		char    num_buf[32];
+		const  PPID qk_id = QuotKindsAry.get(i);
+		double price = 0.0;
+		char   num_buf[32];
 		if(qk_obj.Search(qk_id, &qkr) > 0)
 			qk_text = qkr.Name;
 		else

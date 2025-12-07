@@ -923,7 +923,7 @@ cairo_status_t _cairo_intern_string(const char ** str_inout, int len)
 	if(CAIRO_INJECT_FAULT())
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	if(len < 0)
-		len = strlen(str);
+		len = sstrleni(str);
 	tmpl.hash_entry.hash = _cairo_string_hash(str, len);
 	tmpl.len = len;
 	tmpl.string = (char *)str;

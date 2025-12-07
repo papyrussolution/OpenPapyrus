@@ -1485,9 +1485,7 @@ int STDCALL mysql_stmt_store_result(MYSQL_STMT * stmt)
 		char buff[STMT_ID_LENGTH + 4];
 		int4store(buff, stmt->stmt_id);
 		int4store(buff + STMT_ID_LENGTH, (int)~0);
-
-		if(stmt->mysql->methods->db_command(stmt->mysql, COM_STMT_FETCH,
-		    buff, sizeof(buff), 1, stmt)) {
+		if(stmt->mysql->methods->db_command(stmt->mysql, COM_STMT_FETCH, buff, sizeof(buff), 1, stmt)) {
 			UPDATE_STMT_ERROR(stmt);
 			return 1;
 		}
@@ -1497,7 +1495,6 @@ int STDCALL mysql_stmt_store_result(MYSQL_STMT * stmt)
 		SET_CLIENT_STMT_ERROR(stmt, CR_COMMANDS_OUT_OF_SYNC, SQLSTATE_UNKNOWN, 0);
 		return 1;
 	}
-
 	if(stmt->mysql->methods->db_stmt_read_all_rows(stmt)) {
 		/* error during read - reset stmt->data */
 		ma_free_root(&stmt->result.alloc, 0);
@@ -1506,28 +1503,20 @@ int STDCALL mysql_stmt_store_result(MYSQL_STMT * stmt)
 		stmt->mysql->status = MYSQL_STATUS_READY;
 		return 1;
 	}
-
-	/* workaround for MDEV 6304:
-	   more results not set if the resultset has
-	   SERVER_PS_OUT_PARAMS set
+	/* workaround for MDEV 6304: more results not set if the resultset has SERVER_PS_OUT_PARAMS set
 	 */
-	if(last_server_status & SERVER_PS_OUT_PARAMS &&
-	    !(stmt->mysql->server_status & SERVER_MORE_RESULTS_EXIST))
+	if(last_server_status & SERVER_PS_OUT_PARAMS && !(stmt->mysql->server_status & SERVER_MORE_RESULTS_EXIST))
 		stmt->mysql->server_status |= SERVER_MORE_RESULTS_EXIST;
-
 	stmt->result_cursor = stmt->result.data;
 	stmt->fetch_row_func = stmt_buffered_fetch;
 	stmt->mysql->status = MYSQL_STATUS_READY;
-
 	if(!stmt->result.rows)
 		stmt->state = MYSQL_STMT_FETCH_DONE;
 	else
 		stmt->state = MYSQL_STMT_USE_OR_STORE_CALLED;
-
 	/* set affected rows: see bug 2247 */
 	stmt->upsert_status.affected_rows = stmt->result.rows;
 	stmt->mysql->affected_rows = stmt->result.rows;
-
 	return 0;
 }
 
@@ -1535,16 +1524,13 @@ static int madb_alloc_stmt_fields(MYSQL_STMT * stmt)
 {
 	uint i;
 	MA_MEM_ROOT * fields_ma_alloc_root = &((MADB_STMT_EXTENSION*)stmt->extension)->fields_ma_alloc_root;
-
 	if(stmt->mysql->field_count) {
 		ma_free_root(fields_ma_alloc_root, MYF(0));
-		if(!(stmt->fields = (MYSQL_FIELD*)ma_alloc_root(fields_ma_alloc_root,
-		    sizeof(MYSQL_FIELD) * stmt->mysql->field_count))) {
+		if(!(stmt->fields = (MYSQL_FIELD*)ma_alloc_root(fields_ma_alloc_root, sizeof(MYSQL_FIELD) * stmt->mysql->field_count))) {
 			SET_CLIENT_STMT_ERROR(stmt, CR_OUT_OF_MEMORY, SQLSTATE_UNKNOWN, 0);
 			return 1;
 		}
 		stmt->field_count = stmt->mysql->field_count;
-
 		for(i = 0; i < stmt->field_count; i++) {
 			if(stmt->mysql->fields[i].db)
 				stmt->fields[i].db = ma_strdup_root(fields_ma_alloc_root, stmt->mysql->fields[i].db);
@@ -1558,8 +1544,7 @@ static int madb_alloc_stmt_fields(MYSQL_STMT * stmt)
 				stmt->fields[i].org_name = ma_strdup_root(fields_ma_alloc_root, stmt->mysql->fields[i].org_name);
 			if(stmt->mysql->fields[i].catalog)
 				stmt->fields[i].catalog = ma_strdup_root(fields_ma_alloc_root, stmt->mysql->fields[i].catalog);
-			stmt->fields[i].def =
-			    stmt->mysql->fields[i].def ? ma_strdup_root(fields_ma_alloc_root, stmt->mysql->fields[i].def) : NULL;
+			stmt->fields[i].def = stmt->mysql->fields[i].def ? ma_strdup_root(fields_ma_alloc_root, stmt->mysql->fields[i].def) : NULL;
 			stmt->fields[i].type = stmt->mysql->fields[i].type;
 			stmt->fields[i].length = stmt->mysql->fields[i].length;
 			stmt->fields[i].flags = stmt->mysql->fields[i].flags;
@@ -1652,7 +1637,6 @@ int stmt_read_execute_response(MYSQL_STMT * stmt)
 			   network or b) is more efficient if all (few) result set rows are
 			   precached on client and server's resources are freed.
 			 */
-
 			/* preferred is buffered read */
 			if(mysql_stmt_store_result(stmt))
 				return 1;
@@ -1664,11 +1648,9 @@ int stmt_read_execute_response(MYSQL_STMT * stmt)
 			stmt->mysql->status = MYSQL_STATUS_STMT_RESULT;
 		}
 		stmt->state = MYSQL_STMT_WAITING_USE_OR_STORE;
-		/* in certain cases parameter types can change: For example see bug
-		   4026 (SELECT ?), so we need to update field information */
+		/* in certain cases parameter types can change: For example see bug 4026 (SELECT ?), so we need to update field information */
 		if(mysql->field_count == stmt->field_count) {
-			uint i;
-			for(i = 0; i < stmt->field_count; i++) {
+			for(uint i = 0; i < stmt->field_count; i++) {
 				stmt->fields[i].type = mysql->fields[i].type;
 				stmt->fields[i].length = mysql->fields[i].length;
 				stmt->fields[i].flags = mysql->fields[i].flags;
@@ -1692,12 +1674,10 @@ int STDCALL mysql_stmt_execute(MYSQL_STMT * stmt)
 	char * request;
 	int ret;
 	size_t request_len = 0;
-
 	if(!stmt->mysql) {
 		SET_CLIENT_STMT_ERROR(stmt, CR_SERVER_LOST, SQLSTATE_UNKNOWN, 0);
 		return 1;
 	}
-
 	if(stmt->state < MYSQL_STMT_PREPARED) {
 		SET_CLIENT_ERROR(mysql, CR_COMMANDS_OUT_OF_SYNC, SQLSTATE_UNKNOWN, 0);
 		SET_CLIENT_STMT_ERROR(stmt, CR_COMMANDS_OUT_OF_SYNC, SQLSTATE_UNKNOWN, 0);

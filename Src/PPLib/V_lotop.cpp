@@ -169,9 +169,9 @@ DBQuery * PPViewLotOp::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		brw_id = BROWSER_ZEROLOTOPS;
 		PPDbqFuncPool::InitObjNameFunc(dbe_goods, PPDbqFuncPool::IdObjNameGoods, trf->GoodsID);
 		if(State & stAccsCost)
-			q = &select(trf->Dt, trf->OprNo, bll->Code, dbe_ar, trf->Quantity, trf->Rest, trf->Cost, dbe_price, dbe_goods, 0L);
+			q = &Select_(trf->Dt, trf->OprNo, bll->Code, dbe_ar, trf->Quantity, trf->Rest, trf->Cost, dbe_price, dbe_goods, 0L);
 		else
-			q = &select(trf->Dt, trf->OprNo, bll->Code, dbe_ar, trf->Quantity, trf->Rest, zero_cost, dbe_price, dbe_goods, 0L);
+			q = &Select_(trf->Dt, trf->OprNo, bll->Code, dbe_ar, trf->Quantity, trf->Rest, zero_cost, dbe_price, dbe_goods, 0L);
 		q->from(trf, bll, 0L).where(trf->LotID == 0L && daterange(trf->Dt, &period) &&
 			(trf->Flags & PPTFR_RECEIPT) == PPTFR_RECEIPT && bll->ID == trf->BillID).
 			orderBy(trf->LotID, trf->Dt, trf->OprNo, 0L);
@@ -185,7 +185,7 @@ DBQuery * PPViewLotOp::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		else
 			brw_id = BROWSER_OPSBYLOT;
 		PPDbqFuncPool::InitObjNameFunc(dbe_oprkind, PPDbqFuncPool::IdObjNameOprKind, bll->OpID);
-		q = &select(trf->Dt, 0L);    // #0
+		q = &Select_(trf->Dt, 0L);    // #0
 		q->addField(trf->OprNo);     // #1
 		q->addField(bll->Code);      // #2
 		q->addField(dbe_ar);         // #3

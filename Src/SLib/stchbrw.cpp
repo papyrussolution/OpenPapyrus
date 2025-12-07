@@ -1914,7 +1914,7 @@ int STimeChunkBrowser::CalcChunkRect(const Area * pArea, SRectArray & rRectList)
 				if(p_chunk->Chunk.Intersect(view_time_bounds, &sect)) {
 					uint   day_n = 0;
 					for(long quant = St.ScrollX; ; quant++) {
-						const  LDATE  dt = plusdate(St.Bounds.Start.d, quant);
+						const  LDATE dt = plusdate(St.Bounds.Start.d, quant);
 						if(dt <= view_time_bounds.Finish.d) {
 							if(IsQuantVisible(quant)) {
 								STimeChunk day_chunk, day_sect;
@@ -2305,7 +2305,7 @@ int STimeChunkBrowser::CopyToClipboard()
 			row = 1;
 			column = 2;
 			for(long quant = 0; ; quant++) {
-				const  LDATE  dt = plusdate(St.Bounds.Start.d, quant);
+				const  LDATE dt = plusdate(St.Bounds.Start.d, quant);
 				if(dt <= St.Bounds.Finish.d) {
 					if(IsQuantVisible(quant)) {
 						GetDayOfWeekText(dowtRuFull, dayofweek(&dt, 1), dow_buf);
@@ -2338,7 +2338,7 @@ int STimeChunkBrowser::CopyToClipboard()
 
 				column = 1;
 				for(long quant = 0; ; quant++) {
-					const  LDATE  dt = plusdate(St.Bounds.Start.d, quant);
+					const  LDATE dt = plusdate(St.Bounds.Start.d, quant);
 					column++;
 					if(dt <= St.Bounds.Finish.d) {
 						STimeChunk range;
@@ -2458,7 +2458,7 @@ void STimeChunkBrowser::Paint()
 		x = left_edge;
 		y = a2.Full.a.y;
 		for(long quant = St.ScrollX; ; quant++) {
-			const  LDATE  dt = plusdate(St.Bounds.Start.d, quant);
+			const  LDATE dt = plusdate(St.Bounds.Start.d, quant);
 			if(dt <= view_time_bounds.Finish.d) {
 				//assert(quant != St.ScrollX || dt == view_time_bounds.Start.d);
 				if(IsQuantVisible(quant)) {

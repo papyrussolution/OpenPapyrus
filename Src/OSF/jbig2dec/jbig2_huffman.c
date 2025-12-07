@@ -560,7 +560,7 @@ int jbig2_table(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * segment_dat
 			line = new_line;
 		}
 		params->HTOOB = HTOOB;
-		params->n_lines = NTEMP;
+		params->n_lines = static_cast<int>(NTEMP);
 		params->lines = line;
 		segment->result = params;
 #ifdef JBIG2_DEBUG

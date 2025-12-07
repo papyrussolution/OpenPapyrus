@@ -13,7 +13,7 @@
 #endif
 
 //#pragma warning(push, 0) // Temporarily disable warnings in header files over which I have no control.
-#include <windowsx.h> // Windows API
+// @v12.4.12 #include <windowsx.h> // Windows API
 #include <ShObjIdl.h> // For save dialog
 #include <ShellScalingApi.h> // For detecting monitor DPI (Win 8.1 or above)
 #include <initguid.h> // For doing stuff with GUIDs (Needed for COM interop)

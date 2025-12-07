@@ -379,17 +379,17 @@ int ArticleAutoAddDialog::makeQuery()
 	PersonKindTbl * k  = 0;
 	if(AcsRec.Assoc == PPOBJ_PERSON) {
 		THROW(CheckTblPtr(k = new PersonKindTbl));
-		P_Query = &::select(k->PersonID, k->Name, 0L).from(k, 0L).
+		P_Query = &::Select_(k->PersonID, k->Name, 0L).from(k, 0L).
 			where(k->KindID == AcsRec.ObjGroup).orderBy(k->Name, 0L);
 	}
 	else if(AcsRec.Assoc == PPOBJ_LOCATION) {
 		THROW(CheckTblPtr(loc_tbl = new LocationTbl));
-		P_Query = &::select(loc_tbl->ID, loc_tbl->Name, 0L).from(loc_tbl, 0L).
+		P_Query = &::Select_(loc_tbl->ID, loc_tbl->Name, 0L).from(loc_tbl, 0L).
 			where(loc_tbl->Type == LOCTYP_WAREHOUSE).orderBy(loc_tbl->ParentID, loc_tbl->Name, 0L);
 	}
 	else if(AcsRec.Assoc == PPOBJ_PROCESSOR) { // @v11.3.12
 		THROW(CheckTblPtr(prc_tbl = new ProcessorTbl));
-		P_Query = &::select(prc_tbl->ID, prc_tbl->Name, 0L).from(prc_tbl, 0L).
+		P_Query = &::Select_(prc_tbl->ID, prc_tbl->Name, 0L).from(prc_tbl, 0L).
 			where(prc_tbl->Kind == static_cast<long>(PPPRCK_PROCESSOR)).orderBy(prc_tbl->Name, 0L);
 	}
 	else

@@ -579,7 +579,7 @@ public:
 		AddClusterAssoc(CTL_GTO_FLAGS, 0, OpGroupingFilt::fCalcRest);
 		AddClusterAssoc(CTL_GTO_FLAGS, 1, OpGroupingFilt::fCalcAvgLn);
 		AddClusterAssoc(CTL_GTO_FLAGS, 2, OpGroupingFilt::fInclAccOps);
-		AddClusterAssoc(CTL_GTO_FLAGS, 3, OpGroupingFilt::fCostByPaym); // @v11.0.6
+		AddClusterAssoc(CTL_GTO_FLAGS, 3, OpGroupingFilt::fCostByPaym);
 		SetClusterData(CTL_GTO_FLAGS, Data.Flags);
 		SetupArCombo(this, CTLSEL_GTO_SUPPLAG, Data.SupplAgentID, OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet);
 		disableCtrl(CTLSEL_GTO_EXTGOODSTYPE, Data.GoodsGrpID || Data.GoodsID);
@@ -750,7 +750,7 @@ DBQuery * PPViewOpGrouping::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 		p_tbl = new TempOpGrpngTbl(P_TempTbl->GetName());
 	}
 	THROW(CheckTblPtr(p_tbl));
-	q = & select(
+	q = & Select_(
 		p_tbl->ID__,      // #0
 		p_tbl->Dt,        // #1
 		p_tbl->OpID,      // #2

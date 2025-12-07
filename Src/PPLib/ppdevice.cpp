@@ -473,11 +473,12 @@ int PPAbstractDevice::RunCmd(int cmdId, const StrAssocArray & rIn, StrAssocArray
 
 int PPAbstractDevice::Helper_RunCmd(const SString & rCmd, const SString & rArg, StrAssocArray & rOut)
 {
-	int    ok = 1, r = 0;
+	int    ok = 1;
+	int    r = 0;
 	SString s_arr;
 	SString temp_buf;
 	StringSet ss(";");
-	const   size_t buf_size_quant = 4096;
+	const  size_t buf_size_quant = 4096;
 	if(RetBuf.GetSize() < buf_size_quant)
 		RetBuf.Alloc(buf_size_quant);
 	THROW_SL(RetBuf.IsValid());

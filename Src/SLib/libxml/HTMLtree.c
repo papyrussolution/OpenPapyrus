@@ -327,7 +327,7 @@ static size_t htmlBufNodeDumpFormat(xmlBuf * buf, xmlDoc * doc, xmlNode * cur, i
 			size_t use = xmlBufUse(buf);
 			htmlNodeDumpFormatOutput(outbuf, doc, cur, NULL, format);
 			SAlloc::F(outbuf);
-			ret = xmlBufUse(buf) - use;
+			ret = static_cast<int>(xmlBufUse(buf) - use);
 		}
 	}
 	return ret;
@@ -461,11 +461,11 @@ void htmlDocDumpMemoryFormat(xmlDoc * cur, xmlChar** mem, int * size, int format
 					htmlDocContentDumpFormatOutput(buf, cur, NULL, format);
 					xmlOutputBufferFlush(buf);
 					if(buf->conv) {
-						*size = xmlBufUse(buf->conv);
+						*size = static_cast<int>(xmlBufUse(buf->conv));
 						*mem = xmlStrndup(xmlBufContent(buf->conv), *size);
 					}
 					else {
-						*size = xmlBufUse(buf->buffer);
+						*size = static_cast<int>(xmlBufUse(buf->buffer));
 						*mem = xmlStrndup(xmlBufContent(buf->buffer), *size);
 					}
 					xmlOutputBufferClose(buf);

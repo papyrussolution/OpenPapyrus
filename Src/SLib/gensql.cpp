@@ -614,6 +614,8 @@ const char * Generator_SQL::P_Tokens[] = {
 	"DATABASES",     // @v12.4.8 tokDatabases
 	"USE",           // @v12.4.8 tokUse
 	"START",         // @v12.4.8 tokStart
+	"USE INDEX",     // @v12.4.12 tokUseIndex
+	"FORCE INDEX",   // @v12.4.12 tokForceIndex 
 };
 
 Generator_SQL & Generator_SQL::HintBegin()

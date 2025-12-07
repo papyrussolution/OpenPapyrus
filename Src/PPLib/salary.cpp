@@ -724,7 +724,7 @@ DBQuery * PPViewSalary::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			PPDbqFuncPool::InitObjNameFunc(dbe_psn,    PPDbqFuncPool::IdObjNamePerson, p_tmp->PersonID);
 			PPDbqFuncPool::InitObjNameFunc(dbe_charge, PPDbqFuncPool::IdObjNameSalCharge, p_tmp->SalChargeID);
 			PPDbqFuncPool::InitObjNameFunc(dbe_bill,   PPDbqFuncPool::IdObjCodeBillCmplx, p_tmp->GenBillID);
-			q = & select(
+			q = & Select_(
 				p_tmp->ID,     // #00
 				p_tmp->Beg,    // #01
 				p_tmp->End,    // #02
@@ -746,7 +746,7 @@ DBQuery * PPViewSalary::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			dbq = ppcheckfiltid(dbq, p_slr->PostID, Filt.PostID);
 			dbq = ppcheckfiltid(dbq, p_slr->SalChargeID, Filt.SalChargeID);
 			dbq = & (*dbq && daterange(p_slr->Beg, &Filt.Period));
-			q = & select(
+			q = & Select_(
 				p_slr->ID,     // #00
 				p_slr->Beg,    // #01
 				p_slr->End,    // #02

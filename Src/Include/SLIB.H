@@ -118,6 +118,7 @@
 	#endif
 	#include <winsock2.h>
 	#include <windows.h>
+	#include <windowsx.h> // @v12.4.12
 	#include <ws2tcpip.h>
 	#include <versionhelpers.h> // @v12.3.4
 	// @v11.7.0 {
@@ -136,6 +137,10 @@
 		#endif
 		// } @v11.7.3
 		#include <commctrl.h> // @v12.4.11
+		#include <commdlg.h>  // @v12.4.11
+		#include <shlobj.h>   // @v12.4.12
+		#include <shlwapi.h>  // @v12.4.12
+		#include <htmlhelp.h> // @v12.4.12
 	#endif
 	// } @v11.7.0 
 	#define _Windows
@@ -8211,6 +8216,7 @@ public:
 	//
 	static uint FASTCALL GetCount(const SVectorBase * pB);
 	int    operator ! () const { return (count == 0); }
+	bool   IsValidIdx(int idx) { return (idx >= 0 && static_cast<uint>(idx) < count); }
 	uint   getCount() const { return count; }
 	int    getCountI() const { return static_cast<int>(count); }
 	int    getEnd() const { return static_cast<int>(count-1); }

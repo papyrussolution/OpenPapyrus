@@ -92,8 +92,8 @@ uint64 UedSetBase::Get(uint idx) const
 
 bool UedSetBase::Add(const uint64 * pUed, uint count, uint * pIdx)
 {
-	bool    ok = true;
-	const   uint current_end_idx = LimbCount;
+	bool   ok = true;
+	const  uint current_end_idx = LimbCount;
 	if(pUed && count) {
 		if(SBaseBuffer::Put(current_end_idx * sizeof(uint64), pUed, count * sizeof(uint64))) {
 			LimbCount += count;

@@ -231,7 +231,7 @@ DBQuery * PPViewLogsMonitor::CreateBrowserQuery(uint *pBrwId, SString *)
 	TempLogFileMonTbl *p_tbl = new TempLogFileMonTbl(P_TmpTbl->GetName());
 	PPDbqFuncPool::InitObjNameFunc(dbe_logfname, PPDbqFuncPool::IdLogFileName, p_tbl->LogFileId);
 	if(p_tbl) {
-		q = & select (
+		q = & Select_(
 			p_tbl->ID__,    // #0
 			dbe_logfname,	// #1
 			p_tbl->LineNo,	// #2

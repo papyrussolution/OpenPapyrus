@@ -780,7 +780,7 @@ int SSqliteDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pK
 						strlwr866((char *)(PTR8(sqb.P_KeyData) + seg_offs));
 					}*/
 					SSqlStmt::Bind b;
-					b.Pos = -(int16)(i+1);
+					b.Pos = -static_cast<int16>(i+1);
 					b.Typ = r_fld.T;
 					b.P_Data = PTR8(sqb.P_KeyData) + seg_offs;
 					uint   lp = 0;

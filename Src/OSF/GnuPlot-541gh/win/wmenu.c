@@ -6,12 +6,12 @@
 #define STRICT
 #define COBJMACROS
 //#include <windows.h>
-#include <windowsx.h>
-#include <commdlg.h>
-#include <commctrl.h>
-#include <shlobj.h>
+// @v12.4.12 #include <windowsx.h>
+// @v12.4.12 #include <commdlg.h>
+// @v12.4.12 #include <commctrl.h>
+//#include <shlobj.h>
 #include <winuser.h>
-#include <shlwapi.h>
+// @v12.4.12 #include <shlwapi.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #ifdef __WATCOMC__
@@ -203,7 +203,7 @@ void SendMacro(TW * lptw, UINT m)
 						for(i = 0; (*s >= 32 && *s <= 126); i++)
 							lpmw->szPrompt[i] = *s++;
 						lpmw->szPrompt[i] = '\0';
-						flag = DialogBox(hdllInstance, TEXT("InputDlgBox"), lptw->hWndParent, InputBoxDlgProc);
+						flag = static_cast<BOOL>(DialogBox(hdllInstance, TEXT("InputDlgBox"), lptw->hWndParent, InputBoxDlgProc));
 						if(flag) {
 							for(i = 0; i < lpmw->nChar; i++)
 								*d++ = lpmw->szAnswer[i];
@@ -263,7 +263,7 @@ void SendMacro(TW * lptw, UINT m)
 						}
 						else {
 							sstrcpy(lpmw->szPrompt, szTitle);
-							flag = DialogBox(hdllInstance, TEXT("InputDlgBox"), lptw->hWndParent, InputBoxDlgProc);
+							flag = static_cast<BOOL>(DialogBox(hdllInstance, TEXT("InputDlgBox"), lptw->hWndParent, InputBoxDlgProc));
 							if(flag) {
 								for(i = 0; i < lpmw->nChar; i++)
 									*d++ = lpmw->szAnswer[i];

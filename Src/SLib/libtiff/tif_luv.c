@@ -205,7 +205,7 @@ static int LogL16Decode(TIFF * tif, uint8 * op, tmsize_t occ, uint16 s)
 				if(cc < 2)
 					break;
 				rc = *bp++ + (2-128);
-				b = (int16)(*bp++ << shft);
+				b = static_cast<int16>(*bp++ << shft);
 				cc -= 2;
 				while(rc-- && i < npixels)
 					tp[i++] |= b;
@@ -426,7 +426,7 @@ static int LogL16Encode(TIFF * tif, uint8 * bp, tmsize_t cc, uint16 s)
 			}
 			mask = 0xff << shft; /* find next run */
 			for(beg = i; beg < npixels; beg += rc) {
-				b = (int16)(tp[beg] & mask);
+				b = static_cast<int16>(tp[beg] & mask);
 				rc = 1;
 				while(rc < 127+2 && beg+rc < npixels && (tp[beg+rc] & mask) == b)
 					rc++;
@@ -434,7 +434,7 @@ static int LogL16Encode(TIFF * tif, uint8 * bp, tmsize_t cc, uint16 s)
 					break; /* long enough */
 			}
 			if(beg-i > 1 && beg-i < MINRUN) {
-				b = (int16)(tp[i] & mask); /*check short run */
+				b = static_cast<int16>(tp[i] & mask); /*check short run */
 				j = i+1;
 				while((tp[j++] & mask) == b)
 					if(j == beg) {
@@ -723,7 +723,7 @@ static void L16fromY(LogLuvState* sp, uint8 * op, tmsize_t n)
 	int16 * l16 = reinterpret_cast<int16 *>(sp->tbuf);
 	float * yp = reinterpret_cast<float *>(op);
 	while(n-- > 0)
-		*l16++ = (int16)(LogL16fromY(*yp++, sp->encode_meth));
+		*l16++ = static_cast<int16>(LogL16fromY(*yp++, sp->encode_meth));
 }
 
 LOGLUV_FUNC_QUALIF void XYZtoRGB24(float xyz[3], uint8 rgb[3])
@@ -915,13 +915,13 @@ static void Luv24toLuv48(LogLuvState* sp, uint8 * op, tmsize_t n)
 	int16 * luv3 = reinterpret_cast<int16 *>(op);
 	while(n-- > 0) {
 		double u, v;
-		*luv3++ = (int16)((*luv >> 12 & 0xffd) + 13314);
+		*luv3++ = static_cast<int16>((*luv >> 12 & 0xffd) + 13314);
 		if(uv_decode(&u, &v, *luv&0x3fff) < 0) {
 			u = U_NEU;
 			v = V_NEU;
 		}
-		*luv3++ = (int16)(u * (1L<<15));
-		*luv3++ = (int16)(v * (1L<<15));
+		*luv3++ = static_cast<int16>(u * (1L<<15));
+		*luv3++ = static_cast<int16>(v * (1L<<15));
 		luv++;
 	}
 }
@@ -1033,11 +1033,11 @@ static void Luv32toLuv48(LogLuvState* sp, uint8 * op, tmsize_t n)
 	int16* luv3 = reinterpret_cast<int16 *>(op);
 	while(n-- > 0) {
 		double u, v;
-		*luv3++ = (int16)(*luv >> 16);
-		u = 1./UVSCALE * ((*luv>>8 & 0xff) + .5);
-		v = 1./UVSCALE * ((*luv & 0xff) + .5);
-		*luv3++ = (int16)(u * (1L<<15));
-		*luv3++ = (int16)(v * (1L<<15));
+		*luv3++ = static_cast<int16>(*luv >> 16);
+		u = 1.0/UVSCALE * ((*luv>>8 & 0xff) + 0.5);
+		v = 1.0/UVSCALE * ((*luv & 0xff) + 0.5);
+		*luv3++ = static_cast<int16>(u * (1L<<15));
+		*luv3++ = static_cast<int16>(v * (1L<<15));
 		luv++;
 	}
 }

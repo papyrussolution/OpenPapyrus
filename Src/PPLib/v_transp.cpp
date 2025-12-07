@@ -167,7 +167,7 @@ DBQuery * PPViewTransport::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	PPDbqFuncPool::InitObjNameFunc(dbe_country, PPDbqFuncPool::IdObjNameWorld,   p_tmp_t->CountryID);
 	PPDbqFuncPool::InitLongFunc(dbe_trtype, PPDbqFuncPool::IdTransportTypeName,  p_tmp_t->TrType);
 
-	q = & select(p_tmp_t->ID, 0L);                          // #00
+	q = & Select_(p_tmp_t->ID, 0L);                          // #00
 	q->addField(p_tmp_t->Name);                             // #01
 	q->addField(dbe_trtype);                                // #02
 	q->addField(p_tmp_t->ModelName);                        // #03

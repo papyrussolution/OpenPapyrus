@@ -967,7 +967,7 @@ DBQuery * PPViewLocTransf::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 		PPDbqFuncPool::InitObjNameFunc(dbe_barcode, PPDbqFuncPool::IdGoodsSingleBarcode, tmpt->GoodsID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_locownerpsn, PPDbqFuncPool::IdObjNamePerson, tmpt->LocOwnerPersonID); // @v12.4.1 (Filt.Domain == LOCTRFRDOMAIN_BAILMENT)
 		p_dbe_op = & enumtoa(tmpt->LTOp, 3, optype_subst.Get(PPTXT_LOCTRANSF_OPTEXT));
-		p_q = &select(
+		p_q = &Select_(
 			tmpt->ID__,             // #00
 			tmpt->LocID,            // #01
 			tmpt->RByLoc,           // #02
@@ -1040,7 +1040,7 @@ DBQuery * PPViewLocTransf::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 			dbq	 = &(*dbq && t->LTOp == 0L && t->RestByGoods > 0.0);
 		else
 			dbq	 = &(*dbq && t->LTOp > 0L);
-		p_q = &select(
+		p_q = &Select_(
 			t->LocID,            // #00 @stub
 			t->LocID,            // #01
 			t->RByLoc,           // #02

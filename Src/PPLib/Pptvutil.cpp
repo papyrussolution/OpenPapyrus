@@ -5,8 +5,8 @@
 #include <pp.h>
 #pragma hdrstop
 #define HMONITOR_DECLARED
-#include <shlobj.h>
-#include <htmlhelp.h>
+//#include <shlobj.h>
+//#include <htmlhelp.h>
 #pragma comment(lib, "htmlhelp.lib")
 
 TWindow * PPApp::FindPhonePaneDialog()
@@ -3784,9 +3784,9 @@ private:
 	{
 		TDialog::handleEvent(event);
 		if(event.isCmd(cmSelBrowserFont))
-			SelectFont(Data.TableFont, CTL_UICFG_ST_TABLEFONT);
+			SelectFont_(Data.TableFont, CTL_UICFG_ST_TABLEFONT);
 		else if(event.isCmd(cmSelListFont))
-			SelectFont(Data.ListFont, CTL_UICFG_ST_LISTFONT);
+			SelectFont_(Data.ListFont, CTL_UICFG_ST_LISTFONT);
 		else if(event.isCmd(cmUiCfgBITF)) 
 			EditBillItemBrowserOptions();
 		else
@@ -3832,10 +3832,10 @@ private:
 		}
 		delete dlg;
 	}
-	void   SelectFont(SFontDescr & rFd, uint indCtlId);
+	void   SelectFont_(SFontDescr & rFd, uint indCtlId); // В windowsx.h определен макрос SelectFont потому такое имя использовать нелья.
 };
 
-void UICfgDialog::SelectFont(SFontDescr & rFd, uint indCtlId)
+void UICfgDialog::SelectFont_(SFontDescr & rFd, uint indCtlId)
 {
 	CHOOSEFONT font;
 	LOGFONT log_font;

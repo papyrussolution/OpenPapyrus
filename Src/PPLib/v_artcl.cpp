@@ -102,7 +102,7 @@ PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempArAgt);
 int PPViewArticle::InitDebtLim(TempArAgtTbl::Rec * pRec, const PPClientAgreement * pCliAgt)
 {
 	if(P_DebtDimList && pRec && pCliAgt) {
-		uint   lim_count = (P_DebtDimList->getCount() < DEBTDIM_BRW_SHOWCOUNT) ? P_DebtDimList->getCount() : DEBTDIM_BRW_SHOWCOUNT;
+		const  uint lim_count = (P_DebtDimList->getCount() < DEBTDIM_BRW_SHOWCOUNT) ? P_DebtDimList->getCount() : DEBTDIM_BRW_SHOWCOUNT;
 		char * p_mc = reinterpret_cast<char *>(&pRec->MaxCredit1);
 		for(uint i = 0; i < lim_count; i++) {
 			uint   pos = 0;
@@ -120,17 +120,18 @@ int PPViewArticle::InitDebtLim(TempArAgtTbl::Rec * pRec, const PPClientAgreement
 int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
+	SString temp_buf;
 	AgtProp = 0;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
 	LimitTerm = 0;
 	AddedLimitTerm = 0;
 	ZDELETE(P_TempTbl);
 	ZDELETE(P_DebtDimList);
-	if(Filt.Flags & (ArticleFilt::fShowAgreement|ArticleFilt::fCheckObj)) {
+	if(Filt.Flags & (ArticleFilt::fShowAgreement|ArticleFilt::fCheckObj|ArticleFilt::fWithIxParamOnly)) { // @v12.4.12 ArticleFilt::fWithIxParamOnly
 		PPObjAccSheet acs_obj;
 		PPAccSheet acs_rec;
 		AgtProp = 0; // ARTPRP_CLIAGT2, ARTPRP_SUPPLAGT
-		if(Filt.Flags & ArticleFilt::fShowAgreement) {
+		if(Filt.Flags & (ArticleFilt::fShowAgreement|ArticleFilt::fWithIxParamOnly)) { // @v12.4.12 ArticleFilt::fWithIxParamOnly
 			if(acs_obj.Fetch(Filt.AccSheetID, &acs_rec) > 0) {
 				if(acs_rec.Flags & ACSHF_USECLIAGT) {
 					PPObjDebtDim obj_dd;
@@ -155,82 +156,53 @@ int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 				BExtInsert bei(P_TempTbl);
 				PropertyTbl & r_pt = PPRef->Prop;
 				if(AgtProp == ARTPRP_CLIAGT2) { // @v11.2.0 ARTPRP_CLIAGT-->ARTPRP_CLIAGT2
-					PPIDArray _id_list;
-					PropertyTbl::Key1 k1;
-					BExtQuery q(&r_pt, 1);
-					q.select(r_pt.ObjType, r_pt.ObjID, r_pt.Prop, 0L).where(r_pt.ObjType == PPOBJ_ARTICLE && r_pt.Prop == ARTPRP_CLIAGT2);
-					MEMSZERO(k1);
-					k1.ObjType = PPOBJ_ARTICLE;	
-					k1.Prop = ARTPRP_CLIAGT2;
-					PPTransaction tra(ppDbDependTransaction, 1);
-					THROW(tra);
-					for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
-						_id_list.addnz(r_pt.data.ObjID);
-					}
-					if(_id_list.getCount()) {
-						_id_list.sortAndUndup();
+					if(!(Filt.Flags & ArticleFilt::fWithIxParamOnly)) { // @v12.4.12
+						PPIDArray _id_list;
+						PropertyTbl::Key1 k1;
+						BExtQuery q(&r_pt, 1);
+						q.select(r_pt.ObjType, r_pt.ObjID, r_pt.Prop, 0L).where(r_pt.ObjType == PPOBJ_ARTICLE && r_pt.Prop == ARTPRP_CLIAGT2);
+						MEMSZERO(k1);
+						k1.ObjType = PPOBJ_ARTICLE;	
+						k1.Prop = ARTPRP_CLIAGT2;
 						PPTransaction tra(ppDbDependTransaction, 1);
 						THROW(tra);
-						for(uint i = 0; i < _id_list.getCount(); i++) {
-							const  PPID _id = _id_list.get(i);
-							PPClientAgreement cli_agt;
-							if(ArObj.GetClientAgreement(_id, cli_agt) > 0) {
-								TempArAgtTbl::Rec rec;
-								rec.ArID        = cli_agt.ClientID;
-								rec.Beg = cli_agt.BegDt;
-								rec.Expiry      = cli_agt.Expiry;
-								rec.DefPayTerm  = cli_agt.DefPayPeriod;
-								rec.DefAgentID    = cli_agt.DefAgentID;
-								rec.DefQuotKindID = cli_agt.DefQuotKindID;
-								rec.Discount      = cli_agt.Dscnt;
-								rec.MaxDiscount   = cli_agt.MaxDscnt;
-								rec.MaxCredit     = cli_agt.MaxCredit;
-								rec.ExtObjectID   = cli_agt.ExtObjectID;
-								rec.Flags = cli_agt.Flags;
-								STRNSCPY(rec.Code, cli_agt.Code_);
-								InitDebtLim(&rec, &cli_agt);
-								THROW_DB(bei.insert(&rec));
+						for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
+							_id_list.addnz(r_pt.data.ObjID);
+						}
+						if(_id_list.getCount()) {
+							_id_list.sortAndUndup();
+							PPTransaction tra(ppDbDependTransaction, 1);
+							THROW(tra);
+							for(uint i = 0; i < _id_list.getCount(); i++) {
+								const  PPID _id = _id_list.get(i);
+								PPClientAgreement cli_agt;
+								if(ArObj.GetClientAgreement(_id, cli_agt) > 0) {
+									TempArAgtTbl::Rec rec;
+									rec.ArID       = cli_agt.ClientID;
+									rec.Beg        = cli_agt.BegDt;
+									rec.Expiry     = cli_agt.Expiry;
+									rec.DefPayTerm = cli_agt.DefPayPeriod;
+									rec.DefAgentID = cli_agt.DefAgentID;
+									rec.DefQuotKindID = cli_agt.DefQuotKindID;
+									rec.Discount      = cli_agt.Dscnt;
+									rec.MaxDiscount   = cli_agt.MaxDscnt;
+									rec.MaxCredit     = cli_agt.MaxCredit;
+									rec.ExtObjectID   = cli_agt.ExtObjectID;
+									rec.Flags = cli_agt.Flags;
+									STRNSCPY(rec.Code, cli_agt.Code_);
+									InitDebtLim(&rec, &cli_agt);
+									THROW_DB(bei.insert(&rec));
+								}
 							}
+							THROW_DB(bei.flash());
+							THROW(tra.Commit());
 						}
-						THROW_DB(bei.flash());
-						THROW(tra.Commit());
 					}
-#if 0 // @v11.2.0 {
-					BExtQuery q(&r_pt, 0);
-					q.selectAll().where(r_pt.ObjType == PPOBJ_ARTICLE && r_pt.Prop == ARTPRP_CLIAGT);
-					MEMSZERO(k0);
-					k0.ObjType = PPOBJ_ARTICLE;
-					{
-						PPTransaction tra(ppDbDependTransaction, 1);
-						THROW(tra);
-						for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
-							TempArAgtTbl::Rec rec;
-							PPClientAgreement cli_agt;
-							PPObjArticle::PropToClientAgt(&r_pt.data, &cli_agt, 1);
-							rec.ArID        = cli_agt.ClientID;
-							rec.Beg = cli_agt.BegDt;
-							rec.Expiry      = cli_agt.Expiry;
-							rec.DefPayTerm  = cli_agt.DefPayPeriod;
-							rec.DefAgentID    = cli_agt.DefAgentID;
-							rec.DefQuotKindID = cli_agt.DefQuotKindID;
-							rec.Discount      = cli_agt.Dscnt;
-							rec.MaxDiscount   = cli_agt.MaxDscnt;
-							rec.MaxCredit     = cli_agt.MaxCredit;
-							rec.ExtObjectID   = cli_agt.ExtObjectID;
-							rec.Flags = cli_agt.Flags;
-							STRNSCPY(rec.Code, cli_agt.Code_); // @v10.2.9 Code-->Code2 // @v11.2.0 cli_agt.Code2-->cli_agt.Code_
-							InitDebtLim(&rec, &cli_agt);
-							THROW_DB(bei.insert(&rec));
-						}
-						THROW_DB(bei.flash());
-						THROW(tra.Commit());
-					}
-#endif // } 0 @v11.2.0
 				}
 				else if(AgtProp == ARTPRP_SUPPLAGT) {
 					//
 					// Соглашение с поставщиком может хранится в Property с идентификатором ARTPRP_SUPPLAGT (формат до v8.5.0),
-					// и с иденти ARTPRP_SUPPLAGT2 (формат v8.5.0 и выше). По этому пришлось так усложнить выборку соглашений:
+					// и с идентификатором ARTPRP_SUPPLAGT2 (формат v8.5.0 и выше). По этому пришлось так усложнить выборку соглашений:
 					// сначала быстро получаем статьи, которые имеют соглашения, а потом для каждой такой статьи
 					// полной функцией PPObjArticle::GetSupplAgreement извлекаем соглашение
 					//
@@ -261,15 +233,23 @@ int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 						for(uint i = 0; i < ar_agt_list.getCount(); i++) {
 							const  PPID ar_id = ar_agt_list.get(i);
 							if(ArObj.GetSupplAgreement(ar_id, &suppl_agt, 0) > 0) {
-								TempArAgtTbl::Rec rec;
-								rec.ArID        = suppl_agt.SupplID;
-								rec.Beg = suppl_agt.BegDt;
-								rec.Expiry      = suppl_agt.Expiry;
-								rec.DefPayTerm  = suppl_agt.DefPayPeriod;
-								rec.DefDlvrTerm = suppl_agt.DefDlvrTerm;
-								rec.DefAgentID  = suppl_agt.DefAgentID;
-								rec.Flags       = suppl_agt.Flags;
-								THROW_DB(bei.insert(&rec));
+								if(!(Filt.Flags & ArticleFilt::fWithIxParamOnly) || !suppl_agt.Ep.IsEmpty()) { // @v12.4.12
+									TempArAgtTbl::Rec rec;
+									rec.ArID        = suppl_agt.SupplID;
+									rec.Beg         = suppl_agt.BegDt;
+									rec.Expiry      = suppl_agt.Expiry;
+									rec.DefPayTerm  = suppl_agt.DefPayPeriod;
+									rec.DefDlvrTerm = suppl_agt.DefDlvrTerm;
+									rec.DefAgentID  = suppl_agt.DefAgentID;
+									rec.Flags       = suppl_agt.Flags;
+									// @v12.4.12 {
+									suppl_agt.Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, temp_buf);
+									if(temp_buf.NotEmpty()) {
+										STRNSCPY(rec.TechSymb, temp_buf);
+									}
+									// } @v12.4.12 
+									THROW_DB(bei.insert(&rec));
+								}
 							}
 						}
 						THROW_DB(bei.flash());
@@ -282,7 +262,7 @@ int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 			PPIDArray id_list;
 			ArObj.P_Tbl->GetListBySheet(Filt.AccSheetID, &id_list, 0);
 			if(id_list.getCount()) {
-				SString msg;
+				temp_buf.Z();
 				if(!P_TempTbl)
 					THROW(P_TempTbl = CreateTempFile());
 				{
@@ -291,19 +271,19 @@ int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 					for(uint i = 0; i < id_list.getCount(); i++) {
 						const  PPID ar_id = id_list.get(i);
 						ArticleTbl::Rec ar_rec;
-						if(ArObj.Search(ar_id, &ar_rec) > 0 && !ArObj.CheckObject(&ar_rec, &msg)) {
+						if(ArObj.Search(ar_id, &ar_rec) > 0 && !ArObj.CheckObject(&ar_rec, &temp_buf)) {
 							TempArAgtTbl::Rec rec;
 							TempArAgtTbl::Key0 k0;
 							MEMSZERO(k0);
 							k0.ArID = ar_rec.ID;
 							if(SearchByKey_ForUpdate(P_TempTbl, 0, &k0, &rec) > 0) {
-								msg.CopyTo(rec.Msg, sizeof(rec.Msg));
+								temp_buf.CopyTo(rec.Msg, sizeof(rec.Msg));
 								THROW_DB(P_TempTbl->updateRecBuf(&rec));
 							}
 							else {
 								rec.Clear();
 								rec.ArID = ar_rec.ID;
-								msg.CopyTo(rec.Msg, sizeof(rec.Msg));
+								temp_buf.CopyTo(rec.Msg, sizeof(rec.Msg));
 								THROW_DB(P_TempTbl->insertRecBuf(&rec));
 							}
 						}
@@ -414,6 +394,7 @@ int PPViewArticle::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			AddClusterAssoc(CTL_ARTICLEFLT_FLAGS, 0, ArticleFilt::fShowAgreement);
 			AddClusterAssoc(CTL_ARTICLEFLT_FLAGS, 1, ArticleFilt::fCheckObj);
 			AddClusterAssoc(CTL_ARTICLEFLT_FLAGS, 2, ArticleFilt::fShowAddedLimit);
+			AddClusterAssoc(CTL_ARTICLEFLT_FLAGS, 3, ArticleFilt::fWithIxParamOnly); // @v12.4.12
 			if(Data.Flags & ArticleFilt::fShowAgreement)
 				DisableClusterItem(CTL_ARTICLEFLT_FLAGS, 2, 0);
 			else {
@@ -421,6 +402,7 @@ int PPViewArticle::EditBaseFilt(PPBaseFilt * pBaseFilt)
 				DisableClusterItem(CTL_ARTICLEFLT_FLAGS, 2, 1);
 			}
 			SetClusterData(CTL_ARTICLEFLT_FLAGS, Data.Flags);
+			SetupCtrls();
 			return ok;
 		}
 		DECL_DIALOG_GETDTS()
@@ -444,7 +426,10 @@ int PPViewArticle::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		DECL_HANDLE_EVENT
 		{
 			TDialog::handleEvent(event);
-			if(event.isClusterClk(CTL_ARTICLEFLT_FLAGS)) {
+			if(event.isCbSelected(CTLSEL_ARTICLEFLT_ACCSID)) { // @v12.4.12
+				SetupCtrls();
+			}
+			else if(event.isClusterClk(CTL_ARTICLEFLT_FLAGS)) {
 				long flags = GetClusterData(CTL_ARTICLEFLT_FLAGS);
 				if(flags & ArticleFilt::fShowAgreement)
 					DisableClusterItem(CTL_ARTICLEFLT_FLAGS, 2, 0);
@@ -460,6 +445,19 @@ int PPViewArticle::EditBaseFilt(PPBaseFilt * pBaseFilt)
 				return;
 			clearEvent(event);
 		}
+		void   SetupCtrls()
+		{
+			bool    enable_fWithIxParamOnly = false;
+			getCtrlData(CTLSEL_ARTICLEFLT_ACCSID, &Data.AccSheetID);
+			PPAccSheet2 acs_rec;
+			if(AcsObj.Fetch(Data.AccSheetID, &acs_rec) > 0) {
+				if(acs_rec.Flags & ACSHF_USESUPPLAGT) {
+					enable_fWithIxParamOnly = true;
+				}
+			}
+			DisableClusterItem(CTL_ARTICLEFLT_FLAGS, 3, !enable_fWithIxParamOnly);
+		}
+		PPObjAccSheet AcsObj;
 	};
 	int    ok = -1;
 	ArticleFiltDialog * dlg = 0;
@@ -883,7 +881,7 @@ DBQuery * PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbe_stop = & flagtoa(a->Flags, ARTRF_STOPBILL, stop_subst.Get(PPTXT_AR_STOP));
 		if(Filt.PersonID) {
 			THROW(CheckTblPtr(rf = new ReferenceTbl));
-			p_q = & select(
+			p_q = & Select_(
 				a->ID,       // #00
 				a->Article,  // #01
 				a->Name,     // #02
@@ -895,7 +893,7 @@ DBQuery * PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		}
 		else {
 			THROW(SearchObject(PPOBJ_ACCSHEET, Filt.AccSheetID, &acs_rec) > 0);
-			p_q = & select(
+			p_q = & Select_(
 				a->ID,       // #00
 				a->Article,  // #01
 				a->Name,     // #02
@@ -961,6 +959,7 @@ DBQuery * PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				p_q->addField(tt->MaxCredit); // #19 @stub
 			}
 			p_q->addField(dbe_supple);        // #20 // @vmiller // @v8.3.6 @fix #19-->#20
+			p_q->addField(tt->TechSymb);      // #21 // @v12.4.12
 			for(uint i = 0; i < DEBTDIM_BRW_SHOWCOUNT; i++) {
 				DBConst dbc_long;
 				DBField field;
@@ -993,7 +992,12 @@ DBQuery * PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				}
 			}
 			p_q->addTable(tt);
-			dbq = &(*dbq && (tt->ArID += a->ID));
+			if(Filt.Flags & ArticleFilt::fWithIxParamOnly) {
+				dbq = &(*dbq && (tt->ArID == a->ID));
+			}
+			else {
+				dbq = &(*dbq && (tt->ArID += a->ID));
+			}
 		}
 		delete dbe_stop;
 		dbq = ppcheckflag(dbq, a->Flags, ARTRF_STOPBILL, Filt.Ft_Stop);

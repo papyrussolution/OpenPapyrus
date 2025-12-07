@@ -255,7 +255,7 @@ DBQuery * PPViewMrpTab::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	THROW(CheckTblPtr(t = new MrpTabTbl));
 	THROW(CheckTblPtr(lt = new LocationTbl));
 	THROW(CheckTblPtr(ot  = new TempOrderTbl(P_TempOrd->GetName())));
-	q = & select(
+	q = & Select_(
 		t->ID,           // #00
 		t->Name,         // #01
 		t->LinkObjType,  // #02
@@ -714,7 +714,7 @@ DBQuery * PPViewMrpLine::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	dbq = & (*dbq && t->TabID == Filt.TabID);
 	if(Filt.Flags & MrpLineFilt::fShowSubst) {
 		brw_id = BROWSER_MRPLINE_SUBST;
-		q = & select(
+		q = & Select_(
 			t->ID,               // #00
 			gt->Name,            // #01
 			t->DestReqQtty,      // #02
@@ -727,7 +727,7 @@ DBQuery * PPViewMrpLine::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbe_term     = & flagtoa(t2->Flags, MRPLF_TERMINAL, flag_subst.Get(PPTXT_FLAG_YES));
 		dbe_replaced = & flagtoa(t2->Flags, MRPLF_REPLACED, flag_subst.Get(PPTXT_FLAG_YES));
 		if(Filt.DestGoodsID) {
-			q = & select(
+			q = & Select_(
 				t->ID,           // #0
 				t->Flags,        // #1
 				gt->Name,        // #2
@@ -742,7 +742,7 @@ DBQuery * PPViewMrpLine::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			dbq = & (*dbq && t->DestID == Filt.DestGoodsID && t->SrcID > 0L);
 		}
 		else {
-			q = & select(
+			q = & Select_(
 				t->ID,           // #0
 				t->Flags,        // #1
 				gt->Name,        // #2

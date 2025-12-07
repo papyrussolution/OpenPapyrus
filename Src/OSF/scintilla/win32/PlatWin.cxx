@@ -13,7 +13,7 @@
 #define _WIN32_WINNT 0x0500
 #undef WINVER
 #define WINVER 0x0500
-#include <windowsx.h>
+// @v12.4.12 #include <windowsx.h>
 #if defined(NTDDI_WIN7) && !defined(DISABLE_D2D)
 	#define USE_D2D 1
 #endif

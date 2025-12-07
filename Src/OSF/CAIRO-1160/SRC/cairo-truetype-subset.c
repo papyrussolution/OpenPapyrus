@@ -1251,7 +1251,7 @@ static cairo_status_t find_name(tt_name_t * name, int name_id, int platform, int
 
 	/* If font name is prefixed with a PDF subset tag, strip it off. */
 	p = str;
-	len = strlen(str);
+	len = sstrleni(str);
 	has_tag = FALSE;
 	if(len > 7 && p[6] == '+') {
 		has_tag = TRUE;

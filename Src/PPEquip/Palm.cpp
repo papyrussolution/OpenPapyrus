@@ -778,7 +778,7 @@ int PPObjStyloPalm::PutPacket(PPID * pID, PPStyloPalmPacket * pPack, int use_ta)
 	int    ok = 1;
 	{
 		PPStyloPalm parent_rec;
-		const    PPID parent_id = pPack->Rec.GroupID;
+		const  PPID parent_id = pPack->Rec.GroupID;
 		THROW_PP(!pPack || pPack->Rec.Name[0], PPERR_NAMENEEDED);
         THROW_PP_S(!parent_id || (Search(parent_id, &parent_rec) > 0 && parent_rec.Flags & PLMF_GENERIC), PPERR_INVSTYLOPARENT, parent_id);
 		PPTransaction tra(use_ta);

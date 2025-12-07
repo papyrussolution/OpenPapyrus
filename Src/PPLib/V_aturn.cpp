@@ -797,7 +797,7 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 		THROW_PP(P_TmpAGTbl, PPERR_PPVIEWNOTINITED);
 		THROW(CheckTblPtr(p_grp_tbl = new TempAccturnGrpngTbl(P_TmpAGTbl->GetName())));
 		PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPDbqFuncPool::IdObjSymbCurrency, p_grp_tbl->CurID);
-		q = & select(
+		q = & Select_(
 			p_grp_tbl->Dt,          // #00
 			p_grp_tbl->DbtAccID,    // #01
 			p_grp_tbl->CrdAccID,    // #02
@@ -840,7 +840,7 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 			dbe_rel_restrict.push(c_temp);
 			dbe_rel_restrict.push(static_cast<DBFunc>(PPViewAccturn::DynFuncCheckRelRestrictions));
 		}
-		q = & select(
+		q = & Select_(
 			at->BillID,             // #00
 			at->Dt,                 // #01
 			at->RByBill,            // #02

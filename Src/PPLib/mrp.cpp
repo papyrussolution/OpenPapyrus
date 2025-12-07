@@ -699,15 +699,15 @@ int CMrpTab::Add__(PPID tabID, PPID destID, PPID srcID, double destReqQtty, doub
 		//SETFLAG(r_row.Flags, MRPLF_TERMINAL,   flags & MRPLF_TERMINAL);
 		//SETFLAG(r_row.Flags, MRPLF_IGNOREREST, flags & MRPLF_IGNOREREST);
 		//
-		r_row.Flags |= (int16)(flags & MRPLF_TERMINAL);
-		r_row.Flags |= (int16)(flags & MRPLF_IGNOREREST);
+		r_row.Flags |= static_cast<int16>(flags & MRPLF_TERMINAL);
+		r_row.Flags |= static_cast<int16>(flags & MRPLF_IGNOREREST);
 	}
 	else {
 		row.DestReq = destReqQtty;
 		row.SrcReq  = srcReqQtty;
 		row.Price   = price;
 		//row.Flags   = term ? MRPLF_TERMINAL : 0;
-		row.Flags   = (int16)(flags & (MRPLF_TERMINAL|MRPLF_IGNOREREST));
+		row.Flags   = static_cast<int16>(flags & (MRPLF_TERMINAL|MRPLF_IGNOREREST));
 		THROW_SL(insert(&row));
 	}
 	CATCHZOK

@@ -260,7 +260,7 @@ DBQuery * PPViewPalm::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	PPDbqFuncPool::InitObjNameFunc(dbe_loc,   PPDbqFuncPool::IdObjNameLoc,    t->LocID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_ggrp,  PPDbqFuncPool::IdObjNameGoods,  t->GoodsGrpID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_ar,    PPDbqFuncPool::IdObjNameAr,     t->AgentID);
-	q = & select(
+	q = & Select_(
 		t->ID,            // #0
 		t->Name,          // #1
 		dbe_loc,          // #2

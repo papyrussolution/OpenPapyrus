@@ -1551,7 +1551,7 @@ int FASTCALL PPViewGeoTracking::CheckRecForFilt(const GeoTrackTbl::Rec * pRec)
 			dbq = &(*dbq && t->Dts2010 <= diffdate(Filt.Period.upp, base_date));
 		}
 	}
-	q = & select(
+	q = & Select_(
 		t->ObjType,   // #0
 		t->ObjID,     // #1
 		t->Dts2010,   // #2

@@ -1283,6 +1283,7 @@ browser ARTICLE_AGTSUPPL north(100), 3, 0, "@{view_article} {%s}", OWNER|GRID, 0
 		"@agent",                    10, notype, 0,           12
 		"Автозаказ",                 17, notype, 0,           6
 		"Символ провайдера",         20, notype, 0,           6  // @v8.3.6 @fix 19-->20
+		"Технология обмена",         21, notype, 0,           6  // @v12.4.12
 	}
 	toolbar ARTICLE
 }
@@ -8223,7 +8224,8 @@ record QuotVal {
 	CurrencySymb zstring(20)         "@{currencysymb}";
 	CurrencyCode long  format(10)    "@{currencydigitalcode}";
 	ArID         long  format(10)    "ИД статьи привязки";
-	ArCode       zstring(20)         "Код статьи привязки";
+	ArCode       zstring(20)         "Код статьи привязки"; // @v12.4.11
+	ArName       zstring(128)        "Наименование статьи привязки"; // @v12.4.12
 	DateLow      date                "@{quot_period_lowdate}";
 	DateUpp      date                "@{quot_period_uppdate}";
 	Value        double format(15.5) "@{quot_valuegeneric}";

@@ -528,7 +528,7 @@ DBQuery * PPViewFreight::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	PPDbqFuncPool::InitStrPoolRefFunc(dbe_ship, tbl->ShipNameP, &StrPool);
 	// @v11.1.12 PPDbqFuncPool::InitStrPoolRefFunc(dbe_memo, tbl->MemoP, &StrPool);
 	PPDbqFuncPool::InitObjNameFunc(dbe_memo, PPDbqFuncPool::IdObjMemoBill, tbl->BillID); // @v11.1.12
-	q = & select(
+	q = & Select_(
 		tbl->BillID,    //  #0
 		tbl->BillDate,  //  #1
 		tbl->Code,      //  #2

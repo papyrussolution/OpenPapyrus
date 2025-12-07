@@ -3030,7 +3030,7 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			PPDbqFuncPool::InitStrPoolRefFunc(dbe_addrtype,  tmp_pt->AddrTypeP, &StrPool); // @v12.1.11
 			PPDbqFuncPool::InitStrPoolRefFunc(dbe_phone, tmp_pt->PhoneP, &StrPool); // @v12.1.11
 			PPDbqFuncPool::InitStrPoolRefFunc(dbe_email, tmp_pt->EMailP, &StrPool); // @v12.1.11
-			q = & select(
+			q = & Select_(
 				p->ID,                // #0
 				tmp_pt->TabID,        // #1 ИД адреса
 				p->Name,              // #2 Наименование персоналии
@@ -3060,7 +3060,7 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_phone, tmp_pt->PhoneP, &StrPool);
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_addr,  tmp_pt->AddressP, &StrPool);
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_raddr, tmp_pt->RAddressP, &StrPool);
-						q = & select(
+						q = & Select_(
 							p->ID,                         // #0 
 							p->Name,                       // #1
 							/*tmp_pt->Phone*/dbe_phone,    // #2  
@@ -3073,7 +3073,7 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				case PPPSNATTR_EMAIL:
 					{
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_phone, tmp_pt->EMailP, &StrPool); // @v12.1.11 tmp_pt->PhoneP-->tmp_pt->EMailP
-						q = & select(
+						q = & Select_(
 							p->ID,                      // #0
 							p->Name,                    // #1 
 							/*tmp_pt->Phone*/dbe_phone, // #2
@@ -3091,7 +3091,7 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_fiasadrguid,  tmp_pt->FiasAddrGuidP, &StrPool);
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_fiashseguid,  tmp_pt->FiasHouseGuidP, &StrPool);
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_addrtype,  tmp_pt->AddrTypeP, &StrPool); // @v12.1.11
-						q = & select(
+						q = & Select_(
 							p->ID,                // #0
 							tmp_pt->TabID,        // #1 ИД адреса
 							p->Name,              // #2 Наименование персоналии
@@ -3114,7 +3114,7 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_phone,  tmp_pt->PhoneP, &StrPool);
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_bnkname,  tmp_pt->BnkNameP, &StrPool);
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_addrtype,  tmp_pt->AddrTypeP, &StrPool); // @v12.1.11
-						q = & select(
+						q = & Select_(
 							tmp_pt->ID,        // #0
 							tmp_pt->TabID,     // #1 ИД адреса
 							tmp_pt->Name,      // #2 Наименование персоналии
@@ -3132,7 +3132,7 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_bnkname,  tmp_pt->BnkNameP, &StrPool);
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_bnkacct, tmp_pt->BnkAcctP, &StrPool);
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_phone,  tmp_pt->PhoneP, &StrPool);
-						q = & select(
+						q = & Select_(
 							p->ID,               // #0
 							tmp_pt->TabID,       // #1
 							p->Name,             // #2
@@ -3148,7 +3148,7 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				case PPPSNATTR_REGISTER:
 					{
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_regser,  tmp_pt->RegSerialP, &StrPool);
-						q = & select(
+						q = & Select_(
 							p->ID,               // #0
 							p->Name,             // #1
 							dbe_regser,          // #2  
@@ -3161,7 +3161,7 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					break;
 				case PPPSNATTR_TAG:
 					{
-						q = & select(
+						q = & Select_(
 							p->ID,             // #0
 							p->Name,           // #1
 							tmp_pt->RegNumber, // #2
@@ -3177,7 +3177,7 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 						PPDbqFuncPool::InitObjNameFunc(dbe_status, PPDbqFuncPool::IdObjNamePersonStatus, p->Status);
 						PPDbqFuncPool::InitObjNameFunc(dbe_cat,    PPDbqFuncPool::IdObjNamePersonCat,    p->CatID);
 						PPDbqFuncPool::InitObjNameFunc(dbe_memo,   PPDbqFuncPool::IdObjMemoPerson,       p->ID); // @v11.1.12
-						q = & select(
+						q = & Select_(
 							p->ID,      // #0
 							p->Name,    // #1 
 							dbe_status, // #2

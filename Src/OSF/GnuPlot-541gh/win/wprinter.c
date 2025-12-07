@@ -6,10 +6,10 @@
 #pragma hdrstop
 #define STRICT
 #include <initguid.h>
-#include <windowsx.h>
+// @v12.4.12 #include <windowsx.h>
 #include <unknwn.h>
-#include <commdlg.h>
-#include <commctrl.h>
+// @v12.4.12 #include <commdlg.h>
+// @v12.4.12 #include <commctrl.h>
 #include <ocidl.h>
 #include "wgnuplib.h"
 #include "wresourc.h"

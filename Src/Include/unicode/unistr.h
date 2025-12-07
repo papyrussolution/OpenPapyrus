@@ -3787,7 +3787,7 @@ inline void UnicodeString::setZeroLength() { fUnion.fFields.fLengthAndFlags &= k
 inline void UnicodeString::setShortLength(int32_t len) 
 {
 	// requires 0 <= len <= kMaxShortLength
-	fUnion.fFields.fLengthAndFlags = (int16)((fUnion.fFields.fLengthAndFlags & kAllStorageFlags) | (len << kLengthShift));
+	fUnion.fFields.fLengthAndFlags = static_cast<int16>((fUnion.fFields.fLengthAndFlags & kAllStorageFlags) | (len << kLengthShift));
 }
 
 inline void UnicodeString::setLength(int32_t len) 

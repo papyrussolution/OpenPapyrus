@@ -5000,6 +5000,7 @@ table TempArAgt {
 	double MaxDiscount;
 	double MaxCredit;
 	string Code[24];      // Номер соглашения // @v10.2.9 [12]-->[24]
+	string TechSymb[48];  // @v12.4.12 Символ технологии обмена данными с контрагентом
 	long   Flags;         // Флаги соглашения //
 	double MaxCredit1;
 	double MaxCredit2;

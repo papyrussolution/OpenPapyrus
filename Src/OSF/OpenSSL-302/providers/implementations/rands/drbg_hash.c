@@ -263,18 +263,13 @@ static int drbg_hash_instantiate(PROV_DRBG * drbg,
 	       && hash_df1(drbg, hash->C, 0x00, hash->V, drbg->seedlen);
 }
 
-static int drbg_hash_instantiate_wrapper(void * vdrbg, unsigned int strength,
-    int prediction_resistance,
-    const unsigned char * pstr,
-    size_t pstr_len,
-    const OSSL_PARAM params[])
+static int drbg_hash_instantiate_wrapper(void * vdrbg, unsigned int strength, int prediction_resistance,
+    const unsigned char * pstr, size_t pstr_len, const OSSL_PARAM params[])
 {
 	PROV_DRBG * drbg = (PROV_DRBG*)vdrbg;
-
 	if(!ossl_prov_is_running() || !drbg_hash_set_ctx_params(drbg, params))
 		return 0;
-	return ossl_prov_drbg_instantiate(drbg, strength, prediction_resistance,
-		   pstr, pstr_len);
+	return ossl_prov_drbg_instantiate(drbg, strength, prediction_resistance, pstr, pstr_len);
 }
 
 /*

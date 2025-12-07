@@ -353,8 +353,8 @@ const BNField & BNKeyList::field(int key, int seg) const
 
 bool BNKeyList::HasAcsSegWithField(int fldId) const
 {
-	bool    ok = false;
-	const   uint kc = getNumKeys();
+	bool   ok = false;
+	const  uint kc = getNumKeys();
 	for(uint i = 0; !ok && i < kc; i++) {
 		const BNKey key = getKey(i);
 		for(uint si = 0; !ok && si < static_cast<uint>(key.getNumSeg()); si++) {
@@ -369,8 +369,8 @@ bool BNKeyList::HasAcsSegWithField(int fldId) const
 bool BNKeyList::GetKeyPosListByField(int fldId, LongArray * pPosList) const
 {
 	CALLPTRMEMB(pPosList, Z());
-	bool    ok = false;
-	const   uint kc = getNumKeys();
+	bool   ok = false;
+	const  uint kc = getNumKeys();
 	for(uint i = 0; i < kc; i++) {
 		const BNKey key = getKey(i);
 		for(uint si = 0; si < static_cast<uint>(key.getNumSeg()); si++) {

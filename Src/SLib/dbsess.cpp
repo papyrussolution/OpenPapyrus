@@ -61,8 +61,8 @@ void DbThreadLocalArea::DbRegList::FreeEntry(int handle, void * pSupplementPtr)
 
 void * FASTCALL DbThreadLocalArea::DbRegList::GetPtr_(int handle) const
 {
-	assert(handle > 0 && handle <= static_cast<int>(Tab.getCount()));
-	return (handle > 0 && handle <= static_cast<int>(Tab.getCount())) ? Tab.at(handle-1) : 0;
+	assert(handle > 0 && handle <= Tab.getCountI());
+	return (handle > 0 && handle <= Tab.getCountI()) ? Tab.at(handle-1) : 0;
 }
 
 void * FASTCALL DbThreadLocalArea::DbRegList::GetBySupplementPtr(const void * pSupplementPtr) const

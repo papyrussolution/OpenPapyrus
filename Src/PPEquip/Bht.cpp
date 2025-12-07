@@ -5363,7 +5363,7 @@ int IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID, Goods
 		SStrCollection files;
 		PPLogger logger;
 		ReceiveData_LocalBlock _lb(pack, files);
-		const   int bht_type = pack.Rec.BhtTypeID;
+		const  int bht_type = pack.Rec.BhtTypeID;
 		THROW_PP(bht_type != PPObjBHT::btCom, PPERR_BHTSUPPFROMEXTMOD);
 		PPWaitStart();
 		if(!oneof3(bht_type, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {

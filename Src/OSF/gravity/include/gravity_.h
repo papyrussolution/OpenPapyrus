@@ -12,7 +12,7 @@
 	#include <mach/mach_time.h>
 #endif
 #if defined(_WIN32)
-	#include <Shlwapi.h>
+	// @v12.4.12 #include <Shlwapi.h>
 #endif
 struct GravityValue;
 struct gravity_class_t;

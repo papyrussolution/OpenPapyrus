@@ -14,9 +14,9 @@
 #undef WINVER
 #define WINVER 0x0500
 //#include <windows.h>
-#include <commctrl.h>
+// @v12.4.12 #include <commctrl.h>
 #include <richedit.h>
-#include <windowsx.h>
+// @v12.4.12 #include <windowsx.h>
 #include <zmouse.h>
 #include <ole2.h>
 

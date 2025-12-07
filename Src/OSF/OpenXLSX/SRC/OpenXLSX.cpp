@@ -7999,7 +7999,7 @@ XLCellRange XLWorksheet::range(std::string const& rangeReference) const
 	return range(rangeReference.substr(0, pos), rangeReference.substr(pos + 1, std::string::npos));
 }
 
-XLRowRange XLWorksheet::rows() const    // 2024-04-29: patched for whitespace
+XLRowRange XLWorksheet::rows() const // 2024-04-29: patched for whitespace
 {
 	const auto sheetDataNode = xmlDocumentC().document_element().child("sheetData");
 	return XLRowRange(sheetDataNode, 1, (sheetDataNode.last_child_of_type(pugi::node_element).empty() ? 1 : 
@@ -11564,7 +11564,7 @@ XLSheetType XLWorkbook::typeOfSheet(const std::string& sheetName) const
 	return XLSheetType::Chartsheet;
 }
 
-XLSheetType XLWorkbook::typeOfSheet(uint index) const    // 2024-05-01: whitespace support
+XLSheetType XLWorkbook::typeOfSheet(uint index) const // 2024-05-01: whitespace support
 {
 	uint thisIndex = 1;
 	for(XMLNode sheet = sheetsNode(xmlDocumentC()).first_child_of_type(pugi::node_element);
@@ -11699,7 +11699,7 @@ void XLWorkbook::setFullCalculationOnLoad()
 
 void XLWorkbook::print(std::basic_ostream<char>& ostr) const { xmlDocumentC().document_element().print(ostr); }
 
-bool XLWorkbook::sheetIsActive(const std::string& sheetRID) const    // 2024-04-30: whitespace support
+bool XLWorkbook::sheetIsActive(const std::string& sheetRID) const // 2024-04-30: whitespace support
 {
 	const XMLNode workbookView = xmlDocumentC().document_element().child("bookViews").first_child_of_type(pugi::node_element);
 	const XMLAttribute activeTabAttribute = workbookView.attribute("activeTab");

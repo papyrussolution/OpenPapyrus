@@ -65,6 +65,8 @@ SLTEST_R(SQLite)
 			{ Generator_SQL::tokDatabases, "DATABASES" }, // @v12.4.8 
 			{ Generator_SQL::tokUse, "USE" }, // @v12.4.8 
 			{ Generator_SQL::tokStart, "START" }, // @v12.4.8 
+			{ Generator_SQL::tokUseIndex, "USE INDEX" },      // @v12.4.12 
+			{ Generator_SQL::tokForceIndex, "FORCE INDEX" }, // @v12.4.12 
 		};
 		//Generator_SQL gen(sqlstSQLite, 0);
 		for(uint i = 0; i < SIZEOFARRAY(tok_list); i++) {
@@ -323,7 +325,6 @@ SLTEST_R(SQLite)
 				{
 					const size_t ls_p = p_pattern_rec->TextField.GetPtrSize();
 					const char * lp_p = static_cast<const char *>(p_pattern_rec->TextField.GetRawDataPtrC());
-
 					const size_t ls_t = p_rec_buf->TextField.GetPtrSize();
 					const char * lp_t = static_cast<const char *>(p_rec_buf->TextField.GetRawDataPtrC());
 					if(ls_p != ls_t || memcmp(lp_p, lp_t, ls_p) != 0) {
@@ -352,7 +353,6 @@ SLTEST_R(SQLite)
 				{
 					const size_t ls_p = p_pattern_rec->TextField.GetPtrSize();
 					const char * lp_p = static_cast<const char *>(p_pattern_rec->TextField.GetRawDataPtrC());
-
 					const size_t ls_t = p_rec_buf->TextField.GetPtrSize();
 					const char * lp_t = static_cast<const char *>(p_rec_buf->TextField.GetRawDataPtrC());
 					if(ls_p != ls_t || memcmp(lp_p, lp_t, ls_p) != 0) {

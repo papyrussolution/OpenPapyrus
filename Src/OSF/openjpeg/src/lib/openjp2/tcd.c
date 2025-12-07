@@ -1656,12 +1656,11 @@ boolint opj_tcd_update_tile_data(opj_tcd_t * p_tcd,
 		    break;
 			case 2: {
 			    const int32_t * l_src_ptr = l_src_data;
-			    int16 * l_dest_ptr = (int16*)p_dest;
-
+			    int16 * l_dest_ptr = (int16 *)p_dest;
 			    if(l_img_comp->sgnd) {
 				    for(j = 0; j < l_height; ++j) {
 					    for(k = 0; k < l_width; ++k) {
-						    int16 val = (int16)(*(l_src_ptr++));
+						    int16 val = static_cast<int16>(*(l_src_ptr++));
 						    memcpy(l_dest_ptr, &val, sizeof(val));
 						    l_dest_ptr++;
 					    }
@@ -1671,7 +1670,7 @@ boolint opj_tcd_update_tile_data(opj_tcd_t * p_tcd,
 			    else {
 				    for(j = 0; j < l_height; ++j) {
 					    for(k = 0; k < l_width; ++k) {
-						    int16 val = (int16)((*(l_src_ptr++)) & 0xffff);
+						    int16 val = static_cast<int16>((*(l_src_ptr++)) & 0xffff);
 						    memcpy(l_dest_ptr, &val, sizeof(val));
 						    l_dest_ptr++;
 					    }

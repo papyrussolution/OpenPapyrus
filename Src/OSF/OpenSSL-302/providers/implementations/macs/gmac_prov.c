@@ -137,8 +137,7 @@ static int gmac_final(void * vmacctx, unsigned char * out, size_t * outl, size_t
 		return 0;
 
 	hlen = gmac_size();
-	params[0] = OSSL_PARAM_construct_octet_string(OSSL_CIPHER_PARAM_AEAD_TAG,
-		out, (size_t)hlen);
+	params[0] = OSSL_PARAM_construct_octet_string(OSSL_CIPHER_PARAM_AEAD_TAG, out, (size_t)hlen);
 	if(!EVP_CIPHER_CTX_get_params(macctx->ctx, params))
 		return 0;
 

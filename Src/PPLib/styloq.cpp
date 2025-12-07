@@ -3231,8 +3231,8 @@ int PPObjStyloQBindery::EditFace(PPID id)
 		if(oneof4(pack.Rec.Kind, StyloQCore::kClient, StyloQCore::kNativeService, StyloQCore::kForeignService, StyloQCore::kFace)) {
 			StyloQFace face_pack;
 			SBinaryChunk bin_chunk;
-			bool    ex_item_got = false;
-			const   uint32 face_tag_id = pack.GetFaceTagID();
+			bool   ex_item_got = false;
+			const  uint32 face_tag_id = pack.GetFaceTagID();
 			if(pack.Pool.Get(face_tag_id, &bin_chunk)) {
 				if(face_pack.FromJson(bin_chunk.ToRawStr(temp_buf)))
 					ex_item_got = true;
@@ -5709,8 +5709,8 @@ int StyloQCore::SetupPeerInstance(PPID * pID, int use_ta)
 		//   -- GUID для дополнения SRN при генерации публичного идентификатора по идентификатору сервиса (SSecretTagPool::tagAG)
 		//   -- Автономный фейковый идентификатор сервиса, для генерации собственного публичного идентификатора, не привязанного к сервису (SSecretTagPool::tagFPI)
 		//
-		const   int primary_rn_bits_width = 1024;
-		uint8   temp[2048];
+		const  int primary_rn_bits_width = 1024;
+		uint8  temp[2048];
 		p_bn_ctx = BN_CTX_new();
 		p_rn = BN_new();
 		{

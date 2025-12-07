@@ -1373,7 +1373,7 @@ char * FASTCALL xmlURIUnescapeString(const char * str, int len, char * target)
 	const char * in;
 	if(str) {
 		if(len <= 0) 
-			len = sstrlen(str);
+			len = sstrleni(str);
 		if(len < 0) 
 			return 0;
 		if(target == NULL) {
@@ -1422,7 +1422,7 @@ xmlChar * FASTCALL xmlURIEscapeStr(const xmlChar * str, const xmlChar * list)
 		return 0;
 	if(str[0] == 0)
 		return sstrdup(str);
-	len = sstrlen(str);
+	len = sstrleni(str);
 	if(!(len > 0))
 		return 0;
 	len += 20;
@@ -1980,7 +1980,7 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 					nbslash++;
 			}
 		}
-		len = sstrlen(uptr) + 1;
+		len = sstrleni(uptr) + 1;
 	}
 	if(nbslash == 0) {
 		if(uptr) // exception characters from xmlSaveUri 
@@ -2122,7 +2122,7 @@ path_processing:
 	if(!uri) { /* Guard against 'out of memory' */
 		return 0;
 	}
-	len = sstrlen(path);
+	len = sstrleni(path);
 	if(len > 2 && SFsPath::IsWindowsPathPrefix((char *)path)) {
 		uri->scheme = sstrdup("file"); // make the scheme 'file' 
 		uri->path = static_cast<char *>(SAlloc::M(len + 2)); // allocate space for leading '/' + path + string terminator 

@@ -9597,7 +9597,7 @@ static int ESECT mdb_env_copyfd0(MDB_env * env, HANDLE fd)
 	}
 	wsize = env->me_psize * NUM_METAS;
 	ptr = env->me_map;
-	w2 = wsize;
+	w2 = static_cast<DWORD>(wsize);
 	while(w2 > 0) {
 		DO_WRITE(rc, fd, ptr, w2, len);
 		if(!rc) {
@@ -9633,7 +9633,7 @@ static int ESECT mdb_env_copyfd0(MDB_env * env, HANDLE fd)
 		if(wsize > MAX_WRITE)
 			w2 = MAX_WRITE;
 		else
-			w2 = wsize;
+			w2 = static_cast<DWORD>(wsize);
 		DO_WRITE(rc, fd, ptr, w2, len);
 		if(!rc) {
 			rc = ErrCode();

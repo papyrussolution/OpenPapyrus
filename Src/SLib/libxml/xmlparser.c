@@ -2267,10 +2267,10 @@ xmlChar * xmlStringLenDecodeEntities(xmlParserCtxt * ctxt, const xmlChar * str, 
 				}
 			}
 			else if(ent) {
-				int i = sstrlen(ent->name);
-				const xmlChar * cur = ent->name;
+				ssize_t i = sstrlen(ent->name);
+				const  xmlChar * cur = ent->name;
 				buffer[nbchars++] = '&';
-				if(nbchars + i + XML_PARSER_BUFFER_SIZE > buffer_size) {
+				if((nbchars + i + XML_PARSER_BUFFER_SIZE) > buffer_size) {
 					growBuffer(buffer, i + XML_PARSER_BUFFER_SIZE);
 				}
 				for(; i > 0; i--)
@@ -9382,8 +9382,9 @@ int xmlParseExtParsedEnt(xmlParserCtxt * ctxt)
  */
 static int xmlParseLookupSequence(xmlParserCtxt * ctxt, xmlChar first, xmlChar next, xmlChar third)
 {
-	int base, len;
-	const xmlChar * buf;
+	ssize_t base;
+	ssize_t len;
+	const  xmlChar * buf;
 	xmlParserInput * in = ctxt->input;
 	if(!in)
 		return -1;
@@ -9398,16 +9399,16 @@ static int xmlParseLookupSequence(xmlParserCtxt * ctxt, xmlChar first, xmlChar n
 	}
 	else {
 		buf = xmlBufContent(in->buf->buffer);
-		len = xmlBufUse(in->buf->buffer);
+		len = static_cast<ssize_t>(xmlBufUse(in->buf->buffer));
 	}
-	/* take into account the sequence length */
+	// take into account the sequence length
 	if(third)
 		len -= 2;
 	else if(next)
 		len--;
 	for(; base < len; base++) {
 		if(buf[base] == first) {
-			if(third != 0) {
+			if(third) {
 				if((buf[base + 1] != next) || (buf[base + 2] != third))
 					continue;
 			}
@@ -9581,7 +9582,8 @@ static int xmlCheckCdataPush(const xmlChar * utf, int len)
 static int xmlParseTryOrFinish(xmlParserCtxt * ctxt, int terminate)
 {
 	int ret = 0;
-	int avail, tlen;
+	ssize_t avail; // @v12.4.12 int-->int64
+	int tlen;
 	xmlChar cur, next;
 	const xmlChar * lastlt, * lastgt;
 	if(ctxt->input == NULL)
@@ -9972,7 +9974,7 @@ static int xmlParseTryOrFinish(xmlParserCtxt * ctxt, int terminate)
 				// 
 			    int base = xmlParseLookupSequence(ctxt, ']', ']', '>');
 			    if(base < 0) {
-				    if(avail >= XML_PARSER_BIG_BUFFER_SIZE + 2) {
+				    if(avail >= (XML_PARSER_BIG_BUFFER_SIZE + 2)) {
 					    int tmp = xmlCheckCdataPush(ctxt->input->cur, XML_PARSER_BIG_BUFFER_SIZE);
 					    if(tmp < 0) {
 						    tmp = -tmp;
@@ -10026,7 +10028,7 @@ static int xmlParseTryOrFinish(xmlParserCtxt * ctxt, int terminate)
 		    }
 			case XML_PARSER_MISC:
 			    SKIP_BLANKS;
-			    if(ctxt->input->buf == NULL)
+			    if(!ctxt->input->buf)
 				    avail = ctxt->input->length - (ctxt->input->cur - ctxt->input->base);
 			    else
 				    avail = xmlBufUse(ctxt->input->buf->buffer) - (ctxt->input->cur - ctxt->input->base);
@@ -10561,17 +10563,17 @@ xmldecl_done:
 		/*
 		 * Check for termination
 		 */
-		int cur_avail = 0;
+		ssize_t cur_avail = 0;
 		if(ctxt->input) {
-			if(ctxt->input->buf == NULL)
+			if(!ctxt->input->buf)
 				cur_avail = ctxt->input->length - (ctxt->input->cur - ctxt->input->base);
 			else
 				cur_avail = xmlBufUse(ctxt->input->buf->buffer) - (ctxt->input->cur - ctxt->input->base);
 		}
-		if((!ctxt->IsEof()) && (ctxt->instate != XML_PARSER_EPILOG)) {
+		if(!ctxt->IsEof() && ctxt->instate != XML_PARSER_EPILOG) {
 			xmlFatalErr(ctxt, XML_ERR_DOCUMENT_END, 0);
 		}
-		if((ctxt->instate == XML_PARSER_EPILOG) && (cur_avail > 0)) {
+		if(ctxt->instate == XML_PARSER_EPILOG && cur_avail > 0) {
 			xmlFatalErr(ctxt, XML_ERR_DOCUMENT_END, 0);
 		}
 		if(!ctxt->IsEof()) {
@@ -11475,7 +11477,6 @@ static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxt * oldct
 	xmlSAXHandler * oldsax = NULL;
 	xmlNode * content = NULL;
 	xmlNode * last = NULL;
-	int size;
 	xmlParserErrors ret = XML_ERR_OK;
 #ifdef SAX2
 	int i;
@@ -11486,8 +11487,10 @@ static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxt * oldct
 	ASSIGN_PTR(lst, 0);
 	if(string == NULL)
 		return XML_ERR_INTERNAL_ERROR;
-	size = sstrlen(string);
-	ctxt = xmlCreateMemoryParserCtxt((char *)string, size);
+	{
+		const size_t size = sstrlen(string);
+		ctxt = xmlCreateMemoryParserCtxt((char *)string, size);
+	}
 	if(!ctxt)
 		return XML_WAR_UNDECLARED_ENTITY;
 	ctxt->userData = NZOR(user_data, ctxt);
@@ -11528,7 +11531,7 @@ static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxt * oldct
 		last = ctxt->myDoc->last;
 	}
 	newRoot = xmlNewDocNode(ctxt->myDoc, NULL, reinterpret_cast<const xmlChar *>("pseudoroot"), 0);
-	if(newRoot == NULL) {
+	if(!newRoot) {
 		ctxt->sax = oldsax;
 		ctxt->dict = NULL;
 		xmlFreeParserCtxt(ctxt);
@@ -11541,7 +11544,6 @@ static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxt * oldct
 	nodePush(ctxt, ctxt->myDoc->children);
 	ctxt->instate = XML_PARSER_CONTENT;
 	ctxt->depth = oldctxt->depth + 1;
-
 	ctxt->validate = 0;
 	ctxt->loadsubset = oldctxt->loadsubset;
 	if((oldctxt->validate) || (oldctxt->replaceEntities != 0)) {
@@ -11570,9 +11572,9 @@ static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxt * oldct
 		ret = XML_ERR_OK;
 	}
 	if(lst && (ret == XML_ERR_OK)) {
-		/*
-		 * Return the newly created nodeset after unlinking it from they pseudo parent.
-		 */
+		//
+		// Return the newly created nodeset after unlinking it from they pseudo parent.
+		//
 		xmlNode * cur = ctxt->myDoc->children->children;
 		*lst = cur;
 		while(cur) {
@@ -11591,15 +11593,14 @@ static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxt * oldct
 		ctxt->myDoc->children = content;
 		ctxt->myDoc->last = last;
 	}
-	/*
-	 * Record in the parent context the number of entities replacement
-	 * done when parsing that reference.
-	 */
+	//
+	// Record in the parent context the number of entities replacement done when parsing that reference.
+	//
 	if(oldctxt)
 		oldctxt->nbentities += ctxt->nbentities;
-	/*
-	 * Also record the last error if any
-	 */
+	//
+	// Also record the last error if any
+	//
 	if(ctxt->lastError.code != XML_ERR_OK)
 		xmlCopyError(&ctxt->lastError, &oldctxt->lastError);
 	ctxt->sax = oldsax;
@@ -11829,7 +11830,6 @@ int xmlParseBalancedChunkMemoryRecover(xmlDoc * doc, xmlSAXHandler * sax, void *
 	xmlSAXHandler * oldsax = NULL;
 	xmlNode * content;
 	xmlNode * newRoot;
-	int size;
 	int ret = 0;
 	if(depth > 40) {
 		ret = XML_ERR_ENTITY_LOOP;
@@ -11839,8 +11839,10 @@ int xmlParseBalancedChunkMemoryRecover(xmlDoc * doc, xmlSAXHandler * sax, void *
 		if(string == NULL)
 			ret = -1;
 		else {
-			size = sstrlen(string);
-			ctxt = xmlCreateMemoryParserCtxt((char *)string, size);
+			{
+				const  size_t size = sstrlen(string);
+				ctxt = xmlCreateMemoryParserCtxt((char *)string, size);
+			}
 			if(!ctxt) 
 				ret = -1;
 			else {

@@ -510,14 +510,14 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 	THROW(ok = Fetch(*pStmt, 1, &actual));
 	if(ok > 0) {
 		THROW(pStmt->GetData(0));
-		if(pStmt->Sf & DBTable::sfForUpdate) {
+		/*if(pStmt->Sf & DBTable::sfForUpdate) {
 			SString temp_buf;
 			OD     rowid = OdAlloc(OCI_DTYPE_ROWID);
 			// (ora) THROW(OhAttrGet(StmtHandle(*pStmt), OCI_ATTR_ROWID, (OCIRowid *)rowid, 0));
 			// (ora) RowidToStr(rowid, temp_buf);
 			pTbl->getCurRowIdPtr()->FromStr__(temp_buf);
 			OdFree(rowid);
-		}
+		}*/
 		BtrError = 0;
 		ok = 1;
 	}
@@ -530,32 +530,261 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 	return ok;
 }
 
+SMySqlDbProvider::SearchQueryBlock::SearchQueryBlock() : Flags(0), SrchMode(0), AutoincFldIdx(_FFFF32), P_KeyData(0), SqlG(sqlstSQLite, 0) // повторяет то же из SSqliteDbProvider
+{
+	memzero(TempKey, sizeof(TempKey));
+}
+
+SMySqlDbProvider::SearchQueryBlock & SMySqlDbProvider::SearchQueryBlock::Z() // повторяет то же из SSqliteDbProvider
+{
+	Flags = 0;
+	SrchMode = 0;
+	AutoincFldIdx = _FFFF32;
+	P_KeyData = 0;
+	SqlG.Z();
+	memzero(TempKey, sizeof(TempKey));
+	return *this;
+}
+//
+// Скорпировано из SSqliteDbProvider::Helper_MakeSearchQuery
+//
+int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf, SearchQueryBlock & rBlk) 
+{
+	rBlk.Z();
+	int    ok = 1;
+	const char * p_collation = 0;//P_CollationSymb;
+	const bool   use_collation_term = isempty(p_collation) ? false : true;
+	SString temp_buf;
+	int    subst_no = 0;
+	//uint   autoinc_fld_id = _FFFF32;
+	const  uint fld_count = pTbl->FldL.getCount();
+	const  BNKeyList & r_indices = pTbl->Indices;
+	const  BNKey & r_key = r_indices[idx];
+	const  int  ns = r_key.getNumSeg();
+	const  char * p_alias = "t";
+	uint   rowid_fld_pos = 0;
+	const  BNField * p_rowid_fld = GetRowIdField(pTbl, &rowid_fld_pos);
+	rBlk.SrchMode = (srchMode == spNext) ? spGt : ((srchMode == spPrev) ? spLt : srchMode);
+	rBlk.P_KeyData = pKey;
+	rBlk.SqlG.Z().Tok(Generator_SQL::tokSelect);
+	rBlk.SqlG.Sp();
+	{
+		//rBlk.SqlG.Text(p_alias).Dot().Aster().Com().Text(p_alias).Dot().Tok(Generator_SQL::tokRowId);
+		//rBlk.SqlG.Text(p_alias).Dot().Aster();
+		//
+		for(uint i = 0; i < fld_count; i++) {
+			const BNField & r_fld = pTbl->FldL.GetFieldByPosition(i);
+			if(i)
+				rBlk.SqlG.Com();
+			// @v12.4.10 SqlGen.Param(temp_buf.NumberToLat(subst_no));
+			rBlk.SqlG.Text(p_alias).Dot().Text(r_fld.Name); // @v12.4.10 
+			subst_no++;
+			const bool is_surrogate_rowid_field = sstreqi_ascii(r_fld.Name, SlConst::P_SurrogateRowIdFieldName);
+			if(GETSTYPE(r_fld.T) == S_AUTOINC) {
+				rBlk.AutoincFldIdx = i;
+				if(is_surrogate_rowid_field)
+					rBlk.Flags |= SearchQueryBlock::fAutoincFldIsSurrogate;
+			}
+			//stmt.BindItem(subst_no, 1, r_fld.T, is_surrogate_rowid_field ? static_cast<void *>(&row_id_zero) : PTR8(pTbl->getDataBuf()) + r_fld.Offs);
+		}
+	}
+	rBlk.SqlG.Sp().From(pTbl->FileName_, p_alias);
+	if(sf & DBTable::sfDirect) {
+		DBRowId * p_rowid = static_cast<DBRowId *>(pKey);
+		THROW(p_rowid && (p_rowid->IsI32() || p_rowid->IsI64())); // @todo @err
+		p_rowid->ToStr__(temp_buf);
+		THROW(p_rowid_fld); // @todo @err
+		rBlk.SqlG.Sp().Tok(Generator_SQL::tokWhere).Sp().Text(p_rowid_fld->Name)._Symb(_EQ_).QText(temp_buf);
+	}
+	else {
+		{
+			if(rBlk.SqlG.GetIndexName(*pTbl, idx, temp_buf)) {
+				rBlk.SqlG.Sp().Tok(Generator_SQL::tokForceIndex).LPar().Text(temp_buf).RPar();
+			}
+		}
+		if(oneof2(rBlk.SrchMode, spFirst, spLast)) {
+			r_indices.setBound(idx, 0, BIN(rBlk.SrchMode == spLast), rBlk.TempKey);
+			rBlk.P_KeyData = rBlk.TempKey;
+		}
+		rBlk.SqlG.Sp().Tok(Generator_SQL::tokWhere).Sp();
+		{
+			auto cat_field_term = [](Generator_SQL & rSg, const BNKey & rKey, int segN, const BNField & rFld)
+			{
+				if(rKey.getFlags(segN) & XIF_ACS) {
+					//int   _func_tok = Generator_SQL::tokLower;
+					//rSg.Func(_func_tok, rFld.Name);
+					rSg.Text(rFld.Name);
+				}
+				else
+					rSg.Text(rFld.Name);
+			};
+			if(rBlk.SrchMode == spEq) {
+				for(int i = 0; i < ns; i++) {
+					const BNField & r_fld = r_indices.field(idx, i);
+					if(i > 0) { // НЕ первый сегмент
+						rBlk.SqlG.Sp().Tok(Generator_SQL::tokAnd).Sp();
+					}
+					cat_field_term(rBlk.SqlG, r_key, i, r_fld);
+					rBlk.SqlG._Symb(_EQ_);
+					//rBlk.SqlG.Param(temp_buf.NumberToLat(i));
+					rBlk.SqlG.Text("?");
+					if(use_collation_term && r_key.getFlags(i) & XIF_ACS) {
+						rBlk.SqlG.Sp().Tok(Generator_SQL::tokCollate).Sp().Text(p_collation);
+					}
+					rBlk.SegMap.add(i);
+				}
+			}
+			else if(oneof6(rBlk.SrchMode, spLt, spLe, spLast, spGt, spGe, spFirst)) {
+				// 
+				// {s1, s2, s3} <  {V1, V2, V3} => (s1 <= V1) AND (s1 < V1 OR s2 <= V2) AND (s1 < V1 OR s2 < V2 OR s3 < V3)
+				// {s1, s2, s3} <= {V1, V2, V3} => (s1 <= V1) AND (s1 < V1 OR s2 <= V2) AND (s1 < V1 OR s2 < V2 OR s3 <= V3)
+				// {s1, s2, s3} >  {V1, V2, V3} => (s1 >= V1) AND (s1 > V1 OR s2 >= V2) AND (s1 > V1 OR s2 > V2 OR s3 > V3)
+				// {s1, s2, s3} >= {V1, V2, V3} => (s1 >= V1) AND (s1 > V1 OR s2 >= V2) AND (s1 > V1 OR s2 > V2 OR s3 >= V3)
+				// [ Для справки ниже приведена идентичная логика, но объедиенная оператором OR. Я стал использовать вышеприведенные
+				//   варианты из-за того, что SQLite неадекватно реагирует на OR-связку отказывасью применять тот индекс, который я указал.
+				//   {s1, s2, s3} <  {V1, V2, V3} => (s1 < V1) OR (s1 = V1 AND s2 < V2) OR (s1 = V1 AND s2 = V2 AND s3 < V3)
+				//   {s1, s2, s3} <= {V1, V2, V3} => (s1 < V1) OR (s1 = V1 AND s2 < V2) OR (s1 = V1 AND s2 = V2 AND s3 <= V3)
+				//   {s1, s2, s3} >  {V1, V2, V3} => (s1 > V1) OR (s1 = V1 AND s2 > V2) OR (s1 = V1 AND s2 = V2 AND s3 > V3)
+				//   {s1, s2, s3} >= {V1, V2, V3} => (s1 > V1) OR (s1 = V1 AND s2 > V2) OR (s1 = V1 AND s2 = V2 AND s3 >= V3)
+				// ]
+				//cmps = (i == ns-1) ? _LT_ : _LE_;
+				for(int i = 0; i < ns; i++) {
+					const BNField & r_fld = r_indices.field(idx, i);
+					if(i) {
+						rBlk.SqlG.Sp().Tok(Generator_SQL::tokAnd).Sp();
+					}
+					{
+						rBlk.SqlG.LPar();
+						if(i) {
+							for(int j = 0; j < i; j++) {
+								const BNField & r_fld_j = r_indices.field(idx, j); // J!
+								if(j) {
+									rBlk.SqlG.Sp().Tok(Generator_SQL::tokOr).Sp();
+								}
+								cat_field_term(rBlk.SqlG, r_key, j, r_fld_j); // J!
+								{
+									int   cmps = 0;
+									switch(rBlk.SrchMode) {
+										case spLt: 
+										case spLe:
+										case spLast: cmps = _LT_; break;
+										case spGt: 
+										case spGe:
+										case spFirst: cmps = _GT_; break;
+									}
+									assert(cmps != 0);
+									rBlk.SqlG._Symb(cmps);
+								}
+								//rBlk.SqlG.Param(temp_buf.NumberToLat(j)); // J!
+								rBlk.SqlG.Text("?"); // J!
+								if(use_collation_term && r_key.getFlags(j) & XIF_ACS) { // J!
+									rBlk.SqlG.Sp().Tok(Generator_SQL::tokCollate).Sp().Text(p_collation);
+								}
+								rBlk.SegMap.add(j); // J!
+							}
+							rBlk.SqlG.Sp().Tok(Generator_SQL::tokOr).Sp();
+						}
+						{
+							cat_field_term(rBlk.SqlG, r_key, i, r_fld); // I!
+							{
+								int   cmps = 0;
+								switch(rBlk.SrchMode) {
+									case spLt: cmps = (i == (ns-1)) ? _LT_ : _LE_; break; // !
+									case spLe: cmps = _LE_; break;
+									case spLast: cmps = _LE_; break;
+									case spGt: cmps = (i == (ns-1)) ? _GT_ : _GE_; break;
+									case spGe: cmps = _GE_; break;
+									case spFirst: cmps = _GE_; break;
+								}
+								assert(cmps != 0);
+								rBlk.SqlG._Symb(cmps);
+							}
+							//rBlk.SqlG.Param(temp_buf.NumberToLat(i)); // I!
+							rBlk.SqlG.Text("?"); // I!
+							if(use_collation_term && r_key.getFlags(i) & XIF_ACS) { // I!
+								rBlk.SqlG.Sp().Tok(Generator_SQL::tokCollate).Sp().Text(p_collation);
+							}
+							rBlk.SegMap.add(i); // I!
+							rBlk.SqlG.RPar();
+						}
+						//
+						//rBlk.SegMap.add(i);
+					}
+				}
+			}
+		}
+		if(oneof3(rBlk.SrchMode, spLe, spLt, spLast)) { // Обратное направление поиска
+			rBlk.SqlG.Tok(Generator_SQL::tokOrderBy);
+			for(int i = 0; i < ns; i++) {
+				const BNField & r_fld = r_indices.field(idx, i);
+				if(i)
+					rBlk.SqlG.Com();
+				rBlk.SqlG.Sp().Text(r_fld.Name).Sp().Tok(Generator_SQL::tokDesc);
+			}
+			rBlk.SqlG.Sp();
+		}
+		rBlk.Flags |= SearchQueryBlock::fCanContinue;
+	}
+	CATCHZOK
+	return ok;
+}
+//
+// Эта функция строго заточена на поиск по конкретному индексу. Это значит, что в результирующем запросе не будет 
+// никаких иных критериев, кроме сегментов индеска. Небольшое исключение - direct-search: в этом случае поиск осуществляется по 
+// заданному rowid но, опять же, в случае MySQL это все равно будет индекс.
+//
 /*virtual*/int SMySqlDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf)
 {
-	// BNKeyList BNFieldList2 BNKey Generator_SQL
+	//
+	// Изначально код функции скопирован из SSqliteDbProvider::Implement_Search() с целью быстрой имплементации.
 	//
 	// select /*+ index_asc(tbl_name index_name) */ * from
 	//
+	// В sqlite нет "for update" (вся база блокируется при изменении, ибо база не мультипользовательская)
+
 	int    ok = 1;
-	//
-	// Если can_continue == 1, то допускается последующий запрос spNext или spPrev
-	// Соответственно, stmt сохраняется в pTbl.
-	//
-	int    can_continue = 0;
-	int    new_stmt = 0;
+	int    can_continue = false; // Если can_continue == true, то допускается последующий запрос spNext или spPrev. Соответственно, stmt сохраняется в pTbl.
+	bool   new_stmt = false;
 	uint   actual = 0;
-	LongArray seg_map; // Карта номеров сегментов индекса, которые должны быть привязаны
+	bool   surrogate_rowid_tag = false;
+	uint64 surrogate_rowid_value_to_read = 0;
 	DBTable::SelectStmt * p_stmt = 0;
-	THROW(idx < (int)pTbl->Indices.getNumKeys());
+	const BNKeyList & r_indices = pTbl->Indices;
+	const char * p_alias = "t";
+	SString temp_buf;
+	DBRowId * p_cur_row_id = pTbl->getCurRowIdPtr();
+	const  BNKey & r_key = r_indices[idx];
+	const  bool is_key_uniq = !(r_key.getFlags(idx) & (XIF_DUP|XIF_REPDUP));
+	//
+	// Следующий флаг используется вот для чего: если поступил запрос на получение очередной записи, но pTbl->GetStmt() == 0,
+	// то, скорее всего, это означает, что изменилось направление перебора записей. В этом случае мы строим запрос заново,
+	// опираясь на последнее полученное значение ключа, по которому идет перебор. Здесь все бы хорошо, но есть один нюанс:
+	// если ключ неуникальный, то мы точно не знаем от какой именно из записей-дубликатов начинать обратное движение.
+	// Тем не менее у нас есть подсказка - rowid последней полученной записи (той же, которой соответствует последнее полученное значение ключа).
+	// Таким образом, в этой ситуации мы действуем по следующему плану:
+	//   запрос формируем так, будто очередная запись должна быть получена по условию РАВЕНСТВА (а не <= или >=) последнему значения ключа,
+	//   далее, перебираем одну запись за другой пока ключ РАВЕН заданному и среди перебранных записей пытаемся найти ту, у которой
+	//   rowid равен нашему текущему. Если мы нашли такую запись - прекрасно - дальше уже работаем как обычно.
+	//   Плохо если такая запись отсутствует (нет, не фантастика) - тогда мы будем вынуждены "пожертвовать" непрочитанными записями
+	//   с текущим значением ключа (если такие, конечно, были) и вести себя так, будто индекс уникальный - то есть, запрос, черт побери,
+	//   опять придется перестроить.
+	//
+	bool   do_grop_next_rec = false; // @v12.4.6 
+	//
+	bool   do_make_query = true;
+	//
+	THROW(idx < (int)r_indices.getNumKeys());
 	if(oneof2(srchMode, spNext, spPrev)) {
+		assert(!(sf & DBTable::sfDirect)); // В режиме spNext/spPrev флаг sfDirect - бессмысленный
 		p_stmt = pTbl->GetStmt();
 		if(p_stmt) {
+			do_make_query = false;
 			THROW(ok = Helper_Fetch(pTbl, p_stmt, &actual));
 			if(ok > 0) {
 				int    r = 1;
 				pTbl->copyBufToKey(idx, pKey);
 				if(oneof5(p_stmt->Sp, spGt, spGe, spLt, spLe, spEq)) {
-					int kc = pTbl->Indices.compareKey(p_stmt->Idx, pKey, p_stmt->Key);
+					int kc = r_indices.compareKey(p_stmt->Idx, pKey, p_stmt->Key);
 					if(kc == 0) {
 						if(oneof2(p_stmt->Sp, spGt, spLt))
 							r = 0;
@@ -570,7 +799,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 					}
 				}
 				if(r)
-					can_continue = 1;
+					can_continue = true;
 				else {
 					BtrError = BE_EOF;
 					ok = 0;
@@ -580,187 +809,112 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 				ok = 0;
 		}
 		else {
+			// @v12.4.5 @construction {
+			// Так как у нас есть ключ pKey и нам не следует отчаиваться и возвращать ошибку - перестраиваем запрос и дуем в том направлении,
+			// в котором нас просят. Единственный скользкий момент - если ключ не уникальный, то нет уверенности на какой именно записи
+			// среди дубликатов мы находимся. Но эту проблему мы будем решать после того, как решим главную.
+			do_make_query = true; // Да! Сработало! 
+			// Проблему неуникальных ключей будем решать на следующей фунпацу.
+			// } @v12.4.5 @construction 
+			/* @v12.4.5
 			BtrError = BE_EOF;
 			ok = 0;
+			*/
 		}
 	}
-	else {
-		//
-		// Для того, чтобы hint'ы работали, необходимо и в hint'е и в
-		// префиксах списков полей указывать либо алиас, либо наименование таблицы,
-		// но не смешивать.
-		// Например конструкция //
-		// SELECT/*+INDEX_DESC(Reference2 idxReference2Key0)*/ t.*, t.ROWID FROM Reference2 t WHERE ObjType<=6 AND (ObjID<0 OR (ObjType<>6 ))
-		// работать будет не по hint'у поскольку в хинте указано наименование таблицы, а в списке
-		// полей - алиас.
-		//
-
-		//
-		// Алиас нужен в том случае, если кроме списка полей необходимо достать rowid
-		// (for update и так возвращает rowid, то есть явно его указывать в этом случае не надо).
-		//
-		const char * p_alias = (sf & DBTable::sfForUpdate) ? 0 : "t";
-		SString temp_buf;
-		uint8  temp_key[1024];
-		void * p_key_data = pKey;
-		BNKey  key = pTbl->Indices[idx];
-		const  int ns = key.getNumSeg();
-		uint   rowid_fld_pos = 0;
-		const  BNField * p_rowid_fld = GetRowIdField(pTbl, &rowid_fld_pos);
-		SqlGen.Z().Tok(Generator_SQL::tokSelect);
-		if(!(sf & DBTable::sfDirect)) {
-			SqlGen.HintBegin().
-			HintIndex(*pTbl, p_alias, idx, BIN(oneof3(srchMode, spLt, spLe, spLast))).
-			HintEnd();
-		}
-		SqlGen.Sp();
-		if(!(sf & DBTable::sfForUpdate)) {
-			// @v11.6.0 mysql не позволяет извлекать rowid как в oracle!
-			SqlGen.Text(p_alias).Dot().Aster()/* @v11.6.0.Com().Text(p_alias).Dot().Tok(Generator_SQL::tokRowId)*/;
-		}
-		else
-			SqlGen.Aster();
-		SqlGen.Sp().From(pTbl->FileName_, p_alias);
-		if(sf & DBTable::sfDirect) {
-			DBRowId * p_rowid = static_cast<DBRowId *>(pKey);
-			THROW(p_rowid && (p_rowid->IsI32() || p_rowid->IsI64())); // @todo @err
-			p_rowid->ToStr__(temp_buf);
-			THROW(p_rowid_fld); // @todo @err
-			SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp().Text(p_rowid_fld->Name)._Symb(_EQ_).QText(temp_buf);
-		}
-		else {
-			if(oneof2(srchMode, spFirst, spLast)) {
-				memzero(temp_key, sizeof(temp_key));
-				pTbl->Indices.setBound(idx, 0, BIN(srchMode == spLast), temp_key);
-				p_key_data = temp_key;
-			}
-			SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp();
-			for(int i = 0; i < ns; i++) {
-				const int fldid = key.getFieldID(i);
-				const BNField & r_fld = pTbl->Indices.field(idx, i);
-				if(i > 0) { // НЕ первый сегмент
-					SqlGen.Tok(Generator_SQL::tokAnd).Sp();
-					if(srchMode != spEq)
-						SqlGen.LPar();
-				}
-				if(key.getFlags(i) & XIF_ACS) {
-					//
-					// Для ORACLE нечувствительность к регистру символов
-					// реализуется функциональным сегментом индекса nls_lower(r_fld).
-					// Аналогичная конструкция применяется при генерации скрипта создания индекса
-					// См. Generator_SQL::CreateIndex(const DBTable &, const char *, uint)
-					//
-					int   _func_tok = 0;
-					if(SqlGen.GetServerType() == sqlstORA)
-						_func_tok = Generator_SQL::tokNlsLower;
-					else
-						_func_tok = Generator_SQL::tokLower;
-					SqlGen.Func(_func_tok, r_fld.Name);
-				}
-				else
-					SqlGen.Text(r_fld.Name);
-				int   cmps = _EQ_;
-				if(srchMode == spEq)
-					cmps = _EQ_;
-				else if(srchMode == spLt)
-					cmps = (i == ns-1) ? _LT_ : _LE_;
-				else if(oneof2(srchMode, spLe, spLast))
-					cmps = _LE_;
-				else if(srchMode == spGt) {
-					cmps = (i == ns-1) ? _GT_ : _GE_;
-				}
-				else if(oneof2(srchMode, spGe, spFirst))
-					cmps = _GE_;
-				SqlGen._Symb(cmps);
-				SqlGen.Param(temp_buf.NumberToLat(i));
-				seg_map.add(i);
-
-				if(i > 0 && srchMode != spEq) {
-					//
-					// При каскадном сравнении ключа второй и последующие сегменты
-					// должны удовлетворять условиям неравенства только при равенстве
-					// всех предыдущих сегментов.
-					//
-					// Пример:
-					//
-					// index {X, Y, Z}
-					// X > :A and (Y > :B or (X <> :A)) and (Z > :C or (X <> :A and Y <> :B))
-					//
-					SqlGen.Sp().Tok(Generator_SQL::tokOr).Sp().LPar();
-					for(int j = 0; j < i; j++) {
-						const BNField & r_fld2 = pTbl->Indices.field(idx, j);
-						if(j > 0)
-							SqlGen.Tok(Generator_SQL::tokAnd).Sp();
-						if(key.getFlags(j) & XIF_ACS) {
-							int   _func_tok = 0;
-							if(SqlGen.GetServerType() == sqlstORA)
-								_func_tok = Generator_SQL::tokNlsLower;
-							else
-								_func_tok = Generator_SQL::tokLower;
-							SqlGen.Func(_func_tok, r_fld2.Name);
-						}
-						else
-							SqlGen.Text(r_fld2.Name);
-						SqlGen._Symb(_NE_);
-						SqlGen.Param(temp_buf.NumberToLat(j));
-						seg_map.add(j);
-						SqlGen.Sp();
-					}
-					SqlGen.RPar().RPar().Sp();
-				}
-				SqlGen.Sp();
-			}
-			can_continue = 1;
-		}
-		if(sf & DBTable::sfForUpdate)
-			SqlGen.Tok(Generator_SQL::tokFor).Sp().Tok(Generator_SQL::tokUpdate);
+	if(do_make_query) {
+		SearchQueryBlock sqb;
+		THROW(Helper_MakeSearchQuery(pTbl, idx, pKey, srchMode, sf, sqb));
+		can_continue = LOGIC(sqb.Flags & SearchQueryBlock::fCanContinue);
 		{
-			THROW(p_stmt = new DBTable::SelectStmt(this, SqlGen, idx, srchMode, sf));
-			new_stmt = 1;
+			THROW(p_stmt = new DBTable::SelectStmt(this, sqb.SqlG, idx, sqb.SrchMode, sf));
+			new_stmt = true;
 			THROW(p_stmt->IsValid());
+			{
+				int    subst_no = 0;
+				uint8 * p_tbl_data_buf = PTR8(pTbl->getDataBuf());
+				for(uint i = 0; i < pTbl->FldL.getCount(); i++) {
+					const BNField & r_fld = pTbl->FldL.GetFieldByPosition(i);
+					subst_no++;
+					const bool is_surrogate_rowid_field = sstreqi_ascii(r_fld.Name, SlConst::P_SurrogateRowIdFieldName);
+					if(is_surrogate_rowid_field) {
+						//static_cast<void *>(p_cur_row_id)
+						assert(!surrogate_rowid_tag);
+						surrogate_rowid_tag = true;
+						p_stmt->BindItem(subst_no, 1, r_fld.T, &surrogate_rowid_value_to_read);
+					}
+					else {
+						p_stmt->BindItem(subst_no, 1, r_fld.T, p_tbl_data_buf + r_fld.Offs);
+					}
+				}
+				THROW(Binding(*p_stmt, +1));
+			}
 			{
 				size_t key_len = 0;
 				p_stmt->BL.Dim = 1;
-				for(uint i = 0; i < seg_map.getCount(); i++) {
-					const int  seg = seg_map.get(i);
-					const BNField & r_fld = pTbl->Indices.field(idx, seg);
-					const size_t seg_offs = pTbl->Indices.getSegOffset(idx, seg);
+				for(uint i = 0; i < sqb.SegMap.getCount(); i++) {
+					const int  seg = sqb.SegMap.get(i);
+					const BNField & r_fld = r_indices.field(idx, seg);
+					const size_t seg_offs = r_indices.getSegOffset(idx, seg);
 					key_len += stsize(r_fld.T);
-					if(key.getFlags(seg) & XIF_ACS) {
-						strlwr866((char *)(PTR8(p_key_data) + seg_offs));
-					}
+					/* (это, вроде, не надо - я установил collation-func) if(r_key.getFlags(seg) & XIF_ACS) {
+						strlwr866((char *)(PTR8(sqb.P_KeyData) + seg_offs));
+					}*/
 					SSqlStmt::Bind b;
-					b.Pos = -(int16)(i+1);
+					b.Pos = -static_cast<int16>(i+1);
 					b.Typ = r_fld.T;
-					b.P_Data = PTR8(p_key_data) + seg_offs;
+					b.P_Data = PTR8(sqb.P_KeyData) + seg_offs;
 					uint   lp = 0;
 					if(p_stmt->BL.lsearch(&b.Pos, &lp, PTR_CMPFUNC(int16)))
 						p_stmt->BL.atFree(lp);
 					p_stmt->BL.insert(&b);
 				}
-				memcpy(p_stmt->Key, pKey, MIN(sizeof(p_stmt->Key), key_len));
-				THROW(Binding(*p_stmt, +1));
+				memcpy(p_stmt->Key, pKey, smin(sizeof(p_stmt->Key), key_len));
+				THROW(Binding(*p_stmt, -1));
 				THROW(p_stmt->SetData(0));
 			}
 			THROW(p_stmt->Exec(0, OCI_DEFAULT));
-			// @v11.6.0 mysql не позволяет извлекать rowid как в oracle!
-			/* @v11.6.0 if(!(sf & DBTable::sfForUpdate)) {
-				const  int rowid_pos = pTbl->fields.getCount()+1;
-				THROW(p_stmt->BindRowId(rowid_pos, 1, pTbl->getCurRowIdPtr()));
-			}*/
-			THROW(p_stmt->BindData(+1, 1, pTbl->FldL, pTbl->getDataBufConst(), pTbl->getLobBlock()));
+			/*if(!(sf & DBTable::sfForUpdate))*/ { // rowid безусловно запрашивается (see above)
+				//const  int rowid_pos = pTbl->FldL.getCount()+1;
+				//THROW(p_stmt->BindRowId(rowid_pos, 1, p_cur_row_id));
+			}
+			//THROW(p_stmt->BindData(+1, 1, pTbl->FldL, pTbl->getDataBufConst(), pTbl->getLobBlock()));
+			p_cur_row_id->Z(); // @debug
+			pTbl->clearDataBuf(); // @debug
 			THROW(ok = Helper_Fetch(pTbl, p_stmt, &actual));
-			if(ok > 0)
+			if(ok > 0) {
+				if(surrogate_rowid_tag) {
+					p_cur_row_id->SetI64(surrogate_rowid_value_to_read);
+				}
+				else {
+					uint8  rowid_data[64];
+					size_t rowid_data_size = 0;
+					uint   rowid_fld_pos = 0;
+					const  BNField * p_rowid_fld = GetRowIdField(pTbl, &rowid_fld_pos);
+					THROW(p_rowid_fld); // @todo @err
+					THROW(pTbl->getFieldValue(rowid_fld_pos, rowid_data, &rowid_data_size)); // @todo @err
+					if(rowid_data_size == 4) {
+						p_cur_row_id->SetI32(reinterpret_cast<uint32>(rowid_data));
+					}
+					else if(rowid_data_size == 8) {
+						p_cur_row_id->SetI64(reinterpret_cast<int64>(rowid_data));
+					}
+					else {
+						constexpr bool InvalidRowIdDataSize = false;
+						assert(InvalidRowIdDataSize);
+					}
+				}
 				pTbl->copyBufToKey(idx, pKey);
+			}
 			else {
 				ok = 0;
-				can_continue = 0;
+				can_continue = false;
 			}
 		}
 	}
 	CATCH
 		ok = 0;
-		can_continue = 0;
+		can_continue = false;
 	ENDCATCH
 	if(can_continue) {
 		pTbl->SetStmt(p_stmt);
@@ -791,12 +945,12 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 	SSqlStmt  stmt(this);
 	if(pData)
 		pTbl->CopyBufFrom(pData);
-	if(pTbl->State & DBTable::sHasLob) {
+	/* @20251204 if(pTbl->State & DBTable::sHasLob) {
 		int    r = 0;
 		THROW(r = pTbl->StoreAndTrimLob());
 		if(r > 0)
 			do_process_lob = 1;
-	}
+	}*/
 	SqlGen.Z().Tok(Generator_SQL::tokInsert).Sp().Tok(Generator_SQL::tokInto).Sp().Text(pTbl->FileName_).Sp();
 	SqlGen.Tok(Generator_SQL::tokValues).Sp().LPar();
 	stmt.BL.Dim = 1;
@@ -877,7 +1031,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 				}
 			}
 		}
-		if(do_process_lob) {
+		/*if(do_process_lob) {
 			//
 			// Если в записи были не пустые значения LOB-полей, то придется перечитать
 			// вставленную запись и изменить значения LOB-полей.
@@ -888,7 +1042,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 			THROW(Implement_Search(pTbl, -1, &row_id, spEq, DBTable::sfDirect|DBTable::sfForUpdate));
 			THROW(pTbl->RestoreLob());
 			THROW(Implement_UpdateRec(pTbl, 0, 0));
-		}
+		}*/
 	}
 	CATCHZOK
 	return ok;
@@ -896,7 +1050,49 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 
 /*virtual*/int SMySqlDbProvider::Implement_UpdateRec(DBTable * pTbl, const void * pDataBuf, int ncc)
 {
-	return 0;
+	int    ok = 1;
+	int    subst_no = 0;
+	SString temp_buf;
+	SSqlStmt stmt(this);
+	if(pDataBuf)
+		pTbl->CopyBufFrom(pDataBuf);
+	SqlGen.Z().Tok(Generator_SQL::tokUpdate).Sp().Text(pTbl->FileName_).Sp().Tok(Generator_SQL::tokSet).Sp();
+	{
+		const  uint fld_count = pTbl->FldL.getCount();
+		for(uint i = 0; i < fld_count; i++) {
+			const BNField & r_fld = pTbl->FldL.GetFieldByPosition(i);
+			const bool is_surrogate_rowid_field = sstreqi_ascii(r_fld.Name, SlConst::P_SurrogateRowIdFieldName);
+			if(GETSTYPE(r_fld.T) != S_AUTOINC) { // autoinc-поле менять не надо
+				if(subst_no)
+					SqlGen.Com();
+				subst_no++;
+				SqlGen.Text(pTbl->FldL[i].Name)._Symb(_EQ_).Text("?"); //.Param(temp_buf.NumberToLat(i));
+				stmt.BindItem(-subst_no, 1, r_fld.T, PTR8(pTbl->getDataBuf()) + r_fld.Offs);
+			}
+		}
+	}
+	{
+		/*
+		//THROW(pTbl->getCurRowIdPtr()->IsI32());
+		pTbl->getCurRowIdPtr()->ToStr__(temp_buf);
+		SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp().Tok(Generator_SQL::tokRowId)._Symb(_EQ_).Text(temp_buf);
+		*/
+		uint   rowid_fld_pos = 0;
+		const  BNField * p_rowid_fld = GetRowIdField(pTbl, &rowid_fld_pos);
+		DBRowId * p_rowid = pTbl->getCurRowIdPtr();
+		THROW(p_rowid && (p_rowid->IsI32() || p_rowid->IsI64())); // @todo @err
+		p_rowid->ToStr__(temp_buf);
+		THROW(p_rowid_fld); // @todo @err
+		SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp().Text(p_rowid_fld->Name)._Symb(_EQ_).QText(temp_buf);
+	}
+	{
+		THROW(stmt.SetSqlText(SqlGen));
+		THROW(Binding(stmt, -1));
+		THROW(stmt.SetDataDML(0));
+		THROW(stmt.Exec(1, /*OCI_COMMIT_ON_SUCCESS*/OCI_DEFAULT)); // @debug(OCI_COMMIT_ON_SUCCESS)
+	}
+	CATCHZOK
+	return ok;
 }
 
 /*virtual*/int SMySqlDbProvider::Implement_DeleteRec(DBTable * pTbl)
@@ -999,8 +1195,13 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 					MYSQL_BIND bind_item;
 					MEMSZERO(bind_item);
 					bind_item.buffer_type = static_cast<enum_field_types>(r_bind.NtvTyp);
-					bind_item.buffer_length = r_bind.NtvSize;
-					bind_item.buffer = p_data;
+					if(r_bind.Flags & SSqlStmt::Bind::fUseRetActualSize) {
+						bind_item.length = reinterpret_cast<ulong *>(&r_bind.RetActualSize);
+					}
+					else {
+						bind_item.buffer_length = r_bind.NtvSize;
+						bind_item.buffer = p_data;
+					}
 					//bind_item.is_null
 					//bind_item.length
 					//bind_item.error
@@ -1367,23 +1568,64 @@ enum enum_field_types {
 			break;
 		case S_CLOB:
 			if(action == 0) {
-				const uint32 ntv_size = 4; // @debug
-				pBind->SetNtvTypeAndSize(MYSQL_TYPE_VAR_STRING, ntv_size);
-				pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
+				const uint32 ntv_size = 0; // @debug
+				pBind->SetNtvTypeAndSize(/*MYSQL_TYPE_MEDIUM_BLOB*/MYSQL_TYPE_VAR_STRING, ntv_size);
+				pBind->Flags |= SSqlStmt::Bind::fUseRetActualSize;
+				//pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
 			}
 			else if(action < 0) {
 				if(p_data) {
 					SLob * p_lob = static_cast<SLob *>(p_data);
 					const size_t lob_size = p_lob->GetPtrSize();
 					const void * p_lob_data = p_lob->GetRawDataPtrC();
-					if(p_lob_data) {
+					if(p_lob_data && lob_size) {
 						SString & r_temp_buf = SLS.AcquireRvlStr();
 						r_temp_buf.CatN(static_cast<const char *>(p_lob_data), lob_size).Transf(CTRANSF_INNER_TO_UTF8);
 						//sqlite3_bind_text(h_stmt, idx, r_temp_buf.cptr(), r_temp_buf.Len(), SQLITE_TRANSIENT);
+						mysql_stmt_send_long_data(static_cast<MYSQL_STMT *>(pStmt->H), abs(pBind->Pos)-1, r_temp_buf.cptr(), r_temp_buf.Len());
 					}
 				}
 			}
 			else if(action == 1) {
+				// @construction
+				SLob * p_lob = static_cast<SLob *>(p_data);
+				if(p_lob) {
+					bool   _err = false;
+					bool   _no_more_data = false;
+					SString & r_temp_buf = SLS.AcquireRvlStr();
+					const  ulong _total_len = pBind->RetActualSize;
+					ulong  _offs = 0;
+					char   _chunk_buffer[2048];
+					while(!_err && !_no_more_data && _offs < _total_len) {
+						ulong  _len = 0;
+						MYSQL_BIND msq_bind;
+						MEMSZERO(msq_bind);
+						msq_bind.buffer_type = MYSQL_TYPE_VAR_STRING;
+						msq_bind.buffer = _chunk_buffer;
+						msq_bind.buffer_length = sizeof(_chunk_buffer);
+						msq_bind.length = &_len;
+						int fcr = mysql_stmt_fetch_column(static_cast<MYSQL_STMT *>(pStmt->H), &msq_bind, abs(pBind->Pos)-1, _offs);
+						if(fcr == 0) {
+							if(_len) {
+								r_temp_buf.CatN(_chunk_buffer, _len);
+								_offs += _len;
+							}
+							else
+								_no_more_data = true;
+						}
+						else {
+							_err = true;
+						}
+					} 
+					{
+						r_temp_buf.Transf(CTRANSF_UTF8_TO_INNER).TrimRight();
+						p_lob->InitPtr(r_temp_buf.Len()+1);
+						void * p_lob_ptr = p_lob->GetRawDataPtr();
+						if(p_lob_ptr) {
+							strcpy(static_cast<char *>(p_lob_ptr), r_temp_buf.cptr());
+						}
+					}
+				}
 			}
 			break;
 #if 0 // {
@@ -1511,6 +1753,10 @@ enum enum_field_types {
 		}
 		else if(_status == MYSQL_NO_DATA) {
 			ok = -1;
+		}
+		else if(_status == MYSQL_DATA_TRUNCATED) { // @v12.4.12
+			actual = 1; // @debug
+			ok = 1; // ???
 		}
 		/*if(oneof2(err, OCI_SUCCESS, OCI_SUCCESS_WITH_INFO)) {
 			actual = count;

@@ -485,7 +485,7 @@ static int drive_compressor_dependence(struct archive_write_filter * f, const ch
 		archive_le32enc(data->out, length | 0x80000000);
 		data->out += 4;
 		memcpy(data->out, p, length);
-		outsize = length;
+		outsize = static_cast<int>(length);
 	}
 	data->out += outsize;
 	if(data->block_checksum) {

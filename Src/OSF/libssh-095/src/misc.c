@@ -37,7 +37,7 @@
 
 	#include <winsock2.h> // Must be the first to include
 	#include <ws2tcpip.h>
-	#include <shlobj.h>
+	//#include <shlobj.h>
 	#include <direct.h>
 	#ifdef HAVE_IO_H
 		#include <io.h>

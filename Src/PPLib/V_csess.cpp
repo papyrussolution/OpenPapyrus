@@ -527,7 +527,7 @@ DBQuery * PPViewCSess::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		PPDbqFuncPool::InitObjNameFunc(dbe_cashnode, PPDbqFuncPool::IdObjNameCashNode, p_ch->CashNodeID);
 		p_dbe_ret = &(p_ch->WORetAmount-p_ch->Amount); // Переворачиваем уменьшаемое с вычетаемым, чтобы получить
 			// положительную величину возвратов
-		p_q = &select(
+		p_q = &Select_(
 			p_ch->ID,             // #0
 			p_ch->Dt,             // #1
 			p_ch->SessNumber,     // #2
@@ -568,7 +568,7 @@ DBQuery * PPViewCSess::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	else {
 		THROW_MEM(t = new CSessionTbl);
 		PPDbqFuncPool::InitObjNameFunc(dbe_cashnode, PPDbqFuncPool::IdObjNameCashNode, t->CashNodeID);
-		p_q = &select(
+		p_q = &Select_(
 			t->ID,           // #00
 			t->Dt,           // #01
 			t->SessNumber,   // #02
@@ -2546,7 +2546,7 @@ DBQuery * PPViewCSessExc::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	DBE    dbe_goods;
 	TempCSessExcTbl * t = new TempCSessExcTbl(P_TempTbl->GetName());
 	PPDbqFuncPool::InitObjNameFunc(dbe_goods, PPDbqFuncPool::IdObjNameGoods, t->AltGoodsID);
-	DBQuery * q = & (select(
+	DBQuery * q = & (Select_(
 		t->GoodsID,       // #0
 		t->Sign,          // #1
 		t->GoodsName,     // #2

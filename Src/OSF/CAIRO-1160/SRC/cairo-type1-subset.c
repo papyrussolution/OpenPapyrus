@@ -166,12 +166,14 @@ static const char * find_token(const char * buffer, const char * end, const char
 	/* FIXME: find substring really must be find_token */
 	if(!buffer)
 		return NULL;
-	length = strlen(token);
-	for(i = 0; buffer + i < end - length + 1; i++)
-		if(memcmp(buffer + i, token, length) == 0)
-			if((i == 0 || token[0] == '/' || is_ps_delimiter(buffer[i - 1])) && (buffer + i == end - length || is_ps_delimiter(buffer[i + length])))
+	length = sstrleni(token);
+	for(i = 0; buffer + i < end - length + 1; i++) {
+		if(memcmp(buffer + i, token, length) == 0) {
+			if((i == 0 || token[0] == '/' || is_ps_delimiter(buffer[i - 1])) && (buffer + i == end - length || is_ps_delimiter(buffer[i + length]))) {
 				return buffer + i;
-
+			}
+		}
+	}
 	return NULL;
 }
 
@@ -199,7 +201,6 @@ static cairo_status_t cairo_type1_font_subset_find_segments(cairo_type1_font_sub
 		eexec_token = find_token((char *)p, font->type1_end, "eexec");
 		if(eexec_token == NULL)
 			return CAIRO_INT_STATUS_UNSUPPORTED;
-
 		font->header_segment_size = eexec_token - (char *)p + strlen("eexec\n");
 		font->header_segment = (char *)p;
 		font->eexec_segment_size = font->type1_length - font->header_segment_size;
@@ -252,7 +253,7 @@ static cairo_status_t cairo_type1_font_subset_get_matrix(cairo_type1_font_subset
 	const char * decimal_point;
 	int decimal_point_len;
 	decimal_point = _cairo_get_locale_decimal_point();
-	decimal_point_len = strlen(decimal_point);
+	decimal_point_len = sstrleni(decimal_point);
 	assert(decimal_point_len != 0);
 	segment_end = font->header_segment + font->header_segment_size;
 	start = find_token(font->header_segment, segment_end, name);
@@ -982,7 +983,7 @@ static cairo_status_t write_used_glyphs(cairo_type1_font_subset_t * font, int gl
 			wa_name = _cairo_winansi_to_glyphname(ch);
 			if(wa_name) {
 				name = wa_name;
-				name_length = strlen(name);
+				name_length = sstrleni(name);
 			}
 		}
 	}

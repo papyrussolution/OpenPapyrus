@@ -690,23 +690,19 @@ static cairo_int_status_t cairo_pdf_interchange_write_outline(cairo_pdf_surface_
  */
 static char * split_label(const char * label, int * num)
 {
-	int len, i;
-
+	int len;
+	int i;
 	*num = 0;
-	len = strlen(label);
+	len = sstrleni(label);
 	if(!len)
 		return NULL;
-
 	i = len;
 	while(i > 0 && isdec(label[i-1]))
 		i--;
-
 	while(i < len && label[i] == '0')
 		i++;
-
 	if(i < len)
 		sscanf(label + i, "%d", num);
-
 	if(i > 0) {
 		char * s = (char *)SAlloc::M_zon0(i + 1);
 		if(!s)

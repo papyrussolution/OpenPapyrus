@@ -973,7 +973,7 @@ DBQuery * PPViewTSessAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	DBQuery * p_q = 0;
 	if(P_TempTbl) {
 		THROW(CheckTblPtr(p_tt = new TempTSessRepTbl(P_TempTbl->GetName())));
-		p_q = & select(
+		p_q = & Select_(
 			p_tt->ID__,            // #0
 			p_tt->DtText,          // #1
 			p_tt->PrcName,         // #2

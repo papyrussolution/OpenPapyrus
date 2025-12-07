@@ -368,7 +368,7 @@ int LocTransfCore::SearchByBill(PPID billID, long rByBill, LocTransfTbl::Rec * p
 	if(billID && rByBill > 0) {
 		LocTransfTbl::Key3 k3;
 		k3.BillID = billID;
-		k3.RByBillLT = rByBill;
+		k3.RByBillLT = static_cast<int16>(rByBill);
 		if(search(3, &k3, spEq)) {
 			if(data.BillID == billID && data.RByBillLT == rByBill) { // @paranoic
 				CopyBufTo(pRec);
@@ -914,7 +914,7 @@ int LocTransfDisposer::SetupOpBlock(LocTransfDisposeItem & rItem, PPID whCellID,
 				double rem = fmod(rBlk.Qtty, pallet_qtty);
 				if(rem == 0.0) {
 					rBlk.PalletTypeID = plt.PalletTypeID;
-					rBlk.PalletCount = (int16)(rBlk.Qtty / pallet_qtty);
+					rBlk.PalletCount = static_cast<int16>(rBlk.Qtty / pallet_qtty);
 				}
 			}
 		}

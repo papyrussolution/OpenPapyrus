@@ -4,7 +4,7 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <htmlhelp.h> // @Muxa
+//#include <htmlhelp.h> // @Muxa
 //
 //
 //

@@ -1949,7 +1949,7 @@ int COMMassaKVPN::SendPLU(const ScalePLU * pScalePLU)
 		long   wght_prefix = WghtPrefix;
 		long   expiry_minutes = 0;
 		LDATE  expiry = pScalePLU->Expiry;
-		const  LDATE  cur_dt = getcurdate_();
+		const  LDATE cur_dt = getcurdate_();
 		StringSet ss(SLBColumnDelim);
 		(goods_name = pScalePLU->GoodsName);
 		SETIFZ(wght_prefix, 20 + pScalePLU->Barcode / 100000);

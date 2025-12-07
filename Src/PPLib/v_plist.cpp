@@ -1358,7 +1358,7 @@ DBQuery * PPViewPriceList::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 		if(Filt.Flags & PLISTF_PRESENTONLY)
 			dbq = & (*dbq && pl->IsPresent == 1L);
 	}
-	q = & select(
+	q = & Select_(
 		pl->GoodsID,       // #00
 		pl->QuotKindID,    // #01
 		pl->LineNo,        // #02

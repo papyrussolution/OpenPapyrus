@@ -216,7 +216,7 @@ static int namemap_add_name_n(OSSL_NAMEMAP * namemap, int number, const char * n
 	if((namenum = (NAMENUM_ENTRY *)OPENSSL_zalloc(sizeof(*namenum))) == NULL || (namenum->name = OPENSSL_strndup(name, name_len)) == NULL)
 		goto err;
 	/* The tsan_counter use here is safe since we're under lock */
-	namenum->number = number != 0 ? number : 1 + tsan_counter((volatile long *)&namemap->max_number);
+	namenum->number = number != 0 ? number : (1 + tsan_counter((volatile long *)&namemap->max_number));
 	(void)lh_NAMENUM_ENTRY_insert(namemap->namenum, namenum);
 	if(lh_NAMENUM_ENTRY_error(namemap->namenum))
 		goto err;

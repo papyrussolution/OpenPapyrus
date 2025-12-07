@@ -79,7 +79,7 @@ char FASTCALL SSystem::TranslateWmCharToAnsi(uintptr_t wparam)
 		DWORD iec;
 		intr_result = ::InternetGetLastResponseInfo(&iec, static_cast<LPTSTR>(temp_buf.vptr()), &buf_len);
 		if(intr_result)
-			ret = sstrlen(static_cast<LPTSTR>(temp_buf.vptr()));
+			ret = static_cast<DWORD>(sstrlen(static_cast<LPTSTR>(temp_buf.vptr())));
 	}
 	if(!intr_result) {
 		ret = ::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, NULL, sysErrCode,

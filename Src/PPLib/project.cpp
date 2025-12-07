@@ -227,7 +227,7 @@ const char * PPObjProject::GetNamePtr() { return MakeCodeString(&P_Tbl->data, Na
 
 StrAssocArray * PPObjProject::MakeStrAssocList(void * extraPtr /*parentPrjID*/)
 {
-	const   PPID parent_prj_id = reinterpret_cast<PPID>(extraPtr);
+	const  PPID parent_prj_id = reinterpret_cast<PPID>(extraPtr);
 	StrAssocArray * p_list = new StrAssocArray;
 	SString name_buf;
 	ProjectTbl::Key2 k2;
@@ -772,7 +772,7 @@ DBQuery * PPViewProject::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbe_descr.push(dbconst(static_cast<long>(PPTRPROP_DESCR)));
 		dbe_descr.push(static_cast<DBFunc>(PPDbqFuncPool::IdUnxText));
 	}
-	q = & select(
+	q = & Select_(
 		t->ID,          // #00
 		t->Name,        // #01
 		t->Code,        // #02

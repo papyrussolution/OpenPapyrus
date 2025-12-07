@@ -143,7 +143,7 @@ DBQuery * PPViewObjLikeness::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 		func_name = PPDbqFuncPool::IdObjNameGoods;
 	PPDbqFuncPool::InitObjNameFunc(dbe_name1, func_name, l->ID1);
 	PPDbqFuncPool::InitObjNameFunc(dbe_name2, func_name, l->ID2);
-	q = & select(
+	q = & Select_(
 		l->ObjType,
 		l->ID1,
 		l->ID2,

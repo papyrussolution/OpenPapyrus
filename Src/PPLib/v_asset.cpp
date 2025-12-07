@@ -512,7 +512,7 @@ DBQuery * PPViewAsset::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	uint   brw_id = Filt.OperPeriod.IsZero() ? BROWSER_ASSET : BROWSER_ASSETOPER;
 	DBQuery * q = 0;
 	TempAssetTbl * tbl = new TempAssetTbl(P_TempTbl->GetName());
-	q = & select(
+	q = & Select_(
 		tbl->LotID,
 		tbl->GoodsID,
 		tbl->Name,

@@ -751,8 +751,8 @@ IMPL_CMPFUNC(Receipt_DtOprNo_Desc, i1, i2) { RET_CMPCASCADE2(static_cast<const R
 IMPL_CMPFUNC(Receipt_DtOprNo_FEFO_Asc, i1, i2)
 {
 	int    si = 0;
-	const  LDATE  expiry1 = NZOR(static_cast<const ReceiptTbl::Rec *>(i1)->Expiry, MAXDATE);
-	const  LDATE  expiry2 = NZOR(static_cast<const ReceiptTbl::Rec *>(i2)->Expiry, MAXDATE);
+	const  LDATE expiry1 = NZOR(static_cast<const ReceiptTbl::Rec *>(i1)->Expiry, MAXDATE);
+	const  LDATE expiry2 = NZOR(static_cast<const ReceiptTbl::Rec *>(i2)->Expiry, MAXDATE);
 	if(expiry1 == expiry2) {
 		CMPCASCADE2(si, static_cast<const ReceiptTbl::Rec *>(i1), static_cast<const ReceiptTbl::Rec *>(i2), Dt, OprNo);
 	}
@@ -764,8 +764,8 @@ IMPL_CMPFUNC(Receipt_DtOprNo_FEFO_Asc, i1, i2)
 IMPL_CMPFUNC(Receipt_DtOprNo_FEFO_Desc, i1, i2)
 {
 	int    si = 0;
-	const  LDATE  expiry1 = NZOR(static_cast<const ReceiptTbl::Rec *>(i1)->Expiry, MAXDATE);
-	const  LDATE  expiry2 = NZOR(static_cast<const ReceiptTbl::Rec *>(i2)->Expiry, MAXDATE);
+	const  LDATE expiry1 = NZOR(static_cast<const ReceiptTbl::Rec *>(i1)->Expiry, MAXDATE);
+	const  LDATE expiry2 = NZOR(static_cast<const ReceiptTbl::Rec *>(i2)->Expiry, MAXDATE);
 	if(expiry1 == expiry2) {
 		CMPCASCADE2(si, static_cast<const ReceiptTbl::Rec *>(i2), static_cast<const ReceiptTbl::Rec *>(i1), Dt, OprNo);
 	}

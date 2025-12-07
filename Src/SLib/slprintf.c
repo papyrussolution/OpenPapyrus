@@ -156,11 +156,11 @@ static void _ntoa_long_long(SString & rBuf, uint64 value, bool negative, uint ba
 
 static int sl_printf_implementation(SString & rBuf, const char * pFormat, va_list va)
 {
-	const   uint org_len = rBuf.Len();
-	const   size_t format_len = strlen(pFormat);
+	const  uint org_len = rBuf.Len();
+	const  size_t format_len = strlen(pFormat);
 	if(format_len) {
-		char    fout_buf[256];
-		const   char * p_format_end = pFormat + format_len + 1;
+		char   fout_buf[256];
+		const  char * p_format_end = pFormat + format_len + 1;
 		while(*pFormat) {
 			// format specifier?  %[flags][width][.precision][length]
 			if(*pFormat != '%') {

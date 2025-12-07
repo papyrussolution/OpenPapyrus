@@ -1756,9 +1756,9 @@ static HWND FindCalendarCtrlByInputLineId(HWND hParent, int supplementKind, uint
 			CallbackParam(int supplementKind, uint inputCtlID) : H_Ctl(0), SupplementKind(supplementKind), InputCtlID(inputCtlID)
 			{
 			}
-			const   int  SupplementKind;
-			const   uint InputCtlID;
-			HWND    H_Ctl;
+			const  int  SupplementKind;
+			const  uint InputCtlID;
+			HWND   H_Ctl;
 		};
 		//BOOL CALLBACK EnumChildProc(_In_ HWND hwnd, _In_ LPARAM lParam);
 		auto callback_f = [](HWND hwnd, LPARAM lParam) -> BOOL

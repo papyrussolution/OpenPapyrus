@@ -160,7 +160,7 @@ extern "C" __declspec(dllexport) TSCollection <iSalesGoodsPacket> * iSalesGetGoo
 	InParamString arg_dtend(temp_buf.Z().Cat(period.upp, DATF_YMD|DATF_CENTURY|DATF_NODIV));
 	param.dtFrom = arg_dtstart;
 	param.dtTo = arg_dtend;
-	THROW(PreprocessCall(proxi, rSess, proxi.ProductsTransfer(rSess.GetUrl(), 0 /* soap_action */, &param, &resp)));
+	THROW(PreprocessCall(proxi, rSess, proxi.ProductsTransfer(rSess.GetUrl(), 0/*soap_action*/, &param, &resp)));
 	if(resp.ProductsTransferResult && resp.ProductsTransferResult->__sizePRODUCT > 0) {
 		THROW(p_result = new TSCollection <iSalesGoodsPacket>);
 		PPSoapRegisterResultPtr(p_result);

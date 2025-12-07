@@ -2353,24 +2353,20 @@ static void to_octal(int value, char * buf, size_t size)
 	} while(size);
 }
 
-static void _emit_string_literal(cairo_script_surface_t * surface,
-    const char * utf8, int len)
+static void _emit_string_literal(cairo_script_surface_t * surface, const char * utf8, int len)
 {
 	cairo_script_context_t * ctx = to_context(surface);
 	char c;
 	const char * end;
-
 	_cairo_output_stream_puts(ctx->stream, "(");
-
 	if(!utf8) {
 		end = utf8;
 	}
 	else {
 		if(len < 0)
-			len = strlen(utf8);
+			len = sstrleni(utf8);
 		end = utf8 + len;
 	}
-
 	while(utf8 < end) {
 		switch((c = *utf8++)) {
 			case '\n':
@@ -2815,15 +2811,11 @@ cairo_device_t * cairo_script_create_for_stream(cairo_write_func_t write_func,
  *
  * Since: 1.12
  **/
-void cairo_script_write_comment(cairo_device_t * script,
-    const char * comment,
-    int len)
+void cairo_script_write_comment(cairo_device_t * script, const char * comment, int len)
 {
 	cairo_script_context_t * context = (cairo_script_context_t *)script;
-
 	if(len < 0)
-		len = strlen(comment);
-
+		len = sstrleni(comment);
 	_cairo_output_stream_puts(context->stream, "% ");
 	_cairo_output_stream_write(context->stream, comment, len);
 	_cairo_output_stream_puts(context->stream, "\n");

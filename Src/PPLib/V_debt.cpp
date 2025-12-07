@@ -4598,7 +4598,7 @@ DBQuery * PPViewDebtorStat::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 	}
 	CALLPTRMEMB(pSubTitle, Z());
 	PPDbqFuncPool::InitObjNameFunc(dbe_ar, PPDbqFuncPool::IdObjNameAr, tbl->ArID);
-	q = &select(
+	q = &Select_(
 		tbl->ArID,           // #0
 		tbl->Dt,             // #1
 		tbl->DelayMean,      // #2

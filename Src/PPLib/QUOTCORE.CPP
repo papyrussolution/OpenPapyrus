@@ -2161,8 +2161,8 @@ const LDATE QIISuppDate = {0x07CB0C1F}; // 31/12/1995
 		const int uc = pPeriod->upp.getclass();
 		if(oneof2(lc, LDATE::cZero, LDATE::cNormal) && oneof2(uc, LDATE::cZero, LDATE::cNormal) && (pPeriod->upp && pPeriod->upp >= pPeriod->low)) {
 			if((!pPeriod->low || pPeriod->low > QIISuppDate) && (!pPeriod->upp || pPeriod->upp > QIISuppDate)) {
-				int16 lw = (int16)(pPeriod->low ? diffdate(pPeriod->low, QIISuppDate) : 0);
-				int16 hw = (int16)(pPeriod->upp ? diffdate(pPeriod->upp, QIISuppDate) : 0);
+				int16 lw = static_cast<int16>(pPeriod->low ? diffdate(pPeriod->low, QIISuppDate) : 0);
+				int16 hw = static_cast<int16>(pPeriod->upp ? diffdate(pPeriod->upp, QIISuppDate) : 0);
 				idx = MakeLong(lw, hw);
 				ok = 1;
 			}

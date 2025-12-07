@@ -16,7 +16,7 @@
 #include <imgui-slib-internal.h>
 #pragma hdrstop
 #include "imgui_impl_win32.h"
-#include <windowsx.h> // GET_X_LPARAM(), GET_Y_LPARAM()
+// @v12.4.12 #include <windowsx.h> // GET_X_LPARAM(), GET_Y_LPARAM()
 #include <dwmapi.h>
 
 // Configuration flags to add in your imconfig.h file:

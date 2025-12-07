@@ -50,7 +50,7 @@ struct xmlParserInput {
 	const  char * directory; // the directory/base of the file 
 	const  xmlChar * base; // Base of the array to parse 
 	const  xmlChar * end; // end of the array to parse 
-	int    length; // length if known 
+	ssize_t length; // length if known // @v12.4.12
 	int    line;   // Current line 
 	int    col;    // Current column 
 	// 

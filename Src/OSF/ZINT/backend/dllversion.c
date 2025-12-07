@@ -3,8 +3,8 @@
 //
 #pragma hdrstop
 #if defined (_WIN32) && (defined(_USRDLL) || defined(DLL_EXPORT) || defined(PIC))
-#include <windows.h>
-#include <shlwapi.h>
+// @v12.4.12 #include <windows.h>
+// @v12.4.12 #include <shlwapi.h>
 
 #ifdef __cplusplus
 extern "C"

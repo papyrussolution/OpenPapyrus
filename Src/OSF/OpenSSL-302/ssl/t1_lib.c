@@ -1212,11 +1212,9 @@ static const SIGALG_LOOKUP * tls1_get_legacy_sigalg(const SSL * s, int idx)
 	if(idx == -1) {
 		if(s->server) {
 			size_t i;
-
 			/* Work out index corresponding to ciphersuite */
 			for(i = 0; i < SSL_PKEY_NUM; i++) {
 				const SSL_CERT_LOOKUP * clu = ssl_cert_lookup_by_idx(i);
-
 				if(clu == NULL)
 					continue;
 				if(clu->amask & s->s3.tmp.new_cipher->algorithm_auth) {
@@ -1224,13 +1222,11 @@ static const SIGALG_LOOKUP * tls1_get_legacy_sigalg(const SSL * s, int idx)
 					break;
 				}
 			}
-
 			/*
 			 * Some GOST ciphersuites allow more than one signature algorithms
 			 * */
 			if(idx == SSL_PKEY_GOST01 && s->s3.tmp.new_cipher->algorithm_auth != SSL_aGOST01) {
 				int real_idx;
-
 				for(real_idx = SSL_PKEY_GOST12_512; real_idx >= SSL_PKEY_GOST01;
 				    real_idx--) {
 					if(s->cert->pkeys[real_idx].privatekey) {
@@ -2563,22 +2559,18 @@ int tls1_check_chain(SSL * s, X509 * x, EVP_PKEY * pk, STACK_OF(X509) * chain,
 	}
 	else {
 		size_t certidx;
-
 		if(!x || !pk)
 			return 0;
-
 		if(ssl_cert_lookup_by_pkey(pk, &certidx) == NULL)
 			return 0;
 		idx = certidx;
 		pvalid = s->s3.tmp.valid_flags + idx;
-
 		if(c->cert_flags & SSL_CERT_FLAGS_CHECK_TLS_STRICT)
 			check_flags = CERT_PKEY_STRICT_FLAGS;
 		else
 			check_flags = CERT_PKEY_VALID_FLAGS;
 		strict_mode = 1;
 	}
-
 	if(suiteb_flags) {
 		int ok;
 		if(check_flags)
@@ -2589,7 +2581,6 @@ int tls1_check_chain(SSL * s, X509 * x, EVP_PKEY * pk, STACK_OF(X509) * chain,
 		else if(!check_flags)
 			goto end;
 	}
-
 	/*
 	 * Check all signature algorithms are consistent with signature
 	 * algorithms extension if TLS 1.2 or later and strict mode.

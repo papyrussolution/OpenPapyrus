@@ -1044,18 +1044,15 @@ int grid_matrix(struct ZintSymbol * symbol, const uchar source[], int length)
 			}
 		}
 	}
-
-	if(symbol->output_options & READER_INIT) reader = 1;
-
+	if(symbol->output_options & READER_INIT) 
+		reader = 1;
 	error_number = gm_encode(gbdata, length, binary, reader, symbol->eci);
 	if(error_number != 0) {
 		sstrcpy(symbol->errtxt, "Input data too long (E31)");
 		return error_number;
 	}
-
 	/* Determine the size of the symbol */
-	data_cw = strlen(binary) / 7;
-
+	data_cw = sstrleni(binary) / 7;
 	auto_layers = 13;
 	for(i = 12; i > 0; i--) {
 		if(gm_recommend_cw[(i - 1)] >= data_cw) {

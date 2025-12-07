@@ -2177,7 +2177,7 @@ int PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
 		}
 		pW->SetResID(prev_rez_id);
 		pW->setSubTitle(sub_title);
-		pW->SetupColumnsWith();
+		pW->SetupColumnsWith(0/*flags*/);
 		pW->Refresh();
 		APPL->NotifyFrame(0);
 		PPWaitStop();
@@ -2956,7 +2956,7 @@ PPTimeChunkBrowser::PPTimeChunkBrowser() : STimeChunkBrowser()
 			SString cell_buf;
 			column = 1;
 			for(long quant = 0; ; quant++, column++) {
-				const  LDATE  dt = plusdate(St.Bounds.Start.d, quant);
+				const  LDATE dt = plusdate(St.Bounds.Start.d, quant);
 				const long _col = column+1; // Первый столбец (column) - с заголовками, _col - столбец с данными
 				if(dt <= St.Bounds.Finish.d) {
 					row = 2;

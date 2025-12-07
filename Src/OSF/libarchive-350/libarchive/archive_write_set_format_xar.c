@@ -1843,10 +1843,10 @@ static int file_gen_utility_names(struct archive_write * a, struct file * file)
 
 static int get_path_component(char * name, int n, const char * fn)
 {
-	int l;
-	const char * p = sstrchr(fn, '/');
+	int    l;
+	const  char * p = sstrchr(fn, '/');
 	if(!p) {
-		l = strlen(fn);
+		l = sstrleni(fn);
 		if(l == 0)
 			return 0;
 	}

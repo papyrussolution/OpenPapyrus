@@ -486,9 +486,9 @@ int PhonePaneDialog::SetupInfo()
 			SetClusterData(CTL_PHNCPANE_AUTOCLOSE, 1);
 		}
 		else {
-			const   long time_to_close = 15;
-			long s = diffdatetimesec(getcurdatetime_(), S.SinceDown);
-			long sec_left = (s < time_to_close) ? (time_to_close - s) : 0;
+			const  long time_to_close = 15;
+			long   s = diffdatetimesec(getcurdatetime_(), S.SinceDown);
+			long   sec_left = (s < time_to_close) ? (time_to_close - s) : 0;
 			PPFormatS(PPSTR_TEXT, PPTXT_CLOSEWINAFTERXSEC, &temp_buf, sec_left);
 			SetClusterItemText(CTL_PHNCPANE_AUTOCLOSE, 0, temp_buf);
 			if(!(S.Flags & S.fLockAutoExit)) {

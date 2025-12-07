@@ -20,7 +20,7 @@
 #define COBJMACROS
 // @sobolev (defined at slib.h) #define _WIN32_IE 0x500  // Workaround bug in shlwapi.h when compiling C++ code with COBJMACROS.
 #include <ole2.h>  // CreateStreamOnHGlobal()
-#include <shlwapi.h>
+// @v12.4.12 #include <shlwapi.h>
 #include <wincodec.h>
 #include "../examples/unicode.h"
 #include "./imageio_util.h"

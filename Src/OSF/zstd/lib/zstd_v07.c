@@ -1300,7 +1300,7 @@ size_t FSEv07_buildDTable(FSEv07_DTable* dt, const short * normalizedCounter, ui
 	    DTableH.tableLog = (uint16)tableLog;
 	    DTableH.fastMode = 1;
 	    {   
-			const int16 largeLimit = (int16)(1 << (tableLog-1));
+			const int16 largeLimit = static_cast<int16>(1 << (tableLog-1));
 			for(uint32 s = 0; s < maxSV1; s++) {
 				if(normalizedCounter[s] == -1) {
 					tableDecode[highThreshold--].symbol = (FSEv07_FUNCTION_TYPE)s;

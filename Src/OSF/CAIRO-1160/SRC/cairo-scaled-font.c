@@ -1608,7 +1608,7 @@ cairo_status_t cairo_scaled_font_text_to_glyphs(cairo_scaled_font_t * scaled_fon
 	}
 	/* A -1 for utf8_len means NUL-terminated */
 	if(utf8_len == -1)
-		utf8_len = strlen(utf8);
+		utf8_len = sstrleni(utf8);
 	/* A NULL *glyphs means no prealloced glyphs array */
 	if(glyphs && *glyphs == NULL)
 		*num_glyphs = 0;

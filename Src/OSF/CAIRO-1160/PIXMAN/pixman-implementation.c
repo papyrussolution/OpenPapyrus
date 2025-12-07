@@ -258,7 +258,7 @@ boolint _pixman_disabled(const char * name)
 			if((end = sstrchr(env, ' ')))
 				len = end - env;
 			else
-				len = strlen(env);
+				len = sstrleni(env);
 			if(strlen(name) == len && strncmp(name, env, len) == 0) {
 				printf("pixman: Disabled %s implementation\n", name);
 				return TRUE;

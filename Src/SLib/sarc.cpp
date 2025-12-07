@@ -902,7 +902,7 @@ int SArchive::Open(const char * pName, int mode /*SFile::mXXX*/, SArchive::Forma
 {
 	int    ok = 1;
 	Close();
-	const   int mm = (mode & 0xff);
+	const  int mm = (mode & 0xff);
 	OpenMode = mm;
 	Fep.Z();
 	if(Provider == providerZip) {

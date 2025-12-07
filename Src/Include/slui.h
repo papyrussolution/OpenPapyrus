@@ -162,7 +162,7 @@ struct HelpEvent {
 	int    ContextType; // ctxtXXX
 	int    CtlId;
 	void * H_Item;
-	uint32 ContextId;
+	uint32 ContextId; // @todo @20251130 -->uint64
 	SPoint2S Mouse;
 };
 //
@@ -2262,7 +2262,7 @@ public:
 	};
 	int    DrawEdge(TRect & rR, long edge, long flags);
 	int    DrawFrame(const TRect & rR, int clFrame, int brushId);
-	int    FASTCALL SelectFont(SPaintObj::Font * pFont);
+	int    FASTCALL SelectFont_(SPaintObj::Font * pFont); // В windowsx.h определен макрос SelectFont потому такое имя использовать нелья.
 private:
 	enum {
 		fOuterSurface   = 0x0001, // Surface имеет ссылку на внешний объект. Т.е. разрушать его не следует.
@@ -2631,7 +2631,7 @@ public:
 
 		uint   Id;
 		HWND   H;     // Окно, в котором активируется подсказка
-		long   Param; // Дополнительное значение, ассоциированное с подсказкой
+		long   Param; // Дополнительное значение, ассоциированное с подсказкой // @todo @20251130 -->int64
 		TRect  R;     // Прямоугольник, в котором активируется подсказка
 		SString Text; // Текст подсказки
 	};
@@ -5549,7 +5549,7 @@ public:
 	// @v12.4.8 (unused) uint   groupWidth(const BroGroup *, uint atColumn) const;
 	int    GetCellData(const void * pRowData, int column, TYPEID * pType, void * pDataBuf, size_t dataBufLen);
 	int    GetCellData(long row, int column, TYPEID * pType, void * pDataBuf, size_t dataBufLen);
-	char * getText(long row, int column, char * pBuf);
+	char * GetCellText(long row, int column, bool dontRestrictByFmtLen, char * pBuf);
 	//
 	// Descr: Извлекает текст полностью (512 символов), независимо от ширины колонки в броузере
 	//
@@ -5615,8 +5615,8 @@ class AryBrowserDef : public BrowserDef {
 public:
 	AryBrowserDef(SArray * pData, const BNFieldList2 * pFl, int captionHight, uint aOptions, void * extraPtr = 0);
 	~AryBrowserDef();
-	int     setArray(SArray * pData, const BNFieldList2 * pFl, int setupPosition /*= 1*/);
-	const   SArray * getArray() const;
+	int    setArray(SArray * pData, const BNFieldList2 * pFl, int setupPosition /*= 1*/);
+	const  SArray * getArray() const;
 	virtual bool   IsValid() const;
 	virtual int    insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt);
 	virtual long   GetRecsCount() const;
@@ -5672,7 +5672,7 @@ protected:
 
 struct BrowserPens {
 	BrowserPens();
-	void   Destroy();
+	BrowserPens & Z();
 
 	HPEN   GridHorzPen;
 	HPEN   GridVertPen;
@@ -5685,7 +5685,7 @@ struct BrowserPens {
 
 struct BrowserBrushes {
 	BrowserBrushes();
-	void   Destroy();
+	BrowserBrushes & Z();
 
 	HBRUSH DrawBrush;
 	HBRUSH ClearBrush;
@@ -5814,7 +5814,15 @@ public:
 	int    insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt);
 	int    removeColumn(int atPos);
 	void   SetCWidth(uint colNo, uint newWidthChr, uint newWidthPx);
-	void   SetupColumnsWith();
+	//
+	// Descr: Флаги функции SetupColumnsWith()
+	//
+	enum {
+		scwfForceDefault  = 0x0001,
+		scwfForceAutoEval = 0x0002
+	};
+
+	void   SetupColumnsWith(uint flags);
 	int    SetColumnTitle(int conNo, const char * pText);
 	void   SetFreeze(uint);
 	RECT * ItemRect(int hPos, int vPos, RECT * pRect, bool isFocus) const;
@@ -5886,7 +5894,15 @@ public:
 	//   в случае, если его параметры были изменены.
 	//
 	void   EvaluateSomeMetricsOnInit();
-	int    EvaluateColumnSizes(bool recalcDataStat); // @v12.4.7
+	//
+	// Descr: Флаги функции EvaluateColumnSizes()
+	//
+	enum {
+		ecsfRecalcDataStat = 0x0001,
+		ecsfForce          = 0x0002
+	};
+
+	int    EvaluateColumnSizes(/*bool recalcDataStat*/uint flags); // @v12.4.7
 
 	enum {
 		paintFocused = 0,
@@ -5946,6 +5962,7 @@ private:
 	int    FASTCALL GetRowHeightMult(long row) const;
 	int    FASTCALL GetRowTop(long row) const;
 	int    EvaluateColumnSizeStat(TSVector <ColumnWidthStat> & rStat); // @v12.4.7
+	void   SpecialMenu(); // @v12.4.12
 
 	long   InitPos;
 	TView * P_Header;

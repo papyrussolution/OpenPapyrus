@@ -154,7 +154,7 @@ TCanvas2::TCanvas2(SPaintToolBox & rTb, SImageBuffer & rBuf) : GdiObjStack(sizeo
 
 TCanvas2::~TCanvas2()
 {
-	SelectFont(0);
+	SelectFont_(0);
 	cairo_surface_destroy(P_CrS);
 	cairo_destroy(P_Cr);
 	if(!(Flags & fOuterSurface)) {
@@ -2918,7 +2918,7 @@ int STextLayout::EnumGroups(uint * pI, RenderGroup * pGroup)
 	return ok;
 }
 
-int FASTCALL TCanvas2::SelectFont(SPaintObj::Font * pFont)
+int FASTCALL TCanvas2::SelectFont_(SPaintObj::Font * pFont)
 {
 	int    ok = -1;
 	if(P_SelectedFont) {
@@ -2969,7 +2969,7 @@ int TCanvas2::DrawTextLayout(STextLayout * pTlo)
 			if(re.P_Font && rcnt) {
 				special_positions.clear();
 				glyph_list.clear();
-				SelectFont(re.P_Font);
+				SelectFont_(re.P_Font);
 				float prev_y = re.Items.at(i-1).P.y;
 				for(uint j = 0; j < rcnt; j++) {
 					cairo_glyph_t glyph;
@@ -3017,7 +3017,7 @@ int TCanvas2::DrawTextLayout(STextLayout * pTlo)
 						Implement_Stroke(1);
 					}
 				}
-				SelectFont(0);
+				SelectFont_(0);
 			}
 		}
 		if(do_clip) {

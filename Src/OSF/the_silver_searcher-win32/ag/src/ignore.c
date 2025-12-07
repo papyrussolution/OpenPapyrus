@@ -4,7 +4,7 @@
 #pragma hdrstop
 
 #ifdef _WIN32
-	#include <shlwapi.h>
+	// @v12.4.12 #include <shlwapi.h>
 	#define fnmatch(x, y, z) (!PathMatchSpecA(y, x)) // @sobolev PathMatchSpec-->PathMatchSpecA
 #else
 	#include <fnmatch.h>

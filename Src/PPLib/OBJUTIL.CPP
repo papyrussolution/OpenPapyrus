@@ -2883,6 +2883,11 @@ int PPViewUniFindObj::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					P_Prcssr->TodoObj.Edit(&temp_id, 0);
 				}
 				break;
+			default:
+				{
+					EditPPObj(p_item->Oid.Obj, temp_id);
+				}
+				break;
 		}
 	}
 	return ok;
@@ -3174,6 +3179,10 @@ int PrcssrUniFindObj::Run()
 				}
 			}
 		}
+		/* @construction if(P.MainPattern.Len() > 3) {
+			temp_id_list.Z();
+			p_ref->UtrC.FilterIdList(0, PPTRPROP_MEMO, P.MainPattern, 0, temp_id_list);
+		}*/
 		if(P.WFlags & (UniFindObjFilt::wfEverything|UniFindObjFilt::wfBill)) {
 			BillTbl::Rec bill_rec;
 			if(_int_val > 0 && _int_val < LONG_MAX) {
@@ -3195,17 +3204,26 @@ int PrcssrUniFindObj::Run()
 		if(P.WFlags & (UniFindObjFilt::wfEverything|UniFindObjFilt::wfGoods)) {
 			// @todo PPTAG_GOODS_UUID
 			Goods2Tbl::Rec goods_rec;
-			result_id_list.Z();
 			temp_id_list.Z();
 			if(_int_val > 0 && _int_val < LONG_MAX) {
-				if(r_goods_obj.Search(static_cast<long>(_int_val), &goods_rec) > 0) {
-					AddResult(PPOBJ_GOODS, goods_rec.ID, PPOBJATTR_ID, 0);
-					result_id_list.add(goods_rec.ID);
+				if(r_goods_obj.P_Tbl->Search(static_cast<long>(_int_val), &goods_rec) > 0) {
+					PPID   local_obj_type = PPOBJ_GOODS;
+					switch(goods_rec.Kind) {
+						case PPGDSK_GROUP:  local_obj_type = PPOBJ_GOODSGROUP; break;
+						case PPGDSK_PCKGTYPE:  local_obj_type = PPOBJ_PCKGTYPE; break;
+						case PPGDSK_TRANSPORT:  local_obj_type = PPOBJ_TRANSPORT; break;
+						case PPGDSK_BRAND:  local_obj_type = PPOBJ_BRAND; break;
+						case PPGDSK_BRANDGROUP:  local_obj_type = PPOBJ_BRAND; break;
+						case PPGDSK_SUPRWARE:  local_obj_type = PPOBJ_COMPGOODS; break;
+						case PPGDSK_COMPUTER:  local_obj_type = PPOBJ_COMPUTER; break;
+						case PPGDSK_SWPROGRAM:  local_obj_type = PPOBJ_SWPROGRAM; break;
+						default: local_obj_type = PPOBJ_GOODS; break;
+					}
+					AddResult(local_obj_type, goods_rec.ID, PPOBJATTR_ID, 0);
 				}
 			}
 			if(r_goods_obj.SearchByBarcode(P.MainPattern, 0, &goods_rec, 1) > 0) {
 				AddResult(PPOBJ_GOODS, goods_rec.ID, PPOBJATTR_CODE, 0);
-				result_id_list.add(goods_rec.ID);
 			}
 			if(P.Flags & UniFindObjFilt::fNameBySubstr) {
 				r_goods_obj.P_Tbl->GetListBySubstring(P.MainPattern, &temp_id_list, 0, false/*srchByExtStr*/);
@@ -3213,13 +3231,11 @@ int PrcssrUniFindObj::Run()
 			}
 			else if(r_goods_obj.P_Tbl->SearchByName(PPGDSK_GOODS, P.MainPattern, 0, &goods_rec) > 0) {
 				AddResult(PPOBJ_GOODS, goods_rec.ID, PPOBJATTR_NAME, 0);
-				result_id_list.add(goods_rec.ID);
 			}
 			if(!!_uuid_val) {
 				p_ref->Ot.SearchObjectsByGuid(PPOBJ_GOODS, PPTAG_GOODS_UUID, _uuid_val, &temp_id_list);
 				for(uint i = 0; i < temp_id_list.getCount(); i++) {
 					AddResult(PPOBJ_GOODS, temp_id_list, PPOBJATTR_UUID);
-					result_id_list.add(&temp_id_list);
 				}
 			}
 		}

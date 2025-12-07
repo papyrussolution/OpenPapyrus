@@ -1256,7 +1256,7 @@ size_t FSEv06_buildDTable(FSEv06_DTable* dt, const short* normalizedCounter, uin
 	    DTableH.tableLog = (uint16)tableLog;
 	    DTableH.fastMode = 1;
 	    {   
-		int16 const largeLimit = (int16)(1 << (tableLog-1));
+		int16 const largeLimit = static_cast<int16>(1 << (tableLog-1));
 		uint32 s;
 		for(s = 0; s<maxSV1; s++) {
 			if(normalizedCounter[s] == -1) {

@@ -1325,7 +1325,7 @@ DBQuery * PPViewQuot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	if(P_TempSerTbl) {
 		brw_id = BROWSER_QUOT_SER;
 		p_ts = new TempQuotSerialTbl(P_TempSerTbl->GetName());
-		q = & select(
+		q = & Select_(
 			p_ts->Dt,
 			p_ts->Tm,
 			p_ts->Val,
@@ -1359,7 +1359,7 @@ DBQuery * PPViewQuot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			PPDbqFuncPool::InitObjNameFunc(dbe_loc, PPDbqFuncPool::IdObjNameLoc, tbl->LocID);
 			PPDbqFuncPool::InitObjNameFunc(dbe_ar,  PPDbqFuncPool::IdObjNameAr,  tbl->ArticleID);
 			PPDbqFuncPool::InitLongFunc(dbe_period, PPViewQuot::DynFuncPeriod,   tbl->PeriodIdx);
-			q = & select(
+			q = & Select_(
 				tbl->GoodsID,       // #0
 				tbl->LocID,         // #1
 				tbl->ArticleID,     // #2

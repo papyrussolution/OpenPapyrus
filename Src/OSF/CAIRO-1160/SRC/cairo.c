@@ -3069,7 +3069,7 @@ void cairo_show_text(cairo_t * cr, const char * utf8)
 		_cairo_set_error(cr, scaled_font->status);
 		return;
 	}
-	utf8_len = strlen(utf8);
+	utf8_len = sstrleni(utf8);
 	has_show_text_glyphs = cairo_surface_has_show_text_glyphs(cairo_get_target(cr));
 	glyphs = stack_glyphs;
 	num_glyphs = ARRAY_LENGTH(stack_glyphs);
@@ -3196,7 +3196,7 @@ void cairo_show_text_glyphs(cairo_t * cr, const char * utf8, int utf8_len, const
 	}
 	/* A -1 for utf8_len means NUL-terminated */
 	if(utf8_len == -1)
-		utf8_len = strlen(utf8);
+		utf8_len = sstrleni(utf8);
 	/* Apart from that, no negatives */
 	if(num_glyphs < 0 || utf8_len < 0 || num_clusters < 0) {
 		_cairo_set_error(cr, CAIRO_STATUS_NEGATIVE_COUNT);

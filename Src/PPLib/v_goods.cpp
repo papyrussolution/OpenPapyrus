@@ -1429,7 +1429,7 @@ DBQuery * PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	PPDbqFuncPool::InitLongFunc(dbe_group,     PPDbqFuncPool::IdObjNameGoods,      g->ParentID);
 	if(P_TempTbl)
 		THROW(CheckTblPtr(tmp_t = new TempOrderTbl(P_TempTbl->GetName())));
-	q = & select(g->ID, 0L);                           // #00
+	q = & Select_(g->ID, 0L);                          // #00
 	q->addField(g->Flags);                             // #01
 	q->addField(g->Name);                              // #02
 	q->addField(dbe_manuf);                            // #03

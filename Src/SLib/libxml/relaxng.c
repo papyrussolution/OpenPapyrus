@@ -8649,7 +8649,7 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 				    break;
 			    }
 		    }
-		    len = sstrlen(content);
+		    len = sstrleni(content);
 		    oldvalue = ctxt->state->value;
 		    oldendvalue = ctxt->state->endvalue;
 		    ctxt->state->value = content;

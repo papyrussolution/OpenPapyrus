@@ -285,7 +285,7 @@ int PPObjTech::SearchAnalog(const TechTbl::Rec & rKey, PPID * pID, TechTbl::Rec 
     return ok;
 }
 
-int PPObjTech::GetNextSibling(PPID parentID, PPID siblingID, TechTbl::Rec * pNextRec)
+int PPObjTech::GetNextSibling_(PPID parentID, PPID siblingID, TechTbl::Rec * pNextRec)
 {
 	int    ok = -1;
 	TechTbl::Rec s_rec;
@@ -1921,7 +1921,7 @@ DBQuery * PPViewTech::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbe_capacity.push(static_cast<DBFunc>(PPDbqFuncPool::IdTechCapacity));
 	}
 	// } @v11.3.10 
-	q = & select(p_tect->ID, 0L).from(p_tect, p_reft, 0L); // #0
+	q = & Select_(p_tect->ID, 0L).from(p_tect, p_reft, 0L); // #0
 	q->addField(p_tect->Code);      // #1
 	q->addField(dbe_prc);           // #2
 	q->addField(dbe_goods);         // #3

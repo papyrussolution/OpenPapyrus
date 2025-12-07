@@ -43,12 +43,12 @@ static FORCEINLINE void * forward_search(const uint8 * ptr, const uint8 * end_pt
 const void * fast_memchr(const void * haystack, int n, size_t len) 
 {
 	constexpr uint _LOOP_SIZE = (2 * sizeof(uintptr_t));
-	const   uint8 n1 = (uint8)n;
-	uintptr_t vn1 = repeat_byte(n1);
-	const   uint32 loop_size = MIN(_LOOP_SIZE, len);
-	const uint8 * start_ptr = static_cast<const uint8 *>(haystack);
-	const uint8 * end_ptr = start_ptr + len;
-	const uint8 * ptr = start_ptr;
+	const  uint8 n1 = (uint8)n;
+	const  uintptr_t vn1 = repeat_byte(n1);
+	const  uint32 loop_size = MIN(_LOOP_SIZE, len);
+	const  uint8 * start_ptr = static_cast<const uint8 *>(haystack);
+	const  uint8 * end_ptr = start_ptr + len;
+	const  uint8 * ptr = start_ptr;
 	if(len < sizeof(uintptr_t)) {
 		return forward_search(ptr, end_ptr, n1);
 	}

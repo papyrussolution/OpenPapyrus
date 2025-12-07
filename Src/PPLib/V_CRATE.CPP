@@ -221,7 +221,7 @@ DBQuery * PPViewCurRate::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	rtt = new ReferenceTbl;
 	PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPDbqFuncPool::IdObjSymbCurrency, crt->CurID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_basecur, PPDbqFuncPool::IdObjSymbCurrency, crt->RelCurID);
-	q = & select(
+	q = & Select_(
 		crt->RateTypeID,  // #0
 		crt->CurID,       // #1
 		crt->RelCurID,    // #2

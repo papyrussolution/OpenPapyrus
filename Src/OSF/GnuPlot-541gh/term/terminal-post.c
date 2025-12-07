@@ -359,26 +359,57 @@ char * PS_escape_string(char * origstr, const char * escapelist)
 // HBB 990914: PS_SOLID is already used by the WIN32 API headers.
 // Renamed to PS_SOLIDE, therefore... 
 enum PS_id {
-	PS_PORTRAIT, PS_LANDSCAPE,
-	PS_EPSF, PS_DEFAULT, PS_ENHANCED, PS_NOENHANCED,
-	PS_LATEX, EPSLATEX_STANDALONE, EPSLATEX_INPUT,
-	PS_MONOCHROME, PS_COLOR, PS_BLACKTEXT, PS_COLORTEXT,
-	PS_SOLIDE, PS_DASHED, PS_DASHLENGTH, PS_LINEWIDTH, PS_POINTSCALE,
-	PS_SIMPLEX, PS_DUPLEX, PS_DEFAULTPLEX,
-	PS_ROUNDED, PS_NOROUNDED, PS_CLIP, PS_NOCLIP, PS_FONTFILE, PS_NOFONTFILES,
+	PS_PORTRAIT, 
+	PS_LANDSCAPE,
+	PS_EPSF, 
+	PS_DEFAULT_, // PS_DEFAULT used in Windows ShObjIdl_core.h
+	PS_ENHANCED, 
+	PS_NOENHANCED,
+	PS_LATEX, 
+	EPSLATEX_STANDALONE, 
+	EPSLATEX_INPUT,
+	PS_MONOCHROME, 
+	PS_COLOR, 
+	PS_BLACKTEXT, 
+	PS_COLORTEXT,
+	PS_SOLIDE, 
+	PS_DASHED, 
+	PS_DASHLENGTH, 
+	PS_LINEWIDTH, 
+	PS_POINTSCALE,
+	PS_SIMPLEX, 
+	PS_DUPLEX, 
+	PS_DEFAULTPLEX,
+	PS_ROUNDED, 
+	PS_NOROUNDED, 
+	PS_CLIP, 
+	PS_NOCLIP, 
+	PS_FONTFILE, 
+	PS_NOFONTFILES,
 	PS_PALFUNCPARAM,
-	PS_LEVEL1, PS_LEVELDEFAULT, PS_LEVEL3, PS_FONT, PS_FONTSCALE,
-	PSLATEX_ROTATE, PSLATEX_NOROTATE, PSLATEX_AUXFILE, PSLATEX_NOAUXFILE,
-	PSLATEX_OLDSTYLE, PSLATEX_NEWSTYLE, EPSLATEX_HEADER, EPSLATEX_NOHEADER,
+	PS_LEVEL1, 
+	PS_LEVELDEFAULT, 
+	PS_LEVEL3, 
+	PS_FONT, 
+	PS_FONTSCALE,
+	PSLATEX_ROTATE, 
+	PSLATEX_NOROTATE, 
+	PSLATEX_AUXFILE, 
+	PSLATEX_NOAUXFILE,
+	PSLATEX_OLDSTYLE, 
+	PSLATEX_NEWSTYLE, 
+	EPSLATEX_HEADER, 
+	EPSLATEX_NOHEADER,
 	PS_SIZE,
-	PS_ADOBEGLYPHNAMES, PS_NOADOBEGLYPHNAMES,
-	PS_BACKGROUND, PS_NOBACKGROUND,
+	PS_ADOBEGLYPHNAMES, 
+	PS_NOADOBEGLYPHNAMES,
+	PS_BACKGROUND, 
+	PS_NOBACKGROUND,
 	PS_OTHER
 };
 
-static struct gen_table PS_opts[] =
-{
-	{ "d$efault", PS_DEFAULT },
+static struct gen_table PS_opts[] = {
+	{ "d$efault", PS_DEFAULT_ },
 	{ "p$ortrait", PS_PORTRAIT },
 	{ "l$andscape", PS_LANDSCAPE },
 	{ "ep$sf", PS_EPSF },
@@ -475,7 +506,7 @@ void PS_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 		ZFREE(pGp->TPsB.PsLatexAuxname);
 	}
 	if(!pGp->Pgm.EndOfCommand()) {
-		if(pGp->Pgm.LookupTableForCurrentToken(&PS_opts[0]) == PS_DEFAULT) {
+		if(pGp->Pgm.LookupTableForCurrentToken(&PS_opts[0]) == PS_DEFAULT_) {
 			switch(pGp->TPsB.P_Params->terminal) {
 				case PSTERM_POSTSCRIPT:
 				    while(pGp->TPsB.P_Params->first_fontfile)
@@ -555,7 +586,7 @@ void PS_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 #endif
 			    pGp->Pgm.Shift();
 			    break;
-			case PS_DEFAULT:
+			case PS_DEFAULT_:
 			    goto PS_options_error;
 			    pGp->Pgm.Shift();
 			    break;

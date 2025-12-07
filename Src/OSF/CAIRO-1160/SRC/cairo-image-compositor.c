@@ -1234,8 +1234,7 @@ static cairo_status_t _cairo_image_spans(void * abstract_renderer, int y, int he
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _cairo_image_spans_and_zero(void * abstract_renderer,
-    int y, int height, const cairo_half_open_span_t * spans, unsigned num_spans)
+static cairo_status_t _cairo_image_spans_and_zero(void * abstract_renderer, int y, int height, const cairo_half_open_span_t * spans, unsigned num_spans)
 {
 	cairo_image_span_renderer_t * r = (cairo_image_span_renderer_t *)abstract_renderer;
 	int len;

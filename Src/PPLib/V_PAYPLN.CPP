@@ -523,7 +523,7 @@ DBQuery * PPViewPaymPlan::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			dbe_cycle.push(dbconst((long)&CycleList)); // @x64crit
 			dbe_cycle.push(static_cast<DBFunc>(PPDbqFuncPool::IdFormatCycle));
 		}
-		q = & select(
+		q = & Select_(
 			t->BillID, // #00
 			t->ObjID,  // #01
 			t->Dt,     // #02

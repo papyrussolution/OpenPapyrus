@@ -1081,25 +1081,18 @@ static cairo_int_status_t cairo_cff_font_read_top_dict(cairo_cff_font_t * font)
 		if(UNLIKELY(status))
 			goto fail;
 	}
-
 	/* Use maximum sized encoding to reserve space for later modification. */
 	end_buf = encode_integer_max(buf, 0);
-	status = cff_dict_set_operands(font->top_dict,
-		CHARSTRINGS_OP, buf, end_buf - buf);
+	status = cff_dict_set_operands(font->top_dict, CHARSTRINGS_OP, buf, end_buf - buf);
 	if(UNLIKELY(status))
 		goto fail;
-
-	status = cff_dict_set_operands(font->top_dict,
-		CHARSET_OP, buf, end_buf - buf);
+	status = cff_dict_set_operands(font->top_dict, CHARSET_OP, buf, end_buf - buf);
 	if(UNLIKELY(status))
 		goto fail;
-
 	if(font->scaled_font_subset->is_latin) {
-		status = cff_dict_set_operands(font->top_dict,
-			ENCODING_OP, buf, end_buf - buf);
+		status = cff_dict_set_operands(font->top_dict, ENCODING_OP, buf, end_buf - buf);
 		if(UNLIKELY(status))
 			goto fail;
-
 		/* Private has two operands - size and offset */
 		end_buf = encode_integer_max(end_buf, 0);
 		cff_dict_set_operands(font->top_dict, PRIVATE_OP, buf, end_buf - buf);
@@ -1107,20 +1100,15 @@ static cairo_int_status_t cairo_cff_font_read_top_dict(cairo_cff_font_t * font)
 			goto fail;
 	}
 	else {
-		status = cff_dict_set_operands(font->top_dict,
-			FDSELECT_OP, buf, end_buf - buf);
+		status = cff_dict_set_operands(font->top_dict, FDSELECT_OP, buf, end_buf - buf);
 		if(UNLIKELY(status))
 			goto fail;
-
-		status = cff_dict_set_operands(font->top_dict,
-			FDARRAY_OP, buf, end_buf - buf);
+		status = cff_dict_set_operands(font->top_dict, FDARRAY_OP, buf, end_buf - buf);
 		if(UNLIKELY(status))
 			goto fail;
-
 		cff_dict_remove(font->top_dict, ENCODING_OP);
 		cff_dict_remove(font->top_dict, PRIVATE_OP);
 	}
-
 	/* Remove the unique identifier operators as the subsetted font is
 	 * not the same is the original font. */
 	cff_dict_remove(font->top_dict, UNIQUEID_OP);
@@ -1270,7 +1258,7 @@ static uchar * type2_decode_integer(uchar * p, int * integer)
 	}
 	else { /* *p == 255 */
 		/* 16.16 fixed-point number. The fraction is ignored. */
-		*integer = (int16)((p[1] << 8) | p[2]);
+		*integer = static_cast<int16>((p[1] << 8) | p[2]);
 		p += 5;
 	}
 	return p;

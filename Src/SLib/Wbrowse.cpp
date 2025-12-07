@@ -399,7 +399,7 @@ BrowserPens::BrowserPens()
 	THISZERO();
 }
 
-void BrowserPens::Destroy()
+BrowserPens & BrowserPens::Z()
 {
 	ZDeleteWinGdiObject(&GridHorzPen);
 	ZDeleteWinGdiObject(&GridVertPen);
@@ -407,6 +407,7 @@ void BrowserPens::Destroy()
 	ZDeleteWinGdiObject(&ClearFocusPen);
 	ZDeleteWinGdiObject(&TitlePen);
 	ZDeleteWinGdiObject(&FocusOuterPen);
+	return *this;
 }
 
 BrowserBrushes::BrowserBrushes()
@@ -414,12 +415,13 @@ BrowserBrushes::BrowserBrushes()
 	THISZERO();
 }
 
-void BrowserBrushes::Destroy()
+BrowserBrushes & BrowserBrushes::Z()
 {
 	ZDeleteWinGdiObject(&DrawBrush);
 	ZDeleteWinGdiObject(&ClearBrush);
 	ZDeleteWinGdiObject(&TitleBrush);
 	ZDeleteWinGdiObject(&CursorBrush);
+	return *this;
 }
 
 /*static*/LPCTSTR BrowserWindow::WndClsName = _T("SBROWSER");
@@ -817,7 +819,7 @@ BrowserWindow::BrowserWindow(uint _rezID, SArray * pAry, uint broDefOptions /*=0
 
 BrowserWindow::BrowserWindow(SArray * pDataArray, uint broDefOptions) : 
 	TBaseBrowserWindow(BrowserWindow::WndClsName), P_RowsHeightAry(0), P_Header(0), Font(0), DefFont(0), 
-	RezID(0), MainCursor(LoadCursor(NULL, IDC_ARROW)), ResizeCursor(LoadCursor(NULL, IDC_SIZEWE))
+	RezID(0), MainCursor(::LoadCursorW(NULL, IDC_ARROW)), ResizeCursor(::LoadCursorW(NULL, IDC_SIZEWE))
 {
 	__Init();
 	ResourceID = 0;
@@ -924,8 +926,8 @@ BrowserWindow::~BrowserWindow()
 			::SelectObject(hdc, Pens.DefPen);
 		if(Brushes.DefBrush)
 			::SelectObject(hdc, Brushes.DefBrush);
-		Pens.Destroy();
-		Brushes.Destroy();
+		Pens.Z();
+		Brushes.Z();
 		ZDeleteWinGdiObject(&Font);
 		BrowserWindow * p_this_view_from_wnd = static_cast<BrowserWindow *>(TView::GetWindowUserData(H()));
 		if(p_this_view_from_wnd) {
@@ -1065,7 +1067,7 @@ IMPL_HANDLE_EVENT(BrowserWindow)
 					double * p_number = static_cast<double *>(event.message.infoPtr);
 					if(p_number) {
 						char b[1024];
-						P_Def->getText(P_Def->_curItem(), GetCurColumn(), b);
+						P_Def->GetCellText(P_Def->_curItem(), GetCurColumn(), true, b);
 						strtodoub(b, p_number);
 					}
 				}
@@ -1074,7 +1076,7 @@ IMPL_HANDLE_EVENT(BrowserWindow)
 				{
 					char * p_text = static_cast<char *>(event.message.infoPtr);
 					if(p_text)
-						P_Def->getText(P_Def->_curItem(), GetCurColumn(), p_text);
+						P_Def->GetCellText(P_Def->_curItem(), GetCurColumn(), true, p_text);
 				}
 				break;
 			case cmaDesktop:
@@ -1119,16 +1121,16 @@ IMPL_HANDLE_EVENT(BrowserWindow)
 			case kbCtrlF:  search(0, srchFirst); break;
 			case kbCtrlG:  search(0, srchNext);  break;
 			default:
-				uchar b[4];
-				b[0] = TVCHR;
-				b[1] = 0;
-				SCharToOem(reinterpret_cast<char *>(b));
-				if(isalnum(b[0]) || IsLetter866(b[0]) || b[0] == '*') {
-					search(reinterpret_cast<const char *>(b), srchFirst);
-					break;
+				{
+					SString temp_buf;
+					temp_buf.CatChar(TVCHR).Transf(CTRANSF_OUTER_TO_INNER);
+					const char _c = temp_buf.C(0);
+					if(_c == '*' || isalnum(_c) || IsLetter866(_c))
+						search(temp_buf, srchFirst);
+					else
+						return;
 				}
-				else
-					return;
+				break;
 		}
 	}
 	else
@@ -1283,8 +1285,8 @@ void BrowserWindow::EvaluateSomeMetricsOnInit()
 			if(!p_cs || !p_cs->Get("grid_curcell_fg", &p_uid->ClrList, _ClrCursorOverText))
 				_ClrCursorOverText = BrwColorsSchemas[scheme_idx].CursorOverText;
 		}
-		Pens.Destroy();
-		Brushes.Destroy();
+		Pens.Z();
+		Brushes.Z();
 		{
 			SColor _color;
 			if(!p_cs || !p_cs->Get("grid_fg", &p_uid->ClrList, _color))
@@ -1315,12 +1317,8 @@ void BrowserWindow::EvaluateSomeMetricsOnInit()
 				_color = BrwColorsSchemas[scheme_idx].TitleDelim;
 			Pens.TitlePen       = CreatePen(PS_SOLID, 1, _color);
 		}
-		{
-			Pens.DrawFocusPen   = CreatePen(/*PS_INSIDEFRAME*/PS_NULL, 2, GetTextColor(dc));
-		}
-		{
-			Pens.ClearFocusPen  = CreatePen(/*PS_INSIDEFRAME*/PS_NULL, 2, GetBkColor(dc));
-		}
+		Pens.DrawFocusPen   = CreatePen(/*PS_INSIDEFRAME*/PS_NULL, 2, GetTextColor(dc));
+		Pens.ClearFocusPen  = CreatePen(/*PS_INSIDEFRAME*/PS_NULL, 2, GetBkColor(dc));
 		{
 			SColor _color;
 			if(!p_cs || !p_cs->Get("grid_focusouter", &p_uid->ClrList, _color))
@@ -1362,7 +1360,7 @@ void BrowserWindow::WMHCreate()
 		CliSz.Set(client_rect.right, client_rect.bottom);
 	}
 	RestoreUserSettings();
-	SetupColumnsWith();
+	SetupColumnsWith(0/*flags*/);
 	if(ToolbarL.getItemsCount()) {
 		P_Toolbar = new TToolbar(H(), TBS_NOMOVE);
 		P_Toolbar->Init(ToolbarID, &ToolbarL);
@@ -1379,14 +1377,14 @@ void BrowserWindow::WMHCreate()
 	SetupScroll();
 }
 
-void BrowserWindow::SetupColumnsWith()
+void BrowserWindow::SetupColumnsWith(uint flags)
 {
-	const   uint cc = SVectorBase::GetCount(P_Def);
+	const  uint cc = SVectorBase::GetCount(P_Def);
 	if(cc) {
 		for(uint i = 0; i < cc; i++) {
 			BroColumn & r_column = P_Def->at(i);
-			if(!(r_column.State & BroColumn::stSizeSet)) {
-				const  uint cw = r_column.CWidth;
+			if(!(r_column.State & BroColumn::stSizeSet) || (flags & scwfForceDefault)) {
+				const  uint cw = (flags & scwfForceDefault) ? r_column.CWidthOrg : r_column.CWidth;
 				const  TYPEID ct = r_column.T;
 				uint   w;
 				if(GETSTYPE(ct) == S_ZSTRING)
@@ -1401,7 +1399,12 @@ void BrowserWindow::SetupColumnsWith()
 				r_column.State |= BroColumn::stSizeSet;
 			}
 		}
-		EvaluateColumnSizes(true/*recalcDataStat*/); // @v12.4.7
+		{
+			uint   ecs_flags = ecsfRecalcDataStat;
+			if(flags & scwfForceAutoEval)
+				ecs_flags |= ecsfForce;
+			EvaluateColumnSizes(ecs_flags); // @v12.4.7
+		}
 	}
 }
 
@@ -1661,7 +1664,8 @@ int BrowserWindow::EvaluateColumnSizeStat(TSVector <ColumnWidthStat> & rStat) //
 					for(uint ci = 0; ci < cc; ci++) {
 						uint   height_mult = 0;
 						uint   new_row_height = 0;
-						P_Def->getMultiLinesText(ri, ci, cbuf, height_mult, &new_row_height);
+						//P_Def->getMultiLinesText(ri, ci, cbuf, height_mult, &new_row_height);
+						P_Def->GetCellText(ri, ci, true/*dontRestrictByFmtLen*/, cbuf);
 						strip(cbuf);
 						const  uint cbuf_len = strlen(cbuf);
 						if(cbuf_len) {
@@ -1699,12 +1703,12 @@ int BrowserWindow::EvaluateColumnSizeStat(TSVector <ColumnWidthStat> & rStat) //
 	return ok;
 }
 
-int BrowserWindow::EvaluateColumnSizes(bool recalcDataStat) // @v12.4.7 @construction
+int BrowserWindow::EvaluateColumnSizes(uint flags/*bool recalcDataStat*/) // @v12.4.7 @construction
 {
-	int     ok = -1;
-	const   UserInterfaceSettings * p_ui_cfg = GetUIConfig();
-	if(p_ui_cfg && (p_ui_cfg->Flags & UserInterfaceSettings::fAutoWidthBrwColumns)) {
-		const   uint cc = SVectorBase::GetCount(P_Def);
+	int    ok = -1;
+	const  UserInterfaceSettings * p_ui_cfg = GetUIConfig();
+	if((flags & ecsfForce) || (p_ui_cfg && (p_ui_cfg->Flags & UserInterfaceSettings::fAutoWidthBrwColumns))) {
+		const  uint cc = SVectorBase::GetCount(P_Def);
 		if(cc && /*P_Def->IsSignature(BrowserDefSignature_ARY) && @debug*/ ChrSz.x > 0) {
 			const float min_col_size_chr = static_cast<float>(BrowserWindow::MinCWidthChr);
 			const uint  delta = 12;
@@ -1713,7 +1717,7 @@ int BrowserWindow::EvaluateColumnSizes(bool recalcDataStat) // @v12.4.7 @constru
 			TSVector <ColumnWidthStat> * p_cstat = 0;
 			if(h_wnd) {
 				bool skip = false;
-				if(recalcDataStat || CwsL.getCount() != cc) {
+				if((flags & ecsfRecalcDataStat) || CwsL.getCount() != cc) {
 					if(EvaluateColumnSizeStat(CwsL) > 0) {
 						;
 					}
@@ -1985,8 +1989,9 @@ void BrowserWindow::Paint()
 		RECT   r;
 		union {;
 			TCHAR  tbuf[512];
-			char   cbuf[512];
+			char   cbuf[2048]; // @v12.4.12 [512]-->[2048]
 		};
+		char   prev_buf[2048]; // @v12.4.12 [512]-->[2048]
 		SString temp_buf;
 		::BeginPaint(H(), &ps);
 		{
@@ -2173,8 +2178,7 @@ void BrowserWindow::Paint()
 								const uint height_mult = GetRowHeightMult(row);
 								strip(p_def_->getMultiLinesText(_row_idx, cn, cbuf, height_mult));
 								if(row > 0 && (r_column.Options & BCO_DONTSHOWDUPL)) {
-									char   prev_buf[512];
-									strip(p_def_->getText(_row_idx-1, cn, prev_buf));
+									strip(p_def_->GetCellText(_row_idx-1, cn, false, prev_buf));
 									if(sstreq(cbuf, prev_buf))
 										cbuf[0] = 0;
 								}
@@ -2851,6 +2855,51 @@ HWND FASTCALL GetNextBrowser(HWND hw, int reverse)
 	return hw;
 }
 
+void BrowserWindow::SpecialMenu() // @v12.4.12
+{
+	// special menu
+		// default cell sizes
+		// auto calc cell sizes
+		// save calc cell sizes
+	enum {
+		lcSetDefColSizes = 1,
+		lcEvaluateColSizes = 2,
+		lcSaveColSizes = 3,
+	};
+	bool   do_redraw = false;
+	SString temp_buf;
+	TMenuPopup menu;
+//@brwwin_lcsetdefcolsizes   "Установить размеры колонок по умолчанию"  // see BrowserWindow::SpecialMenu
+//@brwwin_lcevaluatecolsizes "Автоматически рассчитать размеры колонок" // see BrowserWindow::SpecialMenu
+	SLS.LoadString_("brwwin_lcsetdefcolsizes", temp_buf);
+	temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+	menu.Add(temp_buf, lcSetDefColSizes);
+	SLS.LoadString_("brwwin_lcevaluatecolsizes", temp_buf);
+	temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+	menu.Add(temp_buf, lcEvaluateColSizes);
+	//menu.Add("Save column sizes automatically", lcSaveColSizes);
+	uint   cmd = 0;
+	if(menu.Execute(H(), TMenuPopup::efRet, &cmd, 0)) {
+		switch(LoWord(cmd)) {
+			case lcSetDefColSizes:
+				SetupColumnsWith(scwfForceDefault);
+				do_redraw = true;
+				break;
+			case lcEvaluateColSizes:
+				//EvaluateColumnSizes(ecsfRecalcDataStat);
+				SetupColumnsWith(scwfForceAutoEval);
+				do_redraw = true;
+				break;
+			case lcSaveColSizes:
+				break;
+		}
+	}
+	if(do_redraw) {
+		::InvalidateRect(H(), NULL, TRUE);
+		::UpdateWindow(H());
+	}
+}
+
 /*static*/LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	int    i;
@@ -2886,7 +2935,7 @@ HWND FASTCALL GetNextBrowser(HWND hw, int reverse)
 			if(p_view && p_view->IsConsistent()) {
 				if((p_view->Sf & sfModal) && !(p_view->Sf & sfOnDestroy)) {
 					p_view->EndModalCmd = cmCancel;
-					::PostMessage(hWnd, WM_NULL, 0, 0L);
+					::PostMessageW(hWnd, WM_NULL, 0, 0L);
 				}
 				else {
 					TView::SetWindowUserData(hWnd, 0);
@@ -2910,8 +2959,8 @@ HWND FASTCALL GetNextBrowser(HWND hw, int reverse)
 		case BRO_DATACHG:
 			if(p_view) {
 				p_view->P_Def->refresh();
-				InvalidateRect(hWnd, NULL, TRUE);
-				UpdateWindow(hWnd);
+				::InvalidateRect(hWnd, NULL, TRUE);
+				::UpdateWindow(hWnd);
 			}
 			return 0;
 		case WM_SIZE:
@@ -2922,7 +2971,7 @@ HWND FASTCALL GetNextBrowser(HWND hw, int reverse)
 				lParam = p_view->CliSz.towparam();
 				p_view->SetupScroll();
 				p_view->CalcRight();
-				p_view->EvaluateColumnSizes(false/*recalcDataStat*/); // @v12.4.7
+				p_view->EvaluateColumnSizes(0/*flags*/); // @v12.4.7
 				HWND hw = p_view->P_Toolbar ? p_view->P_Toolbar->H() : 0;
 				if(::IsWindowVisible(hw)) {
 					::MoveWindow(hw, 0, 0, LOWORD(lParam), p_view->ToolBarWidth, 0);
@@ -2963,10 +3012,9 @@ HWND FASTCALL GetNextBrowser(HWND hw, int reverse)
 			break;
 		case WM_MOUSEHOVER:
 			tp.setwparam(lParam);
-			///* @construction
 			{
-				long vpos = 0;
-				if(p_view->HeaderByPoint(tp, hdrzoneAny, &vpos) && vpos >= 0 && vpos < p_view->P_Def->getCountI()) {
+				long   vpos = 0;
+				if(p_view->HeaderByPoint(tp, hdrzoneAny, &vpos) && p_view->P_Def->IsValidIdx(vpos)) {
 					const BroColumn & r_column = p_view->P_Def->at(vpos);
 					SString temp_buf(r_column.P_Text);
 					SMessageWindow * p_win = new SMessageWindow;
@@ -2978,7 +3026,6 @@ HWND FASTCALL GetNextBrowser(HWND hw, int reverse)
 					}
 				}
 			}
-			//*/
 			TView::messageBroadcast(p_view, cmMouseHover, &tp);
 			break;
 		case WM_SETFOCUS:
@@ -3010,7 +3057,7 @@ HWND FASTCALL GetNextBrowser(HWND hw, int reverse)
 			break;
 		case WM_SYSKEYDOWN:
 			if(wParam == VK_MENU) {
-				::PostMessage(APPL->H_MainWnd, WM_SYSKEYDOWN, wParam, lParam);
+				::PostMessageW(APPL->H_MainWnd, WM_SYSKEYDOWN, wParam, lParam);
 				return 0;
 			}
 		case WM_KEYDOWN:
@@ -3079,6 +3126,15 @@ HWND FASTCALL GetNextBrowser(HWND hw, int reverse)
 				}
 			}
 			return 0;
+		case WM_RBUTTONDOWN: // @v12.4.12
+			if(wParam & MK_CONTROL) {
+				p_view->SpecialMenu();
+				return 0;
+			}
+			else {
+				;
+			}
+			break;
 		case WM_LBUTTONDOWN:
 			if(p_view) {
 				if(hWnd != GetFocus())
@@ -3092,14 +3148,14 @@ HWND FASTCALL GetNextBrowser(HWND hw, int reverse)
 						DefMDIChildProc(hWnd, msg, wParam, lParam);
 						UpdateWindow(hWnd);
 					}
-					int done = 0;
-					if(p_view->HeaderByPoint(tp, hdrzoneSortPoint, &vPos) && vPos >= 0 && vPos < p_view->P_Def->getCountI()) {
+					bool   done = false;
+					if(p_view->HeaderByPoint(tp, hdrzoneSortPoint, &vPos) && p_view->P_Def->IsValidIdx(vPos)) {
 						const BroColumn & r_column = p_view->P_Def->at(vPos);
 						if(r_column.Options & BCO_SORTABLE) {
 							long   vp1 = vPos+1;
 							uint   sopos = 0;
 							if(p_view->SettledOrder.lsearch(vp1, &(sopos = 0)) || p_view->SettledOrder.lsearch(-vp1, &(sopos = 0))) {
-								long org_v = p_view->SettledOrder.get(sopos);
+								const  long org_v = p_view->SettledOrder.get(sopos);
 								p_view->SettledOrder.clear();
 								p_view->SettledOrder.add(-org_v);
 							}
@@ -3108,16 +3164,16 @@ HWND FASTCALL GetNextBrowser(HWND hw, int reverse)
 								p_view->SettledOrder.add(vp1);
 							}
 							TView::messageCommand(p_view, cmSort, 0);
-							InvalidateRect(hWnd, 0, TRUE);
-							UpdateWindow(hWnd);
-							done = 1;
+							::InvalidateRect(hWnd, 0, TRUE);
+							::UpdateWindow(hWnd);
+							done = true;
 						}
 					} 
 					if(!done && p_view->ItemByPoint(tp, &hPos, &vPos)) {
 						p_view->FocusItem(hPos, vPos);
 						if(p_view->SelColByPoint(&pnt, (wParam & MK_CONTROL) ? 1 : ((wParam & MK_SHIFT) ? -1 : 0)) > 0) {
-							InvalidateRect(hWnd, 0, TRUE);
-							UpdateWindow(hWnd);
+							::InvalidateRect(hWnd, 0, TRUE);
+							::UpdateWindow(hWnd);
 						}
 					}
 				}

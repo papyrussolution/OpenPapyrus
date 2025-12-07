@@ -4,7 +4,7 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <shlwapi.h>
+// @v12.4.12 #include <shlwapi.h>
 
 /*static*/SVerT SDynLibrary::GetVersion(const char * pFileName)
 {

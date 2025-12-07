@@ -655,7 +655,7 @@ DBQuery * PPViewStaffPost::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	PPDbqFuncPool::InitObjNameFunc(dbe_org,   PPDbqFuncPool::IdObjStaffOrg, p_tbl->StaffID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_div,   PPDbqFuncPool::IdObjStaffDiv, p_tbl->StaffID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_chargegrp, PPDbqFuncPool::IdObjNameSalCharge, p_tbl->ChargeGrpID);
-	q = & select(
+	q = & Select_(
 		p_tbl->ID,      // #00
 		p_tbl->Code,    // #01
 		p_tbl->Dt,      // #02

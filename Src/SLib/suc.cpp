@@ -2102,8 +2102,8 @@ int SCodepageMapPool::Test(const SUnicodeTable * pUt, const char * pMapPoolFileN
 					int    _err = 0;
 					for(uint i = 0; i < map.MapCount; i++) {
 						wchar_t test_wbuf[64];
-						uchar   test_cbuf[64];
-						const   MapEntry & r_entry = map.P_Map[i];
+						uchar  test_cbuf[64];
+						const  MapEntry & r_entry = map.P_Map[i];
 						memcpy(test_cbuf, r_entry.B, 4);
 						test_cbuf[4] = 0;
 						const int _in_clen = sstrlen(test_cbuf);
@@ -2299,7 +2299,7 @@ int SCodepageMapPool::Test(const SUnicodeTable * pUt, const char * pMapPoolFileN
 					SStringU test_ustr;
 					SString test_cstr;
 					for(uint i = 0; i < map.MapCount; i++) {
-						const   MapEntry & r_entry = map.P_Map[i];
+						const  MapEntry & r_entry = map.P_Map[i];
 						if(i != 0 || r_entry.B[0]) {
 							assert(r_entry.B[0]);
 							THROW(r_entry.B[0]);

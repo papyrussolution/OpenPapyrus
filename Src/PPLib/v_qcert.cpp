@@ -234,7 +234,7 @@ DBQuery * PPViewQCert::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	if(P_TempTbl) {
 		THROW(CheckTblPtr(qc = new QualityCertTbl(P_TempTbl->GetName())));
 		PPDbqFuncPool::InitObjNameFunc(dbe_psn, PPDbqFuncPool::IdObjNamePerson, qc->RegOrgan);
-		q = & select(
+		q = & Select_(
 			qc->ID,         // #00
 			qc->Code,       // #01
 			qc->BlankCode,  // #02
@@ -251,7 +251,7 @@ DBQuery * PPViewQCert::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		PPDbqFuncPool::InitObjNameFunc(dbe_psn, PPDbqFuncPool::IdObjNamePerson, qc->RegOrgan);
 		if(Filt.Flags & QCertFilt::fHasRest)
 			THROW(CheckTblPtr(rcpt = new ReceiptTbl));
-		q = & select(
+		q = & Select_(
 			qc->ID,         // #00
 			qc->Code,       // #01
 			qc->BlankCode,  // #02

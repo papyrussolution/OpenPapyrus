@@ -15,9 +15,9 @@
 	#define FASTROT_WITH_GDI
 #endif
 #define STRICT
-#include <windowsx.h>
-#include <commdlg.h>
-#include <commctrl.h>
+// @v12.4.12 #include <windowsx.h>
+// @v12.4.12 #include <commdlg.h>
+// @v12.4.12 #include <commctrl.h>
 #include <direct.h>           /* for _chdir */
 #include "winmain.h"
 #include "wresourc.h"
@@ -430,30 +430,30 @@ void GraphInit(GW * lpgw)
 		// copy 
 		button.iBitmap = STD_COPY;
 		button.idCommand = M_COPY_CLIP;
-		ret = ::SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button);
+		ret = static_cast<BOOL>(::SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button));
 		// print 
 		button.iBitmap = STD_PRINT;
 		button.idCommand = M_PRINT;
-		ret = ::SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button);
+		ret = static_cast<BOOL>(::SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button));
 		// save as EMF 
 		button.iBitmap = STD_FILESAVE;
 		button.idCommand = M_SAVE_AS_EMF;
-		ret = ::SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button);
+		ret = static_cast<BOOL>(::SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button));
 		// options 
 		button.iBitmap = STD_PROPERTIES;
 		button.idCommand = 0; /*unused*/
 		button.iString = (INT_PTR)TEXT("Options");
 		button.fsStyle = BTNS_AUTOSIZE | BTNS_SHOWTEXT | BTNS_NOPREFIX | BTNS_WHOLEDROPDOWN;
-		ret = ::SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button);
+		ret = static_cast<BOOL>(::SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button));
 		// TODO: Add the following buttons: replot/refresh, toggle grid(?), previous/next zoom, autoscale, help
 		button.fsStyle = BTNS_AUTOSIZE | BTNS_NOPREFIX | BTNS_SEP;
-		ret = ::SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button);
+		ret = static_cast<BOOL>(::SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button));
 		// hide grid 
 		button.iBitmap = STD_CUT;
 		button.idCommand = M_HIDEGRID;
 		button.fsStyle = BTNS_AUTOSIZE | BTNS_SHOWTEXT | BTNS_NOPREFIX | BTNS_CHECK;
 		button.iString = (INT_PTR)TEXT("Grid");
-		ret = ::SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button);
+		ret = static_cast<BOOL>(::SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button));
 		// hide graphs 
 		for(i = 0; i < MAXPLOTSHIDE; i++) {
 			button.iBitmap = STD_CUT;
@@ -461,7 +461,7 @@ void GraphInit(GW * lpgw)
 			wsprintf(buttontext, TEXT("%i"), i + 1);
 			button.iString = (UINT_PTR)buttontext;
 			button.dwData = i;
-			ret = ::SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button);
+			ret = static_cast<BOOL>(::SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button));
 		}
 		// auto-resize and show 
 		::SendMessage(lpgw->hToolbar, TB_AUTOSIZE, (WPARAM)0, (LPARAM)0);
@@ -4098,7 +4098,7 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 					WIN_update_options();
 					return 0;
 			    case M_HIDEGRID:
-					lpgw->hidegrid = ::SendMessage(lpgw->hToolbar, TB_ISBUTTONCHECKED, LOWORD(wParam), (LPARAM)0);
+					lpgw->hidegrid = static_cast<BOOL>(::SendMessage(lpgw->hToolbar, TB_ISBUTTONCHECKED, LOWORD(wParam), (LPARAM)0));
 					lpgw->buffervalid = FALSE;
 					GetClientRect(hwnd, &rect);
 					InvalidateRect(hwnd, &rect, 1);
@@ -4131,7 +4131,7 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		    if((LOWORD(wParam) >= M_HIDEPLOT) && (LOWORD(wParam) < (M_HIDEPLOT + MAXPLOTSHIDE))) {
 			    uint button = LOWORD(wParam) - (M_HIDEPLOT);
 			    if(button < lpgw->maxhideplots)
-				    lpgw->hideplot[button] = ::SendMessage(lpgw->hToolbar, TB_ISBUTTONCHECKED, LOWORD(wParam), (LPARAM)0);
+				    lpgw->hideplot[button] = static_cast<BOOL>(::SendMessage(lpgw->hToolbar, TB_ISBUTTONCHECKED, LOWORD(wParam), (LPARAM)0));
 			    lpgw->buffervalid = FALSE;
 			    GetClientRect(hwnd, &rect);
 			    InvalidateRect(hwnd, &rect, 1);

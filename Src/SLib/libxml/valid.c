@@ -1012,7 +1012,7 @@ void xmlSnprintfElementContent(char * buf, int size, xmlElementContent * content
 						xmlSnprintfElementContent(buf, size, content->c1, 1);
 					else
 						xmlSnprintfElementContent(buf, size, content->c1, 0);
-					len = sstrlen(buf);
+					len = sstrleni(buf);
 					if(size - len < 50) {
 						if((size - len > 4) && (buf[len-1] != '.'))
 							strcat(buf, " ...");
@@ -1029,7 +1029,7 @@ void xmlSnprintfElementContent(char * buf, int size, xmlElementContent * content
 						xmlSnprintfElementContent(buf, size, content->c1, 1);
 					else
 						xmlSnprintfElementContent(buf, size, content->c1, 0);
-					len = sstrlen(buf);
+					len = sstrleni(buf);
 					if(size - len < 50) {
 						if((size - len > 4) && (buf[len-1] != '.'))
 							strcat(buf, " ...");
@@ -4232,7 +4232,7 @@ static void xmlSnprintfElements(char * buf, int size, xmlNode * P_Node, int glob
 			strcat(buf, "(");
 		cur = P_Node;
 		while(cur) {
-			len = sstrlen(buf);
+			len = sstrleni(buf);
 			if(size - len < 50) {
 				if((size - len > 4) && (buf[len-1] != '.'))
 					strcat(buf, " ...");

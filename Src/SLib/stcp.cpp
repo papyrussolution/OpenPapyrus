@@ -3456,15 +3456,13 @@ SUniformFileTransmission::SUniformFileTransmission() : Flags(0), Format(SFileFor
 {
 }
 
-int SUniformFileTransmission::List(StringSet & rSs)
+int SUniformFileTransmission::List(StringSet & rSs) // @construction
 {
 	int    ok = -1;
-
     SString path_src(SrcPath);
     SString path_dest(DestPath);
     THROW_S(path_src.NotEmptyS(), SLERR_UFT_SRCISEMPTY);
     THROW_S(path_dest.NotEmptyS(), SLERR_UFT_DESTISEMPTY);
-
 	CATCHZOK
 	return ok;
 }

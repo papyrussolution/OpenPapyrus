@@ -163,7 +163,7 @@ static int cc_a(struct ZintSymbol * symbol, const char source[], int cc_width)
 	for(i = 0; i < 28; i++) {
 		codeWords[i] = 0;
 	}
-	bitlen = strlen(source);
+	bitlen = sstrleni(source);
 	for(i = 0; i < 208; i++) {
 		local_source[i] = '0';
 	}
@@ -714,7 +714,7 @@ static int cc_c(struct ZintSymbol * symbol, const char source[], int cc_width, i
 		symbol->row_height[i] = 3;
 	}
 	symbol->rows = (mclength / cc_width);
-	symbol->width = strlen(pattern);
+	symbol->width = sstrleni(pattern);
 	return 0;
 }
 
@@ -1122,7 +1122,7 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 					ai90_mode = 3;
 				}
 			}
-			next_ai_posn = 2 + strlen(ninety);
+			next_ai_posn = 2 + sstrleni(ninety);
 			if(source[next_ai_posn] == '[') {
 				/* There are more AIs afterwords */
 				if((source[next_ai_posn + 1] == '2') && (source[next_ai_posn + 2] == '1')) {
@@ -1554,9 +1554,9 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 					i++;
 					break;
 			}
-		} while(i + latch < (int)strlen(general_field));
+		} while(i + latch < sstrleni(general_field));
 	}
-	binary_length = strlen(binary_string);
+	binary_length = sstrleni(binary_string);
 	switch(cc_mode) {
 		case 1: target_bitsize = calc_padding_cca(binary_length, *(cc_width)); break;
 		case 2: target_bitsize = calc_padding_ccb(binary_length, *(cc_width)); break;
@@ -1605,7 +1605,7 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 		sstrcpy(symbol->errtxt, "Input too long (D43)");
 		return ZINT_ERROR_TOO_LONG;
 	}
-	binary_length = strlen(binary_string);
+	binary_length = sstrleni(binary_string);
 	switch(cc_mode) {
 		case 1: target_bitsize = calc_padding_cca(binary_length, *(cc_width)); break;
 		case 2: target_bitsize = calc_padding_ccb(binary_length, *(cc_width)); break;

@@ -320,7 +320,7 @@ int BrowserDef::GetCellData(long row, int column, TYPEID * pType, void * pDataBu
 	return GetCellData(getRow(row), column, pType, pDataBuf, dataBufLen);
 }
 
-char * BrowserDef::getText(long row, int column, char * pBuf)
+char * BrowserDef::GetCellText(long row, int column, bool dontRestrictByFmtLen, char * pBuf)
 {
 	if(pBuf) {
 		*pBuf = 0;
@@ -329,6 +329,20 @@ char * BrowserDef::getText(long row, int column, char * pBuf)
 		char   dest_data[1024];
 		const  void * p_final_data = Helper_GetCellData(getRow(row), column, &typ, &fmt, 0/*coptions*/, dest_data, sizeof(dest_data));
 		if(p_final_data) {
+			// @v12.4.12 {
+			if(dontRestrictByFmtLen) {
+				if(GETSTYPE(typ) == S_ZSTRING) {
+					const  uint typ_sz = GETSSIZE(typ);
+					if(typ_sz) {
+						uint fmt_len = SFMTLEN(fmt);
+						if(fmt_len > 0 && fmt_len < (typ_sz-1)) {
+							fmt_len = (typ_sz-1);
+							SETSFMTLEN(fmt, fmt_len);
+						}
+					}
+				}
+			}
+			// } @v12.4.12 
 			sttostr(typ, p_final_data, fmt, pBuf);
 		}
 	}
@@ -521,7 +535,7 @@ int BrowserDef::search(const void * pPattern, CompFunc /*cfn*/, int srchMode, in
 	const  char * p = static_cast<const char *>(pPattern);
 	int    r = (srchMode == srchFirst) ? top() : step(1);
 	if(r) do {
-		getText(_curItem(), srchCol, str);
+		GetCellText(_curItem(), srchCol, true, str);
 		strip(str);
 		if(p[0] != '*') {
 			str[sstrlen(p)] = 0;

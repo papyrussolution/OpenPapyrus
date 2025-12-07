@@ -5,10 +5,10 @@
 #include <slib-internal.h>
 #pragma hdrstop
 #include <ued.h>
-#ifdef WIN32
-	#include <shlobj.h> // SHGetFolderPath and constants
-	#include <Shlwapi.h> // @v11.6.5
-#endif
+// @v12.4.12 #ifdef WIN32
+	// @v12.4.12 #include <shlobj.h> // SHGetFolderPath and constants
+	// @v12.4.12 #include <Shlwapi.h> // @v11.6.5
+// @v12.4.12 #endif
 
 SDataMoveProgressInfo::SDataMoveProgressInfo()
 {

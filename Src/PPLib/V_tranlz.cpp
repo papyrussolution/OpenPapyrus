@@ -2003,7 +2003,7 @@ static IMPL_DBE_PROC(dbqf_trfrnalz_getturnover_iidprr)
 	if(option != CALC_SIZE) {
 		const  PPID   goods_id = params[0].lval;
 		const  PPID   loc_id = params[1].lval;
-		const  LDATE  dt = params[2].dval;
+		const  LDATE dt = params[2].dval;
 		const  double qtty = fabs(params[4].rval);
 		double amount = fabs(params[5].rval);
 		if(qtty != 0.0) {
@@ -2034,7 +2034,7 @@ static IMPL_DBE_PROC(dbqf_trfrnalz_getrest_iidp)
 	if(option != CALC_SIZE) {
 		const  PPID   goods_id = params[0].lval;
 		const  PPID   loc_id = params[1].lval;
-		const  LDATE  dt = params[2].dval;
+		const  LDATE dt = params[2].dval;
 		const  GCTIterator::GoodsRestArray * p_rest_list = static_cast<const GCTIterator::GoodsRestArray *>(params[3].ptrval);
         if(p_rest_list) {
 			rest = loc_id ? p_rest_list->GetRest(goods_id, loc_id, dt) : p_rest_list->GetRest(goods_id, dt);
@@ -2049,7 +2049,7 @@ static IMPL_DBE_PROC(dbqf_trfrnalz_getavgrest_iidp)
 	if(option != CALC_SIZE) {
 		const  PPID   goods_id = params[0].lval;
 		const  PPID   loc_id = params[1].lval;
-		const  LDATE  dt = params[2].dval;
+		const  LDATE dt = params[2].dval;
 		const  GCTIterator::GoodsRestArray * p_rest_list = static_cast<const GCTIterator::GoodsRestArray *>(params[3].ptrval);
         if(p_rest_list) {
 			DateRange period;
@@ -2398,7 +2398,7 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			if(Flags & fAsGoodsCard) {
 				brw_id = (Filt.Flags & TrfrAnlzFilt::fGByDate) ? BROWSER_TRFRANLZ_GC : BROWSER_GOODSCARD;
 				DBE * p_mult = & (tat->Discount * tat->Qtty);
-				q = & select(
+				q = & Select_(
 					tat->OprNo,     // #0
 					tat->Dt,        // #1
 					tat->BillID,    // #2
@@ -2451,7 +2451,7 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				if(oneof2(Filt.Sgg, sggSupplAgent, sggSuppl)) {
 					goods_as_ar = 1;
 					THROW(CheckTblPtr(at2 = new ArticleTbl));
-					q = & select(
+					q = & Select_(
 						tat->Dt,        // #0
 						tat->BillID,    // #1
 						tat->BillCode,  // #2
@@ -2476,7 +2476,6 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				}
 				else {
 					PPDbqFuncPool::InitObjNameFunc(dbe_goods, PPDbqFuncPool::IdObjNameGoods, tat->GoodsID);
-					// @v11.0.2 {
 					if(!extfactor_is_empty) {
 						dbe_extfactor.push(dbconst(Filt.ExtFactorParam[0]));
 						dbe_extfactor.push(dbconst(Filt.ExtFactorAddendum[0]));
@@ -2485,8 +2484,7 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 						dbe_extfactor.push(tat->DlvrLocID); // @v11.1.0
 						dbe_extfactor.push(static_cast<DBFunc>(DynFuncExtFactor));
 					}
-					// } @v11.0.2 
-					q = & select(
+					q = & Select_(
 						tat->Dt,        // #0
 						tat->BillID,    // #1
 						tat->BillCode,  // #2

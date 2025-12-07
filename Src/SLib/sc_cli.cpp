@@ -313,15 +313,15 @@ int SCDBObjClientDebt::ReadData()
 {
 	int    ok = -1;
 	char   log_msg[128];
-	const  LDATE  base_date = encodedate(31, 12, 1995);
+	const  LDATE base_date = encodedate(31, 12, 1995);
 	TempList.freeAll();
 	if(P_CliDebtTbl && P_CliDebtTbl->getNumRecs() && P_CliDebtTbl->top()) {
-		int fldn_cliid = 0;
-		int fldn_billid = 0;
-		int fldn_code = 0;
-		int fldn_date = 0;
-		int fldn_amt = 0;
-		int fldn_debt = 0;
+		int    fldn_cliid = 0;
+		int    fldn_billid = 0;
+		int    fldn_code = 0;
+		int    fldn_date = 0;
+		int    fldn_amt = 0;
+		int    fldn_debt = 0;
 		P_CliDebtTbl->getFieldNumber("CLIID",    &fldn_cliid);
 		P_CliDebtTbl->getFieldNumber("BILLID",   &fldn_billid);
 		P_CliDebtTbl->getFieldNumber("BILLCODE", &fldn_code);
@@ -492,7 +492,7 @@ int SCDBObjSell::ReadData()
 {
 	int    ok = -1;
 	char   log_msg[128];
-	const  LDATE  base_date = encodedate(31, 12, 1995);
+	const  LDATE base_date = encodedate(31, 12, 1995);
 	TempList.freeAll();
 	if(P_Tbl && P_Tbl->getNumRecs() && P_Tbl->top()) {
 		int fldn_cliid = 0;

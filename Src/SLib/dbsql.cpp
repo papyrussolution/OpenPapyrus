@@ -425,7 +425,8 @@ int SSqlStmt::BindData(int dir, uint count, const BNFieldList2 & rFldList, const
 	assert(checkirange(count, 1U, 1024U));
 	for(uint i = 0; i < fld_count; i++) {
 		const BNField & r_fld = rFldList.GetFieldByPosition(i);
-		BindItem((dir < 0) ? -(int16)(i+1) : +(int16)(i+1), count, r_fld.T, const_cast<uint8 *>(PTR8C(pDataBuf) + r_fld.Offs)); // @badcast
+		BindItem((dir < 0) ? -static_cast<int16>(i+1) : +static_cast<int16>(i+1), 
+			count, r_fld.T, const_cast<uint8 *>(PTR8C(pDataBuf) + r_fld.Offs)); // @badcast
 	}
 	THROW(P_Db->Binding(*this, dir));
 	CATCHZOK
@@ -1945,7 +1946,7 @@ int SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey, int s
 						strlwr866((char *)(PTR8(p_key_data) + seg_offs));
 					}
 					SSqlStmt::Bind b;
-					b.Pos = -(int16)(i+1);
+					b.Pos = -static_cast<int16>(i+1);
 					b.Typ = r_fld.T;
 					b.P_Data = PTR8(p_key_data) + seg_offs;
 					uint   lp = 0;

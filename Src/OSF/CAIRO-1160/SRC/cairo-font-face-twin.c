@@ -173,10 +173,10 @@ static boolint parse_int(const char * word, size_t wordlen, int * out)
 
 static boolint find_field(const char * what, const FieldMap * map, int n_elements, const char * str, int len, int * val)
 {
-	int i;
+	int    i;
 	boolint had_prefix = FALSE;
 	if(what) {
-		i = strlen(what);
+		i = sstrleni(what);
 		if(len > i && 0 == strncmp(what, str, i) && str[i] == '=') {
 			str += i + 1;
 			len -= i + 1;

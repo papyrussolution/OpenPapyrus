@@ -3459,11 +3459,12 @@ struct Sdr_SBIIBillRow {
 	#define PPFLD_QUOTVAL_CURRENCYCODE                            11
 	#define PPFLD_QUOTVAL_ARID                                    12
 	#define PPFLD_QUOTVAL_ARCODE                                  13
-	#define PPFLD_QUOTVAL_DATELOW                                 14
-	#define PPFLD_QUOTVAL_DATEUPP                                 15
-	#define PPFLD_QUOTVAL_VALUE                                   16
-	#define PPFLD_QUOTVAL_VALUEFLAGS                              17
-	#define PPFLD_QUOTVAL_VALUETEXT                               18
+	#define PPFLD_QUOTVAL_ARNAME                                  14
+	#define PPFLD_QUOTVAL_DATELOW                                 15
+	#define PPFLD_QUOTVAL_DATEUPP                                 16
+	#define PPFLD_QUOTVAL_VALUE                                   17
+	#define PPFLD_QUOTVAL_VALUEFLAGS                              18
+	#define PPFLD_QUOTVAL_VALUETEXT                               19
 
 struct Sdr_QuotVal {
 	Sdr_QuotVal() { THISZERO(); }
@@ -3480,6 +3481,7 @@ struct Sdr_QuotVal {
 	int32  CurrencyCode;
 	int32  ArID;
 	char   ArCode[20];
+	char   ArName[128];
 	LDATE  DateLow;
 	LDATE  DateUpp;
 	double Value;

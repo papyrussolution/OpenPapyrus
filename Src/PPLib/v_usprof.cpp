@@ -177,7 +177,6 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 			long   _f_e = Filt.FuncID * 1000 + 999;
 			dbq = &(*dbq && t2->FuncID >= _f_b && t2->FuncID <= _f_e);
 		}
-		// @v10.9.10 {
 		if(!!Filt.DbID) {
 			temp_buf.Z().Cat(Filt.DbID, S_GUID::fmtIDL);
 			dbe_dbuuidcmp.init();
@@ -186,10 +185,9 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 			dbe_dbuuidcmp.push(static_cast<DBFunc>(PPDbqFuncPool::IdIsTxtUuidEq));
 			dbq = &(*dbq && dbe_dbuuidcmp > 0L);
 		}
-		// } @v10.9.10 
 		dbq = &(*dbq && daterange(t2->Dt, &Filt.Period));
 		dbq = &(*dbq && timerange(t2->Tm, &Filt.TmPeriod));
-		q = &select(
+		q = &Select_(
 			t2->SessID,     // #0
 			t2->SeqID,      // #1
 			t2->Flags,      // #2

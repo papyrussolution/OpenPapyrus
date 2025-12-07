@@ -6360,17 +6360,17 @@ struct TsFindStrategiesBlock {
 		CATCHZOK
 		return ok;
 	}
-	const PPTssModelPacket & R_TssModel;
-	const PPTimeSeriesPacket & R_TsPack;
-	const PPObjTimeSeries::CommonTsParamBlock & R_Ctspb;
-	const PPObjTimeSeries::TrainNnParam & R_Tnnp2;
-	const PPObjTimeSeries::Config & R_Cfg;
+	const  PPTssModelPacket & R_TssModel;
+	const  PPTimeSeriesPacket & R_TsPack;
+	const  PPObjTimeSeries::CommonTsParamBlock & R_Ctspb;
+	const  PPObjTimeSeries::TrainNnParam & R_Tnnp2;
+	const  PPObjTimeSeries::Config & R_Cfg;
 	// OptFactorSide:
 	// 0 - оптимизировать только в положительной области
 	// 1 - оптимизировать только в отрицательной области
 	// -1 - оптимизировать по всему множеству значений
-	const    int OptFactorSide;
-	const    int StakeSide; // 0 - long, 1 - short
+	const  int OptFactorSide;
+	const  int StakeSide; // 0 - long, 1 - short
 	PPObjTimeSeries::StrategyContainer * P_SContainer;
 	TestStrategyRawResult * P_Tsrr;
 	SFile * P_FOut;

@@ -17,7 +17,7 @@ int __PrcssrTestDb_Are_TestTa01_RecsEqual(const TestTa01Tbl::Rec & rRec1, const 
 
 SLTEST_R(MySQL) // @v12.4.7
 {
-	const bool single_insertion_test = false; // Признак того, что мы - на фазе разработки и нужно отладить только вставку единственной записи.
+	//const bool single_insertion_test = false; // Признак того, что мы - на фазе разработки и нужно отладить только вставку единственной записи.
 
 	PPIniFile ini_file;
 	DbLoginBlock dblb;
@@ -47,12 +47,7 @@ SLTEST_R(MySQL) // @v12.4.7
 	THROW(SLCHECK_NZ(dbp.DbLogin(&dblb, DbProvider::openfMainThread)));
 	gdbsr = dbp.GetDatabaseState(p_database_name, &database_state);
 	THROW(gdbsr);
-	if(single_insertion_test) {
-		if(database_state & DbProvider::dbstNotExists) {
-			THROW(dbp.CreateDatabase(p_database_name));
-		}
-	}
-	else {
+	{
 		if(!(database_state & DbProvider::dbstNotExists)) {
 			THROW(dbp.DropDatabase(p_database_name));
 			gdbsr = dbp.GetDatabaseState(p_database_name, &database_state);
@@ -197,41 +192,7 @@ SLTEST_R(MySQL) // @v12.4.7
 		uint   ref02_insert_fault_count = 0;
 		uint   ta02_insert_fault_count = 0;
 		// Загрузить в таблицу большой набор известных записей (из record_list)
-		// @debug {
-		if(single_insertion_test) {
-			if(dbp.StartTransaction()) {
-				{
-					const bool use_bextinsert = false;
-					TestRef01Tbl::Key0 k0;
-					DBRowId ret_row_id;
-					for(uint i = 0; i < 1; i++) {
-						TestRef01Tbl::Rec * p_rec = ref01_rec_list.at(i);
-						if(p_rec) {
-							MEMSZERO(k0);
-							p_tbl_ref01->CopyBufLobFrom(p_rec, sizeof(*p_rec));
-							int irr = p_tbl_ref01->insertRec(0, &k0);
-							const DBRowId * p_row_id = p_tbl_ref01->getCurRowIdPtr();
-							if(p_row_id)
-								ret_row_id = *p_row_id;
-							if(irr) {
-								p_rec->ID = k0.ID;
-								const uint32 _row_id = ret_row_id.GetI32();
-								assert(_row_id == p_rec->ID); // MySQL specific!
-							}
-							else {
-								ref01_insert_fault_count++;
-							}
-						}
-					}
-				}
-				int cwr = dbp.CommitWork();
-				if(!cwr) {
-					;
-				}
-			}
-			// } @debug 
-		}
-		else {
+		{
 			if(dbp.StartTransaction()) {
 				{
 					TestTa01Tbl::Key0 k0;
@@ -328,6 +289,122 @@ SLTEST_R(MySQL) // @v12.4.7
 			}
 		}
 	}
+	//
+	LDATETIME first_pattern_dtm;
+	LDATETIME last_pattern_dtm;
+	first_pattern_dtm.Set(record_list.at(0)->Dt, record_list.at(0)->Tm);
+	last_pattern_dtm.Set(record_list.at(record_list.getCount()-1)->Dt, record_list.at(record_list.getCount()-1)->Tm);
+	{
+		const  uint rec_list_count = record_list.getCount();
+		//const TestTa01Tbl::Rec * p_first_pattern_rec = record_list.at(0);
+		TestTa01Tbl::Key0 k0;
+		TestTa01Tbl::Rec * p_rec_buf = static_cast<TestTa01Tbl::Rec *>(p_tbl->getDataBuf());
+		{
+			// Найти каждую из записей
+			MEMSZERO(k0);
+			k0.Dt = first_pattern_dtm.d;
+			k0.Tm = first_pattern_dtm.t;
+			uint   srch_count = 0;
+			uint   uneq_rec_count = 0;
+			uint   uneq_clob_rec_count = 0;
+			if(p_tbl->search(0, &k0, spGe)) do {
+				const TestTa01Tbl::Rec * p_pattern_rec = record_list.at(srch_count);
+				const DBRowId * p_rowid = p_tbl->getCurRowIdPtr();
+				const int64 rowid_i64 = p_rowid ? p_rowid->GetI64() : 0;
+				if(!__PrcssrTestDb_Are_TestTa01_RecsEqual(*p_rec_buf, *p_pattern_rec)) {
+					uneq_rec_count++;
+				}
+				{
+					const size_t ls_p = p_pattern_rec->TextField.GetPtrSize();
+					const char * lp_p = static_cast<const char *>(p_pattern_rec->TextField.GetRawDataPtrC());
+					const size_t ls_t = p_rec_buf->TextField.GetPtrSize();
+					const char * lp_t = static_cast<const char *>(p_rec_buf->TextField.GetRawDataPtrC());
+					if(ls_p != ls_t || memcmp(lp_p, lp_t, ls_p) != 0) {
+						uneq_clob_rec_count++;
+					}
+				}
+				srch_count++;
+			} while(srch_count < rec_list_count && p_tbl->search(0, &k0, spNext));
+			SLCHECK_Z(uneq_rec_count);
+		}
+		{
+			// Здесь делаем тоже самое, что и в предыдущем блоке, но перебираем записи в обратном порядке
+			MEMSZERO(k0);
+			k0.Dt = MAXDATE;
+			k0.Tm = MAXTIME;
+			uint   srch_count = 0;
+			uint   uneq_rec_count = 0;
+			uint   uneq_clob_rec_count = 0;
+			if(p_tbl->search(0, &k0, spLe)) do {
+				const TestTa01Tbl::Rec * p_pattern_rec = record_list.at(rec_list_count-srch_count-1);
+				const DBRowId * p_rowid = p_tbl->getCurRowIdPtr();
+				const int64 rowid_i64 = p_rowid ? p_rowid->GetI64() : 0;
+				if(!__PrcssrTestDb_Are_TestTa01_RecsEqual(*p_rec_buf, *p_pattern_rec)) {
+					uneq_rec_count++;
+				}
+				{
+					const size_t ls_p = p_pattern_rec->TextField.GetPtrSize();
+					const char * lp_p = static_cast<const char *>(p_pattern_rec->TextField.GetRawDataPtrC());
+					const size_t ls_t = p_rec_buf->TextField.GetPtrSize();
+					const char * lp_t = static_cast<const char *>(p_rec_buf->TextField.GetRawDataPtrC());
+					if(ls_p != ls_t || memcmp(lp_p, lp_t, ls_p) != 0) {
+						uneq_clob_rec_count++;
+					}
+				}
+				srch_count++;
+			} while(srch_count < rec_list_count && p_tbl->search(0, &k0, spPrev) && (p_rec_buf->Dt > first_pattern_dtm.d || (p_rec_buf->Dt == first_pattern_dtm.d && p_rec_buf->Tm >= first_pattern_dtm.t)));
+			SLCHECK_Z(uneq_rec_count);
+		}
+		{
+			// Поиск по GUID-полю (TestTa01Tbl::GuidVal)
+			uint   srch_count = 0;
+			uint   uneq_rec_count = 0;
+			uint   nfound_count = 0;
+			for(uint i = 0; i < record_list.getCount(); i++) {
+				const TestTa01Tbl::Rec * p_pattern_rec = record_list.at(i);
+				if(p_pattern_rec) {
+					//BExtQuery q(p_tbl, 0);
+					//q.selectAll().
+					TestTa01Tbl::Key3 k3;
+					k3.GuidVal = p_pattern_rec->GuidVal;
+					if(p_tbl->search(3, &k3, spEq)) {
+						if(!__PrcssrTestDb_Are_TestTa01_RecsEqual(*p_rec_buf, *p_pattern_rec)) {							
+							uneq_rec_count++;
+						}
+					}
+					else {
+						nfound_count++;
+					}
+					srch_count++;
+				}
+			}
+			SLCHECK_Z(uneq_rec_count);
+			SLCHECK_Z(nfound_count);
+		}
+		if(p_tbl_ref01) {
+			//
+			// Теперь ищем по текстовому индексу в таблице Ref01
+			//
+			for(uint i = 0; i < ref01_rec_list.getCount(); i++) {
+				const TestRef01Tbl::Rec * p_ref01_patten_rec = ref01_rec_list.at(i);
+				if(p_ref01_patten_rec && !isempty(p_ref01_patten_rec->S48)) {
+					TestRef01Tbl::Key5 ref01_k5;
+					MEMSZERO(ref01_k5);
+					STRNSCPY(ref01_k5.S48, p_ref01_patten_rec->S48);
+					const int sr = p_tbl_ref01->search(5, &ref01_k5, spEq);
+					SLCHECK_NZ(sr);
+					if(sr) {
+						TestRef01Tbl::Rec * p_ref01_rec_buf = static_cast<TestRef01Tbl::Rec *>(p_tbl_ref01->getDataBuf());
+						SLCHECK_Z(stricmp866(p_ref01_rec_buf->S48, p_ref01_patten_rec->S48));
+					}
+					else {
+						;
+					}
+				}
+			}
+		}
+	}
+	//
 	CATCH
 		CurrentStatus = 0;
 	ENDCATCH

@@ -1677,7 +1677,7 @@ int xmlC14NDocDumpMemory(xmlDoc * doc, xmlNodeSet * nodes, int mode, xmlChar ** 
 		xmlOutputBufferClose(buf);
 		return -1;
 	}
-	ret = xmlBufUse(buf->buffer);
+	ret = static_cast<int>(xmlBufUse(buf->buffer));
 	if(ret > 0) {
 		*doc_txt_ptr = xmlStrndup(xmlBufContent(buf->buffer), ret);
 	}

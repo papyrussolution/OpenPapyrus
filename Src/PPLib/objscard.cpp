@@ -1549,7 +1549,7 @@ int PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 					if(bonus_ext_rule & 0x01)
 						Data.Rec.Flags |= SCRDSF_BONUSER_ONBNK;
 					bonus_ext_rule_val = getCtrlReal(CTL_SCARDSER_BONERVAL);
-					Data.Rec.BonusChrgExtRule = (int16)(bonus_ext_rule_val * 10.0);
+					Data.Rec.BonusChrgExtRule = static_cast<int16>(bonus_ext_rule_val * 10.0);
 				}
 			}
 			getCtrlData(CTLSEL_SCARDSER_SPCTRT, &Data.Rec.SpecialTreatment);

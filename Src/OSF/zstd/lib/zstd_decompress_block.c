@@ -448,7 +448,7 @@ FORCE_INLINE_TEMPLATE void ZSTD_buildFSETable_body(ZSTD_seqSymbol* dt, const sho
 	    DTableH.tableLog = tableLog;
 	    DTableH.fastMode = 1;
 	    {   
-			const int16 largeLimit = (int16)(1 << (tableLog-1));
+			const int16 largeLimit = static_cast<int16>(1 << (tableLog-1));
 			uint32 s;
 			for(s = 0; s<maxSV1; s++) {
 				if(normalizedCounter[s] == -1) {

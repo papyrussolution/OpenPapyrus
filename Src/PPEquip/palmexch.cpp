@@ -7,7 +7,7 @@
 	#include <pp.h>
 #endif
 #include <StyloConduit.h>
-#include <commctrl.H>
+// @v12.4.12 #include <commctrl.H>
 // @v11.2.1 #include <condres.h>
 // @v11.7.8 #include <ucl/ucl.h>
 

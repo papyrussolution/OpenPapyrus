@@ -52,7 +52,7 @@
 #endif
 //#include <mysql/client_plugin.h>
 #ifdef _WIN32
-	#include "shlwapi.h"
+	// @v12.4.12 #include "shlwapi.h"
 	#define strncasecmp _strnicmp
 #endif
 #define ASYNC_CONTEXT_DEFAULT_STACK_SIZE (4096*15)
@@ -907,11 +907,9 @@ int mthd_my_read_one_row(MYSQL * mysql, uint fields, MYSQL_ROW row, ulong * leng
 	*prev_pos = 0;                          /* Terminate last field */
 	return 0;
 }
-
-/****************************************************************************
-** Init MySQL structure or allocate one
-****************************************************************************/
-
+// 
+// Init MySQL structure or allocate one
+// 
 MYSQL * STDCALL mysql_init(MYSQL * mysql)
 {
 	if(mysql_server_init(0, NULL, NULL))
@@ -2214,7 +2212,6 @@ MYSQL_RES * STDCALL mysql_list_dbs(MYSQL * mysql, const char * wild)
 MYSQL_RES * STDCALL mysql_list_tables(MYSQL * mysql, const char * wild)
 {
 	char buff[255];
-
 	snprintf(buff, 255, "SHOW TABLES LIKE '%s'", wild ? wild : "%");
 	if(mysql_query(mysql, buff))
 		return 0;
@@ -2234,16 +2231,11 @@ MYSQL_RES * STDCALL mysql_list_fields(MYSQL * mysql, const char * table, const c
 	MYSQL_DATA * query;
 	char buff[255];
 	int length = 0;
-
 	LINT_INIT(query);
-
 	length = snprintf(buff, 128, "%s%c%s", table, '\0', wild ? wild : "");
-
-	if(ma_simple_command(mysql, COM_FIELD_LIST, buff, length, 1, 0) ||
-	    !(query = mysql->methods->db_read_rows(mysql, (MYSQL_FIELD*)0,
+	if(ma_simple_command(mysql, COM_FIELD_LIST, buff, length, 1, 0) || !(query = mysql->methods->db_read_rows(mysql, (MYSQL_FIELD*)0,
 	    ma_result_set_rows(mysql))))
 		return NULL;
-
 	free_old_query(mysql);
 	if(!(result = (MYSQL_RES *)SAlloc::C(1, sizeof(MYSQL_RES)))) {
 		free_rows(query);
@@ -2261,13 +2253,9 @@ MYSQL_RES * STDCALL mysql_list_fields(MYSQL * mysql, const char * table, const c
 	SAlloc::F(result);
 	return NULL;
 }
-
-/********************************************************
-   Warning: mysql_list_processes is deprecated and will be
-          removed. Use SQL statement "SHOW PROCESSLIST"
-          instead
-********************************************************/
-
+// 
+// Warning: mysql_list_processes is deprecated and will be removed. Use SQL statement "SHOW PROCESSLIST" instead
+// 
 /* List all running processes (threads) in server */
 
 MYSQL_RES * STDCALL mysql_list_processes(MYSQL * mysql)
@@ -2275,7 +2263,6 @@ MYSQL_RES * STDCALL mysql_list_processes(MYSQL * mysql)
 	MYSQL_DATA * fields;
 	uint field_count;
 	uchar * pos;
-
 	LINT_INIT(fields);
 	if(ma_simple_command(mysql, COM_PROCESS_INFO, 0, 0, 0, 0))
 		return NULL;
@@ -2334,8 +2321,7 @@ char * STDCALL mysql_stat(MYSQL * mysql)
 
 int STDCALL mysql_ping(MYSQL * mysql)
 {
-	int rc;
-	rc = ma_simple_command(mysql, COM_PING, 0, 0, 0, 0);
+	int rc = ma_simple_command(mysql, COM_PING, 0, 0, 0, 0);
 	if(rc && mysql->options.reconnect)
 		rc = ma_simple_command(mysql, COM_PING, 0, 0, 0, 0);
 	return rc;
@@ -2349,55 +2335,36 @@ char * STDCALL mysql_get_server_info(MYSQL * mysql)
 static size_t mariadb_server_version_id(MYSQL * mysql)
 {
 	size_t major, minor, patch;
-	char * p;
-
-	if(!(p = mysql->server_version)) {
+	char * p = mysql->server_version;
+	if(!p) {
 		return 0;
 	}
-
-	major = strtol(p, &p, 10);
-	p += 1; /* consume the dot */
-	minor = strtol(p, &p, 10);
-	p += 1; /* consume the dot */
-	patch = strtol(p, &p, 10);
-
-	return (major * 10000L + (ulong)(minor * 100L + patch));
+	else {
+		major = strtol(p, &p, 10);
+		p += 1; /* consume the dot */
+		minor = strtol(p, &p, 10);
+		p += 1; /* consume the dot */
+		patch = strtol(p, &p, 10);
+		return (major * 10000L + (ulong)(minor * 100L + patch));
+	}
 }
 
-ulong STDCALL mysql_get_server_version(MYSQL * mysql)
-{
-	return (ulong)mariadb_server_version_id(mysql);
-}
-
-char * STDCALL mysql_get_host_info(MYSQL * mysql)
-{
-	return(mysql->host_info);
-}
-
-uint STDCALL mysql_get_proto_info(MYSQL * mysql)
-{
-	return (mysql->protocol_version);
-}
-
-const char * STDCALL mysql_get_client_info(void)
-{
-	return (char *)MARIADB_CLIENT_VERSION_STR;
-}
+ulong STDCALL mysql_get_server_version(MYSQL * mysql) { return (ulong)mariadb_server_version_id(mysql); }
+char * STDCALL mysql_get_host_info(MYSQL * mysql) { return(mysql->host_info); }
+uint STDCALL mysql_get_proto_info(MYSQL * mysql) { return (mysql->protocol_version); }
+const char * STDCALL mysql_get_client_info(void) { return (char *)MARIADB_CLIENT_VERSION_STR; }
 
 static size_t get_store_length(size_t length)
 {
-  #define MAX_STORE_SIZE 9
+#define MAX_STORE_SIZE 9
 	uchar buffer[MAX_STORE_SIZE], * p;
-
 	/* We just store the length and substract offset of our buffer
 	   to determine the length */
 	p = mysql_net_store_length(buffer, length);
 	return p - buffer;
 }
 
-uchar * ma_get_hash_keyval(const uchar * hash_entry,
-    uint * length,
-    bool not_used __attribute__((unused)))
+uchar * ma_get_hash_keyval(const uchar * hash_entry, uint * length, bool not_used __attribute__((unused)))
 {
 	/* Hash entry has the following format:
 	   Offset: 0               key (\0 terminated)
@@ -2420,11 +2387,8 @@ int mysql_optionsv(MYSQL * mysql, enum mysql_option option, ...)
 	void * arg1;
 	size_t stacksize;
 	struct mysql_async_context * ctxt;
-
 	va_start(ap, option);
-
 	arg1 = va_arg(ap, void *);
-
 	switch(option) {
 		case MYSQL_OPT_CONNECT_TIMEOUT:
 		    mysql->options.connect_timeout = *(uint*)arg1;
@@ -2443,8 +2407,7 @@ int mysql_optionsv(MYSQL * mysql, enum mysql_option option, ...)
 			    mysql->options.client_flag &= ~CLIENT_LOCAL_FILES;
 		    if(arg1) {
 			    CHECK_OPT_EXTENSION_SET(&mysql->options);
-			    mysql->extension->auto_local_infile = *(uint*)arg1 == LOCAL_INFILE_MODE_AUTO
-				? WAIT_FOR_QUERY : ALWAYS_ACCEPT;
+			    mysql->extension->auto_local_infile = *(uint*)arg1 == LOCAL_INFILE_MODE_AUTO ? WAIT_FOR_QUERY : ALWAYS_ACCEPT;
 		    }
 		    break;
 		case MYSQL_INIT_COMMAND:
@@ -2485,8 +2448,7 @@ int mysql_optionsv(MYSQL * mysql, enum mysql_option option, ...)
 		case MYSQL_PROGRESS_CALLBACK:
 		    CHECK_OPT_EXTENSION_SET(&mysql->options);
 		    if(mysql->options.extension)
-			    mysql->options.extension->report_progress =
-				(void (*)(const MYSQL *, uint, uint, double, const char *, uint))arg1;
+			    mysql->options.extension->report_progress = (void (*)(const MYSQL *, uint, uint, double, const char *, uint))arg1;
 		    break;
 		case MYSQL_SERVER_PUBLIC_KEY:
 		    OPT_SET_EXTENDED_VALUE_STR(&mysql->options, server_public_key, (char *)arg1);

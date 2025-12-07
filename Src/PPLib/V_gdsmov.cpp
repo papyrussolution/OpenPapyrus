@@ -615,7 +615,7 @@ DBQuery * PPViewGoodsMov::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	SString loc_names, subtitle;
 	uint   brw_id = BROWSER_GOODSMOV;
 	TempGoodsMovTbl * p_t = new TempGoodsMovTbl(P_TempTbl->GetName());
-	p_q = & select(
+	p_q = & Select_(
 		p_t->GoodsID,      // #00
 		p_t->GoodsName,    // #01
 		p_t->InRest_Qtty,  // #02

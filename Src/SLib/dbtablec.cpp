@@ -466,6 +466,10 @@ DBTable::SelectStmt::SelectStmt(DbProvider * pDb, const Generator_SQL & rSql, in
 {
 }
 
+DBTable::SelectStmt::SelectStmt(DbProvider * pDb, int idx, int sp, int sf) : SSqlStmt(pDb), Idx(idx), Sp(sp), Sf(sf)
+{
+}
+
 void DBTable::SetStmt(SelectStmt * pStmt)
 {
 	if(pStmt) {

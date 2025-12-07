@@ -515,7 +515,7 @@ DBQuery * PPViewPredictSales::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 	TempPredictSalesTbl * tt = 0;
 	if(P_TempTbl) {
 		THROW(CheckTblPtr(tt = new TempPredictSalesTbl(P_TempTbl->GetName())));
-		p_q = & select(
+		p_q = & Select_(
 			tt->Dt,           // #0
 			tt->Flags,        // #1
 			tt->Qtty,         // #2

@@ -3142,7 +3142,7 @@ ListBoxDef * PPObjGoods::_Selector2(ListBoxDef * pDef, long parentID, long optio
 			if(dont_sel_generic)
 				dbq = &(*dbq && (t->Flags & GF_GENERIC) == 0L); // @memleak
 		}
-		p_q = & select(t->ID, ((options & selfByName) ? t->Name : t->Abbr), 0L).from(t, 0L);
+		p_q = & Select_(t->ID, ((options & selfByName) ? t->Name : t->Abbr), 0L).from(t, 0L);
 		p_q->where(*dbq).orderBy(t->Kind, ((options & selfByName) ? t->Name : t->Abbr), 0L);
 	}
 	if(!pDef) {

@@ -399,7 +399,7 @@ int PPCashMachine::SyncCloseSession()
 	int    my_lock = 0;
 	int    close_sess = 1;
 	const  PPConfig & r_cfg = LConfig;
-	const  LDATE  save_date   = r_cfg.OperDate;
+	const  LDATE save_date   = r_cfg.OperDate;
 	const  PPID   save_loc_id = r_cfg.Location;
 	const  PPID   save_cash_id = r_cfg.Cash;
 	CCheckCore  chk_core;

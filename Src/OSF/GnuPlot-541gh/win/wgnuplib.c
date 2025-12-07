@@ -4,7 +4,7 @@
 #include <gnuplot.h>
 #pragma hdrstop
 #define STRICT
-#include <windowsx.h>
+// @v12.4.12 #include <windowsx.h>
 #include "wgnuplib.h"
 #include "wresourc.h"
 #include "wcommon.h"

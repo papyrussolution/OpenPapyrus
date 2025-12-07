@@ -1172,7 +1172,7 @@ xmlParserInput * xmlNewStringInputStream(xmlParserCtxt * ctxt, const xmlChar * b
 		else {
 			input->base = buffer;
 			input->cur = buffer;
-			input->length = sstrlen(buffer);
+			input->length = sstrleni(buffer);
 			input->end = &buffer[input->length];
 		}
 	}

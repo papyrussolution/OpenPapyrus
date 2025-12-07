@@ -482,7 +482,7 @@ DBQuery * PPViewStaffCal::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbe_duration.push(p_t->TmVal);
 		dbe_duration.push(static_cast<DBFunc>(PPDbqFuncPool::IdDurationToTime));
 	}
-	p_q = &select(
+	p_q = &Select_(
 		p_t->ID__,      // #0
 		p_t->CalID,     // #1
 		p_t->LinkObjID, // #2

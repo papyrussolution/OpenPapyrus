@@ -5364,7 +5364,7 @@
 				typename = std::enable_if_t<!std::is_same_v<Container, XLRowDataProxy> &&
 				std::is_base_of_v<std::bidirectional_iterator_tag, typename std::iterator_traits<typename Container::iterator>::iterator_category>,
 				Container> >
-			Container convertContainer() const    // 2024-04-30: whitespace support
+			Container convertContainer() const // 2024-04-30: whitespace support
 			{
 				Container c;
 				auto it = std::inserter(c, c.end());

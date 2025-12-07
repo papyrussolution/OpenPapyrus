@@ -48,7 +48,7 @@
 		//#include <malloc.h>
 		#include <direct.h>          /* getcwd() */
 	#endif
-	#include <htmlhelp.h>
+	//#include <htmlhelp.h>
 	#include "win/winmain.h"
 #endif /* _WIN32 */
 #ifdef __DJGPP__

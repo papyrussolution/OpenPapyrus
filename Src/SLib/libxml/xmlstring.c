@@ -460,12 +460,12 @@ xmlChar * xmlStrncatNew(const xmlChar * str1, const xmlChar * str2, int len)
 	int size;
 	xmlChar * ret;
 	if(len < 0)
-		len = sstrlen(str2);
+		len = sstrleni(str2);
 	if(!str2 || !len)
 		return sstrdup(str1);
 	if(!str1)
 		return xmlStrndup(str2, len);
-	size = sstrlen(str1);
+	size = sstrleni(str1);
 	ret = static_cast<xmlChar *>(SAlloc::M((size + len + 1) * sizeof(xmlChar)));
 	if(!ret) {
 		xmlErrMemory(NULL, 0);

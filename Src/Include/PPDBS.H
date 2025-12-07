@@ -9143,6 +9143,7 @@ public:
 		double MaxDiscount;
 		double MaxCredit;
 		char   Code[24];
+		char   TechSymb[48];
 		int32  Flags;
 		double MaxCredit1;
 		double MaxCredit2;
@@ -9177,6 +9178,7 @@ public:
 	DBField MaxDiscount;
 	DBField MaxCredit;
 	DBField Code;
+	DBField TechSymb;
 	DBField Flags;
 	DBField MaxCredit1;
 	DBField MaxCredit2;

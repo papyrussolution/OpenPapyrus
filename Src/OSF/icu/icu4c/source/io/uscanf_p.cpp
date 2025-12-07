@@ -291,7 +291,7 @@ static int32_t u_scanf_count_handler(UFILE * input, u_scanf_spec_info * info, uf
 	/* will contain the # of items converted thus far */
 	if(!info->fSkipArg) {
 		if(info->fIsShort)
-			*(int16*)(args[0].ptrValue) = (int16)(UINT16_MAX & info->fWidth);
+			*(int16*)(args[0].ptrValue) = static_cast<int16>(UINT16_MAX & info->fWidth);
 		else if(info->fIsLongLong)
 			*(int64_t*)(args[0].ptrValue) = info->fWidth;
 		else
@@ -557,7 +557,7 @@ static int32_t u_scanf_integer_handler(UFILE * input, u_scanf_spec_info * info, 
 	/* mask off any necessary bits */
 	if(!info->fSkipArg) {
 		if(info->fIsShort)
-			*(int16*)num = (int16)(UINT16_MAX & result);
+			*(int16*)num = static_cast<int16>(UINT16_MAX & result);
 		else if(info->fIsLongLong)
 			*(int64_t*)num = result;
 		else
@@ -819,7 +819,7 @@ static int32_t u_scanf_hex_handler(UFILE * input, u_scanf_spec_info * info, ufmt
 	/* mask off any necessary bits */
 	if(!info->fSkipArg) {
 		if(info->fIsShort)
-			*(int16*)num = (int16)(UINT16_MAX & result);
+			*(int16*)num = static_cast<int16>(UINT16_MAX & result);
 		else if(info->fIsLongLong)
 			*(int64_t*)num = result;
 		else
@@ -854,7 +854,7 @@ static int32_t u_scanf_octal_handler(UFILE * input, u_scanf_spec_info * info, uf
 	/* mask off any necessary bits */
 	if(!info->fSkipArg) {
 		if(info->fIsShort)
-			*(int16*)num = (int16)(UINT16_MAX & result);
+			*(int16*)num = static_cast<int16>(UINT16_MAX & result);
 		else if(info->fIsLongLong)
 			*(int64_t*)num = result;
 		else

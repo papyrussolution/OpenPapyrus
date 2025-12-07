@@ -155,7 +155,7 @@ void PPViewAlcoDeclRu::ProcessStock(int startOrEnd, PPID divID, const ObjIdListF
 	SString wait_msg_buf;
 	PPBillExt billext;
 	PPLoadText(PPTXT_WAIT_GOODSREST, wait_msg_buf);
-	const  PPID _suppl_agent_id = Arp.GetConfig().E.SupplAgentID; // @v11.0.8
+	const  PPID _suppl_agent_id = Arp.GetConfig().E.SupplAgentID;
 	for(uint i = 0; i < _gc; i++) {
 		const PPID goods_id = rGoodsList.get(i);
 		GoodsRestParam gp;

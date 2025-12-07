@@ -8062,7 +8062,6 @@ namespace NArchive {
 					if(item.NameA.IsEmpty())
 						s += "file";
 				}
-
 				const char * const kRemoveStr = "$INSTDIR\\";
 				if(s.IsPrefixedBy_Ascii_NoCase(kRemoveStr)) {
 					s.Delete(0, sstrlen(kRemoveStr));
@@ -8073,9 +8072,7 @@ namespace NArchive {
 					s += ".nsis";
 				return s;
 			}
-
 			UString ConvertToUnicode(const AString &s) const;
-
 			CInArchive()
 			#ifdef NSIS_SCRIPT
 				: Script(kScriptSizeLimit)

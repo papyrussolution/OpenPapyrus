@@ -864,28 +864,24 @@ static void dumpprog(Reprog * prog)
 
 #endif
 
-Reprog * regcompx(void *(*alloc)(void * ctx, void * p, int n), void * ctx,
-    const char * pattern, int cflags, const char ** errorp)
+Reprog * regcompx(void *(*alloc)(void * ctx, void * p, int n), void * ctx, const char * pattern, int cflags, const char ** errorp)
 {
 	struct cstate g;
 	Renode * node;
 	Reinst * split, * jump;
 	int i, n;
-
 	g.pstart = NULL;
 	g.prog = NULL;
-
 	if(setjmp(g.kaboom)) {
 		if(errorp) *errorp = g.error;
 		alloc(ctx, g.pstart, 0);
 		alloc(ctx, g.prog, 0);
 		return NULL;
 	}
-
 	g.prog = (Reprog *)alloc(ctx, NULL, sizeof(Reprog));
 	if(!g.prog)
 		die(&g, "cannot allocate regular expression");
-	n = strlen(pattern) * 2;
+	n = sstrleni(pattern) * 2;
 	if(n > REG_MAXPROG)
 		die(&g, "program too large");
 	if(n > 0) {

@@ -264,7 +264,7 @@ DBQuery * PPViewScale::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	THROW(CheckTblPtr(t = new TempScaleTbl(P_TempTbl->GetName())));
 	PPDbqFuncPool::InitObjNameFunc(dbe_loc,  PPDbqFuncPool::IdObjNameLoc,   t->LocID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_ggrp, PPDbqFuncPool::IdObjNameGoods, t->AltGoodsGrp);
-	q = & select(
+	q = & Select_(
 		t->ID,            // #0
 		t->Name,          // #1
 		t->ScaleTypeName, // #2

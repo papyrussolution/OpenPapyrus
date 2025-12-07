@@ -4680,9 +4680,8 @@ DBQuery * PPViewGoodsOpAnalyze::CreateBrowserQuery(uint * pBrwID, SString * pSub
 			dbe_crest.push(dbc_long); // Formatting flags
 			dbe_crest.push(static_cast<DBFunc>(PPDbqFuncPool::IdCQtty));
 		}
-		q = & select(
+		q = & Select_(
 			tbl->ID__,           // #00 // @v12.1.7  
-    
 			tbl->LocID,          // #01 // @v12.1.7 +1
 			tbl->GoodsID,        // #02 // @v12.1.7 +1
 			tbl->Text,           // #03 // @v12.1.7 +1

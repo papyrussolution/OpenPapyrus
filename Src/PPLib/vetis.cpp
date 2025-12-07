@@ -11442,7 +11442,7 @@ DBQuery * PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 		dbq = &(*dbq && dbe_checkloc > 0L);
 	}*/
 	// } @v11.5.8 
-	q = &select(
+	q = &Select_(
 		t->EntityID,          // #0
 		t->Flags,             // #1
 		t->LinkBillID,        // #2

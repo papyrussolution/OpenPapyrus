@@ -7283,8 +7283,8 @@ static int FASTCALL u_get_char_case(wchar_t code, const CaseFoldingItem ** pItem
 static wchar_t FASTCALL u_to_case(wchar_t code, int c)
 {
 	wchar_t r = 0;
-	const   CaseFoldingItem * p_item = 0;
-	const   int ch_case = u_get_char_case(code, &p_item);
+	const  CaseFoldingItem * p_item = 0;
+	const  int ch_case = u_get_char_case(code, &p_item);
 	if(ch_case == c) {
 		if(p_item)
 			r = p_item->ToCode;

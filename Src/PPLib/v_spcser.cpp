@@ -189,7 +189,7 @@ static IMPL_DBE_PROC(dbqf_spcsn_textfld_iisi)
 	dbq = & (*dbq && daterange(t->InfoDate, &Filt.Period));
 	dbq = ppcheckfiltid(dbq, Tbl.GoodsID,  Filt.GoodsID);
 	dbq = ppcheckfiltid(dbq, Tbl.InfoKind, Filt.InfoKind);
-	q = &select(
+	q = &Select_(
 		t->ID,        // #0
 		t->GoodsID,   // #1
 		t->InfoDate,  // #2

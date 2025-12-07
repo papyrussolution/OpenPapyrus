@@ -753,7 +753,7 @@ DBQuery * PPViewGoodsTaxAnalyze::CreateBrowserQuery(uint * pBrwId, SString *)
 	THROW(CheckTblPtr(t));
 	if(Filt.Flags & GoodsTaxAnalyzeFilt::fLedgerByLots) {
 		brw_id = BROWSER_GOODSTAXANLZ_PIL;
-		q = & select(
+		q = & Select_(
 			t->GoodsID,     // #0
 			t->LotID,       // #1
 			t->Dt,          // #2
@@ -769,7 +769,7 @@ DBQuery * PPViewGoodsTaxAnalyze::CreateBrowserQuery(uint * pBrwId, SString *)
 	}
 	else {
 		brw_id = Filt.HasCycleFlags() ? BROWSER_GOODSTAXANLZ_D : BROWSER_GOODSTAXANLZ;
-		q = & select(
+		q = & Select_(
 			t->GoodsID,     // #0
 			t->Dt,          // #1
 			t->Name,        // #2

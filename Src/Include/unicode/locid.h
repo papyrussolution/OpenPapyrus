@@ -55,9 +55,7 @@ class UnicodeString;
  * this class:
  * \htmlonly<blockquote>\endhtmlonly
  * <pre>
- *       Locale( const   char * language,
- *               const   char * country,
- *               const   char * variant);
+ *       Locale(const   char * language, const   char * country, const   char * variant);
  * </pre>
  * \htmlonly</blockquote>\endhtmlonly
  * The first argument to the constructors is a valid <STRONG>ISO

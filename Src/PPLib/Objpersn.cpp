@@ -1243,7 +1243,7 @@ ListBoxDef * PPObjPerson::_Selector2(ListBoxDef * pDef, long flags, void * extra
 				pDef->refresh();
 			else {
 				THROW(CheckTblPtr(t = new PersonTbl));
-				p_q = &select(t->ID, t->Name, 0L).from(t, 0L).orderBy(t->Name, 0L);
+				p_q = &Select_(t->ID, t->Name, 0L).from(t, 0L).orderBy(t->Name, 0L);
 				THROW(CheckQueryPtr(p_q));
 			}
 		}

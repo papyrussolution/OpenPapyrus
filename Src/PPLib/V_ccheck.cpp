@@ -2329,7 +2329,7 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		}
 		if(P_TmpGdsCorrTbl) {
 			p_gc = new TempCCheckGdsCorrTbl(P_TmpGdsCorrTbl->GetName());
-			p_q = & select(
+			p_q = & Select_(
 				p_gc->ID__,           // #0
 				p_gc->Goods1ID,       // #1
 				p_gc->Goods2ID,       // #2
@@ -2352,7 +2352,7 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			p_dbe_avrg = & (g->Amount / g->Count);
 			p_dbe_lc_avg = & (g->LinesCount / g->Count);
 			p_dbe_sc_avg = & (g->SkuCount / g->Count);
-			p_q = & select(
+			p_q = & Select_(
 				g->ID__,        // #0
 				g->Dt,          // #1
 				g->Tm,          // #2
@@ -2396,7 +2396,7 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					dbe_posnode.push(cq->CashID);
 					dbe_posnode.push(static_cast<DBFunc>(DynFuncPosText));
 				}
-				p_q = & select(
+				p_q = & Select_(
 					cq->ID,           // #0
 					cq->Dt,           // #1
 					cq->Tm,           // #2
@@ -2457,7 +2457,7 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					dbe_posnode.push(t->PosNodeID);
 					dbe_posnode.push(static_cast<DBFunc>(DynFuncPosText));
 				}
-				p_q = & select(
+				p_q = & Select_(
 					t->ID,              // #0
 					t->Dt,              // #1
 					t->Tm,              // #2

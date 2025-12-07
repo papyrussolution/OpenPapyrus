@@ -340,7 +340,7 @@ DBQuery * PPViewObjSync::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbe_commid.push(static_cast<DBFunc>(PPDbqFuncPool::IdCommSyncId));
 	}
 	PPDbqFuncPool::InitLongFunc(dbe_objtitle, PPDbqFuncPool::IdObjTitle, t->ObjType);
-	q = & select(
+	q = & Select_(
 		t->ObjType,    // #0
 		t->ObjID,      // #1
 		t->CommIdPfx,  // #2
@@ -651,7 +651,7 @@ DBQuery * PPViewObjSyncCmp::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 		dbe_commid.push(p_t->CommID);
 		dbe_commid.push(static_cast<DBFunc>(PPDbqFuncPool::IdCommSyncId));
 	}
-	q = & select(
+	q = & Select_(
 		p_t->ObjType,   // #0
 		p_t->DestID,    // #1
 		p_t->CommIdPfx, // #2
@@ -841,7 +841,7 @@ DBQuery * PPViewObjSyncQueue::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 		dbe_commid.push(static_cast<DBFunc>(PPDbqFuncPool::IdCommSyncId));
 	}
 	PPDbqFuncPool::InitLongFunc(dbe_objtitle, PPDbqFuncPool::IdObjTitle, p_t->ObjType);
-	q = &select(
+	q = &Select_(
 	 	p_t->ID,         // #00
 		p_t->DBID,       // #01
 		p_t->ObjType,    // #02

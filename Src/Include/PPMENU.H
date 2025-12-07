@@ -422,7 +422,7 @@
 #define cmReplaceDynamicObj            529 // Объединение динамических объектов
 #define cmBillTag                      530 // Теги документов
 #define cmCTblOrdTimeGraph             531 // Временная диаграмма заказов столов
-#define cmSearchBillByCtx              532 // Поиск документа по контексту
+#define cmSearchBillByCtx              532 // Поиск документа по контексту // @todo eliminate @20251206
 #define cmSetupPreferredBarcodeTags    533 // Автоматически устанавливает признаки предпочтительных штрихкодов
 #define cmStockOpt                     534 //
 #define cmStockOptCfg                  535 //

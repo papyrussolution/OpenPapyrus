@@ -147,7 +147,7 @@ int FASTCALL PPViewGlobalUserAcc::NextIteration(GlobalUserAccViewItem * pItem)
 		dbe_svc.push(static_cast<DBFunc>(PPDbqFuncPool::IdSubStrById));
 	}
 	// } @v12.2.0
-	q = & select(
+	q = & Select_(
 			t->ID,            // #0
 			t->Name,          // #1
 			dbe_psn,          // #2

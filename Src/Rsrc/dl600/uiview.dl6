@@ -1905,7 +1905,38 @@ dialog DLG_IMPEXPBILH [vertical title: "@impexpparambillh" size: (700, 680) mins
 	}
 }
 
-// @20251116 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
+dialog DLG_ARTICLEFLT [vertical title: "@articlefilt" size: (350, 385) minsize: (350, 385) padding: 4 font: "MS Shell Dlg,8"] {
+	combobox CTLSEL_ARTICLEFLT_ACCSID [tabstop width: bycontainer height: 21 margin: 4 label: "@accsheet" labelsize: (0, 13) cblinesymb: CTL_ARTICLEFLT_ACCSID];
+	view [horizontal width: bycontainer height: 80] {
+		radiocluster CTL_ARTICLEFLT_FTCLOSED [tabstop growfactor: 1 margin: 4 title: "@articlefilt_ft_closed" ] {
+			radiobutton [title: "@articlefilt_ft_closed_nomatter" height: 16];
+			radiobutton [title: "@articlefilt_ft_closed_reset" height: 16];
+			radiobutton [title: "@articlefilt_ft_closed_set" height: 16];
+		}
+		radiocluster CTL_ARTICLEFLT_FTSTOP [tabstop growfactor: 1 margin: 4 title: "@articlefilt_ft_stop"] {
+			radiobutton [title: "@articlefilt_ft_stop_nomatter" height: 16];
+			radiobutton [title: "@articlefilt_ft_stop_reset" height: 16];
+			radiobutton [title: "@articlefilt_ft_stop_set" height: 16];
+		}
+	}
+	checkcluster CTL_ARTICLEFLT_FLAGS [tabstop width: bycontainer margin: 4] {
+		checkbox [title: "@articlefilt_fshowagreement" height: 16];
+		checkbox [title: "@articlefilt_fcheckobj" height: 16];
+		checkbox [title: "@articlefilt_fshowaddedlimit" height: 16];
+		checkbox [title: "@articlefilt_fwithixparamonly" height: 16];
+	}
+	radiocluster CTL_ARTICLEFLT_ORDER [tabstop width: bycontainer margin: 4 title: "@sorting"] {
+		radiobutton [title: "@articlefilt_ordbyname" height: 16];
+		radiobutton [title: "@articlefilt_ordbyarticle" height: 16];
+		radiobutton [title: "@articlefilt_ordbydefault" height: 16];
+	}
+	view [horizontal width: bycontainer(100) growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: (4, 4, 8, 4) command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: (8, 4, 4, 4) command: cmCancel];
+	}
+}
+
+// @20251201 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
 // Диалоги, представленные здесь с изменными символами (DLG_CASHREPORTS_L__, например) в ppdlg.list не отмечены поскольку находятся в работе.
 
 // @construction

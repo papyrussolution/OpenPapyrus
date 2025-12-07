@@ -593,7 +593,7 @@ DBQuery * PPViewDvcLoadingStat::CreateBrowserQuery(uint * pBrwId, SString * pSub
 		if(Filt.GoodsGrpID)
 			THROW(p_g_tbl = new Goods2Tbl);
 		PPDbqFuncPool::InitObjNameFunc(dbe_goods, PPDbqFuncPool::IdObjNameGoods, p_dlso_tbl->ObjID);
-		q = &select(
+		q = &Select_(
 			p_tbl->ID,           // #0
 			p_tbl->DvcType,      // #1
 			p_tbl->DvcID,        // #2
@@ -607,7 +607,7 @@ DBQuery * PPViewDvcLoadingStat::CreateBrowserQuery(uint * pBrwId, SString * pSub
 			0).from(p_tbl, p_dlso_tbl, (Filt.GoodsGrpID) ? p_g_tbl : 0, 0);
 	}
 	else
-		q = &select(
+		q = &Select_(
 			p_tbl->ID,         // #0
 			p_tbl->DvcType,    // #1
 			p_tbl->DvcID,      // #2
@@ -819,7 +819,7 @@ DBQuery * PPViewDLSDetail::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 		pSubTitle->Space();
 		CatObjectName((Filt.DvcType == dvctCashs) ? PPOBJ_CASHNODE : PPOBJ_SCALE, Filt.DvcID, *pSubTitle);
 	}
-	q = &select(
+	q = &Select_(
 		tbl->DlsID,      // #0
 		tbl->ObjType,    // #1
 		tbl->ObjID,      // #2

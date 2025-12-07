@@ -2072,7 +2072,7 @@ int PPObjTSession::InductSuperSess(TSessionTbl::Rec * pRec)
 						ok = 1;
 					}
 					if(!pRec->TechID) {
-						if(TecObj.GetNextSibling(sup_rec.TechID, last_sess_rec.TechID, &tec_rec) > 0) {
+						if(TecObj.GetNextSibling_(sup_rec.TechID, last_sess_rec.TechID, &tec_rec) > 0) {
 							pRec->TechID = tec_rec.ID;
 							pRec->PrcID = tec_rec.PrcID;
 							ok = 1;
@@ -2085,7 +2085,7 @@ int PPObjTSession::InductSuperSess(TSessionTbl::Rec * pRec)
 						pRec->StTm = sup_rec.StTm;
 						ok = 1;
 					}
-					if(sup_rec.TechID && TecObj.GetNextSibling(sup_rec.TechID, 0, &tec_rec) > 0) {
+					if(sup_rec.TechID && TecObj.GetNextSibling_(sup_rec.TechID, 0, &tec_rec) > 0) {
 						pRec->TechID = tec_rec.ID;
 						pRec->PrcID = tec_rec.PrcID;
 						ok = 1;

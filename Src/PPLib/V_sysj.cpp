@@ -684,7 +684,7 @@ DBQuery * PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 		dbq = ppcheckweekday(dbq, sj->Dt, Filt.DayOfWeek);
 		if(Filt.BegTm)
 			dbq = & (*dbq && sj->Tm >= static_cast<long>(Filt.BegTm));
-		q = & select(
+		q = & Select_(
 			sj->ObjType,  // #0
 			sj->ObjID,    // #1
 			*dbe_extra,   // #2
@@ -1500,7 +1500,7 @@ DBQuery * PPViewGtaJournal::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 			dbe_objname.push(dbconst(this));
 			dbe_objname.push(static_cast<DBFunc>(DynFuncObjNameFromList));
 		}
-		q = & select(
+		q = & Select_(
 			t->ObjType,   // #0
 			t->ObjID,     // #1
 			t->Op,        // #2
@@ -1513,7 +1513,7 @@ DBQuery * PPViewGtaJournal::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 			0L).from(t, /*nm,*/ 0L);
 	}
 	else
-		q = & select(
+		q = & Select_(
 			t->ObjType,   // #0
 			t->ObjID,     // #1
 			t->Op,        // #2

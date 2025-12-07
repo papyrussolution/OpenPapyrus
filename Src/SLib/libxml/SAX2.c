@@ -2114,7 +2114,7 @@ void xmlSAX2Characters(void * ctx, const xmlChar * ch, int len)
 					xmlSAX2ErrMemory(ctxt, "xmlSAX2Characters");
 					return;
 				}
-				ctxt->nodemem = size;
+				ctxt->nodemem = static_cast<int>(size);
 				lastChild->content = newbuf;
 			}
 			memcpy(&lastChild->content[ctxt->nodelen], ch, len);
@@ -2126,7 +2126,7 @@ void xmlSAX2Characters(void * ctx, const xmlChar * ch, int len)
 				xmlSAX2ErrMemory(ctxt, "xmlSAX2Characters");
 			}
 			if(ctxt->P_Node->children) {
-				ctxt->nodelen = sstrlen(lastChild->content);
+				ctxt->nodelen = sstrleni(lastChild->content);
 				ctxt->nodemem = ctxt->nodelen + 1;
 			}
 		}

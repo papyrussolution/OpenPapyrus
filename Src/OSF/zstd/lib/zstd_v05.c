@@ -1006,7 +1006,7 @@ size_t FSEv05_buildDTable(FSEv05_DTable* dt, const short* normalizedCounter, uin
 	uint16 symbolNext[FSEv05_MAX_SYMBOL_VALUE+1];
 	uint32 position = 0;
 	uint32 highThreshold = tableSize-1;
-	const int16 largeLimit = (int16)(1 << (tableLog-1));
+	const int16 largeLimit = static_cast<int16>(1 << (tableLog-1));
 	uint32 noLarge = 1;
 	uint32 s;
 	/* Sanity Checks */

@@ -429,7 +429,7 @@ DBQuery * PPViewPrcBusy::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		PPDbqFuncPool::InitObjNameFunc(dbe_prc, PPDbqFuncPool::IdObjNamePrc, p_tt->PrcID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_ar,  PPDbqFuncPool::IdObjNameAr,  p_st->ArID);
 		dbe_status = & enumtoa(p_st->Status, 5, status_subst.Get(PPTXT_TSESS_STATUS));
-		p_q = & select(
+		p_q = & Select_(
 			p_tt->ID__,          // #0
 			dbe_prc,             // #1
 			p_tt->TxtPeriod,     // #2

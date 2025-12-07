@@ -371,8 +371,8 @@ HMENU SetLocalMenu(HMENU * pMenu, HWND hToolbar)
 
 int isFindMenuID(long id, HMENU hm)
 {
-	const   int cnt = GetMenuItemCount(hm);
-	int     i = 0;
+	const  int cnt = GetMenuItemCount(hm);
+	int    i = 0;
 	for(i = 0; i < cnt; i++) {
 		MENUITEMINFO mii;
 		INITWINAPISTRUCT(mii);

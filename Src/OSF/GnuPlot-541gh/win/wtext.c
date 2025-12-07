@@ -5,11 +5,11 @@
 //
 #include <gnuplot.h>
 #pragma hdrstop
-#include <sys/stat.h>
-#define STRICT
-#include <windowsx.h>
-#include <commdlg.h>
-#include <commctrl.h>
+// @v12.4.12 #include <sys/stat.h>
+// @v12.4.12 #define STRICT
+// @v12.4.12 #include <windowsx.h>
+// @v12.4.12 #include <commdlg.h>
+// @v12.4.12 #include <commctrl.h>
 #include <dos.h>
 #include "wgnuplib.h"
 #include "winmain.h"

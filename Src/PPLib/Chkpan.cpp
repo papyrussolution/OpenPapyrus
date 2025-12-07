@@ -9875,7 +9875,7 @@ int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPri
 	ReceiptCore & r_rcpt = p_bobj->trfr->Rcpt;
 	ReceiptTbl::Rec lot_rec;
 	StringSet seek_serial_list;
-	const   PPID loc_id = GetCnLocID(goodsID);
+	const  PPID loc_id = GetCnLocID(goodsID);
 	THROW(p_ary = SelLotBrowser::CreateArray());
 	diter.Init(0, curdt);
 	THROW(GetCc().CalcActiveExpendByGoods(goodsID, loc_id, 0, &total_exp));
@@ -10135,7 +10135,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 							int   first_rbb = 0;
 							long  box_no = 0;
 							if(p_lotxct->GetRecListByMark(rBlk.ChZnMark, rec_list) > 0) {
-								const   PPID loc_id = GetCnLocID(goodsID);
+								const  PPID loc_id = GetCnLocID(goodsID);
 								ReceiptCore & r_rcpt = p_bobj->trfr->Rcpt;
 								ReceiptTbl::Rec lot_rec;
 								for(uint lotxcidx = 0; lotxcidx < rec_list.getCount(); lotxcidx++) {

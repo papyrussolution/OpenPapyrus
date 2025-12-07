@@ -176,11 +176,11 @@ DBQuery * PPViewDBDiv::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	uint   brw_id = BROWSER_DBDIV;
 	DBQ  * dbq = 0;
 	THROW(CheckTblPtr(t = new TempDBDivTbl(P_TempTbl->GetName())));
-	q = & select(
-			t->ID,            // #0
-			t->Name,          // #1
-			t->Address,       // #2
-			0L).from(t, 0L).where(*dbq).orderBy(t->Name, 0L);
+	q = & Select_(
+		t->ID,            // #0
+		t->Name,          // #1
+		t->Address,       // #2
+		0L).from(t, 0L).where(*dbq).orderBy(t->Name, 0L);
 	THROW(CheckQueryPtr(q));
 	CATCH
 		if(q)

@@ -867,7 +867,7 @@ static uint32 FSE_tableStep(uint32 tableSize) { return (tableSize>>1) + (tableSi
 
 static size_t FSE_buildDTable(FSE_DTable* dt, const short* normalizedCounter, uint maxSymbolValue, uint tableLog)
 {
-	void* ptr = dt+1;
+	void * ptr = dt+1;
 	FSE_DTableHeader DTableH;
 	FSE_DECODE_TYPE* const tableDecode = (FSE_DECODE_TYPE*)ptr;
 	const uint32 tableSize = 1 << tableLog;
@@ -876,10 +876,9 @@ static size_t FSE_buildDTable(FSE_DTable* dt, const short* normalizedCounter, ui
 	uint16 symbolNext[FSE_MAX_SYMBOL_VALUE+1];
 	uint32 position = 0;
 	uint32 highThreshold = tableSize-1;
-	const int16 largeLimit = (int16)(1 << (tableLog-1));
+	const int16 largeLimit = static_cast<int16>(1 << (tableLog-1));
 	uint32 noLarge = 1;
 	uint32 s;
-
 	/* Sanity Checks */
 	if(maxSymbolValue > FSE_MAX_SYMBOL_VALUE) 
 		return ERROR(maxSymbolValue_tooLarge);

@@ -812,7 +812,7 @@ int xmlFileRead(void * context, char * buffer, int len)
 {
 	int ret = -1;
 	if(context && buffer) {
-		ret = fread(&buffer[0], 1,  len, static_cast<FILE *>(context));
+		ret = static_cast<int>(fread(&buffer[0], 1, len, static_cast<FILE *>(context)));
 		if(ret < 0)
 			xmlIOErr(0, "fread()");
 	}
@@ -2960,13 +2960,13 @@ int STDCALL xmlOutputBufferWrite(xmlOutputBuffer * out, int len, const char * bu
 				out->error = XML_IO_ENCODER;
 				return -1;
 			}
-			nbchars = xmlBufUse(out->conv);
+			nbchars = static_cast<int>(xmlBufUse(out->conv));
 		}
 		else {
 			ret = xmlBufAdd(out->buffer, (const xmlChar *)buf, chunk);
 			if(ret)
 				return -1;
-			nbchars = xmlBufUse(out->buffer);
+			nbchars = static_cast<int>(xmlBufUse(out->buffer));
 		}
 		buf += chunk;
 		len -= chunk;
@@ -3090,7 +3090,7 @@ int xmlOutputBufferWriteEscape(xmlOutputBuffer * out, const xmlChar * str, xmlCh
 	int cons; /* byte from str consumed */
 	if(!out || out->error || !str || !out->buffer || (xmlBufGetAllocationScheme(out->buffer) == XML_BUFFER_ALLOC_IMMUTABLE))
 		return -1;
-	len = sstrlen(str);
+	len = sstrleni(str);
 	if(len < 0)
 		return 0;
 	if(out->error)
@@ -3102,7 +3102,7 @@ int xmlOutputBufferWriteEscape(xmlOutputBuffer * out, const xmlChar * str, xmlCh
 		// how many bytes to consume and how many bytes to store.
 		// 
 		cons = len;
-		chunk = xmlBufAvail(out->buffer) - 1;
+		chunk = static_cast<int>(xmlBufAvail(out->buffer) - 1);
 		// 
 		// make sure we have enough room to save first, if this is
 		// not the case force a flush, but make sure we stay in the loop
@@ -3136,14 +3136,14 @@ int xmlOutputBufferWriteEscape(xmlOutputBuffer * out, const xmlChar * str, xmlCh
 				out->error = XML_IO_ENCODER;
 				return -1;
 			}
-			nbchars = xmlBufUse(out->conv);
+			nbchars = static_cast<int>(xmlBufUse(out->conv));
 		}
 		else {
 			ret = escaping(xmlBufEnd(out->buffer), &chunk, str, &cons);
 			if((ret < 0) || (chunk == 0)) /* chunk==0 => nothing done */
 				return -1;
 			xmlBufAddLen(out->buffer, chunk);
-			nbchars = xmlBufUse(out->buffer);
+			nbchars = static_cast<int>(xmlBufUse(out->buffer));
 		}
 		str += cons;
 		len -= cons;
@@ -3198,7 +3198,7 @@ int FASTCALL xmlOutputBufferWriteString(xmlOutputBuffer * out, const char * str)
 {
 	int    len = -1;
 	if(out && !out->error && str) {
-		len = sstrlen(str);
+		len = sstrleni(str);
 		if(len > 0)
 			len = xmlOutputBufferWrite(out, len, str);
 	}

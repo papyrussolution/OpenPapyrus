@@ -4828,7 +4828,7 @@ int PPObjBill::MakeAssetCard(PPID lotID, AssetCard * pCard)
 	PPID   org_lot_id = 0;
 	ReceiptTbl::Rec lot_rec, org_lot_rec;
 	if(trfr->Rcpt.SearchOrigin(lotID, &org_lot_id, &lot_rec, &org_lot_rec) > 0) {
-		const  LDATE  lot_date = org_lot_rec.Dt;
+		const  LDATE lot_date = org_lot_rec.Dt;
 		Goods2Tbl::Rec goods_rec;
 		if(GObj.Fetch(lot_rec.GoodsID, &goods_rec) > 0 && goods_rec.Flags & GF_ASSETS) {
 			//

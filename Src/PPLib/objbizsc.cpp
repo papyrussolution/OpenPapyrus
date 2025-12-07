@@ -344,7 +344,7 @@ private:
 		if(event.isCbSelected(CTLSEL_BIZPRCRT_PRIMITIV)) {
 			long id = 0;
 			getCtrlData(CTLSEL_BIZPRCRT_PRIMITIV, &(id = 0));
-			Buf_Data.Kind = (int16)(id + 1);
+			Buf_Data.Kind = static_cast<int16>(id + 1);
 			Buf_Data.PutToStr(Str_Buf);
 			setCtrlString(CTL_BIZPRCRT_RESULT, Str_Buf);
 			DisableControls(id);
@@ -923,8 +923,7 @@ DBQuery * PPViewBizScore::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	}
 	dbq = &(t->ObjType == PPOBJ_BIZSCORE);
 	dbq = ppcheckfiltid(dbq, t->Val1, Filt.UserID);
-
-	q = & select(
+	q = & Select_(
 		t->ObjID,    // #00
 		t->ObjName,  // #01
 		t->Symb,     // #02
@@ -932,7 +931,6 @@ DBQuery * PPViewBizScore::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbe_descr,   // #04
 		dbe_formula, // #05
 		0).from(t, 0).where(*dbq).orderBy(t->ObjType, t->ObjName, 0L);
-
 	if(pSubTitle) {
 		*pSubTitle = 0;
 		if(Filt.UserID) {
@@ -1650,7 +1648,7 @@ DBQuery * PPViewBizScoreVal::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	dbq = ppcheckfiltid(dbq, t->ScoreID, Filt.BizScoreID);
 	if(Filt.Since.d)
 		dbq = &(*dbq && t->Dt >= Filt.Since.d);
-	q = & select(
+	q = & Select_(
 		t->ScoreID,    // #00
 		t->ActualDate, // #01
 		t->ObjID,      // #02

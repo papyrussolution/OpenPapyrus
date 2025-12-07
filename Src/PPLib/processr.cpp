@@ -1414,7 +1414,7 @@ public:
 		{
 			long  tcbquant = 0;
 			if(getCtrlData(CTL_PRC_TCBQUANT, &tcbquant))
-				Data.Rec.TcbQuant = (int16)(tcbquant / 5);
+				Data.Rec.TcbQuant = static_cast<int16>(tcbquant / 5);
 		}
 		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERRBYDLG
@@ -2243,7 +2243,7 @@ DBQuery * PPViewProcessor::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 		dbe_linkobj.push(static_cast<DBFunc>(PPDbqFuncPool::IdOidText));
 	}
 	// } @v12.2.0 
-	q = & select(p_prct->ID, p_prct->Name, p_prct->Code, dbe_parent, dbe_loc, dbe_linkobj, 0L).from(p_prct, 0L);
+	q = & Select_(p_prct->ID, p_prct->Name, p_prct->Code, dbe_parent, dbe_loc, dbe_linkobj, 0L).from(p_prct, 0L);
 	dbq = ppcheckfiltid(dbq, p_prct->Kind, Filt.Kind);
 	dbq = ppcheckfiltid(dbq, p_prct->ParentID, Filt.ParentID);
 	dbq = ppcheckfiltid(dbq, p_prct->LocID, Filt.LocID);

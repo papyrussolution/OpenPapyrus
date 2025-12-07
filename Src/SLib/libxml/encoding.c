@@ -1610,8 +1610,8 @@ int xmlCharEncFirstLineInput(xmlParserInputBuffer * input, int len)
 		written = xmlBufAvail(out) - 1;
 	}
 	SETMIN(written, 360);
-	c_in = toconv;
-	c_out = written;
+	c_in = static_cast<int>(toconv);
+	c_out = static_cast<int>(written);
 	if(input->encoder->input) {
 		ret = input->encoder->input(xmlBufEnd(out), &c_out, xmlBufContent(in), &c_in);
 		xmlBufShrink(in, c_in);
@@ -1710,8 +1710,8 @@ int xmlCharEncInput(xmlParserInputBuffer * input, int flush)
 	if((written > 128 * 1024) && (flush == 0))
 		written = 128 * 1024;
 
-	c_in = toconv;
-	c_out = written;
+	c_in = static_cast<int>(toconv);
+	c_out = static_cast<int>(written);
 	if(input->encoder->input) {
 		ret = input->encoder->input(xmlBufEnd(out), &c_out, xmlBufContent(in), &c_in);
 		xmlBufShrink(in, c_in);
@@ -1897,7 +1897,7 @@ retry:
 	//
 	if(init) {
 		c_in = 0;
-		c_out = written;
+		c_out = static_cast<int>(written);
 		if(output->encoder->output) {
 			ret = output->encoder->output(xmlBufEnd(out), &c_out, NULL, &c_in);
 			if(ret > 0) /* Gennady: check return value */
@@ -1934,8 +1934,8 @@ retry:
 	}
 	if(written > 256 * 1024)
 		written = 256 * 1024;
-	c_in = toconv;
-	c_out = written;
+	c_in = static_cast<int>(toconv);
+	c_out = static_cast<int>(written);
 	if(output->encoder->output) {
 		ret = output->encoder->output(xmlBufEnd(out), &c_out, xmlBufContent(in), &c_in);
 		if(c_out > 0) {
@@ -3774,13 +3774,13 @@ public:
 		else {
 			SString & r_temp_buf = SLS.AcquireRvlStr();
 			r_temp_buf.CatN((const char *)in, *inlen);
-			*inlen = r_temp_buf.Len();
+			*inlen = r_temp_buf.LenI();
 			r_temp_buf.Helper_MbToMb(cp1251, cpUTF8);
 			assert(r_temp_buf.IsLegalUtf8()); // @debug
 			if(*outlen > 0)
 				r_temp_buf.Trim(*outlen);
 			r_temp_buf.CopyTo(reinterpret_cast<char *>(out), r_temp_buf.Len());
-			*outlen = r_temp_buf.Len();
+			*outlen = r_temp_buf.LenI();
 			return *outlen;
 		}
 	}
@@ -3797,12 +3797,12 @@ public:
 		else {
 			SString & r_temp_buf = SLS.AcquireRvlStr();
 			r_temp_buf.CatN((const char *)in, *inlen);
-			*inlen = r_temp_buf.Len();
+			*inlen = r_temp_buf.LenI();
 			r_temp_buf.Helper_MbToMb(cp1251, cpUTF8);
 			if(*outlen > 0)
 				r_temp_buf.Trim(*outlen);
 			r_temp_buf.CopyTo(reinterpret_cast<char *>(out), r_temp_buf.Len());
-			*outlen = r_temp_buf.Len();
+			*outlen = r_temp_buf.LenI();
 			return *outlen;
 		}
 	}

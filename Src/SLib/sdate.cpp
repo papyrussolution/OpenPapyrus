@@ -605,7 +605,7 @@ void _plusperiod(void * dest, int prd, int numperiods, int format, int _360)
 	int d, m, y;
 	if(numperiods) {
 		if((prd & PRD_PRECDAYSMASK) == PRD_PRECDAYSMASK) {
-			int   t = (int16)(prd & ~PRD_PRECDAYSMASK);
+			int   t = static_cast<int16>(prd & ~PRD_PRECDAYSMASK);
 			if(t <= 0)
 				t = 1;
 			numperiods *= t;

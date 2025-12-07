@@ -227,8 +227,8 @@ int PrcssrBillAutoCreate::CreateDraftByTrfrAnlz()
 					if(!P.P_TaF->Grp && !P.P_TaF->Sgg && !P.P_TaF->Sgd && !P.P_TaF->Sgp) {
 						PPObjBill * p_bobj(BillObj);
 						PPObjGoods goods_obj;
-						const   PPID loc_id = LConfig.Location;
-						LDATE   last_rep_date = ZERODATE; // Дата самой поздней операции в отчете
+						const  PPID loc_id = LConfig.Location;
+						LDATE  last_rep_date = ZERODATE; // Дата самой поздней операции в отчете
 						PPViewTrfrAnlz view;
 						TrfrAnlzViewItem item;
 						TSArray <TaBonusSupplItem> result_list;

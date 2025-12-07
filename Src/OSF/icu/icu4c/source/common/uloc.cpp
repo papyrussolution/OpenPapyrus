@@ -1037,7 +1037,7 @@ static int16 _findIndex(const char * const* list, const char * key)
 	while(pass++ < 2) {
 		while(*list) {
 			if(strcmp(key, *list) == 0) {
-				return (int16)(list - anchor);
+				return static_cast<int16>(list - anchor);
 			}
 			list++;
 		}

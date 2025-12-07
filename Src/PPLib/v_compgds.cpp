@@ -122,7 +122,7 @@ DBQuery * PPViewSuprWare::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbq = &(*dbq && dbe_strexst == 1L);
 	}
 	dbe_brand = enumtoa(p_tbl->WrOffGrpID, 2, type_subst.Get(PPTXT_COMPGDS_TYPES));
-	q = & select(p_tbl->ID, 0L);
+	q = & Select_(p_tbl->ID, 0L);
 	q->addField(p_tbl->Name);
 	q->addField(dbe_brand);
 	q->from(p_tbl, 0L);

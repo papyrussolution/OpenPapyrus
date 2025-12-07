@@ -235,7 +235,7 @@ static void _cairo_dtostr(char * buffer, size_t size, double d, boolint limited_
 	if(d == 0.0)
 		d = 0.0;
 	decimal_point = _cairo_get_locale_decimal_point();
-	decimal_point_len = strlen(decimal_point);
+	decimal_point_len = sstrleni(decimal_point);
 	assert(decimal_point_len != 0);
 	if(limited_precision) {
 		snprintf(buffer, size, "%.*f", FIXED_POINT_DECIMAL_DIGITS, d);
@@ -279,7 +279,7 @@ static void _cairo_dtostr(char * buffer, size_t size, double d, boolint limited_
 		p++;
 	if(strncmp(p, decimal_point, decimal_point_len) == 0) {
 		*p = '.';
-		decimal_len = strlen(p + decimal_point_len);
+		decimal_len = sstrleni(p + decimal_point_len);
 		memmove(p + 1, p + decimal_point_len, decimal_len);
 		p[1 + decimal_len] = 0;
 		/* Remove trailing zeros and decimal point if possible. */

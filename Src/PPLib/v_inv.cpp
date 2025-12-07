@@ -2097,7 +2097,7 @@ DBQuery * PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 		brw_id = BROWSER_INVNTRYLINESSUBST;
 		THROW(CheckTblPtr(st = new TempInventorySubstTbl(P_TempSubstTbl->GetName())));
 		if(ccfg_flags2 & CCFLG2_HIDEINVENTORYSTOCK) {
-			q = & select(
+			q = & Select_(
 				st->GoodsID,       // #00
 				st->Name,          // #01
 				st->Quantity,      // #02
@@ -2109,7 +2109,7 @@ DBQuery * PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 				0L);
 		}
 		else {
-			q = & select(
+			q = & Select_(
 				st->GoodsID,       // #00
 				st->Name,          // #01
 				st->Quantity,      // #02
@@ -2161,7 +2161,7 @@ DBQuery * PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 		if(p_tord)
 			tbl_l[tbl_count++] = p_tord;
 		tbl_l[tbl_count++] = it;
-		q = & (select(
+		q = & (Select_(
 			it->BillID,     // #00
 			it->OprNo,      // #01
 			it->GoodsID,    // #02

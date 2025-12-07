@@ -2114,11 +2114,11 @@ void xmlDocDumpFormatMemoryEnc(xmlDoc * out_doc, xmlChar ** doc_txt_ptr, int * d
 				xmlDocContentDumpOutput(&ctxt, out_doc);
 				xmlOutputBufferFlush(out_buff);
 				if(out_buff->conv) {
-					*doc_txt_len = xmlBufUse(out_buff->conv);
+					*doc_txt_len = static_cast<int>(xmlBufUse(out_buff->conv));
 					*doc_txt_ptr = xmlStrndup(xmlBufContent(out_buff->conv), *doc_txt_len);
 				}
 				else {
-					*doc_txt_len = xmlBufUse(out_buff->buffer);
+					*doc_txt_len = static_cast<int>(xmlBufUse(out_buff->buffer));
 					*doc_txt_ptr = xmlStrndup(xmlBufContent(out_buff->buffer), *doc_txt_len);
 				}
 				xmlOutputBufferClose(out_buff);

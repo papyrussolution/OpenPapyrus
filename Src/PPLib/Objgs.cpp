@@ -77,11 +77,11 @@ long PPGoodsStruc::FormulaResolutionCache::MakeItemKey(uint itemIdx) const
 	
 bool PPGoodsStruc::FormulaResolutionCache::SearchCacheForResult(uint itemIdx, long * pKey, double * pValue) const
 {
-	bool    ok = false;
-	double  value = 0.0;
-	const   long key = MakeItemKey(itemIdx);
+	bool   ok = false;
+	double value = 0.0;
+	const  long key = MakeItemKey(itemIdx);
 	if(key) {
-		uint    pos = 0;
+		uint   pos = 0;
 		if(ResultCache.lsearch(&key, &pos, CMPF_LONG)) {
 			value = ResultCache.at(pos).Val;
 			ok = true;
@@ -2387,7 +2387,7 @@ PPObjGoodsStruc::PPObjGoodsStruc(void * extraPtr) : PPObjReference(PPOBJ_GOODSST
 
 StrAssocArray * PPObjGoodsStruc::MakeStrAssocList(void * extraPtr /*goodsID*/)
 {
-	const   PPID goods_id = reinterpret_cast<PPID>(extraPtr);
+	const  PPID goods_id = reinterpret_cast<PPID>(extraPtr);
 	StrAssocArray * p_list = new StrAssocArray;
 	PPIDArray id_list;
 	if(goods_id) {

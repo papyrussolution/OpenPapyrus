@@ -79,7 +79,7 @@ static size_t FSE_buildDTable_internal(FSE_DTable* dt, const short* normalizedCo
 	    DTableH.tableLog = (uint16)tableLog;
 	    DTableH.fastMode = 1;
 	    {   
-			const int16 largeLimit = (int16)(1 << (tableLog-1));
+			const int16 largeLimit = static_cast<int16>(1 << (tableLog-1));
 			for(uint32 s = 0; s<maxSV1; s++) {
 				if(normalizedCounter[s] == -1) {
 					tableDecode[highThreshold--].symbol = (FSE_FUNCTION_TYPE)s;

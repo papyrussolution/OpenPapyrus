@@ -283,7 +283,7 @@ DBQuery * PPViewCheckOpJrnl::CreateBrowserQuery(uint * pBrwId, SString *)
 	dbq = ppcheckfiltid(dbq, p_chkop_j->AgentID, Filt.AgentID); // @vmiller
 	if(Filt.BegTm)
 		dbq = & (*dbq && p_chkop_j->Tm >= (long)Filt.BegTm);
-	q = & select(
+	q = & Select_(
 		p_chkop_j->Dt,       // #1
 		p_chkop_j->Tm,       // #2
 		p_chkop_j->Action,   // #3

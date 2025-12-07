@@ -78,8 +78,9 @@ static void free_bits(cairo_mempool_t * pool, size_t start, int bits, boolint cl
 /* Add a chunk to the free list */
 static void free_blocks(cairo_mempool_t * pool, size_t first, size_t last, boolint clear)
 {
-	size_t i, len;
-	int bits = 0;
+	size_t i;
+	size_t len;
+	int    bits = 0;
 	for(i = first, len = 1; i < last; i += len) {
 		/* To avoid cost quadratic in the number of different
 		 * blocks produced from this chunk of store, we have to
@@ -104,30 +105,23 @@ static void free_blocks(cairo_mempool_t * pool, size_t first, size_t last, booli
 		while(bits < pool->num_sizes - 1) {
 			size_t next_bits = bits + 1;
 			size_t next_len = len << 1;
-
 			if(i + next_bits > last) {
 				/* off end of chunk to be freed */
 				break;
 			}
-
 			if(i & (next_len - 1)) /* block would not be on boundary */
 				break;
-
-			bits = next_bits;
+			bits = static_cast<int>(next_bits);
 			len = next_len;
 		}
-
 		do {
-			if(i + len <= last && /* off end of chunk to be freed */
-			    (i & (len - 1)) == 0) /* block would not be on boundary */
+			if(i + len <= last && /* off end of chunk to be freed */ (i & (len - 1)) == 0) /* block would not be on boundary */
 				break;
-
-			bits--; len >>= 1;
+			bits--; 
+			len >>= 1;
 		} while(len);
-
 		if(!len)
 			break;
-
 		free_bits(pool, i, bits, clear);
 	}
 }

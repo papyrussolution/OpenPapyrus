@@ -9,11 +9,11 @@
 #include <gnuplot.h>
 #pragma hdrstop
 #define STRICT
-#include <windowsx.h>
-#include <commctrl.h>
-#include <shlobj.h>
-#include <shlwapi.h>
-#include <htmlhelp.h>
+// @v12.4.12 #include <windowsx.h>
+// @v12.4.12 #include <commctrl.h>
+// @v12.4.12 #include <shlobj.h>
+// @v12.4.12 #include <shlwapi.h>
+// @v12.4.12 #include <htmlhelp.h>
 #include <dos.h>
 #include <fcntl.h>
 #include "winmain.h"

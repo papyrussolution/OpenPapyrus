@@ -1419,7 +1419,7 @@ uint32 SDec::size() const { return (S & 0x00ff); }
 
 int SDec::comp(const void * i1, const void * i2) const
 {
-	return deccmp(static_cast<const char *>(i1), static_cast<const char *>(i2), (int16)(S & 0x00ff));
+	return deccmp(static_cast<const char *>(i1), static_cast<const char *>(i2), static_cast<int16>(S & 0x00ff));
 }
 
 char * SDec::tostr(const void * d, long fmt, char * buf) const
@@ -1431,25 +1431,25 @@ char * SDec::tostr(const void * d, long fmt, char * buf) const
 		f = MKSFMTD(0, (S >> 8), 0);
 	else
 		f = fmt;
-	return realfmt(dectobin(static_cast<const char *>(d), (int16)(S & 0x00ff), (int16)(S >> 8)), f, buf);
+	return realfmt(dectobin(static_cast<const char *>(d), static_cast<int16>(S & 0x00ff), static_cast<int16>(S >> 8)), f, buf);
 }
 
 int SDec::fromstr(void * d, long, const char * buf) const
 {
 	double v;
 	int    r = strtodoub(buf, &v);
-	dectodec(v, static_cast<char *>(d), (int16)(S & 0x00ff), (int16)(S >> 8));
+	dectodec(v, static_cast<char *>(d), static_cast<int16>(S & 0x00ff), static_cast<int16>(S >> 8));
 	return r;
 }
 
 void SDec::tobase(const void * d, void * baseData) const
 {
-	*static_cast<double *>(baseData) = dectobin(static_cast<const char *>(d), (int16)(S & 0x00ff), (int16)(S >> 8));
+	*static_cast<double *>(baseData) = dectobin(static_cast<const char *>(d), static_cast<int16>(S & 0x00ff), static_cast<int16>(S >> 8));
 }
 
 int SDec::baseto(void * d, const void * baseData) const
 {
-	return (dectodec(*static_cast<const double *>(baseData), static_cast<char *>(d), (int16)(S & 0x00ff), (int16)(S >> 8)), 1);
+	return (dectodec(*static_cast<const double *>(baseData), static_cast<char *>(d), static_cast<int16>(S & 0x00ff), static_cast<int16>(S >> 8)), 1);
 }
 
 static void FASTCALL _bound(void * d, int s, int sign)

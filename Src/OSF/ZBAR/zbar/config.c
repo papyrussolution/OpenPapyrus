@@ -94,7 +94,7 @@ int zbar_parse_config(const char * cfgstr, zbar_symbol_type_t * sym, zbar_config
 	}
 	else
 		*sym = ZBAR_NONE;
-	len = strlen(cfgstr);
+	len = sstrleni(cfgstr);
 	eq = sstrchr(cfgstr, '=');
 	if(eq)
 		len = eq - cfgstr;

@@ -4126,6 +4126,8 @@ PPTXT_LOG_SUPPLIX_CLLTDLOCTOARBYTAG       "Не удалось сопостав�
 PPTXT_LOG_SUPPLIX_CLLTAGNTTOORD           "Не удалось сопоставить с заказом агента '@zstr'"
 PPTXT_LOG_SUPPLIX_EBILLHASNTDLVRLOC       "Документ '@zstr' не имеет адреса доставки. Не передается."
 PPTXT_LOG_SUPPLIX_EBILLHASNTORDER         "Документ '@zstr' не привязан к заказу. Не передается."
+PPTXT_LOG_IMP_QUOTARNFOUND                "Не удалось идентифицировать статью котировки '%s'"
+PPTXT_LOG_IMP_AMBIGARBYCODE               "Неоднозначность при идентификации статьи по коду '%s'"
 PPTXT_LOG_ACCEPTACCSAMENO                 "Акцептируемый счет @int.@int найден по номеру, но имеет иную таблицу статей - номер изменен на @int.@int"
 PPTXT_LOG_WBS_LASTEVENTFOUND              "Синхронизация рабочих книг: последнее найденное событие @datetime"
 PPTXT_LOG_WBS_GETTINGFROMUHTT             "Получение списка рабочих книг с сервера..."
@@ -4484,7 +4486,7 @@ PPTXT_WROFFGOODS                   "Товар '%s' списан не полно
 PPTXT_PPVTTL_WROFFBILLDRAFT        "Документы списания драфт-документа '%s'"
 PPTXT_PPVTTL_WROFFBILLINVNT        "Документы списания инвентаризации '%s'"
 PPTXT_PPVTTL_CTABLEORDER           "@{ftableorders}"
-PPTXT_BILLSRCHCTX                  "@{cmd_searchbillbyctx}"
+PPTXT_BILLSRCHCTX                  "@{cmd_searchbillbyctx}" // @todo eliminate @20251206
 PPTXT_CHKPAN_CHKTURNEDBEFOREPRNERR "Ошибка печати чека. Чек '%s' сохранен в базе данных"
 PPTXT_MAXDISEXPORT                 "Экспорт максимальных скидок на товар"
 PPTXT_EXPSCARD                     "Экспорт персональных карт"
@@ -9400,7 +9402,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_scardop 					          "@{view_scardop}"
 @cmd_scardseries 				          "@{obj_scardseries}"
 @cmd_searchdlvraddr 			          "Поиск адреса доставки"
-@cmd_searchbillbyctx                      "Поиск документа по контексту"
+@cmd_searchbillbyctx                      "Поиск документа по контексту" // @todo eliminate @20251206
 @cmd_seldesktop 				          "Выбор рабочего стола"
 @cmd_selectlocation 			          "Текущая конфигурация"
 @cmd_selfsync 					          "Автосинхронизация"
@@ -14159,6 +14161,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @articlefilt_fcheckobj                    "Проверять корректность статей"
 @articlefilt_fshowaddedlimit              "Показывать дополнительный кредитный лимит"
 @articlefilt_fshowagreement               "Показывать соглашения"
+@articlefilt_fwithixparamonly             "Только статьи с параметрами обмена"
 @articlefilt_ft_closed                    "@{feature} '@{article_closed}'"
 @articlefilt_ft_closed_nomatter           "@{nomatter}"
 @articlefilt_ft_closed_reset              "Снят"
@@ -18339,6 +18342,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 
 @mpviewkind_goods        "@ware_pl"
 @mpviewkind_pickuppoints "Пункты выдачи заказов"
+
+@brwwin_lcsetdefcolsizes   "Установить размеры колонок по умолчанию"  // see BrowserWindow::SpecialMenu
+@brwwin_lcevaluatecolsizes "Автоматически рассчитать размеры колонок" // see BrowserWindow::SpecialMenu
 
 [121]
 1   "Вход"

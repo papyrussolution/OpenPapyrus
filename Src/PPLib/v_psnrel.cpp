@@ -377,7 +377,7 @@ DBQuery * PPViewPersonRel::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	PPDbqFuncPool::InitObjNameFunc(dbe_psn1, PPDbqFuncPool::IdObjNamePerson, t->PrmrPersonID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_psn2, PPDbqFuncPool::IdObjNamePerson, t->ScndPersonID);
 	dbq = &(*dbq && t->ID == p_ord->ID);
-	q = & select(
+	q = & Select_(
 		t->ID,           // #01
 		t->PrmrPersonID, // #02
 		t->ScndPersonID, // #03

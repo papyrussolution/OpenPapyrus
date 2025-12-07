@@ -2041,7 +2041,7 @@ void BillItemBrowser::update(int pos)
 			else if(pos >= 0 && pos < p_list->getCountI())
 				go(pos);
 			// }
-			EvaluateColumnSizes(true); // @v12.4.9
+			EvaluateColumnSizes(ecsfRecalcDataStat); // @v12.4.9
 		}
 	}
 }
@@ -5333,11 +5333,11 @@ int PPObjBill::EditExtCodeList(PPBillPacket * pPack, int rowIdx/*[1..]*/, uint f
 			SString info_buf;
 			ReceiptTbl::Rec lot_rec;
 			ReceiptCore & r_rcpt = p_bobj->trfr->Rcpt;
-			const bool dont_veryfy_mark = LOGIC(p_bobj->GetConfig().Flags & BCF_DONTVERIFEXTCODECHAIN);
-			const PPTransferItem * p_ti = (RowIdx > 0 && RowIdx <= P_Pack->GetTCountI()) ? &P_Pack->ConstTI(RowIdx-1) : 0;
-			const bool do_check = !(dont_veryfy_mark || (P_Pack->IsDraft() || (!p_ti || p_ti->IsReceipt())));
-			const PPID goods_id = (do_check && p_ti) ? labs(p_ti->GoodsID) : 0;
-			const PPID lot_id = (do_check && p_ti) ? p_ti->LotID : 0;
+			const  bool dont_veryfy_mark = LOGIC(p_bobj->GetConfig().Flags & BCF_DONTVERIFEXTCODECHAIN);
+			const  PPTransferItem * p_ti = (RowIdx > 0 && RowIdx <= P_Pack->GetTCountI()) ? &P_Pack->ConstTI(RowIdx-1) : 0;
+			const  bool do_check = !(dont_veryfy_mark || (P_Pack->IsDraft() || (!p_ti || p_ti->IsReceipt())));
+			const  PPID goods_id = (do_check && p_ti) ? labs(p_ti->GoodsID) : 0;
+			const  PPID lot_id = (do_check && p_ti) ? p_ti->LotID : 0;
 			THROW(CheckDialogPtr(&dlg));
 			if(r_rcpt.Search(rRec.LotID, &lot_rec) <= 0)
 				MEMSZERO(lot_rec);
@@ -5366,8 +5366,8 @@ int PPObjBill::EditExtCodeList(PPBillPacket * pPack, int rowIdx/*[1..]*/, uint f
 				else {
 					SString mark_buf;
 					GtinStruc gts;
-					const bool iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
-					const int  ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk));
+					const  bool iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
+					const  int  ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk));
 					if(ipczcr > 0)
 						gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
 					if(!iemr && ipczcr <= 0) {

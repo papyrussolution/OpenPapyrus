@@ -1492,10 +1492,11 @@ public:
 		}
 		DECL_INVARIANT_C();
 		enum {
-			fSubst    = 0x0001, // Используется подстановка
-			fCalcOnly = 0x0002  // Если этот флаг установлен, то функция ProcessBinding
+			fSubst             = 0x0001, // Используется подстановка
+			fCalcOnly          = 0x0002, // Если этот флаг установлен, то функция ProcessBinding
 				// при параметре action==0 только рассчитывает необходимый размер
 				// в буфере подстановки и присваивает результат полю Bind::NtvSize.
+			fUseRetActualSize  = 0x0004  // @v12.4.12 Функция привязки должна передать драйверу DBMS указатель на поле RetActualSize
 		};
 		int16  Pos;        // Позиция привязки. <0 - входящая привязка, >0 - исходящая привязка
 		uint16 NtvTyp;     // Тип данных, специфичный для SQL-сервера
@@ -1503,7 +1504,8 @@ public:
 		uint32 NtvSize;    // Размер данных, специфичный для SQL-сервера // @v12.4.10 uint16-->uint32
 		uint32 H;          // Манипулятор элемента привязки
 		void * P_Data;     // Указатель на реальные данные поля, определенные приложением //
-		//uint32 * P_LobSz;  // Указатель на актуальную длину данных в поле типа LOB (используется только для S_BLOB S_CLOB)
+		//uint32 * P_LobSz;   // Указатель на актуальную длину данных в поле типа LOB (используется только для S_BLOB S_CLOB)
+		uint64 RetActualSize; // @v12.4.12 Указатель на это поле может передаваться драйверу DBMS дабы тот вернул актуальный размер данных в поле
 		uint32 SubstSize;  // @#{SubstSize >= Dim*ItemSize} Размер подстановочного участка буфера
 		uint32 SubstOffs;  // @#{SubstOffs >= 4} Смещение до подстановочного участка буфера
 		uint32 Dim_;       // Размерность связываемого массива. Обычно Dim == BindArray::Dim
@@ -1819,6 +1821,11 @@ public:
 	//
 	struct SelectStmt : public SSqlStmt {
 		SelectStmt(DbProvider * pDb, const Generator_SQL & rSql, int idx, int sp, int sf);
+		//
+		// Descr: В случае использования этого конструктора sql-оператор должен быть присвоен ему позже
+		//   функцией SSqlStmt::SetSqlText
+		//
+		SelectStmt(DbProvider * pDb, int idx, int sp, int sf);
 		int    Idx;
 		int    Sp;
 		long   Sf;
@@ -2611,17 +2618,19 @@ public:
 		tokCommit, // @v12.3.12
 		tokRollback, // @v12.3.12
 		tokTransaction, // @v12.3.12
-		tokIndexedBy, // @v12.4.0 sqlite "indexed by"
-		tokOrderBy,   // @v12.4.0
-		tokTemp,      // @v12.4.4
-		tokCollate,   // @v12.4.7
-		tokCharacter, // @v12.4.8
-		tokIfExists,  // @v12.4.8 if exists
-		tokShow,      // @v12.4.8 show
-		tokLike,      // @v12.4.8 like
-		tokDatabases, // @v12.4.8 databases
-		tokUse,       // @v12.4.8 use
-		tokStart,     // @v12.4.8 start
+		tokIndexedBy,   // @v12.4.0 sqlite "indexed by"
+		tokOrderBy,     // @v12.4.0
+		tokTemp,        // @v12.4.4
+		tokCollate,     // @v12.4.7
+		tokCharacter,   // @v12.4.8
+		tokIfExists,    // @v12.4.8 if exists
+		tokShow,        // @v12.4.8 show
+		tokLike,        // @v12.4.8 like
+		tokDatabases,   // @v12.4.8 databases
+		tokUse,         // @v12.4.8 use
+		tokStart,       // @v12.4.8 start
+		tokUseIndex,    // @v12.4.12 use index
+		tokForceIndex,  // @v12.4.12 force index
 		
 		tokCountOfTokens,
 	};
@@ -2945,6 +2954,27 @@ private:
 	int    Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, uint * pActual);
 	int    GetFileStat(const char * pFileName, long reqItems, DbTableStat * pStat);
 	const  BNField * GetRowIdField(const DBTable * pTbl, uint * pFldPos) const; // @v12.4.11
+
+	struct SearchQueryBlock { // Один-в-один скопировано из SSqliteDbProvider
+		SearchQueryBlock();
+		SearchQueryBlock & Z();
+
+		enum {
+			fCanContinue           = 0x0001,
+			fAutoincFldIsSurrogate = 0x0002,
+		};
+		uint   Flags;
+		int    SrchMode;
+		uint   AutoincFldIdx; // _FFFF32 - undefined
+		void * P_KeyData; // Указатель на значение ключа, к которому привязан запрос. Может быть равен
+			// либо оригинальному указателю, переданному в Helper_MakeSearchQuery, либо указывать на
+			// временный буфер this->TempKey.
+		LongArray SegMap; // Карта номеров сегментов индекса, которые должны быть привязаны
+		Generator_SQL SqlG;
+		uint8  TempKey[1024];
+	};
+
+	int    Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf, SearchQueryBlock & rBlk);
 
 	long   Flags;
 	void * H;
@@ -3823,7 +3853,7 @@ int FASTCALL compare(KR, KR);
 
 DBQuery & FASTCALL selectbycell(int count, const DBDataCell *);
 DBQuery & FASTCALL select(const DBFieldList &);
-DBQuery & CDECL select(DBField,...);
+DBQuery & CDECL Select_(DBField,...);
 DBQuery & selectAll();
 
 #define DBQTF_OUTER_JOIN         0x0004 // По таблице определен OUTER JOIN
@@ -3842,7 +3872,7 @@ DBQuery & selectAll();
 #define DBQTF_PREVUP             0x0100 // Предыдущая операция выборки была "UP"
 
 class DBQuery {
-	friend DBQuery & CDECL select(DBField, ...);
+	friend DBQuery & CDECL Select_(DBField, ...);
 	friend DBQuery & selectAll();
 public:
 	enum {

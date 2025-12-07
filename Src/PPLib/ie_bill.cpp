@@ -5345,7 +5345,7 @@ int PPBillImporter::Run()
 	else if(BillParam.PredefFormat == piefChicago) { // @v11.5.8 @construction
 		;		
 	}
-	else if(BillParam.PredefFormat == piefEancom) { // @v12.4.10 @construction
+	else if(BillParam.PredefFormat == piefEancom) { // @v12.4.10
 		TSCollection <PPEdiProcessor::Packet> doc_pack_list;
 		StringSet ss_arc_files;
 		THROW(BillParam.PreprocessImportFileSpec(ss_files));
@@ -6775,8 +6775,47 @@ int PPBillExporter::CheckBillsWasExported(ImpExpDll * pExpDll)
 //
 //
 //
-int DocNalogRu_Generator::MakeOutFileIdent(FileInfo & rHi)
+int DocNalogRu_Generator::MakeOutFileIdent(const PPBillPacket * pBPack, FileInfo & rHi)
 {
+	/*
+		ON_ORDER___20240320_d730aec2-5630-4839-a4f3-ab33875b9f07.xml 
+		//
+		ON_NSCHFDOPPR_2BM-1001144078-100101001-201503111155523751282_2BM-100100910817-20121218104345889223900000000_20240418_72597A4F-2CF8-4D63-8949-7D4C823E9022.xml 
+		Имя файла обмена должно иметь следующий вид:
+
+		R_T_A_O_GGGGMMDD_N1_N2_N3_N4_N5_N6_N7.Расширение, где:
+
+		R - префикс, принимающий значение ON
+		T - префикс, принимающий значение NSCHFDOPPR
+		A - идентификатор получателя счета-фактуры (покупатель), где идентификатор получателя совпадает с идентификатором участника электронного документооборота в рамках выставления и получения счетов-фактур
+		O - идентификатор отправителя счета-фактуры, где идентификатор отправителя совпадает с идентификатором участника электронного документооборота в рамках выставления и получения счетов-фактур
+		GGGGMMDD - GGGG- год формирования передаваемого файла, MM - месяц, DD - день;
+		N1 - 36 символьный глобально уникальный идентификатор GUID (Globally Unique IDentifier)
+		N2 - Формируется значение "1" в случае, если используется в целях контроля за движением товаров, подлежащих прослеживаемости (при отсутствии показателя принимает однозначное значение "0")
+		N3 - Формируется значение "1" в случае, если используется в целях контроля за движением товаров, подлежащих маркировке (при отсутствии показателя принимает однозначное значение "0")
+		N4 - Формируется значение "1" в случае, если используется в целях контроля за движением алкогольной продукции, подлежащей маркировке (при отсутствии показателя принимает однозначное значение "0")
+		N5 - Формируется значение "1" в случае, если используется в целях контроля за движением/оборотом табачной продукции, сырья, никотиносодержащей продукции и никотинового сырья (при отсутствии показателя принимает однозначное значение "0")
+		N6 - Формируется значение "1" в случае, если использование настоящего формата предусмотрено в рамках движения нефтепродуктов (при отсутствии показателя принимает однозначное значение "0")
+		N7 - Формируется свободное двузначное число, которое принимает значение в соответствии со списком в электронной форме, размещенным на официальном сайте Федеральной налоговой службы в информационно-телекоммуникационной сети "Интернет" в виде отдельного файла (при отсутствии показателя принимает однозначное значение "00").
+		----------
+		Контур-Диадок
+		--
+			ИдФайл формируется по следующему правилу для формата 970: 
+			R_Т_A_О_GGGGMMDD_N1_N2_N3_N4_N5_N6_N7.
+				N1 — значение уникального идентификатора регистронезависимо. При направлении файла обмена не через оператора ЭДО уникальный идентификатор оператора ЭДО принимает значение «000».
+				Дополнительные значения N предназначены для прослеживаемости, маркировки, алкоголя, табака, нефтепродуктов.
+				N2 — вместо PROS — заполняется в N2 значение «1». По умолчанию значение «0».
+				N3 — вместо MARK — заполняется в N3 значение «1». По умолчанию значение «0».
+				N4 — если у номенклатуры вид продукции* (Пиво, напитки, изготавливаемые на основе пива, слабоалкогольные напитки), заполняется в N4 значение «1». По умолчанию значение «0». 
+				N5 — если у номенклатуры один из видов продукции*: 
+				Тогда в N5 значение «1». По умолчанию значение «0». 
+					«3» (Табачная продукция)
+					«12» (Альтернативная табачная продукция)
+					«16» (Никотиносодержащая продукция)
+				N6 — по умолчанию значение «0».
+				N7 — по умолчанию значение «00».
+			*Вид продукции получаем из метода ИСМП или от Контур.Маркировки.
+	*/
 	int    ok = 1;
 	SString temp_buf;
 	if(/*rHi.EdiProviderSymb.IsEqiAscii("SBIS")*/false) {
@@ -6785,7 +6824,37 @@ int DocNalogRu_Generator::MakeOutFileIdent(FileInfo & rHi)
 	}
 	else {
 		(rHi.FileId = rHi.FormatPrefix).CatChar('_').Cat(rHi.ReceiverIdent).CatChar('_').Cat(rHi.SenderIdent).CatChar('_').
-			Cat(temp_buf.Z().Cat(rHi.CurDtm.d, DATF_ANSI|DATF_CENTURY|DATF_NODIV)).CatChar('_').Cat(S_GUID(SCtrGenerate()), S_GUID::fmtIDL);
+			Cat(temp_buf.Z().Cat(rHi.CurDtm.d, DATF_ANSI|DATF_CENTURY|DATF_NODIV));
+		{
+			rHi.FileId.CatChar('_').Cat(S_GUID(SCtrGenerate()), S_GUID::fmtIDL); // N1
+			// @v12.4.12 {
+			{
+				//                  2  3  4  5  6					
+				int    n_list[] = { 0, 0, 0, 0, 0 }; //_N2_N3_N4_N5_N6
+				if(pBPack) {
+					PPGoodsType2 gt_rec;
+					for(uint i = 0; i < pBPack->GetTCount(); i++) {
+						const PPTransferItem & r_ti = pBPack->ConstTI(i);
+						Goods2Tbl::Rec goods_rec;
+						if(GObj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
+							if(gt_rec.Flags & GTF_GMARKED && gt_rec.ChZnProdType)
+								n_list[1] = 1; // _N3
+							if(gt_rec.ChZnProdType == GTCHZNPT_BEER) { 
+								n_list[2] = 1; // _N4
+							}
+							else if(gt_rec.ChZnProdType == GTCHZNPT_TOBACCO) {
+								n_list[3] = 3; // _N5
+							}
+						}
+					}
+				}
+				for(uint ni = 0; ni < SIZEOFARRAY(n_list); ni++) {
+					rHi.FileId.CatChar('_').Cat(n_list[ni]);
+				}
+			}
+			rHi.FileId.CatChar('_').Cat("00"); // _N7
+			// } @v12.4.12 
+		}
 	}
 	return ok;
 }
@@ -6851,7 +6920,8 @@ int DocNalogRu_Generator::GetIdentifier(PPID psnID, PPID dtoPersonID, SString & 
 	return ok;
 }
 
-int DocNalogRu_Generator::CreateHeaderInfo(const char * pFormatPrefix, PPID senderID, PPID rcvrID, PPID providerID, const char * pBaseFileName, FileInfo & rInfo)
+int DocNalogRu_Generator::CreateHeaderInfo(const char * pFormatPrefix, PPID senderID, PPID rcvrID, PPID providerID, 
+	const PPBillPacket * pBPack, const char * pBaseFileName, FileInfo & rInfo)
 {
 	int    ok = 1;
 	Reference * p_ref(PPRef);
@@ -6897,35 +6967,14 @@ int DocNalogRu_Generator::CreateHeaderInfo(const char * pFormatPrefix, PPID send
 		else
 			rInfo.ReceiverPersonID = 0;
 	}
-	MakeOutFileIdent(rInfo);
+	MakeOutFileIdent(pBPack, rInfo);
 	rInfo.FileName = pBaseFileName;
 	MakeOutFileName(rInfo.FileId, rInfo.FileName);
 	return ok;
 }
 
-DocNalogRu_Generator::File::File(DocNalogRu_Generator & rG, const FileInfo & rHi) : N(rG.P_X, rG.GetToken_Ansi(PPHSC_RU_FILE))
+DocNalogRu_Generator::File::File(DocNalogRu_Generator & rG, FileInfo & rHi) : N(rG.P_X, rG.GetToken_Ansi(PPHSC_RU_FILE))
 {
-	/*
-		ON_ORDER___20240320_d730aec2-5630-4839-a4f3-ab33875b9f07.xml 
-		//
-		ON_NSCHFDOPPR_2BM-1001144078-100101001-201503111155523751282_2BM-100100910817-20121218104345889223900000000_20240418_72597A4F-2CF8-4D63-8949-7D4C823E9022.xml 
-		Имя файла обмена должно иметь следующий вид:
-
-		R_T_A_O_GGGGMMDD_N1_N2_N3_N4_N5_N6_N7.Расширение, где:
-
-		R - префикс, принимающий значение ON
-		T - префикс, принимающий значение NSCHFDOPPR
-		A - идентификатор получателя счета-фактуры (покупатель), где идентификатор получателя совпадает с идентификатором участника электронного документооборота в рамках выставления и получения счетов-фактур
-		O - идентификатор отправителя счета-фактуры, где идентификатор отправителя совпадает с идентификатором участника электронного документооборота в рамках выставления и получения счетов-фактур
-		GGGGMMDD - GGGG- год формирования передаваемого файла, MM - месяц, DD - день;
-		N1 - 36 символьный глобально уникальный идентификатор GUID (Globally Unique IDentifier)
-		N2 - Формируется значение "1" в случае, если используется в целях контроля за движением товаров, подлежащих прослеживаемости (при отсутствии показателя принимает однозначное значение "0")
-		N3 - Формируется значение "1" в случае, если используется в целях контроля за движением товаров, подлежащих маркировке (при отсутствии показателя принимает однозначное значение "0")
-		N4 - Формируется значение "1" в случае, если используется в целях контроля за движением алкогольной продукции, подлежащей маркировке (при отсутствии показателя принимает однозначное значение "0")
-		N5 - Формируется значение "1" в случае, если используется в целях контроля за движением/оборотом табачной продукции, сырья, никотиносодержащей продукции и никотинового сырья (при отсутствии показателя принимает однозначное значение "0")
-		N6 - Формируется значение "1" в случае, если использование настоящего формата предусмотрено в рамках движения нефтепродуктов (при отсутствии показателя принимает однозначное значение "0")
-		N7 - Формируется свободное двузначное число, которое принимает значение в соответствии со списком в электронной форме, размещенным на официальном сайте Федеральной налоговой службы в информационно-телекоммуникационной сети "Интернет" в виде отдельного файла (при отсутствии показателя принимает однозначное значение "00").
-	*/
 	if(!(rHi.Flags & FileInfo::fIndepFormatProvider)) { // @v11.9.9 Для независимого провайдера атрибуты тега <Файл> вносятся прикладной функцией //
 		Reference * p_ref(PPRef);
 		SString temp_buf;
@@ -8965,7 +9014,7 @@ DocNalogRu_WriteBillBlock::DocNalogRu_WriteBillBlock(const PPBillImpExpParam & r
 		}
 	}
 	// } @v12.4.11 
-	THROW(G.CreateHeaderInfo(HeaderSymb, MainOrgID, ContragentID, DtoPersonID, R_NominalFileName, _Hi));
+	THROW(G.CreateHeaderInfo(HeaderSymb, MainOrgID, ContragentID, DtoPersonID, &rBp, R_NominalFileName, _Hi));
 	THROW(G.StartDocument(_Hi.FileName, cp1251));
 	CATCH
 		State |= stError;

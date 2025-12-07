@@ -210,16 +210,15 @@ int32_t TransliterationRule::getContextLength() const {
  * unless the first character of the key is a set.  If it's a
  * set, or otherwise can match multiple keys, the index value is -1.
  */
-int16 TransliterationRule::getIndexValue() const {
+int16 TransliterationRule::getIndexValue() const 
+{
 	if(anteContextLength == pattern.length()) {
-		// A pattern with just ante context {such as foo)>bar} can
-		// match any key.
+		// A pattern with just ante context {such as foo)>bar} can match any key.
 		return -1;
 	}
 	UChar32 c = pattern.char32At(anteContextLength);
-	return (int16)(data->lookupMatcher(c) == NULL ? (c & 0xFF) : -1);
+	return static_cast<int16>(data->lookupMatcher(c) == NULL ? (c & 0xFF) : -1);
 }
-
 /**
  * Internal method.  Returns true if this rule matches the given
  * index value.  The index value is an 8-bit integer, 0..255,
@@ -230,20 +229,21 @@ int16 TransliterationRule::getIndexValue() const {
  * value.  If the rule contains only ante context, as in foo)>bar,
  * then it will match any key.
  */
-bool TransliterationRule::matchesIndexValue(uint8 v) const {
+bool TransliterationRule::matchesIndexValue(uint8 v) const 
+{
 	// Delegate to the key, or if there is none, to the postContext.
 	// If there is neither then we match any key; return true.
 	UnicodeMatcher * m = (key != NULL) ? key : postContext;
 	return (m != NULL) ? m->matchesIndexValue(v) : TRUE;
 }
-
 /**
  * Return true if this rule masks another rule.  If r1 masks r2 then
  * r1 matches any input string that r2 matches.  If r1 masks r2 and r2 masks
  * r1 then r1 == r2.  Examples: "a>x" masks "ab>y".  "a>x" masks "a[b]>y".
  * "[c]a>x" masks "[dc]a>y".
  */
-bool TransliterationRule::masks(const TransliterationRule& r2) const {
+bool TransliterationRule::masks(const TransliterationRule& r2) const 
+{
 	/* Rule r1 masks rule r2 if the string formed of the
 	 * antecontext, key, and postcontext overlaps in the following
 	 * way:
@@ -276,26 +276,19 @@ bool TransliterationRule::masks(const TransliterationRule& r2) const {
 	 * does not.  Pre context is different (a{b} does not align with
 	 * ab).
 	 */
-
 	/* LIMITATION of the current mask algorithm: Some rule
 	 * maskings are currently not detected.  For example,
 	 * "{Lu}]a>x" masks "A]a>y".  This can be added later. TODO
 	 */
-
 	int32_t len = pattern.length();
 	int32_t left = anteContextLength;
 	int32_t left2 = r2.anteContextLength;
 	int32_t right = len - left;
 	int32_t right2 = r2.pattern.length() - left2;
 	int32_t cachedCompare = r2.pattern.compare(left2 - left, len, pattern);
-
-	// TODO Clean this up -- some logic might be combinable with the
-	// next statement.
-
+	// TODO Clean this up -- some logic might be combinable with the next statement.
 	// Test for anchor masking
-	if(left == left2 && right == right2 &&
-	    keyLength <= r2.keyLength &&
-	    0 == cachedCompare) {
+	if(left == left2 && right == right2 && keyLength <= r2.keyLength && 0 == cachedCompare) {
 		// The following boolean logic implements the table above
 		return (flags == r2.flags) ||
 		       (!(flags & ANCHOR_START) && !(flags & ANCHOR_END)) ||

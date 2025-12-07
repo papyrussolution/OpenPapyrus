@@ -10072,7 +10072,7 @@ static void opj_j2k_get_tile_data(opj_tcd_t * p_tcd, uint8 * p_data)
 			    if(l_img_comp->sgnd) {
 				    for(j = 0; j < l_height; ++j) {
 					    for(k = 0; k < l_width; ++k) {
-						    *(l_dest_ptr++) = (int16)(*(l_src_ptr++));
+						    *(l_dest_ptr++) = static_cast<int16>(*(l_src_ptr++));
 					    }
 					    l_src_ptr += l_stride;
 				    }
@@ -10080,7 +10080,7 @@ static void opj_j2k_get_tile_data(opj_tcd_t * p_tcd, uint8 * p_data)
 			    else {
 				    for(j = 0; j < l_height; ++j) {
 					    for(k = 0; k < l_width; ++k) {
-						    *(l_dest_ptr++) = (int16)((*(l_src_ptr++)) & 0xffff);
+						    *(l_dest_ptr++) = static_cast<int16>((*(l_src_ptr++)) & 0xffff);
 					    }
 					    l_src_ptr += l_stride;
 				    }

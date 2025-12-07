@@ -1413,7 +1413,7 @@ int DlRtm::Helper_PutItemToJson(ExportParam & rParam, SJson * pRoot)
 	SString temp_buf;
 	SString suffix;
 	SdbField _temp_fld;
-	const   DlScope * p_data = GetData();
+	const  DlScope * p_data = GetData();
 	DlScope * p_child = 0;
 	SJson * p_hdr_obj = 0;
 	if(rParam.Flags & ExportParam::fJsonStQStyle) {

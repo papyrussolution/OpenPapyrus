@@ -2998,7 +2998,7 @@ DBQuery * PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	THROW(CheckTblPtr(bll = new BillTbl));
 	if(Filt.Flags & BillFilt::fCashOnly) {
 		const PPConfig & r_cfg = LConfig;
-		q = &select(
+		q = &Select_(
 			bll->ID,     // #0
 			bll->Dt,     // #1
 			bll->Code,   // #2
@@ -3011,7 +3011,7 @@ DBQuery * PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		PPDbqFuncPool::InitObjNameFunc(dbe_oprkind, PPDbqFuncPool::IdObjNameOprKind, bll->OpID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_bill_memo, PPDbqFuncPool::IdObjMemoBill, bll->ID);
 		if(Filt.ObjectID && Filt.Flags & BillFilt::fDebtsWithPayments) {
-			q = &select(
+			q = &Select_(
 				bllt->BillID, // #0
 				bllt->Dt,     // #1
 				bll->Code,    // #2
@@ -3053,7 +3053,7 @@ DBQuery * PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			if(bllt)
 				tbl_l[tbl_count++] = bllt;
 			tbl_l[tbl_count++] = bll;
-			q = &select(bll->ID, 0);  // #0
+			q = &Select_(bll->ID, 0);  // #0
 			q->addField(bll->Dt);     // #1
 			q->addField(bll->Code);   // #2
 			q->addField(bll->Amount); // #3

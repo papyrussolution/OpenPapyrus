@@ -7335,7 +7335,7 @@ public:
 	struct LoggerIntermediateBlock {
 		explicit LoggerIntermediateBlock(const PPSession & rS);
 
-		const   long CfgMaxFileSize;
+		const  long CfgMaxFileSize;
 		SString MsgBuf;
 		SString TempBuf; // @allocreuse
 		SString NewFileName;
@@ -37783,7 +37783,7 @@ public:
 	// Descr: Возвращает список технологий, которые унаследованы от родителя techID и являются терминальными (то есть, не имеют дочерних технологий)
 	//
 	int    GetTerminalChildList(PPID techID, PPIDArray & rList);
-	int    GetNextSibling(PPID parentID, PPID siblingID, TechTbl::Rec * pNextRec);
+	int    GetNextSibling_(PPID parentID, PPID siblingID, TechTbl::Rec * pNextRec); // В windowsx.h опрелен макрос GetNextSibling
 private:
 	virtual const char * GetNamePtr();
 	virtual int DeleteObj(PPID);
@@ -41775,15 +41775,15 @@ public:
 
 		CategoryPool();
 		CategoryPool & Z();
-		uint    GetCount() const { return L.getCount(); }
-		bool    FromJson(const SJson * pJs);
-		int     MakeShardList(StrAssocArray & rList) const;
-		const   Entry * GetByID(int64 id) const;
+		uint   GetCount() const { return L.getCount(); }
+		bool   FromJson(const SJson * pJs);
+		int    MakeShardList(StrAssocArray & rList) const;
+		const  Entry * GetByID(int64 id) const;
 
 		TSCollection <Entry> L;
 	private:
-		int     Helper_MakeShardList(const TSCollection <Entry> & rSrcList, long parentID, StrAssocArray & rList) const;
-		const   Entry * Helper_GetByID(const TSCollection <Entry> & rSrcList, int64 id) const;
+		int    Helper_MakeShardList(const TSCollection <Entry> & rSrcList, long parentID, StrAssocArray & rList) const;
+		const  Entry * Helper_GetByID(const TSCollection <Entry> & rSrcList, int64 id) const;
 	};
 
 	class PickUpPointPool : public SStrGroup {
@@ -41810,10 +41810,10 @@ public:
 		};
 		PickUpPointPool();
 		PickUpPointPool & Z();
-		uint    GetCount() const { return L.getCount(); }
+		uint   GetCount() const { return L.getCount(); }
 		Entry * GetEntry(uint i);
-		const   Entry * GetEntryC(uint i) const;
-		bool    FromJson(const SJson * pJs, uint * pReadCount);
+		const  Entry * GetEntryC(uint i) const;
+		bool   FromJson(const SJson * pJs, uint * pReadCount);
 
 		TSVector <Entry> L;
 	};
@@ -41870,10 +41870,10 @@ public:
 
 		PublicWarePool();
 		PublicWarePool & Z();
-		uint    GetCount() const { return L.getCount(); }
+		uint   GetCount() const { return L.getCount(); }
 		Entry * GetEntry(uint i);
-		const   Entry * GetEntryC(uint i) const;
-		bool    FromJson(const SJson * pJs, bool concatenate, uint * pReadCount, uint * pTotalCount);
+		const  Entry * GetEntryC(uint i) const;
+		bool   FromJson(const SJson * pJs, bool concatenate, uint * pReadCount, uint * pTotalCount);
 
 		uint    TotalCountOnServer; // Общее количество результов запроса на серверах WB (реально возвращается обычно значительно меньше)
 		TSCollection <Entry> L;
@@ -58393,7 +58393,11 @@ private:
 class DocNalogRu_Generator : public DocNalogRu_Base {
 public:
 	struct File {
-		File(DocNalogRu_Generator & rG, const FileInfo & rHi);
+		//
+		// @ctr
+		// Note: Аргумент rHi non-const из-за того, что функция устанавливает список FileInfo::ChZnProdTypeList
+		//
+		File(DocNalogRu_Generator & rG, FileInfo & rHi);
 		SXml::WNode N;
 	};
 	struct Document {
@@ -58416,9 +58420,7 @@ public:
 	// ARG(rcvrID IN): Ид персоналии-получателя //
 	// ARG(providerID IN): Ид персоналии провайдера обмена данными (не путать с объектом провайдер EDI, который, впрочем, может ссылаться на персоналию-провайдера)
 	//
-	int    CreateHeaderInfo(const char * pFormatPrefix, PPID senderID, PPID rcvrID, PPID providerID, const char * pBaseFileName, FileInfo & rInfo);
-	int    MakeOutFileIdent(FileInfo & rHi);
-	int    MakeOutFileName(const char * pFileIdent, SString & rFileName);
+	int    CreateHeaderInfo(const char * pFormatPrefix, PPID senderID, PPID rcvrID, PPID providerID, const PPBillPacket * pBPack, const char * pBaseFileName, FileInfo & rInfo);
 	int    StartDocument(const char * pFileName, SCodepage cp);
 	int    StartDocument(xmlTextWriter * pOuterWriter, SCodepage cp); // @v11.9.9
 	void   EndDocument();
@@ -58491,6 +58493,8 @@ public:
 	SXml::WDoc * P_Doc;
 	xmlTextWriter * P_X;
 private:
+	int    MakeOutFileIdent(const PPBillPacket * pBPack, FileInfo & rHi);
+	int    MakeOutFileName(const char * pFileIdent, SString & rFileName);
 	void   WriteMarkListOnInvoiceItem(SXml::WNode & rN, const PPBillImpExpParam & rParam, int chznProdType, int chznIntQtty, const PPLotExtCodeContainer::MarkSet & rSet);
 	//
 	// Descr: Извлекает из базы данных идентификатор участника документооборота.

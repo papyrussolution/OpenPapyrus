@@ -311,7 +311,7 @@ DBQuery * PPViewGoodsBillCmp::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 	TempGoodsBillCmpTbl * tbl = new TempGoodsBillCmpTbl(P_TempTbl->GetName());
 	DBE * dbe_minus_qtty  = &(tbl->DiffQtty * -1);
 	DBE * dbe_minus_price = &(tbl->DiffPrice * -1);
-	q = & select(
+	q = & Select_(
 		tbl->GoodsID,     // #00
 		tbl->GoodsName,   // #01
 		tbl->Barcode,     // #02

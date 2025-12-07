@@ -1715,7 +1715,7 @@ void PPViewAccAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 		PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPDbqFuncPool::IdObjSymbCurrency, ttt->CurID);
 		p_dbe1 = &(0 - ttt->InRest);  // @warn unary '-' not defined in class DBField
 		p_dbe2 = &(0 - ttt->OutRest); // @warn unary '-' not defined in class DBField
-		q = & select(
+		q = & Select_(
 			ttt->AccRelID,  // #00
 			ttt->Dt,        // #01
 			ttt->Ac,        // #02
@@ -1743,7 +1743,7 @@ void PPViewAccAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 	else if(Filt.Flags & AccAnlzFilt::fGroupByCorAcc || Filt.Cycl.Cycle) {
 		THROW(CheckTblPtr(ttt = new TempAccTrnovrTbl(P_TmpATTbl->GetName())));
 		PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPDbqFuncPool::IdObjSymbCurrency, ttt->CurID);
-		q = & select(
+		q = & Select_(
 			ttt->AccRelID,  // #00
 			ttt->Dt,        // #01
 			ttt->Ac,        // #02
@@ -1779,7 +1779,7 @@ void PPViewAccAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 				dbe_crd = & (rat->Amount * -1);
 				PPDbqFuncPool::InitObjNameFunc(dbe_bill_code, PPDbqFuncPool::IdObjCodeBill, rat->BillID);
 				PPDbqFuncPool::InitObjNameFunc(dbe_bill_memo, PPDbqFuncPool::IdObjMemoBill, rat->BillID);
-				q = & select(
+				q = & Select_(
 					rat->Dt,       // #00
 					rat->OprNo,    // #01
 					rat->BillID,   // #02
@@ -1809,7 +1809,7 @@ void PPViewAccAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 				//dbe_crd = & (att->Amount * -1);
 				PPDbqFuncPool::InitObjNameFunc(dbe_bill_code, PPDbqFuncPool::IdObjCodeBill, att->BillID);
 				PPDbqFuncPool::InitObjNameFunc(dbe_bill_memo, PPDbqFuncPool::IdObjMemoBill, att->BillID);
-				q = & select(
+				q = & Select_(
 					att->Dt,       // #00
 					att->OprNo,    // #01
 					att->BillID,   // #02
@@ -1838,7 +1838,7 @@ void PPViewAccAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 			PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPDbqFuncPool::IdObjSymbCurrency, att->CurID);
 			PPDbqFuncPool::InitObjNameFunc(dbe_bill_code, PPDbqFuncPool::IdObjCodeBill, att->BillID);
 			PPDbqFuncPool::InitObjNameFunc(dbe_bill_memo, PPDbqFuncPool::IdObjMemoBill, att->BillID);
-			q = & select(
+			q = & Select_(
 				att->Dt,       // #00
 				att->OprNo,    // #01
 				att->BillID,   // #02

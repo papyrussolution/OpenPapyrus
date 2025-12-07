@@ -812,10 +812,10 @@ static int GetShtrihVatRateIdent(double vatRate, bool isVatFree) // @v11.2.12
 //
 int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 {
-	const   bool use_fn_op = LOGIC(Flags & sfUseFnMethods);
-	int     ok = 1;
-	int     chk_no = 0;
-	bool    is_format = false;
+	const  bool use_fn_op = LOGIC(Flags & sfUseFnMethods);
+	int    ok = 1;
+	int    chk_no = 0;
+	bool   is_format = false;
 	SString temp_buf;
 	SString fmt_buf;
 	SString msg_buf;

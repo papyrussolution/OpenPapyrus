@@ -408,39 +408,45 @@ DBQuery & FASTCALL selectbycell(int count, const DBDataCell * pList)
 	return q;
 }
 
-DBQuery & CDECL select(DBField first_arg, ...)
+DBQuery & CDECL Select_(DBField first_arg, ...)
 {
 	va_list list = reinterpret_cast<va_list>(&first_arg);
 	DBQuery & q = *new DBQuery;
 	if(&q != 0) {
-		int    id;
 		int    i = 0;
 		size_t delta = 0;
-		while((id = *reinterpret_cast<const int *>(list)) != 0) {
-			q.flds = static_cast<DBQuery::Fld *>(SAlloc::R(q.flds, sizeof(DBQuery::Fld) * (i+1)));
-			if(q.flds == 0) {
-				i = 0;
+		//while((id = *reinterpret_cast<const int *>(list)) != 0) {
+		while(true) {
+			const  int id = *reinterpret_cast<const int *>(list);
+			if(!id) {
 				break;
 			}
-			DBQuery::Fld & fld = q.flds[i];
-			if(id == DBConst_ID) {
-				delta = sizeof(DBConst);
-				fld.cell.C = *reinterpret_cast<const DBConst *>(list);
-			}
-			else if(id == DBE_ID) {
-				delta = sizeof(DBE);
-				fld.cell.E = *reinterpret_cast<const DBE *>(list);
-			}
-			else if(id > 0) {
-				delta = sizeof(DBField);
-				fld.cell.F = *reinterpret_cast<const DBField *>(list);
-			}
 			else {
-				;//CHECK(Invalid_DBItem);
+				q.flds = static_cast<DBQuery::Fld *>(SAlloc::R(q.flds, sizeof(DBQuery::Fld) * (i+1)));
+				if(q.flds == 0) {
+					i = 0;
+					break;
+				}
+				DBQuery::Fld & fld = q.flds[i];
+				if(id == DBConst_ID) {
+					delta = sizeof(DBConst);
+					fld.cell.C = *reinterpret_cast<const DBConst *>(list);
+				}
+				else if(id == DBE_ID) {
+					delta = sizeof(DBE);
+					fld.cell.E = *reinterpret_cast<const DBE *>(list);
+				}
+				else if(id > 0) {
+					delta = sizeof(DBField);
+					fld.cell.F = *reinterpret_cast<const DBField *>(list);
+				}
+				else {
+					;//CHECK(Invalid_DBItem);
+				}
+				fld.type = reinterpret_cast<const DBItem *>(list)->stype();
+				list = reinterpret_cast<va_list>(PTR8(list) + delta);
+				i++;
 			}
-			fld.type = reinterpret_cast<const DBItem *>(list)->stype();
-			list = reinterpret_cast<va_list>(PTR8(list) + delta);
-			i++;
 		}
 		q.fldCount = i;
 		q.syntax |= DBQuery::tSelect;
