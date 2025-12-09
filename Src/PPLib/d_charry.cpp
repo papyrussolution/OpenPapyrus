@@ -758,19 +758,20 @@ int PPDS_CrrBill::InitData(Ido op, void * /*dataPtr*/, long addedParam)
 	if(op == idoAlloc) {
 		Data.destroy();
 		SellerArID = 0;
-		MEMSZERO(DlvrAddr);
+		DlvrAddr.Clear();
 		THROW(PPObjectTransmit::ReadConfig(&DbxCfg));
 	}
 	else if(op == idoExtract) {
 		if(addedParam) {
 			if(p_bobj->ExtractPacket(addedParam, &Data) > 0) {
-				MEMSZERO(DlvrAddr);
+				DlvrAddr.Clear();
 				if(Data.P_Freight && Data.P_Freight->DlvrAddrID__) {
 					PPObjLocation loc_obj;
 					if(loc_obj.Search(Data.P_Freight->DlvrAddrID__, &DlvrAddr) > 0) {
+						;
 					}
 					else
-						MEMSZERO(DlvrAddr);
+						DlvrAddr.Clear();
 				}
 				p_bobj->LoadClbList(&Data, 1);
 				Data.InitExtTIter(ETIEF_UNITEBYGOODS|ETIEF_DIFFBYQCERT|ETIEF_DIFFBYPACK|ETIEF_DIFFBYNETPRICE, 0, TiIter::ordByGoods);

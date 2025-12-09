@@ -2664,11 +2664,12 @@ int PiritEquip::RunCheck(int opertype)
 								//int PiritEquip::PreprocessChZnMark(const char * pMarkCode, uint qtty, uint flags, PreprocessChZnCodeResult * pResult)
 								// 79
 								in_data.Z();
+								// 79;15;046016530385162MtJIPoACbo/3Wk;1;0;15;0;;
 								CreateStr(15, in_data);
 								CreateChZnCode(Check.ChZnCode, in_data); // (Строка)[0..128] Код маркировки
-								CreateStr(Check.ChZnPpStatus, in_data); // (Целое число) Присвоенный статус товара (ofdtag-2110)
+								CreateStr(/*Check.ChZnPpStatus*/1, in_data); // (Целое число) Присвоенный статус товара (ofdtag-2110) // @v12.5.0 Check.ChZnPpStatus-->1
 								CreateStr(0L, in_data); // (Целое число) Режим обработки кода маркировки (ofdtag-2102) = 0
-								CreateStr(Check.ChZnPpResult, in_data); // (Целое число) Результат проведенной проверки КМ (ofdtag-2106)
+								CreateStr(/*Check.ChZnPpResult*/15, in_data); // (Целое число) Результат проведенной проверки КМ (ofdtag-2106) // @v12.5.0 Check.ChZnPpResult-->15
 								{
 									// @v11.9.5 CreateStr(0L, in_data); // (Целое число) Мера количества [единица измерения то есть; 0 - штуки] (ofdtag-2108)
 									// @v11.9.5 {

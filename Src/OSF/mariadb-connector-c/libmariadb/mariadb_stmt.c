@@ -616,20 +616,15 @@ uchar * mysql_stmt_execute_generate_simple_request(MYSQL_STMT * stmt, size_t * r
 	/* check: gr */
 	if(!(start = p = (uchar *)SAlloc::M(length)))
 		goto mem_error;
-
 	int4store(p, stmt->stmt_id);
 	p += STMT_ID_LENGTH;
-
 	/* flags is 4 bytes, we store just 1 */
 	int1store(p, (uchar)stmt->flags);
 	p++;
-
 	int4store(p, 1);
 	p += 4;
-
 	if(stmt->param_count) {
 		size_t null_count = (stmt->param_count + 7) / 8;
-
 		free_bytes = length - (p - start);
 		if(null_count + 20 > free_bytes) {
 			size_t offset = p - start;
@@ -643,11 +638,8 @@ uchar * mysql_stmt_execute_generate_simple_request(MYSQL_STMT * stmt, size_t * r
 		p += null_count;
 		int1store(p, stmt->send_types_to_server);
 		p++;
-
 		free_bytes = length - (p - start);
-
-		/* Store type information:
-		   2 bytes per type
+		/* Store type information: 2 bytes per type
 		 */
 		if(stmt->send_types_to_server) {
 			if(free_bytes < stmt->param_count * 2 + 20) {

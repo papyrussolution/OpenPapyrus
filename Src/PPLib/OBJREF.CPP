@@ -1446,8 +1446,9 @@ int PPObjELinkKind::Edit(PPID * pID, void * extraPtr)
 
 int PPObjELinkKind::AddSimple(PPID * pID, const char * pName, int use_ta)
 {
-	int    ok = 1, r;
-	PPELinkKind elk_rec;
+	int    ok = 1;
+	int    r;
+	PPELinkKind2 elk_rec;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);

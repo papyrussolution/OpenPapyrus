@@ -262,11 +262,11 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 										PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, 0, chzn_code, chzn_qtty, chzn_pp_result);
 										if(/*pczcr > 0*/true) { // @v12.4.0
 											// @v12.4.0 {
-											if(!chzn_pp_result.ProcessingResult && !chzn_pp_result.ProcessingCode && !chzn_pp_result.Status) {
+											/* @v12.5.0 if(!chzn_pp_result.ProcessingResult && !chzn_pp_result.ProcessingCode && !chzn_pp_result.Status) {
 												chzn_pp_result.Z();
 												pczcr2 = PreprocessChZnCode(ppchzcopVerifyOffline, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
 												PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr2, 3, chzn_code, chzn_qtty, chzn_pp_result); // @v12.4.3
-											}
+											}*/
 											// } @v12.4.0 
 											const bool do_accept = (/*chzn_pp_result.Status == 1*/true) ? true : false;
 											const int  accept_op = do_accept ? ppchzcopAccept : ppchzcopReject;

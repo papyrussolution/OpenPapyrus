@@ -827,6 +827,9 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 		THROW(Helper_MakeSearchQuery(pTbl, idx, pKey, srchMode, sf, sqb));
 		can_continue = LOGIC(sqb.Flags & SearchQueryBlock::fCanContinue);
 		{
+			if(pTbl->P_Stmt) {
+				ZDELETE(pTbl->P_Stmt);
+			}
 			THROW(p_stmt = new DBTable::SelectStmt(this, sqb.SqlG, idx, sqb.SrchMode, sf));
 			new_stmt = true;
 			THROW(p_stmt->IsValid());
@@ -1387,9 +1390,21 @@ enum enum_field_types {
 				MYSQL_TIME * p_ocidt = static_cast<MYSQL_TIME *>(p_data);
 				LDATE * p_dt = static_cast<LDATE *>(pBind->P_Data);
 				memzero(p_ocidt, sizeof(*p_ocidt));
-				p_ocidt->year = p_dt->year();
-				p_ocidt->month = p_dt->month();
-				p_ocidt->day = p_dt->day();
+				if(*p_dt == MAXDATE) {
+					p_ocidt->year = 2200;
+					p_ocidt->month = 12;
+					p_ocidt->day = 31;
+				}
+				else if(*p_dt == ZERODATE) {
+					p_ocidt->year = 1600;
+					p_ocidt->month = 1;
+					p_ocidt->day = 1;
+				}
+				else {
+					p_ocidt->year = p_dt->year();
+					p_ocidt->month = p_dt->month();
+					p_ocidt->day = p_dt->day();
+				}
 				p_ocidt->time_type = MYSQL_TIMESTAMP_DATE;
 			}
 			else if(action == 1) {
@@ -1406,12 +1421,26 @@ enum enum_field_types {
 			}
 			else if(action < 0) {
 				MYSQL_TIME * p_ocidt = static_cast<MYSQL_TIME *>(p_data);
-				LTIME * p_dt = static_cast<LTIME *>(pBind->P_Data);
+				LTIME * p_tm = static_cast<LTIME *>(pBind->P_Data);
 				memzero(p_ocidt, sizeof(*p_ocidt));
-				p_ocidt->hour = p_dt->hour();
-				p_ocidt->minute = p_dt->minut();
-				p_ocidt->second = p_dt->sec();
-				p_ocidt->second_part = p_dt->hs() * 10000; // second_part - микросекунды
+				if(*p_tm == MAXTIME) {
+					p_ocidt->hour = 23;
+					p_ocidt->minute = 59;
+					p_ocidt->second = 59;
+					p_ocidt->second_part = 99 * 10000; // second_part - микросекунды
+				}
+				else if(*p_tm == ZEROTIME) {
+					p_ocidt->hour = 0;
+					p_ocidt->minute = 0;
+					p_ocidt->second = 0;
+					p_ocidt->second_part = 0; // second_part - микросекунды
+				}
+				else {
+					p_ocidt->hour = p_tm->hour();
+					p_ocidt->minute = p_tm->minut();
+					p_ocidt->second = p_tm->sec();
+					p_ocidt->second_part = p_tm->hs() * 10000; // second_part - микросекунды
+				}
 				p_ocidt->time_type = MYSQL_TIMESTAMP_TIME;
 			}
 			else if(action == 1) {
@@ -1469,7 +1498,7 @@ enum enum_field_types {
 					else {
 						SString & r_temp_buf = SLS.AcquireRvlStr();
 						r_temp_buf = static_cast<const char *>(p_data);
-						r_temp_buf.Transf(CTRANSF_UTF8_TO_INNER).TrimRight();
+						r_temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 						strnzcpy(static_cast<char *>(pBind->P_Data), r_temp_buf, sz);
 					}
 				}
@@ -1527,7 +1556,7 @@ enum enum_field_types {
 					else {
 						SString & r_temp_buf = SLS.AcquireRvlStr();
 						r_temp_buf = static_cast<const char *>(p_data);
-						r_temp_buf.Transf(CTRANSF_UTF8_TO_INNER).TrimRight();
+						r_temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 						strnzcpy(static_cast<char *>(pBind->P_Data), r_temp_buf, sz);
 						//CharToOemA(static_cast<char *>(p_data), static_cast<char *>(pBind->P_Data));
 						//trimright(static_cast<char *>(pBind->P_Data));
@@ -1618,7 +1647,7 @@ enum enum_field_types {
 						}
 					} 
 					{
-						r_temp_buf.Transf(CTRANSF_UTF8_TO_INNER).TrimRight();
+						r_temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 						p_lob->InitPtr(r_temp_buf.Len()+1);
 						void * p_lob_ptr = p_lob->GetRawDataPtr();
 						if(p_lob_ptr) {

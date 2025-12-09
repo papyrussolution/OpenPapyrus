@@ -67,7 +67,7 @@ void SylkWriter::PutRec(int typeChr, const char * pStr)
 
 int SylkWriter::PutVal(const char * pStr, int cvtOemToChr)
 {
-	char temp_buf[512]; // @v11.7.1 [128]-->[512]
+	char   temp_buf[512]; // @v11.7.1 [128]-->[512]
 	if(pStr) {
 		size_t d = 0;
 		const char * s = pStr;
@@ -110,8 +110,7 @@ int SylkWriter::GetBuf(SString * pBuf) const
 
 void SylkWriter::PutFormat2(const char * pBuf, int fontId, int col, int row) // @v11.7.10 (to replace PutFormat)
 {
-	SString temp_buf;
-	temp_buf.Cat(pBuf);
+	SString temp_buf(pBuf);
 	if(fontId) {
 		temp_buf.Semicol().Cat("SM").Cat(fontId);
 	}
@@ -545,10 +544,11 @@ int BrowserWindow::RestoreUserSettings()
 				const long org_offs = org_offs_buf.ToLong();
 				const long cwidth_chr = len_buf.ToLong();
 				for(uint i = 0; i < p_def_->getCount(); i++) {
+					// CWidthOrg
 					const BroColumn & r_col = p_def_->at(i);
 					const long _p = (r_col.OrgOffs == 0xffff) ? r_col.Offs : r_col.OrgOffs;
 					if(_p == org_offs) {
-						if(cwidth_chr > 0 && cwidth_chr < 0x0fffL) {
+						if(cwidth_chr > 0 && cwidth_chr < 0x0fffL && (cwidth_chr <= (r_col.CWidthOrg * 5))) { // @v12.5.0 аварийное условие (cwidth_chr <= (r_col.CWidthOrg * 5))
 							SetCWidth(i, static_cast<uint>(cwidth_chr), 0/*newWidthPx*/);
 							p_def_->at(i).State |= BroColumn::stSizeSet;
 						}

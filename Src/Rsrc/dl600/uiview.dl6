@@ -4,6 +4,13 @@
 cinclude "../../include/tvdefs.h"
 cinclude "../../include/ppdefs.h"
 
+dialog DLG_GSTRUCTREE [vertical title: "@ttl_goodsstructree" size: (540, 540) minsize: (300, 300) font: "MS Shell Dlg,8"] {
+	treelistbox CTL_GSTRUCTREE_LIST [tabstop width: bycontainer growfactor: 1];
+	view [horizontal width: bycontainer height: 30 justifycontent: end alignitems: end margin_right: 12] {
+		button STDCTL_CANCELBUTTON [title: "@but_close" tabstop size: (75, 21) margin: 4 command: cmClose];
+	}
+}
+
 dialog DLG_LBXSEL [vertical title: "@{selection} %s" size: (530, 400) minsize: (530, 200) font: "MS Shell Dlg,8"] {
 	listbox CTL_LBXSEL_LIST [tabstop width: bycontainer growfactor: 1];
 	view [horizontal width: bycontainer height: 28] {

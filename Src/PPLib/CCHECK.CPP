@@ -877,7 +877,7 @@ CCheckPacket & CCheckPacket::Z()
 	Discount = 0.0;
 	_Cash    = 0.0;
 	_OrdPrepay  = 0.0;
-	MEMSZERO(Ext);
+	Ext.Clear();
 	Rec.Clear();
 	Items_.clear();
 	ExtList.clear();
@@ -3540,8 +3540,9 @@ int CCheckCore::ToggleDeliveryCloseTag(PPID checkID, const LDATETIME & rDtm, int
 				THROW_SL(checkdate(rDtm.d, 1));
 				THROW_SL(checktime(rDtm.t));
 			}
-			if(GetExt(checkID, &ext_rec) <= 0)
-				MEMSZERO(ext_rec);
+			if(GetExt(checkID, &ext_rec) <= 0) {
+				ext_rec.Clear();
+			}
 			if(BIN(cc_rec.Flags & CCHKF_CLOSEDORDER) != BIN(set)) {
 				SETFLAG(cc_rec.Flags, CCHKF_CLOSEDORDER, set);
 				THROW_DB(updateRecBuf(&cc_rec)); // @sfu

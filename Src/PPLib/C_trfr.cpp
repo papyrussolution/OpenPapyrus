@@ -748,7 +748,6 @@ PPLotFault & FASTCALL PPLotFaultArray::at(uint p) const
 int PPLotFaultArray::AddFault(int fault, const ReceiptTbl::Rec * pRec, PPID childID, PPID parentID)
 {
 	PPLotFault f;
-	MEMSZERO(f);
 	f.Fault = fault;
 	if(pRec)
 		f.Dt = pRec->Dt;
@@ -760,7 +759,6 @@ int PPLotFaultArray::AddFault(int fault, const ReceiptTbl::Rec * pRec, PPID chil
 int PPLotFaultArray::AddFault(int fault, const TransferTbl::Rec * pRec, double act, double valid)
 {
 	PPLotFault f;
-	MEMSZERO(f);
 	f.Fault = fault;
 	if(pRec) {
 		f.Dt    = pRec->Dt;

@@ -849,8 +849,10 @@ int BarcodeLabel::GetText(int wrap, char ** ppLine)
 {
 	int    ok = 1;
 	BarcodeLabelEntry entry;
-	char   temp[256], str[512];
-	SString head, tail;
+	char   temp[256];
+	char   str[512];
+	SString head;
+	SString tail;
 	BarcodeFormatToken tok;
 	MEMSZERO(entry);
 	entry.Type = BarcodeLabelEntry::etText;

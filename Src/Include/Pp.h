@@ -13503,6 +13503,10 @@ struct PPLotFault { // @flat
 		NoEgaisCodeAmbig,     // Лот не содержит тега кода алкогольной продукции в то время как товар содержит более одного ЕГАИС-кода
 		ThereIsQCert          // У лота нет сертификата в то время как можно унаследовать сертификат от предыдущей партии
 	};
+	PPLotFault()
+	{
+		THISZERO();
+	}
 	int    Fault;
 	LDATE  Dt;
 	LDATE  EndDate;         // Для групповых ошибок Lcr (LcrAbsence, LcrWaste)

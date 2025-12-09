@@ -2449,7 +2449,7 @@ typedef struct {
 #else
 #define GOTO_OP      goto *opcode_to_label[p->opcode]
 #endif
-#define BREAK_OP     /* Nothing */
+#define BREAK_OP     /*Nothing*/
 
 #else
 

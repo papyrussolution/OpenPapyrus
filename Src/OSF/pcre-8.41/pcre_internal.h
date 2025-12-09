@@ -71,7 +71,7 @@
 #ifdef PCRE_DEBUG
 	#define DPRINTF(p) printf p
 #else
-	#define DPRINTF(p) /* Nothing */
+	#define DPRINTF(p) /*Nothing*/
 #endif
 //
 // Standard C headers plus the external interface definition. The only time

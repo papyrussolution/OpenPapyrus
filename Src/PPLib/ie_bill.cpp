@@ -7653,7 +7653,7 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 					gtv.CalcBPTI(R_Bp, r_ti, tiamt, exclude_tax_flags, -1);
 					{
 						if(_Hi.Flags & DocNalogRu_Generator::FileInfo::fVatFree)
-							temp_buf.Z().Cat(GetToken(PPHSC_RU_NOVAT_VAL));
+							temp_buf.Z().Cat(/*GetToken(PPHSC_RU_NOVAT_VAL)*/"0%"); // @v12.5.0 GetToken(PPHSC_RU_NOVAT_VAL)-->"0%"
 						else
 							temp_buf.Z().Cat(gtv.GetTaxRate(GTAX_VAT, 0), MKSFMTD(0, 0, NMBF_NOTRAILZ)).CatChar('%');
 						n_item.PutAttrib(GetToken(PPHSC_RU_TAXRATE_BEFORE), temp_buf);
@@ -7676,7 +7676,7 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 					gtv.CalcBPTI(R_Bp, r_ti, tiamt, exclude_tax_flags, +1);
 					{
 						if(_Hi.Flags & DocNalogRu_Generator::FileInfo::fVatFree)
-							temp_buf.Z().Cat(GetToken(PPHSC_RU_NOVAT_VAL));
+							temp_buf.Z().Cat(/*GetToken(PPHSC_RU_NOVAT_VAL)*/"0%"); // @v12.5.0 GetToken(PPHSC_RU_NOVAT_VAL)-->"0%"
 						else
 							temp_buf.Z().Cat(gtv.GetTaxRate(GTAX_VAT, 0), MKSFMTD(0, 0, NMBF_NOTRAILZ)).CatChar('%');
 						n_item.PutAttrib(GetToken(PPHSC_RU_TAXRATE_AFTER), temp_buf);
@@ -7722,7 +7722,7 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 				{
 					{
 						SXml::WNode n_e(G.P_X, GetToken(PPHSC_RU_AMTTAX_BEFORE));
-						if(vat_sum_before != 0.0)
+						if(vat_sum_before >= 0.0) // @v12.5.0 (vat_sum_before != 0.0)-->(vat_sum_before >= 0.0)
 							n_e.PutInner(GetToken(PPHSC_RU_AMTVAT), temp_buf.Z().Cat(fabs(vat_sum_before), MKSFMTD_020));
 						else
 							n_e.PutInner(GetToken(PPHSC_RU_NOVAT_TAG), GetToken(PPHSC_RU_NOVAT_VAL));
@@ -7730,7 +7730,7 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 					}
 					{
 						SXml::WNode n_e(G.P_X, GetToken(PPHSC_RU_AMTTAX_AFTER));
-						if(vat_sum_after != 0.0)
+						if(vat_sum_after >= 0.0) // @v12.5.0 (vat_sum_after != 0.0)-->(vat_sum_after >= 0.0)
 							n_e.PutInner(GetToken(PPHSC_RU_AMTVAT), temp_buf.Z().Cat(fabs(vat_sum_after), MKSFMTD_020));
 						else
 							n_e.PutInner(GetToken(PPHSC_RU_NOVAT_TAG), GetToken(PPHSC_RU_NOVAT_VAL));
@@ -7777,7 +7777,7 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 				gtv.CalcBPTI(R_Bp, r_ti, tiamt, exclude_tax_flags);
 				{
 					if(_Hi.Flags & DocNalogRu_Generator::FileInfo::fVatFree)
-						temp_buf.Z().Cat(GetToken(PPHSC_RU_NOVAT_VAL));
+						temp_buf.Z().Cat(/*GetToken(PPHSC_RU_NOVAT_VAL)*/"0%"); // @v12.5.0 GetToken(PPHSC_RU_NOVAT_VAL)-->"0%"
 					else
 						temp_buf.Z().Cat(gtv.GetTaxRate(GTAX_VAT, 0), MKSFMTD(0, 0, NMBF_NOTRAILZ)).CatChar('%');
 					n_item.PutAttrib(GetToken(PPHSC_RU_TAXRATE), temp_buf);

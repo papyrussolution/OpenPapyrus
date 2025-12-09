@@ -34,6 +34,18 @@ private:
 			SessText[0] = 0;
 			MainGoodsName[0] = 0;
 		}
+		Header & Z()
+		{
+			PrcRec.Clear();
+			PrcID = 0;
+			SessID = 0;
+			SessText[0] = 0;
+			MainGoodsID = 0;
+			MainGoodsName[0] = 0;
+			MainGoodsPack = 0.0;
+			LinkBillID = 0;
+			return *this;
+		}
 		PPID   PrcID;
 		ProcessorTbl::Rec PrcRec;
 		PPID   SessID;
@@ -41,12 +53,20 @@ private:
 		PPID   MainGoodsID;        // Основной товар технологии
 		char   MainGoodsName[64];  // Наименование основного товара технологии
 		double MainGoodsPack;      // Емкость упаковки основного товара
-		PPID   LinkBillID;         // @v5.1.3 ИД связанного документа
+		PPID   LinkBillID;         // ИД связанного документа
 	};
 	struct Entry : public TSessLineTbl::Rec {
 		Entry() : TSessLineTbl::Rec(), Pack(0.0), PackQtty(0.0)
 		{
 			GoodsName[0] = 0;
+		}
+		Entry & Z()
+		{
+			TSessLineTbl::Rec::Clear();
+			GoodsName[0] = 0;
+			Pack = 0.0;
+			PackQtty = 0.0;
+			return *this;
 		}
 		char   GoodsName[128]; // @v12.2.4 [64]-->[128]
 		double Pack;       // Емкость упаковки
@@ -230,8 +250,8 @@ int PrcPaneDialog::setupProcessor(PPID prcID, int init)
 {
 	int    ok = 1;
 	uint   i;
-	MEMSZERO(H);
-	MEMSZERO(E);
+	H.Z();
+	E.Z();
 	H.PrcID = prcID;
 	TSesObj.GetPrc(H.PrcID, &H.PrcRec, 1, 1);
 	if(init) {
@@ -720,7 +740,7 @@ void PrcPaneDialog::showMessage(int msgKind, int msgCode, const char * pAddMsg)
 
 void PrcPaneDialog::clearPanel()
 {
-	MEMSZERO(E);
+	E.Z();
 	setupGoods(0);
 	setCtrlData(CTL_PRCPAN_QTTYPACK, &E.PackQtty);
 	setCtrlData(CTL_PRCPAN_QTTY,     &E.Qtty);

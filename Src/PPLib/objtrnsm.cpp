@@ -1253,7 +1253,7 @@ int PPObjectTransmit::RestoreFromStream(const char * pInFileName, FILE * stream,
 		BExtInsert bei(P_TmpIdxTbl);
 		for(idx = 0; idx < hdr.IndexCount; idx++) {
 			THROW(Read(stream, &idx_item, sizeof(idx_item)));
-			MEMSZERO(idx_rec);
+			idx_rec.Clear();
 			idx_rec.DBID     = static_cast<short>(hdr.DBID);
 			idx_rec.ObjType  = static_cast<short>(idx_item.ObjType);
 			idx_rec.ObjID    = idx_item.ObjID;

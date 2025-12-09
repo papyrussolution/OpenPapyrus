@@ -807,7 +807,7 @@ int FASTCALL PPViewInventory::NextIteration(InventoryViewItem * pItem)
 						p.GoodsID = goods_rec.ID;
 						p.Date    = CommonDate;
 						if(P_BObj->trfr->GetRest(p) > 0 && p.Total.Rest > 0.0) {
-							MEMSZERO(inv_rec);
+							inv_rec.Clear();
 							inv_rec.BillID  = single_bill_id;
 							inv_rec.GoodsID = goods_rec.ID;
 							inv_rec.UnitPerPack = goods_rec.PhUPerU;

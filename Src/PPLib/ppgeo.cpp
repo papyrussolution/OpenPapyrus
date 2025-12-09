@@ -1563,8 +1563,8 @@ int FASTCALL PPViewGeoTracking::CheckRecForFilt(const GeoTrackTbl::Rec * pRec)
 		t->Longitude, // #8
 		t->Altitude,  // #9
 		t->Speed,     // #10
-		0L).from(t, 0L);
-	q->where(*dbq);
+		0L);
+	q->from(t, 0L).where(*dbq);
 	THROW(CheckQueryPtr(q));
 	CATCH
 		if(q)

@@ -1900,7 +1900,6 @@ int Transfer::LcrBlock::TranslateErr(PPLotFaultArray * pLfa) const
 		const Item & r_item = List.at(i);
 		if(r_item.Status > 0) {
 			PPLotFault f;
-			MEMSZERO(f);
 			f.Dt = r_item.Dt;
 			f.ActualVal = r_item.ExRest;
 			f.ValidVal = r_item.ValidRest;
@@ -2185,7 +2184,6 @@ int Transfer::LcrBlock2::TranslateErr(PPLotFaultArray * pLfa) const
 		const Item & r_item = List.at(i);
 		if(r_item.Status > 0) {
 			PPLotFault f;
-			MEMSZERO(f);
 			f.Dt = r_item.Dt;
 			f.ActualVal = fdiv1000i(r_item.ExRestF);
 			f.ValidVal = fdiv1000i(r_item.ValidRestF);

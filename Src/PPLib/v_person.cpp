@@ -3177,14 +3177,22 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 						PPDbqFuncPool::InitObjNameFunc(dbe_status, PPDbqFuncPool::IdObjNamePersonStatus, p->Status);
 						PPDbqFuncPool::InitObjNameFunc(dbe_cat,    PPDbqFuncPool::IdObjNamePersonCat,    p->CatID);
 						PPDbqFuncPool::InitObjNameFunc(dbe_memo,   PPDbqFuncPool::IdObjMemoPerson,       p->ID); // @v11.1.12
-						q = & Select_(
+						// @v12.5.0 {
+						q = & Select_(p->ID, p->Name, 0L);
+						q->addField(dbe_status);
+						q->addField(dbe_cat);
+						q->addField(dbe_memo);
+						q->addField(p->Flags);
+						// } @v12.5.0 
+						/* @v12.5.0 q = & Select_(
 							p->ID,      // #0
 							p->Name,    // #1 
 							dbe_status, // #2
 							dbe_cat,    // #3
 							dbe_memo,   // #4 @v11.1.12 p->Memo-->dbe_memo
 							p->Flags,   // #5
-							0L);
+							0L);*/
+
 						// @v12.2.2 {
 						if(Filt.Flags & PersonFilt::fCliActivityStats) {
 							DBE    dbe_cas_evntcount;

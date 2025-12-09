@@ -784,7 +784,8 @@ DBQuery * PPViewProject::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbe_cli,        // #08
 		dbe_mgr,        // #09
 		dbe_descr,      // #10
-		0L).from(t, 0L).where(*dbq);
+		0L);
+	q->from(t, 0L).where(*dbq);
 	if(Filt.SortOrd == ProjectFilt::ordByName)
 		q->orderBy(t->ParentID, t->Name, 0L);
 	else

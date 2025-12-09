@@ -2327,7 +2327,7 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 							}
 						}
 						if(exp_amount != 0.0 && exp_total_amount != 0.0) {
-							MEMSZERO(ebf_rec);
+							ebf_rec.Clear();
 							ebf_rec = rec;
 							// @v12.0.6 {
 							ebf_rec.Dt       = _dt;
