@@ -46,7 +46,7 @@ static void report_error (gravity_vm *vm, error_type_t error_type, const char *m
 
 static bool math_pi (gravity_vm *vm, gravity_value_t *args, uint16_t nargs, uint32_t rindex) {
     #pragma unused (args, nargs)
-    gravity_vm_setslot(vm, VALUE_FROM_FLOAT(3.1315f), rindex);
+    gravity_vm_setslot(vm, VALUE_FROM_FLOAT(3.1415f), rindex);
     return true;
 }
 
