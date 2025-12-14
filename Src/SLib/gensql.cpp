@@ -201,15 +201,18 @@ SString & Generator_SQL::GetType(TYPEID typ, SString & rBuf)
 			switch(_t) {
 				case S_CHAR:     
 					// @v12.4.10 rBuf.Cat("VARCHAR").CatParStr(_s); 
-					rBuf.Cat("TEXT"); // @v12.4.10
+					// @v12.5.0 rBuf.Cat("TEXT"); // @v12.4.10
+					rBuf.Cat("CHAR").CatParStr(_s).Space().Cat("CHARACTER SET utf8"); // @v12.5.0 
 					break;
 				case S_LSTRING:  
 					// @v12.4.10 rBuf.Cat("VARCHAR").CatParStr(_s); 
-					rBuf.Cat("TEXT"); // @v12.4.10
+					// @v12.5.0 rBuf.Cat("TEXT"); // @v12.4.10
+					rBuf.Cat("CHAR").CatParStr(_s).Space().Cat("CHARACTER SET utf8"); // @v12.5.0 
 					break;
 				case S_ZSTRING:  
 					// @v12.4.10 rBuf.Cat("VARCHAR").CatParStr(_s);
-					rBuf.Cat("TEXT"); // @v12.4.10
+					// @v12.5.0 rBuf.Cat("TEXT"); // @v12.4.10
+					rBuf.Cat("CHAR").CatParStr(_s).Space().Cat("CHARACTER SET utf8"); // @v12.5.0 
 					break;
 				case S_INT:
 				case S_UINT:     
@@ -458,6 +461,11 @@ int Generator_SQL::CreateIndex(const DBTable & rTbl, const char * pFileName, uin
 			}
 		}
 		RPar();
+		// @v12.5.0 {
+		if(Sqlst == sqlstMySQL) {
+			Sp().Tok(tokUsing).Sp().Text("BTREE");
+		}
+		// } @v12.5.0 
 		//Buf.Semicol();
 		// @v12.4.3 {
 		if(fl & (XIF_ALLSEGNULL|XIF_ANYSEGNULL)) {
@@ -616,6 +624,7 @@ const char * Generator_SQL::P_Tokens[] = {
 	"START",         // @v12.4.8 tokStart
 	"USE INDEX",     // @v12.4.12 tokUseIndex
 	"FORCE INDEX",   // @v12.4.12 tokForceIndex 
+	"USING",         // @v12.5.0 tokUsing
 };
 
 Generator_SQL & Generator_SQL::HintBegin()

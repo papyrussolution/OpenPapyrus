@@ -2631,6 +2631,7 @@ public:
 		tokStart,       // @v12.4.8 start
 		tokUseIndex,    // @v12.4.12 use index
 		tokForceIndex,  // @v12.4.12 force index
+		tokUsing,       // @v12.5.0 using
 		
 		tokCountOfTokens,
 	};

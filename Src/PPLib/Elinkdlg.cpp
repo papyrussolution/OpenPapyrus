@@ -209,7 +209,7 @@ static IMPL_CMPFUNC(PPELinkKind, i1, i2)
 	   	return CompareELinkKinds2(k1, k2);
 }
 
-static int OrderELinkArray(PPELinkArray * ary, SArray * kinds)
+static int OrderELinkArray(PPELinkArray * pList, SArray * pKindList)
 {
 	int    ok = 1;
 	//
@@ -222,19 +222,24 @@ static int OrderELinkArray(PPELinkArray * ary, SArray * kinds)
 	// 3. Сортируем массив ary согласно сортировке массива kinds
 	// 4. Делаем обратную замену идентификаторов
 	//
-	uint   i, kp;
-	for(i = 0; i < ary->getCount(); i++)
-		if(kinds->lsearch(&ary->at(i).KindID, &(kp = 0), CMPF_LONG, sizeof(PPID)))
-			ary->at(i).KindID = kp;
-		else
-			ary->at(i).KindID += 1000L;
-	ary->sort(CMPF_LONG);
-	for(i = 0; i < ary->getCount(); i++) {
-		long & tk = ary->at(i).KindID;
-		if(tk < 1000L)
-			tk = static_cast<const PPELinkKind *>(kinds->at((uint)tk))->ID;
-		else
-			tk -= 1000L;
+	{
+		for(uint i = 0; i < pList->getCount(); i++) {
+			uint   kp;
+			if(pKindList->lsearch(&pList->at(i).KindID, &(kp = 0), CMPF_LONG, sizeof(PPID)))
+				pList->at(i).KindID = kp;
+			else
+				pList->at(i).KindID += 1000L;
+		}
+	}
+	pList->sort(CMPF_LONG);
+	{
+		for(uint i = 0; i < pList->getCount(); i++) {
+			long & tk = pList->at(i).KindID;
+			if(tk < 1000L)
+				tk = static_cast<const PPELinkKind *>(pKindList->at((uint)tk))->ID;
+			else
+				tk -= 1000L;
+		}
 	}
 	return ok;
 }
@@ -290,9 +295,9 @@ int EditELinks(const char * pInfo, PPELinkArray * pList)
 					clearEvent(event);
 				}
 				else {
+					SString phone_buf;
 					for(uint i = 0; i < SlotCount; i++) {
 						if(event.message.command == (cmELnkSetAction1+i)) {
-							SString phone_buf;
 							if(IsPhoneNumber(i, phone_buf)) {
 								PPObjPhoneService::PhoneTo(phone_buf);
 							}

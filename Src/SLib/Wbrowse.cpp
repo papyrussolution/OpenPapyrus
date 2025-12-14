@@ -542,13 +542,13 @@ int BrowserWindow::RestoreUserSettings()
 		while(ss.get(&pos, temp_buf)) {
 			if(temp_buf.Divide(',', org_offs_buf, len_buf) > 0) {
 				const long org_offs = org_offs_buf.ToLong();
-				const long cwidth_chr = len_buf.ToLong();
+				const uint cwidth_chr = len_buf.ToULong();
 				for(uint i = 0; i < p_def_->getCount(); i++) {
 					// CWidthOrg
 					const BroColumn & r_col = p_def_->at(i);
 					const long _p = (r_col.OrgOffs == 0xffff) ? r_col.Offs : r_col.OrgOffs;
 					if(_p == org_offs) {
-						if(cwidth_chr > 0 && cwidth_chr < 0x0fffL && (cwidth_chr <= (r_col.CWidthOrg * 5))) { // @v12.5.0 аварийное условие (cwidth_chr <= (r_col.CWidthOrg * 5))
+						if(cwidth_chr > 0 && cwidth_chr < 0x0fffU && (cwidth_chr <= (r_col.CWidthOrg * 5))) { // @v12.5.0 аварийное условие (cwidth_chr <= (r_col.CWidthOrg * 5))
 							SetCWidth(i, static_cast<uint>(cwidth_chr), 0/*newWidthPx*/);
 							p_def_->at(i).State |= BroColumn::stSizeSet;
 						}
@@ -1667,12 +1667,12 @@ int BrowserWindow::EvaluateColumnSizeStat(TSVector <ColumnWidthStat> & rStat) //
 						//P_Def->getMultiLinesText(ri, ci, cbuf, height_mult, &new_row_height);
 						P_Def->GetCellText(ri, ci, true/*dontRestrictByFmtLen*/, cbuf);
 						strip(cbuf);
-						const  uint cbuf_len = strlen(cbuf);
-						if(cbuf_len) {
+						const  int cbuf_len = sstrleni(cbuf);
+						if(cbuf_len > 0) {
 							uint   _fmt = DT_NOPREFIX|DT_SINGLELINE|DT_CALCRECT;
 							RECT   rect;
 							MEMSZERO(rect);
-							::DrawTextW(h_dc, SUcSwitchW(cbuf), static_cast<int>(cbuf_len), &rect, _fmt);
+							::DrawTextW(h_dc, SUcSwitchW(cbuf), cbuf_len, &rect, _fmt);
 							const long width_px = rect.right - rect.left;
 							{
 								StatBase * p_raw_stat_entry = raw_stat_list.at(ci);
@@ -3011,7 +3011,7 @@ void BrowserWindow::SpecialMenu() // @v12.4.12
 			}
 			break;
 		case WM_MOUSEHOVER:
-			tp.setwparam(lParam);
+			tp.setwparam(static_cast<uint32>(lParam));
 			{
 				long   vpos = 0;
 				if(p_view->HeaderByPoint(tp, hdrzoneAny, &vpos) && p_view->P_Def->IsValidIdx(vpos)) {
@@ -3119,7 +3119,7 @@ void BrowserWindow::SpecialMenu() // @v12.4.12
 			break;
 		case WM_RBUTTONUP:
 			if(p_view) {
-				tp.setwparam(lParam);
+				tp.setwparam(static_cast<uint32>(lParam));
 				if(p_view->ItemByPoint(tp, &hPos, &vPos)) {
 					p_view->FocusItem(hPos, vPos);
 					TView::messageKeyDown(p_view, kbShiftF10);
@@ -3139,7 +3139,7 @@ void BrowserWindow::SpecialMenu() // @v12.4.12
 			if(p_view) {
 				if(hWnd != GetFocus())
 					SetFocus(hWnd);
-				pnt = tp.setwparam(lParam);
+				pnt = tp.setwparam(static_cast<uint32>(lParam));
 				SetCapture(hWnd);
 				if(p_view->ResizedCol)
 					p_view->Resize(tp, 1);
@@ -3183,14 +3183,14 @@ void BrowserWindow::SpecialMenu() // @v12.4.12
 			if(p_view) {
 				ReleaseCapture();
 				if(hWnd == GetFocus() && p_view->ResizedCol) {
-					p_view->Resize(tp.setwparam(lParam), 0);
+					p_view->Resize(tp.setwparam(static_cast<uint32>(lParam)), 0);
 					return 0;
 				}
 			}
 			break;
 		case WM_MOUSEMOVE:
 			if(p_view) {
-				tp.setwparam(lParam);
+				tp.setwparam(static_cast<uint32>(lParam));
 				if(wParam == 0 && hWnd == GetFocus()) {
 					if(p_view->PrevMouseCoord != tp) {
 						p_view->TWindow::RegisterMouseTracking(0, 1000);

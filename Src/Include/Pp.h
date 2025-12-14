@@ -10307,6 +10307,7 @@ public:
 			// 1 Планируемый статус товара корректен
 			// 2 Планируемый статус товара некорректен
 			// 3 Оборот товара приостановлен
+		int    ForceAcceptMark; // @v12.5.0 Признак предписывает принять марку с теми результатами проверки, какие есть.
 	};
 	//
 	// Descr: Структура интерфейсного представления параметром фармацевтического рецепта
@@ -12331,6 +12332,14 @@ public:
 	int    CalcTotal(BillTotalData & rTotal, PPID goodsTypeID, long btcFlags /* BTC_XXX */);
 	bool   SearchGoods(PPID goodsID, uint * pPos) const;
 	int    HasOneOfGoods(const ObjIdListFilt & rList) const;
+	//
+	// Descr: Определяет существует ли среди товарных строк документа хоть одна, содержащая марки честный знак.
+	//
+	bool   HasChZnMarks(bool isCorrectionExp) const;
+	//
+	// Descr: Функция определяет является ли пакет this документом коррекции расхода.
+	//
+	bool   IsExpCorrection() const { return (OpTypeID == PPOPT_CORRECTION && P_LinkPack && P_LinkPack->OpTypeID == PPOPT_GOODSEXPEND); }
 	//
 	// Descr: Опции функции CheckGoodsForRestrictions()
 	//
@@ -15842,6 +15851,7 @@ public:
 		double OrgLotQtty;  // IN  Количество товара, поступившего с лотом (в торговых единицах).
 		uint   Flags;       // IN  @flags 
 		char   Mark[256];   // IN  Код маркировки
+		double BillOpQtty;  // OUT @v12.5.0 Операционное количество по документам. Используется только в ряде случаев. Значение >0 означает расход, <0 - приход.
 		double TotalOpQtty; // OUT Суммарное операционное количество по всем встреченным строкам чеков (с учетом знака - see CcMarkedEntry::Qtty)
 		TSVector <CcMarkedEntry> CcList;
 		void * P_Extra;     // IN @v12.0.12 Указатель, используемый для привязки внешних данных к этому элементу. 
@@ -20380,10 +20390,22 @@ public:
 	int    Fetch(PPID id, PPBizScore2Packet * pRec);
 	int    ValidateValuePacket(const BizScore2ValuePacket * pValuePack);
 	int    EditValuePacketDialog(BizScore2ValuePacket * pValuePack);
+	int    GetTerminalChildList(PPID id, PPIDArray & rList);
+	//
+	// Descr: Извлекает из базы данных список прямых (то есть, без рекурсии) потомков объекта с идентификатором id.
+	//   Сам идентификатор id в список не добавляется.
+	// Note: вектор rList в прологе функции не очищается.
+	// Returns:
+	//   >0 - обнаружен как минимум один потомок для id
+	//   <0 - объект id не имеет потомков
+	//    0 - error
+	//
+	int    GetChildrenList(PPID id, PPIDArray & rList);
 private:
 	virtual int  RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam);
 	StrAssocArray * MakeStrAssocList(void * extraPtr);
 	virtual void * CreateObjListWin(uint flags, void * extraPtr);
+	int    Helper_GetTerminalChildList(PPID id, PPIDArray & rList);
 };
 //
 // @ModuleDecl(PPViewBizScore)
@@ -20573,6 +20595,8 @@ private:
 
 	BizSc2ValFilt Filt; // Оставляем старую структуру фильтра (будем ее расширять)
 	SStrGroup StrPool;  // Пул строковых полей, на который ссылаются поля в TempPersonTbl
+	PPIDArray ScIdList; // @v12.5.0 Терминальный список показателей, чьи значение следует показывать. 
+		// Необходим, по крайней мере, из-за того, что в фильте можно установить показатель верхего уровня.
 	SArray * P_DsList;
 	BizScore2Core BscT;
 	PPObjBizScore2 BscObj;
@@ -60521,6 +60545,7 @@ private:
 	int    Helper(PPID goodsID, double qtty, DocItem & rResult);
 	int    Helper_ProcessLot(PPID goodsStrucID, const ReceiptTbl::Rec & rLotRec, double qtty, Entry ** ppEntry, DocItem & rResult);
 	int    GetRecentEgaisStock(TSVector <RefBEntry> & rResultList);
+	int    GetWrOffBillList(PPIDArray & rResultList); // @v12.5.0
 	int    InitActualDate(LDATE actualDate);
 
 	PPObjGoods GObj;
@@ -60535,6 +60560,8 @@ private:
 		bool   Done;
 		uint8  Reserve[3];
 		TSVector <RefBEntry> RecentEgaisStock;
+		PPIDArray WrOffBillIdList; // @v12.5.0 Документы списания марок вида PPOPK_EDI_WROFFWITHMARKS, которые была фактически отправлены в ЕГАИС. 
+			// Для учета израсходованных марок
 	};
 	InitBlock Ib;
 };

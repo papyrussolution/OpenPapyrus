@@ -192,7 +192,7 @@ private:
 	ulong  Current;
 	ulong  BFirst;
 	ulong  BLast;
-	size_t BufSize;
+	uint   BufSize; // @v12.5.0 size_t-->uint
 	char * P_Buffer;
 	int    Mod; // Признак модификации таблицы
 };

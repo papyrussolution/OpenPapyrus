@@ -536,7 +536,7 @@ int PPBizScoreWindow::DoCommand(SPoint2S p)
 		case WM_LBUTTONDBLCLK:
 			if(p_win) {
 				SPoint2S p;
-				p_win->DoCommand(p.setwparam(lParam));
+				p_win->DoCommand(p.setwparam(static_cast<uint32>(lParam)));
 				::DestroyWindow(hWnd);
 			}
 			break;
@@ -1466,6 +1466,7 @@ void PPDesktop::WMHCreate()
 			log_font.lfQuality = CLEARTYPE_QUALITY;
 			Ptb.SetFont(fontText, ::CreateFontIndirect(&log_font));
 		}
+		// @todo @20251211 Перевести на определения цветов в js-файле конфигурации.
 		Ptb.SetBrush(brushTextRect,    SPaintObj::bsSolid, SColor(RGB(0x80, 0x80, 0xC0)), 0);
 		Ptb.SetBrush(brushSelTextRect, SPaintObj::bsSolid, SColor(RGB(0x40, 0x00, 0x80)), 0);
 		Ptb.SetPen(penTextRect, SPaintObj::psSolid, 1, SColor(RGB(0x80, 0x80, 0xC0)));
@@ -1631,7 +1632,8 @@ int PPDesktop::WaitCommand()
 		}
 		int    SetStatus(const char * pCode)
 		{
-			SString buf, msg;
+			SString buf;
+			SString msg;
 			PPLoadString(PPMSG_ERROR, PPERR_CMDASSCNOTFOUND, buf);
 			msg.Printf(buf.cptr(), pCode);
 			setStaticText(CTL_WAITCMD_STATUS, msg);
@@ -1746,7 +1748,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 					if(p_cmd && CONFIRM(PPCFM_DELICON)) {
 						TRect ir;
 						PPCommandGroup desktop_list;
-						//@erik v10.6.7 {
+						//@erik {
 						PPCommandMngr * p_mgr = GetCommandMngr(PPCommandMngr::ctrfSkipObsolete, cmdgrpcDesktop, 0);
 						p_mgr->Load__2(&desktop_list, 0, PPCommandMngr::fRWByXml);
 						// } @erik
@@ -1788,7 +1790,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 				{
 					S_GUID desktop_uuid = P_ActiveDesktop->Uuid;
 					if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->GetID(), PPR_INS)) {
-						if(SelectCommandGroup(desktop_uuid, 0, 0, cmdgrpcDesktop, false, 0) /* @v11.0.0 && desktop_uuid != P_ActiveDesktop->Uuid*/)
+						if(SelectCommandGroup(desktop_uuid, 0, 0, cmdgrpcDesktop, false, 0) > 0) // @v12.5.0 (!=0)-->(>0)
 							PPDesktop::Open(desktop_uuid, 0/*createIfZero*/);
 					}
 				}
@@ -1999,7 +2001,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 		case WM_LBUTTONDBLCLK:
 			if(p_desk) {
 				SPoint2S p;
-				p_desk->DoCommand(p.setwparam(lParam));
+				p_desk->DoCommand(p.setwparam(static_cast<uint32>(lParam)));
 			}
 			break;
 		case WM_LBUTTONDOWN:
@@ -2014,20 +2016,20 @@ IMPL_HANDLE_EVENT(PPDesktop)
 				if(hWnd != GetFocus())
 					SetFocus(hWnd);
 				SPoint2S coord;
-				p_desk->BeginIconMove(coord.setwparam(lParam));
+				p_desk->BeginIconMove(coord.setwparam(static_cast<uint32>(lParam)));
 			}
 			return 0;
 		case WM_LBUTTONUP:
 			if(p_desk) {
 				SPoint2S coord;
-				p_desk->EndIconMove(coord.setwparam(lParam));
+				p_desk->EndIconMove(coord.setwparam(static_cast<uint32>(lParam)));
 				ClipCursor(0);
 			}
 			return 0;
 		case WM_MOUSEMOVE:
 			if(wParam == MK_LBUTTON && p_desk) {
 				SPoint2S coord;
-				p_desk->MoveIcon(coord.setwparam(lParam));
+				p_desk->MoveIcon(coord.setwparam(static_cast<uint32>(lParam)));
 			}
 			return 0;
 		case WM_PAINT:

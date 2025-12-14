@@ -1678,7 +1678,7 @@ int PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pB
 											if(ref_b.NotEmpty() && egais_code.NotEmpty()) {
 												double ret_qtty = R6(r_assc.Val);
 												PPTransferItem ti;
-												uint   new_pos = new_bp.GetTCount();
+												const  uint new_pos = new_bp.GetTCount();
 												THROW(ti.Init(&new_bp.Rec, 1));
 												THROW(ti.SetupGoods(lot_rec.GoodsID, 0));
 												ti.Quantity_ = -fabs(ret_qtty);
@@ -3699,7 +3699,8 @@ int PPViewLotExtCode::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				break;
 			case PPVCMD_EDITITEM:
 				{
-					LotExtCodeTbl::Rec rec, org_rec;
+					LotExtCodeTbl::Rec rec;
+					LotExtCodeTbl::Rec org_rec;
 					if(GetRec(pHdr, org_rec) > 0) {
 						rec = org_rec;
 						DBRowId _dbpos;
@@ -3717,7 +3718,8 @@ int PPViewLotExtCode::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				break;
 			case PPVCMD_DELETEITEM:
 				{
-					LotExtCodeTbl::Rec rec, org_rec;
+					LotExtCodeTbl::Rec rec;
+					LotExtCodeTbl::Rec org_rec;
 					if(GetRec(pHdr, org_rec) > 0) {
 						rec = org_rec;
 						DBRowId _dbpos;

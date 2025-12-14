@@ -493,8 +493,22 @@ int PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const RegisterArra
 			ValidCode = -1;
 			SetupCalDate(CTLCAL_REG_DATE, CTL_REG_DATE);
 			SetupCalDate(CTLCAL_REG_EXPIRY, CTL_REG_EXPIRY);
-			Ptb.SetBrush(brushValidNumber,   SPaintObj::bsSolid, GetColorRef(SClrAqua),  0);
-			Ptb.SetBrush(brushInvalidNumber, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0);
+			{
+				const UiDescription * p_uid = SLS.GetUiDescription();
+				const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
+				{
+					SColor _color;
+					if(!p_cs || !p_cs->Get("invalid_value_input_bg", &p_uid->ClrList, _color))
+						_color = SClrCoral; 
+					Ptb.SetBrush(brushInvalidNumber, SPaintObj::bsSolid, _color, 0);
+				}
+				{
+					SColor _color;
+					if(!p_cs || !p_cs->Get("valid_value_input_bg", &p_uid->ClrList, _color))
+						_color = SClrAqua; 
+					Ptb.SetBrush(brushValidNumber,   SPaintObj::bsSolid, _color,  0);
+				}
+			}
 		}
 		int  ValidateNumber()
 		{
@@ -804,8 +818,22 @@ int PPObjRegister::EditBankAccount(PPBankAccount * pRec, PPID psnKindID)
 		BankAccountDialog() : TDialog(DLG_BACCT), ValidAcc(-1)
 		{
 			SetupCalDate(CTLCAL_BACCT_OPENDATE, CTL_BACCT_OPENDATE);
-			Ptb.SetBrush(brushValidNumber,   SPaintObj::bsSolid, GetColorRef(SClrAqua),  0);
-			Ptb.SetBrush(brushInvalidNumber, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0);
+			{
+				const UiDescription * p_uid = SLS.GetUiDescription();
+				const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
+				{
+					SColor _color;
+					if(!p_cs || !p_cs->Get("invalid_value_input_bg", &p_uid->ClrList, _color))
+						_color = SClrCoral; 
+					Ptb.SetBrush(brushInvalidNumber, SPaintObj::bsSolid, _color, 0);
+				}
+				{
+					SColor _color;
+					if(!p_cs || !p_cs->Get("valid_value_input_bg", &p_uid->ClrList, _color))
+						_color = SClrAqua; 
+					Ptb.SetBrush(brushValidNumber,   SPaintObj::bsSolid, _color,  0);
+				}
+			}
 		}
 		void   SetupBIC()
 		{

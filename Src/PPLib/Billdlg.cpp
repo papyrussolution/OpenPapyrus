@@ -816,8 +816,17 @@ BillDialog::BillDialog(uint dlgID, PPBillPacket * pPack, int isEdit) : PPListDia
 	}
 	// } @v12.2.8 
 	GetOpData(P_Pack->Rec.OpID, &op_rec);
-	Ptb.SetBrush(brushIllPaymDate, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0);
-	Ptb.SetBrush(brushSynced, SPaintObj::bsSolid, GetColorRef(SClrLightsteelblue), 0);
+	{
+		const UiDescription * p_uid = SLS.GetUiDescription();
+		const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
+		{
+			SColor _color;
+			if(!p_cs || !p_cs->Get("invalid_value_input_bg", &p_uid->ClrList, _color))
+				_color = SClrCoral; 
+			Ptb.SetBrush(brushIllPaymDate, SPaintObj::bsSolid, _color, 0);
+		}
+		Ptb.SetBrush(brushSynced, SPaintObj::bsSolid, GetColorRef(SClrLightsteelblue), 0);
+	}
 	const long lcfgf = LConfig.Flags;
 	if((!(lcfgf & CFGFLG_MULTICURBILL_DISABLE) || pPack->Rec.CurID) && getCtrlView(CTLSEL_BILL_CUR)) {
 		Flags |= fExtMainCurAmount;

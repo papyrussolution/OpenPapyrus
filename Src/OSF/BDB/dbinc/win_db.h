@@ -27,7 +27,7 @@
 #endif
 #define	WIN32_LEAN_AND_MEAN
 #ifndef DB_WINCE
-	#include <WinIoCtl.h>
+	// @v12.5.0 #include <WinIoCtl.h>
 #endif
 
 #ifdef HAVE_GETADDRINFO

@@ -39,6 +39,7 @@
 #define TOOLBAR_LIST_WORKBOOK                 35
 #define TOOLBAR_LIST_GOODSSTRUC               36
 #define TOOLBAR_WBPUBLICGOODS                 37
+#define TOOLBAR_LIST_BIZSC2                   38
 #define BROWSER_EMPTY                                    1 // %s
 	#define HELP_BROWSER_EMPTY                                    1
 #define BROWSER_PERSON                                   2 // @{person_pl} {%s}
@@ -99,7 +100,7 @@
 	#define HELP_BROWSER_ATURNGRPNG_CYCLE                        29
 #define BROWSER_BALANCE                                 30 // @{view_balance} (%s)
 	#define HELP_BROWSER_BALANCE                                 30
-#define TOOLBAR_DEBTTRNOVR                    38
+#define TOOLBAR_DEBTTRNOVR                    39
 #define BROWSER_SELLTRNOVR_CT                           31 // @{view_debttrnovr} {%s}
 	#define HELP_BROWSER_SELLTRNOVR_CT                           31
 #define BROWSER_SELLTRNOVR_CT_PAYM                      32 // @{view_debttrnovr} {%s}
@@ -212,7 +213,7 @@
 	#define HELP_BROWSER_SHIPMANLZBYBILL                         85
 #define BROWSER_PSALESGOODS                             86 // @{view_predictsales} (%s)
 	#define HELP_BROWSER_PSALESGOODS                             86
-#define TOOLBAR_TRFRANLZ                      39
+#define TOOLBAR_TRFRANLZ                      40
 #define BROWSER_GOODSCARD                               87 // @{view_trfranlz_goodscard} {%s}
 	#define HELP_BROWSER_GOODSCARD                               87
 #define BROWSER_TRFRANLZ                                88 // @{view_trfranlz}
@@ -335,7 +336,7 @@
 	#define HELP_BROWSER_PLINES_BYALLQUOTS                      146
 #define BROWSER_QCERT                                  147 // @{qcert}
 	#define HELP_BROWSER_QCERT                                  147
-#define TOOLBAR_VATBOOK                       40
+#define TOOLBAR_VATBOOK                       41
 #define BROWSER_VATSELL                                148 // @{salesledger}
 	#define HELP_BROWSER_VATSELL                                148
 #define BROWSER_VATBUY                                 149 // @{purchaseledger}
@@ -354,7 +355,7 @@
 	#define HELP_BROWSER_QUOT_SER                               155
 #define BROWSER_CCHECK                                 156 // @{poscheck_pl}
 	#define HELP_BROWSER_CCHECK                                 156
-#define TOOLBAR_CCHECKGRP                     41
+#define TOOLBAR_CCHECKGRP                     42
 #define BROWSER_CCHECKGRP_TM                           157 // @{view_ccheck} с группировкой по часам
 	#define HELP_BROWSER_CCHECKGRP_TM                           157
 #define BROWSER_CCHECKGRP_DT                           158 // @{view_ccheck} @{_groupedbydate}
@@ -421,7 +422,7 @@
 	#define HELP_BROWSER_STAFFCAL_DTGRP                         188
 #define BROWSER_CURRATE                                189 // @{view_currate}
 	#define HELP_BROWSER_CURRATE                                189
-#define TOOLBAR_CSESS                         42
+#define TOOLBAR_CSESS                         43
 #define BROWSER_CSESS                                  190 // @{view_csess} {%s}
 	#define HELP_BROWSER_CSESS                                  190
 #define BROWSER_CSESS_EXT                              191 // @{view_csessext}
@@ -432,7 +433,7 @@
 	#define HELP_BROWSER_OBJSYNC                                193
 #define BROWSER_OBJSYNCQUEUE                           194 // @{view_objsyncqueue}
 	#define HELP_BROWSER_OBJSYNCQUEUE                           194
-#define TOOLBAR_SCARD                         43
+#define TOOLBAR_SCARD                         44
 #define BROWSER_SCARD                                  195 // @{scard_pl} {%s}
 	#define HELP_BROWSER_SCARD                                  195
 #define BROWSER_SCARDCRD                               196 // @{crdcard_pl} {%s}

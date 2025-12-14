@@ -184,8 +184,23 @@ int BnkOrdTaxMarkersDialog::getDTS(PPBankingOrder * pData)
 BankingOrderDialog::BankingOrderDialog() : TDialog(DLG_BNKPAYM), PayerValidCode(-1), RcvrValidCode(-1)
 {
 	SetupCalDate(CTLCAL_BNKPAYM_DT, CTL_BNKPAYM_DT);
-	Ptb.SetBrush(brushValidNumber,   SPaintObj::bsSolid, GetColorRef(SClrAqua),  0);
-	Ptb.SetBrush(brushInvalidNumber, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0);
+	{
+		const UiDescription * p_uid = SLS.GetUiDescription();
+		const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
+		{
+			SColor _color;
+			if(!p_cs || !p_cs->Get("invalid_value_input_bg", &p_uid->ClrList, _color))
+				_color = SClrCoral; 
+			Ptb.SetBrush(brushInvalidNumber, SPaintObj::bsSolid, _color, 0);
+		}
+		{
+			SColor _color;
+			if(!p_cs || !p_cs->Get("valid_value_input_bg", &p_uid->ClrList, _color))
+				_color = SClrAqua; 
+			Ptb.SetBrush(brushValidNumber,   SPaintObj::bsSolid, _color,  0);
+		}
+	}
+	
 }
 
 void BankingOrderDialog::setupVAT()

@@ -68,8 +68,8 @@ static void FASTCALL xmlErrValid(xmlValidCtxtPtr ctxt, xmlParserErrors error, co
 		data = ctxt->userData;
 		// Use the special values to detect if it is part of a parsing context 
 		if(oneof2(ctxt->finishDtd, XML_CTXT_FINISH_DTD_0, XML_CTXT_FINISH_DTD_1)) {
-			long delta = (char *)ctxt - (char *)ctxt->userData;
-			if((delta > 0) && (delta < 250))
+			const ssize_t delta = (char *)ctxt - (char *)ctxt->userData;
+			if(delta > 0 && delta < 250)
 				pctxt = static_cast<xmlParserCtxt *>(ctxt->userData);
 		}
 	}
@@ -102,8 +102,8 @@ static void xmlErrValidNode(xmlValidCtxtPtr ctxt, xmlNode * pNode, xmlParserErro
 		data = ctxt->userData;
 		// Use the special values to detect if it is part of a parsing context 
 		if((ctxt->finishDtd == XML_CTXT_FINISH_DTD_0) || (ctxt->finishDtd == XML_CTXT_FINISH_DTD_1)) {
-			long delta = (char *)ctxt - (char *)ctxt->userData;
-			if((delta > 0) && (delta < 250))
+			ssize_t delta = (char *)ctxt - (char *)ctxt->userData;
+			if(delta > 0 && delta < 250)
 				pctxt = (xmlParserCtxt *)ctxt->userData;
 		}
 	}
@@ -135,9 +135,9 @@ static void xmlErrValidNodeNr(xmlValidCtxtPtr ctxt, xmlNode * P_Node, xmlParserE
 		channel = ctxt->error;
 		data = ctxt->userData;
 		// Use the special values to detect if it is part of a parsing context 
-		if((ctxt->finishDtd == XML_CTXT_FINISH_DTD_0) || (ctxt->finishDtd == XML_CTXT_FINISH_DTD_1)) {
-			long delta = (char *)ctxt - (char *)ctxt->userData;
-			if((delta > 0) && (delta < 250))
+		if(ctxt->finishDtd == XML_CTXT_FINISH_DTD_0 || ctxt->finishDtd == XML_CTXT_FINISH_DTD_1) {
+			ssize_t delta = (char *)ctxt - (char *)ctxt->userData;
+			if(delta > 0 && delta < 250)
 				pctxt = (xmlParserCtxt *)ctxt->userData;
 		}
 	}
@@ -169,8 +169,8 @@ static void xmlErrValidWarning(xmlValidCtxtPtr ctxt,
 		data = ctxt->userData;
 		// Use the special values to detect if it is part of a parsing context 
 		if((ctxt->finishDtd == XML_CTXT_FINISH_DTD_0) || (ctxt->finishDtd == XML_CTXT_FINISH_DTD_1)) {
-			long delta = (char *)ctxt - (char *)ctxt->userData;
-			if((delta > 0) && (delta < 250))
+			ssize_t delta = (char *)ctxt - (char *)ctxt->userData;
+			if(delta > 0 && delta < 250)
 				pctxt = (xmlParserCtxt *)ctxt->userData;
 		}
 	}

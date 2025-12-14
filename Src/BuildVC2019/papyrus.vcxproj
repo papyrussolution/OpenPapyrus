@@ -1876,9 +1876,6 @@
     <ProjectReference Include="lualib.vcxproj">
       <Project>{86b30cd8-8c99-4cff-804e-16eb5891a1d8}</Project>
     </ProjectReference>
-    <ProjectReference Include="mariadbclient.vcxproj">
-      <Project>{ff98372f-431d-34c6-99e2-6f65b53795d6}</Project>
-    </ProjectReference>
     <ProjectReference Include="openjp2.vcxproj">
       <Project>{c756e07c-5895-39df-8310-7126f3c6fd84}</Project>
     </ProjectReference>

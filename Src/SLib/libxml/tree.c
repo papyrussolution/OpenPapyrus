@@ -3727,10 +3727,8 @@ xmlNode * xmlDocCopyNodeList(xmlDoc * doc, xmlNode * pNode)
 /**
  * xmlCopyNodeList:
  * @node:  the first node in the list.
- *
  * Do a recursive copy of the node list.
  * Use xmlDocCopyNodeList() if possible to ensure string interning.
- *
  * Returns: a new #xmlNodePtr, or NULL in case of error.
  */
 xmlNode * xmlCopyNodeList(xmlNode * pNode)
@@ -3742,9 +3740,7 @@ xmlNode * xmlCopyNodeList(xmlNode * pNode)
 /**
  * xmlCopyDtd:
  * @dtd:  the dtd
- *
  * Do a copy of the dtd.
- *
  * Returns: a new #xmlDtdPtr, or NULL in case of error.
  */
 xmlDtd * xmlCopyDtd(xmlDtd * dtd)
@@ -3887,34 +3883,33 @@ xmlDoc * xmlCopyDoc(xmlDoc * doc, int recursive)
  *
  * Returns the line number if successful, -1 otherwise
  */
-static long xmlGetLineNoInternal(const xmlNode * P_Node, int depth)
+static long xmlGetLineNoInternal(const xmlNode * pNode, int depth)
 {
 	long result = -1;
 	if(depth < 5) {
-		if(P_Node) {
-			if(oneof4(P_Node->type, XML_ELEMENT_NODE, XML_TEXT_NODE, XML_COMMENT_NODE, XML_PI_NODE)) {
-				if(P_Node->line == 65535) {
-					if((P_Node->type == XML_TEXT_NODE) && P_Node->psvi)
-						result = (long)P_Node->psvi; // @x64crit
-					else if((P_Node->type == XML_ELEMENT_NODE) && P_Node->children)
-						result = xmlGetLineNoInternal(P_Node->children, depth + 1);
-					else if(P_Node->next)
-						result = xmlGetLineNoInternal(P_Node->next, depth + 1);
-					else if(P_Node->prev)
-						result = xmlGetLineNoInternal(P_Node->prev, depth + 1);
+		if(pNode) {
+			if(oneof4(pNode->type, XML_ELEMENT_NODE, XML_TEXT_NODE, XML_COMMENT_NODE, XML_PI_NODE)) {
+				if(pNode->line == 65535) {
+					if((pNode->type == XML_TEXT_NODE) && pNode->psvi)
+						result = (long)pNode->psvi; // @x64crit
+					else if((pNode->type == XML_ELEMENT_NODE) && pNode->children)
+						result = xmlGetLineNoInternal(pNode->children, depth+1); // @recursion
+					else if(pNode->next)
+						result = xmlGetLineNoInternal(pNode->next, depth+1); // @recursion
+					else if(pNode->prev)
+						result = xmlGetLineNoInternal(pNode->prev, depth+1); // @recursion
 				}
 				if((result == -1) || (result == 65535))
-					result = (long)P_Node->line;
+					result = (long)pNode->line;
 			}
-			else if(P_Node->prev && oneof4(P_Node->prev->type, XML_ELEMENT_NODE, XML_TEXT_NODE, XML_COMMENT_NODE, XML_PI_NODE))
-				result = xmlGetLineNoInternal(P_Node->prev, depth + 1);
-			else if(P_Node->P_ParentNode && (P_Node->P_ParentNode->type == XML_ELEMENT_NODE))
-				result = xmlGetLineNoInternal(P_Node->P_ParentNode, depth + 1);
+			else if(pNode->prev && oneof4(pNode->prev->type, XML_ELEMENT_NODE, XML_TEXT_NODE, XML_COMMENT_NODE, XML_PI_NODE))
+				result = xmlGetLineNoInternal(pNode->prev, depth+1); // @recursion
+			else if(pNode->P_ParentNode && (pNode->P_ParentNode->type == XML_ELEMENT_NODE))
+				result = xmlGetLineNoInternal(pNode->P_ParentNode, depth+1); // @recursion
 		}
 	}
 	return result;
 }
-
 /**
  * xmlGetLineNo:
  * @node: valid node
@@ -3925,31 +3920,32 @@ static long xmlGetLineNoInternal(const xmlNode * P_Node, int depth)
  *
  * Returns the line number if successful, -1 otherwise
  */
-long xmlGetLineNo(const xmlNode * P_Node)
+long xmlGetLineNo(const xmlNode * pNode)
 {
-	return xmlGetLineNoInternal(P_Node, 0);
+	return xmlGetLineNoInternal(pNode, 0);
 }
 
 #if defined(LIBXML_TREE_ENABLED) || defined(LIBXML_DEBUG_ENABLED)
 /**
  * xmlGetNodePath:
  * @node: a node
- *
  * Build a structure based Path for the given node
- *
- * Returns the new path or NULL in case of error. The caller must free
- *   the returned string
+ * Returns the new path or NULL in case of error. The caller must free the returned string
  */
 xmlChar * xmlGetNodePath(const xmlNode * pNode)
 {
-	const xmlNode * cur, * tmp, * next;
-	xmlChar * buffer = NULL, * temp;
+	const xmlNode * cur;
+	const xmlNode * tmp;
+	const xmlNode * next;
+	xmlChar * buffer = NULL;
+	xmlChar * temp;
 	size_t buf_len;
 	xmlChar * buf;
 	const char * sep;
 	const char * name;
 	char nametemp[100];
-	int occur = 0, generic;
+	int occur = 0;
+	int generic;
 	if(!pNode || pNode->type == XML_NAMESPACE_DECL)
 		return 0;
 	buf_len = 500;

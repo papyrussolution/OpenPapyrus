@@ -154,7 +154,16 @@ public:
 		addGroup(grpGoods, new GoodsCtrlGroup(CTLSEL_LOCTRANSF_GGRP, CTLSEL_LOCTRANSF_GOODS));
 		addGroup(grpPallet, new PalletCtrlGroup(CTLSEL_LOCTRANSF_PLTTYPE, CTL_LOCTRANSF_PLT, CTL_LOCTRANSF_PLTC,
 			CTL_LOCTRANSF_PCKG, CTL_LOCTRANSF_PCKGC, CTL_LOCTRANSF_QTTY, CTLSEL_LOCTRANSF_GOODS));
-		Ptb.SetBrush(brushIllSerial, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0);
+		{
+			const UiDescription * p_uid = SLS.GetUiDescription();
+			const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
+			{
+				SColor _color;
+				if(!p_cs || !p_cs->Get("invalid_value_input_bg", &p_uid->ClrList, _color))
+					_color = SClrCoral; 
+				Ptb.SetBrush(brushIllSerial, SPaintObj::bsSolid, _color, 0);
+			}
+		}
 	}
 	DECL_DIALOG_SETDTS()
 	{

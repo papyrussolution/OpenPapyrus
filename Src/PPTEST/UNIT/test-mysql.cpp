@@ -290,6 +290,28 @@ SLTEST_R(MySQL) // @v12.4.7
 		}
 	}
 	//
+	if(p_tbl_ref01) {
+		//
+		// Теперь ищем по текстовому индексу в таблице Ref01
+		//
+		for(uint i = 0; i < ref01_rec_list.getCount(); i++) {
+			const TestRef01Tbl::Rec * p_ref01_patten_rec = ref01_rec_list.at(i);
+			if(p_ref01_patten_rec && !isempty(p_ref01_patten_rec->S48)) {
+				TestRef01Tbl::Key5 ref01_k5;
+				MEMSZERO(ref01_k5);
+				STRNSCPY(ref01_k5.S48, p_ref01_patten_rec->S48);
+				const int sr = p_tbl_ref01->search(5, &ref01_k5, spEq);
+				SLCHECK_NZ(sr);
+				if(sr) {
+					TestRef01Tbl::Rec * p_ref01_rec_buf = static_cast<TestRef01Tbl::Rec *>(p_tbl_ref01->getDataBuf());
+					SLCHECK_Z(stricmp866(p_ref01_rec_buf->S48, p_ref01_patten_rec->S48));
+				}
+				else {
+					;
+				}
+			}
+		}
+	}
 	LDATETIME first_pattern_dtm;
 	LDATETIME last_pattern_dtm;
 	first_pattern_dtm.Set(record_list.at(0)->Dt, record_list.at(0)->Tm);
@@ -299,6 +321,32 @@ SLTEST_R(MySQL) // @v12.4.7
 		//const TestTa01Tbl::Rec * p_first_pattern_rec = record_list.at(0);
 		TestTa01Tbl::Key0 k0;
 		TestTa01Tbl::Rec * p_rec_buf = static_cast<TestTa01Tbl::Rec *>(p_tbl->getDataBuf());
+		{
+			// Поиск по GUID-полю (TestTa01Tbl::GuidVal)
+			uint   srch_count = 0;
+			uint   uneq_rec_count = 0;
+			uint   nfound_count = 0;
+			for(uint i = 0; i < record_list.getCount(); i++) {
+				const TestTa01Tbl::Rec * p_pattern_rec = record_list.at(i);
+				if(p_pattern_rec) {
+					//BExtQuery q(p_tbl, 0);
+					//q.selectAll().
+					TestTa01Tbl::Key3 k3;
+					k3.GuidVal = p_pattern_rec->GuidVal;
+					if(p_tbl->search(3, &k3, spEq)) {
+						if(!__PrcssrTestDb_Are_TestTa01_RecsEqual(*p_rec_buf, *p_pattern_rec)) {							
+							uneq_rec_count++;
+						}
+					}
+					else {
+						nfound_count++;
+					}
+					srch_count++;
+				}
+			}
+			SLCHECK_Z(uneq_rec_count);
+			SLCHECK_Z(nfound_count);
+		}
 		{
 			// Найти каждую из записей
 			MEMSZERO(k0);
@@ -354,54 +402,6 @@ SLTEST_R(MySQL) // @v12.4.7
 				srch_count++;
 			} while(srch_count < rec_list_count && p_tbl->search(0, &k0, spPrev) && (p_rec_buf->Dt > first_pattern_dtm.d || (p_rec_buf->Dt == first_pattern_dtm.d && p_rec_buf->Tm >= first_pattern_dtm.t)));
 			SLCHECK_Z(uneq_rec_count);
-		}
-		{
-			// Поиск по GUID-полю (TestTa01Tbl::GuidVal)
-			uint   srch_count = 0;
-			uint   uneq_rec_count = 0;
-			uint   nfound_count = 0;
-			for(uint i = 0; i < record_list.getCount(); i++) {
-				const TestTa01Tbl::Rec * p_pattern_rec = record_list.at(i);
-				if(p_pattern_rec) {
-					//BExtQuery q(p_tbl, 0);
-					//q.selectAll().
-					TestTa01Tbl::Key3 k3;
-					k3.GuidVal = p_pattern_rec->GuidVal;
-					if(p_tbl->search(3, &k3, spEq)) {
-						if(!__PrcssrTestDb_Are_TestTa01_RecsEqual(*p_rec_buf, *p_pattern_rec)) {							
-							uneq_rec_count++;
-						}
-					}
-					else {
-						nfound_count++;
-					}
-					srch_count++;
-				}
-			}
-			SLCHECK_Z(uneq_rec_count);
-			SLCHECK_Z(nfound_count);
-		}
-		if(p_tbl_ref01) {
-			//
-			// Теперь ищем по текстовому индексу в таблице Ref01
-			//
-			for(uint i = 0; i < ref01_rec_list.getCount(); i++) {
-				const TestRef01Tbl::Rec * p_ref01_patten_rec = ref01_rec_list.at(i);
-				if(p_ref01_patten_rec && !isempty(p_ref01_patten_rec->S48)) {
-					TestRef01Tbl::Key5 ref01_k5;
-					MEMSZERO(ref01_k5);
-					STRNSCPY(ref01_k5.S48, p_ref01_patten_rec->S48);
-					const int sr = p_tbl_ref01->search(5, &ref01_k5, spEq);
-					SLCHECK_NZ(sr);
-					if(sr) {
-						TestRef01Tbl::Rec * p_ref01_rec_buf = static_cast<TestRef01Tbl::Rec *>(p_tbl_ref01->getDataBuf());
-						SLCHECK_Z(stricmp866(p_ref01_rec_buf->S48, p_ref01_patten_rec->S48));
-					}
-					else {
-						;
-					}
-				}
-			}
 		}
 	}
 	//

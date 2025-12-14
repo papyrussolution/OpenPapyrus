@@ -2389,14 +2389,12 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 								{
 									SXml::WNode n_tr(_doc, SXml::nst("wb", "Transport"));
 									n_tr.PutInner(SXml::nst("wb", "TRAN_TYPE"), "413"); // Пока не понятно. Во всех примерах только это значение.
-									// @v11.0.12 {
 									if(doc_type == PPEDIOP_EGAIS_WAYBILL_V4) {
 										//<wb:ChangeOwnership>IsChange</wb:ChangeOwnership>
 										n_tr.PutInner(SXml::nst("wb", "ChangeOwnership"), "IsChange"); // ???
 										//<wb:TRANSPORT_TYPE>car</wb:TRANSPORT_TYPE>
 										n_tr.PutInner(SXml::nst("wb", "TRANSPORT_TYPE"), "car");
 									}
-									// } @v11.0.12 
 									temp_buf.Z();
 									if(p_bp->P_Freight)
 										GetPersonName(p_bp->P_Freight->AgentID, temp_buf);
@@ -4930,7 +4928,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 								ti.Quantity_ = _src_qtty;
 								ti.Cost = _src_cost;
 							}
-							uint   new_pos = p_bp->GetTCount();
+							//uint   new_pos = p_bp->GetTCount();
 							THROW(p_bp->LoadTItem(&ti, 0, 0/*serial*/));
 							if(p_ecs_entry) {
 								p_ecs_entry->RByBill = ti.RByBill;
@@ -5759,7 +5757,7 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 																}
 																else {
 																	PPTransferItem ti;
-																	uint   new_pos = p_wroff_bp->GetTCount();
+																	const  uint new_pos = p_wroff_bp->GetTCount();
 																	THROW(ti.Init(&p_wroff_bp->Rec, 1));
 																	THROW(ti.SetupGoods(goods_id, 0));
 																	ti.Quantity_ = -wroff_qtty;
@@ -5834,7 +5832,7 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 																		} while(lotidx);
 																	}
 																	PPTransferItem ti;
-																	uint   new_pos = p_wroff_wo_marks_bp->GetTCount();
+																	const  uint new_pos = p_wroff_wo_marks_bp->GetTCount();
 																	THROW(ti.Init(&p_wroff_wo_marks_bp->Rec, 1));
 																	THROW(ti.SetupGoods(goods_id, 0));
 																	ti.Quantity_ = -qtty_to_apply;
@@ -5900,7 +5898,7 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 														}
 														else {
 															PPTransferItem ti;
-															uint   new_pos = p_wroff_bp->GetTCount();
+															const  uint new_pos = p_wroff_bp->GetTCount();
 															THROW(ti.Init(&p_wroff_bp->Rec, 1));
 															THROW(ti.SetupGoods(goods_id, 0));
 															ti.Quantity_ = -wroff_qtty;
@@ -11052,6 +11050,39 @@ int EgaisMarkAutoSelector::Helper(PPID goodsID, double qtty, DocItem & rResult)
 	return result;
 }
 
+int EgaisMarkAutoSelector::GetWrOffBillList(PPIDArray & rResultList) // @v12.5.0
+{
+/*{
+	//PPOPK_EDI_WROFFWITHMARKS
+	TSVector<LotExtCodeTbl::Rec> lxc_rec_list;
+	P_BObj->P_LotXcT->GetRecListByMark(P.MainPattern, lxc_rec_list);
+}*/
+	rResultList.Z();
+	int    ok = -1;
+	Reference * p_ref(PPRef);
+	PPObjBill * p_bobj(BillObj);
+	BillCore * p_billc = p_bobj->P_Tbl;
+	SString temp_buf;
+	BillTbl::Rec bill_rec;
+	DateRange period;
+	period.low = encodedate(1, 1, 2024); // Все это делается под конкретную проблему, возникшую понятно когда. Поэтому начальная дата оправдана.
+	for(SEnum en = p_billc->EnumByOp(PPOPK_EDI_WROFFWITHMARKS, &period, 0); en.Next(&bill_rec) > 0;) {
+		//PPTAG_BILL_EDIACK
+		//PPTAG_BILL_EDIIDENT
+		if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_rec.ID, PPTAG_BILL_EDIIDENT, temp_buf) > 0) {
+			assert(temp_buf.NotEmpty());
+			if(temp_buf.NotEmpty()) {
+				rResultList.add(bill_rec.ID);
+			}
+		}
+	}
+	if(rResultList.getCount()) {
+		rResultList.sortAndUndup();
+		ok = 1;
+	}
+	return ok;
+}
+
 int EgaisMarkAutoSelector::GetRecentEgaisStock(TSVector <RefBEntry> & rResultList)
 {
 	int    ok = -1;
@@ -11189,6 +11220,7 @@ int EgaisMarkAutoSelector::InitActualDate(LDATE actualDate) // @v12.4.10
 {
 	int    ok = -1;
 	if(!Ib.Done) {
+		GetWrOffBillList(Ib.WrOffBillIdList); // @v12.5.0
 		GetRecentEgaisStock(Ib.RecentEgaisStock);
 		Ib.Done = true;
 		ok = 1;
@@ -11241,15 +11273,43 @@ int EgaisMarkAutoSelector::Run(ResultBlock & rResult, LDATE actualDate)
 									}
 								}
 								if(lbm.getCount()) {
-									const uint back_days = PPObjCSession::GetCcListByMarkBackDays(lbm);
-									LAssocArray index;
-									LAssocArray * p_index = CsObj.FetchCcDate2MaxIdIndex(index) ? &index : 0;
-									CsObj.P_Cc->Helper_GetListByMark2(lbm, CCheckPacket::lnextEgaisMark, p_index, back_days, 0);
-									for(uint lbmidx = 0; lbmidx < lbm.getCount(); lbmidx++) {
-										const CCheckCore::ListByMarkEntry * p_cclbm_entry = lbm.at(lbmidx);
-										if(p_cclbm_entry && p_cclbm_entry->P_Extra) {
-											EgaisMarkAutoSelector::_MarkEntry * p_me = static_cast<EgaisMarkAutoSelector::_MarkEntry *>(p_cclbm_entry->P_Extra);
-											p_me->Rest -= p_cclbm_entry->TotalOpQtty;
+									// @v12.5.0 {
+									if(Ib.WrOffBillIdList.getCount()) {
+										PPObjBill * p_bobj(BillObj);
+										TSVector<LotExtCodeTbl::Rec> lxc_rec_list;
+										for(uint lbmidx = 0; lbmidx < lbm.getCount(); lbmidx++) {
+											CCheckCore::ListByMarkEntry * p_cclbm_entry = lbm.at(lbmidx);
+											if(p_cclbm_entry && p_lotxct->GetRecListByMark(p_cclbm_entry->Mark, lxc_rec_list) > 0) {
+												for(uint lxci = 0; lxci < lxc_rec_list.getCount(); lxci++) {
+													const LotExtCodeTbl::Rec & r_lxcr = lxc_rec_list.at(lxci);
+													if(Ib.WrOffBillIdList.bsearch(r_lxcr.BillID)) { // bsearch поскольку мы отсортирвали массив при инициализации!
+														int16  ln = 0;
+														PPTransferItem lec_ti;
+														for(int lec_rbb = 0; p_bobj->P_CpTrfr->EnumItems(r_lxcr.BillID, &lec_rbb, &lec_ti, 0) > 0;) {
+															if(++ln == r_lxcr.RByBill)
+																break;
+														}
+														if(ln == r_lxcr.RByBill && lec_ti.Quantity_ != 0.0) {
+															p_cclbm_entry->BillOpQtty += fabs(lec_ti.Quantity_);
+														}
+													}
+												}
+											}
+										}
+									}
+									// } @v12.5.0 
+									{
+										const uint back_days = PPObjCSession::GetCcListByMarkBackDays(lbm);
+										LAssocArray index;
+										LAssocArray * p_index = CsObj.FetchCcDate2MaxIdIndex(index) ? &index : 0;
+										CsObj.P_Cc->Helper_GetListByMark2(lbm, CCheckPacket::lnextEgaisMark, p_index, back_days, 0);
+										for(uint lbmidx = 0; lbmidx < lbm.getCount(); lbmidx++) {
+											const CCheckCore::ListByMarkEntry * p_cclbm_entry = lbm.at(lbmidx);
+											if(p_cclbm_entry && p_cclbm_entry->P_Extra) {
+												EgaisMarkAutoSelector::_MarkEntry * p_me = static_cast<EgaisMarkAutoSelector::_MarkEntry *>(p_cclbm_entry->P_Extra);
+												p_me->Rest -= p_cclbm_entry->BillOpQtty; // @v12.5.0
+												p_me->Rest -= p_cclbm_entry->TotalOpQtty;
+											}
 										}
 									}
 								}

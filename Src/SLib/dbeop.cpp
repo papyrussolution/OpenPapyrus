@@ -460,7 +460,7 @@ IMPL_DBE_PROC(_ltoa_i)
 IMPL_DBE_PROC(_enumtoa_iii)
 {
 	int    i;
-	const char ** p = reinterpret_cast<const char **>(IPAR(2));
+	const char ** p = reinterpret_cast<const char **>(IPAR(2)); // @x64crit
 	if(option == CALC_SIZE) {
 		size_t m = 1;
 		for(i = 0; i < IPAR(1); i++) {
@@ -483,7 +483,7 @@ IMPL_DBE_PROC(_enumtoa_iii)
 IMPL_DBE_PROC(_flagtoa_iii)
 {
 	size_t i;
-	const char ** p = reinterpret_cast<const char **>(IPAR(2));
+	const char ** p = reinterpret_cast<const char **>(IPAR(2)); // @x64crit
 	if(option == CALC_SIZE) {
 		size_t m = 1;
 		for(i = 0; i < 2; i++)

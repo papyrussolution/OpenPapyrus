@@ -3192,7 +3192,7 @@ inline bool VARIANT_BOOLToBool(VARIANT_BOOL v) { return (v != VARIANT_FALSE); }
 // <Windows/ResourceString.h> <Windows/FileIO.h> <Windows/FileDir.h> <Windows/FileFind.h> <Windows/FileName.h>
 
 #if defined(_WIN32) && !defined(UNDER_CE)
-	#include <winioctl.h>
+	// @v12.5.0 #include <winioctl.h>
 #endif
 #define _my_IO_REPARSE_TAG_MOUNT_POINT  (0xA0000003L)
 #define _my_IO_REPARSE_TAG_SYMLINK      (0xA000000CL)

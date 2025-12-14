@@ -4448,6 +4448,50 @@ int PPBillPacket::HasOneOfGoods(const ObjIdListFilt & rList) const
 	return yes;
 }
 
+bool PPBillPacket::HasChZnMarks(bool isCorrectionExp) const
+{
+	bool    result = false;
+	SString temp_buf;
+	PPLotExtCodeContainer::MarkSet ext_codes_set;
+	StringSet ss;
+	for(uint tiidx = 0; !result && tiidx < GetTCount(); tiidx++) {
+		const  PPTransferItem & r_ti = ConstTI(tiidx);
+		const  PPID goods_id = r_ti.GoodsID;
+		if(XcL.Get(tiidx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount()) {
+			ext_codes_set.GetByBoxID(0, ss);
+			for(uint ecsp = 0; !result && ss.get(&ecsp, temp_buf);) {
+				if(temp_buf.NotEmptyS())
+					result = true;
+			}
+		}
+		if(!result && !isCorrectionExp) {
+			PPObjGoods goods_obj;
+			Goods2Tbl::Rec goods_rec;
+			PPGoodsType gt_rec;
+			BarcodeArray bc_list;
+			SString norm_code;
+			if(goods_obj.Fetch(goods_id, &goods_rec) > 0 && goods_rec.GoodsTypeID) {
+				if(goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && oneof3(gt_rec.ChZnProdType, GTCHZNPT_MILK, GTCHZNPT_WATER, GTCHZNPT_SOFTDRINKS)) {
+					goods_obj.P_Tbl->ReadBarcodes(goods_id, bc_list);
+					temp_buf.Z();
+					for(uint bcidx = 0; !result && bcidx < bc_list.getCount(); bcidx++) {
+						const BarcodeTbl::Rec & r_bc_rec = bc_list.at(bcidx);
+						int    diag = 0;
+						int    std = 0;
+						const  int dbcr = PPObjGoods::DiagBarcode(r_bc_rec.Code, &diag, &std, &norm_code);
+						if(dbcr > 0 && oneof4(std, BARCSTD_EAN13, BARCSTD_EAN8, BARCSTD_UPCA, BARCSTD_UPCE)) {
+							assert(norm_code.Len() < 14);
+							if(norm_code.Len() < 14)
+								result = true;
+						}
+					}
+				}
+			}
+		}
+	}
+	return result;
+}
+
 bool PPBillPacket::SearchLot(PPID lotID, uint * pPos) const
 	{ return Lots.lsearch(&lotID, pPos, CMPF_LONG, offsetof(PPTransferItem, LotID)); }
 bool PPBillPacket::SearchShLot(PPID lotID, uint * pPos) const

@@ -548,7 +548,7 @@ int ViewStatus()
 		{ CTL_STATUS_INPATH,   PPPATH_IN },
 		{ CTL_STATUS_OUTPATH,  PPPATH_OUT },
 		{ CTL_STATUS_TEMPPATH, PPPATH_TEMP },
-		{ CTL_STATUS_LOGPATH,  PPPATH_LOG } // @v11.0.0
+		{ CTL_STATUS_LOGPATH,  PPPATH_LOG }
 	};
 	class StatusDialog : public TDialog {
 		enum {
@@ -559,8 +559,22 @@ int ViewStatus()
 	public:
 		StatusDialog() : TDialog(DLG_STATUS)
 		{
-			Ptb.SetBrush(brushValidPath,   SPaintObj::bsSolid, GetColorRef(SClrAqua),  0);
-			Ptb.SetBrush(brushInvalidPath, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0);
+			{
+				const UiDescription * p_uid = SLS.GetUiDescription();
+				const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
+				{
+					SColor _color;
+					if(!p_cs || !p_cs->Get("invalid_value_input_bg", &p_uid->ClrList, _color))
+						_color = SClrCoral; 
+					Ptb.SetBrush(brushInvalidPath, SPaintObj::bsSolid, _color, 0);
+				}
+				{
+					SColor _color;
+					if(!p_cs || !p_cs->Get("valid_value_input_bg", &p_uid->ClrList, _color))
+						_color = SClrAqua; 
+					Ptb.SetBrush(brushValidPath,   SPaintObj::bsSolid, _color,  0);
+				}
+			}
 			SetCtrlBitmap(CTL_STATUS_IMG, BM_PICT_STATUS);
 			PPAdviseEventQueue * p_queue = DS.GetAdviseEventQueue(0);
 			enableCommand(cmAeqStat, BIN(p_queue));
@@ -2965,10 +2979,11 @@ int  AdvComboBoxSelDialog(const StrAssocArray & rAry, SString & rTitle, SString 
 	TDialog * p_dlg = new TDialog(DLG_ADVCBXSEL);
 	if(CheckDialogPtrErr(&p_dlg)) {
 		PPID   id = DEREFPTRORZ(pID);
-		SString subtitle, label;
-		if(rTitle.Len())
+		SString subtitle;
+		SString label;
+		if(rTitle.NotEmpty())
 			p_dlg->setSubTitle(rTitle);
-		if(rLabel.Len())
+		if(rLabel.NotEmpty())
 			p_dlg->setLabelText(CTL_CBXSEL_COMBO, rLabel);
 		SetupStrAssocCombo(p_dlg, CTLSEL_CBXSEL_COMBO, rAry, id, flags);
 		if(pName)
@@ -8659,9 +8674,9 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						}
 						pDlg->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
 						is_inserted = true;
-						if(oneof7(supplement.Kind, SUiCtrlSupplement::kDateCalendar, SUiCtrlSupplement::kDateRangeCalendar,
+						if(oneof8(supplement.Kind, SUiCtrlSupplement::kDateCalendar, SUiCtrlSupplement::kDateRangeCalendar,
 							SUiCtrlSupplement::kTime, SUiCtrlSupplement::kCalc, SUiCtrlSupplement::kAsterisk, 
-							SUiCtrlSupplement::kFileBrowse, SUiCtrlSupplement::kFilt)) { // @v12.3.10 SUiCtrlSupplement::kFileBrowse // @v12.4.10 SUiCtrlSupplement::kFilt
+							SUiCtrlSupplement::kFileBrowse, SUiCtrlSupplement::kFilt, SUiCtrlSupplement::kEllipsis)) { // @v12.3.10 SUiCtrlSupplement::kFileBrowse // @v12.4.10 SUiCtrlSupplement::kFilt
 							if(supplement.Ident) {
 								const char * p_supplement_title = 0;
 								TRect rc_sb;
@@ -8686,6 +8701,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 									case SUiCtrlSupplement::kCalc: pic_id = PPDV_CALCULATOR02; break;
 									case SUiCtrlSupplement::kAsterisk: pic_id = PPDV_ASTERISK01; break;
 									case SUiCtrlSupplement::kFileBrowse: pic_id = PPDV_FOLDER02; break;
+									case SUiCtrlSupplement::kEllipsis: pic_id = PPDV_ELLIPSIS; break; // @v12.5.0
 								}
 								TButton * p_sb = new TButton(rc_sb, p_supplement_title, supplement.Cmd, 0, pic_id);
 								p_sb->SetSupplementFactors(supplement.Kind, item_id);
@@ -8841,7 +8857,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						pDlg->InsertCtlWithCorrespondingNativeItem(p_cb, item_id, 0, /*extraPtr*/0);
 						is_inserted = true;
 						// @v12.4.1 {
-						if(oneof2(supplement.Kind, SUiCtrlSupplement::kList, SUiCtrlSupplement::kFilt)) { // @v12.4.10 SUiCtrlSupplement::kFilt
+						if(oneof3(supplement.Kind, SUiCtrlSupplement::kList, SUiCtrlSupplement::kFilt, SUiCtrlSupplement::kEllipsis)) { // @v12.4.10 SUiCtrlSupplement::kFilt
 							if(supplement.Ident || supplement.Cmd) {
 								TRect rc_sb;
 								rc_sb.a.x = rc_cb.b.x+1;
@@ -8862,6 +8878,10 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 										if(supplement.Text.IsEmpty()) {
 											PPLoadStringUtf8("but_filt", supplement.Text);
 										}
+										break; 
+									case SUiCtrlSupplement::kEllipsis: // @v12.5.0
+										rc_sb.b.x = rc_sb.a.x + 20; // Длина кнопки 20px
+										pic_id = PPDV_ELLIPSIS;
 										break; 
 								}
 								TButton * p_sb = new TButton(rc_sb, supplement.Text, supplement.Cmd, 0, pic_id);

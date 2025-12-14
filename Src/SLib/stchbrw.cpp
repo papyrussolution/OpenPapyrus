@@ -371,7 +371,7 @@ int FASTCALL STimeChunkBrowser::InvalidateChunk(long chunkId)
 			return 0;
 		case WM_LBUTTONDBLCLK:
 			p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
-			CALLPTRMEMB(p_view, ProcessDblClk(p.setwparam(lParam)));
+			CALLPTRMEMB(p_view, ProcessDblClk(p.setwparam(static_cast<uint32>(lParam))));
 			break;
 		case WM_LBUTTONDOWN:
 			p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
@@ -379,13 +379,13 @@ int FASTCALL STimeChunkBrowser::InvalidateChunk(long chunkId)
 				if(hWnd != GetFocus())
 					SetFocus(hWnd);
 				SetCapture(hWnd);
-				p_view->Resize(1, p.setwparam(lParam));
+				p_view->Resize(1, p.setwparam(static_cast<uint32>(lParam)));
 			}
 			return 0;
 		case WM_LBUTTONUP:
 			ReleaseCapture();
 			p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
-			CALLPTRMEMB(p_view, Resize(0, p.setwparam(lParam)));
+			CALLPTRMEMB(p_view, Resize(0, p.setwparam(static_cast<uint32>(lParam))));
 			break;
 		case WM_MOUSELEAVE:
 			p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
@@ -415,7 +415,7 @@ int FASTCALL STimeChunkBrowser::InvalidateChunk(long chunkId)
 			p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
 			if(p_view) {
 				SPoint2S tp;
-				tp.setwparam(lParam);
+				tp.setwparam(static_cast<uint32>(lParam));
 				if(p_view->PrevMouseCoord != tp) {
 					p_view->PrevMouseCoord = tp;
 					p_view->Flags &= ~stMouseTrackRegistered;
@@ -424,7 +424,7 @@ int FASTCALL STimeChunkBrowser::InvalidateChunk(long chunkId)
 				if(wParam == 0) {
 					Area a2;
 					p_view->GetArea(a2);
-					if(p_view->Locate(p.setwparam(lParam), &loc) > 0) {
+					if(p_view->Locate(p.setwparam(static_cast<uint32>(lParam)), &loc) > 0) {
 						HCURSOR cursor = 0;
 						if(loc.Kind == Loc::kChunk && oneof2(loc.Pos, Loc::pLeftEdge, Loc::pRightEdge))
 							cursor = p_view->Ptb.GetCursor(curResizeHorz);
@@ -462,7 +462,7 @@ int FASTCALL STimeChunkBrowser::InvalidateChunk(long chunkId)
 					}
 				}
 				else if(wParam & MK_LBUTTON && hWnd == GetCapture())
-					p_view->Resize(2, p.setwparam(lParam));
+					p_view->Resize(2, p.setwparam(static_cast<uint32>(lParam)));
 			}
 			return 0; // @exit
 	}
@@ -518,34 +518,201 @@ const STimeChunkBrowser::SRect * FASTCALL STimeChunkBrowser::SRectArray::SearchP
 
 STimeChunkBrowser::STimeChunkBrowser() : TBaseBrowserWindow(SUcSwitch(SlConst::WinClsName_TimeChunkBrowser)), BmpId_ModeGantt(0), BmpId_ModeHourDay(0), P_Tt(0), Flags(0)
 {
+	/*
+		tmchunkgrid
+
+		tmchunkgrid_white_fg
+		tmchunkgrid_black_fg		
+		tmchunkgrid_quant_separator,      // Вертикальные линии на весь экран, отстоящие друг от друга на кратном кванту расстоянии
+		tmchunkgrid_main_quant_separator,  // Вертикальные линии на весь экран, отстоящие друг от друга на расстоянии, равном кванту //
+		tmchunkgrid_day_separator,        // @v6.8.1 Вертикальные линии на весь экран, отстоящие друг от друга на расстоянии, равном одному дню //
+		tmchunkgrid_def_chunk_contour,      // Контур регулярного отрезка
+		tmchunkgrid_selected_chunk_contour, // Контур выбранного отрезка
+		tmchunkgrid_chunk_contour,          // Контур невыделенного отрезка
+		tmchunkgrid_resized_chunk_contour,  // Контур отрезка, размеры которого изменяются //
+		tmchunkgrid_main_separator,       // Линии раздела зон и уровней заголовков
+		tmchunkgrid_current_line,           // Линия текущего меомента времени
+		tmchunkgrid_header_bg,            // (colorHeader) Кисть для отрисовки заголовка таблицы
+		tmchunkgrid_main_bg,              // (colorMain)   Кисть для отрисовки основной области окна
+		tmchunkgrid_def_chunk_bg,          // Кисть по умолчанию для прямоугольников, отображающих временные отрезки
+		tmchunkgrid_moved_chunk_bg,        // Кисть для отрисовки оригинала перемещаемого отрезка
+		tmchunkgrid_rescale_quant_bg,      // Кисть для отрисовки прямоугольника индикации смены масштаба
+		tmchunkgrid_interleave_bg,        // (colorInterleave) Кисть черезстрочного выделения //
+		tmchunkgrid_holiday_bg,           // Кисть отображения выходных дней
+		tmchunkgrid_holiday_interleave_bg, // Кисть отображения выходных дней
+
+		{
+			"symb": "tmchunkgrid_01",
+			"tmchunkgrid_white_fg": "#white",
+			"tmchunkgrid_black_fg": "#black",
+			"tmchunkgrid_main_quant_separator": "#silver",
+			"tmchunkgrid_quant_separator": "#silver",
+			"tmchunkgrid_day_separator": "#darkgrey",
+			"tmchunkgrid_main_separator": "#silver",
+			"tmchunkgrid_def_chunk_contour": "#silver",
+			"tmchunkgrid_selected_chunk_contour": "#coral",
+			"tmchunkgrid_chunk_contour": "#dimgrey",
+			"tmchunkgrid_resized_chunk_contour": "#black",
+			"tmchunkgrid_current_line": "#red",
+			"tmchunkgrid_header_bg": "#778899",
+			"tmchunkgrid_main_bg": "#EEEEEE",
+			"tmchunkgrid_def_chunk_bg": "#E8EFF7",
+			"tmchunkgrid_moved_chunk_bg": "#white",
+			"tmchunkgrid_rescale_quant_bg": "#coral",
+			"tmchunkgrid_interleave_bg": "#DDDDDD",
+			"tmchunkgrid_holiday_bg": "#090909",
+			"tmchunkgrid_holiday_interleave_bg": "#090909"
+		}
+	*/ 
+
+	const char * p_scheme_symb = "tmchunkgrid_01";
+	const UiDescription * p_uid = p_scheme_symb ? SLS.GetUiDescription() : 0;
+	const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC(p_scheme_symb) : 0;
+
 	P.Quant = 12 * 60;
 	P.PixQuant = 20;
 	P.PixRow = 20;
 	P_Data = &DataStub;
 	MEMSZERO(St);
-	Ptb.SetColor(colorHeader,     RGB(0x77, 0x88, 0x99) /*темно-темно-серый*/);  // Цвет отрисовки заголовка таблицы
-	Ptb.SetColor(colorMain,       RGB(0xEE, 0xEE, 0xEE));  // Основной цвет фона
-	Ptb.SetColor(colorInterleave, RGB(0xDD, 0xDD, 0xDD));  // Цвет фона черезстрочных линий
-	Ptb.SetColor(colorWhiteText,  GetColorRef(SClrWhite)); // Белый цвет текста
-	Ptb.SetColor(colorBlackText,  GetColorRef(SClrBlack)); // Черный цвет текста
-	Ptb.SetPen(penMainQuantSeparator, SPaintObj::psDot,   1, GetColorRef(SClrSilver));
-	Ptb.SetPen(penQuantSeparator,     SPaintObj::psSolid, 1, GetColorRef(SClrSilver));
-	Ptb.SetPen(penDaySeparator,     SPaintObj::psSolid, 1, GetColorRef(SClrDarkgrey));
-	Ptb.SetPen(penMainSeparator,    SPaintObj::psSolid, 1, GetColorRef(SClrSilver));
-	Ptb.SetPen(penDefChunk,         SPaintObj::psNull,  1, GetColorRef(SClrSilver));
-	Ptb.SetPen(penSelectedChunk,    SPaintObj::psInsideFrame, 1, GetColorRef(SClrCoral));
-	Ptb.SetPen(penChunk,            SPaintObj::psInsideFrame, 1, GetColorRef(SClrDimgrey));
-	Ptb.SetPen(penResizedChunk,     SPaintObj::psInsideFrame, 3, GetColorRef(SClrBlack));
-	Ptb.SetPen(penCurrent,          SPaintObj::psDot,   1, GetColorRef(SClrRed));
+
+	{ // Цвет отрисовки заголовка таблицы
+		SColor _color;
+		if(!p_cs || !p_cs->Get("tmchunkgrid_header_bg", &p_uid->ClrList, _color))
+			_color.Set(RGB(0x77, 0x88, 0x99));
+		Ptb.SetColor(colorHeader, (COLORREF)_color);  
+		//Ptb.SetColor(colorHeader,     RGB(0x77, 0x88, 0x99) /*темно-темно-серый*/);
+	}
+	{ // Основной цвет фона
+		SColor _color;
+		if(!p_cs || !p_cs->Get("tmchunkgrid_main_bg", &p_uid->ClrList, _color))
+			_color.Set(RGB(0xEE, 0xEE, 0xEE));
+		Ptb.SetColor(colorMain, (COLORREF)_color);  
+		//Ptb.SetColor(colorMain,       RGB(0xEE, 0xEE, 0xEE));
+	}
+	{ // Цвет фона черезстрочных линий
+		SColor _color;
+		if(!p_cs || !p_cs->Get("tmchunkgrid_interleave_bg", &p_uid->ClrList, _color))
+			_color.Set(RGB(0xDD, 0xDD, 0xDD));
+		Ptb.SetColor(colorInterleave, (COLORREF)_color);  
+		//Ptb.SetColor(colorInterleave, RGB(0xDD, 0xDD, 0xDD));
+	}
+	{ // Белый цвет текста
+		SColor _color;
+		if(!p_cs || !p_cs->Get("tmchunkgrid_white_fg", &p_uid->ClrList, _color))
+			_color = SClrWhite;
+		Ptb.SetColor(colorWhiteText, (COLORREF)_color);  
+		//Ptb.SetColor(colorWhiteText,  GetColorRef(SClrWhite));
+	}
+	{ // Черный цвет текста
+		SColor _color;
+		if(!p_cs || !p_cs->Get("tmchunkgrid_black_fg", &p_uid->ClrList, _color))
+			_color = SClrBlack;
+		Ptb.SetColor(colorBlackText, (COLORREF)_color);  
+		//Ptb.SetColor(colorBlackText,  GetColorRef(SClrBlack)); 
+	}
+	{
+		SColor _color;
+		if(!p_cs || !p_cs->Get("tmchunkgrid_main_quant_separator", &p_uid->ClrList, _color))
+			_color = SClrSilver;
+		Ptb.SetPen(penMainQuantSeparator, SPaintObj::psDot, 1, _color);
+	}
+	{
+		SColor _color;
+		if(!p_cs || !p_cs->Get("tmchunkgrid_quant_separator", &p_uid->ClrList, _color))
+			_color = SClrSilver;
+		Ptb.SetPen(penQuantSeparator,     SPaintObj::psSolid, 1, _color);
+	}
+	{
+		SColor _color;
+		if(!p_cs || !p_cs->Get("tmchunkgrid_day_separator", &p_uid->ClrList, _color))
+			_color = SClrDarkgrey;
+		Ptb.SetPen(penDaySeparator,     SPaintObj::psSolid, 1, _color);
+	}
+	{
+		SColor _color;
+		if(!p_cs || !p_cs->Get("tmchunkgrid_main_separator", &p_uid->ClrList, _color))
+			_color = SClrSilver;
+		Ptb.SetPen(penMainSeparator,    SPaintObj::psSolid, 1, _color);
+	}
+	{
+		SColor _color;
+		if(!p_cs || !p_cs->Get("tmchunkgrid_def_chunk_contour", &p_uid->ClrList, _color))
+			_color = SClrSilver;
+		Ptb.SetPen(penDefChunk,         SPaintObj::psNull,  1, _color);
+	}
+	{
+		SColor _color;
+		if(!p_cs || !p_cs->Get("tmchunkgrid_selected_chunk_contour", &p_uid->ClrList, _color))
+			_color = SClrCoral;
+		Ptb.SetPen(penSelectedChunk,    SPaintObj::psInsideFrame, 1, _color);
+	}
+	{
+		SColor _color;
+		if(!p_cs || !p_cs->Get("tmchunkgrid_chunk_contour", &p_uid->ClrList, _color))
+			_color = SClrDimgrey;
+		Ptb.SetPen(penChunk,            SPaintObj::psInsideFrame, 1, _color);
+	}
+	{
+		SColor _color;
+		if(!p_cs || !p_cs->Get("tmchunkgrid_resized_chunk_contour", &p_uid->ClrList, _color))
+			_color = SClrBlack;
+		Ptb.SetPen(penResizedChunk,     SPaintObj::psInsideFrame, 3, _color);
+	}
+	{
+		SColor _color;
+		if(!p_cs || !p_cs->Get("tmchunkgrid_current_line", &p_uid->ClrList, _color))
+			_color = SClrRed;
+		Ptb.SetPen(penCurrent,          SPaintObj::psDot,   1, _color);
+	}
 	Ptb.SetBrush(brushNull,         SPaintObj::bsNull,  0, 0);
-	Ptb.SetBrush(brushMain,         SPaintObj::bsSolid, Ptb.GetColor(colorMain), 0);
-	Ptb.SetBrush(brushHeader,       SPaintObj::bsSolid, Ptb.GetColor(colorHeader), 0);
-	Ptb.SetBrush(brushDefChunk,     SPaintObj::bsSolid, RGB(/*0x8C, 0xB6, 0xCE*//*0x00, 0x89, 0xC0*/0xE8, 0xEF, 0xF7), 0);
-	Ptb.SetBrush(brushInterleave,   SPaintObj::bsSolid, Ptb.GetColor(colorInterleave), 0);
-	Ptb.SetBrush(brushRescaleQuant, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0);
-	Ptb.SetBrush(brushMovedChunk,   SPaintObj::bsSolid, GetColorRef(SClrWhite), 0);
-	Ptb.SetBrush(brushHoliday,      SPaintObj::bsHatched,      RGB(0x09, 0x09, 0x09), SPaintObj::bhsFDiagonal);
-	Ptb.SetBrush(brushHolidayInterleave, SPaintObj::bsHatched, RGB(0x09, 0x09, 0x09), SPaintObj::bhsBDiagonal);
+	{	
+		SColor _color;
+		if(!p_cs || !p_cs->Get("tmchunkgrid_main_bg", &p_uid->ClrList, _color))
+			_color.Set(Ptb.GetColor(colorMain)); // colorMain defined above
+		Ptb.SetBrush(brushMain,         SPaintObj::bsSolid, _color, 0);
+	}
+	{
+		SColor _color;
+		if(!p_cs || !p_cs->Get("tmchunkgrid_header_bg", &p_uid->ClrList, _color))
+			_color.Set(Ptb.GetColor(colorHeader)); // colorHeader defined above
+		Ptb.SetBrush(brushHeader,       SPaintObj::bsSolid, Ptb.GetColor(colorHeader), 0);
+	}
+	{
+		SColor _color;
+		if(!p_cs || !p_cs->Get("tmchunkgrid_def_chunk_bg", &p_uid->ClrList, _color))
+			_color.Set(RGB(/*0x8C, 0xB6, 0xCE*//*0x00, 0x89, 0xC0*/0xE8, 0xEF, 0xF7));
+		Ptb.SetBrush(brushDefChunk,     SPaintObj::bsSolid, _color, 0);
+	}
+	{
+		SColor _color;
+		if(!p_cs || !p_cs->Get("tmchunkgrid_interleave_bg", &p_uid->ClrList, _color))
+			_color.Set(Ptb.GetColor(colorInterleave)); // colorInterleave defined above
+		Ptb.SetBrush(brushInterleave,   SPaintObj::bsSolid, _color, 0);
+	}
+	{
+		SColor _color;
+		if(!p_cs || !p_cs->Get("tmchunkgrid_rescale_quant_bg", &p_uid->ClrList, _color))
+			_color = SClrCoral; 
+		Ptb.SetBrush(brushRescaleQuant, SPaintObj::bsSolid, _color, 0);
+	}
+	{
+		SColor _color;
+		if(!p_cs || !p_cs->Get("tmchunkgrid_moved_chunk_bg", &p_uid->ClrList, _color))
+			_color = SClrWhite; 
+		Ptb.SetBrush(brushMovedChunk,   SPaintObj::bsSolid, _color, 0);
+	}
+	{
+		SColor _color;
+		if(!p_cs || !p_cs->Get("tmchunkgrid_holiday_bg", &p_uid->ClrList, _color))
+			_color.Set(RGB(0x09, 0x09, 0x09)); 
+		Ptb.SetBrush(brushHoliday,      SPaintObj::bsHatched,      _color, SPaintObj::bhsFDiagonal);
+	}
+	{
+		SColor _color;
+		if(!p_cs || !p_cs->Get("tmchunkgrid_holiday_interleave_bg", &p_uid->ClrList, _color))
+			_color.Set(RGB(0x09, 0x09, 0x09)); 
+		Ptb.SetBrush(brushHolidayInterleave, SPaintObj::bsHatched, _color, SPaintObj::bhsBDiagonal);
+	}
 	Ptb.CreateCursor(curResizeHorz, IDC_TWOARR_HORZ);
 	Ptb.CreateCursor(curResizeVert, IDC_TWOARR_VERT);
 	Ptb.CreateCursor(curResizeRoze, IDC_ARR_ROZE);

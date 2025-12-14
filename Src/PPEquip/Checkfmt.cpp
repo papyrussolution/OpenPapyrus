@@ -1735,7 +1735,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 					ok = 1;
 				}
 				else if(p_entry->Flags & PPSlipFormat::Entry::fSignBarcode) {
-					if(P_CcPack && P_CcPack->GetExtStrData(CCheckPacket::extssEgaisUrl, result) && result.NotEmptyS()) { // @v9.1.8 extssSign-->extssEgaisUrl
+					if(P_CcPack && P_CcPack->GetExtStrData(CCheckPacket::extssEgaisUrl, result) && result.NotEmptyS()) {
 					}
 					else
 						result.Z();

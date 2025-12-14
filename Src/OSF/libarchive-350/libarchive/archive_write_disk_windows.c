@@ -12,7 +12,7 @@ __FBSDID("$FreeBSD$");
 #ifdef HAVE_SYS_UTIME_H
 	#include <sys/utime.h>
 #endif
-#include <winioctl.h>
+// @v12.5.0 #include <winioctl.h>
 
 /* @todo Support Mac OS 'quarantine' feature.  This is really just a
  * standard tag to mark files that have been downloaded as "tainted".
@@ -22,11 +22,11 @@ __FBSDID("$FreeBSD$");
 //#include "archive_acl_private.h"
 
 #ifndef O_BINARY
-#define O_BINARY 0
+	#define O_BINARY 0
 #endif
 #ifndef IO_REPARSE_TAG_SYMLINK
-/* Old SDKs do not provide IO_REPARSE_TAG_SYMLINK */
-#define IO_REPARSE_TAG_SYMLINK 0xA000000CL
+	/* Old SDKs do not provide IO_REPARSE_TAG_SYMLINK */
+	#define IO_REPARSE_TAG_SYMLINK 0xA000000CL
 #endif
 
 static BOOL SetFilePointerEx_perso(HANDLE hFile, LARGE_INTEGER liDistanceToMove, PLARGE_INTEGER lpNewFilePointer, DWORD dwMoveMethod)
@@ -44,17 +44,17 @@ struct fixup_entry {
 	struct fixup_entry * next;
 	archive_acl acl;
 	mode_t mode;
-	int64 atime;
-	int64 birthtime;
-	int64 mtime;
-	int64 ctime;
-	ulong atime_nanos;
-	ulong birthtime_nanos;
-	ulong mtime_nanos;
-	ulong ctime_nanos;
-	ulong fflags_set;
-	int fixup; /* bitmask of what needs fixing */
-	wchar_t                 * name;
+	int64  atime;
+	int64  birthtime;
+	int64  mtime;
+	int64  ctime;
+	ulong  atime_nanos;
+	ulong  birthtime_nanos;
+	ulong  mtime_nanos;
+	ulong  ctime_nanos;
+	ulong  fflags_set;
+	int    fixup; /* bitmask of what needs fixing */
+	wchar_t * name;
 };
 
 /*
@@ -86,10 +86,9 @@ struct fixup_entry {
 
 struct archive_write_disk {
 	Archive archive;
-
 	mode_t user_umask;
-	struct fixup_entry      * fixup_list;
-	struct fixup_entry      * current_fixup;
+	struct fixup_entry * fixup_list;
+	struct fixup_entry * current_fixup;
 	int64 user_uid;
 	int skip_file_set;
 	int64 skip_file_dev;
@@ -105,46 +104,32 @@ struct archive_write_disk {
 	 * Full path of last file to satisfy symlink checks.
 	 */
 	archive_wstring path_safe;
-
 	/*
 	 * Cached stat data from disk for the current entry.
-	 * If this is valid, pst points to st.  Otherwise,
-	 * pst is null.
+	 * If this is valid, pst points to st.  Otherwise, pst is null.
 	 */
 	BY_HANDLE_FILE_INFORMATION st;
-	BY_HANDLE_FILE_INFORMATION              * pst;
-
+	BY_HANDLE_FILE_INFORMATION * pst;
 	/* Information about the object being restored right now. */
 	ArchiveEntry    * entry; /* Entry being extracted. */
-	wchar_t                 * name; /* Name of entry, possibly edited. */
+	wchar_t * name; /* Name of entry, possibly edited. */
 	archive_wstring _name_data; /* backing store for 'name' */
-	wchar_t                 * tmpname; /* Temporary name */
+	wchar_t * tmpname; /* Temporary name */
 	archive_wstring _tmpname_data; /* backing store for 'tmpname' */
-	/* Tasks remaining for this object. */
-	int todo;
-	/* Tasks deferred until end-of-archive. */
-	int deferred;
-	/* Options requested by the client. */
-	int flags;
-	/* Handle for the file we're restoring. */
-	HANDLE fh;
-	/* Current offset for writing data to the file. */
-	int64 offset;
-	/* Last offset actually written to disk. */
-	int64 fd_offset;
-	/* Total bytes actually written to files. */
-	int64 total_bytes_written;
-	/* Maximum size of file, -1 if unknown. */
-	int64 filesize;
-	/* Dir we were in before this restore; only for deep paths. */
-	int restore_pwd;
-	/* Mode we should use for this entry; affected by _PERM and umask. */
-	mode_t mode;
+	int todo; /* Tasks remaining for this object. */
+	int deferred; /* Tasks deferred until end-of-archive. */
+	int flags; /* Options requested by the client. */
+	HANDLE fh; /* Handle for the file we're restoring. */
+	int64 offset; /* Current offset for writing data to the file. */
+	int64 fd_offset; /* Last offset actually written to disk. */
+	int64 total_bytes_written; /* Total bytes actually written to files. */
+	int64 filesize; /* Maximum size of file, -1 if unknown. */
+	int restore_pwd; /* Dir we were in before this restore; only for deep paths. */
+	mode_t mode; /* Mode we should use for this entry; affected by _PERM and umask. */
 	/* UID/GID to use in restoring this entry. */
 	int64 uid;
 	int64 gid;
 };
-
 /*
  * Default mode for dirs created automatically (will be modified by umask).
  * Note that POSIX specifies 0777 for implicitly-created dirs, "modified
@@ -276,7 +261,6 @@ static int file_information(struct archive_write_disk * a, wchar_t * path, BY_HA
 	}
 	return 0;
 }
-
 /*
  * Note: The path, for example, "aa/a/../b../c" will be converted to "aa/c"
  * by GetFullPathNameW() W32 API, which __la_win_permissive_name_w uses.
@@ -286,14 +270,14 @@ static int file_information(struct archive_write_disk * a, wchar_t * path, BY_HA
  */
 static int permissive_name_w(struct archive_write_disk * a)
 {
-	wchar_t * wn, * wnp;
-	wchar_t * ws, * wsp;
+	wchar_t * wn;
+	wchar_t * ws;
+	wchar_t * wsp;
 	DWORD l;
-	wnp = a->name;
+	wchar_t * wnp = a->name;
 	if(wnp[0] == L'\\' && wnp[1] == L'\\' && wnp[2] == L'?' && wnp[3] == L'\\')
 		/* We have already a permissive name. */
 		return 0;
-
 	if(wnp[0] == L'\\' && wnp[1] == L'\\' && wnp[2] == L'.' && wnp[3] == L'\\') {
 		/* This is a device name */
 		if(((wnp[4] >= L'a' && wnp[4] <= L'z') || (wnp[4] >= L'A' && wnp[4] <= L'Z')) && wnp[5] == L':' && wnp[6] == L'\\') {
@@ -316,7 +300,6 @@ static int permissive_name_w(struct archive_write_disk * a)
 		SAlloc::F(wn);
 		return 0;
 	}
-
 	/*
 	 * A full-pathname pointing to a network drive
 	 * like "\\<server-name>\<share-name>\file".
@@ -339,8 +322,7 @@ static int permissive_name_w(struct archive_write_disk * a)
 				archive_wstring_ensure(&(a->_name_data), 8 + wcslen(wn) + 1);
 				a->name = a->_name_data.s;
 				/* Prepend "\\?\UNC\" */
-				archive_wstrncpy(&(a->_name_data),
-				    L"\\\\?\\UNC\\", 8);
+				archive_wstrncpy(&(a->_name_data), L"\\\\?\\UNC\\", 8);
 				archive_wstrcat(&(a->_name_data), wn+2);
 				SAlloc::F(wn);
 				return 0;
@@ -466,7 +448,7 @@ static void * la_GetFunctionKernel32(const char * name)
 		set = 1;
 		lib = LoadLibrary(TEXT("kernel32.dll"));
 	}
-	if(lib == NULL) {
+	if(!lib) {
 		slfprintf_stderr("Can't load kernel32.dll?!\n");
 		exit(1);
 	}
@@ -515,8 +497,9 @@ static int la_CreateSymbolicLinkW(const wchar_t * linkname, const wchar_t * targ
 {
 	static BOOLEAN (WINAPI *f)(LPCWSTR, LPCWSTR, DWORD);
 	static int set;
-	wchar_t * ttarget, * p;
-	int len;
+	wchar_t * ttarget;
+	wchar_t * p;
+	size_t len;
 	DWORD attrs = 0;
 	DWORD flags = 0;
 	DWORD newflags = 0;

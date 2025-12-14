@@ -1060,6 +1060,16 @@ toolbar export WBPUBLICGOODS TB_FIRST_TOOLBAR {
 	TOTAL      : kbF9,    PPDV_SIGMA02,     "@{totals}\tF9"
 	CHANGEFILT : kbCtrlV, PPDV_FILTER01,    "@{filter}\tCtrl-V"
 }
+
+toolbar export LIST_BIZSC2 TB_FIRST_TOOLBAR {
+	cmaEdit,           "@{edit}\tEnter",             PPDV_EDITFILE02
+	cmaInsert,         "@{add}\tInsert",             PPDV_ADDFILE02
+	cmaDelete,         "@{delete}\tDelete",          PPDV_DELETEFILE02
+	separator
+	cmaMore,           "@{cmd_bizscore2val}",        PPDV_LINS02 // TBBM_GOODSVIEW2
+	separator
+	cmSysJournalByObj, "@{view_sysjournal}\tCtrl-J", PPDV_SYSJOURNAL
+}
 //
 //
 //

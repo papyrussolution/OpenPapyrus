@@ -3008,7 +3008,7 @@ public:
 	PPObjBizScore2ListWindow(PPObject * pObj, uint flags, void * extraPtr) : PPObjListWindow(pObj, flags, extraPtr)
 	{
 		DefaultCmd = cmaEdit;
-		//SetToolbar(TOOLBAR_LIST_WORLD);
+		SetToolbar(TOOLBAR_LIST_BIZSC2);
 	}
 private:
 	DECL_HANDLE_EVENT
@@ -3029,12 +3029,11 @@ private:
 						break;
 					case cmaMore:
 						if(id) {
-							/*
-							long extra_param = PPObjWorld::MakeExtraParam(WORLDOBJ_STREET, parentID, 0);
-							CheckExecAndDestroyDialog(new ObjWorldDialog((PPObjWorld *)ppobj, extra_param), 1, 1);
-							*/
+							BizSc2ValFilt filt;
+							filt.ScID = id;
+							PPView::Execute(PPVIEW_BIZSC2VAL, &filt, PPView::exefModeless, 0);
 						}
-					break;
+						break;
 				}
 			}
 			PostProcessHandleEvent(update, id);
@@ -3104,6 +3103,49 @@ int PPObjBizScore2::ValidateValuePacket(const BizScore2ValuePacket * pValuePack)
 	ENDCATCH
 	PPWaitStop();
 	return r;
+}
+
+int PPObjBizScore2::GetTerminalChildList(PPID id, PPIDArray & rList)
+{
+	rList.Z();
+	return Helper_GetTerminalChildList(id, rList);
+}
+
+int PPObjBizScore2::GetChildrenList(PPID id, PPIDArray & rList)
+{
+	int    ok = -1;
+	if(id) {
+		PPBizScore2 rec;
+		for(SEnum en = P_Ref->EnumByIdxVal(Obj, 1, id); en.Next(&rec) > 0;) {
+			rList.add(rec.ID);
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+int PPObjBizScore2::Helper_GetTerminalChildList(PPID id, PPIDArray & rList)
+{
+	int    ok = -1;
+	if(id) {
+		PPBizScore2Packet pack;
+		rList.add(id);
+		if(Fetch(id, &pack) > 0) {
+			PPIDArray temp_id_list;
+			if(GetChildrenList(pack.Rec.ID, temp_id_list) > 0) {
+				assert(temp_id_list.getCount());
+				for(uint i = 0; i < temp_id_list.getCount(); i++) {
+					THROW(Helper_GetTerminalChildList(temp_id_list.get(i), rList)); // @recursion
+				}
+			}
+			else {
+				assert(temp_id_list.getCount() == 0);
+			}
+		}
+		ok = 1;
+	}
+	CATCHZOK
+	return ok;
 }
 
 int PPObjBizScore2::EditValuePacketDialog(BizScore2ValuePacket * pValuePack)
@@ -3390,6 +3432,9 @@ int PPViewBizSc2Val::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	THROW(Helper_InitBaseFilt(pBaseFilt));
 	BExtQuery::ZDelete(&P_IterQuery);
 	Counter.Init();
+	//
+	Filt.Period.Actualize(ZERODATE);
+	BscObj.GetTerminalChildList(Filt.ScID, ScIdList);
 	CATCHZOK
 	return ok;
 }
@@ -3431,21 +3476,38 @@ int PPViewBizSc2Val::MakeList(PPViewBrowser * pBrw)
 			BizScore2Tbl::Key1 k1;
 			BizScore2Tbl::Key2 k2;
 		} k;
-		int    idx = 1;
-		MEMSZERO(k);
-		DBQ * p_dbq = &(BscT.Kind == 0);
-		if(Filt.ScID) {
-			p_dbq = ppcheckfiltid(p_dbq, BscT.ScoreID, Filt.ScID);
-			idx = 2;
-			k.k2.ScoreID = Filt.ScID;
+		if(ScIdList.getCount()) {
+			const  int idx = 2;
+			for(uint i = 0; i < ScIdList.getCount(); i++) {
+				const   PPID sc_id = ScIdList.get(i);
+				DBQ  * p_dbq = &(BscT.Kind == 0 && BscT.ScoreID == sc_id);
+				MEMSZERO(k);
+				k.k2.Kind = 0;
+				k.k2.ScoreID = sc_id;
+				//
+				BExtQuery q(&BscT, idx);
+				q.where(*p_dbq);
+				q.selectAll();
+				for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
+					BrwItem new_item;
+					if(MakeListEntry(BscT.data, new_item) > 0) {
+						P_DsList->insert(&new_item);
+					}
+				}
+			}
 		}
-		BExtQuery q(&BscT, idx);
-		q.where(*p_dbq);
-		q.selectAll();
-		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
-			BrwItem new_item;
-			if(MakeListEntry(BscT.data, new_item) > 0) {
-				P_DsList->insert(&new_item);
+		else {
+			MEMSZERO(k);
+			const  int idx = 1;
+			DBQ  * p_dbq = &(BscT.Kind == 0);
+			BExtQuery q(&BscT, idx);
+			q.where(*p_dbq);
+			q.selectAll();
+			for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
+				BrwItem new_item;
+				if(MakeListEntry(BscT.data, new_item) > 0) {
+					P_DsList->insert(&new_item);
+				}
 			}
 		}
 	}

@@ -65,6 +65,28 @@
 			"grid_focusouter": "grey 0.35"
 		},
 		{
+			"symb": "tmchunkgrid_01",
+			"tmchunkgrid_white_fg": "#white",
+			"tmchunkgrid_black_fg": "#black",
+			"tmchunkgrid_main_quant_separator": "#silver",
+			"tmchunkgrid_quant_separator": "#silver",
+			"tmchunkgrid_day_separator": "#darkgrey",
+			"tmchunkgrid_main_separator": "#silver",
+			"tmchunkgrid_def_chunk_contour": "#silver",
+			"tmchunkgrid_selected_chunk_contour": "#coral",
+			"tmchunkgrid_chunk_contour": "#dimgrey",
+			"tmchunkgrid_resized_chunk_contour": "#black",
+			"tmchunkgrid_current_line": "#red",
+			"tmchunkgrid_header_bg": "#778899",
+			"tmchunkgrid_main_bg": "#EEEEEE",
+			"tmchunkgrid_def_chunk_bg": "#E8EFF7",
+			"tmchunkgrid_moved_chunk_bg": "#white",
+			"tmchunkgrid_rescale_quant_bg": "#coral",
+			"tmchunkgrid_interleave_bg": "#DDDDDD",
+			"tmchunkgrid_holiday_bg": "#090909",
+			"tmchunkgrid_holiday_interleave_bg": "#090909"
+		},
+		{
 			"symb": "papyrus_style",
 			"main_window_bg": "#20639B",
 			"button_bg": "#DCD9D1",
@@ -116,7 +138,11 @@
 			"ccheckitem_fixedprice_bg": "#cadetblue",
 			"ccheckitem_fixedprice_fg": "#black",
 			"barcode_preferred_bg": "#green",
-			"barcode_preferred_fg": "#white"
+			"barcode_preferred_fg": "#white",
+			"invalid_value_input_bg": "#coral",
+			"valid_value_input_bg": "#aqua",
+			"eaddr_phone_input_bg": "#aqua",
+			"eaddr_email_input_bg": "#cadetblue"
 		}
 	],
 	"layout_list": [
