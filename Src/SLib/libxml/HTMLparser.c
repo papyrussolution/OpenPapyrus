@@ -4293,11 +4293,12 @@ static htmlParserCtxt * htmlCreateDocParserCtxt(const xmlChar * cur, const char 
  */
 static int htmlParseLookupSequence(htmlParserCtxt * ctxt, xmlChar first, xmlChar next, xmlChar third, int iscomment, int ignoreattrval)
 {
-	int base, len;
-	const xmlChar * buf;
-	int incomment = 0;
-	int invalue = 0;
-	char valdellim = 0x0;
+	int    base;
+	int    len;
+	const  xmlChar * buf;
+	int    incomment = 0;
+	int    invalue = 0;
+	char   valdellim = 0x0;
 	htmlParserInputPtr in = ctxt->input;
 	if(!in)
 		return -1;
@@ -4345,7 +4346,7 @@ static int htmlParseLookupSequence(htmlParserCtxt * ctxt, xmlChar first, xmlChar
 			}
 		}
 		if(incomment) {
-			if(base + 3 > len)
+			if((base + 3) > len)
 				return -1;
 			if((buf[base] == '-') && (buf[base + 1] == '-') && (buf[base + 2] == '>')) {
 				incomment = 0;

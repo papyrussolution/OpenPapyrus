@@ -821,7 +821,7 @@ int PPApp::processCommand(uint cmd)
 		case cmPrcPane:               ExecPrcPane(0);                    break;
 		case cmRemoveZeroLinkCCLines: RemoveZeroLinkCCLines();           break;
 		case cmSelDesktop:
-			if(SelectCommandGroup(DS.GetTLA().Lc.DesktopUuid_, 0, 0, cmdgrpcDesktop, false, 0)) {
+			if(SelectCommandGroup(DS.GetTLA().Lc.DesktopUuid_, 0, 0, cmdgrpcDesktop, false, 0) > 0) { // @v12.5.0 (!=0)-->(>0)
 				PPDesktop::Open(/*LConfig.DesktopID*/LConfig.DesktopUuid_, 0/*createIfZero*/);
 			}
 			break;

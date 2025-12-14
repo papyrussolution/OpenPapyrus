@@ -112,7 +112,7 @@ public:
 	{
 		TView * p_ctl = P_Dlg ? P_Dlg->getCtrlView(DateCtlID) : 0;
 		if(!p_ctl || !p_ctl->IsInState(sfDisabled)) {
-			int r = APPL->DlgBoxParam(IsLarge ? DLGW_CALENDAR_L : DLGW_CALENDAR,
+			const INT_PTR r = APPL->DlgBoxParam(IsLarge ? DLGW_CALENDAR_L : DLGW_CALENDAR,
 				NZOR(hParent, parent_hWnd), TDateCalendar::CalendarDlgProc, reinterpret_cast<LPARAM>(this));
 			if(r > 0 && P_Dlg)
 				TView::messageBroadcast(P_Dlg, cmCommitInput, P_Dlg->getCtrlView(DateCtlID));
@@ -656,7 +656,7 @@ void TDateCalendar::OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
 	if(PeriodSelect && wParam == MK_LBUTTON) {
 		SPoint2S pt;
-		pt.setwparam(lParam);
+		pt.setwparam(static_cast<uint32>(lParam));
 		if((seltype == SEL_DAYS && IsDayBar(pt.x, pt.y)) ||
 			(oneof2(seltype, SEL_MONTHS, SEL_QUARTALS) && IsMonthBar(pt)) ||
 			(seltype == SEL_YEARS && IsYearBar(pt)))
@@ -667,7 +667,7 @@ void TDateCalendar::OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam)
 void TDateCalendar::OnLButtonUp(HWND hWnd, LPARAM lParam)
 {
 	SPoint2S pt;
-	pt.setwparam(lParam);
+	pt.setwparam(static_cast<uint32>(lParam));
 	if(IsMonthBar(pt) || IsYearBar(pt))
 		InvalidateRect(hWnd, NULL, false);
 }
@@ -1146,7 +1146,7 @@ void TDateCalendar::OnLButtonDown(HWND hWnd, LPARAM lParam)
 	//int x = LOWORD(lParam);
 	//int y = HIWORD(lParam);
 	SPoint2S pt;
-	pt.setwparam(lParam);
+	pt.setwparam(static_cast<uint32>(lParam));
 	SetFocus(hWnd);
 	if((i = IsYearBar(pt)) != 0)
 		SelectYear(hWnd, i);

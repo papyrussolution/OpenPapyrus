@@ -2653,7 +2653,7 @@ int PiritEquip::RunCheck(int opertype)
 						str.Z();
 						// @v11.1.10 {
 						if(OfdVer.IsGe(1, 2, 0)) {
-							if(Check.ChZnPpStatus > 0) {
+							if(/*Check.ChZnPpStatus > 0*/true) { // @v12.5.0 (Check.ChZnPpStatus > 0)-->true
 								{
 									// --> 79/1
 									// --> 79/2

@@ -653,7 +653,7 @@ int STDCALL Helper_PrintGoodsBill(PPBillPacket & rPack, SVector ** ppAry, long *
 		ok = PPAlddPrint(rpt_id, PPFilt(&rPack), &env);
 	}
 	else if(rPack.OpTypeID == PPOPT_CORRECTION) {
-		const  bool is_exp_correction = (rPack.P_LinkPack && rPack.P_LinkPack->OpTypeID == PPOPT_GOODSEXPEND);
+		const  bool is_exp_correction = rPack.IsExpCorrection();
 		ok = PPAlddPrint(is_exp_correction ? REPORT_INVOICECORR_EXP : REPORT_INVOICECORR, PPFilt(&rPack), &env);
 	}
 	else if(rPack.OpTypeID == PPOPT_INVENTORY) {

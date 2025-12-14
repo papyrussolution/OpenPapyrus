@@ -1522,7 +1522,7 @@ void TWindowBase::RegisterMouseTracking(int force)
 void TWindowBase::MakeMouseEvent(uint msg, WPARAM wParam, LPARAM lParam, MouseEvent & rMe)
 {
 	MEMSZERO(rMe);
-	rMe.Coord.setwparam(lParam);
+	rMe.Coord.setwparam(static_cast<uint32>(lParam));
 	switch(msg) {
 		case WM_LBUTTONDOWN:
 			rMe.Type = MouseEvent::tLDown;
@@ -1594,7 +1594,7 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 			default: se.ResizeType = 0; break;
 		}
 		se.PrevSize = pV->ViewSize;
-		pV->ViewSize = se.NewSize.setwparam(lParam);
+		pV->ViewSize = se.NewSize.setwparam(static_cast<uint32>(lParam));
 		if(TView::messageCommand(pV, cmSize, &se))
 			result = 0;
 	}
@@ -1717,7 +1717,7 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 			break;
 		case WM_MOVE:
 			{
-				p_view->ViewOrigin.setwparam(lParam);
+				p_view->ViewOrigin.setwparam(static_cast<uint32>(lParam));
 				if(TView::messageCommand(p_view, cmMove))
 					return 0;
 			}

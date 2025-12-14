@@ -1232,7 +1232,6 @@ int PPBillPacket::UpdateAutoComplRow(uint pos, int pcug)
 int PPBillPacket::InsertAutoComplRow(uint pos, int pcug)
 {
 	int    ok = 1;
-	uint   acpos;
 	PPID   ac_lot_id;
 	PPGoodsStruc   gs;
 	PPTransferItem loti;
@@ -1253,10 +1252,12 @@ int PPBillPacket::InsertAutoComplRow(uint pos, int pcug)
 			ac_lot_id--;
 		r_ti.LotID = ac_lot_id;
 		loti.LotID = ac_lot_id;
-		acpos = P_ACPack->GetTCount();
-		THROW(P_ACPack->InsertRow(&loti, 0));
-		THROW(P_ACPack->InsertComplete(gs, acpos, 0, pcug, 0/*goods-replacement-array*/, false) > 0);
-		r_ti.Quantity_ = P_ACPack->ConstTI(acpos).Quantity_;
+		{
+			const  uint acpos = P_ACPack->GetTCount();
+			THROW(P_ACPack->InsertRow(&loti, 0));
+			THROW(P_ACPack->InsertComplete(gs, acpos, 0, pcug, 0/*goods-replacement-array*/, false) > 0);
+			r_ti.Quantity_ = P_ACPack->ConstTI(acpos).Quantity_;
+		}
 		P_ACPack->CalcModifCost();
 	}
 	CATCH

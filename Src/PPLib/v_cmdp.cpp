@@ -710,7 +710,7 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 				S_GUID parent_uuid;
 				long   resource_template_id = 0; // Если в качестве шаблона выбра ресурс меню, то он должен быть присвоен этой переменной
 				SString name;
-				while(ok < 0 && SelectCommandGroup(parent_uuid, &resource_template_id, &name, CmdGrpC, true/*asTemplate*/, &Data)) {
+				while(ok < 0 && SelectCommandGroup(parent_uuid, &resource_template_id, &name, CmdGrpC, true/*asTemplate*/, &Data) > 0) { // @v12.5.0 (!=0)-->(>0)
 					const  PPCommandItem * p_item = Data.SearchByUuid(parent_uuid, 0);
 					PPCommandGroup new_desk;
 					PPCommandGroup new_menu2;
@@ -935,7 +935,7 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 		command_group = *pData;
 	else {
 		THROW(p_mgr = GetCommandMngr(PPCommandMngr::ctrfSkipObsolete, kind, 0));
-		THROW(p_mgr->Load__2(&command_group, 0, PPCommandMngr::fRWByXml)); //@erik v10.7.2
+		THROW(p_mgr->Load__2(&command_group, 0, PPCommandMngr::fRWByXml)); //@erik
 	}
 	p_dlg->setDTS(&command_group);
 	if(ExecView(p_dlg) == cmOK) {
@@ -943,7 +943,7 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 		if(pData)
 			*pData = command_group;
 		else {
-			command_group.Type = kind; // @v11.0.0
+			command_group.Type = kind;
 			THROW(p_mgr->Save__2(&command_group, PPCommandMngr::fRWByXml)); //@erik v10.7.2 Save__ => Save__2
 		}
 		ok = 1;
@@ -1240,7 +1240,10 @@ int SelectCommandGroup(S_GUID & rUuid, long * pResourceTemplateId, SString * pNa
 {
 	int    ok = -1;
 	long   resource_template_id = 0;
-	SString db_symb, buf, left, right;
+	SString db_symb;
+	SString buf;
+	SString left;
+	SString right;
 	StrAssocArray list;
 	PPCommandFolder::CommandGroupList cgdata;
 	PPCommandFolder::GetCommandGroupList(0, kind, cgdata);
@@ -1257,7 +1260,7 @@ int SelectCommandGroup(S_GUID & rUuid, long * pResourceTemplateId, SString * pNa
 		//fseek(p_rez->getStream(), 0, SEEK_SET);
 		p_rez->Seek(0, SEEK_SET);
 		for(ulong pos = 0; p_rez->enumResources(0x04, &locm_id, &pos) > 0;) {
-			long _id = static_cast<long>(locm_id) + DEFAULT_MENUS_OFFS;
+			const  long _id = static_cast<long>(locm_id) + DEFAULT_MENUS_OFFS;
 			if(list.GetText(_id, buf) <= 0)
 				list.Add(_id, buf.Z().Cat(_id - DEFAULT_MENUS_OFFS));
 		}
@@ -1275,13 +1278,14 @@ int SelectCommandGroup(S_GUID & rUuid, long * pResourceTemplateId, SString * pNa
 			left.Z();
 			right.Z();
 		}
-		long surr_id = 0;
-		uint idx = 0;
+		long   surr_id = 0;
+		uint   idx = 0;
 		PPCommandFolder::CommandGroupList::Entry cgentry;
 		if(cgdata.SearchByUuid(rUuid, &idx)) {
 			cgdata.Get(idx, cgentry);
 			surr_id = cgentry.SurrID;
 		}
+		list.SortByText(); // @v12.5.0
 		THROW(ok = AdvComboBoxSelDialog(list, left, right, /*pID*/&surr_id, pName, 0));
 		if(ok > 0 && surr_id) {
 			if(surr_id > DEFAULT_MENUS_OFFS) {

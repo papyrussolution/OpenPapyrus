@@ -4134,17 +4134,507 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 	#include <..\OSF\sentencepiece\src\sentencepiece_processor.h>
 	#include <..\OSF\sentencepiece\src\sentencepiece_trainer.h>
 
+	// C:\ppy\out\goodsnamelist-uhtt.model 
+
+	/* Пример от DeepSeek:025
+		#include <sentencepiece_processor.h>
+		#include <vector>
+		#include <string>
+		#include <unordered_map>
+		#include <cmath>
+		#include <algorithm>
+		#include <iostream>
+
+		class StringSimilaritySearch {
+		private:
+			sentencepiece::SentencePieceProcessor sp_processor;
+			std::vector<std::string> database_strings;
+			std::vector<std::vector<int>> tokenized_database;
+			std::unordered_map<int, float> idf_values;
+    
+		public:
+			// Загрузка модели SentencePiece
+			bool LoadModel(const std::string& model_path) {
+				const auto status = sp_processor.Load(model_path);
+				if (!status.ok()) {
+					std::cerr << "Failed to load model: " << status.ToString() << std::endl;
+					return false;
+				}
+				return true;
+			}
+    
+			// Построение базы данных
+			void BuildDatabase(const std::vector<std::string>& strings) {
+				database_strings = strings;
+				tokenized_database.clear();
+        
+				// Токенизация всех строк
+				for (const auto& str : strings) {
+					std::vector<int> tokens;
+					sp_processor.Encode(str, &tokens);
+					tokenized_database.push_back(tokens);
+				}
+        
+				// Вычисление IDF значений
+				CalculateIDF();
+			}
+    
+			// Вычисление IDF для токенов
+			void CalculateIDF() {
+				idf_values.clear();
+				int total_docs = tokenized_database.size();
+        
+				// Подсчет числа документов с каждым токеном
+				std::unordered_map<int, int> doc_freq;
+				for (const auto& tokens : tokenized_database) {
+					std::unordered_set<int> unique_tokens(tokens.begin(), tokens.end());
+					for (int token : unique_tokens) {
+						doc_freq[token]++;
+					}
+				}
+        
+				// Вычисление IDF
+				for (const auto& [token, freq] : doc_freq) {
+					idf_values[token] = log((total_docs + 1.0) / (freq + 1.0)) + 1.0;
+				}
+			}
+    
+			// Получение TF-IDF вектора для строки
+			std::unordered_map<int, float> GetTFIDFVector(const std::string& str) {
+				std::vector<int> tokens;
+				sp_processor.Encode(str, &tokens);
+        
+				std::unordered_map<int, float> tfidf;
+				std::unordered_map<int, int> token_counts;
+        
+				// Подсчет TF
+				for (int token : tokens) {
+					token_counts[token]++;
+				}
+        
+				// Вычисление TF-IDF
+				for (const auto& [token, count] : token_counts) {
+					float tf = static_cast<float>(count) / tokens.size();
+					float idf = idf_values[token]; // Если токена нет в IDF - считаем 1.0
+					tfidf[token] = tf * idf;
+				}
+        
+				return tfidf;
+			}
+    
+			// Косинусное сходство между двумя TF-IDF векторами
+			float CosineSimilarity(const std::unordered_map<int, float>& vec1, 
+								  const std::unordered_map<int, float>& vec2) {
+				float dot_product = 0.0f;
+				float norm1 = 0.0f;
+				float norm2 = 0.0f;
+        
+				// Вычисляем скалярное произведение и нормы
+				for (const auto& [token, value] : vec1) {
+					norm1 += value * value;
+					if (vec2.find(token) != vec2.end()) {
+						dot_product += value * vec2.at(token);
+					}
+				}
+        
+				for (const auto& [token, value] : vec2) {
+					norm2 += value * value;
+				}
+        
+				if (norm1 == 0 || norm2 == 0) return 0.0f;
+        
+				return dot_product / (sqrt(norm1) * sqrt(norm2));
+			}
+    
+			// Поиск k ближайших соседей
+			std::vector<std::pair<size_t, float>> FindKNearest(
+				const std::string& query, 
+				size_t k = 5, 
+				float threshold = 0.0f) {
+        
+				std::vector<std::pair<size_t, float>> results;
+				auto query_vector = GetTFIDFVector(query);
+        
+				// Линейный поиск по базе (в дальнейшем можно заменить на более эффективные методы)
+				for (size_t i = 0; i < database_strings.size(); ++i) {
+					auto db_vector = GetTFIDFVector(database_strings[i]);
+					float similarity = CosineSimilarity(query_vector, db_vector);
+            
+					if (similarity >= threshold) {
+						results.emplace_back(i, similarity);
+					}
+				}
+        
+				// Сортировка по убыванию схожести
+				std::sort(results.begin(), results.end(), 
+						  [](const auto& a, const auto& b) { return a.second > b.second; });
+        
+				// Возвращаем top-k результатов
+				if (results.size() > k) {
+					results.resize(k);
+				}
+        
+				return results;
+			}
+    
+			// Быстрый поиск с использованием индекса (опционально)
+			void BuildSearchIndex() {
+				// Здесь можно добавить построение индекса (например, faiss, annoy, или собственный)
+				// для ускорения поиска на больших базах
+			}
+    
+			// Получить строку по индексу
+			std::string GetString(size_t index) {
+				if (index < database_strings.size()) {
+					return database_strings[index];
+				}
+				return "";
+			}
+		};
+
+		// Пример использования
+		int main() {
+			StringSimilaritySearch searcher;
+    
+			// 1. Загрузка предобученной модели SentencePiece
+			if (!searcher.LoadModel("spm_model.model")) {
+				return 1;
+			}
+    
+			// 2. Загрузка базы данных (пример)
+			std::vector<std::string> database = {
+				"iPhone 13 Pro Max 256GB",
+				"Samsung Galaxy S21 Ultra",
+				"Xiaomi Mi 11 Lite",
+				"Apple iPhone 13 128GB",
+				"Samsung Galaxy Z Fold 3",
+				"Наушники Sony WH-1000XM4",
+				"Ноутбук Apple MacBook Pro 14"
+			};
+    
+			// 3. Построение базы данных
+			searcher.BuildDatabase(database);
+    
+			// 4. Поиск похожих
+			std::string query = "iPhone 13 Pro";
+			auto results = searcher.FindKNearest(query, 3);
+    
+			// 5. Вывод результатов
+			std::cout << "Запрос: " << query << std::endl;
+			std::cout << "Результаты:" << std::endl;
+    
+			for (const auto& [index, score] : results) {
+				std::cout << "- " << searcher.GetString(index) 
+						  << " (схожесть: " << score << ")" << std::endl;
+			}
+    
+			return 0;
+		}
+	*/ 
+
+	class PrcssrTextSimilarityFinder {
+		class SourceTextFetcher {
+		public:
+			enum {
+				srctypUnkn = 0,
+				srctypFile = 1,
+				srctypDbGoods,
+			};
+			SourceTextFetcher() : SourceType(srctypUnkn), P_F(0), LastSurrogateId(0)
+			{
+			}
+			int   Init(int srcTyp, const char * pAddendum)
+			{
+				ZDELETE(P_F);
+				LastSurrogateId = 0;
+				int    ok = -1;
+				if(srcTyp == srctypFile) {
+					if(fileExists(pAddendum)) {
+						P_F = new SFile(pAddendum, SFile::mRead);
+						if(P_F && P_F->IsValid())
+							ok = 1;
+					}
+				}
+				else if(srcTyp == srctypDbGoods) {
+					;
+				}
+				return ok;
+			}
+			int   Next(uint maxCount, StrAssocArray & rResult)
+			{
+				rResult.Z();
+				int    ok = -1;
+				if(P_F) {
+					uint   _count = 0;
+					SString temp_buf;
+					while(ok && _count < maxCount && P_F->ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+						_count++;
+						++LastSurrogateId;
+						if(rResult.AddFast(static_cast<long>(LastSurrogateId), temp_buf))
+							ok = 1;
+						else
+							ok = 0;
+					}
+				}
+				return ok;
+			}
+		private:
+			int    SourceType;
+			uint64 LastSurrogateId;
+			SFile * P_F;
+		};
+	public:
+		struct Param {
+			Param() : Flags(0)
+			{
+			}
+			uint   Flags;
+			SString ModelPath;
+			SString SourceFilePath;
+		};
+
+		class SourceTEntry {
+		public:
+			SourceTEntry() : ID(0)
+			{
+			}
+			int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+			{
+				int    ok = 1;
+				THROW_SL(pSCtx->Serialize(dir, ID, rBuf));
+				THROW_SL(pSCtx->Serialize(dir, &TokList, rBuf));
+				CATCHZOK
+				return ok;
+			}
+			uint64 ID;
+			LongArray TokList;
+		};
+		class SourceTCollection : public TSCollection <SourceTEntry> {
+			static constexpr uint32 HSignature = 0x0001;
+			static constexpr uint32 BSignature = 0x0002;
+			struct HBlock { // @persistent
+				HBlock() : Signature(HSignature)
+				{
+					memzero(Reserve, sizeof(Reserve));
+				}
+				uint32 Signature;
+				uint8  Reserve[60];
+			};
+			struct SBlock {
+				SBlock() : Signature(BSignature), Size(0)
+				{
+				}
+				uint32 Signature;
+				uint32 Size;
+				SBuffer SBuf;
+			};
+		public:
+			SourceTCollection(const char * pStorageFileName, bool readOnly) : 
+				TSCollection <SourceTEntry>(), State(readOnly ? stReadOnly : 0), CurrentRdBlock(0), CurrentWrOffs(0)
+			{
+				if(!isempty(pStorageFileName)) {
+					long   file_open_mode = SFile::mBinary;
+					if(State & stReadOnly) 
+						file_open_mode |= SFile::mRead;
+					else
+						file_open_mode |= SFile::mReadWrite;
+					if(!F.Open(pStorageFileName, file_open_mode)) {
+						State |= stError;
+					}
+				}
+			}
+			int    Store()
+			{
+				int    ok = 1;
+				THROW(!(State & stReadOnly));
+				THROW(!(State & stError));
+				THROW(F.IsValid());
+				if(!getCount()) {
+					ok = -1;
+				}
+				else {
+					THROW_SL(F.Seek64(CurrentWrOffs));
+					if(CurrentWrOffs == 0) {
+						HBlock hblk;
+						THROW_SL(F.Write(&hblk, sizeof(hblk)));
+						CurrentWrOffs = F.Tell64();
+					}
+					{
+						SBlock sblk;
+						THROW_SL(TSCollection_Serialize(*this, +1, sblk.SBuf, &SCtx));
+						{
+							const uint32 buf_size = sblk.SBuf.GetAvailableSize();
+							sblk.Size = buf_size + sizeof(sblk.Signature) + sizeof(sblk.Size);
+							THROW_SL(F.Write(&sblk.Signature, sizeof(sblk.Signature)));
+							THROW_SL(F.Write(&sblk.Size, sizeof(sblk.Size)));
+							THROW_SL(F.Write(sblk.SBuf.constptr(), buf_size));
+							CurrentWrOffs = F.Tell64();
+						}
+					}
+				}
+				CATCHZOK
+				return ok;
+			}
+			int    Read()
+			{
+				int    ok = 0;
+				if(!(State & stError)) {
+					if(F.IsValid()) {
+						// @todo
+					}
+				}
+				return ok;
+			}
+		private:
+			enum {
+				stError    = 0x0001,
+				stReadOnly = 0x0002,
+			};
+			uint   State;
+			uint   CurrentRdBlock;
+			int64  CurrentWrOffs;
+			SFile  F;
+			SSerializeContext SCtx;
+		};
+
+		struct Stat {
+			Stat()
+			{
+			}
+			void Normalize()
+			{
+				UsedTokenList.sortAndUndup();
+			}
+			LongArray UsedTokenList;
+			LAssocArray DbEntryPerTokenL; // Key - tokenID, Val - dbEntryCount
+			StatBase St_TokenPerDbEntry;
+		};
+
+		PrcssrTextSimilarityFinder()
+		{
+		}
+		int	   InitParam(Param * pP)
+		{
+			int    ok = 1;
+			if(pP) {
+			}
+			else
+				ok = -1;
+			return ok;
+		}
+		int	   EditParam(Param * pP)
+		{
+			int    ok = 1;
+			if(pP) {
+			}
+			else
+				ok = -1;
+			return ok;
+		}
+		int	   Init(const Param * pP)
+		{
+			// Не хватает памяти.
+			int    ok = 1;
+			bool   debug_mark = false; // @debug
+			THROW(pP);
+			THROW(fileExists(pP->ModelPath));
+			P = *pP;
+			{
+				const auto status = SpPrcssr.Load(P.ModelPath.cptr());
+				SourceTextFetcher stf;
+				SString vec_buf;
+				SString tok_buf;
+				uint line_no = 0;
+				uint max_vec_dim = 0;
+				SString stc_storage_name;
+				{
+					SFsPath ps(P.SourceFilePath);
+					ps.Nam.CatChar('-').Cat("stc");
+					ps.Ext = "storage";
+					ps.Merge(stc_storage_name);
+				}
+				SourceTCollection stc(stc_storage_name, false);
+				Stat _st;
+
+				//TSCollection <TSVector <int16>> line_tok_vec_list;
+				THROW(status.ok());
+				THROW(stf.Init(SourceTextFetcher::srctypFile, P.SourceFilePath));
+				{
+					//
+					// Общая статистика
+					//
+					std::vector <int> seg_id_list;
+					StrAssocArray string_list;
+					const uint max_string_batch = 1024;
+					while(stf.Next(max_string_batch, string_list) > 0) {
+						assert(string_list.getCount() > 0 && string_list.getCount() <= max_string_batch);
+						for(uint i = 0; i < string_list.getCount(); i++) {
+							const StrAssocArray::Item sl_item = string_list.at_WithoutParent(i);
+							if(!isempty(sl_item.Txt)) {
+								seg_id_list.clear();
+								const auto enc_status = SpPrcssr.Encode(sl_item.Txt, &seg_id_list);
+								if(enc_status.ok()) {
+									SourceTEntry * p_tentry = stc.CreateNewItem();
+									if(p_tentry) {
+										p_tentry->ID = sl_item.Id;
+										for(uint si = 0; si < seg_id_list.size(); si++) {
+											const int seg_id = seg_id_list[si];
+											p_tentry->TokList.add(seg_id);
+											_st.UsedTokenList.add(seg_id);
+										}
+										//DbEntryPerTokenL
+										_st.St_TokenPerDbEntry.Step(seg_id_list.size());
+									}
+									else {
+										debug_mark = true;
+									}
+								}
+								else {
+									;
+								}
+							}
+						}
+						_st.Normalize();
+						THROW(stc.Store());
+						stc.freeAll(); // @mandatory
+					}
+					_st.St_TokenPerDbEntry.Finish();
+					//
+					// Вычисление IDF для токенов
+					//
+					//for(_st)
+				}
+			}
+			CATCHZOK
+			return ok;
+		}
+		int	   Run()
+		{
+			int    ok = 1;
+			return ok;
+		}
+	private:
+		int    BuildVectorBase()
+		{
+			int    ok = -1;
+			return ok;
+		}
+		Param  P;
+		sentencepiece::SentencePieceProcessor SpPrcssr;
+	};
+
 	int SentencePieceExperiments()
 	{
 		enum {
 			actionMakeGoodsNameList = 1,
 			actionTrain             = 2,
 			actionProcessTokens     = 3,
+			actionProcessTokens2    = 4
 		};
 		// В базе товаров UHTT макс количество токенов около 100.
 		int    ok = 1;
 		bool   debug_mark = false;
-		const  int action = actionMakeGoodsNameList;
+		const  int action = actionProcessTokens2; //actionMakeGoodsNameList;
 		// @todo проблема на строке 343416! символ с кодом 26 (decimal)
 		SString temp_buf;
 		DbProvider * p_dict = CurDict;
@@ -4183,6 +4673,16 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 				}
 				else {
 					; // @todo @err
+				}
+			}
+			else if(action == actionProcessTokens2) {
+				PrcssrTextSimilarityFinder tsf;
+				PrcssrTextSimilarityFinder::Param param;
+				tsf.InitParam(&param);
+				param.ModelPath = model_file_path;
+				param.SourceFilePath = raw_input_file_path;
+				if(tsf.Init(&param)) {
+					
 				}
 			}
 			else if(action == actionProcessTokens) {

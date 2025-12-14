@@ -58,7 +58,7 @@ int TDialog::setupPosition()
 			SETMAX(x, 0);
 			SETMIN(y, sy - sizey);
 			SETMAX(y, 0);
-			MoveWindow(H(), x, y, sizex, sizey, TRUE);
+			::MoveWindow(H(), x, y, sizex, sizey, TRUE);
 			ok = 1;
 		}
 		else

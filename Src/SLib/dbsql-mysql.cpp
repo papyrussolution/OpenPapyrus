@@ -7,7 +7,7 @@
 
 #if 1 // @construction {
 
-#include <mariadb/mysql.h>
+#include <mariadb-20251208/mysql.h>
 
 #ifndef NDEBUG
 	#define DEBUG_LOG(msg) SLS.LogMessage("dbmysql.log", msg, 0)
@@ -597,7 +597,7 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 		rBlk.SqlG.Sp().Tok(Generator_SQL::tokWhere).Sp().Text(p_rowid_fld->Name)._Symb(_EQ_).QText(temp_buf);
 	}
 	else {
-		{
+		if(rBlk.SrchMode != spEq) { // Если условие EQ, то нет смысла мучить сервер требования работы по индексу - результат инвариантен
 			if(rBlk.SqlG.GetIndexName(*pTbl, idx, temp_buf)) {
 				rBlk.SqlG.Sp().Tok(Generator_SQL::tokForceIndex).LPar().Text(temp_buf).RPar();
 			}

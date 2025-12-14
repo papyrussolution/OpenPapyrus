@@ -3065,7 +3065,7 @@ int ImportStyloScannerEntriesForBillPacket(PPBillPacket & rBp, PPLotExtCodeConta
 												}
 												else if(gts.GetToken(GtinStruc::fldGTIN14, &ean_buf) && ean_buf.NotEmptyS()) {
 													assert(ean_buf.Len() == 14);
-													if(oneof2(ean_buf.C(0), '0', '1')) // @v10.9.3 '1'
+													if(oneof2(ean_buf.C(0), '0', '1'))
 														ean_buf.ShiftLeft(1);
 													else {
 														ean_buf.ShiftLeft(1);
@@ -3214,7 +3214,6 @@ public:
 			SString mark_buf;
 			for(uint ssp = 0; ss.get(&ssp, temp_buf); temp_buf.Z(), set.Z()) {
 				if(temp_buf.NotEmptyS() && temp_buf.Len() < sizeof(static_cast<LotExtCodeTbl::Rec *>(0)->Code)) {
-					// @v11.0.0 {
 					bool   done = false;
 					int    box_prefix = 0;
 					if(temp_buf.HasPrefixIAscii("box:")) {
@@ -3240,7 +3239,6 @@ public:
 							}
 						}
 					}
-					// } @v11.0.0 
 					if(!done) {
 						GtinStruc gts;
 						const bool iemr  = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);

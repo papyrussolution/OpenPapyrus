@@ -2041,7 +2041,8 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
-	TestGtinStruc();
+	//TestGtinStruc();
+	SentencePieceExperiments();
 	//PPChZnPrcssr::Test();
 	//TestRestic();
 	//TestGlobalServiceAccessibility();
@@ -2050,7 +2051,6 @@ int DoConstructionTest()
 	//Test_Cristal2SetRetailGateway();
 	//TestTddo();
 	//PreprocessHFile();
-	//SentencePieceExperiments();
 	//Test_OpenXLSX();
 	//Test_CsvSniffer();
 	//TestTransferFileToFtp();

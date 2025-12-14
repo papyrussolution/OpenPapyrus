@@ -30,7 +30,7 @@ TreeWindow::ShortcutsWindow::~ShortcutsWindow()
 			{
 				const NMHDR * nm = reinterpret_cast<const NMHDR *>(lParam);
 				if(wParam == CTL_SHORTCUTS_ITEMS && (nm->code == TCN_SELCHANGE)) {
-					HWND tab_hwnd = GetDlgItem(hWnd, CTL_SHORTCUTS_ITEMS);
+					HWND   tab_hwnd = GetDlgItem(hWnd, CTL_SHORTCUTS_ITEMS);
 					int idx = TabCtrl_GetCurSel(tab_hwnd);
 					TCITEM tci;
 					tci.mask = TCIF_PARAM;
@@ -72,12 +72,21 @@ TreeWindow::ShortcutsWindow::~ShortcutsWindow()
 			break;
 		case WM_SIZE:
 			if(!IsIconic(APPL->H_MainWnd)) {
-				/*
-				APPL->SizeMainWnd(hWnd);
 				RECT rc;
-				GetClientRect(hWnd, &rc);
-				MoveWindow(GetDlgItem(hWnd, MENUTREE_LIST), 0, 0, rc.right, rc.bottom, 1);
-				*/
+				::GetClientRect(hWnd, &rc);
+				// @v12.5.0 {
+				SPoint2S new_size;
+				new_size.setwparam(static_cast<uint32>(lParam));
+				HWND   tab_hwnd = GetDlgItem(hWnd, CTL_SHORTCUTS_ITEMS); 
+				if(::IsWindow(tab_hwnd)) {
+					RECT rc_tab;
+					::GetWindowRect(tab_hwnd, &rc_tab);
+					::MoveWindow(tab_hwnd, 0, 0, new_size.x, rc_tab.bottom - rc_tab.top, TRUE);
+				}
+				// } @v12.5.0 
+				//APPL->SizeMainWnd(hWnd);
+				//::MoveWindow(GetDlgItem(hWnd, MENUTREE_LIST), 0, 0, rc.right, rc.bottom, 1);
+				return 0; // @v12.5.0
 			}
 			break;
 		default:

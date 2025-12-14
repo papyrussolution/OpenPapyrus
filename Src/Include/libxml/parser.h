@@ -202,8 +202,8 @@ struct xmlParserCtxt {
 	int    nameNr;                   // Depth of the parsing stack
 	int    nameMax;                  // Max depth of the parsing stack
 	const  xmlChar ** nameTab;       // array of nodes
-	long   nbChars;                  // number of xmlChar processed
-	long   CheckIndex;               // used by progressive parsing lookup
+	ssize_t nbChars;                  // number of xmlChar processed        // @v12.5.0 long-->ssize_t
+	ssize_t CheckIndex;               // used by progressive parsing lookup // @v12.5.0 long-->ssize_t
 	int    keepBlanks;               // (bool) ugly but ...
 	int    disableSAX;               // (bool) SAX callbacks are disabled
 	int    pedantic;                 // (bool) signal pedantic warnings

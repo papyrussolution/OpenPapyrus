@@ -204,7 +204,7 @@ int DbfRecord::put(int fld, const char * data)
 			memcpy(P_Buffer + f.offset, &date, 4);
 		}
 		else {
-			int    len = sstrlen(data);
+			size_t len = sstrlen(data);
 			if(len > f.fsize)
 				len = f.fsize;
 			memcpy(P_Buffer + f.offset, data, len);
@@ -687,7 +687,7 @@ int DbfTable::getHeader()
 		THROW_S_S(Head.Day >= 1 && Head.Day <= 31, SLERR_DBF_INVHEADER, P_Name);
 		THROW_S_S(Head.HeadSize >= sizeof(Head) && Head.HeadSize <= 8192, SLERR_DBF_INVHEADER, P_Name);
 		THROW_S_S(Head.RecSize <= SKILOBYTE(16), SLERR_DBF_INVHEADER, P_Name);
-		NumFlds = (Head.HeadSize - 1 - sizeof(DBFH) - dbc_path_size) / sizeof(DBFF);
+		NumFlds = static_cast<uint>((Head.HeadSize - 1 - sizeof(DBFH) - dbc_path_size) / sizeof(DBFF));
 		THROW_S_S(NumFlds <= 1024, SLERR_DBF_INVHEADER, P_Name);
 		fseek(Stream, pos, SEEK_SET);
 	}

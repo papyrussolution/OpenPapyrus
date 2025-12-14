@@ -68,7 +68,7 @@ IMPL_CMPFUNC(Sync_BillTaxEnKey, i1, i2)
 int Sync_BillTaxArray::Search(long VAT, long salesTax, uint * p)
 {
 	Sync_BillTaxEntry bte;
-	bte.VAT      = VAT;
+	bte.VAT = VAT;
 	bte.SalesTax = salesTax;
 	return bsearch(&bte, p, PTR_CMPFUNC(Sync_BillTaxEnKey));
 }
@@ -145,8 +145,8 @@ private:
 		sfPrintSlip     = 0x0010, // печать подкладного документа
 		sfDontUseCutter = 0x0020, // не использовать отрезчик чеков
 		sfUseWghtSensor = 0x0040, // использовать весовой датчик
-		sfKeepAlive     = 0x0080, // @v10.0.12 Держать установленное соединение с аппаратом
-		sfSkipAfVerif   = 0x0100, // @v10.8.0 (skip after func verification) Пропускать проверку аппарата после исполнения функций при печати чеков
+		sfKeepAlive     = 0x0080, // Держать установленное соединение с аппаратом
+		sfSkipAfVerif   = 0x0100, // (skip after func verification) Пропускать проверку аппарата после исполнения функций при печати чеков
 		sfLogging       = 0x0200  // @v11.5.0 Вести системный файл журнала операций с кассовым регистратором
 	};
 	static int RefToIntrf;
@@ -288,14 +288,12 @@ int SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 		SString left;
 		SString right;
 		PPIniFile ini_file;
-		// @v10.0.12 {
 		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_POSREGISTERKEEPALIVE, temp_buf.Z()) > 0) {
 			if(temp_buf == "0" || temp_buf.IsEqiAscii("false") || temp_buf.IsEqiAscii("no"))
 				Flags &= ~sfKeepAlive;
 			else if(temp_buf == "1" || temp_buf.IsEqiAscii("true") || temp_buf.IsEqiAscii("yes"))
 				Flags |= sfKeepAlive;
 		}
-		// } @v10.0.12
 		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_POSREGISTERSKIPAFVERIF, temp_buf.Z()) > 0) {
 			if(temp_buf == "0" || temp_buf.IsEqiAscii("false") || temp_buf.IsEqiAscii("no"))
 				Flags &= ~sfSkipAfVerif;
@@ -323,10 +321,9 @@ int SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 		CashierPassword = AdmPassword = left.ToLong();
 		AdmName.Strip().Transf(CTRANSF_INNER_TO_OUTER);
 		{
-			const  int __def_baud_rate =  7; // Скорость обмена по умолчанию 57600 бод // @v10.0.02 10-->7
+			const  int __def_baud_rate =  7; // Скорость обмена по умолчанию 57600 бод
 			const  int __max_baud_rate = 10; // Max скорость обмена 256000 бод
-			// @v10.1.2 static const int __baud_rate_list[] = { -1, 7, 8, 2, 3, 4, 5, 6, 9, 10, 1, 0 }; // the first entry is for ordered rate
-			static const int __baud_rate_list[] = { -1, 8, 7, 2, 3, 4, 5, 6, 9, 10, 1, 0 }; // the first entry is for ordered rate // @v10.1.2
+			static const int __baud_rate_list[] = { -1, 8, 7, 2, 3, 4, 5, 6, 9, 10, 1, 0 }; // the first entry is for ordered rate
 			/*
 				0: cbr2400  1: cbr4800   2: cbr9600    3: cbr14400    4: cbr19200  5: cbr38400
 				6: cbr56000 7: cbr57600  8: cbr115200  9: cbr128000  10: cbr256000
@@ -363,11 +360,11 @@ int SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 		ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRNOTUSEWEIGHTSENSOR, &not_use_wght_sensor);
 		SETFLAG(Flags, sfUseWghtSensor, !not_use_wght_sensor);
 		{
-			long    cshr_pssw = 0L;
-			int     logical_number = 1; // Логический номер кассы
+			long   cshr_pssw = 0L;
+			int    logical_number = 1; // Логический номер кассы
 			SString param_name;
 			SString param_val;
-			SString operator_name; // @v10.8.5 Name of cashier
+			SString operator_name; // Name of cashier
 			//
 			// Получаем пароль кассира
 			//
@@ -516,7 +513,8 @@ int SCS_SYNCCASH::PreprocessChZnCode(int op, const char * pCode, double qtty, in
 					SString serial;
 					SString partn;
 					SString result_chzn_code;
-					SString left, right;
+					SString left;
+					SString right;
 					SString gtin(temp_buf);
 					result_chzn_code.Cat(temp_buf);
 					if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {

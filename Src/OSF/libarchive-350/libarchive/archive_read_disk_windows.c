@@ -19,17 +19,15 @@ __FBSDID("$FreeBSD$");
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 
-#include <winioctl.h>
+// @v12.5.0 #include <winioctl.h>
 #include "archive_read_disk_private.h"
-
 #ifndef O_BINARY
-#define O_BINARY        0
+	#define O_BINARY        0
 #endif
 #ifndef IO_REPARSE_TAG_SYMLINK
-/* Old SDKs do not provide IO_REPARSE_TAG_SYMLINK */
-#define IO_REPARSE_TAG_SYMLINK 0xA000000CL
+	/* Old SDKs do not provide IO_REPARSE_TAG_SYMLINK */
+	#define IO_REPARSE_TAG_SYMLINK 0xA000000CL
 #endif
-
 /*-
  * This is a new directory-walking system that addresses a number
  * of problems I've had with fts(3).  In particular, it has no
@@ -49,7 +47,6 @@ __FBSDID("$FreeBSD$");
  * indicating how to get back to the parent (via chdir("..") for a
  * regular dir or via fchdir(2) for a symlink).
  */
-
 struct restore_time {
 	const wchar_t           * full_path;
 	FILETIME lastWriteTime;

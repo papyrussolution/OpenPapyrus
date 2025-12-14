@@ -4734,8 +4734,8 @@ int PPBillImporter::DoFullEdiProcess()
 												all_equal = 0;
 										}
 										for(uint j = 0; !exc_items && j < p_bp->GetTCount(); j++) {
-											const PPTransferItem & r_rsp_ti = p_bp->ConstTI(j);
-											uint org_pos = 0;
+											const  PPTransferItem & r_rsp_ti = p_bp->ConstTI(j);
+											uint   org_pos = 0;
 											if(!p_bp_org->SearchTI(r_rsp_ti.RByBill, &org_pos))
 												exc_items = 1;
 										}
@@ -6829,16 +6829,28 @@ int DocNalogRu_Generator::MakeOutFileIdent(const PPBillPacket * pBPack, FileInfo
 			rHi.FileId.CatChar('_').Cat(S_GUID(SCtrGenerate()), S_GUID::fmtIDL); // N1
 			// @v12.4.12 {
 			{
-				//                  2  3  4  5  6					
-				int    n_list[] = { 0, 0, 0, 0, 0 }; //_N2_N3_N4_N5_N6
+				//                                          2  3  4  5  6					
+				/*non-const non-static*/int    n_list[] = { 0, 0, 0, 0, 0 }; //_N2_N3_N4_N5_N6
 				if(pBPack) {
+					//
+					const  bool is_exp_correction = pBPack->IsExpCorrection();
+					bool   pack_has_marks = pBPack->HasChZnMarks(is_exp_correction);
+					if(is_exp_correction && !pack_has_marks && pBPack->P_LinkPack) {
+						pack_has_marks = pBPack->P_LinkPack->HasChZnMarks(is_exp_correction);
+					}
+					if(pack_has_marks) {
+						n_list[1] = 1; // _N3
+					}
+					//
 					PPGoodsType2 gt_rec;
 					for(uint i = 0; i < pBPack->GetTCount(); i++) {
 						const PPTransferItem & r_ti = pBPack->ConstTI(i);
 						Goods2Tbl::Rec goods_rec;
 						if(GObj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
+							/* see above
 							if(gt_rec.Flags & GTF_GMARKED && gt_rec.ChZnProdType)
 								n_list[1] = 1; // _N3
+							*/
 							if(gt_rec.ChZnProdType == GTCHZNPT_BEER) { 
 								n_list[2] = 1; // _N4
 							}
@@ -9479,7 +9491,7 @@ int DocNalogRu_WriteBillBlock::Do_CorrInvoice(SString & rResultFileName)
 	int    ok = 1;
 	rResultFileName.Z();
 	//DocNalogRu_Generator g;
-	const  bool is_exp_correction = (R_Bp.OpTypeID == PPOPT_CORRECTION && R_Bp.P_LinkPack->OpTypeID == PPOPT_GOODSEXPEND);
+	const  bool is_exp_correction = R_Bp.IsExpCorrection();
 	if(!is_exp_correction)
 		ok = -1;
 	else {
@@ -10021,7 +10033,7 @@ int WriteBill_ExportMarks(const PPBillImpExpParam & rParam, const PPBillPacket &
 	LongArray idx_list;
 	PPObjBill::MakeCodeString(&rBp.Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName|PPObjBill::mcsAddObjName,temp_buf);
 	output.Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)).CR();
-	uint item_count = rBp.GetTCount();
+	const  uint item_count = rBp.GetTCount();
 	for(uint tidx = 0; tidx < item_count; tidx++) {
 		const PPTransferItem & r_ti = rBp.ConstTI(tidx);
 		GetGoodsName(r_ti.GoodsID, name_buf);

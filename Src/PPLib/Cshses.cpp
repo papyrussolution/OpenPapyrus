@@ -199,6 +199,12 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 									if(do_accept) {
 										if(pczcr > 0)
 											pPack->SetLineChZnPreprocessResult(pos, &chzn_pp_result);
+										// @v12.5.0 {
+										else {
+											chzn_pp_result.ForceAcceptMark = 1;
+											pPack->SetLineChZnPreprocessResult(pos, &chzn_pp_result);
+										}
+										// } @v12.5.0 
 									}
 									else {
 										ok = 2;
@@ -233,6 +239,12 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 												if(do_accept) {
 													if(pczcr > 0)
 														pPack->SetLineChZnPreprocessResult(pos, &chzn_pp_result);
+													// @v12.5.0 {
+													else {
+														chzn_pp_result.ForceAcceptMark = 1;
+														pPack->SetLineChZnPreprocessResult(pos, &chzn_pp_result);
+													}
+													// } @v12.5.0 
 												}
 												else {
 													ok = 2;
@@ -276,6 +288,12 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 											if(do_accept) {
 												if(pczcr > 0)
 													pPack->SetLineChZnPreprocessResult(pos, &chzn_pp_result);
+												// @v12.5.0 {
+												else {
+													chzn_pp_result.ForceAcceptMark = 1;
+													pPack->SetLineChZnPreprocessResult(pos, &chzn_pp_result);
+												}
+												// } @v12.5.0 
 											}
 											else {
 												ok = 2;

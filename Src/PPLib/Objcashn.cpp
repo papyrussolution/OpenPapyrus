@@ -2256,8 +2256,22 @@ class AsyncCashNodeDialog : public TDialog {
 public:
 	explicit AsyncCashNodeDialog(PPAsyncCashNode * pData) : TDialog(DLG_CASHNA), P_Data(pData)
 	{
-		Ptb.SetBrush(brushValidPath,   SPaintObj::bsSolid, GetColorRef(SClrAqua),  0); // @v10.9.11
-		Ptb.SetBrush(brushInvalidPath, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0); // @v10.9.11
+		{
+			const UiDescription * p_uid = SLS.GetUiDescription();
+			const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
+			{
+				SColor _color;
+				if(!p_cs || !p_cs->Get("invalid_value_input_bg", &p_uid->ClrList, _color))
+					_color = SClrCoral; 
+				Ptb.SetBrush(brushInvalidPath, SPaintObj::bsSolid, _color, 0);
+			}
+			{
+				SColor _color;
+				if(!p_cs || !p_cs->Get("valid_value_input_bg", &p_uid->ClrList, _color))
+					_color = SClrAqua; 
+				Ptb.SetBrush(brushValidPath,   SPaintObj::bsSolid, _color,  0);
+			}
+		}
 		PPIniFile  ini_file;
 		ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ACSCLOSE_USEALTIMPORT, &UseAltImport);
 		FileBrowseCtrlGroup::Setup(this, CTLBRW_CASHN_IMPFILES, CTL_CASHN_IMPFILES, 1, 0, 0, FileBrowseCtrlGroup::fbcgfPath);

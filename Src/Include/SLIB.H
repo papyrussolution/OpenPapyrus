@@ -119,6 +119,7 @@
 	#include <winsock2.h>
 	#include <windows.h>
 	#include <windowsx.h> // @v12.4.12
+	#include <winioctl.h> // @v12.5.0
 	#include <ws2tcpip.h>
 	#include <versionhelpers.h> // @v12.3.4
 	// @v11.7.0 {
@@ -18038,24 +18039,25 @@ public:
 	SUiCtrlSupplement & FASTCALL Copy(const SUiCtrlSupplement & rS);
 	
 	enum {
-		kUndef             = 0,
-		kDateCalendar      = 1, // (ident) Кнопка вызова выбора даты
-		kDateRangeCalendar = 2, // (ident) Кнопка вызова выбора диапазона дат
-		kTime              = 3, // (ident) Кнопка вызова выбора времени
-		kList              = 4, // (ident cmd) Кнопка вызова диалога выбора набора элементов
-		kCalc              = 5, // (ident)     Кнопка вызова выбора калькулятора
-		kAsterisk          = 6, // (ident cmd)       Кнопка со звездочкой (действие определяется контекстом)
-		kText              = 7, // (ident cmd title) Кнопка с текстом (действие определяется контекстом)
-		kFileBrowse        = 8, // @v12.3.10 (ident) Кнопка вызова диалога выбора файла или каталога
-		kFilt              = 9, // @v12.4.10 (ident) Кнопка расширенного фильтра для элемента
+		kUndef             =  0,
+		kDateCalendar      =  1, // (ident) Кнопка вызова выбора даты
+		kDateRangeCalendar =  2, // (ident) Кнопка вызова выбора диапазона дат
+		kTime              =  3, // (ident) Кнопка вызова выбора времени
+		kList              =  4, // (ident cmd) Кнопка вызова диалога выбора набора элементов
+		kCalc              =  5, // (ident)     Кнопка вызова выбора калькулятора
+		kAsterisk          =  6, // (ident cmd)       Кнопка со звездочкой (действие определяется контекстом)
+		kText              =  7, // (ident cmd title) Кнопка с текстом (действие определяется контекстом)
+		kFileBrowse        =  8, // @v12.3.10 (ident) Кнопка вызова диалога выбора файла или каталога
+		kFilt              =  9, // @v12.4.10 (ident) Кнопка расширенного фильтра для элемента
+		kEllipsis          = 10, // @v12.5.0 (ident) Кнопка дополнительной функции для элемента (...)
 	};
 	uint32 Version; // Номер версии для сериализации. При изменении формата обязательно увеличить значение и предпринять меры для правильного считывания старых версий!
 	uint32 Kind; // kXXX
 	uint32 Ident;
 	uint32 Cmd;
 
-	static bool IsValidKind(int kind) { return oneof10(kind, 
-		kUndef, kDateCalendar, kDateRangeCalendar, kTime, kList, kCalc, kAsterisk, kText, kFileBrowse, kFilt); }
+	static bool IsValidKind(int kind) { return oneof11(kind, 
+		kUndef, kDateCalendar, kDateRangeCalendar, kTime, kList, kCalc, kAsterisk, kText, kFileBrowse, kFilt, kEllipsis); }
 
 	struct DataBlock {
 		DataBlock();

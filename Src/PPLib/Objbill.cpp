@@ -1328,17 +1328,34 @@ static int _EditCcByBillParam(PPBillPacket::ConvertToCCheckParam & rParam)
 	public:
 		CCByBillDialog() : TDialog(DLG_CCBYBILL), EAddrInputState(0)
 		{
-			// @v11.3.7 {
-			Ptb.SetBrush(brushInvalid, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0);
-			Ptb.SetBrush(brushEAddrPhone, SPaintObj::bsSolid, GetColorRef(SClrAqua),  0);
-			Ptb.SetBrush(brushEAddrEmail, SPaintObj::bsSolid, GetColorRef(SClrCadetblue),  0);
+			{
+				const UiDescription * p_uid = SLS.GetUiDescription();
+				const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
+				{
+					SColor _color;
+					if(!p_cs || !p_cs->Get("invalid_value_input_bg", &p_uid->ClrList, _color))
+						_color = SClrCoral; 
+					Ptb.SetBrush(brushInvalid, SPaintObj::bsSolid, _color, 0);
+				}
+				{
+					SColor _color;
+					if(!p_cs || !p_cs->Get("eaddr_phone_input_bg", &p_uid->ClrList, _color))
+						_color = SClrAqua; 
+					Ptb.SetBrush(brushEAddrPhone, SPaintObj::bsSolid, _color,  0);
+				}
+				{
+					SColor _color;
+					if(!p_cs || !p_cs->Get("eaddr_email_input_bg", &p_uid->ClrList, _color))
+						_color = SClrCadetblue; 
+					Ptb.SetBrush(brushEAddrEmail, SPaintObj::bsSolid, _color,  0);
+				}
+			}
 			if(!DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) {
 				showCtrl(CTL_CCBYBILL_EADDR, false);
 				showCtrl(CTL_CCBYBILL_EADDRINF, false);
 				showCtrl(CTL_CCBYBILL_PAPERLESS, false);
 				showCtrl(CTLFRAME_CCBYBILL_PAPERLESS, false);
 			}
-			// } @v11.3.7
 		}
 		DECL_DIALOG_SETDTS()
 		{

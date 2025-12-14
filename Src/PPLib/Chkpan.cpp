@@ -2754,7 +2754,9 @@ int CPosProcessor::CorrectProblem_v12304(const DateRange * pPeriod, bool testMod
 	Reference * p_ref = PPRef;
 	SString temp_buf;
 	SString msg_buf;
-	const char * p_log_file_name = "CorrectProblem_v12304.log";
+	//const char * p_log_file_name = "CorrectProblem_v12304.log";
+	SString log_file_name;
+	PPGetFilePath(PPPATH_LOG, "CorrectProblem_v12304.log", log_file_name);
 	PPWait(1);
 	if(P_EgMas) {
 		PPEgaisProcessor * p_eg_prc = DS.GetTLA().GetEgaisProcessor();
@@ -2778,6 +2780,7 @@ int CPosProcessor::CorrectProblem_v12304(const DateRange * pPeriod, bool testMod
 			CCheckCore & r_cc = GetCc();
 			PPIDArray shadow_cc_id_list;
 			LAssocArray processed_shadow_code_list; // Список теневых чеков, которые уже были созданы для решения проблемы. Key - ID, Val - Code
+			LAssocArray egais_marked_code_list; // @v12.5.0 Список теневых чеков, у которых установлен признак того, что они уже отправлены в ЕГАИС
 			LAssocArray target_cc_id_list; // key - main_cc_id, val - shadow_cc_id
 			TSVector <CCheckTbl::Rec> temp_cc_rec_list;
 			CCheckPacket cc_pack;
@@ -2807,6 +2810,12 @@ int CPosProcessor::CorrectProblem_v12304(const DateRange * pPeriod, bool testMod
 						if(sc.GetExtStrData(CCheckPacket::extssCorrect12304, temp_buf) > 0 && temp_buf.IsEqiAscii("true")) {
 							processed_shadow_code_list.Add(cc_id, cc_code);
 						}
+						// @v12.5.0 {
+						// ? extssEgaisUrl
+						if(sc.GetExtStrData(CCheckPacket::extssSign, temp_buf) > 0 && temp_buf.NotEmpty()) {
+							egais_marked_code_list.Add(cc_id, cc_code);
+						}
+						// } @v12.5.0 
 					}
 				}
 			} while(r_cc.search(2, &k2, spNext) && r_cc.data.PosNodeID == PPPOSN_SHADOW);
@@ -2862,16 +2871,18 @@ int CPosProcessor::CorrectProblem_v12304(const DateRange * pPeriod, bool testMod
 						CCheckPacket main_cc_pack;
 						if(r_cc.LoadPacket(main_cc_id, 0, &main_cc_pack) > 0) {
 							uint   processed_shadow_code_pos = 0;
-							if(processed_shadow_code_list.SearchByVal(main_cc_pack.Rec.Code, &processed_shadow_code_pos)) {
-								LAssoc pi = processed_shadow_code_list.at(processed_shadow_code_pos);
+							// @v12.5.0 if(processed_shadow_code_list.SearchByVal(main_cc_pack.Rec.Code, &processed_shadow_code_pos)) {
+							if(egais_marked_code_list.SearchByVal(main_cc_pack.Rec.Code, &processed_shadow_code_pos)) { // @v12.5.0
+								// @v12.5.0 LAssoc pi = processed_shadow_code_list.at(processed_shadow_code_pos);
+								LAssoc pi = egais_marked_code_list.at(processed_shadow_code_pos); // @v12.5.0 
 								CCheckCore::MakeCodeString(&main_cc_pack.Rec, CCheckCore::mcsID, temp_buf);
 								temp_buf.CatDiv(':', 2).Cat("corrected").CatParStr(pi.Key);
-								PPLogMessage(p_log_file_name, temp_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+								PPLogMessage(log_file_name, temp_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 							}
 							else {
 								{
 									CCheckCore::MakeCodeString(&main_cc_pack.Rec, CCheckCore::mcsID, temp_buf);
-									PPLogMessage(p_log_file_name, temp_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+									PPLogMessage(log_file_name, temp_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 								}
 								EgaisMarkAutoSelector::ResultBlock rb;
 								PPGoodsType gt_rec;
@@ -2891,7 +2902,7 @@ int CPosProcessor::CorrectProblem_v12304(const DateRange * pPeriod, bool testMod
 												GetObjectName(PPOBJ_GOODS, p_src_item->GoodsID, temp_buf);
 												msg_buf.Tab().Cat(temp_buf).Space().CatEq("qtty", p_src_item->Qtty, MKSFMTD(0, 3, 0)).Space().
 													CatEq("volume-qtty", p_src_item->VolumeQtty, MKSFMTD(0, 3, 0));
-												PPLogMessage(p_log_file_name, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+												PPLogMessage(log_file_name, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 											}
 										}
 									}
@@ -2899,7 +2910,7 @@ int CPosProcessor::CorrectProblem_v12304(const DateRange * pPeriod, bool testMod
 									if(r > 0) {
 										{
 											msg_buf.Z().Tab_(2).Cat("EgaisMarkAutoSelector").Space().Cat("process completed successfully");
-											PPLogMessage(p_log_file_name, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+											PPLogMessage(log_file_name, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 										}
 										CCheckPacket cc_shadow_egais;
 										if(P_EgMas->MakeShadowCcPacket(&rb, main_cc_pack, cc_shadow_egais) > 0) {
@@ -2910,7 +2921,7 @@ int CPosProcessor::CorrectProblem_v12304(const DateRange * pPeriod, bool testMod
 													msg_buf.Z();
 													GetObjectName(PPOBJ_GOODS, r_ccl.GoodsID, temp_buf);
 													msg_buf.Tab_(2).Cat(temp_buf).Space().CatEq("qtty", r_ccl.Quantity, MKSFMTD(0, 3, 0));
-													PPLogMessage(p_log_file_name, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+													PPLogMessage(log_file_name, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 												}
 											}
 											if(!testMode) {
@@ -2921,14 +2932,14 @@ int CPosProcessor::CorrectProblem_v12304(const DateRange * pPeriod, bool testMod
 												r_cc.AdjustRecTime(cc_shadow_egais.Rec);
 												const int tsemapr = TurnShadowEgaisMarkAutoselectionCcPacket(main_cc_pack, cc_shadow_egais, 1);
 												if(!tsemapr) {
-													PPLogMessage(p_log_file_name, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
+													PPLogMessage(log_file_name, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 												}
 											}
 										}
 									}
 									else {
 										msg_buf.Z().Tab_(2).Cat("EgaisMarkAutoSelector").Space().Cat("process failed");
-										PPLogMessage(p_log_file_name, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+										PPLogMessage(log_file_name, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 									}
 								}
 							}
@@ -4534,9 +4545,30 @@ int CheckPaneDialog::ConfirmPosPaymBank(PosPaymentBlock & rPpl)
 		{
 			int    ok = 1;
 			RVALUEPTR(Data, pData);
-			Ptb.SetBrush(brushInvalid, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0);
-			Ptb.SetBrush(brushEAddrPhone, SPaintObj::bsSolid, GetColorRef(SClrAqua),  0);
-			Ptb.SetBrush(brushEAddrEmail, SPaintObj::bsSolid, GetColorRef(SClrCadetblue),  0);
+			{
+				const UiDescription * p_uid = SLS.GetUiDescription();
+				const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
+				{
+					SColor _color;
+					if(!p_cs || !p_cs->Get("invalid_value_input_bg", &p_uid->ClrList, _color))
+						_color = SClrCoral; 
+					Ptb.SetBrush(brushInvalid, SPaintObj::bsSolid, _color, 0);
+				}
+				//"eaddr_phone_input_bg": "#aqua",
+				//"eaddr_email_input_bg": "#cadetblue"
+				{
+					SColor _color;
+					if(!p_cs || !p_cs->Get("eaddr_phone_input_bg", &p_uid->ClrList, _color))
+						_color = SClrAqua; 
+					Ptb.SetBrush(brushEAddrPhone, SPaintObj::bsSolid, _color,  0);
+				}
+				{
+					SColor _color;
+					if(!p_cs || !p_cs->Get("eaddr_email_input_bg", &p_uid->ClrList, _color))
+						_color = SClrCadetblue; 
+					Ptb.SetBrush(brushEAddrEmail, SPaintObj::bsSolid, _color,  0);
+				}
+			}
 			if(!DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) {
 				showCtrl(CTL_POSPAYMBNK_EADDR, false);
 				showCtrl(CTL_POSPAYMBNK_EADDRINF, false);

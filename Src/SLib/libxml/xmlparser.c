@@ -1598,9 +1598,9 @@ static void FASTCALL xmlSHRINK(xmlParserCtxt * ctxt)
 
 static void FASTCALL xmlGROW(xmlParserCtxt * ctxt) 
 {
-	ulong  curEnd = ctxt->input->end - ctxt->input->cur;
-	ulong  curBase = ctxt->input->cur - ctxt->input->base;
-	if(((curEnd > (ulong)XML_MAX_LOOKUP_LIMIT) || (curBase > (ulong)XML_MAX_LOOKUP_LIMIT)) &&
+	const size_t cur_end = ctxt->input->end - ctxt->input->cur;
+	const size_t cur_base = ctxt->input->cur - ctxt->input->base;
+	if(((cur_end > (size_t)XML_MAX_LOOKUP_LIMIT) || (cur_base > (size_t)XML_MAX_LOOKUP_LIMIT)) &&
 	    ((ctxt->input->buf) && (ctxt->input->buf->readcallback != (xmlInputReadCallback)xmlNop)) &&
 	    ((ctxt->options & XML_PARSE_HUGE) == 0)) {
 		xmlFatalErr(ctxt, XML_ERR_INTERNAL_ERROR, "Huge input lookup");
@@ -3368,12 +3368,11 @@ static xmlChar * xmlParseAttValueComplex(xmlParserCtxt * ctxt, int * attlen, int
 					}
 				}
 				else if(ent) {
-					int i = sstrlen(ent->name);
+					size_t i = sstrlen(ent->name);
 					const xmlChar * cur = ent->name;
-					/*
-					 * This may look absurd but is needed to detect
-					 * entities problems
-					 */
+					//
+					// This may look absurd but is needed to detect entities problems
+					//
 					if((ent->etype != XML_INTERNAL_PREDEFINED_ENTITY) && ent->content && !ent->checked) {
 						ulong oldnbent = ctxt->nbentities;
 						rep = xmlStringDecodeEntities(ctxt, ent->content, XML_SUBSTITUTE_REF, 0, 0, 0);
@@ -3384,9 +3383,9 @@ static xmlChar * xmlParseAttValueComplex(xmlParserCtxt * ctxt, int * attlen, int
 							ZFREE(rep);
 						}
 					}
-					/*
-					 * Just output the reference
-					 */
+					//
+					// Just output the reference
+					//
 					buf[len++] = '&';
 					while(len + i + 10 > buf_size) {
 						growBuffer(buf, i + 10);
@@ -7655,7 +7654,7 @@ static xmlChar * xmlParseAttValueInternal(xmlParserCtxt * ctxt, int * len, int *
 		const xmlChar * oldbase = ctxt->input->base;
 		GROW;
 		if(oldbase != ctxt->input->base) {
-			long delta = ctxt->input->base - oldbase;
+			ssize_t delta = ctxt->input->base - oldbase;
 			start = start + delta;
 			in = in + delta;
 		}
@@ -7680,7 +7679,7 @@ static xmlChar * xmlParseAttValueInternal(xmlParserCtxt * ctxt, int * len, int *
 				if(ctxt->IsEof())
 					return 0;
 				if(oldbase != ctxt->input->base) {
-					long delta = ctxt->input->base - oldbase;
+					ssize_t delta = ctxt->input->base - oldbase;
 					start = start + delta;
 					in = in + delta;
 				}
@@ -7701,7 +7700,7 @@ static xmlChar * xmlParseAttValueInternal(xmlParserCtxt * ctxt, int * len, int *
 				if(ctxt->IsEof())
 					return 0;
 				if(oldbase != ctxt->input->base) {
-					long delta = ctxt->input->base - oldbase;
+					ssize_t delta = ctxt->input->base - oldbase;
 					start = start + delta;
 					in = in + delta;
 				}
@@ -7732,7 +7731,7 @@ static xmlChar * xmlParseAttValueInternal(xmlParserCtxt * ctxt, int * len, int *
 				if(ctxt->IsEof())
 					return 0;
 				if(oldbase != ctxt->input->base) {
-					long delta = ctxt->input->base - oldbase;
+					ssize_t delta = ctxt->input->base - oldbase;
 					start = start + delta;
 					in = in + delta;
 					last = last + delta;
@@ -7760,7 +7759,7 @@ static xmlChar * xmlParseAttValueInternal(xmlParserCtxt * ctxt, int * len, int *
 				if(ctxt->IsEof())
 					return 0;
 				if(oldbase != ctxt->input->base) {
-					long delta = ctxt->input->base - oldbase;
+					ssize_t delta = ctxt->input->base - oldbase;
 					start = start + delta;
 					in = in + delta;
 				}
@@ -9380,7 +9379,7 @@ int xmlParseExtParsedEnt(xmlParserCtxt * ctxt)
  * Returns the index to the current parsing point if the full sequence
  * is available, -1 otherwise.
  */
-static int xmlParseLookupSequence(xmlParserCtxt * ctxt, xmlChar first, xmlChar next, xmlChar third)
+static ssize_t xmlParseLookupSequence(xmlParserCtxt * ctxt, xmlChar first, xmlChar next, xmlChar third)
 {
 	ssize_t base;
 	ssize_t len;
@@ -9870,11 +9869,10 @@ static int xmlParseTryOrFinish(xmlParserCtxt * ctxt, int terminate)
 				    break;
 			    }
 			    else if((cur == '<') && (next == '!') && (ctxt->input->cur[2] == '-') && (ctxt->input->cur[3] == '-')) {
-				    int term;
 				    if(avail < 4)
 					    goto done;
 				    ctxt->input->cur += 4;
-				    term = xmlParseLookupSequence(ctxt, '-', '-', '>');
+				    ssize_t term = xmlParseLookupSequence(ctxt, '-', '-', '>');
 				    ctxt->input->cur -= 4;
 				    if((!terminate) && (term < 0)) {
 					    ctxt->progressive = XML_PARSER_COMMENT;
@@ -9972,7 +9970,7 @@ static int xmlParseTryOrFinish(xmlParserCtxt * ctxt, int terminate)
 				// The Push mode need to have the SAX callback for
 				// cdataBlock merge back contiguous callbacks.
 				// 
-			    int base = xmlParseLookupSequence(ctxt, ']', ']', '>');
+			    ssize_t base = xmlParseLookupSequence(ctxt, ']', ']', '>');
 			    if(base < 0) {
 				    if(avail >= (XML_PARSER_BIG_BUFFER_SIZE + 2)) {
 					    int tmp = xmlCheckCdataPush(ctxt->input->cur, XML_PARSER_BIG_BUFFER_SIZE);
@@ -10231,14 +10229,14 @@ static int xmlParseTryOrFinish(xmlParserCtxt * ctxt, int terminate)
 			    xmlChar * buf;
 			    xmlChar quote = 0;
 			    size_t use;
-			    int base = ctxt->input->cur - ctxt->input->base;
+			    ssize_t base = ctxt->input->cur - ctxt->input->base;
 			    if(base < 0)
 					return 0;
 			    if(ctxt->CheckIndex > base)
 				    base = ctxt->CheckIndex;
 			    buf = xmlBufContent(ctxt->input->buf->buffer);
 			    use = xmlBufUse(ctxt->input->buf->buffer);
-			    for(; (uint)base < use; base++) {
+			    for(; (size_t)base < use; base++) {
 				    if(quote != 0) {
 					    if(buf[base] == quote)
 						    quote = 0;
@@ -10247,8 +10245,8 @@ static int xmlParseTryOrFinish(xmlParserCtxt * ctxt, int terminate)
 				    if((quote == 0) && (buf[base] == '<')) {
 					    int found  = 0;
 					    // special handling of comments 
-					    if(((uint)base + 4 < use) && (buf[base + 1] == '!') && (buf[base + 2] == '-') && (buf[base + 3] == '-')) {
-						    for(; (uint)base + 3 < use; base++) {
+					    if(((size_t)base + 4 < use) && (buf[base + 1] == '!') && (buf[base + 2] == '-') && (buf[base + 3] == '-')) {
+						    for(; (size_t)base + 3 < use; base++) {
 							    if((buf[base] == '-') && (buf[base + 1] == '-') && (buf[base + 2] == '>')) {
 								    found = 1;
 								    base += 2;
@@ -10276,14 +10274,14 @@ static int xmlParseTryOrFinish(xmlParserCtxt * ctxt, int terminate)
 #if 0
 					    slfprintf_stderr("%c%c%c%c: ", buf[base], buf[base + 1], buf[base + 2], buf[base + 3]);
 #endif
-					    if((uint)base +1 >= use)
+					    if(((size_t)base + 1) >= use)
 						    break;
 					    if(buf[base + 1] == ']') {
 						    // conditional crap, skip both ']' ! 
 						    base++;
 						    continue;
 					    }
-					    for(i = 1; (uint)base + i < use; i++) {
+					    for(i = 1; ((size_t)base + i) < use; i++) {
 						    if(buf[base + i] == '>') {
 #if 0
 							    slfprintf_stderr("found\n");

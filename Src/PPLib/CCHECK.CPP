@@ -760,7 +760,7 @@ bool CCheckPacket::LineExt::IsEmpty() const
 	return (Queue <= 0 && !(Flags & (fGroup|fModifier|fPartOfComplex|fQuotedByGift|fFixedPrice)));
 }
 
-CCheckPacket::PreprocessChZnCodeResult::PreprocessChZnCodeResult() : LineIdx(0), CheckResult(0), Reason(0), ProcessingResult(0), ProcessingCode(0), Status(0)
+CCheckPacket::PreprocessChZnCodeResult::PreprocessChZnCodeResult() : LineIdx(0), CheckResult(0), Reason(0), ProcessingResult(0), ProcessingCode(0), Status(0), ForceAcceptMark(0)
 {
 }
 
@@ -1915,7 +1915,7 @@ CCheckCore::CcMarkedEntry::CcMarkedEntry() : CcID(0), LineNo(0), Flags(0), Qtty(
 {
 }
 
-CCheckCore::ListByMarkEntry::ListByMarkEntry() : OrgLotID(0), OrgLotDate(ZERODATE), OrgLotQtty(0.0), Flags(0), TotalOpQtty(0.0), P_Extra(0)
+CCheckCore::ListByMarkEntry::ListByMarkEntry() : OrgLotID(0), OrgLotDate(ZERODATE), OrgLotQtty(0.0), Flags(0), BillOpQtty(0.0), TotalOpQtty(0.0), P_Extra(0)
 {
 	Mark[0] = 0;
 }

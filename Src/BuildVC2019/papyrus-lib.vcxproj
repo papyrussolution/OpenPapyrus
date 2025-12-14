@@ -1763,8 +1763,8 @@
     <ProjectReference Include="libzint.vcxproj">
       <Project>{f0604a96-528f-40e6-8800-c696f03307a1}</Project>
     </ProjectReference>
-    <ProjectReference Include="mariadbclient.vcxproj">
-      <Project>{ff98372f-431d-34c6-99e2-6f65b53795d6}</Project>
+    <ProjectReference Include="mariadbclient-20251208.vcxproj">
+      <Project>{de13d800-f7fc-4ebd-b6b7-c661a8071cdb}</Project>
     </ProjectReference>
     <ProjectReference Include="nginx.vcxproj">
       <Project>{7e739c8a-b894-4f22-90ac-8b224ffa76a4}</Project>

@@ -64,14 +64,14 @@ dialog DLG_SUBSTGL [vertical title: "@{selection} %s" size: (1000, 475) minsize:
 			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 		}
 	}
-	//button STDCTL_INSBUTTON [title: "@but_add" tabstop origin: (8, 406) size: (90, 21)  command: cmaInsert];
-	//button STDCTL_EDITBUTTON [title: "@but_edit" tabstop origin: (113, 406) size: (90, 21)  command: cmaEdit];
-	//button STDCTL_DELBUTTON [title: "@but_delete" tabstop origin: (218, 406) size: (90, 21)  command: cmaDelete];
-	//button CTL_LBXSEL_CREATEBTN [title: "@{create}..." tabstop defaultitem origin: (330, 406) size: (90, 21)  command: cmaAltInsert];
-	//button CTL_LBXSEL_CREATEALLBTN [title: "@docreateall" tabstop defaultitem origin: (428, 406) size: (90, 21)  command: cmCreateAll];
-	//button CTL_CMD_SUBSTGOODS [title: "@{dosubst}..." tabstop origin: (525, 406) size: (90, 21)  command: cmSubstGoods];
-	//button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem origin: (810, 406) size: (75, 21)  command: cmOK];
-	//button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop origin: (908, 406) size: (75, 21)  command: cmCancel];
+	//button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21)  command: cmaInsert];
+	//button STDCTL_EDITBUTTON [title: "@but_edit" tabstop size: (90, 21)  command: cmaEdit];
+	//button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21)  command: cmaDelete];
+	//button CTL_LBXSEL_CREATEBTN [title: "@{create}..." tabstop defaultitem size: (90, 21)  command: cmaAltInsert];
+	//button CTL_LBXSEL_CREATEALLBTN [title: "@docreateall" tabstop defaultitem size: (90, 21)  command: cmCreateAll];
+	//button CTL_CMD_SUBSTGOODS [title: "@{dosubst}..." tabstop size: (90, 21)  command: cmSubstGoods];
+	//button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21)  command: cmOK];
+	//button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21)  command: cmCancel];
 }
 
 dialog DLG_FLDCORRLIST [vertical title: "@sdbfieldiematchlist" size: (560, 430) minsize: (560, 430) font: "MS Shell Dlg,8"] {
@@ -1943,6 +1943,68 @@ dialog DLG_ARTICLEFLT [vertical title: "@articlefilt" size: (350, 385) minsize: 
 	}
 }
 
+dialog DLG_BIZSC2V [vertical title: "BizScore2 value" size: (390, 390) minsize: (390, 390) font: "MS Shell Dlg 2,8"] {
+	combobox CTLSEL_BIZSC2V_BSC [tabstop width: bycontainer height: 21 margin: 4 label: "Indicator" labelsize: (203, 13) cblinesymb: CTL_BIZSC2V_BSC];
+	view [horizontal width: bycontainer height: 40] {
+		input CTL_BIZSC2V_DT [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (dmy) label: "@date" labelsize: (0, 13)] date supplement datecalbutton(CTLCAL_BIZSC2V_DT);
+		input CTL_BIZSC2V_TM [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (hms) label: "@time" labelsize: (0, 13)] time;
+	}
+	combobox CTLSEL_BIZSC2V_LINKOBJ [tabstop width: bycontainer height: 21 margin: 4 label: "Linked object" labelsize: (0, 13) cblinesymb: CTL_BIZSC2V_LINKOBJ];
+	combobox CTLSEL_BIZSC2V_AGENT [tabstop width: bycontainer height: 21 margin: 4 label: "Agent" labelsize: (0, 13) cblinesymb: CTL_BIZSC2V_AGENT];
+	view [vertical width: bycontainer growfactor: 1] {
+		input CTL_BIZSC2V_VAL_R [width: bycontainer(40) height: 21 margin: 4 tabstop fmtf: (notrailz) fmtprec: 6 label: "Real Value" labelsize: (0, 13)] double;
+		input CTL_BIZSC2V_VAL_I [width: bycontainer(40) height: 21 margin: 4 tabstop label: "Int Value" labelsize: (0, 13)] int32;
+		input CTL_BIZSC2V_VAL_T [width: bycontainer(100) height: 21 margin: 4 tabstop label: "Text Value" labelsize: (0, 13)] string[252];
+	}
+	view [horizontal width: bycontainer(100) height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: (4, 4, 8, 4) command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: (8, 4, 4, 4) command: cmCancel];
+	}
+}
+
+dialog DLG_CMDGROUP [vertical title: "Command Group" size: (830, 490) minsize: (830, 490) font: "MS Shell Dlg,8"] {
+	statictext CTL_CMDGROUP_ST_INFO [width: bycontainer height: 24 margin: 4 staticedge];
+	view [horizontal width: bycontainer growfactor: 1] {
+		view [vertical growfactor: 3 height: bycontainer] {
+			input CTL_CMDGROUP_NAME [width: bycontainer height: 21 margin: 4 tabstop label: "@appellation" labelsize: (0, 13)] string[128];
+			view [horizontal width: bycontainer height: 40] {
+				input CTL_CMDGROUP_UUID [growfactor: 2 height: 21 margin: 4 tabstop readonly label: "UUID" labelsize: (0, 13)] string[48];
+				input CTL_CMDGROUP_ID [growfactor: 1 height: 21 margin: 4 tabstop readonly fmtf: (nozero) label: "@id" labelsize: (0, 13)] int32;
+			}
+			view [horizontal width: bycontainer growfactor: 1] {
+				imageview CTL_CMDGROUP_IMAGE [growfactor: 2 height: bycontainer margin: 4 staticedge];
+				view [vertical growfactor: 1 height: bycontainer] {
+					button STDCTL_IMGADDBUTTON [tabstop size: (21, 21) margin: 4 command: cmAddImage];
+					button STDCTL_IMGDELBUTTON [tabstop size: (21, 21) margin: 4 command: cmDelImage];
+					button STDCTL_IMGPSTBUTTON [tabstop size: (21, 21) margin: 4 command: cmPasteImage];
+				}
+			}
+			combobox CTLSEL_CMDGROUP_BGCOLOR [tabstop width: bycontainer(80) height: 21 margin: 4 label: "@cmdgroup_desktopbkgcolor" labelsize: (0, 13) cblinesymb: CTL_CMDGROUP_BGCOLOR]
+				supplement ellipsisbutton(CTL_CMDGROUP_SELBGCOLOR cmSelBkgnd);
+			//button CTL_CMDGROUP_SELBGCOLOR [title: "..." tabstop size: (30, 21)  command: cmSelBkgnd];
+			checkbox CTL_CMDGROUP_FLAGS [title: "@cmdgroup_fbkgndgradient" tabstop width: bycontainer height: 21 margin: 4];
+		}
+		view [horizontal growfactor: 4 height: bycontainer] {
+			treelistbox CTL_CMDGROUP_CMDLIST [growfactor: 1 height: bycontainer];
+			view [vertical width: 100 height: bycontainer] {
+				button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+				button STDCTL_EDITBUTTON [title: "@but_edit" tabstop size: (90, 21) margin: 4 command: cmaEdit];
+				button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+				view [horizontal width: bycontainer height: 30 justifycontent: center] {
+					//button CTL_LBXSEL_UPBTN [title: "" tabstop size: (38, 21) margin: 4 command: cmUp];
+					//button CTL_LBXSEL_DOWNBTN [title: "" tabstop size: (38, 21) margin: 4 command: cmDown];
+					button STDCTL_UPBUTTON [title: "" tabstop size: (23, 21) margin: 4 command: cmUp];
+					button STDCTL_DOWNBUTTON [title: "" tabstop size: (23, 21) margin: 4 command: cmDown];
+				}
+			}
+		}
+	}
+	view [horizontal width: bycontainer(100) height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: (4, 4, 8, 4) command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: (8, 4, 4, 4) command: cmCancel];
+	}
+}
+
 // @20251201 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
 // Диалоги, представленные здесь с изменными символами (DLG_CASHREPORTS_L__, например) в ppdlg.list не отмечены поскольку находятся в работе.
 
@@ -1978,6 +2040,31 @@ dialog DLG_WMSBILL__ [vertical title: "@oprcategory_wms" size: (530, 350) minsiz
 	}
 }
 
+dialog DLG_ELINK [vertical title: "@elink" size: (400, 205) minsize: (400, 205) padding: 4 font: "MS Shell Dlg,8"] {
+	combobox CTLSEL_ELINK_KIND [tabstop width: bycontainer height: 21 margin: 4 label: "@elink_kind" labelsize: (0, 13) cblinesymb: CTL_ELINK_KIND ];
+	input CTL_ELINK_ADDR [width: bycontainer height: 21 margin: 4 tabstop label: "@elink_addr" labelsize: (0, 13)] string[64];
+	input CTL_ELINK_INFO [width: bycontainer height: 21 margin: 4 tabstop readonly] string[128];
+	view [horizontal width: bycontainer(100) growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_ELNKLST [vertical title: "@elinkkind_pl" size: (500, 310) minsize: (500, 310) padding: 4 font: "MS Shell Dlg,8"] {
+	listbox CTL_ELNKLST_LIST [tabstop width: bycontainer growfactor: 1 columns: "@lbt_elinklist"];
+	view [horizontal width: bycontainer height: 28] {
+		view [horizontal growfactor: 4 height: bycontainer(100) gravity: left justifycontent: start] {
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+			button STDCTL_EDITBUTTON [title: "@but_edit" tabstop defaultitem size: (90, 21) margin: 4 command: cmaEdit];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+		}
+		view [horizontal growfactor: 2 height: bycontainer(100) margin_right: 12 gravity: right justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
 // @construction. Лейаут готов, но проблема со шрифтами. Управляющие элементы получают default-шрифты а для этого диалог так не годится (он специально большим сделан).
 dialog DLG_CASHREPORTS_L__ [vertical title: "@posnodecmd" size: (595, 525) minsize: (595, 525) font: "MS Shell Dlg 2,16" alignitems: center justifycontent: spaceevenly] {
 	// (все равно он в программе делается невидимым) input CTL_CSPANEL_INPUT [width: bycontainer height: 41 margin: (8, 8, 8, 16) tabstop] string[64];
@@ -2001,5 +2088,124 @@ dialog DLG_CASHREPORTS_L__ [vertical title: "@posnodecmd" size: (595, 525) minsi
 	}
 	view [horizontal width: bycontainer(80) growfactor: 2 alignitems: center justifycontent: spaceevenly] {
 		button STDCTL_CANCELBUTTON [title: "@but_close" tabstop width: bycontainer height: 50 margin: 8 command: cmCancel];
+	}
+}
+
+dialog DLG_ADVCBXSEL [vertical title: "%s" size: (440, 170) minsize: (440, 170) padding: 4 font: "MS Shell Dlg,8"] {
+	input CTL_CBXSEL_NAME [width: bycontainer height: 21 margin: 4 tabstop label: "@appellation" labelsize: (0, 13)] string[48];
+	combobox CTLSEL_CBXSEL_COMBO [tabstop width: bycontainer height: 21 margin: 4 label: "@ware" labelsize: (0, 13) cblinesymb: CTL_CBXSEL_COMBO];
+	view [horizontal width: bycontainer(100) growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: (4, 4, 8, 4) command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: (8, 4, 4, 4) command: cmCancel];
+	}
+}
+
+dialog DLG_ALCREPCFG [vertical title: "@cfg_alcreport" size: (990, 525) minsize: (970, 515) padding: 4 font: "MS Shell Dlg 2,8"] {
+	view [horizontal width: bycontainer growfactor: 1] {
+		view [vertical growfactor: 1 height: bycontainer] {
+			combobox CTLSEL_ALCREPCFG_OP_RCP [tabstop width: bycontainer height: 21 margin: 4 label: "@cfgalcreport_rcptop" labelsize: (0, 13) cblinesymb: CTL_ALCREPCFG_OP_RCP ];
+			combobox CTLSEL_ALCREPCFG_OP_RCR [tabstop width: bycontainer height: 21 margin: 4 label: "@cfgalcreport_supplretop" labelsize: (0, 13) cblinesymb: CTL_ALCREPCFG_OP_RCR ];
+			combobox CTLSEL_ALCREPCFG_OP_RCE [tabstop width: bycontainer height: 21 margin: 4 label: "@cfgalcreport_rcptetcop" labelsize: (0, 13) cblinesymb: CTL_ALCREPCFG_OP_RCE ];
+			combobox CTLSEL_ALCREPCFG_OP_EXP [tabstop width: bycontainer height: 21 margin: 4 label: "@cfgalcreport_expndop" labelsize: (0, 13) cblinesymb: CTL_ALCREPCFG_OP_EXP ];
+			combobox CTLSEL_ALCREPCFG_OP_EXR [tabstop width: bycontainer height: 21 margin: 4 label: "@cfgalcreport_saleretop" labelsize: (0, 13) cblinesymb: CTL_ALCREPCFG_OP_EXR ];
+			combobox CTLSEL_ALCREPCFG_OP_EXE [tabstop width: bycontainer height: 21 margin: 4 label: "@cfgalcreport_expndetcop" labelsize: (0, 13) cblinesymb: CTL_ALCREPCFG_OP_EXE ];
+			combobox CTLSEL_ALCREPCFG_OP_INT [tabstop width: bycontainer height: 21 margin: 4 label: "@cfgalcreport_intrexpndop" labelsize: (0, 13) cblinesymb: CTL_ALCREPCFG_OP_INT ];
+			combobox CTLSEL_ALCREPCFG_OP_INV [tabstop width: bycontainer height: 21 margin: 4 label: "@cfgalcreport_inventoryop" labelsize: (0, 13) cblinesymb: CTL_ALCREPCFG_OP_INV ];
+			combobox CTLSEL_ALCREPCFG_OP_MFG [tabstop width: bycontainer height: 21 margin: 4 label: "@cfgalcreport_manufop" labelsize: (0, 13) cblinesymb: CTL_ALCREPCFG_OP_MFG ];
+		}
+		view [vertical growfactor: 3 height: bycontainer] {
+			view [horizontal width: bycontainer height: 126] {
+				view [vertical growfactor: 2 height: bycontainer] {
+					combobox CTLSEL_ALCREPCFG_ALCGRP [tabstop width: bycontainer height: 21 margin: 4 label: "@cfgalcreport_alcgoodsgrp" labelsize: (0, 13) cblinesymb: CTL_ALCREPCFG_ALCGRP];
+					combobox CTLSEL_ALCREPCFG_BEERGRP [tabstop width: bycontainer height: 21 margin: 4 label: "@cfgalcreport_beergoodsgrp" labelsize: (0, 13) cblinesymb: CTL_ALCREPCFG_BEERGRP];
+					combobox CTLSEL_ALCREPCFG_ALCCLS [tabstop width: bycontainer height: 21 margin: 4 label: "@cfgalcreport_alcgoodscls" labelsize: (0, 13) cblinesymb: CTL_ALCREPCFG_ALCCLS];
+				}
+				view [vertical growfactor: 1 height: bycontainer] {
+					combobox CTLSEL_ALCREPCFG_CATDIM [tabstop width: bycontainer height: 21 margin: 4 label: "@cfgalcreport_categoryclsdim" labelsize: (0, 13) cblinesymb: CTL_ALCREPCFG_CATDIM ];
+					combobox CTLSEL_ALCREPCFG_VOLDIM [tabstop width: bycontainer height: 21 margin: 4 label: "@cfgalcreport_volumeclsdim" labelsize: (0, 13) cblinesymb: CTL_ALCREPCFG_VOLDIM ];
+					combobox CTLSEL_ALCREPCFG_PRFDIM [tabstop width: bycontainer height: 21 margin: 4 label: "@cfgalcreport_proofclsdim" labelsize: (0, 13) cblinesymb: CTL_ALCREPCFG_PRFDIM ];
+				}
+			}
+			view [horizontal width: bycontainer growfactor: 1] {
+				view [vertical growfactor: 2 height: bycontainer] {
+					combobox CTLSEL_ALCREPCFG_CATTAG [tabstop width: bycontainer height: 21 margin: 4 label: "@cfgalcreport_categorytag" labelsize: (0, 13) cblinesymb: CTL_ALCREPCFG_CATTAG ];
+					combobox CTLSEL_ALCREPCFG_LICREG [tabstop width: bycontainer height: 21 margin: 4 label: "@cfgalcreport_alclicregtype" labelsize: (0, 13) cblinesymb: CTL_ALCREPCFG_LICREG ];
+					combobox CTLSEL_ALCREPCFG_KPPREG [tabstop width: bycontainer height: 21 margin: 4 label: "@cfgalcreport_kppregtype" labelsize: (0, 13) cblinesymb: CTL_ALCREPCFG_KPPREG ];
+					combobox CTLSEL_ALCREPCFG_MNFTAG [tabstop width: bycontainer height: 21 margin: 4 label: "@cfgalcreport_lotmanuftaglist" labelsize: (0, 13) cblinesymb: CTL_ALCREPCFG_MNFTAG ];
+					combobox CTLSEL_ALCREPCFG_MITAG  [tabstop width: bycontainer height: 21 margin: 4 label: "@cfgalcreport_manufimptag" labelsize: (0, 13) cblinesymb: CTL_ALCREPCFG_MITAG ];
+					combobox CTLSEL_ALCREPCFG_IMPPSNK [tabstop width: bycontainer height: 21 margin: 4 label: "@cfgalcreport_importerpersonkind" labelsize: (0, 13) cblinesymb: CTL_ALCREPCFG_IMPPSNK ];
+				}
+				view [vertical growfactor: 3 height: bycontainer] {
+					checkcluster CTL_ALCREPCFG_FLAGS [width: bycontainer margin: 4] {
+						checkbox [title: "@cfgalcreport_fdetectalcbyclass" height: 16];
+						checkbox [title: "@cfgalcreport_fwhtoreg2bylacks" height: 16];
+						checkbox [title: "@cfgalcreport_fegaisver2fmt" height: 16];
+						checkbox [title: "@cfgalcreport_fegaisver3fmt" height: 16];
+						checkbox [title: "@cfgalcreport_finvccodepref" height: 16];
+						checkbox [title: "@cfgalcreport_fegaisver4fmt" height: 16];
+					}
+					radiocluster CTL_ALCREPCFG_WOSW [title: "@cfgalcreport_wroffshopway" width: bycontainer margin: 4] {
+						radiobutton [title: "@cfgalcreport_woswnone" height: 16];
+						radiobutton [title: "@cfgalcreport_woswbalancewithlots" height: 16];
+						radiobutton [title: "@cfgalcreport_woswbycchecks" height: 16];
+						radiobutton [title: "@cfgalcreport_woswbybills" height: 16];
+					}
+					checkbox CTL_ALCREPCFG_WOSW_NMR [title: "@cfgalcreport_fnmarkedbalance" tabstop width: bycontainer height: 21 margin: 4];
+				}
+			}
+		}
+	}
+	view [horizontal width: bycontainer height: 42] {
+		combobox CTLSEL_ALCREPCFG_SPLAGT  [tabstop growfactor: 1 height: 21 margin: 4 label: "@cfgalcreport_supplagent" labelsize: (0, 13) cblinesymb: CTL_ALCREPCFG_SPLAGT];
+		input CTL_ALCREPCFG_RSAT [tabstop growfactor: 1 height: 21 margin: 4 label: "@cfgalcreport_rtlsaleallwtime"] string[32];
+	}
+	view [horizontal width: bycontainer(100) height: 30] {
+		view [horizontal growfactor: 1 height: bycontainer(100) gravity: left justifycontent: start alignitems: end] {
+			button CTL_CMD_CCHECKFILT [title: "@{ccheckfilt_s}..." tabstop size: (90, 21) margin: 4 command: cmCCheckFilt];
+		}
+		view [horizontal growfactor: 2 height: bycontainer(100) margin_right: 12 gravity: right justifycontent: end alignitems: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_ELNKSET__ [vertical title: "@elinkarray" size: (655, 235) minsize: (655, 235) padding: 4 font: "MS Shell Dlg,8"] { // @construction
+	input CTL_ELNKSET_INFO [size: (593, 21)  tabstop readonly] string[252];
+	view [vertical width: bycontainer growfactor: 1] {
+		view [horizontal width: bycontainer height: 30] {
+			combobox CTLSEL_ELNKSET_KIND1 [tabstop growfactor: 2 height: 21 margin: 4 cblinesymb: CTL_ELNKSET_KIND1];
+			input CTL_ELNKSET_ADDR1 [growfactor: 3 height: 21 margin: 4 tabstop] string[64];
+			button CTL_ELNKSET_ACN1 [title: "" size: (21, 21) margin: 4 command: cmELnkSetAction1];
+		}
+		view [horizontal width: bycontainer height: 30] {
+			combobox CTLSEL_ELNKSET_KIND2 [tabstop growfactor: 2 height: 21 margin: 4 cblinesymb: CTL_ELNKSET_KIND2 ];
+			input CTL_ELNKSET_ADDR2 [growfactor: 3 height: 21 margin: 4 tabstop] string[64];
+			button CTL_ELNKSET_ACN2 [title: "" size: (21, 21) margin: 4 command: cmELnkSetAction2];
+		}
+		view [horizontal width: bycontainer height: 30] {
+			combobox CTLSEL_ELNKSET_KIND3 [tabstop growfactor: 2 height: 21 margin: 4 cblinesymb: CTL_ELNKSET_KIND3 ];
+			input CTL_ELNKSET_ADDR3 [growfactor: 3 height: 21 margin: 4 tabstop] string[64];
+			button CTL_ELNKSET_ACN3 [title: "" size: (21, 21) margin: 4 command: cmELnkSetAction3];
+		}
+		view [horizontal width: bycontainer height: 30] {
+			combobox CTLSEL_ELNKSET_KIND4 [tabstop growfactor: 2 height: 21 margin: 4 cblinesymb: CTL_ELNKSET_KIND4 ];
+			input CTL_ELNKSET_ADDR4 [growfactor: 3 height: 21 margin: 4 tabstop] string[64];
+			button CTL_ELNKSET_ACN4 [title: "" size: (21, 21) margin: 4 command: cmELnkSetAction4];
+		}
+		view [horizontal width: bycontainer height: 30] {
+			combobox CTLSEL_ELNKSET_KIND5 [tabstop growfactor: 2 height: 21 margin: 4 cblinesymb: CTL_ELNKSET_KIND5 ];
+			input CTL_ELNKSET_ADDR5 [growfactor: 3 height: 21 margin: 4 tabstop] string[64];
+			button CTL_ELNKSET_ACN5 [title: "" size: (21, 21) margin: 4 command: cmELnkSetAction5];
+		}
+	}
+	view [horizontal width: bycontainer height: 28] {
+		view [horizontal growfactor: 1 height: bycontainer(100) gravity: left justifycontent: start] {
+			button CTL_CMD_MORE [title: "@{elinkarray_list}..." tabstop size: (98, 21) command: cmaMore];
+		}
+		view [horizontal growfactor: 2 height: bycontainer(100) margin_right: 12 gravity: right justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
 	}
 }
