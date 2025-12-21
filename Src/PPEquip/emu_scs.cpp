@@ -348,16 +348,17 @@ int SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 				}
 			} // } @v12.2.9
 			else if(PrinterPort.Len()) {
+				const LDATETIME now_dtm = getcurdatetime_();
 				PrnLinesArray prn_list;
 				TextOutput = sdc_param.TextOutput; // @vmiller
-				SETIFZ(pPack->Rec.Dt, getcurdate_());
-				SETIFZ(pPack->Rec.Tm, getcurtime_());
+				SETIFZ(pPack->Rec.Dt, now_dtm.d);
+				SETIFZ(pPack->Rec.Tm, now_dtm.t);
 				THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 				if(r > 0) {
 					for(P_SlipFmt->InitIteration(pPack); P_SlipFmt->NextIteration(line_buf, &sl_param) > 0;) {
 						if(sl_param.Flags & SlipLineParam::fRegFiscal) {
-							double _q = sl_param.Qtty;
-							double _p = sl_param.Price;
+							const double _q = sl_param.Qtty;
+							const double _p = sl_param.Price;
 							running_total += (_q * _p);
 						}
 						{

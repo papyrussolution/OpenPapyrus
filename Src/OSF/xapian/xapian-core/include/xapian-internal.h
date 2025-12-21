@@ -489,7 +489,7 @@ template <typename T> inline void unaligned_write2(uchar * ptr, T value) { do_un
 //
 //log2.h
 #if !HAVE_DECL_LOG2
-	inline double log2(double x) { return std::log(x) / std::log(2.0); }
+	// @v12.5.1 inline double log2(double x) { return std::log(x) / std::log(2.0); }
 #endif
 //
 #endif // __XAPIAN_INTERNAL_H

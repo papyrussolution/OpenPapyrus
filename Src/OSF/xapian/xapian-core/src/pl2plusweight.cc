@@ -120,20 +120,17 @@ PL2PlusWeight * PL2PlusWeight::unserialise(const string & s) const
 	return new PL2PlusWeight(c, delta);
 }
 
-double PL2PlusWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
-    Xapian::termcount, Xapian::termcount) const
+double PL2PlusWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len, Xapian::termcount, Xapian::termcount) const
 {
-	if(wdf == 0 || mean < 1) return 0.0;
-
+	if(wdf == 0 || mean < 1) 
+		return 0.0;
 	double wdfn = wdf * log2(1 + cl / len);
-
 	double P = P1 + (wdfn + 0.5) * log2(wdfn) - P2 * wdfn;
-
 	double wt = (P / (wdfn + 1.0)) + dw;
 	// FIXME: Is a negative wt possible here?  It is with vanilla PL2, but for
 	// PL2+ we've added on dw, and bailed out early if mean < 1.
-	if(UNLIKELY(wt <= 0)) return 0.0;
-
+	if(UNLIKELY(wt <= 0)) 
+		return 0.0;
 	return factor * wt;
 }
 

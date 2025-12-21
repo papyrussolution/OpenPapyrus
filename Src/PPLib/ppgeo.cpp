@@ -4,8 +4,6 @@
 #include <pp.h>
 #pragma hdrstop
 #include <sartre.h>
-//#include <berkeleydb.h>
-//#include <berkeleydb-6232.h>
 //
 //
 //
@@ -1510,8 +1508,8 @@ int FASTCALL PPViewGeoTracking::CheckRecForFilt(const GeoTrackTbl::Rec * pRec)
 
 /*virtual*/DBQuery * PPViewGeoTracking::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
+	const  uint brw_id = BROWSER_GEOTRACKING;
 	int    add_dbe = 0;
-	uint   brw_id = BROWSER_GEOTRACKING;
 	DBQuery * q = 0;
 	DBE    dbe_obj;
 	DBE    dbe_extobj;
@@ -1519,7 +1517,6 @@ int FASTCALL PPViewGeoTracking::CheckRecForFilt(const GeoTrackTbl::Rec * pRec)
 	DBQ  * dbq = 0;
 	GeoTrackTbl * t = new GeoTrackTbl();
 	const  LDATE base_date = encodedate(1, 1, 2010);
-
 	THROW(CheckTblPtr(t));
 	{
 		dbe_obj.init();
@@ -1551,7 +1548,22 @@ int FASTCALL PPViewGeoTracking::CheckRecForFilt(const GeoTrackTbl::Rec * pRec)
 			dbq = &(*dbq && t->Dts2010 <= diffdate(Filt.Period.upp, base_date));
 		}
 	}
+	// @v12.5.1 {
 	q = & Select_(
+		t->ObjType,   // #0
+		t->ObjID,     // #1
+		t->Dts2010,   // #2
+		t->Tm,        // #3
+		0L);
+	q->addField(dbe_dt);       // #4
+	q->addField(dbe_obj);      // #5
+	q->addField(dbe_extobj);   // #6
+	q->addField(t->Latitude);  // #7
+	q->addField(t->Longitude); // #8
+	q->addField(t->Altitude);  // #9
+	q->addField(t->Speed);     // #10
+	// } @v12.5.1 
+	/* @v12.5.1 q = & Select_(
 		t->ObjType,   // #0
 		t->ObjID,     // #1
 		t->Dts2010,   // #2
@@ -1563,7 +1575,7 @@ int FASTCALL PPViewGeoTracking::CheckRecForFilt(const GeoTrackTbl::Rec * pRec)
 		t->Longitude, // #8
 		t->Altitude,  // #9
 		t->Speed,     // #10
-		0L);
+		0L);*/
 	q->from(t, 0L).where(*dbq);
 	THROW(CheckQueryPtr(q));
 	CATCH

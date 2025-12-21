@@ -434,7 +434,7 @@ FORCE_INLINE_TEMPLATE void ZSTD_buildFSETable_body(ZSTD_seqSymbol* dt, const sho
 	ZSTD_seqSymbol* const tableDecode = dt+1;
 	const uint32 maxSV1 = maxSymbolValue + 1;
 	const uint32 tableSize = 1 << tableLog;
-	uint16* symbolNext = (uint16*)wksp;
+	uint16* symbolNext = (uint16 *)wksp;
 	BYTE * spread = (BYTE *)(symbolNext + MaxSeq + 1);
 	uint32 highThreshold = tableSize - 1;
 	/* Sanity Checks */

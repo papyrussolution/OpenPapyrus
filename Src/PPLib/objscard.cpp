@@ -470,13 +470,13 @@ void PPSCardSerPacket::Ext::Init()
 
 bool PPSCardSerPacket::Ext::IsEmpty() const
 {
-	return (!UsageTmStart && !UsageTmEnd && (!UsageTmStart || !checktime(UsageTmStart)) && (!UsageTmEnd || !checktime(UsageTmEnd)) && !CodeTempl[0]);
+	return (!UsageTmStart && !UsageTmEnd && !UsageDow && (!UsageTmStart || !checktime(UsageTmStart)) && (!UsageTmEnd || !checktime(UsageTmEnd)) && !CodeTempl[0]);
 }
 
 bool FASTCALL PPSCardSerPacket::Ext::IsEq(const Ext & rS) const
 {
 	bool   yes = true;
-	if(UsageTmStart != rS.UsageTmStart || UsageTmEnd != rS.UsageTmEnd || strcmp(CodeTempl, rS.CodeTempl) != 0)
+	if(UsageTmStart != rS.UsageTmStart || UsageTmEnd != rS.UsageTmEnd || UsageDow != rS.UsageDow || !sstreq(CodeTempl, rS.CodeTempl))
 		yes = false;
 	return yes;
 }
@@ -926,9 +926,9 @@ class Storage_SCardRule {  // @persistent @store(PropertyTbl)
 public:
 	void * operator new(size_t sz, const PPSCardSerRule * pSrc, size_t preallocCount, int prop)
 	{
-		const size_t item_size = pSrc->getItemSize();
-		size_t allocated_count = MAX(pSrc->getCount(), preallocCount);
-		size_t s = sz + item_size * allocated_count;
+		const  uint item_size = pSrc->getItemSize();
+		uint   allocated_count = smax(pSrc->getCount(), static_cast<uint>(preallocCount));
+		uint   s = static_cast<uint>(sz) + item_size * allocated_count;
 		Storage_SCardRule * p = static_cast<Storage_SCardRule *>(SAlloc::M(s));
 		if(p) {
 			memzero(p, s);
@@ -996,6 +996,7 @@ struct Storage_SCardSerExt {
 		Prop = SCARDSERIES_EXT;
 		Ver = 1;
 		STRNSCPY(CodeTempl, rS.CodeTempl);
+		UsageDow = rS.UsageDow; // @v12.5.1
 		UsageTmStart = rS.UsageTmStart;
 		UsageTmEnd = rS.UsageTmEnd;
 	}
@@ -1003,6 +1004,7 @@ struct Storage_SCardSerExt {
 	{
 		rS.Init();
 		STRNSCPY(rS.CodeTempl, CodeTempl);
+		rS.UsageDow = UsageDow; // @v12.5.1
 		rS.UsageTmStart = UsageTmStart;
 		rS.UsageTmEnd = UsageTmEnd;
 		return rS;
@@ -1012,7 +1014,8 @@ struct Storage_SCardSerExt {
 	PPID   Prop;
 	long   Ver;            //
 	char   CodeTempl[32];  // (перенесено из заголовочной структуры) Шаблон номеров карт
-	char   Reserve[20];    // [52]-->[20]
+	char   Reserve[18];    // [52]-->[20] // @v12.5.1 [20]--[18]
+	uint16 UsageDow;       // @v12.5.1
 	LTIME  UsageTmStart;   // 
 	LTIME  UsageTmEnd;     // 
 	long   Reserve2[2];    //
@@ -1029,7 +1032,8 @@ int PPObjSCardSeries::Search(PPID id, void * b)
 
 int PPObjSCardSeries::GetPacket(PPID id, PPSCardSerPacket * pPack)
 {
-	int    ok = -1, r = -1;
+	int    ok = -1;
+	int    r = -1;
 	Reference * p_ref(PPRef);
 	PropPPIDArray * p_rec = 0;
 	Storage_SCardRule * p_strg = 0;
@@ -1112,7 +1116,8 @@ int PPObjSCardSeries::GetPacket(PPID id, PPSCardSerPacket * pPack)
 
 int PPObjSCardSeries::PutPacket(PPID * pID, PPSCardSerPacket * pPack, int use_ta)
 {
-	int    ok = -1, eq = 0;
+	int    ok = -1;
+	int    eq = 0;
 	Reference * p_ref(PPRef);
 	int    rec_updated = 0;
 	PPID   acn_id = 0;
@@ -1574,8 +1579,44 @@ int PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 				if(!EditRule(PPSCardSerRule::rultCcAmountDisc))
 					PPError();
 			}
+			if(event.isCmd(cmRestrictions)) {
+				TDialog * dlg = new TDialog(DLG_SCARDSERRESTR);
+				if(CheckDialogPtrErr(&dlg)) {
+					int    local_dlg_result = -1;
+					uint   local_sel = 0;
+					TimeRange tmr;
+					GetTimeRangeInput(this, CTL_SCARDSER_USAGETM, TIMF_HM, &Data.Eb.UsageTmStart, &Data.Eb.UsageTmEnd);
+					tmr.Set(Data.Eb.UsageTmStart, Data.Eb.UsageTmEnd);
+					SetTimeRangeInput(dlg, CTL_SCARDSERRESTR_USAGETM, TIMF_HM, &tmr.low, &tmr.upp);
+					dlg->AddClusterAssoc(CTL_SCARDSERRESTR_DOW, 0, 0x0001);
+					dlg->AddClusterAssoc(CTL_SCARDSERRESTR_DOW, 1, 0x0002);
+					dlg->AddClusterAssoc(CTL_SCARDSERRESTR_DOW, 2, 0x0004);
+					dlg->AddClusterAssoc(CTL_SCARDSERRESTR_DOW, 3, 0x0008);
+					dlg->AddClusterAssoc(CTL_SCARDSERRESTR_DOW, 4, 0x0010);
+					dlg->AddClusterAssoc(CTL_SCARDSERRESTR_DOW, 5, 0x0020);
+					dlg->AddClusterAssoc(CTL_SCARDSERRESTR_DOW, 6, 0x0040);
+					dlg->SetClusterData(CTL_SCARDSERRESTR_DOW, Data.Eb.UsageDow);
+					while(local_dlg_result < 0 && ExecView(dlg) == cmOK) {	
+						if(GetTimeRangeInput(dlg, local_sel = CTL_SCARDSERRESTR_USAGETM, TIMF_HM, &tmr.low, &tmr.upp)) {
+							Data.Eb.UsageTmStart = tmr.low;
+							Data.Eb.UsageTmEnd = tmr.upp;
+							Data.Eb.UsageDow = static_cast<uint16>(dlg->GetClusterData(CTL_SCARDSERRESTR_DOW));
+							SetTimeRangeInput(this, CTL_SCARDSER_USAGETM, TIMF_HM, &Data.Eb.UsageTmStart, &Data.Eb.UsageTmEnd);
+							local_dlg_result = 1;
+						}
+						else {
+							//local_dlg_result = 0;
+							PPErrorByDialog(dlg, local_sel);
+						}
+					}
+					if(local_dlg_result > 0) {
+						// nothing todo
+					}
+				}
+				delete dlg;
+			}
 			else if(event.isCmd(cmQuotKindList)) {
-				PPID   qk_id = getCtrlLong(CTLSEL_SCARDSER_QUOTKIND);
+				const  PPID qk_id = getCtrlLong(CTLSEL_SCARDSER_QUOTKIND);
 				if(Data.QuotKindList_.getCount() == 0 && qk_id)
 					Data.QuotKindList_.add(qk_id);
 				ListToListData ll_data(PPOBJ_QUOTKIND, 0, &Data.QuotKindList_);
@@ -1587,8 +1628,8 @@ int PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 					PPError();
 			}
 			else if(event.isClusterClk(CTL_SCARDSER_TYPE)) {
-				long   _prev_type = Data.Rec.GetType();
-				long   _type = GetClusterData(CTL_SCARDSER_TYPE);
+				const  long _prev_type = Data.Rec.GetType();
+				const  long _type = GetClusterData(CTL_SCARDSER_TYPE);
 				if(Data.Rec.SetType(_type) > 0) {
 					SetupByType(_prev_type);
 				}
@@ -2444,18 +2485,26 @@ int PPObjSCard::CheckRestrictions(const SCardTbl::Rec * pRec, long flags, LDATET
 					ok = 2;
 				}
 				else {
-					CALLEXCEPT_PP_S(PPERR_SCARDACTIVATIONNEEDED, pRec->Code); // @v7.7.2
+					CALLEXCEPT_PP_S(PPERR_SCARDACTIVATIONNEEDED, pRec->Code);
 				}
 			}
 			else {
 				CALLEXCEPT_PP_S(PPERR_SCARDCLOSED, pRec->Code);
 			}
 		}
-		THROW_PP_S(!pRec->Expiry || cmp(dtm, pRec->Expiry, MAXDAYTIMESEC) <= 0, PPERR_SCARDEXPIRED, pRec->Code); // @v8.3.8 ZEROTIME-->encodetime(23, 59, 59)
+		THROW_PP_S(!pRec->Expiry || cmp(dtm, pRec->Expiry, MAXDAYTIMESEC) <= 0, PPERR_SCARDEXPIRED, pRec->Code);
 		if(!(flags & chkrfIgnoreUsageTime)) {
 			THROW_PP_S(!pRec->UsageTmStart || !dtm.t || dtm.t >= pRec->UsageTmStart, PPERR_SCARDTIME, pRec->Code);
 			THROW_PP_S(!pRec->UsageTmEnd  || !dtm.t || dtm.t <= pRec->UsageTmEnd,   PPERR_SCARDTIME, pRec->Code);
 		}
+		// @v12.5.1 {
+		if(!(flags & chkrfIgnoreUsageDow)) {
+			if(pRec->UsageDow && checkdate(dtm.d)) {
+				const int dow = dayofweek(&dtm.d, 1);
+				THROW_PP_S(pRec->UsageDow & (1 << (dow-1)), PPERR_SCARDDAYOFWEEK, pRec->Code);
+			}
+		}
+		// } @v12.5.1 
 		if(GetConfig().Flags & PPSCardConfig::fCheckBillDebt) {
 			THROW(CheckExpiredBillDebt(pRec->ID));
 		}
@@ -2930,7 +2979,6 @@ int PPObjSCard::ActivateRec(SCardTbl::Rec * pRec)
 	return ok;
 }
 
-//int PPObjSCard::SetInheritance(const PPSCardSeries * pSerRec, SCardTbl::Rec * pRec)
 int PPObjSCard::SetInheritance(const PPSCardSerPacket * pScsPack, SCardTbl::Rec * pRec)
 {
 	int    ok = -1;
@@ -2966,6 +3014,12 @@ int PPObjSCard::SetInheritance(const PPSCardSerPacket * pScsPack, SCardTbl::Rec 
 			pRec->UsageTmEnd = pScsPack->Eb.UsageTmEnd;
 			ok = 1;
 		}
+		// @v12.5.1 {
+		if(pRec->UsageDow != pScsPack->Eb.UsageDow) {
+			pRec->UsageDow = pScsPack->Eb.UsageDow;
+			ok = 1;
+		}
+		// } @v12.5.1 
 	}
 	CATCHZOK
 	return ok;
@@ -3116,6 +3170,13 @@ int PPObjSCard::VerifyOwner(PPSCardPacket & rScPack, PPID posNodeID, int updateI
 }
 
 class SCardDialog : public TDialog {
+	DECL_DIALOG_DATA(PPSCardPacket);
+	long   Options;
+	DateAddDialogParam ScExpiryPeriodParam;
+	PPObjSCard ScObj;
+	PPSCardSerPacket ScsPack;
+	PPObjSCardSeries ObjSCardSer;
+	PPObjPerson PsnObj;
 public:
 	enum {
 		ctlgroupSpcDvcInp = 1,
@@ -3282,14 +3343,6 @@ private:
 		delete dlg;
 		return ok;
 	}
-
-	long   Options;
-	DateAddDialogParam ScExpiryPeriodParam;
-	PPObjSCard ScObj;
-	PPSCardPacket Data;
-	PPSCardSerPacket ScsPack;
-	PPObjSCardSeries ObjSCardSer;
-	PPObjPerson PsnObj;
 };
 
 void SCardDialog::SetupCtrls()
@@ -3305,6 +3358,7 @@ void SCardDialog::SetupCtrls()
 		getCtrlData(CTL_SCARD_DATE,   &Data.Rec.Dt);
 		getCtrlData(CTL_SCARD_EXPIRY, &Data.Rec.Expiry);
 		GetTimeRangeInput(this, CTL_SCARD_USAGETM, TIMF_HM, &Data.Rec.UsageTmStart, &Data.Rec.UsageTmEnd);
+		Data.Rec.UsageDow = static_cast<uint16>(GetClusterData(CTL_SCARD_DOW)); // @v12.5.1
 		if(ScObj.SetInheritance(0, &Data.Rec) > 0) {
 			SetDiscount();
 			SetFixedBonus();
@@ -3312,6 +3366,7 @@ void SCardDialog::SetupCtrls()
 			setCtrlDate(CTL_SCARD_DATE,   Data.Rec.Dt);
 			setCtrlDate(CTL_SCARD_EXPIRY, Data.Rec.Expiry);
 			SetTimeRangeInput(this, CTL_SCARD_USAGETM, TIMF_HM, &Data.Rec.UsageTmStart, &Data.Rec.UsageTmEnd);
+			SetClusterData(CTL_SCARD_DOW, Data.Rec.UsageDow); // @v12.5.1
 		}
 	}
 	if(!(flags & SCRDF_CLOSED) && (prev_flags & SCRDF_CLOSED)) {
@@ -3446,6 +3501,16 @@ int SCardDialog::setDTS(const PPSCardPacket * pData, const PPSCardSerPacket * pS
 	SetFixedBonus();
 	setCtrlData(CTL_SCARD_MAXCRED, &Data.Rec.MaxCredit);
 	SetTimeRangeInput(this, CTL_SCARD_USAGETM, TIMF_HM, &Data.Rec.UsageTmStart, &Data.Rec.UsageTmEnd);
+	// @v12.5.1 {
+	AddClusterAssoc(CTL_SCARD_DOW, 0, 0x0001);
+	AddClusterAssoc(CTL_SCARD_DOW, 1, 0x0002);
+	AddClusterAssoc(CTL_SCARD_DOW, 2, 0x0004);
+	AddClusterAssoc(CTL_SCARD_DOW, 3, 0x0008);
+	AddClusterAssoc(CTL_SCARD_DOW, 4, 0x0010);
+	AddClusterAssoc(CTL_SCARD_DOW, 5, 0x0020);
+	AddClusterAssoc(CTL_SCARD_DOW, 6, 0x0040);
+	SetClusterData(CTL_SCARD_DOW, Data.Rec.UsageDow);
+	// } @v12.5.1 
 	SetupStringCombo(this, CTLSEL_SCARD_PRD, PPTXT_CYCLELIST, Data.Rec.PeriodTerm);
 	setCtrlUInt16(CTL_SCARD_PRDCOUNT, Data.Rec.PeriodCount);
 	SetupSpin(CTLSPN_SCARD_PRDCOUNT, CTL_SCARD_PRDCOUNT, 0, 365*4+1, Data.Rec.PeriodCount);
@@ -3496,6 +3561,7 @@ int SCardDialog::getDTS(PPSCardPacket * pData)
 	GetFixedBonus(&sel);
 	getCtrlData(sel = CTL_SCARD_MAXCRED, &Data.Rec.MaxCredit);
 	THROW(GetTimeRangeInput(this, CTL_SCARD_USAGETM, TIMF_HM, &Data.Rec.UsageTmStart, &Data.Rec.UsageTmEnd));
+	Data.Rec.UsageDow = static_cast<uint16>(GetClusterData(CTL_SCARD_DOW)); // @v12.5.1
 	Data.Rec.PeriodTerm  = static_cast<int16>(getCtrlLong(CTLSEL_SCARD_PRD));
 	Data.Rec.PeriodCount = static_cast<int16>(getCtrlUInt16(CTL_SCARD_PRDCOUNT));
 	{
@@ -3614,7 +3680,7 @@ int PPObjSCard::FindDiscountBorrowingCard(PPID ownerID, SCardTbl::Rec * pRec)
 			for(uint i = 0; i < card_id_list.getCount(); i++) {
 				const  PPID sc_id = card_id_list.get(i);
 				if(Search(sc_id, &rec) > 0 && scs_obj.Fetch(rec.SeriesID, &scs_rec) > 0 && scs_rec.Flags & SCRDSF_TRANSFDISCOUNT) {
-					const int cr = CheckRestrictions(&rec, chkrfIgnoreUsageTime, getcurdatetime_());
+					const int cr = CheckRestrictions(&rec, chkrfIgnoreUsageTime|chkrfIgnoreUsageDow, getcurdatetime_());
 					if(cr == 1 && rec.PDis > 0) // Значение cr==2 не годится (карта требует активации с возможностью автоактивации)
 						sc_dis_list.Add(sc_id, rec.PDis, 0);
 				}
@@ -3805,6 +3871,7 @@ int PPObjSCard::IsPacketEq(const PPSCardPacket & rS1, const PPSCardPacket & rS2,
 	CMP_MEMB(LocID);
 	CMP_MEMB(FixedBonus);
 	CMP_MEMB(PoolDestSerID);
+	CMP_MEMB(UsageDow); // @v12.5.1
 #undef CMP_MEMB
 	if(strcmp(rS1.Rec.Code, rS2.Rec.Code) != 0)
 		return 0;

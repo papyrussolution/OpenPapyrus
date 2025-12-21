@@ -556,7 +556,7 @@ SLTEST_R(ReadWriteLock)
 	}
 	{
 		size_t h_chunk_count = 0;
-		size_t h_count[6];
+		uint   h_count[6]; // @v12.5.1 size_t-->uint
 		HANDLE h_list[6][MAXIMUM_WAIT_OBJECTS];
 		memzero(h_count, sizeof(h_count));
 		memzero(h_list, sizeof(h_list));
@@ -697,11 +697,11 @@ SLTEST_R(SlProcess)
 					STempBuffer rd_buf(1024);
 					SString message("Hello, Named Pipe!");
 					DWORD wr_size = 0;
-					boolint wr_ok = WriteFile(h_pipe, message.cptr(), message.Len()+1, &wr_size, NULL/*not overlapped*/);
+					boolint wr_ok = WriteFile(h_pipe, message.cptr(), message.Len32()+1, &wr_size, NULL/*not overlapped*/);
 					if(wr_ok) {
 						do {
 							DWORD rd_size = 0;
-							boolint rd_ok = ReadFile(h_pipe, rd_buf, rd_buf.GetSize(), &rd_size, NULL/*not overlapped*/);
+							boolint rd_ok = ReadFile(h_pipe, rd_buf, rd_buf.GetSize32(), &rd_size, NULL/*not overlapped*/);
 							if(rd_ok) {
 								;
 							}

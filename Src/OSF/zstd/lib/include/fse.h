@@ -477,7 +477,7 @@ typedef struct {
 MEM_STATIC void FSE_initCState(FSE_CState_t* statePtr, const FSE_CTable* ct)
 {
 	const void* ptr = ct;
-	const uint16* u16ptr = (const uint16*)ptr;
+	const uint16* u16ptr = (const uint16 *)ptr;
 	const uint32 tableLog = SMem::Get16(ptr);
 	statePtr->value = (ptrdiff_t)1<<tableLog;
 	statePtr->stateTable = u16ptr+2;
@@ -493,7 +493,7 @@ MEM_STATIC void FSE_initCState2(FSE_CState_t* statePtr, const FSE_CTable* ct, ui
 	FSE_initCState(statePtr, ct);
 	{   
 		const FSE_symbolCompressionTransform symbolTT = ((const FSE_symbolCompressionTransform*)(statePtr->symbolTT))[symbol];
-	    const uint16* stateTable = (const uint16*)(statePtr->stateTable);
+	    const uint16* stateTable = (const uint16 *)(statePtr->stateTable);
 	    uint32 nbBitsOut  = (uint32)((symbolTT.deltaNbBits + (1<<15)) >> 16);
 	    statePtr->value = (nbBitsOut << 16) - symbolTT.deltaNbBits;
 	    statePtr->value = stateTable[(statePtr->value >> nbBitsOut) + symbolTT.deltaFindState];
@@ -503,7 +503,7 @@ MEM_STATIC void FSE_initCState2(FSE_CState_t* statePtr, const FSE_CTable* ct, ui
 MEM_STATIC void FSE_encodeSymbol(BIT_CStream_t* bitC, FSE_CState_t* statePtr, uint symbol)
 {
 	FSE_symbolCompressionTransform const symbolTT = ((const FSE_symbolCompressionTransform*)(statePtr->symbolTT))[symbol];
-	const uint16* const stateTable = (const uint16*)(statePtr->stateTable);
+	const uint16* const stateTable = (const uint16 *)(statePtr->stateTable);
 	const uint32 nbBitsOut  = (uint32)((statePtr->value + symbolTT.deltaNbBits) >> 16);
 	BIT_addBits(bitC, statePtr->value, nbBitsOut);
 	statePtr->value = stateTable[ (statePtr->value >> nbBitsOut) + symbolTT.deltaFindState];

@@ -1,6 +1,3 @@
-// LIBFPTR10.H
-// Version 10.10.6.0
-//
 #ifndef ATOL_DTOX_FPTR_H
 #define ATOL_DTOX_FPTR_H
 
@@ -31,7 +28,6 @@
 #ifndef uchar
 typedef unsigned char uchar;
 #endif
-
 #ifndef uint
 typedef unsigned int uint;
 #endif
@@ -773,9 +769,18 @@ enum libfptr_param {
 	LIBFPTR_PARAM_LICENSE_INDEX,
 	LIBFPTR_PARAM_IS_LICENSE_VALID,
 	LIBFPTR_PARAM_RECEIPT_PERCENTAGE_SIZE,
+	LIBFPTR_PARAM_ADDITIONAL_ATTRIBUTE,
+	LIBFPTR_PARAM_ADDITIONAL_DATA,
+	LIBFPTR_PARAM_ELECTRONICALLY_PAYMENT_METHOD,
+	LIBFPTR_PARAM_ELECTRONICALLY_ID,
+	LIBFPTR_PARAM_ELECTRONICALLY_ADD_INFO,
+	LIBFPTR_PARAM_PRINTER_DRIVER_NAME,
+	LIBFPTR_PARAM_SCRIPT_NUMBER,
+	LIBFPTR_PARAM_SCRIPT_EMBEDDED,
+	LIBFPTR_PARAM_OVERWRITE,
 
 	// certification
-	LIBFPTR_PARAM_LAST_SUCCESS_FNM_UPDATE_KEYS_DATE_TIME,
+	LIBFPTR_PARAM_LAST_SUCCESS_FNM_UPDATE_KEYS_DATE_TIME = LIBFPTR_PARAM_FIRST + 900,
 	LIBFPTR_PARAM_LAST_ATTEMPTION_FNM_UPDATE_KEYS_DATE_TIME,
 	LIBFPTR_PARAM_COUNT_ATTEMPTION_FNM_UPDATE_KEYS,
 
@@ -809,6 +814,7 @@ enum libfptr_model {
 	LIBFPTR_MODEL_ATOL_PT_5F = 89,
 	LIBFPTR_MODEL_KAZNACHEY_FA = 76,
 	LIBFPTR_MODEL_ATOL_1F = 93,
+	LIBFPTR_MODEL_ATOL_2F = 96,
 	LIBFPTR_MODEL_ATOL_22v2F = 95,
 	LIBFPTR_MODEL_ATOL_42FA = 70,
 	LIBFPTR_MODEL_ALLIANCE_20F = 50,
@@ -819,74 +825,43 @@ enum libfptr_model {
 };
 
 #define LIBFPTR_SETTING_LIBRARY_PATH L"LibraryPath"
-
 #define LIBFPTR_SETTING_MODEL L"Model"
-
 #define LIBFPTR_SETTING_PORT L"Port"
-
 #define LIBFPTR_SETTING_BAUDRATE L"BaudRate"
-
 #define LIBFPTR_SETTING_BITS L"Bits"
-
 #define LIBFPTR_SETTING_PARITY L"Parity"
-
 #define LIBFPTR_SETTING_STOPBITS L"StopBits"
-
 #define LIBFPTR_SETTING_IPADDRESS L"IPAddress"
-
 #define LIBFPTR_SETTING_IPPORT L"IPPort"
-
 #define LIBFPTR_SETTING_MACADDRESS L"MACAddress"
-
 #define LIBFPTR_SETTING_COM_FILE L"ComFile"
-
 #define LIBFPTR_SETTING_USB_DEVICE_PATH L"UsbDevicePath"
-
 #define LIBFPTR_SETTING_BT_AUTOENABLE L"AutoEnableBluetooth"
-
 #define LIBFPTR_SETTING_BT_AUTODISABLE L"AutoDisableBluetooth"
-
 #define LIBFPTR_SETTING_ACCESS_PASSWORD L"AccessPassword"
-
 #define LIBFPTR_SETTING_USER_PASSWORD L"UserPassword"
-
 #define LIBFPTR_SETTING_OFD_CHANNEL L"OfdChannel"
-
 #define LIBFPTR_SETTING_EXISTED_COM_FILES L"ExistedComFiles"
-
 #define LIBFPTR_SETTING_SCRIPTS_PATH L"ScriptsPath"
-
 #define LIBFPTR_SETTING_DOCUMENTS_JOURNAL_PATH L"DocumentsJournalPath"
-
 #define LIBFPTR_SETTING_USE_DOCUMENTS_JOURNAL L"UseDocumentsJournal"
-
 #define LIBFPTR_SETTING_AUTO_RECONNECT L"AutoReconnect"
-
 #define LIBFPTR_SETTING_INVERT_CASH_DRAWER_STATUS L"InvertCashDrawerStatus"
-
 #define LIBFPTR_SETTING_REMOTE_SERVER_ADDR L"RemoteServerAddr"
-
 #define LIBFPTR_SETTING_REMOTE_SERVER_CONNECTION_TIMEOUT L"RemoteServerConnectionTimeout"
-
 #define LIBFPTR_SETTING_VALIDATE_MARK_WITH_FNM_ONLY L"ValidateMarksWithFnmOnly"
-
 #define LIBFPTR_SETTING_AUTO_MEASUREMENT_UNIT L"AutoMeasurementUnit"
-
 #define LIBFPTR_SETTING_SILENT_REBOOT L"SilentReboot"
-
 #define LIBFPTR_SETTING_GUI_PARAMETERS L"GuiParametersMapping"
-
 #define LIBFPTR_SETTING_GUI_PATTERN_REG L"PatternParameters"
-
 #define LIBFPTR_SETTING_AUTO_TIME_SYNC L"AutoTimeSync"
-
 #define LIBFPTR_SETTING_AUTO_TIME_SYNC_TIME L"AutoTimeSyncTime"
-
 #define LIBFPTR_SETTING_LOG_PATHS L"LogPaths"
-
 #define LIBFPTR_SETTING_MERGE_RECEIPT_ITEMS L"MergeReceiptItems"
-
 #define LIBFPTR_SETTING_LICENSE L"Licenses"
+#define LIBFPTR_SETTING_TIME_ZONE L"TimeZone"
+#define LIBFPTR_SETTING_REMOTE_TIMEOUT L"RemoteTimeout"
+#define LIBFPTR_SETTING_USE_COMMODITY_NAME_FOR_ADVANCE L"UseCommodityNameForAdvance"
 
 enum libfptr_port {
 	LIBFPTR_PORT_COM = 0,
@@ -1047,7 +1022,8 @@ enum libfptr_report_type {
 	LIBFPTR_RT_DISCOUNTS,
 	LIBFPTR_RT_JOURNAL_DOCUMENT_BY_NUMBERS,
 	LIBFPTR_RT_JOURNAL_DOCUMENT_BY_SHIFTS,
-	LIBFPTR_RT_CLOSE_SHIFT_REPORTS
+	LIBFPTR_RT_CLOSE_SHIFT_REPORTS,
+	LIBFPTR_RT_CLICHE_PICTURES
 };
 
 enum libfptr_payment_type {
@@ -1060,7 +1036,8 @@ enum libfptr_payment_type {
 	LIBFPTR_PT_7,
 	LIBFPTR_PT_8,
 	LIBFPTR_PT_9,
-	LIBFPTR_PT_10
+	LIBFPTR_PT_10,
+	LIBFPTR_PT_ADD_INFO
 };
 
 enum libfptr_tax_type {
@@ -1077,6 +1054,8 @@ enum libfptr_tax_type {
 	LIBFPTR_TAX_VAT7,
 	LIBFPTR_TAX_VAT105,
 	LIBFPTR_TAX_VAT107,
+	LIBFPTR_TAX_VAT22,
+	LIBFPTR_TAX_VAT122,
 	LIBFPTR_TAX_INVALID,
 };
 
@@ -1250,6 +1229,7 @@ enum libfptr_records_type {
 	LIBFPTR_RT_FN_UNSENT_DOCS_COUNTERS,
 	LIBFPTR_RT_SETTINGS,
 	LIBFPTR_RT_RUN_COMMAND,
+	LIBFPTR_RT_SCRIPTS_INFO
 };
 
 enum libfptr_nomenclature_type {
@@ -1376,6 +1356,8 @@ enum libfptr_marking_estimated_status {
 	LIBFPTR_MES_DRY_FOR_SALE,
 	LIBFPTR_MES_PIECE_RETURN,
 	LIBFPTR_MES_DRY_RETURN,
+	LIBFPTR_MES_PIECE_FOR_SALE,
+	LIBFPTR_MES_DRY_SOLD,
 	LIBFPTR_MES_UNCHANGED = 255
 };
 
@@ -1553,51 +1535,132 @@ enum libfptr_print_entity_type {
 	LIBFPTR_PET_FISCAL_DOCUMENT,
 };
 
+enum libfptr_time_zone {
+	LIBFPTR_TIME_ZONE_NO = -1,
+	LIBFPTR_TIME_ZONE_DEVICE = 0,
+	LIBFPTR_TIME_ZONE_1 = 1,
+	LIBFPTR_TIME_ZONE_2,
+	LIBFPTR_TIME_ZONE_3,
+	LIBFPTR_TIME_ZONE_4,
+	LIBFPTR_TIME_ZONE_5,
+	LIBFPTR_TIME_ZONE_6,
+	LIBFPTR_TIME_ZONE_7,
+	LIBFPTR_TIME_ZONE_8,
+	LIBFPTR_TIME_ZONE_9,
+	LIBFPTR_TIME_ZONE_10,
+	LIBFPTR_TIME_ZONE_11,
+};
+
 #define LIBFPTR_UC_OTHERS 4294967295
 
 DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_init_library(void * params);
+
 DTOX_SHARED_EXPORT const char * DTOX_SHARED_CCA libfptr_get_version_string();
+
 DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_create(libfptr_handle * handle);
+
 DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_create_with_id(libfptr_handle * handle, const wchar_t * id);
-DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_set_settings(libfptr_handle handle, const wchar_t * settings);
-DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_validate_merge_position_support(libfptr_handle handle, wchar_t * value, int size);
+
+DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_set_settings(libfptr_handle handle,
+    const wchar_t * settings);
+
+DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_validate_merge_position_support(libfptr_handle handle,
+    wchar_t * value, int size);
+
 DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_destroy(libfptr_handle * handle);
-DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_get_settings(libfptr_handle handle, wchar_t * value, int size);
-DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_get_single_setting(libfptr_handle handle, const wchar_t * key, wchar_t * value, int size);
-DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_single_setting(libfptr_handle handle, const wchar_t * key, const wchar_t * value);
+
+DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_get_settings(libfptr_handle handle, wchar_t * value,
+    int size);
+
+DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_get_single_setting(libfptr_handle handle,
+    const wchar_t * key,
+    wchar_t * value, int size);
+
+DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_single_setting(libfptr_handle handle,
+    const wchar_t * key,
+    const wchar_t * value);
+
 DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_apply_single_settings(libfptr_handle handle);
+
 DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_open(libfptr_handle handle);
+
 DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_close(libfptr_handle handle);
+
 DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_is_opened(libfptr_handle handle);
+
 DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_error_code(libfptr_handle handle);
-DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_error_description(libfptr_handle handle, wchar_t * value, int size);
+
+DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_error_description(libfptr_handle handle,
+    wchar_t * value, int size);
+
 DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_reset_error(libfptr_handle handle);
-DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_param_bool(libfptr_handle handle, int param_id, int value);
-DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_param_int(libfptr_handle handle, int param_id, uint value);
-DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_param_double(libfptr_handle handle, int param_id, double value);
-DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_param_str(libfptr_handle handle, int param_id, const wchar_t * value);
-DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_param_datetime(libfptr_handle handle, int param_id, int year, int month, int day, int hour, int minute, int second);
-DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_param_bytearray(libfptr_handle handle, int param_id, const uchar * value, int size);
-DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_non_printable_param_bool(libfptr_handle handle, int param_id, int value);
-DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_non_printable_param_int(libfptr_handle handle, int param_id, uint value);
-DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_non_printable_param_double(libfptr_handle handle, int param_id, double value);
-DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_non_printable_param_str(libfptr_handle handle, int param_id, const wchar_t * value);
-DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_non_printable_param_datetime(libfptr_handle handle, int param_id,
-    int year, int month, int day, int hour, int minute, int second);
-DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_non_printable_param_bytearray(libfptr_handle handle, int param_id, const uchar * value, int size);
-DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_user_param_bool(libfptr_handle handle, int param_id, int value);
-DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_user_param_int(libfptr_handle handle, int param_id, uint value);
+
+DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_param_bool(libfptr_handle handle, int param_id,
+    int value);
+
+DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_param_int(libfptr_handle handle, int param_id,
+    uint value);
+
+DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_param_double(libfptr_handle handle,
+    int param_id,
+    double value);
+
+DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_param_str(libfptr_handle handle, int param_id,
+    const wchar_t * value);
+
+DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_param_datetime(libfptr_handle handle,
+    int param_id,
+    int year, int month, int day,
+    int hour, int minute,
+    int second);
+
+DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_param_bytearray(libfptr_handle handle,
+    int param_id,
+    const uchar * value, int size);
+
+DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_non_printable_param_bool(libfptr_handle handle,
+    int param_id,
+    int value);
+
+DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_non_printable_param_int(libfptr_handle handle,
+    int param_id,
+    uint value);
+
+DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_non_printable_param_double(libfptr_handle handle,
+    int param_id,
+    double value);
+
+DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_non_printable_param_str(libfptr_handle handle,
+    int param_id,
+    const wchar_t * value);
+
+DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_non_printable_param_datetime(libfptr_handle handle,
+    int param_id,
+    int year, int month, int day,
+    int hour, int minute,
+    int second);
+
+DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_non_printable_param_bytearray(libfptr_handle handle,
+    int param_id,
+    const uchar * value, int size);
+
+DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_user_param_bool(libfptr_handle handle, int param_id,
+    int value);
+
+DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_user_param_int(libfptr_handle handle, int param_id,
+    uint value);
+
 DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_user_param_double(libfptr_handle handle, int param_id, double value);
 DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_user_param_str(libfptr_handle handle, int param_id, const wchar_t * value);
-DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_user_param_datetime(libfptr_handle handle,
-    int param_id, int year, int month, int day, int hour, int minute, int second);
+DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_user_param_datetime(libfptr_handle handle, int param_id, int year, int month, int day, int hour, int minute, int second);
 DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_set_user_param_bytearray(libfptr_handle handle, int param_id, const uchar * value, int size);
 DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_get_param_bool(libfptr_handle handle, int param_id);
 DTOX_SHARED_EXPORT uint DTOX_SHARED_CCA libfptr_get_param_int(libfptr_handle handle, int param_id);
 DTOX_SHARED_EXPORT double DTOX_SHARED_CCA libfptr_get_param_double(libfptr_handle handle, int param_id);
 DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_get_param_str(libfptr_handle handle, int param_id, wchar_t * value, int size);
 DTOX_SHARED_EXPORT void DTOX_SHARED_CCA libfptr_get_param_datetime(libfptr_handle handle, int param_id, int * year, int * month, int * day, int * hour, int * minute, int * second);
-DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_get_param_bytearray(libfptr_handle handle, int param_id, uchar * value, int size);
+
+DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_get_param_bytearray(libfptr_handle handle, int param_id,uchar * value, int size);
 DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_reset_params(libfptr_handle handle);
 DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_run_command(libfptr_handle handle);
 DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_beep(libfptr_handle handle);

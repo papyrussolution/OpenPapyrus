@@ -1015,10 +1015,9 @@ static int __bam_merge_records(DBC * dbc, DBC * ndbc, uint32 factor, DB_COMPACT 
 	while(indx != 0 && BINTERNAL_SIZE(len) >= pfree) {
 		if(B_TYPE(bk->type) != B_KEYDATA)
 			goto noprefix;
-		/*
-		 * Figure out if we can truncate this key.
-		 * Code borrowed from bt_split.c
-		 */
+		//
+		// Figure out if we can truncate this key. Code borrowed from bt_split.c
+		//
 		if(func == NULL)
 			goto noprefix;
 		tmp_bk = GET_BKEYDATA(dbp, npg, indx-adj);

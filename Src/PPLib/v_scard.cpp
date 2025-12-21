@@ -1888,7 +1888,25 @@ DBQuery * PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		// } @v12.4.1 
 		PPDbqFuncPool::InitFunc2Arg(dbe_memo, PPDbqFuncPool::IdSCardExtString, p_c->ID, dbconst((long)PPSCardPacket::extssMemo));
 		dbe_dis = & (p_c->PDis / 100);
+		// @v12.5.1 {
 		q = & Select_(
+			p_c->ID,                 // #0
+			p_c->Code,               // #1
+			p_c->Expiry,             // #2
+			0L);
+		q->addField(*dbe_dis);       // #3
+		q->addField(p_c->MaxCredit); // #4
+		q->addField(p_c->Turnover);  // #5
+		q->addField(p_c->InTrnovr);  // #6
+		q->addField(dbe_psn);        // #7
+		q->addField(p_c->Rest);      // #8
+		q->addField(p_c->Dt);        // #9
+		q->addField(dbe_ser);        // #10
+		q->addField(dbe_autogoods);  // #11
+		q->addField(dbe_phone);      // #12
+		q->addField(dbe_memo);       // #13
+		// } @v12.5.1 
+		/* @v12.5.1 q = & Select_(
 			p_c->ID,        // #0
 			p_c->Code,      // #1
 			p_c->Expiry,    // #2
@@ -1903,7 +1921,7 @@ DBQuery * PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			dbe_autogoods,  // #11
 			dbe_phone,      // #12
 			dbe_memo,       // #13
-			0L);
+			0L);*/
 		if(p_ot)
 			q->from(p_ot, p_c, 0L);
 		else
@@ -2079,11 +2097,9 @@ int SCardSelPrcssrDialog::setDTS(const SCardSelPrcssrParam * pData)
 	setCtrlReal(CTL_FLTSCARDCHNG_DSCNT, Data.Discount);
 	AddClusterAssoc(CTL_FLTSCARDCHNG_ZDSCNT, 0, SCardSelPrcssrParam::fZeroDiscount);
 	SetClusterData(CTL_FLTSCARDCHNG_ZDSCNT, Data.Flags);
-	// @v10.1.4 {
 	AddClusterAssoc(CTL_FLTSCARDCHNG_FLAGS, 0, SCardSelPrcssrParam::fUhttSync);
-	AddClusterAssoc(CTL_FLTSCARDCHNG_FLAGS, 1, SCardSelPrcssrParam::fAppendEan13CD); // @v10.1.6
+	AddClusterAssoc(CTL_FLTSCARDCHNG_FLAGS, 1, SCardSelPrcssrParam::fAppendEan13CD);
 	SetClusterData(CTL_FLTSCARDCHNG_FLAGS, Data.Flags);
-	// } @v10.1.4
 	return 1;
 }
 
@@ -2105,7 +2121,7 @@ int SCardSelPrcssrDialog::getDTS(SCardSelPrcssrParam * pData)
 	GetClusterData(CTL_FLTSCARDCHNG_ZDSCNT, &Data.Flags);
 	if(Data.Flags & SCardSelPrcssrParam::fZeroDiscount)
 		Data.Discount = 0.0;
-	GetClusterData(CTL_FLTSCARDCHNG_FLAGS, &Data.Flags); // @v10.1.4
+	GetClusterData(CTL_FLTSCARDCHNG_FLAGS, &Data.Flags);
 	THROW(Data.Validate(0));
  	THROW_PP(!Data.IsEmpty(), PPERR_SCARDPRCSSRPARAM);
  	THROW_PP(!EditSCardFilt || Data.SelFilt.IsEmpty() == 0, PPERR_SCARDFILTEMPTY);
@@ -2228,8 +2244,7 @@ int PPViewSCard::ProcessSelection(const SCardSelPrcssrParam * pParam, PPLogger *
 						if(param.Flags & param.fZeroDiscount)
 							sc_pack.Rec.PDis = 0;
 						else if(param.Discount > 0.0 && param.Discount <= 100.0) {
-							// @v10.2.9 sc_pack.Rec.PDis = (long)(R6(param.Discount) * 100.0);
-							sc_pack.Rec.PDis = fmul100i(param.Discount); // @v10.2.9
+							sc_pack.Rec.PDis = fmul100i(param.Discount);
 						}
 						if(sc_pack.Rec.PDis != preserve_pdis) {
 							sc_pack.Rec.Flags &= ~SCRDF_INHERITED; // Форсированно снимаем признак наследования //
@@ -2237,7 +2252,6 @@ int PPViewSCard::ProcessSelection(const SCardSelPrcssrParam * pParam, PPLogger *
 							upd_discount = 1;
 						}
 					}
-					// @v10.1.7 {
 					if(param.Flags & param.fAppendEan13CD) {
 						const size_t cl = sstrlen(sc_pack.Rec.Code);
 						if(cl == 12 && sc_pack.Rec.Code[0] != '0') { // Рассматриваем только EAN13 без контр цифры (UPC etc не рассматриваем)
@@ -2253,7 +2267,6 @@ int PPViewSCard::ProcessSelection(const SCardSelPrcssrParam * pParam, PPLogger *
 							}
 						}
 					}
-					// } @v10.1.7
 					if(param.Flags & param.fZeroExpiry && sc_pack.Rec.Expiry) {
 						sc_pack.Rec.Expiry = ZERODATE;
 						sc_pack.Rec.Flags &= ~SCRDF_INHERITED; // Форсированно снимаем признак наследования //
@@ -3156,7 +3169,7 @@ int PPViewSCardOp::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 							ok = PPErrorZ();
 				}
 				break;
-			case PPVCMD_EDITSCARD: // @v10.2.3
+			case PPVCMD_EDITSCARD:
 				ok = -1;
 				if(p_hdr && p_hdr->SCardID) {
 					PPID   temp_id = p_hdr->SCardID;
@@ -3295,8 +3308,7 @@ int PPALDD_SCard::InitData(PPFilt & rFilt, long rsrv)
 		if(p_ext) {
 			p_ext->CrEventSurID = 0;
 			p_ext->AcEventSurID = 0;
-			// @v10.1.3 if(p_ext && p_ext->ScObj.Search(rFilt.ID, &p_ext->ScRec) > 0) {
-			if(p_ext->ScObj.GetPacket(rFilt.ID, &p_ext->ScPack) > 0) { // @v10.1.3
+			if(p_ext->ScObj.GetPacket(rFilt.ID, &p_ext->ScPack) > 0) {
 				SString temp_buf;
 				PPObjSCardSeries scs_obj;
 				PPSCardSeries scs_rec;
@@ -3612,9 +3624,7 @@ int PPViewUhttSCardOp::Init_(const PPBaseFilt * pFilt)
 			SCardOpTbl::Rec rec;
 			BExtQuery  iter_query(&tbl, 1);
 			DBQ   * dbq = 0;
-			// @v10.6.8 char       k[MAXKEYLEN];
-			BtrDbKey k_; // @v10.6.8
-			// @v10.6.8 @ctr memzero(&k, sizeof(k));
+			BtrDbKey k_;
 			Filt.Period.Actualize(ZERODATE);
 			dbq = &daterange(tbl.Dt, &Filt.Period);
 			iter_query.selectAll().where(*dbq);

@@ -214,7 +214,7 @@ static void load_env_plugins(MYSQL * mysql)
 	free_env = strdup(s);
 	plugs = s = free_env;
 	do {
-		s = strchr(plugs, ';');
+		s = sstrchr(plugs, ';');
 		if(s)
 			*s = '\0';
 		mysql_load_plugin(mysql, plugs, -1, 0);

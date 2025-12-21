@@ -366,7 +366,7 @@ Section "Файлы приложения" SEC01
 	File "${SRC_ROOT}\Src\PPEquip\ppdrv.ini" ; @v7.2.6
 	File "${SRC_REDIST}\dll\w3dbav80.dll"
 	File "${SRC_REDIST}\dll\gdiplus.dll"
-	File "${SRC_REDIST}\dll\fptr10.dll" ; @v10.3.9 драйвер торгового оборудования АТОЛ
+	File "${SRC_REDIST}\dll\fptr10_x86.dll" ; @v10.3.9 драйвер торгового оборудования АТОЛ ; @v12.5.1 fptr10.dll-->fptr10_x86.dll
 	;
 	; OpenSSL
 	;

@@ -2241,7 +2241,7 @@ void BrowserWindow::Paint()
 				const  int  topold = (!r_h_count && sel_col_count) ? r.top : r.top - YCell;
 				long   prev_left = r.left;
 				ItemRect(Left, 0, &r, false);
-				HPEN   black_pen = ::CreatePen(PS_SOLID, 1, GetColorRef(SClrBlack));
+				//HPEN   black_pen = ::CreatePen(PS_SOLID, 1, GetColorRef(SClrBlack));
 				HPEN   dot_line_pen = ::CreatePen(PS_SOLID, 3, GetColorRef(SClrBlack));
 				r.bottom = topold;
 				r.top   += hdr_width - 2;
@@ -2288,7 +2288,7 @@ void BrowserWindow::Paint()
 					prev_left = r.left;
 				}
 				SelectObject(ps.hdc, old_pen);
-				ZDeleteWinGdiObject(&black_pen);
+				//ZDeleteWinGdiObject(&black_pen);
 				ZDeleteWinGdiObject(&dot_line_pen);
 			}
 		}

@@ -389,9 +389,12 @@
       <ControlFlowGuard>false</ControlFlowGuard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <CompileAsManaged>false</CompileAsManaged>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <OpenMPSupport>false</OpenMPSupport>
+      <EnableModules>false</EnableModules>
     </ClCompile>
     <Lib>
       <AdditionalOptions>/machine:X64  %(AdditionalOptions)</AdditionalOptions>
@@ -577,9 +580,12 @@
       <ControlFlowGuard>false</ControlFlowGuard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <CompileAsManaged>false</CompileAsManaged>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <OpenMPSupport>false</OpenMPSupport>
+      <EnableModules>false</EnableModules>
     </ClCompile>
     <Lib>
       <AdditionalOptions>/machine:X64  %(AdditionalOptions)</AdditionalOptions>
@@ -665,9 +671,12 @@
       <ControlFlowGuard>false</ControlFlowGuard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <CompileAsManaged>false</CompileAsManaged>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <OpenMPSupport>false</OpenMPSupport>
+      <EnableModules>false</EnableModules>
     </ClCompile>
     <Lib>
       <AdditionalOptions>/machine:X64  %(AdditionalOptions)</AdditionalOptions>
@@ -755,9 +764,12 @@
       <ControlFlowGuard>false</ControlFlowGuard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <CompileAsManaged>false</CompileAsManaged>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <OpenMPSupport>false</OpenMPSupport>
+      <EnableModules>false</EnableModules>
     </ClCompile>
     <Lib>
       <AdditionalOptions>/machine:X64  %(AdditionalOptions)</AdditionalOptions>

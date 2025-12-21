@@ -893,10 +893,11 @@ protected:
 				contour_point_t * phantoms;
 
 				struct contour_bounds_t {
-					contour_bounds_t() {
-						min_x = min_y = FLT_MAX; max_x = max_y = -FLT_MAX;
+					contour_bounds_t() 
+					{
+						min_x = min_y = FLT_MAX; 
+						max_x = max_y = -FLT_MAX;
 					}
-
 					void add(const contour_point_t &p)
 					{
 						min_x = hb_min(min_x, p.x);
@@ -904,11 +905,7 @@ protected:
 						max_x = hb_max(max_x, p.x);
 						max_y = hb_max(max_y, p.y);
 					}
-
-					bool empty() const {
-						return (min_x >= max_x) || (min_y >= max_y);
-					}
-
+					bool empty() const { return (min_x >= max_x) || (min_y >= max_y); }
 					void get_extents(hb_font_t * font, hb_glyph_extents_t * extents)
 					{
 						if(UNLIKELY(empty())) {
@@ -923,9 +920,11 @@ protected:
 						extents->y_bearing = font->em_scalef_y(max_y);
 						extents->height = font->em_scalef_y(min_y - max_y);
 					}
-
 protected:
-					float min_x, min_y, max_x, max_y;
+					float  min_x;
+					float  min_y;
+					float  max_x;
+					float  max_y;
 				} bounds;
 
 				points_aggregator_t(hb_font_t *font_, hb_glyph_extents_t *extents_, contour_point_t *phantoms_)

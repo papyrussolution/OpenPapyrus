@@ -1562,7 +1562,7 @@ static uint16 lha_crc16(uint16 crc, const void * pp, size_t len)
 		crc = (crc >> 8) ^ crc16tbl[0][(crc ^ *p++) & 0xff];
 		len--;
 	}
-	buff = (const uint16*)p;
+	buff = (const uint16 *)p;
 	/*
 	 * Modern C compiler such as GCC does not unroll automatically yet
 	 * without unrolling pragma, and Clang is so. So we should

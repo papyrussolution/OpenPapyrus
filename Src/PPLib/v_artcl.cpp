@@ -868,8 +868,10 @@ DBQuery * PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	DBE    dbe_quotkind;
 	DBE    dbe_extobj;
 	DBE    dbe_supple; // @vmiller
-	DBE    cq, cq_stop[DEBTDIM_BRW_SHOWCOUNT];
-	DBE    alim, alim_dim[DEBTDIM_BRW_SHOWCOUNT];
+	DBE    cq;
+	DBE    cq_stop[DEBTDIM_BRW_SHOWCOUNT];
+	DBE    alim;
+	DBE    alim_dim[DEBTDIM_BRW_SHOWCOUNT];
 	uint   brw_id = BROWSER_ARTICLE;
 
 	if(ArObj.P_Tbl) {

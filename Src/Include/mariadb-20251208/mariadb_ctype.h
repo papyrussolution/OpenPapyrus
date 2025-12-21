@@ -31,17 +31,17 @@
 #define CHARSET_DIR     "charsets/"
 #define MY_CS_NAME_SIZE 32
 
-#define MADB_DEFAULT_CHARSET_NAME "latin1"
-#define MADB_DEFAULT_COLLATION_NAME "latin1_swedish_ci"
+#define MADB_DEFAULT_CHARSET_NAME "utf8mb4" // @sobolev "latin1"-->"utf8mb4"
+#define MADB_DEFAULT_COLLATION_NAME "utf8mb4" // @sobolev "latin1_swedish_ci"-->"utf8mb4"
 #define MADB_AUTODETECT_CHARSET_NAME "auto"
 
 /* we use the mysqlnd implementation */
 typedef struct ma_charset_info_st {
 	uint nr; /* so far only 1 byte for charset */
 	uint state;
-	const char    * csname;
-	const char    * name;
-	const char  * dir;
+	const char * csname;
+	const char * name;
+	const char * dir;
 	uint codepage;
 	const char  * encoding;
 	uint char_minlen;

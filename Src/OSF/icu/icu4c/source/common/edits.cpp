@@ -40,7 +40,7 @@ Edits &Edits::copyArray(const Edits &other) {
 		return *this;
 	}
 	if(length > capacity) {
-		uint16 * newArray = (uint16*)uprv_malloc((size_t)length * 2);
+		uint16 * newArray = (uint16 *)uprv_malloc((size_t)length * 2);
 		if(newArray == nullptr) {
 			length = delta = numChanges = 0;
 			errorCode_ = U_MEMORY_ALLOCATION_ERROR;
@@ -239,7 +239,7 @@ bool Edits::growArray() {
 		errorCode_ = U_INDEX_OUTOFBOUNDS_ERROR;
 		return FALSE;
 	}
-	uint16 * newArray = (uint16*)uprv_malloc((size_t)newCapacity * 2);
+	uint16 * newArray = (uint16 *)uprv_malloc((size_t)newCapacity * 2);
 	if(newArray == NULL) {
 		errorCode_ = U_MEMORY_ALLOCATION_ERROR;
 		return FALSE;

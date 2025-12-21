@@ -3575,7 +3575,8 @@ public:
 		int32  LocID;
 		int32  PoolDestSerID;
 		int32  FixedBonus;
-		uint8  Reserve[8]; // raw
+		uint16 UsageDow;
+		uint8  Reserve[6]; // raw
 	} data;
 	struct Key0 {
 		int32  ID;
@@ -3614,6 +3615,7 @@ public:
 	DBField LocID;
 	DBField PoolDestSerID;
 	DBField FixedBonus;
+	DBField UsageDow;
 	DBField Reserve;
 };
 #pragma pack(pop)

@@ -1599,7 +1599,7 @@ static size_t ZSTD_reset_matchState(ZSTD_matchState_t* ms, ZSTD_cwksp* ws, const
 	if(ZSTD_rowMatchFinderUsed(cParams->strategy, useRowMatchFinder)) {
 		{ /* Row match finder needs an additional table of hashes ("tags") */
 			const size_t tagTableSize = hSize*sizeof(uint16);
-			ms->tagTable = (uint16*)ZSTD_cwksp_reserve_aligned(ws, tagTableSize);
+			ms->tagTable = (uint16 *)ZSTD_cwksp_reserve_aligned(ws, tagTableSize);
 			if(ms->tagTable) 
 				memzero(ms->tagTable, tagTableSize);
 		}

@@ -244,7 +244,14 @@ private:
 			ProcessJsonProc(0), OpenShiftProc(0)
 		{
 			SString dll_path;
-			PPGetFilePath(PPPATH_BIN, "fptr10.dll", dll_path);
+			// @v12.5.1 {
+			#ifdef _WIN64
+				const char * p_dll_file_name = "fptr10_x64.dll";
+			#else
+				const char * p_dll_file_name = "fptr10_x86.dll";
+			#endif
+			// } @v12.5.1 
+			PPGetFilePath(PPPATH_BIN, /*"fptr10.dll"*/p_dll_file_name, dll_path);
 			THROW_SL(fileExists(dll_path));
 			THROW_SL(Lib.Load(dll_path));
 			THROW_SL(CreateHandleProc  = reinterpret_cast<int (* cdecl)(void **)>(Lib.GetProcAddr("libfptr_create")));
@@ -393,10 +400,10 @@ private:
 				SetErrorMessage();
 				CALLEXCEPT();
 			}
-			int ret_size = P_Fptr10->GetParamStrProc(h, LIBFPTR_PARAM_JSON_DATA, static_cast<wchar_t *>(ret_buf.vptr()), ret_buf.GetSize());
+			int    ret_size = P_Fptr10->GetParamStrProc(h, LIBFPTR_PARAM_JSON_DATA, static_cast<wchar_t *>(ret_buf.vptr()), static_cast<int>(ret_buf.GetSize()));
 			if(ret_size > static_cast<int>(ret_buf.GetSize())) {
 				THROW_SL(ret_buf.Alloc(ret_size+128));
-				ret_size = P_Fptr10->GetParamStrProc(h, LIBFPTR_PARAM_JSON_DATA, static_cast<wchar_t *>(ret_buf.vptr()), ret_buf.GetSize());
+				ret_size = P_Fptr10->GetParamStrProc(h, LIBFPTR_PARAM_JSON_DATA, static_cast<wchar_t *>(ret_buf.vptr()), static_cast<int>(ret_buf.GetSize()));
 			}
 			if(ret_size > 0) {
 				temp_buf_u.CopyFromN(static_cast<wchar_t *>(ret_buf.vptr()), ret_size);
@@ -1643,6 +1650,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 	int    ok = 1;
 	Reference * p_ref(PPRef);
 	const  bool   use_json_cmd = LOGIC(Flags & sfUseJson);
+	const  LDATETIME now_dt = getcurdatetime_();
 	bool   is_format = false;
 	bool   enabled = true;
 	int    jsproc_result = 0;
@@ -1678,8 +1686,8 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 			double running_total = 0.0;
 			SString operator_name;
 			SString goods_name;
-			SString chzn_sid; // @v11.0.0
-			const  bool is_vat_free = (CnObj.IsVatFree(NodeID) > 0);
+			SString chzn_sid;
+			const  bool is_vat_free = (CnObj.IsNodeVatFree(NodeID) > 0);
 			StateBlock stb;
 			double real_fiscal = 0.0;
 			double real_nonfiscal = 0.0;
@@ -1883,6 +1891,8 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 										tax_type_number = LIBFPTR_TAX_VAT18;
 									else if(vatrate == 20.0)
 										tax_type_number = LIBFPTR_TAX_VAT20;
+									else if(vatrate == 22.0)
+										tax_type_number = LIBFPTR_TAX_VAT22;
 									else if(vatrate == 10.0)
 										tax_type_number = LIBFPTR_TAX_VAT10;
 									// @v12.2.3 {
@@ -1893,8 +1903,9 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 									// } @v12.2.3 
 									else if(vatrate == 0.0)
 										tax_type_number = LIBFPTR_TAX_VAT0;
-									else
-										tax_type_number = LIBFPTR_TAX_VAT20; // @default
+									else {
+										tax_type_number = (now_dt.d.year() >= 2026) ? LIBFPTR_TAX_VAT22 : LIBFPTR_TAX_VAT20; // @default
+									}
 								}
 								P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_TAX_TYPE, tax_type_number);
 								P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_DEPARTMENT, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 : sl_param.DivID);

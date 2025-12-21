@@ -384,7 +384,18 @@ DBQuery * PPViewPersonEvent::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 		THROW(CheckTblPtr(P_TempGrpTbl));
 		THROW(CheckTblPtr(t = new TempPersonEventTbl(P_TempGrpTbl->GetName())));
 		PPDbqFuncPool::InitObjNameFunc(dbe_avg_tm, PPDbqFuncPool::IdDurationToTime, t->AvgEvTime);
+		// @v12.5.1 {
 		q = & Select_(
+			t->ID,               // #0
+			t->ID2,              // #1
+			t->Dt,               // #2
+			t->DtSubst,          // #3
+			t->Name,             // #4
+			t->Count,            // #5
+			0L);
+		q->addField(dbe_avg_tm); // #6
+		// } @v12.5.1 
+		/* @v12.5.1 q = & Select_(
 			t->ID,       // #0
 			t->ID2,      // #1
 			t->Dt,       // #2
@@ -392,7 +403,8 @@ DBQuery * PPViewPersonEvent::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 			t->Name,     // #4
 			t->Count,    // #5
 			dbe_avg_tm,  // #6
-			0L).from(t, 0L);
+			0L);*/
+		q->from(t, 0L);
 		if(Filt.Sgd != sgdNone)
 			q->orderBy(t->Dt, t->ID, t->ID2, 0);
 	}
@@ -408,7 +420,19 @@ DBQuery * PPViewPersonEvent::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 		PPDbqFuncPool::InitObjNameFunc(dbe_psn_scnd, PPDbqFuncPool::IdObjNamePerson, pe->SecondID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_op, PPDbqFuncPool::IdObjNamePsnOpKind, pe->OpID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_memo, PPDbqFuncPool::IdObjMemoPersonEvent, pe->ID); // @v11.1.12
+		// @v12.5.1 {
 		q = & Select_(
+			pe->ID,       // #0
+			pe->Flags,    // #1 
+			pe->Dt,       // #2
+			pe->Tm,       // #3
+			0L);
+		q->addField(dbe_psn_prmr); // #4
+		q->addField(dbe_op);       // #5
+		q->addField(dbe_psn_scnd); // #6
+		q->addField(dbe_memo);     // #7 // @v11.1.12 pe->Memo-->dbe_memo
+		// } @v12.5.1 
+		/* @v12.5.1 q = & Select_(
 			pe->ID,       // #0
 			pe->Flags,    // #1 
 			pe->Dt,       // #2
@@ -417,7 +441,8 @@ DBQuery * PPViewPersonEvent::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 			dbe_op,       // #5
 			dbe_psn_scnd, // #6
 			dbe_memo,     // #7 // @v11.1.12 pe->Memo-->dbe_memo
-			0L).from(pe, 0L);
+			0L);*/
+		q->from(pe, 0L);
 		{
 			dbe_extreg.init();
 			if(Filt.ExtPrmrPersonRegID) {

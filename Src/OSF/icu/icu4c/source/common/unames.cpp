@@ -85,7 +85,7 @@ typedef struct {
  * @param names (const UCharNames *) pointer to the UCharNames indexes
  * @return (const uint16 *) pointer to the groups table
  */
-#define GET_GROUPS(names) (const uint16*)((const char *)names+names->groupsOffset)
+#define GET_GROUPS(names) (const uint16 *)((const char *)names+names->groupsOffset)
 
 typedef struct {
 	const char * otherName;
@@ -222,7 +222,7 @@ static bool isDataLoaded(UErrorCode * pErrorCode) {
 static uint16 expandName(UCharNames * names,
     const uint8 * name, uint16 nameLength, UCharNameChoice nameChoice,
     char * buffer, uint16 bufferLength) {
-	uint16 * tokens = (uint16*)names+8;
+	uint16 * tokens = (uint16 *)names+8;
 	uint16 token, tokenCount = *tokens++, bufferPos = 0;
 	uint8 * tokenStrings = (uint8 *)names+names->tokenStringOffset;
 	uint8 c;
@@ -315,7 +315,7 @@ static uint16 expandName(UCharNames * names,
  */
 static bool compareName(UCharNames * names, const uint8 * name, uint16 nameLength, UCharNameChoice nameChoice, const char * otherName) 
 {
-	uint16 * tokens = (uint16*)names+8;
+	uint16 * tokens = (uint16 *)names+8;
 	uint16 token, tokenCount = *tokens++;
 	uint8 * tokenStrings = (uint8 *)names+names->tokenStringOffset;
 	uint8 c;
@@ -858,7 +858,7 @@ static uint16 getAlgName(AlgorithmicRange * range, uint32_t code, UCharNameChoic
 		case 1: {
 		    /* name = prefix factorized-elements */
 		    uint16 indexes[8];
-		    const uint16 * factors = (const uint16*)(range+1);
+		    const uint16 * factors = (const uint16 *)(range+1);
 		    uint16 count = range->variant;
 		    const char * s = (const char *)(factors+count);
 		    char c;
@@ -936,7 +936,7 @@ static bool enumAlgNames(AlgorithmicRange * range, UChar32 start, UChar32 limit,
 		case 1: {
 		    uint16 indexes[8];
 		    const char * elementBases[8], * elements[8];
-		    const uint16 * factors = (const uint16*)(range+1);
+		    const uint16 * factors = (const uint16 *)(range+1);
 		    uint16 count = range->variant;
 		    const char * s = (const char *)(factors+count);
 		    char * suffix, * t;
@@ -1053,7 +1053,7 @@ static UChar32 findAlgName(AlgorithmicRange * range, UCharNameChoice nameChoice,
 				char buffer[64];
 				uint16 indexes[8];
 				const char * elementBases[8], * elements[8];
-				const uint16 * factors = (const uint16*)(range+1);
+				const uint16 * factors = (const uint16 *)(range+1);
 				uint16 count = range->variant;
 				const char * s = (const char *)(factors+count), * t;
 				UChar32 start, limit;
@@ -1152,7 +1152,7 @@ static int32_t calcAlgNameSetsLengths(int32_t maxNameLength)
 			    break;
 			case 1: {
 			    /* name = prefix factorized-elements */
-			    const uint16 * factors = (const uint16*)(range+1);
+			    const uint16 * factors = (const uint16 *)(range+1);
 			    int32_t i;
 				int32_t count = range->variant;
 				int32_t factor;
@@ -1251,7 +1251,7 @@ static int32_t calcNameSetLength(const uint16 * tokens, uint16 tokenCount, const
 static void calcGroupNameSetsLengths(int32_t maxNameLength) 
 {
 	uint16 offsets[LINES_PER_GROUP+2], lengths[LINES_PER_GROUP+2];
-	uint16 * tokens = (uint16*)uCharNames+8;
+	uint16 * tokens = (uint16 *)uCharNames+8;
 	uint16 tokenCount = *tokens++;
 	uint8 * tokenStrings = (uint8 *)uCharNames+uCharNames->tokenStringOffset;
 	int8 * tokenLengths;
@@ -1781,8 +1781,8 @@ U_CAPI int32_t U_EXPORT2 uchar_swapNames(const UDataSwapper * ds,
 		 * now the tokens table
 		 * it needs to be permutated along with the compressed name strings
 		 */
-		p = (const uint16*)(inBytes+16);
-		q = (uint16*)(outBytes+16);
+		p = (const uint16 *)(inBytes+16);
+		q = (uint16 *)(outBytes+16);
 
 		/* read and swap the tokenCount */
 		tokenCount = ds->readUInt16(*p);
@@ -1813,7 +1813,7 @@ U_CAPI int32_t U_EXPORT2 uchar_swapNames(const UDataSwapper * ds,
 		 * swap and permutate the tokens
 		 * go through a temporary array to support in-place swapping
 		 */
-		temp = (uint16*)uprv_malloc(tokenCount*2);
+		temp = (uint16 *)uprv_malloc(tokenCount*2);
 		if(temp==NULL) {
 			udata_printError(ds, "out of memory swapping %u unames.icu tokens\n",
 			    tokenCount);
@@ -1847,7 +1847,7 @@ U_CAPI int32_t U_EXPORT2 uchar_swapNames(const UDataSwapper * ds,
 		}
 
 		/* swap the group table */
-		count = ds->readUInt16(*((const uint16*)(inBytes+groupsOffset)));
+		count = ds->readUInt16(*((const uint16 *)(inBytes+groupsOffset)));
 		ds->swapArray16(ds, inBytes+groupsOffset, (int32_t)((1+count*3)*2),
 		    outBytes+groupsOffset, pErrorCode);
 
@@ -1934,8 +1934,8 @@ U_CAPI int32_t U_EXPORT2 uchar_swapNames(const UDataSwapper * ds,
 				    uint32_t factorsCount;
 
 				    factorsCount = inRange->variant;
-				    p = (const uint16*)(inRange+1);
-				    q = (uint16*)(outRange+1);
+				    p = (const uint16 *)(inRange+1);
+				    q = (uint16 *)(outRange+1);
 				    ds->swapArray16(ds, p, (int32_t)(factorsCount*2), q, pErrorCode);
 
 				    /* swap the strings, up to the last terminating NUL */

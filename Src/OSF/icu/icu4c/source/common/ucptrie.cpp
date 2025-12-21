@@ -97,7 +97,7 @@ U_CAPI UCPTrie * U_EXPORT2 ucptrie_openFromBinary(UCPTrieType type, UCPTrieValue
 #endif
 
 	// Set the pointers to its index and data arrays.
-	const uint16 * p16 = (const uint16*)(header + 1);
+	const uint16 * p16 = (const uint16 *)(header + 1);
 	trie->index = p16;
 	p16 += trie->indexLength;
 

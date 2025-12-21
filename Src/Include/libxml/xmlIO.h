@@ -138,8 +138,8 @@ xmlParserInputBuffer * xmlAllocParserInputBuffer(xmlCharEncoding enc);
 xmlParserInputBuffer * xmlParserInputBufferCreateFilename(const char *URI, xmlCharEncoding enc);
 xmlParserInputBuffer * xmlParserInputBufferCreateFile(FILE *file, xmlCharEncoding enc);
 xmlParserInputBuffer * xmlParserInputBufferCreateFd(int fd, xmlCharEncoding enc);
-xmlParserInputBuffer * xmlParserInputBufferCreateMem(const char *mem, int size, xmlCharEncoding enc);
-xmlParserInputBuffer * xmlParserInputBufferCreateStatic(const char *mem, int size, xmlCharEncoding enc);
+xmlParserInputBuffer * xmlParserInputBufferCreateMem(const char * pMem, ssize_t size, xmlCharEncoding enc); // @v12.5.1 (int size)-->(ssize_t size)
+xmlParserInputBuffer * xmlParserInputBufferCreateStatic(const char * pMem, ssize_t size, xmlCharEncoding enc); // @v12.5.1 (int size)-->(ssize_t size)
 xmlParserInputBuffer * xmlParserInputBufferCreateIO(xmlInputReadCallback   ioread, xmlInputCloseCallback  ioclose, void *ioctx, xmlCharEncoding enc);
 int xmlParserInputBufferRead(xmlParserInputBuffer * in, int len);
 int xmlParserInputBufferGrow(xmlParserInputBuffer * in, int len);

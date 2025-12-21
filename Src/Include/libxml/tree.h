@@ -65,17 +65,13 @@ typedef enum {
 
 struct xmlBuffer {
 	xmlChar * content; // The buffer content UTF8 
-	uint   use;       // The buffer size used 
-	uint   size;      // The buffer size 
+	size_t use;       // The buffer size used // @v12.5.1 uint-->size_t 
+	size_t size;      // The buffer size      // @v12.5.1 uint-->size_t  
 	xmlBufferAllocationScheme alloc; // The realloc method 
 	xmlChar * contentIO; // in IO mode we may have a different base 
 };
-/**
- * xmlBuf:
- *
- * A buffer structure, new one, the actual structure internals are not public
- */
-struct xmlBuf;
+
+struct xmlBuf; // A buffer structure, new one, the actual structure internals are not public
 /**
  * xmlBufPtr:
  *
@@ -733,8 +729,8 @@ int xmlDocDump(FILE * f, xmlDoc * cur);
 void xmlElemDump(FILE * f, xmlDoc * doc, xmlNode * cur);
 int xmlSaveFile(const char * filename, xmlDoc * cur);
 int xmlSaveFormatFile(const char * filename, xmlDoc * cur, int format);
-size_t xmlBufNodeDump(xmlBuf * buf, xmlDoc * doc, xmlNode * cur, int level, int format);
-int xmlNodeDump(xmlBuffer * buf, xmlDoc * doc, xmlNode * cur, int level, int format);
+ssize_t xmlBufNodeDump(xmlBuf * buf, xmlDoc * doc, xmlNode * cur, int level, int format);
+ssize_t xmlNodeDump(xmlBuffer * buf, xmlDoc * doc, xmlNode * cur, int level, int format);
 int xmlSaveFileTo(xmlOutputBuffer * buf, xmlDoc * cur, const char * encoding);
 int xmlSaveFormatFileTo(xmlOutputBuffer * buf, xmlDoc * cur, const char * encoding, int format);
 void xmlNodeDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNode * cur, int level, int format, const char * encoding);

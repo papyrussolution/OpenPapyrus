@@ -58,7 +58,7 @@ bool _ma_hashtbl_init(MA_HASHTBL * hash, uint size, uint key_offset, uint key_le
 		hash->calc_hashnr = calc_hashnr_caseup;
 	else
 		hash->calc_hashnr = calc_hashnr;
-	return(0);
+	return 0;
 }
 
 void ma_hashtbl_free(MA_HASHTBL * hash)
@@ -209,7 +209,7 @@ void* ma_hashtbl_search(MA_HASHTBL * hash, const uchar * key, uint length)
 		while((idx = pos->next) != NO_RECORD);
 	}
 	hash->current_record = NO_RECORD;
-	return(0);
+	return 0;
 }
 
 /* Get next record with identical key */
@@ -364,7 +364,7 @@ bool ma_hashtbl_insert(MA_HASHTBL * info, const uchar * record)
 	}
 	if(++info->records == info->blength)
 		info->blength += info->blength;
-	return(0);
+	return 0;
 }
 
 /******************************************************************************
@@ -378,7 +378,7 @@ bool ma_hashtbl_delete(MA_HASHTBL * hash, uchar * record)
 	uint blength, pos2, pos_hashnr, lastpos_hashnr, idx, empty_index;
 	MA_HASHTBL_LINK * data, * lastpos, * gpos, * pos, * pos3, * empty;
 	if(!hash->records)
-		return(1);
+		return 1;
 	blength = hash->blength;
 	data = dynamic_element(&hash->array, 0, MA_HASHTBL_LINK*);
 	/* Search after record with key */
@@ -387,7 +387,7 @@ bool ma_hashtbl_delete(MA_HASHTBL * hash, uchar * record)
 	while(pos->data != record) {
 		gpos = pos;
 		if(pos->next == NO_RECORD)
-			return(1);      /* Key not found */
+			return 1;      /* Key not found */
 		pos = data+pos->next;
 	}
 
@@ -444,7 +444,7 @@ exit:
 	ma_pop_dynamic(&hash->array);
 	if(hash->free)
 		(*hash->free)((uchar*)record);
-	return(0);
+	return 0;
 }
 
 /*
@@ -461,14 +461,14 @@ bool ma_hashtbl_update(MA_HASHTBL * hash, uchar * record, uchar * old_key, uint 
 	idx = hash_mask((*hash->calc_hashnr)(old_key, (old_key_length ? old_key_length : hash->key_length)), blength, records);
 	new_index = hash_mask(rec_hashnr(hash, record), blength, records);
 	if(idx == new_index)
-		return(0);      /* Nothing to do (No record check) */
+		return 0;      /* Nothing to do (No record check) */
 	previous = 0;
 	for(;;) {
 		if((pos = data+idx)->data == record)
 			break;
 		previous = pos;
 		if((idx = pos->next) == NO_RECORD)
-			return(1);      /* Not found in links */
+			return 1;      /* Not found in links */
 	}
 	hash->current_record = NO_RECORD;
 	org_link = *pos;
@@ -499,7 +499,7 @@ bool ma_hashtbl_update(MA_HASHTBL * hash, uchar * record, uchar * old_key, uint 
 		data[empty] = org_link;
 		data[new_index].next = empty;
 	}
-	return(0);
+	return 0;
 }
 
 uchar * ma_hashtbl_element(MA_HASHTBL * hash, uint idx)

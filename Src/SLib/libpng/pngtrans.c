@@ -265,7 +265,7 @@ void /*PRIVATE*/ png_do_swap(png_row_infop row_info, png_bytep row)
 		for(i = 0; i < istop; i++, rp += 2) {
 #ifdef PNG_BUILTIN_BSWAP16_SUPPORTED
 			// Feature added to libpng-1.6.11 for testing purposes, not enabled by default.
-			*(uint16*)rp = __builtin_bswap16(*(uint16*)rp);
+			*(uint16 *)rp = __builtin_bswap16(*(uint16 *)rp);
 #else
 			uint8 t = *rp;
 			*rp = *(rp + 1);

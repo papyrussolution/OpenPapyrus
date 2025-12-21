@@ -7,84 +7,84 @@
 // VCalendar
 //
 static const SIntToSymbTabEntry ICalTokenList[] = {
-	{ VCalendar::tokCALSCALE,           "CALSCALE" },
-	{ VCalendar::tokMETHOD,       	    "METHOD" },
-	{ VCalendar::tokPRODID,       	    "PRODID" },
-	{ VCalendar::tokVERSION,      	    "VERSION" },
-	{ VCalendar::tokATTACH,          	"ATTACH" },
-	{ VCalendar::tokCATEGORIES,      	"CATEGORIES" },
-	{ VCalendar::tokCLASS,           	"CLASS" },
-	{ VCalendar::tokCOMMENT,         	"COMMENT" },
-	{ VCalendar::tokDESCRIPTION,     	"DESCRIPTION" },
-	{ VCalendar::tokGEO,             	"GEO" },
-	{ VCalendar::tokLOCATION,        	"LOCATION" },
-	{ VCalendar::tokPERCENTCOMPLETE, 	"PERCENT-COMPLETE" },
-	{ VCalendar::tokPRIORITY,        	"PRIORITY" },
-	{ VCalendar::tokRESOURCES,       	"RESOURCES" },
-	{ VCalendar::tokSTATUS,          	"STATUS" },
-	{ VCalendar::tokSUMMARY,         	"SUMMARY" },
-	{ VCalendar::tokCOMPLETED,       	"COMPLETED" },
-	{ VCalendar::tokDTEND,           	"DTEND" },
-	{ VCalendar::tokDUE,             	"DUE" },
-	{ VCalendar::tokDTSTART,         	"DTSTART" },
-	{ VCalendar::tokDURATION,        	"DURATION" },
-	{ VCalendar::tokFREEBUSY,        	"FREEBUSY" },
-	{ VCalendar::tokTRANSP,          	"TRANSP" },
-	{ VCalendar::tokTZID,            	"TZID" },
-	{ VCalendar::tokTZNAME,          	"TZNAME" },
-	{ VCalendar::tokTZOFFSETFROM,    	"TZOFFSETFROM" },
-	{ VCalendar::tokTZOFFSETTO,      	"TZOFFSETTO" },
-	{ VCalendar::tokTZURL,           	"TZURL" },
-	{ VCalendar::tokATTENDEE,        	"ATTENDEE" },
-	{ VCalendar::tokCONTACT,         	"CONTACT" },
-	{ VCalendar::tokORGANIZER,       	"ORGANIZER" },
-	{ VCalendar::tokRECURRENCEID,    	"RECURRENCE-ID" },
-	{ VCalendar::tokRELATEDTO,       	"RELATED-TO" },
-	{ VCalendar::tokURL,             	"URL" },
-	{ VCalendar::tokUID,             	"UID" },
-	{ VCalendar::tokDTSTAMP,         	"DTSTAMP" },
-	{ VCalendar::tokLASTMODIFIED,    	"LAST-MODIFIED" },
-	{ VCalendar::tokSEQUENCE,           "SEQUENCE" },
-	{ VCalendar::tokDCREATED,       	"DCREATED" },
-	{ VCalendar::tokNEEDSACTION,        "NEEDS-ACTION" },
-	{ VCalendar::tokINPROCESS,          "IN-PROCESS" },
-	{ VCalendar::tokCANCELLED,          "CANCELLED" },
-	{ VCalendar::tokTENTATIVE,          "TENTATIVE" },
-	{ VCalendar::tokCONFIRMED,          "CONFIRMED" },
-	{ VCalendar::tokDRAFT,              "DRAFT" },
-	{ VCalendar::tokFINAL,              "FINAL" },
-	{ VCalendar::tokCHAIR,              "CHAIR" },
-	{ VCalendar::tokREQPARTICIPANT,     "REQ-PARTICIPANT" },
-	{ VCalendar::tokOPTPARTICIPANT,     "OPT-PARTICIPANT" },
-	{ VCalendar::tokNONPARTICIPANT,     "NON-PARTICIPANT" },
-	{ VCalendar::tokCREATED,            "CREATED" },
-	{ VCalendar::tokXPAPYRUSID,         "X-PAPYRUS-ID" },
-	{ VCalendar::tokXPAPYRUSCODE,       "X-PAPYRUS-CODE" },
-	{ VCalendar::tokBEGIN,              "BEGIN" },
-	{ VCalendar::tokEND,                "END" },
-	{ VCalendar::tokVCALENDAR,          "VCALENDAR" },
-	{ VCalendar::tokVEVENT,             "VEVENT" },
-	{ VCalendar::tokVTODO,              "VTODO" },
-	{ VCalendar::tokVJOURNAL,           "VJOURNAL" },
-	{ VCalendar::tokVFREEBUSY,          "VFREEBUSY" }, 
-	{ VCalendar::tokVTIMEZONE,          "VTIMEZONE" },
-	{ VCalendar::tokVALARM,             "VALARM" },
-	{ VCalendar::tokSTANDARD,           "STANDARD" },
-	{ VCalendar::tokDAYLIGHT,           "DAYLIGHT" },  
-	{ VCalendar::tokRSVP,               "RSVP" },
-	{ VCalendar::tokMEMBER,             "MEMBER" },
-	{ VCalendar::tokROLE,               "ROLE" },
-	{ VCalendar::tokPARTSTAT,           "PARTSTAT" },
-	{ VCalendar::tokCN,                 "CN" },
-	{ VCalendar::tokDELEGATEDFROM,      "DELEGATED-FROM" },
-	{ VCalendar::tokDELEGATEDTO,        "DELEGATED-TO" },
-	{ VCalendar::tokDIR,                "DIR" },
-	{ VCalendar::tokCUTTYP,             "CUTYPE" },
-	{ VCalendar::tokSENTBY,             "SENT-BY" },
-	{ VCalendar::tokLANGUAGE,           "LANGUAGE" },
-	{ VCalendar::tokXRUINN,             "X-RU-INN" },
-	{ VCalendar::tokXRUKPP,             "X-RU-KPP" },
-	{ VCalendar::tokXPHONE,             "X-PHONE" }
+	{ VCalendar::tokCALSCALE,        "CALSCALE" },
+	{ VCalendar::tokMETHOD,       	 "METHOD" },
+	{ VCalendar::tokPRODID,       	 "PRODID" },
+	{ VCalendar::tokVERSION,      	 "VERSION" },
+	{ VCalendar::tokATTACH,          "ATTACH" },
+	{ VCalendar::tokCATEGORIES,      "CATEGORIES" },
+	{ VCalendar::tokCLASS,           "CLASS" },
+	{ VCalendar::tokCOMMENT,         "COMMENT" },
+	{ VCalendar::tokDESCRIPTION,     "DESCRIPTION" },
+	{ VCalendar::tokGEO,             "GEO" },
+	{ VCalendar::tokLOCATION,        "LOCATION" },
+	{ VCalendar::tokPERCENTCOMPLETE, "PERCENT-COMPLETE" },
+	{ VCalendar::tokPRIORITY,        "PRIORITY" },
+	{ VCalendar::tokRESOURCES,       "RESOURCES" },
+	{ VCalendar::tokSTATUS,          "STATUS" },
+	{ VCalendar::tokSUMMARY,         "SUMMARY" },
+	{ VCalendar::tokCOMPLETED,       "COMPLETED" },
+	{ VCalendar::tokDTEND,           "DTEND" },
+	{ VCalendar::tokDUE,             "DUE" },
+	{ VCalendar::tokDTSTART,         "DTSTART" },
+	{ VCalendar::tokDURATION,        "DURATION" },
+	{ VCalendar::tokFREEBUSY,        "FREEBUSY" },
+	{ VCalendar::tokTRANSP,          "TRANSP" },
+	{ VCalendar::tokTZID,            "TZID" },
+	{ VCalendar::tokTZNAME,          "TZNAME" },
+	{ VCalendar::tokTZOFFSETFROM,    "TZOFFSETFROM" },
+	{ VCalendar::tokTZOFFSETTO,      "TZOFFSETTO" },
+	{ VCalendar::tokTZURL,           "TZURL" },
+	{ VCalendar::tokATTENDEE,        "ATTENDEE" },
+	{ VCalendar::tokCONTACT,         "CONTACT" },
+	{ VCalendar::tokORGANIZER,       "ORGANIZER" },
+	{ VCalendar::tokRECURRENCEID,    "RECURRENCE-ID" },
+	{ VCalendar::tokRELATEDTO,       "RELATED-TO" },
+	{ VCalendar::tokURL,             "URL" },
+	{ VCalendar::tokUID,             "UID" },
+	{ VCalendar::tokDTSTAMP,         "DTSTAMP" },
+	{ VCalendar::tokLASTMODIFIED,    "LAST-MODIFIED" },
+	{ VCalendar::tokSEQUENCE,        "SEQUENCE" },
+	{ VCalendar::tokDCREATED,        "DCREATED" },
+	{ VCalendar::tokNEEDSACTION,     "NEEDS-ACTION" },
+	{ VCalendar::tokINPROCESS,       "IN-PROCESS" },
+	{ VCalendar::tokCANCELLED,       "CANCELLED" },
+	{ VCalendar::tokTENTATIVE,       "TENTATIVE" },
+	{ VCalendar::tokCONFIRMED,       "CONFIRMED" },
+	{ VCalendar::tokDRAFT,           "DRAFT" },
+	{ VCalendar::tokFINAL,           "FINAL" },
+	{ VCalendar::tokCHAIR,           "CHAIR" },
+	{ VCalendar::tokREQPARTICIPANT,  "REQ-PARTICIPANT" },
+	{ VCalendar::tokOPTPARTICIPANT,  "OPT-PARTICIPANT" },
+	{ VCalendar::tokNONPARTICIPANT,  "NON-PARTICIPANT" },
+	{ VCalendar::tokCREATED,         "CREATED" },
+	{ VCalendar::tokXPAPYRUSID,      "X-PAPYRUS-ID" },
+	{ VCalendar::tokXPAPYRUSCODE,    "X-PAPYRUS-CODE" },
+	{ VCalendar::tokBEGIN,           "BEGIN" },
+	{ VCalendar::tokEND,             "END" },
+	{ VCalendar::tokVCALENDAR,       "VCALENDAR" },
+	{ VCalendar::tokVEVENT,          "VEVENT" },
+	{ VCalendar::tokVTODO,           "VTODO" },
+	{ VCalendar::tokVJOURNAL,        "VJOURNAL" },
+	{ VCalendar::tokVFREEBUSY,       "VFREEBUSY" }, 
+	{ VCalendar::tokVTIMEZONE,       "VTIMEZONE" },
+	{ VCalendar::tokVALARM,          "VALARM" },
+	{ VCalendar::tokSTANDARD,        "STANDARD" },
+	{ VCalendar::tokDAYLIGHT,        "DAYLIGHT" },  
+	{ VCalendar::tokRSVP,            "RSVP" },
+	{ VCalendar::tokMEMBER,          "MEMBER" },
+	{ VCalendar::tokROLE,            "ROLE" },
+	{ VCalendar::tokPARTSTAT,        "PARTSTAT" },
+	{ VCalendar::tokCN,              "CN" },
+	{ VCalendar::tokDELEGATEDFROM,   "DELEGATED-FROM" },
+	{ VCalendar::tokDELEGATEDTO,     "DELEGATED-TO" },
+	{ VCalendar::tokDIR,             "DIR" },
+	{ VCalendar::tokCUTTYP,          "CUTYPE" },
+	{ VCalendar::tokSENTBY,          "SENT-BY" },
+	{ VCalendar::tokLANGUAGE,        "LANGUAGE" },
+	{ VCalendar::tokXRUINN,          "X-RU-INN" },
+	{ VCalendar::tokXRUKPP,          "X-RU-KPP" },
+	{ VCalendar::tokXPHONE,          "X-PHONE" }
 };
 
 /*static*/int VCalendar::GetToken(const char * pText)
@@ -1938,7 +1938,22 @@ DBQuery * PPViewPrjTask::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbe_prior  = & enumtoa(t->Priority, 5, prior_subst.Get(PPTXT_TODO_PRIOR));
 		dbe_status = & enumtoa(t->Status,   5, status_subst.Get(PPTXT_TODO_STATUS));
 		dbq = &(*dbq && t->ID == p_ord->ID);
+		// @v12.5.1 {
 		q = & Select_(
+			t->ID,          // #0
+			t->Code,        // #1
+			t->Dt,          // #2
+			t->StartDt,     // #3
+			t->EstFinishDt, // #4
+			t->FinishDt,    // #5
+			0L);
+		q->addField(*dbe_prior);  // #6
+		q->addField(*dbe_status); // #7
+		q->addField(dbe_psn_cli); // #8
+		q->addField(dbe_psn_emp); // #9
+		q->addField(dbe_descr);   // #10
+		// } @v12.5.1 
+		/* @v12.5.1 q = & Select_(
 			t->ID,          // #0
 			t->Code,        // #1
 			t->Dt,          // #2
@@ -1950,7 +1965,8 @@ DBQuery * PPViewPrjTask::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			dbe_psn_cli,    // #8
 			dbe_psn_emp,    // #9
 			dbe_descr,      // #10
-			0L).from(p_ord, t, 0L).where(*dbq);
+			0L);*/
+		q->from(p_ord, t, 0L).where(*dbq);
 		delete dbe_prior;
 		delete dbe_status;
 		q->orderBy(p_ord->Name, 0L);

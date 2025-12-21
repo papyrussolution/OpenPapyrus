@@ -293,7 +293,7 @@ enum {
 #define MBCS_STAGE_2_FROM_U(table, c) ((const uint32_t*)(table))[ (table)[(c)>>10] +(((c)>>4)&0x3f) ]
 #define MBCS_FROM_U_IS_ROUNDTRIP(stage2Entry, c) ( ((stage2Entry) & ((uint32_t)1<< (16+((c)&0xf)) )) !=0)
 
-#define MBCS_VALUE_2_FROM_STAGE_2(bytes, stage2Entry, c) ((uint16*)(bytes))[16*(uint32_t)(uint16)(stage2Entry)+((c)&0xf)]
+#define MBCS_VALUE_2_FROM_STAGE_2(bytes, stage2Entry, c) ((uint16 *)(bytes))[16*(uint32_t)(uint16)(stage2Entry)+((c)&0xf)]
 #define MBCS_VALUE_4_FROM_STAGE_2(bytes, stage2Entry, c) ((uint32_t*)(bytes))[16*(uint32_t)(uint16)(stage2Entry)+((c)&0xf)]
 
 #define MBCS_POINTER_3_FROM_STAGE_2(bytes, stage2Entry, c) ((bytes)+(16*(uint32_t)(uint16)(stage2Entry)+((c)&0xf))*3)

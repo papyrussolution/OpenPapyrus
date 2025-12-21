@@ -1,5 +1,5 @@
 // PPCOLORS.CPP
-// Copyright (c) A.Starodub 2007, 2009, 2010, 2011, 2013, 2016, 2017, 2018, 2019, 2020, 2022
+// Copyright (c) A.Starodub 2007, 2009, 2010, 2011, 2013, 2016, 2017, 2018, 2019, 2020, 2022, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -78,7 +78,9 @@ COLORREF HSV::ToRGB()
 
 HSV RGBToHSV(COLORREF rgb)
 {
-	int    r = GetRValue(rgb), g = GetGValue(rgb), b = GetBValue(rgb);
+	int    r = GetRValue(rgb);
+	int    g = GetGValue(rgb);
+	int    b = GetBValue(rgb);
 	double temp = 0.0;
 	HSV    hsv;
 	const double min_comp = MIN(r, MIN(g, b));

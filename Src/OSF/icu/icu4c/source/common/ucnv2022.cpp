@@ -1177,7 +1177,7 @@ static inline int32_t MBCS_SINGLE_FROM_UCHAR32(UConverterSharedData* sharedData,
 	/* convert the Unicode code point in c into codepage bytes (same as in _MBCSFromUnicodeWithOffsets) */
 	table = sharedData->mbcs.fromUnicodeTable;
 	/* get the byte for the output */
-	value = MBCS_SINGLE_RESULT_FROM_U(table, (uint16*)sharedData->mbcs.fromUnicodeBytes, c);
+	value = MBCS_SINGLE_RESULT_FROM_U(table, (uint16 *)sharedData->mbcs.fromUnicodeBytes, c);
 	/* is this code point assigned, or do we use fallbacks? */
 	*retval = (uint32_t)(value&0xff);
 	if(value>=0xf00) {

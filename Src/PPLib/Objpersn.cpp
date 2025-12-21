@@ -8278,6 +8278,46 @@ int PPObjPerson::IdentifyClientActivityState(ClientActivityState & rParam)
 	}
 	return ok;
 }
+
+uint PPObjPerson::GetSpecialTaxGroup(PPID taxPayerPersonID, PPID taxPayerLocID, PPID * pPersonTaxGrpID, PPID * pLocTaxGrpID)
+{
+	uint    result = stgrfOK;
+	PPID    payer_tax_grp_id = 0;
+	PPID    loc_tax_grp_id = 0;
+	if(taxPayerLocID || taxPayerPersonID) {
+		Reference * p_ref(PPRef);
+		PPObjGoodsTax gtx_obj;
+		ObjTagItem tag_item;
+		PersonTbl::Rec psn_rec;
+		LocationTbl::Rec loc_rec;
+		int    _tax_grp_id = 0;
+		if(taxPayerLocID) {
+			if(LocObj.Fetch(taxPayerLocID, &loc_rec) > 0) {
+				if(loc_rec.Flags & LOCF_VATFREE) {
+					result |= stgrfLocIsVatFree;
+				}
+				if(p_ref && p_ref->Ot.GetTag(PPOBJ_LOCATION, taxPayerLocID, PPTAG_LOC_SPCTAXGROUP, &tag_item) > 0) {
+					if(tag_item.GetInt(&_tax_grp_id) && gtx_obj.FetchByID(_tax_grp_id, 0) > 0)
+						loc_tax_grp_id = _tax_grp_id;
+				}
+			}
+		}
+		if(taxPayerPersonID) {
+			if(Fetch(taxPayerPersonID, &psn_rec) > 0) {
+				if(psn_rec.Flags & PSNF_NOVATAX) {
+					result |= stgrfPersonIsVatFree;
+				}
+				if(p_ref && p_ref->Ot.GetTag(PPOBJ_PERSON, taxPayerPersonID, PPTAG_PERSON_SPCTAXGROUP, &tag_item) > 0) {
+					if(tag_item.GetInt(&_tax_grp_id) && gtx_obj.FetchByID(_tax_grp_id, 0) > 0)
+						payer_tax_grp_id = _tax_grp_id;
+				}
+			}
+		}
+	}
+	ASSIGN_PTR(pPersonTaxGrpID, payer_tax_grp_id);
+	ASSIGN_PTR(pLocTaxGrpID, loc_tax_grp_id);
+	return result;
+}
 //
 //
 //

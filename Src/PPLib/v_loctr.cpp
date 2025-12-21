@@ -135,6 +135,8 @@ int PalletCtrlGroup::getData(TDialog * pDlg, void * pData)
 
 class LocTransfDialog : public TDialog {
 	DECL_DIALOG_DATA(LocTransfOpBlock);
+	LocTransfOpBlock OrdLtBlk; // @v12.5.1
+	int   OrdLtRowIdx; // @v12.5.1 Индекс позиции OrdLtBlk в документе заказа. -1 если нет такой позиции.
 public:
 	enum {
 		grpLoc = 1,
@@ -143,7 +145,8 @@ public:
 	};
 	explicit LocTransfDialog(int domain, PPBillPacket * pPack, int billItemIdx/* [0..] || -1 */) : 
 		TDialog((domain == LOCTRFRDOMAIN_BAILMENT) ? DLG_LOCTRANSF_BAILMENT : DLG_LOCTRANSF), 
-		Domain(domain), State(0), P_Pack(pPack), WarehouseID(pPack ? pPack->Rec.LocID : 0), Data(domain, 0, 0), BillItemNo(billItemIdx)
+		Domain(domain), State(0), P_Pack(pPack), WarehouseID(pPack ? pPack->Rec.LocID : 0), Data(domain, 0, 0), BillItemNo(billItemIdx),
+		P_TodoObj(0), OrdLtBlk(domain, 0, 0), OrdLtRowIdx(-1)
 	{
 		P_BObj = BillObj;
 		if(Domain == LOCTRFRDOMAIN_BAILMENT) {
@@ -165,6 +168,10 @@ public:
 			}
 		}
 	}
+	~LocTransfDialog()
+	{
+		delete P_TodoObj;
+	}
 	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
@@ -176,6 +183,27 @@ public:
 		int    fixed_lt_op = 0;
 		if(Data.RByLoc && Data.LTOp)
 			fixed_lt_op = Data.LTOp;
+		// @v12.5.1 {
+		OrdLtRowIdx = -1;
+		if(Data.OrderBillID && Data.OrderRByBill > 0) {
+			BillTbl::Rec ord_bill_rec;
+			if(P_BObj->Fetch(Data.OrderBillID, &ord_bill_rec) > 0) {
+				if(GetOpData(ord_bill_rec.OpID, &op_rec) > 0 && op_rec.OpTypeID == PPOPT_WAREHOUSE) {
+					LocTransfTbl::Rec lt_rec;
+					LocTransfTbl::Rec ord_lt_rec;
+					int    ord_row_idx = 0;
+					for(int16 iter_rbb = 0; OrdLtRowIdx < 0 && P_BObj->P_LocTrfr->EnumByBill(ord_bill_rec.ID, &iter_rbb, &ord_lt_rec) > 0;) {
+						if(ord_lt_rec.RByBillLT == Data.OrderRByBill) {
+							OrdLtBlk = ord_lt_rec;
+							OrdLtRowIdx = ord_row_idx;
+						}
+						else 
+							ord_row_idx++;
+					}
+				}
+			}
+		}
+		// } @v12.5.1 
 		if(P_Pack) {
 			P_BObj->MakeCodeString(&P_Pack->Rec, PPObjBill::mcsAddLocName|PPObjBill::mcsAddOpName, temp_buf);
 			if(Data.BillID && Data.RByBillLT) {
@@ -257,6 +285,10 @@ public:
 			selectCtrl(CTL_LOCTRANSF_QTTY);
 		}
 		showCtrl(STDCTL_TAGSBUTTON, (P_Pack && P_Pack->OpTypeID == PPOPT_WAREHOUSE)); // @v12.4.7 
+		{
+			PPID   todo_id = GetToDo(0);
+			showCtrl(STDCTL_TODOBUTTON, todo_id); // @v12.5.1 
+		}
 		return ok;
 	}
 	DECL_DIALOG_GETDTS()
@@ -338,6 +370,15 @@ private:
 				}
 			}
 		}
+		else if(event.isCmd(cmToDo)) {
+			PPID   todo_id = GetToDo(0);
+			if(todo_id) {
+				SETIFZQ(P_TodoObj, new PPObjPrjTask);
+				if(P_TodoObj) {
+					P_TodoObj->Edit(&todo_id, 0);
+				}
+			}
+		}
 		else if(event.isCmd(cmCtlColor)) {
 			TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 			if(p_dc && getCtrlHandle(CTL_LOCTRANSF_SERIAL) == p_dc->H_Ctl && State & stSerialUndef) {
@@ -398,6 +439,48 @@ private:
 		}
 		setCtrlString(CTL_LOCTRANSF_LOTINFO, temp_buf);
 	}
+	PPID   GetToDo(PPPrjTaskPacket * pPack)
+	{
+		PPID   todo_id = 0;
+		const  PPID todo_code_tag_id = PPObjTag::Helper_GetTagIdBySymb("SERVICE-TODO-CODE", OTTYP_STRING);
+		if(todo_code_tag_id && P_Pack && P_Pack->OpTypeID == PPOPT_WAREHOUSE && ((BillItemNo == -1) || 
+			(P_Pack && P_Pack->P_LocTrfrList && BillItemNo >= 0 && BillItemNo < P_Pack->P_LocTrfrList->getCountI()))) {
+			const  int item_no = (BillItemNo >= 0) ? BillItemNo : -1;
+			const  LocTransfOpBlock * p_item = (BillItemNo >= 0) ? &P_Pack->P_LocTrfrList->at(BillItemNo) : 0;
+			SString todo_code;
+			ObjTagList * p_tag_list = P_Pack->LTagL.Get(item_no);
+			const  bool this_row_todo = (p_tag_list && p_tag_list->GetItemStr(todo_code_tag_id, todo_code) > 0);
+			bool   ord_row_todo = false;
+			if(!this_row_todo && p_item && p_item->OrderBillID && p_item->OrderRByBill > 0 && OrdLtRowIdx >= 0) {
+				if(OrdLtBlk.BillID == p_item->OrderBillID) {
+					PPLotTagContainer ltc;
+					P_BObj->LoadRowTagListForDraft(OrdLtBlk.BillID, ltc);
+					p_tag_list = ltc.Get(OrdLtRowIdx);
+					ord_row_todo = (p_tag_list && p_tag_list->GetItemStr(todo_code_tag_id, todo_code) > 0);
+				}
+			}
+			if(this_row_todo || ord_row_todo) {
+				SETIFZQ(P_TodoObj, new PPObjPrjTask);
+				if(P_TodoObj) {
+					PPIDArray todo_id_list;
+					if(P_TodoObj->P_Tbl->SearchByCode(todo_code, todo_id_list) > 0) {
+						if(todo_id_list.getCount() == 1) {
+							todo_id = todo_id_list.get(0);
+						}
+						if(todo_id && pPack) {
+							if(P_TodoObj->GetPacket(todo_id, pPack) > 0) {
+								;
+							}
+							else {
+								todo_id = 0;
+							}
+						}
+					}
+				}
+			}
+		}
+		return todo_id;
+	}
 
 	const int Domain;
 	PPBillPacket * P_Pack;
@@ -415,6 +498,7 @@ private:
 	long   State;
 	PPObjBill * P_BObj; // @notowned
 	PPObjPerson PsnObj;
+	PPObjPrjTask * P_TodoObj;
 };
 
 /*static*/int PPViewLocTransf::EditLocTransf(PPBillPacket * pPack, int billItemIdx/*[0..] || -1*/, LocTransfTbl::Rec & rData) 
@@ -884,7 +968,7 @@ int FASTCALL PPViewLocTransf::NextIteration(LocTransfViewItem * pItem)
 static IMPL_DBE_PROC(dbqf_checkcellparent_ii)
 {
 	long   r = 0;
-	const  PPIDArray * p_cell_list = reinterpret_cast<const PPIDArray *>(params[1].lval); // @x64crit
+	const  PPIDArray * p_cell_list = reinterpret_cast<const PPIDArray *>(params[1].ptrval); // @v12.5.1 lval-->ptrval
 	if(!p_cell_list || p_cell_list->bsearch(params[0].lval))
 		r = 1;
 	result->init(r);
@@ -976,7 +1060,29 @@ DBQuery * PPViewLocTransf::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 		PPDbqFuncPool::InitObjNameFunc(dbe_barcode, PPDbqFuncPool::IdGoodsSingleBarcode, tmpt->GoodsID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_locownerpsn, PPDbqFuncPool::IdObjNamePerson, tmpt->LocOwnerPersonID); // @v12.4.1 (Filt.Domain == LOCTRFRDOMAIN_BAILMENT)
 		p_dbe_op = & enumtoa(tmpt->LTOp, 3, optype_subst.Get(PPTXT_LOCTRANSF_OPTEXT));
+		// @v12.5.1 {
 		p_q = &Select_(
+			tmpt->ID__,             // #00
+			tmpt->LocID,            // #01
+			tmpt->RByLoc,           // #02
+			tmpt->LTOp,             // #03
+			tmpt->Flags,            // #04 // @v12.4.7
+			tmpt->DispQtty,         // #05 // @v12.4.7 #+1
+			tmpt->RestByGoods,      // #06
+			tmpt->RestByLot,        // #07
+			tmpt->Dt,               // #08
+			tmpt->Tm,               // #09
+			0L);
+		p_q->addField(*p_dbe_op);              // #10
+		p_q->addField(dbe_loc);                // #11
+		p_q->addField(dbe_goods);              // #12
+		p_q->addField(dbe_bill);               // #13
+		p_q->addField(dbe_user);               // #14
+		p_q->addField(dbe_barcode);            // #15
+		p_q->addField(tmpt->BillQtty);         // #16
+		p_q->addField(dbe_locownerpsn);        // #17 @v12.4.1
+		// } @v12.5.1
+		/* @v12.5.1 p_q = &Select_(
 			tmpt->ID__,             // #00
 			tmpt->LocID,            // #01
 			tmpt->RByLoc,           // #02
@@ -995,7 +1101,8 @@ DBQuery * PPViewLocTransf::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 			dbe_barcode,            // #15
 			tmpt->BillQtty,         // #16
 			dbe_locownerpsn,        // #17 @v12.4.1
-			0).from(tmpt, 0L).where(*dbq);
+			0);*/
+		p_q->from(tmpt, 0L).where(*dbq);
 	}
 	else {
 		t = new LocTransfTbl;
@@ -1021,7 +1128,7 @@ DBQuery * PPViewLocTransf::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 				}
 			}
 			if(!single_loc_crit && Filt.LocList.GetCount() > 0) {
-				if(DbqFuncTab::RegisterDyn(&DynCheckCellParent, BTS_INT, dbqf_checkcellparent_ii, 2, BTS_INT, BTS_INT)) {
+				if(DbqFuncTab::RegisterDyn(&DynCheckCellParent, BTS_INT, dbqf_checkcellparent_ii, 2, BTS_INT, BTS_PTR)) { // @v12.5.1 BTS_INT-->BTS_PTR
 					CellList.clear();
 					PPIDArray temp_cell_list;
 					for(uint i = 0; i < Filt.LocList.GetCount(); i++) {
@@ -1033,7 +1140,7 @@ DBQuery * PPViewLocTransf::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 					dbe_chkloc.init();
 					dbe_chkloc.push(t->LocID);
 					DBConst dbc_long;
-					dbc_long.init((long)&CellList); // @x64crit
+					dbc_long.init(&CellList);
 					dbe_chkloc.push(dbc_long);
 					dbe_chkloc.push(static_cast<DBFunc>(DynCheckCellParent));
 					dbq = & (*dbq && dbe_chkloc == 1L);
@@ -1049,7 +1156,28 @@ DBQuery * PPViewLocTransf::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 			dbq	 = &(*dbq && t->LTOp == 0L && t->RestByGoods > 0.0);
 		else
 			dbq	 = &(*dbq && t->LTOp > 0L);
+		// @v12.5.1 {
 		p_q = &Select_(
+			t->LocID,            // #00 @stub
+			t->LocID,            // #01
+			t->RByLoc,           // #02
+			t->LTOp,             // #03
+			t->Flags,            // #04 // @v12.4.7
+			t->Qtty,             // #05 // @v12.4.7 #+1
+			t->RestByGoods,      // #06
+			t->RestByLot,        // #07
+			t->Dt,               // #08
+			t->Tm,               // #09
+			0L);
+		p_q->addField(*p_dbe_op);           // #10
+		p_q->addField(dbe_loc);             // #11
+		p_q->addField(dbe_goods);           // #12
+		p_q->addField(dbe_bill);            // #13
+		p_q->addField(dbe_user);            // #14
+		p_q->addField(dbe_barcode);         // #15
+		p_q->addField(t->Qtty);             // #16 @stub
+		p_q->addField(dbe_locownerpsn);     // #17 @v12.4.1
+		/* @v12.5.1 p_q = &Select_(
 			t->LocID,            // #00 @stub
 			t->LocID,            // #01
 			t->RByLoc,           // #02
@@ -1068,7 +1196,9 @@ DBQuery * PPViewLocTransf::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 			dbe_barcode,         // #15
 			t->Qtty,             // #16 @stub
 			dbe_locownerpsn,     // #17 @v12.4.1
-			0).from(t, 0L).where(*dbq);
+			0);*/
+		// } @v12.5.1
+		p_q->from(t, 0L).where(*dbq);
 		if(single_loc_crit)
 			p_q->orderBy(t->LocID, 0);
 		else if(Filt.LotID)

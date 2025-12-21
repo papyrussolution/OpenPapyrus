@@ -80,8 +80,8 @@ U_CAPI int32_t U_EXPORT2 utrie_swap(const UDataSwapper * ds,
 		/* swap the index and the data */
 		if(dataIs32) {
 			ds->swapArray16(ds, inTrie+1, trie.indexLength*2, outTrie+1, pErrorCode);
-			ds->swapArray32(ds, (const uint16*)(inTrie+1)+trie.indexLength, trie.dataLength*4,
-			    (uint16*)(outTrie+1)+trie.indexLength, pErrorCode);
+			ds->swapArray32(ds, (const uint16 *)(inTrie+1)+trie.indexLength, trie.dataLength*4,
+			    (uint16 *)(outTrie+1)+trie.indexLength, pErrorCode);
 		}
 		else {
 			ds->swapArray16(ds, inTrie+1, (trie.indexLength+trie.dataLength)*2, outTrie+1, pErrorCode);
@@ -165,8 +165,8 @@ U_CAPI int32_t U_EXPORT2 utrie2_swap(const UDataSwapper * ds,
 			    break;
 			case UTRIE2_32_VALUE_BITS:
 			    ds->swapArray16(ds, inTrie+1, trie.indexLength*2, outTrie+1, pErrorCode);
-			    ds->swapArray32(ds, (const uint16*)(inTrie+1)+trie.indexLength, dataLength*4,
-				(uint16*)(outTrie+1)+trie.indexLength, pErrorCode);
+			    ds->swapArray32(ds, (const uint16 *)(inTrie+1)+trie.indexLength, dataLength*4,
+				(uint16 *)(outTrie+1)+trie.indexLength, pErrorCode);
 			    break;
 			default:
 			    *pErrorCode = U_INVALID_FORMAT_ERROR;

@@ -848,7 +848,7 @@ xmlDoc * xmlReadFd(int fd, const char * URL, const char * encoding, int options)
 xmlDoc * xmlReadIO(xmlInputReadCallback ioread, xmlInputCloseCallback ioclose, void * ioctx, const char * URL, const char * encoding, int options);
 xmlDoc * xmlCtxtReadDoc(xmlParserCtxt * ctxt, const xmlChar * cur, const char * URL, const char * encoding, int options);
 xmlDoc * xmlCtxtReadFile(xmlParserCtxt * ctxt, const char * filename, const char * encoding, int options);
-xmlDoc * xmlCtxtReadMemory(xmlParserCtxt * ctxt, const char * buffer, int size, const char * URL, const char * encoding, int options);
+xmlDoc * xmlCtxtReadMemory(xmlParserCtxt * ctxt, const char * buffer, ssize_t size, const char * URL, const char * encoding, int options); // @v12.5.1 (int size)-->(ssize_t size)
 xmlDoc * xmlCtxtReadFd(xmlParserCtxt * ctxt, int fd, const char * URL, const char * encoding, int options);
 xmlDoc * xmlCtxtReadIO(xmlParserCtxt * ctxt, xmlInputReadCallback ioread, xmlInputCloseCallback ioclose, void * ioctx, const char * URL, const char * encoding, int options);
 /*

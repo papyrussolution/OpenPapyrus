@@ -220,7 +220,7 @@ static void U_CALLCONV initAliasData(UErrorCode &errCode)
 		return;
 	}
 	sectionSizes = (const uint32_t*)udata_getMemory(data);
-	table = (const uint16*)sectionSizes;
+	table = (const uint16 *)sectionSizes;
 	tableStart      = sectionSizes[0];
 	if(tableStart < minTocLength) {
 		errCode = U_INVALID_FORMAT_ERROR;
@@ -947,7 +947,7 @@ static int32_t U_CALLCONV ucnv_io_countAllConverters(UEnumeration * /*enumerator
 
 static const char * U_CALLCONV ucnv_io_nextAllConverters(UEnumeration * enumerator, int32_t* resultLength, UErrorCode * /*pErrorCode*/)
 {
-	uint16 * myContext = (uint16*)(enumerator->context);
+	uint16 * myContext = (uint16 *)(enumerator->context);
 	if(*myContext < gMainTable.converterListSize) {
 		const char * myStr = GET_STRING(gMainTable.converterList[(*myContext)++]);
 		if(resultLength) {
@@ -964,7 +964,7 @@ static const char * U_CALLCONV ucnv_io_nextAllConverters(UEnumeration * enumerat
 
 static void U_CALLCONV ucnv_io_resetAllConverters(UEnumeration * enumerator, UErrorCode * /*pErrorCode*/) 
 {
-	*((uint16*)(enumerator->context)) = 0;
+	*((uint16 *)(enumerator->context)) = 0;
 }
 
 U_CDECL_END
@@ -1077,7 +1077,7 @@ U_CAPI int32_t U_EXPORT2 ucnv_swapAliases(const UDataSwapper * ds, const void * 
 		return 0;
 	}
 	inSectionSizes = (const uint32_t*)((const char *)inData+headerSize);
-	inTable = (const uint16*)inSectionSizes;
+	inTable = (const uint16 *)inSectionSizes;
 	memzero(toc, sizeof(toc));
 	toc[tocLengthIndex] = tocLength = ds->readUInt32(inSectionSizes[tocLengthIndex]);
 	if(tocLength<minTocLength || offsetsCount<=tocLength) {
@@ -1109,7 +1109,7 @@ U_CAPI int32_t U_EXPORT2 ucnv_swapAliases(const UDataSwapper * ds, const void * 
 			return 0;
 		}
 
-		outTable = (uint16*)((char *)outData+headerSize);
+		outTable = (uint16 *)((char *)outData+headerSize);
 
 		/* swap the entire table of contents */
 		ds->swapArray32(ds, inTable, 4*(1+tocLength), outTable, pErrorCode);
@@ -1142,7 +1142,7 @@ U_CAPI int32_t U_EXPORT2 ucnv_swapAliases(const UDataSwapper * ds, const void * 
 					*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
 					return 0;
 				}
-				tempTable.resort = (uint16*)(tempTable.rows+count);
+				tempTable.resort = (uint16 *)(tempTable.rows+count);
 			}
 			if(ds->outCharset==U_ASCII_FAMILY) {
 				tempTable.stripForCompare = ucnv_io_stripASCIIForCompare;

@@ -13,23 +13,21 @@
 #pragma hdrstop
 
 #define WITH_BUFFER_COMPAT
-/**
- * xmlBuf:
- *
- * A buffer structure. The base of the structure is somehow compatible
- * with struct _xmlBuffer to limit risks on application which accessed
- * directly the input->buf->buffer structures.
- */
+// 
+// A buffer structure. The base of the structure is somehow compatible
+// with struct _xmlBuffer to limit risks on application which accessed
+// directly the input->buf->buffer structures.
+// 
 struct xmlBuf {
-	xmlChar * content; /* The buffer content UTF8 */
-	uint compat_use; /* for binary compatibility */
-	uint compat_size; /* for binary compatibility */
-	xmlBufferAllocationScheme alloc; /* The realloc method */
-	xmlChar * contentIO; /* in IO mode we may have a different base */
-	size_t use; /* The buffer size used */
-	size_t size; /* The buffer size */
-	xmlBuffer * buffer; /* wrapper for an old buffer */
-	int error; /* an error code if a failure occured */
+	xmlChar * content;  // The buffer content UTF8
+	size_t compat_use;  // for binary compatibility // @v12.5.1 uint-->size_
+	size_t compat_size; // for binary compatibility // @v12.5.1 uint-->size_
+	xmlBufferAllocationScheme alloc; // The realloc method
+	xmlChar * contentIO; // in IO mode we may have a different base
+	size_t use;  //The buffer size used
+	size_t size; // The buffer size 
+	xmlBuffer * buffer; // wrapper for an old buffer
+	int    error; // an error code if a failure occured 
 };
 
 #ifdef WITH_BUFFER_COMPAT
@@ -650,8 +648,8 @@ int FASTCALL xmlBufIsEmpty(xmlBuf * buf)
  */
 int FASTCALL xmlBufResize(xmlBuf * buf, size_t size)
 {
-	uint newSize;
-	xmlChar* rebuf = NULL;
+	size_t new_size = 0;
+	xmlChar * rebuf = NULL;
 	size_t start_buf;
 	if(!buf || buf->error)
 		return 0;
@@ -666,40 +664,40 @@ int FASTCALL xmlBufResize(xmlBuf * buf, size_t size)
 		case XML_BUFFER_ALLOC_IO:
 		case XML_BUFFER_ALLOC_DOUBLEIT:
 		    /*take care of empty case*/
-		    newSize = (buf->size ? buf->size*2 : size + 10);
-		    while(size > newSize) {
-			    if(newSize > UINT_MAX / 2) {
+		    new_size = (buf->size ? buf->size*2 : size + 10);
+		    while(size > new_size) {
+			    if(new_size > UINT_MAX / 2) {
 				    xmlBufMemoryError(buf, "growing buffer");
 				    return 0;
 			    }
-			    newSize *= 2;
+			    new_size *= 2;
 		    }
 		    break;
 		case XML_BUFFER_ALLOC_EXACT:
-		    newSize = size+10;
+		    new_size = size+10;
 		    break;
 		case XML_BUFFER_ALLOC_HYBRID:
 		    if(buf->use < BASE_BUFFER_SIZE)
-			    newSize = size;
+			    new_size = size;
 		    else {
-			    newSize = buf->size * 2;
-			    while(size > newSize) {
-				    if(newSize > UINT_MAX / 2) {
+			    new_size = buf->size * 2;
+			    while(size > new_size) {
+				    if(new_size > UINT_MAX / 2) {
 					    xmlBufMemoryError(buf, "growing buffer");
 					    return 0;
 				    }
-				    newSize *= 2;
+				    new_size *= 2;
 			    }
 		    }
 		    break;
 
 		default:
-		    newSize = size+10;
+		    new_size = size+10;
 		    break;
 	}
 	if((buf->alloc == XML_BUFFER_ALLOC_IO) && buf->contentIO) {
 		start_buf = buf->content - buf->contentIO;
-		if(start_buf > newSize) {
+		if(start_buf > new_size) {
 			// move data back to start 
 			memmove(buf->contentIO, buf->content, buf->use);
 			buf->content = buf->contentIO;
@@ -707,7 +705,7 @@ int FASTCALL xmlBufResize(xmlBuf * buf, size_t size)
 			buf->size += start_buf;
 		}
 		else {
-			rebuf = static_cast<xmlChar *>(SAlloc::R(buf->contentIO, start_buf + newSize));
+			rebuf = static_cast<xmlChar *>(SAlloc::R(buf->contentIO, start_buf + new_size));
 			if(rebuf == NULL) {
 				xmlBufMemoryError(buf, "growing buffer");
 				return 0;
@@ -718,10 +716,10 @@ int FASTCALL xmlBufResize(xmlBuf * buf, size_t size)
 	}
 	else {
 		if(buf->content == NULL) {
-			rebuf = static_cast<xmlChar *>(SAlloc::M(newSize));
+			rebuf = static_cast<xmlChar *>(SAlloc::M(new_size));
 		}
 		else if(buf->size - buf->use < 100) {
-			rebuf = static_cast<xmlChar *>(SAlloc::R(buf->content, newSize));
+			rebuf = static_cast<xmlChar *>(SAlloc::R(buf->content, new_size));
 		}
 		else {
 			/*
@@ -729,7 +727,7 @@ int FASTCALL xmlBufResize(xmlBuf * buf, size_t size)
 			 * better to make a new allocation and copy only the used range
 			 * and free the old one.
 			 */
-			rebuf = static_cast<xmlChar *>(SAlloc::M(newSize));
+			rebuf = static_cast<xmlChar *>(SAlloc::M(new_size));
 			if(rebuf) {
 				memcpy(rebuf, buf->content, buf->use);
 				SAlloc::F(buf->content);
@@ -742,7 +740,7 @@ int FASTCALL xmlBufResize(xmlBuf * buf, size_t size)
 		}
 		buf->content = rebuf;
 	}
-	buf->size = newSize;
+	buf->size = new_size;
 	UPDATE_COMPAT(buf)
 	return 1;
 }
@@ -758,7 +756,7 @@ int FASTCALL xmlBufResize(xmlBuf * buf, size_t size)
  * Returns 0 successful, a positive error code number otherwise
  *    and -1 in case of internal or API error.
  */
-int STDCALL xmlBufAdd(xmlBuf * buf, const xmlChar * str, int len)
+int STDCALL xmlBufAdd(xmlBuf * buf, const xmlChar * str, ssize_t len)
 {
 	if(!str || !buf || buf->error)
 		return -1;
@@ -772,9 +770,9 @@ int STDCALL xmlBufAdd(xmlBuf * buf, const xmlChar * str, int len)
 		return -1;
 	}
 	if(len < 0)
-		len = static_cast<int>(sstrlen(str));
+		len = sstrleni(str);
 	if(len > 0) {
-		const uint need_size = buf->use + len + 2;
+		const size_t need_size = buf->use + len + 2;
 		if((need_size > buf->size) && !xmlBufResize(buf, need_size)) {
 			xmlBufMemoryError(buf, "growing buffer");
 			return XML_ERR_NO_MEMORY;
@@ -800,7 +798,7 @@ int STDCALL xmlBufAdd(xmlBuf * buf, const xmlChar * str, int len)
  */
 int xmlBufAddHead(xmlBuf * buf, const xmlChar * str, int len)
 {
-	uint needSize;
+	size_t need_size = 0;
 	if(!buf || buf->error)
 		return -1;
 	CHECK_COMPAT(buf)
@@ -838,9 +836,9 @@ int xmlBufAddHead(xmlBuf * buf, const xmlChar * str, int len)
 			return 0;
 		}
 	}
-	needSize = buf->use + len + 2;
-	if(needSize > buf->size) {
-		if(!xmlBufResize(buf, needSize)) {
+	need_size = buf->use + len + 2;
+	if(need_size > buf->size) {
+		if(!xmlBufResize(buf, need_size)) {
 			xmlBufMemoryError(buf, "growing buffer");
 			return XML_ERR_NO_MEMORY;
 		}

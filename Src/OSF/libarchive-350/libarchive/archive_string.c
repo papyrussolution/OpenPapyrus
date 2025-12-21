@@ -407,14 +407,14 @@ static const char * default_iconv_charset(const char * charset)
 				return -1;
 			wmemcpy(dest->s + dest->length, (const wchar_t *)s, count);
 			if((sc->flag & SCONV_FROM_UTF16BE) && !is_big_endian()) {
-				uint16 * u16 = (uint16*)(dest->s + dest->length);
+				uint16 * u16 = (uint16 *)(dest->s + dest->length);
 				for(int b = 0; b < count; b++) {
 					uint16 val = archive_le16dec(u16+b);
 					archive_be16enc(u16+b, val);
 				}
 			}
 			else if((sc->flag & SCONV_FROM_UTF16LE) && is_big_endian()) {
-				uint16 * u16 = (uint16*)(dest->s + dest->length);
+				uint16 * u16 = (uint16 *)(dest->s + dest->length);
 				for(int b = 0; b < count; b++) {
 					uint16 val = archive_be16dec(u16+b);
 					archive_le16enc(u16+b, val);
@@ -573,7 +573,7 @@ static int archive_string_append_from_wcs_in_codepage(archive_string * as, const
 		uint16 * u16;
 		if(NULL == archive_string_ensure(as, as->length + len * 2 + 2))
 			return -1;
-		u16 = (uint16*)(as->s + as->length);
+		u16 = (uint16 *)(as->s + as->length);
 		count = 0;
 		defchar_used = 0;
 		if(sc->flag & SCONV_TO_UTF16BE) {

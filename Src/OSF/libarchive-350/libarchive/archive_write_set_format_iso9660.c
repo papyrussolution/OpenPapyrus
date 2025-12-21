@@ -2002,7 +2002,7 @@ static int set_str_utf16be(struct archive_write * a, uchar * p, const char * s, 
 		memcpy(p, iso9660->utf16be.s, size);
 	}
 	else {
-		const uint16 * u16 = (const uint16*)s;
+		const uint16 * u16 = (const uint16 *)s;
 		size = 0;
 		while(*u16++)
 			size += 2;
@@ -6547,8 +6547,8 @@ static int make_boot_catalog(struct archive_write * a)
 	p[30] = 0x55;
 	p[31] = 0xAA;
 	sum = 0;
-	wp = (uint16*)block;
-	while(wp < (uint16*)&block[32])
+	wp = (uint16 *)block;
+	while(wp < (uint16 *)&block[32])
 		sum += archive_le16dec(wp++);
 	set_num_721(&block[28], (~sum) + 1);
 	/*

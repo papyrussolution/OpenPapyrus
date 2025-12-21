@@ -2888,6 +2888,11 @@ private:
 //
 class SMySqlDbProvider : public DbProvider { // @construction
 public:
+	//
+	// Descr: Специальная функция, вычисляющая размер 
+	//
+	static constexpr uint GetTinyTextFieldSize(uint nominalSize) { return smin(nominalSize * 2, 254U); }
+
 	SMySqlDbProvider();
 	~SMySqlDbProvider();
 	virtual int DbLogin(const DbLoginBlock * pBlk, long options);

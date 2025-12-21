@@ -85,7 +85,7 @@ void LoadedNormalizer2Impl::load(const char * packageName, const char * name, UE
 
 	offset = nextOffset;
 	nextOffset = inIndexes[IX_SMALL_FCD_OFFSET];
-	const uint16 * inExtraData = (const uint16*)(inBytes+offset);
+	const uint16 * inExtraData = (const uint16 *)(inBytes+offset);
 
 	// smallFCD: new in formatVersion 2
 	offset = nextOffset;

@@ -41,7 +41,6 @@ PPDraftWrOff2::PPDraftWrOff2()
 
 PPDraftWrOffPacket::PPDraftWrOffPacket() : P_List(0)
 {
-	// @v10.5.12 (Rec get ctr now) Init();
 }
 
 PPDraftWrOffPacket::~PPDraftWrOffPacket()
@@ -158,7 +157,6 @@ public:
 				types.add(op_id);
 		}
 		SetupOprKindCombo(this, CTLSEL_DRAFTWROFF_DFCTOP, Data.Rec.DfctCompensOpID, 0, &types, OPKLF_OPLIST);
-		// @v10.5.12 {
 		{
 			PUGL::SetLotManufTimeParam slmtp;
 			Data.Rec.GetLotManufTimeParam(&slmtp);
@@ -169,9 +167,8 @@ public:
 			slmtp.FixedTimeToString(temp_buf);
 			setCtrlString(CTL_DRAFTWROFF_SETMTFT, temp_buf);
 		}
-		// } @v10.5.12
 		setupDfctSelectors(Data.Rec.DfctCompensArID);
-		SetupManufTimeCtrls(); // @v10.5.12
+		SetupManufTimeCtrls();
 		updateList(-1);
 		return ok;
 	}
@@ -192,7 +189,6 @@ public:
 				ok = PPErrorByDialog(this, sel, PPERR_UNDEFDFCTSRCLOC);
 			else
 				Data.Rec.Flags |= DWOF_DFCTARISLOC;
-		// @v10.5.12 {
 		{
 			SString temp_buf;
 			PUGL::SetLotManufTimeParam slmtp;
@@ -202,7 +198,6 @@ public:
 			slmtp.FixedTimeFromString(temp_buf);
 			Data.Rec.SetLotManufTimeParam(&slmtp);
 		}
-		// } @v10.5.12
 		if(ok > 0)
 			ASSIGN_PTR(pData, Data);
 		return ok;
@@ -234,7 +229,7 @@ IMPL_HANDLE_EVENT(DraftWrOffDialog)
 	PPListDialog::handleEvent(event);
 	if(event.isCbSelected(CTLSEL_DRAFTWROFF_DFCTOP)) {
 		setupDfctSelectors(0);
-		SetupManufTimeCtrls(); // @v10.5.12
+		SetupManufTimeCtrls();
 	}
 	else if(event.isCmd(cmaLevelUp)) {
 		if(getCurItem(&p, &i) && Data.P_List && p > 0 && p < (long)Data.P_List->getCount()) {
@@ -248,7 +243,7 @@ IMPL_HANDLE_EVENT(DraftWrOffDialog)
 			updateList(p+1);
 		}
 	}
-	else if(event.isClusterClk(CTL_DRAFTWROFF_SETMT)) { // @v10.5.12
+	else if(event.isClusterClk(CTL_DRAFTWROFF_SETMT)) {
 		SetupManufTimeCtrls(); 
 	}
 	else
@@ -967,7 +962,7 @@ int PrcssrWrOffDraft::Run()
 					pugl.OPcug = PCUG_CANCEL;
 					ProcessUnsuffisientList(DLG_MSGNCMPL4, &pugl);
 					if(pugl.OPcug == PCUG_BALANCE) {
-						P.GetLotManufTimeParam(&pugl.Slmt); // @v10.5.12
+						P.GetLotManufTimeParam(&pugl.Slmt);
 						THROW_PP(dwo_pack.Rec.DfctCompensOpID, PPERR_UNDEFDWODFCTOP);
 						THROW(ProcessDeficit(&dwo_pack, &pugl, 1));
 						dfct_bill_list.freeAll();

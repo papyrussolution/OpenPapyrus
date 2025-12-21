@@ -2352,7 +2352,26 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			p_dbe_avrg = & (g->Amount / g->Count);
 			p_dbe_lc_avg = & (g->LinesCount / g->Count);
 			p_dbe_sc_avg = & (g->SkuCount / g->Count);
+			// @v12.5.1 {
 			p_q = & Select_(
+				g->ID__,        // #0
+				g->Dt,          // #1
+				g->Tm,          // #2
+				g->Text,        // #3
+				g->Count,       // #4
+				g->Amount,      // #5
+				g->Discount,    // #6
+				g->PctPart,     // #7
+				g->Qtty,        // #8
+				0L);
+			p_q->addField(*p_dbe_avrg);    // #9
+			p_q->addField(g->LinesCount);  // #10
+			p_q->addField(g->SkuCount);    // #11
+			p_q->addField(*p_dbe_lc_avg);  // #12
+			p_q->addField(*p_dbe_sc_avg);  // #13
+			p_q->addField(g->Serial);      // #14
+			// } @v12.5.1 
+			/* @v12.5.1 p_q = & Select_(
 				g->ID__,        // #0
 				g->Dt,          // #1
 				g->Tm,          // #2
@@ -2368,7 +2387,8 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				*p_dbe_lc_avg,  // #12
 				*p_dbe_sc_avg,  // #13
 				g->Serial,      // #14
-				0L).from(g, 0L);
+				0L);*/
+			p_q->from(g, 0L);
 			delete p_dbe_avrg;
 			delete p_dbe_lc_avg;
 			delete p_dbe_sc_avg;
@@ -2396,7 +2416,25 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					dbe_posnode.push(cq->CashID);
 					dbe_posnode.push(static_cast<DBFunc>(DynFuncPosText));
 				}
+				// @v12.5.1 {
 				p_q = & Select_(
+					cq->ID,           // #0
+					cq->Dt,           // #1
+					cq->Tm,           // #2
+					cq->CashID,       // #3
+					cq->Flags,        // #4
+					cq->Code,         // #5
+					cq->Amount,       // #6
+					0L);
+				p_q->addField(dbe_sc_code);      // #7
+				p_q->addField(cq->Discount);     // #8
+				p_q->addField(dbe_posnode);      // #9
+				p_q->addField(cq->Qtty);         // #10
+				p_q->addField(cq->LinesCount);   // #11
+				p_q->addField(cq->SkuCount);     // #12
+				p_q->addField(dbe_scowner_name); // #13
+				// } @v12.5.1 
+				/* @v12.5.1 p_q = & Select_(
 					cq->ID,           // #0
 					cq->Dt,           // #1
 					cq->Tm,           // #2
@@ -2411,7 +2449,7 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					cq->LinesCount,   // #11
 					cq->SkuCount,     // #12
 					dbe_scowner_name, // #13
-					0L);
+					0L);*/
 				if(State & stHasExt) {
 					SETIFZ(p_ext, new CCheckExtTbl);
 					PPDbqFuncPool::InitObjNameFunc(dbe_saler, PPDbqFuncPool::IdObjNameAr, p_ext->SalerID);
@@ -2457,7 +2495,23 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					dbe_posnode.push(t->PosNodeID);
 					dbe_posnode.push(static_cast<DBFunc>(DynFuncPosText));
 				}
+				// @v12.5.1 {
 				p_q = & Select_(
+					t->ID,              // #0
+					t->Dt,              // #1
+					t->Tm,              // #2
+					t->PosNodeID,       // #3
+					t->Flags,           // #4
+					t->Code,            // #5
+					t->Amount,          // #6
+					0L);
+				p_q->addField(dbe_sc_code);        // #7
+				p_q->addField(t->Discount);        // #8
+				p_q->addField(dbe_posnode);        // #9
+				p_q->addField(dbe_psn);            // #10
+				p_q->addField(dbe_scowner_name);   // #11
+				// } @v12.5.1 
+				/* @v12.5.1 p_q = & Select_(
 					t->ID,              // #0
 					t->Dt,              // #1
 					t->Tm,              // #2
@@ -2470,7 +2524,7 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					dbe_posnode,        // #9
 					dbe_psn,            // #10
 					dbe_scowner_name,   // #11
-					0L);
+					0L);*/
 				if(State & stHasExt) {
 					SETIFZ(p_ext, new CCheckExtTbl);
 					PPDbqFuncPool::InitObjNameFunc(dbe_saler, PPDbqFuncPool::IdObjNameAr, p_ext->SalerID);

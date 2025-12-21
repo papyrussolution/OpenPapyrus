@@ -525,8 +525,7 @@ int PPAbstractDevice::RunCmd__(int cmdID, const StrAssocArray & rIn, StrAssocArr
 {
 	int    ok = 1;
 	SString temp_buf;
-	SString input;//, str;
-	// @v10.8.10 {
+	SString input;
 	PPDrvInputParamBlock pb(0);
 	{
 		for(uint i = 0; i < rIn.getCount(); i++) {
@@ -535,15 +534,6 @@ int PPAbstractDevice::RunCmd__(int cmdID, const StrAssocArray & rIn, StrAssocArr
 			pb.Add(temp_buf, item.Txt);
 		}
 	}
-	// } @v10.8.10 
-	/* @v10.8.10 for(uint i = 0; i < rIn.getCount(); i++) {
-		StrAssocArray::Item item = rIn.Get(i);
-		THROW(PPLoadString(PPSTR_ABDVCCMD, item.Id, str)); // @todo @err
-		if(input.NotEmpty())
-			input.Semicol();
-		temp_buf = item.Txt;
-		input.CatEq(str, temp_buf);
-	}*/
 	THROW(PPLoadString(PPSTR_ABDVCCMD, cmdID, temp_buf)); // @todo @err
 	ok = Helper_RunCmd(temp_buf, /*input*/pb.GetRawBuf(input), rOut);
 	CATCHZOK;
@@ -553,7 +543,8 @@ int PPAbstractDevice::RunCmd__(int cmdID, const StrAssocArray & rIn, StrAssocArr
 int PPAbstractDevice::RunCmd(const char * pCmd, StrAssocArray & rOut)
 {
 	int    ok = 1;
-	SString s_cmd, input;
+	SString s_cmd;
+	SString input;
 	{
 		(s_cmd = pCmd).Strip();
 		size_t p = 0;

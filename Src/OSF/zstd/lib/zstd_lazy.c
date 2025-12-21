@@ -966,7 +966,7 @@ FORCE_INLINE_TEMPLATE ZSTD_VecMask ZSTD_row_getMatchMask(const BYTE * const tagR
 			return ZSTD_rotateRight_U16((hi << 8) | lo, head);
 		}
 		else if(rowEntries == 32) {
-			const uint16x8x2_t chunk = vld2q_u16((const uint16*)(const void *)src);
+			const uint16x8x2_t chunk = vld2q_u16((const uint16 *)(const void *)src);
 			const uint8x16_t chunk0 = vreinterpretq_u8_u16(chunk.val[0]);
 			const uint8x16_t chunk1 = vreinterpretq_u8_u16(chunk.val[1]);
 			const uint8x16_t equalMask0 = vceqq_u8(chunk0, vdupq_n_u8(tag));

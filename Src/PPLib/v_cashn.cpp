@@ -212,7 +212,18 @@ DBQuery * PPViewCashNode::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	DBE dbe_loc;
 	THROW(CheckTblPtr(t = new TempCashNodeTbl(P_TempTbl->GetName())));
 	PPDbqFuncPool::InitObjNameFunc(dbe_loc,  PPDbqFuncPool::IdObjNameLoc, t->LocID);
+	// @v12.5.1 {
 	q = & Select_(
+		t->ID,            // #0
+		t->Name,          // #1
+		t->CashTypeName,  // #2
+		0L);
+	q->addField(dbe_loc);       // #3
+	q->addField(t->Port);       // #5
+	q->addField(t->Symb);       // #6
+	q->addField(t->ParentName); // #7
+	// } @v12.5.1 
+	/* @v12.5.1 q = & Select_(
 		t->ID,            // #0
 		t->Name,          // #1
 		t->CashTypeName,  // #2
@@ -220,7 +231,8 @@ DBQuery * PPViewCashNode::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		t->Port,          // #5
 		t->Symb,          // #6
 		t->ParentName,    // #7
-		0L).from(t, 0L).where(*dbq).orderBy(t->Name, 0L);
+		0L);*/
+	q->from(t, 0L).where(*dbq).orderBy(t->Name, 0L);
 	THROW(CheckQueryPtr(q));
 	CATCH
 		if(q)
@@ -235,7 +247,7 @@ DBQuery * PPViewCashNode::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 int PPViewCashNode::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = (ppvCmd != PPVCMD_ADDITEM) ? PPView::ProcessCommand(ppvCmd, pHdr, pBrw) : -2;
-	PPIDArray  id_list;
+	PPIDArray id_list;
 	PPID   id = (pHdr) ? *static_cast<const PPID *>(pHdr) : 0;
 	if(ok == -2) {
 		switch(ppvCmd) {

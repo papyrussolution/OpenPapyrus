@@ -1,5 +1,5 @@
 // V_SCALE.CPP
-// Copyright (c) A.Starodub 2008, 2009, 2010, 2015, 2016, 2017, 2018, 2019, 2022
+// Copyright (c) A.Starodub 2008, 2009, 2010, 2015, 2016, 2017, 2018, 2019, 2022, 2025
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -260,18 +260,30 @@ DBQuery * PPViewScale::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	TempScaleTbl * t = 0;
 	uint   brw_id = BROWSER_SCALE;
 	DBQ  * dbq = 0;
-	DBE    dbe_loc, dbe_ggrp;
+	DBE    dbe_loc;
+	DBE    dbe_ggrp;
 	THROW(CheckTblPtr(t = new TempScaleTbl(P_TempTbl->GetName())));
 	PPDbqFuncPool::InitObjNameFunc(dbe_loc,  PPDbqFuncPool::IdObjNameLoc,   t->LocID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_ggrp, PPDbqFuncPool::IdObjNameGoods, t->AltGoodsGrp);
+	// @v12.5.1 {
 	q = & Select_(
+		t->ID,            // #0
+		t->Name,          // #1
+		t->ScaleTypeName, // #2
+		0L);
+	q->addField(dbe_loc);  // #3
+	q->addField(dbe_ggrp); // #4
+	q->addField(t->Port);  // #5
+	// } @v12.5.1 
+	/* @v12.5.1 q = & Select_(
 		t->ID,            // #0
 		t->Name,          // #1
 		t->ScaleTypeName, // #2
 		dbe_loc,          // #3
 		dbe_ggrp,         // #4
 		t->Port,          // #5
-		0L).from(t, 0L).where(*dbq).orderBy(t->Name, 0L);
+		0L);*/
+	q->from(t, 0L).where(*dbq).orderBy(t->Name, 0L);
 	THROW(CheckQueryPtr(q));
 	CATCH
 		if(q)
@@ -285,9 +297,9 @@ DBQuery * PPViewScale::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 
 int PPViewScale::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
-	int        ok = (ppvCmd != PPVCMD_ADDITEM) ? PPView::ProcessCommand(ppvCmd, pHdr, pBrw) : -2;
-	PPIDArray  id_list;
-	PPID       id = (pHdr) ? *static_cast<const PPID *>(pHdr) : 0;
+	int    ok = (ppvCmd != PPVCMD_ADDITEM) ? PPView::ProcessCommand(ppvCmd, pHdr, pBrw) : -2;
+	PPIDArray id_list;
+	PPID   id = (pHdr) ? *static_cast<const PPID *>(pHdr) : 0;
 	if(ok == -2) {
 		switch(ppvCmd) {
 			case PPVCMD_ADDITEM:
@@ -304,12 +316,8 @@ int PPViewScale::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 					}
 				}
 				break;
-			case PPVCMD_PREPAREDATA:
-				ok = PPObjScale::PrepareData(id);
-				break;
-			case PPVCMD_LOADDATA:
-				ok = PPObjScale::TransmitData(id);
-				break;
+			case PPVCMD_PREPAREDATA: ok = PPObjScale::PrepareData(id); break;
+			case PPVCMD_LOADDATA: ok = PPObjScale::TransmitData(id); break;
 			case PPVCMD_LOADSTAT:
 				ok = -1;
 				{
@@ -323,7 +331,6 @@ int PPViewScale::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 				{
 					SString msg;
 					ScaleViewItem item;
-
 					PPGetSubStr(PPTXT_SCALEREADY, 2, msg);
 					ScaleStatusList.freeAll();
 					PPWaitStart();

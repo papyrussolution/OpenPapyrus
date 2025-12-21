@@ -684,7 +684,7 @@ int PiritEquip::IdentifyTaxEntry(double vatRate, int isVatFree) const
 				//
 				// Не нашли в таблице того, чего искали: включаем default-вариант, основанный на документации к драйверу
 				//
-				if(_vat_rate == 18.0 || _vat_rate == 20.0) {
+				if(_vat_rate == 18.0 || _vat_rate == 20.0 || feqeps(_vat_rate, 22.0, 1E-6)) { // @v12.5.1 (|| feqeps(_vat_rate, 22.0, 1E-6))
 					tax_entry_n = 0;
 					tax_entry_id_result = 1;
 				}
@@ -693,7 +693,7 @@ int PiritEquip::IdentifyTaxEntry(double vatRate, int isVatFree) const
 					tax_entry_id_result = 2;
 				}
 				// @v12.2.1 {
-				else if(_vat_rate == 7.0) {
+				else if(feqeps(_vat_rate, 7.0, 1E-6)) {
 					tax_entry_n = 7;
 				}
 				else if(_vat_rate == 5.0) {
@@ -1408,6 +1408,8 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				const double _amount = blk.AmtBank + blk.AmtCash;
 				if(blk.VatRate == 20.0)
 					blk.AmtVat20 = _amount;
+				else if(feqeps(blk.VatRate, 22.0, 1E-6)) // @v12.5.1
+					blk.AmtVat22 = _amount;
 				else if(blk.VatRate == 18.0)
 					blk.AmtVat18 = _amount;
 				else if(blk.VatRate == 10.0)
@@ -2789,13 +2791,11 @@ int PiritEquip::RunCheck(int opertype)
 											str.CatChar('&');
 											str.CatEq("Time", Check.ChZnPm_ReqTimestamp);
 											// @v12.3.12 {
-											if(!!Check.ChZnPm_LocalModuleInstance) {
-												str.CatChar('&');
-												str.CatEq("Inst", Check.ChZnPm_LocalModuleInstance, S_GUID::fmtIDL|S_GUID::fmtLower);
+											if(!Check.ChZnPm_LocalModuleInstance.IsZero()) {
+												str.CatChar('&').CatEq("Inst", Check.ChZnPm_LocalModuleInstance, S_GUID::fmtIDL|S_GUID::fmtLower);
 											}
-											if(!!Check.ChZnPm_LocalModuleDbVer) {
-												str.CatChar('&');
-												str.CatEq("Ver", Check.ChZnPm_LocalModuleDbVer, S_GUID::fmtIDL|S_GUID::fmtLower);
+											if(!Check.ChZnPm_LocalModuleDbVer.IsZero()) {
+												str.CatChar('&').CatEq("Ver", Check.ChZnPm_LocalModuleDbVer, S_GUID::fmtIDL|S_GUID::fmtLower);
 											}
 											// } @v12.3.12 
 										}

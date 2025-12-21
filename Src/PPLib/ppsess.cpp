@@ -205,8 +205,8 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 						Cat(mht_stat.UnusedSize).CatDiv(';', 2).
 						CatEq("GDI", gr_gdiobj).CatDiv(';', 2).
 						CatEq("USER", gr_userobj).CatDiv(';', 2).
-						Cat("FOCUS").Eq().CatHex((ulong)::GetFocus()).CatDiv(';', 2).
-						Cat("CAPTURE").Eq().CatHex((ulong)::GetCapture());
+						Cat("FOCUS").Eq().CatHex(reinterpret_cast<uintptr_t>(::GetFocus())).CatDiv(';', 2).
+						Cat("CAPTURE").Eq().CatHex(reinterpret_cast<uintptr_t>(::GetCapture()));
 					p_app->AddStatusBarItem(r_sbuf);
 				}
 				else {

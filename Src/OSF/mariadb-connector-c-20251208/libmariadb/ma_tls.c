@@ -121,24 +121,19 @@ static signed char ma_hex2int(char c)
 	return -1;
 }
 
-static bool ma_pvio_tls_compare_fp(const char * cert_fp,
-    uint cert_fp_len,
-    const char * fp, uint fp_len)
+static bool ma_pvio_tls_compare_fp(const char * cert_fp, uint cert_fp_len, const char * fp, uint fp_len)
 {
-	char * p = (char*)fp,
-	    * c;
-
+	char * p = (char*)fp;
+	char * c;
 	/* check length */
 	if(cert_fp_len != 20)
 		return 1;
-
 	/* We support two formats:
 	   2 digits hex numbers, separated by colons (length=59)
 	   20 * 2 digits hex numbers without separators (length = 40)
 	 */
-	if(fp_len != (strchr(fp, ':') ? 59 : 40))
+	if(fp_len != (sstrchr(fp, ':') ? 59 : 40))
 		return 1;
-
 	for(c = (char*)cert_fp; c < cert_fp + cert_fp_len; c++) {
 		signed char d1, d2;
 		if(*p == ':')
@@ -176,9 +171,9 @@ bool ma_pvio_tls_check_fp(MARIADB_TLS * ctls, const char * fp, const char * fp_l
 
 		while(ma_gets(buff, sizeof(buff)-1, fp)) {
 			/* remove trailing new line character */
-			char * pos = strchr(buff, '\r');
+			char * pos = sstrchr(buff, '\r');
 			if(!pos)
-				pos = strchr(buff, '\n');
+				pos = sstrchr(buff, '\n');
 			if(pos)
 				*pos = '\0';
 

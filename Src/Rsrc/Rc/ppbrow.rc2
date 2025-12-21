@@ -7005,7 +7005,7 @@ cmd DynamicObjs           { "@{cmd_dynamicobjs}"                           none 
 cmd ImportGoodsGrp        { "@{cmd_importgoodsgrp}"                        none                  none cmImportGoodsGrp }
 cmd ImportGoods           { "@{cmd_importgoods}"                           none                  none cmImportGoods }
 cmd ImportCountry         { "@{cmd_importcountry}"                         none                  none cmImportCountry }
-cmd ImportQuot            { "@{cmd_importquot2}"                           none                  none cmImportQuot }
+cmd ImportQuot            { "@{cmd_importquot2}"                           none                  none cmImportQuot2 } // @v12.5.1 cmImportQuot-->cmImportQuot2
 cmd ImportPerson          { "@{cmd_importperson2}"                         none                  none cmImportPerson }
 cmd ImportSuppl           { "@{cmd_importsuppl}"                           none                  none cmImportSuppl }
 cmd ImportBanks           { "@{cmd_importbanks}"                           none                  none cmImportBanks }

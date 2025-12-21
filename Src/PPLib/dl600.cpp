@@ -802,7 +802,7 @@ RtmStack::~RtmStack()
 	B.Destroy();
 }
 
-int FASTCALL RtmStack::Init(size_t sz)
+int FASTCALL RtmStack::Init(uint sz)
 {
 	size_t s = ALIGNSIZE(sz, 10);
 	B.P_Buf = static_cast<char *>(SAlloc::R(B.P_Buf, s));
@@ -817,12 +817,12 @@ int FASTCALL RtmStack::Init(size_t sz)
 }
 
 uint RtmStack::GetCurPos() const { return P; }
-void FASTCALL RtmStack::SetCurPos(size_t p) { P = p; }
-void * FASTCALL RtmStack::GetPtr(size_t p) { return (B.P_Buf+p); }
+void FASTCALL RtmStack::SetCurPos(uint p) { P = p; }
+void * FASTCALL RtmStack::GetPtr(uint p) { return (B.P_Buf+p); }
 
-uint FASTCALL RtmStack::Alloc(size_t sz)
+uint FASTCALL RtmStack::Alloc(uint sz)
 {
-	size_t p = P;
+	uint   p = P;
 	P += ALIGNSIZE(sz, 2);
 	return p;
 }

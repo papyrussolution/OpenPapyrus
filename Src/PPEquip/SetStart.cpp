@@ -131,7 +131,7 @@ int ACS_SETSTART::ExportData(int updOnly)
 	FILE * p_file = 0;
 	const  int  check_dig = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
 	THROW(GetNodeData(&cn_data) > 0);
-	const  bool is_vat_free = (cn_obj.IsVatFree(NodeID) > 0); // @v11.8.3
+	const  bool is_vat_free = (cn_obj.IsNodeVatFree(NodeID) > 0); // @v11.8.3
 	if(cn_data.DrvVerMajor > 3 || (cn_data.DrvVerMajor == 3 && cn_data.DrvVerMinor >= 4))
 		p_load_symb = "#";
 	//

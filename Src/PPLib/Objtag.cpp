@@ -740,6 +740,21 @@ ObjTagFilt & ObjTagFilt::Z()
 	return *this;
 }
 
+/*static*/PPID PPObjTag::Helper_GetTagIdBySymb(const char * pTagSymb, int otTyp)
+{
+	PPID    result = 0;
+	if(!isempty(pTagSymb)) {
+		PPID    _tag_id = 0;
+		PPObjTag tag_obj;
+		if(tag_obj.FetchBySymb(pTagSymb, &_tag_id) > 0) {
+			PPObjectTag tag_rec;
+			if(tag_obj.Fetch(_tag_id, &tag_rec) > 0 && (!otTyp || tag_rec.TagDataType == otTyp))
+				result = _tag_id;
+		}
+	}
+	return result;
+}
+
 /*static*/PPID PPObjTag::Helper_GetTag(PPID objType, PPID objID, const char * pTagSymb)
 {
 	long   sur_id = 0;

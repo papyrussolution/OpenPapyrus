@@ -810,14 +810,14 @@ struct DlCtxHdr {
 struct RtmStack {
 	RtmStack();
 	~RtmStack();
-	int    FASTCALL Init(size_t sz);
+	int    FASTCALL Init(uint sz);
 	uint   GetCurPos() const;
-	void   FASTCALL SetCurPos(size_t p);
-	void * FASTCALL GetPtr(size_t p);
-	uint   FASTCALL Alloc(size_t sz);
+	void   FASTCALL SetCurPos(uint p);
+	void * FASTCALL GetPtr(uint p);
+	uint   FASTCALL Alloc(uint sz);
 private:
 	SBaseBuffer B;
-	size_t P;
+	uint32 P; // @v12.5.1 size_t-->uint32
 };
 
 class DlContext {

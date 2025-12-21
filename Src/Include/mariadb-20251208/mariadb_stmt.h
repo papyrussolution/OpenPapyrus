@@ -110,15 +110,15 @@ typedef struct st_mysql_bind {
 		char * indicator;  /* indicator variable */
 	} u;
 
-	void (* store_param_func)(NET * net, struct st_mysql_bind * param);
-	void (* fetch_result)(struct st_mysql_bind *, MYSQL_FIELD *, uchar ** row);
-	void (* skip_result)(struct st_mysql_bind *, MYSQL_FIELD *, uchar ** row);
+	void   (*store_param_func)(NET * net, struct st_mysql_bind * param);
+	void   (*fetch_result)(struct st_mysql_bind *, MYSQL_FIELD *, uchar ** row);
+	void   (*skip_result)(struct st_mysql_bind *, MYSQL_FIELD *, uchar ** row);
 	/* output buffer length, must be set when fetching str/binary */
-	ulong buffer_length;
-	ulong offset;      /* offset position for char/binary fetch */
-	ulong length_value; /* Used if length is 0 */
-	uint flags;        /* special flags, e.g. for dummy bind  */
-	uint pack_length;  /* Internal length for packed data */
+	ulong  buffer_length;
+	ulong  offset;      /* offset position for char/binary fetch */
+	ulong  length_value; /* Used if length is 0 */
+	uint   flags;        /* special flags, e.g. for dummy bind  */
+	uint   pack_length;  /* Internal length for packed data */
 	enum   enum_field_types buffer_type; /* buffer type */
 	int    error_value;       // used if error is 0 // @sobolev bool-->int
 	bool   is_unsigned;       // set if integer type is unsigned

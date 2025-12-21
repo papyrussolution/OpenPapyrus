@@ -2398,7 +2398,27 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			if(Flags & fAsGoodsCard) {
 				brw_id = (Filt.Flags & TrfrAnlzFilt::fGByDate) ? BROWSER_TRFRANLZ_GC : BROWSER_GOODSCARD;
 				DBE * p_mult = & (tat->Discount * tat->Qtty);
+				// @v12.5.1 {
 				q = & Select_(
+					tat->OprNo,     // #0
+					tat->Dt,        // #1
+					tat->BillID,    // #2
+					tat->BillCode,  // #3
+					tat->Qtty,      // #4
+					tat->Discount,  // #5
+					0L);
+				q->addField(*p_mult);        // #6
+				q->addField(tat->PhQtty);    // #7
+				q->addField(dbe_oprkind);    // #8
+				q->addField(dbe_ar);         // #9
+				q->addField(tat->PVat);      // #10
+				q->addField(tat->LinkQtty);  // #11 
+				q->addField(tat->LinkCost);  // #12 
+				q->addField(tat->LinkPrice); // #13 
+				q->addField(tat->ExtVal1);   // #14 
+				q->addField(tat->Brutto);    // #15
+				// } @v12.5.1 
+				/* @v12.5.1 q = & Select_(
 					tat->OprNo,     // #0
 					tat->Dt,        // #1
 					tat->BillID,    // #2
@@ -2415,7 +2435,7 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					tat->LinkPrice, // #13 
 					tat->ExtVal1,   // #14 
 					tat->Brutto,    // #15
-					0L);
+					0L);*/
 				q->from(tat, 0L).orderBy(tat->Dt, tat->OprNo, 0L);
 				delete p_mult;
 				if(pSubTitle) {
@@ -2451,7 +2471,30 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				if(oneof2(Filt.Sgg, sggSupplAgent, sggSuppl)) {
 					goods_as_ar = 1;
 					THROW(CheckTblPtr(at2 = new ArticleTbl));
+					// @v12.5.1 {
 					q = & Select_(
+						tat->Dt,        // #0
+						tat->BillID,    // #1
+						tat->BillCode,  // #2
+						0L);
+					q->addField(at2->Name);      // #3
+					q->addField(dbe_oprkind);    // #4
+					q->addField(dbe_ar);         // #5
+					q->addField(tat->Qtty);      // #6
+					q->addField(tat->Cost);      // #7   Сумма в ценах поступления //
+					q->addField(tat->Price);     // #8   Сумма в ценах реализации  //
+					q->addField(dbe_cost);       // #9   Цена поступления //
+					q->addField(dbe_price);      // #10  Цена реализации  //
+					q->addField(dbe_loc);        // #11
+					q->addField(tat->PVat);      // #12
+					q->addField(tat->LinkQtty);  // #13
+					q->addField(tat->LinkCost);  // #14
+					q->addField(tat->LinkPrice); // #15
+					q->addField(tat->ExtVal1);   // #16
+					q->addField(tat->Brutto);    // #17
+					q->addField(tat->Discount);  // #18 // @v12.4.2 Скидка к номинальной цене (уже учтена в tat->Price и dbe_price)
+					// } @v12.5.1 
+					/* @v12.5.1 q = & Select_(
 						tat->Dt,        // #0
 						tat->BillID,    // #1
 						tat->BillCode,  // #2
@@ -2471,7 +2514,7 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 						tat->ExtVal1,   // #16
 						tat->Brutto,    // #17
 						tat->Discount,  // #18 // @v12.4.2 Скидка к номинальной цене (уже учтена в tat->Price и dbe_price)
-						0L);
+						0L);*/
 					dbq2 = &(at2->ID += (tat->GoodsID & ~GOODSSUBSTMASK));
 				}
 				else {
@@ -2484,7 +2527,29 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 						dbe_extfactor.push(tat->DlvrLocID); // @v11.1.0
 						dbe_extfactor.push(static_cast<DBFunc>(DynFuncExtFactor));
 					}
+					// @v12.5.1 {
 					q = & Select_(
+						tat->Dt,        // #0
+						tat->BillID,    // #1
+						tat->BillCode,  // #2
+						0L);
+					q->addField(dbe_goods);      // #3
+					q->addField(dbe_oprkind);    // #4
+					q->addField(dbe_ar);         // #5
+					q->addField(tat->Qtty);      // #6
+					q->addField(tat->Cost);      // #7   Сумма в ценах поступления //
+					q->addField(tat->Price);     // #8   Сумма в ценах реализации  //
+					q->addField(dbe_cost);       // #9   Цена поступления //
+					q->addField(dbe_price);      // #10  Цена реализации  //
+					q->addField(dbe_loc);        // #11
+					q->addField(tat->PVat);      // #12
+					q->addField(tat->LinkQtty);  // #13
+					q->addField(tat->LinkCost);  // #14
+					q->addField(tat->LinkPrice); // #15
+					q->addField(tat->ExtVal1);   // #16
+					q->addField(tat->Brutto);    // #17
+					// } @v12.5.1 
+					/* @v12.5.1 q = & Select_(
 						tat->Dt,        // #0
 						tat->BillID,    // #1
 						tat->BillCode,  // #2
@@ -2503,7 +2568,7 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 						tat->LinkPrice, // #15
 						tat->ExtVal1,   // #16
 						tat->Brutto,    // #17
-						0L);
+						0L);*/
 					if(Filt.Sgg == sggNone) {
                         if(Filt.Flags & TrfrAnlzFilt::fShowGoodsCode) {
 							dbe_goodscode.init();

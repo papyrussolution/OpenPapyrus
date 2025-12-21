@@ -2595,7 +2595,7 @@ namespace NArchive {
 								uint i;
 								for(i = 0; i < numFiles; i++) {
 									size_t curRem = (rem - pos) / 2;
-									const uint16 * buf = (const uint16*)(db.NamesBuf + pos);
+									const uint16 * buf = (const uint16 *)(db.NamesBuf + pos);
 									size_t j;
 									for(j = 0; j < curRem && buf[j] != 0; j++) ;
 									if(j == curRem)

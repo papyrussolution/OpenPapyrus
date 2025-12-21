@@ -3056,7 +3056,7 @@
 			/**
 			 * @brief return the amount of shared string entries currently in the cache
 			 */
-			int32_t stringCount() const { return m_stringCache->size(); }
+			int32_t stringCount() const { return static_cast<int32_t>(m_stringCache->size()); }
 			int32_t getStringIndex(const std::string& str) const;
 			bool stringExists(const std::string& str) const;
 			const char* getString(int32_t index) const;

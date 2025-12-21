@@ -1358,7 +1358,24 @@ DBQuery * PPViewPriceList::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 		if(Filt.Flags & PLISTF_PRESENTONLY)
 			dbq = & (*dbq && pl->IsPresent == 1L);
 	}
+	// @v12.5.1 {
 	q = & Select_(
+		pl->GoodsID,       // #00
+		pl->QuotKindID,    // #01
+		pl->LineNo,        // #02
+		pl->Name,          // #03
+		0L);
+	q->addField(dbe_unit);          // #04
+	q->addField(pl->UnitPerPack);   // #05
+	q->addField(pl->Price);         // #06
+	q->addField(pl->AddPrice1);     // #07
+	q->addField(pl->AddPrice2);     // #08
+	q->addField(pl->AddPrice3);     // #09
+	q->addField(pl->Memo);          // #10
+	q->addField(pl->Rest);          // #11
+	q->addField(dbe_quotkind);      // #12
+	// } @v12.5.1 
+	/* @v12.5.1 q = & Select_(
 		pl->GoodsID,       // #00
 		pl->QuotKindID,    // #01
 		pl->LineNo,        // #02
@@ -1372,7 +1389,8 @@ DBQuery * PPViewPriceList::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 		pl->Memo,          // #10
 		pl->Rest,          // #11
 		dbe_quotkind,      // #12
-		0L).from(pl, 0L).where(*dbq);
+		0L);*/
+	q->from(pl, 0L).where(*dbq);
 	if(Filt.GoodsGrpID && !P_TempTbl)
 		q->orderBy(pl->ListID, pl->GoodsGrpID, pl->Name, 0L);
 	else
@@ -2685,8 +2703,10 @@ int EditPriceListConfig()
 	SetupPPObjCombo(dlg, CTLSEL_PLISTCFG_P3Q, PPOBJ_QUOTKIND, cfg.AddPriceQuot[2], 0, 0);
 	SetupPPObjCombo(dlg, CTLSEL_PLISTCFG_GGRP, PPOBJ_GOODSGROUP, cfg.GoodsGrpID, OLW_CANSELUPLEVEL, 0);
 	if((p_cb = static_cast<ComboBox *>(dlg->getCtrlView(CTLSEL_PLISTCFG_EXTFLD))) != 0) {
-		int    idx = 0, fld_list[12];
-		SString goods_ex_titles, item_buf;
+		int    idx = 0;
+		int    fld_list[12];
+		SString goods_ex_titles;
+		SString item_buf;
 		PPObjGoods::ReadGoodsExTitles(0, goods_ex_titles);
 		THROW(p_lw = CreateListWindow_Simple(lbtDblClkNotify));
 		fld_list[0] = GDSEXSTR_STORAGE;

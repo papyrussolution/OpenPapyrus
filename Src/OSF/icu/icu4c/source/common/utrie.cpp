@@ -761,7 +761,7 @@ U_CAPI int32_t U_EXPORT2 utrie_serialize(UNewTrie * trie, void * dt, int32_t cap
 	if(reduceTo16Bits) {
 		/* write 16-bit index values shifted right by UTRIE_INDEX_SHIFT, after adding indexLength */
 		p = (uint32_t*)trie->index;
-		dest16 = (uint16*)data;
+		dest16 = (uint16 *)data;
 		for(i = trie->indexLength; i > 0; --i) {
 			*dest16++ = (uint16)((*p++ + trie->indexLength)>>UTRIE_INDEX_SHIFT);
 		}
@@ -775,7 +775,7 @@ U_CAPI int32_t U_EXPORT2 utrie_serialize(UNewTrie * trie, void * dt, int32_t cap
 	else {
 		/* write 16-bit index values shifted right by UTRIE_INDEX_SHIFT */
 		p = (uint32_t*)trie->index;
-		dest16 = (uint16*)data;
+		dest16 = (uint16 *)data;
 		for(i = trie->indexLength; i > 0; --i) {
 			*dest16++ = (uint16)(*p++ >> UTRIE_INDEX_SHIFT);
 		}
@@ -827,7 +827,7 @@ U_CAPI int32_t U_EXPORT2 utrie_unserialize(UTrie * trie, const void * data, int3
 		*pErrorCode = U_INVALID_FORMAT_ERROR;
 		return -1;
 	}
-	p16 = (const uint16*)(header+1);
+	p16 = (const uint16 *)(header+1);
 	trie->index = p16;
 	p16 += trie->indexLength;
 	length -= 2*trie->indexLength;
@@ -894,7 +894,7 @@ U_CAPI int32_t U_EXPORT2 utrie_unserializeDummy(UTrie * trie, void * data, int32
 	trie->initialValue = initialValue;
 
 	/* fill the index and data arrays */
-	p16 = (uint16*)data;
+	p16 = (uint16 *)data;
 	trie->index = p16;
 
 	if(make16BitTrie) {

@@ -11355,7 +11355,7 @@ DBQuery * PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 	DBE    dbe_from;
 	DBE    dbe_to;
 	DBE    dbe_stock;
-	DBE    dbe_uuid; //@erik v10.4.11
+	DBE    dbe_uuid; //@erik
 	DBE    dbe_checkexpiry;
 	//DBE    dbe_checkloc; // @v11.5.8
 	THROW(CheckTblPtr(t = new VetisDocumentTbl(EC.DT.GetName())));
@@ -11442,7 +11442,36 @@ DBQuery * PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 		dbq = &(*dbq && dbe_checkloc > 0L);
 	}*/
 	// } @v11.5.8 
+	// @v12.5.1 {
 	q = &Select_(
+		t->EntityID,          // #0
+		t->Flags,             // #1
+		t->LinkBillID,        // #2
+		t->LinkBillRow,       // #3
+		t->LinkGoodsID,       // #4
+		t->FromEntityID,      // t->LinkFromPsnID,     //  #5
+		t->FromEnterpriseID,  // t->LinkFromDlvrLocID, //  #6
+		t->ToEntityID,        // t->LinkToPsnID,       //  #7
+		t->ToEnterpriseID,    // t->LinkToDlvrLocID,   //  #8
+		t->IssueDate,         // #9
+		t->OrgDocEntityID,    // #10
+		t->ExpiryFrom,        // #11 SUniTime
+		t->ExpiryTo,          // #12 SUniTime
+		0L);
+	q->addField(dbe_vetdform);     // #13 11-->13
+	q->addField(dbe_vetdtype);     // #14 12-->14
+	q->addField(dbe_vetdstatus);   // #15 13-->15
+	q->addField(t->WayBillDate);   // #16 14-->16
+	q->addField(t->WayBillNumber); // #17 15-->17
+	q->addField(dbe_product_name); // #18 16-->18
+	q->addField(t->Volume);        // #19 17-->19
+	q->addField(dbe_from);         // #20 18-->20
+	q->addField(dbe_to);           // #21 19-->21
+	q->addField(t->IssueNumber);   // #22 20-->22
+	q->addField(dbe_stock);        // #23 21-->23
+	q->addField(dbe_uuid);         // #24 //@erik
+	// } @v12.5.1 
+	/* @v12.5.1 q = &Select_(
 		t->EntityID,          // #0
 		t->Flags,             // #1
 		t->LinkBillID,        // #2
@@ -11468,7 +11497,8 @@ DBQuery * PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 		t->IssueNumber,       // #22 20-->22
 		dbe_stock,            // #23 21-->23
 		dbe_uuid,             // #24 //@erik
-		0L).from(t, 0).where(*dbq);
+		0L);*/
+	q->from(t, 0).where(*dbq);
 	CATCH
 		if(q)
 			ZDELETE(q);

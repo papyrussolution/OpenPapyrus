@@ -409,13 +409,12 @@ static int drive_compressor_independence(struct archive_write_filter * f, const 
 	outsize = LZ4_compress_limitedOutput(p, data->out + 4, (int)length, (int)data->block_size);
 #endif
 	if(outsize) {
-		/* The buffer is compressed. */
+		// The buffer is compressed
 		archive_le32enc(data->out, outsize);
 		data->out += 4;
 	}
 	else {
-		/* The buffer is not compressed. The compressed size was
-		 * bigger than its uncompressed size. */
+		// The buffer is not compressed. The compressed size was bigger than its uncompressed size
 		archive_le32enc(data->out, length | 0x80000000);
 		data->out += 4;
 		memcpy(data->out, p, length);

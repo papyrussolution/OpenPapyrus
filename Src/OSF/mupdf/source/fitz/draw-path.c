@@ -906,24 +906,22 @@ static void fz_dash_moveto(fz_context * ctx, struct sctx * s, float x, float y)
 
 static void fz_dash_lineto(fz_context * ctx, struct sctx * s, float bx, float by, int from_bezier)
 {
-	float dx, dy, d;
-	float total, used, ratio, tail;
-	float ax, ay;
-	float mx, my;
-	float old_bx, old_by;
-	int n;
-	int dash_cap = s->stroke->dash_cap;
-
-	ax = s->dash_cur.x;
-	ay = s->dash_cur.y;
-	dx = bx - ax;
-	dy = by - ay;
-	used = 0;
-	tail = 0;
-	total = sqrtf(dx * dx + dy * dy);
-
-	/* If a is off screen, bring it onto the screen. First
-	 * horizontally... */
+	float  d;
+	float  ratio;
+	float  mx;
+	float  my;
+	float  old_bx;
+	float  old_by;
+	int    n;
+	int    dash_cap = s->stroke->dash_cap;
+	float  ax = s->dash_cur.x;
+	float  ay = s->dash_cur.y;
+	float  dx = bx - ax;
+	float  dy = by - ay;
+	float  used = 0.0f;
+	float  tail = 0.0f;
+	float  total = sqrtf(dx * dx + dy * dy);
+	/* If a is off screen, bring it onto the screen. First horizontally... */
 	if((d = s->rect.x0 - ax) > 0) {
 		if(bx < s->rect.x0) {
 			/* Entirely off screen */

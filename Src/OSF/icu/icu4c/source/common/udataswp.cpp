@@ -32,8 +32,8 @@ static int32_t U_CALLCONV uprv_swapArray16(const UDataSwapper * ds, const void *
 	}
 
 	/* setup and swapping */
-	p = (const uint16*)inData;
-	q = (uint16*)outData;
+	p = (const uint16 *)inData;
+	q = (uint16 *)outData;
 	count = length/2;
 	while(count>0) {
 		x = *p++;

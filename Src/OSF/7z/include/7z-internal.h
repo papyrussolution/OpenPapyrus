@@ -741,7 +741,7 @@ EXTERN_C_BEGIN
 		#endif
 	#endif
 	#ifdef MY_CPU_LE_UNALIGN
-		#define GetUi16(p) (*(const uint16*)(const void *)(p))
+		#define GetUi16(p) (*(const uint16 *)(const void *)(p))
 		#define GetUi32(p) (*(const uint32 *)(const void *)(p))
 		#define GetUi64(p) (*(const uint64*)(const void *)(p))
 		#define SetUi16(p, v) { *(uint16 *)(p) = (v); }

@@ -202,17 +202,17 @@ SString & Generator_SQL::GetType(TYPEID typ, SString & rBuf)
 				case S_CHAR:     
 					// @v12.4.10 rBuf.Cat("VARCHAR").CatParStr(_s); 
 					// @v12.5.0 rBuf.Cat("TEXT"); // @v12.4.10
-					rBuf.Cat("CHAR").CatParStr(_s).Space().Cat("CHARACTER SET utf8"); // @v12.5.0 
+					rBuf.Cat("VARCHAR").CatParStr(_s).Space().Cat("CHARACTER SET utf8"); // @v12.5.0 
 					break;
 				case S_LSTRING:  
 					// @v12.4.10 rBuf.Cat("VARCHAR").CatParStr(_s); 
 					// @v12.5.0 rBuf.Cat("TEXT"); // @v12.4.10
-					rBuf.Cat("CHAR").CatParStr(_s).Space().Cat("CHARACTER SET utf8"); // @v12.5.0 
+					rBuf.Cat("VARCHAR").CatParStr(_s).Space().Cat("CHARACTER SET utf8"); // @v12.5.0 
 					break;
 				case S_ZSTRING:  
 					// @v12.4.10 rBuf.Cat("VARCHAR").CatParStr(_s);
 					// @v12.5.0 rBuf.Cat("TEXT"); // @v12.4.10
-					rBuf.Cat("CHAR").CatParStr(_s).Space().Cat("CHARACTER SET utf8"); // @v12.5.0 
+					rBuf.Cat("VARCHAR").CatParStr(_s).Space().Cat("CHARACTER SET utf8"); // @v12.5.0 
 					break;
 				case S_INT:
 				case S_UINT:     
@@ -250,10 +250,10 @@ SString & Generator_SQL::GetType(TYPEID typ, SString & rBuf)
 					rBuf.Cat("MEDIUMTEXT"); // @v12.4.10
 					break;
 				case S_WCHAR: 
-					rBuf.Cat("NCHAR").CatParStr(_s/2); 
+					rBuf.Cat("VARCHAR").CatParStr(_s); 
 					break;
 				case S_WZSTRING: 
-					rBuf.Cat("CHAR").CatParStr(_s/2).Space().Cat("CHARACTER SET utf16"); 
+					rBuf.Cat("VARCHAR").CatParStr(_s).Space().Cat("CHARACTER SET utf16"); 
 					break;
 				case S_RAW:   rBuf.Cat("BINARY").CatParStr(_s); break;
 				case S_BLOB:  rBuf.Cat("MEDIUMBLOB"); break;

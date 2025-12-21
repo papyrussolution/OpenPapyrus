@@ -1446,7 +1446,7 @@ static void * Type_LUT8_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER*
 	if(nTabSize > 0) {
 		uint16 * PtrW, * T;
 
-		PtrW = T  = (uint16*)_cmsCalloc(self->ContextID, nTabSize, sizeof(uint16));
+		PtrW = T  = (uint16 *)_cmsCalloc(self->ContextID, nTabSize, sizeof(uint16));
 		if(T  == NULL) goto Error;
 
 		Temp = (uint8 *)_cmsMalloc(self->ContextID, nTabSize);
@@ -1690,7 +1690,7 @@ static void * Type_LUT16_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER
 	nTabSize = uipow(OutputChannels, CLUTpoints, InputChannels);
 	if(nTabSize == (uint32) -1) goto Error;
 	if(nTabSize > 0) {
-		uint16 * T  = (uint16*)_cmsCalloc(self->ContextID, nTabSize, sizeof(uint16));
+		uint16 * T  = (uint16 *)_cmsCalloc(self->ContextID, nTabSize, sizeof(uint16));
 		if(T  == NULL) 
 			goto Error;
 		if(!_cmsReadUInt16Array(io, nTabSize, T)) {

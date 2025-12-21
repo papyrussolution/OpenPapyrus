@@ -2514,7 +2514,8 @@ int CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 		while(ok < 0 && ExecView(p_dlg) == cmOK) {
 			int    r = 1;
 			int    disable_op = 0;
-			PPID   prmr_psn_id = 0, scnd_psn_id = 0;
+			PPID   prmr_psn_id = 0;
+			PPID   scnd_psn_id = 0;
 			if(p_dlg->getDTS(&psn_data) > 0) {
 				PPPsnEventPacket pack;
 				prmr_psn_id = psn_data.PrmrPsnID;
@@ -2525,7 +2526,10 @@ int CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 				pack.Rec.PrmrSCardID = psn_data.Sc.ID;
 				if(psn_obj.GetConfig().Flags & PPPersonConfig::fShowPsnImageAfterCmdAssoc) {
 					uint   pos = 0;
-					SString info, warn, buf, reg_buf;
+					SString info;
+					SString warn;
+					SString buf;
+					SString reg_buf;
 					RegisterTbl::Rec reg_rec;
 					PPPersonPacket psn_pack;
 					THROW(psn_obj.GetPacket(prmr_psn_id, &psn_pack, 0));
@@ -2623,7 +2627,8 @@ int CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 							}
 						}
 						else {
-							StrAssocArray warn_list, info_list;
+							StrAssocArray warn_list;
+							StrAssocArray info_list;
 							if(tag_obj.GetWarnList(&psn_pack.TagL, &warn_list, &info_list) > 0)
 								warn = warn_list.Get(0).Txt;
 							else if(info_list.getCount() && tag_obj.Fetch(info_list.Get(0).Id, &tag_rec) > 0)
@@ -2670,7 +2675,6 @@ int CMD_HDL_CLS(ADDPERSONEVENT)::Run(SBuffer * pParam, long cmdID, void * extraP
 			PPID   op_id = 0;
 			PPObjPsnOpKind pop_obj;
 			PPPsnEventPacket pack;
-
 			SBuffer sbuf;
 			AddPersonEventFilt filt;
 			static_cast<PPApp *>(APPL)->LastCmd = cmdID ? (cmdID + ICON_COMMAND_BIAS) : D.MenuCm;
@@ -4804,7 +4808,7 @@ IMPLEMENT_CMD_HDL_FACTORY(SOURCECODEPROCESSING);
 //
 //
 //
-class CMD_HDL_CLS(CRISTAL2SETRETAILGATEWAY) : public PPCommandHandler { // @v12.3.7
+class CMD_HDL_CLS(CRISTAL2SETRETAILGATEWAY) : public PPCommandHandler { // @v12.3.7 // @cancelled
 public:
 	CMD_HDL_CLS(CRISTAL2SETRETAILGATEWAY)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
@@ -4812,6 +4816,7 @@ public:
 	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
+		/* @v12.5.1 
 		size_t preserve_offs = 0;
 		SSerializeContext sctx;
 		if(pParam) {
@@ -4829,11 +4834,13 @@ public:
 			CALLPTRMEMB(pParam, SetRdOffs(preserve_offs));
 			ok = 0;
 		ENDCATCH
+		*/
 		return ok;
 	}
 	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
+		/*
 		SSerializeContext sctx;
 		Cristal2SetRetailGateway prc;
 		Cristal2SetRetailGateway::CmdParam param;
@@ -4856,7 +4863,7 @@ public:
 					ok = PPErrorZ();
 				}
 			}
-		}
+		}*/
 		return ok;
 	}
 };
@@ -4954,7 +4961,7 @@ public:
 			
 		}
 		ok = PPView::Execute(PPVIEW_UNIFINDOBJ, p_filt, PPView::exefModeless, 0);
-		CATCHZOK
+		//CATCHZOK
 		return ok;
 	}
 };
@@ -4963,52 +4970,3 @@ IMPLEMENT_CMD_HDL_FACTORY(UNIFINDOBJ);
 //
 //
 //
-#if 0 // {
-class CMD_HDL_CLS(WBPUBLICGOODS) : public PPCommandHandler { // @v12.3.9
-public:
-	CMD_HDL_CLS(WBPUBLICGOODS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
-	{
-	}
-	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
-	{
-		int    ok = -1;
-		size_t preserve_offs = 0;
-		SSerializeContext sctx;
-		if(pParam) {
-			Cristal2SetRetailGateway prc;
-			Cristal2SetRetailGateway::CmdParam param;
-			preserve_offs = pParam->GetRdOffs();
-			param.Serialize(-1, *pParam, &sctx);
-			if(prc.EditCmdParam(param) > 0) {
-				pParam->Z();
-				THROW(param.Serialize(+1, *pParam, &sctx));
-				ok = 1;
-			}
-		}
-		CATCH
-			CALLPTRMEMB(pParam, SetRdOffs(preserve_offs));
-			ok = 0;
-		ENDCATCH
-		return ok;
-	}
-	virtual int Run(SBuffer * pParam, long, void * extraPtr)
-	{
-		int    ok = -1;
-		Cristal2SetRetailGateway::CmdParam param;
-		/*
-		if(pParam && param.Read(*pParam, 0)) {
-			Cristal2SetRetailGateway prc;
-			if(!prc.Init(&param) || !prc.Run()) {
-				ok = PPErrorZ();
-			}
-		}
-		else {
-			//ok = DoSourceCodeMaintaining(0);
-		}
-		*/
-		return ok;
-	}
-};
-
-IMPLEMENT_CMD_HDL_FACTORY(WBPUBLICGOODS);
-#endif // } 0

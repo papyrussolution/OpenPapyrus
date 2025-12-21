@@ -20942,13 +20942,11 @@ static int test_xmlNodeBufGetContent()
 	int n_buffer;
 	xmlNode * cur; /* the node being read */
 	int n_cur;
-
 	for(n_buffer = 0; n_buffer < gen_nb_xmlBufferPtr; n_buffer++) {
 		for(n_cur = 0; n_cur < gen_nb_const_xmlNode_ptr; n_cur++) {
 			mem_base = xmlMemBlocks();
 			buffer = gen_xmlBufferPtr(n_buffer, 0);
 			cur = gen_const_xmlNode_ptr(n_cur, 1);
-
 			ret_val = xmlNodeBufGetContent(buffer, (const xmlNode*)cur);
 			desret_int(ret_val);
 			call_tests++;
@@ -20956,8 +20954,7 @@ static int test_xmlNodeBufGetContent()
 			des_const_xmlNode_ptr(n_cur, (const xmlNode*)cur, 1);
 			xmlResetLastError();
 			if(mem_base != xmlMemBlocks()) {
-				printf("Leak of %d blocks found in xmlNodeBufGetContent",
-				    xmlMemBlocks() - mem_base);
+				printf("Leak of %d blocks found in xmlNodeBufGetContent", xmlMemBlocks() - mem_base);
 				test_ret++;
 				printf(" %d", n_buffer);
 				printf(" %d", n_cur);
@@ -20966,13 +20963,12 @@ static int test_xmlNodeBufGetContent()
 		}
 	}
 	function_tests++;
-
 	return test_ret;
 }
 
-static int test_xmlNodeDump() {
+static int test_xmlNodeDump() 
+{
 	int test_ret = 0;
-
 #if defined(LIBXML_OUTPUT_ENABLED)
 	int mem_base;
 	int ret_val;
@@ -21009,8 +21005,7 @@ static int test_xmlNodeDump() {
 						des_int(n_format, format, 4);
 						xmlResetLastError();
 						if(mem_base != xmlMemBlocks()) {
-							printf("Leak of %d blocks found in xmlNodeDump",
-							    xmlMemBlocks() - mem_base);
+							printf("Leak of %d blocks found in xmlNodeDump", xmlMemBlocks() - mem_base);
 							test_ret++;
 							printf(" %d", n_buf);
 							printf(" %d", n_doc);

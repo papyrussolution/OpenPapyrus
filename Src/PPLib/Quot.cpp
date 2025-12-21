@@ -203,8 +203,8 @@ public:
 				gcp.GoodsID = 1;
 				gcp.LocID = 1;
 				gcp.ArID = 0;
-				gcp.Cost = 1.0; // @v10.7.3
-				gcp.Price = 1.5; // @v10.7.3
+				gcp.Cost = 1.0;
+				gcp.Price = 1.5;
 				gcp.Flags |= (gcp.fCostSettled|gcp.fPriceSettled);
 				GoodsContext gctx(gcp);
 				THROW(PPExprParser::CalcExpression(temp_buf, &_val, 0, &gctx));
@@ -333,7 +333,6 @@ IMPL_HANDLE_EVENT(QuotUpdDialog)
 		disableCtrl(CTL_QUOTUPD_PCT, !oneof3(Data.ByWhat, QuotUpdFilt::byAbsVal, QuotUpdFilt::byPctVal, QuotUpdFilt::byFormula));
 		enableCommand(cmQuotUpdSetQuot, Data.ByWhat == QuotUpdFilt::byAbsVal);
 	}
-	// @v10.4.12 {
 	else if(event.isCbSelected(CTLSEL_QUOTUPD_KIND)) {
 		PPID   qk_id = getCtrlLong(CTLSEL_QUOTUPD_KIND);
 		if(qk_id != Data.QuotKindID) {
@@ -350,7 +349,6 @@ IMPL_HANDLE_EVENT(QuotUpdDialog)
 			}
 		}
 	}
-	// } @v10.4.12 
 	else if(event.isCmd(cmAdvOptions)) {
 		if(!editAdvOptions())
 			PPError();
@@ -711,7 +709,6 @@ static int SetupQuotList(const QuotUpdFilt & rFilt, PPID locID, PPID goodsID, PP
 						gcp.GoodsID = goodsID;
 						gcp.LocID = locID;
 						gcp.ArID = ar_id;
-						// @v10.7.3 {
 						{
 							ReceiptTbl::Rec lot_rec;
 							r = ::GetCurGoodsPrice(goodsID, locID, GPRET_MOSTRECENT, &price, &lot_rec);
@@ -721,7 +718,6 @@ static int SetupQuotList(const QuotUpdFilt & rFilt, PPID locID, PPID goodsID, PP
 							}
 							gcp.Flags |= (gcp.fCostSettled|gcp.fPriceSettled);
 						}
-						// } @v10.7.3 
 						GoodsContext gctx(gcp);
 						THROW(PPExprParser::CalcExpression(rFilt.Formula, &qval, 0, &gctx));
 					}
@@ -787,7 +783,7 @@ static int SetupQuotList(const QuotUpdFilt & rFilt, PPID locID, PPID goodsID, PP
 							p_quot->ArID == ar_id && !p_quot->IsRelative() && rFilt.IsQuotSuitesToAdvOpt(*p_quot)) {
 							if(!(rFilt.Flags & QuotUpdFilt::fSkipDatedQuot) || p_quot->Period.IsZero()) {
 								if(p_dest_list == pList) {
-									p_quot->Quot = PPObjQuotKind::RoundUpPrice(qk_id, p_quot->Quot * (1.0 + rFilt.QuotVal / 100.0)); // @v10.9.11 QuotKindRounding
+									p_quot->Quot = PPObjQuotKind::RoundUpPrice(qk_id, p_quot->Quot * (1.0 + rFilt.QuotVal / 100.0));
 								}
 								else {
 									PPQuot upd_q = *p_quot;
@@ -1171,7 +1167,7 @@ int UpdateQuots(const QuotUpdFilt * pFilt)
 		}
 		PPWaitStop();
 		// @erik v10.5.8 {
-		if(ok && flt.Flags & QuotUpdFilt::fTest && CConfig.Flags2 & CCFLG2_DEVELOPMENT) { // @v10.5.9 CConfig.Flags2 & CCFLG2_DEVELOPMENT
+		if(ok && flt.Flags & QuotUpdFilt::fTest && CConfig.Flags2 & CCFLG2_DEVELOPMENT) {
 			if(RollbackQuots(&date_time_test)) {
 				qc2_test.DumpCurrent(buf_after_test, qc2_test.dumpfIgnoreTimestamp, &items_count_after_test);
 				THROW(buf_after_test.IsEq(buf_before_test));

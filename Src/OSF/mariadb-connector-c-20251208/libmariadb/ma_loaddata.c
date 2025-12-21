@@ -59,7 +59,7 @@ static int mysql_local_infile_init(void ** ptr, const char * filename, void * us
 	MYSQL * mysql = (MYSQL*)userdata;
 	info = (MYSQL_INFILE_INFO*)SAlloc::M(sizeof(MYSQL_INFILE_INFO));
 	if(!info) {
-		return(1);
+		return 1;
 	}
 	memzero(info, sizeof(MYSQL_INFILE_INFO));
 	*ptr = info;
@@ -76,10 +76,10 @@ static int mysql_local_infile_init(void ** ptr, const char * filename, void * us
 			snprintf((char*)info->error_msg, sizeof(info->error_msg),
 			    CER(CR_FILE_NOT_FOUND), filename, info->error_no);
 		}
-		return(1);
+		return 1;
 	}
 
-	return(0);
+	return 0;
 }
 
 /* }}} */

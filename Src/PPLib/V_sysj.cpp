@@ -684,7 +684,22 @@ DBQuery * PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 		dbq = ppcheckweekday(dbq, sj->Dt, Filt.DayOfWeek);
 		if(Filt.BegTm)
 			dbq = & (*dbq && sj->Tm >= static_cast<long>(Filt.BegTm));
+		// @v12.5.1 {
 		q = & Select_(
+			sj->ObjType,  // #0
+			sj->ObjID,    // #1
+			0L);
+		q->addField(*dbe_extra);   // #2
+		q->addField(sj->Action);   // #3
+		q->addField(sj->Dt);       // #4
+		q->addField(sj->Tm);       // #5
+		q->addField(dbe_user);     // #6
+		q->addField(dbe_action);   // #7
+		q->addField(sj->Extra);    // #8
+		q->addField(dbe_objtitle); // #9
+		q->addField(dbe_person);   // #10
+		// } @v12.5.1 
+		/* @v12.5.1 q = & Select_(
 			sj->ObjType,  // #0
 			sj->ObjID,    // #1
 			*dbe_extra,   // #2
@@ -696,7 +711,7 @@ DBQuery * PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 			sj->Extra,    // #8
 			dbe_objtitle, // #9
 			dbe_person,   // #10
-			0L);
+			0L);*/
 		{
 			dbe_objname.init();
 			dbe_evvertext.init();

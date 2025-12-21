@@ -832,10 +832,17 @@ static void svg_parse_viewbox(fz_context * ctx, svg_document * doc, fz_xml * nod
 	char * preserve_att = fz_xml_att(node, "preserveAspectRatio");
 	if(viewbox_att) {
 		/* scale and translate to fit [minx miny minx+w miny+h] to [0 0 viewport.w viewport.h] */
-		float min_x, min_y, box_w, box_h, sx, sy;
-		int align_x = 1, align_y = 1, preserve = 1;
-		float pad_x = 0, pad_y = 0;
-
+		float  min_x;
+		float  min_y;
+		float  box_w;
+		float  box_h;
+		float  sx;
+		float  sy;
+		int    align_x = 1;
+		int    align_y = 1;
+		int    preserve = 1;
+		float  pad_x = 0;
+		float  pad_y = 0;
 		svg_lex_viewbox(viewbox_att, &min_x, &min_y, &box_w, &box_h);
 		sx = state->viewport_w / box_w;
 		sy = state->viewport_h / box_h;
@@ -1437,7 +1444,7 @@ void svg_parse_document_bounds(fz_context * ctx, svg_document * doc, fz_xml * ro
 	char * w_att;
 	char * h_att;
 	char * viewbox_att;
-	int version;
+	int    version;
 	if(!fz_xml_is_tag(root, "svg"))
 		fz_throw(ctx, FZ_ERROR_GENERIC, "expected svg element (found %s)", fz_xml_tag(root));
 	version_att = fz_xml_att(root, "version");
@@ -1451,7 +1458,10 @@ void svg_parse_document_bounds(fz_context * ctx, svg_document * doc, fz_xml * ro
 		fz_warn(ctx, "svg document version is newer than we support");
 	/* If no width or height attributes, then guess from the viewbox */
 	if(w_att == NULL && h_att == NULL && viewbox_att != NULL) {
-		float min_x, min_y, box_w, box_h;
+		float  min_x;
+		float  min_y;
+		float  box_w;
+		float  box_h;
 		svg_lex_viewbox(viewbox_att, &min_x, &min_y, &box_w, &box_h);
 		doc->width = box_w;
 		doc->height = box_h;

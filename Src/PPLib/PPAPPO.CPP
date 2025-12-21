@@ -763,8 +763,9 @@ int PPApp::processCommand(uint cmd)
 		case cmImportGoodsGrp:        Import(PPOBJ_GOODSGROUP);          break;
 		case cmImportGoodsOld:        Import(PPOBJ_GOODS, 1);            break;
 		case cmImportGoods:           Import(PPOBJ_GOODS);               break;
+		// @v12.5.1 начиная с этого релиза cmImportQuot2 и cmImportQuot ведут себя одинаково (старый вариант импорта упразднен)
 		case cmImportQuot:            Import(PPOBJ_QUOT, 1);             break;
-		case cmImportQuot2:           Import(PPOBJ_QUOT);                break;
+		case cmImportQuot2:           Import(PPOBJ_QUOT);                break; 
 		case cmImportPerson:          Import(PPOBJ_PERSON, 0);           break;
 		case cmImportPerson2:         PPObjPerson().Import();            break;
 		case cmImportSuppl:           Import(PPOBJ_PERSON, PPPRK_SUPPL); break;

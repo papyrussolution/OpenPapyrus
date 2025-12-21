@@ -837,7 +837,7 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 		const double _fiscal = (PPConst::Flags & PPConst::fDoSeparateNonFiscalCcItems) ? real_fiscal : (real_fiscal + real_nonfiscal);
 		const CcAmountList & r_al = pPack->AL_Const();
 		const bool   is_al = LOGIC(r_al.getCount());
-		const bool   is_vat_free = (CnObj.IsVatFree(NodeID) > 0); // @v11.2.11
+		const bool   is_vat_free = (CnObj.IsNodeVatFree(NodeID) > 0); // @v11.2.11
 		const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? _fiscal : 0.0);
 		const double amt_cash = (PPConst::Flags & PPConst::fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
 		const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal);

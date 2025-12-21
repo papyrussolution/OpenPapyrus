@@ -61,8 +61,6 @@ public:
 	int    IsLarge;
 };
 
-// @v10.7.10 static const _TCHAR __Days[7][3] = {_T("Пн"), _T("Вт"), _T("Ср"), _T("Чт"), _T("Пт"), _T("Сб"), _T("Вс") };
-
 class TDateCalendar : public TCalendar {
 public:
 	static INT_PTR CALLBACK CalendarDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam); // @callback(DLGPROC)
@@ -248,20 +246,17 @@ void TCalendar::Normalize()
 
 void TCalendar::SetupCalendar()
 {
-	//RowCount = 2;
-	int    i, j, count = 1;
-	//_TCHAR s[3], t[3];
+	int    i;
+	int    j;
+	int    count = 1;
 	SString temp_buf;
-	SStringU temp_buf_u; // @v10.7.10
-	static const char * p_wd_symb[] = { "monday_s", "tuesday_s", "wednesday_s", "thursday_s", "friday_s", "saturday_s", "sunday_s" }; // @v10.7.10
-	STATIC_ASSERT(SIZEOFARRAY(p_wd_symb) == 7); // @v10.7.10
+	SStringU temp_buf_u;
+	static const char * p_wd_symb[] = { "monday_s", "tuesday_s", "wednesday_s", "thursday_s", "friday_s", "saturday_s", "sunday_s" };
+	STATIC_ASSERT(SIZEOFARRAY(p_wd_symb) == 7);
 	for(j = 0; j <= SIZEOFARRAY(p_wd_symb); j++) {
-		// @v10.7.10 sstrcpy(C[0][j], __Days[j]);
-		// @v10.7.10 {
 		PPLoadString(p_wd_symb[j], temp_buf);
 		temp_buf_u.CopyFromUtf8(temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 		STRNSCPY(C[0][j], temp_buf_u);
-		// } @v10.7.10 
 	}
 	for(i = 1; i <= 6; i++) {
 		for(j = 0; j <= 6; j++) {

@@ -248,7 +248,7 @@ int ACS_FRONTOL::ExportData(int updOnly)
 	FILE * p_file = 0;
 	PPObjCashNode cnobj;
 	const  int check_dig = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
-	const  int is_vatfree = (cnobj.IsVatFree(NodeID) > 0);
+	const  int is_vatfree = (cnobj.IsNodeVatFree(NodeID) > 0);
 	THROW(GetNodeData(&cn_data) > 0);
 	const int is_xpos = IsXPos(cn_data);
 	if(cn_data.DrvVerMajor > 3 || (cn_data.DrvVerMajor == 3 && cn_data.DrvVerMinor >= 4))

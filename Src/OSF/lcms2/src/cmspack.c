@@ -280,9 +280,9 @@ static uint8 * UnrollALabV2_8(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum,
 
 static uint8 * UnrollLabV2_16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
-	wIn[0] = FomLabV2ToLabV4(*(uint16*)accum); accum += 2;  // L
-	wIn[1] = FomLabV2ToLabV4(*(uint16*)accum); accum += 2;  // a
-	wIn[2] = FomLabV2ToLabV4(*(uint16*)accum); accum += 2;  // b
+	wIn[0] = FomLabV2ToLabV4(*(uint16 *)accum); accum += 2;  // L
+	wIn[1] = FomLabV2ToLabV4(*(uint16 *)accum); accum += 2;  // a
+	wIn[2] = FomLabV2ToLabV4(*(uint16 *)accum); accum += 2;  // b
 
 	return accum;
 
@@ -354,7 +354,7 @@ static uint8 * UnrollAnyWords(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum,
 
 	for(i = 0; i < nChan; i++) {
 		uint32 index = DoSwap ? (nChan - i - 1) : i;
-		uint16 v = *(uint16*)accum;
+		uint16 v = *(uint16 *)accum;
 		if(SwapEndian)
 			v = CHANGE_ENDIAN(v);
 		wIn[index] = Reverse ? REVERSE_FLAVOR_16(v) : v;
@@ -386,7 +386,7 @@ static uint8 * UnrollPlanarWords(_cmsTRANSFORM * info, uint16 wIn[], uint8 * acc
 	}
 	for(i = 0; i < nChan; i++) {
 		uint32 index = DoSwap ? (nChan - i - 1) : i;
-		uint16 v = *(uint16*)accum;
+		uint16 v = *(uint16 *)accum;
 		if(SwapEndian)
 			v = CHANGE_ENDIAN(v);
 		wIn[index] = Reverse ? REVERSE_FLAVOR_16(v) : v;
@@ -397,10 +397,10 @@ static uint8 * UnrollPlanarWords(_cmsTRANSFORM * info, uint16 wIn[], uint8 * acc
 
 static uint8 * Unroll4Words(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
-	wIn[0] = *(uint16*)accum; accum += 2; // C
-	wIn[1] = *(uint16*)accum; accum += 2; // M
-	wIn[2] = *(uint16*)accum; accum += 2; // Y
-	wIn[3] = *(uint16*)accum; accum += 2; // K
+	wIn[0] = *(uint16 *)accum; accum += 2; // C
+	wIn[1] = *(uint16 *)accum; accum += 2; // M
+	wIn[2] = *(uint16 *)accum; accum += 2; // Y
+	wIn[3] = *(uint16 *)accum; accum += 2; // K
 	return accum;
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
@@ -408,10 +408,10 @@ static uint8 * Unroll4Words(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, u
 
 static uint8 * Unroll4WordsReverse(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
-	wIn[0] = REVERSE_FLAVOR_16(*(uint16*)accum); accum += 2; // C
-	wIn[1] = REVERSE_FLAVOR_16(*(uint16*)accum); accum += 2; // M
-	wIn[2] = REVERSE_FLAVOR_16(*(uint16*)accum); accum += 2; // Y
-	wIn[3] = REVERSE_FLAVOR_16(*(uint16*)accum); accum += 2; // K
+	wIn[0] = REVERSE_FLAVOR_16(*(uint16 *)accum); accum += 2; // C
+	wIn[1] = REVERSE_FLAVOR_16(*(uint16 *)accum); accum += 2; // M
+	wIn[2] = REVERSE_FLAVOR_16(*(uint16 *)accum); accum += 2; // Y
+	wIn[3] = REVERSE_FLAVOR_16(*(uint16 *)accum); accum += 2; // K
 	return accum;
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
@@ -419,10 +419,10 @@ static uint8 * Unroll4WordsReverse(_cmsTRANSFORM * info, uint16 wIn[], uint8 * a
 
 static uint8 * Unroll4WordsSwapFirst(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
-	wIn[3] = *(uint16*)accum; accum += 2; // K
-	wIn[0] = *(uint16*)accum; accum += 2; // C
-	wIn[1] = *(uint16*)accum; accum += 2; // M
-	wIn[2] = *(uint16*)accum; accum += 2; // Y
+	wIn[3] = *(uint16 *)accum; accum += 2; // K
+	wIn[0] = *(uint16 *)accum; accum += 2; // C
+	wIn[1] = *(uint16 *)accum; accum += 2; // M
+	wIn[2] = *(uint16 *)accum; accum += 2; // Y
 	return accum;
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
@@ -431,10 +431,10 @@ static uint8 * Unroll4WordsSwapFirst(_cmsTRANSFORM * info, uint16 wIn[], uint8 *
 // KYMC
 static uint8 * Unroll4WordsSwap(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
-	wIn[3] = *(uint16*)accum; accum += 2; // K
-	wIn[2] = *(uint16*)accum; accum += 2; // Y
-	wIn[1] = *(uint16*)accum; accum += 2; // M
-	wIn[0] = *(uint16*)accum; accum += 2; // C
+	wIn[3] = *(uint16 *)accum; accum += 2; // K
+	wIn[2] = *(uint16 *)accum; accum += 2; // Y
+	wIn[1] = *(uint16 *)accum; accum += 2; // M
+	wIn[0] = *(uint16 *)accum; accum += 2; // C
 	return accum;
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
@@ -442,10 +442,10 @@ static uint8 * Unroll4WordsSwap(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accu
 
 static uint8 * Unroll4WordsSwapSwapFirst(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
-	wIn[2] = *(uint16*)accum; accum += 2; // K
-	wIn[1] = *(uint16*)accum; accum += 2; // Y
-	wIn[0] = *(uint16*)accum; accum += 2; // M
-	wIn[3] = *(uint16*)accum; accum += 2; // C
+	wIn[2] = *(uint16 *)accum; accum += 2; // K
+	wIn[1] = *(uint16 *)accum; accum += 2; // Y
+	wIn[0] = *(uint16 *)accum; accum += 2; // M
+	wIn[3] = *(uint16 *)accum; accum += 2; // C
 	return accum;
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
@@ -453,9 +453,9 @@ static uint8 * Unroll4WordsSwapSwapFirst(_cmsTRANSFORM * info, uint16 wIn[], uin
 
 static uint8 * Unroll3Words(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
-	wIn[0] = *(uint16*)accum; accum += 2; // C R
-	wIn[1] = *(uint16*)accum; accum += 2; // M G
-	wIn[2] = *(uint16*)accum; accum += 2; // Y B
+	wIn[0] = *(uint16 *)accum; accum += 2; // C R
+	wIn[1] = *(uint16 *)accum; accum += 2; // M G
+	wIn[2] = *(uint16 *)accum; accum += 2; // Y B
 
 	return accum;
 
@@ -465,9 +465,9 @@ static uint8 * Unroll3Words(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, u
 
 static uint8 * Unroll3WordsSwap(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
-	wIn[2] = *(uint16*)accum; accum += 2; // C R
-	wIn[1] = *(uint16*)accum; accum += 2; // M G
-	wIn[0] = *(uint16*)accum; accum += 2; // Y B
+	wIn[2] = *(uint16 *)accum; accum += 2; // C R
+	wIn[1] = *(uint16 *)accum; accum += 2; // M G
+	wIn[0] = *(uint16 *)accum; accum += 2; // Y B
 	return accum;
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
@@ -476,9 +476,9 @@ static uint8 * Unroll3WordsSwap(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accu
 static uint8 * Unroll3WordsSkip1Swap(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	accum += 2; // A
-	wIn[2] = *(uint16*)accum; accum += 2; // R
-	wIn[1] = *(uint16*)accum; accum += 2; // G
-	wIn[0] = *(uint16*)accum; accum += 2; // B
+	wIn[2] = *(uint16 *)accum; accum += 2; // R
+	wIn[1] = *(uint16 *)accum; accum += 2; // G
+	wIn[0] = *(uint16 *)accum; accum += 2; // B
 	return accum;
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
@@ -487,9 +487,9 @@ static uint8 * Unroll3WordsSkip1Swap(_cmsTRANSFORM * info, uint16 wIn[], uint8 *
 static uint8 * Unroll3WordsSkip1SwapFirst(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	accum += 2; // A
-	wIn[0] = *(uint16*)accum; accum += 2; // R
-	wIn[1] = *(uint16*)accum; accum += 2; // G
-	wIn[2] = *(uint16*)accum; accum += 2; // B
+	wIn[0] = *(uint16 *)accum; accum += 2; // R
+	wIn[1] = *(uint16 *)accum; accum += 2; // G
+	wIn[2] = *(uint16 *)accum; accum += 2; // B
 	return accum;
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
@@ -497,7 +497,7 @@ static uint8 * Unroll3WordsSkip1SwapFirst(_cmsTRANSFORM * info, uint16 wIn[], ui
 
 static uint8 * Unroll1Word(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
-	wIn[0] = wIn[1] = wIn[2] = *(uint16*)accum; accum += 2; // L
+	wIn[0] = wIn[1] = wIn[2] = *(uint16 *)accum; accum += 2; // L
 	return accum;
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
@@ -505,7 +505,7 @@ static uint8 * Unroll1Word(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, ui
 
 static uint8 * Unroll1WordReversed(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
-	wIn[0] = wIn[1] = wIn[2] = REVERSE_FLAVOR_16(*(uint16*)accum); accum += 2;
+	wIn[0] = wIn[1] = wIn[2] = REVERSE_FLAVOR_16(*(uint16 *)accum); accum += 2;
 	return accum;
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
@@ -513,7 +513,7 @@ static uint8 * Unroll1WordReversed(_cmsTRANSFORM * info, uint16 wIn[], uint8 * a
 
 static uint8 * Unroll1WordSkip3(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
-	wIn[0] = wIn[1] = wIn[2] = *(uint16*)accum;
+	wIn[0] = wIn[1] = wIn[2] = *(uint16 *)accum;
 	accum += 8;
 	return accum;
 	CXX_UNUSED(info);
@@ -522,8 +522,8 @@ static uint8 * Unroll1WordSkip3(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accu
 
 static uint8 * Unroll2Words(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
-	wIn[0] = *(uint16*)accum; accum += 2; // ch1
-	wIn[1] = *(uint16*)accum; accum += 2; // ch2
+	wIn[0] = *(uint16 *)accum; accum += 2; // ch1
+	wIn[1] = *(uint16 *)accum; accum += 2; // ch2
 	return accum;
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
@@ -1009,7 +1009,7 @@ static uint8 * PackAnyWords(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output,
 	uint16 v = 0;
 	uint32 i;
 
-	swap1 = (uint16*)output;
+	swap1 = (uint16 *)output;
 
 	if(ExtraFirst) {
 		output += Extra * sizeof(uint16);
@@ -1026,7 +1026,7 @@ static uint8 * PackAnyWords(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output,
 		if(Reverse)
 			v = REVERSE_FLAVOR_16(v);
 
-		*(uint16*)output = v;
+		*(uint16 *)output = v;
 
 		output += sizeof(uint16);
 	}
@@ -1096,7 +1096,7 @@ static uint8 * PackPlanarWords(_cmsTRANSFORM * info, uint16 wOut[], uint8 * outp
 		if(Reverse)
 			v =  REVERSE_FLAVOR_16(v);
 
-		*(uint16*)output = v;
+		*(uint16 *)output = v;
 		output += Stride;
 	}
 
@@ -1140,17 +1140,17 @@ static uint8 * Pack6BytesSwap(_cmsTRANSFORM * info, uint16 wOut[], uint8 * outpu
 // CMYKcm
 static uint8 * Pack6Words(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
-	*(uint16*)output = wOut[0];
+	*(uint16 *)output = wOut[0];
 	output += 2;
-	*(uint16*)output = wOut[1];
+	*(uint16 *)output = wOut[1];
 	output += 2;
-	*(uint16*)output = wOut[2];
+	*(uint16 *)output = wOut[2];
 	output += 2;
-	*(uint16*)output = wOut[3];
+	*(uint16 *)output = wOut[3];
 	output += 2;
-	*(uint16*)output = wOut[4];
+	*(uint16 *)output = wOut[4];
 	output += 2;
-	*(uint16*)output = wOut[5];
+	*(uint16 *)output = wOut[5];
 	output += 2;
 
 	return output;
@@ -1162,17 +1162,17 @@ static uint8 * Pack6Words(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, u
 // KCMYcm
 static uint8 * Pack6WordsSwap(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
-	*(uint16*)output = wOut[5];
+	*(uint16 *)output = wOut[5];
 	output += 2;
-	*(uint16*)output = wOut[4];
+	*(uint16 *)output = wOut[4];
 	output += 2;
-	*(uint16*)output = wOut[3];
+	*(uint16 *)output = wOut[3];
 	output += 2;
-	*(uint16*)output = wOut[2];
+	*(uint16 *)output = wOut[2];
 	output += 2;
-	*(uint16*)output = wOut[1];
+	*(uint16 *)output = wOut[1];
 	output += 2;
-	*(uint16*)output = wOut[0];
+	*(uint16 *)output = wOut[0];
 	output += 2;
 
 	return output;
@@ -1247,13 +1247,13 @@ static uint8 * Pack4BytesSwapSwapFirst(_cmsTRANSFORM * info, uint16 wOut[], uint
 
 static uint8 * Pack4Words(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
-	*(uint16*)output = wOut[0];
+	*(uint16 *)output = wOut[0];
 	output += 2;
-	*(uint16*)output = wOut[1];
+	*(uint16 *)output = wOut[1];
 	output += 2;
-	*(uint16*)output = wOut[2];
+	*(uint16 *)output = wOut[2];
 	output += 2;
-	*(uint16*)output = wOut[3];
+	*(uint16 *)output = wOut[3];
 	output += 2;
 
 	return output;
@@ -1264,13 +1264,13 @@ static uint8 * Pack4Words(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, u
 
 static uint8 * Pack4WordsReverse(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
-	*(uint16*)output = REVERSE_FLAVOR_16(wOut[0]);
+	*(uint16 *)output = REVERSE_FLAVOR_16(wOut[0]);
 	output += 2;
-	*(uint16*)output = REVERSE_FLAVOR_16(wOut[1]);
+	*(uint16 *)output = REVERSE_FLAVOR_16(wOut[1]);
 	output += 2;
-	*(uint16*)output = REVERSE_FLAVOR_16(wOut[2]);
+	*(uint16 *)output = REVERSE_FLAVOR_16(wOut[2]);
 	output += 2;
-	*(uint16*)output = REVERSE_FLAVOR_16(wOut[3]);
+	*(uint16 *)output = REVERSE_FLAVOR_16(wOut[3]);
 	output += 2;
 
 	return output;
@@ -1282,13 +1282,13 @@ static uint8 * Pack4WordsReverse(_cmsTRANSFORM * info, uint16 wOut[], uint8 * ou
 // ABGR
 static uint8 * Pack4WordsSwap(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
-	*(uint16*)output = wOut[3];
+	*(uint16 *)output = wOut[3];
 	output += 2;
-	*(uint16*)output = wOut[2];
+	*(uint16 *)output = wOut[2];
 	output += 2;
-	*(uint16*)output = wOut[1];
+	*(uint16 *)output = wOut[1];
 	output += 2;
-	*(uint16*)output = wOut[0];
+	*(uint16 *)output = wOut[0];
 	output += 2;
 
 	return output;
@@ -1300,13 +1300,13 @@ static uint8 * Pack4WordsSwap(_cmsTRANSFORM * info, uint16 wOut[], uint8 * outpu
 // CMYK
 static uint8 * Pack4WordsBigEndian(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
-	*(uint16*)output = CHANGE_ENDIAN(wOut[0]);
+	*(uint16 *)output = CHANGE_ENDIAN(wOut[0]);
 	output += 2;
-	*(uint16*)output = CHANGE_ENDIAN(wOut[1]);
+	*(uint16 *)output = CHANGE_ENDIAN(wOut[1]);
 	output += 2;
-	*(uint16*)output = CHANGE_ENDIAN(wOut[2]);
+	*(uint16 *)output = CHANGE_ENDIAN(wOut[2]);
 	output += 2;
-	*(uint16*)output = CHANGE_ENDIAN(wOut[3]);
+	*(uint16 *)output = CHANGE_ENDIAN(wOut[3]);
 	output += 2;
 
 	return output;
@@ -1338,11 +1338,11 @@ static uint8 * PackALabV2_8(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output,
 
 static uint8 * PackLabV2_16(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
-	*(uint16*)output = FomLabV4ToLabV2(wOut[0]);
+	*(uint16 *)output = FomLabV4ToLabV2(wOut[0]);
 	output += 2;
-	*(uint16*)output = FomLabV4ToLabV2(wOut[1]);
+	*(uint16 *)output = FomLabV4ToLabV2(wOut[1]);
 	output += 2;
-	*(uint16*)output = FomLabV4ToLabV2(wOut[2]);
+	*(uint16 *)output = FomLabV4ToLabV2(wOut[2]);
 	output += 2;
 	return output;
 	CXX_UNUSED(info);
@@ -1391,11 +1391,11 @@ static uint8 * Pack3BytesSwapOptimized(_cmsTRANSFORM * info, uint16 wOut[], uint
 
 static uint8 * Pack3Words(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
-	*(uint16*)output = wOut[0];
+	*(uint16 *)output = wOut[0];
 	output += 2;
-	*(uint16*)output = wOut[1];
+	*(uint16 *)output = wOut[1];
 	output += 2;
-	*(uint16*)output = wOut[2];
+	*(uint16 *)output = wOut[2];
 	output += 2;
 	return output;
 	CXX_UNUSED(info);
@@ -1404,11 +1404,11 @@ static uint8 * Pack3Words(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, u
 
 static uint8 * Pack3WordsSwap(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
-	*(uint16*)output = wOut[2];
+	*(uint16 *)output = wOut[2];
 	output += 2;
-	*(uint16*)output = wOut[1];
+	*(uint16 *)output = wOut[1];
 	output += 2;
-	*(uint16*)output = wOut[0];
+	*(uint16 *)output = wOut[0];
 	output += 2;
 	return output;
 	CXX_UNUSED(info);
@@ -1417,11 +1417,11 @@ static uint8 * Pack3WordsSwap(_cmsTRANSFORM * info, uint16 wOut[], uint8 * outpu
 
 static uint8 * Pack3WordsBigEndian(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
-	*(uint16*)output = CHANGE_ENDIAN(wOut[0]);
+	*(uint16 *)output = CHANGE_ENDIAN(wOut[0]);
 	output += 2;
-	*(uint16*)output = CHANGE_ENDIAN(wOut[1]);
+	*(uint16 *)output = CHANGE_ENDIAN(wOut[1]);
 	output += 2;
-	*(uint16*)output = CHANGE_ENDIAN(wOut[2]);
+	*(uint16 *)output = CHANGE_ENDIAN(wOut[2]);
 	output += 2;
 	return output;
 	CXX_UNUSED(info);
@@ -1518,11 +1518,11 @@ static uint8 * Pack3BytesAndSkip1SwapSwapFirstOptimized(_cmsTRANSFORM * info, ui
 
 static uint8 * Pack3WordsAndSkip1(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
-	*(uint16*)output = wOut[0];
+	*(uint16 *)output = wOut[0];
 	output += 2;
-	*(uint16*)output = wOut[1];
+	*(uint16 *)output = wOut[1];
 	output += 2;
-	*(uint16*)output = wOut[2];
+	*(uint16 *)output = wOut[2];
 	output += 2;
 	output += 2;
 	return output;
@@ -1533,11 +1533,11 @@ static uint8 * Pack3WordsAndSkip1(_cmsTRANSFORM * info, uint16 wOut[], uint8 * o
 static uint8 * Pack3WordsAndSkip1Swap(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	output += 2;
-	*(uint16*)output = wOut[2];
+	*(uint16 *)output = wOut[2];
 	output += 2;
-	*(uint16*)output = wOut[1];
+	*(uint16 *)output = wOut[1];
 	output += 2;
-	*(uint16*)output = wOut[0];
+	*(uint16 *)output = wOut[0];
 	output += 2;
 	return output;
 	CXX_UNUSED(info);
@@ -1547,11 +1547,11 @@ static uint8 * Pack3WordsAndSkip1Swap(_cmsTRANSFORM * info, uint16 wOut[], uint8
 static uint8 * Pack3WordsAndSkip1SwapFirst(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	output += 2;
-	*(uint16*)output = wOut[0];
+	*(uint16 *)output = wOut[0];
 	output += 2;
-	*(uint16*)output = wOut[1];
+	*(uint16 *)output = wOut[1];
 	output += 2;
-	*(uint16*)output = wOut[2];
+	*(uint16 *)output = wOut[2];
 	output += 2;
 	return output;
 	CXX_UNUSED(info);
@@ -1560,11 +1560,11 @@ static uint8 * Pack3WordsAndSkip1SwapFirst(_cmsTRANSFORM * info, uint16 wOut[], 
 
 static uint8 * Pack3WordsAndSkip1SwapSwapFirst(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
-	*(uint16*)output = wOut[2];
+	*(uint16 *)output = wOut[2];
 	output += 2;
-	*(uint16*)output = wOut[1];
+	*(uint16 *)output = wOut[1];
 	output += 2;
-	*(uint16*)output = wOut[0];
+	*(uint16 *)output = wOut[0];
 	output += 2;
 	output += 2;
 	return output;
@@ -1608,7 +1608,7 @@ static uint8 * Pack1ByteSkip1SwapFirst(_cmsTRANSFORM * info, uint16 wOut[], uint
 
 static uint8 * Pack1Word(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
-	*(uint16*)output = wOut[0];
+	*(uint16 *)output = wOut[0];
 	output += 2;
 	return output;
 	CXX_UNUSED(info);
@@ -1617,7 +1617,7 @@ static uint8 * Pack1Word(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, ui
 
 static uint8 * Pack1WordReversed(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
-	*(uint16*)output = REVERSE_FLAVOR_16(wOut[0]);
+	*(uint16 *)output = REVERSE_FLAVOR_16(wOut[0]);
 	output += 2;
 	return output;
 	CXX_UNUSED(info);
@@ -1626,7 +1626,7 @@ static uint8 * Pack1WordReversed(_cmsTRANSFORM * info, uint16 wOut[], uint8 * ou
 
 static uint8 * Pack1WordBigEndian(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
-	*(uint16*)output = CHANGE_ENDIAN(wOut[0]);
+	*(uint16 *)output = CHANGE_ENDIAN(wOut[0]);
 	output += 2;
 	return output;
 	CXX_UNUSED(info);
@@ -1635,7 +1635,7 @@ static uint8 * Pack1WordBigEndian(_cmsTRANSFORM * info, uint16 wOut[], uint8 * o
 
 static uint8 * Pack1WordSkip1(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
-	*(uint16*)output = wOut[0];
+	*(uint16 *)output = wOut[0];
 	output += 4;
 	return output;
 	CXX_UNUSED(info);
@@ -1645,7 +1645,7 @@ static uint8 * Pack1WordSkip1(_cmsTRANSFORM * info, uint16 wOut[], uint8 * outpu
 static uint8 * Pack1WordSkip1SwapFirst(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	output += 2;
-	*(uint16*)output = wOut[0];
+	*(uint16 *)output = wOut[0];
 	output += 2;
 	return output;
 	CXX_UNUSED(info);
@@ -2004,9 +2004,9 @@ static uint8 * UnrollHalfTo16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum,
 		uint32 index = DoSwap ? (nChan - i - 1) : i;
 
 		if(Planar)
-			v = _cmsHalf2Float( ((uint16*)accum)[(i + start) * Stride]);
+			v = _cmsHalf2Float( ((uint16 *)accum)[(i + start) * Stride]);
 		else
-			v = _cmsHalf2Float( ((uint16*)accum)[i + start]);
+			v = _cmsHalf2Float( ((uint16 *)accum)[i + start]);
 
 		if(Reverse) v = maximum - v;
 
@@ -2045,9 +2045,9 @@ static uint8 * UnrollHalfToFloat(_cmsTRANSFORM * info, float wIn[], uint8 * accu
 	for(i = 0; i < nChan; i++) {
 		uint32 index = DoSwap ? (nChan - i - 1) : i;
 		if(Planar)
-			v =  _cmsHalf2Float( ((uint16*)accum)[(i + start) * Stride]);
+			v =  _cmsHalf2Float( ((uint16 *)accum)[(i + start) * Stride]);
 		else
-			v =  _cmsHalf2Float( ((uint16*)accum)[i + start]);
+			v =  _cmsHalf2Float( ((uint16 *)accum)[i + start]);
 		v /= maximum;
 		wIn[index] = Reverse ? 1 - v : v;
 	}
@@ -2073,7 +2073,7 @@ static uint8 * PackHalfFrom16(_cmsTRANSFORM * info, uint16 wOut[], uint8 * outpu
 	uint32 ExtraFirst = DoSwap ^ SwapFirst;
 	float maximum = IsInkSpace(info->OutputFormat) ? 655.35F : 65535.0F;
 	float v = 0;
-	uint16* swap1 = (uint16*)output;
+	uint16* swap1 = (uint16 *)output;
 	uint32 i, start = 0;
 	Stride /= PixelSize(info->OutputFormat);
 	if(ExtraFirst)
@@ -2084,9 +2084,9 @@ static uint8 * PackHalfFrom16(_cmsTRANSFORM * info, uint16 wOut[], uint8 * outpu
 		if(Reverse)
 			v = maximum - v;
 		if(Planar)
-			((uint16*)output)[(i + start) * Stride] = _cmsFloat2Half(v);
+			((uint16 *)output)[(i + start) * Stride] = _cmsFloat2Half(v);
 		else
-			((uint16*)output)[i + start] = _cmsFloat2Half(v);
+			((uint16 *)output)[i + start] = _cmsFloat2Half(v);
 	}
 	if(Extra == 0 && SwapFirst) {
 		memmove(swap1 + 1, swap1, (nChan - 1)* sizeof(uint16));
@@ -2108,7 +2108,7 @@ static uint8 * PackHalfFromFloat(_cmsTRANSFORM * info, float wOut[], uint8 * out
 	uint32 Planar     = T_PLANAR(info->OutputFormat);
 	uint32 ExtraFirst = DoSwap ^ SwapFirst;
 	float maximum = IsInkSpace(info->OutputFormat) ? 100.0F : 1.0F;
-	uint16* swap1 = (uint16*)output;
+	uint16* swap1 = (uint16 *)output;
 	float v = 0;
 	uint32 i, start = 0;
 	Stride /= PixelSize(info->OutputFormat);
@@ -2120,9 +2120,9 @@ static uint8 * PackHalfFromFloat(_cmsTRANSFORM * info, float wOut[], uint8 * out
 		if(Reverse)
 			v = maximum - v;
 		if(Planar)
-			((uint16*)output)[(i + start)* Stride] = _cmsFloat2Half(v);
+			((uint16 *)output)[(i + start)* Stride] = _cmsFloat2Half(v);
 		else
-			((uint16*)output)[i + start] = _cmsFloat2Half(v);
+			((uint16 *)output)[i + start] = _cmsFloat2Half(v);
 	}
 	if(Extra == 0 && SwapFirst) {
 		memmove(swap1 + 1, swap1, (nChan - 1)* sizeof(uint16));

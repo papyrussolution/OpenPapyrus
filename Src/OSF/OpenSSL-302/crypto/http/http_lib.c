@@ -178,23 +178,21 @@ err:
 }
 
 int OSSL_HTTP_parse_url(const char * url, int * pssl, char ** puser, char ** phost,
-    char ** pport, int * pport_num,
-    char ** ppath, char ** pquery, char ** pfrag)
+    char ** pport, int * pport_num, char ** ppath, char ** pquery, char ** pfrag)
 {
-	char * scheme, * port;
-	int ssl = 0, portnum;
-
+	char * scheme;
+	char * port;
+	int    ssl = 0;
+	int    portnum;
 	init_pstring(pport);
 	if(pssl != NULL)
 		*pssl = 0;
-	if(!OSSL_parse_url(url, &scheme, puser, phost, &port, pport_num,
-	    ppath, pquery, pfrag))
+	if(!OSSL_parse_url(url, &scheme, puser, phost, &port, pport_num, ppath, pquery, pfrag))
 		return 0;
-
 	/* check for optional HTTP scheme "http[s]" */
 	if(strcmp(scheme, OSSL_HTTPS_NAME) == 0) {
 		ssl = 1;
-		if(pssl != NULL)
+		if(pssl)
 			*pssl = ssl;
 	}
 	else if(*scheme != '\0' && strcmp(scheme, OSSL_HTTP_NAME) != 0) {
@@ -207,15 +205,17 @@ int OSSL_HTTP_parse_url(const char * url, int * pssl, char ** puser, char ** pho
 	if(strcmp(port, "0") == 0) {
 		/* set default port */
 		OPENSSL_free(port);
-		port = ssl ? OSSL_HTTPS_PORT : OSSL_HTTP_PORT;
-		if(!ossl_assert(sscanf(port, "%d", &portnum) == 1))
-			goto err;
-		if(pport_num != NULL)
-			*pport_num = portnum;
-		if(pport != NULL) {
-			*pport = OPENSSL_strdup(port);
-			if(*pport == NULL)
+		{
+			const char * port_c = ssl ? OSSL_HTTPS_PORT : OSSL_HTTP_PORT;
+			if(!ossl_assert(sscanf(port_c, "%d", &portnum) == 1))
 				goto err;
+			if(pport_num != NULL)
+				*pport_num = portnum;
+			if(pport != NULL) {
+				*pport = OPENSSL_strdup(port_c);
+				if(*pport == NULL)
+					goto err;
+			}
 		}
 	}
 	else {

@@ -13148,7 +13148,7 @@ xmlDoc * xmlCtxtReadFile(xmlParserCtxt * ctxt, const char * filename, const char
  *
  * Returns the resulting document tree
  */
-xmlDoc * xmlCtxtReadMemory(xmlParserCtxt * ctxt, const char * buffer, int size, const char * URL, const char * encoding, int options)
+xmlDoc * xmlCtxtReadMemory(xmlParserCtxt * ctxt, const char * buffer, ssize_t size, const char * URL, const char * encoding, int options)
 {
 	xmlDoc * p_result = 0;
 	if(ctxt && buffer) {

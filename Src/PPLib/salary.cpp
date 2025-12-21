@@ -724,7 +724,19 @@ DBQuery * PPViewSalary::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			PPDbqFuncPool::InitObjNameFunc(dbe_psn,    PPDbqFuncPool::IdObjNamePerson, p_tmp->PersonID);
 			PPDbqFuncPool::InitObjNameFunc(dbe_charge, PPDbqFuncPool::IdObjNameSalCharge, p_tmp->SalChargeID);
 			PPDbqFuncPool::InitObjNameFunc(dbe_bill,   PPDbqFuncPool::IdObjCodeBillCmplx, p_tmp->GenBillID);
+			// @v12.5.1 {
 			q = & Select_(
+				p_tmp->ID,     // #00
+				p_tmp->Beg,    // #01
+				p_tmp->End,    // #02
+				0L);
+			q->addField(dbe_psn);       // #03
+			q->addField(dbe_staff);     // #04
+			q->addField(dbe_charge);    // #05
+			q->addField(p_tmp->Amount); // #06
+			q->addField(dbe_bill);      // #07
+			// } @v12.5.1 
+			/*q = & Select_(
 				p_tmp->ID,     // #00
 				p_tmp->Beg,    // #01
 				p_tmp->End,    // #02
@@ -733,7 +745,8 @@ DBQuery * PPViewSalary::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				dbe_charge,    // #05
 				p_tmp->Amount, // #06
 				dbe_bill,      // #07
-				0L).from(p_tmp, 0).orderBy(p_tmp->Beg, 0L);
+				0L);*/
+			q->from(p_tmp, 0).orderBy(p_tmp->Beg, 0L);
 		}
 		else {
 			THROW_MEM(p_slr = new SalaryTbl);
@@ -746,7 +759,19 @@ DBQuery * PPViewSalary::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			dbq = ppcheckfiltid(dbq, p_slr->PostID, Filt.PostID);
 			dbq = ppcheckfiltid(dbq, p_slr->SalChargeID, Filt.SalChargeID);
 			dbq = & (*dbq && daterange(p_slr->Beg, &Filt.Period));
+			// @v12.5.1 {
 			q = & Select_(
+				p_slr->ID,     // #00
+				p_slr->Beg,    // #01
+				p_slr->End,    // #02
+				0L);
+			q->addField(dbe_psn);       // #03
+			q->addField(dbe_staff);     // #04
+			q->addField(dbe_charge);    // #05
+			q->addField(p_slr->Amount); // #06
+			q->addField(dbe_bill);      // #07
+			// } @v12.5.1 
+			/*q = & Select_(
 				p_slr->ID,     // #00
 				p_slr->Beg,    // #01
 				p_slr->End,    // #02
@@ -755,7 +780,8 @@ DBQuery * PPViewSalary::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				dbe_charge,    // #05
 				p_slr->Amount, // #06
 				dbe_bill,      // #07
-				0L).from(p_slr, p_pp, 0).where(*dbq).orderBy(p_slr->Beg, 0L);
+				0L);*/
+			q->from(p_slr, p_pp, 0).where(*dbq).orderBy(p_slr->Beg, 0L);
 		}
 	}
 	CATCH

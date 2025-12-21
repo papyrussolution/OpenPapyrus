@@ -61,7 +61,7 @@ static size_t FSE_buildDTable_internal(FSE_DTable* dt, const short* normalizedCo
 {
 	void * const tdPtr = dt+1; /* because *dt is unsigned, 32-bits aligned on 32-bits */
 	FSE_DECODE_TYPE* const tableDecode = (FSE_DECODE_TYPE*)(tdPtr);
-	uint16* symbolNext = (uint16*)workSpace;
+	uint16* symbolNext = (uint16 *)workSpace;
 	BYTE * spread = (BYTE *)(symbolNext + maxSymbolValue + 1);
 	const uint32 maxSV1 = maxSymbolValue + 1;
 	const uint32 tableSize = 1 << tableLog;

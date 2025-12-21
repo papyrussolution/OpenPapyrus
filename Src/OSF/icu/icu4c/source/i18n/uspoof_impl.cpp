@@ -656,7 +656,7 @@ void SpoofData::initPtrs(UErrorCode & status)
 		fCFUKeys = (int32_t*)((char *)fRawData + fRawData->fCFUKeys);
 	}
 	if(fRawData->fCFUStringIndex != 0) {
-		fCFUValues = (uint16*)((char *)fRawData + fRawData->fCFUStringIndex);
+		fCFUValues = (uint16 *)((char *)fRawData + fRawData->fCFUStringIndex);
 	}
 	if(fRawData->fCFUStringTable != 0) {
 		fCFUStrings = (char16_t *)((char *)fRawData + fRawData->fCFUStringTable);

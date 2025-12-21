@@ -13,12 +13,14 @@
 
 int FASTCALL cmp_long(long a, long b)    { return COMPARE(a, b); }
 int FASTCALL cmp_ulong(ulong a, ulong b) { return COMPARE(a, b); }
+int FASTCALL cmp_size_t(size_t a, size_t b) { return COMPARE(a, b); } // @v12.5.1
 int FASTCALL cmp_int64(int64 a, int64 b) { return COMPARE(a, b); }
 int FASTCALL cmp_double(double a, double b) { return COMPARE(a, b); }
 IMPL_CMPFUNC(PcharNoCase, i1, i2) { return stricmp866(static_cast<const char *>(i1), static_cast<const char *>(i2)); }
 IMPL_CMPFUNC(Pchar, i1, i2) { return strcmp(static_cast<const char *>(i1), static_cast<const char *>(i2)); }
 IMPL_CMPFUNC(int,   i1, i2) { return COMPARE(*static_cast<const int *>(i1), *static_cast<const int *>(i2)); }
 IMPL_CMPFUNC(int16, i1, i2) { return COMPARE(*static_cast<const int16 *>(i1), *static_cast<const int16 *>(i2)); }
+IMPL_CMPFUNC(uint16, i1, i2) { return COMPARE(*static_cast<const uint16 *>(i1), *static_cast<const uint16 *>(i2)); } // @v12.5.1
 IMPL_CMPFUNC(long,  i1, i2) { return COMPARE(*static_cast<const long *>(i1), *static_cast<const long *>(i2)); }
 IMPL_CMPFUNC(int64, i1, i2) { return COMPARE(*static_cast<const int64 *>(i1), *static_cast<const int64 *>(i2)); }
 IMPL_CMPFUNC(uint64, i1, i2) { return COMPARE(*static_cast<const uint64 *>(i1), *static_cast<const uint64 *>(i2)); } // @v12.3.9

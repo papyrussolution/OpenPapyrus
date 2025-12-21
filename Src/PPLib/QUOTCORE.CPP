@@ -3394,11 +3394,9 @@ int Quotation2Core::DumpCurrent(SBuffer & rBuf, long flags, int64 * pItemsCount)
 			k2.RelID = rel_id;
 			for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 				RecToQuotRel(&data, quot);
-				// @v10.5.8 {
 				if(flags & dumpfIgnoreTimestamp) {
 					quot.Dtm.Z();
 				}
-				// } @v10.5.8 
 				THROW(qilist.Add(quot));
 			}
 		}

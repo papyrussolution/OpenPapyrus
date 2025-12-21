@@ -178,12 +178,12 @@ int SCardCore::UpdateDiscount(PPID id, double discount, int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(SearchByID_ForUpdate(this, PPOBJ_SCARD, id, &rec) > 0 && rec.PDis != new_dis) {
-			const long org_pdis = rec.PDis; // @v10.5.10
+			const long org_pdis = rec.PDis;
 			rec.PDis = new_dis;
 			rec.Flags &= ~SCRDF_INHERITED;
 			THROW_DB(updateRecBuf(&rec)); // @sfu
 			DS.LogAction(PPACN_OBJUPD, PPOBJ_SCARD, id, 0, 0);
-			DS.LogAction(PPACN_SCARDDISUPD, PPOBJ_SCARD, id, org_pdis, 0); // @v10.5.10 @fix 0-->org_pdis
+			DS.LogAction(PPACN_SCARDDISUPD, PPOBJ_SCARD, id, org_pdis, 0);
 		}
 		THROW(tra.Commit());
 	}

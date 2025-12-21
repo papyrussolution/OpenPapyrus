@@ -5960,10 +5960,11 @@
 	#define CTLSEL_BHTRCV_DINTRLOC       (4 + WINDOWS_ID_BIAS)
 #define DLG_BILLFLT_DRAFT         528 // Фильтр по драфт-документам
 	// CTL_BILLFLT_XXX
-#define DLG_SCARDSER              529 // Серия пластиковых карточек
+#define DLG_SCARDSER              529 // Серия персональных карт
 	#define cmSCardRule                  101
 	#define cmCCheckRule                 102
 	#define cmBonusRule                  103
+	#define cmRestrictions               104 // @v12.5.1
 	#define CTL_SCARDSER_NAME            (1 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDSER_ID              (2 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDSER_CODETEMPL       (3 + WINDOWS_ID_BIAS)
@@ -5994,6 +5995,7 @@
 	#define CTL_SCARDSER_RPDEST          (30 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SCARDSER_RPDEST       (31 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDSER_FIXBON          (32 + WINDOWS_ID_BIAS)
+	#define CTL_SCARDSER_RESTRICTIONS    (33 + WINDOWS_ID_BIAS) // @v12.5.1 cmRestrictions
 #define DLG_SCARD                 530 // Персональная карта
 	#define cmNotifyOptions              101
 	#define cmSCardAction1               102
@@ -6031,6 +6033,7 @@
 	#define CTL_SCARD_FIXBON             (31 + WINDOWS_ID_BIAS)
 	#define CTL_SCARD_OUTERID            (32 + WINDOWS_ID_BIAS)
 	#define CTLBUT_SCARD_AUTOCROWNER     (33 + WINDOWS_ID_BIAS) // @v11.6.3 button cmAutoCreateOwner
+	#define CTL_SCARD_DOW                (34 + WINDOWS_ID_BIAS) // @v12.5.1 Дни недели, когда карта действительна
 #define DLG_SCARDFLT              531 // F_SCARD Фильтр по пластиковым карточкам
 	#define cmExcludeOwnerScFilt         101
 	#define CTL_SCARDFLT_SERIES          (1 + WINDOWS_ID_BIAS)
@@ -11919,6 +11922,9 @@
 	#define CTL_CORRECT12304_PERIOD             (3 + WINDOWS_ID_BIAS)
 	#define CTLCAL_CORRECT12304_PERIOD          (4 + WINDOWS_ID_BIAS)
 	#define CTL_CORRECT12304_FLAGS              (5 + WINDOWS_ID_BIAS)
+#define DLG_SCARDSERRESTR         1588 // @v12.5.1 Ограничения для серии персональных карт
+	#define CTL_SCARDSERRESTR_USAGETM           (1 + WINDOWS_ID_BIAS)
+	#define CTL_SCARDSERRESTR_DOW               (2 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

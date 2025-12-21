@@ -886,7 +886,7 @@ int PasswordDialog(uint dlgID, char * pBuf, size_t pwSize, size_t minLen, int wi
 			if(stricmp866(b1, b2) != 0)
 				PPError(PPERR_PASSNOTIDENT, 0);
 			else if(minLen && sstrlen(b1) < minLen)
-				PPError(PPERR_PASSMINLEN, itoa(minLen, b2, 10));
+				PPError(PPERR_PASSMINLEN, itoa(static_cast<int>(minLen), b2, 10));
 			else {
 				valid_data = 1;
 				if(withoutEncrypt)
@@ -8730,10 +8730,11 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 				case UiItemKind::kPushbutton:
 					if(stage == insertctrlstageMain) {
 						TRect rc;
-						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
+						const  uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
 						uint32 cmd_id = 0;
 						uint   spc_flags = 0;
 						SString cmd_symb;
+						SString img_symb; // @v12.5.1 
 						rCtx.GetConst_Uint32(p_scope, DlScope::cuifCtrlCmd, cmd_id); // uint32 ИД команды кнопки
 						rCtx.GetConst_String(p_scope, DlScope::cuifCtrlCmdSymb, cmd_symb); // string Символ команды кнопки
 						rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, ctl_text);
@@ -8745,6 +8746,18 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						if(ui_flags & UiItemKind::fTabStop) {
 							p_ctl->setState(sfTabStop, true);
 						}
+						// @v12.5.1 {
+						{
+							rCtx.GetConst_String(p_scope, DlScope::cuifImageSymb, img_symb);
+							if(img_symb.NotEmpty()) {
+								const TWhatmanToolArray & r_dv_tool_list = DS.GetVectorTools();
+								TWhatmanToolArray::Item _item;
+								if(r_dv_tool_list.GetBySymb(img_symb, &_item) > 0) {
+									p_ctl->SetBitmap(_item.Id);	
+								}
+							}
+						}
+						// } @v12.5.1 
 						pDlg->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
 						is_inserted = true;
 					}
@@ -9400,7 +9413,6 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 										SUiLayoutParam lp_button;
 										SUiLayoutParam lp_supplement_button; // @v12.4.1
 										SUiLayoutParam lp_il;
-										TRect  rc_label;
 										glp.Margin = lp.Margin;
 										lp.CopySizeXParamTo(glp);
 										// @v12.3.7 {
@@ -9433,7 +9445,44 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 										done = true;
 									}
 									else {
-										
+										// @v12.5.1 {
+										//SUiLayoutParam glp(DIREC_VERT); // Общий лейаут для всей группы
+										SUiLayoutParam /*lp_ib*/glp(DIREC_HORZ); // Лейаут для (всей) группы {поле ввода; кнопка[; supplement_button]}
+										//SUiLayoutParam lp_label;
+										SUiLayoutParam lp_button;
+										SUiLayoutParam lp_supplement_button; // @v12.4.1
+										SUiLayoutParam lp_il;
+										glp.Margin = lp.Margin;
+										lp.CopySizeXParamTo(glp);
+										// @v12.3.7 {
+										glp.SetGrowFactor(lp.GrowFactor); 
+										lp.GrowFactor = 0.0f;
+										// } @v12.3.7 
+										//lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+										//lp_label.SetFixedSizeY(FixedLabelY);
+										lp_button.SetFixedSizeX(FixedButtonX);
+										lp_button.SetFixedSizeY(FixedButtonY);
+										lp_button.ShrinkFactor = 0.0f;
+										lp_il.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+										lp_il.SetFixedSizeY(FixedInputY);
+										///*lp_ib*/glp.SetFixedSizeY(MAX(FixedInputY, FixedButtonY));
+										glp.SetFixedSizeY(MAX(FixedInputY, FixedButtonY)/*+ FixedLabelY*/);
+
+										//SUiLayout * p_lo_cb_grp = pLoParent->InsertItem(0, &glp);
+										//InsertCtrlLayout(pDlg, p_lo_cb_grp, p_lbl, lp_label);
+										SUiLayout * p_lo_ib_grp = pLoParent->InsertItem(0, &/*lp_ib*/glp);
+										InsertCtrlLayout(pDlg, p_lo_ib_grp, p_il, lp_il);
+										InsertCtrlLayout(pDlg, p_lo_ib_grp, p_cb, lp_button);
+										// @v12.4.1 {
+										if(p_supplemental_view) {
+											lp_supplement_button.SetFixedSizeX(sb_sz.x);
+											lp_supplement_button.SetFixedSizeY(sb_sz.y);
+											lp_supplement_button.ShrinkFactor = 0.0f;
+											InsertCtrlLayout(pDlg, p_lo_ib_grp, p_supplemental_view, lp_supplement_button);
+										}
+										// } @v12.4.1 
+										done = true;
+										// } @v12.5.1
 									}
 								}
 							}

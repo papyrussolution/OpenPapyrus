@@ -469,6 +469,9 @@ bool PPMarketplaceInterface_Wildberries::CategoryPool::Entry::FromJsonObj(Catego
 					}
 				}
 			}
+			else if(p_cur->Text.IsEqiAscii("rawQuery")) { // @v12.5.1
+				;
+			}
 			else {
 				assert(0); // @debug
 			}
@@ -5891,7 +5894,7 @@ int PPMarketplaceInterface_Wildberries::FindShipmentBillByOrderIdent(const char 
 		if(lot_id_list.getCount()) {
 			PPIDArray bill_id_list;
 			for(uint i = 0; i < lot_id_list.getCount(); i++) {
-				const PPID ord_lot_id = lot_id_list.get(i);
+				const  PPID ord_lot_id = lot_id_list.get(i);
 				ReceiptTbl::Rec ord_lot_rec;
 				if(p_trfr->Rcpt.Search(ord_lot_id, &ord_lot_rec) > 0) {
 					p_bobj->GetShipmByOrder(ord_lot_rec.BillID, 0/*DateRange*/, temp_list);
@@ -5901,7 +5904,7 @@ int PPMarketplaceInterface_Wildberries::FindShipmentBillByOrderIdent(const char 
 			if(bill_id_list.getCount()) {
 				bill_id_list.sortAndUndup();
 				for(uint i = 0; i < bill_id_list.getCount(); i++) {
-					const PPID bill_id = bill_id_list.get(i);
+					const  PPID bill_id = bill_id_list.get(i);
 					PPLotTagContainer ltc;
 					p_bobj->LoadRowTagListForDraft(bill_id, ltc);
 					LongArray row_idx_list;

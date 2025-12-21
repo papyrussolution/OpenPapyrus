@@ -1906,9 +1906,9 @@ void xmlAttrSerializeTxtContent(xmlBuffer * buf, xmlDoc * doc, xmlAttr * attr, c
  *
  * Returns the number of bytes written to the buffer or -1 in case of error
  */
-int xmlNodeDump(xmlBuffer * buf, xmlDoc * doc, xmlNode * cur, int level, int format)
+ssize_t xmlNodeDump(xmlBuffer * buf, xmlDoc * doc, xmlNode * cur, int level, int format)
 {
-	int ret = -1;
+	ssize_t ret = -1;
 	if(buf && cur) {
 		xmlBuf * buffer = xmlBufFromBuffer(buf);
 		if(buffer) {
@@ -1935,9 +1935,9 @@ int xmlNodeDump(xmlBuffer * buf, xmlDoc * doc, xmlNode * cur, int level, int for
  * Returns the number of bytes written to the buffer, in case of error 0
  *   is returned or @buf stores the error
  */
-size_t xmlBufNodeDump(xmlBuf * buf, xmlDoc * doc, xmlNode * cur, int level, int format)
+ssize_t xmlBufNodeDump(xmlBuf * buf, xmlDoc * doc, xmlNode * cur, int level, int format)
 {
-	int    ret = -1;
+	ssize_t ret = -1;
 	size_t use;
 	xmlOutputBuffer * outbuf;
 	int oldalloc;
@@ -1971,7 +1971,7 @@ size_t xmlBufNodeDump(xmlBuf * buf, xmlDoc * doc, xmlNode * cur, int level, int 
 			xmlNodeDumpOutput(outbuf, doc, cur, level, format, 0);
 			xmlBufSetAllocationScheme(buf, (xmlBufferAllocationScheme)oldalloc);
 			SAlloc::F(outbuf);
-			ret = xmlBufUse(buf) - use;
+			ret = (ssize_t)xmlBufUse(buf) - (ssize_t)use;
 		}
 	}
 	return ret;

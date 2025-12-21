@@ -81,7 +81,7 @@ int PPGenCashNode::SetRoundParam(const RoundParam * pParam)
 	if(pParam) {
 		if(pParam->DisRoundPrec < 0.0 || pParam->DisRoundPrec > 50.0)
 			ok = PPSetError(PPERR_INVROUNDPREC);
-		else if(pParam->AmtRoundPrec < 0.0 || pParam->AmtRoundPrec > 100.0) // @v10.5.1 (>50.0)-->(>100.0)
+		else if(pParam->AmtRoundPrec < 0.0 || pParam->AmtRoundPrec > 100.0)
 			ok = PPSetError(PPERR_INVROUNDPREC);
 		else {
 			if(pParam->DisRoundPrec != 0.0) {
@@ -968,9 +968,59 @@ int PPObjCashNode::GetTaxSystem(PPID id, LDATE dt, PPID * pTaxSysID)
 	return ok;
 }
 
-int PPObjCashNode::IsVatFree(PPID id)
+int PPObjCashNode::GetSpecialTaxEntry(PPID cnID, LDATE dt, PPGoodsTaxEntry * pGtx) // @v12.5.1
+{
+	int    ok = -1;
+	Reference * p_ref(PPRef);
+	const  LDATE _date = (dt == ZERODATE) ? getcurdate_() : dt;
+	PPGoodsTaxEntry gtx;
+	PPObjGoodsTax gtx_obj;
+	PersonTbl::Rec psn_rec;
+	LocationTbl::Rec loc_rec;
+	bool   gtx_defined = false;
+	PPID   psn_tax_grp_id = 0;
+	PPID   loc_tax_grp_id = 0;
+	PPID   loc_id = 0;
+	uint   stgf = 0;
+	const  PPID main_org_id = GetMainOrgID();
+	if(cnID) {
+        PPCashNode cn_rec;
+		if(Fetch(cnID, &cn_rec) > 0 && cn_rec.LocID) {
+			PPObjPerson psn_obj;
+			loc_id = cn_rec.LocID;
+			//
+			stgf = psn_obj.GetSpecialTaxGroup(main_org_id, cn_rec.LocID, &psn_tax_grp_id, &loc_tax_grp_id);
+			if(loc_tax_grp_id && gtx_obj.Fetch(loc_tax_grp_id, _date, 0, &gtx) > 0) {
+				gtx_defined = true;
+			}
+			else if(psn_tax_grp_id && gtx_obj.Fetch(psn_tax_grp_id, _date, 0, &gtx) > 0) {
+				gtx_defined = true;
+			}
+		}
+	}
+	if(gtx_defined) {
+		;		
+	}
+	else {
+		if(stgf & (PPObjPerson::stgrfLocIsVatFree|PPObjPerson::stgrfPersonIsVatFree))
+			gtx = PPGoodsTaxEntry::GetVatFreeEntry();
+	}
+	ASSIGN_PTR(pGtx, gtx);
+	return ok;
+}
+
+int PPObjCashNode::IsNodeVatFree(PPID id)
 {
 	int    result = -1;
+	// @v12.5.1 {
+	PPGoodsTaxEntry gtx;
+	GetSpecialTaxEntry(id, ZERODATE, &gtx);
+	double vat_rate = gtx.GetVatRate();
+	if(vat_rate == 0.0 && gtx.Flags & GTAXF_SPCVAT) {
+		result = 1;
+	}
+	// } @v12.5.1 
+	/* @v12.5.1 
 	PPObjPerson psn_obj;
 	PersonTbl::Rec psn_rec;
 	LocationTbl::Rec loc_rec;
@@ -985,7 +1035,7 @@ int PPObjCashNode::IsVatFree(PPID id)
         const  PPID main_org_id = GetMainOrgID();
         if(main_org_id && psn_obj.Fetch(main_org_id, &psn_rec) > 0 && psn_rec.Flags & PSNF_NOVATAX)
 			result = 1;
-	}
+	}*/
 	return result;
 }
 
@@ -3016,10 +3066,10 @@ int EquipConfigDialog::EditExtParams()
 			// } @v11.8.9 
 			{
 				Data.LookBackPricePeriod = getCtrlLong(sel = CTL_EQCFG_LOOKBKPRCPRD);
-				THROW_PP(checkirange(Data.LookBackPricePeriod, 0L, (365L * 2)), PPERR_USERINPUT); // @v10.8.1 365-->(365*2)
+				THROW_PP(checkirange(Data.LookBackPricePeriod, 0L, (365L * 2)), PPERR_USERINPUT);
 			}
 			{
-				const int prefix_len = sstrlen(Data.AgentPrefix);
+				const int prefix_len = sstrleni(Data.AgentPrefix);
 				THROW_PP(Data.AgentCodeLen >= 0 && (!prefix_len || prefix_len < Data.AgentCodeLen), PPERR_USERINPUT);
 			}
 			ASSIGN_PTR(pData, Data);

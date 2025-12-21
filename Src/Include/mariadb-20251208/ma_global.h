@@ -736,7 +736,7 @@ typedef uint64 my_ulonglong;
 	(((uint32)(uchar)(A)[1]) << 8) | \
 	((uint32)(uchar)(A)[0])))
 #define sint4korr(A)    (*((long*)(A)))
-#define uint2korr(A)    (*((uint16*)(A)))
+#define uint2korr(A)    (*((uint16 *)(A)))
 #if defined(HAVE_purify) && !defined(_WIN32)
 #define uint3korr(A)    (uint32)(((uint32)((uchar)(A)[0])) + \
 	(((uint32)((uchar)(A)[1])) << 8) + \
@@ -764,7 +764,7 @@ typedef uint64 my_ulonglong;
 	(((ulonglong)((uchar)(A)[5])) << 40))
 #define uint8korr(A)    (*((ulonglong*)(A)))
 #define sint8korr(A)    (*((longlong*)(A)))
-#define int2store(T, A)  *((uint16*)(T)) = (uint16)(A)
+#define int2store(T, A)  *((uint16 *)(T)) = (uint16)(A)
 #define int3store(T, A)  do { *(T) =  (uchar)((A) & 0xff); \
 			      *(T+1) = (uchar)(((uint)(A) >> 8) & 0xff); \
 			      *(T+2) = (uchar)(((A) >> 16)  & 0xff); } while(0)

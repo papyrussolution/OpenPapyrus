@@ -1258,7 +1258,7 @@ U_CAPI void U_EXPORT2 udata_getInfo(UDataMemory * pData, UDataInfo * pInfo)
 			if(pInfo->size>dataInfoSize) {
 				pInfo->size = dataInfoSize;
 			}
-			memcpy((uint16*)pInfo+1, (const uint16*)info+1, pInfo->size-2);
+			memcpy((uint16 *)pInfo+1, (const uint16 *)info+1, pInfo->size-2);
 			if(info->isBigEndian!=U_IS_BIG_ENDIAN) {
 				/* opposite endianness */
 				uint16 x = info->reservedWord;

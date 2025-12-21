@@ -166,7 +166,7 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_openFromSerialized(UTrie2ValueBits valueBits,
 	trie->name = "fromSerialized";
 #endif
 	/* set the pointers to its index and data arrays */
-	p16 = (const uint16*)(header+1);
+	p16 = (const uint16 *)(header+1);
 	trie->index = p16;
 	p16 += trie->indexLength;
 	/* get the data */
@@ -262,7 +262,7 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_openDummy(UTrie2ValueBits valueBits, uint32_t i
 	header->dataNullOffset = (uint16)dataMove;
 	header->shiftedHighStart = 0;
 	/* fill the index and data arrays */
-	dest16 = (uint16*)(header+1);
+	dest16 = (uint16 *)(header+1);
 	trie->index = dest16;
 	/* write the index-2 array values shifted right by UTRIE2_INDEX_SHIFT */
 	for(i = 0; i<UTRIE2_INDEX_2_BMP_LENGTH; ++i) {

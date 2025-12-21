@@ -1520,6 +1520,8 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 			pIter->ChZnPartN[0] = 0;
 			pIter->ChZnPm_ReqId.Z();  // @v12.1.1
 			pIter->ChZnPm_ReqTimestamp = 0; // @v12.1.1
+			pIter->ChZnPm_LocalModuleInstance.Z(); // @v12.5.1
+			pIter->ChZnPm_LocalModuleDbVer.Z();    // @v12.5.1
 			const PPSlipFormat::Zone * p_zone = pIter->P_Zone;
 			if(pIter->EntryNo < p_zone->getCountI()) {
 				const PPSlipFormat::Entry * p_entry = pIter->P_Entry = p_zone->at(pIter->EntryNo);
@@ -1644,17 +1646,18 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 									}
 									// @v12.1.1 {
 									{
-										P_CcPack->GetLineTextExt(pIter->SrcItemNo+1, CCheckPacket::lnextChZnPm_ReqId, temp_buf); 
+										const int cclnext_pos = pIter->SrcItemNo+1;
+										P_CcPack->GetLineTextExt(cclnext_pos, CCheckPacket::lnextChZnPm_ReqId, temp_buf); 
 										if(temp_buf.NotEmptyS()) {
 											pIter->ChZnPm_ReqId.FromStr(temp_buf);
-											P_CcPack->GetLineTextExt(pIter->SrcItemNo+1, CCheckPacket::lnextChZnPm_ReqTimestamp, temp_buf); 
+											P_CcPack->GetLineTextExt(cclnext_pos, CCheckPacket::lnextChZnPm_ReqTimestamp, temp_buf); 
 											if(temp_buf.NotEmptyS())
 												pIter->ChZnPm_ReqTimestamp = temp_buf.ToInt64();
 											// @v12.3.12 {
-											P_CcPack->GetLineTextExt(pIter->SrcItemNo+1, CCheckPacket::lnextChZnPm_LocalModuleInstance, temp_buf); 
+											P_CcPack->GetLineTextExt(cclnext_pos, CCheckPacket::lnextChZnPm_LocalModuleInstance, temp_buf); 
 											if(temp_buf.NotEmpty())
 												pIter->ChZnPm_LocalModuleInstance.FromStr(temp_buf);
-											P_CcPack->GetLineTextExt(pIter->SrcItemNo+1, CCheckPacket::lnextChZnPm_LocalModuleDbVer, temp_buf); 
+											P_CcPack->GetLineTextExt(cclnext_pos, CCheckPacket::lnextChZnPm_LocalModuleDbVer, temp_buf); 
 											if(temp_buf.NotEmpty())
 												pIter->ChZnPm_LocalModuleDbVer.FromStr(temp_buf);
 											// } @v12.3.12 
@@ -2570,6 +2573,8 @@ int PPSlipFormat::NextIteration(SString & rBuf, SlipLineParam * pParam)
 				// @v12.1.1 {
 				sl_param.ChZnPm_ReqId = CurIter.ChZnPm_ReqId;
 				sl_param.ChZnPm_ReqTimestamp = CurIter.ChZnPm_ReqTimestamp;
+				sl_param.ChZnPm_LocalModuleInstance = CurIter.ChZnPm_LocalModuleInstance; // @v12.5.1
+				sl_param.ChZnPm_LocalModuleDbVer = CurIter.ChZnPm_LocalModuleDbVer; // @v12.5.1
 				// } @v12.1.1 
 			}
 			// } @v11.1.11 

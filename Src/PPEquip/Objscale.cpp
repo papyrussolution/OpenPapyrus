@@ -367,7 +367,7 @@ static SString & __GetLastSystemErr(SString & rBuf)
 	//rBuf = SUcSwitch(static_cast<const TCHAR *>(p_msg_buf));
 	//MessageBox(NULL, (LPCTSTR)lpMsgBuf, "Error", MB_OK | MB_ICONINFORMATION);
 	//LocalFree(p_msg_buf);
-	SSystem::SFormatMessage(rBuf); // @v10.3.11
+	SSystem::SFormatMessage(rBuf);
 	rBuf.Chomp().Transf(CTRANSF_OUTER_TO_INNER);
 	return rBuf;
 }
@@ -4384,20 +4384,16 @@ int ScaleDialog::setDTS(const PPScalePacket * pData)
 
 int ScaleDialog::getDTS(PPScalePacket * pData)
 {
-	int    ok = 1, sel = 0;
-	//char   port[16];
+	int    ok = 1;
+	int    sel = 0;
 	SString temp_buf;
-	//memzero(port, sizeof(port));
 	getCtrlData(sel = CTLSEL_SCALE_TYPE, &Data.Rec.ScaleTypeID);
 	THROW_PP(Data.Rec.ScaleTypeID, PPERR_SCALETYPENEEDED);
 	getCtrlData(sel = CTL_SCALE_NAME,   Data.Rec.Name);
 	THROW_PP(*strip(Data.Rec.Name), PPERR_NAMENEEDED);
 	getCtrlData(CTL_SCALE_ID,     &Data.Rec.ID);
-	// @v10.5.7 getCtrlData(sel = CTL_SCALE_PORT,   port);
-	// @v10.5.7 {
 	getCtrlString(sel = CTL_SCALE_PORT, temp_buf);
 	Data.PutExtStrData(Data.extssPort, temp_buf.Strip());
-	// } @v10.5.7
 	getCtrlData(sel = CTL_SCALE_LOGNUM,   &Data.Rec.LogNum);
 	if(Data.Rec.ScaleTypeID == PPSCLT_DIGI)
 		THROW_PP(Data.Rec.LogNum > 0 && Data.Rec.LogNum < 255, PPERR_SCALE_INVLOGNUM);
@@ -4412,28 +4408,12 @@ int ScaleDialog::getDTS(PPScalePacket * pData)
 	if(Data.Rec.ScaleTypeID != PPSCLT_SCALEGROUP)
 		THROW_PP(Data.Rec.AltGoodsGrp && PPObjGoodsGroup::IsAlt(Data.Rec.AltGoodsGrp), PPERR_SCALEGRPNEEDED);
 	GetClusterData(CTL_SCALE_FLAGS, &Data.Rec.Flags);
-	// @v10.5.7 getCtrlData(sel = CTL_SCALE_ADDEDMSGSIGN, Data.Rec.AddedMsgSign);
-	// @v10.5.7 THROW_PP(PPGoodsPacket::ValidateAddedMsgSign(Data.Rec.AddedMsgSign, sizeof(Data.Rec.AddedMsgSign)), PPERR_INVPOSADDEDMSGSIGN);
-	// @v10.5.7 {
 	getCtrlString(sel = CTL_SCALE_ADDEDMSGSIGN, temp_buf);
 	THROW_PP(PPGoodsPacket::ValidateAddedMsgSign(temp_buf, 64), PPERR_INVPOSADDEDMSGSIGN);
 	Data.PutExtStrData(Data.extssAddedMsgSign, temp_buf);
-	// } @v10.5.7 
 	getCtrlData(CTL_SCALE_ADDEDLINELEN, &Data.Rec.MaxAddedLn);
-	getCtrlData(CTL_SCALE_ADDEDLNCT,    &Data.Rec.MaxAddedLnCount); // @v10.5.0
+	getCtrlData(CTL_SCALE_ADDEDLNCT,    &Data.Rec.MaxAddedLnCount);
 	getCtrlData(CTLSEL_SCALE_PARENT, &Data.Rec.ParentID);
-	/* @v10.5.7 if(!oneof2(Data.Rec.ScaleTypeID, PPSCLT_CRCSHSRV, PPSCLT_SCALEGROUP)) {
-		if(Data.Rec.Flags & SCALF_TCPIP) {
-			char   enc_ip[8];
-			memzero(enc_ip, sizeof(enc_ip));
-			THROW(PPObjScale::EncodeIP(port, enc_ip, sstrlen(port) + 1));
-			STRNSCPY(Data.Rec.Port, enc_ip);
-		}
-		else if(Data.Rec.ScaleTypeID != PPSCLT_DIGI) {
-			STRNSCPY(Data.Rec.Port, port);
-			THROW(GetPort(Data.Rec.Port, 0));
-		}
-	}*/
 	//rExpPaths = ExpPaths;
 	// @v11.1.6 {
 	{
@@ -5171,7 +5151,6 @@ int PPObjScale::SendPlu(PPScalePacket * pScaleData, const char * pFileName, int 
 			}
 			else
 				success_count++;
-			// @v10.2.2 THROW(ok);
 			PPWaitPercent(i+1, load_list.getCount(), msg_buf.Printf(fmt_buf, pScaleData->Rec.Name, countbuf));
 		}
 		PROFILE_END

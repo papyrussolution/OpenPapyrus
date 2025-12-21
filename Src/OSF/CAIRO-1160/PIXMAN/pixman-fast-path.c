@@ -1874,7 +1874,7 @@ static uint32 * fast_fetch_r5g6b5(pixman_iter_t * iter, const uint32 * mask)
 {
 	int32 w = iter->width;
 	uint32 * dst = iter->buffer;
-	const uint16 * src = (const uint16*)iter->bits;
+	const uint16 * src = (const uint16 *)iter->bits;
 
 	iter->bits += iter->stride;
 

@@ -270,8 +270,8 @@ int SUiLayoutParam::GetSizeByContainerX(float containerSize, float * pS) const
 
 int SUiLayoutParam::GetSizeByContainerY(float containerSize, float * pS) const
 {
-	int   ok = 0;
-	float result_size = 0.0f;
+	int    ok = 0;
+	float  result_size = 0.0f;
 	if(SzY == szByContainer) {
 		if(containerSize > 0.0f) {
 			if(Size.y > 0.0f && Size.y <= 1.0f) {
@@ -291,9 +291,7 @@ int SUiLayoutParam::GetSizeByContainerY(float containerSize, float * pS) const
 
 SPoint2F SUiLayoutParam::CalcEffectiveSizeXY(float containerSizeX, float containerSizeY) const
 {
-	SPoint2F result;
-	result.x = CalcEffectiveSizeX(containerSizeX);
-	result.y = CalcEffectiveSizeY(containerSizeY);
+	SPoint2F result(CalcEffectiveSizeX(containerSizeX), CalcEffectiveSizeY(containerSizeY));
 	if(result.x == 0.0f && AspectRatio > 0.0f && result.y > 0.0f) {
 		result.x = result.y / AspectRatio;
 	}
@@ -470,9 +468,8 @@ SUiLayoutParam & SUiLayoutParam::SetContainerDirection(int direc /*DIREC_XXX*/)
 {
 	int    ok = 1;
 	SString temp_buf(pBuf);
-	temp_buf.Strip();
 	StringSet ss;
-	temp_buf.Tokenize(",;", ss);
+	temp_buf.Strip().Tokenize(",;", ss);
 	const uint _c = ss.getCount();
 	if(oneof4(_c, 0, 1, 2, 4)) {
 		if(_c == 0) {
@@ -529,8 +526,8 @@ SString & SUiLayoutParam::SizeToString(SString & rBuf) const
 {
 	rBuf.Z();
 	SPoint2F s;
-	int  szx = GetSizeX(&s.x);
-	int  szy = GetSizeY(&s.y);
+	const  int szx = GetSizeX(&s.x);
+	const  int szy = GetSizeY(&s.y);
 	if(szx != szUndef || szy != szUndef) {
 		switch(szx) {
 			case szFixed: rBuf.Cat(s.x, MKSFMTD(0, 3, NMBF_NOTRAILZ)); break;
@@ -624,11 +621,12 @@ int SUiLayoutParam::SizeFromString(const char * pBuf)
 	int    ok = 1;
 	SString input(pBuf);
 	input.Strip();
-	SString x_buf, y_buf;
+	SString x_buf;
+	SString y_buf;
 	if(input.Divide(',', x_buf, y_buf) > 0 || input.Divide(';', x_buf, y_buf) > 0 || input.Divide(' ', x_buf, y_buf) > 0) {
 		SPoint2F s;
-		int szx = ParseSizeStr(x_buf, s.x);
-		int szy = ParseSizeStr(y_buf, s.y);
+		const  int szx = ParseSizeStr(x_buf, s.x);
+		const  int szy = ParseSizeStr(y_buf, s.y);
 		if(szx == szFixed)
 			SetFixedSizeX(s.x);
 		else if(szx != szInvalid)
@@ -643,8 +641,8 @@ int SUiLayoutParam::SizeFromString(const char * pBuf)
 			SetVariableSizeY(szUndef, 0.0f);
 	}
 	else {
-		float v;
-		int szxy = ParseSizeStr(x_buf, v);
+		float  v;
+		const  int szxy = ParseSizeStr(x_buf, v);
 		if(szxy == szFixed) {
 			SetFixedSizeX(v);
 			SetFixedSizeY(v);

@@ -593,7 +593,21 @@ DBQuery * PPViewDvcLoadingStat::CreateBrowserQuery(uint * pBrwId, SString * pSub
 		if(Filt.GoodsGrpID)
 			THROW(p_g_tbl = new Goods2Tbl);
 		PPDbqFuncPool::InitObjNameFunc(dbe_goods, PPDbqFuncPool::IdObjNameGoods, p_dlso_tbl->ObjID);
+		// @v12.5.1 {
 		q = &Select_(
+			p_tbl->ID,           // #0
+			p_tbl->DvcType,      // #1
+			p_tbl->DvcID,        // #2
+			p_tbl->Dt,           // #3
+			p_tbl->Tm,           // #4
+			p_tbl->Cont,         // #5
+			p_tbl->Status,       // #6
+			0L);
+		q->addField(dbe_dvc);         // #7
+		q->addField(dbe_goods);       // #8
+		q->addField(p_dlso_tbl->Val); // #9
+		// } @v12.5.1 
+		/* @v12.5.1 q = &Select_(
 			p_tbl->ID,           // #0
 			p_tbl->DvcType,      // #1
 			p_tbl->DvcID,        // #2
@@ -604,9 +618,11 @@ DBQuery * PPViewDvcLoadingStat::CreateBrowserQuery(uint * pBrwId, SString * pSub
 			dbe_dvc,           // #7
 			dbe_goods,         // #8
 			p_dlso_tbl->Val,   // #9
-			0).from(p_tbl, p_dlso_tbl, (Filt.GoodsGrpID) ? p_g_tbl : 0, 0);
+			0);*/
+		q->from(p_tbl, p_dlso_tbl, (Filt.GoodsGrpID) ? p_g_tbl : 0, 0);
 	}
-	else
+	else {
+		// @v12.5.1 {
 		q = &Select_(
 			p_tbl->ID,         // #0
 			p_tbl->DvcType,    // #1
@@ -615,8 +631,21 @@ DBQuery * PPViewDvcLoadingStat::CreateBrowserQuery(uint * pBrwId, SString * pSub
 			p_tbl->Tm,         // #4
 			p_tbl->Cont,       // #5
 			p_tbl->Status,     // #6
+			0L);
+		q->addField(dbe_dvc);  // #7
+		// } @v12.5.1 
+		/* @v12.5.1 q = &Select_(
+			p_tbl->ID,         // #0
+			p_tbl->DvcType,    // #1
+			p_tbl->DvcID,      // #2
+			p_tbl->Dt,         // #3
+			p_tbl->Tm,         // #4
+			p_tbl->Cont,       // #5
+			p_tbl->Status,     // #6
 			dbe_dvc,         // #7
-			0).from(p_tbl, 0L);
+			0);*/
+		q->from(p_tbl, 0L);
+	}
 	dbq = & (p_tbl->DvcType == static_cast<long>(Filt.DvcType));
 	if(Filt.DvcID) {
 		dbq = & (*dbq && (p_tbl->DvcID == Filt.DvcID));

@@ -4,7 +4,7 @@
 //
 // Спасибо за проделанную работу (Thanks for the work you've done):
 //   Ефимову Сергею
-//   Насонову Вадиму (VADIM)
+//   Насонову Вадиму (VADIM) [rip]
 //   Стародубу Антону (AHTOXA)
 //   Казакову Михаилу (Muxa)
 //   Миллер Владиславе (vmiller)
@@ -442,6 +442,7 @@ class PPMarketplaceInterface;
 class PrcssrMarketplaceInterchange;
 struct PEExportOptions; // @v12.3.11
 class DocNalogRu_WriteBillBlock; // @v12.4.11
+struct PPGoodsTaxEntry;
 
 typedef struct bignum_st BIGNUM; // OpenSSL
 typedef int32 PPID; // @v11.6.8 long-->int32
@@ -17294,6 +17295,7 @@ public:
 	//
 	static PPID    Helper_GetTag(PPID objType, PPID objID, const char * pTagSymb);
 	static PPID    Helper_GetTagByID(PPID objType, PPID objID, PPID tagID);
+	static PPID    Helper_GetTagIdBySymb(const char * pTagSymb, int otTyp);
 	static int     RecoverLostUnifiedLinks();
 	//
 	// Descr: Удаляет теги, принадлежащие несуществующим объектам данных.
@@ -21696,7 +21698,8 @@ public:
 	//    <0 - продавец не освобожден от НДС
 	//     0 - error
 	//
-	int    IsVatFree(PPID id);
+	int    IsNodeVatFree(PPID id);
+	int    GetSpecialTaxEntry(PPID cnID, LDATE dt, PPGoodsTaxEntry * pGtx); // @v12.5.1
 	//
 	// Descr: Выясняет систему налогообложения, действующую на дату dt и соответствующую кассовому узлу cnID и присваивает
 	//   ее по указателю pTaxSysID.
@@ -27656,6 +27659,21 @@ public:
 	int    FetchCas(PPID id, ClientActivityStatistics * pCas);
 	int    FetchClientActivityDateList(PPID id, TSVector <LDATE> & rDateList);
 	int    IdentifyClientActivityState(ClientActivityState & rParam);
+	//
+	// Descr: Флаги, возвращаемые функцией GetSpecialTaxGroup()
+	//
+	enum {
+		stgrfOK              = 0x0001, // Признак того, что функция отработала без ошибок (это не значит, что что-то конкретно найдено или определено)
+		stgrfPersonIsVatFree = 0x0010, // Персоналия taxPayerPersonID имеет признак 'Без НДС'
+		stgrfLocIsVatFree    = 0x0020, // Локация taxPayerLocID имеет признак 'Без НДС'
+	};
+	//
+	// Descr: Находит идентификаторы специальных налоговых групп, ассоциированых с персоналией taxPayerPersonID и 
+	//   локацией taxPayerLocID. Результаты присваиваются, соответственно, по указателям pPersonTaxGrpID и pLocTaxGrpID.
+	// Returns:
+	//  Целое число, содержащее флаги, определенные в перечислении выше (stgrfXXX).  
+	//
+	uint   GetSpecialTaxGroup(PPID taxPayerPersonID, PPID taxPayerLocID, PPID * pPersonTaxGrpID, PPID * pLocTaxGrpID);
 private:
 	friend class PersonCache;
 	friend int FASTCALL GetPersonName(PPID id, SString & rBuf);
@@ -31130,7 +31148,7 @@ public:
 	int    PutQuotList(PPID goodsID, const PPQuotArray * pList, bool updByTime, int use_ta);
 	int    ImportOld(int use_ta); // Импорт по устаревшей технологии
 	int    Import(const char * pCfgName, int analyze, int use_ta); // Импорт по новой технологии
-	int    ImportQuotOld(int use_ta);
+	// @v12.5.1 int    ImportQuotOld(int use_ta);
 	int    ImportQuot(const char * pCfgName, int use_ta);
 	//
 	// Функции подстановки
@@ -36612,7 +36630,8 @@ struct PPSCardSerPacket {
 		bool   IsEmpty() const;
 		bool   FASTCALL IsEq(const Ext & rS) const;
 		char   CodeTempl[32]; // Шаблон номеров карт
-		uint8  Reserve[20];   // @reserve
+		uint8  Reserve[18];   // @reserve // @v12.5.1 [20]-->[18]
+		uint16 UsageDow; // @v12.5.1
 		LTIME  UsageTmStart;
 		LTIME  UsageTmEnd;
 		long   Reserve2[2];
@@ -36630,13 +36649,13 @@ struct SCardChargeRule {
 
 struct PPSCardConfig {         // @persistent @store(PropertyTbl)
 	enum {
-		fValid         = 0x0001, // Признак того, что запись является действительной (загруженной из базы данных)
-		fSyncWoChecks  = 0x0002, // Заменяет DBDXF_SYNCSCARDWOCHECKS
+		fValid                 = 0x0001, // Признак того, что запись является действительной (загруженной из базы данных)
+		fSyncWoChecks          = 0x0002, // Заменяет DBDXF_SYNCSCARDWOCHECKS
 		fAcceptOwnerInDispDiv  = 0x0004, // Принимать изменения владельца карты в диспетчерском разделе
 		fDontUseBonusCards     = 0x0008, // Использовать бонусные карты только как дисконтные.
 			// Флаг следует установить в разделе базы данных, обслуживающем магазин, в котором бонусные карты не
 			// должны использоваться, в противоположность другим синхронизированным магазинам.
-		fCheckBillDebt = 0x0010, // При операциях по карте проверять наличие простроченной задолженности по документам, привязанным к карте
+		fCheckBillDebt         = 0x0010, // При операциях по карте проверять наличие простроченной задолженности по документам, привязанным к карте
 		fDisableBonusByDefault = 0x0020  // По умолчанию не применять бонус при расчете в кассовой панели (с возможностью ручного включения)
 	};
 	PPID   Tag;                // Const=PPOBJ_CONFIG
@@ -36904,7 +36923,7 @@ public:
 	static int EditConfig();
 	static int FASTCALL PreprocessSCardCode(SString & rCode);
 	static SString & CalcSCardHash(const char * pNumber, SString & rHash);
-	static long GetValidFlags()
+	static constexpr long GetValidFlags()
 		{ return (SCRDF_INHERITED|SCRDF_CLOSED|SCRDF_CLOSEDSRV|SCRDF_NOGIFT|SCRDF_NEEDACTIVATION|SCRDF_AUTOACTIVATION|SCRDF_NOTIFYDISCOUNT|SCRDF_NOTIFYDRAW|SCRDF_NOTIFYWITHDRAW); }
 
 	explicit PPObjSCard(void * extraPtr = 0);
@@ -37077,7 +37096,8 @@ public:
 	// Descr: Флаги функции CheckRestrictions
 	//
 	enum {
-        chkrfIgnoreUsageTime = 0x0001 // Игнорировать допустимое время применения //
+        chkrfIgnoreUsageTime = 0x0001, // Игнорировать допустимое время применения //
+		chkrfIgnoreUsageDow  = 0x0002, // @v12.5.1 Игнорировать допустимые дни недели //
 	};
 	//
 	// Descr: Проверяет возможность использования карты для обслуживания.
@@ -42867,8 +42887,7 @@ private:
 		int   SpMode;
 		int   Reverse;
 		BExtQuery * P_Q;
-		// @v10.6.8 uint8 Key[ALIGNSIZE(MAXKEYLEN, 2)];
-		BtrDbKey Key_; // @10.6.8
+		BtrDbKey Key_;
 	};
 	class ProcessLotBlock {
 	public:
@@ -63301,95 +63320,6 @@ public:
 	
 	int    _Case_TaxEvaluation(); // Это будет первой задачей для нашего амбициозного субпроекта PPTestDbInfrastructure :)
 private:
-};
-//
-// @v12.2.5 
-// Descr: Специальный модуль, реализующий шлюз между древней-предревней системой управления розничным магазином Кристалл и 
-//   кассовым модулем Set-Retail.
-//
-class Cristal2SetRetailGateway {
-public:
-	struct CmdParam {
-		CmdParam();
-		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
-
-		enum {
-			actReadCristalSrcData   = 0x0001, 
-			actWriteCristalDestData = 0x0002
-		};
-		uint32 Version;
-		int32  Actions;
-		uint32 Flags;
-		uint8  Reserve[64];
-	};
-	enum {
-		eefMinus = 0x0001 // Ведущее поле записи содержит '-' (а не '+')
-	};
-	//
-	// Descr: Элемент данных, импортируемый из системы Кристалл.
-	//   Здесь будут товары, группы товаров, дисконтные карты и, вероятно, еще что-то.
-	//
-	struct ErpGoodsEntry { // @flat
-		ErpGoodsEntry();
-
-		long   NativeID;   // @firstmember Идентификатор товара в системе Кристалл
-		long   PpyID;      // Идентификатор товара в Papyrus
-		uint   Flags;
-		long   GoodsGroupID;
-		double Price;
-		double VatRate;
-		double AlcVolume;
-		double AlcProof;
-		char   GoodsNameS[128]; // Короткое наименование товара
-		char   GoodsNameF[128]; // Полное наименование товара (из 2 частей)
-		char   Barcode[32];
-		char   UomName[48];
-		char   GoodsGroupName[128];
-		char   MarkingSymb[32]; // Тут хранится символ типа товара chzn, а для крепкого алкоголя - какие-то непонятные числовые коды.
-	};
-	struct ErpWeightedGoodsEntry {
-		ErpWeightedGoodsEntry();
-		long   NativeID;        // @firstmember Идентификатор товара в системе Кристалл
-		long   PpyID;           // Идентификатор товара в Papyrus
-		uint   Flags;           //   
-		long   DeviceNo;        // Номер весового устройства
-		long   PLU;             //
-		long   ShelfLifeDays;   // Срок годности в днях
-		double Price;           // Цена за 1кг
-		char   GoodsNameF[128]; // Полное наименование товара (из 2 частей)
-	};
-	struct ErpSCardEntry {
-		ErpSCardEntry();
-
-		uint   Flags;
-		double PctDis;
-		char   CodeRangeStart[32];
-		char   CodeRangeEnd[32];
-	};
-	class CristalImportBlock {
-	public:
-		TSVector <ErpGoodsEntry> GoodsList;
-		TSVector <ErpWeightedGoodsEntry> WeightedGoodsList;
-		TSVector <ErpSCardEntry> SCardList;
-	};
-
-	static int SearchPosNode(PPID * pID, PPAsyncCashNode * pAcnPack);
-
-	Cristal2SetRetailGateway();
-	~Cristal2SetRetailGateway();
-	int    EditCmdParam(CmdParam & rData);
-	int    Process(const CmdParam & rParam);
-	//
-	// Descr: Импортирует текстовый файл, подготовленный системой Кристалл.
-	//   Файлы в кодировке cp866, разделители полей '|'.
-	//
-	int    CristalImport(const char * pPathUtf8, Cristal2SetRetailGateway::CristalImportBlock & rIb);
-private:
-	static SString & FASTCALL MakeCodeByNativeGoodsID(long nativeID, SString & rBuf);
-	int    SearchNativeGoodsID(long nativeID, Goods2Tbl::Rec * pRec);
-	int    Helper_CristalImportDir(const char * pPathUtf8, Cristal2SetRetailGateway::CristalImportBlock & rIb, PPLogger * pLogger);
-
-	PPObjGoods GObj;
 };
 //
 // Descr: Возвращает минимальный множитель, цены кратные которому

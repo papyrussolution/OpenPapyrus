@@ -210,7 +210,7 @@ public:
 	int    ExportData__(int updOnly);
 	int    Prev_ExportData(int updOnly);
 
-	int    Cristal2SetRetailGateway_TranslateSales(const char * pCcOutPath);
+	// @v12.5.1 @cancelled int    Cristal2SetRetailGateway_TranslateSales(const char * pCcOutPath);
 private:
 	enum {
 		filTypZRep = 0,
@@ -1207,7 +1207,8 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	//
 	// Список ассоциаций {Серия карты; Вид котировки} => Key - серия карты, Val - вид котировки
 	//
-	LAssocArray scard_quot_ary, dscnt_code_ary;
+	LAssocArray scard_quot_ary;
+	LAssocArray dscnt_code_ary;
 	PPQuotArray grp_dscnt_ary;
 	PPIniFile ini_file;
 	const PPEquipConfig & r_eq_cfg = CC.GetEqCfg();
@@ -1231,9 +1232,9 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		PPGetPath(PPPATH_OUT, temp_buf);
 		THROW_PP_S(SFile::IsDir(temp_buf.RmvLastSlash()), PPERR_DIRACCESSDENIED_CFGOUT, temp_buf);
 	}
-	THROW(PPGetFilePath(PPPATH_OUT, GOODS_XML,            path_goods));
-	THROW(PPGetFilePath(PPPATH_OUT, CASHIERS_XML,         path_cashiers));
-	THROW(PPGetFilePath(PPPATH_OUT, CARDS_XML,            path_cards));
+	THROW(PPGetFilePath(PPPATH_OUT, GOODS_XML,    path_goods));
+	THROW(PPGetFilePath(PPPATH_OUT, CASHIERS_XML, path_cashiers));
+	THROW(PPGetFilePath(PPPATH_OUT, CARDS_XML,    path_cards));
 	THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_CS_CASH_UPD, path));
 	if(add_time_to_fname) {
 		AddTimeToFileName(path_goods);
@@ -4512,7 +4513,7 @@ int ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, bool useLocalFiles)
 
 void ACS_CRCSHSRV::Backup(const char * pPrefix, const char * pPath)
 {
-	const long _max_copies = 10L; //#define MAX_COPIES 10L
+	const  long _max_copies = 10L; //#define MAX_COPIES 10L
 	long   start = 1L;
 	SString backup_dir;
 	SString dest_path;
@@ -4830,7 +4831,96 @@ void ACS_CRCSHSRV::CleanUpSession()
 }
 //
 //
+#if 0 // @v12.5.1 @cancelled {
+// @v12.2.5 
+// Descr: Специальный модуль, реализующий шлюз между древней-предревней системой управления розничным магазином Кристалл и 
+//   кассовым модулем Set-Retail.
 //
+class Cristal2SetRetailGateway {
+public:
+	struct CmdParam {
+		CmdParam();
+		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+
+		enum {
+			actReadCristalSrcData   = 0x0001, 
+			actWriteCristalDestData = 0x0002
+		};
+		uint32 Version;
+		int32  Actions;
+		uint32 Flags;
+		uint8  Reserve[64];
+	};
+	enum {
+		eefMinus = 0x0001 // Ведущее поле записи содержит '-' (а не '+')
+	};
+	//
+	// Descr: Элемент данных, импортируемый из системы Кристалл.
+	//   Здесь будут товары, группы товаров, дисконтные карты и, вероятно, еще что-то.
+	//
+	struct ErpGoodsEntry { // @flat
+		ErpGoodsEntry();
+
+		long   NativeID;   // @firstmember Идентификатор товара в системе Кристалл
+		long   PpyID;      // Идентификатор товара в Papyrus
+		uint   Flags;
+		long   GoodsGroupID;
+		double Price;
+		double VatRate;
+		double AlcVolume;
+		double AlcProof;
+		char   GoodsNameS[128]; // Короткое наименование товара
+		char   GoodsNameF[128]; // Полное наименование товара (из 2 частей)
+		char   Barcode[32];
+		char   UomName[48];
+		char   GoodsGroupName[128];
+		char   MarkingSymb[32]; // Тут хранится символ типа товара chzn, а для крепкого алкоголя - какие-то непонятные числовые коды.
+	};
+	struct ErpWeightedGoodsEntry {
+		ErpWeightedGoodsEntry();
+		long   NativeID;        // @firstmember Идентификатор товара в системе Кристалл
+		long   PpyID;           // Идентификатор товара в Papyrus
+		uint   Flags;           //   
+		long   DeviceNo;        // Номер весового устройства
+		long   PLU;             //
+		long   ShelfLifeDays;   // Срок годности в днях
+		double Price;           // Цена за 1кг
+		char   GoodsNameF[128]; // Полное наименование товара (из 2 частей)
+	};
+	struct ErpSCardEntry {
+		ErpSCardEntry();
+
+		uint   Flags;
+		double PctDis;
+		char   CodeRangeStart[32];
+		char   CodeRangeEnd[32];
+	};
+	class CristalImportBlock {
+	public:
+		TSVector <ErpGoodsEntry> GoodsList;
+		TSVector <ErpWeightedGoodsEntry> WeightedGoodsList;
+		TSVector <ErpSCardEntry> SCardList;
+	};
+
+	static int SearchPosNode(PPID * pID, PPAsyncCashNode * pAcnPack);
+
+	Cristal2SetRetailGateway();
+	~Cristal2SetRetailGateway();
+	int    EditCmdParam(CmdParam & rData);
+	int    Process(const CmdParam & rParam);
+	//
+	// Descr: Импортирует текстовый файл, подготовленный системой Кристалл.
+	//   Файлы в кодировке cp866, разделители полей '|'.
+	//
+	int    CristalImport(const char * pPathUtf8, Cristal2SetRetailGateway::CristalImportBlock & rIb);
+private:
+	static SString & FASTCALL MakeCodeByNativeGoodsID(long nativeID, SString & rBuf);
+	int    SearchNativeGoodsID(long nativeID, Goods2Tbl::Rec * pRec);
+	int    Helper_CristalImportDir(const char * pPathUtf8, Cristal2SetRetailGateway::CristalImportBlock & rIb, PPLogger * pLogger);
+
+	PPObjGoods GObj;
+};
+
 Cristal2SetRetailGateway::ErpGoodsEntry::ErpGoodsEntry() : NativeID(0), PpyID(0), Flags(0), GoodsGroupID(0), Price(0.0), VatRate(0.0), AlcVolume(0.0), AlcProof(0.0)
 {
 	GoodsNameS[0] = 0;
@@ -5983,4 +6073,4 @@ int ACS_CRCSHSRV::Cristal2SetRetailGateway_TranslateSales(const char * pCcOutPat
 	CATCHZOK
 	return ok;
 }
-
+#endif // } 0 @v12.5.1 @cancelled

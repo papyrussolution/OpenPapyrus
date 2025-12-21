@@ -510,21 +510,19 @@ int PPObjGoodsGroup::Import(int use_ta)
 	return ok;
 }
 
+#if 0 // @v12.5.1 {
 int PPObjGoods::ImportQuotOld(int use_ta)
 {
 	int    ok = 1;
 	SString file_name, quotname, temp_buf2;
 	const  uint sect = PPINISECT_IMP_QUOT;
 	IterCounter cntr;
-
 	PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPORT_INI, file_name);
 	if(!fileExists(file_name))
 		return -1;
 	PPIniFile ini_file(file_name);
 	ini_file.Get(sect, PPINIPARAM_FILE, file_name);
-
 	//THROW(fileExists(file_name));
-
 	PPGoodsConfig goods_cfg;
 	DbfTable in_tbl(file_name);
 	int    fldn_goodscode = 0;
@@ -532,9 +530,7 @@ int PPObjGoods::ImportQuotOld(int use_ta)
 	int    fldn_price     = 0;
 	PPID   quot_kind_id = 0;
 	PPID   loc_id = 0;
-
 	ReadConfig(&goods_cfg);
-
 	THROW_PP(in_tbl.isOpened(), PPERR_DBFOPFAULT);
 	ini_file.Get(sect, PPINIPARAM_QUOTNAME, quotname);
 	if(PPRef->SearchSymb(PPOBJ_QUOTKIND, &quot_kind_id, quotname, offsetof(PPQuotKind, Symb)) <= 0)
@@ -548,7 +544,6 @@ int PPObjGoods::ImportQuotOld(int use_ta)
 	get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_GOODSNAME, &fldn_goodsname);
 	get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_PRICE,     &fldn_price);
 	THROW_PP((fldn_goodscode || fldn_goodsname) && fldn_price, PPERR_IMPORTUNDEFFLD);
-
 	PPWaitStart();
 	PPWaitMsg(PPSTR_TEXT, PPTXT_IMPGOODS, 0);
 	{
@@ -590,6 +585,7 @@ int PPObjGoods::ImportQuotOld(int use_ta)
 	CATCHZOK
 	return ok;
 }
+#endif // } 0 @v12.5.1
 
 struct ImportGoodsParam {
 	enum {
@@ -1657,10 +1653,11 @@ int Import(PPID objType, long extraParam)
 	}
 	else if(objType == PPOBJ_QUOT) {
 		PPObjGoods g_obj;
-		if(extraParam == 1) {
+		/* @v12.5.1 if(extraParam == 1) {
 			THROW(g_obj.ImportQuotOld(1));
 		}
-		else {
+		else*/ 
+		{
 			THROW(g_obj.ImportQuot(0, 1));
 		}
 	}

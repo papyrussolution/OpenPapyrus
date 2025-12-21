@@ -381,8 +381,6 @@ int SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 						logical_number = param_val.ToLong();
 				}
 			}
-			// Проверяем на наличие незакрытого чека
-			// @v10.1.0 (будет сделана гарантированная проверка при вызове PrintCheck()) THROW(AnnulateCheck());
 			// Получаем остальные параметры
 			Arr_In.Z();
 			{
@@ -588,7 +586,6 @@ int  SCS_SYNCCASH::AnnulateCheck()
 		Flags &= ~sfCheckOpened;
 	}
 	// Проверка на наличие открытого чека, который надо аннулировать
-	// @v10.1.0 GetStatus(status);
 	if(status & FRMODE_OPEN_CHECK) {
 		Flags |= (sfCheckOpened | sfCancelled);
 		PPMessage(mfInfo|mfOK, PPINF_SHTRIHFR_CHK_ANNUL, 0);
@@ -707,7 +704,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		PPID   tax_sys_id = 0;
 		OfdFactors ofdf; // @v11.3.12
 		const  int   ccop = pPack->GetCcOp(); // @v12.3.3
-		const  bool  is_vat_free = (CnObj.IsVatFree(NodeID) > 0);
+		const  bool  is_vat_free = (CnObj.IsNodeVatFree(NodeID) > 0);
 		double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));
 		double sum = fabs(pPack->_Cash) + 0.001;
 		double running_total = 0.0;
@@ -1144,7 +1141,7 @@ int SCS_SYNCCASH::GetSummator(double * val)
 	double cash_amt = 0.0;
 	ResCode = RESCODE_NO_ERROR;
 	SString input, buf, param_name, param_val;
-	THROW(Connect(1)); // @v10.1.0 ()-->(1)
+	THROW(Connect(1));
 	Arr_In.Z();
 	THROW(ArrAdd(Arr_In, DVCPARAM_CASHAMOUNT, 0));
 	THROW(ExecPrintOper(DVCCMD_GETCHECKPARAM, Arr_In, Arr_Out));
@@ -1215,28 +1212,21 @@ int	SCS_SYNCCASH::PrintDiscountInfo(const CCheckPacket * pPack, uint flags)
 		THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, prn_str.Z().CatCharN('-', CheckStrLen)));
 		THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
 		temp_buf.Z().Cat(amt + dscnt, SFMT_MONEY);
-		// @v10.4.9 prn_str = "СУММА БЕЗ СКИДКИ"; // @cstr #0
-		// @v10.4.9 {
 		PPLoadText(PPTXT_CCFMT_AMTWODISCOUNT, word_buf); // СУММА БЕЗ СКИДКИ
 		prn_str = word_buf.Transf(CTRANSF_INNER_TO_OUTER);
-		// } @v10.4.9
 		prn_str.CatCharN(' ', CheckStrLen - prn_str.Len() - temp_buf.Len()).Cat(temp_buf);
 		Arr_In.Z();
 		THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, prn_str));
 		THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
 		if(scc.Search(pPack->Rec.SCardID, 0) > 0) {
 			Arr_In.Z();
-			// @v10.4.9 {
 			PPLoadText(PPTXT_CCFMT_CARD, word_buf); // КАРТА
 			word_buf.Transf(CTRANSF_INNER_TO_OUTER);
-			// } @v10.4.9
 			THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, (prn_str = word_buf).Space().Cat(scc.data.Code)));
 			THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
-			if(scc.data.PersonID && GetPersonName(scc.data.PersonID, temp_buf) > 0) { // @v6.0.9 GetObjectName-->GetPersonName
-				// @v10.4.9 {
+			if(scc.data.PersonID && GetPersonName(scc.data.PersonID, temp_buf) > 0) {
 				PPLoadText(PPTXT_CCFMT_CARDOWNER, word_buf); // ВЛАДЕЛЕЦ
 				word_buf.Transf(CTRANSF_INNER_TO_OUTER);
-				// } @v10.4.9
 				(prn_str = word_buf).Space().Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)); // @cstr #2
 				CutLongTail(prn_str);
 				Arr_In.Z();
@@ -1245,10 +1235,8 @@ int	SCS_SYNCCASH::PrintDiscountInfo(const CCheckPacket * pPack, uint flags)
 			}
 		}
 		temp_buf.Z().Cat(dscnt, SFMT_MONEY);
-		// @v10.4.9 {
 		PPLoadText(PPTXT_CCFMT_DISCOUNT, word_buf); // СКИДКА
 		word_buf.Transf(CTRANSF_INNER_TO_OUTER);
-		// } @v10.4.9
 		(prn_str = word_buf).Space().Cat(pcnt, MKSFMTD(0, (flags & PRNCHK_ROUNDINT) ? 0 : 1, NMBF_NOTRAILZ)).CatChar('%'); // @cstr #3
 		prn_str.CatCharN(' ', CheckStrLen - prn_str.Len() - temp_buf.Len()).Cat(temp_buf);
 		Arr_In.Z();
@@ -1812,7 +1800,6 @@ int SCS_SYNCCASH::AllowPrintOper()
 	//
 	// Если нет чековой ленты
 	//
-	// @v10.1.0 (избыточная команда - выше была уже вызвана) GetStatus(status);
 	if(status & NO_PAPER) {
 		if(status & FRMODE_OPEN_CHECK)
 			Flags |= sfCheckOpened;
@@ -1835,7 +1822,6 @@ int SCS_SYNCCASH::AllowPrintOper()
 	//
 	if(status & PRNMODE_AFTER_NO_PAPER) {
 		THROW(ExecPrintOper(DVCCMD_CONTINUEPRINT, arr_in.Z(), arr_out));
-		// @v10.1.0 (избыточная команда - ниже будет вызвана с гарантией) GetStatus(status);
 		wait_prn_err = 1;
 	}
 	//
@@ -1891,7 +1877,7 @@ int SCS_SYNCCASH::ExecPrintOper(int cmd, const StrAssocArray & rIn, StrAssocArra
 		if(Flags & sfSkipAfVerif)
 			r = 1;
 		else
-			r = oneof2(cmd, DVCCMD_CLOSECHECK, DVCCMD_GETCHECKPARAM) ? 1 : 1/*AllowPrintOper()*/; // @v10.1.2
+			r = oneof2(cmd, DVCCMD_CLOSECHECK, DVCCMD_GETCHECKPARAM) ? 1 : 1/*AllowPrintOper()*/;
 		//
 		// Если выдана ошибка, не описанная в протоколе, то выходим для получения текста ошибки
 		//

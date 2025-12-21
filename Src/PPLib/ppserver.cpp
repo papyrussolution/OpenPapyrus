@@ -4719,8 +4719,8 @@ PPServerSession::CmdRet PPServerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 						ok = cmdretOK;
 				}
 				break;
-			case PPSCMD_SETTIMESERIESSTKENV: ok = SetTimeSeriesStakeEnvironment(rReply); break; // @v10.2.10
-			case PPSCMD_TIMESERIESTANOTIFY:  ok = SetTimeSeriesTaNotification(rReply); break; // @v10.4.0
+			case PPSCMD_SETTIMESERIESSTKENV: ok = SetTimeSeriesStakeEnvironment(rReply); break;
+			case PPSCMD_TIMESERIESTANOTIFY:  ok = SetTimeSeriesTaNotification(rReply); break;
 			case PPSCMD_GETDISPLAYINFO:
 				{
 					SString str_id;
@@ -5557,8 +5557,7 @@ int run_client()
 							PPGetLastErrorMessage(1, msg_buf);
 							reply_str.Z().Cat("Error").CatDiv(':', 2).Cat(msg_buf);
 						}
-						// @v10.1.4 printf(reply_str.cptr());
-						puts(reply_str.cptr()); // @v10.1.4
+						puts(reply_str.cptr());
 					}
 					if(is_quit)
 						cli.Disconnect();

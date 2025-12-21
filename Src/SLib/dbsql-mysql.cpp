@@ -141,6 +141,7 @@ int SMySqlDbProvider::UseDatabase(const char * pDbName) // @v12.4.8
 			}
 			pBlk->GetAttr(DbLoginBlock::attrUserName, user);
 			pBlk->GetAttr(DbLoginBlock::attrPassword, pw);
+			//p_h->options.charset_name = newStr("utf8mb4"); // @v12.5.1
 			if(mysql_real_connect(p_h, host, user, pw, db_name, port, 0/*unix-socket*/, 0/*client_flags*/)) {
 				CurrentDatabase = db_name;
 				ok = 1;
@@ -1179,8 +1180,17 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 					MEMSZERO(bind_item);
 					bind_item.buffer_type = static_cast<enum enum_field_types>(r_bind.NtvTyp);
 					bind_item.buffer = p_data;
-					bind_item.buffer_length = r_bind.NtvSize;
+					//bind_item.length = reinterpret_cast<ulong *>(&r_bind.RetActualSize); // @v12.5.1
 					// (все упало!) bind_item.length = &bind_item.buffer_length; // @v12.4.10 Важно! 
+					// @v12.5.1 {
+					if(r_bind.Flags & SSqlStmt::Bind::fUseRetActualSize) {
+						bind_item.buffer_length = r_bind.NtvSize;
+						bind_item.length = reinterpret_cast<ulong *>(&r_bind.NtvSize);
+					}
+					else {
+						bind_item.buffer_length = r_bind.NtvSize;
+					}
+					// } @v12.5.1 
 					bind_list.insert(&bind_item);
 				}
 			}
@@ -1291,46 +1301,6 @@ void SMySqlDbProvider::ProcessBinding_FreeDescr(uint count, SSqlStmt * pStmt, SS
 /*virtual*/int SMySqlDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind)
 {
 	int    ok = 1;
-	/*
-enum enum_field_types { 
-	MYSQL_TYPE_DECIMAL, 
-	MYSQL_TYPE_TINY,
-	MYSQL_TYPE_SHORT,  
-	MYSQL_TYPE_LONG,
-	MYSQL_TYPE_FLOAT,  
-	MYSQL_TYPE_DOUBLE,
-	MYSQL_TYPE_NULL,   
-	MYSQL_TYPE_TIMESTAMP,
-	MYSQL_TYPE_LONGLONG, 
-	MYSQL_TYPE_INT24,
-	MYSQL_TYPE_DATE,   
-	MYSQL_TYPE_TIME,
-	MYSQL_TYPE_DATETIME, 
-	MYSQL_TYPE_YEAR,
-	MYSQL_TYPE_NEWDATE, 
-	MYSQL_TYPE_VARCHAR,
-	MYSQL_TYPE_BIT,
-	//
-	// the following types are not used by client, only for mysqlbinlog!!
-	//
-	MYSQL_TYPE_TIMESTAMP2,
-	MYSQL_TYPE_DATETIME2,
-	MYSQL_TYPE_TIME2,
-	// --------------------------------------------- 
-	MYSQL_TYPE_JSON = 245,
-	MYSQL_TYPE_NEWDECIMAL = 246,
-	MYSQL_TYPE_ENUM = 247,
-	MYSQL_TYPE_SET = 248,
-	MYSQL_TYPE_TINY_BLOB = 249,
-	MYSQL_TYPE_MEDIUM_BLOB = 250,
-	MYSQL_TYPE_LONG_BLOB = 251,
-	MYSQL_TYPE_BLOB = 252,
-	MYSQL_TYPE_VAR_STRING = 253,
-	MYSQL_TYPE_STRING = 254,
-	MYSQL_TYPE_GEOMETRY = 255,
-	MAX_NO_FIELD_TYPES 
-};
-	*/
 	const  size_t sz = stsize(pBind->Typ);
 	uint16 out_typ = 0;
 	pBind->NtvSize = static_cast<uint16>(sz); // default value
@@ -1506,8 +1476,10 @@ enum enum_field_types {
 			break;
 		case S_ZSTRING:
 			{
-				const uint32 ntv_size = (sz * 2); // Удваиваем размер из-за того, что в сервере хранится utf8 а наруже мы (пока) используем OEM-encoding
+				const uint32 ntv_size = sz; // Удваиваем размер из-за того, что в сервере хранится utf8 а наруже мы (пока) используем OEM-encoding
+					// При удваивании mysql отказывается принимать данные ссылаясь на перехлест длины поля.
 				if(action == 0) {
+					//pBind->Flags |= SSqlStmt::Bind::fUseRetActualSize;
 					pBind->SetNtvTypeAndSize(MYSQL_TYPE_VAR_STRING, ntv_size);
 					pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
 				}
@@ -1537,7 +1509,8 @@ enum enum_field_types {
 						const bool is_max = ismemchr(pBind->P_Data, sz-1, 255U);
 						{
 							SString & r_temp_buf = SLS.AcquireRvlStr();
-							r_temp_buf.CatN(static_cast<const char *>(pBind->P_Data), sz);
+							//r_temp_buf.CatN(static_cast<const char *>(pBind->P_Data), sz);
+							r_temp_buf.Cat(static_cast<const char *>(pBind->P_Data));
 							if(!is_max) {
 								r_temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 							}

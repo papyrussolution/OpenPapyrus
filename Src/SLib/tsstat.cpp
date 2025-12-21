@@ -123,14 +123,41 @@ StatBase::~StatBase()
 {
 }
 
-int StatBase::Init(long flags /*=0*/)
+int StatBase::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) // @v12.5.1 @construction
+{
+	int    ok = 1;
+	uint32 ver = SerializeVersion;
+	THROW(pSCtx->Serialize(dir, ver, rBuf));
+	if(dir < 0) {
+		;
+	}
+	THROW(pSCtx->Serialize(dir, Flags, rBuf));
+	THROW(pSCtx->Serialize(dir, Count, rBuf));
+	THROW(pSCtx->Serialize(dir, R.low, rBuf));
+	THROW(pSCtx->Serialize(dir, R.upp, rBuf));
+	for(uint i = 0; i < SIZEOFARRAY(Sum); i++) {
+		THROW(pSCtx->Serialize(dir, Sum[i], rBuf));
+	}
+	THROW(pSCtx->Serialize(dir, Exp, rBuf));
+	THROW(pSCtx->Serialize(dir, Var, rBuf));
+	THROW(pSCtx->Serialize(dir, Kurtosis, rBuf));
+	THROW(pSCtx->Serialize(dir, Skew, rBuf));
+	THROW(pSCtx->Serialize(dir, Test_Z, rBuf));
+	THROW(pSCtx->Serialize(dir, Test_ChSq, rBuf));
+	THROW(pSCtx->Serialize(dir, &Series, rBuf));
+	CATCHZOK
+	return ok;
+}
+
+int StatBase::Init(long flags/*=0*/)
 {
 	Flags = flags;
 	Count = 0;
-	IterCount = 0;
+	//@v12.5.1 IterCount = 0;
 	memzero(Sum, sizeof(Sum));
-	Min = SMathConst::Max;
-	Max = SMathConst::Min;
+	R.Set(SMathConst::Max, SMathConst::Min); // @v12.5.1
+	// @v12.5.1 Min = SMathConst::Max;
+	// @v12.5.1 Max = SMathConst::Min;
 	Exp = Var = 0.0;
 	Kurtosis = 0.0;
 	Skew = 0.0;
@@ -168,11 +195,11 @@ void StatBase::Step(const RealArray & rVl)
 {
 	const uint sc = rVl.getCount();
 	Count += sc;
-	IterCount += sc;
+	//@v12.5.1 IterCount += sc;
 	for(uint i = 0; i < sc; i++) {
 		const double val = rVl.at(i);
-		SETMAX(Max, val);
-		SETMIN(Min, val);
+		SETMAX(R.upp, val);
+		SETMIN(R.low, val);
 		Sum[0] += val;
 		double sq = val * val;
 		Sum[1] += sq;
@@ -189,9 +216,9 @@ void StatBase::Step(const RealArray & rVl)
 void StatBase::Step(double val)
 {
 	Count++;
-	IterCount++;
-	SETMAX(Max, val);
-	SETMIN(Min, val);
+	//@v12.5.1 IterCount++;
+	SETMAX(R.upp, val);
+	SETMIN(R.low, val);
 	Sum[0] += val;
 	double sq = val * val;
 	Sum[1] += sq;
@@ -208,7 +235,7 @@ double StatBase::GetSum() const { return Sum[0]; }
 double StatBase::GetVariance() const 
 { 
 	// Если все значения, поданные на вход были равны, то без проверки (Min != Max) результат может быть NAN
-	return (Count > 1 && Min != Max) ? (Var * static_cast<double>(Count) / static_cast<double>(Count - 1)) : 0.0;
+	return (Count > 1 && R.low != R.upp) ? (Var * static_cast<double>(Count) / static_cast<double>(Count - 1)) : 0.0;
 }
 
 double StatBase::GetStdDev() const 
@@ -1569,10 +1596,10 @@ int STimeSeries::Analyze(const char * pVecSymb, uint firstIdx, uint count, Stat 
 			prev_utm = utm;
 		}
 		stat_delta.Finish();
-		stat_local_dev.Finish(); // @v10.7.1
+		stat_local_dev.Finish();
 		rS.Finish();
 		rS.DeltaAvg = stat_delta.GetExp();
-		rS.LocalDevAvg = stat_local_dev.GetExp(); // @v10.7.1
+		rS.LocalDevAvg = stat_local_dev.GetExp();
 		/* @construction 
 		{
 			struct MoveListBlock {
@@ -1899,7 +1926,6 @@ int STimeSeries::GetChunkRecentSince(const SUniTime & rSince, const SUniTime * p
 	if(SearchFirstEntrySince(rSince, &first_idx) > 0) {
 		const  uint tsc = GetCount();
 		for(uint i = first_idx; i < tsc; i++) {
-			// @v10.7.0 {
 			if(pTill) {
 				const SUniTime & r_ut = T.at(i);
 				int    sq;
@@ -1908,7 +1934,7 @@ int STimeSeries::GetChunkRecentSince(const SUniTime & rSince, const SUniTime * p
 					THROW(rResult.AddItemFromSample(*this, i));
 				}
 			}
-			else { // } @v10.7.0 
+			else {
 				THROW(rResult.AddItemFromSample(*this, i));
 			}
 		}

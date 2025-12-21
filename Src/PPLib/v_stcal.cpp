@@ -482,7 +482,22 @@ DBQuery * PPViewStaffCal::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbe_duration.push(p_t->TmVal);
 		dbe_duration.push(static_cast<DBFunc>(PPDbqFuncPool::IdDurationToTime));
 	}
+	// @v12.5.1 {
 	p_q = &Select_(
+		p_t->ID__,      // #0
+		p_t->CalID,     // #1
+		p_t->LinkObjID, // #2
+		p_t->Dt,        // #3
+		p_t->TmStart,   // #4
+		p_t->TmEnd,     // #5
+		0L);
+	p_q->addField(dbe_duration);   // #6
+	p_q->addField(dbe_cal);        // #7
+	p_q->addField(dbe_objname);    // #8
+	p_q->addField(p_t->DtText);    // #9
+	p_q->addField(p_t->Count);     // #10
+	// } @v12.5.1 
+	/* @v12.5.1 p_q = &Select_(
 		p_t->ID__,      // #0
 		p_t->CalID,     // #1
 		p_t->LinkObjID, // #2
@@ -494,7 +509,8 @@ DBQuery * PPViewStaffCal::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbe_objname,    // #8
 		p_t->DtText,    // #9
 		p_t->Count,     // #10
-		0).from(p_t, 0);
+		0);*/
+	p_q->from(p_t, 0);
 	if(Filt.Order == ordByDate)
 		p_q->orderBy(p_t->Dt, 0L);
 	else if(Filt.Order == ordByObject)

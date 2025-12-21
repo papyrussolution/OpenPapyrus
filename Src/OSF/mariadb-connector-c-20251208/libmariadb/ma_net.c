@@ -106,7 +106,7 @@ static bool net_realloc(NET * net, size_t length)
 	if(length >= net->max_packet_size) {
 		net->error = 1;
 		net->pvio->set_error(net->pvio->mysql, CR_NET_PACKET_TOO_LARGE, SQLSTATE_UNKNOWN, 0);
-		return(1);
+		return 1;
 	}
 	pkt_length = (length+IO_SIZE-1) & ~(IO_SIZE-1);
 	/* reallocate buffer:
@@ -114,11 +114,11 @@ static bool net_realloc(NET * net, size_t length)
 	if(!(buff = (uchar*)SAlloc::R(net->buff,
 	    pkt_length + NET_HEADER_SIZE + COMP_HEADER_SIZE))) {
 		net->error = 1;
-		return(1);
+		return 1;
 	}
 	net->buff = net->write_pos = buff;
 	net->buff_end = buff+(net->max_packet = (ulong)pkt_length);
-	return(0);
+	return 0;
 }
 
 /* Remove unwanted characters from connection */
@@ -203,7 +203,7 @@ int ma_net_write_command(NET * net, uchar command,
 
 			if(ma_net_write_buff(net, (char*)buff, buff_size) ||
 			    ma_net_write_buff(net, packet, len))
-				return(1);
+				return 1;
 			packet += len;
 			length -= MAX_PACKET_LENGTH;
 			len = MAX_PACKET_LENGTH;
@@ -284,7 +284,7 @@ int ma_net_real_write(NET * net, const char * packet, size_t len)
 			net->pvio->set_error(net->pvio->mysql, CR_OUT_OF_MEMORY, SQLSTATE_UNKNOWN, 0);
 			net->error = 2;
 			net->reading_or_writing = 0;
-			return(1);
+			return 1;
 		}
 		memcpy(b+header_length, packet, len);
 
@@ -312,7 +312,7 @@ int ma_net_real_write(NET * net, const char * packet, size_t len)
 			if(net->compress)
 				SAlloc::F((char*)packet);
 #endif
-			return(1);
+			return 1;
 		}
 		pos += length;
 	}
@@ -521,7 +521,7 @@ int net_add_multi_command(NET * net, uchar command, const uchar * packet,
     size_t length)
 {
 	if(net->extension->multi_status == COM_MULTI_OFF) {
-		return(1);
+		return 1;
 	}
 	/* don't increase packet number */
 	net->compress_pkt_nr = net->pkt_nr = 0;

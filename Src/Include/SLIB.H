@@ -4322,6 +4322,7 @@ public:
 	// Descr: Возвращает длину строки.
 	//
 	size_t Len() const;
+	uint32 Len32() const { return static_cast<uint32>(Len()); } // @v12.5.1
 	int    LenI() const { return static_cast<int>(Len()); } // @v12.4.10
 	size_t BufSize() const;
 	void   Obfuscate();
@@ -6549,6 +6550,7 @@ template <class T> void SExchangeForOrder(T * pA, T * pB)
 }
 int    FASTCALL cmp_long(long a, long b);
 int    FASTCALL cmp_ulong(ulong a, ulong b);
+int    FASTCALL cmp_size_t(size_t a, size_t b);
 int    FASTCALL cmp_int64(int64 a, int64 b);
 int    FASTCALL cmp_double(double a, double b);
 //
@@ -6768,6 +6770,7 @@ public:
 	STempBuffer & FASTCALL operator = (const STempBuffer & rS);
 	bool   IsValid() const { return (P_Buf != 0); }
 	size_t GetSize() const { return Size; }
+	uint32 GetSize32() const { return static_cast<uint32>(Size); }
 	operator char * () { return P_Buf; }
 	operator const char * () const { return P_Buf; }
 	const  uchar * ucptr() const { return reinterpret_cast<const uchar *>(P_Buf); }
@@ -6824,6 +6827,7 @@ public:
 	//
 	bool   FASTCALL IsEq(const SBuffer & rS) const;
 	const  void * constptr() const { return P_Buf; }
+	void * nonconstptr() { return P_Buf; } // @v12.5.1
 	size_t GetSize() const { return Size; }
 	size_t GetRdOffs() const { return RdOffs; }
 	size_t GetWrOffs() const { return WrOffs; }
@@ -6847,8 +6851,10 @@ public:
 	SBuffer & Z();
 	//
 	// Descr: Записывает в буфер данные, на которые указывает pSrc в размере srcLen.
+	//   Начиная с версии 12.5.1 если pSrc == 0, то все делает так будто pSrc реален, но вместо копирования данных из pSrc обнуляет
+	//   участок буфера, предназначенный для записи!
 	//
-	int    FASTCALL Write(const void * pSrc, size_t srcLen);
+	int    Write(const void * pSrc, size_t srcLen);
 	bool   AppendMime64(const char * pMimeString); // @v12.3.11
 	bool   AssignMime64(const char * pMimeString); // @v12.3.11
 	//
@@ -8958,6 +8964,7 @@ IMPL_CMPFUNC(FilePathUtf8, i1, i2);
 DECL_CMPFUNC(Pchar);
 DECL_CMPFUNC(int);
 DECL_CMPFUNC(int16);
+DECL_CMPFUNC(uint16); // @v12.5.1
 DECL_CMPFUNC(long);
 DECL_CMPFUNC(int64);
 DECL_CMPFUNC(uint64); // @v12.3.9
@@ -9401,6 +9408,7 @@ public:
 	int    GetList(LongArray & rList, int unique) const;
 	void   Scale(double rate);
 	bool   SearchMaxVal(uint * pPos) const;
+	bool   SearchMinVal(uint * pPos) const; // @v12.5.1
 
 	enum {
 		dfRound = 0x0001, // Округлять каждое распределенное значение до точность prec
@@ -9411,6 +9419,20 @@ public:
 	int    Add(long key, double val, int additive = 1, int binary = 0);
 	int    Add(const RAssocArray & rList, int additive = 1, int binary = 0);
 	int    Remove(long key, int binary = 0);
+	//
+	// Descr: Включает пару {key; val} в список в том случае, если либо количество находящихся в списке элементом меньше k,
+	//   либо если val превышает значение какого-то из уже находящихся в списке элементов. Таким образом, если
+	//   мы вставляем элементы только этой функцией, то в списке будет не больше k элементов и все они будут рекордсменами
+	//   по величине val среди всех потенциальных элементов, которые мы пытались включить в список.
+	// Note: Если в списке уже есть элемент с идентификатором key, то в зависимости от результата сравнения ассоциированного значения,
+	//   он будет либо замещен новый значением, либо останется как есть.
+	// 
+	// Returns:
+	//   >0 - элемент добавлен в список
+	//   <0 - элемент не добавлен в список
+	//    0 - error
+	//
+	int    AddMaxK(long key, double val, uint k); // @v12.5.1
 	void   SortByKey();
 	//
 	// Descr: Сортирует массив в порядке увеличения значения Val
@@ -14561,6 +14583,7 @@ public:
 };
 
 class StatBase {
+	static constexpr uint32 SerializeVersion = 1; // @v12.5.1
 public:
 	enum {
 		fExt          = 0x0001, // Рассчитывать дополнительные статистики
@@ -14576,8 +14599,8 @@ public:
 	void   Step(double);
 	void   Step(const RealArray & rVl);
 	long   GetCount() const { return Count; }
-	double GetMin() const { return Min; }
-	double GetMax() const { return Max; }
+	double GetMin() const { return R.low; }
+	double GetMax() const { return R.upp; }
 	//
 	// Descr: Возвращает математическое ожидание ряда (среднее значение)
 	//
@@ -14591,12 +14614,14 @@ public:
 	int    GetValue(long idx, double * pVal) const;
 	void   GetGammaParams(double * pAlpha, double * pBeta) const;
 	const  RealArray & GetSeries() const { return Series; }
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx); // @v12.5.1
 protected:
 	long   Flags;
-	long   IterCount;
+	//@v12.5.1 long   IterCount__;
 	long   Count;
-	double Min;
-	double Max;
+	RealRange R;
+	//double Min;
+	//double Max;
 	double Sum[4]; // Sum[0] - линейная сумма, Sum[1] - сумма квадратов, Sum[2] - сумма кубов, Sum[3] - сумма четвертых степеней
 	double Exp;    // Математическое ожидание
 	double Var;    // Дисперсия //

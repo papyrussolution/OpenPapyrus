@@ -28,11 +28,9 @@
 /* #undef HAVE_SYS_UN_H */
 /* #undef HAVE_UNISTD_H */
 /* #undef HAVE_UCONTEXT_H */
-
 /*
  * function definitions - processed in LibmysqlFunctions.txt 
  */
-
 /* #undef HAVE_DLERROR */
 /* #undef HAVE_DLOPEN */
 /* #undef HAVE_GETPWUID */
@@ -54,77 +52,71 @@
  */
 #define SIZEOF_CHARP 4
 #if defined(SIZEOF_CHARP)
-#define HAVE_CHARP 1
+	#define HAVE_CHARP 1
 #endif
 #define SIZEOF_INT 4
 #if defined(SIZEOF_INT)
-# define HAVE_INT 1
+	#define HAVE_INT 1
 #endif
 #define SIZEOF_LONG 4
 #if defined(SIZEOF_LONG)
-# define HAVE_LONG 1
+	#define HAVE_LONG 1
 #endif
 #define SIZEOF_LONG_LONG 8
 #if defined(SIZEOF_LONG_LONG)
-# define HAVE_LONG_LONG 1
+	#define HAVE_LONG_LONG 1
 #endif
 #define SIZEOF_SIZE_T 4
 #if defined(SIZEOF_SIZE_T)
-# define HAVE_SIZE_T 1
+	#define HAVE_SIZE_T 1
 #endif
 /* #undef SIZEOF_UINT */
 #if defined(SIZEOF_UINT)
-# define HAVE_UINT 1
+	#define HAVE_UINT 1
 #endif
 /* #undef SIZEOF_USHORT */
 #if defined(SIZEOF_USHORT)
-# define HAVE_USHORT 1
+	#define HAVE_USHORT 1
 #endif
-
 /* #undef SIZEOF_ULONG */
 #if defined(SIZEOF_ULONG)
-# define HAVE_ULONG 1
+	#define HAVE_ULONG 1
 #endif
-
 /* #undef SIZEOF_INT8 */
 #if defined(SIZEOF_INT8)
-# define HAVE_INT8 1
+	#define HAVE_INT8 1
 #endif
 /* #undef SIZEOF_UINT8 */
 #if defined(SIZEOF_UINT8)
-# define HAVE_UINT8 1
+	#define HAVE_UINT8 1
 #endif
-
 /* #undef SIZEOF_INT16 */
 #if defined(SIZEOF_INT16)
-# define HAVE_INT16 1
+	#define HAVE_INT16 1
 #endif
 /* #undef SIZEOF_UINT16 */
 #if defined(SIZEOF_UINT16)
-# define HAVE_UINT16 1
+	#define HAVE_UINT16 1
 #endif
-
 /* #undef SIZEOF_INT32 */
 #if defined(SIZEOF_INT32)
-# define HAVE_INT32 1
+	#define HAVE_INT32 1
 #endif
 /* #undef SIZEOF_UINT32 */
 #if defined(SIZEOF_UINT32)
-# define HAVE_UINT32 1
+	#define HAVE_UINT32 1
 #endif
-
 /* #undef SIZEOF_INT64 */
 #if defined(SIZEOF_INT64)
-# define HAVE_INT64 1
+	#define HAVE_INT64 1
 #endif
 /* #undef SIZEOF_UINT64 */
 #if defined(SIZEOF_UINT64)
-# define HAVE_UINT64 1
+	#define HAVE_UINT64 1
 #endif
-
 /* #undef SIZEOF_SOCKLEN_T */
 #if defined(SIZEOF_SOCKLEN_T)
-# define HAVE_SOCKLEN_T 1
+	#define HAVE_SOCKLEN_T 1
 #endif
 
 #define SOCKET_SIZE_TYPE int
@@ -134,5 +126,5 @@
 #define LOCAL_INFILE_MODE_AUTO 2
 #define ENABLED_LOCAL_INFILE LOCAL_INFILE_MODE_AUTO
 
-#define MARIADB_DEFAULT_CHARSET "latin1"
+#define MARIADB_DEFAULT_CHARSET "utf8mb4" // @sobolev "latin1"-->"utf8mb4"
 

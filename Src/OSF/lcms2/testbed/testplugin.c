@@ -480,7 +480,7 @@ Error:
 
 uint8 * my_Unroll565(struct _cmstransform_struct * /*nfo*/, uint16 wIn[], uint8 * accum, uint32 /*_stride*/)
 {
-	uint16 pixel = *(uint16*)accum; // Take whole pixel
+	uint16 pixel = *(uint16 *)accum; // Take whole pixel
 	double r = floor(((double)(pixel & 31) * 65535.0) / 31.0 + 0.5);
 	double g = floor((((pixel >> 5) & 63) * 65535.0) / 63.0 + 0.5);
 	double b = floor((((pixel >> 11) & 31) * 65535.0) / 31.0 + 0.5);
@@ -496,7 +496,7 @@ uint8 * my_Pack565(_cmsTRANSFORM * /*info*/, uint16 wOut[], uint8 * output, uint
 	const int g = (int)floor(( wOut[1] * 63) / 65535.0 + 0.5);
 	const int b = (int)floor(( wOut[0] * 31) / 65535.0 + 0.5);
 	uint16 pixel = (r & 31)  | (( g & 63) << 5) | ((b & 31) << 11);
-	*(uint16*)output = pixel;
+	*(uint16 *)output = pixel;
 	return output + 2;
 }
 

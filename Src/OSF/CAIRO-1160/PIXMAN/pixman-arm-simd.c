@@ -80,28 +80,19 @@ static boolint arm_simd_blt(pixman_implementation_t * imp, uint32 * src_bits, ui
 		return FALSE;
 	switch(src_bpp) {
 		case 8:
-		    pixman_composite_src_8_8_asm_armv6(
-			    width, height,
-			    (uint8 *)(((char *)dst_bits) +
-			    dest_y * dst_stride * 4 + dest_x * 1), dst_stride * 4,
-			    (uint8 *)(((char *)src_bits) +
-			    src_y * src_stride * 4 + src_x * 1), src_stride * 4);
+		    pixman_composite_src_8_8_asm_armv6(width, height,
+			    (uint8 *)(((char *)dst_bits) + dest_y * dst_stride * 4 + dest_x * 1), dst_stride * 4,
+			    (uint8 *)(((char *)src_bits) + src_y * src_stride * 4 + src_x * 1), src_stride * 4);
 		    return TRUE;
 		case 16:
-		    pixman_composite_src_0565_0565_asm_armv6(
-			    width, height,
-			    (uint16 *)(((char *)dst_bits) +
-			    dest_y * dst_stride * 4 + dest_x * 2), dst_stride * 2,
-			    (uint16 *)(((char *)src_bits) +
-			    src_y * src_stride * 4 + src_x * 2), src_stride * 2);
+		    pixman_composite_src_0565_0565_asm_armv6(width, height,
+			    (uint16 *)(((char *)dst_bits) + dest_y * dst_stride * 4 + dest_x * 2), dst_stride * 2,
+			    (uint16 *)(((char *)src_bits) + src_y * src_stride * 4 + src_x * 2), src_stride * 2);
 		    return TRUE;
 		case 32:
-		    pixman_composite_src_8888_8888_asm_armv6(
-			    width, height,
-			    (uint32 *)(((char *)dst_bits) +
-			    dest_y * dst_stride * 4 + dest_x * 4), dst_stride,
-			    (uint32 *)(((char *)src_bits) +
-			    src_y * src_stride * 4 + src_x * 4), src_stride);
+		    pixman_composite_src_8888_8888_asm_armv6(width, height,
+			    (uint32 *)(((char *)dst_bits) + dest_y * dst_stride * 4 + dest_x * 4), dst_stride,
+			    (uint32 *)(((char *)src_bits) + src_y * src_stride * 4 + src_x * 4), src_stride);
 		    return TRUE;
 		default:
 		    return FALSE;

@@ -1,6 +1,6 @@
 // V_GLOBUS.CPP
-// Copyright (c) A.Starodub 2012, 2016, 2017, 2019, 2020, 2021
-//
+// Copyright (c) A.Starodub 2012, 2016, 2017, 2019, 2020, 2021, 2025
+// @codepage UTF-8
 // PPViewGlobalUserAcc
 //
 #include <pp.h>
@@ -105,7 +105,8 @@ int PPViewGlobalUserAcc::UpdateTempTable(const PPIDArray * pIdList)
 int PPViewGlobalUserAcc::InitIteration()
 {
 	int    ok = 1;
-	TempGlobUserAccTbl::Key0 k, k_;
+	TempGlobUserAccTbl::Key0 k;
+	TempGlobUserAccTbl::Key0 k_;
 	BExtQuery::ZDelete(&P_IterQuery);
 	P_IterQuery = new BExtQuery(P_TempTbl, 0, 128);
 	P_IterQuery->selectAll();
@@ -147,13 +148,23 @@ int FASTCALL PPViewGlobalUserAcc::NextIteration(GlobalUserAccViewItem * pItem)
 		dbe_svc.push(static_cast<DBFunc>(PPDbqFuncPool::IdSubStrById));
 	}
 	// } @v12.2.0
+	// @v12.5.1 {
 	q = & Select_(
+		t->ID,            // #0
+		0L);
+	q->addField(t->Name);         // #1
+	q->addField(dbe_psn);         // #2
+	q->addField(t->Guid);         // #3
+	q->addField(dbe_svc);         // #4
+	// } @v12.5.1 
+	/* @v12.5.1 q = & Select_(
 			t->ID,            // #0
 			t->Name,          // #1
 			dbe_psn,          // #2
 			t->Guid,          // #3
 			dbe_svc,          // #4
-			0L).from(t, 0L).where(*dbq).orderBy(t->Name, 0L);
+			0L);*/
+	q->from(t, 0L).where(*dbq).orderBy(t->Name, 0L);
 	THROW(CheckQueryPtr(q));
 	CATCH
 		if(q)
@@ -175,8 +186,8 @@ int FASTCALL PPViewGlobalUserAcc::NextIteration(GlobalUserAccViewItem * pItem)
 				ok = (ObjGlobAcc.Edit(&(id = 0), 0) == cmOK) ? 1 : -1;
 				break;
 			case PPVCMD_QUICKTAGEDIT: // @v11.2.8
-				// Â ýòîé êîìàíäå óêàçàòåëü pHdr çàíÿò ïîä ñïèñîê èäåíòèôèêàòîðîâ òåãîâ, ñîîòâåòñòâóþùèõ íàæàòîé êëàâèøå
-				// Â ñâÿçè ñ ýòèì òåêóùèé ýëåìåíò òàáëèöû ïðèäåòñÿ ïîëó÷èòü ÿâíûì âûçîâîì pBrw->getCurItem()
+				// Ð’ ÑÑ‚Ð¾Ð¹ ÐºÐ¾Ð¼Ð°Ð½Ð´Ðµ ÑƒÐºÐ°Ð·Ð°Ñ‚ÐµÐ»ÑŒ pHdr Ð·Ð°Ð½ÑÑ‚ Ð¿Ð¾Ð´ ÑÐ¿Ð¸ÑÐ¾Ðº Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€Ð¾Ð² Ñ‚ÐµÐ³Ð¾Ð², ÑÐ¾Ð¾Ñ‚Ð²ÐµÑ‚ÑÑ‚Ð²ÑƒÑŽÑ‰Ð¸Ñ… Ð½Ð°Ð¶Ð°Ñ‚Ð¾Ð¹ ÐºÐ»Ð°Ð²Ð¸ÑˆÐµ
+				// Ð’ ÑÐ²ÑÐ·Ð¸ Ñ ÑÑ‚Ð¸Ð¼ Ñ‚ÐµÐºÑƒÑ‰Ð¸Ð¹ ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚ Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ñ‹ Ð¿Ñ€Ð¸Ð´ÐµÑ‚ÑÑ Ð¿Ð¾Ð»ÑƒÑ‡Ð¸Ñ‚ÑŒ ÑÐ²Ð½Ñ‹Ð¼ Ð²Ñ‹Ð·Ð¾Ð²Ð¾Ð¼ pBrw->getCurItem()
 				//
 				{
 					const BrwHdr * p_row = static_cast<const BrwHdr *>(pBrw->getCurItem());

@@ -457,7 +457,7 @@ bool CollationFastLatinBuilder::encodeUniqueCEs(UErrorCode & errorCode) {
 		return FALSE;
 	}
 	uprv_free(miniCEs);
-	miniCEs = (uint16*)uprv_malloc(uniqueCEs.size() * 2);
+	miniCEs = (uint16 *)uprv_malloc(uniqueCEs.size() * 2);
 	if(miniCEs == NULL) {
 		errorCode = U_MEMORY_ALLOCATION_ERROR;
 		return FALSE;

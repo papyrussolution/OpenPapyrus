@@ -1325,7 +1325,7 @@ int32_t MutableCodePointTrie::compactIndex(int32_t fastILimit, MixedBlocks &mixe
 	// Index table: Fast index, index-1, index-3, index-2.
 	// +1 for possible index table padding.
 	int32_t index16Capacity = fastIndexLength + index1Length + index3Capacity + index2Capacity + 1;
-	index16 = (uint16*)uprv_malloc(index16Capacity * 2);
+	index16 = (uint16 *)uprv_malloc(index16Capacity * 2);
 	if(index16 == nullptr) {
 		errorCode = U_MEMORY_ALLOCATION_ERROR;
 		return 0;
@@ -1724,7 +1724,7 @@ UCPTrie * MutableCodePointTrie::build(UCPTrieType type, UCPTrieValueWidth valueW
 	bytes += sizeof(UCPTrie);
 
 	// Fill the index and data arrays.
-	uint16 * dest16 = (uint16*)bytes;
+	uint16 * dest16 = (uint16 *)bytes;
 	trie->index = dest16;
 
 	if(highStart <= fastLimit) {

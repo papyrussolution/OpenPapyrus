@@ -418,8 +418,7 @@ public:
 				// https://arxiv.org/pdf/1903.06059.pdf appendix B.3
 				const float v = top->fx - perturbed_probs[i] +
 				    std::log1p(-std::exp(perturbed_probs[i] - max_score));
-				adjusted_probs[i] = top->fx - std::max(static_cast<float>(0.0), v) -
-				    std::log1p(std::exp(-std::abs(v)));
+				adjusted_probs[i] = top->fx - std::max(static_cast<float>(0.0), v) - std::log1p(std::exp(-std::abs(v)));
 			}
 		}
 

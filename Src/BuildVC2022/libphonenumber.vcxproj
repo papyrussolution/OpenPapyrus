@@ -248,7 +248,7 @@
       <SupportJustMyCode>false</SupportJustMyCode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsManaged>false</CompileAsManaged>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -279,7 +279,7 @@
       <SupportJustMyCode>false</SupportJustMyCode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsManaged>false</CompileAsManaged>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -310,7 +310,7 @@
       <SupportJustMyCode>false</SupportJustMyCode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsManaged>false</CompileAsManaged>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -339,7 +339,7 @@
       <SupportJustMyCode>false</SupportJustMyCode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsManaged>false</CompileAsManaged>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -370,7 +370,7 @@
       <SupportJustMyCode>false</SupportJustMyCode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsManaged>false</CompileAsManaged>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -401,7 +401,7 @@
       <SupportJustMyCode>false</SupportJustMyCode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsManaged>false</CompileAsManaged>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -429,7 +429,7 @@
       <DebugInformationFormat>None</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsManaged>false</CompileAsManaged>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -461,7 +461,7 @@
       <DebugInformationFormat>None</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsManaged>false</CompileAsManaged>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -493,7 +493,7 @@
       <DebugInformationFormat>None</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsManaged>false</CompileAsManaged>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -523,7 +523,7 @@
       <DebugInformationFormat>None</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsManaged>false</CompileAsManaged>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -555,7 +555,7 @@
       <DebugInformationFormat>None</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsManaged>false</CompileAsManaged>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -587,7 +587,7 @@
       <DebugInformationFormat>None</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsManaged>false</CompileAsManaged>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

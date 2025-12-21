@@ -917,7 +917,7 @@ public:
 		setCtrlData(CTL_QUOTKIND_ID,   &Data.Rec.ID);
 		disableCtrl(CTL_QUOTKIND_ID, (int)Data.Rec.ID || !PPMaster);
 		op_type_list.addzlist(PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, PPOPT_GOODSORDER,
-			PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_GENERIC, PPOPT_DRAFTQUOTREQ, 0); // @v10.3.11 PPOPT_DRAFTRECEIPT // @v10.5.7 PPOPT_DRAFTQUOTREQ
+			PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_GENERIC, PPOPT_DRAFTQUOTREQ, 0);
 		SetupOprKindCombo(this, CTLSEL_QUOTKIND_OP, Data.Rec.OpID, 0, &op_type_list, 0);
 		SetupPPObjCombo(this, CTLSEL_QUOTKIND_ACCSHEET, PPOBJ_ACCSHEET, Data.Rec.AccSheetID, OLW_CANINSERT, 0);
 		setCtrlData(CTL_QUOTKIND_RANK, &Data.Rec.Rank);
@@ -937,7 +937,6 @@ public:
 			Data.Rec.GetRestrText(temp_buf);
 			setStaticText(CTL_QUOTKIND_ST_RESTR, temp_buf);
 		}
-		// @v10.9.10 @construction {
 		{
 			long   rp = 0;
 			if(Data.Rec.Flags & QUOTKF_USEROUNDING) {
@@ -955,7 +954,6 @@ public:
 			SetClusterData(CTL_QUOTKIND_RNDGDIR, rp);
 			setCtrlReal(CTL_QUOTKIND_RNDGPREC, Data.Rec.RoundingPrec);
 		}
-		// } @v10.9.10 @construction
 		UpdateView();
 		return 1;
 	}
@@ -981,7 +979,6 @@ public:
 		// } @v12.0.10 
 		GetDiscount(this, CTL_QUOTKIND_DISCOUNT, &Data.Rec);
 		getCtrlData(CTL_QUOTKIND_RANK,  &Data.Rec.Rank);
-		// @v10.9.10 @construction {
 		{
 			long   rp = GetClusterData(CTL_QUOTKIND_RNDGDIR);
 			if(rp == 0) {
@@ -1005,7 +1002,6 @@ public:
 				getCtrlData(CTL_QUOTKIND_RNDGPREC, &Data.Rec.RoundingPrec);
 			}
 		}
-		// } @v10.9.10 @construction
 		ASSIGN_PTR(pData, Data);
 		CATCH
 			ok = 0;
@@ -1075,7 +1071,8 @@ int QuotKindDialog::GetTimePeriod(TDialog * pDlg)
 	pDlg->getCtrlData(CTL_QKRESTR_TIMERANGE, buf);
 	if(buf[0]) {
 		char * p = 0;
-		LTIME  beg_tm, end_tm;
+		LTIME  beg_tm;
+		LTIME  end_tm;
 		THROW((p = sstrchr(strip(buf), '.')) != 0 && p[1] == '.');
 		*p = 0;
 		strtotime(buf, 0, &beg_tm);

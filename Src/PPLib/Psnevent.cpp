@@ -52,7 +52,7 @@ int PersonEventCore::SearchPair(const PairIdent * pIdent, int forward, PersonEve
 	k3.PersonID = pIdent->PersonID;
 	k3.Dt = pIdent->Dt;
 	k3.OprNo = pIdent->OprNo;
-	int    sp = forward ? spGt : spLt;
+	const  int sp = forward ? spGt : spLt;
 	while(ok < 0 && search(3, &k3, sp) && k3.PersonID == pIdent->PersonID) {
 		if(!(data.Flags & PSNEVF_FORCEPAIR)) {
 			if(!(pIdent->Flags & pIdent->fUseSCard) || data.PrmrSCardID == pIdent->SCardID) {
@@ -973,7 +973,7 @@ int PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKind * p
 								double rest = 0.0;
 								SCardTbl::Rec sc_rec;
 								THROW(P_ScObj->Search(sc_id, &sc_rec) > 0);
-								THROW(crret = P_ScObj->CheckRestrictions(&sc_rec, 0, getcurdatetime_())); // @v7.8.2
+								THROW(crret = P_ScObj->CheckRestrictions(&sc_rec, 0, getcurdatetime_()));
 								if(crret == 2) {
 									if(P_ScObj->ActivateRec(&sc_rec) > 0) {
 										THROW(P_ScObj->P_Tbl->Update(sc_rec.ID, &sc_rec, 0));
@@ -1373,7 +1373,8 @@ int PPObjPersonEvent::PutPacket(PPID * pID, PPPsnEventPacket * pPack, int use_ta
 {
 	int    ok = 1;
 	Reference * p_ref(PPRef);
-	uint   i, j;
+	uint   i;
+	uint   j;
 	LDATE  op_dt = ZERODATE;
 	long   op_no = 0;
 	PPID   id = DEREFPTRORZ(pID);

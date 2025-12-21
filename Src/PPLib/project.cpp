@@ -129,10 +129,11 @@ static int PPObjProject_WriteConfig(PPProjectConfig * pCfg, PPOpCounterPacket * 
 			if(Data.Cfg.Flags & PRJCFGF_INCOMPLETETASKREMIND) {
 				THROW_PP(Data.Cfg.RemindPrd.low <= Data.Cfg.RemindPrd.upp && (Data.Cfg.RemindPrd.low != 0 || Data.Cfg.RemindPrd.upp != 0), PPERR_INVPERIODINPUT);
 			}
-			double beg_h = 0.0, end_h = 0.0;
+			double beg_h = 0.0;
+			double end_h = 0.0;
 			GetRealRangeInput(this, sel = CTL_PRJCFG_WORKHOURS, &beg_h, &end_h);
-			Data.Cfg.WorkHoursBeg = (long)beg_h;
-			Data.Cfg.WorkHoursEnd = (long)end_h;
+			Data.Cfg.WorkHoursBeg = static_cast<long>(beg_h);
+			Data.Cfg.WorkHoursEnd = static_cast<long>(end_h);
 			THROW_PP(Data.Cfg.WorkHoursBeg <= Data.Cfg.WorkHoursEnd, PPERR_INVPERIODINPUT);
 			ASSIGN_PTR(pData, Data);
 			CATCH
@@ -772,7 +773,22 @@ DBQuery * PPViewProject::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbe_descr.push(dbconst(static_cast<long>(PPTRPROP_DESCR)));
 		dbe_descr.push(static_cast<DBFunc>(PPDbqFuncPool::IdUnxText));
 	}
+	// @v12.5.1 {
 	q = & Select_(
+		t->ID,          // #00
+		t->Name,        // #01
+		t->Code,        // #02
+		t->Dt,          // #03
+		t->BeginDt,     // #04
+		t->EstFinishDt, // #05
+		t->FinishDt,    // #06
+		t->Status,      // #07
+		0L);
+	q->addField(dbe_cli);   // #08
+	q->addField(dbe_mgr);   // #09
+	q->addField(dbe_descr); // #10
+	// } @v12.5.1 
+	/* @v12.5.1 q = & Select_(
 		t->ID,          // #00
 		t->Name,        // #01
 		t->Code,        // #02
@@ -784,7 +800,7 @@ DBQuery * PPViewProject::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbe_cli,        // #08
 		dbe_mgr,        // #09
 		dbe_descr,      // #10
-		0L);
+		0L);*/
 	q->from(t, 0L).where(*dbq);
 	if(Filt.SortOrd == ProjectFilt::ordByName)
 		q->orderBy(t->ParentID, t->Name, 0L);

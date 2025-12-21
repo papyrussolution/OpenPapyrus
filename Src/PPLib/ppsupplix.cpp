@@ -5485,7 +5485,9 @@ int SapEfes::ReceiveOrders()
 				sess.Setup(SvcUrl, UserName, Password);
 				InitCallHeader(sech);
 				const int status_result = func_status(sess, sech, &status_list);
-				THROW_PP_S(PreprocessResult((const void *)status_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
+#pragma warning(disable:4312)
+				THROW_PP_S(PreprocessResult(reinterpret_cast<const void *>(status_result), sess), PPERR_UHTTSVCFAULT, LastMsg);
+#pragma warning(default:4312)
 			}
 		}
 	}
@@ -13569,6 +13571,28 @@ private:
 
 int COCACOLA::MakeReply(const BillTbl::Rec & rOrderBillRec, PPID billID, StringSet & rSsResultFileNames)
 {
+	/* Замечания по первой итерации @20251215
+		done 1)      Названия сервисных файлов «DATA….» (не «SERVICE…»).
+		2)      В MOV-файлах не заполнены часть обязательных тэгов.
+		done ü  <EQUNR/> - в установке, номер единицы оборудования (10 нулей и 8 цифр номера).
+		done ü  <BARCODE/> - в установке, инвентарный номер (как правило, 14 символов, начинающихся на 0403 или FRG).
+		done ü  <PLANT/> - всегда 39J5 (это константа).
+		done ü  <SLOCATION/> - всегда 6400 (это константа).
+		done ü  <STTXU/> - в снятиях на склад всегда TBRF (это константа); в установках клиенту всегда пустое (это константа).
+		3)      В DATA-файлах не заполнены часть обязательных тэгов.
+		done ü  <DATE_COMPLETE/> - дата в формате ГГГГ-ММ-ДД. Это дата фактического выезда в ТТ, которую водитель ставит в акте приёма-передачи. Должна указываться вручную при закрытии.
+		done ü  <ASTXT/> всегда app (это константа), код технического одобрения.
+		ü  <CODE_GROUP/> - заполняется в зависимости от статуса выполнения (продуктив, непродуктив или отмена до выезда). См. лист «Activity Codes» в файле «Расшифровка ответных файлов».
+		ü  <ACTIVITY_CODE/> - заполняется в зависимости от статуса выполнения (продуктив, непродуктив или отмена до выезда). См. лист «Activity Codes» в файле «Расшифровка ответных файлов».
+		done ü  <EQUNR/> номер единицы оборудования (10 нулей и 8 цифр номера). Должен совпадать с MOV-файлом. Если непродуктив или отмена, то тэг пустой.
+		done ü  <TIDNR/> - инвентарный номер (как правило, 14 символов, начинающихся на 0403 или FRG). Должен совпадать с MOV-файлом. Если непродуктив или отмена, то тэг пустой.
+		done ü  <COMMENTS/> - замечаний нет. Есть просьба – ограничьте, пожалуйста, тэг 40 символами. На практике администраторы при закрытии частенько пишут «сочинения», наша программа кидает xml в ошибки, если в тэге более 40 символов.
+		ü  В некоторых DATA-файлах пустые тэги начала и окончания. Они обязательны для заполнения.
+		done <START_DATE/>
+		done <START_TIME/>
+		done <END_DATE/>
+		done <END_TIME/>
+	*/ 
 	int    ok = -1;
 	Reference * p_ref(PPRef);
 	const  LDATETIME _now_dtm = getcurdatetime_();
@@ -13583,20 +13607,19 @@ int COCACOLA::MakeReply(const BillTbl::Rec & rOrderBillRec, PPID billID, StringS
 				SString svc_file_name; // SERVICE    "Data_xxxx_date"
 				SString equ_file_name; // EQUIPMENT  "MOV_xxxx_date"
 				SString todo_code;
-				PPObjTag tag_obj;
+				SString fmt_buf;
+				SString msg_buf;
+				SString single_goods_barcode;
+				SString lot_serial;
 				PPID   todo_code_tag_id = 0;
 				PPPrjTaskPacket todo_pack;
+				PPGoodsPacket goods_pack;
 				PPIDArray todo_id_list;
 				BailmentOrderSet raw_order_set;
 				const BailmentOrderSet::OrderItem * p_raw_order = 0;
 				//PPGetFilePath(PPPATH_OUT, "")
 				THROW(P_BObj->ExtractPacket(rOrderBillRec.ID, &ord_bpack) > 0);
-				{
-					PPID    _tag_id = 0;
-					PPObjectTag tag_rec;
-					if(tag_obj.FetchBySymb("SERVICE-TODO-CODE", &_tag_id) > 0 && tag_obj.Fetch(_tag_id, &tag_rec) > 0 && tag_rec.TagDataType == OTTYP_STRING)
-						todo_code_tag_id = _tag_id;	
-				}
+				todo_code_tag_id = PPObjTag::Helper_GetTagIdBySymb("SERVICE-TODO-CODE", OTTYP_STRING);
 				{
 					p_ref->UtrC.SearchUtf8(TextRefIdent(PPOBJ_BILL, rOrderBillRec.ID, PPTRPROP_RAWDATA_XML), temp_buf);
 					ParseBailmentOrderBuf(temp_buf, raw_order_set);
@@ -13614,6 +13637,7 @@ int COCACOLA::MakeReply(const BillTbl::Rec & rOrderBillRec, PPID billID, StringS
 					uint   ord_lti_idx = 0;
 					todo_code.Z();
 					todo_pack.Rec.ID = 0;
+					p_ref->Ot.GetTagStr(PPOBJ_LOT, r_lti.LotID, PPTAG_LOT_SN, lot_serial);
 					if(r_lti.OrderRByBill && SVectorBase::GetCount(ord_bpack.P_LocTrfrList)) {
 						for(uint ord_lti = 0; ord_lti < SVectorBase::GetCount(ord_bpack.P_LocTrfrList); ord_lti++) {
 							const LocTransfOpBlock & r_iter_ord_lti = ord_bpack.P_LocTrfrList->at(ord_lti);
@@ -13622,7 +13646,7 @@ int COCACOLA::MakeReply(const BillTbl::Rec & rOrderBillRec, PPID billID, StringS
 								ord_lti_idx = ord_lti;
 								if(todo_code_tag_id && ord_bpack.LTagL.GetTagStr(ord_lti_idx, todo_code_tag_id, todo_code) > 0) {
 									if(TodoObj.P_Tbl->SearchByCode(todo_code, todo_id_list) > 0) {
-										PPID todo_id = 0;
+										PPID   todo_id = 0;
 										if(todo_id_list.getCount() == 1) {
 											todo_id = todo_id_list.get(0);
 										}
@@ -13638,235 +13662,291 @@ int COCACOLA::MakeReply(const BillTbl::Rec & rOrderBillRec, PPID billID, StringS
 							}
 						}
 					}
-					{
-						// EQUIPMENT "MOV_xxxx_date"
-						temp_buf.Z().Cat("MOV").CatChar('_').Cat(rOrderBillRec.Code).CatChar('_').Cat(_now_dtm.d, DATF_YMD|DATF_NODIV).DotCat("xml");
-						PPGetFilePath(PPPATH_OUT, temp_buf, equ_file_name);
-						xmlTextWriter * p_x = xmlNewTextWriterFilename(equ_file_name, 0);
-						THROW_SL(p_x);
-						{
-							/*
-								XML EQUIPMENT от поставщика	Обозначение
-								<CAM>
-									<EQUI_MOVE> Тип файла
-										<ITEM>
-											<TYPE>GI</TYPE>	Тип движения : (GI- Выдача (при установки на клиента) GR - Получение (снятие на склад с клиента))
-											<EQUNR>000000000055670495</EQUNR>	Номер единицы оборудования 
-											<BARCODE>045736540</BARCODE>	Штрих код оборудования/инвентарный номер
-											<PLANT>5180</PLANT>	Завод (доп. файл Мултон IH08)
-											<SLOCATION>6400</SLOCATION>	Склад (доп. файл Мултон IH08)
-											<ORDER>008014777184</ORDER>	Номер заказа (из файла XML Мултон <SORDER>)
-											<STTXU>PLCD</STTXU>	Новый статус оборудования (при GI – поле должно быть пустое <STTXU/>, при GR – TBRF)
-										</ITEM>	 
-									</EQUI_MOVE>	 
-								</CAM>	 
-							*/ 
-							SXml::WDoc _doc(p_x, cpUTF8);
-							SXml::WNode n_c(p_x, "CAM");
-							{
-								SXml::WNode n_m(p_x, "EQUI_MOVE"); // Тип файла
-								{
-									SXml::WNode n_i(p_x, "ITEM");
-									{
-										const char * p_item_type = 0;
-										if(r_lti.LTOp == LOCTRFROP_PUT)
-											p_item_type = "GI";
-										else if(r_lti.LTOp == LOCTRFROP_GET)
-											p_item_type = "GR";
-										n_i.PutInner("TYPE", p_item_type); // Тип движения : (GI- Выдача (при установки на клиента) GR - Получение (снятие на склад с клиента))
-									}
-									{
-										if(p_raw_order)
-											temp_buf = p_raw_order->Eq.ItemId;
-										else
-											temp_buf.Z();
-										n_i.PutInner("EQUNR", temp_buf); // Номер единицы оборудования 
-									}
-									{
-										if(p_raw_order)
-											temp_buf = p_raw_order->Eq.Barcode;
-										else
-											temp_buf.Z();
-										n_i.PutInner("BARCODE", temp_buf); // Штрих код оборудования/инвентарный номер
-									}
-									{
-										if(p_raw_order)
-											temp_buf = p_raw_order->EqF.PlantEqLayout; // ???
-										else
-											temp_buf.Z();
-										n_i.PutInner("PLANT", temp_buf); // Завод (доп. файл Мултон IH08)
-									}
-									{
-										if(p_raw_order)
-											temp_buf = p_raw_order->Warehouse; // ???
-										else
-											temp_buf.Z();
-										n_i.PutInner("SLOCATION", temp_buf); // Склад (доп. файл Мултон IH08)
-									}
-									n_i.PutInner("ORDER", (temp_buf = rOrderBillRec.Code)); // Номер заказа (из файла XML Мултон <SORDER>)
-									{
-										const char * p_item_sstxu = 0;
-										if(r_lti.LTOp == LOCTRFROP_GET) {
-											p_item_sstxu = "TBRF";
-										}
-										n_i.PutInner("STTXU", p_item_sstxu); // Новый статус оборудования (при GI – поле должно быть пустое <STTXU/>, при GR – TBRF)
-									}
-								}
-							}
-						}
-						xmlFreeTextWriter(p_x);
-						rSsResultFileNames.add(equ_file_name);
-						ok = 1;
+					if(GObj.GetPacket(r_lti.GoodsID, &goods_pack, 0) <= 0) {
+						R_Logger.LogLastError();
 					}
-					{
-						// SERVICE "Data_xxxx_date"
-						temp_buf.Z().Cat("SERVICE").CatChar('_').Cat(rOrderBillRec.Code).CatChar('_').Cat(_now_dtm.d, DATF_YMD|DATF_NODIV).DotCat("xml");
-						PPGetFilePath(PPPATH_OUT, temp_buf, svc_file_name);
-						xmlTextWriter * p_x = xmlNewTextWriterFilename(svc_file_name, 0);
-						THROW_SL(p_x);
+					else if(goods_pack.Codes.GetSingle(0, single_goods_barcode) <= 0) {
+						//PPTXT_LOG_SUPPLIX_SVC_NOEQBARCODE         "Оборудование '%s' в сервисной операции размещения не содержит штрихкода"
+						PPLoadText(PPTXT_LOG_SUPPLIX_SVC_NOEQBARCODE, fmt_buf);
+						msg_buf.Printf(fmt_buf, goods_pack.Rec.Name);
+						R_Logger.Log(msg_buf);
+					}
+					else {
 						{
-							/*
-								XML Service от поставщика	Обозначения
-								<CAM>
-								<SERVICE>
-								<ITEM>
-									<QMNUM>000300016094</QMNUM>	Номер заявки (из файла XML Мултон <QMNUM>)
-									<START_DATE>2015-10-02</START_DATE>	Дата фактического начала работы
-									<START_TIME>18:12:04</START_TIME>	Время фактического начала работы 
-									<END_DATE>2015-10-09</END_DATE>	Дата фактического завершения работы (должна быть позже START_DATE )
-									<END_TIME>00:00:00</END_TIME>	Время фактического завершения работы (должна быть позже START_TIME)
-									<DATE_COMPLETE>2015-10-08</DATE_COMPLETE>	Фактическая (ссылочная) дата окончания работы
-									<ASTXT></ASTXT>	Код технического одобрения (можно использовать закр. тег)
-									<ACTIVITIES>
-										<ITEM>
-											<CODE_GROUP>CDEM</CODE_GROUP>	Код группы работ (из ESI_Specification - Activity Codes )
-											<ACTIVITY_CODE>ML01</ACTIVITY_CODE>	Код работы (из ESI_Specification - Activity Codes )
-										</ITEM>	 
-									</ACTIVITIES>	 
-									<EQUIPMENT>
-										<item>
-										<EQUNR>000000000056451879</EQUNR>	Номер единицы оборудования (доп. файл Мултон IH08)
-										<TIDNR>045752369</TIDNR>	Штрих код оборудования (доп. файл Мултон IH08)
-										</item>	 
-									</EQUIPMENT>	 
-									<PL_MATNR>000000000080000898</PL_MATNR>	Новый номер материала (можно использовать закр. Тег <PL_MATNR/>)
-									<PL_MATXT>SIPP 100 C COKE</PL_MATXT>	Новое описание материала (можно использовать закр. тег)
-									<PL_CHARG> </PL_CHARG>	Новая партия материала (можно использовать закр. тег)
-									<PL_PLANT>6339</PL_PLANT>	Завод расположения материала (можно использовать закр. тег)
-									<PL_SLOC>6400</PL_SLOC>	Склад  (можно использовать закр. тег)
-									<MENGE>1</MENGE>	Количество материала (можно использовать закр. тег)
-									<PRICE>10.00</PRICE>	Цена договорная по прайсу
-									<PO_NUMBER>4500019315</PO_NUMBER>	Номер PO (из файла XML Мултон <PONUM>)
-									<PO_ITEM>00010</PO_ITEM>	Строка РО (из файла XML Мултон <ITEMNO>)
-									<DELIVERY_DOC> </DELIVERY_DOC>	Документ доставки
-									<DELIV_DOC_DT>2015-10-08</DELIV_DOC_DT>	Дата документа доставки
-									<COMMENTS>	Комментарии
-									</COMMENTS>	 
-								</ITEM>	
-							*/ 
-							SXml::WDoc _doc(p_x, cpUTF8);
-							SXml::WNode n_c(p_x, "CAM");
+							// EQUIPMENT "MOV_xxxx_date"
+							temp_buf.Z().Cat("MOV").CatChar('_').Cat(rOrderBillRec.Code).CatChar('_').Cat(_now_dtm.d, DATF_YMD|DATF_NODIV).DotCat("xml");
+							PPGetFilePath(PPPATH_OUT, temp_buf, equ_file_name);
+							xmlTextWriter * p_x = xmlNewTextWriterFilename(equ_file_name, 0);
+							THROW_SL(p_x);
 							{
-								SXml::WNode n_s(p_x, "SERVICE");
+								/*
+									XML EQUIPMENT от поставщика	Обозначение
+									<CAM>
+										<EQUI_MOVE> Тип файла
+											<ITEM>
+												<TYPE>GI</TYPE>	Тип движения : (GI- Выдача (при установки на клиента) GR - Получение (снятие на склад с клиента))
+												<EQUNR>000000000055670495</EQUNR>	Номер единицы оборудования 
+												<BARCODE>045736540</BARCODE>	Штрих код оборудования/инвентарный номер
+												<PLANT>5180</PLANT>	Завод (доп. файл Мултон IH08)
+												<SLOCATION>6400</SLOCATION>	Склад (доп. файл Мултон IH08)
+												<ORDER>008014777184</ORDER>	Номер заказа (из файла XML Мултон <SORDER>)
+												<STTXU>PLCD</STTXU>	Новый статус оборудования (при GI – поле должно быть пустое <STTXU/>, при GR – TBRF)
+											</ITEM>	 
+										</EQUI_MOVE>	 
+									</CAM>	 
+								*/ 
+								SXml::WDoc _doc(p_x, cpUTF8);
+								SXml::WNode n_c(p_x, "CAM");
 								{
-									SXml::WNode n_i(p_x, "ITEM");
+									SXml::WNode n_m(p_x, "EQUI_MOVE"); // Тип файла
 									{
-										if(p_raw_order) {
-											temp_buf = p_raw_order->QMNUM;
-										}
-										else
-											temp_buf.Z();
-										n_i.PutInner("QMNUM", temp_buf); // Номер заявки (из файла XML Мултон <QMNUM>)
-									}
-									{
-										temp_buf.Z();
-										if(todo_pack.Rec.ID && checkdate(todo_pack.Rec.StartDt)) 
-											temp_buf.Cat(todo_pack.Rec.StartDt, DATF_ISO8601CENT);
-										n_i.PutInner("START_DATE", temp_buf); // Дата фактического начала работы
-									}
-									{
-										temp_buf.Z();
-										if(todo_pack.Rec.ID && checkdate(todo_pack.Rec.StartDt) && checktime(todo_pack.Rec.StartTm)) 
-											temp_buf.Cat(todo_pack.Rec.StartTm, TIMF_HMS);
-										n_i.PutInner("START_TIME", temp_buf); // Время фактического начала работы 
-									}
-									{
-										temp_buf.Z();
-										if(todo_pack.Rec.ID && checkdate(todo_pack.Rec.FinishDt)) 
-											temp_buf.Cat(todo_pack.Rec.FinishDt, DATF_ISO8601CENT);
-										n_i.PutInner("END_DATE", temp_buf);
-									}
-									{
-										temp_buf.Z();
-										if(todo_pack.Rec.ID && checkdate(todo_pack.Rec.FinishDt) && checktime(todo_pack.Rec.FinishTm)) 
-											temp_buf.Cat(todo_pack.Rec.FinishTm, TIMF_HMS);
-										n_i.PutInner("END_TIME", temp_buf);
-									}
-									n_i.PutInner("DATE_COMPLETE", "");
-									n_i.PutInner("ASTXT", "");
-									{
-										SXml::WNode n_a(p_x, "ACTIVITIES");
+										SXml::WNode n_i(p_x, "ITEM");
 										{
-											SXml::WNode n_i2(p_x, "ITEM");
-											n_i2.PutInner("CODE_GROUP", ""); // Код группы работ (из ESI_Specification - Activity Codes )
-											n_i2.PutInner("ACTIVITY_CODE", ""); // Код работы (из ESI_Specification - Activity Codes )
+											const char * p_item_type = 0;
+											if(r_lti.LTOp == LOCTRFROP_PUT)
+												p_item_type = "GI";
+											else if(r_lti.LTOp == LOCTRFROP_GET)
+												p_item_type = "GR";
+											n_i.PutInner("TYPE", p_item_type); // Тип движения : (GI- Выдача (при установки на клиента) GR - Получение (снятие на склад с клиента))
 										}
-									}
-									{
-										SXml::WNode n_e(p_x, "EQUIPMENT");
 										{
-											SXml::WNode n_i2(p_x, "ITEM");
-											{
-												if(p_raw_order)
-													temp_buf = p_raw_order->Eq.ItemId;
-												else
-													temp_buf.Z();
-												n_i2.PutInner("EQUNR", temp_buf); // Номер единицы оборудования (доп. файл Мултон IH08)
+											temp_buf.Z();
+											if(p_raw_order)
+												temp_buf = p_raw_order->Eq.ItemId;
+											if(temp_buf.IsEmpty())
+												temp_buf = lot_serial;
+											n_i.PutInner("EQUNR", temp_buf); // Номер единицы оборудования 
+										}
+										{
+											temp_buf.Z();
+											if(p_raw_order)
+												temp_buf = p_raw_order->Eq.Barcode;
+											if(temp_buf.IsEmpty())
+												temp_buf = single_goods_barcode;
+											n_i.PutInner("BARCODE", temp_buf); // Штрих код оборудования/инвентарный номер
+										}
+										{
+										
+											/*if(p_raw_order)
+												temp_buf = p_raw_order->EqF.PlantEqLayout; // ???
+											else
+												temp_buf.Z();*/
+											temp_buf = "39J5"; //  <PLANT/> - всегда 39J5 (это константа).
+											n_i.PutInner("PLANT", temp_buf); // Завод (доп. файл Мултон IH08)
+										}
+										{
+											/*if(p_raw_order)
+												temp_buf = p_raw_order->Warehouse; // ???
+											else
+												temp_buf.Z();*/
+											temp_buf = "6400"; // <SLOCATION/> - всегда 6400 (это константа).
+											n_i.PutInner("SLOCATION", temp_buf); // Склад (доп. файл Мултон IH08)
+										}
+										n_i.PutInner("ORDER", (temp_buf = rOrderBillRec.Code)); // Номер заказа (из файла XML Мултон <SORDER>)
+										{
+											const char * p_item_sstxu = 0;
+											// <STTXU/> - в снятиях на склад всегда TBRF (это константа); в установках клиенту всегда пустое (это константа).
+											if(r_lti.LTOp == LOCTRFROP_GET) {
+												p_item_sstxu = "TBRF";
 											}
-											{
-												if(p_raw_order)
-													temp_buf = p_raw_order->Eq.Barcode;
-												else
-													temp_buf.Z();
-												n_i2.PutInner("TIDNR", ""); // Штрих код оборудования (доп. файл Мултон IH08)
-											}
+											n_i.PutInner("STTXU", p_item_sstxu); // Новый статус оборудования (при GI – поле должно быть пустое <STTXU/>, при GR – TBRF)
 										}
 									}
-									n_i.PutInner("PL_MATNR", "");
-									n_i.PutInner("PL_MATXT", "");
-									n_i.PutInner("PL_CHARG", "");
-									n_i.PutInner("PL_PLANT", "");
-									n_i.PutInner("PL_SLOC", "");
-									n_i.PutInner("MENGE", "");
-									{
-										temp_buf.Z();
-										if(todo_pack.Rec.ID && checkdate(todo_pack.Rec.StartDt)) 
-											temp_buf.Cat(todo_pack.Rec.Amount, MKSFMTD(0, 2, 0));
-										n_i.PutInner("PRICE", temp_buf);
-									}
-									{
-										if(p_raw_order)
-											temp_buf = p_raw_order->PoCode;
-										else
-											temp_buf.Z();
-										n_i.PutInner("PO_NUMBER", temp_buf);
-									}
-									{
-										if(p_raw_order)
-											temp_buf = p_raw_order->PoRowN;
-										else
-											temp_buf.Z();
-										n_i.PutInner("PO_ITEM", temp_buf);
-									}
-									n_i.PutInner("DELIVERY_DOC", EncXmlText(temp_buf.Z().Cat(bpack.Rec.Code)));
-									n_i.PutInner("DELIV_DOC_DT", temp_buf.Z().Cat(bpack.Rec.Dt, DATF_ISO8601CENT));
-									n_i.PutInner("COMMENTS", EncXmlText(bpack.SMemo));
 								}
 							}
+							xmlFreeTextWriter(p_x);
+							rSsResultFileNames.add(equ_file_name);
+							ok = 1;
 						}
-						xmlFreeTextWriter(p_x);
-						rSsResultFileNames.add(svc_file_name);
-						ok = 1;
+						bool   prereq_result = true;
+						if(!todo_pack.Rec.ID) {
+							//PPTXT_LOG_SUPPLIX_SVC_LTODOUNDEF          "С сервисным заказом '%s' должна быть связанна задача для отчета по времени исполнения"
+							PPLoadText(PPTXT_LOG_SUPPLIX_SVC_LTODOUNDEF, fmt_buf);
+							msg_buf = fmt_buf; // @todo
+							R_Logger.Log(msg_buf);
+							prereq_result = false;
+						}
+						else if(!checkdate(todo_pack.Rec.StartDt)) {
+							//PPTXT_LOG_SUPPLIX_SVC_LTODOSTARTDTTM      "В задаче сервисного заказа '%s' должно быть определено время начала работы"
+							PPLoadText(PPTXT_LOG_SUPPLIX_SVC_LTODOSTARTDTTM, fmt_buf);
+							msg_buf.Printf(fmt_buf, todo_pack.Rec.Code);
+							R_Logger.Log(msg_buf);
+							prereq_result = false;
+						}
+						else if(!checkdate(todo_pack.Rec.FinishDt)) {
+							//PPTXT_LOG_SUPPLIX_SVC_LTODOFINISHTDTTM    "В задаче сервисного заказа '%s' должно быть определено время завершения работы"
+							PPLoadText(PPTXT_LOG_SUPPLIX_SVC_LTODOFINISHTDTTM, fmt_buf);
+							msg_buf.Printf(fmt_buf, todo_pack.Rec.Code);
+							R_Logger.Log(msg_buf);
+							prereq_result = false;
+						}
+						if(!prereq_result) {
+							// message
+						}
+						else {
+							// SERVICE "Data_xxxx_date"
+							temp_buf.Z().Cat("DATA").CatChar('_').Cat(rOrderBillRec.Code).CatChar('_').Cat(_now_dtm.d, DATF_YMD|DATF_NODIV).DotCat("xml");
+							PPGetFilePath(PPPATH_OUT, temp_buf, svc_file_name);
+							xmlTextWriter * p_x = xmlNewTextWriterFilename(svc_file_name, 0);
+							THROW_SL(p_x);
+							{
+								/*
+									XML Service от поставщика	Обозначения
+									<CAM>
+									<SERVICE>
+									<ITEM>
+										<QMNUM>000300016094</QMNUM>	Номер заявки (из файла XML Мултон <QMNUM>)
+										<START_DATE>2015-10-02</START_DATE>	Дата фактического начала работы
+										<START_TIME>18:12:04</START_TIME>	Время фактического начала работы 
+										<END_DATE>2015-10-09</END_DATE>	Дата фактического завершения работы (должна быть позже START_DATE )
+										<END_TIME>00:00:00</END_TIME>	Время фактического завершения работы (должна быть позже START_TIME)
+										<DATE_COMPLETE>2015-10-08</DATE_COMPLETE>	Фактическая (ссылочная) дата окончания работы
+										<ASTXT></ASTXT>	Код технического одобрения (можно использовать закр. тег)
+										<ACTIVITIES>
+											<ITEM>
+												<CODE_GROUP>CDEM</CODE_GROUP>	Код группы работ (из ESI_Specification - Activity Codes )
+												<ACTIVITY_CODE>ML01</ACTIVITY_CODE>	Код работы (из ESI_Specification - Activity Codes )
+											</ITEM>	 
+										</ACTIVITIES>	 
+										<EQUIPMENT>
+											<item>
+											<EQUNR>000000000056451879</EQUNR>	Номер единицы оборудования (доп. файл Мултон IH08)
+											<TIDNR>045752369</TIDNR>	Штрих код оборудования (доп. файл Мултон IH08)
+											</item>	 
+										</EQUIPMENT>	 
+										<PL_MATNR>000000000080000898</PL_MATNR>	Новый номер материала (можно использовать закр. Тег <PL_MATNR/>)
+										<PL_MATXT>SIPP 100 C COKE</PL_MATXT>	Новое описание материала (можно использовать закр. тег)
+										<PL_CHARG> </PL_CHARG>	Новая партия материала (можно использовать закр. тег)
+										<PL_PLANT>6339</PL_PLANT>	Завод расположения материала (можно использовать закр. тег)
+										<PL_SLOC>6400</PL_SLOC>	Склад  (можно использовать закр. тег)
+										<MENGE>1</MENGE>	Количество материала (можно использовать закр. тег)
+										<PRICE>10.00</PRICE>	Цена договорная по прайсу
+										<PO_NUMBER>4500019315</PO_NUMBER>	Номер PO (из файла XML Мултон <PONUM>)
+										<PO_ITEM>00010</PO_ITEM>	Строка РО (из файла XML Мултон <ITEMNO>)
+										<DELIVERY_DOC> </DELIVERY_DOC>	Документ доставки
+										<DELIV_DOC_DT>2015-10-08</DELIV_DOC_DT>	Дата документа доставки
+										<COMMENTS>	Комментарии
+										</COMMENTS>	 
+									</ITEM>	
+								*/ 
+								SXml::WDoc _doc(p_x, cpUTF8);
+								SXml::WNode n_c(p_x, "CAM");
+								{
+									SXml::WNode n_s(p_x, "SERVICE");
+									{
+										SXml::WNode n_i(p_x, "ITEM");
+										{
+											temp_buf.Z();
+											if(p_raw_order) {
+												temp_buf = p_raw_order->QMNUM;
+											}
+											n_i.PutInner("QMNUM", temp_buf); // Номер заявки (из файла XML Мултон <QMNUM>)
+										}
+										{
+											temp_buf.Z();
+											if(todo_pack.Rec.ID && checkdate(todo_pack.Rec.StartDt)) 
+												temp_buf.Cat(todo_pack.Rec.StartDt, DATF_ISO8601CENT);
+											n_i.PutInner("START_DATE", temp_buf); // Дата фактического начала работы
+										}
+										{
+											temp_buf.Z();
+											if(todo_pack.Rec.ID && checkdate(todo_pack.Rec.StartDt) && checktime(todo_pack.Rec.StartTm)) 
+												temp_buf.Cat(todo_pack.Rec.StartTm, TIMF_HMS);
+											n_i.PutInner("START_TIME", temp_buf); // Время фактического начала работы 
+										}
+										{
+											temp_buf.Z();
+											if(todo_pack.Rec.ID && checkdate(todo_pack.Rec.FinishDt)) 
+												temp_buf.Cat(todo_pack.Rec.FinishDt, DATF_ISO8601CENT);
+											n_i.PutInner("END_DATE", temp_buf);
+										}
+										{
+											temp_buf.Z();
+											if(todo_pack.Rec.ID && checkdate(todo_pack.Rec.FinishDt) && checktime(todo_pack.Rec.FinishTm)) 
+												temp_buf.Cat(todo_pack.Rec.FinishTm, TIMF_HMS);
+											n_i.PutInner("END_TIME", temp_buf);
+										}
+										{
+											temp_buf.Z();
+											if(todo_pack.Rec.ID && checkdate(todo_pack.Rec.FinishDt)) 
+												temp_buf.Cat(todo_pack.Rec.FinishDt, DATF_ISO8601CENT);
+											n_i.PutInner("DATE_COMPLETE", temp_buf);
+										}
+										// <ASTXT/> всегда app (это константа), код технического одобрения.
+										n_i.PutInner("ASTXT", "app");
+										{
+											SXml::WNode n_a(p_x, "ACTIVITIES");
+											{
+												SXml::WNode n_i2(p_x, "ITEM");
+												n_i2.PutInner("CODE_GROUP", ""); // Код группы работ (из ESI_Specification - Activity Codes )
+												n_i2.PutInner("ACTIVITY_CODE", ""); // Код работы (из ESI_Specification - Activity Codes )
+											}
+										}
+										{
+											SXml::WNode n_e(p_x, "EQUIPMENT");
+											{
+												SXml::WNode n_i2(p_x, "ITEM");
+												{
+													temp_buf.Z();
+													if(p_raw_order)
+														temp_buf = p_raw_order->Eq.ItemId;
+													if(temp_buf.IsEmpty())
+														temp_buf = lot_serial;
+													n_i2.PutInner("EQUNR", temp_buf); // Номер единицы оборудования (доп. файл Мултон IH08)
+												}
+												{
+													temp_buf.Z();
+													if(p_raw_order)
+														temp_buf = p_raw_order->Eq.Barcode;
+													if(temp_buf.IsEmpty())
+														temp_buf = single_goods_barcode;
+													n_i2.PutInner("TIDNR", temp_buf); // Штрих код оборудования (доп. файл Мултон IH08)
+												}
+											}
+										}
+										n_i.PutInner("PL_MATNR", "");
+										n_i.PutInner("PL_MATXT", "");
+										n_i.PutInner("PL_CHARG", "");
+										n_i.PutInner("PL_PLANT", "");
+										n_i.PutInner("PL_SLOC", "");
+										n_i.PutInner("MENGE", "");
+										{
+											temp_buf.Z();
+											if(todo_pack.Rec.ID && checkdate(todo_pack.Rec.StartDt)) 
+												temp_buf.Cat(todo_pack.Rec.Amount, MKSFMTD(0, 2, 0));
+											n_i.PutInner("PRICE", temp_buf);
+										}
+										{
+											if(p_raw_order)
+												temp_buf = p_raw_order->PoCode;
+											else
+												temp_buf.Z();
+											n_i.PutInner("PO_NUMBER", temp_buf);
+										}
+										{
+											if(p_raw_order)
+												temp_buf = p_raw_order->PoRowN;
+											else
+												temp_buf.Z();
+											n_i.PutInner("PO_ITEM", temp_buf);
+										}
+										n_i.PutInner("DELIVERY_DOC", EncXmlText(temp_buf.Z().Cat(bpack.Rec.Code)));
+										n_i.PutInner("DELIV_DOC_DT", temp_buf.Z().Cat(bpack.Rec.Dt, DATF_ISO8601CENT));
+										{
+											if(todo_pack.SMemo.NotEmpty())
+												temp_buf = todo_pack.SMemo;
+											else
+												temp_buf = bpack.SMemo;
+											temp_buf.Trim(40); // Ограничение в 40 символов по просьбе поставщика
+											n_i.PutInner("COMMENTS", EncXmlText(temp_buf));
+										}
+									}
+								}
+							}
+							xmlFreeTextWriter(p_x);
+							rSsResultFileNames.add(svc_file_name);
+							ok = 1;
+						}
 					}
 				}
 			}
@@ -13997,7 +14077,6 @@ int COCACOLA::ImportBailmentOrders()
 {
 	int    ok = -1;
 	Reference * p_ref(PPRef);
-	PPObjTag tag_obj;
 	SString temp_buf;
 	SString fmt_buf;
 	SString msg_buf;
@@ -14090,14 +14169,7 @@ int COCACOLA::ImportBailmentOrders()
 			THROW_PP(loc_id, PPERR_SUPPLIX_WAREHOUSEUNDEF);
 			THROW_PP(LocCodeTagID, PPERR_SUPPLIX_UNDEFLOCCTAG_COCACOLA);
 			THROW(ArObj.Fetch(suppl_id, &suppl_ar_rec) > 0);
-			{
-				PPID    _tag_id = 0;
-				if(tag_obj.FetchBySymb("SERVICE-TODO-CODE", &_tag_id) > 0) {
-					PPObjectTag tag_rec;
-					if(tag_obj.Fetch(_tag_id, &tag_rec) > 0 && tag_rec.TagDataType == OTTYP_STRING)
-						todo_code_tag_id = _tag_id;	
-				}
-			}
+			todo_code_tag_id = PPObjTag::Helper_GetTagIdBySymb("SERVICE-TODO-CODE", OTTYP_STRING);
 			{
 				// Все проделываем в одной транзакции. Тому есть как минимум одна причина, при создании строк документов, вероятно,
 				// придется создавать задачи сервисного обслуживания. Если документ не пройдет, то и задачи не должны сохраниться.

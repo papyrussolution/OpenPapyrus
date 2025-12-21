@@ -237,7 +237,7 @@ static bool U_CALLCONV loadData(UStringPrepProfile* profile,
 	}
 	umtx_unlock(&usprepMutex);
 	/* initialize some variables */
-	profile->mappingData = (uint16*)((uint8 *)(p+_SPREP_INDEX_TOP)+profile->indexes[_SPREP_INDEX_TRIE_SIZE]);
+	profile->mappingData = (uint16 *)((uint8 *)(p+_SPREP_INDEX_TOP)+profile->indexes[_SPREP_INDEX_TRIE_SIZE]);
 
 	u_getUnicodeVersion(normUnicodeVersion);
 	normUniVer = (normUnicodeVersion[0] << 24) + (normUnicodeVersion[1] << 16) +

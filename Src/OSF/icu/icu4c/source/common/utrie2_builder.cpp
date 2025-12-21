@@ -299,9 +299,9 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_clone(const UTrie2 * other, UErrorCode * pError
 			trie->isMemoryOwned = TRUE;
 			memcpy(trie->memory, other->memory, other->length);
 			/* make the clone's pointers point to its own memory */
-			trie->index = (uint16*)trie->memory+(other->index-(uint16*)other->memory);
+			trie->index = (uint16 *)trie->memory+(other->index-(uint16 *)other->memory);
 			if(other->data16 != NULL) {
-				trie->data16 = (uint16*)trie->memory+(other->data16-(uint16*)other->memory);
+				trie->data16 = (uint16 *)trie->memory+(other->data16-(uint16 *)other->memory);
 			}
 			if(other->data32 != NULL) {
 				trie->data32 = (uint32_t*)trie->memory+(other->data32-(uint32_t*)other->memory);
@@ -1388,7 +1388,7 @@ U_CAPI void U_EXPORT2 utrie2_freeze(UTrie2 * trie, UTrie2ValueBits valueBits, UE
 	header->shiftedHighStart = (uint16)(highStart>>UTRIE2_SHIFT_1);
 
 	/* fill the index and data arrays */
-	dest16 = (uint16*)(header+1);
+	dest16 = (uint16 *)(header+1);
 	trie->index = dest16;
 
 	/* write the index-2 array values shifted right by UTRIE2_INDEX_SHIFT, after adding dataMove */

@@ -22,6 +22,7 @@ struct CcFiscalCorrection {
 	double AmtPrepay;  // @#{>=0} Сумма предоплатой
 	double AmtPostpay; // @#{>=0} Сумма постоплатой
 	double AmtReckon;  // Сумма встречным представлением
+	double AmtVat22;   // @v12.5.1 Сумма налога по ставке 22%
 	double AmtVat20;   // Сумма налога по ставке 20%
 	double AmtVat18;   // Сумма налога по ставке 18%
 	double AmtVat10;   // Сумма налога по ставке 10%

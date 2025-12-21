@@ -7503,9 +7503,13 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					CCheckLineTbl::Rec chk_line;
 					SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_LIST));
 					const int cclext_id_list[] = {
-						CCheckPacket::lnextSerial, CCheckPacket::lnextEgaisMark, CCheckPacket::lnextChZnMark,
-						CCheckPacket::lnextChZnPm_ReqId, CCheckPacket::lnextChZnPm_ReqTimestamp, 
-						CCheckPacket::lnextChZnPm_LocalModuleInstance, CCheckPacket::lnextChZnPm_LocalModuleDbVer
+						CCheckPacket::lnextSerial, 
+						CCheckPacket::lnextEgaisMark, 
+						CCheckPacket::lnextChZnMark,
+						CCheckPacket::lnextChZnPm_ReqId, 
+						CCheckPacket::lnextChZnPm_ReqTimestamp, 
+						CCheckPacket::lnextChZnPm_LocalModuleInstance, 
+						CCheckPacket::lnextChZnPm_LocalModuleDbVer
 					};
 					StrAssocArray cclext_list;
 					if(SmartListBox::IsValidS(p_list)) {
@@ -11964,7 +11968,7 @@ int CPosProcessor::Backend_AcceptSCard(PPID scardID, const SCardSpecialTreatment
 			if(ok) {
 				if(sc_id && ScObj.Search(sc_id, &sc_rec) > 0) {
 					const bool only_charge_goods = IsOnlyChargeGoodsInPacket(sc_id, 0);
-					const int cr = ScObj.CheckRestrictions(&sc_rec, (only_charge_goods ? PPObjSCard::chkrfIgnoreUsageTime : 0), getcurdatetime_());
+					const int cr = ScObj.CheckRestrictions(&sc_rec, (only_charge_goods ? (PPObjSCard::chkrfIgnoreUsageTime|PPObjSCard::chkrfIgnoreUsageDow) : 0), getcurdatetime_());
 					if(!cr) {
 						ok = MessageError(-1, 0, eomPopup | eomBeep);
 						CSt.SetID(0, 0);
@@ -12169,7 +12173,7 @@ void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::Ide
 				if(!ext_cancel) { // Если расширенный выбор был отменен, то это блок следует пропустить
 					if(is_found) {
 						const bool only_charge_goods = IsOnlyChargeGoodsInPacket(CSt.GetID(), 0);
-						int    cr = ScObj.CheckRestrictions(&sc_rec, (only_charge_goods ? PPObjSCard::chkrfIgnoreUsageTime : 0), getcurdatetime_());
+						int    cr = ScObj.CheckRestrictions(&sc_rec, (only_charge_goods ? (PPObjSCard::chkrfIgnoreUsageTime|PPObjSCard::chkrfIgnoreUsageDow) : 0), getcurdatetime_());
 						if(!cr) {
 							MessageError(-1, 0, eomPopup | eomBeep);
 							CSt.SetID(0, 0);

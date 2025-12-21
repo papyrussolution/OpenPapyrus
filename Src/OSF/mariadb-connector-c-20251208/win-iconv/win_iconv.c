@@ -1077,18 +1077,16 @@ static int libiconv_iconv_open(rec_iconv_t * cd, const char * tocode, const char
 	const char * p;
 	const char * e;
 	f_iconv_open _iconv_open;
-
 	/*
 	 * always try to load dll, so that we can switch dll in runtime.
 	 */
-
 	/* XXX: getenv() can't get variable set by SetEnvironmentVariable() */
 	p = getenv("WINICONV_LIBICONV_DLL");
 	if(p == NULL)
 		p = DEFAULT_LIBICONV_DLL;
 	/* parse comma separated value */
 	for(; *p != 0; p = (*e == ',') ? e + 1 : e) {
-		e = strchr(p, ',');
+		e = sstrchr(p, ',');
 		if(p == e)
 			continue;
 		else if(e == NULL)

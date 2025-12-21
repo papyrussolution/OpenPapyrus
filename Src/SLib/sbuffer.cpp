@@ -131,11 +131,11 @@ SBuffer & SBuffer::Z()
 	return *this;
 }
 
-void   FASTCALL SBuffer::SetRdOffs(size_t offs) { RdOffs = MIN(offs, WrOffs); }
-void   FASTCALL SBuffer::SetWrOffs(size_t offs) { WrOffs = MAX(MIN(offs, Size), RdOffs); }
+void   FASTCALL SBuffer::SetRdOffs(size_t offs) { RdOffs = smin(offs, WrOffs); }
+void   FASTCALL SBuffer::SetWrOffs(size_t offs) { WrOffs = smax(smin(offs, Size), RdOffs); }
 size_t SBuffer::GetAvailableSize() const { return (WrOffs > RdOffs) ? (WrOffs - RdOffs) : 0; }
 
-int FASTCALL SBuffer::Write(const void * pBuf, size_t size)
+int SBuffer::Write(const void * pBuf, size_t size)
 {
 	int    ok = 1;
 	if(size) {
@@ -147,7 +147,14 @@ int FASTCALL SBuffer::Write(const void * pBuf, size_t size)
 		}
 		const size_t new_size = (WrOffs + size);
 		if((new_size <= Size) || Alloc(new_size)) { // condition (new_size <= Size) - с целью ускорения //
-			memcpy(Ptr(WrOffs), pBuf, size);
+			if(pBuf) {
+				memcpy(Ptr(WrOffs), pBuf, size);
+			}
+			// @v12.5.1 {
+			else {
+				memzero(Ptr(WrOffs), size);
+			}
+			// } @v12.5.1 
 			WrOffs += size;
 		}
 		else

@@ -1110,8 +1110,9 @@ dialog DLG_LOCTRANSF_BAILMENT [vertical title: "@roptype_warehouse" size: (720, 
 		}
 	}
 	view [horizontal width: bycontainer height: 32 margin_right: 12] {
-		view [horizontal growfactor: 1 height: bycontainer] {
+		view [horizontal growfactor: 2 height: bycontainer] {
 			button STDCTL_TAGSBUTTON [title: "@but_tags" tabstop size: (90, 21) margin: 4 command: cmTags];
+			button STDCTL_TODOBUTTON [title: "@but_todo" tabstop size: (90, 21) margin: 4 command: cmToDo]; // @v12.5.1
 		}
 		view [horizontal growfactor: 2 height: bycontainer justifycontent: end alignitems: end] {
 			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
@@ -1981,7 +1982,6 @@ dialog DLG_CMDGROUP [vertical title: "Command Group" size: (830, 490) minsize: (
 			}
 			combobox CTLSEL_CMDGROUP_BGCOLOR [tabstop width: bycontainer(80) height: 21 margin: 4 label: "@cmdgroup_desktopbkgcolor" labelsize: (0, 13) cblinesymb: CTL_CMDGROUP_BGCOLOR]
 				supplement ellipsisbutton(CTL_CMDGROUP_SELBGCOLOR cmSelBkgnd);
-			//button CTL_CMDGROUP_SELBGCOLOR [title: "..." tabstop size: (30, 21)  command: cmSelBkgnd];
 			checkbox CTL_CMDGROUP_FLAGS [title: "@cmdgroup_fbkgndgradient" tabstop width: bycontainer height: 21 margin: 4];
 		}
 		view [horizontal growfactor: 4 height: bycontainer] {
@@ -1991,8 +1991,6 @@ dialog DLG_CMDGROUP [vertical title: "Command Group" size: (830, 490) minsize: (
 				button STDCTL_EDITBUTTON [title: "@but_edit" tabstop size: (90, 21) margin: 4 command: cmaEdit];
 				button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
 				view [horizontal width: bycontainer height: 30 justifycontent: center] {
-					//button CTL_LBXSEL_UPBTN [title: "" tabstop size: (38, 21) margin: 4 command: cmUp];
-					//button CTL_LBXSEL_DOWNBTN [title: "" tabstop size: (38, 21) margin: 4 command: cmDown];
 					button STDCTL_UPBUTTON [title: "" tabstop size: (23, 21) margin: 4 command: cmUp];
 					button STDCTL_DOWNBUTTON [title: "" tabstop size: (23, 21) margin: 4 command: cmDown];
 				}
@@ -2005,38 +2003,131 @@ dialog DLG_CMDGROUP [vertical title: "Command Group" size: (830, 490) minsize: (
 	}
 }
 
-// @20251201 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
-// Диалоги, представленные здесь с изменными символами (DLG_CASHREPORTS_L__, например) в ppdlg.list не отмечены поскольку находятся в работе.
+dialog DLG_QUOTKINDRESTR [vertical title: "@quotkind_restrictions" size: (360, 245) minsize: (360, 245) font: "MS Shell Dlg,8"] { // @construction
+	view [horizontal width: bycontainer growfactor: 1] {
+		view [vertical growfactor: 3 height: bycontainer] {
+			input CTL_QKRESTR_PERIOD [width: bycontainer height: 21 margin: 4 tabstop label: "@validity" labelsize: (0, 13)] string[30] supplement daterangecalbutton(CTLCAL_QKRESTR_PERIOD);
+			input CTL_QKRESTR_TIMERANGE [width: bycontainer height: 21 margin: 4 tabstop label: "@validitytime" labelsize: (0, 13)] string[30];
+			input CTL_QKRESTR_AMTRANGE [width: bycontainer height: 21 margin: 4 tabstop label: "@quotkind_amtrestr" labelsize: (0, 13)] string[48];
+		}
+		checkcluster CTL_QKRESTR_WEEKDAYS [vertical growfactor: 2 margin: 4 title: "@weekday_pl" ] {
+			checkbox [title: "@monday" height: 16];
+			checkbox [title: "@tuesday" height: 16];
+			checkbox [title: "@wednesday" height: 16];
+			checkbox [title: "@thursday" height: 16];
+			checkbox [title: "@friday" height: 16];
+			checkbox [title: "@saturday" height: 16];
+			checkbox [title: "@sunday" height: 16];
+		}
+	}
+	view [horizontal width: bycontainer(100) height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: (4, 4, 8, 4) command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: (8, 4, 4, 4) command: cmCancel];
+	}
+}
 
-// @construction
-dialog DLG_WMSBILL__ [vertical title: "@oprcategory_wms" size: (530, 350) minsize: (530, 350) font: "MS Shell Dlg,8"] {
-	view [horizontal] {
-		input CTL_BILL_DOC [size: (143, 21) tabstop label: "@billno" labelsize: (96, 13) ] string[48];
-		input CTL_BILL_DATE [size: (90, 21) tabstop fmtf: (dmy) label: "@date" labelsize: (30, 13) ] date;
+dialog DLG_SCARD [vertical title: "@scard" size: (710, 570) minsize: (690, 570) font: "MS Shell Dlg 2,8"] { // @construction
+	view [horizontal width: bycontainer height: 40] {
+		combobox CTLSEL_SCARD_SERIES [growfactor: 3 height: 21 margin: 4 tabstop label: "@scard_series" labelsize: (0, 13) cblinesymb: CTL_SCARD_SERIES];
+		input CTL_SCARD_CODE [growfactor: 2 height: 21 margin: 4 tabstop label: "@number" labelsize: (0, 13)] string[24];
+		input CTL_SCARD_ID [size: (70, 21) margin: 4 tabstop readonly label: "@id" labelsize: (0, 13)] int32;
 	}
-	view [vertical width: bycontainer] {
-		combobox CTLSEL_BILL_PERSON [tabstop width: bycontainer height: 21 margin: 4 label: "@contractor" labelsize: (0, 13) cblinesymb: CTL_BILL_PERSON];
-		statictext CTL_BILL_ST_PARENTPERSON [width: bycontainer height: 13 margin: (4, 1, 4, 4)];
-		statictext CTL_BILL_OBJ2NAME [title: "@bill_object2" width: bycontainer height: 13 margin: (4, 4, 4, 1)];
-		combobox CTLSEL_BILL_OBJ2 [tabstop width: bycontainer height: 21 margin: 4 cblinesymb: CTL_BILL_OBJ2];
+	view [horizontal width: bycontainer height: 40] {
+		view [horizontal growfactor: 4 height: 40] {
+			combobox CTLSEL_SCARD_PERSON [growfactor: 1 height: 21 margin: 4 tabstop label: "@person" labelsize: (0, 13) cblinesymb: CTL_SCARD_PERSON];
+			button CTLBUT_SCARD_AUTOCROWNER [title: "AutoCreate" size: (23, 21) margin: (0, 17, 4, 4) imagesymb: PPDV_CREATEPERSON01 command: cmAutoCreateOwner];
+		}
+		input CTL_SCARD_PSW [growfactor: 1 height: 21 margin: 4 tabstop label: "@password" labelsize: (0, 13)] string[32];
 	}
-	statictext CTL_BILL_ST_LINKBILL [width: bycontainer height: 16 staticedge];
-	view [horizontal] {
-		statictext CTL_BILL_ST_SCARD [size: (165, 24)  staticedge];
-		statictext CTL_BILL_STATUS [title: "Status" size: (135, 24)  staticedge];
+	view [horizontal width: bycontainer height: 40] {
+		combobox CTLSEL_SCARD_AUTOGOODS [growfactor: 2 height: 21 margin: 4 tabstop label: "@scard_autogoods" labelsize: (0, 13) cblinesymb: CTL_SCARD_AUTOGOODS ];
+		statictext CTL_SCARD_ST_INFO [growfactor: 1 height: 21 margin: (4, 17, 4, 4) staticedge];
 	}
-	input CTL_BILL_MEMO [width: bycontainer(100) height: 21 margin: 4 tabstop label: "@memo" labelsize: (0, 13) ] string[160];
-	button CTL_BILL_DETAIL [title: "@but_billdetail" tabstop size: (113, 21)  command: cmDetail];
-	button CTL_CMD_BILLEXTRA [title: "@{addendum}..." tabstop size: (99, 21)  command: cmBillExtra];
-	button CTL_BILL_FREIGHTBUTTON [title: "@but_freight" tabstop size: (75, 21)  command: cmBillFreight];
-	button CTL_BILL_LINKFILESBUTTON [title: "@but_files" tabstop size: (75, 21)  command: cmLinkFiles];
-	listbox CTL_BILL_LNKFILELIST [size: (83, 33)  columns: "68,L,@attachedfile"];
-	button CTLMNU_BILL_DOC [title: "" size: (21, 21)  command: cmLocalMenu];
-	button CTLMNU_BILL_MEMO [title: "" size: (21, 21)  command: cmLocalMenu];
-	
-	view [horizontal width: bycontainer(100) growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
-		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
-		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	view [horizontal width: bycontainer growfactor: 1 ] {
+		checkcluster CTL_SCARD_FLAGS [growfactor: 2 margin: 4] {
+			checkbox [title: "@scard_scrdf_inherited" height: 16];
+			checkbox [title: "@scard_scrdf_closed" height: 16];
+			checkbox [title: "@scard_scrdf_closedsrv" height: 16];
+			checkbox [title: "@scard_scrdf_nogift" height: 16];
+			checkbox [title: "@scard_scrdf_needactivation" height: 16];
+			checkbox [title: "@scard_scrdf_autoactivation" height: 16];
+			checkbox [title: "@scard_scrdf_ownerverified" height: 16];
+		}
+		framebox [vertical growfactor: 3 height: bycontainer margin: 4 padding: 4] {
+			view [horizontal width: bycontainer height: 40] {
+				input CTL_SCARD_DATE [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (dmy) label: "@scard_dt" labelsize: (0, 13) ] date supplement datecalbutton(CTLCAL_SCARD_DATE);
+				input CTL_SCARD_EXPIRY [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (dmy) label: "@scard_expiry" labelsize: (0, 13) ] date supplement datecalbutton(CTLCAL_SCARD_EXPIRY);
+			}
+			view [horizontal width: bycontainer growfactor: 1] {
+				view [vertical growfactor: 1 height: bycontainer] {
+					input CTL_SCARD_PDIS [width: bycontainer height: 21 margin: 4 tabstop fmtprec: 2 label: "@scard_pdis" labelsize: (0, 13)] double;
+					input CTL_SCARD_MAXCRED [width: bycontainer height: 21 margin: 4 tabstop fmtprec: 2 label: "@scard_maxcredit" labelsize: (0, 13)] double;
+					input CTL_SCARD_FIXBON [width: bycontainer height: 21 margin: 4 tabstop fmtprec: 2 label: "@scard_fixedbonus" labelsize: (0, 13)] double;
+					input CTL_SCARD_USAGETM [width: bycontainer height: 21 margin: 4 tabstop label: "@scard_usagetime" labelsize: (0, 13)] string[14];
+				}
+				view [vertical growfactor: 1 height: bycontainer] {
+					checkcluster CTL_SCARD_DOW [vertical width: bycontainer margin: 4 title: "@weekday_pl" ] {
+						checkbox [title: "@monday" height: 16];
+						checkbox [title: "@tuesday" height: 16];
+						checkbox [title: "@wednesday" height: 16];
+						checkbox [title: "@thursday" height: 16];
+						checkbox [title: "@friday" height: 16];
+						checkbox [title: "@saturday" height: 16];
+						checkbox [title: "@sunday" height: 16];
+					}
+				}				
+			}
+		}
+	}
+	view [horizontal width: bycontainer height: 70] {
+		framebox [title: "@scard_periodafteractivation" horizontal growfactor: 1 height: bycontainer margin: 4 padding: (0, 8, 0, 0)] {
+			combobox CTLSEL_SCARD_PRD [growfactor: 3 height: 21 margin: 4 tabstop label: "@scard_periodterm" labelsize: (0, 13) cblinesymb: CTL_SCARD_PRD];
+			input CTL_SCARD_PRDCOUNT [growfactor: 2 height: 21 margin: 4 tabstop fmtf: (nozero) label: "@scard_periodcount" labelsize: (0, 33)] int16;
+		}
+		framebox [horizontal growfactor: 1 height: bycontainer margin: 4 padding: (0, 8, 0, 0)] {
+			input CTL_SCARD_PHONE [growfactor: 1 height: 21 margin: 4 tabstop label: "@phone" labelsize: (0, 13)] string[64];
+			button CTL_CMD_VERIFY [title: "Verify" tabstop size: (75, 21) margin: (0, 17, 4, 4) command: cmVerify];
+			button CTL_SCARD_ACN1 [title: "" size: (23, 21) margin: (0, 17, 4, 4) command: cmSCardAction1];
+		}
+	}
+	//framebox [size: (360, 154) ];
+	view [horizontal width: bycontainer height: 40 ] {
+		combobox CTLSEL_SCARD_POOLDSER [growfactor: 1 height: 21 margin: 4 tabstop label: "@scard_pooldestser" labelsize: (0, 13) cblinesymb: CTL_SCARD_POOLDSER];
+		input CTL_SCARD_OUTERID [growfactor: 1 height: 21 margin: 4  tabstop readonly] string[64];
+	}
+	//framebox [title: "@scard_periodafteractivation" size: (293, 98) ];
+	//framebox [size: (285, 65) ];
+	input CTL_SCARD_MEMO [width: bycontainer height: 21 margin: 4 tabstop label: "@memo" labelsize: (0, 13)] string[252];
+	view [horizontal width: bycontainer(100) height: 30] {
+		view [horizontal growfactor: 1 height: bycontainer(100) gravity: left justifycontent: start alignitems: end] {
+			button CTL_CMD_NOTIFYOPTIONS [title: "@{scard_notify_options_s}..." tabstop size: (120, 21) margin: 4 command: cmNotifyOptions];
+		}
+		view [horizontal growfactor: 2 height: bycontainer(100) margin_right: 12 gravity: right justifycontent: end alignitems: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_SCARDRULE [vertical title: "@scardserrule" size: (550, 400) minsize: (550, 400) font: "MS Shell Dlg 2,8"] { // @construction
+	view [horizontal width: bycontainer height: 100] {
+		combobox CTLSEL_SCARDRULE_PRD [growfactor: 3 height: 21 margin: 4 tabstop label: "@scardserrule_trnovrperiod" labelsize: (0, 13) cblinesymb: CTL_SCARDRULE_PRD];
+		framebox [vertical growfactor: 3 height: bycontainer padding: 4] {
+			combobox CTLSEL_SCARDRULE_CNCLPRD [width: bycontainer height: 21 margin: 4 tabstop label: "@scardserrule_cancelprd" labelsize: (0, 13) cblinesymb: CTL_SCARDRULE_CNCLPRD];
+			input CTL_SCARDRULE_CNCLPRDC [width: bycontainer height: 21 margin: 4 tabstop fmtf: (nozero) label: "@scardserrule_cancelprccount" labelsize: (0, 13) ] int16;
+		}
+	}
+	listbox CTL_SCARDRULE_TRNOVRRNG [title: "@scardserrule_trnovrrngdislist" width: bycontainer growfactor: 1 margin: 4 columns: "@lbt_scardrule_dis"];
+	view [horizontal width: bycontainer(100) height: 28] {
+		view [horizontal growfactor: 3 height: bycontainer(100) gravity: left justifycontent: start] {
+			button STDCTL_EDITBUTTON [title: "@but_edit" tabstop defaultitem size: (90, 21) margin: 4 command: cmaEdit];
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+		}
+		view [horizontal growfactor: 2 height: bycontainer(100) margin_right: 12 gravity: right justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
 	}
 }
 
@@ -2065,29 +2156,43 @@ dialog DLG_ELNKLST [vertical title: "@elinkkind_pl" size: (500, 310) minsize: (5
 	}
 }
 
-// @construction. Лейаут готов, но проблема со шрифтами. Управляющие элементы получают default-шрифты а для этого диалог так не годится (он специально большим сделан).
-dialog DLG_CASHREPORTS_L__ [vertical title: "@posnodecmd" size: (595, 525) minsize: (595, 525) font: "MS Shell Dlg 2,16" alignitems: center justifycontent: spaceevenly] {
-	// (все равно он в программе делается невидимым) input CTL_CSPANEL_INPUT [width: bycontainer height: 41 margin: (8, 8, 8, 16) tabstop] string[64];
-	view [horizontal width: bycontainer(80) growfactor: 4] {
-		view [vertical growfactor: 1 height: bycontainer] {
-			button CTL_CSPANEL_XREP [title: "@posnodecmd_sync_xreport" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSXReport];
-			button CTL_CSPANEL_CSESSCLOSE [title: "@posnodecmd_sync_closesess" tabstop width: bycontainer height: 50 margin: 8 command: cmCSClose];
-			button CTL_CMD_SCSINCASSO [title: "@posnodecmd_sync_encashment" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSIncasso];
-			button CTL_CMD_SCSLOCK [title: "@posnodecmd_sync_lock" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSLock];
+dialog DLG_ELNKSET [vertical title: "@elinkarray" size: (655, 235) minsize: (655, 235) padding: 4 font: "MS Shell Dlg,8"] {
+	input CTL_ELNKSET_INFO [width: bycontainer height: 21 margin: 4 tabstop readonly] string[252];
+	view [vertical width: bycontainer growfactor: 1] {
+		view [horizontal width: bycontainer height: 30] {
+			combobox CTLSEL_ELNKSET_KIND1 [tabstop growfactor: 2 height: 21 margin: 4 cblinesymb: CTL_ELNKSET_KIND1];
+			input CTL_ELNKSET_ADDR1 [growfactor: 3 height: 21 margin: 4 tabstop] string[64];
+			button CTL_ELNKSET_ACN1 [title: "" size: (21, 21) margin: 4 command: cmELnkSetAction1];
 		}
-		view [vertical growfactor: 1 height: bycontainer] {
-			button CTL_CMD_SCSPRINTCHECKCOPY [title: "@posnodecmd_sync_printcheckcopy" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSPrintCheckCopy];
-			button CTL_CSPANEL_CSESSOPEN [title: "@posnodecmd_sync_opensess" tabstop width: bycontainer height: 50 margin: 8 command: cmCSOpen];
-			button CTL_CMD_SCSZREPORTCOPY [title: "@posnodecmd_sync_zreportcopy" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSZReportCopy];
-			button CTL_CMD_SCSUNLOCK [title: "@posnodecmd_sync_unlock" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSUnlock];
+		view [horizontal width: bycontainer height: 30] {
+			combobox CTLSEL_ELNKSET_KIND2 [tabstop growfactor: 2 height: 21 margin: 4 cblinesymb: CTL_ELNKSET_KIND2 ];
+			input CTL_ELNKSET_ADDR2 [growfactor: 3 height: 21 margin: 4 tabstop] string[64];
+			button CTL_ELNKSET_ACN2 [title: "" size: (21, 21) margin: 4 command: cmELnkSetAction2];
+		}
+		view [horizontal width: bycontainer height: 30] {
+			combobox CTLSEL_ELNKSET_KIND3 [tabstop growfactor: 2 height: 21 margin: 4 cblinesymb: CTL_ELNKSET_KIND3 ];
+			input CTL_ELNKSET_ADDR3 [growfactor: 3 height: 21 margin: 4 tabstop] string[64];
+			button CTL_ELNKSET_ACN3 [title: "" size: (21, 21) margin: 4 command: cmELnkSetAction3];
+		}
+		view [horizontal width: bycontainer height: 30] {
+			combobox CTLSEL_ELNKSET_KIND4 [tabstop growfactor: 2 height: 21 margin: 4 cblinesymb: CTL_ELNKSET_KIND4 ];
+			input CTL_ELNKSET_ADDR4 [growfactor: 3 height: 21 margin: 4 tabstop] string[64];
+			button CTL_ELNKSET_ACN4 [title: "" size: (21, 21) margin: 4 command: cmELnkSetAction4];
+		}
+		view [horizontal width: bycontainer height: 30] {
+			combobox CTLSEL_ELNKSET_KIND5 [tabstop growfactor: 2 height: 21 margin: 4 cblinesymb: CTL_ELNKSET_KIND5 ];
+			input CTL_ELNKSET_ADDR5 [growfactor: 3 height: 21 margin: 4 tabstop] string[64];
+			button CTL_ELNKSET_ACN5 [title: "" size: (21, 21) margin: 4 command: cmELnkSetAction5];
 		}
 	}
-	view [vertical width: bycontainer(80) growfactor: 2] {
-		button CTL_CMD_SCSDRAWEROPEN [title: "@posnodecmd_sync_opendrawer" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSDrawerOpen];
-		button CTL_CSPANEL_RESETCHZNPMSVRADDR [title: "@posnodecmd_sync_resetchznpmsvraddr" tabstop width: bycontainer height: 50 margin: 8 command: cmCSResetChZnPmSvrAddr];
-	}
-	view [horizontal width: bycontainer(80) growfactor: 2 alignitems: center justifycontent: spaceevenly] {
-		button STDCTL_CANCELBUTTON [title: "@but_close" tabstop width: bycontainer height: 50 margin: 8 command: cmCancel];
+	view [horizontal width: bycontainer height: 28] {
+		view [horizontal growfactor: 1 height: bycontainer(100) gravity: left justifycontent: start] {
+			button CTL_CMD_MORE [title: "@{elinkarray_list}..." tabstop size: (98, 21) margin: 4 command: cmaMore];
+		}
+		view [horizontal growfactor: 2 height: bycontainer(100) margin_right: 12 gravity: right justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
 	}
 }
 
@@ -2170,42 +2275,161 @@ dialog DLG_ALCREPCFG [vertical title: "@cfg_alcreport" size: (990, 525) minsize:
 	}
 }
 
-dialog DLG_ELNKSET__ [vertical title: "@elinkarray" size: (655, 235) minsize: (655, 235) padding: 4 font: "MS Shell Dlg,8"] { // @construction
-	input CTL_ELNKSET_INFO [size: (593, 21)  tabstop readonly] string[252];
-	view [vertical width: bycontainer growfactor: 1] {
-		view [horizontal width: bycontainer height: 30] {
-			combobox CTLSEL_ELNKSET_KIND1 [tabstop growfactor: 2 height: 21 margin: 4 cblinesymb: CTL_ELNKSET_KIND1];
-			input CTL_ELNKSET_ADDR1 [growfactor: 3 height: 21 margin: 4 tabstop] string[64];
-			button CTL_ELNKSET_ACN1 [title: "" size: (21, 21) margin: 4 command: cmELnkSetAction1];
+// @20251218 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
+// Диалоги, представленные здесь с изменными символами (DLG_CASHREPORTS_L__, например) в ppdlg.list не отмечены поскольку находятся в работе.
+
+// @construction
+dialog DLG_WMSBILL__ [vertical title: "@oprcategory_wms" size: (530, 350) minsize: (530, 350) font: "MS Shell Dlg,8"] {
+	view [horizontal] {
+		input CTL_BILL_DOC [size: (143, 21) tabstop label: "@billno" labelsize: (96, 13) ] string[48];
+		input CTL_BILL_DATE [size: (90, 21) tabstop fmtf: (dmy) label: "@date" labelsize: (30, 13) ] date;
+	}
+	view [vertical width: bycontainer] {
+		combobox CTLSEL_BILL_PERSON [tabstop width: bycontainer height: 21 margin: 4 label: "@contractor" labelsize: (0, 13) cblinesymb: CTL_BILL_PERSON];
+		statictext CTL_BILL_ST_PARENTPERSON [width: bycontainer height: 13 margin: (4, 1, 4, 4)];
+		statictext CTL_BILL_OBJ2NAME [title: "@bill_object2" width: bycontainer height: 13 margin: (4, 4, 4, 1)];
+		combobox CTLSEL_BILL_OBJ2 [tabstop width: bycontainer height: 21 margin: 4 cblinesymb: CTL_BILL_OBJ2];
+	}
+	statictext CTL_BILL_ST_LINKBILL [width: bycontainer height: 16 staticedge];
+	view [horizontal] {
+		statictext CTL_BILL_ST_SCARD [size: (165, 24)  staticedge];
+		statictext CTL_BILL_STATUS [title: "Status" size: (135, 24)  staticedge];
+	}
+	input CTL_BILL_MEMO [width: bycontainer(100) height: 21 margin: 4 tabstop label: "@memo" labelsize: (0, 13) ] string[160];
+	button CTL_BILL_DETAIL [title: "@but_billdetail" tabstop size: (113, 21)  command: cmDetail];
+	button CTL_CMD_BILLEXTRA [title: "@{addendum}..." tabstop size: (99, 21)  command: cmBillExtra];
+	button CTL_BILL_FREIGHTBUTTON [title: "@but_freight" tabstop size: (75, 21)  command: cmBillFreight];
+	button CTL_BILL_LINKFILESBUTTON [title: "@but_files" tabstop size: (75, 21)  command: cmLinkFiles];
+	listbox CTL_BILL_LNKFILELIST [size: (83, 33)  columns: "68,L,@attachedfile"];
+	button CTLMNU_BILL_DOC [title: "" size: (21, 21)  command: cmLocalMenu];
+	button CTLMNU_BILL_MEMO [title: "" size: (21, 21)  command: cmLocalMenu];
+	
+	view [horizontal width: bycontainer(100) growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+// @construction. Лейаут готов, но проблема со шрифтами. Управляющие элементы получают default-шрифты а для этого диалог так не годится (он специально большим сделан).
+dialog DLG_CASHREPORTS_L__ [vertical title: "@posnodecmd" size: (595, 525) minsize: (595, 525) font: "MS Shell Dlg 2,16" alignitems: center justifycontent: spaceevenly] {
+	// (все равно он в программе делается невидимым) input CTL_CSPANEL_INPUT [width: bycontainer height: 41 margin: (8, 8, 8, 16) tabstop] string[64];
+	view [horizontal width: bycontainer(80) growfactor: 4] {
+		view [vertical growfactor: 1 height: bycontainer] {
+			button CTL_CSPANEL_XREP [title: "@posnodecmd_sync_xreport" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSXReport];
+			button CTL_CSPANEL_CSESSCLOSE [title: "@posnodecmd_sync_closesess" tabstop width: bycontainer height: 50 margin: 8 command: cmCSClose];
+			button CTL_CMD_SCSINCASSO [title: "@posnodecmd_sync_encashment" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSIncasso];
+			button CTL_CMD_SCSLOCK [title: "@posnodecmd_sync_lock" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSLock];
 		}
-		view [horizontal width: bycontainer height: 30] {
-			combobox CTLSEL_ELNKSET_KIND2 [tabstop growfactor: 2 height: 21 margin: 4 cblinesymb: CTL_ELNKSET_KIND2 ];
-			input CTL_ELNKSET_ADDR2 [growfactor: 3 height: 21 margin: 4 tabstop] string[64];
-			button CTL_ELNKSET_ACN2 [title: "" size: (21, 21) margin: 4 command: cmELnkSetAction2];
-		}
-		view [horizontal width: bycontainer height: 30] {
-			combobox CTLSEL_ELNKSET_KIND3 [tabstop growfactor: 2 height: 21 margin: 4 cblinesymb: CTL_ELNKSET_KIND3 ];
-			input CTL_ELNKSET_ADDR3 [growfactor: 3 height: 21 margin: 4 tabstop] string[64];
-			button CTL_ELNKSET_ACN3 [title: "" size: (21, 21) margin: 4 command: cmELnkSetAction3];
-		}
-		view [horizontal width: bycontainer height: 30] {
-			combobox CTLSEL_ELNKSET_KIND4 [tabstop growfactor: 2 height: 21 margin: 4 cblinesymb: CTL_ELNKSET_KIND4 ];
-			input CTL_ELNKSET_ADDR4 [growfactor: 3 height: 21 margin: 4 tabstop] string[64];
-			button CTL_ELNKSET_ACN4 [title: "" size: (21, 21) margin: 4 command: cmELnkSetAction4];
-		}
-		view [horizontal width: bycontainer height: 30] {
-			combobox CTLSEL_ELNKSET_KIND5 [tabstop growfactor: 2 height: 21 margin: 4 cblinesymb: CTL_ELNKSET_KIND5 ];
-			input CTL_ELNKSET_ADDR5 [growfactor: 3 height: 21 margin: 4 tabstop] string[64];
-			button CTL_ELNKSET_ACN5 [title: "" size: (21, 21) margin: 4 command: cmELnkSetAction5];
+		view [vertical growfactor: 1 height: bycontainer] {
+			button CTL_CMD_SCSPRINTCHECKCOPY [title: "@posnodecmd_sync_printcheckcopy" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSPrintCheckCopy];
+			button CTL_CSPANEL_CSESSOPEN [title: "@posnodecmd_sync_opensess" tabstop width: bycontainer height: 50 margin: 8 command: cmCSOpen];
+			button CTL_CMD_SCSZREPORTCOPY [title: "@posnodecmd_sync_zreportcopy" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSZReportCopy];
+			button CTL_CMD_SCSUNLOCK [title: "@posnodecmd_sync_unlock" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSUnlock];
 		}
 	}
-	view [horizontal width: bycontainer height: 28] {
-		view [horizontal growfactor: 1 height: bycontainer(100) gravity: left justifycontent: start] {
-			button CTL_CMD_MORE [title: "@{elinkarray_list}..." tabstop size: (98, 21) command: cmaMore];
+	view [vertical width: bycontainer(80) growfactor: 2] {
+		button CTL_CMD_SCSDRAWEROPEN [title: "@posnodecmd_sync_opendrawer" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSDrawerOpen];
+		button CTL_CSPANEL_RESETCHZNPMSVRADDR [title: "@posnodecmd_sync_resetchznpmsvraddr" tabstop width: bycontainer height: 50 margin: 8 command: cmCSResetChZnPmSvrAddr];
+	}
+	view [horizontal width: bycontainer(80) growfactor: 2 alignitems: center justifycontent: spaceevenly] {
+		button STDCTL_CANCELBUTTON [title: "@but_close" tabstop width: bycontainer height: 50 margin: 8 command: cmCancel];
+	}
+}
+
+dialog DLG_SCARDSERRESTR [vertical title: "@scard_series" size: (300, 300) minsize: (300, 300) padding: 4 font: "MS Shell Dlg 2,8"] {
+	input CTL_SCARDSERRESTR_USAGETM [width: bycontainer height: 21 margin: 4 tabstop label: "@scardseries_usagetime" labelsize: (0, 13)] string[20];
+	checkcluster CTL_SCARDSERRESTR_DOW [vertical width: bycontainer margin: 4 title: "@weekday_pl" ] {
+		checkbox [title: "@monday" height: 16];
+		checkbox [title: "@tuesday" height: 16];
+		checkbox [title: "@wednesday" height: 16];
+		checkbox [title: "@thursday" height: 16];
+		checkbox [title: "@friday" height: 16];
+		checkbox [title: "@saturday" height: 16];
+		checkbox [title: "@sunday" height: 16];
+	}
+	view [horizontal width: bycontainer(100) height: 28 margin_right: 12 justifycontent: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_SCARDSER [vertical title: "@scard_series" size: (695, 635) minsize: (695, 635) padding: 4 font: "MS Shell Dlg 2,8"] {
+	view [horizontal width: bycontainer height: 135] {
+		view [vertical growfactor: 3 height: bycontainer] {
+			input CTL_SCARDSER_NAME [width: bycontainer height: 21 margin: 4 tabstop label: "@appellation" labelsize: (0, 13) ] string[48];
+			view [horizontal width: bycontainer height: 43] {
+				input CTL_SCARDSER_SYMB [growfactor: 3 height: 21 margin: 4 tabstop label: "@symbol" labelsize: (0, 13)] string[20];
+				input CTL_SCARDSER_ID [growfactor: 1 height: 21 margin: 4 tabstop readonly label: "@id" labelsize: (0, 13)] int32;
+			}
+			combobox CTLSEL_SCARDSER_PARENT [width: bycontainer height: 21 margin: 4 tabstop label: "@scardseries_parent" labelsize: (0, 13) cblinesymb: CTL_SCARDSER_PARENT];
 		}
-		view [horizontal growfactor: 2 height: bycontainer(100) margin_right: 12 gravity: right justifycontent: end] {
-			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
-			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		view [vertical growfactor: 2 height: bycontainer] {
+			view [horizontal width: bycontainer height: 43] {
+				input CTL_SCARDSER_DATE [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (dmy) label: "@scardseries_issue" labelsize: (0, 13)] date supplement datecalbutton(CTLCAL_SCARDSER_DATE);
+				input CTL_SCARDSER_EXPIRY [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (dmy) label: "@scardseries_expiry" labelsize: (0, 13)] date supplement datecalbutton(CTLCAL_SCARDSER_EXPIRY);
+			}
+			view [horizontal width: bycontainer height: 43] {
+				input CTL_SCARDSER_PDIS [growfactor: 1 height: 21 margin: 4 tabstop fmtprec: 0 label: "@scardseries_pdis" labelsize: (0, 13)] double;
+				input CTL_SCARDSER_MAXCRED [growfactor: 1 height: 21 margin: 4 tabstop fmtprec: 0 label: "@scardseries_maxcredit" labelsize: (0, 13)] double;
+			}
+			input CTL_SCARDSER_USAGETM [width: bycontainer height: 21 margin: 4 tabstop label: "@scardseries_usagetime" labelsize: (0, 13)] string[14];
 		}
+	}
+	view [horizontal width: bycontainer height: 135] {
+		radiocluster CTL_SCARDSER_TYPE [title: "@scardseries_type" growfactor: 1 height: bycontainer padding: 4 margin: 4] {
+			radiobutton [title: "@scardseries_discountcards" height: 16];
+			radiobutton [title: "@scardseries_scrdsf_credit" height: 16];
+			radiobutton [title: "@scardseries_scrdsf_bonus" height: 16];
+			radiobutton [title: "@scardseries_scrdsf_group" height: 16];
+			radiobutton [title: "@scardseries_scrdsf_rsrvpool" height: 16];
+		}
+		view [vertical growfactor: 2 height: bycontainer] {
+			combobox CTLSEL_SCARDSER_QUOTKIND [width: bycontainer height: 21 margin: 4 tabstop label: "@quotkind" labelsize: (0, 13) cblinesymb: CTL_SCARDSER_QUOTKIND]
+				supplement listbutton(STDCTL_QKLISTBUTTON cmQuotKindList);
+			combobox CTLSEL_SCARDSER_PSNKIND [width: bycontainer height: 21 margin: 4 tabstop label: "@psnkind" labelsize: (0, 13) cblinesymb: CTL_SCARDSER_PSNKIND];
+			framebox [horizontal width: bycontainer growfactor: 1 padding: 4 aligncontent: end] {
+				checkbox CTL_SCARDSER_BONER [title: "@scardseries_scrdsf_bonuser_onbnk" tabstop growfactor: 1 height: 16 margin: 4];
+				input CTL_SCARDSER_BONERVAL [size: (50, 21) margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 2] double;
+			}
+		}
+	}
+	view [horizontal width: bycontainer height: 45] {
+		input CTL_SCARDSER_CODETEMPL [growfactor: 1 height: 21 margin: 4 tabstop label: "@codetemplate" labelsize: (0, 13) ] string[32];
+		combobox CTLSEL_SCARDSER_RPDEST [growfactor: 1 height: 21 margin: 4 tabstop label: "@scardseries_rsrvpooldestser" labelsize: (0, 13) cblinesymb: CTL_SCARDSER_RPDEST];
+	}
+	view [horizontal width: bycontainer height: 90] {
+		view [vertical growfactor: 3 height: bycontainer] {
+			combobox CTLSEL_SCARDSER_CRDGGRP [width: bycontainer height: 21 margin: 4 tabstop label: "@scardseries_crdgoodsgrp" labelsize: (0, 13) cblinesymb: CTL_SCARDSER_CRDGGRP ];
+			combobox CTLSEL_SCARDSER_BONCGRP [width: bycontainer height: 21 margin: 4 tabstop label: "@scardseries_bonuschrggrp" labelsize: (0, 13) cblinesymb: CTL_SCARDSER_BONCGRP ];
+		}
+		view [vertical growfactor: 2 height: bycontainer] {
+			combobox CTLSEL_SCARDSER_SPCTRT [width: bycontainer height: 21 margin: 4 tabstop label: "@scardseries_specialtreatment" labelsize: (0, 13) cblinesymb: CTL_SCARDSER_SPCTRT ];
+			input CTL_SCARDSER_FIXBON [width: bycontainer height: 21 margin: 4 tabstop fmtprec: 0 label: "@scardseries_fixedbonus" labelsize: (0, 13) ] double;
+		}
+	}
+	view [horizontal width: bycontainer height: 180] {
+		checkcluster CTL_SCARDSER_FLAGS [growfactor: 3 margin: 4] {
+			checkbox [title: "@scardseries_scrdsf_usedscntifnquot" height: 16];
+			checkbox [title: "@scardseries_scrdsf_minquotval" height: 16];
+			checkbox [title: "@scardseries_scrdsf_uhttsync" height: 16];
+			checkbox [title: "@scardseries_scrdsf_disableaddpaym" height: 16];
+			checkbox [title: "@scardseries_scrdsf_newscinhf" height: 16];
+			checkbox [title: "@scardseries_scrdsf_transfdiscount" height: 16];
+			checkbox [title: "@scardseries_scrdsf_passive" height: 16];
+			checkbox [title: "@scardseries_scrdsf_allowownerautocr" height: 16];
+			checkbox [title: "@scardseries_scrdsf_quantaccounting" height: 16];
+		}
+		framebox [vertical growfactor: 2 height: bycontainer padding: 4 justifycontent: center margin: 4] {
+			button CTL_CMD_SCARDRULE [title: "@scardrule_dis" tabstop width: bycontainer height: 21 margin: 4 command: cmSCardRule];
+			button CTL_CMD_CCHECKRULE [title: "@scardrule_ccdis" tabstop width: bycontainer height: 21 margin: 4 command: cmCCheckRule];
+			button CTL_CMD_BONUSRULE [title: "@scardrule_bonus" tabstop width: bycontainer height: 21 margin: 4 command: cmBonusRule];
+			button CTL_SCARDSER_RESTRICTIONS [title: "@{scardrule_restrictions}..." tabstop width: bycontainer height: 21 margin: (4, 8, 4, 4) command: cmRestrictions];
+		}
+	}
+	//framebox [size: (255, 104) ];
+	//framebox [size: (405, 49) ];
+	view [horizontal width: bycontainer(100) height: 28 margin_right: 12 justifycontent: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }

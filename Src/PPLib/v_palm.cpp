@@ -1,5 +1,5 @@
 // V_PALM.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2015, 2016, 2018, 2022
+// Copyright (c) A.Starodub 2009, 2010, 2015, 2016, 2018, 2022, 2025
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -77,7 +77,7 @@ int PPViewPalm::CheckForFilt(const PPStyloPalm * pRec)
 TempPalmTbl::Rec & PPViewPalm::MakeTempEntry(const PPStyloPalmPacket & rPack, TempPalmTbl::Rec & rTempRec)
 {
 	int    ok = -1;
-	memzero(&rTempRec, sizeof(TempPalmTbl::Rec));
+	rTempRec.Clear();
 	rTempRec.ID = rPack.Rec.ID;
 	STRNSCPY(rTempRec.Name, rPack.Rec.Name);
 	STRNSCPY(rTempRec.Symb, rPack.Rec.Symb);
@@ -217,7 +217,8 @@ int PPViewPalm::UpdateTempTable(const PPIDArray * pIdList)
 int PPViewPalm::InitIteration()
 {
 	int    ok = 1;
-	TempPalmTbl::Key0 k, k_;
+	TempPalmTbl::Key0 k;
+	TempPalmTbl::Key0 k_;
 	BExtQuery::ZDelete(&P_IterQuery);
 	P_IterQuery = new BExtQuery(P_TempTbl, 0, 128);
 	P_IterQuery->select(P_TempTbl->ID, 0);
@@ -255,12 +256,27 @@ DBQuery * PPViewPalm::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	TempPalmTbl * t = 0;
 	uint   brw_id = BROWSER_PALM;
 	DBQ  * dbq = 0;
-	DBE    dbe_loc, dbe_ggrp, dbe_ar;
+	DBE    dbe_loc;
+	DBE    dbe_ggrp;
+	DBE    dbe_ar;
 	THROW(CheckTblPtr(t = new TempPalmTbl(P_TempTbl->GetName())));
 	PPDbqFuncPool::InitObjNameFunc(dbe_loc,   PPDbqFuncPool::IdObjNameLoc,    t->LocID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_ggrp,  PPDbqFuncPool::IdObjNameGoods,  t->GoodsGrpID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_ar,    PPDbqFuncPool::IdObjNameAr,     t->AgentID);
+	// @v12.5.1 {
 	q = & Select_(
+		t->ID,            // #0
+		t->Name,          // #1
+		0L);
+	q->addField(dbe_loc);      // #2
+	q->addField(dbe_ggrp);     // #3
+	q->addField(dbe_ar);       // #4
+	q->addField(t->GroupName); // #5
+	q->addField(t->Path);      // #6
+	q->addField(t->FtpPath);   // #7
+	q->addField(t->Symb);      // #8
+	// } @v12.5.1 
+	/* @v12.5.1 q = & Select_(
 		t->ID,            // #0
 		t->Name,          // #1
 		dbe_loc,          // #2
@@ -269,8 +285,9 @@ DBQuery * PPViewPalm::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		t->GroupName,     // #5
 		t->Path,          // #6
 		t->FtpPath,       // #7
-		t->Symb,          // #8 @v7.4.7
-		0L).from(t, 0L).where(*dbq).orderBy(t->Name, 0L);
+		t->Symb,          // #8
+		0L);*/
+	q->from(t, 0L).where(*dbq).orderBy(t->Name, 0L);
 	THROW(CheckQueryPtr(q));
 	CATCH
 		if(q)

@@ -1265,6 +1265,14 @@ int PPObjGoods::CombineTaxEntry(const PPGoodsTaxEntry & rGtx, PPID taxPayerPerso
 			ObjTagItem tag_item;
 			SETIFZ(P_PsnObj, new PPObjPerson);
 			if(P_PsnObj) {
+				// @v12.5.1 {
+				const uint stgf = P_PsnObj->GetSpecialTaxGroup(taxPayerPersonID, taxPayerLocID, &payer_tax_grp_id, &loc_tax_grp_id);
+				if(stgf & PPObjPerson::stgrfLocIsVatFree)
+					is_loc_vatfree = true;
+				if(stgf & PPObjPerson::stgrfPersonIsVatFree)
+					is_taxpayer_vatfree = true;
+				// } @v12.5.1 
+				/* @v12.5.1
 				if(taxPayerLocID) {
 					LocationTbl::Rec loc_rec;
 					if(P_PsnObj->LocObj.Fetch(taxPayerLocID, &loc_rec) > 0) {
@@ -1288,7 +1296,7 @@ int PPObjGoods::CombineTaxEntry(const PPGoodsTaxEntry & rGtx, PPID taxPayerPerso
 								payer_tax_grp_id = _tax_grp_id;
 						}
 					}
-				}
+				}*/
 			}
 			//
 			if(loc_tax_grp_id && GTxObj.Fetch(loc_tax_grp_id, _date, opID, &taxpayer_gtx) > 0) {

@@ -459,7 +459,7 @@ static EVP_RAND_CTX * rand_new_seed(OSSL_LIB_CTX * libctx)
 	EVP_RAND * rand;
 	RAND_GLOBAL * dgbl = rand_get_global(libctx);
 	EVP_RAND_CTX * ctx;
-	char * name;
+	const char * name;
 	if(dgbl == NULL)
 		return NULL;
 	name = dgbl->seed_name ? dgbl->seed_name : "SEED-SRC";
@@ -489,8 +489,10 @@ static EVP_RAND_CTX * rand_new_drbg(OSSL_LIB_CTX * libctx, EVP_RAND_CTX * parent
 	EVP_RAND * rand;
 	RAND_GLOBAL * dgbl = rand_get_global(libctx);
 	EVP_RAND_CTX * ctx;
-	OSSL_PARAM params[7], * p = params;
-	char * name, * cipher;
+	OSSL_PARAM params[7];
+	OSSL_PARAM * p = params;
+	const char * name;
+	char * cipher;
 	if(dgbl == NULL)
 		return NULL;
 	name = dgbl->rng_name ? dgbl->rng_name : "CTR-DRBG";
@@ -510,8 +512,7 @@ static EVP_RAND_CTX * rand_new_drbg(OSSL_LIB_CTX * libctx, EVP_RAND_CTX * parent
 	 * and rely on the other end to ignore those it doesn't care about.
 	 */
 	cipher = dgbl->rng_cipher ? dgbl->rng_cipher : "AES-256-CTR";
-	*p++ = OSSL_PARAM_construct_utf8_string(OSSL_DRBG_PARAM_CIPHER,
-		cipher, 0);
+	*p++ = OSSL_PARAM_construct_utf8_string(OSSL_DRBG_PARAM_CIPHER, cipher, 0);
 	if(dgbl->rng_digest)
 		*p++ = OSSL_PARAM_construct_utf8_string(OSSL_DRBG_PARAM_DIGEST, dgbl->rng_digest, 0);
 	if(dgbl->rng_propq)

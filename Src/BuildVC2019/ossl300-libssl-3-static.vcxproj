@@ -134,7 +134,7 @@
       <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302;..\osf\OpenSSL-302\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
-      <StructMemberAlignment>Default</StructMemberAlignment>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -156,7 +156,7 @@
       <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302;..\osf\OpenSSL-302\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
-      <StructMemberAlignment>Default</StructMemberAlignment>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <SDLCheck />
@@ -199,7 +199,7 @@
       <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302;..\osf\OpenSSL-302\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
-      <StructMemberAlignment>Default</StructMemberAlignment>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
@@ -221,7 +221,7 @@
       <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302;..\osf\OpenSSL-302\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
-      <StructMemberAlignment>Default</StructMemberAlignment>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <SDLCheck />

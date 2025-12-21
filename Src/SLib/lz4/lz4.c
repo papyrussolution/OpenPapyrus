@@ -169,7 +169,7 @@ static uint LZ4_isLittleEndian(void)
 
 #if defined(LZ4_FORCE_MEMORY_ACCESS) && (LZ4_FORCE_MEMORY_ACCESS==2)
 	// lie to the compiler about data alignment; use with caution 
-	static uint16 FASTCALL LZ4_read16(const void * memPtr) { return *(const uint16*)memPtr; }
+	static uint16 FASTCALL LZ4_read16(const void * memPtr) { return *(const uint16 *)memPtr; }
 	static uint32 FASTCALL LZ4_read32(const void * memPtr) { return *(const uint32 *)memPtr; }
 	static reg_t FASTCALL LZ4_read_ARCH(const void * memPtr) { return *(const reg_t*)memPtr; }
 	static void  FASTCALL LZ4_write16(void * memPtr, uint16 value) { *(uint16 *)memPtr = value; }
@@ -538,7 +538,7 @@ static uint32 LZ4_getIndexOnHash(uint32 h, const void * tableBase, tableType_t t
 		return hashTable[h];
 	}
 	if(tableType == byU16) {
-		const uint16* const hashTable = (const uint16*)tableBase;
+		const uint16* const hashTable = (const uint16 *)tableBase;
 		assert(h < (1U << (LZ4_MEMORY_USAGE-1)));
 		return hashTable[h];
 	}
@@ -557,7 +557,7 @@ static const uint8 * LZ4_getPositionOnHash(uint32 h, const void * tableBase, tab
 	}
 	{ 
 		// default, to ensure a return 
-		const uint16* const hashTable = (const uint16*)tableBase; 
+		const uint16* const hashTable = (const uint16 *)tableBase; 
 		return hashTable[h] + srcBase; 
 	} 
 }

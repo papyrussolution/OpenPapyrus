@@ -1917,6 +1917,23 @@ bool RAssocArray::SearchMaxVal(uint * pPos) const
 	return ok;
 }
 
+bool RAssocArray::SearchMinVal(uint * pPos) const // @v12.5.1
+{
+	bool   ok = false;
+	double min_val = SMathConst::Max;
+	uint   min_val_pos = 0;
+	for(uint i = 0; i < getCount(); i++) {
+		const RAssoc & r_item = at(i);
+		if(min_val > r_item.Val) {
+			min_val = r_item.Val;
+			min_val_pos = i;
+			ok = true;
+		}
+	}
+	ASSIGN_PTR(pPos, min_val_pos);
+	return ok;
+}
+
 void RAssocArray::Scale(double rate)
 {
 	for(uint i = 0; i < getCount(); i++)
@@ -1987,6 +2004,45 @@ int RAssocArray::Add(const RAssocArray & rList, int additive, int binary)
 		Add(r_item.Key, r_item.Val, additive, binary);
 	}
 	return 1;
+}
+
+int RAssocArray::AddMaxK(long key, double val, uint k)
+{
+	int    ok = -1;
+	double ex_val = 0.0;
+	uint   ex_pos = 0;
+	if(Search(key, &ex_val, &ex_pos, 0)) {
+		if(val > ex_val) {
+			at(ex_pos).Val = val;
+			ok = 2;
+		}
+	}
+	else {
+		if(getCount() < k) {
+			if(Add(key, val, 0, 0)) {
+				ok = 1;
+			}
+			else
+				ok = 0;
+		}
+		else {
+			uint   min_val_pos = 0;
+			const bool smvr = SearchMinVal(&min_val_pos);
+			assert(smvr); // Не может быть, что нет минимального значения - мы знаем что количество элементов >0
+			if(smvr) {
+				RAssoc & r_min_item = at(min_val_pos);
+				if(r_min_item.Val < val) {
+					r_min_item.Key = key;
+					r_min_item.Val = val;
+					ok = 3;
+				}
+				else {
+					; // nothing todo: мы пытаемся вставить элемент, которые меньше любого из тех, что уже находятся в списке.
+				}
+			}
+		}
+	}
+	return ok;
 }
 
 int RAssocArray::Remove(long key, int binary)
@@ -2867,7 +2923,7 @@ IMPL_CMPFUNC(StrAssoc_ByLength_Descend, i1, i2)
 	size_t ss_data_len = p_ss->getDataLen();
 	const char * p_str1 = (pos1 < ss_data_len) ? (p_ss->getBuf() + pos1) : stub;
 	const char * p_str2 = (pos2 < ss_data_len) ? (p_ss->getBuf() + pos2) : stub;
-	return cmp_ulong(sstrlen(p_str2), sstrlen(p_str1));
+	return cmp_size_t(sstrlen(p_str2), sstrlen(p_str1));
 }
 
 /*static*/int StrAssocArray::Helper_CmpFunc_StrAssocByText(const LAssoc * p1, const LAssoc * p2, StrAssocArray * pArray, LAssocArray * pRecurTracer)

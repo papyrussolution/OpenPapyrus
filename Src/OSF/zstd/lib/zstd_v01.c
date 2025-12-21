@@ -189,7 +189,7 @@ static uint FSE_isLittleEndian(void)
 
 #if defined(FSE_FORCE_MEMORY_ACCESS) && (FSE_FORCE_MEMORY_ACCESS==2)
 
-static uint16 FSE_read16(const void* memPtr) { return *(const uint16*)memPtr; }
+static uint16 FSE_read16(const void* memPtr) { return *(const uint16 *)memPtr; }
 static uint32 FSE_read32(const void* memPtr) { return *(const uint32 *)memPtr; }
 static uint64 FSE_read64(const void* memPtr) { return *(const uint64*)memPtr; }
 
@@ -954,7 +954,7 @@ static size_t HUF_decompress_usingDTable(void* dst, size_t maxDstSize, const voi
 		size_t errorCode;
 		uint32 reloadStatus;
 		/* Init */
-		const uint16* jumpTable = (const uint16*)cSrc;
+		const uint16* jumpTable = (const uint16 *)cSrc;
 		const size_t length1 = FSE_readLE16(jumpTable);
 		const size_t length2 = FSE_readLE16(jumpTable+1);
 		const size_t length3 = FSE_readLE16(jumpTable+2);

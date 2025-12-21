@@ -525,9 +525,30 @@ DBQuery * PPViewCSess::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		THROW(P_CSessIterQuery);
 		THROW(p_ch = new TempCSessChecksTbl(P_TempTbl->GetName()));
 		PPDbqFuncPool::InitObjNameFunc(dbe_cashnode, PPDbqFuncPool::IdObjNameCashNode, p_ch->CashNodeID);
-		p_dbe_ret = &(p_ch->WORetAmount-p_ch->Amount); // Переворачиваем уменьшаемое с вычетаемым, чтобы получить
-			// положительную величину возвратов
+		p_dbe_ret = &(p_ch->WORetAmount-p_ch->Amount); // Переворачиваем уменьшаемое с вычетаемым, чтобы получить положительную величину возвратов
+		// @v12.5.1 {
 		p_q = &Select_(
+			p_ch->ID,             // #0
+			p_ch->Dt,             // #1
+			p_ch->SessNumber,     // #2
+			p_ch->CashNumber,     // #3
+			p_ch->Incomplete,     // #4
+			p_ch->Amount,         // #5
+			p_ch->Discount,       // #6
+			p_ch->WrOffAmount,    // #7
+			p_ch->AggrRest,       // #8
+			p_ch->WrOffCost,      // #9
+			p_ch->Income,         // #10
+			p_ch->BnkAmount,      // #11
+			p_ch->ChkCount,       // #12
+			p_ch->WORetAmount,    // #13
+			0L);
+		p_q->addField(*p_dbe_ret);           // #14
+		p_q->addField(p_ch->BnkDiscount);    // #15
+		p_q->addField(dbe_cashnode);         // #16
+		p_q->addField(p_ch->CSCardAmount);   // #17
+		// } @v12.5.1 
+		/* @v12.5.1 p_q = &Select_(
 			p_ch->ID,             // #0
 			p_ch->Dt,             // #1
 			p_ch->SessNumber,     // #2
@@ -546,7 +567,7 @@ DBQuery * PPViewCSess::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			p_ch->BnkDiscount,    // #15
 			dbe_cashnode,         // #16
 			p_ch->CSCardAmount,   // #17
-			0L);
+			0L);*/
 		if(p_ot) {
 			p_q->from(p_ot, p_ch, 0L).where(p_ch->ID == p_ot->ID).orderBy(p_ot->Name, 0L);
 		}
@@ -568,7 +589,23 @@ DBQuery * PPViewCSess::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	else {
 		THROW_MEM(t = new CSessionTbl);
 		PPDbqFuncPool::InitObjNameFunc(dbe_cashnode, PPDbqFuncPool::IdObjNameCashNode, t->CashNodeID);
+		// @v12.5.1 {
 		p_q = &Select_(
+			t->ID,           // #00
+			t->Dt,           // #01
+			t->SessNumber,   // #02
+			t->CashNumber,   // #03
+			t->Incomplete,   // #04
+			t->Amount,       // #05
+			t->Discount,     // #06
+			t->WrOffAmount,  // #07
+			t->AggrRest,     // #08
+			t->BnkAmount,    // #09
+			0L);
+		p_q->addField(dbe_cashnode);    // #10
+		p_q->addField(t->CSCardAmount); // #11
+		// } @v12.5.1 
+		/* @v12.5.1 p_q = &Select_(
 			t->ID,           // #00
 			t->Dt,           // #01
 			t->SessNumber,   // #02
@@ -581,7 +618,7 @@ DBQuery * PPViewCSess::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			t->BnkAmount,    // #09
 			dbe_cashnode,    // #10
 			t->CSCardAmount, // #11
-			0L);
+			0L);*/
 		if(p_ot) {
 			p_q->from(p_ot, t, 0L);
 			dbq = &(t->ID == p_ot->ID);

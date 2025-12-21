@@ -1054,9 +1054,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="7z.vcxproj">
-      <Project>{b742e28b-5eb0-4808-b5c6-0e55a030e605}</Project>
-    </ProjectReference>
     <ProjectReference Include="slib.vcxproj">
       <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
     </ProjectReference>

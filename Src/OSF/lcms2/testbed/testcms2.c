@@ -861,7 +861,7 @@ static int32 Check1D(int32 nNodesToCheck, boolint Down, int32 max_err)
 	int32 ok = 1;
 	uint16 in, out;
 	cmsInterpParams* p;
-	uint16 * Tab = (uint16*)SAlloc::M(sizeof(uint16)* nNodesToCheck);
+	uint16 * Tab = (uint16 *)SAlloc::M(sizeof(uint16)* nNodesToCheck);
 	if(Tab) {
 		p = _cmsComputeInterpParams(DbgThread(), nNodesToCheck, 1, 1, Tab, CMS_LERP_FLAGS_16BITS);
 		if(!p) 
@@ -6617,7 +6617,7 @@ static void SpeedTest16bitsGray(FILE * fOut, const char * Title, cmsHPROFILE hlc
 	cmsCloseProfile(hlcmsProfileIn);
 	cmsCloseProfile(hlcmsProfileOut);
 	Mb = 256*256*256 * sizeof(uint16);
-	In = (uint16*)SAlloc::M(Mb);
+	In = (uint16 *)SAlloc::M(Mb);
 	if(In) {
 		j = 0;
 		for(r = 0; r < 256; r++) {

@@ -148,7 +148,7 @@ static void LinLerp1D(const uint16 Value[], uint16 Output[], const cmsInterpPara
 	uint16 y1, y0;
 	int cell0, rest;
 	int val3;
-	const uint16* LutTable = (uint16*)p->Table;
+	const uint16* LutTable = (uint16 *)p->Table;
 	// if last value...
 	if(Value[0] == 0xffff) {
 		Output[0] = LutTable[p->Domain[0]];
@@ -201,7 +201,7 @@ static CMS_NO_SANITIZE void Eval1Input(const uint16 Input[], uint16 Output[], co
 	cmsS15Fixed16Number k0, k1, rk, K0, K1;
 	int v;
 	uint32 OutChan;
-	const uint16* LutTable = (uint16*)p16->Table;
+	const uint16* LutTable = (uint16 *)p16->Table;
 	v = Input[0] * p16->Domain[0];
 	fk = _cmsToFixedDomain(v);
 	k0 = FIXED_TO_INT(fk);
@@ -287,7 +287,7 @@ static CMS_NO_SANITIZE void BilinearInterp16(const uint16 Input[], uint16 Output
 #define DENS(i, j) (LutTable[(i)+(j)+OutChan])
 #define LERP(a, l, h)     (uint16)(l + ROUND_FIXED_TO_INT(((h-l)*a)))
 
-	const uint16* LutTable = (uint16*)p->Table;
+	const uint16* LutTable = (uint16 *)p->Table;
 	int OutChan, TotalOut;
 	cmsS15Fixed16Number fx, fy;
 	int rx, ry;
@@ -395,7 +395,7 @@ static CMS_NO_SANITIZE void TrilinearInterp16(const uint16 Input[], uint16 Outpu
 #define DENS(i, j, k) (LutTable[(i)+(j)+(k)+OutChan])
 #define LERP(a, l, h)     (uint16)(l + ROUND_FIXED_TO_INT(((h-l)*a)))
 
-	const uint16* LutTable = (uint16*)p->Table;
+	const uint16* LutTable = (uint16 *)p->Table;
 	int OutChan, TotalOut;
 	cmsS15Fixed16Number fx, fy, fz;
 	int rx, ry, rz;
@@ -536,7 +536,7 @@ static void TetrahedralInterpFloat(const float Input[], float Output[], const cm
 
 static CMS_NO_SANITIZE void TetrahedralInterp16(const uint16 Input[], uint16 Output[], const cmsInterpParams* p)
 {
-	const uint16* LutTable = (uint16*)p->Table;
+	const uint16* LutTable = (uint16 *)p->Table;
 	cmsS15Fixed16Number fx, fy, fz;
 	cmsS15Fixed16Number rx, ry, rz;
 	int x0, y0, z0;
@@ -711,7 +711,7 @@ static CMS_NO_SANITIZE void Eval4Inputs(const uint16 Input[], uint16 Output[], c
 	Z0 = p16->opta[0] * z0;
 	Z1 = Z0 + (Input[3] == 0xFFFFU ? 0 : p16->opta[0]);
 
-	LutTable = (uint16*)p16->Table;
+	LutTable = (uint16 *)p16->Table;
 	LutTable += K0;
 
 	for(OutChan = 0; OutChan < p16->nOutputs; OutChan++) {
@@ -756,7 +756,7 @@ static CMS_NO_SANITIZE void Eval4Inputs(const uint16 Input[], uint16 Output[], c
 		Tmp1[OutChan] = (uint16)(c0 + ROUND_FIXED_TO_INT(_cmsToFixedDomain(Rest)));
 	}
 
-	LutTable = (uint16*)p16->Table;
+	LutTable = (uint16 *)p16->Table;
 	LutTable += K1;
 
 	for(OutChan = 0; OutChan < p16->nOutputs; OutChan++) {
@@ -838,7 +838,7 @@ static void Eval4InputsFloat(const float Input[], float Output[], const cmsInter
 
 static CMS_NO_SANITIZE void Eval5Inputs(const uint16 Input[], uint16 Output[], const cmsInterpParams* p16)
 {
-	const uint16* LutTable = (uint16*)p16->Table;
+	const uint16* LutTable = (uint16 *)p16->Table;
 	cmsS15Fixed16Number fk;
 	cmsS15Fixed16Number k0, rk;
 	int K0, K1;
@@ -913,7 +913,7 @@ static void Eval5InputsFloat(const float Input[], float Output[], const cmsInter
 
 static CMS_NO_SANITIZE void Eval6Inputs(const uint16 Input[], uint16 Output[], const cmsInterpParams* p16)
 {
-	const uint16* LutTable = (uint16*)p16->Table;
+	const uint16* LutTable = (uint16 *)p16->Table;
 	cmsS15Fixed16Number fk;
 	cmsS15Fixed16Number k0, rk;
 	int K0, K1;
@@ -988,7 +988,7 @@ static void Eval6InputsFloat(const float Input[], float Output[], const cmsInter
 
 static CMS_NO_SANITIZE void Eval7Inputs(const uint16 Input[], uint16 Output[], const cmsInterpParams* p16)
 {
-	const uint16* LutTable = (uint16*)p16->Table;
+	const uint16* LutTable = (uint16 *)p16->Table;
 	cmsS15Fixed16Number fk;
 	cmsS15Fixed16Number k0, rk;
 	int K0, K1;
@@ -1063,7 +1063,7 @@ static void Eval7InputsFloat(const float Input[], float Output[], const cmsInter
 
 static CMS_NO_SANITIZE void Eval8Inputs(const uint16 Input[], uint16 Output[], const cmsInterpParams* p16)
 {
-	const uint16* LutTable = (uint16*)p16->Table;
+	const uint16* LutTable = (uint16 *)p16->Table;
 	cmsS15Fixed16Number fk;
 	cmsS15Fixed16Number k0, rk;
 	int K0, K1;

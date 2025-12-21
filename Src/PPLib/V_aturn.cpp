@@ -713,7 +713,8 @@ static IMPL_DBE_PROC(dbqf_accturn_checkrelrestriction_iii)
 	long   ok = 1;
 	PPID   dbt_acc_id = params[0].lval;
 	PPID   crd_acc_id = params[1].lval;
-	const  AccturnFilt * p_filt = reinterpret_cast<const AccturnFilt *>(params[2].lval); // @longtoptr
+	// @v12.5.1 const  AccturnFilt * p_filt = reinterpret_cast<const AccturnFilt *>(params[2].lval); // @longtoptr
+	const  AccturnFilt * p_filt = reinterpret_cast<const AccturnFilt *>(params[2].ptrval); // @v12.5.1
 	PPID   bill_id = params[0].lval;
 	if(p_filt && p_filt->GetSignature() == PPFILT_ACCTURN) {
 		AcctRelTbl::Rec dbt_rec;
@@ -797,7 +798,26 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 		THROW_PP(P_TmpAGTbl, PPERR_PPVIEWNOTINITED);
 		THROW(CheckTblPtr(p_grp_tbl = new TempAccturnGrpngTbl(P_TmpAGTbl->GetName())));
 		PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPDbqFuncPool::IdObjSymbCurrency, p_grp_tbl->CurID);
+		// @v12.5.1 {
 		q = & Select_(
+			p_grp_tbl->Dt,          // #00
+			p_grp_tbl->DbtAccID,    // #01
+			p_grp_tbl->CrdAccID,    // #02
+			p_grp_tbl->CurID,       // #03
+			p_grp_tbl->DbtAc,       // #04
+			p_grp_tbl->DbtSb,       // #05
+			p_grp_tbl->DbtAr,       // #06
+			p_grp_tbl->CrdAc,       // #07
+			p_grp_tbl->CrdSb,       // #08
+			p_grp_tbl->CrdAr,       // #09
+			0L);
+		q->addField(dbe_cur);                // #10
+		q->addField(p_grp_tbl->DbtAccName);  // #11
+		q->addField(p_grp_tbl->CrdAccName);  // #12
+		q->addField(p_grp_tbl->Count);       // #13
+		q->addField(p_grp_tbl->Amount);      // #14
+		// } @v12.5.1 
+		/*q = & Select_(
 			p_grp_tbl->Dt,          // #00
 			p_grp_tbl->DbtAccID,    // #01
 			p_grp_tbl->CrdAccID,    // #02
@@ -813,7 +833,8 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 			p_grp_tbl->CrdAccName,  // #12
 			p_grp_tbl->Count,       // #13
 			p_grp_tbl->Amount,      // #14
-			0L).from(p_grp_tbl, 0L).orderBy(p_grp_tbl->Dt, p_grp_tbl->DbtAc, p_grp_tbl->DbtSb, p_grp_tbl->DbtAr, 0L);
+			0L);*/
+		q->from(p_grp_tbl, 0L).orderBy(p_grp_tbl->Dt, p_grp_tbl->DbtAc, p_grp_tbl->DbtSb, p_grp_tbl->DbtAr, 0L);
 	}
 	else {
 		double ip;
@@ -836,11 +857,27 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 			dbe_rel_restrict.push(at->Acc);
 			dbe_rel_restrict.push(at->CorrAcc);
 			DBConst c_temp;
-			c_temp.init((long)&Filt); // @x64crit
+			// @v12.5.1 c_temp.init((long)&Filt); // @x64crit
+			c_temp.init(&Filt); // @v12.5.1 
 			dbe_rel_restrict.push(c_temp);
 			dbe_rel_restrict.push(static_cast<DBFunc>(PPViewAccturn::DynFuncCheckRelRestrictions));
 		}
+		// @v12.5.1 {
 		q = & Select_(
+			at->BillID,             // #00
+			at->Dt,                 // #01
+			at->RByBill,            // #02
+			bll->Code,              // #03
+			0L);
+		q->addField(dbe_acc_dbt);   // #04
+		q->addField(dbe_acc_crd);   // #05
+		q->addField(at->Amount);    // #06
+			// @v11.1.12 q->addField(bll->Memo); // #07
+		q->addField(dbe_memo);      // #07 @v11.1.12
+		q->addField(dbe_cur);       // #08
+		q->addField(dbe_oprkind);   // #09
+		// } @v12.5.1 
+		/* @v12.5.1 q = & Select_(
 			at->BillID,             // #00
 			at->Dt,                 // #01
 			at->RByBill,            // #02
@@ -852,7 +889,7 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 			dbe_memo,               // #07 @v11.1.12
 			dbe_cur,                // #08
 			dbe_oprkind,            // #09
-			0L);
+			0L);*/
 		if(p_tmp_bill_t) {
 			q->from(p_tmp_bill_t, at, bll, 0L);
 			dbq = & (at->BillID == p_tmp_bill_t->PrmrID);

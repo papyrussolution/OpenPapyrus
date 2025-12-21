@@ -171,14 +171,12 @@ extern char NEAR errbuff[NRERRBUFFS][ERRMSGSIZE];
 extern MARIADB_CHARSET_INFO * get_charset(uint cs_number, myf flags);
 extern MARIADB_CHARSET_INFO * get_charset_by_name(const char * cs_name);
 extern MARIADB_CHARSET_INFO * get_charset_by_nr(uint cs_number);
-
 /* string functions */
 char * ma_strmake(char * dst, const char * src, size_t length);
 
 /* statistics */
 #ifdef TBR
-extern ulong _my_cache_w_requests, _my_cache_write, _my_cache_r_requests,
-    _my_cache_read;
+extern ulong _my_cache_w_requests, _my_cache_write, _my_cache_r_requests, _my_cache_read;
 extern ulong _my_blocks_used, _my_blocks_changed;
 extern ulong ma_file_opened, ma_stream_opened, ma_tmp_file_created;
 extern bool key_cache_inited;
@@ -203,15 +201,16 @@ NEAR ma_disable_flush_key_blocks, NEAR ma_disable_symlinks;
 extern char wild_many, wild_one, wild_prefix;
 extern const char * charsets_dir;
 extern char * defaults_extra_file;
-typedef struct wild_file_pack   /* Struct to hold info when selecting files */
-{
+typedef struct wild_file_pack { /* Struct to hold info when selecting files */
 	uint wilds;             /* How many wildcards */
 	uint not_pos;           /* Start of not-theese-files */
-	my_string     * wild;   /* Pointer to wildcards */
+	my_string * wild;   /* Pointer to wildcards */
 } WF_PACK;
 
 struct my_rnd_struct {
-	unsigned long seed1, seed2, max_value;
+	unsigned long seed1;
+	unsigned long seed2;
+	unsigned long max_value;
 	double max_value_dbl;
 };
 
@@ -222,13 +221,22 @@ typedef struct st_typelib {     /* Different types saved here */
 	const char ** type_names;
 } TYPELIB;
 
-enum cache_type {READ_CACHE, WRITE_CACHE, READ_FIFO, READ_NET, WRITE_NET};
+enum cache_type {
+	READ_CACHE, 
+	WRITE_CACHE, 
+	READ_FIFO, 
+	READ_NET, 
+	WRITE_NET
+};
 
-enum flush_type { FLUSH_KEEP, FLUSH_RELEASE, FLUSH_IGNORE_CHANGED,
-		  FLUSH_FORCE_WRITE};
+enum flush_type { 
+	FLUSH_KEEP, 
+	FLUSH_RELEASE, 
+	FLUSH_IGNORE_CHANGED, 
+	FLUSH_FORCE_WRITE
+};
 
-typedef struct st_record_cache  /* Used when caching records */
-{
+typedef struct st_record_cache  { /* Used when caching records */
 	File file;
 	int rc_seek, error, inited;
 	uint rc_length, read_length, reclength;
@@ -253,8 +261,7 @@ typedef struct st_dynamic_string {
 	size_t length, max_length, alloc_increment;
 } DYNAMIC_STRING;
 
-typedef struct st_io_cache              /* Used when caching files */
-{
+typedef struct st_io_cache { /* Used when caching files */
 	my_off_t pos_in_file, end_of_file;
 	uchar * rc_pos, * rc_end, * buffer, * rc_request_pos;
 	int (* read_function)(struct st_io_cache *, uchar *, uint);
@@ -299,27 +306,20 @@ typedef int (* qsort2_cmp)(const void *, const void *, const void *);
 	_my_b_write((info), (Buffer), (Count)))
 
 /* my_b_write_byte doesn't have any err-check */
-#define my_b_write_byte(info, chr) \
-	(((info)->rc_pos < (info)->rc_end) ? \
-	((*(info)->rc_pos++) = (chr)) : \
-	(_my_b_write((info), 0, 0), ((*(info)->rc_pos++) = (chr))))
+#define my_b_write_byte(info, chr) (((info)->rc_pos < (info)->rc_end) ? ((*(info)->rc_pos++) = (chr)) : (_my_b_write((info), 0, 0), ((*(info)->rc_pos++) = (chr))))
+#define my_b_fill_cache(info) (((info)->rc_end = (info)->rc_pos), (*(info)->read_function)((info), 0, 0))
 
-#define my_b_fill_cache(info) \
-	(((info)->rc_end = (info)->rc_pos), (*(info)->read_function)((info), 0, 0))
-
-#define my_b_tell(info) ((info)->pos_in_file + \
-	((info)->rc_pos - (info)->rc_request_pos))
-
+#define my_b_tell(info) ((info)->pos_in_file + ((info)->rc_pos - (info)->rc_request_pos))
 #define my_b_bytes_in_cache(info) ((uint)((info)->rc_end - (info)->rc_pos))
 
 typedef struct st_changeable_var {
 	const char * name;              /* Name of variable */
 	long * varptr;                  /* Pointer to variable */
-	long def_value,                 /* Default value */
-	    min_value,                  /* Min allowed value */
-	    max_value,                  /* Max allowed value */
-	    sub_size,                   /* Subtract this from given value */
-	    block_size;                 /* Value should be a mult. of this */
+	long def_value;                 /* Default value */
+	long min_value;                 /* Min allowed value */
+	long max_value;                 /* Max allowed value */
+	long sub_size;                  /* Subtract this from given value */
+	long block_size;                /* Value should be a mult. of this */
 } CHANGEABLE_VAR;
 
 /* structs for ma_alloc_root */
@@ -345,16 +345,13 @@ typedef struct st_ma_mem_root {
 #endif
 
 /* Prototypes for mysys and my_func functions */
-
-extern void * _mymalloc(size_t uSize, const char * sFile,
-    uint uLine, myf MyFlag);
-extern void * _myrealloc(void * pPtr, size_t uSize, const char * sFile,
-    uint uLine, myf MyFlag);
+extern void * _mymalloc(size_t uSize, const char * sFile, uint uLine, myf MyFlag);
+extern void * _myrealloc(void * pPtr, size_t uSize, const char * sFile, uint uLine, myf MyFlag);
 extern void * ma_multi_malloc(myf MyFlags, ...);
 extern void _myfree(void * pPtr, const char * sFile, uint uLine, myf MyFlag);
 extern int _sanity(const char * sFile, uint uLine);
 #ifndef TERMINATE
-extern void TERMINATE(FILE * file);
+	extern void TERMINATE(FILE * file);
 #endif
 extern void ma_init_glob_errs(void);
 extern FILE * my_fopen(const char * FileName, int Flags, myf MyFlags);
@@ -362,11 +359,8 @@ extern FILE * my_fdopen(File Filedes, const char * name, int Flags, myf MyFlags)
 extern int my_fclose(FILE * fd, myf MyFlags);
 extern int my_chsize(File fd, my_off_t newlength, myf MyFlags);
 extern int ma_error _VARARGS((int nr, myf MyFlags, ...));
-extern int ma_printf_error _VARARGS((uint my_err, const char * format,
-    myf MyFlags, ...)
-    __attribute__ ((format(printf, 2, 4))));
-extern int ma_vsnprintf(char * str, size_t n,
-    const char * format, va_list ap);
+extern int ma_printf_error _VARARGS((uint my_err, const char * format, myf MyFlags, ...) __attribute__ ((format(printf, 2, 4))));
+extern int ma_vsnprintf(char * str, size_t n, const char * format, va_list ap);
 extern int ma_snprintf(char* to, size_t n, const char* fmt, ...);
 extern int ma_message(uint my_err, const char * str, myf MyFlags);
 extern int _mariadb_stderr_out(uint error, const char * errmsg, myf MyFlags);
@@ -378,11 +372,11 @@ extern int my_copystat(const char * from, const char * to, int MyFlags);
 extern my_string my_filename(File fd);
 
 #ifndef THREAD
-extern void dont_break(void);
-extern void allow_break(void);
+	extern void dont_break(void);
+	extern void allow_break(void);
 #else
-#define dont_break()
-#define allow_break()
+	#define dont_break()
+	#define allow_break()
 #endif
 
 extern void caseup(my_string str, uint length);
@@ -398,8 +392,7 @@ extern char * ma_convert_dirname(my_string name);
 extern void to_unix_path(my_string name);
 extern my_string ma_fn_ext(const char * name);
 extern my_string fn_same(my_string toname, const char * name, int flag);
-extern my_string ma_fn_format(my_string to, const char * name, const char * dsk,
-    const char * form, int flag);
+extern my_string ma_fn_format(my_string to, const char * name, const char * dsk, const char * form, int flag);
 extern size_s ma_strlength(const char * str);
 extern void ma_pack_dirname(my_string to, const char * from);
 extern uint unma_pack_dirname(my_string to, const char * from);
@@ -409,10 +402,8 @@ extern my_string ma_unpack_filename(my_string to, const char * from);
 extern my_string ma_intern_filename(my_string to, const char * from);
 extern my_string directory_file_name(my_string dst, const char * src);
 extern int pack_filename(my_string to, const char * name, size_s max_length);
-extern my_string my_path(my_string to, const char * progname,
-    const char * own_pathname_part);
-extern my_string my_load_path(my_string to, const char * path,
-    const char * own_path_prefix);
+extern my_string my_path(my_string to, const char * progname, const char * own_pathname_part);
+extern my_string my_load_path(my_string to, const char * path, const char * own_path_prefix);
 extern int wild_compare(const char * str, const char * wildstr);
 extern my_string my_strcasestr(const char * src, const char * suffix);
 extern int my_strcasecmp(const char * s, const char * t);

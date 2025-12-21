@@ -353,7 +353,7 @@ static void * CLUTElemDup(cmsStage * mpe)
 				goto Error;
 		}
 		else {
-			NewElem->Tab.T = (uint16*)_cmsDupMem(mpe->ContextID, Data->Tab.T, Data->nEntries * sizeof(uint16));
+			NewElem->Tab.T = (uint16 *)_cmsDupMem(mpe->ContextID, Data->Tab.T, Data->nEntries * sizeof(uint16));
 			if(NewElem->Tab.T == NULL)
 				goto Error;
 		}
@@ -407,7 +407,7 @@ cmsStage * CMSEXPORT cmsStageAllocCLut16bitGranular(cmsContext ContextID, const 
 		cmsStageFree(NewMPE);
 		return NULL;
 	}
-	NewElem->Tab.T  = (uint16*)_cmsCalloc(ContextID, n, sizeof(uint16));
+	NewElem->Tab.T  = (uint16 *)_cmsCalloc(ContextID, n, sizeof(uint16));
 	if(NewElem->Tab.T == NULL) {
 		cmsStageFree(NewMPE);
 		return NULL;

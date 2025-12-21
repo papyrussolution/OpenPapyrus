@@ -725,7 +725,7 @@ static CMS_NO_SANITIZE void PrelinEval8(const uint16 Input[], uint16 Output[], c
 	Prelin8Data* p8 = (Prelin8Data*)D;
 	const cmsInterpParams* p = p8->p;
 	int TotalOut = (int)p->nOutputs;
-	const uint16* LutTable = (const uint16*)p->Table;
+	const uint16* LutTable = (const uint16 *)p->Table;
 	uint8 r = (uint8)(Input[0] >> 8);
 	uint8 g = (uint8)(Input[1] >> 8);
 	uint8 b = (uint8)(Input[2] >> 8);
@@ -989,9 +989,9 @@ static void * CurvesDup(cmsContext ContextID, const void * ptr)
 {
 	Curves16Data* Data = (Curves16Data*)_cmsDupMem(ContextID, ptr, sizeof(Curves16Data));
 	if(Data) {
-		Data->Curves = (uint16**)_cmsDupMem(ContextID, Data->Curves, Data->nCurves * sizeof(uint16*));
+		Data->Curves = (uint16**)_cmsDupMem(ContextID, Data->Curves, Data->nCurves * sizeof(uint16 *));
 		for(uint32 i = 0; i < Data->nCurves; i++) {
-			Data->Curves[i] = (uint16*)_cmsDupMem(ContextID, Data->Curves[i], Data->nElements * sizeof(uint16));
+			Data->Curves[i] = (uint16 *)_cmsDupMem(ContextID, Data->Curves[i], Data->nElements * sizeof(uint16));
 		}
 	}
 	return (void *)Data;
@@ -1006,14 +1006,14 @@ static Curves16Data* CurvesAlloc(cmsContext ContextID, uint32 nCurves, uint32 nE
 		return NULL;
 	c16->nCurves = nCurves;
 	c16->nElements = nElements;
-	c16->Curves = (uint16**)_cmsCalloc(ContextID, nCurves, sizeof(uint16*));
+	c16->Curves = (uint16**)_cmsCalloc(ContextID, nCurves, sizeof(uint16 *));
 	if(c16->Curves == NULL) {
 		_cmsFree(ContextID, c16);
 		return NULL;
 	}
 
 	for(i = 0; i < nCurves; i++) {
-		c16->Curves[i] = (uint16*)_cmsCalloc(ContextID, nElements, sizeof(uint16));
+		c16->Curves[i] = (uint16 *)_cmsCalloc(ContextID, nElements, sizeof(uint16));
 
 		if(c16->Curves[i] == NULL) {
 			for(j = 0; j < i; j++) {

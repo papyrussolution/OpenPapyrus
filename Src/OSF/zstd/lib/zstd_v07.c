@@ -269,10 +269,10 @@ typedef unsigned char BYTE;
 
 /* violates C standard, by lying on structure alignment.
    Only use if no other choice to achieve best performance on target platform */
-//MEM_STATIC uint16 MEM_read16_Removed(const void* memPtr) { return *(const uint16*)memPtr; }
+//MEM_STATIC uint16 MEM_read16_Removed(const void* memPtr) { return *(const uint16 *)memPtr; }
 //MEM_STATIC uint32 MEM_read32_Removed(const void* memPtr) { return *(const uint32 *)memPtr; }
 //MEM_STATIC uint64 MEM_read64_Removed(const void* memPtr) { return *(const uint64*)memPtr; }
-//MEM_STATIC void MEM_write16_Removed(void* memPtr, uint16 value) { *(uint16*)memPtr = value; }
+//MEM_STATIC void MEM_write16_Removed(void* memPtr, uint16 value) { *(uint16 *)memPtr = value; }
 
 #elif defined(MEM_FORCE_MEMORY_ACCESS) && (MEM_FORCE_MEMORY_ACCESS==1)
 

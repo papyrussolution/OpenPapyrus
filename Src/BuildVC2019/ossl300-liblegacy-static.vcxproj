@@ -110,7 +110,7 @@
       <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\include\internal\crypto;..\osf\OpenSSL-302;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\providers\implementations\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
-      <StructMemberAlignment>Default</StructMemberAlignment>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <SDLCheck />
@@ -123,6 +123,8 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <StringPooling>true</StringPooling>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link />
   </ItemDefinitionGroup>
@@ -133,7 +135,7 @@
       <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\include\internal\crypto;..\osf\OpenSSL-302;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\providers\implementations\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
-      <StructMemberAlignment>Default</StructMemberAlignment>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <SDLCheck />
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
@@ -144,6 +146,8 @@
       <DebugInformationFormat>None</DebugInformationFormat>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <StringPooling>true</StringPooling>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link />
   </ItemDefinitionGroup>
@@ -176,7 +180,7 @@
       <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\include\internal\crypto;..\osf\OpenSSL-302;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\providers\implementations\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
-      <StructMemberAlignment>Default</StructMemberAlignment>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <SDLCheck />
@@ -189,6 +193,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <StringPooling>true</StringPooling>
     </ClCompile>
     <Link />
   </ItemDefinitionGroup>
@@ -199,7 +204,7 @@
       <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\include\internal\crypto;..\osf\OpenSSL-302;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\providers\implementations\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
-      <StructMemberAlignment>Default</StructMemberAlignment>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <SDLCheck />
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
@@ -210,6 +215,7 @@
       <DebugInformationFormat>None</DebugInformationFormat>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <StringPooling>true</StringPooling>
     </ClCompile>
     <Link />
   </ItemDefinitionGroup>

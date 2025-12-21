@@ -60,12 +60,12 @@ size_t FSE_buildCTable_wksp(FSE_CTable* ct, const short* normalizedCounter, uint
 	const uint32 tableSize = 1 << tableLog;
 	const uint32 tableMask = tableSize - 1;
 	void * const ptr = ct;
-	uint16* const tableU16 = ( (uint16*)ptr) + 2;
+	uint16* const tableU16 = ( (uint16 *)ptr) + 2;
 	void * const FSCT = ((uint32 *)ptr) + 1 /* header */ + (tableLog ? tableSize>>1 : 1);
 	FSE_symbolCompressionTransform* const symbolTT = (FSE_symbolCompressionTransform*)(FSCT);
 	const uint32 step = FSE_TABLESTEP(tableSize);
 	const uint32 maxSV1 = maxSymbolValue+1;
-	uint16* cumul = (uint16*)workSpace; /* size = maxSV1 */
+	uint16* cumul = (uint16 *)workSpace; /* size = maxSV1 */
 	FSE_FUNCTION_TYPE* const tableSymbol = (FSE_FUNCTION_TYPE*)(cumul + (maxSV1+1)); /* size = tableSize */
 	uint32 highThreshold = tableSize-1;
 	assert(((size_t)workSpace & 1) == 0); /* Must be 2 bytes-aligned */
@@ -537,7 +537,7 @@ size_t FSE_buildCTable_raw(FSE_CTable* ct, uint nbBits)
 	const uint tableMask = tableSize - 1;
 	const uint maxSymbolValue = tableMask;
 	void * const ptr = ct;
-	uint16* const tableU16 = ( (uint16*)ptr) + 2;
+	uint16* const tableU16 = ( (uint16 *)ptr) + 2;
 	void * const FSCT = ((uint32 *)ptr) + 1 /* header */ + (tableSize>>1); /* assumption : tableLog >= 1 */
 	FSE_symbolCompressionTransform* const symbolTT = (FSE_symbolCompressionTransform*)(FSCT);
 	uint s;
@@ -565,7 +565,7 @@ size_t FSE_buildCTable_raw(FSE_CTable* ct, uint nbBits)
 size_t FSE_buildCTable_rle(FSE_CTable* ct, BYTE symbolValue)
 {
 	void * ptr = ct;
-	uint16* tableU16 = ( (uint16*)ptr) + 2;
+	uint16* tableU16 = ( (uint16 *)ptr) + 2;
 	void * FSCTptr = (uint32 *)ptr + 2;
 	FSE_symbolCompressionTransform* symbolTT = (FSE_symbolCompressionTransform*)FSCTptr;
 	/* header */

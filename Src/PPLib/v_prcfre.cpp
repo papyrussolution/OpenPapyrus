@@ -22,7 +22,7 @@ PPViewPrcBusy::~PPViewPrcBusy()
 {
 	UpdateTimeBrowser(1);
 	delete P_TempTbl;
-	delete P_OCtx; // @v10.5.9
+	delete P_OCtx;
 }
 
 PPBaseFilt * PPViewPrcBusy::CreateFilt(const void * extraPtr) const
@@ -30,7 +30,7 @@ PPBaseFilt * PPViewPrcBusy::CreateFilt(const void * extraPtr) const
 	PrcBusyFilt * p_filt = new PrcBusyFilt;
 	if(p_filt) {
 		p_filt->Flags |= PrcBusyFilt::fFree;
-		p_filt->Period.Start.d = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+		p_filt->Period.Start.d = getcurdate_();
 	}
 	return p_filt;
 }
@@ -283,13 +283,11 @@ int PPViewPrcBusy::Init_(const PPBaseFilt * pFilt)
 int PPViewPrcBusy::InitIteration()
 {
 	int    ok = 1;
-	// @v10.6.8 char   k[MAXKEYLEN];
-	BtrDbKey k_; // @v10.6.8 
+	BtrDbKey k_;
 	BExtQuery::ZDelete(&P_IterQuery);
 	if(P_TempTbl) {
 		PPInitIterCounter(Counter, P_TempTbl);
 		P_IterQuery = new BExtQuery(P_TempTbl, 1);
-		// @v10.6.8 @ctr memzero(k, sizeof(k));
 		P_IterQuery->selectAll();
 		P_IterQuery->initIteration(false, k_, spFirst);
 	}
@@ -416,10 +414,11 @@ DBQuery * PPViewPrcBusy::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	static DbqStringSubst status_subst(5); // @global @threadsafe
 
-	uint   brw_id = (Filt.Flags & PrcBusyFilt::fFree) ? BROWSER_PRCFREE : BROWSER_PRCBUSY;
+	const  uint brw_id = (Filt.Flags & PrcBusyFilt::fFree) ? BROWSER_PRCFREE : BROWSER_PRCBUSY;
 	DBQ  * dbq = 0;
 	DBE  * dbe_status = 0;
-	DBE    dbe_prc, dbe_ar;
+	DBE    dbe_prc;
+	DBE    dbe_ar;
 	TempPrcBusyTbl * p_tt = 0;
 	TSessionTbl * p_st = 0;
 	DBQuery * p_q = 0;
@@ -429,7 +428,20 @@ DBQuery * PPViewPrcBusy::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		PPDbqFuncPool::InitObjNameFunc(dbe_prc, PPDbqFuncPool::IdObjNamePrc, p_tt->PrcID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_ar,  PPDbqFuncPool::IdObjNameAr,  p_st->ArID);
 		dbe_status = & enumtoa(p_st->Status, 5, status_subst.Get(PPTXT_TSESS_STATUS));
+		// @v12.5.1 {
 		p_q = & Select_(
+			p_tt->ID__,          // #0
+			0L);
+		p_q->addField(dbe_prc);             // #1
+		p_q->addField(p_tt->TxtPeriod);     // #2
+		p_q->addField(p_tt->TxtDuration);   // #3
+		p_q->addField(p_st->Num);           // #4
+		p_q->addField(p_st->Amount);        // #5
+		p_q->addField(*dbe_status);         // #6
+		p_q->addField(p_st->Incomplete);    // #7
+		p_q->addField(dbe_ar);              // #8
+		// } @v12.5.1 
+		/* @v12.5.1 p_q = & Select_(
 			p_tt->ID__,          // #0
 			dbe_prc,             // #1
 			p_tt->TxtPeriod,     // #2
@@ -439,7 +451,8 @@ DBQuery * PPViewPrcBusy::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			*dbe_status,         // #6
 			p_st->Incomplete,    // #7
 			dbe_ar,              // #8
-			0L).from(p_tt, p_st, 0L).where(p_st->ID += p_tt->TSessID);
+			0L);*/
+		p_q->from(p_tt, p_st, 0L).where(p_st->ID += p_tt->TSessID);
 		p_q->orderBy(/*p_tt->PrcID*/p_tt->StDt, p_tt->StTm, 0L);
 		delete dbe_status;
 	}

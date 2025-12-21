@@ -1400,7 +1400,7 @@ static void PostprocessLoadedMenu(HMENU hMenu)
 		HMENU  h_popup = CreateMenu();
 		SString temp_buf;
 		PPLoadStringS("cmd_window", temp_buf).Transf(CTRANSF_INNER_TO_OUTER);
-		::AppendMenu(hMenu, MF_POPUP | MF_STRING, (UINT)h_popup, SUcSwitch(temp_buf));
+		::AppendMenuW(hMenu, MF_POPUP | MF_STRING, (UINT_PTR)h_popup, SUcSwitchW(temp_buf));
 		// @v11.2.5 UserInterfaceSettings uiset;
 		// @v11.2.5 uiset.Restore();
 		PPLoadStringS("cmd_menutree", temp_buf).Transf(CTRANSF_INNER_TO_OUTER);

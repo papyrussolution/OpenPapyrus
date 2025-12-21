@@ -40,7 +40,7 @@ static constexpr int32_t sizeInMaxAlignTs(int32_t sizeInBytes) {
 
 U_CAPI int32_t U_EXPORT2 uprv_uint16Comparator(const void * context, const void * left, const void * right) {
 	(void)context;
-	return (int32_t)*(const uint16*)left - (int32_t)*(const uint16*)right;
+	return (int32_t)*(const uint16 *)left - (int32_t)*(const uint16 *)right;
 }
 
 U_CAPI int32_t U_EXPORT2 uprv_int32Comparator(const void * context, const void * left, const void * right) {

@@ -92,7 +92,7 @@ typedef struct CAPI_KEY_st CAPI_KEY;
 
 static void capi_addlasterror(void);
 static void capi_adderror(DWORD err);
-static void CAPI_trace(CAPI_CTX * ctx, char * format, ...);
+static void CAPI_trace(CAPI_CTX * ctx, const char * format, ...);
 static int capi_list_providers(CAPI_CTX * ctx, BIO * out);
 static int capi_list_containers(CAPI_CTX * ctx, BIO * out);
 int capi_list_certs(CAPI_CTX * ctx, BIO * out, char * storename);
@@ -908,7 +908,7 @@ static int capi_dsa_free(DSA * dsa)
 
 #endif
 
-static void capi_vtrace(CAPI_CTX * ctx, int level, char * format, va_list argptr)
+static void capi_vtrace(CAPI_CTX * ctx, int level, const char * format, va_list argptr)
 {
 	BIO * out;
 	if(!ctx || (ctx->debug_level < level) || (!ctx->debug_file))
@@ -922,7 +922,7 @@ static void capi_vtrace(CAPI_CTX * ctx, int level, char * format, va_list argptr
 	BIO_free(out);
 }
 
-static void CAPI_trace(CAPI_CTX * ctx, char * format, ...)
+static void CAPI_trace(CAPI_CTX * ctx, const char * format, ...)
 {
 	va_list args;
 	va_start(args, format);
@@ -1202,11 +1202,11 @@ static void capi_dump_cert(CAPI_CTX * ctx, BIO * out, PCCERT_CONTEXT cert)
 	X509_free(x);
 }
 
-static HCERTSTORE capi_open_store(CAPI_CTX * ctx, char * storename)
+static HCERTSTORE capi_open_store(CAPI_CTX * ctx, const char * storename)
 {
 	HCERTSTORE hstore;
-	SETIFZ(storename, ctx->storename);
-	SETIFZ(storename, "MY");
+	SETIFZQ(storename, ctx->storename);
+	SETIFZQ(storename, "MY");
 	CAPI_trace(ctx, "Opening certificate store %s\n", storename);
 	hstore = CertOpenStore(CERT_STORE_PROV_SYSTEM_A, 0, 0, ctx->store_flags, storename);
 	if(!hstore) {
@@ -1222,7 +1222,7 @@ int capi_list_certs(CAPI_CTX * ctx, BIO * out, char * id)
 	int ret = 1;
 	HCERTSTORE hstore;
 	PCCERT_CONTEXT cert = NULL;
-	char * storename = ctx->storename;
+	const char * storename = ctx->storename;
 	SETIFZ(storename, "MY");
 	CAPI_trace(ctx, "Listing certs for store %s\n", storename);
 	hstore = capi_open_store(ctx, storename);
@@ -1469,7 +1469,7 @@ static int capi_load_ssl_client_cert(ENGINE * e, SSL * ssl, STACK_OF(X509_NAME) 
 {
 	STACK_OF(X509) *certs = NULL;
 	X509 * x;
-	char * storename;
+	const char * storename;
 	const uchar * p;
 	int i, client_cert_idx;
 	HCERTSTORE hstore;
@@ -1479,7 +1479,7 @@ static int capi_load_ssl_client_cert(ENGINE * e, SSL * ssl, STACK_OF(X509_NAME) 
 	*pcert = NULL;
 	*pkey = NULL;
 	storename = ctx->ssl_client_store;
-	SETIFZ(storename, "MY");
+	SETIFZQ(storename, "MY");
 	hstore = capi_open_store(ctx, storename);
 	if(!hstore)
 		return 0;

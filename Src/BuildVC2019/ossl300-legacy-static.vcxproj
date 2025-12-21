@@ -98,7 +98,7 @@
     <ClCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <CompileAs>CompileAsCpp</CompileAs>
-      <StructMemberAlignment>Default</StructMemberAlignment>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <SDLCheck />
@@ -110,6 +110,7 @@
       <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\providers\implementations\include;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\include\internal\crypto;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>$(OutDir)..\_work\static\legacy.def</ModuleDefinitionFile>
@@ -120,7 +121,7 @@
     <ClCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <CompileAs>CompileAsCpp</CompileAs>
-      <StructMemberAlignment>Default</StructMemberAlignment>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <SDLCheck />
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -131,6 +132,7 @@
       <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\providers\implementations\include;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\include\internal\crypto;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>$(OutDir)..\_work\static\legacy.def</ModuleDefinitionFile>
@@ -141,7 +143,7 @@
     <ClCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <CompileAs>CompileAsCpp</CompileAs>
-      <StructMemberAlignment>Default</StructMemberAlignment>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <SDLCheck />
@@ -163,7 +165,7 @@
     <ClCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <CompileAs>CompileAsCpp</CompileAs>
-      <StructMemberAlignment>Default</StructMemberAlignment>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <SDLCheck />
       <MultiProcessorCompilation>true</MultiProcessorCompilation>

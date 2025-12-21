@@ -410,7 +410,7 @@ static void FASTCOVER_tryParameters(void * opaque)
 	size_t dictBufferCapacity = data->dictBufferCapacity;
 	size_t totalCompressedSize = ERROR(GENERIC);
 	/* Initialize array to keep track of frequency of dmer within activeSegment */
-	uint16* segmentFreqs = (uint16*)SAlloc::C(((uint64)1 << ctx->f), sizeof(uint16));
+	uint16* segmentFreqs = (uint16 *)SAlloc::C(((uint64)1 << ctx->f), sizeof(uint16));
 	/* Allocate space for hash table, dict, and freqs */
 	BYTE * const dict = (BYTE *)SAlloc::M(dictBufferCapacity);
 	COVER_dictSelection_t selection = COVER_dictSelectionError(ERROR(GENERIC));
@@ -511,7 +511,7 @@ ZDICTLIB_API size_t ZDICT_trainFromBuffer_fastCover(void * dictBuffer, size_t di
 	DISPLAYLEVEL(2, "Building dictionary\n");
 	{
 		/* Initialize array to keep track of frequency of dmer within activeSegment */
-		uint16* segmentFreqs = (uint16*)SAlloc::C(((uint64)1 << parameters.f), sizeof(uint16));
+		uint16* segmentFreqs = (uint16 *)SAlloc::C(((uint64)1 << parameters.f), sizeof(uint16));
 		const size_t tail = FASTCOVER_buildDictionary(&ctx, ctx.freqs, dictBuffer, dictBufferCapacity, coverParams, segmentFreqs);
 		const uint nbFinalizeSamples = (uint)(ctx.nbTrainSamples * ctx.accelParams.finalize / 100);
 		const size_t dictionarySize = ZDICT_finalizeDictionary(dict, dictBufferCapacity, dict + tail, dictBufferCapacity - tail,

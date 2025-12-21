@@ -1489,7 +1489,7 @@ static int _EditCcByBillParam(PPBillPacket::ConvertToCCheckParam & rParam)
 			int    status = 0;
 			if(rBuf.NotEmptyS()) {
 				SNaturalTokenArray nta;
-				Trgn.Run(rBuf.ucptr(), rBuf.Len(), nta, 0);
+				Trgn.Run(rBuf.ucptr(), rBuf.LenI(), nta, 0);
 				if(nta.Has(SNTOK_PHONE))
 					status = SNTOK_PHONE;
 				else if(nta.Has(SNTOK_EMAIL))
@@ -1605,7 +1605,7 @@ int PPObjBill::PosPrintByBill(PPID billID)
 					if((fc.AmtBank * fc.AmtCash) >= 0.0) {
 						const double _amount = (fc.AmtCash+fc.AmtBank);
 						if(_amount != 0.0) {
-							const  bool is_vat_free = (cn_obj.IsVatFree(param.PosNodeID) > 0);
+							const  bool is_vat_free = (cn_obj.IsNodeVatFree(param.PosNodeID) > 0);
 							if(is_vat_free)
 								fc.Flags |= fc.fVatFree;
 							else if(prepay_goods_id) {
@@ -3042,6 +3042,7 @@ int PPObjBill::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	int    ok = DBRPL_OK;
 	PPID   k = 0;
 	PPID   bill_id = 0;
+	const  long extra_id = reinterpret_cast<long>(extraPtr);
 	BillCore * p_tbl = P_Tbl;
 	if(msg == DBMSG_OBJDELETE) {
 		switch(_obj) {
@@ -3063,7 +3064,7 @@ int PPObjBill::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			case PPOBJ_LOCATION:
 				{
 					LocationTbl::Rec loc_rec;
-					if(LocObj.Search(reinterpret_cast<long>(extraPtr), &loc_rec) > 0) {
+					if(LocObj.Search(extra_id, &loc_rec) > 0) {
 						if(loc_rec.Type == LOCTYP_WAREHOUSE) {
 							BillTbl::Key5 k5;
 							MEMSZERO(k5);
@@ -3136,15 +3137,15 @@ int PPObjBill::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	}
 	else if(msg == DBMSG_OBJREPLACE) {
 		if(_obj == PPOBJ_GOODS)
-			ok = ReplyGoodsReplace(_id, reinterpret_cast<long>(extraPtr));
+			ok = ReplyGoodsReplace(_id, extra_id);
 		else if(_obj == PPOBJ_ARTICLE)
-			ok = ReplyArticleReplace(_id, reinterpret_cast<long>(extraPtr));
+			ok = ReplyArticleReplace(_id, extra_id);
 		else if(_obj == PPOBJ_GOODSTAX) {
 			// @todo update_for
 			for(k = 0; trfr->Rcpt.search(0, &k, spGt);) {
 				if(trfr->Rcpt.data.InTaxGrpID == _id) {
 					THROW_DB(trfr->Rcpt.rereadForUpdate(0, &k));
-					trfr->Rcpt.data.InTaxGrpID = reinterpret_cast<long>(extraPtr);
+					trfr->Rcpt.data.InTaxGrpID = extra_id;
 					THROW_DB(trfr->Rcpt.updateRec()); // @sfu
 				}
 			}
@@ -3152,7 +3153,7 @@ int PPObjBill::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 		else if(_obj == PPOBJ_LOCATION) {
 			LAssocArray dlvr_addr_list;
 			LocationTbl::Rec replacement_rec;
-			THROW(LocObj.Search(reinterpret_cast<long>(extraPtr), &replacement_rec) > 0);
+			THROW(LocObj.Search(extra_id, &replacement_rec) > 0);
 			THROW_PP(replacement_rec.Type == LOCTYP_ADDRESS, PPERR_REPLACEMENTID_NOTADDR);
 			p_tbl->GetDlvrAddrList(&dlvr_addr_list);
 			for(uint i = 0; i < dlvr_addr_list.getCount(); i++) {
@@ -3160,7 +3161,7 @@ int PPObjBill::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 					const  PPID bill_id = dlvr_addr_list.at(i).Key;
 					PPFreight freight;
 					if(p_tbl->GetFreight(bill_id, &freight) > 0 && freight.DlvrAddrID__ == _id) {
-						freight.DlvrAddrID__ = reinterpret_cast<long>(extraPtr);
+						freight.DlvrAddrID__ = extra_id;
 						THROW(p_tbl->SetFreight(bill_id, &freight, 0));
 					}
 				}
@@ -3176,7 +3177,7 @@ int PPObjBill::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 					for(ulong bill_id = 0; list.Enum(&bill_id);) {
 						PPFreight freight;
 						if(p_tbl->GetFreight((long)bill_id, &freight) > 0 && freight.PortOfDischarge == _id) {
-							freight.PortOfDischarge = reinterpret_cast<long>(extraPtr);
+							freight.PortOfDischarge = extra_id;
 							THROW(p_tbl->SetFreight((long)bill_id, &freight, 0));
 						}
 					}
@@ -3191,7 +3192,7 @@ int PPObjBill::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 					for(ulong bill_id = 0; list.Enum(&bill_id);) {
 						PPFreight freight;
 						if(p_tbl->GetFreight((long)bill_id, &freight) > 0 && freight.PortOfLoading == _id) {
-							freight.PortOfLoading = reinterpret_cast<long>(extraPtr);
+							freight.PortOfLoading = extra_id;
 							THROW(p_tbl->SetFreight((long)bill_id, &freight, 0));
 						}
 					}
@@ -6940,13 +6941,33 @@ int PPObjBill::HasLotAnyMark(PPID lotID)
 	return ok;
 }
 
+static int PostprocessLoadedTagList(ObjTagList * pTagList, PPID objID, int rowIdx)
+{
+	int    ok = 1;
+	if(pTagList) {
+		SString img_path;
+		SString img_tag_addendum;
+		for(uint j = 0; j < pTagList->GetCount(); j++) {
+			const ObjTagItem * p_tag_item = pTagList->GetItemByPos(j);
+			if(p_tag_item->TagDataType == OTTYP_IMAGE) {
+				ObjTagItem tag_item = *p_tag_item;
+				img_tag_addendum.Z().Cat(/*pPack->Rec.ID*/objID).CatChar('-').Cat(/*r_lti.RByBillLT*/rowIdx);
+				ObjLinkFiles link_files(PPOBJ_TAG);
+				link_files.Load(tag_item.TagID, img_tag_addendum);
+				link_files.At(0, img_path);
+				tag_item.SetStr(tag_item.TagID, img_path);
+				pTagList->PutItem(tag_item.TagID, &tag_item);
+			}
+		}
+	}
+	return ok;
+}
+
 int PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 {
 	int    ok = 1;
 	PPObjTag * p_tag_obj = 0;
 	const bool is_intrexpnd = IsIntrExpndOp(pPack->Rec.OpID);
-	SString img_path;
-	SString img_tag_addendum;
 	PPLotTagContainer local_ltagl; // @v11.7.3
 	const int lrtr = LoadRowTagListForDraft(pPack->Rec.ID, local_ltagl); // @v11.7.3
 	ZDELETE(pPack->P_MirrorLTagL);
@@ -6964,18 +6985,7 @@ int PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 					ObjTagList * p_tag_list = pPack->LTagL.Get(i);
 					if(p_tag_list) {
 						const LocTransfOpBlock & r_lti = pPack->P_LocTrfrList->at(i);
-						for(uint j = 0; j < p_tag_list->GetCount(); j++) {
-							const ObjTagItem * p_tag_item = p_tag_list->GetItemByPos(j);
-							if(p_tag_item->TagDataType == OTTYP_IMAGE) {
-								ObjTagItem tag_item = *p_tag_item;
-								img_tag_addendum.Z().Cat(pPack->Rec.ID).CatChar('-').Cat(r_lti.RByBillLT);
-								ObjLinkFiles link_files(PPOBJ_TAG);
-								link_files.Load(tag_item.TagID, img_tag_addendum);
-								link_files.At(0, img_path);
-								tag_item.SetStr(tag_item.TagID, img_path);
-								p_tag_list->PutItem(tag_item.TagID, &tag_item);
-							}
-						}
+						PostprocessLoadedTagList(p_tag_list, pPack->Rec.ID, r_lti.RByBillLT);
 					}
 				}
 			}
@@ -6992,18 +7002,7 @@ int PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 					ObjTagList * p_tag_list = pPack->LTagL.Get(i);
 					if(p_tag_list) {
 						const PPTransferItem & r_ti = pPack->ConstTI(i);
-						for(uint j = 0; j < p_tag_list->GetCount(); j++) {
-							const ObjTagItem * p_tag_item = p_tag_list->GetItemByPos(j);
-							if(p_tag_item->TagDataType == OTTYP_IMAGE) {
-								ObjTagItem tag_item = *p_tag_item;
-								img_tag_addendum.Z().Cat(pPack->Rec.ID).CatChar('-').Cat(r_ti.RByBill);
-								ObjLinkFiles link_files(PPOBJ_TAG);
-								link_files.Load(tag_item.TagID, img_tag_addendum);
-								link_files.At(0, img_path);
-								tag_item.SetStr(tag_item.TagID, img_path);
-								p_tag_list->PutItem(tag_item.TagID, &tag_item);
-							}
-						}
+						PostprocessLoadedTagList(p_tag_list, pPack->Rec.ID, r_ti.RByBill);
 					}
 				}
 			}

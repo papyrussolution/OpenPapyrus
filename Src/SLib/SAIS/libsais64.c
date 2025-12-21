@@ -8093,25 +8093,19 @@ static void libsais64_unbwt_decode_3(uint8 * _RESTRICT U,
 	*i0 = p0; *i1 = p1; *i2 = p2;
 }
 
-static void libsais64_unbwt_decode_4(uint8 * _RESTRICT U,
-    sa_uint_t * _RESTRICT P,
-    sa_uint_t * _RESTRICT bucket2,
-    uint16 * _RESTRICT fastbits,
-    fast_uint_t shift,
-    fast_uint_t r,
-    fast_uint_t * i0,
-    fast_uint_t * i1,
-    fast_uint_t * i2,
-    fast_uint_t * i3,
-    fast_uint_t k)
+static void libsais64_unbwt_decode_4(uint8 * _RESTRICT U, sa_uint_t * _RESTRICT P, sa_uint_t * _RESTRICT bucket2,
+    uint16 * _RESTRICT fastbits, fast_uint_t shift, fast_uint_t r, fast_uint_t * i0, fast_uint_t * i1,
+    fast_uint_t * i2, fast_uint_t * i3, fast_uint_t k)
 {
 	uint16 * _RESTRICT U0 = (uint16 *)(void *)U;
 	uint16 * _RESTRICT U1 = (uint16 *)(void *)(((uint8 *)U0) + r);
 	uint16 * _RESTRICT U2 = (uint16 *)(void *)(((uint8 *)U1) + r);
 	uint16 * _RESTRICT U3 = (uint16 *)(void *)(((uint8 *)U2) + r);
-
-	fast_uint_t i, p0 = *i0, p1 = *i1, p2 = *i2, p3 = *i3;
-
+	fast_uint_t i;
+	fast_uint_t p0 = *i0;
+	fast_uint_t p1 = *i1;
+	fast_uint_t p2 = *i2;
+	fast_uint_t p3 = *i3;
 	for(i = 0; i != k; ++i) {
 		uint16 c0 = fastbits[p0 >> shift]; if(bucket2[c0] <= p0) {
 			do {

@@ -2557,16 +2557,16 @@ xmlParserInputBuffer * xmlParserInputBufferCreateFd(int fd, xmlCharEncoding enc)
  *
  * Returns the new parser input or NULL
  */
-xmlParserInputBuffer * xmlParserInputBufferCreateMem(const char * mem, int size, xmlCharEncoding enc)
+xmlParserInputBuffer * xmlParserInputBufferCreateMem(const char * pMem, ssize_t size, xmlCharEncoding enc)
 {
 	xmlParserInputBuffer * ret = 0;
-	if(size > 0 && mem) {
+	if(size > 0 && pMem) {
 		ret = xmlAllocParserInputBuffer(enc);
 		if(ret) {
-			ret->context = (void *)mem;
+			ret->context = (void *)pMem;
 			ret->readcallback = (xmlInputReadCallback)xmlNop;
 			ret->closecallback = NULL;
-			int errcode = xmlBufAdd(ret->buffer, (const xmlChar *)mem, size);
+			int errcode = xmlBufAdd(ret->buffer, (const xmlChar *)pMem, size);
 			if(errcode)
 				ZFREE(ret);
 		}
@@ -2587,7 +2587,7 @@ xmlParserInputBuffer * xmlParserInputBufferCreateMem(const char * mem, int size,
  *
  * Returns the new parser input or NULL
  */
-xmlParserInputBuffer * xmlParserInputBufferCreateStatic(const char * mem, int size, xmlCharEncoding enc)
+xmlParserInputBuffer * xmlParserInputBufferCreateStatic(const char * mem, ssize_t size, xmlCharEncoding enc)
 {
 	xmlParserInputBuffer * ret = 0;
 	if(size > 0 && mem) {

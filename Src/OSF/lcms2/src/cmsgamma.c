@@ -197,7 +197,7 @@ static cmsToneCurve * AllocateToneCurveStruct(cmsContext ContextID, uint32 nEntr
 		p->Table16 = NULL;
 	}
 	else {
-		p->Table16 = (uint16*)_cmsCalloc(ContextID, nEntries, sizeof(uint16));
+		p->Table16 = (uint16 *)_cmsCalloc(ContextID, nEntries, sizeof(uint16));
 		if(p->Table16 == NULL) 
 			goto Error;
 	}

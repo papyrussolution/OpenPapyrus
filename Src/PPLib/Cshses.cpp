@@ -363,7 +363,7 @@ int PPSyncCashSession::CompleteSession(PPID sessID)
 		const  double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));
 		double sum = fabs(pPack->_Cash);
 		double running_total = 0.0;
-		const  bool is_vat_free = (CnObj.IsVatFree(SCn.ID) > 0);
+		const  bool is_vat_free = (CnObj.IsNodeVatFree(SCn.ID) > 0);
 		const  bool is_correction = LOGIC(pPack->Rec.Flags & CCHKF_CORRECTION);
 		const  int  ccop = pPack->GetCcOp(); // @v12.2.12
 		double real_fiscal = 0.0;
@@ -665,6 +665,8 @@ int PPSyncCashSession::CompleteSession(PPID sessID)
 									p_tax_type = "vat18";
 								else if(vatrate == 20.0)
 									p_tax_type = "vat20";
+								else if(vatrate == 22.0) // @v12.5.1
+									p_tax_type = "vat22";
 								else if(vatrate == 10.0)
 									p_tax_type = "vat10";
 								// @v12.2.5 {
