@@ -7425,7 +7425,8 @@ int DocNalogRu_Generator::WriteWareInfoAddendum(const PPBillImpExpParam & rParam
 			}
 			else {
 				// @v12.4.11 GTCHZNPT_VEGETABLEOIL
-				if(oneof4(chzn_prod_type, GTCHZNPT_MILK, GTCHZNPT_WATER, GTCHZNPT_SOFTDRINKS, GTCHZNPT_VEGETABLEOIL) && rBarcodeForMarking.NotEmpty()) {
+				// @v12.5.2 GTCHZNPT_PETFOOD
+				if(oneof5(chzn_prod_type, GTCHZNPT_MILK, GTCHZNPT_WATER, GTCHZNPT_SOFTDRINKS, GTCHZNPT_VEGETABLEOIL, GTCHZNPT_PETFOOD) && rBarcodeForMarking.NotEmpty()) {
 					assert(rBarcodeForMarking.Len() < 14);
 					// @v12.4.8 if(chzn_prod_type == GTCHZNPT_MILK && is_weighted_ware) { // @v11.9.7
 					if(chzn_int_qty > 0 && chzn_int_qty < 1000) { // @v12.4.8

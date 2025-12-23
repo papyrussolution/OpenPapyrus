@@ -3198,8 +3198,8 @@ int STextEncodingStat::Add(const void * pData, size_t size)
 					assert(Utf8PrefixLen <= 8);
 					uint8  _sb[16];
 					memcpy(_sb, Utf8Prefix, Utf8PrefixLen);
-					memcpy(_sb+Utf8PrefixLen, p, MIN(sizeof(_sb) - Utf8PrefixLen, size));
-					uint16 extra = SUtfConst::TrailingBytesForUTF8[_sb[0]];
+					memcpy(_sb+Utf8PrefixLen, p, smin(sizeof(_sb) - Utf8PrefixLen, size));
+					const uint16 extra = SUtfConst::TrailingBytesForUTF8[_sb[0]];
 					if(!SUnicode::IsLegalUtf8Char(_sb, extra+1))
 						Flags &= ~fLegalUtf8Only;
 					else
@@ -3208,7 +3208,7 @@ int STextEncodingStat::Add(const void * pData, size_t size)
 					memzero(Utf8Prefix, sizeof(Utf8Prefix));
 				}
 				else {
-					uint16 extra = SUtfConst::TrailingBytesForUTF8[c];
+					const  uint16 extra = SUtfConst::TrailingBytesForUTF8[c];
 					if((i+extra+1) <= size) {
 						if(!SUnicode::IsLegalUtf8Char(p+i, extra+1))
 							Flags &= ~fLegalUtf8Only;

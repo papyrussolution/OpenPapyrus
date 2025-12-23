@@ -292,7 +292,7 @@ typedef int32               TYPEID;
 #ifdef _MSC_VER
 	#define _argc __argc
 	#define _argv __argv
-	#pragma warning(disable : 4068)
+	#pragma warning(disable:4068)
 #endif
 //
 // Types & definitions
@@ -2546,6 +2546,18 @@ public:
 	//
 	static bool  FASTCALL IsLegalUtf8Char(const uint8 * pSource, size_t length);
 	//
+	// Descr: Получает из байтового потока pSource очередной utf8 символ.
+	//   Если по указателю pSource находится валидный utf8 символ, то копирует полную code-point (unicode-char)
+	//   по указателю pDest и возвращает длину этой code-point в байтах.
+	//   Если по указателю pSource нет валидного utf8 символа, то возвращает 0 и ничего никуда не копирует.
+	//   Если maxSourceLen > 0, то функция полагает, что последний доступный байт это pSource[maxSourceLen-1]
+	//   и исходя из этого принимает решение находится ли по указателю pSource валидный utf8-символ.
+	// Returns:
+	//   0 - error. There isn't legal utf8-char at pSource.
+	//  !0 - длина в байтах валидного unicode-символа
+	//
+	static uint  GetLegalUtf8Char(const void * pSource, char * pDest, size_t maxSourceLen);
+	//
 	// Descr: Возвращает длину отрезка utf8, начиная с pSource.
 	//   Если с pSource не начинается легальный utf8-символ, то возвращает 0.
 	//   Обратите внимание: возвращается не количество дополнительных (extra) байт, а полная длина utf8-набора.
@@ -4314,7 +4326,12 @@ public:
 	//
 	uint   OneOf(int div, const char * pPattern, int ignoreCase) const;
 	int    Last() const;
-	char * FASTCALL CopyTo(char *, size_t) const;
+	char * CopyTo(char * pS, size_t bufLen) const;
+	//
+	// Descr: Копирует строку this в pS так, чтобы не перейти максимальный доступный размер bufLen.
+	//   При этом учитывается тот факт, что копируемая строка имеет кодировку utf8 и все символы должны быть скопированы корректно.
+	//
+	char * CopyUtf8To(char * pS, size_t bufLen) const; // @v12.5.2
 	BSTR   FASTCALL CopyToOleStr(BSTR * pBuf) const;
 	SString & FASTCALL CopyFromOleStr(const BSTR s);
 	SString & Z();

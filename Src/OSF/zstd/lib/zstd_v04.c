@@ -848,8 +848,8 @@ MEM_STATIC uint FSE_endOfDState(const FSE_DState_t* DStatePtr)
 //
 #ifdef _MSC_VER    /* Visual Studio */
 	//#define FORCE_INLINE static __forceinline
-	#pragma warning(disable : 4127)        /* disable: C4127: conditional expression is constant */
-	#pragma warning(disable : 4214)        /* disable: C4214: non-int bitfields */
+	#pragma warning(disable:4127) // disable: C4127: conditional expression is constant
+	#pragma warning(disable:4214)        /* disable: C4214: non-int bitfields */
 #else
 	//#if defined (__cplusplus) || defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L   /* C99 */
 		//#ifdef __GNUC__
@@ -1382,7 +1382,7 @@ static size_t HUF_decompress4X4_usingDTable(void* dst, size_t maxDstSize, const 
 	#define inline /* disable inline */
 #endif
 #ifdef _MSC_VER    /* Visual Studio */
-	#pragma warning(disable : 4127) // disable: C4127: conditional expression is constant
+	#pragma warning(disable:4127) // disable: C4127: conditional expression is constant
 #endif
 //
 // Constants
@@ -2138,8 +2138,8 @@ static size_t HUF_decompress(void* dst, size_t dstSize, const void* cSrc, size_t
 // Compiler specifics
 //
 #ifdef _MSC_VER    /* Visual Studio */
-	#pragma warning(disable : 4127)        /* disable: C4127: conditional expression is constant */
-	#pragma warning(disable : 4324)        /* disable: C4324: padded structure */
+	#pragma warning(disable:4127) // disable: C4127: conditional expression is constant
+	#pragma warning(disable:4324) // disable: C4324: padded structure
 #endif
 /* *************************************
 *  Local types

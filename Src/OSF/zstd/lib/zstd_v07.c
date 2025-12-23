@@ -1229,8 +1229,8 @@ size_t HUFv07_readStats(BYTE * huffWeight, size_t hwSize, uint32 * rankStats,
 //
 #ifdef _MSC_VER    /* Visual Studio */
 	//#define FORCE_INLINE static __forceinline
-	#pragma warning(disable : 4127)        /* disable: C4127: conditional expression is constant */
-	#pragma warning(disable : 4214)        /* disable: C4214: non-int bitfields */
+	#pragma warning(disable:4127) // disable: C4127: conditional expression is constant
+	#pragma warning(disable:4214)        /* disable: C4214: non-int bitfields */
 #else
 	//#if defined (__cplusplus) || defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L   /* C99 */
 		//#ifdef __GNUC__
@@ -1528,7 +1528,7 @@ size_t FSEv07_decompress(void* dst, size_t maxDstSize, const void* cSrc, size_t 
 #endif
 
 #ifdef _MSC_VER    /* Visual Studio */
-#pragma warning(disable : 4127)        /* disable: C4127: conditional expression is constant */
+#pragma warning(disable:4127) // disable: C4127: conditional expression is constant
 #endif
 //
 // Error Management
@@ -2661,9 +2661,9 @@ static const ZSTDv07_customMem defaultCustomMem = { ZSTDv07_defaultAllocFunction
 // Compiler specifics
 //
 #ifdef _MSC_VER    /* Visual Studio */
-	#pragma warning(disable : 4127)        /* disable: C4127: conditional expression is constant */
-	#pragma warning(disable : 4324)        /* disable: C4324: padded structure */
-	#pragma warning(disable : 4100)        /* disable: C4100: unreferenced formal parameter */
+	#pragma warning(disable:4127) // disable: C4127: conditional expression is constant
+	#pragma warning(disable:4324) // disable: C4324: padded structure
+	#pragma warning(disable:4100)        /* disable: C4100: unreferenced formal parameter */
 #endif
 
 /*-*************************************

@@ -172,13 +172,13 @@
 		#endif
 	#endif
 #endif /* _WIN32 */
-#if SIZEOF_VOIDP == SIZEOF_LONG
+/* @v12.5.2 #if SIZEOF_VOIDP == SIZEOF_LONG
 	typedef ulong hash_data_type;
 #elif SIZEOF_VOIDP == SIZEOF_LONG_LONG
 	typedef ulong long hash_data_type;
-#endif
-
-typedef void * hash_table_type; /* strend hash */
+#endif*/
+typedef uintptr_t hash_data_type; // @v12.5.2
+typedef void * hash_table_type; // strend hash 
 
 #ifdef USE_CALLOUT
 

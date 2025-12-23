@@ -31,9 +31,9 @@
 
 #if defined(_MSC_VER)
 	#pragma warning(push)
-	#pragma warning(disable : 4255) /* disable warning: no function prototype given: converting '()' to '(void)' */
-	#pragma warning(disable : 4668) /* disable warning: '__cplusplus' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif' */
-	#pragma warning(disable : 4820) /* disable warning: bytes padding added after construct */
+	#pragma warning(disable:4255) /* disable warning: no function prototype given: converting '()' to '(void)' */
+	#pragma warning(disable:4668) /* disable warning: '__cplusplus' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif' */
+	#pragma warning(disable:4820) /* disable warning: bytes padding added after construct */
 #endif
 #include <stddef.h>
 #include <stdlib.h>

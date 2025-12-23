@@ -806,8 +806,8 @@ typedef struct ZSTD_DCtx_s ZSTD_DCtx;
 //
 #ifdef _MSC_VER    /* Visual Studio */
 	//#define FORCE_INLINE static __forceinline
-	#pragma warning(disable : 4127)        /* disable: C4127: conditional expression is constant */
-	#pragma warning(disable : 4214)        /* disable: C4214: non-int bitfields */
+	#pragma warning(disable:4127) // disable: C4127: conditional expression is constant
+	#pragma warning(disable:4214)        /* disable: C4214: non-int bitfields */
 #else
 	//#if defined (__cplusplus) || defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L   /* C99 */
 		//#ifdef __GNUC__
@@ -1202,7 +1202,7 @@ static size_t FSE_decompress(void* dst, size_t maxDstSize, const void* cSrc, siz
 #if defined (__cplusplus) || (defined (__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) /* C99 */)
 /* inline is defined */
 #elif defined(_MSC_VER)
-#pragma warning(disable : 4127)        /* disable: C4127: conditional expression is constant */
+#pragma warning(disable:4127) // disable: C4127: conditional expression is constant
 #define inline __inline
 #else
 #define inline /* disable inline */
@@ -1955,8 +1955,8 @@ static size_t HUF_decompress(void* dst, size_t dstSize, const void* cSrc, size_t
 	#include <immintrin.h>   /* AVX2 intrinsics */
 #endif
 #ifdef _MSC_VER    /* Visual Studio */
-	#pragma warning(disable : 4127)        /* disable: C4127: conditional expression is constant */
-	#pragma warning(disable : 4324)        /* disable: C4324: padded structure */
+	#pragma warning(disable:4127) // disable: C4127: conditional expression is constant
+	#pragma warning(disable:4324) // disable: C4324: padded structure
 #else
 #define GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__)
 #endif

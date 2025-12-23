@@ -1934,9 +1934,54 @@ PPPrjTaskPacket::PPPrjTaskPacket()
 PPPrjTaskPacket & PPPrjTaskPacket::Z()
 {
 	Rec.Clear();
+	TagL.Z(); // @v12.5.2
 	SDescr.Z();
 	SMemo.Z();
 	return *this;
+}
+
+bool FASTCALL PPPrjTaskPacket::IsEq(const PPPrjTaskPacket & rS) const
+{
+	#define CMP_FLD(f) if((Rec.f) != (rS.Rec.f)) return false
+	CMP_FLD(ID);
+	CMP_FLD(ProjectID);
+	CMP_FLD(Kind);
+	CMP_FLD(CreatorID);
+	CMP_FLD(GroupID);
+	CMP_FLD(EmployerID);
+	CMP_FLD(ClientID);
+	CMP_FLD(TemplateID);
+	CMP_FLD(Dt);
+	CMP_FLD(Tm);
+	CMP_FLD(StartDt);
+	CMP_FLD(StartTm);
+	CMP_FLD(EstFinishDt);
+	CMP_FLD(EstFinishTm);
+	CMP_FLD(FinishDt);
+	CMP_FLD(FinishTm);
+	CMP_FLD(Priority);
+	CMP_FLD(Status);
+	CMP_FLD(DrPrd);
+	CMP_FLD(DrKind);
+	CMP_FLD(DrDetail);
+	CMP_FLD(Flags);
+	CMP_FLD(DlvrAddrID);
+	CMP_FLD(LinkTaskID);
+	CMP_FLD(Amount);
+	CMP_FLD(OpenCount);
+	CMP_FLD(BillArID);
+	CMP_FLD(LinkBillID);
+	#undef CMP_FLD
+	if(!sstreq(Rec.Code, rS.Rec.Code))
+		return false;
+	else if(SDescr != rS.SDescr)
+		return false;
+	else if(SMemo != rS.SMemo)
+		return false;
+	else if(!TagL.IsEq(rS.TagL))
+		return false;
+	//
+	return true;
 }
 
 TLP_IMPL(PPObjPrjTask, PrjTaskCore, P_Tbl);
@@ -2187,7 +2232,7 @@ int PPObjPerson::Helper_WritePersonInfoInICalendarFormat(PPID personID, int ical
 		}
 		if(pack.Regs.GetRegNumber(PPREGT_TPID, getcurdate_(), temp_buf)) {
 			temp_buf.Strip();
-			tr.Run(temp_buf.ucptr(), temp_buf.Len(), nta.Z(), 0);
+			tr.Run(temp_buf.ucptr(), temp_buf.LenI(), nta.Z(), 0);
 			if(nta.Has(SNTOK_RU_INN))
 				rBuf.Semicol().CatEq("X-RU-INN", temp_buf);
 		}
@@ -2436,10 +2481,14 @@ int PPObjPrjTask::InitPacket_(PPPrjTaskPacket & rPack, int kind, PPID prjID, PPI
 
 int PPObjPrjTask::PutPacket(PPID * pID, PPPrjTaskPacket * pPack, int use_ta)
 {
+	// @done @todo @20251222 Менять только если пакет изменился //
+	// @todo @20251222 Версионность
 	int    ok = 1;
 	Reference * p_ref(PPRef);
+	PPID   _id = DEREFPTRORZ(pID); // @v12.5.2
 	PPID   acn_id = 0;
 	SString ext_buffer;
+	PPPrjTaskPacket org_pack;
 	/*// Участок кода на переходный период пока не будет сконвертирована таблица PrjTaskTbl {
 	if(pPack) {
 		if(pPack->SDescr.Empty() && !isempty(pPack->Rec.Descr_))
@@ -2451,20 +2500,28 @@ int PPObjPrjTask::PutPacket(PPID * pID, PPPrjTaskPacket * pPack, int use_ta)
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		if(*pID) {
+		if(_id) {
+			THROW(GetPacket(_id, &org_pack) > 0); // @v12.5.2
 			if(pPack) {
-				const int acn_viewed = BIN(pPack->Rec.Flags & TODOF_ACTIONVIEWED);
-				pPack->Rec.Flags &= ~TODOF_ACTIONVIEWED;
-				THROW(P_Tbl->Update(*pID, &pPack->Rec, 0));
-				acn_id = acn_viewed ? PPACN_OBJVIEWED : PPACN_OBJUPD;
+				if(pPack->IsEq(org_pack)) // @v12.5.2
+					ok = -1;
+				else {
+					const int acn_viewed = BIN(pPack->Rec.Flags & TODOF_ACTIONVIEWED);
+					pPack->Rec.Flags &= ~TODOF_ACTIONVIEWED;
+					THROW(P_Tbl->Update(_id, &pPack->Rec, 0));
+					THROW(p_ref->Ot.PutList(Obj, _id, &pPack->TagL, 0)); // @v12.5.2
+					acn_id = acn_viewed ? PPACN_OBJVIEWED : PPACN_OBJUPD;
+				}
 			}
 			else {
-				THROW(P_Tbl->Remove(*pID, 0));
+				THROW(P_Tbl->Remove(_id, 0));
+				THROW(p_ref->Ot.PutList(Obj, _id, 0, 0)); // @v12.5.2
 				acn_id = PPACN_OBJRMV;
 			}
 		}
 		else if(pPack) {
 			THROW(P_Tbl->Add(pID, &pPack->Rec, 0));
+			THROW(p_ref->Ot.PutList(Obj, *pID, &pPack->TagL, 0)); // @v12.5.2
 			acn_id = PPACN_OBJADD;
 		}
 		{
@@ -2510,11 +2567,14 @@ int PPObjPrjTask::GetPacket(PPID id, PPPrjTaskPacket * pPack)
 		if(Search(id, &pPack->Rec) > 0) {
 			GetItemDescr(id, pPack->SDescr);
 			GetItemMemo(id, pPack->SMemo);
+			THROW(PPRef->Ot.GetList(Obj, id, &pPack->TagL)); // @v12.5.2
 			ok = 1;
 		}
 	}
-	else
+	else {
 		ok = Search(id, 0);
+	}
+	CATCHZOK
 	return ok;
 }
 
@@ -2842,6 +2902,10 @@ IMPL_HANDLE_EVENT(PrjTaskDialog)
 		PPID   prj_id = getCtrlLong(CTLSEL_TODO_PRJ);
 		SetupPPObjCombo(this, CTLSEL_TODO_PHASE, PPOBJ_PROJECT, 0, OLW_CANINSERT, reinterpret_cast<void *>(NZOR(prj_id, -1)));
 		Data.Rec.ProjectID = prj_id;
+	}
+	else if(event.isCmd(cmTags)) { // @v12.5.2
+		Data.TagL.Oid.Obj = PPOBJ_PRJTASK;
+		EditObjTagValList(&Data.TagL, 0);
 	}
 	else if(TVBROADCAST && oneof2(TVCMD, cmReleasedFocus, cmCommitInput)) {
 		if(event.isCtlEvent(CTL_TODO_FINISH)) {

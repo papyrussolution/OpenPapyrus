@@ -12,8 +12,8 @@
 //
 #ifdef _MSC_VER // conditionally enable MSVC specific pragmas to avoid other compilers warning about unknown pragmas
 	#pragma warning(push)
-	#pragma warning(disable : 4251) // #first
-	#pragma warning(disable : 4275)
+	#pragma warning(disable:4251) // #first
+	#pragma warning(disable:4275)
 #endif // _MSC_VER
 	//
 	//#include "XLConstants.hpp"

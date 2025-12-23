@@ -948,7 +948,7 @@ static bool subprocess_create_named_pipe_helper(SIntHandle * pRd, SIntHandle * p
 /*
 #if defined(_MSC_VER) && _MSC_VER < 1900
 	#pragma warning(push, 1)
-	#pragma warning(disable : 4996)
+	#pragma warning(disable:4996)
 	_snprintf(name, sizeof(name) - 1, "\\\\.\\pipe\\sheredom_subprocess_h.%08lx.%08lx.%ld", GetCurrentProcessId(), GetCurrentThreadId(), unique);
 	#pragma warning(pop)
 #else

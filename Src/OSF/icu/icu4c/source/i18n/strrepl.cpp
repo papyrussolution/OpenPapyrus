@@ -1,15 +1,10 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (c) 2002-2012, International Business Machines Corporation
- *   and others.  All Rights Reserved.
- **********************************************************************
- *   Date        Name        Description
- *   01/21/2002  aliu        Creation.
- **********************************************************************
- */
-
+// Copyright (c) 2002-2012, International Business Machines Corporation and others.  All Rights Reserved.
+// 
+// Date        Name        Description
+// 01/21/2002  aliu        Creation.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -21,7 +16,8 @@
 
 U_NAMESPACE_BEGIN
 
-UnicodeReplacer::~UnicodeReplacer() {
+UnicodeReplacer::~UnicodeReplacer() 
+{
 }
 
 UOBJECT_DEFINE_RTTI_IMPLEMENTATION(StringReplacer)
@@ -37,9 +33,8 @@ UOBJECT_DEFINE_RTTI_IMPLEMENTATION(StringReplacer)
  * @param theData transliterator context object that translates
  * stand-in characters to UnicodeReplacer objects
  */
-StringReplacer::StringReplacer(const UnicodeString & theOutput,
-    int32_t theCursorPos,
-    const TransliterationRuleData* theData) {
+StringReplacer::StringReplacer(const UnicodeString & theOutput, int32_t theCursorPos, const TransliterationRuleData* theData) 
+{
 	output = theOutput;
 	cursorPos = theCursorPos;
 	hasCursor = TRUE;
@@ -56,15 +51,14 @@ StringReplacer::StringReplacer(const UnicodeString & theOutput,
  * @param theData transliterator context object that translates
  * stand-in characters to UnicodeReplacer objects
  */
-StringReplacer::StringReplacer(const UnicodeString & theOutput,
-    const TransliterationRuleData* theData) {
+StringReplacer::StringReplacer(const UnicodeString & theOutput, const TransliterationRuleData* theData) 
+{
 	output = theOutput;
 	cursorPos = 0;
 	hasCursor = FALSE;
 	data = theData;
 	isComplex = TRUE;
 }
-
 /**
  * Copy constructor.
  */
@@ -82,33 +76,26 @@ StringReplacer::StringReplacer(const StringReplacer& other) :
 /**
  * Destructor
  */
-StringReplacer::~StringReplacer() {
+StringReplacer::~StringReplacer() 
+{
 }
 
 /**
  * Implement UnicodeFunctor
  */
-StringReplacer* StringReplacer::clone() const {
-	return new StringReplacer(*this);
-}
-
+StringReplacer* StringReplacer::clone() const { return new StringReplacer(*this); }
 /**
  * Implement UnicodeFunctor
  */
-UnicodeReplacer* StringReplacer::toReplacer() const {
-	return const_cast<StringReplacer *>(this);
-}
+UnicodeReplacer* StringReplacer::toReplacer() const { return const_cast<StringReplacer *>(this); }
 
 /**
  * UnicodeReplacer API
  */
-int32_t StringReplacer::replace(Replaceable& text,
-    int32_t start,
-    int32_t limit,
-    int32_t& cursor) {
+int32_t StringReplacer::replace(Replaceable& text, int32_t start, int32_t limit, int32_t& cursor) 
+{
 	int32_t outLen;
 	int32_t newStart = 0;
-
 	// NOTE: It should be possible to _always_ run the complex
 	// processing code; just slower.  If not, then there is a bug
 	// in the complex processing code.
@@ -193,17 +180,13 @@ int32_t StringReplacer::replace(Replaceable& text,
 			// Record the position of the cursor
 			newStart = destLimit - destStart; // relative to start
 		}
-
 		outLen = destLimit - destStart;
-
 		// Copy new text to start, and delete it
 		text.copy(destStart, destLimit, start);
 		text.handleReplaceBetween(tempStart + outLen, destLimit + outLen, UnicodeString());
-
 		// Delete the old text (the key)
 		text.handleReplaceBetween(start + outLen, limit + outLen, UnicodeString());
 	}
-
 	if(hasCursor) {
 		// Adjust the cursor for positions outside the key.  These
 		// refer to code points rather than code units.  If cursorPos
@@ -234,23 +217,19 @@ int32_t StringReplacer::replace(Replaceable& text,
 			// to be relative to start.
 			newStart += start;
 		}
-
 		cursor = newStart;
 	}
-
 	return outLen;
 }
 
 /**
  * UnicodeReplacer API
  */
-UnicodeString & StringReplacer::toReplacerPattern(UnicodeString & rule,
-    bool escapeUnprintable) const {
+UnicodeString & StringReplacer::toReplacerPattern(UnicodeString & rule, bool escapeUnprintable) const 
+{
 	rule.truncate(0);
 	UnicodeString quoteBuf;
-
 	int32_t cursor = cursorPos;
-
 	// Handle a cursor preceding the output
 	if(hasCursor && cursor < 0) {
 		while(cursor++ < 0) {
@@ -295,11 +274,11 @@ UnicodeString & StringReplacer::toReplacerPattern(UnicodeString & rule,
 
 	return rule;
 }
-
 /**
  * Implement UnicodeReplacer
  */
-void StringReplacer::addReplacementSetTo(UnicodeSet & toUnionTo) const {
+void StringReplacer::addReplacementSetTo(UnicodeSet & toUnionTo) const 
+{
 	UChar32 ch;
 	for(int32_t i = 0; i<output.length(); i += U16_LENGTH(ch)) {
 		ch = output.char32At(i);
@@ -312,11 +291,11 @@ void StringReplacer::addReplacementSetTo(UnicodeSet & toUnionTo) const {
 		}
 	}
 }
-
 /**
  * UnicodeFunctor API
  */
-void StringReplacer::setData(const TransliterationRuleData* d) {
+void StringReplacer::setData(const TransliterationRuleData* d) 
+{
 	data = d;
 	int32_t i = 0;
 	while(i<output.length()) {

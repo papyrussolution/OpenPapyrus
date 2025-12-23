@@ -790,10 +790,16 @@ static int GetShtrihVatRateIdent(double vatRate, bool isVatFree) // @v11.2.12
 	if(isVatFree)
 		result = 4;
 	else {
-		if(feqeps(vatRate, 20.0, 1E-3) || feqeps(vatRate, 18.0, 1E-3))
+		if(feqeps(vatRate, 20.0, 1E-3) || feqeps(vatRate, 18.0, 1E-3) || feqeps(vatRate, 22.0, 1E-3)) // @v12.5.2 (|| feqeps(vatRate, 22.0, 1E-3))
 			result = 1;
 		else if(feqeps(vatRate, 10.0, 1E-3))
 			result = 2;
+		// @v12.5.2 {
+		else if(feqeps(vatRate, 7.0, 1E-3))
+			result = 8;
+		else if(feqeps(vatRate, 5.0, 1E-3))
+			result = 7;
+		// } @v12.5.2 
 		else if(feqeps(vatRate, 0.0, 1E-3))
 			result = 3;
 	}
@@ -1050,7 +1056,7 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 									THROW(ExecFR(FNSendItemCodeData));
 									*/
 									{ // @v12.0.4 @construction 
-										const uint code_len = sl_param.ChZnCode.Len();
+										const uint code_len = sl_param.ChZnCode.Len32();
 										temp_buf.Z();
 										for(uint cidx = 0; cidx < code_len; cidx++) {
 											temp_buf.CatHex(static_cast<uint8>(sl_param.ChZnCode[cidx]));
@@ -2769,7 +2775,7 @@ void SCS_SHTRIHFRF::SetErrorMessage()
 						//
 						//THROW(SetFR(BarCode, pCode));
 						{
-							const uint code_len = sstrlen(pCode);
+							const uint code_len = static_cast<uint>(sstrlen(pCode));
 							temp_buf.Z();
 							for(uint cidx = 0; cidx < code_len; cidx++) { // @v11.7.11 @fix (я - долбоеб. это - точно!) (cidx < code_len)-->cidx++
 								temp_buf.CatHex(static_cast<uint8>(pCode[cidx]));

@@ -63,8 +63,8 @@ typedef enum  FT_ValidationLevel_ {
 /* We disable the warning `structure was padded due to   */
 /* __declspec(align())' in order to compile cleanly with */
 /* the maximum level of warnings.                        */
-#pragma warning( push )
-#pragma warning( disable : 4324 )
+#pragma warning(push)
+#pragma warning(disable:4324 )
 #endif /* _MSC_VER */
 
 /* validator structure */
@@ -78,7 +78,7 @@ typedef struct  FT_ValidatorRec_ {
 } FT_ValidatorRec;
 
 #if defined( _MSC_VER )
-#pragma warning( pop )
+#pragma warning(pop)
 #endif
 
 #define FT_VALIDATOR(x)  ((FT_Validator)(x))

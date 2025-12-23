@@ -2314,8 +2314,8 @@ static void OJPEGLibjpegJpegSourceMgrSkipInputData(jpeg_decompress_struct* cinfo
 }
 
 #ifdef _MSC_VER
-	#pragma warning( push )
-	#pragma warning( disable : 4702 ) /* unreachable code */
+	#pragma warning(push)
+	#pragma warning(disable:4702 ) /* unreachable code */
 #endif
 static boolean OJPEGLibjpegJpegSourceMgrResyncToRestart(jpeg_decompress_struct* cinfo, int desired)
 {
@@ -2327,7 +2327,7 @@ static boolean OJPEGLibjpegJpegSourceMgrResyncToRestart(jpeg_decompress_struct* 
 }
 
 #ifdef _MSC_VER
-#pragma warning( pop )
+#pragma warning(pop)
 #endif
 
 static void OJPEGLibjpegJpegSourceMgrTermSource(jpeg_decompress_struct* cinfo)

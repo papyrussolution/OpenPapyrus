@@ -49,8 +49,8 @@
 /* possible loss of data' in order to compile cleanly with */
 /* the maximum level of warnings: `md5.c' is non-FreeType  */
 /* code, and it gets used during development builds only.  */
-#pragma warning( push )
-#pragma warning( disable : 4244 )
+#pragma warning(push)
+#pragma warning(disable:4244 )
 #endif /* _MSC_VER */
 
 /* It's easiest to include `md5.c' directly.  However, since OpenSSL */
@@ -68,7 +68,7 @@
 #include "md5.c"
 
 #if defined( _MSC_VER )
-#pragma warning( pop )
+#pragma warning(pop)
 #endif
 
 static const char * const pixel_modes[] =

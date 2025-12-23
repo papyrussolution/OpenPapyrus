@@ -79,8 +79,8 @@
 //
 #ifdef _MSC_VER // Visual Studio 
 	// @sobolev #include <intrin.h>
-	#pragma warning(disable : 4127)        /* disable: C4127: conditional expression is constant */
-	#pragma warning(disable : 4293)        /* disable: C4293: too large shift (32-bits) */
+	#pragma warning(disable:4127) // disable: C4127: conditional expression is constant
+	#pragma warning(disable:4293)        /* disable: C4293: too large shift (32-bits) */
 #endif
 #ifndef LZ4_FORCE_INLINE
 	#ifdef _MSC_VER    /* Visual Studio */

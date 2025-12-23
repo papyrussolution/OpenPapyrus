@@ -101,8 +101,8 @@
 #endif
 // Warnings
 #ifdef _MSC_VER
-	#pragma warning (push)
-	#pragma warning (disable: 26495)    // [Static Analyzer] Variable 'XXX' is uninitialized. Always initialize a member variable (type.6).
+	#pragma warning(push)
+	#pragma warning(disable: 26495)    // [Static Analyzer] Variable 'XXX' is uninitialized. Always initialize a member variable (type.6).
 #endif
 #if defined(__clang__)
 	#pragma clang diagnostic push
@@ -3393,7 +3393,7 @@ enum ImGuiModFlags_ {
 	#pragma GCC diagnostic pop
 #endif
 #ifdef _MSC_VER
-	#pragma warning (pop)
+	#pragma warning(pop)
 #endif
 // Include imgui_user.h at the end of imgui.h (convenient for user to only explicitly include vanilla imgui.h)
 #ifdef IMGUI_INCLUDE_IMGUI_USER_H

@@ -134,7 +134,7 @@ struct D3DX_BC3 {
 // Templates
 //
 #pragma warning(push)
-#pragma warning(disable : 4127)
+#pragma warning(disable:4127)
 template <bool bRange> void OptimizeAlpha(float * pX, float * pY, const float * pPoints, uint32_t cSteps) noexcept
 {
 	static const float pC6[] = { 5.0f / 5.0f, 4.0f / 5.0f, 3.0f / 5.0f, 2.0f / 5.0f, 1.0f / 5.0f, 0.0f / 5.0f };

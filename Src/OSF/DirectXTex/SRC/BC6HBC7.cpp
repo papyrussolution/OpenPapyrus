@@ -619,7 +619,7 @@ public:
 
 private:
     #pragma warning(push)
-    #pragma warning(disable : 4480)
+    #pragma warning(disable:4480)
 	enum EField : uint8_t {
 		NA, // N/A
 		M, // Mode
@@ -654,7 +654,7 @@ private:
 	};
 
     #pragma warning(push)
-    #pragma warning(disable : 4512)
+    #pragma warning(disable:4512)
 	struct EncodeParams {
 		float fBestErr;
 		const bool bSigned;
@@ -735,7 +735,7 @@ private:
 	};
 
     #pragma warning(push)
-    #pragma warning(disable : 4512)
+    #pragma warning(disable:4512)
 	struct EncodeParams {
 		uint8_t uMode;
 		LDREndPntPair aEndPts[BC7_MAX_SHAPES][BC7_MAX_REGIONS];

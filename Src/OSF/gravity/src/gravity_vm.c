@@ -790,8 +790,8 @@ execute_store_function:
 		    #pragma GCC diagnostic push
 		    #pragma GCC diagnostic ignored "-Wdiv-by-zero"
 				#elif defined(_MSC_VER)
-					#pragma warning (push)
-					#pragma warning (disable: 4723)
+					#pragma warning(push)
+					#pragma warning(disable: 4723)
 		#endif
 				CHECK_FAST_BINARY_MATH(r1, r2, r3, v2, v3, /, CHECK_ZERO(v3));
 		#if defined(__clang__)
@@ -799,7 +799,7 @@ execute_store_function:
 		#elif defined(__GNUC__)
 		    #pragma GCC diagnostic pop
 				#elif defined(_MSC_VER)
-					#pragma warning (pop)
+					#pragma warning(pop)
 		#endif
 				PREPARE_FUNC_CALL2(closure, v2, v3, GRAVITY_DIV_INDEX, rwin); // prepare function call for binary operation
 				CALL_FUNC(DIV, closure, r1, 2, rwin); // call function f

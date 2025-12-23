@@ -28,7 +28,7 @@
 #pragma hdrstop
 
 #if defined(_MSC_VER)
-	#pragma warning( disable : 4100 ) // ignore warning "unreferenced formal parameter" 
+	#pragma warning(disable:4100 ) // ignore warning "unreferenced formal parameter" 
 #endif
 /*
  * ------------------------------------------------------

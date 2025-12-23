@@ -2097,6 +2097,7 @@ int AsyncCashGoodsIterator::Init(long flags)
 	ReadEquipConfig(&eq_cfg);
 	Flags = (flags & ~(ACGIF_EXCLALTFOLD|ACGIF_IGNOREGWODISTAG)); // ACGIF_EXCLALTFOLD ACGIF_IGNOREGWODISTAG - internal flags
 	SETFLAG(Flags, ACGIF_IGNOREGWODISTAG, eq_cfg.Flags & eq_cfg.fIgnoreNoDisGoodsTag);
+	MainOrgID = GetMainOrgID(); // @v12.5.2
 	LocID    = 0;
 	CodePos  = 0;
 	GoodsPos = 0;
@@ -2624,8 +2625,15 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 							STRNSCPY(Rec.AsscPosNodeSymb, cn_rec.Symb);
 						}
 					}
-					if(GObj.FetchTaxEntry2(grec.ID, 0/*lotID*/, 0/*taxPayerID*/, now_dtm.d, 0L, &gtx) > 0)
-						Rec.VatRate = gtx.GetVatRate();
+					{
+						// @v12.5.2 {
+						if(GObj.FetchTaxEntry2_WithPayerAndWarehouse_ByTaxGroup(grec.TaxGrpID, MainOrgID, LocID, now_dtm.d, 0L/*op_id*/, &gtx) > 0) {
+							Rec.VatRate = gtx.GetVatRate();
+						}
+						// } @v12.5.2 
+						// @v12.5.2 if(GObj.FetchTaxEntry2(grec.ID, 0/*lotID*/, 0/*taxPayerID*/, now_dtm.d, 0L, &gtx) > 0)
+							// @v12.5.2 Rec.VatRate = gtx.GetVatRate();
+					}
 					CodePos = 0;
 					GObj.ReadBarcodes(grec.ID, Codes);
 					if(GObj.GetConfig().Flags & GCF_USESCALEBCPREFIX) {

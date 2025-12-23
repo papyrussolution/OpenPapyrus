@@ -44,9 +44,9 @@
 #include FT_GLYPH_H             // <freetype/ftglyph.h>
 #include FT_SYNTHESIS_H         // <freetype/ftsynth.h>
 #ifdef _MSC_VER
-	#pragma warning (push)
-	#pragma warning (disable: 4505)     // unreferenced local function has been removed (stb stuff)
-	#pragma warning (disable: 26812)    // [Static Analyzer] The enum type 'xxx' is unscoped. Prefer 'enum class' over 'enum' (Enum.3).
+	#pragma warning(push)
+	#pragma warning(disable: 4505)     // unreferenced local function has been removed (stb stuff)
+	#pragma warning(disable: 26812)    // [Static Analyzer] The enum type 'xxx' is unscoped. Prefer 'enum class' over 'enum' (Enum.3).
 #endif
 #ifdef __GNUC__
 	#pragma GCC diagnostic push
@@ -722,5 +722,5 @@ void ImGuiFreeType::SetAllocatorFunctions(void* (*alloc_func)(size_t sz, void* u
 	#pragma GCC diagnostic pop
 #endif
 #ifdef _MSC_VER
-	#pragma warning (pop)
+	#pragma warning(pop)
 #endif

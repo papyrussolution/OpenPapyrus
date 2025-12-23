@@ -545,7 +545,6 @@ inline void DecimalFormatSymbols::setSymbol(ENumberFormatSymbol symbol, const Un
 	if(symbol<kFormatSymbolCount) {
 		fSymbols[symbol] = value;
 	}
-
 	// If the zero digit is being set to a known zero digit according to Unicode,
 	// then we automatically set the corresponding 1-9 digits
 	// Also record updates to fCodePointZero. Be conservative if in doubt.

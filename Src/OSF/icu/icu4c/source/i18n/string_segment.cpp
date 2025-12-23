@@ -50,11 +50,8 @@ UChar32 StringSegment::getCodePoint() const
 	}
 }
 
-bool StringSegment::startsWith(UChar32 otherCp) const {
-	return codePointsEqual(getCodePoint(), otherCp, fFoldCase);
-}
-
-bool StringSegment::startsWith(const UnicodeSet & uniset) const {
+bool StringSegment::startsWith(const UnicodeSet & uniset) const 
+{
 	// TODO: Move UnicodeSet case-folding logic here.
 	// TODO: Handle string matches here instead of separately.
 	UChar32 cp = getCodePoint();
@@ -64,7 +61,8 @@ bool StringSegment::startsWith(const UnicodeSet & uniset) const {
 	return uniset.contains(cp);
 }
 
-bool StringSegment::startsWith(const UnicodeString & other) const {
+bool StringSegment::startsWith(const UnicodeString & other) const 
+{
 	if(other.isBogus() || other.length() == 0 || length() == 0) {
 		return false;
 	}
@@ -73,15 +71,12 @@ bool StringSegment::startsWith(const UnicodeString & other) const {
 	return codePointsEqual(cp1, cp2, fFoldCase);
 }
 
-int32_t StringSegment::getCommonPrefixLength(const UnicodeString & other) {
-	return getPrefixLengthInternal(other, fFoldCase);
-}
+bool StringSegment::startsWith(UChar32 otherCp) const { return codePointsEqual(getCodePoint(), otherCp, fFoldCase); }
+int32_t StringSegment::getCommonPrefixLength(const UnicodeString & other) { return getPrefixLengthInternal(other, fFoldCase); }
+int32_t StringSegment::getCaseSensitivePrefixLength(const UnicodeString & other) { return getPrefixLengthInternal(other, false); }
 
-int32_t StringSegment::getCaseSensitivePrefixLength(const UnicodeString & other) {
-	return getPrefixLengthInternal(other, false);
-}
-
-int32_t StringSegment::getPrefixLengthInternal(const UnicodeString & other, bool foldCase) {
+int32_t StringSegment::getPrefixLengthInternal(const UnicodeString & other, bool foldCase) 
+{
 	assert(other.length() > 0);
 	int32_t offset = 0;
 	for(; offset < smin(length(), other.length());) {
@@ -96,7 +91,8 @@ int32_t StringSegment::getPrefixLengthInternal(const UnicodeString & other, bool
 	return offset;
 }
 
-bool StringSegment::codePointsEqual(UChar32 cp1, UChar32 cp2, bool foldCase) {
+bool StringSegment::codePointsEqual(UChar32 cp1, UChar32 cp2, bool foldCase) 
+{
 	if(cp1 == cp2) {
 		return true;
 	}
@@ -108,9 +104,7 @@ bool StringSegment::codePointsEqual(UChar32 cp1, UChar32 cp2, bool foldCase) {
 	return cp1 == cp2;
 }
 
-bool StringSegment::operator == (const UnicodeString & other) const {
-	return toTempUnicodeString() == other;
-}
+bool StringSegment::operator == (const UnicodeString & other) const { return toTempUnicodeString() == other; }
 
 U_NAMESPACE_END
 #endif /* #if !UCONFIG_NO_FORMATTING */

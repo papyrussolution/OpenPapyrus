@@ -5,11 +5,12 @@
 #ifndef ST_INCLUDED
 #define ST_INCLUDED
 
-#if SIZEOF_VOIDP == SIZEOF_LONG
+/* @v12.5.2 #if SIZEOF_VOIDP == SIZEOF_LONG
 	typedef ulong st_data_t;
 #elif SIZEOF_VOIDP == SIZEOF_LONG_LONG
-	typedef ulong long st_data_t;
-#endif
+	typedef uint64 st_data_t;
+#endif*/
+typedef uintptr_t st_data_t; // @v12.5.2
 #define ST_DATA_T_DEFINED
 
 struct StStrEndKey;

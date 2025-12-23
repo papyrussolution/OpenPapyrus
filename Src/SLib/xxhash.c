@@ -80,7 +80,7 @@
 // Compiler Specific Options
 // 
 #ifdef _MSC_VER    /* Visual Studio */
-	#pragma warning(disable : 4127)      /* disable: C4127: conditional expression is constant */
+	#pragma warning(disable:4127)      /* disable: C4127: conditional expression is constant */
 	//#define XXH_FORCE_INLINE static __forceinline
 	#define XXH_NO_INLINE static __declspec(noinline)
 #else

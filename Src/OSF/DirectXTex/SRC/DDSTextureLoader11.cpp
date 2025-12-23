@@ -18,7 +18,7 @@
 
 #ifdef _MSC_VER
 	// Off by default warnings
-	#pragma warning(disable : 4619 4616 4061 4062 4623 4626 5027)
+	#pragma warning(disable:4619 4616 4061 4062 4623 4626 5027)
 	// C4619/4616 #pragma warning warnings
 	// C4061 enumerator 'x' in switch of enum 'y' is not explicitly handled by a case label
 	// C4062 enumerator 'x' in switch of enum 'y' is not handled

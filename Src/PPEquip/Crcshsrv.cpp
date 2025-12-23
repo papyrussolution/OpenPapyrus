@@ -20,8 +20,8 @@ struct CashierEntry { // @flat
 IMPL_CMPFUNC(CashierEnKey, i1, i2)
 {
 	int    cmp = 0;
-	const CashierEntry * k1 = static_cast<const CashierEntry *>(i1);
-	const CashierEntry * k2 = static_cast<const CashierEntry *>(i2);
+	const  CashierEntry * k1 = static_cast<const CashierEntry *>(i1);
+	const  CashierEntry * k2 = static_cast<const CashierEntry *>(i2);
 	if(k1->TabNum < k2->TabNum)
 		cmp = -1;
 	else if(k1->TabNum > k2->TabNum)

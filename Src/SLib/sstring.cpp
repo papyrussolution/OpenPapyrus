@@ -304,7 +304,7 @@ bool SStrScan::IsNaturalToken(uint32 ntok, bool greedy, size_t * pLen) const
 		for(size_t len = 1; len <= max_scan_len; len++) {
 			P_NtA->clear();
 			P_NtStat->Z();
-			P_Tr->Run(reinterpret_cast<const uchar *>(p_buf), len, *P_NtA, P_NtStat);
+			P_Tr->Run(reinterpret_cast<const uchar *>(p_buf), static_cast<int>(len), *P_NtA, P_NtStat);
 			if(P_NtA->Has(ntok)) {
 				if(!greedy) {
 					ASSIGN_PTR(pLen, len);
@@ -335,7 +335,7 @@ int  SStrScan::GetNaturalToken(uint32 ntok, bool greedy)
 		for(size_t len = 1; len <= max_scan_len; len++) {
 			P_NtA->clear();
 			P_NtStat->Z();
-			P_Tr->Run(reinterpret_cast<const uchar *>(p_buf), len, *P_NtA, P_NtStat);
+			P_Tr->Run(reinterpret_cast<const uchar *>(p_buf), static_cast<int>(len), *P_NtA, P_NtStat);
 			if(P_NtA->Has(ntok)) {
 				if(!greedy) {
 					Len = len;
@@ -1581,7 +1581,53 @@ int  SString::GetIdxBySub(const char * pSubStr, int div)
 	return idx;
 }
 
-char * FASTCALL SString::CopyTo(char * pS, size_t bufLen) const
+char * SString::CopyUtf8To(char * pS, size_t bufLen) const // @v12.5.2
+{
+	size_t processed_size = 0;
+	ssize_t bad_char_break_offs = -1;
+	const size_t src_len = Len();
+	if(pS) {
+		if(src_len) {
+			if(bufLen) {
+				if(src_len < bufLen) {
+					memcpy(pS, P_Buf, src_len+1);
+				}
+				else {
+					size_t dest_idx = 0;					
+					// здесь берем utf8-символы один за другим из P_Buf и переносим в pS пока не закончится место в pS
+					while(processed_size < src_len) {
+						const uint cp_len = SUnicode::GetLegalUtf8Char(P_Buf+processed_size, 0/*pDest*/, src_len-processed_size); // @v12.5.2
+						if(cp_len) {
+							if((dest_idx + cp_len) >= bufLen) { // (>=) because zero-terminator
+								break;
+							}
+							else {
+								memcpy(pS+dest_idx, P_Buf+processed_size, cp_len);
+								dest_idx += cp_len;
+								processed_size += cp_len;
+							}
+						}
+						else {
+							bad_char_break_offs = processed_size;
+							break;
+						}
+					}
+					pS[dest_idx++] = 0;
+					assert(dest_idx <= bufLen);
+				}
+			}
+			else {
+				memcpy(pS, P_Buf, src_len+1);
+			}
+		}
+		else
+			pS[0] = 0;
+	}
+	assert(sstrlen(pS) <= src_len);
+	return pS;
+}
+
+char * SString::CopyTo(char * pS, size_t bufLen) const
 {
 	if(pS) {
 		const size_t src_len = Len();
@@ -4993,22 +5039,44 @@ SStringU & SStringU::Sub(size_t startPos, size_t len, SStringU & rBuf) const
 	return rBuf;
 }
 
+/*static*/uint SUnicode::GetLegalUtf8Char(const void * pSource, char * pDest, size_t maxSourceLen) // @v12.5.2
+{
+	uint   result = 0;
+	if(pSource) {
+		const  uint8 * p_src = static_cast<const uint8 *>(pSource);
+		const  uint extra = SUtfConst::TrailingBytesForUTF8[p_src[0]];
+		if(maxSourceLen && (extra+1) > maxSourceLen) {
+			; // overflow
+		}
+		else if(SUnicode::IsLegalUtf8Char(p_src, extra+1)) {
+			if(pDest) {
+				memcpy(pDest, p_src, extra+1);
+			}
+			result = extra+1;
+		}
+	}
+	return result;
+}
+
 /*static*/bool FASTCALL SUnicode::IsLegalUtf8Char(const uint8 * pSource, size_t length)
 {
-	uint8 a;
-	const uint8 * srcptr = pSource+length;
+	uint8  a;
+	const  uint8 * p_srcptr = pSource+length;
 	switch(length) {
 		default:
 			return false;
 		// Everything else falls through when "true"...
 		case 4:
-			if((a = (*--srcptr)) < 0x80 || a > 0xBF)
+			a = (*--p_srcptr);
+			if(a < 0x80 || a > 0xBF)
 				return false;
 		case 3:
-			if((a = (*--srcptr)) < 0x80 || a > 0xBF)
+			a = (*--p_srcptr);
+			if(a < 0x80 || a > 0xBF)
 				return false;
 		case 2:
-			if((a = (*--srcptr)) > 0xBF)
+			a = (*--p_srcptr);
+			if(a > 0xBF)
 				return false;
 			switch(*pSource) {
 				// no fall-through in this inner switch
@@ -5171,8 +5239,8 @@ bool SString::IsLegalUtf8() const
 	bool   ok = true;
 	const  size_t _len = Len();
 	for(size_t idx = 0; ok && idx < _len;) {
-		const uint8 * p = reinterpret_cast<const uint8 *>(P_Buf+idx);
-		const size_t extra = SUtfConst::TrailingBytesForUTF8[*p];
+		const  uint8 * p = reinterpret_cast<const uint8 *>(P_Buf+idx);
+		const  uint    extra = SUtfConst::TrailingBytesForUTF8[*p];
 		if(extra == 0 && SUnicode::IsLegalUtf8Char(p, 1)) // @v11.8.5 @fix (condition && SUnicode::IsLegalUtf8Char(p, 1))
 			idx++;
 		else if(extra == 1) {
@@ -6119,7 +6187,7 @@ const SBitArray & SStringPool::GetMap() const
 SString * FASTCALL SStringPool::Alloc(uint * pPos)
 {
 	//assert(getCount() == BusyList.getCount()); // @debug
-	size_t p = BusyList.findFirst(0, 0);
+	uint   p = BusyList.findFirst(0, 0);
 	if(!p) {
 		BusyList.insert(1);
 		p = BusyList.getCount();
@@ -6156,7 +6224,7 @@ int FASTCALL SStringPool::Free(const SString * pS)
 
 int FASTCALL SStringPool::Free(const SBitArray & rMap)
 {
-	size_t i = rMap.getCount();
+	uint   i = rMap.getCount();
 	if(i) do {
 		--i;
 		if(!rMap.get(i))
@@ -9081,6 +9149,6 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 int STokenRecognizer::Run(const SString & rToken, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat)
 {
 	ImplementBlock ib;
-	int ok = Implement(ib, rToken.ucptr(), rToken.Len(), rResultList, pStat);
-	return ok ? PostImplement(ib, rToken.ucptr(), rToken.Len(), rResultList, pStat) : 0;	
+	int ok = Implement(ib, rToken.ucptr(), rToken.LenI(), rResultList, pStat);
+	return ok ? PostImplement(ib, rToken.ucptr(), rToken.LenI(), rResultList, pStat) : 0;
 }

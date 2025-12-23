@@ -989,7 +989,7 @@ DWORD __ptw32_get_exception_services_code()
  */
 #ifdef _MSC_VER
 	#pragma optimize("g", off)
-	#pragma warning( disable : 4748 )
+	#pragma warning(disable:4748 )
 #endif
 
 #if !defined (__MINGW32__) || (defined (__MSVCRT__) && !defined (__DMC__))

@@ -109,9 +109,9 @@ static __inline int signbit(double x)
 }
 #endif
 
-#pragma warning( disable: 4244 ) /* conversion from X to Y, possible loss of data */
-#pragma warning( disable: 4701 ) /* Potentially uninitialized local variable 'name' used */
-#pragma warning( disable: 4996 ) /* 'function': was declared deprecated */
+#pragma warning(disable: 4244 ) /* conversion from X to Y, possible loss of data */
+#pragma warning(disable: 4701 ) /* Potentially uninitialized local variable 'name' used */
+#pragma warning(disable: 4996 ) /* 'function': was declared deprecated */
 
 #if _MSC_VER <= 1700 /* MSVC 2012 */
 #define isnan(x) _isnan(x)

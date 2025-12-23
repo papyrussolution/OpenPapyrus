@@ -76,7 +76,7 @@ public:
 	int    DestroyPtr();
 	void * GetRawDataPtr();
 	const  void * GetRawDataPtrC() const;
-	size_t GetPtrSize() const;
+	uint32 GetPtrSize() const; // @v12.5.2 size_t-->uint32
 	//
 	// Descr: Сериализация данных.
 	// ARG(flatSize IN): размер, отведенный под буфер this.

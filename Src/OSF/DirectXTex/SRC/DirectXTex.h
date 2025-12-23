@@ -707,7 +707,7 @@ HRESULT __cdecl CaptureTexture(_In_ ID3D12CommandQueue* pCommandQueue, _In_ ID3D
 #endif
 
 #pragma warning(push)
-#pragma warning(disable : 4619 4616 4061)
+#pragma warning(disable:4619 4616 4061)
 
 #include "DirectXTex.inl"
 

@@ -5541,8 +5541,8 @@ int PersonOpCtrlGroup::ReplySelection(TDialog * pDlg)
 		for(uint i = 0; i < ary.getCount(); i++) {
 			PPPsnOpKindPacket pok_pack;
 			if(PokObj.GetPacket(ary.at(i), &pok_pack) > 0) {
-				PPID psn1k = pok_pack.PCPrmr.PersonKindID;
-				PPID psn2k = pok_pack.PCScnd.PersonKindID;
+				const  PPID psn1k = pok_pack.PCPrmr.PersonKindID;
+				const  PPID psn2k = pok_pack.PCScnd.PersonKindID;
 				SETIFZ(prev_psn1k, psn1k);
 				if(psn1k && prev_psn1k != psn1k)
 					disable_psn1 = true;
@@ -5551,6 +5551,7 @@ int PersonOpCtrlGroup::ReplySelection(TDialog * pDlg)
 					disable_psn2 = true;
 			}
 		}
+#pragma warning(disable:4312)
 		if(CtlselPsn1) {
 			SetupPPObjCombo(pDlg, CtlselPsn1, PPOBJ_PERSON, Data.PrmrID, OLW_LOADDEFONOPEN, reinterpret_cast<void *>(disable_psn1 ? 0 : prev_psn1k));
 			pDlg->disableCtrl(CtlselPsn1, disable_psn1);
@@ -5559,6 +5560,7 @@ int PersonOpCtrlGroup::ReplySelection(TDialog * pDlg)
 			SetupPPObjCombo(pDlg, CtlselPsn2, PPOBJ_PERSON, Data.ScndID, OLW_LOADDEFONOPEN, reinterpret_cast<void *>(disable_psn2 ? 0 : prev_psn2k));
 			pDlg->disableCtrl(CtlselPsn2, disable_psn2);
 		}
+#pragma warning(default:4312)
 		ok = 1;
 	}
 	return ok;
@@ -6717,7 +6719,8 @@ void TimePickerDialog::Implement_Draw()
 {
 	const int h = Data.hour();
 	const int m = Data.minut();
-	RECT   rect, btn_rect;
+	RECT   rect;
+	RECT   btn_rect;
 	SString temp_buf;
 	PAINTSTRUCT ps;
 	::BeginPaint(H(), &ps);
@@ -6768,14 +6771,14 @@ void TimePickerDialog::Implement_Draw()
 	if(TmRects.Minuts.getCount()) {
 		DrawMinutText(&canv);
 		DrawMinutsRect(&canv);
-		long minuts_in_line = (12 / TmRects.Minuts.getCount());
-		long min5 = 0;
+		long   minuts_in_line = (12 / TmRects.Minuts.getCount());
+		long   min5 = 0;
 		for(uint i = 0; i < TmRects.Minuts.getCount(); i++) {
 			for(long j = 0; j < minuts_in_line; j++) {
-				uint font_id = fontWorkHours;
-				long delta = TmRects.MinDelta;
-				long x = TmRects.Minuts.at(i).a.x + delta * j;
-				long y = TmRects.Minuts.at(i).a.y;
+				uint   font_id = fontWorkHours;
+				const  long delta = TmRects.MinDelta;
+				const  long x = TmRects.Minuts.at(i).a.x + delta * j;
+				const  long y = TmRects.Minuts.at(i).a.y;
 				COLORREF color;
 				SPoint2S round_pt;
 				TRect  text_rect(x + 1, y + 1, x + delta - 1, y + delta -1);
@@ -6849,7 +6852,20 @@ void SetupTimePicker(TDialog * pDlg, uint editCtlID, int buttCtlID)
 		WNDPROC PrevWndProc;
 	};
 	HWND   hwnd = GetDlgItem(pDlg->H(), buttCtlID);
-	if(hwnd && pDlg->getCtrlView(editCtlID)) {
+	// @v12.5.2 {
+	bool   do_skip = false;
+	if(hwnd) {
+		void * p_wud = TView::GetWindowUserData(hwnd);
+		if(p_wud) {
+			if(TView::IsSubSign(static_cast<TView *>(p_wud), TV_SUBSIGN_BUTTON)) {
+				do_skip = true;		
+			}
+		}
+	}
+	else
+		do_skip = true;
+	// } @v12.5.2 
+	if(!do_skip && pDlg->getCtrlView(editCtlID)) {
 		static HBITMAP hbm_clock = 0; // @global @threadsafe
 		TimeButtonWndEx * p_cbwe = new TimeButtonWndEx(pDlg, editCtlID, static_cast<WNDPROC>(TView::GetWindowProp(hwnd, GWLP_WNDPROC)));
 		TView::SetWindowProp(hwnd, GWLP_USERDATA, p_cbwe);
@@ -9036,6 +9052,7 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 		designB = 2, // этикетка слева от строки ввода
 	};
 	bool   done = false;
+	bool   debug_mark = false; // @debug
 	SString temp_buf;
 	if(TView::IsSubSign(pView, TV_SUBSIGN_INPUTLINE)) {
 		int    design = designA;
@@ -9048,7 +9065,7 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 				design = designA;
 		}
 		{
-			CtmExprConst __c = pScope->GetConst(DlScope::cuifSupplement);
+			const CtmExprConst __c = pScope->GetConst(DlScope::cuifSupplement);
 			if(!!__c) {
 				uint8    c_buf[256];
 				if(rCtx.GetConstData(__c, c_buf, sizeof(c_buf))) {
@@ -9068,17 +9085,16 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 		SUiLayoutParam * p_lb_ib = 0; // Указатель на лейаут для пары {поле ввода; supplemental-кнопка}. if p_lb_ib != 0 then нужно воткнуть supplement-button
 		//SUiLayoutParam lp_supplement_button; // Лейаут для supplemental-кнопки
 		SPoint2F sb_sz; // Размер supplemental-button
-		float inp_width = 0.0f;
-		float inp_height = 0.0f;
-		float label_width = 0.0f;
-		float label_height = 0.0f;
-		const int inp_szx = rLp.GetSizeX(&inp_width);
-		const int inp_szy = rLp.GetSizeY(&inp_height);
-
+		float  inp_width = 0.0f;
+		float  inp_height = 0.0f;
+		float  label_width = 0.0f;
+		float  label_height = 0.0f;
+		const  int inp_szx = rLp.GetSizeX(&inp_width);
+		const  int inp_szy = rLp.GetSizeY(&inp_height);
 		SUiLayoutParam lp_label_org; // Параметры label, созданные описанием
-		const bool glb_label_org_r = rCtx.GetLayoutBlock(pScope, DlScope::cuifLblLayoutBlock, &lp_label_org);
-		const int label_szx = lp_label_org.GetSizeX(&label_width);
-		const int label_szy = lp_label_org.GetSizeY(&label_height);
+		const  bool glb_label_org_r = rCtx.GetLayoutBlock(pScope, DlScope::cuifLblLayoutBlock, &lp_label_org);
+		const  int label_szx = lp_label_org.GetSizeX(&label_width);
+		const  int label_szy = lp_label_org.GetSizeY(&label_height);
 		if(lp_label_org.LinkRelation) {
 			;//debug_mark = true;
 		}
@@ -9086,6 +9102,9 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 			p_supplemental_view = pDlg->getCtrlView(supplement.Ident);
 			if(!TView::IsSubSign(p_supplemental_view, TV_SUBSIGN_BUTTON))
 				p_supplemental_view = 0;
+		}
+		if(inp_szy != SUiLayoutParam::szFixed) {
+			debug_mark = true;
 		}
 		if(p_lbl) {
 			// SUiLayoutParam lp_label(lp_label_org); // @v12.3.9 lp_label()-->lp_label(glb_label_org_r)
@@ -9188,7 +9207,7 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 			else if(design == designA) {
 				SUiLayoutParam glp(DIREC_VERT); // Группирующий лейаут для строки ввода и подписи (label)
 				//
-				glp.SetFixedSizeY(inp_height + rc_label.height() + 1.0f);
+				// @v12.5.2 glp.SetFixedSizeY(inp_height + rc_label.height() + 1.0f);
 				//
 				// Пока для случая supplement сделаем отдельную ветку кода. Потом унифицируем.
 				// 
@@ -9199,17 +9218,29 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 					lp_sb.SetFixedSizeY(sb_sz.y);
 					lp_sb.ShrinkFactor = 0.0f;
 
-					lp_il.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-					lp_il.SetFixedSizeY(FixedInputY);
+					// @v12.5.2 lp_il.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+					// @v12.5.2 lp_il.SetFixedSizeY(FixedInputY);
 
 					lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 					lp_label.SetFixedSizeY(static_cast<float>(rc_label.height()));
 
 					glp.Margin = rLp.Margin;
 					rLp.CopySizeXParamTo(glp);
-					glp.SetGrowFactor(rLp.GrowFactor);
-					rLp.GrowFactor = 0.0f; // @v12.3.7
-
+					// @v12.5.2 {
+					if(inp_szy == SUiLayoutParam::szFixed) {
+						glp.SetFixedSizeY(inp_height + rc_label.height() + 1.0f);
+						lp_il.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+						lp_il.SetFixedSizeY(FixedInputY);
+					}
+					else if(rLp.GrowFactor >= 0.0f) {
+						glp.SetGrowFactor(rLp.GrowFactor);
+						rLp.GrowFactor = 0.0f;
+						lp_il.SetGrowFactor(1.0f); 
+					}
+					// } @v12.5.2 
+					// @v12.5.2 glp.SetGrowFactor(rLp.GrowFactor);
+					// @v12.5.2 rLp.GrowFactor = 0.0f; // @v12.3.7
+					//
 					SUiLayout * p_lo_inp_grp = pLoParent->InsertItem(0, &glp);
 					InsertCtrlLayout(pDlg, p_lo_inp_grp, p_lbl, lp_label);
 					SUiLayout * p_lo_ib_grp = p_lo_inp_grp->InsertItem(0, p_lb_ib);
@@ -9243,7 +9274,20 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 					//lp_supplement_button.SetFixedSizeX(20.0f); // @v12.3.7
 					glp.ShrinkFactor = 0.0f;
 					glp.Flags &= ~(SUiLayoutParam::fContainerWrap|SUiLayoutParam::fContainerWrapReverse);
-					rLp.SetFixedSizeY(inp_height);
+					// @v12.5.2 {
+					if(inp_szy == SUiLayoutParam::szFixed) {
+						glp.SetFixedSizeY(inp_height + rc_label.height() + 1.0f);
+						rLp.SetFixedSizeY(inp_height);
+						//lp_il.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+						//lp_il.SetFixedSizeY(FixedInputY);
+					}
+					else if(rLp.GrowFactor >= 0.0f) {
+						glp.SetGrowFactor(rLp.GrowFactor);
+						rLp.GrowFactor = 1.0f;
+						//lp_il.SetGrowFactor(1.0f); 
+					}
+					// } @v12.5.2 
+					// @v12.5.2 rLp.SetFixedSizeY(inp_height);
 					rLp.ShrinkFactor = 0.0f;
 					glp.Margin = rLp.Margin;
 					rLp.Margin.Z();

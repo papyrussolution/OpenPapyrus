@@ -67,7 +67,7 @@ typedef struct {
 // Suppress waning about info never being used
 
 #ifdef _MSC_VER
-#pragma warning(disable : 4100)
+#pragma warning(disable:4100)
 #endif
 
 // Unpacking routines (16 bits) ----------------------------------------------------------------------------------------

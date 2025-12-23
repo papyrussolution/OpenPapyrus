@@ -74,8 +74,8 @@
 /* possible loss of data' in order to compile cleanly with */
 /* the maximum level of warnings: zlib is non-FreeType     */
 /* code.                                */
-#pragma warning( push )
-#pragma warning( disable : 4244 )
+#pragma warning(push)
+#pragma warning(disable:4244 )
 #endif /* _MSC_VER */
 
 /* Urgh.  `inflate_mask' must not be declared twice -- C++ doesn't like
@@ -97,7 +97,7 @@
 // @sobolev #include "adler32.c"
 
 #if defined( _MSC_VER )
-#pragma warning( pop )
+	#pragma warning(pop)
 #endif
 
 #endif /* !FT_CONFIG_OPTION_SYSTEM_ZLIB */

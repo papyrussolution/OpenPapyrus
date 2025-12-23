@@ -3372,7 +3372,7 @@ const XMVECTORF32 g_ErrorWeight7 = { { { 7.f / 16.f, 7.f / 16.f, 7.f / 16.f, 7.f
 }
 
 #pragma warning(push)
-#pragma warning( disable : 4127 )
+#pragma warning(disable:4127 )
 
 _Use_decl_annotations_ bool DirectX::Internal::StoreScanlineDither(void* pDestination,
     size_t size,

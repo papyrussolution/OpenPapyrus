@@ -67,24 +67,47 @@ void SylkWriter::PutRec(int typeChr, const char * pStr)
 
 int SylkWriter::PutVal(const char * pStr, int cvtOemToChr)
 {
-	char   temp_buf[512]; // @v11.7.1 [128]-->[512]
-	if(pStr) {
-		size_t d = 0;
-		const char * s = pStr;
-		while(*s && d < sizeof(temp_buf)-2) {
-			if(*s == ';')
-				temp_buf[d++] = ';';
-			temp_buf[d++] = *s++;
+	/* @v12.5.2 {
+		char   temp_buf[512]; // @v11.7.1 [128]-->[512]
+		if(!isempty(pStr)) {
+			size_t d = 0;
+			const char * s = pStr;
+			while(*s && d < sizeof(temp_buf)-2) {
+				if(*s == ';')
+					temp_buf[d++] = ';';
+				temp_buf[d++] = *s++;
+			}
+			temp_buf[d] = 0;
+			if(cvtOemToChr)
+				SOemToChar(temp_buf);
 		}
-		temp_buf[d] = 0;
-		if(cvtOemToChr)
-			SOemToChar(temp_buf);
+		else
+			temp_buf[0] = 0;
+		if(Stream)
+			fprintf(Stream, "C;K\"%s\"\n", temp_buf);
+		Buf.Cat("C;K\"").Cat(temp_buf).CatChar('\"').CR();
+	}*/
+	// @v12.5.2 {
+	{
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		if(!isempty(pStr)) {
+			size_t d = 0;
+			const char * s = pStr;
+			while(*s) {
+				if(*s == ';') {
+					r_temp_buf.Semicol();
+				}
+				r_temp_buf.CatChar(*s++);
+			}
+			if(cvtOemToChr) {
+				r_temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+			}
+		}
+		if(Stream)
+			fprintf(Stream, "C;K\"%s\"\n", r_temp_buf.cptr());
+		Buf.Cat("C;K\"").Cat(r_temp_buf).CatChar('\"').CR();
 	}
-	else
-		temp_buf[0] = 0;
-	if(Stream)
-		fprintf(Stream, "C;K\"%s\"\n", temp_buf);
-	Buf.Cat("C;K\"").Cat(temp_buf).CatChar('\"').CR();
+	// } @v12.5.2 
 	return 1;
 }
 
@@ -548,7 +571,7 @@ int BrowserWindow::RestoreUserSettings()
 					const BroColumn & r_col = p_def_->at(i);
 					const long _p = (r_col.OrgOffs == 0xffff) ? r_col.Offs : r_col.OrgOffs;
 					if(_p == org_offs) {
-						if(cwidth_chr > 0 && cwidth_chr < 0x0fffU && (cwidth_chr <= (r_col.CWidthOrg * 5))) { // @v12.5.0 аварийное условие (cwidth_chr <= (r_col.CWidthOrg * 5))
+						if(cwidth_chr > 0 && cwidth_chr < 0x0fffU && (cwidth_chr <= (r_col.CWidthOrg * 7))) { // @v12.5.0 аварийное условие (cwidth_chr <= (r_col.CWidthOrg * 5)) // @v12.5.2 *5-->*7
 							SetCWidth(i, static_cast<uint>(cwidth_chr), 0/*newWidthPx*/);
 							p_def_->at(i).State |= BroColumn::stSizeSet;
 						}
@@ -1825,12 +1848,12 @@ void BrowserWindow::DrawMultiLinesText(HDC hdc, const char * pBuf, RECT * pTextR
 			RECT   rect = *pTextRect;
 			StringSet ss('\n', pBuf);
 			for(uint i = 0; ss.get(&i, temp_buf); rect.top += YCell, rect.bottom += YCell) {
-				::DrawTextW(hdc, SUcSwitchW(temp_buf), static_cast<int>(temp_buf.Len()), &rect, _fmt);
+				::DrawTextW(hdc, SUcSwitchW(temp_buf), temp_buf.LenI(), &rect, _fmt);
 			}
 		}
 		// @v12.3.8 {
 		else {
-			::DrawTextW(hdc, SUcSwitchW(pBuf), strlen(pBuf), pTextRect, _fmt);
+			::DrawTextW(hdc, SUcSwitchW(pBuf), sstrleni(pBuf), pTextRect, _fmt);
 		}
 		// } @v12.3.8 
 	}

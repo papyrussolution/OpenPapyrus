@@ -249,7 +249,7 @@ static void cipher_idea(uint16 in[4], uint16 out[4], IDEAkey Z)
 // Microsoft specific
 // warning C4244: '=' : conversion from 'unsigned long' to
 // 'unsigned short', possible loss of data
-#pragma warning (disable : 4244)
+#pragma warning(disable:4244)
 	uint16 x1, x2, x3, x4, s2, s3;
 #ifndef SMALL_CACHE
 	uint16 t16;
@@ -286,7 +286,7 @@ static void cipher_idea(uint16 in[4], uint16 out[4], IDEAkey Z)
 	MUL(x4, *Z);
 	*out = x4;
 // Microsoft specific
-#pragma warning (default : 4244)
+#pragma warning(default:4244)
 }
 
 #pragma warn .pia

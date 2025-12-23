@@ -1928,7 +1928,7 @@ int PPWhatmanWindow::ScrollBlock::SetupWindow(HWND hWnd) const
 	return ok;
 }
 
-#pragma warning(disable : 4355) // Запрет замечания о том, что this используется в списке инициализации
+#pragma warning(disable:4355) // Запрет замечания о том, что this используется в списке инициализации
 
 PPWhatmanWindow::PPWhatmanWindow(int mode) : TWindowBase(_T("SLibWindowBase"), wbcDrawBuffer), W(this)
 {
@@ -2005,7 +2005,7 @@ PPWhatmanWindow::PPWhatmanWindow(int mode) : TWindowBase(_T("SLibWindowBase"), w
 	}
 }
 
-#pragma warning(default : 4355)
+#pragma warning(default:4355)
 
 PPWhatmanWindow::~PPWhatmanWindow()
 {

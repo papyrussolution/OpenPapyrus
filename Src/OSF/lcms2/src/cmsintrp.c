@@ -20,9 +20,9 @@
 
 // Some people may want to compile as C++ with all warnings on, in this case make compiler silent
 #ifdef _MSC_VER
-#if(_MSC_VER >= 1400)
-#pragma warning( disable : 4365 )
-#endif
+	#if(_MSC_VER >= 1400)
+		#pragma warning(disable:4365 )
+	#endif
 #endif
 
 // Interpolation routines by default

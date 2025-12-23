@@ -211,7 +211,7 @@ typedef CRITICAL_SECTION _cmsMutex;
 
 #ifdef _MSC_VER
 	#if(_MSC_VER >= 1800)
-		#pragma warning(disable : 26135)
+		#pragma warning(disable:26135)
 	#endif
 #endif
 #ifndef CMS_RELY_ON_WINDOWS_STATIC_MUTEX_INIT

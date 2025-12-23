@@ -95,7 +95,6 @@ public:
 	 * @stable ICU 1.8
 	 */
 	inline char16_t charAt(int32_t offset) const;
-
 	/**
 	 * Returns the 32-bit code point at the given 16-bit offset into
 	 * the text.  This assumes the text is stored as 16-bit code units
@@ -109,7 +108,6 @@ public:
 	 * @stable ICU 1.8
 	 */
 	inline UChar32 char32At(int32_t offset) const;
-
 	/**
 	 * Copies characters in the range [<tt>start</tt>, <tt>limit</tt>)
 	 * into the UnicodeString <tt>target</tt>.
@@ -120,10 +118,7 @@ public:
 	 * @return A reference to <TT>target</TT>
 	 * @stable ICU 2.1
 	 */
-	virtual void extractBetween(int32_t start,
-	    int32_t limit,
-	    UnicodeString & target) const = 0;
-
+	virtual void extractBetween(int32_t start, int32_t limit, UnicodeString & target) const = 0;
 	/**
 	 * Replaces a substring of this object with the given text.  If the
 	 * characters being replaced have metadata, the new characters
@@ -144,9 +139,7 @@ public:
 	 * to <code>limit - 1</code>
 	 * @stable ICU 2.0
 	 */
-	virtual void handleReplaceBetween(int32_t start,
-	    int32_t limit,
-	    const UnicodeString & text) = 0;
+	virtual void handleReplaceBetween(int32_t start, int32_t limit, const UnicodeString & text) = 0;
 	// Note: All other methods in this class take the names of
 	// existing UnicodeString methods.  This method is the exception.
 	// It is named differently because all replace methods of
@@ -173,7 +166,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	virtual void copy(int32_t start, int32_t limit, int32_t dest) = 0;
-
 	/**
 	 * Returns true if this object contains metadata.  If a
 	 * Replaceable object has metadata, calls to the Replaceable API
@@ -227,20 +219,13 @@ protected:
 	virtual UChar32 getChar32At(int32_t offset) const = 0;
 };
 
-inline Replaceable::Replaceable() {
+inline Replaceable::Replaceable() 
+{
 }
 
-inline int32_t Replaceable::length() const {
-	return getLength();
-}
-
-inline char16_t Replaceable::charAt(int32_t offset) const {
-	return getCharAt(offset);
-}
-
-inline UChar32 Replaceable::char32At(int32_t offset) const {
-	return getChar32At(offset);
-}
+inline int32_t Replaceable::length() const { return getLength(); }
+inline char16_t Replaceable::charAt(int32_t offset) const { return getCharAt(offset); }
+inline UChar32 Replaceable::char32At(int32_t offset) const { return getChar32At(offset); }
 
 // There is no rep.cpp, see unistr.cpp for Replaceable function implementations.
 

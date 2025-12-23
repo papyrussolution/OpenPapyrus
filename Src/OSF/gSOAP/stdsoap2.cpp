@@ -27,7 +27,7 @@
 		#else
 			#pragma comment(lib, "ws2_32.lib")
 		#endif
-		#pragma warning(disable : 4996) /* disable deprecation warnings */
+		#pragma warning(disable:4996) /* disable deprecation warnings */
 	#endif
 #endif
 

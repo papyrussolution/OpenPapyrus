@@ -24,7 +24,7 @@ U_NAMESPACE_BEGIN
 #if defined(_MSC_VER)
 // Ignore warning 4661 as LocalPointerBase does not use operator== or operator!=
 #pragma warning(push)
-#pragma warning(disable : 4661)
+#pragma warning(disable:4661)
 #endif
 template class U_I18N_API LocalPointerBase<number::impl::AdoptingModifierStore>;
 template class U_I18N_API LocalPointer<number::impl::AdoptingModifierStore>;

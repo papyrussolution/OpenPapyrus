@@ -28,7 +28,7 @@
 
 #if !defined (__PTW32_STATIC_LIB)
 #if defined(_MSC_VER)
-	#pragma warning( disable : 4100 ) // lpvReserved yields an unreferenced formal parameter; ignore it
+	#pragma warning(disable:4100 ) // lpvReserved yields an unreferenced formal parameter; ignore it
 #endif
 
 __PTW32_BEGIN_C_DECLS

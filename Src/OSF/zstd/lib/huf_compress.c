@@ -18,7 +18,7 @@
 // Compiler specifics
 // 
 #ifdef _MSC_VER    /* Visual Studio */
-	#pragma warning(disable : 4127)        /* disable: C4127: conditional expression is constant */
+	#pragma warning(disable:4127) // disable: C4127: conditional expression is constant
 #endif
 #include <zstd_deps.h>     /* memcpy, memset */
 #include <compiler.h>

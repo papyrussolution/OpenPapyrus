@@ -8,7 +8,7 @@
 #pragma hdrstop
 #ifdef _OPENMP
 	#include <omp.h>
-	#pragma warning(disable : 4616 6993)
+	#pragma warning(disable:4616 6993)
 #endif
 #include "BC.h"
 

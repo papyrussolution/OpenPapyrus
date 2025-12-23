@@ -2275,64 +2275,69 @@ dialog DLG_ALCREPCFG [vertical title: "@cfg_alcreport" size: (990, 525) minsize:
 	}
 }
 
-// @20251218 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
-// Диалоги, представленные здесь с изменными символами (DLG_CASHREPORTS_L__, например) в ppdlg.list не отмечены поскольку находятся в работе.
-
-// @construction
-dialog DLG_WMSBILL__ [vertical title: "@oprcategory_wms" size: (530, 350) minsize: (530, 350) font: "MS Shell Dlg,8"] {
-	view [horizontal] {
-		input CTL_BILL_DOC [size: (143, 21) tabstop label: "@billno" labelsize: (96, 13) ] string[48];
-		input CTL_BILL_DATE [size: (90, 21) tabstop fmtf: (dmy) label: "@date" labelsize: (30, 13) ] date;
+dialog DLG_TODO [vertical title: "@prjtask" size: (680, 595) minsize: (680, 595) padding: 4 font: "MS Shell Dlg,8"] { 
+	view [horizontal width: bycontainer height: 43] {
+		combobox CTLSEL_TODO_PRJ [tabstop growfactor: 3 height: 21 margin: 4 label: "@project" labelsize: (0, 13) cblinesymb: CTL_TODO_PRJ];
+		combobox CTLSEL_TODO_PHASE [tabstop growfactor: 2 height: 21 margin: 4 label: "@prjphase" labelsize: (0, 13) cblinesymb: CTL_TODO_PHASE];
 	}
-	view [vertical width: bycontainer] {
-		combobox CTLSEL_BILL_PERSON [tabstop width: bycontainer height: 21 margin: 4 label: "@contractor" labelsize: (0, 13) cblinesymb: CTL_BILL_PERSON];
-		statictext CTL_BILL_ST_PARENTPERSON [width: bycontainer height: 13 margin: (4, 1, 4, 4)];
-		statictext CTL_BILL_OBJ2NAME [title: "@bill_object2" width: bycontainer height: 13 margin: (4, 4, 4, 1)];
-		combobox CTLSEL_BILL_OBJ2 [tabstop width: bycontainer height: 21 margin: 4 cblinesymb: CTL_BILL_OBJ2];
-	}
-	statictext CTL_BILL_ST_LINKBILL [width: bycontainer height: 16 staticedge];
-	view [horizontal] {
-		statictext CTL_BILL_ST_SCARD [size: (165, 24)  staticedge];
-		statictext CTL_BILL_STATUS [title: "Status" size: (135, 24)  staticedge];
-	}
-	input CTL_BILL_MEMO [width: bycontainer(100) height: 21 margin: 4 tabstop label: "@memo" labelsize: (0, 13) ] string[160];
-	button CTL_BILL_DETAIL [title: "@but_billdetail" tabstop size: (113, 21)  command: cmDetail];
-	button CTL_CMD_BILLEXTRA [title: "@{addendum}..." tabstop size: (99, 21)  command: cmBillExtra];
-	button CTL_BILL_FREIGHTBUTTON [title: "@but_freight" tabstop size: (75, 21)  command: cmBillFreight];
-	button CTL_BILL_LINKFILESBUTTON [title: "@but_files" tabstop size: (75, 21)  command: cmLinkFiles];
-	listbox CTL_BILL_LNKFILELIST [size: (83, 33)  columns: "68,L,@attachedfile"];
-	button CTLMNU_BILL_DOC [title: "" size: (21, 21)  command: cmLocalMenu];
-	button CTLMNU_BILL_MEMO [title: "" size: (21, 21)  command: cmLocalMenu];
-	
-	view [horizontal width: bycontainer(100) growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
-		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
-		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
-	}
-}
-
-// @construction. Лейаут готов, но проблема со шрифтами. Управляющие элементы получают default-шрифты а для этого диалог так не годится (он специально большим сделан).
-dialog DLG_CASHREPORTS_L__ [vertical title: "@posnodecmd" size: (595, 525) minsize: (595, 525) font: "MS Shell Dlg 2,16" alignitems: center justifycontent: spaceevenly] {
-	// (все равно он в программе делается невидимым) input CTL_CSPANEL_INPUT [width: bycontainer height: 41 margin: (8, 8, 8, 16) tabstop] string[64];
-	view [horizontal width: bycontainer(80) growfactor: 4] {
-		view [vertical growfactor: 1 height: bycontainer] {
-			button CTL_CSPANEL_XREP [title: "@posnodecmd_sync_xreport" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSXReport];
-			button CTL_CSPANEL_CSESSCLOSE [title: "@posnodecmd_sync_closesess" tabstop width: bycontainer height: 50 margin: 8 command: cmCSClose];
-			button CTL_CMD_SCSINCASSO [title: "@posnodecmd_sync_encashment" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSIncasso];
-			button CTL_CMD_SCSLOCK [title: "@posnodecmd_sync_lock" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSLock];
-		}
-		view [vertical growfactor: 1 height: bycontainer] {
-			button CTL_CMD_SCSPRINTCHECKCOPY [title: "@posnodecmd_sync_printcheckcopy" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSPrintCheckCopy];
-			button CTL_CSPANEL_CSESSOPEN [title: "@posnodecmd_sync_opensess" tabstop width: bycontainer height: 50 margin: 8 command: cmCSOpen];
-			button CTL_CMD_SCSZREPORTCOPY [title: "@posnodecmd_sync_zreportcopy" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSZReportCopy];
-			button CTL_CMD_SCSUNLOCK [title: "@posnodecmd_sync_unlock" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSUnlock];
+	view [horizontal width: bycontainer height: 43] {
+		combobox CTLSEL_TODO_TEMPLATE [tabstop growfactor: 3 height: 21 margin: 4 label: "@template" labelsize: (0, 13) cblinesymb: CTL_TODO_TEMPLATE ];
+		view [horizontal growfactor: 4 height: bycontainer] {
+			input CTL_TODO_CODE [growfactor: 2 height: 21 margin: 4 tabstop label: "@code" labelsize: (0, 13) ] string[24];
+			input CTL_TODO_LINKTASK [growfactor: 2 height: 21 margin: 4 tabstop label: "@prjtask_linktaskcode" labelsize: (0, 13)] string[24];
+			input CTL_TODO_ID [growfactor: 1 height: 21 margin: 4 tabstop readonly label: "@id" labelsize: (0, 13) fmtf: (nozero)] int32;
 		}
 	}
-	view [vertical width: bycontainer(80) growfactor: 2] {
-		button CTL_CMD_SCSDRAWEROPEN [title: "@posnodecmd_sync_opendrawer" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSDrawerOpen];
-		button CTL_CSPANEL_RESETCHZNPMSVRADDR [title: "@posnodecmd_sync_resetchznpmsvraddr" tabstop width: bycontainer height: 50 margin: 8 command: cmCSResetChZnPmSvrAddr];
+	view [horizontal width: bycontainer height: 210] {
+		view [vertical growfactor: 3 height: bycontainer] {
+			framebox [horizontal width: bycontainer height: 50 padding: (4, 12, 4, 4) label: "@prjtask_datetime"] {
+				input CTL_TODO_DT [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (dmy)] date supplement datecalbutton(CTLCAL_TODO_DT);
+				input CTL_TODO_TM [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (hms)] time supplement timebutton(CTLCAL_TODO_TM);
+			}
+			framebox [horizontal width: bycontainer height: 50 padding: (4, 12, 4, 4) label: "@prjtask_startdatetime"] {
+				input CTL_TODO_START [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (dmy)] date supplement datecalbutton(CTLCAL_TODO_START);
+				input CTL_TODO_STARTTM [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (hms)] time supplement timebutton(CTLTM_TODO_STARTTM);
+			}
+			framebox [horizontal width: bycontainer height: 50 padding: (4, 12, 4, 4) label: "@prjtask_estfinishdt"] {
+				input CTL_TODO_ESTFINISH [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (dmy)] date supplement datecalbutton(CTLCAL_TODO_ESTFINISH);
+				input CTL_TODO_ESTFINISHTM [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (hms)] time supplement timebutton(CTLTM_TODO_ESTFINISHTM);
+			}
+			framebox [horizontal width: bycontainer height: 50 padding: (4, 11, 4, 4) label: "@prjtask_finishdt"] {
+				input CTL_TODO_FINISH [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (dmy)] date supplement datecalbutton(CTLCAL_TODO_FINISH);
+				input CTL_TODO_FINISHTM [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (hms)] time supplement timebutton(CTLTM_TODO_FINISHTM);
+			}
+		}
+		view [vertical growfactor: 5 height: bycontainer] {
+			combobox CTLSEL_TODO_CREATOR [tabstop width: bycontainer height: 21 margin: (4, 4, 4, 4) label: "@prjtask_creator" labelsize: (0, 13) cblinesymb: CTL_TODO_CREATOR];
+			combobox CTLSEL_TODO_EMPLOYER [tabstop width: bycontainer height: 21 margin: (4, 12, 4, 4) label: "@executor" labelsize: (0, 13) cblinesymb: CTL_TODO_EMPLOYER];
+			combobox CTLSEL_TODO_CLIENT [tabstop width: bycontainer height: 21 margin: (4, 12, 4, 4) label: "@client" labelsize: (0, 13) cblinesymb: CTL_TODO_CLIENT];
+			combobox CTLSEL_TODO_DLVRADDR [tabstop width: bycontainer height: 21 margin: (4, 12, 4, 4) label: "@address" labelsize: (0, 13) cblinesymb: CTL_TODO_DLVRADDR];
+		}
 	}
-	view [horizontal width: bycontainer(80) growfactor: 2 alignitems: center justifycontent: spaceevenly] {
-		button STDCTL_CANCELBUTTON [title: "@but_close" tabstop width: bycontainer height: 50 margin: 8 command: cmCancel];
+	view [horizontal width: bycontainer height: 43] {
+		input CTL_TODO_AMOUNT [growfactor: 2 height: 21 margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 2 label: "@amount" labelsize: (0, 13)] double;
+		view [horizontal growfactor: 5 height: bycontainer] {
+			combobox CTLSEL_TODO_PRIOR [tabstop growfactor: 1 height: 21 margin: 4 label: "@prjtask_priority" labelsize: (0, 13) cblinesymb: CTL_TODO_PRIOR];
+			combobox CTLSEL_TODO_STATUS [tabstop growfactor: 1 height: 21 margin: 4 label: "@status" labelsize: (0, 13) cblinesymb: CTL_TODO_STATUS];
+		}
+	}
+	view [horizontal width: bycontainer height: 43] {
+		view [horizontal growfactor: 2 height: bycontainer] {
+		}
+		combobox CTLSEL_TODO_BILLAR [tabstop growfactor: 5 height: 21 margin: 4 label: "@prjtask_billar" labelsize: (0, 13) cblinesymb: CTL_TODO_BILLAR];
+	}
+	view [vertical width: bycontainer growfactor: 1] {
+		input CTL_TODO_DESCR [width: bycontainer growfactor: 3 margin: 4 tabstop multiline wantreturn label: "@description" labelsize: (0, 13)] string[252];
+		input CTL_TODO_MEMO [width: bycontainer growfactor: 2 margin: 4 tabstop multiline wantreturn label: "@memo" labelsize: (0, 13)] string[252];
+	}
+	view [horizontal width: bycontainer height: 28 margin_right: 12] {
+		view [horizontal growfactor: 1 height: bycontainer] {
+			button STDCTL_TAGSBUTTON [title: "@but_tags" tabstop size: (90, 21) margin: 4 command: cmTags];
+		}
+		view [horizontal growfactor: 2 height: bycontainer justifycontent: end alignitems: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
 	}
 }
 
@@ -2426,10 +2431,97 @@ dialog DLG_SCARDSER [vertical title: "@scard_series" size: (695, 635) minsize: (
 			button CTL_SCARDSER_RESTRICTIONS [title: "@{scardrule_restrictions}..." tabstop width: bycontainer height: 21 margin: (4, 8, 4, 4) command: cmRestrictions];
 		}
 	}
-	//framebox [size: (255, 104) ];
-	//framebox [size: (405, 49) ];
 	view [horizontal width: bycontainer(100) height: 28 margin_right: 12 justifycontent: end] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_OBJTAGTYP [vertical title: "@tagtypeselection" size: (590, 295) minsize: (590, 295) font: "MS Shell Dlg,8" padding: 4] {
+	combobox CTLSEL_OBJTAG_TAGOBJTYP [width: bycontainer(60) height: 21 margin: 4 tabstop label: "@tagtypeselection_object" labelsize: (0, 13) cblinesymb: CTL_OBJTAG_TAGOBJTYP];
+	view [horizontal width: bycontainer growfactor: 1] {
+		radiocluster CTL_OBJTAG_TYPE [growfactor: 2 margin: 4 title: "@tagtypeselection_tagtype"] {
+			radiobutton [title: "@tag_taggroup" height: 16];
+			radiobutton [title: "@typboolean" height: 16];
+			radiobutton [title: "@typstring" height: 16];
+			radiobutton [title: "@typnumeric" height: 16];
+			radiobutton [title: "@typenumeration" height: 16];
+			radiobutton [title: "@date" height: 16];
+			radiobutton [title: "@typtimestamp" height: 16];
+			radiobutton [title: "@object" height: 16];
+			radiobutton [title: "GUID" height: 16];
+			radiobutton [title: "@typimage" height: 16];
+		}
+		view [vertical growfactor: 5 height: bycontainer] {
+			framebox [vertical width: bycontainer height: 90 margin: 4 padding: 4] {
+				combobox CTLSEL_OBJTAG_OBJTYP [width: bycontainer height: 21 margin: 4 tabstop label: "@objtype" labelsize: (0, 13) cblinesymb: CTL_OBJTAG_OBJTYP];
+				combobox CTLSEL_OBJTAG_OBJGRP [width: bycontainer height: 21 margin: 4 tabstop label: "@tagtypeselection_objectgrp" labelsize: (0, 13) cblinesymb: CTL_OBJTAG_OBJGRP];
+			}
+			view [horizontal width: bycontainer growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
+				button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
+				button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+			}
+		}
+	}
+}
+
+// @20251222 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
+// Диалоги, представленные здесь с изменными символами (DLG_CASHREPORTS_L__, например) в ppdlg.list не отмечены поскольку находятся в работе.
+
+// @construction
+dialog DLG_WMSBILL__ [vertical title: "@oprcategory_wms" size: (530, 350) minsize: (530, 350) font: "MS Shell Dlg,8"] {
+	view [horizontal] {
+		input CTL_BILL_DOC [size: (143, 21) tabstop label: "@billno" labelsize: (96, 13) ] string[48];
+		input CTL_BILL_DATE [size: (90, 21) tabstop fmtf: (dmy) label: "@date" labelsize: (30, 13) ] date;
+	}
+	view [vertical width: bycontainer] {
+		combobox CTLSEL_BILL_PERSON [tabstop width: bycontainer height: 21 margin: 4 label: "@contractor" labelsize: (0, 13) cblinesymb: CTL_BILL_PERSON];
+		statictext CTL_BILL_ST_PARENTPERSON [width: bycontainer height: 13 margin: (4, 1, 4, 4)];
+		statictext CTL_BILL_OBJ2NAME [title: "@bill_object2" width: bycontainer height: 13 margin: (4, 4, 4, 1)];
+		combobox CTLSEL_BILL_OBJ2 [tabstop width: bycontainer height: 21 margin: 4 cblinesymb: CTL_BILL_OBJ2];
+	}
+	statictext CTL_BILL_ST_LINKBILL [width: bycontainer height: 16 staticedge];
+	view [horizontal] {
+		statictext CTL_BILL_ST_SCARD [size: (165, 24)  staticedge];
+		statictext CTL_BILL_STATUS [title: "Status" size: (135, 24)  staticedge];
+	}
+	input CTL_BILL_MEMO [width: bycontainer(100) height: 21 margin: 4 tabstop label: "@memo" labelsize: (0, 13) ] string[160];
+	button CTL_BILL_DETAIL [title: "@but_billdetail" tabstop size: (113, 21)  command: cmDetail];
+	button CTL_CMD_BILLEXTRA [title: "@{addendum}..." tabstop size: (99, 21)  command: cmBillExtra];
+	button CTL_BILL_FREIGHTBUTTON [title: "@but_freight" tabstop size: (75, 21)  command: cmBillFreight];
+	button CTL_BILL_LINKFILESBUTTON [title: "@but_files" tabstop size: (75, 21)  command: cmLinkFiles];
+	listbox CTL_BILL_LNKFILELIST [size: (83, 33)  columns: "68,L,@attachedfile"];
+	button CTLMNU_BILL_DOC [title: "" size: (21, 21)  command: cmLocalMenu];
+	button CTLMNU_BILL_MEMO [title: "" size: (21, 21)  command: cmLocalMenu];
+	
+	view [horizontal width: bycontainer(100) growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+// @construction. Лейаут готов, но проблема со шрифтами. Управляющие элементы получают default-шрифты а для этого диалог так не годится (он специально большим сделан).
+dialog DLG_CASHREPORTS_L__ [vertical title: "@posnodecmd" size: (595, 525) minsize: (595, 525) font: "MS Shell Dlg 2,16" alignitems: center justifycontent: spaceevenly] {
+	// (все равно он в программе делается невидимым) input CTL_CSPANEL_INPUT [width: bycontainer height: 41 margin: (8, 8, 8, 16) tabstop] string[64];
+	view [horizontal width: bycontainer(80) growfactor: 4] {
+		view [vertical growfactor: 1 height: bycontainer] {
+			button CTL_CSPANEL_XREP [title: "@posnodecmd_sync_xreport" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSXReport];
+			button CTL_CSPANEL_CSESSCLOSE [title: "@posnodecmd_sync_closesess" tabstop width: bycontainer height: 50 margin: 8 command: cmCSClose];
+			button CTL_CMD_SCSINCASSO [title: "@posnodecmd_sync_encashment" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSIncasso];
+			button CTL_CMD_SCSLOCK [title: "@posnodecmd_sync_lock" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSLock];
+		}
+		view [vertical growfactor: 1 height: bycontainer] {
+			button CTL_CMD_SCSPRINTCHECKCOPY [title: "@posnodecmd_sync_printcheckcopy" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSPrintCheckCopy];
+			button CTL_CSPANEL_CSESSOPEN [title: "@posnodecmd_sync_opensess" tabstop width: bycontainer height: 50 margin: 8 command: cmCSOpen];
+			button CTL_CMD_SCSZREPORTCOPY [title: "@posnodecmd_sync_zreportcopy" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSZReportCopy];
+			button CTL_CMD_SCSUNLOCK [title: "@posnodecmd_sync_unlock" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSUnlock];
+		}
+	}
+	view [vertical width: bycontainer(80) growfactor: 2] {
+		button CTL_CMD_SCSDRAWEROPEN [title: "@posnodecmd_sync_opendrawer" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSDrawerOpen];
+		button CTL_CSPANEL_RESETCHZNPMSVRADDR [title: "@posnodecmd_sync_resetchznpmsvraddr" tabstop width: bycontainer height: 50 margin: 8 command: cmCSResetChZnPmSvrAddr];
+	}
+	view [horizontal width: bycontainer(80) growfactor: 2 alignitems: center justifycontent: spaceevenly] {
+		button STDCTL_CANCELBUTTON [title: "@but_close" tabstop width: bycontainer height: 50 margin: 8 command: cmCancel];
 	}
 }

@@ -61,7 +61,7 @@ typedef const char* (*TailCallParseFunc)(PROTOBUF_TC_PARAM_DECL);
 #if defined(_MSC_VER) && !defined(_WIN64)
 #pragma warning(push)
 // TcParseTableBase is intentionally overaligned on 32 bit targets.
-#pragma warning(disable : 4324)
+#pragma warning(disable:4324)
 #endif
 
 // Base class for message-level table with info for the tail-call parser.

@@ -511,7 +511,7 @@ private:
 	SerialArena::Memory Free(size_t* space_allocated);
 
 #ifdef _MSC_VER
-#pragma warning(disable : 4324)
+#pragma warning(disable:4324)
 #endif
 	struct alignas (64)ThreadCache {
 #if defined(GOOGLE_PROTOBUF_NO_THREADLOCAL)
@@ -543,7 +543,7 @@ private:
 	// arena creation. Make sure that other global variables are not sharing the
 	// cacheline.
 #ifdef _MSC_VER
-#pragma warning(disable : 4324)
+#pragma warning(disable:4324)
 #endif
 	struct alignas (64)CacheAlignedLifecycleIdGenerator {
 		std::atomic<LifecycleIdAtomic> id;

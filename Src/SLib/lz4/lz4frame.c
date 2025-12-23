@@ -28,7 +28,7 @@ You can contact the author at :
 // Compiler Options
 // 
 #ifdef _MSC_VER    /* Visual Studio */
-	#pragma warning(disable : 4127)        /* disable: C4127: conditional expression is constant */
+	#pragma warning(disable:4127) // disable: C4127: conditional expression is constant
 #endif
 // 
 // Tuning parameters

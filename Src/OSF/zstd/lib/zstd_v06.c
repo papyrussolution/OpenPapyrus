@@ -1188,8 +1188,8 @@ size_t FSEv06_readNCount(short* normalizedCounter, uint * maxSVPtr, uint32 * tab
 //
 #ifdef _MSC_VER    /* Visual Studio */
 	//#define FORCE_INLINE static __forceinline
-	#pragma warning(disable : 4127)        /* disable: C4127: conditional expression is constant */
-	#pragma warning(disable : 4214)        /* disable: C4214: non-int bitfields */
+	#pragma warning(disable:4127) // disable: C4127: conditional expression is constant
+	#pragma warning(disable:4214)        /* disable: C4214: non-int bitfields */
 //#else
 	//#if defined (__cplusplus) || defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L   /* C99 */
 		//#ifdef __GNUC__
@@ -1690,7 +1690,7 @@ MEM_STATIC size_t HUFv06_readStats(BYTE * huffWeight, size_t hwSize, uint32 * ra
 #endif
 
 #ifdef _MSC_VER    /* Visual Studio */
-#pragma warning(disable : 4127)        /* disable: C4127: conditional expression is constant */
+#pragma warning(disable:4127) // disable: C4127: conditional expression is constant
 #endif
 //
 // Error Management
@@ -2445,8 +2445,8 @@ const char* ZBUFFv06_getErrorName(size_t errorCode) { return ERR_getErrorName(er
 // Compiler specifics
 //
 #ifdef _MSC_VER    /* Visual Studio */
-	#pragma warning(disable : 4127)        /* disable: C4127: conditional expression is constant */
-	#pragma warning(disable : 4324)        /* disable: C4324: padded structure */
+	#pragma warning(disable:4127) // disable: C4127: conditional expression is constant
+	#pragma warning(disable:4324) // disable: C4324: padded structure
 #endif
 
 /*-*************************************

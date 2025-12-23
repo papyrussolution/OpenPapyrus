@@ -17,7 +17,7 @@
 // Compiler specifics
 //
 #if defined(_MSC_VER)
-	#pragma warning(disable : 4204)        /* disable: C4204: non-constant aggregate initializer */
+	#pragma warning(disable:4204)        /* disable: C4204: non-constant aggregate initializer */
 #endif
 
 #ifdef ZSTD_MULTITHREAD

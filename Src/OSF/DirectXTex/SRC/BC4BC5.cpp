@@ -21,7 +21,7 @@ namespace {
 // Structures
 //
 #pragma warning(push)
-#pragma warning(disable : 4201)
+#pragma warning(disable:4201)
 
 // BC4U/BC5U
 struct BC4_UNORM {

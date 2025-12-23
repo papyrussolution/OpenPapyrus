@@ -19,7 +19,7 @@
 #ifdef __cplusplus
 
 #ifdef __INTEL_COMPILER
-	#pragma warning(disable : 383 981 1418)
+	#pragma warning(disable:383 981 1418)
 	// for icc 64-bit
 	//#define __builtin_vsnprintf(a, b, c, d) __builtin_vsnprintf(a, b, c, (char *)d)
 #endif

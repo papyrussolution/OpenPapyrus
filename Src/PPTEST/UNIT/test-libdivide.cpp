@@ -13,7 +13,7 @@
 using namespace libdivide;
 
 #if defined(_MSC_VER)
-	#pragma warning(disable : 4146)
+	#pragma warning(disable:4146)
 #endif
 #define MIN_RANGE (UINT16_MAX/4U)
 #define LOOP_STEP 3

@@ -1166,43 +1166,6 @@ int PrcssrSourceCodeMaintaining::FindSourceCodeWithNotUtf8Encoding(PPLogger * pL
 							break;
 						}
 					}
-					/*if(f_in.ReadAll(file_buffer, 0, &actual_size)) {
-						assert(actual_size <= file_buffer.GetSize());
-						{
-							bool   local_ok = true;
-							for(size_t idx = 0; local_ok && idx < actual_size;) {
-								const uint8 * p = file_buffer.ucptr() + idx;
-								const size_t extra = SUtfConst::TrailingBytesForUTF8[*p];
-								if(extra == 0 && SUnicode::IsLegalUtf8Char(p, 1))
-									idx++;
-								else if(extra == 1) {
-									if(p[1] != 0 && SUnicode::IsLegalUtf8Char(p, 2))
-										idx += 2;
-									else
-										local_ok = false;
-								}
-								else if(extra == 2) {
-									if(p[1] != 0 && p[2] != 0 && SUnicode::IsLegalUtf8Char(p, 3))
-										idx += 3;
-									else
-										local_ok = false;
-								}
-								else {
-									const size_t tail = (actual_size - idx);
-									if((extra+1) <= tail && SUnicode::IsLegalUtf8Char(p, extra+1))
-										idx += (1+extra);
-									else
-										local_ok = false;
-								}
-							}
-							if(!local_ok) {
-								NoticedFileEntry * p_new_entry = problem_list.CreateNewItem();
-								if(p_new_entry) {
-									p_new_entry->FileName = file_path;
-								}
-							}
-						}					
-					}*/
 				}
 				PPWaitPercent(i+1, fep.GetCount());
 			}

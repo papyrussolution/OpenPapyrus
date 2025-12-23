@@ -1038,8 +1038,8 @@ void TInputLine::setState(uint newState, bool enable)
 			SLS.GetExtraProcBlock(&epb);
 			if(epb.F_UiFindSupplementWindow) {
 				const int supplement_type_list[] = {
-					SUiCtrlSupplement::kDateCalendar, SUiCtrlSupplement::kDateRangeCalendar
-				};
+					SUiCtrlSupplement::kDateCalendar, SUiCtrlSupplement::kDateRangeCalendar, SUiCtrlSupplement::kTime
+				}; // @v12.5.2 SUiCtrlSupplement::kTime
 				HWND h_parent = Parent;
 				for(uint i = 0; i < SIZEOFARRAY(supplement_type_list); i++) {
 					const int st = supplement_type_list[i];

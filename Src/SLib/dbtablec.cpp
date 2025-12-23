@@ -215,7 +215,7 @@ bool SLob::Copy(const SLob & rS) // @v12.4.1
 	bool   ok = false;
 	Empty();
 	if(rS.IsStructured()) {
-		const size_t src_size = rS.GetPtrSize();
+		const uint32 src_size = rS.GetPtrSize();
 		if(InitPtr(src_size)) {
 			void * p_dest = GetRawDataPtr();
 			const void * p_src = rS.GetRawDataPtrC();
@@ -259,7 +259,7 @@ const void * SLob::GetRawDataPtrC() const
 	}
 }
 
-size_t SLob::GetPtrSize() const 
+uint32 SLob::GetPtrSize() const 
 { 
 #ifdef NDEBUG
 	return (IsStructured() && Buf.H.Flags & hfPtr) ? Buf.H.PtrSize : 0; 
@@ -418,7 +418,7 @@ int DBLobBlock::SetSize(uint fldIdx, size_t sz)
 	int    ok = SearchPos(fldIdx, &pos);
 	if(ok > 0) {
 		DBLobItem * p_item = static_cast<DBLobItem *>(at(pos));
-		p_item->Size = sz;
+		p_item->Size = static_cast<uint32>(sz);
 	}
 	return ok;
 }
@@ -809,8 +809,8 @@ void DBTable::CopyBufFrom(const void * pBuf, size_t srcBufSize)
 
 int DBTable::CopyBufLobFrom(const void * pBuf, size_t srcBufSize)
 {
-	constexpr bool experimental = true; // true in case of @debug MySQL 
-
+	//constexpr bool experimental = SlDebugMode::CT() ? true : false; // true in case of @debug MySQL 
+	constexpr bool experimental = false; // true in case of @debug MySQL 
 	int    ok = -1;
 	if(pBuf && P_DBuf) {
 		if(State & sHasLob) {
@@ -1071,7 +1071,7 @@ int DBTable::readLobData(DBField fld, SBuffer & rBuf) const
 	return ok;
 }
 
-int DBTable::writeLobData(DBField fld, const void * pBuf, size_t dataSize, int forceCanonical /*=0*/)
+int DBTable::writeLobData(DBField fld, const void * pBuf, size_t dataSize, int forceCanonical/*=0*/)
 {
 	int    ok = -1;
 	int    r;

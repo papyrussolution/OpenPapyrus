@@ -4430,34 +4430,8 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 				uint32 Size;
 				SBuffer SBuf;
 			};
-			int    ReadFilePrefix(HBlock & rH)
-			{
-				rH.Z();
-				int    ok = 1;
-				THROW(!(State & stError));
-				THROW_SL(F_Rd.IsValid());
-				{
-					THROW_SL(F_Rd.Read(&rH, sizeof(rH)));
-					THROW(rH.Signature == HSignature); // @todo @err
-				}
-				CATCHZOK
-				return ok;
-			}
-			int    ReadBlockPrefix(SBlock & rBlk)
-			{
-				rBlk.Z();
-				int    ok = 1;
-				THROW(!(State & stError));
-				THROW_SL(F_Rd.IsValid());
-				{
-					THROW_SL(F_Rd.Read(&rBlk.Signature, sizeof(rBlk.Signature)));
-					THROW(rBlk.Signature == BSignature); // @todo @err
-					THROW_SL(F_Rd.Read(&rBlk.Kind, sizeof(rBlk.Kind)));
-					THROW_SL(F_Rd.Read(&rBlk.Size, sizeof(rBlk.Size)));
-				}
-				CATCHZOK
-				return ok;
-			}
+			int    ReadFilePrefix(HBlock & rH);
+			int    ReadBlockPrefix(SBlock & rBlk);
 		public:
 			class ReadIterator {
 				friend class SourceTCollection;
@@ -4470,191 +4444,13 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 				int64  CurrentBlkOffs;
 				int64  NextBlkOffs;
 			};
-			SourceTCollection(int dummy, const char * pRdFileName, const char * pWrFileName) : 
-				TSCollection <SourceTEntry>(), State(0), CurrentRdBlock(0), CurrentRdOffs(0), CurrentWrOffs(0),
-				StoredTokenListBlockCount(0), RdFileSize(0)
-			{
-				if(!isempty(pRdFileName)) {
-					long   file_open_mode = SFile::mRead|SFile::mBinary|SFile::mNoStd;
-					if(F_Rd.Open(pRdFileName, file_open_mode)) {
-						if(!F_Rd.CalcSize(&RdFileSize)) {
-							State |= stError;
-						}
-					}
-					else {
-						State |= stError;
-					}
-				}
-				if(!isempty(pWrFileName)) {
-					long   file_open_mode = SFile::mReadWriteTrunc|SFile::mBinary|SFile::mNoStd;
-					if(!F_Wr.Open(pWrFileName, file_open_mode)) {
-						State |= stError;
-					}
-				}
-			}
+			SourceTCollection(int dummy, const char * pRdFileName, const char * pWrFileName);
 			// Поиск k ближайших соседей
-			int    FindKNearest(const TSVector <SourceTEntry::TokenItem> & rPattern, uint k, float threshold, RAssocArray & rResult) const
-			{
-				int    ok = 0;
-				for(uint i = 0; i < getCount(); i++) {
-					const SourceTEntry * p_se = at(i);
-					if(p_se) {
-						float cs = PrcssrTextSimilarityFinder::CosineSimilarity(rPattern, p_se->TokList_);
-						if(cs >= threshold) {
-							if(rResult.AddMaxK(static_cast<long>(p_se->ID), cs, k) > 0)
-								ok = 1;
-						}
-					}
-				}
-				return ok;
-			}
-			int    StoreFinish()
-			{
-				int    ok = 1;
-				//THROW(!(State & stReadOnly));
-				THROW(!(State & stError));
-				THROW(F_Wr.IsValid());
-				{
-					THROW_SL(F_Wr.Seek64(CurrentWrOffs));
-					if(CurrentWrOffs == 0) {
-						HBlock hblk;
-						THROW_SL(F_Wr.Write(&hblk, sizeof(hblk)));
-						CurrentWrOffs = F_Wr.Tell64();
-					}
-					const uint64 stat_offs = CurrentWrOffs;
-					{
-						SBlock sblk;
-						THROW(St_.Serialize(+1, sblk.SBuf, &SCtx));
-						const size_t buf_size = sblk.SBuf.GetAvailableSize();
-						sblk.Size = static_cast<uint32>(buf_size + sizeof(sblk.Signature) + sizeof(sblk.Kind) + sizeof(sblk.Size));
-						sblk.Kind = kStat;
-						THROW_SL(F_Wr.Write(&sblk.Signature, sizeof(sblk.Signature)));
-						THROW_SL(F_Wr.Write(&sblk.Kind, sizeof(sblk.Kind)));
-						THROW_SL(F_Wr.Write(&sblk.Size, sizeof(sblk.Size)));
-						THROW_SL(F_Wr.Write(sblk.SBuf.constptr(), buf_size));
-						CurrentWrOffs = F_Wr.Tell64();
-					}
-					{
-						HBlock hblk;
-						THROW_SL(F_Wr.Seek64(0, 0));
-						THROW_SL(F_Wr.Read(&hblk, sizeof(hblk)));
-						hblk.TokenListBlkCount = StoredTokenListBlockCount;
-						hblk.StatOffs = stat_offs;
-						THROW_SL(F_Wr.Seek64(0, 0));
-						THROW_SL(F_Wr.Write(&hblk, sizeof(hblk)));
-					}
-				}
-				CATCHZOK
-				return ok;
-			}
-			int    StoreTokenList()
-			{
-				int    ok = 1;
-				//THROW(!(State & stReadOnly));
-				THROW(!(State & stError));
-				THROW(F_Wr.IsValid());
-				if(!getCount()) {
-					ok = -1;
-				}
-				else {
-					THROW_SL(F_Wr.Seek64(CurrentWrOffs));
-					if(CurrentWrOffs == 0) {
-						HBlock hblk;
-						THROW_SL(F_Wr.Write(&hblk, sizeof(hblk)));
-						CurrentWrOffs = F_Wr.Tell64();
-					}
-					{
-						SBlock sblk;
-						THROW_SL(TSCollection_Serialize(*this, +1, sblk.SBuf, &SCtx));
-						{
-							const size_t buf_size = sblk.SBuf.GetAvailableSize();
-							sblk.Size = static_cast<uint32>(buf_size + sizeof(sblk.Signature) + sizeof(sblk.Kind) + sizeof(sblk.Size));
-							sblk.Kind = kTokenList;
-							THROW_SL(F_Wr.Write(&sblk.Signature, sizeof(sblk.Signature)));
-							THROW_SL(F_Wr.Write(&sblk.Kind, sizeof(sblk.Kind)));
-							THROW_SL(F_Wr.Write(&sblk.Size, sizeof(sblk.Size)));
-							THROW_SL(F_Wr.Write(sblk.SBuf.constptr(), buf_size));
-							CurrentWrOffs = F_Wr.Tell64();
-							StoredTokenListBlockCount++;
-						}
-					}
-				}
-				CATCHZOK
-				return ok;
-			}
-			int    StartReading(HBlock * pHBlk)
-			{
-				int    ok = 1;
-				HBlock hblk;
-				CurrentRdOffs = 0;
-				THROW(ReadFilePrefix(hblk));
-				CurrentRdOffs = F_Rd.Tell64();
-				{
-					SBlock sblk;
-					THROW_SL(F_Rd.Seek64(hblk.StatOffs, 0));
-					THROW_SL(F_Rd.Read(&sblk.Signature, sizeof(sblk.Signature)));
-					THROW(sblk.Signature == BSignature); // @todo @err
-					THROW_SL(F_Rd.Read(&sblk.Kind, sizeof(sblk.Kind)));
-					THROW(sblk.Kind == kStat); // @todo @err
-					THROW_SL(F_Rd.Read(&sblk.Size, sizeof(sblk.Size)));
-					{
-						const size_t sbuf_wr_offs = sblk.SBuf.GetWrOffs();
-						THROW(sblk.Size >= (sizeof(sblk.Signature) + sizeof(sblk.Kind) + sizeof(sblk.Size))); // @todo @err
-						const size_t buf_size = sblk.Size - (sizeof(sblk.Signature) + sizeof(sblk.Kind) + sizeof(sblk.Size));
-						sblk.SBuf.Write(0/*zero buf ptr - распределение пространства под данные*/, buf_size);
-						THROW_SL(F_Rd.Read(PTR8(sblk.SBuf.nonconstptr()) + sbuf_wr_offs, buf_size));
-					}
-					THROW(St_.Serialize(-1, sblk.SBuf, &SCtx));
-					THROW_SL(F_Rd.Seek64(CurrentRdOffs));
-				}
-				CATCHZOK
-				ASSIGN_PTR(pHBlk, hblk);
-				return ok;				
-			}
-			int    ReadTokenList(ReadIterator & rIter)
-			{
-				int    ok = 1;
-				int64  next_offs = rIter.NextBlkOffs;
-				int64  current_offs = 0;
-				SBlock sblk;
-				TSCollection <SourceTEntry>::clear();
-				THROW(!(State & stError));
-				THROW_SL(F_Rd.IsValid());
-				if(next_offs == 0) {
-					HBlock hblk;
-					THROW_SL(F_Rd.Seek64(0));
-					THROW(ReadFilePrefix(hblk))
-					next_offs = F_Rd.Tell64();
-				}
-				do {
-					if(next_offs >= RdFileSize) {
-						ok = -1;
-					}
-					else {
-						current_offs = next_offs;
-						THROW_SL(F_Rd.Seek64(next_offs));
-						THROW_SL(F_Rd.Read(&sblk.Signature, sizeof(sblk.Signature)));
-						THROW(sblk.Signature == BSignature); // @todo @err
-						THROW_SL(F_Rd.Read(&sblk.Kind, sizeof(sblk.Kind)));
-						THROW_SL(F_Rd.Read(&sblk.Size, sizeof(sblk.Size)));
-						next_offs += sblk.Size;
-					}
-				} while(ok > 0 && sblk.Kind != kTokenList);
-				if(ok > 0) {
-					const size_t sbuf_wr_offs = sblk.SBuf.GetWrOffs();
-					THROW(sblk.Size >= (sizeof(sblk.Signature) + sizeof(sblk.Kind) + sizeof(sblk.Size))); // @todo @err
-					const size_t buf_size = sblk.Size - (sizeof(sblk.Signature) + sizeof(sblk.Kind) + sizeof(sblk.Size));
-					sblk.SBuf.Write(0/*zero buf ptr - распределение пространства под данные*/, buf_size);
-					THROW_SL(F_Rd.Read(PTR8(sblk.SBuf.nonconstptr()) + sbuf_wr_offs, buf_size));
-					THROW_SL(TSCollection_Serialize(*this, -1, sblk.SBuf, &SCtx));
-					//
-					rIter.CurrentBlkOffs = current_offs;
-					rIter.CurrentBlkN++;
-					rIter.NextBlkOffs = next_offs;
-				}
-				CATCHZOK
-				return ok;
-			}
+			int    FindKNearest(const TSVector <SourceTEntry::TokenItem> & rPattern, uint k, float threshold, RAssocArray & rResult) const;
+			int    StoreFinish();
+			int    StoreTokenList();
+			int    StartReading(HBlock * pHBlk);
+			int    ReadTokenList(ReadIterator & rIter);
 
 			Stat St_;
 		private:
@@ -4672,81 +4468,12 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 			SFile  F_Wr; // Поток для записи //
 			SSerializeContext SCtx;
 		};
-		PrcssrTextSimilarityFinder() : State(0)
-		{
-		}
-		int	   InitParam(Param * pP)
-		{
-			int    ok = 1;
-			if(pP) {
-			}
-			else
-				ok = -1;
-			return ok;
-		}
-		int	   EditParam(Param * pP)
-		{
-			int    ok = 1;
-			if(pP) {
-			}
-			else
-				ok = -1;
-			return ok;
-		}
-		int	   Init(const Param * pP)
-		{
-			int    ok = 1;
-			bool   debug_mark = false; // @debug
-			State &= ~stInitialized;
-			THROW(pP);
-			P = *pP;
-			THROW(fileExists(P.ModelPath));
-			{
-				const auto status = SpPrcssr.Load(P.ModelPath.cptr());
-				THROW(status.ok());
-			}
-			State |= stInitialized;
-			CATCHZOK
-			return ok;
-		}
-		int	   Run()
-		{
-			int    ok = 1;
-			return ok;
-		}
-		int    Search(const char * pPattern)
-		{
-			int    ok = -1;
-			if(!isempty(pPattern)) {
-				SString pattern(pPattern);
-				SString stc_storage_final_name;
-				THROW(State & stInitialized); // @todo @err
-				THROW(pattern.IsLegalUtf8()); // @todo @err
-				pattern.Utf8ToLower();
-				{
-					{
-						if(P.DatabasePath.NotEmpty()) {
-							stc_storage_final_name = P.DatabasePath;
-						}
-						else {
-							SFsPath ps(P.SourceFilePath);
-							ps.Nam.CatChar('-').Cat("stc");
-							ps.Ext = "storage";
-							ps.Merge(stc_storage_final_name);
-							P.DatabasePath = stc_storage_final_name;
-						}
-					}
-					SourceTCollection stc(0/*dummy*/, stc_storage_final_name, 0);
-					//
-					std::vector <int> seg_id_list;
-					const auto enc_status = SpPrcssr.Encode(pattern, &seg_id_list);
-					if(enc_status.ok()) {
-					}
-				}
-			}
-			CATCHZOK
-			return ok;
-		}
+		PrcssrTextSimilarityFinder();
+		int	   InitParam(Param * pP);
+		int	   EditParam(Param * pP);
+		int	   Init(const Param * pP);
+		int	   Run();
+		int    Search(const char * pPattern);
 		int    BuildDatabase();
 	private:
 		Param  P;
@@ -4756,6 +4483,227 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 		};
 		uint   State;
 	};
+
+	PrcssrTextSimilarityFinder::SourceTCollection::SourceTCollection(int dummy, const char * pRdFileName, const char * pWrFileName) : 
+		TSCollection <SourceTEntry>(), State(0), CurrentRdBlock(0), CurrentRdOffs(0), CurrentWrOffs(0),
+		StoredTokenListBlockCount(0), RdFileSize(0)
+	{
+		if(!isempty(pRdFileName)) {
+			long   file_open_mode = SFile::mRead|SFile::mBinary|SFile::mNoStd;
+			if(F_Rd.Open(pRdFileName, file_open_mode)) {
+				if(!F_Rd.CalcSize(&RdFileSize)) {
+					State |= stError;
+				}
+			}
+			else {
+				State |= stError;
+			}
+		}
+		if(!isempty(pWrFileName)) {
+			long   file_open_mode = SFile::mReadWriteTrunc|SFile::mBinary|SFile::mNoStd;
+			if(!F_Wr.Open(pWrFileName, file_open_mode)) {
+				State |= stError;
+			}
+		}
+	}
+
+	int PrcssrTextSimilarityFinder::SourceTCollection::ReadFilePrefix(HBlock & rH)
+	{
+		rH.Z();
+		int    ok = 1;
+		THROW(!(State & stError));
+		THROW_SL(F_Rd.IsValid());
+		{
+			THROW_SL(F_Rd.Read(&rH, sizeof(rH)));
+			THROW(rH.Signature == HSignature); // @todo @err
+		}
+		CATCHZOK
+		return ok;
+	}
+
+	int PrcssrTextSimilarityFinder::SourceTCollection::ReadBlockPrefix(SBlock & rBlk)
+	{
+		rBlk.Z();
+		int    ok = 1;
+		THROW(!(State & stError));
+		THROW_SL(F_Rd.IsValid());
+		{
+			THROW_SL(F_Rd.Read(&rBlk.Signature, sizeof(rBlk.Signature)));
+			THROW(rBlk.Signature == BSignature); // @todo @err
+			THROW_SL(F_Rd.Read(&rBlk.Kind, sizeof(rBlk.Kind)));
+			THROW_SL(F_Rd.Read(&rBlk.Size, sizeof(rBlk.Size)));
+		}
+		CATCHZOK
+		return ok;
+	}
+			
+	// Поиск k ближайших соседей
+	int PrcssrTextSimilarityFinder::SourceTCollection::FindKNearest(const TSVector <SourceTEntry::TokenItem> & rPattern, uint k, float threshold, RAssocArray & rResult) const
+	{
+		int    ok = 0;
+		for(uint i = 0; i < getCount(); i++) {
+			const SourceTEntry * p_se = at(i);
+			if(p_se) {
+				float cs = PrcssrTextSimilarityFinder::CosineSimilarity(rPattern, p_se->TokList_);
+				if(cs >= threshold) {
+					if(rResult.AddMaxK(static_cast<long>(p_se->ID), cs, k) > 0)
+						ok = 1;
+				}
+			}
+		}
+		return ok;
+	}
+			
+	int PrcssrTextSimilarityFinder::SourceTCollection::StoreFinish()
+	{
+		int    ok = 1;
+		//THROW(!(State & stReadOnly));
+		THROW(!(State & stError));
+		THROW(F_Wr.IsValid());
+		{
+			THROW_SL(F_Wr.Seek64(CurrentWrOffs));
+			if(CurrentWrOffs == 0) {
+				HBlock hblk;
+				THROW_SL(F_Wr.Write(&hblk, sizeof(hblk)));
+				CurrentWrOffs = F_Wr.Tell64();
+			}
+			const uint64 stat_offs = CurrentWrOffs;
+			{
+				SBlock sblk;
+				THROW(St_.Serialize(+1, sblk.SBuf, &SCtx));
+				const size_t buf_size = sblk.SBuf.GetAvailableSize();
+				sblk.Size = static_cast<uint32>(buf_size + sizeof(sblk.Signature) + sizeof(sblk.Kind) + sizeof(sblk.Size));
+				sblk.Kind = kStat;
+				THROW_SL(F_Wr.Write(&sblk.Signature, sizeof(sblk.Signature)));
+				THROW_SL(F_Wr.Write(&sblk.Kind, sizeof(sblk.Kind)));
+				THROW_SL(F_Wr.Write(&sblk.Size, sizeof(sblk.Size)));
+				THROW_SL(F_Wr.Write(sblk.SBuf.constptr(), buf_size));
+				CurrentWrOffs = F_Wr.Tell64();
+			}
+			{
+				HBlock hblk;
+				THROW_SL(F_Wr.Seek64(0, 0));
+				THROW_SL(F_Wr.Read(&hblk, sizeof(hblk)));
+				hblk.TokenListBlkCount = StoredTokenListBlockCount;
+				hblk.StatOffs = stat_offs;
+				THROW_SL(F_Wr.Seek64(0, 0));
+				THROW_SL(F_Wr.Write(&hblk, sizeof(hblk)));
+			}
+		}
+		CATCHZOK
+		return ok;
+	}
+			
+	int PrcssrTextSimilarityFinder::SourceTCollection::StoreTokenList()
+	{
+		int    ok = 1;
+		//THROW(!(State & stReadOnly));
+		THROW(!(State & stError));
+		THROW(F_Wr.IsValid());
+		if(!getCount()) {
+			ok = -1;
+		}
+		else {
+			THROW_SL(F_Wr.Seek64(CurrentWrOffs));
+			if(CurrentWrOffs == 0) {
+				HBlock hblk;
+				THROW_SL(F_Wr.Write(&hblk, sizeof(hblk)));
+				CurrentWrOffs = F_Wr.Tell64();
+			}
+			{
+				SBlock sblk;
+				THROW_SL(TSCollection_Serialize(*this, +1, sblk.SBuf, &SCtx));
+				{
+					const size_t buf_size = sblk.SBuf.GetAvailableSize();
+					sblk.Size = static_cast<uint32>(buf_size + sizeof(sblk.Signature) + sizeof(sblk.Kind) + sizeof(sblk.Size));
+					sblk.Kind = kTokenList;
+					THROW_SL(F_Wr.Write(&sblk.Signature, sizeof(sblk.Signature)));
+					THROW_SL(F_Wr.Write(&sblk.Kind, sizeof(sblk.Kind)));
+					THROW_SL(F_Wr.Write(&sblk.Size, sizeof(sblk.Size)));
+					THROW_SL(F_Wr.Write(sblk.SBuf.constptr(), buf_size));
+					CurrentWrOffs = F_Wr.Tell64();
+					StoredTokenListBlockCount++;
+				}
+			}
+		}
+		CATCHZOK
+		return ok;
+	}
+
+	int PrcssrTextSimilarityFinder::SourceTCollection::StartReading(HBlock * pHBlk)
+	{
+		int    ok = 1;
+		HBlock hblk;
+		CurrentRdOffs = 0;
+		THROW(ReadFilePrefix(hblk));
+		CurrentRdOffs = F_Rd.Tell64();
+		{
+			SBlock sblk;
+			THROW_SL(F_Rd.Seek64(hblk.StatOffs, 0));
+			THROW_SL(F_Rd.Read(&sblk.Signature, sizeof(sblk.Signature)));
+			THROW(sblk.Signature == BSignature); // @todo @err
+			THROW_SL(F_Rd.Read(&sblk.Kind, sizeof(sblk.Kind)));
+			THROW(sblk.Kind == kStat); // @todo @err
+			THROW_SL(F_Rd.Read(&sblk.Size, sizeof(sblk.Size)));
+			{
+				const size_t sbuf_wr_offs = sblk.SBuf.GetWrOffs();
+				THROW(sblk.Size >= (sizeof(sblk.Signature) + sizeof(sblk.Kind) + sizeof(sblk.Size))); // @todo @err
+				const size_t buf_size = sblk.Size - (sizeof(sblk.Signature) + sizeof(sblk.Kind) + sizeof(sblk.Size));
+				sblk.SBuf.Write(0/*zero buf ptr - распределение пространства под данные*/, buf_size);
+				THROW_SL(F_Rd.Read(PTR8(sblk.SBuf.nonconstptr()) + sbuf_wr_offs, buf_size));
+			}
+			THROW(St_.Serialize(-1, sblk.SBuf, &SCtx));
+			THROW_SL(F_Rd.Seek64(CurrentRdOffs));
+		}
+		CATCHZOK
+		ASSIGN_PTR(pHBlk, hblk);
+		return ok;				
+	}
+			
+	int PrcssrTextSimilarityFinder::SourceTCollection::ReadTokenList(ReadIterator & rIter)
+	{
+		int    ok = 1;
+		int64  next_offs = rIter.NextBlkOffs;
+		int64  current_offs = 0;
+		SBlock sblk;
+		TSCollection <SourceTEntry>::clear();
+		THROW(!(State & stError));
+		THROW_SL(F_Rd.IsValid());
+		if(next_offs == 0) {
+			HBlock hblk;
+			THROW_SL(F_Rd.Seek64(0));
+			THROW(ReadFilePrefix(hblk))
+			next_offs = F_Rd.Tell64();
+		}
+		do {
+			if(next_offs >= RdFileSize) {
+				ok = -1;
+			}
+			else {
+				current_offs = next_offs;
+				THROW_SL(F_Rd.Seek64(next_offs));
+				THROW_SL(F_Rd.Read(&sblk.Signature, sizeof(sblk.Signature)));
+				THROW(sblk.Signature == BSignature); // @todo @err
+				THROW_SL(F_Rd.Read(&sblk.Kind, sizeof(sblk.Kind)));
+				THROW_SL(F_Rd.Read(&sblk.Size, sizeof(sblk.Size)));
+				next_offs += sblk.Size;
+			}
+		} while(ok > 0 && sblk.Kind != kTokenList);
+		if(ok > 0) {
+			const size_t sbuf_wr_offs = sblk.SBuf.GetWrOffs();
+			THROW(sblk.Size >= (sizeof(sblk.Signature) + sizeof(sblk.Kind) + sizeof(sblk.Size))); // @todo @err
+			const size_t buf_size = sblk.Size - (sizeof(sblk.Signature) + sizeof(sblk.Kind) + sizeof(sblk.Size));
+			sblk.SBuf.Write(0/*zero buf ptr - распределение пространства под данные*/, buf_size);
+			THROW_SL(F_Rd.Read(PTR8(sblk.SBuf.nonconstptr()) + sbuf_wr_offs, buf_size));
+			THROW_SL(TSCollection_Serialize(*this, -1, sblk.SBuf, &SCtx));
+			//
+			rIter.CurrentBlkOffs = current_offs;
+			rIter.CurrentBlkN++;
+			rIter.NextBlkOffs = next_offs;
+		}
+		CATCHZOK
+		return ok;
+	}
 
 	PrcssrTextSimilarityFinder::Stat::Stat()
 	{
@@ -4891,6 +4839,87 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 		}
 		result = (norm1 != 0.0f && norm2 != 0.0f) ? dot_product / (sqrt(norm1) * sqrt(norm2)) : 0.0f;
 		return result;
+	}
+
+	PrcssrTextSimilarityFinder::PrcssrTextSimilarityFinder() : State(0)
+	{
+	}
+		
+	int	PrcssrTextSimilarityFinder::InitParam(Param * pP)
+	{
+		int    ok = 1;
+		if(pP) {
+		}
+		else
+			ok = -1;
+		return ok;
+	}
+		
+	int	PrcssrTextSimilarityFinder::EditParam(Param * pP)
+	{
+		int    ok = 1;
+		if(pP) {
+		}
+		else
+			ok = -1;
+		return ok;
+	}
+		
+	int	PrcssrTextSimilarityFinder::Init(const Param * pP)
+	{
+		int    ok = 1;
+		bool   debug_mark = false; // @debug
+		State &= ~stInitialized;
+		THROW(pP);
+		P = *pP;
+		THROW(fileExists(P.ModelPath));
+		{
+			const auto status = SpPrcssr.Load(P.ModelPath.cptr());
+			THROW(status.ok());
+		}
+		State |= stInitialized;
+		CATCHZOK
+		return ok;
+	}
+		
+	int	PrcssrTextSimilarityFinder::Run()
+	{
+		int    ok = 1;
+		return ok;
+	}
+	
+	int PrcssrTextSimilarityFinder::Search(const char * pPattern)
+	{
+		int    ok = -1;
+		if(!isempty(pPattern)) {
+			SString pattern(pPattern);
+			SString stc_storage_final_name;
+			THROW(State & stInitialized); // @todo @err
+			THROW(pattern.IsLegalUtf8()); // @todo @err
+			pattern.Utf8ToLower();
+			{
+				{
+					if(P.DatabasePath.NotEmpty()) {
+						stc_storage_final_name = P.DatabasePath;
+					}
+					else {
+						SFsPath ps(P.SourceFilePath);
+						ps.Nam.CatChar('-').Cat("stc");
+						ps.Ext = "storage";
+						ps.Merge(stc_storage_final_name);
+						P.DatabasePath = stc_storage_final_name;
+					}
+				}
+				SourceTCollection stc(0/*dummy*/, stc_storage_final_name, 0);
+				//
+				std::vector <int> seg_id_list;
+				const auto enc_status = SpPrcssr.Encode(pattern, &seg_id_list);
+				if(enc_status.ok()) {
+				}
+			}
+		}
+		CATCHZOK
+		return ok;
 	}
 
 	int PrcssrTextSimilarityFinder::BuildDatabase()
@@ -5103,7 +5132,8 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 			actionMakeGoodsNameList = 1,
 			actionTrain             = 2,
 			actionProcessTokens     = 3,
-			actionProcessTokens2    = 4
+			actionProcessTokens2    = 4,
+			actionSearch            = 5,
 		};
 		// В базе товаров UHTT макс количество токенов около 100.
 		int    ok = 1;
@@ -5157,6 +5187,18 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 				param.SourceFilePath = raw_input_file_path;
 				if(tsf.Init(&param)) {
 					if(tsf.BuildDatabase()) {
+						;
+					}
+				}
+			}
+			else if(action == actionSearch) {
+				PrcssrTextSimilarityFinder tsf;
+				PrcssrTextSimilarityFinder::Param param;
+				tsf.InitParam(&param);
+				param.ModelPath = model_file_path;
+				param.SourceFilePath = raw_input_file_path;
+				if(tsf.Init(&param)) {
+					if(tsf.Search("abc")) {
 						;
 					}
 				}

@@ -1109,7 +1109,6 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 				ViewBillsByPool(PPASS_TSESSBILLPOOL, Data.Rec.ID);
 			}
 		}
-		// @v11.0.4 {
 		else if(event.isCmd(cmRepeating)) { 
 			STATIC_ASSERT(sizeof(Data.Rec.Repeating) == sizeof(DateRepeating));
 			DateRepeating dr = *reinterpret_cast<const DateRepeating *>(&Data.Rec.Repeating);
@@ -1124,7 +1123,6 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 			}
 			delete dlg;
 		}
-		// } @v11.0.4 
 		else if(event.isCmd(cmTags)) {
 			Data.TagL.Oid.Obj = PPOBJ_TSESSION;
 			EditObjTagValList(&Data.TagL, 0);
@@ -1132,11 +1130,9 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 		else if(event.isCmd(cmaMore)) {
 			More();
 		}
-		// @v10.8.12 {
 		else if(event.isCmd(cmAutoFill)) {
 			AddCompletion();
 		}
-		// } @v10.8.12 
 		else if(event.isClusterClk(CTL_TSESS_STATUS)) {
 			long   new_status = 0;
 			GetClusterData(CTL_TSESS_STATUS, &new_status);

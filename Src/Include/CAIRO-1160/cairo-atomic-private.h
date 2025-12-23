@@ -230,7 +230,7 @@ typedef int64 cairo_atomic_intptr_t;
 
 #ifndef HAS_ATOMIC_OPS
 
-#if SIZEOF_VOID_P==SIZEOF_INT
+/* @v12.5.2 #if SIZEOF_VOID_P==SIZEOF_INT
 	typedef uint cairo_atomic_intptr_t;
 #elif SIZEOF_VOID_P==SIZEOF_LONG
 	typedef ulong cairo_atomic_intptr_t;
@@ -238,8 +238,8 @@ typedef int64 cairo_atomic_intptr_t;
 	typedef ulong long cairo_atomic_intptr_t;
 #else
 	#error No matching integer pointer type
-#endif
-
+#endif*/
+typedef uintptr_t cairo_atomic_intptr_t; // @v12.5.2
 typedef cairo_atomic_intptr_t cairo_atomic_int_t;
 
 cairo_private void _cairo_atomic_int_inc(cairo_atomic_int_t * x);

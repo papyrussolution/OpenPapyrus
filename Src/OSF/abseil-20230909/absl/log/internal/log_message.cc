@@ -571,7 +571,7 @@ LogMessageFatal::LogMessageFatal(const char* file, int line,
 // disable msvc's warning about the d'tor never returning.
 #if defined(_MSC_VER) && !defined(__clang__)
 #pragma warning(push)
-#pragma warning(disable : 4722)
+#pragma warning(disable:4722)
 #endif
 LogMessageFatal::~LogMessageFatal() {
   Flush();
@@ -597,7 +597,7 @@ LogMessageQuietlyFatal::LogMessageQuietlyFatal(const char* file, int line,
 // disable msvc's warning about the d'tor never returning.
 #if defined(_MSC_VER) && !defined(__clang__)
 #pragma warning(push)
-#pragma warning(disable : 4722)
+#pragma warning(disable:4722)
 #endif
 LogMessageQuietlyFatal::~LogMessageQuietlyFatal() {
   Flush();

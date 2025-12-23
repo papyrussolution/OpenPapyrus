@@ -32,13 +32,13 @@
 // const object should be initialized 
 //
 #ifdef _MSC_VER
-	#pragma warning( push )
-	#pragma warning( disable : 4132 )
+	#pragma warning(push)
+	#pragma warning(disable:4132 )
 #endif
 //static const TIFFFieldArray tiffFieldArray;
 //static const TIFFFieldArray exifFieldArray;
 #ifdef _MSC_VER
-	#pragma warning( pop )
+	#pragma warning(pop)
 #endif
 
 static const TIFFFieldArray * _GetTiffFieldArray();

@@ -33358,6 +33358,7 @@ private:
 	const  PPID SinceDlsID; // Ид записи статистики загрузки, начиная (включая) с которой следует выгрузить изменения //
 	int    LotThreshold;    // Количество дней от последнего прихода, после которого товар, по которому остаток нулевой, не следует загружать на кассовые аппараты
 	long   Flags;           // ACGIF_XXX
+	PPID   MainOrgID;       // @v12.5.2 Как минимум, для вычисления эффективной ставки НДС
 	PPID   LocID;
 	PPID   UserOnlyGoodsGrpID;    // Товарная группа, которой ограничен пользователь при загрузке изменений.
 	PPID   AlcoGoodsClsID;        //
@@ -48231,8 +48232,10 @@ class PPPrjTaskPacket {
 public:
 	PPPrjTaskPacket();
 	PPPrjTaskPacket & Z();
+	bool   FASTCALL IsEq(const PPPrjTaskPacket & rS) const;
 
 	PrjTaskTbl::Rec Rec;
+	ObjTagList TagL;        // @v12.5.2 @dbd_exchange Список тегов 
 	SString SDescr;
 	SString SMemo;
 };
@@ -48274,9 +48277,9 @@ public:
 	virtual int EditRights(uint bufSize, ObjRights * buf, EmbedDialog * pDlg = 0);
 	int    SerializePacket(int dir, PPPrjTaskPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    WritePacketWithPredefinedFormat(const PPPrjTaskPacket * pPack, int format, SString & rBuf, void * pCtx);
-	int    ImportFromOuterFormat(const char * pInput, const iCalendarImportParam * pParam, TSCollection <PPPrjTaskPacket> & rList); // @v11.0.3
+	int    ImportFromOuterFormat(const char * pInput, const iCalendarImportParam * pParam, TSCollection <PPPrjTaskPacket> & rList);
 	int    SearchAnalog(const PPPrjTaskPacket * pPack, PPID * pAnalogID);
-	int    InitPacket_(PPPrjTaskPacket & rPack, int kind /* TODOKIND_XXX */, PPID prjID, PPID clientID, PPID employerID, int use_ta);
+	int    InitPacket_(PPPrjTaskPacket & rPack, int kind/*TODOKIND_XXX*/, PPID prjID, PPID clientID, PPID employerID, int use_ta);
 	int    InitPacketByTemplate(const PPPrjTaskPacket & rTemplPack, LDATE startDt, PPPrjTaskPacket & rPack, int use_ta);
 	int    AddBySample(PPID * pID, PPID sampleID);
 	SString & GetItemDescr(PPID id, SString & rBuf);

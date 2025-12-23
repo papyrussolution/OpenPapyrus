@@ -826,6 +826,33 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			}
 		}
 		{
+			// @v12.5.2 Тестирование функции SString::CopyUtf8To()
+			// text-utf8.txt
+			SFile f_in(MakeInputFilePath("text-utf8.txt"), SFile::mRead);
+			if(f_in.IsValid()) {
+				STempBuffer fbuf(SKILOBYTE(128));
+				size_t fin_size = 0;
+				if(f_in.ReadAll(fbuf, 0, &fin_size)) {
+					str.Z().CatN(fbuf.cptr(), fin_size);
+					SLCHECK_NZ(str.IsLegalUtf8());
+					if(str.IsLegalUtf8()) {
+						for(size_t buf_size = fin_size+1; buf_size > 0; buf_size--) {
+							memzero(fbuf, fbuf.GetSize());
+							str.CopyUtf8To(fbuf, buf_size);
+							const size_t _iter_len = sstrlen(fbuf);
+							SLCHECK_LT(_iter_len, buf_size);
+							if(buf_size >= 4) {
+								SLCHECK_LT((buf_size-4), _iter_len);
+							}
+							out_buf = fbuf;
+							SLCHECK_NZ(out_buf.IsLegalUtf8());
+							SLCHECK_NZ(out_buf.IsEmpty() || str.HasPrefix(out_buf));
+						}
+					}
+				}
+			}
+		}
+		{
 			// @v11.7.6 Тестирование функций ReadQuotedString и WriteQuotedString
 			SString revert_buf;
 			size_t end_pos = 0;
