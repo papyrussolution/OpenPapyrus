@@ -1670,14 +1670,16 @@ int PPExecSupplementWindow(int supplementKind, void * hParentWnd, uint linkCtlId
 	// Ради безопасности предположим, что с параметром hParentWnd могли передать как хандлер окна, так и указатель на TDialog
 	//
 	if(hParentWnd) {
-		if(TView::IsSubSign(static_cast<const TView *>(hParentWnd), TV_SUBSIGN_DIALOG)) {
-			p_parent = static_cast<TDialog *>(hParentWnd);
-		}
-		else if(::IsWindow(static_cast<HWND>(hParentWnd))) {
+		// @attention. Проверка IsWindow() должна идти до проверки TView::IsSubSign поскольку вызов TView::IsSubSign() с аргументом - 
+		// хандлером окна приведет к вылету по исключению!
+		if(::IsWindow(static_cast<HWND>(hParentWnd))) {
 			void * p = TView::GetWindowUserData(static_cast<HWND>(hParentWnd));
 			if(TView::IsSubSign(static_cast<const TView *>(p), TV_SUBSIGN_DIALOG)) {
 				p_parent = static_cast<TDialog *>(p);
 			}
+		}
+		else if(TView::IsSubSign(static_cast<const TView *>(hParentWnd), TV_SUBSIGN_DIALOG)) {
+			p_parent = static_cast<TDialog *>(hParentWnd);
 		}
 	}
 	if(oneof3(supplementKind, SUiCtrlSupplement::kDateCalendar, SUiCtrlSupplement::kDateRangeCalendar, SUiCtrlSupplement::kTime)) {

@@ -240,6 +240,7 @@ BroColumn::BroColumn()
 TBaseBrowserWindow::TBaseBrowserWindow(LPCTSTR pWndClsName) :  TWindowBase(pWndClsName, 0), 
 	ResourceID(0), ClsName(SUcSwitch(pWndClsName)), ToolbarID(0), BbState(0), ToolBarWidth(0), P_Toolbar(0)
 {
+	SubSign = TV_SUBSIGN_BASEBRW; // @v12.5.2
 	//WoScrollbars = false;
 }
 

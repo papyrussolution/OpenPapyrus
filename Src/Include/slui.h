@@ -2379,6 +2379,8 @@ private:
 #define TV_SUBSIGN_COMBOBOX  17  // ComboBox
 #define TV_SUBSIGN_IMAGEVIEW 18  // TImageView
 #define TV_SUBSIGN_GROUPBOX  19  // @v12.2.3 TGroupBox
+#define TV_SUBSIGN_BASEBRW   20  // @v12.5.2 TBaseBrowserWindow
+#define TV_SUBSIGN_TMCHNKBRW 21  // @v12.5.2 STimeChunkBrowser
 
 class TBitmapCache {
 public:

@@ -1605,7 +1605,7 @@ TViewGroup::~TViewGroup()
 	if(p) do {
 		if(p->IsConsistent()) {
 			TView * p_prev = p->prev();
-			p->setState(sfOnParentDestruction, true); // @v11.0.0
+			p->setState(sfOnParentDestruction, true);
 			delete p;
 			p = p_prev;
 		}

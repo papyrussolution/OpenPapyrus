@@ -518,6 +518,7 @@ const STimeChunkBrowser::SRect * FASTCALL STimeChunkBrowser::SRectArray::SearchP
 
 STimeChunkBrowser::STimeChunkBrowser() : TBaseBrowserWindow(SUcSwitch(SlConst::WinClsName_TimeChunkBrowser)), BmpId_ModeGantt(0), BmpId_ModeHourDay(0), P_Tt(0), Flags(0)
 {
+	SubSign = TV_SUBSIGN_TMCHNKBRW; // @v12.5.2
 	/*
 		tmchunkgrid
 
@@ -564,7 +565,6 @@ STimeChunkBrowser::STimeChunkBrowser() : TBaseBrowserWindow(SUcSwitch(SlConst::W
 			"tmchunkgrid_holiday_interleave_bg": "#090909"
 		}
 	*/ 
-
 	const char * p_scheme_symb = "tmchunkgrid_01";
 	const UiDescription * p_uid = p_scheme_symb ? SLS.GetUiDescription() : 0;
 	const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC(p_scheme_symb) : 0;
