@@ -1,5 +1,6 @@
 // BTRV.CPP
 // Copyright (c) A. Sobolev 1994-1999, 2001, 2003, 2009, 2010, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2025
+// @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -16,10 +17,23 @@ static class BtrCallInit {
 public:
 	BtrCallInit()
 	{
+		//wchar_t module_path[512];
+		//module_path[0] = 0;
 		if(!_BtrCall || !_BtrCallID) {
 			ENTER_CRITICAL_SECTION
 			if(!_BtrCall || !_BtrCallID) {
-				HMODULE _btrv_dll_handle = ::LoadLibrary((sizeof(void *) == 8) ? _T("w64btrv.dll") : _T("wbtrv32.dll"));
+#ifdef _WIN64
+				const wchar_t * p_module_file_name = L"w64btrv.dll";
+#else
+				const wchar_t * p_module_file_name = L"wbtrv32.dll";
+#endif
+				//HMODULE _btrv_dll_handle = ::LoadLibrary(_T("wbtrv32.dll"));
+				HMODULE _btrv_dll_handle = ::LoadLibraryW(p_module_file_name);
+				/*
+				if(_btrv_dll_handle) {
+					DWORD _r = GetModuleFileNameW(_btrv_dll_handle, module_path, SIZEOFARRAY(module_path));
+				}
+				*/
 				if(!_BtrCall) {
 					_BtrCall = reinterpret_cast<BtrCallProc>(GetProcAddress(_btrv_dll_handle, "BTRCALL"));
 					SETIFZ(_BtrCall, _BtrCall_Stub);
@@ -33,43 +47,6 @@ public:
 		}
 	}
 } BtrCallInitInstance;
-
-#if 0 // {
-
-int BTRCALL(int OP, char * POS_BLK, char * DATA_BUF, int16 * DATA_LEN, char * KEY_BUF, int KEY_LEN, int KEY_NUM)
-{
-#ifndef _MT // {
-	static BtrCallProc _dll_btrcall = 0;
-	if(!_dll_btrcall) {
-		ENTER_CRITICAL_SECTION
-		if(!_dll_btrcall) {
-			HMODULE _btrv_dll_handle = LoadLibrary(_T("wbtrv32.dll"));
-			_dll_btrcall = (BtrCallProc)GetProcAddress(_btrv_dll_handle, "BTRCALL");
-		}
-		LEAVE_CRITICAL_SECTION
-	}
-	if(_dll_btrcall)
-		return (_dll_btrcall)(OP, POS_BLK, DATA_BUF, DATA_LEN, KEY_BUF, KEY_LEN, KEY_NUM);
-	else
-		return BE_BTRNINIT;
-#else
-	static BtrCallProcID _dll_btrcall = 0;
-	if(!_dll_btrcall) {
-		ENTER_CRITICAL_SECTION
-		if(!_dll_btrcall) {
-			HMODULE _btrv_dll_handle = LoadLibrary(_T("wbtrv32.dll"));
-			_dll_btrcall = (BtrCallProcID)GetProcAddress(_btrv_dll_handle, "BTRCALLID");
-		}
-		LEAVE_CRITICAL_SECTION
-	}
-	if(_dll_btrcall)
-		return (_dll_btrcall)(OP, POS_BLK, DATA_BUF, DATA_LEN, KEY_BUF, KEY_LEN, KEY_NUM, &DBS.GetTLA().ClientID);
-	else
-		return BE_BTRNINIT;
-#endif  // } _MT
-}
-
-#endif // } 0
 
 static int FASTCALL BRet(int r)
 {
@@ -170,7 +147,7 @@ const PageSzInfo Btrieve::LimitPgInfo[NUMPGSIZES] =
 	int    ok = 0;
 	char   fpb[256];
 	char * p_buf = 0;
-	int16  buf_size = sizeof(DBFileSpec);
+	uint16 buf_size = sizeof(DBFileSpec);
 	int    index = createMode; // name 'index' used by macro WBTRVTAIL
 	int    is_alt = 0;
 	int    num_dup = 0;
@@ -246,7 +223,7 @@ const PageSzInfo Btrieve::LimitPgInfo[NUMPGSIZES] =
 			fn_buf[fn_len] = 0;
 		}
 		do {
-			be = BTRV(B_CREATE, fpb, p_buf, reinterpret_cast<uint16 *>(&buf_size), fn_buf, WBTRVTAIL);
+			be = BTRV(B_CREATE, fpb, p_buf, &buf_size, fn_buf, WBTRVTAIL);
 		} while(oneof2(be, BE_INVKEYLEN, BE_INVRECLEN) && (reinterpret_cast<DBFileSpec *>(p_buf)->PageSize += 512) <= 8192);
 		ok = BRet(be);
 		DBTable::InitErrFileName(pFileName);
@@ -264,7 +241,8 @@ DbDict_Btrieve::DbDict_Btrieve(const char * pPath) : DbDictionary()
 	MEMSZERO(flq);
 	MEMSZERO(ilq);
 	ushort pw[5];
-	SString base_path, buf;
+	SString base_path;
+	SString buf;
 	// DDF password = "..SC...."
 	pw[0] = pw[2] = pw[3] = 0x2E2E;
 	pw[1] = 0x4353;
@@ -321,8 +299,8 @@ int DbDict_Btrieve::LoadTableSpec(DBTable * pTbl, const char * pTblName)
 		THROW(getFieldList(static_cast<BTBLID>(tbl_id), &pTbl->FldL));
 		THROW(getIndexList(static_cast<BTBLID>(tbl_id), &pTbl->Indices));
 		//
-		// Ôóíêöèÿ getIndexList èíèöèàëèçèðóåò ñåãìåíòû èíäåêñîâ ÷åðåç âíóòðåííèå èäåíòèôèêàòîðû ïîëåé. Çäåñü
-		// ìû êîíâåðòèðóåì ýòè ññûëêè òàê, ÷òîáû èíäåêñû ññûëàñü íà ïîëÿ ïî íîìåðó ïîëÿ â ñïèñêå fields
+		// Ð¤ÑƒÐ½ÐºÑ†Ð¸Ñ getIndexList Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð¸Ñ€ÑƒÐµÑ‚ ÑÐµÐ³Ð¼ÐµÐ½Ñ‚Ñ‹ Ð¸Ð½Ð´ÐµÐºÑÐ¾Ð² Ñ‡ÐµÑ€ÐµÐ· Ð²Ð½ÑƒÑ‚Ñ€ÐµÐ½Ð½Ð¸Ðµ Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€Ñ‹ Ð¿Ð¾Ð»ÐµÐ¹. Ð—Ð´ÐµÑÑŒ
+		// Ð¼Ñ‹ ÐºÐ¾Ð½Ð²ÐµÑ€Ñ‚Ð¸Ñ€ÑƒÐµÐ¼ ÑÑ‚Ð¸ ÑÑÑ‹Ð»ÐºÐ¸ Ñ‚Ð°Ðº, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð¸Ð½Ð´ÐµÐºÑÑ‹ ÑÑÑ‹Ð»Ð°ÑÑŒ Ð½Ð° Ð¿Ð¾Ð»Ñ Ð¿Ð¾ Ð½Ð¾Ð¼ÐµÑ€Ñƒ Ð¿Ð¾Ð»Ñ Ð² ÑÐ¿Ð¸ÑÐºÐµ fields
 		//
 		for(uint i = 0, nk = pTbl->Indices.getNumKeys(); i < nk; i++) {
 			BNKey key = pTbl->Indices[i];
@@ -533,7 +511,7 @@ int DbDict_Btrieve::GetTableID(const char * pTblName, long * pID, DbTableStat * 
 	int    ok = 0;
 	char   key[BTRMAXKEYLEN];
 	if(IsValid()) {
-		size_t len = sstrlen(STRNSCPY(key, pTblName));
+		const  size_t len = sstrlen(STRNSCPY(key, pTblName));
 		memset(key + len, ' ', sizeof(fileBuf.XfName) - len);
 		if(xfile.search(1, key, spEq)) {
 			*pID = fileBuf.XfId;
@@ -562,8 +540,8 @@ int DbDict_Btrieve::GetListOfTables(long options, StrAssocArray * pList)
 	int    ok = -1;
 	char   key[256];
 	if(IsValid()) {
-		SString temp_buf;
-		if(xfile.search(1, key, spFirst))
+		if(xfile.search(1, key, spFirst)) {
+			SString temp_buf;
 			do {
 				if(pList) {
 					char * p = sstrchr(fileBuf.XfName, ' ');
@@ -577,6 +555,7 @@ int DbDict_Btrieve::GetListOfTables(long options, StrAssocArray * pList)
 				}
 				ok = 1;
 			} while(xfile.search(key, spNext));
+		}
 	}
 	return ok;
 }

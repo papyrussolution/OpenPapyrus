@@ -155,6 +155,12 @@ SSqlStmt::Bind::Bind()
 	THISZERO();
 }
 
+void SSqlStmt::Bind::SetNtvTypeAndSize(uint16 ntvTyp, uint32 ntvSize)
+{
+	NtvTyp = ntvTyp;
+	NtvSize = ntvSize;
+}
+
 IMPL_INVARIANT_C(SSqlStmt::Bind)
 {
 	S_INVARIANT_PROLOG(pInvP);
@@ -170,7 +176,7 @@ SSqlStmt::BindArray::BindArray(uint dim) : TSVector <SSqlStmt::Bind>(), Dim(dim)
 {
 }
 
-SSqlStmt::SSqlStmt(DbProvider * pDb) : P_Db(0), Descr(SdRecord::fAllowDupName), Flags(0), H(0), P_Result(0), 
+SSqlStmt::SSqlStmt(DbProvider * pDb) : Signature(SlConst::SSqlStmtSignature), P_Db(0), Descr(SdRecord::fAllowDupName), Flags(0), H(0), P_Result(0), 
 	IndSubstPlus(0), IndSubstMinus(0), FslSubst(0), Typ(Generator_SQL::typUndef)
 {
 	BS.Init();
@@ -183,7 +189,7 @@ SSqlStmt::SSqlStmt(DbProvider * pDb) : P_Db(0), Descr(SdRecord::fAllowDupName), 
 		Flags |= fError;
 }
 
-SSqlStmt::SSqlStmt(DbProvider * pDb, const Generator_SQL & rSql) : P_Db(0), Descr(SdRecord::fAllowDupName), Flags(0), H(0), P_Result(0), 
+SSqlStmt::SSqlStmt(DbProvider * pDb, const Generator_SQL & rSql) : Signature(SlConst::SSqlStmtSignature), P_Db(0), Descr(SdRecord::fAllowDupName), Flags(0), H(0), P_Result(0), 
 	IndSubstPlus(0), IndSubstMinus(0), FslSubst(0), Typ(Generator_SQL::typUndef)
 {
 	BS.Init();
@@ -212,6 +218,7 @@ SSqlStmt::SSqlStmt(DbProvider * pDb, const char * pText) : P_Db(0), Descr(SdReco
 
 SSqlStmt::~SSqlStmt()
 {
+	Signature = 0; 
 	CALLPTRMEMB(P_Db, DestroyStmt(this));
 	BS.Destroy();
 }
@@ -1931,7 +1938,7 @@ int SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey, int s
 		if(sf & DBTable::sfForUpdate)
 			SqlGen.Tok(Generator_SQL::tokFor).Sp().Tok(Generator_SQL::tokUpdate);
 		{
-			THROW(p_stmt = new DBTable::SelectStmt(this, SqlGen, idx, srchMode, sf));
+			THROW(p_stmt = new DBTable::SelectStmt(this, pTbl, SqlGen, idx, srchMode, sf));
 			new_stmt = 1;
 			THROW(p_stmt->IsValid());
 			{

@@ -54,7 +54,7 @@ static int test_c14n(const char* xml_filename, int with_comments, int mode, cons
 	doc = xmlReadFile(xml_filename, NULL, XML_PARSE_DTDATTR | XML_PARSE_NOENT);
 	if(doc == NULL) {
 		fprintf(stderr, "Error: unable to parse file \"%s\"\n", xml_filename);
-		return(-1);
+		return -1;
 	}
 
 	/*
@@ -63,7 +63,7 @@ static int test_c14n(const char* xml_filename, int with_comments, int mode, cons
 	if(xmlDocGetRootElement(doc) == NULL) {
 		fprintf(stderr, "Error: empty document for file \"%s\"\n", xml_filename);
 		xmlFreeDoc(doc);
-		return(-1);
+		return -1;
 	}
 
 	/*
@@ -74,7 +74,7 @@ static int test_c14n(const char* xml_filename, int with_comments, int mode, cons
 		if(xpath == NULL) {
 			fprintf(stderr, "Error: unable to evaluate xpath expression\n");
 			xmlFreeDoc(doc);
-			return(-1);
+			return -1;
 		}
 	}
 
@@ -82,12 +82,9 @@ static int test_c14n(const char* xml_filename, int with_comments, int mode, cons
 	 * Canonical form
 	 */
 	/* fprintf(stderr,"File \"%s\" loaded: start canonization\n", xml_filename); */
-	ret = xmlC14NDocDumpMemory(doc,
-		(xpath) ? xpath->nodesetval : NULL,
-		mode, inclusive_namespaces,
-		with_comments, &result);
+	ret = xmlC14NDocDumpMemory(doc, (xpath ? xpath->nodesetval : NULL), mode, inclusive_namespaces, with_comments, &result);
 	if(ret >= 0) {
-		if(result != NULL) {
+		if(result) {
 			if(write(STDOUT_FILENO, result, ret) == -1) {
 				fprintf(stderr, "Can't write data\n");
 			}
@@ -98,14 +95,14 @@ static int test_c14n(const char* xml_filename, int with_comments, int mode, cons
 		fprintf(stderr, "Error: failed to canonicalize XML file \"%s\" (ret=%d)\n", xml_filename, ret);
 		SAlloc::F(result);
 		xmlFreeDoc(doc);
-		return(-1);
+		return -1;
 	}
 	/*
 	 * Cleanup
 	 */
-	if(xpath != NULL) xmlXPathFreeObject(xpath);
+	xmlXPathFreeObject(xpath);
 	xmlFreeDoc(doc);
-	return(ret);
+	return ret;
 }
 
 int main(int argc, char ** argv) 
@@ -116,7 +113,6 @@ int main(int argc, char ** argv)
 	 */
 	xmlInitParser();
 	LIBXML_TEST_VERSION
-
 	/*
 	 * Parse command line and process file
 	 */

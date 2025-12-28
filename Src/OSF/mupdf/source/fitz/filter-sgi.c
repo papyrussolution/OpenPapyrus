@@ -335,7 +335,7 @@ static int uv_decode(float * up, float * vp, int c)  /* decode (u',v') index */
 	ui = c - uv_row[vi].ncum;
 	*up = uv_row[vi].ustart + (ui+.5f)*UV_SQSIZ;
 	*vp = UV_VSTART + (vi+.5f)*UV_SQSIZ;
-	return (0);
+	return 0;
 }
 
 static inline int sgilog24val(fz_context * ctx, fz_stream * chain, uint8 * rgb)

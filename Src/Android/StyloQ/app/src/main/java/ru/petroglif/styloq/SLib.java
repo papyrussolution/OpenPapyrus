@@ -1258,6 +1258,10 @@ public class SLib {
 	public static final int PPOBJATTR_UUID        =  33; // @v12.4.10 UUID объекта. Практически возможна ситуация, когда несколько объектов имеют один и тот же UUID,
 		// а так же, один объект может иметь несколько UUID'ов
 	public static final int PPOBJATTR_GENERICREG  =  34; // @v12.4.10 Некий регистрационный номер. Может относится к PPOBJ_PERSON, PPOBJ_LOCATION, PPOBJ_PERSONEVENT
+	public static final int PPOBJATTR_TAXGROUP     = 35; // @v12.5.2 Налоговая группа. Атрибут, свойственный товарам и товарным группам
+	public static final int PPOBJATTR_SPECIALKIND  = 36; // @v12.5.2 Специализированный характеристический вид объекта. Зависит от типа объекта. Инициирован
+		// нобходимостью обощить представление типа товара или товарной группы (GoodsType)
+
 	//
 	// Descr: Идентификаторы системных событий. Заимствованы из ppdefs.h
 	// В stylo-q используется лишь небольшая часть этих значений (тем не менее, заимствование полное

@@ -73,7 +73,7 @@ static int my_gettimeofday(struct timeval * tvp, void * tzp)
 		tvp->tv_sec = timebuffer.time;
 		tvp->tv_usec = timebuffer.millitm * 1000L;
 	}
-	return (0);
+	return 0;
 }
 
 #define HAVE_GETTIMEOFDAY 1

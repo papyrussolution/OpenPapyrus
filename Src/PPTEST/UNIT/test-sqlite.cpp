@@ -45,29 +45,29 @@ SLTEST_R(SQLite)
 			{ Generator_SQL::tokFor, "FOR" },
 			{ Generator_SQL::tokRowId, "ROWID" },
 			{ Generator_SQL::tokSet, "SET" },
-			{ Generator_SQL::tokReturning, "RETURNING" },
-			{ Generator_SQL::tokMax, "MAX" },      // function max
-			{ Generator_SQL::tokNlsLower, "NLS_LOWER" }, // function nls_lower
-			{ Generator_SQL::tokLower, "LOWER" },    // @v11.6.0 function lower
+			{ Generator_SQL::tokReturning,   "RETURNING" },
+			{ Generator_SQL::tokMax,         "MAX" },      // function max
+			{ Generator_SQL::tokNlsLower,    "NLS_LOWER" }, // function nls_lower
+			{ Generator_SQL::tokLower,       "LOWER" },    // @v11.6.0 function lower
 			{ Generator_SQL::tokIfNotExists, "IF NOT EXISTS" }, // @v11.9.12 if not exists
-			{ Generator_SQL::tokBegin, "BEGIN" }, // @v12.3.12
-			{ Generator_SQL::tokCommit, "COMMIT" }, // @v12.3.12
+			{ Generator_SQL::tokBegin,    "BEGIN" }, // @v12.3.12
+			{ Generator_SQL::tokCommit,   "COMMIT" }, // @v12.3.12
 			{ Generator_SQL::tokRollback, "ROLLBACK" }, // @v12.3.12
 			{ Generator_SQL::tokTransaction, "TRANSACTION" }, // @v12.3.12
-			{ Generator_SQL::tokIndexedBy, "INDEXED BY" }, // @v12.4.0 sqlite "indexed by"
-			{ Generator_SQL::tokOrderBy, "ORDER BY" }, // @v12.4.0
-			{ Generator_SQL::tokTemp, "TEMP" }, // @v12.4.4 
-			{ Generator_SQL::tokCollate, "COLLATE" }, // @v12.4.7 
-			{ Generator_SQL::tokCharacter, "CHARACTER" }, // @v12.4.8 
-			{ Generator_SQL::tokIfExists, "IF EXISTS" }, // @v12.4.8 
-			{ Generator_SQL::tokShow, "SHOW" }, // @v12.4.8 
-			{ Generator_SQL::tokLike, "LIKE" }, // @v12.4.8 
-			{ Generator_SQL::tokDatabases, "DATABASES" }, // @v12.4.8 
-			{ Generator_SQL::tokUse, "USE" }, // @v12.4.8 
-			{ Generator_SQL::tokStart, "START" }, // @v12.4.8 
-			{ Generator_SQL::tokUseIndex, "USE INDEX" },      // @v12.4.12 
+			{ Generator_SQL::tokIndexedBy,   "INDEXED BY" }, // @v12.4.0 sqlite "indexed by"
+			{ Generator_SQL::tokOrderBy,    "ORDER BY" }, // @v12.4.0
+			{ Generator_SQL::tokTemp,       "TEMP" }, // @v12.4.4 
+			{ Generator_SQL::tokCollate,    "COLLATE" }, // @v12.4.7 
+			{ Generator_SQL::tokCharacter,  "CHARACTER" }, // @v12.4.8 
+			{ Generator_SQL::tokIfExists,   "IF EXISTS" }, // @v12.4.8 
+			{ Generator_SQL::tokShow,       "SHOW" }, // @v12.4.8 
+			{ Generator_SQL::tokLike,       "LIKE" }, // @v12.4.8 
+			{ Generator_SQL::tokDatabases,  "DATABASES" }, // @v12.4.8 
+			{ Generator_SQL::tokUse,        "USE" }, // @v12.4.8 
+			{ Generator_SQL::tokStart,      "START" }, // @v12.4.8 
+			{ Generator_SQL::tokUseIndex,   "USE INDEX" },      // @v12.4.12 
 			{ Generator_SQL::tokForceIndex, "FORCE INDEX" }, // @v12.4.12 
-			{ Generator_SQL::tokUsing, "USING" }, // @v12.5.0 
+			{ Generator_SQL::tokUsing,      "USING" }, // @v12.5.0 
 		};
 		//Generator_SQL gen(sqlstSQLite, 0);
 		for(uint i = 0; i < SIZEOFARRAY(tok_list); i++) {
@@ -113,6 +113,7 @@ SLTEST_R(SQLite)
 				DBTable dbt;
 				if(dbp.LoadTableSpec(&dbt, p_tbl_name, p_tbl_name, /*createIfNExists*/0)) {
 					if(dbp.CreateDataFile(&dbt, p_tbl_name, /*SET_CRM_TEMP(crmNoReplace)*/crmNoReplace, 0)) {
+						SLCHECK_NZ(dbp.IsFileExists_(p_tbl_name));
 						debug_mark = true;
 					}
 				}

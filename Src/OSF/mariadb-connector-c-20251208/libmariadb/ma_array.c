@@ -41,9 +41,9 @@ bool ma_init_dynamic_array(DYNAMIC_ARRAY * array, uint element_size, uint init_a
 	array->size_of_element = element_size;
 	if(!(array->buffer = (char*)SAlloc::M(element_size*init_alloc))) {
 		array->max_element = 0;
-		return(TRUE);
+		return true;
 	}
-	return(FALSE);
+	return false;
 }
 
 bool ma_insert_dynamic(DYNAMIC_ARRAY * array, void * element)

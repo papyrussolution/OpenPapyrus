@@ -346,32 +346,30 @@ DRAFTBEER HORECA @v11.9.4
 			if(rS.GetToken(GtinStruc::fldGTIN14, &_01) && rS.GetToken(GtinStruc::fldSerial, &_21) && _01.Len() == 14) {
 				if(rS.GetToken(GtinStruc::fldPrice, &_8005) && rS.GetToken(GtinStruc::fldControlRuTobacco, &_93)) { // @v11.8.11 блок сигарет
 					if(rS.GetToken(GtinStruc::fldAddendumId, &_240)) {
-						rBuf./*CatChar('\x1D').*/Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("8005").Cat(_8005).
-							CatChar('\x1D').Cat("93").Cat(_93)
-							.CatChar('\x1D').Cat("240").Cat(_240); // @v11.9.10 Возвращаем криптохвост назад
+						rBuf.Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("8005").Cat(_8005).CatChar('\x1D').Cat("93").Cat(_93).
+							CatChar('\x1D').Cat("240").Cat(_240); // @v11.9.10 Возвращаем криптохвост назад
 						ok = 2; // @v11.9.12 @fix
 					}
 					// @v12.0.4 {
 					else {
-						rBuf./*CatChar('\x1D').*/Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("8005").Cat(_8005).
-							CatChar('\x1D').Cat("93").Cat(_93);
+						rBuf.Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("8005").Cat(_8005).CatChar('\x1D').Cat("93").Cat(_93);
 						ok = 2;
 					}
 					// } @v12.0.4 
 				}
 				else if(rS.GetToken(GtinStruc::fldUSPS, &_91) && rS.GetToken(GtinStruc::fldInner1, &_92)) {
 					if(_21.Len() == 13 && _91.Len() == 4/*&& _92.Len() == 44*/) {
-						rBuf./*CatChar(232).*/Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("91").Cat(_91).CatChar('\x1D').Cat("92").Cat(_92);
+						rBuf.Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("91").Cat(_91).CatChar('\x1D').Cat("92").Cat(_92);
 						ok = 2;
 					}
 				}
 				else if(rS.GetToken(GtinStruc::fldInner2, &_93)) { // @v11.4.11 молочная продукция //
 					if(oneof3(_21.Len(), 6, 7, 8)) { // @v12.0.4 7
-						rBuf./*CatChar('\x1D').*/Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("93").Cat(_93);
+						rBuf.Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("93").Cat(_93);
 						ok = 2;
 					}
 					if(_21.Len() == 13) { // @v11.5.5 Вода
-						rBuf./* @v11.6.4 CatChar('\x1D').*/Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("93").Cat(_93);
+						rBuf.Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("93").Cat(_93);
 						ok = 2;
 					}
 				}

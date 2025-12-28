@@ -530,13 +530,11 @@ static void skip_prefix(const uchar ** p, size_t * plen, size_t subject_len, uin
 	if((flags & _X509_CHECK_FLAG_DOT_SUBDOMAINS) == 0)
 		return;
 	while(pattern_len > subject_len && *pattern) {
-		if((flags & X509_CHECK_FLAG_SINGLE_LABEL_SUBDOMAINS) &&
-		    *pattern == '.')
+		if((flags & X509_CHECK_FLAG_SINGLE_LABEL_SUBDOMAINS) && *pattern == '.')
 			break;
 		++pattern;
 		--pattern_len;
 	}
-
 	/* Skip if entire prefix acceptable */
 	if(pattern_len == subject_len) {
 		*p = pattern;
@@ -636,8 +634,7 @@ static int wildcard_match(const uchar * prefix, size_t prefix_len, const uchar *
 			allow_multi = 1;
 	}
 	/* IDNA labels cannot match partial wildcards */
-	if(!allow_idna &&
-	    subject_len >= 4 && strncasecmp((char*)subject, "xn--", 4) == 0)
+	if(!allow_idna && subject_len >= 4 && strncasecmp((char*)subject, "xn--", 4) == 0)
 		return 0;
 	/* The wildcard may match a literal '*' */
 	if(wildcard_end == wildcard_start + 1 && *wildcard_start == '*')

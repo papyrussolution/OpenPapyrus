@@ -35,21 +35,19 @@ struct connectdata;
 struct Curl_sockaddr_ex;
 
 #ifndef SIZEOF_CURL_SOCKET_T
-/* configure and cmake check and set the define */
-# ifdef _WIN64
-#  define SIZEOF_CURL_SOCKET_T 8
-# else
-/* default guess */
-#  define SIZEOF_CURL_SOCKET_T 4
+    /* configure and cmake check and set the define */
+    #ifdef _WIN64
+        #define SIZEOF_CURL_SOCKET_T 8
+    #else
+        /* default guess */
+        #define SIZEOF_CURL_SOCKET_T 4
+    #endif
 #endif
-#endif
-
 #if SIZEOF_CURL_SOCKET_T < 8
-# define CURL_FORMAT_SOCKET_T "d"
+    #define CURL_FORMAT_SOCKET_T "d"
 #else
-# define CURL_FORMAT_SOCKET_T "qd"
+    #define CURL_FORMAT_SOCKET_T "qd"
 #endif
-
 /*
  * The Curl_sockaddr_ex structure is basically libcurl's external API
  * curl_sockaddr structure with enough space available to directly hold any
@@ -77,38 +75,29 @@ struct Curl_sockaddr_ex {
  * socket callback is set, used that!
  *
  */
-CURLcode Curl_socket_open(struct Curl_easy * data,
-    const struct Curl_addrinfo * ai,
-    struct Curl_sockaddr_ex * addr,
-    int transport,
-    curl_socket_t * sockfd);
-
-int Curl_socket_close(struct Curl_easy * data, struct connectdata * conn,
-    curl_socket_t sock);
+CURLcode Curl_socket_open(struct Curl_easy * data, const struct Curl_addrinfo * ai, struct Curl_sockaddr_ex * addr,
+    int transport, curl_socket_t * sockfd);
+int Curl_socket_close(struct Curl_easy * data, struct connectdata * conn, curl_socket_t sock);
 
 #ifdef USE_WINSOCK
-/* When you run a program that uses the Windows Sockets API, you may
-   experience slow performance when you copy data to a TCP server.
+    /* When you run a program that uses the Windows Sockets API, you may
+       experience slow performance when you copy data to a TCP server.
 
-   https://support.microsoft.com/kb/823764
+       https://support.microsoft.com/kb/823764
 
-   Work-around: Make the Socket Send Buffer Size Larger Than the Program Send
-   Buffer Size
+       Work-around: Make the Socket Send Buffer Size Larger Than the Program Send
+       Buffer Size
 
- */
-void Curl_sndbufset(curl_socket_t sockfd);
+     */
+    void Curl_sndbufset(curl_socket_t sockfd);
 #else
-#define Curl_sndbufset(y) Curl_nop_stmt
+    #define Curl_sndbufset(y) Curl_nop_stmt
 #endif
-
 /**
  * Assign the address `ai` to the Curl_sockaddr_ex `dest` and
  * set the transport used.
  */
-void Curl_sock_assign_addr(struct Curl_sockaddr_ex * dest,
-    const struct Curl_addrinfo * ai,
-    int transport);
-
+void Curl_sock_assign_addr(struct Curl_sockaddr_ex * dest, const struct Curl_addrinfo * ai, int transport);
 /**
  * Creates a cfilter that opens a TCP socket to the given address
  * when calling its `connect` implementation.
@@ -116,12 +105,7 @@ void Curl_sock_assign_addr(struct Curl_sockaddr_ex * dest,
  * used in happy eyeballing. Once selected for use, its `_active()`
  * method needs to be called.
  */
-CURLcode Curl_cf_tcp_create(struct Curl_cfilter ** pcf,
-    struct Curl_easy * data,
-    struct connectdata * conn,
-    const struct Curl_addrinfo * ai,
-    int transport);
-
+CURLcode Curl_cf_tcp_create(struct Curl_cfilter ** pcf, struct Curl_easy * data, struct connectdata * conn, const struct Curl_addrinfo * ai, int transport);
 /**
  * Creates a cfilter that opens a UDP socket to the given address
  * when calling its `connect` implementation.
@@ -129,12 +113,8 @@ CURLcode Curl_cf_tcp_create(struct Curl_cfilter ** pcf,
  * used in happy eyeballing. Once selected for use, its `_active()`
  * method needs to be called.
  */
-CURLcode Curl_cf_udp_create(struct Curl_cfilter ** pcf,
-    struct Curl_easy * data,
-    struct connectdata * conn,
-    const struct Curl_addrinfo * ai,
-    int transport);
-
+CURLcode Curl_cf_udp_create(struct Curl_cfilter ** pcf, struct Curl_easy * data, struct connectdata * conn,
+    const struct Curl_addrinfo * ai, int transport);
 /**
  * Creates a cfilter that opens a UNIX socket to the given address
  * when calling its `connect` implementation.
@@ -142,28 +122,16 @@ CURLcode Curl_cf_udp_create(struct Curl_cfilter ** pcf,
  * used in happy eyeballing. Once selected for use, its `_active()`
  * method needs to be called.
  */
-CURLcode Curl_cf_unix_create(struct Curl_cfilter ** pcf,
-    struct Curl_easy * data,
-    struct connectdata * conn,
-    const struct Curl_addrinfo * ai,
-    int transport);
-
+CURLcode Curl_cf_unix_create(struct Curl_cfilter ** pcf, struct Curl_easy * data,
+    struct connectdata * conn, const struct Curl_addrinfo * ai, int transport);
 /**
  * Creates a cfilter that keeps a listening socket.
  */
-CURLcode Curl_conn_tcp_listen_set(struct Curl_easy * data,
-    struct connectdata * conn,
-    int sockindex,
-    curl_socket_t * s);
-
+CURLcode Curl_conn_tcp_listen_set(struct Curl_easy * data, struct connectdata * conn, int sockindex, curl_socket_t * s);
 /**
  * Replace the listen socket with the accept()ed one.
  */
-CURLcode Curl_conn_tcp_accepted_set(struct Curl_easy * data,
-    struct connectdata * conn,
-    int sockindex,
-    curl_socket_t * s);
-
+CURLcode Curl_conn_tcp_accepted_set(struct Curl_easy * data, struct connectdata * conn, int sockindex, curl_socket_t * s);
 /**
  * Peek at the socket and remote ip/port the socket filter is using.
  * The filter owns all returned values.

@@ -211,9 +211,10 @@ int CreateByExample(const char * pPath)
 		// Перенос последних лотов из оригинальной базы в новую
 		//
 		SString path;
-		Goods2Tbl::Rec  goods_rec;
+		Goods2Tbl::Rec goods_rec;
 		ReceiptTbl::Rec rcpt_rec;
-		RECORDNUMBER rn = 0, i = 0;
+		RECORDNUMBER rn = 0;
+		RECORDNUMBER i = 0;
 		ReceiptTbl dst_tbl((path = pPath).SetLastSlash().Cat("receipt.btr"));
 		Goods2Tbl src_tbl((path = pPath).SetLastSlash().Cat("goods2.btr"));
 		src_tbl.SetDBuf(&goods_rec, sizeof(Goods2Tbl::Rec));

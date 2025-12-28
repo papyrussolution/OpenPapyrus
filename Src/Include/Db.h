@@ -1431,6 +1431,7 @@ public:
 	//   интерфейсом с конкретной СУБД.
 	//
 	//SSqlStmt(DbProvider * pDb, const char * pText);
+	static bool IsConsistent(const SSqlStmt * pThis) { return (pThis && pThis->Signature == SlConst::SSqlStmtSignature); }
 	SSqlStmt(DbProvider * pDb, const Generator_SQL & rSql);
 	SSqlStmt(DbProvider * pDb);
 	~SSqlStmt();
@@ -1485,11 +1486,7 @@ public:
 
 	struct Bind {
 		Bind();
-		void   SetNtvTypeAndSize(uint16 ntvTyp, uint32 ntvSize)
-		{
-			NtvTyp = ntvTyp;
-			NtvSize = ntvSize;
-		}
+		void   SetNtvTypeAndSize(uint16 ntvTyp, uint32 ntvSize);
 		DECL_INVARIANT_C();
 		enum {
 			fSubst             = 0x0001, // Используется подстановка
@@ -1536,9 +1533,10 @@ private:
 	size_t FASTCALL GetBindOuterSize(const Bind * pBind) const;
 	void * FASTCALL GetIndPtr(const Bind * pBind, uint rowN) const;
 
+	uint32 Signature; // 0x3597B6D4
 	DbProvider * P_Db;
 	void * H;
-	void * P_Result; // @v11.0.4
+	void * P_Result;
 	long   Flags;
 	int    Typ; // @v12.3.12 Generator_SQL::typXXX
 	BindArray BL;
@@ -1569,8 +1567,7 @@ struct DbTableStat {
 	DbTableStat();
 	DbTableStat & Z();
 	//
-	// Descr: Флаги элементов статистики, которые могут быть инициализированы
-	//   в этой структуре.
+	// Descr: Флаги элементов статистики, которые могут быть инициализированы в этой структуре.
 	//
 	enum {
 		iID         = 0x0001,
@@ -1587,23 +1584,23 @@ struct DbTableStat {
 		iOwnerName  = 0x0800,
 		iSpaceName  = 0x1000
 	};
-	long   ReqItems;       // Запрошенные элементы
-	long   RetItems;       // Инициализированные элементы
-	long   UnsupItem;      // Неподдерживаемые элементы
+	long   ReqItems;      // Запрошенные элементы
+	long   RetItems;      // Инициализированные элементы
+	long   UnsupItem;     // Неподдерживаемые элементы
 	long   ID;
 	int    OwnerLevel;
-	long   Flags;          // XTF_XXX
+	long   Flags;         // XTF_XXX
 	uint32 FixRecSize;
 	uint64 NumRecs;
-	uint32 FldCount;       // Количество полей в таблице
-	uint32 IdxCount;       // Количество индексов в таблице
-	uint32 PageSize;       // Размер страницы
-	SString TblName;       // Наименование спецификации таблицы
-	SString Location;      // Местоположение таблицы
-	SString OwnerName;     // @ora
-	SString SpaceName;     // @ora
-	BNFieldList2 FldList;   // Список полей
-	BNKeyList   IdxList;   // Список индексов
+	uint32 FldCount;      // Количество полей в таблице
+	uint32 IdxCount;      // Количество индексов в таблице
+	uint32 PageSize;      // Размер страницы
+	SString TblName;      // Наименование спецификации таблицы
+	SString Location;     // Местоположение таблицы
+	SString OwnerName;    // @ora
+	SString SpaceName;    // @ora
+	BNFieldList2 FldList; // Список полей
+	BNKeyList IdxList;    // Список индексов
 };
 
 class DBTable {
@@ -1616,6 +1613,7 @@ public:
 	friend class SSqliteDbProvider;
 	friend struct DBField;
 
+	static bool   IsConsistent(const DBTable * pThis) { return (pThis && pThis->Signature == SlConst::DBTableSignature); }
 	static void   FASTCALL InitErrFileName(const char * pFileName);
 	static const  char * GetLastErrorFileName();
 	static int (*OpenExceptionProc)(const char * pFileName, int btrErr);
@@ -1820,20 +1818,23 @@ public:
 public:
 	//
 	struct SelectStmt : public SSqlStmt {
-		SelectStmt(DbProvider * pDb, const Generator_SQL & rSql, int idx, int sp, int sf);
+		SelectStmt(DbProvider * pDb, DBTable * pTbl, const Generator_SQL & rSql, int idx, int sp, int sf);
 		//
 		// Descr: В случае использования этого конструктора sql-оператор должен быть присвоен ему позже
 		//   функцией SSqlStmt::SetSqlText
 		//
-		SelectStmt(DbProvider * pDb, int idx, int sp, int sf);
+		SelectStmt(DbProvider * pDb, DBTable * pTbl, int idx, int sp, int sf);
+		DBTable * GetOwnerTblRef() { return P_OwnerTbl; }
 		int    Idx;
 		int    Sp;
 		long   Sf;
 		int8   Key[512];
+	private:
+		DBTable * P_OwnerTbl; // @v12.5.2 Таблица - владелец запроса
 	};
 	void   SetStmt(SelectStmt * pStmt); // @private
 	SelectStmt * GetStmt();             // @private
-	void   ToggleStmt(bool release);    // @private
+	void   DestroySelectStmt();         // @private
 protected:
 	DBTable(const char *, const char *, void * pFlds, void * pData, int openMode, DbProvider * pDbP = 0);
 	int    getStat(void ** ppInfo, uint16 * pBufSize);
@@ -1865,6 +1866,7 @@ private:
 			// Вставка записей в такую таблицу, возможно, должна обрабатываться специальным образом.
 	};
 
+	uint32 Signature;      // @v12.5.2 SlConst::DBTableSignature
 	void * P_DBuf;
 	int    handle;
 	int    flags;
@@ -1882,9 +1884,10 @@ private:
 	uint16 PageSize;       // Размер страницы, определенный в спецификации.
 	uint32 BLobFieldIdx;   // @v12.4.11 [1..] 0 - udefined. Индекс "канонического" LOB-поля //
 #if CXX_ARCH_BITS==64
-	uint8  Reserve[36];    // @alignment // @v12.4.3 [14]->[30] // @v12.4.7 [30]-->[38] // @v12.4.8 [38]-->[40] // @v12.4.11 [40]-->[36]
+	uint8  Reserve[32];    // @alignment // @v12.4.3 [14]->[30] // @v12.4.7 [30]-->[38] // @v12.4.8 [38]-->[40] // @v12.4.11 [40]-->[36]
+		// @v12.5.2 [36]-->[32]
 #else
-	uint8  Reserve[4];     // @alignment // @v12.4.3 [18]->[2] // @v12.4.7 [2]-->[6] // @v12.4.8 [6]-->[8] // @v12.4.11 [8]-->[4]
+	// @v12.5.2 uint8  Reserve[4];     // @alignment // @v12.4.3 [18]->[2] // @v12.4.7 [2]-->[6] // @v12.4.8 [6]-->[8] // @v12.4.11 [8]-->[4]
 #endif
 	BTABLENAME tableName;
 	BNFieldList2 FldL;   // @v12.4.3 BNFieldList->BNFieldList2 // @v12.4.11 fields-->FldL
@@ -2960,6 +2963,7 @@ private:
 	int    Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, uint * pActual);
 	int    GetFileStat(const char * pFileName, long reqItems, DbTableStat * pStat);
 	const  BNField * GetRowIdField(const DBTable * pTbl, uint * pFldPos) const; // @v12.4.11
+	int    DestroyLastSelectStatement();
 
 	struct SearchQueryBlock { // Один-в-один скопировано из SSqliteDbProvider
 		SearchQueryBlock();
@@ -2986,6 +2990,9 @@ private:
 	void * H;
 	SString CurrentDatabase;
 	Generator_SQL SqlGen;
+	DBTable::SelectStmt * P_LastSelectStmt; // @v12.5.2 последний select-запрос. В случае с mysql эта ссылка необходима из-за
+		// того, что, если последний select-оператор не был отработан до конца или удален, то следующий оператор (например,
+		// по другой таблице) выполнить не удастся (error: Commands out of sync; you can't run this command now).
 };
 //
 // Descr: Провайдер для SQLite

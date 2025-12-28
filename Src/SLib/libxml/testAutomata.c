@@ -19,7 +19,7 @@ static int scanNumber(char ** ptr)
 		cur++;
 	}
 	*ptr = cur;
-	return(ret);
+	return ret;
 }
 
 static void testRegexpFile(const char * filename) 

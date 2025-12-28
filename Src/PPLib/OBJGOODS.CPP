@@ -37,7 +37,7 @@ PPObjGoods::ExportToGlbSvcItem::ExportToGlbSvcItem() : GoodsID(0), LocID(0), Cos
 /*static*/int PPObjGoods::DiagBarcode(const char * pBarcode, int * pDiag, int * pStd, SString * pNormalizedCode)
 {
 	int    ok = 0;
-	uint   bclen = sstrlen(pBarcode);
+	const  uint bclen = sstrlen(pBarcode);
 	uint   j;
 	int    cd = 0;
 	int    cdstd = 0;
@@ -73,8 +73,8 @@ PPObjGoods::ExportToGlbSvcItem::ExportToGlbSvcItem() : GoodsID(0), LocID(0), Cos
 			}
 		}
 		if(!ok) {
-			int    first = pBarcode[0];
-			int    second = pBarcode[1];
+			const  int first = pBarcode[0];
+			const  int second = pBarcode[1];
 			int    digit_only = 1;
 			uint   zcount = 0; // Количество ведущих нулей
 			{
@@ -584,8 +584,8 @@ int PPObjGoods::IsPacketEq(const PPGoodsPacket & rS1, const PPGoodsPacket & rS2,
 			result_flags |= pefCodeEq;
 	}
 	if(eq) {
-		const int ext_empty1 = BIN(rS1.IsExtRecEmpty());
-		const int ext_empty2 = BIN(rS2.IsExtRecEmpty());
+		const  bool ext_empty1 = rS1.IsExtRecEmpty();
+		const  bool ext_empty2 = rS2.IsExtRecEmpty();
 		if(ext_empty1 != ext_empty2)
 			eq = 0;
 		else if(!ext_empty1 && !P_Tbl->GetExtTbl_().GetFields().IsEqualRecords(&rS1.ExtRec, &rS2.ExtRec))
@@ -2011,10 +2011,10 @@ int PPObjGoods::SubstGoods(PPID srcID, PPID * pDestID, SubstGrpGoods sgg, const 
 				P_Tbl->GetExclusiveAltParent(srcID, pBlk->ExclParentID, &goods_id);
 			else if(sgg >= sggGroupSecondLvl) {
 				PPObjGoodsGroup ggrp_obj;
-				long level = 1;
+				long   level = 1;
 				Goods2Tbl::Rec temp_grec = goods_rec;
 				ggrp_obj.GetLevel(goods_rec.ParentID, &level);
-				level = MIN(level, sgg - sggGroupSecondLvl + 2);
+				level = smin(level, static_cast<long>(sgg - sggGroupSecondLvl + 2));
 				for(long idx = 1; idx < level && ggrp_obj.Fetch(temp_grec.ParentID, &temp_grec) > 0; idx++)
 					goods_id = temp_grec.ParentID;
 			}
@@ -3577,6 +3577,44 @@ StrAssocArray * PPObjGoods::CreateListByPrice(PPID locID, double price)
 		ZDELETE(p_list);
 	ENDCATCH
 	return p_list;
+}
+
+int PPObjGoods::SetupInheritedAttributes(Goods2Tbl::Rec & rGoodsRec, const LongArray & rInhAttrList) // @v12.5.2
+{
+	int    ok = -1;
+	if(!rGoodsRec.ID)
+		ok = 0;
+	else if(rGoodsRec.Kind != PPGDSK_GOODS)
+		ok = 0;
+	else if(rGoodsRec.ParentID) {
+		const  bool tax_grp_needed = (!rGoodsRec.TaxGrpID && rInhAttrList.lsearch(PPOBJATTR_TAXGROUP));
+		const  bool goods_type_needed = (!rGoodsRec.GoodsTypeID && rInhAttrList.lsearch(PPOBJATTR_SPECIALKIND));
+		if(tax_grp_needed || goods_type_needed) {
+			Goods2Tbl::Rec gg_rec;	
+			if(Fetch(rGoodsRec.ParentID, &gg_rec) > 0) {
+				if(tax_grp_needed) {
+					if(gg_rec.TaxGrpID) {
+						rGoodsRec.TaxGrpID = gg_rec.TaxGrpID;
+						ok = 1;
+					}
+				}
+				if(goods_type_needed) {
+					if(gg_rec.GoodsTypeID) {
+						rGoodsRec.GoodsTypeID = gg_rec.GoodsTypeID;
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+int PPObjGoods::SetupInheritedAttributes_TaxGroup(Goods2Tbl::Rec & rGoodsRec) // @v12.5.2
+{
+	LongArray inh_attr_list;
+	inh_attr_list.add(PPOBJATTR_TAXGROUP);
+	return SetupInheritedAttributes(rGoodsRec, inh_attr_list);
 }
 
 int PPObjGoods::GetHierarchy(PPID goodsID, StrAssocArray * pList)

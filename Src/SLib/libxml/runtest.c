@@ -124,7 +124,7 @@ static int glob(const char * pattern, int flags,
 	char directory[500];
 	int len;
 
-	if((pattern == NULL) || (pglob == NULL))  return(-1);
+	if((pattern == NULL) || (pglob == NULL))  return -1;
 
 	strncpy(directory, pattern, 499);
 	for(len = strlen(directory); len >= 0; len--) {
@@ -142,12 +142,12 @@ static int glob(const char * pattern, int flags,
 
 	hFind = FindFirstFileA(pattern, &FindFileData);
 	if(hFind == INVALID_HANDLE_VALUE)
-		return(0);
+		return 0;
 	nb_paths = 20;
 	ret->gl_pathv = (char **)malloc(nb_paths * sizeof(char *));
 	if(ret->gl_pathv == NULL) {
 		FindClose(hFind);
-		return(-1);
+		return -1;
 	}
 	strncpy(directory + len, FindFileData.cFileName, 499 - len);
 	ret->gl_pathv[ret->gl_pathc] = strdup(directory);
@@ -174,7 +174,7 @@ static int glob(const char * pattern, int flags,
 
 done:
 	FindClose(hFind);
-	return(0);
+	return 0;
 }
 
 static void globfree(glob_t * pglob) {
@@ -223,7 +223,7 @@ static xmlParserInputPtr testExternalEntityLoader(const char * URL, const char *
 		extraMemoryFromResolver += xmlMemUsed() - memused;
 	}
 
-	return(ret);
+	return ret;
 }
 
 /*
@@ -569,17 +569,17 @@ static int checkTestFile(const char * filename) {
 	struct stat buf;
 
 	if(stat(filename, &buf) == -1)
-		return(0);
+		return 0;
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 	if(!(buf.st_mode & _S_IFREG))
-		return(0);
+		return 0;
 #else
 	if(!S_ISREG(buf.st_mode))
-		return(0);
+		return 0;
 #endif
 
-	return(1);
+	return 1;
 }
 
 static int compareFiles(const char * r1, const char * r2) {
@@ -590,11 +590,11 @@ static int compareFiles(const char * r1, const char * r2) {
 
 	fd1 = open(r1, RD_FLAGS);
 	if(fd1 < 0)
-		return(-1);
+		return -1;
 	fd2 = open(r2, RD_FLAGS);
 	if(fd2 < 0) {
 		close(fd1);
-		return(-1);
+		return -1;
 	}
 	while(1) {
 		res1 = read(fd1, bytes1, 4096);
@@ -602,19 +602,19 @@ static int compareFiles(const char * r1, const char * r2) {
 		if((res1 != res2) || (res1 < 0)) {
 			close(fd1);
 			close(fd2);
-			return(1);
+			return 1;
 		}
 		if(res1 == 0)
 			break;
 		if(memcmp(bytes1, bytes2, res1) != 0) {
 			close(fd1);
 			close(fd2);
-			return(1);
+			return 1;
 		}
 	}
 	close(fd1);
 	close(fd2);
-	return(0);
+	return 0;
 }
 
 static int compareFileMem(const char * filename, const char * mem, int size) {
@@ -625,12 +625,12 @@ static int compareFileMem(const char * filename, const char * mem, int size) {
 	struct stat info;
 
 	if(stat(filename, &info) < 0)
-		return(-1);
+		return -1;
 	if(info.st_size != size)
-		return(-1);
+		return -1;
 	fd = open(filename, RD_FLAGS);
 	if(fd < 0)
-		return(-1);
+		return -1;
 	while(idx < size) {
 		res = read(fd, bytes, 4096);
 		if(res <= 0)
@@ -644,7 +644,7 @@ static int compareFileMem(const char * filename, const char * mem, int size) {
 					break;
 			fprintf(stderr, "Compare error at position %d\n", idx+ix);
 			close(fd);
-			return(1);
+			return 1;
 		}
 		idx += res;
 	}
@@ -658,13 +658,13 @@ static int loadMem(const char * filename, const char ** mem, int * size) {
 	char * base;
 	int siz = 0;
 	if(stat(filename, &info) < 0)
-		return(-1);
+		return -1;
 	base = malloc(info.st_size + 1);
 	if(base == NULL)
-		return(-1);
+		return -1;
 	if((fd = open(filename, RD_FLAGS)) < 0) {
 		free(base);
-		return(-1);
+		return -1;
 	}
 	while((res = read(fd, &base[siz], info.st_size - siz)) > 0) {
 		siz += res;
@@ -673,19 +673,19 @@ static int loadMem(const char * filename, const char ** mem, int * size) {
 #if !defined(_WIN32)
 	if(siz != info.st_size) {
 		free(base);
-		return(-1);
+		return -1;
 	}
 #endif
 	base[siz] = 0;
 	*mem = base;
 	*size = siz;
-	return(0);
+	return 0;
 }
 
 static int unloadMem(const char * mem) 
 {
 	free((char *)mem);
-	return(0);
+	return 0;
 }
 // 
 // Tests implementations
@@ -747,9 +747,9 @@ static int isStandaloneDebug(void * ctx ATTRIBUTE_UNUSED)
 {
 	callbacks++;
 	if(quiet)
-		return(0);
+		return 0;
 	fprintf(SAXdebug, "SAX.isStandalone()\n");
-	return(0);
+	return 0;
 }
 
 /**
@@ -764,9 +764,9 @@ static int hasInternalSubsetDebug(void * ctx ATTRIBUTE_UNUSED)
 {
 	callbacks++;
 	if(quiet)
-		return(0);
+		return 0;
 	fprintf(SAXdebug, "SAX.hasInternalSubset()\n");
-	return(0);
+	return 0;
 }
 
 /**
@@ -781,9 +781,9 @@ static int hasExternalSubsetDebug(void * ctx ATTRIBUTE_UNUSED)
 {
 	callbacks++;
 	if(quiet)
-		return(0);
+		return 0;
 	fprintf(SAXdebug, "SAX.hasExternalSubset()\n");
-	return(0);
+	return 0;
 }
 
 /**
@@ -1566,7 +1566,7 @@ static int saxParseTest(const char * filename, const char * result, const char *
 	if(SAXdebug == NULL) {
 		fprintf(stderr, "Failed to write to %s\n", temp);
 		free(temp);
-		return(-1);
+		return -1;
 	}
 
 	/* for SAX we really want the callbacks though the context handlers */
@@ -1620,7 +1620,7 @@ done:
 	/* switch back to structured error handling */
 	xmlSetGenericErrorFunc(NULL, NULL);
 	xmlSetStructuredErrorFunc(NULL, testStructuredErrorHandler);
-	return(ret);
+	return ret;
 }
 
 #endif
@@ -1654,7 +1654,7 @@ static int oldParseTest(const char * filename, const char * result, const char *
 	doc = xmlReadFile(filename, NULL, 0);
 #endif
 	if(doc == NULL)
-		return(1);
+		return 1;
 	temp = resultFilename(filename, "", ".res");
 	if(temp == NULL) {
 		fprintf(stderr, "out of memory\n");
@@ -1674,7 +1674,7 @@ static int oldParseTest(const char * filename, const char * result, const char *
 	doc = xmlReadFile(temp, NULL, 0);
 #endif
 	if(doc == NULL)
-		return(1);
+		return 1;
 	xmlSaveFile(temp, doc);
 	if(compareFiles(temp, result)) {
 		res = 1;
@@ -1685,7 +1685,7 @@ static int oldParseTest(const char * filename, const char * result, const char *
 		unlink(temp);
 		free(temp);
 	}
-	return(res);
+	return res;
 }
 
 #ifdef LIBXML_PUSH_ENABLED
@@ -1713,7 +1713,7 @@ static int pushParseTest(const char * filename, const char * result, const char 
 	 */
 	if(loadMem(filename, &base, &size) != 0) {
 		fprintf(stderr, "Failed to load %s\n", filename);
-		return(-1);
+		return -1;
 	}
 
 #ifdef LIBXML_HTML_ENABLED
@@ -1757,7 +1757,7 @@ static int pushParseTest(const char * filename, const char * result, const char 
 	if(!res) {
 		xmlFreeDoc(doc);
 		fprintf(stderr, "Failed to parse %s\n", filename);
-		return(-1);
+		return -1;
 	}
 #ifdef LIBXML_HTML_ENABLED
 	if(options & XML_PARSE_HTML)
@@ -1771,17 +1771,17 @@ static int pushParseTest(const char * filename, const char * result, const char 
 		if(base != NULL)
 			xmlFree((char *)base);
 		fprintf(stderr, "Result for %s failed\n", filename);
-		return(-1);
+		return -1;
 	}
 	xmlFree((char *)base);
 	if(err != NULL) {
 		res = compareFileMem(err, testErrors, testErrorsSize);
 		if(res != 0) {
 			fprintf(stderr, "Error for %s failed\n", filename);
-			return(-1);
+			return -1;
 		}
 	}
-	return(0);
+	return 0;
 }
 
 #endif
@@ -1811,13 +1811,13 @@ static int memParseTest(const char * filename, const char * result,
 	 */
 	if(loadMem(filename, &base, &size) != 0) {
 		fprintf(stderr, "Failed to load %s\n", filename);
-		return(-1);
+		return -1;
 	}
 
 	doc = xmlReadMemory(base, size, filename, NULL, 0);
 	unloadMem(base);
 	if(doc == NULL) {
-		return(1);
+		return 1;
 	}
 	xmlDocDumpMemory(doc, (xmlChar **)&base, &size);
 	xmlFreeDoc(doc);
@@ -1826,10 +1826,10 @@ static int memParseTest(const char * filename, const char * result,
 		if(base != NULL)
 			xmlFree((char *)base);
 		fprintf(stderr, "Result for %s failed\n", filename);
-		return(-1);
+		return -1;
 	}
 	xmlFree((char *)base);
-	return(0);
+	return 0;
 }
 
 /**
@@ -1857,7 +1857,7 @@ static int noentParseTest(const char * filename, const char * result,
 	 */
 	doc = xmlReadFile(filename, NULL, options);
 	if(doc == NULL)
-		return(1);
+		return 1;
 	temp = resultFilename(filename, "", ".res");
 	if(temp == NULL) {
 		fprintf(stderr, "Out of memory\n");
@@ -1874,7 +1874,7 @@ static int noentParseTest(const char * filename, const char * result,
 	 */
 	doc = xmlReadFile(filename, NULL, options);
 	if(doc == NULL)
-		return(1);
+		return 1;
 	xmlSaveFile(temp, doc);
 	if(compareFiles(temp, result)) {
 		res = 1;
@@ -1885,7 +1885,7 @@ static int noentParseTest(const char * filename, const char * result,
 		unlink(temp);
 		free(temp);
 	}
-	return(res);
+	return res;
 }
 
 /**
@@ -1946,13 +1946,13 @@ static int errParseTest(const char * filename, const char * result, const char *
 	}
 	if(res != 0) {
 		fprintf(stderr, "Result for %s failed\n", filename);
-		return(-1);
+		return -1;
 	}
 	if(err != NULL) {
 		res = compareFileMem(err, testErrors, testErrorsSize);
 		if(res != 0) {
 			fprintf(stderr, "Error for %s failed\n", filename);
-			return(-1);
+			return -1;
 		}
 	}
 	else if(options & XML_PARSE_DTDVALID) {
@@ -1960,7 +1960,7 @@ static int errParseTest(const char * filename, const char * result, const char *
 			fprintf(stderr, "Validation for %s failed\n", filename);
 	}
 
-	return(0);
+	return 0;
 }
 
 #ifdef LIBXML_READER_ENABLED
@@ -1990,7 +1990,7 @@ static int streamProcessTest(const char * filename, const char * result, const c
 	char * temp = NULL;
 	FILE * t = NULL;
 	if(reader == NULL)
-		return(-1);
+		return -1;
 	nb_tests++;
 	if(result != NULL) {
 		temp = resultFilename(filename, "", ".res");
@@ -2002,7 +2002,7 @@ static int streamProcessTest(const char * filename, const char * result, const c
 		if(t == NULL) {
 			fprintf(stderr, "Can't open temp file %s\n", temp);
 			free(temp);
-			return(-1);
+			return -1;
 		}
 	}
 #ifdef LIBXML_SCHEMAS_ENABLED
@@ -2016,7 +2016,7 @@ static int streamProcessTest(const char * filename, const char * result, const c
 				unlink(temp);
 				free(temp);
 			}
-			return(0);
+			return 0;
 		}
 	}
 #endif
@@ -2048,7 +2048,7 @@ static int streamProcessTest(const char * filename, const char * result, const c
 		}
 		if(ret) {
 			fprintf(stderr, "Result for %s failed\n", filename);
-			return(-1);
+			return -1;
 		}
 	}
 	if(err != NULL) {
@@ -2056,10 +2056,10 @@ static int streamProcessTest(const char * filename, const char * result, const c
 		if(ret != 0) {
 			fprintf(stderr, "Error for %s failed\n", filename);
 			printf("%s", testErrors);
-			return(-1);
+			return -1;
 		}
 	}
-	return(0);
+	return 0;
 }
 
 /**
@@ -2077,7 +2077,7 @@ static int streamParseTest(const char * filename, const char * result, const cha
 	xmlTextReader * reader = xmlReaderForFile(filename, NULL, options);
 	int ret = streamProcessTest(filename, result, err, reader, NULL, options);
 	xmlFreeTextReader(reader);
-	return(ret);
+	return ret;
 }
 /**
  * walkerParseTest:
@@ -2096,13 +2096,13 @@ static int walkerParseTest(const char * filename, const char * result, const cha
 	xmlDoc * doc = xmlReadFile(filename, NULL, options);
 	if(doc == NULL) {
 		fprintf(stderr, "Failed to parse %s\n", filename);
-		return(-1);
+		return -1;
 	}
 	reader = xmlReaderWalker(doc);
 	ret = streamProcessTest(filename, result, err, reader, NULL, options);
 	xmlFreeTextReader(reader);
 	xmlFreeDoc(doc);
-	return(ret);
+	return ret;
 }
 /**
  * streamMemParseTest:
@@ -2125,13 +2125,13 @@ static int streamMemParseTest(const char * filename, const char * result, const 
 	 */
 	if(loadMem(filename, &base, &size) != 0) {
 		fprintf(stderr, "Failed to load %s\n", filename);
-		return(-1);
+		return -1;
 	}
 	reader = xmlReaderForMemory(base, size, filename, NULL, options);
 	ret = streamProcessTest(filename, result, err, reader, NULL, options);
 	free((char *)base);
 	xmlFreeTextReader(reader);
-	return(ret);
+	return ret;
 }
 
 #endif
@@ -2202,13 +2202,13 @@ static int xpathCommonTest(const char * filename, const char * result, int xptr,
 	if(xpathOutput == NULL) {
 		fprintf(stderr, "failed to open output file %s\n", temp);
 		free(temp);
-		return(-1);
+		return -1;
 	}
 	input = fopen(filename, "rb");
 	if(input == NULL) {
 		xmlGenericError(xmlGenericErrorContext, "Cannot open %s for reading\n", filename);
 		free(temp);
-		return(-1);
+		return -1;
 	}
 	while(fgets(expression, 4500, input) != NULL) {
 		len = strlen(expression);
@@ -2238,7 +2238,7 @@ static int xpathCommonTest(const char * filename, const char * result, int xptr,
 		unlink(temp);
 		free(temp);
 	}
-	return(ret);
+	return ret;
 }
 
 /**
@@ -2282,7 +2282,7 @@ static int xpathDocTest(const char * filename,
 		options | XML_PARSE_DTDATTR | XML_PARSE_NOENT);
 	if(xpathDocument == NULL) {
 		fprintf(stderr, "Failed to load %s\n", filename);
-		return(-1);
+		return -1;
 	}
 
 	snprintf(pattern, 499, "./test/XPath/tests/%s*", baseFilename(filename));
@@ -2299,7 +2299,7 @@ static int xpathDocTest(const char * filename,
 	globfree(&globbuf);
 
 	xmlFreeDoc(xpathDocument);
-	return(ret);
+	return ret;
 }
 
 #ifdef LIBXML_XPTR_ENABLED
@@ -2328,7 +2328,7 @@ static int xptrDocTest(const char * filename,
 		options | XML_PARSE_DTDATTR | XML_PARSE_NOENT);
 	if(xpathDocument == NULL) {
 		fprintf(stderr, "Failed to load %s\n", filename);
-		return(-1);
+		return -1;
 	}
 
 	snprintf(pattern, 499, "./test/XPath/xptr/%s*", baseFilename(filename));
@@ -2345,7 +2345,7 @@ static int xptrDocTest(const char * filename,
 	globfree(&globbuf);
 
 	xmlFreeDoc(xpathDocument);
-	return(ret);
+	return ret;
 }
 
 #endif /* LIBXML_XPTR_ENABLED */
@@ -2369,7 +2369,7 @@ static int xmlidDocTest(const char * filename, const char * result, const char *
 	xpathDocument = xmlReadFile(filename, NULL, options | XML_PARSE_DTDATTR | XML_PARSE_NOENT);
 	if(xpathDocument == NULL) {
 		fprintf(stderr, "Failed to load %s\n", filename);
-		return(-1);
+		return -1;
 	}
 	temp = resultFilename(filename, "", ".res");
 	if(temp == NULL) {
@@ -2381,7 +2381,7 @@ static int xmlidDocTest(const char * filename, const char * result, const char *
 		fprintf(stderr, "failed to open output file %s\n", temp);
 		xmlFreeDoc(xpathDocument);
 		free(temp);
-		return(-1);
+		return -1;
 	}
 	testXPath("id('bar')", 0, 0);
 	fclose(xpathOutput);
@@ -2404,7 +2404,7 @@ static int xmlidDocTest(const char * filename, const char * result, const char *
 			res = 1;
 		}
 	}
-	return(res);
+	return res;
 }
 
 #endif /* LIBXML_DEBUG_ENABLED */
@@ -2464,7 +2464,7 @@ static int uriCommonTest(const char * filename, const char * result, const char 
 	if(o == NULL) {
 		fprintf(stderr, "failed to open output file %s\n", temp);
 		free(temp);
-		return(-1);
+		return -1;
 	}
 	f = fopen(filename, "rb");
 	if(f == NULL) {
@@ -2474,7 +2474,7 @@ static int uriCommonTest(const char * filename, const char * result, const char 
 			unlink(temp);
 			free(temp);
 		}
-		return(-1);
+		return -1;
 	}
 	while(1) {
 		/*
@@ -2519,7 +2519,7 @@ static int uriCommonTest(const char * filename, const char * result, const char 
 		unlink(temp);
 		free(temp);
 	}
-	return(res);
+	return res;
 }
 
 /**
@@ -2604,11 +2604,11 @@ static int urip_rlen;
  */
 static int uripMatch(const char * URI) {
 	if((URI == NULL) || (sstreq(URI, "file:///etc/xml/catalog")))
-		return(0);
+		return 0;
 	/* Verify we received the escaped URL */
 	if(strcmp(urip_rcvsURLs[urip_current], URI))
 		urip_success = 0;
-	return(1);
+	return 1;
 }
 
 /**
@@ -2640,10 +2640,10 @@ static void *uripOpen(const char * URI) {
  * Returns 0 or -1 in case of error
  */
 static int uripClose(void * context) {
-	if(context == NULL)  return(-1);
+	if(context == NULL)  return -1;
 	urip_cur = NULL;
 	urip_rlen = 0;
-	return(0);
+	return 0;
 }
 
 /**
@@ -2660,7 +2660,7 @@ static int uripRead(void * context, char * buffer, int len) {
 	const char * ptr = (const char *)context;
 
 	if((context == NULL) || (buffer == NULL) || (len < 0))
-		return(-1);
+		return -1;
 
 	if(len > urip_rlen)  len = urip_rlen;
 	memcpy(buffer, ptr, len);
@@ -2673,9 +2673,9 @@ static int urip_checkURL(const char * URL) {
 
 	doc = xmlReadFile(URL, NULL, 0);
 	if(doc == NULL)
-		return(-1);
+		return -1;
 	xmlFreeDoc(doc);
-	return(1);
+	return 1;
 }
 
 /**
@@ -2701,7 +2701,7 @@ static int uriPathTest(const char * filename ATTRIBUTE_UNUSED,
 	 */
 	if(xmlRegisterInputCallbacks(uripMatch, uripOpen, uripRead, uripClose) < 0) {
 		fprintf(stderr, "failed to register HTTP handler\n");
-		return(-1);
+		return -1;
 	}
 
 	for(urip_current = 0; urip_testURLs[urip_current] != NULL; urip_current++) {
@@ -2746,7 +2746,7 @@ static int schemasOneTest(const char * sch,
 	doc = xmlReadFile(filename, NULL, options);
 	if(doc == NULL) {
 		fprintf(stderr, "failed to parse instance %s for %s\n", filename, sch);
-		return(-1);
+		return -1;
 	}
 
 	temp = resultFilename(result, "", ".res");
@@ -2759,7 +2759,7 @@ static int schemasOneTest(const char * sch,
 		fprintf(stderr, "failed to open output file %s\n", temp);
 		xmlFreeDoc(doc);
 		free(temp);
-		return(-1);
+		return -1;
 	}
 
 	ctxt = xmlSchemaNewValidCtxt(schemas);
@@ -2799,7 +2799,7 @@ static int schemasOneTest(const char * sch,
 
 	xmlSchemaFreeValidCtxt(ctxt);
 	xmlFreeDoc(doc);
-	return(ret);
+	return ret;
 }
 
 /**
@@ -2846,7 +2846,7 @@ static int schemasTest(const char * filename,
 	len = strlen(base);
 	if((len > 499) || (len < 5)) {
 		xmlSchemaFree(schemas);
-		return(-1);
+		return -1;
 	}
 	len -= 4; /* remove trailing .xsd */
 	if(base[len - 2] == '_') {
@@ -2901,7 +2901,7 @@ static int schemasTest(const char * filename,
 	globfree(&globbuf);
 	xmlSchemaFree(schemas);
 
-	return(res);
+	return res;
 }
 
 /************************************************************************
@@ -2924,7 +2924,7 @@ static int rngOneTest(const char * sch,
 	doc = xmlReadFile(filename, NULL, options);
 	if(doc == NULL) {
 		fprintf(stderr, "failed to parse instance %s for %s\n", filename, sch);
-		return(-1);
+		return -1;
 	}
 
 	temp = resultFilename(result, "", ".res");
@@ -2937,7 +2937,7 @@ static int rngOneTest(const char * sch,
 		fprintf(stderr, "failed to open output file %s\n", temp);
 		xmlFreeDoc(doc);
 		free(temp);
-		return(-1);
+		return -1;
 	}
 
 	ctxt = xmlRelaxNGNewValidCtxt(schemas);
@@ -2979,7 +2979,7 @@ static int rngOneTest(const char * sch,
 
 	xmlRelaxNGFreeValidCtxt(ctxt);
 	xmlFreeDoc(doc);
-	return(ret);
+	return ret;
 }
 
 /**
@@ -3025,7 +3025,7 @@ static int rngTest(const char * filename,
 	len = strlen(base);
 	if((len > 499) || (len < 5)) {
 		xmlRelaxNGFree(schemas);
-		return(-1);
+		return -1;
 	}
 	len -= 4; /* remove trailing .rng */
 	memcpy(prefix, base, len);
@@ -3068,7 +3068,7 @@ static int rngTest(const char * filename,
 	globfree(&globbuf);
 	xmlRelaxNGFree(schemas);
 
-	return(ret);
+	return ret;
 }
 
 #ifdef LIBXML_READER_ENABLED
@@ -3106,7 +3106,7 @@ static int rngStreamTest(const char * filename,
 	len = strlen(base);
 	if((len > 499) || (len < 5)) {
 		fprintf(stderr, "len(base) == %d !\n", len);
-		return(-1);
+		return -1;
 	}
 	len -= 4; /* remove trailing .rng */
 	memcpy(prefix, base, len);
@@ -3153,7 +3153,7 @@ static int rngStreamTest(const char * filename,
 		}
 	}
 	globfree(&globbuf);
-	return(res);
+	return res;
 }
 
 #endif /* READER */
@@ -3257,16 +3257,16 @@ static int patternTest(const char * filename, const char * resul ATTRIBUTE_UNUSE
 
 	if(!checkTestFile(xml)) {
 		fprintf(stderr, "Missing xml file %s\n", xml);
-		return(-1);
+		return -1;
 	}
 	if(!checkTestFile(result)) {
 		fprintf(stderr, "Missing result file %s\n", result);
-		return(-1);
+		return -1;
 	}
 	f = fopen(filename, "rb");
 	if(f == NULL) {
 		fprintf(stderr, "Failed to open %s\n", filename);
-		return(-1);
+		return -1;
 	}
 	temp = resultFilename(filename, "", ".res");
 	if(temp == NULL) {
@@ -3278,7 +3278,7 @@ static int patternTest(const char * filename, const char * resul ATTRIBUTE_UNUSE
 		fprintf(stderr, "failed to open output file %s\n", temp);
 		fclose(f);
 		free(temp);
-		return(-1);
+		return -1;
 	}
 	while(1) {
 		/*
@@ -3365,7 +3365,7 @@ static int patternTest(const char * filename, const char * resul ATTRIBUTE_UNUSE
 		unlink(temp);
 		free(temp);
 	}
-	return(ret);
+	return ret;
 }
 
 #endif /* READER */
@@ -3457,13 +3457,11 @@ static xmlXPathObjectPtr load_xpath_expr(xmlDocPtr parent_doc, const char* filen
 		xmlFreeDoc(doc);
 		return NULL;
 	}
-
 	/* print_xpath_nodes(xpath->nodesetval); */
-
 	xmlFree(expr);
 	xmlXPathFreeContext(ctx);
 	xmlFreeDoc(doc);
-	return(xpath);
+	return xpath;
 }
 
 /*
@@ -3471,24 +3469,22 @@ static xmlXPathObjectPtr load_xpath_expr(xmlDocPtr parent_doc, const char* filen
  */
 #define xxx_growBufferReentrant() {                                             \
 		buffer_size *= 2;                                                   \
-		buffer = (xmlChar **)                                               \
-		    xmlRealloc(buffer, buffer_size * sizeof(xmlChar*));     \
+		buffer = (xmlChar **)xmlRealloc(buffer, buffer_size * sizeof(xmlChar*)); \
 		if(buffer == NULL) {                                               \
 			perror("realloc failed");                                       \
 			return NULL;                                                   \
 		}                                                                   \
 }
 
-static xmlChar **parse_list(xmlChar * str) {
+static xmlChar **parse_list(xmlChar * str) 
+{
 	xmlChar ** buffer;
 	xmlChar ** out = NULL;
 	int buffer_size = 0;
 	int len;
-
 	if(str == NULL) {
 		return NULL;
 	}
-
 	len = xmlStrlen(str);
 	if((str[0] == '\'') && (str[len - 1] == '\'')) {
 		str[len - 1] = '\0';
@@ -3508,7 +3504,6 @@ static xmlChar **parse_list(xmlChar * str) {
 	while(*str != '\0') {
 		if(out - buffer > buffer_size - 10) {
 			int indx = out - buffer;
-
 			xxx_growBufferReentrant();
 			out = &buffer[indx];
 		}
@@ -3520,17 +3515,15 @@ static xmlChar **parse_list(xmlChar * str) {
 	return buffer;
 }
 
-static int c14nRunTest(const char* xml_filename, int with_comments, int mode,
-    const char* xpath_filename, const char * ns_filename,
-    const char* result_file) {
+static int c14nRunTest(const char* xml_filename, int with_comments, int mode, const char* xpath_filename, const char * ns_filename, const char* result_file) 
+{
 	xmlDocPtr doc;
-	xmlXPathObjectPtr xpath = NULL;
+	xmlXPathObject * xpath = NULL;
 	xmlChar * result = NULL;
 	int ret;
 	xmlChar ** inclusive_namespaces = NULL;
 	const char * nslist = NULL;
 	int nssize;
-
 	/*
 	 * build an XML tree from a the file; we need to add default
 	 * attributes and resolve all character and entities references
@@ -3541,7 +3534,7 @@ static int c14nRunTest(const char* xml_filename, int with_comments, int mode,
 	doc = xmlReadFile(xml_filename, NULL, XML_PARSE_DTDATTR | XML_PARSE_NOENT);
 	if(doc == NULL) {
 		fprintf(stderr, "Error: unable to parse file \"%s\"\n", xml_filename);
-		return(-1);
+		return -1;
 	}
 
 	/*
@@ -3550,7 +3543,7 @@ static int c14nRunTest(const char* xml_filename, int with_comments, int mode,
 	if(xmlDocGetRootElement(doc) == NULL) {
 		fprintf(stderr, "Error: empty document for file \"%s\"\n", xml_filename);
 		xmlFreeDoc(doc);
-		return(-1);
+		return -1;
 	}
 
 	/*
@@ -3561,16 +3554,15 @@ static int c14nRunTest(const char* xml_filename, int with_comments, int mode,
 		if(xpath == NULL) {
 			fprintf(stderr, "Error: unable to evaluate xpath expression\n");
 			xmlFreeDoc(doc);
-			return(-1);
+			return -1;
 		}
 	}
-
-	if(ns_filename != NULL) {
+	if(ns_filename) {
 		if(loadMem(ns_filename, &nslist, &nssize)) {
 			fprintf(stderr, "Error: unable to evaluate xpath expression\n");
-			if(xpath != NULL) xmlXPathFreeObject(xpath);
+			xmlXPathFreeObject(xpath);
 			xmlFreeDoc(doc);
-			return(-1);
+			return -1;
 		}
 		inclusive_namespaces = parse_list((xmlChar *)nslist);
 	}
@@ -3579,12 +3571,9 @@ static int c14nRunTest(const char* xml_filename, int with_comments, int mode,
 	 * Canonical form
 	 */
 	/* fprintf(stderr,"File \"%s\" loaded: start canonization\n", xml_filename); */
-	ret = xmlC14NDocDumpMemory(doc,
-		(xpath) ? xpath->nodesetval : NULL,
-		mode, inclusive_namespaces,
-		with_comments, &result);
+	ret = xmlC14NDocDumpMemory(doc, (xpath) ? xpath->nodesetval : NULL, mode, inclusive_namespaces, with_comments, &result);
 	if(ret >= 0) {
-		if(result != NULL) {
+		if(result) {
 			if(compareFileMem(result_file, (const char *)result, ret)) {
 				fprintf(stderr, "Result mismatch for %s\n", xml_filename);
 				fprintf(stderr, "RESULT:\n%s\n", (const char*)result);
@@ -3596,21 +3585,22 @@ static int c14nRunTest(const char* xml_filename, int with_comments, int mode,
 		fprintf(stderr, "Error: failed to canonicalize XML file \"%s\" (ret=%d)\n", xml_filename, ret);
 		ret = -1;
 	}
-
 	/*
 	 * Cleanup
 	 */
-	if(result != NULL)  xmlFree(result);
-	if(xpath != NULL) xmlXPathFreeObject(xpath);
-	if(inclusive_namespaces != NULL)  xmlFree(inclusive_namespaces);
-	if(nslist != NULL)  free((char *)nslist);
+	if(result != NULL)
+		xmlFree(result);
+	xmlXPathFreeObject(xpath);
+	if(inclusive_namespaces != NULL)  
+		xmlFree(inclusive_namespaces);
+	if(nslist != NULL)  
+		SAlloc::F((char *)nslist);
 	xmlFreeDoc(doc);
-
-	return(ret);
+	return ret;
 }
 
-static int c14nCommonTest(const char * filename, int with_comments, int mode,
-    const char * subdir) {
+static int c14nCommonTest(const char * filename, int with_comments, int mode, const char * subdir) 
+{
 	char buf[500];
 	char prefix[500];
 	const char * base;
@@ -3619,7 +3609,6 @@ static int c14nCommonTest(const char * filename, int with_comments, int mode,
 	char * xpath = NULL;
 	char * ns = NULL;
 	int ret = 0;
-
 	base = baseFilename(filename);
 	len = strlen(base);
 	len -= 4;
@@ -3629,7 +3618,7 @@ static int c14nCommonTest(const char * filename, int with_comments, int mode,
 	snprintf(buf, 499, "result/c14n/%s/%s", subdir, prefix);
 	if(!checkTestFile(buf)) {
 		fprintf(stderr, "Missing result file %s", buf);
-		return(-1);
+		return -1;
 	}
 	result = strdup(buf);
 	snprintf(buf, 499, "test/c14n/%s/%s.xpath", subdir, prefix);
@@ -3649,7 +3638,7 @@ static int c14nCommonTest(const char * filename, int with_comments, int mode,
 	if(result != NULL)  free(result);
 	if(xpath != NULL)  free(xpath);
 	if(ns != NULL)  free(ns);
-	return(ret);
+	return ret;
 }
 
 static int c14nWithCommentTest(const char * filename,
@@ -3801,21 +3790,21 @@ static int testThread(void)
 				&useless);
 			if(tid[i] == NULL) {
 				fprintf(stderr, "CreateThread failed\n");
-				return(1);
+				return 1;
 			}
 		}
 
 		if(WaitForMultipleObjects(num_threads, tid, TRUE, INFINITE) ==
 		    WAIT_FAILED) {
 			fprintf(stderr, "WaitForMultipleObjects failed\n");
-			return(1);
+			return 1;
 		}
 
 		for(i = 0; i < num_threads; i++) {
 			ret = GetExitCodeThread(tid[i], &results[i]);
 			if(ret == 0) {
 				fprintf(stderr, "GetExitCodeThread failed\n");
-				return(1);
+				return 1;
 			}
 			CloseHandle(tid[i]);
 		}
@@ -3881,8 +3870,8 @@ static int testThread(void)
 			}
 	}
 	if(ret != B_OK)
-		return(1);
-	return (0);
+		return 1;
+	return 0;
 }
 
 #elif defined HAVE_PTHREAD_H
@@ -4136,7 +4125,7 @@ static int launchTests(testDescPtr tst)
 	char * error;
 	int mem;
 
-	if(tst == NULL)  return(-1);
+	if(tst == NULL)  return -1;
 	if(tst->in != NULL) {
 		glob_t globbuf;
 
@@ -4242,7 +4231,7 @@ static int runtest(int i) {
 			    nb_errors - old_errors,
 			    nb_leaks - old_leaks);
 	}
-	return(ret);
+	return ret;
 }
 
 int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED) 
@@ -4279,13 +4268,13 @@ int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED)
 	}
 	xmlCleanupParser();
 	xmlMemoryDump();
-	return(ret);
+	return ret;
 }
 
 #else /* ! LIBXML_OUTPUT_ENABLED */
 int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED) 
 {
 	fprintf(stderr, "runtest requires output to be enabled in libxml2\n");
-	return(1);
+	return 1;
 }
 #endif

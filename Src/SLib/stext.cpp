@@ -2098,7 +2098,8 @@ bool FASTCALL sstreqi_ascii(const wchar_t * pS1, const char * pS2)
 bool STDCALL sstreqni_ascii(const char * pS1, const char * pS2, size_t maxlen)
 {
 	if(static_cast<const void *>(pS1) != static_cast<const void *>(pS2)) {
-		const size_t len1 = smin(sstrlen(pS1), maxlen);
+		// @20251227 @todo В следующих 2 строках правильнее использовать strnlen - так будет быстрее работать.
+		const size_t len1 = smin(sstrlen(pS1), maxlen); 
 		const size_t len2 = smin(sstrlen(pS2), maxlen);
 		if(len1 != len2)
 			return false;

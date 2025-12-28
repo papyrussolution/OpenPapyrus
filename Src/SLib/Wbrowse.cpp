@@ -1670,7 +1670,7 @@ int BrowserWindow::EvaluateColumnSizeStat(TSVector <ColumnWidthStat> & rStat) //
 		HWND  h_wnd = H();
 		HDC   h_dc = h_wnd ? GetDC(h_wnd) : 0;
 		if(h_dc) {
-			char  cbuf[1024];
+			char  cbuf[2048];
 			TSCollection <StatBase> raw_stat_list;
 			{
 				for(uint ci = 0; ci < cc; ci++) {

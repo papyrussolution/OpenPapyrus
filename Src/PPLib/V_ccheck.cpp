@@ -3112,20 +3112,20 @@ int PPViewCCheck::EditGoods(const void * pHdr, int goodsNo)
 		PPID   goods_id   = (goodsNo == 1) ? p_gc_rec->Goods1ID : p_gc_rec->Goods2ID;
 		SString goods_name((goodsNo == 1) ? p_gc_rec->GoodsName1 : p_gc_rec->GoodsName2);
 		if(GObj.Edit(&goods_id, 0) == cmOK) {
-			Goods2Tbl::Rec  gds_rec;
-			if(GObj.Fetch(goods_id, &gds_rec) > 0 && goods_name.Cmp(gds_rec.Name, 0)) {
+			Goods2Tbl::Rec goods_rec;
+			if(GObj.Fetch(goods_id, &goods_rec) > 0 && goods_name.Cmp(goods_rec.Name, 0)) {
 				TempCCheckGdsCorrTbl::Key1  k1;
 				TempCCheckGdsCorrTbl::Key2  k2;
 				MEMSZERO(k1);
 				k1.Goods1ID = goods_id;
 				while(P_TmpGdsCorrTbl->search(1, &k1, spGt) && k1.Goods1ID == goods_id) {
-					STRNSCPY(P_TmpGdsCorrTbl->data.GoodsName1, gds_rec.Name);
+					STRNSCPY(P_TmpGdsCorrTbl->data.GoodsName1, goods_rec.Name);
 					THROW_DB(P_TmpGdsCorrTbl->updateRec());
 				}
 				MEMSZERO(k2);
 				k2.Goods2ID = goods_id;
 				while(P_TmpGdsCorrTbl->search(2, &k2, spGt) && k2.Goods2ID == goods_id) {
-					STRNSCPY(P_TmpGdsCorrTbl->data.GoodsName2, gds_rec.Name);
+					STRNSCPY(P_TmpGdsCorrTbl->data.GoodsName2, goods_rec.Name);
 					THROW_DB(P_TmpGdsCorrTbl->updateRec());
 				}
 				ok = 1;

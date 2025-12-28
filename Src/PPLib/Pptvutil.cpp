@@ -9220,12 +9220,30 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 
 					// @v12.5.2 lp_il.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 					// @v12.5.2 lp_il.SetFixedSizeY(FixedInputY);
-
+					// @v12.5.2 {
+					if(inp_szx == SUiLayoutParam::szFixed) {
+						glp.SetFixedSizeX(inp_width + 2.0f);
+						//rLp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+					}
+					else if(inp_szx == SUiLayoutParam::szByContainer) {
+						glp.SetVariableSizeX(SUiLayoutParam::szByContainer, inp_width);
+						//rLp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+					}
+					else if(rLp.GrowFactor >= 0.0f) {
+						glp.SetGrowFactor(rLp.GrowFactor);
+						//rLp.SetGrowFactor(0.0f);
+					}
+					else {
+						// полная ширина контейнера
+						glp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+						//rLp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+					}
+					// } @v12.5.2 
 					lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 					lp_label.SetFixedSizeY(static_cast<float>(rc_label.height()));
 
 					glp.Margin = rLp.Margin;
-					rLp.CopySizeXParamTo(glp);
+					//rLp.CopySizeXParamTo(glp);
 					// @v12.5.2 {
 					if(inp_szy == SUiLayoutParam::szFixed) {
 						glp.SetFixedSizeY(inp_height + rc_label.height() + 1.0f);

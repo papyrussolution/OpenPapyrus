@@ -623,11 +623,10 @@ void Model::BuildTrie(std::vector<std::pair<absl::string_view, int> > * pieces) 
 		status_ = util::InternalError("no entry is found in the trie.");
 }
 
-Model::Model(const ModelProto &model_proto) {
+Model::Model(const ModelProto &model_proto) 
+{
 	model_proto_ = &model_proto;
-
 	InitializePieces();
-
 	min_score_ = FLT_MAX;
 	max_score_ = FLT_MIN;
 	for(const auto &sp : model_proto_->pieces()) {
@@ -636,53 +635,46 @@ Model::Model(const ModelProto &model_proto) {
 			max_score_ = std::max(max_score_, sp.score());
 		}
 	}
-
 	std::vector<std::pair<absl::string_view, int> > pieces;
-	for(const auto &it : pieces_) pieces.emplace_back(it.first, it.second);
-
+	for(const auto &it : pieces_) 
+		pieces.emplace_back(it.first, it.second);
 	BuildTrie(&pieces);
 }
 
-Model::~Model() {
+Model::~Model() 
+{
 }
 
-EncodeResult Model::Encode(absl::string_view normalized) const {
+EncodeResult Model::Encode(absl::string_view normalized) const 
+{
 	if(encoder_version_ == EncoderVersion::kOptimized) {
 		return EncodeOptimized(normalized);
 	}
-
 	if(!status().ok() || normalized.empty()) {
 		return {};
 	}
-
 	Lattice lattice;
 	lattice.SetSentence(normalized);
 	PopulateNodes(&lattice);
-
 	EncodeResult results;
 	for(const auto * node : lattice.Viterbi().first) {
 		results.emplace_back(node->piece, node->id);
 	}
-
 	return results;
 }
 
-NBestEncodeResult Model::NBestEncode(absl::string_view normalized,
-    int nbest_size) const {
+NBestEncodeResult Model::NBestEncode(absl::string_view normalized, int nbest_size) const 
+{
 	if(!status().ok() || normalized.empty()) {
 		return {{{}, 0.0}};
 	}
-
 	nbest_size = std::max<int>(1, std::min<int>(nbest_size, 1024));
-
 	if(nbest_size <= 1) {
 		return {std::pair<EncodeResult, float>(Encode(normalized), 0.0)};
 	}
-
 	Lattice lattice;
 	lattice.SetSentence(normalized);
 	PopulateNodes(&lattice);
-
 	NBestEncodeResult nbest_results;
 	for(const auto &nbest : lattice.NBest(nbest_size, false, 0.0)) {
 		EncodeResult results;
@@ -691,25 +683,21 @@ NBestEncodeResult Model::NBestEncode(absl::string_view normalized,
 		}
 		nbest_results.emplace_back(results, nbest.second);
 	}
-
 	return nbest_results;
 }
 
-EncodeResult Model::SampleEncode(absl::string_view normalized,
-    float inv_theta) const {
+EncodeResult Model::SampleEncode(absl::string_view normalized, float inv_theta) const 
+{
 	if(!status().ok() || normalized.empty()) {
 		return {};
 	}
-
 	Lattice lattice;
 	lattice.SetSentence(normalized);
 	PopulateNodes(&lattice);
-
 	EncodeResult results;
 	for(const auto * node : lattice.Sample(inv_theta)) {
 		results.emplace_back(node->piece, node->id);
 	}
-
 	return results;
 }
 

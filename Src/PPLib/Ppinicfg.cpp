@@ -77,6 +77,25 @@ int PPIniFile::GetInt(const char * pSectName, uint paramId, int * pVal)
 	return GetIntParam(pSectName, r_param_name, pVal);
 }
 
+bool PPIniFile::CheckIntVal(uint sectId, uint paramId, int condition) // @v12.5.2
+{
+	bool   result = false;
+	int    val = 0;
+	SString & r_sect_name = SLS.AcquireRvlStr();
+	SString & r_param_name = SLS.AcquireRvlStr();
+	ParamIdToStrings(sectId, paramId, &r_sect_name, &r_param_name);
+	const  int r = GetIntParam(r_sect_name, r_param_name, &val);
+	if(r > 0) {
+		switch(condition) {
+			case intconditionUndef: result = true; break;
+			case intconditionEqOne: result = (val == 1); break;
+			case intconditionNZ: result = (val != 0); break;
+			default: result = false; break;
+		}
+	}
+	return result;
+}
+
 int PPIniFile::GetDataSize(const char * pSectName, uint paramId, int64 * pVal)
 {
 	SString & r_param_name = SLS.AcquireRvlStr();

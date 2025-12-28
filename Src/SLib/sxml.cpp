@@ -223,6 +223,12 @@ int SXml::WNode::PutInnerValidDate(const char * pInnerName, LDATE dt, long fmt)
 	return ok;
 }
 
+int SXml::WNode::PutInnerReal(const char * pInnerName, double value, long fmt) // @v12.5.2
+{
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	return PutInner(pInnerName, r_temp_buf.Cat(value, fmt));
+}
+
 int SXml::WNode::PutInner(const char * pInnerName, const char * pInnerValue)
 {
 	int    ok = 1;

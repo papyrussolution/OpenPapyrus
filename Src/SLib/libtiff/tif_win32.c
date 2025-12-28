@@ -74,7 +74,7 @@ static tmsize_t _tiffReadProc(thandle_t fd, void* buf, tmsize_t size)
 		if((uint64)n>mb)
 			n = (DWORD)mb;
 		if(!ReadFile(fd, (LPVOID)ma, n, &o, NULL))
-			return(0);
+			return 0;
 		ma += o;
 		mb -= o;
 		p += o;
@@ -102,7 +102,7 @@ static tmsize_t _tiffWriteProc(thandle_t fd, void* buf, tmsize_t size)
 		if((uint64)n>mb)
 			n = (DWORD)mb;
 		if(!WriteFile(fd, (LPVOID)ma, n, &o, NULL))
-			return(0);
+			return 0;
 		ma += o;
 		mb -= o;
 		p += o;
@@ -154,7 +154,7 @@ static int _tiffDummyMapProc(thandle_t fd, void** pbase, toff_t* psize)
 	(void)fd;
 	(void)pbase;
 	(void)psize;
-	return (0);
+	return 0;
 }
 
 /*
@@ -170,26 +170,21 @@ static int _tiffDummyMapProc(thandle_t fd, void** pbase, toff_t* psize)
  */
 static int _tiffMapProc(thandle_t fd, void** pbase, toff_t* psize)
 {
-	uint64 size;
-	tmsize_t sizem;
 	HANDLE hMapFile;
-
-	size = _tiffSizeProc(fd);
-	sizem = (tmsize_t)size;
+	uint64 size = _tiffSizeProc(fd);
+	tmsize_t sizem = (tmsize_t)size;
 	if((uint64)sizem!=size)
-		return (0);
-
-	/* By passing in 0 for the maximum file size, it specifies that we
-	   create a file mapping object for the full file size. */
+		return 0;
+	/* By passing in 0 for the maximum file size, it specifies that we create a file mapping object for the full file size. */
 	hMapFile = CreateFileMapping(fd, NULL, PAGE_READONLY, 0, 0, NULL);
 	if(hMapFile == NULL)
-		return (0);
+		return 0;
 	*pbase = MapViewOfFile(hMapFile, FILE_MAP_READ, 0, 0, 0);
 	CloseHandle(hMapFile);
 	if(*pbase == NULL)
-		return (0);
+		return 0;
 	*psize = size;
-	return(1);
+	return 1;
 }
 
 static void _tiffDummyUnmapProc(thandle_t fd, void* base, toff_t size)

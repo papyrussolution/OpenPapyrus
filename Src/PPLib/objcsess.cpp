@@ -1740,18 +1740,19 @@ int CTableOrder::Create(const Param * pParam)
 		THROW(tra);
 		THROW(MakeCCheckPacket(&ord, &cc_pack));
 		{
-			int    r = 0, sync_prn_err = 0;
 			THROW(p_cm = PPCashMachine::CreateInstance(ord.PosNodeID));
-			if((r = p_cm->SyncPrintCheck(&cc_pack, 1)) == 0)
-				sync_prn_err = p_cm->SyncGetPrintErrCode();
-			if(r || sync_prn_err == 1) {
-				cc_pack.Rec.Flags |= CCHKF_PRINTED;
-				P_ScObj->P_CcTbl->WriteCCheckLogFile(&cc_pack, 0, CCheckCore::logPrinted, 0);
+			{
+				const  int r = p_cm->SyncPrintCheck(&cc_pack, 1);
+				const  int sync_prn_err = (r == 0) ? p_cm->SyncGetPrintErrCode() : 0;
+				if(r || sync_prn_err == 1) {
+					cc_pack.Rec.Flags |= CCHKF_PRINTED;
+					P_ScObj->P_CcTbl->WriteCCheckLogFile(&cc_pack, 0, CCheckCore::logPrinted, 0);
+				}
+				/*
+				if(r == 0 && sync_prn_err != 3)
+					PPError();
+				*/
 			}
-			/*
-			if(r == 0 && sync_prn_err != 3)
-				PPError();
-			*/
 		}
 		THROW(ok = P_ScObj->P_CcTbl->TurnCheck(&cc_pack, 0));
 		if(ord.PrepayAmount > 0.0 && ord.SCardID && P_ScObj->IsCreditCard(ord.SCardID) > 0) {
@@ -2865,9 +2866,7 @@ int PPCCheckImporter::Run()
 							if(p_posprc) {
 								const  bool zero_agent_restriction = p_posprc->Backend_SetZeroAgentRestriction(false);
 								PPID   cc_id = cc_pack.Rec.ID; // @note: non-const because func AcceptCheck will modify it
-								double cc_amt = 0.0;
-								double cc_discount = 0.0;
-								cc_pack.CalcAmount(&cc_amt, &cc_discount);
+								const  double cc_amt = cc_pack.CalcAmount(0, 0);
 								if(p_posprc->RestoreSuspendedCheck(cc_id, 0/*pPack*/, 0/*unfinishedForReprinting*/)) {
 									if(DS.IsThreadInteractive()) {
 										p_posprc->PrintToLocalPrinters(-1, true/*ignoreNonZeroAgentReq*/);

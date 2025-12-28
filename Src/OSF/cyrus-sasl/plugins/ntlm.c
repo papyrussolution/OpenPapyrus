@@ -215,7 +215,7 @@ static void load_buffer(u_char * buf, const u_char * str, uint16 len,
 
 /* unload a string from an NTLM buffer */
 static int unload_buffer(const sasl_utils_t * utils, const u_char * buf,
-    u_char ** str, unsigned * outlen, int unicode, const u_char * base, unsigned msglen)
+    u_char ** str, unsigned * outlen, int unicode, const u_char * base, uint msglen)
 {
 	uint16 len = itohs(buf + NTLM_BUFFER_LEN_OFFSET);
 	if(len) {
@@ -249,9 +249,10 @@ static int unload_buffer(const sasl_utils_t * utils, const u_char * buf,
  * NTLM encryption/authentication routines per section 2.10 of
  * draft-leach-cifs-v1-spec-02
  */
-static void E(uchar * out, uchar * K, unsigned Klen, uchar * D, unsigned Dlen)
+static void E(uchar * out, uchar * K, uint Klen, uchar * D, uint Dlen)
 {
-	unsigned k, d;
+	uint   k;
+	uint   d;
 	des_cblock K64;
 	des_key_schedule ks;
 	uchar * Dp;
@@ -277,7 +278,7 @@ static void E(uchar * out, uchar * K, unsigned Klen, uchar * D, unsigned Dlen)
 }
 
 static uchar * P16_lm(uchar * P16, sasl_secret_t * passwd, const sasl_utils_t * utils __attribute__((unused)),
-    char ** buf __attribute__((unused)), unsigned * buflen __attribute__((unused)), int * result)
+    char ** buf __attribute__((unused)), uint * buflen __attribute__((unused)), int * result)
 {
 	char P14[14];
 	uchar S8[] = { 0x4b, 0x47, 0x53, 0x21, 0x40, 0x23, 0x24, 0x25 };
@@ -1161,10 +1162,7 @@ static int smb_session_setup(const sasl_utils_t * utils, server_context_t * text
  * target info (buffer)
  * data
  */
-static int create_challenge(const sasl_utils_t * utils,
-    char ** buf, unsigned * buflen,
-    const char * target, uint32 flags,
-    const u_char * nonce, unsigned * outlen)
+static int create_challenge(const sasl_utils_t * utils, char ** buf, uint * buflen, const char * target, uint32 flags, const u_char * nonce, uint * outlen)
 {
 	uint32 offset = NTLM_TYPE2_DATA_OFFSET;
 	u_char * base;
@@ -1188,11 +1186,8 @@ static int create_challenge(const sasl_utils_t * utils,
 	return SASL_OK;
 }
 
-static int ntlm_server_mech_new(void * glob_context __attribute__((unused)),
-    sasl_server_params_t * sparams,
-    const char * challenge __attribute__((unused)),
-    unsigned challen __attribute__((unused)),
-    void ** conn_context)
+static int ntlm_server_mech_new(void * glob_context __attribute__((unused)), sasl_server_params_t * sparams,
+    const char * challenge __attribute__((unused)), uint challen __attribute__((unused)), void ** conn_context)
 {
 	server_context_t * text;
 	const char * serv;
@@ -1238,19 +1233,12 @@ static int ntlm_server_mech_new(void * glob_context __attribute__((unused)),
 	return SASL_OK;
 }
 
-static int ntlm_server_mech_step1(server_context_t * text,
-    sasl_server_params_t * sparams,
-    const char * clientin,
-    unsigned clientinlen,
-    const char ** serverout,
-    unsigned * serveroutlen,
-    sasl_out_params_t * oparams __attribute__((unused)))
+static int ntlm_server_mech_step1(server_context_t * text, sasl_server_params_t * sparams,
+    const char * clientin, uint clientinlen, const char ** serverout, uint * serveroutlen, sasl_out_params_t * oparams __attribute__((unused)))
 {
 	char * domain = NULL;
 	int result;
-
-	if(!clientin || clientinlen < NTLM_TYPE1_MINSIZE ||
-	    memcmp(clientin, NTLM_SIGNATURE, sizeof(NTLM_SIGNATURE)) ||
+	if(!clientin || clientinlen < NTLM_TYPE1_MINSIZE || memcmp(clientin, NTLM_SIGNATURE, sizeof(NTLM_SIGNATURE)) ||
 	    itohl(clientin + NTLM_TYPE_OFFSET) != NTLM_TYPE_REQUEST) {
 		SETERROR(sparams->utils, "client didn't issue valid NTLM request");
 		return SASL_BADPROT;
@@ -1303,32 +1291,25 @@ cleanup:
 	return result;
 }
 
-static int ntlm_server_mech_step2(server_context_t * text,
-    sasl_server_params_t * sparams,
-    const char * clientin,
-    unsigned clientinlen,
-    const char ** serverout __attribute__((unused)),
-    unsigned * serveroutlen __attribute__((unused)),
+static int ntlm_server_mech_step2(server_context_t * text, sasl_server_params_t * sparams,
+    const char * clientin, uint clientinlen, const char ** serverout __attribute__((unused)), uint * serveroutlen __attribute__((unused)),
     sasl_out_params_t * oparams)
 {
 	uchar * lm_resp = NULL, * nt_resp = NULL;
 	char * domain = NULL, * authid = NULL;
-	unsigned lm_resp_len, nt_resp_len, domain_len, authid_len;
+	uint lm_resp_len;
+	uint nt_resp_len;
+	uint domain_len;
+	uint authid_len;
 	int result;
-
 	if(!clientin || clientinlen < NTLM_TYPE3_MINSIZE ||
 	    memcmp(clientin, NTLM_SIGNATURE, sizeof(NTLM_SIGNATURE)) ||
 	    itohl(clientin + NTLM_TYPE_OFFSET) != NTLM_TYPE_RESPONSE) {
 		SETERROR(sparams->utils, "client didn't issue valid NTLM response");
 		return SASL_BADPROT;
 	}
-
-	result = unload_buffer(sparams->utils,
-		(const uchar *)clientin + NTLM_TYPE3_LMRESP_OFFSET,
-		(u_char**)&lm_resp, &lm_resp_len, 0,
-		(const uchar *)clientin, clientinlen);
+	result = unload_buffer(sparams->utils, (const uchar *)clientin + NTLM_TYPE3_LMRESP_OFFSET, (u_char**)&lm_resp, &lm_resp_len, 0, (const uchar *)clientin, clientinlen);
 	if(result != SASL_OK) goto cleanup;
-
 	result = unload_buffer(sparams->utils,
 		(const uchar *)clientin + NTLM_TYPE3_NTRESP_OFFSET,
 		(u_char**)&nt_resp, &nt_resp_len, 0,
@@ -1479,13 +1460,8 @@ cleanup:
 	return result;
 }
 
-static int ntlm_server_mech_step(void * conn_context,
-    sasl_server_params_t * sparams,
-    const char * clientin,
-    unsigned clientinlen,
-    const char ** serverout,
-    unsigned * serveroutlen,
-    sasl_out_params_t * oparams)
+static int ntlm_server_mech_step(void * conn_context, sasl_server_params_t * sparams,
+    const char * clientin, uint clientinlen, const char ** serverout, uint * serveroutlen, sasl_out_params_t * oparams)
 {
 	server_context_t * text = (server_context_t*)conn_context;
 	*serverout = NULL;
@@ -1561,11 +1537,10 @@ int ntlm_server_plug_init(const sasl_utils_t * utils, int maxversion, int * out_
 /*****************************  Client Section  *****************************/
 
 typedef struct client_context {
-	int state;
-
+	int    state;
 	/* per-step mem management */
 	char * out_buf;
-	unsigned out_buf_len;
+	uint   out_buf_len;
 } client_context_t;
 
 /*
@@ -1578,35 +1553,26 @@ typedef struct client_context {
  * workstation (buffer)
  * data
  */
-static int create_request(const sasl_utils_t * utils,
-    char ** buf, unsigned * buflen,
-    const char * domain, const char * wkstn,
-    unsigned * outlen)
+static int create_request(const sasl_utils_t * utils, char ** buf, uint * buflen,
+    const char * domain, const char * wkstn, uint * outlen)
 {
-	uint32 flags = ( NTLM_USE_UNICODE | NTLM_USE_ASCII |
-	    NTLM_ASK_TARGET | NTLM_AUTH_NTLM );
+	uint32 flags = ( NTLM_USE_UNICODE | NTLM_USE_ASCII | NTLM_ASK_TARGET | NTLM_AUTH_NTLM );
 	uint32 offset = NTLM_TYPE1_DATA_OFFSET;
 	u_char * base;
-
 	*outlen = (uint)(offset + xstrlen(domain) + xstrlen(wkstn));
 	if(_plug_buf_alloc(utils, buf, buflen, *outlen) != SASL_OK) {
 		SETERROR(utils, "cannot allocate NTLM request");
 		return SASL_NOMEM;
 	}
-
 	base = (uchar *)*buf;
 	memzero(base, *outlen);
 	memcpy(base + NTLM_SIG_OFFSET, NTLM_SIGNATURE, sizeof(NTLM_SIGNATURE));
 	htoil(base + NTLM_TYPE_OFFSET, NTLM_TYPE_REQUEST);
 	htoil(base + NTLM_TYPE1_FLAGS_OFFSET, flags);
-	load_buffer(base + NTLM_TYPE1_DOMAIN_OFFSET,
-	    (const uchar *)domain, (uint16)xstrlen(domain), 0, base, &offset);
-	load_buffer(base + NTLM_TYPE1_WORKSTN_OFFSET,
-	    (const uchar *)wkstn, (uint16)xstrlen(wkstn), 0, base, &offset);
-
+	load_buffer(base + NTLM_TYPE1_DOMAIN_OFFSET, (const uchar *)domain, (uint16)xstrlen(domain), 0, base, &offset);
+	load_buffer(base + NTLM_TYPE1_WORKSTN_OFFSET, (const uchar *)wkstn, (uint16)xstrlen(wkstn), 0, base, &offset);
 	return SASL_OK;
 }
-
 /*
  * Create a client response (type 3) consisting of:
  *
@@ -1621,27 +1587,20 @@ static int create_request(const sasl_utils_t * utils,
  * flags (uint32)
  * data
  */
-static int create_response(const sasl_utils_t * utils,
-    char ** buf, unsigned * buflen,
-    const u_char * lm_resp, const u_char * nt_resp,
-    const char * domain, const char * user,
-    const char * wkstn, const u_char * key,
-    uint32 flags, unsigned * outlen)
+static int create_response(const sasl_utils_t * utils, char ** buf, uint * buflen,
+    const u_char * lm_resp, const u_char * nt_resp, const char * domain, const char * user, const char * wkstn, const u_char * key,
+    uint32 flags, uint * outlen)
 {
 	uint32 offset = NTLM_TYPE3_DATA_OFFSET;
 	u_char * base;
-
 	if(!lm_resp && !nt_resp) {
 		SETERROR(utils, "need at least one NT/LM response");
 		return SASL_FAIL;
 	}
-
-	*outlen = (uint)(offset + (flags & NTLM_USE_UNICODE ? 2 : 1) *
-	    (xstrlen(domain) + xstrlen(user) + xstrlen(wkstn)));
+	*outlen = (uint)(offset + (flags & NTLM_USE_UNICODE ? 2 : 1) * (xstrlen(domain) + xstrlen(user) + xstrlen(wkstn)));
 	if(lm_resp) *outlen += NTLM_RESP_LENGTH;
 	if(nt_resp) *outlen += NTLM_RESP_LENGTH;
 	if(key) *outlen += NTLM_SESSKEY_LENGTH;
-
 	if(_plug_buf_alloc(utils, buf, buflen, *outlen) != SASL_OK) {
 		SETERROR(utils, "cannot allocate NTLM response");
 		return SASL_NOMEM;
@@ -1650,25 +1609,14 @@ static int create_response(const sasl_utils_t * utils,
 	memzero(base, *outlen);
 	memcpy(base + NTLM_SIG_OFFSET, NTLM_SIGNATURE, sizeof(NTLM_SIGNATURE));
 	htoil(base + NTLM_TYPE_OFFSET, NTLM_TYPE_RESPONSE);
-	load_buffer(base + NTLM_TYPE3_LMRESP_OFFSET,
-	    lm_resp, lm_resp ? NTLM_RESP_LENGTH : 0, 0, base, &offset);
-	load_buffer(base + NTLM_TYPE3_NTRESP_OFFSET,
-	    nt_resp, nt_resp ? NTLM_RESP_LENGTH : 0, 0, base, &offset);
-	load_buffer(base + NTLM_TYPE3_DOMAIN_OFFSET,
-	    (const uchar *)ucase(domain, 0), (uint16)xstrlen(domain),
-	    flags & NTLM_USE_UNICODE,
-	    base, &offset);
-	load_buffer(base + NTLM_TYPE3_USER_OFFSET,
-	    (const uchar *)user, (uint16)xstrlen(user),
+	load_buffer(base + NTLM_TYPE3_LMRESP_OFFSET, lm_resp, lm_resp ? NTLM_RESP_LENGTH : 0, 0, base, &offset);
+	load_buffer(base + NTLM_TYPE3_NTRESP_OFFSET, nt_resp, nt_resp ? NTLM_RESP_LENGTH : 0, 0, base, &offset);
+	load_buffer(base + NTLM_TYPE3_DOMAIN_OFFSET, (const uchar *)ucase(domain, 0), (uint16)xstrlen(domain),
 	    flags & NTLM_USE_UNICODE, base, &offset);
-	load_buffer(base + NTLM_TYPE3_WORKSTN_OFFSET,
-	    (const uchar *)ucase(wkstn, 0), (uint16)xstrlen(wkstn),
-	    flags & NTLM_USE_UNICODE,
-	    base, &offset);
-	load_buffer(base + NTLM_TYPE3_SESSIONKEY_OFFSET,
-	    key, key ? NTLM_SESSKEY_LENGTH : 0, 0, base, &offset);
+	load_buffer(base + NTLM_TYPE3_USER_OFFSET, (const uchar *)user, (uint16)xstrlen(user), flags & NTLM_USE_UNICODE, base, &offset);
+	load_buffer(base + NTLM_TYPE3_WORKSTN_OFFSET, (const uchar *)ucase(wkstn, 0), (uint16)xstrlen(wkstn), flags & NTLM_USE_UNICODE, base, &offset);
+	load_buffer(base + NTLM_TYPE3_SESSIONKEY_OFFSET, key, key ? NTLM_SESSKEY_LENGTH : 0, 0, base, &offset);
 	htoil(base + NTLM_TYPE3_FLAGS_OFFSET, flags);
-
 	return SASL_OK;
 }
 
@@ -1686,17 +1634,12 @@ static int ntlm_client_mech_new(void * glob_context __attribute__((unused)), sas
 	return SASL_OK;
 }
 
-static int ntlm_client_mech_step1(client_context_t * text,
-    sasl_client_params_t * params,
-    const char * serverin __attribute__((unused)),
-    unsigned serverinlen __attribute__((unused)),
-    sasl_interact_t ** prompt_need __attribute__((unused)),
-    const char ** clientout,
-    unsigned * clientoutlen,
-    sasl_out_params_t * oparams __attribute__((unused)))
+static int ntlm_client_mech_step1(client_context_t * text, sasl_client_params_t * params,
+    const char * serverin __attribute__((unused)), uint serverinlen __attribute__((unused)),
+    sasl_interact_t ** prompt_need __attribute__((unused)), const char ** clientout,
+    uint * clientoutlen, sasl_out_params_t * oparams __attribute__((unused)))
 {
 	int result;
-
 	/* check if sec layer strong enough */
 	if(params->props.min_ssf > params->external_ssf) {
 		SETERROR(params->utils, "SSF requested of NTLM plugin");
@@ -1715,14 +1658,8 @@ static int ntlm_client_mech_step1(client_context_t * text,
 	return SASL_CONTINUE;
 }
 
-static int ntlm_client_mech_step2(client_context_t * text,
-    sasl_client_params_t * params,
-    const char * serverin,
-    unsigned serverinlen,
-    sasl_interact_t ** prompt_need,
-    const char ** clientout,
-    unsigned * clientoutlen,
-    sasl_out_params_t * oparams)
+static int ntlm_client_mech_step2(client_context_t * text, sasl_client_params_t * params, const char * serverin,
+    uint serverinlen, sasl_interact_t ** prompt_need, const char ** clientout, uint * clientoutlen, sasl_out_params_t * oparams)
 {
 	const char * authid = NULL;
 	sasl_secret_t * password = NULL;
@@ -1844,14 +1781,8 @@ cleanup:
 	return result;
 }
 
-static int ntlm_client_mech_step(void * conn_context,
-    sasl_client_params_t * params,
-    const char * serverin,
-    unsigned serverinlen,
-    sasl_interact_t ** prompt_need,
-    const char ** clientout,
-    unsigned * clientoutlen,
-    sasl_out_params_t * oparams)
+static int ntlm_client_mech_step(void * conn_context, sasl_client_params_t * params, const char * serverin,
+    uint serverinlen, sasl_interact_t ** prompt_need, const char ** clientout, uint * clientoutlen, sasl_out_params_t * oparams)
 {
 	client_context_t * text = (client_context_t*)conn_context;
 	*clientout = NULL;

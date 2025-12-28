@@ -16,7 +16,8 @@
 #endif
 
 SMySqlDbProvider::SMySqlDbProvider() :
-	DbProvider(sqlstMySQL, cpUTF8, DbDictionary::CreateInstance(0, 0), DbProvider::cSQL|DbProvider::cDbDependTa), H(0), SqlGen(sqlstMySQL, 0), Flags(0)
+	DbProvider(sqlstMySQL, cpUTF8, DbDictionary::CreateInstance(0, 0), DbProvider::cSQL|DbProvider::cDbDependTa), H(0), SqlGen(sqlstMySQL, 0), Flags(0),
+	P_LastSelectStmt(0)
 {
 }
 
@@ -154,6 +155,7 @@ int SMySqlDbProvider::UseDatabase(const char * pDbName) // @v12.4.8
 /*virtual*/int SMySqlDbProvider::Logout()
 {
 	int    ok = 0;
+	P_LastSelectStmt = 0; // @v12.5.2 Нет необходимости разрушать этот экземпляр: таблица-владелец сама это сделает.
 	if(H) {
 		mysql_close(static_cast<MYSQL *>(H));
 		H = 0;
@@ -340,6 +342,7 @@ const BNField * SMySqlDbProvider::GetRowIdField(const DBTable * pTbl, uint * pFl
 	int    ok = 0;
 	if(H) {
 		if(!(State & stTransaction)) {
+			DestroyLastSelectStatement();
 			SqlGen.Z().Tok(Generator_SQL::tokStart).Sp().Tok(Generator_SQL::tokTransaction);
 			if(ProcessError(mysql_query(static_cast<MYSQL *>(H), SqlGen.GetTextC()))) {
 				ok = 1;
@@ -729,6 +732,24 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 	CATCHZOK
 	return ok;
 }
+
+int SMySqlDbProvider::DestroyLastSelectStatement()
+{
+	int    ok = -1;
+	if(SSqlStmt::IsConsistent(P_LastSelectStmt)) {
+		if(DBTable::IsConsistent(P_LastSelectStmt->GetOwnerTblRef())) {
+			P_LastSelectStmt->GetOwnerTblRef()->DestroySelectStmt();
+			ok = 2;
+		}
+		else {
+			delete P_LastSelectStmt;
+			ok = 1;
+		}
+	}
+	P_LastSelectStmt = 0;
+	return ok;
+}
+
 //
 // Эта функция строго заточена на поиск по конкретному индексу. Это значит, что в результирующем запросе не будет 
 // никаких иных критериев, кроме сегментов индеска. Небольшое исключение - direct-search: в этом случае поиск осуществляется по 
@@ -825,13 +846,15 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 	}
 	if(do_make_query) {
 		SearchQueryBlock sqb;
+
 		THROW(Helper_MakeSearchQuery(pTbl, idx, pKey, srchMode, sf, sqb));
 		can_continue = LOGIC(sqb.Flags & SearchQueryBlock::fCanContinue);
 		{
-			if(pTbl->P_Stmt) {
-				ZDELETE(pTbl->P_Stmt);
+			{
+				pTbl->DestroySelectStmt();
+				DestroyLastSelectStatement();
 			}
-			THROW(p_stmt = new DBTable::SelectStmt(this, sqb.SqlG, idx, sqb.SrchMode, sf));
+			THROW(p_stmt = new DBTable::SelectStmt(this, pTbl, sqb.SqlG, idx, sqb.SrchMode, sf));
 			new_stmt = true;
 			THROW(p_stmt->IsValid());
 			{
@@ -922,10 +945,12 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 	ENDCATCH
 	if(can_continue) {
 		pTbl->SetStmt(p_stmt);
+		this->P_LastSelectStmt = p_stmt; // @v12.5.2
 	}
 	else {
 		pTbl->SetStmt(0);
-		if(new_stmt)
+		this->P_LastSelectStmt = 0; // @v12.5.2
+		if(new_stmt) 
 			delete p_stmt;
 	}
 	return ok;
@@ -1270,27 +1295,6 @@ void FASTCALL SMySqlDbProvider::OdFree(SMySqlDbProvider::OD & rO)
 	}
 }
 
-int SMySqlDbProvider::ProcessBinding_AllocDescr(uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind, uint ntvType, int descrType)
-{
-	int    ok = 1;
-	pBind->SetNtvTypeAndSize(ntvType, sizeof(void *));
-	if(pStmt->AllocBindSubst(count, sizeof(OD), pBind) > 0) {
-		OD d;
-		for(uint i = 0; i < count; i++) {
-			d = OdAlloc(descrType);
-			memcpy(pStmt->GetBindOuterPtr(pBind, i), &d, sizeof(d));
-		}
-	}
-	else
-		ok = 0;
-	return ok;
-}
-
-void SMySqlDbProvider::ProcessBinding_FreeDescr(uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind)
-{
-	for(uint i = 0; i < count; i++)
-		OdFree(*static_cast<OD *>(pStmt->GetBindOuterPtr(pBind, i)));
-}
 //
 // ARG(action IN):
 //   0 - инициализация структуры SSqlStmt::Bind
@@ -1446,12 +1450,13 @@ void SMySqlDbProvider::ProcessBinding_FreeDescr(uint count, SSqlStmt * pStmt, SS
 			else if(action == 1000)
 				ProcessBinding_FreeDescr(count, pStmt, pBind);
 			break;
-		case S_NOTE:
+		/*case S_NOTE:
 			{
-				const uint32 ntv_size = (sz * 2); // Удваиваем размер из-за того, что в сервере хранится utf8 а наруже мы (пока) используем OEM-encoding
+				const uint32 ntv_size = sz;
 				if(action == 0) {
+					pBind->Flags |= SSqlStmt::Bind::fUseRetActualSize;
 					pBind->SetNtvTypeAndSize(MYSQL_TYPE_VAR_STRING, ntv_size);
-					pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
+					pStmt->AllocBindSubst(count, pBind->NtvSize*2, pBind);
 				}
 				else if(action < 0) {
 					if(p_data) {
@@ -1473,15 +1478,22 @@ void SMySqlDbProvider::ProcessBinding_FreeDescr(uint count, SSqlStmt * pStmt, SS
 					}
 				}
 			}
-			break;
+			break;*/
+		case S_NOTE:
 		case S_ZSTRING:
 			{
-				const uint32 ntv_size = sz; // Удваиваем размер из-за того, что в сервере хранится utf8 а наруже мы (пока) используем OEM-encoding
+				//const uint32 ntv_size = sz; // Удваиваем размер из-за того, что в сервере хранится utf8 а наруже мы (пока) используем OEM-encoding
 					// При удваивании mysql отказывается принимать данные ссылаясь на перехлест длины поля.
 				if(action == 0) {
-					//pBind->Flags |= SSqlStmt::Bind::fUseRetActualSize;
-					pBind->SetNtvTypeAndSize(MYSQL_TYPE_VAR_STRING, ntv_size);
-					pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
+					if(pBind->Pos < 0) {
+						pBind->Flags |= SSqlStmt::Bind::fUseRetActualSize;
+						pBind->SetNtvTypeAndSize(MYSQL_TYPE_VAR_STRING, sz);
+						pStmt->AllocBindSubst(count, pBind->NtvSize*2, pBind);
+					}
+					else {
+						pBind->SetNtvTypeAndSize(MYSQL_TYPE_VAR_STRING, sz*2);
+						pStmt->AllocBindSubst(count, sz*2, pBind);
+					}
 				}
 				else if(action < 0) {
 					char * p_outer = static_cast<char *>(p_data);
@@ -1509,15 +1521,12 @@ void SMySqlDbProvider::ProcessBinding_FreeDescr(uint count, SSqlStmt * pStmt, SS
 						const bool is_max = ismemchr(pBind->P_Data, sz-1, 255U);
 						{
 							SString & r_temp_buf = SLS.AcquireRvlStr();
-							//r_temp_buf.CatN(static_cast<const char *>(pBind->P_Data), sz);
 							r_temp_buf.Cat(static_cast<const char *>(pBind->P_Data));
 							if(!is_max) {
 								r_temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 							}
-							strnzcpy(p_outer, r_temp_buf, ntv_size);
-							/*if(!is_max) {
-								SOemToChar(p_outer);
-							}*/
+							r_temp_buf.CopyUtf8To(p_outer, sz*2);
+							pBind->NtvSize = r_temp_buf.Len(); // без терминального нуля!
 						}
 					}
 				}
@@ -1733,6 +1742,28 @@ void SMySqlDbProvider::ProcessBinding_FreeDescr(uint count, SSqlStmt * pStmt, SS
 			pStmt->AllocFslSubst(count, pBind);
 	}
 	return ok;
+}
+
+int SMySqlDbProvider::ProcessBinding_AllocDescr(uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind, uint ntvType, int descrType)
+{
+	int    ok = 1;
+	pBind->SetNtvTypeAndSize(ntvType, sizeof(void *));
+	if(pStmt->AllocBindSubst(count, sizeof(OD), pBind) > 0) {
+		OD d;
+		for(uint i = 0; i < count; i++) {
+			d = OdAlloc(descrType);
+			memcpy(pStmt->GetBindOuterPtr(pBind, i), &d, sizeof(d));
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+void SMySqlDbProvider::ProcessBinding_FreeDescr(uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind)
+{
+	for(uint i = 0; i < count; i++)
+		OdFree(*static_cast<OD *>(pStmt->GetBindOuterPtr(pBind, i)));
 }
 
 /*virtual*/int SMySqlDbProvider::Describe(SSqlStmt & rS, SdRecord &)

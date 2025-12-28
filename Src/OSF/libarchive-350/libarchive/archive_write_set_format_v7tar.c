@@ -181,7 +181,7 @@ static int archive_write_v7tar_header(struct archive_write * a, ArchiveEntry * e
 			if(archive_wstring_ensure(&ws, path_length + 2) == NULL) {
 				archive_set_error(&a->archive, ENOMEM, "Can't allocate v7tar data");
 				archive_wstring_free(&ws);
-				return(ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 			/* Should we keep '\' ? */
 			if(wp[path_length -1] == L'\\')
@@ -207,7 +207,7 @@ static int archive_write_v7tar_header(struct archive_write * a, ArchiveEntry * e
 			if(archive_string_ensure(&as, path_length + 2) == NULL) {
 				archive_set_error(&a->archive, ENOMEM, "Can't allocate v7tar data");
 				archive_string_free(&as);
-				return(ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 #if defined(_WIN32) && !defined(__CYGWIN__)
 			/* NOTE: This might break the pathname
@@ -231,7 +231,7 @@ static int archive_write_v7tar_header(struct archive_write * a, ArchiveEntry * e
 	entry_main = __la_win_entry_in_posix_pathseparator(entry);
 	if(entry_main == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate v7tar data");
-		return(ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	if(entry != entry_main)
 		entry = entry_main;

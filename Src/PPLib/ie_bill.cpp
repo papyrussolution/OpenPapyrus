@@ -7212,26 +7212,40 @@ bool DocNalogRu_Generator::WriteIdentifValPair(const char * pNodeName, const cha
 	return ok;
 }
 
-void DocNalogRu_Generator::WriteExcise(SXml::WNode & rParentNode, double value)
+/* @v12.5.2 void DocNalogRu_Generator::WriteExcise(SXml::WNode & rParentNode, double value)
 {
 	if(value != 0.0)
 		rParentNode.PutInner(GetToken_Ansi(PPHSC_RU_AMTEXCISE), SLS.AcquireRvlStr().Cat(fabs(value), MKSFMTD_020));
 	else
 		rParentNode.PutInner(GetToken_Ansi(PPHSC_RU_NOEXCISE_TAG), GetToken_Ansi(PPHSC_RU_NOEXCISE_VAL));
+}*/
+
+void DocNalogRu_Generator::WriteExcise2(int parentNodeTokenId, double value)
+{
+	if(P_X) {
+		SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_EXCISE_BEFORE));
+		{
+			if(value != 0.0)
+				n_e.PutInnerReal(GetToken_Ansi(PPHSC_RU_AMTEXCISE), fabs(value), MKSFMTD_020);
+			else
+				n_e.PutInner(GetToken_Ansi(PPHSC_RU_NOEXCISE_TAG), GetToken_Ansi(PPHSC_RU_NOEXCISE_VAL));
+		}
+	}
 }
 
 void DocNalogRu_Generator::WriteMarkListOnInvoiceItem(SXml::WNode & rN, const PPBillImpExpParam & rParam, int chznProdType, int chznIntQtty, const PPLotExtCodeContainer::MarkSet & rSet)
 {
 	SString temp_buf;
+	SString mark_buf;
 	SString chzn_gtin14_buf;
 	SString chzn_serial_buf;
 	SString chzn_price_buf;
 	StringSet ss;
 	rSet.GetByBoxID(0, ss);
-	for(uint ecsp = 0; ss.get(&ecsp, temp_buf);) {
+	for(uint ecsp = 0; ss.get(&ecsp, mark_buf);) {
 		bool  is_mark_accepted = false;
 		GtinStruc gts;
-		const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
+		const int pczcr = PPChZnPrcssr::ParseChZnCode(mark_buf, gts, 0);
 		const int ntok = gts.GetSpecialNaturalToken();
 		if(oneof2(ntok, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_ALTCIGITEM)) {
 			//static const _FldEntry fe_list[] = { { fldGTIN14, 14 }, { fldSerial, 7 }, { fldPriceRuTobacco, 4 }, { fldControlRuTobacco, 4 } };
@@ -7256,8 +7270,7 @@ void DocNalogRu_Generator::WriteMarkListOnInvoiceItem(SXml::WNode & rN, const PP
 			//assert(chznProdType == GTCHZNPT_MILK && is_weighted_ware);
 			gts.GetToken(GtinStruc::fldGTIN14, &chzn_gtin14_buf);
 			if(chzn_gtin14_buf.NotEmpty()) {
-				temp_buf.Z().Cat("01").Cat(chzn_gtin14_buf).Cat("37").Cat(chznIntQtty);
-				rN.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
+				rN.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf.Z().Cat("01").Cat(chzn_gtin14_buf).Cat("37").Cat(chznIntQtty)));
 				is_mark_accepted = true;
 			}
 		}
@@ -7268,15 +7281,17 @@ void DocNalogRu_Generator::WriteMarkListOnInvoiceItem(SXml::WNode & rN, const PP
 				gts.GetToken(GtinStruc::fldSerial, &chzn_serial_buf);
 				gts.GetToken(GtinStruc::fldOriginalText, &temp_buf);
 				if(temp_buf.NotEmptyS()) {
-					if(rParam.Flags & PPBillImpExpParam::fChZnMarkAsCDATA) {
+					if(SsNotch.searchNcAscii("#sbis", 0, 0)) { // @v12.5.2
+						rN.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
+					}
+					else if(rParam.Flags & PPBillImpExpParam::fChZnMarkAsCDATA) {
 						// Для CDATA не следует экранировать символы (так же в марке нет русских символов). По-этому мы здесь не применяем EncText
 						SXml::WNode::CDATA(temp_buf);
 						rN.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_KIZ), temp_buf);
 					}
 					else {
 						if(temp_buf.HasPrefix("01") && chzn_gtin14_buf.NotEmpty() && chzn_serial_buf.NotEmpty()) {
-							temp_buf.Z().Cat("01").Cat(chzn_gtin14_buf).Cat("21").Cat(chzn_serial_buf);
-							rN.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
+							rN.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf.Z().Cat("01").Cat(chzn_gtin14_buf).Cat("21").Cat(chzn_serial_buf)));
 						}
 						else {
 							rN.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
@@ -7292,14 +7307,13 @@ void DocNalogRu_Generator::WriteMarkListOnInvoiceItem(SXml::WNode & rN, const PP
 				gts.GetToken(GtinStruc::fldGTIN14, &chzn_gtin14_buf);
 				gts.GetToken(GtinStruc::fldSerial, &chzn_serial_buf);
 				if(chzn_gtin14_buf.NotEmpty() && chzn_serial_buf.NotEmpty()) {
+					temp_buf.Z().Cat("01").Cat(chzn_gtin14_buf).Cat("21").Cat(chzn_serial_buf);
 					if(rParam.Flags & PPBillImpExpParam::fChZnMarkAsCDATA) {
 						// Для CDATA не следует экранировать символы (так же в марке нет русских символов). По-этому мы здесь не применяем EncText
-						temp_buf.Z().Cat("01").Cat(chzn_gtin14_buf).Cat("21").Cat(chzn_serial_buf);
 						SXml::WNode::CDATA(temp_buf);
 						rN.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_KIZ), temp_buf);
 					}
 					else {
-						temp_buf.Z().Cat("01").Cat(chzn_gtin14_buf).Cat("21").Cat(chzn_serial_buf);
 						rN.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
 					}
 					is_mark_accepted = true;
@@ -7309,8 +7323,8 @@ void DocNalogRu_Generator::WriteMarkListOnInvoiceItem(SXml::WNode & rN, const PP
 		if(!is_mark_accepted) {
 			if(rParam.Flags & PPBillImpExpParam::fChZnMarkAsCDATA) {
 				// Для CDATA не следует экранировать символы (так же в марке нет русских символов). По-этому мы здесь не применяем EncText
-				SXml::WNode::CDATA(temp_buf);
-				rN.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_KIZ), temp_buf);
+				SXml::WNode::CDATA(mark_buf);
+				rN.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_KIZ), mark_buf);
 			}
 			else {
 				if(chznProdType == GTCHZNPT_ALTTOBACCO) {
@@ -7324,10 +7338,13 @@ void DocNalogRu_Generator::WriteMarkListOnInvoiceItem(SXml::WNode & rN, const PP
 							temp_buf.Cat("8005").Cat(chzn_price_buf);
 						}*/
 					}
+					else {
+						temp_buf = mark_buf;
+					}
 					rN.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
 				}
 				else
-					rN.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
+					rN.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(mark_buf));
 			}
 		}
 	}
@@ -7723,20 +7740,22 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 					}
 				}
 				{
-					{
+					/* @v12.5.2 {
 						SXml::WNode n_e(G.P_X, GetToken(PPHSC_RU_EXCISE_BEFORE));
 						G.WriteExcise(n_e, excise_sum_before);
 					}
 					{
 						SXml::WNode n_e(G.P_X, GetToken(PPHSC_RU_EXCISE_AFTER));
 						G.WriteExcise(n_e, excise_sum_after);
-					}
+					}*/
+					G.WriteExcise2(PPHSC_RU_EXCISE_BEFORE, excise_sum_before); // @v12.5.2
+					G.WriteExcise2(PPHSC_RU_EXCISE_AFTER, excise_sum_after); // @v12.5.2
 				}
 				{
 					{
 						SXml::WNode n_e(G.P_X, GetToken(PPHSC_RU_AMTTAX_BEFORE));
 						if(vat_sum_before >= 0.0) // @v12.5.0 (vat_sum_before != 0.0)-->(vat_sum_before >= 0.0)
-							n_e.PutInner(GetToken(PPHSC_RU_AMTVAT), temp_buf.Z().Cat(fabs(vat_sum_before), MKSFMTD_020));
+							n_e.PutInnerReal(GetToken(PPHSC_RU_AMTVAT), fabs(vat_sum_before), MKSFMTD_020);
 						else
 							n_e.PutInner(GetToken(PPHSC_RU_NOVAT_TAG), GetToken(PPHSC_RU_NOVAT_VAL));
 						total_vat_before += vat_sum_before;
@@ -7744,7 +7763,7 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 					{
 						SXml::WNode n_e(G.P_X, GetToken(PPHSC_RU_AMTTAX_AFTER));
 						if(vat_sum_after >= 0.0) // @v12.5.0 (vat_sum_after != 0.0)-->(vat_sum_after >= 0.0)
-							n_e.PutInner(GetToken(PPHSC_RU_AMTVAT), temp_buf.Z().Cat(fabs(vat_sum_after), MKSFMTD_020));
+							n_e.PutInnerReal(GetToken(PPHSC_RU_AMTVAT), fabs(vat_sum_after), MKSFMTD_020);
 						else
 							n_e.PutInner(GetToken(PPHSC_RU_NOVAT_TAG), GetToken(PPHSC_RU_NOVAT_VAL));
 						total_vat_after += vat_sum_after;
@@ -7752,9 +7771,9 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 					if(vat_sum_after != vat_sum_before) {
 						SXml::WNode n_e(G.P_X, GetToken(PPHSC_RU_AMTTAX_DIFF));
 						if(vat_sum_after > vat_sum_before)
-							n_e.PutInner(GetToken(PPHSC_RU_AMTTAX_INCR), temp_buf.Z().Cat((vat_sum_after - vat_sum_before), MKSFMTD_020));
+							n_e.PutInnerReal(GetToken(PPHSC_RU_AMTTAX_INCR), (vat_sum_after - vat_sum_before), MKSFMTD_020);
 						else if(vat_sum_after < vat_sum_before)
-							n_e.PutInner(GetToken(PPHSC_RU_AMTTAX_DECR), temp_buf.Z().Cat((vat_sum_before - vat_sum_after), MKSFMTD_020));
+							n_e.PutInnerReal(GetToken(PPHSC_RU_AMTTAX_DECR), (vat_sum_before - vat_sum_after), MKSFMTD_020);
 					}
 				}
 				{
@@ -7812,14 +7831,15 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 				{
 					vat_sum = gtv.GetValue(GTAXVF_VAT);
 					excise_sum = gtv.GetValue(GTAXVF_EXCISE);
-					{
+					/* @v12.5.2 {
 						SXml::WNode n_e(G.P_X, GetToken(PPHSC_RU_EXCISE));
 						G.WriteExcise(n_e, excise_sum);
-					}
+					}*/
+					G.WriteExcise2(PPHSC_RU_EXCISE, excise_sum); // @v12.5.2
 					{
 						SXml::WNode n_e(G.P_X, GetToken(PPHSC_RU_AMTTAX));
 						if(vat_sum != 0.0)
-							n_e.PutInner(GetToken(/*PPHSC_RU_AMTVAT*/PPHSC_RU_AMTTAX), temp_buf.Z().Cat(fabs(vat_sum), MKSFMTD_020));
+							n_e.PutInnerReal(GetToken(/*PPHSC_RU_AMTVAT*/PPHSC_RU_AMTTAX), fabs(vat_sum), MKSFMTD_020);
 						else
 							n_e.PutInner(GetToken(PPHSC_RU_NOVAT_TAG), GetToken(PPHSC_RU_NOVAT_VAL));
 						total_vat += vat_sum;
@@ -7835,7 +7855,7 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 			if(barcode_for_exchange.NotEmpty()) {
 				G.WriteIdentifValPair(GetToken(PPHSC_RU_EXTRA2), GetToken(PPHSC_RU_EXTRA_BARCODE), barcode_for_exchange);
 			}
-			if(SsNotch.searchNcAscii("#esphere", 0, 0)) {
+			if(G.SsNotch.searchNcAscii("#esphere", 0, 0)) {
 				if(goods_ar_code.NotEmpty()) {
 					G.WriteIdentifValPair(GetToken(PPHSC_RU_EXTRA2), GetToken(PPHSC_RU_EXTRA_MATERIALCODE), goods_ar_code);
 				}
@@ -7881,7 +7901,7 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 			{
 				SXml::WNode n_tax(G.P_X, GetToken(PPHSC_RU_AMTTAX));
 				if(total_vat_after != 0.0 || total_vat_before != 0.0)
-					n_tax.PutInner(GetToken(PPHSC_RU_AMTVAT), temp_buf.Z().Cat(total_vat_after - total_vat_before, MKSFMTD_020));
+					n_tax.PutInnerReal(GetToken(PPHSC_RU_AMTVAT), total_vat_after - total_vat_before, MKSFMTD_020);
 				else
 					n_tax.PutInner(GetToken(PPHSC_RU_NOVAT_TAG), 0);
 			}
@@ -7893,7 +7913,7 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 			{
 				SXml::WNode n_tax(G.P_X, GetToken(PPHSC_RU_AMTTAX));
 				if(total_vat_after != 0.0 || total_vat_before != 0.0)
-					n_tax.PutInner(GetToken(PPHSC_RU_AMTVAT), temp_buf.Z().Cat(total_vat_before - total_vat_after, MKSFMTD_020));
+					n_tax.PutInnerReal(GetToken(PPHSC_RU_AMTVAT), total_vat_before - total_vat_after, MKSFMTD_020);
 				else
 					n_tax.PutInner(GetToken(PPHSC_RU_NOVAT_TAG), 0);
 			}
@@ -7906,476 +7926,13 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 		{
 			SXml::WNode n_e(G.P_X, GetToken(PPHSC_RU_AMTTAXTOTAL));
 			if(total_vat != 0.0)
-				n_e.PutInner(GetToken(/*PPHSC_RU_AMTVAT*/PPHSC_RU_AMTTAX), temp_buf.Z().Cat(fabs(total_vat), MKSFMTD_020));
+				n_e.PutInnerReal(GetToken(/*PPHSC_RU_AMTVAT*/PPHSC_RU_AMTTAX), fabs(total_vat), MKSFMTD_020);
 			else
 				n_e.PutInner(GetToken(PPHSC_RU_NOVAT_TAG), GetToken(PPHSC_RU_NOVAT_VAL));
 		}
 	}
 	return ok;
 }
-
-#if 0 // @v12.4.11 (replaced with DocNalogRu_WriteBillBlock::WriteInvoiceItems_) {
-int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, const FileInfo & rHi, const PPBillPacket & rBp, bool correction)
-{
-	int    ok = 1;
-	Reference * p_ref(PPRef);
-	double total_amt = 0.0;
-	double total_amt_before = 0.0;
-	double total_amt_after = 0.0;
-	double total_amt_wovat = 0.0;
-	double total_amt_wovat_before = 0.0;
-	double total_amt_wovat_after  = 0.0;
-	double total_vat = 0.0;
-	double total_vat_before = 0.0;
-	double total_vat_after = 0.0;
-	const  long exclude_tax_flags = (rHi.Flags & FileInfo::fVatFree) ? GTAXVF_VAT : 0L;
-	SString temp_buf;
-	SString goods_ext_strings;
-	SString unit_name;
-	SString unit_code;
-	SString goods_code;
-	SString goods_ar_code; // @v11.7.4 Код товара по статье контрагента
-	SString barcode_for_marking;  // @v11.5.9 Валидный штрихкод для формирования суррогатной chzn-марки для некоторых категорий товаров
-	SString barcode_for_exchange; // @v11.5.9 Валидный штрихкод для передачи контрагенту с целью идентификации товара
-	PPLotExtCodeContainer::MarkSet::Entry msentry;
-	PPLotExtCodeContainer::MarkSet ext_codes_set;
-	PPObjBill * p_bobj(BillObj);
-	PPIDArray correction_bill_chain;
-	PPBillPacket org_bpack; // @v12.4.8 для корректировки (correction == true)
-	const PPBillPacket * p_org_bpack = 0; // для передачи во внутренние функции
-	if(correction) {
-		p_bobj->GetCorrectionBackChain(rBp.Rec, correction_bill_chain);
-		// @v12.4.8 {
-		if(correction_bill_chain.getCount()) {
-			const PPID org_bill_id = correction_bill_chain.get(0);
-			if(p_bobj->ExtractPacket(org_bill_id, &org_bpack) > 0) {
-				p_org_bpack = &org_bpack;
-			}
-			else
-				org_bpack.destroy();
-		}
-		// } @v12.4.8 
-	}
-	const int tiamt = (rBp.OutAmtType == TIAMT_COST) ? TIAMT_COST : ((rBp.OutAmtType == TIAMT_PRICE) ? TIAMT_PRICE : /*TIAMT_AMOUNT*/GTaxVect::GetTaxNominalAmountType(rBp.Rec));
-	SXml::WNode n_t(P_X, GetToken_Ansi(correction ? PPHSC_RU_CORRINVOICETAB : PPHSC_RU_INVOICETAB));
-	for(uint item_idx = 0; item_idx < rBp.GetTCount(); item_idx++) {
-		// <СведТов НалСт="18%" НомСтр="1" НаимТов="Товар" ОКЕИ_Тов="796" КолТов="5" ЦенаТов="1.00" СтТовБезНДС="5.00" СтТовУчНал="5.90">
-		/* Для корректирующего документа:
-		<СведТов 
-			НомСтр="1" 
-			НаимТов="Dario Wellness 1,0 л Ананасовый сок восстановленный для питания детей дошкольного и школьного возраста старше 3-х лет" 
-			ОКЕИ_ТовДо="796" 
-			ОКЕИ_ТовПосле="796" 
-			КолТовДо="144" 
-			КолТовПосле="144" 
-			ЦенаТовДо="96.33" 
-			ЦенаТовПосле="88.15" 
-			НалСтДо="10%" 
-			НалСтПосле="10%">
-			<СтТовБезНДС СтоимДоИзм="13871.13" СтоимПослеИзм="12694.25" СтоимУм="1176.88"/>
-			<АкцизДо>
-			<БезАкциз>без акциза</БезАкциз>
-			</АкцизДо>
-			<АкцизПосле>
-			<БезАкциз>без акциза</БезАкциз>
-			</АкцизПосле>
-			<СумНалДо>
-			<СумНДС>1387.11</СумНДС>
-			</СумНалДо>
-			<СумНалПосле>
-			<СумНДС>1269.43</СумНДС>
-			</СумНалПосле>
-			<СумНалРазн>
-			<СумУм>117.68</СумУм>
-			</СумНалРазн>
-			<СтТовУчНал СтоимДоИзм="15258.24" СтоимПослеИзм="13963.68" СтоимУм="1294.56"/>
-			<ДопСведТов НаимЕдИзмДо="шт" НаимЕдИзмПосле="шт"/>
-			</СведТов>
-		*/
-		double vat_sum = 0.0;
-		double excise_sum = 0.0;
-		const  PPTransferItem & r_ti = rBp.ConstTI(item_idx);
-		const  double qtty_local = fabs(r_ti.Qtty());
-		const  PPID  goods_id = labs(r_ti.GoodsID);
-		int    chzn_prod_type = 0; // @v11.4.10
-		bool   is_weighted_ware = false; // @v11.9.6 Признак того, что товар весовой (нужно для специального формирования chzn-марки)
-		double org_qtty = 0.0;
-		double org_price = 0.0;
-		const  int govc_result = correction ? p_bobj->trfr->GetOriginalValuesForCorrection(r_ti, correction_bill_chain, 0, &org_qtty, &org_price) : -1;
-		if(govc_result > 0) {
-			org_qtty = fabs(org_qtty);
-		}
-		else {
-			org_qtty = qtty_local;
-			org_price = r_ti.Price - r_ti.Discount;
-		}
-		unit_name.Z();
-		unit_code.Z();
-		goods_code.Z();
-		barcode_for_marking.Z();  // @v11.5.9
-		barcode_for_exchange.Z(); // @v11.5.9
-		goods_ar_code.Z(); // @v11.7.4
-		// my -- {
-		// <СведТов КолТов="1.00" НаимТов="ТО системы защиты от краж ООО "Лента" ТК-180 Петрозаводск, пр. Комсомольский, 27"
-			// НалСт="без НДС" НомСтр="1" ОКЕИ_Тов="796" СтТовБезНДС="9000.00" СтТовУчНал="9000.00" ЦенаТов="9000.00"></СведТов>
-		// } -- my
-		// <СведТов
-			// НомСтр="1"
-			// НаимТов="ТО системы защиты от краж ООО "Лента" ТК-180 Петрозаводск, пр. Комсомольский, 27"
-			// ОКЕИ_Тов="796"
-			// КолТов="1"
-			// ЦенаТов="9000.00"
-			// СтТовБезНДС="9000.00"
-			// НалСт="без НДС"
-			// СтТовУчНал="9000.00">
-		// </СведТов>
-		// !!! <ДопСведТов ПрТовРаб="3" КодТов="00000000027" НаимЕдИзм="шт"/>
-		// @v11.5.9 {
-		{
-			BarcodeArray bc_list;
-			GObj.P_Tbl->ReadBarcodes(goods_id, bc_list);
-			bc_list.GetSingle(BarcodeArray::sifValidEanUpcOnly, temp_buf);
-			if(temp_buf.NotEmpty()) {
-				barcode_for_marking = temp_buf;
-				barcode_for_exchange = temp_buf;
-				goods_code = temp_buf;
-			}
-			else {
-				bc_list.GetSingle(0, goods_code);
-			}
-			if(goods_code.IsEmpty())
-				goods_code.CatLongZ(goods_id, 11);
-			else
-				goods_code.Transf(CTRANSF_INNER_TO_OUTER);
-		}
-		// } @v11.5.9
-		SXml::WNode n_item(P_X, GetToken_Ansi(PPHSC_RU_WAREINFO));
-		temp_buf.Z().Cat(r_ti.RByBill);
-		n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_LINENUMBER), temp_buf);
-		{
-			Goods2Tbl::Rec goods_rec;
-			if(GObj.Fetch(goods_id, &goods_rec) > 0) {
-				PPUnit u_rec;
-				PPGoodsType gt_rec;
-				temp_buf.Z(); // @v11.7.12
-				// @v11.7.12 {
-				if(rParam.Flags & PPBillImpExpParam::fUseExtGoodsName) {
-					if(p_ref->GetPropVlrString(PPOBJ_GOODS, goods_id, GDSPRP_EXTSTRDATA, goods_ext_strings) > 0)
-						PPGetExtStrData(GDSEXSTR_LABELNAME, goods_ext_strings, temp_buf);
-				}
-				// } @v11.7.12
-				if(temp_buf.IsEmpty())
-					temp_buf = goods_rec.Name;
-				n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WARENAME), EncText(temp_buf));
-				if(GObj.FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
-					// @v11.9.6 {
-					if(u_rec.ID == SUOM_KILOGRAM || u_rec.BaseUnitID == SUOM_KILOGRAM)
-						is_weighted_ware = true;
-					// } @v11.9.6 
-					(unit_name = u_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
-					unit_code = isempty(u_rec.Code) ? "0000" : u_rec.Code;
-				}
-				else
-					unit_code = "0000";
-				if(correction) {
-					n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREOKEI_BEFORE), unit_code);
-					n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREOKEI_AFTER), unit_code);
-				}
-				else
-					n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREOKEI), unit_code);
-				// @v12.2.12 {
-				if(IsVer503()) {
-					if(correction) {
-						n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_UNITNAME_BEFORE), unit_name);
-						n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_UNITNAME_AFTER), unit_name);
-					}
-					else {
-						n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_UNITNAME), unit_name);
-					}
-				}
-				// } @v12.2.12 
-				// @v11.4.10 {
-				if(goods_rec.GoodsTypeID && GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
-					chzn_prod_type = gt_rec.ChZnProdType;
-				}
-				// } @v11.4.10 
-				// @v11.7.4 {
-				if(rBp.Rec.Object) {
-					GObj.P_Tbl->GetArCode(rBp.Rec.Object, goods_id, goods_ar_code, 0);
-					goods_ar_code.Transf(CTRANSF_INNER_TO_OUTER);
-				}
-				// } @v11.7.3
-			}
-		}
-		if(correction) {
-			//PPHSC_RU_WAREQTTY_BEFORE
-			//PPHSC_RU_WAREQTTY_AFTER
-			temp_buf.Z().Cat(org_qtty, MKSFMTD_030);
-			n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREQTTY_BEFORE), temp_buf);
-			temp_buf.Z().Cat(qtty_local, MKSFMTD_030);
-			n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREQTTY_AFTER), temp_buf);
-		}
-		else {
-			temp_buf.Z().Cat(qtty_local, MKSFMTD_030);
-			n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREQTTY), temp_buf);
-		}
-		{
-			GTaxVect gtv;
-			const long exclude_tax_flags = GTAXVF_SALESTAX;
-			if(correction) {
-				double amt_wo_vat_before = 0.0;
-				double amt_wo_vat_after = 0.0;
-				double excise_sum_before = 0.0;
-				double excise_sum_after = 0.0;
-				double vat_sum_before = 0.0;
-				double vat_sum_after = 0.0;
-				double amt_before = 0.0;
-				double amt_after = 0.0;
-				{
-					gtv.CalcBPTI(rBp, r_ti, tiamt, exclude_tax_flags, -1);
-					{
-						if(rHi.Flags & FileInfo::fVatFree)
-							temp_buf.Z().Cat(GetToken_Ansi(PPHSC_RU_NOVAT_VAL));
-						else
-							temp_buf.Z().Cat(gtv.GetTaxRate(GTAX_VAT, 0), MKSFMTD(0, 0, NMBF_NOTRAILZ)).CatChar('%');
-						n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_TAXRATE_BEFORE), temp_buf);
-					}
-					//
-					amt_wo_vat_before = gtv.GetValue(GTAXVF_AFTERTAXES);
-					n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREPRICE_BEFORE), temp_buf.Z().Cat(amt_wo_vat_before / fabs(org_qtty), MKSFMTD_020));
-					//
-					total_amt_wovat_before += amt_wo_vat_before;
-					//n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMTWOVAT), temp_buf.Z().Cat(amt_wo_vat_before, MKSFMTD(0, 2, /*NMBF_NOTRAILZ*/0)));
-					//
-					amt_before = gtv.GetValue(GTAXVF_BEFORETAXES);
-					total_amt_before += amt_before;
-					//n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMT_BEFORE), temp_buf.Z().Cat(amt_before, MKSFMTD(0, 2, /*NMBF_NOTRAILZ*/0)));
-
-					vat_sum_before = gtv.GetValue(GTAXVF_VAT);
-					excise_sum_before = gtv.GetValue(GTAXVF_EXCISE);
-				}
-				{
-					gtv.CalcBPTI(rBp, r_ti, tiamt, exclude_tax_flags, +1);
-					{
-						if(rHi.Flags & FileInfo::fVatFree)
-							temp_buf.Z().Cat(GetToken_Ansi(PPHSC_RU_NOVAT_VAL));
-						else
-							temp_buf.Z().Cat(gtv.GetTaxRate(GTAX_VAT, 0), MKSFMTD(0, 0, NMBF_NOTRAILZ)).CatChar('%');
-						n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_TAXRATE_AFTER), temp_buf);
-					}
-					//
-					amt_wo_vat_after = gtv.GetValue(GTAXVF_AFTERTAXES);
-					n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREPRICE_AFTER), temp_buf.Z().Cat(amt_wo_vat_after / fabs(org_qtty), MKSFMTD_020));
-					//
-					total_amt_wovat_after += amt_wo_vat_after;
-					//n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMTWOVAT), temp_buf.Z().Cat(amt_wo_tax, MKSFMTD(0, 2, /*NMBF_NOTRAILZ*/0)));
-					//
-					amt_after = gtv.GetValue(GTAXVF_BEFORETAXES);
-					total_amt_after += amt_after;
-					//n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMT_AFTER), temp_buf.Z().Cat(amt_after, MKSFMTD(0, 2, /*NMBF_NOTRAILZ*/0)));
-
-					vat_sum_after = gtv.GetValue(GTAXVF_VAT);
-					excise_sum_after = gtv.GetValue(GTAXVF_EXCISE);
-				}
-				if(IsVer503()) {
-					WriteWareInfoAddendum(rParam, rBp, item_idx, goods_code, barcode_for_marking, correction, p_org_bpack);
-				}
-				{
-					SXml::WNode n_p(P_X, GetToken_Ansi(PPHSC_RU_WAREAMTWOVAT));
-					n_p.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMT_BEFORE), temp_buf.Z().Cat(amt_wo_vat_before, MKSFMTD(0, 2, /*NMBF_NOTRAILZ*/0)));
-					n_p.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMT_AFTER), temp_buf.Z().Cat(amt_wo_vat_after, MKSFMTD(0, 2, /*NMBF_NOTRAILZ*/0)));
-					if(amt_wo_vat_after > amt_wo_vat_before) {
-						n_p.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMT_INCR), temp_buf.Z().Cat((amt_wo_vat_after - amt_wo_vat_before), MKSFMTD(0, 2, /*NMBF_NOTRAILZ*/0)));
-					}
-					else if(amt_wo_vat_after < amt_wo_vat_before) {
-						n_p.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMT_DECR), temp_buf.Z().Cat((amt_wo_vat_before - amt_wo_vat_after), MKSFMTD(0, 2, /*NMBF_NOTRAILZ*/0)));
-					}
-				}
-				{
-					{
-						SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_EXCISE_BEFORE));
-						WriteExcise(n_e, excise_sum_before);
-					}
-					{
-						SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_EXCISE_AFTER));
-						WriteExcise(n_e, excise_sum_after);
-					}
-				}
-				{
-					{
-						SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_AMTTAX_BEFORE));
-						if(vat_sum_before != 0.0)
-							n_e.PutInner(GetToken_Ansi(PPHSC_RU_AMTVAT), temp_buf.Z().Cat(fabs(vat_sum_before), MKSFMTD_020));
-						else
-							n_e.PutInner(GetToken_Ansi(PPHSC_RU_NOVAT_TAG), GetToken_Ansi(PPHSC_RU_NOVAT_VAL));
-						total_vat_before += vat_sum_before;
-					}
-					{
-						SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_AMTTAX_AFTER));
-						if(vat_sum_after != 0.0)
-							n_e.PutInner(GetToken_Ansi(PPHSC_RU_AMTVAT), temp_buf.Z().Cat(fabs(vat_sum_after), MKSFMTD_020));
-						else
-							n_e.PutInner(GetToken_Ansi(PPHSC_RU_NOVAT_TAG), GetToken_Ansi(PPHSC_RU_NOVAT_VAL));
-						total_vat_after += vat_sum_after;
-					}
-					if(vat_sum_after != vat_sum_before) {
-						SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_AMTTAX_DIFF));
-						if(vat_sum_after > vat_sum_before)
-							n_e.PutInner(GetToken_Ansi(PPHSC_RU_AMTTAX_INCR), temp_buf.Z().Cat((vat_sum_after - vat_sum_before), MKSFMTD_020));
-						else if(vat_sum_after < vat_sum_before)
-							n_e.PutInner(GetToken_Ansi(PPHSC_RU_AMTTAX_DECR), temp_buf.Z().Cat((vat_sum_before - vat_sum_after), MKSFMTD_020));
-					}
-				}
-				{
-					SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_WAREAMT));
-					n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMT_BEFORE), temp_buf.Z().Cat(amt_before, MKSFMTD_020));
-					n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMT_AFTER), temp_buf.Z().Cat(amt_after, MKSFMTD_020));
-					if(amt_after != amt_before) {
-						if(amt_after > amt_before) {
-							n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMT_INCR), temp_buf.Z().Cat((amt_after - amt_before), MKSFMTD_020));
-						}
-						else if(amt_after < amt_before) {
-							n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMT_DECR), temp_buf.Z().Cat((amt_before - amt_after), MKSFMTD_020));
-						}
-					}
-				}
-				if(!IsVer503()) {
-					WriteWareInfoAddendum(rParam, rBp, item_idx, goods_code, barcode_for_marking, correction, p_org_bpack);
-				}
-			}
-			else {
-				/*
-				<xs:restriction base="xs:string">
-					<xs:maxLength value="7"/>
-					<xs:minLength value="1"/>
-					<xs:enumeration value="0%"/>
-					<xs:enumeration value="10%"/>
-					<xs:enumeration value="18%"/>
-					<xs:enumeration value="10/110"/>
-					<xs:enumeration value="18/118"/>
-					<xs:enumeration value="без НДС"/>
-				</xs:restriction>
-				*/
-				gtv.CalcBPTI(rBp, r_ti, tiamt, exclude_tax_flags);
-				{
-					if(rHi.Flags & FileInfo::fVatFree)
-						temp_buf.Z().Cat(GetToken_Ansi(PPHSC_RU_NOVAT_VAL));
-					else
-						temp_buf.Z().Cat(gtv.GetTaxRate(GTAX_VAT, 0), MKSFMTD(0, 0, NMBF_NOTRAILZ)).CatChar('%');
-					n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_TAXRATE), temp_buf);
-				}
-				//
-				const double amt_wo_tax = gtv.GetValue(GTAXVF_AFTERTAXES);
-				n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREPRICE), temp_buf.Z().Cat(amt_wo_tax / fabs(r_ti.Quantity_), MKSFMTD_020));
-				//
-				total_amt_wovat += amt_wo_tax;
-				n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMTWOVAT), temp_buf.Z().Cat(amt_wo_tax, MKSFMTD(0, 2, /*NMBF_NOTRAILZ*/0)));
-				//
-				const double amt = gtv.GetValue(GTAXVF_BEFORETAXES);
-				total_amt += amt;
-				n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMT), temp_buf.Z().Cat(amt, MKSFMTD(0, 2, /*NMBF_NOTRAILZ*/0)));
-				//
-				if(IsVer503()) {
-					WriteWareInfoAddendum(rParam, rBp, item_idx, goods_code, barcode_for_marking, correction, p_org_bpack);
-				}
-				{
-					vat_sum = gtv.GetValue(GTAXVF_VAT);
-					excise_sum = gtv.GetValue(GTAXVF_EXCISE);
-					{
-						SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_EXCISE));
-						WriteExcise(n_e, excise_sum);
-					}
-					{
-						SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_AMTTAX));
-						if(vat_sum != 0.0)
-							n_e.PutInner(GetToken_Ansi(/*PPHSC_RU_AMTVAT*/PPHSC_RU_AMTTAX), temp_buf.Z().Cat(fabs(vat_sum), MKSFMTD_020));
-						else
-							n_e.PutInner(GetToken_Ansi(PPHSC_RU_NOVAT_TAG), GetToken_Ansi(PPHSC_RU_NOVAT_VAL));
-						total_vat += vat_sum;
-					}
-				}
-				if(!IsVer503()) {
-					WriteWareInfoAddendum(rParam, rBp, item_idx, goods_code, barcode_for_marking, correction, p_org_bpack);
-				}
-			}
-		}
-		// @v11.5.9 {
-		if(!correction) {
-			/*if(SsNotch.searchNcAscii("#esphere", 0, 0)) {
-			}*/
-			if(barcode_for_exchange.NotEmpty()) {
-				WriteIdentifValPair(GetToken_Ansi(PPHSC_RU_EXTRA2), GetToken_Ansi(PPHSC_RU_EXTRA_BARCODE), barcode_for_exchange);
-				// @v11.7.4 {
-				// @v12.0.0 Это - какой-то бред: я для каждого ебнутого покупателя должен буду вставлять одно и то же с разными тегами? {
-				WriteIdentifValPair(GetToken_Ansi(PPHSC_RU_EXTRA2), GetToken_Ansi(PPHSC_RU_GOODSCODE_BUYER), barcode_for_exchange);
-				// } @v12.0.0 
-				// } @v11.7.4 
-			}
-			if(goods_ar_code.NotEmpty()) {
-				WriteIdentifValPair(GetToken_Ansi(PPHSC_RU_EXTRA2), GetToken_Ansi(PPHSC_RU_EXTRA_MATERIALCODE), goods_ar_code);
-			}
-
-		}
-		else {
-			//
-		}
-		// } @v11.5.9
-	}
-	if(correction) {
-		// СтТовБезНДСВсего PPHSC_RU_WAREAMTWOVATTOTAL
-		// СтТовУчНалВсего  PPHSC_RU_WAREAMTTOTAL
-		// СумНал           PPHSC_RU_AMTTAX
-		/*
-			double total_amt = 0.0;
-			double total_amt_before = 0.0;
-			double total_amt_after = 0.0;
-			double total_amt_wovat = 0.0;
-			double total_amt_wovat_before = 0.0;
-			double total_amt_wovat_after  = 0.0;
-			double total_vat = 0.0;
-			double total_vat_before = 0.0;
-			double total_vat_after = 0.0;
-		*/
-		if(total_amt_after > total_amt_before) {
-			SXml::WNode n_t_incr(P_X, GetToken_Ansi(PPHSC_RU_VALUETOTAL_INCR)/*"ВсегоУвел"*/);
-			n_t_incr.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMTWOVATTOTAL), temp_buf.Z().Cat(total_amt_wovat_after - total_amt_wovat_before, MKSFMTD_020));
-			n_t_incr.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMTTOTAL), temp_buf.Z().Cat(total_amt_after - total_amt_before, MKSFMTD_020));
-			{
-				SXml::WNode n_tax(P_X, GetToken_Ansi(PPHSC_RU_AMTTAX));
-				if(total_vat_after != 0.0 || total_vat_before != 0.0)
-					n_tax.PutInner(GetToken_Ansi(PPHSC_RU_AMTVAT), temp_buf.Z().Cat(total_vat_after - total_vat_before, MKSFMTD_020));
-				else
-					n_tax.PutInner(GetToken_Ansi(PPHSC_RU_NOVAT_TAG), 0);
-			}
-		}
-		if(total_amt_after < total_amt_before) {
-			SXml::WNode n_t_decr(P_X, GetToken_Ansi(PPHSC_RU_VALUETOTAL_DECR)/*"ВсегоУм"*/);
-			n_t_decr.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMTWOVATTOTAL), temp_buf.Z().Cat(total_amt_wovat_before - total_amt_wovat_after, MKSFMTD_020));
-			n_t_decr.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMTTOTAL), temp_buf.Z().Cat(total_amt_before - total_amt_after, MKSFMTD_020));
-			{
-				SXml::WNode n_tax(P_X, GetToken_Ansi(PPHSC_RU_AMTTAX));
-				if(total_vat_after != 0.0 || total_vat_before != 0.0)
-					n_tax.PutInner(GetToken_Ansi(PPHSC_RU_AMTVAT), temp_buf.Z().Cat(total_vat_before - total_vat_after, MKSFMTD_020));
-				else
-					n_tax.PutInner(GetToken_Ansi(PPHSC_RU_NOVAT_TAG), 0);
-			}
-		}
-	}
-	else { // @v11.7.1 (для корректировки не нужно)
-		SXml::WNode n_t(P_X, GetToken_Ansi(PPHSC_RU_TOTALTOPAYM)/*"ВсегоОпл"*/);
-		n_t.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMTWOVATTOTAL), temp_buf.Z().Cat(total_amt_wovat, MKSFMTD_020));
-		n_t.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMTTOTAL), temp_buf.Z().Cat(total_amt, MKSFMTD_020));
-		{
-			SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_AMTTAXTOTAL));
-			if(total_vat != 0.0)
-				n_e.PutInner(GetToken_Ansi(/*PPHSC_RU_AMTVAT*/PPHSC_RU_AMTTAX), temp_buf.Z().Cat(fabs(total_vat), MKSFMTD_020));
-			else
-				n_e.PutInner(GetToken_Ansi(PPHSC_RU_NOVAT_TAG), GetToken_Ansi(PPHSC_RU_NOVAT_VAL));
-		}
-	}
-	return ok;
-}
-#endif // } 0 @v12.4.11
 
 int DocNalogRu_Generator::WriteParticipant(const char * pHeaderTag, PPID psnID, PPID dlvrLocID)
 {
@@ -8964,6 +8521,8 @@ int DocNalogRu_Generator::GetAgreementParams(/*PPID arID*/const PPBillPacket & r
 //
 // Обрабатываемые notch-теги: 
 //   #esphere - провайдер sber sphera
+//   #sbis    - провайдер SBIS
+//   #diadoc  - провайдер DIADOC
 //
 DocNalogRu_WriteBillBlock::DocNalogRu_WriteBillBlock(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, const char * pHeaderSymb, const SString & rFileName) : 
 	State(0), R_P(rParam), R_Bp(rBp), DtoPersonID(rParam.DtoPersonID), HeaderSymb(pHeaderSymb), R_NominalFileName(rFileName),
@@ -9020,8 +8579,8 @@ DocNalogRu_WriteBillBlock::DocNalogRu_WriteBillBlock(const PPBillImpExpParam & r
 			}
 			//
 			for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-				if(!SsNotch.searchNcAscii(temp_buf, 0, 0)) {
-					SsNotch.add(temp_buf);
+				if(!G.SsNotch.searchNcAscii(temp_buf, 0, 0)) {
+					G.SsNotch.add(temp_buf);
 				}
 			}
 		}
@@ -9064,8 +8623,7 @@ int DocNalogRu_WriteBillBlock::Do_DP_REZRUISP(SString & rResultFileName)
 				SXml::WNode n_(G.P_X, "СвДокПРУ");
 				{
 					SXml::WNode n_2(G.P_X, GetToken(PPHSC_RU_NAMEOFDOC_S));
-					temp_buf = GetToken(PPHSC_RU_NAMEOFDOC_S_SRVC);
-					n_2.PutAttrib(GetToken(PPHSC_RU_NAMEOFDOC2), temp_buf);
+					n_2.PutAttrib(GetToken(PPHSC_RU_NAMEOFDOC2), GetToken(PPHSC_RU_NAMEOFDOC_S_SRVC));
 					n_2.PutAttrib(GetToken(PPHSC_RU_NAMEOFDOC), EncText(temp_buf = OpRec.Name));
 					SXml::WNode n_3(G.P_X, GetToken(PPHSC_RU_DOCIDENT));
 					// @v11.1.12 BillCore::GetCode(temp_buf = R_Bp.Rec.Code);
@@ -9416,7 +8974,7 @@ int DocNalogRu_WriteBillBlock::Do_Invoice2(SString & rResultFileName)
 								}
 							}
 							// @v12.4.11 {
-							if(SsNotch.searchNcAscii("#esphere", 0, 0)) {
+							if(G.SsNotch.searchNcAscii("#esphere", 0, 0)) {
 								if(order_bill_rec.ID) {
 									G.WriteIdentifValPair(GetToken(PPHSC_RU_TEXTINF), GetToken(PPHSC_RU_EXTRA_ORDERCODE3), EncText(temp_buf = order_bill_rec.Code));
 									G.WriteIdentifValPair(GetToken(PPHSC_RU_TEXTINF), GetToken(PPHSC_RU_EXTRA_ORDERDATE3), temp_buf.Z().Cat(order_bill_rec.Dt, DATF_GERMANCENT));
@@ -9852,7 +9410,7 @@ int DocNalogRu_WriteBillBlock::Do_UPD(SString & rResultFileName)
 							}
 						}
 						// @v12.4.11 {
-						else if(SsNotch.searchNcAscii("#esphere", 0, 0)) {
+						else if(G.SsNotch.searchNcAscii("#esphere", 0, 0)) {
 							if(order_bill_rec.ID) {
 								G.WriteIdentifValPair(GetToken(PPHSC_RU_TEXTINF), GetToken(PPHSC_RU_EXTRA_ORDERCODE3), EncText(temp_buf = order_bill_rec.Code));
 								G.WriteIdentifValPair(GetToken(PPHSC_RU_TEXTINF), GetToken(PPHSC_RU_EXTRA_ORDERDATE3), temp_buf.Z().Cat(order_bill_rec.Dt, DATF_GERMANCENT));

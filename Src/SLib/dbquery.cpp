@@ -637,7 +637,7 @@ int DBQuery::_search(uint n, int dir)
 	int    more = 0; // Флаг, предписывающий обновить значение ключа
 	if(is_first) {
 		r_tbl.flg &= ~(DBQTF_PREVDOWN | DBQTF_PREVUP);
-		r_tbl.P_Tbl->ToggleStmt(true/*release*/);
+		r_tbl.P_Tbl->DestroySelectStmt();
 		if(chooseKey(n)) {
 			if(dir == spFirst)
 				r_tbl.key.first();
@@ -674,14 +674,14 @@ int DBQuery::_search(uint n, int dir)
 		sp = dir;
 		if(dir == spNext) {
 			if(r_tbl.flg & DBQTF_PREVUP) {
-				r_tbl.P_Tbl->ToggleStmt(0);
+				r_tbl.P_Tbl->DestroySelectStmt();
 				r_tbl.flg &= ~DBQTF_PREVUP;
 			}
 			r_tbl.flg |= DBQTF_PREVDOWN;
 		}
 		else if(dir == spPrev) {
 			if(r_tbl.flg & DBQTF_PREVDOWN) {
-				r_tbl.P_Tbl->ToggleStmt(0);
+				r_tbl.P_Tbl->DestroySelectStmt();
 				r_tbl.flg &= ~DBQTF_PREVDOWN;
 			}
 			r_tbl.flg |= DBQTF_PREVUP;

@@ -2305,15 +2305,15 @@ int PPDS_CrrScale::TransferField(long fldID, Tfd dir, uint * pIter, SString & rB
 		case DSF_CRRSCALE_ALTGOODSGRP:
 			{
 				SString buf;
-				Goods2Tbl::Rec ggrec;
+				Goods2Tbl::Rec gg_rec;
 				if(dir == tfdDataToBuf) {
-					if(GGObj.Search(Data.Rec.AltGoodsGrp, &ggrec) > 0)
-						buf.CopyFrom(ggrec.Name);
+					if(GGObj.Search(Data.Rec.AltGoodsGrp, &gg_rec) > 0)
+						buf.CopyFrom(gg_rec.Name);
 				}
 				ok = TransferData(buf, dir, rBuf);
 				if(dir == tfdBufToData) {
 					PPID ggid = 0;
-					if(GGObj.SearchByName(buf, &ggid, &ggrec) > 0 && (ggrec.Flags & GF_ALTGROUP))
+					if(GGObj.SearchByName(buf, &ggid, &gg_rec) > 0 && (gg_rec.Flags & GF_ALTGROUP))
 						Data.Rec.AltGoodsGrp = ggid;
 				}
 			}

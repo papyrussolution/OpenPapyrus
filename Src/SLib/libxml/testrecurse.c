@@ -71,7 +71,7 @@ static int glob(const char * pattern, int flags,
 	char directory[500];
 	int len;
 
-	if((pattern == NULL) || (pglob == NULL)) return(-1);
+	if((pattern == NULL) || (pglob == NULL)) return -1;
 
 	strncpy(directory, pattern, 499);
 	for(len = strlen(directory); len >= 0; len--) {
@@ -92,7 +92,7 @@ static int glob(const char * pattern, int flags,
 	ret->gl_pathv = (char**)malloc(nb_paths * sizeof(char *));
 	if(ret->gl_pathv == NULL) {
 		FindClose(hFind);
-		return(-1);
+		return -1;
 	}
 	strncpy(directory + len, FindFileData.cFileName, 499 - len);
 	ret->gl_pathv[ret->gl_pathc] = strdup(directory);
@@ -168,7 +168,7 @@ static int rlen;
  */
 static int hugeMatch(const char * URI) {
 	if((URI != NULL) && (!strncmp(URI, "huge:", 4)))
-		return(1);
+		return 1;
 	return 0;
 }
 
@@ -198,7 +198,7 @@ static void * hugeOpen(const char * URI) {
  * Returns 0 or -1 in case of error
  */
 static int hugeClose(void * context) {
-	if(context == NULL) return(-1);
+	if(context == NULL) return -1;
 	return 0;
 }
 
@@ -281,7 +281,7 @@ static xmlParserInput * testExternalEntityLoader(const char * URL, const char * 
 		extraMemoryFromResolver += xmlMemUsed() - memused;
 	}
 
-	return(ret);
+	return ret;
 }
 
 /*
@@ -620,7 +620,7 @@ static int checkTestFile(const char * filename) {
 		return 0;
 #endif
 
-	return(1);
+	return 1;
 }
 //
 // Test to detect or not recursive entities
@@ -651,10 +651,10 @@ static int recursiveDetectTest(const char * filename, const char * result ATTRIB
 		fprintf(stderr, "Failed to detect recursion in %s\n", filename);
 		xmlFreeParserCtxt(ctxt);
 		xmlFreeDoc(doc);
-		return(1);
+		return 1;
 	}
 	xmlFreeParserCtxt(ctxt);
-	return(res);
+	return res;
 }
 
 /**
@@ -682,11 +682,11 @@ static int notRecursiveDetectTest(const char * filename, const char * result ATT
 	if(doc == NULL) {
 		fprintf(stderr, "Failed to parse correct file %s\n", filename);
 		xmlFreeParserCtxt(ctxt);
-		return(1);
+		return 1;
 	}
 	xmlFreeDoc(doc);
 	xmlFreeParserCtxt(ctxt);
-	return(res);
+	return res;
 }
 
 #ifdef LIBXML_READER_ENABLED
@@ -711,7 +711,7 @@ static int notRecursiveHugeTest(const char * filename ATTRIBUTE_UNUSED,
 	reader = xmlReaderForFile("huge:test", NULL, XML_PARSE_NOENT | XML_PARSE_DTDLOAD);
 	if(reader == NULL) {
 		fprintf(stderr, "Failed to open huge:test\n");
-		return(1);
+		return 1;
 	}
 	ret = xmlTextReaderRead(reader);
 	while(ret == 1) {
@@ -723,7 +723,7 @@ static int notRecursiveHugeTest(const char * filename ATTRIBUTE_UNUSED,
 	}
 	xmlFreeTextReader(reader);
 
-	return(res);
+	return res;
 }
 
 #endif
@@ -763,7 +763,7 @@ static int launchTests(testDescPtr tst) {
 	char * error;
 	int mem;
 
-	if(tst == NULL) return(-1);
+	if(tst == NULL) return -1;
 	if(tst->in != NULL) {
 		glob_t globbuf;
 
@@ -869,7 +869,7 @@ static int runtest(int i) {
 			    nb_errors - old_errors,
 			    nb_leaks - old_leaks);
 	}
-	return(ret);
+	return ret;
 }
 
 int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED) 
@@ -906,5 +906,5 @@ int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED)
 	}
 	xmlCleanupParser();
 	xmlMemoryDump();
-	return(ret);
+	return ret;
 }

@@ -2254,7 +2254,8 @@ int CPosProcessor::LoadPartialStruc(PPID goodsID, PPGoodsStruc & rGs)
 int CPosProcessor::LoadComplex(PPID goodsID, SaComplex & rComplex)
 {
 	int    ok = -1;
-	Goods2Tbl::Rec goods_rec, item_goods_rec;
+	Goods2Tbl::Rec goods_rec;
+	Goods2Tbl::Rec item_goods_rec;
 	rComplex.Init(goodsID, 0, 1.0);
 	if(GObj.Fetch(goodsID, &goods_rec) > 0 && goods_rec.Flags & GF_GENERIC) {
 		PPGoodsStruc gs;
@@ -5104,6 +5105,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 						{
 							paym_blk2.ExclSCardID = CSt.GetID();
 							const double ccpl_total = paym_blk2.CcPl.GetTotal();
+							const bool   is_zero_amt = (ccpl_total == 0.0);
 							// @v11.3.6 paym_blk2.AltCashReg = AltRegisterID ? 0 : -1;
 							SETFLAG(paym_blk2.Flags, PosPaymentBlock::fAltCashRegEnabled, AltRegisterID); // @v11.3.6 
 							paym_blk2.Flags &= ~PosPaymentBlock::fAltCashRegUse; // @v11.3.6 
@@ -5134,7 +5136,10 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 								}
 							}
 							// } @v11.3.6
-							for(int _again = 1; _again && paym_blk2.EditDialog2() > 0;) {
+							if(is_zero_amt) {
+								paym_blk2.Kind = cpmCash;
+							}
+							for(int _again = 1; _again && (is_zero_amt || paym_blk2.EditDialog2() > 0);) { // @v12.5.2 is_zero_amt
 								assert(feqeps(paym_blk2.CcPl.GetTotal(), ccpl_total, 0.00001));
 								assert(oneof3(paym_blk2.Kind, cpmCash, cpmBank, cpmIncorpCrd));
 								// @v11.3.6 {
@@ -5147,8 +5152,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 									P.Paperless = false;
 								}
 								// } @v11.3.6 
-								if(CsObj.GetEqCfg().Flags & PPEquipConfig::fUnifiedPaymentCfmBank &&
-									paym_blk2.CcPl.Get(CCAMTTYP_CASH) == 0.0 && !ConfirmPosPaymBank(paym_blk2)) {
+								if(!is_zero_amt && CsObj.GetEqCfg().Flags & PPEquipConfig::fUnifiedPaymentCfmBank && paym_blk2.CcPl.Get(CCAMTTYP_CASH) == 0.0 && !ConfirmPosPaymBank(paym_blk2)) {
 									_again = 1;
 								}
 								else {
@@ -7502,7 +7506,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					const CCheckLineTbl::Rec * p_line = 0;
 					CCheckLineTbl::Rec chk_line;
 					SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_LIST));
-					const int cclext_id_list[] = {
+					static constexpr int cclext_id_list[] = {
 						CCheckPacket::lnextSerial, 
 						CCheckPacket::lnextEgaisMark, 
 						CCheckPacket::lnextChZnMark,
@@ -13126,7 +13130,8 @@ int CheckPaneDialog::TestCheck(CheckPaymMethod paymMethod)
 			pack._Cash = MONEYTOLDBL(pack.Rec.Amount);
 			is_ext_pack = BIN(ext_pack.GetCount());
 			if(is_ext_pack) {
-				double amt, dscnt;
+				double amt;
+				double dscnt;
 				GetNewCheckCode(ExtCashNodeID, &ext_pack.Rec.Code);
 				ext_pack.Rec.SessID = P_CM_EXT->GetCurSessID();
 				ext_pack.Rec.PosNodeID = ExtCashNodeID;
@@ -13160,10 +13165,19 @@ int CheckPaneDialog::TestCheck(CheckPaymMethod paymMethod)
 	if(rB.Flags & rB.fAltReg && P_CM_ALT) {
 		if(rB.Flags & rB.fIsPack) {
 			rB.Pack.Rec.SessID = P_CM->GetCurSessID();
-			rB.R = P_CM_ALT->SyncPrintCheck(&rB.Pack, 1);
-			if(rB.R == 0)
-				rB.SyncPrnErr = P_CM_ALT->SyncGetPrintErrCode();
-			THROW(rB.R > 0 || rB.SyncPrnErr == 1);
+			const  double cc_amount = rB.Pack.CalcAmount(0, 0);
+			if(cc_amount != 0.0) { // @v12.5.2
+				rB.R = P_CM_ALT->SyncPrintCheck(&rB.Pack, 1);
+				if(rB.R == 0)
+					rB.SyncPrnErr = P_CM_ALT->SyncGetPrintErrCode();
+				THROW(rB.R > 0 || rB.SyncPrnErr == 1);
+			}
+			// @v12.5.2 {
+			else { 
+				rB.R = 100;
+				rB.SyncPrnErr = 0;
+			}
+			// } @v12.5.2 
 			rB.Pack.Rec.Flags |= (CCHKF_PRINTED|CCHKF_ALTREG);
 			r_cc.WriteCCheckLogFile(&rB.Pack, 0, CCheckCore::logPrinted, 1);
 		}
@@ -13174,12 +13188,21 @@ int CheckPaneDialog::TestCheck(CheckPaymMethod paymMethod)
 				P_CM->SyncOpenBox();
 		}
 		if(rB.Flags & rB.fIsPack) {
+			const  double cc_amount = rB.Pack.CalcAmount(0, 0);
 			THROW(rB.R = P_CM->SyncCheckForSessionOver());
 			if(rB.R > 0) {
 				rB.Pack.Rec.SessID = P_CM->GetCurSessID();
-				rB.R = P_CM->SyncPrintCheck(&rB.Pack, 1);
-				if(rB.R == 0)
-					rB.SyncPrnErr = P_CM->SyncGetPrintErrCode();
+				if(cc_amount != 0.0) { // @v12.5.2
+					rB.R = P_CM->SyncPrintCheck(&rB.Pack, 1);
+					if(rB.R == 0)
+						rB.SyncPrnErr = P_CM->SyncGetPrintErrCode();
+				}
+				// @v12.5.2 {
+				else {
+					rB.R = 100;
+					rB.SyncPrnErr = 0;
+				}
+				// } @v12.5.2 
 			}
 		}
 		THROW(rB.R > 0 || rB.SyncPrnErr == 1);
@@ -13190,10 +13213,19 @@ int CheckPaneDialog::TestCheck(CheckPaymMethod paymMethod)
 		if(rB.Flags & rB.fIsExtPack) {
 			THROW(rB.RExt = P_CM_EXT->SyncCheckForSessionOver());
 			if(rB.RExt > 0) {
+				const  double cc_amount = rB.ExtPack.CalcAmount(0, 0);
 				rB.ExtPack.Rec.SessID = P_CM_EXT->GetCurSessID();
-				rB.RExt = P_CM_EXT->SyncPrintCheck(&rB.ExtPack, 1);
-				if(rB.RExt == 0)
-					rB.ExtSyncPrnErr = P_CM_EXT->SyncGetPrintErrCode();
+				if(cc_amount != 0.0) { // @v12.5.2
+					rB.RExt = P_CM_EXT->SyncPrintCheck(&rB.ExtPack, 1);
+					if(rB.RExt == 0)
+						rB.ExtSyncPrnErr = P_CM_EXT->SyncGetPrintErrCode();
+				}
+				// @v12.5.2 {
+				else {
+					rB.RExt = 100;
+					rB.ExtSyncPrnErr = 0;
+				}
+				// } @v12.5.2 
 			}
 			THROW(rB.RExt > 0 || rB.ExtSyncPrnErr == 1);
 			rB.ExtPack.Rec.Flags |= CCHKF_PRINTED;

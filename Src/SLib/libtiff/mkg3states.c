@@ -430,7 +430,7 @@ int main(int argc, char* argv[])
 	WriteTable(fd, WhiteTable, 4096, "TIFFFaxWhiteTable");
 	WriteTable(fd, BlackTable, 8192, "TIFFFaxBlackTable");
 	fclose(fd);
-	return (0);
+	return 0;
 }
 
 /* vim: set ts=8 sts=8 sw=8 noet: */

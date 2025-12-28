@@ -65,14 +65,14 @@ int getsubopt(char ** optionp, char * const * tokens, char ** valuep)
 	char * p;
 	suboptarg = *valuep = NULL;
 	if(!optionp || !*optionp)
-		return(-1);
+		return -1;
 
 	/* skip leading white-space, commas */
 	for(p = *optionp; *p && (*p == ',' || *p == ' ' || *p == '\t'); ++p);
 
 	if(!*p) {
 		*optionp = p;
-		return(-1);
+		return -1;
 	}
 
 	/* save the start of the token, and skip the rest of the token. */
@@ -104,5 +104,5 @@ int getsubopt(char ** optionp, char * const * tokens, char ** valuep)
 	for(cnt = 0; *tokens; ++tokens, ++cnt)
 		if(!strcmp(suboptarg, *tokens))
 			return(cnt);
-	return(-1);
+	return -1;
 }

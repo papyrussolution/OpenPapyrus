@@ -493,7 +493,7 @@ int get_fqhostname(char * name,
 
 LOWERCASE:
 	sasl_strlower(name);
-	return (0);
+	return 0;
 }
 
 #if defined(WIN32) && !defined(__MINGW64_VERSION_MAJOR)

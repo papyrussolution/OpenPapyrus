@@ -1240,11 +1240,25 @@ SPoint3R & FASTCALL operator / (const SPoint3R & p, double d)
 //
 //
 //
+SPoint3F::SPoint3F() : x(0.0f), y(0.0f), z(0.0f)
+{
+}
+	
+SPoint3F::SPoint3F(float _v) : x(_v), y(_v), z(_v)
+{
+}
+
 SPoint3F & SPoint3F::Set(float _x, float _y, float _z)
 {
 	x = _x;
 	y = _y;
 	z = _z;
+	return *this;
+}
+
+SPoint3F & SPoint3F::Set(float _v)
+{
+	x = y = z = _v;
 	return *this;
 }
 //

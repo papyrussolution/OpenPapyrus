@@ -13,7 +13,8 @@ IMPL_CMPFUNC(ILTIGGRP, i1, i2)
 	const ILTI * item2 = static_cast<const ILTI *>(i2);
 	int    cmp = 0;
 	PPObjGoods goods_obj;
-	Goods2Tbl::Rec rec, grp_rec;
+	Goods2Tbl::Rec rec;
+	Goods2Tbl::Rec grp_rec;
 	SString name1;
 	SString name2;
 	SString grp_name1;
@@ -1317,7 +1318,8 @@ int PPViewGoodsBasket::CreateOrderTable()
 		if(Order == PPObjGoodsBasket::ordByDefault)
 			temp_buf.CatLongZ(i, 8);
 		else {
-			Goods2Tbl::Rec goods_rec, grp_rec;
+			Goods2Tbl::Rec goods_rec;
+			Goods2Tbl::Rec grp_rec;
 			if(goods_obj.Fetch(p_item->GoodsID, &goods_rec) > 0)
 				goods_name = goods_rec.Name;
 			else {

@@ -216,7 +216,7 @@ static int write_header(struct archive_write * a, ArchiveEntry * entry)
 	entry_main = __la_win_entry_in_posix_pathseparator(entry);
 	if(entry_main == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate ustar data");
-		return(ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	if(entry != entry_main)
 		entry = entry_main;

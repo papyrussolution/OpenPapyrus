@@ -559,7 +559,7 @@ static int PNGCBAPI read_user_chunk_callback(png_struct * png_ptr, png_unknown_c
 		png_error(png_ptr, "lost user chunk pointer");
 	/* Return one of the following:
 	 *    return (-n);  chunk had an error
-	 *    return (0);  did not recognize
+	 *    return 0;  did not recognize
 	 *    return (n);  success
 	 *
 	 * The unknown chunk structure contains the chunk data:
@@ -580,16 +580,16 @@ static int PNGCBAPI read_user_chunk_callback(png_struct * png_ptr, png_unknown_c
 			return (1);
 		}
 		else
-			return (0); /* duplicate sTER - give it to libpng */
+			return 0; /* duplicate sTER - give it to libpng */
 	}
 	if(chunk->name[0] != 118 || chunk->name[1] != 112 || /* v  p */
 	    chunk->name[2] !=  65 || chunk->name[3] != 103) /* A  g */
-		return (0); /* Did not recognize */
+		return 0; /* Did not recognize */
 	/* Found ImageMagick vpAg chunk */
 	if(chunk->size != 9)
 		return (-1); /* Error return */
 	if(set_location(png_ptr, my_user_chunk_data, have_vpAg) == 0)
-		return (0); /* duplicate vpAg */
+		return 0; /* duplicate vpAg */
 	my_user_chunk_data->vpAg_width = png_get_uint_31(png_ptr, chunk->data);
 	my_user_chunk_data->vpAg_height = png_get_uint_31(png_ptr, chunk->data + 4);
 	my_user_chunk_data->vpAg_units = chunk->data[8];
@@ -1307,7 +1307,7 @@ static int test_one_file(const char * inname, const char * outname)
 				if(strict != 0 && unsupported_chunks == 0)
 					return (1);
 				else
-					return (0);
+					return 0;
 			}
 			if(num_in == 0)
 				break;
@@ -1333,7 +1333,7 @@ static int test_one_file(const char * inname, const char * outname)
 #endif /* WRITE && WRITE_FILTER */
 	fclose(fpin);
 	fclose(fpout);
-	return (0);
+	return 0;
 }
 
 /* Input and output filenames */

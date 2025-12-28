@@ -75,6 +75,7 @@ public:
 		//
 		int    PutAttrib_Ns(const char * pNs, const char * pDomain, const char * pPath);
         int    PutInner(const char * pInnerName, const char * pInnerValue);
+		int    PutInnerReal(const char * pInnerName, double value, long fmt);
         int    PutInnerSkipEmpty(const char * pInnerName, const char * pInnerValue);
 		int    PutInnerValidDate(const char * pInnerName, LDATE dt, long fmt);
         int    SetValue(const SString & rText);

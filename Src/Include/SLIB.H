@@ -1446,6 +1446,8 @@ public:
 	static constexpr const char * WinClsName_TextEditor = "STextBrowser"; // @v12.3.8
 	static constexpr const char * WinClsName_TimeChunkBrowser = "STimeChunkBrowser"; // @v12.3.8
 	static constexpr uint32 SLobSignature[4] = { 0x2efc, 0xd421, 0x426c, 0xee07 }; // @v12.2.3 Сигнатура объекта SLob, означающая, что буфер структурирован.
+	static constexpr uint32 SSqlStmtSignature = 0x3597B6D4; // @v12.5.2 Сигнатура объекта SSqlStmt
+	static constexpr uint32 DBTableSignature  = 0x6E805ED7; // @v12.5.2 Сигнатура объекта DBTable
 };
 // @v11.7.4 extern const SlConstParam _SlConst_Removed;
 //
@@ -9387,14 +9389,19 @@ public:
 //
 //
 struct RAssoc {
-	RAssoc() : Key(0), Val(0.0)
-	{
-	}
-	RAssoc(long k, double v) : Key(k), Val(v)
-	{
-	}
+	RAssoc();
+	RAssoc(long k, double v);
+
 	long   Key;
 	double Val;
+};
+
+struct FAssoc {
+	FAssoc();
+	FAssoc(long k, float v);
+
+	long   Key;
+	float  Val;
 };
 
 class RAssocArray : public TSVector <RAssoc> {
@@ -15747,18 +15754,11 @@ public:
 
 class SPoint3F {
 public:
-	SPoint3F() : x(0.0f), y(0.0f), z(0.0f)
-	{
-	}
-	SPoint3F(float _v) : x(_v), y(_v), z(_v)
-	{
-	}
+	SPoint3F();
+	SPoint3F(float _v);
 	SPoint3F & Set(float _x, float _y, float _z);
-	SPoint3F & Set(float _v)
-	{
-		x = y = z = _v;
-		return *this;
-	}
+	SPoint3F & Set(float _v);
+
 	float  x;
 	float  y;
 	float  z;
@@ -15779,8 +15779,8 @@ struct UiCoord { // @noctr
 	UiCoord & Z();
 	bool   IsEmpty() const;
 
-	float  Val;   // @v11.0.4 int16-->float
-	int16  Flags; // UiCoord::dfXXX
+	float  Val;     // @v11.0.4 int16-->float
+	int16  Flags;   // UiCoord::dfXXX
 	uint16 Reserve; // @alignment @v11.0.4
 };
 

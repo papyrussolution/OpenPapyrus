@@ -517,7 +517,7 @@ static int archive_write_pax_header(struct archive_write * a, ArchiveEntry * ent
 					path_length + 2) == NULL) {
 					    archive_set_error(&a->archive, ENOMEM, "Can't allocate pax data");
 					    archive_wstring_free(&ws);
-					    return(ARCHIVE_FATAL);
+					    return ARCHIVE_FATAL;
 				    }
 				    /* Should we keep '\' ? */
 				    if(wp[path_length -1] == L'\\')
@@ -544,7 +544,7 @@ static int archive_write_pax_header(struct archive_write * a, ArchiveEntry * ent
 				    if(archive_string_ensure(&as, path_length + 2) == NULL) {
 					    archive_set_error(&a->archive, ENOMEM, "Can't allocate pax data");
 					    archive_string_free(&as);
-					    return(ARCHIVE_FATAL);
+					    return ARCHIVE_FATAL;
 				    }
 #if defined(_WIN32) && !defined(__CYGWIN__)
 				    /* NOTE: This might break the pathname
@@ -651,7 +651,7 @@ static int archive_write_pax_header(struct archive_write * a, ArchiveEntry * ent
 #endif
 	if(entry_main == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate pax data");
-		return(ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	archive_string_empty(&(pax->pax_header)); /* Blank our work area. */
 	archive_string_empty(&(pax->sparse_map));

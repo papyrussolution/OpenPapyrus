@@ -46,35 +46,28 @@ int ModelInterface::PieceToId(absl::string_view piece) const
 	return unk_id_;
 }
 
-void ModelInterface::InitializePieces() {
+void ModelInterface::InitializePieces() 
+{
 	pieces_.clear();
 	reserved_id_map_.clear();
 	unk_id_ = -1;
-
 	std::set<absl::string_view> user_defined_symbols;
 	std::vector<bool> byte_found(256, false);
-
 	for(int i = 0; i < model_proto_->pieces_size(); ++i) {
 		const auto &sp = model_proto_->pieces(i);
 		if(sp.piece().empty()) {
 			status_ = util::InternalError("piece must not be empty.");
 			return;
 		}
-
-		const bool is_normal_piece =
-		    (sp.type() == ModelProto::SentencePiece::NORMAL ||
-		    sp.type() == ModelProto::SentencePiece::USER_DEFINED ||
+		const bool is_normal_piece = (sp.type() == ModelProto::SentencePiece::NORMAL || sp.type() == ModelProto::SentencePiece::USER_DEFINED ||
 		    sp.type() == ModelProto::SentencePiece::UNUSED);
-		if(!port::InsertIfNotPresent(
-			    is_normal_piece ? &pieces_ : &reserved_id_map_, sp.piece(), i)) {
+		if(!port::InsertIfNotPresent(is_normal_piece ? &pieces_ : &reserved_id_map_, sp.piece(), i)) {
 			status_ = util::InternalError(sp.piece() + " is already defined.");
 			return;
 		}
-
 		if(sp.type() == ModelProto::SentencePiece::USER_DEFINED) {
 			user_defined_symbols.insert(sp.piece());
 		}
-
 		if(sp.type() == ModelProto::SentencePiece::UNKNOWN) {
 			if(unk_id_ >= 0) {
 				status_ = util::InternalError("unk is already defined.");
@@ -82,12 +75,9 @@ void ModelInterface::InitializePieces() {
 			}
 			unk_id_ = i;
 		}
-
 		if(sp.type() == ModelProto::SentencePiece::BYTE) {
 			if(!model_proto_->trainer_spec().byte_fallback()) {
-				status_ =
-				    util::InternalError("byte piece " + sp.piece() +
-					" is found although `byte_fallback` is false.");
+				status_ = util::InternalError("byte piece " + sp.piece() + " is found although `byte_fallback` is false.");
 				return;
 			}
 			const int byte = PieceToByte(sp.piece());
@@ -95,13 +85,11 @@ void ModelInterface::InitializePieces() {
 				byte_found[byte] = true;
 			}
 			else {
-				status_ =
-				    util::InternalError("byte piece " + sp.piece() + " is invalid.");
+				status_ = util::InternalError("byte piece " + sp.piece() + " is invalid.");
 				return;
 			}
 		}
 	}
-
 	if(unk_id_ == -1) {
 		status_ = util::InternalError("unk is not defined.");
 		return;
@@ -113,7 +101,6 @@ void ModelInterface::InitializePieces() {
 			return;
 		}
 	}
-
 	matcher_ = absl::make_unique<normalizer::PrefixMatcher>(user_defined_symbols);
 }
 

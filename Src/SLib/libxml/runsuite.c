@@ -45,21 +45,21 @@ static int checkTestFile(const char * filename)
 {
 	struct stat buf;
 	if(stat(filename, &buf) == -1)
-		return(0);
+		return 0;
 #if defined(_WIN32) && !defined(__CYGWIN__)
 	if(!(buf.st_mode & _S_IFREG))
-		return(0);
+		return 0;
 #else
 	if(!S_ISREG(buf.st_mode))
-		return(0);
+		return 0;
 #endif
-	return(1);
+	return 1;
 }
 
 static xmlChar *composeDir(const xmlChar * dir, const xmlChar * path) 
 {
 	char buf[500];
-	if(dir == NULL)  return(xmlStrdup(path));
+	if(dir == NULL)  return xmlStrdup(path);
 	if(path == NULL)  return NULL;
 	snprintf(buf, 500, "%s/%s", (const char *)dir, (const char *)path);
 	return(xmlStrdup((const xmlChar *)buf));
@@ -104,12 +104,12 @@ static int addEntity(char * name, char * content)
 {
 	if(nb_entities >= MAX_ENTITIES) {
 		fprintf(stderr, "Too many entities defined\n");
-		return(-1);
+		return -1;
 	}
 	testEntitiesName[nb_entities] = name;
 	testEntitiesValue[nb_entities] = content;
 	nb_entities++;
-	return(0);
+	return 0;
 }
 /*
  * We need to trap calls to the resolver to not account memory for the catalog
@@ -126,7 +126,7 @@ static xmlParserInput * testExternalEntityLoader(const char * URL, const char * 
 			if(ret) {
 				ret->filename = (const char *)xmlStrdup((xmlChar *)testEntitiesName[i]);
 			}
-			return(ret);
+			return ret;
 		}
 	}
 	if(checkTestFile(URL)) {
@@ -143,7 +143,7 @@ static xmlParserInput * testExternalEntityLoader(const char * URL, const char * 
 	}
 #endif
 
-	return(ret);
+	return ret;
 }
 
 /*
@@ -241,24 +241,21 @@ static xmlNode * getNext(xmlNode * cur, const char * xpath)
 	xmlXPathFreeCompExpr(comp);
 	if(res == NULL)
 		return NULL;
-	if((res->type == XPATH_NODESET) &&
-	    (res->nodesetval != NULL) &&
-	    (res->nodesetval->nodeNr > 0) &&
-	    (res->nodesetval->nodeTab != NULL))
+	if((res->type == XPATH_NODESET) && (res->nodesetval != NULL) && (res->nodesetval->nodeNr > 0) && (res->nodesetval->nodeTab != NULL))
 		ret = res->nodesetval->nodeTab[0];
 	xmlXPathFreeObject(res);
-	return(ret);
+	return ret;
 }
 
-static xmlChar *getString(xmlNodePtr cur, const char * xpath) 
+static xmlChar *getString(xmlNode * cur, const char * xpath) 
 {
 	xmlChar * ret = NULL;
-	xmlXPathObjectPtr res;
+	xmlXPathObject * res;
 	xmlXPathCompExprPtr comp;
 	if((cur == NULL)  || (cur->doc == NULL) || (xpath == NULL))
 		return NULL;
 	ctxtXPath->doc = cur->doc;
-	ctxtXPath->node = cur;
+	ctxtXPath->P_Node = cur;
 	comp = xmlXPathCompile(BAD_CAST xpath);
 	if(comp == NULL) {
 		fprintf(stderr, "Failed to compile %s\n", xpath);
@@ -273,32 +270,28 @@ static xmlChar *getString(xmlNodePtr cur, const char * xpath)
 		res->stringval = NULL;
 	}
 	xmlXPathFreeObject(res);
-	return(ret);
+	return ret;
 }
-
-/************************************************************************
-*									*
-*		Test test/xsdtest/xsdtestsuite.xml			*
-*									*
-************************************************************************/
-
-static int xsdIncorectTestCase(xmlNodePtr cur) {
+// 
+// Test test/xsdtest/xsdtestsuite.xml
+// 
+static int xsdIncorectTestCase(xmlNode * cur) 
+{
 	xmlNodePtr test;
 	xmlBufferPtr buf;
 	xmlRelaxNGParserCtxtPtr pctxt;
 	xmlRelaxNGPtr rng = NULL;
 	int ret = 0, memt;
-
 	cur = getNext(cur, "./incorrect[1]");
 	if(cur == NULL) {
-		return(0);
+		return 0;
 	}
 
 	test = getNext(cur, "./*");
 	if(test == NULL) {
 		test_log("Failed to find test in correct line %ld\n",
 		    xmlGetLineNo(cur));
-		return(1);
+		return 1;
 	}
 
 	memt = xmlMemUsed();
@@ -337,7 +330,7 @@ done:
 		    xmlGetLineNo(cur), xmlMemUsed() - memt);
 		nb_leaks++;
 	}
-	return(ret);
+	return ret;
 }
 
 static void installResources(xmlNodePtr tst, const xmlChar * base) {
@@ -430,7 +423,7 @@ static int xsdTestCase(xmlNode * tst)
 	if(test == NULL) {
 		fprintf(stderr, "Failed to find test in correct line %ld\n",
 		    xmlGetLineNo(cur));
-		return(1);
+		return 1;
 	}
 	memt = xmlMemUsed();
 	extraMemoryFromResolver = 0;
@@ -581,7 +574,7 @@ done:
 		    xmlGetLineNo(cur), xmlMemUsed() - memt);
 		nb_leaks++;
 	}
-	return(ret);
+	return ret;
 }
 
 static int xsdTestSuite(xmlNodePtr cur) {
@@ -599,7 +592,7 @@ static int xsdTestSuite(xmlNodePtr cur) {
 		cur = getNext(cur, "following-sibling::testCase[1]");
 	}
 
-	return(0);
+	return 0;
 }
 
 static int xsdTest(void) 
@@ -610,7 +603,7 @@ static int xsdTest(void)
 	xmlDoc * doc = xmlReadFile(filename, NULL, XML_PARSE_NOENT);
 	if(doc == NULL) {
 		fprintf(stderr, "Failed to parse %s\n", filename);
-		return(-1);
+		return -1;
 	}
 	printf("## XML Schemas datatypes test suite from James Clark\n");
 	cur = xmlDocGetRootElement(doc);
@@ -632,7 +625,7 @@ static int xsdTest(void)
 done:
 	if(doc != NULL)
 		xmlFreeDoc(doc);
-	return(ret);
+	return ret;
 }
 
 static int rngTestSuite(xmlNode * cur) 
@@ -657,7 +650,7 @@ static int rngTestSuite(xmlNode * cur)
 		cur = getNext(cur, "following-sibling::testSuite[1]");
 	}
 
-	return(0);
+	return 0;
 }
 
 static int rngTest1(void) 
@@ -668,7 +661,7 @@ static int rngTest1(void)
 	xmlDoc * doc = xmlReadFile(filename, NULL, XML_PARSE_NOENT);
 	if(doc == NULL) {
 		fprintf(stderr, "Failed to parse %s\n", filename);
-		return(-1);
+		return -1;
 	}
 	printf("## Relax NG test suite from James Clark\n");
 	cur = xmlDocGetRootElement(doc);
@@ -690,7 +683,7 @@ static int rngTest1(void)
 done:
 	if(doc != NULL)
 		xmlFreeDoc(doc);
-	return(ret);
+	return ret;
 }
 
 static int rngTest2(void) {
@@ -702,7 +695,7 @@ static int rngTest2(void) {
 	doc = xmlReadFile(filename, NULL, XML_PARSE_NOENT);
 	if(doc == NULL) {
 		fprintf(stderr, "Failed to parse %s\n", filename);
-		return(-1);
+		return -1;
 	}
 	printf("## Relax NG test suite for libxml2\n");
 
@@ -727,7 +720,7 @@ static int rngTest2(void) {
 done:
 	if(doc != NULL)
 		xmlFreeDoc(doc);
-	return(ret);
+	return ret;
 }
 
 /************************************************************************
@@ -818,7 +811,7 @@ done:
 		    xmlGetLineNo(cur), xmlMemUsed() - mem);
 		nb_leaks++;
 	}
-	return(ret);
+	return ret;
 }
 
 static int xstcTestGroup(xmlNodePtr cur, const char * base) 
@@ -942,7 +935,7 @@ done:
 		    xmlGetLineNo(cur), path, xmlMemUsed() - mem);
 		nb_leaks++;
 	}
-	return(ret);
+	return ret;
 }
 
 static int xstcMetadata(const char * metadata, const char * base) 
@@ -955,12 +948,12 @@ static int xstcMetadata(const char * metadata, const char * base)
 	doc = xmlReadFile(metadata, NULL, XML_PARSE_NOENT);
 	if(doc == NULL) {
 		fprintf(stderr, "Failed to parse %s\n", metadata);
-		return(-1);
+		return -1;
 	}
 	cur = xmlDocGetRootElement(doc);
 	if((cur == NULL) || (!xmlStrEqual(cur->name, BAD_CAST "testSet"))) {
 		fprintf(stderr, "Unexpected format %s\n", metadata);
-		return(-1);
+		return -1;
 	}
 	contributor = xmlGetProp(cur, BAD_CAST "contributor");
 	if(contributor == NULL) {
@@ -985,7 +978,7 @@ static int xstcMetadata(const char * metadata, const char * base)
 	}
 done:
 	xmlFreeDoc(doc);
-	return(ret);
+	return ret;
 }
 // 
 // The driver for the tests
@@ -1093,7 +1086,7 @@ int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED)
 	xmlMemoryDump();
 	if(logfile != NULL)
 		fclose(logfile);
-	return(ret);
+	return ret;
 }
 
 #else /* !SCHEMAS */

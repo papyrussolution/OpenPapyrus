@@ -2477,7 +2477,7 @@ static int PThr4wTest_Eyal1()
 					break;
 			}
 			PTHR4W_TEST_ASSERT(pthread_mutex_unlock(&tc->mutex_started) == 0);
-			return (0);
+			return 0;
 		}
 		static void dosync(void)
 		{
@@ -2569,7 +2569,7 @@ static int PThr4wTest_Eyal1()
 		PTHR4W_TEST_ASSERT(pthread_mutex_destroy(&tcs[i].mutex_ended) == 0);
 	}
 	InnerBlock::die(0);
-	return (0);
+	return 0;
 }
 // 
 // Test Synopsis:
@@ -9255,7 +9255,7 @@ public:
 		}
 	FAIL0:
 		*mutex = mx;
-		return(result);
+		return result;
 	}
 	static int old_mutex_lock(old_mutex_t * mutex)
 	{
@@ -9300,7 +9300,7 @@ public:
 		else {
 			result = EINVAL;
 		}
-		return(result);
+		return result;
 	}
 	static int old_mutex_trylock(old_mutex_t * mutex)
 	{
@@ -9330,7 +9330,7 @@ public:
 				}
 			}
 		}
-		return(result);
+		return result;
 	}
 	static int old_mutex_destroy(old_mutex_t * mutex)
 	{
@@ -9366,7 +9366,7 @@ public:
 			FreeLibrary(__ptw32_h_kernel32);
 			__ptw32_h_kernel32 = 0;
 		}
-		return(result);
+		return result;
 	}
 };
 

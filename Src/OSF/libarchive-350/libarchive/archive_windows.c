@@ -642,7 +642,7 @@ static int fix_pathseparator(ArchiveEntry * entry)
 		    ret = ARCHIVE_FAILED;
 	}
 	archive_wstring_free(&ws);
-	return(ret);
+	return ret;
 }
 
 ArchiveEntry * __la_win_entry_in_posix_pathseparator(ArchiveEntry * entry)                        

@@ -97,7 +97,7 @@ int main(int argc, char ** argv) {
 
 	if(argc <= 1) {
 		usage(argv[0]);
-		return(1);
+		return 1;
 	}
 	LIBXML_TEST_VERSION
 	for(i = 1; i < argc; i++) {

@@ -123,8 +123,7 @@ const EVP_PKEY_ASN1_METHOD * EVP_PKEY_asn1_find_str(ENGINE ** pe,
 		ameth = EVP_PKEY_asn1_get0(i);
 		if(ameth->pkey_flags & ASN1_PKEY_ALIAS)
 			continue;
-		if((int)strlen(ameth->pem_str) == len
-		    && strncasecmp(ameth->pem_str, str, len) == 0)
+		if(sstrleni(ameth->pem_str) == len && strncasecmp(ameth->pem_str, str, len) == 0)
 			return ameth;
 	}
 	return NULL;
@@ -133,7 +132,6 @@ const EVP_PKEY_ASN1_METHOD * EVP_PKEY_asn1_find_str(ENGINE ** pe,
 int EVP_PKEY_asn1_add0(const EVP_PKEY_ASN1_METHOD * ameth)
 {
 	EVP_PKEY_ASN1_METHOD tmp = { 0, };
-
 	/*
 	 * One of the following must be true:
 	 *

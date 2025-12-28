@@ -200,7 +200,7 @@ static int archive_write_ustar_header(struct archive_write * a, ArchiveEntry * e
 			    path_length + 2) == NULL) {
 				archive_set_error(&a->archive, ENOMEM, "Can't allocate ustar data");
 				archive_wstring_free(&ws);
-				return(ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 			/* Should we keep '\' ? */
 			if(wp[path_length -1] == L'\\')
@@ -216,8 +216,7 @@ static int archive_write_ustar_header(struct archive_write * a, ArchiveEntry * e
 		p = archive_entry_pathname(entry);
 		/*
 		 * On Windows, this is a backup operation just in
-		 * case getting WCS failed. On POSIX, this is a
-		 * normal operation.
+		 * case getting WCS failed. On POSIX, this is a normal operation.
 		 */
 		if(!isempty(p) && p[strlen(p)-1] != '/') {
 			archive_string as;
@@ -226,7 +225,7 @@ static int archive_write_ustar_header(struct archive_write * a, ArchiveEntry * e
 			if(archive_string_ensure(&as, path_length + 2) == NULL) {
 				archive_set_error(&a->archive, ENOMEM, "Can't allocate ustar data");
 				archive_string_free(&as);
-				return(ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 #if defined(_WIN32) && !defined(__CYGWIN__)
 			/* NOTE: This might break the pathname
@@ -249,7 +248,7 @@ static int archive_write_ustar_header(struct archive_write * a, ArchiveEntry * e
 	entry_main = __la_win_entry_in_posix_pathseparator(entry);
 	if(entry_main == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate ustar data");
-		return(ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	if(entry != entry_main)
 		entry = entry_main;

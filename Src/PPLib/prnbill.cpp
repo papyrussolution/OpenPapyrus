@@ -541,10 +541,15 @@ static int SelectForm(int interactive, long opPrnFlags, PPID arID, uint * pAmtTy
 static int PrintInvoice(PPBillPacket & rPack, int prnflags)
 {
 	int    ok = 1;
-	int    val = 0;
 	PPIniFile ini_file;
+	/* @v12.5.2 
+	int    val = 0;
 	if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_INVFOOTONBOTT, &val) && val)
+		prnflags |= SReport::FooterOnBottom;*/
+	// @v12.5.2 {
+	if(ini_file.CheckIntVal(PPINISECT_CONFIG, PPINIPARAM_INVFOOTONBOTT, PPIniFile::intconditionNZ))
 		prnflags |= SReport::FooterOnBottom;
+	// } @v12.5.2
 	PPReportEnv env(prnflags, 0);
 	rPack.GetContextEmailAddr(env.EmailAddr);
 	rPack.Rec.Flags |= BILLF_PRINTINVOICE;

@@ -134,7 +134,7 @@ int gettimeofday(struct timeval * __p, void * __t)
 	GetSystemTimeAsFileTime(&now.ft);
 	__p->tv_usec = (long)((now.ns100 / 10LL) % SSH_USEC_IN_SEC);
 	__p->tv_sec  = (long)(((now.ns100 / 10LL ) / SSH_USEC_IN_SEC) - SSH_SECONDS_SINCE_1601);
-	return (0);
+	return 0;
 }
 
 char * ssh_get_local_username() 

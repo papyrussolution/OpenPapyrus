@@ -127,7 +127,7 @@ int main(void)
 	}
 	xmlCleanupParser();
 	xmlMemoryDump();
-	return (0);
+	return 0;
 }
 
 #elif defined HAVE_BEOS_THREADS
@@ -182,7 +182,7 @@ int main(void)
 	else
 		printf("testThread : BeOS : FAILED!\n");
 
-	return (0);
+	return 0;
 }
 
 #endif /* pthreads or BeOS threads */
@@ -191,7 +191,7 @@ int main(void)
 int main(void)
 {
 	fprintf(stderr, "libxml was not compiled with thread or catalog support\n");
-	return (0);
+	return 0;
 }
 
 #endif

@@ -45,7 +45,7 @@ bool _ma_hashtbl_init(MA_HASHTBL * hash, uint size, uint key_offset, uint key_le
 	hash->records = 0;
 	if(ma_init_dynamic_array_ci(&hash->array, sizeof(MA_HASHTBL_LINK), size, 0)) {
 		hash->free = 0;                 /* Allow call to hash_free */
-		return(TRUE);
+		return true;
 	}
 	hash->key_offset = key_offset;
 	hash->key_length = key_length;
@@ -270,7 +270,7 @@ bool ma_hashtbl_insert(MA_HASHTBL * info, const uchar * record)
 
 	flag = 0;
 	if(!(empty = (MA_HASHTBL_LINK*)ma_alloc_dynamic(&info->array)))
-		return(TRUE);                   /* No more memory */
+		return true;                   /* No more memory */
 
 	info->current_record = NO_RECORD;
 	data = dynamic_element(&info->array, 0, MA_HASHTBL_LINK*);

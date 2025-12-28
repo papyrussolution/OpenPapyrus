@@ -26,7 +26,7 @@ PPBaseFilt * PPViewCurRate::CreateFilt(const void * extraPtr) const
 		const PPConfig & r_cfg = LConfig;
 		CurRateFilt * p_filt = static_cast<CurRateFilt *>(p_base_filt);
 		p_filt->CurID = reinterpret_cast<long>(extraPtr);
-		p_filt->Period.upp = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+		p_filt->Period.upp = getcurdate_();
 		p_filt->BaseCurID  = r_cfg.BaseCurID;
 		p_filt->RateTypeID = r_cfg.BaseRateTypeID;
 	}
@@ -132,7 +132,7 @@ int PPViewCurRate::AddItem(CurRateIdent * pIdent)
 {
 	int    ok = -1;
 	CurrencyRateTbl::Rec rec;
-	rec.Dt = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+	rec.Dt = getcurdate_();
 	rec.CurID = Filt.CurID;
 	rec.RelCurID = Filt.BaseCurID;
 	rec.RateTypeID = Filt.RateTypeID;
@@ -221,7 +221,19 @@ DBQuery * PPViewCurRate::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	rtt = new ReferenceTbl;
 	PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPDbqFuncPool::IdObjSymbCurrency, crt->CurID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_basecur, PPDbqFuncPool::IdObjSymbCurrency, crt->RelCurID);
+	// @v12.5.2 {
 	q = & Select_(
+		crt->RateTypeID,  // #0
+		crt->CurID,       // #1
+		crt->RelCurID,    // #2
+		crt->Dt,          // #3
+		crt->Rate,        // #4
+		0L);
+	q->addField(dbe_cur);      // #5
+	q->addField(dbe_basecur);  // #6
+	q->addField(rtt->ObjName); // #7
+	// } @v12.5.2 
+	/* @v12.5.2 q = & Select_(
 		crt->RateTypeID,  // #0
 		crt->CurID,       // #1
 		crt->RelCurID,    // #2
@@ -230,7 +242,7 @@ DBQuery * PPViewCurRate::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbe_cur,          // #5
 		dbe_basecur,      // #6
 		rtt->ObjName,     // #7
-		0);
+		0);*/
 	dbq = & daterange(crt->Dt, &Filt.Period);
 	dbq = ppcheckfiltid(dbq, crt->CurID, Filt.CurID);
 	dbq = ppcheckfiltid(dbq, crt->RelCurID, Filt.BaseCurID);
@@ -318,8 +330,8 @@ private:
 	CurRateFilt    Filt;
 	PPViewCurRate  CRV;
 	SmartListBox * P_List;
-	int EnableCurID;
-	int EnableRateType;
+	int    EnableCurID;
+	int    EnableRateType;
 	CurRateIdent SelIdent;
 	double SelRate;
 };

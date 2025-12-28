@@ -211,7 +211,8 @@
       <PrecompiledHeaderFile />
       <LanguageStandard>stdcpp17</LanguageStandard>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
-      <GuardEHContMetadata>false</GuardEHContMetadata>
+      <GuardEHContMetadata>
+      </GuardEHContMetadata>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ControlFlowGuard>false</ControlFlowGuard>
@@ -246,7 +247,7 @@
       <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4018;4065;4146;4244;4251;4267;4305;4307;4309;4334;4355;4506;4800;4996</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
@@ -263,6 +264,11 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -286,7 +292,7 @@
       <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4018;4065;4146;4244;4251;4267;4305;4307;4309;4334;4355;4506;4800;4996</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
@@ -303,6 +309,11 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -344,7 +355,8 @@
       </PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
-      <GuardEHContMetadata>false</GuardEHContMetadata>
+      <GuardEHContMetadata>
+      </GuardEHContMetadata>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ControlFlowGuard>false</ControlFlowGuard>
@@ -378,7 +390,7 @@
       <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4018;4065;4146;4244;4251;4267;4305;4307;4309;4334;4355;4506;4800;4996</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
@@ -395,6 +407,11 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -417,7 +434,7 @@
       <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4018;4065;4146;4244;4251;4267;4305;4307;4309;4334;4355;4506;4800;4996</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
@@ -434,6 +451,11 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -472,7 +494,8 @@
       <PrecompiledHeaderFile />
       <LanguageStandard>stdcpp17</LanguageStandard>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
-      <GuardEHContMetadata>false</GuardEHContMetadata>
+      <GuardEHContMetadata>
+      </GuardEHContMetadata>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ControlFlowGuard>false</ControlFlowGuard>
@@ -523,6 +546,11 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -562,6 +590,11 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -602,7 +635,8 @@
       </PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
-      <GuardEHContMetadata>false</GuardEHContMetadata>
+      <GuardEHContMetadata>
+      </GuardEHContMetadata>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ControlFlowGuard>false</ControlFlowGuard>
@@ -652,6 +686,11 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -690,6 +729,11 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>

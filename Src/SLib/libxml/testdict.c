@@ -296,7 +296,7 @@ static int run_test2(xmlDict * parent)
 		}
 	}
 	xmlDictFree(dict);
-	return(ret);
+	return ret;
 }
 
 /*
@@ -406,7 +406,7 @@ static int run_test1(void)
 	}
 	run_test2(dict);
 	xmlDictFree(dict);
-	return(ret);
+	return ret;
 }
 
 int main(void)
@@ -426,5 +426,5 @@ int main(void)
 	clean_strings();
 	xmlCleanupParser();
 	xmlMemoryDump();
-	return(ret);
+	return ret;
 }

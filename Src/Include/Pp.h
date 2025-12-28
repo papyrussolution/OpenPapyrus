@@ -2288,6 +2288,20 @@ public:
 	int    Get(uint sectId, const char * pParamName, SString & rBuf);
 	int    Get(const char * pSectName, uint paramId, SString & rBuf);
 	int    GetInt(uint sectId, uint paramId, int *);
+
+	enum {
+		intconditionUndef = 0,  // достаточно того, что параметр задан
+		intconditionEqOne,      // == 1
+		intconditionNZ,         // != 0
+	};
+	//
+	// Descr: Высокоуровневая функция проверяющая наличие параметра {sectId; paramId} и одновременное выполнение 
+	//   условия condition. Варианты condition перечислены в enum выше (intconditionXXX).
+	// Returns:
+	//   true - параметр {sectId; paramId} есть в файле и одновременно выполнено условие condition.
+	//   false - либо параметр {sectId; paramId} на задан, либо не выполнено условие condition.
+	//
+	bool   CheckIntVal(uint sectId, uint paramId, int condition); // @v12.5.2
 	int    GetInt(const char * pSectName, uint paramId, int *);
 	//
 	// Descr: Возвращает значение параметра [pSectName] paramId заданное как
@@ -10051,7 +10065,7 @@ struct CCheckItem { // @transient
 	int8   Queue;           // Очередность подачи
 	int8   Reserve[1];      // @alignment // @v11.5.8 [3]-->[1]
 	int16  RByCheck;        // @v11.5.8 Проекция поля CCheckLineTbl::Rec::RByCheck
-	S_GUID ChZnPm_ReqId;        // @v12.1.1 ответ разрешительного режима чзн: уникальный идентификатор запроса
+	S_GUID ChZnPm_ReqId;    // @v12.1.1 ответ разрешительного режима чзн: уникальный идентификатор запроса
 	int64  ChZnPm_ReqTimestamp; // @v12.1.1 ответ разрешительного режима чзн: дата и время формирования запроса
 	S_GUID ChZnPm_LocalModuleInstance; // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): идент локального модуля проверки
 	S_GUID ChZnPm_LocalModuleDbVer;    // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): версия базы «чёрного списка», на которой выполнялась проверка КИ
@@ -10412,7 +10426,7 @@ public:
 		stdfPlus        = 0x0002  // Скидка увеличивает сумму чека
 	};
 	void   SetTotalDiscount__(double dis, long flags);
-	void   CalcAmount(double * pAmt, double * pDscnt) const;
+	double CalcAmount(double * pAmt, double * pDscnt) const;
 	//
 	// Descr: Расчитывает суммы чека по строкам и устанавливает их в поля Rec.Amount и Rec.Discount.
 	//   Если вызывающая функция нуждается в значениях рассчитанных сумм, то она
@@ -30386,12 +30400,12 @@ public:
 	//
 	int    PrepareAddedMsgStrings(const char * pSign, long flags, const LDATETIME * pManufDtm, StringSet & rSet);
 
-	Goods2Tbl::Rec   Rec;     //
+	Goods2Tbl::Rec Rec;       //
 	GoodsExtTbl::Rec ExtRec;  //
-	GoodsStockExt    Stock;   //
-	BarcodeArray     Codes;   // Список штрихкодов товара
+	GoodsStockExt Stock;      //
+	BarcodeArray Codes;       // Список штрихкодов товара
 	ArGoodsCodeArray ArCodes; // Список кодов, сопоставленных с контрагентами
-	PPGoodsStruc  GS;         // @todo Если структура не собственная (GSF_NAMED), то при изменении требует блокировки.
+	PPGoodsStruc GS;          // @todo Если структура не собственная (GSF_NAMED), то при изменении требует блокировки.
 	enum {
 		ufDontChgTaxGrp  = 0x0001, // Функция PPObjGoods::PutPacket не должна изменять налоговую группу товара или группы товаров.
 		ufChgNamedStruc  = 0x0002, // Функция PPObjGoods::PutPacket должна изменить именованную структуру товара
@@ -30621,7 +30635,7 @@ public:
 	//   обрезаются избыточные символы.
 	// Returns:
 	//   >0 - функция осуществила замену наименования и поместила результат обратно в rBuf //
-	//   <0 - заданное наименование не встречается в базе данных (или принадлежит записе с идентификатором id)
+	//   <0 - заданное наименование не встречается в базе данных (или принадлежит записи с идентификатором id)
 	//
 	int    ForceUndupName(PPID id, SString & rBuf);
 	int    SearchUhttInteractive(const SString & rName, const SString & rBarcode, UhttGoodsPacket * pResultItem);
@@ -30682,6 +30696,25 @@ public:
 	//   Сам элемент goodsID является последним членом списка //
 	//
 	int    GetHierarchy(PPID grpID, StrAssocArray * pList);
+	//
+	// Descr: Устанавливает в записи товара rGoodsRec унаследованные от родительской группы атрибуты.
+	//   Сейчас эти атрубуты: TaxGrpID и GoodsTypeID. Причем GoodsTypeID - под вопросом.
+	//   То есть функция сдеалана фактически для форсированного наследования TaxGrpID.
+	// ARG(rGoodsRec IN/OUT): 
+	// ARG(rInhAttr  IN): Список атрибутов PPOBJATTR_XXX которые должны быть унаследованы, если не заданы явно в записи
+	//   товара. Сейчас функция обрабатывает только два атрибута: PPOBJATTR_TAXGROUP и PPOBJATTR_SPECIALKIND (GoodsTypeID)
+	// Return: 
+	//   <0 - функция ничего не изменила поскольку либо запись rGoodsRec уже содержит явно все необходимые атрибуты,
+	//     либо родительская группа не содержит атрибутов, которые надо унаследовать, либо в rInhAttrList не перечислены
+	//     те атрибуты, которые нужно и можно унаследовать.
+	//   >0 - по крайней мере один атрибут унаследова
+	//    0 - error. Например, если rGoodsRec.ID == 0 или rGoodsRec.Kind != PPGDSK_GOODS
+	// 
+	int    SetupInheritedAttributes(Goods2Tbl::Rec & rGoodsRec, const LongArray & rInhAttrList); // @v12.5.2
+	//
+	// Descr: Тоже самое, что и SetupInheritedAttributes() но наследует только PPOBJATTR_TAXGROUP
+	//
+	int    SetupInheritedAttributes_TaxGroup(Goods2Tbl::Rec & rGoodsRec); // @v12.5.2
 	//
 	// Descr: вызывает диалог выбора товара вместо висячего идентификатора rmvdGoodsID.
 	//   Перед выводом диалога, если не указан extGoodsID, функция пытается определить не
@@ -32088,8 +32121,8 @@ public:
 
 class PPObjComputer : public PPObjGoods { // @construction
 public:
-	static  int  Helper_SetRec(const PPComputer * pRec, Goods2Tbl::Rec & rGoodsRec);
-	static  int  Helper_GetRec(const Goods2Tbl::Rec & rGoodsRec, PPComputer * pRec);
+	static int Helper_SetRec(const PPComputer * pRec, Goods2Tbl::Rec & rGoodsRec);
+	static int Helper_GetRec(const Goods2Tbl::Rec & rGoodsRec, PPComputer * pRec);
 
 	PPObjComputer(void * extraPtr = 0);
 	~PPObjComputer();
@@ -33421,6 +33454,7 @@ private:
 	SysJournal SJ;                //
 	CCurPriceTbl CCP;             //
 	PPObjGoods GObj;              //
+	PPObjGoodsGroup GgObj;        // @v12.5.2
 	PPObjGoodsClass GcObj;        //
 	PPObjLocPrinter LpObj;        //
 	PPObjCashNode CnObj;          //
@@ -45937,13 +45971,13 @@ struct TrfrAnlzViewItem_AlcRep {
 	TrfrAnlzViewItem_AlcRep();
 	void   Init();
 
-	TrfrAnlzViewItem  Item;
-	Goods2Tbl::Rec    GoodsRec;
-	PPGdsClsPacket    GCPack;
-	GoodsStockExt     GoodsStock;
-	GoodsExtTbl::Rec  GoodsExt;
-	BillTbl::Rec      BillRec;
-	ReceiptTbl::Rec   OrgLotRec;
+	TrfrAnlzViewItem Item;
+	Goods2Tbl::Rec GoodsRec;
+	PPGdsClsPacket GCPack;
+	GoodsStockExt GoodsStock;
+	GoodsExtTbl::Rec GoodsExt;
+	BillTbl::Rec BillRec;
+	ReceiptTbl::Rec OrgLotRec;
 	long   PersonID;
 	long   OrgLot_Prsn_SupplID;
 	enum {
@@ -56877,7 +56911,7 @@ public:
 		SString ChZnGtin;     // GTIN код товара, считанный из марки 'честный знак'
 		SString ChZnSerial;   // Серийный номер марки 'честный знак'
 		int64  ChZnPm_ReqTimestamp; // @v12.1.1 ответ разрешительного режима чзн: дата и время формирования запроса. Параметр возвращает дату и время с точностью до миллисекунд.
-		S_GUID ChZnPm_ReqId;        // @v12.1.1 ответ разрешительного режима чзн: уникальный идентификатор запроса
+		S_GUID ChZnPm_ReqId;  // @v12.1.1 ответ разрешительного режима чзн: уникальный идентификатор запроса
 		S_GUID ChZnPm_LocalModuleInstance; // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): идент локального модуля проверки
 		S_GUID ChZnPm_LocalModuleDbVer;    // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): версия базы «чёрного списка», на которой выполнялась проверка КИ
 		RealRange AllowedPriceRange; // @v12.2.2 диапазон допустимых цен на товар (пока только по результату запроса разрешительного режима марки chzn)
@@ -57020,10 +57054,10 @@ protected:
 			fAltReg    = 0x0004
 		};
 
-		int    R;
-		int    RExt;
-		int    SyncPrnErr;
-		int    ExtSyncPrnErr;
+		int    R;    // Результат проведения основного чека
+		int    RExt; // Результат проведения спаренного чека
+		int    SyncPrnErr;    // Код ошибки проведения основного чека
+		int    ExtSyncPrnErr; // Код ошибки проведения спаренного чека
 		long   Flags;
 		CCheckTbl::Rec LastChkRec;
 		CCheckPacket Pack;
@@ -58533,7 +58567,8 @@ public:
 	{
 		Di.Copy(rS);
 	}
-	void   WriteExcise(SXml::WNode & rParentNode, double value);
+	// @v12.5.2 (see WriteExcise2()) void   WriteExcise(SXml::WNode & rParentNode, double value);
+	void   WriteExcise2(int parentNodeTokenId, double value); // @v12.5.2
 	int    WriteWareInfoAddendum(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, uint itemIdx, 
 		const SString & rGoodsCode, const SString & rBarcodeForMarking, bool correction, const PPBillPacket * pOrgBp); // @v12.2.12
 //private:
@@ -58542,6 +58577,7 @@ public:
 	PPObjArticle ArObj;
 	SXml::WDoc * P_Doc;
 	xmlTextWriter * P_X;
+	StringSet SsNotch; // @v12.4.11 Список специальных меток, управлящих нюансами формата данных. Извлекается из тегов PPTAG_PERSON_NOTCH // @v12.5.2 moved from DocNalogRu_WriteBillBlock
 private:
 	int    MakeOutFileIdent(const PPBillPacket * pBPack, FileInfo & rHi);
 	int    MakeOutFileName(const char * pFileIdent, SString & rFileName);
@@ -58625,7 +58661,6 @@ public:
 	LDATE  AgtExpiry;
 	const  SString & R_NominalFileName;
 	SString HeaderSymb;
-	StringSet SsNotch; // @v12.4.11 Список специальных меток, управлящих нюансами формата данных. Извлекается из тегов PPTAG_PERSON_NOTCH
 	DocNalogRu_Generator::FileInfo _Hi;
 	DocNalogRu_Generator G;
 };

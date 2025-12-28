@@ -269,7 +269,7 @@ static xmlParserInput * xmllintExternalEntityLoader(const char * URL, const char
 			if(load_trace) {
 				fprintf(stderr, "Loaded URL=\"%s\" ID=\"%s\"\n", URL ? URL : "(null)", ID ? ID : "(null)");
 			}
-			return(ret);
+			return ret;
 		}
 	}
 	for(i = 0; i < nbpaths; i++) {
@@ -288,7 +288,7 @@ static xmlParserInput * xmllintExternalEntityLoader(const char * URL, const char
 					fprintf(stderr, "Loaded URL=\"%s\" ID=\"%s\"\n", newURL, ID ? ID : "(null)");
 				}
 				xmlFree(newURL);
-				return(ret);
+				return ret;
 			}
 			xmlFree(newURL);
 		}
@@ -388,7 +388,7 @@ static int my_gettimeofday(struct timeval * tvp, void * tzp)
 		tvp->tv_sec = timebuffer.time;
 		tvp->tv_usec = timebuffer.millitm * 1000L;
 	}
-	return (0);
+	return 0;
 }
 
 #define HAVE_GETTIMEOFDAY 1
@@ -761,7 +761,7 @@ static char * xmlShellReadline(char * prompt) {
 	if(ret) {
 		memcpy(ret, line_read, len + 1);
 	}
-	return(ret);
+	return ret;
 #endif
 }
 
@@ -844,9 +844,9 @@ static int isStandaloneDebug(void * ctx ATTRIBUTE_UNUSED)
 {
 	callbacks++;
 	if(noout)
-		return(0);
+		return 0;
 	fprintf(stdout, "SAX.isStandalone()\n");
-	return(0);
+	return 0;
 }
 
 /**
@@ -861,9 +861,9 @@ static int hasInternalSubsetDebug(void * ctx ATTRIBUTE_UNUSED)
 {
 	callbacks++;
 	if(noout)
-		return(0);
+		return 0;
 	fprintf(stdout, "SAX.hasInternalSubset()\n");
-	return(0);
+	return 0;
 }
 
 /**
@@ -878,9 +878,9 @@ static int hasExternalSubsetDebug(void * ctx ATTRIBUTE_UNUSED)
 {
 	callbacks++;
 	if(noout)
-		return(0);
+		return 0;
 	fprintf(stdout, "SAX.hasExternalSubset()\n");
-	return(0);
+	return 0;
 }
 
 /**
@@ -3003,7 +3003,7 @@ int main(int argc, char ** argv) {
 
 	if(argc <= 1) {
 		usage(argv[0]);
-		return(1);
+		return 1;
 	}
 	LIBXML_TEST_VERSION
 	for(i = 1; i < argc; i++) {
@@ -3317,7 +3317,7 @@ int main(int argc, char ** argv) {
 		else {
 			fprintf(stderr, "Unknown option %s\n", argv[i]);
 			usage(argv[0]);
-			return(1);
+			return 1;
 		}
 	}
 #ifdef LIBXML_CATALOG_ENABLED

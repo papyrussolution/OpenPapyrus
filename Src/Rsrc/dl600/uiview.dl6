@@ -2026,6 +2026,18 @@ dialog DLG_QUOTKINDRESTR [vertical title: "@quotkind_restrictions" size: (360, 2
 	}
 }
 
+dialog DLG_SCNTFOPT [vertical title: "@scard_notify_options" size: (385, 180) minsize: (385, 180) font: "MS Shell Dlg,8"] {
+	checkcluster CTL_SCNTFOPT_FLAGS [vertical tabstop width: bycontainer margin: 4] {
+		checkbox [title: "@scard_scrdf_notifydiscount" height: 16];
+		checkbox [title: "@scard_scrdf_notifywithdraw" height: 16];
+		checkbox [title: "@scard_scrdf_notifydraw" height: 16];
+	}
+	view [horizontal width: bycontainer(100) growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: (4, 4, 8, 4) command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: (8, 4, 4, 4) command: cmCancel];
+	}
+}
+
 dialog DLG_SCARD [vertical title: "@scard" size: (710, 570) minsize: (690, 570) font: "MS Shell Dlg 2,8"] { // @construction
 	view [horizontal width: bycontainer height: 40] {
 		combobox CTLSEL_SCARD_SERIES [growfactor: 3 height: 21 margin: 4 tabstop label: "@scard_series" labelsize: (0, 13) cblinesymb: CTL_SCARD_SERIES];
@@ -2054,7 +2066,7 @@ dialog DLG_SCARD [vertical title: "@scard" size: (710, 570) minsize: (690, 570) 
 			checkbox [title: "@scard_scrdf_ownerverified" height: 16];
 		}
 		framebox [vertical growfactor: 3 height: bycontainer margin: 4 padding: 4] {
-			view [horizontal width: bycontainer height: 40] {
+			view [horizontal width: bycontainer height: 43] {
 				input CTL_SCARD_DATE [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (dmy) label: "@scard_dt" labelsize: (0, 13) ] date supplement datecalbutton(CTLCAL_SCARD_DATE);
 				input CTL_SCARD_EXPIRY [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (dmy) label: "@scard_expiry" labelsize: (0, 13) ] date supplement datecalbutton(CTLCAL_SCARD_EXPIRY);
 			}

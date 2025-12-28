@@ -2383,7 +2383,8 @@ bool ToolingSelector::IsSuited(const Entry * pEntry)
 	if(is_suited) {
 		if(pEntry->TransClsID && pEntry->TransMask) {
 			is_suited = false; // @!
-			Goods2Tbl::Rec goods_rec, prev_goods_rec;
+			Goods2Tbl::Rec goods_rec;
+			Goods2Tbl::Rec prev_goods_rec;
 			if(GObj.Fetch(GoodsID, &goods_rec) > 0 && GObj.Fetch(PrevGoodsID, &prev_goods_rec) > 0) {
 				if(goods_rec.GdsClsID == prev_goods_rec.GdsClsID && goods_rec.GdsClsID == pEntry->TransClsID) {
 					GoodsExtTbl::Rec ext_rec, prev_ext_rec;

@@ -44,11 +44,11 @@ int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED)
 	if(module) {
 		if(xmlModuleSymbol(module, "hello_world", (void**)&hello_world)) {
 			fprintf(stderr, "Failure to lookup\n");
-			return(1);
+			return 1;
 		}
 		if(hello_world == NULL) {
 			fprintf(stderr, "Lookup returned NULL\n");
-			return(1);
+			return 1;
 		}
 
 		(*hello_world)();

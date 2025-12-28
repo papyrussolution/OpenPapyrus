@@ -920,7 +920,7 @@ const MARIADB_CHARSET_INFO * mysql_find_charset_nr(uint charsetnr)
 		}
 		++c;
 	} while(c[0].nr != 0);
-	return(NULL);
+	return NULL;
 }
 
 /* }}} */
@@ -940,7 +940,7 @@ const MARIADB_CHARSET_INFO * mysql_find_charset_name(const char * name)
 		}
 		++c;
 	} while(c[0].nr != 0);
-	return(NULL);
+	return NULL;
 }
 
 /* }}} */

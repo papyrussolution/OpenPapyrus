@@ -420,7 +420,7 @@ MYSQL_RES * _mysql_stmt_use_result(MYSQL_STMT * stmt)
 	if(!stmt->field_count || (!stmt->cursor_exists && mysql->status != MYSQL_STATUS_STMT_RESULT) ||
 	    (stmt->cursor_exists && mysql->status != MYSQL_STATUS_READY) || (stmt->state != MYSQL_STMT_WAITING_USE_OR_STORE)) {
 		SET_CLIENT_ERROR(mysql, CR_COMMANDS_OUT_OF_SYNC, SQLSTATE_UNKNOWN, 0);
-		return(NULL);
+		return NULL;
 	}
 	CLEAR_CLIENT_STMT_ERROR(stmt);
 	stmt->state = MYSQL_STMT_USE_OR_STORE_CALLED;
@@ -429,7 +429,7 @@ MYSQL_RES * _mysql_stmt_use_result(MYSQL_STMT * stmt)
 	else
 		stmt->fetch_row_func = stmt_cursor_fetch;
 
-	return(NULL);
+	return NULL;
 }
 
 uchar * mysql_net_store_length(uchar * packet, ulonglong length)
@@ -1270,7 +1270,7 @@ bool STDCALL mysql_stmt_close(MYSQL_STMT * stmt)
 		SAlloc::F(stmt->extension);
 		SAlloc::F(stmt);
 	}
-	return(rc);
+	return rc;
 }
 
 void STDCALL mysql_stmt_data_seek(MYSQL_STMT * stmt, uint64 offset)
@@ -1324,7 +1324,7 @@ int STDCALL mysql_stmt_fetch(MYSQL_STMT * stmt)
 		stmt->state = MYSQL_STMT_FETCH_DONE;
 		stmt->mysql->status = MYSQL_STATUS_READY;
 		/* to fetch data again, stmt must be executed again */
-		return(rc);
+		return rc;
 	}
 
 	rc = stmt->mysql->methods->db_stmt_fetch_to_bind(stmt, row);
@@ -1332,7 +1332,7 @@ int STDCALL mysql_stmt_fetch(MYSQL_STMT * stmt)
 	stmt->state = MYSQL_STMT_USER_FETCHING;
 	CLEAR_CLIENT_ERROR(stmt->mysql);
 	CLEAR_CLIENT_STMT_ERROR(stmt);
-	return(rc);
+	return rc;
 }
 
 int STDCALL mysql_stmt_fetch_column(MYSQL_STMT * stmt, MYSQL_BIND * bind, uint column, ulong offset)
@@ -1386,7 +1386,7 @@ MYSQL_STMT * STDCALL mysql_stmt_init(MYSQL * mysql)
 	    !(stmt->extension = (MADB_STMT_EXTENSION*)SAlloc::C(1, sizeof(MADB_STMT_EXTENSION)))) {
 		SAlloc::F(stmt);
 		SET_CLIENT_ERROR(mysql, CR_OUT_OF_MEMORY, SQLSTATE_UNKNOWN, 0);
-		return(NULL);
+		return NULL;
 	}
 
 	/* fill mysql's stmt list */
@@ -1554,7 +1554,7 @@ int STDCALL mysql_stmt_prepare(MYSQL_STMT * stmt, const char * query, ulong leng
 fail:
 	stmt->state = MYSQL_STMT_INITTED;
 	UPDATE_STMT_ERROR(stmt);
-	return(rc);
+	return rc;
 }
 
 int STDCALL mysql_stmt_store_result(MYSQL_STMT * stmt)
@@ -1909,7 +1909,7 @@ static bool madb_reset_stmt(MYSQL_STMT * stmt, uint flags)
 				if((ret = stmt->mysql->methods->db_command(mysql, COM_STMT_RESET, (char*)cmd_buf,
 				    sizeof(cmd_buf), 0, stmt))) {
 					UPDATE_STMT_ERROR(stmt);
-					return(ret);
+					return ret;
 				}
 			}
 		}
@@ -1923,7 +1923,7 @@ static bool madb_reset_stmt(MYSQL_STMT * stmt, uint flags)
 			}
 		}
 	}
-	return(ret);
+	return ret;
 }
 
 static bool mysql_stmt_internal_reset(MYSQL_STMT * stmt, bool is_close)
@@ -1973,7 +1973,7 @@ static bool mysql_stmt_internal_reset(MYSQL_STMT * stmt, bool is_close)
 	stmt->upsert_status.warning_count = mysql->warning_count;
 	mysql->status = MYSQL_STATUS_READY;
 
-	return(ret);
+	return ret;
 }
 
 MYSQL_RES * STDCALL mysql_stmt_result_metadata(MYSQL_STMT * stmt)
@@ -1981,18 +1981,18 @@ MYSQL_RES * STDCALL mysql_stmt_result_metadata(MYSQL_STMT * stmt)
 	MYSQL_RES * res;
 
 	if(!stmt->field_count)
-		return(NULL);
+		return NULL;
 
 	/* aloocate result set structutr and copy stmt information */
 	if(!(res = (MYSQL_RES*)SAlloc::C(1, sizeof(MYSQL_RES)))) {
 		stmt_set_error(stmt, CR_OUT_OF_MEMORY, SQLSTATE_UNKNOWN, 0);
-		return(NULL);
+		return NULL;
 	}
 
 	res->eof = 1;
 	res->fields = stmt->fields;
 	res->field_count = stmt->field_count;
-	return(res);
+	return res;
 }
 
 bool STDCALL mysql_stmt_reset(MYSQL_STMT * stmt)
@@ -2057,7 +2057,7 @@ bool STDCALL mysql_stmt_send_long_data(MYSQL_STMT * stmt, uint param_number,
 		if(ret)
 			UPDATE_STMT_ERROR(stmt);
 		SAlloc::F(cmd_buff);
-		return(ret);
+		return ret;
 	}
 	return 0;
 }
@@ -2077,7 +2077,7 @@ MYSQL_RES* STDCALL mysql_stmt_param_metadata(MYSQL_STMT * stmt __attribute__((un
 	/* server doesn't deliver any information yet,
 	   so we just return NULL
 	 */
-	return(NULL);
+	return NULL;
 }
 
 bool STDCALL mysql_stmt_more_results(MYSQL_STMT * stmt)
@@ -2109,7 +2109,7 @@ int STDCALL mysql_stmt_next_result(MYSQL_STMT * stmt)
 	}
 
 	if(!mysql_stmt_more_results(stmt))
-		return(-1);
+		return -1;
 
 	if(stmt->state > MYSQL_STMT_EXECUTED &&
 	    stmt->state < MYSQL_STMT_FETCH_DONE)
@@ -2138,7 +2138,7 @@ int STDCALL mysql_stmt_next_result(MYSQL_STMT * stmt)
 	stmt->field_count = stmt->mysql->field_count;
 	stmt->result.rows = 0;
 
-	return(rc);
+	return rc;
 }
 
 int STDCALL mariadb_stmt_execute_direct(MYSQL_STMT * stmt,

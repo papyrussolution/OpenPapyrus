@@ -1330,7 +1330,7 @@ int PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArray * pH
 			THROW_DB(bei.insert(&line_rec));
 			{
 				CclExtTextItem * p_ccln_extt_item = 0;
-				const int lnextf_list[] = { 
+				static constexpr int lnextf_list[] = { 
 					CCheckPacket::lnextSerial, 
 					CCheckPacket::lnextEgaisMark, 
 					CCheckPacket::lnextChZnMark, 
@@ -2477,7 +2477,7 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 	int    r;
 	PPIDArray acn_goodsnodisrmvd;
 	acn_goodsnodisrmvd.add(PPACN_GOODSNODISRMVD);
-	Goods2Tbl::Rec grec;
+	Goods2Tbl::Rec goods_rec;
 	SString temp_buf;
 	do {
 		if((Flags & ACGIF_ALLCODESPERITER) || CodePos >= Codes.getCount()) {
@@ -2485,12 +2485,12 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 				r = -1;
 				while(r < 0 && GoodsPos < IterGoodsList.getCount()) {
 					InnerCounter.Increment();
-					if(GObj.Search(IterGoodsList.at(GoodsPos++), &grec) > 0)
+					if(GObj.Search(IterGoodsList.at(GoodsPos++), &goods_rec) > 0)
 						r = 1;
 				}
 			}
 			else {
-				THROW(r = Iter.Next(&grec));
+				THROW(r = Iter.Next(&goods_rec));
 			}
 			if(r < 0) {
 				ok = -1;
@@ -2500,9 +2500,10 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 				bool   updated = true;
 				double old_price = 0.0;
 				RetailExtrItem rtl_ext_item;
+				GObj.SetupInheritedAttributes_TaxGroup(goods_rec); // @v12.5.2
 				Rec.Z();
 				rtl_ext_item.QuotList = pInfo->QuotList;
-				const int c = RetailExtr.GetPrice(grec.ID, 0, 0.0, &rtl_ext_item);
+				const int c = RetailExtr.GetPrice(goods_rec.ID, 0, 0.0, &rtl_ext_item);
 				THROW(c);
 				Rec.Expiry = rtl_ext_item.Expiry; // @v11.9.5
 				Rec.AllowedPriceR = rtl_ext_item.AllowedPriceR;
@@ -2511,7 +2512,7 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 				if(Flags & ACGIF_INITLOCPRN && P_G2OAssoc) {
 					PPID   loc_id = 0;
 					PPID   prn_id = 0;
-					P_G2OAssoc->Get(grec.ID, &loc_id);
+					P_G2OAssoc->Get(goods_rec.ID, &loc_id);
 					if(LocPrnAssoc.Search(loc_id, &prn_id, 0)) {
 						Rec.LocPrnID = prn_id;
 						PPLocPrinter lp_rec;
@@ -2524,16 +2525,16 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 				}
 				else if(Flags & ACGIF_UPDATEDONLY) {
 					DlsObjTbl::Rec dlso_rec;
-					if(UserOnlyGoodsGrpID && !GObj.BelongToGroup(grec.ID, UserOnlyGoodsGrpID))
+					if(UserOnlyGoodsGrpID && !GObj.BelongToGroup(goods_rec.ID, UserOnlyGoodsGrpID))
 						updated = false;
-					else if(!UpdGoods.bsearch(grec.ID)) {
+					else if(!UpdGoods.bsearch(goods_rec.ID)) {
 						if(!P_Dls) {
 							old_price = price_;
-							THROW(r = SearchCPrice(grec.ID, &old_price));
+							THROW(r = SearchCPrice(goods_rec.ID, &old_price));
 							if(r == 2)
 								updated = false;
 						}
-						else if(P_Dls->GetLastObjInfo(PPOBJ_GOODS, grec.ID, CurDate, &dlso_rec) > 0) {
+						else if(P_Dls->GetLastObjInfo(PPOBJ_GOODS, goods_rec.ID, CurDate, &dlso_rec) > 0) {
 							old_price = dlso_rec.Val;
 							if(dbl_cmp(old_price, price_) == 0)
 								updated = false;
@@ -2544,37 +2545,37 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 					uint  i;
 					PPUnit unit_rec;
 					PPGoodsTaxEntry gtx;
-					PPQuotArray quot_list(grec.ID);
-					if(Algorithm == algUpdBillsVerify && !IterGoodsList.bsearch(grec.ID)) {
-						PPFormat(VerMissMsg, &temp_buf, grec.ID, grec.Name, UpdGoods.bsearch(grec.ID), old_price, price_);
+					PPQuotArray quot_list(goods_rec.ID);
+					if(Algorithm == algUpdBillsVerify && !IterGoodsList.bsearch(goods_rec.ID)) {
+						PPFormat(VerMissMsg, &temp_buf, goods_rec.ID, goods_rec.Name, UpdGoods.bsearch(goods_rec.ID), old_price, price_);
 						PPLogMessage(PPFILNAM_INFO_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);
 					}
-					Rec.ID       = grec.ID;
+					Rec.ID       = goods_rec.ID;
 					// Замена символов перевода каретки на пробелы
-					(temp_buf = grec.Name).ReplaceChar('\x0D', ' ').ReplaceChar('\x0A', ' ').ElimDblSpaces().CopyTo(Rec.Name, sizeof(Rec.Name));
-					(temp_buf = grec.Abbr).ReplaceChar('\x0D', ' ').ReplaceChar('\x0A', ' ').ElimDblSpaces().CopyTo(Rec.Abbr, sizeof(Rec.Abbr));
+					(temp_buf = goods_rec.Name).ReplaceChar('\x0D', ' ').ReplaceChar('\x0A', ' ').ElimDblSpaces().CopyTo(Rec.Name, sizeof(Rec.Name));
+					(temp_buf = goods_rec.Abbr).ReplaceChar('\x0D', ' ').ReplaceChar('\x0A', ' ').ElimDblSpaces().CopyTo(Rec.Abbr, sizeof(Rec.Abbr));
 					if(Flags & ACGIF_EXCLALTFOLD)
-						GObj.P_Tbl->GetExclusiveAltParent(grec.ID, AcnPack.GoodsGrpID, &Rec.ParentID);
+						GObj.P_Tbl->GetExclusiveAltParent(goods_rec.ID, AcnPack.GoodsGrpID, &Rec.ParentID);
 					else
-						Rec.ParentID = grec.ParentID;
-					Rec.UnitID   = grec.UnitID;
-					Rec.PhUnitID = grec.PhUnitID;
-					Rec.PhUPerU  = grec.PhUPerU;
-					Rec.ManufID  = grec.ManufID;
-					Rec.GdsClsID = grec.GdsClsID;
-					Rec.GoodsTypeID = grec.GoodsTypeID;
+						Rec.ParentID = goods_rec.ParentID;
+					Rec.UnitID   = goods_rec.UnitID;
+					Rec.PhUnitID = goods_rec.PhUnitID;
+					Rec.PhUPerU  = goods_rec.PhUPerU;
+					Rec.ManufID  = goods_rec.ManufID;
+					Rec.GdsClsID = goods_rec.GdsClsID;
+					Rec.GoodsTypeID = goods_rec.GoodsTypeID;
 					Rec.Cost     = rtl_ext_item.Cost;
 					Rec.Price    = price_;
 					Rec.Precision = fpow10i(-3);
-					if(AcnPack.ExtFlags & CASHFX_APPLYUNITRND && GObj.FetchUnit(grec.UnitID, &unit_rec) > 0 && unit_rec.Rounding_ > 0.0)
+					if(AcnPack.ExtFlags & CASHFX_APPLYUNITRND && GObj.FetchUnit(goods_rec.UnitID, &unit_rec) > 0 && unit_rec.Rounding_ > 0.0)
 						Rec.Precision = unit_rec.Rounding_;
-					Rec.GoodsFlags = grec.Flags;
+					Rec.GoodsFlags = goods_rec.Flags;
 					if(Flags & ACGIF_IGNOREGWODISTAG)
 						Rec.NoDis = 0;
-					else if(grec.Flags & GF_NODISCOUNT)
+					else if(goods_rec.Flags & GF_NODISCOUNT)
 						Rec.NoDis  = 1;
-					else if(NoDisToggleGoodsList.bsearch(grec.ID))
-						Rec.NoDis = (SJ.GetLastObjEvent(PPOBJ_GOODS, grec.ID, &acn_goodsnodisrmvd, 0) > 0) ? -1 : 0;
+					else if(NoDisToggleGoodsList.bsearch(goods_rec.ID))
+						Rec.NoDis = (SJ.GetLastObjEvent(PPOBJ_GOODS, goods_rec.ID, &acn_goodsnodisrmvd, 0) > 0) ? -1 : 0;
 					else
 						Rec.NoDis = 0;
 					if(Rec.GoodsTypeID) {
@@ -2589,7 +2590,7 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 								Rec.Flags_ |= AsyncCashGoodsInfo::fGExciseProForma;
 							// } @v11.7.10 
 							if(gt_rec.PriceRestrID) {
-								//BillObj->GetPriceRestrictions(grec.ID, 0, )
+								//BillObj->GetPriceRestrictions(goods_rec.ID, 0, )
 							}
 						}
 					}
@@ -2620,28 +2621,28 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 						//
 						PPID   assoc_id = 0;
 						PPCashNode cn_rec;
-						if(P_G2DAssoc && P_G2DAssoc->Get(grec.ID, &assoc_id) > 0 && assoc_id && CnObj.Fetch(assoc_id, &cn_rec) > 0) {
+						if(P_G2DAssoc && P_G2DAssoc->Get(goods_rec.ID, &assoc_id) > 0 && assoc_id && CnObj.Fetch(assoc_id, &cn_rec) > 0) {
 							Rec.AsscPosNodeID = cn_rec.ID;
 							STRNSCPY(Rec.AsscPosNodeSymb, cn_rec.Symb);
 						}
 					}
 					{
 						// @v12.5.2 {
-						if(GObj.FetchTaxEntry2_WithPayerAndWarehouse_ByTaxGroup(grec.TaxGrpID, MainOrgID, LocID, now_dtm.d, 0L/*op_id*/, &gtx) > 0) {
+						if(GObj.FetchTaxEntry2_WithPayerAndWarehouse_ByTaxGroup(goods_rec.TaxGrpID, MainOrgID, LocID, now_dtm.d, 0L/*op_id*/, &gtx) > 0) {
 							Rec.VatRate = gtx.GetVatRate();
 						}
 						// } @v12.5.2 
-						// @v12.5.2 if(GObj.FetchTaxEntry2(grec.ID, 0/*lotID*/, 0/*taxPayerID*/, now_dtm.d, 0L, &gtx) > 0)
+						// @v12.5.2 if(GObj.FetchTaxEntry2(goods_rec.ID, 0/*lotID*/, 0/*taxPayerID*/, now_dtm.d, 0L, &gtx) > 0)
 							// @v12.5.2 Rec.VatRate = gtx.GetVatRate();
 					}
 					CodePos = 0;
-					GObj.ReadBarcodes(grec.ID, Codes);
+					GObj.ReadBarcodes(goods_rec.ID, Codes);
 					if(GObj.GetConfig().Flags & GCF_USESCALEBCPREFIX) {
 						for(i = 0; i < BcPrefixList.getCount(); i++) {
-							int r2 = GObj.GenerateScaleBarcode(grec.ID, BcPrefixList.at(i).Key, temp_buf);
+							int r2 = GObj.GenerateScaleBarcode(goods_rec.ID, BcPrefixList.at(i).Key, temp_buf);
 							if(r2 > 0) {
 								BarcodeTbl::Rec bc_rec;
-								bc_rec.GoodsID = grec.ID;
+								bc_rec.GoodsID = goods_rec.ID;
 								bc_rec.Qtty = 1.0;
 								temp_buf.CopyTo(bc_rec.Code, sizeof(bc_rec.Code));
 								Codes.insert(&bc_rec);
@@ -2651,9 +2652,9 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 						}
 					}
 					Rec.P_CodeList = &Codes;
-					if(grec.Flags & GF_EXTPROP) {
+					if(goods_rec.Flags & GF_EXTPROP) {
 						PPGoodsPacket __pack;
-						THROW(p_ref->GetPropVlrString(PPOBJ_GOODS, grec.ID, GDSPRP_EXTSTRDATA, __pack.ExtString));
+						THROW(p_ref->GetPropVlrString(PPOBJ_GOODS, goods_rec.ID, GDSPRP_EXTSTRDATA, __pack.ExtString));
 						if(__pack.ExtString.NotEmptyS()) {
 							StringSet ss;
 							__pack.GetExtStrData(GDSEXSTR_LABELNAME, Rec.LabelName);
@@ -2714,8 +2715,8 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 			}
 		}
 		if(CodePos < Codes.getCount() && (!(Flags & ACGIF_ALLCODESPERITER) || CodePos == 0)) {
-			uint pref_pos = 0;
-			const BarcodeTbl::Rec & r_cur_bc_item = Codes.at(CodePos);
+			uint   pref_pos = 0;
+			const  BarcodeTbl::Rec & r_cur_bc_item = Codes.at(CodePos);
 			strip(STRNSCPY(Rec.BarCode, r_cur_bc_item.Code));
 			if(Codes.GetPreferredItem(&pref_pos))
 				strip(STRNSCPY(Rec.PrefBarCode, Codes.at(pref_pos).Code));
@@ -3199,14 +3200,13 @@ int AsyncCashGoodsGroupIterator::Next(AsyncCashGoodsGroupInfo * pInfo)
 {
 	int    ok = -1;
 	if(P_GrpList && Pos < P_GrpList->getCount()) {
-		uint   i;
 		AsyncCashGoodsGroupInfo info = *static_cast<const AsyncCashGoodsGroupInfo *>(P_GrpList->at(Pos++));
 		info.DivN = 1;
 		if(AcnPack.Flags & CASHF_EXPDIVN && AcnPack.P_DivGrpList) {
 			long   default_div = 1;
 			int    use_default_div = 1;
 			PPGenCashNode::DivGrpAssc * p_dg_item;
-			for(i = 0; AcnPack.P_DivGrpList->enumItems(&i, (void **)&p_dg_item);) {
+			for(uint i = 0; AcnPack.P_DivGrpList->enumItems(&i, (void **)&p_dg_item);) {
 				if(p_dg_item->GrpID == 0)
 					default_div = p_dg_item->DivN;
 				else if(info.ID == p_dg_item->GrpID) {
@@ -3218,16 +3218,18 @@ int AsyncCashGoodsGroupIterator::Next(AsyncCashGoodsGroupInfo * pInfo)
 			if(use_default_div)
 				info.DivN = default_div;
 		}
-		PPQuotArray  quot_list(info.ID);
-		QuotByQttyList.freeAll();
-		THROW(GObj.P_Tbl->FetchQuotList(info.ID, 0, AcnPack.LocID, quot_list));
-		for(i = 0; i < quot_list.getCount(); i++) {
-			const PPQuot quot = quot_list.at(i);
-			if(quot.MinQtty)
-				THROW_SL(QuotByQttyList.insert(&quot));
+		{
+			PPQuotArray quot_list(info.ID);
+			QuotByQttyList.freeAll();
+			THROW(GObj.P_Tbl->FetchQuotList(info.ID, 0, AcnPack.LocID, quot_list));
+			for(uint i = 0; i < quot_list.getCount(); i++) {
+				const PPQuot quot = quot_list.at(i);
+				if(quot.MinQtty)
+					THROW_SL(QuotByQttyList.insert(&quot));
+			}
+			if(QuotByQttyList.getCount())
+				info.P_QuotByQttyList = &QuotByQttyList;
 		}
-		if(QuotByQttyList.getCount())
-			info.P_QuotByQttyList = &QuotByQttyList;
 		ASSIGN_PTR(pInfo, info);
 		ok = 1;
 	}

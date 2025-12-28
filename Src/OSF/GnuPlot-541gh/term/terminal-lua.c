@@ -926,7 +926,7 @@ TERM_PUBLIC int LUA_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode)
 		lua_pop(P_LuaS, 1);
 		return (lua_term_result ? TRUE : FALSE);
 	}
-	return(FALSE);
+	return false;
 }
 
 TERM_PUBLIC int LUA_text_angle(GpTermEntry_Static * pThis, int ang)
@@ -958,7 +958,7 @@ TERM_PUBLIC int LUA_set_font(GpTermEntry_Static * pThis, const char * font)
 			return TRUE;
 		}
 	}
-	return(FALSE);
+	return false;
 }
 
 TERM_PUBLIC void LUA_boxfill(GpTermEntry_Static * pThis, int style, uint x1, uint y1, uint width, uint height)

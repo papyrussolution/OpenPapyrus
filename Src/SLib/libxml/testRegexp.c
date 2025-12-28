@@ -281,7 +281,7 @@ int main(int argc, char ** argv)
 	xmlInitMemory();
 	if(argc <= 1) {
 		usage(argv[0]);
-		return(1);
+		return 1;
 	}
 	for(i = 1; i < argc; i++) {
 		if(sstreq(argv[i], "-"))

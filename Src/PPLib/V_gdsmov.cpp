@@ -172,7 +172,7 @@ int PPViewGoodsMov::Init_(const PPBaseFilt * pFilt)
 	PPOprKind op_rec;
 	GoodsFilt gf;
 	GoodsIterator  iter(static_cast<GoodsFilt *>(0), 0);
-	Goods2Tbl::Rec gr;
+	Goods2Tbl::Rec goods_rec;
 	PPObjGoods gobj;
 	TempGoodsMovTbl * p_tbl = CreateTempFile();
 
@@ -200,11 +200,11 @@ int PPViewGoodsMov::Init_(const PPBaseFilt * pFilt)
 		gf.GrpID   = Filt.GoodsGrpID;
 		gf.SupplID = Filt.SupplID;
 		gf.BrandList.Add(Filt.BrandID);
-		for(iter.Init(&gf, 0); iter.Next(&gr) > 0;) {
+		for(iter.Init(&gf, 0); iter.Next(&goods_rec) > 0;) {
 			THROW(PPCheckUserBreak());
-			if(!(gr.Flags & GF_GENERIC)) {
+			if(!(goods_rec.Flags & GF_GENERIC)) {
 				TempGoodsMovTbl::Rec rec;
-				temp_filt.GoodsID = gr.ID;
+				temp_filt.GoodsID = goods_rec.ID;
 				ary.clear();
 				THROW(ary.ProcessGoodsGrouping(temp_filt, &agg));
 				for(i = 0; ary.enumItems(&i, (void **)&p_entry);) {
@@ -324,9 +324,9 @@ int PPViewGoodsMov::Init_(const PPBaseFilt * pFilt)
 				}
 				if(rec.InRest_Qtty || rec.OutRest_Qtty || rec.Rcpt_Qtty || rec.ARcpt_Qtty || rec.Expnd_Qtty || rec.Rlz_Qtty || rec.TExpnd_Qtty || rec.TRcpt_Qtty) {
 					SString temp_buf;
-					rec.Grp     = gr.ParentID;
-					rec.GoodsID = gr.ID;
-					rec.PhUPerU = gr.PhUPerU;
+					rec.Grp     = goods_rec.ParentID;
+					rec.GoodsID = goods_rec.ID;
+					rec.PhUPerU = goods_rec.PhUPerU;
 					Total.InRestQtty    += rec.InRest_Qtty;
 					Total.InRestPhQtty  += rec.InRest_Qtty * rec.PhUPerU;
 					Total.InRestCost    += rec.InRest_Cost;
@@ -335,7 +335,7 @@ int PPViewGoodsMov::Init_(const PPBaseFilt * pFilt)
 					Total.OutRestPhQtty += rec.OutRest_Qtty * rec.PhUPerU;
 					Total.OutRestCost   += rec.OutRest_Cost;
 					Total.OutRestPrice  += rec.OutRest_Price;
-					STRNSCPY(rec.GoodsName, gr.Name);
+					STRNSCPY(rec.GoodsName, goods_rec.Name);
 					gobj.GetSingleBarcode(rec.GoodsID, 0, temp_buf);
 					temp_buf.CopyTo(rec.Barcode, sizeof(rec.Barcode));
 					THROW_DB(bei.insert(&rec));

@@ -1605,8 +1605,7 @@ int CCheckPacket::SetupPaymList(const CcAmountList * pList)
 	SString temp_buf;
 	if(pList && pList->getCount()) {
 		const double _total = pList->GetTotal();
-		double _amt = 0.0, _discount;
-		CalcAmount(&_amt, &_discount);
+		const double _amt = CalcAmount(0, 0);
 		if(!feqeps(_amt, _total, 1E-6)) {
 			CCheckCore::MakeCodeString(&Rec, 0, temp_buf);
 			ok = PPSetError(PPERR_CCPAYMLISTDIFFAMT, temp_buf);
@@ -1732,9 +1731,10 @@ double FASTCALL CCheckPacket::GetItemDiscount(const CCheckLineTbl::Rec & rItem) 
 	return (rItem.Dscnt * rItem.Quantity);
 }
 
-void CCheckPacket::CalcAmount(double * pAmt, double * pDscnt) const
+double CCheckPacket::CalcAmount(double * pAmt, double * pDscnt) const
 {
-	double amount = 0.0, discount = 0.0;
+	double amount = 0.0;
+	double discount = 0.0;
 	CCheckLineTbl::Rec item;
 	for(uint i = 0; EnumLines(&i, &item);) {
 		const double qtty = item.Quantity;
@@ -1745,11 +1745,13 @@ void CCheckPacket::CalcAmount(double * pAmt, double * pDscnt) const
 	}
 	ASSIGN_PTR(pAmt, amount);
 	ASSIGN_PTR(pDscnt, discount);
+	return amount;
 }
 
 void CCheckPacket::SetupAmount(double * pAmt, double * pDscnt)
 {
-	double amt = 0.0, dscnt = 0.0;
+	double amt = 0.0;
+	double dscnt = 0.0;
 	CalcAmount(&amt, &dscnt);
 	LDBLTOMONEY(amt, Rec.Amount);
 	LDBLTOMONEY(dscnt, Rec.Discount);
@@ -2214,9 +2216,12 @@ int CCheckCore::ValidateCheck(PPID id, ValidateCheckParam & rParam, PPLogger & r
 {
 	int    ok = 1;
 	CCheckPacket cc_pack;
-	SString fmt_buf, chk_text, msg_buf;
+	SString fmt_buf;
+	SString chk_text;
+	SString msg_buf;
 	if(LoadPacket(id, 0, &cc_pack) > 0) {
-		double amt = 0.0, dscnt = 0.0;
+		double amt = 0.0;
+		double dscnt = 0.0;
 		CCheckCore::MakeCodeString(&cc_pack.Rec, 0, chk_text);
 		cc_pack.CalcAmount(&amt, &dscnt);
 		const double rec_amt   = MONEYTOLDBL(cc_pack.Rec.Amount);
@@ -2888,7 +2893,7 @@ int CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, double
 						scop_rec.LinkObjID   = pPack->Rec.ID;
 						scop_rec.UserID  = pPack->Rec.UserID;
 						bool    is_charge = false;
-						// @v11.5.11 scop_rec.Amount  = -r_entry.Amount;
+						// @v11.5.11 scop_rec.Amount  = -r_entry.Amount; // "Ледовая Арена"/"Свеман"
 						// @v11.5.11 {
 						// @v11.7.8 {
 						if(r_entry.Type == CCAMTTYP_CSCCHARGE) {
@@ -6449,9 +6454,7 @@ int CCheckCore::CorrectCCLineProblem01()
 				const  PPID cc_id = data.ID;
 				THROW_DB(getPosition(&c_pos));
 				if(LoadPacket(cc_id, 0, &cc_pack) > 0) {
-					double amt = 0.0;
-					double dscnt = 0.0;
-					cc_pack.CalcAmount(&amt, &dscnt);
+					double amt = cc_pack.CalcAmount(0, 0);
 					const double rec_amt   = MONEYTOLDBL(cc_pack.Rec.Amount);
 					const double rec_dscnt = MONEYTOLDBL(cc_pack.Rec.Discount);
 					if(fabs(amt - rec_amt) > tolerance) {
@@ -6460,7 +6463,7 @@ int CCheckCore::CorrectCCLineProblem01()
 						while(c--) {
 							rbc_list.add(cc_pack.Items_.at(0).RByCheck);
 							cc_pack.Items_.atFree(0);
-							cc_pack.CalcAmount(&amt, &dscnt);
+							amt = cc_pack.CalcAmount(0, 0);
 							if(fabs(amt - rec_amt) <= tolerance) {
 								for(uint i = 0; i < rbc_list.getCount(); i++) {
 									CCheckLineTbl::Key0 lk0;

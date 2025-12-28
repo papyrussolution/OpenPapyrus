@@ -26,22 +26,19 @@
 
 bool ma_init_dynamic_string(DYNAMIC_STRING * str, const char * init_str, size_t init_alloc, size_t alloc_increment)
 {
-	uint length;
-	if(!alloc_increment)
-		alloc_increment = 128;
-	length = 1;
+	uint length = 1;
+	SETIFZQ(alloc_increment, 128);
 	if(init_str && (length = (uint)strlen(init_str)+1) < init_alloc)
 		init_alloc = ((length+alloc_increment-1)/alloc_increment)*alloc_increment;
-	if(!init_alloc)
-		init_alloc = alloc_increment;
+	SETIFZQ(init_alloc, alloc_increment);
 	if(!(str->str = (char*)SAlloc::M(init_alloc)))
-		return(TRUE);
+		return true;
 	str->length = length-1;
 	if(init_str)
 		memcpy(str->str, init_str, length);
 	str->max_length = init_alloc;
 	str->alloc_increment = alloc_increment;
-	return(FALSE);
+	return false;
 }
 
 bool ma_dynstr_set(DYNAMIC_STRING * str, const char * init_str)
@@ -52,7 +49,7 @@ bool ma_dynstr_set(DYNAMIC_STRING * str, const char * init_str)
 		if(!str->max_length)
 			str->max_length = str->alloc_increment;
 		if(!(str->str = (char*)SAlloc::R(str->str, str->max_length)))
-			return(TRUE);
+			return true;
 	}
 	if(init_str) {
 		str->length = length-1;
@@ -60,20 +57,20 @@ bool ma_dynstr_set(DYNAMIC_STRING * str, const char * init_str)
 	}
 	else
 		str->length = 0;
-	return(FALSE);
+	return false;
 }
 
 bool ma_dynstr_realloc(DYNAMIC_STRING * str, size_t additional_size)
 {
 	if(!additional_size) 
-		return(FALSE);
+		return false;
 	if(str->length + additional_size > str->max_length) {
 		str->max_length = ((str->length + additional_size+str->alloc_increment-1)/
 		    str->alloc_increment)*str->alloc_increment;
 		if(!(str->str = (char*)SAlloc::R(str->str, str->max_length)))
-			return(TRUE);
+			return true;
 	}
-	return(FALSE);
+	return false;
 }
 
 bool ma_dynstr_append(DYNAMIC_STRING * str, const char * append)

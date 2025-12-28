@@ -883,26 +883,48 @@ DBQuery * PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbe_stop = & flagtoa(a->Flags, ARTRF_STOPBILL, stop_subst.Get(PPTXT_AR_STOP));
 		if(Filt.PersonID) {
 			THROW(CheckTblPtr(rf = new ReferenceTbl));
+			// @v12.5.2 {
 			p_q = & Select_(
+				a->ID,       // #00
+				a->Article,  // #01
+				a->Name,     // #02
+				a->Closed,   // #03
+				0L);
+			p_q->addField(*dbe_stop);   // #04
+			p_q->addField(rf->ObjName); // #05
+			// } @v12.5.2 
+			/* @v12.5.2 p_q = & Select_(
 				a->ID,       // #00
 				a->Article,  // #01
 				a->Name,     // #02
 				a->Closed,   // #03
 				*dbe_stop,   // #04
 				rf->ObjName, // #05
-				0L).from(rf, a, 0L);
+				0L);*/
+			p_q->from(rf, a, 0L);
 			dbq = &(rf->ObjType == PPOBJ_ACCSHEET && rf->ObjID == a->AccSheetID && a->ObjID == Filt.PersonID);
 		}
 		else {
 			THROW(SearchObject(PPOBJ_ACCSHEET, Filt.AccSheetID, &acs_rec) > 0);
+			// @v12.5.2 {
 			p_q = & Select_(
+				a->ID,       // #00
+				a->Article,  // #01
+				a->Name,     // #02
+				a->Closed,   // #03
+				0L);
+			p_q->addField(*dbe_stop); // #04
+			p_q->addField(a->ID);     // #05 @stub
+			// } @v12.5.2 
+			/* @v12.5.2 p_q = & Select_(
 				a->ID,       // #00
 				a->Article,  // #01
 				a->Name,     // #02
 				a->Closed,   // #03
 				*dbe_stop,   // #04
 				a->ID,       // #05 @stub
-				0L).from(a, 0L);
+				0L);*/
+			p_q->from(a, 0L);
 			dbq = &(a->AccSheetID == acs_rec.ID);
 		}
 		if(P_TempTbl) {

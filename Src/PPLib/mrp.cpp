@@ -521,9 +521,11 @@ int MrpTabCore::SetSubstRest(PPID id, PPID destID, PPID srcID, const GoodsRestVa
 			//
 			if(rest > 0.0) {
 				if(SearchLine(id, destID, srcID, &line_rec2) > 0 && !(line_rec2.Flags & MRPLF_SUBST)) {
-					SString msg_buf, fmt_buf;
+					SString msg_buf;
+					SString fmt_buf;
 					PPObjGoods goods_obj;
-					Goods2Tbl::Rec dest_goods_rec, src_goods_rec;
+					Goods2Tbl::Rec dest_goods_rec;
+					Goods2Tbl::Rec src_goods_rec;
 					PPLoadText(PPTXT_LOG_INVMRPSUBT, fmt_buf);
 					goods_obj.Fetch(destID, &dest_goods_rec);
 					goods_obj.Fetch(srcID,  &src_goods_rec);

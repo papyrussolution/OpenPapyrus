@@ -285,7 +285,7 @@ int xmlGetFeature(xmlParserCtxt * ctxt, const char * name, void * result)
 	else {
 		return (-1);
 	}
-	return (0);
+	return 0;
 }
 
 /**
@@ -440,7 +440,7 @@ int xmlSetFeature(xmlParserCtxt * ctxt, const char * name, void * value)
 	else {
 		return (-1);
 	}
-	return (0);
+	return 0;
 }
 
 /**
@@ -1256,7 +1256,7 @@ xmlNs * getNamespace(void * ctx ATTRIBUTE_UNUSED)
 int checkNamespace(void * ctx ATTRIBUTE_UNUSED, xmlChar * pNamespace ATTRIBUTE_UNUSED)
 {
 	DEPRECATED("checkNamespace")
-	return (0);
+	return 0;
 }
 /**
  * namespaceDecl:

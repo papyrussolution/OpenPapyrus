@@ -3027,11 +3027,11 @@ int EquipConfigDialog::EditExtParams()
 			getCtrlData(sel = CTLSEL_EQCFG_CPIMPOP, &Data.ChkPanImpOpID); // @v11.8.6
 			getCtrlData(sel = CTLSEL_EQCFG_CPIMPTAG, &Data.ChkPanImpBillTagID); // @v11.8.6
 			if(Data.SalesGoodsGrp) {
-				PPObjGoodsGroup ggobj;
-				Goods2Tbl::Rec ggrec;
-				ggobj.Search(Data.SalesGoodsGrp, &ggrec);
+				PPObjGoodsGroup gg_obj;
+				Goods2Tbl::Rec gg_rec;
+				gg_obj.Search(Data.SalesGoodsGrp, &gg_rec);
 				//sel = CTL_EQCFG_SALESGRP;
-				THROW_PP(ggrec.Flags & GF_EXCLALTFOLD, PPERR_INVSALESGRP);
+				THROW_PP(gg_rec.Flags & GF_EXCLALTFOLD, PPERR_INVSALESGRP);
 			}
 			getCtrlData(sel = CTL_EQCFG_AGENTCODELEN, &Data.AgentCodeLen);
 			getCtrlData(sel = CTL_EQCFG_AGENTPREFIX,  &Data.AgentPrefix);

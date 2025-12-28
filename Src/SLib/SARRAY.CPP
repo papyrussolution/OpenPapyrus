@@ -1850,6 +1850,22 @@ void LLAssocArray::Sort()
 //
 //
 //
+RAssoc::RAssoc() : Key(0), Val(0.0)
+{
+}
+	
+RAssoc::RAssoc(long k, double v) : Key(k), Val(v)
+{
+}
+
+FAssoc::FAssoc() : Key(0), Val(0.0f)
+{
+}
+
+FAssoc::FAssoc(long k, float v) : Key(k), Val(v)
+{
+}
+
 RAssocArray::RAssocArray() : TSVector <RAssoc>()
 {
 }

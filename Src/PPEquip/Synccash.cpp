@@ -140,7 +140,7 @@ private:
 
 	enum DevFlags {
 		sfConnected     = 0x0001, // установлена связь с ККМ, COM-порт занят
-		sfCheckOpened     = 0x0002, // чек открыт
+		sfCheckOpened   = 0x0002, // чек открыт
 		sfCancelled     = 0x0004, // операция печати чека прервана пользователем
 		sfPrintSlip     = 0x0010, // печать подкладного документа
 		sfDontUseCutter = 0x0020, // не использовать отрезчик чеков

@@ -1,5 +1,5 @@
 // SCSPCTRT.CPP
-// Copyright (c) A.Sobolev 2018, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2018, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Реализация специальных интерпретаций поведения персональных карт
 //
@@ -12,21 +12,21 @@ SCardSpecialTreatment::CardBlock::CardBlock() : SpecialTreatment(0), PosNodeID(0
 
 SCardSpecialTreatment::DiscountBlock::DiscountBlock() : RowN(0), GoodsID(0), Flags(0), Qtty(0.0), InPrice(0.0), ResultPrice(0.0)
 {
-	PTR32(TaIdent)[0] = 0;
+	TaIdent[0] = 0;
 }
 
 SCardSpecialTreatment::TransactionResult::TransactionResult() : Status(stUndef), ResultFlags(0)
 {
-	PTR32(TaIdent)[0] = 0;
-	PTR32(CustomerIdent)[0] = 0;
-	PTR32(ErrMessage)[0] = 0;
+	TaIdent[0] = 0;
+	CustomerIdent[0] = 0;
+	ErrMessage[0] = 0;
 }
 
 SCardSpecialTreatment::IdentifyReplyBlock::IdentifyReplyBlock() : SpecialTreatment(0), Flags(0), ScID(0), InCodeType(0), Discount(0.0), Rest(0.0)
 {
-	PTR32(InCode)[0] = 0;
-	PTR32(OperationCode)[0] = 0;
-	PTR32(Hash)[0] = 0;
+	InCode[0] = 0;
+	OperationCode[0] = 0;
+	Hash[0] = 0;
 }
 
 SCardSpecialTreatment::IdentifyReplyBlock & SCardSpecialTreatment::IdentifyReplyBlock::Z()
@@ -37,9 +37,9 @@ SCardSpecialTreatment::IdentifyReplyBlock & SCardSpecialTreatment::IdentifyReply
 	InCodeType = 0;
 	Discount = 0.0;
 	Rest = 0.0;
-	PTR32(InCode)[0] = 0;
-	PTR32(OperationCode)[0] = 0;
-	PTR32(Hash)[0] = 0;
+	InCode[0] = 0;
+	OperationCode[0] = 0;
+	Hash[0] = 0;
 	return *this;
 }
 
@@ -112,9 +112,6 @@ private:
 };
 
 static const char * P_Az_DebugFileName = "astrazeneca-debug.log";
-
-// Токен O3SYowZft14FaJ84SSotNk3JbGkkpXpiKUSjMVBS
-// Сикрет Y3Xga2A2XcKrsrQjJRk9RuyQjr0JiOUEdlshabnc
 
 int SCardSpecialTreatment_AstraZeneca::PrepareHtmlFields(StrStrAssocArray & rHdrFlds)
 {
@@ -1932,20 +1929,17 @@ public:
 				THROW(tra.Commit());
 				rB.SpecialTreatment = SCRDSSPCTRT_UDS;
 				rB.ScID = found_sc_id;
-				// @v10.9.6 rB.InCodeType = ictHash;
 				rB.Discount = cust.P.DiscountRate;
 				if(rB.Discount > 0.0)
 					rB.Flags |= rB.fDefinedDiscount;
 				rB.Rest = cust.P.PointCount;
 				rB.Flags |= rB.fDefinedRest;
-				// @v10.9.6 {
 				if(fcp.Code.NotEmpty())
 					rB.InCodeType = ictHash;
 				else if(fcp.Phone.NotEmpty()) {
 					rB.InCodeType = SCardSpecialTreatment::ictPhone;
 					rB.Flags |= rB.fBonusDisabled;
 				}
-				// } @v10.9.6 
 				ret = ictHash;
 			}
 		}
@@ -1989,9 +1983,9 @@ public:
 			else {
 				UdsGameInterface::Transaction t;
 				UdsGameInterface::Transaction reply_t;
-				int    is_withdraw_permitted = 0;
+				bool   is_withdraw_permitted = false;
 				if(irb.InCodeType == SCardSpecialTreatment::ictHash) {
-					is_withdraw_permitted = 1;
+					is_withdraw_permitted = true;
 					t.Code = irb.InCode;
 				}
 				else {
@@ -2020,7 +2014,7 @@ public:
 					t.Points = 0.0;
 					t.SkipLoyaltyTotal = 0.01;
 					double used_bonus = 0.0;
-					const CcAmountList & r_al = pCcPack->AL_Const();
+					const  CcAmountList & r_al = pCcPack->AL_Const();
 					if(r_al.getCount()) {
 						for(uint alidx = 0; alidx < r_al.getCount(); alidx++) {
 							const CcAmountEntry r_ale = r_al.at(alidx);
@@ -2037,9 +2031,7 @@ public:
 						}
 					}
 					else {
-						double cca = 0.0;
-						double ccd = 0.0;
-						pCcPack->CalcAmount(&cca, &ccd);
+						const double cca = pCcPack->CalcAmount(0, 0);
 						t.Total = cca;
 						t.Cash = cca;
 					}

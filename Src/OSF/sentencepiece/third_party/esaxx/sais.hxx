@@ -191,7 +191,7 @@ int suffixsort(string_type T, sarray_type SA,
 #ifdef _OPENMP
 	int maxthreads = omp_get_max_threads();
 #else
-# define maxthreads 1
+#define maxthreads 1
 #endif
 	char_type c0, c1;
 

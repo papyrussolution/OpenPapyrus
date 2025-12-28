@@ -701,11 +701,11 @@ static DetectorResult Scan(EdgeTracer& startTracer, std::array<DMRegressionLine,
 				for(auto & l : lines)
 					log(l.points());
 			});
-# define CHECK(A) if(!(A)) { printf("broke at %d\n", __LINE__); continue; \
+#define CHECK(A) if(!(A)) { printf("broke at %d\n", __LINE__); continue; \
 }
 
 #else
-# define CHECK(A) if(!(A)) continue
+#define CHECK(A) if(!(A)) continue
 #endif
 
 		auto t = startTracer;

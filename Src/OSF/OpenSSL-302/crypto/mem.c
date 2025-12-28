@@ -210,11 +210,10 @@ void * CRYPTO_clear_realloc(void * str, size_t old_len, size_t num, const char *
 void CRYPTO_free(void * str, const char * file, int line)
 {
 	INCREMENT(free_count);
-	if(free_impl != CRYPTO_free) {
+	if(free_impl != CRYPTO_free)
 		free_impl(str, file, line);
-		return;
-	}
-	SAlloc::F(str);
+	else
+		SAlloc::F(str);
 }
 
 void CRYPTO_clear_free(void * str, size_t num, const char * file, int line)

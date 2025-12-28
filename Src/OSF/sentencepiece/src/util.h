@@ -215,22 +215,18 @@ const typename Collection::value_type::second_type &FindWithDefault(const Collec
 	return it->second;
 }
 
-template <class Collection>
-bool InsertIfNotPresent(Collection *const collection,
-    const typename Collection::value_type &vt) {
+template <class Collection> bool InsertIfNotPresent(Collection *const collection, const typename Collection::value_type &vt) 
+{
 	return collection->insert(vt).second;
 }
 
-template <class Collection>
-bool InsertIfNotPresent(Collection *const collection,
-    const typename Collection::value_type::first_type &key,
-    const typename Collection::value_type::second_type &value) {
-	return InsertIfNotPresent(collection,
-		   typename Collection::value_type(key, value));
+template <class Collection> bool InsertIfNotPresent(Collection *const collection,
+    const typename Collection::value_type::first_type &key, const typename Collection::value_type::second_type &value) 
+{ 
+	return InsertIfNotPresent(collection, typename Collection::value_type(key, value)); 
 }
 
-template <class Collection>
-void InsertOrDie(Collection *const collection,
+template <class Collection> void InsertOrDie(Collection *const collection,
     const typename Collection::value_type::first_type &key,
     const typename Collection::value_type::second_type &data) {
 	CHECK(InsertIfNotPresent(collection, key, data)) << "duplicate key";

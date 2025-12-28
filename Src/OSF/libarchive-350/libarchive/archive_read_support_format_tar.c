@@ -1581,7 +1581,7 @@ static int pax_attribute_acl(ArchiveRead * a, struct tar * tar, ArchiveEntry * e
 		case ARCHIVE_ENTRY_ACL_TYPE_NFS4: errstr = "SCHILY.acl.ace"; break;
 		default:
 		    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Unknown ACL type: %d", type);
-		    return(ARCHIVE_FATAL);
+		    return ARCHIVE_FATAL;
 	}
 	if(tar->sconv_acl == NULL) {
 		tar->sconv_acl = archive_string_conversion_from_charset(&(a->archive), "UTF-8", 1);

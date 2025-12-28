@@ -223,10 +223,10 @@ static void des_userdata(int no ATTRIBUTE_UNUSED, void * val ATTRIBUTE_UNUSED, i
 
 static int gen_int(int no, int nr ATTRIBUTE_UNUSED) {
 	if(no == 0) return 0;
-	if(no == 1) return(1);
-	if(no == 2) return(-1);
-	if(no == 3) return(122);
-	return(-1);
+	if(no == 1) return 1;
+	if(no == 2) return -1;
+	if(no == 3) return 122;
+	return -1;
 }
 
 static void des_int(int no ATTRIBUTE_UNUSED, int val ATTRIBUTE_UNUSED, int nr ATTRIBUTE_UNUSED) {
@@ -250,10 +250,10 @@ static void des_parseroptions(int no ATTRIBUTE_UNUSED, int val ATTRIBUTE_UNUSED,
 
 static long gen_long(int no, int nr ATTRIBUTE_UNUSED) {
 	if(no == 0) return 0;
-	if(no == 1) return(1);
-	if(no == 2) return(-1);
-	if(no == 3) return(122);
-	return(-1);
+	if(no == 1) return 1;
+	if(no == 2) return -1;
+	if(no == 3) return 122;
+	return -1;
 }
 
 static void des_long(int no ATTRIBUTE_UNUSED, long val ATTRIBUTE_UNUSED, int nr ATTRIBUTE_UNUSED) {
@@ -275,10 +275,11 @@ static void des_xmlChar(int no ATTRIBUTE_UNUSED, xmlChar val ATTRIBUTE_UNUSED, i
 
 #define gen_nb_unsigned_int 3
 
-static uint gen_unsigned_int(int no, int nr ATTRIBUTE_UNUSED) {
+static uint gen_unsigned_int(int no, int nr ATTRIBUTE_UNUSED) 
+{
 	if(no == 0) return 0;
-	if(no == 1) return(1);
-	if(no == 2) return(122);
+	if(no == 1) return 1;
+	if(no == 2) return 122;
 	return((uint)-1);
 }
 
@@ -287,10 +288,11 @@ static void des_unsigned_int(int no ATTRIBUTE_UNUSED, uint val ATTRIBUTE_UNUSED,
 
 #define gen_nb_unsigned_long 4
 
-static unsigned long gen_unsigned_long(int no, int nr ATTRIBUTE_UNUSED) {
+static unsigned long gen_unsigned_long(int no, int nr ATTRIBUTE_UNUSED) 
+{
 	if(no == 0) return 0;
-	if(no == 1) return(1);
-	if(no == 2) return(122);
+	if(no == 1) return 1;
+	if(no == 2) return 122;
 	return((unsigned long)-1);
 }
 
@@ -305,7 +307,7 @@ static double gen_double(int no, int nr ATTRIBUTE_UNUSED) {
 #if defined(LIBXML_XPATH_ENABLED)
 	if(no == 2) return(xmlXPathNAN);
 #endif
-	return(-1);
+	return -1;
 }
 
 static void des_double(int no ATTRIBUTE_UNUSED, double val ATTRIBUTE_UNUSED, int nr ATTRIBUTE_UNUSED) {

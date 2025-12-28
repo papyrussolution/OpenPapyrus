@@ -196,7 +196,7 @@ int have_ipv6(void) {
 		close(s);
 		return (1);
 	}
-	return (0);
+	return 0;
 }
 
 #endif
@@ -392,7 +392,7 @@ static xmlNanoHTTPCtxtPtr xmlNanoHTTPNewCtxt(const char * URL) {
 
 	xmlNanoHTTPScanURL(ret, URL);
 
-	return(ret);
+	return ret;
 }
 
 /**
@@ -563,7 +563,7 @@ static int xmlNanoHTTPRecv(xmlNanoHTTPCtxtPtr ctxt)
 			return (ctxt->last);
 		}
 		if(ctxt->last == 0) {
-			return (0);
+			return 0;
 		}
 		if(ctxt->last == -1) {
 			switch(socket_errno()) {
@@ -576,7 +576,7 @@ static int xmlNanoHTTPRecv(xmlNanoHTTPCtxtPtr ctxt)
 
 				case ECONNRESET:
 				case ESHUTDOWN:
-				    return (0);
+				    return 0;
 
 				default:
 				    __xmlIOErr(XML_FROM_HTTP, 0, "recv failed\n");
@@ -591,7 +591,7 @@ static int xmlNanoHTTPRecv(xmlNanoHTTPCtxtPtr ctxt)
 		    && (errno != EINTR)
 #endif
 		    )
-			return (0);
+			return 0;
 #else /* !HAVE_POLL_H */
 #ifndef _WINSOCKAPI_
 		if(ctxt->fd > FD_SETSIZE)
@@ -618,10 +618,10 @@ static int xmlNanoHTTPRecv(xmlNanoHTTPCtxtPtr ctxt)
 		    && (errno != EINTR)
 #endif
 		    )
-			return (0);
+			return 0;
 #endif /* !HAVE_POLL_H */
 	}
-	return (0);
+	return 0;
 }
 
 /**
@@ -1262,13 +1262,13 @@ int xmlNanoHTTPRead(void * ctx, void * dest, int len) {
 	int z_ret;
 #endif
 
-	if(ctx == NULL) return(-1);
-	if(dest == NULL) return(-1);
-	if(len <= 0) return(0);
+	if(ctx == NULL) return -1;
+	if(dest == NULL) return -1;
+	if(len <= 0) return 0;
 
 #ifdef HAVE_ZLIB_H
 	if(ctxt->usesGzip == 1) {
-		if(ctxt->strm == NULL) return(0);
+		if(ctxt->strm == NULL) return 0;
 
 		ctxt->strm->next_out = dest;
 		ctxt->strm->avail_out = len;
@@ -1612,9 +1612,9 @@ int xmlNanoHTTPFetch(const char * URL, const char * filename, char ** contentTyp
 	int len;
 	int ret = 0;
 
-	if(filename == NULL) return(-1);
+	if(filename == NULL) return -1;
 	ctxt = xmlNanoHTTPOpen(URL, contentType);
-	if(ctxt == NULL) return(-1);
+	if(ctxt == NULL) return -1;
 
 	if(sstreq(filename, "-"))
 		fd = 0;
@@ -1626,7 +1626,7 @@ int xmlNanoHTTPFetch(const char * URL, const char * filename, char ** contentTyp
 				xmlFree(*contentType);
 				*contentType = NULL;
 			}
-			return(-1);
+			return -1;
 		}
 	}
 
@@ -1639,7 +1639,7 @@ int xmlNanoHTTPFetch(const char * URL, const char * filename, char ** contentTyp
 
 	xmlNanoHTTPClose(ctxt);
 	close(fd);
-	return(ret);
+	return ret;
 }
 
 #ifdef LIBXML_OUTPUT_ENABLED
@@ -1659,7 +1659,7 @@ int xmlNanoHTTPSave(void * ctxt, const char * filename) {
 	int len;
 	int ret = 0;
 
-	if((ctxt == NULL) || (filename == NULL)) return(-1);
+	if((ctxt == NULL) || (filename == NULL)) return -1;
 
 	if(sstreq(filename, "-"))
 		fd = 0;
@@ -1667,7 +1667,7 @@ int xmlNanoHTTPSave(void * ctxt, const char * filename) {
 		fd = open(filename, O_CREAT | O_WRONLY, 0666);
 		if(fd < 0) {
 			xmlNanoHTTPClose(ctxt);
-			return(-1);
+			return -1;
 		}
 	}
 
@@ -1680,7 +1680,7 @@ int xmlNanoHTTPSave(void * ctxt, const char * filename) {
 
 	xmlNanoHTTPClose(ctxt);
 	close(fd);
-	return(ret);
+	return ret;
 }
 
 #endif /* LIBXML_OUTPUT_ENABLED */
@@ -1696,7 +1696,7 @@ int xmlNanoHTTPSave(void * ctxt, const char * filename) {
 int xmlNanoHTTPReturnCode(void * ctx) {
 	xmlNanoHTTPCtxtPtr ctxt = (xmlNanoHTTPCtxtPtr)ctx;
 
-	if(ctxt == NULL) return(-1);
+	if(ctxt == NULL) return -1;
 
 	return(ctxt->returnValue);
 }
@@ -1849,7 +1849,7 @@ int main(int argc, char ** argv)
 	}
 	xmlNanoHTTPCleanup();
 	xmlMemoryDump();
-	return(0);
+	return 0;
 }
 
 #endif /* STANDALONE */
@@ -1859,7 +1859,7 @@ int main(int argc, char ** argv)
 int main(int argc, char ** argv) 
 {
 	xmlGenericError(xmlGenericErrorContext, "%s : HTTP support not compiled in\n", argv[0]);
-	return(0);
+	return 0;
 }
 
 #endif /* STANDALONE */

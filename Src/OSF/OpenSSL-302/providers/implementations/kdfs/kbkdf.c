@@ -286,7 +286,7 @@ static int kbkdf_set_ctx_params(void * vctx, const OSSL_PARAM params[])
 	if(p && strncasecmp("counter", (const char *)p->data, p->data_size) == 0) {
 		ctx->mode = COUNTER;
 	}
-	else if(p != NULL && strncasecmp("feedback", (const char *)p->data, p->data_size) == 0) {
+	else if(p && strncasecmp("feedback", (const char *)p->data, p->data_size) == 0) {
 		ctx->mode = FEEDBACK;
 	}
 	else if(p) {

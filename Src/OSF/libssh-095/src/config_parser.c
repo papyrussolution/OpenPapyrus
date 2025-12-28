@@ -107,16 +107,9 @@ int ssh_config_parse_uri(const char * tok, char ** username, char ** hostname, c
 	const char * endp = NULL;
 	long port_n;
 	/* Sanitize inputs */
-	if(username) {
-		*username = NULL;
-	}
-	if(hostname) {
-		*hostname = NULL;
-	}
-	if(port) {
-		*port = NULL;
-	}
-
+	ASSIGN_PTR(username, NULL);
+	ASSIGN_PTR(hostname, NULL);
+	ASSIGN_PTR(port, NULL);
 	/* Username part (optional) */
 	endp = sstrchr(tok, '@');
 	if(endp != NULL) {
@@ -137,7 +130,6 @@ int ssh_config_parse_uri(const char * tok, char ** username, char ** hostname, c
 			goto error;
 		}
 	}
-
 	/* Hostname */
 	if(*tok == '[') {
 		/* IPv6 address is enclosed with square brackets */

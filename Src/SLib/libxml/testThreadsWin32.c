@@ -127,14 +127,14 @@ int main()
 	xmlCleanupParser();
 	xmlMemoryDump();
 
-	return (0);
+	return 0;
 }
 
 #else /* !LIBXML_THREADS_ENABLED */
 int main()
 {
 	fprintf(stderr, "libxml was not compiled with thread or catalog support\n");
-	return (0);
+	return 0;
 }
 
 #endif

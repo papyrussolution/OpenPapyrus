@@ -5390,12 +5390,12 @@ int PPObjBill::SelectQuotKind(PPBillPacket * pPack, const PPTransferItem * pTi, 
 		double cost = pTi->Cost, price = pTi->Price;
 		const  PPID goods_id = pTi->GoodsID;
 		const  PPID loc_id = IsIntrExpndOp(pPack->Rec.OpID) ? PPObjLocation::ObjToWarehouse(pPack->Rec.Object) : pPack->Rec.LocID;
-		Goods2Tbl::Rec g_rec;
+		Goods2Tbl::Rec goods_rec;
 		ReceiptTbl::Rec lot_rec;
 		PPQuotArray q_ary, parent_q_ary;
 		THROW(GObj.GetQuotList(goods_id, 0, q_ary)); // если список пустой, то извлекаем котировки для группы
-		if(GObj.Fetch(goods_id, &g_rec) > 0)
-			THROW(GObj.GetQuotList(g_rec.ParentID, 0, parent_q_ary));
+		if(GObj.Fetch(goods_id, &goods_rec) > 0)
+			THROW(GObj.GetQuotList(goods_rec.ParentID, 0, parent_q_ary));
 		if(pTi->LotID && !(pTi->Flags & PPTFR_RECEIPT) && trfr->Rcpt.Search(pTi->LotID, &lot_rec) > 0) {
 			trfr->GetLotPrices(&lot_rec, pTi->Date, 0);
 			cost  = R5(lot_rec.Cost);

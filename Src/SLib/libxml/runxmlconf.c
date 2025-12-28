@@ -50,40 +50,36 @@ static int checkTestFile(const char * filename) {
 	struct stat buf;
 
 	if(stat(filename, &buf) == -1)
-		return(0);
+		return 0;
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 	if(!(buf.st_mode & _S_IFREG))
-		return(0);
+		return 0;
 #else
 	if(!S_ISREG(buf.st_mode))
-		return(0);
+		return 0;
 #endif
 
-	return(1);
+	return 1;
 }
 
-static xmlChar *composeDir(const xmlChar * dir, const xmlChar * path) {
+static xmlChar *composeDir(const xmlChar * dir, const xmlChar * path) 
+{
 	char buf[500];
-
-	if(dir == NULL)  return(xmlStrdup(path));
-	if(path == NULL)  return NULL;
-
+	if(dir == NULL)
+		return xmlStrdup(path);
+	if(path == NULL)  
+		return NULL;
 	snprintf(buf, 500, "%s/%s", (const char *)dir, (const char *)path);
 	return(xmlStrdup((const xmlChar *)buf));
 }
-
-/************************************************************************
-*									*
-*		Libxml2 specific routines				*
-*									*
-************************************************************************/
-
+// 
+// Libxml2 specific routines
+// 
 static int nb_skipped = 0;
 static int nb_tests = 0;
 static int nb_errors = 0;
 static int nb_leaks = 0;
-
 /*
  * We need to trap calls to the resolver to not account memory for the catalog
  * and not rely on any external resources.
@@ -94,7 +90,7 @@ static xmlParserInputPtr testExternalEntityLoader(const char * URL, const char *
 
 	ret = xmlNewInputFromFile(ctxt, (const char *)URL);
 
-	return(ret);
+	return ret;
 }
 
 /*
@@ -181,7 +177,7 @@ static int xmlconfTestInvalid(const char * id, const char * filename, int option
 	if(ctxt == NULL) {
 		test_log("test %s : %s out of memory\n",
 		    id, filename);
-		return(0);
+		return 0;
 	}
 	doc = xmlCtxtReadFile(ctxt, filename, NULL, options);
 	if(doc == NULL) {
@@ -199,7 +195,7 @@ static int xmlconfTestInvalid(const char * id, const char * filename, int option
 		xmlFreeDoc(doc);
 	}
 	xmlFreeParserCtxt(ctxt);
-	return(ret);
+	return ret;
 }
 
 static int xmlconfTestValid(const char * id, const char * filename, int options) 
@@ -209,7 +205,7 @@ static int xmlconfTestValid(const char * id, const char * filename, int options)
 	xmlParserCtxt * ctxt = xmlNewParserCtxt();
 	if(ctxt == NULL) {
 		test_log("test %s : %s out of memory\n", id, filename);
-		return(0);
+		return 0;
 	}
 	doc = xmlCtxtReadFile(ctxt, filename, NULL, options);
 	if(doc == NULL) {
@@ -229,7 +225,7 @@ static int xmlconfTestValid(const char * id, const char * filename, int options)
 		xmlFreeDoc(doc);
 	}
 	xmlFreeParserCtxt(ctxt);
-	return(ret);
+	return ret;
 }
 
 static int xmlconfTestNotNSWF(const char * id, const char * filename, int options) {
@@ -257,7 +253,7 @@ static int xmlconfTestNotNSWF(const char * id, const char * filename, int option
 		}
 		xmlFreeDoc(doc);
 	}
-	return(ret);
+	return ret;
 }
 
 static int xmlconfTestNotWF(const char * id, const char * filename, int options) {
@@ -272,7 +268,7 @@ static int xmlconfTestNotWF(const char * id, const char * filename, int options)
 		xmlFreeDoc(doc);
 		ret = 0;
 	}
-	return(ret);
+	return ret;
 }
 
 static int xmlconfTestItem(xmlDocPtr doc, xmlNodePtr cur) {
@@ -429,7 +425,7 @@ error:
 		xmlFree(id);
 	if(rec != NULL)
 		xmlFree(rec);
-	return(ret);
+	return ret;
 }
 
 static int xmlconfTestCases(xmlDocPtr doc, xmlNodePtr cur, int level) {
@@ -469,7 +465,7 @@ static int xmlconfTestCases(xmlDocPtr doc, xmlNodePtr cur, int level) {
 		if(tests > 0)
 			printf("Test cases: %d tests\n", tests);
 	}
-	return(ret);
+	return ret;
 }
 
 static int xmlconfTestSuite(xmlDocPtr doc, xmlNodePtr cur) {
@@ -496,7 +492,7 @@ static int xmlconfTestSuite(xmlDocPtr doc, xmlNodePtr cur) {
 		}
 		cur = cur->next;
 	}
-	return(ret);
+	return ret;
 }
 
 static void xmlconfInfo(void) {
@@ -515,13 +511,13 @@ static int xmlconfTest(void)
 	if(!checkTestFile(confxml)) {
 		fprintf(stderr, "%s is missing \n", confxml);
 		xmlconfInfo();
-		return(-1);
+		return -1;
 	}
 	doc = xmlReadFile(confxml, NULL, XML_PARSE_NOENT);
 	if(doc == NULL) {
 		fprintf(stderr, "%s is corrupted \n", confxml);
 		xmlconfInfo();
-		return(-1);
+		return -1;
 	}
 	cur = xmlDocGetRootElement(doc);
 	if((cur == NULL) || (!xmlStrEqual(cur->name, BAD_CAST "TESTSUITE"))) {
@@ -533,7 +529,7 @@ static int xmlconfTest(void)
 		ret = xmlconfTestSuite(doc, cur);
 	}
 	xmlFreeDoc(doc);
-	return(ret);
+	return ret;
 }
 // 
 // The driver for the tests
@@ -582,7 +578,7 @@ int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED)
 
 	if(logfile != NULL)
 		fclose(logfile);
-	return(ret);
+	return ret;
 }
 
 #else /* ! LIBXML_XPATH_ENABLED */

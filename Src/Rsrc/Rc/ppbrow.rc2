@@ -9508,6 +9508,7 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_LOGOAPTEKARU noreplacecolor  // @v12.2.3
 	PPDV_SEARCH                       // @v12.4.10
 	PPDV_UNIFINDOBJ01 // @v12.4.11
+	PPDV_MOVLOTOPS    // @v12.5.2
 }
 
 // @todo ѕри добавлении новой иконки в верхний реестр сбиваютс€ идентификаторы нижнего реестра. Ёто надо исправл€ть!

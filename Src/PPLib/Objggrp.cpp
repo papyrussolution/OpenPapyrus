@@ -579,17 +579,17 @@ int PPObjGoodsGroup::AssignImages(ListBoxDef * pDef)
 		StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(pDef);
 		p_def->ClearImageAssocList();
 		if(p_def->getIdList(list) > 0) {
-			Goods2Tbl::Rec ggrec;
+			Goods2Tbl::Rec gg_rec;
 			for(uint i = 0; i < list.getCount(); i++) {
 				const  PPID id = list.at(i);
-				long img_id = ICON_GGROUP;
-				if(Fetch(id, &ggrec) > 0) {
-					if(ggrec.Flags & GF_FOLDER)
+				long   img_id = ICON_GGROUP;
+				if(Fetch(id, &gg_rec) > 0) {
+					if(gg_rec.Flags & GF_FOLDER)
 						img_id = ICON_FOLDERGRP;
-					else if(ggrec.Flags & GF_ALTGROUP) {
-						if(ggrec.Flags & GF_TEMPALTGRP_)
+					else if(gg_rec.Flags & GF_ALTGROUP) {
+						if(gg_rec.Flags & GF_TEMPALTGRP_)
 							img_id = ICON_TEMPALTGRP;
-						else if(ggrec.Flags & GF_DYNAMIC)
+						else if(gg_rec.Flags & GF_DYNAMIC)
 							img_id = ICON_DYNAMICALTGRP;
 						else
 							img_id = ICON_ALTGRP;

@@ -899,7 +899,6 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 					// Иерархия товарных групп
 					//
 					if(rCnData.Flags & CASHF_EXPGOODSGROUPS && r_cur_entry.ParentID) {
-						Goods2Tbl::Rec ggrec;
 						grp_code.Z();
 						if(gobj.FetchSingleBarcode(r_cur_entry.ParentID, grp_code) > 0 && grp_code.Len())
 							grp_code.ShiftLeftChr('@');

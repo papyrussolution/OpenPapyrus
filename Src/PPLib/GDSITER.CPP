@@ -200,13 +200,13 @@ int GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID grpID
 		do {
 			id_list.clear();
 			const  PPID grp_id = grp_list.at(--i);
-			Goods2Tbl::Rec ggrec;
-			if(GObj.Fetch(grp_id, &ggrec) > 0) {
-				if(ggrec.Flags & (GF_ALTGROUP|GF_GENERIC)) {
-					if(ggrec.Flags & GF_GENERIC) {
+			Goods2Tbl::Rec gg_rec;
+			if(GObj.Fetch(grp_id, &gg_rec) > 0) {
+				if(gg_rec.Flags & (GF_ALTGROUP|GF_GENERIC)) {
+					if(gg_rec.Flags & GF_GENERIC) {
 						THROW(GObj.GetGenericList(grp_id, &id_list));
 					}
-					else if(ggrec.Flags & GF_DYNAMIC) {
+					else if(gg_rec.Flags & GF_DYNAMIC) {
 						GoodsFilt grp_filt;
 						if(GObj.P_Tbl->GetGroupFilt(grp_id, &grp_filt) > 0) {
 							int    inited = 0;
@@ -232,7 +232,7 @@ int GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID grpID
 					THROW(FilterList(&id_list, &goods_list, GOCFIF_GROUP|GOCFIF_BCLEN|GOCFIF_ARCODE|GOCFIF_SYSJ|GOCFIF_TAG));
 				}
 				else {
-					const int is_excl_alt_fold = BIN(ggrec.Flags & GF_FOLDER && ggrec.Flags & GF_EXCLALTFOLD);
+					const  bool is_excl_alt_fold = (gg_rec.Flags & GF_FOLDER && gg_rec.Flags & GF_EXCLALTFOLD);
 					GoodsCore * p_t = GObj.P_Tbl;
 					PPIDArray term_grp_list, temp_alt_list;
 					THROW(p_t->GetGroupTerminalList(grp_id, &term_grp_list, 0));
@@ -352,7 +352,8 @@ IMPL_CMPFUNC(GoodsIdListByName, p1, p2)
 	const  PPID id1 = *static_cast<const PPID *>(p1);
 	const  PPID id2 = *static_cast<const PPID *>(p2);
 	if(p_goods_obj) {
-		Goods2Tbl::Rec rec1, rec2;
+		Goods2Tbl::Rec rec1;
+		Goods2Tbl::Rec rec2;
 		const int r1 = p_goods_obj->Fetch(id1, &rec1);
 		const int r2 = p_goods_obj->Fetch(id2, &rec2);
 		if(r1 > 0)
@@ -977,34 +978,34 @@ int GoodsGroupIterator::Init(PPID parentID, long flags)
 	SString grp_name;
 	PPID   upper_parent_id = 0;
 	Goods2Tbl::Key1 k1;
-	Goods2Tbl::Rec  grec;
+	Goods2Tbl::Rec goods_rec;
 	MEMSZERO(k1);
 	k1.Kind = PPGDSK_GROUP;
-	if(ParentID && GObj.Fetch(ParentID, &grec) > 0) {
-		upper_parent_id = grec.ID;
-		if(grec.Flags & GF_EXCLALTFOLD)
+	if(ParentID && GObj.Fetch(ParentID, &goods_rec) > 0) {
+		upper_parent_id = goods_rec.ID;
+		if(goods_rec.Flags & GF_EXCLALTFOLD)
 			is_excl_alt_fold = 1;
 	}
 	while(GObj.P_Tbl->search(1, &k1, spGt) && k1.Kind == PPGDSK_GROUP) {
-		GObj.P_Tbl->CopyBufTo(&grec);
+		GObj.P_Tbl->CopyBufTo(&goods_rec);
 		int    accept = 0;
-		if(grec.Flags & GF_ALTGROUP) {
+		if(goods_rec.Flags & GF_ALTGROUP) {
 			if(is_excl_alt_fold || (Flags & (fEnumAltGroups | fEnumAltGroupsOnly)))
 				accept = 1;
 		}
-		else if(grec.Flags & GF_FOLDER)
+		else if(goods_rec.Flags & GF_FOLDER)
 			accept = 1;
 		else if(!(Flags & fEnumAltGroupsOnly))
 			accept = 1;
 		if(accept) {
 		//if(!(grec.Flags & (GF_FOLDER | GF_ALTGROUP)) || (grec.Flags & GF_ALTGROUP && is_excl_alt_fold))
-			if(GObj.P_Tbl->MakeFullName(grec.ID, upper_parent_id, grp_name) > 0) {
+			if(GObj.P_Tbl->MakeFullName(goods_rec.ID, upper_parent_id, grp_name) > 0) {
 				char * ptr = 0;
-				THROW(GObj.GetSingleBarcode(grec.ID, 0, temp_buf));
+				THROW(GObj.GetSingleBarcode(goods_rec.ID, 0, temp_buf));
 				STRNSCPY(code, temp_buf);
 				size_t s = hs + cs + grp_name.Len() + 1;
 				THROW_MEM(ptr = new char[s]);
-				*(PPID *)ptr = grec.ID;
+				*reinterpret_cast<PPID *>(ptr) = goods_rec.ID;
 				memcpy(ptr+hs, code, cs);
 				memcpy(ptr+hs+cs, grp_name.cptr(), grp_name.Len()+1);
 				THROW_SL(List.insert(ptr));

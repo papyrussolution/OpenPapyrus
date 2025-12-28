@@ -765,7 +765,7 @@ int SSqliteDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pK
 		THROW(Helper_MakeSearchQuery(pTbl, idx, pKey, srchMode, sf, sqb));
 		can_continue = LOGIC(sqb.Flags & SearchQueryBlock::fCanContinue);
 		{
-			THROW(p_stmt = new DBTable::SelectStmt(this, sqb.SqlG, idx, sqb.SrchMode, sf));
+			THROW(p_stmt = new DBTable::SelectStmt(this, pTbl, sqb.SqlG, idx, sqb.SrchMode, sf));
 			new_stmt = true;
 			THROW(p_stmt->IsValid());
 			{

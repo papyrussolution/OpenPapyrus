@@ -176,11 +176,11 @@ int __archive_write_filter(struct archive_write_filter * f, const void * buff, s
 	int r;
 	/* Never write to non-open filters */
 	if(f->state != ARCHIVE_WRITE_FILTER_STATE_OPEN)
-		return(ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	if(length == 0)
 		return(ARCHIVE_OK);
 	if(f->FnWrite == NULL)
-		return(ARCHIVE_FATAL); // If unset, a fatal error has already occurred, so this filter didn't open. We cannot write anything.
+		return ARCHIVE_FATAL; // If unset, a fatal error has already occurred, so this filter didn't open. We cannot write anything.
 	r = (f->FnWrite)(f, buff, length);
 	f->bytes_written += length;
 	return r;

@@ -1,6 +1,7 @@
 // V_LOG.CPP
 // Copyright (c) Starodub A. 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2016, 2017, 2020, 2021, 2022, 2023, 2024, 2025
-// @codepage windows-1251
+// @codepage UTF-8
+// Модул промотра текстовых журналов
 //
 #include <pp.h>
 #pragma hdrstop

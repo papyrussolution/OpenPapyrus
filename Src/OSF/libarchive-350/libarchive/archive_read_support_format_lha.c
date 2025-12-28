@@ -1163,22 +1163,20 @@ static int lha_read_file_extended_header(ArchiveRead * a, struct lha * lha,
 			    }
 			    break;
 			case EXT_CODEPAGE:
-			    /* Get an archived filename charset from codepage.
-			     * This overwrites the charset specified by
-			     * hdrcharset option. */
+			    // Get an archived filename charset from codepage.
+			    // This overwrites the charset specified by hdrcharset option.
 			    if(datasize == sizeof(uint32)) {
 				    archive_string cp;
 				    const char * charset;
-
 				    archive_string_init(&cp);
 				    switch(archive_le32dec(extdheader)) {
 					    case 65001: /* UTF-8 */
-						charset = "UTF-8";
-						break;
+							charset = "UTF-8";
+							break;
 					    default:
-						archive_string_sprintf(&cp, "CP%d", (int)archive_le32dec(extdheader));
-						charset = cp.s;
-						break;
+							archive_string_sprintf(&cp, "CP%d", (int)archive_le32dec(extdheader));
+							charset = cp.s;
+							break;
 				    }
 				    lha->sconv_dir = archive_string_conversion_from_charset(&(a->archive), charset, 1);
 				    lha->sconv_fname = archive_string_conversion_from_charset(&(a->archive), charset, 1);
@@ -1214,7 +1212,7 @@ static int lha_read_file_extended_header(ArchiveRead * a, struct lha * lha,
 				    lha->mtime = archive_le32dec(extdheader);
 			    break;
 			case EXT_OS2_NEW_ATTR:
-			    /* This extended header is OS/2 depend. */
+			    // This extended header is OS/2 depend.
 			    if(datasize == 16) {
 				    lha->dos_attr = (uchar)
 					(archive_le16dec(extdheader) & 0xff);
@@ -1223,8 +1221,7 @@ static int lha_read_file_extended_header(ArchiveRead * a, struct lha * lha,
 				    lha->uid = archive_le16dec(extdheader+6);
 				    lha->birthtime = archive_le32dec(extdheader+8);
 				    lha->atime = archive_le32dec(extdheader+12);
-				    lha->setflag |= UNIX_MODE_IS_SET
-					| BIRTHTIME_IS_SET | ATIME_IS_SET;
+				    lha->setflag |= UNIX_MODE_IS_SET|BIRTHTIME_IS_SET|ATIME_IS_SET;
 			    }
 			    break;
 			case EXT_NEW_ATTR:
@@ -1234,8 +1231,7 @@ static int lha_read_file_extended_header(ArchiveRead * a, struct lha * lha,
 				    lha->uid = archive_le32dec(extdheader+8);
 				    lha->birthtime = archive_le32dec(extdheader+12);
 				    lha->atime = archive_le32dec(extdheader+16);
-				    lha->setflag |= UNIX_MODE_IS_SET
-					| BIRTHTIME_IS_SET | ATIME_IS_SET;
+				    lha->setflag |= UNIX_MODE_IS_SET|BIRTHTIME_IS_SET|ATIME_IS_SET;
 			    }
 			    break;
 			case EXT_TIMEZONE: // Not supported
@@ -1255,26 +1251,21 @@ static int lha_end_of_entry(ArchiveRead * a)
 {
 	struct lha * lha = (struct lha *)(a->format->data);
 	int r = ARCHIVE_EOF;
-
 	if(!lha->end_of_entry_cleanup) {
-		if((lha->setflag & CRC_IS_SET) &&
-		    lha->crc != lha->entry_crc_calculated) {
+		if((lha->setflag & CRC_IS_SET) && lha->crc != lha->entry_crc_calculated) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "LHa data CRC error");
 			r = ARCHIVE_WARN;
 		}
-
 		/* End-of-entry cleanup done. */
 		lha->end_of_entry_cleanup = 1;
 	}
 	return r;
 }
 
-static int archive_read_format_lha_read_data(ArchiveRead * a,
-    const void ** buff, size_t * size, int64 * offset)
+static int archive_read_format_lha_read_data(ArchiveRead * a, const void ** buff, size_t * size, int64 * offset)
 {
 	struct lha * lha = (struct lha *)(a->format->data);
 	int r;
-
 	if(lha->entry_unconsumed) {
 		/* Consume as much as the decompressor actually used. */
 		__archive_read_consume(a, lha->entry_unconsumed);
@@ -1286,27 +1277,22 @@ static int archive_read_format_lha_read_data(ArchiveRead * a,
 		*buff = NULL;
 		return (lha_end_of_entry(a));
 	}
-
 	if(lha->entry_is_compressed)
 		r =  lha_read_data_lzh(a, buff, size, offset);
 	else
-		/* No compression. */
-		r =  lha_read_data_none(a, buff, size, offset);
+		r =  lha_read_data_none(a, buff, size, offset); /* No compression. */
 	return r;
 }
-
 /*
  * Read a file content in no compression.
  *
  * Returns ARCHIVE_OK if successful, ARCHIVE_FATAL otherwise, sets
  * lha->end_of_entry if it consumes all of the data.
  */
-static int lha_read_data_none(ArchiveRead * a, const void ** buff,
-    size_t * size, int64 * offset)
+static int lha_read_data_none(ArchiveRead * a, const void ** buff, size_t * size, int64 * offset)
 {
 	struct lha * lha = (struct lha *)(a->format->data);
 	ssize_t bytes_avail;
-
 	if(lha->entry_bytes_remaining == 0) {
 		*buff = NULL;
 		*size = 0;
@@ -1375,7 +1361,6 @@ static int lha_read_data_lzh(ArchiveRead * a, const void ** buff, size_t * size,
 		lha->strm.avail_out = 0;
 		lha->strm.total_out = 0;
 	}
-
 	/*
 	 * Note: '1' here is a performance optimization.
 	 * Recall that the decompression layer returns a count of

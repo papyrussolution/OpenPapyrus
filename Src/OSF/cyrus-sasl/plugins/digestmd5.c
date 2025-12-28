@@ -1786,15 +1786,15 @@ static int digestmd5_server_mech_step1(server_context_t * stext, sasl_server_par
     const char ** serverout, unsigned * serveroutlen, sasl_out_params_t * oparams __attribute__((unused)))
 {
 	context_t * text = (context_t*)stext;
-	int result;
+	int    result;
 	char * realm;
-	uchar  * nonce;
-	char * charset = "utf-8";
-	char qop[1024], cipheropts[1024];
+	uchar * nonce;
+	const  char * charset = "utf-8";
+	char   qop[1024], cipheropts[1024];
 	struct digest_cipher * cipher;
-	unsigned resplen;
-	int added_conf = 0;
-	char maxbufstr[64];
+	uint   resplen;
+	int    added_conf = 0;
+	char   maxbufstr[64];
 	sparams->utils->log(sparams->utils->conn, SASL_LOG_DEBUG, "DIGEST-MD5 server step 1");
 	/* get realm */
 	result = get_server_realm(sparams, &realm);
@@ -2946,28 +2946,12 @@ typedef struct client_context {
 static digest_glob_context_t client_glob_context;
 
 /* calculate H(A1) as per spec */
-static void DigestCalcHA1(context_t * text,
-    const sasl_utils_t * utils,
-    char * pszAlg,
-    uchar * pszUserName,
-    uchar * pszRealm,
-    sasl_secret_t * pszPassword,
-    uchar * pszAuthorization_id,
-    uchar * pszNonce,
-    uchar * pszCNonce,
-    HASHHEX SessionKey)
+static void DigestCalcHA1(context_t * text, const sasl_utils_t * utils, char * pszAlg, uchar * pszUserName,
+    uchar * pszRealm, sasl_secret_t * pszPassword, uchar * pszAuthorization_id, uchar * pszNonce, uchar * pszCNonce, HASHHEX SessionKey)
 {
 	Cyrus_MD5_CTX Md5Ctx;
 	HASH HA1;
-
-	DigestCalcSecret(utils,
-	    pszUserName,
-	    pszRealm,
-	    (uchar *)pszPassword->data,
-	    pszPassword->len,
-	    FALSE,
-	    HA1);
-
+	DigestCalcSecret(utils, pszUserName, pszRealm, (uchar *)pszPassword->data, pszPassword->len, FALSE, HA1);
 	if(!text->http_mode ||                              /* per RFC 2831 */
 	    (pszAlg && strcasecmp(pszAlg, "md5-sess") == 0)) { /* per RFC 2617 */
 		/* calculate the session key */
@@ -2975,7 +2959,6 @@ static void DigestCalcHA1(context_t * text,
 		if(text->http_mode) {
 			/* per RFC 2617 Errata ID 1649 */
 			HASHHEX HA1Hex;
-
 			CvtHex(HA1, HA1Hex);
 			utils->MD5Update(&Md5Ctx, HA1Hex, HASHHEXLEN);
 		}
@@ -3099,27 +3082,23 @@ static char * calculate_response(context_t * text,
 			return NULL;
 		}
 		*response_value = new_response_value;
-
 		memcpy(*response_value, Response, HASHHEXLEN);
 		(*response_value)[HASHHEXLEN] = 0;
 	}
-
 	return result;
 }
 
-static int make_client_response(context_t * text,
-    sasl_client_params_t * params,
-    sasl_out_params_t * oparams)
+static int make_client_response(context_t * text, sasl_client_params_t * params, sasl_out_params_t * oparams)
 {
 	client_context_t * ctext = (client_context_t*)text;
 	char * qop = NULL;
-	unsigned nbits = 0;
-	char  * digesturi = NULL;
-	bool IsUTF8 = FALSE;
-	char ncvalue[10];
-	char maxbufstr[64];
-	char           * response = NULL;
-	unsigned resplen = 0;
+	uint   nbits = 0;
+	char * digesturi = NULL;
+	bool   IsUTF8 = FALSE;
+	char   ncvalue[10];
+	char   maxbufstr[64];
+	char * response = NULL;
+	uint   resplen = 0;
 	int result = SASL_OK;
 	cipher_free_t  * old_cipher_free = NULL;
 	sasl_http_request_t rfc2831_request;
@@ -3171,7 +3150,6 @@ static int make_client_response(context_t * text,
 			result = SASL_NOMEM;
 			goto FreeAllocatedMem;
 		}
-
 		/* allocated exactly this. safe */
 		strcpy(digesturi, params->service);
 		strcat(digesturi, "/");
@@ -3179,7 +3157,6 @@ static int make_client_response(context_t * text,
 		/*
 		 * strcat (digesturi, "/"); strcat (digesturi, params->serverFQDN);
 		 */
-
 		rfc2831_request.method = "AUTHENTICATE";
 		rfc2831_request.uri = digesturi;
 		rfc2831_request.entity = NULL;
@@ -3187,24 +3164,10 @@ static int make_client_response(context_t * text,
 		rfc2831_request.non_persist = 0;
 		request = &rfc2831_request;
 	}
-
 	/* response */
-	response =
-	    calculate_response(text,
-		params->utils,
-		ctext->algorithm,
-		(uchar *)oparams->authid,
-		(uchar *)text->realm,
-		text->nonce,
-		text->nonce_count,
-		text->cnonce,
-		qop,
-		request,
-		ctext->password,
-		strcmp(oparams->user, oparams->authid) ?
-		(uchar *)oparams->user : NULL,
-		&text->response_value);
-
+	response = calculate_response(text, params->utils, ctext->algorithm, (uchar *)oparams->authid,
+		(uchar *)text->realm, text->nonce, text->nonce_count, text->cnonce, qop,
+		request, ctext->password, strcmp(oparams->user, oparams->authid) ? (uchar *)oparams->user : NULL, &text->response_value);
 	resplen = 0;
 	if(text->out_buf) params->utils->FnFree(text->out_buf);
 	text->out_buf = NULL;
@@ -3285,56 +3248,41 @@ static int make_client_response(context_t * text,
 		result = SASL_FAIL;
 		goto FreeAllocatedMem;
 	}
-
 	/* set oparams */
 	oparams->maxoutbuf = ctext->server_maxbuf;
 	if(oparams->mech_ssf > 1) {
-		/* MAC block (privacy) */
-		oparams->maxoutbuf -= 25;
+		oparams->maxoutbuf -= 25; /* MAC block (privacy) */
 	}
 	else if(oparams->mech_ssf == 1) {
-		/* MAC block (integrity) */
-		oparams->maxoutbuf -= 16;
+		oparams->maxoutbuf -= 16; /* MAC block (integrity) */
 	}
-
 	text->seqnum = 0; /* for integrity/privacy */
 	text->rec_seqnum = 0;   /* for integrity/privacy */
 	text->utils = params->utils;
-
 	/* Free the old security layer, if any */
-	if(old_cipher_free) old_cipher_free(text);
-
+	if(old_cipher_free) 
+		old_cipher_free(text);
 	/* used by layers */
-	_plug_decode_init(&text->decode_context, text->utils,
-	    params->props.maxbufsize ? params->props.maxbufsize :
-	    DEFAULT_BUFSIZE);
-
+	_plug_decode_init(&text->decode_context, text->utils, params->props.maxbufsize ? params->props.maxbufsize : DEFAULT_BUFSIZE);
 	if(oparams->mech_ssf > 0) {
 		uchar enckey[16];
 		uchar deckey[16];
-
-		create_layer_keys(text, params->utils, text->HA1, nbits,
-		    enckey, deckey);
-
+		create_layer_keys(text, params->utils, text->HA1, nbits, enckey, deckey);
 		/* initialize cipher if need be */
 		if(text->cipher_init) {
 			text->cipher_init(text, enckey, deckey);
 		}
 	}
-
 	result = SASL_OK;
-
 FreeAllocatedMem:
-	if(digesturi) params->utils->FnFree(digesturi);
-	if(response) params->utils->FnFree(response);
-
+	if(digesturi) 
+		params->utils->FnFree(digesturi);
+	if(response) 
+		params->utils->FnFree(response);
 	return result;
 }
 
-static int parse_server_challenge(client_context_t * ctext,
-    sasl_client_params_t * params,
-    const char * serverin, unsigned serverinlen,
-    char *** outrealms, int * noutrealm)
+static int parse_server_challenge(client_context_t * ctext, sasl_client_params_t * params, const char * serverin, uint serverinlen, char *** outrealms, int * noutrealm)
 {
 	context_t * text = (context_t*)ctext;
 	int result = SASL_OK;
@@ -4145,11 +4093,7 @@ static int digestmd5_client_mech_step(void * conn_context,
 				    params->utils->mutex_unlock(text->reauth->mutex); /* UNLOCK */
 			    }
 			    if(reauth) {
-				    return digestmd5_client_mech_step1(ctext, params,
-					       serverin, serverinlen,
-					       prompt_need,
-					       clientout, clientoutlen,
-					       oparams);
+				    return digestmd5_client_mech_step1(ctext, params, serverin, serverinlen, prompt_need, clientout, clientoutlen, oparams);
 			    }
 			    else {
 				    /* we don't have any reauth info, so just return
@@ -4163,10 +4107,8 @@ static int digestmd5_client_mech_step(void * conn_context,
 			    text->state = 3;
 			    goto step3;
 		    }
-
 		    /* fall through and respond to challenge */
 		    text->state = 2;
-
 		    /* cleanup after a failed reauth attempt */
 		    if(params->utils->mutex_lock(text->reauth->mutex) == SASL_OK) { /* LOCK */
 			    clear_reauth_entry(&text->reauth->e[val], CLIENT, params->utils);

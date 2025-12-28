@@ -147,7 +147,7 @@ int ma_net_flush(NET * net)
 	}
 	if(net->compress)
 		net->pkt_nr = net->compress_pkt_nr;
-	return(error);
+	return error;
 }
 
 /*****************************************************************************
@@ -272,7 +272,7 @@ int ma_net_real_write(NET * net, const char * packet, size_t len)
 	char * pos, * end;
 
 	if(net->error == 2)
-		return(-1);             /* socket can't be used */
+		return -1;             /* socket can't be used */
 
 	net->reading_or_writing = 2;
 #ifdef HAVE_COMPRESS

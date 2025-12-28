@@ -462,11 +462,13 @@ int DBLobBlock::GetLocator(uint fldIdx, uint64 * pLocator) const
 //
 //
 //
-DBTable::SelectStmt::SelectStmt(DbProvider * pDb, const Generator_SQL & rSql, int idx, int sp, int sf) : SSqlStmt(pDb, rSql), Idx(idx), Sp(sp), Sf(sf)
+DBTable::SelectStmt::SelectStmt(DbProvider * pDb, DBTable * pTbl, const Generator_SQL & rSql, int idx, int sp, int sf) : 
+	SSqlStmt(pDb, rSql), P_OwnerTbl(pTbl), Idx(idx), Sp(sp), Sf(sf)
 {
 }
 
-DBTable::SelectStmt::SelectStmt(DbProvider * pDb, int idx, int sp, int sf) : SSqlStmt(pDb), Idx(idx), Sp(sp), Sf(sf)
+DBTable::SelectStmt::SelectStmt(DbProvider * pDb, DBTable * pTbl, int idx, int sp, int sf) : 
+	SSqlStmt(pDb), P_OwnerTbl(pTbl), Idx(idx), Sp(sp), Sf(sf)
 {
 }
 
@@ -474,11 +476,15 @@ void DBTable::SetStmt(SelectStmt * pStmt)
 {
 	if(pStmt) {
 		if(pStmt != P_Stmt) {
-			DELETEANDASSIGN(P_Stmt, pStmt);
+			if(SelectStmt::IsConsistent(P_Stmt))
+				delete P_Stmt;
+			P_Stmt = pStmt;
 		}
 	}
 	else {
-		ZDELETE(P_Stmt);
+		if(SelectStmt::IsConsistent(P_Stmt))
+			delete P_Stmt;
+		P_Stmt = 0;
 	}
 }
 //
@@ -487,9 +493,11 @@ void DBTable::SetStmt(SelectStmt * pStmt)
 //   потому, что она маркирует в коде места, где меняется направление навигации по таблице.
 //   В то же время удаление текущего P_Stmt актуально (хотя его можно было бы просто в код заинлайнить)
 //
-void DBTable::ToggleStmt(bool release)
+void DBTable::DestroySelectStmt()
 {
-	ZDELETE(P_Stmt); // @v12.4.7
+	if(SelectStmt::IsConsistent(P_Stmt))
+		delete P_Stmt;
+	P_Stmt = 0;
 }
 
 int (*DBTable::OpenExceptionProc)(const char * pFileName, int btrErr) = 0; // @global
@@ -516,12 +524,12 @@ int DBTable::Init(DbProvider * pDbP)
 	return 1;
 }
 
-DBTable::DBTable()
+DBTable::DBTable() : Signature(SlConst::DBTableSignature)
 {
 	Init(0);
 }
 
-DBTable::DBTable(const char * pTblName, const char * pFileName, int openMode, DbProvider * pDbP)
+DBTable::DBTable(const char * pTblName, const char * pFileName, int openMode, DbProvider * pDbP) : Signature(SlConst::DBTableSignature)
 {
 	Init(pDbP);
 	open(pTblName, pFileName, openMode);
@@ -529,7 +537,7 @@ DBTable::DBTable(const char * pTblName, const char * pFileName, int openMode, Db
 //
 // Protected constructor
 //
-DBTable::DBTable(const char * pTblName, const char * pFileName, void * pFlds, void * pData, int om, DbProvider * pDbP)
+DBTable::DBTable(const char * pTblName, const char * pFileName, void * pFlds, void * pData, int om, DbProvider * pDbP) : Signature(SlConst::DBTableSignature)
 {
 	class _DBField {
 	public:
@@ -556,7 +564,8 @@ DBTable::~DBTable()
 	close();
 	if(State & sOwnDataBuf)
 		ZFREE(P_DBuf);
-	ZDELETE(P_Stmt);
+	DestroySelectStmt();
+	Signature = 0; // @v12.5.2
 }
 
 int DBTable::Debug_Output(SString & rBuf) const
@@ -669,7 +678,7 @@ DBLobBlock * DBTable::getLobBlock() { return &LobB; }
 int    DBTable::setLobSize(DBField fld, size_t sz) { return LobB.SetSize((uint)fld.fld, sz); }
 int    DBTable::getLobSize(DBField fld, size_t * pSz) const { return LobB.GetSize((uint)fld.fld, pSz); }
 RECORDSIZE FASTCALL DBTable::getRecSize() const { return FixRecSize; }
-DBTable::SelectStmt * DBTable::GetStmt() { return P_Stmt; }
+DBTable::SelectStmt * DBTable::GetStmt() { return SelectStmt::IsConsistent(P_Stmt) ? P_Stmt : 0; }
 
 bool DBTable::getField(uint fldN, DBField * pFld) const
 {
@@ -1095,7 +1104,7 @@ int DBTable::writeLobData(DBField fld, const void * pBuf, size_t dataSize, int f
 			memcpy(temp_buf.vptr(), pBuf, dataSize);
 			pBuf = temp_buf.vcptr();
 		}
-		THROW(p_fld_data->InitPtr((dataSize > flat_size || forceCanonical) ? dataSize : 0));
+		THROW(p_fld_data->InitPtr((dataSize > flat_size || forceCanonical) ? static_cast<uint32>(dataSize) : 0));
 		THROW(ptr = p_fld_data->GetRawDataPtr());
 		if(ptr != pBuf)
 			memcpy(ptr, pBuf, dataSize);

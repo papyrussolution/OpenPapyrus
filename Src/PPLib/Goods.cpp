@@ -2401,7 +2401,8 @@ int GoodsCore::SetAltGrpList(PPID grpID, const PPIDArray & rList, int use_ta)
 int GoodsCore::IsCompatibleByUnit(PPID id1, PPID id2, double * pRatio)
 {
 	double _ratio = 0.0;
-	Goods2Tbl::Rec rec1, rec2;
+	Goods2Tbl::Rec rec1;
+	Goods2Tbl::Rec rec2;
 	if(Fetch(id1, &rec1) > 0 && Fetch(id2, &rec2) > 0) {
 		if(rec1.UnitID == rec2.UnitID)
 			_ratio = 1;
@@ -2542,7 +2543,8 @@ int GoodsCore::AssignGoodsToGen(PPID goodsID, PPID genID, int abbr, int use_ta)
 {
 	int    ok = 1;
 	PPID   id = 0;
-	Goods2Tbl::Rec rec, gen_rec;
+	Goods2Tbl::Rec rec;
+	Goods2Tbl::Rec gen_rec;
 	const  char * p = abbr ? rec.Abbr : rec.Name;
 	ObjAssocTbl::Rec assc_rec;
 	{
@@ -2579,7 +2581,8 @@ int GoodsCore::RemoveGoodsFromGen(PPID goodsID, PPID genID, int use_ta)
 int GoodsCore::SetGenericList(PPID goodsID, const PPIDArray & rList, int use_ta)
 {
 	int    ok = 1;
-	Goods2Tbl::Rec gen_rec, goods_rec;
+	Goods2Tbl::Rec gen_rec;
+	Goods2Tbl::Rec goods_rec;
 	TSVector <ObjAssocTbl::Rec> assc_list;
 	{
 		PPTransaction tra(use_ta);
@@ -2612,7 +2615,7 @@ int GoodsCore::SetGenericList(PPID goodsID, const PPIDArray & rList, int use_ta)
 //
 class GoodsCache : public ObjCacheHash {
 public:
-	struct Data : public ObjCacheEntry { // size=48+16
+	struct Data : public ObjCacheEntry { // size=52+16
 		PPID   ParentID;
 		PPID   UnitID;
 		PPID   PhUnitID;
@@ -2622,10 +2625,9 @@ public:
 		PPID   ManufID;
 		PPID   StrucID;
 		long   Flags;
-		int16  Kind;
-		int16  TypeID;
-		int16  TaxGrpID;
-		int16  Pad;        // @alignment
+		long   Kind;       // @v12.5.2 int16-->long  
+		PPID   TypeID;     // @v12.5.2 int16-->PPID
+		PPID   TaxGrpID;   // @v12.5.2 int16-->PPID
 	};
 
 	GoodsCache();
@@ -2683,7 +2685,7 @@ private:
 	};
 	TSCollection <GroupTermList> Gtl;
 	TSCollection <AltGrpFiltItem> Agfl;
-	GslArray      Gsl;    // Массив складских характеристик товаров
+	GslArray Gsl;         // Массив складских характеристик товаров
 	UintHashTable ExcGsl; // Список товаров, которые не имеют складского расширения //
 	//
 	class FglArray : public StrAssocArray {
@@ -3166,9 +3168,9 @@ int GoodsCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/
 		p_cache_rec->UnitID   = rec.UnitID;
 		p_cache_rec->PhUnitID = rec.PhUnitID;
 		p_cache_rec->PhUPerU  = rec.PhUPerU;
-		p_cache_rec->Kind     = static_cast<int16>(rec.Kind);
-		p_cache_rec->TypeID   = static_cast<int16>(rec.GoodsTypeID);
-		p_cache_rec->TaxGrpID = static_cast<int16>(rec.TaxGrpID);
+		p_cache_rec->Kind     = rec.Kind;
+		p_cache_rec->TypeID   = rec.GoodsTypeID;
+		p_cache_rec->TaxGrpID = rec.TaxGrpID;
 		p_cache_rec->ClsID    = rec.GdsClsID;
 		p_cache_rec->BrandID  = rec.BrandID;
 		p_cache_rec->ManufID  = rec.ManufID;
@@ -3194,8 +3196,8 @@ int GoodsCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/
 				}
 				else {
 					if(goods_obj.Search(p_cache_rec->ParentID, &grp_rec) > 0) {
-						SETIFZ(p_cache_rec->TaxGrpID, static_cast<short>(grp_rec.TaxGrpID));
-						SETIFZ(p_cache_rec->TypeID, static_cast<short>(grp_rec.GoodsTypeID));
+						SETIFZ(p_cache_rec->TaxGrpID, grp_rec.TaxGrpID);
+						SETIFZ(p_cache_rec->TypeID, grp_rec.GoodsTypeID);
 					}
 				}
 			}

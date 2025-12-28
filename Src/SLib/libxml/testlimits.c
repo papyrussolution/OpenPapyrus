@@ -46,7 +46,7 @@ static int check_time(void) {
 		timeout = 1;
 		return 0;
 	}
-	return(1);
+	return 1;
 }
 //
 // Huge document generator
@@ -87,7 +87,7 @@ static int instate = 0;
  */
 static int hugeMatch(const char * URI) {
 	if((URI != NULL) && (!strncmp(URI, "huge:", 5)))
-		return(1);
+		return 1;
 	return 0;
 }
 
@@ -126,8 +126,10 @@ found:
  *
  * Returns 0 or -1 in case of error
  */
-static int hugeClose(void * context) {
-	if(context == NULL) return(-1);
+static int hugeClose(void * context) 
+{
+	if(context == NULL) 
+		return -1;
 	fprintf(stderr, "\n");
 	return 0;
 }
@@ -136,10 +138,9 @@ static int hugeClose(void * context) {
 
 char filling[CHUNK + 1];
 
-static void fillFilling(void) {
-	int i;
-
-	for(i = 0; i < CHUNK; i++) {
+static void fillFilling(void) 
+{
+	for(int i = 0; i < CHUNK; i++) {
 		filling[i] = 'a';
 	}
 	filling[CHUNK] = 0;
@@ -253,7 +254,7 @@ foo\
  */
 static int crazyMatch(const char * URI) {
 	if((URI != NULL) && (!strncmp(URI, "crazy:", 6)))
-		return(1);
+		return 1;
 	return 0;
 }
 
@@ -288,7 +289,7 @@ static void * crazyOpen(const char * URI) {
  * Returns 0 or -1 in case of error
  */
 static int crazyClose(void * context) {
-	if(context == NULL) return(-1);
+	if(context == NULL) return -1;
 	return 0;
 }
 
@@ -378,7 +379,7 @@ static xmlParserInput * testExternalEntityLoader(const char * URL, const char * 
 	int memused = xmlMemUsed();
 	ret = xmlNoNetExternalEntityLoader(URL, ID, ctxt);
 	extraMemoryFromResolver += xmlMemUsed() - memused;
-	return(ret);
+	return ret;
 }
 /*
  * Trapping the error messages at the generic level to grab the equivalent of
@@ -671,7 +672,7 @@ unsigned long callbacks = 0;
 static int isStandaloneCallback(void * ctx ATTRIBUTE_UNUSED)
 {
 	callbacks++;
-	return (0);
+	return 0;
 }
 
 /**
@@ -685,7 +686,7 @@ static int isStandaloneCallback(void * ctx ATTRIBUTE_UNUSED)
 static int hasInternalSubsetCallback(void * ctx ATTRIBUTE_UNUSED)
 {
 	callbacks++;
-	return (0);
+	return 0;
 }
 
 /**
@@ -699,7 +700,7 @@ static int hasInternalSubsetCallback(void * ctx ATTRIBUTE_UNUSED)
 static int hasExternalSubsetCallback(void * ctx ATTRIBUTE_UNUSED)
 {
 	callbacks++;
-	return (0);
+	return 0;
 }
 
 /**
@@ -1187,7 +1188,7 @@ static int saxTest(const char * filename, size_t limit, int options, int fail)
 	ctxt = xmlNewParserCtxt();
 	if(ctxt == NULL) {
 		fprintf(stderr, "Failed to create parser context\n");
-		return(1);
+		return 1;
 	}
 	old_sax = ctxt->sax;
 	ctxt->sax = (xmlSAXHandler *)callbackSAX2Handler;
@@ -1219,7 +1220,7 @@ static int saxTest(const char * filename, size_t limit, int options, int fail)
 	ctxt->sax = old_sax;
 	xmlFreeParserCtxt(ctxt);
 
-	return(res);
+	return res;
 }
 
 #ifdef LIBXML_READER_ENABLED
@@ -1244,7 +1245,7 @@ static int readerTest(const char * filename, size_t limit, int options, int fail
 	reader = xmlReaderForFile(filename, NULL, options);
 	if(reader == NULL) {
 		fprintf(stderr, "Failed to open '%s' test\n", filename);
-		return(1);
+		return 1;
 	}
 	ret = xmlTextReaderRead(reader);
 	while(ret == 1) {
@@ -1280,7 +1281,7 @@ static int readerTest(const char * filename, size_t limit, int options, int fail
 		res = 1;
 	xmlFreeTextReader(reader);
 
-	return(res);
+	return res;
 }
 
 #endif
@@ -1360,7 +1361,7 @@ static int launchTests(testDescPtr tst, unsigned int test) {
 	size_t limit;
 	int fail;
 
-	if(tst == NULL) return(-1);
+	if(tst == NULL) return -1;
 
 	for(i = 0; i < sizeof(limitDescriptions)/sizeof(limitDescriptions[0]); i++) {
 		limit = limitDescriptions[i].limit;
@@ -1409,7 +1410,7 @@ static int runtest(unsigned int i) {
 			    nb_errors - old_errors,
 			    nb_leaks - old_leaks);
 	}
-	return(ret);
+	return ret;
 }
 
 static int launchCrazySAX(unsigned int test, int fail) {
@@ -1511,7 +1512,7 @@ static int runcrazy()
 		else
 			printf("Ran %d tests, %d errors, %d leaks\n", nb_tests - old_tests, nb_errors - old_errors, nb_leaks - old_leaks);
 	}
-	return(ret);
+	return ret;
 }
 
 int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED) 
@@ -1544,5 +1545,5 @@ int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED)
 	}
 	xmlCleanupParser();
 	xmlMemoryDump();
-	return(ret);
+	return ret;
 }

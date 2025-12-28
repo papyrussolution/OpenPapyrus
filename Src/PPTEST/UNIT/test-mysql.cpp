@@ -169,12 +169,14 @@ SLTEST_R(MySQL) // @v12.4.7
 					if(__PrcssrTestDb_Generate_TestTa01_Rec(prc_testdbobj, p_new_rec)) {
 						uint str_idx = (i % some_text_list.getCount());
 						StrAssocArray::Item text_item = some_text_list.Get(str_idx);
-						const size_t text_len = sstrlen(text_item.Txt);
+						temp_buf = text_item.Txt;
+						const size_t text_len = temp_buf.Len();
 						if(text_len) {
+							temp_buf.Transf(CTRANSF_OUTER_TO_INNER);
 							p_new_rec->TextField.InitPtr(text_len+1);
 							void * ptr = p_new_rec->TextField.GetRawDataPtr();
 							if(ptr) {
-								memcpy(ptr, text_item.Txt, text_len+1);
+								memcpy(ptr, temp_buf.cptr(), text_len+1);
 							}
 						}
 					}
@@ -402,6 +404,47 @@ SLTEST_R(MySQL) // @v12.4.7
 				srch_count++;
 			} while(srch_count < rec_list_count && p_tbl->search(0, &k0, spPrev) && (p_rec_buf->Dt > first_pattern_dtm.d || (p_rec_buf->Dt == first_pattern_dtm.d && p_rec_buf->Tm >= first_pattern_dtm.t)));
 			SLCHECK_Z(uneq_rec_count);
+		}
+	}
+	{
+		// Изменить записи и убедиться, что она действительно изменилась
+		uint   inprop_updated_count = 0;
+		if(dbp.StartTransaction()) {
+			for(uint i = 0; i < record_list.getCount(); i++) {
+				TestTa01Tbl::Rec * p_rec = record_list.at(i);
+				if(p_rec) {
+					S_GUID new_uuid(SCtrGenerate_);
+					TestTa01Tbl::Key0 k0;
+					k0.Dt = p_rec->Dt;
+					k0.Tm = p_rec->Tm;
+					if(p_tbl->search(&k0, spEq)) {
+						TestTa01Tbl::Rec * p_rec_buf = static_cast<TestTa01Tbl::Rec *>(p_tbl->getDataBuf());
+						p_rec_buf->GuidVal = new_uuid;
+						const int urr = p_tbl->updateRec();
+						if(urr) {
+							if(p_tbl->search(&k0, spEq)) {
+								if(p_rec_buf->GuidVal == new_uuid) { // ok
+									p_rec->GuidVal = new_uuid;
+								}
+								else { // bad
+									inprop_updated_count++;
+									
+								}
+							}
+						}
+					}
+					else {
+						; // bad
+					}
+				}
+			}
+			int cwr = dbp.CommitWork();
+			if(cwr) {
+				SLCHECK_Z(inprop_updated_count);
+			}
+			else {
+				;
+			}
 		}
 	}
 	//
