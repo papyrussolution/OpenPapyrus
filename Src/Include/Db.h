@@ -1368,7 +1368,12 @@ public:
 	bool   IsI64() const;
 	bool   IsLarge() const;
 	void   SetI32(uint32 id);
-	void   SetI64(int64 id);
+	//
+	// Descr: Формирует структуру экземпляра в виде 64-битного идентификатора.
+	// Returns:
+	//   Указатель на собственно 64-битное значение внутри this->S
+	//
+	int64 * SetI64(int64 id);
 	//
 	// Returns: 
 	//   true - значение успешно установлено

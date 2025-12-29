@@ -4359,7 +4359,7 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 					CATCHZOK
 					return ok;
 				}
-				uint16 TokenId;
+				uint16 TokenId; // @firstmember
 				TSVector <FAssoc> DocRefList; // Key - идентификатор документа, Val - TF-IDF
 			};
 			TSCollection <Entry> L;
@@ -5131,6 +5131,16 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 				uint    token_block_count = 0; // @debug
 				THROW(stc.StartReading(&hblk));
 				{
+					for(uint i = 0; i < stc.St_.TokenStatL.getCount(); i++) {
+						const  long token_id = stc.St_.TokenStatL.at(i).TokenId;
+						InvertedIndex::Entry * p_ii_entry = inv_idx.L.CreateNewItem();
+						THROW_SL(p_ii_entry);
+						assert(token_id >= 0 && token_id < 0xffffU); // Оказывается есть токен с ид = 0!
+						p_ii_entry->TokenId = static_cast<uint16>(token_id);
+					}
+					inv_idx.L.sort2(PTR_CMPFUNC(uint16));
+				}
+				{
 					uint   processed_count = 0;
 					SourceTCollection::ReadIterator iter;
 					if(stc.ReadTokenList(iter) > 0) {
@@ -5209,14 +5219,17 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 											const SourceTEntry::TokenItem & r_item = p_item->TokList_.at(tidx);
 											uint   _ii_pos = 0;
 											InvertedIndex::Entry * p_ii_entry = 0;
-											if(inv_idx.L.lsearch(&r_item.Id, &_ii_pos, PTR_CMPFUNC(uint16))) {
+											if(inv_idx.L.bsearch(&r_item.Id, &_ii_pos, PTR_CMPFUNC(uint16))) { // bsearch! Выше мы заполнили и отсортировали коллекцию!
 												p_ii_entry = inv_idx.L.at(_ii_pos);
 											}
 											else {
+												constexpr bool TokenNotFoundInInvertedIndex = false;
+												assert(TokenNotFoundInInvertedIndex); // Не должны мы были сюда попасть посколку ранее внесли все токены в список
 												p_ii_entry = inv_idx.L.CreateNewItem();
 												p_ii_entry->TokenId = r_item.Id;
 											}
 											if(p_ii_entry) {
+												assert(p_ii_entry->TokenId == r_item.Id); // @paranoic
 												FAssoc new_ref_item;
 												new_ref_item.Key = static_cast<long>(p_item->ID);
 												new_ref_item.Val = r_item.TF_IDF;

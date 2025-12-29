@@ -769,7 +769,7 @@ int SMySqlDbProvider::DestroyLastSelectStatement()
 	bool   new_stmt = false;
 	uint   actual = 0;
 	bool   surrogate_rowid_tag = false;
-	uint64 surrogate_rowid_value_to_read = 0;
+	//uint64 surrogate_rowid_value_to_read = 0;
 	DBTable::SelectStmt * p_stmt = 0;
 	const BNKeyList & r_indices = pTbl->Indices;
 	const char * p_alias = "t";
@@ -865,10 +865,12 @@ int SMySqlDbProvider::DestroyLastSelectStatement()
 					subst_no++;
 					const bool is_surrogate_rowid_field = sstreqi_ascii(r_fld.Name, SlConst::P_SurrogateRowIdFieldName);
 					if(is_surrogate_rowid_field) {
+						DBRowId _ri_;
 						//static_cast<void *>(p_cur_row_id)
 						assert(!surrogate_rowid_tag);
 						surrogate_rowid_tag = true;
-						p_stmt->BindItem(subst_no, 1, r_fld.T, &surrogate_rowid_value_to_read);
+						int64 * p_tbl_rowid = pTbl->CurRowId.SetI64(0);
+						p_stmt->BindItem(subst_no, 1, r_fld.T, p_tbl_rowid);
 					}
 					else {
 						p_stmt->BindItem(subst_no, 1, r_fld.T, p_tbl_data_buf + r_fld.Offs);
@@ -906,12 +908,12 @@ int SMySqlDbProvider::DestroyLastSelectStatement()
 				//THROW(p_stmt->BindRowId(rowid_pos, 1, p_cur_row_id));
 			}
 			//THROW(p_stmt->BindData(+1, 1, pTbl->FldL, pTbl->getDataBufConst(), pTbl->getLobBlock()));
-			p_cur_row_id->Z(); // @debug
+			p_cur_row_id->SetI64(0); // @debug
 			pTbl->clearDataBuf(); // @debug
 			THROW(ok = Helper_Fetch(pTbl, p_stmt, &actual));
 			if(ok > 0) {
 				if(surrogate_rowid_tag) {
-					p_cur_row_id->SetI64(surrogate_rowid_value_to_read);
+					//p_cur_row_id->SetI64(surrogate_rowid_value_to_read);
 				}
 				else {
 					uint8  rowid_data[64];
@@ -1043,20 +1045,6 @@ int SMySqlDbProvider::DestroyLastSelectStatement()
 					else {
 						
 					}
-					/*if(!fld_id_list.lsearch(r_fld.Id)) {
-						//
-						//SqlGen.Com().Text(r_fld.Name);
-						//let_buf.NumberToLat(subst_no++);
-						//temp_buf.CatDiv(',', 0).Colon().Cat(let_buf);
-						//stmt.BindItem(-subst_no, 1, r_fld.T, PTR8(pKeyBuf)+pTbl->Indices.getSegOffset(idx, i));
-						//
-						subst_no++;
-						fld_id_list.add(r_fld.Id);
-						ret_fld_list.CatDivIfNotEmpty(',', 0).Cat(r_fld.Name);
-						const size_t ret_buf_offs = ret_buf.Len();
-						ret_buf.Cat(0, r_fld.size());
-						stmt.BindItem(-subst_no, 1, r_fld.T, ret_buf.Ptr(ret_buf_offs));
-					}*/
 				}
 			}
 		}

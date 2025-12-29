@@ -36,12 +36,15 @@ void DBRowId::SetI32(uint32 id)
 	memcpy(S+sizeof(S)-sizeof(DBRowId_Ind_I32), &DBRowId_Ind_I32, sizeof(DBRowId_Ind_I32));
 }
 
-void DBRowId::SetI64(int64 id)
+int64 * DBRowId::SetI64(int64 id)
 {
+	int64 * p_result = 0;
 	static_assert(sizeof(S) >= (sizeof(DBRowId_Ind_I64) + sizeof(id)));
-	memcpy(S+0, &id, sizeof(id));
+	p_result = reinterpret_cast<int64 *>(S+0);
+	*p_result = id;
 	memzero(S+sizeof(id), sizeof(S)-sizeof(DBRowId_Ind_I64));
 	memcpy(S+sizeof(S)-sizeof(DBRowId_Ind_I64), &DBRowId_Ind_I64, sizeof(DBRowId_Ind_I64));
+	return p_result;
 }
 
 bool DBRowId::IsI32() const
@@ -818,8 +821,8 @@ void DBTable::CopyBufFrom(const void * pBuf, size_t srcBufSize)
 
 int DBTable::CopyBufLobFrom(const void * pBuf, size_t srcBufSize)
 {
-	//constexpr bool experimental = SlDebugMode::CT() ? true : false; // true in case of @debug MySQL 
-	constexpr bool experimental = false; // true in case of @debug MySQL 
+	constexpr bool experimental = SlDebugMode::CT() ? true : false; // true in case of @debug MySQL 
+	//constexpr bool experimental = false; // true in case of @debug MySQL 
 	int    ok = -1;
 	if(pBuf && P_DBuf) {
 		if(State & sHasLob) {

@@ -7223,7 +7223,7 @@ bool DocNalogRu_Generator::WriteIdentifValPair(const char * pNodeName, const cha
 void DocNalogRu_Generator::WriteExcise2(int parentNodeTokenId, double value)
 {
 	if(P_X) {
-		SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_EXCISE_BEFORE));
+		SXml::WNode n_e(P_X, GetToken_Ansi(parentNodeTokenId));
 		{
 			if(value != 0.0)
 				n_e.PutInnerReal(GetToken_Ansi(PPHSC_RU_AMTEXCISE), fabs(value), MKSFMTD_020);

@@ -2907,7 +2907,7 @@ PPTimeChunkBrowser::PPTimeChunkBrowser() : STimeChunkBrowser()
 		long   cn_count = 0; // p_def->getCount();
 		long   i = 0;
 		//
-		const char * p_fontface_tnr = "Times New Roman";
+		// @v12.5.3 @unused const char * p_fontface_tnr = "Times New Roman";
 		long   column = 0;
 		long   row = 0;
 		SString temp_buf;

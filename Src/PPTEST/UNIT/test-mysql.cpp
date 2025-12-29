@@ -245,7 +245,7 @@ SLTEST_R(MySQL) // @v12.4.7
 								if(irr) {
 									p_rec->ID = k0.ID;
 									const uint32 _row_id = ret_row_id.GetI32();
-									assert(_row_id == p_rec->ID); // SQLite specific!
+									assert(_row_id == p_rec->ID); // MySQL specific!
 								}
 								else {
 									ref01_insert_fault_count++;
@@ -273,7 +273,7 @@ SLTEST_R(MySQL) // @v12.4.7
 								ret_row_id = *p_row_id;
 							if(irr) {
 								p_rec->ID = k0.ID;
-								assert(ret_row_id.GetI32() == p_rec->ID); // SQLite specific!
+								assert(ret_row_id.GetI32() == p_rec->ID); // MySQL specific!
 							}
 							else {
 								ref02_insert_fault_count++;
@@ -339,6 +339,8 @@ SLTEST_R(MySQL) // @v12.4.7
 						if(!__PrcssrTestDb_Are_TestTa01_RecsEqual(*p_rec_buf, *p_pattern_rec)) {							
 							uneq_rec_count++;
 						}
+						const DBRowId * p_row_id = p_tbl->getCurRowIdPtr();
+						SLCHECK_NZ(p_row_id && p_row_id->GetI64() > 0);
 					}
 					else {
 						nfound_count++;

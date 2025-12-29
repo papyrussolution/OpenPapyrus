@@ -67,12 +67,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\PPMain\ppbrow-embed.rc" />
-    <ResourceCompile Include="..\PPMain\ppw.rc">
-      <Filter>Resource</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
     <Image Include="..\..\..\Clipart\R\etc\gear-0001.gif">
       <Filter>Resource</Filter>
     </Image>
@@ -1411,5 +1405,10 @@
     <Filter Include="Resource\CUR">
       <UniqueIdentifier>{5724c59d-c15e-4005-8669-6c0d29da5253}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\PPMain\ppw.rc">
+      <Filter>Resource</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

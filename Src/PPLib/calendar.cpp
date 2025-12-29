@@ -5,11 +5,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-//#define USE_NEW_CALENDAR 1 // @v11.2.4
-
 const char * GetCalCtrlSignature(int type) { return type ? "papyruscalendarperiod" : "papyruscalendardate"; }
-
-//#if (USE_NEW_CALENDAR == 0) // @v11.2.4 {
 
 static LRESULT CALLBACK CalendarWndProc(HWND, UINT, WPARAM, LPARAM);
 static INT_PTR CALLBACK PeriodWndProc(HWND, UINT, WPARAM, LPARAM);
@@ -1041,7 +1037,7 @@ void TDateCalendar::SelectWeek(HWND hWnd, SPoint2S pt)
 		D.setday(satoi(C[c_i][c_j]));
 		const int draw_months = BIN(D2.year() != D.year() || D2.month() != D.month());
 		{
-			const LDATE  beg_dt = encodedate(1, 1, 1);
+			const  LDATE  beg_dt = encodedate(1, 1, 1);
 			long   days = ((diffdate(D, beg_dt) - 1)/ 7) * 7/* + 1*/; // @v10.0.1 (+1) removed
 			LDATE  dt = plusdate(beg_dt, days);
 			if(!SelStarted1) {
@@ -1068,8 +1064,8 @@ void TDateCalendar::SelectWeek(HWND hWnd, SPoint2S pt)
 			}
 		}
 		if(D1.day()) {
-			const LDATE dt1 = MIN(D1, D2);
-			const LDATE dt2 = MAX(D2, D1);
+			const LDATE dt1 = smin(D1, D2);
+			const LDATE dt2 = smax(D2, D1);
 			if(draw_months) {
 				RECT rr;
 				rr.left   = Left;
@@ -1138,8 +1134,6 @@ void TDateCalendar::SelectWeek(HWND hWnd, SPoint2S pt)
 void TDateCalendar::OnLButtonDown(HWND hWnd, LPARAM lParam)
 {
 	int i;
-	//int x = LOWORD(lParam);
-	//int y = HIWORD(lParam);
 	SPoint2S pt;
 	pt.setwparam(static_cast<uint32>(lParam));
 	SetFocus(hWnd);
@@ -1646,8 +1640,7 @@ void TCalendarP::ShowCalendar(HWND hwParent)
 		wc.hbrBackground = static_cast<HBRUSH>(::GetStockObject(LTGRAY_BRUSH));
 		::RegisterClassEx(&wc);
 	}
-	c_hWnd = ::CreateWindowEx(0, p_classname, NULL, WS_VISIBLE|WS_CHILD|WS_TABSTOP|WS_GROUP,
-		8, 85, 188, 200, parent_hWnd, NULL, TProgram::GetInst(), this);
+	c_hWnd = ::CreateWindowEx(0, p_classname, NULL, WS_VISIBLE|WS_CHILD|WS_TABSTOP|WS_GROUP, 8, 85, 188, 200, parent_hWnd, NULL, TProgram::GetInst(), this);
 	Top  = 80;
 	Left = 7;
 	::ShowWindow(c_hWnd, SW_SHOWNORMAL);
@@ -1655,8 +1648,6 @@ void TCalendarP::ShowCalendar(HWND hwParent)
 	TimerFreq = 50;
 	SetTimer(c_hWnd, 1, 50, 0);
 }
-//#else
-//#endif // } @v11.2.4 (USE_NEW_CALENDAR == 0) 
 
 //typedef int (*CallSupplementWindowFunc)(int supplementKind, void * hParentWnd, uint linkCtlId, SUiCtrlSupplement::DataBlock * pData);
 int PPExecSupplementWindow(int supplementKind, void * hParentWnd, uint linkCtlId, SUiCtrlSupplement::DataBlock * pData) // @v12.3.7 @construction

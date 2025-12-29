@@ -1862,13 +1862,11 @@ void PPApp::login(int processCmdLine)
 			}*/
 			// } @v10.0.1
 		}
-		// @v11.0.3 {
 		if(PPSession::GetStartUpOption(PPSession::cmdlBackup, arg_buf)) {
 			DoCmdLineBackup(arg_buf/*scen*/, cmdline_dbsymb);
 			TView::messageCommand(this, cmQuit);
 			return;
 		}
-		// } @v11.0.3
 		while(!valid && PPLoginDialog(login_param) > 0) {
 			SString db_symb;
 			PPID   db_id = NZOR(login_param.Dbes.GetSelection(), login_param.Dbes.SetDefaultSelection());

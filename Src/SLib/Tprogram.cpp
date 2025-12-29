@@ -1527,71 +1527,7 @@ int TProgram::InitUiToolBox()
 	int    ok = 1;
 	if(!(State & stUiToolBoxInited)) {
 		ENTER_CRITICAL_SECTION
-		// @v11.9.2 LoadVectorTools(&DvToolList);
 		if(!(State & stUiToolBoxInited)) {
-#if 0 // @v11.9.2 (moved to PPSession::Init) {			
-			UiToolBox.CreateColor(tbiButtonTextColor, SColor(SClrBlack));
-			UiToolBox.CreateColor(tbiButtonTextColor+tbisDisable, SColor(SClrWhite));
-			UiToolBox.CreateColor(tbiIconRegColor,     SColor(/*0x06, 0xAE, 0xD5*/0x00, 0x49, 0x82)); // 004982
-			UiToolBox.CreateColor(tbiIconAlertColor,   SColor(0xDD, 0x1C, 0x1A));
-			UiToolBox.CreateColor(tbiIconAccentColor,  SColor(0x2A, 0x9D, 0x8F));
-			UiToolBox.CreateColor(tbiIconPassiveColor, SColor(0xFF, 0xF1, 0xD0));
-			UiToolBox.CreatePen(tbiBlackPen,         SPaintObj::psSolid, 1.0f, SClrBlack);
-			UiToolBox.CreatePen(tbiWhitePen,         SPaintObj::psSolid, 1.0f, SClrWhite);
-			UiToolBox.CreateBrush(tbiInvalInpBrush,  SPaintObj::bsSolid, SClrCrimson, 0);
-			UiToolBox.CreateBrush(tbiInvalInp2Brush, SPaintObj::bsSolid, SColor(0xff, 0x99, 0x00) /*https://www.colorhexa.com/ff9900*/, 0);
-			UiToolBox.CreateBrush(tbiInvalInp3Brush, SPaintObj::bsSolid, SColor(0xff, 0x33, 0xcc) /*https://www.colorhexa.com/ff33cc*/, 0);
-			UiToolBox.CreateBrush(tbiListBkgBrush,   SPaintObj::bsSolid, SClrWhite, 0);
-			UiToolBox.CreatePen(tbiListBkgPen,       SPaintObj::psSolid, 1.0f, SClrWhite);
-			UiToolBox.CreateBrush(tbiListFocBrush,   SPaintObj::bsSolid, SColor(0x00, 0x66, 0xcc) /*https://www.colorhexa.com/0066cc*/, 0);
-			UiToolBox.CreatePen(tbiListFocPen,       SPaintObj::psSolid, 1.0f, SColor(0x00, 0x66, 0xcc) /*https://www.colorhexa.com/0066cc*/);
-			UiToolBox.CreateBrush(tbiListSelBrush,   SPaintObj::bsSolid, SColor(0xa2, 0xd2, 0xff) /*https://www.colorhexa.com/0066cc*/, 0);
-			UiToolBox.CreatePen(tbiListSelPen,       SPaintObj::psDot, 1.0f, SColor(0x00, 0x66, 0xcc) /*https://www.colorhexa.com/0066cc*/);
-			{
-				// linear-gradient(to bottom, #f0f9ff 0%,#cbebff 47%,#a1dbff 100%)
-				/*
-				FRect gr;
-				gr.a.Set(0.0f, 0.0f);
-				gr.b.Set(0.0f, 10.0f);
-				int   gradient = UiToolBox.CreateGradientLinear(0, gr);
-				UiToolBox.AddGradientStop(gradient, 0.00f, SColor(0xf0, 0xf9, 0xff));
-				UiToolBox.AddGradientStop(gradient, 0.47f, SColor(0xcb, 0xeb, 0xff));
-				UiToolBox.AddGradientStop(gradient, 1.00f, SColor(0xa1, 0xdb, 0xff));
-				UiToolBox.CreateBrush(tbiButtonBrush, SPaintObj::bsPattern, SColor(0xDC, 0xD9, 0xD1), 0, gradient);
-				*/
-				UiToolBox.CreateBrush(tbiButtonBrush, SPaintObj::bsSolid, SColor(0xDC, 0xD9, 0xD1), 0);
-			}
-			UiToolBox.CreateBrush(tbiButtonBrush+tbisSelect, SPaintObj::bsSolid, SColor(0xBA, 0xBA, 0xC9), 0);
-			UiToolBox.CreatePen(tbiButtonPen,             SPaintObj::psSolid, 1, UiToolBox.GetColor(tbiIconRegColor)/*SColor(0x47, 0x47, 0x3D)*/);
-			UiToolBox.CreatePen(tbiButtonPen+tbisDefault, SPaintObj::psSolid, 1, SClrGreen);
-			UiToolBox.CreatePen(tbiButtonPen+tbisFocus,   SPaintObj::psSolid, 1, /*SColor(0x15, 0x20, 0xEA)*/SClrOrange); // SColor(0xE5, 0xC3, 0x65)
-			UiToolBox.CreatePen(tbiButtonPen+tbisSelect,  SPaintObj::psSolid, 1, /*SColor(0x15, 0x20, 0xEA)*/SClrOrange);
-			UiToolBox.CreatePen(tbiButtonPen+tbisDisable, SPaintObj::psSolid, 1, SColor(SClrWhite));
-			UiToolBox.SetBrush(tbiButtonBrush_F, SPaintObj::bsSolid, SColor(0xDC, 0xD9, 0xD1), 0);
-			UiToolBox.SetBrush(tbiButtonBrush_F+tbisSelect, SPaintObj::bsSolid, SColor(0xBA, 0xBA, 0xC9), 0);
-			UiToolBox.SetPen(tbiButtonPen_F, SPaintObj::psSolid, 1, SColor(0x47, 0x47, 0x3D));
-			UiToolBox.SetPen(tbiButtonPen_F+tbisFocus,  SPaintObj::psSolid, 1, SColor(0x15, 0x20, 0xEA));
-			UiToolBox.SetPen(tbiButtonPen_F+tbisSelect, SPaintObj::psSolid, 1, SColor(0x15, 0x20, 0xEA));
-			// @v11.2.3 {
-			{
-				UiToolBox.CreateFont_(tbiControlFont, "Verdana", 11, 0); // ! Не использовать "MS Sans Serif"
-				/*
-				HFONT hf = 0;
-				{
-					LOGFONT lf;
-					MEMSZERO(lf);
-					lf.lfCharSet = DEFAULT_CHARSET;
-					lf.lfHeight  = 9;
-					STRNSCPY(lf.lfFaceName, _T("MS Sans Serif"));
-					hf = ::CreateFontIndirect(&lf);
-				}
-				if(hf) {
-					UiToolBox.SetFont(tbiControlFont, hf);
-				}
-				*/
-			}
-			// } @v11.2.3
-#endif // } 0 @v11.9.2
 			State |= stUiToolBoxInited;
 		}
         LEAVE_CRITICAL_SECTION
@@ -1603,11 +1539,12 @@ int TProgram::InitUiToolBox()
 
 /*static*/void TProgram::DrawTransparentBitmap(HDC hdc, HBITMAP hBitmap, const RECT & rDestRect, long xOffs, long yOffs, COLORREF cTransparentColor, COLORREF newBkgndColor, long fmt, POINT * pBmpSize)
 {
-	long   x_pos = 0, y_pos = 0;
-	BITMAP     bm;
-	COLORREF   cColor;
-	HBITMAP    bmAndBack, bmAndObject, bmAndMem, bmSave;
-	HBITMAP    bmBackOld, bmObjectOld, bmMemOld, bmSaveOld;
+	long   x_pos = 0;
+	long   y_pos = 0;
+	BITMAP bm;
+	COLORREF cColor;
+	HBITMAP bmAndBack, bmAndObject, bmAndMem, bmSave;
+	HBITMAP bmBackOld, bmObjectOld, bmMemOld, bmSaveOld;
 	HDC    hdcMem, hdcBack, hdcObject, hdcSave;
 	POINT  ptSize;
 	HDC    hdcTemp = CreateCompatibleDC(hdc);

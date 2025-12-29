@@ -19,6 +19,11 @@
 			"symb": "ControlFont",
 			"face": "Verdana",
 			"size": 11
+		},
+		{
+			"symb": "EditorFont",
+			"face": "Courier New",
+			"size": 12
 		}
 	],
 	"colorset_list": [
