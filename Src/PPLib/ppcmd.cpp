@@ -1,5 +1,5 @@
 // PPCMD.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // @Kernel
 //
@@ -1249,15 +1249,7 @@ int PPCommandFolder::GetIntersectIDs(const TRect & rR, const PPDesktop & rD, PPI
 	for(uint i = 0; p_item = Next(&i);) {
 		if(p_item->IsKind(PPCommandItem::kCommand)) {
 			TRect ir;
-			/*
-			RECT ri;
-			ri.top  = ((PPCommand*)p_item)->Y;
-			ri.left = ((PPCommand*)p_item)->X;
-			ri.bottom = ri.top  + _isz * 2;
-			ri.right  = ri.left + _isz * 2;
-			*/
 			rD.CalcIconRect(static_cast<const PPCommand *>(p_item)->P, ir);
-			//if(SIntersectRect(ir, rect)) {
 			if(rR.Intersect(ir, 0)) {
 				CALLPTRMEMB(pAry, add(p_item->GetID()));
 				found = 1;
@@ -1269,14 +1261,6 @@ int PPCommandFolder::GetIntersectIDs(const TRect & rR, const PPDesktop & rD, PPI
 
 int PPCommandFolder::GetIntersectIDs(SPoint2S coord, const PPDesktop & rD, PPIDArray * pAry)
 {
-	/*
-	const  int _isz  = rD.GetIconSize();
-	RECT   r;
-	r.top    = coord.y;
-	r.left   = coord.x;
-	r.bottom = r.top  + _isz * 2;
-	r.right  = r.left + _isz * 2;
-	*/
 	TRect ir;
 	rD.CalcIconRect(coord, ir);
 	return GetIntersectIDs(ir, rD, pAry);
@@ -1284,7 +1268,6 @@ int PPCommandFolder::GetIntersectIDs(SPoint2S coord, const PPDesktop & rD, PPIDA
 
 int PPCommandFolder::GetIconRect(long id, const PPDesktop & rD, TRect * pRect) const
 {
-	//const  int _isz = rD.GetIconSize();
 	int    ok = -1;
 	TRect  ir;
 	const  PPCommandItem * p_item = SearchByID(id, 0);
@@ -2367,6 +2350,14 @@ public:
 		Rec() : PrmrPsnID(0), ScndPsnID(0), SCardID(0)
 		{
 		}
+		Rec  & Z()
+		{
+			PrmrPsnID = 0;
+			ScndPsnID = 0;
+			SCardID = 0;
+			Sc.Clear();
+			return *this;
+		}
 		PPID   PrmrPsnID;
 		PPID   ScndPsnID;
 		PPID   SCardID;
@@ -2426,7 +2417,7 @@ int SelectPersonByCodeDialog::setDTS(const Rec * pData)
 {
 	int    ok = 1;
 	if(!RVALUEPTR(Data, pData))
-		MEMSZERO(Data);
+		Data.Z();
 	SetupPersonCombo(this, CTLSEL_SELPERSONC_PRSN, Data.PrmrPsnID, 0, PsnKindRec.ID, 0);
 	if(PsnScndKindRec.ID)
 		SetupPersonCombo(this, CTLSEL_SELPERSONC_PRSNSC, Data.ScndPsnID, 0, PsnScndKindRec.ID, 0);

@@ -11,14 +11,14 @@
 #include "ucln_cmn.h"
 #include "uniquecharstr.h"
 #include "uresdata.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 
 U_NAMESPACE_BEGIN
 
 namespace {
-constexpr char PSEUDO_ACCENTS_PREFIX = '\'';  // -XA, -PSACCENT
-constexpr char PSEUDO_BIDI_PREFIX = '+';  // -XB, -PSBIDI
-constexpr char PSEUDO_CRACKED_PREFIX = ',';  // -XC, -PSCRACK
+	constexpr char PSEUDO_ACCENTS_PREFIX = '\'';  // -XA, -PSACCENT
+	constexpr char PSEUDO_BIDI_PREFIX = '+';  // -XB, -PSBIDI
+	constexpr char PSEUDO_CRACKED_PREFIX = ',';  // -XC, -PSCRACK
 }  // namespace
 
 LocaleDistanceData::LocaleDistanceData(LocaleDistanceData &&data) :

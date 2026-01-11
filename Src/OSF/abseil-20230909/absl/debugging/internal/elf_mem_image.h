@@ -91,17 +91,17 @@ class ElfMemImage {
 
 
   explicit ElfMemImage(const void *base);
-  void                 Init(const void *base);
-  bool                 IsPresent() const { return ehdr_ != nullptr; }
+  void     Init(const void *base);
+  bool     IsPresent() const { return ehdr_ != nullptr; }
   const ElfW(Phdr)*    GetPhdr(int index) const;
   const ElfW(Sym)*     GetDynsym(int index) const;
-  const ElfW(Versym)*  GetVersym(int index) const;
-  const ElfW(Verdef)*  GetVerdef(int index) const;
-  const ElfW(Verdaux)* GetVerdefAux(const ElfW(Verdef) *verdef) const;
-  const char*          GetDynstr(ElfW(Word) offset) const;
-  const void*          GetSymAddr(const ElfW(Sym) *sym) const;
-  const char*          GetVerstr(ElfW(Word) offset) const;
-  int                  GetNumSymbols() const;
+  const ElfW(Versym)  * GetVersym(int index) const;
+  const ElfW(Verdef)  * GetVerdef(int index) const;
+  const ElfW(Verdaux) * GetVerdefAux(const ElfW(Verdef) *verdef) const;
+  const char * GetDynstr(ElfW(Word) offset) const;
+  const void * GetSymAddr(const ElfW(Sym) *sym) const;
+  const char * GetVerstr(ElfW(Word) offset) const;
+  int      GetNumSymbols() const;
 
   SymbolIterator begin() const;
   SymbolIterator end() const;

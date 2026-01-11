@@ -449,10 +449,10 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 
 /*static*/int64 TView::CreateCorrespondingNativeItem(TView * pV)
 {
-	int64 result = 0;
+	int64  result = 0;
 	if(pV) {
-		HWND hw = 0;
-		HWND hw_parent = 0;
+		HWND   hw = 0;
+		HWND   hw_parent = 0;
 		if(pV->Parent)
 			hw_parent = pV->Parent;
 		else {
@@ -476,11 +476,34 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 			LocalSetupFontBlock setup_font_blk;
 			uint ctl_id = pV->GetId();
 			switch(pV->GetSubSign()) {
+				case TV_SUBSIGN_NUMSTEPPER: // @v12.5.3
+					{
+						TNumberStepper * p_ctl = static_cast<TNumberStepper *>(pV);
+						pV->Parent = hw_parent;
+						const  DWORD style = WS_CHILD|UDS_SETBUDDYINT|UDS_AUTOBUDDY|UDS_ARROWKEYS;
+						const  DWORD ex_style = WS_EX_NOPARENTNOTIFY;
+						hw = ::CreateWindowExW(ex_style, L"msctls_updown32", 0, style, 
+							pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
+						if(hw) {
+							TView::SetWindowUserData(hw, p_ctl);
+							//setup_font_blk.Set(hw);
+						}
+					}
+					break;
 				case TV_SUBSIGN_GROUPBOX: // @v12.2.3
 					{
 						TGroupBox * p_ctl = static_cast<TGroupBox *>(pV);
 						pV->Parent = hw_parent;
-						hw = ::CreateWindowExW(WS_EX_NOPARENTNOTIFY, L"BUTTON", 0, WS_CHILD|BS_GROUPBOX, 
+						DWORD  style = WS_CHILD|BS_GROUPBOX;
+						// @v12.5.3 @construction {
+						{
+							const int wvs = APPL->GetUiSettings().WindowViewStyle;
+							//if(oneof2(wvs, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector))
+							if(false)
+								style |= BS_OWNERDRAW;
+						}
+						// } @v12.5.3 @construction 
+						hw = ::CreateWindowExW(WS_EX_NOPARENTNOTIFY, L"BUTTON", 0, style,
 							pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						if(hw) {
 							TView::SetWindowUserData(hw, p_ctl);
@@ -626,9 +649,9 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 					{
 						TButton * p_cv = static_cast<TButton *>(pV);
 						pV->Parent = hw_parent;
-						DWORD style = WS_CHILD|BS_PUSHBUTTON/*|BS_BITMAP|BS_FLAT*/;
-						const int  wvs = APPL->GetUiSettings().WindowViewStyle;
-						const bool is_owner_draw_style = oneof2(wvs, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector);
+						DWORD  style = WS_CHILD|BS_PUSHBUTTON/*|BS_BITMAP|BS_FLAT*/;
+						const  int  wvs = APPL->GetUiSettings().WindowViewStyle;
+						const  bool is_owner_draw_style = oneof2(wvs, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector);
 						if(is_owner_draw_style)
 							style |= BS_OWNERDRAW;
 						if(p_cv->IsInState(sfTabStop))

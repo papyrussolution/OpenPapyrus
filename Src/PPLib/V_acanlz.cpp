@@ -1,5 +1,5 @@
 // V_ACANLZ.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -735,7 +735,7 @@ int PPViewAccAnlz::EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzViewEnu
 			THROW_MEM(p_acct_list = new SArray(sizeof(Acct)));
 			for(i = 0; ExtGenAccList.enumItems(&i, (void **)&p_item);) {
 				aco2 = abs(GetAcoByGenFlags(p_item->Flags));
-				MEMSZERO(acct);
+				acct.Z();
 				if(aco2 == ACO_2) {
 					if(Filt.SingleArID) {
 						if(GetAcctRel(p_item->ObjID, Filt.SingleArID, &acrel_rec, 1) > 0)

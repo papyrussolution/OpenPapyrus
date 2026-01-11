@@ -101,6 +101,9 @@
       <AdditionalIncludeDirectories>..\include;..\OSF\rehex\include;..\OSF\rehex;..\osf\wxWidgets\include;..\OSF\jansson\include;..\OSF\capstone\include;..\osf\googletest\googlemock;..\osf\googletest\googletest;..\osf\googletest\googletest\include;..\osf\googletest\googlemock\include</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <StringPooling>true</StringPooling>
+      <EnableModules>false</EnableModules>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -119,6 +122,9 @@
       <AdditionalIncludeDirectories>..\include;..\OSF\rehex\include;..\OSF\rehex;..\osf\wxWidgets\include;..\OSF\jansson\include;..\OSF\capstone\include;..\osf\googletest\googlemock;..\osf\googletest\googletest;..\osf\googletest\googletest\include;..\osf\googletest\googlemock\include</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <StringPooling>true</StringPooling>
+      <EnableModules>false</EnableModules>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -137,6 +143,9 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>..\include;..\OSF\rehex\include;..\OSF\rehex;..\osf\wxWidgets\include;..\OSF\jansson\include;..\OSF\capstone\include;..\osf\googletest\googlemock;..\osf\googletest\googletest;..\osf\googletest\googletest\include;..\osf\googletest\googlemock\include</AdditionalIncludeDirectories>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <StringPooling>true</StringPooling>
+      <EnableModules>false</EnableModules>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -157,6 +166,9 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>..\include;..\OSF\rehex\include;..\OSF\rehex;..\osf\wxWidgets\include;..\OSF\jansson\include;..\OSF\capstone\include;..\osf\googletest\googlemock;..\osf\googletest\googletest;..\osf\googletest\googletest\include;..\osf\googletest\googlemock\include</AdditionalIncludeDirectories>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <StringPooling>true</StringPooling>
+      <EnableModules>false</EnableModules>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

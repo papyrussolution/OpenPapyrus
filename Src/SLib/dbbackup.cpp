@@ -432,7 +432,7 @@ int DBBackup::ReleaseContinuousMode(BackupLogFunc fnLog, void * extraPtr)
 							//THROW_V(cp.SsFiles.add(spart), SDBERR_SLIB);
 							if(is_first) {
 								DBTable _tbl(item.Txt);
-								if(_tbl.IsOpened()) {
+								if(_tbl.IsOpen()) {
 									int r2 = Btrieve::RemoveContinuous(_tbl.GetFileName());
 									if(r2) {
 										(msg_buf = "Remove continuous").CatDiv(':', 2).Cat("OK for file").Space().Cat(_tbl.GetFileName());

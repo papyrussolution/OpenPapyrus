@@ -1,6 +1,6 @@
 // TDIALOG.CPP  TurboVision 1.0
 // Copyright (c) 1991 by Borland International
-// Modified by A.Sobolev 1994, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Modified by A.Sobolev 1994, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Release for WIN32
 //
@@ -10,15 +10,21 @@
 
 #define TV_DEBUG_STACK 0
 //
-CtrlGroup::CtrlGroup() : Id(0), State(0) {}
-CtrlGroup::~CtrlGroup() {}
-void CtrlGroup::handleEvent(TDialog*, TEvent&) {}
-int CtrlGroup::setData(TDialog*, void *) { return -1; }
-int CtrlGroup::getData(TDialog*, void *) { return -1; }
+CtrlGroup::CtrlGroup() : Id(0), State(0) 
+{
+}
+
+CtrlGroup::~CtrlGroup() 
+{
+}
+
+void   CtrlGroup::handleEvent(TDialog*, TEvent&) {}
+int    CtrlGroup::setData(TDialog*, void *) { return -1; }
+int    CtrlGroup::getData(TDialog*, void *) { return -1; }
 //
 //
 //
-ODC OwnerDrawCtrls[32]; // @global
+ODC    OwnerDrawCtrls[32]; // @global
 //
 //
 /*static*/void TDialog::centerDlg(HWND hWnd)
@@ -1031,17 +1037,18 @@ int TDialog::SetupInputLine(uint ctlID, TYPEID typ, long format)
 
 void TDialog::SetupSpin(uint ctlID, uint buddyCtlID, int low, int upp, int cur)
 {
-	::SendDlgItemMessageW(H(), ctlID, UDM_SETBUDDY, reinterpret_cast<WPARAM>(GetDlgItem(H(), buddyCtlID)), 0);
-	::SendDlgItemMessageW(H(), ctlID, UDM_SETRANGE, 0, MAKELONG(upp, low));
-	::SendDlgItemMessageW(H(), ctlID, UDM_SETPOS, 0, MAKELONG(cur, 0));
+	HWND   hw = H();
+	::SendDlgItemMessageW(hw, ctlID, UDM_SETBUDDY, reinterpret_cast<WPARAM>(GetDlgItem(hw, buddyCtlID)), 0);
+	::SendDlgItemMessageW(hw, ctlID, UDM_SETRANGE, 0, MAKELONG(upp, low));
+	::SendDlgItemMessageW(hw, ctlID, UDM_SETPOS, 0, MAKELONG(cur, 0));
 }
 //
 //
 //
 int TDialog::SetCtrlToolTip(uint ctrlID, const char * pToolTipText)
 {
-    int   ok = -1;
-    HWND  ctrl_wnd = GetDlgItem(H(), ctrlID);
+    int    ok = -1;
+    HWND   ctrl_wnd = GetDlgItem(H(), ctrlID);
 	if(ctrl_wnd) {
 		if(!ToolTipsWnd) {
 			ToolTipsWnd = ::CreateWindowExW(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP,

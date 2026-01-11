@@ -24,7 +24,7 @@
 #include "unicode/region.h"
 #include "unicode/ures.h"
 #include "ucln_in.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "region_impl.h"
 
 #if !UCONFIG_NO_FORMATTING

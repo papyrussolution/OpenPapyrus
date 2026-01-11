@@ -872,7 +872,7 @@ static void MakeFonts(GW * lpgw, LPRECT lprect, HDC hdc)
 
 #ifdef USE_WINGDI
 	lpgw->rotate = FALSE;
-	memzero(&(lpgw->lf), sizeof(LOGFONT));
+	MEMSZERO(lpgw->lf);
 	_tcsncpy(lpgw->lf.lfFaceName, lpgw->fontname, LF_FACESIZE);
 	lpgw->lf.lfHeight = -MulDiv(static_cast<int>(lpgw->fontsize * lpgw->fontscale), GetDeviceCaps(hdc, LOGPIXELSY), 72);
 	lpgw->lf.lfCharSet = DEFAULT_CHARSET;
@@ -985,9 +985,9 @@ static void SelFont(GW * lpgw)
 	CHOOSEFONT cf;
 	HDC hdc;
 	TCHAR * p;
-	/* Set all structure fields to zero. */
-	memzero(&cf, sizeof(CHOOSEFONT));
-	memzero(&lf, sizeof(LOGFONT));
+	// Set all structure fields to zero
+	MEMSZERO(cf);
+	MEMSZERO(lf);
 	cf.lStructSize = sizeof(CHOOSEFONT);
 	cf.hwndOwner = lpgw->hWndGraph;
 	_tcsncpy(lf.lfFaceName, lpgw->fontname, LF_FACESIZE);

@@ -12,7 +12,7 @@
 //#define DTITVFMT_DEBUG 1
 
 #include "dtitv_impl.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "formattedval_impl.h"
 
 U_NAMESPACE_BEGIN

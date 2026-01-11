@@ -218,24 +218,24 @@ namespace OpenXLSX {
 
 	XMLNode getRowNode(XMLNode sheetDataNode, uint32 rowNumber)
 	{
-		if(rowNumber < 1 || rowNumber > OpenXLSX::MAX_ROWS) {     // 2024-05-28: added range check
+		if(rowNumber < 1 || rowNumber > OpenXLSX::MAX_ROWS) { // 2024-05-28: added range check
 			using namespace std::literals::string_literals;
 			throw XLCellAddressError("rowNumber "s + std::to_string(rowNumber) + " is outside valid range [1;"s + std::to_string(OpenXLSX::MAX_ROWS) + "]"s);
 		}
-		// ===== Get the last child of sheetDataNode that is of type node_element.
+		// Get the last child of sheetDataNode that is of type node_element.
 		XMLNode result = sheetDataNode.last_child_of_type(pugi::node_element);
-		// ===== If there are now rows in the worksheet, or the requested row is beyond the current max row, append a new row to the end.
+		// If there are now rows in the worksheet, or the requested row is beyond the current max row, append a new row to the end.
 		if(result.empty() || (rowNumber > result.attribute("r").as_ullong())) {
 			result = sheetDataNode.append_child("row");
 			result.append_attribute("r") = rowNumber;
 			// result.append_attribute("x14ac:dyDescent") = "0.2";
 			// result.append_attribute("spans")           = "1:1";
 		}
-		// ===== If the requested node is closest to the end, start from the end and search backwards.
+		// If the requested node is closest to the end, start from the end and search backwards.
 		else if(result.attribute("r").as_ullong() - rowNumber < rowNumber) {
 			while(!result.empty() && (result.attribute("r").as_ullong() > rowNumber))  
 				result = result.previous_sibling_of_type(pugi::node_element);
-			// ===== If the backwards search failed to locate the requested row
+			// If the backwards search failed to locate the requested row
 			if(result.empty() || (result.attribute("r").as_ullong() != rowNumber)) {
 				if(result.empty())
 					result = sheetDataNode.prepend_child("row"); // insert a new row node at datasheet begin. When saving, this will keep whitespace formatting towards next row node
@@ -246,14 +246,14 @@ namespace OpenXLSX {
 				// result.append_attribute("spans")           = "1:1";
 			}
 		}
-		// ===== Otherwise, start from the beginning
+		// Otherwise, start from the beginning
 		else {
-			// ===== At this point, it is guaranteed that there is at least one node_element in the row that is not empty.
+			// At this point, it is guaranteed that there is at least one node_element in the row that is not empty.
 			result = sheetDataNode.first_child_of_type(pugi::node_element);
-			// ===== It has been verified above that the requested rowNumber is <= the row number of the last node_element, therefore this loop will halt.
+			// It has been verified above that the requested rowNumber is <= the row number of the last node_element, therefore this loop will halt.
 			while(result.attribute("r").as_ullong() < rowNumber)  
 				result = result.next_sibling_of_type(pugi::node_element);
-			// ===== If the forwards search failed to locate the requested row
+			// If the forwards search failed to locate the requested row
 			if(result.attribute("r").as_ullong() > rowNumber) {
 				result = sheetDataNode.insert_child_before("row", result);
 				result.append_attribute("r") = rowNumber;
@@ -330,17 +330,17 @@ namespace OpenXLSX {
 		if(!rowNumber)  
 			rowNumber = rowNode.attribute("r").as_uint(); // if not provided, determine from rowNode
 		auto cellRef  = XLCellReference(rowNumber, columnNumber);
-		// ===== If there are no cells in the current row, or the requested cell is beyond the last cell in the row...
+		// If there are no cells in the current row, or the requested cell is beyond the last cell in the row...
 		if(cellNode.empty() || (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber)) {
-			// ===== append a new node to the end.
+			// append a new node to the end.
 			cellNode = rowNode.append_child("c");
 			setDefaultCellAttributes(cellNode, cellRef.address(), rowNode, columnNumber, colStyles);
 		}
-		// ===== If the requested node is closest to the end, start from the end and search backwards...
+		// If the requested node is closest to the end, start from the end and search backwards...
 		else if(XLCellReference(cellNode.attribute("r").value()).column() - columnNumber < columnNumber) {
 			while(not cellNode.empty() && (XLCellReference(cellNode.attribute("r").value()).column() > columnNumber))
 				cellNode = cellNode.previous_sibling_of_type(pugi::node_element);
-			// ===== If the backwards search failed to locate the requested cell
+			// If the backwards search failed to locate the requested cell
 			if(cellNode.empty() || (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber)) {
 				if(cellNode.empty()) // If between row begin and higher column number, only non-element nodes exist
 					cellNode = rowNode.prepend_child("c"); // insert a new cell node at row begin. When saving, this will keep whitespace formatting towards next cell node
@@ -349,14 +349,14 @@ namespace OpenXLSX {
 				setDefaultCellAttributes(cellNode, cellRef.address(), rowNode, columnNumber, colStyles);
 			}
 		}
-		// ===== Otherwise, start from the beginning
+		// Otherwise, start from the beginning
 		else {
-			// ===== At this point, it is guaranteed that there is at least one node_element in the row that is not empty.
+			// At this point, it is guaranteed that there is at least one node_element in the row that is not empty.
 			cellNode = rowNode.first_child_of_type(pugi::node_element);
-			// ===== It has been verified above that the requested columnNumber is <= the column number of the last node_element, therefore this loop will halt:
+			// It has been verified above that the requested columnNumber is <= the column number of the last node_element, therefore this loop will halt:
 			while(XLCellReference(cellNode.attribute("r").value()).column() < columnNumber)
 				cellNode = cellNode.next_sibling_of_type(pugi::node_element);
-			// ===== If the forwards search failed to locate the requested cell
+			// If the forwards search failed to locate the requested cell
 			if(XLCellReference(cellNode.attribute("r").value()).column() > columnNumber) {
 				cellNode = rowNode.insert_child_before("c", cellNode);
 				setDefaultCellAttributes(cellNode, cellRef.address(), rowNode, columnNumber, colStyles);
@@ -394,10 +394,10 @@ namespace OpenXLSX {
 		XMLNode node{}; // empty until successfully created;
 		int nodeSortIndex = (nodeOrder.size() > 1 ? findStringInVector(nodeName, nodeOrder) : SORT_INDEX_NOT_FOUND);
 		if(nodeSortIndex != SORT_INDEX_NOT_FOUND) {  // can't sort anything if nodeOrder contains less than 2 entries or does not contain nodeName
-			// ===== Find first node to follow nodeName per nodeOrder
+			// Find first node to follow nodeName per nodeOrder
 			while(not nextNode.empty() && findStringInVector(nextNode.name(), nodeOrder) < nodeSortIndex)
 				nextNode = nextNode.next_sibling_of_type(pugi::node_element);
-			// ===== Evaluate search result
+			// Evaluate search result
 			if(not nextNode.empty()) { // found nodeName or a node before which nodeName should be inserted
 				if(nextNode.name() == nodeName) // if nodeName was found
 					node = nextNode; // use existing node
@@ -411,7 +411,7 @@ namespace OpenXLSX {
 		else // no possibility to perform ordered insert - attempt to locate existing node:
 			node = parent.child(nodeName.c_str());
 		if(node.empty() ) {   // neither nodeName, nor a node following per nodeOrder was found
-			// ===== There is no reference to perform an ordered insert for nodeName
+			// There is no reference to perform an ordered insert for nodeName
 			nextNode = parent.last_child_of_type(pugi::node_element);           // at least one element node must exist, tested at begin of function
 			node = parent.insert_child_after(nodeName.c_str(), nextNode, force_ns); // append as the last element node, but before final whitespaces
 			copyLeadingWhitespaces(parent, nextNode, node); // duplicate the prefix whitespaces of nextNode to node
@@ -479,7 +479,7 @@ namespace OpenXLSX {
 			if(tagNode.empty() )  
 				return false;   // if tag does not exist: return false
 			XMLAttribute valAttr = tagNode.attribute(attrName.c_str());
-			if(valAttr.empty() ) {                // if no attribute with attrName exists: default to true
+			if(valAttr.empty() ) { // if no attribute with attrName exists: default to true
 				appendAndSetAttribute(tagNode, attrName, "true"); // explicitly create & set attribute
 				return true;
 			}
@@ -546,10 +546,10 @@ void XLCell::copyFrom(XLCell const& other)
 	using namespace std::literals::string_literals;
 	if(!m_cellNode) {
 		// copyFrom invoked by empty XLCell: create a new cell with reference & m_cellNode from other
-		m_cellNode      = std::make_unique<XMLNode>(*other.m_cellNode);
+		m_cellNode = std::make_unique<XMLNode>(*other.m_cellNode);
 		m_sharedStrings = other.m_sharedStrings; // TBD: check for XLSharedStringsDefaulted and avoid copy?
-		m_valueProxy    = XLCellValueProxy(this, m_cellNode.get());
-		m_formulaProxy  = XLFormulaProxy(this, m_cellNode.get());
+		m_valueProxy = XLCellValueProxy(this, m_cellNode.get());
+		m_formulaProxy = XLFormulaProxy(this, m_cellNode.get());
 		return;
 	}
 	if((&other != this) && (*other.m_cellNode == *m_cellNode)) // nothing to do
@@ -584,7 +584,7 @@ bool XLCell::empty() const { return (!m_cellNode) || m_cellNode->empty(); }
 /**
  * @todo 2024-08-10 TBD whether body can be replaced with !empty() (performance?)
  */
-XLCell::operator bool() const { return m_cellNode && (not m_cellNode->empty() ); } // ===== 2024-05-28: replaced explicit bool evaluation
+XLCell::operator bool() const { return m_cellNode && (not m_cellNode->empty() ); } // 2024-05-28: replaced explicit bool evaluation
 /**
  * @details This function returns a const reference to the cellReference property.
  */
@@ -608,12 +608,12 @@ XLFormulaProxy& XLCell::formula() { return m_formulaProxy; }
 /**
  * @details get the value of the s attribute of the cell node
  */
-size_t XLCell::cellFormat() const { return m_cellNode->attribute("s").as_uint(0); }
+XLStyleIndex XLCell::cellFormat() const { return m_cellNode->attribute("s").as_uint(0); }
 /**
  * @details set the s attribute of the cell node, pointing to an xl/styles.xml cellXfs index
  *          the attribute will be created if not existant, function will fail if attribute creation fails
  */
-bool XLCell::setCellFormat(size_t cellFormatIndex)
+bool XLCell::setCellFormat(XLStyleIndex cellFormatIndex)
 {
 	XMLAttribute attr = m_cellNode->attribute("s");
 	if(attr.empty() && not m_cellNode->empty())
@@ -666,32 +666,32 @@ const XLFormulaProxy& XLCell::formula() const { return m_formulaProxy; }
  */
 void XLCell::clear(uint32 keep)
 {
-	// ===== Clear attributes
+	// Clear attributes
 	XMLAttribute attr = m_cellNode->first_attribute();
 	while(!attr.empty()) {
 		XMLAttribute nextAttr = attr.next_attribute();
 		std::string attrName = attr.name();
-		if((attrName == "r")/*if this is cell reference (must always remain untouched)*/
+		if((attrName == "r") // if this is cell reference (must always remain untouched)
 		    ||((keep & XLKeepCellStyle) && attrName == "s")/*or style shall be kept & this is style*/
 		    ||((keep & XLKeepCellType ) && attrName == "t")/*or type shall be kept & this is type*/)
 			attr = XMLAttribute{};                    // empty attribute won't get deleted
-		// ===== Remove all non-kept attributes
+		// Remove all non-kept attributes
 		if(not attr.empty())  
 			m_cellNode->remove_attribute(attr);
 		attr = nextAttr; // advance to previously determined next cell node attribute
 	}
-	// ===== Clear node children
+	// Clear node children
 	XMLNode node = m_cellNode->first_child();
 	while(!node.empty()) {
 		XMLNode nextNode = node.next_sibling();
-		// ===== Only preserve non-whitespace nodes
+		// Only preserve non-whitespace nodes
 		if(node.type() == pugi::node_element) {
 			std::string nodeName = node.name();
-			if(((keep & XLKeepCellValue  ) && nodeName == "v")// if value shall be kept & this is value
-			    ||((keep & XLKeepCellFormula) && nodeName == "f")) // or formula shall be kept & this is formula
+			if(((keep & XLKeepCellValue) && nodeName == "v")// if value shall be kept & this is value
+			    || ((keep & XLKeepCellFormula) && nodeName == "f")) // or formula shall be kept & this is formula
 				node = XMLNode{}; // empty node won't get deleted
 		}
-		// ===== Remove all non-kept cell node children
+		// Remove all non-kept cell node children
 		if(not node.empty())  
 			m_cellNode->remove_child(node);
 		node = nextNode; // advance to previously determined next cell node child
@@ -711,23 +711,23 @@ namespace OpenXLSX { // utility functions findRowNode and findCellNode
 			using namespace std::literals::string_literals;
 			throw XLCellAddressError("rowNumber "s + std::to_string(rowNumber) + " is outside valid range [1;"s + std::to_string(OpenXLSX::MAX_ROWS) + "]"s);
 		}
-		// ===== Get the last child of sheetDataNode that is of type node_element.
+		// Get the last child of sheetDataNode that is of type node_element.
 		XMLNode rowNode = sheetDataNode.last_child_of_type(pugi::node_element);
-		// ===== If there are now rows in the worksheet, or the requested row is beyond the current max row, return an empty node
+		// If there are now rows in the worksheet, or the requested row is beyond the current max row, return an empty node
 		if(rowNode.empty() || (rowNumber > rowNode.attribute("r").as_ullong()))
 			return XMLNode{};
-		// ===== If the requested node is closest to the end, start from the end and search backwards.
+		// If the requested node is closest to the end, start from the end and search backwards.
 		if(rowNode.attribute("r").as_ullong() - rowNumber < rowNumber) {
 			while(!rowNode.empty() && (rowNode.attribute("r").as_ullong() > rowNumber))
 				rowNode = rowNode.previous_sibling_of_type(pugi::node_element);
 			if(rowNode.empty() || (rowNode.attribute("r").as_ullong() != rowNumber))
 				return XMLNode{};
 		}
-		// ===== Otherwise, start from the beginning
+		// Otherwise, start from the beginning
 		else {
-			// ===== At this point, it is guaranteed that there is at least one node_element in the row that is not empty.
+			// At this point, it is guaranteed that there is at least one node_element in the row that is not empty.
 			rowNode = sheetDataNode.first_child_of_type(pugi::node_element);
-			// ===== It has been verified above that the requested rowNumber is <= the row number of the last node_element, therefore this loop will halt.
+			// It has been verified above that the requested rowNumber is <= the row number of the last node_element, therefore this loop will halt.
 			while(rowNode.attribute("r").as_ullong() < rowNumber)
 				rowNode = rowNode.next_sibling_of_type(pugi::node_element);
 			if(rowNode.attribute("r").as_ullong() > rowNumber)
@@ -745,21 +745,21 @@ namespace OpenXLSX { // utility functions findRowNode and findCellNode
 		if(rowNode.empty())  
 			return XMLNode{};
 		XMLNode cellNode = rowNode.last_child_of_type(pugi::node_element);
-		// ===== If there are no cells in the current row, or the requested cell is beyond the last cell in the row...
+		// If there are no cells in the current row, or the requested cell is beyond the last cell in the row...
 		if(cellNode.empty() || (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber))
 			return XMLNode{};
-		// ===== If the requested node is closest to the end, start from the end and search backwards...
+		// If the requested node is closest to the end, start from the end and search backwards...
 		if(XLCellReference(cellNode.attribute("r").value()).column() - columnNumber < columnNumber) {
 			while(!cellNode.empty() && (XLCellReference(cellNode.attribute("r").value()).column() > columnNumber))
 				cellNode = cellNode.previous_sibling_of_type(pugi::node_element);
 			if(cellNode.empty() || (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber))
 				return XMLNode{};
 		}
-		// ===== Otherwise, start from the beginning
+		// Otherwise, start from the beginning
 		else {
-			// ===== At this point, it is guaranteed that there is at least one node_element in the row that is not empty.
+			// At this point, it is guaranteed that there is at least one node_element in the row that is not empty.
 			cellNode = rowNode.first_child_of_type(pugi::node_element);
-			// ===== It has been verified above that the requested columnNumber is <= the column number of the last node_element, therefore this loop will halt:
+			// It has been verified above that the requested columnNumber is <= the column number of the last node_element, therefore this loop will halt:
 			while(XLCellReference(cellNode.attribute("r").value()).column() < columnNumber)
 				cellNode = cellNode.next_sibling_of_type(pugi::node_element);
 			if(XLCellReference(cellNode.attribute("r").value()).column() > columnNumber)
@@ -841,7 +841,7 @@ XLCellIterator& XLCellIterator::operator=(XLCellIterator&& other) noexcept = def
  */
 void XLCellIterator::updateCurrentCell(bool createIfMissing)
 {
-	// ===== Quick exit checks - can't be true when m_endReached
+	// Quick exit checks - can't be true when m_endReached
 	if(m_currentCellStatus == XLLoaded)  
 		return; // nothing to do, cell is already loaded
 	if(!createIfMissing && m_currentCellStatus == XLNoSuchCell)  
@@ -849,7 +849,7 @@ void XLCellIterator::updateCurrentCell(bool createIfMissing)
 	// At this stage, m_currentCellStatus is XLUnloaded or XLNoSuchCell and createIfMissing == true
 	if(m_endReached)
 		throw XLInputError("XLCellIterator updateCurrentCell: iterator should not be dereferenced when endReached() == true");
-	// ===== Cell needs to be updated
+	// Cell needs to be updated
 	if(m_hintNode.empty()) { // no hint has been established: fetch first cell node the "tedious" way
 		if(createIfMissing) // getCellNode / getRowNode create missing cells
 			m_currentCell = XLCell(getCellNode(getRowNode(*m_dataNode, m_currentRow), m_currentColumn, 0, *m_colStyles), m_sharedStrings.get());
@@ -857,9 +857,9 @@ void XLCellIterator::updateCurrentCell(bool createIfMissing)
 			m_currentCell = XLCell(findCellNode(findRowNode(*m_dataNode, m_currentRow), m_currentColumn), m_sharedStrings.get());
 	}
 	else {
-		// ===== Find or create, and fetch an XLCell at m_currentRow, m_currentColumn
+		// Find or create, and fetch an XLCell at m_currentRow, m_currentColumn
 		if(m_currentRow == m_hintRow) { // new cell is within the same row
-			// ===== Start from m_hintNode and search forwards...
+			// Start from m_hintNode and search forwards...
 			XMLNode cellNode = m_hintNode.next_sibling_of_type(pugi::node_element);
 			uint16 colNo = 0;
 			while(!cellNode.empty()) {
@@ -870,7 +870,7 @@ void XLCellIterator::updateCurrentCell(bool createIfMissing)
 			}
 			if(colNo != m_currentColumn)  
 				cellNode = XMLNode{};// if a higher column number was found, set empty node (means: "missing")
-			// ===== Create missing cell node if createIfMissing == true
+			// Create missing cell node if createIfMissing == true
 			if(createIfMissing && cellNode.empty()) {
 				cellNode = m_hintNode.parent().insert_child_after("c", m_hintNode);
 				setDefaultCellAttributes(cellNode, XLCellReference(m_currentRow, m_currentColumn).address(), m_hintNode.parent(),
@@ -879,7 +879,7 @@ void XLCellIterator::updateCurrentCell(bool createIfMissing)
 			m_currentCell = XLCell(cellNode, m_sharedStrings.get()); // cellNode.empty() can be true if createIfMissing == false and cell is not found
 		}
 		else if(m_currentRow > m_hintRow) {
-			// ===== Start from m_hintNode parent row and search forwards...
+			// Start from m_hintNode parent row and search forwards...
 			XMLNode rowNode = m_hintNode.parent().next_sibling_of_type(pugi::node_element);
 			uint32 rowNo = 0;
 			while(!rowNode.empty()) {
@@ -889,7 +889,7 @@ void XLCellIterator::updateCurrentCell(bool createIfMissing)
 				rowNode = rowNode.next_sibling_of_type(pugi::node_element);
 			}
 			if(rowNo != m_currentRow)  rowNode = XMLNode{};// if a higher row number was found, set empty node (means: "missing")
-			// ===== Create missing row node if createIfMissing == true
+			// Create missing row node if createIfMissing == true
 			if(createIfMissing && rowNode.empty()) {
 				rowNode = m_dataNode->insert_child_after("row", m_hintNode.parent());
 				rowNode.append_attribute("r").set_value(m_currentRow);
@@ -898,10 +898,10 @@ void XLCellIterator::updateCurrentCell(bool createIfMissing)
 				m_currentCell = XLCell{}; // make sure m_currentCell is set to an empty cell
 			else {      // else: row found
 				if(createIfMissing) {
-					// ===== Pass the already known m_currentRow to getCellNode so that it does not have to be fetched again
+					// Pass the already known m_currentRow to getCellNode so that it does not have to be fetched again
 					m_currentCell = XLCell(getCellNode(rowNode, m_currentColumn, m_currentRow, *m_colStyles), m_sharedStrings.get());
 				}
-				else // ===== Do a "soft find" if a missing cell shall not be created
+				else // Do a "soft find" if a missing cell shall not be created
 					m_currentCell = XLCell(findCellNode(rowNode, m_currentColumn), m_sharedStrings.get());
 			}
 		}
@@ -911,7 +911,7 @@ void XLCellIterator::updateCurrentCell(bool createIfMissing)
 	if(m_currentCell.empty()) // if cell is confirmed missing
 		m_currentCellStatus = XLNoSuchCell; // mark this status for further calls to updateCurrentCell()
 	else {
-		// ===== If the current cell exists, update the hints
+		// If the current cell exists, update the hints
 		m_hintNode   = *m_currentCell.m_cellNode;// 2024-08-11: don't store a full XLCell, just the XMLNode, for better performance
 		m_hintRow    = m_currentRow;
 		m_currentCellStatus = XLLoaded; // mark cell status for further calls to updateCurrentCell()
@@ -980,7 +980,7 @@ bool XLCellIterator::operator!=(const XLCellIterator& rhs) const { return !(*thi
 
 bool XLCellIterator::cellExists()
 {
-	// ===== Update m_currentCell once so that cellExists will always test the correct cell (an empty cell if current cell doesn't exist)
+	// Update m_currentCell once so that cellExists will always test the correct cell (an empty cell if current cell doesn't exist)
 	updateCurrentCell(XLDoNotCreateIfMissing);
 	return not m_currentCell.empty();
 }
@@ -995,7 +995,7 @@ uint64 XLCellIterator::distance(const XLCellIterator& last)
 	const uint32 row = (m_endReached ? m_bottomRight.row() : m_currentRow);
 	const uint16 col = (m_endReached ? m_bottomRight.column() + 1 : m_currentColumn);
 	const uint32 lastRow = (last.m_endReached ? last.m_bottomRight.row() : last.m_currentRow);
-	// ===== lastCol can store +1 for beyond-the-end iterator without overflow because MAX_COLS is less than max uint16
+	// lastCol can store +1 for beyond-the-end iterator without overflow because MAX_COLS is less than max uint16
 	const uint16 lastCol = (last.m_endReached ? last.m_bottomRight.column() + 1 : last.m_currentColumn);
 	const uint16 rowWidth = m_bottomRight.column() - m_topLeft.column() + 1; // amount of cells in a row of the iterator range
 	const int64_t distance =  ((int64_t)(lastRow) - row) * rowWidth/*row distance * rowWidth*/ + (int64_t)(lastCol) - col/*+ column distance (may be negative)*/;
@@ -1102,15 +1102,15 @@ XLCellIterator XLCellRange::end() const { return XLCellIterator(*this, XLIterato
 
 void XLCellRange::clear()
 {
-	for(auto& cell : *this)
+	for(auto & cell : *this)
 		cell.value().clear();
 }
 /**
  * @details Iterate over the full range and set format for each existing cell
  */
-bool XLCellRange::setFormat(size_t cellFormatIndex)
+bool XLCellRange::setFormat(XLStyleIndex cellFormatIndex)
 {
-	// ===== Iterate over all cells in the range
+	// Iterate over all cells in the range
 	for(auto it = begin(); it != end(); ++it)
 		if(!it->setCellFormat(cellFormatIndex)) // attempt to set cell format
 			return false;                   // fail if any setCellFormat failed
@@ -1132,13 +1132,13 @@ namespace {
  * @details The constructor creates a new XLCellReference from a string, e.g. 'A1'. If there's no input,
  * the default reference will be cell A1.
  */
-XLCellReference::XLCellReference(const std::string& cellAddress)
+XLCellReference::XLCellReference(const std::string & cellAddress)
 {
 	if(!cellAddress.empty())  
 		setAddress(cellAddress);
 	if(cellAddress.empty() && !addressIsValid(m_row, m_column)) { // 2024-04-25: throw exception on empty string // @sobolev @fix ||-->&& 
 		throw XLCellAddressError("Cell reference is invalid");
-		// ===== 2024-05-27: below code is obsolete due to exception on invalid cellAddress
+		// 2024-05-27: below code is obsolete due to exception on invalid cellAddress
 		// m_row         = 1;
 		// m_column      = 1;
 		// m_cellAddress = "A1";
@@ -1311,15 +1311,15 @@ uint32 XLCellReference::rowAsNumber(const std::string& row)
 std::string XLCellReference::columnAsString(uint16 column)
 {
 	std::string result;
-	// ===== If there is one letter in the Column Name:
+	// If there is one letter in the Column Name:
 	if(column <= alphabetSize)  
 		result += static_cast<char>(column + asciiOffset);
-	// ===== If there are two letters in the Column Name:
+	// If there are two letters in the Column Name:
 	else if(column > alphabetSize && column <= alphabetSize * (alphabetSize + 1)) {
 		result += static_cast<char>((column - (alphabetSize + 1)) / alphabetSize + asciiOffset + 1);
 		result += static_cast<char>((column - (alphabetSize + 1)) % alphabetSize + asciiOffset + 1);
 	}
-	// ===== If there are three letters in the Column Name:
+	// If there are three letters in the Column Name:
 	else {
 		result += static_cast<char>((column - 703) / (alphabetSize * alphabetSize) + asciiOffset + 1);
 		result += static_cast<char>(((column - 703) / alphabetSize) % alphabetSize + asciiOffset + 1);
@@ -1344,7 +1344,7 @@ uint16 XLCellReference::columnAsNumber(const std::string& column)
 		else
 			break;
 	}
-	// ===== If the full string was decoded and colNo is within allowed range [1;MAX_COLS]
+	// If the full string was decoded and colNo is within allowed range [1;MAX_COLS]
 	if(letterCount == column.length() && colNo > 0 && colNo <= MAX_COLS)
 		return static_cast<uint16>(colNo);
 	throw XLInputError("XLCellReference::columnAsNumber - column \"" + column + "\" is invalid");
@@ -1377,7 +1377,7 @@ XLCoordinates XLCellReference::coordinatesFromAddress(const std::string& address
 		else
 			break;
 	}
-	// ===== If address contains between 1 and 3 letters and has at least 1 more character for the row
+	// If address contains between 1 and 3 letters and has at least 1 more character for the row
 	if(colNo > 0 && colNo <= MAX_COLS && address.length() > letterCount) {
 		size_t pos = static_cast<size_t>(letterCount);
 		uint64 rowNo = 0;
@@ -1524,17 +1524,13 @@ XLCellValueProxy::operator XLCellValue() const { return getValue(); }
  */
 XLCellValueProxy& XLCellValueProxy::clear()
 {
-	// ===== Check that the m_cellNode is valid.
+	// Check that the m_cellNode is valid.
 	assert(m_cellNode != nullptr);
 	assert(not m_cellNode->empty());
-	// ===== Remove the type attribute
-	m_cellNode->remove_attribute("t");
-	// ===== Disable space preservation (only relevant for strings).
-	m_cellNode->remove_attribute(" xml:space");
-	// ===== Remove the value node.
-	m_cellNode->remove_child("v");
-	// ===== Remove the is node (only relevant in case previous cell type was "inlineStr"). // pull request #188
-	m_cellNode->remove_child("is");
+	m_cellNode->remove_attribute("t"); // Remove the type attribute
+	m_cellNode->remove_attribute(" xml:space"); // Disable space preservation (only relevant for strings).
+	m_cellNode->remove_child("v"); // Remove the value node.
+	m_cellNode->remove_child("is"); // Remove the is node (only relevant in case previous cell type was "inlineStr"). // pull request #188
 	return *this;
 }
 /**
@@ -1545,22 +1541,22 @@ XLCellValueProxy& XLCellValueProxy::clear()
  */
 XLCellValueProxy& XLCellValueProxy::setError(const std::string &error)
 {
-	// ===== Check that the m_cellNode is valid.
+	// Check that the m_cellNode is valid.
 	assert(m_cellNode != nullptr);
 	assert(not m_cellNode->empty());
-	// ===== If the cell node doesn't have a type attribute, create it.
+	// If the cell node doesn't have a type attribute, create it.
 	if(!m_cellNode->attribute("t"))
 		m_cellNode->append_attribute("t");
-	// ===== Set the type to "e", i.e. error
+	// Set the type to "e", i.e. error
 	m_cellNode->attribute("t").set_value("e");
-	// ===== If the cell node doesn't have a value child node, create it.
+	// If the cell node doesn't have a value child node, create it.
 	if(!m_cellNode->child("v"))  
 		m_cellNode->append_child("v");
-	// ===== Set the child value to the error
+	// Set the child value to the error
 	m_cellNode->child("v").text().set(error.c_str());
-	// ===== Disable space preservation (only relevant for strings).
+	// Disable space preservation (only relevant for strings).
 	m_cellNode->remove_attribute(" xml:space");
-	// ===== Remove the is node (only relevant in case previous cell type was "inlineStr"). // pull request #188
+	// Remove the is node (only relevant in case previous cell type was "inlineStr"). // pull request #188
 	m_cellNode->remove_child("is");
 	return *this;
 }
@@ -1571,32 +1567,32 @@ XLCellValueProxy& XLCellValueProxy::setError(const std::string &error)
  */
 XLValueType XLCellValueProxy::type() const
 {
-	// ===== Check that the m_cellNode is valid.
+	// Check that the m_cellNode is valid.
 	assert(m_cellNode != nullptr);
 	assert(not m_cellNode->empty());
-	// ===== If neither a Type attribute or a getValue node is present, the cell is empty.
+	// If neither a Type attribute or a getValue node is present, the cell is empty.
 	if(!m_cellNode->attribute("t") && !m_cellNode->child("v"))  
 		return XLValueType::Empty;
-	// ===== If a Type attribute is not present, but a value node is, the cell contains a number.
+	// If a Type attribute is not present, but a value node is, the cell contains a number.
 	if(m_cellNode->attribute("t").empty() || (sstreq(m_cellNode->attribute("t").value(), "n") && not m_cellNode->child("v").empty())) {
 		if(const std::string numberString = m_cellNode->child("v").text().get();
 		    numberString.find('.') != std::string::npos || numberString.find("E-") != std::string::npos || numberString.find("e-") != std::string::npos)
 			return XLValueType::Float;
 		return XLValueType::Integer;
 	}
-	// ===== If the cell is of type "s", the cell contains a shared string.
+	// If the cell is of type "s", the cell contains a shared string.
 	if(not m_cellNode->attribute("t").empty() && sstreq(m_cellNode->attribute("t").value(), "s"))
 		return XLValueType::String;
-	// ===== If the cell is of type "inlineStr", the cell contains an inline string.
+	// If the cell is of type "inlineStr", the cell contains an inline string.
 	if(not m_cellNode->attribute("t").empty() && sstreq(m_cellNode->attribute("t").value(), "inlineStr"))
 		return XLValueType::String;
-	// ===== If the cell is of type "str", the cell contains an ordinary string.
+	// If the cell is of type "str", the cell contains an ordinary string.
 	if(not m_cellNode->attribute("t").empty() && sstreq(m_cellNode->attribute("t").value(), "str"))
 		return XLValueType::String;
-	// ===== If the cell is of type "b", the cell contains a boolean.
+	// If the cell is of type "b", the cell contains a boolean.
 	if(not m_cellNode->attribute("t").empty() && sstreq(m_cellNode->attribute("t").value(), "b"))
 		return XLValueType::Boolean;
-	// ===== Otherwise, the cell contains an error.
+	// Otherwise, the cell contains an error.
 	return XLValueType::Error; // the m_typeAttribute has the ValueAsString "e"
 }
 /**
@@ -1621,19 +1617,19 @@ std::string XLCellValueProxy::getString() const
  */
 void XLCellValueProxy::setInteger(int64_t numberValue)
 {
-	// ===== Check that the m_cellNode is valid.
+	// Check that the m_cellNode is valid.
 	assert(m_cellNode != nullptr);
 	assert(not m_cellNode->empty());
-	// ===== If the cell node doesn't have a value child node, create it.
+	// If the cell node doesn't have a value child node, create it.
 	if(m_cellNode->child("v").empty())  
 		m_cellNode->append_child("v");
-	// ===== The type ("t") attribute is not required for number values.
+	// The type ("t") attribute is not required for number values.
 	m_cellNode->remove_attribute("t");
-	// ===== Set the text of the value node.
+	// Set the text of the value node.
 	m_cellNode->child("v").text().set(numberValue);
-	// ===== Disable space preservation (only relevant for strings).
+	// Disable space preservation (only relevant for strings).
 	m_cellNode->child("v").remove_attribute(m_cellNode->child("v").attribute("xml:space"));
-	// ===== Remove the is node (only relevant in case previous cell type was "inlineStr"). // pull request #188
+	// Remove the is node (only relevant in case previous cell type was "inlineStr"). // pull request #188
 	m_cellNode->remove_child("is");
 }
 /**
@@ -1644,22 +1640,22 @@ void XLCellValueProxy::setInteger(int64_t numberValue)
  */
 void XLCellValueProxy::setBoolean(bool numberValue)
 {
-	// ===== Check that the m_cellNode is valid.
+	// Check that the m_cellNode is valid.
 	assert(m_cellNode != nullptr);
 	assert(not m_cellNode->empty());
-	// ===== If the cell node doesn't have a type child node, create it.
+	// If the cell node doesn't have a type child node, create it.
 	if(m_cellNode->attribute("t").empty())  
 		m_cellNode->append_attribute("t");
-	// ===== If the cell node doesn't have a value child node, create it.
+	// If the cell node doesn't have a value child node, create it.
 	if(m_cellNode->child("v").empty())  
 		m_cellNode->append_child("v");
-	// ===== Set the type attribute.
+	// Set the type attribute.
 	m_cellNode->attribute("t").set_value("b");
-	// ===== Set the text of the value node.
+	// Set the text of the value node.
 	m_cellNode->child("v").text().set(numberValue ? 1 : 0);
-	// ===== Disable space preservation (only relevant for strings).
+	// Disable space preservation (only relevant for strings).
 	m_cellNode->child("v").remove_attribute(m_cellNode->child("v").attribute("xml:space"));
-	// ===== Remove the is node (only relevant in case previous cell type was "inlineStr"). // pull request #188
+	// Remove the is node (only relevant in case previous cell type was "inlineStr"). // pull request #188
 	m_cellNode->remove_child("is");
 }
 /**
@@ -1672,19 +1668,19 @@ void XLCellValueProxy::setFloat(double numberValue)
 {
 	// check for nan / inf
 	if(std::isfinite(numberValue)) {
-		// ===== Check that the m_cellNode is valid.
+		// Check that the m_cellNode is valid.
 		assert(m_cellNode != nullptr);
 		assert(not m_cellNode->empty());
-		// ===== If the cell node doesn't have a value child node, create it.
+		// If the cell node doesn't have a value child node, create it.
 		if(m_cellNode->child("v").empty())  
 			m_cellNode->append_child("v");
-		// ===== The type ("t") attribute is not required for number values.
+		// The type ("t") attribute is not required for number values.
 		m_cellNode->remove_attribute("t");
-		// ===== Set the text of the value node.
+		// Set the text of the value node.
 		m_cellNode->child("v").text().set(numberValue);
-		// ===== Disable space preservation (only relevant for strings).
+		// Disable space preservation (only relevant for strings).
 		m_cellNode->child("v").remove_attribute(m_cellNode->child("v").attribute("xml:space"));
-		// ===== Remove the is node (only relevant in case previous cell type was "inlineStr"). // pull request #188
+		// Remove the is node (only relevant in case previous cell type was "inlineStr"). // pull request #188
 		m_cellNode->remove_child("is");
 	}
 	else {
@@ -1700,23 +1696,23 @@ void XLCellValueProxy::setFloat(double numberValue)
  */
 void XLCellValueProxy::setString(const char * stringValue)
 {
-	// ===== Check that the m_cellNode is valid.
+	// Check that the m_cellNode is valid.
 	assert(m_cellNode != nullptr);
 	assert(not m_cellNode->empty());
-	// ===== If the cell node doesn't have a type child node, create it.
+	// If the cell node doesn't have a type child node, create it.
 	if(m_cellNode->attribute("t").empty())  
 		m_cellNode->append_attribute("t");
-	// ===== If the cell node doesn't have a value child node, create it.
+	// If the cell node doesn't have a value child node, create it.
 	if(m_cellNode->child("v").empty())  
 		m_cellNode->append_child("v");
-	// ===== Set the type attribute.
+	// Set the type attribute.
 	m_cellNode->attribute("t").set_value("s");
-	// ===== Get or create the index in the XLSharedStrings object.
+	// Get or create the index in the XLSharedStrings object.
 	const auto index = (m_cell->m_sharedStrings.get().stringExists(stringValue)
 	    /**/ ? m_cell->m_sharedStrings.get().getStringIndex(stringValue) /**/ : m_cell->m_sharedStrings.get().appendString(stringValue));
-	// ===== Set the text of the value node.
+	// Set the text of the value node.
 	m_cellNode->child("v").text().set(index);
-	// ===== Remove the is node (only relevant in case previous cell type was "inlineStr"). // pull request #188
+	// Remove the is node (only relevant in case previous cell type was "inlineStr"). // pull request #188
 	m_cellNode->remove_child("is");
 
 	/* 2024-04-23: NOTE "embedded" strings are "inline strings" in XLSX, using a node like so:
@@ -1742,7 +1738,7 @@ void XLCellValueProxy::setString(const char * stringValue)
  */
 XLCellValue XLCellValueProxy::getValue() const
 {
-	// ===== Check that the m_cellNode is valid.
+	// Check that the m_cellNode is valid.
 	assert(m_cellNode != nullptr);
 	assert(not m_cellNode->empty());
 	switch(type()) {
@@ -1873,14 +1869,21 @@ std::string XLColor::hex() const
 /**
  * @details Assumes each node only has data for one column.
  */
-XLColumn::XLColumn(const XMLNode& columnNode) : m_columnNode(std::make_unique<XMLNode>(columnNode)) {}
-XLColumn::XLColumn(const XLColumn& other) : m_columnNode(std::make_unique<XMLNode>(*other.m_columnNode)) {}
+XLColumn::XLColumn(const XMLNode& columnNode) : m_columnNode(std::make_unique<XMLNode>(columnNode)) 
+{
+}
+
+XLColumn::XLColumn(const XLColumn& other) : m_columnNode(std::make_unique<XMLNode>(*other.m_columnNode)) 
+{
+}
+
 XLColumn::XLColumn(XLColumn&& other) noexcept = default;
 XLColumn::~XLColumn() = default;
 
 XLColumn& XLColumn::operator=(const XLColumn& other)
 {
-	if(&other != this)  *m_columnNode = *other.m_columnNode;
+	if(&other != this)
+		*m_columnNode = *other.m_columnNode;
 	return *this;
 }
 
@@ -1905,7 +1908,8 @@ bool XLColumn::isHidden() const { return columnNode().attribute("hidden").as_boo
 void XLColumn::setHidden(bool state)
 {
 	auto hiddenAtt = columnNode().attribute("hidden");
-	if(hiddenAtt.empty())  hiddenAtt = columnNode().append_attribute("hidden");
+	if(hiddenAtt.empty())
+		hiddenAtt = columnNode().append_attribute("hidden");
 	if(state)
 		hiddenAtt.set_value("1");
 	else
@@ -2203,7 +2207,7 @@ bool XLComments::deleteComment(const std::string& cellRef)
 		m_hintNode = XMLNode{}; // reset hint after modification of comment list
 		m_hintIndex = 0;
 	}
-	// ===== Delete the shape associated with the comment.
+	// Delete the shape associated with the comment.
 	OpenXLSX::ignore(m_vmlDrawing->deleteShape(cellRef)); // disregard if deleteShape fails
 	return true;
 }
@@ -2264,7 +2268,7 @@ bool XLComments::set(std::string const& cellRef, std::string const& commentText,
 			comment.remove_children(); // clear node content
 	}
 
-	// ===== If the list of nodes was modified, re-set m_hintNode that is used to access nodes by index
+	// If the list of nodes was modified, re-set m_hintNode that is used to access nodes by index
 	if(newCommentCreated) {
 		m_hintNode = XMLNode{}; // reset hint after modification of comment list
 		m_hintIndex = 0;
@@ -2562,15 +2566,15 @@ void XLContentTypes::addOverride(const std::string& path, XLContentType type)
 	if(lastOverride.empty())
 		node = xmlDocument().document_element().prepend_child("Override");
 	else { // if last element found
-		// ===== Insert node after previous override
+		// Insert node after previous override
 		node = xmlDocument().document_element().insert_child_after("Override", lastOverride);
-		// ===== Using whitespace nodes prior to lastOverride as a template, insert whitespaces between lastOverride and the new node
+		// Using whitespace nodes prior to lastOverride as a template, insert whitespaces between lastOverride and the new node
 		XMLNode copyWhitespaceFrom = lastOverride; // start looking for whitespace nodes before previous override
 		XMLNode insertBefore = node;          // start inserting the same whitespace nodes before new override
 		while(copyWhitespaceFrom.previous_sibling().type() == pugi::node_pcdata) { // empty node returns pugi::node_null
 			// Advance to previous "template" whitespace node, ensured to exist in while-condition
 			copyWhitespaceFrom = copyWhitespaceFrom.previous_sibling();
-			// ===== Insert a whitespace node
+			// Insert a whitespace node
 			insertBefore = xmlDocument().document_element().insert_child_before(pugi::node_pcdata, insertBefore);
 			insertBefore.set_value(copyWhitespaceFrom.value()); // copy the a whitespace in sequence node value
 		}
@@ -2655,28 +2659,28 @@ namespace OpenXLSX {
 	 */
 	XLDateTime::XLDateTime(const std::tm& timepoint)
 	{
-		// ===== Check validity of tm struct.
-		// ===== Only year, month and day of the month are checked. Other variables are ignored.
+		// Check validity of tm struct.
+		// Only year, month and day of the month are checked. Other variables are ignored.
 		if(timepoint.tm_year < 0)
 			throw XLDateTimeError("Invalid year. Must be >= 0.");
 		if(timepoint.tm_mon < 0 || timepoint.tm_mon > 11)
 			throw XLDateTimeError("Invalid month. Must be >= 0 or <= 11.");
 		if(timepoint.tm_mday <= 0 || timepoint.tm_mday > daysInMonth(timepoint.tm_mon + 1, timepoint.tm_year + 1900))
 			throw XLDateTimeError("Invalid day. Must be >= 1 or <= total days in the month.");
-		// ===== Count the number of days for full years past 1900
+		// Count the number of days for full years past 1900
 		for(int i = 0; i < timepoint.tm_year; ++i) {
 			m_serial += (isLeapYear(1900 + i) ? 366 : 365);
 		}
-		// ===== Count the number of days for full months of the last year
+		// Count the number of days for full months of the last year
 		for(int i = 0; i < timepoint.tm_mon; ++i) {
 			m_serial += daysInMonth(i + 1, timepoint.tm_year + 1900);
 		}
-		// ===== Add the number of days of the month, minus one.
-		// ===== (The reason for the 'minus one' is that unlike the other fields in the struct,
-		// ===== tm_day represents the date of a month, whereas the other fields typically
-		// ===== represents the number of whole units since the start).
+		// Add the number of days of the month, minus one.
+		// (The reason for the 'minus one' is that unlike the other fields in the struct,
+		// tm_day represents the date of a month, whereas the other fields typically
+		// represents the number of whole units since the start).
 		m_serial += timepoint.tm_mday - 1;
-		// ===== Convert hour, minute and second to fraction of a full day.
+		// Convert hour, minute and second to fraction of a full day.
 		const int32_t seconds = timepoint.tm_hour * 3600 + timepoint.tm_min * 60 + timepoint.tm_sec;
 		m_serial += seconds / 86400.0;
 	}
@@ -2720,7 +2724,7 @@ namespace OpenXLSX {
 	 */
 	std::tm XLDateTime::tm() const
 	{
-		// ===== Create and initialize the resulting object.
+		// Create and initialize the resulting object.
 		std::tm result {};
 		result.tm_year  = 0;
 		result.tm_mon   = 0;
@@ -2733,7 +2737,7 @@ namespace OpenXLSX {
 		result.tm_isdst = -1;
 		double serial   = m_serial;
 
-		// ===== Count the number of whole years since 1900.
+		// Count the number of whole years since 1900.
 		while(serial > 1) {   // 2025-01-10: safeguard against infinite loop (preemptive)
 			const int days = (isLeapYear(result.tm_year + 1900) ? 366 : 365);
 			if(days + 1 > serial)
@@ -2741,10 +2745,10 @@ namespace OpenXLSX {
 			serial -= days;
 			++result.tm_year;
 		}
-		// ===== Calculate the day of the year, and the day of the week
+		// Calculate the day of the year, and the day of the week
 		result.tm_yday = static_cast<int>(serial) - 1;
 		result.tm_wday = dayOfWeek(m_serial);
-		// ===== Count the number of whole months in the year.
+		// Count the number of whole months in the year.
 		while(result.tm_mon < 11) {    // 2025-01-10 BUGFIX: break on December to prevent infinite loop after adjusted bugfix below
 			int days = daysInMonth(result.tm_mon + 1, 1900 + result.tm_year);
 			if(days + 1 > serial)
@@ -2752,18 +2756,18 @@ namespace OpenXLSX {
 			serial -= days;
 			++result.tm_mon;
 		}
-		// ===== Calculate the number of days.
+		// Calculate the number of days.
 		result.tm_mday = static_cast<int>(serial);
 		serial -= result.tm_mday;
-		// ===== Calculate the number of hours.
+		// Calculate the number of hours.
 		result.tm_hour = static_cast<int>(serial * 24);
 		serial -= (result.tm_hour / 24.0);
-		// ===== Calculate the number of minutes.
+		// Calculate the number of minutes.
 		result.tm_min = static_cast<int>(serial * 24 * 60);
 		serial -= (result.tm_min / (24.0 * 60.0));
-		// ===== Calculate the number of seconds.
+		// Calculate the number of seconds.
 		result.tm_sec = static_cast<int>(lround(serial * 24 * 60 * 60));
-		// ===== BEGIN: pass rounded overflow back up the date components. BUGFIX 2025-01-10: added this overflow handling to address issue #138
+		// BEGIN: pass rounded overflow back up the date components. BUGFIX 2025-01-10: added this overflow handling to address issue #138
 		if(result.tm_sec >= 60) {
 			result.tm_sec -= 60;
 			++result.tm_min;
@@ -3190,7 +3194,7 @@ void XLDocument::open(const std::string & fileName)
 		close();// TBD: consider throwing if a file is already open.
 	m_filePath = fileName;
 	m_archive.open(m_filePath);
-	// ===== Add and open the Relationships and [Content_Types] files for the document level.
+	// Add and open the Relationships and [Content_Types] files for the document level.
 	std::string relsFilename = "_rels/.rels";
 	m_data.emplace_back(this, "[Content_Types].xml");
 	m_data.emplace_back(this, relsFilename);
@@ -3208,7 +3212,7 @@ void XLDocument::open(const std::string & fileName)
 			break;
 		}
 	}
-	// ===== Determine workbook relationships path based on workbookPath, and construct m_wbkRelationships
+	// Determine workbook relationships path based on workbookPath, and construct m_wbkRelationships
 	size_t path_pos = workbookPath.find_last_of('/');
 	if(path_pos == std::string::npos) {
 		using namespace std::literals::string_literals;
@@ -3217,20 +3221,20 @@ void XLDocument::open(const std::string & fileName)
 	std::string workbookRelsFilename = std::string("xl/_rels/") + workbookPath.substr(path_pos + 1) + std::string(".rels");
 	m_data.emplace_back(this, workbookRelsFilename); // m_data.emplace_back(this, "xl/_rels/workbook.xml.rels");
 	m_wbkRelationships = XLRelationships(getXmlData(workbookRelsFilename), workbookRelsFilename);
-	// ===== Create xl/styles.xml if missing
+	// Create xl/styles.xml if missing
 	if(!m_archive.hasEntry("xl/styles.xml"))  
 		execCommand(XLCommand(XLCommandType::AddStyles));
-	// ===== Create xl/sharedStrings.xml from scratch if missing
+	// Create xl/sharedStrings.xml from scratch if missing
 	if(!m_archive.hasEntry("xl/sharedStrings.xml"))  
 		execCommand(XLCommand(XLCommandType::AddSharedStrings));
-	// ===== Add remaining spreadsheet elements to the vector of XLXmlData objects.
+	// Add remaining spreadsheet elements to the vector of XLXmlData objects.
 	for(auto& item : m_contentTypes.getContentItems()) {
-		// ===== 2024-07-26 BUGFIX: ignore content item entries for relationship files, that have already been read above
+		// 2024-07-26 BUGFIX: ignore content item entries for relationship files, that have already been read above
 		if(item.path().substr(1) == relsFilename)
 			continue;    // always ignore relsFilename - would have thrown above if not found
 		if(item.path().substr(1) == workbookRelsFilename)
 			continue;// always ignore workbookRelsFilename - would have thrown
-		// ===== Test if item is not in a known and handled subfolder (e.g. /customXml/*)
+		// Test if item is not in a known and handled subfolder (e.g. /customXml/*)
 		if(size_t pos = item.path().substr(1).find_first_of('/'); pos != std::string::npos) {
 			std::string subdirectory = item.path().substr(1, pos);
 			if(subdirectory != "xl" && subdirectory != "docProps")
@@ -3264,7 +3268,7 @@ void XLDocument::open(const std::string & fileName)
 		}
 	}
 
-	// ===== Read shared strings table.
+	// Read shared strings table.
 	OXlXmlDoc * sharedStrings = getXmlData("xl/sharedStrings.xml")->getXmlDocument();
 	if(not sharedStrings->document_element().attribute("uniqueCount").empty())
 		sharedStrings->document_element().remove_attribute("uniqueCount"); // pull request #192 -> remove count & uniqueCount as they are optional
@@ -3272,14 +3276,14 @@ void XLDocument::open(const std::string & fileName)
 		sharedStrings->document_element().remove_attribute("count"); // pull request #192 -> remove count & uniqueCount as they are optional
 	XMLNode node = sharedStrings->document_element().first_child_of_type(pugi::node_element); // pull request #186: Skip non-element nodes in sst.
 	while(!node.empty()) {
-		// ===== Validate si node name.
+		// Validate si node name.
 		using namespace std::literals::string_literals;
 		if(node.name() != "si"s)  
 			throw XLInputError("xl/sharedStrings.xml sst node name \""s + node.name() + "\" is not \"si\""s);
-		// ===== 2024-09-01 Refactored code to tolerate a mix of <t> and <r> tags within a shared string entry.
+		// 2024-09-01 Refactored code to tolerate a mix of <t> and <r> tags within a shared string entry.
 		// This simplifies the loop while not doing any harm (obsolete inner loops for rich text and text elements removed).
 
-		// ===== Find first node_element child of si node.
+		// Find first node_element child of si node.
 		XMLNode elem = node.first_child_of_type(pugi::node_element);
 		std::string result{}; // assemble a shared string entry here
 		while(!elem.empty()) {
@@ -3289,7 +3293,7 @@ void XLDocument::open(const std::string & fileName)
 				result += elem.text().get(); // append the tag value to result
 			else if(elementName == "r")    // If elem is rich text
 				result += elem.child("t").text().get(); // append the <t> node value to result
-			// ===== Ignore phonetic property tags
+			// Ignore phonetic property tags
 			else if(elementName == "rPh" || elementName == "phoneticPr") {
 			}
 			else // For all other (unexpected) tags, throw an exception
@@ -3297,23 +3301,23 @@ void XLDocument::open(const std::string & fileName)
 
 			elem = elem.next_sibling_of_type(pugi::node_element); // advance to next child of <si>
 		}
-		// ===== Append an empty string even if elem.empty(), to keep the index aligned with the <si> tag index in the shared strings table <sst>
+		// Append an empty string even if elem.empty(), to keep the index aligned with the <si> tag index in the shared strings table <sst>
 		m_sharedStringCache.emplace_back(result); // 2024-09-01 TBC BUGFIX: previously, a shared strings table entry that had neither <t> nor
 		/**/                              //     <r> nodes would not have appended to m_sharedStringCache, causing an index misalignment
 
 		node = node.next_sibling_of_type(pugi::node_element);
 	}
-	// ===== Open the workbook and document property items
+	// Open the workbook and document property items
 	m_workbook = XLWorkbook(getXmlData(workbookPath));
 	// 2024-05-31: moved XLWorkbook object creation up in code worksheets info can be used for XLAppProperties generation from scratch
-	// ===== 2024-06-03: creating core and extended properties if they do not exist
+	// 2024-06-03: creating core and extended properties if they do not exist
 	execCommand(XLCommand(XLCommandType::CheckAndFixCoreProperties));  // checks & fixes consistency of docProps/core.xml related data
 	execCommand(XLCommand(XLCommandType::CheckAndFixExtendedProperties)); // checks & fixes consistency of docProps/app.xml related data
 	if(!hasXmlData("docProps/core.xml") || !hasXmlData("docProps/app.xml"))
 		throw XLInternalError("Failed to repair docProps (core.xml and/or app.xml)");
 	m_coreProperties = XLProperties(getXmlData("docProps/core.xml"));
 	m_appProperties  = XLAppProperties(getXmlData("docProps/app.xml"), m_workbook.xmlDocument());
-	// ===== 2024-09-02: ensure that all worksheets are contained in app.xml <TitlesOfParts> and reflected in <HeadingPairs> value for Worksheets
+	// 2024-09-02: ensure that all worksheets are contained in app.xml <TitlesOfParts> and reflected in <HeadingPairs> value for Worksheets
 	m_appProperties.alignWorksheets(m_workbook.sheetNames());
 	m_sharedStrings  = XLSharedStrings(getXmlData("xl/sharedStrings.xml"), &m_sharedStringCache);
 	m_styles         = XLStyles(getXmlData("xl/styles.xml"), m_suppressWarnings);// 2024-10-14: forward supress warnings setting to XLStyles
@@ -3375,15 +3379,15 @@ void XLDocument::create(const std::string & fileName, bool forceOverwrite)
 		using namespace std::literals::string_literals;
 		throw XLException("XLDocument::create: refusing to overwrite existing file "s + fileName);
 	}
-	// ===== Create a temporary output file stream.
+	// Create a temporary output file stream.
 #ifdef ENABLE_NOWIDE
 	nowide::ofstream outfile(fileName, std::ios::binary);
 #else
 	std::ofstream outfile(fileName, std::ios::binary);
 #endif
 
-	// ===== Stream the binary data for an empty workbook to the output file.
-	// ===== Casting, in particular reinterpret_cast, is discouraged, but in this case it is unfortunately unavoidable.
+	// Stream the binary data for an empty workbook to the output file.
+	// Casting, in particular reinterpret_cast, is discouraged, but in this case it is unfortunately unavoidable.
 	outfile.write(reinterpret_cast<const char*>(templateData), templateSize);
 	outfile.close();
 	open(fileName);
@@ -3437,10 +3441,10 @@ void XLDocument::saveAs(const std::string& fileName, bool forceOverwrite)
 		throw XLException("XLDocument::saveAs: refusing to overwrite existing file "s + fileName);
 	}
 	m_filePath = fileName;
-	// ===== Delete the calcChain.xml file in order to force re-calculation of the sheet
+	// Delete the calcChain.xml file in order to force re-calculation of the sheet
 	// TODO: Is this the best way to do it? Maybe there is a flag that can be set, that forces re-calculalion.
 	execCommand(XLCommand(XLCommandType::ResetCalcChain));
-	// ===== Add all xml items to archive and save the archive.
+	// Add all xml items to archive and save the archive.
 	for(auto & item : m_data) {
 		bool xmlIsStandalone = m_xmlSavingDeclaration.standalone_as_bool();
 		if((item.getXmlPath() == "docProps/core.xml") || (item.getXmlPath() == "docProps/app.xml"))
@@ -3512,7 +3516,7 @@ std::string XLDocument::property(XLProperty prop) const
  */
 bool getAppVersion(const std::string& versionString, int& majorVersion, int& minorVersion)
 {
-	// ===== const expressions for hardcoded version limits
+	// const expressions for hardcoded version limits
 	constexpr int minMajorV = 0, maxMajorV = 99;  // allowed value range for major version number
 	constexpr int minMinorV = 0, maxMinorV = 9999; // "          for minor   "
 	const size_t begin  = versionString.find_first_not_of(" \t");
@@ -3571,10 +3575,10 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
 		case XLProperty::Application:
 		    m_appProperties.setProperty("Application", value);
 		    break;
-		case XLProperty::AppVersion: // ===== 2025-05-02 done: section cleaned up, pull request #174: Fixing discarding return value of
+		case XLProperty::AppVersion: // 2025-05-02 done: section cleaned up, pull request #174: Fixing discarding return value of
 		                             // function with 'nodiscard' attribute
 		    int minorVersion, majorVersion;
-		    // ===== Check for the format "XX.XXXX", with X being a number.
+		    // Check for the format "XX.XXXX", with X being a number.
 		    if(!getAppVersion(value, majorVersion, minorVersion))  
 				throw XLPropertyError("Invalid property value: " + std::string(value));
 		    m_appProperties.setProperty("AppVersion",
@@ -3708,7 +3712,7 @@ XLRelationships XLDocument::sheetRelationships(uint16 sheetXmlNo)
 	std::string relsFilename = "xl/worksheets/_rels/sheet"s + std::to_string(sheetXmlNo) + ".xml.rels"s;
 
 	if(!m_archive.hasEntry(relsFilename)) {
-		// ===== Create the sheet relationships file within the archive
+		// Create the sheet relationships file within the archive
 		m_archive.addEntry(relsFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"); // empty XML file, class constructor will do the rest
 		m_contentTypes.addOverride("/" + relsFilename, XLContentType::Relationships);               // add content types entry
 	}
@@ -3729,7 +3733,7 @@ XLVmlDrawing XLDocument::sheetVmlDrawing(uint16 sheetXmlNo)
 	std::string vmlDrawingFilename = "xl/drawings/vmlDrawing"s + std::to_string(sheetXmlNo) + ".vml"s;
 
 	if(!m_archive.hasEntry(vmlDrawingFilename)) {
-		// ===== Create the sheet drawing file within the archive
+		// Create the sheet drawing file within the archive
 		m_archive.addEntry(vmlDrawingFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"); // empty XML file, class constructor will do the rest
 		m_contentTypes.addOverride("/" + vmlDrawingFilename, XLContentType::VMLDrawing);                  // add content types entry
 	}
@@ -3750,7 +3754,7 @@ XLComments XLDocument::sheetComments(uint16 sheetXmlNo)
 	std::string commentsFilename = "xl/comments"s + std::to_string(sheetXmlNo) + ".xml"s;
 
 	if(!m_archive.hasEntry(commentsFilename)) {
-		// ===== Create the sheet comments file within the archive
+		// Create the sheet comments file within the archive
 		m_archive.addEntry(commentsFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"); // empty XML file, class constructor will do the rest
 		m_contentTypes.addOverride("/" + commentsFilename, XLContentType::Comments);                   // add content types entry
 	}
@@ -3771,7 +3775,7 @@ XLTables XLDocument::sheetTables(uint16 sheetXmlNo)
 	std::string tablesFilename = "xl/tables/table"s + std::to_string(sheetXmlNo) + ".xml"s;
 
 	if(!m_archive.hasEntry(tablesFilename)) {
-		// ===== Create the sheet tables file within the archive
+		// Create the sheet tables file within the archive
 		m_archive.addEntry(tablesFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"); // empty XML file, class constructor will do the rest
 		m_contentTypes.addOverride("/" + tablesFilename, XLContentType::Table);                        // add content types entry
 	}
@@ -3868,16 +3872,16 @@ bool XLDocument::execCommand(const XLCommand& command)
 			} 
 			break;
 		case XLCommandType::CheckAndFixCoreProperties: { // does nothing if core properties are in good shape
-		    // ===== If _rels/.rels has no entry for docProps/core.xml
+		    // If _rels/.rels has no entry for docProps/core.xml
 		    if(!m_docRelationships.targetExists("docProps/core.xml"))
 			    m_docRelationships.addRelationship(XLRelationshipType::CoreProperties, "docProps/core.xml"); // Fix m_docRelationships
 
-		    // ===== If docProps/core.xml is missing
+		    // If docProps/core.xml is missing
 		    if(!m_archive.hasEntry("docProps/core.xml"))
 			    m_archive.addEntry("docProps/core.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"); // create empty docProps/core.xml
-		    // ===== XLProperties constructor will take care of adding template content
+		    // XLProperties constructor will take care of adding template content
 
-		    // ===== If [Content Types].xml has no relationship for docProps/core.xml
+		    // If [Content Types].xml has no relationship for docProps/core.xml
 		    if(!hasXmlData("docProps/core.xml")) {
 			    m_contentTypes.addOverride("/docProps/core.xml", XLContentType::CoreProperties); // add content types entry
 			    m_data.emplace_back(                                                    // store new entry in m_data
@@ -3888,16 +3892,16 @@ bool XLDocument::execCommand(const XLCommand& command)
 		    }
 	    } break;
 		case XLCommandType::CheckAndFixExtendedProperties: { // does nothing if extended properties are in good shape
-		    // ===== If _rels/.rels has no entry for docProps/app.xml
+		    // If _rels/.rels has no entry for docProps/app.xml
 		    if(!m_docRelationships.targetExists("docProps/app.xml"))
 			    m_docRelationships.addRelationship(XLRelationshipType::ExtendedProperties, "docProps/app.xml"); // Fix m_docRelationships
 
-		    // ===== If docProps/app.xml is missing
+		    // If docProps/app.xml is missing
 		    if(!m_archive.hasEntry("docProps/app.xml"))
 			    m_archive.addEntry("docProps/app.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"); // create empty docProps/app.xml
-		    // ===== XLAppProperties constructor will take care of adding template content
+		    // XLAppProperties constructor will take care of adding template content
 
-		    // ===== If [Content Types].xml has no relationship for docProps/app.xml
+		    // If [Content Types].xml has no relationship for docProps/app.xml
 		    if(!hasXmlData("docProps/app.xml")) {
 			    m_contentTypes.addOverride("/docProps/app.xml", XLContentType::ExtendedProperties); // add content types entry
 			    m_data.emplace_back(                                                       // store new entry in m_data
@@ -3910,7 +3914,7 @@ bool XLDocument::execCommand(const XLCommand& command)
 		case XLCommandType::AddSharedStrings: {
 		    m_contentTypes.addOverride("/xl/sharedStrings.xml", XLContentType::SharedStrings);
 		    m_wbkRelationships.addRelationship(XLRelationshipType::SharedStrings, "sharedStrings.xml");
-		    // ===== Add empty archive entry for shared strings, XLSharedStrings constructor will create a default document when no document element is found
+		    // Add empty archive entry for shared strings, XLSharedStrings constructor will create a default document when no document element is found
 		    m_archive.addEntry("xl/sharedStrings.xml", "");
 	    } break;
 		case XLCommandType::AddWorksheet: {
@@ -3961,7 +3965,7 @@ bool XLDocument::execCommand(const XLCommand& command)
 		    if(m_workbook.sheetExists(command.getParam<std::string>("cloneName")))
 			    throw XLInternalError("Sheet named \"" + command.getParam<std::string>("cloneName") + "\" already exists.");
 
-		    // ===== 2024-12-15: handle absolute sheet path: ensure relative sheet path
+		    // 2024-12-15: handle absolute sheet path: ensure relative sheet path
 		    std::string sheetToClonePath = m_wbkRelationships.relationshipById(command.getParam<std::string>("sheetID")).target();
 		    if(sheetToClonePath.substr(0, 4) == "/xl/")  
 				sheetToClonePath = sheetToClonePath.substr(4);
@@ -3999,7 +4003,7 @@ bool XLDocument::execCommand(const XLCommand& command)
 		case XLCommandType::AddStyles: {
 		    m_contentTypes.addOverride("/xl/styles.xml", XLContentType::Styles);
 		    m_wbkRelationships.addRelationship(XLRelationshipType::Styles, "styles.xml");
-		    // ===== Add empty archive entry for styles, XLStyles constructor will create a default document when no document element is found
+		    // Add empty archive entry for styles, XLStyles constructor will create a default document when no document element is found
 		    m_archive.addEntry("xl/styles.xml", "");
 	    } break;
 	}
@@ -4043,7 +4047,7 @@ XLQuery XLDocument::execQuery(const XLQuery& query) const
 		case XLQueryType::QuerySheetRelsID:
 		    return XLQuery(query).setResult(m_wbkRelationships.relationshipByTarget(query.getParam<std::string>("sheetPath").substr(4)).id());
 		case XLQueryType::QuerySheetRelsTarget:
-		    // ===== 2024-12-15: XLRelationshipItem::target() returns the unmodified Relationship "Target" property
+		    // 2024-12-15: XLRelationshipItem::target() returns the unmodified Relationship "Target" property
 		    //                     - can be absolute or relative and must be handled by the caller
 		    //                   The only invocation as of today is in XLWorkbook::sheet(const std::string& sheetName) and handles this
 		    return XLQuery(query).setResult(m_wbkRelationships.relationshipById(query.getParam<std::string>("sheetID")).target());
@@ -4073,7 +4077,7 @@ void XLDocument::setSavingDeclaration(XLXmlSavingDeclaration const& savingDeclar
  */
 void XLDocument::cleanupSharedStrings()
 {
-	int32_t oldStringCount = m_sharedStringCache.size();
+	int32_t oldStringCount = static_cast<int32_t>(m_sharedStringCache.size());
 	std::vector< int32_t > indexMap(oldStringCount, -1);  // indexMap[ oldIndex ] :== newIndex, -1 = not yet assigned
 	int32_t newStringCount = 1; // reserve index 0 for empty string, count here +1 for each unique shared string index that is in use in the worksheet
 	uint worksheetCount = m_workbook.worksheetCount();
@@ -4083,7 +4087,7 @@ void XLDocument::cleanupSharedStrings()
 		for(XLCellIterator cellIt = cellRange.begin(); cellIt != cellRange.end(); ++cellIt) {
 			if(!cellIt.cellExists())  
 				continue;// prevent cell creation by access for non-existing cells
-			// ===== Cell exists: check for shared strings & update index as needed
+			// Cell exists: check for shared strings & update index as needed
 			XLCell& cell = *cellIt;
 			if(cell.value().type() == XLValueType::String) {
 				XLCellValueProxy val = cell.value();
@@ -4100,10 +4104,10 @@ void XLDocument::cleanupSharedStrings()
 		}
 	}
 
-	// ===== After all cells have been reindexed, newStringCount is now the exact amount of remaining strings,
+	// After all cells have been reindexed, newStringCount is now the exact amount of remaining strings,
 	//        and indexMap now contains the mapping to applied for reindexing.
 
-	// ===== Create a new shared strings cache.
+	// Create a new shared strings cache.
 	std::vector<std::string> newStringCache(newStringCount); // store the re-indexed strings here
 	// NOTE: newStringCache is vector because m_sharedStringCache may eventually be changed from std::deque to something else (std::map) for performance
 	newStringCache[0] = ""; // store empty string in first position
@@ -4172,11 +4176,11 @@ namespace OpenXLSX {
 	 */
 	std::string BinaryAsHexString(const void * data, const size_t size)
 	{
-		// ===== Allocate memory for string assembly - each byte takes two hex digits = 2 characters in string
+		// Allocate memory for string assembly - each byte takes two hex digits = 2 characters in string
 		std::string strAssemble(size * 2, 0); // zero-initialize (alternative would be to default-construct a string and .reserve(size * 2);
 
 		const uint8 * dataBytePtr = reinterpret_cast< const uint8 * >( data );
-		// ===== assemble a string of hex digits
+		// assemble a string of hex digits
 		for(size_t pos = 0; pos < size * 2; ++pos) {
 			int valueByte = dataBytePtr[pos / 2];
 			int valueHalfByte = (valueByte & (pos & 1 ? 0x0f : 0xf0)) >> (pos & 1 ? 0 : 4);
@@ -4313,7 +4317,7 @@ namespace OpenXLSX {
 		XMLNode node = rootNode.first_child_of_type(pugi::node_element);
 		using namespace std::literals::string_literals;
 		while(node != shapeTypeNode && node.raw_name() == ShapeTypeNodeName) {  // do not compare shapeTypeNode with itself, and abort on first non-shapetype node
-			if(node.attribute("id").value() == id)  return true;           // found an existing shapetype with the same id
+			if(node.attribute("id").value() == id) return true;           // found an existing shapetype with the same id
 			node = node.next_sibling_of_type(pugi::node_element);
 		}
 		return false;
@@ -4329,8 +4333,8 @@ namespace OpenXLSX {
 	 */
 	XMLNode moveNode(XMLNode& rootNode, XMLNode& node, XMLNode const& insertAfter, bool withWhitespaces = true)
 	{
-		if(rootNode.empty() || node.empty())  return XMLNode{}; // can't perform move
-		if(node == insertAfter || node == insertAfter.next_sibling())  return node; // nothing to do
+		if(rootNode.empty() || node.empty()) return XMLNode{}; // can't perform move
+		if(node == insertAfter || node == insertAfter.next_sibling()) return node; // nothing to do
 
 		XMLNode newNode{};
 		if(insertAfter.empty())
@@ -4671,8 +4675,8 @@ XLVmlDrawing::XLVmlDrawing(XLXmlData* xmlData)
 			pugi_parse_settings
 			);
 
-	// ===== Re-sort the document: move all v:shapetype nodes to the beginning of the XML document element and eliminate duplicates
-	// ===== Also: determine highest used shape id, regardless of basename (pattern [^0-9]*[0-9]*) and m_shapeCount
+	// Re-sort the document: move all v:shapetype nodes to the beginning of the XML document element and eliminate duplicates
+	// Also: determine highest used shape id, regardless of basename (pattern [^0-9]*[0-9]*) and m_shapeCount
 	using namespace std::literals::string_literals;
 
 	XMLNode rootNode = doc.document_element();
@@ -4715,7 +4719,7 @@ XLVmlDrawing::XLVmlDrawing(XLXmlData* xmlData)
 	if(shapeTypeNode.first_child().empty())
 		shapeTypeNode.append_child(pugi::node_pcdata).set_value("\n\t"); // insert indentation if node was empty
 
-	// ===== Ensure that attributes exist for first shapetype node, default-initialize if needed:
+	// Ensure that attributes exist for first shapetype node, default-initialize if needed:
 	m_defaultShapeTypeId = appendAndGetAttribute(shapeTypeNode, "id",        "_x0000_t202").value();
 	appendAndGetAttribute(shapeTypeNode, "coordsize", "21600,21600");
 	appendAndGetAttribute(shapeTypeNode, "o:spt",     "202");
@@ -4822,7 +4826,7 @@ bool XLVmlDrawing::deleteShape(std::string const& cellRef)
 {
 	XMLNode rootNode = xmlDocument().document_element();
 	XMLNode node = shapeNode(cellRef);
-	if(node.empty())  return false;// nothing found to delete
+	if(node.empty()) return false;// nothing found to delete
 
 	--m_shapeCount;                // if shapeNode(cellRef) returned a non-empty node: decrement shape count
 	while(node.previous_sibling().type() == pugi::node_pcdata) // remove leading whitespaces
@@ -4850,7 +4854,7 @@ XLShape XLVmlDrawing::createShape([[maybe_unused]] const XLShape& shapeTemplate)
 		rootNode.prepend_child(pugi::node_pcdata).set_value("\n\t");                 // prefix new node with whitespaces
 	}
 
-	// ===== Assign a new shape id & account for it in m_lastAssignedShapeId
+	// Assign a new shape id & account for it in m_lastAssignedShapeId
 	using namespace std::literals::string_literals;
 	node.prepend_attribute("id").set_value(("shape_"s + std::to_string(m_lastAssignedShapeId++)).c_str());
 	node.append_attribute("type").set_value(("#"s + m_defaultShapeTypeId).c_str());
@@ -4919,10 +4923,10 @@ std::string XLFormulaProxy::get() const { return getFormula().get(); }
  */
 XLFormulaProxy& XLFormulaProxy::clear()
 {
-	// ===== Check that the m_cellNode is valid.
+	// Check that the m_cellNode is valid.
 	assert(m_cellNode != nullptr);
 	assert(not m_cellNode->empty());
-	// ===== Remove the value node.
+	// Remove the value node.
 	if(not m_cellNode->child("f").empty())  m_cellNode->remove_child("f");
 	return *this;
 }
@@ -4932,33 +4936,33 @@ XLFormulaProxy& XLFormulaProxy::clear()
  */
 void XLFormulaProxy::setFormulaString(const char* formulaString, bool resetValue)
 {
-	// ===== Check that the m_cellNode is valid.
+	// Check that the m_cellNode is valid.
 	assert(m_cellNode != nullptr);
 	assert(not m_cellNode->empty());
 	if(formulaString[0] == 0) { // if formulaString is empty
 		m_cellNode->remove_child("f"); // clear the formula node
 		return;                   // and exit
 	}
-	// ===== If the cell node doesn't have formula or value child nodes, create them.
+	// If the cell node doesn't have formula or value child nodes, create them.
 	if(m_cellNode->child("f").empty())  m_cellNode->append_child("f");
 	if(m_cellNode->child("v").empty())  m_cellNode->append_child("v");
 
-	// ===== Remove the formula type and shared index attributes, if they exist.
+	// Remove the formula type and shared index attributes, if they exist.
 	m_cellNode->child("f").remove_attribute("t");
 	m_cellNode->child("f").remove_attribute("si");
 
-	// ===== Set the text of the formula and value nodes.
+	// Set the text of the formula and value nodes.
 	m_cellNode->child("f").text().set(formulaString);
 	if(resetValue)  m_cellNode->child("v").text().set(0);
 
 	// BEGIN pull request #189
-	// ===== Remove cell type attribute so that it can be determined by Office Suite when next calculating the formula.
+	// Remove cell type attribute so that it can be determined by Office Suite when next calculating the formula.
 	m_cellNode->remove_attribute("t");
 
-	// ===== Remove inline string <is> tag, in case previous type was "inlineStr".
+	// Remove inline string <is> tag, in case previous type was "inlineStr".
 	m_cellNode->remove_child("is");
 
-	// ===== Ensure that the formula node <f> is the first child, listed before the value <v> node.
+	// Ensure that the formula node <f> is the first child, listed before the value <v> node.
 	m_cellNode->prepend_move(m_cellNode->child("f"));
 	// END pull request #189
 }
@@ -4971,10 +4975,10 @@ XLFormula XLFormulaProxy::getFormula() const
 	assert(m_cellNode != nullptr);
 	assert(not m_cellNode->empty());
 	const auto formulaNode = m_cellNode->child("f");
-	// ===== If the formula node doesn't exist, return an empty XLFormula object.
+	// If the formula node doesn't exist, return an empty XLFormula object.
 	if(formulaNode.empty())  
 		return XLFormula();
-	// ===== If the formula type is 'shared' or 'array', throw an exception.
+	// If the formula type is 'shared' or 'array', throw an exception.
 	if(not formulaNode.attribute("t").empty() ) { // 2024-05-28: de-duplicated check (only relevant for performance,
 		                                      //  xml_attribute::value() returns an empty string for empty attributes)
 		if(std::string(formulaNode.attribute("t").value()) == "shared")
@@ -5006,7 +5010,7 @@ XLMergeCells::XLMergeCells(const XMLNode& rootNode, std::vector< std::string_vie
 	XMLNode mergeNode = m_mergeCellsNode->first_child_of_type(pugi::node_element);
 	while(!mergeNode.empty()) {
 		bool invalidNode = true;
-		// ===== For valid mergeCell nodes, add the reference to the reference cache
+		// For valid mergeCell nodes, add the reference to the reference cache
 		if(std::string(mergeNode.name()) == "mergeCell") {
 			std::string ref = mergeNode.attribute("ref").value();
 			if(ref.length() > 0) {
@@ -5014,9 +5018,9 @@ XLMergeCells::XLMergeCells(const XMLNode& rootNode, std::vector< std::string_vie
 				invalidNode = false;
 			}
 		}
-		// ===== Determine next element mergeNode
+		// Determine next element mergeNode
 		XMLNode nextNode = mergeNode.next_sibling_of_type(pugi::node_element);
-		// ===== In case of an invalid XML element: print an error and remove it from the XML, including whitespaces to the next sibling
+		// In case of an invalid XML element: print an error and remove it from the XML, including whitespaces to the next sibling
 		if(invalidNode) { // if mergeNode is not named mergeCell or does not have a valid ref attribute: remove it from the XML
 			std::cerr << "XLMergeCells constructor: invalid child element, either name is not mergeCell or reference is invalid:" << std::endl;
 			mergeNode.print(std::cerr);
@@ -5027,11 +5031,11 @@ XLMergeCells::XLMergeCells(const XMLNode& rootNode, std::vector< std::string_vie
 			}
 			m_mergeCellsNode->remove_child(mergeNode);
 		}
-		// ===== Advance to next element mergeNode
+		// Advance to next element mergeNode
 		mergeNode = nextNode;
 	}
 	if(m_referenceCache.size() > 0) {
-		// ===== Ensure initial array count attribute / issue #351
+		// Ensure initial array count attribute / issue #351
 		XMLAttribute attr = m_mergeCellsNode->attribute("count");
 		if(attr.empty())  attr = m_mergeCellsNode->append_attribute("count");
 		attr.set_value(m_referenceCache.size());
@@ -5183,7 +5187,7 @@ XLMergeIndex XLMergeCells::appendMerge(const std::string& reference)
 		throw XLInternalError("XLMergeCells::"s + __func__ + ": failed to insert reference: \""s + reference + "\""s);
 	newMerge.append_attribute("ref").set_value(reference.c_str());
 	m_referenceCache.emplace_back(newMerge.attribute("ref").value()); // index of this element = previous referenceCacheSize
-	// ===== Update the array count attribute
+	// Update the array count attribute
 	XMLAttribute attr = m_mergeCellsNode->attribute("count");
 	if(attr.empty())
 		attr = m_mergeCellsNode->append_attribute("count");
@@ -5206,13 +5210,13 @@ void XLMergeCells::deleteMerge(XLMergeIndex index)
 	}
 	if(node.empty())
 		throw XLInternalError("XLMergeCells::"s + __func__ + ": mismatch between size of mergeCells XML node and internal reference cache"s);
-	// ===== node was found: delete preceeding whitespace nodes and the node itself
+	// node was found: delete preceeding whitespace nodes and the node itself
 	while(node.previous_sibling().type() == pugi::node_pcdata)
 		m_mergeCellsNode->remove_child(node.previous_sibling());
 	m_mergeCellsNode->remove_child(node);
 	m_referenceCache.erase(m_referenceCache.begin() + curIndex);
 	if(m_referenceCache.size() > 0) {
-		// ===== Update the array count attribute
+		// Update the array count attribute
 		XMLAttribute attr = m_mergeCellsNode->attribute("count");
 		if(attr.empty())
 			attr = m_mergeCellsNode->append_attribute("count");
@@ -5249,13 +5253,13 @@ namespace { // anonymous namespace for module local functions
 		XMLNode parentNode = insertBeforeThis.parent();
 		if(parentNode.empty())
 			throw XLInternalError("prettyInsertXmlNodeBefore can not insert before a node that has no parent");
-		// ===== Find potential whitespaces preceeding insertBeforeThis
+		// Find potential whitespaces preceeding insertBeforeThis
 		XMLNode whitespaces = insertBeforeThis;
 		while(whitespaces.previous_sibling().type() == pugi::node_pcdata)
 			whitespaces = whitespaces.previous_sibling();
-		// ===== Insert the nodeNameToInsert before insertBeforeThis, "hijacking" the preceeding whitespace nodes
+		// Insert the nodeNameToInsert before insertBeforeThis, "hijacking" the preceeding whitespace nodes
 		XMLNode insertedNode = parentNode.insert_child_before(nodeNameToInsert.c_str(), insertBeforeThis);
-		// ===== Copy all hijacked whitespaces to also preceed (again) the node insertBeforeThis
+		// Copy all hijacked whitespaces to also preceed (again) the node insertBeforeThis
 		while(whitespaces.type() == pugi::node_pcdata) {
 			parentNode.insert_copy_before(whitespaces, insertBeforeThis);
 			whitespaces = whitespaces.next_sibling();
@@ -5289,7 +5293,7 @@ namespace { // anonymous namespace for module local functions
 			node.append_attribute("size") = 0; // NOTE: size counts each heading pair as 2 - but for now, there are no entries
 			node.append_attribute("baseType") = "variant";
 		}
-		// ===== Finally, return what should be a good "vt:vector" node with all the heading pairs
+		// Finally, return what should be a good "vt:vector" node with all the heading pairs
 		return node;
 	}
 
@@ -5330,7 +5334,7 @@ namespace { // anonymous namespace for module local functions
 	{
 		XMLNode titlesOfParts = docNode.child("TitlesOfParts");
 		if(titlesOfParts.empty()) {
-			// ===== Attempt to find a good position to insert TitlesOfParts
+			// Attempt to find a good position to insert TitlesOfParts
 			XMLNode node = docNode.first_child_of_type(pugi::node_element);
 			std::string nodeName = node.name();
 			while(!node.empty() && oneof7(nodeName, "Application", "AppVersion", "DocSecurity", "ScaleCrop", "Template", "TotalTime", "HeadingPairs")) {
@@ -5370,7 +5374,7 @@ namespace { // anonymous namespace for module local functions
 		if(not item.empty())     // if name was found
 			item = item.next_sibling_of_type(pugi::node_element); // advance once more to the value node
 
-		// ===== Return the first element child of the <vt:variant> node containing the heading pair value
+		// Return the first element child of the <vt:variant> node containing the heading pair value
 		//       (returns an empty node if item or first_child_of_type is empty)
 		return item.first_child_of_type(pugi::node_element);
 	}
@@ -5382,7 +5386,7 @@ void XLProperties::createFromTemplate()
 	if(m_xmlData == nullptr)
 		throw XLInternalError("XLProperties m_xmlData is nullptr");
 
-	// ===== OpenXLSX_XLRelationships::GetStringFromType yields almost the string needed here, with added /relationships
+	// OpenXLSX_XLRelationships::GetStringFromType yields almost the string needed here, with added /relationships
 	//       TBD: use hardcoded string?
 	std::string xmlns = OpenXLSX_XLRelationships::GetStringFromType(XLRelationshipType::CoreProperties);
 	const std::string rels = "/relationships/";
@@ -5478,7 +5482,7 @@ void XLAppProperties::createFromTemplate(OXlXmlDoc const & workbookXml)
 		if(key != ++worksheetCount)
 			throw XLInputError("xl/workbook.xml is missing sheet with sheetId=\"" + std::to_string(worksheetCount) + "\"");
 	}
-	// ===== OpenXLSX_XLRelationships::GetStringFromType yields almost the string needed here, with added /relationships
+	// OpenXLSX_XLRelationships::GetStringFromType yields almost the string needed here, with added /relationships
 	//       TBD: use hardcoded string?
 	std::string xmlns = OpenXLSX_XLRelationships::GetStringFromType(XLRelationshipType::ExtendedProperties);
 	const std::string rels = "/relationships/";
@@ -5499,7 +5503,7 @@ void XLAppProperties::createFromTemplate(OXlXmlDoc const & workbookXml)
 	vecHP.append_attribute("size") = 2;
 	vecHP.append_attribute("baseType") = "variant";
 	vecHP.append_child("vt:variant", XLForceNamespace).append_child("vt:lpstr", XLForceNamespace).text().set("Worksheets");
-	// ===== 2024-09-02 minor bugfix issue #220, "vt:i4" value of "Worksheets" pair should be sheet count
+	// 2024-09-02 minor bugfix issue #220, "vt:i4" value of "Worksheets" pair should be sheet count
 	vecHP.append_child("vt:variant", XLForceNamespace).append_child("vt:i4", XLForceNamespace).text().set(worksheetCount);
 
 	XMLNode sheetsVector = props.append_child("TitlesOfParts").append_child("vt:vector", XLForceNamespace); // 2024-08-17 BUGFIX: TitlesOfParts was wrongly appended to headingPairs
@@ -5569,20 +5573,20 @@ void XLAppProperties::alignWorksheets(std::vector<std::string> const & workbookS
 		sheetName = sheetName.next_sibling_of_type(pugi::node_element); // advance to next entry in <TitlesOfParts>, potentially becomes an empty XMLNode()
 	}
 
-	// ===== If there are any excess sheet names, clean up.
+	// If there are any excess sheet names, clean up.
 	if(not sheetName.empty()) {
-		// ===== Delete all whitespace nodes prior to the sheet names to be deleted
+		// Delete all whitespace nodes prior to the sheet names to be deleted
 		while(sheetName.previous_sibling().type() == pugi::node_pcdata)  
 			titlesOfParts.remove_child(sheetName.previous_sibling());
 		XMLNode lastSheetName = titlesOfParts.last_child_of_type(pugi::node_element); // delete up to & including this node, preserve whitespaces after
 		if(sheetName != lastSheetName) { // If lastSheetName is a node *behind* sheetName
-			// ===== Delete all nodes (elements and whitespace) up until lastSheetName
+			// Delete all nodes (elements and whitespace) up until lastSheetName
 			while(sheetName.next_sibling() != lastSheetName)
 				titlesOfParts.remove_child(sheetName.next_sibling());
-			// ===== Delete lastSheetName
+			// Delete lastSheetName
 			titlesOfParts.remove_child(lastSheetName);
 		}
-		// ===== Delete sheetName
+		// Delete sheetName
 		titlesOfParts.remove_child(sheetName);
 	}
 
@@ -5667,14 +5671,14 @@ void XLAppProperties::deleteHeadingPair(const std::string& name)
 		XMLNode item = HeadingPairsNode.first_child_of_type(pugi::node_element);
 		while(!item.empty() && item.first_child_of_type(pugi::node_element).child_value() != name)
 			item = item.next_sibling_of_type(pugi::node_element).next_sibling_of_type(pugi::node_element);   // advance two elements to skip count node
-		// ===== If item with name was found, remove pair and update headingPairsSize
+		// If item with name was found, remove pair and update headingPairsSize
 		if(!item.empty()) {
 			const XMLNode count = item.next_sibling_of_type(pugi::node_element);
-			// ===== 2024-05-28: delete all (non-element) nodes between item and count node, *then* delete non-element nodes following a count node
+			// 2024-05-28: delete all (non-element) nodes between item and count node, *then* delete non-element nodes following a count node
 			if(!count.empty()) {
 				while(item.next_sibling() != count)
 					HeadingPairsNode.remove_child(item.next_sibling()); // remove nodes between item & count nodes to be deleted jointly
-				// ===== Delete all non-element nodes following the count node
+				// Delete all non-element nodes following the count node
 				while(!count.next_sibling().empty() && (count.next_sibling().type() != pugi::node_element))
 					HeadingPairsNode.remove_child(count.next_sibling()); // remove all non-element nodes following a count node
 				HeadingPairsNode.remove_child(count);
@@ -5759,15 +5763,15 @@ void XLAppProperties::insertSheetName(const std::string& sheetName, uint index)
 		prependSheetName(sheetName);
 		return;
 	}
-	// ===== If sheet needs to be appended...
+	// If sheet needs to be appended...
 	if(index > sheetCount(xmlDocument().document_element()).as_uint()) {
-		// ===== If at least one sheet node exists, apply some pretty formatting by appending new sheet name between last sheet and trailing
+		// If at least one sheet node exists, apply some pretty formatting by appending new sheet name between last sheet and trailing
 		// whitespaces.
 		const XMLNode lastSheet = sheetNames(xmlDocument().document_element()).last_child_of_type(pugi::node_element);
 		if(!lastSheet.empty()) {
 			XMLNode theNode = sheetNames(xmlDocument().document_element()).insert_child_after("vt:lpstr", lastSheet, XLForceNamespace);
 			theNode.text().set(sheetName.c_str());
-			// ===== Update sheet count before return statement.
+			// Update sheet count before return statement.
 			incrementSheetCount(+1);
 		}
 		else
@@ -5895,13 +5899,13 @@ namespace {
 			if(typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/table")
 				return XLRelationshipType::Table;
 
-			// ===== relationship could not be identified
+			// relationship could not be identified
 			if(comparePos == 0)  // If fallback solution has not yet been tried
 				comparePos = typeString.find("/relationships/"); // attempt to find the relationships section of the type string, regardless of domain
 			else                 // If fallback solution was tried & unsuccessful
 				comparePos = 0;                             // trigger loop exit
 		} while(comparePos > 0 && comparePos != std::string::npos);
-		// ===== loop exits if comparePos is not within typeString (= fallback solution failed or not possible)
+		// loop exits if comparePos is not within typeString (= fallback solution failed or not possible)
 
 		return XLRelationshipType::Unknown; // default: relationship could not be identified
 	}
@@ -5953,7 +5957,7 @@ uint64 GetNewRelsID(XMLNode relationshipsNode)
 		return Rand64();
 	}
 	using namespace std::literals::string_literals;
-	// ===== workaround for pugi::xml_node currently not having an iterator for node_element only
+	// workaround for pugi::xml_node currently not having an iterator for node_element only
 	XMLNode relationship = relationshipsNode.first_child_of_type(pugi::node_element);
 	uint64 newId = 1;    // default
 	while(!relationship.empty()) {
@@ -5981,7 +5985,7 @@ uint64 GetNewRelsID(XMLNode relationshipsNode)
  */
 std::string GetNewRelsIDString(XMLNode relationshipsNode) {
 	uint64 newId = GetNewRelsID(relationshipsNode);
-	if(RandomIDs)  return "R" + BinaryAsHexString(&newId, sizeof(newId));
+	if(RandomIDs) return "R" + BinaryAsHexString(&newId, sizeof(newId));
 	return "rId" + std::to_string(newId);
 }
 }    // anonymous namespace
@@ -6080,7 +6084,7 @@ XLRelationshipItem XLRelationships::relationshipByTarget(const std::string& targ
 		if(relationTarget[0] != '/')
 			relationTarget = m_path + relationTarget;// turn relative path into an absolute
 		relationTarget = eliminateDotAndDotDotFromPath(relationTarget);    // and resolve . and .. entries, if any
-		// ===== Attempt to match absoluteTarget & relationTarget
+		// Attempt to match absoluteTarget & relationTarget
 		if(absoluteTarget == relationTarget)
 			return XLRelationshipItem(relationshipNode);// found!
 		relationshipNode = relationshipNode.next_sibling_of_type(pugi::node_element);
@@ -6096,14 +6100,14 @@ XLRelationshipItem XLRelationships::relationshipByTarget(const std::string& targ
  */
 std::vector<XLRelationshipItem> XLRelationships::relationships() const
 {
-	// ===== workaround for pugi::xml_node currently not having an iterator for node_element only
+	// workaround for pugi::xml_node currently not having an iterator for node_element only
 	auto result = std::vector<XLRelationshipItem>();
 	XMLNode item = xmlDocumentC().document_element().first_child_of_type(pugi::node_element);
 	while(!item.empty()) {
 		result.emplace_back(XLRelationshipItem(item));
 		item = item.next_sibling_of_type(pugi::node_element);
 	}
-	// ===== if a node_element iterator can be implemented for pugi::xml_node, the below code can be used again
+	// if a node_element iterator can be implemented for pugi::xml_node, the below code can be used again
 	// for (const auto& item : xmlDocument().document_element().children()) result.emplace_back(XLRelationshipItem(item));
 	return result;
 }
@@ -6131,15 +6135,15 @@ XLRelationshipItem XLRelationships::addRelationship(XLRelationshipType type, con
 	if(lastRelationship.empty())
 		node = xmlDocument().document_element().prepend_child("Relationship");
 	else { // if last element found
-		// ===== Insert node after previous relationship
+		// Insert node after previous relationship
 		node = xmlDocument().document_element().insert_child_after("Relationship", lastRelationship);
-		// ===== Using whitespace nodes prior to lastRelationship as a template, insert whitespaces between lastRelationship and the new node
+		// Using whitespace nodes prior to lastRelationship as a template, insert whitespaces between lastRelationship and the new node
 		XMLNode copyWhitespaceFrom = lastRelationship; // start looking for whitespace nodes before previous relationship
 		XMLNode insertBefore = node;              // start inserting the same whitespace nodes before new relationship
 		while(copyWhitespaceFrom.previous_sibling().type() == pugi::node_pcdata) { // empty node returns pugi::node_null
 			// Advance to previous "template" whitespace node, ensured to exist in while-condition
 			copyWhitespaceFrom = copyWhitespaceFrom.previous_sibling();
-			// ===== Insert a whitespace node
+			// Insert a whitespace node
 			insertBefore = xmlDocument().document_element().insert_child_before(pugi::node_pcdata, insertBefore);
 			insertBefore.set_value(copyWhitespaceFrom.value()); // copy the whitespace node value in sequence
 		}
@@ -6316,26 +6320,26 @@ namespace OpenXLSX {
 		if(m_rowNode->empty())  
 			return XLCell{};
 		XMLNode cellNode = m_rowNode->last_child_of_type(pugi::node_element);
-		// ===== If there are no cells in the current row, or the requested cell is beyond the last cell in the row...
+		// If there are no cells in the current row, or the requested cell is beyond the last cell in the row...
 		if(cellNode.empty() || (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber))
 			return XLCell{}; // fail
 
-		// ===== If the requested node is closest to the end, start from the end and search backwards...
+		// If the requested node is closest to the end, start from the end and search backwards...
 		if(XLCellReference(cellNode.attribute("r").value()).column() - columnNumber < columnNumber) {
 			while(!cellNode.empty() && (XLCellReference(cellNode.attribute("r").value()).column() > columnNumber))
 				cellNode = cellNode.previous_sibling_of_type(pugi::node_element);
-			// ===== If the backwards search failed to locate the requested cell
+			// If the backwards search failed to locate the requested cell
 			if(cellNode.empty() || (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber))
 				return XLCell{}; // fail
 		}
-		// ===== Otherwise, start from the beginning
+		// Otherwise, start from the beginning
 		else {
-			// ===== At this point, it is guaranteed that there is at least one node_element in the row that is not empty.
+			// At this point, it is guaranteed that there is at least one node_element in the row that is not empty.
 			cellNode = m_rowNode->first_child_of_type(pugi::node_element);
-			// ===== It has been verified above that the requested columnNumber is <= the column number of the last node_element, therefore this loop will halt:
+			// It has been verified above that the requested columnNumber is <= the column number of the last node_element, therefore this loop will halt:
 			while(XLCellReference(cellNode.attribute("r").value()).column() < columnNumber)
 				cellNode = cellNode.next_sibling_of_type(pugi::node_element);
-			// ===== If the forwards search failed to locate the requested cell
+			// If the forwards search failed to locate the requested cell
 			if(XLCellReference(cellNode.attribute("r").value()).column() > columnNumber)
 				return XLCell{}; // fail
 		}
@@ -6355,7 +6359,7 @@ namespace OpenXLSX {
 		if(cellFormatIndex != XLDefaultCellFormat) {
 			if(customFormatAtt.empty()) {
 				customFormatAtt = m_rowNode->append_attribute("customFormat");
-				if(customFormatAtt.empty())  return false;// fail if missing customFormat attribute could not be created
+				if(customFormatAtt.empty()) return false;// fail if missing customFormat attribute could not be created
 			}
 			customFormatAtt.set_value("true");
 		}
@@ -6365,7 +6369,7 @@ namespace OpenXLSX {
 		XMLAttribute styleAtt = m_rowNode->attribute("s");
 		if(styleAtt.empty()) {
 			styleAtt = m_rowNode->append_attribute("s");
-			if(styleAtt.empty())  return false;
+			if(styleAtt.empty()) return false;
 		}
 		styleAtt.set_value(cellFormatIndex);
 		return true;
@@ -6376,7 +6380,7 @@ namespace OpenXLSX {
 		// 2024-05-28 BUGFIX: (!lhs.m_rowNode && rhs.m_rowNode) was not evaluated, triggering a segmentation fault on dereferencing
 		if(static_cast<bool>(lhs.m_rowNode) != static_cast<bool>(rhs.m_rowNode))  
 			return false;
-		// ===== If execution gets here, row nodes are BOTH valid or BOTH invalid / empty
+		// If execution gets here, row nodes are BOTH valid or BOTH invalid / empty
 		if(not lhs.m_rowNode)  
 			return true;    // checking one for being empty is enough to know both are empty
 		return *lhs.m_rowNode == *rhs.m_rowNode;
@@ -6422,15 +6426,15 @@ namespace OpenXLSX {
 	 */
 	void XLRowIterator::updateCurrentRow(bool createIfMissing)
 	{
-		// ===== Quick exit checks - can't be true when m_endReached
+		// Quick exit checks - can't be true when m_endReached
 		if(m_currentRowStatus == XLLoaded)  
 			return;                           // nothing to do, row is already loaded
 		if(!createIfMissing && m_currentRowStatus == XLNoSuchRow)  
 			return;    // nothing to do, row has already been determined as missing
-		// ===== At this stage, m_currentRowStatus is XLUnloaded or XLNoSuchRow and createIfMissing == true
+		// At this stage, m_currentRowStatus is XLUnloaded or XLNoSuchRow and createIfMissing == true
 		if(m_endReached)
 			throw XLInputError("XLRowIterator updateCurrentRow: iterator should not be dereferenced when endReached() == true");
-		// ===== Row needs to be updated
+		// Row needs to be updated
 		if(m_hintRow.empty()) {   // no hint has been established: fetch first row node the "tedious" way
 			if(createIfMissing)  // getRowNode creates missing rows
 				m_currentRow = XLRow(getRowNode(*m_dataNode, m_currentRowNumber), m_sharedStrings.get());
@@ -6438,9 +6442,9 @@ namespace OpenXLSX {
 				m_currentRow = XLRow(findRowNode(*m_dataNode, m_currentRowNumber), m_sharedStrings.get());
 		}
 		else {
-			// ===== Find or create, and fetch an XLRow at m_currentRowNumber
+			// Find or create, and fetch an XLRow at m_currentRowNumber
 			if(m_currentRowNumber > m_hintRowNumber) {
-				// ===== Start from m_hintRow and search forwards...
+				// Start from m_hintRow and search forwards...
 				XMLNode rowNode = m_hintRow.next_sibling_of_type(pugi::node_element);
 				uint32 rowNo = 0;
 				while(!rowNode.empty()) {
@@ -6451,7 +6455,7 @@ namespace OpenXLSX {
 				}
 				if(rowNo != m_currentRowNumber)  
 					rowNode = XMLNode{};// if a higher row number was found, set empty node (means: "missing")
-				// ===== Create missing row node if createIfMissing == true
+				// Create missing row node if createIfMissing == true
 				if(createIfMissing && rowNode.empty()) {
 					rowNode = m_dataNode->insert_child_after("row", m_hintRow);
 					rowNode.append_attribute("r").set_value(m_currentRowNumber);
@@ -6468,7 +6472,7 @@ namespace OpenXLSX {
 		if(m_currentRow.empty())    // if row is confirmed missing
 			m_currentRowStatus = XLNoSuchRow; // mark this status for further calls to updateCurrentRow()
 		else {
-			// ===== If the current row exists, update the hints
+			// If the current row exists, update the hints
 			m_hintRow = *m_currentRow.m_rowNode;// don't store a full XLRow, just the XMLNode, for better performance
 			m_hintRowNumber = m_currentRowNumber;
 			m_currentRowStatus = XLLoaded;              // mark row status for further calls to updateCurrentRow()
@@ -6508,7 +6512,7 @@ namespace OpenXLSX {
 
 	bool XLRowIterator::operator==(const XLRowIterator& rhs) const
 	{
-		if(m_endReached && rhs.m_endReached)  return true;    // If both iterators are end iterators
+		if(m_endReached && rhs.m_endReached) return true;    // If both iterators are end iterators
 
 		if(m_currentRowNumber != rhs.m_currentRowNumber)      // If iterators point to a different row
 			return false;                                     // that means no match
@@ -6531,7 +6535,7 @@ namespace OpenXLSX {
 
 	bool XLRowIterator::rowExists()
 	{
-		// ===== Update m_currentRow once so that rowExists will always test the correct cell (an empty row if current row doesn't exist)
+		// Update m_currentRow once so that rowExists will always test the correct cell (an empty row if current row doesn't exist)
 		updateCurrentRow(XLDoNotCreateIfMissing);
 		return not m_currentRow.empty();
 	}
@@ -6606,11 +6610,11 @@ namespace OpenXLSX {
 	 */
 	XLRowDataIterator& XLRowDataIterator::operator++()
 	{
-		// ===== Compute the column number, and move the m_cellNode to the next sibling.
+		// Compute the column number, and move the m_cellNode to the next sibling.
 		const uint16 cellNumber = m_currentCell.cellReference().column() + 1;
 		XMLNode cellNode = m_currentCell.m_cellNode->next_sibling_of_type(pugi::node_element);
-		// ===== If the cellNumber exceeds the last column in the range,
-		// ===== m_currentCell is set to an empty XLCell, indicating the end of the range has been reached.
+		// If the cellNumber exceeds the last column in the range,
+		// m_currentCell is set to an empty XLCell, indicating the end of the range has been reached.
 		if(cellNumber > m_dataRange->m_lastCol)  
 			m_currentCell = XLCell();
 		// ====== If the cellNode is empty (i.e. no more children in the current row node) or the column number of the cell node
@@ -6623,7 +6627,7 @@ namespace OpenXLSX {
 				/**/ *m_dataRange->m_rowNode, cellNumber);
 			m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings.get());
 		}
-		// ===== Otherwise, the cell node and the column number match.
+		// Otherwise, the cell node and the column number match.
 		else {
 			assert(XLCellReference(cellNode.attribute("r").value()).column() == cellNumber);
 			m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings.get());
@@ -6655,7 +6659,7 @@ namespace OpenXLSX {
 		// 2024-05-28 BUGFIX: (!m_currentCell && rhs.m_currentCell) was not evaluated, triggering a segmentation fault on dereferencing
 		if(static_cast<bool>(m_currentCell) != static_cast<bool>(rhs.m_currentCell))  
 			return false;
-		// ===== If execution gets here, current cells are BOTH valid or BOTH invalid / empty
+		// If execution gets here, current cells are BOTH valid or BOTH invalid / empty
 		if(!m_currentCell)  
 			return true; // checking one for being empty is enough to know both are empty
 		return m_currentCell == rhs.m_currentCell;
@@ -6764,7 +6768,7 @@ namespace OpenXLSX {
 		if(values.empty())  
 			return *this;
 		deleteCellValues(static_cast<uint16>(values.size()));    // 2024-04-30: whitespace support
-		// ===== prepend new cell nodes to current row node
+		// prepend new cell nodes to current row node
 		XMLNode curNode{};
 		uint16 colNo = static_cast<uint16>(values.size());
 		for(auto value = values.rbegin(); value != values.rend(); ++value) {
@@ -6784,7 +6788,7 @@ namespace OpenXLSX {
 	XLRowDataProxy& XLRowDataProxy::operator=(const std::vector<bool>& values)        // 2024-04-30: whitespace support
 	{
 		if(values.size() > MAX_COLS)  throw XLOverflowError("vector<bool> size exceeds maximum number of columns.");
-		if(values.empty())  return *this;
+		if(values.empty()) return *this;
 		auto range = XLRowDataRange(*m_rowNode, 1, static_cast<uint16>(values.size()), m_row->m_sharedStrings.get());
 		auto dst = range.begin(); // 2024-04-30: whitespace support: safe because XLRowDataRange::begin invokes whitespace-safe getCellNode for column 1
 		auto src = values.begin();
@@ -6814,11 +6818,11 @@ namespace OpenXLSX {
 	 */
 	std::vector<XLCellValue> XLRowDataProxy::getValues() const        // 2024-04-30: whitespace support
 	{
-		// ===== Determine the number of cells in the current row. Create a std::vector of the same size.
+		// Determine the number of cells in the current row. Create a std::vector of the same size.
 		const XMLNode lastElementChild = m_rowNode->last_child_of_type(pugi::node_element);
 		const uint16 numCells = (lastElementChild.empty() ? 0 : XLCellReference(lastElementChild.attribute("r").value()).column());
 		std::vector<XLCellValue> result(static_cast<uint64>(numCells));
-		// ===== If there are one or more cells in the current row, iterate through them and add the value to the container.
+		// If there are one or more cells in the current row, iterate through them and add the value to the container.
 		if(numCells > 0) {
 			XMLNode node = lastElementChild; // avoid unneeded call to first_child_of_type by iterating backwards, vector is random access so it doesn't matter
 			while(!node.empty()) {
@@ -6826,7 +6830,7 @@ namespace OpenXLSX {
 				node = node.previous_sibling_of_type(pugi::node_element);
 			}
 		}
-		return result; // ===== Return the resulting container.
+		return result; // Return the resulting container.
 	}
 	/**
 	 * @details The function returns a reference to the XLSharedStrings object embedded in the m_row member.
@@ -6839,7 +6843,7 @@ namespace OpenXLSX {
 	 */
 	void XLRowDataProxy::deleteCellValues(uint16 count) // 2024-04-30: whitespace support
 	{
-		// ===== Mark cell nodes for deletion
+		// Mark cell nodes for deletion
 		std::vector<XMLNode> toBeDeleted;
 		XMLNode cellNode = m_rowNode->first_child_of_type(pugi::node_element);
 		while(!cellNode.empty()) {
@@ -6847,7 +6851,7 @@ namespace OpenXLSX {
 				toBeDeleted.emplace_back(cellNode);
 				XMLNode nextNode = cellNode.next_sibling(); // get next "regular" sibling (any type) before advancing cellNode
 				cellNode = cellNode.next_sibling_of_type(pugi::node_element);
-				// ===== Iterate over non-element nodes and mark them for deletion
+				// Iterate over non-element nodes and mark them for deletion
 				while(nextNode != cellNode) { // this also works with the empty node returned past last sibling, as for XMLNode a{}, b{}, ( a == b ) is true
 					toBeDeleted.emplace_back(nextNode);
 					nextNode = nextNode.next_sibling();
@@ -6856,7 +6860,7 @@ namespace OpenXLSX {
 			else
 				cellNode = cellNode.next_sibling_of_type(pugi::node_element);
 		}
-		// ===== Delete selected cell nodes
+		// Delete selected cell nodes
 		for(auto cellNodeToDelete : toBeDeleted)  m_rowNode->remove_child(cellNodeToDelete);
 	}
 	/**
@@ -6866,7 +6870,7 @@ namespace OpenXLSX {
 	 */
 	void XLRowDataProxy::prependCellValue(const XLCellValue& value, uint16 col) // 2024-04-30: whitespace support
 	{
-		// ===== (disabled) Pretty formatting by inserting before an existing first child
+		// (disabled) Pretty formatting by inserting before an existing first child
 		// XMLNode first_child = m_rowNode->first_child_of_type(pugi::node_element);
 		// XMLNode curNode{};
 		// if (first_child.empty())
@@ -7064,9 +7068,9 @@ namespace OpenXLSX {
 		if(typeString == "beginsWith")         return XLCfType::BeginsWith;
 		if(typeString == "endsWith")           return XLCfType::EndsWith;
 		if(typeString == "containsBlanks")     return XLCfType::ContainsBlanks;
-		if(typeString == "notContainsBlanks")  return XLCfType::NotContainsBlanks;
+		if(typeString == "notContainsBlanks") return XLCfType::NotContainsBlanks;
 		if(typeString == "containsErrors")     return XLCfType::ContainsErrors;
-		if(typeString == "notContainsErrors")  return XLCfType::NotContainsErrors;
+		if(typeString == "notContainsErrors") return XLCfType::NotContainsErrors;
 		if(typeString == "timePeriod")         return XLCfType::TimePeriod;
 		if(typeString == "aboveAverage")       return XLCfType::AboveAverage;
 		return XLCfType::Invalid;
@@ -7113,7 +7117,7 @@ namespace OpenXLSX {
 		if(operatorString == "lessThanOrEqual")     return XLCfOperator::LessThanOrEqual;
 		if(operatorString == "equal")               return XLCfOperator::Equal;
 		if(operatorString == "notEqual")            return XLCfOperator::NotEqual;
-		if(operatorString == "greaterThanOrEqual")  return XLCfOperator::GreaterThanOrEqual;
+		if(operatorString == "greaterThanOrEqual") return XLCfOperator::GreaterThanOrEqual;
 		if(operatorString == "greaterThan")         return XLCfOperator::GreaterThan;
 		if(operatorString == "between")             return XLCfOperator::Between;
 		if(operatorString == "notBetween")          return XLCfOperator::NotBetween;
@@ -7156,15 +7160,15 @@ namespace OpenXLSX {
 	XLCfTimePeriod XLCfTimePeriodFromString(std::string const& timePeriodString)
 	{
 		if(timePeriodString == "today")      return XLCfTimePeriod::Today;
-		if(timePeriodString == "yesterday")  return XLCfTimePeriod::Yesterday;
-		if(timePeriodString == "tomorrow")   return XLCfTimePeriod::Tomorrow;
-		if(timePeriodString == "last7Days")  return XLCfTimePeriod::Last7Days;
-		if(timePeriodString == "thisMonth")  return XLCfTimePeriod::ThisMonth;
-		if(timePeriodString == "lastMonth")  return XLCfTimePeriod::LastMonth;
-		if(timePeriodString == "nextMonth")  return XLCfTimePeriod::NextMonth;
-		if(timePeriodString == "thisWeek")   return XLCfTimePeriod::ThisWeek;
-		if(timePeriodString == "lastWeek")   return XLCfTimePeriod::LastWeek;
-		if(timePeriodString == "nextWeek")   return XLCfTimePeriod::NextWeek;
+		if(timePeriodString == "yesterday") return XLCfTimePeriod::Yesterday;
+		if(timePeriodString == "tomorrow") return XLCfTimePeriod::Tomorrow;
+		if(timePeriodString == "last7Days") return XLCfTimePeriod::Last7Days;
+		if(timePeriodString == "thisMonth") return XLCfTimePeriod::ThisMonth;
+		if(timePeriodString == "lastMonth") return XLCfTimePeriod::LastMonth;
+		if(timePeriodString == "nextMonth") return XLCfTimePeriod::NextMonth;
+		if(timePeriodString == "thisWeek") return XLCfTimePeriod::ThisWeek;
+		if(timePeriodString == "lastWeek") return XLCfTimePeriod::LastWeek;
+		if(timePeriodString == "nextWeek") return XLCfTimePeriod::NextWeek;
 		return XLCfTimePeriod::Invalid;
 	}
 
@@ -7433,7 +7437,7 @@ bool XLCfRule::equalAverage() const { return m_cfRuleNode->attribute("equalAvera
 bool XLCfRule::setFormula(std::string const& newFormula)
 {
 	XMLNode formula = appendAndGetNode(*m_cfRuleNode, "formula", m_nodeOrder);
-	if(formula.empty())  return false;
+	if(formula.empty()) return false;
 	formula.remove_children(); // no-op if no children
 	return formula.append_child(pugi::node_pcdata).set_value(newFormula.c_str());
 }
@@ -7545,7 +7549,7 @@ uint16 XLCfRules::maxPriorityValue() const
 bool XLCfRules::setPriority(size_t cfRuleIndex, uint16 newPriority)
 {
 	XLCfRule affectedRule = cfRuleByIndex(cfRuleIndex);    // throws for cfRuleIndex out of bounds
-	if(newPriority == affectedRule.priority())  return true;// no-op if priority is already set
+	if(newPriority == affectedRule.priority()) return true;// no-op if priority is already set
 
 	XMLNode node = m_conditionalFormattingNode->first_child_of_type(pugi::node_element);
 	while(!node.empty() && std::string(node.name()) != "cfRule") // skip past non cfRule elements
@@ -7656,7 +7660,7 @@ size_t XLCfRules::create([[maybe_unused]] XLCfRule copyFrom, std::string cfRuleP
 	size_t index = count(); // index for the cfRule to be created
 	XMLNode newNode{};    // scope declaration
 
-	// ===== Append new node prior to final whitespaces, if any
+	// Append new node prior to final whitespaces, if any
 	if(index == 0)  newNode = appendAndGetNode(*m_conditionalFormattingNode, "cfRule", m_nodeOrder);
 	else {
 		XMLNode lastCfRule = *cfRuleByIndex(index - 1).m_cfRuleNode;
@@ -7808,7 +7812,7 @@ size_t XLConditionalFormats::create([[maybe_unused]] XLConditionalFormat copyFro
 {
 	size_t index = count(); // index for the conditional formatting to be created
 	XMLNode newNode{};    // scope declaration
-	// ===== Append new node prior to final whitespaces, if any
+	// Append new node prior to final whitespaces, if any
 	if(index == 0)
 		newNode = appendAndGetNode(*m_sheetNode, "conditionalFormatting", m_nodeOrder);
 	else {
@@ -7857,7 +7861,7 @@ std::string XLConditionalFormats::summary() const
  */
 XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLSheetBase(xmlData)
 {
-	// ===== Read the dimensions of the Sheet and set data members accordingly.
+	// Read the dimensions of the Sheet and set data members accordingly.
 	if(const std::string dimensions = xmlDocument().document_element().child("dimension").attribute("ref").value();
 	    dimensions.find(':') == std::string::npos)
 		xmlDocument().document_element().child("dimension").set_value("A1");
@@ -7963,7 +7967,7 @@ XLCellAssignable XLWorksheet::cell(uint32 rowNumber, uint16 columnNumber) const
 {
 	const XMLNode rowNode  = getRowNode(xmlDocumentC().document_element().child("sheetData"), rowNumber);
 	const XMLNode cellNode = getCellNode(rowNode, columnNumber, rowNumber);
-	// ===== Move-construct XLCellAssignable from temporary XLCell
+	// Move-construct XLCellAssignable from temporary XLCell
 	return XLCellAssignable(XLCell(cellNode, parentDoc().sharedStrings()));
 }
 
@@ -7979,7 +7983,7 @@ XLCellAssignable XLWorksheet::findCell(uint32 rowNumber, uint16 columnNumber) co
 
 XLCellRange XLWorksheet::range() const { return range(XLCellReference("A1"), lastCell()); }
 
-XLCellRange XLWorksheet::range(const XLCellReference& topLeft, const XLCellReference& bottomRight) const
+XLCellRange XLWorksheet::range(const XLCellReference & topLeft, const XLCellReference & bottomRight) const
 {
 	return XLCellRange(xmlDocumentC().document_element().child("sheetData"), topLeft, bottomRight, parentDoc().sharedStrings());
 }
@@ -8042,7 +8046,7 @@ XLColumn XLWorksheet::column(uint16 columnNumber) const
 	if(xmlDocumentC().document_element().child("cols").empty())
 		xmlDocumentC().document_element().insert_child_before("cols", xmlDocumentC().document_element().child("sheetData"));
 
-	// ===== Find the column node, if it exists
+	// Find the column node, if it exists
 	auto columnNode = xmlDocumentC().document_element().child("cols").find_child([&](const XMLNode node) {
 		return (columnNumber >= node.attribute("min").as_int() && columnNumber <= node.attribute("max").as_int()) ||
 		       node.attribute("min").as_int() > columnNumber;
@@ -8054,17 +8058,17 @@ XLColumn XLWorksheet::column(uint16 columnNumber) const
 		minColumn = static_cast<uint16>(columnNode.attribute("min").as_int()); // only look it up once for multiple access
 		maxColumn = static_cast<uint16>(columnNode.attribute("max").as_int()); //   "
 	}
-	// ===== If the node exists for the column, and only spans that column, then continue...
+	// If the node exists for the column, and only spans that column, then continue...
 	if(not columnNode.empty() && (minColumn == columnNumber) && (maxColumn == columnNumber)) {
 	}
-	// ===== If the node exists for the column, but spans several columns, split it into individual nodes, and set columnNode to the right
+	// If the node exists for the column, but spans several columns, split it into individual nodes, and set columnNode to the right
 	// one...
 	// BUGFIX 2024-04-27 - old if condition would split a multi-column setting even if columnNumber is < minColumn (see lambda return value
 	// above)
 	// NOTE 2024-04-27: the column splitting for loaded files is already handled in the constructor, technically this code is not necessary
 	// here
 	else if(not columnNode.empty() && (columnNumber >= minColumn) && (minColumn != maxColumn)) {
-		// ===== Split the node in individual columns...
+		// Split the node in individual columns...
 		columnNode.attribute("min").set_value(maxColumn); // Limit the original node to a single column
 		for(int i = minColumn; i < maxColumn; ++i) {
 			auto node = xmlDocumentC().document_element().child("cols").insert_copy_before(columnNode, columnNode);
@@ -8073,12 +8077,12 @@ XLColumn XLWorksheet::column(uint16 columnNumber) const
 		}
 		// BUGFIX 2024-04-27: the original node should not be deleted, but - in line with XLWorksheet constructor - is now limited above to
 		// min = max attribute
-		// // ===== Delete the original node
+		// // Delete the original node
 		// columnNode = columnNode.previous_sibling_of_type(pugi::node_element); // due to insert loop, previous node should be guaranteed
 		// // to be an element node
 		// xmlDocument().document_element().child("cols").remove_child(columnNode.next_sibling());
 
-		// ===== Find the node corresponding to the column number - BUGFIX 2024-04-27: loop should abort on empty node
+		// Find the node corresponding to the column number - BUGFIX 2024-04-27: loop should abort on empty node
 		while(!columnNode.empty() && columnNode.attribute("min").as_int() != columnNumber)
 			columnNode = columnNode.previous_sibling_of_type(pugi::node_element);
 		if(columnNode.empty())
@@ -8086,7 +8090,7 @@ XLColumn XLWorksheet::column(uint16 columnNumber) const
 				  "not found after splitting column nodes"s);
 	}
 
-	// ===== If a node for the column does NOT exist, but a node for a higher column exists...
+	// If a node for the column does NOT exist, but a node for a higher column exists...
 	else if(not columnNode.empty() && minColumn > columnNumber) {
 		columnNode                                 = xmlDocumentC().document_element().child("cols").insert_child_before("col", columnNode);
 		columnNode.append_attribute("min")         = columnNumber;
@@ -8094,7 +8098,7 @@ XLColumn XLWorksheet::column(uint16 columnNumber) const
 		columnNode.append_attribute("width")       = 9.8;
 		columnNode.append_attribute("customWidth") = 0;
 	}
-	// ===== Otherwise, the end of the list is reached, and a new node is appended
+	// Otherwise, the end of the list is reached, and a new node is appended
 	else if(columnNode.empty()) {
 		columnNode                                 = xmlDocumentC().document_element().child("cols").append_child("col");
 		columnNode.append_attribute("min")         = columnNumber;
@@ -8154,14 +8158,14 @@ bool XLWorksheet::deleteRow(uint32 rowNumber)
 {
 	XMLNode row = xmlDocument().document_element().child("sheetData").first_child_of_type(pugi::node_element);
 	XMLNode lastRow = xmlDocument().document_element().child("sheetData").last_child_of_type(pugi::node_element);
-	// ===== Fail if rowNumber is not in XML
+	// Fail if rowNumber is not in XML
 	if(rowNumber < row.attribute("r").as_ullong() || rowNumber > lastRow.attribute("r").as_ullong())  
 		return false;
-	// ===== If rowNumber is closer to first (existing) row than to last row, search forwards
+	// If rowNumber is closer to first (existing) row than to last row, search forwards
 	if(rowNumber - row.attribute("r").as_ullong() < lastRow.attribute("r").as_ullong() - rowNumber)
 		while(!row.empty() && (row.attribute("r").as_ullong() < rowNumber))  
 			row = row.next_sibling_of_type(pugi::node_element);
-	// ===== Otherwise, search backwards
+	// Otherwise, search backwards
 	else {
 		row = lastRow;
 		while(!row.empty() && (row.attribute("r").as_ullong() > rowNumber))  
@@ -8169,26 +8173,26 @@ bool XLWorksheet::deleteRow(uint32 rowNumber)
 	}
 	if(row.attribute("r").as_ullong() != rowNumber)  
 		return false;// row not found in XML
-	// ===== If row was located: remove it
+	// If row was located: remove it
 	return xmlDocument().document_element().child("sheetData").remove_child(row);
 }
 
 void XLWorksheet::updateSheetName(const std::string& oldName, const std::string& newName)    // 2024-04-29: patched for whitespace
 {
-	// ===== Set up temporary variables
+	// Set up temporary variables
 	std::string oldNameTemp = oldName;
 	std::string newNameTemp = newName;
 	std::string formula;
 
-	// ===== If the sheet name contains spaces, it should be enclosed in single quotes (')
+	// If the sheet name contains spaces, it should be enclosed in single quotes (')
 	if(oldName.find(' ') != std::string::npos)  oldNameTemp = "\'" + oldName + "\'";
 	if(newName.find(' ') != std::string::npos)  newNameTemp = "\'" + newName + "\'";
 
-	// ===== Ensure only sheet names are replaced (references to sheets always ends with a '!')
+	// Ensure only sheet names are replaced (references to sheets always ends with a '!')
 	oldNameTemp += '!';
 	newNameTemp += '!';
 
-	// ===== Iterate through all defined names
+	// Iterate through all defined names
 	XMLNode row = xmlDocument().document_element().child("sheetData").first_child_of_type(pugi::node_element);
 	for(; not row.empty(); row = row.next_sibling_of_type(pugi::node_element)) {
 		for(XMLNode cell = row.first_child_of_type(pugi::node_element);
@@ -8198,9 +8202,9 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
 
 			formula = XLCell(cell, parentDoc().sharedStrings()).formula().get();
 
-			// ===== Skip if formula contains a '[' and ']' (means that the defined refers to external workbook)
+			// Skip if formula contains a '[' and ']' (means that the defined refers to external workbook)
 			if(formula.find('[') == std::string::npos && formula.find(']') == std::string::npos) {
-				// ===== For all instances of the old sheet name in the formula, replace with the new name.
+				// For all instances of the old sheet name in the formula, replace with the new name.
 				while(formula.find(oldNameTemp) != std::string::npos) {
 					formula.replace(formula.find(oldNameTemp), oldNameTemp.length(), newNameTemp);
 				}
@@ -8239,11 +8243,11 @@ void XLWorksheet::mergeCells(XLCellRange const& rangeToMerge, bool emptyHiddenCe
 
 	merges().appendMerge(rangeToMerge.address());
 	if(emptyHiddenCells) {
-		// ===== Iterate over rangeToMerge, delete values & attributes (except r and s) for all but the first cell in the range
+		// Iterate over rangeToMerge, delete values & attributes (except r and s) for all but the first cell in the range
 		XLCellIterator it = rangeToMerge.begin();
 		++it; // leave first cell untouched
 		while(it != rangeToMerge.end()) {
-			// ===== When merging with emptyHiddenCells in LO, subsequent unmerging restores the cell styles -> so keep them here as well
+			// When merging with emptyHiddenCells in LO, subsequent unmerging restores the cell styles -> so keep them here as well
 			it->clear(XLKeepCellStyle); // clear cell contents except style
 			++it;
 		}
@@ -8293,17 +8297,19 @@ bool XLWorksheet::setColumnFormat(uint16 columnNumber, XLStyleIndex cellFormatIn
 {
 	if(!column(columnNumber).setFormat(cellFormatIndex)) // attempt to set column format
 		return false; // early fail
-
-	XLRowRange allRows = rows();
-	for(XLRowIterator rowIt = allRows.begin(); rowIt != allRows.end(); ++rowIt) {
-		XLCell curCell = rowIt->findCell(columnNumber);
-		if(curCell && !curCell.setCellFormat(cellFormatIndex)) // attempt to set cell format for a non empty cell
-			return false; // failure to set cell format
+	else {
+		XLRowRange allRows = rows();
+		for(XLRowIterator rowIt = allRows.begin(); rowIt != allRows.end(); ++rowIt) {
+			XLCell curCell = rowIt->findCell(columnNumber);
+			if(curCell && !curCell.setCellFormat(cellFormatIndex)) // attempt to set cell format for a non empty cell
+				return false; // failure to set cell format
+		}
+		return true; // if loop finished nominally: success
 	}
-	return true; // if loop finished nominally: success
 }
 
-bool XLWorksheet::setColumnFormat(const std::string& columnNumber, XLStyleIndex cellFormatIndex) {
+bool XLWorksheet::setColumnFormat(const std::string& columnNumber, XLStyleIndex cellFormatIndex) 
+{
 	return setColumnFormat(XLCellReference::columnAsNumber(columnNumber), cellFormatIndex);
 }
 
@@ -8450,9 +8456,9 @@ std::string XLWorksheet::sheetProtectionSummary() const
  * @details functions to test whether a VMLDrawing / Comments / Tables entry exists for this worksheet (without creating those entries)
  */
 bool XLWorksheet::hasRelationships() const { return parentDoc().hasSheetRelationships(sheetXmlNumber()); }
-bool XLWorksheet::hasVmlDrawing()    const { return parentDoc().hasSheetVmlDrawing(sheetXmlNumber()); }
-bool XLWorksheet::hasComments()      const { return parentDoc().hasSheetComments(sheetXmlNumber()); }
-bool XLWorksheet::hasTables()        const { return parentDoc().hasSheetTables(sheetXmlNumber()); }
+bool XLWorksheet::hasVmlDrawing() const { return parentDoc().hasSheetVmlDrawing(sheetXmlNumber()); }
+bool XLWorksheet::hasComments() const { return parentDoc().hasSheetComments(sheetXmlNumber()); }
+bool XLWorksheet::hasTables() const { return parentDoc().hasSheetTables(sheetXmlNumber()); }
 
 /**
  * @details fetches XLVmlDrawing for the sheet - creates & assigns the class if empty
@@ -8460,14 +8466,14 @@ bool XLWorksheet::hasTables()        const { return parentDoc().hasSheetTables(s
 XLVmlDrawing& XLWorksheet::vmlDrawing()
 {
 	if(!m_vmlDrawing.valid()) {
-		// ===== Append xdr namespace attribute to worksheet if not present
+		// Append xdr namespace attribute to worksheet if not present
 		XMLNode docElement = xmlDocument().document_element();
 		XMLAttribute xdrNamespace = appendAndGetAttribute(docElement, "xmlns:xdr", "");
 		xdrNamespace = "http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing";
 
 		std::ignore = relationships(); // create sheet relationships if not existing
 
-		// ===== Trigger parentDoc to create drawing XML file and return it
+		// Trigger parentDoc to create drawing XML file and return it
 		uint16 sheetXmlNo = sheetXmlNumber();
 		m_vmlDrawing = parentDoc().sheetVmlDrawing(sheetXmlNo); // fetch drawing for this worksheet
 		if(!m_vmlDrawing.valid())
@@ -8496,10 +8502,10 @@ XLComments& XLWorksheet::comments()
 {
 	if(!m_comments.valid()) {
 		std::ignore = relationships(); // create sheet relationships if not existing
-		// ===== Unfortunately, xl/vmlDrawing#.vml is needed to support comments: append xdr namespace attribute to worksheet if not present
+		// Unfortunately, xl/vmlDrawing#.vml is needed to support comments: append xdr namespace attribute to worksheet if not present
 		std::ignore = vmlDrawing(); // create sheet VML drawing if not existing
 
-		// ===== Trigger parentDoc to create comment XML file and return it
+		// Trigger parentDoc to create comment XML file and return it
 		uint16 sheetXmlNo = sheetXmlNumber();
 		// std::cout << "worksheet comments for sheetId " << sheetXmlNo << std::endl;
 		m_comments = parentDoc().sheetComments(sheetXmlNo); // fetch comments for this worksheet
@@ -8522,7 +8528,7 @@ XLTables& XLWorksheet::tables()
 	if(!m_tables.valid()) {
 		std::ignore = relationships(); // create sheet relationships if not existing
 
-		// ===== Trigger parentDoc to create tables XML file and return it
+		// Trigger parentDoc to create tables XML file and return it
 		uint16 sheetXmlNo = sheetXmlNumber();
 		// std::cout << "worksheet tables for sheetId " << sheetXmlNo << std::endl;
 		m_tables = parentDoc().sheetTables(sheetXmlNo); // fetch tables for this worksheet
@@ -8543,7 +8549,7 @@ uint16 XLWorksheet::sheetXmlNumber() const
 	constexpr const char * searchPattern = "xl/worksheets/sheet";
 	std::string xmlPath = getXmlPath();
 	size_t pos = xmlPath.find(searchPattern);                 // ensure compatibility with expected path
-	if(pos == std::string::npos)  return 0;
+	if(pos == std::string::npos) return 0;
 	pos += strlen(searchPattern);
 	size_t pos2 = pos;
 	while(std::isdigit(xmlPath[pos2]))
@@ -8605,25 +8611,44 @@ namespace { // anonymous namespace for module local functions
 		XLStylesInvalid          = 255
 	};
 
+	static const SIntToSymbTabEntry StylesEntryTypeList[] = {
+		{ XLStylesNumberFormats, "numFmts" },
+		{ XLStylesFonts, "fonts" },
+		{ XLStylesFills, "fills" },
+		{ XLStylesBorders, "borders" },
+		{ XLStylesCellStyleFormats, "cellStyleXfs" },
+		{ XLStylesCellFormats, "cellXfs" },
+		{ XLStylesCellStyles, "cellStyles" },
+		{ XLStylesColors, "colors" },
+		{ XLStylesDiffCellFormats, "dxfs" },
+		{ XLStylesTableStyles, "tableStyles" },
+		{ XLStylesExtLst, "extLst" },
+	};
+
 	XLStylesEntryType XLStylesEntryTypeFromString(std::string name)
 	{
-		if(name == "numFmts")       return XLStylesNumberFormats;
+		return static_cast<XLStylesEntryType>(SIntToSymbTab_GetId_Errv(StylesEntryTypeList, SIZEOFARRAY(StylesEntryTypeList), name.c_str(), XLStylesEntryType::XLStylesInvalid)); // @v12.5.3
+		/* @v12.5.3 if(name == "numFmts")       return XLStylesNumberFormats;
 		if(name == "fonts")         return XLStylesFonts;
 		if(name == "fills")         return XLStylesFills;
 		if(name == "borders")       return XLStylesBorders;
-		if(name == "cellStyleXfs")  return XLStylesCellStyleFormats;
+		if(name == "cellStyleXfs") return XLStylesCellStyleFormats;
 		if(name == "cellXfs")       return XLStylesCellFormats;
 		if(name == "cellStyles")    return XLStylesCellStyles;
 		if(name == "colors")        return XLStylesColors;
 		if(name == "dxfs")          return XLStylesDiffCellFormats;
-		if(name == "tableStyles")   return XLStylesTableStyles;
+		if(name == "tableStyles") return XLStylesTableStyles;
 		if(name == "extLst")        return XLStylesExtLst;
-		return XLStylesEntryType::XLStylesInvalid;
+		return XLStylesEntryType::XLStylesInvalid;*/
 	}
 
 	std::string XLStylesEntryTypeToString(XLStylesEntryType entryType)
 	{
-		switch(entryType) {
+		// @v12.5.3 {
+		const char * p_symb = SIntToSymbTab_GetSymbPtr(StylesEntryTypeList, SIZEOFARRAY(StylesEntryTypeList), entryType);
+		return NZOR(p_symb, "(invalid)");
+		// @v12.5.3 {
+		/* @v12.5.3 switch(entryType) {
 			case XLStylesNumberFormats:    return "numFmts";
 			case XLStylesFonts:            return "fonts";
 			case XLStylesFills:            return "fills";
@@ -8637,17 +8662,21 @@ namespace { // anonymous namespace for module local functions
 			case XLStylesExtLst:           return "extLst";
 			case XLStylesInvalid:          [[fallthrough]];
 			default:                       return "(invalid)";
-		}
+		}*/
 	}
 
 	XLUnderlineStyle XLUnderlineStyleFromString(std::string underline)
 	{
-		if(underline == ""
-			|| underline == "none")   return XLUnderlineNone;
-		if(underline == "single")  return XLUnderlineSingle;
-		if(underline == "double")  return XLUnderlineDouble;
-		std::cerr << __func__ << ": invalid underline style " << underline << std::endl;
-		return XLUnderlineInvalid;
+		if(underline == "" || underline == "none") 
+			return XLUnderlineNone;
+		else if(underline == "single") 
+			return XLUnderlineSingle;
+		else if(underline == "double") 
+			return XLUnderlineDouble;
+		else {
+			std::cerr << __func__ << ": invalid underline style " << underline << std::endl;
+			return XLUnderlineInvalid;
+		}
 	}
 
 	std::string XLUnderlineStyleToString(XLUnderlineStyle underline)
@@ -8663,9 +8692,9 @@ namespace { // anonymous namespace for module local functions
 
 	XLFontSchemeStyle XLFontSchemeStyleFromString(std::string fontScheme)
 	{
-		if(fontScheme == "" || fontScheme == "none")  return XLFontSchemeNone;
-		if(fontScheme == "major")  return XLFontSchemeMajor;
-		if(fontScheme == "minor")  return XLFontSchemeMinor;
+		if(fontScheme == "" || fontScheme == "none") return XLFontSchemeNone;
+		if(fontScheme == "major") return XLFontSchemeMajor;
+		if(fontScheme == "minor") return XLFontSchemeMinor;
 		std::cerr << __func__ << ": invalid font scheme " << fontScheme << std::endl;
 		return XLFontSchemeInvalid;
 	}
@@ -8752,13 +8781,13 @@ namespace { // anonymous namespace for module local functions
 		if(patternType == "mediumGray")       return XLPatternMediumGray;
 		if(patternType == "darkGray")         return XLPatternDarkGray;
 		if(patternType == "lightGray")        return XLPatternLightGray;
-		if(patternType == "darkHorizontal")   return XLPatternDarkHorizontal;
+		if(patternType == "darkHorizontal") return XLPatternDarkHorizontal;
 		if(patternType == "darkVertical")     return XLPatternDarkVertical;
 		if(patternType == "darkDown")         return XLPatternDarkDown;
 		if(patternType == "darkUp")           return XLPatternDarkUp;
 		if(patternType == "darkGrid")         return XLPatternDarkGrid;
 		if(patternType == "darkTrellis")      return XLPatternDarkTrellis;
-		if(patternType == "lightHorizontal")  return XLPatternLightHorizontal;
+		if(patternType == "lightHorizontal") return XLPatternLightHorizontal;
 		if(patternType == "lightVertical")    return XLPatternLightVertical;
 		if(patternType == "lightDown")        return XLPatternLightDown;
 		if(patternType == "lightUp")          return XLPatternLightUp;
@@ -8809,7 +8838,7 @@ namespace { // anonymous namespace for module local functions
 		if(lineType == "bottom")      return XLLineBottom;
 		if(lineType == "diagonal")    return XLLineDiagonal;
 		if(lineType == "vertical")    return XLLineVertical;
-		if(lineType == "horizontal")  return XLLineHorizontal;
+		if(lineType == "horizontal") return XLLineHorizontal;
 		std::cerr << __func__ << ": invalid line type" << lineType << std::endl;
 		return XLLineInvalid;
 	}
@@ -8847,7 +8876,7 @@ namespace { // anonymous namespace for module local functions
 		if(style == "dashDot")           return XLLineStyleDashDot;
 		if(style == "mediumDashDot")     return XLLineStyleMediumDashDot;
 		if(style == "dashDotDot")        return XLLineStyleDashDotDot;
-		if(style == "mediumDashDotDot")  return XLLineStyleMediumDashDotDot;
+		if(style == "mediumDashDotDot") return XLLineStyleMediumDashDotDot;
 		if(style == "slantDashDot")      return XLLineStyleSlantDashDot;
 		std::cerr << __func__ << ": invalid line style " << style << std::endl;
 		return XLLineStyleInvalid;
@@ -8886,7 +8915,7 @@ namespace { // anonymous namespace for module local functions
 		if(alignment == "bottom")            return XLAlignBottom;
 		if(alignment == "fill")              return XLAlignFill;
 		if(alignment == "justify")           return XLAlignJustify;
-		if(alignment == "centerContinuous")  return XLAlignCenterContinuous;
+		if(alignment == "centerContinuous") return XLAlignCenterContinuous;
 		if(alignment == "distributed")       return XLAlignDistributed;
 		std::cerr << __func__ << ": invalid alignment style " << alignment << std::endl;
 		return XLAlignInvalid;
@@ -8923,10 +8952,10 @@ namespace { // anonymous namespace for module local functions
 	void copyXMLNode(XMLNode & destination, XMLNode & source)
 	{
 		if(not source.empty()) {
-			// ===== Copy all XML child nodes
+			// Copy all XML child nodes
 			for(XMLNode child = source.first_child(); not child.empty(); child = child.next_sibling())
 				destination.append_copy(child);
-			// ===== Copy all XML attributes
+			// Copy all XML attributes
 			for(XMLAttribute attr = source.first_attribute(); not attr.empty(); attr = attr.next_attribute())
 				destination.append_copy(attr);
 		}
@@ -8953,7 +8982,7 @@ namespace { // anonymous namespace for module local functions
 		if(decimalPos >= result.length())
 			throw XLException("formatDoubleAsString: return value of std::to_string(double val) contains no decimal separator - this should never happen");
 
-		// ===== Return the string representation of val with the decimal separator and decimalPlaces digits following
+		// Return the string representation of val with the decimal separator and decimalPlaces digits following
 		return result.substr(0, decimalPos + 1 + decimalPlaces);
 	}
 
@@ -9032,7 +9061,7 @@ std::string XLNumberFormat::summary() const
 	return "numFmtId="s + std::to_string(numberFormatId()) + ", formatCode="s + formatCode();
 }
 
-// ===== XLNumberFormats, parent of XLNumberFormat
+// XLNumberFormats, parent of XLNumberFormat
 
 /**
  * @details Constructor. Initializes an empty XLNumberFormats object
@@ -9062,15 +9091,13 @@ XLNumberFormats::~XLNumberFormats()
 	m_numberFormats.clear(); // delete vector with all children
 }
 
-XLNumberFormats::XLNumberFormats(const XLNumberFormats& other)
-	: m_numberFormatsNode(std::make_unique<XMLNode>(*other.m_numberFormatsNode)),
-	m_numberFormats(other.m_numberFormats)
-{}
+XLNumberFormats::XLNumberFormats(const XLNumberFormats& other) : m_numberFormatsNode(std::make_unique<XMLNode>(*other.m_numberFormatsNode)), m_numberFormats(other.m_numberFormats)
+{
+}
 
-XLNumberFormats::XLNumberFormats(XLNumberFormats&& other)
-	: m_numberFormatsNode(std::move(other.m_numberFormatsNode)),
-	m_numberFormats(std::move(other.m_numberFormats))
-{}
+XLNumberFormats::XLNumberFormats(XLNumberFormats&& other) : m_numberFormatsNode(std::move(other.m_numberFormatsNode)), m_numberFormats(std::move(other.m_numberFormats))
+{
+}
 
 XLNumberFormats& XLNumberFormats::operator=(const XLNumberFormats& other)
 {
@@ -9128,23 +9155,23 @@ uint32 XLNumberFormats::numberFormatIdFromIndex(XLStyleIndex index) const
  */
 XLStyleIndex XLNumberFormats::create(XLNumberFormat copyFrom, std::string styleEntriesPrefix)
 {
-	XLStyleIndex index = count(); // index for the number format to be created
-	XMLNode newNode{};           // scope declaration
-
-	// ===== Append new node prior to final whitespaces, if any
+	XLStyleIndex index = static_cast<XLStyleIndex>(count()); // index for the number format to be created
+	XMLNode newNode{}; // scope declaration
+	// Append new node prior to final whitespaces, if any
 	XMLNode lastStyle = m_numberFormatsNode->last_child_of_type(pugi::node_element);
-	if(lastStyle.empty())  newNode = m_numberFormatsNode->prepend_child("numFmt");
-	else newNode = m_numberFormatsNode->insert_child_after("numFmt", lastStyle);
+	if(lastStyle.empty())
+		newNode = m_numberFormatsNode->prepend_child("numFmt");
+	else
+		newNode = m_numberFormatsNode->insert_child_after("numFmt", lastStyle);
 	if(newNode.empty()) {
 		using namespace std::literals::string_literals;
 		throw XLException("XLNumberFormats::"s + __func__ + ": failed to append a new numFmt node"s);
 	}
 	if(styleEntriesPrefix.length() > 0) // if a whitespace prefix is configured
 		m_numberFormatsNode->insert_child_before(pugi::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str()); // prefix the new node with styleEntriesPrefix
-
 	XLNumberFormat newNumberFormat(newNode);
 	if(copyFrom.m_numberFormatNode->empty()) { // if no template is given
-		// ===== Create a number format with default values
+		// Create a number format with default values
 		newNumberFormat.setNumberFormatId(0);
 		newNumberFormat.setFormatCode("General");
 	}
@@ -9288,7 +9315,7 @@ std::string XLFont::summary() const
 	       + (extend() ? ", +extend"s : ""s);
 }
 
-// ===== XLFonts, parent of XLFont
+// XLFonts, parent of XLFont
 
 /**
  * @details Constructor. Initializes an empty XLFonts object
@@ -9358,54 +9385,53 @@ XLFont XLFonts::fontByIndex(XLStyleIndex index) const
  */
 XLStyleIndex XLFonts::create(XLFont copyFrom, std::string styleEntriesPrefix)
 {
-	XLStyleIndex index = count(); // index for the font to be created
-	XMLNode newNode{};           // scope declaration
-
-	// ===== Append new node prior to final whitespaces, if any
+	XLStyleIndex index = static_cast<XLStyleIndex>(count()); // index for the font to be created
+	XMLNode newNode{}; // scope declaration
+	// Append new node prior to final whitespaces, if any
 	XMLNode lastStyle = m_fontsNode->last_child_of_type(pugi::node_element);
-	if(lastStyle.empty())  newNode = m_fontsNode->prepend_child("font");
-	else newNode = m_fontsNode->insert_child_after("font", lastStyle);
+	if(lastStyle.empty())
+		newNode = m_fontsNode->prepend_child("font");
+	else 
+		newNode = m_fontsNode->insert_child_after("font", lastStyle);
 	if(newNode.empty()) {
 		using namespace std::literals::string_literals;
 		throw XLException("XLFonts::"s + __func__ + ": failed to append a new fonts node"s);
 	}
 	if(styleEntriesPrefix.length() > 0) // if a whitespace prefix is configured
 		m_fontsNode->insert_child_before(pugi::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str()); // prefix the new node with styleEntriesPrefix
-
 	XLFont newFont(newNode);
 	if(copyFrom.m_fontNode->empty()) { // if no template is given
-		// ===== Create a font with default values
+		// Create a font with default values
 		// TODO: implement font defaults
 		// newFont.setProperty(defaultValue);
 		// ...
 	}
 	else
 		copyXMLNode(newNode, *copyFrom.m_fontNode); // will use copyFrom as template, does nothing if copyFrom is empty
-
 	m_fonts.push_back(newFont);
 	appendAndSetAttribute(*m_fontsNode, "count", std::to_string(m_fonts.size())); // update array count in XML
 	return index;
 }
-
-// ===== XLDataBarColor, used by XLFills gradientFill and by XLLine (to be implemented)
+// XLDataBarColor, used by XLFills gradientFill and by XLLine (to be implemented)
 
 /**
  * @details Constructor. Initializes an empty XLDataBarColor object
  */
-XLDataBarColor::XLDataBarColor() : m_colorNode(std::make_unique<XMLNode>()) {}
-
+XLDataBarColor::XLDataBarColor() : m_colorNode(std::make_unique<XMLNode>()) 
+{
+}
 /**
  * @details Constructor. Initializes the member variables for the new XLDataBarColor object.
  */
-XLDataBarColor::XLDataBarColor(const XMLNode& node) : m_colorNode(std::make_unique<XMLNode>(node)) {}
-
+XLDataBarColor::XLDataBarColor(const XMLNode& node) : m_colorNode(std::make_unique<XMLNode>(node)) 
+{
+}
 /**
  * @details Copy constructor - initializes the member variables from other
  */
-XLDataBarColor::XLDataBarColor(const XLDataBarColor& other)
-	: m_colorNode(std::make_unique<XMLNode>(*other.m_colorNode))
-{}
-
+XLDataBarColor::XLDataBarColor(const XLDataBarColor& other) : m_colorNode(std::make_unique<XMLNode>(*other.m_colorNode))
+{
+}
 /**
  * @details Assign values of other to this
  */
@@ -9446,11 +9472,12 @@ bool XLDataBarColor::setTint(double newTint)
 	return (appendAndSetAttribute(*m_colorNode, "tint", tintString).empty() == false); // else: set tint attribute
 }
 
-bool XLDataBarColor::setAutomatic(bool set)        { return appendAndSetAttribute(*m_colorNode, "auto",      (set ? "true" : "false")     ).empty() == false; }
-bool XLDataBarColor::setIndexed(uint32 newIndex) { return appendAndSetAttribute(*m_colorNode, "indexed",   std::to_string(newIndex)     ).empty() == false; }
-bool XLDataBarColor::setTheme(uint32 newTheme)   {
-	if(newTheme == XLDeleteProperty)   return m_colorNode->remove_attribute("theme");
-	return appendAndSetAttribute(*m_colorNode, "theme",     std::to_string(newTheme)     ).empty() == false;
+bool XLDataBarColor::setAutomatic(bool set) { return appendAndSetAttribute(*m_colorNode, "auto", (set ? "true" : "false")).empty() == false; }
+bool XLDataBarColor::setIndexed(uint32 newIndex) { return appendAndSetAttribute(*m_colorNode, "indexed", std::to_string(newIndex)).empty() == false; }
+bool XLDataBarColor::setTheme(uint32 newTheme)   
+{
+	if(newTheme == XLDeleteProperty) return m_colorNode->remove_attribute("theme");
+	return appendAndSetAttribute(*m_colorNode, "theme",     std::to_string(newTheme)).empty() == false;
 }
 
 /**
@@ -9459,47 +9486,46 @@ bool XLDataBarColor::setTheme(uint32 newTheme)   {
 std::string XLDataBarColor::summary() const
 {
 	using namespace std::literals::string_literals;
-	return "rgb is "s + rgb().hex()
-	       + ", tint is "s + formatDoubleAsString(tint())
-	       + (automatic() ? ", +automatic"s : ""s)
-	       + (indexed() ? (", index is "s + std::to_string(indexed())) : "")
-	       + (theme()   ? (", theme is "s + std::to_string(theme()  )) : "")
-	;
+	return "rgb is "s + rgb().hex() + ", tint is "s + formatDoubleAsString(tint())
+		+ (automatic() ? ", +automatic"s : ""s) + (indexed() ? (", index is "s + std::to_string(indexed())) : "")
+		+ (theme()   ? (", theme is "s + std::to_string(theme()  )) : "");
 }
 
 /**
  * @details Constructor. Initializes an empty XLGradientStop object
  */
-XLGradientStop::XLGradientStop() : m_stopNode(std::make_unique<XMLNode>()) {}
-
+XLGradientStop::XLGradientStop() : m_stopNode(std::make_unique<XMLNode>()) 
+{
+}
 /**
  * @details Constructor. Initializes the member variables for the new XLGradientStop object.
  */
-XLGradientStop::XLGradientStop(const XMLNode& node) : m_stopNode(std::make_unique<XMLNode>(node)) {}
-
+XLGradientStop::XLGradientStop(const XMLNode& node) : m_stopNode(std::make_unique<XMLNode>(node)) 
+{
+}
 /**
  * @details Copy constructor - initializes the member variables from other
  */
-XLGradientStop::XLGradientStop(const XLGradientStop& other)
-	: m_stopNode(std::make_unique<XMLNode>(*other.m_stopNode))
-{}
-
+XLGradientStop::XLGradientStop(const XLGradientStop& other) : m_stopNode(std::make_unique<XMLNode>(*other.m_stopNode))
+{
+}
 /**
  * @details Assign values of other to this
  */
 XLGradientStop& XLGradientStop::operator=(const XLGradientStop& other)
 {
-	if(&other != this)  *m_stopNode = *other.m_stopNode;
+	if(&other != this)
+		*m_stopNode = *other.m_stopNode;
 	return *this;
 }
-
 /**
  * @details Getter functions
  */
 XLDataBarColor XLGradientStop::color() const
 {
 	XMLNode color = appendAndGetNode(*m_stopNode, "color");
-	if(color.empty())  return XLDataBarColor{};
+	if(color.empty()) 
+		return XLDataBarColor{};
 	return XLDataBarColor(color);
 }
 
@@ -9508,34 +9534,34 @@ double XLGradientStop::position() const
 	XMLAttribute attr = m_stopNode->attribute("position");
 	return attr.as_double(0.0);
 }
-
 /**
  * @details Setter functions
  */
-bool XLGradientStop::setPosition(double newPosition) { return appendAndSetAttribute(*m_stopNode, "position", formatDoubleAsString(newPosition)).empty() == false; }
-
+bool XLGradientStop::setPosition(double newPosition) 
+{
+	return appendAndSetAttribute(*m_stopNode, "position", formatDoubleAsString(newPosition)).empty() == false; 
+}
 /**
  * @details assemble a string summary about the stop
  */
 std::string XLGradientStop::summary() const
 {
 	using namespace std::literals::string_literals;
-	return "stop position is "s + formatDoubleAsString(position())
-	       + ", " + color().summary();
+	return "stop position is "s + formatDoubleAsString(position()) + ", " + color().summary();
 }
-
-// ===== XLGradientStops, parent of XLGradientStop
-
+//
+// XLGradientStops, parent of XLGradientStop
+//
 /**
  * @details Constructor. Initializes an empty XLGradientStops object
  */
-XLGradientStops::XLGradientStops() : m_gradientNode(std::make_unique<XMLNode>()) {}
-
+XLGradientStops::XLGradientStops() : m_gradientNode(std::make_unique<XMLNode>()) 
+{
+}
 /**
  * @details Constructor. Initializes the member variables for the new XLGradientStops object.
  */
-XLGradientStops::XLGradientStops(const XMLNode& gradient)
-	: m_gradientNode(std::make_unique<XMLNode>(gradient))
+XLGradientStops::XLGradientStops(const XMLNode& gradient) : m_gradientNode(std::make_unique<XMLNode>(gradient))
 {
 	// initialize XLGradientStops entries and m_gradientStops here
 	XMLNode node = m_gradientNode->first_child_of_type(pugi::node_element);
@@ -9597,30 +9623,29 @@ XLGradientStop XLGradientStops::stopByIndex(XLStyleIndex index) const
  */
 XLStyleIndex XLGradientStops::create(XLGradientStop copyFrom, std::string styleEntriesPrefix)
 {
-	XLStyleIndex index = count(); // index for the gradient stop to be created
-	XMLNode newNode{};           // scope declaration
-
-	// ===== Append new node prior to final whitespaces, if any
+	XLStyleIndex index = static_cast<XLStyleIndex>(count()); // index for the gradient stop to be created
+	XMLNode newNode{}; // scope declaration
+	// Append new node prior to final whitespaces, if any
 	XMLNode lastStyle = m_gradientNode->last_child_of_type(pugi::node_element);
-	if(lastStyle.empty())  newNode = m_gradientNode->prepend_child("stop");
-	else newNode = m_gradientNode->insert_child_after("stop", lastStyle);
+	if(lastStyle.empty())
+		newNode = m_gradientNode->prepend_child("stop");
+	else
+		newNode = m_gradientNode->insert_child_after("stop", lastStyle);
 	if(newNode.empty()) {
 		using namespace std::literals::string_literals;
 		throw XLException("XLGradientStops::"s + __func__ + ": failed to append a new stop node"s);
 	}
 	if(styleEntriesPrefix.length() > 0) // if a whitespace prefix is configured
 		m_gradientNode->insert_child_before(pugi::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str()); // prefix the new node with styleEntriesPrefix
-
 	XLGradientStop newStop(newNode);
 	if(copyFrom.m_stopNode->empty()) { // if no template is given
-		// ===== Create a stop node with default values
+		// Create a stop node with default values
 		// TODO: implement stop defaults
 		// newStop.setProperty(defaultValue);
 		// ...
 	}
 	else
 		copyXMLNode(newNode, *copyFrom.m_stopNode); // will use copyFrom as template, does nothing if copyFrom is empty
-
 	m_gradientStops.push_back(newStop);
 	appendAndSetAttribute(*m_gradientNode, "count", std::to_string(m_gradientStops.size())); // update array count in XML
 	return index;
@@ -9631,7 +9656,7 @@ std::string XLGradientStops::summary() const
 	std::string result{};
 	for(XLGradientStop stop : m_gradientStops)
 		result += stop.summary() + ", ";
-	if(result.length() < 2)  return "";// if no stop summary was created - return empty string
+	if(result.length() < 2) return "";// if no stop summary was created - return empty string
 	return result.substr(0, result.length() - 2);
 }
 
@@ -9669,18 +9694,18 @@ XLFillType XLFill::fillType() const { return XLFillTypeFromString(m_fillNode->fi
 bool XLFill::setFillType(XLFillType newFillType, bool force)
 {
 	XLFillType ft = fillType(); // determine once, use twice
-	// ===== If desired filltype is already set
+	// If desired filltype is already set
 	if(ft == newFillType)  
 		return true;// nothing to do
-	// ===== If force == true or fillType is just not set at all, delete existing child nodes, otherwise throw
+	// If force == true or fillType is just not set at all, delete existing child nodes, otherwise throw
 	if(!force && ft != XLFillTypeInvalid) {
 		using namespace std::literals::string_literals;
 		throw XLException("XLFill::setFillType: can not change the fillType from "s + XLFillTypeToString(fillType())
 			  + " to "s + XLFillTypeToString(newFillType) + " - invoke with force == true if override is desired"s);
 	}
-	// ===== At this point, m_fillNode needs to be emptied for a setting / force-change of the fill type
+	// At this point, m_fillNode needs to be emptied for a setting / force-change of the fill type
 
-	// ===== Delete all fill node children and insert a new node for the newFillType
+	// Delete all fill node children and insert a new node for the newFillType
 	m_fillNode->remove_children();
 	return (m_fillNode->append_child(XLFillTypeToString(newFillType).c_str()).empty() == false);
 }
@@ -9713,7 +9738,7 @@ XMLNode XLFill::getValidFillDescription(XLFillType fillTypeIfEmpty, const char *
 /**
  * @details Getter functions for gradientFill
  */
-XLGradientType XLFill::gradientType() { return XLGradientTypeFromString(getValidFillDescription(XLGradientFill, __func__).attribute("type").value()     ); }
+XLGradientType XLFill::gradientType() { return XLGradientTypeFromString(getValidFillDescription(XLGradientFill, __func__).attribute("type").value()); }
 double XLFill::degree()       { return getValidFillDescription(XLGradientFill, __func__).attribute("degree").as_double(0); }
 double XLFill::left()         { return getValidFillDescription(XLGradientFill, __func__).attribute("left").as_double(0); }
 double XLFill::right()        { return getValidFillDescription(XLGradientFill, __func__).attribute("right").as_double(0); }
@@ -9727,7 +9752,7 @@ XLGradientStops XLFill::stops()        { return XLGradientStops(getValidFillDesc
 XLPatternType XLFill::patternType()
 {
 	XMLNode fillDescription = getValidFillDescription(XLPatternFill, __func__);
-	if(fillDescription.empty())  return XLDefaultPatternType;// if no description could be fetched: fail
+	if(fillDescription.empty()) return XLDefaultPatternType;// if no description could be fetched: fail
 	XMLAttribute attr = appendAndGetNodeAttribute(*m_fillNode, XLFillTypeToString(XLPatternFill), "patternType", XLPatternTypeToString(XLDefaultPatternType));
 	return XLPatternTypeFromString(attr.value());
 }
@@ -9845,7 +9870,7 @@ std::string XLFill::summary()
 	}
 }
 
-// ===== XLFills, parent of XLFill
+// XLFills, parent of XLFill
 
 /**
  * @details Constructor. Initializes an empty XLFills object
@@ -9911,46 +9936,44 @@ XLFill XLFills::fillByIndex(XLStyleIndex index) const
 	}
 	return m_fills.at(index);
 }
-
 /**
  * @details append a new XLFill to m_fills and m_fillsNode, based on copyFrom
  */
 XLStyleIndex XLFills::create(XLFill copyFrom, std::string styleEntriesPrefix)
 {
-	XLStyleIndex index = count(); // index for the fill to be created
-	XMLNode newNode{};           // scope declaration
-
-	// ===== Append new node prior to final whitespaces, if any
+	XLStyleIndex index = static_cast<XLStyleIndex>(count()); // index for the fill to be created
+	XMLNode newNode{}; // scope declaration
+	// Append new node prior to final whitespaces, if any
 	XMLNode lastStyle = m_fillsNode->last_child_of_type(pugi::node_element);
-	if(lastStyle.empty())  newNode = m_fillsNode->prepend_child("fill");
-	else newNode = m_fillsNode->insert_child_after("fill", lastStyle);
+	if(lastStyle.empty())
+		newNode = m_fillsNode->prepend_child("fill");
+	else 
+		newNode = m_fillsNode->insert_child_after("fill", lastStyle);
 	if(newNode.empty()) {
 		using namespace std::literals::string_literals;
 		throw XLException("XLFills::"s + __func__ + ": failed to append a new fill node"s);
 	}
 	if(styleEntriesPrefix.length() > 0) // if a whitespace prefix is configured
 		m_fillsNode->insert_child_before(pugi::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str()); // prefix the new node with styleEntriesPrefix
-
 	XLFill newFill(newNode);
 	if(copyFrom.m_fillNode->empty()) { // if no template is given
-		// ===== Create a fill with default values
+		// Create a fill with default values
 		// TODO: implement fill defaults
 		// newFill.setProperty(defaultValue);
 		// ...
 	}
 	else
 		copyXMLNode(newNode, *copyFrom.m_fillNode); // will use copyFrom as template, does nothing if copyFrom is empty
-
 	m_fills.push_back(newFill);
 	appendAndSetAttribute(*m_fillsNode, "count", std::to_string(m_fills.size())); // update array count in XML
 	return index;
 }
-
 /**
  * @details Constructor. Initializes an empty XLLine object
  */
-XLLine::XLLine() : m_lineNode(std::make_unique<XMLNode>()) {}
-
+XLLine::XLLine() : m_lineNode(std::make_unique<XMLNode>()) 
+{
+}
 /**
  * @details Constructor. Initializes the member variables for the new XLLine object.
  */
@@ -9973,7 +9996,7 @@ XLLine& XLLine::operator=(const XLLine& other)
  */
 XLLineStyle XLLine::style() const
 {
-	if(m_lineNode->empty())  return XLLineStyleNone;
+	if(m_lineNode->empty()) return XLLineStyleNone;
 	XMLAttribute attr = appendAndGetAttribute(*m_lineNode, "style", OpenXLSX::XLDefaultLineStyle);
 	return XLLineStyleFromString(attr.value());
 }
@@ -9991,7 +10014,7 @@ XLLine::operator bool() const {
 XLDataBarColor XLLine::color() const
 {
 	XMLNode color = appendAndGetNode(*m_lineNode, "color");
-	if(color.empty())  return XLDataBarColor{};
+	if(color.empty()) return XLDataBarColor{};
 	return XLDataBarColor(color);
 }
 
@@ -10035,18 +10058,21 @@ std::string XLLine::summary() const
 /**
  * @details Constructor. Initializes an empty XLBorder object
  */
-XLBorder::XLBorder() : m_borderNode(std::make_unique<XMLNode>()) {}
-
+XLBorder::XLBorder() : m_borderNode(std::make_unique<XMLNode>()) 
+{
+}
 /**
  * @details Constructor. Initializes the member variables for the new XLBorder object.
  */
-XLBorder::XLBorder(const XMLNode& node) : m_borderNode(std::make_unique<XMLNode>(node)) {}
+XLBorder::XLBorder(const XMLNode& node) : m_borderNode(std::make_unique<XMLNode>(node)) 
+{
+}
 
 XLBorder::~XLBorder() = default;
 
-XLBorder::XLBorder(const XLBorder& other)
-	: m_borderNode(std::make_unique<XMLNode>(*other.m_borderNode))
-{}
+XLBorder::XLBorder(const XLBorder& other) : m_borderNode(std::make_unique<XMLNode>(*other.m_borderNode))
+{
+}
 
 XLBorder& XLBorder::operator=(const XLBorder& other)
 {
@@ -10070,7 +10096,7 @@ bool XLBorder::outline() const { return m_borderNode->attribute("outline").as_bo
  * @details fetch lines
  */
 XLLine XLBorder::left()       const { return XLLine(m_borderNode->child("left")      ); }
-XLLine XLBorder::right()      const { return XLLine(m_borderNode->child("right")     ); }
+XLLine XLBorder::right()      const { return XLLine(m_borderNode->child("right")); }
 XLLine XLBorder::top()        const { return XLLine(m_borderNode->child("top")       ); }
 XLLine XLBorder::bottom()     const { return XLLine(m_borderNode->child("bottom")    ); }
 XLLine XLBorder::diagonal()   const { return XLLine(m_borderNode->child("diagonal")  ); }
@@ -10192,9 +10218,9 @@ XLBorder XLBorders::borderByIndex(XLStyleIndex index) const
  */
 XLStyleIndex XLBorders::create(XLBorder copyFrom, std::string styleEntriesPrefix)
 {
-	XLStyleIndex index = count(); // index for the border to be created
-	XMLNode newNode{};           // scope declaration
-	// ===== Append new node prior to final whitespaces, if any
+	XLStyleIndex index = static_cast<XLStyleIndex>(count()); // index for the border to be created
+	XMLNode newNode{}; // scope declaration
+	// Append new node prior to final whitespaces, if any
 	XMLNode lastStyle = m_bordersNode->last_child_of_type(pugi::node_element);
 	if(lastStyle.empty())  
 		newNode = m_bordersNode->prepend_child("border");
@@ -10208,7 +10234,7 @@ XLStyleIndex XLBorders::create(XLBorder copyFrom, std::string styleEntriesPrefix
 		m_bordersNode->insert_child_before(pugi::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str()); // prefix the new node with styleEntriesPrefix
 	XLBorder newBorder(newNode);
 	if(copyFrom.m_borderNode->empty()) { // if no template is given
-		// ===== Create a border with default values
+		// Create a border with default values
 		// TODO: implement border defaults
 		// newBorder.setProperty(defaultValue);
 		// ...
@@ -10318,26 +10344,24 @@ std::string XLAlignment::summary() const
 	       + ", shrinkToFit="s + (shrinkToFit() ? "true" : "false")
 	       + ", readingOrder="s + XLReadingOrderToString(readingOrder());
 }
-
 /**
  * @details Constructor. Initializes an empty XLCellFormat object
  */
-XLCellFormat::XLCellFormat() : m_cellFormatNode(std::make_unique<XMLNode>()) {}
-
+XLCellFormat::XLCellFormat() : m_cellFormatNode(std::make_unique<XMLNode>()) 
+{
+}
 /**
  * @details Constructor. Initializes the member variables for the new XLCellFormat object.
  */
-XLCellFormat::XLCellFormat(const XMLNode& node, bool permitXfId)
-	: m_cellFormatNode(std::make_unique<XMLNode>(node)),
-	m_permitXfId(permitXfId)
-{}
+XLCellFormat::XLCellFormat(const XMLNode& node, bool permitXfId) : m_cellFormatNode(std::make_unique<XMLNode>(node)), m_permitXfId(permitXfId)
+{
+}
 
 XLCellFormat::~XLCellFormat() = default;
 
-XLCellFormat::XLCellFormat(const XLCellFormat& other)
-	: m_cellFormatNode(std::make_unique<XMLNode>(*other.m_cellFormatNode)),
-	m_permitXfId(other.m_permitXfId)
-{}
+XLCellFormat::XLCellFormat(const XLCellFormat& other) : m_cellFormatNode(std::make_unique<XMLNode>(*other.m_cellFormatNode)), m_permitXfId(other.m_permitXfId)
+{
+}
 
 XLCellFormat& XLCellFormat::operator=(const XLCellFormat& other)
 {
@@ -10347,7 +10371,6 @@ XLCellFormat& XLCellFormat::operator=(const XLCellFormat& other)
 	}
 	return *this;
 }
-
 /**
  * @details determines the numberFormatId
  * @note returns XLInvalidUInt32 if attribute is not defined / set / empty
@@ -10377,7 +10400,7 @@ XLStyleIndex XLCellFormat::borderIndex() const { return m_cellFormatNode->attrib
  */
 XLStyleIndex XLCellFormat::xfId() const
 {
-	if(m_permitXfId)  return m_cellFormatNode->attribute("xfId").as_uint(XLInvalidStyleIndex);
+	if(m_permitXfId) return m_cellFormatNode->attribute("xfId").as_uint(XLInvalidStyleIndex);
 	throw XLException("XLCellFormat::xfId not permitted when m_permitXfId is false");
 }
 
@@ -10519,11 +10542,10 @@ XLCellFormats::~XLCellFormats()
 	m_cellFormats.clear(); // delete vector with all children
 }
 
-XLCellFormats::XLCellFormats(const XLCellFormats& other)
-	: m_cellFormatsNode(std::make_unique<XMLNode>(*other.m_cellFormatsNode)),
-	m_cellFormats(other.m_cellFormats),
-	m_permitXfId(other.m_permitXfId)
-{}
+XLCellFormats::XLCellFormats(const XLCellFormats& other) : m_cellFormatsNode(std::make_unique<XMLNode>(*other.m_cellFormatsNode)),
+	m_cellFormats(other.m_cellFormats), m_permitXfId(other.m_permitXfId)
+{
+}
 
 XLCellFormats::XLCellFormats(XLCellFormats&& other) : m_cellFormatsNode(std::move(other.m_cellFormatsNode)),
 	m_cellFormats(std::move(other.m_cellFormats)), m_permitXfId(other.m_permitXfId)
@@ -10564,23 +10586,23 @@ XLCellFormat XLCellFormats::cellFormatByIndex(XLStyleIndex index) const
  */
 XLStyleIndex XLCellFormats::create(XLCellFormat copyFrom, std::string styleEntriesPrefix)
 {
-	XLStyleIndex index = count(); // index for the cell format to be created
-	XMLNode newNode{};           // scope declaration
-
-	// ===== Append new node prior to final whitespaces, if any
+	XLStyleIndex index = static_cast<XLStyleIndex>(count()); // index for the cell format to be created
+	XMLNode newNode{}; // scope declaration
+	// Append new node prior to final whitespaces, if any
 	XMLNode lastStyle = m_cellFormatsNode->last_child_of_type(pugi::node_element);
-	if(lastStyle.empty())  newNode = m_cellFormatsNode->prepend_child("xf");
-	else newNode = m_cellFormatsNode->insert_child_after("xf", lastStyle);
+	if(lastStyle.empty())
+		newNode = m_cellFormatsNode->prepend_child("xf");
+	else
+		newNode = m_cellFormatsNode->insert_child_after("xf", lastStyle);
 	if(newNode.empty()) {
 		using namespace std::literals::string_literals;
 		throw XLException("XLCellFormats::"s + __func__ + ": failed to append a new xf node"s);
 	}
 	if(styleEntriesPrefix.length() > 0) // if a whitespace prefix is configured
 		m_cellFormatsNode->insert_child_before(pugi::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str()); // prefix the new node with styleEntriesPrefix
-
 	XLCellFormat newCellFormat(newNode, m_permitXfId);
 	if(copyFrom.m_cellFormatNode->empty()) { // if no template is given
-		// ===== Create a cell format with default values
+		// Create a cell format with default values
 		// default index 0 for other style elements should protect from exceptions
 		newCellFormat.setNumberFormatId(0);
 		newCellFormat.setFontIndex(0);
@@ -10602,39 +10624,39 @@ XLStyleIndex XLCellFormats::create(XLCellFormat copyFrom, std::string styleEntri
 	}
 	else
 		copyXMLNode(newNode, *copyFrom.m_cellFormatNode); // will use copyFrom as template, does nothing if copyFrom is empty
-
 	m_cellFormats.push_back(newCellFormat);
 	appendAndSetAttribute(*m_cellFormatsNode, "count", std::to_string(m_cellFormats.size())); // update array count in XML
 	return index;
 }
-
 /**
  * @details Constructor. Initializes an empty XLCellStyle object
  */
-XLCellStyle::XLCellStyle() : m_cellStyleNode(std::make_unique<XMLNode>()) {}
-
+XLCellStyle::XLCellStyle() : m_cellStyleNode(std::make_unique<XMLNode>()) 
+{
+}
 /**
  * @details Constructor. Initializes the member variables for the new XLCellStyle object.
  */
-XLCellStyle::XLCellStyle(const XMLNode& node) : m_cellStyleNode(std::make_unique<XMLNode>(node)) {}
+XLCellStyle::XLCellStyle(const XMLNode& node) : m_cellStyleNode(std::make_unique<XMLNode>(node)) 
+{
+}
 
 XLCellStyle::~XLCellStyle() = default;
 
-XLCellStyle::XLCellStyle(const XLCellStyle& other)
-	: m_cellStyleNode(std::make_unique<XMLNode>(*other.m_cellStyleNode))
-{}
+XLCellStyle::XLCellStyle(const XLCellStyle& other) : m_cellStyleNode(std::make_unique<XMLNode>(*other.m_cellStyleNode))
+{
+}
 
 XLCellStyle& XLCellStyle::operator=(const XLCellStyle& other)
 {
-	if(&other != this)  *m_cellStyleNode = *other.m_cellStyleNode;
+	if(&other != this)
+		*m_cellStyleNode = *other.m_cellStyleNode;
 	return *this;
 }
-
 /**
  * @details Returns the style empty status
  */
 bool XLCellStyle::empty() const { return m_cellStyleNode->empty(); }
-
 /**
  * @details Getter functions
  */
@@ -10644,22 +10666,19 @@ uint32 XLCellStyle::builtinId() const { return m_cellStyleNode->attribute("built
 uint32 XLCellStyle::outlineStyle() const { return m_cellStyleNode->attribute("iLevel").as_uint(XLInvalidUInt32);     }
 bool XLCellStyle::hidden() const { return m_cellStyleNode->attribute("hidden").as_bool();                    }
 bool XLCellStyle::customBuiltin() const { return m_cellStyleNode->attribute("customBuiltin").as_bool();                    }
-
 /**
  * @details Setter functions
  */
-bool XLCellStyle::setName(std::string newName)      { return appendAndSetAttribute(*m_cellStyleNode, "name",          newName).empty() == false;                         }
-bool XLCellStyle::setXfId(XLStyleIndex newXfId)     { return appendAndSetAttribute(*m_cellStyleNode, "xfId",          std::to_string(newXfId)).empty() == false;         }
-bool XLCellStyle::setBuiltinId(uint32 newBuiltinId)    { return appendAndSetAttribute(*m_cellStyleNode, "builtinId",     std::to_string(newBuiltinId)).empty() == false;    }
+bool XLCellStyle::setName(std::string newName) { return appendAndSetAttribute(*m_cellStyleNode, "name",          newName).empty() == false;                         }
+bool XLCellStyle::setXfId(XLStyleIndex newXfId) { return appendAndSetAttribute(*m_cellStyleNode, "xfId",          std::to_string(newXfId)).empty() == false;         }
+bool XLCellStyle::setBuiltinId(uint32 newBuiltinId) { return appendAndSetAttribute(*m_cellStyleNode, "builtinId",     std::to_string(newBuiltinId)).empty() == false;    }
 bool XLCellStyle::setOutlineStyle(uint32 newOutlineStyle) { return appendAndSetAttribute(*m_cellStyleNode, "iLevel",        std::to_string(newOutlineStyle)).empty() == false; }
-bool XLCellStyle::setHidden(bool set)                 { return appendAndSetAttribute(*m_cellStyleNode, "hidden",        (set ? "true" : "false")).empty() == false;        }
-bool XLCellStyle::setCustomBuiltin(bool set)                 { return appendAndSetAttribute(*m_cellStyleNode, "customBuiltin", (set ? "true" : "false")).empty() == false;        }
-
+bool XLCellStyle::setHidden(bool set) { return appendAndSetAttribute(*m_cellStyleNode, "hidden",        (set ? "true" : "false")).empty() == false;        }
+bool XLCellStyle::setCustomBuiltin(bool set) { return appendAndSetAttribute(*m_cellStyleNode, "customBuiltin", (set ? "true" : "false")).empty() == false;        }
 /**
  * @brief Unsupported setter function
  */
 bool XLCellStyle::setExtLst(XLUnsupportedElement const& newExtLst) { OpenXLSX::ignore(newExtLst); return false; }
-
 /**
  * @details assemble a string summary about the cell style
  */
@@ -10675,18 +10694,18 @@ std::string XLCellStyle::summary() const
 	       + (customBuiltin() ? ", customBuiltin=true"s : ""s);
 }
 
-// ===== XLCellStyles, parent of XLCellStyle
+// XLCellStyles, parent of XLCellStyle
 
 /**
  * @details Constructor. Initializes an empty XLCellStyles object
  */
-XLCellStyles::XLCellStyles() : m_cellStylesNode(std::make_unique<XMLNode>()) {}
-
+XLCellStyles::XLCellStyles() : m_cellStylesNode(std::make_unique<XMLNode>()) 
+{
+}
 /**
  * @details Constructor. Initializes the member variables for the new XLCellStyles object.
  */
-XLCellStyles::XLCellStyles(const XMLNode& cellStyles)
-	: m_cellStylesNode(std::make_unique<XMLNode>(cellStyles))
+XLCellStyles::XLCellStyles(const XMLNode& cellStyles) : m_cellStylesNode(std::make_unique<XMLNode>(cellStyles))
 {
 	// initialize XLCellStyles entries and m_cellStyles here
 	XMLNode node = cellStyles.first_child_of_type(pugi::node_element);
@@ -10705,15 +10724,13 @@ XLCellStyles::~XLCellStyles()
 	m_cellStyles.clear(); // delete vector with all children
 }
 
-XLCellStyles::XLCellStyles(const XLCellStyles& other)
-	: m_cellStylesNode(std::make_unique<XMLNode>(*other.m_cellStylesNode)),
-	m_cellStyles(other.m_cellStyles)
-{}
+XLCellStyles::XLCellStyles(const XLCellStyles& other) : m_cellStylesNode(std::make_unique<XMLNode>(*other.m_cellStylesNode)), m_cellStyles(other.m_cellStyles)
+{
+}
 
-XLCellStyles::XLCellStyles(XLCellStyles&& other)
-	: m_cellStylesNode(std::move(other.m_cellStylesNode)),
-	m_cellStyles(std::move(other.m_cellStyles))
-{}
+XLCellStyles::XLCellStyles(XLCellStyles&& other) : m_cellStylesNode(std::move(other.m_cellStylesNode)), m_cellStyles(std::move(other.m_cellStyles))
+{
+}
 
 XLCellStyles& XLCellStyles::operator=(const XLCellStyles& other)
 {
@@ -10724,12 +10741,10 @@ XLCellStyles& XLCellStyles::operator=(const XLCellStyles& other)
 	}
 	return *this;
 }
-
 /**
  * @details Returns the amount of numberFormats held by the class
  */
 size_t XLCellStyles::count() const { return m_cellStyles.size(); }
-
 /**
  * @details fetch XLCellStyle from m_cellStyles by index
  */
@@ -10748,69 +10763,69 @@ XLCellStyle XLCellStyles::cellStyleByIndex(XLStyleIndex index) const
  */
 XLStyleIndex XLCellStyles::create(XLCellStyle copyFrom, std::string styleEntriesPrefix)
 {
-	XLStyleIndex index = count(); // index for the cell style to be created
-	XMLNode newNode{};           // scope declaration
-
-	// ===== Append new node prior to final whitespaces, if any
+	XLStyleIndex index = static_cast<XLStyleIndex>(count()); // index for the cell style to be created
+	XMLNode newNode{}; // scope declaration
+	// Append new node prior to final whitespaces, if any
 	XMLNode lastStyle = m_cellStylesNode->last_child_of_type(pugi::node_element);
-	if(lastStyle.empty())  newNode = m_cellStylesNode->prepend_child("cellStyle");
-	else newNode = m_cellStylesNode->insert_child_after("cellStyle", lastStyle);
+	if(lastStyle.empty())
+		newNode = m_cellStylesNode->prepend_child("cellStyle");
+	else 
+		newNode = m_cellStylesNode->insert_child_after("cellStyle", lastStyle);
 	if(newNode.empty()) {
 		using namespace std::literals::string_literals;
 		throw XLException("XLCellStyles::"s + __func__ + ": failed to append a new cellStyle node"s);
 	}
 	if(styleEntriesPrefix.length() > 0) // if a whitespace prefix is configured
 		m_cellStylesNode->insert_child_before(pugi::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str()); // prefix the new node with styleEntriesPrefix
-
 	XLCellStyle newCellStyle(newNode);
 	if(copyFrom.m_cellStyleNode->empty()) { // if no template is given
-		// ===== Create a cell style with default values
+		// Create a cell style with default values
 		// TODO: implement cell style defaults
 		// newCellStyle.setProperty(defaultValue);
 		// ...
 	}
 	else
 		copyXMLNode(newNode, *copyFrom.m_cellStyleNode); // will use copyFrom as template, does nothing if copyFrom is empty
-
 	m_cellStyles.push_back(newCellStyle);
 	appendAndSetAttribute(*m_cellStylesNode, "count", std::to_string(m_cellStyles.size())); // update array count in XML
 	return index;
 }
-
 /**
  * @details Constructor. Initializes an empty XLDiffCellFormat object
  */
-XLDiffCellFormat::XLDiffCellFormat() : m_diffCellFormatNode(std::make_unique<XMLNode>()) {}
-
+XLDiffCellFormat::XLDiffCellFormat() : m_diffCellFormatNode(std::make_unique<XMLNode>()) 
+{
+}
 /**
  * @details Constructor. Initializes the member variables for the new XLDiffCellFormat object.
  */
-XLDiffCellFormat::XLDiffCellFormat(const XMLNode& node) : m_diffCellFormatNode(std::make_unique<XMLNode>(node)) {}
+XLDiffCellFormat::XLDiffCellFormat(const XMLNode& node) : m_diffCellFormatNode(std::make_unique<XMLNode>(node)) 
+{
+}
 
 XLDiffCellFormat::~XLDiffCellFormat() = default;
 
-XLDiffCellFormat::XLDiffCellFormat(const XLDiffCellFormat& other)
-	: m_diffCellFormatNode(std::make_unique<XMLNode>(*other.m_diffCellFormatNode))
-{}
+XLDiffCellFormat::XLDiffCellFormat(const XLDiffCellFormat& other) : m_diffCellFormatNode(std::make_unique<XMLNode>(*other.m_diffCellFormatNode))
+{
+}
 
 XLDiffCellFormat& XLDiffCellFormat::operator=(const XLDiffCellFormat& other)
 {
-	if(&other != this)  *m_diffCellFormatNode = *other.m_diffCellFormatNode;
+	if(&other != this)  
+		*m_diffCellFormatNode = *other.m_diffCellFormatNode;
 	return *this;
 }
-
 /**
  * @details Returns the differential cell format empty status
  */
 bool XLDiffCellFormat::empty() const { return m_diffCellFormatNode->empty(); }
-
 /**
  * @details Getter functions
  */
 XLFont XLDiffCellFormat::font() const
 {
 	XMLNode fontNode = appendAndGetNode(*m_diffCellFormatNode, "font");
-	if(fontNode.empty())  return XLFont{};
+	if(fontNode.empty()) return XLFont{};
 	return XLFont(fontNode);
 }
 
@@ -10865,7 +10880,7 @@ std::string XLDiffCellFormat::summary() const
 	return ""; // TODO: write this
 }
 
-// ===== XLDiffCellFormats, parent of XLDiffCellFormat
+// XLDiffCellFormats, parent of XLDiffCellFormat
 
 /**
  * @details Constructor. Initializes an empty XLCellStyles object
@@ -10932,19 +10947,19 @@ XLDiffCellFormat XLDiffCellFormats::diffCellFormatByIndex(XLStyleIndex index) co
 	}
 	return m_diffCellFormats.at(index);
 }
-
 /**
  * @details append a new XLDiffCellFormat to m_diffCellFormats and m_diffCellFormatsNode, based on copyFrom
  */
 XLStyleIndex XLDiffCellFormats::create(XLDiffCellFormat copyFrom, std::string styleEntriesPrefix)
 {
-	XLStyleIndex index = count(); // index for the cell style to be created
-	XMLNode newNode{};           // scope declaration
-
-	// ===== Append new node prior to final whitespaces, if any
+	XLStyleIndex index = static_cast<XLStyleIndex>(count()); // index for the cell style to be created
+	XMLNode newNode{}; // scope declaration
+	// Append new node prior to final whitespaces, if any
 	XMLNode lastDiffCellFormat = m_diffCellFormatsNode->last_child_of_type(pugi::node_element);
-	if(lastDiffCellFormat.empty())  newNode = m_diffCellFormatsNode->prepend_child("dxf");
-	else newNode = m_diffCellFormatsNode->insert_child_after("dxf", lastDiffCellFormat);
+	if(lastDiffCellFormat.empty())
+		newNode = m_diffCellFormatsNode->prepend_child("dxf");
+	else 
+		newNode = m_diffCellFormatsNode->insert_child_after("dxf", lastDiffCellFormat);
 	if(newNode.empty()) {
 		using namespace std::literals::string_literals;
 		throw XLException("XLDiffCellFormats::"s + __func__ + ": failed to append a new dxf node"s);
@@ -11033,7 +11048,7 @@ XLStyles::XLStyles(XLXmlData* xmlData, bool suppressWarnings, std::string styles
 		node = node.next_sibling_of_type(pugi::node_element);
 	}
 
-	// ===== Fallbacks: create root style nodes (in reverse order, using prepend_child)
+	// Fallbacks: create root style nodes (in reverse order, using prepend_child)
 	if(!m_diffCellFormats) {
 		node = doc.document_element().prepend_child(XLStylesEntryTypeToString(XLStylesDiffCellFormats).c_str());
 		wrapNode(doc.document_element(), node, stylesPrefix);
@@ -11050,7 +11065,7 @@ XLStyles::XLStyles(XLXmlData* xmlData, bool suppressWarnings, std::string styles
 		m_cellFormats = std::make_unique<XLCellFormats>(node, XLPermitXfID);
 	}
 	if(m_cellFormats->count() == 0) { // if the cell formats array is empty
-		// ===== Create a default empty cell format with ID 0 (== XLDefaultCellFormat) because when XLDefaultCellFormat
+		// Create a default empty cell format with ID 0 (== XLDefaultCellFormat) because when XLDefaultCellFormat
 		//        is assigned to an XLRow, the intention is interpreted as "set the cell back to default formatting",
 		//        which does not trigger setting the attribute customFormat="true".
 		//       To avoid confusing the user when the first style created does not work for rows, and setting a cell's
@@ -11108,7 +11123,7 @@ XLStyles::XLStyles(const XLStyles& other) : XLXmlFile(other), m_suppressWarnings
 	m_fills(std::make_unique<XLFills>(*other.m_fills)           ),
 	m_borders(std::make_unique<XLBorders>(*other.m_borders)         ),
 	m_cellStyleFormats(std::make_unique<XLCellFormats>(*other.m_cellStyleFormats)),
-	m_cellFormats(std::make_unique<XLCellFormats>(*other.m_cellFormats)     ),
+	m_cellFormats(std::make_unique<XLCellFormats>(*other.m_cellFormats)),
 	m_cellStyles(std::make_unique<XLCellStyles>(*other.m_cellStyles)      ),
 	m_diffCellFormats(std::make_unique<XLDiffCellFormats>(*other.m_diffCellFormats) )
 {
@@ -11242,11 +11257,11 @@ XLWorkbook::~XLWorkbook() = default;
 
 XLSheet XLWorkbook::sheet(const std::string& sheetName)
 {
-	// ===== First determine if the sheet exists.
+	// First determine if the sheet exists.
 	if(xmlDocument().document_element().child("sheets").find_child_by_attribute("name", sheetName.c_str()) == nullptr)
 		throw XLInputError("Sheet \"" + sheetName + "\" does not exist");
 
-	// ===== Find the sheet data corresponding to the sheet with the requested name
+	// Find the sheet data corresponding to the sheet with the requested name
 	const std::string xmlID = xmlDocumentC().document_element().child("sheets").find_child_by_attribute("name", sheetName.c_str()).attribute("r:id").value();
 
 	XLQuery pathQuery(XLQueryType::QuerySheetRelsTarget);
@@ -11271,13 +11286,13 @@ XLSheet XLWorkbook::sheet(uint16 index)    // 2024-04-30: whitespace support
 {
 	if(index < 1 || index > sheetCount())  
 		throw XLInputError("Sheet index is out of bounds");
-	// ===== Find the n-th node_element that corresponds to index
+	// Find the n-th node_element that corresponds to index
 	uint16 curIndex = 0;
 	for(XMLNode node = sheetsNode(xmlDocumentC()).first_child_of_type(pugi::node_element); not node.empty(); node = node.next_sibling_of_type(pugi::node_element)) {
 		if(++curIndex == index)  
 			return sheet(node.attribute("name").as_string());
 	}
-	// ===== If execution gets here, there are less element nodes than index in sheetsNode, this should never happen
+	// If execution gets here, there are less element nodes than index in sheetsNode, this should never happen
 	using namespace std::literals::string_literals;
 	throw XLInternalError("Sheet index "s + std::to_string(index) + " is out of bounds"s);
 }
@@ -11310,7 +11325,7 @@ void XLWorkbook::deleteNamedRanges()
 void XLWorkbook::deleteSheet(const std::string& sheetName)    // 2024-05-02: whitespace support
                                                               // CAUTION: execCommand on underlying XML with whitespaces not verified
 {
-	// ===== Determine ID and type of sheet, as well as current worksheet count.
+	// Determine ID and type of sheet, as well as current worksheet count.
 	std::string sheetID = sheetsNode(xmlDocumentC()).find_child_by_attribute("name", sheetName.c_str()).attribute("r:id").value();
 	if(sheetID.length() == 0) { // 2025-01-12 BUGFIX: prevent segfault by throwing
 		using namespace std::literals::string_literals;
@@ -11324,20 +11339,20 @@ void XLWorkbook::deleteSheet(const std::string& sheetName)    // 2024-05-02: whi
 	// 2024-04-30: this should be whitespace-safe due to lambda expression checking for an attribute that non element nodes can not have
 	const auto worksheetCount =
 	    std::count_if(sheetsNode(xmlDocumentC()).children().begin(), sheetsNode(xmlDocumentC()).children().end(), [&](const XMLNode& item) {
-		if(item.type() != pugi::node_element)  return false;// 2024-05-02 this avoids the unnecessary query below
+		if(item.type() != pugi::node_element) return false;// 2024-05-02 this avoids the unnecessary query below
 		XLQuery query(XLQueryType::QuerySheetType);
 		query.setParam("sheetID", std::string(item.attribute("r:id").value()));
 		return parentDoc().execQuery(query).result<XLContentType>() == XLContentType::Worksheet;
 	});
 
-	// ===== If this is the last worksheet in the workbook, throw an exception.
+	// If this is the last worksheet in the workbook, throw an exception.
 	if(worksheetCount == 1 && sheetType == XLContentType::Worksheet)
 		throw XLInputError("Invalid operation. There must be at least one worksheet in the workbook.");
-	// ===== Delete the sheet data as well as the sheet node from Workbook.xml
+	// Delete the sheet data as well as the sheet node from Workbook.xml
 	parentDoc().execCommand(XLCommand(XLCommandType::DeleteSheet).setParam("sheetID", std::string(sheetID)).setParam("sheetName", sheetName));
 	XMLNode sheet = sheetsNode(xmlDocumentC()).find_child_by_attribute("name", sheetName.c_str());
 	if(not sheet.empty()) {
-		// ===== Delete all non element nodes (comments, whitespaces) following the sheet being deleted from workbook.xml <sheets> node
+		// Delete all non element nodes (comments, whitespaces) following the sheet being deleted from workbook.xml <sheets> node
 		XMLNode nonElementNode = sheet.next_sibling();
 		while(!nonElementNode.empty() && nonElementNode.type() != pugi::node_element) {
 			sheetsNode(xmlDocumentC()).remove_child(nonElementNode);
@@ -11352,12 +11367,12 @@ void XLWorkbook::deleteSheet(const std::string& sheetName)    // 2024-05-02: whi
 
 void XLWorkbook::addWorksheet(const std::string& sheetName)
 {
-	// ===== If a sheet with the given name already exists, throw an exception.
+	// If a sheet with the given name already exists, throw an exception.
 	if(xmlDocument().document_element().child("sheets").find_child_by_attribute("name", sheetName.c_str()))
 		throw XLInputError("Sheet named \"" + sheetName + "\" already exists.");
-	// ===== Create new internal (workbook) ID for the sheet
+	// Create new internal (workbook) ID for the sheet
 	auto internalID = createInternalSheetID();
-	// ===== Create xml file for new worksheet and add metadata to the workbook file.
+	// Create xml file for new worksheet and add metadata to the workbook file.
 	parentDoc().execCommand(XLCommand(XLCommandType::AddWorksheet)
 	    .setParam("sheetName", sheetName)
 	    .setParam("sheetPath", "/xl/worksheets/sheet" + std::to_string(internalID) + ".xml"));
@@ -11405,9 +11420,9 @@ std::string XLWorkbook::sheetVisibility(const std::string& sheetID) const
 
 void XLWorkbook::prepareSheetMetadata(const std::string& sheetName, uint16 internalID)
 {
-	// ===== Add new child node to the "sheets" node.
+	// Add new child node to the "sheets" node.
 	auto node = sheetsNode(xmlDocument()).append_child("sheet");
-	// ===== append the required attributes to the newly created sheet node.
+	// append the required attributes to the newly created sheet node.
 	std::string sheetPath            = "/xl/worksheets/sheet" + std::to_string(internalID) + ".xml";
 	node.append_attribute("name")    = sheetName.c_str();
 	node.append_attribute("sheetId") = std::to_string(internalID).c_str();
@@ -11425,7 +11440,7 @@ void XLWorkbook::setSheetName(const std::string& sheetRID, const std::string& ne
 
 void XLWorkbook::setSheetVisibility(const std::string& sheetRID, const std::string& state)    // 2024-04-30: whitespace support
 {
-	// ===== First, determine if there are other sheets that are visible
+	// First, determine if there are other sheets that are visible
 	int visibleSheets = 0;
 	{
 		// for (const auto& item : xmlDocument().document_element().child("sheets").children()) {
@@ -11439,10 +11454,10 @@ void XLWorkbook::setSheetVisibility(const std::string& sheetRID, const std::stri
 		}
 	}
 	bool hideSheet = not isVisibleState(state); // 2024-04-30: save for later use on activating another sheet if needed
-	// ===== If there are no other visible sheets, and the current sheet is to be made hidden, throw an exception.
+	// If there are no other visible sheets, and the current sheet is to be made hidden, throw an exception.
 	if(hideSheet && visibleSheets == 0)
 		throw XLSheetError("At least one sheet must be visible.");
-	// ===== Then, retrieve or create the visibility ("state") attribute for the sheet, and set it to the "state" value
+	// Then, retrieve or create the visibility ("state") attribute for the sheet, and set it to the "state" value
 	auto stateAttribute = xmlDocument().document_element().child("sheets").find_child_by_attribute("r:id", sheetRID.c_str()).attribute("state");
 	if(stateAttribute.empty()) {
 		stateAttribute = xmlDocument().document_element().child("sheets").find_child_by_attribute("r:id", sheetRID.c_str()).prepend_attribute("state");
@@ -11478,16 +11493,16 @@ void XLWorkbook::setSheetVisibility(const std::string& sheetRID, const std::stri
  */
 void XLWorkbook::setSheetIndex(const std::string& sheetName, uint index) // 2024-05-01: whitespace support
 {
-	// ===== Determine the index of the active tab, if any
+	// Determine the index of the active tab, if any
 	const XMLNode workbookView = xmlDocumentC().document_element().child("bookViews").first_child_of_type(pugi::node_element);
 	const uint32 activeSheetIndex = 1 + workbookView.attribute("activeTab").as_uint(0); // use index in the 1.. range
 
-	// ===== Attempt to locate the sheet with sheetName, and look out for the sheet @index, and the sheet @activeIndex while iterating over
+	// Attempt to locate the sheet with sheetName, and look out for the sheet @index, and the sheet @activeIndex while iterating over
 	// the sheets
-	XMLNode sheetToMove      {};     // determine the sheet matching sheetName, if any
+	XMLNode sheetToMove{};     // determine the sheet matching sheetName, if any
 	uint sheetToMoveIndex = 0;
-	XMLNode existingSheet    {};     // determine the sheet at index, if any
-	std::string activeSheet_rId  {}; // determine the r:id of the sheet at activeIndex, if any
+	XMLNode existingSheet{};     // determine the sheet at index, if any
+	std::string activeSheet_rId{}; // determine the r:id of the sheet at activeIndex, if any
 	uint sheetIndex   = 1;
 	XMLNode curSheet = sheetsNode(xmlDocumentC()).first_child_of_type(pugi::node_element);
 	int thingsToFind = (activeSheetIndex > 0) ? 3 : 2;         // if there is no active tab configured, no need to search for its name
@@ -11508,15 +11523,15 @@ void XLWorkbook::setSheetIndex(const std::string& sheetName, uint index) // 2024
 		++sheetIndex;
 		curSheet = curSheet.next_sibling_of_type(pugi::node_element);
 	}
-	// ===== If a sheet with sheetName was not found
+	// If a sheet with sheetName was not found
 	if(sheetToMove.empty())  
 		throw XLInputError(std::string(__func__) + std::string(": no worksheet exists with name ") + sheetName);
 	// ==== name was matched
 
-	// ===== If the new index is equal to the current, don't do anything
+	// If the new index is equal to the current, don't do anything
 	if(index == sheetToMoveIndex)  
 		return;
-	// ===== Modify the node in the XML file
+	// Modify the node in the XML file
 	if(existingSheet.empty()) // new index is beyond last sheet
 		sheetsNode(xmlDocumentC()).append_move(sheetToMove);
 	else { // existingSheet was found
@@ -11525,14 +11540,14 @@ void XLWorkbook::setSheetIndex(const std::string& sheetName, uint index) // 2024
 		else // sheetToMoveIndex > index, because if equal, function never gets here
 			sheetsNode(xmlDocumentC()).insert_move_before(sheetToMove, existingSheet);
 	}
-	// ===== Updated defined names with worksheet scopes. TBD what this does
+	// Updated defined names with worksheet scopes. TBD what this does
 	XMLNode definedName = xmlDocumentC().document_element().child("definedNames").first_child_of_type(pugi::node_element);
 	while(!definedName.empty()) {
 		// TBD: is the current definedName actually associated with the sheet that was moved?
 		definedName.attribute("localSheetId").set_value(sheetToMoveIndex - 1);
 		definedName = definedName.next_sibling_of_type(pugi::node_element);
 	}
-	// ===== Update the activeTab attribute.
+	// Update the activeTab attribute.
 	if((activeSheetIndex < std::min(index, sheetToMoveIndex)) ||
 	    (activeSheetIndex > std::max(index, sheetToMoveIndex))) // if active sheet was not within the set of sheets affected by the move
 		return; // nothing to do
@@ -11542,16 +11557,14 @@ void XLWorkbook::setSheetIndex(const std::string& sheetName, uint index) // 2024
 
 uint XLWorkbook::indexOfSheet(const std::string& sheetName) const    // 2024-05-01: whitespace support
 {
-	// ===== Iterate through sheet nodes. When a match is found, return the index;
+	// Iterate through sheet nodes. When a match is found, return the index;
 	uint index = 1;
-	for(XMLNode sheet = sheetsNode(xmlDocumentC()).first_child_of_type(pugi::node_element);
-	    not sheet.empty();
-	    sheet         = sheet.next_sibling_of_type(pugi::node_element)) {
+	for(XMLNode sheet = sheetsNode(xmlDocumentC()).first_child_of_type(pugi::node_element); not sheet.empty(); sheet = sheet.next_sibling_of_type(pugi::node_element)) {
 		if(sheetName == sheet.attribute("name").value())  
 			return index;
 		index++;
 	}
-	// ===== If a match is not found, throw an exception.
+	// If a match is not found, throw an exception.
 	throw XLInputError("Sheet does not exist");
 }
 
@@ -11567,9 +11580,7 @@ XLSheetType XLWorkbook::typeOfSheet(const std::string& sheetName) const
 XLSheetType XLWorkbook::typeOfSheet(uint index) const // 2024-05-01: whitespace support
 {
 	uint thisIndex = 1;
-	for(XMLNode sheet = sheetsNode(xmlDocumentC()).first_child_of_type(pugi::node_element);
-	    not sheet.empty();
-	    sheet         = sheet.next_sibling_of_type(pugi::node_element)) {
+	for(XMLNode sheet = sheetsNode(xmlDocumentC()).first_child_of_type(pugi::node_element); not sheet.empty(); sheet = sheet.next_sibling_of_type(pugi::node_element)) {
 		if(thisIndex == index)  
 			return typeOfSheet(sheet.attribute("name").as_string());
 		++thisIndex;
@@ -11600,30 +11611,24 @@ std::vector<std::string> XLWorkbook::sheetNames() const    // 2024-05-01: whites
 std::vector<std::string> XLWorkbook::worksheetNames() const    // 2024-05-01: whitespace support
 {
 	std::vector<std::string> results;
-	for(XMLNode item = sheetsNode(xmlDocumentC()).first_child_of_type(pugi::node_element);
-	    not item.empty();
-	    item = item.next_sibling_of_type(pugi::node_element)) {
+	for(XMLNode item = sheetsNode(xmlDocumentC()).first_child_of_type(pugi::node_element); not item.empty(); item = item.next_sibling_of_type(pugi::node_element)) {
 		XLQuery query(XLQueryType::QuerySheetType);
 		query.setParam("sheetID", std::string(item.attribute("r:id").value()));
 		if(parentDoc().execQuery(query).result<XLContentType>() == XLContentType::Worksheet)
 			results.emplace_back(item.attribute("name").value());
 	}
-
 	return results;
 }
 
 std::vector<std::string> XLWorkbook::chartsheetNames() const    // 2024-05-01: whitespace support
 {
 	std::vector<std::string> results;
-	for(XMLNode item = sheetsNode(xmlDocumentC()).first_child_of_type(pugi::node_element);
-	    not item.empty();
-	    item         = item.next_sibling_of_type(pugi::node_element)) {
+	for(XMLNode item = sheetsNode(xmlDocumentC()).first_child_of_type(pugi::node_element); not item.empty(); item = item.next_sibling_of_type(pugi::node_element)) {
 		XLQuery query(XLQueryType::QuerySheetType);
 		query.setParam("sheetID", std::string(item.attribute("r:id").value()));
 		if(parentDoc().execQuery(query).result<XLContentType>() == XLContentType::Chartsheet)
 			results.emplace_back(item.attribute("name").value());
 	}
-
 	return results;
 }
 
@@ -11647,35 +11652,34 @@ bool XLWorkbook::chartsheetExists(const std::string& sheetName) const
  * @todo Currently, this function only searches through defined names. Consider using this function to update the
  * actual sheet name as well.
  */
-void XLWorkbook::updateSheetReferences(const std::string& oldName,
-    const std::string& newName)    // 2024-05-01: whitespace support with TBD to verify definedNames logic
+void XLWorkbook::updateSheetReferences(const std::string& oldName, const std::string& newName)  // 2024-05-01: whitespace support with TBD to verify definedNames logic
 {
 	//        for (auto& sheet : m_sheets) {
 	//            if (sheet.sheetType == XLSheetType::WorkSheet)
 	//                Worksheet(sheet.sheetNode.attribute("name").getValue())->UpdateSheetName(oldName, newName);
 	//        }
 
-	// ===== Set up temporary variables
+	// Set up temporary variables
 	std::string oldNameTemp = oldName;
 	std::string newNameTemp = newName;
 	std::string formula;
-
-	// ===== If the sheet name contains spaces, it should be enclosed in single quotes (')
-	if(oldName.find(' ') != std::string::npos)  oldNameTemp = "\'" + oldName + "\'";
-	if(newName.find(' ') != std::string::npos)  newNameTemp = "\'" + newName + "\'";
-
-	// ===== Ensure only sheet names are replaced (references to sheets always ends with a '!')
+	// If the sheet name contains spaces, it should be enclosed in single quotes (')
+	if(oldName.find(' ') != std::string::npos)
+		oldNameTemp = "\'" + oldName + "\'";
+	if(newName.find(' ') != std::string::npos)
+		newNameTemp = "\'" + newName + "\'";
+	// Ensure only sheet names are replaced (references to sheets always ends with a '!')
 	oldNameTemp += '!';
 	newNameTemp += '!';
 
-	// ===== Iterate through all defined names // TODO 2024-05-01: verify definedNames logic
+	// Iterate through all defined names // TODO 2024-05-01: verify definedNames logic
 	XMLNode definedName = xmlDocument().document_element().child("definedNames").first_child_of_type(pugi::node_element);
 	for(; not definedName.empty(); definedName = definedName.next_sibling_of_type(pugi::node_element)) {
 		formula = definedName.text().get();
 
-		// ===== Skip if formula contains a '[' and ']' (means that the defined refers to external workbook)
+		// Skip if formula contains a '[' and ']' (means that the defined refers to external workbook)
 		if(formula.find('[') == std::string::npos && formula.find(']') == std::string::npos) {
-			// ===== For all instances of the old sheet name in the formula, replace with the new name.
+			// For all instances of the old sheet name in the formula, replace with the new name.
 			while(formula.find(oldNameTemp) != std::string::npos) {
 				formula.replace(formula.find(oldNameTemp), oldNameTemp.length(), newNameTemp);
 			}
@@ -11687,12 +11691,13 @@ void XLWorkbook::updateSheetReferences(const std::string& oldName,
 void XLWorkbook::setFullCalculationOnLoad()
 {
 	XMLNode calcPr = xmlDocument().document_element().child("calcPr");
-	auto getOrCreateAttribute = [&calcPr](const char* attributeName) {
-		    XMLAttribute attr = calcPr.attribute(attributeName);
-		    if(attr.empty())  attr = calcPr.append_attribute(attributeName);
-		    return attr;
-	    };
-
+	auto getOrCreateAttribute = [&calcPr](const char* attributeName) 
+	{
+	    XMLAttribute attr = calcPr.attribute(attributeName);
+	    if(attr.empty())  
+			attr = calcPr.append_attribute(attributeName);
+	    return attr;
+    };
 	getOrCreateAttribute("forceFullCalc").set_value(true);
 	getOrCreateAttribute("fullCalcOnLoad").set_value(true);
 }
@@ -11729,23 +11734,23 @@ bool XLWorkbook::setSheetActive(const std::string& sheetRID)    // 2024-04-30: w
 	XMLNode workbookView       = xmlDocument().document_element().child("bookViews").first_child_of_type(pugi::node_element);
 	const XMLAttribute activeTabAttribute = workbookView.attribute("activeTab");
 	int32_t activeTabIndex     = -1;           // negative == no active tab identified
-	if(not activeTabAttribute.empty())  activeTabIndex = activeTabAttribute.as_int();
-
+	if(not activeTabAttribute.empty())  
+		activeTabIndex = activeTabAttribute.as_int();
 	int32_t index = 0; // index should have the same data type as activeTabIndex for comparisons
 	XMLNode item  = sheetsNode(xmlDocument()).first_child_of_type(pugi::node_element);
 	while(!item.empty() && (std::string(item.attribute("r:id").value()) != sheetRID)) {
 		++index;
 		item = item.next_sibling_of_type(pugi::node_element);
 	}
-	// ===== 2024-06-19: Fail without action if sheet is not found or sheet is not visible
+	// 2024-06-19: Fail without action if sheet is not found or sheet is not visible
 	if(item.empty() || !isVisible(item))  
 		return false;
 	// NOTE: XLSheet XLWorkbook::sheet(uint16 index) is using a 1-based index, while the workbookView attribute activeTab is using a
 	// 0-based index
-	// ===== If an active sheet was found, but sheetRID is not the same sheet: attempt to unselect the old active sheet.
+	// If an active sheet was found, but sheetRID is not the same sheet: attempt to unselect the old active sheet.
 	if((activeTabIndex != -1) && (index != activeTabIndex))
 		sheet(static_cast<uint16>(activeTabIndex + 1)).setSelected(false);// see NOTE above
-	// ===== Set the activeTab property for the workbook.xml sheets node
+	// Set the activeTab property for the workbook.xml sheets node
 	if(workbookView.attribute("activeTab").empty())
 		workbookView.append_attribute("activeTab");
 	workbookView.attribute("activeTab").set_value(index);
@@ -11769,7 +11774,7 @@ bool XLWorkbook::isVisible(XMLNode const& sheetNode) const
 		return false; // empty nodes can't be visible
 	if(sheetNode.attribute("state").empty())
 		return true;// no state attribute means no hidden-ness can be flagged
-	// ===== Attribute exists and value must be checked
+	// Attribute exists and value must be checked
 	return isVisibleState(sheetNode.attribute("state").value());
 }
 //
@@ -11787,7 +11792,6 @@ void XLXmlData::setRawData(const std::string& data)
 {
 	m_xmlDoc->load_string(data.c_str(), pugi_parse_settings);
 }
-
 /**
  * @details
  * @note Default encoding for pugixml xml_document::save is pugi::encoding_auto, becomes pugi::encoding_utf8
@@ -11795,15 +11799,15 @@ void XLXmlData::setRawData(const std::string& data)
 std::string XLXmlData::getRawData(XLXmlSavingDeclaration savingDeclaration) const
 {
 	OXlXmlDoc * doc = const_cast<OXlXmlDoc *>(getXmlDocumentC());
-	// ===== 2024-07-08: ensure that the default encoding UTF-8 is explicitly written to the XML document with a custom saving declaration
+	// 2024-07-08: ensure that the default encoding UTF-8 is explicitly written to the XML document with a custom saving declaration
 	XMLNode saveDeclaration = doc->first_child();
 	if(saveDeclaration.empty() || saveDeclaration.type() != pugi::node_declaration) { // if saving declaration node does not exist
 		doc->prepend_child(pugi::node_pcdata).set_value("\n");        // prepend a line break
 		saveDeclaration = doc->prepend_child(pugi::node_declaration); // prepend a saving declaration
 	}
-	// ===== If a node_declaration could be fetched or created
+	// If a node_declaration could be fetched or created
 	if(not saveDeclaration.empty()) {
-		// ===== Fetch or create saving declaration attributes
+		// Fetch or create saving declaration attributes
 		XMLAttribute attrVersion = saveDeclaration.attribute("version");
 		if(attrVersion.empty())
 			attrVersion = saveDeclaration.append_attribute("version");
@@ -11814,7 +11818,7 @@ std::string XLXmlData::getRawData(XLXmlSavingDeclaration savingDeclaration) cons
 		if(attrStandalone.empty() && savingDeclaration.standalone_as_bool()) // only if standalone is set in passed savingDeclaration
 			attrStandalone = saveDeclaration.append_attribute("standalone"); // then make sure it exists
 
-		// ===== Set saving declaration attribute values (potentially overwriting existing values)
+		// Set saving declaration attribute values (potentially overwriting existing values)
 		attrVersion = savingDeclaration.version().c_str();      // version="1.0" is XML default
 		attrEncoding = savingDeclaration.encoding().c_str();    // encoding="UTF-8" is XML default
 
@@ -11855,7 +11859,9 @@ const OXlXmlDoc * XLXmlData::getXmlDocumentC() const
  * the same path in the .zip file will be overwritten upon saving of the document. If no xmlData is provided,
  * the data will be read from the .zip file, using the given path.
  */
-XLXmlFile::XLXmlFile(XLXmlData* xmlData) : m_xmlData(xmlData) {}
+XLXmlFile::XLXmlFile(XLXmlData* xmlData) : m_xmlData(xmlData) 
+{
+}
 
 XLXmlFile::~XLXmlFile() = default;
 /**
@@ -11896,7 +11902,7 @@ std::string XLXmlFile::getXmlPath() const { return m_xmlData == nullptr ? "" : m
 // XLXmlParser.cpp
 //
 namespace OpenXLSX {
-	// ===== Copy definition of PUGI_IMPL_NODETYPE, which is defined in pugixml.cpp, within namespace pugi::impl(?), and somehow doesn't work here
+	// Copy definition of PUGI_IMPL_NODETYPE, which is defined in pugixml.cpp, within namespace pugi::impl(?), and somehow doesn't work here
 	#define PUGI_IMPL_NODETYPE(n) static_cast<pugi::xml_node_type>((n)->header & pugi::impl::xml_memory_page_type_mask)
 
 	bool NO_XML_NS = true;     // default: no XML namespaces
@@ -11944,7 +11950,7 @@ namespace OpenXLSX {
 	 */
 	const pugi::char_t* XMLNode::namespaced_name_char(const pugi::char_t* name_, bool force_ns) const
 	{
-		// ===== If node has no namespace: Early pass-through return
+		// If node has no namespace: Early pass-through return
 		if(!name_begin || force_ns)
 			return name_;
 		if(name_begin + sstrlen(name_) > XLMaxNamespacedNameLen) {
@@ -11952,7 +11958,7 @@ namespace OpenXLSX {
 			throw XLException("OpenXLSX_xml_node::"s + __func__ + ": strlen of "s + name_ + " exceeds XLMaxNamespacedNameLen "s + std::to_string(XLMaxNamespacedNameLen));
 		}
 		static pugi::char_t namespaced_name_[ XLMaxNamespacedNameLen + 1 ]; // static memory allocation for concatenating node namespace and name_
-		// ===== If node has a namespace: create a namespaced version of name_
+		// If node has a namespace: create a namespaced version of name_
 		memcpy(namespaced_name_, xml_node::name(), name_begin);    // copy the node namespace
 		strcpy(namespaced_name_ + name_begin, name_);              // concatenate the name_ including the terminating zero
 		return namespaced_name_;
@@ -11964,10 +11970,10 @@ namespace OpenXLSX {
 	 */
 	std::shared_ptr<pugi::char_t> XMLNode::namespaced_name_shared_ptr(const pugi::char_t* name_, bool force_ns) const
 	{
-		// ===== If node has no namespace: Early pass-through return with noop-deleter
+		// If node has no namespace: Early pass-through return with noop-deleter
 		if(!name_begin || force_ns) 
 			return std::shared_ptr<pugi::char_t>(const_cast<pugi::char_t*>(name_), [](pugi::char_t*){});
-		// ===== If node has a namespace: allocate memory for concatenation and create a namespaced version of name_
+		// If node has a namespace: allocate memory for concatenation and create a namespaced version of name_
 		std::shared_ptr<pugi::char_t> namespaced_name_(new pugi::char_t[name_begin + sstrlen(name_) + 1], std::default_delete<pugi::char_t[]>());
 		memcpy(namespaced_name_.get(), xml_node::name(), name_begin);    // copy the node namespace
 		strcpy(namespaced_name_.get() + name_begin, name_);          // concatenate the name_ with terminating zero
@@ -12028,7 +12034,7 @@ namespace OpenXLSX {
 	XMLNode XMLNode::next_sibling_of_type(pugi::xml_node_type type_) const
 	{
 		if(_root) {
-			pugi::xml_node_struct* next = _root->next_sibling;
+			pugi::xml_node_struct * next = _root->next_sibling;
 			while(next && (PUGI_IMPL_NODETYPE(next) != type_))
 				next = next->next_sibling;
 			if(next)
@@ -12043,8 +12049,9 @@ namespace OpenXLSX {
 	XMLNode XMLNode::previous_sibling_of_type(pugi::xml_node_type type_) const
 	{
 		if(_root) {
-			pugi::xml_node_struct* prev = _root->prev_sibling_c;
-			while(prev->next_sibling && (PUGI_IMPL_NODETYPE(prev) != type_))  prev = prev->prev_sibling_c;
+			pugi::xml_node_struct * prev = _root->prev_sibling_c;
+			while(prev->next_sibling && (PUGI_IMPL_NODETYPE(prev) != type_))
+				prev = prev->prev_sibling_c;
 			if(prev->next_sibling)
 				return XMLNode(prev);
 		}
@@ -12102,7 +12109,7 @@ void XLZipArchive::open(const std::string& fileName)
 	}
 	catch(...) {  // catch all exceptions
 		m_archive.reset(); // make m_archive invalid again
-		throw;        // re-throw
+		throw; // re-throw
 	}
 }
 

@@ -12,7 +12,7 @@
 #include "unicode/ucasemap.h"
 #include "unicode/ureldatefmt.h"
 #include "unicode/unum.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "ucln_in.h"
 #include "quantityformatter.h"
 #include "resource.h"

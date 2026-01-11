@@ -1,18 +1,17 @@
 // SPROCESS.CPP
-// Copyright (c) A.Sobolev 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <UserEnv.h> // SlProcess
-#include <sddl.h> // SlProcess
-#include <AccCtrl.h>
+// @v12.5.3 (@movedto slib.h) #include <UserEnv.h> // SlProcess
+// @v12.5.3 (@movedto slib.h) #include <sddl.h> // SlProcess
+// @v12.5.3 (@movedto slib.h) #include <AccCtrl.h>
 #include <NTSecAPI.h>
 #include <strsafe.h>
-
-#include <iostream>
+//#include <iostream>
 #include <dsgetdc.h>
-#include <Lm.h>
+// @v12.5.3 (@movedto slib.h) #include <Lm.h>
 #include <tlhelp32.h> // CreateToolhelp32Snapshot
 
 // #include <..\SLib\subprocess\subprocess.h> // @v11.9.3 @experimental

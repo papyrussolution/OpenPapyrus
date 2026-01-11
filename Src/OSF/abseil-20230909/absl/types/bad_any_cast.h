@@ -21,18 +21,16 @@
 #ifndef ABSL_TYPES_BAD_ANY_CAST_H_
 #define ABSL_TYPES_BAD_ANY_CAST_H_
 
-#include <typeinfo>
-
+//#include <typeinfo>
 #include "absl/base/config.h"
 
 #ifdef ABSL_USES_STD_ANY
-
 #include <any>
 
 namespace absl {
-ABSL_NAMESPACE_BEGIN
-using std::bad_any_cast;
-ABSL_NAMESPACE_END
+	ABSL_NAMESPACE_BEGIN
+	using std::bad_any_cast;
+	ABSL_NAMESPACE_END
 }  // namespace absl
 
 #else  // ABSL_USES_STD_ANY

@@ -1,5 +1,5 @@
 // SPRINTER.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2006, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2019, 2020, 2021, 2023, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2006, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2019, 2020, 2021, 2023, 2025, 2026
 // @codepage UTF-8
 // @v12.3.11 moved from slib to pplib
 //
@@ -62,7 +62,7 @@ int SPrinting::Init(const char * pPort)
 		}
 	}
 	if(port.NotEmpty()) {
-		PrinterDc = CreateDC(_T("WINSPOOL\0"), SUcSwitch(port), 0, 0); // @unicodeproblem
+		PrinterDc = CreateDCW(L"WINSPOOL\0", SUcSwitchW(port), 0, 0);
 		if(!PrinterDc)
 			ok = SLS.SetError(SLERR_WINDOWS);
 	}

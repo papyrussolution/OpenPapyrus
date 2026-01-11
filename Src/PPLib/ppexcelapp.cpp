@@ -220,7 +220,8 @@ int PPViewBrowser::Helper_Export_Excel_OXLSX(SString & rResultFileName)
 				}
 				hdr_row_range.upp = beg_row-1;
 				//
-				XLCellRange hdr_cell_range = wks.range(XLCellReference(hdr_row_range.low, hdr_col_range.low), XLCellReference(hdr_row_range.upp, hdr_col_range.upp));
+				XLCellRange hdr_cell_range = wks.range(XLCellReference(hdr_row_range.low, static_cast<uint16>(hdr_col_range.low)), 
+					XLCellReference(hdr_row_range.upp, static_cast<uint16>(hdr_col_range.upp)));
 				{
 					/*
 					XLStyleIndex fontBold = fonts.create();
@@ -328,8 +329,8 @@ int PPViewBrowser::Helper_Export_Excel_OXLSX(SString & rResultFileName)
 										THROW(p_sheet->SetColor(row + beg_row + 1, cn + 1, color) > 0);
 								}
 								*/
-								if(width_ary.at(cn) < (long)val_buf.Len())
-									width_ary.at(cn) = (PPID)val_buf.Len();
+								if(width_ary.at(cn) < val_buf.LenI())
+									width_ary.at(cn) = val_buf.LenI();
 							}
 						}
 						row++;

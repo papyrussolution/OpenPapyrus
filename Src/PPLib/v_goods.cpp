@@ -5426,7 +5426,7 @@ static int SetOuterGoodsTag(PPID tagID, const SString & rTagStrValue, PPGoodsPac
 						if(r > 0) {
 						}
 						else if(r < 0) {
-							MEMSZERO(ref_rec);
+							ref_rec.Clear();
 							value_buf.CopyTo(ref_rec.ObjName, sizeof(ref_rec.ObjName));
 							ref_rec.Val2 = prev_level_id;
 							PPTransaction tra(-1);

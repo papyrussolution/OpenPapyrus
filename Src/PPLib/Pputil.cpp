@@ -1,12 +1,12 @@
 // PPUTIL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // @Kernel
 //
 #include <pp.h>
 #pragma hdrstop
 #include <ppsoapclient.h>
-#include <AccCtrl.h>
+// @v12.5.3 (@movedto slib.h) #include <AccCtrl.h>
 
 DBFCreateFld * LoadDBFStruct(uint rezID, uint * pNumFlds); // @prototype
 
@@ -284,7 +284,7 @@ int FASTCALL PPStartTransaction(int * pTa, int use_ta)
 	*pTa = 0;
 	int    ok = 1;
 	if(use_ta < 0) {
-		use_ta = (DBS.GetTaState() == 1) ? 0 : 1;
+		use_ta = DBS.GetTaState() ? 0 : 1;
 	}
 	if(use_ta) {
 		if(DBS.GetTLA().StartTransaction())
@@ -340,7 +340,7 @@ int PPTransaction::Start(int use_ta)
 		ok = 0;
 	else {
 		if(use_ta < 0) {
-			use_ta = (DBS.GetTaState() == 1) ? 0 : 1;
+			use_ta = DBS.GetTaState() ? 0 : 1;
 		}
 		if(use_ta) {
 			int    r = DBS.GetTLA().StartTransaction();
@@ -366,10 +366,10 @@ int PPTransaction::Start(PPDbDependTransaction dbDepend, int use_ta)
 		ok = 0;
 	else {
 		if(use_ta < 0) {
-			use_ta = (DBS.GetTaState() == 1) ? 0 : 1;
+			use_ta = DBS.GetTaState() ? 0 : 1;
 		}
 		if(use_ta) {
-			int    r = (dbDepend == ppDbDependTransaction) ? DBS.GetTLA().StartTransaction_DbDepend() : DBS.GetTLA().StartTransaction();
+			const  int r = (dbDepend == ppDbDependTransaction) ? DBS.GetTLA().StartTransaction_DbDepend() : DBS.GetTLA().StartTransaction();
 			if(r > 0)
 				Ta = 1;
 			else if(!r) {
@@ -718,7 +718,7 @@ int FASTCALL CheckTblPtr(const DBTable * tbl)
 {
 	if(tbl == 0)
 		return PPSetErrorNoMem();
-	else if(tbl->IsOpened() == 0)
+	else if(tbl->IsOpen() == 0)
 		return PPSetErrorDB();
 	else
 		return 1;
@@ -934,7 +934,7 @@ DbfTable * FASTCALL PPOpenDbfTable(const char * pPath)
 	DbfTable * p_tbl = new DbfTable(pPath);
 	if(!p_tbl)
 		PPSetErrorNoMem();
-	else if(!p_tbl->isOpened()) {
+	else if(!p_tbl->IsOpen()) {
 		ZDELETE(p_tbl);
 		//PPSetError(PPERR_DBFOPFAULT, pPath);
 		PPSetErrorSLib();
@@ -1610,7 +1610,7 @@ int PPChainDatabase(const char * pPassword)
 		ar_rec.ObjID = bill_rec.ID;
 
 		// 5.
-		MEMSZERO(ref_rec);
+		ref_rec.Clear();
 		ref_rec.ObjType = PPOBJ_UNASSIGNED;
 		ref_rec.ObjID   = 1;
 		ref_rec.Val1    = bill_rec.ID;
@@ -3495,7 +3495,7 @@ int PPUhttClient::ConvertLocationPacket(const UhttLocationPacket & rUhttPack, Lo
 {
 	int    ok = 1;
 	SString temp_buf;
-	MEMSZERO(rLocRec);
+	rLocRec.Clear();
 	rLocRec.Type = LOCTYP_ADDRESS;
 	rLocRec.Latitude = rUhttPack.Latitude;
 	rLocRec.Longitude = rUhttPack.Longitude;

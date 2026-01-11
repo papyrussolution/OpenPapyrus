@@ -144,9 +144,9 @@ typedef struct st_mariadb_rpl {
 	char * filename;
 	uint32_t filename_length;
 	uchar * buffer;
-	unsigned long buffer_size;
+	ulong buffer_size;
 	uint32_t server_id;
-	unsigned long start_position;
+	ulong start_position;
 	uint32_t flags;
 	uint8_t fd_header_len; /* header len from last format description event */
 	uint8_t use_checksum;
@@ -261,7 +261,7 @@ typedef struct st_mariadb_rpl_event {
 	uint server_id;
 	uint event_length;
 	uint next_event_pos;
-	unsigned short flags;
+	ushort flags;
 	/****************/
 	union {
 		struct st_mariadb_rpl_rotate_event rotate;

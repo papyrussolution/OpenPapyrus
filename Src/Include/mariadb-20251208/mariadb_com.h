@@ -269,9 +269,9 @@ typedef struct st_net {
 	uchar * buff;
 	uchar * buff_end, * write_pos, * read_pos;
 	my_socket fd;                           /* For Perl DBI/dbd */
-	unsigned long remain_in_buf, length;
-	unsigned long buf_length, where_b;
-	unsigned long max_packet, max_packet_size;
+	ulong remain_in_buf, length;
+	ulong buf_length, where_b;
+	ulong max_packet, max_packet_size;
 	uint pkt_nr, compress_pkt_nr;
 	uint write_timeout, read_timeout, retry_count;
 	int fcntl;

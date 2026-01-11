@@ -1,5 +1,5 @@
 // REFERENC.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // @Kernel
 //
@@ -2820,7 +2820,7 @@ int UnxTextRefCore::SetTextUtf8(const TextRefIdent & rI, const SString & rTextUt
 			ok = -2;
 		}
 		else {
-			MEMSZERO(data);
+			data.Clear();
 			data.ObjType = static_cast<int16>(rI.O.Obj);
 			data.ObjID = rI.O.Id;
 			data.Prop = rI.P;
@@ -2899,7 +2899,7 @@ int UnxTextRefCore::SetTimeSeries(const TextRefIdent & rI, STimeSeries * pTs, in
 			ok = -2;
 		}
 		else {
-			MEMSZERO(data);
+			data.Clear();
 			data.ObjType = static_cast<int16>(rI.O.Obj);
 			data.ObjID = rI.O.Id;
 			data.Prop = rI.P;

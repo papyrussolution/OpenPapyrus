@@ -1830,7 +1830,7 @@ SColor UiDescription::GetColorR(const SColorSet * pColorSet, const char * pColor
 /*static*/SColor UiDescription::GetColorR(const UiDescription * pUid, const SColorSet * pColorSet, const char * pColorSymb, const SColor defaultC)
 {
 	SColor result;
-	if(!pUid || !pUid->GetColor(pColorSet, pColorSymb, result))
+	if(!pUid || pUid->GetColor(pColorSet, pColorSymb, result) <= 0) // @v12.5.3 (==0)-->(<=0)
 		result = defaultC;
 	return result;
 }

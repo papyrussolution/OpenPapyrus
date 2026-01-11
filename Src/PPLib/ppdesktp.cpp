@@ -1,12 +1,12 @@
 // PPDESKTP.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
 
-#define max MAX // @v9.8.11
-#define min MIN // @v9.8.11
+#define max MAX
+#define min MIN
 #include <gdiplus.h>
 using namespace Gdiplus;
 
@@ -129,13 +129,21 @@ PPDesktopAssocCmdPool::~PPDesktopAssocCmdPool()
 {
 }
 
-void PPDesktopAssocCmdPool::Init(/*PPID desktopId*/const S_GUID & rUuid)
+PPDesktopAssocCmdPool & PPDesktopAssocCmdPool::Z()
 {
-	DesktopID_Obsolete = 0;
-	DesktopUuid = rUuid;
+	DesktopID_Obsolete = -1;
+	DesktopUuid.Z();
 	L.clear();
 	P.Z();
 	P.add("$"); // zero index - is empty string
+	return *this;
+}
+
+void PPDesktopAssocCmdPool::Init(/*PPID desktopId*/const S_GUID & rUuid)
+{
+	Z();
+	DesktopID_Obsolete = 0;
+	DesktopUuid = rUuid;
 }
 
 S_GUID PPDesktopAssocCmdPool::GetDesktopUuid() const { return DesktopUuid; }
@@ -309,7 +317,7 @@ int PPDesktopAssocCmdPool::WriteToProp(int use_ta)
 			p_strg->ObjType = PPOBJ_DESKTOP;
 			p_strg->ObjID = desktop_id;
 			p_strg->Prop  = PPPRP_DESKCMDASSOC;
-			p_strg->Size  = sz;
+			p_strg->Size  = static_cast<uint32>(sz);
 			p_strg->Ver   = DS.GetVersion();
 			THROW_SL(tail_buf.Read((p_strg+1), tail_size));
 		}
@@ -554,7 +562,7 @@ int PPBizScoreWindow::DoCommand(SPoint2S p)
 		case WM_CTLCOLORSTATIC:
 		case WM_CTLCOLORDLG:
 			if(p_win) {
-				HDC hdc = reinterpret_cast<HDC>(wParam);
+				HDC    hdc = reinterpret_cast<HDC>(wParam);
 				SetBkMode(hdc, TRANSPARENT);
 				return (BOOL)(p_win->Brush); // don't modify type cast - Windows needs real brush result
 			}
@@ -750,7 +758,7 @@ int PPDesktop::DrawText(TCanvas & rC, SPoint2S coord, COLORREF color, const char
 		SplitBuf(rC, text, IconSize * 2 - 4, text_h);
 		StringSet ss('\n', text);
 		for(uint i = 0; ss.get(&i, text); text_rect.top += tm.tmHeight, text_rect.bottom += tm.tmHeight)
-			::DrawText(rC, SUcSwitch(text), text.Len(), &text_rect, DT_CENTER); // @unicodeproblem
+			::DrawTextW(rC, SUcSwitchW(text), text.LenI(), &text_rect, DT_CENTER);
 		rC.PopObject();
 	}
 	ZDeleteWinGdiObject(&curs_over_txt_font);
@@ -770,8 +778,8 @@ void PPDesktop::DrawIcon(TCanvas & rC, long id, SPoint2S coord, const SString & 
 {
 	RECT   cr;
 	GetClientRect(H(), &cr);
-	const long x = cr.left + coord.x;
-	const long y = cr.top + coord.y;
+	const  long x = cr.left + coord.x;
+	const  long y = cr.top + coord.y;
 	if(isSelected) {
 		rC.SelectObjectAndPush(Ptb.Get(brushSelTextRect));
 		rC.SelectObjectAndPush(Ptb.Get(penSelTextRect));
@@ -824,14 +832,14 @@ void PPDesktop::DrawIcon(TCanvas & rC, long id, SPoint2S coord, const SString & 
 					}
 				}
 				else
-					h_icon = LoadIcon(TProgram::GetInst(), MAKEINTRESOURCE(icon_id));
+					h_icon = LoadIconW(TProgram::GetInst(), MAKEINTRESOURCEW(icon_id));
 			}
 			else {
 				// @v11.2.12 @todo: иногда эта функция работает очень медленно
-				h_icon = static_cast<HICON>(::LoadImage(0, SUcSwitch(rIcon), IMAGE_ICON, IconSize, IconSize, LR_LOADFROMFILE));
+				h_icon = static_cast<HICON>(::LoadImageW(0, SUcSwitchW(rIcon), IMAGE_ICON, IconSize, IconSize, LR_LOADFROMFILE));
 			}
 		}
-		SETIFZ(h_icon, LoadIcon(TProgram::GetInst(), MAKEINTRESOURCE(ICON_DEFAULT)));
+		SETIFZ(h_icon, LoadIconW(TProgram::GetInst(), MAKEINTRESOURCEW(ICON_DEFAULT)));
 		if(h_icon) {
 			SString text;
 			(text = rText).Transf(CTRANSF_INNER_TO_OUTER);
@@ -846,10 +854,7 @@ void PPDesktop::DrawIcon(TCanvas & rC, long id, SPoint2S coord, const SString & 
 	rC.PopObject();
 }
 
-/*static*/COLORREF PPDesktop::GetDefaultBgColor()
-{
-	return GetColorRef(SClrSteelblue4);
-}
+/*static*/COLORREF PPDesktop::GetDefaultBgColor() { return GetColorRef(SClrSteelblue4); }
 
 void PPDesktop::Paint()
 {
@@ -1284,11 +1289,11 @@ ushort PPDesktop::Execute()
 	r.bottom = r.bottom - r.top - 2;
 	DWORD style = WS_CHILD | WS_CLIPSIBLINGS | WS_TABSTOP;
 	SString title = P_ActiveDesktop->Name;
-	HW = ::CreateWindowEx(WS_EX_COMPOSITED, SUcSwitch(PPDesktop::WndClsName), SUcSwitch(title.Transf(CTRANSF_INNER_TO_OUTER)), 
+	HW = ::CreateWindowExW(WS_EX_COMPOSITED, SUcSwitchW(PPDesktop::WndClsName), SUcSwitchW(title.Transf(CTRANSF_INNER_TO_OUTER)), 
 		style, 0, 0, r.right - r.left - 18, r.bottom, h_frame, 0, TProgram::GetInst(), this);
 	ShowWindow(H(), SW_SHOW);
 	UpdateWindow(H());
-	HwndTT = ::CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP,
+	HwndTT = ::CreateWindowExW(WS_EX_TOPMOST, TOOLTIPS_CLASSW, NULL, WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP,
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, H(), NULL, TProgram::GetInst(), 0);
 	SetWindowPos(HwndTT, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE | SWP_NOACTIVATE);
 	CreateServiceView(svcviewBizScore);
@@ -1421,39 +1426,13 @@ TWindow * PPDesktop::GetServiceView(int svcviewId)
 	return p_result;
 }
 
-/* @v11.0.0 replaced with PPDesktop::GetServiceView(int)
-PPBizScoreWindow * PPDesktop::GetBizScoreWnd()
-{
-	PPBizScoreWindow * p_bizscore_wnd = 0;
-	if(HBizScoreWnd)
-	   	p_bizscore_wnd = static_cast<PPBizScoreWindow *>(TView::GetWindowUserData(HBizScoreWnd));
-	if(!p_bizscore_wnd)
-		HBizScoreWnd = 0;
-	return p_bizscore_wnd;
-}*/
-
-/* @v11.0.0 replaced with PPDesktop::CreateServiceView(int)
-int PPDesktop::CreateBizScoreWnd()
-{
-	int    ok = 0;
-	if(H()) {
-		UserInterfaceSettings ui_cfg;
-		ui_cfg.Restore();
-		if(ui_cfg.Flags & UserInterfaceSettings::fShowBizScoreOnDesktop) {
-			PPBizScoreWindow * p_win = new PPBizScoreWindow(H());
-			if(p_win) {
-				p_win->Create();
-				HBizScoreWnd = p_win->H();
-				ok = 1;
-			}
-		}
-	}
-	return ok;
-}*/
-
 void PPDesktop::WMHCreate()
 {
-	HDC    hdc = GetDC(H());
+	//
+	// @todo @20260111 Перевести управление цветами и шрифтами на централизованную конфигурацию (uid-papyrus.json) //
+	//
+	HWND   h_wnd = H();
+	HDC    hdc = GetDC(h_wnd);
 	SString temp_buf;
 	{
 		{
@@ -1477,11 +1456,11 @@ void PPDesktop::WMHCreate()
 		}
 		Ptb.SetBrush(brushBkg, SPaintObj::bsSolid, Ptb.GetColor(colorBkg), 0);
 	}
-	TView::SetWindowUserData(H(), static_cast<PPDesktop *>(this));
-	::SetCursor(::LoadCursor(0, IDC_ARROW));
-	SetFocus(H());
-	SendMessage(H(), WM_NCACTIVATE, TRUE, 0L);
-	ReleaseDC(H(), hdc);
+	TView::SetWindowUserData(h_wnd, static_cast<PPDesktop *>(this));
+	::SetCursor(::LoadCursorW(0, IDC_ARROW));
+	::SetFocus(h_wnd);
+	::SendMessageW(h_wnd, WM_NCACTIVATE, TRUE, 0L);
+	ReleaseDC(h_wnd, hdc);
 }
 
 /*static*/int PPDesktop::GetDeskName(const S_GUID & rDesktopUuid, SString & rDeskName)
@@ -1557,7 +1536,7 @@ int PPDesktop::SaveDesktop(PPCommandMngr * pMgr, PPCommandGroup * pDeskList)
 					P_ActiveDesktop->SetLogo(p_prev->GetLogo());
 					P_ActiveDesktop->Name  = p_prev->Name;
 				}
-				P_ActiveDesktop->Type = cmdgrpcDesktop; // @v11.0.0
+				P_ActiveDesktop->Type = cmdgrpcDesktop;
 				THROW(p_mgr->Save__2(P_ActiveDesktop, PPCommandMngr::fRWByXml)); // @erik v10.6.1
 				ok = 1;
 			}
@@ -1937,7 +1916,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 				return -1;
 		case WM_DESTROY:
 			if(p_desk) {
-				SETIFZ(p_desk->EndModalCmd, cmCancel);
+				SETIFZQ(p_desk->EndModalCmd, cmCancel);
 				APPL->DelItemFromMenu(p_desk);
 				p_desk->ResetOwnerCurrent();
 				APPL->P_DeskTop->remove(p_desk);
@@ -1959,7 +1938,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 			break;
 		case WM_SIZE:
 			if(lParam && p_desk) {
-				if(PPDesktop_Use_LayoutFlex) { // @v11.0.0
+				if(PPDesktop_Use_LayoutFlex) {
 					p_desk->Layout(); 
 				}
 				else {
@@ -1972,7 +1951,8 @@ IMPL_HANDLE_EVENT(PPDesktop)
 		case WM_RBUTTONUP:
 			{
 				if(p_desk) {
-					SString temp_buf, menu_text;
+					SString temp_buf;
+					SString menu_text;
 					if(PPLoadTextWin(PPTXT_MENU_DESKTOP, temp_buf)) {
 						POINT  coord;
 						coord.x = LOWORD(lParam);
@@ -2076,7 +2056,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 			return 0;
 		case WM_CHAR:
 			if(wParam != VK_RETURN || LOBYTE(HIWORD(lParam)) != 0x1c)
-				TView::messageKeyDown(p_desk, wParam);
+				TView::messageKeyDown(p_desk, static_cast<uint>(wParam));
 			return 0;
 		// @vmiller {
 		case WM_INPUT:
@@ -2373,15 +2353,15 @@ int PPDesktop::ProcessRawInput(void * rawInputHandle)
 
 /*static*/int PPDesktop::RegWindowClass(HINSTANCE hInst)
 {
-	WNDCLASSEX wc;
+	WNDCLASSEXW wc;
 	INITWINAPISTRUCT(wc);
-	wc.lpszClassName = SUcSwitch(PPDesktop::WndClsName);
+	wc.lpszClassName = SUcSwitchW(PPDesktop::WndClsName);
 	wc.hInstance     = hInst;
 	wc.lpfnWndProc   = PPDesktop::DesktopWndProc;
 	wc.hIcon = LoadIcon(hInst, MAKEINTRESOURCE(102));
 	wc.hbrBackground = static_cast<HBRUSH>(GetStockObject(LTGRAY_BRUSH));
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
-	return ::RegisterClassEx(&wc);
+	return ::RegisterClassExW(&wc);
 }
 
 /*static*/int PPDesktop::CreateDefault(S_GUID & rNewUuid)
@@ -2455,5 +2435,189 @@ int PPDesktop::ProcessRawInput(void * rawInputHandle)
 		ZDELETE(p_v);
 		ok = (PPErrorTooltip(-1, 0), cmError);
 	ENDCATCH
+	return ok;
+}
+
+/*static*/int PPDesktop::EditAssocCmdList(/*long desktopID*/const S_GUID & rDesktopUuid)
+{
+	class DesktopAssocCmdsDialog : public PPListDialog {
+		DECL_DIALOG_DATA(PPDesktopAssocCmdPool);
+	public:
+		DesktopAssocCmdsDialog() : PPListDialog(DLG_DESKCMDA, CTL_DESKCMDA_LIST)
+		{
+			PPCommandDescr cmd_descr;
+			cmd_descr.GetResourceList(1, CmdList);
+			disableCtrl(CTLSEL_DESKCMDA_DESKTOP, true);
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			StrAssocArray list;
+			if(!RVALUEPTR(Data, pData)) {
+				Data.Init(ZEROGUID);
+			}
+			PPCommandFolder::GetCommandGroupList(0, cmdgrpcDesktop, DesktopList);
+			DesktopList.GetStrAssocList(list);
+			long  surr_id = DesktopList.GetSurrIdByUuid(Data.GetDesktopUuid());
+			SetupStrAssocCombo(this, CTLSEL_DESKCMDA_DESKTOP, list, /*Data.GetDesktopID()*/surr_id, 0, 0);
+			updateList(-1);
+			return 1;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			const  PPID surr_id = getCtrlLong(CTLSEL_DESKCMDA_DESKTOP);
+			S_GUID uuid = DesktopList.GetUuidBySurrId(surr_id);
+			Data.SetDesktopUuid(uuid);
+			ASSIGN_PTR(pData, Data);
+			return 1;
+		}
+	private:
+		virtual int setupList()
+		{
+			int    ok = 1;
+			PPDesktopAssocCmd assci;
+			StringSet ss(SLBColumnDelim);
+			for(uint i = 0; ok && i < Data.GetCount(); i++) {
+				if(Data.GetItem(i, assci)) {
+					uint pos = 0;
+					if(CmdList.Search(assci.CmdID, &pos) > 0) {
+						ss.Z();
+						ss.add(assci.Code);
+						ss.add(CmdList.Get(pos).Txt);
+						if(!addStringToList(i+1, ss.getBuf()))
+							ok = 0;
+					}
+				}
+			}
+			return ok;
+		}
+		virtual int addItem(long * pPos, long * pID)
+		{
+			int    ok = -1;
+			uint   pos = 0;
+			PPDesktopAssocCmd cmd_assc;
+			if(EditCommandAssoc(-1, &cmd_assc, &Data) > 0) {
+				ok = Data.AddItem(&cmd_assc);
+				if(ok > 0) {
+					pos = Data.GetCount()-1;
+					ASSIGN_PTR(pPos, pos);
+					ASSIGN_PTR(pID, pos+1);
+				}
+			}
+			return ok;
+		}
+		virtual int editItem(long pos, long id)
+		{
+			int    ok = -1;
+			PPDesktopAssocCmd cmd_assc;
+			if(Data.GetItem(pos, cmd_assc)) {
+				ok = EditCommandAssoc(pos, &cmd_assc, &Data);
+				if(ok > 0) {
+					Data.SetItem(pos, &cmd_assc);
+				}
+			}
+			return ok;
+		}
+		virtual int delItem(long pos, long id)
+		{
+			return (pos >= 0 && pos < (long)Data.GetCount()) ? Data.SetItem(pos, 0) : -1;
+		}
+		int    EditCommandAssoc(long pos, PPDesktopAssocCmd * pAsscCmd, PPDesktopAssocCmdPool * pCmdList)
+		{
+			class DesktopAssocCommandDialog : public TDialog {
+				DECL_DIALOG_DATA(PPDesktopAssocCmd);
+			public:
+				DesktopAssocCommandDialog(long pos, PPDesktopAssocCmdPool * pCmdList) : TDialog(DLG_DESKCMDAI), Pos(pos), P_CmdList(pCmdList)
+				{
+				}
+				DECL_DIALOG_SETDTS()
+				{
+					StrAssocArray cmd_list;
+					PPCommandDescr cmd_descr;
+					if(!RVALUEPTR(Data, pData))
+						Data.Z();
+					cmd_descr.GetResourceList(1, cmd_list);
+					cmd_list.SortByText();
+					setCtrlString(CTL_DESKCMDAI_CODE, Data.Code);
+					setCtrlString(CTL_DESKCMDAI_DVCSERIAL, Data.DvcSerial);
+					setCtrlString(CTL_DESKCMDAI_PARAM, Data.CmdParam);
+					SetupStrAssocCombo(this, CTLSEL_DESKCMDAI_COMMAND, cmd_list, Data.CmdID, 0, 0);
+					AddClusterAssoc(CTL_DESKCMDAI_FLAGS, 0, PPDesktopAssocCmd::fSpecCode);
+					AddClusterAssoc(CTL_DESKCMDAI_FLAGS, 1, PPDesktopAssocCmd::fSpecCodePrefx);
+					AddClusterAssoc(CTL_DESKCMDAI_FLAGS, 2, PPDesktopAssocCmd::fNonInteractive);
+					SetClusterData(CTL_DESKCMDAI_FLAGS, Data.Flags);
+					SetupCtrls();
+					return 1;
+				}
+				DECL_DIALOG_GETDTS()
+				{
+					int    ok = 1;
+					uint   sel = 0;
+					uint   pos = 0;
+					SString buf;
+					GetClusterData(CTL_DESKCMDAI_FLAGS, &Data.Flags);
+					sel = CTL_DESKCMDAI_COMMAND;
+					getCtrlData(CTLSEL_DESKCMDAI_COMMAND, &Data.CmdID);
+					THROW_PP(Data.CmdID, PPERR_INVCOMMAND);
+					getCtrlString(sel = CTL_DESKCMDAI_CODE, Data.Code);
+					THROW_PP(Data.Code.Len(), PPERR_INVSPECCODE);
+					getCtrlString(CTL_DESKCMDAI_DVCSERIAL, Data.DvcSerial);
+					getCtrlString(CTL_DESKCMDAI_PARAM, Data.CmdParam);
+					ASSIGN_PTR(pData, Data);
+					CATCH
+						sel = (sel == CTL_DESKCMDAI_CODE && !(Data.Flags & PPDesktopAssocCmd::fSpecCode)) ? CTL_DESKCMDAI_COMMAND : sel;
+						ok = (selectCtrl(sel), 0);
+					ENDCATCH
+					return ok;
+				}
+			private:
+				DECL_HANDLE_EVENT
+				{
+					TDialog::handleEvent(event);
+					if(event.isCmd(cmClusterClk) && event.isCtlEvent(CTL_DESKCMDAI_FLAGS)) {
+						SetupCtrls();
+					}
+					else if(event.isCmd(cmWinKeyDown)) {
+						long    flags = 0;
+						GetClusterData(CTL_DESKCMDAI_FLAGS, &flags);
+						if(!(flags & PPDesktopAssocCmd::fSpecCode)) {
+							SString buf;
+							const KeyDownCommand * p_cmd = static_cast<const KeyDownCommand *>(event.message.infoPtr);
+							if(p_cmd && p_cmd->GetKeyName(buf, 1) > 0)
+								p_cmd->GetKeyName(buf);
+							setCtrlString(CTL_DESKCMDAI_CODE, buf);
+						}
+					}
+					else
+						return;
+					clearEvent(event);
+				}
+				void SetupCtrls()
+				{
+					const long flags = GetClusterData(CTL_DESKCMDAI_FLAGS);
+					disableCtrl(CTL_DESKCMDAI_CODE, !(flags & PPDesktopAssocCmd::fSpecCode));
+					DisableClusterItem(CTL_DESKCMDAI_FLAGS, 1, !(flags & PPDesktopAssocCmd::fSpecCode));
+				}
+				const long Pos;
+				const PPDesktopAssocCmdPool * P_CmdList;
+			};
+			DIALOG_PROC_BODY_P2ERR(DesktopAssocCommandDialog, pos, pCmdList, pAsscCmd)
+		}
+		StrAssocArray CmdList;
+		PPCommandFolder::CommandGroupList DesktopList;
+	};
+	int    ok = -1;
+	PPDesktopAssocCmdPool list;
+	DesktopAssocCmdsDialog * p_dlg = 0;
+	THROW(list.ReadFromProp(/*desktopID*/rDesktopUuid));
+	THROW(CheckDialogPtr(&(p_dlg = new DesktopAssocCmdsDialog())));
+	p_dlg->setDTS(&list);
+	for(int valid_data = 0; !valid_data && ExecView(p_dlg) == cmOK;) {
+		if(p_dlg->getDTS(&list) > 0) {
+			THROW(list.WriteToProp(1));
+			valid_data = ok = 1;
+		}
+	}
+	CATCHZOKPPERR
+	delete p_dlg;
 	return ok;
 }

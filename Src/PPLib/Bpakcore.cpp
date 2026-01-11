@@ -5596,7 +5596,7 @@ BillTotalData & BillTotalData::Z()
 	return *this;
 }
 
-bool BillTotalData::IsEq(const BillTotalData & rS) const // @v12.2.8 @construction
+bool FASTCALL BillTotalData::IsEq(const BillTotalData & rS) const // @v12.2.8 @construction
 {
 	bool   eq = true;
 	#define F(f) if(f != rS.f) return false;

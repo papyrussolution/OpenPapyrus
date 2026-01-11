@@ -7,7 +7,7 @@
 #if !UCONFIG_NO_FORMATTING
 
 #include "number_patternstring.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 
 using namespace icu;
 using namespace icu::number;

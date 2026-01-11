@@ -72,10 +72,10 @@ else \
 #define l2n(l,c)        (*((c)++)=(uchar)(((l)>>24L)&0xff), \
                          *((c)++)=(uchar)(((l)>>16L)&0xff), \
                          *((c)++)=(uchar)(((l)>> 8L)&0xff), \
-                         *((c)++)=(uchar)(((l)     )&0xff))
+                         *((c)++)=(uchar)(((l))&0xff))
 
 #undef s2n
-#define s2n(l,c)        (*((c)++)=(uchar)(((l)     )&0xff), \
+#define s2n(l,c)        (*((c)++)=(uchar)(((l))&0xff), \
                          *((c)++)=(uchar)(((l)>> 8L)&0xff))
 
 #undef n2s

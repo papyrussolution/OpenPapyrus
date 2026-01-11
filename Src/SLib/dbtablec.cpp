@@ -666,9 +666,9 @@ int DBTable::close()
 	return 1;
 }
 
-int    DBTable::IsOpened() const { return (handle != 0); }
+bool DBTable::IsOpen() const { return (handle != 0); }
 
-void   DBTable::clearDataBuf() 
+void DBTable::clearDataBuf() 
 { 
 	// @todo @20250925 Здесь надо учитывать структуру записи (увы, это касается не только этой функции)
 	memzero(P_DBuf, DBufSize); 
@@ -682,6 +682,22 @@ int    DBTable::setLobSize(DBField fld, size_t sz) { return LobB.SetSize((uint)f
 int    DBTable::getLobSize(DBField fld, size_t * pSz) const { return LobB.GetSize((uint)fld.fld, pSz); }
 RECORDSIZE FASTCALL DBTable::getRecSize() const { return FixRecSize; }
 DBTable::SelectStmt * DBTable::GetStmt() { return SelectStmt::IsConsistent(P_Stmt) ? P_Stmt : 0; }
+
+int DBTable::IsQuerySingleTacted(int idx, int srchMode) const
+{
+	int    result = -1;
+	if(idx >= 0 && idx < static_cast<int>(Indices.getNumKeys())) {
+		if(srchMode == spEq) {
+			const BNKey k = Indices.getKey(idx);
+			if(!(k.getFlags() & XIF_DUP)) {
+				result = 1;
+			}
+		}
+	}
+	else
+		result = 0;
+	return result;
+}
 
 bool DBTable::getField(uint fldN, DBField * pFld) const
 {
@@ -896,7 +912,7 @@ int DBTable::copyBufToKey(int idx, void * pKey) const
 	int    ok = 1;
 	if(!pKey)
 		ok = -1;
-	else if(idx >= 0 && idx < (int)Indices.getNumKeys()) {
+	else if(idx >= 0 && idx < static_cast<int>(Indices.getNumKeys())) {
 		const BNKey k = Indices.getKey(idx);
 		const int ns = k.getNumSeg();
 		size_t offs = 0;

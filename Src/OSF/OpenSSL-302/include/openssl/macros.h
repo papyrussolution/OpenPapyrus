@@ -38,32 +38,32 @@
  * MSVC supports __declspec(deprecated) since MSVC 2003 (13.10),
  * and __declspec(deprecated(message)) since MSVC 2005 (14.00)
  */
-#    if _MSC_VER >= 1400
+#if _MSC_VER >= 1400
 #define OSSL_DEPRECATED(since) \
 	__declspec(deprecated("Since OpenSSL " # since))
 #define OSSL_DEPRECATED_FOR(since, message) \
 	__declspec(deprecated("Since OpenSSL " # since ";" message))
-#    elif _MSC_VER >= 1310
+#elif _MSC_VER >= 1310
 #define OSSL_DEPRECATED(since) __declspec(deprecated)
 #define OSSL_DEPRECATED_FOR(since, message) __declspec(deprecated)
-#    endif
+#endif
 #elif defined(__GNUC__)
 /*
  * According to GCC documentation, deprecations with message appeared in
  * GCC 4.5.0
  */
-#    if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5)
+#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5)
 #define OSSL_DEPRECATED(since) __attribute__((deprecated("Since OpenSSL " # since)))
 #define OSSL_DEPRECATED_FOR(since, message) __attribute__((deprecated("Since OpenSSL " # since ";" message)))
-#    elif __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 0)
+#elif __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 0)
 #define OSSL_DEPRECATED(since) __attribute__((deprecated))
 #define OSSL_DEPRECATED_FOR(since, message) __attribute__((deprecated))
-#    endif
+#endif
 #elif defined(__SUNPRO_C)
-#    if (__SUNPRO_C >= 0x5130)
+#if (__SUNPRO_C >= 0x5130)
 #define OSSL_DEPRECATED(since) __attribute__ ((deprecated))
 #define OSSL_DEPRECATED_FOR(since, message) __attribute__ ((deprecated))
-#    endif
+#endif
 #endif
 #endif
 #endif

@@ -12,7 +12,7 @@
 
 #include "static_unicode_sets.h"
 #include "ucln_cmn.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 
 using namespace icu;
 using namespace icu::unisets;

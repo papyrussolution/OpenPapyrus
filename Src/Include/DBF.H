@@ -1,5 +1,5 @@
 // DBF.H
-// Copyright (c) A.Sobolev 1993, 1997-2001, 2003, 2006, 2008, 2009, 2011, 2018, 2019, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1993, 1997-2001, 2003, 2006, 2008, 2009, 2011, 2018, 2019, 2021, 2022, 2023, 2026
 // @codepage UTF-8
 // Номера записей и полей идут от 1 и далее
 //
@@ -140,7 +140,7 @@ class DbfTable {
 public:
 	DbfTable(const char * pTblName);
 	~DbfTable();
-	int    isOpened() const { return Opened; }
+	bool   IsOpen() const { return LOGIC(Opened); }
 	const char * getName() const { return P_Name; }
 	SCodepage getCodePage() const;
 	int    getFieldName(uint fldN /* 1.. */, char * pFldName, size_t bufLen) const;

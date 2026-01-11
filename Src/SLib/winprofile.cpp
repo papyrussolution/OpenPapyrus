@@ -1,12 +1,12 @@
 // WINPROFILE.CPP
-// Copyright (c) A.Sobolev 2023, 2025
+// Copyright (c) A.Sobolev 2023, 2025, 2026
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <ProfInfo.h>
-#include <sddl.h>
-#include <psapi.h>
-#include <userenv.h>
+// @v12.5.3 (already included at slib.h) #include <ProfInfo.h>
+// @v12.5.3 (@movedto slib.h) #include <sddl.h>
+// @v12.5.3 (@movedto slib.h) #include <psapi.h>
+// @v12.5.3 (@movedto slib.h) #include <userenv.h>
 //
 // Returns:
 //   0 - error (empty input string)
@@ -45,7 +45,7 @@ bool Helper_GetTokenInformation(HANDLE hToken, TOKEN_INFORMATION_CLASS tokenInfo
 	bool   ok = true;
 	DWORD  actual_size = 0;
 	rRetBuf.Alloc(4096);
-	THROW(GetTokenInformation(hToken, tokenInformationClass, rRetBuf, rRetBuf.GetSize(), &actual_size));
+	THROW(GetTokenInformation(hToken, tokenInformationClass, rRetBuf, rRetBuf.GetSize32(), &actual_size));
 	ASSIGN_PTR(pActualSize, actual_size);
 	CATCHZOK
 	return ok;

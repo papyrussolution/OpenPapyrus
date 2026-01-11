@@ -13,7 +13,7 @@
 
 #if !UCONFIG_NO_SERVICE
 
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "servloc.h"
 #include "ustrfmt.h"
 

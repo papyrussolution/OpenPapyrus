@@ -134,7 +134,7 @@ struct ViableSubstitution {
 	// One substitution occurs "before" another (takes priority) if either
 	// it has the lowest offset, or it has the same offset but a larger size.
 	bool OccursBefore(const ViableSubstitution& y) const {
-		if(offset != y.offset)  return offset < y.offset;
+		if(offset != y.offset) return offset < y.offset;
 		return old.size() > y.old.size();
 	}
 };
@@ -190,7 +190,7 @@ std::string StrReplaceAll(absl::string_view s,
 template <typename StrToStrMapping>
 int StrReplaceAll(const StrToStrMapping& replacements, std::string* target) {
 	auto subs = strings_internal::FindSubstitutions(*target, replacements);
-	if(subs.empty())  return 0;
+	if(subs.empty()) return 0;
 
 	std::string result;
 	result.reserve(target->size());

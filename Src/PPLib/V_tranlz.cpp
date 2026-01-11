@@ -1,5 +1,5 @@
 // V_TRANLZ.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -3973,7 +3973,6 @@ int PPViewTrfrAnlz::NextIteration_AlcRep(TrfrAnlzViewItem_AlcRep * pItem)
 {
 	int    ok = -1;
 	TrfrAnlzViewItem item;
-	// @v10.4.3 Модификация if-->while с целья воспрепятствовать прерыванию процесса из-за ошибки в одной строке отчета
 	while(ok < 0 && NextIteration(&item) > 0) {
 		PPID   psn_id = 0;
 		PPID   org_lot_id = 0;

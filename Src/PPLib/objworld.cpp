@@ -1045,11 +1045,10 @@ int PPObjWorld::GetListByCode(int kind, const char * pCode, SVector * pList)
 		const WorldTbl::Rec & r_rec = P_Tbl->data;
 		WorldTbl::Key4 k4;
 		STRNSCPY(k4.Code, pCode);
-		if(P_Tbl->search(4, &k4, spEq))
-			do {
-				if(!kind || kind == r_rec.Kind)
-					THROW_SL(pList->insert(&P_Tbl->data));
-			} while(P_Tbl->search(4, &k4, spNext) && (!kind || r_rec.Kind == kind) && len == sstrlen(k4.Code) && stricmp866(k4.Code, pCode) == 0);
+		if(P_Tbl->search(4, &k4, spEq)) do {
+			if(!kind || kind == r_rec.Kind)
+				THROW_SL(pList->insert(&P_Tbl->data));
+		} while(P_Tbl->search(4, &k4, spNext) && (!kind || r_rec.Kind == kind) && len == sstrlen(k4.Code) && stricmp866(k4.Code, pCode) == 0);
 	}
 	ok = (pList->getCount()) ? 1 : -1;
 	CATCHZOK

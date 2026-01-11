@@ -1,5 +1,5 @@
 // PPWTM.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025, 2026
 //
 #include <pp.h>
 #pragma hdrstop
@@ -384,7 +384,7 @@ protected:
 		if(event.isCmd(cmLayoutEntry)) {
 			Data.EditEntry(P_Wtm);
 		}
-		else if(event.isCmd(cmLayoutContainer)) { // @v10.9.8
+		else if(event.isCmd(cmLayoutContainer)) {
 			Data.EditContainer();
 		}
 		else
@@ -399,162 +399,187 @@ protected:
 //
 class WhatmanObjectLayout : public WhatmanObjectLayoutBase {
 public:
-	WhatmanObjectLayout() : WhatmanObjectLayoutBase()
-	{
-		Options |= (oMovable | oResizable | oMultSelectable | oContainer); // @v10.9.6 oContainer
-	}
-	~WhatmanObjectLayout()
-	{
-	}
+	WhatmanObjectLayout();
+	~WhatmanObjectLayout();
 protected:
-	virtual int Draw(TCanvas2 & rCanv)
-	{
-		TRect b = GetBounds();
-		const TWhatman * p_wtm = GetOwner();
-		int   tool = 0;
-		if(p_wtm) {
-			if(State & stContainerCandidate)
-				tool = p_wtm->GetTool(TWhatman::toolPenContainerCandidateBorder);
-			else {
-				// @v11.2.2 {
-				uint   cntr = 0;
-				TSArray <uintptr_t> recur_list;
-				for(const WhatmanObjectLayoutBase * p_par = p_wtm->GetParentLayoutObject(this); p_par; p_par = p_wtm->GetParentLayoutObject(p_par)) {
-					if(!recur_list.lsearch(&p_par, 0, PTR_CMPFUNC(uintptr_t))) {
-						recur_list.insert(&p_par);
-						cntr++;
-					}
-					else
-						break;
-				}
-				tool = p_wtm->GetTool((cntr & 1) ? TWhatman::toolPenLayoutOddBorder : TWhatman::toolPenLayoutEvenBorder);
-				// } @v11.2.2 
-				// @v11.2.2 tool = p_wtm->GetTool(TWhatman::toolPenLayoutBorder);
-			}
-		}
-		rCanv.Rect(b.grow(-1, -1), tool, 0);
-		return 1;
-	}
-	void Helper_SetupComplex(SetupByToolCmdBlock * pCb, const SUiLayout * pParentLo, WhatmanObjectLayout * pParentObj)
-	{
-		if(pCb && pParentLo) {
-			SString temp_buf;
-			for(uint ci = 0; ci < pParentLo->GetChildrenCount(); ci++) {
-				const SUiLayout * p_child_lo = pParentLo->GetChildC(ci);
-				if(p_child_lo) {
-					WhatmanObjectLayout * p_child_wo_item = static_cast<WhatmanObjectLayout *>(TWhatmanObject::CreateInstance("Layout"));
-					p_child_wo_item->SetContainerIdent(S_GUID(SCtrGenerate()).ToStr(S_GUID::fmtPlain|S_GUID::fmtLower, temp_buf));
-					p_child_wo_item->SetLayoutContainerIdent(pParentObj->GetContainerIdent());
-					p_child_wo_item->SetLayoutBlock(&p_child_lo->GetLayoutBlockC());
-					pCb->AfterInsertChain.insert(p_child_wo_item);
-					Helper_SetupComplex(pCb, p_child_lo, p_child_wo_item); // @recursion
-				}
-			}
-		}
-	}
-	virtual int HandleCommand(int cmd, void * pExt)
-	{
-		int    ok = -1;
-		switch(cmd) {
-			case cmdSetupByTool:
-				{
-					SetupByToolCmdBlock * p_cb = static_cast<SetupByToolCmdBlock *>(pExt);
-					const TWhatmanToolArray::Item * p_item = p_cb ? p_cb->P_ToolItem : 0;
-					if(p_item && p_item->P_Owner) {
-						uint32 complex_lo_type = 0;
-						if(p_item->ExtSize >= sizeof(uint32)) {
-							complex_lo_type = reinterpret_cast<const uint32 *>(p_item->ExtData)[0];
-							if(oneof3(complex_lo_type, SUiLayout::cmplxtInpLbl, SUiLayout::cmplxtInpLblBtn, SUiLayout::cmplxtInpLblBtn2)) {
-								uint   clf = 0;
-								//if(oneof2(complex_lo_type, SUiLayout::cmplxtInpLblBtn, SUiLayout::cmplxtInpLblBtn2))
-									//clf |= SUiLayout::clfLabelLeft;
-								SUiLayout * p_lo_ = SUiLayout::CreateComplexLayout(complex_lo_type, clf, 0.0f, 0);
-								if(p_lo_) {
-									SString temp_buf;
-									SetContainerIdent(S_GUID(SCtrGenerate()).ToStr(S_GUID::fmtPlain|S_GUID::fmtLower, temp_buf));
-									SetLayoutBlock(&p_lo_->GetLayoutBlockC());
-									Helper_SetupComplex(p_cb, p_lo_, this);
-									ZDELETE(p_lo_);
-								}
-							}
-						}
-						// @v11.2.2 {
-						// Если лейаут не имеет определенных размеров по обеим координатам, а инструмент 
-						// определяет начальный размер объекта, то устанавливаем для лейаута этот размер 
-						// (иначе при вставке в другой лейаут объект исчезнет с экрана и придется долго его искать)
-						if(p_item->FigSize.x > 0 && p_item->FigSize.y > 0) {
-							float _sx = 0.0f;
-							float _sy = 0x0f;
-							const SUiLayoutParam & r_lb = GetLayoutBlock();
-							int   szx = r_lb.GetSizeX(&_sx);
-							int   szy = r_lb.GetSizeX(&_sy);
-							if(szx == SUiLayoutParam::szUndef && szy == SUiLayoutParam::szUndef) {
-								SUiLayoutParam new_lb = GetLayoutBlock();
-								new_lb.SetFixedSizeX(p_item->FigSize.x);
-								new_lb.SetFixedSizeY(p_item->FigSize.y);
-								SetLayoutBlock(&new_lb);
-							}
-						}
-						// } @v11.2.2 
-						ok = 1;
-					}
-				}
-				break;
-			case cmdEditTool:
-				ok = BaseEditWhatmanToolItem(static_cast<TWhatmanToolArray::Item *>(pExt));
-				break;
-			case cmdEdit:
-				{
-					class WoLayoutDialog : public WhatmanObjectBaseDialog {
-						DECL_DIALOG_DATA(WhatmanObjectLayout);
-					public:
-						WoLayoutDialog() : WhatmanObjectBaseDialog(DLG_WOLAYOUT)
-						{
-						}
-						DECL_DIALOG_SETDTS()
-						{
-							int    ok = 1;
-							RVALUEPTR(Data, pData);
-							WhatmanObjectBaseDialog::setRef(&Data); // @v10.4.9
-							setCtrlString(CTL_WOLAYOUT_SYMB, Data.GetIdentSymb());
-							return ok;
-						}
-						DECL_DIALOG_GETDTS()
-						{
-							int    ok = 1;
-							uint   sel = 0;
-							SUiLayoutParam lb = Data.GetLayoutBlock();
-							SString ident_symb;
-							getCtrlString(sel = CTL_WOLAYOUT_SYMB, ident_symb);
-							const TWhatman * p_wtm = Data.GetOwner();
-							THROW_SL(!p_wtm || p_wtm->CheckUniqLayoutSymb(pData, ident_symb));
-							Data.SetIdentSymb(ident_symb);
-							WhatmanObjectBaseDialog::updateRef(&Data);
-							ASSIGN_PTR(pData, Data);
-							CATCH
-								ok = PPErrorByDialog(this, sel);
-							ENDCATCH
-							return ok;
-						}
-					};
-					WoLayoutDialog * dlg = new WoLayoutDialog();
-					if(CheckDialogPtrErr(&dlg)) {
-						dlg->setDTS(this);
-						while(ok < 0 && ExecView(dlg) == cmOK) {
-							if(dlg->getDTS(this)) {
-								ok = 1;
-							}
-						}
-					}
-					else
-						ok = 0;
-					delete dlg;
-				}
-				break;
-		}
-		return ok;
-	}
+	virtual int Draw(TCanvas2 & rCanv);
+	void   Helper_SetupComplex(SetupByToolCmdBlock * pCb, const SUiLayout * pParentLo, WhatmanObjectLayout * pParentObj);
+	virtual int HandleCommand(int cmd, void * pExt);
 };
+
+WhatmanObjectLayout::WhatmanObjectLayout() : WhatmanObjectLayoutBase()
+{
+	Options |= (oMovable|oResizable|oMultSelectable|oContainer);
+}
+	
+WhatmanObjectLayout::~WhatmanObjectLayout()
+{
+}
+
+/*virtual*/int WhatmanObjectLayout::Draw(TCanvas2 & rCanv)
+{
+	TRect b(GetBounds());
+	const TWhatman * p_wtm = GetOwner();
+	int   tool = 0;
+	if(p_wtm) {
+		if(State & stContainerCandidate)
+			tool = p_wtm->GetTool(TWhatman::toolPenContainerCandidateBorder);
+		else {
+			// @v11.2.2 {
+			uint   cntr = 0;
+			TSArray <uintptr_t> recur_list;
+			for(const WhatmanObjectLayoutBase * p_par = p_wtm->GetParentLayoutObject(this); p_par; p_par = p_wtm->GetParentLayoutObject(p_par)) {
+				if(!recur_list.lsearch(&p_par, 0, PTR_CMPFUNC(uintptr_t))) {
+					recur_list.insert(&p_par);
+					cntr++;
+				}
+				else
+					break;
+			}
+			tool = p_wtm->GetTool((cntr & 1) ? TWhatman::toolPenLayoutOddBorder : TWhatman::toolPenLayoutEvenBorder);
+			// } @v11.2.2 
+			// @v11.2.2 tool = p_wtm->GetTool(TWhatman::toolPenLayoutBorder);
+		}
+	}
+	rCanv.Rect(b.grow(-1, -1), tool, 0);
+	return 1;
+}
+
+void WhatmanObjectLayout::Helper_SetupComplex(SetupByToolCmdBlock * pCb, const SUiLayout * pParentLo, WhatmanObjectLayout * pParentObj)
+{
+	if(pCb && pParentLo) {
+		SString temp_buf;
+		for(uint ci = 0; ci < pParentLo->GetChildrenCount(); ci++) {
+			const SUiLayout * p_child_lo = pParentLo->GetChildC(ci);
+			if(p_child_lo) {
+				WhatmanObjectLayout * p_child_wo_item = static_cast<WhatmanObjectLayout *>(TWhatmanObject::CreateInstance("Layout"));
+				p_child_wo_item->SetContainerIdent(S_GUID(SCtrGenerate()).ToStr(S_GUID::fmtPlain|S_GUID::fmtLower, temp_buf));
+				p_child_wo_item->SetLayoutContainerIdent(pParentObj->GetContainerIdent());
+				p_child_wo_item->SetLayoutBlock(&p_child_lo->GetLayoutBlockC());
+				pCb->AfterInsertChain.insert(p_child_wo_item);
+				Helper_SetupComplex(pCb, p_child_lo, p_child_wo_item); // @recursion
+			}
+		}
+	}
+}
+
+/*virtual*/int WhatmanObjectLayout::HandleCommand(int cmd, void * pExt)
+{
+	int    ok = -1;
+	switch(cmd) {
+		case cmdSetupByTool:
+			{
+				SetupByToolCmdBlock * p_cb = static_cast<SetupByToolCmdBlock *>(pExt);
+				const TWhatmanToolArray::Item * p_item = p_cb ? p_cb->P_ToolItem : 0;
+				if(p_item && p_item->P_Owner) {
+					uint32 complex_lo_type = 0;
+					if(p_item->ExtSize >= sizeof(uint32)) {
+						complex_lo_type = reinterpret_cast<const uint32 *>(p_item->ExtData)[0];
+						if(oneof3(complex_lo_type, SUiLayout::cmplxtInpLbl, SUiLayout::cmplxtInpLblBtn, SUiLayout::cmplxtInpLblBtn2)) {
+							uint   clf = 0;
+							//if(oneof2(complex_lo_type, SUiLayout::cmplxtInpLblBtn, SUiLayout::cmplxtInpLblBtn2))
+								//clf |= SUiLayout::clfLabelLeft;
+							SUiLayout * p_lo_ = SUiLayout::CreateComplexLayout(complex_lo_type, clf, 0.0f, 0);
+							if(p_lo_) {
+								SString temp_buf;
+								SetContainerIdent(S_GUID(SCtrGenerate()).ToStr(S_GUID::fmtPlain|S_GUID::fmtLower, temp_buf));
+								SetLayoutBlock(&p_lo_->GetLayoutBlockC());
+								Helper_SetupComplex(p_cb, p_lo_, this);
+								ZDELETE(p_lo_);
+							}
+						}
+					}
+					// @v11.2.2 {
+					// Если лейаут не имеет определенных размеров по обеим координатам, а инструмент 
+					// определяет начальный размер объекта, то устанавливаем для лейаута этот размер 
+					// (иначе при вставке в другой лейаут объект исчезнет с экрана и придется долго его искать)
+					if(p_item->FigSize.x > 0 && p_item->FigSize.y > 0) {
+						float _sx = 0.0f;
+						float _sy = 0x0f;
+						const SUiLayoutParam & r_lb = GetLayoutBlock();
+						int   szx = r_lb.GetSizeX(&_sx);
+						int   szy = r_lb.GetSizeX(&_sy);
+						if(szx == SUiLayoutParam::szUndef && szy == SUiLayoutParam::szUndef) {
+							SUiLayoutParam new_lb = GetLayoutBlock();
+							new_lb.SetFixedSizeX(p_item->FigSize.x);
+							new_lb.SetFixedSizeY(p_item->FigSize.y);
+							SetLayoutBlock(&new_lb);
+						}
+					}
+					// } @v11.2.2 
+					ok = 1;
+				}
+			}
+			break;
+		case cmdEditTool:
+			ok = BaseEditWhatmanToolItem(static_cast<TWhatmanToolArray::Item *>(pExt));
+			break;
+		case cmdEdit:
+			{
+				class WoLayoutDialog : public WhatmanObjectBaseDialog {
+					DECL_DIALOG_DATA(WhatmanObjectLayout);
+				public:
+					WoLayoutDialog() : WhatmanObjectBaseDialog(DLG_WOLAYOUT)
+					{
+					}
+					DECL_DIALOG_SETDTS()
+					{
+						int    ok = 1;
+						RVALUEPTR(Data, pData);
+						WhatmanObjectBaseDialog::setRef(&Data);
+						setCtrlString(CTL_WOLAYOUT_SYMB, Data.GetIdentSymb());
+						// @v12.5.3 {
+						{
+							long   flags = 0;
+							SETFLAG(flags, TWhatmanObject::stHidden, Data.HasState(TWhatmanObject::stHidden));
+							AddClusterAssoc(CTL_WOLAYOUT_FLAGS, 0, TWhatmanObject::stHidden);
+							SetClusterData(CTL_WOLAYOUT_FLAGS, flags);
+						}
+						// } @v12.5.3 
+						return ok;
+					}
+					DECL_DIALOG_GETDTS()
+					{
+						int    ok = 1;
+						uint   sel = 0;
+						SUiLayoutParam lb = Data.GetLayoutBlock();
+						SString ident_symb;
+						getCtrlString(sel = CTL_WOLAYOUT_SYMB, ident_symb);
+						const TWhatman * p_wtm = Data.GetOwner();
+						THROW_SL(!p_wtm || p_wtm->CheckUniqLayoutSymb(pData, ident_symb));
+						Data.SetIdentSymb(ident_symb);
+						// @v12.5.3 {
+						{
+							long   flags = 0;
+							GetClusterData(CTL_WOLAYOUT_FLAGS, &flags);
+							Data.SetHiddenState(LOGIC(flags & TWhatmanObject::stHidden));
+						}
+						// } @v12.5.3 
+						WhatmanObjectBaseDialog::updateRef(&Data);
+						ASSIGN_PTR(pData, Data);
+						CATCH
+							ok = PPErrorByDialog(this, sel);
+						ENDCATCH
+						return ok;
+					}
+				};
+				WoLayoutDialog * dlg = new WoLayoutDialog();
+				if(CheckDialogPtrErr(&dlg)) {
+					dlg->setDTS(this);
+					while(ok < 0 && ExecView(dlg) == cmOK) {
+						if(dlg->getDTS(this)) {
+							ok = 1;
+						}
+					}
+				}
+				else
+					ok = 0;
+				delete dlg;
+			}
+			break;
+	}
+	return ok;
+}
 
 IMPLEMENT_WTMOBJ_FACTORY(Layout, "@wtmo_layout");
 
@@ -1160,10 +1185,10 @@ int WhatmanObjectProcessor::HandleCommand(int cmd, void * pExt)
 		WhatmanObjectBaseDialog * dlg = new WhatmanObjectBaseDialog(DLG_WOPRC);
 		if(CheckDialogPtrErr(&dlg)) {
 			SetupPPObjCombo(dlg, CTLSEL_WOPRC_PRC, PPOBJ_PROCESSOR, PrcID, OLW_CANINSERT, 0);
-			dlg->setRef(this); // @v10.4.9
+			dlg->setRef(this);
 			if(ExecView(dlg) == cmOK) {
 				SetPrc(dlg->getCtrlLong(CTLSEL_WOPRC_PRC));
-				dlg->updateRef(this); // @v10.4.9
+				dlg->updateRef(this);
 				ok = 1;
 			}
 		}
@@ -1367,11 +1392,11 @@ int WhatmanObjectBarcode::HandleCommand(int cmd, void * pExt)
 	if(cmd == cmdEdit) {
 		WoBarcodeParamDialog * dlg = new WoBarcodeParamDialog();
 		if(CheckDialogPtrErr(&dlg)) {
-			dlg->setRef(this); // @v10.4.9
+			dlg->setRef(this);
 			dlg->setDTS(&P);
 			if(ExecView(dlg) == cmOK) {
 				if(dlg->getDTS(&P)) {
-					dlg->updateRef(this); // @v10.4.9
+					dlg->updateRef(this);
 					ok = 1;
 				}
 			}
@@ -1527,10 +1552,10 @@ int WhatmanObjectCafeTable::HandleCommand(int cmd, void * pExt)
 	if(cmd == cmdEdit) {
 		WhatmanObjectBaseDialog * dlg = new WhatmanObjectBaseDialog(DLG_WOCAFETBL);
 		if(CheckDialogPtrErr(&dlg)) {
-			dlg->setRef(this); // @v10.4.9
+			dlg->setRef(this);
 			dlg->setCtrlLong(CTL_WOCAFETBL_N, TableNo);
 			if(ExecView(dlg) == cmOK) {
-				dlg->updateRef(this); // @v10.4.9
+				dlg->updateRef(this);
 				TableNo = dlg->getCtrlLong(CTL_WOCAFETBL_N);
 				ok = 1;
 			}
@@ -1671,10 +1696,7 @@ PPWhatmanWindow::ResizeState::~ResizeState()
 	delete P_MovedObjCopy;
 }
 
-int PPWhatmanWindow::ResizeState::operator ! () const
-{
-	return (Kind == kNone);
-}
+bool PPWhatmanWindow::ResizeState::operator ! () const { return (Kind == kNone); }
 
 void PPWhatmanWindow::ResizeState::Reset()
 {
@@ -1970,10 +1992,10 @@ PPWhatmanWindow::PPWhatmanWindow(int mode) : TWindowBase(_T("SLibWindowBase"), w
 
 	Tb.CreatePen(penGrid, SPaintObj::psDash, 1.0f, SColor(0.7f));
 	Tb.CreatePen(penSubGrid, SPaintObj::psDot, 1.0f, SColor(0.7f));
-	Tb.CreatePen(penLayoutBorder, SPaintObj::psDot, 2.0f, SColor(SClrDarkgreen)); // @v10.4.8 // @v10.9.6 1.0f-->2.0f, SClrGreen-->SClrDarkgreen
+	Tb.CreatePen(penLayoutBorder, SPaintObj::psDot, 2.0f, SColor(SClrDarkgreen));
 	Tb.CreatePen(penLayoutEvenBorder, SPaintObj::psSolid, 2.0f, SColor(0xC3, 0xDC, 0xE6)); // @v11.2.2 рамки лейаутов четного уровня 
 	Tb.CreatePen(penLayoutOddBorder, SPaintObj::psSolid, 2.0f, SColor(0xB8, 0xBE, 0xFD)); // @v11.2.2 рамки лейаутов нечетного уровня 
-	Tb.CreatePen(penContainerCandidateBorder, SPaintObj::psSolid, 2.0f, SColor(SClrCoral)); // @v10.9.6
+	Tb.CreatePen(penContainerCandidateBorder, SPaintObj::psSolid, 2.0f, SColor(SClrCoral));
 
 	W.SetTool(TWhatman::toolPenObjBorder, penObjBorder);
 	W.SetTool(TWhatman::toolPenObjBorderSel, penObjBorderSel);
@@ -1985,10 +2007,10 @@ PPWhatmanWindow::PPWhatmanWindow(int mode) : TWindowBase(_T("SLibWindowBase"), w
 	W.SetTool(TWhatman::toolBrushRule, brRule);
 	W.SetTool(TWhatman::toolPenGrid, penGrid);
 	W.SetTool(TWhatman::toolPenSubGrid, penSubGrid);
-	W.SetTool(TWhatman::toolPenLayoutBorder, penLayoutBorder); // @v10.4.8
+	W.SetTool(TWhatman::toolPenLayoutBorder, penLayoutBorder);
 	W.SetTool(TWhatman::toolPenLayoutEvenBorder, penLayoutEvenBorder); // @v11.2.2
 	W.SetTool(TWhatman::toolPenLayoutOddBorder, penLayoutOddBorder); // @v11.2.2
-	W.SetTool(TWhatman::toolPenContainerCandidateBorder, penContainerCandidateBorder); // @v10.4.8
+	W.SetTool(TWhatman::toolPenContainerCandidateBorder, penContainerCandidateBorder);
 	if(St.Mode == modeToolbox) {
 		TWhatmanToolArray::Param param;
 		Tools.GetParam(param);
@@ -2032,7 +2054,7 @@ int PPWhatmanWindow::AddObject(TWhatmanObject * pObj, const TRect * pBounds)
 int PPWhatmanWindow::ArrangeObjects(const LongArray * pObjPosList, TArrangeParam & rParam, SScroller * pScrlr)
 {
 	int    ok = 1;
-	W.ArrangeObjects2(pObjPosList, rParam, pScrlr); // @v10.9.3 ArrangeObjects-->ArrangeObjects2
+	W.ArrangeObjects2(pObjPosList, rParam, pScrlr);
 	return ok;
 }
 
@@ -2860,7 +2882,7 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 						}
 					}
 					break;
-				case MouseEvent::tWeel: // @v10.5.9 @todo все равно плохо работает. Надо поработать над скроллингом в этом окне вообще
+				case MouseEvent::tWeel: // @todo все равно плохо работает. Надо поработать над скроллингом в этом окне вообще
 					{
 						int r = 0;
 						if(p_me->WeelDelta < 0)

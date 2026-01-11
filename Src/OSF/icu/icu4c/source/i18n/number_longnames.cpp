@@ -7,7 +7,7 @@
 #if !UCONFIG_NO_FORMATTING
 
 #include "ureslocs.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "measunit_impl.h"
 #include "number_longnames.h"
 #include "number_microprops.h"

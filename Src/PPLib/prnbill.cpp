@@ -1,5 +1,5 @@
 // PRNBILL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -35,13 +35,13 @@ public:
 		RVALUEPTR(Data, pData);
 		setCtrlUInt16(CTL_PRNGBILL_WHAT, static_cast<uint16>(Data.FormBits));
 		for(uint i = 0; i < BillMultiPrintParam::pb__Count; i++) {
-			const uint spin_ctl = CTL_PRNGBILL_SPIN+i;
-			const uint copy_ctl = CTL_PRNGBILL_NUMCOPIES+i;
-			long   num_copies = NZOR(Data.CopyCounter[i], 1);
-			long   checked    = (Data.FormBits & (1 << i));
+			const  uint spin_ctl = CTL_PRNGBILL_SPIN+i;
+			const  uint copy_ctl = CTL_PRNGBILL_NUMCOPIES+i;
+			const  long num_copies = NZOR(Data.CopyCounter[i], 1);
+			const  bool checked    = LOGIC(Data.FormBits & (1 << i));
 			SetupSpin(spin_ctl, copy_ctl, 1, 10, num_copies);
-			EnableWindow(GetDlgItem(H(), spin_ctl), BIN(checked));
-			EnableWindow(GetDlgItem(H(), copy_ctl), BIN(checked));
+			EnableWindow(GetDlgItem(H(), spin_ctl), checked);
+			EnableWindow(GetDlgItem(H(), copy_ctl), checked);
 		}
 		AddClusterAssoc(CTL_PRNGBILL_FLAGS, 0, BillMultiPrintParam::fMakeOutCopies);
 		AddClusterAssoc(CTL_PRNGBILL_FLAGS, 1, BillMultiPrintParam::fUpdatedPricesOnly);

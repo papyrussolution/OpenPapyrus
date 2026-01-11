@@ -179,7 +179,7 @@ bool FASTCALL PPWorkbookPacket::IsEq(const PPWorkbookPacket & rS) const
 
 void PPWorkbookPacket::destroy()
 {
-	MEMSZERO(Rec);
+	Rec.Clear();
 	TagL.Z();
 	F.Clear();
 	ExtString.Z();

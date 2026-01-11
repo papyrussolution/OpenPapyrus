@@ -78,9 +78,9 @@ Acct & Acct::Z()
 
 static int delim(long format)
 {
-	if(format & ACCF_DELDOT)   return '.';
+	if(format & ACCF_DELDOT) return '.';
 	if(format & ACCF_DELSPACE) return ' ';
-	if(format & ACCF_DELHYP)   return '-';
+	if(format & ACCF_DELHYP) return '-';
 	return 0;
 }
 

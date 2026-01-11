@@ -304,7 +304,7 @@
 #undef _WIN32_WINNT
 #endif
 #ifndef _WIN32_WINNT
-#    if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 #      define _WIN32_WINNT 0x0600
 #endif
 #endif
@@ -320,7 +320,7 @@
 #ifndef HB_NO_GETENV
 #      define HB_NO_GETENV
 #endif
-#    if _WIN32_WCE < 0x800
+#if _WIN32_WCE < 0x800
 #      define HB_NO_SETLOCALE
 #      define HB_NO_ERRNO
 #endif
@@ -349,7 +349,7 @@
  * platforms.  Whitelist.
  * https://bugs.freedesktop.org/show_bug.cgi?id=82246 */
 #if defined(__linux) && defined(__GLIBC_PREREQ)
-#    if __GLIBC_PREREQ(2, 3)
+#if __GLIBC_PREREQ(2, 3)
 /* From atexit() manpage, it's safe with glibc 2.2.3 on Linux. */
 #      define HB_USE_ATEXIT 1
 #endif

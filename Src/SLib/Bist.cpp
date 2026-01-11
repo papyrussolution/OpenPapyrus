@@ -1,5 +1,5 @@
 // BIST.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // @threadsafe
 // Реализация стандартных типов данных семейства SType
@@ -1649,8 +1649,10 @@ int SDateTime::fromstr(void * v, long f, const char * b) const
 	int    ret = 0;
 	const  char * s = sstrchr(b, ' ');
 	LDATETIME * ldt = static_cast<LDATETIME *>(v);
-	if(!s++) // @todo V769 The 's' pointer in the 's ++' expression could be nullptr. In such case, resulting value will be senseless and it should not be used. Bist.cpp 1406
-		ret = SLERR_INVFORMAT;
+	if(!s++) { // @todo V769 The 's' pointer in the 's ++' expression could be nullptr. In such case, resulting value will be senseless and it should not be used. Bist.cpp 1406
+		SLS.SetError(SLERR_INVDATTIMEFORMAT, b); // @v12.5.3
+		ret = SLERR_INVDATTIMEFORMAT; 
+	}
 	else {
 		ret = strtodate(b, f, &ldt->d);
 		SETIFZ(ret, strtotime(s, f, &ldt->t));

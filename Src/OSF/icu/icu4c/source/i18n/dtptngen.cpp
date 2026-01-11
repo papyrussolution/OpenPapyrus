@@ -12,7 +12,7 @@
 #include "unicode/region.h"
 #include "cpputils.h"
 #include "locbased.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "dtptngen_impl.h"
 #include "ucln_in.h"
 

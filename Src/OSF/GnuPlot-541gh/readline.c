@@ -1313,9 +1313,9 @@ static void set_termio()
 #ifdef TERMIOS
 #ifdef TCGETS
 		ioctl(0, TCGETS, &orig_termio);
-#    else                       /* not TCGETS */
+#else                       /* not TCGETS */
 		tcgetattr(0, &orig_termio);
-#    endif                      /* not TCGETS */
+#endif                      /* not TCGETS */
 #   else                        /* not TERMIOS */
 		ioctl(0, TCGETA, &orig_termio);
 #endif                  /* TERMIOS */
@@ -1368,11 +1368,11 @@ static void set_termio()
 		term_chars[VWERASE] = orig_termio.c_cc[VWERASE];
 #ifdef VREPRINT
 		term_chars[VREPRINT] = orig_termio.c_cc[VREPRINT];
-#    else                       /* not VREPRINT */
+#else                       /* not VREPRINT */
 #ifdef VRPRNT
 		term_chars[VRPRNT] = orig_termio.c_cc[VRPRNT];
 #endif                     /* VRPRNT */
-#    endif                      /* not VREPRINT */
+#endif                      /* not VREPRINT */
 		term_chars[VSUSP] = orig_termio.c_cc[VSUSP];
 
 		/* disable suspending process on ^Z */
@@ -1389,9 +1389,9 @@ static void set_termio()
 #ifdef TERMIOS
 #ifdef TCSETSW
 		ioctl(0, TCSETSW, &rl_termio);
-#    else                       /* not TCSETSW */
+#else                       /* not TCSETSW */
 		tcsetattr(0, TCSADRAIN, &rl_termio);
-#    endif                      /* not TCSETSW */
+#endif                      /* not TCSETSW */
 #   else                        /* not TERMIOS */
 		ioctl(0, TCSETAW, &rl_termio);
 #endif                  /* not TERMIOS */
@@ -1417,9 +1417,9 @@ static void reset_termio()
 #ifdef TERMIOS
 #ifdef TCSETSW
 		ioctl(0, TCSETSW, &orig_termio);
-#    else                       /* not TCSETSW */
+#else                       /* not TCSETSW */
 		tcsetattr(0, TCSADRAIN, &orig_termio);
-#    endif                      /* not TCSETSW */
+#endif                      /* not TCSETSW */
 #   else                        /* not TERMIOS */
 		ioctl(0, TCSETAW, &orig_termio);
 #endif                  /* TERMIOS */

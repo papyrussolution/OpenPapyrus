@@ -484,9 +484,9 @@ MEM_STATIC void ZSTD_cwksp_clean_tables(ZSTD_cwksp* ws)
  * Invalidates table allocations.
  * All other allocations remain valid.
  */
-MEM_STATIC void ZSTD_cwksp_clear_tables(ZSTD_cwksp* ws) {
+MEM_STATIC void ZSTD_cwksp_clear_tables(ZSTD_cwksp* ws) 
+{
 	DEBUGLOG(4, "cwksp: clearing tables!");
-
 #if ZSTD_ADDRESS_SANITIZER && !defined (ZSTD_ASAN_DONT_POISON_WORKSPACE)
 	/* We don't do this when the workspace is statically allocated, because
 	 * when that is the case, we have no capability to hook into the end of the
@@ -497,7 +497,6 @@ MEM_STATIC void ZSTD_cwksp_clear_tables(ZSTD_cwksp* ws) {
 		__asan_poison_memory_region(ws->objectEnd, size);
 	}
 #endif
-
 	ws->tableEnd = ws->objectEnd;
 	ZSTD_cwksp_assert_internal_consistency(ws);
 }
@@ -506,9 +505,9 @@ MEM_STATIC void ZSTD_cwksp_clear_tables(ZSTD_cwksp* ws) {
  * Invalidates all buffer, aligned, and table allocations.
  * Object allocations remain valid.
  */
-MEM_STATIC void ZSTD_cwksp_clear(ZSTD_cwksp* ws) {
+MEM_STATIC void ZSTD_cwksp_clear(ZSTD_cwksp* ws) 
+{
 	DEBUGLOG(4, "cwksp: clearing!");
-
 #if ZSTD_MEMORY_SANITIZER && !defined (ZSTD_MSAN_DONT_POISON_WORKSPACE)
 	/* To validate that the context re-use logic is sound, and that we don't
 	 * access stuff that this compression hasn't initialized, we re-"poison"
@@ -519,7 +518,6 @@ MEM_STATIC void ZSTD_cwksp_clear(ZSTD_cwksp* ws) {
 		__msan_poison(ws->tableValidEnd, size);
 	}
 #endif
-
 #if ZSTD_ADDRESS_SANITIZER && !defined (ZSTD_ASAN_DONT_POISON_WORKSPACE)
 	/* We don't do this when the workspace is statically allocated, because
 	 * when that is the case, we have no capability to hook into the end of the
@@ -530,7 +528,6 @@ MEM_STATIC void ZSTD_cwksp_clear(ZSTD_cwksp* ws) {
 		__asan_poison_memory_region(ws->objectEnd, size);
 	}
 #endif
-
 	ws->tableEnd = ws->objectEnd;
 	ws->allocStart = ws->workspaceEnd;
 	ws->allocFailed = 0;

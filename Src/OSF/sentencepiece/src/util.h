@@ -297,7 +297,7 @@ public:
 	}
 
 	void Add(const T &item) {
-		if(size_ == 0)  return;
+		if(size_ == 0) return;
 
 		++total_;
 		if(sampled_->size() < size_) {

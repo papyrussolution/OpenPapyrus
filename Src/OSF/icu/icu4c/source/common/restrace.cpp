@@ -9,7 +9,7 @@
 
 #include "restrace.h"
 #include "utracimp.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "util.h"
 
 U_NAMESPACE_BEGIN ResourceTracer::~ResourceTracer() = default;

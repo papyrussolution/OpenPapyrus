@@ -535,10 +535,7 @@ int TextDbFile::AppendHeader(const SdRecord & rRec, const void * pDataBuf)
 	return ok;
 }
 
-const char * TextDbFile::GetFileName() const
-{
-	return F.GetName();
-}
+const char * TextDbFile::GetFileName() const { return F.GetName(); }
 //
 // TEST
 //
@@ -591,7 +588,7 @@ int TestTextDbFile(const char * pInDbfFile)
 	DbfTable db_tbl(pInDbfFile);
 	char   file_name[MAX_PATH];
 	SdRecord rec;
-	THROW(db_tbl.isOpened());
+	THROW(db_tbl.IsOpen());
 	THROW(CreateSdbRecFromDbfTable(&db_tbl, &rec));
 	THROW(rec.AllocDataBuf());
 	//

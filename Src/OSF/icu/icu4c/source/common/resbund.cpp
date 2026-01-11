@@ -33,7 +33,7 @@
 // 
 #include <icu-internal.h>
 #pragma hdrstop
-#include "uresimp.h"
+//#include "uresimp.h"
 
 U_NAMESPACE_BEGIN
 /*-----------------------------------------------------------------------------

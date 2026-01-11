@@ -14,7 +14,7 @@
 #include "tzgnames.h"
 #include "ucln_in.h"
 #include "ulocimp.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "ureslocs.h"
 #include "zonemeta.h"
 #include "tznames_impl.h"   // TextTrieMap

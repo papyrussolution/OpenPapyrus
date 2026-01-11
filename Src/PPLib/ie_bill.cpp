@@ -3061,6 +3061,8 @@ int PPBillImporter::ReadData()
 		int    obj_id = 0;
 		int    sess_id = 0;
 		Sdr_BRow brow;
+		SString ordresp_cmd;
+		SString desadv_cmd;
 		BillParam.ImpExpParamDll.FileName = BillParam.FileName;
 		THROW_SL(imp_dll.InitLibrary(BillParam.ImpExpParamDll.DllPath, 2));
 		Sdr_ImpExpHeader hdr;
@@ -3083,7 +3085,8 @@ int PPBillImporter::ReadData()
 			imp_dll.ReplyImportObjStatus(sess_id, obj_id, &imp_obj_stat);
 			if(imp_obj_stat.DocStatus == statIsSuchDoc) {
 				int    edi_op = 0;
-				SString ordresp_cmd, desadv_cmd;
+				ordresp_cmd.Z();
+				desadv_cmd.Z();
 				THROW(PPLoadString(PPSTR_IMPEXPCMD, IMPEXPCMD_ORDRSP, ordresp_cmd));
 				THROW(PPLoadString(PPSTR_IMPEXPCMD, IMPEXPCMD_DESADV, desadv_cmd));
 				if(BillParam.ImpExpParamDll.OperType.IsEqiAscii("ALCODESADV"))
@@ -3220,7 +3223,7 @@ int PPBillImporter::ReadData()
 					ps.Split(filename);
 					ps.Merge(SFsPath::fNam|SFsPath::fExt, fn_for_hash);
 					fn_for_hash.Strip().ToLower();
-					LDATE last_date = ZERODATE;
+					LDATE  last_date = ZERODATE;
 					SString last_code;
 					SString bill_code;
 					SString last_ident;
@@ -3231,8 +3234,8 @@ int PPBillImporter::ReadData()
 						Sdr_BRow & r_row = BillsRows.at(ln);
 						(bill_ident = r_row.BillID).Strip();
 						(bill_code = r_row.BillCode).Strip();
-						const SString org_bill_ident = bill_ident;
-						const SString org_bill_code = bill_code;
+						const SString org_bill_ident(bill_ident);
+						const SString org_bill_code(bill_code);
 						const bool is_new_bill = (r_row.BillDate != last_date || last_code != org_bill_code || last_ident != org_bill_ident);
 						if(is_new_bill)
 							cc_++;

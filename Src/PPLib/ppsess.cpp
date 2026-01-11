@@ -1,5 +1,5 @@
 // PPSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Модуль управления системным процессом и потоками Papyrus
 //
@@ -1059,10 +1059,7 @@ __PPThrLocPtr::__PPThrLocPtr() : Idx(TlpC.Incr())
 {
 }
 
-int __PPThrLocPtr::IsOpened()
-{
-	return BIN(DS.GetTLA().GetPtrNonIncrement(Idx));
-}
+bool __PPThrLocPtr::IsOpen() { return LOGIC(DS.GetTLA().GetPtrNonIncrement(Idx)); }
 
 void * FASTCALL __PPThrLocPtr::Helper_Open(SClassWrapper & cw)
 {
@@ -2503,6 +2500,12 @@ int PPSession::Init(long internalAppId, long flags, HINSTANCE hInst, const char 
 			UiToolBox_.CreatePen(TProgram::tbiButtonPen+TProgram::tbisFocus,   SPaintObj::psSolid, 1, UiDescription::GetColorR(p_uid, p_cs, "button_focus_border", SClrOrange));
 			UiToolBox_.CreatePen(TProgram::tbiButtonPen+TProgram::tbisSelect,  SPaintObj::psSolid, 1, UiDescription::GetColorR(p_uid, p_cs, "button_sel_border", SClrOrange));
 			UiToolBox_.CreatePen(TProgram::tbiButtonPen+TProgram::tbisDisable, SPaintObj::psSolid, 1, UiDescription::GetColorR(p_uid, p_cs, "button_disabled_border", SColor(SClrWhite)));
+			// @v12.5.3 {
+			{
+				UiToolBox_.CreateColor(TProgram::tbiDialogBkgColor, UiDescription::GetColorR(p_uid, p_cs, "dialog_bg", SColor(0xF0, 0xF0, 0xF0))); 
+				UiToolBox_.SetBrush(TProgram::tbiDialogBkgBrush, SPaintObj::bsSolid, UiToolBox_.GetColor(TProgram::tbiDialogBkgColor), 0);
+			}
+			// } @v12.5.3 
 			UiToolBox_.SetBrush(TProgram::tbiButtonBrush_F, SPaintObj::bsSolid, SColor(0xDC, 0xD9, 0xD1), 0);
 			UiToolBox_.SetBrush(TProgram::tbiButtonBrush_F+TProgram::tbisSelect, SPaintObj::bsSolid, SColor(0xBA, 0xBA, 0xC9), 0);
 			UiToolBox_.SetPen(TProgram::tbiButtonPen_F, SPaintObj::psSolid, 1, SColor(0x47, 0x47, 0x3D));
@@ -4489,6 +4492,14 @@ int PPSession::PPLogin(const char * pDbSymb, const char * pUserName, const char 
 						r_cc.Flags2 &= ~CCFLG2_FORCE_CRR32_SUPPORT_SERVER;
 				}
 				// } @v12.4.1 
+				// @v12.5.3 {
+				{
+					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_FORCE_IMPEXP_EXCEL_OLEAUTO, &(iv = 0)) > 0 && iv == 1)
+						r_cc.Flags2 |= CCFLG2_FORCE_IMPEXP_EXCEL_OLEAUTO;
+					else
+						r_cc.Flags2 &= ~CCFLG2_FORCE_IMPEXP_EXCEL_OLEAUTO;
+				}
+				// } @v12.5.3 
 				{
 					//#define CCFLG2_HIDEINVENTORYSTOCK  0x00010000L // @v10.9.12 Флаг, предписывающий скрывать значения учетных остатков
 						// инициируются по параметру в pp.ini [config] PPINIPARAM_INVENTORYSTOCKVIEWRESTRICTION

@@ -278,7 +278,7 @@ int DBTable::Btr_Implement_Search(int idx, void * pKey, int srchMode, long sf)
 		if(nwl_try_n && r_dbcfg.NWaitLockTryTimeout > 0) {
 			SDelay(r_dbcfg.NWaitLockTryTimeout);
 		}
-		_err = BTRV(op, FPB, p_buf, (uint16 *)&RetBufSize, (char *)pKey, WBTRVTAIL);
+		_err = BTRV(op, FPB, p_buf, reinterpret_cast<uint16 *>(&RetBufSize), (char *)pKey, WBTRVTAIL);
 	} while(_err == BE_RECLOCK && ++nwl_try_n < r_dbcfg.NWaitLockTries);
 	if(_err == BE_RECLOCK) {
 		SString msg_buf;

@@ -55,13 +55,18 @@ bool STDCALL SIntToSymbTab_HasSymb(const SIntToSymbTabEntry * pTab, size_t tabSi
 
 int STDCALL SIntToSymbTab_GetId(const SIntToSymbTabEntry * pTab, size_t tabSize, const char * pSymb)
 {
+	return SIntToSymbTab_GetId_Errv(pTab, tabSize, pSymb, 0);
+}
+
+int STDCALL SIntToSymbTab_GetId_Errv(const SIntToSymbTabEntry * pTab, size_t tabSize, const char * pSymb, int errValue)
+{
 	if(!isempty(pSymb)) {
 		for(uint i = 0; i < tabSize; i++) {
 			if(sstreqi_ascii(pSymb, pTab[i].P_Symb))
 				return pTab[i].Id;
 		}
 	}
-	return 0;
+	return errValue;
 }
 
 #if 0 // (moved to sformat.cpp as static) {

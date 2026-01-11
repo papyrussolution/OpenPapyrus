@@ -1,5 +1,5 @@
 // RFLDCORR.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -258,7 +258,8 @@ int SdFieldCorrListDialog::setupList()
 	uint   offs = 0;
 	SString sub;
 	StringSet ss(SLBColumnDelim);
-	SdbField fld, inner_fld;
+	SdbField fld;
+	SdbField inner_fld;
 	for(uint i = 0; ok && Data.EnumFields(&i, &fld);) {
 		ss.Z();
 		sub.Z();
@@ -457,10 +458,10 @@ int EditXmlDbFileParam(/*XmlDbFile::Param * pData*/PPImpExpParam * pIeParam)
 //
 //
 //
-int EditXlsDbFileParam(ExcelDbFile::Param * pData)
+int EditXlsDbFileParam(ExcelIoParam * pData)
 {
 	class XlsDbFileParamDialog : public TDialog {
-		DECL_DIALOG_DATA(ExcelDbFile::Param);
+		DECL_DIALOG_DATA(ExcelIoParam);
 	public:
 		XlsDbFileParamDialog() : TDialog(DLG_XLSDBPARAM)
 		{
@@ -468,13 +469,13 @@ int EditXlsDbFileParam(ExcelDbFile::Param * pData)
 		DECL_DIALOG_SETDTS()
 		{
 			RVALUEPTR(Data, pData);
-			AddClusterAssoc(CTL_XLSDBPARAM_FLAGS, 0, ExcelDbFile::fFldNameRec);
-			AddClusterAssoc(CTL_XLSDBPARAM_FLAGS, 1, ExcelDbFile::fQuotText);
-			AddClusterAssoc(CTL_XLSDBPARAM_FLAGS, 2, ExcelDbFile::fOneRecPerFile);
+			AddClusterAssoc(CTL_XLSDBPARAM_FLAGS, 0, ExcelIoParam::fFldNameRec);
+			AddClusterAssoc(CTL_XLSDBPARAM_FLAGS, 1, ExcelIoParam::fQuotText);
+			AddClusterAssoc(CTL_XLSDBPARAM_FLAGS, 2, ExcelIoParam::fOneRecPerFile);
 			SetClusterData(CTL_XLSDBPARAM_FLAGS, Data.Flags);
 			AddClusterAssocDef(CTL_XLSDBPARAM_ORIENT,  0, 0);
-			AddClusterAssoc(CTL_XLSDBPARAM_ORIENT,  1, ExcelDbFile::fVerticalRec);
-			SetClusterData(CTL_XLSDBPARAM_ORIENT, Data.Flags & ExcelDbFile::fVerticalRec);
+			AddClusterAssoc(CTL_XLSDBPARAM_ORIENT,  1, ExcelIoParam::fVerticalRec);
+			SetClusterData(CTL_XLSDBPARAM_ORIENT, Data.Flags & ExcelIoParam::fVerticalRec);
 			setCtrlData(CTL_XLSDBPARAM_HDRCOUNT, &Data.HdrLinesCount);
 			setCtrlData(CTL_XLSDBPARAM_COLCOUNT, &Data.ColumnsCount);
 			setCtrlData(CTL_XLSDBPARAM_SHEETNUM, &Data.SheetNum);
@@ -487,7 +488,7 @@ int EditXlsDbFileParam(ExcelDbFile::Param * pData)
 			long   orient = 0;
 			GetClusterData(CTL_XLSDBPARAM_FLAGS,  &Data.Flags);
 			GetClusterData(CTL_XLSDBPARAM_ORIENT, &orient);
-			SETFLAG(Data.Flags, ExcelDbFile::fVerticalRec, orient);
+			SETFLAG(Data.Flags, ExcelIoParam::fVerticalRec, orient);
 			getCtrlData(CTL_XLSDBPARAM_HDRCOUNT,  &Data.HdrLinesCount);
 			getCtrlData(CTL_XLSDBPARAM_COLCOUNT, &Data.ColumnsCount);
 			getCtrlData(CTL_XLSDBPARAM_SHEETNUM,  &Data.SheetNum);
@@ -532,8 +533,8 @@ int EditXlsDbFileParam(ExcelDbFile::Param * pData)
 {
 	PPImpExpParam * p_param = 0;
 	if(rSdRec.Name.NotEmpty()) {
-		SString temp_buf;
-		p_param = CreateInstance((temp_buf = rSdRec.Name).ToUpper(), flags);
+		SString temp_buf(rSdRec.Name);
+		p_param = CreateInstance(temp_buf.ToUpper(), flags);
 	}
 	/* @v12.2.4 (unused) CATCH
 		ZDELETE(p_param);
@@ -589,7 +590,8 @@ int PPImpExpParam::ProcessName(int op, SString & rName) const
 	const char * p_prefix_imp = "IMP";
 	const char * p_prefix_exp = "EXP";
 	int    ok = -1;
-	SString rec_prefx, temp_buf;
+	SString temp_buf;
+	SString rec_prefx;
 	switch(op) {
 		case 1: // decorate name
 			(rec_prefx = InrRec.Name).ToUpper().CatChar('@');
@@ -654,7 +656,7 @@ int PPImpExpParam::ProcessName(int op, SString & rName) const
 				use_ps = 1;
 			}
 		}
-		const uint fnl = ps.Nam.Len();
+		const uint fnl = ps.Nam.Len32();
 		for(uint i = 0; i < fnl; i++)
 			if(ps.Nam.C(i) == '?')
 				cntr[cn++] = '0';
@@ -1332,16 +1334,16 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 	}
 	// Excel Params {
 	{
-		if(XlsdfParam.Flags & ExcelDbFile::fVerticalRec) {
+		if(XlsdfParam.Flags & ExcelIoParam::fVerticalRec) {
 			THROW(tsl_par.Retranslate(iefXlsOrient, symb_buf));
 			THROW(pFile->AppendParam(pSect, symb_buf, "VERTICAL", 1));
 		}
 		THROW(tsl_par.Retranslate(iefXlsFldNameRec, symb_buf));
-		THROW(pFile->AppendIntParam(pSect, symb_buf, BIN(XlsdfParam.Flags & ExcelDbFile::fFldNameRec)));
+		THROW(pFile->AppendIntParam(pSect, symb_buf, BIN(XlsdfParam.Flags & ExcelIoParam::fFldNameRec)));
 		THROW(tsl_par.Retranslate(iefXlsQuotStr, symb_buf));
-		THROW(pFile->AppendIntParam(pSect, symb_buf, BIN(XlsdfParam.Flags & ExcelDbFile::fQuotText)));
+		THROW(pFile->AppendIntParam(pSect, symb_buf, BIN(XlsdfParam.Flags & ExcelIoParam::fQuotText)));
 		THROW(tsl_par.Retranslate(iefOneRecPerFile, symb_buf));
-		THROW(pFile->AppendIntParam(pSect, symb_buf, BIN(XlsdfParam.Flags & ExcelDbFile::fOneRecPerFile)));
+		THROW(pFile->AppendIntParam(pSect, symb_buf, BIN(XlsdfParam.Flags & ExcelIoParam::fOneRecPerFile)));
 		THROW(tsl_par.Retranslate(iefXlsHdrLinesCount, symb_buf));
 		THROW(pFile->AppendParam(pSect, symb_buf, temp_buf.Z().Cat(XlsdfParam.HdrLinesCount), 1));
 		THROW(tsl_par.Retranslate(iefColumnsCount, symb_buf));
@@ -1496,14 +1498,14 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 				case iefSheetNum: XlsdfParam.SheetNum = val.ToLong(); break;
 				case iefSheetName: (XlsdfParam.SheetName_ = val).Transf(CTRANSF_INNER_TO_OUTER); break;
 				case iefEndStr: XlsdfParam.EndStr_ = val; break;
-				case iefXlsFldNameRec: SETFLAG(XlsdfParam.Flags, ExcelDbFile::fFldNameRec, val.ToLong()); break;
-				case iefXlsQuotStr: SETFLAG(XlsdfParam.Flags, ExcelDbFile::fQuotText, val.ToLong()); break;
-				case iefOneRecPerFile: SETFLAG(XlsdfParam.Flags, ExcelDbFile::fOneRecPerFile, val.ToLong()); break;
+				case iefXlsFldNameRec: SETFLAG(XlsdfParam.Flags, ExcelIoParam::fFldNameRec, val.ToLong()); break;
+				case iefXlsQuotStr: SETFLAG(XlsdfParam.Flags, ExcelIoParam::fQuotText, val.ToLong()); break;
+				case iefOneRecPerFile: SETFLAG(XlsdfParam.Flags, ExcelIoParam::fOneRecPerFile, val.ToLong()); break;
 				case iefXlsOrient:
 					if(val.HasPrefixIAscii("HOR"))
-						XlsdfParam.Flags &= ~ExcelDbFile::fVerticalRec;
+						XlsdfParam.Flags &= ~ExcelIoParam::fVerticalRec;
 					else if(val.HasPrefixIAscii("VER"))
-						XlsdfParam.Flags |= ExcelDbFile::fVerticalRec;
+						XlsdfParam.Flags |= ExcelIoParam::fVerticalRec;
 					break;
 				case iefXlsHdrLinesCount: XlsdfParam.HdrLinesCount = val.ToLong(); break;
 				case iefColumnsCount: XlsdfParam.ColumnsCount = val.ToLong(); break;
@@ -1646,13 +1648,13 @@ ImpExpParamDialog::ImpExpParamDialog(uint dlgID, long options) : TDialog(dlgID),
 		DisableClusterItem(CTL_IMPEXP_DIR, 0, 1);
 	if(Flags & fDisableImport)
 		DisableClusterItem(CTL_IMPEXP_DIR, 1, 1);
-	EnableExcelImpExp = 1;
+	// @v12.5.3 (@obsolete) EnableExcelImpExp = 1;
 	/*
 	PPIniFile ini_file;
 	if(ini_file.Valid())
 		ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ENABLEEXELIMPEXP, &EnableExcelImpExp);
 	*/
-	DisableClusterItem(CTL_IMPEXP_FORMAT, 3, !EnableExcelImpExp);
+	// @v12.5.3 (@obsolete) DisableClusterItem(CTL_IMPEXP_FORMAT, 3, !EnableExcelImpExp);
 }
 
 IMPL_HANDLE_EVENT(ImpExpParamDialog)
@@ -1797,12 +1799,12 @@ PPImpExp::StateBlock::StateBlock() : Busy(0), RecNo(0)
 }
 
 PPImpExp::PPImpExp(const PPImpExpParam * pParam, const void * extraPtr) : P_DbfT(0), P_TxtT(0), P_XmlT(0), P_SoapT(0),
-	P_XlsT(0), State(0), R_RecNo(0), W_RecNo(0), P_ExprContext(0), P_HdrData(0), R_SaveRecNo(0), ExtractSubChild(0)
+	P_XlsT(0), P_XlWb(0), State(0), R_RecNo(0), W_RecNo(0), P_ExprContext(0), P_HdrData(0), R_SaveRecNo(0), ExtractSubChild(0)
 {
 	RVALUEPTR(P, pParam);
 	PreserveOrgFileName = P.FileName;
 	if(P.Direction == 0) {
-		const SString preserve_file_name = P.FileName;
+		const SString preserve_file_name(P.FileName);
 		SString result_file_name;
 		int    mefn_r = 0;
 		if(pParam) {
@@ -1814,7 +1816,8 @@ PPImpExp::PPImpExp(const PPImpExpParam * pParam, const void * extraPtr) : P_DbfT
 		if(mefn_r > 0) {
 			P.FileName = result_file_name;
 			if(CConfig.Flags & CCFLG_DEBUG) {
-				SString fmt_buf, msg_buf;
+				SString fmt_buf;
+				SString msg_buf;
 				if(mefn_r == 100) {
 					PPFormatT(PPTXT_LOG_EXPFILENAME_TMPL, &msg_buf, result_file_name.cptr(), preserve_file_name.cptr());
 					PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_USER|LOGMSGF_TIME);
@@ -1829,9 +1832,7 @@ PPImpExp::PPImpExp(const PPImpExpParam * pParam, const void * extraPtr) : P_DbfT
 			State |= sCtrError;
 	}
 	if(P.DataFormat == PPImpExpParam::dfXml) {
-		// @v8.6.11 P.XdfParam.RootTag.Transf(CTRANSF_INNER_TO_OUTER);
-		// @v8.6.11 P.XdfParam.RecTag.Transf(CTRANSF_INNER_TO_OUTER);
-		// @v8.6.11 P.XdfParam.HdrTag.Transf(CTRANSF_INNER_TO_OUTER); // @v7.2.6
+		;
 	}
 }
 
@@ -1843,18 +1844,16 @@ PPImpExp::~PPImpExp()
 	delete P_XmlT;
 	delete P_SoapT;
 	delete P_XlsT;
+	delete P_XlWb; // @v12.5.3
 	delete P_HdrData;
 }
 
-int PPImpExp::IsOpened() const
-{
-	return BIN(State & sOpened);
-}
-
-int PPImpExp::IsCtrError() const
-{
-	return BIN(State & sCtrError);
-}
+bool   PPImpExp::IsOpen() const { return LOGIC(State & sOpened); }
+bool   PPImpExp::IsCtrError() const { return LOGIC(State & sCtrError); }
+const  PPImpExpParam & PPImpExp::GetParamConst() const { return P; }
+PPImpExpParam & PPImpExp::GetParam() { return P; }
+int    PPImpExp::OpenFileForReading(const char * pFileName) { return Helper_OpenFile(pFileName, 1, 0, 0); }
+int    PPImpExp::OpenFileForWriting(const char * pFileName, int truncOnWriting, StringSet * pResultFileList) { return Helper_OpenFile(pFileName, 0, truncOnWriting, pResultFileList); }
 
 void PPImpExp::SetExprContext(ExprEvalContext * pCtx)
 {
@@ -1877,16 +1876,6 @@ int PPImpExp::SetHeaderData(const Sdr_ImpExpHeader * pData)
 	return ok;
 }
 
-const PPImpExpParam & PPImpExp::GetParamConst() const
-{
-	return P;
-}
-
-PPImpExpParam & PPImpExp::GetParam()
-{
-	return P;
-}
-
 int PPImpExp::GetNumRecs(long * pNumRecs)
 {
 	int    ok = 1;
@@ -1907,6 +1896,8 @@ int PPImpExp::GetNumRecs(long * pNumRecs)
 		numrecs = P_XmlT->GetNumRecords();
 	else if(P_SoapT)
 		numrecs = P_SoapT->GetNumRecords();
+	else if(P_XlWb) // @v12.5.3
+		numrecs = P_XlWb->GetNumRecords();
 	else if(P_XlsT)
 		numrecs = P_XlsT->GetNumRecords();
 	else
@@ -1915,11 +1906,6 @@ int PPImpExp::GetNumRecs(long * pNumRecs)
 	ASSIGN_PTR(pNumRecs, static_cast<long>(numrecs));
 	return ok;
 }
-
-int PPImpExp::OpenFileForReading(const char * pFileName)
-	{ return Helper_OpenFile(pFileName, 1, 0, 0); }
-int PPImpExp::OpenFileForWriting(const char * pFileName, int truncOnWriting, StringSet * pResultFileList)
-	{ return Helper_OpenFile(pFileName, 0, truncOnWriting, pResultFileList); }
 
 int FASTCALL PPImpExp::GetExportBuffer(SBuffer & rBuf)
 {
@@ -1973,7 +1959,7 @@ int PPImpExp::Helper_OpenFile(const char * pFileName, int readOnly, int truncOnW
 			ZDELETE(p_dbf_tbl);
 		}
 		THROW_MEM(P_DbfT = new DbfTable(filename));
-		THROW_PP_S(P_DbfT->isOpened(), PPERR_DBFOPFAULT, filename);
+		THROW_PP_S(P_DbfT->IsOpen(), PPERR_DBFOPFAULT, filename);
 	}
 	else if(P.DataFormat == PPImpExpParam::dfText) {
 		if(!(P.TdfParam.Flags & TextDbFile::fCpOem)) {
@@ -2031,10 +2017,38 @@ int PPImpExp::Helper_OpenFile(const char * pFileName, int readOnly, int truncOnW
 		THROW_MEM(P_SoapT = new SoapDbFile);
 		THROW_SL(P_SoapT->Open(filename, &P.SdfParam, readOnly));
 	}
-	else if(P.DataFormat == PPImpExpParam::dfExcel) {
+	else if(P.DataFormat == PPImpExpParam::dfExcel) { // 
+		const  bool use_impexp_excel_oleauto = LOGIC(CConfig.Flags2 & CCFLG2_FORCE_IMPEXP_EXCEL_OLEAUTO); // @v12.5.3
 		PPWaitMsg(PPSTR_TEXT, PPTXT_SCANEXCELFILE, filename);
-		THROW_MEM(P_XlsT = new ExcelDbFile);
-		THROW_SL(P_XlsT->Open(filename, &P.XlsdfParam, readOnly));
+		if(readOnly) {
+			SFileFormat ff;
+			const  int ffr = ff.Identify(filename, 0);
+			THROW_PP_S((ffr == 3) && oneof3(ff, SFileFormat::Xls, SFileFormat::XlsX, SFileFormat::XlsM), PPERR_IMPEXPNONEXCELFILE, filename);
+			if(ff == SFileFormat::Xls) {
+				THROW_MEM(P_XlsT = new ExcelDbFile);
+				THROW_SL(P_XlsT->Open(filename, &P.XlsdfParam, readOnly));
+			}
+			else if(oneof2(ff, SFileFormat::XlsX, SFileFormat::XlsM)) {
+				if(use_impexp_excel_oleauto) {
+					THROW_MEM(P_XlsT = new ExcelDbFile);
+					THROW_SL(P_XlsT->Open(filename, &P.XlsdfParam, readOnly));
+				}
+				else { 
+					THROW_MEM(P_XlWb = new ImpExpExcelWorkbook);
+					THROW_SL(P_XlWb->Open(filename, &P.XlsdfParam, readOnly));
+				}
+			}
+		}
+		else {
+			if(use_impexp_excel_oleauto) {
+				THROW_MEM(P_XlsT = new ExcelDbFile);
+				THROW_SL(P_XlsT->Open(filename, &P.XlsdfParam, readOnly));
+			}
+			else {
+				THROW_MEM(P_XlWb = new ImpExpExcelWorkbook);
+				THROW_SL(P_XlWb->Open(filename, &P.XlsdfParam, readOnly));
+			}
+		}
 	}
 	else
 		ok = PPSetError(PPERR_IMPEXPFMTUNSUPP, static_cast<const char *>(0));
@@ -2068,6 +2082,7 @@ void PPImpExp::CloseFile()
 	ZDELETE(P_DbfT);
 	ZDELETE(P_XmlT);
 	ZDELETE(P_XlsT);
+	ZDELETE(P_XlWb); // @v12.5.3
 	State &= ~(sOpened | sReadOnly);
 }
 //
@@ -2733,7 +2748,7 @@ int PPImpExp::ConvertOuterToInner(void * pInnerBuf, size_t bufLen, SdRecord * pD
 int PPImpExp::AppendHdrRecord(void * pInnerBuf, size_t bufLen)
 {
 	int    ok = 1;
-	THROW_PP(IsOpened(), PPERR_IMPEXNOPENED);
+	THROW_PP(IsOpen(), PPERR_IMPEXNOPENED);
 	THROW_PP((State & sReadOnly) == 0, PPERR_IMPEXPREADONLY);
 	W_RecNo++;
 	P.InrRec.SetDataBuf(pInnerBuf, bufLen);
@@ -2749,6 +2764,9 @@ int PPImpExp::AppendHdrRecord(void * pInnerBuf, size_t bufLen)
 	else if(P_XmlT) {
 		THROW_SL(P_XmlT->AppendRecord(P.HdrOtrRec, P.HdrOtrRec.GetDataC()));
 	}
+	else if(P_XlWb) { // @v12.5.3
+		THROW_SL(P_XlWb->AppendRecord(P.HdrOtrRec, P.HdrOtrRec.GetDataC()));
+	}
 	else if(P_XlsT) {
 		THROW_SL(P_XlsT->AppendRecord(P.HdrOtrRec, P.HdrOtrRec.GetDataC()));
 	}
@@ -2759,7 +2777,7 @@ int PPImpExp::AppendHdrRecord(void * pInnerBuf, size_t bufLen)
 int PPImpExp::AppendRecord(void * pInnerBuf, size_t bufLen)
 {
 	int    ok = 1;
-	THROW_PP(IsOpened(), PPERR_IMPEXNOPENED);
+	THROW_PP(IsOpen(), PPERR_IMPEXNOPENED);
 	THROW_PP((State & sReadOnly) == 0, PPERR_IMPEXPREADONLY);
 	W_RecNo++;
 	P.InrRec.SetDataBuf(pInnerBuf, bufLen);
@@ -2775,6 +2793,9 @@ int PPImpExp::AppendRecord(void * pInnerBuf, size_t bufLen)
 	else if(P_XmlT) {
 		THROW_SL(P_XmlT->AppendRecord(P.OtrRec, P.OtrRec.GetDataC()));
 	}
+	else if(P_XlWb) { // @v12.5.3
+		THROW_SL(P_XlWb->AppendRecord(P.OtrRec, P.OtrRec.GetDataC()));
+	}
 	else if(P_XlsT) {
 		THROW_SL(P_XlsT->AppendRecord(P.OtrRec, P.OtrRec.GetDataC()));
 	}
@@ -2786,7 +2807,7 @@ int PPImpExp::ReadRecord(void * pInnerBuf, size_t bufLen, SdRecord * pDynRec)
 {
 	int    ok = -1;
 	ulong  numrecs = 0;
-	THROW_PP(IsOpened(), PPERR_IMPEXNOPENED);
+	THROW_PP(IsOpen(), PPERR_IMPEXNOPENED);
 	P.InrRec.SetDataBuf(pInnerBuf, bufLen);
 	if(P.OtrRec.GetDataC() == 0)
 		THROW_SL(P.OtrRec.AllocDataBuf());
@@ -2830,6 +2851,18 @@ int PPImpExp::ReadRecord(void * pInnerBuf, size_t bufLen, SdRecord * pDynRec)
 			R_RecNo++;
 		}
 	}
+	else if(P_XlWb) { // @v12.5.3
+		numrecs = P_XlWb->GetNumRecords();
+		if(R_RecNo < numrecs) {
+			THROW_SL(P_XlWb->GoToRecord(R_RecNo));
+			THROW_SL(P_XlWb->GetRecord(P.OtrRec, P.OtrRec.GetData()));
+			THROW(ConvertOuterToInner(pInnerBuf, bufLen, pDynRec));
+			R_RecNo++;
+			ok = 1;
+		}
+		else
+			ok = -1;
+	}
 	else if(P_XlsT) {
 		numrecs = P_XlsT->GetNumRecords();
 		if(R_RecNo < numrecs) {
@@ -2850,7 +2883,7 @@ int PPImpExp::ReadRecord(void * pInnerBuf, size_t bufLen, SdRecord * pDynRec)
 //
 //
 //
-int Test_ImpExpParamDialog()
+/* @v12.5.3 int Test_ImpExpParamDialog()
 {
 	int    ok = -1;
 	PPImpExpParam param;
@@ -2858,7 +2891,7 @@ int Test_ImpExpParamDialog()
 	PPGetFilePath(PPPATH_BIN, "clibnk.ini", file_name);
 	PPIniFile ini_file(file_name);
 	THROW(LoadSdRecord(PPREC_CLIBNKDATA, &param.InrRec));
-	if(!param.ReadIni(&ini_file, "baltbank-import"/*"test"*/, 0))
+	if(!param.ReadIni(&ini_file, "baltbank-import", 0))
 		PPError();
 	ok = EditImpExpParam(&param);
 	if(ok > 0) {
@@ -2866,7 +2899,7 @@ int Test_ImpExpParamDialog()
 	}
 	CATCHZOKPPERR
 	return ok;
-}
+}*/
 //
 //
 //

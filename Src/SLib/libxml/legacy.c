@@ -1086,7 +1086,6 @@ void endDocument(void * ctx)
 	DEPRECATED("endDocument")
 	xmlSAX2EndDocument(ctx);
 }
-
 /**
  * attribute:
  * @ctx: the user data (XML parser context)
@@ -1099,13 +1098,10 @@ void endDocument(void * ctx)
  * the element.
  * DEPRECATED: use xmlSAX2Attribute()
  */
-void attribute(void * ctx ATTRIBUTE_UNUSED,
-    const xmlChar * fullname ATTRIBUTE_UNUSED,
-    const xmlChar * value ATTRIBUTE_UNUSED)
+void attribute(void * ctx ATTRIBUTE_UNUSED, const xmlChar * fullname ATTRIBUTE_UNUSED, const xmlChar * value ATTRIBUTE_UNUSED)
 {
 	DEPRECATED("attribute")
 }
-
 /**
  * startElement:
  * @ctx: the user data (XML parser context)

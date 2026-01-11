@@ -40,7 +40,7 @@
 // in use.
 #define XAPIAN_DEPRECATED(D) D __attribute__((__deprecated__))
 #define XAPIAN_DEPRECATED_CLASS __attribute__((__deprecated__))
-# elif defined _MSC_VER && _MSC_VER >= 1300
+#elif defined _MSC_VER && _MSC_VER >= 1300
 // __declspec(deprecated) is supported by MSVC 7.0 and later.
 #define XAPIAN_DEPRECATED(D) __declspec(deprecated) D
 #define XAPIAN_DEPRECATED_CLASS __declspec(deprecated)

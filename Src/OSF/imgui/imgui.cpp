@@ -2042,20 +2042,20 @@ static inline int ImTextCharToUtf8_inline(char* buf, int buf_size, uint c)
 		return 1;
 	}
 	if(c < 0x800) {
-		if(buf_size < 2)  return 0;
+		if(buf_size < 2) return 0;
 		buf[0] = (char)(0xc0 + (c >> 6));
 		buf[1] = (char)(0x80 + (c & 0x3f));
 		return 2;
 	}
 	if(c < 0x10000) {
-		if(buf_size < 3)  return 0;
+		if(buf_size < 3) return 0;
 		buf[0] = (char)(0xe0 + (c >> 12));
 		buf[1] = (char)(0x80 + ((c >> 6) & 0x3f));
 		buf[2] = (char)(0x80 + ((c ) & 0x3f));
 		return 3;
 	}
 	if(c <= 0x10FFFF) {
-		if(buf_size < 4)  return 0;
+		if(buf_size < 4) return 0;
 		buf[0] = (char)(0xf0 + (c >> 18));
 		buf[1] = (char)(0x80 + ((c >> 12) & 0x3f));
 		buf[2] = (char)(0x80 + ((c >> 6) & 0x3f));
@@ -2082,10 +2082,10 @@ int ImTextCountUtf8BytesFromChar(const char* in_text, const char* in_text_end)
 
 static inline int ImTextCountUtf8BytesFromChar(uint c)
 {
-	if(c < 0x80)  return 1;
-	if(c < 0x800)  return 2;
-	if(c < 0x10000)  return 3;
-	if(c <= 0x10FFFF)  return 4;
+	if(c < 0x80) return 1;
+	if(c < 0x800) return 2;
+	if(c < 0x10000) return 3;
+	if(c <= 0x10FFFF) return 4;
 	return 3;
 }
 
@@ -2231,8 +2231,8 @@ void ImGuiStorage::BuildSortByKey()
 		static int IMGUI_CDECL PairComparerByID(const void* lhs, const void* rhs)
 		{
 			// We can't just do a subtraction because qsort uses signed integers and subtracting our ID doesn't play well with that.
-			if(((const ImGuiStoragePair*)lhs)->key > ((const ImGuiStoragePair*)rhs)->key)  return +1;
-			if(((const ImGuiStoragePair*)lhs)->key < ((const ImGuiStoragePair*)rhs)->key)  return -1;
+			if(((const ImGuiStoragePair*)lhs)->key > ((const ImGuiStoragePair*)rhs)->key) return +1;
+			if(((const ImGuiStoragePair*)lhs)->key < ((const ImGuiStoragePair*)rhs)->key) return -1;
 			return 0;
 		}
 	};

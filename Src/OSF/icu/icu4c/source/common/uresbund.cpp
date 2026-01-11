@@ -15,7 +15,7 @@
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/ucnv.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "ustr_imp.h"
 #include "cwchar.h"
 #include "ucln_cmn.h"

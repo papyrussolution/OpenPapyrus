@@ -1,5 +1,5 @@
 // TEST-MYSQL.CPP
-// Copytight (c) A.Sobolev 2025
+// Copytight (c) A.Sobolev 2025, 2026
 // @codepage UTF-8
 // Тестирование интерфейса с MySQL/MariaSQL
 //
@@ -281,10 +281,8 @@ SLTEST_R(MySQL) // @v12.4.7
 						}
 					}
 				}
-				int cwr = dbp.CommitWork();
-				if(!cwr) {
-					;
-				}
+				const int cwr = dbp.CommitWork();
+				SLCHECK_NZ(cwr);
 				SLCHECK_Z(ta02_insert_fault_count);
 				SLCHECK_Z(ref01_insert_fault_count);
 				SLCHECK_Z(ref02_insert_fault_count);
@@ -411,7 +409,9 @@ SLTEST_R(MySQL) // @v12.4.7
 	{
 		// Изменить записи и убедиться, что она действительно изменилась
 		uint   inprop_updated_count = 0;
-		if(dbp.StartTransaction()) {
+		const  int trar = dbp.StartTransaction();
+		SLCHECK_NZ(trar);
+		if(trar) {
 			for(uint i = 0; i < record_list.getCount(); i++) {
 				TestTa01Tbl::Rec * p_rec = record_list.at(i);
 				if(p_rec) {
@@ -430,7 +430,6 @@ SLTEST_R(MySQL) // @v12.4.7
 								}
 								else { // bad
 									inprop_updated_count++;
-									
 								}
 							}
 						}
@@ -440,16 +439,88 @@ SLTEST_R(MySQL) // @v12.4.7
 					}
 				}
 			}
-			int cwr = dbp.CommitWork();
+			const int cwr = dbp.CommitWork();
+			SLCHECK_NZ(cwr);
 			if(cwr) {
 				SLCHECK_Z(inprop_updated_count);
 			}
+		}
+	}
+	{
+		// Удалить каждую сотую запись и убедиться, что ее больше нет в таблице
+		const  int trar = dbp.StartTransaction();
+		SLCHECK_NZ(trar);
+		if(trar) {
+			LongArray deleted_idx_list;
+			uint    delete_fault_count = 0;
+			uint    deleted_found_fault_count = 0;
+			uint    _found_fault_count = 0;
+			{
+				for(uint i = 0; i < record_list.getCount(); i++) {
+					TestTa01Tbl::Rec * p_rec = record_list.at(i);
+					if(p_rec) {
+						if((i % 100) == 0) {
+							TestTa01Tbl::Key0 k0;
+							k0.Dt = p_rec->Dt;
+							k0.Tm = p_rec->Tm;
+							if(p_tbl->search(&k0, spEq)) {
+								if(p_tbl->deleteRec()) {
+									deleted_idx_list.add(static_cast<long>(i));
+								}
+								else {
+									delete_fault_count++;
+								}
+							}
+						}
+					}
+				}
+			}
+			if(!delete_fault_count) {
+				uint i = record_list.getCount();
+				if(i) do {
+					TestTa01Tbl::Rec * p_rec = record_list.at(--i);
+					if(p_rec) {
+						const bool must_be_deleted = deleted_idx_list.lsearch(i);
+						TestTa01Tbl::Key0 k0;
+						k0.Dt = p_rec->Dt;
+						k0.Tm = p_rec->Tm;
+						if(p_tbl->search(&k0, spEq)) {
+							if(must_be_deleted) {
+								deleted_found_fault_count++;
+							}
+						}
+						else {
+							if(!must_be_deleted) {
+								_found_fault_count++;
+							}
+						}
+						if(must_be_deleted) {
+							record_list.atFree(i);
+						}
+					}
+				} while(i);
+			}
 			else {
-				;
+			}
+			const int cwr = dbp.CommitWork();
+			SLCHECK_NZ(cwr);
+			if(cwr) {
+				SLCHECK_Z(deleted_found_fault_count);
+				SLCHECK_Z(_found_fault_count);
 			}
 		}
 	}
-	//
+	{
+		DbTableStat stat;
+		if(p_tbl->GetFileStat(-1, &stat) > 0)
+			recscount_tbl = stat.NumRecs;
+		stat.Z();
+		if(p_tbl_ref01->GetFileStat(-1, &stat) > 0)
+			recscount_ref01 = stat.NumRecs;
+		stat.Z();
+		if(p_tbl_ref02->GetFileStat(-1, &stat) > 0)
+			recscount_ref02 = stat.NumRecs;
+	}
 	CATCH
 		CurrentStatus = 0;
 	ENDCATCH

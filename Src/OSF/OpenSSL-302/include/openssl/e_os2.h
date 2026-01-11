@@ -49,35 +49,34 @@ extern "C" {
  * we need to avoid the false positive match on Windows.
  */
 #if defined(OPENSSL_SYS_UEFI)
-#undef OPENSSL_SYS_UNIX
-# elif defined(OPENSSL_SYS_UWIN)
-#undef OPENSSL_SYS_UNIX
-#define OPENSSL_SYS_WIN32_UWIN
+    #undef OPENSSL_SYS_UNIX
+#elif defined(OPENSSL_SYS_UWIN)
+    #undef OPENSSL_SYS_UNIX
+    #define OPENSSL_SYS_WIN32_UWIN
 #else
-#if defined(__CYGWIN__) || defined(OPENSSL_SYS_CYGWIN)
-#define OPENSSL_SYS_WIN32_CYGWIN
-#else
-#if defined(_WIN32) || defined(OPENSSL_SYS_WIN32)
-#undef OPENSSL_SYS_UNIX
-#    if !defined(OPENSSL_SYS_WIN32)
-#define OPENSSL_SYS_WIN32
-#    endif
+    #if defined(__CYGWIN__) || defined(OPENSSL_SYS_CYGWIN)
+        #define OPENSSL_SYS_WIN32_CYGWIN
+    #else
+        #if defined(_WIN32) || defined(OPENSSL_SYS_WIN32)
+            #undef OPENSSL_SYS_UNIX
+            #if !defined(OPENSSL_SYS_WIN32)
+                #define OPENSSL_SYS_WIN32
+            #endif
+        #endif
+        #if defined(_WIN64) || defined(OPENSSL_SYS_WIN64)
+            #undef OPENSSL_SYS_UNIX
+            #if !defined(OPENSSL_SYS_WIN64)
+                #define OPENSSL_SYS_WIN64
+            #endif
+        #endif
+        #if defined(OPENSSL_SYS_WINNT)
+            #undef OPENSSL_SYS_UNIX
+        #endif
+        #if defined(OPENSSL_SYS_WINCE)
+            #undef OPENSSL_SYS_UNIX
+        #endif
+    #endif
 #endif
-#if defined(_WIN64) || defined(OPENSSL_SYS_WIN64)
-#undef OPENSSL_SYS_UNIX
-#    if !defined(OPENSSL_SYS_WIN64)
-#define OPENSSL_SYS_WIN64
-#    endif
-#endif
-#if defined(OPENSSL_SYS_WINNT)
-#undef OPENSSL_SYS_UNIX
-#endif
-#if defined(OPENSSL_SYS_WINCE)
-#undef OPENSSL_SYS_UNIX
-#endif
-#endif
-#endif
-
 /* Anything that tries to look like Microsoft is "Windows" */
 #if defined(OPENSSL_SYS_WIN32) || defined(OPENSSL_SYS_WIN64) || defined(OPENSSL_SYS_WINNT) || defined(OPENSSL_SYS_WINCE)
 #undef OPENSSL_SYS_UNIX
@@ -148,7 +147,7 @@ extern "C" {
 #define SPT_THREAD_SIGNAL 1
 #define SPT_THREAD_AWARE 1
 #include <spthread.h>
-# elif defined(OPENSSL_THREADS) && defined(_PUT_MODEL_)
+#elif defined(OPENSSL_THREADS) && defined(_PUT_MODEL_)
 #include <pthread.h>
 #endif
 #endif
@@ -227,12 +226,12 @@ typedef INT32 int32_t;
 typedef UINT32 uint32_t;
 typedef INT64 int64_t;
 typedef UINT64 uint64_t;
-# elif (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) || defined(__osf__) || defined(__sgi) || defined(__hpux) || defined(OPENSSL_SYS_VMS) || defined (__OpenBSD__)
+#elif (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) || defined(__osf__) || defined(__sgi) || defined(__hpux) || defined(OPENSSL_SYS_VMS) || defined (__OpenBSD__)
 #include <inttypes.h>
 #undef OPENSSL_NO_INTTYPES_H
 // Because the specs say that inttypes.h includes stdint.h if present 
 #undef OPENSSL_NO_STDINT_H
-# elif defined(_MSC_VER) && _MSC_VER<1600
+#elif defined(_MSC_VER) && _MSC_VER<1600
 /*
  * minimally required typdefs for systems not supporting inttypes.h or
  * stdint.h: currently just older VC++
@@ -283,7 +282,7 @@ typedef uint64_t ossl_uintmax_t;
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L && \
      !defined(__cplusplus) 
 #define ossl_noreturn _Noreturn
-# elif defined(__GNUC__) && __GNUC__ >= 2
+#elif defined(__GNUC__) && __GNUC__ >= 2
 #define ossl_noreturn __attribute__((noreturn))
 #else
 #define ossl_noreturn

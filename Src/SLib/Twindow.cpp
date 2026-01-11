@@ -1,7 +1,7 @@
 // TWINDOW.CPP  Turbo Vision 1.0
 // Copyright (c) 1991 by Borland International
 // @codepage UTF-8
-// Modified and adopted by A.Sobolev 1996-2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Modified and adopted by A.Sobolev 1996-2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -1573,6 +1573,10 @@ void TWindowBase::MakeMouseEvent(uint msg, WPARAM wParam, LPARAM lParam, MouseEv
 		rMe.Flags |= MouseEvent::fX1;
 	if(wParam & MK_XBUTTON2)
 		rMe.Flags |= MouseEvent::fX2;
+}
+
+SetFontEvent::SetFontEvent(void * pFontHandle, int doRedraw) : FontHandle(pFontHandle), DoRedraw(doRedraw)
+{
 }
 
 PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)

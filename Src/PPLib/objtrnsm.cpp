@@ -1741,7 +1741,7 @@ int PPObjectTransmit::CommitQueue(const PPIDArray & rSrcDivList, int forceDestro
 			//
 			// @todo if(!(hdr.Flags & PPOTF_IGNACK))
 			for(i = 0; i < blk.ProcessedList.getCount(); i++) {
-				Ack ack;
+				Ack    ack;
 				THROW(P_Queue->Search(blk.ProcessedList.get(i), &queue_rec) > 0);
 				OtFilePoolItem * p_fpi = blk.SearchFile(queue_rec.FileId);
 				THROW(p_fpi);

@@ -57,7 +57,7 @@ struct ParsedFormatBase::ParsedFormatConsumer {
 		: parsed(parsedformat), data_pos(parsedformat->data_.get()) {}
 
 	bool Append(string_view s) {
-		if(s.empty())  return true;
+		if(s.empty()) return true;
 
 		size_t text_end = AppendText(s);
 

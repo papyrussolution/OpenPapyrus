@@ -272,7 +272,7 @@
 int Curl_amiga_select(int nfds, fd_set * readfds, fd_set * writefds,
     fd_set * errorfds, struct timeval * timeout);
 #define select(a, b, c, d, e) Curl_amiga_select(a, b, c, d, e)
-#    else
+#else
 #define select(a, b, c, d, e) WaitSelect(a, b, c, d, e, 0)
 #endif
 /* must not use libc's fcntl() on bsdsocket.library sockfds! */
@@ -543,7 +543,7 @@ int Curl_amiga_select(int nfds, fd_set * readfds, fd_set * writefds,
 #if !defined(ALLOW_MSVC6_WITHOUT_PSDK)
 #      error MSVC 6.0 requires "February 2003 Platform SDK" a.k.a. \
 	"Windows Server 2003 PSDK"
-#    else
+#else
 #define CURL_DISABLE_LDAP 1
 #endif
 #endif

@@ -19,7 +19,7 @@
 
 #include "ucurrimp.h"
 #include "locbased.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "ureslocs.h"
 //
 // class DecimalFormatSymbols

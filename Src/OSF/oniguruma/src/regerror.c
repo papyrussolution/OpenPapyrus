@@ -100,7 +100,7 @@ static void sprint_byte_with_x(char * s, uint v) { /*xsnprintf*/slsprintf_s(s, 5
 
 static int to_ascii(OnigEncoding enc, uchar * s, uchar * end, uchar buf[], int buf_size, int * is_over)
 {
-	int len;
+	int    len;
 	uchar * p;
 	OnigCodePoint code;
 	if(!s) {
@@ -115,14 +115,14 @@ static int to_ascii(OnigEncoding enc, uchar * s, uchar * end, uchar buf[], int b
 			if(code >= 0x80) {
 				if(code > 0xffff && len + 10 <= buf_size) {
 					sprint_byte_with_x((char *)(&(buf[len])), (uint)(code >> 24));
-					sprint_byte((char *)(&(buf[len+4])),      (uint)(code >> 16));
-					sprint_byte((char *)(&(buf[len+6])),      (uint)(code >>  8));
-					sprint_byte((char *)(&(buf[len+8])),      (uint)code);
+					sprint_byte((char *)(&(buf[len+4])), (uint)(code >> 16));
+					sprint_byte((char *)(&(buf[len+6])), (uint)(code >>  8));
+					sprint_byte((char *)(&(buf[len+8])), (uint)code);
 					len += 10;
 				}
 				else if(len + 6 <= buf_size) {
 					sprint_byte_with_x((char *)(&(buf[len])), (uint)(code >> 8));
-					sprint_byte((char *)(&(buf[len+4])),      (uint)code);
+					sprint_byte((char *)(&(buf[len+4])), (uint)code);
 					len += 6;
 				}
 				else {

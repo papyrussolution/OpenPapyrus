@@ -1,5 +1,6 @@
 // V_TODO.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025, 2026
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -424,10 +425,15 @@ int VCalendar::PutTodoProperty(TodoProperty prop, const void * pVal, long addedP
 int VCalendar::ReadProp(TodoProperty * pProp, SString & rVal, SString & rAttrib)
 {
 	int    ok = -1;
-	SString temp_buf, val, attrs;
+	SString temp_buf;
+	SString val;
+	SString attrs;
 	TodoProperty prop;
 	if(P_Stream && P_Stream->IsValid() && Export == 0 && P_Stream->ReadLine(temp_buf) > 0) {
-		SString attrs, str_mime64_enc, temp_buf2, str_prop;
+		SString attrs;
+		SString str_mime64_enc;
+		SString temp_buf2;
+		SString str_prop;
 		ok = 1;
 		temp_buf.TrimRightChr('\n');
 		prop = (TodoProperty)Properties.GetIdxBySub(temp_buf, ';');
@@ -473,8 +479,10 @@ int VCalendar::GetTodo(VCalendar::Todo * pData)
 {
 	int    ok = -1;
 	if(pData && P_Stream && P_Stream->IsValid() && Export == 0) {
-		int read_todo = 0, end_todo = 0;
-		SString val, attrs;
+		int    read_todo = 0;
+		int    end_todo = 0;
+		SString val;
+		SString attrs;
 		TodoProperty prop;
 		VCalendar::Todo todo_rec;
 		pData->Init();
@@ -531,7 +539,8 @@ int VCalendar::GetDtm(const SString & rBuf, LDATETIME * pDtm)
 {
 	int    ok = -1;
 	LDATETIME dtm = ZERODATETIME;
-	SString str_dt, str_tm;
+	SString str_dt;
+	SString str_tm;
 	rBuf.Divide('T', str_dt, str_tm);
 	if(str_dt.Len() == 8) {
 		SString buf;
@@ -869,13 +878,13 @@ int CrosstabProcessor::Finish()
 			} add_i;
 			if(tab_type == PrjTaskFilt::crstDateHour)
 				add_i.dt = p_tbl->data.StartDt;
-			else if(tab_type == PrjTaskFilt::crstClientDate || tab_type == PrjTaskFilt::crstClientEmployer)
+			else if(oneof2(tab_type, PrjTaskFilt::crstClientDate, PrjTaskFilt::crstClientEmployer))
 				add_i.id = p_tbl->data.ClientID;
-			else if(tab_type == PrjTaskFilt::crstEmployerDate || tab_type == PrjTaskFilt::crstEmployerHour)
+			else if(oneof2(tab_type, PrjTaskFilt::crstEmployerDate, PrjTaskFilt::crstEmployerHour))
 				add_i.id = p_tbl->data.EmployerID;
 			counter.Increment();
 			SearchRec(p_tbl->data.TabID, &add_i, 0);
-			double task_count = P_TempTbl->data.TaskCount;
+			const  double task_count = P_TempTbl->data.TaskCount;
 			P_TempTbl->data.TabParam /= NZOR(task_count, 1);
 			P_TempTbl->updateRec();
 			PPWaitPercent(counter);
@@ -1167,7 +1176,7 @@ int PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 		PrjTaskTbl::Rec rec;
 		ZDELETE(P_TempOrd);
 		ZDELETE(P_TempTbl);
-		Filt.TabType = PrjTaskFilt::crstNone; // @todo Кросстабуляцию доделать!
+		Filt.TabType = PrjTaskFilt::crstNone; // @todo РљСЂРѕСЃСЃС‚Р°Р±СѓР»СЏС†РёСЋ РґРѕРґРµР»Р°С‚СЊ!
 		if(Filt.TabType != PrjTaskFilt::crstNone) {
 			THROW(P_TempTbl = CreateTempFile());
 			THROW_MEM(p_ct_prcssr = new CrosstabProcessor(P_TempTbl, &filt));
@@ -1552,8 +1561,8 @@ int PPViewPrjTask::InitIteration()
 			if(Filt.Flags & PrjTaskFilt::fUnbindedOnly)
 				dbq = &(*dbq && t->ProjectID == 0L);
 			//
-			// Поля Priority, Status, ClientID, DlvrAddrID участвуют в выборке по тому, что
-			// функция NextIteration использует их для дополнительной фильтрации
+			// РџРѕР»СЏ Priority, Status, ClientID, DlvrAddrID СѓС‡Р°СЃС‚РІСѓСЋС‚ РІ РІС‹Р±РѕСЂРєРµ РїРѕ С‚РѕРјСѓ, С‡С‚Рѕ
+			// С„СѓРЅРєС†РёСЏ NextIteration РёСЃРїРѕР»СЊР·СѓРµС‚ РёС… РґР»СЏ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕР№ С„РёР»СЊС‚СЂР°С†РёРё
 			//
 			P_IterQuery->select(t->ID, t->Priority, t->Status, t->ClientID,
 				t->DlvrAddrID, t->Flags, t->OpenCount, 0L).where(*dbq);
@@ -1747,8 +1756,8 @@ int PPViewPrjTask::Transmit(PPID /*id*/, int kind)
 		}
 		VCalendar::WriteComponentEpilog(VCalendar::tokVCALENDAR, out_buf);
 		{
-			// Функции записи класса VCalendar расставляют переводы строк в \xD\xA формате.
-			// Стало быть файл для записи открываем в бинарном режиме, дабы не коверкать переводы строк.
+			// Р¤СѓРЅРєС†РёРё Р·Р°РїРёСЃРё РєР»Р°СЃСЃР° VCalendar СЂР°СЃСЃС‚Р°РІР»СЏСЋС‚ РїРµСЂРµРІРѕРґС‹ СЃС‚СЂРѕРє РІ \xD\xA С„РѕСЂРјР°С‚Рµ.
+			// РЎС‚Р°Р»Рѕ Р±С‹С‚СЊ С„Р°Р№Р» РґР»СЏ Р·Р°РїРёСЃРё РѕС‚РєСЂС‹РІР°РµРј РІ Р±РёРЅР°СЂРЅРѕРј СЂРµР¶РёРјРµ, РґР°Р±С‹ РЅРµ РєРѕРІРµСЂРєР°С‚СЊ РїРµСЂРµРІРѕРґС‹ СЃС‚СЂРѕРє.
 			SFile f_out(path, SFile::mWrite|SFile::mBinary);
 			THROW_SL(f_out.IsValid());
 			f_out.WriteLine(out_buf);
@@ -2191,16 +2200,16 @@ int PPViewPrjTask::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 							PPPrjTaskPacket pt_pack;
 							ok = -1;
 							if(id && TodoObj.GetPacket(id, &pt_pack) > 0 && (pt_pack.SDescr.Len() || pt_pack.SMemo.Len())) {
-								long flags = SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|
+								const  long flags = SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|
 									SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow;
 								SString buf;
 								(buf = pt_pack.SDescr).ReplaceChar('\n', ' ').ReplaceChar('\r', ' ');
 								if(pt_pack.SMemo.Len()) {
-									SString word, memo;
-									PPLoadString("memo", word);
-									word.Colon().CatChar('\n');
+									SString word;
+									SString memo;
+									PPLoadStringS("memo", word).Colon().CR();
 									(memo = pt_pack.SMemo).ReplaceChar('\n', ' ').ReplaceChar('\r', ' ');
-									buf.CatChar('\n').CatChar('\n').Cat(word).Cat(memo);
+									buf.CR().CR().Cat(word).Cat(memo);
 								}
 								PPTooltipMessage(buf, 0, pBrw->H(), 10000, 0, flags);
 							}
@@ -2360,7 +2369,7 @@ int PPViewPrjTask::EditTimeGridItem(PPID * pID, PPID rowID, const LDATETIME & rD
 	THROW(TodoObj.CheckRightsModByID(pID));
 	if(*pID) {
 		//
-		// Редактировать элемент
+		// Р РµРґР°РєС‚РёСЂРѕРІР°С‚СЊ СЌР»РµРјРµРЅС‚
 		//
 		if(TodoObj.Edit(pID, 0) == cmOK) {
 			id_list.add(*pID);
@@ -2370,7 +2379,7 @@ int PPViewPrjTask::EditTimeGridItem(PPID * pID, PPID rowID, const LDATETIME & rD
 	}
 	else if(rDtm.d) {
 		//
-		// Создать элемент
+		// РЎРѕР·РґР°С‚СЊ СЌР»РµРјРµРЅС‚
 		//
 		PPPrjTaskPacket pack;
 		PPID   cli_id = (Filt.Order == PrjTaskFilt::ordByClient) ? rowID : 0;

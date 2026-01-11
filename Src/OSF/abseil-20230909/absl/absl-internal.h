@@ -5,11 +5,11 @@
 
 #define SLIB_INCLUDE_CPPSTDLIBS
 #include <slib.h>
-#ifndef _WIN32
-	#include <unistd.h>
-#else
-	#include <io.h>
-#endif
+//#ifndef _WIN32
+	//#include <unistd.h>
+//#else
+	//#include <io.h>
+//#endif
 #include "absl/base/attributes.h"
 #include "absl/base/config.h"
 #include "absl/base/optimization.h"

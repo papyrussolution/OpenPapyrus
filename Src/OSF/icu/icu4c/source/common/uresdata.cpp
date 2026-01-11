@@ -16,7 +16,7 @@
 #include "ucol_swp.h"
 #include "udataswp.h"
 #include "uresdata.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "utracimp.h"
 /*
  * Resource access helpers

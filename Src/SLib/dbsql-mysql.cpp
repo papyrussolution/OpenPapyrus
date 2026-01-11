@@ -1,5 +1,5 @@
 // DBSQL-MYSQL.CPP
-// Copyright (c) A.Sobolev 2020, 2021, 2022, 2023, 2025
+// Copyright (c) A.Sobolev 2020, 2021, 2022, 2023, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -15,8 +15,13 @@
 	#define DEBUG_LOG(msg)
 #endif
 
+static MYSQL * GetHandle(DbProvider::Connection & rC) 
+{
+	return static_cast<MYSQL *>(rC.H);
+}
+
 SMySqlDbProvider::SMySqlDbProvider() :
-	DbProvider(sqlstMySQL, cpUTF8, DbDictionary::CreateInstance(0, 0), DbProvider::cSQL|DbProvider::cDbDependTa), H(0), SqlGen(sqlstMySQL, 0), Flags(0),
+	DbProvider(sqlstMySQL, cpUTF8, DbDictionary::CreateInstance(0, 0), DbProvider::cSQL|DbProvider::cDbDependTa), SqlGen(sqlstMySQL, 0), Flags(0),
 	P_LastSelectStmt(0)
 {
 }
@@ -31,7 +36,7 @@ int FASTCALL SMySqlDbProvider::ProcessError(int status)
 	int    ok = 1;
 	if(status) {
 		LastErr.Code = status;
-		LastErr.Descr = mysql_error(static_cast<MYSQL *>(H));
+		LastErr.Descr = mysql_error(GetHandle(Conn));
 		if(LastErr.Descr.NotEmpty()) {
 			DBS.SetError(BE_MYSQL_TEXT, LastErr.Descr);
 		}
@@ -79,7 +84,7 @@ int SMySqlDbProvider::UseDatabase(const char * pDbName) // @v12.4.8
 		ok = -1;
 	}
 	else {
-		MYSQL * p_h = static_cast<MYSQL *>(H);
+		MYSQL * p_h = GetHandle(Conn);
 		THROW(ProcessError(mysql_select_db(p_h, pDbName)));
 		CurrentDatabase = pDbName;
 		//SqlGen.Z().Tok(Generator_SQL::tokUse).Sp().QbText(pDbName);
@@ -90,64 +95,97 @@ int SMySqlDbProvider::UseDatabase(const char * pDbName) // @v12.4.8
 	return ok;
 }
 
-/*virtual*/int SMySqlDbProvider::DbLogin(const DbLoginBlock * pBlk, long options)
+int SMySqlDbProvider::Helper_CloseConnection(SMySqlDbProvider::Connection & rConn) // @v12.5.3
 {
-	int    ok = 0;
-	H = mysql_init(0);
-	if(H) {
-		MYSQL * p_h = static_cast<MYSQL *>(H);
-		SString temp_buf;
-		SString url_buf;
-		SString db_name;
-		pBlk->GetAttr(DbLoginBlock::attrDbName, db_name);
-		pBlk->GetAttr(DbLoginBlock::attrServerUrl, url_buf);
-		{
-			int   port = 0;
-			SString host;
-			SString sid;
-			SString user;
-			SString pw;
-			SString dbsymb;
-			if(url_buf.NotEmpty()) {
-				InetUrl url(url_buf);
-				url.GetComponent(InetUrl::cHost, 1, host);
-				url.GetComponent(InetUrl::cPort, 1, temp_buf);
-				port = temp_buf.ToLong();
-				SETIFZ(port, url.GetPort());
-				SETIFZ(port, InetUrl::GetDefProtocolPort(InetUrl::prot_p_MYSQL));
-			}
-			else {
-				StringSet ss(':', db_name);
-				uint   ssp = 0;
-				SString port_s;
-				if(ss.get(&ssp, host)) {
-					if(ss.get(&ssp, port_s)) {
-						if(ss.get(&ssp, sid)) {
-							port = port_s.ToULong();
+	int    ok = -1;
+	if(!!rConn) {
+		mysql_close(GetHandle(rConn));
+		rConn.Z();
+		ok = 1;
+	}
+	return ok;
+}
+
+SMySqlDbProvider::Connection SMySqlDbProvider::Helper_Connect(const DbLoginBlock * pBlk, SString * pDbName) // @v12.5.3
+{
+	CALLPTRMEMB(pDbName, Z());
+	Connection _conn;
+	if(pBlk) {
+		_conn.H = mysql_init(0);
+		if(!!_conn) {
+			MYSQL * p_h = GetHandle(_conn);
+			SString temp_buf;
+			SString url_buf;
+			SString db_name;
+			pBlk->GetAttr(DbLoginBlock::attrDbName, db_name);
+			pBlk->GetAttr(DbLoginBlock::attrServerUrl, url_buf);
+			{
+				int   port = 0;
+				SString host;
+				SString sid;
+				SString user;
+				SString pw;
+				SString dbsymb;
+				if(url_buf.NotEmpty()) {
+					InetUrl url(url_buf);
+					url.GetComponent(InetUrl::cHost, 1, host);
+					url.GetComponent(InetUrl::cPort, 1, temp_buf);
+					port = temp_buf.ToLong();
+					SETIFZ(port, url.GetPort());
+					SETIFZ(port, InetUrl::GetDefProtocolPort(InetUrl::prot_p_MYSQL));
+				}
+				else {
+					StringSet ss(':', db_name);
+					uint   ssp = 0;
+					SString port_s;
+					if(ss.get(&ssp, host)) {
+						if(ss.get(&ssp, port_s)) {
+							if(ss.get(&ssp, sid)) {
+								port = port_s.ToULong();
+							}
+							else {
+								sid = port_s;
+								port = InetUrl::GetDefProtocolPort(InetUrl::prot_p_MYSQL);
+							}
 						}
 						else {
-							sid = port_s;
+							sid = host;
+							host = "localhost";
 							port = InetUrl::GetDefProtocolPort(InetUrl::prot_p_MYSQL);
 						}
 					}
-					else {
-						sid = host;
-						host = "localhost";
-						port = InetUrl::GetDefProtocolPort(InetUrl::prot_p_MYSQL);
-					}
+				}
+				if(db_name.IsEmpty()) {
+					pBlk->GetAttr(DbLoginBlock::attrDbSymb, db_name);
+				}
+				pBlk->GetAttr(DbLoginBlock::attrUserName, user);
+				pBlk->GetAttr(DbLoginBlock::attrPassword, pw);
+				//p_h->options.charset_name = newStr("utf8mb4"); // @v12.5.1
+				if(mysql_real_connect(p_h, host, user, pw, db_name, port, 0/*unix-socket*/, 0/*client_flags*/)) {
+					//CurrentDatabase = db_name;
+					ASSIGN_PTR(pDbName, db_name);
+				}
+				else {
+					mysql_close(GetHandle(_conn));
+					_conn.Z();
 				}
 			}
-			if(db_name.IsEmpty()) {
-				pBlk->GetAttr(DbLoginBlock::attrDbSymb, db_name);
-			}
-			pBlk->GetAttr(DbLoginBlock::attrUserName, user);
-			pBlk->GetAttr(DbLoginBlock::attrPassword, pw);
-			//p_h->options.charset_name = newStr("utf8mb4"); // @v12.5.1
-			if(mysql_real_connect(p_h, host, user, pw, db_name, port, 0/*unix-socket*/, 0/*client_flags*/)) {
-				CurrentDatabase = db_name;
-				ok = 1;
-			}
 		}
+	}
+	return _conn;
+}
+
+/*virtual*/int SMySqlDbProvider::DbLogin(const DbLoginBlock * pBlk, long options)
+{
+	int    ok = 0;
+	Conn = Helper_Connect(pBlk, &CurrentDatabase);
+	if(!!Conn) {
+		Common_Login(pBlk);
+		ok = 1;
+	}
+	else {
+		assert(!Conn);
+		assert(CurrentDatabase.IsEmpty());
 	}
 	return ok;
 }
@@ -156,12 +194,16 @@ int SMySqlDbProvider::UseDatabase(const char * pDbName) // @v12.4.8
 {
 	int    ok = 0;
 	P_LastSelectStmt = 0; // @v12.5.2 Нет необходимости разрушать этот экземпляр: таблица-владелец сама это сделает.
-	if(H) {
-		mysql_close(static_cast<MYSQL *>(H));
-		H = 0;
-		CurrentDatabase.Z();
-		ok = 1;
+	ok = Helper_CloseConnection(Conn);
+	{
+		for(uint i = 0; i < ConnPool.getCount(); i++) {
+			Connection & r_conn = ConnPool.at(i);
+			Helper_CloseConnection(r_conn);
+		}
+		ConnPool.clear();
 	}
+	CurrentDatabase.Z();
+	Common_Logout(); // @v12.5.3
 	return ok;
 }
 
@@ -340,11 +382,11 @@ const BNField * SMySqlDbProvider::GetRowIdField(const DBTable * pTbl, uint * pFl
 /*virtual*/int SMySqlDbProvider::StartTransaction()
 {
 	int    ok = 0;
-	if(H) {
+	if(!!Conn) {
 		if(!(State & stTransaction)) {
 			DestroyLastSelectStatement();
 			SqlGen.Z().Tok(Generator_SQL::tokStart).Sp().Tok(Generator_SQL::tokTransaction);
-			if(ProcessError(mysql_query(static_cast<MYSQL *>(H), SqlGen.GetTextC()))) {
+			if(ProcessError(mysql_query(GetHandle(Conn), SqlGen.GetTextC()))) {
 				ok = 1;
 				State |= stTransaction;
 			}
@@ -359,10 +401,11 @@ const BNField * SMySqlDbProvider::GetRowIdField(const DBTable * pTbl, uint * pFl
 {
 	int    ok = 0;
 	int    rbr = 0; // rollback-result
-	if(H) {
+	if(!!Conn) {
 		if(State & stTransaction) {
+			DestroyLastSelectStatement();
 			SqlGen.Z().Tok(Generator_SQL::tokCommit);
-			if(ProcessError(mysql_query(static_cast<MYSQL *>(H), SqlGen.GetTextC()))) {
+			if(ProcessError(mysql_query(GetHandle(Conn), SqlGen.GetTextC()))) {
 				ok = 1;
 			}
 			else {
@@ -379,10 +422,11 @@ const BNField * SMySqlDbProvider::GetRowIdField(const DBTable * pTbl, uint * pFl
 /*virtual*/int SMySqlDbProvider::RollbackWork()
 {
 	int    ok = 0;
-	if(H) {
+	if(!!Conn) {
 		if(State & stTransaction) {
+			DestroyLastSelectStatement();
 			SqlGen.Z().Tok(Generator_SQL::tokRollback);
-			if(ProcessError(mysql_query(static_cast<MYSQL *>(H), SqlGen.GetTextC()))) {
+			if(ProcessError(mysql_query(GetHandle(Conn), SqlGen.GetTextC()))) {
 				ok = 1;
 			}
 			State &= ~stTransaction;
@@ -474,6 +518,12 @@ int SMySqlDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTable
 		ok = 1;
 		if(pStat) {
 			pStat->NumRecs = rec_buf.NumRows;
+			pStat->CrDtm = rec_buf.CrTm;
+			pStat->ModDtm = rec_buf.UpdTm;
+			pStat->TblName = rec_buf.TableName;
+			pStat->Collation = rec_buf.Collation;
+			pStat->SpaceName = rec_buf.TableCatalog;
+			pStat->DbEngine = rec_buf.Engine;
 			SETFLAG(pStat->Flags, XTF_TEMP, rec_buf.Temp[0] == 'Y');
 			//pStat->OwnerName = rec_buf.Owner;
 			//pStat->SpaceName = rec_buf.TableSpace; // DbTableStat
@@ -491,6 +541,9 @@ int SMySqlDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTable
 {
 	// information_schema
 	int    ok = 0;
+	if(pTbl) {
+		ok = GetFileStat(pTbl->FileName_, reqItems, pStat);
+	}
 	return ok;
 }
 
@@ -1103,6 +1156,7 @@ int SMySqlDbProvider::DestroyLastSelectStatement()
 		SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp().Text(p_rowid_fld->Name)._Symb(_EQ_).QText(temp_buf);
 	}
 	{
+		DestroyLastSelectStatement();
 		THROW(stmt.SetSqlText(SqlGen));
 		THROW(Binding(stmt, -1));
 		THROW(stmt.SetDataDML(0));
@@ -1112,9 +1166,33 @@ int SMySqlDbProvider::DestroyLastSelectStatement()
 	return ok;
 }
 
-/*virtual*/int SMySqlDbProvider::Implement_DeleteRec(DBTable * pTbl)
+/*virtual*/int SMySqlDbProvider::Implement_DeleteRec(DBTable * pTbl) // @v12.5.3 @construction
 {
-	return 0;
+	int    ok = 1;
+	const  uint fld_count = pTbl->FldL.getCount();
+	SString temp_buf;
+	SqlGen.Z().Tok(Generator_SQL::tokDelete).Sp().From(pTbl->FileName_, 0).Sp();
+	{
+		/*
+		//THROW(pTbl->getCurRowIdPtr()->IsI32());
+		pTbl->getCurRowIdPtr()->ToStr__(temp_buf);
+		SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp().Tok(Generator_SQL::tokRowId)._Symb(_EQ_).Text(temp_buf);
+		*/
+		uint   rowid_fld_pos = 0;
+		const  BNField * p_rowid_fld = GetRowIdField(pTbl, &rowid_fld_pos);
+		DBRowId * p_rowid = pTbl->getCurRowIdPtr();
+		THROW(p_rowid && (p_rowid->IsI32() || p_rowid->IsI64())); // @todo @err
+		p_rowid->ToStr__(temp_buf);
+		THROW(p_rowid_fld); // @todo @err
+		SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp().Text(p_rowid_fld->Name)._Symb(_EQ_).QText(temp_buf);
+	}
+	{
+		DestroyLastSelectStatement();
+		SSqlStmt stmt(this, SqlGen);
+		THROW(stmt.Exec(1, OCI_DEFAULT));
+	}
+	CATCHZOK
+	return ok;
 }
 
 /*virtual*/int SMySqlDbProvider::Implement_BExtInsert(BExtInsert * pBei)
@@ -1146,9 +1224,9 @@ int SMySqlDbProvider::DestroyLastSelectStatement()
 {
 	int    ok = 1;
 	MYSQL_STMT * p_stmt = 0;
-	THROW(p_stmt = mysql_stmt_init(static_cast<MYSQL *>(H)));
+	THROW(p_stmt = mysql_stmt_init(GetHandle(Conn)));
 	pS->H = p_stmt;
-	THROW(ProcessError(mysql_stmt_prepare(p_stmt, pText, sstrlen(pText))));
+	THROW(ProcessError(mysql_stmt_prepare(p_stmt, pText, static_cast<ulong>(sstrlen(pText)))));
 	CATCHZOK
 	return ok;
 }
@@ -1475,12 +1553,12 @@ void FASTCALL SMySqlDbProvider::OdFree(SMySqlDbProvider::OD & rO)
 				if(action == 0) {
 					if(pBind->Pos < 0) {
 						pBind->Flags |= SSqlStmt::Bind::fUseRetActualSize;
-						pBind->SetNtvTypeAndSize(MYSQL_TYPE_VAR_STRING, sz);
+						pBind->SetNtvTypeAndSize(MYSQL_TYPE_VAR_STRING, static_cast<uint32>(sz));
 						pStmt->AllocBindSubst(count, pBind->NtvSize*2, pBind);
 					}
 					else {
-						pBind->SetNtvTypeAndSize(MYSQL_TYPE_VAR_STRING, sz*2);
-						pStmt->AllocBindSubst(count, sz*2, pBind);
+						pBind->SetNtvTypeAndSize(MYSQL_TYPE_VAR_STRING, static_cast<uint32>(sz*2));
+						pStmt->AllocBindSubst(count, static_cast<uint32>(sz*2), pBind);
 					}
 				}
 				else if(action < 0) {
@@ -1514,7 +1592,7 @@ void FASTCALL SMySqlDbProvider::OdFree(SMySqlDbProvider::OD & rO)
 								r_temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 							}
 							r_temp_buf.CopyUtf8To(p_outer, sz*2);
-							pBind->NtvSize = r_temp_buf.Len(); // без терминального нуля!
+							pBind->NtvSize = r_temp_buf.Len32(); // без терминального нуля!
 						}
 					}
 				}
@@ -1581,7 +1659,7 @@ void FASTCALL SMySqlDbProvider::OdFree(SMySqlDbProvider::OD & rO)
 						SString & r_temp_buf = SLS.AcquireRvlStr();
 						r_temp_buf.CatN(static_cast<const char *>(p_lob_data), lob_size).Transf(CTRANSF_INNER_TO_UTF8);
 						//sqlite3_bind_text(h_stmt, idx, r_temp_buf.cptr(), r_temp_buf.Len(), SQLITE_TRANSIENT);
-						mysql_stmt_send_long_data(static_cast<MYSQL_STMT *>(pStmt->H), abs(pBind->Pos)-1, r_temp_buf.cptr(), r_temp_buf.Len());
+						mysql_stmt_send_long_data(static_cast<MYSQL_STMT *>(pStmt->H), abs(pBind->Pos)-1, r_temp_buf.cptr(), r_temp_buf.Len32());
 					}
 				}
 			}
@@ -1592,7 +1670,7 @@ void FASTCALL SMySqlDbProvider::OdFree(SMySqlDbProvider::OD & rO)
 					bool   _err = false;
 					bool   _no_more_data = false;
 					SString & r_temp_buf = SLS.AcquireRvlStr();
-					const  ulong _total_len = pBind->RetActualSize;
+					const  ulong _total_len = static_cast<ulong>(pBind->RetActualSize);
 					ulong  _offs = 0;
 					char   _chunk_buffer[2048];
 					while(!_err && !_no_more_data && _offs < _total_len) {
@@ -1618,7 +1696,7 @@ void FASTCALL SMySqlDbProvider::OdFree(SMySqlDbProvider::OD & rO)
 					} 
 					{
 						r_temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-						p_lob->InitPtr(r_temp_buf.Len()+1);
+						p_lob->InitPtr(r_temp_buf.Len32()+1);
 						void * p_lob_ptr = p_lob->GetRawDataPtr();
 						if(p_lob_ptr) {
 							strcpy(static_cast<char *>(p_lob_ptr), r_temp_buf.cptr());

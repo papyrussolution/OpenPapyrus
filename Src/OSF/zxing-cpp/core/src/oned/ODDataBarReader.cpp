@@ -61,7 +61,7 @@ static Character ReadDataCharacter(const PatternView& view, bool outsideChar, bo
 		int gSum = OUTSIDE_GSUM[group];
 		return {vOdd * tEvn + vEvn + gSum, checksumPortion};
 	}
-	else{
+	else {
 		int evnSum = Reduce(evnPattern);
 		assert((evnSum & 1) == 0 && evnSum <= 12 && evnSum >= 4); // checked in ReadDataCharacterRaw
 		int group = (10 - evnSum) / 2;

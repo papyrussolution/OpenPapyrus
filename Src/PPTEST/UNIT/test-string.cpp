@@ -1203,7 +1203,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 					SFile f_in(MakeInputFilePath("ru-kpp.txt"), SFile::mRead);
 					if(f_in.IsValid()) {
 						while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
-							tr.Run(line_buf.ucptr(), line_buf.Len(), nta.Z(), 0);
+							tr.Run(line_buf.ucptr(), line_buf.LenI(), nta.Z(), 0);
 							const float p = nta.Has(SNTOK_RU_KPP);
 							SLCHECK_LE(0.1f, p);
 						}
@@ -1234,7 +1234,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 					SFile f_in(MakeInputFilePath("ru-inn.txt"), SFile::mRead);
 					if(f_in.IsValid()) {
 						while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
-							tr.Run(line_buf.ucptr(), line_buf.Len(), nta.Z(), 0);
+							tr.Run(line_buf.ucptr(), line_buf.LenI(), nta.Z(), 0);
 							const float p = nta.Has(SNTOK_RU_INN);
 							SLCHECK_LE(0.1f, p);
 						}
@@ -1401,7 +1401,7 @@ struct Test_memchr_Block {
 				Status &= ~stError;
 				Haystack.CatN(_buf.cptr(), actual_size);
 				//
-				const uint hs_len = Haystack.Len();
+				const uint hs_len = Haystack.Len32();
 				for(uint i = 0; i < hs_len; i++) {
 					PosList.add((long)i);
 					if(hs_len <= 1024) {
@@ -1733,7 +1733,7 @@ SLTEST_R(sstrchr)
 	{
 		char buf[4096];
 		char * p;
-		for(size_t i = 0; i < 0x100; i++) {
+		for(uint i = 0; i < 0x100; i++) {
 			p = (char *)((ulong)(buf + 0xff) & ~0xff) + i;
 			strcpy(p, "OK");
 			strcpy(p+3, "BAD/WRONG");
@@ -4563,8 +4563,8 @@ SLTEST_FIXTURE(atoi, SlTestFixtureAtoi)
 		{
 			for(uint i = 0; i < F.L.getCount(); i++) {
 				const SString * p_item = F.L.at(i);
-				uint64 a1 = _texttodec64(*p_item, p_item->Len());
-				uint64 a2 = _texttodec64_2(*p_item, p_item->Len());
+				uint64 a1 = _texttodec64(*p_item, p_item->Len32());
+				uint64 a2 = _texttodec64_2(*p_item, p_item->Len32());
 				SLCHECK_EQ(a1, a2);
 			}
 		}
@@ -4591,7 +4591,7 @@ SLTEST_FIXTURE(atoi, SlTestFixtureAtoi)
 		uint64 s = 0;
 		for(uint i = 0; i < F.L.getCount(); i++) {
 			const SString * p_item = F.L.at(i);
-			uint64 a = _texttodec64(*p_item, p_item->Len());
+			uint64 a = _texttodec64(*p_item, p_item->Len32());
 			s += a;
 		}
 	}
@@ -4599,7 +4599,7 @@ SLTEST_FIXTURE(atoi, SlTestFixtureAtoi)
 		uint64 s = 0;
 		for(uint i = 0; i < F.L.getCount(); i++) {
 			const SString * p_item = F.L.at(i);
-			uint64 a = _texttodec64_2(*p_item, p_item->Len());
+			uint64 a = _texttodec64_2(*p_item, p_item->Len32());
 			s += a;
 		}
 	}

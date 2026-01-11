@@ -684,7 +684,11 @@ int PiritEquip::IdentifyTaxEntry(double vatRate, int isVatFree) const
 				//
 				// Не нашли в таблице того, чего искали: включаем default-вариант, основанный на документации к драйверу
 				//
-				if(_vat_rate == 18.0 || _vat_rate == 20.0 || feqeps(_vat_rate, 22.0, 1E-6)) { // @v12.5.1 (|| feqeps(_vat_rate, 22.0, 1E-6))
+				if(feqeps(_vat_rate, 22.0, 1E-6)) { // @v12.5.3
+					tax_entry_n = 10;
+					tax_entry_id_result = 1;
+				}
+				else if(_vat_rate == 18.0 || _vat_rate == 20.0) { 
 					tax_entry_n = 0;
 					tax_entry_id_result = 1;
 				}

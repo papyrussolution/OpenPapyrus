@@ -46,7 +46,7 @@ _CRTIMP __int64 __cdecl _strtoi64(const char * _String,
     char ** _EndPtr, int _Radix);
 #      endif
 #define strtooff _strtoi64
-#    else
+#else
 #define PRIVATE_STRTOOFF 1
 #endif
 #endif

@@ -66,7 +66,7 @@
 #ifdef _APP32_64BIT_OFF_T
 #define OLD_APP32_64BIT_OFF_T _APP32_64BIT_OFF_T
 #undef _APP32_64BIT_OFF_T
-#    else
+#else
 #undef OLD_APP32_64BIT_OFF_T
 #endif
 #endif

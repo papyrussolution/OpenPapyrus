@@ -1579,7 +1579,7 @@ int UTF8ToHtml(uchar * out, int * outlen, const uchar * in, int * inlen)
 	const uchar * inend;
 	uint c, d;
 	int trailing;
-	if((out == NULL) || (outlen == NULL) || (inlen == NULL))
+	if(!out || !outlen || !inlen)
 		return -1;
 	if(!in) {
 		/*
@@ -1685,7 +1685,7 @@ int htmlEncodeEntities(uchar * out, int * outlen, const uchar * in, int * inlen,
 	const uchar * inend;
 	uint c, d;
 	int trailing;
-	if((out == NULL) || (outlen == NULL) || (inlen == NULL) || (in == NULL))
+	if(!out || !outlen || !inlen || !in)
 		return -1;
 	outend = out + (*outlen);
 	inend = in + (*inlen);
@@ -1715,10 +1715,8 @@ int htmlEncodeEntities(uchar * out, int * outlen, const uchar * in, int * inlen,
 			*inlen = processed - instart;
 			return -2;
 		}
-
 		if(inend - in < trailing)
 			break;
-
 		while(trailing--) {
 			if(((d = *in++) & 0xC0) != 0x80) {
 				*outlen = out - outstart;
@@ -1728,7 +1726,6 @@ int htmlEncodeEntities(uchar * out, int * outlen, const uchar * in, int * inlen,
 			c <<= 6;
 			c |= d & 0x3F;
 		}
-
 		/* assertion: c is a single UTF-4 value */
 		if((c < 0x80) && (c != (uint)quoteChar) && (c != '&') && (c != '<') && (c != '>')) {
 			if(out >= outend)
@@ -1832,7 +1829,7 @@ static int FASTCALL areBlanks(htmlParserCtxt * ctxt, const xmlChar * str, int le
 					return 1;
 			}
 		}
-		if(ctxt->P_Node == NULL) 
+		if(!ctxt->P_Node) 
 			return 0;
 		else {
 			// 
@@ -1889,36 +1886,34 @@ static int FASTCALL areBlanks(htmlParserCtxt * ctxt, const xmlChar * str, int le
  */
 htmlDocPtr htmlNewDocNoDtD(const xmlChar * URI, const xmlChar * ExternalID) 
 {
-	/*
-	 * Allocate a new document and fill the fields.
-	 */
+	// Allocate a new document and fill the fields.
 	xmlDoc * p_cur = (xmlDoc *)SAlloc::M(sizeof(xmlDoc));
 	if(!p_cur) {
 		htmlErrMemory(NULL, "HTML document creation failed\n");
-		return NULL;
 	}
-	memzero(p_cur, sizeof(xmlDoc));
-	p_cur->type = XML_HTML_DOCUMENT_NODE;
-	p_cur->version = NULL;
-	p_cur->intSubset = NULL;
-	p_cur->doc = p_cur;
-	p_cur->name = NULL;
-	p_cur->children = NULL;
-	p_cur->extSubset = NULL;
-	p_cur->oldNs = NULL;
-	p_cur->encoding = NULL;
-	p_cur->standalone = 1;
-	p_cur->compression = 0;
-	p_cur->ids = NULL;
-	p_cur->refs = NULL;
-	p_cur->_private = NULL;
-	p_cur->charset = XML_CHAR_ENCODING_UTF8;
-	p_cur->properties = XML_DOC_HTML | XML_DOC_USERBUILT;
-	if(ExternalID || URI)
-		xmlCreateIntSubset(p_cur, reinterpret_cast<const xmlChar *>("html"), ExternalID, URI);
+	else {
+		memzero(p_cur, sizeof(xmlDoc));
+		p_cur->type = XML_HTML_DOCUMENT_NODE;
+		p_cur->version = NULL;
+		p_cur->intSubset = NULL;
+		p_cur->doc = p_cur;
+		p_cur->name = NULL;
+		p_cur->children = NULL;
+		p_cur->extSubset = NULL;
+		p_cur->oldNs = NULL;
+		p_cur->encoding = NULL;
+		p_cur->standalone = 1;
+		p_cur->compression = 0;
+		p_cur->ids = NULL;
+		p_cur->refs = NULL;
+		p_cur->_private = NULL;
+		p_cur->charset = XML_CHAR_ENCODING_UTF8;
+		p_cur->properties = XML_DOC_HTML | XML_DOC_USERBUILT;
+		if(ExternalID || URI)
+			xmlCreateIntSubset(p_cur, reinterpret_cast<const xmlChar *>("html"), ExternalID, URI);
+	}
 	return p_cur;
 }
-
 /**
  * htmlNewDoc:
  * @URI:  URI for the dtd, or NULL
@@ -1934,22 +1929,14 @@ htmlDocPtr htmlNewDoc(const xmlChar * URI, const xmlChar * ExternalID)
 		return htmlNewDocNoDtD(reinterpret_cast<const xmlChar *>("http://www.w3.org/TR/REC-html40/loose.dtd"), reinterpret_cast<const xmlChar *>("-//W3C//DTD HTML 4.0 Transitional//EN"));
 	return htmlNewDocNoDtD(URI, ExternalID);
 }
-
-/************************************************************************
-*									*
-*			The parser itself				*
-*	Relates to http://www.w3.org/TR/html40				*
-*									*
-************************************************************************/
-
-/************************************************************************
-*									*
-*			The parser itself				*
-*									*
-************************************************************************/
-
+// 
+// The parser itself
+// Relates to http://www.w3.org/TR/html40
+// 
+// 
+// The parser itself
+// 
 static const xmlChar * htmlParseNameComplex(xmlParserCtxt * ctxt);
-
 /**
  * htmlParseHTMLName:
  * @ctxt:  an HTML parser context
@@ -1959,7 +1946,6 @@ static const xmlChar * htmlParseNameComplex(xmlParserCtxt * ctxt);
  *
  * Returns the Tag Name parsed or NULL
  */
-
 static const xmlChar * FASTCALL htmlParseHTMLName(htmlParserCtxt * ctxt) 
 {
 	int i = 0;
@@ -2127,7 +2113,7 @@ static xmlChar * FASTCALL htmlParseHTMLAttribute(htmlParserCtxt * ctxt, const xm
 					*out++  = ((c >> bits) & 0x3F) | 0x80;
 				}
 				if(out - buffer > buffer_size - 100) {
-					int indx = out - buffer;
+					ssize_t indx = out - buffer;
 					growBuffer(buffer);
 					out = &buffer[indx];
 				}
@@ -2136,8 +2122,8 @@ static xmlChar * FASTCALL htmlParseHTMLAttribute(htmlParserCtxt * ctxt, const xm
 				ent = htmlParseEntityRef(ctxt, &name);
 				if(!name) {
 					*out++ = '&';
-					if(out - buffer > buffer_size - 100) {
-						int indx = out - buffer;
+					if((out - buffer) > (buffer_size - 100)) {
+						ssize_t indx = out - buffer;
 						growBuffer(buffer);
 						out = &buffer[indx];
 					}
@@ -3209,7 +3195,7 @@ static int htmlParseStartTag(htmlParserCtxt * ctxt)
 	 */
 	SKIP_BLANKS;
 	while((IS_CHAR_CH(CUR)) && (CUR != '>') && ((CUR != '/') || (NXT(1) != '>'))) {
-		long cons = ctxt->nbChars;
+		ssize_t cons = ctxt->nbChars;
 		GROW;
 		attname = htmlParseAttribute(ctxt, &attvalue);
 		if(attname) {
@@ -3494,7 +3480,7 @@ static void htmlParseContent(htmlParserCtxt * ctxt)
 	xmlChar * currentNode = sstrdup(ctxt->name);
 	int depth = ctxt->nameNr;
 	while(1) {
-		long cons = ctxt->nbChars;
+		const ssize_t cons = ctxt->nbChars;
 		GROW;
 		if(ctxt->instate == XML_PARSER_EOF)
 			break;
@@ -4291,10 +4277,10 @@ static htmlParserCtxt * htmlCreateDocParserCtxt(const xmlChar * cur, const char 
  * Returns the index to the current parsing point if the full sequence
  * is available, -1 otherwise.
  */
-static int htmlParseLookupSequence(htmlParserCtxt * ctxt, xmlChar first, xmlChar next, xmlChar third, int iscomment, int ignoreattrval)
+static ssize_t htmlParseLookupSequence(htmlParserCtxt * ctxt, xmlChar first, xmlChar next, xmlChar third, int iscomment, int ignoreattrval)
 {
-	int    base;
-	int    len;
+	ssize_t base;
+	ssize_t len;
 	const  xmlChar * buf;
 	int    incomment = 0;
 	int    invalue = 0;
@@ -4302,90 +4288,94 @@ static int htmlParseLookupSequence(htmlParserCtxt * ctxt, xmlChar first, xmlChar
 	htmlParserInputPtr in = ctxt->input;
 	if(!in)
 		return -1;
-	base = in->cur - in->base;
-	if(base < 0)
-		return -1;
-	SETMAX(base, ctxt->CheckIndex);
-	if(!in->buf) {
-		buf = in->base;
-		len = in->length;
-	}
 	else {
-		buf = xmlBufContent(in->buf->buffer);
-		len = static_cast<int>(xmlBufUse(in->buf->buffer));
-	}
-	// take into account the sequence length 
-	if(third)
-		len -= 2;
-	else if(next)
-		len--;
-	for(; base < len; base++) {
-		if((!incomment) && (base + 4 < len) && (!iscomment)) {
-			if((buf[base] == '<') && (buf[base + 1] == '!') && (buf[base + 2] == '-') && (buf[base + 3] == '-')) {
-				incomment = 1;
-				// do not increment past <! - some people use <!--> 
-				base += 2;
+		base = in->cur - in->base;
+		if(base < 0)
+			return -1;
+		else {
+			SETMAX(base, ctxt->CheckIndex);
+			if(!in->buf) {
+				buf = in->base;
+				len = in->length;
 			}
-		}
-		if(ignoreattrval) {
-			if(buf[base] == '"' || buf[base] == '\'') {
-				if(invalue) {
-					if(buf[base] == valdellim) {
-						invalue = 0;
+			else {
+				buf = xmlBufContent(in->buf->buffer);
+				len = static_cast<int>(xmlBufUse(in->buf->buffer));
+			}
+			// take into account the sequence length 
+			if(third)
+				len -= 2;
+			else if(next)
+				len--;
+			for(; base < len; base++) {
+				if((!incomment) && (base + 4 < len) && (!iscomment)) {
+					if((buf[base] == '<') && (buf[base + 1] == '!') && (buf[base + 2] == '-') && (buf[base + 3] == '-')) {
+						incomment = 1;
+						// do not increment past <! - some people use <!--> 
+						base += 2;
+					}
+				}
+				if(ignoreattrval) {
+					if(buf[base] == '"' || buf[base] == '\'') {
+						if(invalue) {
+							if(buf[base] == valdellim) {
+								invalue = 0;
+								continue;
+							}
+						}
+						else {
+							valdellim = buf[base];
+							invalue = 1;
+							continue;
+						}
+					}
+					else if(invalue) {
 						continue;
 					}
 				}
-				else {
-					valdellim = buf[base];
-					invalue = 1;
+				if(incomment) {
+					if((base + 3) > len)
+						return -1;
+					if((buf[base] == '-') && (buf[base + 1] == '-') && (buf[base + 2] == '>')) {
+						incomment = 0;
+						base += 2;
+					}
 					continue;
 				}
+				if(buf[base] == first) {
+					if(third != 0) {
+						if((buf[base + 1] != next) || (buf[base + 2] != third))
+							continue;
+					}
+					else if(next != 0) {
+						if(buf[base + 1] != next)
+							continue;
+					}
+					ctxt->CheckIndex = 0;
+#ifdef DEBUG_PUSH
+					if(next == 0)
+						xmlGenericError(0, "HPP: lookup '%c' found at %d\n", first, base);
+					else if(third == 0)
+						xmlGenericError(0, "HPP: lookup '%c%c' found at %d\n", first, next, base);
+					else
+						xmlGenericError(0, "HPP: lookup '%c%c%c' found at %d\n", first, next, third, base);
+#endif
+					return (base - (in->cur - in->base));
+				}
 			}
-			else if(invalue) {
-				continue;
-			}
-		}
-		if(incomment) {
-			if((base + 3) > len)
-				return -1;
-			if((buf[base] == '-') && (buf[base + 1] == '-') && (buf[base + 2] == '>')) {
-				incomment = 0;
-				base += 2;
-			}
-			continue;
-		}
-		if(buf[base] == first) {
-			if(third != 0) {
-				if((buf[base + 1] != next) || (buf[base + 2] != third))
-					continue;
-			}
-			else if(next != 0) {
-				if(buf[base + 1] != next)
-					continue;
-			}
-			ctxt->CheckIndex = 0;
+			if((!incomment) && (!invalue))
+				ctxt->CheckIndex = base;
 #ifdef DEBUG_PUSH
 			if(next == 0)
-				xmlGenericError(0, "HPP: lookup '%c' found at %d\n", first, base);
+				xmlGenericError(0, "HPP: lookup '%c' failed\n", first);
 			else if(third == 0)
-				xmlGenericError(0, "HPP: lookup '%c%c' found at %d\n", first, next, base);
+				xmlGenericError(0, "HPP: lookup '%c%c' failed\n", first, next);
 			else
-				xmlGenericError(0, "HPP: lookup '%c%c%c' found at %d\n", first, next, third, base);
+				xmlGenericError(0, "HPP: lookup '%c%c%c' failed\n", first, next, third);
 #endif
-			return (base - (in->cur - in->base));
+			return -1;
 		}
 	}
-	if((!incomment) && (!invalue))
-		ctxt->CheckIndex = base;
-#ifdef DEBUG_PUSH
-	if(next == 0)
-		xmlGenericError(0, "HPP: lookup '%c' failed\n", first);
-	else if(third == 0)
-		xmlGenericError(0, "HPP: lookup '%c%c' failed\n", first, next);
-	else
-		xmlGenericError(0, "HPP: lookup '%c%c%c' failed\n", first, next, third);
-#endif
-	return -1;
 }
 /**
  * htmlParseLookupChars:
@@ -4843,7 +4833,7 @@ static int htmlParseTryOrFinish(htmlParserCtxt * ctxt, int terminate)
 				     */
 				    if(!terminate) {
 					    xmlChar val;
-					    int idx = htmlParseLookupSequence(ctxt, '<', '/', 0, 0, 0);
+					    ssize_t idx = htmlParseLookupSequence(ctxt, '<', '/', 0, 0, 0);
 					    if(idx < 0)
 						    goto done;
 					    val = in->cur[idx + 2];

@@ -1757,7 +1757,6 @@ int CTableOrder::Create(const Param * pParam)
 		THROW(ok = P_ScObj->P_CcTbl->TurnCheck(&cc_pack, 0));
 		if(ord.PrepayAmount > 0.0 && ord.SCardID && P_ScObj->IsCreditCard(ord.SCardID) > 0) {
 			SCardOpTbl::Rec scop_rec;
-			MEMSZERO(scop_rec);
 			scop_rec.SCardID = cc_pack.Rec.SCardID;
 			scop_rec.Dt      = cc_pack.Rec.Dt;
 			scop_rec.Tm      = cc_pack.Rec.Tm;

@@ -253,9 +253,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\OSF\OpenXLSX\SRC\OpenXLSX.cpp" />
+    <ClCompile Include="..\OSF\pugixml\pugixml.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\external\zippy\zippy.hpp" />
     <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\OpenXLSX.hpp" />
+    <ClInclude Include="..\OSF\pugixml\pugixml.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

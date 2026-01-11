@@ -14,7 +14,7 @@
 #include "currfmt.h"
 #include "resource.h"
 #include "quantityformatter.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "unicode/ures.h"
 #include "ureslocs.h"
 #include "mutex.h"

@@ -102,18 +102,14 @@ MARIADB_RPL_EVENT * STDCALL mariadb_rpl_fetch(MARIADB_RPL * rpl, MARIADB_RPL_EVE
 	uchar * ev;
 	size_t len;
 	MARIADB_RPL_EVENT * rpl_event = 0;
-
 	if(!rpl || !rpl->mysql)
 		return 0;
-
 	while(1) {
-		unsigned long pkt_len = ma_net_safe_read(rpl->mysql);
-
+		ulong pkt_len = ma_net_safe_read(rpl->mysql);
 		if(pkt_len == packet_error) {
 			rpl->buffer_size = 0;
 			return 0;
 		}
-
 		/* EOF packet:
 		   see https://mariadb.com/kb/en/library/eof_packet/
 		   Packet length must be less than 9 bytes, EOF header
@@ -415,7 +411,7 @@ int mariadb_rpl_optionsv(MARIADB_RPL * rpl, enum mariadb_rpl_option option, ...)
 		    rpl->flags = va_arg(ap, uint);
 		    break;
 		case MARIADB_RPL_START:
-		    rpl->start_position = va_arg(ap, unsigned long);
+		    rpl->start_position = va_arg(ap, ulong);
 		    break;
 		default:
 		    rc = -1;

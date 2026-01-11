@@ -1700,8 +1700,7 @@ int GoodsSubstList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 	return ok;
 }
 
-const char * FASTCALL GoodsSubstList::GetTextPtr(uint pos) const
-	{ return (pos < Pool.getDataLen()) ? (Pool.getBuf() + pos) : 0; }
+const char * FASTCALL GoodsSubstList::GetTextPtr(uint pos) const { return (pos < Pool.getDataLen()) ? (Pool.getBuf() + pos) : 0; }
 
 IMPL_CMPFUNC(GoodsSubstItem_Srch, p1, p2)
 {
@@ -1709,12 +1708,12 @@ IMPL_CMPFUNC(GoodsSubstItem_Srch, p1, p2)
 	const GoodsSubstItem * i2 = (const GoodsSubstItem *)p2;
 	if(i1->ClsID < i2->ClsID) return -1;
 	if(i1->ClsID > i2->ClsID) return 1;
-	if(i1->Par1 < i2->Par1)   return -1;
-	if(i1->Par1 > i2->Par1)   return 1;
-	if(i1->U.L.Par2 < i2->U.L.Par2)   return -1;
-	if(i1->U.L.Par2 > i2->U.L.Par2)   return 1;
-	if(i1->U.L.Par3 < i2->U.L.Par3)   return -1;
-	if(i1->U.L.Par3 > i2->U.L.Par3)   return 1;
+	if(i1->Par1 < i2->Par1) return -1;
+	if(i1->Par1 > i2->Par1) return 1;
+	if(i1->U.L.Par2 < i2->U.L.Par2) return -1;
+	if(i1->U.L.Par2 > i2->U.L.Par2) return 1;
+	if(i1->U.L.Par3 < i2->U.L.Par3) return -1;
+	if(i1->U.L.Par3 > i2->U.L.Par3) return 1;
 	{
 		if(i1->P_Text != 0 && i2->P_Text != 0) {
 			const GoodsSubstList * p_gsl = static_cast<const GoodsSubstList *>(pExtraData);

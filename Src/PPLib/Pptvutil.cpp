@@ -1,12 +1,10 @@
 // PPTVUTIL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
 #define HMONITOR_DECLARED
-//#include <shlobj.h>
-//#include <htmlhelp.h>
 #pragma comment(lib, "htmlhelp.lib")
 
 TWindow * PPApp::FindPhonePaneDialog()
@@ -326,7 +324,7 @@ int FASTCALL GetRealRangeInput(TDialog * dlg, uint ctl, RealRange * pRng) { retu
 int FASTCALL SetIntRangeInput(TDialog * dlg, uint ctl, const IntRange * pR)
 {
 	SString temp_buf;
-	return dlg->setCtrlString(ctl, pR->Format(0, temp_buf));
+	return dlg->setCtrlString(ctl, pR->ToStr(0, temp_buf));
 }
 
 int FASTCALL GetIntRangeInput(TDialog * dlg, uint ctl, IntRange * pR)
@@ -8202,10 +8200,10 @@ int PPEditTextFile(const EditTextFileParam * pParam)
 	else
 		ok = 1;
 	if(ok > 0) {
-		SString temp_buf = file_name;
-		temp_buf.Transf(CTRANSF_OUTER_TO_UTF8);
+		SString temp_buf(file_name);
+		temp_buf.Transf(CTRANSF_INNER_TO_UTF8); // @v12.5.3 @fix CTRANSF_OUTER_TO_UTF8-->CTRANSF_INNER_TO_UTF8
 		ris.CheckIn(temp_buf);
-		PPViewTextBrowser(file_name, 0, 0, -1);
+		PPViewTextBrowser(temp_buf, 0, 0, -1); // @v12.5.3 @fix file_name-->temp_buf
 	}
 	CATCHZOKPPERR
 	delete dlg;
@@ -8384,6 +8382,7 @@ private:
 	void   Build(TDialog * pDlg, DlContext & rCtx, const DlScope * pScope);
 	void   Build(TDialog * pDlg, DlContext & rCtx, const char * pSymb);
 	void   Build(TDialog * pDlg, DlContext & rCtx, uint viewId);
+	void   InsertControlLabel(TDialog * pDlg, DlContext & rCtx, const DlScope * pMainScope, TView * pMainCtrlView, uint & rLastDynId);
 	void   InsertControlItems(TDialog * pDlg, DlContext & rCtx, const DlScope & rParentScope, uint & rLastDynId, FIBlock & rFiBlk, int stage);
 	void   InsertControlLayouts(TDialog * pDlg, DlContext & rCtx, const DlScope & rParentScope, SUiLayout * pLoParent);
 	static void __stdcall SetupLayoutItemFrameProc(SUiLayout * pItem, const SUiLayout::Result & rR);
@@ -8605,6 +8604,23 @@ SUiLayout * PPDialogConstructor::InsertCtrlLayout(TDialog * pDlg, SUiLayout * pL
 	return p_result;
 }
 
+void PPDialogConstructor::InsertControlLabel(TDialog * pDlg, DlContext & rCtx, const DlScope * pMainScope, TView * pMainCtrlView, uint & rLastDynId)
+{
+	SString ctl_text;
+	if(pMainCtrlView && rCtx.GetConst_String(pMainScope, DlScope::cuifCtrlText, ctl_text)) {
+		//cuifCtrlLblRect,  // raw    Координаты текстового ярлыка, ассоциированного с управляющим элементом
+		//cuifCtrlLblSymb,  // string Символ текстового ярлыка, ассоциированного с управляющим элементом
+		//cuifLabelRect,    // raw(UiRelRect) Положение текстового ярлыка, ассоциированного с управляющим элементом
+		//cuifLblLayoutBlock
+		SUiLayoutParam lp_label;
+		const  bool glb_label_r = rCtx.GetLayoutBlock(pMainScope, DlScope::cuifLblLayoutBlock, &lp_label);
+		TRect  rc_label;
+		const  uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp_label, rc_label, 60.0f, 13.0f);
+		TLabel * p_lbl = new TLabel(rc_label, ctl_text, pMainCtrlView);
+		pDlg->InsertCtlWithCorrespondingNativeItem(p_lbl, ++rLastDynId, 0, /*extraPtr*/0);
+	}
+}
+
 void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, const DlScope & rParentScope, uint & rLastDynId, FIBlock & rFiBlk, int stage)
 {
 	SString temp_buf;
@@ -8648,8 +8664,8 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 			switch(vk) {
 				case UiItemKind::kInput:
 					if(stage == insertctrlstageMain) {
-						TRect rc;
-						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 21.0f);
+						TRect  rc;
+						const  uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 21.0f);
 						//
 						uint32 type_id = 0;
 						uint32 format = 0;
@@ -8665,7 +8681,6 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						if(ui_flags & UiItemKind::fPassword) {
 							spc_flags |= TInputLine::spcfPassword;
 						}
-						
 						TInputLine * p_ctl = new TInputLine(rc, spc_flags, static_cast<TYPEID>(type_id), 0);
 						if(format) {
 							p_ctl->setFormat(format);
@@ -8673,26 +8688,14 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						if(ui_flags & UiItemKind::fTabStop) {
 							p_ctl->setState(sfTabStop, true);
 						}
-						{
-							// Label надо вставить до поля ввода
-							if(rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, ctl_text)) {
-								//cuifCtrlLblRect,  // raw    Координаты текстового ярлыка, ассоциированного с управляющим элементом
-								//cuifCtrlLblSymb,  // string Символ текстового ярлыка, ассоциированного с управляющим элементом
-								//cuifLabelRect,    // raw(UiRelRect) Положение текстового ярлыка, ассоциированного с управляющим элементом
-								//cuifLblLayoutBlock
-								SUiLayoutParam lp_label;
-								const bool glb_label_r = rCtx.GetLayoutBlock(p_scope, DlScope::cuifLblLayoutBlock, &lp_label);
-								TRect rc_label;
-								const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp_label, rc_label, 60.0f, 13.0f);
-								TLabel * p_lbl = new TLabel(rc_label, ctl_text, p_ctl);
-								pDlg->InsertCtlWithCorrespondingNativeItem(p_lbl, ++rLastDynId, 0, /*extraPtr*/0);
-							}
-						}
+						// Label надо вставить до поля ввода
+						InsertControlLabel(pDlg, rCtx, p_scope, p_ctl, rLastDynId);
 						pDlg->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
 						is_inserted = true;
-						if(oneof8(supplement.Kind, SUiCtrlSupplement::kDateCalendar, SUiCtrlSupplement::kDateRangeCalendar,
+						if(oneof9(supplement.Kind, SUiCtrlSupplement::kDateCalendar, SUiCtrlSupplement::kDateRangeCalendar,
 							SUiCtrlSupplement::kTime, SUiCtrlSupplement::kCalc, SUiCtrlSupplement::kAsterisk, 
-							SUiCtrlSupplement::kFileBrowse, SUiCtrlSupplement::kFilt, SUiCtrlSupplement::kEllipsis)) { // @v12.3.10 SUiCtrlSupplement::kFileBrowse // @v12.4.10 SUiCtrlSupplement::kFilt
+							SUiCtrlSupplement::kFileBrowse, SUiCtrlSupplement::kFilt, SUiCtrlSupplement::kEllipsis, SUiCtrlSupplement::kNumberStepper)) { 
+							// @v12.3.10 SUiCtrlSupplement::kFileBrowse // @v12.4.10 SUiCtrlSupplement::kFilt // @v12.5.3 SUiCtrlSupplement::kNumberStepper
 							if(supplement.Ident) {
 								const char * p_supplement_title = 0;
 								TRect rc_sb;
@@ -8709,33 +8712,40 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 								else
 									rc_sb.b.x = rc_sb.a.x + 20;
 								rc_sb.b.y = rc_sb.a.y;
-								uint   pic_id = 0;
-								switch(supplement.Kind) {
-									case SUiCtrlSupplement::kDateCalendar: pic_id = PPDV_CALENDARDAY01; break;
-									case SUiCtrlSupplement::kDateRangeCalendar: pic_id = PPDV_CALENDAR03; break;
-									case SUiCtrlSupplement::kTime: pic_id = PPDV_CLOCK02; break;
-									case SUiCtrlSupplement::kCalc: pic_id = PPDV_CALCULATOR02; break;
-									case SUiCtrlSupplement::kAsterisk: pic_id = PPDV_ASTERISK01; break;
-									case SUiCtrlSupplement::kFileBrowse: pic_id = PPDV_FOLDER02; break;
-									case SUiCtrlSupplement::kEllipsis: pic_id = PPDV_ELLIPSIS; break; // @v12.5.0
+								if(supplement.Kind == SUiCtrlSupplement::kNumberStepper) { // @v12.5.3 // @construction
+									// @todo 
+									TNumberStepper * p_ns = new TNumberStepper(rc_sb);
+									pDlg->InsertCtlWithCorrespondingNativeItem(p_ns, supplement.Ident, 0, /*extraPtr*/0);
 								}
-								TButton * p_sb = new TButton(rc_sb, p_supplement_title, supplement.Cmd, 0, pic_id);
-								p_sb->SetSupplementFactors(supplement.Kind, item_id);
-								pDlg->InsertCtlWithCorrespondingNativeItem(p_sb, supplement.Ident, 0, /*extraPtr*/0);
-								/*{
-									if(supplement.Kind == SUiCtrlSupplement::kDateCalendarButton)
-										pDlg->SetupCalDate_Internal(supplement.Ident, item_id);
-									else if(supplement.Kind == SUiCtrlSupplement::kDateRangeCalendarButton)
-										pDlg->SetupCalPeriod_Internal(supplement.Ident, item_id);
-								}*/
+								else {
+									uint   pic_id = 0;
+									switch(supplement.Kind) {
+										case SUiCtrlSupplement::kDateCalendar: pic_id = PPDV_CALENDARDAY01; break;
+										case SUiCtrlSupplement::kDateRangeCalendar: pic_id = PPDV_CALENDAR03; break;
+										case SUiCtrlSupplement::kTime: pic_id = PPDV_CLOCK02; break;
+										case SUiCtrlSupplement::kCalc: pic_id = PPDV_CALCULATOR02; break;
+										case SUiCtrlSupplement::kAsterisk: pic_id = PPDV_ASTERISK01; break;
+										case SUiCtrlSupplement::kFileBrowse: pic_id = PPDV_FOLDER02; break;
+										case SUiCtrlSupplement::kEllipsis: pic_id = PPDV_ELLIPSIS; break; // @v12.5.0
+									}
+									TButton * p_sb = new TButton(rc_sb, p_supplement_title, supplement.Cmd, 0, pic_id);
+									p_sb->SetSupplementFactors(supplement.Kind, item_id);
+									pDlg->InsertCtlWithCorrespondingNativeItem(p_sb, supplement.Ident, 0, /*extraPtr*/0);
+									/*{
+										if(supplement.Kind == SUiCtrlSupplement::kDateCalendarButton)
+											pDlg->SetupCalDate_Internal(supplement.Ident, item_id);
+										else if(supplement.Kind == SUiCtrlSupplement::kDateRangeCalendarButton)
+											pDlg->SetupCalPeriod_Internal(supplement.Ident, item_id);
+									}*/
+								}
 							}
 						}
 					}
 					break;
 				case UiItemKind::kStatic:
 					if(stage == insertctrlstageMain) {
-						TRect rc;
-						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
+						TRect  rc;
+						const  uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
 						uint   spc_flags = (ui_flags & UiItemKind::fStaticEdge) ? TStaticText::spcfStaticEdge : 0;
 						rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, ctl_text);
 						TStaticText * p_ctl = new TStaticText(rc, spc_flags, ctl_text);
@@ -8745,7 +8755,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 					break;
 				case UiItemKind::kPushbutton:
 					if(stage == insertctrlstageMain) {
-						TRect rc;
+						TRect  rc;
 						const  uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
 						uint32 cmd_id = 0;
 						uint   spc_flags = 0;
@@ -8780,8 +8790,8 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 					break;
 				case UiItemKind::kCheckbox: 
 					if(stage == insertctrlstageMain) {
-						TRect rc;
-						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
+						TRect  rc;
+						const  uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
 						TCluster * p_ctl = new TCluster(rc, CHECKBOXES, TCluster::spcfSingleItemWithoutFrame/*spcFlags*/, 0/*pTitle*/, 0);
 						{
 							if(rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, temp_buf)) {
@@ -8795,8 +8805,8 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 					break;
 				case UiItemKind::kCheckCluster: 
 					if(stage == insertctrlstageMain) {
-						TRect rc;
-						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
+						TRect  rc;
+						const  uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
 						rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, ctl_text);
 						TCluster * p_ctl = new TCluster(rc, CHECKBOXES, 0/*spcFlags*/, ctl_text, 0);
 						{
@@ -8821,8 +8831,8 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 					break;
 				case UiItemKind::kRadioCluster: 
 					if(stage == insertctrlstageMain) {
-						TRect rc;
-						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
+						TRect  rc;
+						const  uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
 						rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, ctl_text);
 						TCluster * p_ctl = new TCluster(rc, RADIOBUTTONS, 0/*spcFlags*/, ctl_text, 0);
 						{
@@ -8847,8 +8857,8 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 					break;
 				case UiItemKind::kCombobox:
 					if(stage == insertctrlstageMain) {
-						TRect rc;
-						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
+						TRect  rc;
+						const  uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
 						uint32 cb_line_id = 0;
 						rCtx.GetConst_String(p_scope, DlScope::cuifCbLineSymb, temp_buf);
 						rCtx.GetConst_Uint32(p_scope, DlScope::cuifCbLineSymbIdent, cb_line_id);
@@ -8868,21 +8878,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						rc_cb.b.y = rc.b.y;
 						ComboBox * p_cb = new ComboBox(rc_cb, cbxAllowEmpty|cbxDisposeData|cbxListOnly, p_il);
 						p_cb->SetId(item_id);
-						{
-							// Label
-							if(rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, ctl_text)) {
-								//cuifCtrlLblRect,  // raw    Координаты текстового ярлыка, ассоциированного с управляющим элементом
-								//cuifCtrlLblSymb,  // string Символ текстового ярлыка, ассоциированного с управляющим элементом
-								//cuifLabelRect,    // raw(UiRelRect) Положение текстового ярлыка, ассоциированного с управляющим элементом
-								//cuifLblLayoutBlock
-								SUiLayoutParam lp_label;
-								const bool glb_label_r = rCtx.GetLayoutBlock(p_scope, DlScope::cuifLblLayoutBlock, &lp_label);
-								TRect rc_label;
-								const uint gnrr_label = SUiLayoutParam::GetNominalRectWithDefaults(&lp_label, rc_label, 60.0f, 13.0f);
-								TLabel * p_lbl = new TLabel(rc_label, ctl_text, p_il);
-								pDlg->InsertCtlWithCorrespondingNativeItem(p_lbl, ++rLastDynId, 0, /*extraPtr*/0);
-							}
-						}
+						InsertControlLabel(pDlg, rCtx, p_scope, p_il, rLastDynId);
 						pDlg->InsertCtlWithCorrespondingNativeItem(p_cb, item_id, 0, /*extraPtr*/0);
 						is_inserted = true;
 						// @v12.4.1 {
@@ -8923,9 +8919,8 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 					break;
 				case UiItemKind::kListbox: 
 					if(stage == insertctrlstageMain) {
-						TRect rc;
-						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
-
+						TRect  rc;
+						const  uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
 						SString column_description;
 						ListBoxDef * p_lb_def = 0;
 						rCtx.GetConst_String(p_scope, DlScope::cuifListBoxColumns, column_description);
@@ -8934,6 +8929,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						}
 						SmartListBox * p_lb = column_description.NotEmpty() ? new SmartListBox(rc, p_lb_def, column_description) : new SmartListBox(rc, p_lb_def, false/*is_tree*/);
 						if(p_lb) {
+							InsertControlLabel(pDlg, rCtx, p_scope, p_lb, rLastDynId); // @v12.5.3
 							//LldState |= lldsDefBailed;
 							if(ui_flags & UiItemKind::fTabStop) {
 								p_lb->setState(sfTabStop, true);
@@ -8956,7 +8952,6 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 					if(stage == insertctrlstageMain) {
 						TRect rc;
 						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
-
 						SString column_description;
 						StdTreeListBoxDef * p_lb_def = new StdTreeListBoxDef(0, lbtDisposeData|lbtDblClkNotify, 0);
 						SmartListBox * p_lb = new SmartListBox(rc, p_lb_def, true/*is_tree*/);
@@ -9008,9 +9003,8 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 					break;
 				case UiItemKind::kImageView: 
 					if(stage == insertctrlstageMain) {
-						TRect rc;
-						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
-							
+						TRect  rc;
+						const  uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
 						SString img_symb;
 						rCtx.GetConst_String(p_scope, DlScope::cuifImageSymb, img_symb);
 						rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, ctl_text);
@@ -9100,7 +9094,13 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 		}
 		if(supplement.Kind && supplement.Ident) {
 			p_supplemental_view = pDlg->getCtrlView(supplement.Ident);
-			if(!TView::IsSubSign(p_supplemental_view, TV_SUBSIGN_BUTTON))
+			if(TView::IsSubSign(p_supplemental_view, TV_SUBSIGN_BUTTON)) {
+				;
+			}
+			else if(TView::IsSubSign(p_supplemental_view, TV_SUBSIGN_NUMSTEPPER)) {
+				;
+			}
+			else
 				p_supplemental_view = 0;
 		}
 		if(inp_szy != SUiLayoutParam::szFixed) {
@@ -9430,13 +9430,72 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 						}
 						else if(vk == UiItemKind::kListbox) {
 							SmartListBox * p_lb = static_cast<SmartListBox *>(p_view);
-							if(!p_lb->IsMultiColumn() && !p_lb->IsTreeList()) // Припуск для скролл-бара не нужен для мультиколоночного списка и для treeview
-								lp.Margin.b.x += 20.0f; 
-							p_lo = InsertCtrlLayout(pDlg, pLoParent, p_view, lp);
+							// @v12.5.3 {
+							TView * p_lbl = pDlg->GetCtrlLabel(p_lb);
+							if(p_lbl) {
+								SUiLayoutParam glp(DIREC_VERT); // Общий лейаут для всей группы
+								SUiLayoutParam lp_label;
+								glp.Margin = lp.Margin;
+								lp.Margin.Z();
+								lp.CopySizeXParamTo(glp);
+								lp.CopySizeYParamTo(glp);
+								glp.SetGrowFactor(lp.GrowFactor); 
+								lp.GrowFactor = 1.0f;
+								lp.Size.y = 0;
+								lp.SzY = SUiLayoutParam::szUndef;
+								lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+								lp_label.SetFixedSizeY(FixedLabelY);
+								lp_label.Margin.b.y = 2;
+								lp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+								//
+								if(!p_lb->IsMultiColumn() && !p_lb->IsTreeList()) // Припуск для скролл-бара не нужен для мультиколоночного списка и для treeview
+									lp.Margin.b.x += 20.0f; 
+								//
+								SUiLayout * p_lo_grp = pLoParent->InsertItem(0, &glp);
+								InsertCtrlLayout(pDlg, p_lo_grp, p_lbl, lp_label);
+								InsertCtrlLayout(pDlg, p_lo_grp, p_view, lp);
+							}
+							else 
+							// } @v12.5.3
+							{
+								if(!p_lb->IsMultiColumn() && !p_lb->IsTreeList()) // Припуск для скролл-бара не нужен для мультиколоночного списка и для treeview
+									lp.Margin.b.x += 20.0f; 
+								p_lo = InsertCtrlLayout(pDlg, pLoParent, p_view, lp);
+							}
 							done = true;
 						}
 						else if(vk == UiItemKind::kTreeListbox) {
-							p_lo = InsertCtrlLayout(pDlg, pLoParent, p_view, lp);
+							SmartListBox * p_lb = static_cast<SmartListBox *>(p_view);
+							// @v12.5.3 {
+							TView * p_lbl = pDlg->GetCtrlLabel(p_lb);
+							if(p_lbl) {
+								SUiLayoutParam glp(DIREC_VERT); // Общий лейаут для всей группы
+								SUiLayoutParam lp_label;
+								glp.Margin = lp.Margin;
+								lp.Margin.Z();
+								lp.CopySizeXParamTo(glp);
+								lp.CopySizeYParamTo(glp);
+								glp.SetGrowFactor(lp.GrowFactor); 
+								lp.GrowFactor = 1.0f;
+								lp.Size.y = 0;
+								lp.SzY = SUiLayoutParam::szUndef;
+								lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+								lp_label.SetFixedSizeY(FixedLabelY);
+								lp_label.Margin.b.y = 2;
+								lp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+								//
+								if(!p_lb->IsMultiColumn() && !p_lb->IsTreeList()) // Припуск для скролл-бара не нужен для мультиколоночного списка и для treeview
+									lp.Margin.b.x += 20.0f; 
+								//
+								SUiLayout * p_lo_grp = pLoParent->InsertItem(0, &glp);
+								InsertCtrlLayout(pDlg, p_lo_grp, p_lbl, lp_label);
+								InsertCtrlLayout(pDlg, p_lo_grp, p_lb, lp);
+							}
+							else 
+							// } @v12.5.3
+							{
+								p_lo = InsertCtrlLayout(pDlg, pLoParent, p_lb, lp);
+							}
 							done = true;
 						}
 						else if(vk == UiItemKind::kImageView) {

@@ -44,7 +44,7 @@
 		} \
 }
 
-#define l2c(l, c)        (*((c)++) = (uchar)(((l)     )&0xff), \
+#define l2c(l, c)        (*((c)++) = (uchar)(((l))&0xff), \
 	*((c)++) = (uchar)(((l)>> 8L)&0xff), \
 	*((c)++) = (uchar)(((l)>>16L)&0xff), \
 	*((c)++) = (uchar)(((l)>>24L)&0xff))
@@ -62,7 +62,7 @@
 #define l2n(l, c)        (*((c)++) = (uchar)(((l)>>24L)&0xff), \
 	*((c)++) = (uchar)(((l)>>16L)&0xff), \
 	*((c)++) = (uchar)(((l)>> 8L)&0xff), \
-	*((c)++) = (uchar)(((l)     )&0xff))
+	*((c)++) = (uchar)(((l))&0xff))
 
 /* NOTE - c is not incremented as per l2c */
 #define l2cn(l1, l2, c, n) { \
@@ -74,7 +74,7 @@
 			/* fall thru */                                     \
 			case 6: *(--(c)) = (uchar)(((l2)>> 8L)&0xff); \
 			/* fall thru */                                     \
-			case 5: *(--(c)) = (uchar)(((l2)     )&0xff); \
+			case 5: *(--(c)) = (uchar)(((l2))&0xff); \
 			/* fall thru */                                     \
 			case 4: *(--(c)) = (uchar)(((l1)>>24L)&0xff); \
 			/* fall thru */                                     \
@@ -82,7 +82,7 @@
 			/* fall thru */                                     \
 			case 2: *(--(c)) = (uchar)(((l1)>> 8L)&0xff); \
 			/* fall thru */                                     \
-			case 1: *(--(c)) = (uchar)(((l1)     )&0xff); \
+			case 1: *(--(c)) = (uchar)(((l1))&0xff); \
 		} \
 }
 

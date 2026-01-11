@@ -18,7 +18,7 @@
 #pragma hdrstop
 #include "utracimp.h"
 #include "ucol_imp.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 
 U_NAMESPACE_USE
 

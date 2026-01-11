@@ -99,14 +99,12 @@ struct st_mariadb_session_state {
 struct st_mariadb_extension {
 	MA_CONNECTION_HANDLER * conn_hdlr;
 	struct st_mariadb_session_state session_state[SESSION_TRACK_TYPES];
-	unsigned long mariadb_client_flag; /* MariaDB specific client flags */
-	unsigned long mariadb_server_capabilities; /* MariaDB specific server capabilities */
+	ulong mariadb_client_flag; /* MariaDB specific client flags */
+	ulong mariadb_server_capabilities; /* MariaDB specific server capabilities */
 	/*bool*/int auto_local_infile; // @sobolev ma_bool-->int
 };
 
-#define OPT_EXT_VAL(a, key) \
-	(((a)->options.extension && (a)->options.extension->key) ? \
-	(a)->options.extension->key : 0)
+#define OPT_EXT_VAL(a, key) (((a)->options.extension && (a)->options.extension->key) ? (a)->options.extension->key : 0)
 
 //#endif
 

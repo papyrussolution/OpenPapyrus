@@ -40,7 +40,7 @@ PPBankAccount & FASTCALL PPBankAccount::operator = (const RegisterTbl::Rec & rS)
 
 void FASTCALL PPBankAccount::GetRegisterRec(RegisterTbl::Rec & rRec) const
 {
-    MEMSZERO(rRec);
+    rRec.Clear();
     rRec.ID = ID;
     rRec.ObjType = PPOBJ_PERSON;
     rRec.ObjID = PersonID;

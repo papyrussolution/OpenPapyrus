@@ -1,5 +1,5 @@
 // SLIB.H
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // 
 // @todo unify strtoul
@@ -118,7 +118,9 @@
 	#endif
 	#include <winsock2.h>
 	#include <windows.h>
-	#include <windowsx.h> // @v12.4.12
+	#ifndef SLIB_DONT_INCLUDE_WINDOWSX // @v12.5.3
+		#include <windowsx.h> // @v12.4.12
+	#endif
 	#include <winioctl.h> // @v12.5.0
 	#include <ws2tcpip.h>
 	#include <versionhelpers.h> // @v12.3.4
@@ -139,9 +141,19 @@
 		// } @v11.7.3
 		#include <commctrl.h> // @v12.4.11
 		#include <commdlg.h>  // @v12.4.11
-		#include <shlobj.h>   // @v12.4.12
+		#ifndef SLIB_DONT_INCLUDE_SHLOBJ // @v12.5.3
+			#include <shlobj.h>   // @v12.4.12
+		#endif
 		#include <shlwapi.h>  // @v12.4.12
 		#include <htmlhelp.h> // @v12.4.12
+		#include <shellapi.h> // @v12.5.3
+		#include <uxtheme.h>  // @v12.5.3
+		#include <dwmapi.h>   // @v12.5.3
+		#include <UserEnv.h>  // @v12.5.3
+		#include <sddl.h>     // @v12.5.3
+		#include <AccCtrl.h>  // @v12.5.3
+		#include <psapi.h>    // @v12.5.3
+		#include <Lm.h>       // @v12.5.3
 	#endif
 	// } @v11.7.0 
 	#define _Windows
@@ -653,7 +665,7 @@ typedef int32               TYPEID;
 #define SLERR_FILENOTFOUND              20
 #define SLERR_READFAULT                 21
 #define SLERR_WRITEFAULT                22
-#define SLERR_INVFORMAT                 23
+#define SLERR_INVDATTIMEFORMAT          23 // Неверный формат дата-время
 //
 // Printer errors
 //
@@ -3554,12 +3566,8 @@ struct SFormatParam {
 // Descr: Представление целочисленного диапазона (low..upp).
 //
 struct IntRange { // @persistent @size=8
-	IntRange() : low(0), upp(0)
-	{
-	}
-	IntRange(int _low, int _upp) : low(_low), upp(_upp)
-	{
-	}
+	IntRange();
+	IntRange(int _low, int _upp);
 	IntRange & Z();
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	//
@@ -3603,6 +3611,13 @@ struct IntRange { // @persistent @size=8
 	//
 	IntRange & FASTCALL Set(int val);
 	//
+	// Descr: Если val > upp, то увеличивает upp до val, если val < low, то уменьшает low до val.
+	//   Если при вызове функции low > upp, то ничего не делает.
+	// Returns: 
+	//	 *this
+	//
+	IntRange & FASTCALL Expand(int val);
+	//
 	// Descr: Если low > upp, то переставляет их местами.
 	// Returns:
 	//   *this
@@ -3621,7 +3636,7 @@ struct IntRange { // @persistent @size=8
 	//
 	int    STDCALL  Intersect(const IntRange & rD, IntRange * pResult) const;
 	int    FASTCALL Intersect(const IntRange & rD) const;
-	SString & Format(long fmt, SString &) const;
+	SString & ToStr(long fmt, SString & rBuf) const;
 	int    Clamp(int v) const;
 
 	int32  low;
@@ -8169,6 +8184,11 @@ bool   STDCALL SIntToSymbTab_HasSymb(const SIntToSymbTabEntry * pTab, size_t tab
 //
 int   STDCALL SIntToSymbTab_GetId(const SIntToSymbTabEntry * pTab, size_t tabSize, const char * pSymb);
 //
+// Descr: То же самое, что и SIntToSymbTab_GetId() но если не находит требуемый символ возвращает errValue, а не фиксированный 0
+//   как SIntToSymbTab_GetId().
+//
+int   STDCALL SIntToSymbTab_GetId_Errv(const SIntToSymbTabEntry * pTab, size_t tabSize, const char * pSymb, int errValue);
+//
 // Dynamic Array structures
 //
 // @v12.4.5 #define DEFCOLLECTDELTA  32 // @v8.5.12 8-->32
@@ -8989,6 +9009,7 @@ DECL_CMPFUNC(int64);
 DECL_CMPFUNC(uint64); // @v12.3.9
 DECL_CMPFUNC(uint);
 DECL_CMPFUNC(double);
+DECL_CMPFUNC(float); // @v12.5.3
 DECL_CMPFUNC(_2long);
 DECL_CMPFUNC(_2int64);
 DECL_CMPFUNC(LDATE);
@@ -9396,18 +9417,10 @@ struct RAssoc {
 	double Val;
 };
 
-struct FAssoc {
-	FAssoc();
-	FAssoc(long k, float v);
-
-	long   Key;
-	float  Val;
-};
-
 class RAssocArray : public TSVector <RAssoc> {
 public:
 	RAssocArray();
-	RAssocArray(const RAssocArray &);
+	RAssocArray(const RAssocArray & rS);
 	RAssocArray & FASTCALL operator = (const RAssocArray &);
 	//
 	// Descr: Ищет в массиве элемент со значением ключа key.
@@ -9431,8 +9444,7 @@ public:
 	double Get(long key, int binary = 0) const; // @>>RAssocArray::Search
 	int    GetList(LongArray & rList, int unique) const;
 	void   Scale(double rate);
-	bool   SearchMaxVal(uint * pPos) const;
-	bool   SearchMinVal(uint * pPos) const; // @v12.5.1
+	int    SearchMinMaxVal(uint * pMinValPos, uint * pMaxValPos) const; // @v12.5.1
 
 	enum {
 		dfRound = 0x0001, // Округлять каждое распределенное значение до точность prec
@@ -9457,6 +9469,46 @@ public:
 	//    0 - error
 	//
 	int    AddMaxK(long key, double val, uint k); // @v12.5.1
+	//
+	// Descr: Опции функции Thresholding()
+	//
+	enum { 
+		// Приоритет применения следующих 4-х флагов - в порядке перечисления!
+		thrshf_Lin  = 0x0001, // (1) Фактор задает порог в простом отношении максимум к тестируемому значению
+		thrshfLn    = 0x0002, // (2) Фактор задает порог в натуральном логарифме
+		thrshfLog10 = 0x0004, // (3) Фактор задает порог в десятичном логарифме
+		thrshf_dB   = 0x0008, // (4) Фактор задает порог в децибеллах
+		thrshfAbs   = 0x1000, // Массив фильтровать по абсолютному значению. Если не установлен, то отрицательное число меньше положительного!
+	};
+
+	int    Thresholding(uint flags /*thrshfXXX*/, double factor); // @v12.5.3
+	void   SortByKey();
+	//
+	// Descr: Сортирует массив в порядке увеличения значения Val
+	//
+	void   SortByVal();
+	//
+	// Descr: Сортирует массив в порядке уменьшения значения Val
+	//
+	void   SortByValRev();
+};
+//
+//
+//
+struct FAssoc {
+	FAssoc();
+	FAssoc(long k, float v);
+
+	long   Key;
+	float  Val;
+};
+
+class FAssocArray : public TSVector <FAssoc> {
+public:
+	FAssocArray();
+	FAssocArray(const FAssocArray & rS);
+	FAssocArray & FASTCALL operator = (const FAssocArray &);
+	bool   Search(long key, float * pVal, uint * pPos, int binary = 0) const;
 	void   SortByKey();
 	//
 	// Descr: Сортирует массив в порядке увеличения значения Val
@@ -10032,7 +10084,7 @@ public:
 	//
 	int    GetBounds(STimeChunk * pBounds, int update) const;
 protected:
-	explicit STimeChunkArray(size_t itemSize);
+	explicit STimeChunkArray(uint itemSize);
 private:
 	int    Helper_Union(const STimeChunk & rChunk, STimeChunkArray & rResult) const;
 	int    Helper_Intersect(const STimeChunk & rChunk, STimeChunkArray & rResult) const;
@@ -13137,10 +13189,8 @@ public:
 	};
 	struct Result {
 		struct ColumnStat {
-			//CsvSniffer::Result::ColumnStat
-			ColumnStat() : N(0), NECount(0), FirstRowLen(0), LenAvg(0.0), LenStdDev(0.0)
-			{
-			}
+			ColumnStat();
+
 			uint   N;           // [1..] Номер колонки
 			uint   NECount;     // Количество строк, содержащих непустое значение
 			uint   FirstRowLen; // Длина текста в первой строке
@@ -15587,12 +15637,14 @@ public:
 class TRect {
 public:
 	TRect();
+	TRect(const TRect & rS);
 	TRect(int ax, int ay, int bx, int by);
 	TRect(SPoint2S p1, SPoint2S p2);
 	explicit TRect(SPoint2S sz);
 	TRect(const RECT &);
 	explicit TRect(const FRect & rR, int roundOption = frtorrNearest);
-	TRect & FASTCALL operator = (const RECT &);
+	TRect & FASTCALL operator = (const TRect & rS);
+	TRect & FASTCALL operator = (const RECT & rS);
 	TRect & FASTCALL operator = (SPoint2S p);
 	bool   IsEmpty() const;
 	//
@@ -18092,6 +18144,7 @@ public:
 		kFileBrowse        =  8, // @v12.3.10 (ident) Кнопка вызова диалога выбора файла или каталога
 		kFilt              =  9, // @v12.4.10 (ident) Кнопка расширенного фильтра для элемента
 		kEllipsis          = 10, // @v12.5.0 (ident) Кнопка дополнительной функции для элемента (...)
+		kNumberStepper     = 11, // @v12.5.3 (ident) Кнопка увеличения/уменьшения количества справа от числового поля.
 	};
 	uint32 Version; // Номер версии для сериализации. При изменении формата обязательно увеличить значение и предпринять меры для правильного считывания старых версий!
 	uint32 Kind; // kXXX

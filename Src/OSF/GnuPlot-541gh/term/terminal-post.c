@@ -343,7 +343,7 @@ char * PS_escape_string(char * origstr, const char * escapelist)
 {
 	char * newstr = 0;
 	if(!isempty(origstr)) {
-		newstr = (char *)SAlloc::M(2*strlen(origstr)+1);
+		newstr = static_cast<char *>(SAlloc::M(2*strlen(origstr)+1));
 		if(newstr) {
 			char * n;
 			for(n = newstr; *origstr; *n++ = *origstr++) {

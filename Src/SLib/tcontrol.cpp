@@ -16,13 +16,11 @@ TStaticText::TStaticText(const TRect & rBounds, uint spcFlags, const char * pTex
 
 int TStaticText::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	bool    debug_mark = false; // @debug
 	if(uMsg == WM_INITDIALOG) {
 		SetupText(&Text);
 		return 1;
 	}
 	else if(uMsg == WM_MOVE) {
-		debug_mark = true;
 		int x_pos = (int)(short)LOWORD(lParam);   // horizontal position 
 		int y_pos = (int)(short)HIWORD(lParam);   // vertical position 
 		return 0;
@@ -136,6 +134,47 @@ const  SString & TGroupBox::GetText() const { return Text; }
 }
 
 IMPL_HANDLE_EVENT(TGroupBox)
+{
+	TView::handleEvent(event);
+	if(event.isCmd(cmSetBounds)) {
+		const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
+		HWND h = getHandle();
+		if(h) {
+			::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOCOPYBITS);
+			clearEvent(event);
+		}
+	}
+}
+//
+// TNumberStepper
+//
+TNumberStepper::TNumberStepper(const TRect & rBounds) : TView(rBounds)
+{
+	SubSign = TV_SUBSIGN_NUMSTEPPER;
+	ViewOptions |= (ofPreProcess|ofPostProcess);
+}
+
+TNumberStepper::~TNumberStepper()
+{
+}
+
+/*virtual*/int TNumberStepper::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	bool   debug_mark = false;
+	if(uMsg == WM_INITDIALOG) {
+		return 1;
+	}
+	else if(uMsg == WM_MOVE) {
+		debug_mark = true;
+		int x_pos = (int)(short)LOWORD(lParam);   // horizontal position 
+		int y_pos = (int)(short)HIWORD(lParam);   // vertical position 
+		return 0;
+	}
+	else
+		return 0;
+}
+
+IMPL_HANDLE_EVENT(TNumberStepper)
 {
 	TView::handleEvent(event);
 	if(event.isCmd(cmSetBounds)) {

@@ -13,7 +13,7 @@
 #include "unicode/ucurr.h"
 #include "ulocimp.h"
 #include "ureslocs.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 /**
  * Concatenate a number of null-terminated strings to buffer, leaving a
  * null-terminated string.  The last argument should be the null pointer.

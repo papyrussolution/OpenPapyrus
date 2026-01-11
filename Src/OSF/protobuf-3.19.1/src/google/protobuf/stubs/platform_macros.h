@@ -72,7 +72,7 @@
 #elif defined(__GNUC__)
 #if (((__GNUC__ == 4) && (__GNUC_MINOR__ >= 7)) || (__GNUC__ > 4))
 // We fallback to the generic Clang/GCC >= 4.7 implementation in atomicops.h
-# elif defined(__clang__)
+#elif defined(__clang__)
 #if !__has_extension(c_atomic)
 GOOGLE_PROTOBUF_PLATFORM_ERROR
 #endif

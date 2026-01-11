@@ -181,7 +181,7 @@ int PPObjAccTurn::EditRecoverBalanceParam(RecoverBalanceParam * pParam)
 	TDialog * dlg = 0;
 	acct_id.ac = pParam->BalAccID;
 	acct_id.ar = 0;
-	MEMSZERO(acct);
+	acct.Z();
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_CBAL))));
 	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_CBAL_LOG, CTL_CBAL_LOG, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
 	dlg->SetupCalPeriod(CTLCAL_CBAL_PERIOD, CTL_CBAL_PERIOD);

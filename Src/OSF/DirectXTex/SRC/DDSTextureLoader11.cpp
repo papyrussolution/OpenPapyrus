@@ -508,7 +508,7 @@ HRESULT GetSurfaceInfo(_In_ size_t width,
 		numBytes = (rowBytes * uint64_t(height)) + ((rowBytes * uint64_t(height) + 1u) >> 1);
 		numRows = height + ((uint64_t(height) + 1u) >> 1);
 	}
-	else{
+	else {
 		const size_t bpp = BitsPerPixel(fmt);
 		if(!bpp)
 			return E_INVALIDARG;
@@ -896,7 +896,7 @@ HRESULT CreateD3DResources(_In_ ID3D11Device* d3dDevice, _In_ uint32_t resDim, _
 					    SRVDesc.Texture1DArray.MipLevels = (!mipCount) ? UINT(-1) : desc.MipLevels;
 					    SRVDesc.Texture1DArray.ArraySize = static_cast<UINT>(arraySize);
 				    }
-				    else{
+				    else {
 					    SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE1D;
 					    SRVDesc.Texture1D.MipLevels = (!mipCount) ? UINT(-1) : desc.MipLevels;
 				    }
@@ -910,7 +910,7 @@ HRESULT CreateD3DResources(_In_ ID3D11Device* d3dDevice, _In_ uint32_t resDim, _
 			    if(texture) {
 				    *texture = tex;
 			    }
-			    else{
+			    else {
 				    SetDebugObjectName(tex, "DDSTextureLoader");
 				    tex->Release();
 			    }
@@ -934,7 +934,7 @@ HRESULT CreateD3DResources(_In_ ID3D11Device* d3dDevice, _In_ uint32_t resDim, _
 		    if(isCubeMap) {
 			    desc.MiscFlags = miscFlags | D3D11_RESOURCE_MISC_TEXTURECUBE;
 		    }
-		    else{
+		    else {
 			    desc.MiscFlags = miscFlags & ~static_cast<unsigned int>(D3D11_RESOURCE_MISC_TEXTURECUBE);
 		    }
 		    ID3D11Texture2D* tex = nullptr;
@@ -951,7 +951,7 @@ HRESULT CreateD3DResources(_In_ ID3D11Device* d3dDevice, _In_ uint32_t resDim, _
 						    // Earlier we set arraySize to (NumCubes * 6)
 						    SRVDesc.TextureCubeArray.NumCubes = static_cast<UINT>(arraySize / 6);
 					    }
-					    else{
+					    else {
 						    SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
 						    SRVDesc.TextureCube.MipLevels = (!mipCount) ? UINT(-1) : desc.MipLevels;
 					    }
@@ -961,7 +961,7 @@ HRESULT CreateD3DResources(_In_ ID3D11Device* d3dDevice, _In_ uint32_t resDim, _
 					    SRVDesc.Texture2DArray.MipLevels = (!mipCount) ? UINT(-1) : desc.MipLevels;
 					    SRVDesc.Texture2DArray.ArraySize = static_cast<UINT>(arraySize);
 				    }
-				    else{
+				    else {
 					    SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 					    SRVDesc.Texture2D.MipLevels = (!mipCount) ? UINT(-1) : desc.MipLevels;
 				    }
@@ -975,7 +975,7 @@ HRESULT CreateD3DResources(_In_ ID3D11Device* d3dDevice, _In_ uint32_t resDim, _
 			    if(texture) {
 				    *texture = tex;
 			    }
-			    else{
+			    else {
 				    SetDebugObjectName(tex, "DDSTextureLoader");
 				    tex->Release();
 			    }
@@ -1013,7 +1013,7 @@ HRESULT CreateD3DResources(_In_ ID3D11Device* d3dDevice, _In_ uint32_t resDim, _
 			    if(texture) {
 				    *texture = tex;
 			    }
-			    else{
+			    else {
 				    SetDebugObjectName(tex, "DDSTextureLoader");
 				    tex->Release();
 			    }
@@ -1131,7 +1131,7 @@ HRESULT CreateTextureFromDDS(_In_ ID3D11Device* d3dDevice,
 
 		resDim = d3d10ext->resourceDimension;
 	}
-	else{
+	else {
 		format = GetDXGIFormat(header->ddspf);
 
 		if(format == DXGI_FORMAT_UNKNOWN) {
@@ -1141,7 +1141,7 @@ HRESULT CreateTextureFromDDS(_In_ ID3D11Device* d3dDevice,
 		if(header->flags & DDS_HEADER_FLAGS_VOLUME) {
 			resDim = D3D11_RESOURCE_DIMENSION_TEXTURE3D;
 		}
-		else{
+		else {
 			if(header->caps2 & DDS_CUBEMAP) {
 				// We require all six faces to be defined
 				if((header->caps2 & DDS_CUBEMAP_ALLFACES) != DDS_CUBEMAP_ALLFACES) {
@@ -1284,7 +1284,7 @@ HRESULT CreateTextureFromDDS(_In_ ID3D11Device* d3dDevice,
 					pSrcBits += numBytes;
 				}
 			}
-			else{
+			else {
 				d3dContext->UpdateSubresource(tex, 0, nullptr, bitData, static_cast<UINT>(rowBytes), static_cast<UINT>(numBytes));
 			}
 
@@ -1293,12 +1293,12 @@ HRESULT CreateTextureFromDDS(_In_ ID3D11Device* d3dDevice,
 			if(texture) {
 				*texture = tex;
 			}
-			else{
+			else {
 				tex->Release();
 			}
 		}
 	}
-	else{
+	else {
 		// Create the texture
 		std::unique_ptr<D3D11_SUBRESOURCE_DATA[]> initData(new (std::nothrow) D3D11_SUBRESOURCE_DATA[mipCount * arraySize]);
 		if(!initData) {
@@ -1331,7 +1331,7 @@ HRESULT CreateTextureFromDDS(_In_ ID3D11Device* d3dDevice,
 					    if(isCubeMap) {
 						    maxsize = 512u /*D3D_FL9_1_REQ_TEXTURECUBE_DIMENSION*/;
 					    }
-					    else{
+					    else {
 						    maxsize = (resDim == D3D11_RESOURCE_DIMENSION_TEXTURE3D)
 				? 256u /*D3D_FL9_1_REQ_TEXTURE3D_U_V_OR_W_DIMENSION*/
 				: 2048u /*D3D_FL9_1_REQ_TEXTURE2D_U_OR_V_DIMENSION*/;

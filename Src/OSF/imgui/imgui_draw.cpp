@@ -3308,8 +3308,8 @@ void ImGui::RenderArrowPointingAt(ImDrawList* draw_list, ImVec2 pos, ImVec2 half
 
 static inline float ImAcos01(float x)
 {
-	if(x <= 0.0f)  return SMathConst::Pi_f * 0.5f;
-	if(x >= 1.0f)  return 0.0f;
+	if(x <= 0.0f) return SMathConst::Pi_f * 0.5f;
+	if(x >= 1.0f) return 0.0f;
 	return acosf(x);
 	//return (-0.69813170079773212f * x * x - 0.87266462599716477f) * x + 1.5707963267948966f; // Cheap approximation, may be enough for what we do.
 }
@@ -3537,7 +3537,7 @@ static uint stb_decompress(uchar * output, const uchar * i, uint /*length*/)
 		if(i == old_i) {
 			if(*i == 0x05 && i[1] == 0xfa) {
 				assert(stb__dout == output + olen);
-				if(stb__dout != output + olen)  return 0;
+				if(stb__dout != output + olen) return 0;
 				if(stb_adler32(1, output, olen) != (uint)stb__in4(2))
 					return 0;
 				return olen;

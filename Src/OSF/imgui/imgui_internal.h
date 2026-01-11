@@ -413,8 +413,8 @@ static inline double ImRsqrt(double x) { return 1.0 / sqrt(x); }
 // @sobolev (replaced with sclamp) template <typename T> static inline T ImClamp__Removed(T v, T mn, T mx) { return (v < mn) ? mn : (v > mx) ? mx : v; }
 template <typename T> static inline T ImLerp(T a, T b, float t) { return (T)(a + (b - a) * t); }
 template <typename T> static inline void ImSwap(T& a, T& b)     { T tmp = a; a = b; b = tmp; }
-template <typename T> static inline T ImAddClampOverflow(T a, T b, T mn, T mx)   { if(b < 0 && (a < mn - b)) return mn; if(b > 0 && (a > mx - b))  return mx; return a + b; }
-template <typename T> static inline T ImSubClampOverflow(T a, T b, T mn, T mx)   { if(b > 0 && (a < mn + b)) return mn; if(b < 0 && (a > mx + b))  return mx; return a - b; }
+template <typename T> static inline T ImAddClampOverflow(T a, T b, T mn, T mx)   { if(b < 0 && (a < mn - b)) return mn; if(b > 0 && (a > mx - b)) return mx; return a + b; }
+template <typename T> static inline T ImSubClampOverflow(T a, T b, T mn, T mx)   { if(b > 0 && (a < mn + b)) return mn; if(b < 0 && (a > mx + b)) return mx; return a - b; }
 // - Misc maths helpers
 static inline ImVec2 ImMin(const ImVec2 & lhs, const ImVec2 & rhs) { return ImVec2(lhs.x < rhs.x ? lhs.x : rhs.x, lhs.y < rhs.y ? lhs.y : rhs.y); }
 static inline ImVec2 ImMax(const ImVec2 & lhs, const ImVec2 & rhs) { return ImVec2(lhs.x >= rhs.x ? lhs.x : rhs.x, lhs.y >= rhs.y ? lhs.y : rhs.y); }
@@ -422,7 +422,7 @@ static inline ImVec2 sclamp(const ImVec2 & v, const ImVec2 & mn, ImVec2 mx) { re
 static inline float ImSaturate(float f)             { return (f < 0.0f) ? 0.0f : (f > 1.0f) ? 1.0f : f; }
 static inline float ImLengthSqr(const ImVec2 & lhs) { return (lhs.x * lhs.x) + (lhs.y * lhs.y); }
 static inline float ImLengthSqr(const ImVec4 & lhs) { return (lhs.x * lhs.x) + (lhs.y * lhs.y) + (lhs.z * lhs.z) + (lhs.w * lhs.w); }
-static inline float ImInvLength(const ImVec2 & lhs, float fail_value) { float d = (lhs.x * lhs.x) + (lhs.y * lhs.y); if(d > 0.0f)   return ImRsqrt(d); return fail_value; }
+static inline float ImInvLength(const ImVec2 & lhs, float fail_value) { float d = (lhs.x * lhs.x) + (lhs.y * lhs.y); if(d > 0.0f) return ImRsqrt(d); return fail_value; }
 static inline float ImFloor(float f)                { return (float)(int)(f); }
 static inline float ImFloorSigned(float f)          { return (float)((f >= 0 || (float)(int)f == f) ? (int)f : (int)f - 1); }  // Decent replacement for floorf()
 static inline ImVec2 ImFloor(const ImVec2 & v)      { return ImVec2((float)(int)(v.x), (float)(int)(v.y)); }
@@ -775,7 +775,7 @@ template <typename T> struct ImPool {
 	int  GetAliveCount() const { return AliveCount; }                // Number of active/alive items in the pool (for display purpose)
 	int  GetBufSize() const { return Buf.Size; }
 	int  GetMapSize() const { return Map.Data.Size; }                // It is the map we need iterate to find valid items, since we don't have "alive" storage anywhere
-	T  * TryGetMapData(ImPoolIdx n) { int idx = Map.Data[n].val_i; if(idx == -1)  return NULL; return GetByIndex(idx); }
+	T  * TryGetMapData(ImPoolIdx n) { int idx = Map.Data[n].val_i; if(idx == -1) return NULL; return GetByIndex(idx); }
 #ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 	int  GetSize()                  { return GetMapSize(); }// For ImPlot: should use GetMapSize() from (IMGUI_VERSION_NUM >= 18304)
 #endif
@@ -800,7 +800,7 @@ template <typename T> struct ImChunkStream {
 		((int*)(void*)(Buf.Data + off))[0] = (int)sz; 
 		return (T*)(void*)(Buf.Data + off + (int)HDR_SZ); 
 	}
-	T * begin()                     { size_t HDR_SZ = 4; if(!Buf.Data)  return NULL; return (T*)(void*)(Buf.Data + HDR_SZ); }
+	T * begin()                     { size_t HDR_SZ = 4; if(!Buf.Data) return NULL; return (T*)(void*)(Buf.Data + HDR_SZ); }
 	T * next_chunk(T* p) 
 	{ 
 		size_t HDR_SZ = 4; 
@@ -3038,11 +3038,11 @@ inline ImGuiKeyChord ConvertShortcutMod(ImGuiKeyChord key_chord)
 inline ImGuiKey ConvertSingleModFlagToKey(ImGuiContext* ctx, ImGuiKey key)
 {
 	ImGuiContext & g = *ctx;
-	if(key == ImGuiMod_Ctrl)  return ImGuiKey_ReservedForModCtrl;
-	if(key == ImGuiMod_Shift)  return ImGuiKey_ReservedForModShift;
-	if(key == ImGuiMod_Alt)  return ImGuiKey_ReservedForModAlt;
-	if(key == ImGuiMod_Super)  return ImGuiKey_ReservedForModSuper;
-	if(key == ImGuiMod_Shortcut)  return (g.IO.ConfigMacOSXBehaviors ? ImGuiKey_ReservedForModSuper : ImGuiKey_ReservedForModCtrl);
+	if(key == ImGuiMod_Ctrl) return ImGuiKey_ReservedForModCtrl;
+	if(key == ImGuiMod_Shift) return ImGuiKey_ReservedForModShift;
+	if(key == ImGuiMod_Alt) return ImGuiKey_ReservedForModAlt;
+	if(key == ImGuiMod_Super) return ImGuiKey_ReservedForModSuper;
+	if(key == ImGuiMod_Shortcut) return (g.IO.ConfigMacOSXBehaviors ? ImGuiKey_ReservedForModSuper : ImGuiKey_ReservedForModCtrl);
 	return key;
 }
 
@@ -3169,7 +3169,7 @@ void TableDrawContextMenu(ImGuiTable* table);
 bool TableBeginContextMenuPopup(ImGuiTable* table);
 void TableMergeDrawChannels(ImGuiTable* table);
 inline ImGuiTableInstanceData*  TableGetInstanceData(ImGuiTable* table,
-int instance_no) { if(instance_no == 0)  return &table->InstanceDataFirst; return &table->InstanceDataExtra[instance_no - 1]; }
+int instance_no) { if(instance_no == 0) return &table->InstanceDataFirst; return &table->InstanceDataExtra[instance_no - 1]; }
 inline ImGuiID TableGetInstanceID(ImGuiTable* table, int instance_no)   { return TableGetInstanceData(table, instance_no)->TableInstanceID; }
 void TableSortSpecsSanitize(ImGuiTable* table);
 void TableSortSpecsBuild(ImGuiTable* table);

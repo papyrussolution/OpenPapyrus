@@ -1,9 +1,9 @@
 // SFILE.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <share.h>
+// @v12.5.3 #include <share.h>
 #include <../SLib/bzip2/bzlib.h>
 // @v11.7.1 #include <sys/locking.h>
 
@@ -3613,6 +3613,7 @@ int FileFormatRegBase::IdentifyBuffer(const void * pBuf, size_t bufLen, int * pF
 
 int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * pExt) const
 {
+	const  uint read_block_size = 1024;
 	int    ok = -1;
 	int    fmt_id = 0;
 	LongArray candid_by_ext;
@@ -3631,7 +3632,7 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 		LongArray used_offs_list;
 		StrAssocArray binary_chunk_list;
 		ASSIGN_PTR(pExt, ext);
-		STempBuffer sign_buf(512);
+		STempBuffer sign_buf(read_block_size);
 		SFile file(pFileName, SFile::mRead|SFile::mBinary);
 		int64  _fsize = 0;
 		if(file.IsValid())
@@ -3647,7 +3648,7 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 					if(entry_sign.NotEmpty()) {
                         if(entry_sign.C(0) == 'T') {
 							entry_sign.ShiftLeft(1);
-							const size_t len = 512;
+							const size_t len = read_block_size;
 							size_t actual_size = 0;
 							THROW(sign_buf.Alloc(len));
 							file.Seek(0);
@@ -3675,7 +3676,7 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
                         }
                         else {
 							//
-							// «а пределами 512-байтовой зоны ничего читать не будем!
+							// «а пределами read_block_size-байтовой зоны ничего читать не будем!
 							//
 							used_offs_list.clear();
 							binary_chunk_list.Z();
@@ -3688,12 +3689,24 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 										offs = left_buf.ToLong();
 										temp_buf = right_buf;
 									}
-									if((offs + temp_buf.Len()/2) <= 512 && used_offs_list.addUnique(offs) > 0)
+									if((offs + temp_buf.Len()/2) <= read_block_size && used_offs_list.addUnique(offs) > 0)
 										binary_chunk_list.Add(offs, temp_buf);
 								}
 							}
-							else
-								binary_chunk_list.Add(0, entry_sign);
+							else {
+								// @v12.5.3 {
+								long offs = 0;
+								if(entry_sign.Divide(':', left_buf, right_buf) > 0) {
+									offs = left_buf.ToLong();
+									temp_buf = right_buf;
+								}
+								else
+									temp_buf = entry_sign;
+								if((offs + temp_buf.Len()/2) <= read_block_size && used_offs_list.addUnique(offs) > 0)
+									binary_chunk_list.Add(offs, temp_buf);
+								// } @v12.5.3
+								// @v12.5.3 binary_chunk_list.Add(0, entry_sign);
+							}
 							size_t total_len = 0;
 							{
 								for(uint ci = 0; ci < binary_chunk_list.getCount(); ci++) {
@@ -3702,7 +3715,7 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 									SETMAX(total_len, local_len);
 								}
 							}
-							if(checkirange(total_len, static_cast<size_t>(1), static_cast<size_t>(512))) {
+							if(checkirange(total_len, static_cast<size_t>(1), static_cast<size_t>(read_block_size))) {
 								const size_t len = total_len;
 								size_t actual_size = 0;
 								THROW(sign_buf.Alloc(len));
@@ -3779,6 +3792,10 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 	CATCHZOK
 	ASSIGN_PTR(pFmtId, fmt_id);
 	return ok;
+}
+
+CsvSniffer::Result::ColumnStat::ColumnStat() : N(0), NECount(0), FirstRowLen(0), LenAvg(0.0), LenStdDev(0.0)
+{
 }
 
 CsvSniffer::Result::Result() : FieldDivisor(0), Flags(0), SnTokSeq_Common(0), SnTokSeq_First(0), LineCount(0), 
@@ -3988,6 +4005,11 @@ int SFileFormat::IdentifyMime(const char * pMime)
 /*static*/int SFileFormat::Register()
 {
 	int    ok = 1;
+	Register(Xls,     mtApplication, "vnd.ms-excel", "xls",  "512:0908100000060500"); // @v12.5.3 xls ole-format (old excel format)
+	Register(WinWord, mtApplication, "msword", "doc",  "512:eca5c100"); // @v12.5.3 doc ole-format (old winword format)
+	Register(XlsX,     mtApplication, "vnd.openxmlformats-officedocument.spreadsheetml.sheet", "xlsx",  "504b0304"); // @v12.5.3
+	Register(XlsM,     mtApplication, "vnd.ms-excel.sheet.macroEnabled.12", "xlsm",  "504b0304"); // @v12.5.3
+	Register(WinWordX, mtApplication, "vnd.openxmlformats-officedocument.wordprocessingml.document", "docx",  "504b0304"); // @v12.5.3
 	Register(Txt,    mtText,  "plain", "txt;csv", 0);
 	Register(Jpeg,   mtImage, "jpeg", "jpg;jpeg;jp2;jfif", "FFD8FFE0");        // JPG
 	Register(Jpeg,   "jpg", "FFD8FFE1");                      // JPG

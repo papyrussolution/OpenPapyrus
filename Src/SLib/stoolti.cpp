@@ -1,5 +1,6 @@
 // STOOLTI.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2025
+// Copyright (c) A.Starodub, A.Sobolev 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2025, 2026
+// @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -320,7 +321,8 @@ void SMessageWindow::Move()
 				int    h = 0;
 				HDC    hdc = GetDC(h_ctl);
 				RECT   ctl_rect;
-				SString buf, buf2;
+				SString buf;
+				SString buf2;
 				StringSet ss('\n', Text);
 				Text.Z();
 				if(Font)
@@ -329,13 +331,14 @@ void SMessageWindow::Move()
 					SIZE size;
 					if(buf.Len() == 0)
 						buf.Space();
-					GetTextExtentPoint32(hdc, SUcSwitch(buf), static_cast<int>(buf.Len()), &size); // @unicodeproblem
+					::GetTextExtentPoint32W(hdc, SUcSwitchW(buf), buf.LenI(), &size);
 					w = MAX(w, size.cx);
 					if(w > max_w) {
-						SplitBuf(hdc, buf, max_w, 10); // ìàêñèìóì 10 ñòðî÷åê äëÿ 1-îé ïîäñòðîêè
+						SplitBuf(hdc, buf, max_w, 10); // Ð¼Ð°ÐºÑÐ¸Ð¼ÑƒÐ¼ 10 ÑÑ‚Ñ€Ð¾Ñ‡ÐµÐº Ð´Ð»Ñ 1-Ð¾Ð¹ Ð¿Ð¾Ð´ÑÑ‚Ñ€Ð¾ÐºÐ¸
 						StringSet ss2('\n', buf);
+						uint   j = 0;
+						uint   k = 0;
 						buf.Z();
-						uint j = 0, k = 0;
 						while(ss2.get(&j, buf2) && buf2.Len()) {
 							buf.Cat(buf2).CR();
 							k++;
@@ -345,7 +348,7 @@ void SMessageWindow::Move()
 					}
 					else {
 						h += size.cy;
-						buf.CatChar('\n');
+						buf.CR();
 					}
 					Text.Cat(buf);
 				}
@@ -386,16 +389,16 @@ void SMessageWindow::Move()
 			toolt_rect.top  = (toolt_rect.top + toolt_h  > parent_rect.bottom) ? (parent_rect.bottom - toolt_h - 1) : toolt_rect.top;
 			toolt_rect.left = (toolt_rect.left + toolt_w > parent_rect.right)  ? (parent_rect.right - toolt_w + 2) : toolt_rect.left;
 
-			toolt_rect.top  += 8; // @v10.5.5 5-->8
-			toolt_rect.left -= 8; // @v10.5.5 5-->8
+			toolt_rect.top  += 8;
+			toolt_rect.left -= 8;
 		}
-		else if(Flags & SMessageWindow::fShowOnRUCorner) { // @v10.9.0
+		else if(Flags & SMessageWindow::fShowOnRUCorner) {
 			toolt_rect.bottom = parent_rect.top + toolt_h + 64 + 128;
 			toolt_rect.left   = parent_rect.right - toolt_w - 32;
 		}
 		else {
-			toolt_rect.top  = parent_rect.bottom - toolt_h - 64; // @v10.5.5 5-->64
-			toolt_rect.left = parent_rect.right  - toolt_w - 32; // @v10.5.5 5-->32
+			toolt_rect.top  = parent_rect.bottom - toolt_h - 64;
+			toolt_rect.left = parent_rect.right  - toolt_w - 32;
 		}
 		if(Flags & SMessageWindow::fChildWindow) {
 			// toolt_rect.left -= parent_rect.left;
@@ -452,7 +455,7 @@ int SMessageWindow::DoCommand(SPoint2S p)
 		case WM_CTLCOLORSTATIC:
 		case WM_CTLCOLORDLG:
 			if(p_win) {
-				HDC hdc = reinterpret_cast<HDC>(wParam);
+				HDC    hdc = reinterpret_cast<HDC>(wParam);
 				TCanvas canv(hdc);
 				COLORREF text_color = (labs(p_win->Color - SClrBlack) > labs(p_win->Color - SClrWhite)) ? SClrBlack : SClrWhite;
 				canv.SetTextColor(text_color);

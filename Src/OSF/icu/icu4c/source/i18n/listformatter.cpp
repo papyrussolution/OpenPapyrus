@@ -23,7 +23,7 @@
 #include "fphdlimp.h"
 #include "ulocimp.h"
 #include "ucln_in.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "resource.h"
 #include "formattedval_impl.h"
 

@@ -192,7 +192,7 @@ template <bool STACKED> static Pairs ReadRowOfPairs(PatternView& next, int rowNu
 				break;
 		}
 	}
-	else{
+	else {
 		// the only possible first pair is a full, left2right FINDER_A pair starting on a space
 		// with a guard bar on the left
 		next = next.subView(-1, FULL_PAIR_SIZE);

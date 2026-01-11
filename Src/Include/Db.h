@@ -634,7 +634,37 @@ private:
 //
 // @ModuleDecl(ExcelDbFile)
 //
+struct ExcelIoParam {
+	explicit ExcelIoParam(long flags = 0);
+	void  Init();
+	int   Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
+	enum {
+		fFldNameRec    = 0x0001, // Первая запись содержит имена полей
+			// Если этот флаг установлен, то при сканировании первой записи считается, что
+			// она содержит вместо значений имена полей. При извлечении данных из записей
+			// сопоставление элементов SdRecord с элементами записи осуществляется по этим именам
+			// (без учета регистра символов).
+			// В противном случае сопоставление идет по порядку следования записей и элементов SdRecord.
+		fCpOem         = 0x0002, // Текст имеет кодировку OEM
+		fQuotText      = 0x0004, // Текстовые поля обрамлены двойными кавычками
+		fVerticalRec   = 0x0008, // Вертикальная ориентация записей
+		fOneRecPerFile = 0x0010  // Одна запись в файле
+	};
+	int32  Ver;              // Serialize version
+	int32  HdrLinesCount;    // Количество строк в начале страницы, которые следует пропустить как заголовок
+	int32  ColumnsCount;     // Количество колонок в начале страницы, которые следует пропустить
+	int32  SheetNum;         // Номер страницы Excel в которую следует осуществлять экспорт/импорт данных
+	int32  DateFormat;       // Формат даты (DATF_XXX)
+	int32  TimeFormat;       // Формат времени (TIMF_XXX)
+	int32  RealFormat;       // Формат чисел с плавающей точкой
+	int32  Flags;            // Флаги (ExcelIoParam::fXXX)
+	SString SheetName_;      // Наименование страницы Excel в которую следует осуществлять экспорт/импорт данных
+		// Если при импорте данных листа с таким именем не найдено, то данные импортируются с листа с номером SheetNum
+	SString EndStr_;         // Признак окончания данных
+};
+
 class ExcelDbFile {
+	friend class ImpExpExcelWorkbook;
 public:
 	enum {
 		relAbs = 0,
@@ -643,18 +673,7 @@ public:
 		relNext,
 		relPrev
 	};
-	enum {
-		fFldNameRec    = 0x0001, // Первая запись содержит имена полей
-			// Если этот флаг установлен, то при сканировании первой записи считается, что
-			// она содержит вместо значений имена полей. При извлечении данных из записей
-			// сопоставление элементов SdRecord с элементами записи осуществляется по этим именам
-			// (без учета регистра символов).
-			// В противном случае сопоставление идет по порядку следования записей и элементов SdRecord.
-		fCpOem = 0x0002, // Текст имеет кодировку OEM
-		fQuotText      = 0x0004, // Текстовые поля обрамлены двойными кавычками
-		fVerticalRec   = 0x0008, // Вертикальная ориентация записей
-		fOneRecPerFile = 0x0010  // Одна запись в файле
-	};
+#if 0 // (replaced with ExcelIoParam) {
 	struct Param {
 		explicit Param(long flags = 0);
 		void  Init();
@@ -672,9 +691,10 @@ public:
 			// Если при импорте данных листа с таким именем не найдено, то данные импортируются с листа с номером SheetNum
 		SString EndStr_;         // Признак окончания данных
 	};
+#endif
 	ExcelDbFile();
 	~ExcelDbFile();
-	int    Open(const char * pFileName, const Param * pParam, int readOnly);
+	int    Open(const char * pFileName, const ExcelIoParam * pParam, int readOnly);
 	int    Close();
 	ulong  GetNumRecords() const;
 	int    GoToRecord(ulong recNo, int rel = relAbs);
@@ -684,11 +704,13 @@ public:
 private:
 	int    Scan();
 	int    CheckParam(const SdRecord & rRec);
+	static void PutFieldDataToBuf_(const ExcelIoParam & rP, const SdbField & rFld, const SString & rTextData, void * pRecBuf);
+	static void GetFieldDataFromBuf_(const ExcelIoParam & rP, const SdbField & rFld, SString & rTextData, const void * pRecBuf);
 	void   PutFieldDataToBuf(const SdbField & rFld, const SString & rTextData, void * pRecBuf);
 	void   GetFieldDataFromBuf(const SdbField & rFld, SString & rTextData, const void * pRecBuf);
 	int    GetFldNames();
 
-	Param  P;
+	ExcelIoParam P;
 	int    ReadOnly;
 	StringSet FldNames;    // Если (P.Flags & fFldNameRec), то в это поле в порядке следования //
 		// записываются наименования полей файла данных
@@ -700,6 +722,49 @@ private:
 	ComExcelWorksheet * P_Sheet;
 	ComExcelApp  * P_App;
 	ComExcelWorksheets * P_Sheets;
+};
+//
+//
+//
+class ImpExpExcelWorkbook { // @v12.5.3
+public:
+	ImpExpExcelWorkbook();
+	~ImpExpExcelWorkbook();
+	int    Open(const char * pFileName, const ExcelIoParam * pParam, bool readOnly);
+	int    Close();
+	int    Save();
+	uint32 GetNumRecords() const;
+	int    GoToRecord(uint32 recNo/*, int rel = relAbs*/);
+	int    GetRecord(const SdRecord & rRec, void * pDataBuf);
+	int    AppendRecord(const SdRecord & rRec, const void * pDataBuf);
+	const char * GetFileName() const { return FileName.cptr(); }
+private:
+	int    InitWorkSheet();
+	int    Scan();
+	int    CheckParam(const SdRecord & rRec);
+	void   PutFieldDataToBuf(const SdbField & rFld, const SString & rTextData, void * pRecBuf);
+	void   GetFieldDataFromBuf(const SdbField & rFld, SString & rTextData, const void * pRecBuf);
+	int    GetFldNames();
+
+	enum {
+		stReadOnly = 0x0001
+	};
+	ExcelIoParam P;
+	uint   State;
+	uint32 CurRec;
+	uint32 RecCount;
+	SString FileName;
+	StringSet FldNames;    // Если (P.Flags & fFldNameRec), то в это поле в порядке следования записываются наименования полей файла данных
+	LongArray WidthList;
+	//ComExcelWorkbook  * P_WkBook;
+	//ComExcelWorksheet * P_Sheet;
+	//ComExcelApp  * P_App;
+	//ComExcelWorksheets * P_Sheets;
+
+	void * P_Doc;
+	void * P_Sheet;
+	uint32 RegFontIdx;
+	uint32 HdrFontIdx;
 };
 //
 // Definitions
@@ -1542,6 +1607,7 @@ private:
 	DbProvider * P_Db;
 	void * H;
 	void * P_Result;
+	// @construction DbProvider::Connection Conn; // @v12.5.3 Если запрос должен быть ассоциирован с отдельным соединением, то вот он это соединение.
 	long   Flags;
 	int    Typ; // @v12.3.12 Generator_SQL::typXXX
 	BindArray BL;
@@ -1600,10 +1666,14 @@ struct DbTableStat {
 	uint32 FldCount;      // Количество полей в таблице
 	uint32 IdxCount;      // Количество индексов в таблице
 	uint32 PageSize;      // Размер страницы
+	LDATETIME CrDtm;      // @v12.5.3 Момент создания таблицы
+	LDATETIME ModDtm;     // @v12.5.3 Момент последнего изменения таблицы 
 	SString TblName;      // Наименование спецификации таблицы
 	SString Location;     // Местоположение таблицы
 	SString OwnerName;    // @ora
-	SString SpaceName;    // @ora
+	SString SpaceName;    // @ora, for MySQL - catalog
+	SString Collation;    // @v12.5.3 MySQL 
+	SString DbEngine;     // @v12.5.3 MySQL Движок управления данными, применяемый внутри DMBS
 	BNFieldList2 FldList; // Список полей
 	BNKeyList IdxList;    // Список индексов
 };
@@ -1653,8 +1723,17 @@ public:
 	DbProvider * GetDb() { return P_Db; }
 	int    open(const char * pTblName, const char * pFileName = 0, int openMode = omNormal);
 	int    close();
-	int    IsOpened() const;
+	bool   IsOpen() const;
 	bool   getField(uint fldN, DBField *) const;
+	//
+	// Descr: Возвращает >0 если запрос поиска в таблице this по индексу idx в режиме srchMode
+	//   гарантированно возвращает не более одной записи. Это запросы в режиме spEq по уникальному ключу.
+	// Returns:
+	//   >0 - результатом запроса действительно может быть не более одной записи
+	//   <0 - результатом запроса может быть более одной записи
+	//    0 - error. Например, неверно указан idx или srchMode.
+	//
+	int    IsQuerySingleTacted(int idx, int srchMode) const;
 	int    getFieldByName(const char * pName, DBField *) const;
 	int    getFieldValue(uint fldN, void * pVal, size_t * pSize) const;
 	int    setFieldValue(uint fldN, const void * pVal);
@@ -1710,8 +1789,7 @@ public:
 	//
 	int    CopyBufLobFrom(const void * pBuf, size_t srcBufSize);
 	//
-	// Descr: Копирует данные полей, соответствующих индексу idx в буфер
-	//   ключа pKey.
+	// Descr: Копирует данные полей, соответствующих индексу idx в буфер ключа pKey.
 	//
 	int    copyBufToKey(int idx, void * pKey) const;
 	RECORDSIZE getBufLen() const;
@@ -2156,6 +2234,18 @@ public:
 		stLoggedIn    = 0x0002,
 		stTransaction = 0x0004, // @v12.4.1 Запущена транзакция методом StartTransaction(). Методы CommitWork() и RollbackWork() снимают этот флаг.
 			// Важно! Обязанность имплементации установки и снятия флага лежит на конкретных реализациях указанных виртуальных функций.
+	};
+	//
+	// Descr: Структура, инкапсулирующая экземпляр соединения с сервером базы данных.
+	// Note: Используется далеко не во всех реализациях DbProvider.
+	//
+	struct Connection { // @v12.5.3
+		Connection();
+		Connection(const Connection & rS);
+		Connection & FASTCALL operator = (const Connection & rS);
+		Connection & Z();
+		const  bool operator !() const { return (H == 0); }
+		void * H;
 	};
 	virtual ~DbProvider();
 	//
@@ -2894,7 +2984,7 @@ private:
 //
 // Descr: Провайдер MySQL и MariaDB
 //
-class SMySqlDbProvider : public DbProvider { // @construction
+class SMySqlDbProvider : public DbProvider {
 public:
 	//
 	// Descr: Специальная функция, вычисляющая размер 
@@ -2958,6 +3048,8 @@ private:
 	static  MYSQL_STMT * FASTCALL StmtHandle(const SSqlStmt & rS);
 	virtual int PostProcess_LoadTableSpec(DBTable * pTbl); // @v12.4.8
 	int    ProcessBinding_SimpleType(int action, uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind, uint ntvType);
+	Connection Helper_Connect(const DbLoginBlock * pBlk, SString * pDbName); // @v12.5.3
+	int    Helper_CloseConnection(Connection & rConn); // @v12.5.3
 	enum {
 		descrMYSQLTIME = 1
 	};
@@ -2992,12 +3084,13 @@ private:
 	int    Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf, SearchQueryBlock & rBlk);
 
 	long   Flags;
-	void * H;
+	Connection Conn;
 	SString CurrentDatabase;
 	Generator_SQL SqlGen;
 	DBTable::SelectStmt * P_LastSelectStmt; // @v12.5.2 последний select-запрос. В случае с mysql эта ссылка необходима из-за
 		// того, что, если последний select-оператор не был отработан до конца или удален, то следующий оператор (например,
 		// по другой таблице) выполнить не удастся (error: Commands out of sync; you can't run this command now).
+	TSVector <Connection> ConnPool; // @v12.5.3 Пул соединений. Придется для select-операций и транзакций использовать специальные соединения.
 };
 //
 // Descr: Провайдер для SQLite
@@ -3247,12 +3340,9 @@ public:
 	DbSession();
 	~DbSession();
 	bool   IsConsistent() const;
-	//void   SetFlag(long f, int set);
-	//long   GetFlag(long f) const;
 	void   SetConfig(const Config * pCfg);
-	// @v10.0.0 void   FASTCALL GetConfig(Config & rCfg);
-	const  Config & GetConfig() const { return Cfg; } // @v10.0.0
-	int    GetTaState();
+	const  Config & GetConfig() const { return Cfg; }
+	bool   GetTaState();
 	int    InitThread();
 	void   ReleaseThread();
 	DbThreadLocalArea & GetTLA(); // { return *(DbThreadLocalArea *)TlsGetValue(TlsIdx); }

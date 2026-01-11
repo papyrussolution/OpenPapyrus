@@ -1,5 +1,5 @@
 // C_BILL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025, 2026
 // @codepage UTF-8
 // Корректировка документов
 //
@@ -724,13 +724,14 @@ int RemoveBadReckons()
 		PPTransaction tra(1);
 		THROW(tra);
 		while(a.search(1, &k1, spGt) && k1.AsscType == PPASS_PAYMBILLPOOL) {
-			BillTbl::Rec prmr_bill_rec, scnd_bill_rec;
+			BillTbl::Rec prmr_bill_rec;
+			BillTbl::Rec scnd_bill_rec;
 			int    r1 = p_bobj->Search(k1.PrmrObjID, &prmr_bill_rec);
 			int    r2 = p_bobj->Search(k1.ScndObjID, &scnd_bill_rec);
 			if(r1 <= 0)
-				MEMSZERO(prmr_bill_rec);
+				prmr_bill_rec.Clear();
 			if(r2 <= 0)
-				MEMSZERO(scnd_bill_rec);
+				scnd_bill_rec.Clear();
 			int    is_removed = 0;
 			SString msg_buf, code1, code2;
 			PPObjBill::MakeCodeString(&scnd_bill_rec, 1, code1);

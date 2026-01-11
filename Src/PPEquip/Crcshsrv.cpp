@@ -3052,7 +3052,7 @@ int ACS_CRCSHSRV::CreateSCardPaymTbl()
 					k0.ID = cs_dscnt.CheckLineID;
 					if(cs_dscnt.CheckLineID && cs_dscnt.CardNumber[0] && !P_SCardPaymTbl->search(0, &k0, spEq)) {
 						TempOrderTbl::Rec scard_rec;
-						MEMSZERO(sc_rec);
+						sc_rec.Clear();
 						if(!SearchCardCode(&sc_core, cs_dscnt.CardNumber, &sc_rec)) {
 							if(!ser_id) {
 								ser_name = "IMPORT";
@@ -3089,7 +3089,7 @@ int ACS_CRCSHSRV::CreateSCardPaymTbl()
 
 		Backup("dsct", PathRpt[filTypChkDscnt]);
 		THROW_MEM(p_dbftd = new DbfTable(PathRpt[filTypChkDscnt]));
-		THROW_PP(p_dbftd->isOpened(), PPERR_DBFOPFAULT);
+		THROW_PP(p_dbftd->IsOpen(), PPERR_DBFOPFAULT);
 		p_dbftd->getFieldNumber("chkln_id", &fldn_d_chkln_id);
 		p_dbftd->getFieldNumber("type",     &fldn_d_dscnt_type);
 		p_dbftd->getFieldNumber("cardno",   &fldn_d_cardno);
@@ -3820,7 +3820,7 @@ int ACS_CRCSHSRV::ConvertWareList(const SVector * pZRepList, const char * pWaitM
 
 	Backup("dbfh", PathRpt[filTypChkHeads]);
 	THROW_MEM(p_dbfth = new DbfTable(PathRpt[filTypChkHeads]));
-	THROW_PP(p_dbfth->isOpened(), PPERR_DBFOPFAULT);
+	THROW_PP(p_dbfth->IsOpen(), PPERR_DBFOPFAULT);
 	p_dbfth->getFieldNumber("operation", &fldn_h_op);
 	p_dbfth->getFieldNumber("dateoper",  &fldn_h_date);
 	p_dbfth->getFieldNumber("numchk",    &fldn_h_check);
@@ -3830,7 +3830,7 @@ int ACS_CRCSHSRV::ConvertWareList(const SVector * pZRepList, const char * pWaitM
 
 	Backup("dbfr", PathRpt[filTypChkRows]);
 	THROW_MEM(p_dbftr = new DbfTable(PathRpt[filTypChkRows]));
-	THROW_PP(p_dbftr->isOpened(), PPERR_DBFOPFAULT);
+	THROW_PP(p_dbftr->IsOpen(), PPERR_DBFOPFAULT);
 	p_dbftr->getFieldNumber("chkln_id",  &fldn_l_chkln_id);
 	p_dbftr->getFieldNumber("numchk",    &fldn_l_check);
 	p_dbftr->getFieldNumber("smena",     &fldn_l_sess);
@@ -4468,7 +4468,7 @@ int ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, bool useLocalFiles)
 				//
 				Backup("zrep", PathRpt[filTypZRep]);
 				THROW_MEM(p_dbftz = new DbfTable(PathRpt[filTypZRep]));
-				THROW_PP_S(p_dbftz->isOpened(), PPERR_DBFOPFAULT, PathRpt[filTypZRep]);
+				THROW_PP_S(p_dbftz->IsOpen(), PPERR_DBFOPFAULT, PathRpt[filTypZRep]);
 				p_dbftz->getFieldNumber("cashnmb",   &fldn_z_cash);
 				p_dbftz->getFieldNumber("smena",     &fldn_z_sess);
 				p_dbftz->getFieldNumber("start",     &fldn_z_start);

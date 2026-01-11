@@ -1898,6 +1898,12 @@ void FASTCALL SPaintObj::Brush::SetSimple(SColor c)
 	IdPattern = 0;
 }
 //
+//
+// 
+SColorTheme::SColorTheme() : Id(0)
+{
+}
+//
 // 
 // 
 SFontSource::SFontSource()

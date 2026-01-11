@@ -59,7 +59,7 @@ extern "C" {
 #   ifdef AES_LONG
 #    ifndef SEED_LONG
 #define SEED_LONG 1
-#    endif
+#endif
 #endif
 
 

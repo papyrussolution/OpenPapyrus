@@ -552,7 +552,7 @@ public:
 
 	uint8_t GetBits(_Inout_ size_t& uStartBit, _In_ size_t uNumBits) const noexcept
 	{
-		if(uNumBits == 0)  return 0;
+		if(uNumBits == 0) return 0;
 		assert(uStartBit + uNumBits <= 128 && uNumBits <= 8);
 		_Analysis_assume_(uStartBit + uNumBits <= 128 && uNumBits <= 8);
 		uint8_t ret;

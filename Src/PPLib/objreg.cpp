@@ -1,5 +1,5 @@
 // OBJREG.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2016, 2017, 2018, 2019, 2020, 2024, 2025
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2016, 2017, 2018, 2019, 2020, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -488,7 +488,7 @@ int PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const RegisterArra
 	private:
 		void   Init()
 		{
-			MEMSZERO(Data);
+			Data.Clear();
 			RegOrgKind = 0;
 			ValidCode = -1;
 			SetupCalDate(CTLCAL_REG_DATE, CTL_REG_DATE);

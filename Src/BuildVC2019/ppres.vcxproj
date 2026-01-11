@@ -1140,52 +1140,52 @@ XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
     <CustomBuild Include="..\Rsrc\Rc\ppbrow.rc2">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Компиляция %(Filename)%(Extension)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Компиляция %(Filename)%(Extension)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).RC ..\INCLUDE\%(Filename).H ..\PPMAIN\%(Filename)-embed.rc
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).rc ..\INCLUDE\%(Filename).h ..\PPMAIN\%(Filename)-embed.rc
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).RC ..\INCLUDE\%(Filename).H ..\PPMAIN\%(Filename)-embed.rc
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).rc ..\INCLUDE\%(Filename).h ..\PPMAIN\%(Filename)-embed.rc
 </Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).RC;..\INCLUDE\%(Filename).H;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)%(Filename).RC;..\INCLUDE\%(Filename).H;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).rc;..\INCLUDE\%(Filename).h;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)%(Filename).rc;..\INCLUDE\%(Filename).h;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Компиляция %(Filename)%(Extension)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Компиляция %(Filename)%(Extension)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).RC ..\INCLUDE\%(Filename).H ..\PPMAIN\%(Filename)-embed.rc
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).rc ..\INCLUDE\%(Filename).h ..\PPMAIN\%(Filename)-embed.rc
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).RC ..\INCLUDE\%(Filename).H ..\PPMAIN\%(Filename)-embed.rc
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).rc ..\INCLUDE\%(Filename).h ..\PPMAIN\%(Filename)-embed.rc
 </Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)%(Filename).RC;..\INCLUDE\%(Filename).H;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)%(Filename).RC;..\INCLUDE\%(Filename).H;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)%(Filename).rc;..\INCLUDE\%(Filename).h;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)%(Filename).rc;..\INCLUDE\%(Filename).h;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Компиляция %(Filename)%(Extension)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Компиляция %(Filename)%(Extension)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).RC ..\INCLUDE\%(Filename).H ..\PPMAIN\%(Filename)-embed.rc
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).rc ..\INCLUDE\%(Filename).h ..\PPMAIN\%(Filename)-embed.rc
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).RC ..\INCLUDE\%(Filename).H ..\PPMAIN\%(Filename)-embed.rc
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).rc ..\INCLUDE\%(Filename).h ..\PPMAIN\%(Filename)-embed.rc
 </Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)%(Filename).RC;..\INCLUDE\%(Filename).H;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)%(Filename).RC;..\INCLUDE\%(Filename).H;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)%(Filename).rc;..\INCLUDE\%(Filename).h;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)%(Filename).rc;..\INCLUDE\%(Filename).h;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Компиляция %(Filename)%(Extension)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Компиляция %(Filename)%(Extension)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).RC ..\INCLUDE\%(Filename).H ..\PPMAIN\%(Filename)-embed.rc
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).rc ..\INCLUDE\%(Filename).h ..\PPMAIN\%(Filename)-embed.rc
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).RC ..\INCLUDE\%(Filename).H ..\PPMAIN\%(Filename)-embed.rc
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).rc ..\INCLUDE\%(Filename).h ..\PPMAIN\%(Filename)-embed.rc
 </Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).RC;..\INCLUDE\%(Filename).H;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)%(Filename).RC;..\INCLUDE\%(Filename).H;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).rc;..\INCLUDE\%(Filename).h;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)%(Filename).rc;..\INCLUDE\%(Filename).h;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Компиляция %(Filename)%(Extension)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Компиляция %(Filename)%(Extension)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).RC ..\INCLUDE\%(Filename).H ..\PPMAIN\%(Filename)-embed.rc
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).rc ..\INCLUDE\%(Filename).h ..\PPMAIN\%(Filename)-embed.rc
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).RC ..\INCLUDE\%(Filename).H ..\PPMAIN\%(Filename)-embed.rc
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).rc ..\INCLUDE\%(Filename).h ..\PPMAIN\%(Filename)-embed.rc
 </Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)%(Filename).RC;..\INCLUDE\%(Filename).H;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)%(Filename).RC;..\INCLUDE\%(Filename).H;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)%(Filename).rc;..\INCLUDE\%(Filename).h;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)%(Filename).rc;..\INCLUDE\%(Filename).h;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Компиляция %(Filename)%(Extension)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Компиляция %(Filename)%(Extension)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).RC ..\INCLUDE\%(Filename).H ..\PPMAIN\%(Filename)-embed.rc
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).rc ..\INCLUDE\%(Filename).h ..\PPMAIN\%(Filename)-embed.rc
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).RC ..\INCLUDE\%(Filename).H ..\PPMAIN\%(Filename)-embed.rc
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).rc ..\INCLUDE\%(Filename).h ..\PPMAIN\%(Filename)-embed.rc
 </Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)%(Filename).RC;..\INCLUDE\%(Filename).H;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)%(Filename).RC;..\INCLUDE\%(Filename).H;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)%(Filename).rc;..\INCLUDE\%(Filename).h;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)%(Filename).rc;..\INCLUDE\%(Filename).h;..\PPMAIN\%(Filename)-embed.rc;%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="..\Rsrc\Rc\ppdlg.list">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Сборка диалогов</Message>

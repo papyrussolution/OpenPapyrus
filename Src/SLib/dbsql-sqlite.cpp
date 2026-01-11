@@ -1,5 +1,5 @@
 // DBSQL-SQLITE.CPP
-// Copyright (c) A.Sobolev 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2021, 2022, 2023, 2024, 2025, 2026
 // Модуль интерфейса с DBMS Sqlite3
 // @construction
 //
@@ -253,6 +253,7 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 		}
 		THROW(ProcessError(sqlite3_open_v2(path, &h, open_flags, 0)));
 		H = h;
+		Common_Login(pBlk); // @v12.5.3
 		if(options & DbProvider::openfMainThread) {
 			sqlite3_exec(h, "PRAGMA journal_mode=WAL", 0, 0, 0);
 			sqlite3_exec(h, "PRAGMA synchronous=NORMAL", 0, 0, 0);
@@ -416,6 +417,7 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 	}
 	else
 		ok = -1;
+	Common_Logout(); // @v12.5.3
 	return ok;
 }
 

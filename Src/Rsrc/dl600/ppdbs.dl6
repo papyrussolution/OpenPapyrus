@@ -1,5 +1,5 @@
 // PPDBS.DL6
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Database structures
 //
@@ -304,11 +304,11 @@ table World {           // size=156
 		// Для государств используется числовой код по ISO 3166
 	string ZIP[12];     // ZIP-код географического объекта. Модуль адреса сможет использовать этот код
 index:
-	ID (unique);
-	ParentID, Name acs (dup mod);
-	CountryID, Name acs (dup mod);
-	Kind, Name acs (dup mod);
-	Code (anysegnull dup mod); // Так как внешние классификаторы грешат вероятными дубликатами, ключ делаем неуникальным
+	ID (unique);                    // #0
+	ParentID, Name acs (dup mod);   // #1 
+	CountryID, Name acs (dup mod);  // #2 
+	Kind, Name acs (dup mod);       // #3
+	Code (anysegnull dup mod);      // #4 Так как внешние классификаторы грешат вероятными дубликатами, ключ делаем неуникальным
 file:
 	"world.btr";
 	acstable = "rusncase.alt";
@@ -4015,9 +4015,6 @@ table TempGoodsRest {
 	double SumPrice;        // Сумма в ценах реализации  //
 	double SumCVat;         // @v8.3.4 Сумма НДС в ценах поступления //
 	double SumPVat;         // @v8.3.4 Сумма НДС в ценах реализации //
-	// @v9.8.2 float  PctAddedVal;     // Процент наценки
-	// @v9.8.3 string BarCode[24];     // @v8.8.0 [16]-->[24]
-	// @v9.8.3 string Serial[64];      // @v8.1.0 @v9.7.11 [24]-->[64] здесь теперь может храниться значение произвольного тега
 	uint   BarcodeSP;
 	uint   SerialSP;
 	long   Predict;         //
@@ -4032,14 +4029,11 @@ table TempGoodsRest {
 	date   LastSellDate;    // @v8.7.3 Дата последней продажи
 	int16  IsPredictTrust;  // Признак того, что значение Predict удовлетворяет критерию надежности.
 index:
-	ID__ (unique);
-	//
-	// Так как иногда требуется выдавать остатки в разбивку по
-	// лотам, то следующие два индекса пришлось сделать дублируемыми
-	//
-	GoodsName acs, LocID (dup mod);
-	GoodsGrp, GoodsName acs, LocID (dup mod);
-	GoodsID, LocID (dup mod);
+	ID__ (unique);                            // #0
+	// Так как иногда требуется выдавать остатки в разбивку по лотам, то следующие два индекса пришлось сделать дублируемыми
+	GoodsName acs, LocID (dup mod);           // #2
+	GoodsGrp, GoodsName acs, LocID (dup mod); // #3
+	GoodsID, LocID (dup mod);                 // #4 
 file:
 	"tmp_gdsr.btr";
 	temporary;

@@ -2152,11 +2152,11 @@ protected:
 	ImGuiListClipper m_FileListClipper;
 	ImGuiListClipper m_PathListClipper;
 	float prOkCancelButtonWidth = 0.0f;
-
 public:
 	// Singleton for easier accces form anywhere but only one dialog at a time
 	// vCopy or vForce can be used for share a memory pointer in a new memory space like a dll module
-	static FileDialog* Instance(FileDialog* vCopy = nullptr, bool vForce = false) {
+	static FileDialog* Instance(FileDialog* vCopy = nullptr, bool vForce = false) 
+	{
 		static FileDialog _instance;
 		static FileDialog* _instance_copy = nullptr;
 		if(vCopy || vForce) {
@@ -2167,7 +2167,6 @@ public:
 		}
 		return &_instance;
 	}
-
 public:
 	FileDialog();       // ImGuiFileDialog Constructor. can be used for have many dialog at same time (not possible with singleton)
 	virtual ~FileDialog(); // ImGuiFileDialog Destructor
@@ -2190,8 +2189,8 @@ public:
 	// queries
 	bool WasOpenedThisFrame(const std::string& vKey) const; // say if the dialog key was already opened this frame
 	bool WasOpenedThisFrame() const;                     // say if the dialog was already opened this frame
-	bool IsOpened(const std::string& vKey) const;        // say if the key is opened
-	bool IsOpened() const;                               // say if the dialog is opened somewhere
+	bool IsOpen(const std::string& vKey) const;        // say if the key is opened
+	bool IsOpen() const;                               // say if the dialog is opened somewhere
 	std::string GetOpenedKey() const;                    // return the dialog key who is opened, return nothing if not opened
 
 	// get result

@@ -1857,6 +1857,9 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 				else if(supplement_kind.IsEqiAscii("ellipsisbutton")) { // @v12.5.0
 					sb.Kind = SUiCtrlSupplement::kEllipsis;
 				}
+				else if(supplement_kind.IsEqiAscii("numberstepper")) { // @v12.5.3
+					sb.Kind = SUiCtrlSupplement::kNumberStepper;
+				}
 				else {
 					Error(PPERR_DL6_UISUPPLEMENT_UNDEFKIND, supplement_kind.cptr(), erfLog);
 					local_fault = true;

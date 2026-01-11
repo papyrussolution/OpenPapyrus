@@ -19,7 +19,7 @@
 #pragma hdrstop
 #include "unicode/ures.h"
 #include "unicode/ulocdata.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "ureslocs.h"
 #include "ulocimp.h"
 

@@ -1,5 +1,5 @@
 // OBJPERSN.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2208,7 +2208,7 @@ int PPObjPerson::AddRegisterToPacket(PPPersonPacket & rPack, PPID regTypeID, con
 	STRNSCPY(temp_buf, pNumber);
 	if(*strip(temp_buf)) {
 		int    reg_exists = 0;
-		MEMSZERO(reg_rec);
+		reg_rec.Clear();
 		reg_rec.RegTypeID = regTypeID;
 		STRNSCPY(reg_rec.Num, temp_buf);
 		PPObjRegisterType obj_regt;
@@ -4708,7 +4708,6 @@ int ShortPersonDialog::SetupSCardSeries(int fromCtrl, int dontSeekCard)
 		scs_id = SCardSerID;
 	if(scs_id) {
 		SCardTbl::Rec sc_rec;
-		MEMSZERO(sc_rec);
 		PPID   goods_grp_id = 0;
 		PPObjSCardSeries scs_obj;
 		PPSCardSerPacket scs_pack;
@@ -4729,7 +4728,7 @@ int ShortPersonDialog::SetupSCardSeries(int fromCtrl, int dontSeekCard)
 							break;
 						}
 						else
-							MEMSZERO(sc_rec);
+							sc_rec.Clear();
 					}
 				}
 			}
@@ -7851,7 +7850,7 @@ int PPALDD_UhttPerson::Set(long iterId, int commit)
 			}
 			else if(iterId == GetIterID("iter@RegisterList")) {
 				RegisterTbl::Rec reg_r;
-				MEMSZERO(reg_r);
+				reg_r.Clear();
 				reg_r.RegTypeID = I_RegisterList.RegTypeID;
 				STRNSCPY(reg_r.Num, strip(I_RegisterList.RegNumber));
 				r_blk.Pack.Regs.atInsert(r_blk.Pack.Regs.getPointer(), &reg_r);

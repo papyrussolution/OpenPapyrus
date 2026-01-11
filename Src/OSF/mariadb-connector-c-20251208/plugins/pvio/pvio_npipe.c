@@ -111,7 +111,7 @@ static BOOL complete_io(HANDLE file, OVERLAPPED * ov, BOOL ret, DWORD timeout, D
 {
 	if(ret)
 		timeout = 0; /* IO completed successfully, do not WaitForSingleObject */
-	else{
+	else {
 		assert(timeout);
 		if(GetLastError() != ERROR_IO_PENDING)
 			return FALSE;

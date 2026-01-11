@@ -1,4 +1,5 @@
 // Copyright 2016 Google Inc.
+// @codepage UTF-8
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -247,7 +248,7 @@ std::vector<std::string> StrSplitAsCSV(absl::string_view text)
 
 #ifdef OS_WIN
 namespace win32 {
-/* @v12.2.0 (этот вариант ошибочный - see below) std::wstring Utf8ToWide(absl::string_view input) 
+/* @v12.2.0 (СЌС‚РѕС‚ РІР°СЂРёР°РЅС‚ РѕС€РёР±РѕС‡РЅС‹Р№ - see below) std::wstring Utf8ToWide(absl::string_view input) 
 {
 	int output_length = ::MultiByteToWideChar(CP_UTF8, 0, input.data(), static_cast<int>(input.size()), nullptr, 0);
 	output_length = output_length <= 0 ? 0 : output_length - 1;
@@ -263,7 +264,7 @@ namespace win32 {
 	return output;
 }*/
 
-std::wstring Utf8ToWide(absl::string_view input)  // @v12.2.0 это - вариант из более новой версии sentencepiece
+std::wstring Utf8ToWide(absl::string_view input)  // @v12.2.0 СЌС‚Рѕ - РІР°СЂРёР°РЅС‚ РёР· Р±РѕР»РµРµ РЅРѕРІРѕР№ РІРµСЂСЃРёРё sentencepiece
 {
 	const int output_length = ::MultiByteToWideChar(CP_UTF8, 0, input.data(), static_cast<int>(input.size()), nullptr, 0);
 	if(output_length == 0) {

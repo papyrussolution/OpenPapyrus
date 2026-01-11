@@ -1,5 +1,5 @@
 // UIVIEW.DL6
-// Copyright (c) A.Sobolev 2025
+// Copyright (c) A.Sobolev 2025, 2026
 //
 cinclude "../../include/tvdefs.h"
 cinclude "../../include/ppdefs.h"
@@ -2094,7 +2094,8 @@ dialog DLG_SCARD [vertical title: "@scard" size: (710, 570) minsize: (690, 570) 
 	view [horizontal width: bycontainer height: 70] {
 		framebox [title: "@scard_periodafteractivation" horizontal growfactor: 1 height: bycontainer margin: 4 padding: (0, 8, 0, 0)] {
 			combobox CTLSEL_SCARD_PRD [growfactor: 3 height: 21 margin: 4 tabstop label: "@scard_periodterm" labelsize: (0, 13) cblinesymb: CTL_SCARD_PRD];
-			input CTL_SCARD_PRDCOUNT [growfactor: 2 height: 21 margin: 4 tabstop fmtf: (nozero) label: "@scard_periodcount" labelsize: (0, 33)] int16;
+			input CTL_SCARD_PRDCOUNT [growfactor: 2 height: 21 margin: 4 tabstop fmtf: (nozero) label: "@scard_periodcount" labelsize: (0, 33)] int16
+				supplement numberstepper(CTLSPN_SCARD_PRDCOUNT)
 		}
 		framebox [horizontal growfactor: 1 height: bycontainer margin: 4 padding: (0, 8, 0, 0)] {
 			input CTL_SCARD_PHONE [growfactor: 1 height: 21 margin: 4 tabstop label: "@phone" labelsize: (0, 13)] string[64];
@@ -2511,7 +2512,87 @@ dialog DLG_PRCBUSYFLT [vertical title: "@view_prcbusy" size: (370, 370) minsize:
 	}
 }
 
-// @20251229 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
+dialog DLG_CHKINPLIST [vertical title: "@checkinpersonlist" size: (630, 300) minsize: (630, 300) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.3 @construction
+	statictext CTL_CHKINPLIST_ST_HEADER [width: bycontainer height: 21 margin: 4 staticedge];
+	listbox CTL_CHKINPLIST_LIST [width: bycontainer growfactor: 1 margin: 4 columns: "40,L,@person;14,L,@status;6,R,@qtty;12,R,@amount;15,L,@time"];
+	view [vertical width: bycontainer height: 80] {
+		view [horizontal width: bycontainer growfactor: 2] {
+			button STDCTL_EDITBUTTON [title: "@but_edit" tabstop defaultitem size: (90, 21) margin: 4 command: cmaEdit];
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+			statictext CTL_CHKINPLIST_ST_TOTAL [growfactor: 1 height: 21 margin: 4 staticedge];
+		}
+		view [horizontal width: bycontainer growfactor: 3] {
+			view [horizontal growfactor: 5 height: bycontainer] {
+				button CTL_CMD_CHANGESTATUSFORALL [title: "@{checkinpersonlist_changestatusforall}..." tabstop size: (188, 21) margin: (4, 17, 4, 4) command: cmChangeStatusForAll];
+				button CTL_CMD_CCHECK [title: "@{poscheck}..." tabstop size: (90, 21) margin: (4, 17, 4, 4) command: cmCCheck];
+				input CTL_CHKINPLIST_CNT [size: (68, 21) margin: 4 tabstop fmtf: (nozero) label: "@qtty" labelsize: (0, 13)] int32 supplement numberstepper(CTLSPN_CHKINPLIST_CNT);
+			}
+			view [horizontal growfactor: 2 height: bycontainer] {
+				button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: (4, 17, 4, 4) command: cmOK];
+				button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: (4, 17, 4, 4) command: cmCancel];
+			}
+		}
+	}
+}
+
+dialog DLG_CHKINPSTFORALL [vertical title: "@checkinperson_changestatusforall" size: (460, 180) minsize: (460, 180) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.3
+	radiocluster CTL_CHKINPSTFORALL_ST [vertical tabstop width: bycontainer margin: 4] {
+		radiobutton [title: "@checkinperson_statusregistered" height: 16];
+		radiobutton [title: "@checkinperson_statuscheckedin" height: 16];
+		radiobutton [title: "@checkinperson_statuscanceled" height: 16];
+	}
+	view [horizontal width: bycontainer(100) growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: (4, 4, 8, 4) command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: (8, 4, 4, 4) command: cmCancel];
+	}
+}
+
+dialog DLG_LAYOENTRY [vertical title: "Layout Entry" size: (520, 290) minsize: (520, 290) padding: 4 font: "MS Shell Dlg,8"] {
+	combobox CTLSEL_LAYOENTRY_PARENT [tabstop width: bycontainer(60) height: 21 margin: 4 label: "@tlayout_parentsymb" labelsize: (0, 13) cblinesymb: CTL_LAYOENTRY_PARENT];
+	view [horizontal width: bycontainer growfactor: 1] {
+		view [vertical growfactor: 6] {
+			input CTL_LAYOENTRY_SIZE [width: bycontainer height: 21 margin: 4 tabstop label: "@tlayout_sizeline" labelsize: (0, 13)] string[20];
+			input CTL_LAYOENTRY_MARG [width: bycontainer height: 21 margin: 4 tabstop label: "@tlayout_paddingline" labelsize: (0, 13)] string[48];
+		}
+		view [vertical growfactor: 4] {
+			input CTL_LAYOENTRY_GROWF [width: bycontainer height: 21 margin: 4 tabstop fmtf: (nozero) fmtprec: 2 label: "Grow factor" labelsize: (0, 13)] float;
+			input CTL_LAYOENTRY_SHRNKF [width: bycontainer height: 21 margin: 4 tabstop fmtf: (nozero) fmtprec: 2 label: "Shrink factor" labelsize: (0, 13)] float;
+			input CTL_LAYOENTRY_ASPR [width: bycontainer height: 21 margin: 4 tabstop fmtf: (nozero) fmtprec: 3 label: "Aspect ratio" labelsize: (0, 13)] float;
+		}
+	}
+	view [horizontal width: bycontainer height: 43] {
+		combobox CTLSEL_LAYOENTRY_GRAVITY [tabstop growfactor: 1 height: 21 margin: 4 label: "Gravity" labelsize: (0, 13) cblinesymb: CTL_LAYOENTRY_GRAVITY];
+		combobox CTLSEL_LAYOENTRY_ALGNSLF [tabstop growfactor: 1 height: 21 margin: 4 label: "Align Self" labelsize: (0, 13) cblinesymb: CTL_LAYOENTRY_ALGNSLF];
+	}
+	view [horizontal width: bycontainer(100) height: 28 margin_right: 12 justifycontent: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_WOLAYOUT [vertical title: "@tlayout" size: (395, 150) minsize: (395, 150) padding: 4 font: "MS Shell Dlg,8"] {
+	input CTL_WOLAYOUT_SYMB [width: bycontainer height: 21 margin: 4 tabstop label: "@symbol" labelsize: (0, 13)] string[64];
+	checkbox CTL_WOLAYOUT_FLAGS [title: "@tlayout_flags_hidden" tabstop width: bycontainer height: 21 margin_left: 4];
+	view [horizontal width: bycontainer(100) height: 28 margin_right: 12 justifycontent: start] {
+		button CTL_CMD_LAYOUTCONTAINER [title: "@{but_layoutcontainer}..." tabstop size: (150, 21) margin: 4 command: cmLayoutContainer];
+		button STDCTL_LAYOUTBUTTON [title: "@{but_layout}..." tabstop size: (150, 21) margin: 4 command: cmLayoutEntry];
+	}
+	view [horizontal width: bycontainer(100) growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_FLEXLAYOUTLIST [vertical title: "@layoutlist" size: (300, 300) minsize: (300, 300) font: "MS Shell Dlg,8"] {
+	treelistbox CTL_FLEXLAYOUTLIST_LIST [tabstop width: bycontainer growfactor: 1];
+	view [horizontal width: bycontainer(100) height: 28 margin_right: 12 justifycontent: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+// @20260108 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
 // Диалоги, представленные здесь с изменными символами (DLG_CASHREPORTS_L__, например) в ppdlg.list не отмечены поскольку находятся в работе.
 
 // @construction
@@ -2572,3 +2653,16 @@ dialog DLG_CASHREPORTS_L__ [vertical title: "@posnodecmd" size: (595, 525) minsi
 	}
 }
 
+dialog DLG_OPENEDFILE [vertical title: "@openfileforedit" size: (670, 500) minsize: (670, 500) padding: 4 font: "MS Shell Dlg,8"] { // @construction
+	listbox CTL_OPENEDFILE_RESERV [tabstop title: "@openfileforedit_reservelist" width: bycontainer growfactor: 1 margin: (4, 4, 4, 4) columns: "@lbt_rfiles"];
+	view [horizontal width: bycontainer growfactor: 1] {
+		listbox CTL_OPENEDFILE_RECENT [tabstop title: "@openfileforedit_recentlist" growfactor: 3 height: bycontainer margin: 4 columns: "@lbt_recentfiles"];
+		statictext CTL_OPENEDFILE_ST_INFO [growfactor: 1 height: bycontainer margin: (4, 4, 4, 4) staticedge];
+	}
+	input CTL_OPENEDFILE_SELECT [width: bycontainer height: 21 margin: 4 tabstop label: "@openfileforedit_select" labelsize: (368, 13) ] string[255]
+		supplement filebrowsebutton(CTLBRW_OPENEDFILE_SELECT);
+	view [horizontal width: bycontainer(100) height: 28 margin_right: 12 justifycontent: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}

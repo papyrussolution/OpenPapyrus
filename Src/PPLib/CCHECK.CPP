@@ -1,5 +1,5 @@
 // CCHECK.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // @Kernel
 //
@@ -556,7 +556,7 @@ CCheckItem & FASTCALL CCheckItem::operator = (const CCheckLineExtTbl::Rec & rS)
 
 void CCheckItem::GetRec(CCheckLineTbl::Rec & rRec, bool isReturn) const
 {
-	MEMSZERO(rRec);
+	rRec.Clear();
 	rRec.RByCheck = RByCheck; // @v11.5.8
 	rRec.DivID = Division;
 	if(Flags & cifIsPrinted)
@@ -580,7 +580,7 @@ void CCheckItem::GetRec(CCheckLineTbl::Rec & rRec, bool isReturn) const
 int CCheckItem::GetRec(CCheckLineExtTbl::Rec & rRec) const
 {
 	int    ok = -1;
-	MEMSZERO(rRec);
+	rRec.Clear();
 	if(Queue > 0 || (Flags & (cifGrouped|cifModifier|cifPartOfComplex|cifQuotedByGift|cifFixedPrice)) || Serial[0]) {
 		rRec.Queue = Queue;
 		SETFLAG(rRec.Flags, CCheckPacket::LineExt::fGroup,         Flags & cifGrouped);

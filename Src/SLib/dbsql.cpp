@@ -1758,7 +1758,7 @@ int SOraDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, ui
 	return ok;
 }
 
-int SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf)
+/*virtual*/int SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf)
 {
 	// BNKeyList BNFieldList2 BNKey Generator_SQL
 	//

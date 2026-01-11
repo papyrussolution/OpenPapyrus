@@ -1,43 +1,38 @@
 // TIMEZONE.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- * Copyright (C) 1997-2016, International Business Machines Corporation and others. All Rights Reserved.
- *
- * Modification History:
- *   Date        Name        Description
- *   12/05/96    clhuang     Creation.
- *   04/21/97    aliu        General clean-up and bug fixing.
- *   05/08/97    aliu        Fixed Hashtable code per code review.
- *   07/09/97    helena      Changed createInstance to createDefault.
- *   07/29/97    aliu        Updated with all-new list of 96 UNIX-derived
- *        TimeZones.  Changed mechanism to load from static
- *        array rather than resource bundle.
- *   07/07/1998  srl         Bugfixes from the Java side: UTC GMT CAT NST
- *        Added getDisplayName API
- *        going to add custom parsing.
- *
- *        ISSUES:
- *            - should getDisplayName cache something?
- *            - should custom time zones be cached? [probably]
- *  08/10/98     stephen     Brought getDisplayName() API in-line w/ conventions
- *  08/19/98     stephen     Changed createTimeZone() to never return 0
- *  09/02/98     stephen     Added getOffset(monthLen) and hasSameRules()
- *  09/15/98     stephen     Added getStaticClassID()
- *  02/22/99     stephen     Removed character literals for EBCDIC safety
- *  05/04/99     stephen     Changed initDefault() for Mutex issues
- *  07/12/99     helena      HPUX 11 CC Port.
- *  12/03/99     aliu        Moved data out of static table into icudata.dll.
- *        Substantial rewrite of zone lookup, default zone, and
- *        available IDs code.  Misc. cleanup.
- *********************************************************************************/
-
+// Copyright (C) 1997-2016, International Business Machines Corporation and others. All Rights Reserved.
+// Modification History:
+//   Date        Name        Description
+//   12/05/96    clhuang     Creation.
+//   04/21/97    aliu        General clean-up and bug fixing.
+//   05/08/97    aliu        Fixed Hashtable code per code review.
+//   07/09/97    helena      Changed createInstance to createDefault.
+//   07/29/97    aliu        Updated with all-new list of 96 UNIX-derived TimeZones.  Changed mechanism to load from static array rather than resource bundle.
+//   07/07/1998  srl         Bugfixes from the Java side: UTC GMT CAT NST
+//     Added getDisplayName API
+//     going to add custom parsing.
+//   
+// ISSUES:
+//   - should getDisplayName cache something?
+//   - should custom time zones be cached? [probably]
+//   08/10/98     stephen     Brought getDisplayName() API in-line w/ conventions
+//   08/19/98     stephen     Changed createTimeZone() to never return 0
+//   09/02/98     stephen     Added getOffset(monthLen) and hasSameRules()
+//   09/15/98     stephen     Added getStaticClassID()
+//   02/22/99     stephen     Removed character literals for EBCDIC safety
+//   05/04/99     stephen     Changed initDefault() for Mutex issues
+//   07/12/99     helena      HPUX 11 CC Port.
+//   12/03/99     aliu        Moved data out of static table into icudata.dll.
+//     Substantial rewrite of zone lookup, default zone, and
+//     available IDs code.  Misc. cleanup.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "ustr_imp.h"
 
 #ifdef U_DEBUG_TZ
-#include "uresimp.h" // for debugging
+//#include "uresimp.h" // for debugging
 
 static void debug_tz_loc(const char * f, int32_t l)
 {
@@ -53,18 +48,18 @@ static void debug_tz_msg(const char * pat, ...)
 }
 
 static char gStrBuf[256];
-#define U_DEBUG_TZ_STR(x) u_austrncpy(gStrBuf, x, sizeof(gStrBuf)-1)
-// must use double parens, i.e.:  U_DEBUG_TZ_MSG(("four is: %d",4));
-#define U_DEBUG_TZ_MSG(x) {debug_tz_loc(__FILE__, __LINE__); debug_tz_msg x;}
+	#define U_DEBUG_TZ_STR(x) u_austrncpy(gStrBuf, x, sizeof(gStrBuf)-1)
+	// must use double parens, i.e.:  U_DEBUG_TZ_MSG(("four is: %d",4));
+	#define U_DEBUG_TZ_MSG(x) {debug_tz_loc(__FILE__, __LINE__); debug_tz_msg x;}
 #else
-#define U_DEBUG_TZ_MSG(x)
+	#define U_DEBUG_TZ_MSG(x)
 #endif
 
 #if !UCONFIG_NO_FORMATTING
 
 #include "unicode/tzfmt.h"
 #include "gregoimp.h"
-#include "uresimp.h" // struct UResourceBundle
+//#include "uresimp.h" // struct UResourceBundle
 #include "olsontz.h"
 #include "ucln_in.h"
 #include "zonemeta.h"

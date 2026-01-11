@@ -94,7 +94,7 @@ bool ParseFormatString(string_view src, Consumer consumer)
 		else if(percent[1] != '%') {
 			UnboundConversion conv;
 			p = ConsumeUnboundConversionNoInline(percent + 1, end, &conv, &next_arg);
-			if(ABSL_PREDICT_FALSE(p == nullptr))  return false;
+			if(ABSL_PREDICT_FALSE(p == nullptr)) return false;
 			if(ABSL_PREDICT_FALSE(!consumer.ConvertOne(
 				    conv, string_view(percent + 1,
 				    static_cast<size_t>(p - (percent + 1)))))) {
@@ -102,7 +102,7 @@ bool ParseFormatString(string_view src, Consumer consumer)
 			}
 		}
 		else {
-			if(ABSL_PREDICT_FALSE(!consumer.Append("%")))  return false;
+			if(ABSL_PREDICT_FALSE(!consumer.Append("%"))) return false;
 			p = percent + 2;
 			continue;
 		}
@@ -126,7 +126,7 @@ public:
 	ParsedFormatBase(ParsedFormatBase&& other) { *this = std::move(other); }
 
 	ParsedFormatBase& operator=(const ParsedFormatBase& other) {
-		if(this == &other)  return *this;
+		if(this == &other) return *this;
 		has_error_ = other.has_error_;
 		items_ = other.items_;
 		size_t text_size = items_.empty() ? 0 : items_.back().text_end;
@@ -136,7 +136,7 @@ public:
 	}
 
 	ParsedFormatBase& operator=(ParsedFormatBase&& other) {
-		if(this == &other)  return *this;
+		if(this == &other) return *this;
 		has_error_ = other.has_error_;
 		data_ = std::move(other.data_);
 		items_ = std::move(other.items_);
@@ -154,10 +154,10 @@ public:
 			text =
 			    string_view(end, static_cast<size_t>((base + item.text_end) - end));
 			if(item.is_conversion) {
-				if(!consumer.ConvertOne(item.conv, text))  return false;
+				if(!consumer.ConvertOne(item.conv, text)) return false;
 			}
 			else {
-				if(!consumer.Append(text))  return false;
+				if(!consumer.Append(text)) return false;
 			}
 		}
 		return !has_error_;
@@ -252,7 +252,7 @@ private:
 	    bool allow_ignored) {
 		std::unique_ptr<ExtendedParsedFormat> conv(
 			new ExtendedParsedFormat(format, allow_ignored));
-		if(conv->has_error())  return nullptr;
+		if(conv->has_error()) return nullptr;
 		return conv;
 	}
 

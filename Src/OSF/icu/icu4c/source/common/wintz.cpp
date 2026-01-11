@@ -16,7 +16,7 @@
 #if U_PLATFORM_USES_ONLY_WIN32_API
 
 #include "wintz.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 
 #ifndef WIN32_LEAN_AND_MEAN
 	#define WIN32_LEAN_AND_MEAN

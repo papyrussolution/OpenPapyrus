@@ -18,7 +18,7 @@
 #include "ucln_in.h"
 #include "unicode/bytestriebuilder.h"
 #include "unicode/stringtriebuilder.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 
 U_NAMESPACE_BEGIN
 

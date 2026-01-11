@@ -12,7 +12,7 @@
 #include "unicode/locdspnm.h"
 //#include "bytesinkutil.h"
 #include "ulocimp.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "ureslocs.h"
 #include "zonemeta.h"
 #include "tznames_impl.h"

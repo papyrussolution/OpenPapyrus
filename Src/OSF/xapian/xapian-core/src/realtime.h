@@ -52,7 +52,7 @@ inline double now()
 	if(LIKELY(gettimeofday(&tv, NULL) == 0))
 		return tv.tv_sec + (tv.tv_usec * 1e-6);
 	return double(std::time(NULL));
-# elif defined HAVE_FTIME
+#elif defined HAVE_FTIME
 	struct timeb tp;
 #ifdef FTIME_RETURNS_VOID
 	ftime(&tp);

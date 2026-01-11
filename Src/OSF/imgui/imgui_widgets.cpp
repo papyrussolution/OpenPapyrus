@@ -1914,8 +1914,8 @@ bool ImGui::DataTypeApplyFromText(const char* buf, ImGuiDataType data_type, void
 
 template <typename T> static int DataTypeCompareT(const T* lhs, const T* rhs)
 {
-	if(*lhs < *rhs)  return -1;
-	if(*lhs > *rhs)  return +1;
+	if(*lhs < *rhs) return -1;
+	if(*lhs > *rhs) return +1;
 	return 0;
 }
 
@@ -3383,7 +3383,7 @@ namespace ImStb {
 	static ImWchar STB_TEXTEDIT_GETCHAR(const ImGuiInputTextState* obj, int idx) { return obj->TextW[idx]; }
 	static float   STB_TEXTEDIT_GETWIDTH(ImGuiInputTextState* obj, int line_start_idx, int char_idx)  
 	{
-		ImWchar c = obj->TextW[line_start_idx + char_idx]; if(c == '\n')  return STB_TEXTEDIT_GETWIDTH_NEWLINE; ImGuiContext & g = *obj->Ctx;
+		ImWchar c = obj->TextW[line_start_idx + char_idx]; if(c == '\n') return STB_TEXTEDIT_GETWIDTH_NEWLINE; ImGuiContext & g = *obj->Ctx;
 		return g.Font->GetCharAdvance(c) * (g.FontSize / g.Font->FontSize);
 	}
 	static int     STB_TEXTEDIT_KEYTOTEXT(int key) { return key >= 0x200000 ? 0 : key; }

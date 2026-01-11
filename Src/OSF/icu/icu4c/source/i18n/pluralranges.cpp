@@ -12,7 +12,7 @@
 
 #include "unicode/numberrangeformatter.h"
 #include "pluralranges.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "util.h"
 #include "numrange_impl.h"
 

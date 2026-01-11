@@ -1,5 +1,5 @@
 // OBJOPRK.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -22,10 +22,7 @@ PPInventoryOpEx::PPInventoryOpEx()
 	return mode;
 }
 
-int PPInventoryOpEx::GetAccelInputMode() const
-{
-	return Helper_GetAccelInputMode(Flags);
-}
+int PPInventoryOpEx::GetAccelInputMode() const { return Helper_GetAccelInputMode(Flags); }
 
 void PPInventoryOpEx::SetAccelInputMode(int mode)
 {
@@ -562,7 +559,8 @@ int PPObjOprKind::GetPacket(PPID id, PPOprKindPacket * pack)
 
 int PPObjOprKind::PutPacket(PPID * pID, PPOprKindPacket * pack, int use_ta)
 {
-	int    ok = 1, r = 0;
+	int    ok = 1;
+	int    r = 0;
 	uint   i;
 	PPOpCounter opc_rec;
 	PPOpCounterPacket opc_pack;
@@ -601,10 +599,13 @@ int PPObjOprKind::PutPacket(PPID * pID, PPOprKindPacket * pack, int use_ta)
 			THROW(P_Ref->GetItem(Obj, *pID, &org_rec) > 0);
 			THROW_DB(deleteFrom(&P_Ref->Prop, 0, (P_Ref->Prop.ObjType == Obj && P_Ref->Prop.ObjID == *pID && P_Ref->Prop.Prop <= (long)PP_MAXATURNTEMPLATES)));
 			THROW(P_Ref->UpdateItem(Obj, *pID, &pack->Rec, 1, 0));
-			if(org_rec.OpCounterID != pack->Rec.OpCounterID)
-				if(P_Ref->GetItem(PPOBJ_OPCOUNTER, org_rec.OpCounterID, &opc_rec) > 0)
-					if(opc_rec.OwnerObjID)
+			if(org_rec.OpCounterID != pack->Rec.OpCounterID) {
+				if(P_Ref->GetItem(PPOBJ_OPCOUNTER, org_rec.OpCounterID, &opc_rec) > 0) {
+					if(opc_rec.OwnerObjID) {
 						THROW(opc_obj.PutPacket(&org_rec.OpCounterID, 0, 0));
+					}
+				}
+			}
 			Dirty(*pID);
 		}
 		else {

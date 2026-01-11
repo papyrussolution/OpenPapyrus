@@ -124,7 +124,7 @@ static int glob(const char * pattern, int flags,
 	char directory[500];
 	int len;
 
-	if((pattern == NULL) || (pglob == NULL))  return -1;
+	if((pattern == NULL) || (pglob == NULL)) return -1;
 
 	strncpy(directory, pattern, 499);
 	for(len = strlen(directory); len >= 0; len--) {
@@ -291,7 +291,7 @@ static void xmlParserPrintFileContextInternal(xmlParserInputPtr input,
 	xmlChar content[81]; /* space for 80 chars + line terminator */
 	xmlChar * ctnt;
 
-	if(input == NULL)  return;
+	if(input == NULL) return;
 	cur = input->cur;
 	base = input->base;
 	/* skip backwards over any end-of-lines */
@@ -2640,7 +2640,7 @@ static void *uripOpen(const char * URI) {
  * Returns 0 or -1 in case of error
  */
 static int uripClose(void * context) {
-	if(context == NULL)  return -1;
+	if(context == NULL) return -1;
 	urip_cur = NULL;
 	urip_rlen = 0;
 	return 0;
@@ -4125,7 +4125,7 @@ static int launchTests(testDescPtr tst)
 	char * error;
 	int mem;
 
-	if(tst == NULL)  return -1;
+	if(tst == NULL) return -1;
 	if(tst->in != NULL) {
 		glob_t globbuf;
 

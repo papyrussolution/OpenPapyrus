@@ -20,7 +20,7 @@
 
 #include "unicode/fmtable.h"
 #include "unicode/utmscale.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "windtfmt.h"
 #include "wintzimpl.h"
 

@@ -1,5 +1,5 @@
 // GOODSDLG.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Диалог редактирования товара
 //
@@ -3684,7 +3684,7 @@ IMPL_HANDLE_EVENT(EditExtParamsDlg)
 	if(event.isCbSelected(CTLSEL_GFEXTOPT_GDSCLS)) {
 		getCtrlData(CTLSEL_GFEXTOPT_GDSCLS, &GcPack.Rec.ID);
 		if(Data.GdsClsID != GcPack.Rec.ID) {
-			MEMSZERO(Data);
+			Data.Z();
 			Data.GdsClsID = GcPack.Rec.ID;
 			setDTS(&Data);
 		}

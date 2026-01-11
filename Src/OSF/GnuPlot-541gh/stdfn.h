@@ -188,7 +188,7 @@
 #if defined(_WIN32)
 #define GP_GETCWD(path, len) gp_getcwd(path, len)
 char * gp_getcwd(char * path, size_t len);
-# elif defined(HAVE_GETCWD)
+#elif defined(HAVE_GETCWD)
 #   if defined(__EMX__)
 #     define GP_GETCWD(path, len) _getcwd2(path, len)
 #   else

@@ -12,9 +12,9 @@
 #include "static_unicode_sets.h"
 #include "ucln_cmn.h"
 #include "uenumimp.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "ulist.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "ureslocs.h"
 #include "ulocimp.h"
 

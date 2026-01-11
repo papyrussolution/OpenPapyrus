@@ -1,5 +1,5 @@
 // SDRAW.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -99,8 +99,8 @@ SDrawContext::UC * SDrawContext::GetUnitContext() const
 		p_uc = new SDrawContext::UC;
 		if(p_uc) {
 			HDC    h_dc = (S == dsysWinGdi && P) ? static_cast<HDC>(P) : SLS.GetTLA().GetFontDC();
-			float pt_per_inch_h = (float)GetDeviceCaps(h_dc, LOGPIXELSX);
-			float pt_per_inch_v = (float)GetDeviceCaps(h_dc, LOGPIXELSY);
+			const  float pt_per_inch_h = static_cast<float>(GetDeviceCaps(h_dc, LOGPIXELSX));
+			const  float pt_per_inch_v = static_cast<float>(GetDeviceCaps(h_dc, LOGPIXELSY));
 			p_uc->Dpi.Set(pt_per_inch_h, pt_per_inch_v);
 			p_uc->FontSize = DEFAULT_UCTX_FONTSIZE;
 		}
@@ -1063,14 +1063,16 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 					}
 					break;
 				case 'Q': // 4, SVG_PATH_CMD_QUADRATIC_CURVE_TO
-					THROW(GetSvgPathPoint(scan, temp_buf, pa[0]));
-					scan.Skip().IncrChr(',');
-					THROW(GetSvgPathPoint(scan, temp_buf, pa[1]));
-					scan.Skip().IncrChr(',');
-					Quad(pa[0], pa[1]);
+					while(scan.Skip().IsDotPrefixedNumber()) { // @v12.5.3
+						THROW(GetSvgPathPoint(scan, temp_buf, pa[0]));
+						scan.Skip().IncrChr(',');
+						THROW(GetSvgPathPoint(scan, temp_buf, pa[1]));
+						scan.Skip().IncrChr(',');
+						Quad(pa[0], pa[1]);
+					}
 					break;
 				case 'q': // 4, SVG_PATH_CMD_REL_QUADRATIC_CURVE_TO
-					{
+					while(scan.Skip().IsDotPrefixedNumber()) { // @v12.5.3
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[0]));
 						scan.Skip().IncrChr(',');
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[1]));

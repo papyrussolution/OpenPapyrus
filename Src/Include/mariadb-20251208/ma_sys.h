@@ -208,9 +208,9 @@ typedef struct wild_file_pack { /* Struct to hold info when selecting files */
 } WF_PACK;
 
 struct my_rnd_struct {
-	unsigned long seed1;
-	unsigned long seed2;
-	unsigned long max_value;
+	ulong  seed1;
+	ulong  seed2;
+	ulong  max_value;
 	double max_value_dbl;
 };
 

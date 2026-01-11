@@ -611,7 +611,7 @@ HRESULT GetSurfaceInfo(_In_ size_t width,
 		numBytes = (rowBytes * uint64_t(height)) + ((rowBytes * uint64_t(height) + 1u) >> 1);
 		numRows = height + ((uint64_t(height) + 1u) >> 1);
 	}
-	else{
+	else {
 		const size_t bpp = BitsPerPixel(fmt);
 		if(!bpp)
 			return E_INVALIDARG;
@@ -964,7 +964,7 @@ inline void AdjustPlaneResource(_In_ DXGI_FORMAT fmt,
 			    // Plane 0
 			    res.SlicePitch = res.RowPitch * static_cast<LONG>(height);
 		    }
-		    else{
+		    else {
 			    // Plane 1
 			    res.pData = reinterpret_cast<const uint8_t*>(res.pData) + uintptr_t(res.RowPitch) * height;
 			    res.SlicePitch = res.RowPitch * ((static_cast<LONG>(height) + 1) >> 1);
@@ -976,7 +976,7 @@ inline void AdjustPlaneResource(_In_ DXGI_FORMAT fmt,
 			    // Plane 0
 			    res.SlicePitch = res.RowPitch * static_cast<LONG>(height);
 		    }
-		    else{
+		    else {
 			    // Plane 1
 			    res.pData = reinterpret_cast<const uint8_t*>(res.pData) + uintptr_t(res.RowPitch) * height;
 			    res.RowPitch = (res.RowPitch >> 1);
@@ -1238,7 +1238,7 @@ HRESULT CreateTextureFromDDS(_In_ ID3D12Device* d3dDevice, _In_ const DDS_HEADER
 
 		resDim = static_cast<D3D12_RESOURCE_DIMENSION>(d3d10ext->resourceDimension);
 	}
-	else{
+	else {
 		format = GetDXGIFormat(header->ddspf);
 
 		if(format == DXGI_FORMAT_UNKNOWN) {
@@ -1248,7 +1248,7 @@ HRESULT CreateTextureFromDDS(_In_ ID3D12Device* d3dDevice, _In_ const DDS_HEADER
 		if(header->flags & DDS_HEADER_FLAGS_VOLUME) {
 			resDim = D3D12_RESOURCE_DIMENSION_TEXTURE3D;
 		}
-		else{
+		else {
 			if(header->caps2 & DDS_CUBEMAP) {
 				// We require all six faces to be defined
 				if((header->caps2 & DDS_CUBEMAP_ALLFACES) != DDS_CUBEMAP_ALLFACES) {
@@ -1414,7 +1414,7 @@ void SetDebugTextureInfo(_In_z_ const wchar_t* fileName,
 	if(!pstrName) {
 		pstrName = fileName;
 	}
-	else{
+	else {
 		pstrName++;
 	}
 	texture->SetName(pstrName);

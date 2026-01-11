@@ -1,5 +1,5 @@
 // TREEWND.CPP
-// Modified by A.Starodub 2013, 2016, 2018, 2019, 2020, 2021, 2023, 2025
+// Modified by A.Starodub 2013, 2016, 2018, 2019, 2020, 2021, 2023, 2025, 2026
 // @codepage UTF-8
 // Древовидный список в левой части основного окна
 //
@@ -296,10 +296,7 @@ void TreeWindow::ShortcutsWindow::Destroy()
 	HwndTT = 0;
 }
 
-int TreeWindow::ShortcutsWindow::IsVisible() const
-{
-	return Hwnd ? IsWindowVisible(Hwnd) : 0;
-}
+int TreeWindow::ShortcutsWindow::IsVisible() const { return Hwnd ? IsWindowVisible(Hwnd) : 0; }
 
 void TreeWindow::ShortcutsWindow::GetRect(RECT & rRect)
 {
@@ -348,7 +345,7 @@ TreeWindow::~TreeWindow()
 				TView::SetWindowProp(hWnd, GWLP_USERDATA, reinterpret_cast<void *>(lParam));
 				HWND   h_tv = GetDlgItem(hWnd, MENU_TREELIST);
 				if(h_tv) {
-					TreeView_SetBkColor(h_tv, RGB(0xdd, 0xf3, 0xf5));
+					// @v12.5.3 TreeView_SetBkColor(h_tv, RGB(0xdd, 0xf3, 0xf5));
 				}
 			}
  			break;
@@ -358,14 +355,14 @@ TreeWindow::~TreeWindow()
 				HWND   h_tv = GetDlgItem(hWnd, MENU_TREELIST);
 				HTREEITEM hI = TreeView_GetSelection(h_tv);
 				TVITEM item;
-				TCHAR  menu_name[256];
+				wchar_t menu_name[256];
 				item.mask = TVIF_HANDLE|TVIF_TEXT|TVIF_CHILDREN|TVIF_PARAM;
-				item.pszText = menu_name; // @unicodeproblem
+				item.pszText = menu_name;
 				item.hItem = hI;
 				item.cchTextMax = SIZEOFARRAY(menu_name);
-				TreeView_GetItem(h_tv, &item); // @unicodeproblem
+				TreeView_GetItem(h_tv, &item);
 				if(!item.cChildren)
-					PostMessage(APPL->H_MainWnd, WM_COMMAND, item.lParam, 0);
+					::PostMessageW(APPL->H_MainWnd, WM_COMMAND, item.lParam, 0);
 				break;
 			}
 			return 0;
@@ -379,7 +376,7 @@ TreeWindow::~TreeWindow()
 				ReleaseCapture();
 			break;
 		case WM_SHOWWINDOW: 
-			::PostMessage(APPL->H_MainWnd, WM_SIZE, 0, 0); 
+			::PostMessageW(APPL->H_MainWnd, WM_SIZE, 0, 0); 
 			break;
 		case WM_SIZE:
 			if(!IsIconic(APPL->H_MainWnd)) {
@@ -390,7 +387,7 @@ TreeWindow::~TreeWindow()
 					p_view->MoveChildren(rc);
 				}
 			}
-			r = 0; // @v11.0.3
+			r = 0;
 			break;
 		case WM_GETMINMAXINFO:
 			if(!IsIconic(APPL->H_MainWnd)) {
@@ -634,13 +631,13 @@ void TreeWindow::MenuToList(HMENU hMenu, long parentId, StrAssocArray * pList)
 	if(parentId == 0)
 		cnt--;
 	for(int i = 0; i < cnt; i++) {
-		TCHAR  menu_name_buf[256];
+		wchar_t menu_name_buf[256];
 		MENUITEMINFO mii;
 		INITWINAPISTRUCT(mii);
 		mii.fMask = MIIM_DATA|MIIM_SUBMENU|MIIM_TYPE|MIIM_STATE|MIIM_ID;
 		mii.dwTypeData = menu_name_buf;
 		mii.cch = SIZEOFARRAY(menu_name_buf);
-		GetMenuItemInfo(hMenu, i, TRUE, &mii);
+		::GetMenuItemInfoW(hMenu, i, TRUE, &mii);
 		if(menu_name_buf[0] != 0) {
 			temp_buf = SUcSwitch(menu_name_buf);
 			temp_buf.ReplaceStr("&", 0, 1); 
@@ -657,7 +654,7 @@ void TreeWindow::MenuToList(HMENU hMenu, long parentId, StrAssocArray * pList)
 void TreeWindow::AddItemCmdList(const char * pTitle, void * ptr)
 {
 	if(ptr) {
-		TCHAR  title_buf[512];
+		wchar_t title_buf[512];
 		strnzcpy(title_buf, SUcSwitch(pTitle), SIZEOFARRAY(title_buf));
 		const  size_t title_len = sstrlen(title_buf);
 		TVINSERTSTRUCT is;
@@ -675,7 +672,7 @@ void TreeWindow::AddItemCmdList(const char * pTitle, void * ptr)
 void TreeWindow::UpdateItemCmdList(const char * pTitle, void * ptr)
 {
 	if(ptr) {
-		TCHAR  title_buf[512];
+		wchar_t title_buf[512];
 		strnzcpy(title_buf, SUcSwitch(pTitle), SIZEOFARRAY(title_buf));
 		const  size_t title_len = sstrlen(title_buf);
 		HWND   hw_tree = H_CmdList;

@@ -94,7 +94,7 @@ private:
 
 	// Restores the flag to the saved state.
 	void Restore() const override {
-		if(!flag_impl_.RestoreState(*this))  return;
+		if(!flag_impl_.RestoreState(*this)) return;
 
 		ABSL_INTERNAL_LOG(INFO,
 		    absl::StrCat("Restore saved value of ", flag_impl_.Name(),
@@ -123,7 +123,7 @@ private:
 DynValueDeleter::DynValueDeleter(FlagOpFn op_arg) : op(op_arg) {}
 
 void DynValueDeleter::operator()(void* ptr) const {
-	if(op == nullptr)  return;
+	if(op == nullptr) return;
 
 	Delete(op, ptr);
 }
@@ -189,16 +189,16 @@ void FlagImpl::AssertValidType(FlagFastTypeId rhs_type_id,
 	// visible at the call site. `lhs_type_id` is the fast type id
 	// corresponding to the type specified in flag definition. They must match
 	//  for this operation to be well-defined.
-	if(ABSL_PREDICT_TRUE(lhs_type_id == rhs_type_id))  return;
+	if(ABSL_PREDICT_TRUE(lhs_type_id == rhs_type_id)) return;
 
 	const std::type_info* lhs_runtime_type_id =
 	    flags_internal::RuntimeTypeId(op_);
 	const std::type_info* rhs_runtime_type_id = (*gen_rtti)();
 
-	if(lhs_runtime_type_id == rhs_runtime_type_id)  return;
+	if(lhs_runtime_type_id == rhs_runtime_type_id) return;
 
 #ifdef ABSL_INTERNAL_HAS_RTTI
-	if(*lhs_runtime_type_id == *rhs_runtime_type_id)  return;
+	if(*lhs_runtime_type_id == *rhs_runtime_type_id) return;
 #endif
 
 	ABSL_INTERNAL_LOG(
@@ -316,7 +316,7 @@ void FlagImpl::SetCallback(const FlagCallbackFunc mutation_callback) {
 }
 
 void FlagImpl::InvokeCallback() const {
-	if(!callback_)  return;
+	if(!callback_) return;
 
 	// Make a copy of the C-style function pointer that we are about to invoke
 	// before we release the lock guarding it.
@@ -521,7 +521,7 @@ bool FlagImpl::ParseFrom(absl::string_view value, FlagSettingMode set_mode,
 		case SET_FLAGS_VALUE: {
 		    // set or modify the flag's value
 		    auto tentative_value = TryParse(value, err);
-		    if(!tentative_value)  return false;
+		    if(!tentative_value) return false;
 
 		    StoreValue(tentative_value.get());
 
@@ -542,14 +542,14 @@ bool FlagImpl::ParseFrom(absl::string_view value, FlagSettingMode set_mode,
 			    return true;
 		    }
 		    auto tentative_value = TryParse(value, err);
-		    if(!tentative_value)  return false;
+		    if(!tentative_value) return false;
 
 		    StoreValue(tentative_value.get());
 		    break;
 	    }
 		case SET_FLAGS_DEFAULT: {
 		    auto tentative_value = TryParse(value, err);
-		    if(!tentative_value)  return false;
+		    if(!tentative_value) return false;
 
 		    if(DefaultKind() == FlagDefaultKind::kDynamicValue) {
 			    void* old_value = default_value_.dynamic_value;

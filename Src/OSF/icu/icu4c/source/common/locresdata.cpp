@@ -13,7 +13,7 @@
 #include <icu-internal.h>
 #pragma hdrstop
 #include "ulocimp.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 /*
  * Lookup a resource bundle table item with fallback on the table level.
  * Regular resource bundle lookups perform fallback to parent locale bundles

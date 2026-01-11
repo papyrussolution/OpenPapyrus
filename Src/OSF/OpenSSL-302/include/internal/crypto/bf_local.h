@@ -66,7 +66,7 @@
 #define l2n(l, c)        (*((c)++) = (uchar)(((l)>>24L)&0xff), \
 	*((c)++) = (uchar)(((l)>>16L)&0xff), \
 	*((c)++) = (uchar)(((l)>> 8L)&0xff), \
-	*((c)++) = (uchar)(((l)     )&0xff))
+	*((c)++) = (uchar)(((l))&0xff))
 /*
  * This is actually a big endian algorithm, the most significant byte is used
  * to lookup array 0

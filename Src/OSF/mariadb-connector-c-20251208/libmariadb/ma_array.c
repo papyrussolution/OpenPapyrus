@@ -33,8 +33,7 @@ bool ma_init_dynamic_array(DYNAMIC_ARRAY * array, uint element_size, uint init_a
 		if(init_alloc > 8 && alloc_increment > init_alloc * 2)
 			alloc_increment = init_alloc*2;
 	}
-	if(!init_alloc)
-		init_alloc = alloc_increment;
+	SETIFZQ(init_alloc, alloc_increment);
 	array->elements = 0;
 	array->max_element = init_alloc;
 	array->alloc_increment = alloc_increment;
@@ -60,25 +59,23 @@ bool ma_insert_dynamic(DYNAMIC_ARRAY * array, void * element)
 	memcpy(buffer, element, (size_t)array->size_of_element);
 	return FALSE;
 }
-
-/* Alloc room for one element */
-
+//
+// Alloc room for one element
+//
 uchar * ma_alloc_dynamic(DYNAMIC_ARRAY * array)
 {
 	if(array->elements == array->max_element) {
 		char * new_ptr;
-		if(!(new_ptr = (char*)SAlloc::R(array->buffer, (array->max_element+
-		    array->alloc_increment)*
-		    array->size_of_element)))
+		if(!(new_ptr = (char*)SAlloc::R(array->buffer, (array->max_element + array->alloc_increment) * array->size_of_element)))
 			return 0;
 		array->buffer = new_ptr;
 		array->max_element += array->alloc_increment;
 	}
 	return (uchar *)array->buffer+(array->elements++ *array->size_of_element);
 }
-
-/* remove last element from array and return it */
-
+//
+// remove last element from array and return it 
+//
 uchar * ma_pop_dynamic(DYNAMIC_ARRAY * array)
 {
 	if(array->elements)
@@ -90,12 +87,10 @@ bool ma_set_dynamic(DYNAMIC_ARRAY * array, void * element, uint idx)
 {
 	if(idx >= array->elements) {
 		if(idx >= array->max_element) {
-			uint size;
 			char * new_ptr;
-			size = (idx+array->alloc_increment)/array->alloc_increment;
+			uint size = (idx+array->alloc_increment)/array->alloc_increment;
 			size *= array->alloc_increment;
-			if(!(new_ptr = (char*)SAlloc::R(array->buffer, size*
-			    array->size_of_element)))
+			if(!(new_ptr = (char*)SAlloc::R(array->buffer, size*array->size_of_element)))
 				return TRUE;
 			array->buffer = new_ptr;
 			array->max_element = size;
@@ -103,44 +98,37 @@ bool ma_set_dynamic(DYNAMIC_ARRAY * array, void * element, uint idx)
 		memzero((array->buffer+array->elements*array->size_of_element), (idx - array->elements)*array->size_of_element);
 		array->elements = idx+1;
 	}
-	memcpy(array->buffer+(idx * array->size_of_element), element,
-	    (size_t)array->size_of_element);
+	memcpy(array->buffer+(idx * array->size_of_element), element, (size_t)array->size_of_element);
 	return FALSE;
 }
 
 void ma_get_dynamic(DYNAMIC_ARRAY * array, void * element, uint idx)
 {
-	if(idx >= array->elements) {
+	if(idx >= array->elements)
 		memzero(element, array->size_of_element);
-		return;
-	}
-	memcpy(element, array->buffer+idx*array->size_of_element, (size_t)array->size_of_element);
+	else
+		memcpy(element, array->buffer+idx*array->size_of_element, (size_t)array->size_of_element);
 }
 
 void ma_delete_dynamic(DYNAMIC_ARRAY * array)
 {
-	if(array->buffer) {
-		SAlloc::F(array->buffer);
-		array->buffer = 0;
-		array->elements = array->max_element = 0;
-	}
+	ZFREE(array->buffer);
+	array->elements = 0;
+	array->max_element = 0;
 }
 
 void ma_delete_dynamic_element(DYNAMIC_ARRAY * array, uint idx)
 {
 	char * ptr = array->buffer+array->size_of_element*idx;
 	array->elements--;
-	memmove(ptr, ptr+array->size_of_element,
-	    (array->elements-idx)*array->size_of_element);
+	memmove(ptr, ptr+array->size_of_element, (array->elements-idx)*array->size_of_element);
 }
 
 void ma_freeze_size(DYNAMIC_ARRAY * array)
 {
-	uint elements = max(array->elements, 1);
-
+	uint elements = smax(array->elements, 1U);
 	if(array->buffer && array->max_element != elements) {
-		array->buffer = (char*)SAlloc::R(array->buffer,
-			elements*array->size_of_element);
+		array->buffer = (char*)SAlloc::R(array->buffer, elements*array->size_of_element);
 		array->max_element = elements;
 	}
 }

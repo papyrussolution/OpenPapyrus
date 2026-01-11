@@ -16,8 +16,8 @@
 #include <imgui-slib-internal.h>
 #pragma hdrstop
 #include "imgui_impl_win32.h"
-// @v12.4.12 #include <windowsx.h> // GET_X_LPARAM(), GET_Y_LPARAM()
-#include <dwmapi.h>
+// @v12.4.12 (slib.h) #include <windowsx.h> // GET_X_LPARAM(), GET_Y_LPARAM()
+// @v12.5.3 (slib.h) #include <dwmapi.h>
 
 // Configuration flags to add in your imconfig.h file:
 //#define IMGUI_IMPL_WIN32_DISABLE_GAMEPAD              // Disable gamepad support. This was meaningful before <1.81 but we now load XInput dynamically so the option is now less relevant.

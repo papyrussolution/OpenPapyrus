@@ -6,13 +6,13 @@
 
 #if !UCONFIG_NO_FORMATTING
 
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "number_formatimpl.h"
 #include "number_patternstring.h"
 #include "number_utils.h"
 #include "number_scientific.h"
 #include "number_compact.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "ureslocs.h"
 
 using namespace icu;

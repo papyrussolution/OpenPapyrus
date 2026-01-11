@@ -12,7 +12,7 @@
 //#include "bytesinkutil.h"
 #include "resource.h"
 #include "ulocimp.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "ureslocs.h"
 #include "zonemeta.h"
 #include "ucln_in.h"

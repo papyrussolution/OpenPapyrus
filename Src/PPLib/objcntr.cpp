@@ -1,5 +1,5 @@
 // OBJCNTR.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2024, 2025
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -15,8 +15,6 @@ PPOpCounter2::PPOpCounter2()
 PPOpCounterPacket::PPOpCounterPacket() : P_Items(0), Flags(0)
 {
 	STRNSCPY(Head.CodeTemplate, "%05");
-	//Init(0, 0);
-	//DontLogUpdAction = 0;
 }
 
 PPOpCounterPacket::~PPOpCounterPacket()
@@ -362,7 +360,9 @@ int PPObjOpCounter::MakeReserved(long flags)
 	// {ID, Name, Symb, CodeTemplate }
 	int    ok = 1;
 	uint   num_recs;
-	SString name, symb, templ;
+	SString name;
+	SString symb;
+	SString templ;
 	TVRez * p_rez = P_SlRez;
 	THROW_PP(p_rez, PPERR_RESFAULT);
 	THROW_PP(p_rez->findResource(ROD_OPCOUNTER, PP_RCDATA), PPERR_RESFAULT);

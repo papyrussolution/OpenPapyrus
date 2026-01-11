@@ -11,7 +11,7 @@
 
 #if !UCONFIG_NO_FORMATTING
 
-#include "uresimp.h"
+//#include "uresimp.h"
 
 U_NAMESPACE_BEGIN
 

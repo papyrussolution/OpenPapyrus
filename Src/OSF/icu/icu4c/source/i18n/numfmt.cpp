@@ -22,7 +22,7 @@
 #include "unicode/ucurr.h"
 #include "unicode/numsys.h"
 #include "winnmfmt.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "servloc.h"
 #include "ucln_in.h"
 #include "sharednumberformat.h"

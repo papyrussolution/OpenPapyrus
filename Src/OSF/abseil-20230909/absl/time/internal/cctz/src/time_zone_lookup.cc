@@ -160,10 +160,7 @@ std::string win32_local_time_zone(const HMODULE combase) {
 #endif
 }  // namespace
 
-std::string time_zone::name() const {
-	return effective_impl().Name();
-}
-
+std::string time_zone::name() const { return effective_impl().Name(); }
 time_zone::absolute_lookup time_zone::lookup(const time_point<seconds>& tp) const {
 	return effective_impl().BreakTime(tp);
 }

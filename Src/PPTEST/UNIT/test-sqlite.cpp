@@ -1,5 +1,5 @@
 // TEST-SQLITE.CPP
-// Copyright (c) A.Sobolev 2024, 2025
+// Copyright (c) A.Sobolev 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -291,10 +291,8 @@ SLTEST_R(SQLite)
 					}
 				}
 			}
-			int cwr = dbp.CommitWork();
-			if(!cwr) {
-				;
-			}
+			const int cwr = dbp.CommitWork();
+			SLCHECK_NZ(cwr);
 			SLCHECK_Z(ta02_insert_fault_count);
 			SLCHECK_Z(ref01_insert_fault_count);
 			SLCHECK_Z(ref02_insert_fault_count);
@@ -436,7 +434,6 @@ SLTEST_R(SQLite)
 								}
 								else { // bad
 									inprop_updated_count++;
-									
 								}
 							}
 						}
@@ -446,12 +443,10 @@ SLTEST_R(SQLite)
 					}
 				}
 			}
-			int cwr = dbp.CommitWork();
+			const int cwr = dbp.CommitWork();
+			SLCHECK_NZ(cwr);
 			if(cwr) {
 				SLCHECK_Z(inprop_updated_count);
-			}
-			else {
-				;
 			}
 		}
 	}
@@ -573,9 +568,11 @@ SLTEST_R(SQLite)
 			}
 			else {
 			}
-			int cwr = dbp.CommitWork();
+			const int cwr = dbp.CommitWork();
+			SLCHECK_NZ(cwr);
 			if(cwr) {
-				;
+				SLCHECK_Z(deleted_found_fault_count);
+				SLCHECK_Z(_found_fault_count);
 			}
 			else {
 				;

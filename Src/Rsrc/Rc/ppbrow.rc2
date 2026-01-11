@@ -1,5 +1,5 @@
 // PPBROW.RC2
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage windows-1251
 // Part of project Papyrus
 //
@@ -308,7 +308,7 @@ toolbar MAIN TB_GLOBAL {
 	cmGoodsRest,        "@{cmd_goodsrest}",         PPDV_GOODSREST
 	cmViewLots,         "@{cmd_viewlots}",          PPDV_LOTS
 	cmViewOrdLots,      "@{cmd_viewordlots}",       PPDV_ORDLOTS
-	cmGoodsOprGrouping, "@{cmd_goodsoprgrouping}",  TBBM_OPGRPNG
+	cmGoodsOprGrouping, "@{cmd_goodsoprgrouping}",  PPDV_OPGROUPING //TBBM_OPGRPNG
 	cmGoodsOper,        "@{cmd_goodsoper}",         TBBM_GOODSANLZ
 	cmTrfrAnalyze,      "@{view_trfranlz}",         PPDV_TRFRANLZ
 	separator
@@ -936,7 +936,7 @@ toolbar export LIST_WORLD TB_FIRST_TOOLBAR {
 	cmaInsert,         "@{add}\tInsert",             PPDV_ADDFILE02
 	cmaDelete,         "@{delete}\tDelete",          PPDV_DELETEFILE02
 	separator
-	cmaMore,           "@{street_pl}",               TBBM_HOUSE
+	cmaMore,           "@{street_pl}",               PPDV_BUILDINGS01 // @v12.5.3 TBBM_HOUSE-->PPDV_BUILDINGS01
 	separator
 	cmTransmit,        "@{dotransmit_short}",        PPDV_SYNC01
 	separator
@@ -975,7 +975,7 @@ toolbar export LIST_GOODSBASKET TB_FIRST_TOOLBAR {
 	cmaMore,              "@{cmd_goods}",             PPDV_WARESINGLE01
 	separator
 	cmToggleAllOrOwnOnly, "@{showownbasketsonly}",    PPDV_TOGGLE01
-	cmForceUnlock,        "@{unlockbasket}",          TBBM_UNLOCK
+	cmForceUnlock,        "@{unlockbasket}",          PPDV_UNLOCK01 // @v12.5.3 TBBM_UNLOCK-->PPDV_UNLOCK01
 	cmTransmit,           "@{dotransmit_short}",      PPDV_SYNC01
 	separator
 	cmSysJournalByObj,    "@{view_sysjournal}\tCtrl-J", PPDV_SYSJOURNAL
@@ -9508,10 +9508,13 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_LOGOAPTEKARU noreplacecolor  // @v12.2.3
 	PPDV_SEARCH                       // @v12.4.10
 	PPDV_UNIFINDOBJ01 // @v12.4.11
-	PPDV_MOVLOTOPS    // @v12.5.2
+	PPDV_STREETS01    // @v12.5.3 не работает (эксперимент с иконкой, сделанной с помощью AI)
+	PPDV_OPGROUPING   // @v12.5.3
+	PPDV_BUILDINGS01  // @v12.5.3
+	PPDV_LOCK01       // @V12.5.3
+	PPDV_UNLOCK01     // @V12.5.3
+	//PPDV_MOVLOTOPS    // @v12.5.2 не работает (эксперимент с иконкой, сделанной с помощью AI)
 }
-
-// @todo При добавлении новой иконки в верхний реестр сбиваются идентификаторы нижнего реестра. Это надо исправлять!
 
 //
 // Следующие изображения используются без замещения цвета

@@ -1,5 +1,5 @@
 // V_CMDP.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Редактирование списка команд
 //
@@ -134,7 +134,7 @@ int EditCmdItem(const PPCommandGroup * pGrp, PPCommand * pData, /*int isDekstopC
 					enableCommand(cmCmdParam, 0);
 			}
 			else if(event.isCmd(cmCmdParam)) {
-				const uint sav_offs = Data.Param.GetRdOffs();
+				const size_t sav_offs = Data.Param.GetRdOffs();
 				if(CmdDescr.EditCommandParam(getCtrlLong(CTLSEL_JOBITEM_CMD), Data.GetID(), &Data.Param, 0)) {
 					Data.Param.SetRdOffs(sav_offs);
 					SetupCtrls();
@@ -381,196 +381,13 @@ private:
 	}
 	const PPCommandGroupCategory CmdGrpC;
 };
-
-/*static*/int PPDesktop::EditAssocCmdList(/*long desktopID*/const S_GUID & rDesktopUuid)
-{
-	class DesktopAssocCmdsDialog : public PPListDialog {
-		DECL_DIALOG_DATA(PPDesktopAssocCmdPool);
-	public:
-		DesktopAssocCmdsDialog() : PPListDialog(DLG_DESKCMDA, CTL_DESKCMDA_LIST)
-		{
-			PPCommandDescr cmd_descr;
-			cmd_descr.GetResourceList(1, CmdList);
-			disableCtrl(CTLSEL_DESKCMDA_DESKTOP, true);
-		}
-		DECL_DIALOG_SETDTS()
-		{
-			StrAssocArray list;
-			if(!RVALUEPTR(Data, pData)) {
-				Data.Init(ZEROGUID);
-			}
-			PPCommandFolder::GetCommandGroupList(0, cmdgrpcDesktop, DesktopList);
-			DesktopList.GetStrAssocList(list);
-			long  surr_id = DesktopList.GetSurrIdByUuid(Data.GetDesktopUuid());
-			SetupStrAssocCombo(this, CTLSEL_DESKCMDA_DESKTOP, list, /*Data.GetDesktopID()*/surr_id, 0, 0);
-			updateList(-1);
-			return 1;
-		}
-		DECL_DIALOG_GETDTS()
-		{
-			const  PPID surr_id = getCtrlLong(CTLSEL_DESKCMDA_DESKTOP);
-			S_GUID uuid = DesktopList.GetUuidBySurrId(surr_id);
-			Data.SetDesktopUuid(uuid);
-			ASSIGN_PTR(pData, Data);
-			return 1;
-		}
-	private:
-		virtual int setupList()
-		{
-			int    ok = 1;
-			PPDesktopAssocCmd assci;
-			StringSet ss(SLBColumnDelim);
-			for(uint i = 0; ok && i < Data.GetCount(); i++) {
-				if(Data.GetItem(i, assci)) {
-					uint pos = 0;
-					if(CmdList.Search(assci.CmdID, &pos) > 0) {
-						ss.Z();
-						ss.add(assci.Code);
-						ss.add(CmdList.Get(pos).Txt);
-						if(!addStringToList(i+1, ss.getBuf()))
-							ok = 0;
-					}
-				}
-			}
-			return ok;
-		}
-		virtual int addItem(long * pPos, long * pID)
-		{
-			int    ok = -1;
-			uint   pos = 0;
-			PPDesktopAssocCmd cmd_assc;
-			if(EditCommandAssoc(-1, &cmd_assc, &Data) > 0) {
-				ok = Data.AddItem(&cmd_assc);
-				if(ok > 0) {
-					pos = Data.GetCount()-1;
-					ASSIGN_PTR(pPos, pos);
-					ASSIGN_PTR(pID, pos+1);
-				}
-			}
-			return ok;
-		}
-		virtual int editItem(long pos, long id)
-		{
-			int    ok = -1;
-			PPDesktopAssocCmd cmd_assc;
-			if(Data.GetItem(pos, cmd_assc)) {
-				ok = EditCommandAssoc(pos, &cmd_assc, &Data);
-				if(ok > 0) {
-					Data.SetItem(pos, &cmd_assc);
-				}
-			}
-			return ok;
-		}
-		virtual int delItem(long pos, long id)
-		{
-			return (pos >= 0 && pos < (long)Data.GetCount()) ? Data.SetItem(pos, 0) : -1;
-		}
-		int    EditCommandAssoc(long pos, PPDesktopAssocCmd * pAsscCmd, PPDesktopAssocCmdPool * pCmdList)
-		{
-			class DesktopAssocCommandDialog : public TDialog {
-				DECL_DIALOG_DATA(PPDesktopAssocCmd);
-			public:
-				DesktopAssocCommandDialog(long pos, PPDesktopAssocCmdPool * pCmdList) : TDialog(DLG_DESKCMDAI), Pos(pos), P_CmdList(pCmdList)
-				{
-				}
-				DECL_DIALOG_SETDTS()
-				{
-					StrAssocArray cmd_list;
-					PPCommandDescr cmd_descr;
-					if(!RVALUEPTR(Data, pData))
-						MEMSZERO(Data);
-					cmd_descr.GetResourceList(1, cmd_list);
-					cmd_list.SortByText();
-					setCtrlString(CTL_DESKCMDAI_CODE, Data.Code);
-					setCtrlString(CTL_DESKCMDAI_DVCSERIAL, Data.DvcSerial);
-					setCtrlString(CTL_DESKCMDAI_PARAM, Data.CmdParam);
-					SetupStrAssocCombo(this, CTLSEL_DESKCMDAI_COMMAND, cmd_list, Data.CmdID, 0, 0);
-					AddClusterAssoc(CTL_DESKCMDAI_FLAGS, 0, PPDesktopAssocCmd::fSpecCode);
-					AddClusterAssoc(CTL_DESKCMDAI_FLAGS, 1, PPDesktopAssocCmd::fSpecCodePrefx);
-					AddClusterAssoc(CTL_DESKCMDAI_FLAGS, 2, PPDesktopAssocCmd::fNonInteractive);
-					SetClusterData(CTL_DESKCMDAI_FLAGS, Data.Flags);
-					SetupCtrls();
-					return 1;
-				}
-				DECL_DIALOG_GETDTS()
-				{
-					int    ok = 1;
-					uint   sel = 0, pos = 0;
-					SString buf;
-					GetClusterData(CTL_DESKCMDAI_FLAGS, &Data.Flags);
-					sel = CTL_DESKCMDAI_COMMAND;
-					getCtrlData(CTLSEL_DESKCMDAI_COMMAND, &Data.CmdID);
-					THROW_PP(Data.CmdID, PPERR_INVCOMMAND);
-					getCtrlString(sel = CTL_DESKCMDAI_CODE, Data.Code);
-					THROW_PP(Data.Code.Len(), PPERR_INVSPECCODE);
-					getCtrlString(CTL_DESKCMDAI_DVCSERIAL, Data.DvcSerial);
-					getCtrlString(CTL_DESKCMDAI_PARAM, Data.CmdParam);
-					ASSIGN_PTR(pData, Data);
-					CATCH
-						sel = (sel == CTL_DESKCMDAI_CODE && !(Data.Flags & PPDesktopAssocCmd::fSpecCode)) ? CTL_DESKCMDAI_COMMAND : sel;
-						ok = (selectCtrl(sel), 0);
-					ENDCATCH
-					return ok;
-				}
-			private:
-				DECL_HANDLE_EVENT
-				{
-					TDialog::handleEvent(event);
-					if(event.isCmd(cmClusterClk) && event.isCtlEvent(CTL_DESKCMDAI_FLAGS)) {
-						SetupCtrls();
-					}
-					else if(event.isCmd(cmWinKeyDown)) {
-						long    flags = 0;
-						GetClusterData(CTL_DESKCMDAI_FLAGS, &flags);
-						if(!(flags & PPDesktopAssocCmd::fSpecCode)) {
-							SString buf;
-							const KeyDownCommand * p_cmd = static_cast<const KeyDownCommand *>(event.message.infoPtr);
-							if(p_cmd && p_cmd->GetKeyName(buf, 1) > 0)
-								p_cmd->GetKeyName(buf);
-							setCtrlString(CTL_DESKCMDAI_CODE, buf);
-						}
-					}
-					else
-						return;
-					clearEvent(event);
-				}
-				void SetupCtrls()
-				{
-					const long flags = GetClusterData(CTL_DESKCMDAI_FLAGS);
-					disableCtrl(CTL_DESKCMDAI_CODE, !(flags & PPDesktopAssocCmd::fSpecCode));
-					DisableClusterItem(CTL_DESKCMDAI_FLAGS, 1, !(flags & PPDesktopAssocCmd::fSpecCode));
-				}
-				const long Pos;
-				const PPDesktopAssocCmdPool * P_CmdList;
-			};
-			DIALOG_PROC_BODY_P2ERR(DesktopAssocCommandDialog, pos, pCmdList, pAsscCmd)
-		}
-		StrAssocArray CmdList;
-		PPCommandFolder::CommandGroupList DesktopList;
-	};
-	int    ok = -1;
-	PPDesktopAssocCmdPool list;
-	DesktopAssocCmdsDialog * p_dlg = 0;
-	THROW(list.ReadFromProp(/*desktopID*/rDesktopUuid));
-	THROW(CheckDialogPtr(&(p_dlg = new DesktopAssocCmdsDialog())));
-	p_dlg->setDTS(&list);
-	for(int valid_data = 0; !valid_data && ExecView(p_dlg) == cmOK;) {
-		if(p_dlg->getDTS(&list) > 0) {
-			THROW(list.WriteToProp(1));
-			valid_data = ok = 1;
-		}
-	}
-	CATCHZOKPPERR
-	delete p_dlg;
-	return ok;
-}
 //
 // MenusDialog
 //
 int EditName(SString & rName)
 {
 	int    ok = -1;
-	SString name = rName;
+	SString name(rName);
 	SString org_name(name);
 	PPInputStringDialogParam isd_param;
 	PPLoadText(PPTXT_NEWLABEL, isd_param.InputTitle);
@@ -673,10 +490,10 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 						PPError();
 			}
 			else if(event.isCmd(cmEditAsscCmdCommonList) || event.isCmd(cmEditAsscCmdList)) {
-				const int edit_by_desk = BIN(TVCMD == cmEditAsscCmdList);
+				const bool edit_by_desk = (TVCMD == cmEditAsscCmdList);
 				if(edit_by_desk)
 					getSelection(&id);
-				if(!edit_by_desk || edit_by_desk && id)
+				if(!edit_by_desk || (edit_by_desk && id))
 					PPDesktop::EditAssocCmdList(List.GetUuidBySurrId(id));
 			}
 			else if(event.isCmd(cmLBItemSelected)) {
@@ -809,8 +626,7 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 							// @erik {
 							const PPCommandGroup * p_cgroup = Data.GetGroup(CmdGrpC, uuid);
 							if(p_cgroup && !!p_cgroup->GetGuid()/*.ToStr(S_GUID::fmtIDL, str_guid)*/) {
-								// @v10.9.3 Возможно, здесь была ошибка: безусловная 1(desktop) не зависимо от значения CmdGrpC (ранее IsDesktop)
-								PPCommandMngr * p_mgr = GetCommandMngr(PPCommandMngr::ctrfSkipObsolete, /*1*/CmdGrpC, 0); 
+								PPCommandMngr * p_mgr = GetCommandMngr(PPCommandMngr::ctrfSkipObsolete, CmdGrpC, 0); 
 								if(p_mgr->DeleteGroupByUuid(CmdGrpC, p_cgroup->GetGuid())) {
 									ok = Data.Remove(ipos);
 								}
@@ -862,7 +678,7 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 		int    IsMenuUsed(PPID obj, PPID menuID/*, int isDesktop*/)
 		{
 			Reference * p_ref(PPRef);
-			const S_GUID uuid = List.GetUuidBySurrId(menuID);
+			const  S_GUID uuid = List.GetUuidBySurrId(menuID);
 			int    used = (CmdGrpC == cmdgrpcDesktop) ? BIN(LConfig.DesktopUuid_ == uuid) : 0;
 			for(PPID id = 0; !used && p_ref->EnumItems(obj, &id) > 0;) {
 				PPConfig cfg;
@@ -1404,10 +1220,9 @@ static void PostprocessLoadedMenu(HMENU hMenu)
 		// @v11.2.5 UserInterfaceSettings uiset;
 		// @v11.2.5 uiset.Restore();
 		PPLoadStringS("cmd_menutree", temp_buf).Transf(CTRANSF_INNER_TO_OUTER);
-		// @v11.0.0 ::AppendMenu(h_popup, ((uiset.Flags & uiset.fShowLeftTree) ? MF_UNCHECKED : MF_CHECKED)|MF_STRING, cmShowTree, SUcSwitch(temp_buf));
-		::AppendMenu(h_popup, MF_CHECKED|MF_STRING, cmShowTree, SUcSwitch(temp_buf)); // @v11.0.0 always checked
+		::AppendMenuW(h_popup, MF_CHECKED|MF_STRING, cmShowTree, SUcSwitchW(temp_buf));
 		PPLoadStringS("cmd_toolpane", temp_buf).Transf(CTRANSF_INNER_TO_OUTER);
-		::AppendMenu(h_popup, MF_CHECKED | MF_STRING, cmShowToolbar, SUcSwitch(temp_buf));
+		::AppendMenuW(h_popup, MF_CHECKED | MF_STRING, cmShowToolbar, SUcSwitchW(temp_buf));
 	}
 }
 

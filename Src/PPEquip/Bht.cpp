@@ -4332,12 +4332,15 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 		p_ie_bill->GetNumRecs(&count);
 		for(long i = 0; i < count; i++) {
 			int    accept_doc = 0;
-			PPID   alt_grp_id = 0, op_id = 0, sign = 1;
+			PPID   alt_grp_id = 0;
+			PPID   op_id = 0;
+			PPID   sign = 1;
 			PPID   draft_wroff_id = 0; // ИД драфт-документа, который списывается создаваемым документом.
 			LTIME  tm = ZEROTIME;
 			PPObjBHT::InventRec bht_inv_rec;
 			BillTbl::Rec bill_rec;
-			PPBillPacket pack, link_pack;
+			PPBillPacket pack;
+			PPBillPacket link_pack;
 			Sdr_SBIIBill sdr_bill;
 			THROW(p_ie_bill->ReadRecord(&sdr_bill, sizeof(sdr_bill)));
 			uuid.FromStr(sdr_bill.Guid);

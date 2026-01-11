@@ -1,5 +1,5 @@
 // SLUTIL.CPP
-// Copyright (c) A.Sobolev 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -17,19 +17,20 @@ int FASTCALL cmp_size_t(size_t a, size_t b) { return COMPARE(a, b); } // @v12.5.
 int FASTCALL cmp_int64(int64 a, int64 b) { return COMPARE(a, b); }
 int FASTCALL cmp_double(double a, double b) { return COMPARE(a, b); }
 IMPL_CMPFUNC(PcharNoCase, i1, i2) { return stricmp866(static_cast<const char *>(i1), static_cast<const char *>(i2)); }
-IMPL_CMPFUNC(Pchar, i1, i2) { return strcmp(static_cast<const char *>(i1), static_cast<const char *>(i2)); }
-IMPL_CMPFUNC(int,   i1, i2) { return COMPARE(*static_cast<const int *>(i1), *static_cast<const int *>(i2)); }
-IMPL_CMPFUNC(int16, i1, i2) { return COMPARE(*static_cast<const int16 *>(i1), *static_cast<const int16 *>(i2)); }
+IMPL_CMPFUNC(Pchar, i1, i2)  { return strcmp(static_cast<const char *>(i1), static_cast<const char *>(i2)); }
+IMPL_CMPFUNC(int,   i1, i2)  { return COMPARE(*static_cast<const int *>(i1), *static_cast<const int *>(i2)); }
+IMPL_CMPFUNC(int16, i1, i2)  { return COMPARE(*static_cast<const int16 *>(i1), *static_cast<const int16 *>(i2)); }
 IMPL_CMPFUNC(uint16, i1, i2) { return COMPARE(*static_cast<const uint16 *>(i1), *static_cast<const uint16 *>(i2)); } // @v12.5.1
-IMPL_CMPFUNC(long,  i1, i2) { return COMPARE(*static_cast<const long *>(i1), *static_cast<const long *>(i2)); }
-IMPL_CMPFUNC(int64, i1, i2) { return COMPARE(*static_cast<const int64 *>(i1), *static_cast<const int64 *>(i2)); }
+IMPL_CMPFUNC(long,  i1, i2)  { return COMPARE(*static_cast<const long *>(i1), *static_cast<const long *>(i2)); }
+IMPL_CMPFUNC(int64, i1, i2)  { return COMPARE(*static_cast<const int64 *>(i1), *static_cast<const int64 *>(i2)); }
 IMPL_CMPFUNC(uint64, i1, i2) { return COMPARE(*static_cast<const uint64 *>(i1), *static_cast<const uint64 *>(i2)); } // @v12.3.9
-IMPL_CMPFUNC(uint,  i1, i2) { return COMPARE(*static_cast<const uint *>(i1), *static_cast<const uint *>(i2)); }
+IMPL_CMPFUNC(uint,  i1, i2)  { return COMPARE(*static_cast<const uint *>(i1), *static_cast<const uint *>(i2)); }
 IMPL_CMPFUNC(uintptr_t, i1, i2) { return COMPARE(*static_cast<const uintptr_t *>(i1), *static_cast<const uintptr_t *>(i2)); }
-IMPL_CMPFUNC(double, i1, i2)      { return COMPARE(*static_cast<const double *>(i1), *static_cast<const double *>(i2)); }
-IMPL_CMPFUNC(LDATE, d1, d2) { return COMPARE(static_cast<const LDATE *>(d1)->v, static_cast<const LDATE *>(d2)->v); }
-IMPL_CMPFUNC(LDATETIME, d1, d2)   { return cmp(*static_cast<const LDATETIME *>(d1), *static_cast<const LDATETIME *>(d2)); }
-IMPL_CMPFUNC(S_GUID, d1, d2)      { return memcmp(d1, d2, sizeof(S_GUID)); }
+IMPL_CMPFUNC(double, i1, i2)    { return COMPARE(*static_cast<const double *>(i1), *static_cast<const double *>(i2)); }
+IMPL_CMPFUNC(float, i1, i2)     { return COMPARE(*static_cast<const float *>(i1), *static_cast<const float *>(i2)); } // @v12.5.3
+IMPL_CMPFUNC(LDATE, d1, d2)     { return COMPARE(static_cast<const LDATE *>(d1)->v, static_cast<const LDATE *>(d2)->v); }
+IMPL_CMPFUNC(LDATETIME, d1, d2) { return cmp(*static_cast<const LDATETIME *>(d1), *static_cast<const LDATETIME *>(d2)); }
+IMPL_CMPFUNC(S_GUID, d1, d2)    { return memcmp(d1, d2, sizeof(S_GUID)); }
 
 IMPL_CMPFUNC(_2long, i1, i2)
 {
@@ -152,7 +153,6 @@ int SEnum::operator !() const { return (P_E == 0); }
 int FASTCALL SEnum::Next(void * pData) { return P_E ? P_E->Next(pData) : 0; }
 
 #if 0 // {
-
 class Foo {
 private:
 	class EnImp : public SEnum::Imp {
@@ -189,7 +189,6 @@ void foo()
 		// do something with abc
 	}
 }
-
 #endif // } 0
 //
 //

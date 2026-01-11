@@ -2502,7 +2502,7 @@ int __cdecl ConvertCompare(const void* ptr1, const void * ptr2) noexcept
 {
 	auto p1 = static_cast<const ConvertData*>(ptr1);
 	auto p2 = static_cast<const ConvertData*>(ptr2);
-	if(p1->format == p2->format)  return 0;
+	if(p1->format == p2->format) return 0;
 	else return (p1->format < p2->format) ? -1 : 1;
 }
 }

@@ -1,5 +1,5 @@
 // SLUI.H
-// Copyright (c) A.Sobolev 1996-2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1996-2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #ifndef __SLUI_H
@@ -147,9 +147,7 @@ int    TranslateLocaleKeyboardTextToLatin(const SString & rSrc, SString & rResul
 // Descr: Структура, передаваемая с сообщением cmSetFont
 //
 struct SetFontEvent {
-	SetFontEvent(void * pFontHandle, int doRedraw) : FontHandle(pFontHandle), DoRedraw(doRedraw)
-	{
-	}
+	SetFontEvent(void * pFontHandle, int doRedraw);
 	void * FontHandle;
 	int    DoRedraw;
 };
@@ -788,7 +786,7 @@ public:
 
 	struct Result { // @persistent @size=24+sizeof(void *)
 		enum {
-			fNotFit = 0x0001, // Элемент не уместился в контейнер
+			fNotFit         = 0x0001, // Элемент не уместился в контейнер
 			fDegradedWidth  = 0x0002, // Ширина элемента деградировала (меньше или равна 0)
 			fDegradedHeight = 0x0004  // Высота элемента деградировала (меньше или равна 0)
 		};
@@ -1256,9 +1254,7 @@ private:
 // 
 class SColorTheme { // @v11.7.10 @construction
 public:
-	SColorTheme() : Id(0)
-	{
-	}
+	SColorTheme();
 	SColorTheme & Copy(const SColorTheme & rS);
 	const void * GetHashKey(const void * pCtx, uint * pKeyLen) const; // Descr: Каноническая функция возвращающая ключ экземпляра для хэширования.
 private:
@@ -2369,18 +2365,19 @@ private:
 //   Этими значениями помечаются соответствующие классы в конструкторах
 //   присвоением их переменной PPView::SubSign
 //
-#define TV_SUBSIGN_DIALOG    10  // TDialog
-#define TV_SUBSIGN_BUTTON    11  // TButton
-#define TV_SUBSIGN_INPUTLINE 12  // TInputLine
-#define TV_SUBSIGN_CLUSTER   13  // Cluster of checkboxes or radiobuttons
-#define TV_SUBSIGN_STATIC    14  // TStaticText
-#define TV_SUBSIGN_LABEL     15  // TLabel
-#define TV_SUBSIGN_LISTBOX   16  // SmartListBox
-#define TV_SUBSIGN_COMBOBOX  17  // ComboBox
-#define TV_SUBSIGN_IMAGEVIEW 18  // TImageView
-#define TV_SUBSIGN_GROUPBOX  19  // @v12.2.3 TGroupBox
-#define TV_SUBSIGN_BASEBRW   20  // @v12.5.2 TBaseBrowserWindow
-#define TV_SUBSIGN_TMCHNKBRW 21  // @v12.5.2 STimeChunkBrowser
+#define TV_SUBSIGN_DIALOG     10  // TDialog
+#define TV_SUBSIGN_BUTTON     11  // TButton
+#define TV_SUBSIGN_INPUTLINE  12  // TInputLine
+#define TV_SUBSIGN_CLUSTER    13  // Cluster of checkboxes or radiobuttons
+#define TV_SUBSIGN_STATIC     14  // TStaticText
+#define TV_SUBSIGN_LABEL      15  // TLabel
+#define TV_SUBSIGN_LISTBOX    16  // SmartListBox
+#define TV_SUBSIGN_COMBOBOX   17  // ComboBox
+#define TV_SUBSIGN_IMAGEVIEW  18  // TImageView
+#define TV_SUBSIGN_GROUPBOX   19  // @v12.2.3 TGroupBox
+#define TV_SUBSIGN_BASEBRW    20  // @v12.5.2 TBaseBrowserWindow
+#define TV_SUBSIGN_TMCHNKBRW  21  // @v12.5.2 STimeChunkBrowser
+#define TV_SUBSIGN_NUMSTEPPER 22  // @v12.5.3 TNumberStepper
 
 class TBitmapCache {
 public:
@@ -3262,6 +3259,7 @@ public:
 	//
 	int    Setup__(SetupByToolCmdBlock & rBlk); // @>>HandleCommand(cmdSetupByTool, 0)
 	int    SetBounds(const TRect & rRect); // @>>HandleCommand(cmdSetBounds, 0)
+	int    SetHiddenState(bool set);
 	void   FASTCALL Copy(const TWhatmanObject & rS);
 	TRect  GetBounds() const;
 	TRect  GetTextBounds() const;
@@ -3294,9 +3292,10 @@ public:
 	void   SetLayoutContainerIdent(const char * pIdent);
 
 	enum {
-		stCurrent    = 0x0001,
-		stSelected   = 0x0002,
-		stContainerCandidate = 0x0004  // @v10.9.6 Объект является кандидатом на превращение в контейнера-владельца для какого-либо иного объекта
+		stCurrent            = 0x0001,
+		stSelected           = 0x0002,
+		stContainerCandidate = 0x0004, // Объект является кандидатом на превращение в контейнера-владельца для какого-либо иного объекта
+		stHidden             = 0x0008, // @v12.5.3 @construction Объект скрыт  
 	};
 	enum {
 		oMovable        = 0x0001, // Объект может перемещаться пользователем
@@ -3305,9 +3304,9 @@ public:
 		oBackground     = 0x0008, // Фоновый объект. Такой объект может быть только один. Его размер равен размеру ватмана.
 			// При добавлении нового объекта с этим признаком, предыдущий уничтожается.
 		oSelectable     = 0x0010, // Объект может быть выбран в окне, режим которого предполагает выбор некоторого объекта.
-		oFrame  = 0x0020, // Активной частью объекта является только рамка.
+		oFrame          = 0x0020, // Активной частью объекта является только рамка.
 		oMultSelectable = 0x0040, // Объект может быть включен в список множественного выбора объектов
-		oContainer      = 0x0080  // @v10.9.6 Объект является контейнером. Это, в том числе, означает, что
+		oContainer      = 0x0080  // Объект является контейнером. Это, в том числе, означает, что
 			// иной объект может быть включен в этот контейнер.
 			// Пока понятие принадлежности контейнеру принимаем эксклюзиным, то есть, объект может принадлежать
 			// не более, чем одному контейнеру.
@@ -4047,6 +4046,15 @@ private:
 	SDrawFigure * P_Fig;
 	SString FigSymb;      // Символ векторной фигуры для отображения //
 	SColor ReplacedColor; // Замещаемый цвет в векторном изображении
+};
+
+class TNumberStepper : public TView { // @v12.5.3
+public:
+	explicit TNumberStepper(const TRect & rBounds);
+	~TNumberStepper();
+	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+private:
+	DECL_HANDLE_EVENT;
 };
 
 class TButton : public TView {
@@ -4846,9 +4854,10 @@ private:
 //
 // Descr: Структура, передаваемая с сообщением cmDrawItem
 //
-#define ODT_CHECKBOX (ODT_STATIC+10)
-#define ODT_RADIOBTN (ODT_STATIC+11)
-#define ODT_EDIT     (ODT_STATIC+12)
+#define ODT_CHECKBOX   (ODT_STATIC+10)
+#define ODT_RADIOBTN   (ODT_STATIC+11)
+#define ODT_EDIT       (ODT_STATIC+12)
+#define ODT_NUMSTEPPER (ODT_STATIC+13) // @v12.5.3
 
 struct TDrawItemData {
 	uint   CtlType;
@@ -5282,6 +5291,8 @@ public:
 		tbiListFocPen       = 86, // Перо отрисовки focuses строки списка
 		tbiListSelBrush     = 87, // Кисть отрисовки selected строки списка
 		tbiListSelPen       = 88, // Перо отрисовки selected строки списка
+		tbiDialogBkgColor   = 89, // @v12.5.3 Цвет для отрисовки фона диалоговых окон
+		tbiDialogBkgBrush   = 90, // @v12.5.3 Кисть для отрисовки фона диалоговых окон
 		//
 		tbiControlFont      = 110, // @v11.2.3 Шрифт для отрисовки управляющих элементов 
 	};
@@ -5341,6 +5352,7 @@ private:
 	int    DrawButton2(HWND hwnd, DRAWITEMSTRUCT * pDi);
 	int    DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi);
 	int    DrawInputLine3(HWND hwnd, DRAWITEMSTRUCT * pDi);
+	int    DrawNumStepper(HWND hwnd, DRAWITEMSTRUCT * pDi); // @v12.5.3 @construction
 	int    GetDialogTextLayout(const SString & rText, int fontId, int penId, STextLayout & rTlo, int adj);
 	void   HandleWindowCompositionChanged(); // @v11.6.7
 	void   HandleWindowNcCalcSize(/*struct window * data,*/WPARAM wparam, LPARAM lparam); // @v11.6.7

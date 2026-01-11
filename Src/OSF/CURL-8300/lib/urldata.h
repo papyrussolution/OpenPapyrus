@@ -168,7 +168,7 @@ typedef CURLcode (*Curl_datastream)(struct Curl_easy * data,
 #ifdef HAVE_GSSAPI
 # ifdef HAVE_GSSGNU
 #include <gss.h>
-# elif defined HAVE_GSSAPI_GSSAPI_H
+#elif defined HAVE_GSSAPI_GSSAPI_H
 #include <gssapi/gssapi.h>
 # else
 #include <gssapi.h>

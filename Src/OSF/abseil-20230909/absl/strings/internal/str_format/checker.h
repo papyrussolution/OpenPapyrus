@@ -54,7 +54,7 @@ constexpr bool ValidFormatImpl(string_view format) {
 		if(p == end) {
 			break;
 		}
-		if(p + 1 >= end)  return false;
+		if(p + 1 >= end) return false;
 		if(p[1] == '%') {
 			// %%
 			p += 2;
@@ -63,7 +63,7 @@ constexpr bool ValidFormatImpl(string_view format) {
 
 		UnboundConversion conv(absl::kConstInit);
 		p = ConsumeUnboundConversion(p + 1, end, &conv, &next_arg);
-		if(p == nullptr)  return false;
+		if(p == nullptr) return false;
 		if(conv.arg_position <= 0 || conv.arg_position > kNumArgs) {
 			return false;
 		}
@@ -74,7 +74,7 @@ constexpr bool ValidFormatImpl(string_view format) {
 		for(auto extra : {conv.width, conv.precision}) {
 			if(extra.is_from_arg()) {
 				int pos = extra.get_from_arg();
-				if(pos <= 0 || pos > kNumArgs)  return false;
+				if(pos <= 0 || pos > kNumArgs) return false;
 				used[pos - 1] = true;
 				if(!Contains(kAllowedConvs[pos - 1], '*')) {
 					return false;
@@ -84,7 +84,7 @@ constexpr bool ValidFormatImpl(string_view format) {
 	}
 	if(sizeof...(C) != 0) {
 		for(bool b : used) {
-			if(!b)  return false;
+			if(!b) return false;
 		}
 	}
 	return true;

@@ -169,7 +169,7 @@ int PPObjWorld::ImportCountry(int use_ta)
 			int    fldn_code = 0;
 			int    fldn_name = 0;
 			int    fldn_codea2 = 0;
-			THROW_PP(in_tbl.isOpened(), PPERR_DBFOPFAULT);
+			THROW_PP(in_tbl.IsOpen(), PPERR_DBFOPFAULT);
 			get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_CODE, &fldn_code);
 			get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_NAME, &fldn_name);
 			get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_CODEA2, &fldn_codea2);
@@ -262,7 +262,7 @@ int PPObjSCard::Import(int use_ta)
 	PPObjSCardSeries scs_obj;
 
 	PPWaitStart();
-	THROW_PP(in_tbl.isOpened(), PPERR_DBFOPFAULT);
+	THROW_PP(in_tbl.IsOpen(), PPERR_DBFOPFAULT);
 	get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_CODE,       &fldn_code);
 	get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_CODENUM,    &fldn_codenum);
 	get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_PERSONCODE, &fldn_personcode);
@@ -443,7 +443,7 @@ int PPObjGoodsGroup::Import(int use_ta)
 		int    fldn_par_name[32];
 		int    fldn_par_code[32];
 		ReadConfig(&goods_cfg);
-		THROW_PP_S(in_tbl.isOpened(), PPERR_DBFOPFAULT, file_name);
+		THROW_PP_S(in_tbl.IsOpen(), PPERR_DBFOPFAULT, file_name);
 		get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_CODE, &fldn_code);
 		get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_NAME, &fldn_name);
 		ini_file.Get(sect, PPINIPARAM_PARENTSEQ, temp_buf);
@@ -531,7 +531,7 @@ int PPObjGoods::ImportQuotOld(int use_ta)
 	PPID   quot_kind_id = 0;
 	PPID   loc_id = 0;
 	ReadConfig(&goods_cfg);
-	THROW_PP(in_tbl.isOpened(), PPERR_DBFOPFAULT);
+	THROW_PP(in_tbl.IsOpen(), PPERR_DBFOPFAULT);
 	ini_file.Get(sect, PPINIPARAM_QUOTNAME, quotname);
 	if(PPRef->SearchSymb(PPOBJ_QUOTKIND, &quot_kind_id, quotname, offsetof(PPQuotKind, Symb)) <= 0)
 		THROW_PP(PPRef->SearchName(PPOBJ_QUOTKIND, &quot_kind_id, quotname, 0) > 0, PPERR_IMPORTUNDEFFLD);
@@ -1008,7 +1008,7 @@ int PPObjGoods::ImportOld(int use_ta)
 	int    matrix_action = -1;
 	LAssoc subcode;
 	PPLoadText(PPTXT_IMPGOODS, wait_msg);
-	THROW_PP(in_tbl.isOpened(), PPERR_DBFOPFAULT);
+	THROW_PP(in_tbl.IsOpen(), PPERR_DBFOPFAULT);
 	if(GetHierarchyFields(&ini_file, &in_tbl, sect, PPINIPARAM_HIERARCHY, &fldn_hier_objcode, &fldn_hier_parentcode) > 0)
 		is_hier = 1;
 	get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_CODE,      &fldn_code);
@@ -1493,7 +1493,7 @@ int PPObjPerson::Import(int specKind, int use_ta)
 		}
 	}
 
-	THROW_PP_S(in_tbl.isOpened(), PPERR_DBFOPFAULT, file_name);
+	THROW_PP_S(in_tbl.IsOpen(), PPERR_DBFOPFAULT, file_name);
 
 	get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_CODE,      &fldn_code);
 	get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_NAME,      &fldn_name);
@@ -2202,7 +2202,7 @@ int ImportBanks()
 		ini_file.Get(sect, PPINIPARAM_FILE, file_name);
 		DbfTable in_tbl(file_name);
 
-		THROW_PP(region_tbl.isOpened() && in_tbl.isOpened(), PPERR_DBFOPFAULT);
+		THROW_PP(region_tbl.IsOpen() && in_tbl.IsOpen(), PPERR_DBFOPFAULT);
 
 		get_fld_number(&ini_file, &region_tbl, sect, PPINIPARAM_REGIONID, &fldn_regionid);
 		get_fld_number(&ini_file, &region_tbl, sect, PPINIPARAM_REGIONNAME, &fldn_region);

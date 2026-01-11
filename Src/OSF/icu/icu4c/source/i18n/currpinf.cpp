@@ -11,7 +11,7 @@
 //#define CURRENCY_PLURAL_INFO_DEBUG 1
 
 #include "unicode/numsys.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "ureslocs.h"
 
 U_NAMESPACE_BEGIN

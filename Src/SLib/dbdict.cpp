@@ -1,5 +1,5 @@
 // DBDICT.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -9,7 +9,8 @@
 //
 /*static*/DbDictionary * (*DbDictionary::CreateInstanceProc)(const char * pPath, long options) = 0;
 
-DbTableStat::DbTableStat() : ReqItems(0), RetItems(0), UnsupItem(0), ID(0), OwnerLevel(0), Flags(0), FixRecSize(0), NumRecs(0), FldCount(0), IdxCount(0), PageSize(0)
+DbTableStat::DbTableStat() : ReqItems(0), RetItems(0), UnsupItem(0), ID(0), OwnerLevel(0), Flags(0), FixRecSize(0), NumRecs(0), FldCount(0), IdxCount(0), PageSize(0),
+	CrDtm(ZERODATETIME), ModDtm(ZERODATETIME)
 {
 }
 
@@ -26,10 +27,14 @@ DbTableStat & DbTableStat::Z()
 	FldCount = 0;
 	IdxCount = 0;
 	PageSize = 0;
+	CrDtm.Z();
+	ModDtm.Z();
 	TblName.Z();
 	Location.Z();
 	OwnerName.Z();
 	SpaceName.Z();
+	Collation.Z(); // @v12.5.3
+	DbEngine.Z(); // @v12.5.3
 	FldList.Z();
 	IdxList.Z();
 	return *this;

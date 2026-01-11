@@ -19,7 +19,7 @@
 #include "unicode/ures.h"
 #include "unicode/numsys.h"
 #include "ucln_in.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "numsys_impl.h"
 
 #if !UCONFIG_NO_FORMATTING

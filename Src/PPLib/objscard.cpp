@@ -598,7 +598,7 @@ public:
 	DECL_DIALOG_SETDTS()
 	{
 		if(!RVALUEPTR(Data, pData))
-			MEMSZERO(Data);
+			Data.Z();
 		SetupStringCombo(this, CTLSEL_SCARDRULE_PRD, PPTXT_CYCLELIST, Data.TrnovrPeriod);
 		if(RuleType == PPSCardSerRule::rultBonus) {
 			SetupStringCombo(this, CTLSEL_SCARDRULE_CNCLPRD, PPTXT_CYCLELIST, Data.Fb.CancelPrd);

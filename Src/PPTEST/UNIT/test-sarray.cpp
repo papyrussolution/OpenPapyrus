@@ -1,5 +1,5 @@
 // TEST-SARRAY.CPP
-// Copyright (c) A.Sobolev 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2023, 2024, 2025, 2026
 // Тестирование контейнеров (SVector, SArray, etc)
 //
 #include <pp.h>
@@ -504,7 +504,54 @@ SLTEST_FIXTURE(SVector, TestFixtureSArray)
 			}
 		}
 	}
-	// } @v12.3.3 
+	// } @v12.3.3
+	// @v12.5.3 {
+	{
+		RAssocArray v; // empty vector
+		uint   check_max_val_pos = 0;
+		uint   check_min_val_pos = 0;
+		const  int r = v.SearchMinMaxVal(&check_min_val_pos, &check_max_val_pos);
+		SLCHECK_EQ(r, 0);
+		SLCHECK_EQ(check_max_val_pos, 0U);
+		SLCHECK_EQ(check_min_val_pos, 0U);
+	}
+	{
+		RAssocArray v;
+		double max_val = -SMathConst::Max;
+		double min_val = SMathConst::Max;
+		uint   max_val_pos = 0;
+		uint   min_val_pos = 0;
+		SRandGenerator & r_rng = SLS.GetTLA().Rg;
+		const long items_count = 10000;
+		for(long i = 1; i <= items_count; i++) {
+			const double val = r_rng.GetReal();
+			v.Add(i, val);
+			if(max_val < val) {
+				max_val = val;
+				max_val_pos = static_cast<uint>(i-1);
+			}
+			if(min_val > val) {
+				min_val = val;
+				min_val_pos = static_cast<uint>(i-1);
+			}
+		}
+		SLCHECK_EQ(v.getCount(), static_cast<uint>(items_count));
+		{
+			uint   check_max_val_pos = 0;
+			uint   check_min_val_pos = 0;
+			const  int r = v.SearchMinMaxVal(&check_min_val_pos, &check_max_val_pos);
+			SLCHECK_EQ(r, 3);
+			SLCHECK_EQ(check_max_val_pos, max_val_pos);
+			SLCHECK_EQ(check_min_val_pos, min_val_pos);
+			SLCHECK_EQ(v.at(check_max_val_pos).Val, max_val);
+			SLCHECK_EQ(v.at(check_min_val_pos).Val, min_val);
+		}
+		{
+			v.Thresholding(RAssocArray::thrshfAbs|RAssocArray::thrshf_dB, -60.0);
+			SLCHECK_LT(v.getCountI(), static_cast<int>(items_count));
+		}
+	}
+	// } @v12.5.3 
 	return CurrentStatus;
 }
 
@@ -513,7 +560,7 @@ SLTEST_R(TSHashCollection)
 	struct Sample_HashTableEntry {
 		const void * GetHashKey(const void * pCtx, uint * pKeySize) const
 		{
-			ASSIGN_PTR(pKeySize, CityEn.Len());
+			ASSIGN_PTR(pKeySize, CityEn.Len32());
 			return CityEn;
 		}
 		SString CityEn;
@@ -549,7 +596,7 @@ SLTEST_R(TSHashCollection)
 	{
 		for(uint i = 0; i < city_list.getCount(); i++) {
 			const Sample_HashTableEntry * p_entry = city_list.at(i);
-			const Sample_HashTableEntry * p_hash_entry = city_hash_table.Get(p_entry->CityEn, p_entry->CityEn.Len());
+			const Sample_HashTableEntry * p_hash_entry = city_hash_table.Get(p_entry->CityEn, p_entry->CityEn.Len32());
 			THROW(SLCHECK_NZ(p_hash_entry));
 			THROW(SLCHECK_EQ(p_hash_entry->CityEn, p_entry->CityEn));
 			THROW(SLCHECK_EQ(p_hash_entry->CityRu, p_entry->CityRu));

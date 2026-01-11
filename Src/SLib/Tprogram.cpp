@@ -1,14 +1,14 @@
 // TPROGRAM.CPP  Turbo Vision 1.0
 // Copyright (c) 1991 by Borland International
-// Modified by A.Sobolev 1996, 1997, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Modified by A.Sobolev 1996, 1997, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
 #include <ppdefs.h>
-#include <shellapi.h> // @v11.6.7
-#include <uxtheme.h> // @v11.6.7
-#include <dwmapi.h> // @v11.6.7
+// @v12.5.3 (slib.h) #include <shellapi.h> // @v11.6.7
+// @v12.5.3 (slib.h) #include <uxtheme.h> // @v11.6.7
+// @v12.5.3 (slib.h) #include <dwmapi.h> // @v11.6.7
 //
 #define CLOSEBTN_BITMAPID  132 // defined in ppdefs.h as IDB_CLOSE
 #define MENUTREE_LIST     1014
@@ -232,7 +232,7 @@ int TProgram::SelectTabItem(const void * ptr)
 {
 	if(H_ShortcutsWnd) {
 		HWND   hwnd_tab = GetDlgItem(H_ShortcutsWnd, CTL_SHORTCUTS_ITEMS);
-		int    count = TabCtrl_GetItemCount(hwnd_tab);
+		const  int count = TabCtrl_GetItemCount(hwnd_tab);
 		for(int i = 0; i < count; i++) {
 			TCITEM tci;
 			tci.mask = TCIF_PARAM;
@@ -254,9 +254,8 @@ int TProgram::AddListToTree(long cmd, const char * pTitle, ListWindow * pLw)
 	int    ok = -1;
 	if(P_TreeWnd) {
 		if(!P_TreeWnd->IsVisible()) {
-			// @v11.3.8 P_TreeWnd->Show(1);
-			ShowLeftTree(true); // @v11.3.8 
-			PostMessage(H_MainWnd, WM_COMMAND, cmShowTree, 0);
+			ShowLeftTree(true);
+			::PostMessageW(H_MainWnd, WM_COMMAND, cmShowTree, 0);
 		}
 		if(cmd && pLw)
 			P_TreeWnd->Insert(cmd, pTitle, pLw);
@@ -1172,9 +1171,9 @@ void TProgram::HandleWindowNcCalcSize(/*struct window * data,*/WPARAM wParam, LP
 		case WM_MOVE:
 			p_pgm = static_cast<TProgram *>(TView::GetWindowUserData(hWnd));
 			if(p_pgm->H_FrameWnd)
-				PostMessage(p_pgm->H_FrameWnd, WM_MOVE, 0, 0);
+				::PostMessageW(p_pgm->H_FrameWnd, WM_MOVE, 0, 0);
 			::EnumWindows(SendMainWndSizeMessage, reinterpret_cast<LPARAM>(hWnd));
-			result = DefWindowProc(hWnd, message, wParam, lParam);
+			result = ::DefWindowProcW(hWnd, message, wParam, lParam);
 			break;
 		//case WM_INPUTLANGCHANGE: {} break; // @v6.4.4 AHTOXA
 		case WM_SYSCOMMAND:
@@ -1183,7 +1182,7 @@ void TProgram::HandleWindowNcCalcSize(/*struct window * data,*/WPARAM wParam, LP
 				break;
 			}
 		default:
-			result = DefWindowProc(hWnd, message, wParam, lParam);
+			result = ::DefWindowProcW(hWnd, message, wParam, lParam);
 			break;
 	}
 	return result;
@@ -2384,6 +2383,12 @@ const SDrawFigure * TProgram::LoadDrawFigureById(uint id, TWhatmanToolArray::Ite
 	// } @v11.9.2 
 }
 
+int TProgram::DrawNumStepper(HWND hwnd, DRAWITEMSTRUCT * pDi) // @v12.5.3 @construction
+{
+	int    ok = 1;
+	return ok;
+}
+
 int TProgram::DrawInputLine3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 {
 	int    ok = 1;
@@ -2618,22 +2623,33 @@ int TProgram::DrawControl(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				DRAWITEMSTRUCT * p_di = reinterpret_cast<DRAWITEMSTRUCT *>(lParam);
 				const int wvs = GetUiSettings().WindowViewStyle;
 				if(oneof2(wvs, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector)) {
-					if(p_di->CtlType == ODT_BUTTON && msg != WM_NCPAINT) {
-						if(UICfg.WindowViewStyle == UserInterfaceSettings::wndVKFancy) {
-							ok = DrawButton2(hwnd, p_di);
-						}
-						else if(UICfg.WindowViewStyle == UserInterfaceSettings::wndVKVector) {
-							ok = DrawButton3(hwnd, p_di);
+					if(oneof2(p_di->CtlType, ODT_CHECKBOX, ODT_RADIOBTN))
+						ok = -1;
+					else if(p_di->CtlType == ODT_BUTTON) {
+						if(msg != WM_NCPAINT) {
+							if(UICfg.WindowViewStyle == UserInterfaceSettings::wndVKFancy) {
+								ok = DrawButton2(hwnd, p_di);
+							}
+							else if(UICfg.WindowViewStyle == UserInterfaceSettings::wndVKVector) {
+								ok = DrawButton3(hwnd, p_di);
+							}
 						}
 					}
-					else if(oneof2(p_di->CtlType, ODT_CHECKBOX, ODT_RADIOBTN))
-						ok = -1;
-					else if(p_di->CtlType == ODT_EDIT && msg == WM_NCPAINT) {
-						if(UICfg.WindowViewStyle == UserInterfaceSettings::wndVKFancy) {
-							ok = DrawInputLine(hwnd, p_di);
+					else if(p_di->CtlType == ODT_EDIT) {
+						if(msg == WM_NCPAINT) {
+							if(UICfg.WindowViewStyle == UserInterfaceSettings::wndVKFancy) {
+								ok = DrawInputLine(hwnd, p_di);
+							}
+							else if(UICfg.WindowViewStyle == UserInterfaceSettings::wndVKVector) {
+								ok = DrawInputLine3(hwnd, p_di);
+							}
 						}
-						else if(UICfg.WindowViewStyle == UserInterfaceSettings::wndVKVector) {
-							ok = DrawInputLine3(hwnd, p_di);
+					}
+					else if(p_di->CtlType == ODT_NUMSTEPPER) { // @v12.5.3 @construction TV_SUBSIGN_NUMSTEPPER
+						if(msg != WM_NCPAINT) {
+							if(UICfg.WindowViewStyle == UserInterfaceSettings::wndVKVector) {
+								ok = DrawNumStepper(hwnd, p_di);
+							}
 						}
 					}
 				}

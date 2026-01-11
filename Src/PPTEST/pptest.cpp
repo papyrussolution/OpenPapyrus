@@ -1,5 +1,5 @@
 // PPTEST.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8 // @v11.4.1
 //
 #include <pp.h>
@@ -57,7 +57,7 @@ int  TestRestic();
 //#define TEST_LOCALE
 //#define TEST_HASH_AND_SEARCH
 //#define TEST_DBTEXTFILE
-//#define TEST_EDITIMPEXPPARAM
+// @v12.5.3 (@unused) //#define TEST_EDITIMPEXPPARAM
 //#define TEST_REGEXP
 //#define TEST_DL600
 
@@ -717,7 +717,7 @@ int TestNoLogin()
 	return ok;
 }
 
-int Test_ImpExpParamDialog();
+// @v12.5.3 int Test_ImpExpParamDialog();
 int Test_DL6_Rtm();
 
 int TestLogin()
@@ -725,9 +725,9 @@ int TestLogin()
 	STestSuite s;
 	s.Run("\\papyrus\\src\\pptest\\testdef_login.ini");
 	// Debug_GetFilesFromMessage("D:\PAPYRUS\PPY\IN\00000001(2).msg");
-#ifdef TEST_EDITIMPEXPPARAM
-	Test_ImpExpParamDialog();
-#endif
+// @v12.5.3 #ifdef TEST_EDITIMPEXPPARAM
+	// @v12.5.3 Test_ImpExpParamDialog();
+// @v12.5.3 #endif
 #ifdef TEST_DL600
 	Test_DL6_Rtm();
 #endif

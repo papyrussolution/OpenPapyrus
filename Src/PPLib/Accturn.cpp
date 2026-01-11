@@ -1,5 +1,5 @@
 // ACCTURN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 // @Kernel
 //
@@ -1629,7 +1629,7 @@ int AccTurnCore::RecalcBalance(const RecoverBalanceParam * pParam, PPLogger & rL
 	return ok;
 }
 
-int AccTurnCore::_CheckBalance(PPID accID, LDATE dt, double dbt, double crd, char * pAccStr, int correct, PPLogger & rLogger, int use_ta)
+int AccTurnCore::_CheckBalance(PPID accID, LDATE dt, double dbt, double crd, char * pAccStr, bool correct, PPLogger & rLogger, int use_ta)
 {
 	int    err = 0;
 	SString fmt_buf;
@@ -1715,8 +1715,9 @@ int AccTurnCore::RecalcBalance(PPID accID, LDATE startDate, int use_ta)
 		q.select(this->Dt, this->Reverse, this->Amount, 0L).where(this->Bal == accID && this->Dt >= startDate);
 		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 			if(data.Dt != prev) {
-				if(prev)
-					THROW(_CheckBalance(accID, prev, dbt, crd, 0, 1, logger, 0));
+				if(prev) {
+					THROW(_CheckBalance(accID, prev, dbt, crd, 0, true, logger, 0));
+				}
 				prev = data.Dt;
 			}
 			if(data.Reverse)
@@ -1725,7 +1726,7 @@ int AccTurnCore::RecalcBalance(PPID accID, LDATE startDate, int use_ta)
 				dbt = R2(dbt + MONEYTOLDBL(data.Amount));
 		}
 		if(prev)
-			THROW(_CheckBalance(accID, prev, dbt, crd, 0, 1, logger, 0));
+			THROW(_CheckBalance(accID, prev, dbt, crd, 0, true, logger, 0));
 		//
 		// Проверка на отсутствие записей баланса за дни, в которые не было
 		// проводок по этому балансовому счету
@@ -1748,11 +1749,17 @@ int AccTurnCore::RecalcBalance(PPID accID, LDATE startDate, int use_ta)
 int AccTurnCore::_RecalcBalance(PPID balID, const RecoverBalanceParam * pParam, PPLogger & rLogger)
 {
 	int    ok = 1;
-	int    err, errflag = 0;
-	int    correct_flag = BIN(pParam->Flags & RecoverBalanceParam::fCorrect);
-	SString fmt_buf, log_msg;
-	char   sdate[32], sdbt[32], scrd[32], sbal[32];
-	double dbt = 0.0, crd = 0.0;
+	int    err;
+	int    errflag = 0;
+	const  bool correct_flag = LOGIC(pParam->Flags & RecoverBalanceParam::fCorrect);
+	SString fmt_buf;
+	SString log_msg;
+	char   sdate[32];
+	char   sdbt[32];
+	char   scrd[32];
+	char   sbal[32];
+	double dbt = 0.0;
+	double crd = 0.0;
 	Acct   acct;
 	PPAccount acc_rec;
 	AccTurnTbl::Key3 k;

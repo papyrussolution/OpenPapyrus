@@ -1,5 +1,5 @@
 // OBJSALAR.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Starodub, A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1263,7 +1263,7 @@ public:
 	DECL_DIALOG_SETDTS()
 	{
 		if(!RVALUEPTR(Data, pData))
-			MEMSZERO(Data);
+			Data.Clear();
 		if(P_Pack) {
 			const  PPID cal_id = P_Pack->Rec.ID;
 			const  PPID main_cal_id = NZOR(P_Pack->Rec.LinkCalID, cal_id);

@@ -1,5 +1,5 @@
 // IE_GOODS.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Starodub 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -342,7 +342,7 @@ static int SelectQuotImportCfgs(PPQuotImpExpParam * pParam, int import)
 
 int PPQuotImporter::Run(const char * pCfgName, int use_ta)
 {
-	const uint _rec_ident = PPREC_QUOTVAL;
+	const  uint _rec_ident = PPREC_QUOTVAL;
 	int    ok = 1;
 	int    r = 0;
 	SString temp_buf;
@@ -885,7 +885,9 @@ int PPGoodsImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 int PPGoodsImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList)
 {
 	int    ok = 1;
-	SString params, fld_name, param_val;
+	SString params;
+	SString fld_name;
+	SString param_val;
 	StringSet excl;
 	RVALUEPTR(excl, pExclParamList);
 	THROW(PPLoadText(PPTXT_GOODSPARAMS, params));
@@ -1034,7 +1036,8 @@ int EditGoodsImpExpParams(const char * pIniSection)
 	int    ok = -1;
 	GoodsImpExpDialog * dlg = 0;
 	PPGoodsImpExpParam param;
-	SString ini_file_name, sect;
+	SString ini_file_name;
+	SString sect;
    	THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
    	{
    		int    direction = 0;
@@ -1444,7 +1447,7 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 		// Информация о альтернативной товарной группе
 		//
 		if(altGrpID) {
-			long plu = 0L;
+			long   plu = 0L;
 			Reference * p_ref(PPRef);
 			if(P_GObj->IsAltGroup(altGrpID) > 0 && p_ref->Assc.Search(PPASS_ALTGOODSGRP, altGrpID, pPack->Rec.ID) > 0)
 				plu = p_ref->Assc.data.InnerNum;

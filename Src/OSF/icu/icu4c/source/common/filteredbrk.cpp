@@ -6,13 +6,13 @@
 #pragma hdrstop
 #if !UCONFIG_NO_BREAK_ITERATION && !UCONFIG_NO_FILTERED_BREAK_ITERATION
 
-#include "uresimp.h" // ures_getByKeyWithFallback
+//#include "uresimp.h" // ures_getByKeyWithFallback
 #include "ubrkimpl.h" // U_ICUDATA_BRKITR
 
 U_NAMESPACE_BEGIN
 
 #ifndef FB_DEBUG
-#define FB_DEBUG 0
+	#define FB_DEBUG 0
 #endif
 
 #if FB_DEBUG

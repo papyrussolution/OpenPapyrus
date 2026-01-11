@@ -269,13 +269,13 @@ int my_ssl_write_async(struct mysql_async_context * b, SSL * ssl,
 /* Structure used to pass parameters from mysql_real_connect_start(). */
 struct mysql_real_connect_params {
 	MYSQL * mysql;
-	const char * host;
-	const char * user;
-	const char * passwd;
-	const char * db;
-	uint port;
-	const char * unix_socket;
-	unsigned long client_flags;
+	const  char * host;
+	const  char * user;
+	const  char * passwd;
+	const  char * db;
+	uint   port;
+	const  char * unix_socket;
+	ulong  client_flags;
 };
 
 static void mysql_real_connect_start_internal(void * d)
@@ -285,7 +285,7 @@ static void mysql_real_connect_start_internal(void * d)
 }
 
 int STDCALL mysql_real_connect_start(MYSQL ** ret, MYSQL * mysql, const char * host,
-    const char * user, const char * passwd, const char * db, uint port, const char * unix_socket, unsigned long client_flags)
+    const char * user, const char * passwd, const char * db, uint port, const char * unix_socket, ulong client_flags)
 {
 	MK_ASYNC_START_BODY(mysql_real_connect, mysql,
 	{
@@ -737,7 +737,7 @@ int STDCALL mysql_refresh_cont(int * ret, MYSQL * mysql, int ready_status)
 /* Structure used to pass parameters from mysql_kill_start(). */
 struct mysql_kill_params {
 	MYSQL * mysql;
-	unsigned long pid;
+	ulong  pid;
 };
 
 static void mysql_kill_start_internal(void * d)
@@ -750,7 +750,7 @@ static void mysql_kill_start_internal(void * d)
 		r_int)
 }
 
-int STDCALL mysql_kill_start(int * ret, MYSQL * mysql, unsigned long pid)
+int STDCALL mysql_kill_start(int * ret, MYSQL * mysql, ulong pid)
 {
 	MK_ASYNC_START_BODY(
 		mysql_kill,

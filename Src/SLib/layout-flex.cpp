@@ -1,5 +1,5 @@
 // LAYOUT-FLEX.CPP
-// Copyright (c) A.Sobolev 2020, 2021, 2022, 2023, 2025
+// Copyright (c) A.Sobolev 2020, 2021, 2022, 2023, 2025, 2026
 // @codepage UTF-8
 //
 // The code of Microsoft Flex is partialy used (https://github.com/xamarin/flex.git)
@@ -950,9 +950,9 @@ SUiLayout::~SUiLayout()
 {
 	ZDELETE(P_Children);
 	ZDELETE(P_HgL);
-	managed_ptr = 0; // @v11.0.0
-	CbSelfSizing = 0; // @v11.0.0
-	CbSetup = 0; // @v11.0.0
+	managed_ptr = 0;
+	CbSelfSizing = 0;
+	CbSetup = 0;
 	P_Link = 0;
 }
 
@@ -960,11 +960,10 @@ SUiLayout & SUiLayout::Copy(const SUiLayout & rS)
 {
 	ZDELETE(P_Children);
 	ZDELETE(P_HgL);
-	managed_ptr = 0; // @v11.0.0
-	CbSelfSizing = 0; // @v11.0.0
-	CbSetup = 0; // @v11.0.0
+	managed_ptr = 0;
+	CbSelfSizing = 0;
+	CbSetup = 0;
 	P_Link = 0;
-	
 	ALB = rS.ALB;
 	managed_ptr = rS.managed_ptr;
 	CbSelfSizing = rS.CbSelfSizing;

@@ -1528,7 +1528,7 @@ public:
 	{
 		SString temp_buf;
 		if(!RVALUEPTR(Data, pData))
-			MEMSZERO(Data);
+			Data.Clear();
 		Fields.Z();
 		for(int id = 1; id <= MAX_DLVRADDRFLDS; id++) {
 			if(LocationCore::GetExField(&Data, id + LOCEXSTR_EXTFLDSOFFS, temp_buf.Z()) > 0)

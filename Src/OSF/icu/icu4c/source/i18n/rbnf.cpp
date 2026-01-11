@@ -10,7 +10,7 @@
 #include "unicode/unum.h"
 #include "unicode/ucasemap.h"
 #include "patternprops.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "nfrs.h"
 #include "number_decimalquantity.h"
 

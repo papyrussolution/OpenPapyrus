@@ -5206,5 +5206,9 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_LOGOAPTEKARU                    33029
 #define PPDV_SEARCH                          33030
 #define PPDV_UNIFINDOBJ01                    33031
-#define PPDV_MOVLOTOPS                       33032
+#define PPDV_STREETS01                       33032
+#define PPDV_OPGROUPING                      33033
+#define PPDV_BUILDINGS01                     33034
+#define PPDV_LOCK01                          33035
+#define PPDV_UNLOCK01                        33036
 

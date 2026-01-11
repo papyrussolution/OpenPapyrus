@@ -476,7 +476,7 @@ typedef enum {
 #define	IS_RECOVERING(env) (LOGGING_ON(env) && F_ISSET((env)->lg_handle, DBLOG_RECOVER))
 
 /* Initialization methods are often illegal before/after open is called. */
-#define	ENV_ILLEGAL_AFTER_OPEN(env, name)  if(F_ISSET((env), ENV_OPEN_CALLED))  return (__db_mi_open(env, name, 1));
+#define	ENV_ILLEGAL_AFTER_OPEN(env, name)  if(F_ISSET((env), ENV_OPEN_CALLED)) return (__db_mi_open(env, name, 1));
 #define	ENV_ILLEGAL_BEFORE_OPEN(env, name) if(!F_ISSET((env), ENV_OPEN_CALLED)) return (__db_mi_open(env, name, 0));
 
 /* We're not actually user hostile, honest. */
@@ -712,7 +712,7 @@ struct __env {
  */
 #define	DB_IS_THREADED(dbp)               ((dbp)->mutex != MUTEX_INVALID)
 /* Initialization methods are often illegal before/after open is called. */
-#define	DB_ILLEGAL_AFTER_OPEN(dbp, name)  if(F_ISSET((dbp), DB_AM_OPEN_CALLED))  return (__db_mi_open((dbp)->env, name, 1));
+#define	DB_ILLEGAL_AFTER_OPEN(dbp, name)  if(F_ISSET((dbp), DB_AM_OPEN_CALLED)) return (__db_mi_open((dbp)->env, name, 1));
 #define	DB_ILLEGAL_BEFORE_OPEN(dbp, name) if(!F_ISSET((dbp), DB_AM_OPEN_CALLED)) return (__db_mi_open((dbp)->env, name, 0));
 /* Some initialization methods are illegal if environment isn't local. */
 #define	DB_ILLEGAL_IN_ENV(dbp, name)  if(!F_ISSET((dbp)->env, ENV_DBLOCAL)) return (__db_mi_env((dbp)->env, name));

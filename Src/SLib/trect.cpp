@@ -775,6 +775,10 @@ TRect::TRect()
 	//@v12.3.4 @ctr(SPoint2S) THISZERO();
 }
 
+TRect::TRect(const TRect & rS) : a(rS.a), b(rS.b)
+{
+}
+
 TRect::TRect(const RECT & rS)
 {
 	a.Set(rS.left, rS.top);
@@ -784,6 +788,13 @@ TRect::TRect(const RECT & rS)
 TRect::TRect(const FRect & rR, int roundOption/*=frtorrNearest*/)
 {
 	Set(rR, roundOption);
+}
+
+TRect & FASTCALL TRect::operator = (const TRect & rS)
+{
+	a = rS.a;
+	b = rS.b;
+	return *this;
 }
 
 TRect & FASTCALL TRect::operator = (const RECT & rS)

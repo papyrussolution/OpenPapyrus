@@ -625,7 +625,7 @@
   #ifndef WITH_NOIO
     #include <netdb.h>
     #include <netinet/in.h>
-    #include <unistd.h>
+    //#include <unistd.h>
     #include <fcntl.h>
     #ifdef _AIX41
      #include <sys/select.h>

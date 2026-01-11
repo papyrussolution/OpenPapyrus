@@ -352,7 +352,7 @@ static std::pair<uint64_t, uint64_t> Mul32(std::pair<uint64_t, uint64_t> num,
 	uint64_t bits64_127 = bits64_95 + (bits96_127 << 32) + (bits32_63 >> 32) +
 	    (bits0_63 < bits0_31);
 	uint64_t bits128_up = (bits96_127 >> 32) + (bits64_127 < bits64_95);
-	if(bits128_up == 0)  return {bits64_127, bits0_63};
+	if(bits128_up == 0) return {bits64_127, bits0_63};
 
 	auto shift = static_cast<unsigned>(bit_width(bits128_up));
 	uint64_t lo = (bits0_63 >> shift) + (bits64_127 << (64 - shift));

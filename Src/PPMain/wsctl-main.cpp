@@ -1,15 +1,14 @@
 // WSCTL-MAIN.CPP
-// Copyright (c) A.Sobolev 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
 #include <imgui-support.h>
 #include <wsctl.h>
-//
-#include <shellapi.h> // @v11.6.7
-#include <uxtheme.h> // @v11.6.7
-#include <dwmapi.h> // @v11.6.7
+// @v12.5.3 (slib.h) #include <shellapi.h> // @v11.6.7
+// @v12.5.3 (slib.h) #include <uxtheme.h> // @v11.6.7
+// @v12.5.3 (slib.h) #include <dwmapi.h> // @v11.6.7
 
 ImVec2 FPointToImVec2(const SPoint2F & rP) { return ImVec2(rP.x, rP.y); }
 ImRect FRectToImRect(const FRect & rR) { return ImRect(FPointToImVec2(rR.a), FPointToImVec2(rR.b)); }

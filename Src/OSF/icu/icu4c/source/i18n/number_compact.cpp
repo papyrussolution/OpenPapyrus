@@ -9,7 +9,7 @@
 #include "resource.h"
 #include "number_compact.h"
 #include "number_microprops.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 
 using namespace icu;
 using namespace icu::number;

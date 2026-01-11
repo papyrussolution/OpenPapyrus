@@ -49,8 +49,8 @@
 		class XLWorksheet; 
 		class XLXmlData; 
 
-		inline constexpr uint16 MAX_COLS = 16384;
-		inline constexpr uint32 MAX_ROWS = 1048576;
+		inline constexpr uint16 MAX_COLS =   16384; // 1..0x00004000 (0..0x00003fff)
+		inline constexpr uint32 MAX_ROWS = 1048576; // 1..0x00100000 (0..0x000fffff)
 		// anchoring a comment shape below these values was not possible in LibreOffice - TBC with MS Office
 		inline constexpr uint16 MAX_SHAPE_ANCHOR_COLUMN = 13067;      // column "SHO"
 		inline constexpr uint32 MAX_SHAPE_ANCHOR_ROW    = 852177;
@@ -251,8 +251,9 @@
 			using XMLAttribute = pugi::xml_attribute;
 			using OXlXmlDoc  = pugi::xml_document;
 		#endif
-
-		// ===== Custom OpenXLSX_xml_node to add functionality to pugi::xml_node
+		//
+		// Custom OpenXLSX_xml_node to add functionality to pugi::xml_node
+		//
 		class OpenXLSX_xml_node : public pugi::xml_node {
 		public:
 			OpenXLSX_xml_node() : pugi::xml_node(), name_begin(0) 
@@ -266,12 +267,20 @@
 			OpenXLSX_xml_node(base b) : pugi::xml_node(b), name_begin(0)
 			{
 				if(!NO_XML_NS) {
-					const char * name = xml_node::name();
+					const char * p_name = xml_node::name();
+					// @v12.5.3 {
+					const char * p_c = sstrchr(p_name, ':');
+					if(p_c) {
+						name_begin = (p_c - p_name) + 1; // if delimiter was found: update name_begin to point behind that position
+					}
+					// } @v12.5.3 
+					/* @v12.5.3
 					int pos = 0;
-					while(name[pos] && name[pos] != ':')  
+					while(p_name[pos] && p_name[pos] != ':')  
 						++pos;// find name delimiter
-					if(name[pos] == ':')
+					if(p_name[pos] == ':')
 						name_begin = pos + 1;// if delimiter was found: update name_begin to point behind that position
+					*/
 				}
 			}
 			/**
@@ -307,7 +316,7 @@
 			 * @brief get actual node name from pugi::xml_node::name, including namespace, if any
 			 * @return the raw node name
 			 */
-			const pugi::char_t* raw_name() const { return xml_node::name(); }
+			const pugi::char_t * raw_name() const { return xml_node::name(); }
 			/**
 			 * @brief for all functions returning xml_node: invoke base class function, but with a return type of XMLNode (OpenXLSX_xml_node)
 			 */
@@ -386,7 +395,7 @@
 			 */
 			XMLNode previous_sibling_of_type(const pugi::char_t* name_, pugi::xml_node_type type_ = pugi::node_element) const;
 		private:
-			int name_begin;  // nameBegin holds the position in xml_node::name() where the actual node name begins - 0 for non-namespaced nodes
+			ssize_t name_begin; // nameBegin holds the position in xml_node::name() where the actual node name begins - 0 for non-namespaced nodes
 				// for nodes with a namespace: the position following namespace + delimiter colon, e.g. "x:c" -> nameBegin = 2
 		};
 
@@ -751,11 +760,11 @@
 		//
 		//#include "XLStyles.hpp"
 		using namespace std::literals::string_view_literals;    // enables sv suffix only
-		using XLStyleIndex = size_t;     // custom data type for XLStyleIndex
+		using XLStyleIndex = uint; // custom data type for XLStyleIndex // @v12.5.3 size_t-->uint
 
 		constexpr const uint32 XLInvalidUInt16 = 0xffff;         // used to signal "value not defined" for uint16 return types
 		constexpr const uint32 XLInvalidUInt32 = 0xffffffff;     // used to signal "value not defined" for uint32 return types
-		constexpr const uint32 XLDeleteProperty = XLInvalidUInt32;      // when 0 or "" is not the same as "property does not exist", this value
+		constexpr const uint32 XLDeleteProperty = XLInvalidUInt32; // when 0 or "" is not the same as "property does not exist", this value
 			//  can be passed to setter functions to delete the property from XML
 			//  currently supported in: XLDataBarColor::setTheme
 		constexpr const bool XLPermitXfID      = true;  // use with XLCellFormat constructor to enable xfId() getter and setXfId() setter
@@ -2455,8 +2464,7 @@
 				// ===== If the argument is a string type (i.e. is constructable from *char),
 				// ===== set the m_type attribute to String.
 				else if constexpr(std::is_same_v<std::decay_t<T>, std::string> || std::is_same_v<std::decay_t<T>, std::string_view> ||
-					std::is_same_v<std::decay_t<T>, const char*> ||
-					(std::is_same_v<std::decay_t<T>, char*> && !std::is_same_v<T, bool>)) {
+					std::is_same_v<std::decay_t<T>, const char*> || (std::is_same_v<std::decay_t<T>, char*> && !std::is_same_v<T, bool>)) {
 					m_type  = XLValueType::String;
 					m_value = std::string(value);
 				}
@@ -3109,8 +3117,8 @@
 			friend class XLCellIterator;
 			friend class XLCellValueProxy;
 			friend class XLRowDataIterator;
-			friend bool operator==(const XLCell& lhs, const XLCell& rhs);
-			friend bool operator!=(const XLCell& lhs, const XLCell& rhs);
+			friend bool operator == (const XLCell& lhs, const XLCell& rhs);
+			friend bool operator != (const XLCell& lhs, const XLCell& rhs);
 		public:
 			XLCell();
 			XLCell(const XMLNode& cellNode, const XLSharedStrings& sharedStrings);
@@ -3134,7 +3142,7 @@
 			 * @return A reference to the new object
 			 * @note Copies only the cell contents, not the pointer to parent worksheet etc.
 			 */
-			virtual XLCell & operator=(const XLCell& other);
+			virtual XLCell & operator = (const XLCell & other);
 			/**
 			 * @brief Move assignment operator
 			 * @param other The XLCell object to be move assigned
@@ -3201,7 +3209,7 @@
 		private:
 			static bool isEqual(const XLCell& lhs, const XLCell& rhs);
 
-			std::unique_ptr<XMLNode> m_cellNode;      /**< A pointer to the root XMLNode for the cell. */
+			std::unique_ptr <XMLNode> m_cellNode;      /**< A pointer to the root XMLNode for the cell. */
 			XLSharedStringsRef m_sharedStrings;
 			XLCellValueProxy m_valueProxy;
 			XLFormulaProxy m_formulaProxy;
@@ -3259,8 +3267,8 @@
 	}
 
 	namespace OpenXLSX {
-		inline bool operator==(const XLCell& lhs, const XLCell& rhs) { return XLCell::isEqual(lhs, rhs); }
-		inline bool operator!=(const XLCell& lhs, const XLCell& rhs) { return !XLCell::isEqual(lhs, rhs); }
+		inline bool operator == (const XLCell& lhs, const XLCell& rhs) { return XLCell::isEqual(lhs, rhs); }
+		inline bool operator != (const XLCell& lhs, const XLCell& rhs) { return !XLCell::isEqual(lhs, rhs); }
 		/**
 		 * @brief      ostream output of XLCell content as string
 		 * @param os   the ostream destination
@@ -3485,11 +3493,11 @@
 		class XLColumn {
 		public:
 			explicit XLColumn(const XMLNode& columnNode);
-			XLColumn(const XLColumn& other);
-			XLColumn(XLColumn&& other) noexcept;
+			XLColumn(const XLColumn & other);
+			XLColumn(XLColumn && other) noexcept;
 			~XLColumn();
-			XLColumn& operator=(const XLColumn& other);
-			XLColumn& operator=(XLColumn&& other) noexcept = default;
+			XLColumn & operator=(const XLColumn& other);
+			XLColumn & operator=(XLColumn&& other) noexcept = default;
 			float width() const;
 			void setWidth(float width);
 			bool isHidden() const;
@@ -4619,14 +4627,14 @@
 			 * @return A reference to *this
 			 * @note The copy assignment operator has been explicitly deleted, as XLWorkbook objects should not be copied.
 			 */
-			XLWorkbook& operator=(const XLWorkbook& other) = default;
+			XLWorkbook & operator=(const XLWorkbook& other) = default;
 			/**
 			 * @brief Move assignment operator.
 			 * @param other The XLWorkbook to be move assigned.
 			 * @return A reference to *this
 			 * @note The move assignment operator has been explicitly deleted, as XLWorkbook objects should not be moved.
 			 */
-			XLWorkbook& operator=(XLWorkbook&& other) = default;
+			XLWorkbook & operator=(XLWorkbook&& other) = default;
 			/**
 			 * @brief Get the sheet (worksheet or chartsheet) at the given index.
 			 * @param index The index at which the desired sheet is located.
@@ -6215,22 +6223,24 @@
 			std::unique_ptr<XMLNode> m_sheetNode;   /**< An XMLNode object with the sheet item */
 			const std::vector< std::string_view >& m_nodeOrder = XLWorksheetNodeOrder;  // worksheet XML root node required child sequence
 		};
-		/**
-		 * @brief A class encapsulating an Excel worksheet. Access to XLWorksheet objects should be via the workbook object.
-		 */
+		//
+		// Descr: A class encapsulating an Excel worksheet. Access to XLWorksheet objects should be via the workbook object.
+		//
 		class XLWorksheet final : public XLSheetBase <XLWorksheet> {
 			friend class XLCell;
 			friend class XLRow;
 			friend class XLWorkbook;
 			friend class XLSheetBase<XLWorksheet>;
 		public:
-			XLWorksheet() : XLSheetBase(nullptr) {};
+			XLWorksheet() : XLSheetBase(nullptr) 
+			{
+			}
 			explicit XLWorksheet(XLXmlData* xmlData);
 			~XLWorksheet() = default;
 			XLWorksheet(const XLWorksheet& other);
 			XLWorksheet(XLWorksheet&& other);
-			XLWorksheet& operator=(const XLWorksheet& other);
-			XLWorksheet& operator=(XLWorksheet&& other);
+			XLWorksheet & operator=(const XLWorksheet& other);
+			XLWorksheet & operator=(XLWorksheet&& other);
 			XLCellAssignable cell(const std::string& ref) const;
 			/**
 			 * @brief Get an XLCell object for the given cell reference.
@@ -6457,18 +6467,18 @@
 			 * @brief getter functions for sheet protection settings
 			 * @return true if setting is "action allowed"
 			 */
-			bool sheetProtected()     const;
-			bool objectsProtected()   const;
+			bool sheetProtected() const;
+			bool objectsProtected() const;
 			bool scenariosProtected() const;
 			/**
 			 * @brief getter functions for detailed sheet protections
 			 * @note none of the sheet protection settings have any effect if protectSheet is not set
 			 */
-			bool insertColumnsAllowed()       const;
-			bool insertRowsAllowed()          const;
-			bool deleteColumnsAllowed()       const;
-			bool deleteRowsAllowed()          const;
-			bool selectLockedCellsAllowed()   const;
+			bool insertColumnsAllowed() const;
+			bool insertRowsAllowed() const;
+			bool deleteColumnsAllowed() const;
+			bool deleteRowsAllowed() const;
+			bool selectLockedCellsAllowed() const;
 			bool selectUnlockedCellsAllowed() const;
 			/**
 			 * @brief get sheet password hash

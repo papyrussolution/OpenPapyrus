@@ -12,11 +12,11 @@
 #if !UCONFIG_NO_FORMATTING
 
 #include "gregoimp.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "zonemeta.h"
 
 #ifdef U_DEBUG_TZ
-#include "uresimp.h" // for debugging
+//#include "uresimp.h" // for debugging
 
 static void debug_tz_loc(const char * f, int32_t l)
 {

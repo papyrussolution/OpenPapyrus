@@ -301,7 +301,7 @@ static void ExtractParameters(int modeMessage, bool compact, int& nbLayers, int&
 		}
 		nbDataBlocks = (modeMessage & 0x3F) + 1;
 	}
-	else{
+	else {
 		// 16 bits:  5 bits layers and 11 bits data blocks
 		nbLayers = (modeMessage >> 11) + 1;
 		if(nbLayers <= 22 && (modeMessage & 0x400)) {  // ISO/IEC 24778:2008 Section 9 MSB artificially set

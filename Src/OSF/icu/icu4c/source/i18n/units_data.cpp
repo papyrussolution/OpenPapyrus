@@ -10,7 +10,7 @@
 #include "resource.h"
 #include "unicode/ures.h"
 #include "units_data.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "util.h"
 
 U_NAMESPACE_BEGIN

@@ -305,10 +305,10 @@ long DbSession::GetFlag(long f) const
 }
 #endif // } 0
 
-int DbSession::GetTaState()
+bool DbSession::GetTaState()
 {
 	const DbThreadLocalArea & r_tla = GetConstTLA();
-	return BIN(r_tla.GetState() & DbThreadLocalArea::stTransaction);
+	return LOGIC(r_tla.GetState() & DbThreadLocalArea::stTransaction);
 }
 
 int DbSession::InitThread()

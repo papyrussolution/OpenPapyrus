@@ -42,7 +42,7 @@
 #include "ucol_imp.h"
 #include "servloc.h"
 #include "ustrenum.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "ucln_in.h"
 
 static icu::Locale* availableLocaleList = NULL;

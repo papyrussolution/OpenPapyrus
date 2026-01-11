@@ -171,9 +171,9 @@
 #include <time.h>
 #endif
 #endif /* TIME_WITH_SYS_TIME */
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 #if defined(__cplusplus) && defined(NO_CPLUSPLUS_ALLOCA)
 #undef HAVE_ALLOCA
 #undef HAVE_ALLOCA_H

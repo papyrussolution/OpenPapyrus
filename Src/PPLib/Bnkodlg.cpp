@@ -277,7 +277,7 @@ IMPL_HANDLE_EVENT(BankingOrderDialog)
 	else if(event.isCmd(cmCtlColor)) {
 		TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 		if(p_dc && oneof2(p_dc->H_Ctl, getCtrlHandle(CTL_BNKPAYM_PAYERACC), getCtrlHandle(CTL_BNKPAYM_RCVRACC))) {
-			int valid_code = (p_dc->H_Ctl == getCtrlHandle(CTL_BNKPAYM_PAYERACC)) ? PayerValidCode : RcvrValidCode;
+			const  int valid_code = (p_dc->H_Ctl == getCtrlHandle(CTL_BNKPAYM_PAYERACC)) ? PayerValidCode : RcvrValidCode;
 			if(valid_code > 0) {
 				::SetBkMode(p_dc->H_DC, TRANSPARENT);
 				p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushValidNumber));

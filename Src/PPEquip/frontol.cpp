@@ -237,7 +237,7 @@ int ACS_FRONTOL::ExportData(int updOnly)
 	PPObjUnit unit_obj;
 	PPObjQuotKind qk_obj;
 	PPObjSCardSeries scs_obj;
-	PPSCardSeries scs_rec;
+	PPSCardSeries2 scs_rec;
 	PPObjGoods goods_obj;
 	PPObjGoodsClass gc_obj;
 	PPAsyncCashNode cn_data;

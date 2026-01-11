@@ -45,7 +45,6 @@ void * ma_alloc_root(MA_MEM_ROOT * mem_root, size_t Size)
 #if defined(HAVE_purify) && defined(EXTRA_DEBUG)
 	reg1 MA_USED_MEM * next;
 	Size += ALIGN_SIZE(sizeof(MA_USED_MEM));
-
 	if(!(next = (MA_USED_MEM*)SAlloc::M(Size))) {
 		if(mem_root->error_handler)
 			(*mem_root->error_handler)();
@@ -61,9 +60,7 @@ void * ma_alloc_root(MA_MEM_ROOT * mem_root, size_t Size)
 	MA_USED_MEM ** prev;
 	Size = ALIGN_SIZE(Size);
 	if((*(prev = &mem_root->free))) {
-		if((*prev)->left < Size &&
-		    mem_root->first_block_usage++ >= 16 &&
-		    (*prev)->left < 4096) {
+		if((*prev)->left < Size && mem_root->first_block_usage++ >= 16 && (*prev)->left < 4096) {
 			next = *prev;
 			*prev = next->next;
 			next->next = mem_root->used;
@@ -73,11 +70,8 @@ void * ma_alloc_root(MA_MEM_ROOT * mem_root, size_t Size)
 		for(next = *prev; next && next->left < Size; next = next->next)
 			prev = &next->next;
 	}
-
-	if(!next) {                             /* Time to alloc new block */
-		get_size = MAX(Size+ALIGN_SIZE(sizeof(MA_USED_MEM)),
-			(mem_root->block_size & ~1) * (mem_root->block_num >> 2));
-
+	if(!next) { /* Time to alloc new block */
+		get_size = MAX(Size+ALIGN_SIZE(sizeof(MA_USED_MEM)), (mem_root->block_size & ~1) * (mem_root->block_num >> 2));
 		if(!(next = (MA_USED_MEM*)SAlloc::M(get_size))) {
 			if(mem_root->error_handler)
 				(*mem_root->error_handler)();
@@ -116,7 +110,8 @@ void ma_free_root(MA_MEM_ROOT * root, myf MyFlags)
 			SAlloc::F(old);
 	}
 	for(next = root->free; next;) {
-		old = next; next = next->next;
+		old = next; 
+		next = next->next;
 		if(old != root->pre_alloc)
 			SAlloc::F(old);
 	}
@@ -152,7 +147,6 @@ void * ma_multi_malloc(myf myFlags, ...)
 	va_list args;
 	char ** ptr, * start, * res;
 	size_t tot_length, length;
-
 	va_start(args, myFlags);
 	tot_length = 0;
 	while((ptr = va_arg(args, char **))) {

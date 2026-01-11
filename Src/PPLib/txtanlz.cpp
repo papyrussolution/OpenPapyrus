@@ -1,5 +1,5 @@
 // TXTANLZ.CPP
-// Copyright (c) A.Sobolev 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -4359,9 +4359,54 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 					CATCHZOK
 					return ok;
 				}
+				size_t GetDeepSize() const
+				{
+					size_t result = sizeof(*this) + (sizeof(FAssoc) * DocRefList.getCount());
+					return result;
+				}
+				/*int    ProcessDocRefList()
+				{
+					int    ok = -1;
+					if(DocRefList.getCount()) {
+						DocRefList.sort2(PTR_CMPFUNC(float), offsetof(FAssoc, Val));
+					}
+					return ok;
+				}*/
 				uint16 TokenId; // @firstmember
-				TSVector <FAssoc> DocRefList; // Key - идентификатор документа, Val - TF-IDF
+				uint16 Reserve; // @alignment
+				FAssocArray DocRefList; // Key - идентификатор документа, Val - TF-IDF
 			};
+
+			InvertedIndex()
+			{
+				TokenRange.Z();
+			}
+			InvertedIndex & Z()
+			{
+				TokenRange.Z();
+				L.freeAll();
+				return *this;
+			}
+			size_t GetDeepSize() const
+			{
+				size_t result = sizeof(*this) + (sizeof(void *) * L.getCount());
+				for(uint i = 0; i < L.getCount(); i++) {
+					const Entry * p_entry = L.at(i);
+					if(p_entry)
+						result += p_entry->GetDeepSize();
+				}
+				return result;
+			}
+			int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+			{
+				int    ok = 1;
+				THROW_SL(TokenRange.Serialize(dir, rBuf, pSCtx));
+				THROW_SL(TSCollection_Serialize(L, dir, rBuf, pSCtx));
+				CATCHZOK
+				return ok;
+			}
+			uint64 NextBlkOffs;  // @!
+			IntRange TokenRange; // Диапазон токенов, находящихся в этом экземляре. Если TokenRange.IsZero() то - все здесь!
 			TSCollection <Entry> L;
 		};
 
@@ -4416,13 +4461,16 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 				uint32 Signature;
 				uint32 TokenListBlkCount;
 				uint64 StatOffs;
-				uint8  Reserve[48];
+				uint64 InvIdxRefListOffs; // Смещение до списка ссылок на блоки обратного индекса
+				uint8  Reserve[40];
 			};
 		private:
 			enum {
-				kUnkn = 0,
-				kTokenList = 1,
-				kStat      = 2,
+				kUnkn          = 0,
+				kTokenList     = 1,
+				kStat          = 2,
+				kInvertedIndex = 3,
+				kInvIdxRefList = 4,
 			};
 			struct SBlock {
 				SBlock();
@@ -4431,11 +4479,20 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 				uint32 Signature;
 				uint32 Kind; // SourceTCollection::kXXX
 				uint32 Size;
+				uint32 Reserve;     // @alignment 
 				SBuffer SBuf;
 			};
 			int    ReadFilePrefix(HBlock & rH);
 			int    ReadBlockPrefix(SBlock & rBlk);
 		public:
+			struct InvIdxRef {
+				InvIdxRef() : BlkOffs(0)
+				{
+					TokenRange.Z();
+				}
+				uint64 BlkOffs;
+				IntRange TokenRange;
+			};
 			class ReadIterator {
 				friend class SourceTCollection;
 			public:
@@ -4450,13 +4507,17 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 			SourceTCollection(int dummy, const char * pRdFileName, const char * pWrFileName);
 			// Поиск k ближайших соседей
 			int    FindKNearest(const TSVector <SourceTEntry::TokenItem> & rPattern, uint k, float threshold, RAssocArray & rResult) const;
-			int    StoreFinish();
-			int    StoreTokenList();
-			int    StartReading(HBlock * pHBlk);
+			int    StoreFinish(TSVector <InvIdxRef> * pInvIdxRefList);
+			int    Store_();
+			int    Store_InvertedIndex(TSVector <InvIdxRef> & rRefList);
+			int    StartReading(HBlock * pHBlk, TSVector <InvIdxRef> * pInvIdxRefList);
 			int    ReadTokenList(ReadIterator & rIter);
+			int    ReadInvertedIndexBlock(int64 offs, InvertedIndex & rInvIdxBlk);
 			const  SourceTEntry * GetEntryByID(uint64 id) const;
 
 			Stat St_;
+			InvertedIndex InvIdx;
+			TSVector <FAssoc> DocNormList; // Key - docId, Val - norm. Инициализируется функцией StartReading если аргумент pInvIdxRefList != 0
 		private:
 			enum {
 				stError    = 0x0001,
@@ -4511,7 +4572,7 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 		}
 	}
 
-	PrcssrTextSimilarityFinder::SourceTCollection::HBlock::HBlock() : Signature(HSignature), TokenListBlkCount(0), StatOffs(0)
+	PrcssrTextSimilarityFinder::SourceTCollection::HBlock::HBlock() : Signature(HSignature), TokenListBlkCount(0), StatOffs(0), InvIdxRefListOffs(0)
 	{
 		memzero(Reserve, sizeof(Reserve));
 	}
@@ -4521,6 +4582,7 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 		Signature = HSignature;
 		TokenListBlkCount = 0;
 		StatOffs = 0;
+		InvIdxRefListOffs = 0;
 		memzero(Reserve, sizeof(Reserve));
 		return *this;
 	}
@@ -4585,20 +4647,21 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 		return ok;
 	}
 			
-	int PrcssrTextSimilarityFinder::SourceTCollection::StoreFinish()
+	int PrcssrTextSimilarityFinder::SourceTCollection::StoreFinish(TSVector <InvIdxRef> * pInvIdxRefList)
 	{
 		int    ok = 1;
 		//THROW(!(State & stReadOnly));
 		THROW(!(State & stError));
 		THROW(F_Wr.IsValid());
 		{
+			uint64 inv_idx_ref_list_offs = 0;
 			THROW_SL(F_Wr.Seek64(CurrentWrOffs));
 			if(CurrentWrOffs == 0) {
 				HBlock hblk;
 				THROW_SL(F_Wr.Write(&hblk, sizeof(hblk)));
 				CurrentWrOffs = F_Wr.Tell64();
 			}
-			const uint64 stat_offs = CurrentWrOffs;
+			const  uint64 stat_offs = CurrentWrOffs;
 			{
 				SBlock sblk;
 				THROW(St_.Serialize(+1, sblk.SBuf, &SCtx));
@@ -4611,12 +4674,28 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 				THROW_SL(F_Wr.Write(sblk.SBuf.constptr(), buf_size));
 				CurrentWrOffs = F_Wr.Tell64();
 			}
+			if(SVectorBase::GetCount(pInvIdxRefList)) {
+				SBlock sblk;
+				THROW_SL(SCtx.Serialize(+1, pInvIdxRefList, sblk.SBuf));
+				{
+					inv_idx_ref_list_offs = CurrentWrOffs;
+					const size_t buf_size = sblk.SBuf.GetAvailableSize();
+					sblk.Size = static_cast<uint32>(buf_size + sizeof(sblk.Signature) + sizeof(sblk.Kind) + sizeof(sblk.Size));
+					sblk.Kind = kInvIdxRefList;
+					THROW_SL(F_Wr.Write(&sblk.Signature, sizeof(sblk.Signature)));
+					THROW_SL(F_Wr.Write(&sblk.Kind, sizeof(sblk.Kind)));
+					THROW_SL(F_Wr.Write(&sblk.Size, sizeof(sblk.Size)));
+					THROW_SL(F_Wr.Write(sblk.SBuf.constptr(), buf_size));
+					CurrentWrOffs = F_Wr.Tell64();
+				}
+			}
 			{
 				HBlock hblk;
 				THROW_SL(F_Wr.Seek64(0, 0));
 				THROW_SL(F_Wr.Read(&hblk, sizeof(hblk)));
 				hblk.TokenListBlkCount = StoredTokenListBlockCount;
 				hblk.StatOffs = stat_offs;
+				hblk.InvIdxRefListOffs = inv_idx_ref_list_offs;
 				THROW_SL(F_Wr.Seek64(0, 0));
 				THROW_SL(F_Wr.Write(&hblk, sizeof(hblk)));
 			}
@@ -4624,8 +4703,127 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 		CATCHZOK
 		return ok;
 	}
-			
-	int PrcssrTextSimilarityFinder::SourceTCollection::StoreTokenList()
+
+	int PrcssrTextSimilarityFinder::SourceTCollection::ReadInvertedIndexBlock(int64 offs, InvertedIndex & rInvIdxBlk)
+	{
+		rInvIdxBlk.Z();
+		int    ok = -1;
+		THROW(!(State & stError));
+		THROW_SL(F_Rd.IsValid());
+		{
+			SBlock sblk;
+			THROW_SL(F_Rd.Seek64(offs));
+			THROW_SL(F_Rd.Read(&sblk.Signature, sizeof(sblk.Signature)));
+			THROW(sblk.Signature == BSignature); // @todo @err
+			THROW_SL(F_Rd.Read(&sblk.Kind, sizeof(sblk.Kind)));
+			THROW_SL(F_Rd.Read(&sblk.Size, sizeof(sblk.Size)));			
+			THROW(sblk.Kind == kInvertedIndex); // @todo @err
+			{
+				const size_t sbuf_wr_offs = sblk.SBuf.GetWrOffs();
+				THROW(sblk.Size >= (sizeof(sblk.Signature) + sizeof(sblk.Kind) + sizeof(sblk.Size))); // @todo @err
+				const size_t buf_size = sblk.Size - (sizeof(sblk.Signature) + sizeof(sblk.Kind) + sizeof(sblk.Size));
+				sblk.SBuf.Write(0/*zero buf ptr - распределение пространства под данные*/, buf_size);
+				THROW_SL(F_Rd.Read(PTR8(sblk.SBuf.nonconstptr()) + sbuf_wr_offs, buf_size));
+				THROW(rInvIdxBlk.Serialize(-1, sblk.SBuf, &SCtx));
+			}
+		}
+		CATCHZOK
+		return ok;
+	}
+
+	int PrcssrTextSimilarityFinder::SourceTCollection::Store_InvertedIndex(TSVector <InvIdxRef> & rRefList)  // @construction 
+	{
+		rRefList.clear();
+		int    ok = -1;
+		THROW(!(State & stError));
+		THROW(F_Wr.IsValid());
+		{
+			const size_t max_inv_idx_blk_size = SMEGABYTE(2);
+			const uint   inv_idx_count = InvIdx.L.getCount();
+			if(inv_idx_count) {
+				const size_t inv_idx_deep_size = InvIdx.GetDeepSize();
+				if(inv_idx_deep_size < max_inv_idx_blk_size) {
+					SBlock sblk;
+					InvIdxRef ref_item;
+					ref_item.BlkOffs = F_Wr.Tell64();
+					ref_item.TokenRange.Set(InvIdx.L.at(0)->TokenId, InvIdx.L.at(inv_idx_count-1)->TokenId);
+					THROW(InvIdx.Serialize(+1, sblk.SBuf, &SCtx));
+					rRefList.insert(&ref_item);
+					{
+						const size_t buf_size = sblk.SBuf.GetAvailableSize();
+						sblk.Size = static_cast<uint32>(buf_size + sizeof(sblk.Signature) + sizeof(sblk.Kind) + sizeof(sblk.Size));
+						sblk.Kind = kInvertedIndex;
+						THROW_SL(F_Wr.Write(&sblk.Signature, sizeof(sblk.Signature)));
+						THROW_SL(F_Wr.Write(&sblk.Kind, sizeof(sblk.Kind)));
+						THROW_SL(F_Wr.Write(&sblk.Size, sizeof(sblk.Size)));
+						THROW_SL(F_Wr.Write(sblk.SBuf.constptr(), buf_size));
+						CurrentWrOffs = F_Wr.Tell64();
+						ok = 1;
+					}
+				}
+				else {
+					const  uint num_blk_to_store = static_cast<uint>(idivroundup(inv_idx_deep_size, max_inv_idx_blk_size));
+					const  uint max_item_per_blk = inv_idx_count / num_blk_to_store;
+					//uint   count_to_store = inv_idx_count;
+					uint   first_non_stored_idx = 0;
+					while(first_non_stored_idx < inv_idx_count) {
+						const uint first_idx = first_non_stored_idx;
+						const uint last_idx = smin(first_idx+max_item_per_blk-1, inv_idx_count-1);
+						{
+							InvertedIndex temp_inv_idx;
+							for(uint i = first_idx; i <= last_idx; i++) {
+								const InvertedIndex::Entry * p_src_entry = InvIdx.L.at(i);
+								if(p_src_entry) {
+									InvertedIndex::Entry * p_new_entry = temp_inv_idx.L.CreateNewItem();
+									THROW_SL(p_new_entry);
+									*p_new_entry = *p_src_entry;
+								}
+							}
+							{
+								SBlock sblk;
+								InvIdxRef ref_item;
+								ref_item.BlkOffs = F_Wr.Tell64();
+								temp_inv_idx.TokenRange.Set(temp_inv_idx.L.at(0)->TokenId, temp_inv_idx.L.at(temp_inv_idx.L.getCount()-1)->TokenId);
+								ref_item.TokenRange.Set(temp_inv_idx.L.at(0)->TokenId, temp_inv_idx.L.at(temp_inv_idx.L.getCount()-1)->TokenId);
+								THROW(temp_inv_idx.Serialize(+1, sblk.SBuf, &SCtx));
+								rRefList.insert(&ref_item);
+								{
+									const size_t buf_size = sblk.SBuf.GetAvailableSize();
+									sblk.Size = static_cast<uint32>(buf_size + sizeof(sblk.Signature) + sizeof(sblk.Kind) + sizeof(sblk.Size));
+									sblk.Kind = kInvertedIndex;
+									THROW_SL(F_Wr.Write(&sblk.Signature, sizeof(sblk.Signature)));
+									THROW_SL(F_Wr.Write(&sblk.Kind, sizeof(sblk.Kind)));
+									THROW_SL(F_Wr.Write(&sblk.Size, sizeof(sblk.Size)));
+									THROW_SL(F_Wr.Write(sblk.SBuf.constptr(), buf_size));
+									CurrentWrOffs = F_Wr.Tell64();
+									ok = 1;
+								}
+							}
+						}
+						first_non_stored_idx = last_idx+1;
+					}
+				}
+				/*if(rRefList.getCount()) {
+					SBlock sblk;
+					THROW_SL(SCtx.Serialize(+1, &rRefList, sblk.SBuf));
+					{
+						const size_t buf_size = sblk.SBuf.GetAvailableSize();
+						sblk.Size = static_cast<uint32>(buf_size + sizeof(sblk.Signature) + sizeof(sblk.Kind) + sizeof(sblk.Size));
+						sblk.Kind = kInvIdxRefList;
+						THROW_SL(F_Wr.Write(&sblk.Signature, sizeof(sblk.Signature)));
+						THROW_SL(F_Wr.Write(&sblk.Kind, sizeof(sblk.Kind)));
+						THROW_SL(F_Wr.Write(&sblk.Size, sizeof(sblk.Size)));
+						THROW_SL(F_Wr.Write(sblk.SBuf.constptr(), buf_size));
+						CurrentWrOffs = F_Wr.Tell64();
+					}
+				}*/
+			}
+		}
+		CATCHZOK
+		return ok;
+	}
+
+	int PrcssrTextSimilarityFinder::SourceTCollection::Store_()
 	{
 		int    ok = 1;
 		//THROW(!(State & stReadOnly));
@@ -4661,8 +4859,10 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 		return ok;
 	}
 
-	int PrcssrTextSimilarityFinder::SourceTCollection::StartReading(HBlock * pHBlk)
+	int PrcssrTextSimilarityFinder::SourceTCollection::StartReading(HBlock * pHBlk, TSVector <InvIdxRef> * pInvIdxRefList)
 	{
+		CALLPTRMEMB(pInvIdxRefList, clear());
+		DocNormList.clear();
 		int    ok = 1;
 		HBlock hblk;
 		CurrentRdOffs = 0;
@@ -4685,6 +4885,49 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 			}
 			THROW(St_.Serialize(-1, sblk.SBuf, &SCtx));
 			THROW_SL(F_Rd.Seek64(CurrentRdOffs));
+		}
+		if(pInvIdxRefList) {
+			if(hblk.InvIdxRefListOffs) {
+				SBlock sblk;
+				THROW_SL(F_Rd.Seek64(hblk.InvIdxRefListOffs, 0));
+				THROW_SL(F_Rd.Read(&sblk.Signature, sizeof(sblk.Signature)));
+				THROW(sblk.Signature == BSignature); // @todo @err
+				THROW_SL(F_Rd.Read(&sblk.Kind, sizeof(sblk.Kind)));
+				THROW(sblk.Kind == kInvIdxRefList); // @todo @err
+				THROW_SL(F_Rd.Read(&sblk.Size, sizeof(sblk.Size)));
+				{
+					const size_t sbuf_wr_offs = sblk.SBuf.GetWrOffs();
+					THROW(sblk.Size >= (sizeof(sblk.Signature) + sizeof(sblk.Kind) + sizeof(sblk.Size))); // @todo @err
+					const size_t buf_size = sblk.Size - (sizeof(sblk.Signature) + sizeof(sblk.Kind) + sizeof(sblk.Size));
+					sblk.SBuf.Write(0/*zero buf ptr - распределение пространства под данные*/, buf_size);
+					THROW_SL(F_Rd.Read(PTR8(sblk.SBuf.nonconstptr()) + sbuf_wr_offs, buf_size));
+				}
+				{
+					THROW_SL(SCtx.Serialize(-1, pInvIdxRefList, sblk.SBuf));
+					THROW_SL(F_Rd.Seek64(CurrentRdOffs));
+				}
+				if(pInvIdxRefList->getCount()) {
+					//
+					// Нам понадобится вектор нормированных весов всех документов.
+					// 
+					SourceTCollection::ReadIterator iter;
+					if(ReadTokenList(iter) > 0) {
+						do {
+							for(uint i = 0; i < getCount(); i++) {
+								const  SourceTEntry * p_se = at(i);
+								if(p_se && p_se->Norm != 0.0f) {
+									FAssoc doc_norm;
+									doc_norm.Key = static_cast<long>(p_se->ID);
+									doc_norm.Val = p_se->Norm;
+									DocNormList.insert(&doc_norm);
+								}
+							}
+							freeAll(); // @mandatory
+						} while(ReadTokenList(iter) > 0);
+						DocNormList.sort2(CMPF_LONG);
+					}
+				}
+			}
 		}
 		CATCHZOK
 		ASSIGN_PTR(pHBlk, hblk);
@@ -4941,6 +5184,8 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 	
 	int PrcssrTextSimilarityFinder::Search(const char * pPattern)
 	{
+		const  float similarity_threshould = 0.45;
+		const  uint  max_candidate = 100;
 		int    ok = -1;
 		if(!isempty(pPattern)) {
 			SString log_file_path;
@@ -4973,25 +5218,131 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 					SourceTEntry pattern_tentry;
 					SourceTCollection::HBlock hblk;
 					uint    token_block_count = 0; // @debug
-					THROW(stc.StartReading(&hblk));
-					for(uint si = 0; si < seg_count; si++) {
-						const int seg_id = seg_id_list[si];
-						TokenStatEntry * p_te = stc.St_.GetToken(seg_id);
-						THROW(p_te);
-						p_te->DbEntryCount++;
-						pattern_tentry.AddToken(seg_id);
-					}
-					pattern_tentry.SortList();
-					pattern_tentry.Norm = pattern_tentry.EvaluateTfIdfNorm();
-					EvaluateTF_IDF(pattern_tentry.TokList_, stc.St_.TokenStatL);
+					TSVector <SourceTCollection::InvIdxRef> inv_idx_ref_list;
+					RAssocArray search_result;
+					StrAssocArray text_list;
+					THROW(stc.StartReading(&hblk, &inv_idx_ref_list));
 					{
+						for(uint si = 0; si < seg_count; si++) {
+							const int seg_id = seg_id_list[si];
+							TokenStatEntry * p_te = stc.St_.GetToken(seg_id);
+							THROW(p_te);
+							p_te->DbEntryCount++;
+							pattern_tentry.AddToken(seg_id);
+						}
+						pattern_tentry.SortList();
+						pattern_tentry.Norm = pattern_tentry.EvaluateTfIdfNorm();
+						EvaluateTF_IDF(pattern_tentry.TokList_, stc.St_.TokenStatL);
+					}
+					if(inv_idx_ref_list.getCount() && stc.DocNormList.getCount()) { // @construction
+						/*
+							// Быстрый поиск с использованием инвертированного индекса
+							std::vector<std::pair<size_t, float>> SearchFast(const std::string& query, int top_k = 5, int max_candidates = 1000) 
+							{
+								auto  query_vec = CalculateTFIDF(query);
+								float query_norm = CalculateNorm(query_vec);
+								// Собираем кандидатов из инвертированного индекса
+								std::unordered_map<size_t, float> candidate_scores;
+								for(const auto& [token, weight] : query_vec) {
+									auto it = inverted_index.find(token);
+									if(it != inverted_index.end()) {
+										for(const auto& [doc_id, doc_weight] : it->second) {
+											candidate_scores[doc_id] += weight * doc_weight;
+										}
+									}
+								}
+								// Преобразуем в вектор и вычисляем финальные скоринги
+								std::vector<std::pair<size_t, float>> results;
+								for(const auto& [doc_id, dot_product] : candidate_scores) {
+									float similarity = dot_product / (query_norm * documents[doc_id].norm);
+									results.emplace_back(doc_id, similarity);
+								}
+								// Ограничиваем количество кандидатов для сортировки
+								std::partial_sort(results.begin(), results.begin() + std::min(top_k * 10, (int)results.size()),
+									results.end(), [](const auto& a, const auto& b) { return a.second > b.second; });
+								if(results.size() > top_k) {
+									results.resize(top_k);
+								}
+								return results;
+							}
+						*/ 
+						LongArray ref_pos_list;
+						{
+							for(uint tidx = 0; tidx < pattern_tentry.TokList_.getCount(); tidx++) {
+								const SourceTEntry::TokenItem & r_titem = pattern_tentry.TokList_.at(tidx);
+								for(uint j = 0; j < inv_idx_ref_list.getCount(); j++) {
+									const SourceTCollection::InvIdxRef & r_ref = inv_idx_ref_list.at(j);
+									if(r_ref.TokenRange.CheckVal(r_titem.Id)) {
+										ref_pos_list.add(static_cast<long>(j));
+										break;
+									}
+								}
+							}
+							ref_pos_list.sortAndUndup();
+						}
+						{
+							RAssocArray candidate_scores; // key - doc_id, val - score
+							for(uint rpl_idx = 0; rpl_idx < ref_pos_list.getCount(); rpl_idx++) {
+								const long ref_pos = ref_pos_list.at(rpl_idx);
+								const SourceTCollection::InvIdxRef & r_ref = inv_idx_ref_list.at(ref_pos);
+								InvertedIndex inv_idx;
+								THROW(stc.ReadInvertedIndexBlock(r_ref.BlkOffs, inv_idx));
+								assert(inv_idx.TokenRange == r_ref.TokenRange);
+								{
+									for(uint tidx = 0; tidx < pattern_tentry.TokList_.getCount(); tidx++) {
+										const SourceTEntry::TokenItem & r_titem = pattern_tentry.TokList_.at(tidx);
+										if(inv_idx.TokenRange.CheckVal(r_titem.Id)) {
+											uint   inv_idx_pos = 0;
+											const  int _sr = inv_idx.L.bsearch(&r_titem.Id, &inv_idx_pos, PTR_CMPFUNC(uint16));
+											assert(_sr);
+											if(_sr) {
+												const InvertedIndex::Entry * p_iie = inv_idx.L.at(inv_idx_pos);
+												assert(p_iie);
+												if(p_iie) {
+													assert(p_iie->TokenId == r_titem.Id);
+													for(uint di = 0; di < p_iie->DocRefList.getCount(); di++) {
+														const FAssoc & r_dr = p_iie->DocRefList.at(di);
+														const float score_addendum = r_titem.TF_IDF * r_dr.Val;
+														uint  ex_candidat_idx = 0;
+														if(candidate_scores.Search(r_dr.Key, 0, &ex_candidat_idx, 0/*non-binary*/)) {
+															candidate_scores.at(ex_candidat_idx).Val += score_addendum;
+														}
+														else {
+															RAssoc new_candidate;
+															new_candidate.Key = r_dr.Key;
+															new_candidate.Val = score_addendum;
+															candidate_scores.insert(&new_candidate);
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+							{
+								for(uint ci = 0; ci < candidate_scores.getCount(); ci++) {
+									const RAssoc & r_candidate = candidate_scores.at(ci);
+									const long doc_id = r_candidate.Key;
+									float doc_norm = 0.0f;
+									uint  doc_norm_pos = 0;
+									if(stc.DocNormList.bsearch(&doc_id, &doc_norm_pos, CMPF_LONG)) {
+										doc_norm = stc.DocNormList.at(doc_norm_pos).Val;
+									}
+									float similarity = r_candidate.Val / (pattern_tentry.Norm * doc_norm);
+									if(similarity >= similarity_threshould)	{
+										const int addmkr = search_result.AddMaxK(doc_id, similarity, max_candidate);
+									}
+								}
+							}
+						}
+					}
+					else {
 						SourceTCollection::ReadIterator iter;
-						RAssocArray search_result;
-						StrAssocArray text_list;
 						if(stc.ReadTokenList(iter) > 0) {
 							do {
 								token_block_count++;
-								stc.FindKNearest(pattern_tentry.TokList_, 100, 0.45f, search_result);
+								stc.FindKNearest(pattern_tentry.TokList_, max_candidate, similarity_threshould, search_result);
 								search_result.SortByValRev();
 								{
 									for(uint i = 0; i < search_result.getCount(); i++) {
@@ -5106,7 +5457,7 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 					}
 					processed_count += string_list.getCount();
 					stc.St_.Normalize();
-					THROW(stc.StoreTokenList());
+					THROW(stc.Store_());
 					stc.freeAll(); // @mandatory
 					PPWaitMsg(temp_buf.Z().Cat("Pass 1").Space().Cat(processed_count).Space().Cat("strings"));
 				}
@@ -5121,24 +5472,24 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 						//_st.TdfL.Add(token_id, tdf, 0, 0);
 					}
 				}
-				THROW(stc.StoreFinish());
+				THROW(stc.StoreFinish(0));
 			}
 			{
-				InvertedIndex inv_idx;
-
+				//InvertedIndex inv_idx;
 				SourceTCollection stc(0/*dummy*/, stc_storage_name, stc_storage_final_name);
 				SourceTCollection::HBlock hblk;
 				uint    token_block_count = 0; // @debug
-				THROW(stc.StartReading(&hblk));
+				THROW(stc.StartReading(&hblk, 0));
+				stc.InvIdx.Z();
 				{
 					for(uint i = 0; i < stc.St_.TokenStatL.getCount(); i++) {
 						const  long token_id = stc.St_.TokenStatL.at(i).TokenId;
-						InvertedIndex::Entry * p_ii_entry = inv_idx.L.CreateNewItem();
+						InvertedIndex::Entry * p_ii_entry = stc.InvIdx.L.CreateNewItem();
 						THROW_SL(p_ii_entry);
 						assert(token_id >= 0 && token_id < 0xffffU); // Оказывается есть токен с ид = 0!
 						p_ii_entry->TokenId = static_cast<uint16>(token_id);
 					}
-					inv_idx.L.sort2(PTR_CMPFUNC(uint16));
+					stc.InvIdx.L.sort2(PTR_CMPFUNC(uint16));
 				}
 				{
 					uint   processed_count = 0;
@@ -5219,13 +5570,13 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 											const SourceTEntry::TokenItem & r_item = p_item->TokList_.at(tidx);
 											uint   _ii_pos = 0;
 											InvertedIndex::Entry * p_ii_entry = 0;
-											if(inv_idx.L.bsearch(&r_item.Id, &_ii_pos, PTR_CMPFUNC(uint16))) { // bsearch! Выше мы заполнили и отсортировали коллекцию!
-												p_ii_entry = inv_idx.L.at(_ii_pos);
+											if(stc.InvIdx.L.bsearch(&r_item.Id, &_ii_pos, PTR_CMPFUNC(uint16))) { // bsearch! Выше мы заполнили и отсортировали коллекцию!
+												p_ii_entry = stc.InvIdx.L.at(_ii_pos);
 											}
 											else {
 												constexpr bool TokenNotFoundInInvertedIndex = false;
-												assert(TokenNotFoundInInvertedIndex); // Не должны мы были сюда попасть посколку ранее внесли все токены в список
-												p_ii_entry = inv_idx.L.CreateNewItem();
+												assert(TokenNotFoundInInvertedIndex); // Не должны мы были сюда попасть поскольку ранее внесли все токены в список
+												p_ii_entry = stc.InvIdx.L.CreateNewItem();
 												p_ii_entry->TokenId = r_item.Id;
 											}
 											if(p_ii_entry) {
@@ -5242,11 +5593,15 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 							}
 							processed_count += stc.getCount();
 							stc.St_.Normalize();
-							THROW(stc.StoreTokenList());
+							THROW(stc.Store_());
 							stc.freeAll(); // @mandatory
 							PPWaitMsg(temp_buf.Z().Cat("Pass 2").Space().Cat(processed_count).Space().Cat("strings"));
 						} while(stc.ReadTokenList(iter) > 0);
-						THROW(stc.StoreFinish());
+						{
+							TSVector <SourceTCollection::InvIdxRef> inv_idx_ref_list;
+							stc.Store_InvertedIndex(inv_idx_ref_list);
+							THROW(stc.StoreFinish(&inv_idx_ref_list));
+						}
 					}
 				}
 				THROW(token_block_count); // @debug
@@ -5370,8 +5725,8 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 		// В базе товаров UHTT макс количество токенов около 100.
 		int    ok = 1;
 		bool   debug_mark = false;
-		//const  int action = actionSearch; 
-		const  int action = actionProcessTokens2; //actionMakeGoodsNameList;
+		const  int action = actionSearch; 
+		//const  int action = actionProcessTokens2; //actionMakeGoodsNameList;
 		// @todo проблема на строке 343416! символ с кодом 26 (decimal)
 		SString temp_buf;
 		DbProvider * p_dict = CurDict;

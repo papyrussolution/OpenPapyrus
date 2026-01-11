@@ -10,7 +10,7 @@
 #if !UCONFIG_NO_FORMATTING
 
 #include "plurrule_impl.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "ureslocs.h"
 
 #define LEFT_CURLY_BRACKET  ((char16_t)0x007B)

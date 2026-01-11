@@ -1,3 +1,4 @@
+// hash.h
 // Copyright 2018 The Abseil Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,36 +13,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// -----------------------------------------------------------------------------
-// File: hash.h
-// -----------------------------------------------------------------------------
-//
 #ifndef ABSL_HASH_INTERNAL_HASH_H_
 #define ABSL_HASH_INTERNAL_HASH_H_
 
-#include <algorithm>
-#include <array>
-#include <bitset>
-#include <cmath>
-#include <cstddef>
-#include <cstring>
-#include <deque>
-#include <forward_list>
-#include <functional>
-#include <iterator>
-#include <limits>
-#include <list>
-#include <map>
-#include <memory>
-#include <set>
-#include <string>
-#include <tuple>
-#include <type_traits>
-#include <unordered_map>
-#include <unordered_set>
-#include <utility>
-#include <vector>
-
+//#include <algorithm>
+//#include <array>
+//#include <bitset>
+//#include <cmath>
+//#include <cstddef>
+//#include <cstring>
+//#include <deque>
+//#include <forward_list>
+//#include <functional>
+//#include <iterator>
+//#include <limits>
+//#include <list>
+//#include <map>
+//#include <memory>
+//#include <set>
+//#include <string>
+//#include <tuple>
+//#include <type_traits>
+//#include <unordered_map>
+//#include <unordered_set>
+//#include <utility>
+//#include <vector>
 #include "absl/base/config.h"
 #include "absl/base/internal/unaligned_access.h"
 #include "absl/base/port.h"
@@ -55,9 +51,8 @@
 #include "absl/types/optional.h"
 #include "absl/types/variant.h"
 #include "absl/utility/utility.h"
-
 #ifdef ABSL_HAVE_STD_STRING_VIEW
-#include <string_view>
+    #include <string_view>
 #endif
 
 namespace absl {

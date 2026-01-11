@@ -68,7 +68,7 @@ DbfTable * CS_1::OpenDBFTable(uint num, uint fn)
 	DbfTable * t = 0;
 	THROW_INVARG(P_Entries && num >= 0 && num < NumEntries && fn >= 0 && fn < FilesPerSet);
 	THROW_MEM(t = new DbfTable(P_Entries[num].fn[fn]));
-	THROW_PP(t->isOpened(), PPERR_DBFOPFAULT);
+	THROW_PP(t->IsOpen(), PPERR_DBFOPFAULT);
 	CATCH
 		ZDELETE(t);
 	ENDCATCH

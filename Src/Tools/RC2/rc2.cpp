@@ -1,5 +1,5 @@
 // RC2.CPP
-// Copyright (c) V.Antonov, A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2016, 2017, 2019, 2020, 2021, 2023, 2025
+// Copyright (c) V.Antonov, A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2016, 2017, 2019, 2020, 2021, 2023, 2025, 2026
 //
 #include <pp.h>
 #include "rc2.h"
@@ -878,19 +878,18 @@ int Rc2Data::GenerateViewDefinitions()
 	//
 	// PPFILT_XXX PP_RCDECLFILT { "Symb\0" }
 	//
-	SString temp_buf, symb;
+	SString temp_buf;
+	SString symb;
 	for(uint i = 0; i < ViewList.getCount(); i++) {
 		const ViewDefinition * p_def = ViewList.at(i);
 		(symb = p_def->Name).ToUpper();
 		if(!(p_def->Flags & ViewDefinition::fFilterOnly)) {
-			temp_buf = 0;
-			temp_buf.CR().Cat(P_ViewPrefix).Cat(symb).Space().Cat("PP_RCDECLVIEW").
+			temp_buf.Z().CR().Cat(P_ViewPrefix).Cat(symb).Space().Cat("PP_RCDECLVIEW").
 				CatDiv('{', 1).CatChar('\"').Cat(p_def->Name).Cat("\\0\"").CatDiv(',', 2).
 				CatChar('\"').Cat(p_def->Descr).Cat("\\0\"").Space().CatChar('}').CR();
 			fprintf(pRc, temp_buf.cptr());
 		}
-		temp_buf = 0;
-		temp_buf.Cat(P_FiltPrefix).Cat(symb).Space().Cat("PP_RCDECLFILT").
+		temp_buf.Z().Cat(P_FiltPrefix).Cat(symb).Space().Cat("PP_RCDECLFILT").
 			CatDiv('{', 1).CatChar('\"').Cat(p_def->Name).Cat("\\0\"").Space().CatChar('}').CR();
 		fprintf(pRc, temp_buf.cptr());
 	}
@@ -905,7 +904,8 @@ int Rc2Data::GenerateCtrlMenuDefinitions()
 	//	"Text\0", keyCode, cmdCode
 	// }
 	//
-	SString temp_buf, symb;
+	SString temp_buf;
+	SString symb;
 	for(uint i = 0; i < CtrlMenuList.getCount(); i++) {
 		const CtrlMenuDefinition * p_def = CtrlMenuList.at(i);
 		(symb = p_def->Name).ToUpper();
@@ -915,13 +915,11 @@ int Rc2Data::GenerateCtrlMenuDefinitions()
 		for(uint j = 0; j < p_def->getCount(); j++) {
 			const CtrlMenuItem & r_item = p_def->at(j);
 			temp_buf.CatChar('\t').CatChar('\"').Cat(r_item.Descr).Cat("\\0\"").CatDiv(',', 2).Cat(r_item.KeyCode);
-			// @v10.8.11 {
 			if(!isempty(r_item.CmdCode)) {
 				temp_buf.CatDiv(',', 2).Cat(r_item.CmdCode);
 			}
 			else
 				temp_buf.CatDiv(',', 2).Cat("0");
-			// } @v10.8.11 
 			if(j < (p_def->getCount()-1))
 				temp_buf.Comma();
 			temp_buf.CR();
@@ -937,6 +935,7 @@ int Rc2Data::GenerateDrawVectorFile(const char * pStorageFileName)
 #define DO_CREATE_VECT_STORAGE 1
 	const char * p_whtm_obj_symb = "DrawFigure";
 	int    ok = -1;
+	SString temp_buf;
 	if(DrawVectorList.getCount()) {
 #if DO_CREATE_VECT_STORAGE
 		TWhatmanToolArray tool_array;
@@ -958,7 +957,20 @@ int Rc2Data::GenerateDrawVectorFile(const char * pStorageFileName)
 						tool_item.PicSize = 32;
 						tool_item.FigSize = 64;
 						tool_item.ReplacedColor = r_item.ReplacedColor;
-						THROW(tool_array.Set(tool_item, 0));
+						// @v12.5.3 THROW(tool_array.Set(tool_item, 0));
+						// @v12.5.3 {
+						if(!fileExists(r_item.FileName)) {
+							temp_buf.Z().Cat("Error").CatDiv(':', 2).Cat("figure_file").Space().Cat(r_item.FileName).Space().Cat("not found").CR();
+							printf(temp_buf.cptr());							
+						}
+						else {
+							const int tasr = tool_array.Set(tool_item, 0);
+							if(!tasr) {
+								temp_buf.Z().Cat("Error").CatDiv(':', 2).Cat("tool_array.Set").CatParStr(symb).CR();
+								printf(temp_buf.cptr());
+							}
+						}
+						// } @v12.5.3 
 						ok = 1;
 					}
 				}
@@ -968,7 +980,13 @@ int Rc2Data::GenerateDrawVectorFile(const char * pStorageFileName)
 		if(ok > 0) {
 			if(!isempty(pStorageFileName)) {
 #if DO_CREATE_VECT_STORAGE
-				THROW(tool_array.Store(pStorageFileName));
+				// @v12.5.3 THROW(tool_array.Store(pStorageFileName));
+				const int tasr = tool_array.Store(pStorageFileName);
+				if(!tasr) {
+					temp_buf.Z().Cat("Error").CatDiv(':', 2).Cat("tool_array.Store").CatParStr(pStorageFileName).CR();
+					printf(temp_buf.cptr());
+					ok = 0;
+				}
 #endif
 			}
 		}
@@ -1197,38 +1215,24 @@ Rc2ToolbarItem & Rc2ToolbarItem::Init(long cmd, long flags, const char * pKeyCod
 //
 void main(int argc, char ** argv)
 {
+	// ..\..\TOOLS\RC2 %(FullPath) %(RootDir)%(Directory)%(Filename).RC ..\INCLUDE\%(Filename).H ..\PPMAIN\%(Filename)-embed.rc
+		// %(FullPath) = D:\Papyrus\Src\Rsrc\Rc\ppbrow.rc2 
+		// %(RootDir)%(Directory)%(Filename).RC = D:\Papyrus\Src\Rsrc\Rc\ppbrow.rc
+		// ..\INCLUDE\%(Filename).H             = ..\INCLUDE\ppbrow.h
+		// ..\PPMAIN\%(Filename)-embed.rc       = ..\PPMAIN\ppbrow-embed.rc
+	// D:\Papyrus\Src\Rsrc\Rc\ppbrow.rc2 D:\Papyrus\Src\Rsrc\Rc\ppbrow.rc ..\INCLUDE\ppbrow.h ..\PPMAIN\ppbrow-embed.rc
 	SString temp_buf;
 	if(argc <= 1)
 		printf("Usage: %s src[.rc2] [result.rc] [result.h]\n", argv[0]);
 	else {
 		SLS.Init("RC2");
-		// @v10.5.6 char   rc2_name[MAX_PATH];
-		// @v10.5.6 char   rc_name[MAX_PATH];
-		// @v10.5.6 char   h_name[MAX_PATH];
-		SString rc2_name; // @v10.5.6
-		SString rc_name;  // @v10.5.6
-		SString h_name;  // @v10.5.6
+		SString rc2_name;
+		SString rc_name;
+		SString h_name;
 		char   embed_rc_name[MAX_PATH];
 		SString drawvector_storage_name;
-		// @v10.5.6 STRNSCPY(rc2_name, argv[1]);
-		// @v10.5.6 replaceExt(rc2_name, "rc2", 0);
-		rc2_name = argv[1]; // @v10.5.6 
-		SFsPath::ReplaceExt(rc2_name, "rc2", 0); // @v10.5.6 
-		/* @v10.5.6 
-		if(argc >= 3)
-			STRNSCPY(rc_name,  argv[2]);
-		else {
-			STRNSCPY(rc_name,  argv[1]);
-			replaceExt(rc_name, "rc", 1);
-		} 
-		if(argc >= 4)
-			STRNSCPY(h_name,  argv[3]);
-		else {
-			STRNSCPY(h_name,  argv[1]);
-			replaceExt(h_name, "h", 1);
-		}
-		*/
-		// @v10.5.6 {
+		rc2_name = argv[1];
+		SFsPath::ReplaceExt(rc2_name, "rc2", 0);
 		if(argc >= 3)
 			rc_name = argv[2];
 		else {
@@ -1241,7 +1245,6 @@ void main(int argc, char ** argv)
 			h_name = argv[1];
 			SFsPath::ReplaceExt(h_name, "h", 1);
 		}
-		// } @v10.5.6 
 		if(argc >= 5) {
 			STRNSCPY(embed_rc_name, argv[4]);
 		}
@@ -1261,8 +1264,10 @@ void main(int argc, char ** argv)
 			ps.Merge(drawvector_storage_name);
 		}
 		yyin = fopen(rc2_name, "r");
-		if(!yyin)
-			printf("cant open file %s\n", rc2_name.cptr());
+		if(!yyin) {
+			temp_buf.Z().Cat("Error").CatDiv(':', 2).Cat("cant open file").Space().Cat(rc2_name).CR();
+			printf(temp_buf.cptr());
+		}
 		else {
 			RegisterBIST();
 			if(Rc2.Init(rc2_name, rc_name, h_name, embed_rc_name)) {
@@ -1278,7 +1283,7 @@ void main(int argc, char ** argv)
 				Rc2.GenerateViewDefinitions();
 				Rc2.GenerateCtrlMenuDefinitions();
 				Rc2.GenerateBitmapDefinitions();
-				Rc2.GenerateDrawVectorFile(drawvector_storage_name); // @v9.1.1
+				Rc2.GenerateDrawVectorFile(drawvector_storage_name);
 				Rc2.GenerateRFileDefinitions();
 			}
 		}

@@ -88,7 +88,7 @@ ABSL_NAMESPACE_END
 ABSL_FLAG(std::vector<std::string>, flagfile, {},
     "comma-separated list of files to load flags from")
 .OnUpdate([]() {
-	if(absl::GetFlag(FLAGS_flagfile).empty())  return;
+	if(absl::GetFlag(FLAGS_flagfile).empty()) return;
 
 	absl::MutexLock l(&absl::flags_internal::processing_checks_guard);
 
@@ -104,7 +104,7 @@ ABSL_FLAG(std::vector<std::string>, fromenv, {},
     "comma-separated list of flags to set from the environment"
     " [use 'export FLAGS_flag1=value']")
 .OnUpdate([]() {
-	if(absl::GetFlag(FLAGS_fromenv).empty())  return;
+	if(absl::GetFlag(FLAGS_fromenv).empty()) return;
 
 	absl::MutexLock l(&absl::flags_internal::processing_checks_guard);
 
@@ -120,7 +120,7 @@ ABSL_FLAG(std::vector<std::string>, tryfromenv, {},
     "comma-separated list of flags to try to set from the environment if "
     "present")
 .OnUpdate([]() {
-	if(absl::GetFlag(FLAGS_tryfromenv).empty())  return;
+	if(absl::GetFlag(FLAGS_tryfromenv).empty()) return;
 
 	absl::MutexLock l(&absl::flags_internal::processing_checks_guard);
 
@@ -303,7 +303,7 @@ std::tuple<CommandLineFlag*, bool> LocateFlag(absl::string_view flag_name) {
 void CheckDefaultValuesParsingRoundtrip() {
 #ifndef NDEBUG
 	flags_internal::ForEachFlag([&](CommandLineFlag& flag) {
-					if(flag.IsRetired())  return;
+					if(flag.IsRetired()) return;
 
 #define ABSL_FLAGS_INTERNAL_IGNORE_TYPE(T, _) \
 	if(flag.IsOfType<T>()) return;
@@ -634,7 +634,7 @@ bool WasPresentOnCommandLine(absl::string_view flag_name) {
 struct BestHints {
 	explicit BestHints(uint8_t _max) : best_distance(_max + 1) {}
 	bool AddHint(absl::string_view hint, uint8_t distance) {
-		if(hints.size() >= kMaxHints)  return false;
+		if(hints.size() >= kMaxHints) return false;
 		if(distance == best_distance) {
 			hints.emplace_back(hint);
 		}
@@ -656,7 +656,7 @@ std::vector<std::string> GetMisspellingHints(const absl::string_view flag) {
 	auto undefok = absl::GetFlag(FLAGS_undefok);
 	BestHints best_hints(static_cast<uint8_t>(maxCutoff));
 	flags_internal::ForEachFlag([&](const CommandLineFlag& f) {
-				if(best_hints.hints.size() >= kMaxHints)  return;
+				if(best_hints.hints.size() >= kMaxHints) return;
 				uint8_t distance = strings_internal::CappedDamerauLevenshteinDistance(
 					flag, f.Name(), best_hints.best_distance);
 				best_hints.AddHint(f.Name(), distance);
@@ -670,7 +670,7 @@ std::vector<std::string> GetMisspellingHints(const absl::string_view flag) {
 			});
 	// Finally calculate distance to flags in "undefok".
 	absl::c_for_each(undefok, [&](const absl::string_view f) {
-				if(best_hints.hints.size() >= kMaxHints)  return;
+				if(best_hints.hints.size() >= kMaxHints) return;
 				uint8_t distance = strings_internal::CappedDamerauLevenshteinDistance(
 					flag, f, best_hints.best_distance);
 				best_hints.AddHint(absl::StrCat(f, " (undefok)"), distance);

@@ -1,19 +1,13 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/**
- *******************************************************************************
- * Copyright (C) 2001-2014, International Business Machines Corporation and    *
- * others. All Rights Reserved.
- *******************************************************************************
- *
- *******************************************************************************
- */
+// Copyright (C) 2001-2014, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
 #if !UCONFIG_NO_SERVICE
 
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "servloc.h"
 #include "ustrfmt.h"
 #include "ucln_cmn.h"
@@ -24,19 +18,16 @@
 
 U_NAMESPACE_BEGIN
 
-ICUResourceBundleFactory::ICUResourceBundleFactory()
-	: LocaleKeyFactory(VISIBLE)
-	, _bundleName()
+ICUResourceBundleFactory::ICUResourceBundleFactory() : LocaleKeyFactory(VISIBLE), _bundleName()
 {
 }
 
-ICUResourceBundleFactory::ICUResourceBundleFactory(const UnicodeString & bundleName)
-	: LocaleKeyFactory(VISIBLE)
-	, _bundleName(bundleName)
+ICUResourceBundleFactory::ICUResourceBundleFactory(const UnicodeString & bundleName) : LocaleKeyFactory(VISIBLE), _bundleName(bundleName)
 {
 }
 
-ICUResourceBundleFactory::~ICUResourceBundleFactory() {
+ICUResourceBundleFactory::~ICUResourceBundleFactory() 
+{
 }
 
 const Hashtable* ICUResourceBundleFactory::getSupportedIDs(UErrorCode & status) const
@@ -78,11 +69,9 @@ UnicodeString &ICUResourceBundleFactory::debugClass(UnicodeString & result) cons
 {
 	return result.append((UnicodeString)"ICUResourceBundleFactory");
 }
-
 #endif
 
 UOBJECT_DEFINE_RTTI_IMPLEMENTATION(ICUResourceBundleFactory)
-
 U_NAMESPACE_END
 
 /* !UCONFIG_NO_SERVICE */

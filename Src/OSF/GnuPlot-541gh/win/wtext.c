@@ -860,7 +860,7 @@ static void TextMakeFont(TW * lptw)
 	TEXTMETRIC tm;
 	LPTSTR p;
 	HDC hdc = GetDC(lptw->hWndText);
-	memzero(&lf, sizeof(LOGFONT));
+	MEMSZERO(lf);
 	_tcsncpy(lf.lfFaceName, lptw->fontname, LF_FACESIZE);
 	lf.lfHeight = -MulDiv(lptw->fontsize, GetDeviceCaps(hdc, LOGPIXELSY), 72);
 	lf.lfPitchAndFamily = FIXED_PITCH;
@@ -898,8 +898,8 @@ static void TextSelectFont(TW * lptw)
 	HDC hdc;
 	LPTSTR p;
 	// Set all structure fields to zero. 
-	memzero(&cf, sizeof(CHOOSEFONT));
-	memzero(&lf, sizeof(LOGFONT));
+	MEMSZERO(cf);
+	MEMSZERO(lf);
 	cf.lStructSize = sizeof(CHOOSEFONT);
 	cf.hwndOwner = lptw->hWndParent;
 	_tcsncpy(lf.lfFaceName, lptw->fontname, LF_FACESIZE);

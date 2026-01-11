@@ -9,7 +9,7 @@
 #pragma hdrstop
 #include "dayperiodrules.h"
 #include "ucln_in.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 
 U_NAMESPACE_BEGIN
 

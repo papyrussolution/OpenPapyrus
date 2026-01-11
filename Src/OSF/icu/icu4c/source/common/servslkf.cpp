@@ -1,19 +1,13 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/**
- *******************************************************************************
- * Copyright (C) 2001-2014, International Business Machines Corporation and    *
- * others. All Rights Reserved.
- *******************************************************************************
- *
- *******************************************************************************
- */
+// Copyright (C) 2001-2014, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
 #if !UCONFIG_NO_SERVICE
 
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "servloc.h"
 #include "ustrfmt.h"
 
@@ -23,37 +17,20 @@
 
 U_NAMESPACE_BEGIN
 
-/*
- ******************************************************************
- */
-
-SimpleLocaleKeyFactory::SimpleLocaleKeyFactory(UObject * objToAdopt,
-    const UnicodeString & locale,
-    int32_t kind,
-    int32_t coverage)
-	: LocaleKeyFactory(coverage)
-	, _obj(objToAdopt)
-	, _id(locale)
-	, _kind(kind)
+SimpleLocaleKeyFactory::SimpleLocaleKeyFactory(UObject * objToAdopt, const UnicodeString & locale, int32_t kind, int32_t coverage) : 
+	LocaleKeyFactory(coverage), _obj(objToAdopt), _id(locale), _kind(kind)
 {
 }
 
-SimpleLocaleKeyFactory::SimpleLocaleKeyFactory(UObject * objToAdopt,
-    const Locale & locale,
-    int32_t kind,
-    int32_t coverage)
-	: LocaleKeyFactory(coverage)
-	, _obj(objToAdopt)
-	, _id()
-	, _kind(kind)
+SimpleLocaleKeyFactory::SimpleLocaleKeyFactory(UObject * objToAdopt, const Locale & locale, int32_t kind, int32_t coverage) : 
+	LocaleKeyFactory(coverage), _obj(objToAdopt), _id(), _kind(kind)
 {
 	LocaleUtility::initNameFromLocale(locale, _id);
 }
 
 SimpleLocaleKeyFactory::~SimpleLocaleKeyFactory()
 {
-	delete _obj;
-	_obj = NULL;
+	ZDELETE(_obj);
 }
 
 UObject * SimpleLocaleKeyFactory::create(const ICUServiceKey& key, const ICUService* service, UErrorCode & status) const
@@ -108,7 +85,6 @@ UnicodeString &SimpleLocaleKeyFactory::debugClass(UnicodeString & result) const
 #endif
 
 UOBJECT_DEFINE_RTTI_IMPLEMENTATION(SimpleLocaleKeyFactory)
-
 U_NAMESPACE_END
 
 /* !UCONFIG_NO_SERVICE */

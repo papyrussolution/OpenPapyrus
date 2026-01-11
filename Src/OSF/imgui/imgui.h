@@ -1888,7 +1888,7 @@ template <typename T> struct ImVector {
 	} // Resize a vector to a smaller size, guaranteed not to cause a reallocation
 	inline void reserve(int new_capacity) 
 	{
-		if(new_capacity <= Capacity)  return; T* new_data = (T*)IM_ALLOC((size_t)new_capacity * sizeof(T)); if(Data) {
+		if(new_capacity <= Capacity) return; T* new_data = (T*)IM_ALLOC((size_t)new_capacity * sizeof(T)); if(Data) {
 			memcpy(new_data, Data, (size_t)Size * sizeof(T)); IM_FREE(Data);
 		}
 		Data = new_data; 

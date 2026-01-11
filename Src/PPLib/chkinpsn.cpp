@@ -1,5 +1,5 @@
 // CHKINPSN.CPP
-// Copyright (c) A.Sobolev 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -838,7 +838,7 @@ struct PPCheckInPersonItem_Strg {
 {
 	STATIC_ASSERT(sizeof(PPCheckInPersonItem_Strg) == sizeof(ObjAssocTbl::Rec));
 	int    ok = 1;
-	MEMSZERO(rRec);
+	rRec.Clear();
 	PPCheckInPersonItem_Strg & r_rec = *reinterpret_cast<PPCheckInPersonItem_Strg *>(&rRec);
 	#define FLD(f) r_rec.f = rItem.f
 	FLD(ID);
@@ -1261,10 +1261,11 @@ private:
 int CheckInPersonListDialog::setupList()
 {
 	int    ok = 1;
-	SString temp_buf, word_buf;
+	SString temp_buf;
+	SString word_buf;
 	StringSet ss(SLBColumnDelim);
 	for(uint i = 0; i < Data.GetCount(); i++) {
-		const PPCheckInPersonItem & r_item = Data.Get(i);
+		const  PPCheckInPersonItem & r_item = Data.Get(i);
 		double price = 0.0;
 		double amt = 0.0;
 		ss.Z();

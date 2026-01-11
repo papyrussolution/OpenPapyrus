@@ -1,5 +1,5 @@
 // STRSTORE.CPP
-// Copyright (c) A.Sobolev 1996-1999, 2000-2003, 2004, 2008, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1996-1999, 2000-2003, 2004, 2008, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #pragma hdrstop
@@ -1951,7 +1951,7 @@ int StringStore2::ParseString(const SString & rStr, SStrScan & rScan, StringStor
 					is_empty_str = 0;
             }
             if(is_empty_str)
-				rItem.Str.CatChar('\n');
+				rItem.Str.CR();
 			else {
 				if(rItem.Str.NotEmpty())
 					rItem.Str.Space();

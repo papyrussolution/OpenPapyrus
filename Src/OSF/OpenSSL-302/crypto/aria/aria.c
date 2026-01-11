@@ -35,7 +35,7 @@
 		((uint32_t)((const uint8 *)(X))[Y * 4    ] << 24) ^   \
 		((uint32_t)((const uint8 *)(X))[Y * 4 + 1] << 16) ^   \
 		((uint32_t)((const uint8 *)(X))[Y * 4 + 2] <<  8) ^   \
-		((uint32_t)((const uint8 *)(X))[Y * 4 + 3]      )     )
+		((uint32_t)((const uint8 *)(X))[Y * 4 + 3]      ))
 
 #define PUT_U32_BE(DEST, IDX, VAL)                              \
 	do {                                                        \

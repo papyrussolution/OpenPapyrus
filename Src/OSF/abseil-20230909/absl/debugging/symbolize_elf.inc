@@ -622,8 +622,8 @@ private:
 			// this is not a weak symbol.
 			char bind1 = ELF_ST_BIND(symbol1.st_info);
 			char bind2 = ELF_ST_BIND(symbol1.st_info);
-			if(bind1 == STB_WEAK && bind2 != STB_WEAK)  return false;
-			if(bind2 == STB_WEAK && bind1 != STB_WEAK)  return true;
+			if(bind1 == STB_WEAK && bind2 != STB_WEAK) return false;
+			if(bind2 == STB_WEAK && bind1 != STB_WEAK) return true;
 
 			// If one of the symbols has zero size and the other is not, pick the
 			// one that has non-zero size.
@@ -1083,7 +1083,7 @@ private:
 // Find the objfile mapped in address region containing [addr, addr + len).
 		ObjFile *Symbolizer::FindObjFile(const void *const addr, size_t len) {
 			for(int i = 0; i < 2; ++i) {
-				if(!ok_)  return nullptr;
+				if(!ok_) return nullptr;
 
 				// Read /proc/self/maps if necessary
 				if(!addr_map_read_) {
@@ -1215,7 +1215,7 @@ private:
 		}
 
 		const char *Symbolizer::FindSymbolInCache(const void *const pc) {
-			if(pc == nullptr)  return nullptr;
+			if(pc == nullptr) return nullptr;
 
 			SymbolCacheLine * line = GetCacheLine(pc);
 			for(size_t i = 0; i < ABSL_ARRAYSIZE(line->pc); ++i) {

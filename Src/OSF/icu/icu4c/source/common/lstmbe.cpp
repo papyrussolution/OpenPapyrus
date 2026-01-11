@@ -1,6 +1,6 @@
 // © 2021 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include <ctgmath>
@@ -9,7 +9,7 @@
 
 #include "lstmbe.h"
 #include "ubrkimpl.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 
 U_NAMESPACE_BEGIN
 

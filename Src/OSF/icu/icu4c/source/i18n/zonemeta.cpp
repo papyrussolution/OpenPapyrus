@@ -11,7 +11,7 @@
 #include "zonemeta.h"
 #include "gregoimp.h"
 #include "ucln_in.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "olsontz.h"
 
 static icu::UMutex gZoneMetaLock;

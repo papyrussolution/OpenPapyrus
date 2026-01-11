@@ -17,8 +17,8 @@
 	#error Never use <xapian/keymaker.h> directly; include <xapian.h> instead.
 #endif
 
-#include <string>
-#include <vector>
+//#include <string>
+//#include <vector>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>

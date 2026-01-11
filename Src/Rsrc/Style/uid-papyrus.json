@@ -94,6 +94,7 @@
 		{
 			"symb": "papyrus_style",
 			"main_window_bg": "#20639B",
+			"dialog_bg": "#F8F8FF",
 			"button_bg": "#DCD9D1",
 			"button_sel_bg": "#BABAC9",
 			"button_border": "$icon_reg",

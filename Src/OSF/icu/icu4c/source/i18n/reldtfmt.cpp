@@ -10,7 +10,7 @@
 #include "unicode/reldatefmt.h"
 #include "unicode/ucasemap.h"
 #include "reldtfmt.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 
 U_NAMESPACE_BEGIN
 

@@ -21,7 +21,7 @@
 #if !UCONFIG_NO_FORMATTING
 #include "unicode/tzfmt.h"
 #include "unicode/ucasemap.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "olsontz.h"
 #include "patternprops.h"
 #include "fphdlimp.h"

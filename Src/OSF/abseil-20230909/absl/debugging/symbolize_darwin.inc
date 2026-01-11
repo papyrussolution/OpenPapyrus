@@ -43,15 +43,15 @@ namespace absl {
 				// or
 				// 0   mysterious_app                      0x0124000120120009 main + 17
 				auto address_pos = backtrace_line.find(" 0x");
-				if(address_pos == absl::string_view::npos)  return std::string();
+				if(address_pos == absl::string_view::npos) return std::string();
 				absl::string_view symbol_view = backtrace_line.substr(address_pos + 1);
 
 				auto space_pos = symbol_view.find(" ");
-				if(space_pos == absl::string_view::npos)  return std::string();
+				if(space_pos == absl::string_view::npos) return std::string();
 				symbol_view = symbol_view.substr(space_pos + 1); // to mangled symbol
 
 				auto plus_pos = symbol_view.find(" + ");
-				if(plus_pos == absl::string_view::npos)  return std::string();
+				if(plus_pos == absl::string_view::npos) return std::string();
 				symbol_view = symbol_view.substr(0, plus_pos); // strip remainng
 
 				return std::string(symbol_view);

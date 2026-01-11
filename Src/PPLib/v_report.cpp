@@ -1,5 +1,5 @@
 // V_REPORT.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -721,7 +721,7 @@ public:
 		uint   pos = 0;
 		long   _id = 0;
 		if(!RVALUEPTR(Data, pData))
-			MEMSZERO(Data);
+			Data.Clear();
 		setCtrlData(CTL_REPORT_MODIFDATE, &Data.ModifDt);
 		if(RptList.SearchByTextNc(Data.StdName, &pos) > 0)
 			_id = RptList.Get(pos).Id;

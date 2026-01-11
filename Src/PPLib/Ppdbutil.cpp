@@ -14,7 +14,7 @@ static const char * BACKUP = "BACKUP";
 
 DBTable * FASTCALL __PreprocessCreatedDbTable(DBTable * pT)
 {
-	if(!pT || !pT->IsOpened()) {
+	if(!pT || !pT->IsOpen()) {
 		ZDELETE(pT);
 		PPSetErrorDB();
 	}

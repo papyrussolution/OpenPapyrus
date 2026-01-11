@@ -1,5 +1,5 @@
 // CHKSYSCR.CPP
-// 2005, 2007, 2008, 2009, 2010, 2016, 2018, 2020, 2023, 2025
+// 2005, 2007, 2008, 2009, 2010, 2016, 2018, 2020, 2023, 2025, 2026
 // Слегка видоизмененный метод проверки имени пользователя и пароля в Windows
 //
 //  SSPI Authentication Sample
@@ -9,7 +9,7 @@
 #include <slib-internal.h>
 #pragma hdrstop
 #include <sspi.h>
-#include <lm.h>
+// @v12.5.3 (@movedto slib.h) #include <lm.h>
 
 // Older versions of WinError.h does not have SEC_I_COMPLETE_NEEDED #define.
 // So, in such SDK environment setup, we will include issperr.h which has the

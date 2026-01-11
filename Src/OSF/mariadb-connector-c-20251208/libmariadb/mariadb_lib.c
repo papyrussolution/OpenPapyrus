@@ -769,7 +769,7 @@ MYSQL_FIELD * unpack_fields(const MYSQL * mysql, MYSQL_DATA * data, MA_MEM_ROOT 
 	if(!result)
 		return 0;
 	for(row = data->data; row; row = row->next, field++) {
-		unsigned long lengths[9];
+		ulong lengths[9];
 		if(field >= result + fields)
 			goto error;
 		if(ma_get_rset_field_lengths(row->data, field_count, lengths))
@@ -1081,7 +1081,7 @@ static bool ma_set_connect_attrs(MYSQL * mysql, const char * host)
 */
 
 MYSQL * STDCALL mysql_real_connect(MYSQL * mysql, const char * host, const char * user,
-    const char * passwd, const char * db, uint port, const char * unix_socket, unsigned long client_flag)
+    const char * passwd, const char * db, uint port, const char * unix_socket, ulong client_flag)
 {
 	char * end = NULL;
 	char * connection_handler = (mysql->options.extension) ? mysql->options.extension->connection_handler : 0;
@@ -1152,7 +1152,7 @@ MYSQL * STDCALL mysql_real_connect(MYSQL * mysql, const char * host, const char 
 }
 
 MYSQL * mthd_my_real_connect(MYSQL * mysql, const char * host, const char * user,
-    const char * passwd, const char * db, uint port, const char * unix_socket, unsigned long client_flag)
+    const char * passwd, const char * db, uint port, const char * unix_socket, ulong client_flag)
 {
 	char buff[NAME_LEN+USERNAME_LENGTH+100];
 	char * end;
@@ -1737,39 +1737,36 @@ static void ma_clear_session_state(MYSQL * mysql)
 
 void STDCALL mysql_close(MYSQL * mysql)
 {
-	if(mysql) { /* Some simple safety */
+	if(mysql) { // Some simple safety
 		if(mysql->extension && mysql->extension->conn_hdlr) {
 			MA_CONNECTION_HANDLER * p = mysql->extension->conn_hdlr;
 			if(p->plugin->close)
 				p->plugin->close(mysql);
 			SAlloc::F(p);
-			/* Fix for CONC-294: Since we already called plugin->close function
-			   we need to prevent that mysql_close_slow_part (which sends COM_QUIT
-			   to the server) will be handled by plugin again. */
+			// Fix for CONC-294: Since we already called plugin->close function
+			// we need to prevent that mysql_close_slow_part (which sends COM_QUIT
+			// to the server) will be handled by plugin again.
 			mysql->extension->conn_hdlr = NULL;
 		}
 		if(mysql->methods)
 			mysql->methods->db_close(mysql);
-		/* reset the connection in all active statements */
+		// reset the connection in all active statements 
 		ma_invalidate_stmts(mysql, "mysql_close()");
 		mysql_close_memory(mysql);
 		mysql_close_options(mysql);
 		ma_clear_session_state(mysql);
-		if(mysql->net.extension)
-			SAlloc::F(mysql->net.extension);
+		SAlloc::F(mysql->net.extension);
 		mysql->host_info = mysql->user = mysql->passwd = mysql->db = 0;
-		/* Clear pointers for better safety */
+		// Clear pointers for better safety 
 		memzero((char*)&mysql->options, sizeof(mysql->options));
-		if(mysql->extension)
-			SAlloc::F(mysql->extension);
-		/* Clear pointers for better safety */
+		SAlloc::F(mysql->extension);
+		// Clear pointers for better safety
 		mysql->net.extension = NULL;
 		mysql->extension = NULL;
 		mysql->net.pvio = 0;
 		if(mysql->free_me)
 			SAlloc::F(mysql);
 	}
-	return;
 }
 // 
 // Do a query. If query returned rows, free old rows.
@@ -3385,7 +3382,7 @@ ulong STDCALL mysql_get_client_version(void)
 	return MARIADB_PACKAGE_VERSION_ID;
 }
 
-ulong STDCALL mysql_hex_string(char * to, const char * from, unsigned long len)
+ulong STDCALL mysql_hex_string(char * to, const char * from, ulong len)
 {
 	char * start = to;
 	char hexdigits[] = "0123456789ABCDEF";

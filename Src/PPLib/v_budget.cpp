@@ -624,7 +624,7 @@ int BudgetItemDialog::setDTS(const BudgetItemTbl::Rec * pData)
 {
 	uint   sel = CTL_BUDGITEM_DT;
 	if(!RVALUEPTR(Data, pData))
-		MEMSZERO(Data);
+		Data.Clear();
 	SetupPPObjCombo(this, CTLSEL_BUDGITEM_BUDGET, PPOBJ_BUDGET,   Data.BudgetID, OLW_CANSELUPLEVEL, reinterpret_cast<void *>(SEL_ALL_BUDGETS));
 	SetupPPObjCombo(this, CTLSEL_BUDGITEM_ACCT,   PPOBJ_ACCOUNT2, Data.Acc, OLW_CANSELUPLEVEL|OLW_CANINSERT, reinterpret_cast<void *>(ACY_SEL_BUDGET));
 	setCtrlData(CTL_BUDGITEM_DT, &Data.Dt);

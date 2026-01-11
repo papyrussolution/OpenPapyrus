@@ -1,5 +1,5 @@
 // PPTEX2HTML.CPP
-// Copyright (c) A.Sobolev 2014, 2015, 2016, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2014, 2015, 2016, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 //
 #include <pp.h>
 #pragma hdrstop
@@ -485,7 +485,7 @@ int PrcssrPPTex2Html::ReadText(long mode, long state, TextBlock * pText)
 				}
 			}
 			else if(_eol_count == 1) {
-				p_current_blk->Text.CatChar('\n');
+				p_current_blk->Text.CR();
 			}
 			else {
 				const char c = St.GetCurChr();

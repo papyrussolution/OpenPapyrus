@@ -1,5 +1,5 @@
 // WHATMAN.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -266,6 +266,24 @@ int TWhatmanObject::Setup__(SetupByToolCmdBlock & rBlk)
 		HandleCommand(cmdSetupByTool, &rBlk);
 	}
 	CATCHZOK
+	return ok;
+}
+
+int TWhatmanObject::SetHiddenState(bool set)
+{
+	int   ok = -1;
+	if(set) {
+		if(!(State & stHidden)) {
+			State |= stHidden;
+			ok = 1;
+		}
+	}
+	else {
+		if(State & stHidden) {
+			State &= ~stHidden;
+			ok = 1;
+		}
+	}
 	return ok;
 }
 
@@ -1023,6 +1041,14 @@ SUiLayout * TWhatman::Helper_CreateLayout(SUiLayout * pParentLayout, WhatmanObje
 				p_result->SetSymb(pC->GetIdentSymb()); // @v11.7.10
 			}
 			if(p_result) {
+				// @v12.5.3 {
+				if(pC->HasState(TWhatmanObject::stHidden)) {
+					p_result->SetExcludedStatus();
+				}
+				else {
+					p_result->ResetExcludedStatus();
+				}
+				// } @v12.5.3 
 				rRecurList.insert(&p_result); // @v11.9.2
 				for(uint i = 0; i < ObjList.getCount(); i++) {
 					TWhatmanObject * p_iter_obj = ObjList.at(i);
@@ -1056,65 +1082,8 @@ SUiLayout * TWhatman::CreateLayout(WhatmanObjectLayoutBase * pC)
 	return Helper_CreateLayout(0, pC, recur_list);
 }
 
-#if 0 // @v11.7.10 {
-int TWhatman::Helper_ArrangeLayoutContainer(SUiLayout * pParentLayout, WhatmanObjectLayoutBase * pC)
-{
-	int    ok = -1;
-	SUiLayout * p_root_item = pParentLayout;
-	if(pC) {
-		const SString & r_container_ident = pC->GetContainerIdent();
-		if(r_container_ident.NotEmpty()) {
-			const SPoint2F base_lu(pC->Bounds.a.x, pC->Bounds.a.y);
-			if(!p_root_item) {
-				SUiLayoutParam alb(pC->GetLayoutBlock());
-				THROW(p_root_item = new SUiLayout());
-				p_root_item->SetCallbacks(0, 0, pC);
-				alb.SetFixedSize(pC->Bounds);
-				//if(pC->Le2.Flags & SUiLayoutParam::fContainerRow)
-					//alb.SetContainerDirection(DIREC_HORZ);
-				//else if(pC->Le2.Flags & SUiLayoutParam::fContainerCol)
-					//alb.SetContainerDirection(DIREC_VERT);
-				//else
-					//alb.SetContainerDirection(DIREC_HORZ); // @?
-				//if(pC->Le2.Flags & SUiLayoutParam::fContainerWrap)
-					//alb.Flags |= SUiLayoutParam::fContainerWrap/*SUiLayout::fWrap*/;
-				p_root_item->SetLayoutBlock(alb);
-			}
-			if(p_root_item) {
-				for(uint i = 0; i < ObjList.getCount(); i++) {
-					TWhatmanObject * p_iter_obj = ObjList.at(i);
-					assert(p_iter_obj);
-					if(p_iter_obj) {
-						if(p_iter_obj->GetLayoutContainerIdent() == r_container_ident) {
-							SUiLayout * p_iter_item = p_root_item->InsertItem();
-							THROW(p_iter_item);
-							p_iter_item->SetCallbacks(0, WhatmanItem_SetupLayoutItemFrameProc, p_iter_obj);
-							p_iter_item->SetLayoutBlock(p_iter_obj->GetLayoutBlock());
-							if(p_iter_obj->HasOption(TWhatmanObject::oContainer)) {
-								THROW(Helper_ArrangeLayoutContainer(p_iter_item, static_cast<WhatmanObjectLayoutBase *>(p_iter_obj))); // @recursion
-							}
-							ok = 1;
-						}
-					}
-				}
-			}
-		}
-	}
-	CATCHZOK
-	if(!pParentLayout) {
-		if(p_root_item) {
-			p_root_item->Evaluate(0);
-			delete p_root_item;
-		}
-	}
-	return ok;
-}
-#endif // } 0 @v11.7.10
-
 int TWhatman::ArrangeLayoutContainer(WhatmanObjectLayoutBase * pC)
 {
-	// @v11.7.10 return Helper_ArrangeLayoutContainer(0, pC);
-	// @v11.7.10 {
 	int    ok = 1;
 	TSVector <uintptr_t> recur_list;
 	SUiLayout * p_lo = Helper_CreateLayout(0, pC, recur_list);
@@ -1125,7 +1094,6 @@ int TWhatman::ArrangeLayoutContainer(WhatmanObjectLayoutBase * pC)
 	else
 		ok = 0;
 	return ok;
-	// } @v11.7.10 
 }
 
 int FASTCALL TWhatman::GetCurrentObject(int * pIdx) const

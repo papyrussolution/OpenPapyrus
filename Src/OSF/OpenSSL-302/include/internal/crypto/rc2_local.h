@@ -38,7 +38,7 @@
                         }
 
 #undef l2c
-#define l2c(l,c)        (*((c)++)=(uchar)(((l)     )&0xff), \
+#define l2c(l,c)        (*((c)++)=(uchar)(((l))&0xff), \
                          *((c)++)=(uchar)(((l)>> 8L)&0xff), \
                          *((c)++)=(uchar)(((l)>>16L)&0xff), \
                          *((c)++)=(uchar)(((l)>>24L)&0xff))
@@ -54,7 +54,7 @@
                         /* fall thru */                                     \
                         case 6: *(--(c))=(uchar)(((l2)>> 8L)&0xff); \
                         /* fall thru */                                     \
-                        case 5: *(--(c))=(uchar)(((l2)     )&0xff); \
+                        case 5: *(--(c))=(uchar)(((l2))&0xff); \
                         /* fall thru */                                     \
                         case 4: *(--(c))=(uchar)(((l1)>>24L)&0xff); \
                         /* fall thru */                                     \
@@ -62,7 +62,7 @@
                         /* fall thru */                                     \
                         case 2: *(--(c))=(uchar)(((l1)>> 8L)&0xff); \
                         /* fall thru */                                     \
-                        case 1: *(--(c))=(uchar)(((l1)     )&0xff); \
+                        case 1: *(--(c))=(uchar)(((l1))&0xff); \
                                 } \
                         }
 
@@ -121,7 +121,7 @@
 #define l2n(l,c)        (*((c)++)=(uchar)(((l)>>24L)&0xff), \
                          *((c)++)=(uchar)(((l)>>16L)&0xff), \
                          *((c)++)=(uchar)(((l)>> 8L)&0xff), \
-                         *((c)++)=(uchar)(((l)     )&0xff))
+                         *((c)++)=(uchar)(((l))&0xff))
 
 #define C_RC2(n) \
         t=(x0+(x1& ~x3)+(x2&x3)+ *(p0++))&0xffff; \

@@ -282,7 +282,7 @@ int PPTableConversion::Convert()
 		}
 		{
 			THROW_MEM(p_cr_tbl = new DBTable(tbl_name, file_name));
-			THROW_DB(p_cr_tbl->IsOpened());
+			THROW_DB(p_cr_tbl->IsOpen());
 			ZDELETE(p_cr_tbl);
 			THROW_MEM(p_tbl = CreateTableInstance(0));
 			p_tbl->SetFlag(XTF_DISABLEOUTOFTAMSG);

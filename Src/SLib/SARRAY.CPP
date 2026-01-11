@@ -1,5 +1,5 @@
 // SARRAY.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -74,11 +74,11 @@ static size_t FASTCALL CalcArrayDelta(uint itemSize)
 	return quant / itemSize;
 }
 
-static uint FASTCALL SnapUpCount(uint newCount, uint itemSize)
+static size_t FASTCALL SnapUpCount(size_t newCount, size_t itemSize)
 {
-	const size_t low_limit_bytes = 256;
+	const  size_t low_limit_bytes = 256;
 	size_t s = newCount * itemSize;
-	uint   result = newCount;
+	size_t result = newCount;
 	// Если запрашивается первый элемент, то на один и распределяем пространство (один элемент в массиве очень популярное значение)
 	if(result > 1) {
 		if(s < low_limit_bytes)
@@ -103,11 +103,11 @@ int FASTCALL SVectorBase::expand(uint numNewRecs)
 	uint   new_count = count + numNewRecs;
 	if(new_count > Limit) {
 		const  size_t _is = static_cast<size_t>(isize);
-		uint   new_limit = SnapUpCount(new_count, _is);
+		size_t new_limit = SnapUpCount(new_count, _is);
 		assert(new_limit >= new_count);
 		void * ptr = SAlloc::R(P_VData, new_limit * _is);
 		while(!ptr && (new_limit > new_count)) {
-			const uint minus_delta = ((new_limit - new_count) / 2);
+			const size_t minus_delta = ((new_limit - new_count) / 2);
 			if(minus_delta) {
 				new_limit -= minus_delta;
 				ptr = SAlloc::R(P_VData, new_limit * _is);
@@ -118,7 +118,7 @@ int FASTCALL SVectorBase::expand(uint numNewRecs)
 		if(ptr) {
 			memzero(PTR8(ptr) + count * _is, (new_limit - count) * _is);
 			P_VData = static_cast<uint8 *>(ptr);
-			Limit = new_limit;
+			Limit = static_cast<uint>(new_limit);
 		}
 		else
 			ok = 0;
@@ -1643,8 +1643,7 @@ bool LAssocArray::SearchByVal(long val, long * pKey, uint * pPos) const
 bool LAssocArray::SearchPair(long key, long val, uint * pPos) const
 {
 	LAssoc k(key, val);
-	// @v11.1.12 return lsearch(&k, pPos, PTR_CMPFUNC(_2long));
-	return lsearch(&k, pPos, CMPF_INT64); // @v11.1.12
+	return lsearch(&k, pPos, CMPF_INT64);
 }
 
 IMPL_CMPFUNC(LAssoc_Val, i1, i2)
@@ -1866,17 +1865,62 @@ FAssoc::FAssoc(long k, float v) : Key(k), Val(v)
 {
 }
 
+FAssocArray::FAssocArray() : TSVector <FAssoc>()
+{
+}
+
+FAssocArray::FAssocArray(const FAssocArray & rS) : TSVector <FAssoc> (rS)
+{
+}
+
+FAssocArray & FASTCALL FAssocArray::operator = (const FAssocArray & rS)
+{
+	copy(rS);
+	return *this;
+}
+
+bool FAssocArray::Search(long key, float * pVal, uint * pPos, int binary/*= 0*/) const
+{
+	uint   pos = 0;
+	bool   ok = binary ? bsearch(&key, &pos, CMPF_LONG) : lsearch(&key, &pos, CMPF_LONG);
+	if(ok) {
+		ASSIGN_PTR(pVal, at(pos).Val);
+		ASSIGN_PTR(pPos, pos);
+	}
+	return ok;
+}
+
+static IMPL_CMPFUNC(FAssoc_Val, i1, i2)
+{
+	const FAssoc * p1 = static_cast<const FAssoc *>(i1);
+	const FAssoc * p2 = static_cast<const FAssoc *>(i2);
+	return (p1->Val < p2->Val) ? -1 : ((p1->Val > p2->Val) ? +1 : 0);
+}
+
+static IMPL_CMPFUNC(FAssoc_Val_Rev, i1, i2)
+{
+	const FAssoc * p1 = static_cast<const FAssoc *>(i1);
+	const FAssoc * p2 = static_cast<const FAssoc *>(i2);
+	return (p1->Val < p2->Val) ? +1 : ((p1->Val > p2->Val) ? -1 : 0);
+}
+
+void FAssocArray::SortByKey() { sort(CMPF_LONG); }
+void FAssocArray::SortByVal() { sort(PTR_CMPFUNC(FAssoc_Val)); }
+void FAssocArray::SortByValRev() { sort(PTR_CMPFUNC(FAssoc_Val_Rev)); }
+//
+//
+//
 RAssocArray::RAssocArray() : TSVector <RAssoc>()
 {
 }
 
-RAssocArray::RAssocArray(const RAssocArray & s) : TSVector <RAssoc> (s)
+RAssocArray::RAssocArray(const RAssocArray & rS) : TSVector <RAssoc> (rS)
 {
 }
 
-RAssocArray & FASTCALL RAssocArray::operator = (const RAssocArray & s)
+RAssocArray & FASTCALL RAssocArray::operator = (const RAssocArray & rS)
 {
-	copy(s);
+	copy(rS);
 	return *this;
 }
 
@@ -1916,38 +1960,30 @@ int RAssocArray::GetList(LongArray & rList, int unique) const
 	return ok;
 }
 
-bool RAssocArray::SearchMaxVal(uint * pPos) const
+int RAssocArray::SearchMinMaxVal(uint * pMinValPos, uint * pMaxValPos) const // @v12.5.1
 {
-	bool   ok = false;
+	StatBase sb;
+	int    result = 0;
 	double max_val = -SMathConst::Max;
+	double min_val = SMathConst::Max;
 	uint   max_val_pos = 0;
+	uint   min_val_pos = 0;
 	for(uint i = 0; i < getCount(); i++) {
 		const RAssoc & r_item = at(i);
 		if(max_val < r_item.Val) {
 			max_val = r_item.Val;
 			max_val_pos = i;
-			ok = true;
+			result |= 2;
 		}
-	}
-	ASSIGN_PTR(pPos, max_val_pos);
-	return ok;
-}
-
-bool RAssocArray::SearchMinVal(uint * pPos) const // @v12.5.1
-{
-	bool   ok = false;
-	double min_val = SMathConst::Max;
-	uint   min_val_pos = 0;
-	for(uint i = 0; i < getCount(); i++) {
-		const RAssoc & r_item = at(i);
 		if(min_val > r_item.Val) {
 			min_val = r_item.Val;
 			min_val_pos = i;
-			ok = true;
+			result |= 1;
 		}
 	}
-	ASSIGN_PTR(pPos, min_val_pos);
-	return ok;
+	ASSIGN_PTR(pMinValPos, min_val_pos);
+	ASSIGN_PTR(pMaxValPos, max_val_pos);
+	return result;
 }
 
 void RAssocArray::Scale(double rate)
@@ -2043,7 +2079,7 @@ int RAssocArray::AddMaxK(long key, double val, uint k)
 		}
 		else {
 			uint   min_val_pos = 0;
-			const bool smvr = SearchMinVal(&min_val_pos);
+			const  bool smvr = SearchMinMaxVal(&min_val_pos, 0);
 			assert(smvr); // Не может быть, что нет минимального значения - мы знаем что количество элементов >0
 			if(smvr) {
 				RAssoc & r_min_item = at(min_val_pos);
@@ -2061,6 +2097,53 @@ int RAssocArray::AddMaxK(long key, double val, uint k)
 	return ok;
 }
 
+int RAssocArray::Thresholding(uint flags, double factor) // @v12.5.3 @construction
+{
+	int    ok = -1;
+	{
+		uint   min_val_pos = 0;
+		uint   max_val_pos = 0;
+		if(SearchMinMaxVal(&min_val_pos, &max_val_pos)) {
+			const double min_val = at(min_val_pos).Val;
+			const double max_val = at(max_val_pos).Val;
+			const double __max_val = (flags & thrshfAbs) ? smax(fabs(max_val), fabs(min_val)) : max_val;
+			/*
+				thrshf_Lin  = 0x0001, // (1) Фактор задает порог в простом отношении максимум к тестируемому значению
+				thrshfLn    = 0x0002, // (2) Фактор задает порог в натуральном логарифме
+				thrshfLog10 = 0x0004, // (3) Фактор задает порог в десятичном логарифме
+				thrshf_dB   = 0x0008, // (4) Фактор задает порог в децибеллах
+			*/ 
+			double linear_threshold = 0.0;
+			if(flags & thrshf_Lin) {
+				linear_threshold = __max_val * factor;
+			}
+			else if(flags & thrshfLn) {
+				linear_threshold = __max_val * std::pow(SMathConst::E, factor);
+			}
+			else if(flags & thrshfLog10) {
+				linear_threshold = __max_val * std::pow(10.0, factor);
+			}
+			else if(flags & thrshf_dB) {
+				// Порог в линейной шкале: например, -60 dB = 1e-3 от максимума
+				linear_threshold = __max_val * std::pow(10.0, factor/20.0);
+			}
+			else { // default: thrshf_Lin
+				linear_threshold = __max_val * factor;
+			}
+			uint  i = getCount();
+			if(i) do {
+				const double iter_val = at(--i).Val;
+				const double __iter_val = (flags & thrshfAbs) ? fabs(iter_val) : iter_val; 
+				if(__iter_val < linear_threshold) {
+					atFree(i);
+					ok = 1;
+				}
+			} while(i);
+		}
+	}
+	return ok;
+}
+
 int RAssocArray::Remove(long key, int binary)
 {
 	uint   pos = 0;
@@ -2070,11 +2153,6 @@ int RAssocArray::Remove(long key, int binary)
 	}
 	else
 		return 0;
-}
-
-void RAssocArray::SortByKey()
-{
-	sort(CMPF_LONG);
 }
 
 IMPL_CMPFUNC(RAssoc_Val, i1, i2)
@@ -2091,15 +2169,9 @@ IMPL_CMPFUNC(RAssoc_Val_Rev, i1, i2)
 	return (p1->Val < p2->Val) ? +1 : ((p1->Val > p2->Val) ? -1 : 0);
 }
 
-void RAssocArray::SortByVal()
-{
-	sort(PTR_CMPFUNC(RAssoc_Val));
-}
-
-void RAssocArray::SortByValRev()
-{
-	sort(PTR_CMPFUNC(RAssoc_Val_Rev));
-}
+void RAssocArray::SortByKey() { sort(CMPF_LONG); }
+void RAssocArray::SortByVal() { sort(PTR_CMPFUNC(RAssoc_Val)); }
+void RAssocArray::SortByValRev() { sort(PTR_CMPFUNC(RAssoc_Val_Rev)); }
 //
 //
 //
@@ -2117,10 +2189,7 @@ RPairArray & FASTCALL RPairArray::operator = (const RPairArray & rS)
 	return *this;
 }
 
-RPair & FASTCALL RPairArray::operator [](size_t i) const
-{
-	return at(i);
-}
+RPair & FASTCALL RPairArray::operator [](size_t i) const { return at(static_cast<uint>(i)); }
 
 IMPL_CMPFUNC(RPairX, i1, i2) { RET_CMPCASCADE2(static_cast<const RPair *>(i1), static_cast<const RPair *>(i2), X, Y); }
 IMPL_CMPFUNC(RPairY, i1, i2) { RET_CMPCASCADE2(static_cast<const RPair *>(i1), static_cast<const RPair *>(i2), Y, X); }
@@ -2785,7 +2854,7 @@ int StrAssocArray::SearchByText(const char * pTxt, /* @v11.8.0 int ignoreCase,*/
 		else {
 			size_t _len = Pool.getLen(pos);
 			uint   _dlen = Pool.getDelimLen();
-			pos += (_len + _dlen);
+			pos += static_cast<uint>(_len + _dlen);
 		}
 	}
 	return 0;
@@ -2803,7 +2872,7 @@ int StrAssocArray::SearchByTextNc(const char * pTxt, uint * pPos) const
 		else {
 			size_t _len = Pool.getLen(pos);
 			uint   _dlen = Pool.getDelimLen();
-			pos += (_len + _dlen);
+			pos += static_cast<uint>(_len + _dlen);
 		}
 	}
 	return 0;
@@ -2821,7 +2890,7 @@ int StrAssocArray::SearchByTextNcUtf8(const char * pTxt, uint * pPos) const
 		else {
 			size_t _len = Pool.getLen(pos);
 			uint   _dlen = Pool.getDelimLen();
-			pos += (_len + _dlen);
+			pos += static_cast<uint>(_len + _dlen);
 		}
 	}
 	return 0;
@@ -2909,7 +2978,7 @@ int StrAssocArray::GetMaxLength(uint * pMaxLen) const
 		for(uint i = 0; i < c; i++) {
 			const long str_pos = LAssocArray::at(i).Val;
 			if(GetS(str_pos, temp_buf) && temp_buf.Len() > max_len)
-				max_len = temp_buf.Len();
+				max_len = temp_buf.Len32();
 		}
 	}
 	ASSIGN_PTR(pMaxLen, max_len);
@@ -2926,7 +2995,7 @@ IMPL_CMPFUNC(StrAssoc_ByLength, i1, i2)
 	size_t ss_data_len = p_ss->getDataLen();
 	const char * p_str1 = (pos1 < ss_data_len) ? (p_ss->getBuf() + pos1) : stub;
 	const char * p_str2 = (pos2 < ss_data_len) ? (p_ss->getBuf() + pos2) : stub;
-	return cmp_ulong(sstrlen(p_str1), sstrlen(p_str2));
+	return cmp_size_t(sstrlen(p_str1), sstrlen(p_str2));
 }
 
 IMPL_CMPFUNC(StrAssoc_ByLength_Descend, i1, i2)
@@ -3483,7 +3552,7 @@ SPtrHandle StrAssocTree::SearchByText(const char * pTxt, int ignoreCase) const
 		else {
 			const size_t _len = Pool.getLen(pos);
 			const uint   _dlen = Pool.getDelimLen();
-			pos += (_len + _dlen);
+			pos += static_cast<uint>(_len + _dlen);
 		}
 	}
 	return result;
@@ -3925,7 +3994,7 @@ RealArray & FASTCALL RealArray::operator = (const RealArray & s)
 	return *this;
 }
 
-double & FASTCALL RealArray::operator [] (size_t i) const { return at(i); }
+double & FASTCALL RealArray::operator [] (size_t i) const { return at(static_cast<uint>(i)); }
 int  RealArray::add(double v) { return insert(&v); }
 void RealArray::Sort() { sort(PTR_CMPFUNC(double)); }
 
@@ -4392,7 +4461,7 @@ bool   FASTCALL FloatArray::operator != (const FloatArray & rS) const { return !
 int    FASTCALL FloatArray::add(float item) { return insert(&item); }
 int    FASTCALL FloatArray::add(SPoint2F p) { return insertChunk(2, &p); }
 float  FASTCALL FloatArray::get(uint i) const { return at(i); }
-float & FASTCALL FloatArray::operator [] (size_t i) const { return at(i); }
+float & FASTCALL FloatArray::operator [] (size_t i) const { return at(static_cast<uint>(i)); }
 
 float FloatArray::Sum() const
 {
@@ -4486,7 +4555,7 @@ STimeChunkArray::STimeChunkArray() : SArray(sizeof(STimeChunk))
 {
 }
 
-STimeChunkArray::STimeChunkArray(size_t itemSize) : SArray(itemSize)
+STimeChunkArray::STimeChunkArray(uint itemSize) : SArray(itemSize)
 {
 	assert(itemSize >= sizeof(STimeChunk));
 }
@@ -4674,10 +4743,7 @@ int STimeChunkArray::Excise(const STimeChunk * pItem)
 	return ok;
 }
 
-void STimeChunkArray::Sort(int desc)
-{
-	SArray::sort(PTR_CMPFUNC(STimeChunk), reinterpret_cast<void *>(desc));
-}
+void STimeChunkArray::Sort(int desc) { SArray::sort(PTR_CMPFUNC(STimeChunk), reinterpret_cast<void *>(desc)); }
 
 int STimeChunkArray::Limit(const STimeChunk * pPeriod)
 {
@@ -4820,10 +4886,7 @@ int STimeChunkAssocArray::Remove(long chunkId)
 //
 //
 //
-static int Subst(const void * i1, const void * i2, void * pExtraData)
-{
-	return stcomp(reinterpret_cast<TYPEID>(pExtraData), i1, i2);
-}
+static int Subst(const void * i1, const void * i2, void * pExtraData) { return stcomp(reinterpret_cast<TYPEID>(pExtraData), i1, i2); }
 
 STypArray::STypArray(TYPEID aType, uint o) : SArray(stsize(aType), o), type(aType)
 {
@@ -4852,10 +4915,7 @@ int STypArray::search(const void * pKey, uint * pPos) const
 	return (VFlags & arySorted) ? bsearch(pKey, pPos, Subst, 0, reinterpret_cast<void *>(type)) : lsearch(pKey, pPos, Subst, 0, reinterpret_cast<void *>(type));
 }
 
-void STypArray::sort()
-{
-	SArray::sort(Subst, reinterpret_cast<void *>(type));
-}
+void STypArray::sort() { SArray::sort(Subst, reinterpret_cast<void *>(type)); }
 //
 // STree
 //

@@ -1,5 +1,5 @@
 // PP.H
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 // Спасибо за проделанную работу (Thanks for the work you've done):
@@ -5300,6 +5300,8 @@ struct AccTurnParam {
 #define CCFLG2_DISABLE_CRR32_SUPPORT_SERVER 0x00200000L // @v12.4.1 [config] Запрет использования выделенного сервера поддержки Crystal Reports. 
 	// Аварийная опция на случай если что-то пойдет не так. Инициируются по параметру в pp.ini [config] PPINIPARAM_DISABLE_CRR32_SUPPORT_SERVER
 #define CCFLG2_FORCE_CRR32_SUPPORT_SERVER   0x00400000L // @v12.4.1 (!Временный флаг на время тестовой отладки) [config] 
+#define CCFLG2_FORCE_IMPEXP_EXCEL_OLEAUTO   0x00800000L // @v12.5.3 Если установлен, то применяется старая техника импорта/экспорта excel посредством OLE Automation.
+	// Если не установлен, то работает новых подход посредством OpenXLSX. Инициируются по параметру в pp.ini [config] PPINIPARAM_FORCE_IMPEXP_EXCEL_OLEAUTO
 //
 // Общие параметры конфигурации
 //
@@ -6570,7 +6572,7 @@ private:
 class __PPThrLocPtr {
 public:
 	__PPThrLocPtr();
-	int    IsOpened();
+	bool   IsOpen();
 protected:
 	void * FASTCALL Helper_Open(SClassWrapper &);
 	void   FASTCALL Helper_Close(SClassWrapper &, void * ptr);
@@ -11735,7 +11737,7 @@ struct BillTotalData {
 	};
 	BillTotalData();
 	BillTotalData & Z();
-	bool   IsEq(const BillTotalData & rS) const;
+	bool   FASTCALL IsEq(const BillTotalData & rS) const;
 
 	long   LinesCount;
 	long   GoodsCount;
@@ -22410,7 +22412,7 @@ private:
 	int    _RollbackTurn(int side, LDATE date, long oprNo, PPID bal, PPID rel, double);
 	int    _UpdateTurn(PPID billID, short rByBill, double newAmt, double cRate, int use_ta);
 	int    _RecalcBalance(PPID, const RecoverBalanceParam *, PPLogger &);
-	int    _CheckBalance(PPID, LDATE, double, double, char *, int correct, PPLogger &, int use_ta);
+	int    _CheckBalance(PPID, LDATE, double, double, char *, bool correct, PPLogger &, int use_ta);
 	int    LockFRR(PPID accRelID, LDATE dt);
 	int    RevalCurRest(const CurRevalParam & rParam, const Acct * pAcc, const PPIDArray * pCurList, int use_ta);
 	int    UpdateItemInExtGenAccList(PPID objID, long f, PPID accID, ObjRestrictArray *, PPIDArray *);
@@ -57792,7 +57794,7 @@ public:
 	TextDbFile::Param  TdfParam;
 	XmlDbFile::Param   XdfParam;
 	SoapDbFile::Param  SdfParam;
-	ExcelDbFile::Param XlsdfParam;
+	ExcelIoParam XlsdfParam;
 	SdRecord HdrInrRec;     // Запись, определяющая заголовочный внутренний набор данных.
 	SdRecord HdrOtrRec;     // Запись, определяющая заголовочный внешний набор данных.
 	SdRecord InrRec;        // Запись, определяющая внутренний набор данных
@@ -57841,8 +57843,8 @@ public:
 
 	PPImpExp(const PPImpExpParam *, const void * extraPtr);
 	~PPImpExp();
-	int    IsCtrError() const;
-	int    IsOpened() const;
+	bool   IsCtrError() const;
+	bool   IsOpen() const;
 	int    OpenFileForReading(const char * pFileName);
 	int    OpenFileForWriting(const char * pFileName, int truncOnWriting, StringSet * pResultFileList = 0);
 	void   CloseFile();
@@ -57914,6 +57916,7 @@ private:
 	XmlDbFile   * P_XmlT;
 	SoapDbFile  * P_SoapT;
 	ExcelDbFile * P_XlsT;
+	ImpExpExcelWorkbook * P_XlWb; // @v12.5.3 @construction
 	Sdr_ImpExpHeader * P_HdrData;
 	ExprEvalContext * P_ExprContext; // @notowned
 	ulong  R_RecNo;
@@ -58930,7 +58933,7 @@ public:
 protected:
 	DECL_HANDLE_EVENT;
 	long   Flags;
-	int    EnableExcelImpExp;
+	// @v12.5.3 (@obsolete) int    EnableExcelImpExp;
 };
 //
 // Descr: Общий диалог редактирования списка параметров импорта/эскпорта.
@@ -61254,6 +61257,7 @@ class PPDesktopAssocCmdPool { // @persistent
 public:
 	PPDesktopAssocCmdPool();
 	~PPDesktopAssocCmdPool();
+	PPDesktopAssocCmdPool & Z();
 	void   Init(const S_GUID & rUuid);
 	S_GUID GetDesktopUuid() const;
 	void   SetDesktopUuid(const S_GUID & rUuid);
@@ -61284,10 +61288,9 @@ private:
 	StringSet P;
 };
 
-class PPDesktop : public TWindow {
+class PPDesktop : public TWindow { // @todo (@20260111) Базовым классом должен быть TWindowBase
 public:
 	static const char * WndClsName;
-	//static int   Open(long desktopID, int createIfZero = 0);
 	static int   Open(const S_GUID & rDesktopUuid, int createIfZero = 0);
    	static LRESULT CALLBACK DesktopWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	static int   RegWindowClass(HINSTANCE hInst);
@@ -61322,8 +61325,6 @@ public:
 	};
 	int    CreateServiceView(int svcviewId);
 	TWindow * GetServiceView(int svcviewId);
-	// @v11.0.0 replaced with PPDesktop::GetServiceView(int) PPBizScoreWindow * GetBizScoreWnd();
-	// @v11.0.0 replaced with PPDesktop::CreateServiceView(int) int    CreateBizScoreWnd();
 	int    Advise();
 	void   Unadvise();
 protected:
@@ -61585,7 +61586,7 @@ private:
 	struct ResizeState {
 		ResizeState();
 		~ResizeState();
-		int    operator ! () const;
+		bool   operator !() const;
 		void   Reset();
 		int    Setup(int mode, const Loc & rLoc, int * pCursorIdent);
 
@@ -63641,9 +63642,9 @@ struct DBMaintainParam {
 	int    Read(SBuffer & rBuf, long);
 	int    Write(SBuffer & rBuf, long) const;
 	enum {
-		tblDLS  = 0x00000001,
-		tblMRP  = 0x00000002,
-		tblSJ   = 0x00000004,
+		tblDLS          = 0x00000001,
+		tblMRP          = 0x00000002,
+		tblSJ           = 0x00000004,
 		tblXBill        = 0x00000008,
 		tblRsrvSj       = 0x00000010,  // Восстанавливать в системном журнале записи из резервной таблицы
 		tblXBillRecover = 0x00000020,  // Удалять висящие записи строк, идентификатор которых больше последнего идентификатора документа

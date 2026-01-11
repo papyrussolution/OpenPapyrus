@@ -89,7 +89,7 @@ std::string VersionString() {
 std::string NormalizeFilename(absl::string_view filename) {
 	// Skip any leading slashes
 	auto pos = filename.find_first_not_of("\\/");
-	if(pos == absl::string_view::npos)  return "";
+	if(pos == absl::string_view::npos) return "";
 
 	filename.remove_prefix(pos);
 	return std::string(filename);
@@ -105,7 +105,7 @@ ABSL_CONST_INIT FlagsUsageConfig* custom_usage_config
 FlagsUsageConfig GetUsageConfig() {
 	absl::MutexLock l(&custom_usage_config_guard);
 
-	if(custom_usage_config)  return *custom_usage_config;
+	if(custom_usage_config) return *custom_usage_config;
 
 	FlagsUsageConfig default_config;
 	default_config.contains_helpshort_flags = &ContainsHelpshortFlags;

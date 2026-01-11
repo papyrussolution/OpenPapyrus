@@ -1,20 +1,9 @@
 // DBPRVDR.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2025
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
-
-/*enum SqlServerType {
-	sqlstNone    = 0, // Неопределенное значение
-	sqlstGeneric = 1, // Общий
-	sqlstORA,         // Oracle
-	sqlstMSS,         // Ms SQL Server
-	sqlstFB,          // FireBird
-	sqlstPg,          // PostgreSQL
-	sqlstMySQL,       // @v10.9.0 MySQL
-	sqlstSQLite       // @v10.9.0 SQLite
-};*/
 
 static const SIntToSymbTabEntry SqlServerTypeSymbList[] = {
 	{ sqlstNone, "" },
@@ -129,7 +118,7 @@ int DbLoginBlock::SetAttr(int attr, const char * pVal)
 			p_val_buf = &uuid;
 		}
 		else {
-			len = (uint32)(sstrlen(pVal)+1);
+			len = static_cast<uint32>(sstrlen(pVal)+1);
 			p_val_buf = pVal;
 		}
 		THROW(Alloc(End + len + sizeof(len)));
@@ -160,7 +149,8 @@ int DbLoginBlockArray::Add(long id, const DbLoginBlock * pBlk, int replaceDup)
 	}
 	else
 		id = ++LastId;
-	SString temp_buf, symb;
+	SString temp_buf;
+	SString symb;
 	LongArray to_remove_list;
 	DbLoginBlock * p_blk = new DbLoginBlock;
 	THROW_S(p_blk, SLERR_NOMEM);
@@ -339,6 +329,26 @@ int DbLoginBlockArray::MakeList(StrAssocArray * pList, long options, const LongA
 //
 //
 //
+DbProvider::Connection::Connection() : H(0)
+{
+}
+		
+DbProvider::Connection::Connection(const DbProvider::Connection & rS) : H(rS.H)
+{
+}
+		
+DbProvider::Connection & FASTCALL DbProvider::Connection::operator = (const Connection & rS)
+{
+	H = rS.H;
+	return *this;
+}
+		
+DbProvider::Connection & DbProvider::Connection::Z()
+{
+	H = 0;
+	return *this;
+}
+
 DbProvider::DbProvider(SqlServerType sqlServerType, SCodepage cp, DbDictionary * pDict, long capability) : 
 	SqlSt(sqlServerType), Cp(cp), P_Dict(pDict), Capability(capability), State(0), DbPathID(0), OpenMode(0)
 {
@@ -709,6 +719,7 @@ void DbProvider::Common_Login(const DbLoginBlock * pBlk)
 
 void DbProvider::Common_Logout()
 {
+	Lb.Z();
 	State &= ~stLoggedIn;
 }
 

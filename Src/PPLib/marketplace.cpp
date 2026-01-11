@@ -1,5 +1,5 @@
 // MARKETPLACE.CPP
-// Copyright (c) A.Sobolev 2024, 2025
+// Copyright (c) A.Sobolev 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2638,8 +2638,26 @@ bool PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::FromJsonObj(const SJs
 
 
 	https://catalog.wb.ru/catalog/head_accessories2/catalog?cat=9967&curr=rub&dest=-1257786&fkind=3&page=1&regions=80,64,38,4,115,83,33,68,70,69,30,86,75,40,1,66,48,110,31,22,71,114,111&sort=popular&spp=0&xsubject=79
-
-
+	//
+	//
+	// @20260111 {
+	https://www.wildberries.ru/__internal/u-search/exactmatch/ru/common/v18/search?
+		ab_testing=false&
+		appType=1&
+		curr=rub&
+		dest=123585633&
+		hide_dtype=9%3B11&
+		hide_vflags=4294967296&
+		lang=ru&
+		page=1&
+		query=menu_redirect_subject_v2_131849+%D1%81%D1%80%D0%B5%D0%B4%D1%81%D1%82%D0%B2%D0%B0+%D0%B4%D0%BB%D1%8F+%D1%81%D1%82%D0%B8%D1%80%D0%BA%D0%B8&
+		resultset=catalog&
+		sort=popular&
+		spp=30&
+		suppressSpellcheck=false&
+		xsubject=1080
+	// } @20260111 
+	//
     cat — 9967
     Циферки. Берутся они отсюда, соответственно можно искать по названию категории и потом использовать в запросе.
     curr — rub

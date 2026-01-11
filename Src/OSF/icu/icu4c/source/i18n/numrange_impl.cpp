@@ -14,7 +14,7 @@
 #include "numrange_impl.h"
 #include "patternprops.h"
 #include "pluralranges.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "util.h"
 
 using namespace icu;

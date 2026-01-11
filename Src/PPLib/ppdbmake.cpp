@@ -1,5 +1,5 @@
 // PPDBMAKE.CPP
-// Copyright (c) Osolotkin A.V, Sobolev A. 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2013, 2016, 2017, 2018, 2019, 2020, 2023, 2024, 2025
+// Copyright (c) Osolotkin A.V, Sobolev A. 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2013, 2016, 2017, 2018, 2019, 2020, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -226,7 +226,7 @@ int CreateByExample(const char * pPath)
 			if(src_tbl.step(spFirst)) {
 				ReceiptCore * p_rc = &p_bobj->trfr->Rcpt;
 				ObjTagCore dest_ot((path = pPath).SetLastSlash().Cat("objtag.btr"));
-				MEMSZERO(rcpt_rec);
+				rcpt_rec.Clear();
 				do {
 					if(p_rc->GetLastLot(goods_rec.ID, 0, MAXDATE, &rcpt_rec) > 0) {
 						rcpt_rec.Quantity  = 0.0;

@@ -56,20 +56,15 @@ void Normalizer::Init()
 	}
 }
 
-util::Status Normalizer::Normalize(absl::string_view input,
-    std::string * normalized,
-    std::vector<size_t> * norm_to_orig) const {
+util::Status Normalizer::Normalize(absl::string_view input, std::string * normalized, std::vector<size_t> * norm_to_orig) const 
+{
 	norm_to_orig->clear();
 	normalized->clear();
-
 	if(input.empty()) {
 		return util::OkStatus();
 	}
-
 	RETURN_IF_ERROR(status());
-
 	int consumed = 0;
-
 	// Ignores heading space.
 	if(spec_->remove_extra_whitespaces()) {
 		while(!input.empty()) {
@@ -81,21 +76,17 @@ util::Status Normalizer::Normalize(absl::string_view input,
 			consumed += p.second;
 		}
 	}
-
 	// all chars are whitespace.
 	if(input.empty()) {
 		return util::OkStatus();
 	}
-
 	// Reserves the output buffer to avoid re-allocations.
 	const size_t kReservedSize = input.size() * 3;
 	normalized->reserve(kReservedSize);
 	norm_to_orig->reserve(kReservedSize);
-
 	// Replaces white space with U+2581 (LOWER ONE EIGHT BLOCK)
 	// if escape_whitespaces() is set (default = true).
 	const absl::string_view kSpaceSymbol = "\xe2\x96\x81";
-
 	// adds kSpaceSymbol to the current context.
 	auto add_ws = [this, &consumed, &normalized, &norm_to_orig, &kSpaceSymbol]() {
 		    if(spec_->escape_whitespaces()) {
@@ -109,23 +100,20 @@ util::Status Normalizer::Normalize(absl::string_view input,
 			    norm_to_orig->push_back(consumed);
 		    }
 	    };
-
 	// Adds a space symbol as a prefix (default is true)
 	// With this prefix, "world" and "hello world" are converted into
 	// "_world" and "_hello_world", which help the trainer to extract
 	// "_world" as one symbol.
-	if(!treat_whitespace_as_suffix_ && spec_->add_dummy_prefix()) add_ws();
-
+	if(!treat_whitespace_as_suffix_ && spec_->add_dummy_prefix()) 
+		add_ws();
 	bool is_prev_space = spec_->remove_extra_whitespaces();
 	while(!input.empty()) {
 		auto p = NormalizePrefix(input);
 		absl::string_view sp = p.first;
-
 		// Removes heading spaces in sentence piece,
 		// if the previous sentence piece ends with whitespace.
 		while(is_prev_space && absl::ConsumePrefix(&sp, " ")) {
 		}
-
 		if(!sp.empty()) {
 			const char * data = sp.data();
 			for(size_t n = 0; n < sp.size(); ++n) {
@@ -144,18 +132,15 @@ util::Status Normalizer::Normalize(absl::string_view input,
 			// Checks whether the last character of sp is whitespace.
 			is_prev_space = absl::EndsWith(sp, " ");
 		}
-
 		consumed += p.second;
 		input.remove_prefix(p.second);
 		if(!spec_->remove_extra_whitespaces()) {
 			is_prev_space = false;
 		}
 	}
-
 	// Ignores tailing space.
 	if(spec_->remove_extra_whitespaces()) {
-		const absl::string_view space =
-		    spec_->escape_whitespaces() ? kSpaceSymbol : " ";
+		const absl::string_view space = spec_->escape_whitespaces() ? kSpaceSymbol : " ";
 		while(absl::EndsWith(*normalized, space)) {
 			const int length = normalized->size() - space.size();
 			CHECK_GE_OR_RETURN(length, 0);
@@ -164,50 +149,41 @@ util::Status Normalizer::Normalize(absl::string_view input,
 			norm_to_orig->resize(length);
 		}
 	}
-
 	// Adds a space symbol as a suffix (default is false)
-	if(treat_whitespace_as_suffix_ && spec_->add_dummy_prefix()) add_ws();
-
+	if(treat_whitespace_as_suffix_ && spec_->add_dummy_prefix()) 
+		add_ws();
 	norm_to_orig->push_back(consumed);
-
 	CHECK_EQ_OR_RETURN(norm_to_orig->size(), normalized->size() + 1);
-
 	return util::OkStatus();
 }
 
-std::string Normalizer::Normalize(absl::string_view input) const {
+std::string Normalizer::Normalize(absl::string_view input) const 
+{
 	std::vector<size_t> norm_to_orig;
 	std::string normalized;
 	Normalize(input, &normalized, &norm_to_orig).IgnoreError();
 	return normalized;
 }
 
-std::pair<absl::string_view, int> Normalizer::NormalizePrefix(absl::string_view input) const {
+std::pair<absl::string_view, int> Normalizer::NormalizePrefix(absl::string_view input) const 
+{
 	std::pair<absl::string_view, int> result;
-
-	if(input.empty()) return result;
-
+	if(input.empty()) 
+		return result;
 	if(matcher_ != nullptr) {
 		bool found = false;
 		const int mblen = matcher_->PrefixMatch(input, &found);
 		if(found) return std::make_pair(input.substr(0, mblen), mblen);
 	}
-
 	size_t longest_length = 0;
 	int longest_value = 0;
-
 	if(trie_ != nullptr) {
 		// Allocates trie_results in stack, which makes the encoding speed 36%
 		// faster. (38k sentences/sec => 60k sentences/sec). Builder checks that the
 		// result size never exceeds kMaxTrieResultsSize. This array consumes
 		// 0.5kByte in stack, which is less than default stack frames (16kByte).
-		Darts::DoubleArray::result_pair_type
-		    trie_results[Normalizer::kMaxTrieResultsSize];
-
-		const size_t num_nodes = trie_->commonPrefixSearch(
-			input.data(), trie_results, Normalizer::kMaxTrieResultsSize,
-			input.size());
-
+		Darts::DoubleArray::result_pair_type trie_results[Normalizer::kMaxTrieResultsSize];
+		const size_t num_nodes = trie_->commonPrefixSearch(input.data(), trie_results, Normalizer::kMaxTrieResultsSize, input.size());
 		// Finds the longest rule.
 		for(size_t k = 0; k < num_nodes; ++k) {
 			if(longest_length == 0 || trie_results[k].length > longest_length) {
@@ -216,7 +192,6 @@ std::pair<absl::string_view, int> Normalizer::NormalizePrefix(absl::string_view 
 			}
 		}
 	}
-
 	if(longest_length == 0) {
 		size_t length = 0;
 		if(!string_util::IsValidDecodeUTF8(input, &length)) {
@@ -279,49 +254,46 @@ std::pair<absl::string_view, int> Normalizer::NormalizePrefix(absl::string_view 
 #else
 	*trie_blob = absl::string_view(blob.data(), trie_blob_size);
 #endif
-
 	blob.remove_prefix(trie_blob_size);
 	*normalized = absl::string_view(blob.data(), blob.size());
-
 	return util::OkStatus();
 }
 
-PrefixMatcher::PrefixMatcher(const std::set<absl::string_view> &dic) {
-	if(dic.empty()) return;
+PrefixMatcher::PrefixMatcher(const std::set<absl::string_view> &dic) 
+{
+	if(dic.empty()) 
+		return;
 	std::vector<const char *> key;
 	key.reserve(dic.size());
-	for(const auto &it : dic) key.push_back(it.data());
+	for(const auto &it : dic) 
+		key.push_back(it.data());
 	trie_ = absl::make_unique<Darts::DoubleArray>();
-	CHECK_EQ(0, trie_->build(key.size(), const_cast<char **>(&key[0]), nullptr,
-	    nullptr));
+	CHECK_EQ(0, trie_->build(key.size(), const_cast<char **>(&key[0]), nullptr, nullptr));
 }
 
-int PrefixMatcher::PrefixMatch(absl::string_view w, bool * found) const {
+int PrefixMatcher::PrefixMatch(absl::string_view w, bool * found) const 
+{
 	if(trie_ == nullptr) {
 		if(found) *found = false;
 		return std::min<int>(w.size(), string_util::OneCharLen(w.data()));
 	}
-
 	constexpr int kResultSize = 64;
 	Darts::DoubleArray::result_pair_type trie_results[kResultSize];
-	const int num_nodes =
-	    trie_->commonPrefixSearch(w.data(), trie_results, kResultSize, w.size());
-
-	if(found) *found = (num_nodes > 0);
+	const int num_nodes = trie_->commonPrefixSearch(w.data(), trie_results, kResultSize, w.size());
+	if(found) 
+		*found = (num_nodes > 0);
 	if(num_nodes == 0) {
 		return std::min<int>(w.size(), string_util::OneCharLen(w.data()));
 	}
-
 	int mblen = 0;
 	for(int i = 0; i < num_nodes; ++i) {
 		mblen = std::max<int>(trie_results[i].length, mblen);
 	}
-
 	return mblen;
 }
 
-std::string PrefixMatcher::GlobalReplace(absl::string_view w,
-    absl::string_view out) const {
+std::string PrefixMatcher::GlobalReplace(absl::string_view w, absl::string_view out) const 
+{
 	std::string result;
 	while(!w.empty()) {
 		bool found = false;

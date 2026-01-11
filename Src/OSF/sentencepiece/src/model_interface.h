@@ -121,7 +121,7 @@ public:
 	// as the size of vocabulary for NMT.
 	virtual int GetPieceSize() const 
 	{
-		if(!model_proto_)  return 0;
+		if(!model_proto_) return 0;
 		return model_proto_->pieces_size();
 	}
 

@@ -5,7 +5,7 @@
 #include <icu-internal.h>
 #pragma hdrstop
 #include "ucln_cmn.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "udataswp.h" /* for InvChar functions */
 
 static UHashtable * gLocExtKeyMap = NULL;

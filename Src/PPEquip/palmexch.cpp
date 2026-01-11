@@ -99,7 +99,7 @@ void WaitPercent(PROGRESSFN pFn, long iterN, long itersCount, const char * pMsg)
 
 int ScCheckDbfOpening(DbfTable * pTbl, const char * pLogFile)
 {
-	if(!pTbl->isOpened()) {
+	if(!pTbl->IsOpen()) {
 		char log_buf[512];
 		sprintf(log_buf, "SPII FAIL: Error opening dbf file %s", pTbl->getName());
 		SyncTable::LogMessage(pLogFile, log_buf);

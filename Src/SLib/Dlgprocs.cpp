@@ -198,8 +198,9 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg) {
 				if(lParam) {
-					long prev_id = CLUSTER_ID(GetDlgCtrlID(reinterpret_cast<HWND>(lParam)));
-					if((v = p_dlg->P_Last) != 0) {
+					const  long prev_id = CLUSTER_ID(GetDlgCtrlID(reinterpret_cast<HWND>(lParam)));
+					v = p_dlg->P_Last;
+					if(v) {
 						do {
 							if(v->TestId(prev_id)) {
 								TView::messageBroadcast(p_dlg, cmReceivedFocus, v);
@@ -207,7 +208,8 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 								p_dlg->P_Current = v;
 								break;
 							}
-						} while((v = v->prev()) != p_dlg->P_Last);
+							v = v->prev();
+						} while(v != p_dlg->P_Last);
 					}
 				}
 				else if((v = p_dlg->P_Current) != 0) {
@@ -420,34 +422,34 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 		case WM_DRAWITEM:
 			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			return p_dlg ? p_dlg->RedirectDrawItemMessage(uMsg, wParam, lParam) : FALSE;
-			/*
-			if(p_dlg) {
-				DRAWITEMSTRUCT * p_dis = reinterpret_cast<DRAWITEMSTRUCT *>(lParam);
-				TDrawItemData di;
-				di.CtlType = p_dis->CtlType;
-				di.CtlID   = p_dis->CtlID;
-				di.ItemID  = p_dis->itemID;
-				di.ItemAction = p_dis->itemAction;
-				di.ItemState  = p_dis->itemState;
-				di.H_Item     = p_dis->hwndItem;
-				di.H_DC       = p_dis->hDC;
-				di.ItemRect   = p_dis->rcItem;
-				di.P_View   = p_dlg->getCtrlView(LOWORD(di.CtlID));
-				di.ItemData = p_dis->itemData;
-				TView::messageCommand(p_dlg, cmDrawItem, &di);
-				if(APPL->DrawControl(hwndDlg, uMsg, wParam, lParam) > 0)
-					di.ItemAction = p_dis->itemAction;
-				if(di.ItemAction == 0)
-					return FALSE;
-			}
-			break;
-			*/
 		/*
 		case WM_INPUTLANGCHANGE: // @v6.4.4 AHTOXA
 			PostMessage(GetParent(hwndDlg), uMsg, wParam, lParam);
 			break;
 		*/
+		// @v12.5.3 @construction {
+	#if 1 // {
+		/* Пока включать нельзя поскольку таким же цветом надо отрисовывать неклиентскую часть некоторых контролов и 
+		фон текста STATIC (label в том числе)*/
+		case WM_CTLCOLORDLG: 
 		case WM_CTLCOLORSTATIC:
+			{
+				SPaintToolBox * p_tb = APPL->GetUiToolBox();
+				if(p_tb) {
+					COLORREF _clr = p_tb->GetColor(TProgram::tbiDialogBkgColor);
+					HDC h_dc = reinterpret_cast<HDC>(wParam);
+					//SetTextColor(h_dc, RGB(0, 0, 0));
+					SetBkColor(h_dc, _clr);
+					HGDIOBJ brush = p_tb->Get(TProgram::tbiDialogBkgBrush);
+					return (BOOL)brush;
+				}
+				else
+					return 0;
+			}
+			break;
+	#endif // } 0
+		// } @v12.5.3 @construction 
+		// @v12.5.3 case WM_CTLCOLORSTATIC:
 		case WM_CTLCOLOREDIT:
 		case WM_CTLCOLORSCROLLBAR:
 			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));

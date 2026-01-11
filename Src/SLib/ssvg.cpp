@@ -1,5 +1,5 @@
 // SSVG.CPP
-// Copyright (c) A.Sobolev 2010, 2012, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 2010, 2012, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>

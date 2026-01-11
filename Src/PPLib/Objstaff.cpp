@@ -1,5 +1,5 @@
 // OBJSTAFF.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Штатное расписание
 //
@@ -1192,8 +1192,8 @@ int PPObjStaffList::EditFixedStaffPost(PPID orgID)
 	PersonTbl::Rec org_rec;
 	PersonPostTbl::Rec dir;
 	PersonPostTbl::Rec acc;
-	MEMSZERO(dir);
-	MEMSZERO(acc);
+	dir.Clear();
+	acc.Clear();
 	THROW(PsnObj.Search(orgID, &org_rec) > 0);
 	THROW(GetFixedPostOnDate(orgID, PPFIXSTF_DIRECTOR, ZERODATE, &dir));
 	THROW(GetFixedPostOnDate(orgID, PPFIXSTF_ACCOUNTANT, ZERODATE, &acc));

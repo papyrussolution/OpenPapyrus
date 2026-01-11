@@ -1,5 +1,5 @@
 // PDFVIEW.CPP
-// Copyright (c) A.Sobolev 2024, 2025
+// Copyright (c) A.Sobolev 2024, 2025, 2026
 // @codepage UTF-8
 // @construction
 // Экспериментальный модуль для отображения pdf-документов
@@ -201,7 +201,6 @@ public:
 private:
 	static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	int    WMHCreate();
-
 };
 
 /*static*/LPCTSTR PdfBrowser::WndClsName = _T("SPdfBrowser"); // @global

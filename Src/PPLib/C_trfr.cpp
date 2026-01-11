@@ -2556,10 +2556,10 @@ int PrcssrAbsenceTrfr::MakeTrfrByLot(const ReceiptTbl::Rec & rLotRec, const Bill
 	int    reverse = 0;
 	long   oprno = 0;
 	PPTransferItem temp_ti(&rBillRec, TISIGN_UNDEF);
-	MEMSZERO(rRec);
-	rRec.LocID     = rLotRec.LocID;
-	rRec.Dt        = rLotRec.Dt;
-	rRec.BillID    = rLotRec.BillID;
+	rRec.Clear();
+	rRec.LocID  = rLotRec.LocID;
+	rRec.Dt     = rLotRec.Dt;
+	rRec.BillID = rLotRec.BillID;
 	THROW(P_BObj->trfr->RecByBill(rRec.BillID, &rRec.RByBill));
 	THROW(P_BObj->trfr->GetOprNo(rRec.Dt, &oprno));
 	rRec.OprNo = oprno;
@@ -2574,7 +2574,7 @@ int PrcssrAbsenceTrfr::MakeTrfrByLot(const ReceiptTbl::Rec & rLotRec, const Bill
 		if(rRec.CorrLoc == rRec.LocID)
 			ok = -1;
 		else {
-			MEMSZERO(rMirrorRec);
+			rMirrorRec.Clear();
 			rMirrorRec.LocID     = rBillRec.LocID;
 			rMirrorRec.Dt        = rLotRec.Dt;
 			rMirrorRec.OprNo     = oprno+1;

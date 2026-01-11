@@ -404,7 +404,7 @@ HRESULT GetSurfaceInfo(_In_ size_t width,
 		numRows = uint64_t(height);
 		numBytes = rowBytes * height;
 	}
-	else{
+	else {
 		const size_t bpp = BitsPerPixel(fmt);
 		if(!bpp)
 			return E_INVALIDARG;
@@ -700,7 +700,7 @@ HRESULT CreateTextureFromDDS(_In_ LPDIRECT3DDEVICE9 device,
 			if(FAILED(hr))
 				return hr;
 		}
-		else{
+		else {
 			pStagingTexture = pTexture;
 		}
 
@@ -787,7 +787,7 @@ HRESULT CreateTextureFromDDS(_In_ LPDIRECT3DDEVICE9 device,
 			if(FAILED(hr))
 				return hr;
 		}
-		else{
+		else {
 			pStagingTexture = pTexture;
 		}
 
@@ -846,7 +846,7 @@ HRESULT CreateTextureFromDDS(_In_ LPDIRECT3DDEVICE9 device,
 
 		*texture = pTexture.Detach();
 	}
-	else{
+	else {
 		if((iWidth > 8192u /*D3D10_REQ_TEXTURE2D_U_OR_V_DIMENSION*/)
 		    || (iHeight > 8192u /*D3D10_REQ_TEXTURE2D_U_OR_V_DIMENSION*/)) {
 			return HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED);
@@ -870,7 +870,7 @@ HRESULT CreateTextureFromDDS(_In_ LPDIRECT3DDEVICE9 device,
 			if(FAILED(hr))
 				return hr;
 		}
-		else{
+		else {
 			pStagingTexture = pTexture;
 		}
 

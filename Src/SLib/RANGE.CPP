@@ -1,5 +1,5 @@
 // RANGE.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -17,14 +17,13 @@ int STDCALL strtorrng(const char * pBuf, double * pLow, double * pUpp)
 		// запятую (,,), то обрабатываем этот случай отдельно.
 		//
 		size_t i = sstrlen(p_tmp);
-		if(i)
-			do {
-				i--;
-				if(oneof2(p_tmp[i], '\'', ' '))
-					strcpy(p_tmp+i, p_tmp+i+1);
-				else if(p_tmp[i] == ',')
-					p_tmp[i] = '.';
-			} while(i);
+		if(i) do {
+			i--;
+			if(oneof2(p_tmp[i], '\'', ' '))
+				strcpy(p_tmp+i, p_tmp+i+1);
+			else if(p_tmp[i] == ',')
+				p_tmp[i] = '.';
+		} while(i);
 	}
 	char * n;
 	while(t[0] && !(t[0] == '.' && t[1] == '.') && !(t[0] == ',' && t[1] == ','))
@@ -43,6 +42,14 @@ int FASTCALL strtorrng(const char * pBuf, RealRange & rRng)
 //
 //
 //
+IntRange::IntRange() : low(0), upp(0)
+{
+}
+
+IntRange::IntRange(int _low, int _upp) : low(_low), upp(_upp)
+{
+}
+
 IntRange & IntRange::Z()
 {
 	low = 0;
@@ -81,6 +88,15 @@ IntRange & FASTCALL IntRange::Set(int aLow, int aUpp)
 IntRange & FASTCALL IntRange::Set(int val)
 {
 	low = upp = val;
+	return *this;
+}
+
+IntRange & FASTCALL IntRange::Expand(int val)
+{
+	if(low <= upp) {
+		SETMAX(upp, val);
+		SETMIN(low, val);
+	}
 	return *this;
 }
 
@@ -130,7 +146,7 @@ int IntRange::Clamp(int v) const
 	return sclamp(static_cast<int32>(v), low, upp);
 }
 
-SString & IntRange::Format(long fmt, SString & rBuf) const
+SString & IntRange::ToStr(long fmt, SString & rBuf) const
 {
 	rBuf.Z();
 	if(low)

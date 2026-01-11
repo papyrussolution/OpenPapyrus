@@ -17,7 +17,7 @@
 #include "decNumber.h"
 #include "double-conversion.h"
 #include "fphdlimp.h"
-#include "uresimp.h"
+//#include "uresimp.h"
 #include "ureslocs.h"
 
 using namespace icu;
