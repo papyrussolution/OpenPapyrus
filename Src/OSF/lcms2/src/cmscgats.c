@@ -333,7 +333,7 @@ static boolint isseparator(int c) { return oneof2(c, ' ', '\t'); }
 // Checks whatever c is a valid identifier char
 static boolint ismiddle(int c) { return (!isseparator(c) && (c != '#') && (c !='\"') && (c != '\'') && (c > 32) && (c < 127)); }
 // Checks whatsever c is a valid identifier middle char.
-static boolint isidchar(int c) { return isalnum(c) || ismiddle(c); }
+static boolint isidchar(int c) { return isasciialnum(c) || ismiddle(c); }
 // Checks whatsever c is a valid identifier first char.
 static boolint isfirstidchar(int c) { return !isdec(c) && ismiddle(c); }
 

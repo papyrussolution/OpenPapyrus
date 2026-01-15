@@ -83,6 +83,50 @@ SLTEST_R(MySQL) // @v12.4.7
 		SLCHECK_NZ(rw_r);
 		SLCHECK_NZ(cw_r);
 	}
+	// @v12.5.3 {
+	{
+		// Проверяем пул соединений
+		bool  conn_pool_fault = false;
+		const uint max_iter_count = 1000;
+		TSVector <DbProvider::Connection> conn_list;
+		{
+			for(uint i = 0; i < max_iter_count; i++) {
+				const ulong randval = SLS.GetTLA().Rg.GetUniformIntPos(1920701);
+				if(randval & 0x1) { // Если randval - нечетное, то создаем соединение
+					DbProvider::Connection conn_to_get = dbp.GetConnection();
+					if(!conn_to_get) {
+						conn_pool_fault = true;
+						break;
+					}
+					else {
+						conn_list.insert(&conn_to_get);
+					}
+				}
+				else { // Если randval - четное, то разрушаем соединение (если есть такое)
+					if(conn_list.getCount()) {
+						conn_list.shuffle();
+						const   uint conn_idx = conn_list.getCount()-1;
+						DbProvider::Connection conn_to_release = conn_list.at(conn_idx);
+						const int r = dbp.ReleaseConnection(conn_to_release);
+						conn_list.atFree(conn_idx);
+						if(r != 2) {
+							conn_pool_fault = true;
+							break;
+						}
+					}
+				}
+				SDelay(49);
+			}
+		}
+		SLCHECK_NZ(conn_pool_fault);
+		{
+			for(uint i = 0; i < conn_list.getCount(); i++) {
+				DbProvider::Connection conn_to_release = conn_list.at(i);
+				const int r = dbp.ReleaseConnection(conn_to_release);
+			}
+		}
+	}
+	// } @v12.5.3 
 	{
 		const char * p_tbl_name_list[] = {
 			"TestTa01",

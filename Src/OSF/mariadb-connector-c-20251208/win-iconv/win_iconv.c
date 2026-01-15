@@ -1030,20 +1030,15 @@ static int mbtowc_flags(int codepage)
  */
 static int must_use_null_useddefaultchar(int codepage)
 {
-	return (codepage == 65000 || codepage == 65001 ||
-	       codepage == 50220 || codepage == 50221 ||
-	       codepage == 50222 || codepage == 50225 ||
-	       codepage == 50227 || codepage == 50229 ||
-	       codepage == 52936 || codepage == 54936 ||
-	       (codepage >= 57002 && codepage <= 57011) ||
-	       codepage == 42);
+	return (oneof11(codepage, 65000, 65001, 50220, 50221, 50222, 50225, 50227, 50229, 52936, 54936, 42) || (codepage >= 57002 && codepage <= 57011));
+	//return (codepage == 65000 || codepage == 65001 || codepage == 50220 || codepage == 50221 || codepage == 50222 || codepage == 50225 ||
+	       //codepage == 50227 || codepage == 50229 || codepage == 52936 || codepage == 54936 || (codepage >= 57002 && codepage <= 57011) || codepage == 42);
 }
 
 static char * strrstr(const char * str, const char * token)
 {
 	size_t len = strlen(token);
 	const char * p = str + strlen(str);
-
 	while(str <= --p)
 		if(p[0] == token[0] && strncmp(p, token, len) == 0)
 			return (char*)p;
@@ -1052,9 +1047,7 @@ static char * strrstr(const char * str, const char * token)
 
 static char * xstrndup(const char * s, size_t n)
 {
-	char * p;
-
-	p = (char*)SAlloc::M(n + 1);
+	char * p = (char*)SAlloc::M(n + 1);
 	if(p == NULL)
 		return NULL;
 	memcpy(p, s, n);
@@ -1195,7 +1188,6 @@ static HMODULE find_imported_module_by_funcname(HMODULE hModule, const char * fu
 	}
 	return NULL;
 }
-
 #endif
 
 static int sbcs_mblen(csconv_t * cv UNUSED, const uchar * buf UNUSED, int bufsize UNUSED)
@@ -1214,16 +1206,12 @@ static int dbcs_mblen(csconv_t * cv, const uchar * buf, int bufsize)
 static int mbcs_mblen(csconv_t * cv, const uchar * buf, int bufsize)
 {
 	int len = 0;
-
 	if(cv->codepage == 54936) {
 		if(buf[0] <= 0x7F) len = 1;
-		else if(buf[0] >= 0x81 && buf[0] <= 0xFE &&
-		    bufsize >= 2 &&
-		    ((buf[1] >= 0x40 && buf[1] <= 0x7E) ||
-		    (buf[1] >= 0x80 && buf[1] <= 0xFE))) len = 2;
-		else if(buf[0] >= 0x81 && buf[0] <= 0xFE &&
-		    bufsize >= 4 &&
-		    buf[1] >= 0x30 && buf[1] <= 0x39) len = 4;
+		else if(buf[0] >= 0x81 && buf[0] <= 0xFE && bufsize >= 2 && ((buf[1] >= 0x40 && buf[1] <= 0x7E) || (buf[1] >= 0x80 && buf[1] <= 0xFE))) 
+			len = 2;
+		else if(buf[0] >= 0x81 && buf[0] <= 0xFE && bufsize >= 4 && buf[1] >= 0x30 && buf[1] <= 0x39) 
+			len = 4;
 		else
 			return seterror(EINVAL);
 		return len;
@@ -1235,7 +1223,6 @@ static int mbcs_mblen(csconv_t * cv, const uchar * buf, int bufsize)
 static int utf8_mblen(csconv_t * cv UNUSED, const uchar * buf, int bufsize)
 {
 	int len = 0;
-
 	if(buf[0] < 0x80) len = 1;
 	else if((buf[0] & 0xE0) == 0xC0) len = 2;
 	else if((buf[0] & 0xF0) == 0xE0) len = 3;

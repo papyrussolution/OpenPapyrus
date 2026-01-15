@@ -305,8 +305,8 @@ table World {           // size=156
 	string ZIP[12];     // ZIP-код географического объекта. Модуль адреса сможет использовать этот код
 index:
 	ID (unique);                    // #0
-	ParentID, Name acs (dup mod);   // #1 
-	CountryID, Name acs (dup mod);  // #2 
+	ParentID, Name acs (dup mod);   // #1
+	CountryID, Name acs (dup mod);  // #2
 	Kind, Name acs (dup mod);       // #3
 	Code (anysegnull dup mod);      // #4 Так как внешние классификаторы грешат вероятными дубликатами, ключ делаем неуникальным
 file:
@@ -2687,7 +2687,9 @@ table VATBook {            // @v12.2.6 size=324
 	int16  LineType_;      // Тип строки (PPVTB_SELL = 1 | PPVTB_BUY = 2 | PPVTB_SIMPLELEDGER [PPOBJ.H])
 	int16  LineSubType;    // @v7.2.8 Подтип строки (для случаев, когда запись по одному документу должна разбиваться на несколько).
 	int16  Excluded;       // Исключенная запись
-	raw    Reserve2[50];   // @v7.3.11 @reserve // @v12.2.6 [72]-->[50] (48 + 2байта для выравнивания предыдущего поля)
+	double VAT6;           // @v12.5.3
+	double SVAT6;          // @v12.5.3
+	raw    Reserve2[34];   // @v7.3.11 @reserve // @v12.2.6 [72]-->[50] (48 + 2байта для выравнивания предыдущего поля) // @v12.5.2 [50]-->[34]
 index:
 	ID (unique);
 	LinkBillID, LineType_, Dt, LineNo, LineSubType (unique mod); // three last segs added since @v3.11.2
@@ -4033,7 +4035,7 @@ index:
 	// Так как иногда требуется выдавать остатки в разбивку по лотам, то следующие два индекса пришлось сделать дублируемыми
 	GoodsName acs, LocID (dup mod);           // #2
 	GoodsGrp, GoodsName acs, LocID (dup mod); // #3
-	GoodsID, LocID (dup mod);                 // #4 
+	GoodsID, LocID (dup mod);                 // #4
 file:
 	"tmp_gdsr.btr";
 	temporary;

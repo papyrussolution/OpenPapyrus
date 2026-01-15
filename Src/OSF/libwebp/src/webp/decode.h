@@ -79,10 +79,7 @@ WEBP_EXTERN uint8 * WebPDecodeBGR(const uint8* data, size_t data_size, int* widt
 // have a common stride returned as '*uv_stride'.
 // Return NULL in case of error.
 // (*) Also named Y'CbCr. See: http://en.wikipedia.org/wiki/YCbCr
-WEBP_EXTERN uint8* WebPDecodeYUV(const uint8* data, size_t data_size,
-    int* width, int* height,
-    uint8** u, uint8** v,
-    int* stride, int* uv_stride);
+WEBP_EXTERN uint8* WebPDecodeYUV(const uint8* data, size_t data_size, int* width, int* height, uint8** u, uint8** v, int* stride, int* uv_stride);
 
 // These five functions are variants of the above ones, that decode the image
 // directly into a pre-allocated buffer 'output_buffer'. The maximum storage
@@ -92,12 +89,9 @@ WEBP_EXTERN uint8* WebPDecodeYUV(const uint8* data, size_t data_size,
 // The parameter 'output_stride' specifies the distance (in bytes)
 // between scanlines. Hence, output_buffer_size is expected to be at least
 // output_stride x picture-height.
-WEBP_EXTERN uint8* WebPDecodeRGBAInto(const uint8* data, size_t data_size,
-    uint8* output_buffer, size_t output_buffer_size, int output_stride);
-WEBP_EXTERN uint8* WebPDecodeARGBInto(const uint8* data, size_t data_size,
-    uint8* output_buffer, size_t output_buffer_size, int output_stride);
-WEBP_EXTERN uint8* WebPDecodeBGRAInto(const uint8* data, size_t data_size,
-    uint8* output_buffer, size_t output_buffer_size, int output_stride);
+WEBP_EXTERN uint8* WebPDecodeRGBAInto(const uint8* data, size_t data_size, uint8* output_buffer, size_t output_buffer_size, int output_stride);
+WEBP_EXTERN uint8* WebPDecodeARGBInto(const uint8* data, size_t data_size, uint8* output_buffer, size_t output_buffer_size, int output_stride);
+WEBP_EXTERN uint8* WebPDecodeBGRAInto(const uint8* data, size_t data_size, uint8* output_buffer, size_t output_buffer_size, int output_stride);
 
 // RGB and BGR variants. Here too the transparency information, if present,
 // will be dropped and ignored.
@@ -370,13 +364,11 @@ struct WebPBitstreamFeatures {
 	int has_alpha; // True if the bitstream contains an alpha channel.
 	int has_animation; // True if the bitstream is an animation.
 	int format;   // 0 = undefined (/mixed), 1 = lossy, 2 = lossless
-
 	uint32_t pad[5]; // padding for later use
 };
 
 // Internal, version-checked, entry point
-WEBP_EXTERN VP8StatusCode WebPGetFeaturesInternal(
-	const uint8*, size_t, WebPBitstreamFeatures*, int);
+WEBP_EXTERN VP8StatusCode WebPGetFeaturesInternal(const uint8*, size_t, WebPBitstreamFeatures*, int);
 
 // Retrieve features from the bitstream. The *features structure is filled
 // with information gathered from the bitstream.
@@ -399,8 +391,7 @@ struct WebPDecoderOptions {
 	int bypass_filtering;         // if true, skip the in-loop filtering
 	int no_fancy_upsampling;      // if true, use faster pointwise upsampler
 	int use_cropping;             // if true, cropping is applied _first_
-	int crop_left, crop_top;      // top-left position for cropping.
-	                              // Will be snapped to even values.
+	int crop_left, crop_top;      // top-left position for cropping. Will be snapped to even values.
 	int crop_width, crop_height;  // dimension of the cropping area
 	int use_scaling;              // if true, scaling is applied _afterward_
 	int scaled_width, scaled_height; // final resolution
@@ -408,7 +399,6 @@ struct WebPDecoderOptions {
 	int dithering_strength;       // dithering strength (0=Off, 100=full)
 	int flip;                     // if true, flip output vertically
 	int alpha_dithering_strength; // alpha dithering strength in [0..100]
-
 	uint32_t pad[5];              // padding for later use
 };
 

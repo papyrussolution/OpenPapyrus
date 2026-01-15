@@ -4820,7 +4820,9 @@ public:
 		int16  LineType_;
 		int16  LineSubType;
 		int16  Excluded;
-		uint8  Reserve2[50]; // raw
+		double VAT6;
+		double SVAT6;
+		uint8  Reserve2[34]; // raw
 	} data;
 	struct Key0 {
 		int32  ID;
@@ -4888,6 +4890,8 @@ public:
 	DBField LineType_;
 	DBField LineSubType;
 	DBField Excluded;
+	DBField VAT6;
+	DBField SVAT6;
 	DBField Reserve2;
 };
 #pragma pack(pop)

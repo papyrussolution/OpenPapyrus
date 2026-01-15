@@ -1,5 +1,5 @@
 // DB.H
-// Copyright (C) Sobolev A. 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (C) Sobolev A. 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #ifndef __DB_H
@@ -1779,7 +1779,7 @@ public:
 	DBLobBlock * getLobBlock();
 	int    StoreAndTrimLob();
 	int    RestoreLob();
-	DBRowId * getCurRowIdPtr(); // @realy private function
+	DBRowId * getCurRowIdPtr(); // @realyprivate
 	void   clearDataBuf();
 	void   FASTCALL CopyBufTo(void * pBuf) const;
 	void   FASTCALL CopyBufFrom(const void * pBuf);
@@ -3028,6 +3028,19 @@ public:
 	int    CreateDatabase(const char * pDbName); // @v12.4.8
 	int    DropDatabase(const char * pDbName); // @v12.4.8
 	int    UseDatabase(const char * pDbName); // @v12.4.8
+	//
+	// Descr: Пытается получить свободное соединение из пула. Если нет там такого, то создает новое соедение, 
+	//   включает его в пул и возвращает в виде результата.
+	// Note: @reallyprivate (public only for the testing purpose)
+	//
+	Connection GetConnection(); // @v12.5.3
+	//
+	// Descr: Освобождает соединение с сервером rConn.
+	//   Если это соединение находится в пуле, то физически оно не разрушается и лишь становится доступным
+	//   для последующего использования. Если соединения нет в пуле, то оно разрушается полностью.
+	// Note: @reallyprivate (public only for the testing purpose)
+	//
+	int    ReleaseConnection(Connection & rConn); // @v12.5.3
 private:
 	//
 	// 
@@ -3090,7 +3103,19 @@ private:
 	DBTable::SelectStmt * P_LastSelectStmt; // @v12.5.2 последний select-запрос. В случае с mysql эта ссылка необходима из-за
 		// того, что, если последний select-оператор не был отработан до конца или удален, то следующий оператор (например,
 		// по другой таблице) выполнить не удастся (error: Commands out of sync; you can't run this command now).
-	TSVector <Connection> ConnPool; // @v12.5.3 Пул соединений. Придется для select-операций и транзакций использовать специальные соединения.
+
+	struct ConnPoolEntry {
+		ConnPoolEntry() : State(0)
+		{
+		}
+		enum {
+			stBusy = 0x0001
+		};
+		Connection Conn;
+		uint   State;
+	};
+
+	TSVector <ConnPoolEntry> ConnPool; // @v12.5.3 Пул соединений. Придется для select-операций и транзакций использовать специальные соединения.
 };
 //
 // Descr: Провайдер для SQLite
@@ -5228,9 +5253,9 @@ public:
 	//  !0 - actual size of the read data
 	//
 	uint   Read(uint64 rowId, void * pBuf, size_t bufSize);
-	SDataPage_ * AllocatePage(uint32 type); // @really private (public for testing purposes)
-	int    WriteToPage(SDataPage_ * pPage, uint64 rowId, const void * pData, size_t dataLen); // @really private (public for testing purposes)
-	int    DeleteFromPage(SDataPage_ * pPage, uint64 rowId); // @really private (public for testing purposes)
+	SDataPage_ * AllocatePage(uint32 type); // @reallyprivate (public for testing purposes)
+	int    WriteToPage(SDataPage_ * pPage, uint64 rowId, const void * pData, size_t dataLen); // @reallyprivate (public for testing purposes)
+	int    DeleteFromPage(SDataPage_ * pPage, uint64 rowId); // @reallyprivate (public for testing purposes)
 	int    GetFreeListForPage(const SDataPage_ * pPage, TSVector <SRecPageFreeList::Entry> & rList) const; // @debug
 	//
 	// Descr: Отладочная функция верифицирующая список свободных блоков.

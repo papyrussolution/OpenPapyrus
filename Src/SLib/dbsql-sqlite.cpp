@@ -666,7 +666,8 @@ int SSqliteDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pK
 			}
 			rBlk.SqlG.Sp();
 		}
-		rBlk.Flags |= SearchQueryBlock::fCanContinue;
+		if(pTbl->IsQuerySingleTacted(idx, rBlk.SrchMode) < 0) // @v12.5.3
+			rBlk.Flags |= SearchQueryBlock::fCanContinue;
 	}
 	CATCHZOK
 	return ok;

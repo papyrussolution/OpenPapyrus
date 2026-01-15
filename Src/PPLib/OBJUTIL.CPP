@@ -1,5 +1,5 @@
 // OBJUTIL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1689,7 +1689,7 @@ int PPSelectObject(PPID objType, PPID * pObjID, uint titleID, void * extraPtr)
 		const  int height = (p_uid && p_uid->VList.Get(UiValueList::vStandaloneListHeight, v) > 0 && v > 0) ? v : 144;
 		// } @v11.9.4 
 		p_lw->changeBounds(TRect(0, 0, width, height));
-		p_lw->ViewOptions |= (ofCenterX | ofCenterY);
+		// @v12.5.3 (@unused) p_lw->ViewOptions |= (ofCenterX | ofCenterY);
 		if(ExecView(p_lw) == cmOK) {
 			p_lw->getResult(&id);
 			if(id > 0)

@@ -545,7 +545,7 @@ public:
 		fNominalDefT           = 0x00000080, // Определена номинальная граница TOP элемента    (Nominal.a.Y)
 		fNominalDefR           = 0x00000100, // Определена номинальная граница RIGHT элемента  (Nominal.b.X)
 		fNominalDefB           = 0x00000200, // Определена номинальная граница BOTTOM элемента (Nominal.b.Y)
-		fEvaluateScroller      = 0x00000400, // @v11.0.3 процессинговый флаг, предписывающий рассчитывать параметры скроллинга.
+		fEvaluateScroller      = 0x00000400, // Процессинговый флаг, предписывающий рассчитывать параметры скроллинга.
 			// Если флаг не установлен, то скроллинг рассчитываться точно не будет. Если установлен, то - в зависимости
 			// от параметров контейнера. Рассчитанные параметры скроллинга сохраняются по указателю SUiLayout::Result::P_Scrlr.
 		//
@@ -2392,6 +2392,42 @@ private:
 	};
 	TSVector <Entry> List;
 };
+//
+//  TView State masks
+//
+#define sfVisible             0x00000001
+#define sfActive              0x00000010
+#define sfSelected            0x00000020
+#define sfFocused             0x00000040
+#define sfDisabled            0x00000100
+#define sfModal               0x00000200
+#define sfReadOnly            0x00001000 // Work for TInputLine only
+#define sfCmdSetChanged       0x00002000 //
+#define sfMsgToParent         0x00004000 // Если установлен, то Win-сообщение отправляется хозяину, иначе - в handleWindowsMessage
+#define sfEventBarrier        0x00008000 // Объект TView находится в состянии блокировки функции handleEvent.
+	// Такая блокировка необходима для исключения реентера handleEvent в пределах одного 'кземпляра объекта.
+#define sfOnDestroy           0x00010000 // Объект находится в состоянии разрушения. Флаг устанавливается оконной процедурой
+	// при обработке сообщения WM_DESTROY и необходим для предотвращения зацикливания при попытке оконной процедуры разрушить
+	// объект TView чтобы деструктор TView не пытался в свою очередь разрушить окно.
+#define sfCloseMe             0x00020000 // Специальный флаг, устанавливаемый экземпляром окна, чтобы управляющий
+	// модуль уничтожил это окно (сообщением cmClose) как только увидит этот флаг и посчитает это удобным.
+	// Резон: иногда, если окно пытается послать себе такое сообщение, оно разрушается в не правильный момент, вызывае исключение.
+#define sfOnParentDestruction 0x00040000 // Объект уничтожается своим родителем (в цикле TViewGroup)
+	// Это состояние позволяет избежать действий, связанных с обработкой ссылок на родительский объект
+#define sfBorderless          0x00080000 // @v11.6.7 @construction примененяется к окнам: окно без служебной области (бордюра).
+#define sfTabStop             0x00100000 // @v12.3.5 
+#define sfHover               0x00200000 // @v12.5.3 Над view-элементом завис курсор мыши 
+//
+// TView Option masks
+//
+#define ofSelectable      0x0001
+#define ofFirstClick      0x0004
+// @v11.3.2 @obsolete #define ofFramed          0x0008
+#define ofPreProcess      0x0010
+#define ofPostProcess     0x0020
+// @v12.5.3 (@unused) #define ofCenterX         0x0100
+// @v12.5.3 (@unused) #define ofCenterY         0x0200
+// @v12.5.3 (@unused) #define ofCentered        0x0300
 
 class TView {
 public:
@@ -2414,6 +2450,7 @@ public:
 	static long FASTCALL SGetWindowStyle(HWND hWnd);
 	static long FASTCALL SGetWindowExStyle(HWND hWnd);
 	static int  FASTCALL SGetWindowClassName(HWND hWnd, SString & rBuf);
+	static int  FASTCALL SGetWindowClassName(HWND hWnd, SStringU & rBuf);
 	static int  FASTCALL SGetWindowText(HWND hWnd, SString & rBuf);
 	static int  FASTCALL SSetWindowText(HWND hWnd, const char * pText);
 	//
@@ -2526,6 +2563,7 @@ public:
 	void   SendToParent(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	void   SetWordSelBlock(WordSel_ExtraBlock *);
 	bool   HasWordSelector() const { return LOGIC(P_WordSelBlk); }
+	int    RegisterMouseTracking(int leaveNotify, int hoverTimeout); // @v12.5.3
 	//
 	// Descr: Только для применения в функции TWindow::getCtrlView
 	//
@@ -2533,6 +2571,8 @@ public:
 private:
 	uint32 Sign;    // Подпись экземпляра класса. Используется для идентификации инвалидных экземпляров.
 protected:
+	static int Helper_RegisterMouseTracking(void * pHandle/*HWND*/, int leaveNotify, int hoverTimeout);
+
 	friend class EvBarrier;
 
 	class EvBarrier {
@@ -2985,7 +3025,7 @@ public:
 	int    AddChildWithLayout(TWindowBase * pChildWindow, long createOptions, SUiLayout * pLayout);
 protected:
 	static void Helper_Finalize(HWND hWnd, TBaseBrowserWindow * pView);
-	TWindowBase(LPCTSTR pWndClsName, long wbCapability);
+	TWindowBase(const wchar_t * pWndClsName, long wbCapability);
 	DECL_HANDLE_EVENT;
 	void   SetDefaultCursor();
 
@@ -2994,7 +3034,7 @@ protected:
 private:
 	static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 	void   MakeMouseEvent(uint msg, WPARAM wParam, LPARAM lParam, MouseEvent & rMe);
-	void   RegisterMouseTracking(int force);
+	void   FASTCALL RegisterMouseTracking_(bool force);
 
 	const  SString ClsName;     // Window class name
 	enum {
@@ -3003,7 +3043,6 @@ private:
 		wbsMouseTrackRegistered = 0x0004
 	};
 	long   WbState;
-	uint32 H_DrawBuf;
 };
 //
 //
@@ -3642,15 +3681,18 @@ struct UiItemKind { // @transient
 	//   Эти флаги не должны пересекаться по смыслу с опциями layout-свойств
 	//
 	enum { // @persistent
-		fReadOnly   = 0x0001,
-		fTabStop    = 0x0002,
-		fStaticEdge = 0x0004,
-		fDisabled   = 0x0008,
-		fHidden     = 0x0010,
-		fMultiLine  = 0x0020, // for inputline
-		fWantReturn = 0x0040, // for inputline
-		fPassword   = 0x0080, // for inputline
-		fDefault    = 0x0100  // элемент имеет default-статус. Может применяться к pushbutton и radiobutton
+		fReadOnly        = 0x0001,
+		fTabStop         = 0x0002,
+		fStaticEdge      = 0x0004,
+		fDisabled        = 0x0008,
+		fHidden          = 0x0010,
+		fMultiLine       = 0x0020, // for inputline
+		fWantReturn      = 0x0040, // for inputline
+		fPassword        = 0x0080, // for inputline
+		fDefault         = 0x0100, // элемент имеет default-статус. Может применяться к pushbutton и radiobutton
+		fTextAlignLeft   = 0x0200, // @v12.5.3 for inputline текст выравнивается по левому краю
+		fTextAlignRight  = 0x0400, // @v12.5.3 for inputline текст выравнивается по правому краю
+		fTextAlignCenter = fTextAlignLeft|fTextAlignRight, // @v12.5.3 for inputline текст выравнивается по центру
 	};
 
 	static int  GetTextList(StrAssocArray & rList);
@@ -3899,10 +3941,13 @@ public:
 	static LRESULT CALLBACK DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	enum {
-		spcfReadOnly   = 0x0001,
-		spcfMultiline  = 0x0002,
-		spcfWantReturn = 0x0004,
-		spcfPassword   = 0x0008, // @v12.3.11
+		spcfReadOnly      = 0x0001,
+		spcfMultiline     = 0x0002,
+		spcfWantReturn    = 0x0004,
+		spcfPassword      = 0x0008, // @v12.3.11
+		spcfLeftAligned   = 0x0010, // @v12.5.3
+		spcfRightAligned  = 0x0020, // @v12.5.3
+		spcfCenterAligned = spcfLeftAligned|spcfRightAligned, // @v12.5.3
 	};
 
 	TInputLine(const TRect & rBounds, uint spcFlags, TYPEID aType, long fmt);
@@ -4875,7 +4920,7 @@ struct TDrawItemData {
 	HDC    H_DC;
 	RECT   ItemRect;
 	TView * P_View;
-	ulong  ItemData;
+	uint64 ItemData; // @v12.5.3 ulong-->uint64
 };
 //
 // Descr: Структура, передаваемая с сообщением cmCtlColor
@@ -5746,8 +5791,9 @@ public:
 		IdBiasTimeChunkBrowser = 0x00200000,
 		IdBiasTextBrowser      = 0x00800000
 	};
+	static void MakeDefaultWindowClassBlock(WNDCLASSEXW * pClsBlk, HINSTANCE hInst);
 protected:
-	TBaseBrowserWindow(LPCTSTR pWndClsName);
+	TBaseBrowserWindow(const wchar_t * pWndClsName);
 	DECL_HANDLE_EVENT;
 	static TBaseBrowserWindow * Helper_InitCreation(LPARAM lParam, void ** ppInitData);
 
@@ -5758,7 +5804,7 @@ protected:
 		bbsCancel       = 0x00000008, // Какой-то из виртуальных методов порожденного класса потребовал прекратить выполнение
 		// Начиная с 0x00010000 флаги зарезервированы за наследующими классами
 	};
-	const  SString ClsName; // Window class name
+	const  SStringU ClsName; // Window class name
 	uint   ResourceID;
 	SPoint2S PrevMouseCoord;
 	long   BbState;
@@ -5799,7 +5845,7 @@ public:
 	static int RegWindowClass(HINSTANCE hInst);
 	static LRESULT CALLBACK BrowserWndProc(HWND, UINT, WPARAM, LPARAM);
 
-	static LPCTSTR WndClsName;
+	static const wchar_t * WndClsName;
 
 	BrowserWindow(uint resID, DBQuery * pDataQuery, uint broDefOptions);
 	BrowserWindow(uint resID, SArray * pDataArray, uint broDefOptions);
@@ -6245,7 +6291,7 @@ protected:
 	void   OnUpdateData();
 	void   SetupScroll();
 	int    GetChunkText(long chunkId, SString & rBuf);
-	void   RegisterMouseTracking();
+	void   RegisterMouseTracking_();
 	void   FASTCALL GetStartPageDate(LDATE * pDt);
 	const  RowState & FASTCALL GetRowState(long id) const;
 	int    SelectChunkColor(const STimeChunkAssoc * pChunk, HBRUSH * pBrush);
@@ -6473,7 +6519,7 @@ protected:
 class STextBrowser : public TBaseBrowserWindow, public SScEditorBase {
 public:
 	static int RegWindowClass(HINSTANCE hInst);
-	static LPCTSTR WndClsName;
+	static const wchar_t * WndClsName;
 	//
 	// Descr: Флаги загрузки файла и сохранения файлов
 	//
@@ -6541,7 +6587,7 @@ private:
 //
 // 
 //
-class TWhatmanBrowser : public TBaseBrowserWindow { // @v11.0.0
+class TWhatmanBrowser : public TBaseBrowserWindow {
 public:
 	struct Param {
 		enum {
@@ -6555,7 +6601,7 @@ public:
 		SString WtaFileName;
 	};
 	static int RegWindowClass(HINSTANCE hInst);
-	static LPCTSTR WndClsName;
+	static const wchar_t * WndClsName;
 	TWhatmanBrowser(Param * pP);
 	TWhatmanBrowser(const char * pFileName, int toolbarId = -1);
 	~TWhatmanBrowser();

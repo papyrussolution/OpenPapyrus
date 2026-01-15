@@ -547,7 +547,7 @@ SLTEST_FIXTURE(SVector, TestFixtureSArray)
 			SLCHECK_EQ(v.at(check_min_val_pos).Val, min_val);
 		}
 		{
-			v.Thresholding(RAssocArray::thrshfAbs|RAssocArray::thrshf_dB, -60.0);
+			v.Thresholding(rvecthrshfAbs|rvecthrshf_dB, -60.0);
 			SLCHECK_LT(v.getCountI(), static_cast<int>(items_count));
 		}
 	}

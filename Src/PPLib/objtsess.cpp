@@ -1,5 +1,5 @@
 // OBJTSESS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -276,7 +276,12 @@ class TSessCfgDialog : public TDialog {
 		struct Group {
 			void Init(uint grp, uint ctl, uint ctlSel, uint cmd, uint cmdCtl, long * pColor)
 			{
-				Grp = grp; Ctl = ctl; CtlSel = ctlSel; Cmd = cmd; CmdCtl = cmdCtl; P_Color = pColor;
+				Grp = grp; 
+				Ctl = ctl; 
+				CtlSel = ctlSel; 
+				Cmd = cmd; 
+				CmdCtl = cmdCtl; 
+				P_Color = pColor;
 			}
 			uint   Grp;
 			uint   Ctl;

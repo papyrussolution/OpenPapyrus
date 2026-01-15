@@ -1,5 +1,5 @@
 // SMRTLBX.CPP
-// Copyright (c) Sobolev A. 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025
+// Copyright (c) Sobolev A. 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025, 2026
 // @codepage UTF-8
 // Release for WIN32
 //
@@ -174,7 +174,7 @@ SmartListBox::SmartListBox(const TRect & rRect, ListBoxDef * pDef, bool isTreeLi
 	SubSign = TV_SUBSIGN_LISTBOX;
 	StrPool.add("$"); // zero index - is empty string
 	SetTreeListState(isTreeList);
-	ViewOptions |= ofSelectable | ofFirstClick;
+	ViewOptions |= ofSelectable|ofFirstClick;
 	setDef(pDef);
 }
 
@@ -947,13 +947,13 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				SCharToOem(b);
 				const uchar ub = b[0];
 				if(!(State & stOmitSearchByFirstChar)) {
-					if(isalnum(ub) || IsLetter866(ub) || ub == '*')
+					if(isasciialnum(ub) || IsLetter866(ub) || ub == '*')
 						search(b, srchFirst);
 					else
 						return 0;
 				}
 				else {
-					if(isalnum(ub) || IsLetter866(ub))
+					if(isasciialnum(ub) || IsLetter866(ub))
 						return 0;
 					else
 						return 1;

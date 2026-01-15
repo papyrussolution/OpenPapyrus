@@ -26,24 +26,23 @@ int sasl_config_init(const char * filename)
 	char * p, * key;
 	char * tail;
 	int result;
-
 	nconfiglist = 0;
-
 	infile = fopen(filename, "r");
 	if(!infile) {
 		return SASL_CONTINUE;
 	}
-
 	while(fgets(buf, sizeof(buf), infile)) {
 		lineno++;
-
-		if(buf[strlen(buf)-1] == '\n') buf[strlen(buf)-1] = '\0';
-		for(p = buf; *p && isspace((int)*p); p++);
-		if(!*p || *p == '#') continue;
-
+		if(buf[strlen(buf)-1] == '\n') 
+			buf[strlen(buf)-1] = '\0';
+		for(p = buf; *p && isspace((int)*p); p++)
+			;
+		if(!*p || *p == '#') 
+			continue;
 		key = p;
-		while(*p && (isalnum((int)*p) || *p == '-' || *p == '_')) {
-			if(isupper((int)*p)) *p = (char)tolower(*p);
+		while(*p && (isasciialnum((int)*p) || *p == '-' || *p == '_')) {
+			if(isupper((int)*p)) 
+				*p = (char)tolower(*p);
 			p++;
 		}
 		if(*p != ':') {

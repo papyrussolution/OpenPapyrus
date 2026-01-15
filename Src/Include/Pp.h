@@ -9161,7 +9161,7 @@ public:
 	int    SearchByObj(SObjID oid, PPID regTypeID, RegisterTbl::Rec * pRec);
 	//
 	// Descr: Функция аналогичная Add(), но с безусловным разрешением на дублирование номеров.
-	// Note: @really private Не следует использовть иначе, как в экстренных случаях, требущих
+	// Note: @reallyprivate Не следует использовть иначе, как в экстренных случаях, требущих
 	//   низкоуровневого вмешательства в управляемую уникальность нумерации в обход PPObjRegisterType
 	//
 	int    Add_ForceDup(PPID * pID, RegisterTbl::Rec * pRec, int use_ta);
@@ -20976,6 +20976,15 @@ public:
 		fldWeight,                // @v11.9.0 3103 Масса товара в единице (на сайте честный знак указана длина поля 9 символов, но фактически длина иная)
 		fldOriginalText,          // Оригинальный текст, поданый для разбора // @v12.3.5 moved from 0 (first elem) to here
 	};
+	//
+	// Descr: Функция просто выясняет есть ли в строке rBuf префикс токена token. Не пытается умничать, а просто ищет подстроку,
+	//   соответствующую токену.
+	// Returns:
+	//   true - в строке rBuf содержится префикс токена token
+	//   false - в строке rBuf нет префикса токена token
+	//
+	static bool HasStringToken(const SString & rBuf, int token);
+	static const char * GetTokenPrefix(int token);
 	GtinStruc();
 	void   SetSpecialFixedToken(int token, int fixedLen /* 1000 - UNTIL EOL */);
 	void   RemoveSpecialFixedToken(int token); // @v11.8.10
@@ -44690,11 +44699,13 @@ struct VatBookTotal {      // @transient
 	double Vat3Amount;
 	double Vat4Amount; // @v12.2.7 
 	double Vat5Amount; // @v12.2.7
+	double Vat6Amount; // @v12.5.3
 	double Vat1Sum;
 	double Vat2Sum;
 	double Vat3Sum;
 	double Vat4Sum; // @v12.2.7
 	double Vat5Sum; // @v12.2.7
+	double Vat6Sum; // @v12.5.3
 };
 
 #define VBV_CLB_ITEM_SIZE 64
@@ -44707,7 +44718,7 @@ struct VatBookViewItem : VATBookTbl::Rec { // @transient
 class PPViewVatBook : public PPView {
 public:
 	enum AutoBuildFlags {
-		abfWL     = 0x0001, // Только по документам, отмеченным WL
+		abfWL             = 0x0001, // Только по документам, отмеченным WL
 		abfByPayment      = 0x0002, // Формирование книги строго по оплатам
 		abfByPaymAtPrd    = 0x0004, // Формирование книги по оплатам документов, попадающим в период ExtPeriod.
 		abfOnlyEmptyExtAr = 0x0008  // Только с пустой дополнительной статьей
@@ -50220,7 +50231,7 @@ public:
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
 	virtual int EditBaseFilt(PPBaseFilt * pBaseFilt);
 	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
-	static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr); // @really-private
+	static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr); // @reallyprivate
 private:
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
@@ -50275,7 +50286,7 @@ public:
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
 	virtual int EditBaseFilt(PPBaseFilt * pBaseFilt);
 	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
-	static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr); // @really-private
+	static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr); // @reallyprivate
 private:
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
@@ -61290,7 +61301,7 @@ private:
 
 class PPDesktop : public TWindow { // @todo (@20260111) Базовым классом должен быть TWindowBase
 public:
-	static const char * WndClsName;
+	static const wchar_t * WndClsName;
 	static int   Open(const S_GUID & rDesktopUuid, int createIfZero = 0);
    	static LRESULT CALLBACK DesktopWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	static int   RegWindowClass(HINSTANCE hInst);
@@ -61606,8 +61617,8 @@ private:
 		int    ObjIdx;    //
 		int    ObjRszDir; // Направление изменения размера объекта (SOW_XXX)
 		long   Flags;     // @flags
-		SPoint2S StartPt;   // Стартовая точка начала перемещения //
-		SPoint2S EndPt;     // Последняя фиксация точки, в которую необходимо осуществить перемещение.
+		SPoint2S StartPt; // Стартовая точка начала перемещения //
+		SPoint2S EndPt;   // Последняя фиксация точки, в которую необходимо осуществить перемещение.
 		TWhatmanObject * P_MovedObjCopy;
 	};
 	struct State_ {
@@ -61638,7 +61649,6 @@ private:
 	int    LocalMenu(int objIdx);
 	int    InvalidateObjScope(const TWhatmanObject * pObj);
 	int    InsertDlScopeView(DlContext & rCtx, const DlScope * pParent, const DlScope * pS);
-	int    Test_LoadDl600View();
 	void   MakeLayoutList(const WhatmanObjectLayoutBase * pItem, uint itemIdx, uint parentIdx, StrAssocArray & rList);
 	static int Helper_MakeFrameWindow(TWindowBase * pFrame, const char * pWtmFileName, const char * pWtaFileName);
 

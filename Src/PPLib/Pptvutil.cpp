@@ -2813,12 +2813,12 @@ int STDCALL BarcodeInputDialog(int initChar, SString & rBuf)
 	SString code;
 	BarcodeSrchDialog * dlg = new BarcodeSrchDialog;
 	if(CheckDialogPtrErr(&dlg)) {
-		if(isalnum(initChar))
+		if(isasciialnum(initChar))
 			code.CatChar(initChar);
 		else
 			code = rBuf;
 		dlg->setCtrlString(CTL_SRCHBCODE_CODE, code);
-		if(code.NotEmpty() && isalnum(initChar)) {
+		if(code.NotEmpty() && isasciialnum(initChar)) {
 			TInputLine * il = static_cast<TInputLine *>(dlg->getCtrlView(CTL_SRCHBCODE_CODE));
 			CALLPTRMEMB(il, disableDeleteSelection(1));
 		}
@@ -7626,6 +7626,9 @@ int ExportDialogs2(const char * pFileName)
 												{ ES_PASSWORD, "password" },
 												{ ES_MULTILINE, "multiline" },
 												{ ES_WANTRETURN, "wantreturn" },
+												{ ES_LEFT,   "text_align_left" },   // @v12.5.3
+												{ ES_RIGHT,  "text_align_right" },  // @v12.5.3
+												{ ES_CENTER, "text_align_center" }, // @v12.5.3
 											};
 											for(uint i = 0; i < SIZEOFARRAY(ws_symb_list); i++) {
 												if(wi.dwStyle & ws_symb_list[i].Id)
@@ -8681,6 +8684,15 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						if(ui_flags & UiItemKind::fPassword) {
 							spc_flags |= TInputLine::spcfPassword;
 						}
+						if((ui_flags & UiItemKind::fTextAlignCenter) == UiItemKind::fTextAlignCenter) {
+							spc_flags |= TInputLine::spcfCenterAligned;
+						}
+						else if(ui_flags & UiItemKind::fTextAlignRight) {
+							spc_flags |= TInputLine::spcfRightAligned;
+						}
+						else if(ui_flags & UiItemKind::fTextAlignLeft) {
+							spc_flags |= TInputLine::spcfLeftAligned;
+						}
 						TInputLine * p_ctl = new TInputLine(rc, spc_flags, static_cast<TYPEID>(type_id), 0);
 						if(format) {
 							p_ctl->setFormat(format);
@@ -9031,10 +9043,10 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 	}
 }
 
-static const float FixedButtonY = 21.0f;
-static const float FixedButtonX = FixedButtonY;
-static const float FixedInputY = 21.0f;
-static const float FixedLabelY = 13.0f;
+// (moved to SlConst) static const float FixedButtonY = 21.0f;
+// (moved to SlConst) static const float FixedButtonX = FixedButtonY;
+// (moved to SlConst) static const float FixedInputY = 21.0f;
+// (moved to SlConst) static const float FixedLabelY = 13.0f;
 
 bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pView, SUiLayoutParam & rLp, DlContext & rCtx, const DlScope * pScope, SUiLayout * pLoParent)
 {
@@ -9248,7 +9260,7 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 					if(inp_szy == SUiLayoutParam::szFixed) {
 						glp.SetFixedSizeY(inp_height + rc_label.height() + 1.0f);
 						lp_il.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-						lp_il.SetFixedSizeY(FixedInputY);
+						lp_il.SetFixedSizeY(SlConst::UiFixedInputY);
 					}
 					else if(rLp.GrowFactor >= 0.0f) {
 						glp.SetGrowFactor(rLp.GrowFactor);
@@ -9340,7 +9352,7 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 				lp_sb.ShrinkFactor = 0.0f;
 
 				lp_il.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-				lp_il.SetFixedSizeY(FixedInputY);
+				lp_il.SetFixedSizeY(SlConst::UiFixedInputY);
 
 				//lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 				//lp_label.SetFixedSizeY(static_cast<float>(rc_label.height()));
@@ -9444,8 +9456,8 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 								lp.Size.y = 0;
 								lp.SzY = SUiLayoutParam::szUndef;
 								lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-								lp_label.SetFixedSizeY(FixedLabelY);
-								lp_label.Margin.b.y = 2;
+								lp_label.SetFixedSizeY(SlConst::UiFixedLabelY);
+								lp_label.Margin.b.y = SlConst::UiFixedLabelGapY;
 								lp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 								//
 								if(!p_lb->IsMultiColumn() && !p_lb->IsTreeList()) // Припуск для скролл-бара не нужен для мультиколоночного списка и для treeview
@@ -9480,8 +9492,8 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 								lp.Size.y = 0;
 								lp.SzY = SUiLayoutParam::szUndef;
 								lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-								lp_label.SetFixedSizeY(FixedLabelY);
-								lp_label.Margin.b.y = 2;
+								lp_label.SetFixedSizeY(SlConst::UiFixedLabelY);
+								lp_label.Margin.b.y = SlConst::UiFixedLabelGapY;
 								lp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 								//
 								if(!p_lb->IsMultiColumn() && !p_lb->IsTreeList()) // Припуск для скролл-бара не нужен для мультиколоночного списка и для treeview
@@ -9519,7 +9531,7 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 												case SUiCtrlSupplement::kFilt: supplemental_button_width = 60.0f; break;
 												default: supplemental_button_width = 20.0f; break;
 											}
-											sb_sz.Set(supplemental_button_width, FixedButtonY);
+											sb_sz.Set(supplemental_button_width, SlConst::UiFixedButtonY);
 										}
 										else {
 											p_supplemental_view = 0;
@@ -9541,14 +9553,14 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 										lp.GrowFactor = 0.0f;
 										// } @v12.3.7 
 										lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-										lp_label.SetFixedSizeY(FixedLabelY);
-										lp_button.SetFixedSizeX(FixedButtonX);
-										lp_button.SetFixedSizeY(FixedButtonY);
+										lp_label.SetFixedSizeY(SlConst::UiFixedLabelY);
+										lp_button.SetFixedSizeX(SlConst::UiFixedButtonX);
+										lp_button.SetFixedSizeY(SlConst::UiFixedButtonY);
 										lp_button.ShrinkFactor = 0.0f;
 										lp_il.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-										lp_il.SetFixedSizeY(FixedInputY);
-										lp_ib.SetFixedSizeY(MAX(FixedInputY, FixedButtonY));
-										glp.SetFixedSizeY(MAX(FixedInputY, FixedButtonY) + FixedLabelY);
+										lp_il.SetFixedSizeY(SlConst::UiFixedInputY);
+										lp_ib.SetFixedSizeY(smax(SlConst::UiFixedInputY, SlConst::UiFixedButtonY));
+										glp.SetFixedSizeY(smax(SlConst::UiFixedInputY, SlConst::UiFixedButtonY) + SlConst::UiFixedLabelY);
 
 										SUiLayout * p_lo_cb_grp = pLoParent->InsertItem(0, &glp);
 										InsertCtrlLayout(pDlg, p_lo_cb_grp, p_lbl, lp_label);
@@ -9581,13 +9593,13 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 										// } @v12.3.7 
 										//lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 										//lp_label.SetFixedSizeY(FixedLabelY);
-										lp_button.SetFixedSizeX(FixedButtonX);
-										lp_button.SetFixedSizeY(FixedButtonY);
+										lp_button.SetFixedSizeX(SlConst::UiFixedButtonX);
+										lp_button.SetFixedSizeY(SlConst::UiFixedButtonY);
 										lp_button.ShrinkFactor = 0.0f;
 										lp_il.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-										lp_il.SetFixedSizeY(FixedInputY);
-										///*lp_ib*/glp.SetFixedSizeY(MAX(FixedInputY, FixedButtonY));
-										glp.SetFixedSizeY(MAX(FixedInputY, FixedButtonY)/*+ FixedLabelY*/);
+										lp_il.SetFixedSizeY(SlConst::UiFixedInputY);
+										///*lp_ib*/glp.SetFixedSizeY(smax(SlConst::UiFixedInputY, SlConst::UiFixedButtonY));
+										glp.SetFixedSizeY(smax(SlConst::UiFixedInputY, SlConst::UiFixedButtonY)/*+ SlConst::UiFixedLabelY*/);
 
 										//SUiLayout * p_lo_cb_grp = pLoParent->InsertItem(0, &glp);
 										//InsertCtrlLayout(pDlg, p_lo_cb_grp, p_lbl, lp_label);

@@ -1,5 +1,5 @@
 // PPLOG.CPP
-// Copyright (c) A.Sobolev, A.Osolotkin 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev, A.Osolotkin 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -29,7 +29,7 @@ private:
 	HWND   GetSciWnd() const { return HwndSci; }
 	void   Resize();
 
-	static LPCTSTR WndClsName; // @global
+	static const wchar_t * WndClsName; // @global
 	enum {
 		sstLastKeyDownConsumed = 0x0001
 	};
@@ -42,24 +42,19 @@ private:
 	WNDPROC OrgScintillaWndProc;
 };
 
-/*static*/LPCTSTR LogListWindowSCI::WndClsName = _T("LogListWindowSCI"); // @global
+/*static*/const wchar_t * LogListWindowSCI::WndClsName = _T("LogListWindowSCI"); // @global
 
 /*static*/int LogListWindowSCI::RegWindowClass(HINSTANCE hInst)
 {
-	WNDCLASSEX wc;
-	INITWINAPISTRUCT(wc);
-	wc.style = CS_HREDRAW|CS_VREDRAW|CS_OWNDC|CS_DBLCLKS;
+	WNDCLASSEXW wc;
+	TBaseBrowserWindow::MakeDefaultWindowClassBlock(&wc, hInst);
 	wc.lpfnWndProc   = LogListWindowSCI::WndProc;
-	wc.cbClsExtra    = BRWCLASS_CEXTRA;
-	wc.cbWndExtra    = BRWCLASS_WEXTRA;
-	wc.hInstance     = hInst;
-	wc.hIcon = LoadIcon(hInst, MAKEINTRESOURCE(/*ICON_TIMEGRID*/172));
-	wc.hbrBackground = ::CreateSolidBrush(RGB(0xEE, 0xEE, 0xEE));
+	wc.hIcon = LoadIconW(hInst, MAKEINTRESOURCE(/*ICON_TIMEGRID*/172));
 	wc.lpszClassName = LogListWindowSCI::WndClsName;
 #if !defined(_PPDLL) && !defined(_PPSERVER)
 	Scintilla_RegisterClasses(hInst);
 #endif
-	return ::RegisterClassEx(&wc);
+	return ::RegisterClassExW(&wc);
 }
 
 LogListWindowSCI::LogListWindowSCI(TVMsgLog * pLog) : TWindow(TRect(0, 0, 100, 20)), SScEditorBase()
@@ -177,7 +172,7 @@ int LogListWindowSCI::WMHCreate()
 			ToolBarWidth = tbr.bottom - tbr.top;
 		}
 	}
-	HwndSci = ::CreateWindowEx(WS_EX_CLIENTEDGE, _T("Scintilla"), _T(""), WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_CLIPCHILDREN,
+	HwndSci = ::CreateWindowExW(WS_EX_CLIENTEDGE, L"Scintilla", L"", WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_CLIPCHILDREN,
 		0, 0/*ToolBarWidth*/, rc.right - rc.left, rc.bottom - rc.top, HW, 0/*(HMENU)GuiID*/, APPL->GetInst(), 0);
 	SScEditorBase::Init(HwndSci, 0/*preserveFileName*/);
 	TView::SetWindowUserData(HwndSci, this);

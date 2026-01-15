@@ -1,5 +1,5 @@
 // PPEDI.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 2015, 2016, 2018, 2019, 2020, 2021, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -273,6 +273,22 @@ static const SIntToSymbTabEntry GtinPrefix[] = {
 	{ GtinStruc::fldCouponCode3,           "8102" },
 	{ GtinStruc::fldControlRuTobacco,      "93"   }, // @v11.8.3 Собственный идентификатор - контрольная последовательность в конце маркировки сигарет (Россия).
 };
+
+/*static*/const char * GtinStruc::GetTokenPrefix(int token)
+{
+	const char * p_prefix = SIntToSymbTab_GetSymbPtr(GtinPrefix, SIZEOFARRAY(GtinPrefix), token);
+	return p_prefix;
+}
+
+/*static*/bool GtinStruc::HasStringToken(const SString & rBuf, int token)
+{
+	bool   result = false;
+	if(token > 0 && rBuf.Len()) {
+		const char * p_prefix = GetTokenPrefix(token);
+		result = (!isempty(p_prefix) && rBuf.Search(p_prefix, 0, 0, 0));
+	}
+	return result;
+}
 
 int GtinStruc::DetectPrefix(const char * pSrc, uint flags, int currentId, uint * pPrefixLen) const
 {

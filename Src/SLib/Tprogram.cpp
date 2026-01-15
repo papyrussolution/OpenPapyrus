@@ -1237,7 +1237,7 @@ TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitl
 			const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
 			SColor clr = UiDescription::GetColorR(p_uid, p_cs, "main_window_bg", SColor(0x20, 0x63, 0x9b));
 			// } @v12.2.1 
-			HBRUSH hbr_bkg = ::CreateSolidBrush(/*RGB(0x20, 0x63, 0x9b)*/static_cast<COLORREF>(clr));
+			HBRUSH hbr_bkg = ::CreateSolidBrush(static_cast<COLORREF>(clr));
 			wc.hbrBackground = hbr_bkg;
 		}
 		wc.cbClsExtra    = sizeof(long);
@@ -2010,6 +2010,7 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 	int    ok = -1;
 	int    draw_bitmap = 0;
 	uint   dv_id = 0;
+	bool   is_hovered = false; // @v12.5.3 true если над элементом висит курсор мыши
 	int    item_state = tbisBase;
 	if(pDi->itemState & ODS_DISABLED)
 		item_state = tbisDisable;
@@ -2017,9 +2018,9 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 		item_state = tbisSelect;
 	else if(pDi->itemAction == ODA_FOCUS || (pDi->itemState & ODS_FOCUS))
 		item_state = tbisFocus;
-	/* if(pDi->itemState & ODS_HOTLIGHT) {
+	/*if(pDi->itemState & ODS_HOTLIGHT) {
 		item_state = tbisHover;
-	} */
+	}*/
 	const  long style(TView::SGetWindowStyle(pDi->hwndItem));
 	long   text_out_fmt = /*DT_SINGLELINE|*/DT_VCENTER|DT_EXTERNALLEADING|DT_END_ELLIPSIS;
 	const  TRect rect_elem_i(pDi->rcItem);
@@ -2055,8 +2056,23 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 				dv_id = PPDV_DROPDOWN01;
 			}
 			else if(p_btn_ && p_btn_->IsConsistent()) {
-				if(item_state == 0 && p_btn_->IsDefault())
-					item_state = tbisDefault;
+				// @v12.5.3 {
+				if(p_btn_->IsInState(sfHover))
+					is_hovered = true;
+				// } @v12.5.3 
+				if(item_state == 0) {
+					/*
+					if(is_hovered)
+						item_state = tbisSelect;
+					*/
+					if(p_btn_->IsDefault())
+						item_state = tbisDefault;
+				}
+				// @v12.5.3 {
+				if(is_hovered && !oneof2(item_state, tbisFocus, tbisDisable)) {
+					item_state = tbisSelect;
+				}
+				// } @v12.5.3
 				const uint bmp_id = p_btn_->GetBmpID();
 				switch(bmp_id) {
 					case IDB_MENU:          dv_id = PPDV_FUNCTION01; break;

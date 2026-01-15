@@ -27,7 +27,7 @@ void CharClassify::SetDefaultCharClasses(bool includeWordClass)
 			charClass[ch] = ccNewLine;
 		else if(ch < 0x20 || ch == ' ')
 			charClass[ch] = ccSpace;
-		else if(includeWordClass && (ch >= 0x80 || isalnum(ch) || ch == '_'))
+		else if(includeWordClass && (ch >= 0x80 || isasciialnum(ch) || ch == '_'))
 			charClass[ch] = ccWord;
 		else
 			charClass[ch] = ccPunctuation;

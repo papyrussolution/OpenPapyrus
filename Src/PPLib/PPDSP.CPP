@@ -1,5 +1,5 @@
 // PPDSP.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2005, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2019, 2020, 2021, 2025
+// Copyright (c) A.Sobolev 2001, 2002, 2005, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2019, 2020, 2021, 2025, 2026
 //
 #pragma hdrstop
 #ifdef PPDSC
@@ -175,7 +175,7 @@ int PPDeclStrucProcessor::GetWord()
 		do {
 			WordBuf.CatChar(c);
 			c = GetChar();
-		} while(isalnum(c) || c == '_');
+		} while(isasciialnum(c) || c == '_');
 	}
 	UngetChar();
 	return c ? 1 : 0;

@@ -1890,6 +1890,103 @@ bool FAssocArray::Search(long key, float * pVal, uint * pPos, int binary/*= 0*/)
 	return ok;
 }
 
+int FAssocArray::SearchMinMaxVal(uint * pMinValPos, uint * pMaxValPos) const // @v12.5.1
+{
+	StatBase sb;
+	int    result = 0;
+	float  max_val = -SMathConst::Max_f;
+	float  min_val = SMathConst::Max_f;
+	uint   max_val_pos = 0;
+	uint   min_val_pos = 0;
+	for(uint i = 0; i < getCount(); i++) {
+		const FAssoc & r_item = at(i);
+		if(max_val < r_item.Val) {
+			max_val = r_item.Val;
+			max_val_pos = i;
+			result |= 2;
+		}
+		if(min_val > r_item.Val) {
+			min_val = r_item.Val;
+			min_val_pos = i;
+			result |= 1;
+		}
+	}
+	ASSIGN_PTR(pMinValPos, min_val_pos);
+	ASSIGN_PTR(pMaxValPos, max_val_pos);
+	return result;
+}
+
+int FAssocArray::Thresholding(uint flags, float factor) // @v12.5.3
+{
+	int    ok = -1;
+	{
+		uint   min_val_pos = 0;
+		uint   max_val_pos = 0;
+		if(SearchMinMaxVal(&min_val_pos, &max_val_pos)) {
+			const  float  min_val = at(min_val_pos).Val;
+			const  float  max_val = at(max_val_pos).Val;
+			const  float  __max_val = (flags & rvecthrshfAbs) ? smax(fabs(max_val), fabs(min_val)) : max_val;
+			float  linear_threshold = 0.0;
+			uint   max_count = _FFFF32;
+			if(flags & rvecthrshf_Lin) {
+				linear_threshold = __max_val * factor;
+			}
+			else if(flags & rvecthrshfLn) {
+				linear_threshold = __max_val * powf(static_cast<float>(SMathConst::E), factor);
+			}
+			else if(flags & rvecthrshfLog10) {
+				linear_threshold = __max_val * powf(10.0f, factor);
+			}
+			else if(flags & rvecthrshf_dB) {
+				// Порог в линейной шкале: например, -60 dB = 1e-3 от максимума
+				linear_threshold = __max_val * powf(10.0f, factor/20.0f);
+			}
+			else if(flags & rvecthrshf_MaxCount) {
+				const long m = R0i(factor);
+				if(m >= 0) 
+					max_count = static_cast<uint>(m);
+				else {
+					ok = SLS.SetError(SLERR_INVPARAM);
+				}
+			}
+			else { // default: thrshf_Lin
+				linear_threshold = __max_val * factor;
+			}
+			if(ok) {
+				if(max_count != _FFFF32) {
+					if(max_count == 0) {
+						clear();
+					}
+					else {
+						if(flags & rvecthrshfAbs) {
+							SortByAbsValRev();
+						}
+						else {
+							SortByValRev();
+						}
+						uint  i = getCount();
+						if(i > max_count) do {
+							atFree(--i);
+						} while(i > max_count);
+					}
+				}
+				else {
+					uint  i = getCount();
+					if(i) do {
+						const  float iter_val = at(--i).Val;
+						const  float __iter_val = (flags & rvecthrshfAbs) ? fabs(iter_val) : iter_val; 
+						if(__iter_val < linear_threshold) {
+							atFree(i);
+							ok = 1;
+						}
+					} while(i);
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 static IMPL_CMPFUNC(FAssoc_Val, i1, i2)
 {
 	const FAssoc * p1 = static_cast<const FAssoc *>(i1);
@@ -1904,9 +2001,19 @@ static IMPL_CMPFUNC(FAssoc_Val_Rev, i1, i2)
 	return (p1->Val < p2->Val) ? +1 : ((p1->Val > p2->Val) ? -1 : 0);
 }
 
+static IMPL_CMPFUNC(FAssoc_AbsVal_Rev, i1, i2)
+{
+	const FAssoc * p1 = static_cast<const FAssoc *>(i1);
+	const FAssoc * p2 = static_cast<const FAssoc *>(i2);
+	const float val1 = fabs(p1->Val);
+	const float val2 = fabs(p2->Val);
+	return (val1 < val2) ? +1 : ((val1 > val2) ? -1 : 0);
+}
+
 void FAssocArray::SortByKey() { sort(CMPF_LONG); }
 void FAssocArray::SortByVal() { sort(PTR_CMPFUNC(FAssoc_Val)); }
 void FAssocArray::SortByValRev() { sort(PTR_CMPFUNC(FAssoc_Val_Rev)); }
+void FAssocArray::SortByAbsValRev() { sort(PTR_CMPFUNC(FAssoc_AbsVal_Rev)); }
 //
 //
 //
@@ -2097,7 +2204,7 @@ int RAssocArray::AddMaxK(long key, double val, uint k)
 	return ok;
 }
 
-int RAssocArray::Thresholding(uint flags, double factor) // @v12.5.3 @construction
+int RAssocArray::Thresholding(uint flags, double factor) // @v12.5.3
 {
 	int    ok = -1;
 	{
@@ -2106,39 +2213,63 @@ int RAssocArray::Thresholding(uint flags, double factor) // @v12.5.3 @constructi
 		if(SearchMinMaxVal(&min_val_pos, &max_val_pos)) {
 			const double min_val = at(min_val_pos).Val;
 			const double max_val = at(max_val_pos).Val;
-			const double __max_val = (flags & thrshfAbs) ? smax(fabs(max_val), fabs(min_val)) : max_val;
-			/*
-				thrshf_Lin  = 0x0001, // (1) Фактор задает порог в простом отношении максимум к тестируемому значению
-				thrshfLn    = 0x0002, // (2) Фактор задает порог в натуральном логарифме
-				thrshfLog10 = 0x0004, // (3) Фактор задает порог в десятичном логарифме
-				thrshf_dB   = 0x0008, // (4) Фактор задает порог в децибеллах
-			*/ 
+			const double __max_val = (flags & rvecthrshfAbs) ? smax(fabs(max_val), fabs(min_val)) : max_val;
 			double linear_threshold = 0.0;
-			if(flags & thrshf_Lin) {
+			uint   max_count = _FFFF32;
+			if(flags & rvecthrshf_Lin) {
 				linear_threshold = __max_val * factor;
 			}
-			else if(flags & thrshfLn) {
+			else if(flags & rvecthrshfLn) {
 				linear_threshold = __max_val * std::pow(SMathConst::E, factor);
 			}
-			else if(flags & thrshfLog10) {
+			else if(flags & rvecthrshfLog10) {
 				linear_threshold = __max_val * std::pow(10.0, factor);
 			}
-			else if(flags & thrshf_dB) {
+			else if(flags & rvecthrshf_dB) {
 				// Порог в линейной шкале: например, -60 dB = 1e-3 от максимума
 				linear_threshold = __max_val * std::pow(10.0, factor/20.0);
+			}
+			else if(flags & rvecthrshf_MaxCount) {
+				const long m = R0i(factor);
+				if(m >= 0) 
+					max_count = static_cast<uint>(m);
+				else {
+					ok = SLS.SetError(SLERR_INVPARAM);
+				}
 			}
 			else { // default: thrshf_Lin
 				linear_threshold = __max_val * factor;
 			}
-			uint  i = getCount();
-			if(i) do {
-				const double iter_val = at(--i).Val;
-				const double __iter_val = (flags & thrshfAbs) ? fabs(iter_val) : iter_val; 
-				if(__iter_val < linear_threshold) {
-					atFree(i);
-					ok = 1;
+			if(ok) {
+				if(max_count != _FFFF32) {
+					if(max_count == 0) {
+						clear();
+					}
+					else {
+						if(flags & rvecthrshfAbs) {
+							SortByAbsValRev();
+						}
+						else {
+							SortByValRev();
+						}
+						uint  i = getCount();
+						if(i > max_count) do {
+							atFree(--i);
+						} while(i > max_count);
+					}
 				}
-			} while(i);
+				else {
+					uint  i = getCount();
+					if(i) do {
+						const double iter_val = at(--i).Val;
+						const double __iter_val = (flags & rvecthrshfAbs) ? fabs(iter_val) : iter_val; 
+						if(__iter_val < linear_threshold) {
+							atFree(i);
+							ok = 1;
+						}
+					} while(i);
+				}
+			}
 		}
 	}
 	return ok;
@@ -2169,9 +2300,19 @@ IMPL_CMPFUNC(RAssoc_Val_Rev, i1, i2)
 	return (p1->Val < p2->Val) ? +1 : ((p1->Val > p2->Val) ? -1 : 0);
 }
 
+IMPL_CMPFUNC(RAssoc_AbsVal_Rev, i1, i2) // @v12.5.3
+{
+	const RAssoc * p1 = static_cast<const RAssoc *>(i1);
+	const RAssoc * p2 = static_cast<const RAssoc *>(i2);
+	const double val1 = abs(p1->Val);
+	const double val2 = abs(p2->Val);
+	return (val1 < val2) ? +1 : ((val1 > val2) ? -1 : 0);
+}
+
 void RAssocArray::SortByKey() { sort(CMPF_LONG); }
 void RAssocArray::SortByVal() { sort(PTR_CMPFUNC(RAssoc_Val)); }
 void RAssocArray::SortByValRev() { sort(PTR_CMPFUNC(RAssoc_Val_Rev)); }
+void RAssocArray::SortByAbsValRev() { sort(PTR_CMPFUNC(RAssoc_AbsVal_Rev)); }
 //
 //
 //

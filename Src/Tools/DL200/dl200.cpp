@@ -1,5 +1,5 @@
 // DL200.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1460,7 +1460,7 @@ int DL2_Acc::GetAcc(char ** ptr, int isCorr, int substAr)
 	}
 	else if(*p == '~') {
 		p++;
-		while(isalnum(*p) || *p == '.')
+		while(isasciialnum(*p) || *p == '.')
 			acc_number[ap++] = *p++;
 		acc_number[ap] = 0;
 		strnzcpy(p_code, strip(acc_number), sizeof(Code)); // @v10.3.4 @fix STRNSCPY(ptr)-->strnzcpy(ptr)

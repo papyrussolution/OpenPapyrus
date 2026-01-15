@@ -781,7 +781,7 @@ int EditDialogSpec(DlContext * pCtx, uint dlgId)
 			zoneLeft = 1,
 			zoneCenter
 		};
-		FrameWindow() : TWindowBase(_T("SLibWindowBase"), 0)
+		FrameWindow() : TWindowBase(L"SLibWindowBase", 0)
 		{
 		}
 	};

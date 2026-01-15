@@ -871,7 +871,7 @@ static int nexttoken(const char ** in, time_t * value)
 			const struct LEXICON * tp;
 			uint i = 0;
 			/* Force to lowercase and strip '.' characters. */
-			while(*src != '\0' && (isalnum((uchar)*src) || *src == '.') && i < sizeof(buff)-1) {
+			while(*src != '\0' && (isasciialnum((uchar)*src) || *src == '.') && i < sizeof(buff)-1) {
 				if(*src != '.') {
 					if(isupper((uchar)*src))
 						buff[i++] = tolower((uchar)*src);

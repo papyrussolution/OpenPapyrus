@@ -922,25 +922,19 @@ int STextBrowser::Init(const char * pFileName, const char * pLexerSymb, int tool
 	return 1;
 }
 
-/*static*/LPCTSTR STextBrowser::WndClsName = _T("STextBrowser"); // @global
+/*static*/const wchar_t * STextBrowser::WndClsName = _T("STextBrowser"); // @global
 
 /*static*/int STextBrowser::RegWindowClass(HINSTANCE hInst)
 {
-	WNDCLASSEX wc;
-	INITWINAPISTRUCT(wc);
-	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
+	WNDCLASSEXW wc;
+	TBaseBrowserWindow::MakeDefaultWindowClassBlock(&wc, hInst);
 	wc.lpfnWndProc   = STextBrowser::WndProc;
-	wc.cbClsExtra    = BRWCLASS_CEXTRA;
-	wc.cbWndExtra    = BRWCLASS_WEXTRA;
-	wc.hInstance     = hInst;
-	wc.hIcon = LoadIcon(hInst, MAKEINTRESOURCE(/*ICON_TIMEGRID*/172));
-	wc.hCursor       = NULL; // LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground = ::CreateSolidBrush(RGB(0xEE, 0xEE, 0xEE));
+	wc.hIcon         = LoadIconW(hInst, MAKEINTRESOURCE(/*ICON_TIMEGRID*/172));
 	wc.lpszClassName = STextBrowser::WndClsName;
 #if !defined(_PPDLL) && !defined(_PPSERVER)
 	Scintilla_RegisterClasses(hInst);
 #endif
-	return RegisterClassEx(&wc);
+	return RegisterClassExW(&wc);
 }
 
 bool STextBrowser::IsFolded(size_t line) 

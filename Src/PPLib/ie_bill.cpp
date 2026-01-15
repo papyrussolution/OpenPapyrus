@@ -1,5 +1,5 @@
 // IE_BILL.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Starodub, A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 //
 #include <pp.h>
 #pragma hdrstop
@@ -7760,7 +7760,7 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 						if(vat_sum_before >= 0.0) // @v12.5.0 (vat_sum_before != 0.0)-->(vat_sum_before >= 0.0)
 							n_e.PutInnerReal(GetToken(PPHSC_RU_AMTVAT), fabs(vat_sum_before), MKSFMTD_020);
 						else
-							n_e.PutInner(GetToken(PPHSC_RU_NOVAT_TAG), GetToken(PPHSC_RU_NOVAT_VAL));
+							n_e.PutInner(GetToken(PPHSC_RU_NOVAT_TAG), 0); // @v12.5.3 GetToken(PPHSC_RU_NOVAT_VAL)-->0
 						total_vat_before += vat_sum_before;
 					}
 					{
@@ -7768,7 +7768,7 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 						if(vat_sum_after >= 0.0) // @v12.5.0 (vat_sum_after != 0.0)-->(vat_sum_after >= 0.0)
 							n_e.PutInnerReal(GetToken(PPHSC_RU_AMTVAT), fabs(vat_sum_after), MKSFMTD_020);
 						else
-							n_e.PutInner(GetToken(PPHSC_RU_NOVAT_TAG), GetToken(PPHSC_RU_NOVAT_VAL));
+							n_e.PutInner(GetToken(PPHSC_RU_NOVAT_TAG), 0); // @v12.5.3 GetToken(PPHSC_RU_NOVAT_VAL)-->0
 						total_vat_after += vat_sum_after;
 					}
 					if(vat_sum_after != vat_sum_before) {
@@ -7844,7 +7844,7 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 						if(vat_sum != 0.0)
 							n_e.PutInnerReal(GetToken(/*PPHSC_RU_AMTVAT*/PPHSC_RU_AMTTAX), fabs(vat_sum), MKSFMTD_020);
 						else
-							n_e.PutInner(GetToken(PPHSC_RU_NOVAT_TAG), GetToken(PPHSC_RU_NOVAT_VAL));
+							n_e.PutInner(GetToken(PPHSC_RU_NOVAT_TAG), 0); // @v12.5.3 GetToken(PPHSC_RU_NOVAT_VAL)-->0
 						total_vat += vat_sum;
 					}
 				}
@@ -7931,7 +7931,7 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 			if(total_vat != 0.0)
 				n_e.PutInnerReal(GetToken(/*PPHSC_RU_AMTVAT*/PPHSC_RU_AMTTAX), fabs(total_vat), MKSFMTD_020);
 			else
-				n_e.PutInner(GetToken(PPHSC_RU_NOVAT_TAG), GetToken(PPHSC_RU_NOVAT_VAL));
+				n_e.PutInner(GetToken(PPHSC_RU_NOVAT_TAG), 0); // @v12.5.3 GetToken(PPHSC_RU_NOVAT_VAL)-->0
 		}
 	}
 	return ok;

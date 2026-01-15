@@ -1,5 +1,5 @@
 // WBROWSE.CPP
-// Copyright (c) Sobolev A. 1994-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) Sobolev A. 1994-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // WIN32
 //
@@ -219,6 +219,24 @@ BroColumn::BroColumn()
 //
 //
 //
+/*static*/void TBaseBrowserWindow::MakeDefaultWindowClassBlock(WNDCLASSEXW * pClsBlk, HINSTANCE hInst)
+{
+	if(pClsBlk) {
+		memzero(pClsBlk, sizeof(*pClsBlk));
+		pClsBlk->cbSize = sizeof(*pClsBlk);
+		pClsBlk->style = CS_HREDRAW|CS_VREDRAW|CS_OWNDC|CS_DBLCLKS;
+		pClsBlk->cbClsExtra = BRWCLASS_CEXTRA;
+		pClsBlk->cbWndExtra = BRWCLASS_WEXTRA;
+		pClsBlk->hInstance     = hInst;
+		{
+			const UiDescription * p_uid = SLS.GetUiDescription();
+			const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
+			SColor clr = UiDescription::GetColorR(p_uid, p_cs, "window_def_bg", SColor(0xEE, 0xEE, 0xEE));
+			pClsBlk->hbrBackground = ::CreateSolidBrush(static_cast<COLORREF>(clr));
+		}
+	}
+}
+
 /*static*/TBaseBrowserWindow * TBaseBrowserWindow::Helper_InitCreation(LPARAM lParam, void ** ppInitData)
 {
 	TBaseBrowserWindow * p_view = 0;
@@ -237,8 +255,8 @@ BroColumn::BroColumn()
 	return p_view;
 }
 
-TBaseBrowserWindow::TBaseBrowserWindow(LPCTSTR pWndClsName) :  TWindowBase(pWndClsName, 0), 
-	ResourceID(0), ClsName(SUcSwitch(pWndClsName)), ToolbarID(0), BbState(0), ToolBarWidth(0), P_Toolbar(0)
+TBaseBrowserWindow::TBaseBrowserWindow(const wchar_t * pWndClsName) :  TWindowBase(pWndClsName, 0), 
+	ResourceID(0), ClsName(pWndClsName), ToolbarID(0), BbState(0), ToolBarWidth(0), P_Toolbar(0)
 {
 	SubSign = TV_SUBSIGN_BASEBRW; // @v12.5.2
 	//WoScrollbars = false;
@@ -263,8 +281,13 @@ TBaseBrowserWindow::~TBaseBrowserWindow()
 int TBaseBrowserWindow::Insert()
 {
 	int    ret = 0;
-	SString buf = getTitle();
-	buf.SetIfEmpty(ClsName).Transf(CTRANSF_INNER_TO_OUTER);
+	SString buf(getTitle());
+	if(buf.IsEmpty()) {
+		ClsName.CopyToUtf8(buf, 1);
+		buf.Transf(CTRANSF_UTF8_TO_OUTER);
+	}
+	else
+		buf.Transf(CTRANSF_INNER_TO_OUTER);
 	if(IsIconic(APPL->H_MainWnd))
 		ShowWindow(APPL->H_MainWnd, SW_MAXIMIZE);
 	const HWND hw_active = GetActiveWindow();
@@ -286,7 +309,7 @@ int TBaseBrowserWindow::Insert()
 			RECT   rc_frame;
 			::GetClientRect(hw_frame, &rc_frame);
 			// @v11.2.6 WS_EX_COMPOSITED
-			HW = ::CreateWindowEx(/*WS_EX_COMPOSITED*/0, SUcSwitch(ClsName), SUcSwitch(buf), style, 0, 0, 
+			HW = ::CreateWindowExW(/*WS_EX_COMPOSITED*/0, ClsName, SUcSwitchW(buf), style, 0, 0, 
 				rc_frame.right-16, rc_frame.bottom, hw_frame, 0, TProgram::GetInst(), this);
 			APPL->SizeMainWnd(HW);
 			::ShowWindow(HW, SW_SHOW);
@@ -383,7 +406,7 @@ IMPL_HANDLE_EVENT(TBaseBrowserWindow)
 			}
 			else {
 				// @v11.2.6 WS_EX_COMPOSITED
-				HW = ::CreateWindowEx(/*WS_EX_COMPOSITED*/0, SUcSwitch(ClsName), p_title, style, r.left, r.top, r.right, r.bottom, (APPL->H_TopOfStack), NULL, TProgram::GetInst(), this);
+				HW = ::CreateWindowExW(/*WS_EX_COMPOSITED*/0, ClsName.ucptr(), p_title, style, r.left, r.top, r.right, r.bottom, (APPL->H_TopOfStack), NULL, TProgram::GetInst(), this);
 			}
 			if(HW) {
 				TEvent event;
@@ -447,7 +470,7 @@ BrowserBrushes & BrowserBrushes::Z()
 	return *this;
 }
 
-/*static*/LPCTSTR BrowserWindow::WndClsName = _T("SBROWSER");
+/*static*/const wchar_t * BrowserWindow::WndClsName = L"SBROWSER";
 //
 //
 //
@@ -1149,7 +1172,7 @@ IMPL_HANDLE_EVENT(BrowserWindow)
 					SString temp_buf;
 					temp_buf.CatChar(TVCHR).Transf(CTRANSF_OUTER_TO_INNER);
 					const char _c = temp_buf.C(0);
-					if(_c == '*' || isalnum(_c) || IsLetter866(_c))
+					if(_c == '*' || isasciialnum(_c) || IsLetter866(_c))
 						search(temp_buf, srchFirst);
 					else
 						return;
@@ -2858,10 +2881,9 @@ int BrowserWindow::CalcRowsHeight(long topItem, long bottomItem)
 
 static int IsBrowserWindow(HWND hWnd)
 {
-	SString cls_name;
+	SStringU cls_name;
 	TView::SGetWindowClassName(hWnd, cls_name);
-	return BIN(cls_name == SUcSwitch(BrowserWindow::WndClsName) || cls_name == SlConst::WinClsName_TimeChunkBrowser ||
-		cls_name == SlConst::WinClsName_TextEditor || cls_name == SlConst::WinClsName_Desktop);
+	return oneof4(cls_name, BrowserWindow::WndClsName, SlConst::WinClsName_TimeChunkBrowser, SlConst::WinClsName_TextEditor, SlConst::WinClsName_Desktop);
 }
 
 HWND FASTCALL GetNextBrowser(HWND hw, int reverse)

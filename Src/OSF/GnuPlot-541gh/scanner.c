@@ -6,7 +6,7 @@
 
 //static void substitute(char ** strp, size_t * str_lenp, int current);
 
-#define isident(c) (isalnum((uchar)(c)) || (c) == '_' || ALLOWED_8BITVAR(c))
+#define isident(c) (isasciialnum((uchar)(c)) || (c) == '_' || ALLOWED_8BITVAR(c))
 
 #define LBRACE '{'
 #define RBRACE '}'

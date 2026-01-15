@@ -1,5 +1,5 @@
 // TEST-STRING.CPP
-// Copyright (c) A.Sobolev 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Тестирование функций класса SString
 //
@@ -393,6 +393,40 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			p_temp_text = "гороДовой";
 			temp_buf_u.CopyFromUtf8(p_temp_text, sstrlen(p_temp_text));
 			SLCHECK_Z(text_u.Search(temp_buf_u, 1, &pos));
+		}
+		{
+			//
+			// Тестирование функций SearchRev
+			//
+			const char * p_text = "AB00ABC000ABCD0000ABCDE###";
+			//                     012345678901234567890123456
+			//                                       .
+			str = p_text;
+			size_t p = 0;
+			int   r = str.SearchRev("AB", 0, 0, &p);
+			SLCHECK_NZ(r);
+			SLCHECK_EQ(p, 18U);
+			r = str.SearchRev("AB", 15, 0, &p);
+			SLCHECK_NZ(r);
+			SLCHECK_EQ(p, 18U);
+			r = str.SearchRev("aB", 15, 1, &p);
+			SLCHECK_NZ(r);
+			SLCHECK_EQ(p, 18U);
+			r = str.SearchRev("AB", 19, 0, &p);
+			SLCHECK_Z(r);
+			SLCHECK_EQ(p, 0U);
+			r = str.SearchRev("ABC", 15, 0, &p);
+			SLCHECK_NZ(r);
+			SLCHECK_EQ(p, 18U);
+			r = str.SearchRev("xyz", 0, 0, &p);
+			SLCHECK_Z(r);
+			SLCHECK_EQ(p, 0U);
+			r = str.SearchRev("", 0, 0, &p);
+			SLCHECK_Z(r);
+			SLCHECK_EQ(p, 0U);
+			r = str.SearchRev(0, 0, 0, &p);
+			SLCHECK_Z(r);
+			SLCHECK_EQ(p, 0U);
 		}
 		{
 			SLCHECK_EQ((str = " abc ").Strip(1), " abc");

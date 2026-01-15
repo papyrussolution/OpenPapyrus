@@ -1,5 +1,5 @@
 // SCARD.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2006, 2007, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2006, 2007, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // @Kernel
 //
@@ -321,7 +321,7 @@ int SCardCore::AddTurnover_Test(PPID id, double add, int use_ta)
 			}
 		}
 		while(ok < 0 && *p) {
-			if(isalnum(*p))
+			if(isasciialnum(*p))
 				*c++ = *p++;
 			else if(*p == '%') {
 				size_t r_len = 0;
@@ -402,9 +402,9 @@ int SCardCore::MakeCodeByTemplate(PPID seriesID, const char * pPattern, SString 
 	}
 	const size_t dbdiv_len = strlen("@dbdiv");
 	while(ok < 0 && *p) {
-		if(isalnum(*p))
+		if(isasciialnum(*p))
 			*c++ = *p++;
-		else if(sstreqni_ascii(p, "@dbdiv", dbdiv_len)) { // @v11.0.11
+		else if(sstreqni_ascii(p, "@dbdiv", dbdiv_len)) {
 			//89@dbdiv90%05[1..10]
 			SString & r_temp_buf = SLS.AcquireRvlStr();
 			r_temp_buf.Cat(LConfig.DBDiv);
@@ -514,12 +514,11 @@ struct SCardCodeTemplate {
 				temp_buf.Z();
 				for(uint i = 0; i < templ.Len(); i++) {
 					const char c = templ.C(i);
-					if(isalnum(c)) {
+					if(isasciialnum(c)) {
 						temp_buf.CatChar(c);
 						if(i < check_dig_start_pos)
 							CheckDigOffs++;
 					}
-					// @v11.0.10 {
 					else if(templ.HasAtiAscii(i, "@dbdiv")) {
 						//89@dbdiv90%05[1..10]
 						const size_t preserve_len = temp_buf.Len();
@@ -529,7 +528,6 @@ struct SCardCodeTemplate {
 						}
 						i += 5; // strlen("dbdiv")
 					}
-					// } @v11.0.10 
 					else if(c == '%') {
 						Prefix = temp_buf;
 						temp_buf.Z();

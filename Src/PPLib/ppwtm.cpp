@@ -1918,13 +1918,13 @@ int PPWhatmanWindow::ScrollBlock::SetupWindow(HWND hWnd) const
 			if(_c) {
 				si.nMin = 0;
 				si.nMax = _c-1;
-				si.nPos = MIN(si.nMax, static_cast<int>(ScrlrY.GetCurrentPageTopIndex()));
+				si.nPos = smin(si.nMax, static_cast<int>(ScrlrY.GetCurrentPageTopIndex()));
 			}
 		}
 		else {
 			si.nMin = Ry.low;
 			si.nMax = Ry.upp;
-			si.nPos = MIN(si.nMax, ScY);
+			si.nPos = smin(si.nMax, ScY);
 		}
 		::SetScrollInfo(hWnd, SB_VERT, &si, TRUE);
 	}
@@ -1937,13 +1937,13 @@ int PPWhatmanWindow::ScrollBlock::SetupWindow(HWND hWnd) const
 			if(_c) {
 				si.nMin = 0;
 				si.nMax = _c-1;
-				si.nPos = MIN(si.nMax, static_cast<int>(ScrlrX.GetCurrentPageTopIndex()));
+				si.nPos = smin(si.nMax, static_cast<int>(ScrlrX.GetCurrentPageTopIndex()));
 			}
 		}
 		else {
 			si.nMin = Rx.low;
 			si.nMax = Rx.upp;
-			si.nPos = MIN(si.nMax, ScX);
+			si.nPos = smin(si.nMax, ScX);
 		}
 		::SetScrollInfo(hWnd, SB_HORZ, &si, TRUE);
 	}
@@ -1952,7 +1952,7 @@ int PPWhatmanWindow::ScrollBlock::SetupWindow(HWND hWnd) const
 
 #pragma warning(disable:4355) // Запрет замечания о том, что this используется в списке инициализации
 
-PPWhatmanWindow::PPWhatmanWindow(int mode) : TWindowBase(_T("SLibWindowBase"), wbcDrawBuffer), W(this)
+PPWhatmanWindow::PPWhatmanWindow(int mode) : TWindowBase(L"SLibWindowBase", wbcDrawBuffer), W(this)
 {
 	St.Mode = mode;
 	St.SelectedObjIdx = -1;
@@ -2033,10 +2033,7 @@ PPWhatmanWindow::~PPWhatmanWindow()
 {
 }
 
-SPaintToolBox & PPWhatmanWindow::GetToolBox()
-{
-	return Tb;
-}
+SPaintToolBox & PPWhatmanWindow::GetToolBox() { return Tb; }
 
 int PPWhatmanWindow::AddObject(TWhatmanObject * pObj, const TRect * pBounds)
 {
@@ -2670,11 +2667,7 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 					}
 				}
 				break;
-			case kbCtrlX:
-				if(Test_LoadDl600View()) {
-					invalidateAll(false);
-					::UpdateWindow(H());
-				}
+			case kbCtrlX: // @debug
 				break;
 			default:
 				return;
@@ -2750,7 +2743,6 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 				ScrlB.SetupWindow(H());
 			}
 			::UpdateWindow(H());
-			// @v11.0.3 return;
 		}
 		else if(event.isCmd(cmDragndropObj)) {
 			DragndropEvent * p_ev = static_cast<DragndropEvent *>(TVINFOPTR);
@@ -2770,7 +2762,8 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 		}
 		else if(event.isCmd(cmMouse)) {
 			MouseEvent * p_me = static_cast<MouseEvent *>(TVINFOPTR);
-			int    obj_idx = 0, prev_idx = -1;
+			int    obj_idx = 0;
+			int    prev_idx = -1;
 			switch(p_me->Type) {
 				case MouseEvent::tRDown:
 					LocalMenu(W.FindObjectByPoint(p_me->Coord, &obj_idx) ? obj_idx : -1);
@@ -2791,11 +2784,6 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 								endModal(cmOK);
 						}
 						else {
-							//W.SetCurrentObject(obj_idx, &prev_idx);
-							//InvalidateObjScope(W.GetObjectByIndexC(prev_idx));
-							//InvalidateObjScope(W.GetObjectByIndexC(obj_idx));
-							//Resize(1, p_me->Coord);
-							//::UpdateWindow(H());
 							Helper_SetCurrentObject(obj_idx, &p_me->Coord);
 						}
 					}
@@ -2805,9 +2793,6 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 							::UpdateWindow(H());
 						}
 						if(W.GetCurrentObject(&prev_idx)) {
-							//W.SetCurrentObject(-1, &prev_idx);
-							//InvalidateObjScope(W.GetObjectByIndexC(prev_idx));
-							//::UpdateWindow(H());
 							Helper_SetCurrentObject(-1, 0);
 						}
 						else {
@@ -3338,23 +3323,7 @@ int PPWhatmanWindow::InsertDlScopeView(DlContext & rCtx, const DlScope * pParent
 	return ok;
 }
 
-int PPWhatmanWindow::Test_LoadDl600View()
-{
-	int    ok = 1;
-#ifndef NDEBUG
-	DlContext ctx;
-	ctx.Init("D:/Papyrus/Src/Rsrc/dl600/test_view.bin");
-	DLSYMBID scope_id = 0;
-	SString upper_level_symb("TEST_VIEW03");
-	SString cur_level_symb;
-	if(ctx.SearchSymb(upper_level_symb, '^', &scope_id)) {
-		InsertDlScopeView(ctx, 0, ctx.GetScope_Const(scope_id, DlScope::kUiView));
-	}
-#endif 
-	return ok;
-}
-
-/*static*/LPCTSTR TWhatmanBrowser::WndClsName = _T("TWhatmanBrowser"); // @global
+/*static*/const wchar_t * TWhatmanBrowser::WndClsName = L"TWhatmanBrowser"; // @global
 
 TWhatmanBrowser::TWhatmanBrowser(Param * pP) : TBaseBrowserWindow(WndClsName)
 {
@@ -3395,46 +3364,6 @@ int TWhatmanBrowser::WMHCreate()
 		}
 	}
 	PPWhatmanWindow::Helper_MakeFrameWindow(this, P.WtmFileName, P.WtaFileName);
-#if 0 // 
-	HwndSci = ::CreateWindowEx(WS_EX_CLIENTEDGE, _T("Scintilla"), _T(""), WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_CLIPCHILDREN,
-		0, ToolBarWidth, rc.right - rc.left, rc.bottom - rc.top, H(), 0/*(HMENU)GuiID*/, APPL->GetInst(), 0);
-	SScEditorBase::Init(HwndSci, 1/*preserveFileName*/);
-	TView::SetWindowProp(HwndSci, GWLP_USERDATA, this);
-	OrgScintillaWndProc = static_cast<WNDPROC>(TView::SetWindowProp(HwndSci, GWLP_WNDPROC, ScintillaWindowProc));
-	// @v8.6.2 (SCI_SETKEYSUNICODE deprecated in sci 3.5.5) CallFunc(SCI_SETKEYSUNICODE, 1, 0);
-	CallFunc(SCI_SETCARETLINEVISIBLE, 1);
-	CallFunc(SCI_SETCARETLINEBACK, RGB(232,232,255));
-	CallFunc(SCI_SETSELBACK, 1, RGB(117,217,117));
-	CallFunc(SCI_SETFONTQUALITY, SC_EFF_QUALITY_LCD_OPTIMIZED); // @v9.8.2 SC_EFF_QUALITY_ANTIALIASED-->SC_EFF_QUALITY_LCD_OPTIMIZED
-	// CallFunc(SCI_SETTECHNOLOGY, /*SC_TECHNOLOGY_DIRECTWRITERETAIN*/SC_TECHNOLOGY_DIRECTWRITEDC, 0); // @v9.8.2
-	//
-	CallFunc(SCI_SETMOUSEDWELLTIME, 500);
-	//
-	{
-		KeyAccel.clear();
-		{
-			for(uint i = 0; i < OuterKeyAccel.getCount(); i++) {
-				const LAssoc & r_accel_item = OuterKeyAccel.at(i);
-				const KeyDownCommand & r_k = *reinterpret_cast<const KeyDownCommand *>(&r_accel_item.Key);
-				KeyAccel.Set(r_k, r_accel_item.Val);
-			}
-		}
-		if(P_Toolbar) {
-			const uint tbc = P_Toolbar->getItemsCount();
-			for(uint i = 0; i < tbc; i++) {
-				const ToolbarItem & r_tbi = P_Toolbar->getItem(i);
-				if(!(r_tbi.Flags & r_tbi.fHidden) && r_tbi.KeyCode && r_tbi.KeyCode != TV_MENUSEPARATOR && r_tbi.Cmd) {
-					KeyDownCommand k;
-					if(k.SetTvKeyCode(r_tbi.KeyCode))
-						KeyAccel.Set(k, r_tbi.Cmd);
-				}
-			}
-		}
-		KeyAccel.Sort();
-	}
-	FileLoad(Doc.FileName, cpUTF8, 0);
-	return BIN(P_SciFn && P_SciPtr);
-#endif
 	return 1;
 }
 
@@ -3538,23 +3467,17 @@ int TWhatmanBrowser::WMHCreate()
 
 /*static*/int TWhatmanBrowser::RegWindowClass(HINSTANCE hInst)
 {
-	WNDCLASSEX wc;
-	INITWINAPISTRUCT(wc);
-	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
+	WNDCLASSEXW wc;
+	TBaseBrowserWindow::MakeDefaultWindowClassBlock(&wc, hInst);
 	wc.lpfnWndProc   = TWhatmanBrowser::WndProc;
-	wc.cbClsExtra    = BRWCLASS_CEXTRA;
-	wc.cbWndExtra    = BRWCLASS_WEXTRA;
-	wc.hInstance     = hInst;
-	wc.hIcon = LoadIcon(hInst, MAKEINTRESOURCE(/*ICON_TIMEGRID*/172));
-	wc.hCursor       = NULL;
-	wc.hbrBackground = ::CreateSolidBrush(RGB(0xEE, 0xEE, 0xEE));
+	wc.hIcon = LoadIconW(hInst, MAKEINTRESOURCEW(/*ICON_TIMEGRID*/172));
 	wc.lpszClassName = TWhatmanBrowser::WndClsName;
-	return RegisterClassEx(&wc);
+	return RegisterClassExW(&wc);
 }
 
 /*static*/int PPWhatmanWindow::Edit(const char * pWtmFileName, const char * pWtaFileName)
 {
-	const int use_base_browser_window = 1;
+	const  bool use_base_browser_window = true;
 	int    ok = -1;
 	if(use_base_browser_window) {
 		TWhatmanBrowser::Param param;
@@ -3567,7 +3490,7 @@ int TWhatmanBrowser::WMHCreate()
 	else {
 		class FrameWindow : public TWindowBase {
 		public:
-			FrameWindow() : TWindowBase(_T("SLibWindowBase"), 0)
+			FrameWindow() : TWindowBase(L"SLibWindowBase", 0)
 			{
 				SUiLayoutParam alb(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
 				SUiLayout * p_lo = new SUiLayout();

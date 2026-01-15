@@ -837,8 +837,8 @@ void DBTable::CopyBufFrom(const void * pBuf, size_t srcBufSize)
 
 int DBTable::CopyBufLobFrom(const void * pBuf, size_t srcBufSize)
 {
-	constexpr bool experimental = SlDebugMode::CT() ? true : false; // true in case of @debug MySQL 
-	//constexpr bool experimental = false; // true in case of @debug MySQL 
+	//constexpr bool experimental = SlDebugMode::CT() ? true : false; // true in case of @debug MySQL 
+	constexpr bool experimental = false; // true in case of @debug MySQL 
 	int    ok = -1;
 	if(pBuf && P_DBuf) {
 		if(State & sHasLob) {

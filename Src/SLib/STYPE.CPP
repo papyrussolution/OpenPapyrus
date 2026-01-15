@@ -1,5 +1,5 @@
 // STYPE.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2019, 2020, 2022, 2023, 2024, 2025
+// Copyright (c) Sobolev A. 1995, 1996, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2019, 2020, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -347,7 +347,7 @@ TYPEID FASTCALL IsSTypeName(SStrScan & rScan)
 		for(uint p = 0; ss.get(&p, temp_buf);) {
 			if(text.HasPrefixNC(temp_buf)) {
 				uchar next2 = static_cast<uchar>(text[temp_buf.Len()]);
-				if(!isalnum(next2) && next2 != '_') {
+				if(!isasciialnum(next2) && next2 != '_') {
 					rScan.SetLen(temp_buf.Len());
 					return TypeNameList[i].Typ;
 				}

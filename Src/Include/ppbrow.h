@@ -1551,6 +1551,7 @@
 #define PPCMD_CHECKCHZNMARK                         1362
 #define PPCMD_EXPORTGOODS                           1363
 #define PPCMD_TESTGLOBALSVCACCESSIBILITY            1364
+#define PPCMD_CONSTRUCTIONFACADEWINDOW              1365
 //
 // PPJOB definitions
 //

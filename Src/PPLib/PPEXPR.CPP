@@ -1,5 +1,5 @@
 // PPEXPR.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 // @Kernel
 // Трансляция формул
@@ -655,7 +655,7 @@ int PPExprParser::GetToken()
 			do {
 				*p++ = Cur;
 				Next();
-			} while(isasciialnum(static_cast<uchar>(Cur)) || oneof2(Cur, '_', '.')); // @v11.4.9 isalnum-->isasciialnum
+			} while(isasciialnum(static_cast<uchar>(Cur)) || oneof2(Cur, '_', '.'));
 			*p = 0;
 			//Func = 0;
 			Fb.SetFuncId(0);
@@ -664,8 +664,8 @@ int PPExprParser::GetToken()
 			else if(sstreqi_ascii(buf, "sin"))   { Fb.SetFuncId(funcSin); }
 			else if(sstreqi_ascii(buf, "cos"))   { Fb.SetFuncId(funcCos); }
 			else if(sstreqi_ascii(buf, "tan"))   { Fb.SetFuncId(funcTan); }
-			else if(sstreqi_ascii(buf, "log"))   { Fb.SetFuncId(funcLog); } // @v11.0.2
-			else if(sstreqi_ascii(buf, "log10")) { Fb.SetFuncId(funcLog10); } // @v11.0.2
+			else if(sstreqi_ascii(buf, "log"))   { Fb.SetFuncId(funcLog); }
+			else if(sstreqi_ascii(buf, "log10")) { Fb.SetFuncId(funcLog10); }
 			else if(sstreqi_ascii(buf, "round")) { Fb.SetFuncId(funcRound); }
 			else if(sstreqi_ascii(buf, "roundup")) { Fb.SetFuncId(funcRoundUp); }
 			else if(sstreqi_ascii(buf, "rounddown")) { Fb.SetFuncId(funcRoundDown); }
@@ -1282,7 +1282,7 @@ int GoodsContext::IsRef(const char * pStr, size_t * pPos, SString & rRef)
 	SString temp_buf;
 	if(isalpha(pStr[pos]) || pStr[pos] == '_' || pStr[pos] == '@') do {
 		temp_buf.CatChar(pStr[pos++]);
-	} while(isasciialnum(pStr[pos]) || pStr[pos] == '_'); // @v11.4.9 isalnum-->isasciialnum
+	} while(isasciialnum(pStr[pos]) || pStr[pos] == '_');
 	if(pStr[pos] == '.') {
 		pos++;
 		ASSIGN_PTR(pPos, pos);

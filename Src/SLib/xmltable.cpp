@@ -1,11 +1,10 @@
 // XMLTABLE.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2023
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2023, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
-// @v11.7.9 #include <..\osf\libxml\libxml.h>
-#include <..\slib\libxml\libxml.h> // @v11.7.9
+#include <..\slib\libxml\libxml.h>
 
 const int __EnableEmptyRoot = 1;
 //
@@ -464,11 +463,11 @@ int XmlDbFile::Push(const Param * pParam)
 	THROW_S(rParam.RecTag.NotEmpty(), SLERR_XMLDB_RECTAGEMPTY);
 	for(i = 0; i < rParam.RootTag.Len(); i++) {
 		const uchar c = (uchar)rParam.RootTag.C(i);
-		THROW_S(isalnum(c) || oneof4(c, '\\', '/', '_', '-') || IsLetter1251(c), SLERR_XMLDB_ROOTTAGINVCHR);
+		THROW_S(isasciialnum(c) || oneof4(c, '\\', '/', '_', '-') || IsLetter1251(c), SLERR_XMLDB_ROOTTAGINVCHR);
 	}
 	for(i = 0; i < rParam.RecTag.Len(); i++) {
 		const uchar c = (uchar)rParam.RecTag.C(i);
-		THROW_S(isalnum(c) || oneof4(c, '\\', '/', '_', '-') || IsLetter1251(c), SLERR_XMLDB_RECTAGINVCHR);
+		THROW_S(isasciialnum(c) || oneof4(c, '\\', '/', '_', '-') || IsLetter1251(c), SLERR_XMLDB_RECTAGINVCHR);
 	}
 	CATCHZOK
 	return ok;

@@ -1,5 +1,5 @@
 // DL600C.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Compile-time DL600 modules
 //
@@ -759,6 +759,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 		occfMinSize         = 0x04000000, // @v12.3.6
 		occfLabelWidth      = 0x08000000, // @v12.3.9
 		occfLabelHeight     = 0x10000000, // @v12.3.9
+		occfTextAlign       = 0x20000000, // @v12.5.3 
 	};
 	enum {
 		occsLeft         = 0x0001,
@@ -787,6 +788,9 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 		{ UiItemKind::fWantReturn, occfWantReturn, "wantreturn" },
 		{ UiItemKind::fPassword, occfPassword, "password" },
 		{ UiItemKind::fDefault, occfDefault, "defaultitem" },
+		{ UiItemKind::fTextAlignLeft,   occfTextAlign, "text_align_left" },   // @v12.5.3 ES_LEFT
+		{ UiItemKind::fTextAlignRight,  occfTextAlign, "text_align_right" },  // @v12.5.3 ES_RIGHT
+		{ UiItemKind::fTextAlignCenter, occfTextAlign, "text_align_center" }, // @v12.5.3 ES_CENTER
 	};
 	struct AlignmentEntry {
 		uint16 * P_Var;
@@ -814,22 +818,28 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 				for(uint tidx = 0; !processed && tidx < SIZEOFARRAY(control_flag_list); tidx++) {
 					const ControlFlagEntry & r_entry = control_flag_list[tidx];
 					if(prop_key == r_entry.P_Prop) {
-						THROW(!(occurence_flags & r_entry.OccurenceFlag)); // @err dup feature
-						if(p_prop->Value.IsEmpty())
-							control_flags |= r_entry.Flag;
-						else {
-							if(p_prop->Value.IsIdent() || p_prop->Value.IsString())
-								prop_val = p_prop->Value.U.S;
-							if(prop_val.IsEqiAscii("true") || prop_val.IsEqiAscii("yes") || prop_val.IsEqiAscii(".T."))
-								control_flags |= r_entry.Flag;
-							else if(prop_val.IsEqiAscii("false") || prop_val.IsEqiAscii("no") || prop_val.IsEqiAscii(".F."))
-								control_flags &= ~r_entry.Flag;
-							else {
-								// @err invalid readonly value
-							}
+						// PPERR_DL6_PROP_REDEFFLAG "DL600 признак '%s' или аналогичный уже определен"
+						if(occurence_flags & r_entry.OccurenceFlag) {
+							unterm_errcode = PPERR_DL6_PROP_REDEFFLAG;
+							unterm_error_addedmsg = prop_key;
 						}
-						occurence_flags |= r_entry.OccurenceFlag;										
-						processed = true;
+						else {
+							if(p_prop->Value.IsEmpty())
+								control_flags |= r_entry.Flag;
+							else {
+								if(p_prop->Value.IsIdent() || p_prop->Value.IsString())
+									prop_val = p_prop->Value.U.S;
+								if(prop_val.IsEqiAscii("true") || prop_val.IsEqiAscii("yes") || prop_val.IsEqiAscii(".T."))
+									control_flags |= r_entry.Flag;
+								else if(prop_val.IsEqiAscii("false") || prop_val.IsEqiAscii("no") || prop_val.IsEqiAscii(".F."))
+									control_flags &= ~r_entry.Flag;
+								else {
+									// @err invalid readonly value
+								}
+							}
+							occurence_flags |= r_entry.OccurenceFlag;
+							processed = true;
+						}
 					}
 				}
 			}
@@ -2747,7 +2757,7 @@ DLSYMBID DlContext::SetDeclTypeMod(DLSYMBID ofTyp, int mod /* STypEx::modXXX */,
 				t.Typ = MKSTYPED(_t, _len, _prec);
 			}
 			else if(t.IsZStr(&_len) && _len == 0) t.Typ = MKSTYPE(S_ZSTRING, arrayDim);
-			else if(t.IsWZStr(&_len) && _len == 0) t.Typ = MKSTYPE(S_WZSTRING, arrayDim * sizeof(wchar_t)); // @v8.6.2
+			else if(t.IsWZStr(&_len) && _len == 0) t.Typ = MKSTYPE(S_WZSTRING, arrayDim * sizeof(wchar_t));
 			else if(_is_pure && _t == S_NOTE)     t.Typ = MKSTYPE(S_NOTE,    arrayDim);
 			else if(_is_pure && _t == S_LSTRING)  t.Typ = MKSTYPE(S_LSTRING, arrayDim);
 			else if(_is_pure && _t == S_DEC)      t.Typ = MKSTYPED(S_DEC,    arrayDim, 2);

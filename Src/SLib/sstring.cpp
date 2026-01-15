@@ -1,5 +1,5 @@
 // SSTRING.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -1279,8 +1279,8 @@ int SString::GetWord(size_t * pPos, SString & rBuf) const
 	size_t pos = DEREFPTRORZ(pPos);
 	rBuf.Z();
 	while(pos < Len()) {
-		char c = C(pos);
-		if(isalnum(c) || c == '_') {
+		char   c = C(pos);
+		if(isasciialnum(c) || c == '_') {
 			rBuf.CatChar(c);
 			pos++;
 		}
@@ -1340,6 +1340,24 @@ int SString::Tokenize(const char * pDelimChrSet, StringSet & rResult) const
 int SString::Search(const SSrchPattern * pBlk, size_t startPos, size_t * pPos) const
 {
 	return (pBlk && startPos < Len()) ? pBlk->Search(P_Buf, startPos, Len(), pPos) : 0;
+}
+
+int SString::SearchRev(const char * pPattern, size_t startPos, int ignoreCase, size_t * pPos) const
+{
+	int    ok = 0;
+	size_t result_pos = 0;
+	const  size_t _pat_len = sstrlen(pPattern);
+	if(_pat_len) {
+		size_t _p = startPos;
+		size_t new_pos = 0;
+		while(Search(pPattern, _p, ignoreCase, &new_pos)) {
+			result_pos = new_pos;
+			_p = new_pos+1;
+			ok = 1;
+		}
+	}
+	ASSIGN_PTR(pPos, result_pos);
+	return ok;
 }
 
 int SString::Search(const char * pPattern, size_t startPos, int ignoreCase, size_t * pPos) const
@@ -4613,11 +4631,12 @@ SStringU::~SStringU()
 {
 	L = 0;
 	Size = 0;
-	if(P_Buf) // @v9.6.4 @speedcritical
+	if(P_Buf) // @speedcritical
 		ZFREE(P_Buf);
 }
 
 size_t SStringU::Len() const { return L ? (L-1) : 0; }
+uint32 SStringU::Len32() const { return static_cast<uint32>(L ? (L-1) : 0); } // @v12.5.3
 wchar_t FASTCALL SStringU::C(size_t n) const { return (n < Len()) ? P_Buf[n] : 0; }
 
 int FASTCALL SStringU::Alloc(size_t sz)

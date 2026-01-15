@@ -1,5 +1,5 @@
 // STCHBRW.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // TimeChunkBrowser
 //
@@ -225,23 +225,18 @@ int STimeChunkGrid::MoveChunk(int mode, long id, long rowId, const STimeChunk & 
 
 /*static*/int STimeChunkBrowser::RegWindowClass(HINSTANCE hInst)
 {
-	WNDCLASSEX wc;
-	INITWINAPISTRUCT(wc);
-	wc.lpszClassName = SUcSwitch(SlConst::WinClsName_TimeChunkBrowser);
-	wc.hInstance     = hInst;
+	WNDCLASSEXW wc;
+	TBaseBrowserWindow::MakeDefaultWindowClassBlock(&wc, hInst);
+	wc.lpszClassName = SlConst::WinClsName_TimeChunkBrowser;
 	wc.lpfnWndProc   = STimeChunkBrowser::WndProc;
-	wc.style = CS_HREDRAW|CS_VREDRAW|CS_OWNDC|CS_DBLCLKS;
-	wc.hIcon = LoadIcon(hInst, MAKEINTRESOURCE(/*ICON_TIMEGRID*/172));
-	wc.hbrBackground = ::CreateSolidBrush(RGB(0xEE, 0xEE, 0xEE));
-	wc.cbClsExtra    = BRWCLASS_CEXTRA;
-	wc.cbWndExtra    = BRWCLASS_WEXTRA;
-	return ::RegisterClassEx(&wc);
+	wc.hIcon         = LoadIconW(hInst, MAKEINTRESOURCE(/*ICON_TIMEGRID*/172));
+	return ::RegisterClassExW(&wc);
 }
 
-void STimeChunkBrowser::RegisterMouseTracking()
+void STimeChunkBrowser::RegisterMouseTracking_()
 {
 	if(!(Flags & stMouseTrackRegistered)) {
-		TWindow::RegisterMouseTracking(1, /*-1*/ 250);
+		TWindow::RegisterMouseTracking(1, /*-1*/250);
 		Flags |= stMouseTrackRegistered;
 	}
 }
@@ -294,7 +289,7 @@ int FASTCALL STimeChunkBrowser::InvalidateChunk(long chunkId)
 					TView::SGetWindowText(hWnd, temp_buf);
 					APPL->AddItemToMenu(temp_buf, p_view);
 				}
-				p_view->RegisterMouseTracking();
+				p_view->RegisterMouseTracking_();
 				return 0;
 			}
 			else
@@ -419,7 +414,7 @@ int FASTCALL STimeChunkBrowser::InvalidateChunk(long chunkId)
 				if(p_view->PrevMouseCoord != tp) {
 					p_view->PrevMouseCoord = tp;
 					p_view->Flags &= ~stMouseTrackRegistered;
-					p_view->RegisterMouseTracking();
+					p_view->RegisterMouseTracking_();
 				}
 				if(wParam == 0) {
 					Area a2;
@@ -516,7 +511,7 @@ const STimeChunkBrowser::SRect * FASTCALL STimeChunkBrowser::SRectArray::SearchP
 	return 0;
 }
 
-STimeChunkBrowser::STimeChunkBrowser() : TBaseBrowserWindow(SUcSwitch(SlConst::WinClsName_TimeChunkBrowser)), BmpId_ModeGantt(0), BmpId_ModeHourDay(0), P_Tt(0), Flags(0)
+STimeChunkBrowser::STimeChunkBrowser() : TBaseBrowserWindow(SlConst::WinClsName_TimeChunkBrowser), BmpId_ModeGantt(0), BmpId_ModeHourDay(0), P_Tt(0), Flags(0)
 {
 	SubSign = TV_SUBSIGN_TMCHNKBRW; // @v12.5.2
 	/*
@@ -735,7 +730,7 @@ STimeChunkBrowser::~STimeChunkBrowser()
 /*virtual*/TBaseBrowserWindow::IdentBlock & STimeChunkBrowser::GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk)
 {
 	rBlk.IdBias = IdBiasTimeChunkBrowser;
-	rBlk.ClsName = SlConst::WinClsName_TimeChunkBrowser;
+	rBlk.ClsName = SUcSwitchW(SlConst::WinClsName_TimeChunkBrowser);
 	rBlk.InstanceIdent.Z().Cat(GetResID());
 	return rBlk;
 }
@@ -771,7 +766,7 @@ int STimeChunkBrowser::SaveParameters()
 				case kpTextZonePart: temp_buf.CatEq(item.Txt, St.TextZonePart).Semicol(); break;
 			}
 		}
-		(sub_key = "Software").SetLastSlash().Cat(SLS.GetAppName()).SetLastSlash().Cat(SlConst::WinClsName_TimeChunkBrowser);
+		(sub_key = "Software").SetLastSlash().Cat(SLS.GetAppName()).SetLastSlash().Cat(SUcSwitchW(SlConst::WinClsName_TimeChunkBrowser));
 		WinRegKey reg_key(HKEY_CURRENT_USER, sub_key, 0);
 		ok = BIN(reg_key.PutString(P.RegSaveParam, temp_buf));
 	}
@@ -788,7 +783,7 @@ int STimeChunkBrowser::RestoreParameters(STimeChunkBrowser::Param & rParam)
 		StrAssocArray param_list;
 		SString temp_buf, sub_key, left, right;
 		MakeParamKeyList(param_list);
-		(sub_key = "Software").SetLastSlash().Cat(SLS.GetAppName()).SetLastSlash().Cat(SlConst::WinClsName_TimeChunkBrowser);
+		(sub_key = "Software").SetLastSlash().Cat(SLS.GetAppName()).SetLastSlash().Cat(SUcSwitchW(SlConst::WinClsName_TimeChunkBrowser));
 		WinRegKey reg_key(HKEY_CURRENT_USER, sub_key, 1); // @v9.2.0 readonly 0-->1
 		if(reg_key.GetString(rParam.RegSaveParam, val_buf) > 0) {
 			SStrScan scan(val_buf);

@@ -290,14 +290,14 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 		{
 			HWND   h_curr_wnd = ::GetTopWindow(APPL->GetFrameWindow());
 			if(h_curr_wnd) {
-				SString & r_temp_buf = SLS.AcquireRvlStr();
-				TView::SGetWindowClassName(h_curr_wnd, r_temp_buf.Z());
-				if(r_temp_buf == SlConst::WinClsName_TextEditor) {
+				SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+				TView::SGetWindowClassName(h_curr_wnd, r_temp_buf_u);
+				if(r_temp_buf_u == SlConst::WinClsName_TextEditor) {
 					STextBrowser * p_view = static_cast<STextBrowser *>(TView::GetWindowUserData(h_curr_wnd));
 					if(p_view && p_view->IsConsistent()) {
 						STextBrowser::StatusBlock sb;
 						if(p_view->GetStatus(&sb)) {
-							r_temp_buf.Z();
+							SString & r_temp_buf = SLS.AcquireRvlStr();
 							sb.Cp.ToStr(SCodepageIdent::fmtXML, r_temp_buf);
 							r_temp_buf.Space().Cat("Ln").CatDiv(':', 2).Cat(sb.LineNo).Slash().Cat(sb.LineCount).Space().
 								Cat("Col").CatDiv(':', 2).Cat(sb.ColumnNo);

@@ -200,8 +200,8 @@ const uint16_t VP8FixedCostsI4[NUM_BMODES][NUM_BMODES][NUM_BMODES] = {
 //
 // helper functions for residuals struct VP8Residual.
 //
-void VP8InitResidual(int first, int coeff_type,
-    VP8Encoder* const enc, VP8Residual* const res) {
+void VP8InitResidual(int first, int coeff_type, VP8Encoder* const enc, VP8Residual* const res) 
+{
 	res->coeff_type = coeff_type;
 	res->prob  = enc->proba_.coeffs_[coeff_type];
 	res->stats = enc->proba_.stats_[coeff_type];
@@ -211,13 +211,13 @@ void VP8InitResidual(int first, int coeff_type,
 //
 // Mode costs
 //
-int VP8GetCostLuma4(VP8EncIterator* const it, const int16_t levels[16]) {
+int VP8GetCostLuma4(VP8EncIterator* const it, const int16_t levels[16]) 
+{
 	const int x = (it->i4_ & 3), y = (it->i4_ >> 2);
 	VP8Residual res;
 	VP8Encoder* const enc = it->enc_;
 	int R = 0;
 	int ctx;
-
 	VP8InitResidual(0, 3, enc, &res);
 	ctx = it->top_nz_[x] + it->left_nz_[y];
 	VP8SetResidualCoeffs(levels, &res);
@@ -225,19 +225,17 @@ int VP8GetCostLuma4(VP8EncIterator* const it, const int16_t levels[16]) {
 	return R;
 }
 
-int VP8GetCostLuma16(VP8EncIterator* const it, const VP8ModeScore* const rd) {
+int VP8GetCostLuma16(VP8EncIterator* const it, const VP8ModeScore* const rd) 
+{
 	VP8Residual res;
 	VP8Encoder* const enc = it->enc_;
 	int x, y;
 	int R = 0;
-
 	VP8IteratorNzToBytes(it); // re-import the non-zero context
-
 	// DC
 	VP8InitResidual(0, 1, enc, &res);
 	VP8SetResidualCoeffs(rd->y_dc_levels, &res);
 	R += VP8GetResidualCost(it->top_nz_[8] + it->left_nz_[8], &res);
-
 	// AC
 	VP8InitResidual(1, 0, enc, &res);
 	for(y = 0; y < 4; ++y) {

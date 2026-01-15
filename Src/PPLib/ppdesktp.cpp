@@ -12,7 +12,7 @@ using namespace Gdiplus;
 
 static const bool PPDesktop_Use_LayoutFlex = false;
 
-const char * PPDesktop::WndClsName = SlConst::WinClsName_Desktop;
+const wchar_t * PPDesktop::WndClsName = SlConst::WinClsName_Desktop;
 //
 //
 //
@@ -94,7 +94,7 @@ int PPDesktopAssocCmd::ParseCode(CodeBlock & rBlk) const
 		}
 		else if(isdec(scan[0])) {
 			temp_buf.Z();
-			while(isalnum(scan[0])) {
+			while(isasciialnum(scan[0])) {
 				temp_buf.CatChar(scan[0]);
 				scan.Incr();
 			}
@@ -1287,9 +1287,9 @@ ushort PPDesktop::Execute()
 	HWND   h_frame = APPL->GetFrameWindow();
 	GetWindowRect(h_frame, &r);
 	r.bottom = r.bottom - r.top - 2;
-	DWORD style = WS_CHILD | WS_CLIPSIBLINGS | WS_TABSTOP;
-	SString title = P_ActiveDesktop->Name;
-	HW = ::CreateWindowExW(WS_EX_COMPOSITED, SUcSwitchW(PPDesktop::WndClsName), SUcSwitchW(title.Transf(CTRANSF_INNER_TO_OUTER)), 
+	const  DWORD style = WS_CHILD|WS_CLIPSIBLINGS|WS_TABSTOP;
+	SString title(P_ActiveDesktop->Name);
+	HW = ::CreateWindowExW(WS_EX_COMPOSITED, PPDesktop::WndClsName, SUcSwitchW(title.Transf(CTRANSF_INNER_TO_OUTER)), 
 		style, 0, 0, r.right - r.left - 18, r.bottom, h_frame, 0, TProgram::GetInst(), this);
 	ShowWindow(H(), SW_SHOW);
 	UpdateWindow(H());
@@ -2355,12 +2355,12 @@ int PPDesktop::ProcessRawInput(void * rawInputHandle)
 {
 	WNDCLASSEXW wc;
 	INITWINAPISTRUCT(wc);
-	wc.lpszClassName = SUcSwitchW(PPDesktop::WndClsName);
+	wc.lpszClassName = PPDesktop::WndClsName;
 	wc.hInstance     = hInst;
 	wc.lpfnWndProc   = PPDesktop::DesktopWndProc;
 	wc.hIcon = LoadIcon(hInst, MAKEINTRESOURCE(102));
 	wc.hbrBackground = static_cast<HBRUSH>(GetStockObject(LTGRAY_BRUSH));
-	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
+	wc.style = CS_HREDRAW|CS_VREDRAW|CS_OWNDC|CS_DBLCLKS;
 	return ::RegisterClassExW(&wc);
 }
 
@@ -2619,5 +2619,239 @@ int PPDesktop::ProcessRawInput(void * rawInputHandle)
 	}
 	CATCHZOKPPERR
 	delete p_dlg;
+	return ok;
+}
+//
+//
+//
+class TFacadeWindow : public TBaseBrowserWindow {
+public:
+	TFacadeWindow();
+	~TFacadeWindow();
+private:
+	static const wchar_t * WndClsName;
+	static int   RegWindowClass(HINSTANCE hInst);
+	static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	int    WMHCreate();
+	void   InitLayout();
+
+	DECL_HANDLE_EVENT;
+};
+
+void TFacadeWindow::InitLayout()
+{
+	if(true) {
+		SUiLayout * p_lo_main = new SUiLayout();
+		SUiLayoutParam alb(DIREC_UNKN, 0, SUiLayoutParam::alignStretch);
+		p_lo_main->SetLayoutBlock(alb);
+		p_lo_main->SetCallbacks(0, TWindowBase::SetupLayoutItemFrame, this);
+		{
+			SUiLayoutParam alb_top(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
+			alb_top.GravityX = SIDE_CENTER;
+			alb_top.GravityY = SIDE_TOP;
+			alb_top.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+			alb_top.SetFixedSizeY(128.0f);
+			SUiLayout * p_lo = new SUiLayout(alb_top);
+			p_lo->SetSymb("Facade_Top");
+			p_lo_main->Insert(p_lo);
+		}
+		{
+			SUiLayoutParam alb_left(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
+			alb_left.GravityX = SIDE_LEFT;
+			alb_left.GravityY = SIDE_CENTER;
+			alb_left.SetFixedSizeX(128.0f);
+			alb_left.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+			SUiLayout * p_lo = new SUiLayout(alb_left);
+			p_lo->SetSymb("Facade_Left");
+			p_lo_main->Insert(p_lo);
+		}
+		{
+			SUiLayoutParam alb_center(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
+			alb_center.GravityX = SIDE_CENTER;
+			alb_center.GravityY = SIDE_CENTER;
+			alb_center.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+			alb_center.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+			SUiLayout * p_lo = new SUiLayout(alb_center);
+			p_lo->SetSymb("Facade_Center");
+			p_lo_main->Insert(p_lo);
+		}
+		SetLayout(p_lo_main);
+	}
+}
+
+int TFacadeWindow::WMHCreate()
+{
+	const TRect _def_rect(0, 0, 10, 10);
+	InitLayout();
+	if(P_Lfc) {
+		{
+			SUiLayout * p_lo = P_Lfc->FindBySymb("Facade_Top");
+			if(p_lo) {
+				TInputLine * p_il = new TInputLine(_def_rect, 0/*spcFlags*/, MKSTYPE(S_ZSTRING, 1024), MKSFMT(1024, 0));
+				InsertCtlWithCorrespondingNativeItem(p_il, CTL_FACADEWINDOW_MAININPUT, 0, /*extraPtr*/0);
+				{
+					SUiLayoutParam alb_;
+					alb_.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+					alb_.SetFixedSizeY(1.0f);
+					alb_.SetMargin(8.0f);
+				}
+			}
+		}
+	}
+	return 1;
+}
+
+/*static*/const wchar_t * TFacadeWindow::WndClsName = L"TFacadeWindow"; // @global
+
+/*static*/LRESULT CALLBACK TFacadeWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	CREATESTRUCT * p_init_data;
+	TFacadeWindow * p_view = 0;
+	switch(message) {
+		case WM_CREATE:
+			p_view = static_cast<TFacadeWindow *>(Helper_InitCreation(lParam, (void **)&p_init_data));
+			if(p_view) {
+				p_view->HW = hWnd;
+				TView::SetWindowProp(hWnd, GWLP_USERDATA, p_view);
+				::SetFocus(hWnd);
+				::SendMessageW(hWnd, WM_NCACTIVATE, TRUE, 0L);
+				p_view->WMHCreate();
+				::PostMessageW(hWnd, WM_PAINT, 0, 0);
+				{
+					SString temp_buf;
+					TView::SGetWindowText(hWnd, temp_buf);
+					APPL->AddItemToMenu(temp_buf, p_view);
+				}
+				return 0;
+			}
+			else
+				return -1;
+		case WM_COMMAND:
+			{
+				p_view = static_cast<TFacadeWindow *>(TView::GetWindowUserData(hWnd));
+				if(p_view) {
+					if(HIWORD(wParam) == 0) {
+						/*if(p_view->KeyAccel.getCount()) {
+							long   cmd = 0;
+							KeyDownCommand k;
+							k.SetTvKeyCode(LOWORD(wParam));
+							if(p_view->KeyAccel.BSearch(*reinterpret_cast<const long *>(&k), &cmd, 0)) {
+								p_view->ProcessCommand(cmd, 0, p_view);
+							}
+						}*/
+					}
+					/*
+					if(LOWORD(wParam))
+						p_view->ProcessCommand(LOWORD(wParam), 0, p_view);
+					*/
+				}
+			}
+			break;
+		case WM_DESTROY:
+			p_view = static_cast<TFacadeWindow *>(TView::GetWindowUserData(hWnd));
+			if(p_view) {
+				//p_view->SaveChanges();
+				TWindowBase::Helper_Finalize(hWnd, p_view);
+			}
+			return 0;
+		case WM_SETFOCUS:
+			if(!(TView::SGetWindowStyle(hWnd) & WS_CAPTION)) {
+				SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
+				APPL->NotifyFrame(0);
+			}
+			p_view = static_cast<TFacadeWindow *>(TView::GetWindowUserData(hWnd));
+			if(p_view) {
+				//::SetFocus(p_view->HwndSci);
+				APPL->SelectTabItem(p_view);
+				TView::messageBroadcast(p_view, cmReceivedFocus);
+				p_view->select();
+			}
+			break;
+		case WM_KILLFOCUS:
+			if(!(TView::SGetWindowStyle(hWnd) & WS_CAPTION))
+				APPL->NotifyFrame(0);
+			p_view = static_cast<TFacadeWindow *>(TView::GetWindowUserData(hWnd));
+			if(p_view) {
+				TView::messageBroadcast(p_view, cmReleasedFocus);
+				p_view->ResetOwnerCurrent();
+			}
+			break;
+		case WM_KEYDOWN:
+			/*if(wParam == VK_ESCAPE) {
+				p_view = static_cast<TFacadeWindow *>(TView::GetWindowUserData(hWnd));
+				if(p_view) {
+					p_view->endModal(cmCancel);
+					return 0;
+				}
+			}
+			else*/if(wParam == VK_TAB) {
+				p_view = static_cast<TFacadeWindow *>(TView::GetWindowUserData(hWnd));
+				if(p_view && GetKeyState(VK_CONTROL) & 0x8000 && !p_view->IsInState(sfModal)) {
+					SetFocus(GetNextBrowser(hWnd, (GetKeyState(VK_SHIFT) & 0x8000) ? 0 : 1));
+					return 0;
+				}
+			}
+			return 0;
+		case WM_SIZE:
+			p_view = static_cast<TFacadeWindow *>(TView::GetWindowUserData(hWnd));
+			if(!TView::Helper_SendCmSizeAsReplyOnWmSize(p_view, wParam, lParam))
+				return 0;
+			break;
+	}
+	return DefWindowProc(hWnd, message, wParam, lParam);
+}
+
+/*static*/int TFacadeWindow::RegWindowClass(HINSTANCE hInst)
+{
+	WNDCLASSEXW wc;
+	TBaseBrowserWindow::MakeDefaultWindowClassBlock(&wc, hInst);
+	wc.lpfnWndProc   = TFacadeWindow::WndProc;
+	wc.hIcon         = LoadIconW(hInst, MAKEINTRESOURCE(/*ICON_TIMEGRID*/172));
+	wc.lpszClassName = TFacadeWindow::WndClsName;
+	return RegisterClassExW(&wc);
+}
+
+TFacadeWindow::TFacadeWindow() : TBaseBrowserWindow(WndClsName)
+{
+	BbState |= bbsWoScrollbars;
+	static bool win_cls_registered = false;
+	if(!win_cls_registered) {
+		TFacadeWindow::RegWindowClass(TProgram::GetInst());
+		win_cls_registered = true;
+	}
+}
+
+TFacadeWindow::~TFacadeWindow()
+{
+}
+
+IMPL_HANDLE_EVENT(TFacadeWindow)
+{
+	TWindowBase::handleEvent(event);
+	if(TVKEYDOWN) {
+		;
+	}
+	else if(TVINFOPTR) {
+		if(event.isCmd(cmInit)) {
+			;
+		}
+		else if(event.isCmd(cmPaint)) {
+			;
+		}
+		else if(event.isCmd(cmSize)) {
+			;
+		}
+		else if(event.isCmd(cmMouse)) {
+			//MouseEvent * p_me = static_cast<MouseEvent *>(TVINFOPTR);
+			;
+		}
+	}
+}
+
+int Launch_TFacadeWindow()
+{
+	int    ok = -1;
+	TFacadeWindow * p_win = new TFacadeWindow();
+	InsertView(p_win);
 	return ok;
 }

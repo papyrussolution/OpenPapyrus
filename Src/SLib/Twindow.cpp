@@ -1074,22 +1074,7 @@ void FASTCALL TWindow::invalidateAll(bool erase)
 
 int TWindow::RegisterMouseTracking(int leaveNotify, int hoverTimeout)
 {
-	TRACKMOUSEEVENT tme;
-	INITWINAPISTRUCT(tme);
-	if(!leaveNotify && hoverTimeout < 0)
-		tme.dwFlags |= TME_CANCEL;
-	else {
-		if(leaveNotify)
-			tme.dwFlags |= TME_LEAVE;
-		if(hoverTimeout >= 0) {
-			tme.dwFlags |= TME_HOVER;
-			tme.dwHoverTime = (hoverTimeout == 0) ? HOVER_DEFAULT : hoverTimeout;
-		}
-		else
-			tme.dwHoverTime = HOVER_DEFAULT;
-	}
-	tme.hwndTrack = HW;
-	return BIN(::_TrackMouseEvent(&tme)); // win sdk commctrl
+	return TView::Helper_RegisterMouseTracking(HW, leaveNotify, hoverTimeout);
 }
 
 int TWindow::SetCtlSymb(uint id, const char * pSymb)
@@ -1319,14 +1304,12 @@ static LPCTSTR P_SLibWindowBaseClsName = _T("SLibWindowBase");
 	}
 }
 
-TWindowBase::TWindowBase(LPCTSTR pWndClsName, long wbCapability) : ClsName(SUcSwitch(pWndClsName)), 
-	TWindow(wbCapability), WbState(0), H_DrawBuf(0)
+TWindowBase::TWindowBase(const wchar_t * pWndClsName, long wbCapability) : ClsName(SUcSwitchW(pWndClsName)), TWindow(wbCapability), WbState(0)
 {
 }
 
 TWindowBase::~TWindowBase()
 {
-	ZDeleteWinGdiObject(&H_DrawBuf);
 	TWindowBase * p_this_view_from_wnd = 0;
 	if(::IsWindow(HW)) {
 		p_this_view_from_wnd = static_cast<TWindowBase *>(TView::GetWindowUserData(HW));
@@ -1337,13 +1320,6 @@ TWindowBase::~TWindowBase()
 			Sf &= ~sfOnDestroy;
 		}
 	}
-	/* @v12.2.4 (moved to TWindow::~TWindow())
-	if(P_Lfc && !(Sf & (sfOnDestroy|sfOnParentDestruction))) {
-		if(!P_Lfc->FatherKillMe())
-			delete P_Lfc;
-		P_Lfc = 0;
-	}
-	*/
 }
 
 int TWindowBase::Create(void * hParentWnd, long createOptions)
@@ -1511,7 +1487,7 @@ void TWindowBase::SetDefaultCursor()
 	::SetCursor(::LoadCursor(0, IDC_ARROW));
 }
 
-void TWindowBase::RegisterMouseTracking(int force)
+void FASTCALL TWindowBase::RegisterMouseTracking_(bool force)
 {
 	if(force || !(WbState & wbsMouseTrackRegistered)) {
 		TWindow::RegisterMouseTracking(1, 0);
@@ -1549,7 +1525,7 @@ void TWindowBase::MakeMouseEvent(uint msg, WPARAM wParam, LPARAM lParam, MouseEv
 			break;
 		case WM_MOUSEMOVE:
 			if(getClientRect().contains(rMe.Coord))
-				RegisterMouseTracking(0);
+				RegisterMouseTracking_(false);
 			rMe.Type = MouseEvent::tMove;
 			break;
 		case WM_MOUSEWHEEL:

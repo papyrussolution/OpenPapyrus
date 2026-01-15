@@ -1,6 +1,6 @@
 // TVIEW.CPP  Turbo Vision 1.0
 // Copyright (c) 1991 by Borland International
-// Adopted to SLIB by A.Sobolev 1995-2021, 2022, 2023, 2024, 2025
+// Adopted to SLIB by A.Sobolev 1995-2021, 2022, 2023, 2024, 2025, 2026
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -331,59 +331,49 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 	::EnumChildWindows(hWnd, SetupWindowCtrlTextProc, 0);
 }
 
+/*static*/int FASTCALL TView::SGetWindowClassName(HWND hWnd, SStringU & rBuf)
+{
+	int    ok = 1;
+	rBuf.Z();
+	wchar_t buf[256];
+	if(::GetClassNameW(hWnd, buf, SIZEOFARRAY(buf)))
+		rBuf = buf;
+	else
+		ok = SLS.SetOsError(0, 0);
+	return ok;
+}
+
 /*static*/int FASTCALL TView::SGetWindowClassName(HWND hWnd, SString & rBuf)
 {
 	int    ok = 1;
 	rBuf.Z();
-#ifdef UNICODE
 	wchar_t buf[256];
-	if(::GetClassName(hWnd, buf, SIZEOFARRAY(buf))) {
+	if(::GetClassNameW(hWnd, buf, SIZEOFARRAY(buf))) {
 		rBuf.CopyUtf8FromUnicode(buf, sstrlen(buf), 0);
 		rBuf.Transf(CTRANSF_UTF8_TO_OUTER);
 	}
-	else {
+	else
 		ok = SLS.SetOsError(0, 0);
-	}
-#else
-	char   buf[256];
-	if(::GetClassName(hWnd, buf, SIZEOFARRAY(buf))) {
-		rBuf = buf;
-	}
-	else {
-		ok = SLS.SetOsError(0, 0);
-	}
-#endif // UNICODE
 	return ok;
 }
 
 /*static*/int FASTCALL TView::SGetWindowText(HWND hWnd, SString & rBuf)
 {
 	rBuf.Z();
-    long  text_len = ::SendMessageW(hWnd, WM_GETTEXTLENGTH, 0, 0);
+    const  ssize_t text_len = ::SendMessageW(hWnd, WM_GETTEXTLENGTH, 0, 0);
     if(text_len > 0) {
     	void * p_text_ptr = 0;
     	int    is_allocated = 0;
     	uint8  static_buf[4096];
-#ifdef UNICODE
 		if(text_len >= sizeof(static_buf)/sizeof(wchar_t)) {
 			p_text_ptr = SAlloc::M((text_len+16) * sizeof(wchar_t));
 			is_allocated = 1;
 		}
 		else
 			p_text_ptr = static_buf;
-		long actual_len = ::SendMessageW(hWnd, WM_GETTEXT, text_len+1, reinterpret_cast<LPARAM>(p_text_ptr));
+		const  ssize_t actual_len = ::SendMessageW(hWnd, WM_GETTEXT, text_len+1, reinterpret_cast<LPARAM>(p_text_ptr));
 		rBuf.CopyUtf8FromUnicode(static_cast<wchar_t *>(p_text_ptr), actual_len, 0);
 		rBuf.Transf(CTRANSF_UTF8_TO_OUTER);
-#else
-		if(text_len >= sizeof(static_buf)/sizeof(char)) {
-			p_text_ptr = SAlloc::M(text_len * sizeof(char) + 1);
-			is_allocated = 1;
-		}
-		else
-			p_text_ptr = static_buf;
-		::SendMessageW(hWnd, WM_GETTEXT, text_len+1, reinterpret_cast<LPARAM>(p_text_ptr));
-		rBuf = (const char *)p_text_ptr;
-#endif // UNICODE
 		if(is_allocated)
 			SAlloc::F(p_text_ptr);
 	}
@@ -393,13 +383,9 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 /*static*/int FASTCALL TView::SSetWindowText(HWND hWnd, const char * pText)
 {
 	int    ok = 1;
-#ifdef UNICODE
 	SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
 	r_temp_buf_u.CopyFromMb(cpANSI, pText, sstrlen(pText));
 	ok = BIN(::SendMessageW(hWnd, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(r_temp_buf_u.ucptr())));
-#else
-	ok = BIN(::SendMessageW(hWnd, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(pText)));
-#endif // UNICODE
 	return ok;
 }
 
@@ -692,6 +678,16 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 							style |= ES_WANTRETURN;
 						if(p_cv->GetSpcFlags() & TInputLine::spcfPassword)
 							style |= ES_PASSWORD;
+						// @v12.5.3 {
+						{
+							if((p_cv->GetSpcFlags() & TInputLine::spcfCenterAligned) == TInputLine::spcfCenterAligned)
+								style |= ES_CENTER;
+							else if(p_cv->GetSpcFlags() & TInputLine::spcfRightAligned)
+								style |= ES_RIGHT;
+							else if(p_cv->GetSpcFlags() & TInputLine::spcfLeftAligned)
+								style |= ES_LEFT;
+						}
+						// } @v12.5.3 
 						//if(p_cv->)
 						//ES_UPPERCASE;
 						pV->Parent = hw_parent;
@@ -852,6 +848,35 @@ TView * TView::nextView() const { return (this == P_Owner->GetLastView()) ? 0 : 
 TView * TView::prevView() const { return (this == P_Owner->GetFirstView()) ? 0 : prev(); }
 int    TView::commandEnabled(ushort command) const { return BIN((command >= 64*32) || !P_CmdSet || P_CmdSet->has(command)); }
 int    TView::TransmitData(int dir, void * pData) { return 0; } // Ничего не передается и не получается. Размер данных - 0.
+
+/*static*/int TView::Helper_RegisterMouseTracking(void * pHandle/*HWND*/, int leaveNotify, int hoverTimeout)
+{
+	int    ok = 0;
+	if(pHandle) {
+		TRACKMOUSEEVENT tme;
+		INITWINAPISTRUCT(tme);
+		if(!leaveNotify && hoverTimeout < 0)
+			tme.dwFlags |= TME_CANCEL;
+		else {
+			if(leaveNotify)
+				tme.dwFlags |= TME_LEAVE;
+			if(hoverTimeout >= 0) {
+				tme.dwFlags |= TME_HOVER;
+				tme.dwHoverTime = (hoverTimeout == 0) ? HOVER_DEFAULT : hoverTimeout;
+			}
+			else
+				tme.dwHoverTime = HOVER_DEFAULT;
+		}
+		tme.hwndTrack = static_cast<HWND>(pHandle);
+		ok = BIN(::_TrackMouseEvent(&tme)); // win sdk commctrl
+	}
+	return ok;
+}
+
+int TView::RegisterMouseTracking(int leaveNotify, int hoverTimeout)
+{
+	return TView::Helper_RegisterMouseTracking(getHandle(), leaveNotify, hoverTimeout);
+}
 
 void STDCALL TView::enableCommands(const TCommandSet & cmds, bool toEnable)
 {
@@ -1556,7 +1581,7 @@ int KeyDownCommand::SetKeyName(const char * pStr, uint * pLen)
 		if(!Code && !State)
 			ok = -1;
 	}
-	ASSIGN_PTR(pLen, len);
+	ASSIGN_PTR(pLen, static_cast<uint>(len));
 	return ok;
 }
 

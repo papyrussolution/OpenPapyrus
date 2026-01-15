@@ -446,7 +446,7 @@ PPID SelectOpKind(PPID linkOpID, const PPIDArray * pOpList, uint opklFlags)
 		THROW(p_lw = CreateListWindow(p_ary, lbtDisposeData|lbtDblClkNotify));
 		THROW(PPLoadText(PPTXT_SELECTOPRKIND, title_buf));
 		p_lw->setTitle(title_buf);
-		p_lw->ViewOptions |= (ofCenterX | ofCenterY);
+		// @v12.5.3 (@unused) p_lw->ViewOptions |= (ofCenterX | ofCenterY);
 		if(ExecView(p_lw) == cmOK)
 			p_lw->getResult(&id);
 		else

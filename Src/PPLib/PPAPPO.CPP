@@ -34,8 +34,9 @@ int    RecoverAbsenceTrfr();
 int    PPValidateXml();
 int    OpenPhonePane();
 int    UniFindObj();
-int    TSessionMaintenance(); // @v11.0.4
+int    TSessionMaintenance();
 void   _CorrectProblem_v12304(); // @v12.4.10
+int    Launch_TFacadeWindow(); // @v12.5.3 @construction
 //int ImportSartre();
 // } @prototype
 //
@@ -62,7 +63,7 @@ PPApp::PPApp(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitle, uin
 {
 	// @v12.3.11 SPrinter::HandlePrintError = PPHandlePrintError;
 	STextBrowser::RegWindowClass(hInst);
-	TWhatmanBrowser::RegWindowClass(hInst); // @v11.0.0
+	TWhatmanBrowser::RegWindowClass(hInst);
 	InitUiToolBox();
 	InitDeskTop();
 	TEvent event;
@@ -917,6 +918,7 @@ int PPApp::processCommand(uint cmd)
 		case cmConvertLatexToHtml:      PPTex2Html(); break; // @internal
 		case cmConvertVersionToHtml:    PPVer2Html(); break; // @internal
 		case cmSourceCodeProcessing:    /*@todo*/ break; // @v12.2.10 @internal
+		case cmConstructionFacadeWindow: Launch_TFacadeWindow(); break; // @v12.5.3 @construction
 		// @underconstruction case cmGenerateGoodsBills:   GenerateGoodsBills(); break;
 		// @v4.4.2 case cmConvert329:           Convert329();         break;
 		// @v4.4.5 case cmConvert3512:          Convert3512();        break;

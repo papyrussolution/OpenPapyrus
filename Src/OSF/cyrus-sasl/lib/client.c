@@ -511,7 +511,7 @@ static int _sasl_client_order_mechs(const sasl_utils_t * utils,
 	 * Apps should be encouraged to simply use space or comma space
 	 * though
 	 */
-#define ismechchar(c)   (isalnum((c)) || (c) == '_' || (c) == '-')
+#define ismechchar(c) (isasciialnum(c) || (c) == '_' || (c) == '-')
 	do {
 		for(i = start = 0; i <= mechslen; i++) {
 			if(!ismechchar(mechs[i])) {

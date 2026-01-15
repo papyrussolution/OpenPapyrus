@@ -1,5 +1,5 @@
 // TVDEFS.H
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2025
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2025, 2026
 // @codepage UTF-8
 //
 #ifndef __TVDEFS_H
@@ -384,41 +384,7 @@
 // @v12.3.3 (moved to TButton::spcfXXX) #define bfDefault          0x01
 // @v12.3.3 (unused) #define bfLeftJust         0x02
 // @v12.3.3 (moved to TButton::spcfXXX) #define bfBroadcast        0x04
-//
-//  TView State masks
-//
-#define sfVisible             0x00000001
-#define sfActive              0x00000010
-#define sfSelected            0x00000020
-#define sfFocused             0x00000040
-#define sfDisabled            0x00000100
-#define sfModal               0x00000200
-#define sfReadOnly            0x00001000 // Work for TInputLine only
-#define sfCmdSetChanged       0x00002000 //
-#define sfMsgToParent         0x00004000 // Если установлен, то Win-сообщение отправляется хозяину, иначе - в handleWindowsMessage
-#define sfEventBarrier        0x00008000 // Объект TView находится в состянии блокировки функции handleEvent.
-	// Такая блокировка необходима для исключения реентера handleEvent в пределах одного 'кземпляра объекта.
-#define sfOnDestroy           0x00010000 // Объект находится в состоянии разрушения. Флаг устанавливается оконной процедурой
-	// при обработке сообщения WM_DESTROY и необходим для предотвращения зацикливания при попытке оконной процедуры разрушить
-	// объект TView чтобы деструктор TView не пытался в свою очередь разрушить окно.
-#define sfCloseMe             0x00020000 // Специальный флаг, устанавливаемый экземпляром окна, чтобы управляющий
-	// модуль уничтожил это окно (сообщением cmClose) как только увидит этот флаг и посчитает это удобным.
-	// Резон: иногда, если окно пытается послать себе такое сообщение, оно разрушается в не правильный момент, вызывае исключение.
-#define sfOnParentDestruction 0x00040000 // @v11.0.0 Объект уничтожается своим родителем (в цикле TViewGroup)
-	// Это состояние позволяет избежать действий, связанных с обработкой ссылок на родительский объект
-#define sfBorderless          0x00080000 // @v11.6.7 @construction примененяется к окнам: окно без служебной области (бордюра).
-#define sfTabStop             0x00100000 // @v12.3.5 
-//
-// TView Option masks
-//
-#define ofSelectable      0x0001
-#define ofFirstClick      0x0004
-// @v11.3.2 @obsolete #define ofFramed          0x0008
-#define ofPreProcess      0x0010
-#define ofPostProcess     0x0020
-#define ofCenterX         0x0100
-#define ofCenterY         0x0200
-#define ofCentered        0x0300
+/* @v12.5.3
 //
 // TView GrowMode masks
 //
@@ -438,11 +404,13 @@
 #define dmLimitHiX         0x40
 #define dmLimitHiY         0x80
 #define dmLimitAll         (dmLimitLoX | dmLimitLoY | dmLimitHiX | dmLimitHiY)
+*/
 //
 // TView Help context codes
 //
 #define hcNoContext           0
 #define hcDragging            1
+/*
 //
 // TScrollBar part codes
 //
@@ -479,6 +447,7 @@
 #define wpBlueWindow          0
 #define wpCyanWindow          1
 #define wpGrayWindow          2
+*/
 //
 //  Event masks
 //

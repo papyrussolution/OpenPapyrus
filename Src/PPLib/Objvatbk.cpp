@@ -1,5 +1,5 @@
 // OBJVATBK.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025, 2026
 // @codepage windows-1251
 // Книги продаж и покупок
 //
@@ -74,7 +74,7 @@ int VATBCfg::CheckAccSheet(PPID accSheetID)
 //
 // @PPObjVATBook {
 //
-static const double VatIndexToRateAssocList[] = { 10.0, 18.0, 20.0, 5.0, 7.0 };
+static const double VatIndexToRateAssocList[] = { 10.0, 18.0, 20.0, 5.0, 7.0, 22.0 }; // @v12.5.3 22.0
 
 /*static*/double FASTCALL PPObjVATBook::GetVatRate(uint idx)
 {
@@ -314,7 +314,7 @@ class VATBookDialog : public TDialog {
 		double * P_AmtV; // Значение суммы без НДС, соответствующее ставке с индексом Idx (поле VatCtlId)
 		double * P_VatV; // Значение суммы НДС, соответствующее ставке с индексом Idx (поле SVatCtlId)
 	};
-	static VatCtlEntry VatCtlList[5];
+	static VatCtlEntry VatCtlList[6]; // @v12.5.3 [5]-->[6]
 public:
 	VATBookDialog(uint rezID, PPObjVATBook * pVbObj) : TDialog(rezID), P_VbObj(pVbObj)
 	{
@@ -323,11 +323,13 @@ public:
 		VatCtlList[2].P_AmtV = &Data.VAT3;
 		VatCtlList[3].P_AmtV = &Data.VAT4;
 		VatCtlList[4].P_AmtV = &Data.VAT5;
+		VatCtlList[5].P_AmtV = &Data.VAT6; // @v12.5.3
 		VatCtlList[0].P_VatV = &Data.SVAT1;
 		VatCtlList[1].P_VatV = &Data.SVAT2;
 		VatCtlList[2].P_VatV = &Data.SVAT3;
 		VatCtlList[3].P_VatV = &Data.SVAT4;
 		VatCtlList[4].P_VatV = &Data.SVAT5;
+		VatCtlList[5].P_VatV = &Data.SVAT6; // @v12.5.3
 		disableCtrl(CTL_VATBOOK_AMT, true);
 		SetupCalDate(CTLCAL_VATBOOK_DT,      CTL_VATBOOK_DT);
 		SetupCalDate(CTLCAL_VATBOOK_INVCDT,  CTL_VATBOOK_INVCDT);
@@ -376,8 +378,8 @@ public:
 		AddClusterAssoc(CTL_VATBOOK_FLAGS, 2, VATBF_VATFREE);
 		SetClusterData(CTL_VATBOOK_FLAGS, Data.Flags);
 		disableCtrls(BIN(Data.Flags & VATBF_FIX), 
-			CTL_VATBOOK_VAT1, CTL_VATBOOK_VAT2, CTL_VATBOOK_VAT3, CTL_VATBOOK_VAT4, CTL_VATBOOK_VAT5, 
-			CTL_VATBOOK_SVAT1, CTL_VATBOOK_SVAT2, CTL_VATBOOK_SVAT3, CTL_VATBOOK_SVAT4, CTL_VATBOOK_SVAT5,
+			CTL_VATBOOK_VAT1, CTL_VATBOOK_VAT2, CTL_VATBOOK_VAT3, CTL_VATBOOK_VAT4, CTL_VATBOOK_VAT5, CTL_VATBOOK_VAT6, 
+			CTL_VATBOOK_SVAT1, CTL_VATBOOK_SVAT2, CTL_VATBOOK_SVAT3, CTL_VATBOOK_SVAT4, CTL_VATBOOK_SVAT5, CTL_VATBOOK_SVAT6,
 			CTL_VATBOOK_VAT0, CTL_VATBOOK_EXP, 0);
 		return 1;
 	}
@@ -425,12 +427,13 @@ private:
 	PPObjVATBook * P_VbObj;
 };
 
-VATBookDialog::VatCtlEntry VATBookDialog::VatCtlList[5] = {
+VATBookDialog::VatCtlEntry VATBookDialog::VatCtlList[] = {
 	{ 0, CTL_VATBOOK_VAT1, CTL_VATBOOK_SVAT1, CTL_VATBOOK_TVAT1 },
 	{ 1, CTL_VATBOOK_VAT2, CTL_VATBOOK_SVAT2, CTL_VATBOOK_TVAT2 },
 	{ 2, CTL_VATBOOK_VAT3, CTL_VATBOOK_SVAT3, CTL_VATBOOK_TVAT3 },
 	{ 3, CTL_VATBOOK_VAT4, CTL_VATBOOK_SVAT4, CTL_VATBOOK_TVAT4 },
 	{ 4, CTL_VATBOOK_VAT5, CTL_VATBOOK_SVAT5, CTL_VATBOOK_TVAT5 },
+	{ 5, CTL_VATBOOK_VAT6, CTL_VATBOOK_SVAT6, CTL_VATBOOK_TVAT6 }, // @v12.5.3
 };
 
 void VATBookDialog::CalcSum()
@@ -447,7 +450,7 @@ void VATBookDialog::CalcSum()
 	}
 	{
 		for(uint i = 0; i < ctl_id_list.getCount(); i++) {
-			double t = getCtrlReal(ctl_id_list.get(i));
+			const  double t = getCtrlReal(ctl_id_list.get(i));
 			sum += t;
 		}
 	}
@@ -462,7 +465,7 @@ void VATBookDialog::CalcVatSum(uint ctl)
 	for(uint i = 0; i < SIZEOFARRAY(VatCtlList); i++) {
 		if(ctl == VatCtlList[i].VatCtlId) {
 			ctl = VatCtlList[i].SVatCtlId;
-			const double rate = PPObjVATBook::GetVatRate(VatCtlList[i].Idx);
+			const  double rate = PPObjVATBook::GetVatRate(VatCtlList[i].Idx);
 			double v = m;
 			{
 				TInputLine * il = static_cast<TInputLine *>(getCtrlView(ctl));
@@ -495,11 +498,11 @@ IMPL_HANDLE_EVENT(VATBookDialog)
 					setCtrlData(CTL_VATBOOK_RCPTDT, &dt);
 			}
 		}
-		else if(oneof5(i, CTL_VATBOOK_VAT1, CTL_VATBOOK_VAT2, CTL_VATBOOK_VAT3, CTL_VATBOOK_VAT4, CTL_VATBOOK_VAT5)) {
+		else if(oneof6(i, CTL_VATBOOK_VAT1, CTL_VATBOOK_VAT2, CTL_VATBOOK_VAT3, CTL_VATBOOK_VAT4, CTL_VATBOOK_VAT5, CTL_VATBOOK_VAT6)) {
 			CalcVatSum(i);
 			CalcSum();
 		}
-		else if(oneof7(i, CTL_VATBOOK_VAT0, CTL_VATBOOK_SVAT1, CTL_VATBOOK_SVAT2, CTL_VATBOOK_SVAT3, CTL_VATBOOK_SVAT4, CTL_VATBOOK_SVAT5, CTL_VATBOOK_EXP))
+		else if(oneof8(i, CTL_VATBOOK_VAT0, CTL_VATBOOK_SVAT1, CTL_VATBOOK_SVAT2, CTL_VATBOOK_SVAT3, CTL_VATBOOK_SVAT4, CTL_VATBOOK_SVAT5, CTL_VATBOOK_SVAT6, CTL_VATBOOK_EXP))
 			CalcSum();
 		else
 			return;
@@ -510,8 +513,8 @@ IMPL_HANDLE_EVENT(VATBookDialog)
 		CalcSum();
 	else if(event.isClusterClk(CTL_VATBOOK_FLAGS)) {
 		ushort v = getCtrlUInt16(CTL_VATBOOK_FLAGS);
-		disableCtrls(v & 0x01, CTL_VATBOOK_VAT1, CTL_VATBOOK_VAT2, CTL_VATBOOK_VAT3, CTL_VATBOOK_VAT4, CTL_VATBOOK_VAT5,
-			CTL_VATBOOK_SVAT1, CTL_VATBOOK_SVAT2, CTL_VATBOOK_SVAT3, CTL_VATBOOK_SVAT4, CTL_VATBOOK_SVAT5,
+		disableCtrls(v & 0x01, CTL_VATBOOK_VAT1, CTL_VATBOOK_VAT2, CTL_VATBOOK_VAT3, CTL_VATBOOK_VAT4, CTL_VATBOOK_VAT5, CTL_VATBOOK_VAT6,
+			CTL_VATBOOK_SVAT1, CTL_VATBOOK_SVAT2, CTL_VATBOOK_SVAT3, CTL_VATBOOK_SVAT4, CTL_VATBOOK_SVAT5, CTL_VATBOOK_SVAT6,
 			CTL_VATBOOK_VAT0, CTL_VATBOOK_EXP, 0);
 	}
 	else
@@ -1457,11 +1460,13 @@ int PPViewVatBook::CalcTotal(VatBookTotal * pTotal)
 		pTotal->Vat3Amount += item.VAT3;
 		pTotal->Vat4Amount += item.VAT4; // @v12.2.7
 		pTotal->Vat5Amount += item.VAT5; // @v12.2.7
+		pTotal->Vat6Amount += item.VAT6; // @v12.5.3
 		pTotal->Vat1Sum    += item.SVAT1;
 		pTotal->Vat2Sum    += item.SVAT2;
 		pTotal->Vat3Sum    += item.SVAT3;
 		pTotal->Vat4Sum    += item.SVAT4; // @v12.2.7
 		pTotal->Vat5Sum    += item.SVAT5; // @v12.2.7
+		pTotal->Vat6Sum    += item.SVAT6; // @v12.5.3
 	}
 	return 1;
 }
@@ -1490,17 +1495,20 @@ void PPViewVatBook::ViewTotal()
 			dlg->setCtrlData(CTL_VATBOOKTOTAL_VAT3, &Total.Vat3Amount);
 			dlg->setCtrlData(CTL_VATBOOKTOTAL_VAT4, &Total.Vat4Amount); // @v12.2.10
 			dlg->setCtrlData(CTL_VATBOOKTOTAL_VAT5, &Total.Vat5Amount); // @v12.2.10 // @v12.3.1 @fix CTL_VATBOOKTOTAL_VAT4-->CTL_VATBOOKTOTAL_VAT5
+			dlg->setCtrlData(CTL_VATBOOKTOTAL_VAT6, &Total.Vat6Amount); // @v12.5.3
 			dlg->setCtrlData(CTL_VATBOOKTOTAL_SVAT1, &Total.Vat1Sum);
 			dlg->setCtrlData(CTL_VATBOOKTOTAL_SVAT2, &Total.Vat2Sum);
 			dlg->setCtrlData(CTL_VATBOOKTOTAL_SVAT3, &Total.Vat3Sum);
 			dlg->setCtrlData(CTL_VATBOOKTOTAL_SVAT4, &Total.Vat4Sum); // @v12.2.10
 			dlg->setCtrlData(CTL_VATBOOKTOTAL_SVAT5, &Total.Vat5Sum); // @v12.2.10 // @v12.3.1 @fix CTL_VATBOOKTOTAL_SVAT4-->CTL_VATBOOKTOTAL_SVAT5
+			dlg->setCtrlData(CTL_VATBOOKTOTAL_SVAT6, &Total.Vat6Sum); // @v12.5.3
 			SString rate_buf;
 			dlg->setStaticText(CTL_VATBOOKTOTAL_TVAT1, VatRateStr(PPObjVATBook::GetVatRate(0), rate_buf));
 			dlg->setStaticText(CTL_VATBOOKTOTAL_TVAT2, VatRateStr(PPObjVATBook::GetVatRate(1), rate_buf));
 			dlg->setStaticText(CTL_VATBOOKTOTAL_TVAT3, VatRateStr(PPObjVATBook::GetVatRate(2), rate_buf));
 			dlg->setStaticText(CTL_VATBOOKTOTAL_TVAT4, VatRateStr(PPObjVATBook::GetVatRate(3), rate_buf)); // @v12.2.10
 			dlg->setStaticText(CTL_VATBOOKTOTAL_TVAT5, VatRateStr(PPObjVATBook::GetVatRate(4), rate_buf)); // @v12.2.10
+			dlg->setStaticText(CTL_VATBOOKTOTAL_TVAT6, VatRateStr(PPObjVATBook::GetVatRate(5), rate_buf)); // @v12.5.3
 		}
 		ExecViewAndDestroy(dlg);
 	}
@@ -1648,7 +1656,22 @@ DBQuery * PPViewVatBook::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		brw_id = BROWSER_SIMPLELEDGER;
 		PPDbqFuncPool::InitObjNameFunc(dbe_op, PPDbqFuncPool::IdObjNameOprKind, vt->OpID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_bill_memo, PPDbqFuncPool::IdObjMemoBill, vt->LinkBillID);
+		// @v12.5.3 {
 		q = & Select_(
+			vt->ID,        // #00
+			vt->Dt,        // #01
+			vt->Code,      // #02
+			0L);
+		q->addField(dbe_ar);        // #03
+		q->addField(dbe_op);        // #04
+		q->addField(dbe_bill_memo); // #05
+		q->addField(vt->Amount);    // #06
+		q->addField(vt->Excise);    // #07
+		q->addField(vt->VAT0);      // #08
+		q->addField(vt->Export);    // #09
+		q->addField(dbe_loc);       // #10
+		// } @v12.5.3 
+		/* @v12.5.3 q = & Select_(
 			vt->ID,        // #00
 			vt->Dt,        // #01
 			vt->Code,      // #02
@@ -1660,7 +1683,8 @@ DBQuery * PPViewVatBook::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			vt->VAT0,      // #08
 			vt->Export,    // #09
 			dbe_loc,       // #10
-			0L).from(vt, 0L);
+			0L);*/
+		q->from(vt, 0L);
 		dbq = & (vt->LineType_ == Filt.Kind);
 	}
 	else {
@@ -1670,7 +1694,21 @@ DBQuery * PPViewVatBook::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			brw_id = BROWSER_VATBUY;
 		dbe_fix  = & flagtoa(vt->Flags, VATBF_FIX,      flag_subst.Get(PPTXT_FLAG_YES));
 		dbe_excl = & flagtoa(vt->Flags, VATBF_EXCLUDED, flag_subst.Get(PPTXT_FLAG_YES));
+		// @v12.5.3 {
 		q = & Select_(
+			vt->ID,      // #00
+			vt->Dt,      // #01
+			vt->Code,    // #02
+			0L);
+		q->addField(dbe_ar);      // #03
+		q->addField(vt->Amount);  // #04
+		q->addField(vt->PaymDt);  // #05
+		q->addField(vt->InvcDt);  // #06
+		q->addField(*dbe_fix);    // #07
+		q->addField(*dbe_excl);   // #08
+		q->addField(dbe_loc);     // #09
+		// } @v12.5.3 
+		/* @v12.5.3 q = & Select_(
 			vt->ID,      // #00
 			vt->Dt,      // #01
 			vt->Code,    // #02
@@ -1681,7 +1719,8 @@ DBQuery * PPViewVatBook::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			*dbe_fix,    // #07
 			*dbe_excl,   // #08
 			dbe_loc,     // #09
-			0L).from(vt, 0L);
+			0L);*/
+		q->from(vt, 0L);
 		dbq = & (vt->LineType_ == Filt.Kind);
 	}
 	if(Filt.Flags & VatBookFilt::fPaymPeriod)
@@ -1871,6 +1910,7 @@ int PPViewVatBook::_SetVATParams(VATBookTbl::Rec * pRec, const BVATAccmArray & r
 				_SetVATParams_InternalEntry(pRec->VAT3, pRec->SVAT3),
 				_SetVATParams_InternalEntry(pRec->VAT4, pRec->SVAT4),
 				_SetVATParams_InternalEntry(pRec->VAT5, pRec->SVAT5),
+				_SetVATParams_InternalEntry(pRec->VAT6, pRec->SVAT6), // @v12.5.3
 			};
 			for(uint tabidx = 0; tabidx < SIZEOFARRAY(_tab); tabidx++) {
 				if(PPObjVATBook::IsVatRate(tabidx, rate)) {
@@ -2582,7 +2622,7 @@ int PPViewVatBook::OpEntryVector::AddEntry(PPID opID, PPID amtTypeID, int signFi
 		OpEntry & r_entry = at(pos);
 		assert(opID == r_entry.OpID);
 		assert(amtTypeID == r_entry.AmtTypeID);
-		int ex_sign_filt = oneof2(r_entry.SignFilt, -1, +1) ? r_entry.SignFilt : 0;
+		int    ex_sign_filt = oneof2(r_entry.SignFilt, -1, +1) ? r_entry.SignFilt : 0;
 		if(ex_sign_filt == 0 && oneof2(signFilt, -1, +1)) {
 			r_entry.SignFilt = signFilt;
 		}
@@ -2885,6 +2925,9 @@ int PPALDD_VatBook::InitData(PPFilt & rFilt, long rsrv)
 	H.HVat1Rate = PPObjVATBook::GetVatRate(0);
 	H.HVat2Rate = PPObjVATBook::GetVatRate(1);
 	H.HVat3Rate = PPObjVATBook::GetVatRate(2);
+	H.HVat4Rate = PPObjVATBook::GetVatRate(3); // @v12.5.3
+	H.HVat5Rate = PPObjVATBook::GetVatRate(4); // @v12.5.3
+	H.HVat6Rate = PPObjVATBook::GetVatRate(5); // @v12.5.3
 	H.fByPayment        = BIN(p_filt->Flags & VatBookFilt::fPaymPeriod);
 	H.fShowLinkedOnly   = BIN(p_filt->Flags & VatBookFilt::fShowLink && !(p_filt->Flags & VatBookFilt::fShowFree));
 	H.fShowUnlinkedOnly = BIN(p_filt->Flags & VatBookFilt::fShowFree && !(p_filt->Flags & VatBookFilt::fShowLink));
@@ -2932,16 +2975,19 @@ int PPALDD_VatBook::NextIteration(PPIterID iterId)
 	I.Vat3Amount = item.VAT3;
 	I.Vat4Amount = item.VAT4; // @v12.3.1
 	I.Vat5Amount = item.VAT5; // @v12.3.1
+	I.Vat6Amount = item.VAT6; // @v12.5.3
 	I.Vat1Sum    = item.SVAT1;
 	I.Vat2Sum    = item.SVAT2;
 	I.Vat3Sum    = item.SVAT3;
 	I.Vat4Sum    = item.SVAT4; // @v12.3.1
 	I.Vat5Sum    = item.SVAT5; // @v12.3.1
+	I.Vat6Sum    = item.SVAT6; // @v12.5.3
 	I.Vat1Rate   = PPObjVATBook::GetVatRate(0); // 10
 	I.Vat2Rate   = PPObjVATBook::GetVatRate(1); // 18
 	I.Vat3Rate   = PPObjVATBook::GetVatRate(2); // 20
 	I.Vat4Rate   = PPObjVATBook::GetVatRate(3); // 5   // @v12.3.1
 	I.Vat5Rate   = PPObjVATBook::GetVatRate(4); // 7   // @v12.3.1
+	I.Vat6Rate   = PPObjVATBook::GetVatRate(5); // 22  // @v12.5.3
 	I.fExcluded  = item.Excluded;
 	I.fVatFree   = BIN(item.Flags & VATBF_VATFREE);
 	I.fFixed     = BIN(item.Flags & VATBF_FIX);
@@ -3141,11 +3187,11 @@ int PPViewVatBook::Export()
 					// @v11.3.2 n_doc.PutAttrib("НомКорр", "0");
 					n_doc.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CORRECTIONNO_), "0"); // @v11.3.2
 					{
-						constexpr uint vat_rate_count = 5;
+						constexpr uint vat_rate_count = 6; // @v12.5.3 5-->6
 						SXml::WNode n_book(g.P_X, ledger_title);
 						double sum_vat0 = 0.0;
-						double sum_vatn[vat_rate_count] = { 0.0, 0.0, 0.0, 0.0, 0.0 }; // @v12.3.2 [3]-->[5]
-						double sum_svatn[vat_rate_count] = { 0.0, 0.0, 0.0, 0.0, 0.0 }; // @v12.3.2 [3]-->[5]
+						double sum_vatn[vat_rate_count] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }; // @v12.3.2 [3]-->[5] // @v12.5.3 [5]-->[6]
+						double sum_svatn[vat_rate_count] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }; // @v12.3.2 [3]-->[5] // @v12.5.3 [5]-->[6]
 						double sum_svat = 0.0;
 						double sum_amount = 0.0;
 						PPObjCurrency cur_obj;
@@ -3160,9 +3206,9 @@ int PPViewVatBook::Export()
 						SETIFZ(base_cur_code, 643); // По умолчанию Российский Рубль
 						for(InitIteration(); NextIteration(&item) > 0;) {
 							const double _vat0 = item.VAT0;
-							const double _vatn[vat_rate_count] = { item.VAT1, item.VAT2, item.VAT3, item.VAT4, item.VAT5 }; // @v12.3.2 [3]-->[5]
-							const double _svatn[vat_rate_count] = { item.SVAT1, item.SVAT2, item.SVAT3, item.SVAT4, item.SVAT5 }; // @v12.3.2 [3]-->[5]
-							const double _svat = _svatn[0] + _svatn[1] + _svatn[2] + _svatn[3] + _svatn[4];
+							const double _vatn[vat_rate_count] = { item.VAT1, item.VAT2, item.VAT3, item.VAT4, item.VAT5, item.VAT6 }; // @v12.3.2 [3]-->[5] // @v12.5.3 item.VAT6
+							const double _svatn[vat_rate_count] = { item.SVAT1, item.SVAT2, item.SVAT3, item.SVAT4, item.SVAT5, item.SVAT6 }; // @v12.3.2 [3]-->[5] // @v12.5.3 item.SVAT6
+							const double _svat = _svatn[0] + _svatn[1] + _svatn[2] + _svatn[3] + _svatn[4] + _svatn[5]; // @v12.5.3 (+ _svatn[5])
 							const double _amount = item.Amount;
 							sum_vat0 += _vat0;
 							for(i = 0; i < vat_rate_count; i++) {
@@ -3196,6 +3242,8 @@ int PPViewVatBook::Export()
 							"СумНДССФ18"
 							"СтоимПродСФ20"
 							"СумНДССФ20"
+							"СтоимПродСФ22"
+							"СумНДССФ22"
 							"СтоимПродСФ10"
 							"СумНДССФ10"
 							"СтоимПродСФ0"
@@ -3237,9 +3285,9 @@ int PPViewVatBook::Export()
 							line_no++;
 
 							const double _vat0 = item.VAT0;
-							const double _vatn[vat_rate_count] = { item.VAT1, item.VAT2, item.VAT3,  item.VAT4, item.VAT5 };
-							const double _svatn[vat_rate_count] = { item.SVAT1, item.SVAT2, item.SVAT3,  item.SVAT4, item.SVAT5 };
-							const double _svat = _svatn[0] + _svatn[1] + _svatn[2] + _svatn[3] + _svatn[4];
+							const double _vatn[vat_rate_count] = { item.VAT1, item.VAT2, item.VAT3,  item.VAT4, item.VAT5, item.VAT6 }; // @v12.5.3 item.VAT6
+							const double _svatn[vat_rate_count] = { item.SVAT1, item.SVAT2, item.SVAT3,  item.SVAT4, item.SVAT5, item.SVAT6 }; // @v12.5.3 item.SVAT6
+							const double _svat = _svatn[0] + _svatn[1] + _svatn[2] + _svatn[3] + _svatn[4] + _svatn[5]; // @v12.5.3 _svatn[5]
 							const double _amount = item.Amount;
 							{
                             	n_item.PutAttrib("НомерПор", temp_buf.Z().Cat(line_no));
@@ -3273,6 +3321,10 @@ int PPViewVatBook::Export()
 										else if(PPObjVATBook::IsVatRate(i, 20.0)) {
 											n_item.PutAttrib("СтоимПродСФ20", temp_buf.Z().Cat(_vatn[i], SFMT_MONEY)); // Сумма продаж по ставке НДС 20%
 											n_item.PutAttrib("СумНДССФ20", temp_buf.Z().Cat(_svatn[i], SFMT_MONEY)); // Сумма НДС по ставке 20%
+										}
+										else if(PPObjVATBook::IsVatRate(i, 22.0)) { // @v12.5.3
+											n_item.PutAttrib("СтоимПродСФ22", temp_buf.Z().Cat(_vatn[i], SFMT_MONEY)); // Сумма продаж по ставке НДС 22%
+											n_item.PutAttrib("СумНДССФ22", temp_buf.Z().Cat(_svatn[i], SFMT_MONEY)); // Сумма НДС по ставке 22%
 										}
 										else if(PPObjVATBook::IsVatRate(i, 10.0)) {
 											n_item.PutAttrib("СтоимПродСФ10", temp_buf.Z().Cat(_vatn[i], SFMT_MONEY)); // Сумма продаж по ставке НДС 10%

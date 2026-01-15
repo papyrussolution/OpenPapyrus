@@ -1999,7 +1999,7 @@ SCalendarPicker::LayoutExtra::LayoutExtra(int ident, uint value) : Ident(ident),
 	return p_symb ? PPLoadStringS(p_symb, SLS.AcquireRvlStr()) : "";
 }
 
-SCalendarPicker::SCalendarPicker(int kind) : TWindowBase(SUcSwitch(SCalendarPicker::GetWindowTitle(kind)), wbcDrawBuffer), 
+SCalendarPicker::SCalendarPicker(int kind) : TWindowBase(SUcSwitchW(SCalendarPicker::GetWindowTitle(kind)), wbcDrawBuffer), 
 	Kind(kind), LoExtraList(GetLayoutExtraVector()), FontId(0), CStyleId(0), CStyleFocusId(0), P_LoFocused(0), StartLoYear(0),
 	PeriodTerm(PRD_DAY), PeriodPredef(0)
 {

@@ -5184,9 +5184,10 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 	
 	int PrcssrTextSimilarityFinder::Search(const char * pPattern)
 	{
-		const  float similarity_threshould = 0.45;
+		const  float similarity_threshould = 0.45f;
 		const  uint  max_candidate = 100;
 		int    ok = -1;
+		RAssocArray search_result;
 		if(!isempty(pPattern)) {
 			SString log_file_path;
 			SString temp_buf;
@@ -5219,7 +5220,6 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 					SourceTCollection::HBlock hblk;
 					uint    token_block_count = 0; // @debug
 					TSVector <SourceTCollection::InvIdxRef> inv_idx_ref_list;
-					RAssocArray search_result;
 					StrAssocArray text_list;
 					THROW(stc.StartReading(&hblk, &inv_idx_ref_list));
 					{
@@ -5296,10 +5296,11 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 											const  int _sr = inv_idx.L.bsearch(&r_titem.Id, &inv_idx_pos, PTR_CMPFUNC(uint16));
 											assert(_sr);
 											if(_sr) {
-												const InvertedIndex::Entry * p_iie = inv_idx.L.at(inv_idx_pos);
+												InvertedIndex::Entry * p_iie = inv_idx.L.at(inv_idx_pos);
 												assert(p_iie);
 												if(p_iie) {
 													assert(p_iie->TokenId == r_titem.Id);
+													p_iie->DocRefList.Thresholding(rvecthrshfAbs|rvecthrshf_MaxCount, max_candidate * 2);
 													for(uint di = 0; di < p_iie->DocRefList.getCount(); di++) {
 														const FAssoc & r_dr = p_iie->DocRefList.at(di);
 														const float score_addendum = r_titem.TF_IDF * r_dr.Val;

@@ -1,5 +1,5 @@
 // C_TRFR.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2020, 2021, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2020, 2021, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Процедуры корректировки товарных проводок
 //
@@ -34,8 +34,10 @@ int Transfer::CorrectIntrUnite()
 				if(r < 0) {
 					DBRowId trfr_pos;
 					DBRowId rcpt_pos;
-					ReceiptTbl::Rec lot_rec, prev_lot_rec;
-					TransferTbl::Rec trfr_rec, org_trfr_rec;
+					ReceiptTbl::Rec lot_rec;
+					ReceiptTbl::Rec prev_lot_rec;
+					TransferTbl::Rec trfr_rec;
+					TransferTbl::Rec org_trfr_rec;
 					BillTbl::Rec org_bill_rec;
 					Rcpt.CopyBufTo(&lot_rec);
 					DateIter di; // PPFormat
@@ -878,7 +880,9 @@ SString & PPLotFaultArray::Message(uint p, SString & rBuf)
 			case PPLotFault::ThereIsQCert:         msg_id = PPERR_ELOT_THEREISQCERT; break;
 			default: msg_id = PPERR_ELOT_UNKNOWN; break;
 		}
-		SString b, lot_str, temp_buf;
+		SString b;
+		SString lot_str;
+		SString temp_buf;
 		if(PPLoadString(PPMSG_ERROR, msg_id, b)) {
 			char   dtbuf[32];
 			ReceiptTbl::Rec lot_rec;

@@ -3897,16 +3897,19 @@
 	#define CTL_VATBOOK_VAT3             (34 + WINDOWS_ID_BIAS)
 	#define CTL_VATBOOK_VAT4             (35 + WINDOWS_ID_BIAS)
 	#define CTL_VATBOOK_VAT5             (36 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOK_VAT6             (37 + WINDOWS_ID_BIAS) // @v12.5.3
 	#define CTL_VATBOOK_SVAT1            (41 + WINDOWS_ID_BIAS) // @anchor ident
 	#define CTL_VATBOOK_SVAT2            (42 + WINDOWS_ID_BIAS)
 	#define CTL_VATBOOK_SVAT3            (43 + WINDOWS_ID_BIAS)
 	#define CTL_VATBOOK_SVAT4            (44 + WINDOWS_ID_BIAS)
 	#define CTL_VATBOOK_SVAT5            (45 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOK_SVAT6            (46 + WINDOWS_ID_BIAS) // @v12.5.3
 	#define CTL_VATBOOK_TVAT1            (51 + WINDOWS_ID_BIAS) // @anchor ident StaticText
 	#define CTL_VATBOOK_TVAT2            (52 + WINDOWS_ID_BIAS) // StaticText
 	#define CTL_VATBOOK_TVAT3            (53 + WINDOWS_ID_BIAS) // StaticText
 	#define CTL_VATBOOK_TVAT4            (54 + WINDOWS_ID_BIAS) // StaticText
 	#define CTL_VATBOOK_TVAT5            (55 + WINDOWS_ID_BIAS) // StaticText
+	#define CTL_VATBOOK_TVAT6            (56 + WINDOWS_ID_BIAS) // StaticText @v12.5.3
 #define DLG_VATBFLT               268 // Фильтр по книге продаж/покупок
 #define DLG_VATBWHAT              269 // Выбор книги продаж либо покупок
 	#define CTL_VATBFLT_WHAT             (1 + WINDOWS_ID_BIAS)
@@ -5238,16 +5241,19 @@
 	#define CTL_VATBOOKTOTAL_VAT3        (13 + WINDOWS_ID_BIAS)
 	#define CTL_VATBOOKTOTAL_VAT4        (14 + WINDOWS_ID_BIAS)
 	#define CTL_VATBOOKTOTAL_VAT5        (15 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOKTOTAL_VAT6        (16 + WINDOWS_ID_BIAS) // @v12.5.3
 	#define CTL_VATBOOKTOTAL_SVAT1       (21 + WINDOWS_ID_BIAS)
 	#define CTL_VATBOOKTOTAL_SVAT2       (22 + WINDOWS_ID_BIAS)
 	#define CTL_VATBOOKTOTAL_SVAT3       (23 + WINDOWS_ID_BIAS)
 	#define CTL_VATBOOKTOTAL_SVAT4       (24 + WINDOWS_ID_BIAS)
 	#define CTL_VATBOOKTOTAL_SVAT5       (25 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOKTOTAL_SVAT6       (26 + WINDOWS_ID_BIAS) // @v12.5.3
 	#define CTL_VATBOOKTOTAL_TVAT1       (31 + WINDOWS_ID_BIAS)
 	#define CTL_VATBOOKTOTAL_TVAT2       (32 + WINDOWS_ID_BIAS)
 	#define CTL_VATBOOKTOTAL_TVAT3       (33 + WINDOWS_ID_BIAS)
 	#define CTL_VATBOOKTOTAL_TVAT4       (34 + WINDOWS_ID_BIAS)
 	#define CTL_VATBOOKTOTAL_TVAT5       (35 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOKTOTAL_TVAT6       (36 + WINDOWS_ID_BIAS) // @v12.5.3
 #define DLG_SELPRNCHK             443 // Выбор при печати кассового чека
 	#define CTL_SELPRNCHK_WHAT           (1 + WINDOWS_ID_BIAS)
 #define DLG_CREVAL                444 // Валютная переоценка
@@ -11982,6 +11988,10 @@
 #define DLGW_SELVERSION          4115
 	#define CTL_SELVERSION_LIST         1021
 #define DLGW_EMPTYDIALOGWINDOW   4116 // @v12.2.4
+//
+// 
+//
+#define CTL_FACADEWINDOW_MAININPUT (1 + WINDOWS_ID_BIAS) // Основное поле ввода для facade-window (TFacadeWindow)
 //
 // LastDialog
 //

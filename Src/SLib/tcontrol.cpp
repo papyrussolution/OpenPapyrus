@@ -1,5 +1,5 @@
 // TCONTROL.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -257,6 +257,20 @@ static BOOL CALLBACK ButtonDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_WINDOWPOSCHANGED: 
 			return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
 		// } @v12.3.7 
+		// @v12.5.3 {
+		case WM_MOUSEHOVER:
+			if(p_view)
+				p_view->setState(sfHover, true);
+			break;
+		case WM_MOUSELEAVE:
+			if(p_view)
+				p_view->setState(sfHover, false);
+			break;
+		case WM_MOUSEMOVE:
+			if(p_view)
+				p_view->RegisterMouseTracking(1, 50); 
+			break;
+		// } @v12.5.3 
 		/*
 		case WM_INPUTLANGCHANGE: // @v6.4.4 AHTOXA
 			if(p_view->IsInState(sfMsgToParent))
@@ -339,6 +353,7 @@ int TButton::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				::SendDlgItemMessage(Parent, Id, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(HBmp_));
 			}
 			SetupText(&Text);
+			RegisterMouseTracking(1, 50); // @v12.5.3
 			break;
 		case WM_COMMAND:
 			if(HIWORD(wParam) == BN_CLICKED) {
@@ -426,8 +441,16 @@ void TButton::MakeDefault(bool enable, bool sendMsg)
 void TButton::setState(uint aState, bool enable)
 {
 	TView::setState(aState, enable);
-	if(aState & (sfSelected|sfActive))
-		Draw_();
+	if(aState & (sfSelected|sfActive|sfHover)) { // @v12.5.3 sfHover
+		// @v12.5.3 Draw_();
+		// @v12.5.3 {
+		HWND   h_wnd = getHandle();
+		if(h_wnd) {
+			::InvalidateRect(h_wnd, 0, TRUE);
+			::UpdateWindow(h_wnd);
+		}
+		// } @v12.5.3
+	}
 	if(aState & sfFocused)
 		MakeDefault(enable);
 }

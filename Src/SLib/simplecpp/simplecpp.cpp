@@ -576,7 +576,7 @@ std::string simplecpp::TokenList::stringify() const
 	return ret.str();
 }
 
-static bool isNameChar(uchar ch) { return std::isalnum(ch) || ch == '_' || ch == '$'; }
+static bool isNameChar(uchar ch) { return isasciialnum(ch) || ch == '_' || ch == '$'; }
 
 static std::string escapeString(const std::string &str)
 {

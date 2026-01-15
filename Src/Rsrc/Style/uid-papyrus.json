@@ -94,9 +94,10 @@
 		{
 			"symb": "papyrus_style",
 			"main_window_bg": "#20639B",
+			"window_def_bg": "#EEEEEE",
 			"dialog_bg": "#F8F8FF",
-			"button_bg": "#DCD9D1",
-			"button_sel_bg": "#BABAC9",
+			"button_bg": "#AliceBlue",
+			"button_sel_bg": "#SkyBlue",
 			"button_border": "$icon_reg",
 			"button_def_border": "#green",
 			"button_focus_border": "#orange",
@@ -152,6 +153,46 @@
 		}
 	],
 	"layout_list": [
+		{
+			"symb": "CentrigoMain",
+			"size": "256, 256",
+			"justifycontent": "start",
+			"aligncontent": "stretch",
+			"alignitems": "stretch",
+			"alignself": "auto",
+			"gravityx": "center",
+			"gravityy": "center",
+			"shrinkfactor": 1,
+			"children": [
+				{
+					"symb": "Top",
+					"size": "100%, 64",
+					"alignitems": "stretch",
+					"alignself": "auto",
+					"gravityx": "center",
+					"gravityy": "top",
+					"shrinkfactor": 1
+				},
+				{
+					"symb": "Left",
+					"size": "64, 100%",
+					"alignitems": "stretch",
+					"alignself": "auto",
+					"gravityx": "left",
+					"gravityy": "center",
+					"shrinkfactor": 1
+				},
+				{
+					"symb": "Center",
+					"size": "100%, 100%",
+					"alignitems": "stretch",
+					"alignself": "auto",
+					"gravityx": "center",
+					"gravityy": "center",
+					"shrinkfactor": 1
+				}
+			]
+		},
 		{
 			"flags": "vertical",
 			"id": 10001,

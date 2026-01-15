@@ -1,5 +1,5 @@
 // CHZN.CPP
-// Copyright (c) A.Sobolev 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Реализация интерфейса к сервисам честный знак
 //
@@ -76,14 +76,14 @@ public:
 	//
 	enum {
 		docstUnkn = 0,
-		docstInProgress, // IN_PROGRESS – Проверяется
-		docstCheckedOk,  // CHECKED_OK – Обработан
-		docstCheckedNoOk, // CHECKED_NOT_OK – Обработан с ошибками
+		docstInProgress,      // IN_PROGRESS – Проверяется
+		docstCheckedOk,       // CHECKED_OK – Обработан
+		docstCheckedNoOk,     // CHECKED_NOT_OK – Обработан с ошибками
 		docstProcessingError, // PROCESSING_ERROR – Техническая ошибка
-		docstUndefined, // UNDEFINED – не определен
-		docstCancelled, // CANCELLED – Аннулирован. Только для документа 'Отмена отгрузки'
-		docstAccepted, // ACCEPTED – Принят. Только для документа 'Отгрузка'
-		docstWaitAcceptance, // WAIT_ACCEPTANCE – Ожидание приемку. Только для документа 'Отгрузка'. Устанавливается при успешной обработке документа 'Отгрузка товара'
+		docstUndefined,       // UNDEFINED – не определен
+		docstCancelled,       // CANCELLED – Аннулирован. Только для документа 'Отмена отгрузки'
+		docstAccepted,        // ACCEPTED – Принят. Только для документа 'Отгрузка'
+		docstWaitAcceptance,  // WAIT_ACCEPTANCE – Ожидание приемку. Только для документа 'Отгрузка'. Устанавливается при успешной обработке документа 'Отгрузка товара'
 		docstParticipantRegistration // WAIT_PARTICIPANT_REGISTRATION -Ожидает регистрации участника в ГИС МТ. Только для документа 'Отгрузка'. Устанавливается при успешной обработке документа 'Отгрузка товара' в сторону незарегистрированного участника
 	};
 	class Document {
@@ -125,7 +125,7 @@ public:
 		doctypMdlpReceiveOrder             		 = 416,
 		doctypMdlpMovePlace                		 = 431,
 		doctypMdlpMoveUnregisteredOrder          = 441, // @v11.2.0
-		doctypMdlpRetailSale                     = 511, // @v11.0.1
+		doctypMdlpRetailSale                     = 511,
 		doctypMdlpMoveOrderNotification          = 601, // @v11.8.2
 		doctypMdlpReceiveOrderNotification 		 = 602,
 		doctypMdlpAccept                         = 701,
@@ -143,7 +143,7 @@ public:
 		doctGisMt_Crossborder            = 1008,
 		doctGisMt_LpIntroduceGoodsCrossborderCSD = 1009,
 		doctGisMt_IntroduceOST           = 1010,
-		doctGisMt_LkContractCommissioning        = 1011,
+		doctGisMt_LkContractCommissioning = 1011,
 		doctGisMt_LpReturn               = 1012,
 		doctGisMt_LpShipGoods            = 1013,
 		doctGisMt_LpShipReceipt          = 1014,
@@ -418,24 +418,33 @@ DRAFTBEER HORECA @v11.9.4
 	// 01 [14] 21 [13] \x29 91 [4] \x29 92 [44]
 	// example:
 	// 01 04603182002518 21 0100007852382 91 EE06 92 uy1H5DQr89ewuV4W/ssuZKTxmcX7r0A8/1KZU3tMLSY=
-	// 
+	// --------------
+	// @v12.5.3 Следующие коды - пример для специализированного шаблона разбора. Вероятно, в дальнейшем появятся и другие образцы шаблонов
+	//   0104607050692566215GM7:i+10W-GZ93mCyw
+	//   0104607050692566215mkerpMW93T.V9354vW
+	//   0104607050696656215g>4".10golvq933VXM
+	//   0104610008494198215I/U7SHNZreO&93xEtK
+	//   0104610011500084215-gsgtn?MWWH<93OBDZ
+	//   0104610011500084215-ifRE?TBLg9293TgtZ
+	//   // dedicated_case#01 len=37, GtinStruc::fldGTIN14[14], GtinStruc::fldSerial[13], fldInner2[4]
+	//   //                           01                        21                        93            
+	//
 	int    ok = 0;
-	//static const int8 serial_len_variant_list[] = { 13, 12, 11, 8, 6 };
-	static const int8 serial_len_variant_list[] = { 6, 7, 8, 11, 12, 13 }; // @v11.9.1 (7)
-	static const int8 serial_len_variant_list_83[] = { 13 }; // @v11.5.3 Длины серии [21] для марок с длиной 83 байта
+	static const int8 serial_len_variant_list[] = { 6, 7, 8, 11, 12, 13 };
+	static const int8 serial_len_variant_list_83[] = { 13 }; // Длины серии [21] для марок с длиной 83 байта
+	size_t serial_len_variant_idx = 0;
 	const size_t code_len = sstrlen(pCode);
+	const SString code_buf(pCode);
 	rS.Z();
 	if(code_len >= 16) {
-		SString temp_buf;
 		SString sub_buf;
-		temp_buf = pCode;
-		if(temp_buf.HasPrefix("02") && temp_buf.Len() >/*strictly GT*/ (2+14+2)) { // Специальный случай: никакая не марка, но суррогатная комбинация 02 GTIN 37 QTY
-			temp_buf.Sub(2, 14, sub_buf);
+		if(code_buf.HasPrefix("02") && code_buf.Len() >/*strictly GT*/ (2+14+2)) { // Специальный случай: никакая не марка, но суррогатная комбинация 02 GTIN 37 QTY
+			code_buf.Sub(2, 14, sub_buf);
 			if(sub_buf.IsDec()) {
 				rS.Add(GtinStruc::fldGTIN14, sub_buf);
-				temp_buf.Sub((2+14), 2, sub_buf);
+				code_buf.Sub((2+14), 2, sub_buf);
 				if(sub_buf == "37") {
-					temp_buf.Sub((2+14+2), temp_buf.Len()/*up to end*/, sub_buf);
+					code_buf.Sub((2+14+2), code_buf.Len()/*up to end*/, sub_buf);
 					if(sub_buf.IsDec()) {
 						rS.Add(GtinStruc::fldCount, sub_buf);
 						ok = SNTOK_CHZN_SURROGATE_GTINCOUNT;
@@ -443,15 +452,15 @@ DRAFTBEER HORECA @v11.9.4
 				}
 			}
 		}
-		else if(temp_buf.HasPrefix("02") && temp_buf.Len() == (2+14)) { // Специальный случай: никакая не марка, но суррогатная комбинация 02 GTIN
-			temp_buf.Sub(2, 14, sub_buf);
+		else if(code_buf.HasPrefix("02") && code_buf.Len() == (2+14)) { // Специальный случай: никакая не марка, но суррогатная комбинация 02 GTIN
+			code_buf.Sub(2, 14, sub_buf);
 			if(sub_buf.IsDec()) {
 				rS.Add(GtinStruc::fldGTIN14, sub_buf);
 				ok = SNTOK_CHZN_SURROGATE_GTIN;
 			}
 		}
-		else if(temp_buf.HasPrefix("00") && temp_buf.Len() == (2+14+4) && temp_buf.IsDec()) { // @v12.3.5 Специальный случай: никакая не марка, но код паллеты комбинация 00 GTIN 9999
-			temp_buf.Sub(2, 14, sub_buf);
+		else if(code_buf.HasPrefix("00") && code_buf.Len() == (2+14+4) && code_buf.IsDec()) { // @v12.3.5 Специальный случай: никакая не марка, но код паллеты комбинация 00 GTIN 9999
+			code_buf.Sub(2, 14, sub_buf);
 			rS.Add(GtinStruc::fldGTIN14, sub_buf);
 			rS.Add(GtinStruc::fldOriginalText, pCode);
 			ok = SNTOK_CHZN_PALLET_GTIN;
@@ -459,37 +468,96 @@ DRAFTBEER HORECA @v11.9.4
 		else if(false) { // @v12.4.2 @todo SNTOK_SSCC
 			;
 		}
-		if(!ok) /*else*/ /*if(temp_buf.HasPrefix("01") || temp_buf.HasPrefix("(01)") || temp_buf.HasPrefix("\x1D" "01"))*/ { // @v12.1.6 else-->if(!ok)
-			size_t serial_len_variant_idx = 0;
-			rS.AddSpecialStopChar(0x1D);
-			rS.AddSpecialStopChar(0xE8);
-			rS.AddOnlyToken(GtinStruc::fldGTIN14);
-			rS.AddOnlyToken(GtinStruc::fldSerial);
-			if(code_len == 83) {
-				rS.SetSpecialFixedToken(GtinStruc::fldSerial, /*13*/serial_len_variant_list_83[serial_len_variant_idx++]);
+		if(!ok) {
+			SString temp_buf;
+			SString raw_buf;
+			SString preprocessed_code_buf; // Код, из которого удалены специальные символы и, если надо, переведенный из кириллической клавиатуры в латинскую.
+			uint   dedicated_case = 0;
+			enum {
+				dedicatedcase_37_01_21_93 = 1
+			};
+			// @v12.5.3 {
+			{
+				temp_buf = code_buf;
+				temp_buf.ShiftLeftChr('\xE8'); // Специальный символ. Может присутствовать в начале кода 
+				// "]C1"
+				if(temp_buf.HasPrefixIAscii("]C1")) { // Выяснилось, что и такие служебные префиксы встречаются //
+					temp_buf.ShiftLeft(3);
+					temp_buf.ShiftLeftChr('\xE8'); // Черт его знает: на всякий случай снова проверим этого обдолбыша
+				}
+				TranslateLocaleKeyboardTextToLatin(temp_buf, raw_buf);
+				preprocessed_code_buf = raw_buf;
+				{
+					const char spc_chr_list[] = { '\x1D', '\xE8' };
+					for(uint sci = 0; sci < SIZEOFARRAY(spc_chr_list); sci++) {
+						size_t local_pos = 0;
+						while(preprocessed_code_buf.SearchChar(spc_chr_list[sci], &local_pos)) {
+							preprocessed_code_buf.Excise(local_pos, 1);
+						}
+					}
+				}
 			}
-			else {
-				rS.SetSpecialFixedToken(GtinStruc::fldSerial, /*13*/serial_len_variant_list[serial_len_variant_idx++]);
+			// dedicated_case#01 len=37, GtinStruc::fldGTIN14[14], GtinStruc::fldSerial[13], fldInner2[4]
+			//                           01                        21                        93            
+			rS.Z();
+			if(preprocessed_code_buf.Len() == 37) {
+				//   0104607050692566215GM7:i+10W-GZ93mCyw
+				//   0123456789012345678901234567890123456
+				const char * p_01_pfx = GtinStruc::GetTokenPrefix(GtinStruc::fldGTIN14);
+				const char * p_21_pfx = GtinStruc::GetTokenPrefix(GtinStruc::fldSerial);
+				const char * p_93_pfx = GtinStruc::GetTokenPrefix(GtinStruc::fldInner2);
+				if(p_01_pfx && p_21_pfx && p_93_pfx) {
+					size_t _01_pos = 0;
+					size_t _21_pos = 0;
+					size_t _93_pos = 0;
+					const   int _01_r = preprocessed_code_buf.Search(p_01_pfx, 0, 0, &_01_pos);
+					const   int _21_r = preprocessed_code_buf.Search(p_21_pfx, 0, 0, &_21_pos);
+					const   int _93_r = preprocessed_code_buf.SearchRev(p_93_pfx, 0, 0, &_93_pos);
+					if(_01_r && _21_r && _93_r && _01_pos == 0 && _21_pos == 16 && _93_pos == 31) {
+						dedicated_case = dedicatedcase_37_01_21_93;	
+						//
+						rS.AddSpecialStopChar(0x1D);
+						rS.AddSpecialStopChar(0xE8);
+						rS.AddOnlyToken(GtinStruc::fldGTIN14);
+						rS.AddOnlyToken(GtinStruc::fldSerial);
+						rS.AddOnlyToken(GtinStruc::fldInner2);
+						rS.SetSpecialFixedToken(GtinStruc::fldSerial, 13);
+						rS.SetSpecialFixedToken(GtinStruc::fldInner2, 1000/*UNTIL EOL*/);
+					}
+				}
 			}
-			rS.AddOnlyToken(GtinStruc::fldPart);
-			rS.SetSpecialMinLenToken(GtinStruc::fldPart, 5); // @v12.3.12
-			rS.AddOnlyToken(GtinStruc::fldAddendumId);
-			rS.AddOnlyToken(GtinStruc::fldUSPS); //
-			rS.SetSpecialFixedToken(GtinStruc::fldUSPS, 4);
-			rS.AddOnlyToken(GtinStruc::fldInner1);
-			rS.SetSpecialFixedToken(GtinStruc::fldInner1, 1000/*UNTIL EOL*/);
-			rS.AddOnlyToken(GtinStruc::fldInner2);
-			rS.SetSpecialFixedToken(GtinStruc::fldInner2, 1000/*UNTIL EOL*/); // @v11.4.11
-			rS.AddOnlyToken(GtinStruc::fldSscc18);
-			rS.AddOnlyToken(GtinStruc::fldExpiryDate);
-			rS.AddOnlyToken(GtinStruc::fldManufDate);
-			// @v12.3.12 rS.AddOnlyToken(GtinStruc::fldVariant);
-			//rS.AddOnlyToken(GtinStruc::fldPriceRuTobacco);
-			//rS.AddOnlyToken(GtinStruc::fldPrice);
+			// } @v12.5.3 
+			if(!dedicated_case) {
+				rS.AddSpecialStopChar(0x1D);
+				rS.AddSpecialStopChar(0xE8);
+				rS.AddOnlyToken(GtinStruc::fldGTIN14);
+				rS.AddOnlyToken(GtinStruc::fldSerial);
+				if(code_len == 83) {
+					rS.SetSpecialFixedToken(GtinStruc::fldSerial, /*13*/serial_len_variant_list_83[serial_len_variant_idx++]);
+				}
+				else {
+					rS.SetSpecialFixedToken(GtinStruc::fldSerial, /*13*/serial_len_variant_list[serial_len_variant_idx++]);
+				}
+				rS.AddOnlyToken(GtinStruc::fldPart);
+				rS.SetSpecialMinLenToken(GtinStruc::fldPart, 5); // @v12.3.12
+				rS.AddOnlyToken(GtinStruc::fldAddendumId);
+				rS.AddOnlyToken(GtinStruc::fldUSPS); //
+				rS.SetSpecialFixedToken(GtinStruc::fldUSPS, 4);
+				rS.AddOnlyToken(GtinStruc::fldInner1);
+				rS.SetSpecialFixedToken(GtinStruc::fldInner1, 1000/*UNTIL EOL*/);
+				rS.AddOnlyToken(GtinStruc::fldInner2);
+				rS.SetSpecialFixedToken(GtinStruc::fldInner2, 1000/*UNTIL EOL*/); // @v11.4.11
+				rS.AddOnlyToken(GtinStruc::fldSscc18);
+				rS.AddOnlyToken(GtinStruc::fldExpiryDate);
+				rS.AddOnlyToken(GtinStruc::fldManufDate);
+				// @v12.3.12 rS.AddOnlyToken(GtinStruc::fldVariant);
+				//rS.AddOnlyToken(GtinStruc::fldPriceRuTobacco);
+				//rS.AddOnlyToken(GtinStruc::fldPrice);
+			}
 			int   pr = 0;
 			{
-				SString raw_buf;
 				{
+					/* @v12.5.3
 					temp_buf = pCode;
 					temp_buf.ShiftLeftChr('\xE8'); // Специальный символ. Может присутствовать в начале кода 
 					// "]C1"
@@ -501,22 +569,13 @@ DRAFTBEER HORECA @v11.9.4
 					// } @v11.0.1 
 					// @v11.2.5 {
 					TranslateLocaleKeyboardTextToLatin(temp_buf, raw_buf);
+					*/
+					raw_buf = preprocessed_code_buf; // @v12.5.3
 					pCode = raw_buf;
 					// } @v11.2.5 
-					/* @v11.2.5 if(!temp_buf.IsAscii()) {
-						// Попытка транслировать латинский символ из локальной раскладки клавиатуры
-						SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
-						r_temp_buf_u.CopyFromMb_INNER(temp_buf, temp_buf.Len());
-						for(size_t i = 0; i < r_temp_buf_u.Len(); i++) {
-							const wchar_t c = r_temp_buf_u.C(i);
-							KeyDownCommand kd;
-							uint   tc = kd.SetCharU(c) ? kd.GetChar() : 0; 
-							raw_buf.CatChar(static_cast<char>(tc));
-						}
-						pCode = raw_buf.cptr();
-					}*/
 				}
 				pr = rS.Parse(pCode);
+				assert(!dedicated_case || pr == 1); // @v12.5.3 Если у нас специально обрабатываемый случай, то не может быть, что функция Parse сбойнула - иначе надо искать ошибку в коде!
 				if(rS.GetToken(GtinStruc::fldGTIN14, 0)) {
 					// @v11.5.3 {
 					if(code_len == 83) {
@@ -532,20 +591,6 @@ DRAFTBEER HORECA @v11.9.4
 						}
 					}
 				}
-				#if 0 // {
-				if(pr != 1 && rS.GetToken(GtinStruc::fldGTIN14, 0)) {
-					rS.SetSpecialFixedToken(GtinStruc::fldSerial, 12);
-					pr = rS.Parse(pCode);
-					if(pr != 1 && rS.GetToken(GtinStruc::fldGTIN14, 0)) {
-						rS.SetSpecialFixedToken(GtinStruc::fldSerial, 11);
-						pr = rS.Parse(pCode);
-						/*if(pr != 1 && rS.GetToken(GtinStruc::fldGTIN14, 0)) {
-							rS.SetSpecialFixedToken(GtinStruc::fldSerial, 8);
-							pr = rS.Parse(temp_buf);
-						}*/
-					}
-				}
-				#endif // } 0
 				if(pr == 1) {
 					if(rS.GetToken(GtinStruc::fldGTIN14, 0) && rS.GetToken(GtinStruc::fldSerial, &temp_buf)) {
 						if(rS.GetSpecialNaturalToken() == SNTOK_CHZN_CIGITEM)
@@ -564,7 +609,7 @@ DRAFTBEER HORECA @v11.9.4
 				SNaturalTokenArray nta;
 				SNaturalTokenStat nts;
 				uint tokn = 0;
-				tr.Run(reinterpret_cast<const uchar *>(pCode), sstrlen(pCode), nta, &nts);
+				tr.Run(reinterpret_cast<const uchar *>(pCode), sstrleni(pCode), nta, &nts);
 				if(nts.Seq & SNTOKSEQ_ASCII && nts.Len >= 25)
 					ok = 100000;
 			}
@@ -1380,6 +1425,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 											mark_buf.Cat(temp_buf);
 											if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
 												mark_buf.Cat(temp_buf);
+												XMLReplaceSpecSymb(mark_buf, "&<>\'"); // @v12.5.3
 												dtl.PutInner("sgtin", mark_buf);
 											}
 										}
@@ -1453,6 +1499,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 													SXml::WNode un(rX, "union");
 													{
 														SXml::WNode dn(rX, "detail");
+														XMLReplaceSpecSymb(mark_buf, "&<>\'"); // @v12.5.3
 														dn.PutInner("sgtin", mark_buf);
 														dn.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD_020));
 														dn.PutInner("vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD_020));
@@ -1519,6 +1566,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 												if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
 													mark_buf.Cat(temp_buf);
 													SXml::WNode un(rX, "union");
+													XMLReplaceSpecSymb(mark_buf, "&<>\'"); // @v12.5.3
 													un.PutInner("sgtin", mark_buf);
 													un.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD_020));
 													un.PutInner(/*"vat_in_cost"*/"vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD_020));
@@ -1563,6 +1611,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 												mark_buf.Cat(temp_buf);
 												if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
 													mark_buf.Cat(temp_buf);
+													XMLReplaceSpecSymb(mark_buf, "&<>\'"); // @v12.5.3
 													dtl.PutInner("sgtin", mark_buf);
 												}
 											}
@@ -1633,6 +1682,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 												if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
 													mark_buf.Cat(temp_buf);
 													SXml::WNode un(rX, "union");
+													XMLReplaceSpecSymb(mark_buf, "&<>\'"); // @v12.5.3
 													un.PutInner("sgtin", mark_buf);
 													un.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD_020));
 													un.PutInner(/*"vat_in_cost"*/"vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD_020));
@@ -1685,6 +1735,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 											mark_buf.Cat(temp_buf);
 											if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
 												mark_buf.Cat(temp_buf);
+												XMLReplaceSpecSymb(mark_buf, "&<>\'"); // @v12.5.3
 												dtl.PutInner("sgtin", mark_buf);
 											}
 										}
@@ -1708,7 +1759,9 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 					//int codetype = PPChZnPrcssr::IsChZnCode(p_bp->Code);
 					GtinStruc gts;
 					if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(p_bp->Code, gts, 0)) > 0) {
-						wd.PutInner("sgtin", p_bp->Code);
+						mark_buf = p_bp->Code;
+						XMLReplaceSpecSymb(mark_buf, "&<>\'"); // @v12.5.3
+						wd.PutInner("sgtin", mark_buf);
 					}
 					//SETIFZ(codetype, p_bp->CodeType);
 					/*if(codetype == SNTOK_CHZN_GS1_GTIN) {
@@ -2190,7 +2243,7 @@ int ChZnInterface::GetDocumentTicket(const InitBlock & rIb, const char * pDocIde
 			{
 				THROW(h_req = hstk.PushHttpRequestGet(h_connection, url));
 				Lth.Log("req", url_buf, temp_buf.Z());
-				if(HttpSendRequest(h_req, SUcSwitch(hdr_buf), -1, const_cast<char *>(req_buf.cptr())/*optional data*/, req_buf.Len()/*optional data length*/)) {
+				if(HttpSendRequestW(h_req, SUcSwitchW(hdr_buf), -1, const_cast<char *>(req_buf.cptr())/*optional data*/, req_buf.Len32()/*optional data length*/)) {
 					SString wi_msg;
 					uint  wi_code = GetLastWinInternetResponse(wi_msg);
 					ReadReply(h_req, reply_buf);
@@ -2533,7 +2586,7 @@ int ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInterface:
 							THROW(h_inet_sess = hstk.Push(InternetOpen(_T("Papyrus"), /*INTERNET_OPEN_TYPE_PRECONFIG*/INTERNET_OPEN_TYPE_DIRECT, 0/*lpszProxy*/, 0/*lpszProxyBypass*/, 0/*dwFlags*/)));
 							THROW(h_connection = hstk.PushConnection(url, h_inet_sess));
 							{
-								const size_t req_len = req_buf.Len();
+								const uint32 req_len = req_buf.Len32();
 								SStringU hdr_flds_u;
 								STempBuffer temp_req_buf(req_len + 1024);
 								THROW_SL(temp_req_buf.IsValid());
@@ -2541,7 +2594,7 @@ int ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInterface:
 								THROW(h_req = hstk.PushHttpRequestPost(h_connection, url));
 								MakeHeaderFields(rIb.Token, 0, &hdr_flds, temp_buf);
 								hdr_flds_u.CopyFromMb_OUTER(temp_buf, temp_buf.Len());
-								if(HttpSendRequest(h_req, hdr_flds_u, hdr_flds_u.Len(), temp_req_buf, req_len)) {
+								if(HttpSendRequestW(h_req, hdr_flds_u, hdr_flds_u.Len32(), temp_req_buf, req_len)) {
 									SString wi_msg;
 									uint  wi_code = GetLastWinInternetResponse(wi_msg);
 									ReadReply(h_req, reply_buf);
@@ -2694,7 +2747,7 @@ int ChZnInterface::GetUserInfo2(InitBlock & rIb)
 		}
 		//
 		MakeHeaderFields(rIb.Token, 0, 0, temp_buf);
-		if(HttpSendRequest(h_req, SUcSwitch(temp_buf), -1, const_cast<char *>(req_buf.cptr())/*optional data*/, req_buf.Len()/*optional data length*/)) {
+		if(HttpSendRequestW(h_req, SUcSwitchW(temp_buf), -1, const_cast<char *>(req_buf.cptr())/*optional data*/, req_buf.Len32()/*optional data length*/)) {
 			SString wi_msg;
 			uint  wi_code = GetLastWinInternetResponse(wi_msg);
 			ReadReply(h_req, temp_buf);
@@ -2724,7 +2777,7 @@ int ChZnInterface::GetToken2(const char * pAuthCode, InitBlock & rIb)
 	{
 		THROW(h_req = hstk.PushHttpRequestPost(h_connection, url));
 		MakeHeaderFields(0, 0, 0, temp_buf);
-		if(HttpSendRequest(h_req, SUcSwitch(temp_buf), -1, const_cast<char *>(req_buf.cptr())/*optional data*/, req_buf.Len()/*optional data length*/)) {
+		if(HttpSendRequestW(h_req, SUcSwitchW(temp_buf), -1, const_cast<char *>(req_buf.cptr())/*optional data*/, req_buf.Len32()/*optional data length*/)) {
 			SString wi_msg;
 			uint  wi_code = GetLastWinInternetResponse(wi_msg);
 			ReadReply(h_req, temp_buf);
@@ -2815,7 +2868,7 @@ int ChZnInterface::GetDocument(const InitBlock & rIb, const S_GUID * pUuid, cons
 			{
 				THROW(h_req = hstk.PushHttpRequestGet(h_connection, *pUrl));
 				Lth.Log("req", 0, req_buf);
-				if(HttpSendRequest(h_req, SUcSwitch(hdr_buf), -1, const_cast<char *>(req_buf.cptr()), req_buf.Len())) {
+				if(HttpSendRequestW(h_req, SUcSwitchW(hdr_buf), -1, const_cast<char *>(req_buf.cptr()), req_buf.Len32())) {
 					SString wi_msg;
 					uint  wi_code = GetLastWinInternetResponse(wi_msg);
 					ReadReply(h_req, reply_buf);
@@ -2962,7 +3015,7 @@ int ChZnInterface::GetIncomeDocList2_temp(InitBlock & rIb)
 		}
 		//
 		MakeHeaderFields(rIb.Token, 0, 0, temp_buf);
-		if(HttpSendRequest(h_req, SUcSwitch(temp_buf), -1, const_cast<char *>(req_buf.cptr())/*optional data*/, req_buf.Len()/*optional data length*/)) {
+		if(HttpSendRequestW(h_req, SUcSwitchW(temp_buf), -1, const_cast<char *>(req_buf.cptr())/*optional data*/, req_buf.Len32()/*optional data length*/)) {
 			SString wi_msg;
 			uint  wi_code = GetLastWinInternetResponse(wi_msg);
 			ReadReply(h_req, temp_buf);
@@ -3015,7 +3068,7 @@ int ChZnInterface::Connect(InitBlock & rIb)
 					}
 					//
 					MakeHeaderFields(rIb.Token, 0, 0, temp_buf);
-					if(HttpSendRequest(h_req, SUcSwitch(temp_buf), -1, const_cast<char *>(req_buf.cptr())/*optional data*/, req_buf.Len()/*optional data length*/)) {
+					if(HttpSendRequestW(h_req, SUcSwitchW(temp_buf), -1, const_cast<char *>(req_buf.cptr())/*optional data*/, req_buf.Len32()/*optional data length*/)) {
 						SString wi_msg;
 						uint  wi_code = GetLastWinInternetResponse(wi_msg);
 						ReadReply(h_req, temp_buf);
@@ -3078,7 +3131,7 @@ int ChZnInterface::Connect(InitBlock & rIb)
 					}
 					//
 					MakeHeaderFields(rIb.Token, 0, 0, temp_buf);
-					if(HttpSendRequest(h_req, SUcSwitch(temp_buf), -1, const_cast<char *>(req_buf.cptr())/*optional data*/, req_buf.Len()/*optional data length*/)) {
+					if(HttpSendRequestW(h_req, SUcSwitchW(temp_buf), -1, const_cast<char *>(req_buf.cptr())/*optional data*/, req_buf.Len32()/*optional data length*/)) {
 						SString wi_msg;
 						uint  wi_code = GetLastWinInternetResponse(wi_msg);
 						ReadReply(h_req, temp_buf);
@@ -4867,8 +4920,8 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 		SString & MakePrintableCode(const char * pOrgText, SString & rResult)
 		{
 			rResult.Z();
-			const uint len = sstrlen(pOrgText);
-			for(uint i = 0; i < len; i++) {
+			const size_t len = sstrlen(pOrgText);
+			for(size_t i = 0; i < len; i++) {
 				const char c = pOrgText[i];
 				if(c == '\xE8') {
 					rResult.Cat("<xE8>");

@@ -1,5 +1,5 @@
 // V_INV.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025, 2026
 // @codepage UTF-8
 // PPViewInventory: отображение строк инвентаризации
 //
@@ -1327,36 +1327,6 @@ int PPViewInventory::AddItem(TIDlgInitData * pInitData)
 
 #define INVDBQ_GOODSIDOFFS (sizeof(long) * 2)
 
-/*static int InvItemQuickInputDialog(int initChar, SString & rBuf, double & rQtty)
-{
-	int    ok = -1;
-	SString code;
-	QuickSearchDialog * dlg = new QuickSearchDialog;
-	if(CheckDialogPtrErr(&dlg)) {
-		if(isalnum(initChar))
-			code.CatChar(initChar);
-		else
-			code = rBuf;
-		dlg->setCtrlString(CTL_INVITEM_CODE, code);
-		dlg->setCtrlReal(CTL_INVITEM_QUANTITY, rQtty);
-		if(code.NotEmpty() && isalnum(initChar)) {
-			TInputLine * il = static_cast<TInputLine *>(dlg->getCtrlView(CTL_INVITEM_CODE));
-			CALLPTRMEMB(il, disableDeleteSelection(1));
-		}
-		if(ExecView(dlg) == cmOK) {
-			dlg->getCtrlString(CTL_INVITEM_CODE, code);
-			rQtty = dlg->getCtrlReal(CTL_INVITEM_QUANTITY);
-			if(code.NotEmptyS())
-				ok = 1;
-		}
-	}
-	else
-		ok = 0;
-	delete dlg;
-	rBuf = code;
-	return ok;
-}*/
-
 int PPViewInventory::SelectGoodsByBarcode(int initChar, PPID arID, Goods2Tbl::Rec * pRec, double * pQtty, SString * pRetCode)
 {
 	class QuickSearchDialog : public TDialog {
@@ -1395,11 +1365,11 @@ int PPViewInventory::SelectGoodsByBarcode(int initChar, PPID arID, Goods2Tbl::Re
 	SString code(DS.GetTLA().Lid.Barcode);
 	QuickSearchDialog * dlg = new QuickSearchDialog;
 	if(CheckDialogPtrErr(&dlg)) {
-		if(isalnum(initChar))
+		if(isasciialnum(initChar))
 			code.CatChar(initChar);
 		dlg->setCtrlString(CTL_INVITEM_CODE, code);
 		dlg->setCtrlReal(CTL_INVITEM_QUANTITY, qtty);
-		if(code.NotEmpty() && isalnum(initChar)) {
+		if(code.NotEmpty() && isasciialnum(initChar)) {
 			TInputLine * il = static_cast<TInputLine *>(dlg->getCtrlView(CTL_INVITEM_CODE));
 			CALLPTRMEMB(il, disableDeleteSelection(1));
 		}

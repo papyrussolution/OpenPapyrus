@@ -195,7 +195,7 @@ private:
 class PdfBrowser : public TBaseBrowserWindow {
 public:
 	static int RegWindowClass(HINSTANCE hInst);
-	static LPCTSTR WndClsName;
+	static const wchar_t * WndClsName;
 	PdfBrowser();
 	~PdfBrowser();
 private:
@@ -203,25 +203,19 @@ private:
 	int    WMHCreate();
 };
 
-/*static*/LPCTSTR PdfBrowser::WndClsName = _T("SPdfBrowser"); // @global
+/*static*/const wchar_t * PdfBrowser::WndClsName = L"SPdfBrowser"; // @global
 
 /*static*/int PdfBrowser::RegWindowClass(HINSTANCE hInst)
 {
-	WNDCLASSEX wc;
-	INITWINAPISTRUCT(wc);
-	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
+	WNDCLASSEXW wc;
+	TBaseBrowserWindow::MakeDefaultWindowClassBlock(&wc, hInst);
 	wc.lpfnWndProc   = PdfBrowser::WndProc;
-	wc.cbClsExtra    = BRWCLASS_CEXTRA;
-	wc.cbWndExtra    = BRWCLASS_WEXTRA;
-	wc.hInstance     = hInst;
-	wc.hIcon = LoadIcon(hInst, MAKEINTRESOURCE(/*ICON_TIMEGRID*/172));
-	wc.hCursor       = NULL; // LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground = ::CreateSolidBrush(RGB(0xEE, 0xEE, 0xEE));
+	wc.hIcon         = LoadIconW(hInst, MAKEINTRESOURCE(/*ICON_TIMEGRID*/172));
 	wc.lpszClassName = PdfBrowser::WndClsName;
 #if !defined(_PPDLL) && !defined(_PPSERVER)
 	//Scintilla_RegisterClasses(hInst);
 #endif
-	return RegisterClassEx(&wc);
+	return RegisterClassExW(&wc);
 }
 
 PdfBrowser::PdfBrowser() : TBaseBrowserWindow(WndClsName)
@@ -245,21 +239,6 @@ int PdfBrowser::WMHCreate()
 			ToolBarWidth = tbr.bottom - tbr.top;
 		}
 	}
-	//HwndSci = ::CreateWindowEx(WS_EX_CLIENTEDGE, _T("Scintilla"), _T(""), WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_CLIPCHILDREN,
-	//	0, ToolBarWidth, rc.right - rc.left, rc.bottom - rc.top, H(), 0/*(HMENU)GuiID*/, APPL->GetInst(), 0);
-	//SScEditorBase::Init(HwndSci, 1/*preserveFileName*/);
-	//TView::SetWindowProp(HwndSci, GWLP_USERDATA, this);
-	//OrgScintillaWndProc = static_cast<WNDPROC>(TView::SetWindowProp(HwndSci, GWLP_WNDPROC, ScintillaWindowProc));
-	// @v8.6.2 (SCI_SETKEYSUNICODE deprecated in sci 3.5.5) CallFunc(SCI_SETKEYSUNICODE, 1, 0);
-	//CallFunc(SCI_SETCARETLINEVISIBLE, 1);
-	//CallFunc(SCI_SETCARETLINEBACK, RGB(232,232,255));
-	//CallFunc(SCI_SETSELBACK, 1, RGB(117,217,117));
-	//CallFunc(SCI_SETFONTQUALITY, SC_EFF_QUALITY_LCD_OPTIMIZED); // @v9.8.2 SC_EFF_QUALITY_ANTIALIASED-->SC_EFF_QUALITY_LCD_OPTIMIZED
-	// CallFunc(SCI_SETTECHNOLOGY, /*SC_TECHNOLOGY_DIRECTWRITERETAIN*/SC_TECHNOLOGY_DIRECTWRITEDC, 0); // @v9.8.2
-	//
-	//CallFunc(SCI_SETMOUSEDWELLTIME, 500);
-	//CallFunc(SCI_SETMARGINSENSITIVEN, scmargeFolder, true); // @v11.1.12
-	//
 	{
 		/*
 		KeyAccel.clear();

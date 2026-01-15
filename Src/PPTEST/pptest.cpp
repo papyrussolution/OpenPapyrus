@@ -969,12 +969,12 @@ uint RngUniformInt (const Rng * pR, uint n)
 }
 #endif
 
-uint RngMax(const Rng * pR) {return pR->P_Type->Max;}
-uint RngMin(const Rng * pR) {return pR->P_Type->Min;}
-const char * RngName(const Rng * pR) {return pR->P_Type->P_Name;}
+uint   RngMax(const Rng * pR) {return pR->P_Type->Max;}
+uint   RngMin(const Rng * pR) {return pR->P_Type->Min;}
+const  char * RngName(const Rng * pR) {return pR->P_Type->P_Name;}
 size_t RngSize(const Rng * pR) {return pR->P_Type->Size;}
 void * RngState(const Rng * pR) {return pR->P_State;}
-void RngFree(Rng * pR)
+void   RngFree(Rng * pR)
 {
 	if(pR) {
 		SAlloc::F(pR->P_State);
@@ -2041,8 +2041,8 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
-	//TestGtinStruc();
-	SentencePieceExperiments();
+	TestGtinStruc();
+	//SentencePieceExperiments();
 	//PPChZnPrcssr::Test();
 	//TestRestic();
 	//TestGlobalServiceAccessibility();

@@ -1893,8 +1893,7 @@ public:
 				flags |= fWrap;
 				if(pItem->ALB.Flags & SUiLayoutParam::fContainerWrapReverse)
 					flags |= fReverse2;
-				// @v11.0.0 @experimental if(pItem->ALB.AlignContent != SUiLayoutParam::alignStart)
-					flags |= fNeedLines;
+				flags |= fNeedLines;
 			}
 		}
 		return flags;
@@ -2809,10 +2808,12 @@ void SUiLayout::DoFloatLayout(const Param & rP)
 			{
 				for(uint cidx = 0; cidx < _cc; cidx++) {
 					const SUiLayout & r_child = layout_s.GetChildByIndex(this, cidx);
-					const int va = r_child.ALB.GetVArea();
-					assert(va >= 0 && va < SIZEOFARRAY(area_rect));
-					if(va >= 0 && va < SIZEOFARRAY(area_rect)) {
-						item_map.Add(cidx, va);
+					if(!r_child.IsExcluded()) { // @v12.5.3
+						const int va = r_child.ALB.GetVArea();
+						assert(va >= 0 && va < SIZEOFARRAY(area_rect));
+						if(va >= 0 && va < SIZEOFARRAY(area_rect)) {
+							item_map.Add(cidx, va);
+						}
 					}
 				}
 			}

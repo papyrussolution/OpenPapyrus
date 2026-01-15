@@ -1,5 +1,5 @@
 // STRSET.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -211,7 +211,8 @@ int FASTCALL StringSet::Write(SBuffer & rBuf) const
 {
 	SString & r_temp_buf = SLS.AcquireRvlStr();
 	r_temp_buf = Delim;
-	const  uint32 data_len = DataLen; // sizeof(data_len) == 4
+	const  uint32 data_len = static_cast<uint32>(DataLen); // sizeof(data_len) == 4
+	assert(sizeof(data_len) == 4); // !
 	rBuf.Write(r_temp_buf);
 	rBuf.Write(&data_len, sizeof(data_len));
 	rBuf.Write(P_Buf, data_len);
@@ -251,7 +252,8 @@ int StringSet::Write(SFile & rFile, long) const
 	{
 		SBuffer buf;
 		const  SString temp_buf(Delim);
-		const  uint32 data_len = DataLen; // sizeof(data_len) == 4
+		const  uint32 data_len = static_cast<uint32>(DataLen); // sizeof(data_len) == 4
+		assert(sizeof(data_len) == 4); // !
 		THROW(buf.Write(temp_buf));
 		THROW(buf.Write(&data_len, sizeof(data_len)));
 		THROW(rFile.Write(buf));
@@ -465,7 +467,7 @@ void FASTCALL StringSet::setDelim(const char * pDelim)
 	}
 }
 
-uint StringSet::getDelimLen() const { return Delim[0] ? sstrlen(Delim) : 1; }
+uint StringSet::getDelimLen() const { return Delim[0] ? static_cast<uint>(sstrlen(Delim)) : 1; }
 bool StringSet::isZeroDelim() const { return Delim[0] == 0; }
 
 int FASTCALL StringSet::add(const StringSet & rS)
@@ -495,7 +497,7 @@ int StringSet::add(const char * pStr, uint * pPos)
 	const size_t delim_len = DataLen ? (Delim[0] ? sstrlen(Delim) : 1) : (Delim[0] ? 1 : 2);
 	const size_t add_len   = sstrlen(pStr);
 	const size_t new_len   = DataLen + add_len + delim_len;
-	uint   p;
+	size_t p;
 	if(new_len <= Size || Alloc(new_len)) {
 		if(DataLen == 0) {
 			p = 0;
@@ -515,7 +517,7 @@ int StringSet::add(const char * pStr, uint * pPos)
 				P_Buf[new_len-1] = 0;
 			}
 		}
-		ASSIGN_PTR(pPos, p);
+		ASSIGN_PTR(pPos, static_cast<uint>(p));
 		DataLen = new_len;
 	}
 	else
@@ -571,13 +573,13 @@ bool StringSet::searchNcUtf8(const char * pPattern, uint * pPos, uint * pNextPos
 bool StringSet::search(const char * pPattern, CompFunc fcmp, uint * pPos, uint * pNextPos) const
 {
 	bool   ok = false;
-	uint   p = DEREFPTRORZ(pPos);
-	uint   next_pos = p+1;
-	const  uint fix_delim_len = Delim[0] ? sstrlen(Delim) : 1;
+	size_t p = DEREFPTRORZ(pPos);
+	size_t next_pos = p+1;
+	const  uint fix_delim_len = Delim[0] ? static_cast<uint>(sstrlen(Delim)) : 1U;
 	SString temp_buf;
 	while(!ok && p < DataLen) {
-		uint  delim_len = fix_delim_len;
-		uint  len = 0;
+		uint   delim_len = fix_delim_len;
+		size_t len = 0;
 		const char * c = P_Buf + p;
 		if(Delim[0]) {
 			const char * p_end = (fix_delim_len == 1) ? sstrchr(c, Delim[0]) : strstr(c, Delim);
@@ -616,19 +618,19 @@ bool StringSet::search(const char * pPattern, CompFunc fcmp, uint * pPos, uint *
 		else
 			break; // Конец буфера данных - больше ничего нет
 	}
-	ASSIGN_PTR(pPos, p);
-	ASSIGN_PTR(pNextPos, next_pos);
+	ASSIGN_PTR(pPos, static_cast<uint>(p));
+	ASSIGN_PTR(pNextPos, static_cast<uint>(next_pos));
 	return ok;
 }
 
 size_t FASTCALL StringSet::getLen(uint pos) const
 {
-	uint   len = 0;
+	size_t len = 0;
 	if(pos < DataLen) {
 		if(Delim[0]) {
 			const char * c = strstr(P_Buf + pos, Delim);
 			if(c != 0)
-				len = static_cast<uint>(c - (P_Buf + pos));
+				len = (c - (P_Buf + pos));
 			else
 				len = sstrlen(P_Buf + pos);
 		}
@@ -642,15 +644,15 @@ bool StringSet::get(uint * pPos, char * pStr, size_t maxlen) const
 {
 	bool   ok = true;
 	const  char * c = 0;
-	uint   p = *pPos;
-	uint   len = 0;
-	uint   delim_len = 0;
+	size_t p = *pPos;
+	size_t len = 0;
+	size_t delim_len = 0;
 	if(p < DataLen) {
 		if(Delim[0]) {
 			c = strstr(P_Buf + p, Delim);
 			if(c) {
 				delim_len = sstrlen(Delim);
-				len = static_cast<uint>(c - (P_Buf + p));
+				len = (c - (P_Buf + p));
 			}
 			else {
 				delim_len = 1;
@@ -682,7 +684,7 @@ bool StringSet::get(uint * pPos, char * pStr, size_t maxlen) const
 		else
 			pStr[0] = 0;
 	}
-	*pPos = p;
+	*pPos = static_cast<uint>(p);
 	return ok;
 }
 
@@ -690,9 +692,9 @@ bool StringSet::get(uint * pPos, SString & s) const
 {
 	bool   ok = true;
 	const  char * c = 0;
-	uint   p = *pPos;
-	uint   len = 0;
-	uint   delim_len = 0;
+	size_t p = *pPos;
+	size_t len = 0;
+	size_t delim_len = 0;
 	if(p < DataLen) {
 		assert(P_Buf);
 		const size_t _dlen = strlen(Delim); // strlen чуть быстрее чем sstrlen (точно известно что аргумент не нулевой)
@@ -700,7 +702,7 @@ bool StringSet::get(uint * pPos, SString & s) const
 			c = (_dlen == 1) ? sstrchr(P_Buf + p, Delim[0]) : strstr(P_Buf + p, Delim);
 			if(c) {
 				delim_len = _dlen;
-				len = static_cast<uint>(c - (P_Buf + p));
+				len = (c - (P_Buf + p));
 			}
 			else {
 				delim_len = 1;
@@ -722,7 +724,7 @@ bool StringSet::get(uint * pPos, SString & s) const
 	else
 		ok = false;
 	s.CopyFromN(c, len);
-	*pPos = p + len + delim_len;
+	*pPos = static_cast<uint>(p + len + delim_len);
 	return ok;
 }
 
@@ -871,7 +873,7 @@ int SStrGroup::Pack_Finish(void * pHandle)
 int SStrGroup::Pack_Replace(void * pHandle, uint & rPos) const
 {
 	int    ok = 1;
-	uint   new_pos = 0; // @v10.5.7 =rPos --> =0
+	uint   new_pos = 0;
 	StringSet * p_handle = static_cast<StringSet *>(pHandle);
 	if(p_handle) {
 		SString & r_temp_buf = SLS.AcquireRvlStr();

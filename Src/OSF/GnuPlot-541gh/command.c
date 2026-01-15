@@ -2813,7 +2813,8 @@ int GnuPlot::Expand1LevelMacros()
 			    if(!in_squote && !in_dquote && !in_comment && isalpha((uchar)c[1])) {
 				    // Isolate the udv key as a null-terminated substring 
 				    m = ++c;
-				    while(isalnum((uchar)*c) || (*c=='_')) c++;
+				    while(isasciialnum((uchar)*c) || *c=='_') 
+						c++;
 				    temp_char = *c; *c = '\0';
 				    // Look up the key and restore the original following char 
 				    udv = Ev.GetUdvByName(m);

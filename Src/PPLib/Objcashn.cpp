@@ -1,5 +1,5 @@
 // OBJCASHN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -546,7 +546,7 @@ StrAssocArray * PPObjCashNode::MakeStrAssocList(void * extraPtr)
 		SString title;
 		THROW(lw = new ListWindow(new StrAssocListBoxDef(p_ary, lbtDisposeData|lbtDblClkNotify)));
 		lw->setTitle(PPLoadTextS(PPTXT_SELECTCASHNODE, title));
-		lw->ViewOptions |= (ofCenterX | ofCenterY);
+		// @v12.5.3 (@unused) lw->ViewOptions |= (ofCenterX | ofCenterY);
 		while(!valid_data && ExecView(lw) == cmOK) {
 			lw->getResult(&id);
 			if(id == PPCMT_OKA500) {
@@ -1369,7 +1369,7 @@ int SelectPrinterFromWinPool(SString & rPrinter)
 		THROW(p_lw = new ListWindow(new StrAssocListBoxDef(p_list, lbtDisposeData|lbtDblClkNotify)));
 		THROW(PPLoadText(PPTXT_SELECTPRINTER, title));
 		p_lw->setTitle(title);
-		p_lw->ViewOptions |= (ofCenterX | ofCenterY);
+		// @v12.5.3 (@unused) p_lw->ViewOptions |= (ofCenterX | ofCenterY);
 		while(!valid_data && ExecView(p_lw) == cmOK) {
 			p_lw->getResult(&sel_prn_id);
 			if(sel_prn_id && sel_prn_id <= prn_list.getCountI())

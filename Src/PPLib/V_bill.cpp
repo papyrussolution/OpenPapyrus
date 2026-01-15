@@ -1,5 +1,5 @@
 // V_BILL.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2795,10 +2795,10 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 	int    caption = 0;
 	SString title, sub_title, temp_buf;
 	if(pBrw) {
-		const BrowserDef * p_def = pBrw->getDef();
+		const  BrowserDef * p_def = pBrw->getDef();
 		const  PPID single_loc_id = LocList_.getSingle();
-		const int  show_debt = (Filt.Flags & BillFilt::fOrderOnly) ? BIN(Filt.Flags & BillFilt::fShowDebt) : BIN(Filt.Flags & (BillFilt::fShowDebt|BillFilt::fDebtOnly));
-		pBrw->ViewOptions |= (ofCenterX | ofCenterY);
+		const  int  show_debt = (Filt.Flags & BillFilt::fOrderOnly) ? BIN(Filt.Flags & BillFilt::fShowDebt) : BIN(Filt.Flags & (BillFilt::fShowDebt|BillFilt::fDebtOnly));
+		// @v12.5.3 (@unused) pBrw->ViewOptions |= (ofCenterX | ofCenterY);
 		if(Filt.Flags & BillFilt::fCashOnly) {
 			const PPConfig & r_cfg = LConfig;
 			CatObjectName(PPOBJ_CASHNODE, r_cfg.Cash, sub_title);

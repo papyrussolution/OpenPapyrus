@@ -1566,6 +1566,7 @@ PPERR_DL6_PROP_INVPADDINGVAL       "DL600 ошибка в свойстве 'padd
 PPERR_DL6_PROP_PPADDINGOCCURED     "DL600 ошибка в свойстве 'padding' - один из компонентов padding уже был определен"
 PPERR_DL6_PROP_PADDINGRANGEVIOL    "DL600 ошибка в свойстве 'padding' - недопустимое значение одного или нескольких компонентов padding"
 PPERR_DL6_PROP_INVALIDSYMB         "DL600 неизвестный символ свойства '%s'"
+PPERR_DL6_PROP_REDEFFLAG           "DL600 признак '%s' или аналогичный уже определен"
 PPERR_DL6_UISUPPLEMENT_UNDEFKIND   "DL600 неизвстный вид дополнения '%s' к управляющему элементу UI"
 
 PPERR_UNABLETESTPSALESBYALLGOODS   "Не допускается тестирование таблицы продаж по всей выборке товаров"
@@ -9560,6 +9561,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_gathercliactivitystatistics          "@{prcssrcliactivitystatistics}" // @v12.2.2
 @cmd_clientactivity                       "@{view_clientactivity}" // @v12.2.8
 @cmd_unitec                               "Unit-анализ" // @v12.3.7
+@cmd_constructionfacadewindow             "Конструирование фасадного окна" // @v12.5.3
 
 @cmdpu_admin           			          "Админ"
 @cmdpu_salesanalyze    			          "Анализ продаж"

@@ -15,10 +15,7 @@
 	#define DEBUG_LOG(msg)
 #endif
 
-static MYSQL * GetHandle(DbProvider::Connection & rC) 
-{
-	return static_cast<MYSQL *>(rC.H);
-}
+static MYSQL * FASTCALL GetHandle(DbProvider::Connection & rC) { return static_cast<MYSQL *>(rC.H); }
 
 SMySqlDbProvider::SMySqlDbProvider() :
 	DbProvider(sqlstMySQL, cpUTF8, DbDictionary::CreateInstance(0, 0), DbProvider::cSQL|DbProvider::cDbDependTa), SqlGen(sqlstMySQL, 0), Flags(0),
@@ -95,7 +92,49 @@ int SMySqlDbProvider::UseDatabase(const char * pDbName) // @v12.4.8
 	return ok;
 }
 
-int SMySqlDbProvider::Helper_CloseConnection(SMySqlDbProvider::Connection & rConn) // @v12.5.3
+DbProvider::Connection SMySqlDbProvider::GetConnection() // @v12.5.3
+{
+	DbProvider::Connection result;
+	for(uint i = 0; !result && i < ConnPool.getCount(); i++) {
+		ConnPoolEntry & r_item = ConnPool.at(i);
+		if(!(r_item.State & ConnPoolEntry::stBusy)) {
+			result = r_item.Conn;
+			r_item.State |= ConnPoolEntry::stBusy;
+		}
+	}
+	if(!result) {
+		ConnPoolEntry new_item;
+		new_item.Conn = Helper_Connect(&Lb, &CurrentDatabase);
+		if(!!new_item.Conn) {
+			result = new_item.Conn;
+			new_item.State |= ConnPoolEntry::stBusy;
+			ConnPool.insert(&new_item);
+		}
+	}
+	return result;
+}
+
+int SMySqlDbProvider::ReleaseConnection(DbProvider::Connection & rConn) // @v12.5.3
+{
+	int    ok = -1;
+	if(!!rConn) {
+		for(uint i = 0; ok < 0 && i < ConnPool.getCount(); i++) {
+			ConnPoolEntry & r_item = ConnPool.at(i);
+			if(r_item.Conn.H == rConn.H) {
+				r_item.State &= ~ConnPoolEntry::stBusy;
+				rConn.Z();
+				ok = 2;
+			}
+		}
+		if(ok < 0) {
+			Helper_CloseConnection(rConn);
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+int SMySqlDbProvider::Helper_CloseConnection(DbProvider::Connection & rConn) // @v12.5.3
 {
 	int    ok = -1;
 	if(!!rConn) {
@@ -106,7 +145,7 @@ int SMySqlDbProvider::Helper_CloseConnection(SMySqlDbProvider::Connection & rCon
 	return ok;
 }
 
-SMySqlDbProvider::Connection SMySqlDbProvider::Helper_Connect(const DbLoginBlock * pBlk, SString * pDbName) // @v12.5.3
+DbProvider::Connection SMySqlDbProvider::Helper_Connect(const DbLoginBlock * pBlk, SString * pDbName) // @v12.5.3
 {
 	CALLPTRMEMB(pDbName, Z());
 	Connection _conn;
@@ -197,7 +236,7 @@ SMySqlDbProvider::Connection SMySqlDbProvider::Helper_Connect(const DbLoginBlock
 	ok = Helper_CloseConnection(Conn);
 	{
 		for(uint i = 0; i < ConnPool.getCount(); i++) {
-			Connection & r_conn = ConnPool.at(i);
+			Connection & r_conn = ConnPool.at(i).Conn;
 			Helper_CloseConnection(r_conn);
 		}
 		ConnPool.clear();
@@ -780,7 +819,8 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 			}
 			rBlk.SqlG.Sp();
 		}
-		rBlk.Flags |= SearchQueryBlock::fCanContinue;
+		if(pTbl->IsQuerySingleTacted(idx, rBlk.SrchMode) < 0) // @v12.5.3
+			rBlk.Flags |= SearchQueryBlock::fCanContinue;
 	}
 	CATCHZOK
 	return ok;
@@ -899,7 +939,6 @@ int SMySqlDbProvider::DestroyLastSelectStatement()
 	}
 	if(do_make_query) {
 		SearchQueryBlock sqb;
-
 		THROW(Helper_MakeSearchQuery(pTbl, idx, pKey, srchMode, sf, sqb));
 		can_continue = LOGIC(sqb.Flags & SearchQueryBlock::fCanContinue);
 		{

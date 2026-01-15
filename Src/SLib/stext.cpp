@@ -1,5 +1,5 @@
 // STEXT.CPP
-// Copyright (c) A.Sobolev 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Преобразование символов и строк, и другие текстовые функции
 //
@@ -2379,10 +2379,7 @@ char * alignstr(char * pStr, size_t wd, int adj)
 	return pStr;
 }
 
-static int FASTCALL iswordchar(int ch, const char * /*pWordChars*/)
-{
-	return (ch && (isalnum(ch) || ch == '_' || IsLetter866(ch)));
-}
+static int FASTCALL iswordchar(int ch, const char * /*pWordChars*/) { return (ch && (isasciialnum(ch) || ch == '_' || IsLetter866(ch))); }
 
 int searchstr(const char * pStr, const SSrchParam & rParam, size_t * pBeg, size_t * pLen)
 {

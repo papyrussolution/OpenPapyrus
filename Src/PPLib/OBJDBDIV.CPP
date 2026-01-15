@@ -1,5 +1,5 @@
 // OBJDBDIV.CPP
-// Copyright (c) A.Sobolev 1997-2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2024, 2025
+// Copyright (c) A.Sobolev 1997-2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2024, 2025, 2026
 // @codepage UTF-8
 // Объект, управляющий разделами БД
 //
@@ -42,7 +42,7 @@ static StrAssocArray * MakeDBDivList(int skipCurrent)
 		THROW(p_lw = CreateListWindow(p_ary, lbtDisposeData|lbtDblClkNotify));
 		THROW(PPLoadText(PPTXT_SELECTDBDIV, sub_title));
 		p_lw->setTitle(sub_title);
-		p_lw->ViewOptions |= (ofCenterX | ofCenterY);
+		// @v12.5.3 (@unused) p_lw->ViewOptions |= (ofCenterX | ofCenterY);
 		if(ExecView(p_lw) == cmOK)
 			p_lw->getResult(&id);
 		else

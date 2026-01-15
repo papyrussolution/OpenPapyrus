@@ -121,11 +121,9 @@ static FORCEINLINE int LinearToGamma(uint32_t base_value, int shift)
 }
 
 #else
-
 static void InitGammaTables(void) {}
 static FORCEINLINE uint32_t GammaToLinear(uint8 v) { return v; }
 static FORCEINLINE int LinearToGamma(uint32_t base_value, int shift) { return (int)(base_value << shift); }
-
 #endif    // USE_GAMMA_COMPRESSION
 //
 // RGB -> YUV conversion
@@ -171,7 +169,8 @@ static uint32_t kGammaToLinearTabS[MAX_Y_T + 1];   // size scales with Y_FIX
 static volatile int kGammaTablesSOk = 0;
 static void InitGammaTablesS(void);
 
-WEBP_DSP_INIT_FUNC(InitGammaTablesS) {
+WEBP_DSP_INIT_FUNC(InitGammaTablesS) 
+{
 	assert(2 * GAMMA_TO_LINEAR_BITS < 32); // we use uint32_t intermediate values
 	if(!kGammaTablesSOk) {
 		int v;
@@ -212,11 +211,10 @@ WEBP_DSP_INIT_FUNC(InitGammaTablesS) {
 }
 
 // return value has a fixed-point precision of GAMMA_TO_LINEAR_BITS
-static FORCEINLINE uint32_t GammaToLinearS(int v) {
-	return kGammaToLinearTabS[v];
-}
+static FORCEINLINE uint32_t GammaToLinearS(int v) { return kGammaToLinearTabS[v]; }
 
-static FORCEINLINE uint32_t LinearToGammaS(uint32_t value) {
+static FORCEINLINE uint32_t LinearToGammaS(uint32_t value) 
+{
 	// 'value' is in GAMMA_TO_LINEAR_BITS fractional precision
 	const uint32_t v = value * kGammaTabSize;
 	const uint32_t tab_pos = v >> GAMMA_TO_LINEAR_BITS;
@@ -232,18 +230,9 @@ static FORCEINLINE uint32_t LinearToGammaS(uint32_t value) {
 }
 
 #else
-
-static void InitGammaTablesS(void) {
-}
-
-static FORCEINLINE uint32_t GammaToLinearS(int v) {
-	return (v << GAMMA_TO_LINEAR_BITS) / MAX_Y_T;
-}
-
-static FORCEINLINE uint32_t LinearToGammaS(uint32_t value) {
-	return (MAX_Y_T * value) >> GAMMA_TO_LINEAR_BITS;
-}
-
+static void InitGammaTablesS(void) {}
+static FORCEINLINE uint32_t GammaToLinearS(int v) { return (v << GAMMA_TO_LINEAR_BITS) / MAX_Y_T; }
+static FORCEINLINE uint32_t LinearToGammaS(uint32_t value) { return (MAX_Y_T * value) >> GAMMA_TO_LINEAR_BITS; }
 #endif    // USE_GAMMA_COMPRESSION
 
 static uint8 clip_8b(fixed_t v) { return (!(v & ~0xff)) ? (uint8)v : (v < 0) ? 0u : 255u; }
@@ -266,8 +255,7 @@ static uint32_t ScaleDown(int a, int b, int c, int d)
 
 static FORCEINLINE void UpdateW(const fixed_y_t* src, fixed_y_t* dst, int w) 
 {
-	int i;
-	for(i = 0; i < w; ++i) {
+	for(int i = 0; i < w; ++i) {
 		const uint32_t R = GammaToLinearS(src[0 * w + i]);
 		const uint32_t G = GammaToLinearS(src[1 * w + i]);
 		const uint32_t B = GammaToLinearS(src[2 * w + i]);
@@ -278,14 +266,10 @@ static FORCEINLINE void UpdateW(const fixed_y_t* src, fixed_y_t* dst, int w)
 
 static void UpdateChroma(const fixed_y_t* src1, const fixed_y_t* src2, fixed_t* dst, int uv_w) 
 {
-	int i;
-	for(i = 0; i < uv_w; ++i) {
-		const int r = ScaleDown(src1[0 * uv_w + 0], src1[0 * uv_w + 1],
-			src2[0 * uv_w + 0], src2[0 * uv_w + 1]);
-		const int g = ScaleDown(src1[2 * uv_w + 0], src1[2 * uv_w + 1],
-			src2[2 * uv_w + 0], src2[2 * uv_w + 1]);
-		const int b = ScaleDown(src1[4 * uv_w + 0], src1[4 * uv_w + 1],
-			src2[4 * uv_w + 0], src2[4 * uv_w + 1]);
+	for(int i = 0; i < uv_w; ++i) {
+		const int r = ScaleDown(src1[0 * uv_w + 0], src1[0 * uv_w + 1], src2[0 * uv_w + 0], src2[0 * uv_w + 1]);
+		const int g = ScaleDown(src1[2 * uv_w + 0], src1[2 * uv_w + 1], src2[2 * uv_w + 0], src2[2 * uv_w + 1]);
+		const int b = ScaleDown(src1[4 * uv_w + 0], src1[4 * uv_w + 1], src2[4 * uv_w + 0], src2[4 * uv_w + 1]);
 		const int W = RGBToGray(r, g, b);
 		dst[0 * uv_w] = (fixed_t)(r - W);
 		dst[1 * uv_w] = (fixed_t)(g - W);
@@ -316,9 +300,8 @@ static FORCEINLINE fixed_y_t UpLift(uint8 a) // 8bit -> SFIX
 
 static void ImportOneRow(const uint8* const r_ptr, const uint8* const g_ptr, const uint8* const b_ptr, int step, int pic_width, fixed_y_t* const dst) 
 {
-	int i;
 	const int w = (pic_width + 1) & ~1;
-	for(i = 0; i < pic_width; ++i) {
+	for(int i = 0; i < pic_width; ++i) {
 		const int off = i * step;
 		dst[i + 0 * w] = UpLift(r_ptr[off]);
 		dst[i + 1 * w] = UpLift(g_ptr[off]);
@@ -341,16 +324,12 @@ static void InterpolateTwoRows(const fixed_y_t* const best_y, const fixed_t* pre
 		// special boundary case for i==0
 		out1[0] = Filter2(cur_uv[0], prev_uv[0], best_y[0]);
 		out2[0] = Filter2(cur_uv[0], next_uv[0], best_y[w]);
-
 		WebPSharpYUVFilterRow(cur_uv, prev_uv, len, best_y + 0 + 1, out1 + 1);
 		WebPSharpYUVFilterRow(cur_uv, next_uv, len, best_y + w + 1, out2 + 1);
-
 		// special boundary case for i == w - 1 when w is even
 		if(!(w & 1)) {
-			out1[w - 1] = Filter2(cur_uv[uv_w - 1], prev_uv[uv_w - 1],
-				best_y[w - 1 + 0]);
-			out2[w - 1] = Filter2(cur_uv[uv_w - 1], next_uv[uv_w - 1],
-				best_y[w - 1 + w]);
+			out1[w - 1] = Filter2(cur_uv[uv_w - 1], prev_uv[uv_w - 1], best_y[w - 1 + 0]);
+			out2[w - 1] = Filter2(cur_uv[uv_w - 1], next_uv[uv_w - 1], best_y[w - 1 + w]);
 		}
 		out1 += w;
 		out2 += w;

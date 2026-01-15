@@ -1415,8 +1415,13 @@ public:
 	static constexpr uint32 ListBoxDefSignature_STDTREE2 = 0xABCD0006; //0xABCD0006 // StdTreeListBoxDef2
 	static constexpr uint32 Signature_SlThread = 0x09970199U; // @v11.8.2 Сигнатура потоков SlThread для идентификации консистентности
 	static constexpr uint32 Signature_SUiLayoutParam = 0x15DE0522U; // @v12.3.2 Сигнатура объекта SUiLayoutParam
-	static constexpr uint32 MagicHashPrime32 = 2654435761U; // @v11.3.10 Knuth multiplicative hashing.  (Sorting & Searching, p. 510). the closest prime number to (2**32)*golden_ratio, where golden_ratio = (sqrt(5) - 1)/2.
-	static constexpr uint32 GoldenRatioInt32 = 2654435769U; // @v11.3.12 The integral part of the Golden Ratio's fractional part 0.61803398875… (sqrt(5)-1)/2, multiplied by 2^32.
+	static constexpr float  UiFixedButtonY   = 21.0f;          // @v12.5.3 Фиксированная высота push-кнопки по умолчанию в пикселях
+	static constexpr float  UiFixedButtonX   = UiFixedButtonY; // @v12.5.3 Фиксированная ширина push-кнопки по умолчанию в пикселях
+	static constexpr float  UiFixedInputY    = 21.0f;          // @v12.5.3 Фиксированная высота поля ввода по умолчанию в пикселях
+	static constexpr float  UiFixedLabelY    = 13.0f;          // @v12.5.3 Фиксированная высота control-label по умолчанию в пикселях
+	static constexpr float  UiFixedLabelGapY =  2.0f;          // @v12.5.3 Фиксированный зазор по вертикали между control-label и его "хозяином" по умолчанию в пикселях
+	static constexpr uint32 MagicHashPrime32 = 2654435761U;  // @v11.3.10 Knuth multiplicative hashing.  (Sorting & Searching, p. 510). the closest prime number to (2**32)*golden_ratio, where golden_ratio = (sqrt(5) - 1)/2.
+	static constexpr uint32 GoldenRatioInt32 = 2654435769U;  // @v11.3.12 The integral part of the Golden Ratio's fractional part 0.61803398875… (sqrt(5)-1)/2, multiplied by 2^32.
 		//0x9e3779b9 is the integral part of the Golden Ratio's fractional part 0.61803398875… (sqrt(5)-1)/2, multiplied by 2^32.
 	static constexpr uint32 MagicMurmurC1 = 0xcc9e2d51U; // @v11.4.0 0xcc9e2d51 // Magic number C1 for 32-bit hashing from Murmur3
 	static constexpr uint32 MagicMurmurC2 = 0x1b873593U; // @v11.4.0 0x1b873593 // Magic number C2 for 32-bit hashing from Murmur3
@@ -1429,8 +1434,8 @@ public:
 	static constexpr uint64 FnvHashPrime64 = 0x100000001b3ULL; // @v11.9.12 Константа для итерации хэш-функции FNV_4 (64 bit magic FNV-0 and FNV-1 prime)
 	static constexpr uint32 OzanYigitHashPrime = 65599U; // @v12.0.3 Константа для итерации хэш-функции Ozan Yigit (используется в BDB и gSOAP)
 	static constexpr long   OneBillion = 1000000000L; // @v11.7.6
-	static constexpr const char * P_HxDigL  = "0123456789abcdef";
-	static constexpr const char * P_HxDigU  = "0123456789ABCDEF";
+	static constexpr const char * P_HxDigL    = "0123456789abcdef";
+	static constexpr const char * P_HxDigU    = "0123456789ABCDEF";
 	static constexpr const char * P_Rdx36DigL = "0123456789abcdefghijklmnopqrstuvwxyz"; /* Lower-case digits.  */
 	static constexpr const char * P_Rdx36DigU = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"; /* Upper-case digits.  */
 	static constexpr const char * P_SurrogateRowIdFieldName = "MsqRowId"; // @v12.4.11 Суррогатное имя поля таблицы базы данных, создаваемое для эмуляции rowid (e.g. for MySQL)
@@ -1454,9 +1459,9 @@ public:
 	static constexpr const char * P_WrKey_MsWin_ProfileList = "Software\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList"; // @v12.4.0 HKEY_LOCAL_MACHINE
 	static constexpr const char * P_WrKey_BrwUserSetting = "Software\\Papyrus\\Table2"; // Пользовательские параметры таблиц (BrowserWindow)
 	static constexpr const char * P_WrKey_Prefix_SobolevEngineering = "Software\\SobolevEngineering"; // @v12.3.10 HKEY_CURRENT_USER
-	static constexpr const char * WinClsName_Desktop    = "PPYDESKTOPWINDOW"; // @v12.3.8
-	static constexpr const char * WinClsName_TextEditor = "STextBrowser"; // @v12.3.8
-	static constexpr const char * WinClsName_TimeChunkBrowser = "STimeChunkBrowser"; // @v12.3.8
+	static constexpr const wchar_t * WinClsName_Desktop    = L"PPYDESKTOPWINDOW"; // @v12.3.8
+	static constexpr const wchar_t * WinClsName_TextEditor = L"STextBrowser"; // @v12.3.8
+	static constexpr const wchar_t * WinClsName_TimeChunkBrowser = L"STimeChunkBrowser"; // @v12.3.8
 	static constexpr uint32 SLobSignature[4] = { 0x2efc, 0xd421, 0x426c, 0xee07 }; // @v12.2.3 Сигнатура объекта SLob, означающая, что буфер структурирован.
 	static constexpr uint32 SSqlStmtSignature = 0x3597B6D4; // @v12.5.2 Сигнатура объекта SSqlStmt
 	static constexpr uint32 DBTableSignature  = 0x6E805ED7; // @v12.5.2 Сигнатура объекта DBTable
@@ -4417,6 +4422,10 @@ public:
 	int    Search(const SSrchPattern * pBlk, size_t startPos, size_t * pPos) const; // @>>SSrchPattern::Search
 	int    Search(const char * pPattern, size_t startPos, int ignoreCase, size_t * pPos) const;
 	//
+	// Descr: Ищет в строке this подстроку pPattern. Поиск осуществляется с конца текста this.
+	//
+	int    SearchRev(const char * pPattern, size_t startPos, int ignoreCase, size_t * pPos) const;
+	//
 	// Descr: Делит строку на две части, используя в качестве разделителя символ divChr.
 	//   Левая часть копируется в буфер rLeft, а правая - в буфер rRight.
 	//   Если в строке не обнаружен символ-разделитель, то rLeft = *this, а rRight = 0.
@@ -4912,6 +4921,7 @@ public:
 	SStringU(const wchar_t *);
 	~SStringU();
 	size_t Len() const;
+	uint32 Len32() const;
 	operator const wchar_t * () const { return P_Buf; }
 	//
 	// Descr: Сокращенная версия operator const wchar_t * ()
@@ -9407,8 +9417,18 @@ public:
 	void   Sort();
 };
 //
+// Descr: Опции функций фильтрации числового массива по критерию малости значения.
+//   Эти опции привязаны к аргументу функции, определяющего критерий отсечения малозначимых величин.
 //
-//
+enum {
+	rvecthrshf_Lin      = 0x0001, // (1) Фактор задает порог в простом отношении максимум к тестируемому значению
+	rvecthrshfLn        = 0x0002, // (2) Фактор задает порог в натуральном логарифме
+	rvecthrshfLog10     = 0x0004, // (3) Фактор задает порог в десятичном логарифме
+	rvecthrshf_dB       = 0x0008, // (4) Фактор задает порог в децибеллах
+	rvecthrshf_MaxCount = 0x0010, // (5) Фактор задает просто максимальное число элементов. То есть остаются R0i(factor) максимальных элементов
+	rvecthrshfAbs       = 0x1000, // Массив фильтровать по абсолютному значению. Если не установлен, то отрицательное число меньше положительного!
+};
+
 struct RAssoc {
 	RAssoc();
 	RAssoc(long k, double v);
@@ -9469,19 +9489,7 @@ public:
 	//    0 - error
 	//
 	int    AddMaxK(long key, double val, uint k); // @v12.5.1
-	//
-	// Descr: Опции функции Thresholding()
-	//
-	enum { 
-		// Приоритет применения следующих 4-х флагов - в порядке перечисления!
-		thrshf_Lin  = 0x0001, // (1) Фактор задает порог в простом отношении максимум к тестируемому значению
-		thrshfLn    = 0x0002, // (2) Фактор задает порог в натуральном логарифме
-		thrshfLog10 = 0x0004, // (3) Фактор задает порог в десятичном логарифме
-		thrshf_dB   = 0x0008, // (4) Фактор задает порог в децибеллах
-		thrshfAbs   = 0x1000, // Массив фильтровать по абсолютному значению. Если не установлен, то отрицательное число меньше положительного!
-	};
-
-	int    Thresholding(uint flags /*thrshfXXX*/, double factor); // @v12.5.3
+	int    Thresholding(uint flags /*rvecthrshfXXX*/, double factor); // @v12.5.3
 	void   SortByKey();
 	//
 	// Descr: Сортирует массив в порядке увеличения значения Val
@@ -9491,6 +9499,10 @@ public:
 	// Descr: Сортирует массив в порядке уменьшения значения Val
 	//
 	void   SortByValRev();
+	//
+	// Descr: Сортирует массив в порядке уменьшения абсолютного значения Val
+	//
+	void   SortByAbsValRev();
 };
 //
 //
@@ -9509,6 +9521,8 @@ public:
 	FAssocArray(const FAssocArray & rS);
 	FAssocArray & FASTCALL operator = (const FAssocArray &);
 	bool   Search(long key, float * pVal, uint * pPos, int binary = 0) const;
+	int    SearchMinMaxVal(uint * pMinValPos, uint * pMaxValPos) const; // @v12.5.3
+	int    Thresholding(uint flags /*rvecthrshfXXX*/, float factor); // @v12.5.3
 	void   SortByKey();
 	//
 	// Descr: Сортирует массив в порядке увеличения значения Val
@@ -9518,6 +9532,7 @@ public:
 	// Descr: Сортирует массив в порядке уменьшения значения Val
 	//
 	void   SortByValRev();
+	void   SortByAbsValRev();
 };
 //
 //
