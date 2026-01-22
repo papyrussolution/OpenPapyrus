@@ -1,5 +1,5 @@
 ; PAPYRUS.NSI
-; Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+; Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 ; Скрипт создания инсталляции системы Papyrus
 ;
 ;
@@ -392,7 +392,7 @@ Section "Файлы приложения" SEC01
 	; @v12.3.1 File "${SRC_TARGET}\ppdrv-ie-kontur.dll"        ; @v8.2.7 
 	; @v12.3.1 File "${SRC_TARGET}\ppdrv-ie-leradata.dll"      ; @v8.3.0
 	; @v11.0.6 File "${SRC_TARGET}\ppdrv-ie-alcodeclbill.dll"  ; @v7.6.7
-	File "${SRC_TARGET}\ppdrv-ie-alcodeclbill.dll"  ; @v7.6.7 ; @v11.5.3 Вернули назад
+	; @v12.5.4 File "${SRC_TARGET}\ppdrv-ie-alcodeclbill.dll"  ; @v7.6.7 ; @v11.5.3 Вернули назад
 	; @v12.3.1 File "${SRC_TARGET}\ppdrv-ctrl-reversk2.dll"    ; @v7.8.1
 	; @v12.3.1 File "${SRC_TARGET}\ppdrv-crdr-emmarine.dll"    ; @v7.9.6
 	File "${SRC_TARGET}\ppdrv-bnkt-sberbank.dll"    ; @v8.1.8

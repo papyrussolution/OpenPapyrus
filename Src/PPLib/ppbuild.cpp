@@ -1,5 +1,5 @@
 // PPBUILD.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -490,13 +490,35 @@ int PrcssrBuild::Helper_Compile(const Param::ConfigEntry * pCfgEntry, int supple
 		const char * P_XpCompatResult;
 		long   Flag;
 	};
+	/*
+		ERR: Компонент 'client' собран, но результирующий файл 'd:\papyrus\ppy\BIN\ppdrv-ie-korus.dll' не обнаружен
+		ERR: Компонент 'client' собран, но результирующий файл 'd:\papyrus\ppy\BIN\ppdrv-ie-edisoft.dll' не обнаружен
+		ERR: Компонент 'client' собран, но результирующий файл 'd:\papyrus\ppy\BIN\ppdrv-ie-kontur.dll' не обнаружен
+		ERR: Компонент 'client' собран, но результирующий файл 'd:\papyrus\ppy\BIN\ppdrv-ie-leradata.dll' не обнаружен
+		ERR: Компонент 'client' собран, но результирующий файл 'd:\papyrus\ppy\BIN\ppdrv-ie-alcodeclbill.dll' не обнаружен
+	*/ 
 	SolutionEntry sln_list[] = {
 		// P_Name          P_Sln                P_Config         P_Result           Flag
 		{ "client",        "papyrus.sln",       "Release",       
-			"ppw.exe;ppdrv-pirit.dll;ppdrv-cd-vikivision.dll;ppdrv-cd-vfd-epson.dll;ppdrv-cd-shtrih-dpd201.dll;ppdrv-cd-posiflex.dll;ppdrv-cd-flytechvfd-epson.dll;ppdrv-ie-korus.dll;"
-			"ppdrv-ie-edisoft.dll;ppdrv-ie-kontur.dll;ppdrv-ie-leradata.dll;ppdrv-ie-alcodeclbill.dll;ppdrv-ctrl-reversk2.dll;ppdrv-crdr-emmarine.dll;ppdrv-bnkt-sberbank.dll;"
-			"ppdrv-bnkt-emul.dll;ppdrv-bnkt-inpas.dll",
-			"ppw.exe;ppdrv-pirit.dll;ppdrv-bnkt-sberbank.dll;ppdrv-bnkt-inpas.dll",
+			"ppw.exe;ppdrv-pirit.dll;"
+			"ppdrv-cd-vikivision.dll;"
+			"ppdrv-cd-vfd-epson.dll;"
+			"ppdrv-cd-shtrih-dpd201.dll;"
+			"ppdrv-cd-posiflex.dll;"
+			"ppdrv-cd-flytechvfd-epson.dll;"
+			//"ppdrv-ie-korus.dll;"
+			//"ppdrv-ie-edisoft.dll;"
+			//"ppdrv-ie-kontur.dll;"
+			//"ppdrv-ie-leradata.dll;"
+			//"ppdrv-ie-alcodeclbill.dll;"
+			"ppdrv-ctrl-reversk2.dll;"
+			"ppdrv-crdr-emmarine.dll;"
+			"ppdrv-bnkt-sberbank.dll;"
+			"ppdrv-bnkt-emul.dll;"
+			"ppdrv-bnkt-inpas.dll",
+			"ppw.exe;ppdrv-pirit.dll;"
+			"ppdrv-bnkt-sberbank.dll;"
+			"ppdrv-bnkt-inpas.dll",
 			Param::fBuildClient|Param::fSupplementalBuild },
 		{ "mtdll",         "papyrus.sln",       "MtDllRelease",  "ppwmt.dll", "ppwmt.dll", Param::fBuildMtdll|Param::fSupplementalBuild },
 		{ "jobsrv",        "papyrus.sln",       "ServerRelease", "ppws.exe", 0, Param::fBuildServer },
@@ -596,7 +618,10 @@ int	PrcssrBuild::Run()
 	int    ok = 1;
 	uint   i;
 	PPLogger logger;
-	SString temp_buf, build_log_path, fmt_buf, msg_buf;
+	SString temp_buf;
+	SString build_log_path;
+	SString fmt_buf;
+	SString msg_buf;
 
 	// @debug {
 	//
