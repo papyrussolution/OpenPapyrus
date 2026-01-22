@@ -1,5 +1,5 @@
 // V_ARTCL.CPP
-// A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 // Реализация контроллера анализ данных PPViewArticle
 //
@@ -862,7 +862,7 @@ DBQuery * PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	static DbqStringSubst stop_subst(2);  // @global @threadsafe
 	DBQuery * p_q = 0;
 	ArticleTbl   * a  = 0;
-	ReferenceTbl * rf = 0;
+	Reference2Tbl * rf = 0;
 	TempArAgtTbl * tt = 0;
 	DBE    dbe_agent;
 	DBE    dbe_quotkind;
@@ -873,7 +873,6 @@ DBQuery * PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	DBE    alim;
 	DBE    alim_dim[DEBTDIM_BRW_SHOWCOUNT];
 	uint   brw_id = BROWSER_ARTICLE;
-
 	if(ArObj.P_Tbl) {
 		DBE  * dbe_stop = 0;
 		DBQ  * dbq = 0;
@@ -882,7 +881,7 @@ DBQuery * PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		THROW(CheckTblPtr(a = new ArticleTbl(ArObj.P_Tbl->GetName())));
 		dbe_stop = & flagtoa(a->Flags, ARTRF_STOPBILL, stop_subst.Get(PPTXT_AR_STOP));
 		if(Filt.PersonID) {
-			THROW(CheckTblPtr(rf = new ReferenceTbl));
+			THROW(CheckTblPtr(rf = new Reference2Tbl));
 			// @v12.5.2 {
 			p_q = & Select_(
 				a->ID,       // #00

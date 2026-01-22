@@ -373,17 +373,8 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 		case WM_SIZE:
 			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg) {
-				/* @v12.2.5 
-				event.what = TEvent::evCommand;
-				event.message.command = cmResize; // must be cmSize
-				event.message.infoPtr = 0;
-				p_dlg->handleEvent(event);
-				APPL->DrawControl(hwndDlg, uMsg, wParam, lParam);
-				*/
-				// @v12.2.5 {
 				if(!TView::Helper_SendCmSizeAsReplyOnWmSize(p_dlg, wParam, lParam))
 					return 0;
-				// } @v12.2.5
 			}
 			break;
 		case WM_SIZING:
@@ -505,8 +496,8 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 							RECT rc;
 							::GetClientRect(hwndDlg, &rc);
 							// Define grip area (bottom-right corner)
-							int grip_size = ::GetSystemMetrics(SM_CXVSCROLL);
-							RECT grip_rect = {rc.right - grip_size, rc.bottom - grip_size, rc.right, rc.bottom};
+							int    grip_size = ::GetSystemMetrics(SM_CXVSCROLL);
+							RECT   grip_rect = {rc.right - grip_size, rc.bottom - grip_size, rc.right, rc.bottom};
 							// Draw standard size grip
 							::DrawFrameControl(hdc, &grip_rect, DFC_SCROLL, DFCS_SCROLLSIZEGRIP);
 						}

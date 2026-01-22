@@ -385,7 +385,7 @@ SLTEST_R(UED)
 				}
 				{
 					// Искусственно 'портим' контрольную цифру и требуем сохранить ИНН с плохой контрольной цифрой
-					const uint len = line_buf.Len();
+					const uint len = line_buf.Len32();
 					uint cd_c = line_buf.Last() - '0';
 					line_buf.Trim(len-1);
 					line_buf.CatChar(((cd_c + 1) % 10) + '0');

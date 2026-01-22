@@ -3,7 +3,7 @@
   <ItemGroup>
     <ClCompile Include="..\PPLib\pp-pch.cpp" />
     <ClCompile Include="..\PPMain\Ppmain.cpp" />
-    <ClCompile Include="..\Rsrc\dl600\ppifc_i.c" />
+    <ClCompile Include="..\PPLib\ppappo.CPP" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\berkeleydb.h">
@@ -36,9 +36,6 @@
     <ClInclude Include="..\Include\ATOL-DTO\libfptr10.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Report.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Rsrc\Str\ppstr2.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -57,18 +54,15 @@
     <ClInclude Include="..\Include\ppdbs.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\ppedi.h">
+    <ClInclude Include="..\Include\ued-id.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\ued.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\pp-ifm.h">
       <Filter>Header</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="..\PPMain\ppbrow-embed.rc" />
-    <ResourceCompile Include="..\PPMain\ppw.rc">
-      <Filter>Resource</Filter>
-    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\Clipart\R\etc\gear-0001.gif">
@@ -1348,7 +1342,6 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Rsrc\Dl600\ppifc.tlb" />
     <None Include="..\Rsrc\Ico\typelib1.bin" />
     <None Include="..\Rsrc\Ico\arr_roze.cur">
       <Filter>Resource\CUR</Filter>
@@ -1409,5 +1402,10 @@
     <Filter Include="Resource\CUR">
       <UniqueIdentifier>{5724c59d-c15e-4005-8669-6c0d29da5253}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\PPMain\ppw.rc">
+      <Filter>Resource</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

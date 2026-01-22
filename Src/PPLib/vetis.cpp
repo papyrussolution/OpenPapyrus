@@ -1,5 +1,5 @@
 // VETIS.CPP
-// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Модуль для взаимодействия с системой Меркурий (интерфейс ВЕТИС)
 //
@@ -3682,7 +3682,7 @@ int PPVetisInterface::Init(const Param & rP)
 	int    ok = 1;
 	P = rP;
 	PPObjTag tag_obj;
-	PPObjectTag tag_rec;
+	PPObjectTag2 tag_rec;
 	DlvrLocToTranspTagID = 0;
 	{
 		for(SEnum en = tag_obj.Enum(0); !DlvrLocToTranspTagID && en.Next(&tag_rec) > 0;) {
@@ -12696,7 +12696,7 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 									}
 									{
 										PPObjTag tag_obj;
-										PPObjectTag tag_rec;
+										PPObjectTag2 tag_rec;
 										if(tag_obj.Fetch(PPTAG_LOT_MANUFTIME, &tag_rec) > 0) {
 											ut.FromInt64(rRec.ManufDateFrom);
 											if(!!ut && ut.Get(dtm))
@@ -12968,7 +12968,7 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 									brw_title.CatDiv('-', 1).Cat(temp_buf);
 								bill_view.SetOuterTitle(brw_title);
 							}
-							if(bill_view.Browse(0) > 0) {
+							if(bill_view.Browse(false) > 0) {
 								bill_id = static_cast<const BillFilt *>(bill_view.GetBaseFilt())->Sel;
 								THROW(ok = EC.MatchDocument(rRec.EntityID, bill_id, 0, 0/*fromBill*/, 1));
 							}

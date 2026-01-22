@@ -89,7 +89,7 @@ PPViewAccAnlz::~PPViewAccAnlz()
 	const LDATE oper_date = LConfig.OperDate;
 	const Acct & r_cash_acct = CConfig.CashAcct;
 	const Acct & r_suppl_acct = CConfig.SupplAcct;
-	AccAnlzKind kind = (AccAnlzKind)reinterpret_cast<long>(extraPtr);
+	AccAnlzKind kind = static_cast<AccAnlzKind>(reinterpret_cast<long>(extraPtr));
 	AccAnlzFilt * p_filt = new AccAnlzFilt;
 	switch(kind) {
 		case aakndCashBook:
@@ -2132,7 +2132,7 @@ int PPViewAccAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 	return ok;
 }
 
-int PPViewAccAnlz::Browse(int modeless)
+int PPViewAccAnlz::Browse(bool modeless)
 {
 	if(Filt.Flags & AccAnlzFilt::fTotalOnly) {
 		ViewTotal();

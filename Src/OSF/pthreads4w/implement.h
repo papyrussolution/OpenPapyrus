@@ -1,10 +1,7 @@
 /*
  * implement.h
- *
  * Definitions that don't need to be public.
- *
  * Keeps all the internals out of pthread.h
- *
  * --------------------------------------------------------------------------
  *
  *   Pthreads4w - POSIX Threads for Windows
@@ -774,11 +771,9 @@ __PTW32_END_C_DECLS
 	})
 #define __PTW32_INTERLOCKED_COMPARE_EXCHANGE_PTR(location, value, comparand) \
 	__PTW32_INTERLOCKED_COMPARE_EXCHANGE_SIZE((__PTW32_INTERLOCKED_SIZEPTR)location, \
-	    (__PTW32_INTERLOCKED_SIZE)value, \
-	    (__PTW32_INTERLOCKED_SIZE)comparand)
+	    (__PTW32_INTERLOCKED_SIZE)value, (__PTW32_INTERLOCKED_SIZE)comparand)
 #define __PTW32_INTERLOCKED_EXCHANGE_PTR(location, value) \
-	__PTW32_INTERLOCKED_EXCHANGE_SIZE((__PTW32_INTERLOCKED_SIZEPTR)location, \
-	    (__PTW32_INTERLOCKED_SIZE)value)
+	__PTW32_INTERLOCKED_EXCHANGE_SIZE((__PTW32_INTERLOCKED_SIZEPTR)location, (__PTW32_INTERLOCKED_SIZE)value)
 #else
 #if defined(_WIN64)
 #define __PTW32_INTERLOCKED_COMPARE_EXCHANGE_64(p, v, c) InterlockedCompareExchange64(__PTW32_TO_VLONG64PTR(p), (v), (c))
@@ -788,10 +783,9 @@ __PTW32_END_C_DECLS
 #define __PTW32_INTERLOCKED_DECREMENT_64(p) InterlockedDecrement64(__PTW32_TO_VLONG64PTR(p))
 #endif
 #if defined (__PTW32_CONFIG_MSVC6) && !defined(_WIN64)
-#define __PTW32_INTERLOCKED_COMPARE_EXCHANGE_LONG(location, value, comparand) \
-	((LONG)InterlockedCompareExchange((PVOID*)(location), (PVOID)(value), (PVOID)(comparand)))
+	#define __PTW32_INTERLOCKED_COMPARE_EXCHANGE_LONG(location, value, comparand) ((LONG)InterlockedCompareExchange((PVOID*)(location), (PVOID)(value), (PVOID)(comparand)))
 #else
-#define __PTW32_INTERLOCKED_COMPARE_EXCHANGE_LONG InterlockedCompareExchange
+	#define __PTW32_INTERLOCKED_COMPARE_EXCHANGE_LONG InterlockedCompareExchange
 #endif
 #define __PTW32_INTERLOCKED_EXCHANGE_LONG(p, v) InterlockedExchange((p), (v))
 #define __PTW32_INTERLOCKED_EXCHANGE_ADD_LONG(p, v) InterlockedExchangeAdd((p), (v))

@@ -154,7 +154,7 @@
 #endif
 
 #define DECL_REF_REC(rec)     struct rec##2; typedef rec##2 rec
-#define ReferenceTbl          Reference2Tbl
+// @v12.5.4 (все использования заменены на Reference2Tbl) #define ReferenceTbl          Reference2Tbl
 #define REF_TEST_RECSIZE(rec) STATIC_ASSERT(sizeof(rec##_) == sizeof(Reference_ObsoleteTbl::Rec) && sizeof(rec##2) == sizeof(Reference2Tbl::Rec));
 
 DECL_REF_REC(PPObjectTag);
@@ -3331,9 +3331,9 @@ private:
 #define OTTYP_BOOL          1  // Логическое значение
 #define OTTYP_STRING        2  // Строка
 #define OTTYP_NUMBER        3  // double
-#define OTTYP_ENUM          4  // Перечисление (PPObjectTag::TagEnumID)
+#define OTTYP_ENUM          4  // Перечисление (PPObjectTag2::TagEnumID)
 #define OTTYP_INT           5  // long
-#define OTTYP_OBJLINK       6  // Ссылка на объект (PPObjectTag::TagEnumID)
+#define OTTYP_OBJLINK       6  // Ссылка на объект (PPObjectTag2::TagEnumID)
 #define OTTYP_DATE          7  // LDATE
 #define OTTYP_GUID          8  // GUID
 #define OTTYP_IMAGE         9  // Строка, содержащая путь к файлу с изображением
@@ -3397,7 +3397,7 @@ public:
 	PPObjTagPacket & Z();
 	PPObjTagPacket & FASTCALL operator = (const PPObjTagPacket &);
 
-	PPObjectTag Rec;
+	PPObjectTag2 Rec;
 	SString Rule;
 };
 //
@@ -3714,7 +3714,7 @@ struct PropPPIDArray {
 //
 //
 //
-class Reference : public ReferenceTbl {
+class Reference : public Reference2Tbl {
 public:
 	friend class PPTblEnum <Reference>;
 
@@ -3747,7 +3747,7 @@ public:
 	int    InitEnum(PPID objType, int options, long * pHandle);
 	//
 	// Descr: Инициализирует перечисление записей по одному из дополнительных индексированных
-	//   значений, соответствующих ReferenceTbl::Rec::Val1 или ReferenceTbl::Rec::Val2.
+	//   значений, соответствующих Reference2Tbl::Rec::Val1 или Reference2Tbl::Rec::Val2.
 	// ARG(objType  IN): тип объекта для перечисления //
 	// ARG(valN     IN): @#{1,2} номер поля по которому следует перечислять значения. Это может быть
 	//   либо 1 (Val1), либо 2 (Val2)
@@ -3766,7 +3766,7 @@ public:
 	int    EnumItems(PPID obj, PPID * pID, void * = 0);
 	//
 	// Descr: Загружает в массив pList все элементы справочника типа objType.
-	//   Массив pList должен иметь размер элемента равный sizeof(ReferenceTbl::Rec).
+	//   Массив pList должен иметь размер элемента равный sizeof(Reference2Tbl::Rec).
 	// Returns:
 	//   0  - error
 	//   <0 - нет ни одного элемента
@@ -7380,6 +7380,7 @@ public:
 		internalappKabQ,
 		internalappCrr32Support,
 		internalappUtility,
+		internalappCentrigo, // @v12.5.4
 	};
 	int    Init(long internalAppId, long flags/*PPSession::fInitXXX*/, HINSTANCE hInst, const char * pUiDescriptionFileName);
 	int    InitThread(const PPThread * pThread);
@@ -7481,6 +7482,11 @@ public:
 		loginfMainThread        = 0x0010,  // @v12.4.3 Авторизация из основного потока процесса (важно в контексте работы с некоторыми DBMS)
 	};
 	int    PPLogin(const char * pDbSymb, const char * pUserName, const char * pPassword, long flags);
+	//
+	// Descr: Специальный вариант функции авторизации сессии, привязанный к заданному из-вне объекту PPDbEntrySet2.
+	//   Изначально реализован ради проекта centrigo.
+	//
+	int    PPLogin_(const PPDbEntrySet2 * pDbes, const char * pDbSymb, const char * pUserName, const char * pPassword, long flags); // @v12.5.4
 	int    PPLogout();
 	//
 	// Descr: Флаги функции OpenDictionary2
@@ -7664,6 +7670,7 @@ public:
 	bool   RunNginxServerThread(bool forceReboot);
 	const  TWhatmanToolArray & GetVectorTools() const { return DvToolList_; } // @v11.9.2
 	SPaintToolBox & GetUiToolBox() { return UiToolBox_; } // @v11.9.2
+	int    GetInternalAppId() const { return InternalAppId; } // @v12.5.4
 private:
 	int    Helper_SetPath(int pathId, SString & rPath);
 	int    MakeMachineID(MACAddr * pMachineID);
@@ -7688,6 +7695,7 @@ private:
 	//
 	int    Helper_Process_HostAvailability_Query(const char * pHost, int query);
 	bool   LoadUedContainer(); // @v12.3.9
+	int    Implement_PPLogin(const PPDbEntrySet2 * pDbes, const char * pDbSymb, const char * pUserName, const char * pPassword, long flags); // @v12.5.4
 
 	struct ObjIdentBlock {
 		ObjIdentBlock();
@@ -7849,10 +7857,12 @@ public:
 	// ARG(dontLoadDefDict IN): Если !0, то не в точку входа не загружается путь к словарю по умолчанию.
 	//   Этот параметр используется при редактировании списка точек входа в базы данных
 	//
-	int    ReadFromProfile(PPIniFile * pIniFile, int existsPathOnly = 1, int dontLoadDefDict = 0);
+	int    ReadFromProfile(PPIniFile * pIniFile, bool existsPathOnly = true, bool dontLoadDefDict = false);
+	int    SetupSingleDbEntry(const char * pSymb, const char * pDescr); // @v12.5.4
 	int    RegisterEntry(PPIniFile * pIniFile, const DbLoginBlock * pBlk);
 	long   SetDefaultSelection();
 private:
+	int    ProcessSingleDbEntry(const char * pSymb, const char * pDescr, const char * pDefDict, bool existsPathOnly/*=true*/, bool dontLoadDefDict/*=false*/); // @v12.5.4
 	int    MakeProfileLine(const DbLoginBlock * pBlk, SString & rBuf) const;
 	int    ParseProfileLine(const char * pLine, DbLoginBlock * pBlk) const;
 };
@@ -16108,11 +16118,12 @@ public:
 	static int EditExecNfViewParam(ExecNfViewParam & rData);
 
 	enum {
-		exefModeless     = 0x0001,
-		exefDisable3Tier = 0x0002
+		exefModeless         = 0x0001,
+		exefDisable3Tier     = 0x0002,
+		exefDontLaunchWindow = 0x0004, // @v12.5.4 Не запускать окно отображения (вызывающая функция сама это сделает). Только если exefModeless
 	};
-	static int FASTCALL Execute(int viewID, const PPBaseFilt * pFilt, int flags /* exefXXX */, void * extraPtr);
-	static int FASTCALL Execute(int viewID, const PPBaseFilt * pFilt, int flags /* exefXXX */, PPView ** ppResult, void * extraPtr);
+	static int Execute(int viewID, const PPBaseFilt * pFilt, int flags/*exefXXX*/, void * extraPtr);
+	static int Execute(int viewID, const PPBaseFilt * pFilt, int flags/*exefXXX*/, PPView ** ppResult, void * extraPtr);
 	static int ExecuteServer(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply);
 	static int Destroy(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply);
 	static int Refresh(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply);
@@ -16192,7 +16203,8 @@ public:
 	//   >=0 - PPViewBrowser::execute должен прекратить исполнение и вернуть это значение (ushort)
 	//
 	virtual int   OnExecBrowser(PPViewBrowser * pBrw);
-	virtual int   Browse(int modeless);
+	virtual int   Browse(bool modeless);
+	int    BrowseInLayout(TWindow * pParent, const char * pParentLayoutSymb, const SUiLayoutParam & rLoP, uint destinationId); // @v12.5.4
 	//
 	// Returns:
 	//   <0 - данные не изменились
@@ -16250,8 +16262,8 @@ private:
 	LongArray * P_LastUpdatedObjects; // Список идентификаторов объектов, созданных, измененных
 		// или удаленный при последнем вызове PPView::ProcessCommand. Необходим для того,
 		// что бы порожденный класс мог отреагировать на обработку событий базовым классом.
-	static int FASTCALL CreateInstance(int viewID, int32 * pSrvInstId, PPView ** ppV);
-	static int FASTCALL Helper_Execute(int viewID, const PPBaseFilt * pFilt, int flags, PPView ** ppResult, void * extraPtr);
+	static int CreateInstance(int viewID, int32 * pSrvInstId, PPView ** ppV);
+	static int Helper_Execute(int viewID, const PPBaseFilt * pFilt, int flags, PPView ** ppResult, void * extraPtr);
 	int    Helper_Init(const PPBaseFilt * pFilt, int flags /* exefXXX */);
 protected:
 	static DBQuery * CrosstabDbQueryStub; // realy const (bad ptr)
@@ -17220,7 +17232,7 @@ protected:
 	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	//
 	// Descr: Функция, идентифицирующая факт эквивалентности записей rR1 и rR2.
-	//   Реализация по умолчанию сравнивает каждое поля ReferenceTbl::Rec. Однако, порожденные
+	//   Реализация по умолчанию сравнивает каждое поля Reference2Tbl::Rec. Однако, порожденные
 	//   классы могут по разному использовать некоторые поля записи, по этому, должны реализовать
 	//   метод для корректного определения являются ли записи равными.
 	//   Используется в методах Write и UpdateItem
@@ -17228,10 +17240,10 @@ protected:
 	//   >0 - записи rR1 и rR2 эквивалентны
 	//   0  - записи rR1 и rR2 не эквивалентны
 	//
-	virtual int  IsRecEq(const ReferenceTbl::Rec & rR1, const ReferenceTbl::Rec & rR2);
+	virtual int  IsRecEq(const Reference2Tbl::Rec & rR1, const Reference2Tbl::Rec & rR2);
 	int    StoreItem(PPID obj, PPID id, void * rec, int use_ta);
 	int    LoadReservedItems(uint rezID);
-	int    Serialize_(int dir, ReferenceTbl::Rec * pPack, void * stream, ObjTransmContext * pCtx);
+	int    Serialize_(int dir, Reference2Tbl::Rec * pPack, void * stream, ObjTransmContext * pCtx);
 public:
 	void * ExtraPtr;
 	Reference * P_Ref; // Equal to extern PPRef
@@ -17321,7 +17333,7 @@ public:
 	~PPObjTag();
 	virtual int  Edit(PPID *, void * extraPtr);
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr);
-	int    CheckForFilt(const ObjTagFilt * pFilt, const PPObjectTag & rRec) const;
+	int    CheckForFilt(const ObjTagFilt * pFilt, const PPObjectTag2 & rRec) const;
 	int    GetObjListByFilt(PPID objType, const TagFilt * pFilt, UintHashTable & rList, UintHashTable & rExcludeList);
 	int    GetPacket(PPID id, PPObjTagPacket *);
 	int    PutPacket(PPID * pID, PPObjTagPacket *, int use_ta);
@@ -17349,7 +17361,7 @@ public:
 	//    0 - error
 	//
 	int    GetWarnList(const ObjTagList * pTagList, StrAssocArray * pResultList, StrAssocArray * pInfoList);
-	int    Fetch(PPID, PPObjectTag *);
+	int    Fetch(PPID, PPObjectTag2 *);
 	//
 	// Descr: Находит идентификатор типа тега по символу. Функция работает очень быстро благодаря кэшированию.
 	//
@@ -25296,14 +25308,14 @@ public:
 	int    FASTCALL Insert(const PPGoodsTaxEntry & rEntry);
 	SVector * vecptr();
 
-	PPGoodsTax Rec;
+	PPGoodsTax2 Rec;
 };
 
 class PPObjGoodsTax : public PPObjReference {
 public:
 	static long  GetDefaultOrder();
 	static int   ReplaceGoodsTaxGrp();
-	static int   IsIdentical(const PPGoodsTax * pRec1, const PPGoodsTax * pRec2);
+	static int   IsIdentical(const PPGoodsTax2 * pRec1, const PPGoodsTax2 * pRec2);
 	static int   Fetch(PPID taxGroupID, LDATE dt, PPID opID, PPGoodsTaxEntry * pGtx);
 	static int   FetchByID(PPID taxGroupID, PPGoodsTaxEntry * pGtx);
 
@@ -25312,15 +25324,15 @@ public:
 	virtual int  Browse(void * extraPtr);
 	int    IsPacketEq(const PPGoodsTaxPacket & rS1, const PPGoodsTaxPacket & rS2, long flags);
 	int    Search(PPID id, PPGoodsTaxEntry * pEntry);
-	int    Search(PPID id, PPGoodsTax * pRec);
+	int    Search(PPID id, PPGoodsTax2 * pRec);
 	int    AddBySample(PPID * pID, long sampleID);
 	int    GetByScheme(PPID * pID, double vat, double excise, double stax, long flags, int use_ta);
-	void   GetDefaultName(const PPGoodsTax * pRec, char * buf, size_t buflen);
+	void   GetDefaultName(const PPGoodsTax2 * pRec, char * buf, size_t buflen);
 	//
 	// Descr: Ищет налоговую группу, аналогичную по схеме налогообложения записи pPattern.
 	//
-	int    SearchIdentical(const PPGoodsTax * pPattern, PPID * pID, PPGoodsTax * pRec);
-	int    SearchAnalog(const PPGoodsTax * pSample, PPID * pID, PPGoodsTax * pRec);
+	int    SearchIdentical(const PPGoodsTax2 * pPattern, PPID * pID, PPGoodsTax2 * pRec);
+	int    SearchAnalog(const PPGoodsTax2 * pSample, PPID * pID, PPGoodsTax2 * pRec);
 	int    Test(PPID);
 	int    FormatOrder(long order, long unionVect, SString & rBuf);
 	int    StrToOrder(const char *, long * pOrder, long * pUnionVect);
@@ -40170,8 +40182,8 @@ public:
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
 	virtual void ViewTotal();
 	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
+	virtual int  Browse(bool modeless);
 	int    EditFilt(BillFilt *, long) const;
-	int    Browse(int modeless);
 	int    AddItem(PPID * pID, PPID opID = 0);
 	int    AddItemBySample(PPID * pID, PPID sampleBillID);
 	int    AddBySCard(PPID * pID);
@@ -40687,7 +40699,7 @@ public:
 	int    ConvertGenAccturnToExtAccBill();
 private:
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
-	int Browse(int modeless);
+	virtual int  Browse(bool modeless);
 	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void ViewTotal();
@@ -44612,7 +44624,7 @@ public:
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
 	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int EditBaseFilt(PPBaseFilt *);
-	virtual int Browse(int modeless);
+	virtual int Browse(bool modeless);
 	int    InitIteration();
 	int    FASTCALL NextIteration(AccAnlzViewItem *);
 	int    GetTotal(AccAnlzTotal *) const;
@@ -47158,7 +47170,7 @@ struct GoodsTrnovrViewItem { // @flat
 	double Income;
 };
 
-class PPViewGoodsTrnovr {
+class PPViewGoodsTrnovr { // @todo @20260117 Перевести на PPView
 public:
 	PPViewGoodsTrnovr();
 	~PPViewGoodsTrnovr();
@@ -47169,7 +47181,7 @@ public:
 	int    FASTCALL NextIteration(GoodsTrnovrViewItem *);
 	int    GetIterationCount(long *, long *);
 	int    ViewGrouping(LDATE);
-	int    Browse(int);
+	int    Browse(int modeless);
 	int    Print();
 private:
 	SArray * CreateBrowserQuery();
@@ -54597,8 +54609,7 @@ public:
 private:
 	DECL_HANDLE_EVENT;
 	virtual int  InitStatusBar();
-	// @v11.9.2 virtual int  LoadVectorTools(TWhatmanToolArray * pT);
-	virtual const TWhatmanToolArray * GetVectorTools() const; // @v11.9.2 
+	virtual const TWhatmanToolArray * GetVectorTools() const;
 	virtual SPaintToolBox * GetUiToolBox(); // @v11.9.2
 	int    InitDeskTop();
 	int    InitMenuBar();
@@ -58776,7 +58787,7 @@ public:
 	int    Select(int import);
 	int    SerializeParam(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    SearchEdiOrder(const SearchBlock & rBlk, BillTbl::Rec * pOrderRec);
-	PPID   GetFixTagID(PPObjectTag * pTagRec);
+	PPID   GetFixTagID(PPObjectTag2 * pTagRec);
 	bool   SkipExportBillBecauseFixTag(PPID billID);
 	int    SetFixTagOnExportedBill(const PPIDArray & rBillIdList, int use_ta);
 	int    SetFixTagOnImportedBill(PPID billID, int use_ta);

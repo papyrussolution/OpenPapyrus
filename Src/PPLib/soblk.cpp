@@ -1306,7 +1306,7 @@ struct LocalSelectorDescr {
 				{
 					Crit = "TAGVALUE";
 					PPObjTag tag_obj;
-					PPObjectTag tag_rec;
+					PPObjectTag2 tag_rec;
 					if(rSdEntry.TagID && tag_obj.Fetch(rSdEntry.TagID, &tag_rec) > 0) {
 						TagID = tag_rec.ID; // @v10.7.9
 						Crit.Dot().Cat(tag_rec.Symb);
@@ -1347,7 +1347,7 @@ struct LocalSelectorDescr {
 			/* @v10.7.9 if(parent_id_list.getCount() && Attr == PPUhttStoreSelDescr::attrTag && Crit.Divide('.', o_buf, txt_buf) > 0) {
 				PPID tag_id = 0;
 				PPObjTag tag_obj;
-				PPObjectTag tag_rec;
+				PPObjectTag2 tag_rec;
 				Reference * p_ref(PPRef);
 				if(tag_obj.FetchBySymb(txt_buf, &tag_id) > 0 && tag_obj.Fetch(tag_id, &tag_rec) > 0 && tag_rec.TagDataType == OTTYP_ENUM && tag_rec.TagEnumID) {
 					parent_id_list.sortAndUndup();
@@ -1355,7 +1355,7 @@ struct LocalSelectorDescr {
 					for(uint k = 0; k < parent_id_list.getCount(); k++) {
 						const  PPID parent_id = parent_id_list.get(k);
 						if(named_id_list.addUnique(parent_id) > 0) {
-							ReferenceTbl::Rec tag_item_rec;
+							Reference2Tbl::Rec tag_item_rec;
 							if(p_ref->GetItem(tag_rec.TagEnumID, parent_id, &tag_item_rec) > 0) {
 								const  PPID next_parent_id = tag_item_rec.Val2;
 								assert(tag_item_rec.ObjID == parent_id);
@@ -1921,7 +1921,7 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 							for(uint i = 0, n = sdescr_list.getCount(); i < n; i++) {
 								LocalSelectorDescr * p_sdescr = sdescr_list.at(i);
 								if(p_sdescr && p_sdescr->Attr == PPUhttStoreSelDescr::attrTag && p_sdescr->TagID) {
-									PPObjectTag tag_rec;
+									PPObjectTag2 tag_rec;
 									if(tag_obj.Fetch(p_sdescr->TagID, &tag_rec) > 0 && tag_rec.TagDataType == OTTYP_ENUM && tag_rec.TagEnumID) {
 										const uint vc = p_sdescr->Values.getCount();
 										for(uint vi = 0; vi < vc; vi++) {
@@ -1931,7 +1931,7 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 													par_id = p_sdescr->Values.Get(vpos).ParentId;
 												}
 												else {
-													ReferenceTbl::Rec en_rec;
+													Reference2Tbl::Rec en_rec;
 													if(p_ref->GetItem(tag_rec.TagEnumID, par_id, &en_rec) > 0) {
 														p_sdescr->Values.AddFast(par_id, en_rec.Val2, en_rec.ObjName);
 														par_id = en_rec.Val2;
@@ -2404,7 +2404,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 			THROW_PP(P_TagBlk, PPERR_CMDSEL_EMPTYTAGCRIT);
 			THROW_PP(IdList.getCount(), PPERR_CMDSEL_EMPTYTAGGEDOBJLIST);
 			{
-				PPObjectTag tag_rec;
+				PPObjectTag2 tag_rec;
 				ObjTagItem tag;
 				THROW(TagObj.Fetch(P_TagBlk->TagID, &tag_rec) > 0);
 				THROW_PP_S(P_TagBlk->ObjType == tag_rec.ObjTypeID, PPERR_CMDSEL_MISMTAGGEDOBJTYPE, tag_rec.Name);
@@ -4443,7 +4443,7 @@ int Backend_SelectObjectBlock::ResolveCrit_Tag(int subcriterion, const SString &
 	switch(subcriterion) {
 		case 0:
 		case scID: id = rArg.ToLong(); break;
-		case scCode: p_ref->SearchSymb(PPOBJ_TAG, &id, rArg, offsetof(PPObjectTag, Symb)); break;
+		case scCode: p_ref->SearchSymb(PPOBJ_TAG, &id, rArg, offsetof(PPObjectTag2, Symb)); break;
 		case scName: p_ref->SearchName(PPOBJ_TAG, &id, rArg); break;
 		default:
 			PPSetError(PPERR_CMDSEL_INVSUBCRITERION);

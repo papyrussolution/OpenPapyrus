@@ -1017,7 +1017,7 @@ PrcssrSalary::PrcssrSalary() : PeriodStack(64)
 	for(id = 0; CalObj.EnumItems(&id, &sc_rec) > 0;)
 		CalList.Add(sc_rec.ID, sc_rec.Symb);
 	{
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		for(SEnum en = PPRef->Enum(PPOBJ_TAG, 0); en.Next(&tag_rec) > 0;) {
 			if(tag_rec.ObjTypeID == PPOBJ_PERSON)
 				TagSymbList.Add(tag_rec.ID, tag_rec.Symb);

@@ -1,5 +1,5 @@
 // OBJREF.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -196,7 +196,7 @@ IMPL_HANDLE_EVENT(RefObjViewDialog)
 	if(TVCOMMAND) {
 		if(TVCMD == cmTransmitCharry || TVCMD == cmTransmit) {
 			PPIDArray id_list;
-			ReferenceTbl::Rec rec;
+			Reference2Tbl::Rec rec;
 			for(PPID id = 0; static_cast<PPObjReference *>(P_Obj)->EnumItems(&id, &rec) > 0;)
 				id_list.add(rec.ObjID);
 			if(id_list.getCount()) {
@@ -261,7 +261,7 @@ PPObjReference::PPObjReference(PPID aObj, void * extraPtr) : PPObject(aObj), Ext
 {
 	ImplementFlags |= implStrAssocMakeList;
 	if(IS_DYN_OBJTYPE(aObj)) {
-		ReferenceTbl::Rec rec;
+		Reference2Tbl::Rec rec;
 		if(P_Ref->GetItem(PPOBJ_DYNAMICOBJS, aObj, &rec) > 0 && rec.Val1 & PPCommObjEntry::fHierarchical)
 			ImplementFlags |= implTreeSelector;
 	}
@@ -274,7 +274,7 @@ int    PPObjReference::SearchByName(const char * pName, PPID * pID, void * pRec)
 int PPObjReference::SearchBySymb(const char * pSymb, PPID * pID, void * pRec)
 {
 	PPID   id = 0;
-	int    r = P_Ref->SearchSymb(Obj, &id, pSymb, offsetof(ReferenceTbl::Rec, Symb));
+	int    r = P_Ref->SearchSymb(Obj, &id, pSymb, offsetof(Reference2Tbl::Rec, Symb));
 	if(r > 0) {
 		if(pRec)
 			r = P_Ref->GetItem(Obj, id, pRec);
@@ -333,7 +333,7 @@ int PPObjReference::CheckDupName(PPID objID, const char * pName)
 
 int PPObjReference::CheckDupSymb(PPID objID, const char * pSymb)
 {
-	return P_Ref->CheckUniqueSymb(Obj, objID, pSymb, offsetof(ReferenceTbl::Rec, Symb));
+	return P_Ref->CheckUniqueSymb(Obj, objID, pSymb, offsetof(Reference2Tbl::Rec, Symb));
 }
 
 PPID PPObjReference::GetSingle()
@@ -351,8 +351,8 @@ PPID PPObjReference::GetSingle()
 int PPObjReference::AddItem(PPID * pID, void * pBuf, int use_ta)
 {
 	int    ok = -1;
-	if((ok = P_Ref->AddItem(Obj, &static_cast<ReferenceTbl::Rec *>(pBuf)->ObjID, pBuf, 0)) > 0)
-		ASSIGN_PTR(pID, static_cast<ReferenceTbl::Rec *>(pBuf)->ObjID);
+	if((ok = P_Ref->AddItem(Obj, &static_cast<Reference2Tbl::Rec *>(pBuf)->ObjID, pBuf, 0)) > 0)
+		ASSIGN_PTR(pID, static_cast<Reference2Tbl::Rec *>(pBuf)->ObjID);
 	return ok;
 }
 
@@ -379,7 +379,7 @@ int PPObjReference::StoreItem(PPID obj, PPID id, void * pRec, int use_ta)
 				ok = -1;
 		}
 		else {
-			THROW(P_Ref->AddItem(obj, &static_cast<ReferenceTbl::Rec *>(pRec)->ObjID, pRec, 0));
+			THROW(P_Ref->AddItem(obj, &static_cast<Reference2Tbl::Rec *>(pRec)->ObjID, pRec, 0));
 		}
 		THROW(tra.Commit());
 	}
@@ -427,7 +427,8 @@ PPCommObjEntry::PPCommObjEntry(PPID objType, PPID id, const char * pName, const 
 		if(p_dlg->getCtrlView(CTLSEL_COMMOBJ_PARENT)) {
 			SetupPPObjCombo(p_dlg, CTLSEL_COMMOBJ_PARENT, pEntry->ObjType, pEntry->ParentID, OLW_CANINSERT|OLW_CANSELUPLEVEL, 0);
 		}
-		p_dlg->disableCtrl(CTL_COMMOBJ_ID, (!PPMaster || _id));
+		// @v12.5.4 p_dlg->disableCtrl(CTL_COMMOBJ_ID, (!PPMaster || _id));
+		p_dlg->setCtrlReadOnly(CTL_COMMOBJ_ID, (!PPMaster || _id)); // @v12.5.4 
 		while(!valid_data && ExecView(p_dlg) == cmOK) {
 			long flags = 0L;
 			p_dlg->getCtrlData(CTL_COMMOBJ_ID, &_id);
@@ -436,7 +437,7 @@ PPCommObjEntry::PPCommObjEntry(PPID objType, PPID id, const char * pName, const 
 			p_dlg->GetClusterData(CTL_COMMOBJ_FLAGS, &flags);
 			if(p_obj && !p_obj->CheckName(_id, name, 1))
 				PPErrorByDialog(p_dlg, CTL_COMMOBJ_NAME);
-			else if(p_obj && !p_obj->P_Ref->CheckUniqueSymb(pEntry->ObjType, _id, symb, offsetof(ReferenceTbl::Rec, Symb))) {
+			else if(p_obj && !p_obj->P_Ref->CheckUniqueSymb(pEntry->ObjType, _id, symb, offsetof(Reference2Tbl::Rec, Symb))) {
 				PPErrorByDialog(p_dlg, CTL_COMMOBJ_SYMB);
 			}
 			else if(pEntry->ObjType == PPOBJ_DYNAMICOBJS && GetObjectTypeBySymb(symb, 0)) {
@@ -482,7 +483,7 @@ int PPObjReference::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel;
 	bool   is_new = false;
-	ReferenceTbl::Rec rec;
+	Reference2Tbl::Rec rec;
 	THROW(EditPrereq(pID, 0, &is_new));
 	if(!is_new) {
 		THROW(P_Ref->GetItem(Obj, *pID, &rec) > 0);
@@ -535,7 +536,7 @@ StrAssocArray * PPObjReference::MakeStrAssocList(void * extraPtr)
 	THROW_MEM(p_list);
 	{
 		const int is_hier = BIN(IS_DYN_OBJTYPE(Obj) && ImplementFlags & implTreeSelector);
-		ReferenceTbl::Rec rec;
+		Reference2Tbl::Rec rec;
 		for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
 			if(!FiltProc || FiltProc(&rec, extraPtr)) {
 				if(*strip(rec.ObjName) == 0)
@@ -570,12 +571,12 @@ int PPObjReference::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	return DBRPL_OK;
 }
 
-int PPObjReference::IsRecEq(const ReferenceTbl::Rec & rR1, const ReferenceTbl::Rec & rR2)
+int PPObjReference::IsRecEq(const Reference2Tbl::Rec & rR1, const Reference2Tbl::Rec & rR2)
 {
 	return P_Ref->GetFields().IsEqualRecords(&rR1, &rR2);
 }
 
-int PPObjReference::Serialize_(int dir, ReferenceTbl::Rec * pPack, void * stream, ObjTransmContext * pCtx)
+int PPObjReference::Serialize_(int dir, Reference2Tbl::Rec * pPack, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	SBuffer buffer;
@@ -594,14 +595,14 @@ int PPObjReference::Serialize_(int dir, ReferenceTbl::Rec * pPack, void * stream
 int PPObjReference::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
-	THROW_MEM(p->Data = new ReferenceTbl::Rec);
+	THROW_MEM(p->Data = new Reference2Tbl::Rec);
 	if(stream == 0) {
 		if(Obj == PPOBJ_DYNAMICOBJS)
 			p->Priority = 100;
 		THROW(Search(id, p->Data) > 0);
 	}
 	else {
-		THROW(Serialize_(-1, static_cast<ReferenceTbl::Rec *>(p->Data), stream, pCtx));
+		THROW(Serialize_(-1, static_cast<Reference2Tbl::Rec *>(p->Data), stream, pCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -613,7 +614,7 @@ int PPObjReference::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCon
 	THROW(p->Data);
 	if(stream == 0) {
 		PPID   same_id = 0;
-		ReferenceTbl::Rec * p_rec = static_cast<ReferenceTbl::Rec *>(p->Data);
+		Reference2Tbl::Rec * p_rec = static_cast<Reference2Tbl::Rec *>(p->Data);
 		ok = 0; // !
 		if(*pID == 0) {
 			if(p_rec->ObjID < PP_FIRSTUSRREF) {
@@ -658,7 +659,7 @@ int PPObjReference::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCon
 		}
 	}
 	else {
-		THROW(Serialize_(+1, static_cast<ReferenceTbl::Rec *>(p->Data), stream, pCtx));
+		THROW(Serialize_(+1, static_cast<Reference2Tbl::Rec *>(p->Data), stream, pCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -693,7 +694,7 @@ int PPObjReference::ProcessReservedItem(TVRez & rez)
 	PPExpandString(name, CTRANSF_UTF8_TO_INNER);
 	THROW(r = Search(id));
 	if(r < 0) {
-		ReferenceTbl::Rec rec;
+		Reference2Tbl::Rec rec;
 		rec.ObjType = Obj;
 		rec.ObjID   = id;
 		STRNSCPY(rec.ObjName, name);
@@ -814,7 +815,7 @@ int PPObjUnit::SearchMaxLike(const PPUnit * pRec, PPID * pID)
 {
 	int    ok = -1;
 	if(pRec) {
-		ReferenceTbl::Key1 k1;
+		Reference2Tbl::Key1 k1;
 		MEMSZERO(k1);
 		k1.ObjType = Obj;
 		STRNSCPY(k1.ObjName, pRec->Name);
@@ -957,7 +958,7 @@ int PPObjUnit::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext 
 		}
 	}
 	else {
-		THROW(Serialize_(+1, static_cast<ReferenceTbl::Rec *>(p->Data), stream, pCtx));
+		THROW(Serialize_(+1, static_cast<Reference2Tbl::Rec *>(p->Data), stream, pCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -1337,7 +1338,7 @@ int PPObjPersonCat::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCon
 		}
 	}
 	else {
-		THROW(Serialize_(+1, static_cast<ReferenceTbl::Rec *>(p->Data), stream, pCtx));
+		THROW(Serialize_(+1, static_cast<Reference2Tbl::Rec *>(p->Data), stream, pCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -1425,7 +1426,7 @@ int PPObjELinkKind::Edit(PPID * pID, void * extraPtr)
 		dlg->getCtrlData(CTL_ELNKK_SYMB, rec.Symb);
 		if(!CheckName(rec.ID, rec.Name, 1))
 			PPErrorByDialog(dlg, CTL_ELNKK_NAME);
-		else if(!P_Ref->CheckUniqueSymb(Obj, rec.ID, rec.Symb, offsetof(ReferenceTbl::Rec, Symb))) {
+		else if(!P_Ref->CheckUniqueSymb(Obj, rec.ID, rec.Symb, offsetof(Reference2Tbl::Rec, Symb))) {
 			PPErrorByDialog(dlg, CTL_ELNKK_SYMB);
 		}
 		else {
@@ -1614,7 +1615,7 @@ int PPObjFormula::Edit(PPID * pID, void * extraPtr)
 int PPObjFormula::Put(PPID * pID, const char * pName, const char * pExpr, int use_ta)
 {
 	int    ok = 1;
-	ReferenceTbl::Rec rec;
+	Reference2Tbl::Rec rec;
 	THROW_PP(pExpr[0], PPERR_INVFORMULA);
 	if(*pID) {
 		THROW(Search(*pID, &rec) > 0);
@@ -1643,7 +1644,7 @@ int PPObjFormula::Put(PPID * pID, const char * pName, const char * pExpr, int us
 int PPObjFormula::Get(PPID id, SString & rName, SString & rFormula)
 {
 	int    ok = 1;
-	ReferenceTbl::Rec rec;
+	Reference2Tbl::Rec rec;
 	if(id == 0) {
 		THROW(SearchByName(rName, &id, &rec) > 0);
 	}
@@ -1884,7 +1885,7 @@ int PPObjDynamicObjs::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel;
 	bool   is_new = false;
-	ReferenceTbl::Rec rec;
+	Reference2Tbl::Rec rec;
 	THROW(EditPrereq(pID, 0, &is_new));
 	if(!is_new) {
 		THROW(P_Ref->GetItem(Obj, *pID, &rec));
@@ -1916,7 +1917,7 @@ int PPObjDynamicObjs::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 	int    ok = 1;
 	THROW(p->Data);
 	if(stream == 0) {
-		ReferenceTbl::Rec * p_rec = static_cast<ReferenceTbl::Rec *>(p->Data);
+		Reference2Tbl::Rec * p_rec = static_cast<Reference2Tbl::Rec *>(p->Data);
 		PPID   same_id = 0;
 		int    done = 0;
 		if(*pID == 0) {
@@ -1950,7 +1951,7 @@ int PPObjDynamicObjs::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 		}
 	}
 	else {
-		THROW(Serialize_(+1, static_cast<ReferenceTbl::Rec *>(p->Data), stream, pCtx));
+		THROW(Serialize_(+1, static_cast<Reference2Tbl::Rec *>(p->Data), stream, pCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -2915,7 +2916,7 @@ int PPObjGlobalUserAcc::Register(PPID & ID, const char * pName, const char * pPa
 			glb_acc.LocalUserID = localUserID;
 			glb_acc.PersonID = personID;
 			THROW(StoreItem(Obj, 0, &glb_acc, 0));
-			ID = reinterpret_cast<const ReferenceTbl::Rec *>(&glb_acc)->ObjID;
+			ID = reinterpret_cast<const Reference2Tbl::Rec *>(&glb_acc)->ObjID;
 			if(p_scs_obj) {
 				PPSCardSerPacket scs_pack;
 				if(p_scs_obj->GetPacket(cfg.SCardSerID, &scs_pack) > 0 && scs_pack.Rec.GetType() == scstCredit && scs_pack.Eb.CodeTempl[0]) {
@@ -3139,11 +3140,11 @@ int PPObjSysAction::Search(PPID id, void * pRec)
 	if(PPLoadString(PPSTR_ACTION, id, temp_buf)) {
 		NameBuf = temp_buf;
 		if(pRec) {
-			ReferenceTbl::Rec rec;
+			Reference2Tbl::Rec rec;
 			rec.ObjType = Obj;
 			rec.ObjID = id;
 			temp_buf.CopyTo(rec.ObjName, sizeof(rec.ObjName));
-			*static_cast<ReferenceTbl::Rec *>(pRec) = rec;
+			*static_cast<Reference2Tbl::Rec *>(pRec) = rec;
 		}
 		ok = 1;
 	}
@@ -3198,11 +3199,11 @@ int PPObjGtaAction::Search(PPID id, void * pRec)
 	if(PPLoadString(PPSTR_GTA, id, temp_buf)) {
 		NameBuf = temp_buf;
 		if(pRec) {
-			ReferenceTbl::Rec rec;
+			Reference2Tbl::Rec rec;
 			rec.ObjType = Obj;
 			rec.ObjID = id;
 			temp_buf.CopyTo(rec.ObjName, sizeof(rec.ObjName));
-			*static_cast<ReferenceTbl::Rec *>(pRec) = rec;
+			*static_cast<Reference2Tbl::Rec *>(pRec) = rec;
 		}
 		ok = 1;
 	}
@@ -3422,7 +3423,7 @@ private:
 						PPLoadString("tag", temp_buf);
 						temp_buf.Colon();
 						{
-							PPObjectTag tag_rec;
+							PPObjectTag2 tag_rec;
 							if(TagObj.Fetch(entry.TagID, &tag_rec) > 0)
 								temp_buf.Cat(tag_rec.Name);
 							else
@@ -3920,7 +3921,7 @@ int PPUhttStoreSelDescr::ValidateEntry(const Entry * pEntry) const
 	THROW(oneof8(pEntry->Attr, attrGroup, attrBrand, attrName, attrClass, attrTag, attrCity, attrPeriod, attrProcessor));
 	if(pEntry->Attr == attrTag) {
 		PPObjTag tag_obj;
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		THROW(pEntry->TagID != 0);
 		THROW(tag_obj.Fetch(pEntry->TagID, &tag_rec) > 0);
 		THROW(tag_rec.ObjTypeID == PPOBJ_GOODS);
@@ -4026,7 +4027,7 @@ int PPUhttStoreSelDescr::GetDefaultEntryTitle(uint pos, SString & rBuf) const
 			case attrTag:
 				if(r_item.ExtID) {
 					PPObjTag tag_obj;
-					PPObjectTag tag_rec;
+					PPObjectTag2 tag_rec;
 					if(tag_obj.Fetch(r_item.ExtID, &tag_rec) > 0)
 						rBuf = tag_rec.Name;
 				}
@@ -4515,7 +4516,7 @@ int PPObjTaxSystemKind::ProcessReservedItem(TVRez & rRez)
 	rRez.getString(symb, 2);
 	THROW(r = Search(id));
 	if(r < 0) {
-		ReferenceTbl::Rec rec;
+		Reference2Tbl::Rec rec;
 		rec.ObjType = Obj;
 		rec.ObjID   = id;
 		STRNSCPY(rec.ObjName, name);

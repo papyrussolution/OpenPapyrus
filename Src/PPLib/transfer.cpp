@@ -1,5 +1,5 @@
 // TRANSFER.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // @Kernel
 //
@@ -38,7 +38,7 @@ int Transfer::EnumByLot(PPID lotID, LDATE * date, long *oprno, TransferTbl::Rec 
 int Transfer::EnumByLot(PPID lotID, DateIter * pIter, TransferTbl::Rec * pRec)
 {
 	assert(pIter != 0);
-	int    r = Search(lotID, pIter->dt, pIter->oprno, spGt);
+	const  int r = Search(lotID, pIter->dt, pIter->oprno, spGt);
 	if(r > 0) {
 		CopyBufTo(pRec);
 		return pIter->Advance(data.Dt, data.OprNo);
@@ -51,10 +51,10 @@ int Transfer::IsDeadLot(PPID lotID)
 {
 	LDATE  dt = ZERODATE;
 	long   oprno = 0;
-	int    is_dead = 1;
+	bool   is_dead = true;
 	while(is_dead && EnumByLot(lotID, &dt, &oprno) > 0)
 		if(!(data.Flags & PPTFR_RECEIPT))
-			is_dead = 0;
+			is_dead = false;
 	return is_dead ? +1 : -1;
 }
 
@@ -64,7 +64,7 @@ int Transfer::SearchByBill(PPID billID, int reverse, short rByBill, TransferTbl:
 	k0.BillID  = billID;
 	k0.Reverse = reverse;
 	k0.RByBill = rByBill;
-	int    r = SearchByKey(this, 0, &k0, pRec);
+	const  int r = SearchByKey(this, 0, &k0, pRec);
 	if(r < 0)
 		PPSetError(PPERR_TRFRBYBILLNFOUND);
 	return r;
@@ -2897,18 +2897,18 @@ int Transfer::RemoveItem(PPID bill, int reverse, short rByBill, int force, int u
 					//
 					dt = rec.Dt;
 					oprno = rec.OprNo;
-					while((r = EnumByLot(rec.LotID, &dt, &oprno)) > 0)
+					while((r = EnumByLot(rec.LotID, &dt, &oprno)) > 0) {
 						if(data.Flags & PPTFR_REVAL) {
 							THROW_DB(deleteRec());
 						}
 						else {
 							CALLEXCEPT_PP(PPERR_FWLOTRESTBOUND);
 						}
+					}
 					THROW(r);
 				}
 				//
-				// Проверка на случай если по ошибке выставлен флаг PPTFR_RECEIPT, но
-				// строка ни к какому лоту не привязана
+				// Проверка на случай если по ошибке выставлен флаг PPTFR_RECEIPT, но строка ни к какому лоту не привязана
 				//
 				THROW(r = Rcpt.EnumRefs(rec.LotID, &(dt = ZERODATE), &(oprno = 0)));
 				THROW_PP(r < 0, PPERR_DELPARENTLOT);
@@ -2936,12 +2936,13 @@ int Transfer::RemoveItem(PPID bill, int reverse, short rByBill, int force, int u
 			if(rec.Flags & PPTFR_RECEIPT) {
 				dt = rec.Dt;
 				oprno = rec.OprNo;
-				while((r = EnumByLot(rec.LotID, &dt, &oprno)) > 0)
+				while((r = EnumByLot(rec.LotID, &dt, &oprno)) > 0) {
 					if(data.Flags & PPTFR_REVAL) {
 						THROW_DB(deleteRec());
 					}
 					else
 						CALLEXCEPT_PP(PPERR_FWLOTRESTBOUND);
+				}
 				THROW(r = Rcpt.EnumRefs(rec.LotID, &(dt = ZERODATE), &(oprno = 0)));
 				// Если существует порожденный лот, то родителя не удаляем
 				if(r < 0)
@@ -2984,7 +2985,9 @@ int Transfer::MoveOp(LotOpMovParam * param, int use_ta)
 {
 	int    ok = 1;
 	long   oprno = 0;
-	double q, down_lim, up_lim;
+	double q;
+	double down_lim;
+	double up_lim;
 	ReceiptTbl::Rec src_lot = param->SrcLot;
 	PPTransferItem ti;
 	{

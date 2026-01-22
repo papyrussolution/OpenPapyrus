@@ -542,7 +542,7 @@ void TButton::Press()
 //
 // TInputLine
 //
-/*static*/LPCTSTR TInputLine::WndClsName = _T("Edit");
+/*static*/const wchar_t * TInputLine::WndClsName = L"Edit";
 
 TInputLine::InputStat::InputStat() : Last(0), TmSum(0), TmSqSum(0)
 {
@@ -787,9 +787,9 @@ void TInputLine::Setup(void * pThisHandle, void * pParentHandle)
 {
 	HWND hw_parent = static_cast<HWND>(pParentHandle);
 	HWND hw_this = static_cast<HWND>(pThisHandle);
-	SendDlgItemMessage(hw_parent, Id, EM_SETLIMITTEXT, MaxLen ? (MaxLen-1) : 0, 0);
+	::SendDlgItemMessageW(hw_parent, Id, EM_SETLIMITTEXT, MaxLen ? (MaxLen-1) : 0, 0);
 	if(Format & STRF_PASSWORD)
-		SendDlgItemMessage(hw_parent, Id, EM_SETPASSWORDCHAR, SlConst::DefaultPasswordSymb, 0);
+		::SendDlgItemMessageW(hw_parent, Id, EM_SETPASSWORDCHAR, SlConst::DefaultPasswordSymb, 0);
 	Draw_();
 	//HWND h_wnd = getHandle();
 	TView::SetWindowProp(hw_this, GWLP_USERDATA, this);
@@ -804,20 +804,7 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch(uMsg) {
 		case WM_INITDIALOG:
-			{
-				/* @v11.2.3
-				SendDlgItemMessage(Parent, Id, EM_SETLIMITTEXT, maxLen ? (maxLen-1) : 0, 0);
-				if(format & STRF_PASSWORD)
-					SendDlgItemMessage(Parent, Id, EM_SETPASSWORDCHAR, DEFAULT_PASSWORD_SYMB, 0);
-				Draw_();
-				HWND h_wnd = getHandle();
-				TView::SetWindowProp(h_wnd, GWLP_USERDATA, this);
-				PrevWindowProc = static_cast<WNDPROC>(TView::SetWindowProp(h_wnd, GWLP_WNDPROC, TInputLine::DlgProc));
-				if(TView::SGetWindowStyle(h_wnd) & ES_READONLY)
-					Sf |= sfReadOnly;
-				*/
-				Setup(getHandle(), Parent); // @v11.2.3
-			}
+			Setup(getHandle(), Parent);
 			break;
 		case WM_VKEYTOITEM:
 			if(wParam == VK_DOWN) {

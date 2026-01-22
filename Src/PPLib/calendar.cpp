@@ -399,9 +399,9 @@ const int M_DIFFY = 45;
 
 void TDateCalendar::PaintMonthRect(TCanvas & rCanv, SPoint2S p, uint j, COLORREF color, COLORREF textColor)
 {
-	HPEN   pen = CreatePen(PS_SOLID, 3, color);
+	HPEN   pen = ::CreatePen(PS_SOLID, 3, color);
 	rCanv.SelectObjectAndPush(pen);
-	HBRUSH br = CreateSolidBrush(color);
+	HBRUSH br = ::CreateSolidBrush(color);
 	rCanv.SelectObjectAndPush(br);
 	TRect rect(p.x + 1, p.y, j < 6 ? p.x + (y_br - y_bl + 1) / 7 - 1 : p.x + (y_br - y_bl + 1) / 7 - 2, p.y + (C_CELLH * y_th / 13 - 2));
 	rCanv.Rectangle(rect);
@@ -415,10 +415,10 @@ void TDateCalendar::PaintMonthRect(TCanvas & rCanv, SPoint2S p, uint j, COLORREF
 //
 void TDateCalendar::DrawDayOfWeekHeader(HDC hdc)
 {
-	HPEN   pen    = CreatePen(PS_SOLID, 1, RGB(170, 170, 170));
-	HPEN   oldpen = static_cast<HPEN>(SelectObject(hdc, pen));
-	HBRUSH br     = CreateSolidBrush(RGB(170, 170, 170));
-	HBRUSH oldbr  = static_cast<HBRUSH>(SelectObject(hdc, br));
+	HPEN   pen    = ::CreatePen(PS_SOLID, 1, RGB(170, 170, 170));
+	HPEN   oldpen = static_cast<HPEN>(::SelectObject(hdc, pen));
+	HBRUSH br     = ::CreateSolidBrush(RGB(170, 170, 170));
+	HBRUSH oldbr  = static_cast<HBRUSH>(::SelectObject(hdc, br));
 	Rectangle(hdc, Left, Top, Left + (y_br - y_bl), Top + (C_CELLH * y_th / 13 - 2));
 	SelectObject(hdc, oldpen);
 	SelectObject(hdc, oldbr);
@@ -553,9 +553,9 @@ void TDateCalendar::OnPaint(HWND hWnd)
 	SelectObject(hdc, oldpen);
 	ZDeleteWinGdiObject(&pen);
 	{
-		HPEN   bg_pen = CreatePen(PS_SOLID, 1, RGB(127, 127, 127));
+		HPEN   bg_pen = ::CreatePen(PS_SOLID, 1, RGB(127, 127, 127));
 		HPEN   old_bg_pen = static_cast<HPEN>(::SelectObject(hdc, bg_pen));
-		HBRUSH bg_br = CreateSolidBrush(C_BACKCOL);
+		HBRUSH bg_br = ::CreateSolidBrush(C_BACKCOL);
 		HBRUSH old_bg_br = static_cast<HBRUSH>(::SelectObject(hdc, bg_br));
 		Rectangle(hdc, Left - 2, Top - 1, Left + (y_br - y_bl), Top + C_CELLH * y_th / 13 * 7);
 		SelectObject(hdc, old_bg_pen);

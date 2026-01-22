@@ -1956,9 +1956,9 @@ PPWhatmanWindow::PPWhatmanWindow(int mode) : TWindowBase(L"SLibWindowBase", wbcD
 {
 	St.Mode = mode;
 	St.SelectedObjIdx = -1;
-	Tb.CreatePen(penMain, SPaintObj::psSolid, 5, SColor(SClrGreen));
-	Tb.CreateBrush(brBackg, SPaintObj::bsSolid, SColor(SClrWhite), 0);
-	Tb.CreateBrush(brGreen, SPaintObj::bsSolid, SColor(SClrGreen), 0);
+	Tb.CreatePen_(penMain, SPaintObj::psSolid, 5, SColor(SClrGreen));
+	Tb.CreateBrush_(brBackg, SPaintObj::bsSolid, SColor(SClrWhite), 0);
+	Tb.CreateBrush_(brGreen, SPaintObj::bsSolid, SColor(SClrGreen), 0);
 	Tb.CreateFont_(fontMain, "Arial Cyr", SDrawContext::CalcScreenFontSizePt(9), SFontDescr::fAntialias);
 	{
 		int    tool_text_font_id = Tb.CreateFont_(0, "Arial Narrow", SDrawContext::CalcScreenFontSizePt(8), SFontDescr::fAntialias);
@@ -1981,21 +1981,21 @@ PPWhatmanWindow::PPWhatmanWindow(int mode) : TWindowBase(L"SLibWindowBase", wbcD
 	Tb.CreateCursor(curResizeNWSE, IDC_SIZE_NWSE);
 	Tb.CreateCursor(curOdious, IDC_PPYPOINT); // @debug
 
-	Tb.CreatePen(penObjBorder, SPaintObj::psSolid, 0.0f, SColor(SClrBlack));
-	Tb.CreatePen(penObjBorderSel, SPaintObj::psDash, 1.0f, SColor(SClrBlue));
-	Tb.CreatePen(penObjBorderCur, SPaintObj::psDash, 1.0f, SColor(SClrLime));
-	Tb.CreatePen(penObjRszSq, SPaintObj::psSolid, 1.0f, SColor(SClrBlack));
-	Tb.CreateBrush(brObjRszSq, SPaintObj::bsSolid, SColor(SClrLime), 0);
-	Tb.CreatePen(penObjNonmovBorder, SPaintObj::psSolid, 1.0f, SColor(SClrDeepskyblue));
-	Tb.CreatePen(penRule, SPaintObj::psSolid, 1.0f, SColor(SClrBlack));
-	Tb.CreateBrush(brRule, SPaintObj::bsSolid, SColor(SClrYellow).Lighten(0.5f), 0);
+	Tb.CreatePen_(penObjBorder, SPaintObj::psSolid, 0.0f, SColor(SClrBlack));
+	Tb.CreatePen_(penObjBorderSel, SPaintObj::psDash, 1.0f, SColor(SClrBlue));
+	Tb.CreatePen_(penObjBorderCur, SPaintObj::psDash, 1.0f, SColor(SClrLime));
+	Tb.CreatePen_(penObjRszSq, SPaintObj::psSolid, 1.0f, SColor(SClrBlack));
+	Tb.CreateBrush_(brObjRszSq, SPaintObj::bsSolid, SColor(SClrLime), 0);
+	Tb.CreatePen_(penObjNonmovBorder, SPaintObj::psSolid, 1.0f, SColor(SClrDeepskyblue));
+	Tb.CreatePen_(penRule, SPaintObj::psSolid, 1.0f, SColor(SClrBlack));
+	Tb.CreateBrush_(brRule, SPaintObj::bsSolid, SColor(SClrYellow).Lighten(0.5f), 0);
 
-	Tb.CreatePen(penGrid, SPaintObj::psDash, 1.0f, SColor(0.7f));
-	Tb.CreatePen(penSubGrid, SPaintObj::psDot, 1.0f, SColor(0.7f));
-	Tb.CreatePen(penLayoutBorder, SPaintObj::psDot, 2.0f, SColor(SClrDarkgreen));
-	Tb.CreatePen(penLayoutEvenBorder, SPaintObj::psSolid, 2.0f, SColor(0xC3, 0xDC, 0xE6)); // @v11.2.2 рамки лейаутов четного уровня 
-	Tb.CreatePen(penLayoutOddBorder, SPaintObj::psSolid, 2.0f, SColor(0xB8, 0xBE, 0xFD)); // @v11.2.2 рамки лейаутов нечетного уровня 
-	Tb.CreatePen(penContainerCandidateBorder, SPaintObj::psSolid, 2.0f, SColor(SClrCoral));
+	Tb.CreatePen_(penGrid, SPaintObj::psDash, 1.0f, SColor(0.7f));
+	Tb.CreatePen_(penSubGrid, SPaintObj::psDot, 1.0f, SColor(0.7f));
+	Tb.CreatePen_(penLayoutBorder, SPaintObj::psDot, 2.0f, SColor(SClrDarkgreen));
+	Tb.CreatePen_(penLayoutEvenBorder, SPaintObj::psSolid, 2.0f, SColor(0xC3, 0xDC, 0xE6)); // @v11.2.2 рамки лейаутов четного уровня 
+	Tb.CreatePen_(penLayoutOddBorder, SPaintObj::psSolid, 2.0f, SColor(0xB8, 0xBE, 0xFD)); // @v11.2.2 рамки лейаутов нечетного уровня 
+	Tb.CreatePen_(penContainerCandidateBorder, SPaintObj::psSolid, 2.0f, SColor(SClrCoral));
 
 	W.SetTool(TWhatman::toolPenObjBorder, penObjBorder);
 	W.SetTool(TWhatman::toolPenObjBorderSel, penObjBorderSel);

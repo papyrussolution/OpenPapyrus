@@ -1,5 +1,5 @@
 // V_LOCTR.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2019, 2020, 2021, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2019, 2020, 2021, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1238,7 +1238,7 @@ int PPViewLocTransf::AddItem(PPID curLocID, long curRByLoc)
 			bill_filt.Flags |= BillFilt::fAsSelector;
 			PPViewBill bill_view;
 			if(bill_view.Init_(&bill_filt)) {
-				while(ok < 0 && bill_view.Browse(0) > 0) {
+				while(ok < 0 && bill_view.Browse(false) > 0) {
 					const PPID bill_id = static_cast<const BillFilt *>(bill_view.GetBaseFilt())->Sel;
 					if(DispBillList.addUnique(bill_id) > 0) {
 						if(ProcessDispBill(bill_id, 0, 1))

@@ -1,5 +1,5 @@
 // DBENTSET.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2014, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2025
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2014, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2025, 2026
 // @codepage UTF-8
 // @Kernel
 //
@@ -130,8 +130,7 @@ int DbLoginBlock::UrlCompose(SString & rUrlBuf) const
 		if(pw_isnt_empty) {
 			char   pw_buf[512];
 			size_t real_size = 0;
-			// @v11.1.1 IdeaRandMem(pw_buf, sizeof(pw_buf));
-			SObfuscateBuffer(pw_buf, sizeof(pw_buf)); // @v11.1.1 
+			SObfuscateBuffer(pw_buf, sizeof(pw_buf));
 			temp_buf.CopyTo(pw_buf, sizeof(pw_buf));
 			IdeaEncrypt(P_DefaultSymb, pw_buf, PWCRYPTBUFSIZE);
 			temp_buf.EncodeMime64(pw_buf, PWCRYPTBUFSIZE);
@@ -230,8 +229,7 @@ int PPDbEntrySet2::MakeProfileLine(const DbLoginBlock * pBlk, SString & rBuf) co
 		if(temp_buf.NotEmptyS()) {
 			char   pw_buf[512];
 			size_t real_size = 0;
-			// @v11.1.1 IdeaRandMem(pw_buf, sizeof(pw_buf));
-			SObfuscateBuffer(pw_buf, sizeof(pw_buf)); // @v11.1.1 
+			SObfuscateBuffer(pw_buf, sizeof(pw_buf));
 			temp_buf.CopyTo(pw_buf, sizeof(pw_buf));
 			IdeaEncrypt(P_DefaultSymb, pw_buf, PWCRYPTBUFSIZE);
 			temp_buf.EncodeMime64(pw_buf, PWCRYPTBUFSIZE);
@@ -265,16 +263,96 @@ int PPDbEntrySet2::ParseProfileLine(const char * pLine, DbLoginBlock * pBlk) con
 	return ok;
 }
 
-int PPDbEntrySet2::ReadFromProfile(PPIniFile * pIniFile, int existsPathOnly /*= 1*/, int dontLoadDefDict /*= 0*/)
+int PPDbEntrySet2::ProcessSingleDbEntry(const char * pSymb, const char * pDescr, const char * pDefDict, bool existsPathOnly/*=true*/, bool dontLoadDefDict/*=false*/) // @v12.5.4
+{
+	int    ok = -1;
+	SString entry_symb(pSymb);
+	SString entry_buf(pDescr);
+	if(entry_symb.NotEmpty() && entry_buf.NotEmpty()) {
+		SString temp_buf;
+		SString db_path;
+		SString server_type_symb;
+		DbLoginBlock blk;
+		//p_ini_file->GetParam(P_DbNameSect, entry_symb, entry_buf);
+		// @v12.4.6 {
+		if(entry_symb.IsLegalUtf8()) {
+			entry_symb.Transf(CTRANSF_UTF8_TO_INNER);
+		}
+		// } @v12.4.6 
+		blk.SetAttr(DbLoginBlock::attrDbSymb, entry_symb);
+		const  int r = ParseProfileLine(entry_buf, &blk);
+		if(r) {
+			blk.GetAttr(DbLoginBlock::attrDictPath, temp_buf);
+			blk.GetAttr(DbLoginBlock::attrDbPath, db_path);
+			blk.GetAttr(DbLoginBlock::attrServerType, server_type_symb);
+			const SqlServerType server_type = GetSqlServerTypeBySymb(server_type_symb);
+			if(db_path.IsEmpty()) {
+				if(!dontLoadDefDict && !isempty(pDefDict))
+					blk.SetAttr(DbLoginBlock::attrDbPath, pDefDict);
+			}
+			{
+				bool do_add_entry = true;
+				if(existsPathOnly) {
+					if(server_type == sqlstMySQL) { // @v10.9.3 @debug (server_type != sqlstMySQL)
+						; // ok
+					}
+					else if(server_type == sqlstSQLite) {
+						if(!SFile::IsDir(db_path)) {
+							SFsPath ps(db_path);
+							if(ps.Nam.NotEmpty()) {
+								ps.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
+								if(!SFile::IsDir(temp_buf))
+									do_add_entry = false;
+							}
+						}
+					}
+					else {
+						//
+						// @construction ps.Split(db_path);
+						// @todo Здесь необходимо идентифицировать доступность
+						// компьютера, на который ссылается каталог и, если он не доступен,
+						// запомнить дабы для следующих каталогов не проверять доступность (ибо очень долго).
+						//
+						if(!SFile::IsDir(db_path))
+							do_add_entry = false;
+					}
+				}
+				if(do_add_entry) {
+					THROW_SL(Add(0, &blk, 1));
+					ok = 1;
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPDbEntrySet2::SetupSingleDbEntry(const char * pSymb, const char * pDescr) // @v12.5.4
+{
+	int    ok = -1;
+	if(!isempty(pSymb) && !isempty(pDescr)) {
+		SString entry_symb(pSymb);
+		SString entry_buf(pDescr);
+		const  int pser = ProcessSingleDbEntry(entry_symb, entry_buf, 0, false, true);
+		if(pser > 0)
+			ok = 1;
+		else if(!pser)
+			ok = 0;
+	}
+	return ok;
+}
+
+int PPDbEntrySet2::ReadFromProfile(PPIniFile * pIniFile, bool existsPathOnly/*=true*/, bool dontLoadDefDict/*=false*/)
 {
 	int    ok = 1;
-	SString temp_buf;
+	// @v12.5.4 SString temp_buf;
 	SString entry_symb;
 	SString entry_buf;
 	SString def_dict;
 	SString def_data;
-	SString db_path;
-	SString server_type_symb;
+	// @v12.5.4 SString db_path;
+	// @v12.5.4 SString server_type_symb;
 	PPIniFile * p_ini_file = NZOR(pIniFile, new PPIniFile);
 	THROW_MEM(p_ini_file);
 	THROW_SL(p_ini_file->IsValid());
@@ -287,13 +365,16 @@ int PPDbEntrySet2::ReadFromProfile(PPIniFile * pIniFile, int existsPathOnly /*= 
 		for(uint pos = 0; entries.get(&pos, entry_symb);) {
 			DbLoginBlock blk;
 			p_ini_file->GetParam(P_DbNameSect, entry_symb, entry_buf);
+			const  int pser = ProcessSingleDbEntry(entry_symb, entry_buf, def_dict, existsPathOnly, dontLoadDefDict); // @v12.5.4
+			THROW(pser); // @v12.5.4
+#if 0 // @v12.5.4 {
 			// @v12.4.6 {
 			if(entry_symb.IsLegalUtf8()) {
 				entry_symb.Transf(CTRANSF_UTF8_TO_INNER);
 			}
 			// } @v12.4.6 
 			blk.SetAttr(DbLoginBlock::attrDbSymb, entry_symb);
-			int    r = ParseProfileLine(entry_buf, &blk);
+			const  int r = ParseProfileLine(entry_buf, &blk);
 			if(r) {
 				blk.GetAttr(DbLoginBlock::attrDictPath, temp_buf);
 				blk.GetAttr(DbLoginBlock::attrDbPath, db_path);
@@ -335,6 +416,7 @@ int PPDbEntrySet2::ReadFromProfile(PPIniFile * pIniFile, int existsPathOnly /*= 
 					}
 				}
 			}
+#endif // } 0 @v12.5.4
 		}
 	}
 	if(def_data.IsEmpty())

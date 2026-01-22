@@ -1,5 +1,5 @@
  // GLBSRVS.CPP
- // Copyright (c) Erik Sobolev 2020, 2021, 2022, 2024, 2025
+ // Copyright (c) Erik Sobolev 2020, 2021, 2022, 2024, 2025, 2026
  //
 #include <pp.h>
 #pragma hdrstop
@@ -287,7 +287,7 @@ int VkInterface::Setup(PPID guaID, uint flags)
 				long    outer_wareid_tag_id = 0;
 				if(p_tag_item && p_tag_item->GetInt(&outer_wareid_tag_id)) {
 					PPObjTag tag_obj;
-					PPObjectTag tag_rec;
+					PPObjectTag2 tag_rec;
 					if(tag_obj.Fetch(outer_wareid_tag_id, &tag_rec) > 0) {
 						assert(tag_rec.ID == outer_wareid_tag_id); // @paranoic
 						Ib.OuterWareIdentTagID = tag_rec.ID;
@@ -1698,7 +1698,7 @@ static int Setup_GlobalService_VK_InitParam(SetupGlobalServiceVK_Param & rP, int
 			// Если необходимо - создаем зарезервированные теги.
 			// Note: Функция PPObject::MakeReserve вызывается со своей собственной транзакцией
 			//
-			PPObjectTag tag_rec;
+			PPObjectTag2 tag_rec;
 			int  do_make_reserved = 0;
 			if(tag_obj.Search(PPTAG_GUA_OUTERWAREIDTAG, &tag_rec) <= 0)
 				do_make_reserved = 1;
@@ -1734,7 +1734,7 @@ static int Setup_GlobalService_VK_InitParam(SetupGlobalServiceVK_Param & rP, int
 						if(!gua_pack.TagL.GetItem(PPTAG_GUA_OUTERWAREIDTAG)) {
 							PPID  outerwareid_tag_id = 0;
 							{
-								PPObjectTag temp_rec;
+								PPObjectTag2 temp_rec;
 								PPObjTagPacket new_tag_pack;
 								PPID   new_tag_id = 0;
 								PPLoadString("goodsident", temp_buf);

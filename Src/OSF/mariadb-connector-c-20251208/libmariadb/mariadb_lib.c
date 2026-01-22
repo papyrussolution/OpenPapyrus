@@ -1562,11 +1562,9 @@ uint STDCALL mysql_get_timeout_value_ms(const MYSQL * mysql)
 		return mysql->options.extension->async_context->timeout_value;
 	return 0;
 }
-
-/**************************************************************************
-** Change user and database
-**************************************************************************/
-
+// 
+// Change user and database
+// 
 bool STDCALL mysql_change_user(MYSQL * mysql, const char * user, const char * passwd, const char * db)
 {
 	const MARIADB_CHARSET_INFO * s_cs = mysql->charset;
@@ -1610,14 +1608,16 @@ bool STDCALL mysql_change_user(MYSQL * mysql, const char * user, const char * pa
 // 
 int STDCALL mysql_select_db(MYSQL * mysql, const char * db)
 {
-	int error;
 	if(!db)
 		return 1;
-	if((error = ma_simple_command(mysql, COM_INIT_DB, db, (uint)strlen(db), 0, 0)))
+	else {
+		const int error = ma_simple_command(mysql, COM_INIT_DB, db, (uint)strlen(db), 0, 0);
+		if(!error) {
+			SAlloc::F(mysql->db);
+			mysql->db = sstrdup(db);
+		}
 		return error;
-	SAlloc::F(mysql->db);
-	mysql->db = sstrdup(db);
-	return 0;
+	}
 }
 // 
 // Send a QUIT to the server and close the connection
@@ -1987,7 +1987,7 @@ bool STDCALL mysql_read_query_result(MYSQL * mysql)
 
 int STDCALL mysql_real_query(MYSQL * mysql, const char * query, ulong length)
 {
-	bool   skip_result = OPT_EXT_VAL(mysql, multi_command);
+	const  bool skip_result = OPT_EXT_VAL(mysql, multi_command);
 	if(length == _FFFF32)
 		length = static_cast<ulong>(sstrlen(query));
 	free_old_query(mysql);
@@ -2016,7 +2016,7 @@ MYSQL_RES * STDCALL mysql_store_result(MYSQL * mysql)
 		SET_CLIENT_ERROR(mysql, CR_OUT_OF_MEMORY, SQLSTATE_UNKNOWN, 0);
 		return 0;
 	}
-	result->eof = 1;                        /* Marker for buffered */
+	result->eof = 1; // Marker for buffered
 	result->lengths = (ulong*)(result+1);
 	if(!(result->data = mysql->methods->db_read_rows(mysql, mysql->fields, mysql->field_count))) {
 		SAlloc::F(result);
@@ -2147,20 +2147,20 @@ ulong * STDCALL mysql_fetch_lengths(MYSQL_RES * res)
 {
 	ulong * lengths, * prev_length;
 	char * start;
-	MYSQL_ROW column, end;
-
-	if(!(column = res->current_row))
-		return 0;                       /* Something is wrong */
+	MYSQL_ROW end;
+	MYSQL_ROW column = res->current_row;
+	if(!column)
+		return 0; /* Something is wrong */
 	if(res->data) {
 		start = 0;
-		prev_length = 0;                /* Keep gcc happy */
+		prev_length = 0; /* Keep gcc happy */
 		lengths = res->lengths;
 		for(end = column+res->field_count+1; column != end; column++, lengths++) {
 			if(!*column) {
 				*lengths = 0;   /* Null */
 				continue;
 			}
-			if(start)               /* Found end of prev string */
+			if(start) /* Found end of prev string */
 				*prev_length = (uint)(*column-start-1);
 			start = *column;
 			prev_length = lengths;
@@ -2177,7 +2177,8 @@ void STDCALL mysql_data_seek(MYSQL_RES * result, uint64 row)
 {
 	MYSQL_ROWS    * tmp = 0;
 	if(result->data)
-		for(tmp = result->data->data; row-- && tmp; tmp = tmp->next);
+		for(tmp = result->data->data; row-- && tmp; tmp = tmp->next)
+			;
 	result->current_row = 0;
 	result->data_cursor = tmp;
 }
@@ -2219,7 +2220,7 @@ MYSQL_RES * STDCALL mysql_list_dbs(MYSQL * mysql, const char * wild)
 	snprintf(buff, 255, "SHOW DATABASES LIKE '%s'", wild ? wild : "%");
 	if(mysql_query(mysql, buff))
 		return 0;
-	return (mysql_store_result(mysql));
+	return mysql_store_result(mysql);
 }
 
 /********************************************************
@@ -2235,7 +2236,6 @@ MYSQL_RES * STDCALL mysql_list_dbs(MYSQL * mysql, const char * wild)
 MYSQL_RES * STDCALL mysql_list_tables(MYSQL * mysql, const char * wild)
 {
 	char buff[255];
-
 	snprintf(buff, 255, "SHOW TABLES LIKE '%s'", wild ? wild : "%");
 	if(mysql_query(mysql, buff))
 		return 0;
@@ -2255,16 +2255,10 @@ MYSQL_RES * STDCALL mysql_list_fields(MYSQL * mysql, const char * table, const c
 	MYSQL_DATA * query;
 	char buff[255];
 	int length = 0;
-
 	LINT_INIT(query);
-
 	length = snprintf(buff, 128, "%s%c%s", table, '\0', wild ? wild : "");
-
-	if(ma_simple_command(mysql, COM_FIELD_LIST, buff, length, 1, 0) ||
-	    !(query = mysql->methods->db_read_rows(mysql, (MYSQL_FIELD*)0,
-	    ma_result_set_rows(mysql))))
+	if(ma_simple_command(mysql, COM_FIELD_LIST, buff, length, 1, 0) || !(query = mysql->methods->db_read_rows(mysql, (MYSQL_FIELD*)0, ma_result_set_rows(mysql))))
 		return NULL;
-
 	free_old_query(mysql);
 	if(!(result = (MYSQL_RES*)SAlloc::C(1, sizeof(MYSQL_RES)))) {
 		free_rows(query);
@@ -2278,25 +2272,20 @@ MYSQL_RES * STDCALL mysql_list_fields(MYSQL * mysql, const char * table, const c
 		result->field_count, 1);
 	if(result->fields)
 		return result;
-
 	SAlloc::F(result);
 	return NULL;
 }
 
 /********************************************************
-   Warning: mysql_list_processes is deprecated and will be
-          removed. Use SQL statement "SHOW PROCESSLIST"
-          instead
+   Warning: mysql_list_processes is deprecated and will be removed. Use SQL statement "SHOW PROCESSLIST" instead
 ********************************************************/
 
 /* List all running processes (threads) in server */
-
 MYSQL_RES * STDCALL mysql_list_processes(MYSQL * mysql)
 {
 	MYSQL_DATA * fields;
 	uint field_count;
 	uchar * pos;
-
 	LINT_INIT(fields);
 	if(ma_simple_command(mysql, COM_PROCESS_INFO, 0, 0, 0, 0))
 		return NULL;
@@ -2331,13 +2320,11 @@ int STDCALL mysql_refresh(MYSQL * mysql, uint options)
 int STDCALL mysql_kill(MYSQL * mysql, ulong pid)
 {
 	char buff[16];
-
 	/* process id can't be larger than 4-bytes */
 	if(pid & (~0xFFFFFFFFUL)) {
 		my_set_error(mysql, CR_CONNECTION_ERROR, SQLSTATE_UNKNOWN, 0);
 		return 1;
 	}
-
 	snprintf(buff, sizeof buff, "KILL %lu", pid);
 	return mysql_real_query(mysql, (char*)buff, (ulong)strlen(buff));
 }
@@ -2361,8 +2348,7 @@ char * STDCALL mysql_stat(MYSQL * mysql)
 
 int STDCALL mysql_ping(MYSQL * mysql)
 {
-	int rc;
-	rc = ma_simple_command(mysql, COM_PING, 0, 0, 0, 0);
+	int rc = ma_simple_command(mysql, COM_PING, 0, 0, 0, 0);
 	if(rc && mysql->options.reconnect)
 		rc = ma_simple_command(mysql, COM_PING, 0, 0, 0, 0);
 	return rc;
@@ -2391,40 +2377,22 @@ static size_t mariadb_server_version_id(MYSQL * mysql)
 	return (major * 10000L + (ulong)(minor * 100L + patch));
 }
 
-ulong STDCALL mysql_get_server_version(MYSQL * mysql)
-{
-	return (ulong)mariadb_server_version_id(mysql);
-}
-
-char * STDCALL mysql_get_host_info(MYSQL * mysql)
-{
-	return(mysql->host_info);
-}
-
-uint STDCALL mysql_get_proto_info(MYSQL * mysql)
-{
-	return (mysql->protocol_version);
-}
-
-const char * STDCALL mysql_get_client_info(void)
-{
-	return (char*)MARIADB_PACKAGE_VERSION;
-}
+ulong  STDCALL mysql_get_server_version(MYSQL * mysql) { return (ulong)mariadb_server_version_id(mysql); }
+char * STDCALL mysql_get_host_info(MYSQL * mysql) { return(mysql->host_info); }
+uint   STDCALL mysql_get_proto_info(MYSQL * mysql) { return (mysql->protocol_version); }
+const  char * STDCALL mysql_get_client_info(void) { return (char*)MARIADB_PACKAGE_VERSION; }
 
 static size_t get_store_length(size_t length)
 {
   #define MAX_STORE_SIZE 9
 	uchar buffer[MAX_STORE_SIZE], * p;
-
 	/* We just store the length and subtract offset of our buffer
 	   to determine the length */
 	p = mysql_net_store_length(buffer, length);
 	return p - buffer;
 }
 
-uchar * ma_get_hash_keyval(const uchar * hash_entry,
-    uint * length,
-    bool not_used __attribute__((unused)))
+uchar * ma_get_hash_keyval(const uchar * hash_entry, uint * length, bool not_used __attribute__((unused)))
 {
 	/* Hash entry has the following format:
 	   Offset: 0               key (\0 terminated)
@@ -2447,11 +2415,8 @@ int mysql_optionsv(MYSQL * mysql, enum mysql_option option, ...)
 	void * arg1;
 	size_t stacksize;
 	struct mysql_async_context * ctxt;
-
 	va_start(ap, option);
-
 	arg1 = va_arg(ap, void *);
-
 	switch(option) {
 		case MYSQL_OPT_CONNECT_TIMEOUT:
 		    mysql->options.connect_timeout = *(uint*)arg1;
@@ -2470,8 +2435,7 @@ int mysql_optionsv(MYSQL * mysql, enum mysql_option option, ...)
 			    mysql->options.client_flag &= ~CLIENT_LOCAL_FILES;
 		    if(arg1) {
 			    CHECK_OPT_EXTENSION_SET(&mysql->options);
-			    mysql->extension->auto_local_infile = *(uint*)arg1 == LOCAL_INFILE_MODE_AUTO
-				? WAIT_FOR_QUERY : ALWAYS_ACCEPT;
+			    mysql->extension->auto_local_infile = *(uint*)arg1 == LOCAL_INFILE_MODE_AUTO ? WAIT_FOR_QUERY : ALWAYS_ACCEPT;
 		    }
 		    break;
 		case MYSQL_INIT_COMMAND:
@@ -3551,8 +3515,7 @@ int mariadb_get_infov(MYSQL * mysql, enum mariadb_value value, void * arg, ...)
 		    break;
 		case MARIADB_CHARSET_NAME:
 	    {
-		    char * name;
-		    name = va_arg(ap, char *);
+		    char * name = va_arg(ap, char *);
 		    if(name)
 			    *((MARIADB_CHARSET_INFO**)arg) = (MARIADB_CHARSET_INFO*)mysql_find_charset_name(name);
 		    else
@@ -3561,8 +3524,7 @@ int mariadb_get_infov(MYSQL * mysql, enum mariadb_value value, void * arg, ...)
 	    break;
 		case MARIADB_CHARSET_ID:
 	    {
-		    uint nr;
-		    nr = va_arg(ap, uint);
+		    uint nr = va_arg(ap, uint);
 		    *((MARIADB_CHARSET_INFO**)arg) = (MARIADB_CHARSET_INFO*)mysql_find_charset_nr(nr);
 	    }
 	    break;

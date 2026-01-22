@@ -1240,13 +1240,9 @@ void GnuPlot::DrawEdge(GpTermEntry * pTerm, GpEdge * e, GpVertex * v1, GpVertex 
 	// We really just want to extract a colorspec.
 	t_colorspec color = e->lp->pm3d_color;
 	lp_style_type lptemp = *(e->lp);
-	bool recolor = FALSE;
-	bool arrow = oneof2(lptemp.PtType, PT_ARROWHEAD, PT_BACKARROW);
-	int varcolor;
-	if(arrow && (e->style == PT_BACKARROW))
-		varcolor = static_cast<int>(v2->real_z);
-	else
-		varcolor = static_cast<int>(v1->real_z);
+	bool   recolor = false;
+	bool   arrow = oneof2(lptemp.PtType, PT_ARROWHEAD, PT_BACKARROW);
+	const  int varcolor = (arrow && (e->style == PT_BACKARROW)) ? static_cast<int>(v2->real_z) : static_cast<int>(v1->real_z);
 	// This handles 'lc rgb variable' 
 	if(color.type == TC_RGB && color.lt == LT_COLORFROMCOLUMN) {
 		recolor = TRUE;

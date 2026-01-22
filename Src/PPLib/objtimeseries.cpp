@@ -1260,7 +1260,7 @@ int PPObjTimeSeries::EditDialog(PPTimeSeriesPacket * pEntry)
 			THROW(Obj.CheckName(_id, temp_buf, 1));
 			STRNSCPY(Data.Rec.Name, temp_buf);
 			getCtrlString(sel = CTL_TIMSER_SYMB, temp_buf);
-			THROW(Obj.P_Ref->CheckUniqueSymb(Obj.Obj, _id, temp_buf, offsetof(ReferenceTbl::Rec, Symb)));
+			THROW(Obj.P_Ref->CheckUniqueSymb(Obj.Obj, _id, temp_buf, offsetof(Reference2Tbl::Rec, Symb)));
 			STRNSCPY(Data.Rec.Symb, temp_buf);
 			GetClusterData(CTL_TIMSER_TYPE,  &Data.Rec.Type);
 			GetClusterData(CTL_TIMSER_FLAGS, &Data.Rec.Flags);

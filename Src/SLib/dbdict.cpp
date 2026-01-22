@@ -324,28 +324,20 @@ BDictionary::BDictionary(int btrDict, const char * pPath) :
 	return ok;
 }
 
-/*virtual*/ int BDictionary::StartTransaction()
-	{ return Btrieve::StartTransaction(1, 0); }
-/*virtual*/ int BDictionary::CommitWork()
-	{ return Btrieve::CommitWork(); }
-/*virtual*/ int BDictionary::RollbackWork()
-	{ return Btrieve::RollbackWork(); }
+/*virtual*/ int BDictionary::StartTransaction() { return Btrieve::StartTransaction(1, 0); }
+/*virtual*/ int BDictionary::CommitWork() { return Btrieve::CommitWork(); }
+/*virtual*/ int BDictionary::RollbackWork() { return Btrieve::RollbackWork(); }
 /*virtual*/ int BDictionary::Implement_Open(DBTable * pTbl, const char * pFileName, int openMode, char * pPassword)
 	{ return pTbl->Btr_Open(pFileName, openMode, pPassword); }
-/*virtual*/ int BDictionary::Implement_Close(DBTable * pTbl)
-	{ return pTbl->Btr_Close(); }
+/*virtual*/ int BDictionary::Implement_Close(DBTable * pTbl) { return pTbl->Btr_Close(); }
 /*virtual*/ int BDictionary::Implement_Search(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf)
 	{ return pTbl->Btr_Implement_Search(idx, pKey, srchMode, sf); }
 /*virtual*/ int BDictionary::Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf, const void * pData)
 	{ return pTbl->Btr_Implement_InsertRec(idx, pKeyBuf, pData); }
-/*virtual*/ int BDictionary::Implement_UpdateRec(DBTable * pTbl, const void * pDataBuf, int ncc)
-	{ return pTbl->Btr_Implement_UpdateRec(pDataBuf, ncc); }
-/*virtual*/ int BDictionary::Implement_DeleteRec(DBTable * pTbl)
-	{ return pTbl->Btr_Implement_DeleteRec(); }
-/*virtual*/ int BDictionary::Implement_BExtInsert(BExtInsert * pBei)
-	{ return pBei->getTable()->Btr_Implement_BExtInsert(pBei); }
-/*virtual*/ int BDictionary::Implement_GetPosition(DBTable * pTbl, DBRowId * pPos)
-	{ return pTbl->Btr_Implement_GetPosition(pPos); }
+/*virtual*/ int BDictionary::Implement_UpdateRec(DBTable * pTbl, const void * pDataBuf, int ncc) { return pTbl->Btr_Implement_UpdateRec(pDataBuf, ncc); }
+/*virtual*/ int BDictionary::Implement_DeleteRec(DBTable * pTbl) { return pTbl->Btr_Implement_DeleteRec(); }
+/*virtual*/ int BDictionary::Implement_BExtInsert(BExtInsert * pBei) { return pBei->getTable()->Btr_Implement_BExtInsert(pBei); }
+/*virtual*/ int BDictionary::Implement_GetPosition(DBTable * pTbl, DBRowId * pPos) { return pTbl->Btr_Implement_GetPosition(pPos); }
 
 BDictionary::~BDictionary()
 {

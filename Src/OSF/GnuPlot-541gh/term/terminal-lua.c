@@ -3,6 +3,9 @@
 //
 #include <gnuplot.h>
 #pragma hdrstop
+
+#if 0 // @v12.5.4 (lua is removed from the solution) {
+
 #include "driver.h"
 
 // @experimental {
@@ -86,7 +89,6 @@ static int tb, luaterm, image_cnt, image_extern;
 /*
  * two helper functions to ease transitioning to lua 5.2
  */
-
 /*
  * same as lua_getfield(pL, LUA_GLOBALINDEXS, f) in lua 5.1
  */
@@ -671,7 +673,6 @@ static const char* LUA_get_fillstyle(int style)
 	}
 	return(style_str);
 }
-
 /*
  * Handle options
  */
@@ -1370,3 +1371,5 @@ START_HELP(tikz)
 " to print terminal options."
 END_HELP(tikz)
 #endif /* TERM_HELP */
+
+#endif // } @v12.5.4 (lua is removed from the solution)

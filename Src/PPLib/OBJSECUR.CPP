@@ -383,7 +383,7 @@ int PPObjSecur::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	int    ok = DBRPL_OK;
 	if(msg == DBMSG_OBJDELETE) {
 		if(_obj == PPOBJ_CONFIG && Obj == PPOBJ_USRGRP) {
-			ReferenceTbl::Key2 k;
+			Reference2Tbl::Key2 k;
 			k.ObjType = Obj;
 			k.Val1    = _id;
 			int    r = SearchByKey(P_Ref, 2, &k, 0);

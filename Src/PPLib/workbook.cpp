@@ -2159,7 +2159,7 @@ int PPObjWorkbook::Helper_UhttToNativePacket(ProcessUhttImportBlock & rBlk, cons
 	if(pUhttPacket->TagList.getCount()) {
 		PPObjTag tag_obj;
 		PPID   tag_id = 0;
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		for(uint i = 0; i < pUhttPacket->TagList.getCount(); i++) {
 			const UhttTagItem * p_ut_item = pUhttPacket->TagList.at(i);
 			if(p_ut_item && tag_obj.SearchBySymb(p_ut_item->Symb, &tag_id, &tag_rec) > 0) {
@@ -2446,7 +2446,7 @@ int PPObjWorkbook::Helper_ExportToUhtt(PPUhttClient & rUc, PPID id,
 	}
 	{
 		PPObjTag tag_obj;
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		for(uint i = 0; i < pack.TagL.GetCount(); i++) {
 			const ObjTagItem * p_tag_item = pack.TagL.GetItemByPos(i);
 			if(p_tag_item && p_tag_item->GetStr(temp_buf) && temp_buf.NotEmptyS()) {
@@ -3061,7 +3061,7 @@ int PPALDD_UhttWorkbook::NextIteration(long iterId)
 			const ObjTagItem * p_item = r_blk.Pack.TagL.GetItemByPos(r_blk.TagPos);
 			I_TagList.TagTypeID = p_item->TagDataType;
 			{
-				PPObjectTag rec;
+				PPObjectTag2 rec;
 				if(r_blk.TagObj.Fetch(p_item->TagID, &rec) > 0)
 					STRNSCPY(I_TagList.TagSymb, rec.Symb);
 			}

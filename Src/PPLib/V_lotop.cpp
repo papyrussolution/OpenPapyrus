@@ -432,7 +432,7 @@ int STDCALL ViewOpersByLot(PPID lotID, int withZeroLotID)
 	SETFLAG(flt.Flags, LotOpFilt::fZeroLotOps, withZeroLotID);
 	PPWaitStart();
 	THROW(p_v->Init_(&flt));
-	THROW(p_v->Browse(0));
+	THROW(p_v->Browse(false));
 	if(p_v->GetOuterChangesStatus())
 		ok = 1;
 	CATCHZOKPPERR

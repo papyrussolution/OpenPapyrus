@@ -1,12 +1,12 @@
 // DL600R.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Run-time DL600 modules
 //
 #pragma hdrstop
 #define DL600R
 #include <pp.h>
-#include <dl600.h>
+// @v12.5.4 (pp.h) #include <dl600.h>
 //
 //
 //

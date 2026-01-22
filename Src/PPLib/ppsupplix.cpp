@@ -1,5 +1,5 @@
 // PPSUPPLIX.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8 // @v12.1.0 win1251-->utf8
 //
 #include <pp.h>
@@ -1223,7 +1223,7 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 		uuid.ToStr(S_GUID::fmtIDL, db_uuid_text);
 	}
 	{
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		PPID   temp_id = 0;
 		if(obj_tag.SearchBySymb("BALTIKA-ORDER-NO", &temp_id, &tag_rec) > 0) {
 			if(tag_rec.ObjTypeID == PPOBJ_BILL && tag_rec.TagDataType == OTTYP_STRING)
@@ -2026,7 +2026,7 @@ PPID PPSupplExchange_Baltika::GetSaleChannelTagID()
 	if(p_tags_list) {
    		for(uint i = 0; !sale_channel_tag && i < p_tags_list->getCount(); i++) {
    			const  PPID tag_id = *static_cast<const PPID *>(p_tags_list->at(i));
-			PPObjectTag tag_kind;
+			PPObjectTag2 tag_kind;
 			if(obj_tag.Search(tag_id, &tag_kind) > 0 && sale_channel_tag_symb.CmpPrefix(tag_kind.Symb, 1) == 0)
 				sale_channel_tag = tag_id;
 		}
@@ -4294,7 +4294,7 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 				link_bill_rec.ID = 0;
 			{
 				PPObjTag tag_obj;
-				PPObjectTag tag_rec;
+				PPObjectTag2 tag_rec;
 				for(uint tagidx = 0; !special_qk_id && tagidx < pBp->BTagL.GetCount(); tagidx++) {
                     const ObjTagItem * p_tag_item = pBp->BTagL.GetItemByPos(tagidx);
                     if(p_tag_item && p_tag_item->TagDataType == OTTYP_OBJLINK) {
@@ -12712,7 +12712,7 @@ int VladimirskiyStandard::Init()
 	PPObjTag tag_obj;
 	PPID   loc_agent_tag_id = 0;
 	if(tag_obj.FetchBySymb("LOC-AGENT-VLDSTD", &loc_agent_tag_id) > 0) {
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		if(tag_obj.Fetch(loc_agent_tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOCATION) {
 			if(tag_rec.TagDataType == OTTYP_OBJLINK && tag_rec.TagEnumID == PPOBJ_PERSON) {
 				LocAgentTagID = tag_rec.ID;
@@ -13976,7 +13976,7 @@ int COCACOLA::Init()
 {
 	int    ok = -1;
 	PPObjTag tag_obj;
-	PPObjectTag tag_rec;
+	PPObjectTag2 tag_rec;
 	PPID   tag_id = 0;
 	if(tag_obj.SearchBySymb("COCACOLA-LOC-CODE", &tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOCATION && tag_rec.TagDataType == OTTYP_STRING) {
 		LocCodeTagID = tag_rec.ID;
@@ -15506,7 +15506,7 @@ int PrcssrSupplInterchange::Run()
 					// Аварийный канал передачи заказов: почтовые сообщения //
 					//
 					PPObjTag tag_obj;
-					PPObjectTag tag_rec;
+					PPObjectTag2 tag_rec;
 					const  PPID suppl_psn_id = ObjectToPerson(r_eb.P.SupplID, 0);
 					if(suppl_psn_id && tag_obj.SearchBySymb("WBD-ORD-EMAILACC", 0, &tag_rec) > 0 && tag_rec.TagDataType == OTTYP_OBJLINK && tag_rec.TagEnumID == PPOBJ_INTERNETACCOUNT) {
 						ObjTagItem tag_item;

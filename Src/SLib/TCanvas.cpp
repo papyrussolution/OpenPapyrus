@@ -1,5 +1,5 @@
 // TCANVAS.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -211,7 +211,7 @@ int TCanvas2::PopObject()
 	HDC    h_dc = static_cast<HDC>(*this);
 	HGDIOBJ * p_h_obj = static_cast<HGDIOBJ *>(GdiObjStack.pop());
 	assert(p_h_obj);
-	return p_h_obj ? (int)::SelectObject(h_dc, *p_h_obj) : 0;
+	return p_h_obj ? (int)::SelectObject(h_dc, *p_h_obj) : 0; // @x64crit
 }
 
 int FASTCALL TCanvas2::PopObjectN(uint c)
@@ -806,6 +806,12 @@ void TCanvas2::RoundRect(const FRect & rRect, float radius, int penIdent, int br
 	Implement_StrokeAndFill(0, penIdent, brushIdent);
 }
 
+void TCanvas2::RoundRect(const TRect & rRect, int radius, int penIdent, int brushIdent) // @v12.5.4
+{
+	FRect fr(rRect);
+	RoundRect(fr, static_cast<float>(radius), penIdent, brushIdent);
+}
+
 #if 0 // {
 
 BOOL FASTCALL IntDrawRoundRect( PDC dc, INT Left, INT Top, INT Right, INT Bottom, INT Wellipse, INT Hellipse, PBRUSH pbrushPen)
@@ -979,24 +985,24 @@ void TCanvas2::SetBkTranparent()
 int TCanvas2::_DrawText(const TRect & rRect, const char * pText, uint options)
 {
 	char   zero[16];
-	const  int len = sstrlen(pText);
+	const  int len = sstrleni(pText);
 	if(!len) {
 		zero[0] = 0;
 		pText = zero;
 	}
 	RECT   rect = rRect;
-	return BIN(::DrawText(static_cast<HDC>(S.HCtx), SUcSwitch(pText), len, &rect, options));
+	return BIN(::DrawTextW(static_cast<HDC>(S.HCtx), SUcSwitchW(pText), len, &rect, options));
 }
 
 int TCanvas2::TextOut(SPoint2S p, const char * pText)
 {
 	char   zero[16];
-	const  int len = sstrlen(pText);
+	const  int len = sstrleni(pText);
 	if(!len) {
 		zero[0] = 0;
 		pText = zero;
 	}
-	return BIN(::TextOut(static_cast<HDC>(S.HCtx), p.x, p.y, SUcSwitch(pText), len));
+	return BIN(::TextOutW(static_cast<HDC>(S.HCtx), p.x, p.y, SUcSwitchW(pText), len));
 }
 
 TCanvas2::DrawingProcFrame::DrawingProcFrame(TCanvas2 * pCanv, const SDrawFigure * pFig) : P_Canv(pCanv), P_Fig(pFig), MtxAppl(0)
@@ -1417,8 +1423,17 @@ int TCanvas2::Implement_ArcSvg(SPoint2F radius, float xAxisRotation, int large_a
 int TCanvas2::PatBlt(const TRect & rR, int brushId, int opr)
 {
 	int    ok = 1;
-	int    preserve_opr = SetOperator(opr);
+	const  int preserve_opr = SetOperator(opr);
 	Rect(rR, 0, brushId);
+	SetOperator(preserve_opr);
+	return ok;
+}
+
+int TCanvas2::PatBltRound(const TRect & rR, int radius, int brushId, int opr) // @v12.5.4
+{
+	int    ok = 1;
+	const  int preserve_opr = SetOperator(opr);
+	RoundRect(rR, radius, 0, brushId);
 	SetOperator(preserve_opr);
 	return ok;
 }
@@ -1435,103 +1450,162 @@ int TCanvas2::DrawEdge(TRect & rR, long edge, long flags)
 	uint  bdr_type;
 
 	R_Tb.CreateReservedObjects();
-	//
-	// Enforce monochromicity and flatness
-	//
-	if(flags & borderMono)
-		flags |= borderFlat;
-	rc = rR;
-	//
-	// Draw the border segment(s), and calculate the remaining space as we go.
-	//
-	if(bdr_type = (edge & edgeOuter)) {
-DrawBorder:
-		//
-		// Get brushes.  Note the symmetry between raised outer, sunken inner and sunken outer, raised inner.
-		//
-		if(flags & borderFlat) {
-			if(flags & borderMono)
-				brush_br = (bdr_type & edgeOuter) ? SPaintToolBox::rbrWindowFrame : SPaintToolBox::rbrWindow;
-			else
-				brush_br = (bdr_type & edgeOuter) ? SPaintToolBox::rbr3DShadow : SPaintToolBox::rbr3DFace;
-			brush_tl = brush_br;
-		}
-		else {
-			switch(bdr_type) {
-			    // +2 above surface
-			    case edgeRaisedOuter:
-					brush_tl = (flags & borderSoft) ? SPaintToolBox::rbr3DHilight : SPaintToolBox::rbr3DLight;
-					brush_br = SPaintToolBox::rbr3DDkShadow; // 1
-					break;
-			    // +1 above surface
-			    case edgeRaisedInner:
-					brush_tl = (flags & borderSoft) ? SPaintToolBox::rbr3DLight : SPaintToolBox::rbr3DHilight;
-					brush_br = SPaintToolBox::rbr3DShadow; // 2
-					break;
-			    // -1 below surface
-			    case edgeSunkenOuter:
-					brush_tl = (flags & borderSoft) ? SPaintToolBox::rbr3DDkShadow : SPaintToolBox::rbr3DShadow;
-					brush_br = SPaintToolBox::rbr3DHilight; // 5
-					break;
-			    // -2 below surface
-			    case edgeSunkenInner:
-					brush_tl = (flags & borderSoft) ? SPaintToolBox::rbr3DShadow : SPaintToolBox::rbr3DDkShadow;
-					brush_br = SPaintToolBox::rbr3DLight; // 4
-					break;
-			    default:
-					return FALSE;
-			}
-		}
-		//
-		// Draw the sides of the border.  NOTE THAT THE ALGORITHM FAVORS THE
-		// BOTTOM AND RIGHT SIDES, since the light source is assumed to be top
-		// left.  If we ever decide to let the user set the light source to a
-		// particular corner, then change this algorithm.
-		//
-		if(flags & borderDiagonal) {
-			ok = 1; // DrawDiagonal(hdc, &rc, brush_tl, brush_br, flags);
-		}
-		else {
-			//
-			// reset ppbData index
-			//
-			TRect _r;
-			if(flags & borderRight) {
-				rc.b.x -= _cxborder;
-				PatBlt(_r.setwidthrel(rc.b.x, _cxborder).setheightrel(rc.a.y, rc.height()), brush_br, oprOVER);
-			}
-			if(flags & borderBottom) {
-				rc.b.y -= _cyborder;
-				PatBlt(_r.setwidthrel(rc.a.x, rc.width()).setheightrel(rc.b.y, _cyborder), brush_br, oprOVER);
-			}
-			if(flags & borderLeft) {
-				PatBlt(_r.setwidthrel(rc.a.x, _cxborder).setheightrel(rc.a.y, rc.height()), brush_tl, oprOVER);
-				rc.a.x += _cxborder;
-			}
-			if(flags & borderTop) {
-				PatBlt(_r.setwidthrel(rc.a.x, rc.width()).setheightrel(rc.a.y, _cyborder), brush_tl, oprOVER);
-				rc.a.y += _cyborder;
-			}
+	if(edge & edgeExcel01) { // @v12.5.4
+		{
+			/*
+				D4DDDE most internal
+				CFDDDE
+				E9FDFD
+				E9FDFD
+				E9FDFD
+				AEBABB
+				DDEFE0 most external
+			*/ 
+			// 
+			// outer edge: #E0EEEF
+			// inner edge: #DEE5E6
+			// internal: #E2F6F6
+			// 
+			// thick: 8px
+			// outer: 2px
+			// inner: 2px
+			// internal: 4px
+			// 
+
+		//CreatePen_(rpenFrameExcOuter, SPaintObj::psSolid, 2, SColor(0xE0, 0xEE, 0xEF, 0xff));
+		//CreatePen_(rpenFrameExcInner, SPaintObj::psSolid, 2, SColor(0xDE, 0xE5, 0xE6, 0xff));
+		//CreatePen_(rpenFrameExcMiddle, SPaintObj::psSolid, 4, SColor(0xE2, 0xF6, 0xF6, 0xff));
+			/*
+			rc = rR;
+			RoundRect(rc, 5, SPaintToolBox::rpenFrameExcOuter, 0);
+			rc = rR;
+			rc.grow(-1, -1);
+			RoundRect(rc, 5, SPaintToolBox::rpenFrameExcMiddle, 0);
+			rc = rR;
+			rc.grow(-3, -3);
+			RoundRect(rc, 5, SPaintToolBox::rpenFrameExcInner, 0);
+			*/
+			//CreatePen_(rpenFrameExc01, SPaintObj::psSolid, 1, SColor(0xDD, 0xEF, 0xE0));  // @v12.5.4 most external
+			//CreatePen_(rpenFrameExc02, SPaintObj::psSolid, 1, SColor(0xAE, 0xBA, 0xBB));  // @v12.5.4
+			//CreatePen_(rpenFrameExc03, SPaintObj::psSolid, 1, SColor(0xE9, 0xFD, 0xFD));  // @v12.5.4
+			//CreatePen_(rpenFrameExc04, SPaintObj::psSolid, 1, SColor(0xCF, 0xDD, 0xDE));  // @v12.5.4
+			//CreatePen_(rpenFrameExc05, SPaintObj::psSolid, 1, SColor(0xD4, 0xDD, 0xDE));  // @v12.5.4 most internal
+			FRect fr(rR);
+			RoundRect(fr, 5.0f, SPaintToolBox::rpenFrameExc01, 0);
+			fr = rR;
+			fr.Grow(-0.5f, -0.5f);
+			RoundRect(fr, 5, SPaintToolBox::rpenFrameExc02, 0);
+			fr = rR;
+			fr.Grow(-1.0f, -1.0f);
+			RoundRect(fr, 5, SPaintToolBox::rpenFrameExc03, 0);
+			fr = rR;
+			fr.Grow(-2.5f, -2.5f);
+			RoundRect(fr, 5, SPaintToolBox::rpenFrameExc04, 0);
+			fr = rR;
+			fr.Grow(-3.0f, -3.0f);
+			RoundRect(fr, 5, SPaintToolBox::rpenFrameExc05, 0);
 		}
 	}
-	if((bdr_type = (edge & edgeInner)) != 0) {
+	else {
 		//
-		// Strip this so the next time through, bdr_type will be 0.
-		// Otherwise, we'll loop forever.
+		// Enforce monochromicity and flatness
 		//
-		edge &= ~edgeInner;
-		goto DrawBorder;
-	}
-	//
-	// Select old brush back in, if we changed it.
-	//
-	// Fill the middle & clean up if asked
-	//
-	if(flags & borderMiddle) {
-		if(flags & borderDiagonal)
-			ok = 1; // FillTriangle(hdc, &rc, ((flags & borderMono) ? (HBRUSH)SYSHBR(WINDOW) : (HBRUSH)SYSHBR(3DFACE)), flags);
-		else {
-			Rect(rc, 0, (flags & borderMono) ? SPaintToolBox::rbrWindow : SPaintToolBox::rbr3DFace);
+		if(flags & borderMono)
+			flags |= borderFlat;
+		rc = rR;
+		//
+		// Draw the border segment(s), and calculate the remaining space as we go.
+		//
+		bdr_type = (edge & edgeOuter);
+		if(bdr_type) {
+	DrawBorder:
+			//
+			// Get brushes.  Note the symmetry between raised outer, sunken inner and sunken outer, raised inner.
+			//
+			if(flags & borderFlat) {
+				if(flags & borderMono)
+					brush_br = (bdr_type & edgeOuter) ? SPaintToolBox::rbrWindowFrame : SPaintToolBox::rbrWindow;
+				else
+					brush_br = (bdr_type & edgeOuter) ? SPaintToolBox::rbr3DShadow : SPaintToolBox::rbr3DFace;
+				brush_tl = brush_br;
+			}
+			else {
+				switch(bdr_type) {
+					// +2 above surface
+					case edgeRaisedOuter:
+						brush_tl = (flags & borderSoft) ? SPaintToolBox::rbr3DHilight : SPaintToolBox::rbr3DLight;
+						brush_br = SPaintToolBox::rbr3DDkShadow; // 1
+						break;
+					// +1 above surface
+					case edgeRaisedInner:
+						brush_tl = (flags & borderSoft) ? SPaintToolBox::rbr3DLight : SPaintToolBox::rbr3DHilight;
+						brush_br = SPaintToolBox::rbr3DShadow; // 2
+						break;
+					// -1 below surface
+					case edgeSunkenOuter:
+						brush_tl = (flags & borderSoft) ? SPaintToolBox::rbr3DDkShadow : SPaintToolBox::rbr3DShadow;
+						brush_br = SPaintToolBox::rbr3DHilight; // 5
+						break;
+					// -2 below surface
+					case edgeSunkenInner:
+						brush_tl = (flags & borderSoft) ? SPaintToolBox::rbr3DShadow : SPaintToolBox::rbr3DDkShadow;
+						brush_br = SPaintToolBox::rbr3DLight; // 4
+						break;
+					default:
+						return FALSE;
+				}
+			}
+			//
+			// Draw the sides of the border.  NOTE THAT THE ALGORITHM FAVORS THE
+			// BOTTOM AND RIGHT SIDES, since the light source is assumed to be top
+			// left.  If we ever decide to let the user set the light source to a
+			// particular corner, then change this algorithm.
+			//
+			if(flags & borderDiagonal) {
+				ok = 1; // DrawDiagonal(hdc, &rc, brush_tl, brush_br, flags);
+			}
+			else {
+				//
+				// reset ppbData index
+				//
+				TRect _r;
+				if(flags & borderRight) {
+					rc.b.x -= _cxborder;
+					PatBlt(_r.setwidthrel(rc.b.x, _cxborder).setheightrel(rc.a.y, rc.height()), brush_br, oprOVER);
+				}
+				if(flags & borderBottom) {
+					rc.b.y -= _cyborder;
+					PatBlt(_r.setwidthrel(rc.a.x, rc.width()).setheightrel(rc.b.y, _cyborder), brush_br, oprOVER);
+				}
+				if(flags & borderLeft) {
+					PatBlt(_r.setwidthrel(rc.a.x, _cxborder).setheightrel(rc.a.y, rc.height()), brush_tl, oprOVER);
+					rc.a.x += _cxborder;
+				}
+				if(flags & borderTop) {
+					PatBlt(_r.setwidthrel(rc.a.x, rc.width()).setheightrel(rc.a.y, _cyborder), brush_tl, oprOVER);
+					rc.a.y += _cyborder;
+				}
+			}
+		}
+		bdr_type = (edge & edgeInner);
+		if(bdr_type) {
+			//
+			// Strip this so the next time through, bdr_type will be 0. Otherwise, we'll loop forever.
+			//
+			edge &= ~edgeInner;
+			goto DrawBorder;
+		}
+		//
+		// Select old brush back in, if we changed it.
+		//
+		// Fill the middle & clean up if asked
+		//
+		if(flags & borderMiddle) {
+			if(flags & borderDiagonal)
+				ok = 1; // FillTriangle(hdc, &rc, ((flags & borderMono) ? (HBRUSH)SYSHBR(WINDOW) : (HBRUSH)SYSHBR(3DFACE)), flags);
+			else {
+				Rect(rc, 0, (flags & borderMono) ? SPaintToolBox::rbrWindow : SPaintToolBox::rbr3DFace);
+			}
 		}
 	}
 	if(flags & borderAdjust)
@@ -1591,7 +1665,7 @@ int TCanvas::PopObject()
 {
 	HGDIOBJ * p_h_obj = static_cast<HGDIOBJ *>(ObjStack.pop());
 	assert(p_h_obj);
-	return p_h_obj ? (int)::SelectObject(H_Dc, *p_h_obj) : 0;
+	return p_h_obj ? (int)::SelectObject(H_Dc, *p_h_obj) : 0; // @x64crit
 }
 
 int FASTCALL TCanvas::PopObjectN(uint c)
@@ -1637,7 +1711,7 @@ void TCanvas::LineHorz(int xFrom, int xTo, int y)
 
 SPoint2S FASTCALL TCanvas::GetTextSize(const char * pStr)
 {
-	const int len = sstrlen(pStr);
+	const int len = sstrleni(pStr);
 	char   zero[16];
 	if(!len) {
 		memzero(zero, sizeof(zero));
@@ -1645,7 +1719,7 @@ SPoint2S FASTCALL TCanvas::GetTextSize(const char * pStr)
 	}
 	SPoint2S p;
 	SIZE   sz;
-	return ::GetTextExtentPoint32(H_Dc, SUcSwitch(pStr), len, &sz) ?  p.Set(sz.cx, sz.cy) : p.Z(); // @unicodeproblem
+	return ::GetTextExtentPoint32W(H_Dc, SUcSwitchW(pStr), len, &sz) ?  p.Set(sz.cx, sz.cy) : p.Z();
 }
 
 void TCanvas::SetBkTranparent()
@@ -1924,7 +1998,7 @@ SFontSource & SFontSource::Z()
 
 const void * SFontSource::GetHashKey(const void * pCtx, uint * pKeyLen) const
 {
-	ASSIGN_PTR(pKeyLen, Face.Len());
+	ASSIGN_PTR(pKeyLen, Face.Len32());
 	return Face.cptr();
 }
 
@@ -2805,7 +2879,7 @@ int STextLayout::Arrange(SDrawContext & rCtx, SPaintToolBox & rTb)
 		for(uint i = 0; i < pc; i++) {
 			const LAssoc & r_pitem = ParaList.at(i);
 			const uint para_pos = static_cast<uint>(r_pitem.Key);
-			const uint cc = (i == (pc-1)) ? (Text.Len() - para_pos) : (ParaList.at(i+1).Key - para_pos);
+			const uint cc = (i == (pc-1)) ? (Text.Len32() - para_pos) : (ParaList.at(i+1).Key - para_pos);
 			int para_style_ident = NZOR(r_pitem.Val, DefParaStyleIdent);
 			if(!para_style_ident) {
 				SParaDescr pd;
@@ -3503,26 +3577,16 @@ void SPaintObj::Destroy()
 	H = 0;
 }
 
-SPaintObj::Pen * SPaintObj::GetPen() const
-	{ return (T == tPen && F & fInner) ? static_cast<SPaintObj::Pen *>(H) : 0; }
-SPaintObj::Brush * SPaintObj::GetBrush() const
-	{ return (T == tBrush && F & fInner) ? static_cast<SPaintObj::Brush *>(H) : 0; }
-SPaintObj::Font * SPaintObj::GetFont() const
-	{ return (T == tFont && F & fInner) ? static_cast<SPaintObj::Font *>(H) : 0; }
-SPaintObj::Gradient * SPaintObj::GetGradient() const
-	{ return (T == tGradient && F & fInner) ? static_cast<SPaintObj::Gradient *>(H) : 0; }
-SPaintObj::Para * SPaintObj::GetParagraph() const
-	{ return (T == tParagraph && F & fInner) ? static_cast<SPaintObj::Para *>(H) : 0; }
-SPaintObj::CStyle * SPaintObj::GetCStyle() const
-	{ return (T == tCStyle && F & fInner) ? static_cast<SPaintObj::CStyle *>(H) : 0; }
-SPaintObj::operator cairo_pattern_t * () const
-	{ return 0; }
-SPaintObj::operator HCURSOR () const
-	{ return (T == tCursor) ? static_cast<HCURSOR>(H) : static_cast<HCURSOR>(0); }
-SPaintObj::operator HBITMAP () const
-	{ return (T == tBitmap) ? static_cast<HBITMAP>(H) : static_cast<HBITMAP>(0); }
-SPaintObj::operator COLORREF () const
-	{ return oneof3(T, tColor, tPen, tBrush) ? static_cast<COLORREF>(*reinterpret_cast<const SColor *>(&H)) : GetColorRef(SClrBlack); }
+SPaintObj::Pen * SPaintObj::GetPen() const { return (T == tPen && F & fInner) ? static_cast<SPaintObj::Pen *>(H) : 0; }
+SPaintObj::Brush * SPaintObj::GetBrush() const { return (T == tBrush && F & fInner) ? static_cast<SPaintObj::Brush *>(H) : 0; }
+SPaintObj::Font * SPaintObj::GetFont() const { return (T == tFont && F & fInner) ? static_cast<SPaintObj::Font *>(H) : 0; }
+SPaintObj::Gradient * SPaintObj::GetGradient() const { return (T == tGradient && F & fInner) ? static_cast<SPaintObj::Gradient *>(H) : 0; }
+SPaintObj::Para * SPaintObj::GetParagraph() const { return (T == tParagraph && F & fInner) ? static_cast<SPaintObj::Para *>(H) : 0; }
+SPaintObj::CStyle * SPaintObj::GetCStyle() const { return (T == tCStyle && F & fInner) ? static_cast<SPaintObj::CStyle *>(H) : 0; }
+SPaintObj::operator cairo_pattern_t * () const { return 0; }
+SPaintObj::operator HCURSOR () const { return (T == tCursor) ? static_cast<HCURSOR>(H) : static_cast<HCURSOR>(0); }
+SPaintObj::operator HBITMAP () const { return (T == tBitmap) ? static_cast<HBITMAP>(H) : static_cast<HBITMAP>(0); }
+SPaintObj::operator COLORREF () const { return oneof3(T, tColor, tPen, tBrush) ? static_cast<COLORREF>(*reinterpret_cast<const SColor *>(&H)) : GetColorRef(SClrBlack); }
 
 SPaintObj::operator SColor () const
 {
@@ -3593,7 +3657,7 @@ int SPaintObj::CreateHBrush(int style, SColor c, int32 hatch)
 	return ok;
 }
 
-int SPaintObj::CreatePen(const Pen * pPen)
+int SPaintObj::CreatePen_(const Pen * pPen)
 {
 	int    ok = 1;
 	if(pPen) {
@@ -3613,7 +3677,7 @@ int SPaintObj::CreatePen(const Pen * pPen)
 	return ok;
 }
 
-int SPaintObj::CreateBrush(const Brush * pBrush)
+int SPaintObj::CreateBrush_(const Brush * pBrush)
 {
 	int    ok = 1;
 	if(pBrush) {
@@ -3653,7 +3717,7 @@ int SPaintObj::CreateGradient(const Gradient * pGradient)
 	return ok;
 }
 
-int SPaintObj::CreatePen(int style, float width, SColor c)
+int SPaintObj::CreatePen_(int style, float width, SColor c)
 {
 	int    ok = 1;
 	Pen * p_pen = new Pen;
@@ -3671,7 +3735,7 @@ int SPaintObj::CreatePen(int style, float width, SColor c)
 	return ok;
 }
 
-int SPaintObj::CreateBrush(int style, SColor c, int32 hatch)
+int SPaintObj::CreateBrush_(int style, SColor c, int32 hatch)
 {
 	int    ok = 1;
 	Brush * p_brush = new Brush;
@@ -3954,15 +4018,8 @@ int FASTCALL SPaintObj::ProcessInnerHandle(const SDrawContext * pCtx, int create
 	return ok;
 }
 
-int FASTCALL SPaintObj::CreateInnerHandle(const SDrawContext & rCtx)
-{
-	return ProcessInnerHandle(&rCtx, 1);
-}
-
-int FASTCALL SPaintObj::DestroyInnerHandle()
-{
-	return ProcessInnerHandle(0, 0);
-}
+int FASTCALL SPaintObj::CreateInnerHandle(const SDrawContext & rCtx) { return ProcessInnerHandle(&rCtx, 1); }
+int SPaintObj::DestroyInnerHandle() { return ProcessInnerHandle(0, 0); }
 
 int SPaintObj::CreateColor(SColor c)
 {
@@ -4120,13 +4177,30 @@ int SPaintToolBox::CreateReservedObjects()
 		ok = -1;
 	}
 	else {
-		CreateBrush(rbrWindow, SPaintObj::bsSolid, SColor(GetSysColor(COLOR_WINDOW)), 0);
-		CreateBrush(rbrWindowFrame, SPaintObj::bsSolid, SColor(GetSysColor(COLOR_WINDOWFRAME)), 0);
-		CreateBrush(rbr3DDkShadow, SPaintObj::bsSolid, SColor(GetSysColor(COLOR_3DDKSHADOW)), 0);
-		CreateBrush(rbr3DLight, SPaintObj::bsSolid, SColor(GetSysColor(COLOR_3DLIGHT)), 0);
-		CreateBrush(rbr3DFace, SPaintObj::bsSolid, SColor(GetSysColor(COLOR_3DFACE)), 0);
-		CreateBrush(rbr3DShadow, SPaintObj::bsSolid, SColor(GetSysColor(COLOR_3DSHADOW)), 0);
-		CreateBrush(rbr3DHilight, SPaintObj::bsSolid, SColor(GetSysColor(COLOR_3DHILIGHT)), 0);
+		CreateBrush_(rbrWindow, SPaintObj::bsSolid, SColor(GetSysColor(COLOR_WINDOW)), 0);
+		CreateBrush_(rbrWindowFrame, SPaintObj::bsSolid, SColor(GetSysColor(COLOR_WINDOWFRAME)), 0);
+		CreateBrush_(rbr3DDkShadow, SPaintObj::bsSolid, SColor(GetSysColor(COLOR_3DDKSHADOW)), 0);
+		CreateBrush_(rbr3DLight, SPaintObj::bsSolid, SColor(GetSysColor(COLOR_3DLIGHT)), 0);
+		CreateBrush_(rbr3DFace, SPaintObj::bsSolid, SColor(GetSysColor(COLOR_3DFACE)), 0);
+		CreateBrush_(rbr3DShadow, SPaintObj::bsSolid, SColor(GetSysColor(COLOR_3DSHADOW)), 0);
+		CreateBrush_(rbr3DHilight, SPaintObj::bsSolid, SColor(GetSysColor(COLOR_3DHILIGHT)), 0);
+		// @v12.5.4 {
+		CreatePen_(rpenFrameExcOuter, SPaintObj::psSolid, 1, SColor(0xE0, 0xEE, 0xEF, 0xf0));
+		CreatePen_(rpenFrameExcInner, SPaintObj::psSolid, 1, SColor(0xDE, 0xE5, 0xE6, 0xf0));
+		CreatePen_(rpenFrameExcMiddle, SPaintObj::psSolid, 2, SColor(0xE2, 0xF6, 0xF6, 0xf0));
+		// D4DDDE most internal
+		// CFDDDE
+		// E9FDFD
+		// E9FDFD
+		// E9FDFD
+		// AEBABB
+		// DDEFE0 most external		
+		CreatePen_(rpenFrameExc01, SPaintObj::psSolid, 1, SColor(0xDD, 0xEF, 0xE0));  // @v12.5.4 most external
+		CreatePen_(rpenFrameExc02, SPaintObj::psSolid, 1, SColor(0xAE, 0xBA, 0xBB));  // @v12.5.4
+		CreatePen_(rpenFrameExc03, SPaintObj::psSolid, 3, SColor(0xE9, 0xFD, 0xFD));  // @v12.5.4
+		CreatePen_(rpenFrameExc04, SPaintObj::psSolid, 1, SColor(0xCF, 0xDD, 0xDE));  // @v12.5.4
+		CreatePen_(rpenFrameExc05, SPaintObj::psSolid, 1, SColor(0xD4, 0xDD, 0xDE));  // @v12.5.4 most internal
+		// } @v12.5.4 
 		State |= stReservedObjects;
 	}
 	return ok;
@@ -4240,7 +4314,7 @@ int SPaintToolBox::SetDefaultPen(int style, int width, SColor c)
 	SPaintObj * p_new_obj = 0;
 	THROW(pen_id = CreateDynIdent("$pen-default"));
 	THROW(p_new_obj = CreateObj(pen_id));
-	THROW(p_new_obj->CreatePen(style, static_cast<float>(width), c));
+	THROW(p_new_obj->CreatePen_(style, static_cast<float>(width), c));
 	DefaultPenId = pen_id;
 	CATCHZOK
 	return ok;
@@ -4257,7 +4331,7 @@ int SPaintToolBox::SetBrush(int ident, int style, COLORREF c, int32 hatch)
 	return BIN(p_obj && p_obj->CreateHBrush(style, SColor(c), hatch));
 }
 
-int SPaintToolBox::CreatePen(int ident, int style, float width, SColor c)
+int SPaintToolBox::CreatePen_(int ident, int style, float width, SColor c)
 {
 	SPaintObj * p_obj = 0;
 	if(!ident) {
@@ -4280,7 +4354,7 @@ int SPaintToolBox::CreatePen(int ident, int style, float width, SColor c)
 		THROW(p_obj = CreateObj(ident));
 	}
 	if(p_obj) {
-		THROW(p_obj->CreatePen(style, width, c));
+		THROW(p_obj->CreatePen_(style, width, c));
 	}
 	CATCH
 		ident = 0;
@@ -4288,7 +4362,7 @@ int SPaintToolBox::CreatePen(int ident, int style, float width, SColor c)
 	return ident;
 }
 
-int SPaintToolBox::CreateBrush(int ident, int style, SColor c, int32 hatch, int patternId)
+int SPaintToolBox::CreateBrush_(int ident, int style, SColor c, int32 hatch, int patternId)
 {
 	/*
 	SPaintObj * p_obj = CreateObj(ident);
@@ -4317,10 +4391,10 @@ int SPaintToolBox::CreateBrush(int ident, int style, SColor c, int32 hatch, int 
 	}
 	if(p_obj) {
 		if(patternId) {
-			THROW(p_obj->CreateBrush(&brush));
+			THROW(p_obj->CreateBrush_(&brush));
 		}
 		else {
-			THROW(p_obj->CreateBrush(style, c, hatch));
+			THROW(p_obj->CreateBrush_(style, c, hatch));
 		}
 	}
 	CATCH

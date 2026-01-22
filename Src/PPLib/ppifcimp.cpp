@@ -115,10 +115,7 @@ static IUnknown * FASTCALL GetILotList(SCoClass * pCls, SVector * pList, int del
 	return p;
 }
 
-int Use001()
-{
-	return 1;
-}
+int Use001() { return 1; }
 
 #define USE_IMPL_DL6ICLS_PapyrusTextAnalyzer
 #define USE_IMPL_DL6ICLS_LongList
@@ -210,15 +207,8 @@ int Use001()
 //
 //
 //
-DL6_IC_CONSTRUCTOR(NaturalTokenArray, DL6ICLS_NaturalTokenArray_VTab)
-{
-	ExtraPtr = new SNaturalTokenArray;
-}
-
-DL6_IC_DESTRUCTOR(NaturalTokenArray)
-{
-	delete static_cast<SNaturalTokenArray *>(ExtraPtr);
-}
+DL6_IC_CONSTRUCTOR(NaturalTokenArray, DL6ICLS_NaturalTokenArray_VTab) { ExtraPtr = new SNaturalTokenArray; }
+DL6_IC_DESTRUCTOR(NaturalTokenArray) { delete static_cast<SNaturalTokenArray *>(ExtraPtr); }
 //
 // Interface INaturalTokenArray implementation
 //
@@ -228,15 +218,8 @@ double DL6ICLS_NaturalTokenArray::Has(SNTok t)
 	return p_this ? static_cast<double>(p_this->Has(t)) : 0.0;
 }
 
-DL6_IC_CONSTRUCTOR(NaturalTokenRecognizer, DL6ICLS_NaturalTokenRecognizer_VTab)
-{
-	ExtraPtr = new STokenRecognizer;
-}
-
-DL6_IC_DESTRUCTOR(NaturalTokenRecognizer)
-{
-	delete static_cast<STokenRecognizer *>(ExtraPtr);
-}
+DL6_IC_CONSTRUCTOR(NaturalTokenRecognizer, DL6ICLS_NaturalTokenRecognizer_VTab) { ExtraPtr = new STokenRecognizer; }
+DL6_IC_DESTRUCTOR(NaturalTokenRecognizer) { delete static_cast<STokenRecognizer *>(ExtraPtr); }
 //
 // Interface INaturalTokenRecognizer implementation
 //
@@ -277,10 +260,7 @@ DL6_IC_CONSTRUCTOR(PapyrusTextAnalyzer, DL6ICLS_PapyrusTextAnalyzer_VTab)
 	ExtraPtr = new PPTextAnalyzerWrapper;
 }
 
-DL6_IC_DESTRUCTOR(PapyrusTextAnalyzer)
-{
-	delete static_cast<PPTextAnalyzerWrapper *>(ExtraPtr);
-}
+DL6_IC_DESTRUCTOR(PapyrusTextAnalyzer) { delete static_cast<PPTextAnalyzerWrapper *>(ExtraPtr); }
 //
 // Interface IPapyrusTextAnalyzer implementation
 //
@@ -329,15 +309,8 @@ SString & DL6ICLS_PapyrusTextAnalyzer::ReplaceString(SString & rInputText)
 //
 //
 //
-DL6_IC_CONSTRUCTOR(UhttGoodsProcessor, DL6ICLS_UhttGoodsProcessor_VTab)
-{
-	ExtraPtr = new UhttGoodsProcessor;
-}
-
-DL6_IC_DESTRUCTOR(UhttGoodsProcessor)
-{
-	delete static_cast<UhttGoodsProcessor *>(ExtraPtr);
-}
+DL6_IC_CONSTRUCTOR(UhttGoodsProcessor, DL6ICLS_UhttGoodsProcessor_VTab) { ExtraPtr = new UhttGoodsProcessor; }
+DL6_IC_DESTRUCTOR(UhttGoodsProcessor) { delete static_cast<UhttGoodsProcessor *>(ExtraPtr); }
 //
 // Interface IUhttGoodsProcessor implementation
 //
@@ -827,10 +800,7 @@ int InnerExtraDbfCreateFlds::NextIteration(SDbfCreateFld * pFld)
 
 int32 InnerExtraDbfCreateFlds::GetCount() const { return Flds_.getCount(); }
 
-DL6_IC_CONSTRUCTOR(PPDbfCreateFlds, DL6ICLS_PPDbfCreateFlds_VTab)
-{
-	ExtraPtr = new InnerExtraDbfCreateFlds;
-}
+DL6_IC_CONSTRUCTOR(PPDbfCreateFlds, DL6ICLS_PPDbfCreateFlds_VTab) { ExtraPtr = new InnerExtraDbfCreateFlds; }
 
 DL6_IC_DESTRUCTOR(PPDbfCreateFlds)
 {
@@ -1040,19 +1010,19 @@ int32 DL6ICLS_PPDbfTable::GetFieldNumber(SString & rFldName)
 uint32 DL6ICLS_PPDbfTable::GetNumRecs()
 {
 	DbfTable * p_tbl = static_cast<DbfTable *>(ExtraPtr);
-	return (p_tbl) ? p_tbl->getNumRecs() : 0;
+	return p_tbl ? p_tbl->getNumRecs() : 0;
 }
 
 uint32 DL6ICLS_PPDbfTable::GetRecSize()
 {
 	DbfTable * p_tbl = static_cast<DbfTable *>(ExtraPtr);
-	return (p_tbl) ? p_tbl->getRecSize() : 0;
+	return p_tbl ? p_tbl->getRecSize() : 0;
 }
 
 uint32 DL6ICLS_PPDbfTable::GetNumFields()
 {
 	DbfTable * p_tbl = static_cast<DbfTable *>(ExtraPtr);
-	return (p_tbl) ? p_tbl->getNumFields() : 0;
+	return p_tbl ? p_tbl->getNumFields() : 0;
 }
 
 uint32 DL6ICLS_PPDbfTable::GetPosition()
@@ -1066,7 +1036,7 @@ uint32 DL6ICLS_PPDbfTable::GetPosition()
 int32 DL6ICLS_PPDbfTable::Close()
 {
 	DbfTable * p_tbl = static_cast<DbfTable *>(ExtraPtr);
-	return (p_tbl) ? p_tbl->close() : -1;
+	return p_tbl ? p_tbl->close() : -1;
 }
 
 int32 DL6ICLS_PPDbfTable::Create(ISDbfCreateFlds * pFldsDescr) { return Create3(pFldsDescr, icpOEM, -1); }
@@ -1114,37 +1084,37 @@ int32 DL6ICLS_PPDbfTable::Create3(ISDbfCreateFlds * pFldsDescr, ISCodepage cp, l
 int32 DL6ICLS_PPDbfTable::GoToRec(uint32 num)
 {
 	DbfTable * p_tbl = static_cast<DbfTable *>(ExtraPtr);
-	return (p_tbl) ? p_tbl->goToRec((ulong)num) : -1;
+	return p_tbl ? p_tbl->goToRec((ulong)num) : -1;
 }
 
 int32 DL6ICLS_PPDbfTable::Top()
 {
 	DbfTable * p_tbl = static_cast<DbfTable *>(ExtraPtr);
-	return (p_tbl) ? p_tbl->top() : -1;
+	return p_tbl ? p_tbl->top() : -1;
 }
 
 int32 DL6ICLS_PPDbfTable::Bottom()
 {
 	DbfTable * p_tbl = static_cast<DbfTable *>(ExtraPtr);
-	return (p_tbl) ? p_tbl->bottom() : -1;
+	return p_tbl ? p_tbl->bottom() : -1;
 }
 
 int32 DL6ICLS_PPDbfTable::Next()
 {
 	DbfTable * p_tbl = static_cast<DbfTable *>(ExtraPtr);
-	return (p_tbl) ? p_tbl->next() : -1;
+	return p_tbl ? p_tbl->next() : -1;
 }
 
 int32 DL6ICLS_PPDbfTable::Prev()
 {
 	DbfTable * p_tbl = static_cast<DbfTable *>(ExtraPtr);
-	return (p_tbl) ? p_tbl->prev() : -1;
+	return p_tbl ? p_tbl->prev() : -1;
 }
 
 int32 DL6ICLS_PPDbfTable::DeleteRec()
 {
 	DbfTable * p_tbl = static_cast<DbfTable *>(ExtraPtr);
-	return (p_tbl) ? p_tbl->deleteRec() : -1;
+	return p_tbl ? p_tbl->deleteRec() : -1;
 }
 
 ISDbfRecord * DL6ICLS_PPDbfTable::MakeRec()
@@ -1200,25 +1170,25 @@ int32 DL6ICLS_PPDbfTable::UpdateRec(ISDbfRecord* pRec)
 int32 DL6ICLS_PPDbfTable::Flush()
 {
 	DbfTable * p_tbl = static_cast<DbfTable *>(ExtraPtr);
-	return (p_tbl) ? p_tbl->flush() : -1;
+	return p_tbl ? p_tbl->flush() : -1;
 }
 
 int32 DL6ICLS_PPDbfTable::InitBuffer()
 {
 	DbfTable * p_tbl = static_cast<DbfTable *>(ExtraPtr);
-	return (p_tbl) ? p_tbl->initBuffer() : -1;
+	return p_tbl ? p_tbl->initBuffer() : -1;
 }
 
 int32 DL6ICLS_PPDbfTable::ReleaseBuffer()
 {
 	DbfTable * p_tbl = static_cast<DbfTable *>(ExtraPtr);
-	return (p_tbl) ? p_tbl->releaseBuffer() : -1;
+	return p_tbl ? p_tbl->releaseBuffer() : -1;
 }
 
 int32 DL6ICLS_PPDbfTable::IsDeletedRec()
 {
 	DbfTable * p_tbl = static_cast<DbfTable *>(ExtraPtr);
-	return (p_tbl) ? p_tbl->isDeletedRec() : -1;
+	return p_tbl ? p_tbl->isDeletedRec() : -1;
 }
 //
 // PPFtp
@@ -1592,7 +1562,7 @@ int32 DL6ICLS_PPUtil::GetTagGUID(PpyObjectIdent objType, int32 objID, int32 tagI
 	int    ok = -1;
 	SString tagv;
 	PPObjTag tag_obj;
-	PPObjectTag tag_rec;
+	PPObjectTag2 tag_rec;
 	if(tag_obj.Fetch(tagID, &tag_rec) > 0 && tag_rec.ObjTypeID == objType && tag_rec.TagDataType == OTTYP_GUID) {
 		Reference * p_ref(PPRef);
 		ObjTagItem tag_item;
@@ -1879,7 +1849,7 @@ IStrAssocList* DL6ICLS_PPSession::GetDatabaseList(int32 nameKind)
 		else
 			lo = DbLoginBlockArray::loUseDbSymb;
 		THROW(ini_file.IsValid());
-		THROW(set.ReadFromProfile(&ini_file, 0, 0));
+		THROW(set.ReadFromProfile(&ini_file, false, false));
 		THROW(set.MakeList(p_list_env, lo, 0));
 	}
 	CATCH
@@ -1895,7 +1865,7 @@ int32 DL6ICLS_PPSession::GetDatabaseInfo(int32 id, SPpyDatabaseInfo* pInfo)
 	DbLoginBlock blk;
 	PPIniFile ini_file;
 	THROW(ini_file.IsValid());
-	THROW(set.ReadFromProfile(&ini_file, 0, 0));
+	THROW(set.ReadFromProfile(&ini_file, false, false));
 	THROW_INVARG(id > 0 && id <= (long)set.GetCount());
 	THROW(set.GetByID(id, &blk));
 	if(pInfo) {
@@ -2345,7 +2315,7 @@ void DL6ICLS_PPAmountList::Clear()
 // } PPAmountList
 // PPObjTag {
 //
-static void FASTCALL FillObjTagRec(const PPObjectTag * pInner, SPpyO_Tag * pOuter)
+static void FASTCALL FillObjTagRec(const PPObjectTag2 * pInner, SPpyO_Tag * pOuter)
 {
 	SString temp_buf;
 	pOuter->RecTag = pInner->Tag;
@@ -2371,7 +2341,7 @@ int32 DL6ICLS_PPObjTag::Search(int32 id, PPYOBJREC rec)
 	int    ok = 0;
 	PPObjTag * p_obj = static_cast<PPObjTag *>(ExtraPtr);
 	if(p_obj) {
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		ok = p_obj->Search(id, &tag_rec);
 		FillObjTagRec(&tag_rec, static_cast<SPpyO_Tag *>(rec));
 	}
@@ -2384,7 +2354,7 @@ int32 DL6ICLS_PPObjTag::SearchByName(SString & text, int32 kind, int32 extraPara
 	int    ok = 0;
 	PPObjTag * p_obj = static_cast<PPObjTag *>(ExtraPtr);
 	if(p_obj) {
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		PPID   id = 0;
 		if(kind == 1) {
 			ok = p_obj->SearchBySymb(text, &id);
@@ -3050,15 +3020,8 @@ IStrAssocList * DL6ICLS_PPObjQuotKind::GetSelector(int32 extraParam)
 	return p;
 }
 
-int32 DL6ICLS_PPObjQuotKind::Create(PPYOBJREC pRec, int32 flags, int32* pID)
-{
-	return FuncNotSupported();
-}
-
-int32 DL6ICLS_PPObjQuotKind::Update(int32 id, int32 flags, PPYOBJREC rec)
-{
-	return FuncNotSupported();
-}
+int32 DL6ICLS_PPObjQuotKind::Create(PPYOBJREC pRec, int32 flags, int32* pID) { return FuncNotSupported(); }
+int32 DL6ICLS_PPObjQuotKind::Update(int32 id, int32 flags, PPYOBJREC rec) { return FuncNotSupported(); }
 //
 // } PPObjQuotKind
 // PPObjGoodsTax {
@@ -3067,7 +3030,7 @@ DL6_IC_CONSTRUCTION_EXTRA(PPObjGoodsTax, DL6ICLS_PPObjGoodsTax_VTab, PPObjGoodsT
 //
 // Interface IPapyrusObject implementation
 //
-static void FASTCALL FillGoodsTaxRec(const PPGoodsTax * pInner, SPpyO_GoodsTax * pOuter)
+static void FASTCALL FillGoodsTaxRec(const PPGoodsTax2 * pInner, SPpyO_GoodsTax * pOuter)
 {
 	SString temp_buf;
 	#define FLD(f) pOuter->f = pInner->f
@@ -5618,10 +5581,8 @@ IUnknown * GetICompleteList(SCoClass * pCls, CompleteArray * pList, int delList 
 	return p;
 }
 
-DL6_IC_CONSTRUCTOR(CompleteList, DL6ICLS_CompleteList_VTab)
-	{ ExtraPtr = new CompleteArray; }
-DL6_IC_DESTRUCTOR(CompleteList)
-	{ delete static_cast<CompleteArray *>(ExtraPtr); }
+DL6_IC_CONSTRUCTOR(CompleteList, DL6ICLS_CompleteList_VTab) { ExtraPtr = new CompleteArray; }
+DL6_IC_DESTRUCTOR(CompleteList) { delete static_cast<CompleteArray *>(ExtraPtr); }
 //
 // Interface ICompleteList implementation
 //

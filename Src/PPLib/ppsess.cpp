@@ -2297,18 +2297,18 @@ int PPSession::Init(long internalAppId, long flags, HINSTANCE hInst, const char 
 	signal(SIGFPE, reinterpret_cast<void (*)(int)>(FpeCatcher));
 	SLS.Init(0, hInst);
 	InternalAppId = internalAppId;
-	if(/*flags & fWsCtlApp*/InternalAppId == internalappWsCtl) {
-		SLS.SetAppName("WSCTL");
-	}
-	else if(InternalAppId == internalappCrr32Support) {
-		SLS.SetAppName("Crr32Support");
-	}
-	else {
-		PPVersionInfo vi = GetVersionInfo();
-		//vi.GetProductName(temp_buf);
-		vi.GetTextAttrib(vi.taiProductName, temp_buf);
-		SLS.SetAppName(temp_buf);
-		SetExtFlag(ECF_OPENSOURCE, vi.GetFlags() & PapyrusPrivateBlock::fOpenSource);
+	switch(InternalAppId) {
+		case internalappWsCtl: SLS.SetAppName("WSCTL"); break;
+		case internalappCrr32Support: SLS.SetAppName("Crr32Support"); break;
+		case internalappCentrigo: SLS.SetAppName("Centrigo"); break; // @v12.5.4
+		default:
+			{
+				PPVersionInfo vi = GetVersionInfo();
+				vi.GetTextAttrib(vi.taiProductName, temp_buf);
+				SLS.SetAppName(temp_buf);
+				SetExtFlag(ECF_OPENSOURCE, vi.GetFlags() & PapyrusPrivateBlock::fOpenSource);
+			}
+			break;
 	}
 	SLS.InitWSA();
 	{
@@ -2381,7 +2381,7 @@ int PPSession::Init(long internalAppId, long flags, HINSTANCE hInst, const char 
 			{
 				path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_LOG, temp_buf) > 0) ? temp_buf.cptr() : 0;
 				if(!path.NotEmptyS()) {
-					PPIniFile::GetParamSymb(PPINIPARAM_LOG, temp_buf.Z());
+					PPIniFile::GetParamSymb(PPINIPARAM_LOG, temp_buf);
 					(path = root_path).SetLastSlash().Cat(temp_buf);
 				}
 				if(!SFile::IsDir(path) && !SFile::CreateDir(path))
@@ -2416,7 +2416,7 @@ int PPSession::Init(long internalAppId, long flags, HINSTANCE hInst, const char 
 			//
 			// Флаг устанавливается по умолчанию. Параметром DETECTDBTEXISTBYOPEN его можно отменить
 			//
-			DbSession::Config dbcfg = DBS.GetConfig();
+			DbSession::Config dbcfg(DBS.GetConfig());
 			int    iv = 0;
 			dbcfg.Flags |= DbSession::fDetectExistByOpen;
 			if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DETECTDBTEXISTBYOPEN, &iv) > 0) {
@@ -2469,17 +2469,17 @@ int PPSession::Init(long internalAppId, long flags, HINSTANCE hInst, const char 
 			UiToolBox_.CreateColor(TProgram::tbiIconAlertColor,   UiDescription::GetColorR(p_uid, p_cs, "icon_alert", SColor(0xDD, 0x1C, 0x1A)));
 			UiToolBox_.CreateColor(TProgram::tbiIconAccentColor,  UiDescription::GetColorR(p_uid, p_cs, "icon_accent", SColor(0x2A, 0x9D, 0x8F)));
 			UiToolBox_.CreateColor(TProgram::tbiIconPassiveColor, UiDescription::GetColorR(p_uid, p_cs, "icon_passive", SColor(0xFF, 0xF1, 0xD0)));
-			UiToolBox_.CreatePen(TProgram::tbiBlackPen,         SPaintObj::psSolid, 1.0f, SClrBlack);
-			UiToolBox_.CreatePen(TProgram::tbiWhitePen,         SPaintObj::psSolid, 1.0f, SClrWhite);
-			UiToolBox_.CreateBrush(TProgram::tbiInvalInpBrush,  SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "invalidinput_bg", SClrCrimson), 0);
-			UiToolBox_.CreateBrush(TProgram::tbiInvalInp2Brush, SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "invalidinput2_bg", SColor(0xff, 0x99, 0x00))/*https://www.colorhexa.com/ff9900*/, 0);
-			UiToolBox_.CreateBrush(TProgram::tbiInvalInp3Brush, SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "invalidinput3_bg", SColor(0xff, 0x33, 0xcc))/*https://www.colorhexa.com/ff33cc*/, 0);
-			UiToolBox_.CreateBrush(TProgram::tbiListBkgBrush,   SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "list_bg", SClrWhite), 0);
-			UiToolBox_.CreatePen(TProgram::tbiListBkgPen,       SPaintObj::psSolid, 1.0f, UiDescription::GetColorR(p_uid, p_cs, "list_border", SClrWhite));
-			UiToolBox_.CreateBrush(TProgram::tbiListFocBrush,   SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "list_focus_bg", SColor(0x00, 0x66, 0xcc))/*https://www.colorhexa.com/0066cc*/, 0);
-			UiToolBox_.CreatePen(TProgram::tbiListFocPen,       SPaintObj::psSolid, 1.0f, UiDescription::GetColorR(p_uid, p_cs, "list_focus_border", SColor(0x00, 0x66, 0xcc))/*https://www.colorhexa.com/0066cc*/);
-			UiToolBox_.CreateBrush(TProgram::tbiListSelBrush,   SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "list_sel_bg", SColor(0xa2, 0xd2, 0xff))/*https://www.colorhexa.com/0066cc*/, 0);
-			UiToolBox_.CreatePen(TProgram::tbiListSelPen,       SPaintObj::psDot, 1.0f, UiDescription::GetColorR(p_uid, p_cs, "list_sel_border", SColor(0x00, 0x66, 0xcc))/*https://www.colorhexa.com/0066cc*/);
+			UiToolBox_.CreatePen_(TProgram::tbiBlackPen,         SPaintObj::psSolid, 1.0f, SClrBlack);
+			UiToolBox_.CreatePen_(TProgram::tbiWhitePen,         SPaintObj::psSolid, 1.0f, SClrWhite);
+			UiToolBox_.CreateBrush_(TProgram::tbiInvalInpBrush,  SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "invalidinput_bg", SClrCrimson), 0);
+			UiToolBox_.CreateBrush_(TProgram::tbiInvalInp2Brush, SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "invalidinput2_bg", SColor(0xff, 0x99, 0x00))/*https://www.colorhexa.com/ff9900*/, 0);
+			UiToolBox_.CreateBrush_(TProgram::tbiInvalInp3Brush, SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "invalidinput3_bg", SColor(0xff, 0x33, 0xcc))/*https://www.colorhexa.com/ff33cc*/, 0);
+			UiToolBox_.CreateBrush_(TProgram::tbiListBkgBrush,   SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "list_bg", SClrWhite), 0);
+			UiToolBox_.CreatePen_(TProgram::tbiListBkgPen,       SPaintObj::psSolid, 1.0f, UiDescription::GetColorR(p_uid, p_cs, "list_border", SClrWhite));
+			UiToolBox_.CreateBrush_(TProgram::tbiListFocBrush,   SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "list_focus_bg", SColor(0x00, 0x66, 0xcc))/*https://www.colorhexa.com/0066cc*/, 0);
+			UiToolBox_.CreatePen_(TProgram::tbiListFocPen,       SPaintObj::psSolid, 1.0f, UiDescription::GetColorR(p_uid, p_cs, "list_focus_border", SColor(0x00, 0x66, 0xcc))/*https://www.colorhexa.com/0066cc*/);
+			UiToolBox_.CreateBrush_(TProgram::tbiListSelBrush,   SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "list_sel_bg", SColor(0xa2, 0xd2, 0xff))/*https://www.colorhexa.com/0066cc*/, 0);
+			UiToolBox_.CreatePen_(TProgram::tbiListSelPen,       SPaintObj::psDot, 1.0f, UiDescription::GetColorR(p_uid, p_cs, "list_sel_border", SColor(0x00, 0x66, 0xcc))/*https://www.colorhexa.com/0066cc*/);
 			{
 				// linear-gradient(to bottom, #f0f9ff 0%,#cbebff 47%,#a1dbff 100%)
 				/*
@@ -2492,14 +2492,14 @@ int PPSession::Init(long internalAppId, long flags, HINSTANCE hInst, const char 
 				UiToolBox_.AddGradientStop(gradient, 1.00f, SColor(0xa1, 0xdb, 0xff));
 				UiToolBox_.CreateBrush(tbiButtonBrush, SPaintObj::bsPattern, SColor(0xDC, 0xD9, 0xD1), 0, gradient);
 				*/
-				UiToolBox_.CreateBrush(TProgram::tbiButtonBrush, SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "button_bg", SColor(0xDC, 0xD9, 0xD1)), 0);
+				UiToolBox_.CreateBrush_(TProgram::tbiButtonBrush, SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "button_bg", SColor(0xDC, 0xD9, 0xD1)), 0);
 			}
-			UiToolBox_.CreateBrush(TProgram::tbiButtonBrush+TProgram::tbisSelect, SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "button_sel_bg", SColor(0xBA, 0xBA, 0xC9)), 0);
-			UiToolBox_.CreatePen(TProgram::tbiButtonPen, SPaintObj::psSolid, 1, UiDescription::GetColorR(p_uid, p_cs, "button_border", UiToolBox_.GetColor(TProgram::tbiIconRegColor)));
-			UiToolBox_.CreatePen(TProgram::tbiButtonPen+TProgram::tbisDefault, SPaintObj::psSolid, 1, UiDescription::GetColorR(p_uid, p_cs, "button_def_border", SClrGreen));
-			UiToolBox_.CreatePen(TProgram::tbiButtonPen+TProgram::tbisFocus,   SPaintObj::psSolid, 1, UiDescription::GetColorR(p_uid, p_cs, "button_focus_border", SClrOrange));
-			UiToolBox_.CreatePen(TProgram::tbiButtonPen+TProgram::tbisSelect,  SPaintObj::psSolid, 1, UiDescription::GetColorR(p_uid, p_cs, "button_sel_border", SClrOrange));
-			UiToolBox_.CreatePen(TProgram::tbiButtonPen+TProgram::tbisDisable, SPaintObj::psSolid, 1, UiDescription::GetColorR(p_uid, p_cs, "button_disabled_border", SColor(SClrWhite)));
+			UiToolBox_.CreateBrush_(TProgram::tbiButtonBrush+TProgram::tbisSelect, SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "button_sel_bg", SColor(0xBA, 0xBA, 0xC9)), 0);
+			UiToolBox_.CreatePen_(TProgram::tbiButtonPen, SPaintObj::psSolid, 1, UiDescription::GetColorR(p_uid, p_cs, "button_border", UiToolBox_.GetColor(TProgram::tbiIconRegColor)));
+			UiToolBox_.CreatePen_(TProgram::tbiButtonPen+TProgram::tbisDefault, SPaintObj::psSolid, 1, UiDescription::GetColorR(p_uid, p_cs, "button_def_border", SClrGreen));
+			UiToolBox_.CreatePen_(TProgram::tbiButtonPen+TProgram::tbisFocus,   SPaintObj::psSolid, 1, UiDescription::GetColorR(p_uid, p_cs, "button_focus_border", SClrOrange));
+			UiToolBox_.CreatePen_(TProgram::tbiButtonPen+TProgram::tbisSelect,  SPaintObj::psSolid, 1, UiDescription::GetColorR(p_uid, p_cs, "button_sel_border", SClrOrange));
+			UiToolBox_.CreatePen_(TProgram::tbiButtonPen+TProgram::tbisDisable, SPaintObj::psSolid, 1, UiDescription::GetColorR(p_uid, p_cs, "button_disabled_border", SColor(SClrWhite)));
 			// @v12.5.3 {
 			{
 				UiToolBox_.CreateColor(TProgram::tbiDialogBkgColor, UiDescription::GetColorR(p_uid, p_cs, "dialog_bg", SColor(0xF0, 0xF0, 0xF0))); 
@@ -2706,9 +2706,8 @@ int PPSession::MakeMachineID(MACAddr * pMachineID)
 		ok = 2;
 	}
 	else {
-		char buf[32];
-		// @v11.1.1 IdeaRandMem(buf, sizeof(buf));
-		SObfuscateBuffer(buf, sizeof(buf)); // @v11.1.1 
+		char   buf[32];
+		SObfuscateBuffer(buf, sizeof(buf));
 		memcpy(addr.D, buf+3, sizeof(addr.D));
 		ok = 1;
 	}
@@ -3148,7 +3147,8 @@ public:
 private:
 	virtual void Run()
 	{
-		SString msg_buf, temp_buf;
+		SString temp_buf;
+		SString msg_buf;
 		STimer timer;
 		Evnt   stop_event(SLS.GetStopEventName(temp_buf), Evnt::modeOpen);
 		char   secret[64];
@@ -3883,26 +3883,27 @@ PPSession::LimitedDatabaseBlock * PPSession::LimitedOpenDatabase(const char * pD
 	assert(flags & (lodfReference|lodfSysJournal|lodfStyloQCore));
 	THROW_PP(flags & (lodfReference|lodfSysJournal|lodfStyloQCore), PPERR_LTDDBOPEN_INVFLAGS);
 	THROW(ini_file.IsValid());
-	THROW(dbes.ReadFromProfile(&ini_file, 0));
-	db_symb = pDbSymb;
-	THROW_SL(dbes.GetBySymb(db_symb, &blk));
-	blk.GetAttr(DbLoginBlock::attrDbPath, data_path);
-	blk.GetAttr(DbLoginBlock::attrDictPath, dict_path);
-	THROW(OpenDictionary2(&blk, 0));
+	THROW(dbes.ReadFromProfile(&ini_file, false));
 	{
-		const long db_path_id = DBS.GetDbPathID();
-		DbProvider * p_dict = CurDict;
-		assert(p_dict);
-		p_result = new LimitedDatabaseBlock();
-		p_result->State |= 0x0001;
-		if(flags & lodfReference) {
-			THROW_MEM(p_result->P_Ref = new Reference);
-		}
-		if(flags & lodfSysJournal) {
-			THROW_MEM(p_result->P_Sj = new SysJournal);
-		}
-		if(flags & lodfStyloQCore) {
-			THROW_MEM(p_result->P_Sqc = new StyloQCore);
+		THROW_SL(dbes.GetBySymb(pDbSymb, &blk));
+		blk.GetAttr(DbLoginBlock::attrDbPath, data_path);
+		blk.GetAttr(DbLoginBlock::attrDictPath, dict_path);
+		THROW(OpenDictionary2(&blk, 0));
+		{
+			const long db_path_id = DBS.GetDbPathID();
+			DbProvider * p_dict = CurDict;
+			assert(p_dict);
+			p_result = new LimitedDatabaseBlock();
+			p_result->State |= 0x0001;
+			if(flags & lodfReference) {
+				THROW_MEM(p_result->P_Ref = new Reference);
+			}
+			if(flags & lodfSysJournal) {
+				THROW_MEM(p_result->P_Sj = new SysJournal);
+			}
+			if(flags & lodfStyloQCore) {
+				THROW_MEM(p_result->P_Sqc = new StyloQCore);
+			}
 		}
 	}
 	CATCH
@@ -3912,6 +3913,16 @@ PPSession::LimitedDatabaseBlock * PPSession::LimitedOpenDatabase(const char * pD
 }
 
 int PPSession::PPLogin(const char * pDbSymb, const char * pUserName, const char * pPassword, long flags)
+{
+	return Implement_PPLogin(0, pDbSymb, pUserName, pPassword, flags);
+}
+
+int PPSession::PPLogin_(const PPDbEntrySet2 * pDbes, const char * pDbSymb, const char * pUserName, const char * pPassword, long flags) // @v12.5.4
+{
+	return Implement_PPLogin(pDbes, pDbSymb, pUserName, pPassword, flags);
+}
+
+int PPSession::Implement_PPLogin(const PPDbEntrySet2 * pDbes, const char * pDbSymb, const char * pUserName, const char * pPassword, long flags)
 {
 	//
 	// @todo @20250923 Выявлена проблема с выбиванием сеанса - ему предшествует сообщение "База данных '' заблокирована" (PPERR_SYNCDBLOCKED)
@@ -3934,12 +3945,11 @@ int PPSession::PPLogin(const char * pDbSymb, const char * pUserName, const char 
 	SString data_path;
 	SString msg_buf;
 	PPIniFile ini_file(0, 0, 0, 1);
-	PPDbEntrySet2 dbes;
 	DbLoginBlock blk;
 	PPThreadLocalArea & r_tla = GetTLA();
 	char   user_name[64];
 	char   pw[128];
-	PPID   onetimepass_user_id = OnetimePass(-1); // @v11.1.9
+	PPID   onetimepass_user_id = OnetimePass(-1);
 	MACAddr machine_id;
 	int    logmode = logmOrdinary;
 	int    empty_secur_base = 0;
@@ -3951,8 +3961,16 @@ int PPSession::PPLogin(const char * pDbSymb, const char * pUserName, const char 
 	STRNSCPY(user_name, pUserName);
 	r_tla.StateFlags &= ~PPThreadLocalArea::stAuth;
 	THROW(ini_file.IsValid());
-	THROW(dbes.ReadFromProfile(&ini_file, 0));
-	THROW_SL(dbes.GetBySymb(db_symb, &blk));
+	{
+		if(pDbes) { // @v12.5.4
+			THROW_SL(pDbes->GetBySymb(db_symb, &blk));
+		}
+		else {
+			PPDbEntrySet2 dbes;
+			THROW(dbes.ReadFromProfile(&ini_file, false));
+			THROW_SL(dbes.GetBySymb(db_symb, &blk));
+		}
+	}
 	blk.GetAttr(DbLoginBlock::attrDbPath, data_path);
 	blk.GetAttr(DbLoginBlock::attrDictPath, dict_path);
 	{
@@ -4587,7 +4605,7 @@ int PPSession::PPLogin(const char * pDbSymb, const char * pUserName, const char 
 				}
 			}
 			else {
-				int    is_new_cdb_entry = BIN(CMng.CreateDbEntry(db_path_id) > 0);
+				const  bool is_new_cdb_entry = (CMng.CreateDbEntry(db_path_id) > 0);
 				if(CheckExtFlag(ECF_SYSSERVICE)) {
 					if(is_new_cdb_entry) {
 						PPDbDispatchSession * p_sess = new PPDbDispatchSession(db_path_id, db_symb);
@@ -4595,7 +4613,7 @@ int PPSession::PPLogin(const char * pDbSymb, const char * pUserName, const char 
 					}
 				}
 				else {
-					if(PPConst::UseAdvEvQueue && !(flags & loginfInternal)) { // @v11.1.8 loginfInternal
+					if(PPConst::UseAdvEvQueue && !(flags & loginfInternal)) {
 						int    cycle_ms = 0;
 						SString mqb_domain; // Имя домена для идентификации при обмене через брокера сообщений
 						const PPPhoneServicePacket * p_phnsvc_pack = 0;
@@ -4615,9 +4633,7 @@ int PPSession::PPLogin(const char * pDbSymb, const char * pUserName, const char 
 						if(cycle_ms <= 0 || cycle_ms > 600000)
 							cycle_ms = 5113;
 						if(r_tla.DefPhnSvcID) { // Пакет ps_pack инициализирован выше (r_tla.DefPhnSvcID != 0 - однозначно свидетельствует об этом)
-							// @v11.2.6 UserInterfaceSettings ui_cfg;
-							// @v11.2.6 if(ui_cfg.Restore() > 0 && ui_cfg.Flags & ui_cfg.fPollVoipService)
-							if(APPL->GetUiSettings().Flags & UserInterfaceSettings::fPollVoipService) // @v11.2.6
+							if(APPL->GetUiSettings().Flags & UserInterfaceSettings::fPollVoipService)
 								p_phnsvc_pack = &ps_pack;
 						}
 						if(PPMqbClient::SetupInitParam(mqb_init_param, 0, &mqb_domain)) {
@@ -5866,7 +5882,7 @@ int PPSession::GetObjectTitle(PPID objType, SString & rBuf)
 	if(!P_ObjIdentBlk)
 		DO_CRITICAL(SETIFZ(P_ObjIdentBlk, new ObjIdentBlock));
 	if(IS_DYN_OBJTYPE(objType)) {
-		ReferenceTbl::Rec ref_rec;
+		Reference2Tbl::Rec ref_rec;
 		Reference * p_ref = GetTLA().P_Ref;
 		if(p_ref && p_ref->GetItem(PPOBJ_DYNAMICOBJS, objType, &ref_rec) > 0) {
 			rBuf = ref_rec.ObjName;

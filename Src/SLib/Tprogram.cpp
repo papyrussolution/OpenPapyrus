@@ -42,8 +42,7 @@ BOOL CALLBACK StatusWinDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
 TStatusWin::TStatusWin() : TWindow(TRect(1,1,50,20))
 {
-	HW = ::CreateWindowEx(WS_EX_TOPMOST, STATUSCLASSNAME, 0,
-		WS_CHILD|WS_VISIBLE|WS_CLIPSIBLINGS|SBT_TOOLTIPS, 0, 0, 0, 0,
+	HW = ::CreateWindowExW(WS_EX_TOPMOST, STATUSCLASSNAME, 0, WS_CHILD|WS_VISIBLE|WS_CLIPSIBLINGS|SBT_TOOLTIPS, 0, 0, 0, 0,
 		APPL->H_MainWnd, static_cast<HMENU>(0)/*111*/, TProgram::GetInst(), 0);
 	TView::SetWindowProp(H(), GWLP_USERDATA, this);
 	PrevWindowProc = static_cast<WNDPROC>(TView::SetWindowProp(H(), GWLP_WNDPROC, StatusWinDialogProc));
@@ -182,7 +181,7 @@ int TStatusWin::RemoveItem(int pos)
 uint TStatusWin::GetCmdByCoord(POINT coord, TStatusWin::StItem * pItem /*=0*/)
 {
 	uint   cmd = 0;
-	uint   n_parts = Items.getCount();
+	const  uint n_parts = Items.getCount();
 	for(uint i = 0; !cmd && i < n_parts; i++) {
 		RECT rect;
 		::SendMessageW(H(), SB_GETRECT, i, reinterpret_cast<LPARAM>(&rect));
@@ -344,9 +343,9 @@ int TProgram::UpdateItemInMenu(const char * pTitle, void * ptr)
 					tci.mask = TCIF_PARAM;
 					if(TabCtrl_GetItem(hwnd_tab, i, &tci) && tci.lParam == reinterpret_cast<LPARAM>(ptr)) {
 						const  uint max_text_len = 40;// SHCTSTAB_MAXTEXTLEN;
-						TCHAR  temp_org_title_buf[max_text_len * 2];
-						TCHAR  temp_title_buf[max_text_len * 2];
-						STRNSCPY(temp_org_title_buf, SUcSwitch(title_buf));
+						wchar_t temp_org_title_buf[max_text_len * 2];
+						wchar_t temp_title_buf[max_text_len * 2];
+						STRNSCPY(temp_org_title_buf, SUcSwitchW(title_buf));
 						STRNSCPY(temp_title_buf, temp_org_title_buf);
 						if(title_len > max_text_len) {
 							temp_title_buf[max_text_len] = 0;
@@ -358,7 +357,7 @@ int TProgram::UpdateItemInMenu(const char * pTitle, void * ptr)
 						tci.cchTextMax = SIZEOFARRAY(temp_title_buf);
 						TabCtrl_SetItem(hwnd_tab, i, &tci);
 						if(hwnd_tt && TabCtrl_GetItemRect(hwnd_tab, i, &rc_item))	{
-							TOOLINFO t_i;
+							TOOLINFOW t_i;
 							INITWINAPISTRUCT(t_i);
 							t_i.uFlags   = TTF_SUBCLASS;
 							t_i.hwnd     = hwnd_tab;
@@ -377,7 +376,7 @@ int TProgram::UpdateItemInMenu(const char * pTitle, void * ptr)
 					for(i = 0; i < count; i++) {
 						tci.mask = TCIF_PARAM;
 						if(TabCtrl_GetItem(hwnd_tab, i, &tci)) {
-							TOOLINFO t_i;
+							TOOLINFOW t_i;
 							TabCtrl_GetItemRect(hwnd_tab, i, &rc_item);
 							INITWINAPISTRUCT(t_i);
 							t_i.uFlags = TTF_SUBCLASS;
@@ -476,8 +475,7 @@ HBITMAP FASTCALL TProgram::FetchSystemBitmap(uint bmID) { return BmH.GetSystem(b
 	return BIN(P_Stw);
 }
 
-// @v11.9.2 (replaced with GetVectorTools) /*virtual*/int TProgram::LoadVectorTools(TWhatmanToolArray * pT) { return -1; }
-/*virtual*/const TWhatmanToolArray * TProgram::GetVectorTools() const { return 0; } // @v11.9.2 
+/*virtual*/const TWhatmanToolArray * TProgram::GetVectorTools() const { return 0; }
 /*virtual*/SPaintToolBox * TProgram::GetUiToolBox() { return 0; } // @v11.9.2
 
 int TProgram::GetStatusBarRect(RECT * pRect)
@@ -776,8 +774,8 @@ INT_PTR CALLBACK FrameWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 				HDC  hdc = BeginPaint(hWnd, &ps);
 				if(SIntersectRect(rc, ps.rcPaint)) {
 					TCanvas canv(hdc);
-					HPEN h_pen1 = CreatePen(PS_SOLID, 1, GetGrayColorRef(0.44f));
-					HPEN h_pen2 = CreatePen(PS_SOLID, 2, GetGrayColorRef(0.94f));
+					HPEN h_pen1 = ::CreatePen(PS_SOLID, 1, GetGrayColorRef(0.44f));
+					HPEN h_pen2 = ::CreatePen(PS_SOLID, 2, GetGrayColorRef(0.94f));
 					canv.SelectObjectAndPush(h_pen1);
 					canv.LineVert(rc.right-9, 18, rc.bottom-5);
 					canv.LineVert(rc.right-5, 18, rc.bottom-5);
@@ -1115,8 +1113,7 @@ void TProgram::HandleWindowNcCalcSize(/*struct window * data,*/WPARAM wParam, LP
 					TViewGroup * p_tgt = targets[i];
 					TView::messageBroadcast(p_tgt, cmIdle);
 					//
-					// Далее следует специальный цикл, призванный закрыть те окна, которые об этом
-					// "попросили" выставив флаг состояния sfCloseMe
+					// Далее следует специальный цикл, призванный закрыть те окна, которые об этом "попросили" выставив флаг состояния sfCloseMe
 					//
 					for(int is_there_closeme = 1; is_there_closeme;) {
 						is_there_closeme = 0;
@@ -1259,15 +1256,12 @@ TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitl
 TProgram::~TProgram()
 {
 	DestroyIcon(H_Icon);
-	delete P_DeskTop;
-	delete P_Toolbar;
+	ZDELETE(P_DeskTop);
+	ZDELETE(P_Toolbar);
 	delete static_cast<NOTIFYICONDATAW *>(P_NotifyIconData); // @v12.4.0
 }
 
-HWND TProgram::GetFrameWindow() const
-{
-	return NZOR(H_FrameWnd, H_MainWnd);
-}
+HWND TProgram::GetFrameWindow() const { return NZOR(H_FrameWnd, H_MainWnd); }
 
 IMPL_HANDLE_EVENT(TProgram)
 {
@@ -2456,13 +2450,13 @@ int DrawInputLine(HWND hwnd, DRAWITEMSTRUCT * pDi)
 {
 	int    ok = 0;
 	if(oneof2(APPL->GetUiSettings().WindowViewStyle, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector)) {
-		const int    focused  = BIN(pDi->itemAction == ODA_FOCUS || (pDi->itemState & ODS_FOCUS));
-		const int    disabled = BIN(pDi->itemState & ODS_DISABLED);
+		const  int focused  = BIN(pDi->itemAction == ODA_FOCUS || (pDi->itemState & ODS_FOCUS));
+		const  int disabled = BIN(pDi->itemState & ODS_DISABLED);
 		COLORREF brush_color = RGB(0xDC, 0xD9, 0xD1);
 		COLORREF pen_color = focused ? _GetAssetColor(_assetCtrlFocusedBorderColor) : _GetAssetColor(_assetCtrlBorderColor);
-		HPEN   pen   = CreatePen(PS_SOLID, 1, pen_color);
-		HBRUSH brush = CreateSolidBrush(brush_color);
-		HPEN   old_pen   = (HPEN)SelectObject(pDi->hDC, pen);
+		HPEN   pen   = ::CreatePen(PS_SOLID, 1, pen_color);
+		HBRUSH brush = ::CreateSolidBrush(brush_color);
+		HPEN   old_pen   = static_cast<HPEN>(::SelectObject(pDi->hDC, pen));
 		HBRUSH old_brush = static_cast<HBRUSH>(::SelectObject(pDi->hDC, brush));
 		// RoundRect(pDi->hDC, pDi->rcItem.left, pDi->rcItem.top, pDi->rcItem.right, pDi->rcItem.bottom, ROUNDRECT_RADIUS, ROUNDRECT_RADIUS);
 		{
@@ -2623,7 +2617,7 @@ int TProgram::EraseBackground(TView * pView, HWND hWnd, HDC hDC, int ctlType)
 		di.hwndItem   = hWnd;
 		di.hDC        = hDC;
 		::GetClientRect(hWnd, &di.rcItem);
-		ok = DrawControl(GetParent(hWnd), WM_ERASEBKGND, (WPARAM)&di, 0);
+		ok = DrawControl(GetParent(hWnd), WM_ERASEBKGND, reinterpret_cast<WPARAM>(&di), 0);
 	}
 	return ok;
 }

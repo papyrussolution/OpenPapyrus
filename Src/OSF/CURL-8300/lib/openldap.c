@@ -656,15 +656,13 @@ static CURLcode oldap_state_mechs_resp(struct Curl_easy * data,
 }
 
 /* Handle a SASL bind response. */
-static CURLcode oldap_state_sasl_resp(struct Curl_easy * data,
-    LDAPMessage * msg, int code)
+static CURLcode oldap_state_sasl_resp(struct Curl_easy * data, LDAPMessage * msg, int code)
 {
 	struct connectdata * conn = data->conn;
 	struct ldapconninfo * li = conn->proto.ldapc;
 	CURLcode result = CURLE_OK;
 	saslprogress progress;
 	int rc;
-
 	li->servercred = NULL;
 	rc = ldap_parse_sasl_bind_result(li->ld, msg, &li->servercred, 0);
 	if(rc != LDAP_SUCCESS) {
@@ -691,19 +689,15 @@ static CURLcode oldap_state_bind_resp(struct Curl_easy * data, LDAPMessage * msg
 	CURLcode result = CURLE_OK;
 	struct berval * bv = NULL;
 	int rc;
-
 	if(code != LDAP_SUCCESS)
 		return oldap_map_error(code, CURLE_LDAP_CANNOT_BIND);
-
 	rc = ldap_parse_sasl_bind_result(li->ld, msg, &bv, 0);
 	if(rc != LDAP_SUCCESS) {
-		failf(data, "LDAP local: bind ldap_parse_sasl_bind_result %s",
-		    ldap_err2string(rc));
+		failf(data, "LDAP local: bind ldap_parse_sasl_bind_result %s", ldap_err2string(rc));
 		result = oldap_map_error(rc, CURLE_LDAP_CANNOT_BIND);
 	}
 	else
 		state(data, OLDAP_STOP);
-
 	if(bv)
 		ber_bvfree(bv);
 	return result;

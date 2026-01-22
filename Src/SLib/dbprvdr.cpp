@@ -185,10 +185,8 @@ int DbLoginBlockArray::Add(long id, const DbLoginBlock * pBlk, int replaceDup)
 	}
 	if(ok == 1) {
 		//
-		// Учитывая порядок формирования списка to_remove_list
-		// он отсортирован в возрастающем порядке. Следовательно,
-		// мы должны удалять элементы, начиная с последнего индекса
-		// и до первого включительно.
+		// Учитывая порядок формирования списка to_remove_list он отсортирован в возрастающем порядке. Следовательно,
+		// мы должны удалять элементы, начиная с последнего индекса и до первого включительно.
 		//
 		i = to_remove_list.getCount();
 		if(i) do {
@@ -202,10 +200,7 @@ int DbLoginBlockArray::Add(long id, const DbLoginBlock * pBlk, int replaceDup)
 	return ok;
 }
 
-uint DbLoginBlockArray::GetCount() const
-{
-	return SCollection::getCount();
-}
+uint DbLoginBlockArray::GetCount() const { return SCollection::getCount(); }
 
 int DbLoginBlockArray::GetByID(long id, DbLoginBlock * pBlk) const
 {
@@ -329,13 +324,21 @@ int DbLoginBlockArray::MakeList(StrAssocArray * pList, long options, const LongA
 //
 //
 //
-DbProvider::Connection::Connection() : H(0)
+DbProvider::Connection::Connection() : Signature(SlConst::DBConnSignature), H(0)
 {
 }
 		
-DbProvider::Connection::Connection(const DbProvider::Connection & rS) : H(rS.H)
+DbProvider::Connection::Connection(const DbProvider::Connection & rS) : Signature(SlConst::DBConnSignature), H(rS.H)
 {
 }
+
+DbProvider::Connection::~Connection()
+{
+	Signature = 0;
+	H = 0;
+}
+
+bool DbProvider::Connection::IsConsistent() const { return reinterpret_cast<uint64>(this) > 16 && this->Signature == SlConst::DBConnSignature; }
 		
 DbProvider::Connection & FASTCALL DbProvider::Connection::operator = (const Connection & rS)
 {
@@ -644,10 +647,8 @@ int DbProvider::SetupProtectData(const char * pOldPw, const char * pNewPw)
 	}
 	THROW(stricmp((char *)buf, pOldPw) == 0);
 	p_temp = static_cast<char *>(SAlloc::M(PASZ));
-	// @v11.1.1 IdeaRandMem(p_temp, PASZ);
-	// @v11.1.1 IdeaRandMem(buf, sizeof(buf));
-	SObfuscateBuffer(p_temp, PASZ); // @v11.1.1
-	SObfuscateBuffer(buf, sizeof(buf)); // @v11.1.1
+	SObfuscateBuffer(p_temp, PASZ);
+	SObfuscateBuffer(buf, sizeof(buf));
 	strcpy((char *)buf, pNewPw);
 	::encrypt((char *)buf, sizeof(buf));
 	memcpy(p_temp + PAOFS, buf, sizeof(buf));
@@ -769,7 +770,7 @@ int DbProvider::Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ)
 				ok = 0;
 			else if(!pTbl->getDirectForUpdate(pTbl->GetCurIndex(), key_buf, _dbpos))
 				ok = 0;
-			else if(pTbl->deleteRec() == 0) // @sfu
+			else if(!pTbl->deleteRec()) // @sfu
 				ok = 0;
 		} while(ok && q->single_fetch(0, 0, spNext));
 		if(q->Error_)

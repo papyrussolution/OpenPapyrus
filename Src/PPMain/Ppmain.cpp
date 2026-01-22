@@ -1,5 +1,5 @@
 // PPMAIN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2020, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2020, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -170,7 +170,7 @@ int main(int argc, char ** argv)
 //
 // DLL entry points {
 //
-#include <dl600.h>
+// @v12.5.4 (pp.h) #include <dl600.h>
 
 STDAPI DllCanUnloadNow()
 {
@@ -233,6 +233,11 @@ extern "C" int __declspec(dllexport) SelectVersion(HWND hWndOwner, char * pPath,
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	int    ret = 0;
+#ifdef CENTRIGO
+	const  long internal_app_id = PPSession::internalappCentrigo;
+#else
+	const  long internal_app_id = PPSession::internalappPapyrusUi;
+#endif
 	if(!PPSession::CheckExecutionLocking())
 		ret = -1;
 	else {
@@ -240,7 +245,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, 
 		iccex.dwSize = sizeof(INITCOMMONCONTROLSEX);
 		iccex.dwICC = ICC_COOL_CLASSES|ICC_BAR_CLASSES|ICC_LISTVIEW_CLASSES|ICC_USEREX_CLASSES|ICC_WIN95_CLASSES;
 		InitCommonControlsEx(&iccex);
-		if(DS.Init(PPSession::internalappPapyrusUi, PPSession::fInitPaths, 0, /*pUiDescriptionFileName*/"uid-papyrus.json")) {
+		if(DS.Init(internal_app_id, PPSession::fInitPaths, 0, /*pUiDescriptionFileName*/"uid-papyrus.json")) {
 //#if SLTEST_RUNNING
 			TestNoLogin();
 			// @experimental ExploreIEEE754();
@@ -305,7 +310,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, 
 				if(!font_smoothing_settled) {
 					::SystemParametersInfo(SPI_SETFONTSMOOTHING, TRUE, 0, 0); 
 					::SystemParametersInfo(SPI_SETFONTSMOOTHINGTYPE, 0, (PVOID)FE_FONTSMOOTHINGCLEARTYPE, 0); 
-					::SystemParametersInfo(SPI_SETFONTSMOOTHINGCONTRAST, 0, (PVOID)1600, SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
+					::SystemParametersInfo(SPI_SETFONTSMOOTHINGCONTRAST, 0, (PVOID)1600, SPIF_UPDATEINIFILE|SPIF_SENDCHANGE);
 				}
 			}
 			DS.SetMenu(MENU_DEFAULT);

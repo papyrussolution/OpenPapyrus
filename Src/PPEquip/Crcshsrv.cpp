@@ -4971,7 +4971,7 @@ int Cristal2SetRetailGateway::CmdParam::Serialize(int dir, SBuffer & rBuf, SSeri
 	Reference * p_ref(PPRef);
 	PPObjTag tag_obj;
 	PPID   tag_id = 0;
-	PPObjectTag tag_rec;
+	PPObjectTag2 tag_rec;
 	PPObjCashNode cn_obj;
 	PPID   cn_id = 0;
 	if(tag_obj.SearchByName("Cristal2SetRetailGateway", &tag_id, &tag_rec) > 0) {
@@ -5111,7 +5111,7 @@ int Cristal2SetRetailGateway::Process(const CmdParam & rParam)
 	int    ok = -1;
 	Reference * p_ref(PPRef);
 	PPObjTag tag_obj;
-	PPObjectTag tag_rec;
+	PPObjectTag2 tag_rec;
 	PPObjGoodsGroup gg_obj;
 	PPObjUnit u_obj;
 	PPObjScale scale_obj;
@@ -5928,7 +5928,7 @@ int Test_Cristal2SetRetailGateway()
 		Reference * p_ref(PPRef);
 		PPObjTag tag_obj;
 		PPID   tag_id = 0;
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		PPID   cn_id = 0;
 		PPAsyncCashNode acn_pack;
 		if(Cristal2SetRetailGateway::SearchPosNode(&cn_id, &acn_pack) > 0) {

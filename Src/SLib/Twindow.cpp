@@ -1299,7 +1299,9 @@ static LPCTSTR P_SLibWindowBaseClsName = _T("SLibWindowBase");
 		if(!pView->IsInState(sfModal)) {
 			APPL->P_DeskTop->remove(pView);
 			TView::SetWindowUserData(hWnd, 0);
-			delete pView;
+			if(!(pView->Sf & sfOnDestroy)) { // @v12.5.4
+				delete pView;
+			}
 		}
 	}
 }
@@ -1581,10 +1583,76 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 	return result;
 }
 
+/*static*/int TWindowBase::OnCreate(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	TWindowBase * p_view = 0;
+	CreateBlock cr_blk;
+	MEMSZERO(cr_blk);
+	CREATESTRUCTW * p_init_data = reinterpret_cast<CREATESTRUCTW *>(lParam);
+	if(IsMDIClientWindow(p_init_data->hwndParent)) {
+		MDICREATESTRUCTW * p_mdi_init_data = static_cast<LPMDICREATESTRUCT>(p_init_data->lpCreateParams);
+		p_view = reinterpret_cast<TWindowBase *>(p_mdi_init_data->lParam);
+		p_view->WbState |= wbsMDI;
+		cr_blk.Coord.setwidthrel(p_mdi_init_data->x, p_mdi_init_data->cx);
+		cr_blk.Coord.setheightrel(p_mdi_init_data->y, p_mdi_init_data->cy);
+		cr_blk.Param = reinterpret_cast<void *>(p_mdi_init_data->lParam);
+		cr_blk.H_Process = p_mdi_init_data->hOwner;
+		cr_blk.Style = p_mdi_init_data->style;
+		cr_blk.ExStyle = 0;
+		cr_blk.H_Parent = 0;
+		cr_blk.H_Menu = 0;
+		cr_blk.P_WndCls = SUcSwitchW(p_mdi_init_data->szClass);
+		cr_blk.P_Title = SUcSwitchW(p_mdi_init_data->szTitle);
+	}
+	else {
+		p_view = static_cast<TWindowBase *>(p_init_data->lpCreateParams);
+		p_view->WbState &= ~wbsMDI;
+		cr_blk.Coord.setwidthrel(p_init_data->x, p_init_data->cx);
+		cr_blk.Coord.setheightrel(p_init_data->y, p_init_data->cy);
+		cr_blk.Param = p_init_data->lpCreateParams;
+		cr_blk.H_Process = p_init_data->hInstance;
+		cr_blk.Style = p_init_data->style;
+		cr_blk.ExStyle = p_init_data->dwExStyle;
+		cr_blk.H_Parent = p_init_data->hwndParent;
+		cr_blk.H_Menu = p_init_data->hMenu;
+		cr_blk.P_WndCls = SUcSwitchW(p_init_data->lpszClass);
+		cr_blk.P_Title = SUcSwitchW(p_init_data->lpszName);
+	}
+	if(p_view) {
+		p_view->HW = hWnd;
+		p_view->ViewOrigin.Set(p_init_data->x, p_init_data->y);
+		p_view->ViewSize.Set(p_init_data->cx, p_init_data->cy);
+		//p_view->RegisterMouseTracking(1);
+		TView::SetWindowUserData(hWnd, p_view);
+		TView::messageCommand(p_view, cmInit, &cr_blk);
+		{
+			SetupCtrlTextProc(p_view->H(), 0);
+			TView * p_child_view = p_view->P_Last;
+			if(p_child_view) {
+				do {
+					HWND   ctrl = GetDlgItem(hWnd, p_child_view->GetId());
+					SETIFZ(ctrl, GetDlgItem(hWnd, MAKE_BUTTON_ID(p_child_view->GetId(), 1)));
+					if(IsWindow(ctrl)) {
+						p_child_view->Parent = hWnd;
+						// Теоретически, в качестве первого аргумента должно быть message (WM_CREATE),
+						// но учитывая то, что блок перенесен из TDialog для унификации взаимодействия с
+						// управляющими элементами и из иных окон, пока для совместимости оставим WM_INITDIALOG
+						p_child_view->handleWindowsMessage(WM_INITDIALOG, wParam, lParam);
+						EnableWindow(ctrl, !p_child_view->IsInState(sfDisabled));
+					}
+				} while((p_child_view = p_child_view->prev()) != p_view->P_Last);
+			}
+			EnumChildWindows(hWnd, SetupCtrlTextProc, 0);
+		}
+		return 0;
+	}
+	else
+		return -1;
+}
+
 /*static*/LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	TWindowBase * p_view = static_cast<TWindowBase *>(TView::GetWindowUserData(hWnd));
-	LPCREATESTRUCT p_init_data;
 	switch(message) {
 		case WM_HELP:
 			{
@@ -1605,72 +1673,7 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 			}
 			break;
 		case WM_CREATE:
-			{
-				CreateBlock cr_blk;
-				MEMSZERO(cr_blk);
-				p_init_data = reinterpret_cast<LPCREATESTRUCT>(lParam);
-				if(IsMDIClientWindow(p_init_data->hwndParent)) {
-					MDICREATESTRUCT * p_mdi_init_data = static_cast<LPMDICREATESTRUCT>(p_init_data->lpCreateParams);
-					p_view = reinterpret_cast<TWindowBase *>(p_mdi_init_data->lParam);
-					p_view->WbState |= wbsMDI;
-					cr_blk.Coord.setwidthrel(p_mdi_init_data->x, p_mdi_init_data->cx);
-					cr_blk.Coord.setheightrel(p_mdi_init_data->y, p_mdi_init_data->cy);
-					cr_blk.Param = reinterpret_cast<void *>(p_mdi_init_data->lParam);
-					cr_blk.H_Process = p_mdi_init_data->hOwner;
-					cr_blk.Style = p_mdi_init_data->style;
-					cr_blk.ExStyle = 0;
-					cr_blk.H_Parent = 0;
-					cr_blk.H_Menu = 0;
-					cr_blk.P_WndCls = SUcSwitch(p_mdi_init_data->szClass);
-					cr_blk.P_Title = SUcSwitch(p_mdi_init_data->szTitle);
-				}
-				else {
-					p_view = static_cast<TWindowBase *>(p_init_data->lpCreateParams);
-					p_view->WbState &= ~wbsMDI;
-					cr_blk.Coord.setwidthrel(p_init_data->x, p_init_data->cx);
-					cr_blk.Coord.setheightrel(p_init_data->y, p_init_data->cy);
-					cr_blk.Param = p_init_data->lpCreateParams;
-					cr_blk.H_Process = p_init_data->hInstance;
-					cr_blk.Style = p_init_data->style;
-					cr_blk.ExStyle = p_init_data->dwExStyle;
-					cr_blk.H_Parent = p_init_data->hwndParent;
-					cr_blk.H_Menu = p_init_data->hMenu;
-					cr_blk.P_WndCls = SUcSwitch(p_init_data->lpszClass);
-					cr_blk.P_Title = SUcSwitch(p_init_data->lpszName);
-				}
-				if(p_view) {
-					p_view->HW = hWnd;
-					p_view->ViewOrigin.Set(p_init_data->x, p_init_data->y);
-					p_view->ViewSize.Set(p_init_data->cx, p_init_data->cy);
-					//p_view->RegisterMouseTracking(1);
-					TView::SetWindowUserData(hWnd, p_view);
-					TView::messageCommand(p_view, cmInit, &cr_blk);
-					// @v11.2.3 {
-					{
-						SetupCtrlTextProc(p_view->H(), 0);
-						TView * p_child_view = p_view->P_Last;
-						if(p_child_view) {
-							do {
-								HWND   ctrl = GetDlgItem(hWnd, p_child_view->GetId());
-								SETIFZ(ctrl, GetDlgItem(hWnd, MAKE_BUTTON_ID(p_child_view->GetId(), 1)));
-								if(IsWindow(ctrl)) {
-									p_child_view->Parent = hWnd;
-									// Теоретически, в качестве первого аргумента должно быть message (WM_CREATE),
-									// но учитывая то, что блок перенесен из TDialog для унификации взаимодействия с
-									// управляющими элементами и из иных окон, пока для совместимости оставим WM_INITDIALOG
-									p_child_view->handleWindowsMessage(WM_INITDIALOG, wParam, lParam);
-									EnableWindow(ctrl, !p_child_view->IsInState(sfDisabled));
-								}
-							} while((p_child_view = p_child_view->prev()) != p_view->P_Last);
-						}
-						EnumChildWindows(hWnd, SetupCtrlTextProc, 0);
-					}
-					// } @v11.2.3 
-					return 0;
-				}
-				else
-					return -1;
-			}
+			return TWindowBase::OnCreate(hWnd, message, wParam, lParam);
 		case WM_DESTROY:
 			if(p_view) {
 				SETIFZ(p_view->EndModalCmd, cmCancel);
@@ -1759,8 +1762,7 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 				pe.Rect = p_view->getClientRect();
 				void * p_ret = TView::messageCommand(p_view, cmPaint, &pe);
 				//
-				// Если получатель очистил фон, он должен акцептировть сообщение.
-				// Windows ожидает получить в этом случае !0.
+				// Если получатель очистил фон, он должен акцептировть сообщение. Windows ожидает получить в этом случае !0.
 				//
 				return BIN(p_ret);
 			}
@@ -1826,7 +1828,7 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 			if(p_view && (wParam != VK_RETURN || LOBYTE(HIWORD(lParam)) != 0x1c))
 				TView::messageKeyDown(p_view, wParam);
 			return 0;
-		case WM_DRAWITEM: // @v11.2.0
+		case WM_DRAWITEM:
 			return p_view ? p_view->RedirectDrawItemMessage(message, wParam, lParam) : FALSE;
 		case WM_CLOSE: // @v11.2.4
 			if(p_view && p_view->IsInState(sfModal)) {

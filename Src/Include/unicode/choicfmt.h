@@ -211,14 +211,11 @@ public:
 	 */
 	ChoiceFormat(const ChoiceFormat& that);
 	/**
-	 * Assignment operator.
-	 *
 	 * @param that   ChoiceFormat object to be copied
 	 * @deprecated ICU 49 Use MessageFormat instead, with plural and select arguments.
 	 */
 	const ChoiceFormat& operator = (const ChoiceFormat& that);
 	/**
-	 * Destructor.
 	 * @deprecated ICU 49 Use MessageFormat instead, with plural and select arguments.
 	 */
 	virtual ~ChoiceFormat();

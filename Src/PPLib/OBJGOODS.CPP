@@ -5114,7 +5114,7 @@ int PPObjGoods::SetupAttrByTextDescr(PPID id, const char * pLine, int use_ta)
 	int    gcext_updated = 0;
 	SString temp_buf, attr;
 	PPObjTag tag_obj;
-	PPObjectTag tag_rec;
+	PPObjectTag2 tag_rec;
 	PPObjGoodsClass gc_obj;
 	PPObjUnit u_obj;
 	PPObjGoodsGroup gg_obj;

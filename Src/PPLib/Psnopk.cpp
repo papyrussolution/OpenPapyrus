@@ -358,7 +358,7 @@ int PPPsnOpKindPacket::CheckExVal()
 		THROW_PP(tags_count, PPERR_UNDEFPOKEVTAG);
 		{
 			PPObjTag tag_obj;
-			PPObjectTag tag_rec;
+			PPObjectTag2 tag_rec;
 			for(uint i = 0; i < tags_count; i++) {
 				THROW_PP(tag_obj.Fetch(tags_list.at(i), &tag_rec) > 0, PPERR_UNDEFPOKEVTAG);
 			}
@@ -449,7 +449,7 @@ IMPL_HANDLE_EVENT(PsnOpKindView)
 			case cmTransmit:
 				{
 					PPIDArray id_list;
-					ReferenceTbl::Rec rec;
+					Reference2Tbl::Rec rec;
 					for(PPID id = 0; Obj.EnumItems(&id, &rec) > 0;)
 						id_list.add(rec.ObjID);
 					if(id_list.getCount()) {
@@ -602,7 +602,7 @@ long PPObjPsnOpKind::GetLevel(PPID id)
 						case cmTransmit:
 							{
 								PPIDArray id_list;
-								ReferenceTbl::Rec rec;
+								Reference2Tbl::Rec rec;
 								PPObjPsnOpKind pk_obj;
 								for(PPID id = 0; pk_obj.EnumItems(&id, &rec) > 0;)
 									id_list.add(rec.ObjID);
@@ -1128,7 +1128,7 @@ private:
 int PsnOpExVDialog::setupList()
 {
 	PPObjTag tag_obj;
-	PPObjectTag tag_rec;
+	PPObjectTag2 tag_rec;
 	if(Data.AllowedTags.IsExists()) {
 		SString buf;
 		const PPIDArray & r_ary = Data.AllowedTags.Get();
@@ -1414,7 +1414,7 @@ int EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 			SString tag_name;
 			PPIDArray allowed_tags;
 			PPObjTag tag_obj;
-			PPObjectTag tag_rec;
+			PPObjectTag2 tag_rec;
 			RVALUEPTR(Data, pData);
 			SetupStringCombo(this, CTLSEL_POVERB_VERB, PPTXT_POVERB, Data.VerbID);
 			if(Data.Subj == POCOBJ_PRIMARY)

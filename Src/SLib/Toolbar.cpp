@@ -1,6 +1,6 @@
 // Toolbar.cpp
 // There's a mine born by Osolotkin, 2000, 2001
-// Modified by A.Sobolev, 2002, 2003, 2005, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024
+// Modified by A.Sobolev, 2002, 2003, 2005, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -8,6 +8,8 @@
 #include <ppdefs.h>
 
 #define OEMRESOURCE
+
+static const wchar_t * P_TToolbarWndClsName = L"TOOLBAR_FOR_PPY";
 
 TToolbar::TToolbar(HWND hWnd, DWORD style) : PrevToolProc(0), H_MainWnd(hWnd), H_Menu(0), H_Toolbar(0), CurrPos(0), Style(style)
 {
@@ -17,15 +19,15 @@ TToolbar::TToolbar(HWND hWnd, DWORD style) : PrevToolProc(0), H_MainWnd(hWnd), H
 	{
 		WNDCLASSEXW wc;
 		INITWINAPISTRUCT(wc);
-		wc.lpszClassName = L"TOOLBAR_FOR_PPY";
+		wc.lpszClassName = P_TToolbarWndClsName;
 		wc.hInstance = TProgram::GetInst();
 		wc.lpfnWndProc = static_cast<WNDPROC>(WndProc);
 		wc.style = CS_HREDRAW|CS_VREDRAW;
-		wc.hCursor = LoadCursor(0, IDC_ARROW);
+		wc.hCursor = LoadCursorW(0, IDC_ARROW);
 		wc.hbrBackground = static_cast<HBRUSH>(GetStockObject(LTGRAY_BRUSH));
-		::RegisterClassEx(&wc);
+		::RegisterClassExW(&wc);
 	}
-	H_Wnd = ::CreateWindowExW(WS_EX_TOOLWINDOW, L"TOOLBAR_FOR_PPY", NULL, WS_CHILD|WS_CLIPSIBLINGS, 0, 0, 0, 0, hWnd, 0, TProgram::GetInst(), 0);
+	H_Wnd = ::CreateWindowExW(WS_EX_TOOLWINDOW, P_TToolbarWndClsName, NULL, WS_CHILD|WS_CLIPSIBLINGS, 0, 0, 0, 0, hWnd, 0, TProgram::GetInst(), 0);
 	TView::SetWindowProp(H_Wnd, GWLP_USERDATA, this);
 	H_Toolbar = ::CreateWindowExW(WS_EX_TOOLWINDOW, TOOLBARCLASSNAME, L"", WS_CHILD|TBSTYLE_TOOLTIPS|TBSTYLE_FLAT|CCS_NORESIZE|WS_CLIPSIBLINGS, 0, 0, 0, 0, H_Wnd, 0, TProgram::GetInst(), 0);
 	TView::SetWindowProp(H_Toolbar, GWLP_USERDATA, this);
@@ -34,7 +36,7 @@ TToolbar::TToolbar(HWND hWnd, DWORD style) : PrevToolProc(0), H_MainWnd(hWnd), H
 	DWORD s = static_cast<DWORD>(::SendMessageW(H_Toolbar, TB_GETBUTTONSIZE, 0, 0));
 	Width  = LOWORD(s);
 	Height = HIWORD(s) + 4;
-	PostMessage(H_Wnd, WM_USER, 0, 0);
+	PostMessageW(H_Wnd, WM_USER, 0, 0);
 }
 
 TToolbar::~TToolbar()
@@ -300,10 +302,10 @@ LRESULT CALLBACK TToolbar::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARA
 						LineTo(hdc, rc.right-3, 8);
 						break;
 				}
-				SelectObject(hdc, oldPen);
+				::SelectObject(hdc, oldPen);
 				ZDeleteWinGdiObject(&hPen);
-				hPen = CreatePen(PS_SOLID, 2, RGB(0xF0,0xF0,0xF0));
-				SelectObject(hdc, hPen);
+				hPen = ::CreatePen(PS_SOLID, 2, RGB(0xF0,0xF0,0xF0));
+				::SelectObject(hdc, hPen);
 				switch(pTbWnd->CurrPos) {
 					case TOOLBAR_ON_BOTTOM:
 					case TOOLBAR_ON_TOP:

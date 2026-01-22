@@ -1391,11 +1391,11 @@ UiSearchTextBlock::~UiSearchTextBlock()
 						HWND   h_parent = 0;
 						SString cls_name;
 						TView::SGetWindowClassName(p_slb->H_Wnd, cls_name);
-						if(cls_name.Cmp(SUcSwitch(BrowserWindow::WndClsName), 0) == 0) {
+						if(cls_name.Cmp(SUcSwitchW(BrowserWindow::WndClsName), 0) == 0) {
 							h_parent = p_slb->H_Wnd;
 							is_browser = 1;
 						}
-						else if(cls_name.Cmp(SUcSwitch(TInputLine::WndClsName), 0) == 0)
+						else if(cls_name.Cmp(SUcSwitchW(TInputLine::WndClsName), 0) == 0)
 							h_parent = p_slb->H_Wnd;
 						else
 							h_parent = p_slb->LinkToList ? p_slb->H_Wnd : GetWindow(hwndDlg, GW_OWNER);

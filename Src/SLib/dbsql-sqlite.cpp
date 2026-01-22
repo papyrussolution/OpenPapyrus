@@ -8,11 +8,17 @@
 #include <..\osf\SQLite\sqlite3.h>
 #include <ued.h>
 
-#ifndef NDEBUG
+static void DEBUG_LOG(const char * pMsg)
+{
+	if(SlDebugMode::CT())
+		SLS.LogMessage("dbsqlite.log", pMsg, 0);
+}
+
+/*#ifndef NDEBUG
 	#define DEBUG_LOG(msg) SLS.LogMessage("dbsqlite.log", msg, 0)
 #else
 	#define DEBUG_LOG(msg)
-#endif
+#endif*/
 
 const char * P_CollationSymb = "SLIB_UTF8_NOCASE";
 
@@ -768,7 +774,7 @@ int SSqliteDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pK
 		THROW(Helper_MakeSearchQuery(pTbl, idx, pKey, srchMode, sf, sqb));
 		can_continue = LOGIC(sqb.Flags & SearchQueryBlock::fCanContinue);
 		{
-			THROW(p_stmt = new DBTable::SelectStmt(this, pTbl, sqb.SqlG, idx, sqb.SrchMode, sf));
+			THROW(p_stmt = new DBTable::SelectStmt(this, 0/*pExternalConnection*/, pTbl, sqb.SqlG, idx, sqb.SrchMode, sf));
 			new_stmt = true;
 			THROW(p_stmt->IsValid());
 			{

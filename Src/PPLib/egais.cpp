@@ -1,5 +1,5 @@
 // EGAIS.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Интеграция с системой EGAIS
 //
@@ -3500,7 +3500,7 @@ int PPEgaisProcessor::Read_ProductInfo(xmlNode * pFirstNode, PPGoodsPacket * pPa
 	if(pRefC)
 		pRefC->LastProductP = -1;
 	if(manuf_tag_id) {
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
         if(TagObj.Fetch(manuf_tag_id, &tag_rec) > 0) {
 			if(tag_rec.TagDataType == OTTYP_OBJLINK && tag_rec.TagEnumID == PPOBJ_PERSON && tag_rec.LinkObjGrp)
 				manuf_psn_kind_id = tag_rec.LinkObjGrp;
@@ -3743,7 +3743,7 @@ int PPEgaisProcessor::AssignManufTypeToPersonPacket(PPPersonPacket & rPack, int 
 	if(oneof2(manuf_type, 1, 2)) {
 		SString temp_buf;
 		PPObjTag tag_obj;
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
         if(Cfg.ManufImpTagID && tag_obj.Fetch(Cfg.ManufImpTagID, &tag_rec) > 0) {
 			const ObjTagItem * p_item = rPack.TagL.GetItem(Cfg.ManufImpTagID);
 			if(!p_item) {

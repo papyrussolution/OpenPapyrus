@@ -74,7 +74,7 @@ static bool FASTCALL IsEOL(Accessor & styler, Sci_PositionU curPos)
 
 static bool FASTCALL checkStatement(Accessor & styler, Sci_Position &curPos, const char * stt, bool spaceAfter = true)
 {
-	int len = static_cast<int>(sstrlen(stt));
+	int len = sstrleni(stt);
 	int i;
 	for(i = 0; i < len; i++) {
 		if(styler.SafeGetCharAt(curPos + i) != stt[i]) {
@@ -86,14 +86,14 @@ static bool FASTCALL checkStatement(Accessor & styler, Sci_Position &curPos, con
 			return false;
 		}
 	}
-	curPos += ( len - 1 );
+	curPos += (len - 1);
 	return true;
 }
 
 static bool FASTCALL checkEndSemicolon(Accessor & styler, Sci_Position &curPos, Sci_Position endPos)
 {
 	const char * stt = "END";
-	int len = static_cast<int>(sstrlen(stt));
+	int len = sstrleni(stt);
 	int i;
 	for(i = 0; i < len; i++) {
 		if(styler.SafeGetCharAt(curPos + i) != stt[i]) {

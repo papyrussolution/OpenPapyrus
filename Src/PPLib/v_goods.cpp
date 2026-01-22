@@ -1,5 +1,5 @@
 // V_GOODS.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -5373,7 +5373,7 @@ int PPALDD_UhttGoods::NextIteration(long iterId)
 			const ObjTagItem * p_item = r_blk.Pack.TagL.GetItemByPos(r_blk.TagIterCounter);
 			I_TagList.TagTypeID = p_item->TagDataType;
 			{
-				PPObjectTag rec;
+				PPObjectTag2 rec;
 				if(r_blk.TagObj.Fetch(p_item->TagID, &rec) > 0)
 					STRNSCPY(I_TagList.TagSymb, rec.Symb);
 			}
@@ -5404,7 +5404,7 @@ static int SetOuterGoodsTag(PPID tagID, const SString & rTagStrValue, PPGoodsPac
 {
 	int    ok = -1;
 	PPObjTag tag_obj;
-	PPObjectTag tag_rec;
+	PPObjectTag2 tag_rec;
 	if(tagID && rTagStrValue.NotEmpty() && tag_obj.Fetch(tagID, &tag_rec) > 0) {
 		Reference * p_ref(PPRef);
 		ObjTagItem pgg_tag_value;
@@ -5419,7 +5419,7 @@ static int SetOuterGoodsTag(PPID tagID, const SString & rTagStrValue, PPGoodsPac
 				for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 					value_buf = temp_buf;
 					if(value_buf.NotEmptyS()) {
-						ReferenceTbl::Rec ref_rec;
+						Reference2Tbl::Rec ref_rec;
 						PPID   ref_id = 0;
 						int    r = p_ref->SearchName(tag_rec.TagEnumID, &ref_id, value_buf, &ref_rec);
 						THROW(r);
@@ -5545,7 +5545,7 @@ int PPALDD_UhttGoods::Set(long iterId, int commit)
 			}
 			if(H.TaxGrpID) {
 				PPObjGoodsTax gt_obj;
-				PPGoodsTax gt_rec;
+				PPGoodsTax2 gt_rec;
 				if(gt_obj.Search(H.TaxGrpID, &gt_rec) > 0)
 					r_pack.Rec.TaxGrpID = H.TaxGrpID;
 			}
@@ -5864,7 +5864,7 @@ int PPALDD_GoodsTaxGrp::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
-		PPGoodsTax rec;
+		PPGoodsTax2 rec;
 		PPObjGoodsTax gtobj;
 		if(gtobj.Search(rFilt.ID, &rec) > 0) {
 			H.ID = rec.ID;

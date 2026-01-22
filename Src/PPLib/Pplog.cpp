@@ -16,7 +16,7 @@ public:
 	{
 		::DestroyWindow(HwndSci);
 		ZDELETE(P_MsgLog);
-		delete P_Toolbar;
+		ZDELETE(P_Toolbar);
 	}
 	void   Append();
 	void   Refresh(long item);

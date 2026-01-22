@@ -2609,7 +2609,7 @@ int CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 					*/
 					{
 						PPObjTag tag_obj;
-						PPObjectTag tag_rec;
+						PPObjectTag2 tag_rec;
 						if(pop_pack.PCPrmr.RestrictTagID && tag_obj.Fetch(pop_pack.PCPrmr.RestrictTagID, &tag_rec) > 0) {
 							const ObjTagItem * p_tag = psn_pack.TagL.GetItem_ForceEmpty(pop_pack.PCPrmr.RestrictTagID);
 							if(p_tag) {

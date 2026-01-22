@@ -1309,7 +1309,7 @@ int SelAmtSymbDialog::MakeList(StrAssocArray * pList)
 		}
 	}
 	if(Options & selSymbFormula) {
-		ReferenceTbl::Rec frm_rec;
+		Reference2Tbl::Rec frm_rec;
 		for(id = 0; FrmObj.EnumItems(&id, &frm_rec) > 0;) {
 			FrmObj.Get(id, frm_name, frm_expr);
 			ss.Z();

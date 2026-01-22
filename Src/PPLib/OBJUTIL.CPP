@@ -1462,7 +1462,7 @@ PPID FASTCALL GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
 	long   int_type_id = satoi(pObjType); // @v11.4.3 atol-->satoi
 	if(!SETIFZ(ident.Obj, NZOR(int_type_id, GetObjectTypeBySymb(pObjType, &obj_type_ext)))) {
 		PPSaveErrContext();
-		if(p_ref->SearchSymb(PPOBJ_DYNAMICOBJS, &int_type_id, pObjType, offsetof(ReferenceTbl::Rec, Symb)) > 0)
+		if(p_ref->SearchSymb(PPOBJ_DYNAMICOBJS, &int_type_id, pObjType, offsetof(Reference2Tbl::Rec, Symb)) > 0)
 			ident.Obj = int_type_id;
 		PPRestoreErrContext();
 	}
@@ -1485,7 +1485,7 @@ PPID FASTCALL GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
 			case PPOBJ_QUOTKIND:
 			case PPOBJ_CURRENCY:
 			case PPOBJ_CURRATETYPE:
-				ok = p_ref->SearchSymb(ident.Obj, &ident.Id, pObjIdent, offsetof(ReferenceTbl::Rec, Symb));
+				ok = p_ref->SearchSymb(ident.Obj, &ident.Id, pObjIdent, offsetof(Reference2Tbl::Rec, Symb));
 				break;
 			case PPOBJ_LOCATION:
 				if(sstreqi_ascii(pObjIdent, "_undef")) {
@@ -1498,7 +1498,7 @@ PPID FASTCALL GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
 				break;
 			default:
 				if(IS_DYN_OBJTYPE(ident.Obj)) {
-					ok = p_ref->SearchSymb(ident.Obj, &ident.Id, pObjIdent, offsetof(ReferenceTbl::Rec, Symb));
+					ok = p_ref->SearchSymb(ident.Obj, &ident.Id, pObjIdent, offsetof(Reference2Tbl::Rec, Symb));
 				}
 				else {
 					SString msg_buf;

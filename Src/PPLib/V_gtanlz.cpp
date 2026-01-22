@@ -1,5 +1,5 @@
 // V_GTANLZ.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2024, 2025
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2024, 2025, 2026
 // @codepage UTF-8
 // Налоговый анализ товарооборота
 //
@@ -171,7 +171,7 @@ int PPViewGoodsTaxAnalyze::EditBaseFilt(PPBaseFilt * pBaseFilt)
 
 void PPViewGoodsTaxAnalyze::MakeTaxStr(GoodsGrpngEntry * pGGE, char * pBuf, size_t bufLen)
 {
-	PPGoodsTax gt_rec;
+	PPGoodsTax2 gt_rec;
 	PPGoodsTaxEntry gtx_entry;
 	SString temp_buf;
 	if(Filt.Flags & (GoodsTaxAnalyzeFilt::fDiffByInVAT | GoodsTaxAnalyzeFilt::fDiffByOutVAT | GoodsTaxAnalyzeFilt::fDiffAll)) {

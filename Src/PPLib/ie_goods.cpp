@@ -2627,7 +2627,7 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 						P_IE->GetParamConst().InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &sdr_rec);
 						if(dyn_rec.GetCount()) {
 							SStrScan scan;
-							PPObjectTag tag_rec;
+							PPObjectTag2 tag_rec;
 							PPID   tag_id = 0;
 							for(uint j = 0; j < dyn_rec.GetCount(); j++) {
 								dyn_rec.GetFieldByPos(j, &dyn_fld);

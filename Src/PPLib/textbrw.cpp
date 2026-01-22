@@ -1,5 +1,5 @@
 // TEXTBRW.CPP
-// Copyright (c) A.Starodub 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Starodub 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // STextBrowser
 //
@@ -908,7 +908,7 @@ int STextBrowser::Init(const char * pFileName, const char * pLexerSymb, int tool
 	SysState = 0;
 	Doc.FileName = pFileName;
 	BbState |= bbsWoScrollbars;
-	P_Toolbar    = 0;
+	P_Toolbar = 0;
 	ToolBarWidth = 0;
 	if(toolbarId < 0)
 		ToolbarID = TOOLBAR_TEXTBROWSER;
@@ -922,7 +922,7 @@ int STextBrowser::Init(const char * pFileName, const char * pLexerSymb, int tool
 	return 1;
 }
 
-/*static*/const wchar_t * STextBrowser::WndClsName = _T("STextBrowser"); // @global
+/*static*/const wchar_t * STextBrowser::WndClsName = L"STextBrowser"; // @global
 
 /*static*/int STextBrowser::RegWindowClass(HINSTANCE hInst)
 {
@@ -1153,10 +1153,10 @@ void STextBrowser::MarginClick(/*Sci_Position*/int position, int modifiers)
 				p_view->HW = hWnd;
 				TView::SetWindowProp(hWnd, GWLP_USERDATA, p_view);
 				::SetFocus(hWnd);
-				::SendMessage(hWnd, WM_NCACTIVATE, TRUE, 0L);
+				::SendMessageW(hWnd, WM_NCACTIVATE, TRUE, 0);
 				p_view->WMHCreate();
-				::PostMessage(hWnd, WM_PAINT, 0, 0);
-				{
+				::PostMessageW(hWnd, WM_PAINT, 0, 0);
+				if(!(p_view->BbState & bbsInner)) { // @v12.5.4
 					SString temp_buf;
 					TView::SGetWindowText(hWnd, temp_buf);
 					APPL->AddItemToMenu(temp_buf, p_view);
@@ -1195,16 +1195,20 @@ void STextBrowser::MarginClick(/*Sci_Position*/int position, int modifiers)
 			}
 			return 0;
 		case WM_SETFOCUS:
-			if(!(TView::SGetWindowStyle(hWnd) & WS_CAPTION)) {
-				SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
-				APPL->NotifyFrame(0);
-			}
-			p_view = static_cast<STextBrowser *>(TView::GetWindowUserData(hWnd));
-			if(p_view) {
-				::SetFocus(p_view->HwndSci);
-				APPL->SelectTabItem(p_view);
-				TView::messageBroadcast(p_view, cmReceivedFocus);
-				p_view->select();
+			{
+				p_view = static_cast<STextBrowser *>(TView::GetWindowUserData(hWnd));
+				if(p_view && !(p_view->Sf & (sfOnDestroy|sfOnParentDestruction))) { // @v12.5.4
+					if(!(TView::SGetWindowStyle(hWnd) & WS_CAPTION)) {
+						SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
+						APPL->NotifyFrame(0);
+					}
+					{
+						::SetFocus(p_view->HwndSci);
+						APPL->SelectTabItem(p_view);
+						TView::messageBroadcast(p_view, cmReceivedFocus);
+						p_view->select();
+					}
+				}
 			}
 			break;
 		case WM_KILLFOCUS:
@@ -1235,7 +1239,7 @@ void STextBrowser::MarginClick(/*Sci_Position*/int position, int modifiers)
 		case WM_SIZE:
 			p_view = static_cast<STextBrowser *>(TView::GetWindowUserData(hWnd));
 			if(lParam && p_view) {
-				HWND hw = p_view->P_Toolbar ? p_view->P_Toolbar->H() : 0;
+				HWND   hw = p_view->P_Toolbar ? p_view->P_Toolbar->H() : 0;
 				if(IsWindowVisible(hw)) {
 					MoveWindow(hw, 0, 0, LOWORD(lParam), p_view->ToolBarWidth, 0);
 					TView::messageCommand(p_view, cmResize); // must be cmSize
@@ -1445,7 +1449,10 @@ void STextBrowser::Resize()
 	if(HwndSci != 0) {
 		RECT rc;
 		::GetWindowRect(H(), &rc);
-		if(::IsWindowVisible(APPL->H_ShortcutsWnd)) {
+		if(BbState & bbsInner) {
+			;
+		}
+		else if(::IsWindowVisible(APPL->H_ShortcutsWnd)) {
 			RECT sh_rect;
 			::GetWindowRect(APPL->H_ShortcutsWnd, &sh_rect);
 			rc.bottom -= sh_rect.bottom - sh_rect.top;

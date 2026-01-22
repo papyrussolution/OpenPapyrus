@@ -1,5 +1,5 @@
 // STYLOQ.CPP
-// Copyright (c) A.Sobolev 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2953,7 +2953,7 @@ int StyloQCore::SvcDbSymbMap::Read(const char * pFilePath, int loadTimeUsage)
 	PPLogMessage(PPFILNAM_INFO_LOG, PPLoadTextS(PPTXT_LOG_BUILDSVCDBSYMBMAPSTARTING, msg_buf), LOGMSGF_TIME|LOGMSGF_COMP);
 	{
 		PPIniFile ini_file;
-		THROW(dbes.ReadFromProfile(&ini_file, 1, 1));
+		THROW(dbes.ReadFromProfile(&ini_file, true, true));
 	}
 	for(uint i = 0; i < dbes.GetCount(); i++) {
 		if(dbes.GetByPos(i, &dlb)) {
@@ -12128,7 +12128,7 @@ void RunStyloQMqbServer()
 	{
 		PPIniFile ini_file;
 		THROW(ini_file.IsValid());
-		THROW(dbes.ReadFromProfile(&ini_file, 0));
+		THROW(dbes.ReadFromProfile(&ini_file, false));
 	}
 	if(StyloQCore::GetDbMap(dbmap)) {
 		TSCollection <StyloQServer2::LaunchEntry> ll;
@@ -12352,7 +12352,7 @@ int PPStyloQInterchange::RunStyloQLocalMqbServer(RunServerParam & rP, const DbLo
 				int    db_id = 0;
 				p_dict->GetDbSymb(temp_buf);
 				THROW(ini_file.IsValid());
-				THROW(dbes.ReadFromProfile(&ini_file, 0));
+				THROW(dbes.ReadFromProfile(&ini_file, false));
 				THROW_SL(db_id = dbes.GetBySymb(temp_buf, &local_dlb));
 				pDlb = &local_dlb;
 			}
@@ -13464,7 +13464,7 @@ int PPStyloQInterchange::Helper_PrepareAhed(const StyloQCommandList & rFullCmdLi
 		{
 			PPIniFile ini_file;
 			THROW(ini_file.IsValid());
-			THROW(dbes.ReadFromProfile(&ini_file, 0));
+			THROW(dbes.ReadFromProfile(&ini_file, false));
 		}
 		{
 			PPVersionInfo vi = DS.GetVersionInfo();

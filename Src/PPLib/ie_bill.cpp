@@ -1090,7 +1090,7 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 	PPObjOprKind op_obj;
 	PPOprKind op_rec;
 	PPObjTag tag_obj;
-	PPObjectTag tag_rec;
+	PPObjectTag2 tag_rec;
 	THROW(PPImpExpParam::SerializeConfig(dir, rHdr, rTail, pSCtx));
 	if(dir > 0) {
 		if(ImpOpID && op_obj.Search(ImpOpID, &op_rec) > 0) {
@@ -1189,7 +1189,7 @@ int PPBillImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 		// @v11.5.6 {
 		/* @v11.8.6 see comment below
 		PPObjTag tag_obj;
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		PPGetSubStr(params, IMPEXPPARAM_BILH_FIXTAG, fld_name);
 		if(FixTagID && tag_obj.Search(FixTagID, &tag_rec) > 0) {
 			if(tag_rec.Symb[0])
@@ -1210,7 +1210,7 @@ int PPBillImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 	// @v11.8.6 фиксирующий тег используется терерь и при импорте и при экспорте {
 	{
 		PPObjTag tag_obj;
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		PPGetSubStr(params, IMPEXPPARAM_BILH_FIXTAG, fld_name);
 		if(FixTagID && tag_obj.Search(FixTagID, &tag_rec) > 0) {
 			if(tag_rec.Symb[0])
@@ -1264,7 +1264,7 @@ int PPBillImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const Stri
 		excl.add(fld_name);
 		if(pFile->GetParam(pSect, fld_name, param_val) > 0) {
 			PPObjTag tag_obj;
-			PPObjectTag tag_rec;
+			PPObjectTag2 tag_rec;
 			PPID   tag_id = 0;
 			if(tag_obj.SearchBySymb(param_val, &tag_id) > 0)
 				FixTagID = tag_id;
@@ -2371,7 +2371,7 @@ int PPBillImporter::ReadTagItem(const char * pTagSymb, const SdRecord & rDynRec,
 {
 	int    ok = -1;
 	PPID   tag_id = 0;
-	PPObjectTag tag_rec;
+	PPObjectTag2 tag_rec;
 	SdbField dyn_fld;
 	if(TagObj.SearchBySymb(pTagSymb, &tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == tagsObjType) {
 		if(rDynRec.GetFieldByPos(dynFldN, &dyn_fld)) {
@@ -2441,7 +2441,7 @@ int PPBillImporter::ProcessDynField(const SdRecord & rDynRec, uint dynFldN, PPIm
 		uint   inner_fld_pos = 0;
 		uint   outer_fld_pos = 0;
 		SStrScan scan;
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		double rval = 0.0;
 		PPID   tag_id = 0;
 		scan.Set(dyn_fld.InnerFormula, 0);
@@ -3009,7 +3009,7 @@ int PPBillImporter::AssignFnFieldToRecord(const /*StrAssocArray*/PPImpExpParam::
 						break;
 					case PPSYM_DLVRLOCTAG:
 						if(!isempty(token_text)) {
-							PPObjectTag tag_rec;
+							PPObjectTag2 tag_rec;
 							if(TagObj.Fetch(ext_id, &tag_rec) > 0) {
 								if(tag_rec.ObjTypeID == PPOBJ_LOCATION) {
 									PPIDArray loc_list;
@@ -3535,7 +3535,7 @@ int PPBillImporter::Import(int useTa)
 	PPObjAccSheet acs_obj;
 	PPAccSheet acs_rec;
 	ObjTransmContext ot_ctx(0, &Logger); // Контекст, необходимый для автоматического приходования дефицита классом BillTransmDeficit
-	PPObjectTag tag_rec;
+	PPObjectTag2 tag_rec;
 	ObjTagItem tag_item;
 	ObjTagList tag_list;
 	PPID   mnf_lot_tag_id = 0;
@@ -4175,11 +4175,11 @@ int PPBillImporter::ResolveGLN(const char * pGLN, /*const char * pLocCode,*/cons
 	return ok;
 }
 
-PPID PPBillImpExpBaseProcessBlock::GetFixTagID(PPObjectTag * pTagRec)
+PPID PPBillImpExpBaseProcessBlock::GetFixTagID(PPObjectTag2 * pTagRec)
 {
 	PPID   tag_id = 0;
 	if(BillParam.FixTagID) {
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		if(TagObj.Fetch(BillParam.FixTagID, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_BILL) {
 			tag_id = tag_rec.ID;	
 			ASSIGN_PTR(pTagRec, tag_rec);
@@ -4203,7 +4203,7 @@ int PPBillImpExpBaseProcessBlock::SetFixTagOnExportedBill(const PPIDArray & rBil
 {
 	int    ok = 1;
 	if(rBillIdList.getCount()) {
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		const  PPID tag_id = GetFixTagID(&tag_rec);
 		if(tag_id && oneof6(tag_rec.TagDataType, OTTYP_BOOL, OTTYP_NUMBER, OTTYP_INT, OTTYP_DATE, OTTYP_TIMESTAMP, OTTYP_STRING)) {
 			//exported_bill_id_list.sortAndUndup();
@@ -4241,7 +4241,7 @@ int PPBillImpExpBaseProcessBlock::SetFixTagOnImportedBill(PPID billID, int use_t
 {
 	int    ok = -1;
 	if(billID) {
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		const  PPID tag_id = GetFixTagID(&tag_rec);
 		if(tag_id && oneof7(tag_rec.TagDataType, OTTYP_BOOL, OTTYP_NUMBER, OTTYP_INT, OTTYP_DATE, OTTYP_TIMESTAMP, OTTYP_STRING, OTTYP_GUID)) {
 			BillTbl::Rec bill_rec;
@@ -5041,7 +5041,7 @@ int PPBillImporter::Helper_AcceptCokeData(const SCollection * pRowList, PPID opI
 		PPID   agent_tag_id = 0;
 		PPID   promo_lot_tag_id = 0;
 		LongArray row_pos_list;
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		PPOprKind op_rec;
 		THROW(GetOpData(opID, &op_rec) > 0);
 		if(TagObj.SearchBySymb("AGENT-COKE", &agent_tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_PERSON) {
@@ -5286,13 +5286,14 @@ int PPBillImporter::Run()
 	SString msg_buf;
 	StringSet ss_files;
 	PPOprKind op_rec;
+	const  PPID _op_id = NZOR(OpID, BillParam.ImpOpID); // @v12.5.4
 	LineIdSeq = 0;
 	PPWaitStart();
 	Period.Actualize(ZERODATE);
 	ToRemoveFiles.Z();
 	// @v11.7.7 {
 	if(!AccSheetID) {
-		if(GetOpData(OpID, &op_rec) > 0)
+		if(GetOpData(_op_id, &op_rec) > 0)
 			AccSheetID = op_rec.AccSheetID;
 	}
 	// } @v11.7.7 
@@ -5301,7 +5302,7 @@ int PPBillImporter::Run()
 	}
 	else if(Flags & PPBillImporter::fEgaisImpExp) {
 		long   cflags = (Flags & PPBillImporter::fTestMode) ? PPEgaisProcessor::cfDebugMode : 0;
-		if(Flags & PPBillImporter::fEgaisVer4) { // @v11.0.12
+		if(Flags & PPBillImporter::fEgaisVer4) {
 			cflags |= PPEgaisProcessor::cfVer4;
 			cflags &= ~PPEgaisProcessor::cfVer3;
 		}
@@ -5420,8 +5421,8 @@ int PPBillImporter::Run()
 	}
 	else if(BillParam.PredefFormat == piefCokeOrder) { // @v11.3.8
 		PPID   suppl_ar_id = 0;
-		THROW_PP_S(BillParam.ImpOpID, PPERR_UNDEFBILLIMPOP, BillParam.Name);
-		THROW(GetOpData(BillParam.ImpOpID, &op_rec) > 0);
+		THROW_PP_S(_op_id, PPERR_UNDEFBILLIMPOP, BillParam.Name);
+		THROW(GetOpData(_op_id, &op_rec) > 0);
 		THROW(BillParam.PreprocessImportFileSpec(ss_files));
 		THROW_PP_S(BillParam.Object2SrchCode.NotEmpty(), PPERR_BILLIMPSRCCOD2NEEDED, BillParam.Name);
 		THROW(ResolveINN(BillParam.Object2SrchCode, 0, 0, 0, GetSupplAccSheet(), &suppl_ar_id, 0)); // @err
@@ -5451,7 +5452,7 @@ int PPBillImporter::Run()
 						// из-за того, что из-за этого собъется внутренний порядок строк заказа.
 						// Следовательно, мы надеемся на то, что поставщик передает заказы в таком виде,
 						// что строки одного заказа следуют одна-за-другой не перемешиваясь с иными заказами!
-						Helper_AcceptCokeData(&rec_list, BillParam.ImpOpID, suppl_ar_id);
+						Helper_AcceptCokeData(&rec_list, _op_id, suppl_ar_id);
 					}
 					xmlFreeDoc(p_xml_doc);
 					p_xml_doc = 0;
@@ -5468,9 +5469,9 @@ int PPBillImporter::Run()
 		DocNalogRu_Reader reader;
 		StringSet ss_arc_files;
 		TSCollection <DocNalogRu_Reader::DocumentInfo> doc_list;
-		const PPGoodsConfig & r_gcfg = GObj.GetConfig();
-		THROW_PP_S(BillParam.ImpOpID, PPERR_UNDEFBILLIMPOP, CfgNameBill);
-		THROW(GetOpData(BillParam.ImpOpID, &op_rec) > 0);
+		const  PPGoodsConfig & r_gcfg = GObj.GetConfig();
+		THROW_PP_S(_op_id, PPERR_UNDEFBILLIMPOP, CfgNameBill);
+		THROW(GetOpData(_op_id, &op_rec) > 0);
 		THROW(BillParam.PreprocessImportFileSpec(ss_files));
 		for(uint ssfp = 0; ss_files.get(&ssfp, file_name);) {
 			if(fileExists(file_name)) {
@@ -5566,7 +5567,7 @@ int PPBillImporter::Run()
 							}
 							buyer_ar_id  = ResolveBlock::Resolve(this, p_buyer, init_bill_code, contragent_acs_id);
 						}
-						pack.CreateBlank2(BillParam.ImpOpID, init_bill_date, LocID, 0);
+						pack.CreateBlank2(_op_id, init_bill_date, LocID, 0);
 						if(seller_ar_id) {
 							PPBillPacket::SetupObjectBlock sob;
 							if(!pack.SetupObject(seller_ar_id, sob)) {
@@ -7250,6 +7251,7 @@ void DocNalogRu_Generator::WriteMarkListOnInvoiceItem(SXml::WNode & rN, const PP
 		GtinStruc gts;
 		const int pczcr = PPChZnPrcssr::ParseChZnCode(mark_buf, gts, 0);
 		const int ntok = gts.GetSpecialNaturalToken();
+		//SNTOK_CHZN_CIGBLOCK
 		if(oneof2(ntok, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_ALTCIGITEM)) {
 			//static const _FldEntry fe_list[] = { { fldGTIN14, 14 }, { fldSerial, 7 }, { fldPriceRuTobacco, 4 }, { fldControlRuTobacco, 4 } };
 			//
@@ -7760,7 +7762,7 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 						if(vat_sum_before >= 0.0) // @v12.5.0 (vat_sum_before != 0.0)-->(vat_sum_before >= 0.0)
 							n_e.PutInnerReal(GetToken(PPHSC_RU_AMTVAT), fabs(vat_sum_before), MKSFMTD_020);
 						else
-							n_e.PutInner(GetToken(PPHSC_RU_NOVAT_TAG), 0); // @v12.5.3 GetToken(PPHSC_RU_NOVAT_VAL)-->0
+							n_e.PutInner(GetToken(PPHSC_RU_NOVAT_TAG), GetToken(PPHSC_RU_NOVAT_VAL)); // @v12.5.3 GetToken(PPHSC_RU_NOVAT_VAL)-->0 // @v12.5.4 rollback
 						total_vat_before += vat_sum_before;
 					}
 					{
@@ -7768,7 +7770,7 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 						if(vat_sum_after >= 0.0) // @v12.5.0 (vat_sum_after != 0.0)-->(vat_sum_after >= 0.0)
 							n_e.PutInnerReal(GetToken(PPHSC_RU_AMTVAT), fabs(vat_sum_after), MKSFMTD_020);
 						else
-							n_e.PutInner(GetToken(PPHSC_RU_NOVAT_TAG), 0); // @v12.5.3 GetToken(PPHSC_RU_NOVAT_VAL)-->0
+							n_e.PutInner(GetToken(PPHSC_RU_NOVAT_TAG), GetToken(PPHSC_RU_NOVAT_VAL)); // @v12.5.3 GetToken(PPHSC_RU_NOVAT_VAL)-->0 // @v12.5.4 rollback
 						total_vat_after += vat_sum_after;
 					}
 					if(vat_sum_after != vat_sum_before) {
@@ -7844,7 +7846,7 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 						if(vat_sum != 0.0)
 							n_e.PutInnerReal(GetToken(/*PPHSC_RU_AMTVAT*/PPHSC_RU_AMTTAX), fabs(vat_sum), MKSFMTD_020);
 						else
-							n_e.PutInner(GetToken(PPHSC_RU_NOVAT_TAG), 0); // @v12.5.3 GetToken(PPHSC_RU_NOVAT_VAL)-->0
+							n_e.PutInner(GetToken(PPHSC_RU_NOVAT_TAG), GetToken(PPHSC_RU_NOVAT_VAL)); // @v12.5.3 GetToken(PPHSC_RU_NOVAT_VAL)-->0 // @v12.5.4 rollback
 						total_vat += vat_sum;
 					}
 				}
@@ -7931,7 +7933,7 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 			if(total_vat != 0.0)
 				n_e.PutInnerReal(GetToken(/*PPHSC_RU_AMTVAT*/PPHSC_RU_AMTTAX), fabs(total_vat), MKSFMTD_020);
 			else
-				n_e.PutInner(GetToken(PPHSC_RU_NOVAT_TAG), 0); // @v12.5.3 GetToken(PPHSC_RU_NOVAT_VAL)-->0
+				n_e.PutInner(GetToken(PPHSC_RU_NOVAT_TAG), GetToken(PPHSC_RU_NOVAT_VAL)); // @v12.5.3 GetToken(PPHSC_RU_NOVAT_VAL)-->0 // @v12.5.4 rollback
 		}
 	}
 	return ok;

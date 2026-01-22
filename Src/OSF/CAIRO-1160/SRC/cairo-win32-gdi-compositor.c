@@ -341,7 +341,7 @@ static cairo_status_t draw_boxes(cairo_composite_rectangles_t * composite, cairo
 		op = CAIRO_OPERATOR_SOURCE;
 	if(op == CAIRO_OPERATOR_OVER && _cairo_pattern_is_opaque(src, &composite->bounded))
 		op = CAIRO_OPERATOR_SOURCE;
-	if(dst->win32.base.is_clear && (op == CAIRO_OPERATOR_OVER || op == CAIRO_OPERATOR_ADD))
+	if(dst->win32.base.is_clear && oneof2(op, CAIRO_OPERATOR_OVER, CAIRO_OPERATOR_ADD))
 		op = CAIRO_OPERATOR_SOURCE;
 	if(op == CAIRO_OPERATOR_SOURCE) {
 		status = CAIRO_INT_STATUS_UNSUPPORTED;

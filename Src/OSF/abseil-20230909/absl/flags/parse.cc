@@ -284,15 +284,14 @@ std::tuple<absl::string_view, absl::string_view, bool> SplitNameAndValue(absl::s
 // Returns:
 //  found flag or nullptr
 //  is negative in case of --nofoo
-std::tuple<CommandLineFlag*, bool> LocateFlag(absl::string_view flag_name) {
+std::tuple<CommandLineFlag*, bool> LocateFlag(absl::string_view flag_name) 
+{
 	CommandLineFlag* flag = absl::FindCommandLineFlag(flag_name);
 	bool is_negative = false;
-
 	if(!flag && absl::ConsumePrefix(&flag_name, "no")) {
 		flag = absl::FindCommandLineFlag(flag_name);
 		is_negative = true;
 	}
-
 	return std::make_tuple(flag, is_negative);
 }
 
@@ -310,9 +309,7 @@ void CheckDefaultValuesParsingRoundtrip() {
 
 					ABSL_FLAGS_INTERNAL_SUPPORTED_TYPES(ABSL_FLAGS_INTERNAL_IGNORE_TYPE)
 #undef ABSL_FLAGS_INTERNAL_IGNORE_TYPE
-
-					flags_internal::PrivateHandleAccessor::CheckDefaultValueParsingRoundtrip(
-						flag);
+					flags_internal::PrivateHandleAccessor::CheckDefaultValueParsingRoundtrip(flag);
 				});
 #endif
 }
@@ -346,16 +343,13 @@ bool ReadFlagfiles(const std::vector<std::string>& flagfiles,
 // variable names are expected to be of the form `FLAGS_<flag_name>`, where
 // `flag_name` is a string from the input flag_names list. If successful we
 // append a single ArgList at the end of the input_args.
-bool ReadFlagsFromEnv(const std::vector<std::string>& flag_names,
-    std::vector<ArgsList>& input_args,
-    bool fail_on_absent_in_env) {
+bool ReadFlagsFromEnv(const std::vector<std::string>& flag_names, std::vector<ArgsList>& input_args, bool fail_on_absent_in_env) 
+{
 	bool success = true;
 	std::vector<std::string> args;
-
 	// This argument represents fake argv[0], which should be present in all arg
 	// lists.
 	args.emplace_back("");
-
 	for(const auto& flag_name : flag_names) {
 		// Avoid infinite recursion.
 		if(flag_name == "fromenv" || flag_name == "tryfromenv") {

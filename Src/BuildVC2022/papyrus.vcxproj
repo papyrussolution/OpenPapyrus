@@ -1261,7 +1261,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\PPLib\ppifclua.cpp" />
     <ClCompile Include="..\PPMain\Ppmain.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeaderFile>
@@ -1855,9 +1854,6 @@
     </ProjectReference>
     <ProjectReference Include="libwebp-slib.vcxproj">
       <Project>{05255f31-2054-4df4-ad6d-5bc5da8ccccf}</Project>
-    </ProjectReference>
-    <ProjectReference Include="lualib.vcxproj">
-      <Project>{86b30cd8-8c99-4cff-804e-16eb5891a1d8}</Project>
     </ProjectReference>
     <ProjectReference Include="papyrus-lib.vcxproj">
       <Project>{5de86347-bd75-4816-9508-cf1e41f309de}</Project>

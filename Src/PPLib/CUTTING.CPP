@@ -1,5 +1,5 @@
 // CUTTING.CPP
-// Copyright (c) A.Sobolev 2000-2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2015, 2016, 2017, 2020, 2021, 2025
+// Copyright (c) A.Sobolev 2000-2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2015, 2016, 2017, 2020, 2021, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -9,8 +9,7 @@ int Transfer::CuttingLotOperations(PPID lotID, LDATE endDate, double * pEndQtty)
 {
 	int    ok = 1;
 	int    recalc_rests = 0;
-	int    is_forward_op = 0; // Признак того, что по лоту есть операции после усекаемого периода.
-		// Если "да", то лот с нулевым остатком не удаляется.
+	int    is_forward_op = 0; // Признак того, что по лоту есть операции после усекаемого периода. Если "да", то лот с нулевым остатком не удаляется.
 	LDATE  dt;
 	long   oprno = 0;
 	double end_rest;
@@ -92,7 +91,8 @@ int Transfer::CuttingLotOperations(PPID lotID, LDATE endDate, double * pEndQtty)
 
 int Transfer::Cutting(LDATE endDate, int use_ta)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
+	int    ta = 0;
 	LDATE  prev_date = ZERODATE;
 	long   oprno = 0;
 	SString msg_buf;

@@ -282,7 +282,7 @@ int RecalcBillTurns(int checkAmounts)
 			SString fmt_buf;
 			PPObjGoods goods_obj;
 			PPObjTag tag_obj;
-			PPObjectTag tag_rec;
+			PPObjectTag2 tag_rec;
 			if(flt.OpID && GetOpType(flt.OpID) == PPOPT_GOODSORDER) {
 				PPOprKind op_rec;
 				if(GetOpData(flt.OpID, &op_rec) && op_rec.ExtFlags & OPKFX_MNGPREFSUPPL) {

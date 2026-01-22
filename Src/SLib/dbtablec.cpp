@@ -465,15 +465,15 @@ int DBLobBlock::GetLocator(uint fldIdx, uint64 * pLocator) const
 //
 //
 //
-DBTable::SelectStmt::SelectStmt(DbProvider * pDb, DBTable * pTbl, const Generator_SQL & rSql, int idx, int sp, int sf) : 
-	SSqlStmt(pDb, rSql), P_OwnerTbl(pTbl), Idx(idx), Sp(sp), Sf(sf)
+DBTable::SelectStmt::SelectStmt(DbProvider * pDb, void * pExternalConnection, DBTable * pTbl, const Generator_SQL & rSql, int idx, int sp, int sf) : 
+	SSqlStmt(pDb, pExternalConnection, rSql), P_OwnerTbl(pTbl), Idx(idx), Sp(sp), Sf(sf)
 {
 }
 
-DBTable::SelectStmt::SelectStmt(DbProvider * pDb, DBTable * pTbl, int idx, int sp, int sf) : 
+/*@v12.5.4 DBTable::SelectStmt::SelectStmt(DbProvider * pDb, DBTable * pTbl, int idx, int sp, int sf) : 
 	SSqlStmt(pDb), P_OwnerTbl(pTbl), Idx(idx), Sp(sp), Sf(sf)
 {
-}
+}*/
 
 void DBTable::SetStmt(SelectStmt * pStmt)
 {
@@ -837,8 +837,8 @@ void DBTable::CopyBufFrom(const void * pBuf, size_t srcBufSize)
 
 int DBTable::CopyBufLobFrom(const void * pBuf, size_t srcBufSize)
 {
-	//constexpr bool experimental = SlDebugMode::CT() ? true : false; // true in case of @debug MySQL 
-	constexpr bool experimental = false; // true in case of @debug MySQL 
+	constexpr bool experimental = SlDebugMode::CT() ? true : false; // true in case of @debug MySQL 
+	//constexpr bool experimental = false; // true in case of @debug MySQL 
 	int    ok = -1;
 	if(pBuf && P_DBuf) {
 		if(State & sHasLob) {
@@ -1267,7 +1267,7 @@ int DBTable::deleteByQuery(int useTa, DBQ & rQ)
 				else if(!getDirectForUpdate(GetCurIndex(), key_buf, _dbpos))
 					ok = 0;
 				else {
-					if(deleteRec() == 0) // @sfu
+					if(!deleteRec()) // @sfu
 						ok = 0;
 				}
 			}

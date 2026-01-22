@@ -4,22 +4,78 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-
-#if 1 // @construction {
-
 #include <mariadb-20251208/mysql.h>
 
+// @20260118 @todo(connection) - помечено несколько мест с ошибкой компиляции - надо доработать хитрое упрвление соединениями для search & transaction
+
+static void DEBUG_LOG(const char * pMsg)
+{
+	if(SlDebugMode::CT())
+		SLS.LogMessage("dbmysql.log", pMsg, 0);
+}
+
+/*
 #ifndef NDEBUG
 	#define DEBUG_LOG(msg) SLS.LogMessage("dbmysql.log", msg, 0)
 #else
 	#define DEBUG_LOG(msg)
 #endif
+*/
 
-static MYSQL * FASTCALL GetHandle(DbProvider::Connection & rC) { return static_cast<MYSQL *>(rC.H); }
+static MYSQL * FASTCALL GetHandle(DbProvider::Connection & rC) { return static_cast<MYSQL *>(rC.GetH()); }
+
+SMySqlDbProvider::ConnectionEntry::ConnectionEntry() : State(0), P_LastSelectStmt(0)
+{
+}
+
+SMySqlDbProvider::ConnectionEntry::~ConnectionEntry()
+{
+	State = 0;
+	P_LastSelectStmt = 0;
+}
+
+SMySqlDbProvider::ConnectionEntry & SMySqlDbProvider::ConnectionEntry::Z()
+{
+	State = 0;
+	P_LastSelectStmt = 0;
+	Conn.Z();
+	return *this;
+}
+
+int SMySqlDbProvider::ConnectionEntry::DestroyLastSelectStatement()
+{
+	int    ok = -1;
+	if(SSqlStmt::IsConsistent(P_LastSelectStmt)) {
+		if(DBTable::IsConsistent(P_LastSelectStmt->GetOwnerTblRef())) {
+			P_LastSelectStmt->GetOwnerTblRef()->DestroySelectStmt();
+			ok = 2;
+		}
+		else {
+			delete P_LastSelectStmt;
+			ok = 1;
+		}
+	}
+	P_LastSelectStmt = 0;
+	return ok;
+}
+
+SMySqlDbProvider::TransactionBlock::TransactionBlock(SMySqlDbProvider * pPrvdr) : P_Prvdr(pPrvdr)
+{
+	if(P_Prvdr) {
+		P_Prvdr->GetConnection(Conn);
+	}
+}
+		
+SMySqlDbProvider::TransactionBlock::~TransactionBlock()
+{
+	if(P_Prvdr) {
+		P_Prvdr->ReleaseConnection(Conn);
+	}
+}
 
 SMySqlDbProvider::SMySqlDbProvider() :
 	DbProvider(sqlstMySQL, cpUTF8, DbDictionary::CreateInstance(0, 0), DbProvider::cSQL|DbProvider::cDbDependTa), SqlGen(sqlstMySQL, 0), Flags(0),
-	P_LastSelectStmt(0)
+	P_TraBlk(0)/*, P_LastSelectStmt(0)*/
 {
 }
 
@@ -28,12 +84,12 @@ SMySqlDbProvider::~SMySqlDbProvider()
 	Logout();
 }
 
-int FASTCALL SMySqlDbProvider::ProcessError(int status)
+int FASTCALL SMySqlDbProvider::ProcessError(Connection & rConn, int status)
 {
 	int    ok = 1;
 	if(status) {
 		LastErr.Code = status;
-		LastErr.Descr = mysql_error(GetHandle(Conn));
+		LastErr.Descr = mysql_error(GetHandle(rConn));
 		if(LastErr.Descr.NotEmpty()) {
 			DBS.SetError(BE_MYSQL_TEXT, LastErr.Descr);
 		}
@@ -81,9 +137,16 @@ int SMySqlDbProvider::UseDatabase(const char * pDbName) // @v12.4.8
 		ok = -1;
 	}
 	else {
-		MYSQL * p_h = GetHandle(Conn);
-		THROW(ProcessError(mysql_select_db(p_h, pDbName)));
+		THROW(ProcessError(MainConn, mysql_select_db(GetHandle(MainConn), pDbName)));
 		CurrentDatabase = pDbName;
+		Lb.SetAttr(DbLoginBlock::attrDbName, pDbName);
+		{
+			for(uint i = 0; i < ConnPool.getCount(); i++) {
+				Connection & r_conn = ConnPool.at(i).Conn;
+				Helper_CloseConnection(r_conn);
+			}
+			ConnPool.clear();
+		}
 		//SqlGen.Z().Tok(Generator_SQL::tokUse).Sp().QbText(pDbName);
 		//SSqlStmt stmt(this, SqlGen);
 		//THROW(stmt.Exec(0, 0));
@@ -92,42 +155,64 @@ int SMySqlDbProvider::UseDatabase(const char * pDbName) // @v12.4.8
 	return ok;
 }
 
-DbProvider::Connection SMySqlDbProvider::GetConnection() // @v12.5.3
+//DbProvider::Connection SMySqlDbProvider::GetConnection() // @v12.5.3
+bool SMySqlDbProvider::GetConnection(ConnectionEntry & rConnEntry) // @v12.5.3
 {
-	DbProvider::Connection result;
-	for(uint i = 0; !result && i < ConnPool.getCount(); i++) {
-		ConnPoolEntry & r_item = ConnPool.at(i);
-		if(!(r_item.State & ConnPoolEntry::stBusy)) {
-			result = r_item.Conn;
-			r_item.State |= ConnPoolEntry::stBusy;
+	rConnEntry.Z();
+	bool   ok = false;
+	//DbProvider::Connection result;
+	for(uint i = 0; !ok && i < ConnPool.getCount(); i++) {
+		ConnectionEntry & r_item = ConnPool.at(i);
+		if(!(r_item.State & ConnectionEntry::stBusy) && !!r_item.Conn) {
+			rConnEntry = r_item;
+			//result = r_item.Conn;
+			r_item.State |= ConnectionEntry::stBusy;
+			ok = true;
 		}
 	}
-	if(!result) {
-		ConnPoolEntry new_item;
-		new_item.Conn = Helper_Connect(&Lb, &CurrentDatabase);
-		if(!!new_item.Conn) {
-			result = new_item.Conn;
-			new_item.State |= ConnPoolEntry::stBusy;
+	if(!ok) {
+		ConnectionEntry new_item;
+		if(Helper_Connect(&Lb, &CurrentDatabase, new_item)) {
+			rConnEntry = new_item;
+			//result = new_item.Conn;
+			new_item.State |= ConnectionEntry::stBusy;
 			ConnPool.insert(&new_item);
+			ok = true;
 		}
 	}
-	return result;
+	//return result;
+	return ok;
 }
 
-int SMySqlDbProvider::ReleaseConnection(DbProvider::Connection & rConn) // @v12.5.3
+SMySqlDbProvider::ConnectionEntry * SMySqlDbProvider::SearchConnectionByH(void * pH)
+{
+	SMySqlDbProvider::ConnectionEntry * p_result = 0;
+	if(pH) {
+		for(uint i = 0; !p_result && i < ConnPool.getCount(); i++) {
+			ConnectionEntry & r_item = ConnPool.at(i);
+			if(r_item.Conn.GetH() == pH)
+				p_result = &r_item;
+		}
+	}
+	return p_result;
+}
+
+int SMySqlDbProvider::ReleaseConnection(ConnectionEntry & rConnEntry) // @v12.5.3
 {
 	int    ok = -1;
-	if(!!rConn) {
+	if(!!rConnEntry.Conn) {
 		for(uint i = 0; ok < 0 && i < ConnPool.getCount(); i++) {
-			ConnPoolEntry & r_item = ConnPool.at(i);
-			if(r_item.Conn.H == rConn.H) {
-				r_item.State &= ~ConnPoolEntry::stBusy;
-				rConn.Z();
+			ConnectionEntry & r_item = ConnPool.at(i);
+			if(r_item.Conn.GetH() == rConnEntry.Conn.GetH()) {
+				r_item.State &= ~ConnectionEntry::stBusy;
+				r_item.DestroyLastSelectStatement();
+				r_item.P_LastSelectStmt = 0;
+				//rConnEntry.Z();
 				ok = 2;
 			}
 		}
 		if(ok < 0) {
-			Helper_CloseConnection(rConn);
+			Helper_CloseConnection(rConnEntry);
 			ok = 1;
 		}
 	}
@@ -138,6 +223,9 @@ int SMySqlDbProvider::Helper_CloseConnection(DbProvider::Connection & rConn) // 
 {
 	int    ok = -1;
 	if(!!rConn) {
+		if(P_TraBlk && P_TraBlk->Conn.Conn == rConn) {
+			RollbackWork();
+		}
 		mysql_close(GetHandle(rConn));
 		rConn.Z();
 		ok = 1;
@@ -145,14 +233,17 @@ int SMySqlDbProvider::Helper_CloseConnection(DbProvider::Connection & rConn) // 
 	return ok;
 }
 
-DbProvider::Connection SMySqlDbProvider::Helper_Connect(const DbLoginBlock * pBlk, SString * pDbName) // @v12.5.3
+//DbProvider::Connection SMySqlDbProvider::Helper_Connect(const DbLoginBlock * pBlk, SString * pDbName) // @v12.5.3
+bool SMySqlDbProvider::Helper_Connect(const DbLoginBlock * pBlk, SString * pDbName, ConnectionEntry & rConnEntry) // @v12.5.3
 {
+	rConnEntry.Z();
 	CALLPTRMEMB(pDbName, Z());
-	Connection _conn;
+	//Connection _conn;
+	bool   ok = false;
 	if(pBlk) {
-		_conn.H = mysql_init(0);
-		if(!!_conn) {
-			MYSQL * p_h = GetHandle(_conn);
+		rConnEntry.Conn.SetH(mysql_init(0));
+		if(!!rConnEntry.Conn) {
+			MYSQL * p_h = GetHandle(rConnEntry.Conn);
 			SString temp_buf;
 			SString url_buf;
 			SString db_name;
@@ -203,27 +294,27 @@ DbProvider::Connection SMySqlDbProvider::Helper_Connect(const DbLoginBlock * pBl
 				if(mysql_real_connect(p_h, host, user, pw, db_name, port, 0/*unix-socket*/, 0/*client_flags*/)) {
 					//CurrentDatabase = db_name;
 					ASSIGN_PTR(pDbName, db_name);
+					ok = true;
 				}
 				else {
-					mysql_close(GetHandle(_conn));
-					_conn.Z();
+					mysql_close(GetHandle(rConnEntry.Conn));
+					rConnEntry.Z();
 				}
 			}
 		}
 	}
-	return _conn;
+	return ok;
 }
 
 /*virtual*/int SMySqlDbProvider::DbLogin(const DbLoginBlock * pBlk, long options)
 {
 	int    ok = 0;
-	Conn = Helper_Connect(pBlk, &CurrentDatabase);
-	if(!!Conn) {
+	if(Helper_Connect(pBlk, &CurrentDatabase, MainConn)) {
 		Common_Login(pBlk);
 		ok = 1;
 	}
 	else {
-		assert(!Conn);
+		assert(!MainConn.Conn);
 		assert(CurrentDatabase.IsEmpty());
 	}
 	return ok;
@@ -232,8 +323,9 @@ DbProvider::Connection SMySqlDbProvider::Helper_Connect(const DbLoginBlock * pBl
 /*virtual*/int SMySqlDbProvider::Logout()
 {
 	int    ok = 0;
-	P_LastSelectStmt = 0; // @v12.5.2 Нет необходимости разрушать этот экземпляр: таблица-владелец сама это сделает.
-	ok = Helper_CloseConnection(Conn);
+	//P_LastSelectStmt = 0; // @v12.5.2 Нет необходимости разрушать этот экземпляр: таблица-владелец сама это сделает.
+	RollbackWork(); // @v12.5.4 заодно разрушит P_TraBlk
+	ok = Helper_CloseConnection(MainConn);
 	{
 		for(uint i = 0; i < ConnPool.getCount(); i++) {
 			Connection & r_conn = ConnPool.at(i).Conn;
@@ -246,9 +338,36 @@ DbProvider::Connection SMySqlDbProvider::Helper_Connect(const DbLoginBlock * pBl
 	return ok;
 }
 
+SMySqlDbProvider::ConnectionEntry & SMySqlDbProvider::GetWorkingConnection(SSqlStmt * pStmt, bool continuousSelection)
+{
+	SMySqlDbProvider::ConnectionEntry * p_result = 0;
+	assert(!P_TraBlk || State & stTransaction);
+	if(P_TraBlk && State & stTransaction) {
+		p_result = &P_TraBlk->Conn;
+	}
+	else {
+		void * p_sc = pStmt ? pStmt->GetExternalConnection() : 0;
+		ConnectionEntry * p_ext_entry = SearchConnectionByH(p_sc);
+		if(p_ext_entry)
+			p_result = p_ext_entry;
+		else {
+			// @2020121 Этот блок не работает! Как я мог такую хуйню сделать? Передать указатель на локальный экземпляр!
+			ConnectionEntry ce;
+			if(continuousSelection && GetConnection(ce)) { 
+				p_result = &ce;
+			}
+			else
+				p_result = &MainConn;
+		}
+	}
+	assert(p_result != 0);
+	return *p_result;
+}
+
 /*virtual*/int SMySqlDbProvider::ExecStmt(SSqlStmt & rS, uint count, int mode)
 {
-	int    ok = ProcessError(mysql_stmt_execute(static_cast<MYSQL_STMT *>(rS.H)));
+	ConnectionEntry & r_ce = GetWorkingConnection(&rS, false);
+	int    ok = ProcessError(r_ce, mysql_stmt_execute(static_cast<MYSQL_STMT *>(rS.H)));
 #ifndef NDEBUG // {
 	if(!ok) {
 		SString log_buf;
@@ -421,18 +540,31 @@ const BNField * SMySqlDbProvider::GetRowIdField(const DBTable * pTbl, uint * pFl
 /*virtual*/int SMySqlDbProvider::StartTransaction()
 {
 	int    ok = 0;
-	if(!!Conn) {
+	if(!!MainConn.Conn) { // Транзакция будет работать на отдельном соединении (TransactionBlock::Conn), но корневое соединение mandatory!
 		if(!(State & stTransaction)) {
-			DestroyLastSelectStatement();
+			//DestroyLastSelectStatement();
 			SqlGen.Z().Tok(Generator_SQL::tokStart).Sp().Tok(Generator_SQL::tokTransaction);
-			if(ProcessError(mysql_query(GetHandle(Conn), SqlGen.GetTextC()))) {
-				ok = 1;
-				State |= stTransaction;
+			{ // @v12.5.4 
+				assert(P_TraBlk == 0);
+				delete P_TraBlk;
+				P_TraBlk = new TransactionBlock(this);
+			}
+			if(P_TraBlk) {
+				P_TraBlk->Conn.DestroyLastSelectStatement();
+				if(ProcessError(P_TraBlk->Conn, mysql_query(GetHandle(P_TraBlk->Conn), SqlGen.GetTextC()))) {
+					ok = 1;
+					State |= stTransaction;
+				}
+				else { // @v12.5.4 
+					ZDELETE(P_TraBlk);
+				}
 			}
 		}
-		else
+		else {
 			ok = -1;
+		}
 	}
+	assert((!ok || P_TraBlk) && (!P_TraBlk || ok)); // @v12.5.4
 	return ok;
 }
 
@@ -440,39 +572,50 @@ const BNField * SMySqlDbProvider::GetRowIdField(const DBTable * pTbl, uint * pFl
 {
 	int    ok = 0;
 	int    rbr = 0; // rollback-result
-	if(!!Conn) {
+	if(!!MainConn.Conn) { // Транзакция будет работать на отдельном соединении (TransactionBlock::Conn), но корневое соединение mandatory!
 		if(State & stTransaction) {
-			DestroyLastSelectStatement();
-			SqlGen.Z().Tok(Generator_SQL::tokCommit);
-			if(ProcessError(mysql_query(GetHandle(Conn), SqlGen.GetTextC()))) {
-				ok = 1;
+			assert(P_TraBlk);
+			if(P_TraBlk) {
+				P_TraBlk->Conn.DestroyLastSelectStatement();
+				SqlGen.Z().Tok(Generator_SQL::tokCommit);
+				if(ProcessError(P_TraBlk->Conn, mysql_query(GetHandle(P_TraBlk->Conn), SqlGen.GetTextC()))) {
+					ZDELETE(P_TraBlk); // @v12.5.4
+					ok = 1;
+				}
+				else {
+					rbr = RollbackWork();
+				}
 			}
-			else {
-				rbr = RollbackWork();
-			}
+			assert(P_TraBlk == 0); // @v12.5.4
 			State &= ~stTransaction;
 		}
 		else
 			ok = -1;
 	}
+	assert(!ok || !P_TraBlk); // @v12.5.4
 	return ok;
 }
 
 /*virtual*/int SMySqlDbProvider::RollbackWork()
 {
 	int    ok = 0;
-	if(!!Conn) {
+	if(!!MainConn.Conn) { // Транзакция будет работать на отдельном соединении (TransactionBlock::Conn), но корневое соединение mandatory!
 		if(State & stTransaction) {
-			DestroyLastSelectStatement();
-			SqlGen.Z().Tok(Generator_SQL::tokRollback);
-			if(ProcessError(mysql_query(GetHandle(Conn), SqlGen.GetTextC()))) {
-				ok = 1;
+			assert(P_TraBlk);
+			if(P_TraBlk) {
+				P_TraBlk->Conn.DestroyLastSelectStatement();
+				SqlGen.Z().Tok(Generator_SQL::tokRollback);
+				if(ProcessError(P_TraBlk->Conn, mysql_query(GetHandle(P_TraBlk->Conn), SqlGen.GetTextC()))) {
+					ok = 1;
+				}
 			}
+			ZDELETE(P_TraBlk); // @v12.5.4
 			State &= ~stTransaction;
 		}
 		else
 			ok = -1;
 	}
+	assert(!ok || !P_TraBlk); // @v12.5.4
 	return ok;
 }
 
@@ -825,24 +968,6 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 	CATCHZOK
 	return ok;
 }
-
-int SMySqlDbProvider::DestroyLastSelectStatement()
-{
-	int    ok = -1;
-	if(SSqlStmt::IsConsistent(P_LastSelectStmt)) {
-		if(DBTable::IsConsistent(P_LastSelectStmt->GetOwnerTblRef())) {
-			P_LastSelectStmt->GetOwnerTblRef()->DestroySelectStmt();
-			ok = 2;
-		}
-		else {
-			delete P_LastSelectStmt;
-			ok = 1;
-		}
-	}
-	P_LastSelectStmt = 0;
-	return ok;
-}
-
 //
 // Эта функция строго заточена на поиск по конкретному индексу. Это значит, что в результирующем запросе не будет 
 // никаких иных критериев, кроме сегментов индеска. Небольшое исключение - direct-search: в этом случае поиск осуществляется по 
@@ -885,7 +1010,6 @@ int SMySqlDbProvider::DestroyLastSelectStatement()
 	//   опять придется перестроить.
 	//
 	bool   do_grop_next_rec = false; // @v12.4.6 
-	//
 	bool   do_make_query = true;
 	//
 	THROW(idx < (int)r_indices.getNumKeys());
@@ -924,17 +1048,10 @@ int SMySqlDbProvider::DestroyLastSelectStatement()
 				ok = 0;
 		}
 		else {
-			// @v12.4.5 @construction {
 			// Так как у нас есть ключ pKey и нам не следует отчаиваться и возвращать ошибку - перестраиваем запрос и дуем в том направлении,
 			// в котором нас просят. Единственный скользкий момент - если ключ не уникальный, то нет уверенности на какой именно записи
 			// среди дубликатов мы находимся. Но эту проблему мы будем решать после того, как решим главную.
 			do_make_query = true; // Да! Сработало! 
-			// Проблему неуникальных ключей будем решать на следующей фунпацу.
-			// } @v12.4.5 @construction 
-			/* @v12.4.5
-			BtrError = BE_EOF;
-			ok = 0;
-			*/
 		}
 	}
 	if(do_make_query) {
@@ -942,11 +1059,21 @@ int SMySqlDbProvider::DestroyLastSelectStatement()
 		THROW(Helper_MakeSearchQuery(pTbl, idx, pKey, srchMode, sf, sqb));
 		can_continue = LOGIC(sqb.Flags & SearchQueryBlock::fCanContinue);
 		{
+			//
+			// Сейчас нам надо решить через какое соединение будет работать select-оператор.
+			// Если мы - в транзакции, то однозначно через привязаное к транзакции.
+			// Вне транзакции два варианта:
+			//   - can_continue == false - работаем через основное соединение (MainConn)
+			//   - can_continue == true - получаем свободное соединение из пула через GetConnection()
+			//
+			ConnectionEntry & r_ce = GetWorkingConnection(0, can_continue);
+			assert(r_ce.IsConsistent());
 			{
 				pTbl->DestroySelectStmt();
-				DestroyLastSelectStatement();
+				r_ce.DestroyLastSelectStatement();
 			}
-			THROW(p_stmt = new DBTable::SelectStmt(this, pTbl, sqb.SqlG, idx, sqb.SrchMode, sf));
+			// В качестве ExternalConnection в SelectStmt передается "чистый" хандлер MySQL-соединения. То есть, ConnectionEntry::Conn::GetH()
+			THROW(p_stmt = new DBTable::SelectStmt(this, r_ce.Conn.GetH(), pTbl, sqb.SqlG, idx, sqb.SrchMode, sf));
 			new_stmt = true;
 			THROW(p_stmt->IsValid());
 			{
@@ -1039,11 +1166,13 @@ int SMySqlDbProvider::DestroyLastSelectStatement()
 	ENDCATCH
 	if(can_continue) {
 		pTbl->SetStmt(p_stmt);
-		this->P_LastSelectStmt = p_stmt; // @v12.5.2
+		ConnectionEntry & r_ce = GetWorkingConnection(p_stmt, false/*can_continue = false иначе вероятно получение нового соединения, а это нам не нужно*/);
+		r_ce.P_LastSelectStmt = p_stmt;
 	}
 	else {
 		pTbl->SetStmt(0);
-		this->P_LastSelectStmt = 0; // @v12.5.2
+		ConnectionEntry & r_ce = GetWorkingConnection(p_stmt, false/*can_continue = false иначе вероятно получение нового соединения, а это нам не нужно*/);
+		r_ce.P_LastSelectStmt = 0;
 		if(new_stmt) 
 			delete p_stmt;
 	}
@@ -1195,7 +1324,8 @@ int SMySqlDbProvider::DestroyLastSelectStatement()
 		SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp().Text(p_rowid_fld->Name)._Symb(_EQ_).QText(temp_buf);
 	}
 	{
-		DestroyLastSelectStatement();
+		ConnectionEntry & r_ce = GetWorkingConnection(0, false);
+		r_ce.DestroyLastSelectStatement();
 		THROW(stmt.SetSqlText(SqlGen));
 		THROW(Binding(stmt, -1));
 		THROW(stmt.SetDataDML(0));
@@ -1226,7 +1356,8 @@ int SMySqlDbProvider::DestroyLastSelectStatement()
 		SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp().Text(p_rowid_fld->Name)._Symb(_EQ_).QText(temp_buf);
 	}
 	{
-		DestroyLastSelectStatement();
+		ConnectionEntry & r_ce = GetWorkingConnection(0, false);
+		r_ce.DestroyLastSelectStatement();
 		SSqlStmt stmt(this, SqlGen);
 		THROW(stmt.Exec(1, OCI_DEFAULT));
 	}
@@ -1263,9 +1394,10 @@ int SMySqlDbProvider::DestroyLastSelectStatement()
 {
 	int    ok = 1;
 	MYSQL_STMT * p_stmt = 0;
-	THROW(p_stmt = mysql_stmt_init(GetHandle(Conn)));
+	ConnectionEntry & r_ce = GetWorkingConnection(pS, false);
+	THROW(p_stmt = mysql_stmt_init(GetHandle(r_ce)));
 	pS->H = p_stmt;
-	THROW(ProcessError(mysql_stmt_prepare(p_stmt, pText, static_cast<ulong>(sstrlen(pText)))));
+	THROW(ProcessError(r_ce, mysql_stmt_prepare(p_stmt, pText, static_cast<ulong>(sstrlen(pText)))));
 	CATCHZOK
 	return ok;
 }
@@ -1278,6 +1410,14 @@ int SMySqlDbProvider::DestroyLastSelectStatement()
 			pS->P_Result = 0;
 		}
 		mysql_stmt_close(static_cast<MYSQL_STMT *>(pS->H));
+		// @construction(@20260119) {
+		{
+			void * p_ec = pS->GetExternalConnection();
+			ConnectionEntry * p_ce = SearchConnectionByH(p_ec);
+			if(p_ce) { 
+			}
+		}
+		// } @construction(@20260119) 
 	}
 	return 1;
 }
@@ -1913,5 +2053,3 @@ void SMySqlDbProvider::ProcessBinding_FreeDescr(uint count, SSqlStmt * pStmt, SS
 	ASSIGN_PTR(pActualCount, actual);
 	return ok;
 }
-
-#endif // } 0 @construction 

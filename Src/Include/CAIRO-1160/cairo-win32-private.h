@@ -57,8 +57,8 @@ enum {
 typedef struct _cairo_win32_surface {
 	cairo_surface_t base;
 	cairo_format_t format;
-	HDC dc;
-	unsigned flags; // Surface DC flags 
+	HDC    dc;
+	uint   flags; // Surface DC flags 
 	/* We use the x and y parts of extents for situations where
 	 * we're not supposed to draw to the entire surface.
 	 * For example, during a paint event a program will get
@@ -67,7 +67,6 @@ typedef struct _cairo_win32_surface {
 	 * that match bounds of the clipped region.
 	 */
 	cairo_rectangle_int_t extents;
-
 	/* Offset added to extents, used when the extents start with a negative
 	 * offset, which can occur on Windows for, and only for, desktop DC.  This
 	 * occurs when you have multiple monitors, and at least one monitor
@@ -84,7 +83,8 @@ typedef struct _cairo_win32_surface {
 	 * desktop cairo surface to zero.  So make some private member variables for
 	 * this, which will not be fiddled with externally.
 	 */
-	int x_ofs, y_ofs;
+	int    x_ofs;
+	int    y_ofs;
 } cairo_win32_surface_t;
 #define to_win32_surface(S) (reinterpret_cast<cairo_win32_surface_t *>(S))
 

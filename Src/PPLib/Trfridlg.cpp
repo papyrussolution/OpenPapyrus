@@ -909,7 +909,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 								temp_buf.CatDiv('-', 1).Cat(item_info_buf);
 								vetis_view.SetOuterTitle(temp_buf);
 								//
-								if(vetis_view.Browse(0) > 0) {
+								if(vetis_view.Browse(false) > 0) {
 									const VetisDocumentFilt * p_result_filt = static_cast<const VetisDocumentFilt *>(vetis_view.GetBaseFilt());
 									PPID vetis_doc_id = p_result_filt->Sel;
 									if(!!p_result_filt->SelLotUuid && vetis_doc_id) {
@@ -1309,7 +1309,7 @@ bool TrfrItemDialog::IsChZnCtWtEnabled() // @v12.1.4
 	bool result = GObj.IsChZnCtWtGoods(Item.GoodsID);
 	if(result) {
 		PPObjTag tag_obj;
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		if(tag_obj.Fetch(PPTAG_LOT_CHZNINTQTTY, &tag_rec) <= 0)
 			result = false;
 	}
@@ -1589,7 +1589,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 			P_BObj->GetTagListByLot(Item.LotID, 1, &inh_tag_list);
 			const uint tc = inh_tag_list.GetCount();
 			if(tc) {
-				PPObjectTag tag_rec;
+				PPObjectTag2 tag_rec;
 				for(uint i_ = 0; i_ < tc; i_++) {
 					const ObjTagItem * p_tag = inh_tag_list.GetItemByPos(i_);
 					if(p_tag && TagObj.Fetch(p_tag->TagID, &tag_rec) > 0 && tag_rec.Flags & OTF_INHERITABLE)
@@ -1847,7 +1847,7 @@ int TrfrItemDialog::setupManuf()
 	int    ok = -1;
 	if(P_Pack && Item.Flags & PPTFR_RECEIPT && getCtrlView(CTLSEL_LOT_MANUF)) {
 		const  PPID mnf_lot_tag_id = P_BObj->GetConfig().MnfCountryLotTagID;
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		if(mnf_lot_tag_id && TagObj.Fetch(mnf_lot_tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT && tag_rec.TagEnumID == PPOBJ_PERSON) {
 			PPID   manuf_id = 0;
 			const ObjTagItem * p_mnf_tag = P_Pack->LTagL.GetTag(ItemNo, mnf_lot_tag_id);
@@ -1867,7 +1867,7 @@ int TrfrItemDialog::getManuf()
 	int    ok = -1;
 	if(P_Pack && Item.Flags & PPTFR_RECEIPT && getCtrlView(CTLSEL_LOT_MANUF)) {
 		const  PPID mnf_lot_tag_id = P_BObj->GetConfig().MnfCountryLotTagID;
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		if(mnf_lot_tag_id && TagObj.Fetch(mnf_lot_tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT && tag_rec.TagEnumID == PPOBJ_PERSON) {
 			PPID   manuf_id = 0;
 			getCtrlData(CTLSEL_LOT_MANUF, &manuf_id);
@@ -1889,7 +1889,7 @@ bool TrfrItemDialog::IsSourceSerialUsed()
 	bool   yes = false;
 	if(P_Pack && IsTaggedItem() && getCtrlView(CTL_LOT_SOURCESERIAL)) {
 		PPOprKind op_rec;
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		if(GetOpData(P_Pack->Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_SOURCESERIAL && TagObj.Fetch(PPTAG_LOT_SOURCESERIAL, &tag_rec) > 0)
 			yes = true;
 	}

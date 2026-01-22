@@ -1292,7 +1292,7 @@ int PPObjPersonEvent::CheckRestrictions(const PPPsnEventPacket * pPack, PPID per
 			ObjTagItem tag;
 			PPObjTag tag_obj;
 			double val = 0.0;
-			PPObjectTag tag_rec;
+			PPObjectTag2 tag_rec;
 			if(tag_obj.Fetch(pConstr->RestrictTagID, &tag_rec) > 0)
 				temp_buf = tag_rec.Name;
 			else
@@ -1606,7 +1606,7 @@ int PsnEventDialog::setupList()
 {
 	const  ObjTagItem * p_item = 0;
 	PPObjTag objtag;
-	PPObjectTag tag;
+	PPObjectTag2 tag;
 	SString buf;
 	for(uint i = 0; (p_item = Pack.TagL.EnumItems(&i)) != 0;) {
 		StringSet ss(SLBColumnDelim);

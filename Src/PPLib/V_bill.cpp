@@ -4044,7 +4044,7 @@ int PPViewBill::ViewPayments(PPID billID, int kind)
 					p_v->SetOuterTitle(title.Printf(fmt_buf, bill_code.cptr()));
 				}
 			}
-			THROW(p_v->Browse(0));
+			THROW(p_v->Browse(false));
 		}
 		else if(GetOpType(bill_rec.OpID) == PPOPT_GOODSORDER) { // @v12.0.11
 			ok = P_BObj->ViewPayments(billID, LinkedBillFilt::lkOrdAccomplish);
@@ -4074,7 +4074,7 @@ int PPViewBill::ViewBillsByOrder(PPID billID)
 		}
 		THROW_MEM(p_v = new PPViewBill);
 		THROW(p_v->Init_(&flt));
-		THROW(p_v->Browse(0));
+		THROW(p_v->Browse(false));
 	}
 	CATCHZOKPPERR
 	delete p_v;
@@ -4743,7 +4743,7 @@ int PPViewBill::AddBillToPool()
 			PPViewBill temp_bv;
 			SetupPoolInsertionFilt(&param.Filt);
 			THROW(temp_bv.Init_(&param.Filt));
-			while(temp_bv.Browse(0) > 0)
+			while(temp_bv.Browse(false) > 0)
 				if((r = InsertIntoPool(temp_bv.Filt.Sel, 1)) == 0)
 					PPError();
 				else if(r > 0) {
@@ -4862,7 +4862,7 @@ int PPViewBill::ShowPoolDetail(const PPBillPacket & rBillPack)
 		flt.AssocID    = PPASS_OPBILLPOOL;
 		flt.Flags |= BillFilt::fEditPoolByType;
 		if(bv.Init_(&flt))
-			ok = bv.Browse(0);
+			ok = bv.Browse(false);
 		else
 			ok = PPErrorZ();
 	}
@@ -4884,7 +4884,7 @@ int PPViewBill::ShowDetails(PPID billID)
 			THROW_MEM(p_v = new PPViewInventory());
 			filt.Setup(billID);
 			THROW(p_v->Init_(&filt));
-			p_v->Browse(0);
+			p_v->Browse(false);
 			if(p_v->GetUpdateStatus() > 0) {
 				p_v->UpdatePacket(billID);
 				ok = 1;
@@ -5530,7 +5530,7 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 			const  PPID inet_acc_id = b_e.Tp.InetAccID;
 			const StrAssocArray inet_addr_list = b_e.Tp.AddrList;
 			// @v11.8.6 PPID  fix_tag_id = 0; // @v11.5.6
-			// @v11.8.6 PPObjectTag fix_tag_rec;
+			// @v11.8.6 PPObjectTag2 fix_tag_rec;
 			bool   use_mail_addr_by_context = false;
 			SString email_buf;
 			SString mail_subj(b_e.Tp.Subject);
@@ -6337,11 +6337,11 @@ int PPViewBill::AddBySCard(PPID * pID)
 	return ok;
 }
 
-int PPViewBill::Browse(int modeless)
+int PPViewBill::Browse(bool modeless)
 {
 	int    ok = 1;
 	const  PPConfig & r_cfg = LConfig;
-	const  PPID save_loc   = r_cfg.Location;
+	const  PPID save_loc = r_cfg.Location;
 	PPID   single_loc_id = LocList_.getSingle();
 	Filt.Period.Actualize(ZERODATE);
 	THROW((Filt.Flags & BillFilt::fDebtOnly) || AdjustPeriodToRights(Filt.Period, 0));
@@ -7008,7 +7008,7 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 					if(filt.BillList.GetCount()) {
 						PPViewInventory * p_view = new PPViewInventory();
 						if(p_view && p_view->Init_(&filt))
-							p_view->Browse(1);
+							p_view->Browse(true);
 						else
 							PPError();
 					}
@@ -7133,7 +7133,7 @@ int STDCALL ViewBillsByPool(PPID poolType, PPID poolOwnerID)
 				}
 			}
 			THROW(p_v->Init_(p_bfilt));
-			THROW(p_v->Browse(0));
+			THROW(p_v->Browse(false));
 		}
 	}
 	CATCHZOKPPERR

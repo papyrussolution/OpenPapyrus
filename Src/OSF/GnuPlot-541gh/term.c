@@ -1109,8 +1109,8 @@ static struct GpTermEntry term_tbl[] = {
 	mf_driver,       // @experimental  
 	context_driver,  // @experimental  
 	mp_driver,       // @experimental  
-	lua_driver,      // @experimental  
-	tikz_driver,     // @experimental  
+	// @v12.5.4 lua_driver,      // @experimental  
+	// @v12.5.4 tikz_driver,     // @experimental  
 	corel_driver,    // @experimental  
 	tkcanvas,        // @experimental  
 #ifdef HAVE_CAIROPDF

@@ -508,7 +508,7 @@ static IMPL_DBE_PROC(dbqf_objtagtextnocache_ii)
 			Reference * p_ref(PPRef);
 			if(p_ref) {
 				PPObjTag tag_obj;
-				PPObjectTag tag_rec;
+				PPObjectTag2 tag_rec;
 				if(tag_obj.Fetch(tag_id, &tag_rec) > 0)
 					p_ref->Ot.GetTagStr(tag_rec.ObjTypeID, obj_id, tag_id, temp_buf);
 			}

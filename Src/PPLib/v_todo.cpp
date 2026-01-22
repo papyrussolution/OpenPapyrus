@@ -2160,7 +2160,7 @@ int PPViewPrjTask::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 					lt_flt.LinkTaskID = id;
 					PPWaitStart();
 					TodoObj.GetLinkTasks(id, &task_list);
-					if(p_v->Init_(&lt_flt) && p_v->Browse(0)) {
+					if(p_v->Init_(&lt_flt) && p_v->Browse(false)) {
 						TodoObj.GetLinkTasks(id, &id_list);
 						for(int i = (int)task_list.getCount()-1; i >= 0; i--)
 							if(id_list.freeByKey(task_list.at(i), 0) > 0)

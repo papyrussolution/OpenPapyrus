@@ -839,24 +839,17 @@ public:
 	 * @stable ICU 2.0
 	 */
 	DecimalFormat(const UnicodeString & pattern, const DecimalFormatSymbols& symbols, UErrorCode & status);
-
 	/**
-	 * Copy constructor.
-	 *
 	 * @param source    the DecimalFormat object to be copied from.
 	 * @stable ICU 2.0
 	 */
 	DecimalFormat(const DecimalFormat& source);
-
 	/**
-	 * Assignment operator.
-	 *
 	 * @param rhs    the DecimalFormat object to be copied.
 	 * @stable ICU 2.0
 	 */
 	DecimalFormat& operator =(const DecimalFormat& rhs);
 	/**
-	 * Destructor.
 	 * @stable ICU 2.0
 	 */
 	~DecimalFormat() U_OVERRIDE;

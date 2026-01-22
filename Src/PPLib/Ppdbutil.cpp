@@ -1,5 +1,5 @@
 // PPDBUTIL.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -477,7 +477,7 @@ public:
 		//P_List = static_cast<SmartListBox *>(getCtrlView(CTL_BUCFG_SCNAME));
 		//SetupStrListBox(P_List); // @v11.2.5
 		// @v11.2.5 SetupListBox(P_List, 64, lbtFocNotify|lbtDisposeData|lbtDblClkNotify, ofFramed);
-		DBES.ReadFromProfile(P_IniFile, 0);
+		DBES.ReadFromProfile(P_IniFile, false);
 		//P_ScenList = new SArray(sizeof(PPBackupScen));
 		updateList(-1);
 	}
@@ -1372,7 +1372,7 @@ class ChangeDBListDialog : public PPListDialog {
 public:
 	ChangeDBListDialog() : PPListDialog(DLG_DBLIST, CTL_DBLIST_DB), F(0, 0, 0, 1), Modified(0)
 	{
-		Dbes.ReadFromProfile(&F, 0, 1);
+		Dbes.ReadFromProfile(&F, false, true);
 		updateList(-1);
 	}
 private:
@@ -1555,7 +1555,7 @@ int ChangeDBListDialog::addItem(long *, long *pID)
 	int    ok = DoEditDB(0);
 	if(ok > 0) {
 		Dbes.Clear();
-		Dbes.ReadFromProfile(&F, 0, 1);
+		Dbes.ReadFromProfile(&F, false, true);
 		*pID = Dbes.GetCount() - 1;
 	}
 	return ok;
@@ -1566,7 +1566,7 @@ int ChangeDBListDialog::editItem(long, long id)
 	int    ok = DoEditDB(id);
 	if(ok > 0) {
 		Dbes.Clear();
-		Dbes.ReadFromProfile(&F, 0, 1);
+		Dbes.ReadFromProfile(&F, false, true);
 	}
 	return ok;
 }
@@ -1580,7 +1580,7 @@ int ChangeDBListDialog::delItem(long, long id)
 			const  char * p_sect = "DBNAME";
 			if(F.RemoveParam(p_sect, entry_name)) {
 				Dbes.Clear();
-				Dbes.ReadFromProfile(&F, 0, 1);
+				Dbes.ReadFromProfile(&F, false, true);
 				Modified = 1;
 				ok = 1;
 			}
@@ -2037,7 +2037,7 @@ int DoCmdLineBackup(const char * pScenSymb, const char * pDbSymb)
 	DbLoginBlock dlb;
 	SString temp_buf;
 	THROW(ini_file.IsValid());
-	THROW(dbes.ReadFromProfile(&ini_file, 0));
+	THROW(dbes.ReadFromProfile(&ini_file, false));
 	drv_map.Load(&ini_file);
 	{
 		PPBackupScen bu_scen;
@@ -2106,7 +2106,7 @@ int DoServerBackup(const SString & rDBSymb, PPBackupScen * pScen)
 	SString data_path;
 	PPBackup * p_bu = 0;
 	THROW(ini_file.IsValid());
-	THROW(dbes.ReadFromProfile(&ini_file, 0));
+	THROW(dbes.ReadFromProfile(&ini_file, false));
 	THROW_SL(db_id = dbes.GetBySymb(rDBSymb, &dlb));
 	dlb.GetAttr(DbLoginBlock::attrDbPath, data_path);
 	THROW_PP_S(::access(data_path, 0) == 0, PPERR_DBDIRNFOUND, data_path);

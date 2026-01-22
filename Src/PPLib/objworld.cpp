@@ -21,7 +21,7 @@ int PPObjWorldObjStatus::SearchByCode(long code, long kind, PPID * pID, PPWorldO
 	int    ok = -1;
 	PPID   id = 0;
 	if(code) {
-		ReferenceTbl::Key3 k3;
+		Reference2Tbl::Key3 k3;
 		k3.ObjType = Obj;
 		k3.Val2 = code;
 		if(P_Ref->search(3, &k3, spEq)) {

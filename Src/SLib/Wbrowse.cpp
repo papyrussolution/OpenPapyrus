@@ -240,10 +240,10 @@ BroColumn::BroColumn()
 /*static*/TBaseBrowserWindow * TBaseBrowserWindow::Helper_InitCreation(LPARAM lParam, void ** ppInitData)
 {
 	TBaseBrowserWindow * p_view = 0;
-	LPCREATESTRUCT p_init_data = reinterpret_cast<LPCREATESTRUCT>(lParam);
+	CREATESTRUCT * p_init_data = reinterpret_cast<CREATESTRUCT *>(lParam);
 	if(p_init_data) {
 		if(IsMDIClientWindow(p_init_data->hwndParent)) {
-			p_view = reinterpret_cast<TBaseBrowserWindow *>(static_cast<LPMDICREATESTRUCT>(p_init_data->lpCreateParams)->lParam);
+			p_view = reinterpret_cast<TBaseBrowserWindow *>(static_cast<MDICREATESTRUCT *>(p_init_data->lpCreateParams)->lParam);
 			p_view->BbState |= TBaseBrowserWindow::bbsIsMDI;
 		}
 		else {
@@ -278,7 +278,7 @@ TBaseBrowserWindow::~TBaseBrowserWindow()
 	return rBlk;
 }
 
-int TBaseBrowserWindow::Insert()
+int TBaseBrowserWindow::Launch_(TWindow * pParent)
 {
 	int    ret = 0;
 	SString buf(getTitle());
@@ -288,51 +288,65 @@ int TBaseBrowserWindow::Insert()
 	}
 	else
 		buf.Transf(CTRANSF_INNER_TO_OUTER);
-	if(IsIconic(APPL->H_MainWnd))
-		ShowWindow(APPL->H_MainWnd, SW_MAXIMIZE);
-	const HWND hw_active = GetActiveWindow();
-	if(hw_active != APPL->H_MainWnd) {
-		setState(sfModal, true);
-		{
-			TEvent event;
-			this->handleEvent(event.setCmd(cmExecute, 0));
-			ret = (event.what == TEvent::evNothing) ? event.message.infoLong : 0;
+	DWORD  ex_style = 0/*WS_EX_CONTROLPARENT*//*WS_EX_COMPOSITED*/; // @v12.5.4 WS_EX_CONTROLPARENT
+	DWORD  style = WS_CHILD|WS_CLIPSIBLINGS|WS_TABSTOP;
+	if(!(BbState & bbsWoScrollbars))
+		style |= (WS_HSCROLL | WS_VSCROLL);
+	if(pParent) {
+		BbState |= bbsInner;
+		HWND   hw_frame = pParent->H();
+		if(hw_frame) {
+			HW = ::CreateWindowExW(ex_style, ClsName, SUcSwitchW(buf), style, 0, 0, 24, 24, hw_frame, 0, TProgram::GetInst(), this);
+			if(HW) {
+				::ShowWindow(HW, SW_SHOW);
+				::UpdateWindow(HW);
+			}
 		}
-		delete this;
 	}
 	else {
-		DWORD  style = WS_CHILD|WS_CLIPSIBLINGS|WS_TABSTOP;
-		HWND   hw_frame = APPL->GetFrameWindow();
-		if(!(BbState & bbsWoScrollbars))
-			style |= (WS_HSCROLL | WS_VSCROLL);
-		if(hw_frame) {
-			RECT   rc_frame;
-			::GetClientRect(hw_frame, &rc_frame);
-			// @v11.2.6 WS_EX_COMPOSITED
-			HW = ::CreateWindowExW(/*WS_EX_COMPOSITED*/0, ClsName, SUcSwitchW(buf), style, 0, 0, 
-				rc_frame.right-16, rc_frame.bottom, hw_frame, 0, TProgram::GetInst(), this);
-			APPL->SizeMainWnd(HW);
-			::ShowWindow(HW, SW_SHOW);
-			if(ResourceID == 0) {
-				HWND   hw = GetTopWindow(hw_frame);
-				while(hw && (hw == APPL->H_CloseWnd || hw == HW))
-					hw = GetNextWindow(hw, GW_HWNDNEXT);
-				if(hw) {
-					TBaseBrowserWindow * p_brw = static_cast<TBaseBrowserWindow *>(TView::GetWindowUserData(hw));
-					if(p_brw) {
-						if(ClsName == SlConst::WinClsName_TimeChunkBrowser)
-							ResourceID = p_brw->GetResID() + TBaseBrowserWindow::IdBiasTimeChunkBrowser;
-						else if(ClsName == SlConst::WinClsName_TextEditor)
-							ResourceID = p_brw->GetResID() + TBaseBrowserWindow::IdBiasTextBrowser;
-						else
-							ResourceID = p_brw->GetResID() + TBaseBrowserWindow::IdBiasBrowser;
+		BbState &= ~bbsInner;
+		if(IsIconic(APPL->H_MainWnd))
+			ShowWindow(APPL->H_MainWnd, SW_MAXIMIZE);
+		const HWND hw_active = GetActiveWindow();
+		if(hw_active != APPL->H_MainWnd) {
+			setState(sfModal, true);
+			{
+				TEvent event;
+				this->handleEvent(event.setCmd(cmExecute, 0));
+				ret = (event.what == TEvent::evNothing) ? event.message.infoLong : 0;
+			}
+			delete this;
+		}
+		else {
+			HWND   hw_frame = APPL->GetFrameWindow();
+			if(hw_frame) {
+				RECT   rc_frame;
+				::GetClientRect(hw_frame, &rc_frame);
+				// @v11.2.6 WS_EX_COMPOSITED
+				HW = ::CreateWindowExW(ex_style, ClsName, SUcSwitchW(buf), style, 0, 0, rc_frame.right-16, rc_frame.bottom, hw_frame, 0, TProgram::GetInst(), this);
+				APPL->SizeMainWnd(HW);
+				::ShowWindow(HW, SW_SHOW);
+				if(ResourceID == 0) {
+					HWND   hw = GetTopWindow(hw_frame);
+					while(hw && (hw == APPL->H_CloseWnd || hw == HW))
+						hw = GetNextWindow(hw, GW_HWNDNEXT);
+					if(hw) {
+						TBaseBrowserWindow * p_brw = static_cast<TBaseBrowserWindow *>(TView::GetWindowUserData(hw));
+						if(p_brw) {
+							if(ClsName == SlConst::WinClsName_TimeChunkBrowser)
+								ResourceID = p_brw->GetResID() + TBaseBrowserWindow::IdBiasTimeChunkBrowser;
+							else if(ClsName == SlConst::WinClsName_TextEditor)
+								ResourceID = p_brw->GetResID() + TBaseBrowserWindow::IdBiasTextBrowser;
+							else
+								ResourceID = p_brw->GetResID() + TBaseBrowserWindow::IdBiasBrowser;
+						}
 					}
 				}
+				::UpdateWindow(H());
 			}
-			::UpdateWindow(H());
 		}
-		ret = H() ? -1 : 0;
 	}
+	ret = H() ? -1 : 0;
 	return ret;
 }
 
@@ -434,6 +448,9 @@ IMPL_HANDLE_EVENT(TBaseBrowserWindow)
 	else {
 		if(!event.isCmd(cmSetBounds)) { // Для TBaseBrowserWindow команда cmSetBounds пока не должна обрабатываться поскольку координатная сетка унаследована от MS-DOS
 			TWindowBase::handleEvent(event); 
+		}
+		else {
+			TWindowBase::handleEvent(event); // @v12.5.4
 		}
 	}
 }
@@ -716,7 +733,9 @@ int BrowserWindow::LoadResource(uint rezID, void * pData, int dataKind, uint uOp
 						break;
 				}
 			}
-			changeBounds(_bounds);
+			if(!IsWindow(HW)) { // @v12.5.4 Координаты _bounds заданы в древних text-mode-единицах, потому не надо их менять если окно уже существует
+				changeBounds(_bounds);
+			}
 			P_Def = p_def;
 			if(freeze)
 				SetFreeze(freeze);
@@ -1906,14 +1925,13 @@ int BrowserWindow::PaintCell(HDC hdc, RECT r, long row, long col, int paintActio
 		CellStyle style;
 		if(F_CellStyle && F_CellStyle(p_row, col, paintAction, &style, CellStyleFuncExtraPtr) > 0) {
 			if(style.Color && !(style.Flags & CellStyle::fCorner)) {
-				HPEN   pen = CreatePen(PS_SOLID, 1, style.Color);
-				HPEN   oldpen = static_cast<HPEN>(SelectObject(hdc, pen));
-				HBRUSH br = CreateSolidBrush(style.Color);
-				HBRUSH oldbr = static_cast<HBRUSH>(SelectObject(hdc, br));
-				Rectangle(hdc, r.left, r.top, r.right-1, r.bottom);
-
-				SelectObject(hdc, oldpen);
-				SelectObject(hdc, oldbr);
+				HPEN   pen = ::CreatePen(PS_SOLID, 1, style.Color);
+				HPEN   oldpen = static_cast<HPEN>(::SelectObject(hdc, pen));
+				HBRUSH br = ::CreateSolidBrush(style.Color);
+				HBRUSH oldbr = static_cast<HBRUSH>(::SelectObject(hdc, br));
+				::Rectangle(hdc, r.left, r.top, r.right-1, r.bottom);
+				::SelectObject(hdc, oldpen);
+				::SelectObject(hdc, oldbr);
 				ZDeleteWinGdiObject(&pen);
 				ZDeleteWinGdiObject(&br);
 			}
@@ -1927,10 +1945,10 @@ int BrowserWindow::PaintCell(HDC hdc, RECT r, long row, long col, int paintActio
 				POINT points[4];
 				if(style.Flags & CellStyle::fCorner) {
 					const  COLORREF color = style.Color;
-					HPEN   pen = CreatePen(PS_SOLID, 1, color);
-					HPEN   oldpen = static_cast<HPEN>(SelectObject(hdc, pen));
-					HBRUSH br = CreateSolidBrush(color);
-					HBRUSH oldbr = static_cast<HBRUSH>(SelectObject(hdc, br));
+					HPEN   pen = ::CreatePen(PS_SOLID, 1, color);
+					HPEN   oldpen = static_cast<HPEN>(::SelectObject(hdc, pen));
+					HBRUSH br = ::CreateSolidBrush(color);
+					HBRUSH oldbr = static_cast<HBRUSH>(::SelectObject(hdc, br));
 
 					const int    t = r.top+2;
 					points[0].x = r.left;
@@ -1941,20 +1959,18 @@ int BrowserWindow::PaintCell(HDC hdc, RECT r, long row, long col, int paintActio
 					points[2].y = r.top + (r.bottom - r.top) / 2;
 					points[3].x = r.left;
 					points[3].y = t;
-					Polygon(hdc, points, 4);
-
-					SelectObject(hdc, oldpen);
-					SelectObject(hdc, oldbr);
+					::Polygon(hdc, points, 4);
+					::SelectObject(hdc, oldpen);
+					::SelectObject(hdc, oldbr);
 					ZDeleteWinGdiObject(&pen);
 					ZDeleteWinGdiObject(&br);
 				}
 				if(style.Flags & CellStyle::fLeftBottomCorner) {
 					const  COLORREF color = style.Color2;
-					HPEN   pen = CreatePen(PS_SOLID, 1, color);
-					HPEN   oldpen = static_cast<HPEN>(SelectObject(hdc, pen));
-					HBRUSH br = CreateSolidBrush(color);
-					HBRUSH oldbr = static_cast<HBRUSH>(SelectObject(hdc, br));
-
+					HPEN   pen = ::CreatePen(PS_SOLID, 1, color);
+					HPEN   oldpen = static_cast<HPEN>(::SelectObject(hdc, pen));
+					HBRUSH br = ::CreateSolidBrush(color);
+					HBRUSH oldbr = static_cast<HBRUSH>(::SelectObject(hdc, br));
 					const int    b = r.bottom-2;
 					points[0].x = r.left;
 					points[0].y = b;
@@ -1964,36 +1980,35 @@ int BrowserWindow::PaintCell(HDC hdc, RECT r, long row, long col, int paintActio
 					points[2].y = r.top + (r.bottom - r.top) / 2;
 					points[3].x = r.left;
 					points[3].y = b;
-					Polygon(hdc, points, 4);
-
-					SelectObject(hdc, oldpen);
-					SelectObject(hdc, oldbr);
+					::Polygon(hdc, points, 4);
+					::SelectObject(hdc, oldpen);
+					::SelectObject(hdc, oldbr);
 					ZDeleteWinGdiObject(&pen);
 					ZDeleteWinGdiObject(&br);
 				}
 				if(style.Flags & CellStyle::fRightFigCircle) {
 					const  COLORREF color = style.RightFigColor;
-					HPEN   pen = CreatePen(PS_SOLID, 1, color);
-					HPEN   oldpen = static_cast<HPEN>(SelectObject(hdc, pen));
-					HBRUSH br = CreateSolidBrush(color);
-					HBRUSH oldbr = static_cast<HBRUSH>(SelectObject(hdc, br));
+					HPEN   pen = ::CreatePen(PS_SOLID, 1, color);
+					HPEN   oldpen = static_cast<HPEN>(::SelectObject(hdc, pen));
+					HBRUSH br = ::CreateSolidBrush(color);
+					HBRUSH oldbr = static_cast<HBRUSH>(::SelectObject(hdc, br));
 					const int _diam = 6;
 					const int _right = r.right - 6;
 					const int _left = _right - _diam;
 					const int _top = r.top + 4;
 					const int _bottom = _top + _diam + 2;
-					Ellipse(hdc, _left, _top, _right, _bottom);
-					SelectObject(hdc, oldpen);
-					SelectObject(hdc, oldbr);
+					::Ellipse(hdc, _left, _top, _right, _bottom);
+					::SelectObject(hdc, oldpen);
+					::SelectObject(hdc, oldbr);
 					ZDeleteWinGdiObject(&pen);
 					ZDeleteWinGdiObject(&br);
 				}
 				else if(style.Flags & CellStyle::fRightFigTriangle) { // @v11.1.12
 					const  COLORREF color = style.RightFigColor;
-					HPEN   pen = CreatePen(/*PS_SOLID*/PS_NULL, 1, color);
-					HPEN   oldpen = static_cast<HPEN>(SelectObject(hdc, pen));
-					HBRUSH br = CreateSolidBrush(color);
-					HBRUSH oldbr = static_cast<HBRUSH>(SelectObject(hdc, br));
+					HPEN   pen = ::CreatePen(/*PS_SOLID*/PS_NULL, 1, color);
+					HPEN   oldpen = static_cast<HPEN>(::SelectObject(hdc, pen));
+					HBRUSH br = ::CreateSolidBrush(color);
+					HBRUSH oldbr = static_cast<HBRUSH>(::SelectObject(hdc, br));
 					const int _diam = 6;
 					int   _right = r.right - 6;
 					int   _left = _right - _diam;
@@ -2007,10 +2022,10 @@ int BrowserWindow::PaintCell(HDC hdc, RECT r, long row, long col, int paintActio
 					points[1].y = _top;
 					points[2].x = (_left + _right) / 2;
 					points[2].y = _bottom;
-					Polygon(hdc, points, 3);
+					::Polygon(hdc, points, 3);
 					//
-					SelectObject(hdc, oldpen);
-					SelectObject(hdc, oldbr);
+					::SelectObject(hdc, oldpen);
+					::SelectObject(hdc, oldbr);
 					ZDeleteWinGdiObject(&pen);
 					ZDeleteWinGdiObject(&br);					
 				}
@@ -3018,7 +3033,7 @@ void BrowserWindow::SpecialMenu() // @v12.4.12
 				p_view->SetupScroll();
 				p_view->CalcRight();
 				p_view->EvaluateColumnSizes(0/*flags*/); // @v12.4.7
-				HWND hw = p_view->P_Toolbar ? p_view->P_Toolbar->H() : 0;
+				HWND   hw = p_view->P_Toolbar ? p_view->P_Toolbar->H() : 0;
 				if(::IsWindowVisible(hw)) {
 					::MoveWindow(hw, 0, 0, LOWORD(lParam), p_view->ToolBarWidth, 0);
 					// @v12.2.5 TView::messageCommand(p_view, cmResize); // must be cmSize

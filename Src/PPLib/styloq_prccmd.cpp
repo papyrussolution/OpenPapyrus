@@ -1261,7 +1261,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 													break;
 												case StyloQIncomingListParam::acceptanceTags: // 1 // Расставить теги по строкам
 													{
-														PPObjectTag tag_rec;
+														PPObjectTag2 tag_rec;
 														if(tag_obj.Fetch(PPTAG_LOT_ACCEPTANCE, &tag_rec) > 0) {
 															if(p_found_outer_item->Flags & Document::__TransferItem::fHasAcceptance) {
 																PPTransferItem::Acceptance a;

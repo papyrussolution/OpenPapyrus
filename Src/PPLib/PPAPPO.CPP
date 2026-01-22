@@ -10,7 +10,7 @@
 // @prototype {
 //
 // @v12.2.6 @unused(replaced with ExportDialogs2) int ExportDialogs(const char * pFileName);
-int    ExportDialogs2(const char * pFileName); // @v11.0.5
+int    ExportDialogs2(const char * pFileName);
 int    TestAddressRecognition();
 int    SelfBuild();
 int    SelfbuildStaffForManual();
@@ -85,23 +85,7 @@ int PPApp::InitStatusBar()
 	return 1;
 }
 
-#if 0 // @v11.9.2 (replaced with GetVectorTools) {
-/*virtual*/int PPApp::LoadVectorTools(TWhatmanToolArray * pT)
-{
-	int    ok = -1;
-	SString src_file_name;
-	if(PPGetFilePath(PPPATH_BIN, PPFILNAM_PPDV_WTA, src_file_name)) {
-		if(fileExists(src_file_name)) {
-			THROW(!pT || pT->Load(src_file_name));
-			ok = 1;
-		}
-	}
-	CATCHZOK
-	return ok;
-}
-#endif // } 0
-
-/*virtual*/const TWhatmanToolArray * PPApp::GetVectorTools() const { return &DS.GetVectorTools(); } // @v11.9.2
+/*virtual*/const TWhatmanToolArray * PPApp::GetVectorTools() const { return &DS.GetVectorTools(); }
 /*virtual*/SPaintToolBox * PPApp::GetUiToolBox() { return &DS.GetUiToolBox(); } // @v11.9.2
 
 IMPL_HANDLE_EVENT(PPApp)
@@ -1790,7 +1774,7 @@ void PPApp::login(int processCmdLine)
 				dlg->getCtrlString(CTL_CVTCIPHER_PASSWORD, pw);
 				dlg->getCtrlString(CTL_CVTCIPHER_INISRC, ini_src);
 				dlg->getCtrlString(CTL_CVTCIPHER_INIDEST, ini_dest);
-				long    db_sel = dlg->getCtrlLong(CTLSEL_CVTCIPHER_DB);
+				const  long db_sel = dlg->getCtrlLong(CTLSEL_CVTCIPHER_DB);
 				DbLoginBlock dblb;
 				if(dbes.GetByID(db_sel, &dblb) > 0) {
 					dblb.GetAttr(dblb.attrDbSymb, db_symb);
@@ -1810,33 +1794,50 @@ void PPApp::login(int processCmdLine)
 		PPLoginDialogParam login_param;
 		int    valid = 0;
 		int    recover = 0;
-		SString lua_script; // @v10.0.1 @experimental
-		SString cmdline_dbsymb; // @v11.0.3 Символ базы данных, указанный в командной строке
+		SString cmdline_dbsymb; // Символ базы данных, указанный в командной строке
 		PPID   dbentry_id = 0;
+		const  char * p_centrigo_db_symb = "centrigo";
 		if(_argc > 1 && *_argv[1] != '/' && *_argv[1] != '-') {
 			SFsPath ps(_argv[1]);
-			if(ps.Nam.NotEmpty() && ps.Ext.NotEmpty() && ps.Ext.IsEqiAscii("lua")) {
-				lua_script = _argv[1];
-			}
-			else {
-				login_param.UserName = _argv[1];
-				login_param.UserName.Transf(CTRANSF_OUTER_TO_INNER);
-			}
+			login_param.UserName = _argv[1];
+			login_param.UserName.Transf(CTRANSF_OUTER_TO_INNER);
 		}
 		{ // Зона видимости ini_file. Ее необходимо изолировать - PPLoginDialog может затребовать эксклюзивный доступ к pp.ini для редактирования.
-			PPIniFile  ini_file;
-			login_param.Dbes.ReadFromProfile(&ini_file);
-			if(PPSession::GetStartUpOption(PPSession::cmdlDB, arg_buf)) {
-				cmdline_dbsymb = arg_buf;
-				dbentry_id = login_param.Dbes.GetBySymb(cmdline_dbsymb, 0);
-				if(dbentry_id <= 0) {
-					PPError();
-					TView::messageCommand(this, cmQuit);
-					return;
+			PPIniFile ini_file;
+			// @v12.5.4 {
+			SString centrigo_db_descr;
+			if(DS.GetInternalAppId() == PPSession::internalappCentrigo) { // @v12.5.4
+				// centrigo_database=sqlite:///D:/Papyrus/ppy/data/centrigo-dev/centrigo-dev
+				if(ini_file.Get(PPINISECT_PATH, PPINIPARAM_CENTRIGO_DATABASE, temp_buf) > 0) {
+					centrigo_db_descr = temp_buf;
 				}
+				else if(ini_file.Get(PPINISECT_PATH, PPINIPARAM_DAT, temp_buf) > 0) {
+					(centrigo_db_descr = "sqlite").Cat(":///").Cat(temp_buf);
+				}
+				else {
+				}
+				if(centrigo_db_descr.NotEmpty()) {
+					login_param.Dbes.SetupSingleDbEntry(p_centrigo_db_symb, centrigo_db_descr);
+					dbentry_id = login_param.Dbes.GetBySymb(p_centrigo_db_symb, 0);
+				}
+				if(!dbentry_id)
+					TView::messageCommand(this, cmQuit); // @todo @message
 			}
-			else if(login_param.Dbes.GetCount() == 1)
-				dbentry_id = 1;
+			else {
+			// } @v12.5.4 
+				login_param.Dbes.ReadFromProfile(&ini_file);
+				if(PPSession::GetStartUpOption(PPSession::cmdlDB, arg_buf)) {
+					cmdline_dbsymb = arg_buf;
+					dbentry_id = login_param.Dbes.GetBySymb(cmdline_dbsymb, 0);
+					if(dbentry_id <= 0) {
+						PPError();
+						TView::messageCommand(this, cmQuit);
+						return;
+					}
+				}
+				else if(login_param.Dbes.GetCount() == 1)
+					dbentry_id = 1;
+			}
 			login_param.Dbes.SetSelection(dbentry_id);
 			InitStatusBar();
 			StoreLastBinPath();
@@ -1858,50 +1859,66 @@ void PPApp::login(int processCmdLine)
 			SetDatetimeByServer(&ini_file, 0);
 			PPSession::EnsureExtCfgDb();
 			PPBackupSystemFiles_Arc();
-			// @v10.0.1 @experimental {
-			/*if(lua_script.NotEmpty()) {
-				ExecuteLuaScriptFile(lua_script);
-			}*/
-			// } @v10.0.1
 		}
 		if(PPSession::GetStartUpOption(PPSession::cmdlBackup, arg_buf)) {
 			DoCmdLineBackup(arg_buf/*scen*/, cmdline_dbsymb);
 			TView::messageCommand(this, cmQuit);
 			return;
 		}
-		while(!valid && PPLoginDialog(login_param) > 0) {
-			SString db_symb;
-			PPID   db_id = NZOR(login_param.Dbes.GetSelection(), login_param.Dbes.SetDefaultSelection());
-			DbLoginBlock dlb;
-			if(db_id && login_param.Dbes.GetByID(db_id, &dlb)) {
-				PPWaitStart();
-				dlb.GetAttr(DbLoginBlock::attrDbSymb, db_symb);
+		{
+			if(DS.GetInternalAppId() == PPSession::internalappCentrigo) { // @v12.5.4
 				long  login_flags = 0;
 				if(login_param.OnetimePassResult)
 					login_flags |= PPSession::loginfCheckOnetimePass;
-				login_flags |= PPSession::loginfMainThread; // @v12.4.3
-				if(DS.PPLogin(db_symb, login_param.UserName, login_param.Passw, login_flags) && InitMenuBar()) {
-					if(LConfig.Flags & CFGFLG_SEC_DSBLNSYSDATE && login_param.OperDate != getcurdate_()) {
-						DS.PPLogout();
-						PPSetError(PPERR_OPERDATEDIFSYSDATE);
-					}
-					else
-						valid = 1;
+				login_flags |= PPSession::loginfMainThread;
+				if(DS.PPLogin_(&login_param.Dbes, p_centrigo_db_symb, login_param.UserName, login_param.Passw, login_flags)) {
+					DS.SetMenu(0);
+					//InitMenuBar();
+					//::PostMessageW(H_MainWnd, WM_USER, 0, 0);
+					valid = 1;
 				}
-				PPWaitStop();
+				else {
+					PPError();
+					TView::messageCommand(this, cmQuit);
+					return;
+				}
 			}
-			if(!valid) {
-				PPError();
-				login_param.OnetimePassResult = 0;
-				login_param.Flags |= (login_param.fRetryLogin|login_param.fForcePrompt);
-				//retry_login  = 1;
-				//force_prompt = 1;
-			}
-			else if(DS.CheckStateFlag(CFGST_DEMOMODE)) {
-				if(CONFIRM(PPCFM_REGISTRATION) && PPLicRegister() > 0)
-					DS.SetDemoMode(0);
-				else
-					PPMessage(mfInfo|mfOK, PPINF_DEMO);
+			else {
+				while(!valid && PPLoginDialog(login_param) > 0) {
+					SString db_symb;
+					const  PPID db_id = NZOR(login_param.Dbes.GetSelection(), login_param.Dbes.SetDefaultSelection());
+					DbLoginBlock dlb;
+					if(db_id && login_param.Dbes.GetByID(db_id, &dlb)) {
+						PPWaitStart();
+						dlb.GetAttr(DbLoginBlock::attrDbSymb, db_symb);
+						long  login_flags = 0;
+						if(login_param.OnetimePassResult)
+							login_flags |= PPSession::loginfCheckOnetimePass;
+						login_flags |= PPSession::loginfMainThread; // @v12.4.3
+						if(DS.PPLogin(db_symb, login_param.UserName, login_param.Passw, login_flags) && InitMenuBar()) {
+							if(LConfig.Flags & CFGFLG_SEC_DSBLNSYSDATE && login_param.OperDate != getcurdate_()) {
+								DS.PPLogout();
+								PPSetError(PPERR_OPERDATEDIFSYSDATE);
+							}
+							else
+								valid = 1;
+						}
+						PPWaitStop();
+					}
+					if(!valid) {
+						PPError();
+						login_param.OnetimePassResult = 0;
+						login_param.Flags |= (login_param.fRetryLogin|login_param.fForcePrompt);
+						//retry_login  = 1;
+						//force_prompt = 1;
+					}
+					else if(DS.CheckStateFlag(CFGST_DEMOMODE)) {
+						if(CONFIRM(PPCFM_REGISTRATION) && PPLicRegister() > 0)
+							DS.SetDemoMode(0);
+						else
+							PPMessage(mfInfo|mfOK, PPINF_DEMO);
+					}
+				}
 			}
 		}
 		if(valid && !(login_param.Flags & login_param.fProtect) && !recover) {
@@ -2007,8 +2024,8 @@ int PPApp::InitDeskTop()
 int PPApp::InitMenuBar()
 {
 	const  PPConfig & r_cfg = LConfig;
-	const  int is_master = BIN(PPMaster);
-	const  int from_rc = (!!r_cfg.MenuUuid && !is_master) ? 0 : 1;
+	const  bool is_master = LOGIC(PPMaster);
+	const  int  from_rc = (!!r_cfg.MenuUuid && !is_master) ? 0 : 1;
 	if(r_cfg.Menu || !!r_cfg.MenuUuid || is_master) {
 		int not_found = 0;
 		HMENU  m = from_rc ? PPLoadResourceMenu(P_SlRez, r_cfg.Menu, &not_found) : PPLoadCommandMenu(r_cfg.MenuUuid, &not_found);
@@ -2019,9 +2036,8 @@ int PPApp::InitMenuBar()
 				m = PPLoadResourceMenu(P_SlRez, r_cfg.Menu, &not_found);
 				if(!m || not_found) {
 					::DestroyMenu(m);
-					m = 0; // @v10.4.5
+					m = 0;
 					DS.SetMenu(MENU_MASTER);
-					// @v10.4.5 (Встроенные в windows-ресурс меню упразднены) m = ::LoadMenu(TProgram::GetInst(), MAKEINTRESOURCE(r_cfg.Menu));
 				}
 			}
 			if(!m)
@@ -2030,7 +2046,7 @@ int PPApp::InitMenuBar()
 		DestroyMenu(GetMenu(H_MainWnd));
 		SetMenu(H_MainWnd, m);
 	}
-	::PostMessage(H_MainWnd, WM_USER, 0, 0);
+	::PostMessageW(H_MainWnd, WM_USER, 0, 0);
 	return 1;
 }
 

@@ -1,5 +1,5 @@
 // PPMAIL.CPP
-// Copyright (c) A. Starodub, A.Sobolev 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A. Starodub, A.Sobolev 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -93,7 +93,7 @@ int PPObjInternetAccount::Browse(void * extraPtr)
 			}
 			else if(event.isCmd(cmTransmitCharry)) {
 				PPIDArray id_list;
-				ReferenceTbl::Rec rec;
+				Reference2Tbl::Rec rec;
 				for(PPID id = 0; static_cast<PPObjReference *>(P_Obj)->EnumItems(&id, &rec) > 0;)
 					id_list.add(rec.ObjID);
 				if(!SendCharryObject(PPDS_CRRMAILACCOUNT, id_list))
@@ -414,7 +414,7 @@ public:
 		char   temp_buf[256];
 		RVALUEPTR(Data, pData);
 		setCtrlData(CTL_MAILACC_NAME, Data.Name);
-		setCtrlData(CTL_MAILACC_SYMB, Data.Symb); // @v10.7.12
+		setCtrlData(CTL_MAILACC_SYMB, Data.Symb);
 		setCtrlData(CTL_MAILACC_ID,   &Data.ID);
 		disableCtrl(CTL_MAILACC_ID, (!PPMaster || Data.ID));
 		SetExtStrData(this, Data, CTL_MAILACC_FROMADDR, MAEXSTR_FROMADDRESS);
@@ -425,8 +425,7 @@ public:
 		SetExtStrData(this, Data, CTL_MAILACC_RCVNAME,  MAEXSTR_RCVNAME);
 		Data.GetPassword_(temp_buf, sizeof(temp_buf), MAEXSTR_RCVPASSWORD);
 		setCtrlData(CTL_MAILACC_RCVPASSWORD, temp_buf);
-		// @v11.1.1 IdeaRandMem(temp_buf, sizeof(temp_buf));
-		SObfuscateBuffer(temp_buf, sizeof(temp_buf)); // @v11.1.1 
+		SObfuscateBuffer(temp_buf, sizeof(temp_buf));
 		setCtrlData(CTL_MAILACC_TIMEOUT, &Data.Timeout);
 		SetupStringCombo(this, CTLSEL_MAILACC_AUTHTYPE, PPTXT_SMTPAUTHTYPES, Data.SmtpAuthType);
 		AddClusterAssoc(CTL_MAILACC_FLAGS, 0, Data.fUseSSL);
@@ -473,7 +472,7 @@ public:
 		char temp_buf[64];
 		RVALUEPTR(Data, pData);
 		setCtrlData(CTL_FTPACCT_NAME, Data.Name);
-		setCtrlData(CTL_FTPACCT_SYMB, Data.Symb); // @v10.7.12
+		setCtrlData(CTL_FTPACCT_SYMB, Data.Symb);
 		setCtrlData(CTL_FTPACCT_ID,   &Data.ID);
 		disableCtrl(CTL_FTPACCT_ID, (!PPMaster || Data.ID));
 		SetExtStrData(this, Data, CTL_FTPACCT_HOST,      FTPAEXSTR_HOST);
@@ -484,12 +483,10 @@ public:
 		SetExtStrData(this, Data, CTL_FTPACCT_PROXYUSER, FTPAEXSTR_PROXYUSER);
 		Data.GetPassword_(temp_buf, sizeof(temp_buf), FTPAEXSTR_PASSWORD);
 		setCtrlData(CTL_FTPACCT_PWD, temp_buf);
-		// @v11.1.1 IdeaRandMem(temp_buf, sizeof(temp_buf));
-		SObfuscateBuffer(temp_buf, sizeof(temp_buf)); // @v11.1.1 
+		SObfuscateBuffer(temp_buf, sizeof(temp_buf));
 		Data.GetPassword_(temp_buf, sizeof(temp_buf), FTPAEXSTR_PROXYPASSWORD);
 		setCtrlData(CTL_FTPACCT_PROXYPWD, temp_buf);
-		// @v11.1.1 IdeaRandMem(temp_buf, sizeof(temp_buf));
-		SObfuscateBuffer(temp_buf, sizeof(temp_buf)); // @v11.1.1 
+		SObfuscateBuffer(temp_buf, sizeof(temp_buf));
 		setCtrlData(CTL_FTPACCT_TIMEOUT, &Data.Timeout);
 		AddClusterAssoc(CTL_FTPACCT_FLAGS, 0, PPInternetAccount::fFtpPassive);
 		SetClusterData(CTL_FTPACCT_FLAGS, Data.Flags);
@@ -502,7 +499,7 @@ public:
 		char   temp_buf[64];
 		getCtrlData(selctl = CTL_FTPACCT_NAME, Data.Name);
 		THROW_PP(*strip(Data.Name) != 0, PPERR_NAMENEEDED);
-		getCtrlData(CTL_FTPACCT_SYMB, Data.Symb); // @v10.7.12
+		getCtrlData(CTL_FTPACCT_SYMB, Data.Symb);
 		GetExtStrData(this, &Data, CTL_FTPACCT_HOST,      FTPAEXSTR_HOST);
 		GetExtIntData(this, &Data, CTL_FTPACCT_PORT,      FTPAEXSTR_PORT);
 		GetExtStrData(this, &Data, CTL_FTPACCT_USER,      FTPAEXSTR_USER);
@@ -513,8 +510,7 @@ public:
 		Data.SetPassword_(temp_buf, FTPAEXSTR_PASSWORD);
 		getCtrlData(CTL_FTPACCT_PROXYPWD, temp_buf);
 		Data.SetPassword_(temp_buf, FTPAEXSTR_PROXYPASSWORD);
-		// @v11.1.1 IdeaRandMem(temp_buf, sizeof(temp_buf));
-		SObfuscateBuffer(temp_buf, sizeof(temp_buf)); // @v11.1.1 
+		SObfuscateBuffer(temp_buf, sizeof(temp_buf));
 		getCtrlData(selctl = CTL_FTPACCT_TIMEOUT, &Data.Timeout);
 		THROW_PP(Data.Timeout >= 0 && Data.Timeout <= 600, PPERR_USERINPUT);
 		getCtrlData(CTL_FTPACCT_ID, &Data.ID);
@@ -1260,8 +1256,7 @@ int PPMailPop3::Login()
 	MailAcc.GetPassword_(psw, sizeof(psw), MAEXSTR_RCVPASSWORD);
 	THROW_SL(Sess.Auth(0, user_name, psw));
 	CATCHZOK
-	// @v11.1.1 IdeaRandMem(psw, sizeof(psw));
-	SObfuscateBuffer(psw, sizeof(psw)); // @v11.1.1 
+	SObfuscateBuffer(psw, sizeof(psw));
 	return ok;
 }
 

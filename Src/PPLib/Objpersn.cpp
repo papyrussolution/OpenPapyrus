@@ -3637,7 +3637,7 @@ int PPObjPerson::PutGuid(PPID id, const S_GUID * pUuid, int use_ta)
 	ObjTagItem tag;
 	PersonTbl::Rec _rec;
 	PPObjTag tagobj;
-	PPObjectTag tag_rec;
+	PPObjectTag2 tag_rec;
 	THROW_PP(tagobj.Fetch(tag_id, &tag_rec) > 0, abs_err_msg_id);
 	if(!S_GUID::IsEmpty(pUuid)) {
 		THROW(Search(id, &_rec) > 0);
@@ -4108,11 +4108,10 @@ public:
 		//
 		AddClusterAssoc(CTL_PERSON_FLAGS, 0, PSNF_NOVATAX);
 		AddClusterAssoc(CTL_PERSON_FLAGS, 1, PSNF_NONOTIFICATIONS);
-		AddClusterAssoc(CTL_PERSON_FLAGS, 2, PSNF_DONTSENDCCHECK); // @v11.3.5
+		AddClusterAssoc(CTL_PERSON_FLAGS, 2, PSNF_DONTSENDCCHECK);
 		SetClusterData(CTL_PERSON_FLAGS, Data.Rec.Flags);
 		//
-		// @v11.1.12 setCtrlData(CTL_PERSON_MEMO, Data.Rec.Memo);
-		setCtrlString(CTL_PERSON_MEMO, Data.SMemo); // @v11.1.12
+		setCtrlString(CTL_PERSON_MEMO, Data.SMemo);
 		SetupPPObjCombo(this, CTLSEL_PERSON_CATEGORY, PPOBJ_PRSNCATEGORY, Data.Rec.CatID, OLW_CANINSERT);
 		SetupGender();
 		SetClusterData(CTL_PERSON_GENDER, PersonCore::GetGender(Data.Rec));
@@ -4133,7 +4132,8 @@ public:
 	DECL_DIALOG_GETDTS()
 	{
 		int    ok  = 1;
-		uint   sel = 0, i;
+		uint   sel = 0;
+		uint   i;
 		SString temp_buf;
 		getCtrlData(sel = CTLSEL_PERSON_STATUS, &Data.Rec.Status);
 		getCtrlData(sel = CTLSEL_PERSON_DIV, &Data.Rec.Division);
@@ -4142,10 +4142,8 @@ public:
 		getCtrlString(CTL_PERSON_EXTNAME, temp_buf);
 		Data.SetExtName(temp_buf.Strip());
 		GetClusterData(CTL_PERSON_FLAGS, &Data.Rec.Flags);
-		// @v11.1.12 getCtrlData(CTL_PERSON_MEMO, Data.Rec.Memo);
-		// @v11.1.12 strip(Data.Rec.Memo);
-		getCtrlString(CTL_PERSON_MEMO, Data.SMemo); // @v11.1.12
-		Data.SMemo.Strip(); // @v11.1.12
+		getCtrlString(CTL_PERSON_MEMO, Data.SMemo);
+		Data.SMemo.Strip();
 		getCtrlData(CTLSEL_PERSON_CATEGORY, &Data.Rec.CatID);
 		if(getCtrlView(CTL_PERSON_GENDER))
 			PersonCore::SetGender(Data.Rec, GetClusterData(CTL_PERSON_GENDER));
@@ -4834,11 +4832,11 @@ int PPObjPerson::CheckDuplicateName(const char * pName, PPID * pID)
 		StrAssocArray items_list;
 		PersonTbl::Key1 k1;
 		name.CopyTo(k1.Name, sizeof(k1.Name));
-		PPIDArray id_list, kind_list;
-		if(P_Tbl->search(1, &k1, spEq))
-			do {
-				id_list.addUnique(P_Tbl->data.ID);
-			} while(P_Tbl->search(1, &k1, spNext) && name.CmpNC(P_Tbl->data.Name) == 0);
+		PPIDArray id_list;
+		PPIDArray kind_list;
+		if(P_Tbl->search(1, &k1, spEq)) do {
+			id_list.addUnique(P_Tbl->data.ID);
+		} while(P_Tbl->search(1, &k1, spNext) && name.CmpNC(P_Tbl->data.Name) == 0);
 		for(uint i = 0; i < id_list.getCount(); i++) {
 			const  PPID person_id = id_list.get(i);
 			PersonTbl::Rec person_rec;
@@ -4894,6 +4892,7 @@ int PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 	int    valid_data = 0;
 	int    r = cmCancel;
 	bool   is_new = false;
+	bool   is_staff = false;
 	PPID   short_dlg_kind_id = 0;
 	uint   dlg_id = 0;
 	TDialog * dlg = 0;
@@ -4921,21 +4920,31 @@ int PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 			dlg_id = DLG_PERSON_S1;
 			short_dlg_kind_id = kind_id;
 		}
+		// @v12.5.4 {
+		else if(kind_id == PPPRK_EMPL) {
+			is_staff = true;
+		}
+		// } @v12.5.4 
 	}
 	else {
 		PPObjPersonKind pk_obj;
 		PPPersonKind pk_rec;
 		THROW(GetPacket(*pID, &pack, 0) > 0);
 		for(uint i = 0; i < pack.Kinds.getCount(); i++) {
-			if(pk_obj.Fetch(pack.Kinds.get(i), &pk_rec) > 0 && pk_rec.Flags & PPPersonKind::fUseShortPersonDialog) {
-				dlg_id = DLG_PERSON_S1;
-				short_dlg_kind_id = pack.Kinds.get(i);
-				break;
+			if(pk_obj.Fetch(pack.Kinds.get(i), &pk_rec) > 0) {
+				// @v12.5.4 {
+				if(pk_rec.ID == PPPRK_EMPL)
+					is_staff = true; 
+				// } @v12.5.4 
+				if(!dlg_id && pk_rec.Flags & PPPersonKind::fUseShortPersonDialog) {
+					dlg_id = DLG_PERSON_S1;
+					short_dlg_kind_id = pack.Kinds.get(i);
+				}
 			}
 		}
 	}
 	pack.UpdFlags = rBlk.UpdFlags;
-	SETIFZ(dlg_id, ((LConfig.Flags & CFGFLG_STAFFMGMT) ? DLG_PERSONEXT : DLG_PERSON));
+	SETIFZQ(dlg_id, ((is_staff && LConfig.Flags & CFGFLG_STAFFMGMT) ? DLG_PERSONEXT : DLG_PERSON)); // @v12.5.4 is_staff
 	if(short_dlg_kind_id) {
 		THROW(CheckDialogPtr(&(dlg = new ShortPersonDialog(dlg_id, short_dlg_kind_id, rBlk.SCardSeriesID))));
 		{
@@ -5048,7 +5057,7 @@ int PPObjPerson::ViewVersion(PPID histID)
 ListBoxDef * PersonDialog::createKindListDef()
 {
 	StdListBoxDef * def = 0;
-	ReferenceTbl::Rec rec;
+	Reference2Tbl::Rec rec;
 	SArray * ary = new SArray(sizeof(rec.ObjName) + sizeof(PPID));
 	int    r, is_cashier = 0;
 	for(int i = Data.Kinds.getCount()-1; i >= 0; i--) {
@@ -6984,7 +6993,7 @@ int PPObjPersonKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 		}
 	}
 	else {
-		THROW(Serialize_(+1, static_cast<ReferenceTbl::Rec *>(p->Data), stream, pCtx));
+		THROW(Serialize_(+1, static_cast<Reference2Tbl::Rec *>(p->Data), stream, pCtx));
 	}
 	CATCHZOK
 	return ok;

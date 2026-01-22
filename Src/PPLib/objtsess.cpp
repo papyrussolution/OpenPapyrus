@@ -5481,7 +5481,7 @@ int PPALDD_UhttTSession::NextIteration(long iterId)
 			const ObjTagItem * p_item = r_blk.Pack.TagL.GetItemByPos(r_blk.TagPos);
 			I_TagList.TagTypeID = p_item->TagDataType;
 			{
-				PPObjectTag rec;
+				PPObjectTag2 rec;
 				if(r_blk.TagObj.Fetch(p_item->TagID, &rec) > 0)
 					STRNSCPY(I_TagList.TagSymb, rec.Symb);
 			}
@@ -5605,7 +5605,7 @@ int PPALDD_UhttTSession::Set(long iterId, int commit)
 		else if(iterId == GetIterID("iter@TagList")) {
 			PPID   id = 0;
 			ObjTagItem item;
-			PPObjectTag rec;
+			PPObjectTag2 rec;
 			if(r_blk.TagObj.SearchBySymb(I_TagList.TagSymb, &id, &rec) > 0) {
 				item.TagID = rec.ID;
 				switch(rec.TagDataType) {

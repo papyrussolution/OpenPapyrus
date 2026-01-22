@@ -3184,6 +3184,7 @@ PPINIPARAM_FORCE_CRR32_SUPPORT_SERVER    "ForceCrr32SupportServer"   // @v12.4.1
 PPINIPARAM_CHZNPMCONNTIMEOUT             "ChZnPmConnTimeout"   // @v12.4.2 [config] def=3000 Таймаут (ms) ожидания соединения с онлайн-сервером честный знак для проверки марки
 PPINIPARAM_CHZNPMOVRALLTIMEOUT           "ChZnPmOvrallTimeout" // @v12.4.2 [config] def=4000 Таймаут (ms) общего времени обработки запроса к онлайн-серверу честный знак для проверки марки
 PPINIPARAM_FORCE_IMPEXP_EXCEL_OLEAUTO    "ForceImpExpExcelOleAuto" // @v12.5.3 [config] def=0 Для импорта/экспорта excel применять старую технику OleAuto (через приложение Excel).
+PPINIPARAM_CENTRIGO_DATABASE             "centrigo_database" // @v12.5.4 [path] @construction путь к базе данных centrigo
 
 PPFILNAM_REPORT_INI            "report.ini"
 PPFILNAM_IMPORT_INI            "import.ini"

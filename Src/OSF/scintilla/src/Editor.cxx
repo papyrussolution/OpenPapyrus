@@ -2116,7 +2116,7 @@ void Editor::InsertPasteShape(const char * text, int len, PasteShape shape)
 		// add the newline if necessary
 		if((len > 0) && (text[len-1] != '\n' && text[len-1] != '\r')) {
 			const char * endline = StringFromEOLMode(pdoc->eolMode);
-			int length = static_cast<int>(sstrlen(endline));
+			int length = sstrleni(endline);
 			lengthInserted += pdoc->InsertString(insertPos + lengthInserted, endline, length);
 		}
 		if(Sel.MainCaret() == insertPos) {

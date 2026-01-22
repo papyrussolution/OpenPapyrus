@@ -1,5 +1,5 @@
 // DBSQL.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -130,12 +130,18 @@ file:
 	system;
 }
 */
-
+static void DEBUG_LOG(const char * pMsg)
+{
+	if(SlDebugMode::CT())
+		SLS.LogMessage("dbora.log", pMsg, 0);
+}
+/*
 #ifndef NDEBUG
 	#define DEBUG_LOG(msg) SLS.LogMessage("dbora.log", msg, 0)
 #else
 	#define DEBUG_LOG(msg)
 #endif
+*/
 
 SOraDbProvider::OH::operator uint32 () const
 {
@@ -177,7 +183,7 @@ SSqlStmt::BindArray::BindArray(uint dim) : TSVector <SSqlStmt::Bind>(), Dim(dim)
 }
 
 SSqlStmt::SSqlStmt(DbProvider * pDb) : Signature(SlConst::SSqlStmtSignature), P_Db(0), Descr(SdRecord::fAllowDupName), Flags(0), H(0), P_Result(0), 
-	IndSubstPlus(0), IndSubstMinus(0), FslSubst(0), Typ(Generator_SQL::typUndef)
+	IndSubstPlus(0), IndSubstMinus(0), FslSubst(0), Typ(Generator_SQL::typUndef), P_ExternalConnection(0)
 {
 	BS.Init();
 	InitBinding();
@@ -190,7 +196,7 @@ SSqlStmt::SSqlStmt(DbProvider * pDb) : Signature(SlConst::SSqlStmtSignature), P_
 }
 
 SSqlStmt::SSqlStmt(DbProvider * pDb, const Generator_SQL & rSql) : Signature(SlConst::SSqlStmtSignature), P_Db(0), Descr(SdRecord::fAllowDupName), Flags(0), H(0), P_Result(0), 
-	IndSubstPlus(0), IndSubstMinus(0), FslSubst(0), Typ(Generator_SQL::typUndef)
+	IndSubstPlus(0), IndSubstMinus(0), FslSubst(0), Typ(Generator_SQL::typUndef), P_ExternalConnection(0)
 {
 	BS.Init();
 	InitBinding();
@@ -202,6 +208,19 @@ SSqlStmt::SSqlStmt(DbProvider * pDb, const Generator_SQL & rSql) : Signature(SlC
 		Flags |= fError;
 }
 
+SSqlStmt::SSqlStmt(DbProvider * pDb, void * pExternalConnection, const Generator_SQL & rSql) : Signature(SlConst::SSqlStmtSignature), 
+	P_Db(0), Descr(SdRecord::fAllowDupName), Flags(0), H(0), P_Result(0), IndSubstPlus(0), IndSubstMinus(0), FslSubst(0), Typ(Generator_SQL::typUndef), 
+	P_ExternalConnection(pExternalConnection)
+{
+	BS.Init();
+	InitBinding();
+	if(pDb) {
+		P_Db = pDb;
+		SetSqlText(rSql);
+	}
+	else
+		Flags |= fError;
+}
 /*
 SSqlStmt::SSqlStmt(DbProvider * pDb, const char * pText) : P_Db(0), Descr(SdRecord::fAllowDupName), Flags(0), H(0), P_Result(0), 
 	IndSubstPlus(0), IndSubstMinus(0), FslSubst(0), Typ(Generator_SQL::typUndef)
@@ -219,6 +238,7 @@ SSqlStmt::SSqlStmt(DbProvider * pDb, const char * pText) : P_Db(0), Descr(SdReco
 SSqlStmt::~SSqlStmt()
 {
 	Signature = 0; 
+	P_ExternalConnection = 0;
 	CALLPTRMEMB(P_Db, DestroyStmt(this));
 	BS.Destroy();
 }
@@ -367,6 +387,14 @@ int SSqlStmt::Describe()
 {
 	return P_Db->Describe(*this, Descr);
 }
+
+bool   SSqlStmt::SetExternalConnection(void * pConn) // @v12.5.4
+{
+	P_ExternalConnection = pConn;
+	return true;
+}
+
+void * SSqlStmt::GetExternalConnection() { return P_ExternalConnection; } // @v12.5.4
 
 void SSqlStmt::InitBinding()
 {
@@ -1938,16 +1966,16 @@ int SOraDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, ui
 		if(sf & DBTable::sfForUpdate)
 			SqlGen.Tok(Generator_SQL::tokFor).Sp().Tok(Generator_SQL::tokUpdate);
 		{
-			THROW(p_stmt = new DBTable::SelectStmt(this, pTbl, SqlGen, idx, srchMode, sf));
+			THROW(p_stmt = new DBTable::SelectStmt(this, 0/*pExternalConnection*/, pTbl, SqlGen, idx, srchMode, sf));
 			new_stmt = 1;
 			THROW(p_stmt->IsValid());
 			{
 				size_t key_len = 0;
 				p_stmt->BL.Dim = 1;
 				for(uint i = 0; i < seg_map.getCount(); i++) {
-					const int  seg = seg_map.get(i);
-					const BNField & r_fld = r_indices.field(idx, seg);
-					const size_t seg_offs = r_indices.getSegOffset(idx, seg);
+					const  int    seg = seg_map.get(i);
+					const  BNField & r_fld = r_indices.field(idx, seg);
+					const  size_t seg_offs = r_indices.getSegOffset(idx, seg);
 					key_len += stsize(r_fld.T);
 					if(key.getFlags(seg) & XIF_ACS) {
 						strlwr866((char *)(PTR8(p_key_data) + seg_offs));
@@ -1961,7 +1989,7 @@ int SOraDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, ui
 						p_stmt->BL.atFree(lp);
 					p_stmt->BL.insert(&b);
 				}
-				memcpy(p_stmt->Key, pKey, MIN(sizeof(p_stmt->Key), key_len));
+				memcpy(p_stmt->Key, pKey, smin(sizeof(p_stmt->Key), key_len));
 				THROW(Binding(*p_stmt, -1));
 				THROW(p_stmt->SetData(0));
 			}

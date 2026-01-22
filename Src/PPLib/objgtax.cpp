@@ -1,5 +1,5 @@
 // OBJGTAX.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -70,7 +70,7 @@ PPGoodsTax2::PPGoodsTax2()
 	THISZERO();
 }
 
-void FASTCALL PPGoodsTax::ToEntry(PPGoodsTaxEntry * pEntry) const
+void FASTCALL PPGoodsTax2::ToEntry(PPGoodsTaxEntry * pEntry) const
 {
 	if(pEntry) {
 		pEntry->TaxGrpID = ID;
@@ -83,7 +83,7 @@ void FASTCALL PPGoodsTax::ToEntry(PPGoodsTaxEntry * pEntry) const
 	}
 }
 
-void FASTCALL PPGoodsTax::FromEntry(const PPGoodsTaxEntry * pEntry)
+void FASTCALL PPGoodsTax2::FromEntry(const PPGoodsTaxEntry * pEntry)
 {
 	//pEntry->TaxGrpID = ID;
 	VAT      = fdiv100i(pEntry->VAT);      // @divtax
@@ -1005,11 +1005,11 @@ int PPObjGoodsTax::IsPacketEq(const PPGoodsTaxPacket & rS1, const PPGoodsTaxPack
 	return 1;
 }
 
-int PPObjGoodsTax::Search(PPID id, PPGoodsTax * pRec) { return PPObjReference::Search(id, pRec); }
+int PPObjGoodsTax::Search(PPID id, PPGoodsTax2 * pRec) { return PPObjReference::Search(id, pRec); }
 
 int PPObjGoodsTax::Search(PPID id, PPGoodsTaxEntry * pEntry)
 {
-	PPGoodsTax raw_rec;
+	PPGoodsTax2 raw_rec;
     int    ok = PPObjReference::Search(id, &raw_rec);
     if(ok <= 0)
 		MEMSZERO(raw_rec);
@@ -1049,10 +1049,11 @@ int PPObjGoodsTax::Browse(void * extraPtr)
 	return ok;
 }
 
-/*static*/int PPObjGoodsTax::IsIdentical(const PPGoodsTax * pRec1, const PPGoodsTax * pRec2)
+/*static*/int PPObjGoodsTax::IsIdentical(const PPGoodsTax2 * pRec1, const PPGoodsTax2 * pRec2)
 {
+	constexpr long ignore_flags = (GTAXF_ZEROEXCISE|GTAXF_USELIST); // @v12.5.4
 	if(dbl_cmp(pRec1->VAT, pRec2->VAT) == 0 && dbl_cmp(pRec1->Excise, pRec2->Excise) == 0 &&
-		dbl_cmp(pRec1->SalesTax, pRec2->SalesTax) == 0 && pRec1->Flags == pRec2->Flags &&
+		dbl_cmp(pRec1->SalesTax, pRec2->SalesTax) == 0 && (pRec1->Flags & ~ignore_flags) == (pRec2->Flags & ~ignore_flags) &&
 		pRec1->UnionVect == pRec2->UnionVect) {
 		const long ord1 = NZOR(pRec1->Order, PPObjGoodsTax::GetDefaultOrder());
 		const long ord2 = NZOR(pRec2->Order, PPObjGoodsTax::GetDefaultOrder());
@@ -1062,11 +1063,11 @@ int PPObjGoodsTax::Browse(void * extraPtr)
 	return 0;
 }
 
-int PPObjGoodsTax::SearchIdentical(const PPGoodsTax * pPattern, PPID * pID, PPGoodsTax * pRec)
+int PPObjGoodsTax::SearchIdentical(const PPGoodsTax2 * pPattern, PPID * pID, PPGoodsTax2 * pRec)
 {
 	int    ok = -1;
 	PPID   id = 0;
-	PPGoodsTax rec;
+	PPGoodsTax2 rec;
 	ASSIGN_PTR(pID, 0);
 	while(ok < 0 && P_Ref->EnumItems(Obj, &id, &rec) > 0) {
 		if(PPObjGoodsTax::IsIdentical(pPattern, &rec)) {
@@ -1078,7 +1079,7 @@ int PPObjGoodsTax::SearchIdentical(const PPGoodsTax * pPattern, PPID * pID, PPGo
 	return ok;
 }
 
-void PPObjGoodsTax::GetDefaultName(const PPGoodsTax * pRec, char * buf, size_t buflen)
+void PPObjGoodsTax::GetDefaultName(const PPGoodsTax2 * pRec, char * buf, size_t buflen)
 {
 	SString text;
 	if(R6(pRec->VAT) != 0)
@@ -1099,7 +1100,8 @@ int PPObjGoodsTax::GetByScheme(PPID * pID, double vat, double excise, double sta
 {
 	int    ok = 1;
 	PPID   id = 0;
-	PPGoodsTax pattern, rec;
+	PPGoodsTax2 pattern;
+	PPGoodsTax2 rec;
 	pattern.VAT      = vat;
 	pattern.Excise   = excise;
 	pattern.SalesTax = stax;
@@ -1325,14 +1327,14 @@ int PPObjGoodsTax::SerializePacket(int dir, PPGoodsTaxPacket * pPack, SBuffer & 
 int  PPObjGoodsTax::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 	{ return Implement_ObjReadPacket<PPObjGoodsTax, PPGoodsTaxPacket>(this, p, id, stream, pCtx); }
 
-int PPObjGoodsTax::SearchAnalog(const PPGoodsTax * pSample, PPID * pID, PPGoodsTax * pRec)
+int PPObjGoodsTax::SearchAnalog(const PPGoodsTax2 * pSample, PPID * pID, PPGoodsTax2 * pRec)
 {
 	int    ok = -1;
 	PPID   same_id = 0;
-	if(P_Ref->SearchSymb(Obj, &same_id, pSample->Symb, offsetof(PPGoodsTax, Symb)) > 0) {
+	if(P_Ref->SearchSymb(Obj, &same_id, pSample->Symb, offsetof(PPGoodsTax2, Symb)) > 0) {
 		ok = 1;
 	}
-	else if(P_Ref->SearchSymb(Obj, &same_id, pSample->Name, offsetof(PPGoodsTax, Name)) > 0) {
+	else if(P_Ref->SearchSymb(Obj, &same_id, pSample->Name, offsetof(PPGoodsTax2, Name)) > 0) {
 		ok = 1;
 	}
 	if(ok > 0) {
@@ -1357,7 +1359,7 @@ int  PPObjGoodsTax::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCon
 			if(*pID == 0) {
 				PPID   same_id = 0;
 				if((p_pack->Rec.ID && p_pack->Rec.ID < PP_FIRSTUSRREF) || SearchAnalog(&p_pack->Rec, &same_id, 0) > 0) {
-					PPGoodsTax same_rec;
+					PPGoodsTax2 same_rec;
 					if(Search(same_id, &same_rec) > 0) {
 						ASSIGN_PTR(pID, same_id);
 					}
@@ -1426,7 +1428,8 @@ IMPL_DESTROY_OBJ_PACK(PPObjGoodsTax, PPGoodsTaxPacket);
 			else if(dest_id == 0 || src_id == 0)
 				PPError(PPERR_REPLZEROOBJ, 0);
 			else {
-				PPGoodsTax gtx_s, gtx_d;
+				PPGoodsTax2 gtx_s;
+				PPGoodsTax2 gtx_d;
 				if(SearchObject(PPOBJ_GOODSTAX, src_id, &gtx_s) > 0 &&
 					SearchObject(PPOBJ_GOODSTAX, dest_id, &gtx_d) > 0) {
 					int r = 1;

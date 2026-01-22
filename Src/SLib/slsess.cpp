@@ -1,5 +1,5 @@
 // SLSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -772,6 +772,14 @@ static void InitTest()
 		static_assert(iroundup(10105, 10) == 10110);
 		static_assert(iroundup(132U, 10U) == 140U);
 		// } @v12.4.5
+		// @v12.5.4 (параноидальные проверки перед внесением изменений в SString) {
+		{
+			assert(sstrlen(static_cast<const char *>(0)) == 0);
+			assert((sstrlen(static_cast<const char *>(0)) + 1) == 1);
+			assert((sstrlen("") + 1) == 1);
+			assert((sstrlen("a") + 1) == 2);
+		}
+		// } @v12.5.4 
 	}
 }
 

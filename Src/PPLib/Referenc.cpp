@@ -55,8 +55,7 @@
 		ok = 0;
 	}
 	rResult = temp_pw;
-	// @v11.1.1 IdeaRandMem(temp_pw, sizeof(temp_pw));
-	SObfuscateBuffer(temp_pw, sizeof(temp_pw)); // @v11.1.1 
+	SObfuscateBuffer(temp_pw, sizeof(temp_pw));
 	return ok;
 }
 
@@ -69,22 +68,19 @@
 		char   pw_buf2[128];
 		const  size_t bin_pw_size = (bufLen >= 34) ? 24 : (bufLen * 3 / 4 - 3);
 		const  size_t pw_len = sstrlen(pText);
-		// @v11.1.1 IdeaRandMem(pw_buf2, sizeof(pw_buf2));
-		SObfuscateBuffer(pw_buf2, sizeof(pw_buf2)); // @v11.1.1 
+		SObfuscateBuffer(pw_buf2, sizeof(pw_buf2));
 		if(pText)
 			memcpy(pw_buf2, pText, pw_len+1);
 		else
 			PTR32(pw_buf2)[0] = 0;
-		// @v11.1.1 IdeaRandMem(pw_buf, sizeof(pw_buf));
-		SObfuscateBuffer(pw_buf, sizeof(pw_buf)); // @v11.1.1 
+		SObfuscateBuffer(pw_buf, sizeof(pw_buf));
 		IdeaEncrypt(/*0*/pEncPw, pw_buf2, bin_pw_size);
 		temp_buf.EncodeMime64(pw_buf2, bin_pw_size).CopyTo(pBuf, bufLen);
 		if(temp_buf.Len() > (bufLen-1))
 			ok = 0;
 	}
 	else if(cryptMethod == crymDefault) {
-		// @v11.1.1 IdeaRandMem(pBuf, bufLen);
-		SObfuscateBuffer(pBuf, bufLen); // @v11.1.1 
+		SObfuscateBuffer(pBuf, bufLen);
 		strnzcpy(pBuf, pText, bufLen);
 		IdeaEncrypt(/*0*/pEncPw, pBuf, bufLen);
 	}
@@ -202,7 +198,7 @@
 	return ok;
 }
 
-Reference::Reference() : ReferenceTbl(), P_OvT(new ObjVersioningCore)
+Reference::Reference() : Reference2Tbl(), P_OvT(new ObjVersioningCore)
 {
 }
 
@@ -221,7 +217,7 @@ int Reference::AllocDynamicObj(PPID * pDynObjType, const char * pName, long flag
 		THROW(tra);
 		const int r = _GetFreeID(PPOBJ_DYNAMICOBJS, &id, PPOBJ_FIRSTDYN);
 		if(r > 0) {
-			ReferenceTbl::Rec rec;
+			Reference2Tbl::Rec rec;
 			STRNSCPY(rec.ObjName, pName);
 			rec.Val1 = flags;
 			THROW(AddItem(PPOBJ_DYNAMICOBJS, &id, &rec, 0));
@@ -338,18 +334,18 @@ int Reference::UpdateItem(PPID obj, PPID id, const void * b, int logAction/*=1*/
 	int    ok = 1;
 	int    r = 1;
 	int    try_count = 5;
-	ReferenceTbl::Rec prev_rec;
-	ReferenceTbl::Rec new_rec;
+	Reference2Tbl::Rec prev_rec;
+	Reference2Tbl::Rec new_rec;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		do {
-			ReferenceTbl::Key0 k;
+			Reference2Tbl::Key0 k;
 			k.ObjType = obj;
 			k.ObjID   = id;
 			if(search(0, &k, spEq)) {
 				CopyBufTo(&prev_rec);
-				new_rec = *static_cast<const ReferenceTbl::Rec *>(b);
+				new_rec = *static_cast<const Reference2Tbl::Rec *>(b);
 				new_rec.ObjType = obj;
 				new_rec.ObjID   = id;
 				if(!DBTable::GetFields().IsEqualRecords(&prev_rec, &new_rec)) {
@@ -386,7 +382,7 @@ int Reference::UpdateItem(PPID obj, PPID id, const void * b, int logAction/*=1*/
 int Reference::_Search(PPID obj, PPID id, int spMode, void * b)
 {
 	int    ok = 1;
-	ReferenceTbl::Key0 k;
+	Reference2Tbl::Key0 k;
 	k.ObjType = obj;
 	k.ObjID   = id;
 	if(search(0, &k, spMode))
@@ -420,7 +416,7 @@ int Reference::InitEnum(PPID objType, int flags, long * pHandle)
 	else
 		q->selectAll();
 	q->where(this->ObjType == objType);
-	ReferenceTbl::Key0 k0;
+	Reference2Tbl::Key0 k0;
 	k0.ObjType = objType;
 	k0.ObjID   = 0;
 	q->initIteration(false, &k0, spGe);
@@ -434,8 +430,8 @@ int Reference::InitEnumByIdxVal(PPID objType, int valN, long val, long * pHandle
 	if(oneof2(valN, 1, 2)) {
 		int    idx = 0;
 		union {
-			ReferenceTbl::Key2 k2;
-			ReferenceTbl::Key3 k3;
+			Reference2Tbl::Key2 k2;
+			Reference2Tbl::Key3 k3;
 		} k;
 		DBQ * dbq = &(this->ObjType == objType);
 		if(valN == 1) {
@@ -478,7 +474,7 @@ SEnum::Imp * Reference::EnumByIdxVal(PPID objType, int valN, long val)
 int Reference::LoadItems(PPID objType, SVector & rList)
 {
 	int    ok = -1;
-	ReferenceTbl::Rec rec;
+	Reference2Tbl::Rec rec;
 	for(SEnum en = Enum(objType, 0); ok && en.Next(&rec);)
 		ok = rList.insert(&rec) ? 1 : PPSetError(PPERR_SLIB);
 	return ok;
@@ -486,7 +482,7 @@ int Reference::LoadItems(PPID objType, SVector & rList)
 
 int Reference::SearchName(PPID obj, PPID * pID, const char * pName, void * pRec)
 {
-	ReferenceTbl::Key1 k1;
+	Reference2Tbl::Key1 k1;
 	MEMSZERO(k1);
 	k1.ObjType = obj;
 	STRNSCPY(k1.ObjName, pName);
@@ -508,7 +504,7 @@ int Reference::SearchSymb(PPID objType, PPID * pID, const char * pSymb, size_t o
 	ASSIGN_PTR(pID, 0);
 	if(!isempty(pSymb)) {
 		long   h = -1;
-		ReferenceTbl::Rec rec;
+		Reference2Tbl::Rec rec;
 		for(InitEnum(objType, 0, &h); ok < 0 && NextEnum(h, &rec) > 0;) {
 			if(stricmp866(pSymb, reinterpret_cast<const char *>(&rec) + offs) == 0) {
 				ASSIGN_PTR(pID, rec.ObjID);
@@ -529,7 +525,7 @@ int Reference::CheckUniqueSymb(PPID objType, PPID id, const char * pSymb, size_t
 	int    ok = 1;
 	if(!isempty(pSymb)) {
 		long   h = -1;
-		ReferenceTbl::Rec rec;
+		Reference2Tbl::Rec rec;
 		for(InitEnum(objType, 0, &h); ok && NextEnum(h, &rec) > 0;)
 			if(stricmp866(pSymb, reinterpret_cast<const char *>(&rec) + offs) == 0 && rec.ObjID != id)
 				ok = (PPSetObjError(PPERR_DUPSYMB, objType, rec.ObjID), 0);
@@ -2992,7 +2988,7 @@ SEnum::Imp * UnxTextRefCore::Enum(PPID objType, int prop, PPID minObjID)
 //
 #if SLTEST_RUNNING // {
 
-static int DummyProc(ReferenceTbl::Rec * pRec)
+static int DummyProc(Reference2Tbl::Rec * pRec)
 {
 	static double X = 0.0;
 	X += pRec->ObjName[0] ? 1.0 : 2.0;
@@ -3003,13 +2999,13 @@ SLTEST_R(Reference_EnumItems)
 {
 	int    ok = 1;
 	long   hdl_enum = -1;
-	SArray item_list1(sizeof(ReferenceTbl::Rec)); // Элементы, полученные методом EnumItems
-	SArray item_list2(sizeof(ReferenceTbl::Rec)); // Элементы, полученные методом NextEnum
-	// ReferenceTbl
+	SArray item_list1(sizeof(Reference2Tbl::Rec)); // Элементы, полученные методом EnumItems
+	SArray item_list2(sizeof(Reference2Tbl::Rec)); // Элементы, полученные методом NextEnum
+	// Reference2Tbl
 	SRng * p_rng = 0;
 	PPIDArray obj_type_list;
 	Reference * p_tbl = PPRef;
-	ReferenceTbl::Key0 k0;
+	Reference2Tbl::Key0 k0;
 	MEMSZERO(k0);
 	if(p_tbl->search(0, &k0, spFirst))
 		do {
@@ -3041,7 +3037,7 @@ SLTEST_R(Reference_EnumItems)
 		// Перебираем все записи всех объектов методом Reference::EnumItems
 		//
 		for(uint i = 0; i < obj_type_list.getCount(); i++) {
-			ReferenceTbl::Rec rec;
+			Reference2Tbl::Rec rec;
 			for(PPID id = 0; p_tbl->EnumItems(obj_type_list.get(i), &id, &rec) > 0;) {
 				THROW(SLCHECK_NZ(item_list1.insert(&rec)));
 			}
@@ -3052,7 +3048,7 @@ SLTEST_R(Reference_EnumItems)
 		// Перебираем все записи всех объектов методами Reference::InitEnum, Reference::NextEnum
 		//
 		for(uint i = 0; i < obj_type_list.getCount(); i++) {
-			ReferenceTbl::Rec rec;
+			Reference2Tbl::Rec rec;
 			THROW(SLCHECK_NZ(p_tbl->InitEnum(obj_type_list.get(i), 0, &hdl_enum)));
 			for(PPID id = 0; p_tbl->NextEnum(hdl_enum, &rec) > 0;) {
 				THROW(SLCHECK_NZ(item_list2.insert(&rec)));

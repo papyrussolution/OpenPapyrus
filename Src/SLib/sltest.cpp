@@ -1,5 +1,5 @@
 // SLTEST.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Test Suits
 //
@@ -963,8 +963,7 @@ int STestCase::TestMemTransform(TestMemParam & rParam, STestMemTransformFunc fun
 		size_t src_size = NZOR(rParam.MaxInputSize, 8192);
 		src_size = (size_t)SLS.GetTLA().Rg.GetUniformInt(src_size);
 		THROW_V(src_buf.Alloc(src_size, errSlErr);
-		// @v11.1.1 IdeaRandMem(src_buf.P_Buf, src_buf.Size);
-		SObfuscateBuffer(src_buf.P_Buf, src_buf.Size); // @v11.1.1 
+		SObfuscateBuffer(src_buf.P_Buf, src_buf.Size);
 	}
 	{
 		dest_buf_size = CalcDestBufSize(rParam.SrcBuf.Size, rParam.DestBufRate);

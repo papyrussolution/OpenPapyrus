@@ -836,7 +836,7 @@ int PPGdsClsPacket::PropNameToID(int prop, const char * pName, PPID * pID, int f
 			ok = 1;
 		}
 		else if(forceCreate) {
-			ReferenceTbl::Rec rec;
+			Reference2Tbl::Rec rec;
 			STRNSCPY(rec.ObjName, pName);
 			THROW(p_ref->AddItem(obj_type, &(id = 0), &rec, use_ta));
 			ASSIGN_PTR(pID, id);

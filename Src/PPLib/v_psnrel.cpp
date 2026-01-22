@@ -1,5 +1,5 @@
 // V_PSNREL.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2009, 2010, 2016, 2017, 2019, 2020, 2024
+// Copyright (c) A.Starodub 2006, 2007, 2009, 2010, 2016, 2017, 2019, 2020, 2024, 2026
 //
 #include <pp.h>
 #pragma hdrstop
@@ -406,7 +406,7 @@ int PPViewPersonRel::ViewReverseRelations(PPID personID)
 	PPViewPersonRel v_psnrel;
 	filt.ScndPersonID = personID;
 	THROW(v_psnrel.Init_(&filt));
-	THROW(v_psnrel.Browse(0));
+	THROW(v_psnrel.Browse(false));
 	CATCHZOK
 	return ok;
 }

@@ -55,7 +55,7 @@ int FASTCALL ObjTagItem::Init(PPID tagID)
 	Destroy();
 	if(tagID) {
 		PPObjTag tag_obj;
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		if(tag_obj.Fetch(tagID, &tag_rec) > 0) {
 			TagID       = tagID;
 			TagDataType = tag_rec.TagDataType;
@@ -157,11 +157,11 @@ int ObjTagItem::GetEnumData(long * pID, long * pParentID, SString * pTxt, SStrin
 		item_id = Val.IntVal;
 		if(pTxt || pParentID || pSymb) {
 			PPObjTag tag_obj;
-			PPObjectTag tag_rec;
+			PPObjectTag2 tag_rec;
 			if(tag_obj.Fetch(TagID, &tag_rec) > 0) {
 				if(tag_rec.TagEnumID && item_id) {
 					if(IS_DYN_OBJTYPE(tag_rec.TagEnumID)) {
-						ReferenceTbl::Rec rec;
+						Reference2Tbl::Rec rec;
 						if(PPRef->GetItem(tag_rec.TagEnumID, item_id, &rec) > 0) {
 							ASSIGN_PTR(pTxt, rec.ObjName);
 							ASSIGN_PTR(pSymb, rec.Symb);
@@ -209,7 +209,7 @@ int FASTCALL ObjTagItem::GetStr(SString & rBuf) const
 		case OTTYP_ENUM:
 			{
 				PPObjTag tag_obj;
-				PPObjectTag tag_rec;
+				PPObjectTag2 tag_rec;
 				if(tag_obj.Fetch(TagID, &tag_rec) > 0) {
 					SString objname;
 					if(tag_rec.TagEnumID && Val.IntVal) {
@@ -907,7 +907,7 @@ int ObjTagList::PutItemNZ(const ObjTagItem * pItem, long flags)
 	int    ok = -1;
 	if(pItem) {
 		PPObjTag tag_obj;
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		if(tag_obj.Fetch(pItem->TagID, &tag_rec) > 0) {
 			if((!(flags & pinzfInheritableOnly) || (tag_rec.Flags & OTF_INHERITABLE)) &&
 				(!(flags & pinzfUnmirroredOnly) || tag_obj.IsUnmirrored(pItem->TagID))) {
@@ -936,7 +936,7 @@ int ObjTagList::Merge(const ObjTagList & src, int updateMode)
 	int    ok = -1;
 	uint   i, j;
 	PPObjTag tag_obj;
-	PPObjectTag tag_rec;
+	PPObjectTag2 tag_rec;
 	const ObjTagItem * p_src_item;
 	LongArray add_pos_list;
 	LongArray rmv_pos_list;
@@ -1066,7 +1066,7 @@ int ObjTagContainerHelper::SetGuid(const S_GUID & rGuid)
 	else {
 		ObjTagItem tag;
 		PPObjTag tagobj;
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		int    abs_tag_err = PPERR_OBJTAGUUIDABS;
 		if(ObjType == PPOBJ_BILL)
 			abs_tag_err = PPERR_BILLTAGUUIDABS;
@@ -1286,7 +1286,7 @@ int ObjTagCore::PutTag(PPID objType, PPID objID, const ObjTagItem * pItem, int u
 	int    r = 1;
 	long   tbo, c = 0;
 	ObjTagItem  temp;
-	PPObjectTag tag;
+	PPObjectTag2 tag;
 	PPObjTag tag_obj;
 	{
 		PPTransaction tra(use_ta);
@@ -1358,7 +1358,7 @@ int FASTCALL ObjTagItem::Get_(const ObjTagTbl::Rec & rRec)
 {
 	int    ok = 1;
 	Destroy();
-	PPObjectTag tag_rec;
+	PPObjectTag2 tag_rec;
 	PPObjTag tag_obj;
 	if(tag_obj.Fetch(rRec.TagID, &tag_rec) > 0) {
 		TagID       = rRec.TagID;

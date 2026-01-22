@@ -51,8 +51,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{45586DBF-6009-49EA-8FFA-B9330F6A9488}</ProjectGuid>
-    <RootNamespace>papyrus</RootNamespace>
+    <ProjectGuid>{5f85afd3-3cf6-4eba-8936-a0b6acffa204}</ProjectGuid>
+    <RootNamespace>centrigo</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -169,7 +169,7 @@
     <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <TargetName>ppw</TargetName>
+    <TargetName>centrigo</TargetName>
     <IncludePath>$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -177,13 +177,13 @@
     <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <IncludePath>$(IncludePath)</IncludePath>
-    <TargetName>ppw</TargetName>
+    <TargetName>centrigo</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
-    <TargetName>ppw</TargetName>
+    <TargetName>centrigo</TargetName>
     <IncludePath>$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -191,13 +191,13 @@
     <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <IncludePath>$(IncludePath)</IncludePath>
-    <TargetName>ppw</TargetName>
+    <TargetName>centrigo</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
     <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
-    <TargetName>ppws</TargetName>
+    <TargetName>centrigo-srv</TargetName>
     <IncludePath>$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
@@ -205,13 +205,13 @@
     <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <IncludePath>$(IncludePath)</IncludePath>
-    <TargetName>ppws</TargetName>
+    <TargetName>centrigo-srv</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
     <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
-    <TargetName>ppws</TargetName>
+    <TargetName>centrigo-srv</TargetName>
     <IncludePath>$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
@@ -219,13 +219,13 @@
     <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <IncludePath>$(IncludePath)</IncludePath>
-    <TargetName>ppws</TargetName>
+    <TargetName>centrigo-srv</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
     <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
-    <TargetName>ppwmt</TargetName>
+    <TargetName>centrigo-ifc</TargetName>
     <IncludePath>$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
@@ -233,13 +233,13 @@
     <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <IncludePath>$(IncludePath)</IncludePath>
-    <TargetName>ppwmt</TargetName>
+    <TargetName>centrigo-ifc</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
     <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
-    <TargetName>ppwmt</TargetName>
+    <TargetName>centrigo-ifc</TargetName>
     <IncludePath>$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
@@ -247,7 +247,7 @@
     <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <IncludePath>$(IncludePath)</IncludePath>
-    <TargetName>ppwmt</TargetName>
+    <TargetName>centrigo-ifc</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -255,7 +255,7 @@
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil-20230909;..\osf\mupdf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;CENTRIGO;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>false</ExceptionHandling>
@@ -330,7 +330,7 @@
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil-20230909;..\osf\mupdf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;CENTRIGO;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>false</ExceptionHandling>
@@ -408,7 +408,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
       <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil-20230909;..\osf\mupdf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;CENTRIGO;NDEBUG;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>false</ExceptionHandling>
@@ -483,7 +483,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
       <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil-20230909;..\osf\mupdf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;CENTRIGO;NDEBUG;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>false</ExceptionHandling>
@@ -554,7 +554,7 @@
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil-20230909;..\osf\mupdf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;CENTRIGO;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>false</ExceptionHandling>
@@ -625,7 +625,7 @@
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil-20230909;..\osf\mupdf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;CENTRIGO;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>false</ExceptionHandling>
@@ -698,7 +698,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil-20230909;..\osf\mupdf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;CENTRIGO;NDEBUG;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>false</ExceptionHandling>
@@ -769,7 +769,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil-20230909;..\osf\mupdf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;CENTRIGO;NDEBUG;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>false</ExceptionHandling>
@@ -840,7 +840,7 @@
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil-20230909;..\osf\mupdf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;CENTRIGO;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>false</ExceptionHandling>
@@ -911,7 +911,7 @@
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil-20230909;..\osf\mupdf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;CENTRIGO;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>false</ExceptionHandling>
@@ -983,7 +983,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil-20230909;..\osf\mupdf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;CENTRIGO;NDEBUG;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>false</ExceptionHandling>
@@ -1056,7 +1056,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil-20230909;..\osf\mupdf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;CENTRIGO;NDEBUG;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>false</ExceptionHandling>
@@ -1163,44 +1163,6 @@
       </PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
       </PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="..\Rsrc\dl600\ppifc_i.c">
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">CompileAsC</CompileAs>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">NotUsing</PrecompiledHeader>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">CompileAsC</CompileAs>
-      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Default</StructMemberAlignment>
-      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Default</StructMemberAlignment>
-      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Default</StructMemberAlignment>
-      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Default</StructMemberAlignment>
-      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Default</StructMemberAlignment>
-      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Default</StructMemberAlignment>
-      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Default</StructMemberAlignment>
-      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Default</StructMemberAlignment>
-      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Default</StructMemberAlignment>
-      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Default</StructMemberAlignment>
-      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Default</StructMemberAlignment>
-      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Default</StructMemberAlignment>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1653,9 +1615,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\PpyDll\nodrop.cur" />
-    <None Include="..\Rsrc\Dl600\ppifc.tlb">
-      <FileType>Document</FileType>
-    </None>
     <None Include="..\Rsrc\Ico\Arr-move.cur" />
     <None Include="..\Rsrc\Ico\Arr-size-ew.cur" />
     <None Include="..\Rsrc\Ico\Arr-size-nesw.cur" />

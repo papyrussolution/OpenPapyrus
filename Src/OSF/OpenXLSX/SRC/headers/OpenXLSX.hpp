@@ -87,11 +87,6 @@
 			XLDateTime(const XLDateTime & other);
 			XLDateTime(XLDateTime && other) noexcept;
 			~XLDateTime();
-			/**
-			 * @brief Copy assignment operator.
-			 * @param other Object to be copied.
-			 * @return Reference to the copied-to object.
-			 */
 			XLDateTime & operator = (const XLDateTime& other);
 			/**
 			 * @brief Move assignment operator.
@@ -460,11 +455,6 @@
 			XLFormula(const XLFormula& other);
 			XLFormula(XLFormula&& other) noexcept;
 			~XLFormula();
-			/**
-			 * @brief Copy assignment operator.
-			 * @param other Object to be copied.
-			 * @return Reference to copied-to object.
-			 */
 			XLFormula& operator=(const XLFormula& other);
 			/**
 			 * @brief Move assignment operator.
@@ -946,11 +936,6 @@
 			XLNumberFormats(const XLNumberFormats& other);
 			XLNumberFormats(XLNumberFormats&& other);
 			~XLNumberFormats();
-			/**
-			 * @brief Copy assignment operator.
-			 * @param other Right hand side of assignment operation.
-			 * @return A reference to the lhs object.
-			 */
 			XLNumberFormats & operator = (const XLNumberFormats& other);
 			/**
 			 * @brief Move assignment operator.
@@ -1140,11 +1125,6 @@
 			XLFonts(const XLFonts & other);
 			XLFonts(XLFonts && other);
 			~XLFonts();
-			/**
-			 * @brief Copy assignment operator.
-			 * @param other Right hand side of assignment operation.
-			 * @return A reference to the lhs object.
-			 */
 			XLFonts & operator = (const XLFonts & other);
 			/**
 			 * @brief Move assignment operator.
@@ -1198,11 +1178,6 @@
 			 */
 			XLDataBarColor(XLDataBarColor&& other) noexcept = default;
 			~XLDataBarColor() = default;
-			/**
-			 * @brief Copy assignment operator.
-			 * @param other Right hand side of assignment operation.
-			 * @return A reference to the lhs object.
-			 */
 			XLDataBarColor& operator=(const XLDataBarColor& other);
 			/**
 			 * @brief Move assignment operator.
@@ -1260,11 +1235,6 @@
 			XLGradientStop(const XLGradientStop& other);
 			XLGradientStop(XLGradientStop&& other) noexcept = default;
 			~XLGradientStop() = default;
-			/**
-			 * @brief Copy assignment operator.
-			 * @param other Right hand side of assignment operation.
-			 * @return A reference to the lhs object.
-			 */
 			XLGradientStop& operator=(const XLGradientStop& other);
 			/**
 			 * @brief Move assignment operator.
@@ -1370,13 +1340,7 @@
 			XLFill(const XLFill& other);
 			XLFill(XLFill&& other) noexcept = default;
 			~XLFill();
-			/**
-			 * @brief Copy assignment operator.
-			 * @param other Right hand side of assignment operation.
-			 * @return A reference to the lhs object.
-			 */
 			XLFill& operator=(const XLFill& other);
-
 			/**
 			 * @brief Move assignment operator.
 			 * @param other Right hand side of assignment operation.
@@ -1475,11 +1439,6 @@
 			XLFills(const XLFills& other);
 			XLFills(XLFills&& other);
 			~XLFills();
-			/**
-			 * @brief Copy assignment operator.
-			 * @param other Right hand side of assignment operation.
-			 * @return A reference to the lhs object.
-			 */
 			XLFills& operator=(const XLFills& other);
 			/**
 			 * @brief Move assignment operator.
@@ -1530,26 +1489,18 @@
 			XLLine(const XLLine& other);
 			XLLine(XLLine&& other) noexcept = default;
 			~XLLine();
-			/**
-			 * @brief Copy assignment operator.
-			 * @param other Right hand side of assignment operation.
-			 * @return A reference to the lhs object.
-			 */
 			XLLine& operator=(const XLLine& other);
-
 			/**
 			 * @brief Move assignment operator.
 			 * @param other Right hand side of assignment operation.
 			 * @return A reference to lhs object.
 			 */
 			XLLine& operator=(XLLine&& other) noexcept = default;
-
 			/**
 			 * @brief Get the line style
 			 * @return An XLLineStyle enum
 			 */
 			XLLineStyle style() const;
-
 			/**
 			 * @brief Evaluate XLLine as bool
 			 * @return true if line is set, false if not
@@ -1587,20 +1538,13 @@
 			XLBorder(const XLBorder& other);
 			XLBorder(XLBorder&& other) noexcept = default;
 			~XLBorder();
-			/**
-			 * @brief Copy assignment operator.
-			 * @param other Right hand side of assignment operation.
-			 * @return A reference to the lhs object.
-			 */
 			XLBorder& operator=(const XLBorder& other);
-
 			/**
 			 * @brief Move assignment operator.
 			 * @param other Right hand side of assignment operation.
 			 * @return A reference to lhs object.
 			 */
 			XLBorder& operator=(XLBorder&& other) noexcept = default;
-
 			/**
 			 * @brief Get the diagonal up property
 			 * @return true if set, otherwise false
@@ -1692,20 +1636,13 @@
 			XLBorders(const XLBorders& other);
 			XLBorders(XLBorders&& other);
 			~XLBorders();
-			/**
-			 * @brief Copy assignment operator.
-			 * @param other Right hand side of assignment operation.
-			 * @return A reference to the lhs object.
-			 */
 			XLBorders& operator=(const XLBorders& other);
-
 			/**
 			 * @brief Move assignment operator.
 			 * @param other Right hand side of assignment operation.
 			 * @return A reference to lhs object.
 			 */
 			XLBorders& operator=(XLBorders&& other) noexcept = default;
-
 			/**
 			 * @brief Get the count of border descriptions
 			 * @return The amount of border description entries
@@ -1749,11 +1686,6 @@
 			XLAlignment(const XLAlignment& other);
 			XLAlignment(XLAlignment&& other) noexcept = default;
 			~XLAlignment();
-			/**
-			 * @brief Copy assignment operator.
-			 * @param other Right hand side of assignment operation.
-			 * @return A reference to the lhs object.
-			 */
 			XLAlignment& operator=(const XLAlignment& other);
 			/**
 			 * @brief Move assignment operator.
@@ -1854,11 +1786,6 @@
 			XLCellFormat(const XLCellFormat& other);
 			XLCellFormat(XLCellFormat&& other) noexcept = default;
 			~XLCellFormat();
-			/**
-			 * @brief Copy assignment operator.
-			 * @param other Right hand side of assignment operation.
-			 * @return A reference to the lhs object.
-			 */
 			XLCellFormat& operator=(const XLCellFormat& other);
 			/**
 			 * @brief Move assignment operator.
@@ -2006,11 +1933,6 @@
 			XLCellFormats(const XLCellFormats & other);
 			XLCellFormats(XLCellFormats && other);
 			~XLCellFormats();
-			/**
-			 * @brief Copy assignment operator.
-			 * @param other Right hand side of assignment operation.
-			 * @return A reference to the lhs object.
-			 */
 			XLCellFormats & operator=(const XLCellFormats& other);
 			/**
 			 * @brief Move assignment operator.
@@ -2063,11 +1985,6 @@
 			XLCellStyle(const XLCellStyle& other);
 			XLCellStyle(XLCellStyle&& other) noexcept = default;
 			~XLCellStyle();
-			/**
-			 * @brief Copy assignment operator.
-			 * @param other Right hand side of assignment operation.
-			 * @return A reference to the lhs object.
-			 */
 			XLCellStyle& operator=(const XLCellStyle& other);
 			/**
 			 * @brief Move assignment operator.
@@ -2149,11 +2066,6 @@
 			XLCellStyles(const XLCellStyles& other);
 			XLCellStyles(XLCellStyles&& other);
 			~XLCellStyles();
-			/**
-			 * @brief Copy assignment operator.
-			 * @param other Right hand side of assignment operation.
-			 * @return A reference to the lhs object.
-			 */
 			XLCellStyles& operator=(const XLCellStyles& other);
 			/**
 			 * @brief Move assignment operator.
@@ -2207,11 +2119,6 @@
 			XLDiffCellFormat(const XLDiffCellFormat& other);
 			XLDiffCellFormat(XLDiffCellFormat&& other) noexcept = default;
 			~XLDiffCellFormat();
-			/**
-			 * @brief Copy assignment operator.
-			 * @param other Right hand side of assignment operation.
-			 * @return A reference to the lhs object.
-			 */
 			XLDiffCellFormat& operator=(const XLDiffCellFormat& other);
 			/**
 			 * @brief Move assignment operator.
@@ -2268,11 +2175,6 @@
 			XLDiffCellFormats(const XLDiffCellFormats& other);
 			XLDiffCellFormats(XLDiffCellFormats&& other);
 			~XLDiffCellFormats();
-			/**
-			 * @brief Copy assignment operator.
-			 * @param other Right hand side of assignment operation.
-			 * @return A reference to the lhs object.
-			 */
 			XLDiffCellFormats& operator=(const XLDiffCellFormats& other);
 			/**
 			 * @brief Move assignment operator.
@@ -2910,18 +2812,9 @@
 			 * @param column The column letter of the cell.
 			 */
 			XLCellReference(uint32 row, const std::string& column);
-			/**
-			 * @brief Copy constructor
-			 * @param other The object to be copied.
-			 */
 			XLCellReference(const XLCellReference& other);
 			XLCellReference(XLCellReference&& other) noexcept;
 			~XLCellReference();
-			/**
-			 * @brief Assignment operator.
-			 * @param other The object to be copied/assigned.
-			 * @return A reference to the new object.
-			 */
 			XLCellReference& operator=(const XLCellReference& other);
 			XLCellReference& operator=(XLCellReference&& other) noexcept;
 			XLCellReference& operator++();
@@ -3966,11 +3859,6 @@
 			XLShapeClientData(const XLShapeClientData& other) = default;
 			XLShapeClientData(XLShapeClientData&& other) noexcept = default;
 			~XLShapeClientData() = default;
-			/**
-			 * @brief Copy assignment operator.
-			 * @param other Right hand side of assignment operation.
-			 * @return A reference to the lhs object.
-			 */
 			XLShapeClientData& operator=(const XLShapeClientData& other) = default;
 			/**
 			 * @brief Move assignment operator.
@@ -4208,11 +4096,6 @@
 			XLComment(const XLComment& other) = default;
 			XLComment(XLComment&& other) noexcept = default;
 			~XLComment() = default;
-			/**
-			 * @brief Copy assignment operator.
-			 * @param other Right hand side of assignment operation.
-			 * @return A reference to the lhs object.
-			 */
 			XLComment& operator=(const XLComment& other) = default;
 			/**
 			 * @brief Move assignment operator.
@@ -5142,11 +5025,6 @@
 			XLRowDataRange(const XLRowDataRange& other);
 			XLRowDataRange(XLRowDataRange&& other) noexcept;
 			~XLRowDataRange();
-			/**
-			 * @brief Copy assignment operator.
-			 * @param other Object to be copied.
-			 * @return A reference to the copied-to object.
-			 */
 			XLRowDataRange& operator=(const XLRowDataRange& other);
 			/**
 			 * @brief Move assignment operator.
@@ -5209,11 +5087,6 @@
 			friend class XLRow;
 		public:
 			~XLRowDataProxy();
-			/**
-			 * @brief Copy assignment operator.
-			 * @param other Object to be copied.
-			 * @return A reference to the copied-to object.
-			 */
 			XLRowDataProxy & operator=(const XLRowDataProxy& other);
 			/**
 			 * @brief Assignment operator taking a std::vector of XLCellValues as an argument.
@@ -5920,11 +5793,6 @@
 			XLCfRule(const XLCfRule& other);
 			XLCfRule(XLCfRule&& other) noexcept = default;
 			~XLCfRule();
-			/**
-			 * @brief Copy assignment operator.
-			 * @param other Right hand side of assignment operation.
-			 * @return A reference to the lhs object.
-			 */
 			XLCfRule& operator=(const XLCfRule& other);
 			/**
 			 * @brief Move assignment operator.
@@ -6020,11 +5888,6 @@
 			XLCfRules(const XLCfRules& other);
 			XLCfRules(XLCfRules&& other) noexcept = default;
 			~XLCfRules();
-			/**
-			 * @brief Copy assignment operator.
-			 * @param other Right hand side of assignment operation.
-			 * @return A reference to the lhs object.
-			 */
 			XLCfRules& operator=(const XLCfRules& other);
 			/**
 			 * @brief Move assignment operator.
@@ -6105,11 +5968,6 @@
 			XLConditionalFormat(const XLConditionalFormat& other);
 			XLConditionalFormat(XLConditionalFormat&& other) noexcept = default;
 			~XLConditionalFormat();
-			/**
-			 * @brief Copy assignment operator.
-			 * @param other Right hand side of assignment operation.
-			 * @return A reference to the lhs object.
-			 */
 			XLConditionalFormat& operator=(const XLConditionalFormat& other);
 			/**
 			 * @brief Move assignment operator.
@@ -6174,11 +6032,6 @@
 			XLConditionalFormats(const XLConditionalFormats& other);
 			XLConditionalFormats(XLConditionalFormats&& other);
 			~XLConditionalFormats();
-			/**
-			 * @brief Copy assignment operator.
-			 * @param other Right hand side of assignment operation.
-			 * @return A reference to the lhs object.
-			 */
 			XLConditionalFormats& operator=(const XLConditionalFormats& other);
 			/**
 			 * @brief Move assignment operator.

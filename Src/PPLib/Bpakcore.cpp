@@ -807,7 +807,7 @@ int PPBill::SetGuid(const S_GUID & rGuid)
 	else {
 		ObjTagItem tag;
 		PPObjTag tagobj;
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		THROW_PP(tagobj.Fetch(PPTAG_BILL_UUID, &tag_rec) > 0, PPERR_BILLTAGUUIDABS);
 		THROW(tag.SetGuid(PPTAG_BILL_UUID, &rGuid));
 		THROW(BTagL.PutItem(PPTAG_BILL_UUID, &tag));
@@ -1951,7 +1951,7 @@ LDATE PPBillPacket::CalcDefaultPayDate(int paymTerm, long paymDateBase) const
 			default:
 				if(paymDateBase > PPClientAgreement::pdbTagBias) {
 					PPObjTag tag_obj;
-					PPObjectTag tag_rec;
+					PPObjectTag2 tag_rec;
 					if(tag_obj.Fetch(paymDateBase, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_BILL &&
 						oneof2(tag_rec.TagDataType, OTTYP_DATE, OTTYP_TIMESTAMP)) {
 						const ObjTagItem * p_tag_item = BTagL.GetItem(paymDateBase);

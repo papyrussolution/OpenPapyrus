@@ -1,5 +1,5 @@
 // OBJTAG.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Теги объектов
 //
@@ -225,11 +225,11 @@ int TagFilt::Helper_CheckTagItemForRestrict_EnumID(const ObjTagItem * pItem, lon
 		PPID   item_id = pItem->Val.IntVal;
 		if(item_id && IS_DYN_OBJTYPE(pItem->TagEnumID)) {
 			PPObjTag tag_obj;
-			PPObjectTag tag_rec;
+			PPObjectTag2 tag_rec;
 			if(tag_obj.Fetch(pItem->TagID, &tag_rec) > 0 && tag_rec.Flags & OTF_HIERENUM) {
 				assert(tag_rec.TagEnumID == pItem->TagEnumID);
 				Reference * p_ref(PPRef);
-				ReferenceTbl::Rec rec;
+				Reference2Tbl::Rec rec;
 				PPIDArray recur_list;
 				if(p_ref->GetItem(tag_rec.TagEnumID, item_id, &rec) > 0 && rec.Val2) {
 					recur_list.add(item_id);
@@ -409,7 +409,7 @@ int PPTagEnumList::Read(PPID enumID)
 		SetEnumID(enumID);
 	else
 		enumID = EnumID;
-	ReferenceTbl::Rec rec, hdr_rec;
+	Reference2Tbl::Rec rec, hdr_rec;
 	if(p_ref->GetItem(PPOBJ_DYNAMICOBJS, enumID, &hdr_rec) > 0) {
 		SETFLAGBYSAMPLE(Flags, PPCommObjEntry::fHierarchical, hdr_rec.Val1);
 		for(SEnum en = p_ref->Enum(enumID, 0); en.Next(&rec) > 0;) {
@@ -428,7 +428,7 @@ int PPTagEnumList::Write(int use_ta)
 	PPID   item_id;
 	SString name;
 	PPIDArray processed_items;
-	ReferenceTbl::Rec rec, hdr_rec;
+	Reference2Tbl::Rec rec, hdr_rec;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -506,7 +506,7 @@ int PPTagEnumList::Write(int use_ta)
 			if(event.isCmd(cmaInsert) && P_Obj && Flags & OLW_CANINSERT && !(Flags & OLW_OUTERLIST)) {
 				PPID   obj_type_id = 0;
 				if(getResult(&id) > 0 && !ObjTagFilt::ObjTypeRootIdentToObjType(id, &obj_type_id)) {
-					PPObjectTag tag_rec;
+					PPObjectTag2 tag_rec;
 					if(static_cast<PPObjTag *>(P_Obj)->Search(id, &tag_rec) > 0)
 						obj_type_id = tag_rec.ObjTypeID;
 				}
@@ -540,7 +540,7 @@ int PPTagEnumList::Write(int use_ta)
 							case cmTransmitCharry:
 								{
 									PPIDArray id_list;
-									ReferenceTbl::Rec rec;
+									Reference2Tbl::Rec rec;
 									for(PPID item_id = 0; static_cast<PPObjReference *>(P_Obj)->EnumItems(&item_id, &rec) > 0;)
 										id_list.add(rec.ObjID);
 									if(!SendCharryObject(PPDS_CRROBJTAG, id_list))
@@ -561,10 +561,10 @@ int PPTagEnumList::Write(int use_ta)
 //
 // DLG_TAGENUMVIEW, CTL_TAGENUMVIEW_LIST, 48
 //
-static int SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTagF)
+static int SelectObjTagType(PPObjectTag2 * pData, const ObjTagFilt * pObjTagF)
 {
 	class SelectObjTagTypeDialog : public TDialog {
-		DECL_DIALOG_DATA(PPObjectTag);
+		DECL_DIALOG_DATA(PPObjectTag2);
 	public:
 		explicit SelectObjTagTypeDialog(const ObjTagFilt * pObjTagF) : TDialog(DLG_OBJTAGTYP), P_ObjTypeList(0)
 		{
@@ -748,7 +748,7 @@ ObjTagFilt & ObjTagFilt::Z()
 		PPID    _tag_id = 0;
 		PPObjTag tag_obj;
 		if(tag_obj.FetchBySymb(pTagSymb, &_tag_id) > 0) {
-			PPObjectTag tag_rec;
+			PPObjectTag2 tag_rec;
 			if(tag_obj.Fetch(_tag_id, &tag_rec) > 0 && (!otTyp || tag_rec.TagDataType == otTyp))
 				result = _tag_id;
 		}
@@ -873,7 +873,7 @@ int PPObjTag::MakeReserved(long flags)
 	THROW_PP(p_rez->findResource(ROD_TAG, PP_RCDATA), PPERR_RESFAULT);
 	THROW_PP(num_recs = p_rez->getUINT(), PPERR_RESFAULT);
 	for(uint i = 0; i < num_recs; i++) {
-		PPObjectTag temp_rec;
+		PPObjectTag2 temp_rec;
 		PPObjTagPacket pack;
 		const  PPID id = p_rez->getUINT();
 		p_rez->getString(temp_buf.Z(), 2); // Name
@@ -975,7 +975,7 @@ int PPObjTag::Helper_CreateEnumObject(PPObjTagPacket & rPack)
 		THROW(pPack->EnumList.Write(0));
 		pPack->Rec.TagEnumID = pPack->EnumList.GetEnumID();
 		*/
-		ReferenceTbl::Rec hdr_rec;
+		Reference2Tbl::Rec hdr_rec;
 		const long hdr_flags = (rPack.Rec.Flags & OTF_HIERENUM) ? PPCommObjEntry::fHierarchical : 0;
 		if(!rPack.Rec.TagEnumID || P_Ref->GetItem(PPOBJ_DYNAMICOBJS, rPack.Rec.TagEnumID, &hdr_rec) < 0) {
 			THROW(P_Ref->AllocDynamicObj(&rPack.Rec.TagEnumID, 0, hdr_flags, 0));
@@ -1142,7 +1142,7 @@ int PPObjTag::Edit(PPID * pID, void * extraPtr)
 			PPObjTag tag_obj;
 			do {
 				if(grp_id != 0) {
-					PPObjectTag tag_rec;
+					PPObjectTag2 tag_rec;
 					THROW_PP(id != grp_id, PPERR_RECURSIONFOUND);
 					THROW(tag_obj.Fetch(grp_id, &tag_rec));
 					grp_id = tag_rec.TagGroupID;
@@ -1170,7 +1170,7 @@ int PPObjTag::Edit(PPID * pID, void * extraPtr)
 			THROW(GetPacket(*pID, &pack) > 0);
 		}
 		else {
-			PPObjectTag parent_rec;
+			PPObjectTag2 parent_rec;
 			if(ot_filt.ParentID && Fetch(ot_filt.ParentID, &parent_rec) > 0)
 				pack.Rec.TagGroupID = ot_filt.ParentID;
 			else
@@ -1200,13 +1200,13 @@ int PPObjTag::Edit(PPID * pID, void * extraPtr)
 
 SArray * PPObjTag::CreateList(long current, long parent)
 {
-	int    grpOnly = BIN(parent < 0);
-	ReferenceTbl::Key1 k;
+	const  bool grp_only = (parent < 0);
+	Reference2Tbl::Key1 k;
 	struct {
 		PPID   id;
-		char   text[sizeof(static_cast<const PPObjectTag *>(0)->Name) + 3];
+		char   text[sizeof(static_cast<const PPObjectTag2 *>(0)->Name) + 3];
 	} item;
-	PPObjectTag tag;
+	PPObjectTag2 tag;
 	long   lplus = 0x202b20L, lminus = 0x202d20L;
 	BExtQuery q(P_Ref, 1);
 	SArray * p_ary = new SArray(sizeof(item));
@@ -1223,8 +1223,8 @@ SArray * PPObjTag::CreateList(long current, long parent)
 		THROW_SL(p_ary->insert(&item));
 	}
 	for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
-		const PPObjectTag * p_rec = reinterpret_cast<const PPObjectTag *>(&P_Ref->data);
-		if(!grpOnly || p_rec->TagDataType == 0) {
+		const PPObjectTag2 * p_rec = reinterpret_cast<const PPObjectTag2 *>(&P_Ref->data);
+		if(!grp_only || p_rec->TagDataType == 0) {
 			item.id = p_rec->ID;
 			if(!p_rec->TagDataType)
 				strcpy(stpcpy(item.text, reinterpret_cast<const char *>(&lplus)), p_rec->Name);
@@ -1240,7 +1240,7 @@ SArray * PPObjTag::CreateList(long current, long parent)
 	return p_ary;
 }
 
-int PPObjTag::CheckForFilt(const ObjTagFilt * pFilt, const PPObjectTag & rRec) const
+int PPObjTag::CheckForFilt(const ObjTagFilt * pFilt, const PPObjectTag2 & rRec) const
 {
 	int    ok = 1;
 	if(pFilt) {
@@ -1335,7 +1335,7 @@ StrAssocArray * PPObjTag::MakeStrAssocList(void * extraPtr)
 	InitFilt(extraPtr, ot_filt);
 	PPIDArray obj_type_list;
 	SString temp_buf;
-	PPObjectTag rec;
+	PPObjectTag2 rec;
 	StrAssocArray * p_list = new StrAssocArray;
 	THROW_MEM(p_list);
 	for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
@@ -1361,7 +1361,7 @@ StrAssocArray * PPObjTag::MakeStrAssocList(void * extraPtr)
 int PPObjTag::GetListByFlag(long mask, PPIDArray & rList)
 {
 	int    ok  = -1;
-	PPObjectTag rec;
+	PPObjectTag2 rec;
 	for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
 		if((rec.Flags & mask) == mask) {
 			rList.addUnique(rec.ID);
@@ -1376,7 +1376,7 @@ int PPObjTag::GetListByHotKey(uint32 keyCode, PPID objType, PPIDArray & rList) /
 	rList.Z();
 	int    ok  = -1;
 	if(keyCode) {
-		PPObjectTag rec;
+		PPObjectTag2 rec;
 		for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
 			if(rec.HotKey == keyCode && (!objType || objType == rec.ObjTypeID)) {
 				rList.addUnique(rec.ID);
@@ -1390,7 +1390,7 @@ int PPObjTag::GetListByHotKey(uint32 keyCode, PPID objType, PPIDArray & rList) /
 int PPObjTag::NormalizeTextCriterion(PPID tagID, const char * pCrit, SString & rNormCrit)
 {
 	int    ok = 1;
-	PPObjectTag tag_rec;
+	PPObjectTag2 tag_rec;
 	rNormCrit = pCrit;
 	if(rNormCrit.NotEmptyS()) {
 		if(Fetch(tagID, &tag_rec) > 0) {
@@ -1431,7 +1431,7 @@ int PPObjTag::GetWarnList(const ObjTagList * pTagList, StrAssocArray * pResultLi
 		for(uint i = 0; i < warn_tag_list.getCount(); i++) {
 			int    invalid = 0;
 			const  PPID tag_id = warn_tag_list.get(i);
-			PPObjectTag tag_rec;
+			PPObjectTag2 tag_rec;
 			Fetch(tag_id, &tag_rec);
 			if(pTagList == 0) {
 				msg_buf.Printf(PPLoadTextS(PPTXT_TAGABSENT, fmt_buf), tag_rec.Name);
@@ -1470,14 +1470,14 @@ int PPObjTag::GetCurrTagVal(const ObjTagItem * pItem, SString & rBuf)
 int PPObjTag::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
-	p->Data = new PPObjectTag;
+	p->Data = new PPObjectTag2;
 	THROW_MEM(p->Data);
 	if(stream == 0) {
 		p->Priority = 120;
 		THROW(Search(id, p->Data) > 0);
 	}
 	else {
-		THROW(Serialize_(-1, static_cast<ReferenceTbl::Rec *>(p->Data), stream, pCtx));
+		THROW(Serialize_(-1, static_cast<Reference2Tbl::Rec *>(p->Data), stream, pCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -1487,7 +1487,7 @@ int PPObjTag::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, Obj
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPObjectTag * p_rec = static_cast<PPObjectTag *>(p->Data);
+		PPObjectTag2 * p_rec = static_cast<PPObjectTag2 *>(p->Data);
 		THROW(ProcessObjRefInArray(PPOBJ_TAG, &p_rec->TagGroupID, ary, replace));
 		if(IS_DYN_OBJTYPE(p_rec->TagEnumID)) {
 			THROW(ProcessObjRefInArray(PPOBJ_DYNAMICOBJS, &p_rec->TagEnumID, ary, replace));
@@ -1650,7 +1650,7 @@ static int EditRecoverHungedUpTagsParam(SString & rLogFileName, long * pFlags)
 			PPTransaction tra(1);
 			THROW(tra);
 			for(uint i = 0; i < count; i++) {
-				PPObjectTag tag;
+				PPObjectTag2 tag;
 				const  PPID tag_id = p_tags_list->Get(i).Id;
 				if(tag_obj.Fetch(tag_id, &tag) > 0 && oneof2(tag.TagDataType, OTTYP_OBJLINK, OTTYP_ENUM) && tag.TagEnumID) {
 					ObjTagTbl::Key1 k1;
@@ -1662,7 +1662,7 @@ static int EditRecoverHungedUpTagsParam(SString & rLogFileName, long * pFlags)
 							p_ref->Ot.CopyBufTo(&rec);
 							if(rec.IntVal) {
 								if(tag.TagDataType == OTTYP_ENUM) {
-									ReferenceTbl::Rec ref_rec;
+									Reference2Tbl::Rec ref_rec;
 									int r = p_ref->GetItem(tag.TagEnumID, rec.IntVal, &ref_rec);
 									THROW(r);
 									if(r < 0) {
@@ -1734,7 +1734,7 @@ int PPObjTag::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			if(p_tags_list) {
 				uint count = p_tags_list->getCount();
 				for(uint i = 0; ok == DBRPL_OK && i < count; i++) {
-					PPObjectTag tag;
+					PPObjectTag2 tag;
 					if(Fetch(p_tags_list->Get(i).Id, &tag) > 0 && oneof2(_id, tag.ObjTypeID, tag.TagEnumID))
 						ok = RetRefsExistsErr(Obj, _id);
 				}
@@ -1748,7 +1748,7 @@ int PPObjTag::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				uint count = p_tags_list->getCount();
 				for(uint i = 0; ok == DBRPL_OK && i < count; i++) {
 					const  PPID tag_id = p_tags_list->Get(i).Id;
-					PPObjectTag tag;
+					PPObjectTag2 tag;
 					if(Fetch(tag_id, &tag) > 0) {
 						if(tag.TagEnumID == _obj) {
 							ObjTagTbl::Key2 k2;
@@ -1772,7 +1772,7 @@ int PPObjTag::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				uint count = p_tags_list->getCount();
 				for(uint i = 0; ok == DBRPL_OK && i < count; i++) {
 					int update = 0;
-					PPObjectTag tag;
+					PPObjectTag2 tag;
 					if(Fetch(p_tags_list->Get(i).Id, &tag) > 0) {
 						if(_id == tag.ObjTypeID) {
 							tag.ObjTypeID = reinterpret_cast<long>(extraPtr);
@@ -1805,7 +1805,7 @@ int PPObjTag::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				uint count = p_tags_list->getCount();
 				for(uint i = 0; ok == DBRPL_OK && i < count; i++) {
 					const  PPID tag_id = p_tags_list->Get(i).Id;
-					PPObjectTag tag;
+					PPObjectTag2 tag;
 					if(Fetch(tag_id, &tag) > 0) {
 						if(tag.TagEnumID == _obj) {
 							ObjTagTbl::Key2 k2;
@@ -1925,7 +1925,7 @@ public:
 		SString restrict_buf;
 		SColor color;
 		ObjTagFilt tag_flt(ObjType);
-		PPObjectTag tag;
+		PPObjectTag2 tag;
 		RVALUEPTR(Data, pData);
 		TagFilt::GetRestriction(Data.Txt, restrict_buf);
 		TagFilt::GetColor(Data.Txt, color);
@@ -1958,7 +1958,7 @@ public:
 		uint   sel = 0;
 		SString restrict_buf;
 		SColor color;
-		PPObjectTag tag;
+		PPObjectTag2 tag;
 		const  int  option = GetClusterData(CTL_SELTAG_OPTION);
 		getCtrlData(sel = CTLSEL_SELTAG_TAG, &Data.Id);
 		THROW(GetTagRec(Data.Id, &tag));
@@ -2019,7 +2019,7 @@ private:
 			SetupTag(Data.Id);
 		}
 		else if(event.isCmd(cmSelEnum)) {
-			PPObjectTag tag;
+			PPObjectTag2 tag;
 			SString restrict_buf;
 			getCtrlData(CTLSEL_SELTAG_TAG, &Data.Id);
 			getCtrlString(CTL_SELTAG_RESTRICT, restrict_buf);
@@ -2040,7 +2040,7 @@ private:
 		}
 		else if(event.isClusterClk(CTL_SELTAG_OPTION)) {
 			const  int  option = GetClusterData(CTL_SELTAG_OPTION);
-			PPObjectTag tag;
+			PPObjectTag2 tag;
 			SString restrict_buf;
 			GetTagRec(Data.Id, &tag);
 			getCtrlData(CTLSEL_SELTAG_TAG, &Data.Id);
@@ -2057,7 +2057,7 @@ private:
 			return;
 		clearEvent(event);
 	}
-	int    GetTagRec(PPID tagID, PPObjectTag * pRec)
+	int    GetTagRec(PPID tagID, PPObjectTag2 * pRec)
 	{
 		int    ok = -1;
 		if(tagID) {
@@ -2070,7 +2070,7 @@ private:
 	int    SetupTag(PPID tagID)
 	{
 		if(tagID) {
-			PPObjectTag tag;
+			PPObjectTag2 tag;
 			TStaticText * p_text = static_cast<TStaticText *>(getCtrlView(CTL_SELTAG_TAGTYPE));
 			GetTagRec(tagID, &tag);
 			if(p_text) {
@@ -2167,7 +2167,7 @@ int TagFiltDialog::setupList()
 	for(uint i = 0; i < Data.TagsRestrict.getCount(); i++) {
 		StrAssocArray::Item item = Data.TagsRestrict.Get(i);
 		TagFilt::GetRestriction(item.Txt, restrict);
-		PPObjectTag tag;
+		PPObjectTag2 tag;
 		THROW(ObjTag.Fetch(item.Id, &tag));
 		ss.Z();
 		ss.add(tag.Name);
@@ -2314,7 +2314,7 @@ int TagDlgParam::SetDlgData(TDialog * dlg, const ObjTagItem * pItem)
 	int    ok = 1;
 	TagDlgVal val;
 	PPObjTag  tag_obj;
-	PPObjectTag tag;
+	PPObjectTag2 tag;
 	SString temp_buf;
 	if(ObjType && ObjNameCtl) {
 		if(ObjID)
@@ -2603,7 +2603,7 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 			else if(event.isCmd(cmLinkObj)) {
 				if(ObjID) {
 					PPObjTag tag_obj;
-					PPObjectTag tag;
+					PPObjectTag2 tag;
 					if(tag_obj.Fetch(Data.TagID, &tag) > 0 && tag.ObjTypeID) {
 						if(EditPPObj(tag.ObjTypeID, ObjID) > 0) {
 							SString obj_name;
@@ -2615,7 +2615,7 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 			}
 			else if(event.isCbSelected(CTLSEL_TAGV_HOBJ1)) { // @v12.2.10
 				PPObjTag tag_obj;
-				PPObjectTag tag;
+				PPObjectTag2 tag;
 				if(tag_obj.Fetch(Data.TagID, &tag) > 0) {
 					if(tag.TagDataType == OTTYP_OBJLINK && tag.TagEnumID == PPOBJ_LOCATION) {
 						PPID person_id = getCtrlLong(CTLSEL_TAGV_HOBJ1);
@@ -2634,7 +2634,7 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 					ComboBox * p_combo = static_cast<ComboBox *>(getCtrlView(CTLSEL_TAGV_LINK));
 					if(p_combo && Data.TagDataType == OTTYP_OBJLINK) {
 						PPObjTag tag_obj;
-						PPObjectTag tag;
+						PPObjectTag2 tag;
 						if(tag_obj.Fetch(Data.TagID, &tag) > 0) {
 							if(tag.TagEnumID == PPOBJ_PERSON && tag.LinkObjGrp) {
 								PPObjPersonKind pk_obj;
@@ -2861,7 +2861,7 @@ public:
 private:
 	virtual int  setupList()
 	{
-		PPObjectTag tag;
+		PPObjectTag2 tag;
 		SString buf;
 		StringSet ss(SLBColumnDelim);
 		const  ObjTagItem * p_item;
@@ -3298,7 +3298,7 @@ int ObjTagCache::Fetch(PPID objID, PPID tagID, ObjTagItem * pItem)
 					MEMSZERO(entry);
 					if(!tp) {
 						PPObjTag tag_obj;
-						PPObjectTag tag_rec;
+						PPObjectTag2 tag_rec;
 						if(tag_obj.Fetch(tagID, &tag_rec) > 0) {
 							TagTypeEntry tt_entry;
 							tt_entry.TagID = tag_rec.ID;
@@ -3443,7 +3443,7 @@ int TagCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	TagCacheEntry * p_rec = static_cast<TagCacheEntry *>(pEntry);
-	PPObjectTag tag;
+	PPObjectTag2 tag;
 	if(oneof2(id, PPTAG_LOT_CLB, PPTAG_LOT_SN)) {
 		p_rec->Flags       = OTF_NOZERO;
 		p_rec->LinkObjGrp  = 0;
@@ -3512,9 +3512,9 @@ int TagCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 
 void TagCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPObjectTag   * p_tag = static_cast<PPObjectTag *>(pDataRec);
+	PPObjectTag2 * p_tag = static_cast<PPObjectTag2 *>(pDataRec);
 	const TagCacheEntry * p_cr  = static_cast<const TagCacheEntry *>(pEntry);
-	memzero(p_tag, sizeof(PPObjectTag));
+	memzero(p_tag, sizeof(*p_tag));
 	p_tag->Tag = PPOBJ_TAG;
 	p_tag->ID  = p_cr->ID;
    	p_tag->Flags       = p_cr->Flags;
@@ -3533,7 +3533,7 @@ void TagCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 	r_ss.get(&p, p_tag->Symb, sizeof(p_tag->Symb));
 }
 
-int PPObjTag::Fetch(PPID id, PPObjectTag * pRec)
+int PPObjTag::Fetch(PPID id, PPObjectTag2 * pRec)
 {
 	TagCache * p_cache = GetDbLocalCachePtr <TagCache> (Obj);
 	return p_cache ? p_cache->Get(id, pRec) : Search(id, pRec);
@@ -3554,7 +3554,7 @@ int PPObjTag::FetchTag(PPID objID, PPID tagID, ObjTagItem * pItem)
 	else {
 		Reference * p_ref(PPRef);
 		if(p_ref) {
-			PPObjectTag tag_rec;
+			PPObjectTag2 tag_rec;
 			if(Fetch(tagID, &tag_rec) > 0)
 				ok = p_ref->Ot.GetTag(tag_rec.ObjTypeID, objID, tagID, pItem);
 		}
@@ -3584,7 +3584,7 @@ int PPALDD_TagType::InitData(PPFilt & rFilt, long rsrv)
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
 		PPObjTag tag_obj;
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		if(tag_obj.Fetch(H.ID, &tag_rec) > 0) {
 			H.TagDataType = tag_rec.TagDataType;
 			H.Flags       = tag_rec.Flags;

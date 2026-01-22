@@ -222,24 +222,18 @@ public:
 	 * @stable ICU 52
 	 */
 	static DecimalFormatSymbols* createWithLastResortData(UErrorCode & status);
-
 	/**
-	 * Copy constructor.
 	 * @stable ICU 2.0
 	 */
 	DecimalFormatSymbols(const DecimalFormatSymbols&);
-
 	/**
-	 * Assignment operator.
 	 * @stable ICU 2.0
 	 */
 	DecimalFormatSymbols& operator =(const DecimalFormatSymbols&);
 	/**
-	 * Destructor.
 	 * @stable ICU 2.0
 	 */
 	virtual ~DecimalFormatSymbols();
-
 	/**
 	 * Return true if another object is semantically equal to this one.
 	 *
@@ -248,7 +242,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	bool operator==(const DecimalFormatSymbols& other) const;
-
 	/**
 	 * Return true if another object is semantically unequal to this one.
 	 *

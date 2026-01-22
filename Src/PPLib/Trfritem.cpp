@@ -1,5 +1,5 @@
 // TRFRITEM.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2023, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2023, 2024, 2026
 // @codepage UTF-8
 // @Kernel
 //
@@ -247,7 +247,7 @@ int PPTransferItem::Init(const BillTbl::Rec * pBillRec, int zeroRByBill, int for
 						long  tax_grp_id = 0;
 						if(tag_item.GetInt(&tax_grp_id)) {
 							PPObjGoodsTax gtx_obj;
-							PPGoodsTax gtx_rec;
+							PPGoodsTax2 gtx_rec;
 							if(gtx_obj.Search(tax_grp_id, &gtx_rec) > 0) {
 								LotTaxGrpID = tax_grp_id;
 							}

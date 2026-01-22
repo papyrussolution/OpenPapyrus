@@ -934,7 +934,7 @@ int FASTCALL PPExprParser::GetFactor(double * pResult)
 								oid.FromDouble(first_arg);
 								if(Fb.ExtToken.NotEmpty()) {
 									PPObjTag tag_obj;
-									PPObjectTag tag_rec;
+									PPObjectTag2 tag_rec;
 									PPID   tag_id = 0;
 									THROW(tag_obj.FetchBySymb(Fb.ExtToken, &tag_id) > 0);
 									THROW(tag_obj.Fetch(tag_id, &tag_rec) > 0);

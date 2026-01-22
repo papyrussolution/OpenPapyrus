@@ -87,7 +87,7 @@ int PPMarketplaceInterface::GetMarketplacePerson(PPID * pID, int use_ta)
 		if(!isempty(P_Symbol)) {
 			PPIDArray found_list;
 			PPObjTag tag_obj;
-			PPObjectTag tag_rec;
+			PPObjectTag2 tag_rec;
 			THROW(tag_obj.Fetch(PPTAG_PERSON_MARKETPLACESYMB, &tag_rec) > 0); // @todo @err
 			if(p_ref->Ot.SearchObjectsByStr(PPOBJ_PERSON, PPTAG_PERSON_MARKETPLACESYMB, P_Symbol, &found_list) > 0) {
 				for(uint i = 0; ok < 0 && i < found_list.getCount(); i++) {
@@ -7177,7 +7177,7 @@ PPID PrcssrMarketplaceInterchange::Helper_GetMarketplaceOpsAccount(bool createIf
 	PPAccount acc_rec;
 	PPID acs_id = 0;
 	PPObjTag tag_obj;
-	PPObjectTag tag_rec;
+	PPObjectTag2 tag_rec;
 	const PPID gua_id = GetGuaPack().Rec.ID;
 	THROW(tag_obj.Fetch(PPTAG_GUA_ACCOUNT, &tag_rec) > 0); // @todo @err (создание зарезервированных объектов)
 	if(gua_id) {

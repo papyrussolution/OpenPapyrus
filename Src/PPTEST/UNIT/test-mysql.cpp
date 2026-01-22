@@ -41,7 +41,7 @@ SLTEST_R(MySQL) // @v12.4.7
 	// @doto Setup the dpb
 	{
 		PPDbEntrySet2 dbes;
-		THROW(dbes.ReadFromProfile(&ini_file, 0));
+		THROW(dbes.ReadFromProfile(&ini_file, false));
 		THROW_SL(dbes.GetBySymb("mysqltest", &dblb));
 	}
 	THROW(SLCHECK_NZ(dbp.DbLogin(&dblb, DbProvider::openfMainThread)));
@@ -86,15 +86,15 @@ SLTEST_R(MySQL) // @v12.4.7
 	// @v12.5.3 {
 	{
 		// Проверяем пул соединений
-		bool  conn_pool_fault = false;
+  		bool  conn_pool_fault = false;
 		const uint max_iter_count = 1000;
-		TSVector <DbProvider::Connection> conn_list;
+		TSVector <SMySqlDbProvider::ConnectionEntry> conn_list;
 		{
 			for(uint i = 0; i < max_iter_count; i++) {
 				const ulong randval = SLS.GetTLA().Rg.GetUniformIntPos(1920701);
 				if(randval & 0x1) { // Если randval - нечетное, то создаем соединение
-					DbProvider::Connection conn_to_get = dbp.GetConnection();
-					if(!conn_to_get) {
+					SMySqlDbProvider::ConnectionEntry conn_to_get;
+					if(!dbp.GetConnection(conn_to_get)) {
 						conn_pool_fault = true;
 						break;
 					}
@@ -106,7 +106,7 @@ SLTEST_R(MySQL) // @v12.4.7
 					if(conn_list.getCount()) {
 						conn_list.shuffle();
 						const   uint conn_idx = conn_list.getCount()-1;
-						DbProvider::Connection conn_to_release = conn_list.at(conn_idx);
+						SMySqlDbProvider::ConnectionEntry conn_to_release = conn_list.at(conn_idx);
 						const int r = dbp.ReleaseConnection(conn_to_release);
 						conn_list.atFree(conn_idx);
 						if(r != 2) {
@@ -118,11 +118,11 @@ SLTEST_R(MySQL) // @v12.4.7
 				SDelay(49);
 			}
 		}
-		SLCHECK_NZ(conn_pool_fault);
+		SLCHECK_Z(conn_pool_fault);
 		{
 			for(uint i = 0; i < conn_list.getCount(); i++) {
-				DbProvider::Connection conn_to_release = conn_list.at(i);
-				const int r = dbp.ReleaseConnection(conn_to_release);
+				SMySqlDbProvider::ConnectionEntry & r_conn_to_release = conn_list.at(i);
+				const int r = dbp.ReleaseConnection(r_conn_to_release);
 			}
 		}
 	}

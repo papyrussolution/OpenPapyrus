@@ -146,7 +146,7 @@ int PPObjGoodsType::Edit(PPID * pID, void * extraPtr)
 		dlg->getCtrlData(CTL_GDSTYP_SYMB, rec.Symb);
 		if(!CheckName(rec.ID, strip(rec.Name), 1))
 			PPErrorByDialog(dlg, CTL_GDSTYP_NAME);
-		else if(!P_Ref->CheckUniqueSymb(Obj, rec.ID, strip(rec.Symb), offsetof(ReferenceTbl::Rec, Symb))) {
+		else if(!P_Ref->CheckUniqueSymb(Obj, rec.ID, strip(rec.Symb), offsetof(Reference2Tbl::Rec, Symb))) {
 			PPErrorByDialog(dlg, CTL_GDSTYP_SYMB);
 		}
 		else {
@@ -2261,7 +2261,7 @@ int PPObjSwProgram::ImportFromJson(const SJson * pJs, const char * pImgPathUtf8)
 									pack.Rec.CategoryID = cat_id;
 								}
 								else {
-									ReferenceTbl::Rec cat_rec;
+									Reference2Tbl::Rec cat_rec;
 									STRNSCPY(cat_rec.ObjName, pack.CategoryName_);
 									if(pgmcat_obj.AddItem(&cat_id, &cat_rec, 0)) {
 										pack.Rec.CategoryID = cat_id;

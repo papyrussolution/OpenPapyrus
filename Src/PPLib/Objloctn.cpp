@@ -2398,7 +2398,7 @@ int PPObjLocation::PutGuid(PPID id, const S_GUID * pUuid, int use_ta)
 	ObjTagItem tag;
 	LocationTbl::Rec _rec;
 	PPObjTag tagobj;
-	PPObjectTag tag_rec;
+	PPObjectTag2 tag_rec;
 	THROW_PP(tagobj.Fetch(tag_id, &tag_rec) > 0, abs_err_msg_id);
 	if(!S_GUID::IsEmpty(pUuid)) {
 		THROW(Search(id, &_rec) > 0);
@@ -6063,7 +6063,7 @@ int PPALDD_UhttStore::NextIteration(long iterId)
 			const ObjTagItem * p_item = r_blk.Pack.TagL.GetItemByPos(r_blk.TagPos);
 			I_TagList.TagTypeID = p_item->TagDataType;
 			{
-				PPObjectTag tag_rec;
+				PPObjectTag2 tag_rec;
 				if(r_blk.TagObj.Fetch(p_item->TagID, &tag_rec) > 0)
 					STRNSCPY(I_TagList.TagSymb, tag_rec.Symb);
 			}
@@ -6107,7 +6107,7 @@ int PPALDD_UhttStore::Set(long iterId, int commit)
 		else if(iterId == GetIterID("iter@TagList")) {
 			PPID   id = 0;
 			ObjTagItem item;
-			PPObjectTag tag_rec;
+			PPObjectTag2 tag_rec;
 			if(r_blk.TagObj.SearchBySymb(I_TagList.TagSymb, &id, &tag_rec) > 0) {
 				item.TagID = tag_rec.ID;
 				switch(I_TagList.TagTypeID) {

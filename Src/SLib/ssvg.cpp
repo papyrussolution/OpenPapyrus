@@ -565,7 +565,7 @@ int SSvg::_GetCommonFigAttrAndInsert(const StrAssocArray & rAttrList, CommonFigA
 					SPaintObj * p_new_obj = 0;
 					THROW(rA.IdPen = p_tb->CreateDynIdent(MakePaintObjSymb(0)));
 					THROW(p_new_obj = p_tb->CreateObj(rA.IdPen));
-					THROW(p_new_obj->CreatePen(&rA.Pen));
+					THROW(p_new_obj->CreatePen_(&rA.Pen));
 				}
 			}
 			else if(pParent) {
@@ -590,7 +590,7 @@ int SSvg::_GetCommonFigAttrAndInsert(const StrAssocArray & rAttrList, CommonFigA
 					SPaintObj * p_new_obj = 0;
 					THROW(rA.IdBrush = p_tb->CreateDynIdent(MakePaintObjSymb(0)));
 					THROW(p_new_obj = p_tb->CreateObj(rA.IdBrush));
-					THROW(p_new_obj->CreateBrush(&rA.Brush));
+					THROW(p_new_obj->CreateBrush_(&rA.Brush));
 				}
 			}
 			else if(pParent) {

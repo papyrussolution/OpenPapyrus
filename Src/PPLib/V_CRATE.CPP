@@ -1,5 +1,5 @@
 // V_CRATE.CPP
-// Copyright (c) A.Sobolev 2000, 2003, 2004, 2005, 2006, 2007, 2008, 2015, 2016, 2017, 2018, 2019, 2020, 2025
+// Copyright (c) A.Sobolev 2000, 2003, 2004, 2005, 2006, 2007, 2008, 2015, 2016, 2017, 2018, 2019, 2020, 2025, 2026
 //
 #include <pp.h>
 #pragma hdrstop
@@ -211,14 +211,12 @@ int PPViewCurRate::EditRecord(CurrencyRateTbl::Rec * pRec, int isNew)
 DBQuery * PPViewCurRate::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = BROWSER_CURRATE;
-	CurrencyRateTbl * crt = 0;
-	ReferenceTbl * rtt = 0;
 	DBQuery * q = 0;
 	DBQ  * dbq = 0;
 	DBE    dbe_cur;
 	DBE    dbe_basecur;
-	crt = new CurrencyRateTbl;
-	rtt = new ReferenceTbl;
+	CurrencyRateTbl * crt = new CurrencyRateTbl;
+	Reference2Tbl * rtt = new Reference2Tbl;
 	PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPDbqFuncPool::IdObjSymbCurrency, crt->CurID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_basecur, PPDbqFuncPool::IdObjSymbCurrency, crt->RelCurID);
 	// @v12.5.2 {

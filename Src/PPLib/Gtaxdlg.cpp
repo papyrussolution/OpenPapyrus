@@ -1,5 +1,5 @@
 // GTAXDLG.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025, 2026
 //
 #include <pp.h>
 #pragma hdrstop
@@ -13,8 +13,8 @@ class GoodsTaxDialog : public TDialog {
 	};
 	long FlagsToVatRateType(long flags)
 	{
-		long vrt = vrtSimple;
-		const long _f = flags & (GTAXF_SPCVAT|GTAXF_GENERALVAT);
+		long   vrt = vrtSimple;
+		const  long _f = flags & (GTAXF_SPCVAT|GTAXF_GENERALVAT);
 		if(_f == (GTAXF_SPCVAT|GTAXF_GENERALVAT) || _f == 0)
 			vrt = vrtSimple;
 		else if(_f == GTAXF_SPCVAT)
@@ -373,7 +373,7 @@ int PPObjGoodsTax::Edit(PPID * pID, void * extraPtr)
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 		THROW(is_new || CheckRights(PPR_MOD));
 		if(dlg->getDTS(&pack)) {
-			if(CheckDupName(*pID, pack.Rec.Name) && P_Ref->CheckUniqueSymb(Obj, *pID, pack.Rec.Symb, offsetof(PPGoodsTax, Symb))) {
+			if(CheckDupName(*pID, pack.Rec.Name) && P_Ref->CheckUniqueSymb(Obj, *pID, pack.Rec.Symb, offsetof(PPGoodsTax2, Symb))) {
 				if(PutPacket(pID, &pack, 1)) {
 					Dirty(*pID);
 					valid_data = 1;

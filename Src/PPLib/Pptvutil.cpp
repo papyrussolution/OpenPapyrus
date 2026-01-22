@@ -20,6 +20,7 @@ TWindow * PPApp::FindPhonePaneDialog()
 bool FASTCALL GetModelessStatus(bool outerModeless) { return outerModeless; }
 TView * ValidView(TView * pView) { return APPL->validView(pView); }
 ushort FASTCALL ExecView(TWindow * pView) { return pView ? APPL->P_DeskTop->execView(pView) : cmError; }
+ushort FASTCALL ExecView(TBaseBrowserWindow * pView) { return pView ? APPL->P_DeskTop->execView(pView) : cmError; }
 
 ushort FASTCALL ExecViewAndDestroy(TWindow * pView)
 {
@@ -39,16 +40,11 @@ ushort STDCALL CheckExecAndDestroyDialog(TDialog * pDlg, int genErrMsg, int toCa
 	return ret;
 }
 
-ushort FASTCALL ExecView(TBaseBrowserWindow * v)
+int FASTCALL InsertView(TBaseBrowserWindow * pView)
 {
-	return v ? APPL->P_DeskTop->execView(v) : cmError;
-}
-
-int FASTCALL InsertView(TBaseBrowserWindow * v)
-{
-	if(v) {
-		APPL->P_DeskTop->Insert_(v);
-		return v->Insert();
+	if(pView) {
+		APPL->P_DeskTop->Insert_(pView);
+		return pView->Launch_(0);
 	}
 	else
 		return 0;
@@ -137,8 +133,7 @@ int STDCALL SetComboBoxLinkText(TDialog * dlg, uint comboBoxCtlID, const char * 
 int STDCALL SetComboBoxListText(TDialog * dlg, uint comboBoxCtlID)
 {
 	SString temp_buf;
-	PPLoadString("list", temp_buf);
-	return SetComboBoxLinkText(dlg, comboBoxCtlID, temp_buf);
+	return SetComboBoxLinkText(dlg, comboBoxCtlID, PPLoadStringS("list", temp_buf));
 }
 
 SString & FASTCALL PPFormatPeriod(const DateRange * pPeriod, SString & rBuf)
@@ -146,18 +141,18 @@ SString & FASTCALL PPFormatPeriod(const DateRange * pPeriod, SString & rBuf)
 	// @v12.2.4 usage PPLoadStringS("daterange_from", SLS.AcquireRvlStr()) and PPLoadStringS("daterange_to", SLS.AcquireRvlStr()) insted russian text
 	rBuf.Z();
 	if(pPeriod) {
-		LDATE  beg = pPeriod->low;
-		LDATE  end = pPeriod->upp;
-		if(beg) {
-			if(beg != end) {
+		//LDATE  beg = pPeriod->low;
+		//LDATE  end = pPeriod->upp;
+		if(pPeriod->low) {
+			if(pPeriod->low != pPeriod->upp) {
 				rBuf.Cat(PPLoadStringS("daterange_from", SLS.AcquireRvlStr())).Space();
 			}
-			rBuf.Cat(beg, DATF_DMY);
+			rBuf.Cat(pPeriod->low, DATF_DMY);
 		}
-		if(end && beg != end) {
-			if(beg)
+		if(pPeriod->upp && pPeriod->low != pPeriod->upp) {
+			if(pPeriod->low)
 				rBuf.Space();
-			rBuf.Cat(PPLoadStringS("daterange_to", SLS.AcquireRvlStr())).Space().Cat(end, DATF_DMY);
+			rBuf.Cat(PPLoadStringS("daterange_to", SLS.AcquireRvlStr())).Space().Cat(pPeriod->upp, DATF_DMY);
 		}
 	}
 	// @v12.2.4 return rBuf.Transf(CTRANSF_OUTER_TO_INNER);
@@ -1864,7 +1859,7 @@ int SetupSubstGoodsCombo(TDialog * dlg, uint ctlID, long initID)
 			}
 		}
 		{
-			PPObjectTag tag_rec;
+			PPObjectTag2 tag_rec;
 			for(SEnum en = PPRef->Enum(PPOBJ_TAG, 0); en.Next(&tag_rec) > 0;) {
 				if(tag_rec.ObjTypeID == PPOBJ_GOODS && tag_rec.TagDataType != OTTYP_GROUP) {
 					txt_buf.Z().Cat("Tag").CatDiv(':', 2).Cat(tag_rec.Name);
@@ -8388,7 +8383,6 @@ private:
 	void   InsertControlLabel(TDialog * pDlg, DlContext & rCtx, const DlScope * pMainScope, TView * pMainCtrlView, uint & rLastDynId);
 	void   InsertControlItems(TDialog * pDlg, DlContext & rCtx, const DlScope & rParentScope, uint & rLastDynId, FIBlock & rFiBlk, int stage);
 	void   InsertControlLayouts(TDialog * pDlg, DlContext & rCtx, const DlScope & rParentScope, SUiLayout * pLoParent);
-	static void __stdcall SetupLayoutItemFrameProc(SUiLayout * pItem, const SUiLayout::Result & rR);
 	SUiLayout * InsertCtrlLayout(TDialog * pDlg, SUiLayout * pLoParent, TView * pView, const SUiLayoutParam & rP);
 	SUiLayout * InsertCtrlLayout(TDialog * pDlg, SUiLayout * pLoParent, ushort ctlId, const SUiLayoutParam & rP);
 	bool   MakeComplexLayout_InputLine(TDialog * pDlg, TView * pView, SUiLayoutParam & rLp, DlContext & rCtx, const DlScope * pScope, SUiLayout * pLoParent);
@@ -8566,15 +8560,6 @@ void PPDialogConstructor::Build(TDialog * pDlg, DlContext & rCtx, const DlScope 
 	}
 }
 
-/*static*/void __stdcall PPDialogConstructor::SetupLayoutItemFrameProc(SUiLayout * pItem, const SUiLayout::Result & rR)
-{
-	if(pItem) {
-		TView * p = static_cast<TView *>(SUiLayout::GetManagedPtr(pItem));
-		if(p)
-			p->changeBounds(TRect(pItem->GetFrameAdjustedToParent()));
-	}
-}
-
 SUiLayout * PPDialogConstructor::InsertCtrlLayout(TDialog * pDlg, SUiLayout * pLoParent, TView * pView, const SUiLayoutParam & rP)
 {
 	//
@@ -8585,7 +8570,7 @@ SUiLayout * PPDialogConstructor::InsertCtrlLayout(TDialog * pDlg, SUiLayout * pL
 	if(pLoParent) {
 		p_result = pLoParent->InsertItem(pView, &rP);
 		if(p_result && pView)
-			p_result->SetCallbacks(0, SetupLayoutItemFrameProc, pView);
+			p_result->SetCallbacks(0, TView::SetupLayoutItemFrameProc, pView);
 	}
 	return p_result;
 }
@@ -9094,13 +9079,13 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 		float  inp_width = 0.0f;
 		float  inp_height = 0.0f;
 		float  label_width = 0.0f;
-		float  label_height = 0.0f;
+		//float  label_height = 0.0f;
 		const  int inp_szx = rLp.GetSizeX(&inp_width);
 		const  int inp_szy = rLp.GetSizeY(&inp_height);
 		SUiLayoutParam lp_label_org; // Параметры label, созданные описанием
 		const  bool glb_label_org_r = rCtx.GetLayoutBlock(pScope, DlScope::cuifLblLayoutBlock, &lp_label_org);
 		const  int label_szx = lp_label_org.GetSizeX(&label_width);
-		const  int label_szy = lp_label_org.GetSizeY(&label_height);
+		//const  int label_szy = lp_label_org.GetSizeY(&label_height);
 		if(lp_label_org.LinkRelation) {
 			;//debug_mark = true;
 		}

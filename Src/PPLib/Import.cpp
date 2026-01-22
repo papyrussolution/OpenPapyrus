@@ -3291,7 +3291,7 @@ int PrcssrPersonImport::Run()
 			ObjTagList tag_list;
 			if(dyn_rec.GetCount()) {
 				SStrScan scan;
-				PPObjectTag tag_rec;
+				PPObjectTag2 tag_rec;
 				PPID   tag_id = 0;
 				for(uint j = 0; j < dyn_rec.GetCount(); j++) {
 					dyn_rec.GetFieldByPos(j, &dyn_fld);

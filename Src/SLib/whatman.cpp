@@ -291,7 +291,7 @@ int TWhatmanObject::SetBounds(const TRect & rRect)
 {
 	if(rRect.b.x >= rRect.a.x && rRect.b.y >= rRect.a.y) {
 		Bounds = rRect;
-		HandleCommand(cmdSetBounds, (void *)&rRect); // @badcast
+		HandleCommand(cmdSetBounds, const_cast<TRect *>(&rRect));
 		return 1;
 	}
 	else

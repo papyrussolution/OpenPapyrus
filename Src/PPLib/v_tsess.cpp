@@ -1,5 +1,5 @@
 // V_TSESS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2126,7 +2126,7 @@ int PPALDD_TSession::InitData(PPFilt & rFilt, long rsrv)
 	MEMSZERO(H);
 	H.ID = rFilt.ID;
 	TSessionTbl::Rec super_rec;
-	TSessionPacket pack; // @v11.0.4 (TSessionTbl::Rec rec)-->(TSessionPacket pack)
+	TSessionPacket pack;
 	SString temp_buf;
 	PPObjTSession * p_ses_obj = static_cast<PPObjTSession *>(Extra[0].Ptr);
 	if(p_ses_obj->GetPacket(rFilt.ID, &pack, 0) > 0) {
@@ -2150,7 +2150,7 @@ int PPALDD_TSession::InitData(PPFilt & rFilt, long rsrv)
 		p_ses_obj->MakeName(&pack.Rec, temp_buf);
 		temp_buf.CopyTo(H.Name, sizeof(H.Name));
 		if(pack.Rec.ParentID && p_ses_obj->Search(pack.Rec.ParentID, &super_rec) > 0) {
-			p_ses_obj->MakeName(&super_rec, temp_buf); // @v11.0.4 @fix rec-->super_rec
+			p_ses_obj->MakeName(&super_rec, temp_buf);
 			temp_buf.CopyTo(H.SuperName, sizeof(H.SuperName));
 		}
 		p_ses_obj->GetStatusText(pack.Rec.Status, temp_buf);
@@ -2535,7 +2535,7 @@ int PPObjTSession::ConvertPacket(const UhttTSessionPacket * pSrc, long flags, TS
         for(i = 0; i < pSrc->TagList.getCount(); i++) {
 			const UhttTagItem * p_uhtt_tag_item = pSrc->TagList.at(i);
 			PPID   tag_id = 0;
-			PPObjectTag tag_rec;
+			PPObjectTag2 tag_rec;
 			if(tag_obj.SearchBySymb(p_uhtt_tag_item->Symb, &tag_id, &tag_rec) > 0) {
 				assert(tag_id == tag_rec.ID); // @paranoic
 				ObjTagItem tag_item;

@@ -2442,7 +2442,7 @@ int PPObjGoodsStruc::GetChildIDList(PPID strucID, PPIDArray * pList)
 	int    ok = -1;
 	BExtQuery q(P_Ref, 0, 128);
 	q.select(P_Ref->ObjID, 0L).where(P_Ref->ObjType == Obj && P_Ref->Val1 == strucID);
-	ReferenceTbl::Key0 k0;
+	Reference2Tbl::Key0 k0;
 	k0.ObjType = Obj;
 	k0.ObjID = 0;
 	for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {

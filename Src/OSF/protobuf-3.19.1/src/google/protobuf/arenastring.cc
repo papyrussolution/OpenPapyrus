@@ -181,8 +181,8 @@ std::string* ArenaStringPtr::ReleaseNonDefault(const std::string* default_value,
 	}
 }
 
-void ArenaStringPtr::SetAllocated(const std::string* default_value,
-    std::string* value, ::google::protobuf::Arena* arena) {
+void ArenaStringPtr::SetAllocated(const std::string* default_value, std::string* value, ::google::protobuf::Arena* arena) 
+{
 	// Release what we have first.
 	if(arena == nullptr && !IsDefault(default_value)) {
 		delete UnsafeMutablePointer();

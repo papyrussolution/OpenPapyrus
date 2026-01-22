@@ -1,5 +1,5 @@
 // GENVER.CPP
-// Copyright (c) A.Sobolev 2001, 2011, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2025
+// Copyright (c) A.Sobolev 2001, 2011, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2025, 2026
 //
 // For private use only. Redistribution prohibited !
 //
@@ -19,7 +19,7 @@ PapyrusPrivateBlock::~PapyrusPrivateBlock()
 PapyrusPrivateBlock & PapyrusPrivateBlock::Z()
 {
 	MEMSZERO(H);
-	StructVer = 5; // @v11.0.2 3-->4 // @v12.3.10 4-->5
+	StructVer = 5; // @v12.3.10 4-->5
 	StartDevYear = 0;
 	LastDevYear = 0;
 	Ver.Set(0, 0, 0);
@@ -101,8 +101,7 @@ int PapyrusPrivateBlock::ReadFromIni(SIniFile & rIniFile)
 	SString temp_buf;
 	//rIniFile.GetParam("Version", "Signature",
 	rIniFile.GetParam("Version", "Signature", temp_buf);
-	// @v11.1.1 IdeaRandMem(H.Signature, sizeof(H.Signature));
-	SObfuscateBuffer(H.Signature, sizeof(H.Signature)); // @v11.1.1 
+	SObfuscateBuffer(H.Signature, sizeof(H.Signature));
 	STRNSCPY(H.Signature, temp_buf);
 	rIniFile.GetParam("Version", "Product", ProductName);
 	rIniFile.GetParam("Version", "Team", Team);
@@ -111,7 +110,7 @@ int PapyrusPrivateBlock::ReadFromIni(SIniFile & rIniFile)
 	rIniFile.GetParam("Version", "MsftTranslAcc", MsftTranslAcc);
 	rIniFile.GetParam("Version", "UhttAcc", UhttAcc);
 	rIniFile.GetParam("Version", "VkAppIdent", VkAppIdent);
-	rIniFile.GetParam("Version", "GoogleAppIdent", GoogleAppIdent); // @v11.0.2
+	rIniFile.GetParam("Version", "GoogleAppIdent", GoogleAppIdent);
 	{
 		int    mj = 0, mn = 0, r = 0, asmn = 0;
 		rIniFile.GetIntParam("Version", "MajorVer", &mj);
@@ -185,8 +184,7 @@ int PapyrusPrivateBlock::WriteToSrc(const char * pFileName)
 		const size_t h_size = sizeof(H);
 		STempBuffer tbuf(ALIGNSIZE(src_size, 7));
 		THROW(tbuf.IsValid());
-		// @v11.1.1 IdeaRandMem(tbuf, tbuf.GetSize());
-		SObfuscateBuffer(tbuf, tbuf.GetSize()); // @v11.1.1 
+		SObfuscateBuffer(tbuf, tbuf.GetSize());
 		memcpy(tbuf, sbuff.GetBuf(sbuff.GetRdOffs()), src_size);
 		THROW(sstrlen(H.Signature) < sizeof(H.Signature));
 		THROW(sstreq(H.Signature, tbuf + sizeof(uint32))); // Буфер Signature сериализуется как сплошной участок памяти - в префиксе размер (uint32).

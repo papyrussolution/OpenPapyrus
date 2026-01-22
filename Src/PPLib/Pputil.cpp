@@ -1520,7 +1520,7 @@ Article
 	Name[47]:    0
 }
 */
-static int _F2_(const BillTbl::Rec * pBillRec, const ArticleTbl::Rec * pArRec, ReferenceTbl::Rec * pRefRec)
+static int _F2_(const BillTbl::Rec * pBillRec, const ArticleTbl::Rec * pArRec, Reference2Tbl::Rec * pRefRec)
 {
 	const size_t ar_buf_offs = 10;
 	memzero(pRefRec->ObjName, sizeof(pRefRec->ObjName));
@@ -1556,7 +1556,7 @@ int PPChainDatabase(const char * pPassword)
 	//
 	int    ok = 1, r;
 	PPID   id_max, id_delta;
-	ReferenceTbl::Rec ref_rec;
+	Reference2Tbl::Rec ref_rec;
 	BillTbl::Rec      bill_rec;
 	ArticleTbl::Rec   ar_rec;
 
@@ -1574,13 +1574,11 @@ int PPChainDatabase(const char * pPassword)
 			else
 				CALLEXCEPT_PP(PPERR_DBENGINE);
 		}
-		// @v11.1.1 IdeaRandMem(&id_delta, sizeof(id_delta));
-		SObfuscateBuffer(&id_delta, sizeof(id_delta)); // @v11.1.1 
+		SObfuscateBuffer(&id_delta, sizeof(id_delta));
 		id_delta = (labs(id_delta) % 23) + 1;
 		bill_rec.ID = id_max + id_delta;
 
-		// @v11.1.1 IdeaRandMem(bill_rec.Code, sizeof(bill_rec.Code)-1);
-		SObfuscateBuffer(bill_rec.Code, sizeof(bill_rec.Code)-1); // @v11.1.1 
+		SObfuscateBuffer(bill_rec.Code, sizeof(bill_rec.Code)-1);
 		for(r = 0; r < sizeof(bill_rec.Code)-1; r++)
 			bill_rec.Code[r] = (char)(labs(bill_rec.Code[r]) % 93 + 33);
 		bill_rec.OpID = PPOPK_UNASSIGNED;
@@ -1592,13 +1590,11 @@ int PPChainDatabase(const char * pPassword)
 		THROW_DB(r || BTROKORNFOUND);
 		if(r <= 0)
 			id_max = 1;
-		// @v11.1.1 IdeaRandMem(&id_delta, sizeof(id_delta));
-		SObfuscateBuffer(&id_delta, sizeof(id_delta)); // @v11.1.1 
+		SObfuscateBuffer(&id_delta, sizeof(id_delta));
 		id_delta = (labs(id_delta) % 37) + 1;
 		ar_rec.ID = id_max + id_delta;
 
-		// @v11.1.1 IdeaRandMem(ar_rec.Name, sizeof(ar_rec.Name)-1);
-		SObfuscateBuffer(ar_rec.Name, sizeof(ar_rec.Name)-1); // @v11.1.1 
+		SObfuscateBuffer(ar_rec.Name, sizeof(ar_rec.Name)-1);
 		IdeaEncrypt("FA", ar_rec.Name, sizeof(ar_rec.Name)-1);
 		for(r = 0; r < sizeof(ar_rec.Name)-1; r++)
 			ar_rec.Name[r] = (abs(ar_rec.Name[r]) % 93) + 33;
@@ -1647,7 +1643,7 @@ static int ProcessDatabaseChain(PPObjBill * pBObj, Reference * pRef, int mode, c
 {
 	int    ok = -1;
 	SString pw;
-	ReferenceTbl::Rec ref_rec, ref_rec2;
+	Reference2Tbl::Rec ref_rec, ref_rec2;
 	BillTbl::Rec      bill_rec;
 	ArticleTbl::Rec   ar_rec;
 	if(CurDict->GetCapability() & DbProvider::cSQL)
@@ -1696,14 +1692,10 @@ static int ProcessDatabaseChain(PPObjBill * pBObj, Reference * pRef, int mode, c
 		}
 	}
 	CATCHZOK
-	// @v11.1.1 IdeaRandMem(&ref_rec,  sizeof(ref_rec));
-	SObfuscateBuffer(&ref_rec,  sizeof(ref_rec)); // @v11.1.1 
-	// @v11.1.1 IdeaRandMem(&ref_rec2, sizeof(ref_rec2));
-	SObfuscateBuffer(&ref_rec2, sizeof(ref_rec2)); // @v11.1.1 
-	// @v11.1.1 IdeaRandMem(&bill_rec, sizeof(bill_rec));
-	SObfuscateBuffer(&bill_rec, sizeof(bill_rec)); // @v11.1.1 
-	// @v11.1.1 IdeaRandMem(&ar_rec,   sizeof(ar_rec));
-	SObfuscateBuffer(&ar_rec,   sizeof(ar_rec)); // @v11.1.1 
+	SObfuscateBuffer(&ref_rec,  sizeof(ref_rec));
+	SObfuscateBuffer(&ref_rec2, sizeof(ref_rec2));
+	SObfuscateBuffer(&bill_rec, sizeof(bill_rec));
+	SObfuscateBuffer(&ar_rec,   sizeof(ar_rec));
 	pw.Obfuscate();
 	return ok;
 }
@@ -2196,7 +2188,7 @@ static SString & CDECL Helper_PPFormat(const SString & rFmt, SString * pBuf, /*.
 						obj_id = va_arg(pArgList, PPID);
 						{
 							PPObjTag tag_obj;
-							PPObjectTag tag_rec;
+							PPObjectTag2 tag_rec;
 							if(tag_obj.Fetch(obj_id, &tag_rec) > 0) {
 								buf.Cat(tag_rec.Name);
 							}

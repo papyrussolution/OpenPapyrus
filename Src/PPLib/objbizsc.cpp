@@ -1,5 +1,5 @@
 // OBJBIZSC.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -892,12 +892,11 @@ DBQuery * PPViewBizScore::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBQuery * q = 0;
 	uint   brw_id = BROWSER_BIZSCORE;
-	ReferenceTbl * t = new ReferenceTbl;
+	Reference2Tbl * t = new Reference2Tbl;
 	DBE    dbe_user;
 	DBE    dbe_descr;
 	DBE    dbe_formula;
 	DBQ  * dbq = 0;
-
 	PPDbqFuncPool::InitObjNameFunc(dbe_user, PPDbqFuncPool::IdObjNameUser, t->Val1);
 	{
 		DBConst c_temp;
@@ -923,14 +922,25 @@ DBQuery * PPViewBizScore::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	}
 	dbq = &(t->ObjType == PPOBJ_BIZSCORE);
 	dbq = ppcheckfiltid(dbq, t->Val1, Filt.UserID);
+	// @v12.5.4 {
 	q = & Select_(
+		t->ObjID,    // #00
+		t->ObjName,  // #01
+		t->Symb,     // #02
+		0L);
+	q->addField(dbe_user);    // #03
+	q->addField(dbe_descr);   // #04
+	q->addField(dbe_formula); // #05
+	// } @v12.5.4 
+	/* @v12.5.4 q = & Select_(
 		t->ObjID,    // #00
 		t->ObjName,  // #01
 		t->Symb,     // #02
 		dbe_user,    // #03
 		dbe_descr,   // #04
 		dbe_formula, // #05
-		0).from(t, 0).where(*dbq).orderBy(t->ObjType, t->ObjName, 0L);
+		0);*/
+	q->from(t, 0).where(*dbq).orderBy(t->ObjType, t->ObjName, 0L);
 	if(pSubTitle) {
 		*pSubTitle = 0;
 		if(Filt.UserID) {
@@ -940,11 +950,6 @@ DBQuery * PPViewBizScore::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				*pSubTitle = sec_rec.Name;
 		}
 	}
-	/*
-	CATCH
-		ZDELETE(q);
-	ENDCATCH
-	*/
 	ASSIGN_PTR(pBrwId, brw_id);
 	return q;
 }

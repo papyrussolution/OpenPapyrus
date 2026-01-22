@@ -1,5 +1,5 @@
 // DBSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2013, 2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2013, 2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -46,8 +46,8 @@ int FASTCALL DbThreadLocalArea::DbRegList::AddEntry(void * pTbl, void * pSupplem
 
 void DbThreadLocalArea::DbRegList::FreeEntry(int handle, void * pSupplementPtr)
 {
-	assert(handle > 0 && handle <= static_cast<int>(Tab.getCount()));
-	if(handle > 0 && handle <= static_cast<int>(Tab.getCount())) {
+	assert(handle > 0 && handle <= Tab.getCountI());
+	if(handle > 0 && handle <= Tab.getCountI()) {
 		OpenCount--;
 		Tab.at(handle-1) = 0;
 		if(pSupplementPtr) {
@@ -69,8 +69,8 @@ void * FASTCALL DbThreadLocalArea::DbRegList::GetBySupplementPtr(const void * pS
 {
 	uint   ht_val = 0;
 	if(Ht.Search(pSupplementPtr, &ht_val, 0)) {
-		assert(ht_val > 0 && ht_val <= static_cast<int>(Tab.getCount()));
-		return (ht_val > 0 && ht_val <= static_cast<int>(Tab.getCount())) ? Tab.at(ht_val-1) : 0;
+		assert(ht_val > 0 && ht_val <= Tab.getCountI());
+		return (ht_val > 0 && ht_val <= Tab.getCountI()) ? Tab.at(ht_val-1) : 0;
 	}
 	else
 		return 0;

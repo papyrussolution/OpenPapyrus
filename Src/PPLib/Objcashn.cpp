@@ -578,7 +578,7 @@ StrAssocArray * PPObjCashNode::MakeStrAssocList(void * extraPtr)
 			symb.Cat(ctblN);
 		PPObjReference ctbl_obj(PPOBJ_CAFETABLE, 0);
 		PPID   ctbl_id = 0;
-		ReferenceTbl::Rec ctbl_rec;
+		Reference2Tbl::Rec ctbl_rec;
 		if(ctbl_obj.SearchBySymb(symb, &ctbl_id, &ctbl_rec) > 0) {
 			rBuf = ctbl_rec.ObjName;
 			ok = 1;
@@ -643,7 +643,7 @@ int  PPObjCashNode::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCon
 			}
 		}
 		else {
-			THROW(Serialize_(+1, static_cast<ReferenceTbl::Rec *>(p->Data), stream, pCtx));
+			THROW(Serialize_(+1, static_cast<Reference2Tbl::Rec *>(p->Data), stream, pCtx));
 		}
 	}
 	CATCHZOK
@@ -2411,8 +2411,8 @@ IMPL_HANDLE_EVENT(AsyncCashNodeDialog)
 				bill_filt.LocList.Add(P_Data->LocID);
 				PPViewBill bill_view;
 				if(bill_view.Init_(&bill_filt)) {
-					if(bill_view.Browse(0) > 0) {
-						PPID   bill_id = static_cast<const BillFilt *>(bill_view.GetBaseFilt())->Sel;
+					if(bill_view.Browse(false) > 0) {
+						const  PPID bill_id = static_cast<const BillFilt *>(bill_view.GetBaseFilt())->Sel;
 						BillTbl::Rec bill_rec;
 						if(bill_id && BillObj->Search(bill_id, &bill_rec) > 0) {
 							P_Data->CurRestBillID = bill_id;

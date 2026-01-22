@@ -199,7 +199,7 @@ void ScintillaBase::AutoCompleteStart(int lenEntered, const char * list)
 	if(ac.GetFlags() & ac.fChooseSingle && (listType == 0)) {
 		if(list && !sstrchr(list, ac.GetSeparator())) {
 			const char * typeSep = sstrchr(list, ac.GetTypesep());
-			int lenInsert = typeSep ? static_cast<int>(typeSep-list) : static_cast<int>(sstrlen(list));
+			int lenInsert = typeSep ? static_cast<int>(typeSep-list) : sstrleni(list);
 			if(ac.GetFlags() & ac.fIgnoreCase) {
 				// May need to convert the case before invocation, so remove lenEntered characters
 				AutoCompleteInsert(Sel.MainCaret() - lenEntered, lenEntered, list, lenInsert);

@@ -792,7 +792,7 @@ int PPObjGoodsBasket::SelectBasket(PPBasketCombine & rBasket)
 	rRez.getString(symb, 2);
 	THROW(r = Search(id));
 	if(r < 0) {
-		ReferenceTbl::Rec rec;
+		Reference2Tbl::Rec rec;
 		rec.ObjType = Obj;
 		rec.ObjID   = id;
 		STRNSCPY(rec.ObjName, name);
@@ -2374,7 +2374,7 @@ int PPObjBill::ConvertBasket(const PPBasketPacket & rBasket, PPBillPacket * pPac
 							const uint tc = inh_tag_list.GetCount();
 							if(tc) {
 								PPObjTag tag_obj;
-								PPObjectTag tag_rec;
+								PPObjectTag2 tag_rec;
 								ObjTagList new_lot_tag_list;
 								for(uint i_ = 0; i_ < tc; i_++) {
 									const ObjTagItem * p_tag = inh_tag_list.GetItemByPos(i_);

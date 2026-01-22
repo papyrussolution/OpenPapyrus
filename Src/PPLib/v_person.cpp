@@ -839,7 +839,7 @@ public:
 		SetClusterData(CTL_UPDPLIST_WHAT, Data.Action);
 		{
 			PPObjTag tag_obj;
-			PPObjectTag tag_rec;
+			PPObjectTag2 tag_rec;
 			DisableClusterItem(CTL_UPDPLIST_WHAT, 2, (tag_obj.Fetch(PPTAG_PERSON_UUID, &tag_rec) <= 0));
 		}
 		SetupControls(0);

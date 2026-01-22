@@ -1,5 +1,5 @@
 // V_ATURN.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025, 2026
 //
 #include <pp.h>
 #pragma hdrstop
@@ -90,8 +90,7 @@ AccturnFilt & FASTCALL AccturnFilt::operator = (const AccturnFilt & s)
 	return *this;
 }
 
-PPViewAccturn::PPViewAccturn() : PPView(0, &Filt, PPVIEW_ACCTURN, 0, 0),
-	P_BObj(BillObj), P_ATC(P_BObj->atobj->P_Tbl), P_TmpAGTbl(0), P_TmpBillTbl(0)
+PPViewAccturn::PPViewAccturn() : PPView(0, &Filt, PPVIEW_ACCTURN, 0, 0), P_BObj(BillObj), P_ATC(P_BObj->atobj->P_Tbl), P_TmpAGTbl(0), P_TmpBillTbl(0)
 {
 }
 
@@ -1026,7 +1025,7 @@ int PPViewAccturn::RemoveBillFromList(PPID billID)
 	return (update > 0) ? ok : ((ok <= 0) ? ok : -1);
 }
 
-/*virtual*/int PPViewAccturn::Browse(int modeless)
+/*virtual*/int PPViewAccturn::Browse(bool modeless)
 {
 	return (P_BObj->atobj->CheckRights(PPR_READ)) ? PPView::Browse(modeless) : 0;
 }

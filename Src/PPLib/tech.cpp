@@ -1,5 +1,5 @@
 // TECH.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1899,7 +1899,7 @@ DBQuery * PPViewTech::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	const uint   brw_id = (Filt.Kind == TECK_TOOLING) ? BROWSER_TECHTOOLING : BROWSER_TECH;
 	TechTbl * p_tect = 0;
-	ReferenceTbl * p_reft = 0;
+	Reference2Tbl * p_reft = 0;
 	DBQuery * q  = 0;
 	DBQ  * dbq = 0;
 	DBE    dbe_prc;
@@ -1908,7 +1908,7 @@ DBQuery * PPViewTech::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	DBE    dbe_parent;
 	DBE    dbe_capacity; // @v11.3.10
 	THROW(CheckTblPtr(p_tect = new TechTbl));
-	THROW(CheckTblPtr(p_reft = new ReferenceTbl));
+	THROW(CheckTblPtr(p_reft = new Reference2Tbl));
 	PPDbqFuncPool::InitObjNameFunc(dbe_prc, PPDbqFuncPool::IdObjNamePrc, p_tect->PrcID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_goods, PPDbqFuncPool::IdObjNameGoods, p_tect->GoodsID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_prev_goods, PPDbqFuncPool::IdObjNameGoods, p_tect->PrevGoodsID);

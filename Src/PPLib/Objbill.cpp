@@ -1,5 +1,5 @@
 // OBJBILL.CPP
-// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -251,7 +251,7 @@ int PPObjBill::PutGuid(PPID id, const S_GUID * pUuid, int use_ta)
 	ObjTagItem tag;
 	BillTbl::Rec _rec;
 	PPObjTag tag_obj;
-	PPObjectTag tag_rec;
+	PPObjectTag2 tag_rec;
 	THROW_PP(tag_obj.Fetch(tag_id, &tag_rec) > 0, abs_err_msg_id);
 	if(!S_GUID::IsEmpty(pUuid)) {
 		THROW(Search(id, &_rec) > 0);
@@ -3051,10 +3051,31 @@ int PPObjBill::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				break;
 			case PPOBJ_GOODSTAX:
 				{
-					BExtQuery q(&trfr->Rcpt, 0);
-					q.select(trfr->Rcpt.ID, 0L).where(trfr->Rcpt.InTaxGrpID == _id);
-					if(q.fetchFirst(&(k = 0), spGt) > 0)
-						ok = RetRefsExistsErr(PPOBJ_LOT, trfr->Rcpt.data.ID);
+					// @v12.5.3 {
+					SysJournal * p_sj = DS.GetTLA().P_SysJ;
+					LDATE   start_date = ZERODATE;
+					SysJournalTbl::Rec cr_sj_rec;
+					if(p_sj && p_sj->GetObjCreationEvent(_obj, _id, &cr_sj_rec) > 0 && checkdate(cr_sj_rec.Dt)) {
+						ReceiptTbl::Key1 k1;
+						MEMSZERO(k1);
+						k1.Dt = cr_sj_rec.Dt;
+						BExtQuery q(&trfr->Rcpt, 1, 1/*bufSize in records*/);
+						q.select(trfr->Rcpt.ID, 0L).where(trfr->Rcpt.Dt >= cr_sj_rec.Dt && trfr->Rcpt.InTaxGrpID == _id);
+						if(q.fetchFirst(&k1, spGe) > 0) {
+							assert(trfr->Rcpt.data.InTaxGrpID == _id); // @paranoic
+							if(trfr->Rcpt.data.InTaxGrpID == _id) { // @paranoic
+								ok = RetRefsExistsErr(PPOBJ_LOT, trfr->Rcpt.data.ID);
+							}
+						}
+					}
+					else 
+					// } @v12.5.3 
+					{
+						BExtQuery q(&trfr->Rcpt, 0, 1/*bufSize in records*/);
+						q.select(trfr->Rcpt.ID, 0L).where(trfr->Rcpt.InTaxGrpID == _id);
+						if(q.fetchFirst(&(k = 0), spGt) > 0)
+							ok = RetRefsExistsErr(PPOBJ_LOT, trfr->Rcpt.data.ID);
+					}
 				}
 				break;
 			case PPOBJ_OPRKIND:
@@ -9912,7 +9933,7 @@ int PPObjBill::__TurnPacket(PPBillPacket * pPack, PPIDArray * pList, int skipEmp
 								p += (next+1);
 								const char * p2 = p;
 								PPObjTag tag_obj;
-								PPObjectTag tag_rec;
+								PPObjectTag2 tag_rec;
 								for(size_t tsp = 0; !ext_id && (tsp+1) < SIZEOFARRAY(tag_symb) && *p2;) {
 									tag_symb[tsp++] = *p2++;
 									tag_symb[tsp] = 0;
@@ -10134,7 +10155,7 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 								p += (next+1);
 								const char * p2 = p;
 								PPObjTag tag_obj;
-								PPObjectTag tag_rec;
+								PPObjectTag2 tag_rec;
 								for(size_t tsp = 0; !ext_id && (tsp+1) < SIZEOFARRAY(tag_symb) && *p2;) {
 									tag_symb[tsp++] = *p2++;
 									tag_symb[tsp] = 0;
@@ -10747,7 +10768,7 @@ int PPObjBill::ConvertUuid7601()
 {
 	int    ok = 1;
 	PPObjTag tag_obj;
-	PPObjectTag tag_rec;
+	PPObjectTag2 tag_rec;
 	THROW_PP(tag_obj.Fetch(PPTAG_BILL_UUID, &tag_rec) > 0, PPERR_BILLTAGUUIDABS);
 	{
 		Reference * p_ref(PPRef);

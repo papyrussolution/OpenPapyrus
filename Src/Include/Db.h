@@ -1503,6 +1503,7 @@ public:
 	//SSqlStmt(DbProvider * pDb, const char * pText);
 	static bool IsConsistent(const SSqlStmt * pThis) { return (pThis && pThis->Signature == SlConst::SSqlStmtSignature); }
 	SSqlStmt(DbProvider * pDb, const Generator_SQL & rSql);
+	SSqlStmt(DbProvider * pDb, void * pExternalConnection, const Generator_SQL & rSql);
 	SSqlStmt(DbProvider * pDb);
 	~SSqlStmt();
 	int    SetSqlText(const char * pText);
@@ -1581,6 +1582,9 @@ public:
 		uint32 FslPos;     // Позиция индикатора длины результата
 		TYPEID Typ;        // Внутренний тип данных
 	};
+
+	bool   SetExternalConnection(void * pConn); // @v12.5.4
+	void * GetExternalConnection(); // @v12.5.4
 private:
 	enum {
 		fError      = 0x0001,
@@ -1607,7 +1611,7 @@ private:
 	DbProvider * P_Db;
 	void * H;
 	void * P_Result;
-	// @construction DbProvider::Connection Conn; // @v12.5.3 Если запрос должен быть ассоциирован с отдельным соединением, то вот он это соединение.
+	void * P_ExternalConnection; // @v12.5.4 Если запрос должен быть ассоциирован с отдельным соединением, то это - указатель на специфичную для провайдера структуру соединения.
 	long   Flags;
 	int    Typ; // @v12.3.12 Generator_SQL::typXXX
 	BindArray BL;
@@ -1901,12 +1905,12 @@ public:
 public:
 	//
 	struct SelectStmt : public SSqlStmt {
-		SelectStmt(DbProvider * pDb, DBTable * pTbl, const Generator_SQL & rSql, int idx, int sp, int sf);
+		SelectStmt(DbProvider * pDb, void * pExternalConnection, DBTable * pTbl, const Generator_SQL & rSql, int idx, int sp, int sf);
 		//
 		// Descr: В случае использования этого конструктора sql-оператор должен быть присвоен ему позже
 		//   функцией SSqlStmt::SetSqlText
 		//
-		SelectStmt(DbProvider * pDb, DBTable * pTbl, int idx, int sp, int sf);
+		// @v12.5.4 SelectStmt(DbProvider * pDb, DBTable * pTbl, int idx, int sp, int sf);
 		DBTable * GetOwnerTblRef() { return P_OwnerTbl; }
 		int    Idx;
 		int    Sp;
@@ -2242,9 +2246,16 @@ public:
 	struct Connection { // @v12.5.3
 		Connection();
 		Connection(const Connection & rS);
+		~Connection();
+		bool   IsConsistent() const;
 		Connection & FASTCALL operator = (const Connection & rS);
 		Connection & Z();
-		const  bool operator !() const { return (H == 0); }
+		bool   FASTCALL operator == (const Connection & rS) const { return H == rS.H; }
+		bool   operator !() const { return (H == 0); }
+		void * GetH() { return H; }
+		void   SetH(void * pH) { H = pH; }
+	private:
+		uint64 Signature;
 		void * H;
 	};
 	virtual ~DbProvider();
@@ -3028,26 +3039,45 @@ public:
 	int    CreateDatabase(const char * pDbName); // @v12.4.8
 	int    DropDatabase(const char * pDbName); // @v12.4.8
 	int    UseDatabase(const char * pDbName); // @v12.4.8
+	
+	struct ConnectionEntry {
+		ConnectionEntry();
+		~ConnectionEntry();
+		ConnectionEntry & Z();
+		operator Connection & () { return Conn; }
+		bool   IsConsistent() const
+		{
+			return (Conn.IsConsistent() && ((State & ~stBusy) == 0 && (!P_LastSelectStmt || DBTable::SelectStmt::IsConsistent(P_LastSelectStmt))));
+		}
+		int    DestroyLastSelectStatement();
+		enum {
+			stBusy = 0x0001
+		};
+		Connection Conn;
+		uint   State;
+		DBTable::SelectStmt * P_LastSelectStmt; // @v12.5.4 последний select-запрос. В случае с mysql эта ссылка необходима из-за
+			// того, что, если последний select-оператор не был отработан до конца или удален, то следующий оператор (например,
+			// по другой таблице) выполнить не удастся (error: Commands out of sync; you can't run this command now).
+	};
 	//
 	// Descr: Пытается получить свободное соединение из пула. Если нет там такого, то создает новое соедение, 
 	//   включает его в пул и возвращает в виде результата.
 	// Note: @reallyprivate (public only for the testing purpose)
 	//
-	Connection GetConnection(); // @v12.5.3
+	bool   GetConnection(ConnectionEntry & rConnEntry); // @v12.5.3
 	//
 	// Descr: Освобождает соединение с сервером rConn.
 	//   Если это соединение находится в пуле, то физически оно не разрушается и лишь становится доступным
 	//   для последующего использования. Если соединения нет в пуле, то оно разрушается полностью.
 	// Note: @reallyprivate (public only for the testing purpose)
 	//
-	int    ReleaseConnection(Connection & rConn); // @v12.5.3
+	int    ReleaseConnection(ConnectionEntry & rConnEntry); // @v12.5.3
 private:
 	//
 	// 
 	//
 	static constexpr int PrimaryAutoincFldId = 10000;
 	static constexpr int PrimaryAutoincIdxId = 10000;
-
 	struct OD {
 		OD() : H(0), T(0)
 		{
@@ -3057,12 +3087,13 @@ private:
 		void * H;
 		uint32 T;
 	};
-	int    FASTCALL ProcessError(int status);
+	int    FASTCALL ProcessError(Connection & rConn, int status);
 	static  MYSQL_STMT * FASTCALL StmtHandle(const SSqlStmt & rS);
 	virtual int PostProcess_LoadTableSpec(DBTable * pTbl); // @v12.4.8
 	int    ProcessBinding_SimpleType(int action, uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind, uint ntvType);
-	Connection Helper_Connect(const DbLoginBlock * pBlk, SString * pDbName); // @v12.5.3
+	bool   Helper_Connect(const DbLoginBlock * pBlk, SString * pDbName, ConnectionEntry & rConnEntry); // @v12.5.3
 	int    Helper_CloseConnection(Connection & rConn); // @v12.5.3
+	ConnectionEntry * SearchConnectionByH(void * pH);
 	enum {
 		descrMYSQLTIME = 1
 	};
@@ -3073,8 +3104,13 @@ private:
 	int    Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, uint * pActual);
 	int    GetFileStat(const char * pFileName, long reqItems, DbTableStat * pStat);
 	const  BNField * GetRowIdField(const DBTable * pTbl, uint * pFldPos) const; // @v12.4.11
-	int    DestroyLastSelectStatement();
 
+	struct TransactionBlock {
+		TransactionBlock(SMySqlDbProvider * pPrvdr);
+		~TransactionBlock();
+		ConnectionEntry Conn;
+		SMySqlDbProvider * P_Prvdr; // @notowned
+	};
 	struct SearchQueryBlock { // Один-в-один скопировано из SSqliteDbProvider
 		SearchQueryBlock();
 		SearchQueryBlock & Z();
@@ -3095,27 +3131,17 @@ private:
 	};
 
 	int    Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf, SearchQueryBlock & rBlk);
+	ConnectionEntry & GetWorkingConnection(SSqlStmt * pStmt, bool continuousSelection);
 
 	long   Flags;
-	Connection Conn;
+	ConnectionEntry MainConn;
 	SString CurrentDatabase;
 	Generator_SQL SqlGen;
-	DBTable::SelectStmt * P_LastSelectStmt; // @v12.5.2 последний select-запрос. В случае с mysql эта ссылка необходима из-за
+	TransactionBlock * P_TraBlk; // @v12.5.4
+	// @v12.5.4 (moved to ConnectionEntry) DBTable::SelectStmt * P_LastSelectStmt; // @v12.5.2 последний select-запрос. В случае с mysql эта ссылка необходима из-за
 		// того, что, если последний select-оператор не был отработан до конца или удален, то следующий оператор (например,
 		// по другой таблице) выполнить не удастся (error: Commands out of sync; you can't run this command now).
-
-	struct ConnPoolEntry {
-		ConnPoolEntry() : State(0)
-		{
-		}
-		enum {
-			stBusy = 0x0001
-		};
-		Connection Conn;
-		uint   State;
-	};
-
-	TSVector <ConnPoolEntry> ConnPool; // @v12.5.3 Пул соединений. Придется для select-операций и транзакций использовать специальные соединения.
+	TSVector <ConnectionEntry> ConnPool; // @v12.5.3 Пул соединений. Придется для select-операций и транзакций использовать специальные соединения.
 };
 //
 // Descr: Провайдер для SQLite

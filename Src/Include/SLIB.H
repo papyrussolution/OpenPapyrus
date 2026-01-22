@@ -154,6 +154,7 @@
 		#include <AccCtrl.h>  // @v12.5.3
 		#include <psapi.h>    // @v12.5.3
 		#include <Lm.h>       // @v12.5.3
+		#include <ipexport.h> // @V12.5.4
 	#endif
 	// } @v11.7.0 
 	#define _Windows
@@ -1465,6 +1466,7 @@ public:
 	static constexpr uint32 SLobSignature[4] = { 0x2efc, 0xd421, 0x426c, 0xee07 }; // @v12.2.3 Сигнатура объекта SLob, означающая, что буфер структурирован.
 	static constexpr uint32 SSqlStmtSignature = 0x3597B6D4; // @v12.5.2 Сигнатура объекта SSqlStmt
 	static constexpr uint32 DBTableSignature  = 0x6E805ED7; // @v12.5.2 Сигнатура объекта DBTable
+	static constexpr uint64 DBConnSignature   = 0xDE4F9DF4FE840FDEULL; // @v12.5.4 Сигнатура объекта DbProvider::Connection
 };
 // @v11.7.4 extern const SlConstParam _SlConst_Removed;
 //
@@ -7853,7 +7855,6 @@ int    FASTCALL SCalcBarcodeCheckDigitL(const char * pBarcode, size_t len);
 
 void IdeaEncrypt(const char * password, void * buf, size_t len);
 void IdeaDecrypt(const char * password, void * buf, size_t len);
-// @v11.1.1 (replaced with SObfuscateBuffer()) void FASTCALL IdeaRandMem(void * buf, size_t len);
 //
 // Math
 //

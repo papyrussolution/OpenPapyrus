@@ -3233,7 +3233,7 @@ int PPDS_CrrObjTag::TransferField(long fldID, Tfd dir, uint * pIter, SString & r
 			{
 				SString buf;
 				if(dir ==  tfdDataToBuf) {
-					PPObjectTag tag_rec;
+					PPObjectTag2 tag_rec;
 					if(Data.Rec.TagGroupID && Obj.Search(Data.Rec.TagGroupID, &tag_rec) > 0)
 						buf = tag_rec.Name;
 				}

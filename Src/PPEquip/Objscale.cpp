@@ -4,7 +4,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <ipexport.h>
+// @v12.5.4 (movedto slib.h) #include <ipexport.h>
 #include <charry.h>
 //
 //

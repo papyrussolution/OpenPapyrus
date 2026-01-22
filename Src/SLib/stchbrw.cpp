@@ -264,18 +264,7 @@ int FASTCALL STimeChunkBrowser::InvalidateChunk(long chunkId)
 	STimeChunkBrowser * p_view = 0;
 	switch(message) {
 		case WM_CREATE:
-			p_view = static_cast<STimeChunkBrowser *>(Helper_InitCreation(lParam, (void **)&p_init_data)); // @v10.9.11
-			/* @v10.9.11 p_init_data = reinterpret_cast<CREATESTRUCT *>(lParam);
-			if(TWindow::IsMDIClientWindow(p_init_data->hwndParent)) {
-				p_view = reinterpret_cast<STimeChunkBrowser *>(static_cast<LPMDICREATESTRUCT>(p_init_data->lpCreateParams)->lParam);
-				if(p_view)
-					p_view->BbState |= bbsIsMDI;
-			}
-			else {
-				p_view = static_cast<STimeChunkBrowser *>(p_init_data->lpCreateParams);
-				if(p_view)
-					p_view->BbState &= ~bbsIsMDI;
-			}*/
+			p_view = static_cast<STimeChunkBrowser *>(Helper_InitCreation(lParam, (void **)&p_init_data));
 			if(p_view) {
 				p_view->HW = hWnd;
 				TView::SetWindowProp(hWnd, GWLP_USERDATA, p_view);

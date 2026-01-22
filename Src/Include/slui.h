@@ -160,7 +160,7 @@ struct HelpEvent {
 	int    ContextType; // ctxtXXX
 	int    CtlId;
 	void * H_Item;
-	uint32 ContextId; // @todo @20251130 -->uint64
+	uint64 ContextId; // @todo @20251130 -->uint64 // @v12.5.4 uint32-->uint64
 	SPoint2S Mouse;
 };
 //
@@ -1751,20 +1751,20 @@ public:
 
 	int    CreateHPen(int style, float width, SColor c);
 	int    CreateHBrush(int style, SColor c, int32 hatch);
-	int    CreatePen(int style, float width, SColor c);
+	int    CreatePen_(int style, float width, SColor c);
 	//
 	// Descr: Формирует объект типа tPen.
 	//   Предыдущее содержимое объекта разрушается.
 	//   Если pPen == 0, то просто разрушает объект.
 	//
-	int    CreatePen(const Pen * pPen);
-	int    CreateBrush(int style, SColor c, int32 hatch);
+	int    CreatePen_(const Pen * pPen);
+	int    CreateBrush_(int style, SColor c, int32 hatch);
 	//
 	// Descr: Формирует объект типа tBrush.
 	//   Предыдущее содержимое объекта разрушается.
 	//   Если pBrush == 0, то просто разрушает объект.
 	//
-	int    CreateBrush(const Brush * pBrush);
+	int    CreateBrush_(const Brush * pBrush);
 	int    CreateFont_(const char * pFace, int height, int flags);
 	int    CreateGradient(const Gradient * pGradient);
 	int    CreateGradientLinear(const FRect & rBound);
@@ -1777,7 +1777,7 @@ public:
 	int    SetFont(HFONT);
 	int    CreateCursor(uint cursorId);
 	int    FASTCALL CreateInnerHandle(const SDrawContext & rCtx);
-	int    FASTCALL DestroyInnerHandle();
+	int    DestroyInnerHandle();
 private:
 	//
 	// Descr: После вызова этой функции экземпляр теряет право владения сложными
@@ -1819,7 +1819,17 @@ public:
 		rbr3DLight,
 		rbr3DFace,
 		rbr3DShadow,
-		rbr3DHilight
+		rbr3DHilight,
+		// Следующие 3 пера экспериментальные: введены для отрисовки красивой рамки в стиле Excel
+		rpenFrameExcOuter,  // @v12.5.4
+		rpenFrameExcMiddle, // @v12.5.4
+		rpenFrameExcInner,  // @v12.5.4
+
+		rpenFrameExc01,  // @v12.5.4
+		rpenFrameExc02,  // @v12.5.4
+		rpenFrameExc03,  // @v12.5.4
+		rpenFrameExc04,  // @v12.5.4
+		rpenFrameExc05,  // @v12.5.4
 	};
 
 	SPaintToolBox();
@@ -1892,8 +1902,8 @@ public:
 	int    SetFont(int ident, HFONT);
 	int    CreateCursor(int ident, uint cursorId);
 	int    CreateColor(int ident, SColor c);
-	int    CreatePen(int ident, int style, float width, SColor c);
-	int    CreateBrush(int ident, int style, SColor c, int32 hatch, int patternId = 0);
+	int    CreatePen_(int ident, int style, float width, SColor c);
+	int    CreateBrush_(int ident, int style, SColor c, int32 hatch, int patternId = 0);
 	int    CreateFont_(int ident, const char * pFace, int height, int flags);
 	int    CreateFont_(int ident, const SFontDescr & rFd); // @v12.2.6
 	//
@@ -2201,8 +2211,12 @@ public:
 	void   Rect(const TRect & rRect, int penIdent, int brushIdent);
 	void   Rect(const FRect & rRect, int penIdent, int brushIdent);
 	void   RoundRect(const FRect &, float radius, int penIdent, int brushIdent);
-	// @construction int    RoundRect(const TRect & rRect, int penIdent, int brushIdent);
+	void   RoundRect(const TRect & rRect, int radius, int penIdent, int brushIdent); // @v12.5.4
 	int    PatBlt(const TRect & rR, int brushId, int opr);
+	//
+	// Descr: Тоже, что и PatBlt, но у прямоугольника углы скругляются с радиусом radius
+	//
+	int    PatBltRound(const TRect & rR, int radius, int brushId, int opr);
 	int    FASTCALL SetBkColor(COLORREF);
 	int    FASTCALL SetTextColor(COLORREF);
 	void   SetBkTranparent();
@@ -2230,7 +2244,9 @@ public:
 		edgeRaised      = edgeRaisedOuter|edgeRaisedInner,
 		edgeSunken      = edgeSunkenOuter|edgeSunkenInner,
 		edgeOuter       = edgeRaisedOuter|edgeSunkenOuter,
-		edgeInner       = edgeRaisedInner|edgeSunkenInner
+		edgeInner       = edgeRaisedInner|edgeSunkenInner,
+
+		edgeExcel01     = 0x0010, // @v12.5.4 @experimental fulltype
 	};
 	enum {
 		borderLeft     = 0x0001,
@@ -2473,6 +2489,7 @@ public:
 	//
 	static int64 CreateCorrespondingNativeItem(TView * pV);
 	static bool  FASTCALL IsSubSign(const TView * pV, uint sign) { return (pV && pV->SubSign == sign); }
+	static void __stdcall SetupLayoutItemFrameProc(SUiLayout * pItem, const SUiLayout::Result & rR);
 
 	enum phaseType {
 		phFocused,
@@ -3025,6 +3042,11 @@ public:
 	int    AddChildWithLayout(TWindowBase * pChildWindow, long createOptions, SUiLayout * pLayout);
 protected:
 	static void Helper_Finalize(HWND hWnd, TBaseBrowserWindow * pView);
+	//
+	// Descr: Вызывается в ответ на windows-сообщение WM_CREATE. Выделена в отдельную функцию
+	//   для использования порожденными классами.
+	//
+	static int OnCreate(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	TWindowBase(const wchar_t * pWndClsName, long wbCapability);
 	DECL_HANDLE_EVENT;
 	void   SetDefaultCursor();
@@ -4009,7 +4031,7 @@ public:
 	int    GetStatistics(Statistics * pStat) const;
 	ComboBox * GetCombo();
 
-	static LPCTSTR WndClsName;
+	static const wchar_t * WndClsName;
 protected:
 	DECL_HANDLE_EVENT;
 	int    Implement_GetText();
@@ -5375,8 +5397,7 @@ protected:
 	//   Если переданный указатель pT == 0, то метод должен просто сообщить
 	//   в возвращаемом значение о своей способности реализовать действие.
 	//
-	// @v11.9.2 virtual int  LoadVectorTools(TWhatmanToolArray * pT);
-	virtual const TWhatmanToolArray * GetVectorTools() const; // @v11.9.2 
+	virtual const TWhatmanToolArray * GetVectorTools() const;
 	
 	TStatusWin * P_Stw;
 	SString AppSymbol;
@@ -5775,14 +5796,14 @@ public:
 	//   в модальном режиме.
 	//   Внимание: в случае, если окно было запущено в модальном режиме, после завершения //
 	//   функции оно окажется разрушенным, то есть указатель this теряет свою актуальность.
+	// ARG(pParent IN): Родительский элемент, в который инкапсулируется this. Если pParent == 0, то 
+	//   окно this вставляется в инфраструктуру TProgram::P_DeskTop.
 	// Returns:
-	//   <0 - окно было загружено в НЕМОДАЛЬНОМ режиме и осталось на экране
-	//        после выхода из функции.
-	//   >0 - окно было загружено в МОДАЛЬНОМ режиме. Этим значением возвращается //
-	//        команда, по которой был завершен модальный цикл.
+	//   <0 - окно было загружено в НЕМОДАЛЬНОМ режиме и осталось на экране после выхода из функции.
+	//   >0 - окно было загружено в МОДАЛЬНОМ режиме. Этим значением возвращается команда, по которой был завершен модальный цикл.
 	//   0  - error.
 	//
-	int    Insert();
+	int    Launch_(TWindow * pParent);
 	uint   GetResID() const;
 	void   SetResID(uint res);
 
@@ -5802,7 +5823,8 @@ protected:
 		bbsDataOwner    = 0x00000002, // Объект владеет переданными из-вне данными.
 		bbsWoScrollbars = 0x00000004,
 		bbsCancel       = 0x00000008, // Какой-то из виртуальных методов порожденного класса потребовал прекратить выполнение
-		// Начиная с 0x00010000 флаги зарезервированы за наследующими классами
+		bbsInner        = 0x00000010, // @v12.5.4 Окно встраивается внутрь другого прикладного окна. В противном случае, окно встроено в главное окно.
+		//      Начиная с 0x00010000 флаги зарезервированы за наследующими классами
 	};
 	const  SStringU ClsName; // Window class name
 	uint   ResourceID;

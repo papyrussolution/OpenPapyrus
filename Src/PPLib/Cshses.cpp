@@ -2179,7 +2179,7 @@ int AsyncCashGoodsIterator::Init(long flags)
 	}
 	if(Flags & ACGIF_ENSUREUUID) {
 		PPObjTag tag_obj;
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		if(tag_obj.Fetch(PPTAG_GOODS_UUID, &tag_rec) > 0) {
 			; // ok
 		}

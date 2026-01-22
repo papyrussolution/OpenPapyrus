@@ -2140,7 +2140,7 @@ int PPViewTrfrAnlz::GetExtFactorTitle(SString & rTitle) const
 	if(Filt.ExtFactorAddendum[0]) {
 		if(oneof2(Filt.ExtFactorParam[0], TrfrAnlzFilt::extfPersonTag, TrfrAnlzFilt::extfLocTag)) {
 			PPObjTag tag_obj;
-			PPObjectTag tag_rec;
+			PPObjectTag2 tag_rec;
 			if(tag_obj.Fetch(Filt.ExtFactorAddendum[0], &tag_rec) > 0) {
 				rTitle = tag_rec.Name;
 				ok = 1;

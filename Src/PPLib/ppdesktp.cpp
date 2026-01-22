@@ -2634,6 +2634,7 @@ private:
 	static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	int    WMHCreate();
 	void   InitLayout();
+	int    InsertWorkWindow(int ppviewId); // @debug
 
 	DECL_HANDLE_EVENT;
 };
@@ -2642,19 +2643,9 @@ void TFacadeWindow::InitLayout()
 {
 	if(true) {
 		SUiLayout * p_lo_main = new SUiLayout();
-		SUiLayoutParam alb(DIREC_UNKN, 0, SUiLayoutParam::alignStretch);
+		SUiLayoutParam alb;
 		p_lo_main->SetLayoutBlock(alb);
 		p_lo_main->SetCallbacks(0, TWindowBase::SetupLayoutItemFrame, this);
-		{
-			SUiLayoutParam alb_top(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
-			alb_top.GravityX = SIDE_CENTER;
-			alb_top.GravityY = SIDE_TOP;
-			alb_top.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-			alb_top.SetFixedSizeY(128.0f);
-			SUiLayout * p_lo = new SUiLayout(alb_top);
-			p_lo->SetSymb("Facade_Top");
-			p_lo_main->Insert(p_lo);
-		}
 		{
 			SUiLayoutParam alb_left(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
 			alb_left.GravityX = SIDE_LEFT;
@@ -2663,6 +2654,28 @@ void TFacadeWindow::InitLayout()
 			alb_left.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 			SUiLayout * p_lo = new SUiLayout(alb_left);
 			p_lo->SetSymb("Facade_Left");
+			p_lo_main->Insert(p_lo);
+		}
+		{
+			SUiLayoutParam alb_ul(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
+			alb_ul.GravityX = SIDE_LEFT;
+			alb_ul.GravityY = SIDE_TOP;
+			alb_ul.SetFixedSizeX(128.0f);
+			alb_ul.SetFixedSizeY(64.0f);
+			SUiLayout * p_lo = new SUiLayout(alb_ul);
+			p_lo->SetSymb("Facade_UpperLeft");
+			p_lo_main->Insert(p_lo);
+		}
+		{
+			SUiLayoutParam alb_top(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
+			alb_top.GravityX = SIDE_CENTER;
+			alb_top.GravityY = SIDE_TOP;
+			alb_top.JustifyContent = SUiLayoutParam::alignCenter;
+			alb_top.AlignItems = SUiLayoutParam::alignCenter;
+			alb_top.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+			alb_top.SetFixedSizeY(64.0f);
+			SUiLayout * p_lo = new SUiLayout(alb_top);
+			p_lo->SetSymb("Facade_Top");
 			p_lo_main->Insert(p_lo);
 		}
 		{
@@ -2679,6 +2692,49 @@ void TFacadeWindow::InitLayout()
 	}
 }
 
+int TFacadeWindow::InsertWorkWindow(int ppviewId) // @debug
+{
+	int    ok = -1;
+	SUiLayout * p_lo = P_Lfc->FindBySymb("Facade_Center");
+	if(p_lo) {
+		TBaseBrowserWindow * p_brw = 0;
+		if(ppviewId) {
+			PPView * p_view = 0;
+			if(PPView::Execute(ppviewId, 0/*pFilt*/, PPView::exefModeless|PPView::exefDontLaunchWindow, &p_view, 0)) { // @v12.5.4
+				SUiLayoutParam alb_;
+				alb_.GrowFactor = 1.0;
+				alb_.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+				alb_.SetMargin(8.0f);
+				//p_view->Browse(true/*modeless*/);
+				p_view->BrowseInLayout(this, "Facade_Center", alb_, 10002); // @v12.5.4
+			}
+		}
+		else {
+			SString file_path;
+			p_brw = new STextBrowser(file_path, /*pLexerSymb*/0, /*toolbarId*/0);
+		}
+		if(p_brw) {
+			InsertCtlWithCorrespondingNativeItem(p_brw, 10001, 0, /*extraPtr*/0);
+			{
+				SUiLayoutParam alb_;
+				//alb_.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+				alb_.GrowFactor = 1.0;
+				alb_.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+				alb_.SetMargin(8.0f);
+				{
+					SUiLayout * p_result = 0;
+					p_result = p_lo->InsertItem(p_brw, &alb_);
+					if(p_result) {
+						p_result->SetCallbacks(0, TView::SetupLayoutItemFrameProc, p_brw);
+						p_brw->Launch_(this);
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int TFacadeWindow::WMHCreate()
 {
 	const TRect _def_rect(0, 0, 10, 10);
@@ -2687,16 +2743,55 @@ int TFacadeWindow::WMHCreate()
 		{
 			SUiLayout * p_lo = P_Lfc->FindBySymb("Facade_Top");
 			if(p_lo) {
-				TInputLine * p_il = new TInputLine(_def_rect, 0/*spcFlags*/, MKSTYPE(S_ZSTRING, 1024), MKSFMT(1024, 0));
-				InsertCtlWithCorrespondingNativeItem(p_il, CTL_FACADEWINDOW_MAININPUT, 0, /*extraPtr*/0);
 				{
-					SUiLayoutParam alb_;
-					alb_.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-					alb_.SetFixedSizeY(1.0f);
-					alb_.SetMargin(8.0f);
+					TInputLine * p_il = new TInputLine(_def_rect, 0/*spcFlags*/, MKSTYPE(S_ZSTRING, 1024), MKSFMT(1024, 0));
+					InsertCtlWithCorrespondingNativeItem(p_il, CTL_FACADEWINDOW_MAININPUT, 0, /*extraPtr*/0);
+					{
+						SUiLayoutParam alb_;
+						alb_.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+						alb_.SetFixedSizeY(SlConst::UiFixedInputY);
+						alb_.SetMargin(FRect(8.0f, 8.0f, 8.0f, 2.0f));
+						{
+							//
+							// Если pView == 0, то мы вставляем лейаут без привязки к конкретному control'у. Обычно это
+							// делается для вспомогательных разметочных лейаутов-контейнеров
+							//
+							SUiLayout * p_result = 0;
+							p_result = p_lo->InsertItem(p_il, &alb_);
+							if(p_result && p_il) {
+								p_result->SetCallbacks(0, TView::SetupLayoutItemFrameProc, p_il);
+								p_il->handleWindowsMessage(WM_INITDIALOG, 0, 0);
+							}
+						}
+					}
 				}
+				if(1) {
+					TInputLine * p_il_info = new TInputLine(_def_rect, TInputLine::spcfReadOnly, MKSTYPE(S_ZSTRING, 1024), MKSFMT(1024, 0));
+					InsertCtlWithCorrespondingNativeItem(p_il_info, CTL_FACADEWINDOW_MAININPUT+1, 0, /*extraPtr*/0);
+					{
+						SUiLayoutParam alb_;
+						alb_.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+						alb_.SetFixedSizeY(SlConst::UiFixedInputY);
+						alb_.SetMargin(FRect(8.0f, 2.0f, 8.0f, 8.0f));
+						{
+							//
+							// Если pView == 0, то мы вставляем лейаут без привязки к конкретному control'у. Обычно это
+							// делается для вспомогательных разметочных лейаутов-контейнеров
+							//
+							SUiLayout * p_result = 0;
+							p_result = p_lo->InsertItem(p_il_info, &alb_);
+							if(p_result && p_il_info) {
+								p_result->SetCallbacks(0, TView::SetupLayoutItemFrameProc, p_il_info);
+								p_il_info->handleWindowsMessage(WM_INITDIALOG, 0, 0);
+							}
+						}
+					}
+				}
+				//
+				//InsertWorkWindow(PPVIEW_GOODSREST);
 			}
 		}
+		InsertWorkWindow(0); // @debug
 	}
 	return 1;
 }
@@ -2709,23 +2804,27 @@ int TFacadeWindow::WMHCreate()
 	TFacadeWindow * p_view = 0;
 	switch(message) {
 		case WM_CREATE:
-			p_view = static_cast<TFacadeWindow *>(Helper_InitCreation(lParam, (void **)&p_init_data));
-			if(p_view) {
-				p_view->HW = hWnd;
-				TView::SetWindowProp(hWnd, GWLP_USERDATA, p_view);
-				::SetFocus(hWnd);
-				::SendMessageW(hWnd, WM_NCACTIVATE, TRUE, 0L);
-				p_view->WMHCreate();
-				::PostMessageW(hWnd, WM_PAINT, 0, 0);
-				{
-					SString temp_buf;
-					TView::SGetWindowText(hWnd, temp_buf);
-					APPL->AddItemToMenu(temp_buf, p_view);
+			{
+				int    ret = TWindowBase::OnCreate(hWnd, message, wParam, lParam);
+				if(ret == 0) {
+					p_view = static_cast<TFacadeWindow *>(Helper_InitCreation(lParam, (void **)&p_init_data));
+					assert(p_view); // Функция TWindowBase::OnCreate должна была это проверить 
+					if(p_view) {
+						//p_view->HW = hWnd;
+						//TView::SetWindowProp(hWnd, GWLP_USERDATA, p_view);
+						::SetFocus(hWnd);
+						::SendMessageW(hWnd, WM_NCACTIVATE, TRUE, 0L);
+						p_view->WMHCreate();
+						::PostMessageW(hWnd, WM_PAINT, 0, 0);
+						{
+							SString temp_buf;
+							TView::SGetWindowText(hWnd, temp_buf);
+							APPL->AddItemToMenu(temp_buf, p_view);
+						}
+					}
 				}
-				return 0;
+				return ret;
 			}
-			else
-				return -1;
 		case WM_COMMAND:
 			{
 				p_view = static_cast<TFacadeWindow *>(TView::GetWindowUserData(hWnd));
@@ -2754,6 +2853,9 @@ int TFacadeWindow::WMHCreate()
 				TWindowBase::Helper_Finalize(hWnd, p_view);
 			}
 			return 0;
+		case WM_DRAWITEM:
+			p_view = static_cast<TFacadeWindow *>(TView::GetWindowUserData(hWnd));
+			return p_view ? p_view->RedirectDrawItemMessage(message, wParam, lParam) : FALSE;
 		case WM_SETFOCUS:
 			if(!(TView::SGetWindowStyle(hWnd) & WS_CAPTION)) {
 				SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
@@ -2805,6 +2907,12 @@ int TFacadeWindow::WMHCreate()
 {
 	WNDCLASSEXW wc;
 	TBaseBrowserWindow::MakeDefaultWindowClassBlock(&wc, hInst);
+	{
+		const UiDescription * p_uid = SLS.GetUiDescription();
+		const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
+		SColor clr = UiDescription::GetColorR(p_uid, p_cs, "main_window_bg", SColor(0xEE, 0xEE, 0xEE));
+		wc.hbrBackground = ::CreateSolidBrush(static_cast<COLORREF>(clr));
+	}
 	wc.lpfnWndProc   = TFacadeWindow::WndProc;
 	wc.hIcon         = LoadIconW(hInst, MAKEINTRESOURCE(/*ICON_TIMEGRID*/172));
 	wc.lpszClassName = TFacadeWindow::WndClsName;

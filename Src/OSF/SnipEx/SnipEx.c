@@ -491,71 +491,71 @@ struct SnipExGlobals {
 				MIN(gCaptureSelectionRectangle.top, gCaptureSelectionRectangle.bottom), SRCCOPY);
 			if(gShouldAddDropShadow) {
 				MyOutputDebugStringW(L"[%s] Line %d: Adding shadow effect.\n", __FUNCTIONW__, __LINE__);
-				HPEN Pen0 = CreatePen(PS_SOLID, 1, RGB(128, 128, 128));
-				HPEN Pen1 = CreatePen(PS_SOLID, 1, RGB(159, 159, 159));
-				HPEN Pen2 = CreatePen(PS_SOLID, 1, RGB(172, 172, 172));
-				HPEN Pen3 = CreatePen(PS_SOLID, 1, RGB(192, 192, 192));
-				HPEN Pen4 = CreatePen(PS_SOLID, 1, RGB(215, 215, 215));
-				HPEN Pen5 = CreatePen(PS_SOLID, 1, RGB(234, 234, 234));
-				HPEN Pen6 = CreatePen(PS_SOLID, 1, RGB(245, 245, 245));
-				HPEN Pen7 = CreatePen(PS_SOLID, 1, RGB(250, 250, 250));
+				HPEN Pen0 = ::CreatePen(PS_SOLID, 1, RGB(128, 128, 128));
+				HPEN Pen1 = ::CreatePen(PS_SOLID, 1, RGB(159, 159, 159));
+				HPEN Pen2 = ::CreatePen(PS_SOLID, 1, RGB(172, 172, 172));
+				HPEN Pen3 = ::CreatePen(PS_SOLID, 1, RGB(192, 192, 192));
+				HPEN Pen4 = ::CreatePen(PS_SOLID, 1, RGB(215, 215, 215));
+				HPEN Pen5 = ::CreatePen(PS_SOLID, 1, RGB(234, 234, 234));
+				HPEN Pen6 = ::CreatePen(PS_SOLID, 1, RGB(245, 245, 245));
+				HPEN Pen7 = ::CreatePen(PS_SOLID, 1, RGB(250, 250, 250));
 				//
-				SelectObject(SnipDC, Pen0);
-				MoveToEx(SnipDC, 0, gCaptureHeight - 8, NULL);
-				LineTo(SnipDC, gCaptureWidth - 8, gCaptureHeight - 8);
-				LineTo(SnipDC, gCaptureWidth - 8, -1);
+				::SelectObject(SnipDC, Pen0);
+				::MoveToEx(SnipDC, 0, gCaptureHeight - 8, NULL);
+				::LineTo(SnipDC, gCaptureWidth - 8, gCaptureHeight - 8);
+				::LineTo(SnipDC, gCaptureWidth - 8, -1);
 				//
-				SelectObject(SnipDC, Pen1);
-				MoveToEx(SnipDC, 0, gCaptureHeight - 7, NULL);
-				LineTo(SnipDC, gCaptureWidth - 7, gCaptureHeight - 7);
-				LineTo(SnipDC, gCaptureWidth - 7, -1);
+				::SelectObject(SnipDC, Pen1);
+				::MoveToEx(SnipDC, 0, gCaptureHeight - 7, NULL);
+				::LineTo(SnipDC, gCaptureWidth - 7, gCaptureHeight - 7);
+				::LineTo(SnipDC, gCaptureWidth - 7, -1);
 				//
-				SelectObject(SnipDC, Pen2);
-				MoveToEx(SnipDC, 0, gCaptureHeight - 6, NULL);
-				LineTo(SnipDC, gCaptureWidth - 6, gCaptureHeight - 6);
-				LineTo(SnipDC, gCaptureWidth - 6, -1);
+				::SelectObject(SnipDC, Pen2);
+				::MoveToEx(SnipDC, 0, gCaptureHeight - 6, NULL);
+				::LineTo(SnipDC, gCaptureWidth - 6, gCaptureHeight - 6);
+				::LineTo(SnipDC, gCaptureWidth - 6, -1);
 				//
-				SelectObject(SnipDC, Pen3);
-				MoveToEx(SnipDC, 0, gCaptureHeight - 5, NULL);
-				LineTo(SnipDC, gCaptureWidth - 5, gCaptureHeight - 5);
-				LineTo(SnipDC, gCaptureWidth - 5, -1);
+				::SelectObject(SnipDC, Pen3);
+				::MoveToEx(SnipDC, 0, gCaptureHeight - 5, NULL);
+				::LineTo(SnipDC, gCaptureWidth - 5, gCaptureHeight - 5);
+				::LineTo(SnipDC, gCaptureWidth - 5, -1);
 				//
-				SelectObject(SnipDC, Pen4);
-				MoveToEx(SnipDC, 0, gCaptureHeight - 4, NULL);
-				LineTo(SnipDC, gCaptureWidth - 4, gCaptureHeight - 4);
-				LineTo(SnipDC, gCaptureWidth - 4, -1);
+				::SelectObject(SnipDC, Pen4);
+				::MoveToEx(SnipDC, 0, gCaptureHeight - 4, NULL);
+				::LineTo(SnipDC, gCaptureWidth - 4, gCaptureHeight - 4);
+				::LineTo(SnipDC, gCaptureWidth - 4, -1);
 				//
-				SelectObject(SnipDC, Pen5);
-				MoveToEx(SnipDC, 0, gCaptureHeight - 3, NULL);
-				LineTo(SnipDC, gCaptureWidth - 3, gCaptureHeight - 3);
-				LineTo(SnipDC, gCaptureWidth - 3, -1);
+				::SelectObject(SnipDC, Pen5);
+				::MoveToEx(SnipDC, 0, gCaptureHeight - 3, NULL);
+				::LineTo(SnipDC, gCaptureWidth - 3, gCaptureHeight - 3);
+				::LineTo(SnipDC, gCaptureWidth - 3, -1);
 				//
-				SelectObject(SnipDC, Pen6);
-				MoveToEx(SnipDC, 0, gCaptureHeight - 2, NULL);
-				LineTo(SnipDC, gCaptureWidth - 2, gCaptureHeight - 2);
-				LineTo(SnipDC, gCaptureWidth - 2, -1);
+				::SelectObject(SnipDC, Pen6);
+				::MoveToEx(SnipDC, 0, gCaptureHeight - 2, NULL);
+				::LineTo(SnipDC, gCaptureWidth - 2, gCaptureHeight - 2);
+				::LineTo(SnipDC, gCaptureWidth - 2, -1);
 				//
-				SelectObject(SnipDC, Pen7);
-				MoveToEx(SnipDC, 0, gCaptureHeight - 1, NULL);
-				LineTo(SnipDC, gCaptureWidth - 1, gCaptureHeight - 1);
-				LineTo(SnipDC, gCaptureWidth - 1, -1);
+				::SelectObject(SnipDC, Pen7);
+				::MoveToEx(SnipDC, 0, gCaptureHeight - 1, NULL);
+				::LineTo(SnipDC, gCaptureWidth - 1, gCaptureHeight - 1);
+				::LineTo(SnipDC, gCaptureWidth - 1, -1);
 				// MSDN says that DeleteObject will fail and return 0 if the object is still selected into a DC.
 				// Yet Pen7 is still selected, yet DeleteObject does not fail when we try to delete Pen7, and I don't know why.
-				DeleteObject(Pen0);
-				DeleteObject(Pen1);
-				DeleteObject(Pen2);
-				DeleteObject(Pen3);
-				DeleteObject(Pen4);
-				DeleteObject(Pen5);
-				DeleteObject(Pen6);
-				DeleteObject(Pen7);
+				::DeleteObject(Pen0);
+				::DeleteObject(Pen1);
+				::DeleteObject(Pen2);
+				::DeleteObject(Pen3);
+				::DeleteObject(Pen4);
+				::DeleteObject(Pen5);
+				::DeleteObject(Pen6);
+				::DeleteObject(Pen7);
 				//
 				//////////////////////////////////////
 				// Set the alpha to 0 on the shadowed bits
 				//GetDIBits()
 			}
-			DeleteDC(BigDC);
-			DeleteDC(SnipDC);
+			::DeleteDC(BigDC);
+			::DeleteDC(SnipDC);
 			for(UINT8 Counter = 0; Counter < SIZEOFARRAY(gButtons); Counter++) {
 				gButtons[Counter]->Enabled = TRUE;
 			}
@@ -1046,12 +1046,12 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    SelectObject(CopyDC, CleanCopy);
 				    HPEN Pen = NULL;     //CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
 				    switch(gRectangleButton.Color) {
-					    case COLOR_RED: Pen = CreatePen(PS_SOLID, 2, RGB(255, 0, 0)); break;
-					    case COLOR_GREEN: Pen = CreatePen(PS_SOLID, 2, RGB(0, 255, 0)); break;
-					    case COLOR_BLUE: Pen = CreatePen(PS_SOLID, 2, RGB(0, 0, 255)); break;
-					    case COLOR_BLACK: Pen = CreatePen(PS_SOLID, 2, RGB(0, 0, 0)); break;
-					    case COLOR_WHITE: Pen = CreatePen(PS_SOLID, 2, RGB(255, 255, 255)); break;
-					    case COLOR_YELLOW: Pen = CreatePen(PS_SOLID, 2, RGB(255, 255, 0)); break;
+					    case COLOR_RED:    Pen = ::CreatePen(PS_SOLID, 2, RGB(255, 0, 0)); break;
+					    case COLOR_GREEN:  Pen = ::CreatePen(PS_SOLID, 2, RGB(0, 255, 0)); break;
+					    case COLOR_BLUE:   Pen = ::CreatePen(PS_SOLID, 2, RGB(0, 0, 255)); break;
+					    case COLOR_BLACK:  Pen = ::CreatePen(PS_SOLID, 2, RGB(0, 0, 0)); break;
+					    case COLOR_WHITE:  Pen = ::CreatePen(PS_SOLID, 2, RGB(255, 255, 255)); break;
+					    case COLOR_YELLOW: Pen = ::CreatePen(PS_SOLID, 2, RGB(255, 255, 0)); break;
 					    default: MyOutputDebugStringW(L"[%s] Line %d: BUG: Unknown color for arrow tool!\n", __FUNCTIONW__, __LINE__);
 				    }
 				    SelectObject(CopyDC, Pen);
@@ -1643,8 +1643,8 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 
 void DrawButton(_In_ DRAWITEMSTRUCT* DrawItemStruct, _In_ BUTTON Button)
 {
-	HPEN DarkPen = CreatePen(PS_SOLID, 1, RGB(32, 32, 32));
-	HPEN LighterPen = CreatePen(PS_SOLID, 1, RGB(224, 224, 224));
+	HPEN DarkPen = ::CreatePen(PS_SOLID, 1, RGB(32, 32, 32));
+	HPEN LighterPen = ::CreatePen(PS_SOLID, 1, RGB(224, 224, 224));
 	SIZE StringSizeInPixels = { 0 };
 	const UINT16 ButtonWidth = (UINT16)(Button.Rectangle.right - Button.Rectangle.left);
 	HFONT ButtonFont = NULL;

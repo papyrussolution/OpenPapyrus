@@ -1,5 +1,5 @@
 // PPSMS.CPP
-// Copyright (c) V.Miller 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) V.Miller 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 //
 #include <slib.h>
 #include <pp.h>
@@ -378,19 +378,6 @@ int PPSmsAccPacket::Verify(long flags) const
 
 int PPSmsAccPacket::SetPassword(const char * pPassword)
 {
-	/*
-	const  size_t temp_buf_len = 128;
-	char   temp_pw[128], temp_buf[512];
-	STRNSCPY(temp_pw, pPassword);
-	size_t pw_len = sstrlen(temp_pw);
-	IdeaEncrypt(0, temp_pw, MAX_PASSWORD_LEN);
-	size_t p = 0;
-	for(size_t i = 0; i < MAX_PASSWORD_LEN; i++) {
-		sprintf(temp_buf+p, "%03u", (uint8)temp_pw[i]);
-		p += 3;
-	}
-	temp_buf[p] = 0;
-	*/
 	SString temp_buf;
 	Reference::Helper_EncodeOtherPw(0, pPassword, MAX_PASSWORD_LEN, temp_buf);
 	return PPPutExtStrData(SMEXTSTR_PASSWORD, ExtStr, temp_buf);
@@ -403,27 +390,6 @@ int PPSmsAccPacket::GetPassword(SString & rBuf) const
 	SString temp_buf;
 	PPGetExtStrData(SMEXTSTR_PASSWORD, ExtStr, temp_buf);
 	Reference::Helper_DecodeOtherPw(0, temp_buf, MAX_PASSWORD_LEN, rBuf);
-	/*
-	char   temp_pw[128];
-	memzero(temp_pw, sizeof(temp_pw));
-	if(temp_buf.Len() == (MAX_PASSWORD_LEN*3)) {
-		for(size_t i = 0, p = 0; i < MAX_PASSWORD_LEN; i++) {
-			char   nmb[16];
-			nmb[0] = temp_buf.C(p);
-			nmb[1] = temp_buf.C(p+1);
-			nmb[2] = temp_buf.C(p+2);
-			nmb[3] = 0;
-			temp_pw[i] = satoi(nmb);
-			p += 3;
-		}
-		IdeaDecrypt(0, temp_pw, MAX_PASSWORD_LEN);
-		rBuf = temp_pw;
-		// @v11.1.1 IdeaRandMem(temp_pw, sizeof(temp_pw));
-		SObfuscateBuffer(temp_pw, sizeof(temp_pw)); // @v11.1.1 
-	}
-	else
-		ok = 0;
-	*/
 	return ok;
 }
 
@@ -2595,6 +2561,7 @@ int VerifyPhoneNumberBySms(const char * pNumber, const char * pAddendum, uint * 
 			}
 		}
 	}
+	delete dlg; // @v12.5.4 @fix
 	ASSIGN_PTR(pCheckCode, param.CheckCode);
 	return ok;
 }

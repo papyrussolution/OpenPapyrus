@@ -1548,7 +1548,8 @@ SString & FASTCALL SString::CopyFromN(const char * pS, size_t maxLen)
 
 SString & FASTCALL SString::CopyFrom(const char * pS)
 {
-	const size_t new_len = pS ? (sstrlen(pS) + 1) : 1;
+	// @v12.5.4 const size_t new_len = pS ? (sstrlen(pS) + 1) : 1;
+	const size_t new_len = (sstrlen(pS) + 1); // @v12.5.4
 	if(Alloc(new_len)) {
 		if(pS) {
 			memcpy(P_Buf, pS, new_len);

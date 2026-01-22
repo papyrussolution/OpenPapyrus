@@ -738,7 +738,7 @@ int UdsGameInterface::Setup(PPID guaID)
 		long    outer_wareid_tag_id = 0;
 		if(p_tag_item && p_tag_item->GetInt(&outer_wareid_tag_id)) {
 			PPObjTag tag_obj;
-			PPObjectTag tag_rec;
+			PPObjectTag2 tag_rec;
 			if(tag_obj.Fetch(outer_wareid_tag_id, &tag_rec) > 0) {
 				assert(tag_rec.ID == outer_wareid_tag_id); // @paranoic
 				Ib.OuterWareIdentTagID = tag_rec.ID;

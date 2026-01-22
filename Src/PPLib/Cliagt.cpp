@@ -821,7 +821,7 @@ int SetupPaymDateBaseCombo(TDialog * pDlg, uint ctlID, long initVal)
 			ary.Add(id_buf.ToLong(), txt_buf);
     {
     	PPObjTag tag_obj;
-    	PPObjectTag tag_rec;
+    	PPObjectTag2 tag_rec;
 		for(SEnum en = PPRef->Enum(PPOBJ_TAG, 0); en.Next(&tag_rec) > 0;) {
 			if(tag_rec.ID > PPClientAgreement::pdbTagBias && tag_rec.ObjTypeID == PPOBJ_BILL && oneof2(tag_rec.TagDataType, OTTYP_DATE, OTTYP_TIMESTAMP)) {
 				buf.Z().Cat("Tag").CatDiv(':', 2).Cat(tag_rec.Name);

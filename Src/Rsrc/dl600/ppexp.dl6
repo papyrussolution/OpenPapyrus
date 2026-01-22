@@ -4244,6 +4244,7 @@ data Balance {
 // @v7.3.11 Verification needed
 // @v12.3.1 Verification needed
 // @v12.5.3 Verification needed
+// @v12.5.4 Verification needed (TaxOpCode)
 //
 data VatBook {
 	declare "Destroy"
@@ -4323,6 +4324,7 @@ data VatBook {
 
 		date   CBillDt;          // Дата корректирующего документа
 		string CBillCode[24];    // Номер корректирующего документа
+		string TaxOpCode[16];    // @v12.5.4 Код номера операции для налоговой декларации
 
 		OpName      = OpID.Name;                   // Наименование вида операции документа, связанного с записью
 		OpMemo      = LinkBillID.Memo;             // Примечание к документу, связанного с записью

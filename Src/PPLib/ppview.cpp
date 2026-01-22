@@ -397,7 +397,7 @@ int PPGetObjViewFiltMapping_Filt(int filtId, PPID * pObjType, int * pViewId)
 
 /*static*/int FASTCALL PPView::CreateInstance(int viewID, PPView ** ppV) { return CreateInstance(viewID, 0, ppV); }
 
-/*static*/int FASTCALL PPView::CreateInstance(int viewID_, int32 * pSrvInstId, PPView ** ppV)
+/*static*/int PPView::CreateInstance(int viewID_, int32 * pSrvInstId, PPView ** ppV)
 {
 	int    ok = 1;
 	const  int base_view_id = (viewID_ & 0x0000ffff); // @v11.4.4
@@ -542,10 +542,10 @@ int PPGetObjViewFiltMapping_Filt(int filtId, PPID * pObjType, int * pViewId)
 	return ok;
 }
 
-/*static*/int FASTCALL PPView::Helper_Execute(int viewID, const PPBaseFilt * pFilt, int flags, PPView ** ppResult, void * extraPtr)
+/*static*/int PPView::Helper_Execute(int viewID, const PPBaseFilt * pFilt, int flags, PPView ** ppResult, void * extraPtr)
 {
 	int    ok = 1;
-	int    view_in_use = 0;
+	bool   view_in_use = false;
 	const  bool modeless = GetModelessStatus(LOGIC(flags & exefModeless));
 	PPViewBrowser * p_prev_win = 0;
 	PPBaseFilt * p_flt = 0;
@@ -566,10 +566,16 @@ int PPGetObjViewFiltMapping_Filt(int filtId, PPID * pObjType, int * pViewId)
 		PPWaitStart();
 		THROW(p_v->Helper_Init(p_flt, flags));
 		PPCloseBrowser(p_prev_win);
-		THROW(p_v->Browse(modeless));
-		if(modeless || pFilt) {
-			view_in_use = 1;
+		if(flags & exefDontLaunchWindow && modeless) { // @v12.5.4
+			view_in_use = true; // Это чтобы функция в эпилоге не разрушила p_v (see below)
 			break;
+		}
+		else {
+			THROW(p_v->Browse(modeless));
+			if(modeless || pFilt) {
+				view_in_use = true;
+				break;
+			}
 		}
 	}
 	CATCHZOKPPERR
@@ -581,9 +587,9 @@ int PPGetObjViewFiltMapping_Filt(int filtId, PPID * pObjType, int * pViewId)
 	return ok;
 }
 
-/*static*/int FASTCALL PPView::Execute(int viewID, const PPBaseFilt * pFilt, int flags /* exefXXX */, PPView ** ppResult, void * extraPtr)
+/*static*/int PPView::Execute(int viewID, const PPBaseFilt * pFilt, int flags/*exefXXX*/, PPView ** ppResult, void * extraPtr)
 	{ return Helper_Execute(viewID, pFilt, flags, ppResult, extraPtr); }
-/*static*/int FASTCALL PPView::Execute(int viewID, const PPBaseFilt * pFilt, int flags, void * extraPtr)
+/*static*/int PPView::Execute(int viewID, const PPBaseFilt * pFilt, int flags, void * extraPtr)
 	{ return Helper_Execute(viewID, pFilt, flags, 0, extraPtr); }
 
 PPObject * PPView::GetObj() const { return P_Obj; }
@@ -2021,7 +2027,7 @@ int PPView::Helper_ProcessQuickTagEdit(SObjID oid, const void * pHdrPtr /*(LongA
 		if(lc > 0 && lc < 20) { // Ограничение 20 частично страхует от случая, когда вместо указателя на LongArray нам подсунули что-то иное
 			PPID tag_id = 0;
 			PPObjTag tag_obj;
-			PPObjectTag tag_rec;
+			PPObjectTag2 tag_rec;
 			for(uint i = 0; !tag_id && i < lc; i++) {
 				if(tag_obj.Fetch(p_tag_id_list->get(i), &tag_rec) > 0 && tag_rec.ObjTypeID == oid.Obj)
 					tag_id = tag_rec.ID;
@@ -2225,7 +2231,91 @@ void PPView::SetExtToolbar(uint toolbarId)
 	ExtToolbarId = toolbarId;
 }
 
-int PPView::Browse(int modeless)
+int PPView::BrowseInLayout(TWindow * pParent, const char * pParentLayoutSymb, const SUiLayoutParam & rLoP, uint destinationId) // @v12.5.4
+{
+	int    ok = 1;
+	const  bool modeless = true;
+	DBQuery * q = 0;
+	SArray * p_array = 0;
+	PPViewBrowser * brw = 0;
+	uint   brw_id = 0;
+	SString sub_title;
+	SString title;
+	SUiLayout * p_lo = 0;
+	THROW(pParent && pParent->IsConsistent()); // @todo @err
+	if(!isempty(pParentLayoutSymb)) {
+		SUiLayout * p_wlo = pParent->GetLayout();
+		p_lo = p_wlo ? p_wlo->FindBySymb(pParentLayoutSymb) : 0;
+	}
+	THROW(p_lo); // @todo @err
+	PPWaitStart();
+	THROW(!P_Obj || P_Obj->CheckRights(PPR_READ));
+	if(ImplementFlags & implBrowseArray) {
+		THROW(p_array = CreateBrowserArray(&brw_id, &sub_title));
+		THROW_MEM(brw = new PPViewBrowser(brw_id, p_array, this, modeless));
+	}
+	else {
+		THROW(q = CreateBrowserQuery(&brw_id, &sub_title));
+		if(P_Ct) {
+			THROW_PP(q == PPView::CrosstabDbQueryStub, PPERR_INVPPVIEWQUERY);
+			THROW(brw = static_cast<PPViewBrowser *>(P_Ct->CreateBrowser(brw_id, modeless)));
+		}
+		else {
+			THROW_PP(q != PPView::CrosstabDbQueryStub, PPERR_INVPPVIEWQUERY);
+			THROW_MEM(brw = new PPViewBrowser(brw_id, q, this, modeless));
+		}
+	}
+	if(GetOuterTitle(&title))
+		brw->setTitle(title);
+	else
+		brw->setSubTitle(sub_title);
+	PreprocessBrowser(brw);
+	brw->LoadToolbarResource(ExtToolbarId);
+	PPWaitStop();
+	{
+		brw->SetResID(static_cast<PPApp *>(APPL)->LastCmd);
+		{
+			pParent->InsertCtlWithCorrespondingNativeItem(brw, destinationId, 0, /*extraPtr*/0);
+			{
+				/*
+				SUiLayoutParam alb_;
+				alb_.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+				alb_.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+				alb_.SetMargin(8.0f);
+				*/
+				{
+					SUiLayout * p_result = 0;
+					p_result = p_lo->InsertItem(brw, &rLoP);
+					if(p_result) {
+						p_result->SetCallbacks(0, TView::SetupLayoutItemFrameProc, brw);
+						brw->Launch_(pParent);
+						if(brw->IsConsistent())
+							OnExecBrowser(brw);
+					}
+				}
+			}
+		}
+		/*
+		int    r = InsertView(brw);
+		if(r < 0 && brw->IsConsistent())
+			OnExecBrowser(brw);
+		*/
+	}
+	CATCH
+		ok = (PPWaitStop(), 0);
+		if(brw == 0) {
+			if(p_array)
+				delete p_array;
+			else if(q != PPView::CrosstabDbQueryStub)
+				delete q;
+		}
+	ENDCATCH
+	if(!ok)
+		delete brw;
+	return ok;
+}
+
+int PPView::Browse(bool modeless)
 {
 	int    ok = 1;
 	DBQuery * q = 0;

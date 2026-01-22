@@ -539,7 +539,7 @@ public:
 		if(getCtrlView(CTLSEL_PALM_INHBTAGVAL)) {
 			bool   disable_inhtagval = true;
 			if(SpCfg.InhBillTagID) {
-				PPObjectTag tag_rec;
+				PPObjectTag2 tag_rec;
 				if(TagObj.Fetch(SpCfg.InhBillTagID, &tag_rec) > 0 && oneof2(tag_rec.TagDataType, OTTYP_OBJLINK, OTTYP_ENUM)) {
 					SetupPPObjCombo(this, CTLSEL_PALM_INHBTAGVAL, tag_rec.TagEnumID, Data.Rec.InhBillTagVal, OLW_CANINSERT, reinterpret_cast<void *>(tag_rec.LinkObjGrp));
 					disable_inhtagval = false;
@@ -597,7 +597,7 @@ public:
 		getCtrlData(sel = CTL_PALM_NAME, Data.Rec.Name);
 		THROW(SpObj.CheckName(Data.Rec.ID, strip(Data.Rec.Name), 1));
 		getCtrlData(sel = CTL_PALM_SYMB, Data.Rec.Symb);
-		THROW(PPRef->CheckUniqueSymb(PPOBJ_STYLOPALM, Data.Rec.ID, strip(Data.Rec.Symb), offsetof(ReferenceTbl::Rec, Symb)));
+		THROW(PPRef->CheckUniqueSymb(PPOBJ_STYLOPALM, Data.Rec.ID, strip(Data.Rec.Symb), offsetof(Reference2Tbl::Rec, Symb)));
 		getCtrlData(CTL_PALM_ID,  &Data.Rec.ID);
 		getCtrlData(sel = CTLSEL_PALM_GROUP, &Data.Rec.GroupID);
 		if(Data.Rec.GroupID) {
@@ -629,7 +629,7 @@ public:
 		getCtrlData(CTLSEL_PALM_GGRP,  &Data.Rec.GoodsGrpID);
 		getCtrlData(CTLSEL_PALM_OP,    &Data.Rec.OrderOpID);
 		if(getCtrlView(CTLSEL_PALM_INHBTAGVAL) && SpCfg.InhBillTagID) {
-			PPObjectTag tag_rec;
+			PPObjectTag2 tag_rec;
 			if(TagObj.Fetch(SpCfg.InhBillTagID, &tag_rec) > 0 && oneof2(tag_rec.TagDataType, OTTYP_OBJLINK, OTTYP_ENUM))
 				Data.Rec.InhBillTagVal = getCtrlLong(CTLSEL_PALM_INHBTAGVAL);
 		}

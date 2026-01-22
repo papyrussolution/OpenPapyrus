@@ -799,8 +799,7 @@ void * DL2_CI::operator new(size_t sz, const char * pStr)
 	DL2_CI * p = (DL2_CI *)::new char[sz + len];
 	if(!p)
 		PPSetErrorNoMem();
-	// @v11.1.1 IdeaRandMem(p, len);
-	SObfuscateBuffer(p, len); // @v11.1.1 
+	SObfuscateBuffer(p, len);
 	return p;
 }
 

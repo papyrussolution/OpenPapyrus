@@ -7043,7 +7043,7 @@ int PPEdiProcessor::SendOrders(const PPBillIterchangeFilt & rP, const PPIDArray 
 	}
 	if(temp_bill_list.getCount()) {
 		PPObjTag tag_obj;
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		SString tag_sent_content;
 		temp_bill_list.sortAndUndup();
 		for(uint k = 0; k < temp_bill_list.getCount(); k++) {
@@ -7355,7 +7355,7 @@ int PPEdiProcessor::SendDESADV(int ediOp, const PPBillIterchangeFilt & rP, const
 					break;
 			}
 			if(!do_skip && tag_id) {
-				PPObjectTag tag_rec;
+				PPObjectTag2 tag_rec;
 				if(tag_obj.Fetch(tag_id, &tag_rec) > 0) {
 					if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_id, tag_id, tag_sent_content) > 0)
 						do_skip = 1;

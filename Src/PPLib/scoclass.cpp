@@ -1,12 +1,12 @@
 // SCOCLASS.CPP
-// Copyright (c) A.Sobolev 2007, 2015, 2016, 2018, 2019, 2020, 2023, 2025
+// Copyright (c) A.Sobolev 2007, 2015, 2016, 2018, 2019, 2020, 2023, 2025, 2026
 // @codepage UTF-8
 // Реализация SCoClass базового класса, реализующего общие механизмы управления COM-интерфейсами системы
 //
 #pragma hdrstop
 #define DL600R
 #include <pp.h>
-#include <dl600.h>
+// @v12.5.4 (pp.h) #include <dl600.h>
 //
 // @ModuleDef(SCoClass)
 //

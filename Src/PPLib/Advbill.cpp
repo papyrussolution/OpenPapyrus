@@ -335,7 +335,7 @@ void AdvBillItemDialog::editLink()
 					bill_filt.Flags |= BillFilt::fAsSelector;
 					PPViewBill bill_view;
 					if(bill_view.Init_(&bill_filt)) {
-						if(bill_view.Browse(0) > 0) {
+						if(bill_view.Browse(false) > 0) {
 							int r = -1;
 							bill_id = static_cast<const BillFilt *>(bill_view.GetBaseFilt())->Sel;
 							//

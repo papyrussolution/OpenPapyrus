@@ -444,7 +444,7 @@ int PPObjBill::CreateModifByPUGL(PPID modifOpID, PPID * pID, PUGL * pPugl, PPID 
 	ObjTagItem tag_item;
 	if(pPugl && pPugl->Slmt.Flags & PUGL::SetLotManufTimeParam::fEnable) {
 		PPObjTag tag_obj;
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		if(tag_obj.Fetch(PPTAG_LOT_MANUFTIME, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT)
 			do_set_manuf_time = 1;
 	}
@@ -1372,7 +1372,7 @@ int PPObjBill::Helper_CreateDeficitTi(PPBillPacket & rPack, const PUGL * pPugl, 
 		// @v10.5.12 {
 		/* не то я сделал, мать-перемать! if(pPugl->Slmt.Flags & PUGL::SetLotManufTimeParam::fEnable) {
 			PPObjTag tag_obj;
-			PPObjectTag tag_rec;
+			PPObjectTag2 tag_rec;
 			if(tag_obj.Fetch(PPTAG_LOT_MANUFTIME, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT) {
 				for(uint ridx = 0; ridx < row_list.getCount(); ridx++) {
 					const uint row_pos = static_cast<uint>(row_list.get(ridx));

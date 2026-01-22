@@ -107,7 +107,7 @@ static void * _cairo_win32_device_get_alpha_blend(cairo_win32_device_t * device)
 	return func;
 }
 
-cairo_device_t * _cairo_win32_device_get(void)
+cairo_device_t * _cairo_win32_device_get()
 {
 	cairo_win32_device_t * device;
 	CAIRO_MUTEX_INITIALIZE();

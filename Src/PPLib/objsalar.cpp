@@ -657,7 +657,7 @@ int32 DL6ICLS_PPObjSalCharge::Update(int32 id, long flags, PPYOBJREC rec)
 IMPL_INVARIANT_C(PPStaffCal)
 {
 	S_INVARIANT_PROLOG(pInvP);
-	S_ASSERT_P(sizeof(*this) == sizeof(ReferenceTbl::Rec), pInvP);
+	S_ASSERT_P(sizeof(*this) == sizeof(Reference2Tbl::Rec), pInvP);
 	S_ASSERT_P(Tag == PPOBJ_STAFFCAL, pInvP);
 	S_ASSERT_P(sstrlen(Name) < sizeof(Name), pInvP);
 	S_ASSERT_P(sstrlen(Symb) < sizeof(Symb), pInvP);

@@ -2261,7 +2261,7 @@ void ListBoxX::Draw(DRAWITEMSTRUCT * pDrawItem)
 		ListItemData item = lti.Get(pDrawItem->itemID);
 		int pixId = item.pixId;
 		const char * text = item.text;
-		int len = static_cast<int>(sstrlen(text));
+		int len = sstrleni(text);
 		RECT rcText = rcBox;
 		::InsetRect(&rcText, static_cast<int>(TextInset.x), static_cast<int>(TextInset.y));
 		if(unicodeMode) {

@@ -1004,7 +1004,7 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pBp, LongArray * pRows, u
 					const uint tc = inh_tag_list.GetCount();
 					if(tc) {
 						PPObjTag tag_obj;
-						PPObjectTag tag_rec;
+						PPObjectTag2 tag_rec;
 						for(i = 0; i < tc; i++) {
 							const ObjTagItem * p_tag = inh_tag_list.GetItemByPos(i);
 							if(p_tag && tag_obj.Fetch(p_tag->TagID, &tag_rec) > 0 && tag_rec.Flags & OTF_INHERITABLE)

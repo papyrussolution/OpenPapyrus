@@ -967,23 +967,6 @@ static void IdeaCrypt(const char * pPw, void * pBuf, size_t bufLen, int decrypt)
 void IdeaEncrypt(const char * pw, void * buf, size_t len) { IdeaCrypt(pw, buf, len, 0); }
 void IdeaDecrypt(const char * pw, void * buf, size_t len) { IdeaCrypt(pw, buf, len, 1); }
 
-/* @v11.1.1 (replaced with SObfuscateBuffer()) void FASTCALL IdeaRandMem(void * buf, size_t len)
-{
-	size_t i;
-	uint8  key[16];
-	uint8  seed[8];
-	time_t tm;
-	srand((uint)time(&tm));
-	for(i = 0; i < sizeof(key); i++)
-		key[i] = rand() % 253;
-	for(i = 0; i < sizeof(seed); i++)
-		seed[i] = rand() % 253;
-	time(&tm);
-	IDEARAND rand(key, seed, (uint32)tm);
-	for(i = 0; i < len; i++)
-		((uint8 *)buf)[i] = rand.rand();
-}*/
-
 #ifdef TEST2
 void main()
 {

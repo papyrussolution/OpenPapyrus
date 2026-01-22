@@ -825,7 +825,6 @@ void PPJobSession::Startup()
 void PPJobSession::Run()
 {
 	int    ok = 1;
-	int    debug_r = 0;
 	int    heap_corrupted = 0;
 	char   secret[64];
 	bool   is_logged_in = false;
@@ -836,14 +835,11 @@ void PPJobSession::Run()
 	//
 	if(!(Job.Descr.Flags & PPJobDescr::fNoLogin)) {
 		PPVersionInfo vi = DS.GetVersionInfo();
-		debug_r = 1;
 		THROW(vi.GetSecret(secret, sizeof(secret)));
-		debug_r = 2;
 		THROW(DS.PPLogin(Job.DbSymb, PPSession::P_JobLogin, secret, PPSession::loginfSkipLicChecking));
 		memzero(secret, sizeof(secret));
 		is_logged_in = true;
 	}
-	debug_r = 3;
 	THROW(DoJob(&mngr, &Job));
 	CATCH
 		PPError();

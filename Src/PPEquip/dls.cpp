@@ -981,7 +981,7 @@ int ViewDLSDetail(const DLSDetailFilt & rFilt)
 		p_v = new PPViewDLSDetail;
 		PPWaitStart();
 		THROW(p_v->Init(&rFilt));
-		THROW(p_v->Browse(0));
+		THROW(p_v->Browse(false));
 	}
 	CATCHZOKPPERR
 	delete p_v;

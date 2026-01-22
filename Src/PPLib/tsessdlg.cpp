@@ -781,7 +781,7 @@ private:
 	{
 		int    ok = 1;
 		PPObjTag tag_obj;
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		SString temp_buf;
 		if(getCtrlView(CTL_TSESSEXT_DESCR) && tag_obj.Fetch(PPTAG_TSESS_DESCR, &tag_rec) > 0 && tag_rec.TagDataType == OTTYP_STRING) {
 			const ObjTagItem * p_tag = Data.TagL.GetItem(PPTAG_TSESS_DESCR);
@@ -794,7 +794,7 @@ private:
 	{
 		int    ok = 1;
 		PPObjTag tag_obj;
-		PPObjectTag tag_rec;
+		PPObjectTag2 tag_rec;
 		SString temp_buf;
 		if(getCtrlView(CTL_TSESSEXT_DESCR) && tag_obj.Fetch(PPTAG_TSESS_DESCR, &tag_rec) > 0 && tag_rec.TagDataType == OTTYP_STRING) {
 			getCtrlString(CTL_TSESSEXT_DESCR, temp_buf);

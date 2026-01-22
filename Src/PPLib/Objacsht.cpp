@@ -380,7 +380,7 @@ int PPObjAccSheet::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCont
 			}
 		}
 		else {
-			THROW(Serialize_(+1, static_cast<ReferenceTbl::Rec *>(p->Data), stream, pCtx));
+			THROW(Serialize_(+1, static_cast<Reference2Tbl::Rec *>(p->Data), stream, pCtx));
 		}
 	CATCHZOK
 	return ok;

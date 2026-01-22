@@ -368,7 +368,7 @@ int PPObjAccount::LockFRR(PPID accID, LDATE dt, int doUnlock)
 	int    r = 1;
 	int    try_count = 5;
 	do {
-		ReferenceTbl::Key0 k;
+		Reference2Tbl::Key0 k;
 		k.ObjType = Obj;
 		k.ObjID   = accID;
 		if(P_Ref->searchForUpdate(0, &k, spEq)) {
@@ -468,7 +468,7 @@ StrAssocArray * PPObjAccount::MakeStrAssocList(void * extraPtr /*acySelType*/)
 	PPAccount rec;
 	THROW_MEM(p_list);
 	{
-		ReferenceTbl::Key2 k2;
+		Reference2Tbl::Key2 k2;
 		MEMSZERO(k2);
 		BExtQuery q(P_Ref, 2);
 		q.selectAll().where(P_Ref->ObjType == Obj);

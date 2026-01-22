@@ -1240,7 +1240,7 @@ int PPViewVatBook::MainOrgBlock::Init()
 					long  tax_grp_id = 0;
 					if(tag_item.GetInt(&tax_grp_id)) {
 						PPObjGoodsTax gtx_obj;
-						PPGoodsTax gtx_rec;
+						PPGoodsTax2 gtx_rec;
 						if(gtx_obj.Search(tax_grp_id, &gtx_rec) > 0) {
 							SpecialTaxGroupID = tax_grp_id;
 						}
@@ -2885,15 +2885,18 @@ int PPViewVatBook::AutoBuild()
 				THROW(ProcessOp2(inc_op_list_, i, &neg_op_list_, &flt, by_paym_param, p_ebf_blk));
 			}
 			paym_op_list_.RemoveExcludedByConfig(r_cfg);
-			for(i = 0; i < paym_op_list_.getCount(); i++)
+			for(i = 0; i < paym_op_list_.getCount(); i++) {
 				THROW(ProcessOp2(paym_op_list_, i, &neg_op_list_, &flt, 1, p_ebf_blk));
+			}
 			reckon_op_list_.RemoveExcludedByConfig(r_cfg);
-			for(i = 0; i < reckon_op_list_.getCount(); i++)
+			for(i = 0; i < reckon_op_list_.getCount(); i++) {
 				THROW(ProcessOp2(reckon_op_list_, i, &neg_op_list_, &flt, 2, p_ebf_blk));
+			}
 			if(p_ebf_blk && p_ebf_blk->Flags & p_ebf_blk->fByShipment) {
 				factbyshipm_exp_op_list_.RemoveExcludedByConfig(r_cfg);
-				for(i = 0; i < factbyshipm_exp_op_list_.getCount(); i++)
+				for(i = 0; i < factbyshipm_exp_op_list_.getCount(); i++) {
 					THROW(ProcessOp2(factbyshipm_exp_op_list_, i, 0, &flt, 3, p_ebf_blk));
+				}
 			}
 		}
 	}
@@ -2994,6 +2997,7 @@ int PPALDD_VatBook::NextIteration(PPIterID iterId)
 	I.fSlVatAddendum = BIN(item.LineSubType == 1);
 	I.CBillDt    = item.CBillDt;
 	STRNSCPY(I.CBillCode, item.CBillCode);
+	STRNSCPY(I.TaxOpCode, item.TaxOpCode); // @v12.5.4
 	I.VatFreeAmount = item.VAT0;
 	I.Vat0Amount = 0.0;
 	PPWaitPercent(p_v->GetCounter());

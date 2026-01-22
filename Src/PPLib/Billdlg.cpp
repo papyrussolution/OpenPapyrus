@@ -300,7 +300,7 @@ public:
 		int    ok = 1;
 		if(IsTagList) {
 			PPObjTag tag_obj;
-			PPObjectTag tag_rec;
+			PPObjectTag2 tag_rec;
 			SString temp_buf;
 			if(getCtrlView(CTL_BILLEXT_OUTERCODE) && tag_obj.Fetch(PPTAG_BILL_OUTERCODE, &tag_rec) > 0 && tag_rec.TagDataType == OTTYP_STRING) {
 				const ObjTagItem * p_tag = TagL.GetItem(PPTAG_BILL_OUTERCODE);
@@ -321,7 +321,7 @@ public:
 		int    ok = 1;
 		if(IsTagList) {
 			PPObjTag tag_obj;
-			PPObjectTag tag_rec;
+			PPObjectTag2 tag_rec;
 			SString temp_buf;
 			if(getCtrlView(CTL_BILLEXT_OUTERCODE) && tag_obj.Fetch(PPTAG_BILL_OUTERCODE, &tag_rec) > 0 && tag_rec.TagDataType == OTTYP_STRING) {
 				getCtrlString(CTL_BILLEXT_OUTERCODE, temp_buf);
@@ -1932,7 +1932,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 							bill_filt.Flags |= (BillFilt::fAsSelector | BillFilt::fShowDebt | BillFilt::fDebtOnly);
 							PPViewBill bill_view;
 							if(bill_view.Init_(&bill_filt)) {
-								if(bill_view.Browse(0) > 0) {
+								if(bill_view.Browse(false) > 0) {
 									PPID bill_id = ((BillFilt*)bill_view.GetBaseFilt())->Sel;
 									BillTbl::Rec bill_rec;
 									if(P_BObj->Search(bill_id, &bill_rec) > 0) {

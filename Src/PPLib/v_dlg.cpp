@@ -1,5 +1,5 @@
 // V_DLG.CPP
-// Copyright (c) A.Sobolev 2011, 2016, 2018, 2019, 2020, 2021, 2024, 2025
+// Copyright (c) A.Sobolev 2011, 2016, 2018, 2019, 2020, 2021, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -397,7 +397,7 @@ int WhatmanObjectUiCtrl::Draw(TCanvas2 & rCanv)
 		rCanv.DrawEdge(b, TCanvas2::edgeRaised, TCanvas2::borderRect|TCanvas2::borderAdjust);
 		rCanv.Rect(b, 0, SPaintToolBox::rbr3DFace);
 		if(!TidWindowFrame) {
-			TidWindowFrame = r_tb.CreateBrush(brWindowFrame, SPaintObj::bsSolid, SColor(0xE8, 0xEF, 0xFF), 0); //#E8EFFF
+			TidWindowFrame = r_tb.CreateBrush_(brWindowFrame, SPaintObj::bsSolid, SColor(0xE8, 0xEF, 0xFF), 0); //#E8EFFF
 		}
 		TRect  rc_cap;
 		rc_cap = b;
@@ -490,7 +490,7 @@ int WhatmanObjectUiCtrl::Draw(TCanvas2 & rCanv)
 		}
 	}
 	else if(UiKind == UiItemKind::kFrame) {
-		rCanv.DrawEdge(b, TCanvas2::edgeEtched, TCanvas2::borderRect);
+		rCanv.DrawEdge(b, /*TCanvas2::edgeEtched*/TCanvas2::edgeExcel01, TCanvas2::borderRect);
 		if(CreateTextLayout(r_tb, tlo) > 0) {
 			FRect fb(b);
 			fb.b.y = fb.a.y + frame_text_delta;

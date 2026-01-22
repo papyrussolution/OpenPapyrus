@@ -140,7 +140,7 @@ int PPObjBillStatus::Edit(PPID * pID, void * extraPtr)
 						case cmTransmitCharry:
 							{
 								PPIDArray id_list;
-								ReferenceTbl::Rec rec;
+								Reference2Tbl::Rec rec;
 								for(PPID item_id = 0; static_cast<PPObjReference *>(P_Obj)->EnumItems(&item_id, &rec) > 0;)
 									id_list.add(rec.ObjID);
 								if(!SendCharryObject(PPDS_CRRBILLSTATUS, id_list))
@@ -194,7 +194,7 @@ int PPObjBillStatus::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContex
 		THROW(Search(id, static_cast<PPBillStatus *>(p->Data)) > 0);
 	}
 	else {
-		THROW(Serialize_(-1, static_cast<ReferenceTbl::Rec *>(p->Data), stream, pCtx));
+		THROW(Serialize_(-1, static_cast<Reference2Tbl::Rec *>(p->Data), stream, pCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -227,7 +227,7 @@ int PPObjBillStatus::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 			}
 		}
 		else {
-			THROW(Serialize_(+1, static_cast<ReferenceTbl::Rec *>(p->Data), stream, pCtx));
+			THROW(Serialize_(+1, static_cast<Reference2Tbl::Rec *>(p->Data), stream, pCtx));
 		}
 	}
 	CATCHZOK
