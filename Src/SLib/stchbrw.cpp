@@ -426,7 +426,7 @@ int FASTCALL STimeChunkBrowser::InvalidateChunk(long chunkId)
 						else if(loc.Kind == Loc::kPicMode)
 							cursor = p_view->Ptb.GetCursor(curHand);
 						else
-							cursor = ::LoadCursor(0, IDC_ARROW);
+							cursor = ::LoadCursorW(0, IDC_ARROW);
 						::SetCapture(hWnd);
 						::SetCursor(cursor);
 						if(p_view->St.SelChunkId != loc.EntryId) {
@@ -1336,7 +1336,7 @@ int STimeChunkBrowser::Resize(int mode, SPoint2S p)
 		//
 		if(St.Rsz.Kind == 0) {
 			if(Locate(p, &loc) > 0) {
-				long cursor = curResizeHorz;
+				long   cursor = curResizeHorz;
 				if(loc.Kind == Loc::kPicMode) {
 					St.Rsz.Setup(ResizeState::kSwitchMode, p);
 					cursor = 0;

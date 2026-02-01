@@ -1650,8 +1650,6 @@ void SmartListBox::CalculateColumnsWidth(int autoCalcVariant/*auotocalccolszXXX*
 	const  uint cc = Columns.getCount();
 	if(P_Def && h_lb && cc) {
 		long   first_item = 0;
-		SString temp_buf;
-		SString cell_buf;
 		StringSet ss(SLBColumnDelim);
 		const long  last_item = P_Def->GetRecsCount();
 		if(autoCalcVariant/*&& first_item < last_item*/) {
@@ -1663,12 +1661,17 @@ void SmartListBox::CalculateColumnsWidth(int autoCalcVariant/*auotocalccolszXXX*
 				}
 			}
 			else {
+				SString temp_buf;
+				SString cell_buf;
+				SStringU text_buf_u; // @v12.5.5
 				for(uint cidx = 0; cidx < cc; cidx++) {
 					long   max_sw = 50; // minimal=4
 					const ColumnDescr * p_hdr_item = static_cast<const ColumnDescr *>(Columns.at(cidx));
 					StrPool.get(p_hdr_item->TitlePos, cell_buf);
-					cell_buf.Transf(CTRANSF_INNER_TO_OUTER);
-					int sw = ListView_GetStringWidth(h_lb, SUcSwitch(cell_buf.cptr()));
+					//cell_buf.Transf(CTRANSF_INNER_TO_OUTER);
+					P_Def->TranslateTextToUnicode(cell_buf, text_buf_u); // @v12.5.5
+					// @v12.5.5 long   sw = ListView_GetStringWidth(h_lb, text_buf_u.ucptr());
+					long   sw = SendMessageW(h_lb, LVM_GETSTRINGWIDTHW, 0, reinterpret_cast<LPARAM>(text_buf_u.ucptr())); // @v12.5.5 
 					SETMAX(max_sw, sw);
 					for(long i = 0, item = first_item; i < last_item; i++, item++) {
 						P_Def->getText(item, temp_buf);
@@ -1677,9 +1680,11 @@ void SmartListBox::CalculateColumnsWidth(int autoCalcVariant/*auotocalccolszXXX*
 							cell_buf.Z();
 							for(uint k = 0, pos = 0; k <= cidx; k++)
 								ss.get(&pos, cell_buf);
-							cell_buf.Transf(CTRANSF_INNER_TO_OUTER);
+							// @v12.5.5 cell_buf.Transf(CTRANSF_INNER_TO_OUTER);
+							P_Def->TranslateTextToUnicode(cell_buf, text_buf_u); // @v12.5.5
 						}
-						int sw = ListView_GetStringWidth(h_lb, SUcSwitch(cell_buf.cptr()));
+						//@v12.5.5 long   sw = ListView_GetStringWidth(h_lb, SUcSwitch(cell_buf.cptr()));
+						long   sw = SendMessageW(h_lb, LVM_GETSTRINGWIDTHW, 0, reinterpret_cast<LPARAM>(text_buf_u.ucptr())); // @v12.5.5 
 						SETMAX(max_sw, sw);
 					}
 					column_text_size_list.add(max_sw);
@@ -1732,11 +1737,11 @@ void SmartListBox::Implement_Draw()
 			SelectTreeItem();
 		}
 		else {
-			long   i;
-			long   item;
-			SString buf;
+			// @v12.5.5 long   item_i;
+			SString text_buf;
+			SStringU text_buf_u; // @v12.5.5
 			SString cell_buf;
-			buf.Space().Z();
+			text_buf.Space().Z();
 			cell_buf.Space().Z();
 			const  HWND h_lb = getHandle();
 			const  uint cc = Columns.getCount();
@@ -1761,48 +1766,48 @@ void SmartListBox::Implement_Draw()
 					last_item  = P_Def->GetRecsCount();
 					CalculateColumnsWidth(auto_calc_column_sizes);
 				}
-				/*else if(P_Def->_isSolid()) { // @v11.4.5
-					//first_item = P_Def->_topItem();
-					//last_item  = P_Def->ViewHight;
-					last_item  = P_Def->GetRecsCount();
-				}*/
 				else {
 					first_item = P_Def->_topItem();
 					last_item  = P_Def->ViewHight;
 				}
-				for(i = 0, item = first_item; i < last_item; i++, item++) {
-					P_Def->getText(item, buf);
-					buf.Transf(CTRANSF_INNER_TO_OUTER);
+				for(long i = 0; i < last_item; i++) {
+					const long item_i = first_item+i;
+					P_Def->getText(item_i, text_buf);
+					// @v12.5.5 text_buf.Transf(CTRANSF_INNER_TO_OUTER);
 					if(cc) {
-						long id = 0;
-						long img_idx = 0;
-						LVITEM    lvi;
-						ss.setBuf(buf);
+						long   id = 0;
+						long   img_idx = 0;
+						LVITEMW    lvi;
+						ss.setBuf(text_buf);
 						lvi.mask  = LVIF_TEXT;
 						lvi.iItem = i;
 						if(P_Def->Options & lbtAutoID)
-							id = item;
+							id = item_i;
 						else
-							getID(item, &id);
+							getID(item_i, &id);
 						if(P_Def->GetImageIdxByID(id, &img_idx) > 0) {
 							lvi.iImage = img_idx;
 							lvi.mask |= LVIF_IMAGE;
 						}
 						for(uint k = 0, pos = 0; k < cc; k++) {
 							ss.get(&pos, cell_buf);
-							lvi.pszText  = const_cast<TCHAR *>(SUcSwitch(cell_buf.Strip().cptr())); // @badcast // @unicodeproblem
+							P_Def->TranslateTextToUnicode(cell_buf.Strip(), text_buf_u); // @v12.5.5 
+							lvi.pszText  = const_cast<wchar_t *>(text_buf_u.ucptr()); // @badcast
 							lvi.iSubItem = k;
-							if(k)
-								ListView_SetItem(h_lb, &lvi);
-							else
-								ListView_InsertItem(h_lb, &lvi);
+							if(k) {
+								// @v12.5.5 ListView_SetItem(h_lb, &lvi);
+								SendMessageW(h_lb, LVM_SETITEMW, 0, reinterpret_cast<LPARAM>(&lvi)); // @v12.5.5 
+							}
+							else {
+								// @v12.5.5 ListView_InsertItem(h_lb, &lvi);
+								SendMessageW(h_lb, LVM_INSERTITEMW, 0, reinterpret_cast<LPARAM>(&lvi)); // @v12.5.5 
+							}
 						}
 					}
-					/*else if(P_Def->_isSolid()) { // @v11.4.5
-						::SendMessageW(h_lb, LB_ADDSTRING, 0, (State & stOwnerDraw) ? static_cast<LPARAM>(item) : reinterpret_cast<LPARAM>(SUcSwitch(buf.cptr())));
-					}*/
-					else
-						::SendMessageW(h_lb, LB_ADDSTRING, 0, (State & stOwnerDraw) ? static_cast<LPARAM>(item) : reinterpret_cast<LPARAM>(SUcSwitch(buf.cptr())));
+					else {
+						P_Def->TranslateTextToUnicode(text_buf, text_buf_u); // @v12.5.5 
+						::SendMessageW(h_lb, LB_ADDSTRING, 0, (State & stOwnerDraw) ? static_cast<LPARAM>(item_i) : reinterpret_cast<LPARAM>(text_buf_u.ucptr()));
+					}
 				}
 			}
 			::ShowWindow(h_lb, SW_NORMAL);

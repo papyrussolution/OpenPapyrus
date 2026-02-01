@@ -43,7 +43,7 @@ void TimeZoneBoundaryTest::runIndexedTest(int32_t index, bool exec, const char *
 // class TimeZoneBoundaryTest
 //
 TimeZoneBoundaryTest::TimeZoneBoundaryTest() : ONE_SECOND(1000), ONE_MINUTE(60 * ONE_SECOND), ONE_HOUR(60 * ONE_MINUTE),
-	ONE_DAY(24 * ONE_HOUR), ONE_YEAR(uprv_floor(365.25 * ONE_DAY)), SIX_MONTHS(ONE_YEAR / 2)
+	ONE_DAY_MS(24 * ONE_HOUR), ONE_YEAR(uprv_floor(365.25 * ONE_DAY_MS)), SIX_MONTHS(ONE_YEAR / 2)
 {
 }
 
@@ -456,7 +456,7 @@ void TimeZoneBoundaryTest::findBoundariesStepwise(int32_t year, UDate interval, 
 	UnicodeString str;
 	UDate d = date(year - 1900, UCAL_JANUARY, 1);
 	UDate time = d;
-	UDate limit = time + ONE_YEAR + ONE_DAY;
+	UDate limit = time + ONE_YEAR + ONE_DAY_MS;
 	bool lastState = z->inDaylightTime(d, status);
 	if(failure(status, "TimeZone::inDaylightTime", TRUE)) return;
 	int32_t changes = 0;
@@ -504,13 +504,13 @@ void TimeZoneBoundaryTest::findBoundariesStepwise(int32_t year, UDate interval, 
 void TimeZoneBoundaryTest::TestStepwise()
 {
 	TimeZone * zone =  TimeZone::createTimeZone("America/New_York");
-	findBoundariesStepwise(1997, ONE_DAY, zone, 2);
+	findBoundariesStepwise(1997, ONE_DAY_MS, zone, 2);
 	delete zone;
 	zone = TimeZone::createTimeZone("UTC"); // updated 12/3/99 aliu
-	findBoundariesStepwise(1997, ONE_DAY, zone, 0);
+	findBoundariesStepwise(1997, ONE_DAY_MS, zone, 0);
 	delete zone;
 	zone = TimeZone::createTimeZone("Australia/Adelaide");
-	findBoundariesStepwise(1997, ONE_DAY, zone, 2);
+	findBoundariesStepwise(1997, ONE_DAY_MS, zone, 2);
 	delete zone;
 }
 

@@ -1,10 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/******************************************************************************
- *   Copyright (C) 2009-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *******************************************************************************
- */
+// Copyright (C) 2009-2016, International Business Machines Corporation and others.  All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -48,15 +45,8 @@
 #define HEX_0H 1 /*  01234h */
 
 /* prototypes --------------------------------------------------------------- */
-static void getOutFilename(const char * inFilename,
-    const char * destdir,
-   char * outFilename,
-    int32_t outFilenameCapacity,
-    char * entryName,
-    int32_t entryNameCapacity,
-    const char * newSuffix,
-    const char * optFilename);
-
+static void getOutFilename(const char * inFilename, const char * destdir, char * outFilename, int32_t outFilenameCapacity,
+    char * entryName, int32_t entryNameCapacity, const char * newSuffix, const char * optFilename);
 static uint32_t write8(FileStream * out, uint8_t byte, uint32_t column);
 static uint32_t write32(FileStream * out, uint32_t byte, uint32_t column);
 
@@ -251,7 +241,9 @@ U_CAPI void U_EXPORT2 writeAssemblyCode(const char * filename, const char * dest
 		char chars[4096];
 	} buffer;
 	FileStream * out;
-	size_t i, length, count;
+	size_t i;
+	size_t length;
+	size_t count;
 	FileStream * in = T_FileStream_open(filename, "rb");
 	if(!in) {
 		slfprintf_stderr("genccode: unable to open input file %s\n", filename);
@@ -260,7 +252,7 @@ U_CAPI void U_EXPORT2 writeAssemblyCode(const char * filename, const char * dest
 	getOutFilename(filename, destdir, buffer.chars, sizeof(buffer.chars), entry, sizeof(entry), ".S", optFilename);
 	out = T_FileStream_open(buffer.chars, "w");
 	if(!out) {
-		slfprintf_stderr("genccode: unable to open output file %s\n", buffer.chars);
+		slfprintf_stderr("genccode (writeAssemblyCode): unable to open output file %s\n", buffer.chars);
 		exit(U_FILE_ACCESS_ERROR);
 	}
 	if(outFilePath != NULL) {
@@ -275,12 +267,10 @@ U_CAPI void U_EXPORT2 writeAssemblyCode(const char * filename, const char * dest
 	/* Need to fix the file separator character when using MinGW. */
 	swapFileSepChar(outFilePath, U_FILE_SEP_CHAR, '/');
 #endif
-
 	if(optEntryPoint != NULL) {
 		strcpy(entry, optEntryPoint);
 		uprv_strcat(entry, "_dat");
 	}
-
 	/* turn dashes or dots in the entry name into underscores */
 	length = strlen(entry);
 	for(i = 0; i<length; ++i) {
@@ -307,9 +297,7 @@ U_CAPI void U_EXPORT2 writeAssemblyCode(const char * filename, const char * dest
 			column = write32(out, buffer.uint32s[i], column);
 		}
 	}
-
 	T_FileStream_writeLine(out, "\n");
-
 	count = snprintf(
 		buffer.chars, sizeof(buffer.chars),
 		assemblyHeader[assemblyHeaderIndex].footer,
@@ -320,17 +308,14 @@ U_CAPI void U_EXPORT2 writeAssemblyCode(const char * filename, const char * dest
 		exit(U_ILLEGAL_ARGUMENT_ERROR);
 	}
 	T_FileStream_writeLine(out, buffer.chars);
-
 	if(T_FileStream_error(in)) {
 		slfprintf_stderr("genccode: file read error while generating from file %s\n", filename);
 		exit(U_FILE_ACCESS_ERROR);
 	}
-
 	if(T_FileStream_error(out)) {
 		slfprintf_stderr("genccode: file write error while generating from file %s\n", filename);
 		exit(U_FILE_ACCESS_ERROR);
 	}
-
 	T_FileStream_close(out);
 	T_FileStream_close(in);
 }
@@ -343,7 +328,7 @@ U_CAPI void U_EXPORT2 writeCCode(const char * filename, const char * destdir, co
 	size_t i, length, count;
 	in = T_FileStream_open(filename, "rb");
 	if(!in) {
-		slfprintf_stderr("genccode: unable to open input file %s\n", filename);
+		slfprintf_stderr("genccode (writeCCode): unable to open input file %s\n", filename);
 		exit(U_FILE_ACCESS_ERROR);
 	}
 	if(optName != NULL) { /* prepend  'icudt28_' */
@@ -369,7 +354,7 @@ U_CAPI void U_EXPORT2 writeCCode(const char * filename, const char * destdir, co
 	}
 	out = T_FileStream_open(buffer, "w");
 	if(!out) {
-		slfprintf_stderr("genccode: unable to open output file %s\n", buffer);
+		slfprintf_stderr("genccode (writeCCode): unable to open output file %s\n", buffer);
 		exit(U_FILE_ACCESS_ERROR);
 	}
 	/* turn dashes or dots in the entry name into underscores */
@@ -379,7 +364,6 @@ U_CAPI void U_EXPORT2 writeCCode(const char * filename, const char * destdir, co
 			entry[i] = '_';
 		}
 	}
-
 #if U_PLATFORM == U_PF_OS400
 	/*
 	   TODO: Fix this once the compiler implements this feature. Keep in sync with udatamem.c
@@ -808,25 +792,25 @@ static void getArchitecture(uint16_t * pCPU, uint16_t * pBits, bool * pIsBigEndi
 	T_FileStream_close(in);
 }
 
-U_CAPI void U_EXPORT2 writeObjectCode(const char * filename,
-    const char * destdir,
-    const char * optEntryPoint,
-    const char * optMatchArch,
-    const char * optFilename,
-    char * outFilePath,
-    size_t outFilePathCapacity,
-    bool optWinDllExport) {
+U_CAPI void U_EXPORT2 writeObjectCode(const char * filename, const char * destdir, const char * optEntryPoint,
+    const char * optMatchArch, const char * optFilename, char * outFilePath, size_t outFilePathCapacity, bool optWinDllExport) 
+{
 	/* common variables */
-	char buffer[4096], entry[96] = { 0 };
-	FileStream * in, * out;
+	char   buffer[4096];
+	char   entry[96] = { 0 };
+	FileStream * in;
+	FileStream * out;
 	const char * newSuffix;
-	int32_t i, entryLength, length, size, entryOffset = 0, entryLengthOffset = 0;
-
-	uint16_t cpu, bits;
+	int32_t i;
+	int32_t entryLength;
+	int32_t length;
+	int32_t size;
+	int32_t entryOffset = 0;
+	int32_t entryLengthOffset = 0;
+	uint16_t cpu;
+	uint16_t bits;
 	bool makeBigEndian;
-
 	(void)optWinDllExport; /* unused except Windows */
-
 	/* platform-specific variables and initialization code */
 #ifdef U_ELF
 	/* 32-bit Elf file header */
@@ -1047,42 +1031,31 @@ U_CAPI void U_EXPORT2 writeObjectCode(const char * filename,
 			0 /* st_size */
 		}
 	};
-
 #endif /* U_ELF64 */
-
 	/* entry[] have a leading NUL */
 	entryOffset = 1;
-
 	/* in the common code, count entryLength from after the NUL */
 	entryLengthOffset = 1;
-
 	newSuffix = ".o";
-
 #elif U_PLATFORM_HAS_WIN32_API
 	struct {
 		IMAGE_FILE_HEADER fileHeader;
 		IMAGE_SECTION_HEADER sections[2];
 		char linkerOptions[100];
 	} objHeader;
-
 	IMAGE_SYMBOL symbols[1];
 	struct {
 		DWORD sizeofLongNames;
 		char longNames[100];
 	} symbolNames;
-
-	/*
-	 * entry sometimes have a leading '_'
-	 * overwritten if entryOffset==0 depending on the target platform
-	 * see check for cpu below
-	 */
+	// 
+	// entry sometimes have a leading '_' overwritten if entryOffset==0 depending on the target platform see check for cpu below
+	// 
 	entry[0] = '_';
-
 	newSuffix = ".obj";
 #else
-#   error "Unknown platform for CAN_GENERATE_OBJECTS."
+	#error "Unknown platform for CAN_GENERATE_OBJECTS."
 #endif
-
 	/* deal with options, files and the entry point name */
 	getArchitecture(&cpu, &bits, &makeBigEndian, optMatchArch);
 	if(optMatchArch) {
@@ -1096,33 +1069,21 @@ U_CAPI void U_EXPORT2 writeObjectCode(const char * filename,
 		entryOffset = 1;
 	}
 #endif
-
 	in = T_FileStream_open(filename, "rb");
 	if(!in) {
 		slfprintf_stderr("genccode: unable to open input file %s\n", filename);
 		exit(U_FILE_ACCESS_ERROR);
 	}
 	size = T_FileStream_size(in);
-
-	getOutFilename(
-		filename,
-		destdir,
-		buffer,
-		sizeof(buffer),
-		entry + entryOffset,
-		sizeof(entry) - entryOffset,
-		newSuffix,
-		optFilename);
-
-	if(outFilePath != NULL) {
+	getOutFilename(filename, destdir, buffer, sizeof(buffer), entry + entryOffset, sizeof(entry) - entryOffset, newSuffix, optFilename);
+	if(outFilePath) {
 		if(strlen(buffer) >= outFilePathCapacity) {
 			slfprintf_stderr("genccode: filename too long\n");
 			exit(U_ILLEGAL_ARGUMENT_ERROR);
 		}
 		strcpy(outFilePath, buffer);
 	}
-
-	if(optEntryPoint != NULL) {
+	if(optEntryPoint) {
 		strcpy(entry+entryOffset, optEntryPoint);
 		uprv_strcat(entry+entryOffset, "_dat");
 	}
@@ -1133,30 +1094,24 @@ U_CAPI void U_EXPORT2 writeObjectCode(const char * filename,
 			entry[entryLengthOffset+i] = '_';
 		}
 	}
-
 	/* open the output file */
 	out = T_FileStream_open(buffer, "wb");
 	if(!out) {
-		slfprintf_stderr("genccode: unable to open output file %s\n", buffer);
+		slfprintf_stderr("genccode (writeObjectCode): unable to open output file %s\n", buffer);
 		exit(U_FILE_ACCESS_ERROR);
 	}
-
 #ifdef U_ELF
 	if(bits==32) {
 		header32.e_ident[EI_DATA] = makeBigEndian ? ELFDATA2MSB : ELFDATA2LSB;
 		header32.e_machine = cpu;
-
 		/* 16-align .rodata in the .o file, just in case */
 		paddingSize = sectionHeaders32[4].sh_offset & 0xf;
 		if(paddingSize!=0) {
 			paddingSize = 0x10-paddingSize;
 			sectionHeaders32[4].sh_offset += paddingSize;
 		}
-
 		sectionHeaders32[4].sh_size = (Elf32_Word)size;
-
 		symbols32[1].st_size = (Elf32_Word)size;
-
 		/* write .o headers */
 		T_FileStream_write(out, &header32, (int32_t)sizeof(header32));
 		T_FileStream_write(out, sectionHeaders32, (int32_t)sizeof(sectionHeaders32));
@@ -1166,7 +1121,6 @@ U_CAPI void U_EXPORT2 writeObjectCode(const char * filename,
 #ifdef U_ELF64
 		header64.e_ident[EI_DATA] = makeBigEndian ? ELFDATA2MSB : ELFDATA2LSB;
 		header64.e_machine = cpu;
-
 		/* 16-align .rodata in the .o file, just in case */
 		paddingSize = sectionHeaders64[4].sh_offset & 0xf;
 		if(paddingSize!=0) {

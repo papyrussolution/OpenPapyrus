@@ -15,14 +15,12 @@
 // Must be before any other #includes.
 #include "uposixdefs.h"
 #include "putilimp.h"
-
 #if U_HAVE_POPEN
-#if(U_PF_MINGW <= U_PLATFORM && U_PLATFORM <= U_PF_CYGWIN) && defined(__STRICT_ANSI__)
-/* popen/pclose aren't defined in strict ANSI on Cygwin and MinGW */
-#undef __STRICT_ANSI__
+	#if(U_PF_MINGW <= U_PLATFORM && U_PLATFORM <= U_PF_CYGWIN) && defined(__STRICT_ANSI__)
+		/* popen/pclose aren't defined in strict ANSI on Cygwin and MinGW */
+		#undef __STRICT_ANSI__
+	#endif
 #endif
-#endif
-
 #include "filestrm.h"
 #include "toolutil.h"
 #include "unewdata.h"
@@ -42,11 +40,9 @@
 //U_CDECL_END
 
 #if U_HAVE_POPEN
+	using icu::LocalPointerBase;
 
-using icu::LocalPointerBase;
-
-U_DEFINE_LOCAL_OPEN_POINTER(LocalPipeFilePointer, FILE, pclose);
-
+	U_DEFINE_LOCAL_OPEN_POINTER(LocalPipeFilePointer, FILE, pclose);
 #endif
 
 using icu::LocalMemory;
@@ -254,13 +250,24 @@ const char * progname = "PKGDATA";
 
 int main(int argc, char * argv[]) 
 {
+	// @debug {
+	{
+		SString temp_buf;
+		for(int i = 0; i < argc; i++) {
+			if(i)
+				temp_buf.Space();
+			temp_buf.Cat(argv[i]);
+		}
+		printf(temp_buf.CR().cptr());
+	}
+	// } @debug 
 	int result = 0;
 	/* FileStream  *out; */
 	UPKGOptions o;
-	CharList    * tail;
+	CharList * tail;
 	bool needsHelp = FALSE;
 	UErrorCode status = U_ZERO_ERROR;
-	/* char         tmp[1024]; */
+	/* char tmp[1024]; */
 	uint32_t i;
 	int32_t n;
 	U_MAIN_INIT_ARGS(argc, argv);
@@ -269,8 +276,7 @@ int main(int argc, char * argv[])
 	/* read command line options */
 	argc = u_parseArgs(argc, argv, SIZEOFARRAYi(options), options);
 	/* error handling, printing usage message */
-	/* I've decided to simply print an error and quit. This tool has too
-	   many options to just display them all of the time. */
+	/* I've decided to simply print an error and quit. This tool has too many options to just display them all of the time. */
 	if(options[HELP].doesOccur || options[HELP_QUESTION_MARK].doesOccur) {
 		needsHelp = TRUE;
 	}
@@ -331,7 +337,7 @@ int main(int argc, char * argv[])
 	o.version   = options[REVISION].doesOccur ? options[REVISION].value : 0;
 	o.shortName = options[NAME].value;
 	{
-		int32_t len = (int32_t)strlen(o.shortName);
+		int32_t len = sstrleni(o.shortName);
 		const char * sp;
 		char * csname = (char *)uprv_malloc((len + 1 + 1) * sizeof(*o.cShortName));
 		char * cp = csname;
@@ -413,7 +419,7 @@ int main(int argc, char * argv[])
 		return 2;
 	}
 	result = pkg_executeOptions(&o);
-	if(pkgDataFlags != NULL) {
+	if(pkgDataFlags) {
 		for(n = 0; n < PKGDATA_FLAGS_SIZE; n++) {
 			if(pkgDataFlags[n] != NULL) {
 				uprv_free(pkgDataFlags[n]);
@@ -436,15 +442,14 @@ int main(int argc, char * argv[])
 	return result;
 }
 
-static int runCommand(const char * command, bool specialHandling) {
+static int runCommand(const char * command, bool specialHandling) 
+{
 	char * cmd = NULL;
 	char cmdBuffer[SMALL_BUFFER_MAX_SIZE];
-	int32_t len = static_cast<int32_t>(strlen(command));
-
+	int32_t len = sstrleni(command);
 	if(len == 0) {
 		return 0;
 	}
-
 	if(!specialHandling) {
 #if defined(USING_CYGWIN) || U_PLATFORM == U_PF_MINGW || U_PLATFORM == U_PF_OS400
 		if((len + BUFFER_PADDING_SIZE) >= SMALL_BUFFER_MAX_SIZE) {
@@ -469,18 +474,15 @@ normal_command_mode:
 #endif
 		cmd = (char *)command;
 	}
-
 	printf("pkgdata: %s\n", cmd);
 	int result = system(cmd);
 	if(result != 0) {
 		slfprintf_stderr("-- return status = %d\n", result);
 		result = 1; // system() result code is platform specific.
 	}
-
 	if(cmd != cmdBuffer && cmd != command) {
 		uprv_free(cmd);
 	}
-
 	return result;
 }
 
@@ -514,76 +516,52 @@ static int32_t pkg_executeOptions(UPKGOptions * o)
 	}
 	else { /* if(IN_COMMON_MODE(mode) || IN_DLL_MODE(mode) || IN_STATIC_MODE(mode)) */
 		bool noVersion = FALSE;
-
 		strcpy(targetDir, o->targetDir);
 		uprv_strcat(targetDir, PKGDATA_FILE_SEP_STRING);
-
 		strcpy(tmpDir, o->tmpDir);
 		uprv_strcat(tmpDir, PKGDATA_FILE_SEP_STRING);
-
 		strcpy(datFileNamePath, tmpDir);
-
 		strcpy(datFileName, o->shortName);
 		uprv_strcat(datFileName, UDATA_CMN_SUFFIX);
-
 		uprv_strcat(datFileNamePath, datFileName);
-
 		if(o->verbose) {
 			fprintf(stdout, "# Writing package file %s ..\n", datFileNamePath);
 		}
-		result = writePackageDatFile(datFileNamePath,
-			o->comment,
-			o->srcDir,
-			o->fileListFiles->str,
-			NULL,
-			U_CHARSET_FAMILY ? 'e' :  U_IS_BIG_ENDIAN ? 'b' : 'l');
+		result = writePackageDatFile(datFileNamePath, o->comment, o->srcDir, o->fileListFiles->str, NULL, U_CHARSET_FAMILY ? 'e' :  U_IS_BIG_ENDIAN ? 'b' : 'l');
 		if(result != 0) {
 			slfprintf_stderr("Error writing package dat file.\n");
 			return result;
 		}
-
 		if(IN_COMMON_MODE(mode)) {
 			char targetFileNamePath[LARGE_BUFFER_MAX_SIZE] = "";
-
 			strcpy(targetFileNamePath, targetDir);
 			uprv_strcat(targetFileNamePath, datFileName);
-
 			/* Move the dat file created to the target directory. */
 			if(strcmp(datFileNamePath, targetFileNamePath) != 0) {
 				if(T_FileStream_file_exists(targetFileNamePath)) {
 					if((result = remove(targetFileNamePath)) != 0) {
-						slfprintf_stderr("Unable to remove old dat file: %s\n",
-						    targetFileNamePath);
+						slfprintf_stderr("Unable to remove old dat file: %s\n", targetFileNamePath);
 						return result;
 					}
 				}
-
 				result = rename(datFileNamePath, targetFileNamePath);
-
 				if(o->verbose) {
-					fprintf(stdout, "# Moving package file to %s ..\n",
-					    targetFileNamePath);
+					fprintf(stdout, "# Moving package file to %s ..\n", targetFileNamePath);
 				}
 				if(result != 0) {
-					fprintf(
-						stderr,
-						"Unable to move dat file (%s) to target location (%s).\n",
-						datFileNamePath, targetFileNamePath);
+					fprintf(stderr, "Unable to move dat file (%s) to target location (%s).\n", datFileNamePath, targetFileNamePath);
 					return result;
 				}
 			}
-
 			if(o->install != NULL) {
 				result = pkg_installCommonMode(o->install, targetFileNamePath);
 			}
-
 			return result;
 		}
 		else { /* if(IN_STATIC_MODE(mode) || IN_DLL_MODE(mode)) */
 			char gencFilePath[SMALL_BUFFER_MAX_SIZE] = "";
 			char version_major[10] = "";
 			bool reverseExt = FALSE;
-
 #if !defined(WINDOWS_WITH_MSVC) || defined(USING_CYGWIN)
 			/* Get the version major number. */
 			if(o->version != NULL) {
@@ -613,10 +591,8 @@ static int32_t pkg_executeOptions(UPKGOptions * o)
 #endif
 			/* Using the base libName and version number, generate the library file names. */
 			createFileNames(o, mode, version_major, o->version == NULL ? "" : o->version, o->libName, reverseExt, noVersion);
-
 			if((o->version!=NULL || IN_STATIC_MODE(mode)) && o->rebuild == FALSE && o->pdsbuild == FALSE) {
-				/* Check to see if a previous built data library file exists and check if it is the
-				   latest. */
+				// Check to see if a previous built data library file exists and check if it is the latest.
 				sprintf(checkLibFile, "%s%s", targetDir, libFileNames[LIB_FILE_VERSION]);
 				if(T_FileStream_file_exists(checkLibFile)) {
 					if(isFileModTimeLater(checkLibFile, o->srcDir,
@@ -643,32 +619,19 @@ static int32_t pkg_executeOptions(UPKGOptions * o)
 					fprintf(stdout, "# Not installing missing %s into %s\n", checkLibFile, o->install);
 				}
 			}
-
 			if(pkg_checkFlag(o) == NULL) {
 				/* Error occurred. */
 				return result;
 			}
 #endif
-
 			if(!o->withoutAssembly && pkgDataFlags[GENCCODE_ASSEMBLY_TYPE][0] != 0) {
 				const char * genccodeAssembly = pkgDataFlags[GENCCODE_ASSEMBLY_TYPE];
-
 				if(o->verbose) {
 					fprintf(stdout, "# Generating assembly code %s of type %s ..\n", gencFilePath, genccodeAssembly);
 				}
-
 				/* Offset genccodeAssembly by 3 because "-a " */
-				if(genccodeAssembly &&
-				    (strlen(genccodeAssembly)>3) &&
-				    checkAssemblyHeaderName(genccodeAssembly+3)) {
-					writeAssemblyCode(
-						datFileNamePath,
-						o->tmpDir,
-						o->entryName,
-						NULL,
-						gencFilePath,
-						sizeof(gencFilePath));
-
+				if(genccodeAssembly && (strlen(genccodeAssembly)>3) && checkAssemblyHeaderName(genccodeAssembly+3)) {
+					writeAssemblyCode(datFileNamePath, o->tmpDir, o->entryName, NULL, gencFilePath, sizeof(gencFilePath));
 					result = pkg_createWithAssemblyCode(targetDir, mode, gencFilePath);
 					if(result != 0) {
 						slfprintf_stderr("Error generating assembly code for data.\n");
@@ -690,9 +653,10 @@ static int32_t pkg_executeOptions(UPKGOptions * o)
 				}
 			}
 			else {
-				if(o->verbose) {
-					fprintf(stdout, "# Writing object code to %s ..\n", gencFilePath);
-				}
+				// @debug if(o->verbose) {
+					//fprintf(stdout, "# Writing object code to %s ..\n", gencFilePath);
+					printf("# Writing object code to %s ..\n", gencFilePath);
+				// @debug }
 				if(o->withoutAssembly) {
 #ifdef BUILD_DATA_WITHOUT_ASSEMBLY
 					result = pkg_createWithoutAssemblyCode(o, targetDir, mode);
@@ -706,15 +670,8 @@ static int32_t pkg_executeOptions(UPKGOptions * o)
 					/* Try to detect the arch type, use NULL if unsuccessful */
 					char optMatchArch[10] = { 0 };
 					pkg_createOptMatchArch(optMatchArch);
-					writeObjectCode(
-						datFileNamePath,
-						o->tmpDir,
-						o->entryName,
-						(optMatchArch[0] == 0 ? NULL : optMatchArch),
-						NULL,
-						gencFilePath,
-						sizeof(gencFilePath),
-						TRUE);
+					writeObjectCode(datFileNamePath, o->tmpDir, o->entryName, (optMatchArch[0] == 0 ? NULL : optMatchArch),
+						NULL, gencFilePath, sizeof(gencFilePath), TRUE);
 					pkg_destroyOptMatchArch(optMatchArch);
 #if U_PLATFORM_IS_LINUX_BASED
 					result = pkg_generateLibraryFile(targetDir, mode, gencFilePath);
@@ -780,15 +737,14 @@ static int32_t pkg_executeOptions(UPKGOptions * o)
 }
 
 /* Initialize the pkgDataFlags with the option file given. */
-static int32_t initializePkgDataFlags(UPKGOptions * o) {
+static int32_t initializePkgDataFlags(UPKGOptions * o) 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t result = 0;
 	int32_t currentBufferSize = SMALL_BUFFER_MAX_SIZE;
 	int32_t tmpResult = 0;
-
 	/* Initialize pkgdataFlags */
 	pkgDataFlags = (char **)uprv_malloc(sizeof(char *) * PKGDATA_FLAGS_SIZE);
-
 	/* If we run out of space, allocate more */
 #if !defined(WINDOWS_WITH_MSVC) || defined(USING_CYGWIN)
 	do {

@@ -512,24 +512,32 @@ fz_rect fz_transform_rect(fz_rect r, fz_matrix m)
 
 fz_irect fz_expand_irect(fz_irect a, int expand)
 {
-	if(fz_is_infinite_irect(a)) return a;
-	if(!fz_is_valid_irect(a)) return a;
-	a.x0 -= expand;
-	a.y0 -= expand;
-	a.x1 += expand;
-	a.y1 += expand;
-	return a;
+	if(fz_is_infinite_irect(a)) 
+		return a;
+	else if(!fz_is_valid_irect(a)) 
+		return a;
+	else {
+		a.x0 -= expand;
+		a.y0 -= expand;
+		a.x1 += expand;
+		a.y1 += expand;
+		return a;
+	}
 }
 
 fz_rect fz_expand_rect(fz_rect a, float expand)
 {
-	if(fz_is_infinite_rect(a)) return a;
-	if(!fz_is_valid_rect(a)) return a;
-	a.x0 -= expand;
-	a.y0 -= expand;
-	a.x1 += expand;
-	a.y1 += expand;
-	return a;
+	if(fz_is_infinite_rect(a)) 
+		return a;
+	else if(!fz_is_valid_rect(a)) 
+		return a;
+	else {
+		a.x0 -= expand;
+		a.y0 -= expand;
+		a.x1 += expand;
+		a.y1 += expand;
+		return a;
+	}
 }
 
 /* Adding a point to an invalid rectangle makes the zero area rectangle that contains just that point. */

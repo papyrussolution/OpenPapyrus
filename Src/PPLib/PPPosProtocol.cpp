@@ -1,5 +1,5 @@
 // PPPOSPROTOCOL.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1797,7 +1797,7 @@ int PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, co
 				w_s.PutInner("alcorucat", agi.CategoryCode);
 		}
 		if(rInfo.GoodsTypeID) {
-			PPGoodsType gt_rec;
+			PPGoodsType2 gt_rec;
 			if(GObj.FetchGoodsType(rInfo.GoodsTypeID, &gt_rec) > 0) {
 				if(gt_rec.Flags & GTF_UNLIMITED)
 					w_s.PutInner("unlimited", 0);
@@ -3960,7 +3960,8 @@ int PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 {
 	int    ok = 1;
 	uint   qpb_list_idx = 0;
-	SString fmt_buf, msg_buf;
+	SString fmt_buf;
+	SString msg_buf;
 	SString temp_buf;
 	SString code_buf;
 	SString name_buf;
@@ -4357,16 +4358,16 @@ int PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 				}
 			}
 			if(gt_list.getCount()) {
-				PPObjGoodsType gty_obj;
+				PPObjGoodsType gt_obj;
 				{
-					PPGoodsType gty_rec;
-					for(SEnum en = gty_obj.Enum(0); en.Next(&gty_rec) > 0;) {
+					PPGoodsType2 gt_rec;
+					for(SEnum en = gt_obj.Enum(0); en.Next(&gt_rec) > 0;) {
 						for(uint j = 0; j < gt_list.getCount(); j++) {
 							SurrGoodsTypeEntry * p_entry = static_cast<SurrGoodsTypeEntry *>(gt_list.at(j));
 							if(!p_entry->NativeID) {
-								if((p_entry->Flags & (GTF_LOOKBACKPRICES|GTF_UNLIMITED|GTF_GMARKED)) == (gty_rec.Flags & (GTF_LOOKBACKPRICES|GTF_UNLIMITED|GTF_GMARKED)) &&
-									p_entry->ChZnProdType == gty_rec.ChZnProdType)
-									p_entry->NativeID = gty_rec.ID;
+								if((p_entry->Flags & (GTF_LOOKBACKPRICES|GTF_UNLIMITED|GTF_GMARKED)) == (gt_rec.Flags & (GTF_LOOKBACKPRICES|GTF_UNLIMITED|GTF_GMARKED)) &&
+									p_entry->ChZnProdType == gt_rec.ChZnProdType)
+									p_entry->NativeID = gt_rec.ID;
 							}
 						}
 					}
@@ -4379,21 +4380,21 @@ int PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 						if(!p_entry->NativeID) {
 							long   sfx_val = 0;
 							name_buf = p_gty_name_prefix;
-							while(gty_obj.SearchByName(name_buf, 0, 0) > 0) {
+							while(gt_obj.SearchByName(name_buf, 0, 0) > 0) {
 								(name_buf = p_gty_name_prefix).Space().CatChar('#').CatLongZ(++sfx_val, 2);
 							}
 							sfx_val = 0;
 							code_buf = p_gty_code_prefix;
-							while(gty_obj.SearchBySymb(code_buf, 0, 0) > 0) {
+							while(gt_obj.SearchBySymb(code_buf, 0, 0) > 0) {
 								(code_buf = p_gty_code_prefix).Space().CatChar('#').CatLongZ(++sfx_val, 2);
 							}
 							{
-								PPGoodsType gty_rec;
-								STRNSCPY(gty_rec.Name, name_buf);
-								STRNSCPY(gty_rec.Symb, code_buf);
-								gty_rec.Flags |= p_entry->Flags;
-								gty_rec.ChZnProdType = p_entry->ChZnProdType;
-								THROW(PPRef->AddItem(PPOBJ_GOODSTYPE, &p_entry->NativeID, &gty_rec, 1));
+								PPGoodsType2 gt_rec;
+								STRNSCPY(gt_rec.Name, name_buf);
+								STRNSCPY(gt_rec.Symb, code_buf);
+								gt_rec.Flags |= p_entry->Flags;
+								gt_rec.ChZnProdType = p_entry->ChZnProdType;
+								THROW(PPRef->AddItem(PPOBJ_GOODSTYPE, &p_entry->NativeID, &gt_rec, 1));
 							}
 						}
 					}
@@ -5897,7 +5898,7 @@ int RunInputProcessThread(PPID posNodeID)
 	if(!thread_info_list.getCount()) {
 		Reference * p_ref(PPRef);
 		PPID   user_id = 0;
-		PPSecur usr_rec;
+		PPSecur2 usr_rec;
 		char    pw[128];
 		SString db_symb;
 		PPObjCashNode cn_obj;

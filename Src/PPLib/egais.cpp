@@ -10920,7 +10920,7 @@ int EgaisMarkAutoSelector::Helper(PPID goodsID, double qtty, DocItem & rResult)
 			StringSet ss_ext_codes;
 			Goods2Tbl::Rec goods_rec; // запись основного товара (который непосредственно продается)
 			Goods2Tbl::Rec org_goods_rec; // запись оригинального товара (из которого был произведен основной товар)
-			PPGoodsType gt_rec;
+			PPGoodsType2 gt_rec;
 			PPObjUnit unit_obj;
 			double main_goods_liter_ratio = 0.0;
 			double inner_goods_liter_ratio = 0.0;
@@ -11238,7 +11238,7 @@ int EgaisMarkAutoSelector::Run(ResultBlock & rResult, LDATE actualDate)
 			for(uint itemidx = 0; itemidx < rResult.getCount(); itemidx++) {
 				DocItem * p_item = rResult.at(itemidx);
 				if(p_item && p_item->Qtty != 0.0 && GObj.Fetch(p_item->GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID) {
-					PPGoodsType gt_rec;
+					PPGoodsType2 gt_rec;
 					if(GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_EGAISAUTOWO) {
 						/* @v12.4.10 if(!IsInitialized) {
 							GetRecentEgaisStock(RecentEgaisStock);

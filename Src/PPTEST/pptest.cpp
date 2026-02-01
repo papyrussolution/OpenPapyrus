@@ -30,7 +30,6 @@ int  TestTsDensityMap(); // @debug
 int  TestUdsInterface();
 int  SrpTest();
 int  Test_StyloQInvitation();
-// @construction finished int  Test_Launch_SCalendarPicker();
 int  Test_StrAssocTree();
 int  Test_Fts();
 //int  Test_ReadUed(const char * pFileName);
@@ -2100,7 +2099,6 @@ int DoConstructionTest()
 	//Test_LibPhoneNumber();
 	//Test_StyloQInvitation();
 	//Test_StrAssocTree();
-	// @construction finished Test_Launch_SCalendarPicker();
 	/*{
 		SSecretTagPool stp;
 		stp.GeneratePrivateKey(2048);

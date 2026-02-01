@@ -6,21 +6,11 @@
 #pragma hdrstop
 #include <mariadb-20251208/mysql.h>
 
-// @20260118 @todo(connection) - помечено несколько мест с ошибкой компиляции - надо доработать хитрое упрвление соединениями для search & transaction
-
-static void DEBUG_LOG(const char * pMsg)
+static void FASTCALL DEBUG_LOG(const char * pMsg)
 {
 	if(SlDebugMode::CT())
 		SLS.LogMessage("dbmysql.log", pMsg, 0);
 }
-
-/*
-#ifndef NDEBUG
-	#define DEBUG_LOG(msg) SLS.LogMessage("dbmysql.log", msg, 0)
-#else
-	#define DEBUG_LOG(msg)
-#endif
-*/
 
 static MYSQL * FASTCALL GetHandle(DbProvider::Connection & rC) { return static_cast<MYSQL *>(rC.GetH()); }
 
@@ -62,7 +52,9 @@ int SMySqlDbProvider::ConnectionEntry::DestroyLastSelectStatement()
 SMySqlDbProvider::TransactionBlock::TransactionBlock(SMySqlDbProvider * pPrvdr) : P_Prvdr(pPrvdr)
 {
 	if(P_Prvdr) {
-		P_Prvdr->GetConnection(Conn);
+		ConnectionEntry * p_ce = P_Prvdr->GetConnection();
+		if(p_ce)
+			Conn = *p_ce;
 	}
 }
 		
@@ -75,7 +67,7 @@ SMySqlDbProvider::TransactionBlock::~TransactionBlock()
 
 SMySqlDbProvider::SMySqlDbProvider() :
 	DbProvider(sqlstMySQL, cpUTF8, DbDictionary::CreateInstance(0, 0), DbProvider::cSQL|DbProvider::cDbDependTa), SqlGen(sqlstMySQL, 0), Flags(0),
-	P_TraBlk(0)/*, P_LastSelectStmt(0)*/
+	P_TraBlk(0)
 {
 }
 
@@ -147,51 +139,44 @@ int SMySqlDbProvider::UseDatabase(const char * pDbName) // @v12.4.8
 			}
 			ConnPool.clear();
 		}
-		//SqlGen.Z().Tok(Generator_SQL::tokUse).Sp().QbText(pDbName);
-		//SSqlStmt stmt(this, SqlGen);
-		//THROW(stmt.Exec(0, 0));
 	}
 	CATCHZOK
 	return ok;
 }
 
-//DbProvider::Connection SMySqlDbProvider::GetConnection() // @v12.5.3
-bool SMySqlDbProvider::GetConnection(ConnectionEntry & rConnEntry) // @v12.5.3
+SMySqlDbProvider::ConnectionEntry * SMySqlDbProvider::GetConnection() // @v12.5.5
 {
-	rConnEntry.Z();
-	bool   ok = false;
-	//DbProvider::Connection result;
-	for(uint i = 0; !ok && i < ConnPool.getCount(); i++) {
+	ConnectionEntry * p_result = 0;
+	for(uint i = 0; !p_result && i < ConnPool.getCount(); i++) {
 		ConnectionEntry & r_item = ConnPool.at(i);
 		if(!(r_item.State & ConnectionEntry::stBusy) && !!r_item.Conn) {
-			rConnEntry = r_item;
-			//result = r_item.Conn;
+			p_result = &r_item;
 			r_item.State |= ConnectionEntry::stBusy;
-			ok = true;
 		}
 	}
-	if(!ok) {
+	if(!p_result) {
 		ConnectionEntry new_item;
-		if(Helper_Connect(&Lb, &CurrentDatabase, new_item)) {
-			rConnEntry = new_item;
-			//result = new_item.Conn;
+		if(Helper_Connect(&Lb, &CurrentDatabase, new_item, false/*dontUseDatabase*/)) {
 			new_item.State |= ConnectionEntry::stBusy;
 			ConnPool.insert(&new_item);
-			ok = true;
+			p_result = &ConnPool.at(ConnPool.getCount()-1);
 		}
 	}
-	//return result;
-	return ok;
+	return p_result;
 }
 
 SMySqlDbProvider::ConnectionEntry * SMySqlDbProvider::SearchConnectionByH(void * pH)
 {
 	SMySqlDbProvider::ConnectionEntry * p_result = 0;
 	if(pH) {
-		for(uint i = 0; !p_result && i < ConnPool.getCount(); i++) {
-			ConnectionEntry & r_item = ConnPool.at(i);
-			if(r_item.Conn.GetH() == pH)
-				p_result = &r_item;
+		if(pH == MainConn.Conn.GetH())
+			p_result = &MainConn;
+		else {
+			for(uint i = 0; !p_result && i < ConnPool.getCount(); i++) {
+				ConnectionEntry & r_item = ConnPool.at(i);
+				if(r_item.Conn.GetH() == pH)
+					p_result = &r_item;
+			}
 		}
 	}
 	return p_result;
@@ -201,14 +186,19 @@ int SMySqlDbProvider::ReleaseConnection(ConnectionEntry & rConnEntry) // @v12.5.
 {
 	int    ok = -1;
 	if(!!rConnEntry.Conn) {
-		for(uint i = 0; ok < 0 && i < ConnPool.getCount(); i++) {
-			ConnectionEntry & r_item = ConnPool.at(i);
-			if(r_item.Conn.GetH() == rConnEntry.Conn.GetH()) {
-				r_item.State &= ~ConnectionEntry::stBusy;
-				r_item.DestroyLastSelectStatement();
-				r_item.P_LastSelectStmt = 0;
-				//rConnEntry.Z();
-				ok = 2;
+		if(rConnEntry.Conn.GetH() == MainConn.Conn.GetH()) {
+			ok = 100; // Нельзя здесь закрывать основное соединение!  
+		}
+		else {
+			for(uint i = 0; ok < 0 && i < ConnPool.getCount(); i++) {
+				ConnectionEntry & r_item = ConnPool.at(i);
+				if(r_item.Conn.GetH() == rConnEntry.Conn.GetH()) {
+					r_item.State &= ~ConnectionEntry::stBusy;
+					r_item.DestroyLastSelectStatement();
+					r_item.P_LastSelectStmt = 0;
+					//rConnEntry.Z();
+					ok = 2;
+				}
 			}
 		}
 		if(ok < 0) {
@@ -233,8 +223,7 @@ int SMySqlDbProvider::Helper_CloseConnection(DbProvider::Connection & rConn) // 
 	return ok;
 }
 
-//DbProvider::Connection SMySqlDbProvider::Helper_Connect(const DbLoginBlock * pBlk, SString * pDbName) // @v12.5.3
-bool SMySqlDbProvider::Helper_Connect(const DbLoginBlock * pBlk, SString * pDbName, ConnectionEntry & rConnEntry) // @v12.5.3
+bool SMySqlDbProvider::Helper_Connect(const DbLoginBlock * pBlk, SString * pDbName, ConnectionEntry & rConnEntry, bool dontUseDatabase) // @v12.5.3
 {
 	rConnEntry.Z();
 	CALLPTRMEMB(pDbName, Z());
@@ -291,7 +280,8 @@ bool SMySqlDbProvider::Helper_Connect(const DbLoginBlock * pBlk, SString * pDbNa
 				pBlk->GetAttr(DbLoginBlock::attrUserName, user);
 				pBlk->GetAttr(DbLoginBlock::attrPassword, pw);
 				//p_h->options.charset_name = newStr("utf8mb4"); // @v12.5.1
-				if(mysql_real_connect(p_h, host, user, pw, db_name, port, 0/*unix-socket*/, 0/*client_flags*/)) {
+				const char * p_db_name = dontUseDatabase ? 0 : db_name.cptr();
+				if(mysql_real_connect(p_h, host, user, pw, p_db_name, port, 0/*unix-socket*/, 0/*client_flags*/)) {
 					//CurrentDatabase = db_name;
 					ASSIGN_PTR(pDbName, db_name);
 					ok = true;
@@ -308,15 +298,39 @@ bool SMySqlDbProvider::Helper_Connect(const DbLoginBlock * pBlk, SString * pDbNa
 
 /*virtual*/int SMySqlDbProvider::DbLogin(const DbLoginBlock * pBlk, long options)
 {
-	int    ok = 0;
-	if(Helper_Connect(pBlk, &CurrentDatabase, MainConn)) {
+	int    ok = 1;
+	//
+	// Вполне может так случиться, что мы авторизуемся на dmbs-сервере но базы данных там еще нет.
+	// Из-за такой возможности сначала логинимся на сервере без входа в базу данных Helper_Connect(..., true/*dontUseDatabase*/)
+	// далее проверяем наличие базы данных. Если нет, то создаем и только после этого начинаем использовать базу данных (UseDatabase)
+	//
+	SString db_name;
+	THROW(pBlk); // @todo @err
+	pBlk->GetAttr(DbLoginBlock::attrDbName, db_name);
+	if(db_name.IsEmpty()) {
+		pBlk->GetAttr(DbLoginBlock::attrDbSymb, db_name);
+	}
+	THROW(db_name.NotEmptyS()); // @todo @err
+	if(Helper_Connect(pBlk, &CurrentDatabase, MainConn, true/*dontUseDatabase*/)) {
 		Common_Login(pBlk);
-		ok = 1;
+		{
+			uint   database_state = 0;
+			int    gdbsr = GetDatabaseState(db_name, &database_state);
+			THROW(gdbsr);
+			if(database_state & dbstNotExists) {
+				THROW(CreateDatabase(db_name));
+			}
+			THROW(UseDatabase(db_name));
+		}
 	}
 	else {
 		assert(!MainConn.Conn);
 		assert(CurrentDatabase.IsEmpty());
+		CALLEXCEPT();
 	}
+	CATCH
+		ok = 0;
+	ENDCATCH
 	return ok;
 }
 
@@ -351,10 +365,9 @@ SMySqlDbProvider::ConnectionEntry & SMySqlDbProvider::GetWorkingConnection(SSqlS
 		if(p_ext_entry)
 			p_result = p_ext_entry;
 		else {
-			// @2020121 Этот блок не работает! Как я мог такую хуйню сделать? Передать указатель на локальный экземпляр!
-			ConnectionEntry ce;
-			if(continuousSelection && GetConnection(ce)) { 
-				p_result = &ce;
+			ConnectionEntry * p_ce = 0;
+			if(continuousSelection && (p_ce = GetConnection()) != 0) {
+				p_result = p_ce;
 			}
 			else
 				p_result = &MainConn;
@@ -380,7 +393,6 @@ SMySqlDbProvider::ConnectionEntry & SMySqlDbProvider::GetWorkingConnection(SSqlS
 
 /*virtual*/int SMySqlDbProvider::PostProcess_LoadTableSpec(DBTable * pTbl) // @v12.4.8
 {
-	// @construction
 	int    ok = -1;
 	if(pTbl) {
 		BNFieldList2 & r_fld_list = pTbl->GetFieldsNonConst();
@@ -527,9 +539,18 @@ const BNField * SMySqlDbProvider::GetRowIdField(const DBTable * pTbl, uint * pFl
 	return rFileNameBuf.Z();
 }
 
-/*virtual*/int SMySqlDbProvider::DropFile(const char * pFileName)
+/*virtual*/int SMySqlDbProvider::DropFile(const char * pFileName) // @v12.5.5
 {
-	return 0;
+	int    ok = 1;
+	if(IsFileExists_(pFileName) > 0) {
+		SqlGen.Z().Tok(Generator_SQL::tokDrop).Sp().Tok(Generator_SQL::tokTable).Sp().Text(pFileName);
+		SSqlStmt stmt(this, SqlGen);
+		THROW(stmt.Exec(1, OCI_DEFAULT));
+	}
+	else
+		ok = -1;
+	CATCHZOK
+	return ok;
 }
 
 /*virtual*/int SMySqlDbProvider::PostProcessAfterUndump(DBTable * pTbl)
@@ -739,7 +760,7 @@ int SMySqlDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTable
 
 /*virtual*/int SMySqlDbProvider::Implement_Close(DBTable * pTbl)
 {
-	return 1;
+	return 1; // @nothingtodo
 }
 
 int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, uint * pActual)
@@ -1367,17 +1388,125 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 
 /*virtual*/int SMySqlDbProvider::Implement_BExtInsert(BExtInsert * pBei)
 {
-	return 0;
+	int    ok = -1;
+	//
+	// Чтобы не затирать содержимое внутреннего буфера таблицы pBei->P_Tbl распределяем временный буфер rec_buf.
+	//
+	SBaseBuffer rec_buf;
+	rec_buf.Init();
+	const  uint num_recs = pBei->GetCount();
+	if(num_recs) {
+		uint   i;
+		int    in_subst_no = 0;
+		int    out_subst_no = 0;
+		DBTable * p_tbl = pBei->getTable();
+		const  uint fld_count = p_tbl->FldL.getCount();
+		SString temp_buf;
+		SSqlStmt stmt(this);
+		SqlGen.Z().Tok(Generator_SQL::tokInsert).Sp().Tok(Generator_SQL::tokInto).Sp().Text(p_tbl->FileName_).Sp();
+		SqlGen.Tok(Generator_SQL::tokValues).Sp().LPar();
+		//
+			stmt.BL.Dim = 1;
+			stmt.BL.P_Lob = p_tbl->getLobBlock();
+			{
+				bool is_first_fld_enum_item = true;
+				for(i = 0; i < fld_count; i++) {
+					const BNField & r_fld = p_tbl->FldL.GetFieldByPosition(i);
+					bool  do_skip_this_fld = false;
+					if(GETSTYPE(r_fld.T) == S_AUTOINC) {
+						long   val = 0;
+						size_t val_sz = 0;
+						r_fld.getValue(p_tbl->getDataBufConst(), &val, &val_sz);
+						assert(val_sz == sizeof(val));
+						if(val == 0) {
+							// (похоже, не надо так делать - надо привязывать null-значение явно) do_skip_this_fld = true;
+						}
+					}
+					if(!do_skip_this_fld) {
+						if(!is_first_fld_enum_item)
+							SqlGen.Com();
+						SqlGen.Param(temp_buf.NumberToLat(in_subst_no++));
+						stmt.BindItem(-in_subst_no, 1, r_fld.T, PTR8(p_tbl->getDataBuf()) + r_fld.Offs);
+						is_first_fld_enum_item = false;
+					}
+				}
+			}
+			SqlGen.RPar();
+			SqlGen.Sp().Tok(Generator_SQL::tokReturning).Sp().Tok(Generator_SQL::tokRowId);
+		//
+		{
+			THROW(stmt.SetSqlText(SqlGen));
+			THROW(rec_buf.Alloc(p_tbl->getBufLen()));
+			for(i = 0; i < num_recs; i++) {
+				SBaseBuffer b = pBei->Get(i);
+				assert(b.Size <= rec_buf.Size);
+				memcpy(rec_buf.P_Buf, b.P_Buf, b.Size);
+				//
+				THROW(stmt.BindData(-1, 1, p_tbl->FldL, rec_buf.P_Buf, p_tbl->getLobBlock()));
+				/*
+				if(p_tbl->State & DBTable::sHasAutoinc) {
+					for(uint j = 0; j < fld_count; j++) {
+						const BNField & r_fld = p_tbl->FldL[j];
+						if(GETSTYPE(r_fld.T) == S_AUTOINC) {
+							long val = 0;
+							size_t val_sz = 0;
+							r_fld.getValue(rec_buf.P_Buf, &val, &val_sz);
+							assert(val_sz == sizeof(val));
+							if(val == 0) {
+								THROW(GetAutolongVal(*p_tbl, j, &val));
+								r_fld.setValue(rec_buf.P_Buf, &val);
+							}
+						}
+					}
+				}
+				*/
+				THROW(stmt.SetDataDML(0));
+				THROW(stmt.Exec(1, OCI_DEFAULT));
+				//THROW(ResetStatement(stmt));
+			}
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	rec_buf.Destroy();
+	return ok;
 }
 
 /*virtual*/int SMySqlDbProvider::Implement_GetPosition(DBTable * pTbl, DBRowId * pPos)
 {
-	return 0;
+	ASSIGN_PTR(pPos, *pTbl->getCurRowIdPtr());
+	return 1;
 }
 
-/*virtual*/int SMySqlDbProvider::Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ)
+/*virtual*/int SMySqlDbProvider::Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ) // @todo @20260125 @test
 {
-	return 0;
+	int    ok = 1;
+	int    ta = 0;
+	if(useTa) {
+		THROW(StartTransaction());
+		ta = 1;
+	}
+	SqlGen.Z().Tok(Generator_SQL::tokDelete).Sp().From(pTbl->FileName_, 0);
+	if(&rQ && rQ.tree) {
+		SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp();
+		rQ.tree->CreateSqlExpr(SqlGen, -1);
+	}
+	{
+		SSqlStmt stmt(this, SqlGen);
+		THROW(stmt.Exec(1, OCI_DEFAULT));
+	}
+	if(ta) {
+		THROW(CommitWork());
+		ta = 0;
+	}
+	CATCH
+		if(ta) {
+			RollbackWork();
+			ta = 0;
+		}
+		ok = 0;
+	ENDCATCH
+	return ok;
 }
 
 /*virtual*/int SMySqlDbProvider::ProtectTable(long dbTableID, char * pResetOwnrName, char * pSetOwnrName, int clearProtection)
@@ -1410,14 +1539,19 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 			pS->P_Result = 0;
 		}
 		mysql_stmt_close(static_cast<MYSQL_STMT *>(pS->H));
-		// @construction(@20260119) {
+		// @v12.5.5 {
 		{
 			void * p_ec = pS->GetExternalConnection();
 			ConnectionEntry * p_ce = SearchConnectionByH(p_ec);
-			if(p_ce) { 
+			if(p_ce) {
+				if(p_ce->P_LastSelectStmt == pS) {
+					p_ce->P_LastSelectStmt = 0; // Мы только что разрушили этот оператор (see above)
+				}
+				ReleaseConnection(*p_ce);
+				p_ce = 0;
 			}
 		}
-		// } @construction(@20260119) 
+		// } @v12.5.5 
 	}
 	return 1;
 }

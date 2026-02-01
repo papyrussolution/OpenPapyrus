@@ -6,22 +6,12 @@
 #pragma hdrstop
 #include "putilimp.h"
 #include "udbgutil.h"
-
-/* NOTES:
-   3/20/1999 srl - strncpy called w/o setting nulls at the end
- */
-
+// NOTES: 3/20/1999 srl - strncpy called w/o setting nulls at the end 
 #define MAXTESTNAME 128
 #define MAXTESTS  512
 #define MAX_TEST_LOG 4096
-/**
- *  How may columns to indent the 'OK' markers.
- */
-#define FLAG_INDENT 45
-/**
- *   How many lines of scrollage can go by before we need to remind the user what the test is.
- */
-#define PAGE_SIZE_LIMIT 25
+#define FLAG_INDENT 45 // How may columns to indent the 'OK' markers.
+#define PAGE_SIZE_LIMIT 25 // How many lines of scrollage can go by before we need to remind the user what the test is.
 #ifndef SHOW_TIMES
 	#define SHOW_TIMES 1
 #endif
@@ -44,7 +34,7 @@ typedef enum { RUNTESTS, SHOWTESTS } TestMode;
 
 #include "unicode/ctest.h"
 
-static char ERROR_LOG[MAX_TEST_LOG][MAXTESTNAME];
+static char CTEST_ERROR_LOG[MAX_TEST_LOG][MAXTESTNAME];
 
 /* Local prototypes */
 static TestNode* addTestNode(TestNode * root, const char * name);
@@ -64,22 +54,18 @@ static void help(const char * argv0);
 static void vlog_err(const char * prefix, const char * pattern, va_list ap);
 static void vlog_verbose(const char * prefix, const char * pattern, va_list ap);
 static bool vlog_knownIssue(const char * ticket, const char * pattern, va_list ap);
-
 /**
  * Log test structure, with indent
  * @param pattern printf pattern
  */
 static void log_testinfo_i(const char * pattern, ...);
-
 /**
  * Log test structure, NO indent
  * @param pattern printf pattern
  */
 static void log_testinfo(const char * pattern, ...);
 
-/* If we need to make the framework multi-thread safe
-   we need to pass around the following vars
- */
+// If we need to make the framework multi-thread safe we need to pass around the following vars 
 static int ERRONEOUS_FUNCTION_COUNT = 0;
 static int ERROR_COUNT = 0; /* Count of errors from all tests. */
 static int ONE_ERROR = 0; /* were there any other errors? */
@@ -359,7 +345,7 @@ static void iterateTestsWithLevel(const TestNode* root,
 
 		if(myERROR_COUNT != ERROR_COUNT) {
 			log_testinfo_i("} ---[%d ERRORS in %s] ", ERROR_COUNT - myERROR_COUNT, pathToFunction);
-			strcpy(ERROR_LOG[ERRONEOUS_FUNCTION_COUNT++], pathToFunction);
+			strcpy(CTEST_ERROR_LOG[ERRONEOUS_FUNCTION_COUNT++], pathToFunction);
 		}
 		else {
 			if(!ON_LINE) { /* had some output */
@@ -485,12 +471,12 @@ void T_CTEST_EXPORT2 runTests(const TestNode * root)
 		fflush(stdout);
 		fprintf(stdout, " Errors in\n");
 		for(i = 0; i < ERRONEOUS_FUNCTION_COUNT; i++)
-			fprintf(stdout, "[%s]\n", ERROR_LOG[i]);
+			fprintf(stdout, "[%s]\n", CTEST_ERROR_LOG[i]);
 		if(SUMMARY_FILE != NULL) {
 			FILE * summf = fopen(SUMMARY_FILE, "w");
 			if(summf!=NULL) {
 				for(i = 0; i < ERRONEOUS_FUNCTION_COUNT; i++)
-					fprintf(summf, "%s\n", ERROR_LOG[i]);
+					fprintf(summf, "%s\n", CTEST_ERROR_LOG[i]);
 				fclose(summf);
 			}
 		}

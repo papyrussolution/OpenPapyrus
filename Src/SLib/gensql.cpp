@@ -504,10 +504,27 @@ int Generator_SQL::CreateIndex(const DBTable & rTbl, const char * pFileName, uin
 int Generator_SQL::GetIndexName(const DBTable & rTbl, uint n, SString & rBuf)
 {
 	int    ok = 1;
-	if(n < rTbl.GetIndices().getNumKeys()) {
+	const  BNKeyList & r_indices = rTbl.GetIndices();
+	if(n < r_indices.getNumKeys()) {
 		SString & r_temp_buf = SLS.AcquireRvlStr();
-		r_temp_buf.Cat(rTbl.GetName()).Cat("Key").Cat(n);
-		PrefixName(r_temp_buf, pfxIndex, rBuf, 0);
+		bool   done = false;
+		// @v12.5.5 {
+		if(GetServerType() == sqlstMySQL) { 
+			BNKey key_ = r_indices.getKey(n);
+			if(key_.getNumSeg() == 1) {
+				const int fld_id = key_.getFieldID(0);
+				const BNField & r_fld = r_indices.field(n, 0);
+				if(GETSTYPE(r_fld.T) == S_AUTOINC) {
+					r_temp_buf = r_fld.Name;
+					done = true;
+				}
+			}
+		}
+		// } @v12.5.5 
+		if(!done) {
+			r_temp_buf.Cat(rTbl.GetName()).Cat("Key").Cat(n);
+			PrefixName(r_temp_buf, pfxIndex, rBuf, 0);
+		}
 	}
 	else
 		ok = 0;

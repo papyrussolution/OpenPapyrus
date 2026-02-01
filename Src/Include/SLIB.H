@@ -1222,9 +1222,6 @@ class  TCanvas2;
 class  TVRez;
 class  WinServiceMngr;
 class  StatBase;
-class  SoapPacket;
-class  SoapPacketStruc;
-class  SoapPacketArray;
 class  DBTable;
 struct SJson;
 struct SDataMoveProgressInfo;
@@ -1411,7 +1408,7 @@ public:
 	static constexpr uint32 ListBoxDefSignature_STD = 0xABCD0001;      //0xABCD0001 // StdListBoxDef
 	static constexpr uint32 ListBoxDefSignature_STRASSOC = 0xABCD0002; //0xABCD0002 // StrAssocListBoxDef
 	static constexpr uint32 ListBoxDefSignature_STDTREE = 0xABCD0003;  //0xABCD0003 // StdTreeListBoxDef
-	static constexpr uint32 ListBoxDefSignature_STRING  = 0xABCD0004;  //0xABCD0004 // StringListBoxDef
+	// @v12.5.5 @obsolete static constexpr uint32 ListBoxDefSignature_STRING  = 0xABCD0004;  //0xABCD0004 // StringListBoxDef
 	static constexpr uint32 ListBoxDefSignature_DBQ = 0xABCD0005;      //0xABCD0005 // DBQListBoxDef
 	static constexpr uint32 ListBoxDefSignature_STDTREE2 = 0xABCD0006; //0xABCD0006 // StdTreeListBoxDef2
 	static constexpr uint32 Signature_SlThread = 0x09970199U; // @v11.8.2 Сигнатура потоков SlThread для идентификации консистентности
@@ -15652,9 +15649,13 @@ public:
 
 class TRect {
 public:
+	static const TRect _defr_;
+
 	TRect();
 	TRect(const TRect & rS);
-	TRect(int ax, int ay, int bx, int by);
+	TRect(int ax, int ay, int bx, int by) : a(ax, ay), b(bx, by)
+	{
+	}
 	TRect(SPoint2S p1, SPoint2S p2);
 	explicit TRect(SPoint2S sz);
 	TRect(const RECT &);
@@ -19944,6 +19945,13 @@ template <class T> bool checkirange(T n, T low, T upp)
 		return true;
 	else
 		return SLS.SetError(SLERR_BOUNDS, SLS.AcquireRvlStr().CatChar('[').Cat(low).CatCharN('.', 2).Cat(upp).CatChar(']'));
+}
+//
+// Descr: Возвращает n если n >= low и n <= upp, в противном случае возвращает def
+//
+template <class T> constexpr T inirangeor(T n, T low, T upp, T def)
+{
+	return (n >= low && n <= upp) ? n : def;
 }
 //
 // @v11.7.3

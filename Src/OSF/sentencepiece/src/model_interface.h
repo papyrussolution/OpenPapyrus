@@ -15,12 +15,11 @@
 #ifndef MODEL_INTERFACE_H_
 #define MODEL_INTERFACE_H_
 
-#include <memory>
-#include <set>
-#include <string>
-#include <utility>
-#include <vector>
-
+//#include <memory>
+//#include <set>
+//#include <string>
+//#include <utility>
+//#include <vector>
 #include "common.h"
 #include "normalizer.h"
 #include "sentencepiece_model.pb.h"

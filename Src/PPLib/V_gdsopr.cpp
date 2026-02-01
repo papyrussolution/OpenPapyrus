@@ -1487,12 +1487,12 @@ int PPViewGoodsOpAnalyze::CalcTotal(GoodsOpAnalyzeTotal * pTotal)
 				if(GObj.Fetch(p_t->data.GoodsID, &goods_rec) > 0) {
 					PPID goods_type_id = goods_rec.GoodsTypeID;
 					if(goods_type_id && goods_type_id != PPGT_DEFAULT) {
-						PPGoodsType gt;
-						if(gtobj.Fetch(goods_type_id, &gt) > 0) {
-							if(gt.AmtCost)
-								amt_type_cost = gt.AmtCost;
-							if(gt.AmtPrice)
-								amt_type_price = gt.AmtPrice;
+						PPGoodsType2 gt_rec;
+						if(gtobj.Fetch(goods_type_id, &gt_rec) > 0) {
+							if(gt_rec.AmtCost)
+								amt_type_cost = gt_rec.AmtCost;
+							if(gt_rec.AmtPrice)
+								amt_type_price = gt_rec.AmtPrice;
 						}
 					}
 				}

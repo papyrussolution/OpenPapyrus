@@ -3064,7 +3064,7 @@ public:
 	//   включает его в пул и возвращает в виде результата.
 	// Note: @reallyprivate (public only for the testing purpose)
 	//
-	bool   GetConnection(ConnectionEntry & rConnEntry); // @v12.5.3
+	ConnectionEntry * GetConnection(); // @v12.5.3
 	//
 	// Descr: Освобождает соединение с сервером rConn.
 	//   Если это соединение находится в пуле, то физически оно не разрушается и лишь становится доступным
@@ -3091,7 +3091,7 @@ private:
 	static  MYSQL_STMT * FASTCALL StmtHandle(const SSqlStmt & rS);
 	virtual int PostProcess_LoadTableSpec(DBTable * pTbl); // @v12.4.8
 	int    ProcessBinding_SimpleType(int action, uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind, uint ntvType);
-	bool   Helper_Connect(const DbLoginBlock * pBlk, SString * pDbName, ConnectionEntry & rConnEntry); // @v12.5.3
+	bool   Helper_Connect(const DbLoginBlock * pBlk, SString * pDbName, ConnectionEntry & rConnEntry, bool dontUseDatabase); // @v12.5.3
 	int    Helper_CloseConnection(Connection & rConn); // @v12.5.3
 	ConnectionEntry * SearchConnectionByH(void * pH);
 	enum {

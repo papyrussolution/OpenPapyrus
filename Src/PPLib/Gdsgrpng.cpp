@@ -1272,7 +1272,7 @@ int GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt & rFilt, const AdjGdsGrp
 	if(!filt.GoodsGrpID && !filt.GoodsID && !filt.SupplID && !filt.SupplAgentID) {
 		if(filt.ExtGoodsTypeID) {
 			PPObjGoodsType gt_obj;
-			PPGoodsType gt_rec;
+			PPGoodsType2 gt_rec;
 			if(gt_obj.Fetch(filt.ExtGoodsTypeID, &gt_rec) > 0) {
 				ExtCostAmtID  = gt_rec.AmtCost;
 				ExtPriceAmtID = gt_rec.AmtPrice;

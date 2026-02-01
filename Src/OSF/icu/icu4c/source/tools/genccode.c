@@ -1,23 +1,15 @@
+// gennames.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *   Copyright (C) 1999-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *******************************************************************************
- *   file name:  gennames.c
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 1999nov01
- *   created by: Markus W. Scherer
- *
- *   This program reads a binary file and creates a C source code file
- *   with a byte array that contains the data of the binary file.
- *
- *   12/09/1999  weiv    Added multiple file handling
- */
+// Copyright (C) 1999-2016, International Business Machines Corporation and others.  All Rights Reserved.
+//
+// encoding:   UTF-8
+// created on: 1999nov01
+// created by: Markus W. Scherer
+// This program reads a binary file and creates a C source code file with a byte array that contains the data of the binary file.
+// 
+// 12/09/1999  weiv    Added multiple file handling
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -92,7 +84,6 @@ extern int main(int argc, char * argv[])
 	options[kOptDestDir].value = ".";
 	/* read command line options */
 	argc = u_parseArgs(argc, argv, SIZEOFARRAYi(options), options);
-
 	/* error handling, printing usage message */
 	if(argc<0) {
 		slfprintf_stderr("error in command line argument \"%s\"\n", argv[-argc]);
@@ -150,31 +141,26 @@ extern int main(int argc, char * argv[])
 			if(verbose) {
 				fprintf(stdout, message, filename);
 			}
-
 			switch(writeCode) {
 				case CALL_WRITECCODE:
 				    writeCCode(filename, options[kOptDestDir].value,
-					options[kOptName].doesOccur ? options[kOptName].value : NULL,
-					options[kOptFilename].doesOccur ? options[kOptFilename].value : NULL,
-					NULL,
-					0);
+						options[kOptName].doesOccur ? options[kOptName].value : NULL,
+						options[kOptFilename].doesOccur ? options[kOptFilename].value : NULL,
+						NULL, 0);
 				    break;
 				case CALL_WRITEASSEMBLY:
 				    writeAssemblyCode(filename, options[kOptDestDir].value,
-					options[kOptEntryPoint].doesOccur ? options[kOptEntryPoint].value : NULL,
-					options[kOptFilename].doesOccur ? options[kOptFilename].value : NULL,
-					NULL,
-					0);
+						options[kOptEntryPoint].doesOccur ? options[kOptEntryPoint].value : NULL,
+						options[kOptFilename].doesOccur ? options[kOptFilename].value : NULL,
+						NULL, 0);
 				    break;
 #ifdef CAN_GENERATE_OBJECTS
 				case CALL_WRITEOBJECT:
 				    writeObjectCode(filename, options[kOptDestDir].value,
-					options[kOptEntryPoint].doesOccur ? options[kOptEntryPoint].value : NULL,
-					options[kOptMatchArch].doesOccur ? options[kOptMatchArch].value : NULL,
-					options[kOptFilename].doesOccur ? options[kOptFilename].value : NULL,
-					NULL,
-					0,
-					!options[kOptSkipDllExport].doesOccur);
+						options[kOptEntryPoint].doesOccur ? options[kOptEntryPoint].value : NULL,
+						options[kOptMatchArch].doesOccur ? options[kOptMatchArch].value : NULL,
+						options[kOptFilename].doesOccur ? options[kOptFilename].value : NULL,
+						NULL, 0, !options[kOptSkipDllExport].doesOccur);
 				    break;
 #endif
 				default:

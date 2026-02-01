@@ -779,7 +779,25 @@ static void InitTest()
 			assert((sstrlen("") + 1) == 1);
 			assert((sstrlen("a") + 1) == 2);
 		}
-		// } @v12.5.4 
+		// } @v12.5.4
+		// @v12.5.5 {
+		{
+			static_assert(inirangeor(1, 0, 5, 3) == 1);
+			static_assert(inirangeor(0, 0, 5, 3) == 0);
+			static_assert(inirangeor(5, 0, 5, 3) == 5);
+			static_assert(inirangeor(6, 0, 5, 3) == 3);
+			//
+			static_assert(inirangeor(1U, 0U, 5U, 3U) == 1U);
+			static_assert(inirangeor(0U, 0U, 5U, 3U) == 0U);
+			static_assert(inirangeor(5U, 0U, 5U, 3U) == 5U);
+			static_assert(inirangeor(6U, 0U, 5U, 3U) == 3U);
+			//
+			static_assert(inirangeor(1LL, 0LL, 5LL, 3LL) == 1LL);
+			static_assert(inirangeor(0LL, 0LL, 5LL, 3LL) == 0LL);
+			static_assert(inirangeor(5LL, 0LL, 5LL, 3LL) == 5LL);
+			static_assert(inirangeor(6LL, 0LL, 5LL, 3LL) == 3LL);
+		}
+		// } @v12.5.5 
 	}
 }
 

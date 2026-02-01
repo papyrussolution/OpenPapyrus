@@ -1678,7 +1678,7 @@ int PPDS_CrrGoodsType::InitData(Ido op, void * dataPtr, long addedParam)
 	}
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *static_cast<const PPGoodsType *>(dataPtr);
+			Data = *static_cast<const PPGoodsType2 *>(dataPtr);
 		else if(addedParam) {
 			if(Obj.Search(addedParam, &Data) > 0)
 				ok = 1;
@@ -1694,7 +1694,7 @@ int PPDS_CrrGoodsType::InitData(Ido op, void * dataPtr, long addedParam)
 		if(*strip(Data.Name) != 0 && Obj.SearchByName(Data.Name, &id, 0) > 0) {
 			if(UpdateProtocol == updForce) {
 				Data.ID = id;
-				PPGoodsType rec;
+				PPGoodsType2 rec;
 				THROW(Obj.Search(id, &rec) > 0);
 				for(uint i = 0; i < AcceptedFields.getCount(); i++) {
 					switch(AcceptedFields.get(i)) {

@@ -454,31 +454,12 @@ int PPBackup::GetLastScenCopy(PPBackupScen * pScen, BCopyData * bcdata)
 //
 // Config backup - from PPConfig
 //
-/* @v11.2.5 static int SetupListBox(TView * pList, uint sz, uint fl, uint lbfl)
-{
-	if(pList) {
-		pList->ViewOptions |= lbfl;
-		StringListBoxDef * def = new StringListBoxDef(sz, NZOR(fl, (lbtDisposeData | lbtDblClkNotify)));
-		if(def == 0)
-			return PPSetErrorNoMem();
-		else {
-			static_cast<SmartListBox *>(pList)->setDef(def);
-			return 1;
-		}
-	}
-	return -1;
-}*/
-
 class ConfigBackupDialog : public PPListDialog {
 public:
-	ConfigBackupDialog(/*PPIniFile * pIniFile*/) : PPListDialog(DLG_BUCFG_SELECT, CTL_BUCFG_SCNAME)
+	ConfigBackupDialog() : PPListDialog(DLG_BUCFG_SELECT, CTL_BUCFG_SCNAME)
 	{
 		P_IniFile = new PPIniFile;
-		//P_List = static_cast<SmartListBox *>(getCtrlView(CTL_BUCFG_SCNAME));
-		//SetupStrListBox(P_List); // @v11.2.5
-		// @v11.2.5 SetupListBox(P_List, 64, lbtFocNotify|lbtDisposeData|lbtDblClkNotify, ofFramed);
 		DBES.ReadFromProfile(P_IniFile, false);
-		//P_ScenList = new SArray(sizeof(PPBackupScen));
 		updateList(-1);
 	}
 	virtual ~ConfigBackupDialog()
@@ -486,34 +467,13 @@ public:
 		delete P_IniFile;
 	}
 private:
-	/*DECL_HANDLE_EVENT
-	{
-		TDialog::handleEvent(event);
-		if(TVCOMMAND) {
-			switch(TVCMD) {
-				case cmLBDblClk:
-				case cmaEdit: updateEntry(); break;
-				case cmaInsert: addEntry(); break;
-				case cmaDelete: deleteEntry(); break;
-				default: return;
-			}
-		}
-		else
-			return;
-		clearEvent(event);
-	}*/
 	virtual int  setupList();
 	virtual int  addItem(long * pPos, long * pID); // @<<PPListDialog::_addItem (reply on cmaInsert)
 	virtual int  editItem(long pos, long id); // @<<PPListDialog::_editItem (reply on cmaEdit or cmLBDblClk)
 	virtual int  delItem(long pos, long id); // @<<PPListDialog::_delItem (reply on cmaDelete)
 
 	int    editEntry(int isNewEntry, PPBackupScen *);
-	//int    updateList();
-	//int    addEntry();
-	//int    updateEntry();
-	//int    deleteEntry();
 	PPDbEntrySet2 DBES;
-	//SmartListBox * P_List;
 	TSVector <PPBackupScen> ScenList;
 	PPIniFile * P_IniFile;
 };

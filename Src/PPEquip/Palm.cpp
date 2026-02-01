@@ -3313,7 +3313,7 @@ int PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlock & r
 			PPIDArray gt_quasi_unlim_list;
 			{
 				PPObjGoodsType gt_obj;
-				PPGoodsType gt_rec;
+				PPGoodsType2 gt_rec;
 				for(SEnum en = gt_obj.Enum(0); en.Next(&gt_rec) > 0;) {
 					if(gt_rec.Flags & (GTF_QUASIUNLIM|GTF_UNLIMITED)) 
 						gt_quasi_unlim_list.add(gt_rec.ID);

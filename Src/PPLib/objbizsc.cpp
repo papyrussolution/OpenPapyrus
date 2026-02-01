@@ -945,7 +945,7 @@ DBQuery * PPViewBizScore::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		*pSubTitle = 0;
 		if(Filt.UserID) {
 			PPObjSecur sec_obj(PPOBJ_USR, 0);
-			PPSecur sec_rec;
+			PPSecur2 sec_rec;
 			if(sec_obj.Fetch(Filt.UserID, &sec_rec) > 0)
 				*pSubTitle = sec_rec.Name;
 		}
@@ -1668,7 +1668,7 @@ DBQuery * PPViewBizScoreVal::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 		*pSubTitle = 0;
 		if(Filt.UserID) {
 			PPObjSecur sec_obj(PPOBJ_USR, 0);
-			PPSecur sec_rec;
+			PPSecur2 sec_rec;
 			if(sec_obj.Fetch(Filt.UserID, &sec_rec) > 0)
 				pSubTitle->CatDivIfNotEmpty('-', 1).Cat(sec_rec.Name);
 		}

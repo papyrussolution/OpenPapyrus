@@ -1288,7 +1288,7 @@ void CalendarRegressionTest::test4108764()
 void CalendarRegressionTest::test4114578()
 {
 	UErrorCode status = U_ZERO_ERROR;
-	double ONE_HOUR = 60*60*1000;
+	const double _one_hour_ms = 60*60*1000;
 	Calendar * cal = Calendar::createInstance(status);
 	if(U_FAILURE(status)) {
 		dataerrln("Error creating calendar %s", u_errorName(status));
@@ -1296,8 +1296,8 @@ void CalendarRegressionTest::test4114578()
 		return;
 	}
 	cal->adoptTimeZone(TimeZone::createTimeZone("PST"));
-	UDate onset = makeDate(1998, UCAL_APRIL, 5, 1, 0) + ONE_HOUR;
-	UDate cease = makeDate(1998, UCAL_OCTOBER, 25, 0, 0) + 2*ONE_HOUR;
+	UDate onset = makeDate(1998, UCAL_APRIL, 5, 1, 0) + _one_hour_ms;
+	UDate cease = makeDate(1998, UCAL_OCTOBER, 25, 0, 0) + 2*_one_hour_ms;
 
 	bool fail = FALSE;
 
@@ -1306,24 +1306,22 @@ void CalendarRegressionTest::test4114578()
 
 	double DATA [] = {
 		// Start            Action   Amt    Expected_change
-		onset - ONE_HOUR,   ADD,      1,     ONE_HOUR,
-		onset,              ADD,     -1,    -ONE_HOUR,
-		onset - ONE_HOUR,   ROLL,     1,     ONE_HOUR,
-		onset,              ROLL,    -1,    -ONE_HOUR,
-		cease - ONE_HOUR,   ADD,      1,     ONE_HOUR,
-		cease,              ADD,     -1,    -ONE_HOUR,
-		cease - ONE_HOUR,   ROLL,     1,     ONE_HOUR,
-		cease,              ROLL,    -1,    -ONE_HOUR,
+		onset - _one_hour_ms,   ADD,      1,     _one_hour_ms,
+		onset,              ADD,     -1,    -_one_hour_ms,
+		onset - _one_hour_ms,   ROLL,     1,     _one_hour_ms,
+		onset,              ROLL,    -1,    -_one_hour_ms,
+		cease - _one_hour_ms,   ADD,      1,     _one_hour_ms,
+		cease,              ADD,     -1,    -_one_hour_ms,
+		cease - _one_hour_ms,   ROLL,     1,     _one_hour_ms,
+		cease,              ROLL,    -1,    -_one_hour_ms,
 	};
 
 	for(int32_t i = 0; i<32; i += 4) {
 		UDate date = DATA[i];
 		int32_t amt = (int32_t)DATA[i+2];
 		double expectedChange = DATA[i+3];
-
 		log(UnicodeString("") + date);
 		cal->setTime(date, status);
-
 		switch((int32_t)DATA[i+1]) {
 			case ADD:
 			    log(UnicodeString(" add (HOUR,") + (amt<0 ? "" : "+")+amt + ")= ");
@@ -1334,9 +1332,7 @@ void CalendarRegressionTest::test4114578()
 			    cal->roll(UCAL_HOUR, amt, status);
 			    break;
 		}
-
 		log(UnicodeString("") + cal->getTime(status));
-
 		double change = cal->getTime(status) - date;
 		if(change != expectedChange) {
 			fail = TRUE;
@@ -1344,9 +1340,8 @@ void CalendarRegressionTest::test4114578()
 		}
 		else logln(" OK");
 	}
-
-	if(fail) errln("Fail: roll/add misbehaves around DST onset/cease");
-
+	if(fail) 
+		errln("Fail: roll/add misbehaves around DST onset/cease");
 	delete cal;
 }
 
@@ -1976,11 +1971,11 @@ void CalendarRegressionTest::Test4167060()
 		}
 	}
 }
-
 /**
  * Week of year is wrong at the start and end of the year.
  */
-void CalendarRegressionTest::Test4197699() {
+void CalendarRegressionTest::Test4197699() 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	GregorianCalendar cal(status);
 	cal.setFirstDayOfWeek(UCAL_MONDAY);
@@ -2026,12 +2021,18 @@ void CalendarRegressionTest::Test4197699() {
 	}
 }
 
-enum Action { ADD = 1, ROLL = 2 };
+enum Action { 
+	ADD = 1, 
+	ROLL = 2 
+};
 
-enum Sign { PLUS = 1, MINUS = 2 };
+enum Sign { 
+	PLUS = 1, 
+	MINUS = 2 
+};
 
-#define     ONE_HOUR (60*60*1000)
-#define ONE_DAY (24*ONE_HOUR)
+#define ONE_HOUR_MS (60*60*1000)
+#define ONE_DAY_MS (24*ONE_HOUR_MS)
 
 typedef struct {
 	UCalendarDateFields field;
@@ -2046,7 +2047,8 @@ typedef struct {
  * Rolling and adding across the Gregorian cutover should work as expected.
  * Jitterbug 81.
  */
-void CalendarRegressionTest::TestJ81() {
+void CalendarRegressionTest::TestJ81() 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	UnicodeString temp, temp2, temp3;
 	int32_t i;
@@ -2059,7 +2061,7 @@ void CalendarRegressionTest::TestJ81() {
 	fmt.setCalendar(cal);
 	// Get the Gregorian cutover
 	UDate cutover = cal.getGregorianChange();
-	UDate days = ONE_DAY;
+	UDate days = ONE_DAY_MS;
 	days = cutover/days;
 	logln(UnicodeString("Cutover: {") +
 	    fmt.format(cutover, temp) + "}(epoch days-" + (int)days + ", jd" + (2440588 + days) +")");
@@ -2171,30 +2173,29 @@ void CalendarRegressionTest::TestJ81() {
 #define PLUS_MINUS PLUS|MINUS
 	// Test cases
 	J81_DATA DATA[] = {
-		{ UCAL_WEEK_OF_YEAR, ADD_ROLL, PLUS_MINUS, 1, -ONE_DAY, +6*ONE_DAY },
-		{ UCAL_WEEK_OF_YEAR, ADD_ROLL, PLUS_MINUS, 1, -ONE_DAY, +6*ONE_DAY },
-		{ UCAL_WEEK_OF_MONTH, ADD|ROLL, PLUS|MINUS, 1, -ONE_DAY, +6*ONE_DAY },
-		{ UCAL_DATE, ADD|ROLL, PLUS|MINUS, 2, -ONE_DAY, +1*ONE_DAY },
-		{ UCAL_DATE, ROLL, PLUS, -6, -ONE_DAY, +14*ONE_DAY },
-		{ UCAL_DATE, ROLL, PLUS, -7, 0, +14*ONE_DAY },
-		{ UCAL_DATE, ROLL, PLUS, -7, +ONE_DAY, +15*ONE_DAY },
-		{ UCAL_DATE, ROLL, PLUS, +18, -ONE_DAY, -4*ONE_DAY },
-		{ UCAL_DAY_OF_YEAR, ADD|ROLL, PLUS|MINUS, 2, -ONE_DAY, +1*ONE_DAY },
-		{ UCAL_DAY_OF_WEEK, ADD|ROLL, PLUS|MINUS, 2, -ONE_DAY, +1*ONE_DAY },
-		{ UCAL_DAY_OF_WEEK_IN_MONTH, ADD|ROLL, PLUS|MINUS, 1, -ONE_DAY, +6*ONE_DAY },
-		{ UCAL_AM_PM, ADD, PLUS|MINUS, 4, -12*ONE_HOUR, +36*ONE_HOUR },
-		{ UCAL_HOUR, ADD, PLUS|MINUS, 48, -12*ONE_HOUR, +36*ONE_HOUR },
-		{ UCAL_HOUR_OF_DAY, ADD, PLUS|MINUS, 48, -12*ONE_HOUR, +36*ONE_HOUR },
-		{ UCAL_MINUTE, ADD, PLUS|MINUS, 48*60, -12*ONE_HOUR, +36*ONE_HOUR },
-		{ UCAL_SECOND, ADD, PLUS|MINUS, 48*60*60, -12*ONE_HOUR, +36*ONE_HOUR },
-		{ UCAL_MILLISECOND, ADD, PLUS|MINUS, 48*ONE_HOUR, -12*ONE_HOUR, +36*ONE_HOUR },
+		{ UCAL_WEEK_OF_YEAR, ADD_ROLL, PLUS_MINUS, 1, -ONE_DAY_MS, +6*ONE_DAY_MS },
+		{ UCAL_WEEK_OF_YEAR, ADD_ROLL, PLUS_MINUS, 1, -ONE_DAY_MS, +6*ONE_DAY_MS },
+		{ UCAL_WEEK_OF_MONTH, ADD|ROLL, PLUS|MINUS, 1, -ONE_DAY_MS, +6*ONE_DAY_MS },
+		{ UCAL_DATE, ADD|ROLL, PLUS|MINUS, 2, -ONE_DAY_MS, +1*ONE_DAY_MS },
+		{ UCAL_DATE, ROLL, PLUS, -6, -ONE_DAY_MS, +14*ONE_DAY_MS },
+		{ UCAL_DATE, ROLL, PLUS, -7, 0, +14*ONE_DAY_MS },
+		{ UCAL_DATE, ROLL, PLUS, -7, +ONE_DAY_MS, +15*ONE_DAY_MS },
+		{ UCAL_DATE, ROLL, PLUS, +18, -ONE_DAY_MS, -4*ONE_DAY_MS },
+		{ UCAL_DAY_OF_YEAR, ADD|ROLL, PLUS|MINUS, 2, -ONE_DAY_MS, +1*ONE_DAY_MS },
+		{ UCAL_DAY_OF_WEEK, ADD|ROLL, PLUS|MINUS, 2, -ONE_DAY_MS, +1*ONE_DAY_MS },
+		{ UCAL_DAY_OF_WEEK_IN_MONTH, ADD|ROLL, PLUS|MINUS, 1, -ONE_DAY_MS, +6*ONE_DAY_MS },
+		{ UCAL_AM_PM, ADD, PLUS|MINUS, 4, -12*ONE_HOUR_MS, +36*ONE_HOUR_MS },
+		{ UCAL_HOUR, ADD, PLUS|MINUS, 48, -12*ONE_HOUR_MS, +36*ONE_HOUR_MS },
+		{ UCAL_HOUR_OF_DAY, ADD, PLUS|MINUS, 48, -12*ONE_HOUR_MS, +36*ONE_HOUR_MS },
+		{ UCAL_MINUTE, ADD, PLUS|MINUS, 48*60, -12*ONE_HOUR_MS, +36*ONE_HOUR_MS },
+		{ UCAL_SECOND, ADD, PLUS|MINUS, 48*60*60, -12*ONE_HOUR_MS, +36*ONE_HOUR_MS },
+		{ UCAL_MILLISECOND, ADD, PLUS|MINUS, 48*ONE_HOUR_MS, -12*ONE_HOUR_MS, +36*ONE_HOUR_MS },
 		// NOTE: These are not supported yet.  See jitterbug 180.
 		// Uncomment these lines when add/roll supported on these fields.
-		// { Calendar::YEAR_WOY, ADD|ROLL, 1, -ONE_DAY, +6*ONE_DAY },
-		// { Calendar::DOW_LOCAL, ADD|ROLL, 2, -ONE_DAY, +1*ONE_DAY }
+		// { Calendar::YEAR_WOY, ADD|ROLL, 1, -ONE_DAY_MS, +6*ONE_DAY_MS },
+		// { Calendar::DOW_LOCAL, ADD|ROLL, 2, -ONE_DAY_MS, +1*ONE_DAY_MS }
 	};
 	int32_t DATA_length = SIZEOFARRAYi(DATA);
-
 	// Now run the tests
 	for(i = 0; i<DATA_length; ++i) {
 		for(Action action = ADD; action<=ROLL; action = (Action)(action+1)) {
@@ -2207,10 +2208,8 @@ void CalendarRegressionTest::TestJ81() {
 				}
 				status = U_ZERO_ERROR;
 				int32_t amount = DATA[i].amount * (sign==MINUS ? -1 : 1);
-				UDate date = cutover +
-				    (sign==PLUS ? DATA[i].before : DATA[i].after);
-				UDate expected = cutover +
-				    (sign==PLUS ? DATA[i].after : DATA[i].before);
+				UDate date = cutover + (sign==PLUS ? DATA[i].before : DATA[i].after);
+				UDate expected = cutover + (sign==PLUS ? DATA[i].after : DATA[i].before);
 				cal.setTime(date, status);
 				if(U_FAILURE(status)) {
 					errln((UnicodeString)"FAIL: setTime returned error code " + u_errorName(status));
@@ -2223,9 +2222,7 @@ void CalendarRegressionTest::TestJ81() {
 					cal.roll(DATA[i].field, amount, status);
 				}
 				if(U_FAILURE(status)) {
-					errln((UnicodeString)"FAIL: " +
-					    (action==ADD ? "add " : "roll ") + FIELD_NAME[DATA[i].field] +
-					    " returned error code " + u_errorName(status));
+					errln((UnicodeString)"FAIL: " + (action==ADD ? "add " : "roll ") + FIELD_NAME[DATA[i].field] + " returned error code " + u_errorName(status));
 					continue;
 				}
 				UDate result = cal.getTime(status);
@@ -2235,23 +2232,16 @@ void CalendarRegressionTest::TestJ81() {
 				}
 				if(result == expected) {
 					logln((UnicodeString)"Ok: {" +
-					    fmt.format(date, temp.remove()) +
-					    "}(" + date/ONE_DAY +
+					    fmt.format(date, temp.remove()) + "}(" + date/ONE_DAY_MS +
 					    (action==ADD ? ") add " : ") roll ") +
-					    amount + " " + FIELD_NAME[DATA[i].field] + " -> {" +
-					    fmt.format(result, temp2.remove()) +
-					    "}(" + result/ONE_DAY + ")");
+					    amount + " " + FIELD_NAME[DATA[i].field] + " -> {" + fmt.format(result, temp2.remove()) + "}(" + result/ONE_DAY_MS + ")");
 				}
 				else {
-					errln((UnicodeString)"FAIL: {" +
-					    fmt.format(date, temp.remove()) +
-					    "}(" + date/ONE_DAY +
+					errln((UnicodeString)"FAIL: {" + fmt.format(date, temp.remove()) + "}(" + date/ONE_DAY_MS +
 					    (action==ADD ? ") add " : ") roll ") +
 					    amount + " " + FIELD_NAME[DATA[i].field] + " -> {" +
-					    fmt.format(result, temp2.remove()) +
-					    "}(" + result/ONE_DAY + "), expect {" +
-					    fmt.format(expected, temp3.remove()) +
-					    "}(" + expected/ONE_DAY + ")");
+					    fmt.format(result, temp2.remove()) + "}(" + result/ONE_DAY_MS + "), expect {" + fmt.format(expected, temp3.remove()) +
+					    "}(" + expected/ONE_DAY_MS + ")");
 				}
 			}
 		}

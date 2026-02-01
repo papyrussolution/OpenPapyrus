@@ -3247,10 +3247,11 @@ data ContentBList {
 		//   * "pricevatsum"
 		//
 		double GetRowAmount(string amtSymb[32]); // @v12.2.0
-
 		//TestAmount01 = GetRowAmount("qtty"); // @debug
-		//TestAmount02 = GetRowAmount("pricevat"); // @debug
+		//TestAmount02 = GetRowAmount("costvat"); // @debug
 		//TestAmount03 = GetRowAmount("costvatsum"); // @debug
+		//TestAmount04 = GetRowAmount("pricevat"); // @debug
+		//TestAmount05 = GetRowAmount("pricevatsum"); // @debug
 	}
 }
 //

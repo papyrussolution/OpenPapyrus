@@ -159,9 +159,9 @@ int TStatusWin::AddItem(const char * pStr, long icon /* = 0 */, COLORREF color /
 		StItem item;
 		STRNSCPY(item.str, pStr);
 		padleft(item.str, ' ', 1);
-		item.Icon      = icon;
-		item.Color     = color;
-		item.Cmd       = cmd;
+		item.Icon  = icon;
+		item.Color = color;
+		item.Cmd   = cmd;
 		item.TextColor = textColor;
 		ok = Items.insert(&item);
 	}
@@ -206,8 +206,8 @@ IMPL_HANDLE_EVENT(TStatusWin)
 //
 //
 //
-TProgram * TProgram::application;     // @global
-HINSTANCE  TProgram::hInstance;       // @global @threadsafe
+TProgram * TProgram::application; // @global
+HINSTANCE  TProgram::hInstance;   // @global @threadsafe
 
 const UserInterfaceSettings & TProgram::GetUiSettings()
 {
@@ -700,7 +700,7 @@ INT_PTR CALLBACK FrameWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 {
 	bool   is_desktop = false;
 	HWND   h_close_wnd = APPL->H_CloseWnd;
-	HWND   h_tree_wnd = APPL->P_TreeWnd ? APPL->P_TreeWnd->Hwnd : 0; // @v11.0.0
+	HWND   h_tree_wnd = APPL->P_TreeWnd ? APPL->P_TreeWnd->Hwnd : 0;
 	{
 		HWND hwnd_tw = GetTopWindow(hWnd);
 		while(hwnd_tw && oneof2(hwnd_tw, h_close_wnd, h_tree_wnd))
@@ -731,7 +731,7 @@ INT_PTR CALLBACK FrameWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 					::SendMessageW(hWnd, WM_USER, 0, 0);
 				}
 			}
-			return 0; // @v11.0.3 1-->0
+			return 0;
 		case WM_USER_NOTIFYBRWFRAME:
 			{
 				HWND   hb = ::GetTopWindow(hWnd);
@@ -758,11 +758,29 @@ INT_PTR CALLBACK FrameWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			break;
 		case WM_USER_CLOSEBROWSER:
 			{
-				HWND hb = GetTopWindow(hWnd);
+				HWND   hb = GetTopWindow(hWnd);
 				while(hb && oneof2(hb, h_close_wnd, h_tree_wnd))
 					hb = GetNextWindow(hb, GW_HWNDNEXT);
-				if(!is_desktop)
-					DestroyWindow(hb);
+				if(!is_desktop) {
+					// @v12.5.5 ::DestroyWindow(hb);
+					// @v12.5.5 {
+					TBaseBrowserWindow * p_brw = static_cast<TBaseBrowserWindow *>(TView::GetWindowUserData(hb));
+					if(p_brw && p_brw->IsConsistent()) {
+						if(p_brw->IsSubSign(TV_SUBSIGN_BASEBRW) || p_brw->IsSubSign(TV_SUBSIGN_TMCHNKBRW)) { // @v12.5.5
+							assert(hb == p_brw->H());
+							p_brw->SetEndModalCmd(cmCancel);
+							if(p_brw->IsInState(sfModal)) {
+								::PostMessageW(hb, WM_NULL, 0, 0L);
+							}
+							else {
+								//::DestroyWindow(hw);
+								delete p_brw;
+								// После вызова DestroyWindow экземпляр this разрушается: никаких действий с ним далее проводить нельзя.
+							}
+						}
+					}
+					// } @v12.5.5 
+				}
 			}
 			break;
 		case WM_PAINT:
@@ -2272,6 +2290,8 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 	{
 		SPaintToolBox * p_tb = GetUiToolBox();
 		if(p_tb) {
+			PAINTSTRUCT ps; // @v12.5.5
+			::BeginPaint(hwnd, &ps); // @v12.5.5
 			TCanvas2 canv(*p_tb, pDi->hDC);
 			int   brush_id = tbiButtonBrush + item_state;
 			int   pen_id = tbiButtonPen + item_state;
@@ -2370,6 +2390,7 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 					}
 				}
 			}
+			::EndPaint(hwnd, &ps); // @v12.5.5
 		}
 	}
 	return ok;
@@ -2399,6 +2420,72 @@ int TProgram::DrawNumStepper(HWND hwnd, DRAWITEMSTRUCT * pDi) // @v12.5.3 @const
 	return ok;
 }
 
+int TProgram::DrawFrame(HWND hwnd, DRAWITEMSTRUCT * pDi) // @v12.5.5 @construction
+{
+	int    ok = 0;
+	InitUiToolBox();
+	{
+		SPaintToolBox * p_tb = GetUiToolBox();
+		if(p_tb) {
+			PAINTSTRUCT ps;
+			::BeginPaint(hwnd, &ps);
+			TCanvas2 canv(*p_tb, pDi->hDC);
+			//
+			void * p_user_data = TView::GetWindowUserData(pDi->hwndItem);
+			if(p_user_data && TView::IsSubSign(static_cast<TView *>(p_user_data), TV_SUBSIGN_GROUPBOX)) {
+				TFrame * p_view_frame = static_cast<TFrame *>(p_user_data);
+				TRect  rect_elem_i(pDi->rcItem);
+				if(p_view_frame->GetKind() == TFrame::fkSizeBar) {
+					//canv.DrawEdge(rect_elem_i, TCanvas2::edgeExcel01, TCanvas2::borderRect);
+				}
+				else {
+					SString text_buf;
+					TView::SGetWindowText(pDi->hwndItem, text_buf);
+					text_buf.Strip();
+					const  bool draw_text = text_buf.NotEmpty();
+					int    erase_text = 0;
+					int    text_pen_id = tbiButtonTextColor + 0;
+					rect_elem_i.a.y += 5;
+					//rect_elem_i.b.y -= 2;
+					canv.DrawEdge(rect_elem_i, TCanvas2::edgeEtched, TCanvas2::borderRect);
+					if(erase_text) {
+						;
+					}
+					else if(draw_text) {
+						HFONT  hf = reinterpret_cast<HFONT>(::SendMessageW(pDi->hwndItem, WM_GETFONT, 0, 0));
+						SETIFZQ(hf, (HFONT)::GetStockObject(DEFAULT_GUI_FONT));
+						int    temp_font_id = p_tb->CreateFont_(0, hf, 0);
+						if(temp_font_id) {
+							STextLayout tlo;
+							SDrawContext dctx = canv;
+							text_buf.Transf(CTRANSF_OUTER_TO_INNER);
+							if(GetDialogTextLayout(text_buf, temp_font_id, text_pen_id, tlo, ADJ_LEFT) > 0) {
+								FRect fr(pDi->rcItem);
+								fr.a.x += 8;
+								fr.a.y -= 4; // Если поднимать выше, то текст будет затираться //
+								fr.b.y = fr.a.y + 16;
+								tlo.SetBounds(fr);
+								tlo.SetOptions(tlo.fVCenter|tlo.fOneLine|tlo.fPrecBkg, -1, -1);
+								tlo.Arrange(dctx, *p_tb);
+								{
+									FRect erase_rect(tlo.GetBkgBounds());
+									erase_rect.a.x -= 2.0f;
+									erase_rect.b.x += 2.0f;
+									canv.Rect(erase_rect, 0, TProgram::tbiDialogBkgBrush);
+								}
+								canv.DrawTextLayout(&tlo);
+							}
+						}
+					}
+				}
+				ok = 1;
+			}
+			::EndPaint(hwnd, &ps);
+		}
+	}
+	return ok;
+}
+
 int TProgram::DrawInputLine3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 {
 	int    ok = 1;
@@ -2412,7 +2499,7 @@ int TProgram::DrawInputLine3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 		item_state = tbisFocus;
 	const  long style = TView::SGetWindowStyle(pDi->hwndItem);
 	const  TRect rect_elem_i(pDi->rcItem);
-	const  FRect rect_elem = pDi->rcItem;
+	const  FRect rect_elem(pDi->rcItem);
 	{
 		SPaintToolBox * p_tb = GetUiToolBox();
 		if(p_tb) {
@@ -2460,9 +2547,12 @@ int DrawInputLine(HWND hwnd, DRAWITEMSTRUCT * pDi)
 		HBRUSH old_brush = static_cast<HBRUSH>(::SelectObject(pDi->hDC, brush));
 		// RoundRect(pDi->hDC, pDi->rcItem.left, pDi->rcItem.top, pDi->rcItem.right, pDi->rcItem.bottom, ROUNDRECT_RADIUS, ROUNDRECT_RADIUS);
 		{
-			HDC hdc = pDi->hDC;
-			int start_x = 0, start_y = 0, end_x = 0, end_y = 0;
-			RECT arc_rect;
+			HDC    hdc = pDi->hDC;
+			int    start_x = 0;
+			int    start_y = 0;
+			int    end_x = 0;
+			int    end_y = 0;
+			RECT   arc_rect;
 			arc_rect.left   = pDi->rcItem.left;
 			arc_rect.top    = pDi->rcItem.top;
 			arc_rect.right  = arc_rect.left + ROUNDRECT_RADIUS * 2;
@@ -2625,6 +2715,7 @@ int TProgram::EraseBackground(TView * pView, HWND hWnd, HDC hDC, int ctlType)
 int TProgram::DrawControl(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	int    ok = -1;
+	bool   debug_mark = false; // @debug
 	switch(msg) {
 		case WM_DRAWITEM:
 		case WM_PAINT:
@@ -2633,10 +2724,22 @@ int TProgram::DrawControl(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				DRAWITEMSTRUCT * p_di = reinterpret_cast<DRAWITEMSTRUCT *>(lParam);
 				const int wvs = GetUiSettings().WindowViewStyle;
 				if(oneof2(wvs, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector)) {
-					if(oneof2(p_di->CtlType, ODT_CHECKBOX, ODT_RADIOBTN))
+					if(p_di->CtlType == ODT_FRAME) {
+						debug_mark = true; // @debug
+						if(msg == WM_NCPAINT) {
+							;
+						}
+						else if(msg == WM_PAINT) {
+							ok = DrawFrame(hwnd, p_di); // @v12.5.3 @construction
+						}
+					}
+					else if(oneof2(p_di->CtlType, ODT_CHECKBOX, ODT_RADIOBTN))
 						ok = -1;
 					else if(p_di->CtlType == ODT_BUTTON) {
-						if(msg != WM_NCPAINT) {
+						if(msg == WM_NCPAINT) {
+							debug_mark = true; // @debug
+						}
+						else {
 							if(UICfg.WindowViewStyle == UserInterfaceSettings::wndVKFancy) {
 								ok = DrawButton2(hwnd, p_di);
 							}
@@ -2672,9 +2775,8 @@ int TProgram::DrawControl(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				const int wvs = GetUiSettings().WindowViewStyle;
 				if(oneof2(wvs, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector)) {
 					DRAWITEMSTRUCT * p_di = reinterpret_cast<DRAWITEMSTRUCT *>(wParam);
-					HBRUSH brush = 0, old_brush = 0;
-					SETIFZ(brush, CreateSolidBrush(RGB(0xDD, 0xDD, 0xF1)));
-					old_brush = static_cast<HBRUSH>(::SelectObject(p_di->hDC, brush));
+					HBRUSH brush = CreateSolidBrush(RGB(0xDD, 0xDD, 0xF1));
+					HBRUSH old_brush = static_cast<HBRUSH>(::SelectObject(p_di->hDC, brush));
 					FillRect(p_di->hDC, &p_di->rcItem, brush);
 					if(old_brush)
 						SelectObject(p_di->hDC, old_brush);
@@ -2697,10 +2799,23 @@ void TProgram::CloseAllBrowsers()
 		if(hw) {
 			if(hw != H_Desktop) {
 				TBaseBrowserWindow * p_brw = static_cast<TBaseBrowserWindow *>(TView::GetWindowUserData(hw));
-				p_brw->endModal(cmCancel);
+				if(p_brw && p_brw->IsConsistent()) {
+					if(p_brw->IsSubSign(TV_SUBSIGN_BASEBRW) || p_brw->IsSubSign(TV_SUBSIGN_TMCHNKBRW)) { // @v12.5.5
+						assert(hw == p_brw->H());
+						p_brw->SetEndModalCmd(cmCancel);
+						if(p_brw->IsInState(sfModal)) {
+							::PostMessageW(hw, WM_NULL, 0, 0L);
+						}
+						else {
+							//::DestroyWindow(hw);
+							delete p_brw;
+							// После вызова DestroyWindow экземпляр this разрушается: никаких действий с ним далее проводить нельзя.
+						}
+					}
+				}
 			}
 			else
-				DestroyWindow(hw);
+				::DestroyWindow(hw);
 		}
 	} while(hw);
 	ZDELETE(P_TreeWnd);

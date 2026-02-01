@@ -525,7 +525,7 @@ int TVRez::CheckDialogs(const char * pLogFileName)
 		else
 			id_list.insert(&res_id);
 		delete dlg;
-		dlg = new TDialog(TRect(0, 0, 10, 10), "TEST");
+		dlg = new TDialog(TRect::_defr_, "TEST");
 		if(TDialog::LoadDialog(this, res_id, dlg, 0)) {
 			if(!_CrtCheckMemory())
 				debug_val = 1;

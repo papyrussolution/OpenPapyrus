@@ -573,41 +573,26 @@ static cairo_status_t fixup_unbounded(const cairo_traps_compositor_t * composito
 	box.p1.y = _cairo_fixed_from_int(extents->unbounded.y);
 	box.p2.x = _cairo_fixed_from_int(extents->unbounded.x);
 	box.p2.y = _cairo_fixed_from_int(extents->unbounded.y + extents->unbounded.height);
-
-	if(boxes == NULL) {
+	if(!boxes) {
 		if(extents->bounded.width == 0 || extents->bounded.height == 0) {
 			goto empty;
 		}
 		else {
 			/* top */
 			if(extents->bounded.y != extents->unbounded.y) {
-				add_rect(&clear,
-				    extents->unbounded.x, extents->unbounded.y,
-				    extents->unbounded.x + extents->unbounded.width,
-				    extents->bounded.y);
+				add_rect(&clear, extents->unbounded.x, extents->unbounded.y, extents->unbounded.x + extents->unbounded.width, extents->bounded.y);
 			}
 			/* left */
 			if(extents->bounded.x != extents->unbounded.x) {
-				add_rect(&clear,
-				    extents->unbounded.x, extents->bounded.y,
-				    extents->bounded.x,
-				    extents->bounded.y + extents->bounded.height);
+				add_rect(&clear, extents->unbounded.x, extents->bounded.y, extents->bounded.x, extents->bounded.y + extents->bounded.height);
 			}
 			/* right */
 			if(extents->bounded.x + extents->bounded.width != extents->unbounded.x + extents->unbounded.width) {
-				add_rect(&clear,
-				    extents->bounded.x + extents->bounded.width,
-				    extents->bounded.y,
-				    extents->unbounded.x + extents->unbounded.width,
-				    extents->bounded.y + extents->bounded.height);
+				add_rect(&clear, extents->bounded.x + extents->bounded.width, extents->bounded.y, extents->unbounded.x + extents->unbounded.width, extents->bounded.y + extents->bounded.height);
 			}
 			/* bottom */
 			if(extents->bounded.y + extents->bounded.height != extents->unbounded.y + extents->unbounded.height) {
-				add_rect(&clear,
-				    extents->unbounded.x,
-				    extents->bounded.y + extents->bounded.height,
-				    extents->unbounded.x + extents->unbounded.width,
-				    extents->unbounded.y + extents->unbounded.height);
+				add_rect(&clear, extents->unbounded.x, extents->bounded.y + extents->bounded.height, extents->unbounded.x + extents->unbounded.width, extents->unbounded.y + extents->unbounded.height);
 			}
 		}
 	}

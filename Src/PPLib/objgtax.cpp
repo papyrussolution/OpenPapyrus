@@ -580,7 +580,7 @@ int GTaxVect::CalcTI_Implement(const PPTransferItem & rTi, PPID opID, int tiamt,
 			tax_grp_id = goods_rec.TaxGrpID;
 			if(!(exclFlags & GTAXVF_NOMINAL) && r_ccfg.DynGoodsTypeForSupplAgent && rTi.LotID && p_bobj->GetSupplAgent(rTi.LotID) > 0) {
 				PPObjGoodsType gt_obj;
-				PPGoodsType gt_rec;
+				PPGoodsType2 gt_rec;
 				if(gt_obj.Fetch(r_ccfg.DynGoodsTypeForSupplAgent, &gt_rec) > 0 && gt_rec.Flags & GTF_EXCLVAT)
 					is_exclvat = true;
 			}
@@ -719,7 +719,7 @@ GTaxVect::WareBlock::WareBlock(PPObjGoods & rGObj, PPID goodsID, PPID lotID, lon
 			IsAsset = true;
 		TaxGroupID = goods_rec.TaxGrpID;
 		if(!(exclFlags & GTAXVF_NOMINAL) && r_ccfg.DynGoodsTypeForSupplAgent && LotID && BillObj->GetSupplAgent(LotID) > 0) {
-			PPGoodsType gt_rec;
+			PPGoodsType2 gt_rec;
 			if(rGObj.GtObj.Fetch(r_ccfg.DynGoodsTypeForSupplAgent, &gt_rec) > 0 && gt_rec.Flags & GTF_EXCLVAT)
 				IsExclVat = true;
 		}

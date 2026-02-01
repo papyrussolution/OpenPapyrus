@@ -1,5 +1,5 @@
 // QUOT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -22,22 +22,40 @@ int ViewQuotValueInfo(const PPQuot & rQuot)
 	dlg->setCtrlString(CTL_QUOT_PERIOD, temp_buf);
 	dlg->setCtrlString(CTL_QUOT_DATETIME, temp_buf.Z().Cat(rQuot.Dtm, DATF_DMY, TIMF_HMS));
 	dlg->setCtrlString(CTL_QUOT_VALUE, temp_buf.Z().Cat(rQuot.Quot, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
-	temp_buf.Z();
-	if(rQuot.Flags & PPQuot::fPctOnCost)
-		temp_buf.CatChar('C');
-	if(rQuot.Flags & PPQuot::fPctOnPrice)
-		temp_buf.CatChar('P');
-	if(rQuot.Flags & PPQuot::fPctOnAddition)
-		temp_buf.CatChar('D');
-	if(rQuot.Flags & PPQuot::fPctDisabled)
-		temp_buf.CatChar('X');
-	if(rQuot.Flags & PPQuot::fPctOnBase)
-		temp_buf.CatChar('Q');
-	if(rQuot.Flags & PPQuot::fWithoutTaxes)
-		temp_buf.CatChar('F');
-	if(rQuot.Flags & PPQuot::fZero)
-		temp_buf.CatChar('Z');
-	dlg->setCtrlString(CTL_QUOT_FLAGS, temp_buf);
+	{
+		temp_buf.Z();
+		// @v12.5.5 {
+		const int mean = rQuot.GetMean();
+		switch(mean) {
+			case PPQuot::meanAbsolute: break;
+			case PPQuot::meanPctOnCost: temp_buf.CatChar('C'); break;
+			case PPQuot::meanPctOnPrice: temp_buf.CatChar('P'); break;
+			case PPQuot::meanAbsOnCost: temp_buf.Cat("$c"); break;
+			case PPQuot::meanAbsOnPrice: temp_buf.Cat("$p"); break;
+			case PPQuot::meanPctOnMarkup: temp_buf.CatChar('D'); break;
+			case PPQuot::meanDisabled: temp_buf.CatChar('X'); break;
+			case PPQuot::meanPctOnBase: temp_buf.CatChar('Q'); break;
+			case PPQuot::meanZero: temp_buf.CatChar('Z'); break;
+		}
+		// } @v12.5.5 
+		/*
+		if(rQuot.Flags & PPQuot::fPctOnCost)
+			temp_buf.CatChar('C');
+		if(rQuot.Flags & PPQuot::fPctOnPrice)
+			temp_buf.CatChar('P');
+		if(rQuot.Flags & PPQuot::fPctOnAddition)
+			temp_buf.CatChar('D');
+		if(rQuot.Flags & PPQuot::fPctDisabled)
+			temp_buf.CatChar('X');
+		if(rQuot.Flags & PPQuot::fPctOnBase)
+			temp_buf.CatChar('Q');
+		if(rQuot.Flags & PPQuot::fZero)
+			temp_buf.CatChar('Z');
+		*/
+		if(rQuot.Flags & PPQuot::fWithoutTaxes)
+			temp_buf.CatChar('F');
+		dlg->setCtrlString(CTL_QUOT_FLAGS, temp_buf);
+	}
 	ExecViewAndDestroy(dlg);
 	CATCHZOKPPERR
 	return ok;
@@ -334,7 +352,7 @@ IMPL_HANDLE_EVENT(QuotUpdDialog)
 		enableCommand(cmQuotUpdSetQuot, Data.ByWhat == QuotUpdFilt::byAbsVal);
 	}
 	else if(event.isCbSelected(CTLSEL_QUOTUPD_KIND)) {
-		PPID   qk_id = getCtrlLong(CTLSEL_QUOTUPD_KIND);
+		const  PPID qk_id = getCtrlLong(CTLSEL_QUOTUPD_KIND);
 		if(qk_id != Data.QuotKindID) {
 			Data.QuotKindID = qk_id;
 			PPID   acs_id = 0;
@@ -1267,11 +1285,11 @@ int RollbackQuots(const LDATETIME * pDateTime)
 				p_qc2->GetCurrList(goods_id, 0, 0, org_qlist_by_goods); //берем список котировок по товару
 				tmp_qlist = org_qlist_by_goods; //работаем с копией
 				for(uint j = 0; j < org_qlist_by_goods.getCount(); j++) {
-					PPQuot r_vola_q = org_qlist_by_goods.at(j);
+					const PPQuot & r_vola_q = org_qlist_by_goods.at(j); // @v12.5.5 @fix (PPQuot r_vola_q)-->(const PPQuot & r_vola_q)
 					for(uint i = 0; i < qlist_after.getCount(); i++) {
 						const PPQuot & r_org_q = qlist_after.at(i);
 						if(r_vola_q.IsEq(r_org_q)) {
-							q_before.Clear();
+							q_before.Z();
 							state_flag = p_qc2->GetBeforeDT(date_time, r_vola_q.GoodsID, r_vola_q.RelID, &q_before);
 							if(state_flag == 1) {
 								//r_vola_q.Flags = r_vola_q.Flags & (~PPQuot().fActual);  // меняю флаг у актуальной котировки на не аутуальный(это все в массиве котировок, доступ по ссылке)

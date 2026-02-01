@@ -1056,6 +1056,14 @@ ChZnPmConnTimeout=[int]
 ;
 ChZnPmOvrallTimeout=[int]
 ;
+; @v12.5.5 [config] def=20000 PPINIPARAM_CHZNPMLOCALCONNTIMEOUT Таймаут (ms) ожидания соединения с локальным сервером честный знак для проверки марки
+;
+ChZnPmLocalConnTimeout=[int]
+;
+; @v12.5.5 [config] def=40000 PPINIPARAM_CHZNPMLOCALOVRALLTIMEOUT Таймаут (ms) общего времени обработки запроса к локальному серверу честный знак для проверки марки
+;
+ChZnPmLocalOvrallTimeout=[int]
+;
 ; @v12.5.3 def=0 PPINIPARAM_FORCE_IMPEXP_EXCEL_OLEAUTO Для импорта/экспорта excel применять старую технику OleAuto (через приложение Excel).
 ; Если 0, то используется новая техника прямого импорта/экспорта посредством компонента OpenXLSX
 ;

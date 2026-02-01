@@ -241,6 +241,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, 
 	if(!PPSession::CheckExecutionLocking())
 		ret = -1;
 	else {
+		//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF|_CRTDBG_LEAK_CHECK_DF); // @v12.5.5
 		INITCOMMONCONTROLSEX iccex;
 		iccex.dwSize = sizeof(INITCOMMONCONTROLSEX);
 		iccex.dwICC = ICC_COOL_CLASSES|ICC_BAR_CLASSES|ICC_LISTVIEW_CLASSES|ICC_USEREX_CLASSES|ICC_WIN95_CLASSES;

@@ -1,5 +1,5 @@
 // TRECT.CPP
-// ..2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025
+// ..2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -752,13 +752,7 @@ int FASTCALL FShape::Get(Polyline & rS) const
 //
 // TRect
 //
-TRect::TRect(int ax, int ay, int bx, int by)
-{
-	a.x = ax;
-	a.y = ay;
-	b.x = bx;
-	b.y = by;
-}
+/*static*/const TRect TRect::_defr_(0, 0, 10, 0);
 
 TRect::TRect(SPoint2S p1, SPoint2S p2) : a(p1), b(p2)
 {
@@ -1098,9 +1092,9 @@ float FASTCALL SPoint2F::operator[](size_t idx) const
 	}
 }
 
-bool   FASTCALL SPoint2F::operator == (const SPoint2F & rS) const { return IsEq(rS); } // @v10.9.10
-bool   FASTCALL SPoint2F::operator != (const SPoint2F & rS) const { return !IsEq(rS); } // @v10.9.10
-bool   FASTCALL SPoint2F::IsEq(const SPoint2F & rS) const { return (x == rS.x && y == rS.y); } // @v10.9.10
+bool   FASTCALL SPoint2F::operator == (const SPoint2F & rS) const { return IsEq(rS); }
+bool   FASTCALL SPoint2F::operator != (const SPoint2F & rS) const { return !IsEq(rS); }
+bool   FASTCALL SPoint2F::IsEq(const SPoint2F & rS) const { return (x == rS.x && y == rS.y); }
 bool   SPoint2F::IsZero() const { return (x == 0.0f && y == 0.0f); } // @v11.2.0 @fix (x != 0.0f && y != 0.0f)-->(x == 0.0f && y == 0.0f);
 bool   SPoint2F::IsPositive() const { return (x > 0.0f && y > 0.0f); }
 int    FASTCALL SPoint2F::Write(SBuffer & rBuf) const { return rBuf.Write(this, sizeof(*this)); }

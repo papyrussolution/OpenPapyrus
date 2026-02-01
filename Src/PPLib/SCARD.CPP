@@ -285,18 +285,6 @@ int SCardCore::AddTurnover(PPID id, double add, int use_ta)
 	return ok;
 }
 
-#if 0 // @construction {
-int SCardCore::AddTurnover_Test(PPID id, double add, int use_ta)
-{
-	int    ok = 1;
-	if(id)
-		ok = updateFor(this, use_ta, (this->ID == id), set(this->Turnover, (this->Turnover+add))) ? 1 : PPSetErrorDB();
-	else
-		ok = -1;
-	return ok;
-}
-#endif // } @construction
-
 /*static*/int SCardCore::GetCodeRange(const char * pTemplate, SString & rLow, SString & rUpp)
 {
 	int    ok = -1;

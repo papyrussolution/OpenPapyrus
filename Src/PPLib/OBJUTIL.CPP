@@ -4,8 +4,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <sys/types.h>
-#include <sys/stat.h>
 
 #define UNREGISTERED_OBJECT 0
 //
@@ -584,7 +582,7 @@ int PPObject::CreateReservedObjects(long flags)
 	}
 	if(flags & mrfInitializeDb) {
 		PPObjSecur sec_obj(PPOBJ_CONFIG, 0);
-		PPSecur sec_rec;
+		PPSecur2 sec_rec;
 		if(sec_obj.Search(PPCFG_MAIN, &sec_rec) > 0) {
 			PPConfig cfg_rec;
 			PPCommConfig comm_cfg;
@@ -880,28 +878,6 @@ ListBoxDef * PPObject::Selector(ListBoxDef * pOrgDef, long flags, void * extraPt
 	}
 	return p_def;
 }
-
-/* @v11.1.10 int PPObject::UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr)
-{
-	int    ok = 1;
-	if(pDef)
-		if(ImplementFlags & implStrAssocMakeList) {
-			StrAssocArray * p_list = MakeStrAssocList(extraPtr);
-			if(p_list) {
-				if(ImplementFlags & implTreeSelector)
-					static_cast<StdTreeListBoxDef *>(pDef)->setArray(p_list);
-				else
-					static_cast<StrAssocListBoxDef *>(pDef)->setArray(p_list);
-			}
-			else
-				ok = PPErrorZ();
-		}
-		else
-			pDef->refresh();
-	else
-		ok = -1;
-	return ok;
-}*/
 
 /*virtual*/bool PPObject::ValidateSelection(PPID, uint olwFlags, void * extraPtr) { return true; }
 

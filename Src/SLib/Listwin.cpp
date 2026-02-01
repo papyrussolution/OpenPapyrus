@@ -1,5 +1,5 @@
 // LISTWIN.CPP
-// Copyright (c) V.Antonov, A.Osolotkin, A.Starodub, A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
+// Copyright (c) V.Antonov, A.Osolotkin, A.Starodub, A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -666,8 +666,7 @@ void FASTCALL WordSelector::setDef(ListBoxDef * pDef)
 ListWindow * CreateListWindow(SArray * pAry, uint options, TYPEID type) { return new ListWindow(new StdListBoxDef(pAry, options, type)); }
 ListWindow * CreateListWindow(StrAssocArray * pAry, uint options) { return new ListWindow(new StrAssocListBoxDef(pAry, options)); }
 ListWindow * CreateListWindow(DBQuery & rQuery, uint options) { return new ListWindow(new DBQListBoxDef(rQuery, options, 32)); }
-// @v11.2.5 ListWindow * CreateListWindow(uint sz, uint options) { return new ListWindow(new StringListBoxDef(sz, options)); }
-ListWindow * CreateListWindow_Simple(uint options) // @v11.2.5
+ListWindow * CreateListWindow_Simple(uint options)
 { 
 	StrAssocListBoxDef * p_def = new StrAssocListBoxDef(new StrAssocArray, options | lbtDisposeData);
 	return new ListWindow(p_def); 

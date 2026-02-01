@@ -4137,8 +4137,8 @@ int PPChZnPrcssr::PermissiveModeInterface::CheckCodeList(const char * pHost, con
 	// @v12.4.1 {
 	{
 		const PPCommConfig & r_cc = CConfig;
-		const int conn_timeout_ms = (r_cc.ChZnPmConnTimeout > 0 && r_cc.ChZnPmConnTimeout <= 120000) ? r_cc.ChZnPmConnTimeout : 3000;
-		const int ovrall_timeout_ms = (r_cc.ChZnPmOvrallTimeout > 0 && r_cc.ChZnPmOvrallTimeout <= 120000) ? r_cc.ChZnPmOvrallTimeout : 4000;
+		const int conn_timeout_ms   = inirangeor(r_cc.ChZnPmConnTimeout,   1U, 120000U, 3000U);
+		const int ovrall_timeout_ms = inirangeor(r_cc.ChZnPmOvrallTimeout, 1U, 120000U, 4000U);
 		c.SetQueryParam_ConnectionTimeout(conn_timeout_ms); // @v12.3.12 (1500)
 		c.SetQueryParam_OverallTimeout(ovrall_timeout_ms);
 	}
@@ -4412,9 +4412,15 @@ int PPChZnPrcssr::PermissiveModeInterface::GetLocalSvrStatus(const char * pFisca
 				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAuthorization, temp_buf);
 			}
 			SFile wr_stream(ack_buf.Z(), SFile::mWrite);
-			Lth.Log("req (local mode)", 0, req_buf);
-			c.SetQueryParam_ConnectionTimeout(15000); // @v12.4.1 1500-->15000
-			c.SetQueryParam_OverallTimeout(20000);    // @v12.4.1 2000-->20000
+			req_buf = "GetLocalSvrStatus";
+			Lth.Log("req (local mode)", 0, req_buf); // @todo @20260123 буфер пустой - текст нужен!
+			{
+				const PPCommConfig & r_cc = CConfig;
+				const int conn_timeout_ms   = inirangeor(r_cc.ChZnPmLocalConnTimeout,   1U, 120000U, 20000U);
+				const int ovrall_timeout_ms = inirangeor(r_cc.ChZnPmLocalOvrallTimeout, 1U, 120000U, 40000U);
+				c.SetQueryParam_ConnectionTimeout(conn_timeout_ms); // @v12.4.1 1500-->15000 // @v12.5.5 conn_timeout_ms
+				c.SetQueryParam_OverallTimeout(ovrall_timeout_ms);  // @v12.4.1 2000-->20000 // @v12.5.5 ovrall_timeout_ms
+			}
 			if(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream)) {
 				SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 				if(p_ack_buf) {
@@ -4582,8 +4588,13 @@ int PPChZnPrcssr::PermissiveModeInterface::LocalCheckCodeList(const char * pFisc
 				}
 				SFile wr_stream(ack_buf.Z(), SFile::mWrite);
 				Lth.Log("req (local mode)", 0, req_buf);
-				c.SetQueryParam_ConnectionTimeout(15000); // @v12.4.1 1500-->15000
-				c.SetQueryParam_OverallTimeout(20000);    // @v12.4.1 2000-->20000
+				{
+					const PPCommConfig & r_cc = CConfig;
+					const int conn_timeout_ms   = inirangeor(r_cc.ChZnPmLocalConnTimeout,   1U, 120000U, 20000U);
+					const int ovrall_timeout_ms = inirangeor(r_cc.ChZnPmLocalOvrallTimeout, 1U, 120000U, 40000U);
+					c.SetQueryParam_ConnectionTimeout(conn_timeout_ms); // @v12.4.1 1500-->15000 // @v12.5.5 conn_timeout_ms
+					c.SetQueryParam_OverallTimeout(ovrall_timeout_ms);  // @v12.4.1 2000-->20000 // @v12.5.5 ovrall_timeout_ms
+				}
 				if(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream)) {
 					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 					if(p_ack_buf) {
@@ -4940,7 +4951,7 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 			SString temp_buf;
 			Goods2Tbl::Rec goods_rec;
 			if(GObj.Fetch(goodsID, &goods_rec) > 0)	{
-				PPGoodsType gt_rec;
+				PPGoodsType2 gt_rec;
 				if(goods_rec.GoodsTypeID && GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.ChZnProdType) {
 					PPGetSubStrById(PPTXT_CHZNPRODUCTTYPES, gt_rec.ChZnProdType, temp_buf);
 					rBuf.Cat("chzn type").CatDiv(':', 2).Cat(temp_buf);

@@ -839,7 +839,7 @@ void BillFiltDialog::ExtraFilt2()
 	}
 	else if(own_bill_restr == 2) {
 		PPObjSecur sec_obj(PPOBJ_USR, 0);
-		PPSecur sec_rec;
+		PPSecur2 sec_rec;
 		if(sec_obj.Fetch(cur_user_id, &sec_rec) > 0)
 			SETIFZQ(Data.CreatorID, (sec_rec.ParentID | PPObjSecur::maskUserGroup));
 	}
@@ -892,7 +892,7 @@ void BillFiltDialog::extraFilt()
 		}
 		else if(own_bill_restr == 2) {
 			PPObjSecur sec_obj(PPOBJ_USR, 0);
-			PPSecur sec_rec;
+			PPSecur2 sec_rec;
 			if(sec_obj.Fetch(cur_user_id, &sec_rec) > 0)
 				SETIFZQ(Data.CreatorID, (sec_rec.ParentID | PPObjSecur::maskUserGroup));
 		}
@@ -1022,7 +1022,7 @@ int BillFiltDialog::setDTS(const BillFilt * pFilt)
 			}
 			else if(own_bill_restr == 2) {
 				PPObjSecur sec_obj(PPOBJ_USR, 0);
-				PPSecur sec_rec;
+				PPSecur2 sec_rec;
 				if(sec_obj.Fetch(cur_user_id, &sec_rec) > 0) {
 					Data.CreatorID = (sec_rec.ParentID | PPObjSecur::maskUserGroup);
 					DisableClusterItem(CTL_BILLFLT_FLAGS, 1, 1);
@@ -1451,7 +1451,7 @@ int PPViewBill::EditBaseFilt(PPBaseFilt * pFilt)
 			p_filt->CreatorID = r_cfg.UserID;
 		else if(own_bill_restr == 2) {
 			PPObjSecur sec_obj(PPOBJ_USR, 0);
-			PPSecur sec_rec;
+			PPSecur2 sec_rec;
 			if(sec_obj.Fetch(r_cfg.UserID, &sec_rec) > 0)
 				p_filt->CreatorID = (sec_rec.ParentID | PPObjSecur::maskUserGroup);
 		}
@@ -1662,7 +1662,7 @@ int PPViewBill::Helper_CheckIDForFilt(uint flags, PPID id, const BillTbl::Rec * 
 	if(Filt.CreatorID) {
 		if(Filt.CreatorID & PPObjSecur::maskUserGroup) {
 			PPObjSecur sec_obj(PPOBJ_USR, 0);
-			PPSecur usr_rec;
+			PPSecur2 usr_rec;
 			if(sec_obj.Fetch(pRec->UserID, &usr_rec) <= 0 || usr_rec.ParentID != (Filt.CreatorID & ~PPObjSecur::maskUserGroup))
 				return 0;
 		}
@@ -1736,10 +1736,8 @@ int PPViewBill::InitOrderRec(IterOrder ord, const BillTbl::Rec * pBillRec, TempO
 		// @v11.1.12 BillCore::GetCode(pOrdRec->Name);
 		temp_buf = pOrdRec->Name;
 	}
-	else if(ord == OrdByDateCode) { // @v11.0.11
-		// @v11.1.12 SString & r_code_buf = SLS.AcquireRvlStr();
-		// @v11.1.12 BillCore::GetCode(r_code_buf = pBillRec->Code);
-		temp_buf.Cat(pBillRec->Dt, DATF_YMD|DATF_NODIV|DATF_CENTURY).Cat(/*r_code_buf*/pBillRec->Code);
+	else if(ord == OrdByDateCode) {
+		temp_buf.Cat(pBillRec->Dt, DATF_YMD|DATF_NODIV|DATF_CENTURY).Cat(pBillRec->Code);
 	}
 	else if(ord == OrdByObjectName) {
 		GetArticleName(pBillRec->Object, temp_buf);
@@ -2023,7 +2021,7 @@ int PPViewBill::Enumerator(uint flags, BillViewEnumProc proc, void * pExtraPtr)
 				if(!SingleLocID && LocList_.getCount() && !LocList_.lsearch(bill_rec.LocID))
 					continue;
 				if(Filt.CreatorID & PPObjSecur::maskUserGroup) {
-					PPSecur sec_rec;
+					PPSecur2 sec_rec;
 					if(sec_obj.Fetch(bill_rec.UserID, &sec_rec) <= 0 || sec_rec.ParentID != (Filt.CreatorID & ~PPObjSecur::maskUserGroup))
 						continue;
 				}
@@ -5697,7 +5695,7 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 						(temp_buf = inet_addr_list.Get(ai).Txt).Strip();
 						if(IsByEmailAddrByContext(temp_buf)) {
 							const  PPID user_id = LConfig.UserID;
-							PPSecur sec_rec;
+							PPSecur2 sec_rec;
 							if(user_id && sec_obj.Fetch(user_id, &sec_rec) > 0 && sec_rec.PersonID) {
 								StringSet ss_elink;
 								PPELinkArray elink_list;
@@ -7570,7 +7568,7 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 			p_ti = &temp_ti;
 			if(p_pack->ProcessFlags & PPBillPacket::pfPrintOnlyUnlimGoods && goods_obj.Fetch(p_ti->GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID) {
 				PPObjGoodsType gt_obj;
-				PPGoodsType gt_rec;
+				PPGoodsType2 gt_rec;
 				if(gt_obj.Fetch(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.Flags & (GTF_UNLIMITED|GTF_QUASIUNLIM))
 					treat_as_unlim = 1;
 			}
@@ -9602,7 +9600,7 @@ void PPALDD_ContentBList::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmS
 					else if(symb == "costvatsum") { // величина НДС в сумме поступления (в цене поступления, умноженной на количество)
 						GTaxVect gtv;
 						gtv.CalcBPTI(*p_bp, r_ti, TIAMT_COST);
-						result = fabs(gtv.GetValue(GTAXVF_VAT));
+						result = fabs(gtv.GetValue(GTAXVF_VAT)); // @v12.5.5 @fix GTAX_VAT-->GTAXVF_VAT
 					}
 					else if(symb == "pricevatrate") {
 						GTaxVect gtv;
@@ -9613,13 +9611,13 @@ void PPALDD_ContentBList::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmS
 						if(absqtty != 0.0) {
 							GTaxVect gtv;
 							gtv.CalcBPTI(*p_bp, r_ti, TIAMT_PRICE);
-							result = fabs(gtv.GetValue(GTAX_VAT)) / absqtty;
+							result = fabs(gtv.GetValue(GTAXVF_VAT)) / absqtty; // @v12.5.5 @fix GTAX_VAT-->GTAXVF_VAT
 						}
 					}
 					else if(symb == "pricevatsum") {
 						GTaxVect gtv;
 						gtv.CalcBPTI(*p_bp, r_ti, TIAMT_PRICE);
-						result = fabs(gtv.GetValue(GTAX_VAT));
+						result = fabs(gtv.GetValue(GTAXVF_VAT)); // @v12.5.5 @fix GTAX_VAT-->GTAXVF_VAT
 					}
 				}
 			}

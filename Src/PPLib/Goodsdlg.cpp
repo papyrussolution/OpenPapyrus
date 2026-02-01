@@ -1357,7 +1357,7 @@ void GoodsDialog::SetupAddedInfo()
 			title_buf = "no price restriction";
 			if(Data.Rec.ID && Data.Rec.GoodsTypeID) {
 				PPObjGoodsType gt_obj;
-				PPGoodsType gt_rec;
+				PPGoodsType2 gt_rec;
 				if(gt_obj.Fetch(Data.Rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.PriceRestrID) {
 					PPObjGoodsValRestr gvr_obj;
 					PPGoodsValRestrPacket gvr_pack;

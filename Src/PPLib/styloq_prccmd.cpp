@@ -1,5 +1,5 @@
 // STYLOQ_PRCCMD.CPP
-// Copyright (c) A.Sobolev 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2022, 2023, 2024, 2025, 2026
 //
 #include <pp.h>
 #pragma hdrstop
@@ -40,8 +40,14 @@ int PPStyloQInterchange::MakeInnerGoodsEntryBlock::Make(PPID goodsID, double cos
 		if(goods_rec.GoodsTypeID) {
 			PPGoodsType2 gt_rec;
 			if(GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
-				if(gt_rec.Flags & GTF_GMARKED)
+				if(gt_rec.Flags & GTF_GMARKED) {
 					rItem.ChZnMarkCat = gt_rec.ChZnProdType ? gt_rec.ChZnProdType : GTCHZNPT_UNKN;
+					// @v12.5.5 {
+					if(gt_rec.Flags & GTF_GMARKED_WHS) {
+						rItem.Flags |= InnerGoodsEntry::fMarkedWhs;
+					}
+					// } @v12.5.5 
+				}
 			}
 		}
 		if(P_Ep && P_Ep->IsAlcGoods(goods_rec.ID)) {
@@ -1858,7 +1864,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 			PPIDArray gt_quasi_unlim_list;
 			{
 				PPObjGoodsType gt_obj;
-				PPGoodsType gt_rec;
+				PPGoodsType2 gt_rec;
 				for(SEnum en = gt_obj.Enum(0); en.Next(&gt_rec) > 0;) {
 					if(gt_rec.Flags & (GTF_QUASIUNLIM|GTF_UNLIMITED)) 
 						gt_quasi_unlim_list.add(gt_rec.ID);

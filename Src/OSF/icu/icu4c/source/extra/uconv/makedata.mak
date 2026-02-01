@@ -45,6 +45,7 @@ ICUDATA=$(ICUP)\data
 
 # DLL_OUTPUT=.\$(CFG)
 DLL_OUTPUT=..\..\__TEMP__\VC2017\$(CFG)\icu-uconv
+# DLL_OUTPUT=..\..\__TEMP__\VC2019\$(CFG)\icu-uconv # @v12.5.5 
 # set the following to 'static' or 'dll' depending
 PKGMODE=static
 
@@ -115,11 +116,16 @@ OUTPUT = "$(DLL_OUTPUT)\$(RESNAME).lib"
 ALL : $(OUTPUT)
     @echo All targets are up to date (mode $(PKGMODE))
 
-
 # invoke pkgdata - static
 "$(DLL_OUTPUT)\$(RESNAME).lib" : $(RB_FILES) $(RESFILES)
     @echo Building $(RESNAME).lib
-    @"$(ICUTOOLS)\pkgdata" -f -v -m static -c -p $(RESNAME) -d "$(DLL_OUTPUT)" $(EXTRA_PKGDATA_ARGUMENTS) -s "$(RESDIR)" <<pkgdatain.txt
+    @echo RESDIR=$(RESDIR)
+    @echo DLL_OUTPUT=$(DLL_OUTPUT)
+    @echo RESNAME=$(RESNAME)
+    @echo EXTRA_PKGDATA_ARGUMENTS=$(EXTRA_PKGDATA_ARGUMENTS)
+    cd
+    @echo running $(ICUTOOLS)\pkgdata
+    @"$(ICUTOOLS)\pkgdata" -f -v -m static -c -p $(RESNAME) -d "$(DLL_OUTPUT)" $(EXTRA_PKGDATA_ARGUMENTS) -s "$(RESDIR)" << pkgdatain.txt
 $(RES_FILES:.res =.res
 )
 <<KEEP

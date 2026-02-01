@@ -1,5 +1,5 @@
 // CSHSES.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 // Интерфейс с асинхронными кассовыми устройствами
 //
@@ -16,7 +16,7 @@
 	}
 	else if(GetCurUserName(rBuf).IsEmpty()) {
 		PPObjSecur sec_obj(PPOBJ_USR, 0);
-		PPSecur sec_rec;
+		PPSecur2 sec_rec;
 		if(sec_obj.Fetch(LConfig.UserID, &sec_rec) > 0)
 			rBuf = sec_rec.Name;
 	}
@@ -110,7 +110,7 @@ void PPSyncCashSession::GetOfdFactors(OfdFactors & rP)
 	PPObjGoods goods_obj;
 	Goods2Tbl::Rec goods_rec;
 	if(goods_obj.Fetch(goodsID, &goods_rec) > 0) {
-		PPGoodsType gt_rec;
+		PPGoodsType2 gt_rec;
 		if(goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
 			if(gt_rec.ChZnProdType == GTCHZNPT_DRAFTBEER) {
 				if(posNodeID) {
@@ -132,7 +132,7 @@ void PPSyncCashSession::GetOfdFactors(OfdFactors & rP)
 	PPObjGoods goods_obj;
 	Goods2Tbl::Rec goods_rec;
 	if(goods_obj.Fetch(goodsID, &goods_rec) > 0) {
-		PPGoodsType gt_rec;
+		PPGoodsType2 gt_rec;
 		if(goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
 			if(gt_rec.ChZnProdType == GTCHZNPT_DRAFTBEER_AWR) {
 				yes = true;
@@ -907,7 +907,10 @@ int PPAsyncCashSession::IsCheckExistence(PPID cashID, long code, const LDATETIME
 			ccdtm.Set(CC.data.Dt, CC.data.Tm);
 			const long diffsec = diffdatetimesec(*pDT, ccdtm);
 			if(checkirange(diffsec, 1L, (10L*60L))) {
-				SString msg_buf, fmt_buf, cc_text_buf, time_buf;
+				SString msg_buf;
+				SString fmt_buf;
+				SString cc_text_buf;
+				SString time_buf;
 				CCheckCore::MakeCodeString(&CC.data, 0, cc_text_buf);
 				time_buf.Cat(*pDT, DATF_DMY, TIMF_HMS|TIMF_MSEC);
 				// PPTXT_DUPNEWCCHECKCODE            "В существующей кассовой сессии обнаружен чек-дублер '%s' принимаемого, время нового чека = '%s'"

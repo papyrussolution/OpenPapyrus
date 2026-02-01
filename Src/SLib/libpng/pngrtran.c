@@ -1457,42 +1457,25 @@ void /*PRIVATE*/ png_init_read_transformations(png_structrp png_ptr)
 					default:
 					    png_error(png_ptr, "invalid background gamma type");
 				}
-
 				g_sig = png_gamma_significant(g);
 				gs_sig = png_gamma_significant(gs);
-
 				if(g_sig != 0)
-					png_ptr->background_1.gray = png_gamma_correct(png_ptr,
-					    png_ptr->background.gray, g);
-
+					png_ptr->background_1.gray = png_gamma_correct(png_ptr, png_ptr->background.gray, g);
 				if(gs_sig != 0)
-					png_ptr->background.gray = png_gamma_correct(png_ptr,
-					    png_ptr->background.gray, gs);
-
-				if((png_ptr->background.red != png_ptr->background.green) ||
-				    (png_ptr->background.red != png_ptr->background.blue) ||
-				    (png_ptr->background.red != png_ptr->background.gray)) {
+					png_ptr->background.gray = png_gamma_correct(png_ptr, png_ptr->background.gray, gs);
+				if((png_ptr->background.red != png_ptr->background.green) || (png_ptr->background.red != png_ptr->background.blue) || 
+					(png_ptr->background.red != png_ptr->background.gray)) {
 					/* RGB or RGBA with color background */
 					if(g_sig != 0) {
-						png_ptr->background_1.red = png_gamma_correct(png_ptr,
-						    png_ptr->background.red, g);
-
-						png_ptr->background_1.green = png_gamma_correct(png_ptr,
-						    png_ptr->background.green, g);
-
-						png_ptr->background_1.blue = png_gamma_correct(png_ptr,
-						    png_ptr->background.blue, g);
+						png_ptr->background_1.red = png_gamma_correct(png_ptr, png_ptr->background.red, g);
+						png_ptr->background_1.green = png_gamma_correct(png_ptr, png_ptr->background.green, g);
+						png_ptr->background_1.blue = png_gamma_correct(png_ptr, png_ptr->background.blue, g);
 					}
 
 					if(gs_sig != 0) {
-						png_ptr->background.red = png_gamma_correct(png_ptr,
-						    png_ptr->background.red, gs);
-
-						png_ptr->background.green = png_gamma_correct(png_ptr,
-						    png_ptr->background.green, gs);
-
-						png_ptr->background.blue = png_gamma_correct(png_ptr,
-						    png_ptr->background.blue, gs);
+						png_ptr->background.red = png_gamma_correct(png_ptr, png_ptr->background.red, gs);
+						png_ptr->background.green = png_gamma_correct(png_ptr, png_ptr->background.green, gs);
+						png_ptr->background.blue = png_gamma_correct(png_ptr, png_ptr->background.blue, gs);
 					}
 				}
 

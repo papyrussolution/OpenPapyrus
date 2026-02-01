@@ -4467,7 +4467,7 @@ bool PPBillPacket::HasChZnMarks(bool isCorrectionExp) const
 		if(!result && !isCorrectionExp) {
 			PPObjGoods goods_obj;
 			Goods2Tbl::Rec goods_rec;
-			PPGoodsType gt_rec;
+			PPGoodsType2 gt_rec;
 			BarcodeArray bc_list;
 			SString norm_code;
 			if(goods_obj.Fetch(goods_id, &goods_rec) > 0 && goods_rec.GoodsTypeID) {
@@ -5779,7 +5779,7 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem & rTi)
 				r = -1;
 			else if(Flags & BTC_ONLYUNLIMGOODS) {
 				PPObjGoodsType gt_obj;
-				PPGoodsType gt_rec;
+				PPGoodsType2 gt_rec;
 				if(gt_obj.Fetch(goods_rec.GoodsTypeID, &gt_rec) <= 0 || !(gt_rec.Flags & (GTF_UNLIMITED|GTF_QUASIUNLIM)))
 					r = -1;
 			}
@@ -5956,7 +5956,7 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem & rTi)
 			// Full calculation amounts and taxes
 			//
  			if(gt_id || rTi.Flags & PPTFR_ODDGOODS) {
-				PPGoodsType gt_rec;
+				PPGoodsType2 gt_rec;
 				if(SETIFZ(gt_id, goods_rec.GoodsTypeID) && gt_id != PPGT_DEFAULT) {
 					oddgoods = 1;
 					if(GtObj.Fetch(gt_id, &gt_rec) > 0) {

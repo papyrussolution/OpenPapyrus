@@ -28,11 +28,21 @@ ObjViewDialog::ObjViewDialog(uint dlgRez, PPObject * pObj, void * extraPtr) : TD
 	if(ViewSize.x && ViewSize.y && P_List) {
 		SString obj_title;
 		setTitle(GetObjectTitle(P_Obj->Obj, obj_title));
-		// @v11.3.2 @obsolete P_List->ViewOptions |= ofFramed;
 		P_List->setDef(P_Obj->Selector(0, 0, ExtraPtr));
 		P_List->Draw_();
 		enableCommand(cmaInsert, LOGIC(Rt & PPR_INS));
-		enableCommand(cmaEdit,   LOGIC(Rt & PPR_MOD));
+		{
+			const bool mod_enabled = LOGIC(Rt & PPR_MOD);
+			enableCommand(cmaEdit,   mod_enabled);
+			// @v12.5.5 {
+			if(mod_enabled) {
+				TButton * p_button = SearchButton(cmaEdit);
+				if(p_button) {
+					p_button->MakeDefault(true, true);
+				}
+			}
+			// } @v12.5.5 
+		}
 		enableCommand(cmaDelete, LOGIC(Rt & PPR_DEL));
 	}
 }

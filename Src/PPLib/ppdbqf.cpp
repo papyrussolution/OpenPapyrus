@@ -685,7 +685,7 @@ static IMPL_DBE_PROC(dbqf_checkuserid_ii)
 	if(params[1].lval) {
 		if(params[1].lval & PPObjSecur::maskUserGroup) {
 			PPObjSecur sec_obj(PPOBJ_USR, 0);
-			PPSecur sec_rec;
+			PPSecur2 sec_rec;
 			if(sec_obj.Fetch(params[0].lval, &sec_rec) > 0 && sec_rec.ParentID == (params[1].lval & ~PPObjSecur::maskUserGroup))
 				r = 1;
 		}
@@ -772,7 +772,7 @@ static IMPL_DBE_PROC(dbqf_getagrmntsymbol_i)
 
 static IMPL_DBE_PROC(dbqf_objname_user_i)
 {
-	PPSecur rec;
+	PPSecur2 rec;
 	if(!DbeInitSize(option, result, sizeof(rec.Name))) {
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, rec.Name);
 		if(id) {
@@ -1009,7 +1009,7 @@ static IMPL_DBE_PROC(dbqf_usrpersonname_i)
 		const  PPID id = PPDbqFuncPool::helper_dbq_name(params, psn_name);
 		if(id) {
 			PPObjSecur sec_obj(PPOBJ_USR, 0);
-			PPSecur rec;
+			PPSecur2 rec;
 			if(sec_obj.Fetch(id, &rec) > 0 && rec.PersonID) {
 				SString temp_buf;
 				GetPersonName(rec.PersonID, temp_buf);

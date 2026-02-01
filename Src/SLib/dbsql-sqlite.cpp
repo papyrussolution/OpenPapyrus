@@ -996,9 +996,7 @@ int SSqliteDbProvider::ResetStatement(SSqlStmt & rS)
 
 /*virtual*/int SSqliteDbProvider::Implement_BExtInsert(BExtInsert * pBei)
 {
-	// Далее: код из SOraDbProvider::Implement_BExtInsert. Сейчас буду его допиливать.
 	int    ok = -1;
-#if 1 // @construction {
 	//
 	// Чтобы не затирать содержимое внутреннего буфера таблицы pBei->P_Tbl распределяем временный буфер rec_buf.
 	//
@@ -1079,7 +1077,6 @@ int SSqliteDbProvider::ResetStatement(SSqlStmt & rS)
 	}
 	CATCHZOK
 	rec_buf.Destroy();
-#endif // } @construction
 	return ok;
 }
 

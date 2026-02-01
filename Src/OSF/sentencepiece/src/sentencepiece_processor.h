@@ -13,12 +13,12 @@
 #ifndef SENTENCEPIECE_PROCESSOR_H_
 #define SENTENCEPIECE_PROCESSOR_H_
 
-#include <cstring>
-#include <memory>
-#include <string>
-#include <string_view>
-#include <utility>
-#include <vector>
+//#include <cstring>
+//#include <memory>
+//#include <string>
+//#include <string_view>
+//#include <utility>
+//#include <vector>
 
 #ifndef SWIG
 namespace absl {

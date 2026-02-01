@@ -1,5 +1,5 @@
 // PATH.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // @Kernel
 //
@@ -166,7 +166,7 @@ int PPPaths::Resize(size_t sz)
 		if(P) {
 			if(sz > prev_size)
 				memzero(PTR8(P) + prev_size, sz - prev_size);
-			P->TailSize = sz - sizeof(PathData);
+			P->TailSize = static_cast<uint32>(sz - sizeof(PathData));
 		}
 		else
 			ok = PPSetErrorNoMem();
@@ -211,8 +211,8 @@ int PPPaths::SetPath(PPID pathID, const char * pBuf, short flags, int replace)
 				// Такая ситуация встречаться не должна, но на всякий случай обработать ее стоит.
 				// В этом случае будем считать, что достигли конца структуры и не нашли заданный путь.
 				//
-				P->TailSize = s;
-				ts = (size_t)P->TailSize;
+				P->TailSize = static_cast<uint32>(s);
+				ts = static_cast<size_t>(P->TailSize);
 				break;
 			}
 			else if(p->ID == pathID) {
@@ -399,9 +399,9 @@ int PPPaths::Get(PPID securType, PPID securID)
 			// пути, которые не определены на заданном уровне (Рекурсия)
 			//
 			PPPaths temp;
-			PPID   prev_type = (securType == PPOBJ_USRGRP) ? PPOBJ_CONFIG : PPOBJ_USRGRP;
+			const  PPID prev_type = (securType == PPOBJ_USRGRP) ? PPOBJ_CONFIG : PPOBJ_USRGRP;
 			THROW(p_ref->GetItem(securType, securID) > 0);
-			THROW(temp.Get(prev_type, reinterpret_cast<const PPSecur *>(&p_ref->data)->ParentID)); // @recursion
+			THROW(temp.Get(prev_type, reinterpret_cast<const PPSecur2 *>(&p_ref->data)->ParentID)); // @recursion
 			if(temp.P) {
 				uint prev_s = UINT_MAX;
 				for(s = 0; s < temp.P->TailSize; s += p->Size) {

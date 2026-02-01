@@ -1222,7 +1222,7 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 					// @v12.0.12 {
 					if(PNP.CnSpeciality == PPCashNode::spCafe) {
 						PPObjGoodsType gt_obj;
-						PPGoodsType gt_rec;
+						PPGoodsType2 gt_rec;
 						bool is_there_egais_auto_wo_flags = false;
 						for(SEnum en = gt_obj.Enum(0); !is_there_egais_auto_wo_flags && en.Next(&gt_rec) > 0;) {
 							if(gt_rec.Flags & GTF_EGAISAUTOWO) {
@@ -2886,7 +2886,7 @@ int CPosProcessor::CorrectProblem_v12304(const DateRange * pPeriod, bool testMod
 									PPLogMessage(log_file_name, temp_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 								}
 								EgaisMarkAutoSelector::ResultBlock rb;
-								PPGoodsType gt_rec;
+								PPGoodsType2 gt_rec;
 								Goods2Tbl::Rec goods_rec;
 								{
 									for(uint i = 0; i < main_cc_pack.GetCount(); i++) {
@@ -3192,7 +3192,7 @@ int CPosProcessor::TurnShadowEgaisMarkAutoselectionCcPacket(const CCheckPacket &
 						EgaisMarkAutoSelector::ResultBlock rb_server_reply;
 						EgaisMarkAutoSelector::ResultBlock * p_rb_result = 0; // В зависимости от того локально мы вызывали обработку или посредством сервера
 							// этот указатель может ссылаться либо на rb либо на rb_server_reply
-						PPGoodsType gt_rec;
+						PPGoodsType2 gt_rec;
 						Goods2Tbl::Rec goods_rec;
 						{
 							for(uint i = 0; i < P.getCount(); i++) {
@@ -9982,7 +9982,7 @@ int CheckPaneDialog::ChZnMarkAutoSelect(PPID goodsID, double qtty, SString & rCh
 	Goods2Tbl::Rec goods_rec; // запись основного товара (который непосредственно продается)
 	Goods2Tbl::Rec org_goods_rec; // запись оригинального товара (из которого был произведен основной товар)
 	if(qtty != 0.0 && GObj.Fetch(goodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID)	{
-		PPGoodsType gt_rec;
+		PPGoodsType2 gt_rec;
 		if(GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.ChZnProdType == GTCHZNPT_DRAFTBEER_AWR) {
 			PPID   org_goods_id = 0;
 			PPObjUnit unit_obj;
@@ -10124,7 +10124,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 		if(ok) {
 			SaComplex complex;
 			PPObjGoodsType gt_obj;
-			PPGoodsType gt_rec;
+			PPGoodsType2 gt_rec;
 			if(goods_rec.GoodsTypeID)
 				gt_obj.Fetch(goods_rec.GoodsTypeID, &gt_rec);
 			//PPGoodsStruc partial_struc;
@@ -10739,7 +10739,7 @@ int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, const CCheckIt
 				}
 			}
 			if(pCurItem && !isempty(pCurItem->ChZnMark)) { 
-				PPGoodsType gt_rec;
+				PPGoodsType2 gt_rec;
 				// @v11.2.5 if(CnSpeciality == PPCashNode::spApteka) {
 				if(GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.ChZnProdType == GTCHZNPT_MEDICINE) { // @v11.2.5 
 					if(rQtty < 1.0) {
@@ -12341,7 +12341,7 @@ int CPosProcessor::CheckPriceRestrictions(PPID goodsID, const CCheckItem & rCi, 
 	Goods2Tbl::Rec goods_rec;
 	if(GObj.Fetch(goodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID) {
 		PPObjGoodsType gt_obj;
-		PPGoodsType gt_rec;
+		PPGoodsType2 gt_rec;
 		if(gt_obj.Fetch(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.PriceRestrID) {
 			PPObjGoodsValRestr gvr_obj;
 			PPGoodsValRestrPacket gvr_pack;

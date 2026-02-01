@@ -5835,11 +5835,11 @@ int PPALDD_GoodsType::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
-		PPObjGoodsType ot_obj;
-		PPGoodsType ot_rec;
-		if(ot_obj.Fetch(rFilt.ID, &ot_rec) > 0) {
-			H.ID = ot_rec.ID;
-			STRNSCPY(H.Name, ot_rec.Name);
+		PPObjGoodsType gt_obj;
+		PPGoodsType2 gt_rec;
+		if(gt_obj.Fetch(rFilt.ID, &gt_rec) > 0) {
+			H.ID = gt_rec.ID;
+			STRNSCPY(H.Name, gt_rec.Name);
 			ok = DlRtm::InitData(rFilt, rsrv);
 		}
 	}

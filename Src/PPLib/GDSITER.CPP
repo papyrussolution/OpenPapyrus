@@ -656,7 +656,7 @@ int GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 		THROW_MEM(P_ActualHash = new UintHashTable);
 		UnlimTypeList.clear();
 		{
-			PPGoodsType gt_rec;
+			PPGoodsType2 gt_rec;
 			for(SEnum en = PPRef->Enum(PPOBJ_GOODSTYPE, 0); en.Next(&gt_rec) > 0;) {
 				if(gt_rec.Flags & (GTF_UNLIMITED|GTF_AUTOCOMPL)) {
 					THROW_SL(UnlimTypeList.add(gt_rec.ID));

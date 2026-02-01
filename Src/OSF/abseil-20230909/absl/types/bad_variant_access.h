@@ -21,8 +21,7 @@
 #ifndef ABSL_TYPES_BAD_VARIANT_ACCESS_H_
 #define ABSL_TYPES_BAD_VARIANT_ACCESS_H_
 
-#include <stdexcept>
-
+//#include <stdexcept>
 #include "absl/base/config.h"
 
 #ifdef ABSL_USES_STD_VARIANT
@@ -62,17 +61,15 @@ ABSL_NAMESPACE_BEGIN
 //     std::cout << "Bad variant access: " << e.what() << '\n';
 //   }
 class bad_variant_access : public std::exception {
- public:
-  bad_variant_access() noexcept = default;
-  ~bad_variant_access() override;
-  const char* what() const noexcept override;
+public:
+	bad_variant_access() noexcept = default;
+	~bad_variant_access() override;
+	const char* what() const noexcept override;
 };
 
 namespace variant_internal {
-
 [[noreturn]] ABSL_DLL void ThrowBadVariantAccess();
 [[noreturn]] ABSL_DLL void Rethrow();
-
 }  // namespace variant_internal
 ABSL_NAMESPACE_END
 }  // namespace absl

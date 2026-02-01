@@ -467,20 +467,20 @@ int SMessageWindow::DoCommand(SPoint2S p)
 			CALLPTRMEMB(p_win, Move());
 			break;
 		case WM_USER_CLOSE_TOOLTIPMSGWIN:
-			DestroyWindow(hWnd);
+			::DestroyWindow(hWnd);
 			break;
 		case WM_TIMER:
 			if(wParam == MSGWND_CLOSETIMER) {
-				DestroyWindow(hWnd);
+				::DestroyWindow(hWnd);
 				return 0;
 			}
 			break;
 		 case WM_MOUSEMOVE:
 			if(p_win->Flags & SMessageWindow::fCloseOnMouseLeave) {
 				POINT pnt;
-				GetCursorPos(&pnt);
+				::GetCursorPos(&pnt);
 				if(p_win->PrevMouseCoord.x != pnt.x || p_win->PrevMouseCoord.y != pnt.y)
-					DestroyWindow(hWnd);
+					::DestroyWindow(hWnd);
 				else {
 					p_win->PrevMouseCoord = pnt;
 					//

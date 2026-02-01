@@ -1,5 +1,5 @@
 // SETSTART.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Интерфейс (асинхронный) к драйверу SetStart (аналогичен ФРОНТОЛ'у)
 //
@@ -130,6 +130,7 @@ int ACS_SETSTART::ExportData(int updOnly)
 	PPIniFile ini_file;
 	FILE * p_file = 0;
 	const  int  check_dig = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
+	const  bool is_vatfree = (cn_obj.IsNodeVatFree(NodeID) > 0); // @v12.5.5
 	THROW(GetNodeData(&cn_data) > 0);
 	const  bool is_vat_free = (cn_obj.IsNodeVatFree(NodeID) > 0); // @v11.8.3
 	if(cn_data.DrvVerMajor > 3 || (cn_data.DrvVerMajor == 3 && cn_data.DrvVerMinor >= 4))
@@ -487,7 +488,29 @@ int ACS_SETSTART::ExportData(int updOnly)
 							}
 							tail.Cat(tax_group);
 							*/
-							tail.Semicol();                                 // #23 Налоговая группа
+							// @v12.5.5 tail.Semicol();                                 // #23 Налоговая группа
+							// @v12.5.5 {
+							{
+								long   vat_code = 0;
+								if(is_vatfree)
+									vat_code = 4;
+								else if(feqeps(gds_info.VatRate, 0.0, 1E-6))
+									vat_code = 1;
+								else if(feqeps(gds_info.VatRate, 10.0, 1E-6))
+									vat_code = 2;
+								else if(feqeps(gds_info.VatRate, 20.0, 1E-6))
+									vat_code = 3;
+								else if(feqeps(gds_info.VatRate, 22.0, 1E-6))
+									vat_code = 11;
+								else if(feqeps(gds_info.VatRate, 5.0, 1E-6))
+									vat_code = 7;
+								else if(feqeps(gds_info.VatRate, 7.0, 1E-6))
+									vat_code = 8;
+								if(vat_code)
+									tail.Cat(vat_code);                     // #23 Налоговая группа
+								tail.Semicol();
+							}
+							// } @v12.5.5 
 						}
 						// } @v11.8.3 
 						tail.CatCharN(';', 6);                          // #24-#29 - Не используем

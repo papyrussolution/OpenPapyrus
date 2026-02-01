@@ -6681,6 +6681,8 @@
 	#define CTL_SETQUOT_ST_INFO          (5 + WINDOWS_ID_BIAS)
 	#define CTL_SETQUOT_PERIOD           (6 + WINDOWS_ID_BIAS)
 	#define CTLCAL_SETQUOT_PERIOD        (7 + WINDOWS_ID_BIAS)
+	#define CTLCLC_SETQUOT_VAL           (8 + WINDOWS_ID_BIAS) // @v12.5.5 calculator
+	#define CTLCLC_SETQUOT_QTTY          (9 + WINDOWS_ID_BIAS) // @v12.5.5 calculator
 #define DLG_DIVGRPASSC            627 // Список соответствия 'группа-отдел' для кассового узла
 	#define CTL_DIVGRPASSC_LIST          (1 + WINDOWS_ID_BIAS)
 #define DLG_DIVGRPASSCITM         628 // Элемент списка ассоциаций 'группа-отдел'
@@ -9200,6 +9202,7 @@
 	#define CTLSEL_TRANSPCFG_OWNERK       (3 + WINDOWS_ID_BIAS)
 	#define CTL_TRANSPCFG_CAPTK           (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TRANSPCFG_CAPTK        (5 + WINDOWS_ID_BIAS)
+	#define CTL_TRANSPCFG_FLAGS           (6 + WINDOWS_ID_BIAS) // @v12.5.5
 #define DLG_BIZSCVFILT           1051 // F_BIZSCV Фильтр по значениям бизнес-показателей
 	#define CTL_BIZSCVFILT_USER           (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BIZSCVFILT_USER        (2 + WINDOWS_ID_BIAS)
@@ -11991,7 +11994,10 @@
 //
 // 
 //
-#define CTL_FACADEWINDOW_MAININPUT (1 + WINDOWS_ID_BIAS) // Основное поле ввода для facade-window (TFacadeWindow)
+#define CTL_FACADEWINDOW_MAININPUT   (1 + WINDOWS_ID_BIAS) // Основное поле ввода для facade-window (TFacadeWindow)
+#define CTL_FACADEWINDOW_INFOLINE    (2 + WINDOWS_ID_BIAS) // Информационная строка для facade-window (TFacadeWindow)
+#define CTL_FACADEWINDOW_NAVPANE     (3 + WINDOWS_ID_BIAS) // Левая панель навигации для facade-window (TFacadeWindow)
+#define CTL_FACADEWINDOW_NAVPANE_SZF (4 + WINDOWS_ID_BIAS) // Полоса изменения размера левой панели навигации для facade-window (TFacadeWindow)
 //
 // LastDialog
 //

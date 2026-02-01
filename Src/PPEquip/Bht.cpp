@@ -1217,7 +1217,7 @@ class StyloBhtIICfgDialog : public PPListDialog {
 public:
 	StyloBhtIICfgDialog() : PPListDialog(DLG_SBIICFG, CTL_SBIICFG_OPLIST)
 	{
-		PPSecur item;
+		PPSecur2 item;
 		PPObjSecur usr_obj(PPOBJ_USR, 0);
 		SetupCalPeriod(CTLCAL_SBIICFG_DOCPRD, CTL_SBIICFG_DOCPRD);
 		for(long id = 0; usr_obj.EnumItems(&id, &item) > 0;)

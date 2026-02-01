@@ -1,5 +1,5 @@
 // VTBUTTON.CPP
-// Copyright (c) V.Nasonov 2002, 2003, 2005, 2006, 2007, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2023, 2024, 2025
+// Copyright (c) V.Nasonov, A.Sobolev 2002, 2003, 2005, 2006, 2007, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -150,6 +150,7 @@ InputLineCalc::InputLineCalc(uint dlgID, TDialog *pParentDlg, uint fieldCtlId) :
 	P_Il = static_cast<TInputLine *>(P_ParentDlg->getCtrlView(CtlId));
 	const long ln_fmt = P_Il->getFormat();
 	MaxLen  = SFMTLEN(ln_fmt);
+	SETIFZQ(MaxLen, 20); // @v12.5.5
 	NType   = MKSTYPE(S_FLOAT, 8);
 	NFormat = MKSFMTD(0, SFMTPRC(ln_fmt), ((SFMTFLAG(ln_fmt) | NMBF_NOTRAILZ) & ~SFALIGNMASK));
 	sttostr(P_Il->getType(), InLnNumber, ln_fmt, CharNumber);

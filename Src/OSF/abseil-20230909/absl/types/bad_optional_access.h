@@ -21,8 +21,7 @@
 #ifndef ABSL_TYPES_BAD_OPTIONAL_ACCESS_H_
 #define ABSL_TYPES_BAD_OPTIONAL_ACCESS_H_
 
-#include <stdexcept>
-
+//#include <stdexcept>
 #include "absl/base/config.h"
 
 #ifdef ABSL_USES_STD_OPTIONAL
@@ -58,17 +57,15 @@ ABSL_NAMESPACE_BEGIN
 //     std::cout << "Bad optional access: " << e.what() << '\n';
 //   }
 class bad_optional_access : public std::exception {
- public:
-  bad_optional_access() = default;
-  ~bad_optional_access() override;
-  const char* what() const noexcept override;
+public:
+	bad_optional_access() = default;
+	~bad_optional_access() override;
+	const char* what() const noexcept override;
 };
 
 namespace optional_internal {
-
 // throw delegator
 [[noreturn]] ABSL_DLL void throw_bad_optional_access();
-
 }  // namespace optional_internal
 ABSL_NAMESPACE_END
 }  // namespace absl

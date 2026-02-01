@@ -5,10 +5,8 @@
 
 #include <slib.h>
 #include <dirent.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <stdarg.h>
 #include <fcntl.h>
 #include <pcre.h>
 // (slport.h) #define HAVE_ZLIB_H

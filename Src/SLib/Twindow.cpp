@@ -442,12 +442,13 @@ TWindow::~TWindow()
 
 void TWindow::endModal(ushort command)
 {
+	HWND   h_wnd = H();
 	EndModalCmd = NZOR(command, cmCancel);
 	if(Sf & sfModal) {
-		::PostMessage(H(), WM_NULL, 0, 0L);
+		::PostMessageW(h_wnd, WM_NULL, 0, 0L);
 	}
 	else {
-		::DestroyWindow(H());
+		::DestroyWindow(h_wnd);
 		// После вызова DestroyWindow экземпляр this разрушается: никаких действий с ним далее проводить нельзя.
 	}
 }
@@ -758,7 +759,7 @@ int TWindow::SetFont(const SFontDescr & rFd)
 		HFONT new_font = static_cast<HFONT>(TView::CreateFont_(rFd));
 		if(new_font) {
 			ok = SETIFZ(P_FontsAry, new SVector(sizeof(HFONT))) ? P_FontsAry->insert(&new_font) : 0;
-			::SendMessage(H(), WM_SETFONT, reinterpret_cast<WPARAM>(new_font), TRUE);
+			::SendMessageW(H(), WM_SETFONT, reinterpret_cast<WPARAM>(new_font), TRUE);
 		}
 	}
 	return ok;
@@ -772,7 +773,7 @@ int TWindow::SetCtrlFont(uint ctlID, const SFontDescr & rFd)
 		HFONT new_font = static_cast<HFONT>(TView::CreateFont_(rFd));
 		if(new_font) {
 			ok = SETIFZ(P_FontsAry, new SVector(sizeof(HFONT))) ? P_FontsAry->insert(&new_font) : 0;
-			::SendMessage(h_ctl, WM_SETFONT, reinterpret_cast<WPARAM>(new_font), TRUE);
+			::SendMessageW(h_ctl, WM_SETFONT, reinterpret_cast<WPARAM>(new_font), TRUE);
 			ok = 1;
 		}
 	}
@@ -804,7 +805,7 @@ int __cdecl TWindow::SetCtrlsFont(const char * pFontName, int height, ...)
 			ok = P_FontsAry ? P_FontsAry->insert(&new_font) : 0;
 			if(ok > 0)
 				while((ctrl_id = va_arg(vl, long)) != 0)
-					::SendMessage(::GetDlgItem(H(), ctrl_id), WM_SETFONT, reinterpret_cast<WPARAM>(new_font), TRUE);
+					::SendMessageW(::GetDlgItem(H(), ctrl_id), WM_SETFONT, reinterpret_cast<WPARAM>(new_font), TRUE);
 		}
 	}
 	va_end(vl);

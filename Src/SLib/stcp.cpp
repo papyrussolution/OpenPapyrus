@@ -3541,6 +3541,7 @@ int SUniformFileTransmission::Run(SDataMoveProgressProc pf, void * extraPtr)
 					ps.Merge(SFsPath::fNam|SFsPath::fExt, temp_fname);
 					hf.AddContentFile(local_path_src, temp_buf, temp_fname);
 				}
+				// ? type=text/plain;filename=stocks
 				THROW(curl.HttpPost(url_dest, ScURL::mfVerbose|ScURL::mfDontVerifySslPeer, 0, hf, &wr_stream));
 				{
 					SBuffer * p_ret_buf = static_cast<SBuffer *>(wr_stream);

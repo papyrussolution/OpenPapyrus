@@ -157,17 +157,23 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 		if(app_ctx != null && (CPM.TabList == null || force)) {
 			CPM.TabList = new ArrayList<CommonPrereqModule.TabEntry>();
 			LayoutInflater inflater = LayoutInflater.from(this);
+			boolean is_mark_setting = ((CPM.GetActionFlags() & Document.actionDocSettingMarks) != 0);
+			boolean is_mark_acceptance = ((CPM.GetActionFlags() & Document.actionDocAcceptanceMarks) != 0);
+			boolean is_goods_list_needed = (CPM.GoodsListData != null && !is_mark_setting);
+			boolean is_brand_list_needed = (CPM.BrandListData != null && !is_mark_setting);
+			boolean is_goodsgrp_list_needed = (CPM.GoodsGroupListData != null && !is_mark_setting);
+			boolean is_cli_list_needed = (CPM.CliListData != null && !is_mark_setting);
 			CommonPrereqModule.TabInitEntry[] tab_init_list = {
 					new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabIncomingList, R.layout.layout_incominglist_bill_main, "@{documentlist}", true),
 					new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabCurrentDocument, R.layout.layout_incominglist_bill_selected, "@{selecteddocument}", true),
-					new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabGoodsGroups, R.layout.layout_orderprereq_goodsgroups, "@{group_pl}", (CPM.GoodsGroupListData != null)),
-					new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabBrands, R.layout.layout_orderprereq_brands, "@{brand_pl}", (CPM.BrandListData != null)),
-					new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabGoods, R.layout.layout_orderprereq_goods, "@{ware_pl}", (CPM.GoodsListData != null)),
-					new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabClients, R.layout.layout_orderprereq_clients, "@{client_pl}", (CPM.CliListData != null)),
+					new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabGoodsGroups, R.layout.layout_orderprereq_goodsgroups, "@{group_pl}", is_goodsgrp_list_needed),
+					new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabBrands, R.layout.layout_orderprereq_brands, "@{brand_pl}", is_brand_list_needed),
+					new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabGoods, R.layout.layout_orderprereq_goods, "@{ware_pl}", is_goods_list_needed),
+					new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabClients, R.layout.layout_orderprereq_clients, "@{client_pl}", is_cli_list_needed),
 					new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabXclVerify, R.layout.layout_incominglist_bill_scanmarks,
-							"@{filter_styloqincominglistparam_actiondocacceptancemarks}", (CPM.GetActionFlags() & Document.actionDocAcceptanceMarks) != 0),
+							"@{filter_styloqincominglistparam_actiondocacceptancemarks}", is_mark_acceptance),
 					new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabXclSetting, R.layout.layout_incominglist_bill_scanmarks,
-							"@{filter_styloqincominglistparam_actiondocsettingmarks}", (CPM.GetActionFlags() & Document.actionDocSettingMarks) != 0),
+							"@{filter_styloqincominglistparam_actiondocsettingmarks}", is_mark_setting),
 					new CommonPrereqModule.TabInitEntry(CommonPrereqModule.Tab.tabSearch, R.layout.layout_searchpane, "@{dosearch}", true),
 			};
 			for(int i = 0; i < tab_init_list.length; i++) {

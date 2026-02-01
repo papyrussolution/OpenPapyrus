@@ -1529,7 +1529,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 				if(P_CcPack) {
 					CCheckLineTbl::Rec cc_item;
 					PPTransferItem ti;
-					PPGoodsType gt_rec;
+					PPGoodsType2 gt_rec;
 					PPUnit u_rec;
 					PPUnit phu_rec; // @v11.9.3
 					if(Src == srcCCheck) {

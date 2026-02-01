@@ -33,12 +33,7 @@ IMPL_HANDLE_EVENT(TStaticText)
 {
 	TView::handleEvent(event);
 	if(event.isCmd(cmSetBounds)) {
-		const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
-		HWND h = getHandle();
-		if(h) {
-			::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOCOPYBITS);
-			clearEvent(event);
-		}
+		TView::HandleCmSetBounds(event);
 	}
 }
 
@@ -103,8 +98,289 @@ IMPL_HANDLE_EVENT(TLabel)
 //
 //
 //
-TGroupBox::TGroupBox(const TRect & rBounds) : TView(rBounds)
+bool TFrame::IsConsistentSizeBar() const
 {
+	return (FKind & fkSizeBar && P_Owner);
+}
+
+int TFrame::GetSizingDirection() const
+{
+	return IsConsistentSizeBar() ? ((State & stSizingVertical) ? DIREC_VERT : DIREC_HORZ) : DIREC_UNKN;
+}
+
+int TFrame::DragSizingState(const SPoint2S & rCurrentClientPoint)
+{
+	int    ok = -1;
+	if(IsConsistentSizeBar()) {
+		if(State & stSizing && SzBlk.H_ParentWindow) {
+			int    new_pos = -1;
+			const  int direc = GetSizingDirection();
+			HWND   h_wnd = getHandle();
+			POINT  pt[2];
+			pt[0] = SzBlk.StartPt;
+			pt[1] = rCurrentClientPoint;
+			::MapWindowPoints(h_wnd, SzBlk.H_ParentWindow, pt, SIZEOFARRAY(pt));
+			if(direc == DIREC_VERT) {
+				new_pos = pt[1].y;
+			}
+			else if(direc == DIREC_HORZ) {
+				new_pos = pt[1].x;
+			}
+			ErasePreviewLine(); // Стираем старую линию
+			SzBlk.CurrentPosition = new_pos;
+			DrawPreviewLine(SzBlk.CurrentPosition); // Рисуем новую линию			
+		}
+	}
+	return ok;
+}
+
+int TFrame::SetSizingState(const SPoint2S & rStartClientPoint)
+{
+	int    ok = -1;
+	if(IsConsistentSizeBar()) {
+		if(!(State & stSizing)) {
+			SzBlk.StartPt = rStartClientPoint;
+			State |= stSizing;
+			ok = 1;
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int TFrame::ResetSizingState()
+{
+	int    ok = -1;
+	if(State & stSizing) {
+		bool   to_redraw = false;
+		const SPoint2S start_pt(SzBlk.StartPt);
+		const int current_position = SzBlk.CurrentPosition;
+		ErasePreviewLine();
+		State &= ~stSizing;
+		SzBlk.CurrentPosition = -1;
+		SzBlk.StartPt.Z();
+		if(SzBlk.P_SizingLo) {
+			const  int direc = GetSizingDirection();
+			if(direc == DIREC_HORZ) {
+				//
+				HWND   h_wnd = getHandle();
+				POINT  pt[1];
+				pt[0] = start_pt;
+				::MapWindowPoints(h_wnd, SzBlk.H_ParentWindow, pt, SIZEOFARRAY(pt));
+				//
+				SUiLayoutParam & r_lp = SzBlk.P_SizingLo->GetLayoutBlock();
+				float _x = 0.0f;
+				int   _szx = r_lp.GetSizeX(&_x);
+				if(_szx == SUiLayoutParam::szFixed) {
+					float _new_x = _x + (current_position - pt[0].x);
+					r_lp.SetFixedSizeX(_new_x);
+					to_redraw = true;
+				}
+				else if(_szx == SUiLayoutParam::szByContainer) {
+					; // @todo
+				}
+			}
+			else if(direc == DIREC_VERT) {
+			}
+		}
+		if(to_redraw) {
+			SUiLayout * p_lo_root = SzBlk.P_SizingLo->GetRoot();
+			if(p_lo_root) {
+				p_lo_root->Evaluate(0);
+			}
+		}
+		ok = 1;
+	}
+	return ok;
+}
+
+int TFrame::DrawPreviewLine(int position)
+{
+	int    ok = -1;
+	if(IsConsistentSizeBar()) {
+		// position - позиция, в которой надо рисовать линию
+		if(SzBlk.H_ParentWindow && position >= 0) {
+			const  COLORREF line_color(RGB(0, 120, 215));
+			const  int line_width = 2;
+			// Рисуем на родительском окне!
+			HWND   h_wnd = getHandle();
+			HDC    hdc = ::GetDC(SzBlk.H_ParentWindow);
+			// Сохраняем текущее состояние контекста
+			int    n_old_rop = ::GetROP2(hdc);
+			HPEN   h_old_pen = (HPEN)::GetCurrentObject(hdc, OBJ_PEN);
+			// Создаем перо для линии
+			LOGBRUSH lb;
+			lb.lbStyle = BS_SOLID;
+			lb.lbColor = line_color;
+			// Создаем пунктирное перо
+			DWORD  dash_pattern[2] = {3, 3}; // 3px черта, 3px пробел
+			HPEN   h_pen = ::ExtCreatePen(PS_GEOMETRIC|PS_USERSTYLE, line_width, &lb, 2, dash_pattern);
+			::SelectObject(hdc, h_pen);
+			::SetROP2(hdc, R2_XORPEN);
+			//RECT   rc_parent;
+			RECT   rc_self;
+			//::GetClientRect(SzBlk.H_ParentWindow, &rc_parent);
+			::GetClientRect(h_wnd, &rc_self);
+			::MapWindowPoints(h_wnd, SzBlk.H_ParentWindow, reinterpret_cast<POINT *>(&rc_self), 4);
+			if(State & stSizingVertical) {
+				// Горизонтальная линия
+				::MoveToEx(hdc, rc_self.left, position, NULL);
+				::LineTo(hdc, rc_self.right, position);
+			}
+			else {
+				// Вертикальная линия
+				::MoveToEx(hdc, position, rc_self.top, NULL);
+				::LineTo(hdc, position, rc_self.bottom);
+			}
+			// Восстанавливаем контекст
+			::SetROP2(hdc, n_old_rop);
+			::SelectObject(hdc, h_old_pen);
+			::DeleteObject(h_pen);
+			::ReleaseDC(SzBlk.H_ParentWindow, hdc);
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+int TFrame::ErasePreviewLine()
+{
+	int    ok = -1;
+	if(IsConsistentSizeBar()) {
+		if(SzBlk.CurrentPosition >= 0) {
+			// Рисуем линию еще раз в том же месте (XOR стирает ее)
+			DrawPreviewLine(SzBlk.CurrentPosition);
+			SzBlk.CurrentPosition = -1;
+		}
+	}
+	return ok;
+}
+
+/*static*/LRESULT CALLBACK TFrame::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) // @callback(DLGPROC)
+{
+	TFrame * p_view = static_cast<TFrame *>(TView::GetWindowUserData(hWnd));
+	switch(uMsg) {
+		case WM_DESTROY: p_view->OnDestroy(hWnd); return 0;
+		/*
+		case WM_COMMAND:
+			if(HIWORD(wParam) == 1)
+				::SendMessageW(APPL->H_TopOfStack, uMsg, wParam, lParam);
+			break;
+		*/
+		case WM_NCHITTEST:
+			if(p_view && p_view->IsConsistentSizeBar()) {
+				return HTCLIENT;  // или HTTRANSPARENT // ВАЖНО! Без этого окно не получит WM_MOUSEMOVE
+			}
+			break;
+		case WM_LBUTTONDBLCLK:
+			break;
+		case WM_MBUTTONDOWN:
+			break;
+		case WM_LBUTTONDOWN:
+			if(p_view && p_view->IsConsistentSizeBar()) {
+				SPoint2S tp;
+				tp.setwparam(static_cast<uint32>(lParam));
+				if(p_view->SetSizingState(tp) > 0) {
+					::SetCapture(hWnd);
+				}
+			}
+			return 0;
+		case WM_LBUTTONUP:
+			if(p_view && p_view->IsConsistentSizeBar()) {
+				if(p_view->ResetSizingState() > 0) {
+					::ReleaseCapture();
+					p_view->ErasePreviewLine();
+					//UpdateLayout(m_nCurrentLinePos);
+				}
+			}
+			return 0;
+		case WM_CAPTURECHANGED:
+			if(p_view && p_view->IsConsistentSizeBar()) {
+				// Если потеряли захват мыши, сбрасываем состояние
+				if(p_view->ResetSizingState() > 0) {
+					//p_view->ErasePreviewLine();
+				}
+			}
+			return 0;
+		case WM_MOUSEWHEEL:
+			break;
+		case WM_MOUSEMOVE: // @v12.5.5
+			if(p_view && p_view->IsConsistentSizeBar()) {
+				HCURSOR cursor = 0;
+				p_view->RegisterMouseTracking(1, 10); 
+				if(p_view->State & TFrame::stSizing) {
+					SPoint2S tp;
+					tp.setwparam(static_cast<uint32>(lParam));
+					p_view->DragSizingState(tp);
+				}
+				else {
+					{
+						SPaintToolBox * p_tb = APPL->GetUiToolBox();
+						if(p_tb) {
+							cursor = p_tb->GetCursor(TProgram::tbiCurResizeHorz);
+						}
+					}
+				}
+				if(cursor) {
+					::SetCursor(cursor);
+				}
+				return 0;
+			}
+			break;
+		case WM_MOUSEHOVER: // @v12.5.5
+			if(p_view && p_view->IsConsistentSizeBar()) {
+				SPaintToolBox * p_tb = APPL->GetUiToolBox();
+				HCURSOR    cursor = p_tb ? p_tb->GetCursor(TProgram::tbiCurResizeHorz) : 0;
+				if(cursor) {
+					::SetCursor(cursor);
+				}
+				else {
+					//::SetCursor(::LoadCursorW(0, IDC_ARROW));
+				}
+			}
+			break;
+		case WM_MOUSELEAVE: // @v12.5.5
+			if(p_view && p_view->IsConsistentSizeBar()) {
+				//::SetCursor(::LoadCursorW(0, IDC_ARROW));
+			}
+			break;
+		case WM_PAINT: // @v12.5.5
+		case WM_NCPAINT:
+			{
+				DRAWITEMSTRUCT di;
+				MEMSZERO(di);
+				di.CtlType = ODT_FRAME;
+				di.CtlID = GetDlgCtrlID(hWnd);
+				di.hwndItem = hWnd;
+				di.hDC = GetWindowDC(hWnd);
+				di.itemID = 0;
+				di.itemAction = ODA_DRAWENTIRE; // @v12.3.3
+				GetWindowRect(hWnd, &di.rcItem);
+				di.rcItem.right  -= di.rcItem.left;
+				di.rcItem.bottom -= di.rcItem.top;
+				di.rcItem.left    = 0;
+				di.rcItem.top     = 0;
+				lParam = reinterpret_cast<LPARAM>(&di);
+				const int dcr = APPL->DrawControl(hWnd, uMsg, wParam, reinterpret_cast<LPARAM>(&di));
+				ReleaseDC(hWnd, di.hDC);
+				if(dcr > 0) {
+					/* Если в DrawControl используется RoundRect, то этот кусок необходимо включить в код
+					InvalidateRect(hWnd, 0, TRUE);
+					UpdateWindow(hWnd);
+					*/
+					return 0;
+				}
+			}
+			break;
+	}
+	return (p_view && p_view->PrevWindowProc && p_view->PrevWindowProc != TFrame::DlgProc) ? 
+		CallWindowProcW(p_view->PrevWindowProc, hWnd, uMsg, wParam, lParam) : 0;
+}
+
+TFrame::TFrame(int speciality) : TView(TRect::_defr_), FKind(speciality), State(0)
+{
+	assert(oneof2(FKind, fkGeneral, fkSizeBar));
 	//
 	// BUTTON with style BS_GROUPBOX
 	//
@@ -112,37 +388,59 @@ TGroupBox::TGroupBox(const TRect & rBounds) : TView(rBounds)
 	ViewOptions |= (ofPreProcess|ofPostProcess);
 }
 
-TGroupBox::~TGroupBox()
+TFrame::~TFrame()
 {
 }
 
-void TGroupBox::SetText(const char * pText)
+void TFrame::SetText(const char * pText)
 {
 	Text = pText;
 }
 
-const  SString & TGroupBox::GetText() const { return Text; }
+int TFrame::SetupSizing(HWND hParentWindow, SUiLayout * pLo, int sizingDirection)
+{
+	assert(oneof2(sizingDirection, DIREC_HORZ, DIREC_VERT));
+	int    ok = 0;
+	State &= ~stSizingVertical;
+	if(FKind & fkSizeBar) {
+		SzBlk.H_ParentWindow = hParentWindow;
+		SzBlk.P_SizingLo = pLo;
+		if(sizingDirection == DIREC_VERT) {
+			State |= stSizingVertical;
+		}
+		ok = 1;
+	}
+	else {
+		SzBlk.H_ParentWindow = 0;
+		SzBlk.P_SizingLo = 0;
+	}
+	return ok;
+}
 
-/*virtual*/int TGroupBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
+const  SString & TFrame::GetText() const { return Text; }
+
+/*virtual*/int TFrame::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if(uMsg == WM_INITDIALOG) {
 		SetupText(&Text);
+		{
+			HWND   h_wnd = getHandle();
+			//Draw_();
+			TView::SetWindowProp(h_wnd, GWLP_USERDATA, this);
+			if(PrevWindowProc != TFrame::DlgProc)
+				PrevWindowProc = static_cast<WNDPROC>(TView::SetWindowProp(h_wnd, GWLP_WNDPROC, TFrame::DlgProc));
+		}
 		return 1;
 	}
 	else
 		return 0;
 }
 
-IMPL_HANDLE_EVENT(TGroupBox)
+IMPL_HANDLE_EVENT(TFrame)
 {
 	TView::handleEvent(event);
 	if(event.isCmd(cmSetBounds)) {
-		const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
-		HWND h = getHandle();
-		if(h) {
-			::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOCOPYBITS);
-			clearEvent(event);
-		}
+		TView::HandleCmSetBounds(event);
 	}
 }
 //
@@ -178,12 +476,7 @@ IMPL_HANDLE_EVENT(TNumberStepper)
 {
 	TView::handleEvent(event);
 	if(event.isCmd(cmSetBounds)) {
-		const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
-		HWND h = getHandle();
-		if(h) {
-			::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOCOPYBITS);
-			clearEvent(event);
-		}
+		TView::HandleCmSetBounds(event);
 	}
 }
 //
@@ -281,9 +574,6 @@ static BOOL CALLBACK ButtonDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 	return CallWindowProc(p_view->PrevWindowProc, hWnd, uMsg, wParam, lParam);
 }
 
-const int cmGrabDefault    = 61;
-const int cmReleaseDefault = 62;
-
 TButton::TButton(const TRect & rBounds, const char * pTitle, uint command, uint spcFlags, uint bmpID) : TView(rBounds), 
 	SpcFlags(spcFlags), Command(command), Text(pTitle), BmpID(bmpID), HBmp_(0), SupplementRole(0), SupplementLinkCtrlId(0)
 {
@@ -374,15 +664,8 @@ IMPL_HANDLE_EVENT(TButton)
 	switch(event.what) {
 		case TEvent::evCommand:
 			switch(TVCMD) {
-				case cmSetBounds: // @v11.2.0
-					{
-						const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
-						HWND h = getHandle();
-						if(h) {
-							::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOCOPYBITS);
-							clearEvent(event);
-						}
-					}
+				case cmSetBounds:
+					TView::HandleCmSetBounds(event);
 					break;
 			}
 			break;
@@ -471,7 +754,8 @@ void TButton::Press()
 {
 	if(!IsInState(sfDisabled)) {
 		bool   done = false;
-		if(oneof3(SupplementRole, SUiCtrlSupplement::kDateCalendar, SUiCtrlSupplement::kDateRangeCalendar, SUiCtrlSupplement::kTime)) {
+		if(oneof4(SupplementRole, SUiCtrlSupplement::kDateCalendar, SUiCtrlSupplement::kDateRangeCalendar, SUiCtrlSupplement::kTime, SUiCtrlSupplement::kCalc)) {
+			// @v12.5.5 SUiCtrlSupplement::kCalc
 			if(P_Owner && SupplementLinkCtrlId) {
 				TView * p_view = P_Owner->getCtrlView(SupplementLinkCtrlId);
 				if(TView::IsSubSign(p_view, TV_SUBSIGN_INPUTLINE)) {
@@ -500,6 +784,21 @@ void TButton::Press()
 								is_data_type_valid = true;
 							}
 							else if(GETSTYPE(il_type_id) == S_ZSTRING) {
+							}
+						}
+						else if(SupplementRole == SUiCtrlSupplement::kCalc) { // @v12.5.5
+							if(il_type_id == T_DOUBLE) {
+								//p_il->TransmitData(-1, &dblk.Dtm.t);
+								is_data_type_valid = true;
+							}
+							if(il_type_id == T_FLOAT) {
+								is_data_type_valid = true;
+							}
+							if(il_type_id == T_INT32) {
+								is_data_type_valid = true;
+							}
+							if(il_type_id == T_INT16) {
+								is_data_type_valid = true;
 							}
 						}
 						if(is_data_type_valid) {
@@ -785,8 +1084,8 @@ int TInputLine::Implement_GetText()
 
 void TInputLine::Setup(void * pThisHandle, void * pParentHandle)
 {
-	HWND hw_parent = static_cast<HWND>(pParentHandle);
-	HWND hw_this = static_cast<HWND>(pThisHandle);
+	HWND   hw_parent = static_cast<HWND>(pParentHandle);
+	HWND   hw_this = static_cast<HWND>(pThisHandle);
 	::SendDlgItemMessageW(hw_parent, Id, EM_SETLIMITTEXT, MaxLen ? (MaxLen-1) : 0, 0);
 	if(Format & STRF_PASSWORD)
 		::SendDlgItemMessageW(hw_parent, Id, EM_SETPASSWORDCHAR, SlConst::DefaultPasswordSymb, 0);
@@ -1050,13 +1349,8 @@ IMPL_HANDLE_EVENT(TInputLine)
 			P_OuterWordSelBlk->OnAcceptInput(Data, 0);
 		}
 	}
-	else if(event.isCmd(cmSetBounds)) { // @v11.2.0
-		const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
-		HWND h = getHandle();
-		if(h) {
-			::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOCOPYBITS);
-			clearEvent(event);
-		}
+	else if(event.isCmd(cmSetBounds)) {
+		TView::HandleCmSetBounds(event);
 	}
 	else if(TVCOMMAND && IsInState(sfSelected)) {
 		if(event.message.infoPtr)
@@ -2107,13 +2401,8 @@ IMPL_HANDLE_EVENT(ComboBox)
 		}
 		clearEvent(event);
 	}
-	else if(event.isCmd(cmSetBounds)) { // @v11.2.4
-		const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
-		HWND h = getHandle();
-		if(h) {
-			::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOCOPYBITS);
-			clearEvent(event);
-		}
+	else if(event.isCmd(cmSetBounds)) {
+		TView::HandleCmSetBounds(event);
 	}
 }
 
@@ -2256,16 +2545,11 @@ IMPL_HANDLE_EVENT(TImageView)
 {
 	TView::handleEvent(event);
 	if(event.isCmd(cmSetBounds)) {
-		const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
-		HWND h = getHandle();
-		if(h) {
-			::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOCOPYBITS);
-			clearEvent(event);
-		}
+		TView::HandleCmSetBounds(event);
 	}
 }
 
-void TImageView::SetOuterFigure(SDrawFigure * pFig) // @v11.1.5
+void TImageView::SetOuterFigure(SDrawFigure * pFig)
 {
 	HWND hw = getHandle(); // @v11.3.4
 	DELETEANDASSIGN(P_Fig, pFig);

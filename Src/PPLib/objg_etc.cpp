@@ -1,5 +1,5 @@
 // OBJG_ETC.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Дополнительные классы инфраструктуры управления товарами
 //
@@ -85,7 +85,7 @@ int PPObjGoodsType::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	if(msg == DBMSG_OBJDELETE) {
 		if(_obj == PPOBJ_AMOUNTTYPE && _id) {
-			PPGoodsType rec;
+			PPGoodsType2 rec;
 			for(PPID id = 0; EnumItems(&id, &rec) > 0;)
 				if(oneof4(_id, rec.AmtCost, rec.AmtPrice, rec.AmtDscnt, rec.AmtCVat))
 					return RetRefsExistsErr(Obj, id);
@@ -96,71 +96,112 @@ int PPObjGoodsType::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 
 int PPObjGoodsType::Edit(PPID * pID, void * extraPtr)
 {
+	class GoodsTypeDialog : public TDialog { // @v12.5.5 @construction
+		DECL_DIALOG_DATA(PPGoodsType2);
+		PPObjGoodsType Obj;
+	public:
+		GoodsTypeDialog() : TDialog(DLG_GDSTYP)
+		{
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			int    ok = 1;
+			RVALUEPTR(Data, pData);
+			setCtrlData(CTL_GDSTYP_NAME, Data.Name);
+			setCtrlData(CTL_GDSTYP_SYMB, Data.Symb);
+			setCtrlData(CTL_GDSTYP_ID,   &Data.ID);
+			disableCtrl(CTL_GDSTYP_ID,   (!PPMaster || Data.ID));
+			SetupPPObjCombo(this, CTLSEL_GDSTYP_COST,     PPOBJ_AMOUNTTYPE, Data.AmtCost,  OLW_CANINSERT, 0);
+			SetupPPObjCombo(this, CTLSEL_GDSTYP_PRICE,    PPOBJ_AMOUNTTYPE, Data.AmtPrice, OLW_CANINSERT, 0);
+			SetupPPObjCombo(this, CTLSEL_GDSTYP_DISCOUNT, PPOBJ_AMOUNTTYPE, Data.AmtDscnt, OLW_CANINSERT, 0);
+			SetupPPObjCombo(this, CTLSEL_GDSTYP_CVAT,     PPOBJ_AMOUNTTYPE, Data.AmtCVat,  OLW_CANINSERT, 0);
+			//SetupPPObjCombo(this, CTLSEL_GDSTYP_AWOG,     PPOBJ_ASSTWROFFGRP, Data.WrOffGrpID, OLW_CANINSERT, 0);
+			SetupPPObjCombo(this, CTLSEL_GDSTYP_PRICERESTR, PPOBJ_GOODSVALRESTR, Data.PriceRestrID, OLW_CANINSERT, 0);
+			SetupStringCombo(this, CTLSEL_GDSTYP_CHZNPT, PPTXT_CHZNPRODUCTTYPES, Data.ChZnProdType);
+			AddClusterAssoc(CTL_GDSTYP_UNLIM, 0, GTF_UNLIMITED);
+			AddClusterAssoc(CTL_GDSTYP_UNLIM, 1, GTF_AUTOCOMPL);
+			AddClusterAssoc(CTL_GDSTYP_UNLIM, 2, GTF_ASSETS);
+			AddClusterAssoc(CTL_GDSTYP_UNLIM, 3, GTF_ADVANCECERT);
+			SetClusterData(CTL_GDSTYP_UNLIM, Data.Flags);
+
+			AddClusterAssoc(CTL_GDSTYP_FLAGS,  0, GTF_RPLC_COST);
+			AddClusterAssoc(CTL_GDSTYP_FLAGS,  1, GTF_RPLC_PRICE);
+			AddClusterAssoc(CTL_GDSTYP_FLAGS,  2, GTF_RPLC_DSCNT);
+			AddClusterAssoc(CTL_GDSTYP_FLAGS,  3, GTF_PRICEINCLDIS);
+			AddClusterAssoc(CTL_GDSTYP_FLAGS,  4, GTF_EXCLAMOUNT);
+			AddClusterAssoc(CTL_GDSTYP_FLAGS,  5, GTF_ALLOWZEROPRICE);
+			AddClusterAssoc(CTL_GDSTYP_FLAGS,  6, GTF_EXCLVAT);
+			AddClusterAssoc(CTL_GDSTYP_FLAGS,  7, GTF_REQBARCODE);
+			AddClusterAssoc(CTL_GDSTYP_FLAGS,  8, GTF_QUASIUNLIM);
+			AddClusterAssoc(CTL_GDSTYP_FLAGS,  9, GTF_LOOKBACKPRICES);
+			AddClusterAssoc(CTL_GDSTYP_FLAGS, 10, GTF_GMARKED);
+			AddClusterAssoc(CTL_GDSTYP_FLAGS, 11, GTF_GMARKED_WHS); // @v12.5.5
+			AddClusterAssoc(CTL_GDSTYP_FLAGS, 12, GTF_EXCISEPROFORMA); // @v11.7.10
+			AddClusterAssoc(CTL_GDSTYP_FLAGS, 13, GTF_EGAISAUTOWO); // @v12.0.7
+			SetClusterData(CTL_GDSTYP_FLAGS, Data.Flags);
+			setCtrlReal(CTL_GDSTYP_STKTLR, Data.StockTolerance);
+			SetupCtrls();
+			return ok;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			getCtrlData(CTL_GDSTYP_ID,   &Data.ID);
+			getCtrlData(CTL_GDSTYP_NAME, Data.Name);
+			getCtrlData(CTL_GDSTYP_SYMB, Data.Symb);
+			if(!Obj.CheckName(Data.ID, strip(Data.Name), 1))
+				ok = PPErrorByDialog(this, CTL_GDSTYP_NAME);
+			else if(!Obj.P_Ref->CheckUniqueSymb(Obj.Obj, Data.ID, strip(Data.Symb), offsetof(Reference2Tbl::Rec, Symb))) {
+				ok = PPErrorByDialog(this, CTL_GDSTYP_SYMB);
+			}
+			else {
+				getCtrlData(CTLSEL_GDSTYP_COST,     &Data.AmtCost);
+				getCtrlData(CTLSEL_GDSTYP_PRICE,    &Data.AmtPrice);
+				getCtrlData(CTLSEL_GDSTYP_DISCOUNT, &Data.AmtDscnt);
+				getCtrlData(CTLSEL_GDSTYP_CVAT,     &Data.AmtCVat);
+				//getCtrlData(CTLSEL_GDSTYP_AWOG,   &Data.WrOffGrpID);
+				getCtrlData(CTLSEL_GDSTYP_PRICERESTR, &Data.PriceRestrID);
+				getCtrlData(CTLSEL_GDSTYP_CHZNPT, &Data.ChZnProdType);
+				GetClusterData(CTL_GDSTYP_UNLIM, &Data.Flags);
+				GetClusterData(CTL_GDSTYP_FLAGS, &Data.Flags);
+				Data.StockTolerance = getCtrlReal(CTL_GDSTYP_STKTLR);
+			}
+			ASSIGN_PTR(pData, Data);
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isClusterClk(CTL_GDSTYP_FLAGS)) {
+				SetupCtrls();
+			}
+			else
+				return;
+			clearEvent(event);
+		}
+		void   SetupCtrls()
+		{
+			GetClusterData(CTL_GDSTYP_FLAGS, &Data.Flags);
+			DisableClusterItem(CTL_GDSTYP_FLAGS, 11, !(Data.Flags & GTF_GMARKED));
+		}
+	};
 	int    ok = 1;
 	int    r = cmCancel;
 	int    valid_data = 0;
 	bool   is_new = false;
-	PPGoodsType rec;
-	TDialog * dlg = 0;
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_GDSTYP))));
+	PPGoodsType2 rec;
+	GoodsTypeDialog * dlg = new GoodsTypeDialog();
+	THROW(CheckDialogPtr(&dlg));
 	THROW(EditPrereq(pID, dlg, &is_new));
 	if(!is_new) {
 		THROW(Search(*pID, &rec) > 0);
 	}
-	dlg->setCtrlData(CTL_GDSTYP_NAME, rec.Name);
-	dlg->setCtrlData(CTL_GDSTYP_SYMB, rec.Symb);
-	dlg->setCtrlData(CTL_GDSTYP_ID,   &rec.ID);
-	dlg->disableCtrl(CTL_GDSTYP_ID,   (!PPMaster || rec.ID));
-	SetupPPObjCombo(dlg, CTLSEL_GDSTYP_COST,     PPOBJ_AMOUNTTYPE, rec.AmtCost,  OLW_CANINSERT, 0);
-	SetupPPObjCombo(dlg, CTLSEL_GDSTYP_PRICE,    PPOBJ_AMOUNTTYPE, rec.AmtPrice, OLW_CANINSERT, 0);
-	SetupPPObjCombo(dlg, CTLSEL_GDSTYP_DISCOUNT, PPOBJ_AMOUNTTYPE, rec.AmtDscnt, OLW_CANINSERT, 0);
-	SetupPPObjCombo(dlg, CTLSEL_GDSTYP_CVAT,     PPOBJ_AMOUNTTYPE, rec.AmtCVat,  OLW_CANINSERT, 0);
-	//SetupPPObjCombo(dlg, CTLSEL_GDSTYP_AWOG,     PPOBJ_ASSTWROFFGRP, rec.WrOffGrpID, OLW_CANINSERT, 0);
-	SetupPPObjCombo(dlg, CTLSEL_GDSTYP_PRICERESTR, PPOBJ_GOODSVALRESTR, rec.PriceRestrID, OLW_CANINSERT, 0);
-	SetupStringCombo(dlg, CTLSEL_GDSTYP_CHZNPT, PPTXT_CHZNPRODUCTTYPES, rec.ChZnProdType);
-	dlg->AddClusterAssoc(CTL_GDSTYP_UNLIM, 0, GTF_UNLIMITED);
-	dlg->AddClusterAssoc(CTL_GDSTYP_UNLIM, 1, GTF_AUTOCOMPL);
-	dlg->AddClusterAssoc(CTL_GDSTYP_UNLIM, 2, GTF_ASSETS);
-	dlg->AddClusterAssoc(CTL_GDSTYP_UNLIM, 3, GTF_ADVANCECERT);
-	dlg->SetClusterData(CTL_GDSTYP_UNLIM, rec.Flags);
-
-	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  0, GTF_RPLC_COST);
-	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  1, GTF_RPLC_PRICE);
-	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  2, GTF_RPLC_DSCNT);
-	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  3, GTF_PRICEINCLDIS);
-	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  4, GTF_EXCLAMOUNT);
-	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  5, GTF_ALLOWZEROPRICE);
-	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  6, GTF_EXCLVAT);
-	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  7, GTF_REQBARCODE);
-	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  8, GTF_QUASIUNLIM);
-	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  9, GTF_LOOKBACKPRICES);
-	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 10, GTF_GMARKED);
-	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 11, GTF_EXCISEPROFORMA); // @v11.7.10
-	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 12, GTF_EGAISAUTOWO); // @v12.0.7
-	dlg->SetClusterData(CTL_GDSTYP_FLAGS, rec.Flags);
-	dlg->setCtrlReal(CTL_GDSTYP_STKTLR, rec.StockTolerance);
+	dlg->setDTS(&rec);
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 		THROW(is_new || CheckRights(PPR_MOD));
-		dlg->getCtrlData(CTL_GDSTYP_ID,   &rec.ID);
-		dlg->getCtrlData(CTL_GDSTYP_NAME, rec.Name);
-		dlg->getCtrlData(CTL_GDSTYP_SYMB, rec.Symb);
-		if(!CheckName(rec.ID, strip(rec.Name), 1))
-			PPErrorByDialog(dlg, CTL_GDSTYP_NAME);
-		else if(!P_Ref->CheckUniqueSymb(Obj, rec.ID, strip(rec.Symb), offsetof(Reference2Tbl::Rec, Symb))) {
-			PPErrorByDialog(dlg, CTL_GDSTYP_SYMB);
-		}
-		else {
+		if(dlg->getDTS(&rec)) {
 			valid_data = 1;
-			dlg->getCtrlData(CTLSEL_GDSTYP_COST,     &rec.AmtCost);
-			dlg->getCtrlData(CTLSEL_GDSTYP_PRICE,    &rec.AmtPrice);
-			dlg->getCtrlData(CTLSEL_GDSTYP_DISCOUNT, &rec.AmtDscnt);
-			dlg->getCtrlData(CTLSEL_GDSTYP_CVAT,     &rec.AmtCVat);
-			//dlg->getCtrlData(CTLSEL_GDSTYP_AWOG,   &rec.WrOffGrpID);
-			dlg->getCtrlData(CTLSEL_GDSTYP_PRICERESTR, &rec.PriceRestrID);
-			dlg->getCtrlData(CTLSEL_GDSTYP_CHZNPT, &rec.ChZnProdType);
-			dlg->GetClusterData(CTL_GDSTYP_UNLIM, &rec.Flags);
-			dlg->GetClusterData(CTL_GDSTYP_FLAGS, &rec.Flags);
-			rec.StockTolerance = dlg->getCtrlReal(CTL_GDSTYP_STKTLR);
 			if(*pID)
 				*pID = rec.ID;
 			THROW(StoreItem(PPOBJ_GOODSTYPE, *pID, &rec, 1));
@@ -185,7 +226,7 @@ private:
 		int    ok = 1;
 		GoodsTypeData * p_cache_rec = static_cast<GoodsTypeData *>(pEntry);
 		PPObjGoodsType gt_obj;
-		PPGoodsType rec;
+		PPGoodsType2 rec;
 		if(gt_obj.Search(id, &rec) > 0) {
 			#define FLD(f) p_cache_rec->f = rec.f
 			FLD(PriceRestrID);
@@ -205,7 +246,7 @@ private:
 	}
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 	{
-		PPGoodsType * p_data_rec = static_cast<PPGoodsType *>(pDataRec);
+		PPGoodsType2 * p_data_rec = static_cast<PPGoodsType2 *>(pDataRec);
 		const GoodsTypeData * p_cache_rec = static_cast<const GoodsTypeData *>(pEntry);
 		memzero(p_data_rec, sizeof(*p_data_rec));
 		p_data_rec->Tag   = PPOBJ_GOODSTYPE;
@@ -235,11 +276,11 @@ public:
 	};
 };
 
-IMPL_OBJ_FETCH(PPObjGoodsType, PPGoodsType, GoodsTypeCache);
+IMPL_OBJ_FETCH(PPObjGoodsType, PPGoodsType2, GoodsTypeCache);
 
 bool FASTCALL PPObjGoodsType::IsUnlim(PPID id)
 {
-	PPGoodsType gt_rec;
+	PPGoodsType2 gt_rec;
 	return (id && id != PPGT_DEFAULT && Fetch(id, &gt_rec) > 0 && gt_rec.Flags & (GTF_UNLIMITED|GTF_AUTOCOMPL));
 }
 
@@ -247,12 +288,12 @@ int PPObjGoodsType::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replac
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPGoodsType * p_rec = static_cast<PPGoodsType *>(p->Data);
+		PPGoodsType2 * p_rec = static_cast<PPGoodsType2 *>(p->Data);
 		THROW(ProcessObjRefInArray(PPOBJ_AMOUNTTYPE, &p_rec->AmtCost,  ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_AMOUNTTYPE, &p_rec->AmtPrice, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_AMOUNTTYPE, &p_rec->AmtDscnt, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_AMOUNTTYPE, &p_rec->AmtCVat,  ary, replace));
-		THROW(ProcessObjRefInArray(PPOBJ_GOODSVALRESTR, &p_rec->PriceRestrID,  ary, replace)); // @v10.1.6
+		THROW(ProcessObjRefInArray(PPOBJ_GOODSVALRESTR, &p_rec->PriceRestrID,  ary, replace));
 	}
 	else
 		ok = -1;

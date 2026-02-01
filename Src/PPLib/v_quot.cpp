@@ -1,5 +1,5 @@
 // V_QUOT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1015,7 +1015,7 @@ int PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotItemArr
 					const uint rc = rel_list.getCount();
 					for(uint i = 0; i < rc; i++) {
 						const  PPID rel_id = rel_list.get(i);
-						quot.Clear();
+						quot.Z();
 						P_Qc2->FetchRel(rel_id, &quot);
 						const  PPID qk_id = quot.Kind;
 						uint   kpos = 0;

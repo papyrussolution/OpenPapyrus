@@ -37,14 +37,6 @@ PPObjInternetAccount::PPObjInternetAccount(void * extraPtr) : PPObjReference(PPO
 	return p_def;
 }
 
-/*virtual*//*int PPObjInternetAccount::UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr)
-{
-	int    ok = PPObject::UpdateSelector(pDef, flags, extraPtr);
-	if(ok > 0)
-		AssignImages(pDef);
-	return ok;
-}*/
-
 int PPObjInternetAccount::AssignImages(ListBoxDef * pDef)
 {
 	if(pDef && pDef->IsValid() && (ImplementFlags & implTreeSelector)) {

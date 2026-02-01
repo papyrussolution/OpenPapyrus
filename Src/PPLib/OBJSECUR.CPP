@@ -1,5 +1,5 @@
 // OBJSECUR.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2005, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2005, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -83,10 +83,10 @@ PPObjSecur::Exclusion::Exclusion(int exclrt) : State(0)
 	if(!PPMaster) {
 		PPThreadLocalArea & r_tla = DS.GetTLA();
 		PPObjSecur sec_obj(PPOBJ_USR, 0);
-		PPSecur secur;
+		PPSecur2 secur;
 		if(sec_obj.Fetch(r_tla.Lc.UserID, &secur) > 0 && secur.UerID) {
 			PPObjSecur uer_obj(PPOBJ_USREXCLRIGHTS, 0);
-			PPSecur uer;
+			PPSecur2 uer;
 			if(uer_obj.Fetch(secur.UerID, &uer) > 0 && (uer.UerFlags & exclrt)) {
 				PPRights uer_rights;
 				PPAccessRestriction accsr;
@@ -129,7 +129,7 @@ bool PPObjSecur::ExtraParam::IsConsistent() const { return (Signature == SECUREX
 static int UsrListFilt(void * rec, void * extraPtr/*grp*/)
 {
 	const  PPID parent_id = reinterpret_cast<PPID>(extraPtr);
-	return (!parent_id || (rec && static_cast<const PPSecur *>(rec)->ParentID == parent_id));
+	return (!parent_id || (rec && static_cast<const PPSecur2 *>(rec)->ParentID == parent_id));
 }
 
 PPObjSecur::PPObjSecur(PPID aObj, void * extraPtr) : PPObjReference(aObj, extraPtr)
@@ -174,14 +174,6 @@ int PPObjSecur::AssignImages(ListBoxDef * pDef)
 	return p_def;
 }
 
-/*virtual*//*int PPObjSecur::UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr)
-{
-	int    ok = PPObject::UpdateSelector(pDef, flags, &SelectorP);
-	if(ok > 0)
-		AssignImages(pDef);
-	return ok;
-}*/
-
 StrAssocArray * PPObjSecur::MakeStrAssocList(void * extraPtr)
 {
 	ExtraParam param;
@@ -190,7 +182,7 @@ StrAssocArray * PPObjSecur::MakeStrAssocList(void * extraPtr)
 	StrAssocArray * p_list = new StrAssocArray();
 	THROW_MEM(p_list);
 	{
-		PPSecur rec;
+		PPSecur2 rec;
 		SString temp_buf;
 		PPIDArray parent_list;
 		if(param.Flags & ExtraParam::fShowAll) {
@@ -419,7 +411,7 @@ int PPObjSecur::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext
 		if(stream == 0) {
 			if(oneof2(p_pack->Secur.Tag, PPOBJ_USR, PPOBJ_USRGRP)) {
 				PPID   same_id = 0;
-				//PPSecur same_rec;
+				//PPSecur2 same_rec;
 				if(*pID == 0) {
 					if(p_pack->Secur.ID < PP_FIRSTUSRREF) {
 						*pID = p_pack->Secur.ID;
@@ -472,7 +464,7 @@ int PPObjSecur::Edit(PPID * pID, void * extraPtr)
 	if(oneof2(Obj, PPOBJ_USRGRP, PPOBJ_USR)) {
 		int    msg = 0;
 		if(Obj == PPOBJ_USRGRP) {
-			PPSecur usr_rec;
+			PPSecur2 usr_rec;
 			for(SEnum en = P_Ref->EnumByIdxVal(PPOBJ_USR, 1, id); en.Next(&usr_rec) > 0;) {
 				THROW_PP(usr_rec.ParentID != id, PPERR_CANTDELNEMPTYUSRGRP);
 			}
@@ -519,7 +511,7 @@ void Grp_n_UsrDialog::addItem()
 	PPObjSecur::ExtraParam param;
 	param.Flags |= param.fSelectNewType;
 	PPID   cur_id = getCurrID();
-	PPSecur cur_rec;
+	PPSecur2 cur_rec;
 	if(cur_id & PPObjSecur::maskUserGroup)
 		param.ParentID = (cur_id & ~PPObjSecur::maskUserGroup);
 	else if(P_UsrObj->Fetch(cur_id, &cur_rec) > 0)
@@ -531,12 +523,12 @@ void Grp_n_UsrDialog::addItem()
 	uint   v = 0;
 	if(SelectorDialog(DLG_SELNEWSEC, CTL_SELNEWSEC_SEL, &v) > 0) {
 		PPID   new_id = 0;
-		PPSecur new_rec;
+		PPSecur2 new_rec;
 		MEMSZERO(new_rec);
 		if(v == 0) { // USER
 			PPID   cur_id = getCurrID();
 			PPID   parent_id = 0;
-			PPSecur cur_rec;
+			PPSecur2 cur_rec;
 			if(cur_id & PPObjSecur::maskUserGroup)
 				parent_id = (cur_id & ~PPObjSecur::maskUserGroup);
 			else if(P_UsrObj->Fetch(cur_id, &cur_rec) > 0)
@@ -636,7 +628,7 @@ int PPObjSecur::Browse(void * extraPtr)
 					}
 					else if(!(cur_id & PPObjSecur::mask)) {
 						PPObjSecur usr_obj(PPOBJ_USR, 0);
-						PPSecur sec_rec;
+						PPSecur2 sec_rec;
 						if(usr_obj.Fetch(cur_id, &sec_rec) > 0 && sec_rec.Tag == PPOBJ_USR) {
 							param.ParentID = sec_rec.ParentID;
 						}
@@ -732,12 +724,12 @@ int PPObjSecur::ProcessReservedItem(TVRez & rez)
 	int    ok = 1;
 	int    r = 0;
 	SString name;
-	PPID   id = (PPID)rez.getUINT();
+	PPID   id = static_cast<PPID>(rez.getUINT());
 	rez.getString(name, 2);
 	PPExpandString(name, CTRANSF_UTF8_TO_INNER);
 	if(sstreqi_ascii(name, PPSession::P_JobLogin)) {
 		PPID   temp_id = 0;
-		PPSecur temp_rec;
+		PPSecur2 temp_rec;
 		THROW(r = SearchByName(PPSession::P_JobLogin, &temp_id, &temp_rec));
 		if(r < 0) {
 			id = 0;
@@ -747,7 +739,7 @@ int PPObjSecur::ProcessReservedItem(TVRez & rez)
 		THROW(r = Search(id));
 	}
 	if(r < 0) {
-		PPSecur secur;
+		PPSecur2 secur;
 		secur.Tag = Obj;
 		secur.ID  = id;
 		STRNSCPY(secur.Name, name);
@@ -799,7 +791,7 @@ int UserCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	PPObjSecur sec_obj(PPOBJ_USR, 0);
-	PPSecur rec;
+	PPSecur2 rec;
 	if(sec_obj.Search(id, &rec) > 0) {
 		p_cache_rec->PersonID = rec.PersonID;
 		p_cache_rec->ParentID = rec.ParentID;
@@ -815,7 +807,7 @@ int UserCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 
 void UserCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPSecur * p_data_rec = static_cast<PPSecur *>(pDataRec);
+	PPSecur2 * p_data_rec = static_cast<PPSecur2 *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	p_data_rec->Tag   = ObjType;
@@ -829,7 +821,7 @@ void UserCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 }
 // }
 
-int FASTCALL PPObjSecur::Fetch(PPID id, PPSecur * pRec)
+int FASTCALL PPObjSecur::Fetch(PPID id, PPSecur2 * pRec)
 {
 	UserCache * p_cache = GetDbLocalCachePtr <UserCache> (Obj);
 	return p_cache ? p_cache->Get(id, pRec) : Search(id, pRec);
@@ -853,7 +845,7 @@ int PPALDD_User::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		H.ID = rFilt.ID;
 		PPObjSecur sec_obj(PPOBJ_USR, 0);
-		PPSecur rec;
+		PPSecur2 rec;
 		if(sec_obj.Fetch(rFilt.ID, &rec) > 0) {
 			H.ID = rec.ID;
 			STRNSCPY(H.Name, rec.Name);

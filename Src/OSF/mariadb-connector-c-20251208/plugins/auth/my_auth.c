@@ -1,4 +1,5 @@
-
+// MY_AUTH.C
+//
 #include <ma_global.h>
 #pragma hdrstop
 
@@ -99,7 +100,8 @@ auth_plugin_t dummy_fallback_client_plugin = {
 static int dummy_fallback_auth_client(MYSQL_PLUGIN_VIO * vio, MYSQL * mysql __attribute__((unused)))
 {
 	char last_error[MYSQL_ERRMSG_SIZE];
-	uint i, last_errno = ((MCPVIO_EXT*)vio)->mysql->net.last_errno;
+	uint i;
+	uint last_errno = ((MCPVIO_EXT*)vio)->mysql->net.last_errno;
 	if(last_errno) {
 		memcpy(last_error, ((MCPVIO_EXT*)vio)->mysql->net.last_error, sizeof(last_error) - 1);
 		last_error[sizeof(last_error) - 1] = 0;
@@ -123,11 +125,10 @@ static int dummy_fallback_auth_client(MYSQL_PLUGIN_VIO * vio, MYSQL * mysql __at
 static int send_change_user_packet(MCPVIO_EXT * mpvio, const uchar * data, int data_len)
 {
 	MYSQL * mysql = mpvio->mysql;
-	char * buff, * end;
 	int res = 1;
 	size_t conn_attr_len = (mysql->options.extension) ? mysql->options.extension->connect_attrs_len : 0;
-	buff = (char *)SAlloc::M(USERNAME_LENGTH+1 + data_len+1 + NAME_LEN+1 + 2 + NAME_LEN+1 + 9 + conn_attr_len);
-	end = ma_strmake(buff, mysql->user, USERNAME_LENGTH) + 1;
+	char * buff = (char *)SAlloc::M(USERNAME_LENGTH+1 + data_len+1 + NAME_LEN+1 + 2 + NAME_LEN+1 + 9 + conn_attr_len);
+	char * end = ma_strmake(buff, mysql->user, USERNAME_LENGTH) + 1;
 	if(!data_len)
 		*end++ = 0;
 	else {
@@ -164,12 +165,10 @@ static int send_client_reply_packet(MCPVIO_EXT * mpvio, const uchar * data, int 
 {
 	MYSQL * mysql = mpvio->mysql;
 	NET * net = &mysql->net;
-	char * buff;
-	char * end;
 	size_t conn_attr_len = (mysql->options.extension) ? mysql->options.extension->connect_attrs_len : 0;
 	/* see end= buff+32 below, fixed size of the packet is 32 bytes */
-	buff = (char *)SAlloc::M(33 + USERNAME_LENGTH + data_len + NAME_LEN + NAME_LEN + conn_attr_len + 9);
-	end = buff;
+	char * buff = (char *)SAlloc::M(33 + USERNAME_LENGTH + data_len + NAME_LEN + NAME_LEN + conn_attr_len + 9);
+	char * end = buff;
 	mysql->client_flag |= mysql->options.client_flag;
 	mysql->client_flag |= CLIENT_CAPABILITIES;
 	if(mysql->client_flag & CLIENT_MULTI_STATEMENTS)
@@ -366,12 +365,10 @@ static int client_mpvio_read_packet(struct st_plugin_vio * mpv, uchar ** buf)
    handshake packet, if necessary.
  */
 
-static int client_mpvio_write_packet(struct st_plugin_vio * mpv,
-    const uchar * pkt, int pkt_len)
+static int client_mpvio_write_packet(struct st_plugin_vio * mpv, const uchar * pkt, int pkt_len)
 {
 	int res;
 	MCPVIO_EXT * mpvio = (MCPVIO_EXT*)mpv;
-
 	if(mpvio->packets_written == 0) {
 		if(mpvio->mysql_change_user)
 			res = send_change_user_packet(mpvio, pkt, pkt_len);
@@ -385,24 +382,17 @@ static int client_mpvio_write_packet(struct st_plugin_vio * mpv,
 		else
 			res = ma_net_write(net, (uchar *)pkt, pkt_len) || ma_net_flush(net);
 	}
-
 	if(res) {
 		/* don't overwrite errors */
 		if(!mysql_errno(mpvio->mysql))
-			my_set_error(mpvio->mysql, CR_SERVER_LOST, SQLSTATE_UNKNOWN,
-			    ER(CR_SERVER_LOST_EXTENDED),
-			    "sending authentication information",
-			    errno);
+			my_set_error(mpvio->mysql, CR_SERVER_LOST, SQLSTATE_UNKNOWN, ER(CR_SERVER_LOST_EXTENDED), "sending authentication information", errno);
 	}
 	mpvio->packets_written++;
 	return res;
 }
-
 /**
-   fills MYSQL_PLUGIN_VIO_INFO structure with the information about the
-   connection
+   fills MYSQL_PLUGIN_VIO_INFO structure with the information about the connection
  */
-
 void mpvio_info(MARIADB_PVIO * pvio, MYSQL_PLUGIN_VIO_INFO * info)
 {
 	memzero(info, sizeof(*info));
@@ -446,8 +436,7 @@ void mpvio_info(MARIADB_PVIO * pvio, MYSQL_PLUGIN_VIO_INFO * info)
 	}
 }
 
-static void client_mpvio_info(MYSQL_PLUGIN_VIO * vio,
-    MYSQL_PLUGIN_VIO_INFO * info)
+static void client_mpvio_info(MYSQL_PLUGIN_VIO * vio, MYSQL_PLUGIN_VIO_INFO * info)
 {
 	MCPVIO_EXT * mpvio = (MCPVIO_EXT*)vio;
 	mpvio_info(mpvio->mysql->net.pvio, info);
@@ -470,15 +459,13 @@ static void client_mpvio_info(MYSQL_PLUGIN_VIO * vio,
    @retval 1 error
  */
 
-int run_plugin_auth(MYSQL * mysql, char * data, uint data_len,
-    const char * data_plugin, const char * db)
+int run_plugin_auth(MYSQL * mysql, char * data, uint data_len, const char * data_plugin, const char * db)
 {
 	const char    * auth_plugin_name = NULL;
 	auth_plugin_t * auth_plugin;
 	MCPVIO_EXT mpvio;
 	ulong pkt_length;
 	int res;
-
 	/* determine the default/initial plugin to use */
 	if(mysql->server_capabilities & CLIENT_PLUGIN_AUTH) {
 		if(mysql->options.extension && mysql->options.extension->default_auth)
@@ -492,19 +479,14 @@ int run_plugin_auth(MYSQL * mysql, char * data, uint data_len,
 		else
 			auth_plugin_name = "mysql_old_password";
 	}
-	if(!(auth_plugin = (auth_plugin_t*)mysql_client_find_plugin(mysql,
-	    auth_plugin_name, MYSQL_CLIENT_AUTHENTICATION_PLUGIN)))
+	if(!(auth_plugin = (auth_plugin_t*)mysql_client_find_plugin(mysql, auth_plugin_name, MYSQL_CLIENT_AUTHENTICATION_PLUGIN)))
 		auth_plugin = &dummy_fallback_client_plugin;
-
 	mysql->net.last_errno = 0; /* just in case */
-
 	if(data_plugin && strcmp(data_plugin, auth_plugin_name)) {
-		/* data was prepared for a different plugin, so we don't
-		   send any data */
+		/* data was prepared for a different plugin, so we don't send any data */
 		data = 0;
 		data_len = 0;
 	}
-
 	mpvio.mysql_change_user = data_plugin == 0;
 	mpvio.cached_server_reply.pkt = (uchar*)data;
 	mpvio.cached_server_reply.pkt_len = data_len;
@@ -514,15 +496,11 @@ int run_plugin_auth(MYSQL * mysql, char * data, uint data_len,
 	mpvio.mysql = mysql;
 	mpvio.packets_read = mpvio.packets_written = 0;
 	mpvio.db = db;
-
 retry:
 	mpvio.plugin = auth_plugin;
-
 	mysql->net.read_pos[0] = 0;
 	res = auth_plugin->authenticate_user((struct st_plugin_vio *)&mpvio, mysql);
-
-	if((res == CR_ERROR && !mysql->net.buff) ||
-	    (res > CR_OK && mysql->net.read_pos[0] != 254)) {
+	if((res == CR_ERROR && !mysql->net.buff) || (res > CR_OK && mysql->net.read_pos[0] != 254)) {
 		/*
 		   the plugin returned an error. write it down in mysql,
 		   unless the error code is CR_ERROR and mysql->net.last_errno
@@ -535,19 +513,14 @@ retry:
 		}
 		return 1;
 	}
-
 	/* read the OK packet (or use the cached value in mysql->net.read_pos */
 	if(res == CR_OK)
 		pkt_length = ma_net_safe_read(mysql);
 	else /* res == CR_OK_HANDSHAKE_COMPLETE or an error */
 		pkt_length = mpvio.last_read_packet_len;
-
 	if(pkt_length == packet_error) {
 		if(mysql->net.last_errno == CR_SERVER_LOST)
-			my_set_error(mysql, CR_SERVER_LOST, SQLSTATE_UNKNOWN,
-			    ER(CR_SERVER_LOST_EXTENDED),
-			    "reading authorization packet",
-			    errno);
+			my_set_error(mysql, CR_SERVER_LOST, SQLSTATE_UNKNOWN, ER(CR_SERVER_LOST_EXTENDED), "reading authorization packet", errno);
 		return 1;
 	}
 	if(mysql->net.read_pos[0] == 254) {
@@ -566,15 +539,12 @@ retry:
 			mpvio.cached_server_reply.pkt_len = pkt_length - len - 2;
 			mpvio.cached_server_reply.pkt = mysql->net.read_pos + len + 2;
 		}
-		if(!(auth_plugin = (auth_plugin_t*)mysql_client_find_plugin(mysql,
-		    auth_plugin_name, MYSQL_CLIENT_AUTHENTICATION_PLUGIN)))
+		if(!(auth_plugin = (auth_plugin_t*)mysql_client_find_plugin(mysql, auth_plugin_name, MYSQL_CLIENT_AUTHENTICATION_PLUGIN)))
 			auth_plugin = &dummy_fallback_client_plugin;
-
 		goto retry;
 	}
 	/*
-	   net->read_pos[0] should always be 0 here if the server implements
-	   the protocol correctly
+	   net->read_pos[0] should always be 0 here if the server implements the protocol correctly
 	 */
 	if(mysql->net.read_pos[0] == 0)
 		return ma_read_ok_packet(mysql, mysql->net.read_pos + 1, pkt_length);

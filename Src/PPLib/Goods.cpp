@@ -1,5 +1,5 @@
 // GOODS.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // @Kernel
 //
@@ -59,9 +59,9 @@ int ClsdGoodsFilt::SetDimRange(int dim, double low, double upp)
 	return ok;
 }
 
-BarcodeArrangeConfig::BarcodeArrangeConfig()
+BarcodeArrangeConfig::BarcodeArrangeConfig() : LowPriorLen(0), Flags(0)
 {
-	THISZERO();
+	LowPriorPrefix[0] = 0;
 }
 
 int BarcodeArrangeConfig::Load()
@@ -103,18 +103,15 @@ int BarcodeArrangeConfig::IsLowPrior(const char * pBarcode) const
 //
 int32 FASTCALL MakeInnerBarcodeType(int bt)
 {
-	if(bt == BARCODE_TYPE_COMMON)
-		return BARCODE_TYPE_COMMON;
-	else if(bt == BARCODE_TYPE_PREFERRED)
-		return BARCODE_TYPE_PREFERRED;
-	else if(bt == BARCODE_TYPE_MARKED)
-		return BARCODE_TYPE_MARKED;
-	else if(bt == BARCODE_TYPE_PREFMARK)
-		return BARCODE_TYPE_PREFMARK;
-	else if(bt == BARCODE_TYPE_UNDEF)
-		return BARCODE_TYPE_UNDEF;
-	else
-		return BARCODE_TYPE_COMMON;
+	int32  result = BARCODE_TYPE_COMMON;
+	switch(bt) {
+		case BARCODE_TYPE_COMMON: result = BARCODE_TYPE_COMMON; break;
+		case BARCODE_TYPE_PREFERRED: result = BARCODE_TYPE_PREFERRED; break;
+		case BARCODE_TYPE_MARKED: result = BARCODE_TYPE_MARKED; break;
+		case BARCODE_TYPE_PREFMARK: result = BARCODE_TYPE_PREFMARK; break;
+		case BARCODE_TYPE_UNDEF: result = BARCODE_TYPE_UNDEF; break;
+	}
+	return result;
 }
 
 void FASTCALL SetInnerBarcodeType(int32 * pBarcodeType, int bt)
@@ -196,7 +193,7 @@ void BarcodeArray::Arrange()
 {
 	const  BarcodeArrangeConfig & bac = DS.GetConstTLA().Bac;
 	uint   last = getCount();
-	if(getCount() > 1)
+	if(getCount() > 1) {
 		for(int i = getCount()-2; i >= 0; i--) {
 			const BarcodeTbl::Rec rec = at(i);
 			if(bac.IsLowPrior(rec.Code)) {
@@ -205,6 +202,7 @@ void BarcodeArray::Arrange()
 				atFree(i);
 			}
 		}
+	}
 }
 
 int BarcodeArray::SearchCode(const char * pCode, uint * pPos) const
@@ -224,7 +222,7 @@ int BarcodeArray::SearchCode(const char * pCode, uint * pPos) const
 int BarcodeArray::GetSingle(uint sifFlags/*BarcodeArray::sifXXX*/, SString & rBuf) const
 {
 	int    ok = -1;
-	const BarcodeTbl::Rec * p_single_item = GetSingleItem(0, sifFlags);
+	const  BarcodeTbl::Rec * p_single_item = GetSingleItem(0, sifFlags);
 	if(p_single_item) {
 		if(IsInnerBarcodeType(p_single_item->BarcodeType, BARCODE_TYPE_PREFERRED))
 			ok = (p_single_item->Qtty == 1.0) ? 2 : 3;
@@ -236,37 +234,6 @@ int BarcodeArray::GetSingle(uint sifFlags/*BarcodeArray::sifXXX*/, SString & rBu
 		rBuf.Z();
 	return ok;
 }
-
-/*
-const BarcodeTbl::Rec * FASTCALL BarcodeArray::GetSingleItem(uint * pPos) const
-{
-	const  BarcodeTbl::Rec * p_ret = 0;
-	const  uint c = getCount();
-	if(c) {
-		uint   i, p = 0;
-		if(c > 1) {
-			const BarcodeTbl::Rec * p_pref_item = GetPreferredItem(&i);
-			if(p_pref_item)
-				p = i;
-			else {
-				int    done = 0;
-				for(int get_any = 0; !done && get_any <= 1; get_any++) {
-					for(i = 0; !done && i < c; i++) {
-						const BarcodeTbl::Rec & r_item = at(i);
-						if((r_item.Qtty == 1.0 && sstrlen(r_item.Code) <= 13) || get_any) {
-							p = i;
-							done = 1;
-						}
-					}
-				}
-			}
-		}
-		p_ret = &at(p);
-		ASSIGN_PTR(pPos, p);
-	}
-	return p_ret;
-}
-*/
 
 const BarcodeTbl::Rec * BarcodeArray::GetSingleItem(uint * pPos, uint sifFlags/*BarcodeArray::sifXXX*/) const
 {
@@ -435,7 +402,7 @@ int TwoDimBarcodeFormatArray::Init()
 int TwoDimBarcodeFormatArray::Search(GoodsCore * pGoodsTbl, const char * pCodeLine, BarcodeTbl::Rec * pRec, Goods2Tbl::Rec * pGoodsRec) const
 {
 	int    ok = -1;
-	size_t len = sstrlen(pCodeLine);
+	const  size_t len = sstrlen(pCodeLine);
 	BarcodeTbl::Rec bc_rec;
 	SString code_buf;
 	if(len) {
@@ -809,7 +776,7 @@ int GoodsCore::PutStockExt(PPID id, const GoodsStockExt * pData, int use_ta)
 	return ok;
 }
 
-int GoodsCore::GetStockExt(PPID id, GoodsStockExt * pData, int useCache /*=0*/)
+int GoodsCore::GetStockExt(PPID id, GoodsStockExt * pData, int useCache/*=0*/)
 {
 	int    ok = -1;
 	__GoodsStockExt * p_strg = 0;
@@ -867,9 +834,10 @@ int GoodsCore::GetListByBarcodeLen(const PPIDArray * pLens, PPIDArray & rList)
 	rList.clear();
 
 	int    ok = -1;
-	PPIDArray lens(*pLens), temp_list;
+	PPIDArray lens(*pLens);
+	PPIDArray temp_list;
 	lens.sort();
-	int    has_zero_len = BIN(lens.bsearch(0));
+	const  bool has_zero_len = lens.bsearch(0);
 	if(lens.getCount()) {
 		PROFILE_START
 		BExtQuery q(&BCTbl, 0);
@@ -879,7 +847,7 @@ int GoodsCore::GetListByBarcodeLen(const PPIDArray * pLens, PPIDArray & rList)
 		for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
 			// С символа '@' начинаются коды товарных групп
 			// @v5.9.9 VADIM - с символа '$' начинаются артикулы товаров (ИД импортированных товаров)
-			if(BCTbl.data.Code[0] != '@' && BCTbl.data.Code[0] != '$' && lens.bsearch(sstrlen(BCTbl.data.Code)))
+			if(BCTbl.data.Code[0] != '@' && BCTbl.data.Code[0] != '$' && lens.bsearch(sstrleni(BCTbl.data.Code)))
 				THROW(rList.add(BCTbl.data.GoodsID));
 			if(has_zero_len)
 				THROW(temp_list.add(BCTbl.data.GoodsID));
@@ -2637,6 +2605,7 @@ public:
 	int    GetAltGrpFilt(PPID grpID, GoodsFilt * pFilt); // @sync_r
 	int    PutAltGrpFilt(PPID grpID, const GoodsFilt * pFilt); // @sync_w
 	int    GetConfig(PPGoodsConfig * pCfg, int enforce); // @sync_w
+	int    GetTrConfig(PPTransportConfig * pCfg, int enforce); // @sync_w // @v12.5.5
 	int    GetStockExt(PPID goodsID, GoodsStockExt * pExt); // @sync_w
 	int    GetSingleBarcode(PPID goodsID, SString & rBuf); // @sync_w
 	const  TwoDimBarcodeFormatArray * GetBc2dSpec();
@@ -2729,9 +2698,11 @@ private:
 	TwoDimBarcodeFormatArray * P_Bc2dSpec;
 	PPObjectTokenizer * P_ObjTkn;
 	PPGoodsConfig Cfg;
+	PPTransportConfig TrCfg; // @v12.5.5
 	ReadWriteLock GtlLock;
 	ReadWriteLock AgflLock;
 	ReadWriteLock CfgLock;
+	ReadWriteLock TrCfgLock; // @v12.5.5
 	ReadWriteLock GslLock;
 	ReadWriteLock FglLock;
 	ReadWriteLock TknLock;
@@ -2740,10 +2711,7 @@ private:
 };
 
 GoodsCache::GoodsCache() : ObjCacheHash(PPOBJ_GOODS, sizeof(Data),
-	// @v11.0.4 (DS.CheckExtFlag(ECF_SYSSERVICE) ? (8*1024*1024) : (2*1024U*1024U)),
-	// @v11.0.4 (DS.CheckExtFlag(ECF_SYSSERVICE) ? 16 : 12)),
-	SMEGABYTE(8), 16), // @v11.0.4
-	FullGoodsList(DS.CheckExtFlag(ECF_FULLGOODSCACHE)), P_Bc2dSpec(0), P_ObjTkn(0)
+	SMEGABYTE(8), 16), FullGoodsList(DS.CheckExtFlag(ECF_FULLGOODSCACHE)), P_Bc2dSpec(0), P_ObjTkn(0)
 {
 }
 
@@ -2797,6 +2765,22 @@ int GoodsCache::GetConfig(PPGoodsConfig * pCfg, int enforce)
 			}
 		}
 		ASSIGN_PTR(pCfg, Cfg);
+	}
+	return 1;
+}
+
+int GoodsCache::GetTrConfig(PPTransportConfig * pCfg, int enforce) // @sync_w // @v12.5.5
+{
+	{
+		SRWLOCKER(TrCfgLock, SReadWriteLocker::Read);
+		if(!(TrCfg.Flags & PPTransportConfig::fValid) || enforce) {
+			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
+			if(!(TrCfg.Flags & PPTransportConfig::fValid) || enforce) {
+				PPObjTransport::ReadConfig(&TrCfg);
+				TrCfg.Flags |= PPTransportConfig::fValid;
+			}
+		}
+		ASSIGN_PTR(pCfg, TrCfg);
 	}
 	return 1;
 }
@@ -3208,7 +3192,7 @@ int GoodsCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/
 		}
 		if(p_cache_rec->TypeID && oneof2(rec.Kind, PPGDSK_GOODS, PPGDSK_GROUP)) {
 			PPObjGoodsType gt_obj;
-			PPGoodsType gt_rec;
+			PPGoodsType2 gt_rec;
 			if(gt_obj.Fetch(p_cache_rec->TypeID, &gt_rec) > 0) {
 				if(p_cache_rec->TypeID != PPGT_DEFAULT)
 					p_cache_rec->Flags |= GF_ODD;
@@ -3326,6 +3310,18 @@ int FASTCALL GoodsCore::FetchConfig(PPGoodsConfig * pCfg)
 	GoodsCache * p_cache = GetDbLocalCachePtr <GoodsCache> (PPOBJ_GOODS, 1);
 	if(p_cache) {
 		return p_cache->GetConfig(pCfg, 0);
+	}
+	else {
+		pCfg->Z();
+		return 0;
+	}
+}
+
+int FASTCALL GoodsCore::FetchTrConfig(PPTransportConfig * pCfg)
+{
+	GoodsCache * p_cache = GetDbLocalCachePtr <GoodsCache> (PPOBJ_GOODS, 1);
+	if(p_cache) {
+		return p_cache->GetTrConfig(pCfg, 0);
 	}
 	else {
 		pCfg->Z();
@@ -3953,10 +3949,3 @@ int GoodsCore::CorrectCycleLink(PPID id, PPLogger * pLogger, int use_ta)
 	CATCHZOK
 	return ok;
 }
-
-/*
-ushort __cdecl CalcCRC16(const char ptr[], uint sz)
-{
-	return 0;
-}
-*/

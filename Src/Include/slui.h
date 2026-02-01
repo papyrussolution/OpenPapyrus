@@ -1957,8 +1957,7 @@ public:
 		fWrap  = 0x0004, //
 		fNoClip        = 0x0008, // Не ограничивать отрисовку границами
 		fOneLine       = 0x0010, // Выводить текст в одну строку (не переносить и игнорировать переводы каретки)
-		fPrecBkg       = 0x0020, // Закрашивать фон строго по тексту (в противном случае закрашивается вся область,
-			// отведенная под вывод текста).
+		fPrecBkg       = 0x0020, // Закрашивать фон строго по тексту (в противном случае закрашивается вся область, отведенная под вывод текста).
 		fVCenter       = 0x0040, // Вертикальное центрирование
 		fVBottom       = 0x0080  // Вертикальное выравнивание по нижней границе
 			// @#(fVCenter^fVBottom)
@@ -2390,7 +2389,7 @@ private:
 #define TV_SUBSIGN_LISTBOX    16  // SmartListBox
 #define TV_SUBSIGN_COMBOBOX   17  // ComboBox
 #define TV_SUBSIGN_IMAGEVIEW  18  // TImageView
-#define TV_SUBSIGN_GROUPBOX   19  // @v12.2.3 TGroupBox
+#define TV_SUBSIGN_GROUPBOX   19  // @v12.2.3 TFrame
 #define TV_SUBSIGN_BASEBRW    20  // @v12.5.2 TBaseBrowserWindow
 #define TV_SUBSIGN_TMCHNKBRW  21  // @v12.5.2 STimeChunkBrowser
 #define TV_SUBSIGN_NUMSTEPPER 22  // @v12.5.3 TNumberStepper
@@ -2585,10 +2584,15 @@ public:
 	// Descr: Только для применения в функции TWindow::getCtrlView
 	//
 	uint16 GetId_Unsafe() const { return Id; }
+	void   SetEndModalCmd(int cmd) { EndModalCmd = cmd; } // @v12.5.5
 private:
 	uint32 Sign;    // Подпись экземпляра класса. Используется для идентификации инвалидных экземпляров.
 protected:
 	static int Helper_RegisterMouseTracking(void * pHandle/*HWND*/, int leaveNotify, int hoverTimeout);
+	//
+	// Descr: общая реализации рекции на cmSetBounds для простых управляющих элементов
+	//
+	void   HandleCmSetBounds(TEvent & rEvent);
 
 	friend class EvBarrier;
 
@@ -2992,6 +2996,7 @@ protected:
 	int    RestoreUserParams();
 	void   SetStorableUserParamsSymb(const char * pSymb);
 	const  StorableUserParams * GetStorableUserParams() const { return P_StUsrP; } 
+	TButton * FASTCALL SearchButton(uint cmd);
 	// } @v12.2.6 
 	HWND   PrevInStack;
 	HWND   HW;
@@ -3000,7 +3005,6 @@ protected:
 	long   WbCapability;  // @v12.2.4 (moved from TWindowBase)
 private:
 	void   STDCALL Helper_SetTitle(const char *, int setOrgTitle);
-	TButton * FASTCALL SearchButton(uint cmd);
 
 	class LocalMenuPool {
 	public:
@@ -3383,8 +3387,8 @@ private:
 	SString WtmObjTypeSymb__;   // Символ идентификации класса объекта
 	SString IdentSymb; // @v11.2.2 Символ идентификации экземпляра
 	TRect  Bounds;
-	SString LayoutContainerIdent; // @v10.4.8 @persistent Символ родительского объекта типа Layout
-	SUiLayoutParam Le2; // @v10.9.8 @persistent 
+	SString LayoutContainerIdent; // @persistent Символ родительского объекта типа Layout
+	SUiLayoutParam Le2; // @persistent 
 	TWhatman * P_Owner; // @transient
 };
 //
@@ -3416,11 +3420,11 @@ class TWhatman { // @persistent
 public:
 	struct Param {
 		enum {
-			fRule       = 0x0001, // Отображать линейки
-			fGrid       = 0x0002, // Отображать сетку
+			fRule               = 0x0001, // Отображать линейки
+			fGrid               = 0x0002, // Отображать сетку
 			fDisableMoveObj     = 0x0004, // Объекты нельзя перемещать, даже если конкретный объект допускает это
 			fDisableReszObj     = 0x0008, // Объекты нельзя изменять в размерах, даже если конкретный объект допускает это
-			fSnapToGrid = 0x0010, // При перемещении или изменении размеров объектов притягивать их координаты к решетке
+			fSnapToGrid         = 0x0010, // При перемещении или изменении размеров объектов притягивать их координаты к решетке
 				// (действует только если установлен флаг fGrid).
 			fOneClickActivation = 0x0020  // Объект (TWhatmanObject::oSelectable)
 				// активируется одним кликом мыши (вместо двойного щелчка).
@@ -3448,10 +3452,10 @@ public:
 		toolBrushRule,
 		toolPenGrid,
 		toolPenSubGrid,
-		toolPenLayoutBorder,     // @v10.4.8
+		toolPenLayoutBorder,     //
 		toolPenLayoutEvenBorder, // @v11.2.2
 		toolPenLayoutOddBorder,  // @v11.2.2
-		toolPenContainerCandidateBorder // @v10.9.6
+		toolPenContainerCandidateBorder //
 	};
 	static uint32 GetSerializeSignature();
 	explicit TWhatman(TWindow * pOwnerWin);
@@ -3884,9 +3888,7 @@ protected:
 	void   InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam);
 
 	struct BuildEmptyWindowParam {
-		BuildEmptyWindowParam() : FontSize(0)
-		{
-		}
+		BuildEmptyWindowParam();
 		SString FontFace;
 		int   FontSize;
 	};
@@ -3942,6 +3944,59 @@ public:
 	int    DefInputLine;
 };
 //
+//
+//
+class TFrame : public TView { // @v12.2.3 Просто фрейм
+public:
+	//
+	// Descr: Виды фрейма
+	//
+	enum {
+		fkGeneral = 0, // Просто рамка
+		fkSizeBar = 1  // @construction Полоса изменения размера области, с чьего краю расположен этот элемент
+	};
+	//
+	// Флаги состояния TFrame::State //
+	//
+	enum {
+		stSizing         = 0x0001, // Экземпляр, имея вид fkSizeBar, находится в состоянии изменения размера
+		stSizingVertical = 0x0002, // Если установлен, то sizing осуществляется в вертикальном направлении, иначе - в горизонтальном //
+	};
+	explicit TFrame(int speciality = fkGeneral);
+	~TFrame();
+	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	void   SetText(const char * pText);
+	const  SString & GetText() const;
+	int    GetKind() const { return FKind; }
+	int    SetupSizing(HWND hParentWindow, SUiLayout * pLo, int sizingDirection/*DIREC_HORZ || DIREC_VERT*/);
+private:
+	static LRESULT CALLBACK DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam); // @callback(DLGPROC)
+	DECL_HANDLE_EVENT;
+	int    SetSizingState(const SPoint2S & rStartClientPoint);
+	int    DragSizingState(const SPoint2S & rCurrentClientPoint);
+	int    GetSizingDirection() const;
+	int    ResetSizingState();
+	int    DrawPreviewLine(int position);
+	int    ErasePreviewLine();
+	bool   IsConsistentSizeBar() const;
+
+	SString Text;
+	int    FKind; // fkXXX
+	long   State; // @v12.5.5
+	struct SizingBlock {
+		SizingBlock() : P_SizingLo(0), H_ParentWindow(0), CurrentPosition(-1)
+		{
+		}
+		SPoint2S StartPt; // @v12.5.5 Точка начала изменения размера (State & stSizing)
+		int    CurrentPosition;
+		SUiLayout * P_SizingLo; // @v12.5.5 @notowned Лейаут, размер которого будет изменять этот экземпляр (если IsConsistentSizeBar())		
+		HWND   H_ParentWindow;  // Хандлер родительского окна
+	};
+	SizingBlock SzBlk;
+	//SPoint2S SizingStartPt; // @v12.5.5 Точка начала изменения размера (State & stSizing)
+	//SUiLayout * P_SizingLo; // @v12.5.5 @notowned Лейаут, размер которого будет изменять этот экземпляр (если IsConsistentSizeBar())
+};
+//
 // Descr: Вспомогательный класс, реализующий высокоуровневый механизм работы с инлайновым списком выбора
 //
 class Helper_WordSelector {
@@ -3957,9 +4012,6 @@ protected:
 
 class TInputLine : public TView, private Helper_WordSelector {
 public:
-	static constexpr float DefHeight      = 21.0f; // Высота поля ввода в пикселях по умолчанию
-	static constexpr float DefLabelHeight = 13.0f; // Высота этикетки в пикселях по умолчанию
-
 	static LRESULT CALLBACK DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	enum {
@@ -4166,20 +4218,6 @@ private:
 //
 //
 //
-class TGroupBox : public TView { // @v12.2.3 Просто фрейм
-public:
-	explicit TGroupBox(const TRect & rBounds);
-	~TGroupBox();
-	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
-	void   SetText(const char * pText);
-	const  SString & GetText() const;
-private:
-	DECL_HANDLE_EVENT;
-	SString Text;
-};
-//
-//
-//
 #define RADIOBUTTONS 1
 #define CHECKBOXES   2
 
@@ -4362,7 +4400,7 @@ public:
 	int    GetUserData(void * pData, size_t * pSize) const;
 	bool   HasCapability(long c) const { return LOGIC(CFlags & c); }
 	int    GetImageIdxByID(long id, long * pIDx);
-	void * CreateImageList(HINSTANCE hInst); // @v10.9.4 HIMAGELIST-->(void *)
+	void/*HIMAGELIST*/ * CreateImageList(HINSTANCE hInst);
 	//
 	// Descr: Устанавливает ассоциацию элемента списка, имеющего идентификатор itemID, с иконкой,
 	//   идентифицируемой как imageID.
@@ -4384,6 +4422,20 @@ public:
 	int    GetItemColor(long itemID, SColor * pFgColor, SColor * pBckgColor) const;
 	long   GetCapability() const { return CFlags; }
 	uint32 GetSignature() const { return Sign; }
+	//
+	// Descr: Устанавливает кодовую страницу, в которой представлены строки, хранимые в экземпляре.
+	// Returns:
+	//   true - кодовая страница успешно установлена
+	//   false - error (на текущий момент - невозможно, поскольку аргумент не проверяется на валидность)
+	//
+	bool   SetCp(SCodepage cp); // @v12.5.5
+	SCodepage GetCp() const { return Cp; } // @v12.5.5
+	//
+	// Descr: Преобразует текст rText в unicode-версию. Функция использует значение this->Cp для определения кодовой
+	//   страницы, в которой представлен rText.
+	// Note: Функция применяется перед отрисовкой списка, для которого данный экзепляр является контейнером данных.
+	//
+	bool   TranslateTextToUnicode(const SString & rText, SStringU & rTextU) const; // @v12.5.5
 	StrAssocArray * GetListByPattern(const char * pText);
 //protected:
 	uint   Options;
@@ -4401,6 +4453,7 @@ protected:
 private:
 	uint32 Sign;               // Подпись экземпляра класса. Используется для идентификации порожденных классов и инвалидных экземпляров
 	long   CFlags;
+	SCodepage Cp;              // @v12.5.5 Кодовая страница, используемая для хранения строк. Если Cp == cpUndef, то подразумевается cpOEM
 	SBaseBuffer UserData;      //
 	LAssocArray ImageAssoc;    // Список ид элементов и ассоциированных с ним id иконок
 	LAssocArray ImageIdxAssoc; // Список ид элементов и ассоциированных с ним индексов картинок содержащихся в HIMAGELIST
@@ -4925,6 +4978,7 @@ private:
 #define ODT_RADIOBTN   (ODT_STATIC+11)
 #define ODT_EDIT       (ODT_STATIC+12)
 #define ODT_NUMSTEPPER (ODT_STATIC+13) // @v12.5.3
+#define ODT_FRAME      (ODT_STATIC+14) // @v12.5.5
 
 struct TDrawItemData {
 	uint   CtlType;
@@ -5361,14 +5415,17 @@ public:
 		tbiDialogBkgColor   = 89, // @v12.5.3 Цвет для отрисовки фона диалоговых окон
 		tbiDialogBkgBrush   = 90, // @v12.5.3 Кисть для отрисовки фона диалоговых окон
 		//
-		tbiControlFont      = 110, // @v11.2.3 Шрифт для отрисовки управляющих элементов 
+		tbiControlFont      = 110, // @v11.2.3 Шрифт для отрисовки стандартных управляющих элементов 
+		tbiAccentInputFont  = 111, // @v12.5.5 Шрифт для отрисовки увеличенного поля ввода и сопутствующих элементов 
+		//
+		tbiCurResizeHorz    = 201, // @v12.5.5 Курсор изменения горизонтального размера
+		tbiCurResizeVert    = 202, // @v12.5.5 Курсор изменения верикального размера
 	};
 
 	const  UserInterfaceSettings & GetUiSettings();
 	int    UpdateUiSettings(const UserInterfaceSettings & rS);
     int    InitUiToolBox();
-	// @v11.9.2 /*const*/ SPaintToolBox & GetUiToolBox() /*const*/ { return UiToolBox; }
-	virtual SPaintToolBox * GetUiToolBox(); // @v11.9.2
+	virtual SPaintToolBox * GetUiToolBox();
 	const SDrawFigure * LoadDrawFigureBySymb(const char * pSymb, TWhatmanToolArray::Item * pInfo) const;
 	const SDrawFigure * LoadDrawFigureById(uint id, TWhatmanToolArray::Item * pInfo) const;
 
@@ -5417,6 +5474,7 @@ private:
 	SString & MakeModalStackDebugText(SString & rBuf) const;
 	int    DrawButton2(HWND hwnd, DRAWITEMSTRUCT * pDi);
 	int    DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi);
+	int    DrawFrame(HWND hwnd, DRAWITEMSTRUCT * pDi); // @v12.5.3 @construction
 	int    DrawInputLine3(HWND hwnd, DRAWITEMSTRUCT * pDi);
 	int    DrawNumStepper(HWND hwnd, DRAWITEMSTRUCT * pDi); // @v12.5.3 @construction
 	int    GetDialogTextLayout(const SString & rText, int fontId, int penId, STextLayout & rTlo, int adj);

@@ -10,18 +10,12 @@
  *
  * daniel@veillard.com
  */
-
 #include "libxml.h"
-#include <stdio.h>
-
 #if !defined(_WIN32) || defined(__CYGWIN__)
-#include <unistd.h>
+	#include <unistd.h>
 #endif
-#include <string.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 #include <libxml/uri.h>

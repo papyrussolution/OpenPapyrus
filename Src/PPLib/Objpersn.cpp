@@ -114,7 +114,7 @@ int FASTCALL GetMainEmployerID(PPID * pID)
 {
 	int    ok = -1;
 	PPObjSecur sec_obj(PPOBJ_USR, 0);
-	PPSecur secur;
+	PPSecur2 secur;
 	ASSIGN_PTR(pID, 0);
 	CALLPTRMEMB(pBuf, Z());
 	if(sec_obj.Fetch(LConfig.UserID, &secur) > 0) {
@@ -142,7 +142,7 @@ int GetUserByPerson(PPID psnID, PPID * pUserID)
 	int    ok = -1;
 	PPID   user_id = 0;
 	if(psnID) {
-		PPSecur secur;
+		PPSecur2 secur;
 		PPObjSecur sc_obj(PPOBJ_USR, 0);
 		for(SEnum en = sc_obj.P_Ref->Enum(PPOBJ_USR, 0); ok < 0 && en.Next(&secur) > 0;) {
 			if(secur.PersonID == psnID) {
@@ -1118,7 +1118,7 @@ int PPObjPerson::IsPacketEq(const PPPersonPacket & rS1, const PPPersonPacket & r
 	int    eq = 1;
 	if(!P_Tbl->GetFields().IsEqualRecords(&rS1.Rec, &rS2.Rec))
 		eq = 0;
-	else if(rS1.SMemo != rS2.SMemo) // @v11.1.12
+	else if(rS1.SMemo != rS2.SMemo)
 		eq = 0;
 	else if(rS1.Kinds != rS2.Kinds)
 		eq = 0;
@@ -1305,7 +1305,6 @@ int PPObjPerson::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 	{ return EditSpcRightFlags(DLG_RTPERSON, 0, 0, bufSize, rt, pDlg); }
 const char * PPObjPerson::GetNamePtr() { return P_Tbl->data.Name; }
 ListBoxDef * PPObjPerson::Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr) { return _Selector2(pOrgDef, flags, extraPtr); }
-// @v11.1.10 int PPObjPerson::UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr) { return BIN(_Selector2(pDef, extraPtr)); }
 int PPObjPerson::Browse(void * extraPtr) { return ViewPerson(0); }
 
 const PPPersonConfig & PPObjPerson::GetConfig()

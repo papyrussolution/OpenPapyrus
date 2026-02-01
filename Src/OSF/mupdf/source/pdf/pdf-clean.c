@@ -5,7 +5,6 @@
 //#include "mupdf/pdf.h"
 
 static void pdf_filter_xobject(fz_context * ctx, pdf_document * doc, pdf_obj * xobj, pdf_obj * page_res, pdf_filter_options * filter);
-
 static void pdf_filter_type3(fz_context * ctx, pdf_document * doc, pdf_obj * obj, pdf_obj * page_res, pdf_filter_options * filter);
 
 static void pdf_filter_resources(fz_context * ctx, pdf_document * doc, pdf_obj * in_res, pdf_obj * res, pdf_filter_options * filter)
@@ -29,7 +28,6 @@ static void pdf_filter_resources(fz_context * ctx, pdf_document * doc, pdf_obj *
 			}
 		}
 	}
-
 	/* Pattern */
 	obj = pdf_dict_get(ctx, res, PDF_NAME(Pattern));
 	if(obj) {
@@ -640,13 +638,10 @@ static int pdf_redact_page_link(fz_context * ctx, pdf_document * doc, pdf_page *
 
 static void pdf_redact_page_links(fz_context * ctx, pdf_document * doc, pdf_page * page)
 {
-	pdf_obj * annots;
 	pdf_obj * link;
 	fz_rect area;
-	int k;
-
-	annots = pdf_dict_get(ctx, page->obj, PDF_NAME(Annots));
-	k = 0;
+	int k = 0;
+	pdf_obj * annots = pdf_dict_get(ctx, page->obj, PDF_NAME(Annots));
 	while(k < pdf_array_len(ctx, annots)) {
 		link = pdf_array_get(ctx, annots, k);
 		if(pdf_dict_get(ctx, link, PDF_NAME(Subtype)) == PDF_NAME(Link)) {
@@ -684,17 +679,13 @@ int pdf_redact_page(fz_context * ctx, pdf_document * doc, pdf_page * page, pdf_r
 	filter.instance_forms = 1; /* redact xobjects with instancing */
 	filter.sanitize = 1;
 	filter.ascii = 1;
-
 	for(annot = pdf_first_annot(ctx, page); annot; annot = pdf_next_annot(ctx, annot))
 		if(pdf_dict_get(ctx, annot->obj, PDF_NAME(Subtype)) == PDF_NAME(Redact))
 			has_redactions = 1;
-
 	if(!has_redactions)
 		return 0;
-
 	pdf_filter_page_contents(ctx, doc, page, &filter);
 	pdf_redact_page_links(ctx, doc, page);
-
 	annot = pdf_first_annot(ctx, page);
 	while(annot) {
 		if(pdf_dict_get(ctx, annot->obj, PDF_NAME(Subtype)) == PDF_NAME(Redact)) {
@@ -705,8 +696,6 @@ int pdf_redact_page(fz_context * ctx, pdf_document * doc, pdf_page * page, pdf_r
 			annot = pdf_next_annot(ctx, annot);
 		}
 	}
-
 	doc->redacted = 1;
-
 	return 1;
 }

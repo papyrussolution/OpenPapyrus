@@ -17,8 +17,6 @@ int __PrcssrTestDb_Are_TestTa01_RecsEqual(const TestTa01Tbl::Rec & rRec1, const 
 
 SLTEST_R(MySQL) // @v12.4.7
 {
-	//const bool single_insertion_test = false; // Признак того, что мы - на фазе разработки и нужно отладить только вставку единственной записи.
-
 	PPIniFile ini_file;
 	DbLoginBlock dblb;
 	StrAssocArray some_text_list;
@@ -93,13 +91,13 @@ SLTEST_R(MySQL) // @v12.4.7
 			for(uint i = 0; i < max_iter_count; i++) {
 				const ulong randval = SLS.GetTLA().Rg.GetUniformIntPos(1920701);
 				if(randval & 0x1) { // Если randval - нечетное, то создаем соединение
-					SMySqlDbProvider::ConnectionEntry conn_to_get;
-					if(!dbp.GetConnection(conn_to_get)) {
+					SMySqlDbProvider::ConnectionEntry * p_conn_to_get = dbp.GetConnection();
+					if(!p_conn_to_get) {
 						conn_pool_fault = true;
 						break;
 					}
 					else {
-						conn_list.insert(&conn_to_get);
+						conn_list.insert(p_conn_to_get);
 					}
 				}
 				else { // Если randval - четное, то разрушаем соединение (если есть такое)
@@ -133,16 +131,24 @@ SLTEST_R(MySQL) // @v12.4.7
 			"TestRef01",
 			"TestRef02"
 		};
-		for(uint i = 0; i < SIZEOFARRAY(p_tbl_name_list); i++) {
-			const char * p_tbl_name = p_tbl_name_list[i];
-			int efer = dbp.IsFileExists_(p_tbl_name);
-			if(!efer) {
-				// Создать таблицу
-				DBTable dbt;
-				if(dbp.LoadTableSpec(&dbt, p_tbl_name, p_tbl_name, /*createIfNExists*/0)) {
-					if(dbp.CreateDataFile(&dbt, p_tbl_name, /*SET_CRM_TEMP(crmNoReplace)*/crmNoReplace, 0)) {
-						SLCHECK_NZ(dbp.IsFileExists_(p_tbl_name));
-						debug_mark = true;
+		for(uint passi = 0; passi < 2; passi++) { // Два прохода: на первом создаем таблицы и сразу удаляем, на втором - просто создаем заново.
+			for(uint i = 0; i < SIZEOFARRAY(p_tbl_name_list); i++) {
+				const char * p_tbl_name = p_tbl_name_list[i];
+				int efer = dbp.IsFileExists_(p_tbl_name);
+				if(!efer) {
+					// Создать таблицу
+					DBTable dbt;
+					if(dbp.LoadTableSpec(&dbt, p_tbl_name, p_tbl_name, /*createIfNExists*/0)) {
+						if(dbp.CreateDataFile(&dbt, p_tbl_name, /*SET_CRM_TEMP(crmNoReplace)*/crmNoReplace, 0)) {
+							SLCHECK_NZ(dbp.IsFileExists_(p_tbl_name));
+							///* @construction (не сработало с первого раза)
+							if(passi == 0) {
+								// На первом проходе сразу разрушаем таблицу для тестирования метода SMySqlDbProvider::DropFile
+								SLCHECK_NZ(dbp.DropFile(p_tbl_name));
+								SLCHECK_Z(dbp.IsFileExists_(p_tbl_name));
+							}
+							//*/
+						}
 					}
 				}
 			}
@@ -366,6 +372,9 @@ SLTEST_R(MySQL) // @v12.4.7
 		TestTa01Tbl::Key0 k0;
 		TestTa01Tbl::Rec * p_rec_buf = static_cast<TestTa01Tbl::Rec *>(p_tbl->getDataBuf());
 		{
+			/*
+				@todo @2020122 В этом блоке (и, видимо, во всех таких же) забиваются все свободные соединения из пула dbp.ConnPool
+			*/ 
 			// Поиск по GUID-полю (TestTa01Tbl::GuidVal)
 			uint   srch_count = 0;
 			uint   uneq_rec_count = 0;

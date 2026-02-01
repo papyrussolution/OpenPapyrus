@@ -74,7 +74,7 @@ public:
 				for(uint c = 0; c < BillMultiPrintParam::pb__Count; c++) {
 					if(Data.FormBits & (1 << c)) {
 						long nc = GetNumCopies(CTL_PRNGBILL_NUMCOPIES + c);
-						Data.CopyCounter[c] = (checkirange(nc, 1L, 10L)) ? static_cast<uint16>(nc) : 1;
+						Data.CopyCounter[c] = static_cast<uint16>(inirangeor(nc, 1L, 10L, 1L));
 						//rSelAry.Add(static_cast<PPID>(c+1), GetNumCopies(CTL_PRNGBILL_NUMCOPIES + c), 0);
 					}
 					else 

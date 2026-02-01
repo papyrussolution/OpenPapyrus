@@ -227,6 +227,10 @@ static void loadLocalMenu(TVRez & rez, TDialog * dlg)
 
 int (* getUserControl)(TVRez*, TDialog*) = 0;
 
+TDialog::BuildEmptyWindowParam::BuildEmptyWindowParam() : FontSize(0)
+{
+}
+
 /*static*/int TDialog::LoadDialog(TVRez * pRez, uint dialogID, TDialog * dlg, long flags)
 {
 	int    ok = 1;
@@ -753,11 +757,11 @@ IMPL_HANDLE_EVENT(TDialog)
 				}
 				MSG msg;
 				do {
-					GetMessage(&msg, 0, 0, 0);
-					if(!TranslateAccelerator(msg.hwnd, APPL->H_Accel, &msg)) {
-						if(!IsDialogMessage(H(), &msg)) {
+					::GetMessageW(&msg, 0, 0, 0);
+					if(!::TranslateAcceleratorW(msg.hwnd, APPL->H_Accel, &msg)) {
+						if(!::IsDialogMessageW(H(), &msg)) {
 							::TranslateMessage(&msg);
-							DispatchMessage(&msg);
+							::DispatchMessageW(&msg);
 						}
 					}
 					if(EndModalCmd) {
@@ -777,8 +781,7 @@ IMPL_HANDLE_EVENT(TDialog)
 			}
 		}
 		else {
-			SString errmsg_en("Error creating dialog box.");
-			::MessageBox(APPL->H_MainWnd, SUcSwitch(errmsg_en), _T("PROJECT PAPYRUS"), MB_OK);
+			::MessageBoxW(APPL->H_MainWnd, L"Error creating dialog box", L"PROJECT PAPYRUS", MB_OK);
 		}
 		clearEvent(event);
 		event.message.infoLong = retval;

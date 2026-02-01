@@ -286,9 +286,9 @@ void TView::Draw_()
 }
 
 /*static*/void * TView::SetWindowProp(HWND hWnd, int propIndex, void * ptr)
-	{ return reinterpret_cast<void *>(::SetWindowLongPtr(hWnd, propIndex, reinterpret_cast<LONG_PTR>(ptr))); }
+	{ return reinterpret_cast<void *>(::SetWindowLongPtrW(hWnd, propIndex, reinterpret_cast<LONG_PTR>(ptr))); }
 /*static*/void * FASTCALL TView::SetWindowUserData(HWND hWnd, void * ptr)
-	{ return reinterpret_cast<void *>(::SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(ptr))); }
+	{ return reinterpret_cast<void *>(::SetWindowLongPtrW(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(ptr))); }
 // @v12.4.11 /*static*/long TView::SetWindowProp(HWND hWnd, int propIndex, long value) { return ::SetWindowLongPtr(hWnd, propIndex, value); }
 /*static*/void * FASTCALL TView::GetWindowProp(HWND hWnd, int propIndex) { return reinterpret_cast<void *>(::GetWindowLongPtr(hWnd, propIndex)); }
 /*static*/void * FASTCALL TView::GetWindowUserData(HWND hWnd) { return reinterpret_cast<void *>(::GetWindowLongPtr(hWnd, GWLP_USERDATA)); }
@@ -487,29 +487,6 @@ static HMENU _CtlIdForCreateWindow(uint ctlId) { return reinterpret_cast<HMENU>(
 						}
 					}
 					break;
-				case TV_SUBSIGN_GROUPBOX: // @v12.2.3
-					{
-						TGroupBox * p_ctl = static_cast<TGroupBox *>(pV);
-						pV->Parent = hw_parent;
-						DWORD  style = WS_CHILD|BS_GROUPBOX;
-						// @v12.5.3 @construction {
-						{
-							const int wvs = APPL->GetUiSettings().WindowViewStyle;
-							//if(oneof2(wvs, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector))
-							if(false)
-								style |= BS_OWNERDRAW;
-						}
-						// } @v12.5.3 @construction 
-						hw = ::CreateWindowExW(WS_EX_NOPARENTNOTIFY, L"BUTTON", 0, style,
-							pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, _CtlIdForCreateWindow(ctl_id), TProgram::GetInst(), 0);
-						if(hw) {
-							TView::SetWindowUserData(hw, p_ctl);
-							TView::SSetWindowText(hw, p_ctl->GetText());
-							setup_font_blk.Set(hw);
-							SetupWindowCtrlTextProc(hw, 0);
-						}
-					}
-					break;
 				case TV_SUBSIGN_CLUSTER: // @v12.2.3 @construction
 					{
 						TCluster * p_ctl = static_cast<TCluster *>(pV);
@@ -605,8 +582,9 @@ static HMENU _CtlIdForCreateWindow(uint ctlId) { return reinterpret_cast<HMENU>(
 						pV->Parent = hw_parent;
 						DWORD button_style = WS_CHILD|BS_PUSHBUTTON/*|BS_BITMAP|BS_FLAT*/;
 						{
-							const int wvs = APPL->GetUiSettings().WindowViewStyle;
-							if(oneof2(wvs, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector))
+							const  int  wvs = APPL->GetUiSettings().WindowViewStyle;
+							const  bool is_owner_draw_style = oneof2(wvs, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector);
+							if(is_owner_draw_style)
 								button_style |= BS_OWNERDRAW;
 						}
 						hw = ::CreateWindowExW(0, L"BUTTON", 0, button_style, pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, 
@@ -674,6 +652,28 @@ static HMENU _CtlIdForCreateWindow(uint ctlId) { return reinterpret_cast<HMENU>(
 							SetupWindowCtrlTextProc(hw, 0);
 							if(!is_owner_draw_style)
 								setup_font_blk.Set(hw);
+						}
+					}
+					break;
+				case TV_SUBSIGN_GROUPBOX: // @v12.2.3
+					{
+						TFrame * p_ctl = static_cast<TFrame *>(pV);
+						pV->Parent = hw_parent;
+						DWORD  style = WS_CHILD|BS_GROUPBOX;
+						const  int  wvs = APPL->GetUiSettings().WindowViewStyle;
+						const  bool is_owner_draw_style = oneof2(wvs, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector);
+						/* Для рамки не устанавливаем BS_OWNERDRAW поскольку это - комбинированный флаг. Мы просто потом перехватим WM_PAINT
+						if(is_owner_draw_style) 
+							style |= BS_OWNERDRAW;
+						*/
+						hw = ::CreateWindowExW(WS_EX_NOPARENTNOTIFY, L"BUTTON", 0, style,
+							pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, _CtlIdForCreateWindow(ctl_id), TProgram::GetInst(), 0);
+						if(hw) {
+							TView::SetWindowUserData(hw, p_ctl);
+							TView::SSetWindowText(hw, p_ctl->GetText());
+							if(!is_owner_draw_style)
+								setup_font_blk.Set(hw);
+							SetupWindowCtrlTextProc(hw, 0);
 						}
 					}
 					break;
@@ -837,9 +837,10 @@ int TView::SetupText(SString * pText)
 	else {
 		SString temp_buf;
 		SString subst;
-		TView::SGetWindowText(GetDlgItem(Parent, Id), temp_buf);
+		HWND   h_wnd = getHandle();
+		TView::SGetWindowText(h_wnd, temp_buf);
 		if(SLS.SubstString(temp_buf, 1, subst) > 0) {
-			TView::SSetWindowText(GetDlgItem(Parent, Id), subst);
+			TView::SSetWindowText(h_wnd, subst);
 			ASSIGN_PTR(pText, subst);
 			ok = 1;
 		}
@@ -862,6 +863,21 @@ TView * TView::nextView() const { return (this == P_Owner->GetLastView()) ? 0 : 
 TView * TView::prevView() const { return (this == P_Owner->GetFirstView()) ? 0 : prev(); }
 int    TView::commandEnabled(ushort command) const { return BIN((command >= 64*32) || !P_CmdSet || P_CmdSet->has(command)); }
 int    TView::TransmitData(int dir, void * pData) { return 0; } // Ничего не передается и не получается. Размер данных - 0.
+
+void TView::HandleCmSetBounds(TEvent & event)
+{
+	assert(event.isCmd(cmSetBounds));
+	if(event.isCmd(cmSetBounds)) {
+		const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
+		if(p_rc) {
+			HWND   h = getHandle();
+			if(h) {
+				::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOCOPYBITS);
+				clearEvent(event);
+			}
+		}
+	}
+}
 
 /*static*/int TView::Helper_RegisterMouseTracking(void * pHandle/*HWND*/, int leaveNotify, int hoverTimeout)
 {
@@ -1692,14 +1708,19 @@ void TViewGroup::removeView(TView * p)
 	if(P_Last) {
 		TView * t = P_Last;
 		do {
-			if(t->P_Next == p) {
-				t->P_Next = p->P_Next;
-				if(p != P_Last)
-					return;
-				P_Last = (p->P_Next == p) ? 0 : t;
+			if(!t->IsConsistent()) { // @v12.5.5
 				break;
 			}
-			t = t->P_Next;
+			else {
+				if(t->P_Next == p) {
+					t->P_Next = p->P_Next;
+					if(p != P_Last)
+						return;
+					P_Last = (p->P_Next == p) ? 0 : t;
+					break;
+				}
+				t = t->P_Next;
+			}
 		} while(t != P_Last);
 	}
 }

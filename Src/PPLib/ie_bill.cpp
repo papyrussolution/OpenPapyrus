@@ -6847,6 +6847,7 @@ int DocNalogRu_Generator::MakeOutFileIdent(const PPBillPacket * pBPack, FileInfo
 					}
 					//
 					PPGoodsType2 gt_rec;
+					GoodsCodeSet goods_code_set;
 					for(uint i = 0; i < pBPack->GetTCount(); i++) {
 						const PPTransferItem & r_ti = pBPack->ConstTI(i);
 						Goods2Tbl::Rec goods_rec;
@@ -6855,6 +6856,16 @@ int DocNalogRu_Generator::MakeOutFileIdent(const PPBillPacket * pBPack, FileInfo
 							if(gt_rec.Flags & GTF_GMARKED && gt_rec.ChZnProdType)
 								n_list[1] = 1; // _N3
 							*/
+							// @v12.5.5 {
+							if(!n_list[1]) {
+								if(gt_rec.Flags & GTF_GMARKED && gt_rec.ChZnProdType) {
+									GetGoodsCodeSet(r_ti.GoodsID, goods_code_set);
+									if(!(gt_rec.Flags & GTF_GMARKED_WHS) && goods_code_set.CodeForMarking.NotEmpty()) {
+										n_list[1] = 1; // _N3
+									}
+								}
+							}
+							// } @v12.5.5 
 							if(gt_rec.ChZnProdType == GTCHZNPT_BEER) { 
 								n_list[2] = 1; // _N4
 							}
@@ -7371,7 +7382,7 @@ int DocNalogRu_Generator::WriteWareInfoAddendum(const PPBillImpExpParam & rParam
 		Goods2Tbl::Rec goods_rec;
 		if(GObj.Fetch(goods_id, &goods_rec) > 0) {
 			PPUnit u_rec;
-			PPGoodsType gt_rec;
+			PPGoodsType2 gt_rec;
 			if(GObj.FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
 				is_weighted_ware = (u_rec.ID == SUOM_KILOGRAM || u_rec.BaseUnitID == SUOM_KILOGRAM);
 				(unit_name = u_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
@@ -7470,6 +7481,36 @@ int DocNalogRu_Generator::WriteWareInfoAddendum(const PPBillImpExpParam & rParam
 	return ok;
 }
 
+int DocNalogRu_Generator::GetGoodsCodeSet(PPID goodsID, DocNalogRu_Generator::GoodsCodeSet & rSet)
+{
+	rSet.Z();
+	int    ok = -1;
+	{
+		SString temp_buf;
+		BarcodeArray bc_list;
+		GObj.P_Tbl->ReadBarcodes(goodsID, bc_list);
+		bc_list.GetSingle(BarcodeArray::sifValidEanUpcOnly, temp_buf);
+		if(temp_buf.NotEmpty()) {
+			rSet.CodeForMarking = temp_buf;
+			rSet.CodeForExchange = temp_buf;
+			rSet.Code = temp_buf;
+			ok = 1;
+		}
+		else {
+			bc_list.GetSingle(0, rSet.Code);
+			if(rSet.Code.NotEmpty())
+				ok = 2;
+		}
+		if(rSet.Code.IsEmpty()) {
+			rSet.Code.CatLongZ(goodsID, 11);
+			ok = 3;
+		}
+		else
+			rSet.Code.Transf(CTRANSF_INNER_TO_OUTER);
+	}
+	return ok;
+}
+
 int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 {
 	int    ok = 1;
@@ -7488,10 +7529,11 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 	SString goods_ext_strings;
 	SString unit_name;
 	SString unit_code;
-	SString goods_code;
 	SString goods_ar_code; // @v11.7.4 Код товара по статье контрагента
-	SString barcode_for_marking;  // @v11.5.9 Валидный штрихкод для формирования суррогатной chzn-марки для некоторых категорий товаров
-	SString barcode_for_exchange; // @v11.5.9 Валидный штрихкод для передачи контрагенту с целью идентификации товара
+	//SString goods_code;
+	//SString barcode_for_marking;  // @v11.5.9 Валидный штрихкод для формирования суррогатной chzn-марки для некоторых категорий товаров
+	//SString barcode_for_exchange; // @v11.5.9 Валидный штрихкод для передачи контрагенту с целью идентификации товара
+	DocNalogRu_Generator::GoodsCodeSet goods_code_set; //GetGoodsCodeSet 
 	PPLotExtCodeContainer::MarkSet::Entry msentry;
 	PPLotExtCodeContainer::MarkSet ext_codes_set;
 	PPObjBill * p_bobj(BillObj);
@@ -7566,9 +7608,10 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 		}
 		unit_name.Z();
 		unit_code.Z();
-		goods_code.Z();
-		barcode_for_marking.Z();  // @v11.5.9
-		barcode_for_exchange.Z(); // @v11.5.9
+		goods_code_set.Z(); // @v12.5.5
+		// @v12.5.5 goods_code.Z();
+		// @v12.5.5 barcode_for_marking.Z();  // @v11.5.9
+		// @v12.5.5 barcode_for_exchange.Z(); // @v11.5.9
 		goods_ar_code.Z(); // @v11.7.4
 		// my -- {
 		// <СведТов КолТов="1.00" НаимТов="ТО системы защиты от краж ООО "Лента" ТК-180 Петрозаводск, пр. Комсомольский, 27"
@@ -7585,6 +7628,8 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 			// СтТовУчНал="9000.00">
 		// </СведТов>
 		// !!! <ДопСведТов ПрТовРаб="3" КодТов="00000000027" НаимЕдИзм="шт"/>
+		G.GetGoodsCodeSet(goods_id, goods_code_set); // @v12.5.5
+		/* @v12.5.5
 		// @v11.5.9 {
 		{
 			BarcodeArray bc_list;
@@ -7604,6 +7649,7 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 				goods_code.Transf(CTRANSF_INNER_TO_OUTER);
 		}
 		// } @v11.5.9
+		*/
 		SXml::WNode n_item(G.P_X, GetToken(PPHSC_RU_WAREINFO));
 		temp_buf.Z().Cat(r_ti.RByBill);
 		n_item.PutAttrib(GetToken(PPHSC_RU_LINENUMBER), temp_buf);
@@ -7611,7 +7657,7 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 			Goods2Tbl::Rec goods_rec;
 			if(G.GObj.Fetch(goods_id, &goods_rec) > 0) {
 				PPUnit u_rec;
-				PPGoodsType gt_rec;
+				PPGoodsType2 gt_rec;
 				temp_buf.Z(); // @v11.7.12
 				// @v11.7.12 {
 				if(R_P.Flags & PPBillImpExpParam::fUseExtGoodsName) {
@@ -7731,7 +7777,7 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 					excise_sum_after = gtv.GetValue(GTAXVF_EXCISE);
 				}
 				if(G.IsVer503()) {
-					G.WriteWareInfoAddendum(R_P, R_Bp, item_idx, goods_code, barcode_for_marking, correction, p_org_bpack);
+					G.WriteWareInfoAddendum(R_P, R_Bp, item_idx, goods_code_set.Code, goods_code_set.CodeForMarking, correction, p_org_bpack);
 				}
 				{
 					SXml::WNode n_p(G.P_X, GetToken(PPHSC_RU_WAREAMTWOVAT));
@@ -7795,7 +7841,7 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 					}
 				}
 				if(!G.IsVer503()) {
-					G.WriteWareInfoAddendum(R_P, R_Bp, item_idx, goods_code, barcode_for_marking, correction, p_org_bpack);
+					G.WriteWareInfoAddendum(R_P, R_Bp, item_idx, goods_code_set.Code, goods_code_set.CodeForMarking, correction, p_org_bpack);
 				}
 			}
 			else {
@@ -7831,7 +7877,7 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 				n_item.PutAttrib(GetToken(PPHSC_RU_WAREAMT), temp_buf.Z().Cat(amt, MKSFMTD(0, 2, /*NMBF_NOTRAILZ*/0)));
 				//
 				if(G.IsVer503()) {
-					G.WriteWareInfoAddendum(R_P, R_Bp, item_idx, goods_code, barcode_for_marking, correction, p_org_bpack);
+					G.WriteWareInfoAddendum(R_P, R_Bp, item_idx, goods_code_set.Code, goods_code_set.CodeForMarking, correction, p_org_bpack);
 				}
 				{
 					vat_sum = gtv.GetValue(GTAXVF_VAT);
@@ -7851,27 +7897,27 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 					}
 				}
 				if(!G.IsVer503()) {
-					G.WriteWareInfoAddendum(R_P, R_Bp, item_idx, goods_code, barcode_for_marking, correction, p_org_bpack);
+					G.WriteWareInfoAddendum(R_P, R_Bp, item_idx, goods_code_set.Code, goods_code_set.CodeForMarking, correction, p_org_bpack);
 				}
 			}
 		}
 		// @v11.5.9 {
 		if(!correction) {
-			if(barcode_for_exchange.NotEmpty()) {
-				G.WriteIdentifValPair(GetToken(PPHSC_RU_EXTRA2), GetToken(PPHSC_RU_EXTRA_BARCODE), barcode_for_exchange);
+			if(goods_code_set.CodeForExchange.NotEmpty()) {
+				G.WriteIdentifValPair(GetToken(PPHSC_RU_EXTRA2), GetToken(PPHSC_RU_EXTRA_BARCODE), goods_code_set.CodeForExchange);
 			}
 			if(G.SsNotch.searchNcAscii("#esphere", 0, 0)) {
 				if(goods_ar_code.NotEmpty()) {
 					G.WriteIdentifValPair(GetToken(PPHSC_RU_EXTRA2), GetToken(PPHSC_RU_EXTRA_MATERIALCODE), goods_ar_code);
 				}
-				else if(barcode_for_exchange.NotEmpty()) {
-					G.WriteIdentifValPair(GetToken(PPHSC_RU_EXTRA2), GetToken(PPHSC_RU_EXTRA_MATERIALCODE), barcode_for_exchange);
+				else if(goods_code_set.CodeForExchange.NotEmpty()) {
+					G.WriteIdentifValPair(GetToken(PPHSC_RU_EXTRA2), GetToken(PPHSC_RU_EXTRA_MATERIALCODE), goods_code_set.CodeForExchange);
 				}
 			}
 			else {
-				if(barcode_for_exchange.NotEmpty()) {
+				if(goods_code_set.CodeForExchange.NotEmpty()) {
 					// @v12.0.0 Это - какой-то бред: я для каждого ебнутого покупателя должен буду вставлять одно и то же с разными тегами? {
-					G.WriteIdentifValPair(GetToken(PPHSC_RU_EXTRA2), GetToken(PPHSC_RU_GOODSCODE_BUYER), barcode_for_exchange);
+					G.WriteIdentifValPair(GetToken(PPHSC_RU_EXTRA2), GetToken(PPHSC_RU_GOODSCODE_BUYER), goods_code_set.CodeForExchange);
 					// } @v12.0.0 
 				}
 				if(goods_ar_code.NotEmpty()) {
@@ -8522,6 +8568,14 @@ int DocNalogRu_Generator::GetAgreementParams(/*PPID arID*/const PPBillPacket & r
 		*/
 	}
 	return ok;
+}
+
+DocNalogRu_Generator::GoodsCodeSet & DocNalogRu_Generator::GoodsCodeSet::Z()
+{
+	Code.Z();
+	CodeForMarking.Z();
+	CodeForExchange.Z();
+	return *this;
 }
 //
 // Обрабатываемые notch-теги: 

@@ -386,7 +386,7 @@ private:
 class PPDS_CrrGoodsType : public PPDeclStruc {
 public:
 	PPDS_CrrGoodsType() : PPDeclStruc() {}
-	PPGoodsType Data;
+	PPGoodsType2 Data;
 private:
 	virtual int InitData(Ido op, void * dataPtr, long addedParam);
 	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);

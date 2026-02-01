@@ -534,10 +534,10 @@ int WhatmanObjectUiCtrl::Draw(TCanvas2 & rCanv)
 		}
 	}
 	else if(UiKind == UiItemKind::kListbox) {
-		rCanv.DrawEdge(b, TCanvas2::edgeSunken, TCanvas2::borderRect | TCanvas2::borderAdjust);
+		rCanv.DrawEdge(b, TCanvas2::edgeSunken, TCanvas2::borderRect|TCanvas2::borderAdjust);
 	}
 	else if(UiKind == UiItemKind::kTreeListbox) {
-		rCanv.DrawEdge(b, TCanvas2::edgeSunken, TCanvas2::borderRect | TCanvas2::borderAdjust);
+		rCanv.DrawEdge(b, TCanvas2::edgeSunken, TCanvas2::borderRect|TCanvas2::borderAdjust);
 	}
 	else {
 		rCanv.DrawFrame(b, 1, SPaintToolBox::rbrWindowFrame);

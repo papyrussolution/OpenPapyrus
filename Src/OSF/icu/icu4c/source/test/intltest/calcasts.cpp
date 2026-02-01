@@ -1,15 +1,10 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/********************************************************************
-* COPYRIGHT:
-* Copyright (c) 2003-2013, International Business Machines Corporation
-* and others. All Rights Reserved.
-********************************************************************
-* Calendar Case Test is a type of CalendarTest which compares the
-* behavior of a calendar to a certain set of 'test cases', involving
-* conversion between julian-day to fields and vice versa.
-********************************************************************/
-
+// Copyright (c) 2003-2013, International Business Machines Corporation and others. All Rights Reserved.
+// Calendar Case Test is a type of CalendarTest which compares the
+// behavior of a calendar to a certain set of 'test cases', involving
+// conversion between julian-day to fields and vice versa.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "calcasts.h"
@@ -26,7 +21,8 @@
 
 void CalendarCaseTest::runIndexedTest(int32_t index, bool exec, const char *& name, char * /*par*/)
 {
-	if(exec) logln("TestSuite CalendarCaseTest");
+	if(exec) 
+		logln("TestSuite CalendarCaseTest");
 	switch(index) {
 		CASE(0, IslamicCivil);
 		CASE(1, Hebrew);
@@ -41,25 +37,22 @@ void CalendarCaseTest::runIndexedTest(int32_t index, bool exec, const char *& na
 
 // ======= Utility functions =================
 
-void CalendarCaseTest::doTestCases(const TestCase * cases, Calendar * cal) {
+void CalendarCaseTest::doTestCases(const TestCase * cases, Calendar * cal) 
+{
 	static const int32_t ONE_SECOND = 1000;
 	static const int32_t ONE_MINUTE = 60*ONE_SECOND;
 	static const int32_t ONE_HOUR   = 60*ONE_MINUTE;
-	static const double ONE_DAY    = 24*ONE_HOUR;
+	static const double one_day_ms  = 24*ONE_HOUR;
 	static const double JULIAN_EPOCH = -210866760000000.; // 1/1/4713 BC 12:00
 	int32_t i;
 	UErrorCode status = U_ZERO_ERROR;
 	cal->adoptTimeZone(TimeZone::getGMT()->clone());
 	for(i = 0; cases[i].era>=0; i++) {
-		UDate t = (JULIAN_EPOCH+(ONE_DAY*cases[i].julian));
-
+		UDate t = (JULIAN_EPOCH+(one_day_ms*cases[i].julian));
 		logln("Test case %d:  julianday%f -> date %f\n", i, cases[i].julian, t);
-
 		// Millis -> fields
 		cal->setTime(t, status);
-
 		logln(calToStr(*cal));
-
 		checkField(cal, UCAL_ERA, cases[i].era, status);
 		checkField(cal, UCAL_YEAR, cases[i].year, status);
 		checkField(cal, UCAL_MONTH, cases[i].month - 1, status);

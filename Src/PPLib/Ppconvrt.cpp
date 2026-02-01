@@ -37,7 +37,7 @@ int ConvertCipher(const char * pDbSymb, const char * pMasterPassword, const char
 				THROW(DS.OpenDictionary2(&dblb, 0));
 				is_dict_opened = 1;
 				PPID   user_id = 0;
-				PPSecur sec_rec;
+				PPSecur2 sec_rec;
 				THROW_MEM(PPRef = new Reference);
 				THROW_MEM(BillObj = new PPObjBill(0));
 				Reference * p_ref(PPRef);

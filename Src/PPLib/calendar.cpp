@@ -1,11 +1,12 @@
 // CALENDAR.CPP
-// Copyright (c) A.Fedotkov, A.Sobolev, A.Starodub 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Fedotkov, A.Sobolev, A.Starodub 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
 
 const char * GetCalCtrlSignature(int type) { return type ? "papyruscalendarperiod" : "papyruscalendardate"; }
+int    showInputLineCalc(TDialog *, uint); // Prototype
 
 static LRESULT CALLBACK CalendarWndProc(HWND, UINT, WPARAM, LPARAM);
 static INT_PTR CALLBACK PeriodWndProc(HWND, UINT, WPARAM, LPARAM);
@@ -1678,6 +1679,10 @@ int PPExecSupplementWindow(int supplementKind, void * hParentWnd, uint linkCtlId
 		if(ok > 0)
 			ASSIGN_PTR(pData, data);
 	}
+	else if(supplementKind == SUiCtrlSupplement::kCalc) { // @v12.5.5
+		if(p_parent)
+			showInputLineCalc(p_parent, linkCtlId);
+	}
 	else if(supplementKind == SUiCtrlSupplement::kFileBrowse) { // @v12.3.10
 		;
 	}
@@ -2902,15 +2907,14 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 				}
 			}
 			{
-				const TRect _def_rect(0, 0, 10, 10);
 				if(Kind == SUiCtrlSupplement::kDateCalendar)
-					InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@today", cmNow, 0, 0), CTL_CALENDAR_TODAY, 0, /*extraPtr*/0);
+					InsertCtlWithCorrespondingNativeItem(new TButton(TRect::_defr_, "@today", cmNow, 0, 0), CTL_CALENDAR_TODAY, 0, /*extraPtr*/0);
 				if(Kind == SUiCtrlSupplement::kTime)
-					InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@currenttime", cmNow, 0, 0), CTL_CALENDAR_TODAY, 0, /*extraPtr*/0);
+					InsertCtlWithCorrespondingNativeItem(new TButton(TRect::_defr_, "@currenttime", cmNow, 0, 0), CTL_CALENDAR_TODAY, 0, /*extraPtr*/0);
 				else if(Kind == SUiCtrlSupplement::kDateRangeCalendar) {
 					{
-						TInputLine * p_il = new TInputLine(_def_rect, 0/*spcFlags*/, S_ZSTRING, MKSFMT(128, 0));
-						ComboBox * p_cb = new ComboBox(_def_rect, cbxAllowEmpty|cbxDisposeData|cbxListOnly, p_il);
+						TInputLine * p_il = new TInputLine(TRect::_defr_, 0/*spcFlags*/, S_ZSTRING, MKSFMT(128, 0));
+						ComboBox * p_cb = new ComboBox(TRect::_defr_, cbxAllowEmpty|cbxDisposeData|cbxListOnly, p_il);
 						p_il->SetId(CTL_CALENDAR_FASTPRD);
 						p_cb->SetId(CTLSEL_CALENDAR_FASTPRD);
 						InsertCtlWithCorrespondingNativeItem(p_cb, CTLSEL_CALENDAR_FASTPRD, 0, /*extraPtr*/0);
@@ -2929,19 +2933,19 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 						}
 					}
 					{
-						TInputLine * p_il = new TInputLine(_def_rect, 0/*spcFlags*/, MKSTYPE(S_ZSTRING, 256), MKSFMT(256, 0));
-						TLabel * p_lbl = new TLabel(_def_rect, "@daterange", p_il);
+						TInputLine * p_il = new TInputLine(TRect::_defr_, 0/*spcFlags*/, MKSTYPE(S_ZSTRING, 256), MKSFMT(256, 0));
+						TLabel * p_lbl = new TLabel(TRect::_defr_, "@daterange", p_il);
 						InsertCtlWithCorrespondingNativeItem(p_il, CTL_CALENDAR_PERIODEDIT, 0, /*extraPtr*/0);
 						InsertCtlWithCorrespondingNativeItem(p_lbl, 0, 0, /*extraPtr*/0);
 					}
 					{
-						InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "<<..", cmPeriodResetLeft, 0, 0), CTL_CALENDAR_LEFTRESET, 0, /*extraPtr*/0);
-						InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "...", cmPeriodReset, 0, 0), CTL_CALENDAR_RESET, 0, /*extraPtr*/0);
-						InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "..>>", cmPeriodResetRight, 0, 0), CTL_CALENDAR_RIGHTRESET, 0, /*extraPtr*/0);
+						InsertCtlWithCorrespondingNativeItem(new TButton(TRect::_defr_, "<<..", cmPeriodResetLeft, 0, 0), CTL_CALENDAR_LEFTRESET, 0, /*extraPtr*/0);
+						InsertCtlWithCorrespondingNativeItem(new TButton(TRect::_defr_, "...", cmPeriodReset, 0, 0), CTL_CALENDAR_RESET, 0, /*extraPtr*/0);
+						InsertCtlWithCorrespondingNativeItem(new TButton(TRect::_defr_, "..>>", cmPeriodResetRight, 0, 0), CTL_CALENDAR_RIGHTRESET, 0, /*extraPtr*/0);
 					}
 				}
-				InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_ok", cmOK, TButton::spcfDefault, 0), STDCTL_OKBUTTON, 0, /*extraPtr*/0);
-				InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_cancel", cmCancel, 0, 0), STDCTL_CANCELBUTTON, 0, /*extraPtr*/0);
+				InsertCtlWithCorrespondingNativeItem(new TButton(TRect::_defr_, "@but_ok", cmOK, TButton::spcfDefault, 0), STDCTL_OKBUTTON, 0, /*extraPtr*/0);
+				InsertCtlWithCorrespondingNativeItem(new TButton(TRect::_defr_, "@but_cancel", cmCancel, 0, 0), STDCTL_CANCELBUTTON, 0, /*extraPtr*/0);
 			}
 			CreateLayout(ISD());
 			EvaluateLayout(p_blk->Coord);
@@ -3433,24 +3437,3 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 	delete p_win;
 	return ok;
 }
-
-#if 0 // @construction finished {
-int Test_Launch_SCalendarPicker()
-{
-	int    ok = 1;
-	int    kind = SCalendarPicker::kDate/*kPeriod*//*kTime*/;
-	TRect b;
-	switch(kind) {
-		case SCalendarPicker::kDate: b.set(0, 0, 295, 340); break;
-		case SCalendarPicker::kPeriod: b.set(0, 0, 295, 440); break;
-		case SCalendarPicker::kTime: b.set(0, 0, 452, 306); break;
-	}
-	SCalendarPicker * p_win = new SCalendarPicker(kind);
-	THROW_MEM(p_win);
-	p_win->setBounds(b);
-	ok = APPL->P_DeskTop->execView(p_win);
-	CATCHZOK
-	delete p_win;
-	return ok;
-}
-#endif // } @construction finished

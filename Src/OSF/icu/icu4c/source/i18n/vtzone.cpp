@@ -1079,11 +1079,9 @@ VTimeZone* VTimeZone::createVTimeZoneByID(const UnicodeString & ID)
 	vtz->tz->getID(vtz->olsonzid);
 	// Set ICU tzdata version
 	UErrorCode status = U_ZERO_ERROR;
-	UResourceBundle * bundle = nullptr;
-	const char16_t * versionStr = nullptr;
 	int32_t len = 0;
-	bundle = ures_openDirect(nullptr, "zoneinfo64", &status);
-	versionStr = ures_getStringByKey(bundle, "TZVersion", &len, &status);
+	UResourceBundle * bundle = ures_openDirect(nullptr, "zoneinfo64", &status);
+	const char16_t * versionStr = ures_getStringByKey(bundle, "TZVersion", &len, &status);
 	if(U_SUCCESS(status)) {
 		vtz->icutzver.setTo(versionStr, len);
 	}
@@ -1107,13 +1105,10 @@ VTimeZone* VTimeZone::createVTimeZoneFromBasicTimeZone(const BasicTimeZone& basi
 		return nullptr;
 	}
 	vtz->tz->getID(vtz->olsonzid);
-
 	// Set ICU tzdata version
-	UResourceBundle * bundle = nullptr;
-	const char16_t * versionStr = nullptr;
 	int32_t len = 0;
-	bundle = ures_openDirect(nullptr, "zoneinfo64", &status);
-	versionStr = ures_getStringByKey(bundle, "TZVersion", &len, &status);
+	UResourceBundle * bundle = ures_openDirect(nullptr, "zoneinfo64", &status);
+	const char16_t * versionStr = ures_getStringByKey(bundle, "TZVersion", &len, &status);
 	if(U_SUCCESS(status)) {
 		vtz->icutzver.setTo(versionStr, len);
 	}
@@ -1121,7 +1116,8 @@ VTimeZone* VTimeZone::createVTimeZoneFromBasicTimeZone(const BasicTimeZone& basi
 	return vtz;
 }
 
-VTimeZone* VTimeZone::createVTimeZone(const UnicodeString & vtzdata, UErrorCode & status) {
+VTimeZone* VTimeZone::createVTimeZone(const UnicodeString & vtzdata, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return nullptr;
 	}
@@ -1139,19 +1135,23 @@ VTimeZone* VTimeZone::createVTimeZone(const UnicodeString & vtzdata, UErrorCode 
 	return vtz;
 }
 
-bool VTimeZone::getTZURL(UnicodeString & url) const {
+bool VTimeZone::getTZURL(UnicodeString & url) const 
+{
 	if(tzurl.length() > 0) {
 		url = tzurl;
 		return TRUE;
 	}
-	return FALSE;
+	else
+		return FALSE;
 }
 
-void VTimeZone::setTZURL(const UnicodeString & url) {
+void VTimeZone::setTZURL(const UnicodeString & url) 
+{
 	tzurl = url;
 }
 
-bool VTimeZone::getLastModified(UDate& lastModified) const {
+bool VTimeZone::getLastModified(UDate& lastModified) const 
+{
 	if(lastmod != MAX_MILLIS) {
 		lastModified = lastmod;
 		return TRUE;
@@ -1159,11 +1159,13 @@ bool VTimeZone::getLastModified(UDate& lastModified) const {
 	return FALSE;
 }
 
-void VTimeZone::setLastModified(UDate lastModified) {
+void VTimeZone::setLastModified(UDate lastModified) 
+{
 	lastmod = lastModified;
 }
 
-void VTimeZone::write(UnicodeString & result, UErrorCode & status) const {
+void VTimeZone::write(UnicodeString & result, UErrorCode & status) const 
+{
 	result.remove();
 	VTZWriter writer(result);
 	write(writer, status);

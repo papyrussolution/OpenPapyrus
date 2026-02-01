@@ -2162,7 +2162,7 @@ void PPObjGoods::GetSubstText(PPID id, SubstGrpGoods sgg, const GoodsSubstList *
 	}
 	else if(sgg == sggType) {
 		PPObjGoodsType gt_obj;
-		PPGoodsType gt_rec;
+		PPGoodsType2 gt_rec;
 		if(gt_obj.Fetch(id & ~GOODSSUBSTMASK, &gt_rec) > 0)
 			rBuf = gt_rec.Name;
 	}
@@ -2419,18 +2419,18 @@ bool PPObjGoods::CheckFlag(PPID goodsID, long flag)
 
 bool PPObjGoods::IsAssetType(PPID goodsTypeID)
 {
-	PPGoodsType gt_rec;
+	PPGoodsType2 gt_rec;
 	return (goodsTypeID && GtObj.Fetch(goodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_ASSETS);
 }
 
-int PPObjGoods::FetchGoodsType(PPID goodsTypeID, PPGoodsType * pGtRec) { return GtObj.Fetch(goodsTypeID, pGtRec); }
+int PPObjGoods::FetchGoodsType(PPID goodsTypeID, PPGoodsType2 * pGtRec) { return GtObj.Fetch(goodsTypeID, pGtRec); }
 
 bool PPObjGoods::IsZeroPriceAllowed(PPID goodsID)
 {
 	bool   yes = false;
 	Goods2Tbl::Rec goods_rec;
 	if(Fetch(goodsID, &goods_rec) > 0) {
-		PPGoodsType gt_rec;
+		PPGoodsType2 gt_rec;
 		// @v11.7.4 Поправка на default-тип товара
 		const  PPID gt_id = NZOR(goods_rec.GoodsTypeID, PPGT_DEFAULT);
 		yes = (GtObj.Fetch(gt_id, &gt_rec) > 0 && gt_rec.Flags & GTF_ALLOWZEROPRICE); 
@@ -2443,7 +2443,7 @@ bool PPObjGoods::IsChZnCtWtGoods(PPID goodsID) // @v12.1.4
 	bool   result = false;
 	Goods2Tbl::Rec goods_rec;
 	if(Fetch(goodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID) {
-		PPGoodsType gt_rec;
+		PPGoodsType2 gt_rec;
 		if(FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
 			if(gt_rec.Flags & GTF_GMARKED && gt_rec.ChZnProdType == GTCHZNPT_MILK) {
 				double ratio_liter = 0.0;
@@ -3059,8 +3059,18 @@ ListBoxDef * PPObjGoods::_Selector2(ListBoxDef * pDef, long parentID, long optio
 		GoodsCore * p_tbl = P_Tbl;
 		BExtQuery q(p_tbl, (options & selfByName) ? 2 : 4);
 		DBQ * dbq = &(p_tbl->Kind == Kind);
-		if(Kind == PPGDSK_TRANSPORT && reinterpret_cast<long>(extraPtr))
-			dbq = &(*dbq && p_tbl->GdsClsID == reinterpret_cast<long>(extraPtr));
+		SString temp_buf;
+		SString code_buf;
+		bool    tr_concat_code = false;
+		if(Kind == PPGDSK_TRANSPORT) {
+			PPTransportConfig tr_cfg;
+			if(p_tbl->FetchTrConfig(&tr_cfg) > 0 && tr_cfg.Flags & PPTransportConfig::fConcatCarNumToTextInList) {
+				tr_concat_code = true;
+			}
+			if(reinterpret_cast<long>(extraPtr)) {
+				dbq = &(*dbq && p_tbl->GdsClsID == reinterpret_cast<long>(extraPtr));
+			}
+		}
 		q.select(p_tbl->ID, p_tbl->Name, p_tbl->GoodsTypeID, p_tbl->Flags, 0L).where(*dbq);
 		MEMSZERO(k_);
 		k_.k2.Kind = Kind;
@@ -3068,7 +3078,19 @@ ListBoxDef * PPObjGoods::_Selector2(ListBoxDef * pDef, long parentID, long optio
 		THROW_MEM(p_array);
 		for(q.initIteration(false, &k_, spGe); q.nextIteration() > 0;) {
 			if(!(Kind == PPGDSK_TRANSPORT && p_tbl->data.Flags & GF_PASSIV)) {
-				THROW_SL(p_array->AddFast(p_tbl->data.ID, p_tbl->data.Name));
+				const  PPID iter_id = p_tbl->data.ID;
+				temp_buf = p_tbl->data.Name;
+				// @v12.5.5 {
+				if(tr_concat_code) {
+					PPObjTransport::GetRegisterCodes(p_tbl, iter_id, &code_buf, 0);
+					if(code_buf.NotEmptyS()) {
+						if(temp_buf.NotEmptyS())
+							temp_buf.CatDiv('-', 1);
+						temp_buf.Cat(code_buf);
+					}
+				}
+				// } @v12.5.5 
+				THROW_SL(p_array->AddFast(iter_id, temp_buf));
 			}
 		}
 	}
@@ -3225,7 +3247,7 @@ int PPObjGoods::CheckBarcodeList(const PPGoodsPacket * pPack)
 		GetConfig().GetCodeLenList(&code_len_list, &allow_empty);
 		{
 			PPID   gt_id = NZOR(pPack->Rec.GoodsTypeID, PPGT_DEFAULT);
-			PPGoodsType gt_rec;
+			PPGoodsType2 gt_rec;
 			if(gt_id && GtObj.Fetch(gt_id, &gt_rec) > 0 && gt_rec.Flags & GTF_REQBARCODE)
 				allow_empty = 0;
 		}
@@ -3642,8 +3664,6 @@ int PPObjGoods::GetHierarchy(PPID goodsID, StrAssocArray * pList)
 
 ListBoxDef * PPObjGoods::Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr)
 	{ return (ImplementFlags & implStrAssocMakeList) ? PPObject::Selector(pOrgDef, flags, extraPtr) : _Selector2(pOrgDef, reinterpret_cast<long>(extraPtr), 0, 0, 0, 0); }
-/*int PPObjGoods::UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr)
-	{ return (ImplementFlags & implStrAssocMakeList) ? PPObject::UpdateSelector(pDef, flags, extraPtr) : BIN(_Selector2(pDef, reinterpret_cast<long>(extraPtr), 0, 0, 0, 0)); }*/
 
 int PPObjGoods::Browse(void * extraPtr /*groupID*/)
 {
@@ -4548,8 +4568,7 @@ int GoodsStockExt::ConvertCargoUnits(int fromCargoUnit, int toCargoUnit, PPID pa
 	return ok;
 }
 
-int PPObjGoods::GetStockExt(PPID id, GoodsStockExt * pData, int useCache /*=0*/)
-	{ return P_Tbl->GetStockExt(id, pData, useCache); }
+int PPObjGoods::GetStockExt(PPID id, GoodsStockExt * pData, int useCache/*=0*/) { return P_Tbl->GetStockExt(id, pData, useCache); }
 
 int PPObjGoods::GetAltGenGoodsList(PPID goodsID, int kind, RAssocArray * pList)
 {

@@ -541,7 +541,7 @@ int SelectObjectBlock::DistribCCheck::Begin(PPID * pID, const Header & rHdr)
 		CCheckTbl::Rec cc_rec;
 		cc_rec.PosNodeID = rHdr.PosNodeID;
 		{
-			PPSecur sec_rec;
+			PPSecur2 sec_rec;
 			PPObjSecur sec_obj(PPOBJ_USR, 0);
 			if(sec_obj.Fetch(LConfig.UserID, &sec_rec) > 0)
 				cc_rec.UserID = sec_rec.PersonID;

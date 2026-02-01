@@ -1,5 +1,5 @@
 // OBJLOCTN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage Windows-1251
 //
 #include <pp.h>
@@ -1042,14 +1042,6 @@ int PPObjLocation::AssignImages(ListBoxDef * pDef)
 	AssignImages(p_def);
 	return p_def;
 }
-
-/*virtual*//*int PPObjLocation::UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr)
-{
-	int    ok = PPObject::UpdateSelector(pDef, flags, extraPtr);
-	if(ok > 0)
-		AssignImages(pDef);
-	return ok;
-}*/
 
 int PPObjLocation::GenerateWhCells(PPID whColumnID, const LocationTbl::Rec * pSampleRec, int use_ta)
 {

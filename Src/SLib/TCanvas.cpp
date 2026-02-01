@@ -2594,10 +2594,7 @@ int FASTCALL STextLayout::Copy(const STextLayout & rS)
 	return 1;
 }
 
-const FRect & STextLayout::GetBounds() const
-{
-	return Bounds;
-}
+const FRect & STextLayout::GetBounds() const { return Bounds; }
 
 FRect STextLayout::GetBkgBounds() const
 {
@@ -4057,7 +4054,8 @@ int SPaintObj::SetFont(HFONT handle)
 int SPaintObj::CreateCursor(uint cursorId)
 {
 	int    ok = 1;
-	HCURSOR handle = static_cast<HCURSOR>(::LoadImage(TProgram::GetInst(), MAKEINTRESOURCE(cursorId), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE));
+	HINSTANCE h_inst = SLS.GetHInst(); // @v12.5.5 TProgram::GetInst()-->SLS.GetHInst()
+	HCURSOR handle = static_cast<HCURSOR>(::LoadImageW(h_inst, MAKEINTRESOURCEW(cursorId), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE));
 	if(handle) {
 		Destroy();
 		T = tCursor;

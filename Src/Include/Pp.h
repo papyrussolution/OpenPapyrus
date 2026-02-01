@@ -443,6 +443,7 @@ class PrcssrMarketplaceInterchange;
 struct PEExportOptions; // @v12.3.11
 class DocNalogRu_WriteBillBlock; // @v12.4.11
 struct PPGoodsTaxEntry;
+struct PPTransportConfig; // @v12.5.5
 
 typedef struct bignum_st BIGNUM; // OpenSSL
 typedef int32 PPID; // @v11.6.8 long-->int32
@@ -2196,8 +2197,8 @@ private:
 
 class PPRights {
 public:
-	static ushort GetDefaultFlags();
-	static long   GetDefaultOprFlags();
+	static constexpr ushort GetDefaultFlags() { return static_cast<ushort>(0xffff & ~PPR_ADM); }
+	static constexpr long   GetDefaultOprFlags() { return 0xffffffffL; }
 
 	PPRights();
 	PPRights(const PPRights & rS);
@@ -3690,11 +3691,11 @@ struct PPSecurPacket {
 	PPSecurPacket(const PPSecurPacket & rS);
 	bool   FASTCALL IsEq(const PPSecurPacket & rS) const;
 	PPSecurPacket & FASTCALL operator = (const PPSecurPacket & rS);
-	PPSecur  Secur;
+	PPSecur2 Secur;
 	PPConfig Config;
 	PPPaths  Paths;
 	PPRights Rights;
-	S_GUID PrivateDesktopUUID; // @v11.0.0 UUID приватного рабочего стола пользователя, используемый если конфигурация наследуется //
+	S_GUID PrivateDesktopUUID; // UUID приватного рабочего стола пользователя, используемый если конфигурация наследуется //
 };
 
 struct PropPPIDArray {
@@ -3724,7 +3725,7 @@ public:
 	};
 	static int Encrypt(int cryptMethod, const char * pText, char * pBuf, size_t bufLen);
 	static int Decrypt(int cryptMethod, const char * pBuf, size_t bufLen, SString & rText);
-	static int GetPassword(const PPSecur * pSecur, char * pBuf, size_t bufLen);
+	static int GetPassword(const PPSecur2 * pSecur, char * pBuf, size_t bufLen);
 	static int VerifySecur(PPSecur2 * pSecur, int set);
 	static int GetExField(const PPConfigPrivate * pRec, int fldId, SString & rBuf);
 	static int SetExField(PPConfigPrivate * pRec, int fldId, const char * pBuf);
@@ -3954,7 +3955,7 @@ private:
 //   функцией PPObjGoods::SerializePacket. То есть, добавлять новые поля в эту структуру можно,
 //   однако менять типы существующий полей недопустимо.
 //
-struct PPQuot { // @persistent(DBX see Note above)
+struct PPQuot { // @persistent(DBX see Note above) @flat
 	//
 	// Descr: Реализация форматирования значения котировки.
 	//
@@ -3981,7 +3982,23 @@ struct PPQuot { // @persistent(DBX see Note above)
 		fAggrCount     = 0x0200, // @transient Специальный флаг, указывающий, что значение хранит
 			// аггрегированное суммарное количество котировок, соответствующих заданным критериям.
 			// Используется только в отчетах
-		fDbMask        = (fPctOnCost|fPctOnPrice|fPctOnAddition|fPctDisabled|fPctOnBase|fWithoutTaxes|fZero)
+		fAbsOnCost     = 0x0400, // @v12.5.5 Абсолютная наценка к цене поступления (Cost)   '$c' //
+		fAbsOnPrice    = 0x0800, // @v12.5.5 Абсолютная наценка к цене реализации (Price)   '$p' //
+		fDbMask        = (fPctOnCost|fPctOnPrice|fPctOnAddition|fPctDisabled|fPctOnBase|fWithoutTaxes|fZero|fAbsOnCost|fAbsOnPrice)
+	};
+	//
+	// Descr: Трактовка значений котировок (производное от Flags)
+	//
+	enum {
+		meanAbsolute    = 0, // Абсолютное ненулевое значение 
+		meanZero        = 1, // Явно заданное нулевое значение
+		meanDisabled    = 2, // Заблокированная котировка                      'X' //
+		meanPctOnCost   = 3, // Наценка в процентах к цене поступления (Cost)  'C' //
+		meanPctOnPrice  = 4, // Наценка в процентах к цене реализации  (Price) 'P' //
+		meanPctOnBase   = 5, // Наценка в процентах к базовой котировке        'Q' //
+		meanPctOnMarkup = 6, // Наценка в процентах к наценке (Price-Cost)     'D' //
+		meanAbsOnCost   = 7, // Абсолютная наценка к цене поступления (Cost)   '$c' //
+		meanAbsOnPrice  = 8, // Абсолютная наценка к цене реализации (Price)   '$p' //
 	};
 	//
 	// Descr: Классы котировок
@@ -4011,7 +4028,30 @@ struct PPQuot { // @persistent(DBX see Note above)
 	PPQuot(const QuotationTbl::Rec &);
 	PPQuot & FASTCALL operator = (const QuotationTbl::Rec &);
 	QuotIdent & FASTCALL MakeIdent(QuotIdent & rQi) const;
-	void   Clear();
+	//
+	// Descr: Функция определяет присутствует ли неоднозначность во флагах Flags.
+	//   Под неоднозначностью здесь подразумевается наличие более одного флага, ответственного за трактовку значения котировки.
+	//
+	bool   IsThereAmbiguityInFlags() const;
+	static bool   IsThereAmbiguityInFlags(long flags);
+	//
+	// Descr: Функция возвращает метод трактовки значения котировки в зависимости от флагов.
+	//   То есть, транслирует Flags-->Mean
+	// Returns:
+	//   Одно из значений PPQuot::meanXXX
+	//
+	int    GetMean() const;   // @v12.5.5
+	static int GetMean(long flags); // @v12.5.5
+	//
+	// Descr: Устанавливает метод трактовки значения котировки.
+	//   То есть, транслирует Mean-->Flags
+	// Returns:
+	//   >0 - функция изменила флаги по заданному значению mean
+	//   <0 - ничего менять не пришлось - флаги уже установлены в значении mean
+	//    0 - error. Недопустимый аргумент mean или инвалидное внутреннее состояние объекта.
+	//
+	int    SetMean(int mean); // @v12.5.5
+	PPQuot & Z(); // @v12.5.5 Clear()-->Z()
 	enum {
 		cmpFull  = 0x0000,
 		cmpNoID  = 0x0001, // Не брать в рассмотрение ИД котировки
@@ -4766,6 +4806,7 @@ public:
 	int    FASTCALL Fetch(PPID id, Goods2Tbl::Rec * pRec);
 	void   FASTCALL Dirty(PPID id);
 	int    FASTCALL FetchConfig(PPGoodsConfig * pCfg);
+	int    FASTCALL FetchTrConfig(PPTransportConfig * pCfg);
 	int    DirtyConfig();
 	//
 	// Descr: Функция возвращает указатель на полный список товаров. Список представлен
@@ -5365,6 +5406,8 @@ struct PPCommConfig {      // @persistent @store(PropertyTbl)
 	LDATE  LcrUsageSince;               // Текущие остатки по лотам учитывать начиная с этой даты
 	uint32 ChZnPmConnTimeout;           // @v12.4.2 def=3000 Таймаут (ms) ожидания соединения с онлайн-сервером честный знак для проверки марки
 	uint32 ChZnPmOvrallTimeout;         // @v12.4.2 def=4000 Таймаут (ms) общего времени обработки запроса к онлайн-серверу честный знак для проверки марки
+	uint32 ChZnPmLocalConnTimeout;      // @v12.5.5 def=20000 Таймаут (ms) ожидания соединения с локальным сервером честный знак для проверки марки
+	uint32 ChZnPmLocalOvrallTimeout;    // @v12.5.5 def=40000 Таймаут (ms) общего времени обработки запроса к локальному серверу честный знак для проверки марки
 };
 //
 // Extra config flags (from pp.ini)
@@ -7064,8 +7107,8 @@ public:
 		kNginxServer,    // Поток сервера NGINX
 		kWorkerSession,  // Рабочий поток для исполнения команд (также является базовым для kNetSession)
 		kNginxWorker,    // Рабочий поток сервера NGINX (запускается потоком kNginxServer)
-		kStyloQServer,   // @v11.0.9 Поток сервера, принимающего запросы StyloQ
-		kStyloQSession,  // @v11.0.0 Поток, получающий управление сеансом обмена от сервера StyloQ
+		kStyloQServer,   // Поток сервера, принимающего запросы StyloQ
+		kStyloQSession,  // Поток, получающий управление сеансом обмена от сервера StyloQ
 		kCasualJob,      // @v11.4.2 Поток для исполнения утилитарной функции
 		kWsCtl,          // @v11.7.1 Поток подсистемы ws-ctl, реализующий асинхронные запросы к серверу
 		kCrr32Support,   // @v12.3.11 Поток подсистемы crr32_support
@@ -7444,7 +7487,7 @@ public:
 	int    LoadDriveMapping(PPIniFile *);
 	int    GetDriveMapping(int drive, SString & rMapping) const;
 	int    ConvertPathToUnc(SString & rPath) const;
-	int    CheckSystemAccount(DbLoginBlock * pDlb, PPSecur * pSecur);
+	int    CheckSystemAccount(DbLoginBlock * pDlb, PPSecur2 * pSecur);
 	//
 	// Descr: Результат выполнения функции LimitedOpedDatabase()
 	//
@@ -8663,12 +8706,6 @@ public:
 	//
 	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
 	//
-	// Descr: Метод PPObject::UpdateSelector по умолчанию вызывает
-	//   функцию ListBoxDef::refresh. Это подходит для селекторов,
-	//   использующих выборку с использованием DBQuery
-	//
-	// @v11.1.10 virtual int    UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr); // @>>ListBoxDef::refresh()
-	//
 	// Descr: Метод ValidateSelection вызывается функцией PPObjListWindow::valid
 	//   в ответ на команду cmOK. Если ValidateSelection возвращает
 	//   (> 0) то все проходит как и должно пройти. Если 0, то команда
@@ -9236,6 +9273,7 @@ public:
 	static void   SetGender(PersonTbl::Rec & rRec, int gender);
 	static int    GetGender(const PersonTbl::Rec & rRec);
 	PersonCore();
+	~PersonCore(); // @v12.5.5 default-деструктор нужен для отладки.
 	//
 	// Descr: Определяет, принадлежит ли персоналия personID виду kindID.
 	// Returns:
@@ -15238,7 +15276,6 @@ public:
 	int    Update(PPID id, SCardCore::Rec * pRec, int useTa);
 	int    UpdateDiscount(PPID, double discount, int use_ta);
 	int    AddTurnover(PPID, double add, int use_ta);
-	int    AddTurnover_Test(PPID id, double add, int use_ta); // @test
 	int    RecalcRestsBySeries(PPID serID, int use_ta);
 	int    MakeCodeByTemplate(PPID seriesID, const char * pPattern, SString & rCode);
 
@@ -20170,7 +20207,6 @@ public:
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr);
 	virtual void * CreateObjListWin(uint flags, void * extraPtr);
 	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
-	// @v11.1.10 virtual int  UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr);
 	virtual int  Edit(PPID * pID, void * extraPtr);
 	virtual int  RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam);
 	virtual int  ProcessReservedItem(TVRez &);
@@ -20182,7 +20218,7 @@ public:
 	// Descr: осуществляет кэшированное извлечение записи по идентификатору id.
 	//   Поля инициализируемые в записи pRec: {Tag, ID, Name, Flags, PersonID, ParentID}
 	//
-	int    FASTCALL Fetch(PPID id, PPSecur *);
+	int    FASTCALL Fetch(PPID id, PPSecur2 *);
 	int    SerializePacket(int dir, PPSecurPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 private:
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
@@ -20694,7 +20730,7 @@ struct PPGlobalUserAccConfig {
 #define PPGLS_UNIVERSEHTT   8 // Сервис Universe-HTT (бонусная система, интернет-магазин и др.)
 #define PPGLS_SHOPIFY       9 // @construction
 #define PPGLS_WILDBERRIES  10 // @v12.1.0
-#define PPGLS_APTEKARU     11 // @v12.2.0 @construction
+#define PPGLS_APTEKARU     11 // @v12.2.0
 #define PPGLS_LAST         11 // @v12.2.1 максимальное валидное значение. Поменяйте значение если вводите новый идентификатор!
 
 #define PPTRPROP_GUAEXT    (PPTRPROP_USER+1) // @v11.9.9 Суб-идентификатор записи текстовых расширений глобальной учетной записи
@@ -23826,7 +23862,6 @@ public:
 	virtual int Edit(PPID * pID, void * extraPtr);
 	virtual int Browse(void * extraPtr);
 	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
-	// @v11.1.10 virtual int UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr);
 	int    Get(PPID id, PPInternetAccount * pPack);
 	int    Put(PPID * pID, const PPInternetAccount * pPack, int use_ta);
 private:
@@ -24539,6 +24574,8 @@ private:
 	// кассового чека с товаром, имеющим тип с таким флагом. Сам товар может не идентифицироваться как алкогольный, но если он имеет комплектующую 
 	// товарную структуру, в которую входят алкогольные товары с марками, то формируется специальная алгоритмическая структура для списания долей этих товаров
 	// через егаис.
+#define GTF_GMARKED_WHS    0x00040000L // @v12.5.5 Оптовая отгрузка маркированных товаров по-марочная. Предполагает наличие флага GTF_GMARKED.
+	// Причина ввода признака в том, что часть маркируемой продукции при оптовой продаже должна отгружаться по-марочно, часть - общей массой без дифференциации по маркам.
 
 #define GTCHZNPT_UNKN              -1 // @v11.5.0 Специальное интерфейсное значение, используемое для обозначения того, что товар маркируемый, но категория в терминах честного знака не ясна
 #define GTCHZNPT_UNDEF              0
@@ -24598,7 +24635,7 @@ public:
 	// Descr: осуществляет кэшированное извлечение записи по идентификатору id.
 	//   Поля инициализируемые в записи pRec: {Tag, ID, Name, WrOffGrpID, AmtCost, AmtPrice, AmtDscnt, AmtCVat, Flags}
 	//
-	int    FASTCALL Fetch(PPID id, PPGoodsType *);
+	int    FASTCALL Fetch(PPID id, PPGoodsType2 *);
 	bool   FASTCALL IsUnlim(PPID id);
 private:
 	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
@@ -26605,12 +26642,11 @@ public:
 	explicit PPObjLocation(void * extraPtr = 0);
 	~PPObjLocation();
 	virtual int  Search(PPID id, void * b = 0);
-	virtual int  RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam); // @v11.0.4
+	virtual int  RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam);
 	virtual void FASTCALL Dirty(PPID id); // @macrow
 	virtual int  Browse(void * extraPtr);
 	virtual int  Edit(PPID * pID, void * extraPtr);
 	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
-	// @v11.1.10 virtual int UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr);
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr);
 		// @>>PPObjLocation::MakeList(const LocationFilt, long)
 	//
@@ -27716,7 +27752,6 @@ private:
 	friend int FASTCALL GetPersonName(PPID id, SString & rBuf);
 
 	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
-	// @v11.1.10 virtual int  UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr);
 	virtual int  DeleteObj(PPID id);
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual int  EditRights(uint, ObjRights *, EmbedDialog * = 0);
@@ -30632,7 +30667,6 @@ public:
 	// товары, которые есть в наличии на текущей позиции.
 	//
 	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
-	// @v11.1.10 virtual int UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr);
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr);
 	const  PPGoodsConfig & GetConfig() const;
 	//
@@ -30681,15 +30715,17 @@ public:
 	int    AddBySample(PPID *, PPID sampleID);
 
 	enum {
-		selfByName = 0x0001, // В списке показывать наименования //
-		selfHidePassive    = 0x0002, // Не показывать пассивные товары
-		selfForcePassive   = 0x0004, // Показывать пассивные товары
+		selfByName                = 0x0001, // В списке показывать наименования //
+		selfHidePassive           = 0x0002, // Не показывать пассивные товары
+		selfForcePassive          = 0x0004, // Показывать пассивные товары
 			// Если !selfHidePassive && !selfForcePassive, то функция выясняет
 			// показывать или нет пассивные товары по флагу GCF_DONTSELPASSIVE конфигурации товаров.
 			// Если установлены оба флага, то работает так, как будто установлен только selfHidePassive.
-		selfUseMatrix      = 0x0008, // Применять товарную матрицу
-		selfExtLongAsBrand = 0x0010, // extLong - ид Бренда
-		selfHideGeneric    = 0x0020  // Не показывать обобщенные товары
+		selfUseMatrix             = 0x0008, // Применять товарную матрицу
+		selfExtLongAsBrand        = 0x0010, // extLong - ид Бренда
+		selfHideGeneric           = 0x0020, // Не показывать обобщенные товары
+		selfTrCarNameConcatByRegN = 0x0040, // @v12.5.5 Только для транспорта - наименование автомобиля дополнять номером //
+			// Проекция флага PPTransportConfig::fConcatCarNumToTextInList
 	};
 	//
 	// Descr: Формирует ListBoxDef посредством выборки товаров (либо других объектов, управляемых
@@ -31108,7 +31144,7 @@ public:
 	//
 	// Descr: Извлекает товарный тип goodsTypeID через кэш.
 	//
-	int    FetchGoodsType(PPID goodsTypeID, PPGoodsType * pGtRec);
+	int    FetchGoodsType(PPID goodsTypeID, PPGoodsType2 * pGtRec);
 	bool   IsZeroPriceAllowed(PPID goodsID);
 	//
 	// Descr: Функция выясняет является ли товар goodsID маркируемой развесной молочной продукцией, для которой 
@@ -31649,7 +31685,6 @@ public:
 	// модифицирует PPObjGoodsGroup::Extra.
 	//
 	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
-	// @v11.1.10 virtual int  UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr);
 	int    SearchCode(const char * pCode, BarcodeTbl::Rec * = 0);
 	//
 	// Descr: Присваивает картинки каждому элементу списка для древовидных списков
@@ -31822,13 +31857,16 @@ public:
 //
 struct PPTransportConfig {
 	PPTransportConfig();
+	PPTransportConfig & Z();
 	bool   FASTCALL operator == (const PPTransportConfig & rS) const;
-
-	long   Flags;           // @reserve
+	enum {
+		fConcatCarNumToTextInList = 0x0001, // @v12.5.5 В списках выбора автомобиля добавлять к наименованию регистрационный номер 
+		fValid                    = 0x1000, // @v12.5.5 @transient Признак того, что экземпляр был нормально извлечено из базы данных
+	};
+	long   Flags;           // @flags
 	PPID   OwnerKindID;     // Вид персоналии - владельцы транспортных средств. По умолчанию - PPPRK_SHIPOWNER
 	PPID   CaptainKindID;   // Вид персоналии - капитаны (водители). По умолчанию - PPPRK_CAPTAIN
-	SString NameTemplate;   // Шаблон наименования записи. Если определен, то
-		// имя новой записи формируется автоматически по этому шаблону.
+	SString NameTemplate;   // Шаблон наименования записи. Если определен, то имя новой записи формируется автоматически по этому шаблону.
 };
 //
 // @todo @dbd_exchange Добавить теги
@@ -31876,7 +31914,22 @@ public:
 	static int FASTCALL ReadConfig(PPTransportConfig *);
 	static int FASTCALL WriteConfig(const PPTransportConfig *, int use_ta);
 	static int EditConfig();
-	PPObjTransport(void * extraPtr = 0);
+	//
+	// Descr: Специализированная функция, получающая регистрационные номера транспорта и прицепа.
+	//   Эти коды хранятся в таблице BarcodeTbl с префиксом '^' и специальными значениями Barcode::Qtty.
+	// Note: специальная функция понадобилась из-за того, что это специфическое действие необходимо не только в PPObjTransport::Get
+	//   но и при формировании списка транспортных средств (MakeList)
+	// Returns:
+	//   1 - для транспорта получено непустое значение регистрационного номера
+	//   2 - для транспорта получено непустое значение регистрационного номера прицепа
+	//   3 - для транспорта получено непустое значение регистрационного номера и номера прицепа
+	//  -1 - либо транспорт не найден либо он не имеет ни своего номера, ни номера прицепа
+	//   0 - error
+	//
+	static int GetRegisterCodes(GoodsCore * pTbl, PPID id, SString * pCode, SString * pTrailerCode); // @v12.5.5
+	explicit PPObjTransport(void * extraPtr = 0);
+	~PPObjTransport();
+	int    FetchConfig(PPTransportConfig & rCfg);
 	int    Get(PPID id, PPTransportPacket * pPack);
 	int    Put(PPID * pID, const PPTransportPacket * pPack, int use_ta);
 	int    GetNameByTemplate(PPTransport * pPack, const char * pTemplate, SString & rBuf) const;
@@ -36755,7 +36808,6 @@ public:
 	virtual int    Search(PPID id, void * b);
 	virtual int    Edit(PPID * pID, void * extraPtr);
 	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
-	// @v11.1.10 virtual int    UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr);
 	virtual int    Browse(void * extraPtr);
 	int    FASTCALL Fetch(PPID id, PPSCardSeries * pRec); // @macrow
 	int    GetPacket(PPID id, PPSCardSerPacket * pPack);
@@ -49803,8 +49855,9 @@ private:
 			//
 			fNoDiscount      = 0x0004, // OUT (устанавливается в результате вычислений) - на товар не распространяется скидка
 			fEgais           = 0x0008, // @v11.5.0 Товар является алкогольным, попадающим под маркировку егаис
-			fDontShowRest    = 0x0010  // @11.6.4 Специальный флаг, используемые при экспорте данных для индикации того, что блокировать 
+			fDontShowRest    = 0x0010, // @11.6.4 Специальный флаг, используемые при экспорте данных для индикации того, что блокировать 
 				// отображение остатков для товарной позиции
+			fMarkedWhs       = 0x0020, // @v12.5.5 chznmarkedwhs Товар маркированный и оптовая отгрузка осуществляется по-марочно 
 		};
 		PPID   GoodsID;
 		long   Flags;
@@ -58522,6 +58575,13 @@ public:
 		SXml::WNode N;
 		const bool IsCorrection;
 	};
+	struct GoodsCodeSet {
+		GoodsCodeSet & Z();
+
+		SString Code;
+		SString CodeForMarking;  // Валидный штрихкод для формирования суррогатной chzn-марки для некоторых категорий товаров
+		SString CodeForExchange; // Валидный штрихкод для передачи контрагенту с целью идентификации товара
+	};
 	DocNalogRu_Generator();
 	~DocNalogRu_Generator();
 	//
@@ -58596,6 +58656,7 @@ public:
 	void   WriteExcise2(int parentNodeTokenId, double value); // @v12.5.2
 	int    WriteWareInfoAddendum(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, uint itemIdx, 
 		const SString & rGoodsCode, const SString & rBarcodeForMarking, bool correction, const PPBillPacket * pOrgBp); // @v12.2.12
+	int    GetGoodsCodeSet(PPID goodsID, DocNalogRu_Generator::GoodsCodeSet & rSet);
 //private:
 	PPObjGoods GObj;
 	PPObjPerson PsnObj;

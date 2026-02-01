@@ -2062,7 +2062,6 @@ static int file_register_hardlink(struct archive_write * a, struct file * file)
 	}
 	return ARCHIVE_OK;
 }
-
 /*
  * Hardlinked files have to have the same location of extent.
  * We have to find out hardlink target entries for entries which
@@ -2075,13 +2074,11 @@ static void file_connect_hardlink_files(struct xar * xar)
 	struct file * target, * nf;
 	ARCHIVE_RB_TREE_FOREACH(n, &(xar->hardlink_rbtree)) {
 		hl = (struct hardlink *)n;
-		/* The first entry must be a hardlink target. */
+		// The first entry must be a hardlink target. 
 		target = hl->file_list.first;
 		archive_entry_set_nlink(target->entry, hl->nlink);
 		if(hl->nlink > 1)
-			/* It means this file is a hardlink
-			 * target itself. */
-			target->hardlink_target = target;
+			target->hardlink_target = target; // It means this file is a hardlink target itself. 
 		for(nf = target->hlnext; nf; nf = nf->hlnext) {
 			nf->hardlink_target = target;
 			archive_entry_set_nlink(nf->entry, hl->nlink);
@@ -2224,17 +2221,15 @@ static int compression_code_gzip(Archive * a, struct la_zstream * lastrm, enum l
 {
 	int r;
 	z_stream * strm = (z_stream*)lastrm->real_stream;
-	/* zlib.h is not const-correct, so we need this one bit
-	 * of ugly hackery to convert a const * pointer to
-	 * a non-const pointer. */
+	// zlib.h is not const-correct, so we need this one bit
+	// of ugly hackery to convert a const * pointer to a non-const pointer. 
 	strm->next_in = (Byte *)(uintptr_t)(const void*)lastrm->next_in;
 	strm->avail_in = lastrm->avail_in;
 	strm->total_in = (uLong)lastrm->total_in;
 	strm->next_out = lastrm->next_out;
 	strm->avail_out = lastrm->avail_out;
 	strm->total_out = (uLong)lastrm->total_out;
-	r = deflate(strm,
-		(action == ARCHIVE_Z_FINISH) ? Z_FINISH : Z_NO_FLUSH);
+	r = deflate(strm, (action == ARCHIVE_Z_FINISH) ? Z_FINISH : Z_NO_FLUSH);
 	lastrm->next_in = strm->next_in;
 	lastrm->avail_in = strm->avail_in;
 	lastrm->total_in = strm->total_in;

@@ -1606,12 +1606,12 @@ int PPViewGoodsRest::AddTotal(const PPViewGoodsRest::CacheItem & rItem)
 	Total.SumCVat  += rItem.SumCVat;
 	Total.SumPVat  += rItem.SumPVat;
 	if(GObj.Fetch(rItem.GoodsID, &goods_rec) > 0) {
-		PPGoodsType gt;
-		if(!oneof2(goods_rec.GoodsTypeID, 0, PPGT_DEFAULT) && gtobj.Fetch(goods_rec.GoodsTypeID, &gt) > 0) {
-			if(gt.AmtCost)
-				amt_type_cost = gt.AmtCost;
-			if(gt.AmtPrice)
-				amt_type_price = gt.AmtPrice;
+		PPGoodsType2 gt_rec;
+		if(!oneof2(goods_rec.GoodsTypeID, 0, PPGT_DEFAULT) && gtobj.Fetch(goods_rec.GoodsTypeID, &gt_rec) > 0) {
+			if(gt_rec.AmtCost)
+				amt_type_cost = gt_rec.AmtCost;
+			if(gt_rec.AmtPrice)
+				amt_type_price = gt_rec.AmtPrice;
 		}
 	}
 	if(Flags & fAccsCost)
@@ -3130,12 +3130,12 @@ int PPViewGoodsRest::CalcTotal(GoodsRestTotal * pTotal)
 			if(GObj.Fetch(r_rec.GoodsID, &goods_rec) > 0) {
 				const  PPID goods_type_id = goods_rec.GoodsTypeID;
 				if(goods_type_id && goods_type_id != PPGT_DEFAULT) {
-					PPGoodsType gt;
-					if(gtobj.Fetch(goods_type_id, &gt) > 0) {
-						if(gt.AmtCost)
-							amt_type_cost = gt.AmtCost;
-						if(gt.AmtPrice)
-							amt_type_price = gt.AmtPrice;
+					PPGoodsType2 gt_rec;
+					if(gtobj.Fetch(goods_type_id, &gt_rec) > 0) {
+						if(gt_rec.AmtCost)
+							amt_type_cost = gt_rec.AmtCost;
+						if(gt_rec.AmtPrice)
+							amt_type_price = gt_rec.AmtPrice;
 					}
 				}
 			}

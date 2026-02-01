@@ -1,5 +1,5 @@
 // QUOTCORE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // @Kernel
 //
@@ -82,7 +82,7 @@ PPQuotItem_::PPQuotItem_(const PPQuot & rS)
 int FASTCALL PPQuotItem_::Get(PPQuot & rDest) const
 {
 	int    ok = 1;
-	rDest.Clear();
+	rDest.Z();
 	rDest.GoodsID = GoodsID;
 	rDest.Kind = KindID;
 	rDest.LocID = LocID;
@@ -221,24 +221,86 @@ void PPQuotItemArray::Sort()
 
 PPQuot::PPQuot(PPID goodsID)
 {
-	Clear();
+	Z();
 	GoodsID = goodsID;
 }
 
-PPQuot::PPQuot(const QuotationTbl::Rec & src)
+PPQuot::PPQuot(const QuotationTbl::Rec & rS)
 {
-	GetFromRec(src);
+	GetFromRec(rS);
 }
 
-void PPQuot::Clear()
+PPQuot & PPQuot::Z()
 {
 	THISZERO();
+	return *this;
 }
 
-PPQuot & FASTCALL PPQuot::operator = (const QuotationTbl::Rec & src)
+PPQuot & FASTCALL PPQuot::operator = (const QuotationTbl::Rec & rS)
 {
-	GetFromRec(src);
+	GetFromRec(rS);
 	return *this;
+}
+
+static constexpr long PPQuot_MeanFlags = (PPQuot::fZero|PPQuot::fPctDisabled|PPQuot::fPctOnCost|PPQuot::fPctOnPrice|PPQuot::fPctOnAddition|PPQuot::fPctOnBase|PPQuot::fAbsOnCost|PPQuot::fAbsOnPrice);
+
+/*static*/bool PPQuot::IsThereAmbiguityInFlags(long flags) { return (SBits::Cpop(static_cast<uint32>(flags & PPQuot_MeanFlags)) > 1); }
+bool PPQuot::IsThereAmbiguityInFlags() const { return PPQuot::IsThereAmbiguityInFlags(Flags); }
+
+/*static*/int PPQuot::GetMean(long flags) // @v12.5.5
+{
+	int    result = meanAbsolute;
+	if(flags & fZero)
+		result = meanZero;
+	else if(flags & fPctDisabled)
+		result = meanDisabled;
+	else if(flags & fPctOnCost)
+		result = meanPctOnCost;
+	else if(flags & fPctOnPrice)
+		result = meanPctOnPrice;
+	else if(flags & fPctOnAddition)
+		result = meanPctOnMarkup;
+	else if(flags & fPctOnBase)
+		result = meanPctOnBase;
+	else if(flags & fAbsOnCost)
+		result = meanAbsOnCost;
+	else if(flags & fAbsOnPrice)
+		result = meanAbsOnPrice;
+	return result;
+}
+
+int PPQuot::GetMean() const { return PPQuot::GetMean(Flags); } // @v12.5.5
+
+int PPQuot::SetMean(int mean) // @v12.5.5
+{
+	int    result = -1;
+	const  double preserve_val = Quot;
+	const  long preserve_flags = Flags;
+	long   new_flags = (Flags & ~PPQuot_MeanFlags);
+	switch(mean) {
+		case meanAbsolute: 
+			break;
+		case meanZero: 
+			Quot = 0.0;
+			new_flags |= fZero; 
+			break;
+		case meanDisabled: 
+			Quot = 0.0;
+			new_flags |= fPctDisabled; 
+			break;
+		case meanPctOnCost: new_flags |= fPctOnCost; break;
+		case meanPctOnPrice: new_flags |= fPctOnPrice; break;
+		case meanPctOnMarkup: new_flags |= fPctOnAddition; break;
+		case meanPctOnBase: new_flags |= fPctOnBase; break;
+		case meanAbsOnCost: new_flags |= fAbsOnCost; break;
+		case meanAbsOnPrice: new_flags |= fAbsOnPrice; break;
+		default: result = 0;
+	}
+	if(result) {
+		Flags = new_flags;
+		result = (new_flags != preserve_flags || Quot != preserve_val) ? 1 : -1;
+	}
+	return result;
 }
 
 QuotIdent & FASTCALL PPQuot::MakeIdent(QuotIdent & rQi) const
@@ -265,7 +327,7 @@ bool PPQuot::IsEq(const PPQuot & rS, long flags) const
 	}
 }
 
-bool PPQuot::IsRelative() const { return LOGIC(Flags & (fPctOnCost|fPctOnPrice|fPctOnAddition|fPctOnBase)); }
+bool PPQuot::IsRelative() const { return LOGIC(Flags & (fPctOnCost|fPctOnPrice|fPctOnAddition|fPctOnBase|fAbsOnCost|fAbsOnPrice)); } // @v12.5.5 (|fAbsOnCost|fAbsOnPrice)
 bool PPQuot::IsEmpty() const { return (Quot == 0.0 && !(Flags & (fPctDisabled|fZero)) && !IsRelative()); }
 
 static double __CalcSelling(PPID quotKindID, double cost, double pc) 
@@ -276,9 +338,18 @@ static double __CalcSelling(PPID quotKindID, double cost, double pc)
 double PPQuot::CalcPrice(double cost, double price) const
 {
 	double val = 0.0;
-	if(Flags & (fPctOnCost|fPctOnPrice))
+	const  int mean = GetMean();
+	// @v12.5.5 if(Flags & (fPctOnCost|fPctOnPrice))
+	if(oneof2(mean, meanPctOnCost, meanPctOnPrice)) // @v12.5.5
 		val = __CalcSelling(Kind, (Flags & fPctOnPrice) ? price : cost, Quot);
-	else if(Flags & fPctOnAddition)
+	else if(mean == meanAbsOnCost) { // @v12.5.5
+		val = PPObjQuotKind::RoundUpPrice(Kind, cost + Quot); 
+	}
+	else if(mean == meanAbsOnPrice) { // @v12.5.5
+		val = PPObjQuotKind::RoundUpPrice(Kind, price + Quot); 
+	}
+	// @v12.5.5 else if(Flags & fPctOnAddition)
+	else if(mean == meanPctOnMarkup) // @v12.5.5
 		val = PPObjQuotKind::RoundUpPrice(Kind, price + ((price - cost) * fdiv100r(Quot)));
 	else {
 		int    dir = 0;
@@ -303,7 +374,7 @@ double PPQuot::CalcPrice(double cost, double price) const
 
 void FASTCALL PPQuot::GetFromRec(const QuotationTbl::Rec & src)
 {
-	Clear();
+	Z();
 	ID      = src.ID;
 	GoodsID = src.GoodsID;
 	LocID   = src.Location;
@@ -327,11 +398,17 @@ int FASTCALL PPQuot::GetValFromStr(const char * pStr)
 	if(len) {
 		uchar  last_sign = (uchar)ToUpper866(temp_buf[len-1]);
 		if(last_sign == 'C' || last_sign == 145 /* rus 866 'С' */) {
-			flags |= PPQuot::fPctOnCost;
+			if(len > 1 && temp_buf[len-2] == '$') // @v12.5.5
+				flags |= PPQuot::fAbsOnCost;
+			else
+				flags |= PPQuot::fPctOnCost;
 			temp_buf[len-1] = 0;
 		}
 		else if(last_sign == 'P' || last_sign == 144 /* rus 866 'Р'*/) {
-			flags |= PPQuot::fPctOnPrice;
+			if(len > 1 && temp_buf[len-2] == '$') // @v12.5.5
+				flags |= PPQuot::fAbsOnPrice;
+			else
+				flags |= PPQuot::fPctOnPrice;
 			temp_buf[len-1] = 0;
 		}
 		else if(last_sign == 'D' || last_sign == 132 /* rus 866 'Д'*/) {
@@ -368,25 +445,43 @@ int FASTCALL PPQuot::GetValFromStr(const char * pStr)
 /*static*/SString & PPQuot::PutValToStr(double val, long flags, SString & rBuf)
 {
 	rBuf.Z();
-	if(flags & PPQuot::fZero)
+	const int mean = PPQuot::GetMean(flags);
+	if(mean == meanZero)
 		rBuf.CatChar('Z');
 	else {
 		long   fmt = 0;
 		if(flags & fAggrCount)
 			fmt = MKSFMTD(0, 0, NMBF_NOZERO);
-		else if(flags & (fPctOnCost|fPctOnPrice|fPctOnAddition|fPctOnBase))
+		else if(oneof6(mean, meanPctOnCost, meanPctOnPrice, meanPctOnMarkup, meanPctOnBase, meanAbsOnCost, meanAbsOnPrice))
 			fmt = MKSFMTD(0, 2, NMBF_NOTRAILZ|NMBF_NOZERO);
 		else
 			fmt = MKSFMTD(0, 5, NMBF_NOZERO);
 		rBuf.Cat(val, fmt);
-	}
-	if(flags) {
-		if(flags & PPQuot::fPctOnPrice)         rBuf.CatChar('P');
-		else if(flags & PPQuot::fPctOnCost)     rBuf.CatChar('C');
-		else if(flags & PPQuot::fPctOnAddition) rBuf.CatChar('D');
-		else if(flags & PPQuot::fPctDisabled)   rBuf.CatChar('X');
-		else if(flags & PPQuot::fPctOnBase)     rBuf.CatChar('Q');
-		else if(flags & PPQuot::fWithoutTaxes)  rBuf.CatChar('F');
+		if(flags) {
+			/* @v12.5.5
+			if(flags & PPQuot::fPctOnPrice)         rBuf.CatChar('P');
+			else if(flags & PPQuot::fPctOnCost)     rBuf.CatChar('C');
+			else if(flags & PPQuot::fPctOnAddition) rBuf.CatChar('D');
+			else if(flags & PPQuot::fPctDisabled)   rBuf.CatChar('X');
+			else if(flags & PPQuot::fPctOnBase)     rBuf.CatChar('Q');
+			else if(flags & PPQuot::fWithoutTaxes)  rBuf.CatChar('F');
+			*/
+			// @v12.5.5 {
+			switch(mean) {
+				case PPQuot::meanAbsolute: break;
+				case PPQuot::meanPctOnCost: rBuf.CatChar('C'); break;
+				case PPQuot::meanPctOnPrice: rBuf.CatChar('P'); break;
+				case PPQuot::meanAbsOnCost: rBuf.Cat("$c"); break;
+				case PPQuot::meanAbsOnPrice: rBuf.Cat("$p"); break;
+				case PPQuot::meanPctOnMarkup: rBuf.CatChar('D'); break;
+				case PPQuot::meanDisabled: rBuf.CatChar('X'); break;
+				case PPQuot::meanPctOnBase: rBuf.CatChar('Q'); break;
+				case PPQuot::meanZero: rBuf.CatChar('Z'); break;
+			}
+			if(flags & PPQuot::fWithoutTaxes)  
+				rBuf.CatChar('F');
+			// } @v12.5.5 
+		}
 	}
 	return rBuf;
 }
@@ -407,11 +502,12 @@ SString & FASTCALL PPQuot::PutValToStr(SString & rBuf) const
 
 int FASTCALL PPQuot::CheckForVal(const RealRange * pRange) const
 {
-	if(pRange && !pRange->IsZero())
+	if(pRange && !pRange->IsZero()) {
 		if(!IsRelative() && !(Flags & PPQuot::fPctDisabled) && pRange->CheckVal(Quot))
 			return 1;
 		else
 			return 0;
+	}
 	else
 		return 1;
 }
@@ -494,11 +590,12 @@ int PPQuotArray::RemoveHangedLocations()
 	int    ok = -1;
 	PPQuot * p_quot;
 	PPObjLocation loc_obj;
-	for(uint i = 0; enumItems(&i, (void **)&p_quot);)
+	for(uint i = 0; enumItems(&i, (void **)&p_quot);) {
 		if(p_quot->LocID && loc_obj.Search(p_quot->LocID) <= 0) {
 			atFree(--i);
 			ok = 1;
 		}
+	}
 	return ok;
 }
 
@@ -659,7 +756,7 @@ int PPQuotArray::GetQuot(const QuotIdent & rIdent, PPQuot * pQuot) const
 		ok = 1;
 	}
 	else if(pQuot) {
-		pQuot->Clear();
+		pQuot->Z();
 		pQuot->GoodsID = GoodsID;
 		pQuot->LocID   = rIdent.LocID;
 		pQuot->Kind    = rIdent.QuotKindID;
@@ -2216,7 +2313,7 @@ Quotation2Core::Quotation2Core() : Quotation2Tbl()
 
 void Quotation2Core::RecToQuot(const Quotation2Tbl::Rec * pRec, PPQuot & rQuot)
 {
-	rQuot.Clear();
+	rQuot.Z();
 	if(pRec->RelID)
 		FetchRel(pRec->RelID, &rQuot);
 	rQuot.GoodsID = pRec->GoodsID;
@@ -2232,7 +2329,7 @@ void Quotation2Core::RecToQuot(const Quotation2Tbl::Rec * pRec, PPQuot & rQuot)
 void Quotation2Core::RecToQuotRel(const Quotation2Tbl::Rec * pRec, PPQuot & rQuot)
 {
 	if(rQuot.RelID != pRec->RelID) {
-		rQuot.Clear();
+		rQuot.Z();
 		if(pRec->RelID)
 			FetchRel(pRec->RelID, &rQuot);
 		rQuot.RelID = pRec->RelID;
@@ -2467,7 +2564,7 @@ int Quotation2Core::GetAfterDT(const LDATETIME & rAfter, PPQuotArray * pList)  /
 	return ok;
 }
 
-int    Quotation2Core::GetBeforeDT(const LDATETIME & rBefore, const  PPID & rGoodsID, const  PPID & rRelID, PPQuot *pQuot) //v10.5.8 @erik
+int    Quotation2Core::GetBeforeDT(const LDATETIME & rBefore, const  PPID & rGoodsID, const  PPID & rRelID, PPQuot * pQuot) //v10.5.8 @erik
 {
 	int    ok = -1;
 	Quotation2Tbl::Key0 k0;
@@ -3252,6 +3349,7 @@ int Quotation2Core::VerifyRecord(Quotation2Tbl::Rec & rRec)
 	THROW_PP(oneof2(rRec.Actual, 0, 1), PPERR_QII_INVACTUAL);
 	THROW_PP((rRec.Flags & ~PPQuot::fDbMask) == 0, PPERR_QII_INVFLAGS);
 	{
+		/* @v12.5.5
 		uint   w = (uint)(rRec.Flags & (PPQuot::fPctOnCost|PPQuot::fPctOnPrice|PPQuot::fPctOnAddition|PPQuot::fPctOnBase));
 		//
 		// Трюк с подсчетом ненулевых битов посредством обнуления последнего единичного бита X & (X-1) {
@@ -3261,6 +3359,8 @@ int Quotation2Core::VerifyRecord(Quotation2Tbl::Rec & rRec)
 			popc++;
 		// }
 		THROW_PP(popc == 0 || popc == 1, PPERR_QII_AMBIGFLAGS);
+		*/
+		THROW_PP(!PPQuot::IsThereAmbiguityInFlags(rRec.Flags), PPERR_QII_AMBIGFLAGS); // @v12.5.5
 	}
 	THROW_PP(!(rRec.Flags & PPQuot::fZero) || rRec.Quot == 0.0, PPERR_QII_NZEROVAL);
 	THROW_PP(SIEEE754::IsValid(rRec.Quot), PPERR_QII_INVVAL);
@@ -3384,7 +3484,7 @@ int Quotation2Core::DumpCurrent(SBuffer & rBuf, long flags, int64 * pItemsCount)
 	const uint rc = rel_list.getCount();
 	for(uint i = 0; i < rc; i++) {
 		const  PPID rel_id = rel_list.get(i);
-		quot.Clear();
+		quot.Z();
 		if(FetchRel(rel_id, &quot) > 0) {
 			Quotation2Tbl::Key2 k2;
 			BExtQuery q(this, 2);

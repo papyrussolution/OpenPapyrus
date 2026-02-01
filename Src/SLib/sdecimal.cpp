@@ -1,5 +1,5 @@
 // SDECIMAL.CPP
-// Copyright (c) A.Sobolev 2023, 2025
+// Copyright (c) A.Sobolev 2023, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -80,7 +80,6 @@ SDecimal::SDecimal(const char * pS) : Mant(0), Exp(0), Flags(0)
 
 SDecimal::SDecimal(double v) : Mant(0), Exp(0), Flags(0)
 {
-	// @construction 
 	uint64 mantissa = 0;
 	int32  exp = 0;
 	uint   f = SIEEE754::DoubleToDecimal(v, &mantissa, &exp);
@@ -159,10 +158,7 @@ SString & SDecimal::ToStr(uint fmt, SString & rBuf) const
 	return rBuf;
 }
 
-bool FASTCALL SDecimal::IsEq(const SDecimal & rS) const // @construction
-{
-	return (Mant == rS.Mant && Exp == rS.Exp && Flags == rS.Flags);
-}
+bool FASTCALL SDecimal::IsEq(const SDecimal & rS) const { return (Mant == rS.Mant && Exp == rS.Exp && Flags == rS.Flags); }
 	
 double SDecimal::GetReal() const
 {
@@ -250,7 +246,7 @@ bool SDecimal::IsZero() const { return (Mant == 0); }
 		return SDecimal(-rV.Mant, rV.Exp);
 }
 
-static uint64 RoundToNearestMul10(uint64 m) // @construction
+static uint64 RoundToNearestMul10(uint64 m)
 {
 	const uint64 m_div_10 = (m / 10ULL);
 	const uint64 m_l = m_div_10 * 10ULL;
@@ -270,7 +266,7 @@ static uint64 RoundToNearestMul10(uint64 m) // @construction
 	return result;
 }
 
-static absl::uint128 RoundToNearestMul10(absl::uint128 m) // @construction
+static absl::uint128 RoundToNearestMul10(absl::uint128 m)
 {
 	const absl::uint128 m_div_10 = (m / 10ULL);
 	const absl::uint128 m_l = m_div_10 * 10ULL;
@@ -536,7 +532,7 @@ uint64 SDecimal::ToUed_(uint64 uedMeta)
 	return ued;
 }
 
-uint64 SDecimal::ToUed_NonConst(uint numBits) // @construction
+uint64 SDecimal::ToUed_NonConst(uint numBits)
 {
 	uint64 ued = 0;
 	assert(numBits >= 24 && numBits <= 64);
@@ -594,7 +590,7 @@ uint64 SDecimal::ToUed_NonConst(uint numBits) // @construction
 	return ued;
 }
 
-int SDecimal::FromUed(uint64 ued, uint numBits) // @construction
+int SDecimal::FromUed(uint64 ued, uint numBits)
 {
 	int    ok = 0;
 	assert(numBits >= 24 && numBits <= 64);

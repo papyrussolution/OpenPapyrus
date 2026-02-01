@@ -1039,10 +1039,11 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 			if(dbid) {
 				PPID   dbentry_id = 0;
 				DbLoginBlock dlb;
-				PPSecur usr_rec;
+				PPSecur2 usr_rec;
 				R_P.Dbes.SetSelection(dbid);
 				if(R_P.Dbes.GetByID(dbid, &dlb) && DS.CheckSystemAccount(&dlb, &usr_rec) > 0) {
-					char   pw[128], user_name[128];
+					char   pw[128];
+					char   user_name[128];
 					memzero(pw, sizeof(pw));
 					memzero(user_name, sizeof(user_name));
 					STRNSCPY(user_name, usr_rec.Name);

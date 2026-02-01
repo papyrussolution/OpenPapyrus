@@ -1,5 +1,5 @@
 // BusinessEntity.java
-// Copyright (c) A.Sobolev 2022, 2025
+// Copyright (c) A.Sobolev 2022, 2025, 2026
 //
 package ru.petroglif.styloq;
 import org.json.JSONArray;
@@ -331,6 +331,7 @@ public class BusinessEntity {
 			ManufID = 0;
 			ChZnCat = 0; // @v11.5.0
 			Egais = false; // @v11.5.0
+			ChZnMarkedWhs = false; // @v12.5.5
 			HideStock = false; // @v11.6.4
 			UnitPerPack = 0.0;
 			OrdQtyMult = 0.0;
@@ -360,6 +361,7 @@ public class BusinessEntity {
 					ManufID = jsObj.optInt("manufid", 0);
 					ChZnCat = jsObj.optInt("chzncat", 0); // @v11.5.0
 					Egais = jsObj.optBoolean("egais", false); // @v11.5.0
+					ChZnMarkedWhs = jsObj.optBoolean("chznmarkedwhs", false); // @v12.5.5
 					HideStock = jsObj.optBoolean("hidestock", false); // @v11.6.4
 					UnitPerPack = jsObj.optDouble("upp", 0.0);
 					OrdMinQty = jsObj.optDouble("ordminqty", 0.0);
@@ -482,6 +484,7 @@ public class BusinessEntity {
 		int    ChZnCat;    // @v11.5.0 GTCHZNPT_XXX Категория маркировки честный знак
 		boolean Egais;     // @v11.5.0 Если true, то товар маркируется EGAI-кодами
 		boolean HideStock; // @v11.6.4 Не отображать остаток
+		boolean ChZnMarkedWhs; // @v12.5.5 chznmarkedwhs Товар маркированный и оптовая отгрузка осуществляется по-марочно
 		double UnitPerPack;
 		double OrdQtyMult; // Кратность заказа (<=0 - не определено)
 		double OrdMinQty;  // Минимальный заказ (<=0 - не определено)

@@ -962,9 +962,13 @@ PersonCore::PersonCore() : PersonTbl()
 {
 }
 
+PersonCore::~PersonCore()
+{
+}
+
 int PersonCore::Search(PPID id, PersonTbl::Rec * pRec) { return SearchByID(this, PPOBJ_PERSON, id, pRec); }
 
-SString & PersonCore::GetItemMemo(PPID id, SString & rBuf) // @v11.1.12
+SString & PersonCore::GetItemMemo(PPID id, SString & rBuf)
 {
 	rBuf.Z();
 	if(id) {

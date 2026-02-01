@@ -1799,28 +1799,21 @@ static void fz_draw_fill_image_mask(fz_context * ctx, fz_device * devp, fz_image
 	fz_colorspace * colorspace = NULL;
 	fz_overprint op = { { 0 } };
 	fz_overprint * eop;
-
 	if(alpha == 0)
 		return;
-
 	if(dev->top == 0 && dev->resolve_spots)
 		state = push_group_for_separations(ctx, dev, color_params, dev->default_cs);
-
 	if(colorspace_in)
 		colorspace = fz_default_colorspace(ctx, dev->default_cs, colorspace_in);
-
 	clip = fz_pixmap_bbox(ctx, state->dest);
 	clip = fz_intersect_irect(clip, state->scissor);
-
 	if(image->w == 0 || image->h == 0)
 		return;
-
 	/* ctm maps the image (expressed as the unit square) onto the
 	 * destination device. Reverse that to get a mapping from
 	 * the destination device to the source pixels. */
 	if(fz_try_invert_matrix(&inverse, local_ctm)) {
-		/* Not invertible. Could just bail? Use the whole image
-		 * for now. */
+		// Not invertible. Could just bail? Use the whole image for now.
 		src_area.x0 = 0;
 		src_area.x1 = image->w;
 		src_area.y0 = 0;
@@ -1852,7 +1845,6 @@ static void fz_draw_fill_image_mask(fz_context * ctx, fz_device * devp, fz_image
 	fz_try(ctx) {
 		if(state->blendmode & FZ_BLEND_KNOCKOUT)
 			state = fz_knockout_begin(ctx, dev);
-
 		if(!(devp->hints & FZ_DONT_INTERPOLATE_IMAGES) &&
 		    ctx->tuning->image_scale(ctx->tuning->image_scale_arg, dx, dy, pixmap->w, pixmap->h)) {
 			int gridfit = alpha == 1.0f && !(dev->flags & FZ_DRAWDEV_FLAGS_TYPE3);
@@ -1870,9 +1862,7 @@ static void fz_draw_fill_image_mask(fz_context * ctx, fz_device * devp, fz_image
 				pixmap = scaled;
 			}
 		}
-
 		eop = resolve_color(ctx, &op, color, colorspace, alpha, color_params, colorbv, state->dest);
-
 		fz_paint_image_with_color(ctx,
 		    state->dest,
 		    &state->scissor,

@@ -1,5 +1,5 @@
 // LBXDEF.CPP
-// Copyright (c) Sobolev A. 1996, 1997, 2000, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) Sobolev A. 1996, 1997, 2000, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -12,7 +12,7 @@ static int substFCMP(const void * i1, const void * i2, void * pExtraData) { retu
 // ListBoxDef
 //
 ListBoxDef::ListBoxDef(uint aOptions, TYPEID aType) : Options(aOptions), Format(0), Type(aType),
-	ViewHight(1), TopItem(0), CurItem(0), CFlags(0), ScrollDelta(0)
+	ViewHight(1), TopItem(0), CurItem(0), CFlags(0), ScrollDelta(0), Cp(cpUndef)
 {
 	SetCapability(0, SlConst::ListBoxDefSignature_DEFAULT);
 	UserData.Init();
@@ -75,6 +75,16 @@ const char * ListBoxDef::getText(long item, SString & rBuf)
 	return rBuf;
 }
 
+bool ListBoxDef::TranslateTextToUnicode(const SString & rText, SStringU & rTextU) const // @v12.5.5
+{
+	rTextU.Z();
+	bool   ok = true;
+	if(rText.NotEmpty()) {
+		rTextU.CopyFromMb((Cp == cpUndef) ? cpOEM : Cp, rText, rText.Len());
+	}
+	return ok;
+}
+
 int ListBoxDef::getCurID(long * pId)
 {
 	union {
@@ -132,6 +142,12 @@ int    ListBoxDef::GetImageIdxByID(long id, long * pIDx) { return ImageIdxAssoc.
 int    ListBoxDef::AddImageAssoc(long itemID, long imageID) { return ImageAssoc.Add(itemID, (imageID & ~SlConst::VectorImageMask), 0); }
 int    ListBoxDef::AddVecImageAssoc(long itemID, long imageID) { return ImageAssoc.Add(itemID, (imageID | SlConst::VectorImageMask), 0); }
 bool   ListBoxDef::HasItemColorSpec() const { return (ColorAssoc.getCount() > 0); }
+
+bool   ListBoxDef::SetCp(SCodepage cp) // @v12.5.5
+{
+	Cp = cp;
+	return true;
+}
 
 #define RANGE(val,min,max) ((val)<(min)?(min):((val)>(max)?(max):(val)))
 
@@ -400,8 +416,7 @@ int StdListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMode)
 //
 //
 //
-StrAssocListBoxDef::StrAssocListBoxDef(StrAssocArray * pList, uint options) :
-	ListBoxDef(options, MKSTYPE(S_ZSTRING, 252)), P_Data(pList)
+StrAssocListBoxDef::StrAssocListBoxDef(StrAssocArray * pList, uint options) : ListBoxDef(options, MKSTYPE(S_ZSTRING, 252)), P_Data(pList)
 {
 	OneItem.Init();
 	SetCapability(ListBoxDef::cCountable|ListBoxDef::cFullInMem, SlConst::ListBoxDefSignature_STRASSOC);
@@ -1036,45 +1051,9 @@ int StdTreeListBoxDef2_::GoByID(long id)
 		return 0;
 }
 
-bool FASTCALL StdTreeListBoxDef2_::HasChildren(long id) const
-	{ return P_SaList ? P_SaList->HasChildren(id) : false; }
-int StdTreeListBoxDef2_::GetListByParent(long parentId, LongArray & rList) const
-	{ return P_SaList ? P_SaList->GetListByParent(parentId, false, rList) : -1; }
-int StdTreeListBoxDef2_::GetParent(long childId, long * pParentId) const
-	{ return P_SaList ? P_SaList->Search(childId, pParentId, 0) : 0; }
-#if 0 // @v11.2.5 {
-//
-// StringListBoxDef
-//
-StringListBoxDef::StringListBoxDef(uint stringSize, uint aOptions) :
-	StdListBoxDef(new SArray(sizeof(long) + stringSize), aOptions, MKSTYPE(S_ZSTRING, stringSize))
-{
-	SetCapability(ListBoxDef::cCountable|ListBoxDef::cFullInMem, LBDEFSIGN_STRING);
-}
-
-int StringListBoxDef::addItem(long id, const char * s, long * pPos)
-{
-	struct {
-		long   id;
-		char   str[256];
-	} entry;
-	if(P_Data) {
-		uint   p = (pPos && *pPos >= 0 && *pPos < P_Data->getCountI()) ? static_cast<uint>(*pPos) : P_Data->getCount();
-		entry.id = id;
-		STRNSCPY(entry.str, s);
-		if(P_Data->atInsert(p, &entry)) {
-			ASSIGN_PTR(pPos, p);
-			return 1;
-		}
-	}
-   	return 0;
-}
-
-int StringListBoxDef::removeItem(long pos)
-	{ return (P_Data && pos >= 0) ? P_Data->atFree(static_cast<uint>(pos)) : 0; }
-void StringListBoxDef::freeAll()
-	{ CALLPTRMEMB(P_Data, freeAll()); }
-#endif // } 0 @v11.2.5
+bool   FASTCALL StdTreeListBoxDef2_::HasChildren(long id) const { return P_SaList ? P_SaList->HasChildren(id) : false; }
+int    StdTreeListBoxDef2_::GetListByParent(long parentId, LongArray & rList) const { return P_SaList ? P_SaList->GetListByParent(parentId, false, rList) : -1; }
+int    StdTreeListBoxDef2_::GetParent(long childId, long * pParentId) const { return P_SaList ? P_SaList->Search(childId, pParentId, 0) : 0; }
 //
 // DBQListBoxDef
 //
@@ -1094,7 +1073,7 @@ int DBQListBoxDef::GetFrameSize() const { return query->P_Frame->CountF; }
 
 int DBQListBoxDef::GetFrameState()
 {
-	int    st = query->P_Frame->State;
+	const  int st = query->P_Frame->State;
 	return (st == 3) ? -1 : st;
 }
 

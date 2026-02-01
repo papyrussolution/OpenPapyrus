@@ -21,6 +21,11 @@
 			"size": 11
 		},
 		{
+			"symb": "AccentInputFont",
+			"face": "Verdana",
+			"size": 18
+		},
+		{
 			"symb": "EditorFont",
 			"face": "Courier New",
 			"size": 12

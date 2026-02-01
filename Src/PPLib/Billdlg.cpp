@@ -1,5 +1,5 @@
 // BILLDLG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -3498,7 +3498,7 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 			disableCtrl(CTL_FREIGHT_TRTYP, LOGIC(Data.ShipID));
 			disableCtrl(CTL_FREIGHT_COST, (R_Pack.Rec.ID && !CheckRighsMod));
 			setCtrlData(CTL_FREIGHT_NAME, Data.Name);
-			SetupPPObjCombo(this, CTLSEL_FREIGHT_SHIP,     PPOBJ_TRANSPORT, Data.ShipID,  OLW_CANINSERT|OLW_LOADDEFONOPEN, reinterpret_cast<void *>(Data.TrType));
+			SetupPPObjCombo(this, CTLSEL_FREIGHT_SHIP,     PPOBJ_TRANSPORT, Data.ShipID,  OLW_CANINSERT|OLW_WORDSELECTOR/*@v12.5.5|OLW_LOADDEFONOPEN*/, reinterpret_cast<void *>(Data.TrType));
 			SetupPPObjCombo(this, CTLSEL_FREIGHT_CAPTAIN,  PPOBJ_PERSON, Data.CaptainID,  OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_CAPTAIN));
 			SetupPPObjCombo(this, CTLSEL_FREIGHT_CAPTAIN2, PPOBJ_PERSON, Data.Captain2ID, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_CAPTAIN));
 			SetupPPObjCombo(this, CTLSEL_FREIGHT_AGENT,    PPOBJ_PERSON, Data.AgentID, OLW_CANINSERT|OLW_LOADDEFONOPEN, reinterpret_cast<void *>(PPPRK_VESSELSAGENT));
@@ -3628,7 +3628,7 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 			// } @v11.2.9 
 			else if(event.isClusterClk(CTL_FREIGHT_TRTYP)) {
 				GetClusterData(CTL_FREIGHT_TRTYP, &Data.TrType);
-				SetupPPObjCombo(this, CTLSEL_FREIGHT_SHIP, PPOBJ_TRANSPORT, 0, OLW_CANINSERT, reinterpret_cast<void *>(Data.TrType));
+				SetupPPObjCombo(this, CTLSEL_FREIGHT_SHIP, PPOBJ_TRANSPORT, 0, OLW_CANINSERT|OLW_WORDSELECTOR, reinterpret_cast<void *>(Data.TrType));
 			}
 			else if(event.isCmd(cmFreightEditDlvrLocList)) {
 				PPID   loc_id = getCtrlLong(CTLSEL_FREIGHT_DLVRLOC);

@@ -169,7 +169,12 @@
 		offs += sizeof(uint32);
 		crc2 = c.Calc(crc2, PTR8C(pSecur) + offs, sizeof(PPSecur2) - offs);
 		if(pSecur->Crc != crc2) {
-			PPSetError(PPERR_INVPPSECURCRC);
+			// @v12.5.5 {
+			SObjID oid(pSecur->Tag, pSecur->ID);
+			SString msg_buf;
+			SObjID_ToStr(oid, msg_buf);
+			// } @v12.5.5 
+			PPSetError(PPERR_INVPPSECURCRC, msg_buf);
 			ok = 0;
 		}
 	}
@@ -211,20 +216,22 @@ int Reference::AllocDynamicObj(PPID * pDynObjType, const char * pName, long flag
 {
 	assert(pDynObjType != 0);
 	int    ok = 1;
-	PPID   id = *pDynObjType;
-	{
-		PPTransaction tra(use_ta);
-		THROW(tra);
-		const int r = _GetFreeID(PPOBJ_DYNAMICOBJS, &id, PPOBJ_FIRSTDYN);
-		if(r > 0) {
-			Reference2Tbl::Rec rec;
-			STRNSCPY(rec.ObjName, pName);
-			rec.Val1 = flags;
-			THROW(AddItem(PPOBJ_DYNAMICOBJS, &id, &rec, 0));
-			*pDynObjType = id;
+	if(pDynObjType) { // @v12.5.5 @condition
+		PPID   id = *pDynObjType;
+		{
+			PPTransaction tra(use_ta);
+			THROW(tra);
+			const int r = _GetFreeID(PPOBJ_DYNAMICOBJS, &id, PPOBJ_FIRSTDYN);
+			if(r > 0) {
+				Reference2Tbl::Rec rec;
+				STRNSCPY(rec.ObjName, pName);
+				rec.Val1 = flags;
+				THROW(AddItem(PPOBJ_DYNAMICOBJS, &id, &rec, 0));
+				*pDynObjType = id;
+			}
+			THROW(r);
+			THROW(tra.Commit());
 		}
-		THROW(r);
-		THROW(tra.Commit());
 	}
 	CATCHZOK
 	return ok;
@@ -892,7 +899,7 @@ int Reference::GetConfig(PPID obj, PPID id, PPID cfgID, void * b, uint s)
 	if(r < 0 && oneof2(obj, PPOBJ_USRGRP, PPOBJ_USR)) {
 		if(GetItem(obj, id, &rec) > 0) {
 			const  PPID prev_level_id = (obj == PPOBJ_USRGRP) ? PPOBJ_CONFIG : PPOBJ_USRGRP;
-			r = GetConfig(prev_level_id, reinterpret_cast<const PPSecur *>(&rec)->ParentID, cfgID, b, s); // @recursion
+			r = GetConfig(prev_level_id, reinterpret_cast<const PPSecur2 *>(&rec)->ParentID, cfgID, b, s); // @recursion
 		}
 		else {
 			PPSetAddedMsgObjName(obj, id);
@@ -948,7 +955,7 @@ int Reference::EditSecur(PPID obj, PPID id, PPSecurPacket * pPack, int isNew, in
 					pPack->Secur.PwUpdate = getcurdate_();
 				else {
 					THROW_DB(GetItem(obj, id) > 0);
-					if(memcmp(pPack->Secur.Password, reinterpret_cast<PPSecur *>(&data)->Password, sizeof(pPack->Secur.Password)))
+					if(memcmp(pPack->Secur.Password, reinterpret_cast<const PPSecur2 *>(&data)->Password, sizeof(pPack->Secur.Password)))
 						pPack->Secur.PwUpdate = getcurdate_();
 				}
 			}
@@ -995,7 +1002,7 @@ int Reference::RemoveSecur(PPID obj, PPID id, int use_ta)
 		}
 		else if(obj == PPOBJ_USRGRP) {
 			PPIDArray usr_list;
-			PPSecur usr_rec;
+			PPSecur2 usr_rec;
 			for(SEnum en = EnumByIdxVal(PPOBJ_USR, 1, id); en.Next(&usr_rec) > 0;) {
 				if(usr_rec.ParentID == id) // @paranoic
 					usr_list.add(usr_rec.ID);
@@ -1379,7 +1386,7 @@ int PPRights::Get(PPID securType, PPID securID, int ignoreCheckSum)
 			if(p_ref->GetItem(securType, securID, &this_secur_rec) > 0) {
 				PPRights temp;
 				const  PPID prev_type = (P_Rt->SecurObj == PPOBJ_USRGRP) ? PPOBJ_CONFIG : PPOBJ_USRGRP;
-				const  PPID prev_id = reinterpret_cast<const PPSecur *>(&this_secur_rec)->ParentID;
+				const  PPID prev_id = reinterpret_cast<const PPSecur2 *>(&this_secur_rec)->ParentID;
 				THROW(temp.Get(prev_type, prev_id, ignoreCheckSum)); // @recursion
 				for(uint s = 0; s < temp.P_Rt->ORTailSize;) {
 					const ObjRights * o = reinterpret_cast<const ObjRights *>(PTR8(temp.P_Rt + 1) + s);
@@ -1879,7 +1886,6 @@ int PPRights::CheckOpID(PPID opID, long rtflags) const
 					SString added_msg, temp_buf;
 					GetOpName(opID, added_msg);
 					added_msg.CatDiv('-', 1);
-					// @v11.0.0 {
 					static const SIntToSymbTabEntry ftos_list[] = { 
 						{ PPR_READ, "rt_view" }, { PPR_INS,  "rt_create" }, { PPR_MOD,  "rt_modif" }, { PPR_DEL,  "rt_delete" },
 					};
@@ -1888,23 +1894,6 @@ int PPRights::CheckOpID(PPID opID, long rtflags) const
 						if(rtflags & _f && !(r_item.Flags & _f))
 							added_msg.CatBrackStr(PPLoadStringS(ftos_list[i].P_Symb, temp_buf));
 					}
-					// } @v11.0.0 
-					/* @v11.0.0 if(rtflags & PPR_READ && !(r_item.Flags & PPR_READ)) {
-						PPLoadString("rt_view", temp_buf);
-						added_msg.CatBrackStr(temp_buf);
-					}
-					if(rtflags & PPR_INS && !(r_item.Flags & PPR_INS)) {
-						PPLoadString("rt_create", temp_buf);
-						added_msg.CatBrackStr(temp_buf);
-					}
-					if(rtflags & PPR_MOD && !(r_item.Flags & PPR_MOD)) {
-						PPLoadString("rt_modif", temp_buf);
-						added_msg.CatBrackStr(temp_buf);
-					}
-					if(rtflags & PPR_DEL && !(r_item.Flags & PPR_DEL)) {
-						PPLoadString("rt_delete", temp_buf);
-						added_msg.CatBrackStr(temp_buf);
-					}*/
 					ok = PPSetError(PPERR_ISNTPRVLGFOROP, added_msg);
 				}
 			}
@@ -1957,16 +1946,6 @@ int PPRights::CheckDesktopID(long deskID, long rt) const
 	if((GetAccessRestriction(accsr).CFlags & rt) != rt)
 		ok = PPSetError(PPERR_NORIGHTS);
 	return ok;
-}
-
-/*static*/ushort PPRights::GetDefaultFlags()
-{
-	return (0xffff & ~PPR_ADM);
-}
-
-/*static*/long PPRights::GetDefaultOprFlags()
-{
-	return 0xffffffff;
 }
 
 int FASTCALL GetCommConfig(PPCommConfig & rCfg)

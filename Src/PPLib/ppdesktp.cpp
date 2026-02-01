@@ -2647,7 +2647,8 @@ void TFacadeWindow::InitLayout()
 		p_lo_main->SetLayoutBlock(alb);
 		p_lo_main->SetCallbacks(0, TWindowBase::SetupLayoutItemFrame, this);
 		{
-			SUiLayoutParam alb_left(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
+			// Ориентация горизонтальная потому что справа фиксированного размера полоса изменения размера, а слева - список, занимающий все оставшееся место
+			SUiLayoutParam alb_left(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
 			alb_left.GravityX = SIDE_LEFT;
 			alb_left.GravityY = SIDE_CENTER;
 			alb_left.SetFixedSizeX(128.0f);
@@ -2673,7 +2674,7 @@ void TFacadeWindow::InitLayout()
 			alb_top.JustifyContent = SUiLayoutParam::alignCenter;
 			alb_top.AlignItems = SUiLayoutParam::alignCenter;
 			alb_top.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-			alb_top.SetFixedSizeY(64.0f);
+			alb_top.SetFixedSizeY(96.0f);
 			SUiLayout * p_lo = new SUiLayout(alb_top);
 			p_lo->SetSymb("Facade_Top");
 			p_lo_main->Insert(p_lo);
@@ -2704,7 +2705,7 @@ int TFacadeWindow::InsertWorkWindow(int ppviewId) // @debug
 				SUiLayoutParam alb_;
 				alb_.GrowFactor = 1.0;
 				alb_.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-				alb_.SetMargin(8.0f);
+				//alb_.SetMargin(8.0f);
 				//p_view->Browse(true/*modeless*/);
 				p_view->BrowseInLayout(this, "Facade_Center", alb_, 10002); // @v12.5.4
 			}
@@ -2720,7 +2721,7 @@ int TFacadeWindow::InsertWorkWindow(int ppviewId) // @debug
 				//alb_.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 				alb_.GrowFactor = 1.0;
 				alb_.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-				alb_.SetMargin(8.0f);
+				//alb_.SetMargin(8.0f);
 				{
 					SUiLayout * p_result = 0;
 					p_result = p_lo->InsertItem(p_brw, &alb_);
@@ -2737,19 +2738,23 @@ int TFacadeWindow::InsertWorkWindow(int ppviewId) // @debug
 
 int TFacadeWindow::WMHCreate()
 {
-	const TRect _def_rect(0, 0, 10, 10);
+	SPaintToolBox * p_tb = APPL->GetUiToolBox();
 	InitLayout();
 	if(P_Lfc) {
 		{
-			SUiLayout * p_lo = P_Lfc->FindBySymb("Facade_Top");
-			if(p_lo) {
+			SUiLayout * p_lo_top = P_Lfc->FindBySymb("Facade_Top");
+			SUiLayout * p_lo_left = P_Lfc->FindBySymb("Facade_Left");
+			if(p_lo_top) {
+				const float input_fixed_y = SlConst::UiFixedInputY * 2.5f;
+				TInputLine * p_il = 0;
+				TInputLine * p_il_info = 0;
 				{
-					TInputLine * p_il = new TInputLine(_def_rect, 0/*spcFlags*/, MKSTYPE(S_ZSTRING, 1024), MKSFMT(1024, 0));
+					p_il = new TInputLine(TRect::_defr_, 0/*spcFlags*/, MKSTYPE(S_ZSTRING, 1024), MKSFMT(1024, 0));
 					InsertCtlWithCorrespondingNativeItem(p_il, CTL_FACADEWINDOW_MAININPUT, 0, /*extraPtr*/0);
 					{
 						SUiLayoutParam alb_;
 						alb_.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-						alb_.SetFixedSizeY(SlConst::UiFixedInputY);
+						alb_.SetFixedSizeY(input_fixed_y);
 						alb_.SetMargin(FRect(8.0f, 8.0f, 8.0f, 2.0f));
 						{
 							//
@@ -2757,7 +2762,7 @@ int TFacadeWindow::WMHCreate()
 							// делается для вспомогательных разметочных лейаутов-контейнеров
 							//
 							SUiLayout * p_result = 0;
-							p_result = p_lo->InsertItem(p_il, &alb_);
+							p_result = p_lo_top->InsertItem(p_il, &alb_);
 							if(p_result && p_il) {
 								p_result->SetCallbacks(0, TView::SetupLayoutItemFrameProc, p_il);
 								p_il->handleWindowsMessage(WM_INITDIALOG, 0, 0);
@@ -2765,13 +2770,13 @@ int TFacadeWindow::WMHCreate()
 						}
 					}
 				}
-				if(1) {
-					TInputLine * p_il_info = new TInputLine(_def_rect, TInputLine::spcfReadOnly, MKSTYPE(S_ZSTRING, 1024), MKSFMT(1024, 0));
-					InsertCtlWithCorrespondingNativeItem(p_il_info, CTL_FACADEWINDOW_MAININPUT+1, 0, /*extraPtr*/0);
+				{
+					p_il_info = new TInputLine(TRect::_defr_, TInputLine::spcfReadOnly, MKSTYPE(S_ZSTRING, 1024), MKSFMT(1024, 0));
+					InsertCtlWithCorrespondingNativeItem(p_il_info, CTL_FACADEWINDOW_INFOLINE, 0, /*extraPtr*/0);
 					{
 						SUiLayoutParam alb_;
 						alb_.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-						alb_.SetFixedSizeY(SlConst::UiFixedInputY);
+						alb_.SetFixedSizeY(input_fixed_y);
 						alb_.SetMargin(FRect(8.0f, 2.0f, 8.0f, 8.0f));
 						{
 							//
@@ -2779,7 +2784,7 @@ int TFacadeWindow::WMHCreate()
 							// делается для вспомогательных разметочных лейаутов-контейнеров
 							//
 							SUiLayout * p_result = 0;
-							p_result = p_lo->InsertItem(p_il_info, &alb_);
+							p_result = p_lo_top->InsertItem(p_il_info, &alb_);
 							if(p_result && p_il_info) {
 								p_result->SetCallbacks(0, TView::SetupLayoutItemFrameProc, p_il_info);
 								p_il_info->handleWindowsMessage(WM_INITDIALOG, 0, 0);
@@ -2787,8 +2792,75 @@ int TFacadeWindow::WMHCreate()
 						}
 					}
 				}
+				{
+					SPaintObj::Font * p_f = p_tb ? p_tb->GetFont(SDrawContext(static_cast<HDC>(0)), TProgram::tbiAccentInputFont) : 0;
+					if(p_f) {
+						HFONT f = static_cast<HFONT>(*p_f);
+						if(p_il) {
+							HWND local_hw = p_il->getHandle();
+							::SendMessageW(local_hw, WM_SETFONT, reinterpret_cast<WPARAM>(f), TRUE);
+						}
+						if(p_il_info) {
+							HWND local_hw = p_il_info->getHandle();
+							::SendMessageW(local_hw, WM_SETFONT, reinterpret_cast<WPARAM>(f), TRUE);
+						}
+					}
+				}
 				//
 				//InsertWorkWindow(PPVIEW_GOODSREST);
+
+			}
+			if(p_lo_left) {
+				{
+					StdTreeListBoxDef * p_lb_def = new StdTreeListBoxDef(0, lbtDisposeData|lbtDblClkNotify, 0);
+					SmartListBox * p_lb = new SmartListBox(TRect::_defr_, p_lb_def, true/*is_tree*/);
+					if(p_lb->P_Def) {
+						p_lb->P_Def->addItem(1, "The first tree-list item!");
+					}
+					InsertCtlWithCorrespondingNativeItem(p_lb, CTL_FACADEWINDOW_NAVPANE, 0, 0);
+					{
+						SUiLayoutParam alb_;
+						alb_.SetGrowFactor(1.0f); 
+						//alb_.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+						alb_.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+						//alb_.SetMargin(FRect(8.0f, 2.0f, 8.0f, 8.0f));
+						{
+							//
+							// Если pView == 0, то мы вставляем лейаут без привязки к конкретному control'у. Обычно это
+							// делается для вспомогательных разметочных лейаутов-контейнеров
+							//
+							SUiLayout * p_result = 0;
+							p_result = p_lo_left->InsertItem(p_lb, &alb_);
+							if(p_result && p_lb) {
+								p_result->SetCallbacks(0, TView::SetupLayoutItemFrameProc, p_lb);
+								p_lb->handleWindowsMessage(WM_INITDIALOG, 0, 0);
+							}
+						}
+					}
+				}
+				{
+					TFrame * p_gb = new TFrame(TFrame::fkSizeBar);
+					p_gb->SetupSizing(H(), p_lo_left, DIREC_HORZ);
+					InsertCtlWithCorrespondingNativeItem(p_gb, CTL_FACADEWINDOW_NAVPANE_SZF, 0, 0);
+					{
+						SUiLayoutParam alb_;
+						alb_.SetFixedSizeX(6.0f);
+						alb_.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+						//alb_.SetMargin(FRect(8.0f, 2.0f, 8.0f, 8.0f));
+						{
+							//
+							// Если pView == 0, то мы вставляем лейаут без привязки к конкретному control'у. Обычно это
+							// делается для вспомогательных разметочных лейаутов-контейнеров
+							//
+							SUiLayout * p_result = 0;
+							p_result = p_lo_left->InsertItem(p_gb, &alb_);
+							if(p_result && p_gb) {
+								p_result->SetCallbacks(0, TView::SetupLayoutItemFrameProc, p_gb);
+								p_gb->handleWindowsMessage(WM_INITDIALOG, 0, 0);
+							}
+						}						
+					}
+				}
 			}
 		}
 		InsertWorkWindow(0); // @debug
@@ -2848,7 +2920,7 @@ int TFacadeWindow::WMHCreate()
 			break;
 		case WM_DESTROY:
 			p_view = static_cast<TFacadeWindow *>(TView::GetWindowUserData(hWnd));
-			if(p_view) {
+			if(p_view && p_view->IsConsistent()) {
 				//p_view->SaveChanges();
 				TWindowBase::Helper_Finalize(hWnd, p_view);
 			}

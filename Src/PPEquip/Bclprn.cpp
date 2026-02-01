@@ -644,7 +644,7 @@ int BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 			LTIME  curtime;
 			double rval = 0.0;
 			long   lval = 0;
-			PPSecur secur;
+			PPSecur2 secur;
 			switch(i) {
 				case bcvsGoodsGrpName:
 					{

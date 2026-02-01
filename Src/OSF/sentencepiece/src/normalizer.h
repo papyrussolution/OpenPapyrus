@@ -15,12 +15,11 @@
 #ifndef NORMALIZER_NORMALIZER_H_
 #define NORMALIZER_NORMALIZER_H_
 
-#include <memory>
-#include <set>
-#include <string>
-#include <utility>
-#include <vector>
-
+//#include <memory>
+//#include <set>
+//#include <string>
+//#include <utility>
+//#include <vector>
 #include "common.h"
 #include "sentencepiece_model.pb.h"
 #include "sentencepiece_processor.h"

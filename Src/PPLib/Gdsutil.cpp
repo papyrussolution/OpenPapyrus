@@ -1369,7 +1369,8 @@ int EditQuotVal(PPQuot * pQ, int quotCls)
 		}
 		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
+			/* @v12.5.5
 			ushort v = 0;
 			if(Data.Flags & PPQuot::fPctOnCost)
 				v = 1;
@@ -1386,6 +1387,19 @@ int EditQuotVal(PPQuot * pQ, int quotCls)
 			else
 				v = 0;
 			setCtrlData(CTL_SETQUOT_HOW,  &v);
+			*/
+			// @v12.5.5 {
+			long   mean = Data.GetMean();
+			AddClusterAssocDef(CTL_SETQUOT_HOW, 0, PPQuot::meanAbsolute);
+			AddClusterAssoc(CTL_SETQUOT_HOW, 1, PPQuot::meanPctOnCost);
+			AddClusterAssoc(CTL_SETQUOT_HOW, 2, PPQuot::meanPctOnPrice);
+			AddClusterAssoc(CTL_SETQUOT_HOW, 3, PPQuot::meanPctOnMarkup);
+			AddClusterAssoc(CTL_SETQUOT_HOW, 4, PPQuot::meanDisabled);
+			AddClusterAssoc(CTL_SETQUOT_HOW, 5, PPQuot::meanPctOnBase);
+			AddClusterAssoc(CTL_SETQUOT_HOW, 6, PPQuot::meanAbsOnCost);
+			AddClusterAssoc(CTL_SETQUOT_HOW, 7, PPQuot::meanAbsOnPrice);
+			SetClusterData(CTL_SETQUOT_HOW, mean);
+			// } @v12.5.5
 			AddClusterAssoc(CTL_SETQUOT_ZERO, 0, PPQuot::fZero);
 			SetClusterData(CTL_SETQUOT_ZERO, Data.Flags);
 			setCtrlReal(CTL_SETQUOT_VAL,  Data.Quot);
@@ -1400,6 +1414,7 @@ int EditQuotVal(PPQuot * pQ, int quotCls)
 		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
+			/* @v12.5.5
 			ushort v = getCtrlUInt16(CTL_SETQUOT_HOW);
 			Data.Flags = 0;
 			if(v == 1)
@@ -1412,6 +1427,12 @@ int EditQuotVal(PPQuot * pQ, int quotCls)
 				Data.Flags |= PPQuot::fPctDisabled;
 			else if(v == 5)
 				Data.Flags |= PPQuot::fPctOnBase;
+			*/
+			// @v12.5.5 {
+			long   mean = 0;
+			GetClusterData(CTL_SETQUOT_HOW, &mean);
+			Data.SetMean(mean);
+			// } @v12.5.5 
 			GetClusterData(CTL_SETQUOT_ZERO, &Data.Flags);
 			if(Data.Flags & (PPQuot::fPctDisabled|PPQuot::fZero))
 				Data.Quot = 0.0;
@@ -1422,7 +1443,7 @@ int EditQuotVal(PPQuot * pQ, int quotCls)
 				Data.MinQtty = 0;
 			if(UseQuot2)
 				GetPeriodInput(this, CTL_SETQUOT_PERIOD, &Data.Period);
-			if(v == 0)
+			if(mean == PPQuot::meanAbsolute)
 				Data.Quot = fabs(Data.Quot);
 			ASSIGN_PTR(pData, Data);
 			return ok;
@@ -1430,12 +1451,13 @@ int EditQuotVal(PPQuot * pQ, int quotCls)
 	private:
 		void   SetupVal()
 		{
-			ushort v = getCtrlUInt16(CTL_SETQUOT_HOW);
+			// @v12.5.5 ushort v = getCtrlUInt16(CTL_SETQUOT_HOW);
+			// @v12.5.5 {
+			long   mean = 0;
+			GetClusterData(CTL_SETQUOT_HOW, &mean);
+			// } @v12.5.5
 			GetClusterData(CTL_SETQUOT_ZERO, &Data.Flags);
-			if(Data.Flags & PPQuot::fZero || v == 4)
-				disableCtrl(CTL_SETQUOT_VAL, true);
-			else
-				disableCtrl(CTL_SETQUOT_VAL, false);
+			disableCtrl(CTL_SETQUOT_VAL, (Data.Flags & PPQuot::fZero || mean == PPQuot::meanDisabled));
 		}
 		DECL_HANDLE_EVENT
 		{
@@ -2675,11 +2697,12 @@ int PPObjGoods::Helper_GetQuotExt(PPID goodsID, const QuotIdent & rQi, double co
 
 int PPObjGoods::GetQuotExtByList(const PPQuotArray * pQList, const QuotIdent & rQi, double cost, double price, double * pResult)
 {
-	int    ok = -1, r;
+	int    ok = -1;
 	double result = 0.0;
 	Goods2Tbl::Rec goods_rec;
 	uint   pos = 0;
-	if((r = pQList->GetResult(rQi, cost, price, &result)) > 0) {
+	int    r = pQList->GetResult(rQi, cost, price, &result);
+	if(r > 0) {
 		ok = r;
 	}
 	else {
@@ -2690,7 +2713,8 @@ int PPObjGoods::GetQuotExtByList(const PPQuotArray * pQList, const QuotIdent & r
 			double base = 0.0;
 			if(P_Tbl->GetQuot(pQList->GoodsID, qi, cost, price, &base, 1) > 0)
 				tmpi.SetBase(base);
-			if((r = GetQuotExt(goods_rec.ParentID, tmpi, cost, price, &result, 1)) > 0)
+			r = GetQuotExt(goods_rec.ParentID, tmpi, cost, price, &result, 1);
+			if(r > 0)
 				ok = r;
 		}
 		else if(rQi.QuotKindID) {
@@ -2698,7 +2722,8 @@ int PPObjGoods::GetQuotExtByList(const PPQuotArray * pQList, const QuotIdent & r
 			if(rQi.CurID) {
 				QuotIdent qi = rQi;
 				qi.QuotKindID = PPQUOTK_BASE;
-				if((r = pQList->GetResult(qi, cost, price, &price)) > 0) {
+				r = pQList->GetResult(qi, cost, price, &price);
+				if(r > 0) {
 					if(qk_obj.GetCalculatedQuot(rQi.QuotKindID, pQList->GoodsID, 0, price, &result, 0) > 0)
 						ok = 1;
 				}

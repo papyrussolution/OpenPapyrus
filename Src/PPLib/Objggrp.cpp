@@ -609,14 +609,6 @@ int PPObjGoodsGroup::AssignImages(ListBoxDef * pDef)
 	return p_def;
 }
 
-/*virtual*//*int PPObjGoodsGroup::UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr)
-{
-	int    ok = PPObject::UpdateSelector(pDef, flags, extraPtr);
-	if(ok > 0)
-		AssignImages(pDef);
-	return ok;
-}*/
-
 StrAssocArray * PPObjGoodsGroup::Implement_MakeStrAssocList(long parentID, const PPIDArray * pTerminalList)
 {
 	long   parent_id = parentID;
@@ -1267,6 +1259,15 @@ PPTransportConfig::PPTransportConfig() : Flags(0), OwnerKindID(0), CaptainKindID
 {
 }
 
+PPTransportConfig & PPTransportConfig::Z()
+{
+	Flags = 0;
+	OwnerKindID = 0;
+	CaptainKindID = 0;
+	NameTemplate.Z();
+	return *this;
+}
+
 bool FASTCALL PPTransportConfig::operator == (const PPTransportConfig & rS) const
 {
 	return (Flags == rS.Flags && OwnerKindID == rS.OwnerKindID && CaptainKindID == rS.CaptainKindID && NameTemplate.Cmp(rS.NameTemplate, 0) == 0);
@@ -1315,10 +1316,7 @@ struct Storage_PPTranspConfig { // @persistent @store(PropertyTbl)
 		ok = 1;
 	}
 	else {
-		pCfg->Flags = 0;
-		pCfg->OwnerKindID = 0;
-		pCfg->CaptainKindID = 0;
-		pCfg->NameTemplate = 0;
+		pCfg->Z();
 		ok = -1;
 	}
 	CATCHZOK
@@ -1386,10 +1384,13 @@ struct Storage_PPTranspConfig { // @persistent @store(PropertyTbl)
 		SetupPPObjCombo(dlg, CTLSEL_TRANSPCFG_OWNERK, PPOBJ_PERSONKIND, cfg.OwnerKindID, 0, 0);
 		SetupPPObjCombo(dlg, CTLSEL_TRANSPCFG_CAPTK,  PPOBJ_PERSONKIND, cfg.CaptainKindID, 0, 0);
 		dlg->setCtrlString(CTL_TRANSPCFG_NAMETEMPL, cfg.NameTemplate);
+		dlg->AddClusterAssoc(CTL_TRANSPCFG_FLAGS, 0, PPTransportConfig::fConcatCarNumToTextInList);
+		dlg->SetClusterData(CTL_TRANSPCFG_FLAGS, cfg.Flags); // @v12.5.5
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			cfg.OwnerKindID = dlg->getCtrlLong(CTLSEL_TRANSPCFG_OWNERK);
 			cfg.CaptainKindID = dlg->getCtrlLong(CTLSEL_TRANSPCFG_CAPTK);
 			dlg->getCtrlString(CTL_TRANSPCFG_NAMETEMPL, cfg.NameTemplate);
+			dlg->GetClusterData(CTL_TRANSPCFG_FLAGS, &cfg.Flags); // @v12.5.5
 			ok = 1;
 			if(!(cfg == org_cfg)) {
 				if(!WriteConfig(&cfg, 1))
@@ -1447,6 +1448,44 @@ PPObjTransport::PPObjTransport(void * extraPtr) : PPObjGoods(PPOBJ_TRANSPORT, PP
 {
 }
 
+PPObjTransport::~PPObjTransport()
+{
+}
+
+int PPObjTransport::FetchConfig(PPTransportConfig & rCfg)
+{
+	return P_Tbl->FetchTrConfig(&rCfg);
+}
+
+/*static*/int PPObjTransport::GetRegisterCodes(GoodsCore * pTbl, PPID id, SString * pCode, SString * pTrailerCode) // @v12.5.5
+{
+	int    ok = -1;
+	int    found_flags = 0;
+	CALLPTRMEMB(pCode, Z());
+	CALLPTRMEMB(pTrailerCode, Z());
+	if(pTbl && id) {
+		BarcodeArray bc_list;
+		pTbl->ReadBarcodes(id, bc_list);
+		for(uint i = 0; i < bc_list.getCount(); i++) {
+			BarcodeTbl::Rec & r_bc_rec = bc_list.at(i);
+			if(strlen(r_bc_rec.Code) > 1 && r_bc_rec.Code[0] == '^') {
+				if(r_bc_rec.Qtty == 1.0) {
+					ASSIGN_PTR(pCode, r_bc_rec.Code+1);
+					found_flags |= 0x01;
+				}
+				else if(r_bc_rec.Qtty == 2.0) {
+					ASSIGN_PTR(pTrailerCode, r_bc_rec.Code+1);
+					found_flags |= 0x02;
+				}
+			}
+		}
+	}
+	if(ok && found_flags) {
+		ok = found_flags;
+	}
+	return ok;
+}
+
 int PPObjTransport::Get(PPID id, PPTransportPacket * pPack)
 {
 	int    ok = -1;
@@ -1457,7 +1496,8 @@ int PPObjTransport::Get(PPID id, PPTransportPacket * pPack)
 	if(r > 0) {
 		ok = 1;
 		if(pPack) {
-			BarcodeArray bc_list;
+			SString code;
+			SString trailer_code;
 			pPack->Rec.ID = goods_rec.ID;
 			pPack->Rec.TrType = goods_rec.GdsClsID;
 			STRNSCPY(pPack->Rec.Name, goods_rec.Name);
@@ -1468,18 +1508,9 @@ int PPObjTransport::Get(PPID id, PPTransportPacket * pPack)
 			pPack->Rec.Capacity  = static_cast<long>(goods_rec.PhUPerU);
 			pPack->Rec.VanType   = goods_rec.VanType;
 			SETFLAG(pPack->Rec.Flags, GF_PASSIV, goods_rec.Flags & GF_PASSIV);
-			P_Tbl->ReadBarcodes(id, bc_list);
-			for(uint i = 0; i < bc_list.getCount(); i++) {
-				BarcodeTbl::Rec & r_bc_rec = bc_list.at(i);
-				if(r_bc_rec.Code[0] == '^') {
-					if(r_bc_rec.Qtty == 1.0) {
-						STRNSCPY(pPack->Rec.Code, r_bc_rec.Code+1);
-					}
-					else if(r_bc_rec.Qtty == 2.0) {
-						STRNSCPY(pPack->Rec.TrailerCode, r_bc_rec.Code+1);
-					}
-				}
-			}
+			PPObjTransport::GetRegisterCodes(P_Tbl, id, &code, &trailer_code);
+			STRNSCPY(pPack->Rec.Code, code);
+			STRNSCPY(pPack->Rec.TrailerCode, trailer_code);
 			THROW(GetTagList(id, &pPack->TagL)); // @v11.2.12
 		}
 	}
@@ -1581,6 +1612,7 @@ int PPObjTransport::Put(PPID * pID, const PPTransportPacket * pPack, int use_ta)
 
 ListBoxDef * PPObjTransport::Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr)
 {
+	// @v12.5.5 selfTrCarNameConcatByRegN
 	return _Selector2(pOrgDef, 0, PPObjGoods::selfByName, extraPtr, 0, 0);
 }
 

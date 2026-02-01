@@ -237,10 +237,10 @@ SSqlStmt::SSqlStmt(DbProvider * pDb, const char * pText) : P_Db(0), Descr(SdReco
 
 SSqlStmt::~SSqlStmt()
 {
-	Signature = 0; 
-	P_ExternalConnection = 0;
 	CALLPTRMEMB(P_Db, DestroyStmt(this));
 	BS.Destroy();
+	Signature = 0; 
+	P_ExternalConnection = 0; // Обнуление P_ExternalConnection обязательно в эпилоге поскольку P_Db->DestroyStmt может отрабатывать это поле!
 }
 
 int SSqlStmt::SetSqlText(const char * pText)

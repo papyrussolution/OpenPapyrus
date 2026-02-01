@@ -111,20 +111,22 @@ public:
 				op_list.add(op_id);
 		for(op_id = 0; EnumOperations(PPOPT_GENERIC, &op_id, 0) > 0;) {
 			gen_op_list.clear();
-			if(GetGenericOpList(op_id, &gen_op_list))
-				for(uint i = 0; i < gen_op_list.getCount(); i++)
+			if(GetGenericOpList(op_id, &gen_op_list)) {
+				for(uint i = 0; i < gen_op_list.getCount(); i++) {
 					if(op_list.lsearch(gen_op_list.get(i))) {
 						op_list.add(op_id);
 						break;
 					}
+				}
+			}
 		}
 		SetupOprKindCombo(this, CTLSEL_FRGHTFLT_OP, Data.OpID, 0, &op_list, OPKLF_OPLIST);
 		GetOpCommonAccSheet(Data.OpID, &acc_sheet_id, 0);
 		setupAccSheet(acc_sheet_id);
 		SetupPPObjCombo(this, CTLSEL_FRGHTFLT_LOC, PPOBJ_LOCATION, Data.LocID, 0);
-		SetupPPObjCombo(this, CTLSEL_FRGHTFLT_SHIP, PPOBJ_TRANSPORT, Data.ShipID, 0);
+		SetupPPObjCombo(this, CTLSEL_FRGHTFLT_SHIP, PPOBJ_TRANSPORT, Data.ShipID, OLW_WORDSELECTOR);
 		SetupPPObjCombo(this, CTLSEL_FRGHTFLT_PORT, PPOBJ_WORLD, Data.PortID, OLW_CANSELUPLEVEL|OLW_WORDSELECTOR,
-			PPObjWorld::MakeExtraParam(WORLDOBJ_CITY|WORLDOBJ_CITYAREA, 0, 0)); // @v10.7.8 OLW_WORDSELECTOR
+			PPObjWorld::MakeExtraParam(WORLDOBJ_CITY|WORLDOBJ_CITYAREA, 0, 0));
 		AddClusterAssoc(CTL_FRGHTFLT_ORDER,  0, PPViewFreight::OrdByBillDate);
 		AddClusterAssoc(CTL_FRGHTFLT_ORDER, -1, PPViewFreight::OrdByDefault);
 		AddClusterAssoc(CTL_FRGHTFLT_ORDER,  1, PPViewFreight::OrdByArrivalDate);
@@ -710,7 +712,7 @@ int PPViewFreight::UpdateFeatures()
     LDATE  arrival_date = ZERODATE;
     TDialog * dlg = new TDialog(DLG_UPDFREIGHT);
     THROW(CheckDialogPtr(&dlg));
-	SetupPPObjCombo(dlg, CTLSEL_UPDFREIGHT_TR, PPOBJ_TRANSPORT, ship_id, OLW_CANINSERT, reinterpret_cast<void *>(tr_type));
+	SetupPPObjCombo(dlg, CTLSEL_UPDFREIGHT_TR, PPOBJ_TRANSPORT, ship_id, OLW_CANINSERT|OLW_WORDSELECTOR, reinterpret_cast<void *>(tr_type));
 	SetupPPObjCombo(dlg, CTLSEL_UPDFREIGHT_CAPT, PPOBJ_PERSON, captain_id, OLW_CANINSERT/*|OLW_LOADDEFONOPEN*/, reinterpret_cast<void *>(PPPRK_CAPTAIN));
 	dlg->SetupCalDate(CTLCAL_UPDFREIGHT_ISSDT, CTL_UPDFREIGHT_ISSDT);
 	dlg->SetupCalDate(CTLCAL_UPDFREIGHT_ARRDT, CTL_UPDFREIGHT_ARRDT);

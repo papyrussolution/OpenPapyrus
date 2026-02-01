@@ -1,14 +1,9 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 1999-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *   Date        Name        Description
- *   12/09/99    aliu        Ported from Java.
- **********************************************************************
- */
+// Copyright (C) 1999-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// Date        Name        Description
+// 12/09/99    aliu        Ported from Java.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -17,7 +12,6 @@
 #include "thcoll.h"
 #include "filestrm.h"
 #include "textfile.h"
-
 /**
  * The TestDictionary test expects a file of this name, with this
  * encoding, to be present in the directory $ICU/source/test/testdata.
@@ -30,7 +24,8 @@
  */
 #define MAX_FAILURES_TO_SHOW -1
 
-CollationThaiTest::CollationThaiTest() {
+CollationThaiTest::CollationThaiTest() 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	coll = Collator::createInstance(Locale("th", "TH", ""), status);
 	if(coll && U_SUCCESS(status)) {
@@ -42,18 +37,18 @@ CollationThaiTest::CollationThaiTest() {
 	}
 }
 
-CollationThaiTest::~CollationThaiTest() {
+CollationThaiTest::~CollationThaiTest() 
+{
 	delete coll;
 }
 
-void CollationThaiTest::runIndexedTest(int32_t index, bool exec, const char *& name,
-    char * /*par*/) {
+void CollationThaiTest::runIndexedTest(int32_t index, bool exec, const char *& name, char * /*par*/) 
+{
 	if((!coll) && exec) {
 		dataerrln(__FILE__ " cannot test - failed to create collator.");
 		name = "some test";
 		return;
 	}
-
 	switch(index) {
 		TESTCASE(0, TestDictionary);
 		TESTCASE(1, TestCornerCases);
@@ -69,20 +64,18 @@ void CollationThaiTest::runIndexedTest(int32_t index, bool exec, const char *& n
  * gets the same results when comparing lines one to another
  * using regular and iterative comparison.
  */
-void CollationThaiTest::TestNamesList() {
+void CollationThaiTest::TestNamesList() 
+{
 	if(coll == 0) {
 		errln("Error: could not construct Thai collator");
 		return;
 	}
-
 	UErrorCode ec = U_ZERO_ERROR;
 	TextFile names("TestNames_Thai.txt", "UTF16LE", ec);
 	if(U_FAILURE(ec)) {
-		logln("Can't open TestNames_Thai.txt: %s; skipping test",
-		    u_errorName(ec));
+		logln("Can't open TestNames_Thai.txt: %s; skipping test", u_errorName(ec));
 		return;
 	}
-
 	//
 	// Loop through each word in the dictionary and compare it to the previous
 	// word.  They should be in sorted order.
@@ -97,16 +90,13 @@ void CollationThaiTest::TestNamesList() {
 			UnicodeString str;
 			logln((UnicodeString)"Word " + wordCount + ": " + IntlTest::prettify(word, str));
 		}
-
 		if(lastWord.length() > 0) {
 			Collator::EComparisonResult result = coll->compare(lastWord, word);
 			doTest(coll, lastWord, word, result);
 		}
 		lastWord = word;
 	}
-
 	assertSuccess("readLine", ec);
-
 	logln((UnicodeString)"Words checked: " + wordCount);
 }
 
@@ -115,20 +105,18 @@ void CollationThaiTest::TestNamesList() {
  * sorted order, and confirm that the collator compares each line as
  * preceding the following line.
  */
-void CollationThaiTest::TestDictionary() {
+void CollationThaiTest::TestDictionary() 
+{
 	if(coll == 0) {
 		errln("Error: could not construct Thai collator");
 		return;
 	}
-
 	UErrorCode ec = U_ZERO_ERROR;
 	TextFile riwords("riwords.txt", "UTF8", ec);
 	if(U_FAILURE(ec)) {
-		logln("Can't open riwords.txt: %s; skipping test",
-		    u_errorName(ec));
+		logln("Can't open riwords.txt: %s; skipping test", u_errorName(ec));
 		return;
 	}
-
 	//
 	// Loop through each word in the dictionary and compare it to the previous
 	// word.  They should be in sorted order.
@@ -172,18 +160,13 @@ void CollationThaiTest::TestDictionary() {
 		}
 		lastWord = word;
 	}
-
 	assertSuccess("readLine", ec);
-
 	if(failed != 0) {
 		if(failed > MAX_FAILURES_TO_SHOW) {
-			errln((UnicodeString)"Too many failures; only the first " +
-			    MAX_FAILURES_TO_SHOW + " failures were shown");
+			errln((UnicodeString)"Too many failures; only the first " + MAX_FAILURES_TO_SHOW + " failures were shown");
 		}
-		errln((UnicodeString)"Summary: " + failed + " of " + (riwords.getLineNumber() - 1) +
-		    " comparisons failed");
+		errln((UnicodeString)"Summary: " + failed + " of " + (riwords.getLineNumber() - 1) + " comparisons failed");
 	}
-
 	logln((UnicodeString)"Words checked: " + wordCount);
 }
 
@@ -191,7 +174,8 @@ void CollationThaiTest::TestDictionary() {
  * Odd corner conditions taken from "How to Sort Thai Without Rewriting Sort",
  * by Doug Cooper, http://seasrc.th.net/paper/thaisort.zip
  */
-void CollationThaiTest::TestCornerCases() {
+void CollationThaiTest::TestCornerCases() 
+{
 	const char * TESTS[] = {
 		// Shorter words precede longer
 		"\\u0e01",                               "<",    "\\u0e01\\u0e01",
@@ -311,10 +295,14 @@ void CollationThaiTest::compareArray(Collator& c, const char * tests[],
 	}
 }
 
-int8_t CollationThaiTest::sign(int32_t i) {
-	if(i < 0) return -1;
-	if(i > 0) return 1;
-	return 0;
+int8_t CollationThaiTest::sign(int32_t i) 
+{
+	if(i < 0) 
+		return -1;
+	else if(i > 0) 
+		return 1;
+	else
+		return 0;
 }
 
 /**
@@ -322,23 +310,24 @@ int8_t CollationThaiTest::sign(int32_t i) {
  * UnicodeString and the default converter, unless we see the sequence
  * "\\u", in which case we interpret the subsequent escape.
  */
-UnicodeString & CollationThaiTest::parseChars(UnicodeString & result,
-    const char * chars) {
+UnicodeString & CollationThaiTest::parseChars(UnicodeString & result, const char * chars) 
+{
 	return result = CharsToUnicodeString(chars);
 }
 
 UCollator * thaiColl = NULL;
 
 U_CDECL_BEGIN
-static int U_CALLCONV StrCmp(const void * p1, const void * p2) {
-	return ucol_strcoll(thaiColl, *(char16_t**)p1, -1,  *(char16_t**)p2, -1);
-}
-
+	static int U_CALLCONV Str_Compare(const void * p1, const void * p2) 
+	{
+		return ucol_strcoll(thaiColl, *(char16_t**)p1, -1,  *(char16_t**)p2, -1);
+	}
 U_CDECL_END
 
 #define LINES 6
 
-void CollationThaiTest::TestInvalidThai() {
+void CollationThaiTest::TestInvalidThai() 
+{
 	const char * tests[LINES] = {
 		"\\u0E44\\u0E01\\u0E44\\u0E01",
 		"\\u0E44\\u0E01\\u0E01\\u0E44",
@@ -347,32 +336,23 @@ void CollationThaiTest::TestInvalidThai() {
 		"\\u0E44\\u0E44\\u0E01\\u0E01",
 		"\\u0E01\\u0E44\\u0E44\\u0E01",
 	};
-
 	char16_t strings[LINES][20];
-
 	char16_t * toSort[LINES];
-
 	int32_t i = 0, j = 0, len = 0;
-
 	UErrorCode coll_status = U_ZERO_ERROR;
 	UnicodeString iteratorText;
-
 	thaiColl = ucol_open("th_TH", &coll_status);
 	if(U_FAILURE(coll_status)) {
 		errln("Error opening Thai collator: %s", u_errorName(coll_status));
 		return;
 	}
-
 	CollationElementIterator* c = ((RuleBasedCollator*)coll)->createCollationElementIterator(iteratorText);
-
 	for(i = 0; i < SIZEOFARRAYi(tests); i++) {
 		len = u_unescape(tests[i], strings[i], 20);
 		strings[i][len] = 0;
 		toSort[i] = strings[i];
 	}
-
-	qsort(toSort, LINES, sizeof(char16_t *), StrCmp);
-
+	qsort(toSort, LINES, sizeof(char16_t *), Str_Compare);
 	for(i = 0; i < LINES; i++) {
 		logln("%i", i);
 		for(j = i+1; j < LINES; j++) {

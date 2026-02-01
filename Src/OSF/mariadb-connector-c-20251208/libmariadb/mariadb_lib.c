@@ -1090,7 +1090,6 @@ MYSQL * STDCALL mysql_real_connect(MYSQL * mysql, const char * host, const char 
 	if(connection_handler || (host && (end = (char *)strstr(host, "://")))) {
 		MARIADB_CONNECTION_PLUGIN * plugin;
 		char plugin_name[64];
-
 		if(!connection_handler || !connection_handler[0]) {
 			memzero(plugin_name, 64);
 			ma_strmake(plugin_name, host, MIN(end - host, 63));
@@ -1704,8 +1703,7 @@ void my_set_error(MYSQL * mysql, uint error_nr, const char * sqlstate, const cha
 		if(IS_MYSQL_ERROR(error_nr) || IS_MARIADB_ERROR(error_nr))
 			errmsg = ER(error_nr);
 		else {
-			snprintf(mysql->net.last_error, MYSQL_ERRMSG_SIZE - 1,
-			    ER_UNKNOWN_ERROR_CODE, error_nr);
+			snprintf(mysql->net.last_error, MYSQL_ERRMSG_SIZE - 1, ER_UNKNOWN_ERROR_CODE, error_nr);
 			return;
 		}
 	}
@@ -3037,63 +3035,20 @@ MYSQL_ROWS * STDCALL mysql_row_tell(MYSQL_RES * res)
 	return res->data_cursor;
 }
 
-uint STDCALL mysql_field_tell(MYSQL_RES * res)
-{
-	return (res)->current_field;
-}
+uint STDCALL mysql_field_tell(MYSQL_RES * res) { return (res)->current_field; }
 
 /* MYSQL */
 
-uint STDCALL mysql_field_count(MYSQL * mysql)
-{
-	return mysql->field_count;
-}
-
-my_ulonglong STDCALL mysql_affected_rows(MYSQL * mysql)
-{
-	return (mysql)->affected_rows;
-}
-
-bool STDCALL mysql_autocommit(MYSQL * mysql, bool mode)
-{
-	return((bool)mysql_real_query(mysql, (mode) ? "SET autocommit=1" :
-	       "SET autocommit=0", 16));
-}
-
-bool STDCALL mysql_commit(MYSQL * mysql)
-{
-	return((bool)mysql_real_query(mysql, "COMMIT", (ulong)strlen("COMMIT")));
-}
-
-bool STDCALL mysql_rollback(MYSQL * mysql)
-{
-	return((bool)mysql_real_query(mysql, "ROLLBACK", (ulong)strlen("ROLLBACK")));
-}
-
-my_ulonglong STDCALL mysql_insert_id(MYSQL * mysql)
-{
-	return (mysql)->insert_id;
-}
-
-uint STDCALL mysql_errno(MYSQL * mysql)
-{
-	return mysql ? mysql->net.last_errno : 0;
-}
-
-const char * STDCALL mysql_error(MYSQL * mysql)
-{
-	return mysql ? (mysql)->net.last_error : (char*)"";
-}
-
-const char * STDCALL mysql_info(MYSQL * mysql)
-{
-	return (mysql)->info;
-}
-
-bool STDCALL mysql_more_results(MYSQL * mysql)
-{
-	return(test(mysql->server_status & SERVER_MORE_RESULTS_EXIST));
-}
+uint STDCALL mysql_field_count(MYSQL * mysql) { return mysql->field_count; }
+my_ulonglong STDCALL mysql_affected_rows(MYSQL * mysql) { return (mysql)->affected_rows; }
+bool STDCALL mysql_autocommit(MYSQL * mysql, bool mode) { return((bool)mysql_real_query(mysql, (mode) ? "SET autocommit=1" : "SET autocommit=0", 16)); }
+bool STDCALL mysql_commit(MYSQL * mysql) { return((bool)mysql_real_query(mysql, "COMMIT", (ulong)strlen("COMMIT"))); }
+bool STDCALL mysql_rollback(MYSQL * mysql) { return((bool)mysql_real_query(mysql, "ROLLBACK", (ulong)strlen("ROLLBACK"))); }
+my_ulonglong STDCALL mysql_insert_id(MYSQL * mysql) { return (mysql)->insert_id; }
+uint STDCALL mysql_errno(MYSQL * mysql) { return mysql ? mysql->net.last_errno : 0; }
+const char * STDCALL mysql_error(MYSQL * mysql) { return mysql ? (mysql)->net.last_error : (char*)""; }
+const char * STDCALL mysql_info(MYSQL * mysql) { return (mysql)->info; }
+bool STDCALL mysql_more_results(MYSQL * mysql) { return(test(mysql->server_status & SERVER_MORE_RESULTS_EXIST)); }
 
 int STDCALL mysql_next_result(MYSQL * mysql)
 {
@@ -3102,27 +3057,17 @@ int STDCALL mysql_next_result(MYSQL * mysql)
 		SET_CLIENT_ERROR(mysql, CR_COMMANDS_OUT_OF_SYNC, SQLSTATE_UNKNOWN, 0);
 		return 1;
 	}
-
 	/* clear error, and mysql status variables */
 	CLEAR_CLIENT_ERROR(mysql);
 	mysql->affected_rows = (ulonglong) ~0;
-
 	if(mysql->server_status & SERVER_MORE_RESULTS_EXIST) {
 		return(mysql->methods->db_read_query_result(mysql));
 	}
-
 	return -1;
 }
 
-ulong STDCALL mysql_thread_id(MYSQL * mysql)
-{
-	return (mysql)->thread_id;
-}
-
-const char * STDCALL mysql_character_set_name(MYSQL * mysql)
-{
-	return mysql->charset->csname;
-}
+ulong STDCALL mysql_thread_id(MYSQL * mysql) { return (mysql)->thread_id; }
+const char * STDCALL mysql_character_set_name(MYSQL * mysql) { return mysql->charset->csname; }
 
 uint STDCALL mysql_thread_safe(void)
 {
@@ -3148,8 +3093,7 @@ ulong STDCALL mysql_escape_string(char * to, const char * from, ulong length)
 	return (ulong)mysql_cset_escape_slashes(ma_default_charset_info, to, from, length);
 }
 
-ulong STDCALL mysql_real_escape_string(MYSQL * mysql, char * to, const char * from,
-    ulong length)
+ulong STDCALL mysql_real_escape_string(MYSQL * mysql, char * to, const char * from, ulong length)
 {
 	if(mysql->server_status & SERVER_STATUS_NO_BACKSLASH_ESCAPES)
 		return (ulong)mysql_cset_escape_quotes(mysql->charset, to, from, length);
@@ -3159,19 +3103,16 @@ ulong STDCALL mysql_real_escape_string(MYSQL * mysql, char * to, const char * fr
 
 static void mariadb_get_charset_info(MYSQL * mysql, MY_CHARSET_INFO * cs)
 {
-	if(!cs)
-		return;
-
-	cs->number = mysql->charset->nr;
-	cs->csname =  mysql->charset->csname;
-	cs->name = mysql->charset->name;
-	cs->state = 0;
-	cs->comment = NULL;
-	cs->dir = NULL;
-	cs->mbminlen = mysql->charset->char_minlen;
-	cs->mbmaxlen = mysql->charset->char_maxlen;
-
-	return;
+	if(cs) {
+		cs->number = mysql->charset->nr;
+		cs->csname =  mysql->charset->csname;
+		cs->name = mysql->charset->name;
+		cs->state = 0;
+		cs->comment = NULL;
+		cs->dir = NULL;
+		cs->mbminlen = mysql->charset->char_minlen;
+		cs->mbmaxlen = mysql->charset->char_maxlen;
+	}
 }
 
 void STDCALL mysql_get_character_set_info(MYSQL * mysql, MY_CHARSET_INFO * cs)
@@ -3182,13 +3123,10 @@ void STDCALL mysql_get_character_set_info(MYSQL * mysql, MY_CHARSET_INFO * cs)
 int STDCALL mysql_set_character_set(MYSQL * mysql, const char * csname)
 {
 	const MARIADB_CHARSET_INFO * cs;
-
 	if(!csname)
 		goto error;
-
 	if((cs = mysql_find_charset_name(csname))) {
 		char buff[64];
-
 		snprintf(buff, 63, "SET NAMES %s", cs->csname);
 		if(!mysql_real_query(mysql, buff, (ulong)strlen(buff))) {
 			mysql->charset = cs;
@@ -3196,32 +3134,22 @@ int STDCALL mysql_set_character_set(MYSQL * mysql, const char * csname)
 		}
 		return(mysql->net.last_errno);
 	}
-
 error:
-	my_set_error(mysql, CR_CANT_READ_CHARSET, SQLSTATE_UNKNOWN,
-	    0, csname, "compiled_in");
+	my_set_error(mysql, CR_CANT_READ_CHARSET, SQLSTATE_UNKNOWN, 0, csname, "compiled_in");
 	return(mysql->net.last_errno);
 }
 
-uint STDCALL mysql_warning_count(MYSQL * mysql)
-{
-	return mysql->warning_count;
-}
-
-const char * STDCALL mysql_sqlstate(MYSQL * mysql)
-{
-	return mysql->net.sqlstate;
-}
+uint STDCALL mysql_warning_count(MYSQL * mysql) { return mysql->warning_count; }
+const char * STDCALL mysql_sqlstate(MYSQL * mysql) { return mysql->net.sqlstate; }
 
 #ifndef _WIN32
-#include <signal.h>
-static void ignore_sigpipe()
-{
-	signal(SIGPIPE, SIG_IGN);
-}
-
+	#include <signal.h>
+	static void ignore_sigpipe()
+	{
+		signal(SIGPIPE, SIG_IGN);
+	}
 #else
-#define ignore_sigpipe()
+	#define ignore_sigpipe()
 #endif
 
 #ifdef _WIN32
@@ -3279,22 +3207,17 @@ static void mysql_once_init()
 }
 
 #ifdef _WIN32
-static INIT_ONCE init_once = INIT_ONCE_STATIC_INIT;
-BOOL CALLBACK win_init_once(PINIT_ONCE InitOnce,
-    PVOID Parameter,
-    PVOID * lpContext)
-{
-	return !mysql_once_init();
-	return TRUE;
-}
-
+	static INIT_ONCE init_once = INIT_ONCE_STATIC_INIT;
+	BOOL CALLBACK win_init_once(PINIT_ONCE InitOnce, PVOID Parameter, PVOID * lpContext)
+	{
+		return !mysql_once_init();
+		return TRUE;
+	}
 #else
-static pthread_once_t init_once = PTHREAD_ONCE_INIT;
+	static pthread_once_t init_once = PTHREAD_ONCE_INIT;
 #endif
 
-int STDCALL mysql_server_init(int argc __attribute__((unused)),
-    char ** argv __attribute__((unused)),
-    char ** groups __attribute__((unused)))
+int STDCALL mysql_server_init(int argc __attribute__((unused)), char ** argv __attribute__((unused)), char ** groups __attribute__((unused)))
 {
 #ifdef _WIN32
 	BOOL ret = InitOnceExecuteOnce(&init_once, win_init_once, NULL, NULL);

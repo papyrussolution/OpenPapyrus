@@ -546,7 +546,7 @@ void SysJournal::GetSubstName(SubstGrpSysJournal sgsj, PPID id, char * pBuf, siz
 	if(sgsj == sgsjOp)
 		GetObjectName(PPOBJ_ACTION, id, temp_buf);
 	else if(sgsj == sgsjUser) {
-		PPSecur rec;
+		PPSecur2 rec;
 		PPObjSecur obj(PPOBJ_USR, 0);
 		obj.Fetch(id, &rec);
 		temp_buf = rec.Name;
@@ -562,7 +562,7 @@ void SysJournal::GetSubstName(SubstGrpSysJournal sgsj, PPID id, SString & rBuf)
 	if(sgsj == sgsjOp)
 		GetObjectName(PPOBJ_ACTION, id, rBuf);
 	else if(sgsj == sgsjUser) {
-		PPSecur rec;
+		PPSecur2 rec;
 		PPObjSecur obj(PPOBJ_USR, 0);
 		if(obj.Fetch(id, &rec) > 0)
 			rBuf = rec.Name;

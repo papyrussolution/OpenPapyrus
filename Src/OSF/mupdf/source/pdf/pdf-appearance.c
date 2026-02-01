@@ -647,20 +647,15 @@ static void pdf_write_icon_appearance(fz_context * ctx, pdf_annot * annot, fz_bu
 	const char * name;
 	float xc = (rect->x0 + rect->x1) / 2;
 	float yc = (rect->y0 + rect->y1) / 2;
-
 	if(!pdf_write_fill_color_appearance(ctx, annot, buf))
 		fz_append_string(ctx, buf, "1 g\n");
-
 	fz_append_string(ctx, buf, "1 w\n0.5 0.5 15 15 re\nb\n");
 	fz_append_string(ctx, buf, "1 0 0 -1 4 12 cm\n");
-
 	if(pdf_is_dark_fill_color(ctx, annot))
 		fz_append_string(ctx, buf, "1 g\n");
 	else
 		fz_append_string(ctx, buf, "0 g\n");
-
 	name = pdf_annot_icon_name(ctx, annot);
-
 	/* Text names */
 	if(sstreq(name, "Comment"))
 		fz_append_string(ctx, buf, icon_comment);
@@ -676,7 +671,6 @@ static void pdf_write_icon_appearance(fz_context * ctx, pdf_annot * annot, fz_bu
 		fz_append_string(ctx, buf, icon_paragraph);
 	else if(sstreq(name, "Insert"))
 		fz_append_string(ctx, buf, icon_insert);
-
 	/* FileAttachment names */
 	else if(sstreq(name, "Graph"))
 		fz_append_string(ctx, buf, icon_graph);
@@ -686,17 +680,14 @@ static void pdf_write_icon_appearance(fz_context * ctx, pdf_annot * annot, fz_bu
 		fz_append_string(ctx, buf, icon_paperclip);
 	else if(sstreq(name, "Tag"))
 		fz_append_string(ctx, buf, icon_tag);
-
 	/* Sound names */
 	else if(sstreq(name, "Speaker"))
 		fz_append_string(ctx, buf, icon_speaker);
 	else if(sstreq(name, "Mic"))
 		fz_append_string(ctx, buf, icon_mic);
-
 	/* Unknown */
 	else
 		fz_append_string(ctx, buf, icon_star);
-
 	*rect = fz_make_rect(xc - 9, yc - 9, xc + 9, yc + 9);
 	*bbox = fz_make_rect(0, 0, 16, 16);
 }

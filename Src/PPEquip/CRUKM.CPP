@@ -1,5 +1,5 @@
 // CRUKM.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2024, 2025
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2024, 2025, 2026
 // @codepage UTF-8
 // Интерфейс (асинхронный) к драйверу ККМ "Кристалл-УКМ" (ООО Кристалл Сервис)
 //
@@ -385,7 +385,7 @@ int ACS_CRUKM::ExportData(int updOnly)
 		if(eq_cfg.CashiersGrpID) {
 			char  rights[36];
 			PPID  cashier_id;
-			PPSecur    cashier_rec;
+			PPSecur2 cashier_rec;
 			PPObjSecur obj_secur(PPOBJ_USR, 0);
 			memset(rights, '.', sizeof(rights));
 			rights[35] = 0;

@@ -8704,6 +8704,7 @@ static PPID TranslateQuotKind(PpyQuotCat cat, long inQuotKindID)
 
 static long QuotTagToFlags(long tag)
 {
+	// @todo @20260131 fAbsOnCost fAbsOnPrice
 	long f = 0;
 	if(tag == qvtPctCost)
 		f |= PPQuot::fPctOnCost;
@@ -8720,6 +8721,7 @@ static long QuotTagToFlags(long tag)
 
 static long QuotFlagsToTag(long flags)
 {
+	// @todo @20260131 fAbsOnCost fAbsOnPrice
 	long   tag = 0;
 	if(flags & PPQuot::fPctOnCost)
 		tag = qvtPctCost;

@@ -1,5 +1,5 @@
 // FRONTOL.CPP
-// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Интерфейс (асинхронный) к драйверу "Атол"
 //
@@ -247,8 +247,8 @@ int ACS_FRONTOL::ExportData(int updOnly)
 	PPIniFile ini_file;
 	FILE * p_file = 0;
 	PPObjCashNode cnobj;
-	const  int check_dig = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
-	const  int is_vatfree = (cnobj.IsNodeVatFree(NodeID) > 0);
+	const  int  check_dig = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
+	const  bool is_vatfree = (cnobj.IsNodeVatFree(NodeID) > 0);
 	THROW(GetNodeData(&cn_data) > 0);
 	const int is_xpos = IsXPos(cn_data);
 	if(cn_data.DrvVerMajor > 3 || (cn_data.DrvVerMajor == 3 && cn_data.DrvVerMinor >= 4))
@@ -598,6 +598,12 @@ int ACS_FRONTOL::ExportData(int updOnly)
 								vat_code = 2;
 							else if(feqeps(gds_info.VatRate, 20.0, 1E-6))
 								vat_code = 3;
+							else if(feqeps(gds_info.VatRate, 22.0, 1E-6)) // @v12.5.5
+								vat_code = 11;
+							else if(feqeps(gds_info.VatRate, 5.0, 1E-6)) // @v12.5.5
+								vat_code = 7;
+							else if(feqeps(gds_info.VatRate, 7.0, 1E-6)) // @v12.5.5
+								vat_code = 8;
 							if(vat_code)
 								tail.Cat(vat_code);                     // #23 Налоговая группа
 							tail.Semicol();

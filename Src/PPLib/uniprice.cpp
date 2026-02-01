@@ -122,7 +122,7 @@ int PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
 			bool allow_psrcGtPriceRestrUpp = false;
 			{
 				PPObjGoodsType gt_obj;
-				PPGoodsType gt_rec;
+				PPGoodsType2 gt_rec;
 				PPIDArray restr_id_list;
 				for(SEnum en = gt_obj.Enum(0); en.Next(&gt_rec) > 0;) {
 					restr_id_list.addnz(gt_rec.PriceRestrID);
@@ -467,7 +467,7 @@ int PrcssrUnifyPrice::ProcessGoods2(const Goods2Tbl::Rec * pGoodsRec, PPID * pTu
 	//double price_restr_limit = 0.0;
 	if(oneof2(P.PriceSource, P.psrcGtPriceRestrLow, P.psrcGtPriceRestrUpp)) {
 		skip_this_goods = true;
-		PPGoodsType gt_rec;
+		PPGoodsType2 gt_rec;
 		if(pGoodsRec->GoodsTypeID && GObj.FetchGoodsType(pGoodsRec->GoodsTypeID, &gt_rec) > 0) {
 			if(gt_rec.PriceRestrID) {
 				PPObjGoodsValRestr gvr_obj;

@@ -2516,6 +2516,15 @@ int PPSession::Init(long internalAppId, long flags, HINSTANCE hInst, const char 
 				const SFontDescr * p_fd = p_uid ? p_uid->GetFontDescrC("ControlFont") : 0;
 				UiToolBox_.CreateFont_(TProgram::tbiControlFont, p_fd ? *p_fd : fd_default);
 			}
+			{ // @v12.5.5
+				SFontDescr fd_default("Verdana", 16, 0); // ! Не использовать "MS Sans Serif" 
+				const SFontDescr * p_fd = p_uid ? p_uid->GetFontDescrC("AccentInputFont") : 0;
+				UiToolBox_.CreateFont_(TProgram::tbiAccentInputFont, p_fd ? *p_fd : fd_default);
+			}
+			{
+				UiToolBox_.CreateCursor(TProgram::tbiCurResizeHorz, IDC_TWOARR_HORZ); // @v12.5.5 Курсор изменения горизонтального размера
+				UiToolBox_.CreateCursor(TProgram::tbiCurResizeVert, IDC_TWOARR_VERT); // @v12.5.5 Курсор изменения верикального размера
+			}
 		}
 	}
 	// } @v11.9.2 
@@ -2886,13 +2895,15 @@ int PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 	int    ok = 1;
 	int    r;
 	SString temp_buf;
+	SString db_symb;
 	SString data_path;
 	SString _data_directory; // Каталог базы данных. Обычно совпадает с data_path, но в случае с SQLite (и черт знает чем в будущем, если оно наступит) может отличаться //
 	SString temp_path;
 	PPVersionInfo ver_inf(0);
-	const SVerT this_ver   = ver_inf.GetVersion();
-	const SVerT this_db_min_ver = ver_inf.GetVersion(1);
+	const SVerT this_ver(ver_inf.GetVersion());
+	const SVerT this_db_min_ver(ver_inf.GetVersion(1));
 	pBlk->GetAttr(DbLoginBlock::attrDbPath, data_path);
+	pBlk->GetAttr(DbLoginBlock::attrDbSymb, db_symb);
 	PPVerHistory verh;
 	PPVerHistory::Info vh_info;
 	pBlk->GetAttr(DbLoginBlock::attrServerType, temp_buf);
@@ -2905,7 +2916,25 @@ int PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 		// @v12.4.1 {
 		bool is_entry_valid = true;
 		if(server_type == sqlstMySQL) {
-			; // ok
+			THROW(db_symb.NotEmptyS()); // @todo @err
+			//
+			// Для базы данных, управляемой dbms-сервером должен быть служебный каталог в общем каталоге для файла блокировки и др.
+			// Будем считать, что это каталог находится по адресу:
+			//   - если есть общий dat-каталог, то там как подкаталог с символом базы данных 
+			//   - иначе - workspace/data/{database-symbo}
+			//
+			PPGetPath(PPPATH_DAT, temp_buf);
+			if(SFile::IsDir(temp_buf)) {
+				temp_buf.SetLastSlash().Cat(db_symb);
+				THROW_SL(SFile::CreateDir(temp_buf));
+				_data_directory = temp_buf;
+			}
+			else {
+				PPGetPath(PPPATH_WORKSPACE, temp_buf);
+				temp_buf.SetLastSlash().Cat("data").SetLastSlash().Cat(db_symb);
+				THROW_SL(SFile::CreateDir(temp_buf));
+				_data_directory = temp_buf;
+			}
 		}
 		else if(server_type == sqlstSQLite) {
 			if(SFile::IsDir(data_path)) {
@@ -3079,7 +3108,7 @@ int PPSession::FetchConfig(PPID obj, PPID objID, PPConfig * pCfg)
 	//
 	SETFLAG(pCfg->Flags, CFGFLG_FREEPRICE, global.Flags & CFGFLG_FREEPRICE);
 	SETFLAG(pCfg->Flags, CFGFLG_MULTICURACCT, global.Flags & CFGFLG_MULTICURACCT);
-	SETFLAG(pCfg->Flags, CFGFLG_MULTICURBILL_DISABLE, global.Flags & CFGFLG_MULTICURBILL_DISABLE); // @v11.2.7
+	SETFLAG(pCfg->Flags, CFGFLG_MULTICURBILL_DISABLE, global.Flags & CFGFLG_MULTICURBILL_DISABLE);
 	pCfg->DBDiv     = global.DBDiv;
 	pCfg->BaseCurID = global.BaseCurID;
 	pCfg->BaseRateTypeID = global.BaseRateTypeID;
@@ -3093,7 +3122,7 @@ int PPSession::FetchAlbatrosConfig(PPAlbatrossConfig * pCfg)
 	return gua_obj.FetchAlbatossConfig(pCfg);
 }
 
-int PPSession::CheckSystemAccount(DbLoginBlock * pDlb, PPSecur * pSecur)
+int PPSession::CheckSystemAccount(DbLoginBlock * pDlb, PPSecur2 * pSecur)
 {
 	int    ok = -1;
 	SString system_user_name;
@@ -3113,7 +3142,7 @@ int PPSession::CheckSystemAccount(DbLoginBlock * pDlb, PPSecur * pSecur)
 			memzero(pw, sizeof(pw));
 			PPIniFile ini_file;
 			ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_DOMAINNAME, domain);
-			const PPSecur & r_secur = *(PPSecur*)&ref.data;
+			const PPSecur2 & r_secur = *reinterpret_cast<const PPSecur2 *>(&ref.data);
 			Reference::GetPassword(&r_secur, pw, sizeof(pw));
 			if(SCheckSystemCredentials(domain, system_user_name, pw)) {
 				ASSIGN_PTR(pSecur, r_secur);
@@ -3955,7 +3984,7 @@ int PPSession::Implement_PPLogin(const PPDbEntrySet2 * pDbes, const char * pDbSy
 	int    empty_secur_base = 0;
 	int    is_demo = 0;
 	ulong  term_sess_id = 0;
-	PPSecur usr_rec;
+	PPSecur2 usr_rec;
 	PPConfig & r_lc = r_tla.Lc;
 	PPCommConfig & r_cc = r_tla.Cc;
 	STRNSCPY(user_name, pUserName);
@@ -4184,7 +4213,7 @@ int PPSession::Implement_PPLogin(const PPDbEntrySet2 * pDbes, const char * pDbSy
 				pw[0] = 0;
 			}
 			else {
-				usr_rec = *reinterpret_cast<const PPSecur *>(&p_ref->data);
+				usr_rec = *reinterpret_cast<const PPSecur2 *>(&p_ref->data);
 				THROW(Reference::VerifySecur(&usr_rec, 0));
 				if(onetimepass_user_id) {
 					PTR32(pw)[0] = 0xf9e8d7c6; // any non zero value
@@ -4574,6 +4603,24 @@ int PPSession::Implement_PPLogin(const PPDbEntrySet2 * pDbes, const char * pDbSy
 					}
 				}
 				// } @v12.4.1 
+				// @v12.5.5 {
+				{
+					//PPINIPARAM_CHZNPMLOCALCONNTIMEOUT        "ChZnPmLocalConnTimeout"    // @v12.5.5 [config] def=20000 Таймаут (ms) ожидания соединения с локальным сервером честный знак для проверки марки
+					//PPINIPARAM_CHZNPMLOCALOVRALLTIMEOUT      "ChZnPmLocalOvrallTimeout"  // @v12.5.5 [config] def=40000 Таймаут (ms) общего времени обработки запроса к локальному серверу честный знак для проверки марки
+					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CHZNPMLOCALCONNTIMEOUT, &(iv = 0)) > 0 && (iv > 0 && iv <= 120000)) {
+						r_cc.ChZnPmLocalConnTimeout = static_cast<uint32>(iv);
+					}
+					else {
+						r_cc.ChZnPmLocalConnTimeout = 20000;
+					}
+					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CHZNPMLOCALOVRALLTIMEOUT, &(iv = 0)) > 0 && (iv > 0 && iv <= 120000)) {
+						r_cc.ChZnPmLocalOvrallTimeout = static_cast<uint32>(iv);
+					}
+					else {
+						r_cc.ChZnPmLocalOvrallTimeout = 40000;
+					}
+				}
+				// } @v12.5.5
 				// @v11.3.7 {
 				if(CheckExtFlag(ECF_PAPERLESSCHEQUE) && ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_PAPERLESSCHEQUE_FAKEEADDR, sv) && sv.NotEmptyS()) {
 					SNaturalTokenArray nta;
@@ -5936,7 +5983,7 @@ PPJobSrvClient * PPSession::GetClientSession(bool dontReconnect)
 			else {
 				int r = p_cli->Reconnect(0, -1);
 				if(r > 0 && r != 2) {
-					PPSecur usr_rec;
+					PPSecur2 usr_rec;
 					char   pw[128];
 					SString user_name;
 					SString db_symb;

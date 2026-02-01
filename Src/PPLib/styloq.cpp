@@ -6873,8 +6873,14 @@ SJson * PPStyloQInterchange::MakeObjJson_Goods(const SBinaryChunk & rOwnIdent, c
 			// @v11.5.0 {
 			if(pInnerEntry->Flags & InnerGoodsEntry::fEgais)
 				p_result->InsertBool("egais", true);
-			if(pInnerEntry->ChZnMarkCat)
+			if(pInnerEntry->ChZnMarkCat) {
 				p_result->InsertInt("chzncat", pInnerEntry->ChZnMarkCat);
+				// @v12.5.5 {
+				if(pInnerEntry->Flags & InnerGoodsEntry::fMarkedWhs) {
+					p_result->InsertBool("chznmarkedwhs", true);
+				}
+				// } @v12.5.5 
+			}
 			// } @v11.5.0 
 			//
 			if(pInnerEntry->UnitPerPack > 1.0)
@@ -9405,7 +9411,7 @@ int PPStyloQInterchange::FetchProcessorFromClientPacket(const StyloQCore::Storag
 		}
 	}
 	else if(rCliPack.Rec.LinkObjType == PPOBJ_USR) {
-		PPSecur sec_rec;
+		PPSecur2 sec_rec;
 		PPObjSecur sec_obj(PPOBJ_USR, 0);
 		if(sec_obj.Search(rCliPack.Rec.LinkObjID, &sec_rec) > 0) {
 			if(sec_rec.PersonID) {
@@ -9449,7 +9455,7 @@ int PPStyloQInterchange::FetchPersonFromClientPacket(const StyloQCore::StoragePa
 		}
 	}
 	else if(rCliPack.Rec.LinkObjType == PPOBJ_USR) {
-		PPSecur sec_rec;
+		PPSecur2 sec_rec;
 		PPObjSecur sec_obj(PPOBJ_USR, 0);
 		if(sec_obj.Search(rCliPack.Rec.LinkObjID, &sec_rec) > 0) {
 			if(sec_rec.PersonID) {
@@ -10464,7 +10470,7 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 			THROW(SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0);
 			if(cli_pack.Rec.Kind == StyloQCore::kClient && cli_pack.Rec.LinkObjType == PPOBJ_USR && cli_pack.Rec.LinkObjID) {
 				PPObjSecur sec_obj(PPOBJ_USR, 0);
-				PPSecur sec_rec;
+				PPSecur2 sec_rec;
 				if(sec_obj.Search(cli_pack.Rec.LinkObjID, &sec_rec) > 0) {
 					if(!sstreqi_ascii(sec_rec.Name, PPSession::P_JobLogin) && !sstreqi_ascii(sec_rec.Name, PPSession::P_EmptyBaseCreationLogin)) {
 						if(OnetimePass(sec_rec.ID) > 0) {
@@ -11715,7 +11721,6 @@ static int SetupCorrelationIdent(const PPMqbClient::Envelope & rMqbEnv, StyloQPr
 	return ok;
 }
 
-#if 1 // @construction {
 /*static*/int StyloQCore::Test_IndexingContent(const char * pDbLoc, const char * pJsText) // @v12.3.1
 {
 	int    ok = -1;
@@ -11777,7 +11782,6 @@ static int SetupCorrelationIdent(const PPMqbClient::Envelope & rMqbEnv, StyloQPr
 	CATCHZOK
 	return ok;
 }
-#endif // } 0 @construction
 
 int StyloQCore::IndexingContent()
 {

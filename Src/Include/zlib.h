@@ -1933,8 +1933,7 @@ ZEXTERN int gzdirect(gzFile file);
 
      If gzdirect() is used immediately after gzopen() or gzdopen() it will
    cause buffers to be allocated to allow reading the file to determine if it
-   is a gzip file.  Therefore if gzbuffer() is used, it should be called before
-   gzdirect().
+   is a gzip file.  Therefore if gzbuffer() is used, it should be called before gzdirect().
 
      When writing, gzdirect() returns true (1) if transparent writing was
    requested ("wT" for the gzopen() mode), or false (0) otherwise.  (Note:

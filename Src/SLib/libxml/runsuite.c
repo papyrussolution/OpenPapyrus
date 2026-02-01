@@ -7,23 +7,18 @@
  */
 
 #include "libxml.h"
-#include <stdio.h>
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
 #include <unistd.h>
 #endif
-#include <string.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
 #include <libxml/parser.h>
 #include <libxml/parserInternals.h>
 #include <libxml/tree.h>
 #include <libxml/uri.h>
 #if defined(LIBXML_SCHEMAS_ENABLED) && defined(LIBXML_XPATH_ENABLED)
 #include <libxml/xmlreader.h>
-
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
 
@@ -34,13 +29,9 @@
 #define LOGFILE "runsuite.log"
 static FILE * logfile = NULL;
 static int verbose = 0;
-
-/************************************************************************
-*									*
-*		File name and path utilities				*
-*									*
-************************************************************************/
-
+// 
+// File name and path utilities
+// 
 static int checkTestFile(const char * filename)
 {
 	struct stat buf;

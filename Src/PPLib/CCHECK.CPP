@@ -3134,7 +3134,7 @@ int CCheckCore::PreprocessPacket(CCheckPacket * pPack)
 	if(pPack->Rec.Dt == 0)
 		getcurdatetime(&pPack->Rec.Dt, &pPack->Rec.Tm);
 	if(pPack->Rec.UserID == 0) {
-		PPSecur sec_rec;
+		PPSecur2 sec_rec;
 		PPObjSecur sec_obj(PPOBJ_USR, 0);
 		if(sec_obj.Fetch(LConfig.UserID, &sec_rec) > 0)
 			pPack->Rec.UserID = sec_rec.PersonID;

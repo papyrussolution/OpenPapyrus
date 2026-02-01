@@ -212,6 +212,14 @@
         <item name="android:textSize">13sp</item>
         <item name="android:textColor">@color/TextPrimary</item>
     </style>
+    <style name="InputLineTextCompact" parent="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="android:layout_margin">8dp</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/TextPrimary</item>
+    </style>
     <style name="TSessDurationText">
         <item name="android:textSize">10sp</item>
         <item name="android:textFontWeight">600</item>

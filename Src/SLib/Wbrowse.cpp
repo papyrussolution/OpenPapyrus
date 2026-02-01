@@ -3199,15 +3199,15 @@ void BrowserWindow::SpecialMenu() // @v12.4.12
 		case WM_LBUTTONDOWN:
 			if(p_view) {
 				if(hWnd != GetFocus())
-					SetFocus(hWnd);
+					::SetFocus(hWnd);
 				pnt = tp.setwparam(static_cast<uint32>(lParam));
-				SetCapture(hWnd);
+				::SetCapture(hWnd);
 				if(p_view->ResizedCol)
 					p_view->Resize(tp, 1);
 				else {
 					if(p_view->BbState & TBaseBrowserWindow::bbsIsMDI) {
 						DefMDIChildProc(hWnd, msg, wParam, lParam);
-						UpdateWindow(hWnd);
+						::UpdateWindow(hWnd);
 					}
 					bool   done = false;
 					if(p_view->HeaderByPoint(tp, hdrzoneSortPoint, &vPos) && p_view->P_Def->IsValidIdx(vPos)) {
@@ -3341,9 +3341,9 @@ int BrowserWindow::search(void * pPattern, CompFunc fcmp, int srchMode)
 {
 	int    ok = 0;
 	if(P_Def && P_Def->search(pPattern, fcmp, srchMode, HScrollPos)) {
-		long   scrll_delta;
-		long   scrll_pos;
-		P_Def->getScrollData(&scrll_delta, &scrll_pos);
+		//long   scrll_delta;
+		//long   scrll_pos;
+		//P_Def->getScrollData(&scrll_delta, &scrll_pos);
 		VScrollPos = P_Def->_curFrameItem();
 		ItemRect(HScrollPos, VScrollPos, &RectCursors.CellCursor, true);
 		LineRect(VScrollPos, &RectCursors.LineCursor, true);
@@ -3358,7 +3358,8 @@ int BrowserWindow::search(void * pPattern, CompFunc fcmp, int srchMode)
 		if(!(APPL->GetUiSettings().Flags & UserInterfaceSettings::fDisableNotFoundWindow)) { // @v11.2.6
 			SMessageWindow * p_win = new SMessageWindow;
 			if(p_win) {
-				SString msg_buf, fmt_buf;
+				SString msg_buf;
+				SString fmt_buf;
 				SLS.LoadString_("strnfound", fmt_buf);
 				msg_buf.Printf(fmt_buf, static_cast<const char *>(pPattern));
 				p_win->Open(msg_buf, 0, H(), 0, 5000, GetColorRef(SClrRed), SMessageWindow::fShowOnCenter|SMessageWindow::fChildWindow, 0);

@@ -2133,7 +2133,7 @@ int PPObjBill::GetPriceRestrictions(PPBillPacket & rPack, const PPTransferItem &
 	int    ok = -1;
 	RealRange range;
 	range.SetVal(0.0);
-	PPGoodsType gt_rec;
+	PPGoodsType2 gt_rec;
 	Goods2Tbl::Rec goods_rec;
 	if(GObj.Fetch(rTi.GoodsID, &goods_rec) > 0 && GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.PriceRestrID) {
 		PPObjGoodsValRestr gvr_obj;
@@ -2154,7 +2154,7 @@ int PPObjBill::GetPriceRestrictions(PPID goodsID, PPID lotID, double cost, doubl
 	int    ok = -1;
 	RealRange range;
 	range.SetVal(0.0);
-	PPGoodsType gt_rec;
+	PPGoodsType2 gt_rec;
 	Goods2Tbl::Rec goods_rec;
 	if(GObj.Fetch(goodsID, &goods_rec) > 0 && GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.PriceRestrID) {
 		PPObjGoodsValRestr gvr_obj;

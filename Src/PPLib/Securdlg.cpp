@@ -1,5 +1,5 @@
 // SECURDLG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Диалоги редактирования пользователей, групп, прав доступа.
 //
@@ -42,7 +42,7 @@ public:
 		RVALUEPTR(Data, pData);
 		int    ok = 1;
 		ushort v  = 0;
-		PPSecur * p_secur = &Data.Secur;
+		PPSecur2 * p_secur = &Data.Secur;
 		setCtrlData(CTL_USRGRP_NAME, p_secur->Name);
 		setCtrlData(CTL_USRGRP_ID, &ObjID);
 		disableCtrl(CTL_USRGRP_ID, (!PPMaster || ObjID));
@@ -93,7 +93,7 @@ public:
 	{
 		int    ok = 1;
 		ushort v;
-		PPSecur * p_secur = &Data.Secur;
+		PPSecur2 * p_secur = &Data.Secur;
 		getCtrlData(CTL_USRGRP_NAME, p_secur->Name);
 		getCtrlData(CTL_USRGRP_ID,   &p_secur->ID);
 		ObjID = p_secur->ID;
@@ -107,13 +107,11 @@ public:
 			SETFLAG(p_secur->Flags, USRF_INHCFG,    v & 1);
 			SETFLAG(p_secur->Flags, USRF_INHRIGHTS, v & 2);
 			getCtrlData(CTL_USR_EXPIRY, &p_secur->ExpiryDate);
-			// @v11.2.10 {
 			{
 				long   desktop_surr_id = 0;
 				getCtrlData(CTLSEL_USR_PDESKTOP, &desktop_surr_id);
 				Data.PrivateDesktopUUID = DesktopList.GetUuidBySurrId(desktop_surr_id);
 			}
-			// } @v11.2.10 
 		}
 		else if(ObjType == PPOBJ_USRGRP) {
 			getCtrlData(CTL_USRGRP_SYMB, p_secur->Symb); 
@@ -131,7 +129,7 @@ private:
 	void   getPassword();
 	void   getPaths();
 	PPCommandFolder::CommandGroupList DesktopList;
-	char   Password[sizeof(reinterpret_cast<const PPSecur *>(0)->Password)];
+	char   Password[sizeof(reinterpret_cast<const PPSecur2 *>(0)->Password)];
 };
 
 void SecurDialog::getPassword()
@@ -224,22 +222,22 @@ static int ValidateSecurData(TDialog * dlg, PPID objType, const void * pData)
 {
 	int    ok = 1;
 	PPID   temp_id = 0;
-	PPID   rec_id = reinterpret_cast<const PPSecur *>(pData)->ID;
-	SString name_buf(reinterpret_cast<const PPSecur *>(pData)->Name);
-	SString symb_buf(reinterpret_cast<const PPSecur *>(pData)->Symb);
+	PPID   rec_id = reinterpret_cast<const PPSecur2 *>(pData)->ID;
+	SString name_buf(reinterpret_cast<const PPSecur2 *>(pData)->Name);
+	SString symb_buf(reinterpret_cast<const PPSecur2 *>(pData)->Symb);
 	if(!name_buf.NotEmptyS())
 		ok = PPErrorByDialog(dlg, CTL_USR_NAME, PPERR_SECURNAMENEEDED);
-	else if(objType == PPOBJ_USR && reinterpret_cast<const PPSecur *>(pData)->ParentID == 0)
+	else if(objType == PPOBJ_USR && reinterpret_cast<const PPSecur2 *>(pData)->ParentID == 0)
 		ok = PPErrorByDialog(dlg, CTL_USR_GRP, PPERR_USRMUSTBELONGTOGRP);
 	else if(PPRef->SearchName(objType, &temp_id, name_buf) > 0 && rec_id != temp_id)
 		ok = PPErrorByDialog(dlg, CTL_USR_NAME, PPERR_DUPOBJNAME);
-	else if(symb_buf.NotEmptyS() && PPRef->SearchSymb(objType, &temp_id, symb_buf, offsetof(PPSecur, Symb)) > 0 && rec_id != temp_id) {
+	else if(symb_buf.NotEmptyS() && PPRef->SearchSymb(objType, &temp_id, symb_buf, offsetof(PPSecur2, Symb)) > 0 && rec_id != temp_id) {
 		PPSetObjError(PPERR_DUPSYMB, objType, temp_id);
 		ok = PPErrorByDialog(dlg, CTL_USR_SYMB, -1);
 	}
 	else {
-		if(objType == PPOBJ_USR && reinterpret_cast<const PPSecur *>(pData)->ExpiryDate) {
-			if(!checkdate(reinterpret_cast<const PPSecur *>(pData)->ExpiryDate)) {
+		if(objType == PPOBJ_USR && reinterpret_cast<const PPSecur2 *>(pData)->ExpiryDate) {
+			if(!checkdate(reinterpret_cast<const PPSecur2 *>(pData)->ExpiryDate)) {
 				ok = PPErrorByDialog(dlg, CTL_USR_EXPIRY, PPERR_SLIB);
 			}
 		}
@@ -286,7 +284,7 @@ int EditSecurDialog(PPID objType, PPID * pID, void * extraPtr)
 			temp_buf = spack.Secur.Name;
 			long   _n = 1;
 			PPID   temp_id = 0;
-			PPSecur temp_rec;
+			PPSecur2 temp_rec;
 			do {
 				(temp_buf = spack.Secur.Name).Strip().Space().CatChar('#').Cat(++_n);
 			} while(p_ref->SearchName(obj, &temp_id, temp_buf, &temp_rec) > 0);
