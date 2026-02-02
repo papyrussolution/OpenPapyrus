@@ -879,8 +879,7 @@ int PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 					SETFLAG(pPack->Rec.Flags, GF_HASIMAGES, org_rec.Flags & GF_HASIMAGES);
 				}
 				//
-				// GoodsExt::UniqCntr является автоматически управляемым полем. Отличие его
-				// значения не должны приводить к изменению товара
+				// GoodsExt::UniqCntr является автоматически управляемым полем. Отличие его значения не должны приводить к изменению товара
 				//
 				const long preserve_org_ext_uniq_cntr = old_pack.ExtRec.UniqCntr;
 				const long preserve_new_ext_uniq_cntr = pPack->ExtRec.UniqCntr;
@@ -4738,7 +4737,8 @@ int PPObjGoodsInfo::GetPacket(PPID id, PPGoodsInfo * pPack)
 int PPObjGoodsInfo::PutPacket(PPID * pID, PPGoodsInfo * pPack, int use_ta)
 {
 	int    ok = -1;
-	PPID   id = 0, action = 0;
+	PPID   id = 0;
+	PPID   action = 0;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);

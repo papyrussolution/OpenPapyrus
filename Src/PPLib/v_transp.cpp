@@ -1,5 +1,5 @@
 // V_TRANSP.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024
+// Copyright (c) A.Starodub 2009, 2010, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -25,7 +25,7 @@ IMPLEMENT_PPFILT_FACTORY(Transport); TransportFilt::TransportFilt() : PPBaseFilt
 	PutObjMembToBuf(PPOBJ_TRANSPMODEL, ModelID,   STRINGIZE(ModelID),      rBuf);
 	PutObjMembToBuf(PPOBJ_PERSON,      OwnerID,   STRINGIZE(BrandOwnerID), rBuf);
 	PutObjMembToBuf(PPOBJ_PERSON,      CaptainID, STRINGIZE(CaptainID),    rBuf);
-	PutObjMembToBuf(PPOBJ_COUNTRY,     CountryID, STRINGIZE(CountryID),    rBuf);
+	PutObjMembToBuf(PPOBJ_WORLD,       CountryID, STRINGIZE(CountryID),    rBuf); // @v12.5.6 PPOBJ_COUNTRY-->PPOBJ_WORLD
 	PutMembToBuf(Code,      STRINGIZE(Code),      rBuf);
 	PutMembToBuf(TrailCode, STRINGIZE(TrailCode), rBuf);
 	// TrType
@@ -81,7 +81,15 @@ public:
 		SetupPPObjCombo(this, CTLSEL_FLTTRANSP_MODEL,   PPOBJ_TRANSPMODEL, Data.ModelID,   OLW_CANINSERT);
 		SetupPPObjCombo(this, CTLSEL_FLTTRANSP_OWNER,   PPOBJ_PERSON,      Data.OwnerID,   OLW_CANINSERT, reinterpret_cast<void *>(owner_kind_id));
 		SetupPPObjCombo(this, CTLSEL_FLTTRANSP_CAPTAIN, PPOBJ_PERSON,      Data.CaptainID, OLW_CANINSERT, reinterpret_cast<void *>(captain_kind_id));
-		SetupPPObjCombo(this, CTLSEL_FLTTRANSP_CNTRY,   PPOBJ_COUNTRY,     Data.CountryID, OLW_CANINSERT);
+		{
+			// @v12.5.6 SetupPPObjCombo(this, CTLSEL_FLTTRANSP_CNTRY,   PPOBJ_COUNTRY,     Data.CountryID, OLW_CANINSERT);
+			// @v12.5.6 {
+			PPIDArray worldobj_kind_list;
+			worldobj_kind_list.addzlist(WORLDOBJ_COUNTRY, 0L);
+			SetupPPObjCombo(this, CTLSEL_FLTTRANSP_CNTRY, PPOBJ_WORLD, Data.CountryID, OLW_CANINSERT|OLW_CANSELUPLEVEL|OLW_WORDSELECTOR,
+				PPObjWorld::MakeExtraParam(worldobj_kind_list, 0, 0));
+			// } @v12.5.6 
+		}
 		AddClusterAssoc(CTL_FLTTRANSP_TRTYPE, 0, 0);
 		AddClusterAssoc(CTL_FLTTRANSP_TRTYPE, 1, PPTRTYP_CAR);
 		AddClusterAssoc(CTL_FLTTRANSP_TRTYPE, 2, PPTRTYP_SHIP);
@@ -133,13 +141,21 @@ void TransportFilterDlg::SetupCtrls()
 	disableCtrl(CTLSEL_FLTTRANSP_CNTRY, tr_type == PPTRTYP_CAR);
 	if(tr_type == PPTRTYP_SHIP) {
 		model_id = 0;
-		code = 0;
+		code.Z();
 		trail_code = 0;
 	}
 	else if(tr_type == PPTRTYP_CAR)
 		country_id = 0;
 	SetupPPObjCombo(this, CTLSEL_FLTTRANSP_MODEL, PPOBJ_TRANSPMODEL, model_id,   OLW_CANINSERT);
-	SetupPPObjCombo(this, CTLSEL_FLTTRANSP_CNTRY, PPOBJ_COUNTRY,     country_id, OLW_CANINSERT);
+	{
+		// @v12.5.6 SetupPPObjCombo(this, CTLSEL_FLTTRANSP_CNTRY, PPOBJ_COUNTRY,     country_id, OLW_CANINSERT);
+		// @v12.5.6 {
+		PPIDArray worldobj_kind_list;
+		worldobj_kind_list.addzlist(WORLDOBJ_COUNTRY, 0L);
+		SetupPPObjCombo(this, CTLSEL_FLTTRANSP_CNTRY, PPOBJ_WORLD, country_id, OLW_CANINSERT|OLW_CANSELUPLEVEL|OLW_WORDSELECTOR,
+			PPObjWorld::MakeExtraParam(worldobj_kind_list, 0, 0));
+		// } @v12.5.6 
+	}
 	setCtrlString(CTL_FLTTRANSP_CODE, code);
 	setCtrlString(CTL_FLTTRANSP_TRAILCODE, trail_code);
 }
@@ -156,7 +172,10 @@ int PPViewTransport::EditBaseFilt(PPBaseFilt * pBaseFilt)
 DBQuery * PPViewTransport::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBQuery * q = 0;
-	DBE    dbe_owner, dbe_captain, dbe_country, dbe_trtype;
+	DBE    dbe_owner;
+	DBE    dbe_captain;
+	DBE    dbe_country;
+	DBE    dbe_trtype;
 	DBQ  * dbq = 0;
 	TempTransportTbl * p_tmp_t = 0;
 	uint   brw_id = BROWSER_TRANSPORT;
@@ -166,7 +185,6 @@ DBQuery * PPViewTransport::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	PPDbqFuncPool::InitObjNameFunc(dbe_captain, PPDbqFuncPool::IdObjNamePerson,  p_tmp_t->CaptainID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_country, PPDbqFuncPool::IdObjNameWorld,   p_tmp_t->CountryID);
 	PPDbqFuncPool::InitLongFunc(dbe_trtype, PPDbqFuncPool::IdTransportTypeName,  p_tmp_t->TrType);
-
 	q = & Select_(p_tmp_t->ID, 0L);                          // #00
 	q->addField(p_tmp_t->Name);                             // #01
 	q->addField(dbe_trtype);                                // #02

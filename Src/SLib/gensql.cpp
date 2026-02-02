@@ -1,5 +1,5 @@
 // GENSQL.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2017, 2018, 2019, 2020, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2017, 2018, 2019, 2020, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -503,6 +503,7 @@ int Generator_SQL::CreateIndex(const DBTable & rTbl, const char * pFileName, uin
 
 int Generator_SQL::GetIndexName(const DBTable & rTbl, uint n, SString & rBuf)
 {
+	rBuf.Z();
 	int    ok = 1;
 	const  BNKeyList & r_indices = rTbl.GetIndices();
 	if(n < r_indices.getNumKeys()) {
@@ -515,7 +516,7 @@ int Generator_SQL::GetIndexName(const DBTable & rTbl, uint n, SString & rBuf)
 				const int fld_id = key_.getFieldID(0);
 				const BNField & r_fld = r_indices.field(n, 0);
 				if(GETSTYPE(r_fld.T) == S_AUTOINC) {
-					r_temp_buf = r_fld.Name;
+					rBuf = r_fld.Name;
 					done = true;
 				}
 			}

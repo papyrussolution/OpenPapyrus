@@ -236,6 +236,15 @@ bool SMySqlDbProvider::Helper_Connect(const DbLoginBlock * pBlk, SString * pDbNa
 			SString temp_buf;
 			SString url_buf;
 			SString db_name;
+			{
+				// Установка таймаутов (в секундах)
+				uint connect_timeout = 10;    // Таймаут подключения
+				uint read_timeout = 10;       // Таймаут чтения
+				uint write_timeout = 30;      // Таймаут записи
+    			mysql_options(p_h, MYSQL_OPT_CONNECT_TIMEOUT, &connect_timeout);
+				mysql_options(p_h, MYSQL_OPT_READ_TIMEOUT, &read_timeout);
+				mysql_options(p_h, MYSQL_OPT_WRITE_TIMEOUT, &write_timeout);				
+			}
 			pBlk->GetAttr(DbLoginBlock::attrDbName, db_name);
 			pBlk->GetAttr(DbLoginBlock::attrServerUrl, url_buf);
 			{
@@ -790,7 +799,8 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 	return ok;
 }
 
-SMySqlDbProvider::SearchQueryBlock::SearchQueryBlock() : Flags(0), SrchMode(0), AutoincFldIdx(_FFFF32), P_KeyData(0), SqlG(sqlstSQLite, 0) // повторяет то же из SSqliteDbProvider
+SMySqlDbProvider::SearchQueryBlock::SearchQueryBlock(SqlServerType sqlst) : 
+	Flags(0), SrchMode(0), AutoincFldIdx(_FFFF32), P_KeyData(0), SqlG(sqlst, 0) // повторяет то же из SSqliteDbProvider
 {
 	memzero(TempKey, sizeof(TempKey));
 }
@@ -1076,7 +1086,7 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 		}
 	}
 	if(do_make_query) {
-		SearchQueryBlock sqb;
+		SearchQueryBlock sqb(SqlSt);
 		THROW(Helper_MakeSearchQuery(pTbl, idx, pKey, srchMode, sf, sqb));
 		can_continue = LOGIC(sqb.Flags & SearchQueryBlock::fCanContinue);
 		{

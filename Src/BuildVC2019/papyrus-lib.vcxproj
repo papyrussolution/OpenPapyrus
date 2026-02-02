@@ -1431,6 +1431,7 @@
     <ClCompile Include="..\PPLib\Ppmsg.cpp" />
     <ClCompile Include="..\PPLib\ppNamedFilt.cpp" />
     <ClCompile Include="..\PPLib\ppngx.cpp" />
+    <ClCompile Include="..\PPLib\ppnotes.cpp" />
     <ClCompile Include="..\PPLib\PPPosProtocol.cpp" />
     <ClCompile Include="..\PPLib\PPREGKEY.CPP" />
     <ClCompile Include="..\PPLib\ppreport.cpp" />

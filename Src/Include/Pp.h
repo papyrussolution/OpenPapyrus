@@ -48577,6 +48577,46 @@ private:
 	SStrGroup StrPool; // Пул строковых полей, на который ссылаются поля в TempPrjTask
 };
 //
+// @ModuleDecl(PPObjNotes)
+//
+struct PPNotesPacket : public PPExtStrContainer {
+	enum {
+		extssTitle = 1,
+		extssText  = 2,
+	};
+	PPNotesPacket();
+	PPNotesPacket & Z();
+
+	NotesTbl::Rec Rec;
+	ObjTagList TagL;
+};
+
+class PPObjNotes : public PPObject { // @v12.5.6
+public:
+	explicit PPObjNotes(void * extraPtr = 0);
+	~PPObjNotes();
+	int    IsPacketEq(const PPNotesPacket & rS1, const PPNotesPacket & rS2, long flags);
+	int    SerializePacket(int dir, PPNotesPacket * pPack, SBuffer & rBuf, SSerializeContext * pCtx);
+	int    GetPacket(PPID id, PPNotesPacket * pPack);
+	int    PutPacket(PPID * pID, PPNotesPacket * pPack, int use_ta);
+	virtual int Search(PPID id, void * pRec = 0);
+	virtual int Browse(void * extraPtr);
+	virtual int Edit(PPID * pID, void * extraPtr);
+	virtual int DeleteObj(PPID id);
+	virtual int EditRights(uint bufSize, ObjRights * buf, EmbedDialog * pDlg = 0);
+private:
+	virtual StrAssocArray * MakeStrAssocList(void * extraPtr);
+	virtual const char * GetNamePtr();
+	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
+	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
+	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
+	int    PutExtText(PPID id, const PPNotesPacket * pPack, int use_ta);
+
+	TLP_MEMB(NotesTbl, P_Tbl);
+	void * ExtraPtr;
+};
+//
 // @ModuleDecl(PPViewPriceAnlz)
 //
 class PriceAnlzFilt : public PPBaseFilt {

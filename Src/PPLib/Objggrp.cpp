@@ -1656,7 +1656,15 @@ public:
 		SetupPPObjCombo(this, CTLSEL_TRANSPORT_MODEL, PPOBJ_TRANSPMODEL, Data.Rec.TrModelID, OLW_CANINSERT);
 		SetupPPObjCombo(this, CTLSEL_TRANSPORT_OWNER, PPOBJ_PERSON, Data.Rec.OwnerID, OLW_CANINSERT, reinterpret_cast<void *>(owner_kind_id));
 		SetupPPObjCombo(this, CTLSEL_TRANSPORT_CAPTAIN, PPOBJ_PERSON, Data.Rec.CaptainID, OLW_CANINSERT, reinterpret_cast<void *>(captain_kind_id));
-		SetupPPObjCombo(this, CTLSEL_TRANSPORT_CNTRY, PPOBJ_COUNTRY, Data.Rec.CountryID, OLW_CANINSERT);
+		{
+			// @v12.5.6 SetupPPObjCombo(this, CTLSEL_TRANSPORT_CNTRY, PPOBJ_COUNTRY, Data.Rec.CountryID, OLW_CANINSERT);
+			// @v12.5.6 {
+			PPIDArray worldobj_kind_list;
+			worldobj_kind_list.addzlist(WORLDOBJ_COUNTRY, 0L);
+			SetupPPObjCombo(this, CTLSEL_TRANSPORT_CNTRY, PPOBJ_WORLD, Data.Rec.CountryID, OLW_CANINSERT|OLW_CANSELUPLEVEL|OLW_WORDSELECTOR,
+				PPObjWorld::MakeExtraParam(worldobj_kind_list, 0, 0));
+			// } @v12.5.6 
+		}
 		if(Data.Rec.TrType == PPTRTYP_CAR) {
 			SetupStringCombo(this, CTLSEL_TRANSPORT_VANTYP, PPTXT_VANTYPE, Data.Rec.VanType);
 		}
@@ -1776,7 +1784,7 @@ int PPObjTransport::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replac
 		PPTransport * p_pack = static_cast<PPTransport *>(p->Data);
 		ProcessObjRefInArray(PPOBJ_TRANSPMODEL, &p_pack->TrModelID, ary, replace);
 		ProcessObjRefInArray(PPOBJ_PERSON,  &p_pack->OwnerID, ary, replace);
-		ProcessObjRefInArray(PPOBJ_COUNTRY, &p_pack->CountryID, ary, replace);
+		ProcessObjRefInArray(PPOBJ_WORLD,   &p_pack->CountryID, ary, replace); // @v12.5.6 PPOBJ_COUNTRY-->PPOBJ_WORLD
 		ProcessObjRefInArray(PPOBJ_PERSON,  &p_pack->CaptainID, ary, replace);
 		return 1;
 	}

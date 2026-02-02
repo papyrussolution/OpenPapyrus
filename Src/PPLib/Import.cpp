@@ -156,7 +156,10 @@ int PPObjWorld::ImportCountry(int use_ta)
 	int    ok = 1;
 	int    setcode = 0;
 	const  uint sect = PPINISECT_IMP_COUNTRY;
-	SString file_name, code, name, code_a2;
+	SString file_name;
+	SString code;
+	SString name;
+	SString code_a2;
 	PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPORT_INI, file_name);
 	THROW_SL(fileExists(file_name));
 	{

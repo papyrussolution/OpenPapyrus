@@ -3171,7 +3171,15 @@ public:
 		setGroupData(ctlgroupBrandOwner, &brandowner_grp_rec);
 		SetupPPObjCombo(this, CTLSEL_GOODSFLT_GRP,     PPOBJ_GOODSGROUP, Data.GrpID,       OLW_CANSELUPLEVEL|/*OLW_LOADDEFONOPEN|*/OLW_WORDSELECTOR); // @v11.1.10 OLW_WORDSELECTOR
 		SetupPPObjCombo(this, CTLSEL_GOODSFLT_MANUF,   PPOBJ_PERSON,     Data.ManufID,     OLW_LOADDEFONOPEN, reinterpret_cast<void *>(PPPRK_MANUF));
-		SetupPPObjCombo(this, CTLSEL_GOODSFLT_COUNTRY, PPOBJ_COUNTRY,    Data.ManufCountryID, OLW_LOADDEFONOPEN, 0);
+		{
+			// @v12.5.6 SetupPPObjCombo(this, CTLSEL_GOODSFLT_COUNTRY, PPOBJ_COUNTRY, Data.ManufCountryID, OLW_LOADDEFONOPEN, 0);
+			// @v12.5.6 {
+			PPIDArray worldobj_kind_list;
+			worldobj_kind_list.addzlist(WORLDOBJ_COUNTRY, 0L);
+			SetupPPObjCombo(this, CTLSEL_GOODSFLT_COUNTRY, PPOBJ_WORLD, Data.ManufCountryID, OLW_CANINSERT|OLW_CANSELUPLEVEL|OLW_WORDSELECTOR,
+				PPObjWorld::MakeExtraParam(worldobj_kind_list, 0, 0));
+			// } @v12.5.6 
+		}
 		SetupPPObjCombo(this, CTLSEL_GOODSFLT_UNIT,    PPOBJ_UNIT,       Data.UnitID,      0, 0);
 		SetupPPObjCombo(this, CTLSEL_GOODSFLT_PHUNIT,  PPOBJ_UNIT,       Data.PhUnitID,    0, 0);
 		SetupPPObjCombo(this, CTLSEL_GOODSFLT_KIND,    PPOBJ_GOODSTYPE,  Data.GoodsTypeID, 0, 0);

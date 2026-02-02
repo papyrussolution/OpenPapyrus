@@ -512,7 +512,7 @@ int SSqliteDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt,
 	return ok;
 }
 
-SSqliteDbProvider::SearchQueryBlock::SearchQueryBlock() : Flags(0), SrchMode(0), P_KeyData(0), SqlG(sqlstSQLite, 0)
+SSqliteDbProvider::SearchQueryBlock::SearchQueryBlock(SqlServerType sqlst) : Flags(0), SrchMode(0), P_KeyData(0), SqlG(sqlst, 0)
 {
 	memzero(TempKey, sizeof(TempKey));
 }
@@ -770,7 +770,7 @@ int SSqliteDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pK
 		}
 	}
 	if(do_make_query) {
-		SearchQueryBlock sqb;
+		SearchQueryBlock sqb(SqlSt);
 		THROW(Helper_MakeSearchQuery(pTbl, idx, pKey, srchMode, sf, sqb));
 		can_continue = LOGIC(sqb.Flags & SearchQueryBlock::fCanContinue);
 		{

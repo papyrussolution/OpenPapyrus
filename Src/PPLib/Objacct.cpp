@@ -1,5 +1,5 @@
 // OBJACCT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -177,9 +177,12 @@ int PPObjAccount::PutPacket(PPID * pID, PPAccountPacket * pPack, int use_ta)
 int PPObjAccount::GetPacket(PPID id, PPAccountPacket * pPack)
 {
 	int    ok = 1;
+	pPack->Z(); // @v12.5.6
+	/* @v12.5.6
 	MEMSZERO(pPack->Rec);
 	pPack->CurList.clear();
 	pPack->GenList.clear();
+	*/
 	if(Search(id, &pPack->Rec) > 0) {
 		THROW_PP(pPack->Rec.CurID == 0, PPERR_RACCSCURACC);
 		if(pPack->Rec.CurID == 0 && pPack->Rec.Flags & ACF_CURRENCY)

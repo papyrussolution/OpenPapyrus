@@ -347,5 +347,6 @@
     <ClCompile Include="..\PPLib\v_outer.cpp" />
     <ClCompile Include="..\PPLib\_sprinter.cpp" />
     <ClCompile Include="..\PPLib\ppcrr.cpp" />
+    <ClCompile Include="..\PPLib\ppnotes.cpp" />
   </ItemGroup>
 </Project>

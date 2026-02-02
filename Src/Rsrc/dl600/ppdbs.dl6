@@ -1925,6 +1925,28 @@ file:
 	// @v10.7.2 vlr;
 }
 //
+// Descr: Заметки.
+//   Текст заметок хранится в таблице UnxTextRef. Заголовок заметки хранится в TextRef.
+//
+table Notes { // @v12.5.6
+	autolong ID;
+	int64  UedCrTm;     // UED момент создания записи. Уникальный по всей таблице. Если новая запись дублирует существующее значени, то искусственно модифицируем новое на миллисекунды.
+	long   ParentID;    // ->Notes.ID Родительская заметка или папка заметок
+	long   LinkObjType; // Тип связанного объекта
+	long   LinkObjID;   // ИД связанного объекта
+	long   Flags;       // @flags
+	int32  Status;      // Статус заметки
+	int32  CategoryID;  // Категория заметки
+	raw    Reserve[64]; // @reserve
+index:
+	ID (unique);
+	ParentID, UedCrTm (unique mod);
+	LinkObjType, LinkObjID, UedCrTm (unique mod);
+file:
+	"notes.btr";
+}
+
+//
 // Descr: Персональные карты.
 // Attention: При изменении раскладки полей следует соответствующим образом изменить
 //   раскладку полей в таблице TempSCard до отметки "End SCard fields".

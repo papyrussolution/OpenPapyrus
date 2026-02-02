@@ -5785,6 +5785,7 @@ PPSSYM_FORMAT "int64;int;hex;real;sstr;zstr;date;time;datetime;person;goods;unit
 105  "Файл не может быть создан с VAT"
 106  "Невозможно получить следующую порцию записи\n@{file} %s"
 107  "Операции с порциями записей недоступны на заданном файле"
+120  "Maximum number of B-Tree index levels reached" // @v12.5.6 BE_MAXNUMBTREELEVELSREACHED
 132  "Файл '%s' достиг предельного размера" // "The file has reached its size limit"
 161  "Достигнуто предельное число пользователей PervasiveSQL" // The maximum number of user count licenses has been reached
 171  "Database login failed" // @v10.1.10

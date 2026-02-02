@@ -3,19 +3,17 @@
 #define cio_defined
 
 #ifdef HAVE_TLS
-#include <ma_tls.h>
+	#include <ma_tls.h>
 #else
-#define MARIADB_TLS void
+	#define MARIADB_TLS void
 #endif
 
-/* CONC-492: Allow to buuld plugins outside of MariaDB Connector/C
-   source tree wnen ma_global.h was not included. */
+/* CONC-492: Allow to buuld plugins outside of MariaDB Connector/C source tree wnen ma_global.h was not included. */
 #if !defined(_global_h) && !defined(MY_GLOBAL_INCLUDED)
-typedef uchar uchar;
+	typedef uchar uchar;
 #endif
 
-#define PVIO_SET_ERROR if(pvio->set_error) \
-		pvio->set_error
+#define PVIO_SET_ERROR if(pvio->set_error) pvio->set_error
 
 #define PVIO_READ_AHEAD_CACHE_SIZE 16384
 #define PVIO_READ_AHEAD_CACHE_MIN_SIZE 2048
@@ -25,17 +23,10 @@ struct st_ma_pvio_methods;
 
 typedef struct st_ma_pvio_methods PVIO_METHODS;
 
-#define IS_PVIO_ASYNC(a) \
-	((a)->mysql && (a)->mysql->options.extension && (a)->mysql->options.extension->async_context)
-
-#define IS_PVIO_ASYNC_ACTIVE(a) \
-	(IS_PVIO_ASYNC(a)&& (a)->mysql->options.extension->async_context->active)
-
-#define IS_MYSQL_ASYNC(a) \
-	((a)->options.extension && (a)->options.extension->async_context)
-
-#define IS_MYSQL_ASYNC_ACTIVE(a) \
-	(IS_MYSQL_ASYNC(a)&& (a)->options.extension->async_context->active)
+#define IS_PVIO_ASYNC(a)         ((a)->mysql && (a)->mysql->options.extension && (a)->mysql->options.extension->async_context)
+#define IS_PVIO_ASYNC_ACTIVE(a)  (IS_PVIO_ASYNC(a)&& (a)->mysql->options.extension->async_context->active)
+#define IS_MYSQL_ASYNC(a)        ((a)->options.extension && (a)->options.extension->async_context)
+#define IS_MYSQL_ASYNC_ACTIVE(a) (IS_MYSQL_ASYNC(a)&& (a)->options.extension->async_context->active)
 
 enum enum_pvio_timeout {
 	PVIO_CONNECT_TIMEOUT = 0,

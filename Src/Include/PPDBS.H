@@ -3548,6 +3548,49 @@ public:
 
 #pragma pack(push)
 #pragma pack(1)
+class NotesTbl : public DBTable {
+public:
+	NotesTbl(const char * pFileName = 0);
+
+	struct Rec {
+		Rec();
+		Rec & Clear();
+		int32  ID;
+		int64  UedCrTm;
+		int32  ParentID;
+		int32  LinkObjType;
+		int32  LinkObjID;
+		int32  Flags;
+		int32  Status;
+		int32  CategoryID;
+		uint8  Reserve[64]; // raw
+	} data;
+	struct Key0 {
+		int32  ID;
+	};
+	struct Key1 {
+		int32  ParentID;
+		int64  UedCrTm;
+	};
+	struct Key2 {
+		int32  LinkObjType;
+		int32  LinkObjID;
+		int64  UedCrTm;
+	};
+	DBField ID;
+	DBField UedCrTm;
+	DBField ParentID;
+	DBField LinkObjType;
+	DBField LinkObjID;
+	DBField Flags;
+	DBField Status;
+	DBField CategoryID;
+	DBField Reserve;
+};
+#pragma pack(pop)
+
+#pragma pack(push)
+#pragma pack(1)
 class SCardTbl : public DBTable {
 public:
 	SCardTbl(const char * pFileName = 0);

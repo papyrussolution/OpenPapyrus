@@ -2157,7 +2157,7 @@ int PPObjLocation::IsPacketEq(const PPLocationPacket & rS1, const PPLocationPack
 		eq = 0;
 	else if(!rS1.TagL.IsEq(rS2.TagL))
 		eq = 0;
-	else if(!rS1.WarehouseList.IsEq(rS2.WarehouseList)) // @v11.0.6
+	else if(!rS1.WarehouseList.IsEq(rS2.WarehouseList))
 		eq = 0;
 	return eq;
 }
@@ -2174,13 +2174,11 @@ int PPObjLocation::GetPacket(PPID id, PPLocationPacket * pPack)
 			THROW_MEM(SETIFZ(P_RegObj, new PPObjRegister));
 			THROW(P_RegObj->P_Tbl->GetByLocation(id, &pPack->Regs));
 			THROW(p_ref->Ot.GetList(Obj, id, &pPack->TagL));
-			// @v11.0.6 {
 			if(pPack->Type == LOCTYP_DIVISION) {
 				PPIDArray wh_list;
 				THROW(p_ref->GetPropArray(Obj, id, LOCPRP_WAREHOUSELIST, &wh_list));
 				pPack->WarehouseList.Set(wh_list.getCount() ? &wh_list : 0);
 			}
-			// } @v11.0.6 
 		}
 		else
 			ok = -1;

@@ -394,7 +394,7 @@ int PPApp::processCommand(uint cmd)
 		case cmOprKind:              ShowObjects(PPOBJ_OPRKIND, 0);           break;
 		case cmOpCounter:            ShowObjects(PPOBJ_OPCOUNTER, 0);         break;
 		case cmBillStatus:           ShowObjects(PPOBJ_BILLSTATUS, 0);        break;
-		case cmCountry:              ShowObjects(PPOBJ_COUNTRY, 0);           break;
+		// @v12.5.6 case cmCountry:              ShowObjects(PPOBJ_COUNTRY, 0);           break;
 		case cmEditWorld:            ShowObjects(PPOBJ_WORLD, 0);             break;
 		case cmGoodsGroup:           ShowObjects(PPOBJ_GOODSGROUP, 0);        break;
 		case cmGoods:                ShowObjects(PPOBJ_GOODS, 0);             break;

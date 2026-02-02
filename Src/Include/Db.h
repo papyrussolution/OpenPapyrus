@@ -947,6 +947,13 @@ int btrnfound__();
 #define BE_CANNOT_CREATE_WITH_BAT           105
 #define BE_CHUNK_CANNOT_GET_NEXT            106
 #define BE_CHUNK_INCOMPATIBLE_FILE          107
+#define BE_MAXNUMBTREELEVELSREACHED         120 // @v12.5.6 120: Maximum number of B-Tree index levels reached 
+	// This status code may result if you use a large key size for an index and small page sizes. Index keys can 
+	// fill the B-Tree to the allowable depth even though the B-Tree is not completely full.
+	// To prevent this status code, try one or both of the following:
+    // Rebuild the data file with a larger page size to increase the number of keys stored per page.
+    // Turn on index balancing to maintain a better distribution of index keys (performance decreases somewhat with index balancing on). 
+	// See "Index Balancing" on page 4-45 in Advanced Operations Guide.
 #define BE_FILEREACHEDSIZELIMIT             132 // The file has reached its size limit
 #define BE_MAXUSERCOUNTREACHED              161 // The maximum number of user count licenses has been reached
 #define BE_DBLOGINFAILED                    171 // Database login failed (workstation not on a domain)
@@ -3112,7 +3119,7 @@ private:
 		SMySqlDbProvider * P_Prvdr; // @notowned
 	};
 	struct SearchQueryBlock { // Один-в-один скопировано из SSqliteDbProvider
-		SearchQueryBlock();
+		explicit SearchQueryBlock(SqlServerType sqlst);
 		SearchQueryBlock & Z();
 
 		enum {
@@ -3260,7 +3267,7 @@ private:
 	int    ResetStatement(SSqlStmt & rS);
 
 	struct SearchQueryBlock {
-		SearchQueryBlock();
+		explicit SearchQueryBlock(SqlServerType sqlst);
 		SearchQueryBlock & Z();
 
 		enum {

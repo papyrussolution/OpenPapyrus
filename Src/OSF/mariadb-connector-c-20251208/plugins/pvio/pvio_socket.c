@@ -172,8 +172,7 @@ bool pvio_socket_change_timeout(MARIADB_PVIO * pvio, enum enum_pvio_timeout type
 		return 1;
 	tm.tv_sec = timeout / 1000;
 	tm.tv_usec = (timeout % 1000) * 1000;
-	switch(type)
-	{
+	switch(type) {
 		case PVIO_WRITE_TIMEOUT:
 #ifndef _WIN32
 		    rc = setsockopt(csock->socket, SOL_SOCKET, SO_SNDTIMEO, (const char*)&tm, sizeof(tm));
@@ -685,19 +684,16 @@ int pvio_socket_fast_send(MARIADB_PVIO * pvio)
 	return r;
 }
 
-static int pvio_socket_connect_sync_or_async(MARIADB_PVIO * pvio,
-    const struct sockaddr * name, uint namelen)
+static int pvio_socket_connect_sync_or_async(MARIADB_PVIO * pvio, const struct sockaddr * name, uint namelen)
 {
 	MYSQL * mysql = pvio->mysql;
 	if(mysql->options.extension && mysql->options.extension->async_context &&
 	    mysql->options.extension->async_context->active) {
-		/* even if we are not connected yet, application needs to check socket
-		 * via mysql_get_socket api call, so we need to assign pvio */
+		/* even if we are not connected yet, application needs to check socket via mysql_get_socket api call, so we need to assign pvio */
 		mysql->options.extension->async_context->pvio = pvio;
 		pvio_socket_blocking(pvio, 0, 0);
 		return my_connect_async(pvio, name, namelen, pvio->timeout[PVIO_CONNECT_TIMEOUT]);
 	}
-
 	return pvio_socket_internal_connect(pvio, name, namelen);
 }
 
@@ -705,10 +701,8 @@ bool pvio_socket_connect(MARIADB_PVIO * pvio, MA_PVIO_CINFO * cinfo)
 {
 	struct st_pvio_socket * csock = NULL;
 	MYSQL * mysql;
-
 	if(!pvio || !cinfo)
 		return 1;
-
 	if(!(csock = (struct st_pvio_socket *)SAlloc::C(1, sizeof(struct st_pvio_socket)))) {
 		PVIO_SET_ERROR(cinfo->mysql, CR_OUT_OF_MEMORY, unknown_sqlstate, 0, "");
 		return 1;
@@ -717,14 +711,12 @@ bool pvio_socket_connect(MARIADB_PVIO * pvio, MA_PVIO_CINFO * cinfo)
 	csock->socket = INVALID_SOCKET;
 	mysql = pvio->mysql = cinfo->mysql;
 	pvio->type = cinfo->type;
-
 	if(cinfo->type == PVIO_TYPE_UNIXSOCKET) {
 #ifndef _WIN32
 #ifdef HAVE_SYS_UN_H
 		size_t port_length;
 		struct sockaddr_un UNIXaddr;
-		if((csock->socket = socket(AF_UNIX, SOCK_STREAM, 0)) == INVALID_SOCKET ||
-		    (port_length = strlen(cinfo->unix_socket)) >= (sizeof(UNIXaddr.sun_path))) {
+		if((csock->socket = socket(AF_UNIX, SOCK_STREAM, 0)) == INVALID_SOCKET || (port_length = strlen(cinfo->unix_socket)) >= (sizeof(UNIXaddr.sun_path))) {
 			PVIO_SET_ERROR(cinfo->mysql, CR_SOCKET_CREATE_ERROR, unknown_sqlstate, 0, errno);
 			goto error;
 		}
@@ -748,8 +740,7 @@ bool pvio_socket_connect(MARIADB_PVIO * pvio, MA_PVIO_CINFO * cinfo)
 			port_length = sizeof(UNIXaddr);
 		}
 		if(pvio_socket_connect_sync_or_async(pvio, (struct sockaddr *)&UNIXaddr, port_length)) {
-			PVIO_SET_ERROR(cinfo->mysql, CR_CONNECTION_ERROR, SQLSTATE_UNKNOWN,
-			    ER(CR_CONNECTION_ERROR), cinfo->unix_socket, socket_errno);
+			PVIO_SET_ERROR(cinfo->mysql, CR_CONNECTION_ERROR, SQLSTATE_UNKNOWN, ER(CR_CONNECTION_ERROR), cinfo->unix_socket, socket_errno);
 			goto error;
 		}
 		if(pvio_socket_blocking(pvio, 1, 0) == SOCKET_ERROR) {
@@ -831,12 +822,10 @@ bool pvio_socket_connect(MARIADB_PVIO * pvio, MA_PVIO_CINFO * cinfo)
 			/* CONC-364: Avoid leak of open sockets */
 			if(csock->socket != INVALID_SOCKET)
 				closesocket(csock->socket);
-			csock->socket = socket(save_res->ai_family, save_res->ai_socktype,
-				save_res->ai_protocol);
+			csock->socket = socket(save_res->ai_family, save_res->ai_socktype, save_res->ai_protocol);
 			if(csock->socket == INVALID_SOCKET)
 				/* Errors will be handled after loop finished */
 				continue;
-
 			if(bind_res) {
 				for(bres = bind_res; bres; bres = bres->ai_next) {
 					if(!(rc = bind(csock->socket, bres->ai_addr, (int)bres->ai_addrlen)))
@@ -848,12 +837,10 @@ bool pvio_socket_connect(MARIADB_PVIO * pvio, MA_PVIO_CINFO * cinfo)
 					continue;
 				}
 			}
-
 			rc = pvio_socket_connect_sync_or_async(pvio, save_res->ai_addr, (uint)save_res->ai_addrlen);
 			if(!rc) {
 				MYSQL * mysql = pvio->mysql;
-				if(mysql->options.extension && mysql->options.extension->async_context &&
-				    mysql->options.extension->async_context->active)
+				if(mysql->options.extension && mysql->options.extension->async_context && mysql->options.extension->async_context->active)
 					break;
 				if(pvio_socket_blocking(pvio, 0, 0) == SOCKET_ERROR) {
 					closesocket(csock->socket);
@@ -863,21 +850,16 @@ bool pvio_socket_connect(MARIADB_PVIO * pvio, MA_PVIO_CINFO * cinfo)
 				break; /* success! */
 			}
 		}
-
 		freeaddrinfo(res);
 		if(bind_res)
 			freeaddrinfo(bind_res);
-
 		if(csock->socket == INVALID_SOCKET) {
-			PVIO_SET_ERROR(cinfo->mysql, CR_IPSOCK_ERROR, SQLSTATE_UNKNOWN, ER(CR_IPSOCK_ERROR),
-			    socket_errno);
+			PVIO_SET_ERROR(cinfo->mysql, CR_IPSOCK_ERROR, SQLSTATE_UNKNOWN, ER(CR_IPSOCK_ERROR), socket_errno);
 			goto error;
 		}
-
 		/* last call to connect 2 failed */
 		if(rc) {
-			PVIO_SET_ERROR(cinfo->mysql, CR_CONNECTION_ERROR, SQLSTATE_UNKNOWN,
-			    ER(CR_CONN_HOST_ERROR), cinfo->host,
+			PVIO_SET_ERROR(cinfo->mysql, CR_CONNECTION_ERROR, SQLSTATE_UNKNOWN, ER(CR_CONN_HOST_ERROR), cinfo->host,
 #ifdef _WIN32
 			    errno);
 #else
