@@ -8611,23 +8611,19 @@ inline boolint mz_zip_writer_add_from_zip_reader(mz_zip_archive* pZip, mz_zip_ar
 			return mz_zip_set_error(pZip, MZ_ZIP_ALLOC_FAILED);
 		}
 	}
-
 	/* This shouldn't trigger unless we screwed up during the initial sanity checks */
 	if(pState->m_central_dir.m_size >= MZ_UINT32_MAX) {
 		/* TODO: Support central dirs >= 32-bits in size */
 		mz_zip_array_resize(pZip, &pState->m_central_dir, orig_central_dir_size, FALSE);
 		return mz_zip_set_error(pZip, MZ_ZIP_UNSUPPORTED_CDIR_SIZE);
 	}
-
 	n = (mz_uint32)orig_central_dir_size;
 	if(!mz_zip_array_push_back(pZip, &pState->m_central_dir_offsets, &n, 1)) {
 		mz_zip_array_resize(pZip, &pState->m_central_dir, orig_central_dir_size, FALSE);
 		return mz_zip_set_error(pZip, MZ_ZIP_ALLOC_FAILED);
 	}
-
 	pZip->m_total_files++;
 	pZip->m_archive_size = cur_dst_file_ofs;
-
 	return TRUE;
 }
 
@@ -8636,13 +8632,10 @@ inline boolint mz_zip_writer_finalize_archive(mz_zip_archive* pZip)
 	mz_zip_internal_state* pState;
 	uint64 central_dir_ofs, central_dir_size;
 	uint8 hdr[256];
-
 	if((!pZip) || (!pZip->m_pState) || (pZip->m_zip_mode != MZ_ZIP_MODE_WRITING)) {
 		return mz_zip_set_error(pZip, MZ_ZIP_INVALID_PARAMETER);
 	}
-
 	pState = pZip->m_pState;
-
 	if(pState->m_zip64) {
 		if((pZip->m_total_files > MZ_UINT32_MAX) || (pState->m_central_dir.m_size >= MZ_UINT32_MAX)) {
 			return mz_zip_set_error(pZip, MZ_ZIP_TOO_MANY_FILES);
@@ -8654,7 +8647,6 @@ inline boolint mz_zip_writer_finalize_archive(mz_zip_archive* pZip)
 			return mz_zip_set_error(pZip, MZ_ZIP_TOO_MANY_FILES);
 		}
 	}
-
 	central_dir_ofs  = 0;
 	central_dir_size = 0;
 	if(pZip->m_total_files) {
@@ -8666,18 +8658,14 @@ inline boolint mz_zip_writer_finalize_archive(mz_zip_archive* pZip)
 		    central_dir_size) {
 			return mz_zip_set_error(pZip, MZ_ZIP_FILE_WRITE_FAILED);
 		}
-
 		pZip->m_archive_size += central_dir_size;
 	}
-
 	if(pState->m_zip64) {
 		/* Write zip64 end of central directory header */
 		uint64 rel_ofs_to_zip64_ecdr = pZip->m_archive_size;
-
 		MEMSZERO(hdr);
 		MZ_WRITE_LE32(hdr + MZ_ZIP64_ECDH_SIG_OFS, MZ_ZIP64_END_OF_CENTRAL_DIR_HEADER_SIG);
-		MZ_WRITE_LE64(hdr + MZ_ZIP64_ECDH_SIZE_OF_RECORD_OFS,
-		    MZ_ZIP64_END_OF_CENTRAL_DIR_HEADER_SIZE - sizeof(mz_uint32) - sizeof(uint64));
+		MZ_WRITE_LE64(hdr + MZ_ZIP64_ECDH_SIZE_OF_RECORD_OFS, MZ_ZIP64_END_OF_CENTRAL_DIR_HEADER_SIZE - sizeof(mz_uint32) - sizeof(uint64));
 		MZ_WRITE_LE16(hdr + MZ_ZIP64_ECDH_VERSION_MADE_BY_OFS, 0x031E); /* TODO: always Unix */
 		MZ_WRITE_LE16(hdr + MZ_ZIP64_ECDH_VERSION_NEEDED_OFS, 0x002D);
 		MZ_WRITE_LE64(hdr + MZ_ZIP64_ECDH_CDIR_NUM_ENTRIES_ON_DISK_OFS, pZip->m_total_files);
@@ -10071,11 +10059,11 @@ public:
 	 */
 	void ExtractAll(const std::string& dest)
 	{
-		if(!IsOpen())  throw ZipLogicError("Cannot call ZipArchive::ExtractAll(const std::string&) on empty ZipArchive object!");
+		if(!IsOpen())  
+			throw ZipLogicError("Cannot call ZipArchive::ExtractAll(const std::string&) on empty ZipArchive object!");
 		throw ZipLogicError("ZipArchive::ExtractAll(std::string const &) is not yet implemented!"); // TODO: To be implemented
 		(void)dest; // 2024-08-18: suppress -Wunused-parameter
 	}
-
 	/**
 	 * @brief Add a new entry to the archive.
 	 * @param name The name of the entry to add.
@@ -10087,7 +10075,6 @@ public:
 	{
 		return AddEntryImpl(name, data);
 	}
-
 	/**
 	 * @brief Add a new entry to the archive.
 	 * @param name The name of the entry to add.

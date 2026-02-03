@@ -11938,6 +11938,12 @@
 #define DLG_SCARDSERRESTR         1588 // @v12.5.1 Ограничения для серии персональных карт
 	#define CTL_SCARDSERRESTR_USAGETM           (1 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDSERRESTR_DOW               (2 + WINDOWS_ID_BIAS)
+#define DLG_NOTES                 1589 // @v12.5.6 Заметка PPOBJ_NOTES
+	#define CTL_NOTES_ID                        (1 + WINDOWS_ID_BIAS) 
+	#define CTL_NOTES_NAME                      (2 + WINDOWS_ID_BIAS)
+	#define CTL_NOTES_PARENT                    (3 + WINDOWS_ID_BIAS)
+	#define CTLSEL_NOTES_PARENT                 (4 + WINDOWS_ID_BIAS)
+	#define CTL_NOTES_TEXT                      (5 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

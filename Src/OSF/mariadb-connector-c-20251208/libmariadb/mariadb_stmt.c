@@ -1795,36 +1795,30 @@ int STDCALL mysql_stmt_execute(MYSQL_STMT * stmt)
 	char * request;
 	int ret;
 	size_t request_len = 0;
-
 	if(!stmt->mysql) {
 		stmt_set_error(stmt, CR_SERVER_LOST, SQLSTATE_UNKNOWN, 0);
 		return 1;
 	}
-
 	if(stmt->state < MYSQL_STMT_PREPARED) {
 		SET_CLIENT_ERROR(mysql, CR_COMMANDS_OUT_OF_SYNC, SQLSTATE_UNKNOWN, 0);
 		stmt_set_error(stmt, CR_COMMANDS_OUT_OF_SYNC, SQLSTATE_UNKNOWN, 0);
 		return 1;
 	}
-
 	if(stmt->param_count && !stmt->bind_param_done) {
 		stmt_set_error(stmt, CR_PARAMS_NOT_BOUND, SQLSTATE_UNKNOWN, 0);
 		return 1;
 	}
-
 	if(stmt->state == MYSQL_STMT_WAITING_USE_OR_STORE) {
 		stmt->default_rset_handler = _mysql_stmt_use_result;
 		stmt->default_rset_handler(stmt);
 	}
 	if(stmt->state > MYSQL_STMT_WAITING_USE_OR_STORE && stmt->state < MYSQL_STMT_FETCH_DONE && !stmt->result.data) {
-		if(!stmt->cursor_exists)
-			do {
-				stmt->mysql->methods->db_stmt_flush_unbuffered(stmt);
-			} while(mysql_stmt_more_results(stmt));
+		if(!stmt->cursor_exists) do {
+			stmt->mysql->methods->db_stmt_flush_unbuffered(stmt);
+		} while(mysql_stmt_more_results(stmt));
 		stmt->state = MYSQL_STMT_PREPARED;
 		stmt->mysql->status = MYSQL_STATUS_READY;
 	}
-
 	/* clear data, in case mysql_stmt_store_result was called */
 	if(stmt->result.data) {
 		ma_free_root(&stmt->result.alloc, MYF(MY_KEEP_PREALLOC));
@@ -1836,24 +1830,16 @@ int STDCALL mysql_stmt_execute(MYSQL_STMT * stmt)
 		request = (char*)mysql_stmt_execute_generate_bulk_request(stmt, &request_len);
 	else
 		request = (char*)mysql_stmt_execute_generate_simple_request(stmt, &request_len);
-
 	if(!request)
 		return 1;
-
-	ret = stmt->mysql->methods->db_command(mysql,
-		stmt->array_size > 0 ? COM_STMT_BULK_EXECUTE : COM_STMT_EXECUTE,
-		request, request_len, 1, stmt);
-	if(request)
-		SAlloc::F(request);
-
+	ret = stmt->mysql->methods->db_command(mysql, stmt->array_size > 0 ? COM_STMT_BULK_EXECUTE : COM_STMT_EXECUTE, request, request_len, 1, stmt);
+	SAlloc::F(request);
 	if(ret) {
 		UPDATE_STMT_ERROR(stmt);
 		return 1;
 	}
-
 	if(mysql->net.extension->multi_status > COM_MULTI_OFF)
 		return 0;
-
 	return(stmt_read_execute_response(stmt));
 }
 

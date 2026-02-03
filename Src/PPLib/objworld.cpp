@@ -1,5 +1,5 @@
 // OBJWORLD.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2003, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// Copyright (c) A.Sobolev, A.Starodub 2003, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1329,6 +1329,7 @@ int PPObjWorld::AddItemToSelectorList(const WorldTbl::Rec & rRec, AislBlock & rB
 	return ok;
 }
 
+/* @v12.5.6 
 int PPObjWorld::AddItemToSelectorList(PPID id, StrAssocArray * pList, int useHierarchy, PPIDArray * pStack)
 {
 	int    ok = -1;
@@ -1359,12 +1360,12 @@ int PPObjWorld::AddItemToSelectorList(PPID id, StrAssocArray * pList, int useHie
 					THROW(AddItemToSelectorList(parent_id, pList, useHierarchy, pStack)); // @recursion
 				}
 			}
-			THROW_SL(pList->AddFast(id, parent_id, rec.Name)); // @v7.9.0 Add-->AddFast
+			THROW_SL(pList->AddFast(id, parent_id, rec.Name));
 		}
 	}
 	CATCHZOK
 	return ok;
-}
+}*/
 
 StrAssocArray * PPObjWorld::MakeStrAssocList(void * extraPtr)
 {

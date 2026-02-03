@@ -3201,7 +3201,66 @@ dialog DLG_SETQUOT [vertical title: "@quot_valuegeneric" size: (500, 350) minsiz
 	}	
 }
 
-// @20260130 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
+dialog DLG_NOTES [vertical title: "" size: (400, 300) minsize: (400, 300) padding: 4 font: "MS Shell Dlg,8"] { 
+	view [horizontal width: bycontainer height: 45] {
+		input CTL_NOTES_NAME [growfactor: 1 height: 21 margin: 4 tabstop label: "@title"] string[252];
+		input CTL_NOTES_ID [width: 70 height: 21 margin: 4 tabstop readonly label: "@id"] int32;
+	}
+	combobox CTLSEL_NOTES_PARENT [tabstop width: bycontainer height: 21 margin: 4 label: "@parentitem" cblinesymb: CTL_NOTES_PARENT];
+	input CTL_NOTES_TEXT [width: bycontainer growfactor: 1 margin: 4 tabstop multiline wantreturn label: ""] string[252];
+	view [horizontal width: bycontainer height: 28 margin_right: 12] {
+		view [horizontal growfactor: 1 height: bycontainer] {
+			button STDCTL_TAGSBUTTON [title: "@but_tags" tabstop size: (90, 21) margin: 4 command: cmTags];
+		}
+		view [horizontal growfactor: 2 height: bycontainer justifycontent: end alignitems: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_GDSASSCINFO [vertical title: "@goodsaggregation_pl" size: (510, 315) minsize: (510, 315) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.6
+	view [horizontal width: bycontainer height: 40] {
+		input CTL_GDSASSCINFO_ID [size: (70, 21) margin: 4 tabstop readonly label: "@id"] int32;
+		input CTL_GDSASSCINFO_GOODS [growfactor: 1 height: 21 margin: 4 tabstop readonly label: "@ware"] string[64];
+	}
+	listbox CTL_GDSASSCINFO_LIST [tabstop width: bycontainer growfactor: 1 margin: 4 columns: "@lbt_goodsaggregation"];
+	view [horizontal width: bycontainer height: 30 justifycontent: end margin_right: 12] {
+		view [horizontal growfactor: 3 height: bycontainer justifycontent: start] {
+			button STDCTL_EDITBUTTON [title: "@{doshow}..." tabstop size: (90, 21) margin: 4 command: cmaEdit];
+			button CTL_CMD_EDITPLU [title: "@{doeditplu}..." tabstop size: (120, 21) margin: 4 command: cmEditPLU];
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop defaultitem size: (90, 21) margin: 4 command: cmaInsert];
+		}
+		view [horizontal growfactor: 1 height: bycontainer justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_close" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		}
+	}
+}
+
+dialog DLG_ARGCODELIST [vertical title: "@goods_arcodelist" size: (550, 300) minsize: (550, 300) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.6
+	statictext CTL_ARGCODELIST_GOODS [width: bycontainer height: 16 margin: 4 staticedge];
+	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
+		listbox CTL_ARGCODELIST_LIST [width: bycontainer growfactor: 1 margin: 4 columns: "@lbt_arcodelist"];
+		view [horizontal width: bycontainer height: 28] {
+			view [horizontal growfactor: 4 height: bycontainer justifycontent: start] {
+				button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+				button STDCTL_EDITBUTTON [title: "@but_edit" tabstop size: (90, 21) margin: 4 command: cmaEdit];
+				button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+			}
+			view [horizontal growfactor: 1 height: bycontainer justifycontent: end] {
+				button STDCTL_UPBUTTON [title: "@but_up" tabstop size: (23, 21)  margin: 4 command: cmUp];
+				button STDCTL_DOWNBUTTON [title: "@but_down" tabstop size: (23, 21)  margin: 4 command: cmDown];
+			}
+		}
+	}
+	view [horizontal width: bycontainer height: 28 margin_right: 8 justifycontent: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+	//framebox [origin: (8, 24) size: (518, 203) ];
+}
+
+// @20260203 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
 // Диалоги, представленные здесь с изменными символами (DLG_CASHREPORTS_L__, например) в ppdlg.list не отмечены поскольку находятся в работе.
 
 // @construction
@@ -3261,4 +3320,3 @@ dialog DLG_CASHREPORTS_L__ [vertical title: "@posnodecmd" size: (595, 525) minsi
 		button STDCTL_CANCELBUTTON [title: "@but_close" tabstop width: bycontainer height: 50 margin: 8 command: cmCancel];
 	}
 }
-

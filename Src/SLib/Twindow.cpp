@@ -861,8 +861,19 @@ void STDCALL TWindow::Helper_SetTitle(const char * pBuf, int setOrgTitle)
 	if(!isempty(pBuf)) {
 		SString temp_title;
 		{
+			// @v12.5.6 {
+			if((pBuf[0] == '@' && pBuf[1] != '{') && SLS.LoadString_(pBuf+1, temp_title) > 0) {
+				;
+			}
+			else {
+				temp_title = pBuf;
+				SLS.ExpandString(temp_title, CTRANSF_UTF8_TO_INNER);
+			}
+			// } @v12.5.6 
+			/*
 			if(pBuf[0] != '@' || SLS.LoadString_(pBuf+1, temp_title) <= 0) // @v11.9.11
 				temp_title = pBuf;
+			*/
 		}
 		HWND   title_wnd = GetDlgItem(HW, SPEC_TITLEWND_ID);
 		Title = temp_title;

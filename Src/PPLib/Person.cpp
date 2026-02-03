@@ -1125,7 +1125,7 @@ int PersonCore::Get(PPID id, PPPerson * pPack)
 {
 	int    ok = Search(id, pPack ? &pPack->Rec : 0);
 	if(ok > 0 && pPack) {
-		GetItemMemo(id, pPack->SMemo); // @v11.1.12
+		GetItemMemo(id, pPack->SMemo);
 		pPack->Kinds.clear();
 		THROW(GetKindList(id, &pPack->Kinds));
 		THROW(GetRelList(id, &pPack->RelList, 0));

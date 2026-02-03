@@ -1239,11 +1239,6 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 	stmt.BL.Dim = 1;
 	stmt.BL.P_Lob = pTbl->getLobBlock();
 	for(i = 0; i < fld_count; i++) {
-		if(i)
-			SqlGen.Com();
-		// @v12.4.10 SqlGen.Param(temp_buf.NumberToLat(subst_no));
-		SqlGen.Text("?"); // @v12.4.10 
-		subst_no++;
 		const BNField & r_fld = pTbl->FldL.GetFieldByPosition(i);
 		const bool is_surrogate_rowid_field = sstreqi_ascii(r_fld.Name, SlConst::P_SurrogateRowIdFieldName);
 		if(GETSTYPE(r_fld.T) == S_AUTOINC) {
@@ -1262,7 +1257,13 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 				}
 			}
 		}
-		stmt.BindItem(-subst_no, 1, r_fld.T, is_surrogate_rowid_field ? static_cast<void *>(&row_id_zero) : PTR8(pTbl->getDataBuf()) + r_fld.Offs);
+		if(!is_surrogate_rowid_field) {
+			if(subst_no)
+				SqlGen.Com();
+			SqlGen.Text("?");
+			subst_no++;
+			stmt.BindItem(-subst_no, 1, r_fld.T, is_surrogate_rowid_field ? static_cast<void *>(&row_id_zero) : PTR8(pTbl->getDataBuf()) + r_fld.Offs);
+		}
 	}
 	SqlGen.RPar();
 	// В MySQL нет RETURNING
@@ -1948,17 +1949,6 @@ void FASTCALL SMySqlDbProvider::OdFree(SMySqlDbProvider::OD & rO)
 						memcpy(p_outer, static_cast<const S_GUID *>(pBind->P_Data), ntv_size);
 				}
 				else if(action == 1) {
-					/*
-					const int csz = sqlite3_column_bytes(h_stmt, idx-1);
-					const void * p_sqlt_data = sqlite3_column_blob(h_stmt, idx-1);
-					if(p_sqlt_data && csz == sizeof(S_GUID))
-						*static_cast<S_GUID *>(p_data) = *static_cast<const S_GUID *>(p_sqlt_data);
-					else
-						static_cast<S_GUID *>(p_data)->Z();
-					*/
-					//const MYSQL_TIME * p_ocidt = static_cast<const MYSQL_TIME *>(p_data);
-					//static_cast<LDATETIME *>(pBind->P_Data)->d = encodedate(p_ocidt->day, p_ocidt->month, p_ocidt->year);
-					//static_cast<LDATETIME *>(pBind->P_Data)->t = encodetime(p_ocidt->hour, p_ocidt->minute, p_ocidt->second, p_ocidt->second_part / 10000);
 					const char * p_outer = static_cast<const char *>(p_data);
 					if(pBind->P_Data && p_outer && pBind->NtvSize == ntv_size) {
 						memcpy(pBind->P_Data, p_outer, ntv_size);
@@ -2028,6 +2018,25 @@ void FASTCALL SMySqlDbProvider::OdFree(SMySqlDbProvider::OD & rO)
 				}
 			}
 			break;
+		case S_RAW:
+			{
+				if(action == 0) {
+					pBind->SetNtvTypeAndSize(SQLT_BIN, static_cast<uint16>(sz));
+					pStmt->AllocBindSubst(count, sz, pBind);
+				}
+				else if(action < 0) {
+					char * p_outer = static_cast<char *>(p_data);
+					if(p_outer && pBind->P_Data)
+						memcpy(p_outer, pBind->P_Data, sz);
+				}
+				else if(action == 1) {
+					const char * p_outer = static_cast<const char *>(p_data);
+					if(pBind->P_Data && p_outer && pBind->NtvSize == sz) {
+						memcpy(pBind->P_Data, p_outer, sz);
+					}
+				}
+			}
+			break;
 #if 0 // {
 		case S_BLOB:
 		case S_CLOB:
@@ -2075,28 +2084,6 @@ void FASTCALL SMySqlDbProvider::OdFree(SMySqlDbProvider::OD & rO)
 					*static_cast<double *>(p_data) = dectobin(static_cast<const char *>(pBind->P_Data), dec_len, dec_prc);
 				else if(action == 1)
 					dectodec(*static_cast<double *>(p_data), static_cast<char *>(pBind->P_Data), dec_len, dec_prc);
-			}
-			break;
-		case S_RAW:
-			if(action == 0) {
-				pBind->SetNtvTypeAndSize(SQLT_BIN, static_cast<uint16>(sz));
-				pStmt->AllocBindSubst(count, (sz * 2), pBind);
-			}
-			else if(action < 0) {
-				uint16 * p_outer = static_cast<uint16 *>(p_data);
-				memcpy(p_outer, pBind->P_Data, sz);
-				/*
-				for(uint i = 0; i < sz; i++)
-					p_outer[i] = byte2hex(PTR8(pBind->P_Data)[i]);
-				*/
-			}
-			else if(action == 1) {
-				const uint16 * p_outer = static_cast<const uint16 *>(p_data);
-				memcpy(pBind->P_Data, p_outer, sz);
-				/*
-				for(uint i = 0; i < sz; i++)
-					PTR8(pBind->P_Data)[i] = hex2byte(p_outer[i]);
-				*/
 			}
 			break;
 		case S_ROWID:

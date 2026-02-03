@@ -9145,7 +9145,7 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 				SUiLayout * p_lo_inp_grp = pLoParent->InsertItem(0, &glp);
 				if(p_lo_inp_grp) {
 					SUiLayoutParam lp_il; // inputline
-					p_lb_ib->SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f); // @v12.5.5
+					// @v12.5.6 @fix p_lb_ib->SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f); // @v12.5.5
 					lp_label.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 					lp_il.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 					if(p_lb_ib) {
@@ -9154,6 +9154,7 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 						lp_sb.SetFixedSizeX(sb_sz.x);
 						lp_sb.SetFixedSizeY(sb_sz.y);
 						lp_sb.ShrinkFactor = 0.0f;
+						p_lb_ib->SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f); // @v12.5.5 // @v12.5.6 @fix 
 						if(inp_szx == SUiLayoutParam::szFixed) {
 							lp_il.SetFixedSizeX(inp_width);
 							p_lb_ib->SetFixedSizeX(sb_sz.x+inp_width); // @v12.5.5

@@ -70,10 +70,40 @@ int PPObjNotes::IsPacketEq(const PPNotesPacket & rS1, const PPNotesPacket & rS2,
 	return 1;
 }
 
+int PPObjNotes::GetName(PPID id, SString & rName) // @construction
+{
+	rName.Z();
+	PPRef->UtrC.SearchUtf8(TextRefIdent(Obj, id, PPTRPROP_NAME), rName);
+	rName.Transf(CTRANSF_UTF8_TO_INNER);
+	return rName.NotEmpty();
+}
+
+int PPObjNotes::GetText(PPID id, SString & rText) // @construction
+{
+	rText.Z();
+	PPRef->UtrC.SearchUtf8(TextRefIdent(Obj, id, PPTRPROP_MEMO), rText);
+	return rText.NotEmpty();
+}
+
 int PPObjNotes::GetPacket(PPID id, PPNotesPacket * pPack)
 {
-	int    ok = -1;
-	// @todo
+	pPack->Z();
+	int    ok = 1;
+	Reference * p_ref(PPRef);
+	if(PPCheckGetObjPacketID(Obj, id)) {
+		if(Search(id, &pPack->Rec) > 0) {
+			SString temp_buf;
+			THROW(p_ref->Ot.GetList(Obj, id, &pPack->TagL));
+			//
+			p_ref->UtrC.SearchUtf8(TextRefIdent(Obj, id, PPTRPROP_NAME), temp_buf);
+			pPack->PutExtStrData(PPNotesPacket::extssTitle, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
+			p_ref->UtrC.SearchUtf8(TextRefIdent(Obj, id, PPTRPROP_MEMO), temp_buf);
+			pPack->PutExtStrData(PPNotesPacket::extssText, temp_buf); // основной текст хранится в utf8
+		}
+	}
+	else
+		ok = -1;
+	CATCHZOK
 	return ok;
 }
 
@@ -90,7 +120,7 @@ int PPObjNotes::PutExtText(PPID id, const PPNotesPacket * pPack, int use_ta)
 			pPack->GetExtStrData(PPNotesPacket::extssTitle, ext_buffer);
 			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(Obj, id, PPTRPROP_NAME), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 			pPack->GetExtStrData(PPNotesPacket::extssText, ext_buffer);
-			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(Obj, id, PPTRPROP_MEMO), ext_buffer/*.Transf(CTRANSF_INNER_TO_UTF8)*/, 0));
+			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(Obj, id, PPTRPROP_MEMO), ext_buffer/*.Transf(CTRANSF_INNER_TO_UTF8)*/, 0)); // основной текст хранится в utf8
 		}
 		else {
 			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(Obj, id, PPTRPROP_NAME), ext_buffer.Z(), 0));
@@ -168,7 +198,7 @@ int PPObjNotes::PutPacket(PPID * pID, PPNotesPacket * pPack, int use_ta)
 
 /*virtual*/int PPObjNotes::Browse(void * extraPtr)
 {
-	int    ok = 0;
+	int    ok = -1;
 	return ok;
 }
 	
@@ -184,17 +214,77 @@ int PPObjNotes::PutPacket(PPID * pID, PPNotesPacket * pPack, int use_ta)
 	return ok;
 }
 
-/*virtual*/int PPObjNotes::EditRights(uint bufSize, ObjRights * buf, EmbedDialog * pDlg/*= 0*/)
+int PPObjNotes::AddItemToSelectorList(const NotesTbl::Rec & rRec, AislBlock & rBlk) // @recursion
 {
-	int    ok = 0;
+	int    ok = -1;
+	if(!rBlk.El.Has(rRec.ID)) {
+		PPID   parent_id = rRec.ParentID;
+		SString title_buf;
+		if(parent_id) {
+			NotesTbl::Rec parent_rec;
+			if(Search(parent_id, &parent_rec) > 0) {
+				if(rBlk.Stack.lsearch(parent_id)) {
+					SString added_buf;
+					//(added_buf = rRec.Name).CatChar('-').CatChar('>');
+					//added_buf.Cat(parent_rec.Name);
+					// @todo title_buf
+					PPSetError(PPERR_CYCLEWORLDOBJ, added_buf); // @todo PPERR_CYCLEWORLDOBJ-->PPERR_CYCLENOTESOBJ
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
+					parent_id = 0;
+				}
+				else {
+					rBlk.Stack.add(parent_id);
+					THROW(AddItemToSelectorList(parent_rec, rBlk)); // @recursion
+				}
+			}
+			else
+				parent_id = 0;
+		}
+		{
+			if(GetName(rRec.ID, title_buf) <= 0) {
+				ideqvalstr(rRec.ID, title_buf);
+			}
+			THROW_SL(rBlk.P_List->AddFast(rRec.ID, parent_id, title_buf));
+			rBlk.El.Add(rRec.ID);
+		}
+		ok = 1;
+	}
+	CATCHZOK
 	return ok;
 }
 	
 /*virtual*/StrAssocArray * PPObjNotes::MakeStrAssocList(void * extraPtr)
 {
-	StrAssocArray * p_result;
-	return p_result;
+	//SelFilt sf;
+	//ConvertExtraParam(extraPtr, &sf);
+	StrAssocArray * p_list = new StrAssocArray;
+	NotesTbl::Key1 k1;
+	BExtQuery q(P_Tbl, 1);
+	DBQ * dbq = 0;
+	THROW_MEM(p_list);
+	MEMSZERO(k1);
+	q.select(P_Tbl->ID, P_Tbl->ParentID, 0L);
+	//dbq = ppcheckfiltid(dbq, P_Tbl->ParentID, sf.ParentID);
+	q.where(*dbq);
+	MEMSZERO(k1);
+	{
+		NotesTbl::Rec rec;
+		AislBlock blk;
+		blk.P_List = p_list;
+		blk.UseHierarchy = 1;//BIN(sf.ParentID == 0 && sf.CountryID == 0);
+		for(q.initIteration(false, &k1, spGt); q.nextIteration() > 0;) {
+			blk.Stack.clear();
+			P_Tbl->CopyBufTo(&rec);
+			THROW(AddItemToSelectorList(rec, blk));
+		}
+	}
+	p_list->SortByText();
+	CATCH
+		ZDELETE(p_list);
+	ENDCATCH
+	return p_list;
 }
+
 
 /*virtual*/const char * PPObjNotes::GetNamePtr()
 {
@@ -216,12 +306,12 @@ int PPObjNotes::PutPacket(PPID * pID, PPNotesPacket * pPack, int use_ta)
 
 /*virtual*/int  PPObjNotes::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
-	int    ok = 0;
+	int    ok = -1;
 	return ok;
 }
 
 /*virtual*/int  PPObjNotes::HandleMsg(int, PPID, PPID, void * extraPtr)
 {
-	int    ok = 0;
+	int    ok = -1;
 	return ok;
 }

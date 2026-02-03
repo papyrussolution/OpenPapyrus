@@ -8843,6 +8843,19 @@ protected:
 	int    EditSpcRightFlags(uint dlgID, uint flCtlID, uint sflCtlID, uint bufSize, ObjRights *, EmbedDialog * pDlg = 0);
 	int    EditPrereq(PPID * pID, TDialog * pDlg, bool * pIsNew);
 	void   FASTCALL Helper_GetRights(int onStartUp);
+	//
+	// Descr: Блок, используемый для корректного создания иерархического списка накоторыми типами объектов.
+	//   Изначально был локальным для PPObjWorld, но когда понадобился и в другом объекте (PPObjNotes) перенесен сюда.
+	//
+	struct AislBlock {
+		AislBlock() : P_List(0), UseHierarchy(0)
+		{
+		}
+		StrAssocArray * P_List;
+		int    UseHierarchy;
+		PPIDArray Stack;
+		UintHashTable El; // Список идентификаторов, которые уже добавлены в P_List
+	};
 
 	long   ImplementFlags;
 };
@@ -26240,14 +26253,8 @@ private:
 	virtual const char * GetNamePtr();
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
 	int    Unite(PPID destID, PPID srcID);
-	struct AislBlock {
-		StrAssocArray * P_List;
-		int    UseHierarchy;
-		PPIDArray Stack;
-		UintHashTable El; // Список идентификаторов, которые уже добавлены в P_List
-	};
 	int    AddItemToSelectorList(const WorldTbl::Rec & rRec, AislBlock & rBlk); // @recursion
-	int    AddItemToSelectorList(PPID id, StrAssocArray * pList, int useHierarchy, PPIDArray * pStack); // @recursion
+	// @v12.5.6 int    AddItemToSelectorList(PPID id, StrAssocArray * pList, int useHierarchy, PPIDArray * pStack); // @recursion
 	int    GetChildList(PPID id, PPIDArray * pChildList, PPIDArray * pStack); // @recursion
 	bool   Helper_IsChildOf(PPID id, PPID parentID, PPIDArray * pRecurTrace); // @recursion
 	int    CorrectCycleLink(PPID id, PPLogger * pLogger, int use_ta);
@@ -29455,7 +29462,7 @@ struct PPArticlePacket {
 	PPArticlePacket();
 	~PPArticlePacket();
 	PPArticlePacket & FASTCALL operator = (const PPArticlePacket &);
-	void   Init();
+	PPArticlePacket & Z();
 	//
 	// Descr: Устанавливает параметры соглашения с клиентом в пакет записи.
 	//   Если ignoreEmpty != 0 && pAgt->IsEmpty() то в соглашение обнуляется (или не устанавливается)
@@ -48590,7 +48597,10 @@ struct PPNotesPacket : public PPExtStrContainer {
 	NotesTbl::Rec Rec;
 	ObjTagList TagL;
 };
-
+//
+// Descr: Объект, управляющих заметками. 
+// Note: Объект разработан в рамках проекта Centrigo.
+//
 class PPObjNotes : public PPObject { // @v12.5.6
 public:
 	explicit PPObjNotes(void * extraPtr = 0);
@@ -48599,11 +48609,12 @@ public:
 	int    SerializePacket(int dir, PPNotesPacket * pPack, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    GetPacket(PPID id, PPNotesPacket * pPack);
 	int    PutPacket(PPID * pID, PPNotesPacket * pPack, int use_ta);
+	int    GetName(PPID id, SString & rName);
+	int    GetText(PPID id, SString & rText);
 	virtual int Search(PPID id, void * pRec = 0);
 	virtual int Browse(void * extraPtr);
 	virtual int Edit(PPID * pID, void * extraPtr);
 	virtual int DeleteObj(PPID id);
-	virtual int EditRights(uint bufSize, ObjRights * buf, EmbedDialog * pDlg = 0);
 private:
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr);
 	virtual const char * GetNamePtr();
@@ -48612,6 +48623,7 @@ private:
 	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
 	int    PutExtText(PPID id, const PPNotesPacket * pPack, int use_ta);
+	int    AddItemToSelectorList(const NotesTbl::Rec & rRec, AislBlock & rBlk); // @recursion
 
 	TLP_MEMB(NotesTbl, P_Tbl);
 	void * ExtraPtr;

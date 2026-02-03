@@ -113,9 +113,8 @@ int GetSupplText(PPID supplID, SString & rBuf)
 //
 //
 //
-PPArticlePacket::PPArticlePacket()
+PPArticlePacket::PPArticlePacket() : Assoc(0), DontUpdateAliasSubst(0), P_CliAgt(0), P_SupplAgt(0), P_AliasSubst(0)
 {
-	THISZERO();
 }
 
 PPArticlePacket::~PPArticlePacket()
@@ -123,6 +122,17 @@ PPArticlePacket::~PPArticlePacket()
 	delete P_CliAgt;
 	delete P_SupplAgt;
 	delete P_AliasSubst;
+}
+
+PPArticlePacket & PPArticlePacket::Z()
+{
+	Rec.Clear();
+	Assoc = 0;
+	DontUpdateAliasSubst = 0;
+	ZDELETE(P_CliAgt);
+	ZDELETE(P_SupplAgt);
+	ZDELETE(P_AliasSubst);
+	return *this;
 }
 
 PPArticlePacket & FASTCALL PPArticlePacket::operator = (const PPArticlePacket & s)
@@ -165,14 +175,6 @@ int PPObjArticle::IsPacketEq(const PPArticlePacket & rS1, const PPArticlePacket 
 	return 1;
 }
 
-void PPArticlePacket::Init()
-{
-	ZDELETE(P_CliAgt);
-	ZDELETE(P_SupplAgt);
-	ZDELETE(P_AliasSubst);
-	THISZERO();
-}
-
 int PPArticlePacket::SetClientAgreement(const PPClientAgreement * pAgt, int ignoreEmpty)
 {
 	int    ok = 1;
@@ -197,10 +199,8 @@ int PPArticlePacket::SetSupplAgreement(const PPSupplAgreement * pAgt, int ignore
 	return ok;
 }
 
-const LAssocArray * PPArticlePacket::GetAliasSubst() const
-{
-	return P_AliasSubst;
-}
+const LAssocArray * PPArticlePacket::GetAliasSubst() const { return P_AliasSubst; }
+int PPArticlePacket::RemoveAliasSubst(PPID accAliasID) { return (P_AliasSubst && P_AliasSubst->Remove(accAliasID)) ? 1 : -1; }
 
 int PPArticlePacket::EnumAliasSubst(uint * pPos, PPID * pAliasID, PPID * pAccID) const
 {
@@ -226,9 +226,10 @@ int PPArticlePacket::UpdateAliasSubst(PPID accAliasID, PPID accID)
 {
 	if(P_AliasSubst && P_AliasSubst->Search(accAliasID, 0)) {
 		uint   cnt = 0;
-		for(uint i = 0; i < P_AliasSubst->getCount(); i++)
+		for(uint i = 0; i < P_AliasSubst->getCount(); i++) {
 			if(P_AliasSubst->at(i).Key == accAliasID)
 				cnt++;
+		}
 		if(cnt > 1)
 			return PPSetError(PPERR_DUPSUBSTALIASONARTICLE);
 		else {
@@ -238,11 +239,6 @@ int PPArticlePacket::UpdateAliasSubst(PPID accAliasID, PPID accID)
 	}
 	else
 		return -1;
-}
-
-int PPArticlePacket::RemoveAliasSubst(PPID accAliasID)
-{
-	return (P_AliasSubst && P_AliasSubst->Remove(accAliasID)) ? 1 : -1;
 }
 //
 //
@@ -1517,8 +1513,9 @@ int PPObjArticle::PutPacket(PPID * pID, PPArticlePacket * pPack, int use_ta)
 
 int PPObjArticle::GetPacket(PPID id, PPArticlePacket * pPack)
 {
-	int    ok = 1, r;
-	pPack->Init();
+	int    ok = 1;
+	int    r;
+	pPack->Z();
 	if(PPCheckGetObjPacketID(Obj, id)) {
 		ok = Search(id, &pPack->Rec);
 		if(ok > 0) {

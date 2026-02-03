@@ -3044,7 +3044,8 @@ int PPObjPerson::GetDlvrLocList(PPID personID, PPIDArray * pList)
 
 int PPObjPerson::GetPacket(PPID id, PPPersonPacket * pPack, uint flags)
 {
-	int    ok = 1, r;
+	int    ok = 1;
+	int    r;
 	Reference * p_ref(PPRef);
 	uint   i;
 	PPIDArray dlvr_loc_list;
