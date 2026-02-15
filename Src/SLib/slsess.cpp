@@ -64,10 +64,10 @@ static void foo()
 //
 SlExtraProcBlock::SlExtraProcBlock()
 {
-	Reset();
+	Z();
 }
 
-void SlExtraProcBlock::Reset()
+SlExtraProcBlock & SlExtraProcBlock::Z()
 {
 	F_LoadString = 0;
 	F_ExpandString = 0;
@@ -80,6 +80,9 @@ void SlExtraProcBlock::Reset()
 	F_GetDefaultEncrKey = 0;
 	F_QueryPath = 0;
 	F_InitDialog = 0;
+	F_LoadObjText = 0; // @v12.5.6
+	F_StoreObjText = 0; // @v12.5.6
+	return *this;
 }
 
 void SlExtraProcBlock::Set(const SlExtraProcBlock * pS)
@@ -96,9 +99,11 @@ void SlExtraProcBlock::Set(const SlExtraProcBlock * pS)
 		F_GetDefaultEncrKey = pS->F_GetDefaultEncrKey;
 		F_QueryPath = pS->F_QueryPath;
 		F_InitDialog = pS->F_InitDialog; // @v12.3.6
+		F_LoadObjText = pS->F_LoadObjText; // @v12.5.6
+		F_StoreObjText = pS->F_StoreObjText; // @v12.5.6
 	}
 	else
-		Reset();
+		Z();
 }
 //
 //
@@ -204,7 +209,7 @@ SlSession::SlSession() : SSys(1), Id(1), TlsIdx(-1), StopFlag(0), P_StopEvnt(0),
 		temp_buf1[0] = 0;
 	}
 #endif
-	ExtraProcBlk.Reset();
+	ExtraProcBlk.Z();
 	TlsIdx = TlsAlloc();
 	InitThread();
 }

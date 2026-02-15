@@ -2506,7 +2506,7 @@ int SFile::Read(void * pBuf, size_t size, size_t * pActualSize)
 				while(ok > 0 && size_to_do) {
 					const size_t br_size = BufR.GetAvailableSize();
 					if(br_size) {
-						const size_t local_size_to_read = MIN(size_to_do, br_size);
+						const size_t local_size_to_read = smin(size_to_do, br_size);
 						const size_t local_act_size = BufR.Read(pBuf, local_size_to_read);
 						THROW_S_S(local_act_size == local_size_to_read, SLERR_READFAULT, Name);
 						act_size += local_act_size;
@@ -2516,7 +2516,7 @@ int SFile::Read(void * pBuf, size_t size, size_t * pActualSize)
 						if(is_eof)
 							ok = -1;
 						else if(Mode & SFile::mBuffRd) {
-							const size_t SFile_MaxRdBuf_Size = 1024 * 1024;
+							const size_t SFile_MaxRdBuf_Size = SMEGABYTE(1);
 							assert(!is_eof); // Флаг должен был быть установлен на предыдущей итерации. Если мы сюда попали с этим флагом, значит что-то не так!
 							assert(SFile_MaxRdBuf_Size > BufR.GetAvailableSize());
 							STempBuffer temp_buf(SFile_MaxRdBuf_Size - BufR.GetAvailableSize());

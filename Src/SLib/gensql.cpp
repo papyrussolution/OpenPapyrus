@@ -363,8 +363,14 @@ int Generator_SQL::CreateTable(const DBTable & rTbl, const char * pFileName, uin
 		//const DBI
 		Tok(tokCreate).Sp();
 		// @v12.4.4 {
-		if(flags & ctfTemporary)
-			Tok(tokTemp).Sp();
+		if(flags & ctfTemporary) {
+			if(Sqlst == sqlstMySQL) {
+				// (Для MySQL создаем обычную таблицу с хитрым именем. Удалим при завершении сеанса или специальной процедурой) 
+				// Tok(tokTemporary).Sp(); // @v12.5.6
+			}
+			else 
+				Tok(tokTemp).Sp();
+		}
 		// } @v12.4.4 
 		Tok(tokTable).Sp();
 		if(flags & ctfIfNotExists) {
@@ -643,6 +649,7 @@ const char * Generator_SQL::P_Tokens[] = {
 	"USE INDEX",     // @v12.4.12 tokUseIndex
 	"FORCE INDEX",   // @v12.4.12 tokForceIndex 
 	"USING",         // @v12.5.0 tokUsing
+	"TEMPORARY",     // @v12.5.6 tokTemporary
 };
 
 Generator_SQL & Generator_SQL::HintBegin()

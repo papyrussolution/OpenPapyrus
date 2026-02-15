@@ -400,8 +400,8 @@ int PPCashMachine::SyncCloseSession()
 	int    close_sess = 1;
 	const  PPConfig & r_cfg = LConfig;
 	const  LDATE save_date   = r_cfg.OperDate;
-	const  PPID   save_loc_id = r_cfg.Location;
-	const  PPID   save_cash_id = r_cfg.Cash;
+	const  PPID save_loc_id = r_cfg.Location;
+	const  PPID save_cash_id = r_cfg.Cash;
 	CCheckCore  chk_core;
 	THROW_PP(BillObj->CheckRights(BILLRT_CLOSECASH), PPERR_NORTCLOSECASH);
 	THROW((my_lock = PPObjCashNode::IsLocked(NodeID)) <= 0);

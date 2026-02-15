@@ -4393,7 +4393,7 @@ int PPViewDebtorStat::ViewGraph(const PPViewBrowser * pBrw)
 				plot.SetTics(axis, &tics);
 
 				PPGpTicsList tics_list(0);
-				PPLoadTextWin(PPTXT_PLOT_DSTAT_AVGPAYMPERIOD, temp_buf);
+				PPLoadTextAnsi(PPTXT_PLOT_DSTAT_AVGPAYMPERIOD, temp_buf);
 				tics_list.Add(total.PaymPeriodMean, temp_buf);
 				plot.SetTicsList(axis, tics_list);
 			}

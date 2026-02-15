@@ -13566,11 +13566,69 @@ private:
 	PPLogger & R_Logger;
 	TokenSymbHashTable TsHt;
 	PPID   LocCodeTagID;
+	StrStrAssocArray AaList; // Список activity-кодов и соответствующих им Activity Code Group
 	PPObjPrjTask TodoObj;
 };
+//
+// Descr: Читает файл dd/cocacola-esi_specification-activity_codes.csv и извлекает из него:
+//   либо пары {Activity Code;RU Описание на русском языке}, которые вставляются в список rList как {key; val} соответственно
+//   либо пары {Activity Code;Activity Code Group}, которые вставляются в список rList как {key; val} соответственно
+// ARG(scheme IN): Схема извлечения данных. Значения следющие: 1 - {Activity Code; RU Описание на русском языке}, 2 - {Activity Code; Activity Code Group}
+//   Первый вариант используется для выбора кода человеком, второй варинт - для передачи данных поставщику.
+// Return:
+//   >0 - данные успешно прочитаны. 
+//    0 - error
+//
+int COCACOLA_ReadBailmentAaFile(int scheme, StrStrAssocArray & rList)
+{
+	rList.Z();
+	assert(oneof2(scheme, 1, 2));
+	int    ok = 0;
+	SString temp_buf;
+	PPGetFilePath(PPPATH_DD, "cocacola-esi_specification-activity_codes.csv", temp_buf);
+	// Activity Code Group;Code Group Description;Activity Code;Activity Description;RU Описание на русском языке;Notification types;Memo
+	//                   0                      1             2                    3                            4                  5    6
+	if(fileExists(temp_buf)) {
+		StringSet ss;
+		SString key;
+		SString val;
+		SFile f_in(temp_buf, SFile::mRead);
+		SFile::ReadLineCsvContext csv_ctx(';');
+		uint   line_n = 0;
+		while(f_in.ReadLineCsv(csv_ctx, ss)) {
+			line_n++;
+			if(line_n > 1) {
+				for(uint ssp = 0, fld_n = 0; ss.get(&ssp, temp_buf); fld_n++) {
+					if(fld_n == 2) {
+						key = temp_buf;
+					}
+					else {
+						if(scheme == 1) {
+							if(fld_n == 4) {
+								val = temp_buf;
+							}
+						}
+						else if(scheme == 2) {
+							if(fld_n == 0) {
+								val = temp_buf;
+							}
+						}
+					}
+				}
+				if(key.NotEmptyS()) {
+					rList.Add(key, val, 0);
+					ok = 1;
+				}
+			}
+		}
+	}
+	return ok;
+}
 
 int COCACOLA::MakeReply(const BillTbl::Rec & rOrderBillRec, PPID billID, StringSet & rSsResultFileNames)
 {
+	// CC-BAILMENT-AA - зарезервированный символ тега с кодом ACTIVITY_CODE
+
 	/* Замечания по первой итерации @20251215
 		done 1)      Названия сервисных файлов «DATA….» (не «SERVICE…»).
 		2)      В MOV-файлах не заполнены часть обязательных тэгов.
@@ -13621,7 +13679,7 @@ int COCACOLA::MakeReply(const BillTbl::Rec & rOrderBillRec, PPID billID, StringS
 				THROW(P_BObj->ExtractPacket(rOrderBillRec.ID, &ord_bpack) > 0);
 				todo_code_tag_id = PPObjTag::Helper_GetTagIdBySymb("SERVICE-TODO-CODE", OTTYP_STRING);
 				{
-					p_ref->UtrC.SearchUtf8(TextRefIdent(PPOBJ_BILL, rOrderBillRec.ID, PPTRPROP_RAWDATA_XML), temp_buf);
+					p_ref->UtrC.SearchUtf8(SObjTextRefIdent(PPOBJ_BILL, rOrderBillRec.ID, PPTRPROP_RAWDATA_XML), temp_buf);
 					ParseBailmentOrderBuf(temp_buf, raw_order_set);
 					for(uint i = 0; i < raw_order_set.OrderList.getCount(); i++) {
 						const BailmentOrderSet::OrderItem * p_iter_item = raw_order_set.OrderList.at(i);
@@ -13875,11 +13933,19 @@ int COCACOLA::MakeReply(const BillTbl::Rec & rOrderBillRec, PPID billID, StringS
 										// <ASTXT/> всегда app (это константа), код технического одобрения.
 										n_i.PutInner("ASTXT", "app");
 										{
+											const  PPID aa_tag_id = PPObjTag::Helper_GetTagIdBySymb("CC-BAILMENT-AA", OTTYP_STRING);
+
 											SXml::WNode n_a(p_x, "ACTIVITIES");
 											{
 												SXml::WNode n_i2(p_x, "ITEM");
-												n_i2.PutInner("CODE_GROUP", ""); // Код группы работ (из ESI_Specification - Activity Codes )
-												n_i2.PutInner("ACTIVITY_CODE", ""); // Код работы (из ESI_Specification - Activity Codes )
+												SString aa_code;
+												SString aa_group;
+												if(aa_tag_id && AaList.getCount() && todo_pack.TagL.GetItemStr(aa_tag_id, temp_buf) > 0) {
+													if(AaList.Search(temp_buf, &aa_group, 0))
+														aa_code = temp_buf;
+												}
+												n_i2.PutInner("CODE_GROUP", aa_code); // Код группы работ (из ESI_Specification - Activity Codes )
+												n_i2.PutInner("ACTIVITY_CODE", aa_group); // Код работы (из ESI_Specification - Activity Codes )
 											}
 										}
 										{
@@ -14440,7 +14506,7 @@ int COCACOLA::ImportBailmentOrders()
 											const PPID bill_id = bpack.Rec.ID;
 											// Сохранить вместе с документом оригинальный xml-файл (BailmentOrderSet::RawData_Xml)
 											if(p_ordset->RawData_Xml.NotEmpty() && p_ordset->RawData_Xml.IsLegalUtf8()) {
-												if(!p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_BILL, bill_id, PPTRPROP_RAWDATA_XML), p_ordset->RawData_Xml, 0)) {
+												if(!p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(PPOBJ_BILL, bill_id, PPTRPROP_RAWDATA_XML), p_ordset->RawData_Xml, 0)) {
 													; // @todo @errmsg
 												}
 											}
@@ -14507,6 +14573,9 @@ int COCACOLA::ExportBailmentReplies()
 		if(bill_id_list.getCount()) {
 			bill_id_list.sortAndUndup();
 			StringSet ss_result_file_list;
+			// @v12.5.6 {
+			COCACOLA_ReadBailmentAaFile(2, AaList);
+			// } @v12.5.6 
 			for(uint bi = 0; bi < bill_id_list.getCount(); bi++) {
 				const PPID order_bill_id = bill_id_list.get(bi);
 				BillTbl::Rec order_bill_rec;

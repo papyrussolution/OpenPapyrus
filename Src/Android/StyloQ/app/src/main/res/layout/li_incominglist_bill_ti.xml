@@ -28,6 +28,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
+                <ImageView android:id="@+id/CTL_DOCUMENT_TI_LOCAL_STATUS"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginBottom="4dp"/>
+                <TextView
+                    android:id="@+id/CTL_DOCUMENT_TI_MARKQTTY"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:minWidth="20dp"
+                    android:layout_marginLeft="2dp"
+                    android:layout_marginBottom="4dp"
+                    android:textSize="10sp"
+                    android:textAlignment="center"
+                    android:textColor="@color/TextPrimary"
+                    android:background="@drawable/shape_scan_qtty"
+                    />
                 <View style="@style/FakeView"/>
                 <TextView
                     android:id="@+id/CTL_DOCUMENT_TI_QTTY"
@@ -63,7 +80,7 @@
                     android:textColor="@color/Accent"
                     />
             </LinearLayout>
-            <LinearLayout
+            <LinearLayout android:id="@+id/CTL_DOCUMENT_TI_ACCEPT_BLOCK"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">

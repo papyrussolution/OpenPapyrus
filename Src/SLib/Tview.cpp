@@ -596,25 +596,30 @@ static HMENU _CtlIdForCreateWindow(uint ctlId) { return reinterpret_cast<HMENU>(
 					{
 						SmartListBox * p_lb = static_cast<SmartListBox *>(pV);
 						pV->Parent = hw_parent;
-						/*
-							"ListBox"
-							WS_CHILDWINDOW|WS_VISIBLE|WS_TABSTOP|LBS_NOTIFY|LBS_NOINTEGRALHEIGHT|LBS_WANTKEYBOARDINPUT
-							WS_EX_LEFT|WS_EX_LTRREADING|WS_EX_RIGHTSCROLLBAR|WS_EX_NOPARENTNOTIFY|WS_EX_CLIENTEDGE
-						*/ 
+						DWORD  style = WS_CHILD|WS_BORDER|WS_TABSTOP|WS_VISIBLE;
 						if(p_lb->IsTreeList()) {
-							hw = ::CreateWindowExW(WS_EX_CLIENTEDGE, L"SysTreeView32", 0, 
-								WS_CHILD|WS_BORDER|WS_TABSTOP|WS_VISIBLE|TVS_HASBUTTONS|TVS_HASLINES|TVS_LINESATROOT|
-								TVS_SHOWSELALWAYS|TVS_DISABLEDRAGDROP,
+							style |= TVS_HASBUTTONS|TVS_HASLINES|TVS_LINESATROOT|TVS_SHOWSELALWAYS|TVS_DISABLEDRAGDROP;
+							hw = ::CreateWindowExW(WS_EX_CLIENTEDGE, L"SysTreeView32", 0, style,
 								pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, _CtlIdForCreateWindow(ctl_id), TProgram::GetInst(), 0);
 						}
 						else if(p_lb->GetColumnsCount()) {
-							hw = ::CreateWindowExW(WS_EX_CLIENTEDGE, L"SysListView32", 0,
-								WS_CHILD|WS_BORDER|WS_TABSTOP|WS_VISIBLE|LVS_REPORT|LVS_SINGLESEL|LVS_SHOWSELALWAYS|LVS_NOSORTHEADER,
+							style |= LVS_REPORT|LVS_SINGLESEL|LVS_SHOWSELALWAYS|LVS_NOSORTHEADER;
+							// @v12.5.6 {
+							if(p_lb->P_Def && p_lb->P_Def->Options & lbtOwnerDraw) {
+								style |= LVS_OWNERDRAWFIXED;
+							}
+							// } @v12.5.6 
+							hw = ::CreateWindowExW(WS_EX_CLIENTEDGE, L"SysListView32", 0, style,
 								pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, _CtlIdForCreateWindow(ctl_id), TProgram::GetInst(), 0);
 						}
 						else {
-							hw = ::CreateWindowExW(WS_EX_LEFT|WS_EX_LTRREADING|WS_EX_RIGHTSCROLLBAR|WS_EX_NOPARENTNOTIFY|WS_EX_CLIENTEDGE, L"ListBox", 0, 
-								WS_CHILD|WS_BORDER|WS_TABSTOP|WS_VISIBLE|LBS_NOTIFY|LBS_NOINTEGRALHEIGHT|LBS_WANTKEYBOARDINPUT,
+							style |= LBS_NOTIFY|LBS_NOINTEGRALHEIGHT|LBS_WANTKEYBOARDINPUT;
+							// @v12.5.6 {
+							if(p_lb->P_Def && p_lb->P_Def->Options & lbtOwnerDraw) {
+								style |= LBS_OWNERDRAWFIXED;
+							}
+							// } @v12.5.6 
+							hw = ::CreateWindowExW(WS_EX_LEFT|WS_EX_LTRREADING|WS_EX_RIGHTSCROLLBAR|WS_EX_NOPARENTNOTIFY|WS_EX_CLIENTEDGE, L"ListBox", 0, style,
 								pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, _CtlIdForCreateWindow(ctl_id), TProgram::GetInst(), 0);
 						}
 						if(hw) {

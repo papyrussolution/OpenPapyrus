@@ -1,5 +1,5 @@
 // PPMSG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -23,8 +23,8 @@ bool PPInitStrings(const char * pFileName)
         {
             SFsPath ps(name);
 			if(!ps.Nam.HasChr('-')) {
-				const SString org_nam = ps.Nam;
-				const SString org_ext = ps.Ext;
+				const SString org_nam(ps.Nam);
+				const SString org_ext(ps.Ext);
 				(ps.Nam = org_nam).CatChar('-').CatChar('*');
 				ps.Merge(temp_buf);
 				{
@@ -88,10 +88,7 @@ void PPReleaseStrings()
 		DO_CRITICAL(ZDELETE(_PPStrStore));
 }
 
-const SymbHashTable * FASTCALL PPGetStringHash(int group)
-{
-	return _PPStrStore ? _PPStrStore->GetStringHash(group) : 0;
-}
+const SymbHashTable * FASTCALL PPGetStringHash(int group) { return _PPStrStore ? _PPStrStore->GetStringHash(group) : 0; }
 
 int STDCALL PPLoadStringUtf8(int group, int code, SString & s) // @cs
 {
@@ -110,18 +107,18 @@ int STDCALL PPLoadStringUtf8(int group, int code, SString & s) // @cs
 	return ok;
 }
 
-int STDCALL PPLoadString(int group, int code, SString & s)
+int STDCALL PPLoadString(int group, int code, SString & rS)
 {
-	int    ok = PPLoadStringUtf8(group, code, s);
-	if(s.Len() && !sisascii(s.cptr(), s.Len()))
-		s.Transf(CTRANSF_UTF8_TO_INNER);
+	int    ok = PPLoadStringUtf8(group, code, rS);
+	if(rS.Len() && !sisascii(rS.cptr(), rS.Len()))
+		rS.Transf(CTRANSF_UTF8_TO_INNER);
 	return ok;
 }
 
-SString & STDCALL PPLoadStringS(int group, int code, SString & s)
+SString & STDCALL PPLoadStringS(int group, int code, SString & rS)
 {
-	PPLoadString(group, code, s);
-	return s;
+	PPLoadString(group, code, rS);
+	return rS;
 }
 
 int FASTCALL PPExpandString(SString & rS, int ctransf)
@@ -200,10 +197,12 @@ SString & FASTCALL PPLoadTextUtf8S(int code, SString & rS)
 	return rS;
 }
 
-int FASTCALL PPLoadTextWin(int code, SString & s)
+int FASTCALL PPLoadTextAnsi(int code, SString & rS)
 {
-	int    ok = PPLoadString(PPSTR_TEXT, code, s);
-	s.Transf(CTRANSF_INNER_TO_OUTER);
+	// @v12.5.6 int    ok = PPLoadString(PPSTR_TEXT, code, rS);
+	// @v12.5.6 rS.Transf(CTRANSF_INNER_TO_OUTER);
+	int    ok = PPLoadStringUtf8(PPSTR_TEXT, code, rS); // @v12.5.6 
+	rS.Transf(CTRANSF_UTF8_TO_OUTER); // @v12.5.6 
 	return ok;
 }
 

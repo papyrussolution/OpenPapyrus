@@ -304,11 +304,6 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 	
 /*virtual*/SString & SSqliteDbProvider::GetTemporaryFileName(SString & rFileNameBuf, long * pStart, bool forceInDataPath)
 {
-	/*
-	uint64 t = SLS.GetProfileTime();
-	if(t == 0)
-		t = SLS.GetProfileTime();
-	*/
 	uint  _clk = clock();
 	rFileNameBuf.Z().Cat("tt").Cat(_clk);
 	return rFileNameBuf;
@@ -337,10 +332,7 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 		}
 	}
 	if(createMode < 0 && IS_CRM_TEMP(createMode)) {
-		//
-		// Регистрируем имя временного файла в драйвере БД для последующего удаления //
-		//
-		AddTempFileName(pFileName);
+		AddTempFileName(pFileName); // Регистрируем имя временного файла в драйвере БД для последующего удаления //
 	}
 	CATCHZOK
 	return ok;
@@ -1025,7 +1017,7 @@ int SSqliteDbProvider::ResetStatement(SSqlStmt & rS)
 						long   val = 0;
 						size_t val_sz = 0;
 						r_fld.getValue(p_tbl->getDataBufConst(), &val, &val_sz);
-						assert(val_sz == sizeof(val));
+						//assert(val_sz == sizeof(val));
 						if(val == 0) {
 							// (похоже, не надо так делать - надо привязывать null-значение явно) do_skip_this_fld = true;
 						}

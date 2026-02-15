@@ -1,6 +1,6 @@
 
 [hash]
-base=ppstr2.txt,ERQk24IlvOEXPAUWFFEZg+XMfnki56D9pc22Lh79Aok=,ppstr2.bin,C4sDuwlBW47eDBbaQTFHJZbh2KyIIXucbfO3v175aKQ=
+base=ppstr2.txt,XGElPu2mJwutrkKN09a7bD5zcTqId8nnyyGrDcYTaDk=,ppstr2.bin,W9R31BPRU2Jrs4B/3UdOqfSwrP82qgbCDSd63YHF3gg=
 lang-de=ppstr2-de.txt,uiF+XJVJlyDjw7nInhf/AFcW9Tl0++UYflUahSBUK/Y=,ppstr2-de.bin,z5tTW3wrQRt4866sMd5LWX/oYCLHknIJxj6FbKYnSek=
 lang-en=ppstr2-en.txt,wNMuDQEJ8iXS8+Jpd9MAWdg8exLsMCYnqYI0euY1I0Y=,ppstr2-en.bin,5cMKdf3XAXJZe9nWJkS0b2yRiluKkMmBbOM4faM39TI=
 lang-es=ppstr2-es.txt,6DBYF21pt4umLyjG1Rx9bHiNzqHNfQg0oJPNpqQHaL8=,ppstr2-es.bin,jN0oN2zuyiQYf2BQ4rSZo9Fbb/rXRRQTRRg9UgDu54E=
@@ -11,7 +11,7 @@ java=ppstr2.java,7iJKPVwZpAveYVRgbWKIsQlUkxGOb3AULwrFDQnSlCk=
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147499101
+LastSignatureCode=2147499109
 LastAutoCodeList=1,12451;102,10179;103,10073;110,10000;111,13053;112,10000;119,10000;114,10012;7,10000;4,10000;6,10000;342,10000;118,10313;120,10010;1001,10000;121,10000;122,10000;123,10661;124,10808;125,10128;126,10000
 
 [SignatureList]
@@ -108,6 +108,8 @@ lbt_selorderprefsuppl=2147495075
 lbt_testglbsvcacsylist=2147499052
 lbt_fldcorrlist=2147499086
 lbt_goodsaggregation=2147499101
+lbt_goodstaxlist=2147499103
+lbt_divggrpassoclist=2147499109
 entmanagementsys=2147483734
 pgmcopylic_owner=2147483735
 pgmcopylic_regnum=2147483736
@@ -1889,6 +1891,7 @@ vatp=2147485122
 vatamount=2147485123
 vatrate=2147485124
 salestax=2147485125
+salestax_ss=2147499104
 salestaxrate=2147494477
 salestaxamount=2147494170
 excise=2147485126
@@ -7624,6 +7627,7 @@ workbook_type_css=2147490184
 workbook_type_media=2147490185
 workbook_type_folder=2147490186
 workbook_type_keyword=2147497378
+workbook_type_note=2147499102
 workbook_parent=2147490188
 workbook_link=2147490189
 workbook_css=2147490190
@@ -11510,6 +11514,10 @@ mpviewkind_goods=2147499045
 mpviewkind_pickuppoints=2147499046
 brwwin_lcsetdefcolsizes=2147499091
 brwwin_lcevaluatecolsizes=2147499092
+centrigo_cmd_notes=2147499105
+centrigo_cmd_todo=2147499106
+centrigo_cmd_wallet=2147499107
+centrigo_cmd_secrets=2147499108
 rtag_dimentions=2147498965
 rtag_locfreightpackage=2147498966
 dl2score_subnetprice=2147498967

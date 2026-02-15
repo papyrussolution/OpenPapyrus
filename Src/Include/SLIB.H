@@ -1355,8 +1355,8 @@ class  TDialog; // @v12.3.6
 #define STRF_UPPER     0x0001  // Все буквы переводить в прописные
 #define STRF_LOWER     0x0002  // Все буквы переводить в строчные
 #define STRF_PASSWORD  0x0004  // Все символы заменять символом '*'
-#define STRF_OEM       0x0008  // AnsiToOem (Windows only)
-#define STRF_ANSI      0x0010  // OemToAnsi (Windows only)
+#define STRF_TOOEM       0x0008  // AnsiToOem (предполагается, что исходная строка - в кодировке ANSI)
+#define STRF_TOANSI      0x0010  // OemToAnsi (предполагается, что исходная строка - в кодировке OEM)
 //
 // Structure of format field:
 //   Precision           4 bit
@@ -1461,7 +1461,8 @@ public:
 	static constexpr const wchar_t * WinClsName_TextEditor = L"STextBrowser"; // @v12.3.8
 	static constexpr const wchar_t * WinClsName_TimeChunkBrowser = L"STimeChunkBrowser"; // @v12.3.8
 	static constexpr uint32 SLobSignature[4] = { 0x2efc, 0xd421, 0x426c, 0xee07 }; // @v12.2.3 Сигнатура объекта SLob, означающая, что буфер структурирован.
-	static constexpr uint32 SSqlStmtSignature = 0x3597B6D4; // @v12.5.2 Сигнатура объекта SSqlStmt
+	static constexpr uint32 SSqlStmtSignature = 0x3597B6D4U; // @v12.5.2 Сигнатура объекта SSqlStmt
+	static constexpr uint32 SSqlStmtSignature_Select = 0x194AF5CCU; // @v12.5.6 Сигнатура объекта DBTable::SelectStmt
 	static constexpr uint32 DBTableSignature  = 0x6E805ED7; // @v12.5.2 Сигнатура объекта DBTable
 	static constexpr uint64 DBConnSignature   = 0xDE4F9DF4FE840FDEULL; // @v12.5.4 Сигнатура объекта DbProvider::Connection
 };
@@ -3459,7 +3460,7 @@ public:
 	DataType() : S(0) {}
 	virtual uint32 size() const;
 	virtual int    comp(const void * i1, const void * i2) const;
-	virtual char * tostr(const void *, long, char * b) const;
+	virtual char * tostr(const void * pData, long format, char * pBuf) const;
 	//
 	// Descr: Функция должна преобразовать бинарное представление данные pData
 	//   в строку rBuf в соответствии с форматом преобразования format.
@@ -3467,7 +3468,7 @@ public:
 	// Note: Эта функция замещает устаревшую tostr.
 	//   На начальном этапе default-реализация функции вызывает tostr()
 	//
-	virtual SString & ToStr(const void * pData, long format, SString & rBuf) const;
+	virtual SString & ToStr_(const void * pData, long format, SString & rBuf) const;
 	virtual int    fromstr(void *, long, const char *) const;
 	virtual int    base() const;
 	virtual void   tobase(const void * data, void * baseData) const;
@@ -4583,7 +4584,7 @@ public:
 	SString & ToUrl();
 	SString & FromUrl();
 	SString & ToOem();
-	SString & ToChar();
+	// @v12.5.6 (replaced with Transf(CTRANSF_INNER_TO_OUTER)) SString & ToAnsii();
 	SString & ToUtf8();
 	SString & Utf8ToChar();
 	SString & Utf8ToOem();
@@ -4625,7 +4626,19 @@ public:
 	//   *this
 	//
 	SString & FASTCALL SetIfEmpty(const SString & rS);
-	int    IsAscii() const;
+	//
+	// Descr: Специализированная функция, реализующая присвоение this строки pS с опциями форматирования fmt.
+	//   Повторяет функционал strfmt() но для случая, когда объектом назначения является SString а не предварительно 
+	//   выделенный буфер фиксированного (и неизвестного для strfmt) размера.
+	// ARG(pS  IN): указатель на исходную строку, котроую следует преобразовать в SString в соответствии с форматом fmt
+	// ARG(fmt IN): дескриптор формата (SFMT) задающий правила преобразования строки pS
+	// ARG(len IN): длина строки pS. Так как в общем случае не гарантировано, что pS завераештся терминальным нулем,
+	//   то функция SetSFmt полагается на len как на длину строки.
+	// Returns:
+	//   *this
+	//
+	SString & SetSFmt(const char * pS, long fmt, size_t len); // @v12.5.6 @construction
+	bool   IsAscii() const;
 	bool   IsLegalUtf8() const;
 	//
 	// Descr: Возвращает true если все символы строки либо ascii либо относятся к диапазонам таблицы cp866.
@@ -4932,6 +4945,14 @@ public:
 	bool   NotEmpty() const { return !IsEmpty(); }
 	bool   FASTCALL IsEq(const SStringU & rS) const;
 	bool   FASTCALL IsEq(const wchar_t * pS) const;
+	//
+	// Descr: Возвращает SString::Cmp(pS, 0) == 0
+	//   То есть, если строка this равна строке pS с учетом регистра символов.
+	//
+	bool   FASTCALL operator == (const wchar_t * pS) const { return IsEq(pS); } // @v12.5.6 @fix (не было оператора)
+	bool   FASTCALL operator != (const wchar_t * pS) const { return !IsEq(pS); } // @v12.5.6 @fix (не было оператора)
+	bool   FASTCALL operator == (const SStringU & rS) const { return IsEq(rS); } // @v12.5.6 @fix (не было оператора)
+	bool   FASTCALL operator != (const SStringU & rS) const { return !IsEq(rS); } // @v12.5.6 @fix (не было оператора)
 	int    FASTCALL Cmp(const SStringU & rS) const;
 	//
 	// Descr: Сравнивает префикс строки this со строкой pS.
@@ -5496,8 +5517,8 @@ bool   STDCALL  sstreqni_ascii(const char * pS1, const char * pS2, size_t maxlen
 // Note: Функция может быть использована для быстрой идентификации необходимости
 //   трансляции строки в UNICODE или для иных специализированных задач.
 // Returns:
-//   !0  - все len символов в pS находятся в диапазоне [0..0x7f]
-//    0  - как минимум один символ в pS - не ascii (вне диапазона [0..0x7f])
+//   true  - все len символов в pS находятся в диапазоне [0..0x7f]. Если строка пустая, то считается, что она соответствует условию и функция возвращает true.
+//   false - как минимум один символ в pS - не ascii (вне диапазона [0..0x7f])
 //
 bool   FASTCALL sisascii(const char * pS, size_t len);
 bool   FASTCALL sisascii(const wchar_t * pS, size_t len/* length of pS in characters (not bytes)*/);
@@ -5633,6 +5654,10 @@ char * FASTCALL SCharToOem(char * pStr);
 //
 const wchar_t * FASTCALL SUcSwitchW(const char * pStr);
 const wchar_t * FASTCALL SUcSwitchW(const SString & rStr);
+//
+// Descr: Делает тоже что и SUcSwitchW но считая, что rStr - в кодировке utf8
+//
+const wchar_t * FASTCALL SUcSwitchWUtf8(const SString & rStrUtf8); // @v12.5.6
 const char * FASTCALL SUcSwitchW(const wchar_t * pStr);
 inline const char * FASTCALL SUcSwitchA(const char * pStr) { return pStr; }
 inline const wchar_t * FASTCALL SUcSwitchA(const wchar_t * pStr) { return pStr; }
@@ -5973,7 +5998,7 @@ enum {
 //    rBuf
 //
 SString & STDCALL TimeZoneFmt(int tz, int flags, SString & rBuf);
-char * STDCALL strfmt(const char * str, long fmt, char * buf);
+char * STDCALL strfmt(const char * pStr, long fmt, char * pBuf);
 //char * numbertotext(double nmb, long fmt, char * pBuf);
 int    STDCALL  strtorrng(const char * pBuf, double * pLow, double * pUpp);
 int    FASTCALL strtorrng(const char * pBuf, RealRange & rRng);
@@ -6375,7 +6400,7 @@ FORCEINLINE uint64 sbswap64_fallback(uint64 n)
 //   Мотивацией для создания этого класса является неистребимое желание 
 //   унифицировать бесконечные однотипные функции в разных компонентах системы.
 // 
-class SMem { // @v11.7.11 @construction
+class SMem { // @v11.7.11
 public:
 	//
 	// Функции с сигнатурой BSwap меняют порядок байт в 2-х, 4-х и 8-ми байтовых беззнаковых значениях
@@ -7239,9 +7264,9 @@ public:
 	operator double() const;
 	SObjID_Base & FASTCALL operator = (double);
 	//
-	// GOODS(1204)
+	// Descr: Формирует канонизированную строку вида {Obj;Id} где Obj и Id - просто числовые представления соответствующих компонентов.
 	//
-	//SString & FASTCALL ToStr(SString & rBuf) const;
+	SString & FASTCALL ToStr(SString & rBuf) const;
 	//int    FASTCALL FromStr(const char * pStr);
 
 	int32  Obj;
@@ -7256,6 +7281,23 @@ public:
 	SObjID & FASTCALL operator = (const SObjID_Base & rS);
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx); // @v11.7.0
 }; 
+
+class SObjTextRefIdent { // @flat
+public:
+	SObjTextRefIdent();
+	SObjTextRefIdent(int32 objType, int32 objID, int16 prop);
+	SObjTextRefIdent(const SObjID & rOid, int16 prop);
+	SObjTextRefIdent & Z();
+	bool   operator !() const;
+	//
+	// Descr: Формирует канонизированную строку вида {O.Obj;O.Id;P;L}.
+	//
+	SString & FASTCALL ToStr(SString & rBuf) const;
+
+	SObjID O; // Идентификатор объекта 
+	int16  P; // Идентификатор свойства PPTRPROP_XXX (ppdefs.h). В дальнейшем планируется объединение семейства PPTRPROP_XXX с PPOBJATTR_XXX
+	int16  L; // Идентификатор языка (slangXXX; 0 - default)
+};
 //
 // Descr: Инкапсуляция для Security IS (SID) Windows
 //
@@ -8054,8 +8096,6 @@ int SPunycodeDecode(const char * input, size_t input_length, size_t * output_len
 //
 //
 int    EquipInputDecode(const void * pInput, size_t inputSize, int binaryFormat, int outpFormat, SString & rBuf); // @construction
-// @v10.3.3 @unused int checkabort();
-// @v10.3.3 @unused int enableabort(int); // 0 - disable, 1 - enable, (-1) - check status
 //
 //
 //
@@ -8453,7 +8493,6 @@ protected:
 	uint8 * P_VData;   //
 };
 //
-// @v10.7.9
 // Descr: Макрос, обеспечивающий короткую запись цикла по всем элементам.
 // Note: Я скептически отношусь к такого рода макросам (равно как и к новым с++-итераторам) но ради эксперимента все же решил сделать.
 //
@@ -8928,7 +8967,10 @@ public:
 	// Descr: Флаги функции CalculateFixedRecSize()
 	//
 	enum {
-		crsfIncludeNote = 0x0001 // Включать в расчет поля типа S_NOTE.
+		crsfIncludeNote           = 0x0001, // Включать в расчет поля типа S_NOTE.
+		crsfIncludeSurrogateRowId = 0x0002, // @v12.5.6 Если для таблицы определено суррогатное поле rowid и этот флаг установлен, то
+			// размер суррогатного поля тоже войдет в общий рассчитанный размер.
+		crsfIncludeLOB            = 0x0004, // @v12.5.6 Включать в расчет поля типа S_CLOB и S_BLOB.
 	};
 
 	RECORDSIZE CalculateFixedRecSize(uint flags/*BNFieldList2::crsfXXX*/) const;
@@ -9853,10 +9895,6 @@ struct SStrToStrAssoc { // @noctr
 
 class StrStrAssocArray : public SStrGroup {
 public:
-	/*struct Item {
-		const  char * Key;
-		const  char * Val;
-	};*/
 	StrStrAssocArray();
 	StrStrAssocArray(const StrStrAssocArray & rS);
 	StrStrAssocArray & FASTCALL operator = (const StrStrAssocArray &);
@@ -11066,7 +11104,7 @@ public:
 	};
 	enum {
 		// @v11.3.11 (do use IsBigEndian member) fBigEndian    = 0x0001, // Процессор имеет архитектуру BIG ENDIAN (на текущий момент флаг всегда сброшен)
-		fPerfFreqIsOk = 0x0002  // @v10.5.7
+		fPerfFreqIsOk = 0x0002
 	};
 	//
 	// Descr: Версии сетевых протоколов SSL
@@ -11200,8 +11238,8 @@ public:
 	uint32 CpuC;
 	uint32 CpuD;
 	uint32 Flags;
-	uint32 CpuCount; // @v10.9.11
-	uint32 PageSize; // @v10.9.11
+	uint32 CpuCount;
+	uint32 PageSize;
 	float  CpuBaseFreq;  // @v11.7.6
 private:
 	explicit SSystem(int imm);
@@ -13923,7 +13961,7 @@ enum json_error {
 	JSON_BAD_TREE_STRUCTURE,  // the document tree structure is malformed
 	JSON_MAXIMUM_LENGTH,      // the parsed string reached the maximum allowed size
 	JSON_UNKNOWN_PROBLEM,     // some random, unaccounted problem occurred
-	JSON_EMPTY_DOCUMENT,      // @v10.8.0 the parsed document is empty
+	JSON_EMPTY_DOCUMENT,      // the parsed document is empty
 };
 //
 // The JSON document tree node, which is a basic JSON type
@@ -14889,7 +14927,7 @@ public:
 		uint   SpreadSum;
 		uint   SpreadCount;
 		uint64 TmProfile; // Время выполнения функции
-		int    UpdCountVecIdx; // @v10.4.7 (>=0) : индекс единственного вектора, по которому требуется статистика изменений
+		int    UpdCountVecIdx; // (>=0) : индекс единственного вектора, по которому требуется статистика изменений
 	};
 
 	int    AddItems(const STimeSeries & rSrc, AppendStat * pStat);
@@ -14910,10 +14948,10 @@ public:
 			stHasTmDup = 0x0002
 		};
 		long   State;
-		int16  LocalDevPtCount; // @v10.7.1 Ширина отрезка для измерения средней величины локального отклонения
-		uint16 Reserve;         // @v10.7.1 @alignment
+		int16  LocalDevPtCount; // Ширина отрезка для измерения средней величины локального отклонения
+		uint16 Reserve;         // @alignment
 		double DeltaAvg;        // Среднее значение изменения относительно предыдущего значения в долях от единицы
-		double LocalDevAvg;     // @v10.7.1 Среднее стандартное отклонение по узким отрезкам длиной LocalDevPtCount
+		double LocalDevAvg;     // Среднее стандартное отклонение по узким отрезкам длиной LocalDevPtCount
 	};
 
 	int    Analyze(const char * pVecSymb, Stat & rS) const;
@@ -18259,13 +18297,16 @@ typedef int (*QueryPathFunc)(const char * pSignature, SString & rBuf);
 //    0 - error
 // 
 typedef int (*InitializeDialogFunc)(TDialog * pThis, const void * pIdent, void * extraPtr); // @v12.3.6
+
+typedef int (*LoadObjectTextFunc)(const SObjTextRefIdent & rIdent, SString & rBuf, void * extraPtr); // @v12.5.6
+typedef int (*StoreObjectTextFunc)(const SObjTextRefIdent & rIdent, const void * pTextUtf8, size_t textLen, void * extraPtr); // @v12.5.6
 //
 // Descr: Класс, содержащий функции, определенные вне модуля SLIB
 //
 class SlExtraProcBlock {
 public:
 	SlExtraProcBlock();
-	void   Reset();
+	SlExtraProcBlock & Z();
 	void   Set(const SlExtraProcBlock * pS);
 
 	LoadStringFunc F_LoadString;
@@ -18279,6 +18320,8 @@ public:
 	GetDefaultEncrKeyFunc F_GetDefaultEncrKey;
 	QueryPathFunc F_QueryPath;
 	InitializeDialogFunc F_InitDialog; // @v12.3.6
+	LoadObjectTextFunc F_LoadObjText; // @v12.5.6
+	StoreObjectTextFunc F_StoreObjText; // @v12.5.6
 };
 //
 // Descr: Флаги пользовательского интерфейса (SlThreadLocalArea::UiFlags)
@@ -20391,7 +20434,7 @@ struct BdtTestItem {
 	BdtTestItem();
 	~BdtTestItem();
 	enum {
-		fIn = 0x0001,
+		fIn         = 0x0001,
 		fOut        = 0x0002,
 		fKey        = 0x0004,
 		fSalt       = 0x0008,
@@ -20404,7 +20447,7 @@ struct BdtTestItem {
 		fPassphrase = 0x0400,
 		fSeek       = 0x0800,
 		fNonce      = 0x1000,
-		fAD = 0x2000 // @v10.5.11
+		fAD         = 0x2000
 	};
 	struct Buffer : private SBaseBuffer {
 	public:

@@ -376,7 +376,7 @@ static ulong ma_real_read(NET * net, size_t * complen)
 
 end:
 	net->reading_or_writing = 0;
-	return(len);
+	return len;
 }
 
 ulong ma_net_read(NET * net)

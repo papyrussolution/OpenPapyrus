@@ -194,12 +194,15 @@ StrAssocArray * PPObjSecur::MakeStrAssocList(void * extraPtr)
 				}
 			}
 			if(Obj != PPOBJ_USRGRP) {
+				assert(MemHeapTracer::Check()); // @debug
 				for(SEnum en = P_Ref->Enum(PPOBJ_USRGRP, 0); en.Next(&rec) > 0;) {
+					assert(MemHeapTracer::Check()); // @debug
 					if(*strip(rec.Name) == 0)
 						ideqvalstr(rec.ID, rec.Name, sizeof(rec.Name));
 					PPID   par_id = 0;
 					THROW_SL(p_list->Add((rec.ID | PPObjSecur::maskUserGroup), par_id, rec.Name));
 				}
+				assert(MemHeapTracer::Check()); // @debug
 			}
 			if(Obj != PPOBJ_CONFIG) {
 				if(P_Ref->GetItem(PPOBJ_CONFIG, PPCFG_MAIN, &rec) > 0) {

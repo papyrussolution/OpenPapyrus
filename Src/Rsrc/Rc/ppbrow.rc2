@@ -9514,6 +9514,7 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_BUILDINGS01  // @v12.5.3
 	PPDV_LOCK01       // @V12.5.3
 	PPDV_UNLOCK01     // @V12.5.3
+	PPDV_QRCODE01ABSENT // @v12.5.6
 	//PPDV_MOVLOTOPS    // @v12.5.2 не работает (эксперимент с иконкой, сделанной с помощью AI)
 }
 

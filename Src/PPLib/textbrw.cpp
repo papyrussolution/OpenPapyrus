@@ -837,15 +837,17 @@ STextBrowser::Document::Document() : Cp(/*cpANSI*/cpUTF8), Eolf(eolUndef), State
 {
 }
 
-STextBrowser::Document & FASTCALL STextBrowser::Document::Reset(int preserveFileName)
+STextBrowser::Document & FASTCALL STextBrowser::Document::Reset(bool preserveSourceInfo)
 {
 	OrgCp = cpUndef;
 	Cp = cpUndef;
 	Eolf = eolUndef;
 	State = 0;
 	SciDoc = 0;
-	if(!preserveFileName)
+	if(!preserveSourceInfo) {
 		FileName.Z();
+		OtrIdent.Z(); // @v12.5.6
+	}
 	return *this;
 }
 
@@ -865,6 +867,12 @@ STextBrowser::STextBrowser(const char * pFileName, const char * pLexerSymb, int 
 	Init(pFileName, pLexerSymb, toolbarId);
 }
 
+STextBrowser::STextBrowser(const SObjTextRefIdent & rIdent, const char * pLexerSymb, int toolbarId/*=-1*/) : 
+	TBaseBrowserWindow(WndClsName), SScEditorBase(), SpcMode(spcmNo) // @v12.5.6
+{
+	Init(rIdent, pLexerSymb, toolbarId);
+}
+
 STextBrowser::~STextBrowser()
 {
 	if(::IsWindow(HwndSci)) {
@@ -873,7 +881,7 @@ STextBrowser::~STextBrowser()
 			TView::SetWindowProp(HwndSci, GWLP_WNDPROC, OrgScintillaWndProc);
 			TView::SetWindowProp(HwndSci, GWLP_USERDATA, nullptr);
 		}
-		DestroyWindow(HwndSci);
+		::DestroyWindow(HwndSci);
 	}
 }
 
@@ -895,9 +903,31 @@ int STextBrowser::SetSpecialMode(int spcm)
 /*virtual*/TBaseBrowserWindow::IdentBlock & STextBrowser::GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk)
 {
 	rBlk.IdBias = IdBiasTextBrowser;
-	rBlk.ClsName = SUcSwitch(STextBrowser::WndClsName);
+	rBlk.ClsName = SUcSwitchW(STextBrowser::WndClsName);
 	(rBlk.InstanceIdent = Doc.FileName).Strip().ToLower();
 	return rBlk;
+}
+
+int STextBrowser::Init(const SObjTextRefIdent & rIdent, const char * pLexerSymb, int toolbarId/*= -1*/) // @v12.5.6
+{
+	SScEditorBase::Init(0, 0);
+	LexerSymb = pLexerSymb;
+	OrgScintillaWndProc = 0;
+	SysState = 0;
+	Doc.OtrIdent = rIdent;
+	BbState |= bbsWoScrollbars;
+	P_Toolbar = 0;
+	ToolBarWidth = 0;
+	if(toolbarId < 0)
+		ToolbarID = TOOLBAR_TEXTBROWSER;
+	else if(toolbarId > 0)
+		ToolbarID = toolbarId;
+	{
+		KeyDownCommand k;
+		k.SetTvKeyCode(kbF3);
+		SetKeybAccelerator(k, PPVCMD_SEARCHNEXT);
+	}
+	return 1;
 }
 
 int STextBrowser::Init(const char * pFileName, const char * pLexerSymb, int toolbarId)
@@ -1368,7 +1398,8 @@ int STextBrowser::UpdateIndicators()
 				ClearIndicator(indicUnknWord);
 				const  uint8 * p_buf = reinterpret_cast<const uint8 *>(CallFunc(SCI_GETCHARACTERPOINTER)); // to get characters directly from Scintilla buffer;
 				//int    start_pos = MIN(0, p_scn->position-64);
-                SString src_text, text_to_show;
+                SString src_text;
+				SString text_to_show;
 				SString temp_buf;
 				TSVector <SrWordInfo> info_list;
 				P_Tknzr->Reset(0);
@@ -1500,12 +1531,12 @@ int SKeyAccelerator::Set(const KeyDownCommand & rK, int cmd)
 			case WM_DESTROY:
 				TView::SetWindowProp(p_this->HwndSci, GWLP_WNDPROC, p_this->OrgScintillaWndProc);
 				TView::SetWindowProp(p_this->HwndSci, GWLP_USERDATA, nullptr);
-				return ::CallWindowProc(p_this->OrgScintillaWndProc, hwnd, msg, wParam, lParam);
+				return ::CallWindowProcW(p_this->OrgScintillaWndProc, hwnd, msg, wParam, lParam);
 			case WM_CHAR:
 				if(p_this->SysState & p_this->sstLastKeyDownConsumed)
-					return ::DefWindowProc(hwnd, msg, wParam, lParam);
+					return ::DefWindowProcW(hwnd, msg, wParam, lParam);
 				else
-					return ::CallWindowProc(p_this->OrgScintillaWndProc, hwnd, msg, wParam, lParam);
+					return ::CallWindowProcW(p_this->OrgScintillaWndProc, hwnd, msg, wParam, lParam);
 			case WM_SYSKEYDOWN:
 			case WM_KEYDOWN:
 				{
@@ -1514,7 +1545,7 @@ int SKeyAccelerator::Set(const KeyDownCommand & rK, int cmd)
 					KeyDownCommand k;
 					k.SetWinMsgCode(wParam);
 					if(k.Code == VK_TAB && k.State & k.stateCtrl) {
-						::SendMessage(p_this->H(), WM_KEYDOWN, wParam, lParam);
+						::SendMessageW(p_this->H(), WM_KEYDOWN, wParam, lParam);
 						p_this->SysState |= p_this->sstLastKeyDownConsumed;
 						processed = 1;
 					}
@@ -1526,15 +1557,15 @@ int SKeyAccelerator::Set(const KeyDownCommand & rK, int cmd)
 							processed = 1;
 						}
 					}
-					return processed ? ::DefWindowProc(hwnd, msg, wParam, lParam) : ::CallWindowProc(p_this->OrgScintillaWndProc, hwnd, msg, wParam, lParam);
+					return processed ? ::DefWindowProcW(hwnd, msg, wParam, lParam) : ::CallWindowProc(p_this->OrgScintillaWndProc, hwnd, msg, wParam, lParam);
 				}
 				break;
 			default:
-				return ::CallWindowProc(p_this->OrgScintillaWndProc, hwnd, msg, wParam, lParam);
+				return ::CallWindowProcW(p_this->OrgScintillaWndProc, hwnd, msg, wParam, lParam);
 		}
 	}
 	else
-		return ::DefWindowProc(hwnd, msg, wParam, lParam);
+		return ::DefWindowProcW(hwnd, msg, wParam, lParam);
 };
 
 int STextBrowser::WMHCreate()
@@ -1551,7 +1582,7 @@ int STextBrowser::WMHCreate()
 			ToolBarWidth = tbr.bottom - tbr.top;
 		}
 	}
-	HwndSci = ::CreateWindowEx(WS_EX_CLIENTEDGE, _T("Scintilla"), _T(""), WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_CLIPCHILDREN,
+	HwndSci = ::CreateWindowExW(WS_EX_CLIENTEDGE, L"Scintilla", L"", WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_CLIPCHILDREN,
 		0, ToolBarWidth, rc.right - rc.left, rc.bottom - rc.top, H(), 0/*(HMENU)GuiID*/, APPL->GetInst(), 0);
 	SScEditorBase::Init(HwndSci, 1/*preserveFileName*/);
 	TView::SetWindowProp(HwndSci, GWLP_USERDATA, this);
@@ -1572,7 +1603,7 @@ int STextBrowser::WMHCreate()
 	// CallFunc(SCI_SETTECHNOLOGY, /*SC_TECHNOLOGY_DIRECTWRITERETAIN*/SC_TECHNOLOGY_DIRECTWRITEDC, 0); // @v9.8.2
 	//
 	CallFunc(SCI_SETMOUSEDWELLTIME, 500);
-	CallFunc(SCI_SETMARGINSENSITIVEN, scmargeFolder, true); // @v11.1.12
+	CallFunc(SCI_SETMARGINSENSITIVEN, scmargeFolder, true);
 	//
 	{
 		KeyAccel.clear();
@@ -1596,7 +1627,12 @@ int STextBrowser::WMHCreate()
 		}
 		KeyAccel.Sort();
 	}
-	FileLoad(Doc.FileName, cpUTF8, 0);
+	if(Doc.OtrIdent.O.IsFullyDefined() && Doc.OtrIdent.P) { // @v12.5.6
+		ObjectLoad(Doc.OtrIdent, cpUTF8, 0);
+	}
+	else {
+		FileLoad(Doc.FileName, cpUTF8, 0);
+	}
 	return BIN(P_SciFn && P_SciPtr);
 }
 
@@ -1605,16 +1641,19 @@ SCodepage STextBrowser::SelectEncoding(SCodepage initCp) const
 	SCodepage result_cp = initCp;
 	ListWindow * p_lw = CreateListWindow_Simple(lbtDblClkNotify);
 	if(p_lw) {
-		SCodepage cp;
-		SString cp_name;
-		for(uint i = 0; i < SCodepageIdent::GetRegisteredCodepageCount(); i++) {
-			if(SCodepageIdent::GetRegisteredCodepage(i, cp, cp_name.Z()) && cp_name.NotEmpty()) {
-				p_lw->listBox()->addItem(cp, cp_name);
+		ListWindowSmartListBox * p_lb = p_lw->GetListBox();
+		if(p_lb) {
+			SCodepage cp;
+			SString cp_name;
+			for(uint i = 0; i < SCodepageIdent::GetRegisteredCodepageCount(); i++) {
+				if(SCodepageIdent::GetRegisteredCodepage(i, cp, cp_name.Z()) && cp_name.NotEmpty()) {
+					p_lb->addItem(cp, cp_name);
+				}
 			}
-		}
-		p_lw->listBox()->TransmitData(+1, (long *)&result_cp);
-		if(ExecView(p_lw) == cmOK) {
-			p_lw->listBox()->TransmitData(-1, (long *)&result_cp);
+			p_lb->TransmitData(+1, (long *)&result_cp);
+			if(ExecView(p_lw) == cmOK) {
+				p_lb->TransmitData(-1, (long *)&result_cp);
+			}
 		}
 	}
 	else {
@@ -1692,13 +1731,21 @@ int STextBrowser::ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw)
 	switch(ppvCmd) {
 		case PPVCMD_OPEN:
 			{
-				SString file_name = Doc.FileName;
+				SString file_name(Doc.FileName);
 				if(PPOpenFile(PPTXT_TEXTBROWSER_FILETYPES, file_name, 0, H()) > 0)
 					ok = FileLoad(file_name, cpUTF8, 0);
 			}
 			break;
-		case PPVCMD_SAVE: ok = FileSave(0, 0); break;
-		case PPVCMD_SAVEAS: ok = FileSave(0, ofInteractiveSaveAs); break;
+		case PPVCMD_SAVE: 
+			if(Doc.OtrIdent.O.IsFullyDefined() && Doc.OtrIdent.P) {
+				ok = ObjectSave(Doc.OtrIdent, 0); 
+			}
+			else
+				ok = FileSave(0, 0); 
+			break;
+		case PPVCMD_SAVEAS: 
+			ok = FileSave(0, ofInteractiveSaveAs); 
+			break;
 		case PPVCMD_SELCODEPAGE: ok = SetEncoding(cpUndef); break;
 		case PPVCMD_PROCESSTEXT:
 			/* @v10.9.1
@@ -1747,6 +1794,87 @@ int STextBrowser::FileClose()
 	return SScEditorBase::Release();
 }
 
+int STextBrowser::ObjectLoad(const SObjTextRefIdent & rIdent, SCodepage cp, long flags) // @v12.5.6
+{
+	int    ok = -1;
+	if(rIdent.O.IsFullyDefined() && rIdent.P) {
+		SlExtraProcBlock epb;
+		SLS.GetExtraProcBlock(&epb);
+		if(epb.F_LoadObjText) {
+			SString text_buf;
+			int    r = epb.F_LoadObjText(rIdent, text_buf, 0);
+			if(r != 0) {
+				Doc.SciDoc = reinterpret_cast<SScEditorBase::SciDocument>(CallFunc(SCI_CREATEDOCUMENT, 0, 0));
+				//Setup scratchtilla for new filedata
+				CallFunc(SCI_SETSTATUS, SC_STATUS_OK, 0); // reset error status
+				CallFunc(SCI_SETDOCPOINTER, 0, (int)Doc.SciDoc);
+				const int ro = CallFunc(SCI_GETREADONLY, 0, 0);
+				if(ro) {
+					CallFunc(SCI_SETREADONLY, 0, 0);
+				}
+				CallFunc(SCI_CLEARALL, 0, 0);
+				//
+				// Здесь следует установить LEXER
+				//
+				const char * p_lexer_symb = 0;
+				if(LexerSymb.NotEmpty()) {
+					p_lexer_symb = LexerSymb.cptr();
+				}
+				if(!isempty(p_lexer_symb)) {
+					SetLexer(p_lexer_symb);
+				}
+				CallFunc(SCI_SETCODEPAGE, SC_CP_UTF8, 0);
+				CallFunc(SCI_ALLOCATE, static_cast<WPARAM>(text_buf.Len()), 0);
+				THROW(CallFunc(SCI_GETSTATUS, 0, 0) == SC_STATUS_OK);
+				{
+					{
+						{
+							Doc.OrgCp = cpUTF8;
+							Doc.Cp = cpUTF8;
+						}
+						CallFunc(SCI_SETCODEPAGE, SC_CP_UTF8, 0);
+						Doc.Eolf = eolWindows;
+						{
+							int    sci_eol = SC_EOL_CRLF;
+							if(Doc.Eolf == eolWindows)
+								sci_eol = SC_EOL_CRLF;
+							else if(Doc.Eolf == eolUnix)
+								sci_eol = SC_EOL_LF;
+							else if(Doc.Eolf == eolMac)
+								sci_eol = SC_EOL_CR;
+							CallFunc(SCI_SETEOLMODE, sci_eol, 0);
+						}
+					}
+					if(Doc.OrgCp == cpUTF8) {
+						// Pass through UTF-8 (this does not check validity of characters, thus inserting a multi-byte character in two halfs is working)
+						CallFunc(SCI_APPENDTEXT, text_buf.Len(), reinterpret_cast<intptr_t>(text_buf.cptr()));
+					}
+					else {
+						SStringU ubuf;
+						SString utfbuf;
+						ubuf.CopyFromMb(Doc.OrgCp, text_buf, text_buf.Len());
+						ubuf.CopyToUtf8(utfbuf, 0);
+						CallFunc(SCI_APPENDTEXT, utfbuf.Len(), reinterpret_cast<intptr_t>(utfbuf.cptr()));
+					}
+					THROW(CallFunc(SCI_GETSTATUS, 0, 0) == SC_STATUS_OK);
+				}
+				CallFunc(SCI_EMPTYUNDOBUFFER, 0, 0);
+				CallFunc(SCI_SETSAVEPOINT, 0, 0);
+				if(ro) {
+					CallFunc(SCI_SETREADONLY, 1, 0);
+				}
+				Doc.SetState(Document::stDirty, 0);
+				ok = 1;
+			}
+		}
+	}
+	CATCH
+		Doc.Reset(0);
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+
 int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
 {
 	int    ok = 1;
@@ -1756,14 +1884,14 @@ int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
 	{
 		SFileFormat ff;
 		const int fir = ff.Identify(file_name);
-		size_t block_size = 8 * 1024 * 1024;
+		size_t block_size = SMEGABYTE(8);
 		int64  _fsize = 0;
 		SFile _f(file_name, SFile::mRead|SFile::mBinary);
 		THROW_SL(_f.IsValid());
 		THROW_SL(_f.CalcSize(&_fsize));
 		{
 			const uint64 bufsize_req = _fsize + MIN(1<<20, _fsize/6);
-			THROW(bufsize_req <= 1024*1024*1025);
+			THROW(bufsize_req <= SMEGABYTELL(1025));
 			{
 				Doc.SciDoc = reinterpret_cast<SScEditorBase::SciDocument>(CallFunc(SCI_CREATEDOCUMENT, 0, 0));
 				//Setup scratchtilla for new filedata
@@ -1777,22 +1905,25 @@ int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
 				//
 				// Здесь следует установить LEXER
 				//
+				const char * p_lexer_symb = 0;
 				if(LexerSymb.NotEmpty()) {
-					SetLexer(LexerSymb);
+					p_lexer_symb = LexerSymb.cptr();
 				}
 				else if(oneof3(fir, 1, 2, 3)) {
 					if(ff == ff.Ini) {
-						SetLexer("ini");
+						p_lexer_symb = "ini";
 					}
 					else if(ff == ff.Xml) {
-						SetLexer("xml");
+						p_lexer_symb = "xml";
 					}
 					else if(oneof3(ff, ff.C, ff.CPP, ff.H)) {
-						SetLexer("cpp");
+						p_lexer_symb = "cpp";
 					}
 					else if(ff == ff.Gravity) {
-
 					}
+				}
+				if(!isempty(p_lexer_symb)) {
+					SetLexer(p_lexer_symb);
 				}
 				CallFunc(SCI_SETCODEPAGE, SC_CP_UTF8, 0);
 				CallFunc(SCI_ALLOCATE, static_cast<WPARAM>(bufsize_req), 0);
@@ -1886,16 +2017,38 @@ int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
 	return ok;
 }
 
+int STextBrowser::ObjectSave(const SObjTextRefIdent & rIdent, long flags) // @v12.5.6
+{
+	int    ok = -1;
+	if(rIdent.O.IsFullyDefined() && rIdent.P) {
+		SlExtraProcBlock epb;
+		SLS.GetExtraProcBlock(&epb);
+		if(epb.F_StoreObjText) {
+			const  uint8 * p_buf = reinterpret_cast<const uint8 *>(CallFunc(SCI_GETCHARACTERPOINTER, 0, 0)); // to get characters directly from Scintilla buffer;
+			const  size_t len = static_cast<size_t>(CallFunc(SCI_GETLENGTH));
+			const int r = epb.F_StoreObjText(rIdent, p_buf, len, 0);
+			if(r != 0) {
+				Doc.SetState(Document::stDirty, 0);
+				ok = r;
+			}
+			else
+				ok = 0;
+		}
+	}
+	return ok;
+}
+
 int STextBrowser::FileSave(const char * pFileName, long flags)
 {
-	int    ok = -1, skip = 0;
+	int    ok = -1;
+	bool   skip = false;
 	SString path(isempty(pFileName) ? Doc.FileName.cptr() : pFileName);
 	if((flags & ofInteractiveSaveAs) || !path.NotEmptyS()) {
 		if(PPOpenFile(PPTXT_TEXTBROWSER_FILETYPES, path, ofilfNExist, H()) > 0) {
 			;
 		}
 		else
-			skip = 1;
+			skip = true;
 	}
 	if(!skip) {
 		const  uint8 * p_buf = reinterpret_cast<const uint8 *>(CallFunc(SCI_GETCHARACTERPOINTER, 0, 0)); // to get characters directly from Scintilla buffer;
@@ -1924,7 +2077,14 @@ int STextBrowser::FileSave(const char * pFileName, long flags)
 
 int STextBrowser::CmpFileName(const char * pFileName)
 {
-	return Doc.FileName.Cmp(pFileName, 1);
+	if(Doc.FileName.NotEmpty())
+		return Doc.FileName.Cmp(pFileName, 1);
+	// @v12.5.6 {
+	else {
+		SString temp_buf;
+		return Doc.OtrIdent.ToStr(temp_buf).Cmp(pFileName, 1);
+	}
+	// } @v12.5.6 
 }
 
 int STextBrowser::BraceHtmlTag()

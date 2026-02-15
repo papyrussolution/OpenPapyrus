@@ -5554,7 +5554,7 @@ int PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 				{
 					ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(CTLSEL_SELQUOT2_KIND));
 					if(p_combo) {
-						THROW_MEM(p_combo->setListWindow(new ListWindow(def), qk_id));
+						THROW_MEM(p_combo->setListWindow(new ListWindow(def, 0), qk_id));
 					}
 					while(!valid_data && ExecView(dlg) == cmOK) {
 						dlg->getCtrlData(CTLSEL_SELQUOT2_KIND, &qk_id);

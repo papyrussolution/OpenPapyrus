@@ -1,5 +1,5 @@
 // EXTGSEL.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2025
+// Copyright (c) A.Sobolev 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -497,7 +497,7 @@ void ExtGoodsSelDialog::updateList(int pos)
 			long   _sel_options = 0;
 			SETFLAG(_sel_options, PPObjGoods::selfByName, Flags & fByName);
 			SETFLAG(_sel_options, PPObjGoods::selfHidePassive, Flags & fHidePassive);
-			SETFLAG(_sel_options, PPObjGoods::selfHideGeneric, Flags & fHideGeneric); // @v10.7.7
+			SETFLAG(_sel_options, PPObjGoods::selfHideGeneric, Flags & fHideGeneric);
 			SETFLAG(_sel_options, PPObjGoods::selfForcePassive, Flags & fForcePassive);
 			if(Flags & fMatrix) {
 				showCtrl(CTL_EXTGSEL_MTX_IND, true);

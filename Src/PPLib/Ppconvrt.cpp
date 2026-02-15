@@ -5774,7 +5774,7 @@ private:
 			SString ext_buffer;
 			es.PutExtStrData(PPSCardPacket::extssPassword, pw_buf);
 			(ext_buffer = es.GetBuffer()).Strip();
-			THROW(UtrC.SetTextUtf8(TextRefIdent(PPOBJ_SCARD, p_data->ID, PPTRPROP_SCARDEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(UtrC.SetTextUtf8(SObjTextRefIdent(PPOBJ_SCARD, p_data->ID, PPTRPROP_SCARDEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 		}
 		CATCHZOK
 		return ok;
@@ -6181,8 +6181,8 @@ public:
 			STRNSCPY(p_data->Code, code_buf);
 		}
 		{
-			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_PRJTASK, id, PPTRPROP_DESCR), descr_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
-			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_PRJTASK, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(PPOBJ_PRJTASK, id, PPTRPROP_DESCR), descr_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(PPOBJ_PRJTASK, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
 		}
 		CATCH
 			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
@@ -6323,8 +6323,8 @@ public:
 			memo_buf = p_old_rec->Memo;
 		}
 		{
-			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_PROJECT, id, PPTRPROP_DESCR), descr_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
-			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_PROJECT, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(PPOBJ_PROJECT, id, PPTRPROP_DESCR), descr_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(PPOBJ_PROJECT, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
 		}
 		CATCH
 			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
@@ -7009,7 +7009,7 @@ public:
 				p_data->Flags2 |= BILLF2_FORCEDRECEIPT;
 				memo_buf.Z();
 			}
-			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_BILL, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(PPOBJ_BILL, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
 		}
 		CATCHZOK
 		return ok;
@@ -7119,7 +7119,7 @@ public:
 			p_data->ParentID = 0;
 			p_data->OrderN = ++OrderN_Counter;
 		}
-		THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_TECH, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+		THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(PPOBJ_TECH, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
 		CATCHZOK
 		return ok;
 		#undef CF
@@ -7228,7 +7228,7 @@ public:
 			STRNSCPY(p_data->Name, p_old_rec->Name);
 			(memo_buf = p_old_rec->Memo).Strip();
 		}
-		THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_PERSON, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+		THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(PPOBJ_PERSON, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
 		CATCHZOK
 		return ok;
 		#define CF(f) p_data->f = p_old_rec->f
@@ -7306,7 +7306,7 @@ public:
 			CF(ScndSCardID);
 			(memo_buf = p_old_rec->Memo).Strip();
 		}
-		THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_PERSONEVENT, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+		THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(PPOBJ_PERSONEVENT, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
 		CATCHZOK
 		return ok;
 		#define CF(f) p_data->f = p_old_rec->f
@@ -7939,6 +7939,80 @@ int Convert12407()
 	{
 		PPCvtPersonPost12407 cvt02;
 		THROW(cvt02.Convert());
+	}
+	PPWaitStop();
+	CATCHZOK
+	return ok;
+}
+//
+//
+//
+class PPCvtWorkbook12506 : public PPTableConversion { // @construction
+public:
+	struct WorkbookRec_Before12506 {
+		int32  ID;
+		char   Name[128];
+		char   Symb[20];
+		int32  Type;
+		int32  ParentID;
+		int32  LinkID;
+		int32  CssID;
+		int32  Rank;
+		int32  Flags;
+		int16  KeywordCount;
+		int16  KeywordDilute;
+		LDATE  Dt;
+		LTIME  Tm;
+		char   Version[8];
+		int32  OwnerGuaID;
+		uint8  Reserve[24]; // raw
+		//TSLob <2048> VT__;
+	};
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
+	{
+		DBTable * p_tbl = new WorkbookTbl;
+		if(!p_tbl)
+			PPSetErrorNoMem();
+		else if(pNeedConversion) {
+			const RECORDSIZE recsz = p_tbl->getRecSize();
+			*pNeedConversion = BIN(recsz < sizeof(WorkbookTbl::Rec)); // Новый размер БОЛЬШЕ предыдущего
+		}
+		return p_tbl;
+	}
+	virtual int ConvertRec(DBTable * newTbl, void * pRec, int * pNewRecLen)
+	{
+		const WorkbookRec_Before12506 * p_old_rec = static_cast<const WorkbookRec_Before12506 *>(pRec);
+		WorkbookTbl::Rec * p_data = static_cast<WorkbookTbl::Rec *>(newTbl->getDataBuf());
+		newTbl->clearDataBuf();
+		#define CPYFLD(f)    p_data->f = p_old_rec->f
+			CPYFLD(ID);
+			CPYFLD(Type);
+			CPYFLD(ParentID);
+			CPYFLD(LinkID);
+			CPYFLD(CssID);
+			CPYFLD(Rank);
+			CPYFLD(Flags);
+			CPYFLD(KeywordCount);
+			CPYFLD(KeywordDilute);
+			CPYFLD(Dt);
+			CPYFLD(Tm);
+			CPYFLD(OwnerGuaID);
+		#undef CPYFLD
+		STRNSCPY(p_data->Name, p_old_rec->Name);
+		STRNSCPY(p_data->Symb, p_old_rec->Symb);
+		STRNSCPY(p_data->Version, p_old_rec->Version);
+		*pNewRecLen = sizeof(WorkbookTbl::Rec);
+		return 1;
+	}
+};
+
+int Convert12506()
+{
+	int    ok = 1;
+	PPWaitStart();
+	{
+		PPCvtWorkbook12506 cvt01;
+		THROW(cvt01.Convert());
 	}
 	PPWaitStop();
 	CATCHZOK

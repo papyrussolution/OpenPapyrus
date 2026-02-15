@@ -1,5 +1,5 @@
 // CHKPAN.CPP
-// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Панель ввода кассовых чеков
 //
@@ -2689,7 +2689,7 @@ int CPosProcessor::TurnCorrectionStorno(PPID * pCcID, int ccOp /*CCOP_XXX*/, PPI
 							{
 								blk.Pack.PackTextExt(new_cctext);
 								if(new_cctext != org_cctext) {
-									THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_CCHECK, blk.Pack.Rec.ID, PPTRPROP_CC_LNEXT), new_cctext.Transf(CTRANSF_INNER_TO_UTF8), 0));
+									THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(PPOBJ_CCHECK, blk.Pack.Rec.ID, PPTRPROP_CC_LNEXT), new_cctext.Transf(CTRANSF_INNER_TO_UTF8), 0));
 								}
 							}
 							THROW(tra.Commit());
@@ -2789,7 +2789,7 @@ int CPosProcessor::CorrectProblem_v12304(const DateRange * pPeriod, bool testMod
 			MEMSZERO(k2);
 			k2.PosNodeID = PPPOSN_SHADOW;
 			/*
-				p_ref->UtrC.SearchUtf8(TextRefIdent(PPOBJ_CCHECK, r_rec.ID, PPTRPROP_CC_LNEXT), temp_buf);
+				p_ref->UtrC.SearchUtf8(SObjTextRefIdent(PPOBJ_CCHECK, r_rec.ID, PPTRPROP_CC_LNEXT), temp_buf);
 				temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 				CCheckPacket::Helper_UnpackTextExt(temp_buf, &sc, &cc_fld_list);
 				if(sc.GetExtStrData(CCheckPacket::extssFiscalSign, temp_buf) > 0) {
@@ -2806,7 +2806,7 @@ int CPosProcessor::CorrectProblem_v12304(const DateRange * pPeriod, bool testMod
 						shadow_cc_id_list.add(cc_id);
 					}
 					{
-						p_ref->UtrC.SearchUtf8(TextRefIdent(PPOBJ_CCHECK, cc_id, PPTRPROP_CC_LNEXT), temp_buf);
+						p_ref->UtrC.SearchUtf8(SObjTextRefIdent(PPOBJ_CCHECK, cc_id, PPTRPROP_CC_LNEXT), temp_buf);
 						CCheckPacket::Helper_UnpackTextExt(temp_buf, &sc, &cc_fld_list);
 						if(sc.GetExtStrData(CCheckPacket::extssCorrect12304, temp_buf) > 0 && temp_buf.IsEqiAscii("true")) {
 							processed_shadow_code_list.Add(cc_id, cc_code);
@@ -3366,10 +3366,10 @@ int CPosProcessor::TurnShadowEgaisMarkAutoselectionCcPacket(const CCheckPacket &
 					epb.Pack.PackTextExt(new_cctext);
 					epb.ExtPack.PackTextExt(new_ext_cctext);
 					if(new_cctext != org_cctext) {
-						THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_CCHECK, epb.Pack.Rec.ID, PPTRPROP_CC_LNEXT), new_cctext.Transf(CTRANSF_INNER_TO_UTF8), 0));
+						THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(PPOBJ_CCHECK, epb.Pack.Rec.ID, PPTRPROP_CC_LNEXT), new_cctext.Transf(CTRANSF_INNER_TO_UTF8), 0));
 					}
 					if(new_ext_cctext != org_ext_cctext) {
-						THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_CCHECK, epb.ExtPack.Rec.ID, PPTRPROP_CC_LNEXT), new_ext_cctext.Transf(CTRANSF_INNER_TO_UTF8), 0));
+						THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(PPOBJ_CCHECK, epb.ExtPack.Rec.ID, PPTRPROP_CC_LNEXT), new_ext_cctext.Transf(CTRANSF_INNER_TO_UTF8), 0));
 					}
 				}
 				THROW(tra.Commit());
@@ -3802,9 +3802,10 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 	return ok;
 }
 
-/*static*/int CheckPaneDialog::SetLbxItemHight(TDialog *, void * extraPtr) // DialogPreProcFunc
+/*static*/int CheckPaneDialog::SetLbxItemHight(TDialog * pDlg, void * extraPtr) // DialogPreProcFunc
 {
 	int    ok = -1;
+	bool   debug_mark = false; // @debug
 	PPSyncCashNode  scn;
 	PPObjCashNode   cn_obj;
 	if(cn_obj.GetSync(reinterpret_cast<PPID>(extraPtr), &scn) > 0) {
@@ -3823,15 +3824,27 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 				}
 				else
 					height = DEFAULT_TS_FONTSIZE;
-				for(int i = 0, j = 0; i < 32; i++)
+				// @v12.5.6 {
+				/* @construction (надо убирать плохой и старый глобальный объект OwnerDrawCtrls) 
+				if(pDlg) {
+					TView * p_view = pDlg->getCtrlView(CTL_CHKPAN_GRPLIST); 
+					if(p_view && p_view->IsSubSign(TV_SUBSIGN_LISTBOX)) {
+						SmartListBox * p_lb = static_cast<SmartListBox *>(p_view);
+						p_lb->ItemHeight_ = height + ts_pack.Rec.GdsListEntryGap;
+						debug_mark = true; // @debug
+					}
+				}*/
+				// } @v12.5.6
+				for(int i = 0, j = 0; i < 32; i++) {
 					if(OwnerDrawCtrls[i].CtrlType == 0 && OwnerDrawCtrls[i].CtrlID == 0) {
-						OwnerDrawCtrls[i].CtrlType = ctListBox;
+						OwnerDrawCtrls[i].CtrlType = ODC::ctListBox;
 						OwnerDrawCtrls[i].CtrlID   = ctrls[j];
 						OwnerDrawCtrls[i].ExtraParam = height + ts_pack.Rec.GdsListEntryGap;
 						ok = 1;
 						if(++j == SIZEOFARRAY(ctrls))
 							break;
 					}
+				}
 			}
 		}
 	}
@@ -4659,7 +4672,7 @@ int CheckPaneDialog::ConfirmPosPaymBank(PosPaymentBlock & rPpl)
 			int    status = 0;
 			if(rBuf.NotEmptyS()) {
 				SNaturalTokenArray nta;
-				Trgn.Run(rBuf.ucptr(), rBuf.Len(), nta, 0);
+				Trgn.Run(rBuf.ucptr(), rBuf.LenI(), nta, 0);
 				if(nta.Has(SNTOK_PHONE))
 					status = SNTOK_PHONE;
 				else if(nta.Has(SNTOK_EMAIL))
@@ -5684,7 +5697,7 @@ void SelCheckListDialog::Init(PPCashMachine * pCm)
 		ListWindow * p_lw = 0;
 		ComboBox   * p_cb = static_cast<ComboBox *>(getCtrlView(CTLSEL_SELCHECK_FORMAT));
 		if(p_cb && pCm && pCm->GetSlipFormatList(&FmtList, BIN(State & stSelectSlipFormat)) > 0) {
-			ListWindow * p_lw = new ListWindow(new StrAssocListBoxDef(&FmtList, /*lbtDisposeData |*/ lbtDblClkNotify));
+			ListWindow * p_lw = new ListWindow(new StrAssocListBoxDef(&FmtList, /*lbtDisposeData|*/lbtDblClkNotify), 0);
 			long   fmt_id = 0;
 			if(FmtList.getCount() == 1)
 				fmt_id = FmtList.Get(0).Id;
@@ -5891,7 +5904,7 @@ int SelCheckListDialog::getDTS(_SelCheck * pSelCheck)
 									do_remove = !(P_AddParam && P_AddParam->Flags & P_AddParam->fAllowReturns);
 								}
 								if(!do_remove && CPosProcessor::IsCorrectionOp(Op)) { 
-									PPRef->UtrC.SearchUtf8(TextRefIdent(PPOBJ_CCHECK, r_rec.ID, PPTRPROP_CC_LNEXT), temp_buf);
+									PPRef->UtrC.SearchUtf8(SObjTextRefIdent(PPOBJ_CCHECK, r_rec.ID, PPTRPROP_CC_LNEXT), temp_buf);
 									temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 									CCheckPacket::Helper_UnpackTextExt(temp_buf, &sc, &cc_fld_list);
 									if(sc.GetExtStrData(CCheckPacket::extssFiscalSign, temp_buf) > 0) {
@@ -7065,7 +7078,7 @@ private:
 							if(ScObj.Fetch(sc_list.get(i), &sc_rec) > 0)
 								p_list->Add(sc_rec.ID, sc_rec.Code);
 						}
-						ListWindow * p_lw = CreateListWindow(p_list, lbtDisposeData | lbtDblClkNotify);
+						ListWindow * p_lw = CreateListWindow(p_list, lbtDisposeData|lbtDblClkNotify);
 						if(p_lw) {
 							p_cb->setListWindow(p_lw);
 							if(Data.SCardID_)
@@ -7609,7 +7622,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 				{
 					SString tt_names;
 					SString name;
-					if(PPLoadTextWin(PPTXT_CHKPAN_TOOLTIPS, tt_names)) {
+					if(PPLoadTextAnsi(PPTXT_CHKPAN_TOOLTIPS, tt_names)) {
 						for(uint idx = 0; idx < CTL_CHKPAN_NUMBUTTONS; idx++) {
 							if(PPGetSubStr(tt_names, idx, name))
 								SetCtrlToolTip(CTL_CHKPAN_STARTBUTTON + idx, name);
@@ -8221,7 +8234,7 @@ void CheckPaneDialog::DrawListItem(TDrawItemData * pDrawItem)
 			SString temp_buf;
 			if(list_ctrl_id == CTL_CHKPAN_GDSLIST) {
 				if(pDrawItem->ItemAction & TDrawItemData::iaBackground) {
-					FillRect(h_dc, &rc, static_cast<HBRUSH>(Ptb.Get(brOdd)));
+					::FillRect(h_dc, &rc, static_cast<HBRUSH>(Ptb.Get(brOdd)));
 					pDrawItem->ItemAction = 0; // Мы перерисовали фон
 				}
 				else if(pDrawItem->ItemID != 0xffffffff) {
@@ -8250,17 +8263,17 @@ void CheckPaneDialog::DrawListItem(TDrawItemData * pDrawItem)
 						}
 						else {
 							h_br_def = static_cast<HBRUSH>(::SelectObject(h_dc, Ptb.Get(draw_odd ? brOdd : brEven)));
-							clr_prev = SetBkColor(h_dc, Ptb.GetColor(draw_odd ? clrOdd : clrEven));
+							clr_prev = ::SetBkColor(h_dc, Ptb.GetColor(draw_odd ? clrOdd : clrEven));
 							::FillRect(h_dc, &rc, static_cast<HBRUSH>(Ptb.Get(draw_odd ? brOdd : brEven)));
 						}
 					}
-					::DrawText(h_dc, SUcSwitch(temp_buf), temp_buf.Len(), &rc, DT_LEFT|DT_VCENTER|DT_SINGLELINE); // @unicodeproblem
+					::DrawTextW(h_dc, SUcSwitchW(temp_buf), temp_buf.LenI(), &rc, DT_LEFT|DT_VCENTER|DT_SINGLELINE);
 				}
 			}
 			else if(list_ctrl_id == CTL_CHKPAN_GRPLIST) {
 				uint   level = 0;
 				if(pDrawItem->ItemAction & TDrawItemData::iaBackground) {
-					clr_prev = SetBkColor(h_dc, Ptb.GetColor(clrGrp));
+					clr_prev = ::SetBkColor(h_dc, Ptb.GetColor(clrGrp));
 					::FillRect(h_dc, &rc, static_cast<HBRUSH>(Ptb.Get(brGrp)));
 					pDrawItem->ItemAction = 0; // Мы перерисовали фон
 				}
@@ -8277,27 +8290,27 @@ void CheckPaneDialog::DrawListItem(TDrawItemData * pDrawItem)
 					p_lbx->getText(static_cast<long>(pDrawItem->ItemData), temp_buf);
 					temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 					if(pDrawItem->ItemState & (ODS_FOCUS | ODS_SELECTED)) {
-						clr_prev = SetBkColor(h_dc, Ptb.GetColor(clrFocus));
+						clr_prev = ::SetBkColor(h_dc, Ptb.GetColor(clrFocus));
 						h_br_def = static_cast<HBRUSH>(SelectObject(h_dc, Ptb.Get(brGrpSel)));
 						if(UiFlags & uifTSGGroupsAsButtons) {
 							SInflateRect(rc, -1, -(1 + GoodsListEntryGap / 4));
-							RoundRect(h_dc, rc.left, rc.top, rc.right, rc.bottom, 6, 6);
+							::RoundRect(h_dc, rc.left, rc.top, rc.right, rc.bottom, 6, 6);
 						}
 						else
-							FillRect(h_dc, &rc, static_cast<HBRUSH>(Ptb.Get(brGrpSel)));
+							::FillRect(h_dc, &rc, static_cast<HBRUSH>(Ptb.Get(brGrpSel)));
 					}
 					else {
 						clr_prev = SetBkColor(h_dc, Ptb.GetColor((gli.Flags & GrpListItem::fFolder) ? clrParent : clrGrp));
 						h_br_def = static_cast<HBRUSH>(SelectObject(h_dc, Ptb.Get((gli.Flags & GrpListItem::fFolder) ? brGrpParent : brGrp)));
 						if(UiFlags & uifTSGGroupsAsButtons) {
 							SInflateRect(rc, -1, -(1 + GoodsListEntryGap / 4));
-							RoundRect(h_dc, rc.left, rc.top, rc.right, rc.bottom, 6, 6);
+							::RoundRect(h_dc, rc.left, rc.top, rc.right, rc.bottom, 6, 6);
 						}
 						else
-							FillRect(h_dc, &rc, static_cast<HBRUSH>(Ptb.Get((gli.Flags & GrpListItem::fFolder) ? brGrpParent : brGrp)));
+							::FillRect(h_dc, &rc, static_cast<HBRUSH>(Ptb.Get((gli.Flags & GrpListItem::fFolder) ? brGrpParent : brGrp)));
 					}
 					rc.left += gli.Level * 24 + ((UiFlags & uifTSGGroupsAsButtons) ? 4 : 0);
-					::DrawText(h_dc, SUcSwitch(temp_buf), temp_buf.Len(), &rc, DT_LEFT|DT_VCENTER|DT_SINGLELINE);
+					::DrawTextW(h_dc, SUcSwitchW(temp_buf), temp_buf.LenI(), &rc, DT_LEFT|DT_VCENTER|DT_SINGLELINE);
 				}
 			}
 			if(h_fnt_def)
@@ -13644,7 +13657,7 @@ int CheckPaneDialog::PrintCashReports()
 		// 
 		{
 #if 0 // @construction {
-			if(PPLoadTextWin(PPTXT_MENU_CHKPAN, temp_buf)) {
+			if(PPLoadTextAnsi(PPTXT_MENU_CHKPAN, temp_buf)) {
 				TMenuPopup menu;
 				menu.AddSubstr(temp_buf, 0, cmSCSXReport);
 				menu.AddSubstr(temp_buf, 1, cmCSOpen);
@@ -14170,7 +14183,7 @@ IMPL_HANDLE_EVENT(InfoKioskDialog)
 				if(Flags & fTouchScreen) {
 					SString tt_names;
 					SString name;
-					if(PPLoadTextWin(PPTXT_INFKIOSK_TOOLTIPS, tt_names))
+					if(PPLoadTextAnsi(PPTXT_INFKIOSK_TOOLTIPS, tt_names))
 						for(uint idx = 0; idx < CTL_INFKIOSK_NUMBUTTONS; idx++)
 							if(PPGetSubStr(tt_names, idx, name))
 								SetCtrlToolTip(CTL_INFKIOSK_STARTBUTTON + idx, name);
@@ -14271,7 +14284,7 @@ void InfoKioskDialog::UpdateGList(int updGdsList)
 				if(GetInput()) {
 					const double p = Input.ToReal();
 					p_ts_ary = GObj.CreateListByPrice(LConfig.Location, R2(p));
-					p_def = new StrAssocListBoxDef(p_ts_ary, lbtDblClkNotify | lbtFocNotify | lbtDisposeData);
+					p_def = new StrAssocListBoxDef(p_ts_ary, lbtDblClkNotify|lbtFocNotify|lbtDisposeData);
 					PPGetSubStr(PPTXT_CHKPAN_INFO, PPCHKPAN_SELBYPRICE, grp_name);
 					grp_name.Space().Cat(p, SFMT_MONEY);
 				}
@@ -14285,7 +14298,7 @@ void InfoKioskDialog::UpdateGList(int updGdsList)
 					pattern.Cat(Input);
 					p_ts_ary = new StrAssocArray;
 					GObj.P_Tbl->GetListBySubstring(pattern, p_ts_ary, -1, true);
-					p_def = new StrAssocListBoxDef(p_ts_ary, lbtDblClkNotify | lbtFocNotify | lbtDisposeData);
+					p_def = new StrAssocListBoxDef(p_ts_ary, lbtDblClkNotify|lbtFocNotify|lbtDisposeData);
 					grp_name = Input;
 				}
 				ClearInput();

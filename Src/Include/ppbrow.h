@@ -5212,4 +5212,5 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_BUILDINGS01                     33034
 #define PPDV_LOCK01                          33035
 #define PPDV_UNLOCK01                        33036
+#define PPDV_QRCODE01ABSENT                  33037
 

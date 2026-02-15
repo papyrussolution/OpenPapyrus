@@ -23,7 +23,7 @@ SLTEST_R(MySQL) // @v12.4.7
     TSCollection <TestTa01Tbl::Rec> record_list;
 	TSCollection <TestRef01Tbl::Rec> ref01_rec_list;
 	TSCollection <TestRef02Tbl::Rec> ref02_rec_list;
-	SMySqlDbProvider dbp;
+	SMySqlDbProvider dbp(0);
 	uint   database_state = 0;
 	const char * p_database_name = "test-db-01";
 	int    gdbsr = 0; // Результат функции dbp.GetDatabaseState()

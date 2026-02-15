@@ -1,5 +1,5 @@
 // BHT.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1276,8 +1276,8 @@ public:
 		SString buf;
 		getCtrlString(sel = CTL_SBIICFG_DEVICENAME,  Data.DeviceName);
 		THROW_PP(Data.DeviceName.Len(), PPERR_NAMENEEDED);
-		Data.UserName = 0;
-		Data.Password = 0;
+		Data.UserName.Z();
+		Data.Password.Z();
 		getCtrlData(CTL_SBIICFG_USER, &user_id);
 		UserList.GetText(user_id, Data.UserName);
 		if(user_id) {

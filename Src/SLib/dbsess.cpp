@@ -171,6 +171,7 @@ public:
 	SRowId();
 	int    comp(const void *, const void *) const;
 	char * tostr(const void *, long, char *) const;
+	virtual SString & ToStr_(const void * pData, long fmt, SString & rBuf) const; // @v12.5.6
 	int    fromstr(void *, long, const char *) const;
 	int    base() const;
 	void   tobase(const void * s, void * b) const;
@@ -198,6 +199,16 @@ char * SRowId::tostr(const void * pData, long, char * pStr) const
 	else
 		pStr[0] = 0;
 	return pStr;
+}
+
+SString & SRowId::ToStr_(const void * pData, long fmt, SString & rBuf) const // @v12.5.6
+{
+	rBuf.Z();
+	const DBRowId * p_row_id = static_cast<const DBRowId *>(pData);
+	if(p_row_id) {
+		p_row_id->ToStr__(rBuf);
+	}
+	return rBuf;
 }
 
 int SRowId::fromstr(void * pData, long, const char * pStr) const

@@ -752,7 +752,7 @@ int FASTCALL FShape::Get(Polyline & rS) const
 //
 // TRect
 //
-/*static*/const TRect TRect::_defr_(0, 0, 10, 0);
+/*static*/const TRect TRect::_defr_(0, 0, 1, 1); // @v12.5.6 (0, 0, 10, 0)-->(0, 0, 1, 1) 
 
 TRect::TRect(SPoint2S p1, SPoint2S p2) : a(p1), b(p2)
 {

@@ -2360,7 +2360,8 @@ int STimeChunkBrowser::GetChunkText(long chunkId, SString & rBuf)
 	if(ChunkTextCache.GetText(chunkId, rBuf))
 		ok = 1;
 	else if(P_Data->GetText(STimeChunkGrid::iChunk, chunkId, rBuf) > 0) {
-		ChunkTextCache.Add(chunkId, rBuf./* @v8.9.10 ReplaceCR().*/ToChar(), 1);
+		rBuf.Transf(CTRANSF_INNER_TO_OUTER); // @v12.5.6 (вместо rBuf.ToAnsii())
+		ChunkTextCache.Add(chunkId, rBuf, 1);
 		ok = 1;
 	}
 	return ok;

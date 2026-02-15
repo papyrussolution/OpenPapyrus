@@ -81,14 +81,12 @@ static tmsize_t _tiffReadProc(thandle_t fd, void* buf, tmsize_t size)
 		if(o!=n)
 			break;
 	}
-	return(p);
+	return p;
 }
 
 static tmsize_t _tiffWriteProc(thandle_t fd, void* buf, tmsize_t size)
 {
-	/* tmsize_t is 64bit on 64bit systems, but the WinAPI WriteFile takes
-	 * 32bit sizes, so we loop through the data in suitable 32bit sized
-	 * chunks */
+	// tmsize_t is 64bit on 64bit systems, but the WinAPI WriteFile takes 32bit sizes, so we loop through the data in suitable 32bit sized chunks 
 	uint8* ma;
 	uint64 mb;
 	DWORD n;

@@ -5054,7 +5054,7 @@ PPTXT_AGGRFUNCNAMELIST              "1,@{aggrfunc_count};2,@{aggrfunc_sum};3,@{a
 PPTXT_CHZNPRODUCTTYPES              "1,Изделия из меха;2,Табачные изделия;3,Обувь;4,Лекарственные средства;5,Автомобильные шины;6,Текстиль;7,Парфюмерия;\
 8,Молочная продукция;9,Ювелирные изделия;10,Вода питьевая;11,Альтернативная табачная продукция;12,Пиво разливное;1012,Пиво разливное - автосписание;\
 13,Биологически-активные добавки;14,Пиво фасованное;15,Антисептики;16,Изделия медицинского назначения;17,Безалкогольные напитки;18,Безалкогольное пиво;19,Корм для животных;\
-20,Растительное масло"
+20,Растительное масло;21,Никотиносодержащая продукция"
 PPTXT_DEVICETIMEDIFFROMSYS          "@{attention} Время на регистраторе @datetime отличается от времени на компьютере"
 PPTXT_LOG_VK_NODEFIMG               "Изображение по-умолчанию не найдено!"
 PPTXT_LOG_VK_NODESCRFORGOODS        "Описание для товара '@goods_id' не найдено!"
@@ -6183,6 +6183,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_testglbsvcacsylist              "20,L,@appellation;10,L,Function;20,L,URL;10,L,Result"
 @lbt_fldcorrlist                     "25,L,Внутреннее поле;25,L,Внешнее поле;10,L,Тип данных;8,R,Длина данных;8,R,Смещение"
 @lbt_goodsaggregation                "13,L,@association;48,L,@appellation;6,R,@number" // @v12.5.6
+@lbt_goodstaxlist                    "18,L,@daterange;22,L,@oprkind;10,R,@excise;7,R,@vat;5,R,@salestax_ss" // @v12.5.6
+@lbt_divggrpassoclist                "34,L,@goodsgroup;6,R,@department" // @v12.5.6
 
 @entmanagementsys                    "Система управления предприятием"
 @pgmcopylic_owner                    "Владелец лицензии"
@@ -7988,6 +7990,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @vatamount                           "Сумма НДС"
 @vatrate                             "Ставка НДС"
 @salestax                            "Налог с продаж"
+@salestax_ss                         "НП"
 @salestaxrate                        "Ставка налога с продаж"
 @salestaxamount                      "Сумма налога с продаж"
 @excise                              "Акциз"
@@ -14077,6 +14080,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @workbook_type_media                      "Медиа"
 @workbook_type_folder                     "Папка"
 @workbook_type_keyword                    "@{keyword}"
+@workbook_type_note                       "Заметка" // @v12.5.6
 @workbook_parent                          "@{parentitem}"
 @workbook_link                            "Связанный элемент"
 @workbook_css                             "Связанная таблица стилей CSS"
@@ -18366,6 +18370,13 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 
 @brwwin_lcsetdefcolsizes   "Установить размеры колонок по умолчанию"  // see BrowserWindow::SpecialMenu
 @brwwin_lcevaluatecolsizes "Автоматически рассчитать размеры колонок" // see BrowserWindow::SpecialMenu
+//
+// Рабочие команды centrigo
+//
+@centrigo_cmd_notes      "Заметки"
+@centrigo_cmd_todo       "Задачи"
+@centrigo_cmd_wallet     "Кошелек"
+@centrigo_cmd_secrets    "Секреты"
 
 [121]
 1   "Вход"

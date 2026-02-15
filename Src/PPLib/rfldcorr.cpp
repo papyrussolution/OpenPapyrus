@@ -2704,11 +2704,13 @@ int PPImpExp::ConvertOuterToInner(void * pInnerBuf, size_t bufLen, SdRecord * pD
 					THROW_SL(pDynRec->GetFieldByPos(dyn_fld_pos, &inner_fld));
 					if(stbase(outer_fld.T.Typ) == BTS_STRING) {
 						if(P.TdfParam.Flags & (TextDbFile::fCpOem|TextDbFile::fCpUtf8)) {
-							PTR32(temp_cbuf)[0] = 0;
+							temp_cbuf[0] = 0;
 							sttostr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_cbuf);
 							temp_buf = temp_cbuf;
-							if(P.TdfParam.Flags & TextDbFile::fCpOem)
-								temp_buf.ToChar();
+							if(P.TdfParam.Flags & TextDbFile::fCpOem) {
+								// @v12.5.6 temp_buf.ToAnsii();
+								temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v12.5.6
+							}
 							else {
 								assert(P.TdfParam.Flags & TextDbFile::fCpUtf8);
 								temp_buf.Utf8ToChar();
@@ -2725,11 +2727,13 @@ int PPImpExp::ConvertOuterToInner(void * pInnerBuf, size_t bufLen, SdRecord * pD
 				THROW_SL(P.InrRec.GetFieldByID(outer_fld.ID, &inner_pos, &inner_fld));
 				if(stbase(outer_fld.T.Typ) == BTS_STRING) {
 					if(P.TdfParam.Flags & (TextDbFile::fCpOem|TextDbFile::fCpUtf8)) {
-						PTR32(temp_cbuf)[0] = 0;
+						temp_cbuf[0] = 0;
 						sttostr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_cbuf);
 						temp_buf = temp_cbuf;
-						if(P.TdfParam.Flags & TextDbFile::fCpOem)
-							temp_buf.ToChar();
+						if(P.TdfParam.Flags & TextDbFile::fCpOem) {
+							// @v12.5.6 temp_buf.ToAnsii();
+							temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v12.5.6
+						}
 						else {
 							assert(P.TdfParam.Flags & TextDbFile::fCpUtf8);
 							temp_buf.Utf8ToChar();

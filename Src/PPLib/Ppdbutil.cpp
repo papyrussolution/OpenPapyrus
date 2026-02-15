@@ -1678,7 +1678,7 @@ void BackupDialog::setupScenCombo()
 		ListWindow * p_lw = CreateListWindow_Simple(0);
 		long   i = 0;
 		while(PPB->EnumScen(&i, &scen) > 0)
-			p_lw->listBox()->addItem(i, scen.Name);
+			p_lw->GetListBox()->addItem(i, scen.Name);
 		p_cb->setListWindow(p_lw, (i != 1) ? 0 : i);
 	}
 }

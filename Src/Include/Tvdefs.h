@@ -306,6 +306,9 @@
 #define cmPrint             141 // evCommand
 #define cmDraw              142 // replacement for virtual TView::draw()
 #define cmSort              143 // Посылается объекту BrowserWindow базовым классом для реализации сортировки
+#define cmCustomDraw        144 // @v12.5.6 evCommand @construction(Протокол команды требует уточнения!) 
+	// Посылается владельцу управляющего элемента в ответ на NM_CUSTOMDRAW.
+	// infoPtr содержит указатель на NMCUSTOMDRAW (see documentation for the NM_CUSTOMDRAW).
 //
 //  TListViewer messages
 //
@@ -477,45 +480,45 @@
 //
 // ListViewer types
 //
-#define lbtExtSel        0x0001
-#define lbtDblClkNotify  0x0002
-#define lbtFocNotify     0x0004
-#define lbtSelNotify     0x0008
-#define lbtNoData        0x0010
-#define lbtSorted        0x0020
-#define lbtDisposeData   0x0040
-#define lbtAutoID        0x0080
-#define lbtWordID        0x0100 // If set, then id is word, otherwise dword
-#define lbtVScrollBar    0x0200 // For resource definition only !
-#define lbtHScrollBar    0x0400 // For function CreateListWindow()
-#define lbtHSizeAlreadyDef 0x0800 // For combobox listwindow
-#define lbtTransferData  0x2000 // Else transfer ID (Don't use with cbxNoData)
-#define lbtOwnerDraw     0x4000 //
-#define lbtExtMenu       0x8000 // Расширенное меню редактирование. Содержит пункт отправить по email
+#define lbtExtSel          0x00000001
+#define lbtDblClkNotify    0x00000002
+#define lbtFocNotify       0x00000004
+#define lbtSelNotify       0x00000008
+#define lbtNoData          0x00000010
+#define lbtSorted          0x00000020
+#define lbtDisposeData     0x00000040
+#define lbtAutoID          0x00000080
+#define lbtWordID          0x00000100 // If set, then id is word, otherwise dword
+#define lbtVScrollBar      0x00000200 // For resource definition only !
+#define lbtHScrollBar      0x00000400 // For function CreateListWindow()
+#define lbtHSizeAlreadyDef 0x00000800 // For combobox listwindow
+#define lbtTransferData    0x00002000 // Else transfer ID (Don't use with cbxNoData)
+#define lbtOwnerDraw       0x00004000 //
+#define lbtExtMenu         0x00008000 // Расширенное меню редактирование. Содержит пункт отправить по email
+#define lbtTextUtf8        0x00010000 // @v12.5.6 флаг ListBoxDef. Объект возвращает строки в кодировке utf8
 //
 // ComboBox flags
 //
-#define cbxDblClkNotify  lbtDblClkNotify
-#define cbxFocNotify     lbtFocNotify
-#define cbxNoData        lbtNoData
-#define cbxSorted        lbtSorted
-#define cbxDisposeData   lbtDisposeData
-#define cbxAutoID        lbtAutoID
-#define cbxWordID        lbtWordID
-#define cbxListOnly      0x1000
-#define cbxNoActivate    0x0800 // User can't directly select item from list
-#define cbxTransferData  lbtTransferData
-#define cbxSimple        0x4000
-#define cbxAllowEmpty    0x8000
+#define cbxDblClkNotify    lbtDblClkNotify
+#define cbxFocNotify       lbtFocNotify
+#define cbxNoData          lbtNoData
+#define cbxSorted          lbtSorted
+#define cbxDisposeData     lbtDisposeData
+#define cbxAutoID          lbtAutoID
+#define cbxWordID          lbtWordID
+#define cbxListOnly        0x1000
+#define cbxNoActivate      0x0800 // User can't directly select item from list
+#define cbxTransferData    lbtTransferData
+#define cbxSimple          0x4000
+#define cbxAllowEmpty      0x8000
 //
 // OwnerDrawCtrls definition
 //
-enum CtrlTypes {
-	ctListBox  = 1,
-	ctComboBox
-};
-
 struct ODC {
+	enum CtrlTypes {
+		ctListBox  = 1,
+		// @v12.5.6 ctComboBox
+	};
 	long   CtrlType; // ctXXX
 	long   CtrlID;
 	long   ExtraParam;

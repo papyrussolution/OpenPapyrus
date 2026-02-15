@@ -1,5 +1,5 @@
 // PPDESKTP.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
+// Copyright (c) A.Starodub, A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -9,8 +9,6 @@
 #define min MIN
 #include <gdiplus.h>
 using namespace Gdiplus;
-
-static const bool PPDesktop_Use_LayoutFlex = false;
 
 const wchar_t * PPDesktop::WndClsName = SlConst::WinClsName_Desktop;
 //
@@ -1938,7 +1936,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 			break;
 		case WM_SIZE:
 			if(lParam && p_desk) {
-				if(PPDesktop_Use_LayoutFlex) {
+				if(false) { // @construction PPDesktop_Use_LayoutFlex 
 					p_desk->Layout(); 
 				}
 				else {
@@ -1953,7 +1951,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 				if(p_desk) {
 					SString temp_buf;
 					SString menu_text;
-					if(PPLoadTextWin(PPTXT_MENU_DESKTOP, temp_buf)) {
+					if(PPLoadTextAnsi(PPTXT_MENU_DESKTOP, temp_buf)) {
 						POINT  coord;
 						coord.x = LOWORD(lParam);
 						coord.y = HIWORD(lParam);
@@ -2622,22 +2620,228 @@ int PPDesktop::ProcessRawInput(void * rawInputHandle)
 	return ok;
 }
 //
+// Centrigo
+// 
+//
+// Descr: Список навигации для проекта Centrigo
+//
+class CentrigoNavBlock { // @v12.5.6 @centrigo
+public:
+	enum {
+		ccatUndef      = 0,
+		ccatCommand    = 1,
+		ccatNotes      = 2,
+		ccatActualToDo = 3,
+		ccatWallet     = 4,
+	};
+	struct Entry {
+		Entry() : Category(ccatUndef), LastAccsDtm(ZERODATETIME)
+		{
+		}
+		int    Id; // Локальный ид для сопоставления с визуальным отображением //
+		int    Category; // ccatXXX
+		SObjID Oid; // Для команд (Category==ccatCommand) Oid.Obj==PPOBJ_UXCMD. Родительский узел для команд имеет Oid=={PPOBJ_UXCMD; 0}
+		LDATETIME LastAccsDtm;
+		SString Title;
+		TSCollection <Entry> Children;
+	};
+	CentrigoNavBlock() : LastId(0)
+	{
+	}
+	~CentrigoNavBlock()
+	{
+	}
+	Entry * SearchEntry(int id)
+	{
+		return Helper_SearchEntry(L, id);
+	}
+	int    AddEntry(int parentId, int category)
+	{
+		SObjID zero_oid;
+		LDATETIME zero_dtm = ZERODATETIME;
+		return Helper_AddEntry(parentId, category, zero_oid, zero_dtm, 0);
+	}
+	int    AddEntry(int parentId, int category, const SObjID & rOid, const char * pTitle)
+	{
+		LDATETIME zero_dtm = ZERODATETIME;
+		return Helper_AddEntry(parentId, category, rOid, zero_dtm, pTitle);
+	}
+	int    MakeStrAssocArray(StrAssocArray & rResult)
+	{
+		rResult.Z();
+		return Helper_MakeStrAssocArray(L, 0, rResult);
+	}
+private:
+	int    Helper_MakeStrAssocArray(const TSCollection <Entry> & rL, long parentId, StrAssocArray & rResult)
+	{
+		int    ok = 1;
+		SString temp_buf;
+		for(uint i = 0; i < rL.getCount(); i++) {
+			const Entry * p_entry = rL.at(i);
+			if(p_entry) {
+				if(p_entry->Title.NotEmpty())
+					temp_buf = p_entry->Title;
+				else {
+					temp_buf.Z().CatChar('#').Cat(p_entry->Id);
+				}
+				rResult.Add(p_entry->Id, parentId, temp_buf);
+				if(p_entry->Children.getCount()) {
+					Helper_MakeStrAssocArray(p_entry->Children, p_entry->Id, rResult); // @recursion
+				}
+			}
+		}
+		return ok;
+	}
+	Entry * Helper_SearchEntry(TSCollection <Entry> & rL, int id)
+	{
+		Entry * p_result = 0;
+		if(id) {
+			for(uint i = 0; !p_result && i < rL.getCount(); i++) {
+				Entry * p_entry = rL.at(i);
+				p_result = (p_entry->Id == id) ? p_entry : Helper_SearchEntry(p_entry->Children, id); // @recursion
+			}
+		}
+		return p_result;
+	}
+	//
+	// Descr: Реализуе создание нового элемента в иерархии навигации.
+	// Returns:
+	//   0 - error
+	//  >0 - внутрений идентификатор созданного элемента
+	//
+	int    Helper_AddEntry(int parentId, int category, const SObjID & rOid, const LDATETIME & rLastAccsDtm, const char * pTitle)
+	{
+		int    result = 0;
+		Entry * p_parent_entry = SearchEntry(parentId);
+		TSCollection <Entry> & r_list = p_parent_entry ? p_parent_entry->Children : L;
+		Entry * p_new_entry = r_list.CreateNewItem();
+		if(p_new_entry) {
+			p_new_entry->Id = ++LastId;
+			p_new_entry->Category = category;
+			p_new_entry->Oid = rOid;
+			p_new_entry->LastAccsDtm = rLastAccsDtm;
+			p_new_entry->Title = pTitle;
+			result = p_new_entry->Id;
+		}
+		return result;
+	}
+	int    LastId;
+	TSCollection <Entry> L;
+};
+//
 //
 //
 class TFacadeWindow : public TBaseBrowserWindow {
 public:
+	static constexpr int ViewId_Primary = 10001;
+
 	TFacadeWindow();
 	~TFacadeWindow();
 private:
+	DECL_HANDLE_EVENT;
+
 	static const wchar_t * WndClsName;
 	static int   RegWindowClass(HINSTANCE hInst);
 	static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	int    WMHCreate();
 	void   InitLayout();
 	int    InsertWorkWindow(int ppviewId); // @debug
+	int    MakeNavList(CentrigoNavBlock & rBlk);
+	int    DoNote(SObjID & rOid);
+	int    HandleInputEnter(const SString & rInput);
+	int    RemoveWorkingPanel();
 
-	DECL_HANDLE_EVENT;
+	CentrigoNavBlock NavBlk;
+	//
+	PPObjWorkbook WbObj;
 };
+
+int TFacadeWindow::MakeNavList(CentrigoNavBlock & rBlk)
+{
+	int    ok = 1;
+	SString temp_buf;
+	LongArray parent_list;
+	{
+		int    parent_id = 0;
+		PPLoadStringUtf8("cmd_pl", temp_buf);
+		parent_id = rBlk.AddEntry(0, CentrigoNavBlock::ccatCommand, SObjID(PPOBJ_UXCMD, 0), temp_buf);
+		if(parent_id) {
+			// @attention номера команд сейчас фиктивные только для отладки списка - потом установить правильные значения//
+			static const SIntToSymbTabEntry cmd_list[] = {
+				{ cmCentrigoNotes, "centrigo_cmd_notes" },
+				{ cmCentrigoToDo, "centrigo_cmd_todo" },
+				{ cmCentrigoWallet, "centrigo_cmd_wallet" },
+				{ cmCentrigoSecrets, "centrigo_cmd_secrets" },
+			};
+			for(uint i = 0; i < SIZEOFARRAY(cmd_list); i++) {
+				PPLoadStringUtf8(cmd_list[i].P_Symb, temp_buf);
+				rBlk.AddEntry(parent_id, CentrigoNavBlock::ccatCommand, SObjID(PPOBJ_UXCMD, cmd_list[i].Id), temp_buf);
+			}
+			parent_list.add(parent_id);
+		}
+	}
+	{
+		struct IterNoteItem {
+			PPID   ID;
+			LDATETIME Dtm;
+			char   Name[256];
+		};
+		SArray note_list(sizeof(IterNoteItem));
+		WorkbookTbl::Rec rec;
+		for(SEnum en = WbObj.P_Tbl->EnumByType(PPWBTYP_NOTE, 0); en.Next(&rec) > 0;) {
+			IterNoteItem new_item;
+			new_item.ID = rec.ID;
+			new_item.Dtm.Set(rec.Dt, rec.Tm);
+			(temp_buf = rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
+			STRNSCPY(new_item.Name, temp_buf);
+			note_list.insert(&new_item);
+		}
+		if(note_list.getCount()) {
+			CompFunc cf = [](const void * p1, const void * p2, void * pExtraData) -> int
+			{
+				const IterNoteItem * p_i1 = static_cast<const IterNoteItem *>(p1);
+				const IterNoteItem * p_i2 = static_cast<const IterNoteItem *>(p2);
+				int   ret = 0;
+				if(p_i1->Dtm < p_i2->Dtm)
+					ret = +1; // descending
+				else if(p_i1->Dtm > p_i2->Dtm)
+					ret = -1;
+				else {
+					ret = strcmp(p_i1->Name, p_i2->Name); // @todo Здесь должно быть сравнение без учета регистров в формате utf8
+				}
+				return ret;
+			};
+
+			note_list.sort2(cf);
+			int    parent_id = 0;
+			PPLoadStringUtf8("centrigo_cmd_notes", temp_buf);
+			parent_id = rBlk.AddEntry(0, CentrigoNavBlock::ccatNotes, SObjID(PPOBJ_WORKBOOK, 0), temp_buf);
+			if(parent_id) {
+				for(uint i = 0; i < note_list.getCount(); i++) {
+					const IterNoteItem * p_item = static_cast<const IterNoteItem *>(note_list.at(i));
+					rBlk.AddEntry(parent_id, CentrigoNavBlock::ccatNotes, SObjID(PPOBJ_WORKBOOK, p_item->ID), p_item->Name);
+				}
+				parent_list.add(parent_id);
+			}
+		}
+	}
+	{
+		SmartListBox * p_lb = static_cast<SmartListBox *>(getCtrlView(CTL_FACADEWINDOW_NAVPANE));
+		if(p_lb) {
+			StrAssocArray * p_list = new StrAssocArray();
+			if(p_list) {
+				rBlk.MakeStrAssocArray(*p_list);
+				StdTreeListBoxDef * p_lb_def = new StdTreeListBoxDef(p_list, lbtDisposeData|lbtDblClkNotify|lbtTextUtf8, 0);
+				if(p_lb_def) {
+					p_lb->setDef(p_lb_def);
+					p_lb->SetExpandedTreeBranchList(&parent_list);
+					p_lb->Draw_();
+				}
+			}
+		}
+	}
+	return ok;
+}
 
 void TFacadeWindow::InitLayout()
 {
@@ -2691,6 +2895,71 @@ void TFacadeWindow::InitLayout()
 		}
 		SetLayout(p_lo_main);
 	}
+}
+
+int TFacadeWindow::DoNote(SObjID & rOid) // @construction
+{
+	int    ok = -1;
+	const  LDATETIME now_dtm = getcurdatetime_();
+	SString temp_buf;
+	if(rOid.Obj == PPOBJ_WORKBOOK) {
+		TBaseBrowserWindow * p_brw = 0;
+		PPWorkbookPacket pack;
+		if(!rOid.Id) {
+			PPID   new_id = 0;
+			PPWorkbookPacket new_pack;
+			PPTransaction tra(1);
+			THROW(tra);
+			new_pack.Rec.Type = PPWBTYP_NOTE;
+			new_pack.Rec.Dt = now_dtm.d;
+			new_pack.Rec.Tm = now_dtm.t;
+			THROW(WbObj.MakeUniqueName(temp_buf, 0, 0/*use_ta*/));
+			STRNSCPY(new_pack.Rec.Name, temp_buf);
+			THROW(WbObj.MakeUniqueCode(temp_buf, 0/*use_ta*/));
+			STRNSCPY(new_pack.Rec.Symb, temp_buf);
+			THROW(WbObj.PutPacket(&new_id, &new_pack, 0/*use_ta*/));
+			THROW(tra.Commit());
+			rOid.Id = new_id;
+		}
+		{
+			WorkbookTbl::Rec rec;
+			THROW(WbObj.Search(rOid.Id, &rec) > 0);
+		}
+		RemoveWorkingPanel();
+		{
+			SUiLayout * p_lo = P_Lfc->FindBySymb("Facade_Center");
+			if(p_lo) {
+				// @construction
+				SObjTextRefIdent tri(rOid, PPTRPROP_MEMO);
+				p_brw = new STextBrowser(tri, /*pLexerSymb*/0, /*toolbarId*/-1);
+				if(p_brw) {
+					InsertCtlWithCorrespondingNativeItem(p_brw, ViewId_Primary, 0, /*extraPtr*/0);
+					{
+						SUiLayoutParam alb_;
+						alb_.GrowFactor = 1.0;
+						alb_.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+						{
+							SUiLayout * p_result = 0;
+							p_result = p_lo->InsertItem(p_brw, &alb_);
+							if(p_result) {
+								p_result->SetCallbacks(0, TView::SetupLayoutItemFrameProc, p_brw);
+								p_brw->Launch_(this);
+								{
+									EvaluateLayout(getClientRect());
+									invalidateAll(true);
+									::UpdateWindow(H());
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCH
+		ok = PPErrorZ();
+	ENDCATCH
+	return ok;
 }
 
 int TFacadeWindow::InsertWorkWindow(int ppviewId) // @debug
@@ -2749,7 +3018,7 @@ int TFacadeWindow::WMHCreate()
 				TInputLine * p_il = 0;
 				TInputLine * p_il_info = 0;
 				{
-					p_il = new TInputLine(TRect::_defr_, 0/*spcFlags*/, MKSTYPE(S_ZSTRING, 1024), MKSFMT(1024, 0));
+					p_il = new TInputLine(TRect::_defr_, TInputLine::spcfSendReturnToOwner/*spcFlags*/, MKSTYPE(S_ZSTRING, 1024), MKSFMT(1024, 0));
 					InsertCtlWithCorrespondingNativeItem(p_il, CTL_FACADEWINDOW_MAININPUT, 0, /*extraPtr*/0);
 					{
 						SUiLayoutParam alb_;
@@ -2812,11 +3081,12 @@ int TFacadeWindow::WMHCreate()
 			}
 			if(p_lo_left) {
 				{
-					StdTreeListBoxDef * p_lb_def = new StdTreeListBoxDef(0, lbtDisposeData|lbtDblClkNotify, 0);
+					StdTreeListBoxDef * p_lb_def = new StdTreeListBoxDef(0, lbtDisposeData|lbtDblClkNotify/*|lbtOwnerDraw*/, 0);
 					SmartListBox * p_lb = new SmartListBox(TRect::_defr_, p_lb_def, true/*is_tree*/);
-					if(p_lb->P_Def) {
+					//p_lb->SetOwnerDrawState();
+					/*if(p_lb->P_Def) {
 						p_lb->P_Def->addItem(1, "The first tree-list item!");
-					}
+					}*/
 					InsertCtlWithCorrespondingNativeItem(p_lb, CTL_FACADEWINDOW_NAVPANE, 0, 0);
 					{
 						SUiLayoutParam alb_;
@@ -2863,7 +3133,10 @@ int TFacadeWindow::WMHCreate()
 				}
 			}
 		}
-		InsertWorkWindow(0); // @debug
+		//InsertWorkWindow(0); // @debug
+		{
+			MakeNavList(NavBlk);
+		}
 	}
 	return 1;
 }
@@ -2897,27 +3170,70 @@ int TFacadeWindow::WMHCreate()
 				}
 				return ret;
 			}
-		case WM_COMMAND:
+		case WM_NOTIFY:
 			{
 				p_view = static_cast<TFacadeWindow *>(TView::GetWindowUserData(hWnd));
-				if(p_view) {
-					if(HIWORD(wParam) == 0) {
-						/*if(p_view->KeyAccel.getCount()) {
-							long   cmd = 0;
-							KeyDownCommand k;
-							k.SetTvKeyCode(LOWORD(wParam));
-							if(p_view->KeyAccel.BSearch(*reinterpret_cast<const long *>(&k), &cmd, 0)) {
-								p_view->ProcessCommand(cmd, 0, p_view);
-							}
-						}*/
-					}
-					/*
-					if(LOWORD(wParam))
-						p_view->ProcessCommand(LOWORD(wParam), 0, p_view);
-					*/
+				TView * p_iter_view = 0;
+				if(p_view && (p_iter_view = p_view->P_Last) != 0) {
+					do {
+						if(p_iter_view->TestId(wParam)) {
+							p_iter_view->handleWindowsMessage(message, wParam, lParam);
+							break;
+						}
+					} while((p_iter_view = p_iter_view->prev()) != p_view->P_Last);
 				}
 			}
 			break;
+		case WM_COMMAND:
+			{
+				// Блок почти один-в-один скопирован из TDialog::DialogProc
+				uint16 hiw = HIWORD(wParam);
+				uint16 low = LOWORD(wParam);
+				p_view = static_cast<TFacadeWindow *>(TView::GetWindowUserData(hWnd));
+				if(GetKeyState(VK_CONTROL) & 0x8000 && low != cmaCalculate && hiw != EN_UPDATE && hiw != EN_CHANGE)
+					return 0;
+				else if(p_view) {
+					if(hiw == 0 && low == IDCANCEL) {
+						TView::messageCommand(p_view, cmCancel, p_view);
+						return 0;
+					}
+					else {
+						if(!lParam) {
+							if(hiw == 0) // from menu
+								TView::messageKeyDown(p_view, low);
+							else if(hiw == 1) { // from accelerator
+								TEvent event;
+								event.what = TEvent::evCommand;
+								event.message.command = low;
+								p_view->handleEvent(event);
+							}
+						}
+						TView * local_p_view = p_view->CtrlIdToView(CLUSTER_ID(low));
+						if(local_p_view && local_p_view->IsConsistent())
+							local_p_view->handleWindowsMessage(message, wParam, lParam);
+					}
+				}
+				else
+					return 0;
+			}
+			break;
+		case WM_USER_KEYDOWN:
+			{
+				p_view = static_cast<TFacadeWindow *>(TView::GetWindowUserData(hWnd));
+				if(p_view) {
+					uint   key = static_cast<uint>(wParam);
+					HWND   h_ctl = reinterpret_cast<HWND>(lParam);
+					TView * p_ctl = static_cast<TView *>(TView::GetWindowUserData(h_ctl));
+					if(key == VK_RETURN && p_ctl && p_ctl->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
+						TInputLine * p_il = static_cast<TInputLine *>(p_ctl);
+						char   temp_b[1024];
+						p_il->TransmitData(-1, temp_b);
+						SString input_buf(temp_b);
+						p_view->HandleInputEnter(input_buf);
+					}
+				}
+			}
+			return 0;
 		case WM_DESTROY:
 			p_view = static_cast<TFacadeWindow *>(TView::GetWindowUserData(hWnd));
 			if(p_view && p_view->IsConsistent()) {
@@ -2925,9 +3241,9 @@ int TFacadeWindow::WMHCreate()
 				TWindowBase::Helper_Finalize(hWnd, p_view);
 			}
 			return 0;
-		case WM_DRAWITEM:
-			p_view = static_cast<TFacadeWindow *>(TView::GetWindowUserData(hWnd));
-			return p_view ? p_view->RedirectDrawItemMessage(message, wParam, lParam) : FALSE;
+		//case WM_DRAWITEM:
+			//p_view = static_cast<TFacadeWindow *>(TView::GetWindowUserData(hWnd));
+			//return p_view ? p_view->RedirectDrawItemMessage(message, wParam, lParam) : FALSE;
 		case WM_SETFOCUS:
 			if(!(TView::SGetWindowStyle(hWnd) & WS_CAPTION)) {
 				SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
@@ -2993,7 +3309,7 @@ int TFacadeWindow::WMHCreate()
 
 TFacadeWindow::TFacadeWindow() : TBaseBrowserWindow(WndClsName)
 {
-	BbState |= bbsWoScrollbars;
+	BbState |= (bbsWoScrollbars|bbsCtlParent);
 	static bool win_cls_registered = false;
 	if(!win_cls_registered) {
 		TFacadeWindow::RegWindowClass(TProgram::GetInst());
@@ -3005,8 +3321,34 @@ TFacadeWindow::~TFacadeWindow()
 {
 }
 
+int TFacadeWindow::RemoveWorkingPanel()
+{
+	int    ok = -1;
+	TView * p_view = getCtrlView(ViewId_Primary);
+	if(p_view) {
+		removeView(p_view);
+		P_Lfc->DeleteItemByManagedPtr(p_view);
+		delete p_view;
+		ok = 1;
+	}
+	return ok;
+}
+
+int TFacadeWindow::HandleInputEnter(const SString & rInput)
+{
+	int    ok = -1;
+	SString _input(rInput);
+	if(_input.NotEmptyS()) {
+		if(_input.IsEqiAscii("close")) { // @debug
+			RemoveWorkingPanel();
+		}
+	}
+	return ok;
+}
+
 IMPL_HANDLE_EVENT(TFacadeWindow)
 {
+	bool   debug_mark = false; // @debug
 	TWindowBase::handleEvent(event);
 	if(TVKEYDOWN) {
 		;
@@ -3024,6 +3366,67 @@ IMPL_HANDLE_EVENT(TFacadeWindow)
 		else if(event.isCmd(cmMouse)) {
 			//MouseEvent * p_me = static_cast<MouseEvent *>(TVINFOPTR);
 			;
+		}
+		/*
+		else if(event.isCmd(cmDrawItem)) {
+			if(false) {
+				TDrawItemData * p_draw_item = static_cast<TDrawItemData *>(TVINFOPTR);
+				if(p_draw_item && p_draw_item->P_View) {
+					PPID   list_ctrl_id = p_draw_item->P_View->GetId();
+					if(list_ctrl_id == CTL_FACADEWINDOW_NAVPANE) {
+						SmartListBox * p_lbx = static_cast<SmartListBox *>(p_draw_item->P_View);
+						if(p_draw_item->ItemAction & TDrawItemData::iaBackground) {
+							debug_mark = true; // @debug
+							//canv.Rect(_rc, 0, clrBkgnd);
+							//p_draw_item->ItemAction = 0; // Мы перерисовали фон
+						}
+						else if(p_draw_item->ItemID != _FFFF32) {
+							debug_mark = true; // @debug
+						}
+					}
+				}
+			}
+		}
+		*/
+		else if(event.isCmd(cmLBDblClk)) {
+			TView * p_view = static_cast<TView *>(TVINFOPTR);
+			if(p_view->IsConsistent() && p_view->IsSubSign(TV_SUBSIGN_LISTBOX)) {
+				SmartListBox * p_lb = static_cast<SmartListBox *>(p_view);
+				int    _id = 0;
+				if(p_lb->getCurID(&_id)) {
+					if(_id) {
+						const CentrigoNavBlock::Entry * p_entry = NavBlk.SearchEntry(_id);
+						if(p_entry) {
+							debug_mark = true; // @debug
+							switch(p_entry->Oid.Obj) {
+								case PPOBJ_UXCMD:
+									switch(p_entry->Oid.Id) {
+										case cmCentrigoNotes:
+											{
+												SObjID oid(PPOBJ_WORKBOOK, 0);
+												DoNote(oid);
+											}
+											break;
+										case cmCentrigoToDo:
+											break;
+										case cmCentrigoWallet:
+											break;
+										case cmCentrigoSecrets:
+											break;
+									}
+									break;
+								case PPOBJ_WORKBOOK:
+									{
+										SObjID oid(p_entry->Oid);
+										DoNote(oid);
+									}
+									break;
+							}
+						}
+					}
+				}
+				
+			}
 		}
 	}
 }

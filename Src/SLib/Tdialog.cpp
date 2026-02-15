@@ -29,15 +29,15 @@ ODC    OwnerDrawCtrls[32]; // @global
 //
 /*static*/void TDialog::centerDlg(HWND hWnd)
 {
-	const int sx = GetSystemMetrics(SM_CXSCREEN);
-	const int sy = GetSystemMetrics(SM_CYSCREEN);
+	const int sx = ::GetSystemMetrics(SM_CXSCREEN);
+	const int sy = ::GetSystemMetrics(SM_CYSCREEN);
 	RECT   r;
-	GetWindowRect(hWnd, &r);
+	::GetWindowRect(hWnd, &r);
 	r.right  -= r.left;
 	r.bottom -= r.top;
 	r.left = (sx-r.right)  / 2;
 	r.top  = (sy-r.bottom) / 2;
-	MoveWindow(hWnd, r.left, r.top, r.right, r.bottom, 1);
+	::MoveWindow(hWnd, r.left, r.top, r.right, r.bottom, 1);
 }
 
 int TDialog::setupPosition()
@@ -1677,7 +1677,7 @@ int TDialog::SetupWordSelector(uint ctlID, WordSel_ExtraBlock * pExtra, long id,
 				else {
 					ListWindow * p_lw = static_cast<ComboBox *>(p_v)->getListWindow();
 					if(p_lw) {
-						p_list = p_lw->listBox();
+						p_list = p_lw->GetListBox();
 						p_dlg = p_lw;
 					}
 				}
@@ -1724,7 +1724,7 @@ int TDialog::ResetWordSelector(uint ctlID)
 			else {
 				ListWindow * p_lw = static_cast<ComboBox *>(p_v)->getListWindow();
 				if(p_lw)
-					p_list = p_lw->listBox();
+					p_list = p_lw->GetListBox();
 			}
 			if(p_list) {
 				p_list->SetWordSelBlock(0);

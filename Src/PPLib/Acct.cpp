@@ -1,5 +1,5 @@
 // ACCT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2007, 2008, 2016, 2017, 2019, 2020, 2022, 2023, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2007, 2008, 2016, 2017, 2019, 2020, 2022, 2023, 2025, 2026
 // @codepage UTF-8
 // @Kernel
 //
@@ -30,7 +30,7 @@ STAcct::STAcct(uint32 sz) : DataType(sz)
 {
 }
 
-char * STAcct::tostr(const void * a, long fmt, char * b) const
+char * STAcct::tostr(const void * pData, long fmt, char * pBuf) const
 {
 	const  int accflen = 8;
 	int    ofs;
@@ -43,17 +43,44 @@ char * STAcct::tostr(const void * a, long fmt, char * b) const
 	}
 	if(S > sizeof(Acct)) {
 		if(!(fmt & ACCF_NAMEONLY)) {
-			static_cast<const Acct *>(a)->ToStr(fmt, b);
+			static_cast<const Acct *>(pData)->ToStr(fmt, pBuf);
 			ofs = accflen;
 		}
 		else
 			ofs = 0;
 		size_t sz = sizeof(int16) * 2;
-		strnzcpy(b+ofs, static_cast<const char *>(a)+sz, S-sz);
+		strnzcpy(pBuf+ofs, static_cast<const char *>(pData)+sz, S-sz);
 	}
 	else
-		static_cast<const Acct *>(a)->ToStr(fmt, b);
-	return b;
+		static_cast<const Acct *>(pData)->ToStr(fmt, pBuf);
+	return pBuf;
+}
+
+SString & STAcct::ToStr_(const void * pData, long fmt, SString & rBuf) const // @v12.5.6
+{
+	const  int accflen = 8;
+	//int    ofs;
+	if(S == (sizeof(Acct)-sizeof(long)))
+		fmt |= ACCF_BAL;
+	if(S > sizeof(Acct)) {
+		fmt &= ~SFALIGNMASK;
+		fmt |= ALIGN_LEFT;
+		SETSFMTLEN(fmt, accflen);
+	}
+	if(S > sizeof(Acct)) { // Это сигнализирует о том, что после бинарного представления счета следует наименование этого счета.
+		if(!(fmt & ACCF_NAMEONLY)) {
+			static_cast<const Acct *>(pData)->ToStr(fmt, rBuf);
+			//ofs = accflen;
+		}
+		/*else
+			ofs = 0;*/
+		size_t sz = sizeof(int16) * 2;
+		//strnzcpy(pBuf+ofs, static_cast<const char *>(pData)+sz, S-sz);
+		rBuf.Cat(static_cast<const char *>(pData)+sz);
+	}
+	else
+		static_cast<const Acct *>(pData)->ToStr(fmt, rBuf);
+	return rBuf;
 }
 
 int STAcct::fromstr(void * a, long fmt, const char * b) const
@@ -78,10 +105,14 @@ Acct & Acct::Z()
 
 static int delim(long format)
 {
-	if(format & ACCF_DELDOT) return '.';
-	if(format & ACCF_DELSPACE) return ' ';
-	if(format & ACCF_DELHYP) return '-';
-	return 0;
+	int   c = 0;
+	if(format & ACCF_DELDOT) 
+		c = '.';
+	else if(format & ACCF_DELSPACE) 
+		c = ' ';
+	else if(format & ACCF_DELHYP) 
+		c = '-';
+	return c;
 }
 
 // char * ToStr(long format, char * pBuf) const; // ACCBIN_NATURE

@@ -306,7 +306,7 @@ int PPObjProject::InitPacket(PPProjectPacket * pPack, int kind, PPID parentID, i
 SString & PPObjProject::GetItemDescr(PPID id, SString & rBuf)
 {
 	rBuf.Z();
-	PPRef->UtrC.SearchUtf8(TextRefIdent(Obj, id, PPTRPROP_DESCR), rBuf);
+	PPRef->UtrC.SearchUtf8(SObjTextRefIdent(Obj, id, PPTRPROP_DESCR), rBuf);
 	rBuf.Transf(CTRANSF_UTF8_TO_INNER);
 	return rBuf;
 }
@@ -314,7 +314,7 @@ SString & PPObjProject::GetItemDescr(PPID id, SString & rBuf)
 SString & PPObjProject::GetItemMemo(PPID id, SString & rBuf)
 {
 	rBuf.Z();
-	PPRef->UtrC.SearchUtf8(TextRefIdent(Obj, id, PPTRPROP_MEMO), rBuf);
+	PPRef->UtrC.SearchUtf8(SObjTextRefIdent(Obj, id, PPTRPROP_MEMO), rBuf);
 	rBuf.Transf(CTRANSF_UTF8_TO_INNER);
 	return rBuf;
 }
@@ -369,12 +369,12 @@ int PPObjProject::PutPacket(PPID * pID, PPProjectPacket * pPack, int use_ta)
 				(ext_buffer = pPack->SDescr).Strip();
 			else
 				ext_buffer.Z();
-			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(Obj, *pID, PPTRPROP_DESCR), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(Obj, *pID, PPTRPROP_DESCR), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 			if(pPack)
 				(ext_buffer = pPack->SMemo).Strip();
 			else
 				ext_buffer.Z();
-			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(Obj, *pID, PPTRPROP_MEMO), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(Obj, *pID, PPTRPROP_MEMO), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 		}
 		DS.LogAction(acn_id, Obj, *pID, 0, 0);
 		THROW(tra.Commit());
@@ -2529,12 +2529,12 @@ int PPObjPrjTask::PutPacket(PPID * pID, PPPrjTaskPacket * pPack, int use_ta)
 				(ext_buffer = pPack->SDescr).Strip();
 			else
 				ext_buffer.Z();
-			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(Obj, *pID, PPTRPROP_DESCR), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(Obj, *pID, PPTRPROP_DESCR), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 			if(pPack)
 				(ext_buffer = pPack->SMemo).Strip();
 			else
 				ext_buffer.Z();
-			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(Obj, *pID, PPTRPROP_MEMO), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(Obj, *pID, PPTRPROP_MEMO), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 		}
 		DS.LogAction(acn_id, Obj, *pID, 0, 0);
 		THROW(tra.Commit());
@@ -2546,7 +2546,7 @@ int PPObjPrjTask::PutPacket(PPID * pID, PPPrjTaskPacket * pPack, int use_ta)
 SString & PPObjPrjTask::GetItemDescr(PPID id, SString & rBuf)
 {
 	rBuf.Z();
-	PPRef->UtrC.SearchUtf8(TextRefIdent(Obj, id, PPTRPROP_DESCR), rBuf);
+	PPRef->UtrC.SearchUtf8(SObjTextRefIdent(Obj, id, PPTRPROP_DESCR), rBuf);
 	rBuf.Transf(CTRANSF_UTF8_TO_INNER);
 	return rBuf;
 }
@@ -2554,7 +2554,7 @@ SString & PPObjPrjTask::GetItemDescr(PPID id, SString & rBuf)
 SString & PPObjPrjTask::GetItemMemo(PPID id, SString & rBuf)
 {
 	rBuf.Z();
-	PPRef->UtrC.SearchUtf8(TextRefIdent(Obj, id, PPTRPROP_MEMO), rBuf);
+	PPRef->UtrC.SearchUtf8(SObjTextRefIdent(Obj, id, PPTRPROP_MEMO), rBuf);
 	rBuf.Transf(CTRANSF_UTF8_TO_INNER);
 	return rBuf;
 }

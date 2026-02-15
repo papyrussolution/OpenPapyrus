@@ -1213,9 +1213,9 @@ int TrfrItemDialog::setupGoodsListByPrice()
 	if(getCtrlView(CTLSEL_LOT_GOODS) && tmp && Item.Price != tmp) {
 		Item.Price = tmp;
 		ListWindow * p_lw  = 0;
-		StrAssocArray * p_ary = 0;
-		THROW(p_ary = GObj.CreateListByPrice(P_Pack->Rec.LocID, Item.Price));
-		p_lw = CreateListWindow(p_ary, lbtDblClkNotify | lbtFocNotify | lbtDisposeData);
+		StrAssocArray * p_list = 0;
+		THROW(p_list = GObj.CreateListByPrice(P_Pack->Rec.LocID, Item.Price));
+		p_lw = CreateListWindow(p_list, lbtDisposeData|lbtDblClkNotify|lbtFocNotify);
 		THROW_MEM(p_lw);
 		static_cast<ComboBox *>(getCtrlView(CTLSEL_LOT_GOODS))->setListWindow(p_lw);
 		messageToCtrl(CTLSEL_LOT_GOODS, cmCBActivate, 0);

@@ -57,7 +57,7 @@ uint32 DataType::size() const { return S; }
 int    DataType::comp(const void * i1, const void * i2) const { return memcmp(i1, i2, size()); }
 char * DataType::tostr(const void *, long, char * b) const { return &(b[0] = 0); }
 
-/*virtual*/SString & DataType::ToStr(const void * pData, long format, SString & rBuf) const
+/*virtual*/SString & DataType::ToStr_(const void * pData, long format, SString & rBuf) const
 {
 	rBuf.Z();
 	char    temp_buf[4096];

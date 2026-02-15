@@ -261,6 +261,31 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 	return p;
 }
 
+/*static*/int PPObject::LoadObjectText(const SObjTextRefIdent & rIdent, SString & rBuf, void * extraPtr) // @v12.5.6 LoadObjectTextFunc
+{
+	rBuf.Z();
+	int    ok = 0;
+	if(rIdent.O.IsFullyDefined() && rIdent.P) {
+		Reference * p_ref(PPRef);
+		if(p_ref) {
+			ok = p_ref->UtrC.SearchUtf8(rIdent, rBuf);
+		}
+	}
+	return ok;
+}
+
+/*static*/int PPObject::StoreObjectText(const SObjTextRefIdent & rIdent, const void * pTextUtf8, size_t textLen, void * extraPtr) // @v12.5.6 StoreObjectTextFunc
+{
+	int    ok = 0;
+	if(rIdent.O.IsFullyDefined() && rIdent.P) {
+		Reference * p_ref(PPRef);
+		if(p_ref) {
+			ok = p_ref->UtrC.SetTextUtf8_(rIdent, pTextUtf8, textLen, 1/*use_ta=1 undoubtedly*/);
+		}
+	}
+	return ok;
+}
+
 /*static*/SString & PPObject::MakeBlobSignature(const SBinaryChunk & rGlobalIdent, SObjID oid, uint itemNumber, SString & rBuf)
 {
 	rBuf.Z();
@@ -1534,7 +1559,7 @@ int STDCALL SetupPPObjCombo(ComboBox * pCombo, PPID obj, PPID id, uint flags, vo
 		ListWindow * p_lw = GetPPObjList(obj, flags, extraPtr);
 		if(p_lw) {
 			pCombo->setListWindow(p_lw);
-			if(!p_lw->listBox()->P_Def && flags & OLW_LOADDEFONOPEN) {
+			if(!p_lw->GetListBox()->P_Def && flags & OLW_LOADDEFONOPEN) {
 				SString name;
 				GetObjectName(obj, id, name);
 				pCombo->setInputLineText(name);
@@ -1655,7 +1680,7 @@ int PPSelectObject(PPID objType, PPID * pObjID, uint titleID, void * extraPtr)
 	ListWindow * p_lw = static_cast<ListWindow *>(ValidView(GetPPObjList(objType, OLW_CANINSERT, extraPtr)));
 	if(p_lw) {
 		if(id)
-			p_lw->listBox()->TransmitData(+1, &id);
+			p_lw->GetListBox()->TransmitData(+1, &id);
 		if(titleID && PPLoadText(titleID, temp_buf))
 			p_lw->setTitle(temp_buf);
 		// @v11.9.4 {

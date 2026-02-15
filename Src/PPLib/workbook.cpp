@@ -1,5 +1,5 @@
 // WORKBOOK.CPP
-// Copyright (c) Petroglif 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) Petroglif 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Модуль управления рабочими книгами (произвольный контент, как правило, предназначенный для отображения в web-browser'е
 //
@@ -525,7 +525,7 @@ int PPObjWorkbook::SelectKeywordReverse(SString & rKeyword)
 			temp_list.SortByText();
 			for(uint j = 0; j < temp_list.getCount(); j++) {
 				StrAssocArray::Item item = temp_list.Get(j);
-				p_lw->listBox()->addItem(item.Id, item.Txt);
+				p_lw->GetListBox()->addItem(item.Id, item.Txt);
 			}
 			while(ok < 0 && ExecView(p_lw) == cmOK) {
 				if(p_lw->getString(rKeyword)) {
@@ -547,16 +547,19 @@ int PPObjWorkbook::SelectKeyword(SString & rKeyword)
 	PPID   id = 0;
 	ListWindow * p_lw = CreateListWindow_Simple(lbtDblClkNotify);
 	if(p_lw) {
-		WorkbookTbl::Rec wb_rec;
-		for(SEnum en = P_Tbl->EnumByType(PPWBTYP_KEYWORD, 0); en.Next(&wb_rec) > 0;) {
-			p_lw->listBox()->addItem(wb_rec.ID, wb_rec.Name);
-		}
-		p_lw->listBox()->TransmitData(+1, &id);
-		while(ok < 0 && ExecView(p_lw) == cmOK) {
-			p_lw->listBox()->TransmitData(-1, &id);
-			if(Fetch(id, &wb_rec) > 0) {
-				rKeyword = wb_rec.Name;
-				ok = 1;
+		ListWindowSmartListBox * p_lb = p_lw->GetListBox();
+		if(p_lb) {
+			WorkbookTbl::Rec wb_rec;
+			for(SEnum en = P_Tbl->EnumByType(PPWBTYP_KEYWORD, 0); en.Next(&wb_rec) > 0;) {
+				p_lb->addItem(wb_rec.ID, wb_rec.Name);
+			}
+			p_lb->TransmitData(+1, &id);
+			while(ok < 0 && ExecView(p_lw) == cmOK) {
+				p_lb->TransmitData(-1, &id);
+				if(Fetch(id, &wb_rec) > 0) {
+					rKeyword = wb_rec.Name;
+					ok = 1;
+				}
 			}
 		}
 	}
@@ -597,6 +600,7 @@ public:
 		AddClusterAssoc(CTL_WORKBOOK_TYPE, 2, PPWBTYP_CSS);
 		AddClusterAssoc(CTL_WORKBOOK_TYPE, 3, PPWBTYP_MEDIA);
 		AddClusterAssoc(CTL_WORKBOOK_TYPE, 4, PPWBTYP_FOLDER);
+		AddClusterAssoc(CTL_WORKBOOK_TYPE, 5, PPWBTYP_NOTE); // @v12.5.6
 		SetClusterData(CTL_WORKBOOK_TYPE, Data.Rec.Type);
 		AddClusterAssoc(CTL_WORKBOOK_FLAGS, 0, PPWBF_HIDDEN);
 		AddClusterAssoc(CTL_WORKBOOK_FLAGS, 1, PPWBF_DONTSHOWCHILDREN);
@@ -677,7 +681,7 @@ public:
 			TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_WORKBOOK_DESCR));
 			if(p_il) {
 				p_il->SetupMaxTextLen(512);
-				Data.GetExtStrData(WBEXSTR_DESCRIPTION, temp_buf);
+				Data.GetExtStrData(PPWorkbookPacket::extssDescription, temp_buf);
 				setCtrlString(CTL_WORKBOOK_DESCR, temp_buf);
 			}
 		}
@@ -748,7 +752,7 @@ public:
 		}
 		if(getCtrlView(CTL_WORKBOOK_DESCR)) {
 			getCtrlString(CTL_WORKBOOK_DESCR, temp_buf.Z());
-			Data.PutExtStrData(WBEXSTR_DESCRIPTION, temp_buf);
+			Data.PutExtStrData(PPWorkbookPacket::extssDescription, temp_buf);
 		}
 		getCtrlString(CTL_WORKBOOK_VER, temp_buf);
 		temp_buf.CopyTo(Data.Rec.Version, sizeof(Data.Rec.Version));
@@ -938,6 +942,7 @@ public:
 		AddClusterAssoc(CTL_WBPRELUDE_TYPE, 3, PPWBTYP_FOLDER);
 		AddClusterAssoc(CTL_WBPRELUDE_TYPE, 4, PPWBTYP_KEYWORD);
 		AddClusterAssoc(CTL_WBPRELUDE_TYPE, 5, PPWBTYP_CSS);
+		AddClusterAssoc(CTL_WBPRELUDE_TYPE, 6, PPWBTYP_NOTE); // @v12.5.6
 		SetClusterData(CTL_WBPRELUDE_TYPE, Data.Type);
 		setCtrlString(CTL_WBPRELUDE_FILE, Data.FileName);
 		return 1;
@@ -1003,7 +1008,8 @@ int PPObjWorkbook::Helper_Edit(PPID * pID, AddBlock * pAb)
 				pack.Rec.ParentID = 0;
 		}
 	}
-	THROW(CheckDialogPtr(&(dlg = new Workbook2Dialog((pack.Rec.Type == PPWBTYP_KEYWORD) ? DLG_KEYWORD : DLG_WORKBOOK))));
+	dlg = new Workbook2Dialog((pack.Rec.Type == PPWBTYP_KEYWORD) ? DLG_KEYWORD : DLG_WORKBOOK);
+	THROW(CheckDialogPtr(&dlg));
 	dlg->setDTS(&pack);
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 		if(dlg->getDTS(&pack)) {
@@ -1225,6 +1231,27 @@ int PPObjWorkbook::SelectLink(PPObjWorkbook::SelectLinkBlock * pData)
 	DIALOG_PROC_BODY(SelectLinkItemDialog, pData);
 }
 
+int PPObjWorkbook::MakeUniqueName(SString & rBuf, const char * pPrefix, int use_ta) // @v12.5.6
+{
+	rBuf.Z();
+
+	int    ok = -1;
+	SString base_name(NZOR(pPrefix, "Note"));
+	{
+		long   _n = 0;
+		PPID   _id = 0;
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		do {
+			(rBuf = base_name).Space().CatChar('#').CatLongZ(++_n, 4);
+		} while(SearchByName(rBuf, &(_id = 0), 0) > 0);
+		ok = 1;
+		THROW(tra.Commit());
+	}
+	CATCHZOK
+	return ok;
+}
+
 int PPObjWorkbook::MakeUniqueCode(SString & rBuf, int use_ta)
 {
 	rBuf.Z();
@@ -1239,7 +1266,7 @@ int PPObjWorkbook::MakeUniqueCode(SString & rBuf, int use_ta)
 		THROW(tra);
 		do {
 			long   cntr = 0;
-			PTR32(code)[0] = 0;
+			code[0] = 0;
 			THROW(opc_obj.GetCode(PPOPCNTR_WORKBOOK, &cntr, code, 20, 0, 0));
 		} while(SearchBySymb(code, &(_id = 0), 0) > 0);
 		THROW(tra.Commit());
@@ -1637,29 +1664,36 @@ int PPObjWorkbook::RemoveAll()
 							if(current_id) {
 								WorkbookTbl::Rec rec;
 								if(p_wb_obj->Search(current_id, &rec) > 0) {
-									SString file_name, file_ext;
-									ObjLinkFiles _f(PPOBJ_WORKBOOK);
-									_f.Load(current_id, 0L);
-									if(_f.At(0, file_name) <= 0) {
-										if(p_wb_obj->AttachFile(current_id) > 0) {
-											_f.Init(PPOBJ_WORKBOOK);
-											_f.Load(current_id, 0L);
-										}
+									if(rec.Type == PPWBTYP_NOTE) {
+										SObjTextRefIdent tri(PPOBJ_WORKBOOK, current_id, PPTRPROP_MEMO);
+										PPViewTextBrowser(tri, rec.Name, 0, TOOLBAR_TEXTBROWSER);
 									}
-									if(_f.At(0, file_name) > 0) {
-										SFileFormat ff;
-										ff.Identify(file_name, &file_ext);
-										::SetActiveWindow(APPL->H_MainWnd); // @v11.3.2 Без этого вызова окно редактора открывалось как модальное
-										if(SImageBuffer::IsSupportedFormat(ff)) {
-											PPTooltipMessage(rec.Name, file_name, 0/*pBrw->hWnd*/, 5000, 0, SMessageWindow::fTextAlignLeft|
-												SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow|
-												SMessageWindow::fLargeText|SMessageWindow::fShowOnCenter|SMessageWindow::fPreserveFocus);
+									else {
+										SString file_name;
+										SString file_ext;
+										ObjLinkFiles _f(PPOBJ_WORKBOOK);
+										_f.Load(current_id, 0L);
+										if(_f.At(0, file_name) <= 0) {
+											if(p_wb_obj->AttachFile(current_id) > 0) {
+												_f.Init(PPOBJ_WORKBOOK);
+												_f.Load(current_id, 0L);
+											}
 										}
-										else if(oneof4(ff, SFileFormat::Html, SFileFormat::Txt, SFileFormat::TxtUtf8, SFileFormat::TxtAscii) || file_ext.IsEqiAscii("vm")) {
-											PPViewTextBrowser(file_name, rec.Name, "html", TOOLBAR_TEXTBROWSER_WB_HTML);
-										}
-										else if(oneof2(ff, SFileFormat::Xml, SFileFormat::Ini)) {
-											PPViewTextBrowser(file_name, 0, rec.Name);
+										if(_f.At(0, file_name) > 0) {
+											SFileFormat ff;
+											ff.Identify(file_name, &file_ext);
+											::SetActiveWindow(APPL->H_MainWnd); // @v11.3.2 Без этого вызова окно редактора открывалось как модальное
+											if(SImageBuffer::IsSupportedFormat(ff)) {
+												PPTooltipMessage(rec.Name, file_name, 0/*pBrw->hWnd*/, 5000, 0, SMessageWindow::fTextAlignLeft|
+													SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow|
+													SMessageWindow::fLargeText|SMessageWindow::fShowOnCenter|SMessageWindow::fPreserveFocus);
+											}
+											else if(oneof4(ff, SFileFormat::Html, SFileFormat::Txt, SFileFormat::TxtUtf8, SFileFormat::TxtAscii) || file_ext.IsEqiAscii("vm")) {
+												PPViewTextBrowser(file_name, rec.Name, "html", TOOLBAR_TEXTBROWSER_WB_HTML);
+											}
+											else if(oneof2(ff, SFileFormat::Xml, SFileFormat::Ini)) {
+												PPViewTextBrowser(file_name, 0, rec.Name);
+											}
 										}
 									}
 								}
@@ -1801,7 +1835,7 @@ int PPObjWorkbook::SetupParentCombo(TDialog * dlg, uint ctlID, int itemType, PPI
 			}
 		}
 		p_list->SortByText();
-		ListWindow * p_lw = CreateListWindow(p_list, lbtDisposeData | lbtDblClkNotify);
+		ListWindow * p_lw = CreateListWindow(p_list, lbtDisposeData|lbtDblClkNotify);
 		if(p_lw) {
 			if(parentID == 0 && itemType == PPWBTYP_MEDIA) {
 				PPWorkbookConfig cfg;
@@ -1833,7 +1867,7 @@ int PPObjWorkbook::SetupCSSCombo(TDialog * dlg, uint ctlID, int itemType, PPID i
 			}
 		}
 		p_list->SortByText();
-		ListWindow * p_lw = CreateListWindow(p_list, lbtDisposeData | lbtDblClkNotify);
+		ListWindow * p_lw = CreateListWindow(p_list, lbtDisposeData|lbtDblClkNotify);
 		if(p_lw) {
 			p_combo->setListWindow(p_lw, cssID);
 			ok = 1;
@@ -1861,7 +1895,7 @@ int PPObjWorkbook::SetupLinkCombo(TDialog * dlg, uint ctlID, int itemType, PPID 
 			}
 		}
 		p_list->SortByText();
-		ListWindow * p_lw = CreateListWindow(p_list, lbtDisposeData | lbtDblClkNotify);
+		ListWindow * p_lw = CreateListWindow(p_list, lbtDisposeData|lbtDblClkNotify);
 		if(p_lw) {
 			p_combo->setListWindow(p_lw, linkID);
 			ok = 1;
@@ -2150,7 +2184,7 @@ int PPObjWorkbook::Helper_UhttToNativePacket(ProcessUhttImportBlock & rBlk, cons
 	rPack.Rec.Dt = pUhttPacket->Dtm;
 	rPack.Rec.Tm = pUhttPacket->Dtm;
 	STRNSCPY(rPack.Rec.Version, pUhttPacket->Version);
-	rPack.PutExtStrData(WBEXSTR_DESCRIPTION, pUhttPacket->Descr);
+	rPack.PutExtStrData(PPWorkbookPacket::extssDescription, pUhttPacket->Descr);
 	rPack.Rec.Rank = pUhttPacket->Rank;
 	rPack.Rec.Flags = pUhttPacket->Flags;
 	rPack.Rec.Type = pUhttPacket->Type;
@@ -2173,7 +2207,7 @@ int PPObjWorkbook::Helper_UhttToNativePacket(ProcessUhttImportBlock & rBlk, cons
 			const UhttWorkbookItemPacket * p_link_item = rBlk.R_SrcList.at(i);
 			if(p_link_item && p_link_item->ID == pUhttPacket->ParentID) {
 				PPID   temp_id = 0;
-				int rr = Helper_CreatePacketByUhttList(&temp_id, rBlk, i, 0);
+				int    rr = Helper_CreatePacketByUhttList(&temp_id, rBlk, i, 0);
 				THROW(rr);
 				rPack.Rec.ParentID = temp_id;
 			}
@@ -2429,7 +2463,7 @@ int PPObjWorkbook::Helper_ExportToUhtt(PPUhttClient & rUc, PPID id,
 	uhtt_pack.SetName(pack.Rec.Name);
 	uhtt_pack.SetSymb(pack.Rec.Symb);
 	uhtt_pack.SetVersion(pack.Rec.Version);
-	pack.GetExtStrData(WBEXSTR_DESCRIPTION, temp_buf);
+	pack.GetExtStrData(PPWorkbookPacket::extssDescription, temp_buf);
 	uhtt_pack.SetDescr(temp_buf);
 	uhtt_pack.ModifDtm = GetLastModifTime(id);
 	{
@@ -2514,8 +2548,7 @@ int PPObjWorkbook::TestImportFromUhtt()
 		for(uint i = 0; i < result.getCount(); i++) {
             const UhttWorkbookItemPacket * p_item = result.at(i);
 			if(p_item) {
-				line_buf.Z().Cat(p_item->ID).Tab().Cat(p_item->Symb).Tab().Cat(p_item->Dtm, DATF_ISO8601, 0).Tab().
-					Cat(p_item->Name);
+				line_buf.Z().Cat(p_item->ID).Tab().Cat(p_item->Symb).Tab().Cat(p_item->Dtm, DATF_ISO8601, 0).Tab().Cat(p_item->Name);
 				PPLogMessage(PPFILNAM_DEBUG_LOG, line_buf, LOGMSGF_TIME);
 				//
 				(line_buf = temp_path_name).SetLastSlash();
@@ -2745,7 +2778,8 @@ int PrcssrWorkbookImport::Init(const Param * pParam)
 
 int PrcssrWorkbookImport::ResolveLink(const char * pLinkName, const char * pLinkSymb, PPID * pID)
 {
-	PPID   id = 0, same_id = 0;
+	PPID   id = 0;
+	PPID   same_id = 0;
 	WorkbookTbl::Rec same_rec;
 	if(!isempty(pLinkName) && WbObj.SearchByName(pLinkName, &same_id, &same_rec) > 0) {
 		id = same_id;
@@ -2759,9 +2793,12 @@ int PrcssrWorkbookImport::ResolveLink(const char * pLinkName, const char * pLink
 
 int PrcssrWorkbookImport::Run()
 {
-	int    ok = -1, ta = 0;
+	int    ok = -1;
 	long   numrecs = 0;
-	SString log_msg, fmt_buf, file_name, temp_buf;
+	SString temp_buf;
+	SString log_msg;
+	SString fmt_buf;
+	SString file_name;
 	PPLogger logger;
 	PPImpExp ie(&IeParam, 0);
 	PPWaitStart();
@@ -2834,11 +2871,12 @@ int ImportWorkbook()
 	PrcssrWorkbookImport prcssr;
 	PrcssrWorkbookImport::Param param;
 	prcssr.InitParam(&param);
-	while(ok < 0 && prcssr.EditParam(&param) > 0)
+	while(ok < 0 && prcssr.EditParam(&param) > 0) {
 		if(prcssr.Init(&param) && prcssr.Run())
 			ok = 1;
 		else
 			PPError();
+	}
 	return ok;
 }
 //
@@ -3006,7 +3044,7 @@ int PPALDD_UhttWorkbook::InitData(PPFilt & rFilt, long rsrv)
 		STRNSCPY(H.Symb, r_blk.Pack.Rec.Symb);
 		STRNSCPY(H.Version, r_blk.Pack.Rec.Version);
 		{
-			r_blk.Pack.GetExtStrData(WBEXSTR_DESCRIPTION, temp_buf.Z());
+			r_blk.Pack.GetExtStrData(PPWorkbookPacket::extssDescription, temp_buf.Z());
 			STRNSCPY(H.Descr, temp_buf);
 		}
 		ok = DlRtm::InitData(rFilt, rsrv);
@@ -3162,7 +3200,7 @@ int PPALDD_UhttWorkbook::Set(long iterId, int commit)
 			STRNSCPY(r_blk.Pack.Rec.Name, temp_buf);
 			STRNSCPY(r_blk.Pack.Rec.Symb, H.Symb);
 			STRNSCPY(r_blk.Pack.Rec.Version, H.Version);
-			r_blk.Pack.PutExtStrData(WBEXSTR_DESCRIPTION, (temp_buf = H.Descr).Strip().RevertSpecSymb(SFileFormat::Html));
+			r_blk.Pack.PutExtStrData(PPWorkbookPacket::extssDescription, (temp_buf = H.Descr).Strip().RevertSpecSymb(SFileFormat::Html));
 		}
 		else if(iterId == GetIterID("iter@TagList")) {
 			PPID   tag_id = 0;
@@ -3196,8 +3234,8 @@ int PPALDD_UhttWorkbook::Set(long iterId, int commit)
 					ex_pack.Rec.Tm = r_blk.Pack.Rec.Tm;
 					STRNSCPY(ex_pack.Rec.Name, r_blk.Pack.Rec.Name);
 					STRNSCPY(ex_pack.Rec.Version, r_blk.Pack.Rec.Version);
-					r_blk.Pack.GetExtStrData(WBEXSTR_DESCRIPTION, temp_buf);
-					ex_pack.PutExtStrData(WBEXSTR_DESCRIPTION, temp_buf);
+					r_blk.Pack.GetExtStrData(PPWorkbookPacket::extssDescription, temp_buf);
+					ex_pack.PutExtStrData(PPWorkbookPacket::extssDescription, temp_buf);
 					ex_pack.TagL.Merge(r_blk.Pack.TagL, ObjTagList::mumAdd|ObjTagList::mumUpdate);
 					THROW(r_blk.WbObj.PutPacket(&id, &ex_pack, 1));
 					Extra[4].Ptr = reinterpret_cast<void *>(id);

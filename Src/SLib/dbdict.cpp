@@ -230,10 +230,7 @@ BDictionary::BDictionary(int btrDict, const char * pPath) :
 			SDelay(10);
 		}
 		if(createMode < 0 && IS_CRM_TEMP(createMode)) {
-			//
-			// Регистрируем имя временного файла в драйвере БД для последующего удаления //
-			//
-			AddTempFileName(b);
+			AddTempFileName(b); // Регистрируем имя временного файла в драйвере БД для последующего удаления //
 		}
 	}
 	return ok;

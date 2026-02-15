@@ -544,7 +544,7 @@ StrAssocArray * PPObjCashNode::MakeStrAssocList(void * extraPtr)
 	}
 	else {
 		SString title;
-		THROW(lw = new ListWindow(new StrAssocListBoxDef(p_ary, lbtDisposeData|lbtDblClkNotify)));
+		THROW(lw = new ListWindow(new StrAssocListBoxDef(p_ary, lbtDisposeData|lbtDblClkNotify), 0));
 		lw->setTitle(PPLoadTextS(PPTXT_SELECTCASHNODE, title));
 		// @v12.5.3 (@unused) lw->ViewOptions |= (ofCenterX | ofCenterY);
 		while(!valid_data && ExecView(lw) == cmOK) {
@@ -1339,8 +1339,10 @@ int DivGrpAsscListDialog::delItem(long pos, long /*id*/) { return P_Data->atFree
 int SelectPrinterFromWinPool(SString & rPrinter)
 {
 	int    ok = 1;
-	long   sel_prn_id = 0, def_prn_id = 0;
-	SString prn_port, temp_buf;
+	long   sel_prn_id = 0;
+	long   def_prn_id = 0;
+	SString temp_buf;
+	SString prn_port;
 	TSVector <SPrinting::PrnInfo> prn_list;
 	StrAssocArray * p_list = new StrAssocArray;
 	ListWindow * p_lw = 0;
@@ -1366,7 +1368,7 @@ int SelectPrinterFromWinPool(SString & rPrinter)
 	{
 		int    valid_data = 0;
 		SString title;
-		THROW(p_lw = new ListWindow(new StrAssocListBoxDef(p_list, lbtDisposeData|lbtDblClkNotify)));
+		THROW(p_lw = new ListWindow(new StrAssocListBoxDef(p_list, lbtDisposeData|lbtDblClkNotify), 0));
 		THROW(PPLoadText(PPTXT_SELECTPRINTER, title));
 		p_lw->setTitle(title);
 		// @v12.5.3 (@unused) p_lw->ViewOptions |= (ofCenterX | ofCenterY);

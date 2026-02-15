@@ -2653,6 +2653,7 @@ int ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInterface:
 									case GTCHZNPT_PERFUMERY: p_chzn_prodtype_symb = "perfumery"; break;
 									case GTCHZNPT_MILK: p_chzn_prodtype_symb = "milk"; break;
 									case GTCHZNPT_BEER: p_chzn_prodtype_symb = "beer"; break; // @v12.0.3 @? я не уверен, что символ "beer" здесь правильный - вносил интуитивно (не по документации)
+									case GTCHZNPT_NCP: p_chzn_prodtype_symb = "ncp"; break; // @v12.5.6
 								}
 								if(!isempty(p_chzn_prodtype_symb)) {
 									temp_buf.Z().CatEq("pg", p_chzn_prodtype_symb);

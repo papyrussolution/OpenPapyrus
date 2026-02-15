@@ -1,5 +1,5 @@
 // PPACTION.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024, 2026
 // @codepage UTF-8
 // @Kernel
 //
@@ -19,8 +19,8 @@ SysJournal::~SysJournal()
 int SysJournal::LogEvent(PPID action, PPID obj, PPID id, long extData, int use_ta)
 {
 	int    ok = -1;
-	const LDATETIME now_dtm = getcurdatetime_();
-	const PPID user_id = LConfig.UserID;
+	const  LDATETIME now_dtm = getcurdatetime_();
+	const  PPID user_id = LConfig.UserID;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -102,7 +102,7 @@ int SysJournal::GetEvent(PPID action, long extraVal, int mode, LDATETIME * pMome
 		sp = spGt;
 		dbq = & (*dbq && this->Dt >= k.Dt);
 		if(maxDays > 0 && k.Dt != ZERODATE) {
-			LDATE limit = plusdate(k.Dt, maxDays);
+			const LDATE limit = plusdate(k.Dt, maxDays);
 			dbq = & (*dbq && this->Dt <= limit);
 		}
 	}
@@ -212,7 +212,8 @@ int SysJournal::GetObjCreationEvent(PPID objType, PPID objID, SysJournalTbl::Rec
 
 int SysJournal::GetLastObjModifEvent(PPID objType, PPID objID, LDATETIME * pMoment, int * pCreation, SysJournalTbl::Rec * pRec)
 {
-	int    ok = -1, cr = 0;
+	int    ok = -1;
+	int    cr = 0;
 	SysJournalTbl::Key1 k;
 	k.ObjType = objType;
 	k.ObjID = objID;
@@ -782,27 +783,20 @@ ObjVersioningCore::ObjVersioningCore() : ObjVerTbl(), State(0)
 {
 }
 
-int ObjVersioningCore::IsInited() const
-{
-	return BIN(State & stSCtxInited);
-}
-
-SSerializeContext & ObjVersioningCore::GetSCtx()
-{
-	return SCtx;
-}
+bool ObjVersioningCore::IsInited() const { return LOGIC(State & stSCtxInited); }
+SSerializeContext & ObjVersioningCore::GetSCtx() { return SCtx; }
 
 int ObjVersioningCore::InitSerializeContext(int use_ta)
 {
 	int    ok = 1;
 	if(!(State & stSCtxInited)) {
 		SCtx.Init(SSerializeContext::fSeparateDataStruct|SSerializeContext::fDontProcessAttachment, ZERODATE);
-		const uint32 sysver = DS.GetMinCompatVersion();
+		const  uint32 sysver = DS.GetMinCompatVersion();
 		SObjID oid_dummy;
 		oid_dummy.Z();
 		ObjVerTbl::Rec rec;
 		SBuffer ctx_buf;
-		if(SearchOid(oid_dummy, (long)sysver, &rec, &ctx_buf) > 0) {
+		if(SearchOid(oid_dummy, static_cast<long>(sysver), &rec, &ctx_buf) > 0) {
 			THROW(SCtx.SerializeStateOfContext(-1, ctx_buf));
 		}
 		else {
@@ -811,7 +805,7 @@ int ObjVersioningCore::InitSerializeContext(int use_ta)
 			if(p_bobj && p_ref) {
 				PPObjGoods goods_obj;
 				PPObjPerson psn_obj;
-				PPObjSCard sc_obj; // @v10.5.3
+				PPObjSCard sc_obj; 
 				const DBTable * table_list[] = {
 					p_ref,
 					p_bobj->P_Tbl,
@@ -822,7 +816,7 @@ int ObjVersioningCore::InitSerializeContext(int use_ta)
 					&goods_obj.P_Tbl->GetACodTbl_(),
 					psn_obj.P_Tbl, 
 					psn_obj.RegObj.P_Tbl,
-					sc_obj.P_Tbl // @v10.5.3
+					sc_obj.P_Tbl
 				};
 				for(uint i = 0; i < SIZEOFARRAY(table_list); i++) {
 					const DBTable * p_tbl = table_list[i];
@@ -841,30 +835,60 @@ int ObjVersioningCore::InitSerializeContext(int use_ta)
 	return ok;
 }
 
+int ObjVersioningCore::GetNextVer(SObjID oid, int32 * pVer)
+{
+	int    ok = 1;
+	ObjVerTbl::Rec rec;
+	const  int32 ver = (SearchOid(oid, 0, &rec, 0) > 0) ? (rec.Ver +1) : 1;
+	ASSIGN_PTR(pVer, ver);
+	return ok;
+}
+
 int ObjVersioningCore::Add(PPID * pID, SObjID oid, SBuffer * pBuf, int use_ta)
 {
 	int    ok = 1;
 	ObjVerTbl::Rec rec;
-	ObjVerTbl::Rec last_ver_rec;
     rec.ObjType = oid.Obj;
     rec.ObjID = oid.Id;
 	rec.SysVer = DS.GetMinCompatVersion();
-	if(oid.Obj == 0 && oid.Id == 0) {
-		rec.Ver = (long)rec.SysVer;
+	if(oid.IsZero()) {
+		rec.Ver = static_cast<int32>(rec.SysVer);
 	}
 	else {
-		if(SearchOid(oid, 0, &last_ver_rec, 0) > 0)
-			rec.Ver = last_ver_rec.Ver+1;
-		else
-			rec.Ver = 1;
+		GetNextVer(oid, &rec.Ver);
 	}
-	size_t data_len = pBuf ? pBuf->GetAvailableSize() : 0;
+	const  size_t data_len = pBuf ? pBuf->GetAvailableSize() : 0;
 	rec.Size = static_cast<int32>(data_len);
 	CopyBufFrom(&rec, sizeof(rec));
+	// @v12.5.6 {
+	{
+		SBuffer cbuf; // Итоговый буфер для сохранения. Возможно, сжатый.
+		const void * p_data_buf = pBuf->GetBuf();
+		if(data_len > 128) {
+			SCompressor compr(SCompressor::tZLib);
+			uint8  cs[32];
+			const  size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
+			THROW_SL(cbuf.Write(cs, cs_size));
+			THROW_SL(compr.CompressBlock(p_data_buf, data_len, cbuf, 0, 0));
+		}
+		else {
+			cbuf.Z();
+			cbuf.Write(p_data_buf, data_len);
+		}
+		{
+			const  size_t cbuf_len = cbuf.GetAvailableSize(); 
+			if(cbuf_len) {
+				THROW(writeLobData(this->Data, cbuf.constptr(), cbuf_len));
+			}
+		}
+	}
+	// } @v12.5.6 
+	/* @v12.5.6
 	if(data_len) {
 		const void * p_data_buf = pBuf->GetBuf();
 		THROW(writeLobData(this->Data, p_data_buf, data_len));
 	}
+	*/
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -876,6 +900,33 @@ int ObjVersioningCore::Add(PPID * pID, SObjID oid, SBuffer * pBuf, int use_ta)
 	return ok;
 }
 
+int ObjVersioningCore::Helper_ReadObjectBuffer(SBuffer * pPackBuf)
+{
+	int    ok = -1;
+	if(pPackBuf) {
+		pPackBuf->Z();
+		// @v12.5.6 {
+		SBuffer temp_sbuf;
+		readLobData(this->Data, temp_sbuf);
+		const size_t actual_size = temp_sbuf.GetAvailableSize();
+		{
+			const size_t cs_size = SSerializeContext::GetCompressPrefix(0);
+			if(actual_size > cs_size && SSerializeContext::IsCompressPrefix(temp_sbuf.GetBuf(temp_sbuf.GetRdOffs()))) {
+				SCompressor compr(SCompressor::tZLib);
+				THROW_SL(compr.DecompressBlock(temp_sbuf.GetBuf(temp_sbuf.GetRdOffs()+cs_size), actual_size-cs_size, *pPackBuf));
+			}
+			else {
+				*pPackBuf = temp_sbuf;
+			}
+		}
+		// } @v12.5.6 
+		// @v12.5.6 ok = readLobData(this->Data, *pPackBuf);
+	}
+	CATCHZOK
+	destroyLobData(this->Data);
+	return ok;
+}
+
 int ObjVersioningCore::Search(PPID id, SObjID * pOid, long * pVer, SBuffer * pPackBuf)
 {
 	int    ok = -1;
@@ -884,11 +935,7 @@ int ObjVersioningCore::Search(PPID id, SObjID * pOid, long * pVer, SBuffer * pPa
 	if(search(0, &k, spEq)) {
 		CALLPTRMEMB(pOid, Set(data.ObjType, data.ObjID));
 		ASSIGN_PTR(pVer, data.Ver);
-		if(pPackBuf) {
-			pPackBuf->Z();
-			readLobData(this->Data, *pPackBuf);
-		}
-		destroyLobData(this->Data); // @v10.2.11 @fix
+		Helper_ReadObjectBuffer(pPackBuf);
 		ok = 1;
 	}
 	return ok;
@@ -911,21 +958,8 @@ int ObjVersioningCore::SearchOid(SObjID oid, long ver, ObjVerTbl::Rec * pRec, SB
 	}
 	if(search(1, &k, sp) > 0 && oid.IsEq(k.ObjType, k.ObjID)) {
 		CopyBufTo(pRec);
-		if(pPackBuf) {
-			pPackBuf->Z();
-			readLobData(this->Data, *pPackBuf);
-		}
-		destroyLobData(this->Data);
+		Helper_ReadObjectBuffer(pPackBuf);
 		ok = 1;
 	}
-	return ok;
-}
-
-int ObjVersioningCore::GetNextVer(SObjID oid, long * pVer)
-{
-	int    ok = 1;
-	ObjVerTbl::Rec rec;
-	long   ver = (SearchOid(oid, 0, &rec, 0) > 0) ? (rec.Ver + 1) : 1;
-	ASSIGN_PTR(pVer, ver);
 	return ok;
 }

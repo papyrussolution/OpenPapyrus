@@ -1096,16 +1096,55 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 													SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_QTTY, (ti.Set != null) ? CPM.FormatQtty(ti.Set.Qtty, uom_id, false) : "");
 													double item_amont = (ti.Set != null) ? (ti.Set.Qtty * ti.Set.Price) : 0.0;
 													SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_AMOUNT, " = " + CPM.FormatCurrency(item_amont));
-													if(ti.SetAccepted != null && ti.SetAccepted.Qtty > 0.0) {
-														SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_ACCPTED_PRICE, CPM.FormatCurrency(ti.SetAccepted.Price));
-														SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_ACCPTED_QTTY, CPM.FormatQtty(ti.SetAccepted.Qtty, uom_id, false));
-														item_amont = (ti.Set != null) ? (ti.SetAccepted.Qtty * ti.SetAccepted.Price) : 0.0;
-														SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_ACCPTED_AMOUNT, " = " + CPM.FormatCurrency(item_amont));
-														SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_TI_ACCEPTED_TEXT, View.VISIBLE);
+													if(ti.SetAccepted != null) {
+														SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_TI_ACCEPT_BLOCK, View.VISIBLE); // @v12.5.6
+														if(ti.SetAccepted != null && ti.SetAccepted.Qtty > 0.0) {
+															SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_ACCPTED_PRICE, CPM.FormatCurrency(ti.SetAccepted.Price));
+															SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_ACCPTED_QTTY, CPM.FormatQtty(ti.SetAccepted.Qtty, uom_id, false));
+															item_amont = (ti.Set != null) ? (ti.SetAccepted.Qtty * ti.SetAccepted.Price) : 0.0;
+															SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_ACCPTED_AMOUNT, " = " + CPM.FormatCurrency(item_amont));
+															SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_TI_ACCEPTED_TEXT, View.VISIBLE);
+														}
+														else {
+															SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_TI_ACCEPTED_TEXT, View.GONE);
+														}
 													}
 													else {
 														SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_TI_ACCEPTED_TEXT, View.GONE);
+														SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_TI_ACCEPT_BLOCK, View.GONE); // @v12.5.6
 													}
+													// @v12.5.6 {
+													if((CPM.GetActionFlags() & Document.actionDocSettingMarks) != 0) {
+														ImageView ctl = (ImageView)iv.findViewById(R.id.CTL_DOCUMENT_TI_LOCAL_STATUS);
+														int mark_count = 0;
+														if(ctl != null) {
+															int rcid = 0;
+															//
+															if(goods_item != null & goods_item.Item.ChZnCat > 0) {
+																mark_count = (ti.XcL != null) ? ti.XcL.size() : 0;
+																if(mark_count > 0) {
+																	rcid = R.drawable.ic_qrcode01scan;
+																}
+																else {
+																	rcid = R.drawable.ic_qrcode01absent;
+																}
+															}
+															if(rcid != 0) {
+																ctl.setVisibility(View.VISIBLE);
+																ctl.setImageResource(rcid);
+															}
+															else
+																ctl.setVisibility(View.GONE);
+														}
+														if(mark_count > 0) {
+															SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_TI_MARKQTTY, View.VISIBLE);
+															SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_MARKQTTY, Integer.toString(mark_count));
+														}
+														else {
+															SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_TI_MARKQTTY, View.GONE);
+														}
+													}
+													// } @v12.5.6
 													// @v11.7.0 {
 													{
 														ImageView ctl = (ImageView)iv.findViewById(R.id.CTL_DOCUMENT_TI_ACCEPTED_STATUS);

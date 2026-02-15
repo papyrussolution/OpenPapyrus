@@ -183,7 +183,7 @@ SSqlStmt::BindArray::BindArray(uint dim) : TSVector <SSqlStmt::Bind>(), Dim(dim)
 }
 
 SSqlStmt::SSqlStmt(DbProvider * pDb) : Signature(SlConst::SSqlStmtSignature), P_Db(0), Descr(SdRecord::fAllowDupName), Flags(0), H(0), P_Result(0), 
-	IndSubstPlus(0), IndSubstMinus(0), FslSubst(0), Typ(Generator_SQL::typUndef), P_ExternalConnection(0)
+	IndSubstPlus(0), IndSubstMinus(0), FslSubst(0), Typ(Generator_SQL::typUndef), P_ExternalConnection(0), Sf(0), P_OwnerTbl(0)
 {
 	BS.Init();
 	InitBinding();
@@ -196,7 +196,7 @@ SSqlStmt::SSqlStmt(DbProvider * pDb) : Signature(SlConst::SSqlStmtSignature), P_
 }
 
 SSqlStmt::SSqlStmt(DbProvider * pDb, const Generator_SQL & rSql) : Signature(SlConst::SSqlStmtSignature), P_Db(0), Descr(SdRecord::fAllowDupName), Flags(0), H(0), P_Result(0), 
-	IndSubstPlus(0), IndSubstMinus(0), FslSubst(0), Typ(Generator_SQL::typUndef), P_ExternalConnection(0)
+	IndSubstPlus(0), IndSubstMinus(0), FslSubst(0), Typ(Generator_SQL::typUndef), P_ExternalConnection(0), Sf(0), P_OwnerTbl(0)
 {
 	BS.Init();
 	InitBinding();
@@ -208,9 +208,10 @@ SSqlStmt::SSqlStmt(DbProvider * pDb, const Generator_SQL & rSql) : Signature(SlC
 		Flags |= fError;
 }
 
-SSqlStmt::SSqlStmt(DbProvider * pDb, void * pExternalConnection, const Generator_SQL & rSql) : Signature(SlConst::SSqlStmtSignature), 
-	P_Db(0), Descr(SdRecord::fAllowDupName), Flags(0), H(0), P_Result(0), IndSubstPlus(0), IndSubstMinus(0), FslSubst(0), Typ(Generator_SQL::typUndef), 
-	P_ExternalConnection(pExternalConnection)
+SSqlStmt::SSqlStmt(DbProvider * pDb, void * pExternalConnection, DBTable * pTbl, uint32 signature, const Generator_SQL & rSql, int sf) : 
+	Signature(NZOR(signature, SlConst::SSqlStmtSignature)), P_Db(0), Descr(SdRecord::fAllowDupName), Flags(0), H(0), P_Result(0), 
+	IndSubstPlus(0), IndSubstMinus(0), FslSubst(0), Typ(Generator_SQL::typUndef), P_ExternalConnection(pExternalConnection), Sf(sf),
+	P_OwnerTbl(pTbl)
 {
 	BS.Init();
 	InitBinding();
@@ -460,8 +461,14 @@ int SSqlStmt::BindData(int dir, uint count, const BNFieldList2 & rFldList, const
 	assert(checkirange(count, 1U, 1024U));
 	for(uint i = 0; i < fld_count; i++) {
 		const BNField & r_fld = rFldList.GetFieldByPosition(i);
-		BindItem((dir < 0) ? -static_cast<int16>(i+1) : +static_cast<int16>(i+1), 
-			count, r_fld.T, const_cast<uint8 *>(PTR8C(pDataBuf) + r_fld.Offs)); // @badcast
+		bool  do_skip = false;
+		if(sstreq(r_fld.Name, SlConst::P_SurrogateRowIdFieldName)) {
+			do_skip = true;
+		}
+		if(!do_skip) {
+			BindItem((dir < 0) ? -static_cast<int16>(i+1) : +static_cast<int16>(i+1), 
+				count, r_fld.T, const_cast<uint8 *>(PTR8C(pDataBuf) + r_fld.Offs)); // @badcast
+		}
 	}
 	THROW(P_Db->Binding(*this, dir));
 	CATCHZOK
@@ -1688,10 +1695,7 @@ int SOraDbProvider::CreateDataFile(const DBTable * pTbl, const char * pFileName,
 		}
 	}
 	if(createMode < 0 && IS_CRM_TEMP(createMode)) {
-		//
-		// Регистрируем имя временного файла в драйвере БД для последующего удаления //
-		//
-		AddTempFileName(pFileName);
+		AddTempFileName(pFileName); // Регистрируем имя временного файла в драйвере БД для последующего удаления //
 	}
 	CATCHZOK
 	return ok;
@@ -2221,7 +2225,7 @@ int SOraDbProvider::Implement_BExtInsert(BExtInsert * pBei)
 					for(uint j = 0; j < fld_count; j++) {
 						const BNField & r_fld = p_tbl->FldL[j];
 						if(GETSTYPE(r_fld.T) == S_AUTOINC) {
-							long val = 0;
+							long   val = 0;
 							size_t val_sz = 0;
 							r_fld.getValue(rec_buf.P_Buf, &val, &val_sz);
 							assert(val_sz == sizeof(val));

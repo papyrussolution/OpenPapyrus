@@ -12,7 +12,8 @@
 	int    ok = 1;
 	const  size_t buf_quant = 256;
 	assert(buf_quant >= pwBufSize);
-	char   temp_pw[buf_quant], temp_str[buf_quant*3+8];
+	char   temp_pw[buf_quant];
+	char   temp_str[buf_quant*3+8];
 	STRNSCPY(temp_pw, pPw);
 	IdeaEncrypt(pEncPw, temp_pw, pwBufSize);
 	size_t p = 0;
@@ -2227,18 +2228,17 @@ long ObjPropToTagIdent(int16 o, int16 p) // @v10.0.04 @construction
 	return MakeLong((p & ~0x7000), (o & ~0x7000);
 }*/
 //
-TextRefIdent::TextRefIdent() : P(0), L(0)
+/* @v12.5.6 TextRefIdent__-->SObjTextRefIdent
+TextRefIdent__::TextRefIdent__() : P(0), L(0)
 {
 }
 
-TextRefIdent::TextRefIdent(PPID objType, PPID objID, int16 prop) : O(objType, objID), P(prop), L(0)
+TextRefIdent__::TextRefIdent__(PPID objType, PPID objID, int16 prop) : O(objType, objID), P(prop), L(0)
 {
 }
 
-int TextRefIdent::operator !() const
-{
-	return BIN(O.Obj == 0 && O.Id == 0);
-}
+bool TextRefIdent__::operator !() const { O.IsZero(); }
+*/
 //
 //
 //
@@ -2361,7 +2361,7 @@ int TextRefCore::GetLastObjId(PPID objType, int prop, PPID * pID)
     return ok;
 }
 
-int TextRefCore::Search(const TextRefIdent & rI, SStringU & rBuf)
+int TextRefCore::Search(const SObjTextRefIdent & rI, SStringU & rBuf)
 {
 	int    ok = 1;
 	TextRefTbl::Key1 k1;
@@ -2380,11 +2380,11 @@ int TextRefCore::Search(const TextRefIdent & rI, SStringU & rBuf)
 
 int TextRefCore::SearchSelfRef(long id, SStringU & rBuf)
 {
-    TextRefIdent ident(PPOBJ_SELFREFTEXT, id, PPTRPROP_DEFAULT);
+    SObjTextRefIdent ident(PPOBJ_SELFREFTEXT, id, PPTRPROP_DEFAULT);
     return Search(ident, rBuf);
 }
 
-int TextRefCore::SearchText(const TextRefIdent & rI, const wchar_t * pText, TextRefIdent * pResult)
+int TextRefCore::SearchText(const SObjTextRefIdent & rI, const wchar_t * pText, SObjTextRefIdent * pResult)
 {
 	int    ok = -1;
 	const size_t len = sstrlen(pText);
@@ -2410,7 +2410,7 @@ int TextRefCore::SearchText(const TextRefIdent & rI, const wchar_t * pText, Text
 	return ok;
 }
 
-int TextRefCore::SearchTextByPrefix(const TextRefIdent & rI, const wchar_t * pPrefix, TSVector <TextRefIdent> * pList)
+int TextRefCore::SearchTextByPrefix(const SObjTextRefIdent & rI, const wchar_t * pPrefix, TSVector <SObjTextRefIdent> * pList)
 {
 	int    ok = -1;
 	const size_t len = sstrlen(pPrefix);
@@ -2424,7 +2424,7 @@ int TextRefCore::SearchTextByPrefix(const TextRefIdent & rI, const wchar_t * pPr
 			if(rI.L < 0 || data.Lang == rI.L) {
 				ok = 1;
 				if(pList) {
-					TextRefIdent item;
+					SObjTextRefIdent item;
 					item.O.Set(data.ObjType, data.ObjID);
 					item.P = data.Prop;
 					item.L = data.Lang;
@@ -2440,16 +2440,16 @@ int TextRefCore::SearchTextByPrefix(const TextRefIdent & rI, const wchar_t * pPr
 	return ok;
 }
 
-int TextRefCore::SearchSelfRefTextByPrefix(const wchar_t * pPrefix, TSVector <TextRefIdent> * pList)
+int TextRefCore::SearchSelfRefTextByPrefix(const wchar_t * pPrefix, TSVector <SObjTextRefIdent> * pList)
 {
-	TextRefIdent ident(PPOBJ_SELFREFTEXT, 0, PPTRPROP_DEFAULT);
+	SObjTextRefIdent ident(PPOBJ_SELFREFTEXT, 0, PPTRPROP_DEFAULT);
 	return SearchTextByPrefix(ident, pPrefix, pList);
 }
 
 int TextRefCore::SearchSelfRefText(const wchar_t * pText, PPID * pID)
 {
-	TextRefIdent ident(PPOBJ_SELFREFTEXT, 0, PPTRPROP_DEFAULT);
-	TextRefIdent result;
+	SObjTextRefIdent ident(PPOBJ_SELFREFTEXT, 0, PPTRPROP_DEFAULT);
+	SObjTextRefIdent result;
 	int    ok = SearchText(ident, pText, &result);
 	if(ok > 0) {
 		ASSIGN_PTR(pID, result.O.Id);
@@ -2457,7 +2457,7 @@ int TextRefCore::SearchSelfRefText(const wchar_t * pText, PPID * pID)
 	return ok;
 }
 
-int TextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText, int use_ta)
+int TextRefCore::SetText(const SObjTextRefIdent & rI, const wchar_t * pText, int use_ta)
 {
     int    ok = 1;
     SStringU _t;
@@ -2512,7 +2512,7 @@ int TextRefCore::GetSelfRefText(const wchar_t * pText, PPID * pID, int use_ta)
 		THROW(GetLastObjId(PPOBJ_SELFREFTEXT, PPTRPROP_DEFAULT, &last_id));
 		{
 			id = last_id + 1;
-			TextRefIdent ident(PPOBJ_SELFREFTEXT, id, PPTRPROP_DEFAULT);
+			SObjTextRefIdent ident(PPOBJ_SELFREFTEXT, id, PPTRPROP_DEFAULT);
 			THROW(SetText(ident, pText, use_ta));
 			ok = 2;
 		}
@@ -2539,7 +2539,7 @@ UnxTextRefCore::UnxTextRefCore() : UnxTextRefTbl()
 	return ok;
 }*/
 
-int UnxTextRefCore::SearchUtf8(const TextRefIdent & rI, SString & rBufUtf8) // @v12.4.7
+int UnxTextRefCore::SearchUtf8(const SObjTextRefIdent & rI, SString & rBufUtf8) // @v12.4.7
 {
 	rBufUtf8.Z();
 	int    ok = 1;
@@ -2584,13 +2584,12 @@ int UnxTextRefCore::SearchUtf8(const TextRefIdent & rI, SString & rBufUtf8) // @
 	return ok;
 }
 
-int UnxTextRefCore::SearchU(const TextRefIdent & rI, SStringU & rBuf)
+int UnxTextRefCore::SearchU(const SObjTextRefIdent & rI, SStringU & rBuf)
 {
 	rBuf.Z();
-	int    ok = 1;
 	// @v12.4.7 {
 	SString temp_buf;
-	ok = SearchUtf8(rI, temp_buf);
+	int    ok = SearchUtf8(rI, temp_buf);
 	if(ok > 0) {
 		rBuf.CopyFromUtf8(temp_buf);
 	}
@@ -2617,7 +2616,7 @@ int UnxTextRefCore::SearchU(const TextRefIdent & rI, SStringU & rBuf)
 	return ok;
 }
 
-int UnxTextRefCore::SearchTS(const TextRefIdent & rI, STimeSeries & rTs)
+int UnxTextRefCore::SearchTS(const SObjTextRefIdent & rI, STimeSeries & rTs)
 {
 	rTs.Z();
 	int    ok = 1;
@@ -2672,7 +2671,7 @@ int UnxTextRefCore::Helper_Filter(PPID objType, int prop, const char * pPattern,
 	for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 		if(!pFiltIdList || pFiltIdList->bsearch(data.ObjID)) {
 			if(!isempty(pPattern)) {
-				TextRefIdent tri(objType, data.ObjID, prop);
+				SObjTextRefIdent tri(objType, data.ObjID, prop);
 				if(SearchUtf8(tri, temp_buf) > 0) {
 					temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 					if(ExtStrSrch(temp_buf, pPattern, 0)) {
@@ -2732,12 +2731,12 @@ int UnxTextRefCore::FilterIdRange(PPID objType, int prop, const char * pPattern,
 	return ok;
 }
 
-int UnxTextRefCore::Remove(const TextRefIdent & rI, int use_ta) // @v12.4.7
+int UnxTextRefCore::Remove(const SObjTextRefIdent & rI, int use_ta) // @v12.4.7
 {
 	return SetTextUtf8(rI, SString(), use_ta);
 }
 
-int UnxTextRefCore::SetTextUtf8(const TextRefIdent & rI, const SString & rTextUtf8, int use_ta) // @v12.4.7
+int UnxTextRefCore::SetTextUtf8_(const SObjTextRefIdent & rI, const void * pTextUtf8, size_t textLen, int use_ta) // @v12.5.6
 {
 	int    ok = 1;
 	SBuffer cbuf;
@@ -2745,19 +2744,18 @@ int UnxTextRefCore::SetTextUtf8(const TextRefIdent & rI, const SString & rTextUt
     THROW_INVARG(rI.P >= 0);
     THROW_INVARG(rI.O.Obj > 0);
     THROW_INVARG(rI.O.Id > 0);
-	const  size_t tl = rTextUtf8.Len();
 	// @v12.4.7 compression {
-	if(tl) {
-		if(tl > 128) {
+	if(textLen && !isempty(static_cast<const char *>(pTextUtf8))) {
+		if(textLen > 128) {
 			SCompressor compr(SCompressor::tZLib);
-			uint8 cs[32];
-			const size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
+			uint8  cs[32];
+			const  size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
 			THROW_SL(cbuf.Write(cs, cs_size));
-			THROW_SL(compr.CompressBlock(rTextUtf8.cptr(), tl, cbuf, 0, 0));
+			THROW_SL(compr.CompressBlock(pTextUtf8, textLen, cbuf, 0, 0));
 		}
 		else {
 			cbuf.Z();
-			cbuf.Write(rTextUtf8.cptr(), tl);
+			cbuf.Write(pTextUtf8, textLen);
 		}
 	}
 	// @v12.4.7 } compression 
@@ -2766,32 +2764,28 @@ int UnxTextRefCore::SetTextUtf8(const TextRefIdent & rI, const SString & rTextUt
     	PPTransaction tra(use_ta);
     	THROW(tra);
 		if(SearchUtf8(rI, ex_text) > 0) {
-			if(tl == 0) {
+			if(textLen == 0) {
 				THROW_DB(rereadForUpdate(0, 0));
 				THROW_DB(deleteRec()); // @sfu
 			}
-			else if(ex_text.IsEq(rTextUtf8)) {
+			else if(ex_text.IsEq(static_cast<const char *>(pTextUtf8))) {
 				ok = -1;
 			}
 			else {
 				THROW_DB(rereadForUpdate(0, 0));
 				{
-					assert(tl); // Ранее мы проверили длину текста на 0
-					// @v12.4.7 THROW(writeLobData(VT, rTextUtf8.cptr(), tl));
-					// @v12.4.7 data.Size = static_cast<long>(tl);
-					// @v12.4.7 {
+					assert(textLen); // Ранее мы проверили длину текста на 0
 					{
 						const size_t size_to_write = cbuf.GetAvailableSize();
 						THROW(writeLobData(VT, cbuf.constptr(), size_to_write)); 
 						data.Size = static_cast<int32>(size_to_write);
 					}
-					// } @v12.4.7 
 				}
 				THROW_DB(updateRec()); // @sfu
 				destroyLobData(VT);
 			}
 		}
-		else if(tl == 0) {
+		else if(textLen == 0) {
 			ok = -2;
 		}
 		else {
@@ -2801,16 +2795,12 @@ int UnxTextRefCore::SetTextUtf8(const TextRefIdent & rI, const SString & rTextUt
 			data.Prop = rI.P;
 			data.Lang = rI.L;
 			{
-				assert(tl); // Ранее мы проверили длину текста на 0
-				// @v12.4.7 THROW(writeLobData(VT, rTextUtf8.cptr(), tl));
-				// @v12.4.7 data.Size = static_cast<long>(tl);
-				// @v12.4.7 {
+				assert(textLen); // Ранее мы проверили длину текста на 0
 				{
 					const size_t size_to_write = cbuf.GetAvailableSize();
 					THROW(writeLobData(VT, cbuf.constptr(), size_to_write)); 
 					data.Size = static_cast<int32>(size_to_write);
 				}
-				// } @v12.4.7 
 			}
 			THROW_DB(insertRec());
 			destroyLobData(VT);
@@ -2821,7 +2811,12 @@ int UnxTextRefCore::SetTextUtf8(const TextRefIdent & rI, const SString & rTextUt
 	return ok;
 }
 
-int UnxTextRefCore::SetTimeSeries(const TextRefIdent & rI, STimeSeries * pTs, int use_ta)
+int UnxTextRefCore::SetTextUtf8(const SObjTextRefIdent & rI, const SString & rTextUtf8, int use_ta) // @v12.4.7
+{
+	return SetTextUtf8_(rI, rTextUtf8.cptr(), rTextUtf8.Len(), use_ta);
+}
+
+int UnxTextRefCore::SetTimeSeries(const SObjTextRefIdent & rI, STimeSeries * pTs, int use_ta)
 {
     int    ok = 1;
     SBuffer sbuf;

@@ -4563,7 +4563,7 @@ int PPObjScale::PutPacket(PPID * pID, PPScalePacket * pPack, int use_ta)
 					pPack->Rec.Ver_Signature = DS.GetVersion();
 					THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 0, 0));
 					(ext_buffer = pPack->GetBuffer()).Strip();
-					THROW(P_Ref->UtrC.SetTextUtf8(TextRefIdent(Obj, id, PPTRPROP_SCALEEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+					THROW(P_Ref->UtrC.SetTextUtf8(SObjTextRefIdent(Obj, id, PPTRPROP_SCALEEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 					log_action_id = PPACN_OBJUPD;
 					do_dirty = 1;
 				}
@@ -4578,7 +4578,7 @@ int PPObjScale::PutPacket(PPID * pID, PPScalePacket * pPack, int use_ta)
 			THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
 			id = *pID;
 			(ext_buffer = pPack->GetBuffer()).Strip();
-			THROW(P_Ref->UtrC.SetTextUtf8(TextRefIdent(Obj, id, PPTRPROP_SCALEEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(P_Ref->UtrC.SetTextUtf8(SObjTextRefIdent(Obj, id, PPTRPROP_SCALEEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 			log_action_id = PPACN_OBJADD;
 		}
 		if(log_action_id) {
@@ -4601,7 +4601,7 @@ int PPObjScale::GetPacket(PPID id, PPScalePacket * pPack)
 		if(Search(id, &pPack->Rec) > 0) {
 			{
 				SString text_buf;
-				THROW(P_Ref->UtrC.SearchUtf8(TextRefIdent(Obj, id, PPTRPROP_SCALEEXT), text_buf));
+				THROW(P_Ref->UtrC.SearchUtf8(SObjTextRefIdent(Obj, id, PPTRPROP_SCALEEXT), text_buf));
 				text_buf.Transf(CTRANSF_UTF8_TO_INNER);
 				pPack->SetBuffer(text_buf.Strip());
 			}

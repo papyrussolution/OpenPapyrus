@@ -7,11 +7,11 @@
 
 // @v12.2.4 (более на актуально) static const TRect _DefLwRect(0, 0, /*80*/0, 25); // @v11.9.5 Из-за того, что ширина списка теперь определяется настройками в uid-papyrus.json здесь она должна быть равна 0
 
-ListWindow::ListWindow(ListBoxDef * pDef) : TDialog(0, 0, coNothing), PrepareSearchLetter(0), TbId(0)
+ListWindow::ListWindow(ListBoxDef * pDef, TView * pLinkView) : TDialog(0, 0, coNothing), PrepareSearchLetter(0), TbId(0)
 {
-	P_Lb = new ListWindowSmartListBox(TRect(0, 0, 11, 11), pDef);
+	P_Lb = new ListWindowSmartListBox(TRect::_defr_, pDef, pLinkView);
 	setDef(pDef);
-	TButton * b = new TButton(TRect(0, 0, 20, 20), "OK", cmOK, TButton::spcfDefault);
+	TButton * b = new TButton(TRect::_defr_, "OK", cmOK, TButton::spcfDefault);
 	Insert_(&b->SetId(IDOK)); /*CTLID_LISTBOXOKBUTTON*/
 }
 
@@ -20,7 +20,6 @@ ListWindow::ListWindow() : TDialog(0, 0, coNothing), P_Def(0), PrepareSearchLett
 }
 
 void   ListWindow::setCompFunc(CompFunc f) { CALLPTRMEMB(P_Lb, setCompFunc(f)); }
-ListWindowSmartListBox * ListWindow::listBox() const { return P_Lb; }
 void   ListWindow::prepareForSearching(int firstLetter) { PrepareSearchLetter = firstLetter; }
 int    FASTCALL ListWindow::getResult(long * pVal) { return P_Def ? P_Def->getCurID(pVal) : 0; }
 int    ListWindow::getString(SString & rBuf) { return P_Def ? P_Def->getCurString(rBuf) : (rBuf.Z(), 0); }
@@ -89,9 +88,12 @@ void FASTCALL ListWindow::setDef(ListBoxDef * pDef)
 IMPL_HANDLE_EVENT(ListWindow)
 {
 	if(event.isCmd(cmExecute)) {
-		const int lw_dlg_id = (DlgFlags & fLarge) ? DLGW_LBX_L : DLGW_LBX;
-		ComboBox * p_combo = P_Lb ? P_Lb->combo : 0;
-		HWND   hwnd_parent = (p_combo && p_combo->GetLink()) ? p_combo->GetLink()->Parent : APPL->H_MainWnd;
+		const  int lw_dlg_id = (DlgFlags & fLarge) ? DLGW_LBX_L : DLGW_LBX;
+		ComboBox * p_combo = P_Lb ? P_Lb->GetCombo() : 0;
+		TView * p_link_view = P_Lb ? P_Lb->GetLinkView() : 0; // @v12.5.6
+		assert(!(p_combo && p_combo->GetLink()) || p_link_view == p_combo->GetLink()); // @v12.5.6
+		// @v12.5.6 HWND   hwnd_parent = (p_combo && p_combo->GetLink()) ? p_combo->GetLink()->Parent : APPL->H_MainWnd;
+		HWND   hwnd_parent = p_link_view ? p_link_view->Parent : APPL->H_MainWnd;
 		MessageCommandToOwner(cmLBLoadDef);
 		Id = IsTreeList() ? DLGW_TREELBX : ((P_Def && P_Def->Options & lbtOwnerDraw) ? DLGW_OWNDRAWLBX : lw_dlg_id);
 		HW = APPL->CreateDlg(Id, hwnd_parent, TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
@@ -111,8 +113,10 @@ IMPL_HANDLE_EVENT(ListWindow)
 			else
 				p_combo->setupTreeListWindow(1);
 		}
-		else
-			Move_(0, 0);
+		else {
+			HWND   hwnd_link = p_link_view ? p_link_view->getHandle() : 0; // @v12.5.6
+			Move_(hwnd_link, 0); // @v12.5.6 0-->hwnd_link
+		}
 		if(DlgFlags & fLarge) {
 			P_Def->SetOption(lbtSelNotify, 1);
 			::SendDlgItemMessageW(H(), CTL_LBX_LIST, LB_SETITEMHEIGHT, 0, static_cast<LPARAM>(40));
@@ -239,49 +243,33 @@ int ListWindow::getSingle(long * pVal)
 
 void ListWindow::Move_(HWND linkHwnd, long right)
 {
-	
 	uint   list_ctl = IsTreeList() ? CTL_TREELBX_TREELIST : CTL_LBX_LIST;
-	HWND   h_list = GetDlgItem(H(), list_ctl);
-	RECT   link_rect, list_rect;
-	::GetWindowRect(H(), &list_rect);
+	HWND   h_wnd = H();
+	HWND   h_list = GetDlgItem(h_wnd, list_ctl);
+	RECT   link_rect;
+	RECT   list_rect;
+	::GetWindowRect(h_wnd, &list_rect);
 	int    _width = 0;
 	if(linkHwnd) {
 		::GetWindowRect(linkHwnd, &link_rect);
-		link_rect.right = (right) ? right : link_rect.right;
+		link_rect.right = right ? right : link_rect.right;
 		_width = (link_rect.right - link_rect.left); // @v11.9.4
 	}
 	else {
 		link_rect = list_rect;
 		link_rect.bottom = link_rect.top;
-		_width = (ViewSize.x > 0) ? ViewSize.x : (link_rect.right - link_rect.left);
+		_width = (ViewSize.x > TRect::_defr_.width()) ? ViewSize.x : (link_rect.right - link_rect.left); // @v12.5.6 (ViewSize.x > 0)-->(ViewSize.x > TRect::_defr_.width())
 	}
-	long   item_height = IsTreeList() ? TreeView_GetItemHeight(h_list) : ::SendMessageW(h_list, LB_GETITEMHEIGHT, 0, 0);
+	const  long item_height = IsTreeList() ? TreeView_GetItemHeight(h_list) : ::SendMessageW(h_list, LB_GETITEMHEIGHT, 0, 0);
 	int    h = 	P_Def ? ((P_Def->ViewHight + 1) * item_height) : (list_rect.bottom - list_rect.top);
 	int    tt = link_rect.top;
 	int    x  = link_rect.left;
-	// @v11.9.4 int    w  = (ViewSize.x > 0) ? ViewSize.x : (link_rect.right - link_rect.left); // @v11.9.4 ViewSize.x
-	HWND   h_scroll = IsTreeList() ? 0 : GetDlgItem(Parent, MAKE_BUTTON_ID(Id, 1));
-	// @v12.0.12 {
-	// Это - исследование путей решения проблемы неверного размещения вертикального скрол-бара 
-	/*
-	bool   debug_mark = false; // @debug
-	HWND   v_scroll = 0; 
-	{
-		SCROLLBARINFO sbi;
-		INITWINAPISTRUCT(sbi);
-		if(::GetScrollBarInfo(Parent, OBJID_VSCROLL, &sbi)) {
-			debug_mark = true;
-		}
-		else if(::GetScrollBarInfo(H(), OBJID_VSCROLL, &sbi)) {
-			debug_mark = true;
-		}
-	}*/
-	// } @v12.0.12
+	HWND   h_scroll = IsTreeList() ? 0 : GetDlgItem(/*Parent*/h_wnd, MAKE_BUTTON_ID(/*Id*/CTL_LBX_LIST, 1)); // @v12.5.6 Parent-->h_wnd; Id-->CTL_LBX_LIST
 	if(GetSystemMetrics(SM_CYFULLSCREEN) > link_rect.bottom+h)
-		::MoveWindow(H(), x, link_rect.bottom, _width, h, 1);
+		::MoveWindow(h_wnd, x, link_rect.bottom, _width, h, 1);
 	else
-		::MoveWindow(H(), x, tt-h, _width, h, 1);
-	::GetClientRect(H(), &list_rect);
+		::MoveWindow(h_wnd, x, tt-h, _width, h, 1);
+	::GetClientRect(h_wnd, &list_rect);
 	if(!IsTreeList())
 		list_rect.right -= (h_scroll ? GetSystemMetrics(SM_CXVSCROLL) : 0);
 	::MoveWindow(h_list, 0, 0, list_rect.right, list_rect.bottom, 1);
@@ -292,11 +280,12 @@ void ListWindow::Move_(HWND linkHwnd, long right)
 void ListWindow::Move_(const RECT & rRect)
 {
 	uint   list_ctl = IsTreeList() ? CTL_TREELBX_TREELIST : CTL_LBX_LIST;
-	HWND   h_list = GetDlgItem(H(), list_ctl);
+	HWND   h_wnd = H();
+	HWND   h_list = GetDlgItem(h_wnd, list_ctl);
 	HWND   h_scroll = IsTreeList() ? 0 : GetDlgItem(Parent, MAKE_BUTTON_ID(Id, 1));
 	RECT   list_rect;
-	::MoveWindow(H(), rRect.left, rRect.top, rRect.right, rRect.bottom, 1);
-	::GetClientRect(H(), &list_rect);
+	::MoveWindow(h_wnd, rRect.left, rRect.top, rRect.right, rRect.bottom, 1);
+	::GetClientRect(h_wnd, &list_rect);
 	if(!IsTreeList())
 		list_rect.right -= GetSystemMetrics(SM_CXVSCROLL);
 	::MoveWindow(h_list, list_rect.left, list_rect.top, list_rect.right, list_rect.bottom, 1);
@@ -404,10 +393,10 @@ int WordSel_ExtraBlock::GetData(long * pId, SString & rBuf)
 WordSelector::WordSelector(WordSel_ExtraBlock * pBlk) : WsState(0), P_Blk(pBlk)
 {
 	P_Def = new StrAssocListBoxDef(new StrAssocArray(), lbtDisposeData|lbtDblClkNotify|lbtSelNotify|lbtOwnerDraw);
-	P_Lb = new WordSelectorSmartListBox(TRect(0, 0, 11, 11), P_Def);
+	P_Lb = new WordSelectorSmartListBox(TRect::_defr_, P_Def);
 	P_Lb->SetOwnerDrawState();
 	setDef(P_Def);
-	TButton * b = new TButton(TRect(0, 0, 20, 20), "OK", cmOK, TButton::spcfDefault);
+	TButton * b = new TButton(TRect::_defr_, "OK", cmOK, TButton::spcfDefault);
 	Insert_(&b->SetId(IDOK)); /*CTLID_LISTBOXOKBUTTON*/
 	Ptb.SetColor(clrFocus,  RGB(0x20, 0xAC, 0x90));
 	Ptb.SetColor(clrOdd,    RGB(0xDC, 0xED, 0xD5));
@@ -663,11 +652,11 @@ void FASTCALL WordSelector::setDef(ListBoxDef * pDef)
 //
 // Utils
 //
-ListWindow * CreateListWindow(SArray * pAry, uint options, TYPEID type) { return new ListWindow(new StdListBoxDef(pAry, options, type)); }
-ListWindow * CreateListWindow(StrAssocArray * pAry, uint options) { return new ListWindow(new StrAssocListBoxDef(pAry, options)); }
-ListWindow * CreateListWindow(DBQuery & rQuery, uint options) { return new ListWindow(new DBQListBoxDef(rQuery, options, 32)); }
+ListWindow * CreateListWindow(SArray * pAry, uint options, TYPEID type) { return new ListWindow(new StdListBoxDef(pAry, options, type), 0); }
+ListWindow * CreateListWindow(StrAssocArray * pAry, uint options, TView * pLinkView) { return new ListWindow(new StrAssocListBoxDef(pAry, options), pLinkView); }
+ListWindow * CreateListWindow(DBQuery & rQuery, uint options) { return new ListWindow(new DBQListBoxDef(rQuery, options, 32), 0); }
 ListWindow * CreateListWindow_Simple(uint options)
 { 
-	StrAssocListBoxDef * p_def = new StrAssocListBoxDef(new StrAssocArray, options | lbtDisposeData);
-	return new ListWindow(p_def); 
+	StrAssocListBoxDef * p_def = new StrAssocListBoxDef(new StrAssocArray, options|lbtDisposeData);
+	return new ListWindow(p_def, 0); 
 }

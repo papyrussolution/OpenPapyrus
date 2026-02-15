@@ -1,5 +1,5 @@
 // V_GSTRUC.CPP
-// Copyright (c) A.Starodub 2007, 2008, 2009, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Starodub 2007, 2008, 2009, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Таблица просмотра товарных структур
 //
@@ -1136,7 +1136,7 @@ static int __MakeGoodsStrucTreeListView(/*PPViewBrowser * pBrw*/)
 	class GStrucListWindow : public ListWindow {
 	public:
 		GStrucListWindow(GoodsStrucTreeListViewBlock * pBlk, void * hMainBrwWindow) : P_Blk(pBlk), H_MainBrwWindow(hMainBrwWindow), FfeRing(64),
-			ListWindow(new StdTreeListBoxDef2_(pBlk ? pBlk->MakeTree() : 0, lbtDisposeData|lbtDblClkNotify|lbtSelNotify|lbtFocNotify, 0))
+			ListWindow(new StdTreeListBoxDef2_(pBlk ? pBlk->MakeTree() : 0, lbtDisposeData|lbtDblClkNotify|lbtSelNotify|lbtFocNotify, 0), 0)
 		{
 		}
 		~GStrucListWindow()
@@ -1305,7 +1305,7 @@ int PPViewGoodsStruc::MakeTreeListView(PPViewBrowser * pBrw) // @v11.1.12
 	public:
 		GStrucListWindow(PPViewGoodsStruc * pOwner, GoodsStrucTreeListViewBlock * pBlk, void * hMainBrwWindow) : 
 			P_Owner(pOwner), P_Blk(pBlk), H_MainBrwWindow(hMainBrwWindow), FfeRing(64),
-			ListWindow(new StdTreeListBoxDef2_(pBlk ? pBlk->MakeTree() : 0, lbtDisposeData|lbtDblClkNotify|lbtSelNotify|lbtFocNotify, 0))
+			ListWindow(new StdTreeListBoxDef2_(pBlk ? pBlk->MakeTree() : 0, lbtDisposeData|lbtDblClkNotify|lbtSelNotify|lbtFocNotify, 0), 0)
 		{
 			assert(P_Owner);
 		}

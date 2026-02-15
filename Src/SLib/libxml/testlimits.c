@@ -1330,8 +1330,7 @@ struct testDesc {
 	functest func; /* function implementing the test */
 };
 
-static
-testDesc testDescriptions[] = {
+static testDesc testDescriptions[] = {
 	{ "Parsing of huge files with the sax parser", saxTest},
 /*    { "Parsing of huge files with the tree parser", treeTest}, */
 #ifdef LIBXML_READER_ENABLED
@@ -1349,8 +1348,7 @@ struct testException {
 	size_t size;    /* new limit value or 0 */
 };
 
-static
-testException testExceptions[] = {
+static testException testExceptions[] = {
 	/* the SAX parser doesn't hit a limit of XML_MAX_TEXT_LENGTH text nodes */
 	{ 0, 1, 0, 0},
 };
@@ -1386,7 +1384,7 @@ static int launchTests(testDescPtr tst, unsigned int test) {
 			err++;
 		}
 	}
-	return(err);
+	return err;
 }
 
 static int runtest(unsigned int i) {
@@ -1413,11 +1411,10 @@ static int runtest(unsigned int i) {
 	return ret;
 }
 
-static int launchCrazySAX(unsigned int test, int fail) {
+static int launchCrazySAX(unsigned int test, int fail) 
+{
 	int res = 0, err = 0;
-
 	crazy_indx = test;
-
 	res = saxTest("crazy::test", XML_MAX_LOOKUP_LIMIT - CHUNK, 0, fail);
 	if(res != 0) {
 		nb_errors++;
@@ -1425,16 +1422,14 @@ static int launchCrazySAX(unsigned int test, int fail) {
 	}
 	if(tests_quiet == 0)
 		fprintf(stderr, "%c", crazy[test]);
-
-	return(err);
+	return err;
 }
 
 #ifdef LIBXML_READER_ENABLED
-static int launchCrazy(unsigned int test, int fail) {
+static int launchCrazy(unsigned int test, int fail) 
+{
 	int res = 0, err = 0;
-
 	crazy_indx = test;
-
 	res = readerTest("crazy::test", XML_MAX_LOOKUP_LIMIT - CHUNK, 0, fail);
 	if(res != 0) {
 		nb_errors++;
@@ -1443,7 +1438,7 @@ static int launchCrazy(unsigned int test, int fail) {
 	if(tests_quiet == 0)
 		fprintf(stderr, "%c", crazy[test]);
 
-	return(err);
+	return err;
 }
 
 #endif

@@ -1,0 +1,265 @@
+Activity Code Group;Code Group Description;Activity Code;Activity Description;RU Описание на русском языке;Notification types;Memo
+CDEM;CDE Movements;ML01;Equipment installed;оборудование установлено;S1, S2, S8;
+CDEM;CDE Movements;ML02;Equipment exchanged;оборудование заменено;S1, S2, S8;
+CDEM;CDE Movements;ML03;Support equipment installation;помощь при установке оборудования;S1, S2, S8;
+CDEM;CDE Movements;ML04;Product installed Brix/Ratio/Taste;продукт установлен Brix/Соотношение/Вкус;S1, S2, S8;
+CDEM;CDE Movements;ML05;New labels attached;новые наклейки;S1, S2, S8;
+CDEM;CDE Movements;ML06;New product installed;новый продукт установлен;S1, S2, S8;
+CDEM;CDE Movements;ML07;Water filter station installed;установлены фильтра для воды;S1, S2, S8;
+CDEM;CDE Movements;ML08;System reprogrammed/updated;система перепрограммирована/обновлена;S1, S2, S8;
+CDEM;CDE Movements;ML09;Payment System installed;платежная система установлена;S1, S2, S8;
+CDEM;CDE Movements;MR01;Equipment removed;оборудование возвращено;S1, S2, S8;
+CDEM;CDE Movements;MR02;Support equipment removal;помощь при возврате оборудования;S1, S2, S8;
+CDEM;CDE Movements;MS01;CDE commissioned seasonal;установлено сезонное оборудование;S1, S2, S8;
+CDEM;CDE Movements;MS02;CDE decomissioned seasonal;возвращено сезонное оборудование;S1, S2, S8;
+CDEM;CDE Movements;MO01;Other;Другое;S1, S2, S8;
+CDEM;CDE Movements;MU01;Unproductive placement;Непродуктивная установка;S1, S2, S8;не использовать
+CDEM;CDE Movements;MU02;Unproductive removal;Непродуктивный возврат;S1, S2, S8;не использовать
+CDEM;CDE Movements;MU03;Cancel by cust - wrong model;Отмена установки клиентом -другая модель;S1, S2, S8;непродуктивные коды для Поставщиков или отмены после создания заказа
+CDEM;CDE Movements;MU04;Cancel by cust - equipment damaged;Отмена установки клиентом -повр доставке;S1, S2, S8;непродуктивные коды для Поставщиков или отмены после создания заказа
+CDEM;CDE Movements;MU05;Cancel by cust - equipment not needed;Отмена установки клиентом -ХО не нужно;S1, S2, S8;непродуктивные коды для Поставщиков или отмены после создания заказа
+CDEM;CDE Movements;MU06;Removal cancel - eq. withheld by cust;Отмена снятия клиентом - не отдает;S1, S2, S8;непродуктивные коды для Поставщиков или отмены после создания заказа
+CDEM;CDE Movements;MU07;Removal cancel - need replacement;Отмена снятия клиентом - нужна замена;S1, S2, S8;непродуктивные коды для Поставщиков или отмены после создания заказа
+CDEM;CDE Movements;MU08;Cancel - no sign, stamp, docs;Отмена - нет подписи, печати, документов;S1, S2, S8;непродуктивные коды для Поставщиков или отмены после создания заказа
+CDEM;CDE Movements;MU09;There is not eq. in outlet;Нет оборудования в ТТ;S1, S2, S8;непродуктивные коды для Поставщиков или отмены после создания заказа
+CDEM;CDE Movements;MU10;Not enter becouse dimensions;Не входит по габаритам;S1, S2, S8;непродуктивные коды для Поставщиков или отмены после создания заказа
+CDEM;CDE Movements;MU11;Not exceed becouse dimensions;Не выходит из за габаритов;S1, S2, S8;непродуктивные коды для Поставщиков или отмены после создания заказа
+CDEM;CDE Movements;MU12;Not delivered (should be commented);Не доставлено (причина в комментариях);S1, S2, S8;непродуктивные коды для Поставщиков или отмены после создания заказа
+CDEM;CDE Movements;MU13;Wrong model loaded in WH;Ошибка при загрузке на складе;S1, S2, S8;непродуктивные коды для Поставщиков или отмены после создания заказа
+CDEM;CDE Movements;MU14;By Driver fault;Не успел, не нашел;S1, S2, S8;непродуктивные коды для Поставщиков или отмены после создания заказа
+CDEM;CDE Movements;MU15;Outlet closed;Торговая точка закрыта;S1, S2, S8;непродуктивные коды для Поставщиков или отмены после создания заказа
+CDEM;CDE Movements;MU16;Wrong address, open time in request;Некорректный адрес, время работы в заявк;S1, S2, S8;непродуктивные коды для Поставщиков или отмены после создания заказа
+DELM;CDE Movements delay;MD01;Delay caused by the Supplier;Задержка, вызванная Поставщиком;S1, S2, S8;используется только клерками до создания заказа
+DELM;CDE Movements delay;MD02;Wrong data;Неверные данные ;S1, S2, S8;используется только клерками до создания заказа
+DELM;CDE Movements delay;MD03;Issue with Customer;Проблема с Клиентом;S1, S2, S8;используется только клерками до создания заказа
+DELM;CDE Movements delay;MD04;Customer denial;TT отказалась от доставки;S1, S2, S8;используется только клерками до создания заказа
+DELM;CDE Movements delay;MD05;Asset not available in the outlet;ХО отсутствует в ТТ;S1, S2, S8;используется только клерками до создания заказа
+DELM;CDE Movements delay;MD06;SIZE of THE ASSET - to place or to remove;Габариты ХО;S1, S2, S8;используется только клерками до создания заказа
+DELM;CDE Movements delay;MD07;MSP responsibility;Проблема на стороне Партнера;S1, S2, S8;используется только клерками до создания заказа
+DELM;CDE Movements delay;MD08;Weather conditions / Strike;Плохие погодные условия;S1, S2, S8;используется только клерками до создания заказа
+DELM;CDE Movements delay;MD09;OUTLET CLOSED - despite proper notification;ТТ закрыта;S1, S2, S8;используется только клерками до создания заказа
+DELM;CDE Movements delay;MD10;Wrong Order Details;Некорректная инф. о клиенте в заявке;S1, S2, S8;используется только клерками до создания заказа
+DELM;CDE Movements delay;MD11;Delivery on a specific date out of SLA;Доставка в отдельно указанную дату;S1, S2, S8;используется только клерками до создания заказа
+DELM;CDE Movements delay;MD12;Asset out of stock;Нет оборудования на складе;S1, S2, S8;используется только клерками до создания заказа
+DELM;CDE Movements delay;MD13;Inventory count;Инвентаризация;S1, S2, S8;используется только клерками до создания заказа
+DELM;CDE Movements delay;MD14;Cancelation by CCH;Отменено CCH;S1, S2, S8;используется только клерками до создания заказа
+DELM;CDE Movements delay;MD15;No additional sales approval;Не одобрено (доп одобрение);S1, S2, S8;используется только клерками до создания заказа
+DELM;CDE Movements delay;MD16;No contract;Нет договора;S1, S2, S8;используется только клерками до создания заказа
+DELM;CDE Movements delay;MD17;Customer has lost equipment;Потери на клиенте;S1, S2, S8;используется только клерками до создания заказа
+DELM;CDE Movements delay;MD18;Bad Debts ;Долг более 90 дней;S1, S2, S8;используется только клерками до создания заказа
+DELM;CDE Movements delay;MD19;Customer has Order block;Клиент заблокирован;S1, S2, S8;используется только клерками до создания заказа
+DELM;CDE Movements delay;MD20;Double request;Повторная заявка;S1, S2, S8;используется только клерками до создания заказа
+DELM;CDE Movements delay;MD21;Merger to POS2POS;Объединение в POS2POS;S1, S2, S8;используется только клерками до создания заказа
+DELM;CDE Movements delay;MD22;Exchange not approved by Manager ;Замена не одобрена Менеджером;S1, S2, S8;используется только клерками до создания заказа
+DELM;CDE Movements delay;MD23;Exchange not approved by BSO;Замена не одобрена BSO;S1, S2, S8;используется только клерками до создания заказа
+BCO;Cooling System;BC01;checked functionality;Диагностика;S3;
+BCO;Cooling System;BC02;refrigerant leakage;Утечка хладагента;S3;
+BCO;Cooling System;BC03;compressor fault;Сломан компрессор;S3;
+BCO;Cooling System;BC04;damaged cooling system;Поврежденны детали холодильной системы;S3;
+BCO;Cooling System;BC05;blocked condenser;Грязный конденсатор;S3;
+BCO;Cooling System;BC06;evaporator iced up;Обмерзший испаритель;S3;
+BCO;Cooling System;BC07;motor fault;Поломка мотора;S3;
+BCO;Cooling System;BC08;thermostat fault;Поломка термостата;S3;
+BCO;Cooling System;BC09;capacitor/Relay fault;Поломка реле/конденсатора;S3;
+BCO;Cooling System;BC10;evaporator fan motor fault;Поломка мотора испарителя;S3;
+BCO;Cooling System;BC11;condenser fan motor fault;Поломка мотора конденсатора;S3;
+BDE;Design;BD01;cleaning allover;Чистка полная;S3;
+BDE;Design;BD02;cleaning inside;Чистка внутри;S3;
+BDE;Design;BD03;cleaning outside;Чистка снаружи;S3;
+BDE;Design;BD04;painting allover;Окраска полная;S3;
+BDE;Design;BD05;painting inside;Окраска внутри;S3;
+BDE;Design;BD06;painting outside;Окраска снаружи;S3;
+BDE;Design;BD07;rebranding side sticker;Замена боковых стикеров;S3;
+BDE;Design;BD08;change canopy;Замена логотипа;S3;
+BDE;Design;BD09;change front glass;Замена стеклопакета;S3;
+BDE;Design;BD10;change shelves;Замена полок;S3;
+BEC;Electronics;BA01;checked functionality;Диагностика;S3;
+BEC;Electronics;BA02;set up electronics;Настройка электроники;S3;
+BEC;Electronics;BA03;damaged parts;Сломанные детали;S3;
+BEC;Electronics;BA04;control board fault;Поломка платы управления;S3;
+BEC;Electronics;BA05;sensor fault;Поломка датчика;S3;
+BEC;Electronics;BA06;display fault;Неисправность дисплея;S3;
+BEL;Electrical system;BE01;checked functionality;Диагностика;S3;
+BEL;Electrical system;BE02;power supply;Внешнее питание;S3;
+BEL;Electrical system;BE03;damaged parts;Сломанные детали;S3;
+BEL;Electrical system;BE04;lights faulty;Неисправность ламп;S3;
+BEL;Electrical system;BE05;contactor/relay fault;Неисправность реле;S3;
+BEL;Electrical system;BE06;portable appliance test;Измерения портативн. прибором;S3;
+BEL;Electrical system;EC01;Electrical compliance;напряжение сети;S3;
+BEL;Electrical system;EC02;wiring fault;Неисправность проводки;S3;
+BGA;Gas (CO2) system;BG01;check system;Проверка системы;S3;
+BGA;Gas (CO2) system;BG02;gas leakage;Утечка СО2;S3;
+BGA;Gas (CO2) system;BG03;gas tank empty;Пустой баллон СО2;S3;
+BGA;Gas (CO2) system;BG04;damaged gas system parts;Поврежденные детали системы СО2;S3;
+BHO;Hot drink system;BH01;check system;Проверка системы;S3;
+BHO;Hot drink system;BH02;heating systema;Система нагрева;S3;
+BHO;Hot drink system;BH03;dosing system;Система дозирования;S3;
+BHO;Hot drink system;BH04;filter sieve;Сетчатый фильтр;S3;
+BHO;Hot drink system;BH05;product container;Контейнер для продукта;S3;
+BHO;Hot drink system;BH06;product hose blocked;Засорилась труба подачи продукта;S3;
+BHO;Hot drink system;BH07;coffee grinder;Кофемолка;S3;
+BME;Measurements;BX01;quality measurement;Проверка качества;S3;
+BME;Measurements;BX02;electrical measurement;Электрические измерения;S3;
+BMI;Miscellaneous;BI01;no fault found;Неисправности не найдены;S3;
+BMI;Miscellaneous;BI02;telephone fix;Ремонт по телефону;S3;
+BMI;Miscellaneous;BI03;equipment location unsuitable;Неудобное размещение об-я;S3;
+BMI;Miscellaneous;BI04;site survey;Осмотр места;S3;
+BMS;Mechanical System;BM01;checked functionality;Диагностика;S3;
+BMS;Mechanical System;BM02;damaged parts;Сломанные детали;S3;
+BMS;Mechanical System;BM03;sealing issues;Проблемы с уплотнением;S3;
+BMS;Mechanical System;BM04;water leakage;Утечка воды;S3;
+BMS;Mechanical System;BM05;aesthetical issues;Повреждения не влияющие на работоспособность оборудования;S3;
+BMS;Mechanical System;BM06;pump fault;Неисправность помпы;S3;
+BMS;Mechanical System;BM07;water filter change;Замена фильтра воды;S3;
+BMS;Mechanical System;BM08;lock mechanism fault;Поломка  замка ;S3;
+BMS;Mechanical System;BM09;drains blocked;Поломка дренажа;S3;
+BMS;Mechanical System;BM10;door repairs;Ремонт двери;S3;
+BOH;OTHERS;BO02;accessories install/remove;Установка/снятие опций;S3;
+BOH;OTHERS;BO03;repair impossible -> removal;Ремонт не возможен -> снятие;S3;
+BOH;OTHERS;BO04;spare part missing (need to be ordered);Отсутсвуют запасные части (требуется заказать);S3;
+BOH;OTHERS;BO05;Unproductive repair;Не выполненный ремонт;S3;
+BOH;OTHERS;BO07;ad-hoc PM;Внеплановый визит;S3;
+BOH;OTHERS;BO08;Wrong Call (ICM functions properly);Необосн вызов (Оборудование исправно);S3;
+BOH;OTHERS;BO09;Wrong Call (Asset not exists in Outlet);Необосн выезд (ХО отсутствует в лиентом);S3;
+BOH;OTHERS;BO10;Wrong Call by Customer (Outlet Seasonal);Необосн вызов (Сезонная работа клиентом);S3;
+BOH;OTHERS;BO11;Wrong Call (ICM not usable by owner);Необосн вызов (ХО не используется);S3;
+BOH;OTHERS;BO12;Wrong Call by Cust(Wrong Outlet Details);Необосн вызов (Некорр. данные клиентом);S3;
+BOH;OTHERS;BO13;Wrong Call by Customer (Fixed by owner);Необосн вызов (ХО отремонт. торг.точкой);S3;
+BOH;OTHERS;BO14;Wrong Call (Wrong Order Details);Необосн вызов (Некорр. данные в заявке);S3;
+BOH;OTHERS;BO15;Wrong Call (Owner do not want repairing);Необосн вызов (Отказался от ремонта);S3;
+BVE;Vending system;BV01;check system;Проверка системы;S3;
+BVE;Vending system;BV02;damaged parts;Сломанные детали;S3;
+BVE;Vending system;BV03;out of stock;Продукт отсутсвует;S3;
+BVE;Vending system;BV04;product jam;Продукт застрял;S3;
+BVE;Vending system;BV05;column set-up/change shims;Замена конфигурации колонок;S3;
+BVE;Vending system;BV06;product change;Замена продукта;S3;
+BVE;Vending system;BV07;vending switch fault;Неисправность реле;S3;
+BPA;Payment System;BP01;check system;Проверка системы;S3;
+BPA;Payment System;BP02;coin jam;Монета застряла;S3;
+BPA;Payment System;BP03;coin validation defect;Не определяется номинал монеты;S3;
+BPA;Payment System;BP04;change giver fault/wrong change;Сдача не правильная;S3;
+BPA;Payment System;BP05;out of change;Сдача отсутсвует;S3;
+BPA;Payment System;BP06;money card/key reader defect;Сломан считыватель карт;S3;
+BPA;Payment System;BP07;sales price change;Замена цены;S3;
+BPA;Payment System;BP08;mobile module damaged;Сломан GSM модуль;S3;
+BPA;Payment System;BP09;dirty mech;Грязный механизм;S3;
+PMS;Post Mix System;PM01;system checked;Проверка системы;S3;
+PMS;Post Mix System;PM02;set ratio;Соотношение сироп/вода;S3;
+PMS;Post Mix System;PM03;faulty tanks;Неисправность танка;S3;
+PMS;Post Mix System;PM04;gas leak;Утечка газа;S3;
+PMS;Post Mix System;PM05;product change;Замена продукта;S3;
+PMS;Post Mix System;PM06;product leak;Утечка сиропа;S3;
+PMS;Post Mix System;PM07;disconnect fault;Неисправность разъемов;S3;
+PMS;Post Mix System;PM08;gas regulator fault;Неисправность газ.  редуктора;S3;
+PMS;Post Mix System;PM09;s/s recirculation pump fault;Неисправность рециркул. помпы;S3;
+PMS;Post Mix System;PM10;faulty bag/box;Повреждения  BIB;S3;
+BVA;Vandalism;VA01;Vandalism Repair;Ремонт;S3;
+DEL;Delay service;DS01;Delay of the Supplier’s technicians;Задержка техником Поставщика;S3;
+DEL;Delay service;DS02;Lack of Spare Parts;Отсутствие зап.частей;S3;
+DEL;Delay service;DS03;Issue with Customer;Проблема с Клиентом;S3;
+DEL;Delay service;DS04;Outlet Owner Request;TT отказалась от ремонта;S3;
+DEL;Delay service;DS05;Weather conditions;Плохие погодные условия;S3;
+DEL;Delay service;DS06;Wrong outlet details;Некорректная инф. о клиенте в заявке;S3;
+DEL;Delay service;DS07;Missing Product;ХО отсутствует в ТТ;S3;
+DEL;Delay service;DS08;Double request;Повторная заявка;S3;
+DEL;Delay service;DS09;Telefix;Проблема решена по телефону;S3;
+PREV;Preventive maintenance;PV01;Sanitation on CCH equipment fountain;Санитаризация Пост Микс ССН;S4, SP;
+PREV;Preventive maintenance;PV02;Sanitation on 3rd party EQ fountain;Санитаризация Пост Микс не ССН;S4, SP;
+PREV;Preventive maintenance;PV03;Maintenance on CCH equipment cooler;Профилактика х-ка ССН;S4, SP;
+PREV;Preventive maintenance;PV04;Maintenance on 3rd party EQ cooler;Профилактика х-ка не ССН;S4, SP;
+PREV;Preventive maintenance;PV05;Maintenance on CCH equipment vending;Профилактика ТА ССН;S4, SP;
+PREV;Preventive maintenance;PV06;Maintenance on 3rd party EQ vending;Профилактика ТА на ССН;S4, SP;
+PREV;Preventive maintenance;PV07;Control visit;Проверочный визит;S4, SP;
+PREV;Preventive maintenance;PV08;Quality check fountain;Проверка качества напитка из Пост Микс;S4, SP;
+PREV;Preventive maintenance;PV09;Sanitation on CCH water dispenser;Санитаризация водного диспенцера ССН;S4, SP;
+PREV;Preventive maintenance;PV10;Sanitation on 3rd party water dispenser;Санитаризация водного диспенцера не ССН;S4, SP;
+PREV;Preventive maintenance;PV11;product installed Brix/Ratio/taste;Подключение продукта/соотношение/вкус;S4, SP;
+PREV;Preventive maintenance;PV12;new labels attached;Нанесение новых наклеек;S4, SP;
+PREV;Preventive maintenance;PV13;new product installed;Подключение нового оборудования;S4, SP;
+PREV;Preventive maintenance;PV14;water filter station installed;Установка фильтрационной системы;S4, SP;
+PREV;Preventive maintenance;PV15;system reprogrammed/updated;Перепрограммирование системы;S4, SP;
+PREV;Preventive maintenance;PV16;CDE commissioned seasonal;Консервация сезонного оборудования;S4, SP;
+PREV;Preventive maintenance;PV17;CDE decomissioned seasonal;Расконсервация сезонного оборудования;S4, SP;
+PREV;Preventive maintenance;PV18;Unproductive preventive call;Не выполненная профилактика;S4, SP;
+PREV;Preventive maintenance;PV19;Water quality certificate;Заключение о качестве воды;S4, SP;
+PREV;Preventive maintenance;PV20;Samples after sanitary;Отбор проб после санитаризации;S4, SP;
+PREV;Preventive maintenance;PV21;Manometers replacement ;Замена манометров;S4, SP;
+PREV;Preventive maintenance;PV22;Filters replacement;Замена фильтра;S4, SP;
+PREV;Preventive maintenance;EC01;Electrical compliance;напряжение сети;S4, SP;
+PREV;Preventive maintenance;RF01;EMD installation (retrofitting);Установка EMD (модернизация);S4, SP;
+DEL;Delay service;DS01;Delay of the Supplier’s technicians ;Задержка техником Поставщика;S4, SP;
+DEL;Delay service;DS02;Lack of Spare Parts ;Отсутствие зап.частей;S4, SP;
+DEL;Delay service;DS03;Issue with Customer;Проблема с Клиентом;S4, SP;
+DEL;Delay service;DS04;Outlet Owner  Request;По просьбе владельца ТТ;S4, SP;
+DEL;Delay service;DS05;Weather conditions;Погодные условия;S4, SP;
+DEL;Delay service;DS06;Wrong outlet details;Неправильные   данные клиента;S4, SP;
+DEL;Delay service;DS07;Missing Product;Отсутствует продукт;S4, SP;
+RAL;Electronics;RA1;check;Проверка;S5;
+RAL;Electronics;RA2;repair damaged parts;Ремонт сломанных деталей;S5;
+RAL;Electronics;RA3;repair system set-up;Ремонт системы установки;S5;
+RCO;Cooling System;RC1;check;Проверка;S5;
+RCO;Cooling System;RC2;repair refrigerant circuit;Ремонт холодильного контура;S5;
+RCO;Cooling System;RC3;repair compressor;Ремонт компрессора;S5;
+RCO;Cooling System;RC4;repair damaged parts;Ремонт сломанных деталей;S5;
+REL;Electrical System;RE1;check;Проверка;S5;
+REL;Electrical System;RE2;repair power supply;Ремонт системы питания;S5;
+REL;Electrical System;RE3;repair damaged parts;Ремонт сломанных деталей;S5;
+REL;Electrical System;EC01;Electrical compliance;напряжение сети;S5;
+RGA;Gas (CO2) System;RG1;check;Проверка;S5;
+RGA;Gas (CO2) System;RG2;repair damaged parts;Ремонт сломанных деталей;S5;
+RHO;Hot drink System;RH1;check;Проверка;S5;
+RHO;Hot drink System;RH2;repair heating;Ремонт нагревателя;S5;
+RHO;Hot drink System;RH3;repair mill;Ремонт мельницы;S5;
+RHO;Hot drink System;RH4;repair filter sieve;Ремонт сетчатого фильтра;S5;
+RHO;Hot drink System;RH5;repair product container;Ремонт контейнера для продукта;S5;
+RHO;Hot drink System;RH6;repair product hose cleaned;Чистка трубы подачи продукта;S5;
+RME;Measurements;RX1;Quality measurement;Проверка качества;S5;
+RME;Measurements;RX2;Electrical measurement;Электрические измерения;S5;
+RMS;Mechanical System;RM1;check;Проверка;S5;
+RMS;Mechanical System;RM2;repair damaged parts;Ремонт сломанных деталей;S5;
+RMS;Mechanical System;RM3;repair water leakage;Устранение утечки воды;S5;
+RMS;Mechanical System;RM4;repair aestetical issues;Повреждения не влияющие на работоспособность оборудования;S5;
+ROT;Others;RP1;accessories installation/remove;Установка/снятие опций;S5;
+ROT;Others;RP2;other;Прочее;S5;
+ROT;Others;RU01;Unproductive refurbishment call;Не выполненный ремонт;S5;
+ROT;Others;RF01;EMD installation (retrofitting);Установка EMD (модернизация);S5;
+ROT;Others;RB1;Rebranding;Ребрендинг;S5;
+RPA;Payment System;RY1;check;Проверка;S5;
+RPA;Payment System;RY2;repair damaged parts;Ремонт сломанных деталей;S5;
+RPA;Payment System;RY3;repair coin mechanism;Ремонт монетоприемника;S5;
+RPA;Payment System;RY4;repair money card/key reader;Ремонт считывателя карт;S5;
+RPA;Payment System;RY5;repair mobile module damaged;Ремонт GSM модуля;S5;
+RRD;Astetics;RD1;Washing allover;Мойка полная;S5;
+RRD;Astetics;RD2;Washing inside;Мойка внутри;S5;
+RRD;Astetics;RD3;Washing outside;Мойка снаружи;S5;
+RRD;Astetics;RD4;Painting allover;Окраска полная;S5;
+RRD;Astetics;RD5;Painting inside;Окраска внутри;S5;
+RRD;Astetics;RD6;Painting outside;Окраска снаружи;S5;
+RVE;Vending system;RV1;check;Проверка;S5;
+RVE;Vending system;RV2;repair damaged parts;Ремонт сломанных деталей;S5;
+RVE;Vending system;RV3;repair shaft adjusted;Ремонт регулирующего вала;S5;
+DEL;Delay service;DS01;Delay of the Supplier’s technicians ;Задержка техником Поставщика;S5;
+DEL;Delay service;DS02;Lack of Spare Parts ;Отсутствие зап.частей;S5;
+DEL;Delay service;DS03;Issue with Customer;Проблема с Клиентом;S5;
+DEL;Delay service;DS04;Outlet Owner  Request;По просьбе владельца ТТ;S5;
+DEL;Delay service;DS05;Weather conditions;Погодные условия;S5;
+DEL;Delay service;DS06;Wrong outlet details;Неправильные   данные клиента;S5;
+DEL;Delay service;DS07;Missing Product;Отсутствует продукт;S5;
+POS2POS;Pos 2 Pos;POS;Pos 2 Pos movement;Перемещение между торговыми точками;S6;
+POS2POS;Pos 2 Pos;MU01;Unproductive placement;Не состоявшаяся установка;S6;
+POS2POS;Pos 2 Pos;MU02;Unproductive removal;Не состоявшееся снятие;S6;
+DELM;CDE Movements delay;MD01;Delay caused by the Supplier ;Задержка, вызванная Поставщиком;S6;
+DELM;CDE Movements delay;MD02;Wrong data;Неверные данные ;S6;
+DELM;CDE Movements delay;MD03;Issue with Customer;Проблема с Клиентом;S6;
+PLPL;Plant to plant;IW01;Inter warehouse movement;Межскладское перемещение;S9;не применяется в России
+DELM;CDE Movements delay;MD01;Delay caused by the Supplier ;Задержка, вызванная Поставщиком;S9;не применяется в России
+DELM;CDE Movements delay;MD02;Wrong data;Неверные данные ;S9;не применяется в России
+DELM;CDE Movements delay;MD03;Issue with Customer;Проблема с Клиентом;S9;не применяется в России
+AIN;Accesoaries installation;AI1;Accesoaries installed;Установка аксессуаров;SA;
+DEL;Delay service;DS01;Delay of the Supplier’s technicians ;Задержка техником Поставщика;SA;
+DEL;Delay service;DS02;Lack of Spare Parts ;Отсутствие зап.частей;SA;
+DEL;Delay service;DS03;Issue with Customer;Проблема с Клиентом;SA;
+DEL;Delay service;DS04;Outlet Owner  Request;По просьбе владельца ТТ;SA;
+DEL;Delay service;DS05;Weather conditions;Погодные условия;SA;
+DEL;Delay service;DS06;Wrong outlet details;Неправильные   данные клиента;SA;
+DEL;Delay service;DS07;Missing Product;Отсутствует продукт;SA;

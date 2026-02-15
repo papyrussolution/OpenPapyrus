@@ -1,5 +1,5 @@
 // V_AMTTYP.CPP
-// Copyright (c) A.Starodub 2010, 2012, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2025
+// Copyright (c) A.Starodub 2010, 2012, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2025, 2026
 // @codepage UTF-8
 // Типы сумм документа
 //
@@ -154,9 +154,9 @@ public:
 			SString word;
 			ListWindow * p_lw = CreateListWindow_Simple(lbtDblClkNotify|lbtFocNotify);
 			PPLoadString("vat", word);
-			p_lw->listBox()->addItem(GTAX_VAT, word);
+			p_lw->GetListBox()->addItem(GTAX_VAT, word);
 			PPLoadString("salestax", word);
-			p_lw->listBox()->addItem(GTAX_SALES, word);
+			p_lw->GetListBox()->addItem(GTAX_SALES, word);
 			p_cb_tax->setListWindow(p_lw);
 		}
 		SetupPPObjCombo(this, CTLSEL_AMOUNTTYPE_REFAMT, PPOBJ_AMOUNTTYPE, 0, 0, 0);

@@ -163,14 +163,22 @@ const BNField & BNFieldList2::GetFieldByName(const char * pName, uint * pPos/*= 
 
 RECORDSIZE BNFieldList2::CalculateFixedRecSize(uint flags/*BNFieldList2::crsfXXX*/) const
 {
-	RECORDSIZE s = 0;
+	RECORDSIZE result = 0;
 	for(uint i = 0; i < count; i++) {
-		const TYPEID tid = at(i).T;
+		const BNField & r_bf = at(i);
+		const TYPEID tid = r_bf.T;
 		const int t = GETSTYPE(tid);
-		if(!oneof2(t, S_BLOB, S_CLOB) && (t != S_NOTE || (flags & crsfIncludeNote))) // @stypeset
-			s += static_cast<RECORDSIZE>(stsize(tid));
+		bool  skip = false;
+		if(oneof2(t, S_BLOB, S_CLOB) || (t == S_NOTE && !(flags & crsfIncludeNote))) { // @stypeset
+			skip = true;
+		}
+		else if(!(flags & crsfIncludeSurrogateRowId) && sstreq(r_bf.Name, SlConst::P_SurrogateRowIdFieldName)) { // @v12.5.6
+			skip = true;
+		}
+		if(!skip)
+			result += static_cast<RECORDSIZE>(stsize(tid));
 	}
-	return s;
+	return result;
 }
 
 int BNFieldList2::setFieldId(uint fldNo/* 0..(count-1)*/, int fldId)

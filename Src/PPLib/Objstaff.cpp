@@ -1244,7 +1244,7 @@ int PPObjStaffList::EditFixedStaffPost(PPID orgID)
 		ListWindow * p_lw = 0;
 		THROW_MEM(p_list);
 		THROW(sl_obj.MakePostStrAssocList(orgID, divID, staffID, p_list));
-		THROW_MEM(p_lw = new ListWindow(new StrAssocListBoxDef(p_list, lbtDisposeData|lbtDblClkNotify)));
+		THROW_MEM(p_lw = new ListWindow(new StrAssocListBoxDef(p_list, lbtDisposeData|lbtDblClkNotify), 0));
 		p_combo->setListWindow(p_lw, id);
 		ok = 1;
 	}

@@ -1811,20 +1811,20 @@ table Workbook {
 	autolong ID;
 	string Name[128];
 	string Symb[20];
-	long   Type;
-	long   ParentID;
+	long   Type;          // PPWBTYP_XXX
+	long   ParentID;      // ->Workbook.ID
 	long   LinkID;
 	long   CssID;
 	long   Rank;
-	long   Flags;
+	long   Flags;          // PPWBF_XXX 
 	int16  KeywordCount;   // Количество ключевых слов в генерируемой заглушке для crawler
 	int16  KeywordDilute;  // Параметр разжижения ключевых слов в генерируемой заглушке для crawler
 	date   Dt;             // @v8.1.6
 	time   Tm;             // @v8.1.6
 	string Version[8];     // @v8.2.0 Символ версии записи
 	long   OwnerGuaID;     // @v9.3.7 ->Ref(PPOBJ_GLOBALUSERACC) Глобальная учетная запись, владеющая узлом и его потомками
-	raw    Reserve[24];
-	blob   VT[2048];
+	raw    Reserve[32];    // @v12.5.6 [24]-->[32]
+	// @v12.5.6 blob   VT[2048];
 index:
 	ID (unique);                           // #0
 	Name acs (unique mod);                 // #1
@@ -1834,9 +1834,9 @@ index:
 	Symb acs (allsegnull unique mod);      // #5
 file:
 	"workbook.btr";
-	vlr;
+	// @v12.5.6 vlr;
 	acstable = "rusncase.alt";
-	access=1;
+	// @v12.5.6 @unused access=1;
 }
 //
 // Project management

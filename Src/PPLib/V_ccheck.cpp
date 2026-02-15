@@ -984,7 +984,7 @@ int PPViewCCheck::ProcessCheckRec(const CCheckTbl::Rec * pRec, BExtInsert * pBei
 					bool suitable_by_mark = (Filt.Flags & CCheckFilt::fWithMarkOnly) ? false : true;
 					StrAssocArray text_by_row_list;
 					if(Filt.Flags & CCheckFilt::fWithMarkOnly) {
-						PPRef->UtrC.SearchUtf8(TextRefIdent(PPOBJ_CCHECK, rec.ID, PPTRPROP_CC_LNEXT), temp_buf);
+						PPRef->UtrC.SearchUtf8(SObjTextRefIdent(PPOBJ_CCHECK, rec.ID, PPTRPROP_CC_LNEXT), temp_buf);
 						temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 						CCheckPacket::Helper_UnpackTextExt(temp_buf, 0, &text_by_row_list);
 					}
@@ -2075,7 +2075,7 @@ int FASTCALL PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 								bool suitable_by_goods = (State & stUseGoodsList) ? false : true;
 								bool suitable_by_mark  = (Filt.Flags & CCheckFilt::fWithMarkOnly) ? false : true;
 								if(Filt.Flags & CCheckFilt::fWithMarkOnly) {
-									PPRef->UtrC.SearchUtf8(TextRefIdent(PPOBJ_CCHECK, _rec.ID, PPTRPROP_CC_LNEXT), temp_buf);
+									PPRef->UtrC.SearchUtf8(SObjTextRefIdent(PPOBJ_CCHECK, _rec.ID, PPTRPROP_CC_LNEXT), temp_buf);
 									temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 									CCheckPacket::Helper_UnpackTextExt(temp_buf, 0, &text_by_row_list);
 									text_by_row_list_loaded = true;
@@ -2110,7 +2110,7 @@ int FASTCALL PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 						}
 						if(suitable) {
 							if(!text_by_row_list_loaded) {
-								PPRef->UtrC.SearchUtf8(TextRefIdent(PPOBJ_CCHECK, _rec.ID, PPTRPROP_CC_LNEXT), temp_buf);
+								PPRef->UtrC.SearchUtf8(SObjTextRefIdent(PPOBJ_CCHECK, _rec.ID, PPTRPROP_CC_LNEXT), temp_buf);
 								temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 								CCheckPacket::Helper_UnpackTextExt(temp_buf, 0, &text_by_row_list);
 								text_by_row_list_loaded = true;
@@ -2666,7 +2666,7 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			if(r_col.OrgOffs == 5) { // ccheck-code // @v12.3.4
 				if(p_row->CashID == PPPOSN_SHADOW) { // Зарезервированный ид кассового узла для теневых чеков егаис
 					SString temp_buf;
-					PPRef->UtrC.SearchUtf8(TextRefIdent(PPOBJ_CCHECK, p_row->ID, PPTRPROP_CC_LNEXT), temp_buf);
+					PPRef->UtrC.SearchUtf8(SObjTextRefIdent(PPOBJ_CCHECK, p_row->ID, PPTRPROP_CC_LNEXT), temp_buf);
 					temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 					PPExtStrContainer sc;
 					CCheckPacket::Helper_UnpackTextExt(temp_buf, &sc, 0);
@@ -4268,7 +4268,7 @@ int PPViewCCheck::EditItemInfo(PPID id)
 				if(dr & 0x0010) {
 					SString new_cctext;
 					pack.PackTextExt(new_cctext);
-					THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_CCHECK, pack.Rec.ID, PPTRPROP_CC_LNEXT), new_cctext.Transf(CTRANSF_INNER_TO_UTF8), 0));
+					THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(PPOBJ_CCHECK, pack.Rec.ID, PPTRPROP_CC_LNEXT), new_cctext.Transf(CTRANSF_INNER_TO_UTF8), 0));
 				}
 				// } @v12.2.8 
 				THROW(tra.Commit());

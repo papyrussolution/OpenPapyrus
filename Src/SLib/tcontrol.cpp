@@ -875,13 +875,15 @@ void TInputLine::InputStat::CheckIn()
 {
 	TInputLine * p_view = static_cast<TInputLine *>(TView::GetWindowUserData(hWnd));
 	switch(uMsg) {
-		case WM_DESTROY: p_view->OnDestroy(hWnd); return 0;
+		case WM_DESTROY: 
+			CALLPTRMEMB(p_view, OnDestroy(hWnd));
+			return 0;
 		case WM_COMMAND:
 			if(HIWORD(wParam) == 1)
 				::SendMessageW(APPL->H_TopOfStack, uMsg, wParam, lParam);
 			break;
 		case WM_CHAR:
-			if(p_view->GetCombo() || p_view->HasWordSelector()) {
+			if(p_view && (p_view->GetCombo() || p_view->HasWordSelector())) {
 				if(!oneof2(wParam, VK_ESCAPE, VK_RETURN)) {
 					if(!oneof2(wParam, '+', '-'))
 						p_view->SendToParent(hWnd, uMsg, wParam, reinterpret_cast<LPARAM>(hWnd));
@@ -889,34 +891,47 @@ void TInputLine::InputStat::CheckIn()
 				}
 			}
 			break;
-		case WM_KEYUP: p_view->SendToParent(hWnd, uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); break;
+		case WM_KEYUP: 
+			CALLPTRMEMB(p_view, SendToParent(hWnd, uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)));
+			break;
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
-			{
-				const long _style = TView::SGetWindowStyle(hWnd);
-				const bool _ml = LOGIC(_style & ES_MULTILINE);
-				const int _k = wParam;
+			if(p_view) {
+				const  long _style = TView::SGetWindowStyle(hWnd);
+				const  bool _ml = LOGIC(_style & ES_MULTILINE);
+				const  bool is_ws_visible = p_view->IsWsVisible();
+				const  int  _k = wParam;
 				if(_k == VK_DOWN) {
 					if(p_view->P_WordSel) {
-						if(p_view->IsWsVisible())
+						if(is_ws_visible)
 							p_view->P_WordSel->Activate();
 						else if(p_view->P_OuterWordSelBlk && p_view->P_OuterWordSelBlk->Flags & WordSel_ExtraBlock::fFreeText)
 							p_view->P_WordSel->ViewRecent();
 					}
 				}
-				else if(p_view->IsWsVisible() && _k == VK_ESCAPE) {
+				else if(is_ws_visible && _k == VK_ESCAPE) {
 					//p_view->SendToParent(hWnd, WM_COMMAND, MAKEWPARAM(IDCANCEL, BN_CLICKED), p_view->Id);
 				}
-				else if(p_view->IsWsVisible() && _k == VK_RETURN) {
+				else if(is_ws_visible && _k == VK_RETURN) {
 				}
 				if((_k >= VK_F1 && _k <= VK_F12) || (!_ml && oneof6(_k, VK_ADD, VK_SUBTRACT, VK_DOWN, VK_UP, VK_PRIOR, VK_NEXT)) ||
 					((p_view->GetCombo() || p_view->HasWordSelector()) && _k == VK_DELETE) ||
-					(_k == VK_RETURN && (0x8000 & GetKeyState(VK_CONTROL)))) {
+					(_k == VK_RETURN && (GetKeyState(VK_CONTROL) & 0x8000))) {
 					p_view->SendToParent(hWnd, WM_VKEYTOITEM, MAKELPARAM((WORD)_k, 0), reinterpret_cast<LPARAM>(hWnd));
 					return 0;
 				}
-				else if(!oneof2(_k, VK_ESCAPE, VK_RETURN))
-					p_view->SendToParent(hWnd, WM_USER_KEYDOWN, MAKELPARAM((WORD)_k, 0), reinterpret_cast<LPARAM>(hWnd));
+				else {
+					bool   local_skip = false;
+					if(_k == VK_ESCAPE)
+						local_skip = true;
+					else if(_k == VK_RETURN) {
+						if(!(p_view->SpcFlags & spcfSendReturnToOwner) || (p_view->SpcFlags & spcfWantReturn))
+							local_skip = true;
+					}
+					if(!local_skip) {
+						p_view->SendToParent(hWnd, WM_USER_KEYDOWN, MAKELPARAM((WORD)_k, 0), reinterpret_cast<LPARAM>(hWnd));
+					}
+				}
 			}
 			break;
 		case WM_LBUTTONDBLCLK:
@@ -1198,7 +1213,6 @@ TInputLine::~TInputLine()
 }
 
 const char * TInputLine::getText() { return Data.cptr(); }
-ComboBox * TInputLine::GetCombo() { return P_Combo; }
 
 bool TInputLine::SetupMaxTextLen(uint maxTextLen)
 {
@@ -2085,20 +2099,20 @@ void ComboBox::setupListWindow(int noUpdateSize)
 	if(P_ListWin) {
 		HWND   h_box = P_ListWin->H();
 		HWND   h_list = GetDlgItem(h_box, CTL_LBX_LIST);
-		RECT   link_rect, list_rect;
-		GetWindowRect(P_ILink->getHandle(), &link_rect);
-		GetWindowRect(getHandle(), &list_rect);
+		RECT   link_rect;
+		RECT   list_rect;
+		::GetWindowRect(P_ILink->getHandle(), &link_rect);
+		::GetWindowRect(getHandle(), &list_rect);
 		link_rect.right = list_rect.right;
-		GetWindowRect(h_box, &list_rect);
+		::GetWindowRect(h_box, &list_rect);
 		int    h = P_Def ? ((P_Def->ViewHight + 1) * ::SendMessageW(h_list, LB_GETITEMHEIGHT, 0, 0)) : (list_rect.bottom - list_rect.top);
-		int    screen_y = GetSystemMetrics(SM_CYFULLSCREEN);
-		int    top = ((link_rect.bottom + h) < screen_y) ? link_rect.bottom : screen_y-h;
-		MoveWindow(h_box, link_rect.left, top, (link_rect.right - link_rect.left), h, 1);
-		GetClientRect(h_box, &list_rect);
+		const  int screen_y = GetSystemMetrics(SM_CYFULLSCREEN);
+		const  int top = ((link_rect.bottom + h) < screen_y) ? link_rect.bottom : screen_y-h;
+		::MoveWindow(h_box, link_rect.left, top, (link_rect.right - link_rect.left), h, 1);
+		::GetClientRect(h_box, &list_rect);
 		list_rect.right -= GetSystemMetrics(SM_CXVSCROLL);
-		MoveWindow(h_list, 0, 0, list_rect.right, list_rect.bottom, 1);
-		MoveWindow(GetDlgItem(h_box, MAKE_BUTTON_ID(CTL_LBX_LIST, 1)), list_rect.right, 0,
-			GetSystemMetrics(SM_CXVSCROLL), list_rect.bottom, 1);
+		::MoveWindow(h_list, 0, 0, list_rect.right, list_rect.bottom, 1);
+		::MoveWindow(GetDlgItem(h_box, MAKE_BUTTON_ID(CTL_LBX_LIST, 1)), list_rect.right, 0, GetSystemMetrics(SM_CXVSCROLL), list_rect.bottom, 1);
 	}
 }
 
@@ -2106,7 +2120,7 @@ void ComboBox::setupTreeListWindow(int noUpdateSize)
 {
 	if(P_ListWin) {
 		RECT   rect;
-		GetWindowRect(getHandle(), &rect);
+		::GetWindowRect(getHandle(), &rect);
 		P_ListWin->Move_(P_ILink->getHandle(), rect.right);
 	}
 }
@@ -2125,7 +2139,7 @@ int ComboBox::setListWindow(ListWindow * pListWin)
 		else
 			delete P_ListWin;
 		P_ListWin = pListWin;
-		P_ListWin->P_Lb->combo = this;
+		P_ListWin->P_Lb->P_Combo = this;
 	}
 	else
 		ok = 0;
@@ -2342,7 +2356,7 @@ int ComboBox::TransmitData(int dir, void * pData)
 			SETFLAG(State, stNoDefZero, !NoDefID);
 		}
 		else if(P_ListWin) {
-			SmartListBox * p_lb = P_ListWin->listBox();
+			SmartListBox * p_lb = P_ListWin->GetListBox();
 			p_lb->TransmitData(dir, pData);
 			SETFLAG(State, stUndef, !(p_lb->State & SmartListBox::stDataFounded));
 			if(P_ILink) {
@@ -2368,8 +2382,8 @@ int ComboBox::TransmitData(int dir, void * pData)
 		}
 	}
 	else if(dir < 0) {
-		if(P_ListWin && !(State & stUndef) && P_ListWin->listBox()->P_Def)
-			P_ListWin->listBox()->TransmitData(dir, pData);
+		if(P_ListWin && !(State & stUndef) && P_ListWin->GetListBox()->P_Def)
+			P_ListWin->GetListBox()->TransmitData(dir, pData);
 		else if(P_Def == 0 && NoDefID)
 			*static_cast<long *>(pData) = NoDefID;
 		else if(P_Def == 0 && State & stNoDefZero)
@@ -2658,9 +2672,9 @@ int TToolTip::GetTool(uint idx, ToolItem & rItem)
 		INITWINAPISTRUCT(ti);
 		ti.lpszText = static_cast<TCHAR *>(text_buf.vptr());
 		if(::SendMessageW(H, TTM_ENUMTOOLS, idx, reinterpret_cast<LPARAM>(&ti))) {
-			rItem.Id = ti.uId;
+			rItem.Id = static_cast<uint>(ti.uId);
 			rItem.H = ti.hwnd;
-			rItem.Param = ti.lParam;
+			rItem.Param = static_cast<long>(ti.lParam);
 			rItem.R = ti.rect;
 			rItem.Text = SUcSwitch(static_cast<TCHAR *>(text_buf.vptr()));
 			ok = 1;

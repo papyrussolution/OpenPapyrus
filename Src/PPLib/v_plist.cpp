@@ -2718,7 +2718,7 @@ int EditPriceListConfig()
 			PPGetExtStrData(fld_list[idx], goods_ex_titles, item_buf);
 			if(item_buf.IsEmpty())
 				item_buf.CatChar('A'+idx);
-			p_lw->listBox()->addItem(fld_list[idx], item_buf);
+			p_lw->GetListBox()->addItem(fld_list[idx], item_buf);
 		}
 		p_cb->setListWindow(p_lw, cfg.ExtFldMemoSubst);
 	}

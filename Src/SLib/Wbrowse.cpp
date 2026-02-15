@@ -290,6 +290,10 @@ int TBaseBrowserWindow::Launch_(TWindow * pParent)
 		buf.Transf(CTRANSF_INNER_TO_OUTER);
 	DWORD  ex_style = 0/*WS_EX_CONTROLPARENT*//*WS_EX_COMPOSITED*/; // @v12.5.4 WS_EX_CONTROLPARENT
 	DWORD  style = WS_CHILD|WS_CLIPSIBLINGS|WS_TABSTOP;
+	// @v12.5.6 { 
+	if(BbState & bbsCtlParent)
+		ex_style |= WS_EX_CONTROLPARENT;
+	// } @v12.5.6 
 	if(!(BbState & bbsWoScrollbars))
 		style |= (WS_HSCROLL | WS_VSCROLL);
 	if(pParent) {

@@ -401,8 +401,8 @@ int TWindow::RedirectDrawItemMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return result;
 }
 
-TWindow::TWindow(const TRect & rRect) : 
-	TViewGroup(rRect), WbCapability(0), P_Lmp(0), HW(0), PrevInStack(0), P_SymbList(0), P_FontsAry(0), P_Lfc(0), P_StUsrP(0)
+TWindow::TWindow(const TRect & rRect) : TViewGroup(rRect), WbCapability(0), P_Lmp(0), HW(0), PrevInStack(0), 
+	P_SymbList(0), P_FontsAry(0), P_Lfc(0), P_StUsrP(0)
 {
 	ViewOptions |= ofSelectable;
 }
@@ -410,7 +410,7 @@ TWindow::TWindow(const TRect & rRect) :
 TWindow::TWindow(long wbCapability) : 
 	// Здесь мы применяем искусственно-непустой прямоугольник из-за того, что некоторые функции валидации могут воспринять 
 	// пустой прямоугольник как "сигнал бедствия" и отказаться работать дальше.
-	TViewGroup(TRect(0, 0, 0, 25)), WbCapability(wbCapability), P_Lmp(0), HW(0), PrevInStack(0), P_SymbList(0), P_FontsAry(0), P_Lfc(0), P_StUsrP(0)
+	TViewGroup(TRect::_defr_), WbCapability(wbCapability), P_Lmp(0), HW(0), PrevInStack(0), P_SymbList(0), P_FontsAry(0), P_Lfc(0), P_StUsrP(0)
 {
 }
 
@@ -1281,22 +1281,22 @@ int TWindow::ReckonUserPosition(const TRect & rRect) // @v12.2.6
 //
 //
 //
-static LPCTSTR P_SLibWindowBaseClsName = _T("SLibWindowBase");
+static wchar_t * P_SLibWindowBaseClsName = L"SLibWindowBase";
 
 /*static*/int TWindowBase::RegWindowClass(int iconId)
 {
 	WNDCLASSEX wc;
 	const HINSTANCE h_inst = TProgram::GetInst();
-	if(!::GetClassInfoEx(h_inst, P_SLibWindowBaseClsName, &wc)) {
+	if(!::GetClassInfoExW(h_inst, P_SLibWindowBaseClsName, &wc)) {
 		INITWINAPISTRUCT(wc);
 		wc.lpszClassName = P_SLibWindowBaseClsName;
 		wc.hInstance     = h_inst;
 		wc.lpfnWndProc   = TWindowBase::WndProc;
-		wc.style = /*CS_HREDRAW | CS_VREDRAW |*/ /*CS_OWNDC |*/ CS_SAVEBITS | CS_DBLCLKS;
-		wc.hIcon = iconId ? ::LoadIcon(h_inst, MAKEINTRESOURCE(/*ICON_MAIN_P2*/ /*102*/iconId)) : 0;
+		wc.style = /*CS_HREDRAW|CS_VREDRAW|*/ /*CS_OWNDC|*/CS_SAVEBITS|CS_DBLCLKS;
+		wc.hIcon = iconId ? ::LoadIconW(h_inst, MAKEINTRESOURCE(/*ICON_MAIN_P2*/ /*102*/iconId)) : 0;
 		wc.cbClsExtra    = BRWCLASS_CEXTRA;
 		wc.cbWndExtra    = BRWCLASS_WEXTRA;
-		return ::RegisterClassEx(&wc);
+		return ::RegisterClassExW(&wc);
 	}
 	else
 		return -1;
@@ -1343,7 +1343,7 @@ int TWindowBase::Create(void * hParentWnd, long createOptions)
 	SString title_buf = getTitle();
 	title_buf.SetIfEmpty(ClsName).Transf(CTRANSF_INNER_TO_OUTER);
 	HWND  hw_parent = static_cast<HWND>(hParentWnd);
-	DWORD style = WS_HSCROLL | WS_VSCROLL /*| WS_CLIPSIBLINGS | WS_CLIPCHILDREN*/;
+	DWORD style = WS_HSCROLL|WS_VSCROLL /*| WS_CLIPSIBLINGS | WS_CLIPCHILDREN*/;
 	int   x = ViewSize.x ? ViewOrigin.x : CW_USEDEFAULT;
 	int   y = ViewSize.y ? ViewOrigin.y : CW_USEDEFAULT;
 	int   cx = NZOR(ViewSize.x, CW_USEDEFAULT);
@@ -1375,14 +1375,14 @@ int TWindowBase::Create(void * hParentWnd, long createOptions)
 	Parent = hw_parent; // @v11.2.4
 	if(createOptions & coChild) {
 		style = WS_CHILD|WS_TABSTOP;
-		HW = CreateWindowEx(WS_EX_CLIENTEDGE, P_SLibWindowBaseClsName, SUcSwitch(title_buf), style, 0, 0, cx, cy, hw_parent, 0, h_inst, this);
+		HW = CreateWindowExW(WS_EX_CLIENTEDGE, P_SLibWindowBaseClsName, SUcSwitchW(title_buf), style, 0, 0, cx, cy, hw_parent, 0, h_inst, this);
 	}
 	else { // coPopup
-		style = WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_VISIBLE;
+		style = WS_POPUP|WS_CAPTION|WS_SYSMENU|WS_THICKFRAME|WS_VISIBLE;
 		if(createOptions & coMDI) {
-			MDICREATESTRUCT child;
+			MDICREATESTRUCTW child;
 			child.szClass = P_SLibWindowBaseClsName;
-			child.szTitle = SUcSwitch(title_buf);
+			child.szTitle = SUcSwitchW(title_buf);
 			child.hOwner = h_inst;
 			child.x  = CW_USEDEFAULT;
 			child.y  = CW_USEDEFAULT;
@@ -1390,10 +1390,11 @@ int TWindowBase::Create(void * hParentWnd, long createOptions)
 			child.cy = CW_USEDEFAULT;
 			child.style  = style;
 			child.lParam = reinterpret_cast<LPARAM>(this);
-			HW = reinterpret_cast<HWND>(LOWORD(SendMessage(hw_parent, WM_MDICREATE, 0, reinterpret_cast<LPARAM>(&child))));
+			HW = reinterpret_cast<HWND>(LOWORD(SendMessageW(hw_parent, WM_MDICREATE, 0, reinterpret_cast<LPARAM>(&child))));
 		}
 		else {
-			HW = CreateWindowEx(0, P_SLibWindowBaseClsName, SUcSwitch(title_buf), style, x, y, cx, cy, hw_parent, 0, h_inst, this);
+			HW = ::CreateWindowExW(0, P_SLibWindowBaseClsName, SUcSwitchW(title_buf), style, x, y, cx, cy, hw_parent, 0, h_inst, this);
+			//RedrawWindow(HW, 0, 0, RDW_ERASE); // @v12.5.6
 		}
 	}
 	return BIN(HW);
@@ -1538,8 +1539,9 @@ void TWindowBase::MakeMouseEvent(uint msg, WPARAM wParam, LPARAM lParam, MouseEv
 			rMe.Type = MouseEvent::tLeave;
 			break;
 		case WM_MOUSEMOVE:
-			if(getClientRect().contains(rMe.Coord))
+			if(getClientRect().contains(rMe.Coord)) {
 				RegisterMouseTracking_(false);
+			}
 			rMe.Type = MouseEvent::tMove;
 			break;
 		case WM_MOUSEWHEEL:

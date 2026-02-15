@@ -466,14 +466,9 @@ int DBLobBlock::GetLocator(uint fldIdx, uint64 * pLocator) const
 //
 //
 DBTable::SelectStmt::SelectStmt(DbProvider * pDb, void * pExternalConnection, DBTable * pTbl, const Generator_SQL & rSql, int idx, int sp, int sf) : 
-	SSqlStmt(pDb, pExternalConnection, rSql), P_OwnerTbl(pTbl), Idx(idx), Sp(sp), Sf(sf)
+	Idx(idx), Sp(sp), SSqlStmt(pDb, pExternalConnection, pTbl, SlConst::SSqlStmtSignature_Select, rSql, sf)
 {
 }
-
-/*@v12.5.4 DBTable::SelectStmt::SelectStmt(DbProvider * pDb, DBTable * pTbl, int idx, int sp, int sf) : 
-	SSqlStmt(pDb), P_OwnerTbl(pTbl), Idx(idx), Sp(sp), Sf(sf)
-{
-}*/
 
 void DBTable::SetStmt(SelectStmt * pStmt)
 {
@@ -548,20 +543,25 @@ DBTable::DBTable(const char * pTblName, const char * pFileName, void * pFlds, vo
 		int    hFld;
 	};
 	Init(pDbP);
-	RECORDSIZE s = 0;
+	RECORDSIZE rec_size = 0;
 	if(open(pTblName, pFileName, om)) {
 		if(pFlds) {
-			for(int16 i = FldL.getCount()-1; i >= 0; i--) {
+			for(int i = FldL.getCountI()-1; i >= 0; i--) {
 				const BNField & r_bf = FldL[i];
-				if(!sstreq(r_bf.Name, SlConst::P_SurrogateRowIdFieldName)) { // @v12.5.5 @condition
+				if(sstreq(r_bf.Name, SlConst::P_SurrogateRowIdFieldName)) { // @v12.5.5 @condition
+					;
+					// Здесь размер записи rec_size тоже не инкриментируем - иначе все будет очень плохо!
+				}
+				else {
 					static_cast<_DBField *>(pFlds)[i].hTbl = handle;
 					static_cast<_DBField *>(pFlds)[i].hFld = i;
+					rec_size += static_cast<RECORDSIZE>(stsize(r_bf.T));
 				}
-				s += static_cast<RECORDSIZE>(stsize(r_bf.T)); // @v12.5.5 Я не уверен, возможно это должно быть в зоне выше!
 			}
 		}
-		if(pData)
-			SetDBuf(pData, NZOR(s, FldL.CalculateFixedRecSize(0/*BNFieldList2::crsfXXX*/)));
+		if(pData) {
+			SetDBuf(pData, NZOR(rec_size, FldL.CalculateFixedRecSize(0/*BNFieldList2::crsfXXX*/)));
+		}
 	}
 }
 

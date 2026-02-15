@@ -1,5 +1,5 @@
 // OBJACSHT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -138,7 +138,7 @@ int AccSheetDialog::setupAssoc()
 			disable_combo = false;
 		}
 		else
-			setCtrlLong(CTL_ACCSHEET_GROUP, 0);
+			setCtrlLong(CTL_ACCSHEET_GROUP, 0L);
 		disableCtrl(CTLSEL_ACCSHEET_GROUP, disable_combo);
 	}
 	AddClusterAssoc(CTL_ACCSHEET_FLAGS, 0, ACSHF_AUTOCREATART);
@@ -153,7 +153,6 @@ int AccSheetDialog::setupAssoc()
 //
 PPObjAccSheet::PPObjAccSheet(void * extraPtr) : PPObjReference(PPOBJ_ACCSHEET, extraPtr)
 {
-	// @v10.4.10 (ответственность ctr PPObjReference) FiltProc = 0;
 }
 
 /*virtual*/int PPObjAccSheet::MakeReserved(long flags)

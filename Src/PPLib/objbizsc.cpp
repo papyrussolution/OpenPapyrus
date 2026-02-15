@@ -2600,13 +2600,13 @@ int BizScore2Core::PutPacket(PPID * pID, BizScore2ValuePacket * pPack, int use_t
 				else {
 					THROW(UpdateByID(this, obj_type, *pID, &pPack->Rec, 0));
 					(temp_buf = pPack->Text).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-					THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(obj_type, *pID, PPTRPROP_BIZSCORE2_TEXT), temp_buf, 0));
+					THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(obj_type, *pID, PPTRPROP_BIZSCORE2_TEXT), temp_buf, 0));
 					DS.LogAction(PPACN_OBJUPD, obj_type, *pID, 0, 0);
 				}
 			}
 			else {
 				THROW(RemoveByID(this, *pID, 0));
-				THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(obj_type, *pID, PPTRPROP_BIZSCORE2_TEXT), temp_buf.Z(), 0));
+				THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(obj_type, *pID, PPTRPROP_BIZSCORE2_TEXT), temp_buf.Z(), 0));
 				DS.LogAction(PPACN_OBJRMV, obj_type, *pID, 0, 0);
 			}
 		}
@@ -2614,7 +2614,7 @@ int BizScore2Core::PutPacket(PPID * pID, BizScore2ValuePacket * pPack, int use_t
 			*pID = pPack->Rec.ID;
 			THROW(AddByID(this, pID, &pPack->Rec, 0));
 			(temp_buf = pPack->Text).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(obj_type, *pID, PPTRPROP_BIZSCORE2_TEXT), temp_buf, 0));
+			THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(obj_type, *pID, PPTRPROP_BIZSCORE2_TEXT), temp_buf, 0));
 			pPack->Rec.ID = *pID;
 		}
 		THROW(tra.Commit());
@@ -2634,7 +2634,7 @@ int BizScore2Core::GetPacket(PPID id, BizScore2ValuePacket * pPack)
 	if(sr > 0) {
 		if(pPack) {
 			pPack->Rec = rec;
-			p_ref->UtrC.SearchUtf8(TextRefIdent(obj_type, id, PPTRPROP_BIZSCORE2_TEXT), pPack->Text);
+			p_ref->UtrC.SearchUtf8(SObjTextRefIdent(obj_type, id, PPTRPROP_BIZSCORE2_TEXT), pPack->Text);
 			pPack->Text.Transf(CTRANSF_UTF8_TO_INNER);
 		}
 		ok = 1;
@@ -2777,7 +2777,7 @@ int PPObjBizScore2::GetPacket(PPID id, PPBizScore2Packet * pPack)
 	THROW(r);
 	if(r > 0) {
 		SString text_buf;
-		THROW(P_Ref->UtrC.SearchUtf8(TextRefIdent(Obj, id, PPTRPROP_BIZSCORE2), text_buf));
+		THROW(P_Ref->UtrC.SearchUtf8(SObjTextRefIdent(Obj, id, PPTRPROP_BIZSCORE2), text_buf));
 		text_buf.Transf(CTRANSF_UTF8_TO_INNER);
 		pack.SetBuffer(text_buf.Strip());
 	}
@@ -2838,7 +2838,7 @@ int PPObjBizScore2::PutPacket(PPID * pID, PPBizScore2Packet * pPack, int use_ta)
 						THROW(r = P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 0/*logAction*/, 0));
 						{
 							(ext_buffer = pPack->GetBuffer()).Strip();
-							THROW(P_Ref->UtrC.SetTextUtf8(TextRefIdent(Obj, *pID, PPTRPROP_BIZSCORE2), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+							THROW(P_Ref->UtrC.SetTextUtf8(SObjTextRefIdent(Obj, *pID, PPTRPROP_BIZSCORE2), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 						}
 						action = PPACN_OBJUPD;
 					}
@@ -2851,7 +2851,7 @@ int PPObjBizScore2::PutPacket(PPID * pID, PPBizScore2Packet * pPack, int use_ta)
 				THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
 				{
 					(ext_buffer = pPack->GetBuffer()).Strip();
-					THROW(P_Ref->UtrC.SetTextUtf8(TextRefIdent(Obj, *pID, PPTRPROP_BIZSCORE2), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+					THROW(P_Ref->UtrC.SetTextUtf8(SObjTextRefIdent(Obj, *pID, PPTRPROP_BIZSCORE2), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 				}
 				// Событие PPACN_OBJADD создано функцией P_Ref->AddItem : action не инициалазируем
 			}
@@ -2866,7 +2866,7 @@ int PPObjBizScore2::PutPacket(PPID * pID, PPBizScore2Packet * pPack, int use_ta)
 			//THROW_DB(deleteFrom(P_ValTbl, 0, P_ValTbl->ScoreID == *pID));
 			THROW(P_Ref->RemoveItem(Obj, *pID, 0));
 			//THROW(P_Ref->PutPropVlrString(Obj, *pID, BZSPRP_DESCR, 0));
-			THROW(P_Ref->UtrC.Remove(TextRefIdent(Obj, *pID, PPTRPROP_BIZSCORE2), 0));
+			THROW(P_Ref->UtrC.Remove(SObjTextRefIdent(Obj, *pID, PPTRPROP_BIZSCORE2), 0));
 			action = PPACN_OBJRMV;
 		}
 		DS.LogAction(action, Obj, *pID, 0, 0);
@@ -3460,7 +3460,7 @@ int PPViewBizSc2Val::MakeListEntry(const BizScore2Tbl::Rec & rRec, BrwItem & rEn
 	rEntry.IVal = rRec.IntVal;
 	{
 		SString temp_buf;
-		PPRef->UtrC.SearchUtf8(TextRefIdent(PPOBJ_BIZSCORE2VAL, rRec.ID, PPTRPROP_BIZSCORE2_TEXT), temp_buf);
+		PPRef->UtrC.SearchUtf8(SObjTextRefIdent(PPOBJ_BIZSCORE2VAL, rRec.ID, PPTRPROP_BIZSCORE2_TEXT), temp_buf);
 		temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 		if(temp_buf.NotEmptyS()) {
 			StrPool.AddS(temp_buf, &rEntry.TextP);

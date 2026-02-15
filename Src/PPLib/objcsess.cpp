@@ -325,8 +325,10 @@ int PPObjCSession::Recover(const PPIDArray & rSessList)
 	PPObjBill * p_bobj(BillObj);
 	PPWaitStart();
 	CGoodsLine cgl;
-	SString added_msg_buf, temp_buf;
-	CSessionTbl::Rec sess_rec, sub_rec;
+	SString added_msg_buf;
+	SString temp_buf;
+	CSessionTbl::Rec sess_rec;
+	CSessionTbl::Rec sub_rec;
 	PPLogger logger;
 	const  PPID ret_op_id = GetCashRetOp();
 	const  PPID wroff_acc_op_id = GetEqCfg().WrOffAccOpID;
@@ -343,7 +345,8 @@ int PPObjCSession::Recover(const PPIDArray & rSessList)
 				is_super = 1;
 			sub_list.add(outer_sess_id);
 			for(uint i = 0; i < sub_list.getCount(); i++) {
-				PPID   bill_id = 0, sess_id = sub_list.at(i);
+				PPID   bill_id = 0;
+				const  PPID sess_id = sub_list.at(i);
 				CSessTotal sub_total;
 				BillTbl::Rec bill_rec;
 				while(p_bobj->P_Tbl->EnumMembersOfPool(PPASS_CSESSBILLPOOL, sess_id, &bill_id) > 0) {
@@ -381,7 +384,7 @@ int PPObjCSession::Recover(const PPIDArray & rSessList)
 	return ok;
 }
 
-int PPObjCSession::ReWriteOff(PPID sessID, int level /* @#[0,5,10] */, int use_ta)
+int PPObjCSession::ReWriteOff(PPID sessID, int level/*@#[0,5,10]*/, int use_ta)
 {
 	int    ok = 1;
 	LAssocArray dfct_subst_list;

@@ -579,8 +579,8 @@ void TreeWindow::ShowList(ListWindow * pLw)
 int TreeWindow::OnCommand(WPARAM wParam, LPARAM lParam)
 {
 	int    r = 1;
-	if(P_CurLw && P_CurLw->listBox()) {
-		TView::messageCommand(P_CurLw->listBox()->P_Owner, wParam, this);
+	if(P_CurLw && P_CurLw->GetListBox()) {
+		TView::messageCommand(P_CurLw->GetListBox()->P_Owner, wParam, this);
 		r = 0;
 	}
 	return r;

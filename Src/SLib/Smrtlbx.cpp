@@ -6,6 +6,11 @@
 #include <slib-internal.h>
 #pragma hdrstop
 
+TDrawItemData::TDrawItemData() : CtlType(0), CtlID(0), ItemID(0), ItemAction(0), ItemState(0), H_Item(0), H_DC(0), P_View(0), ItemData(0)
+{
+	MEMSZERO(ItemRect);
+}
+
 const char * SLBColumnDelim = "/^";
 
 IMPL_CMPFUNC(_PcharNoCase, i1, i2)
@@ -58,7 +63,6 @@ INT_PTR CALLBACK TreeListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 		case WM_ERASEBKGND:
 			if(p_view && p_view->HasState(SmartListBox::stOwnerDraw)) {
 				TDrawItemData di;
-				MEMSZERO(di);
 				di.CtlType = ODT_LISTBOX;
 				di.CtlID = p_view->GetId();
 				di.ItemAction = TDrawItemData::iaBackground;
@@ -111,7 +115,6 @@ INT_PTR CALLBACK ListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 			case WM_ERASEBKGND:
 				if(p_view->HasState(SmartListBox::stOwnerDraw)) {
 					TDrawItemData di;
-					MEMSZERO(di);
 					di.CtlType = ODT_LISTBOX;
 					di.CtlID = p_view->GetId();
 					di.ItemAction = TDrawItemData::iaBackground;
@@ -169,7 +172,8 @@ INT_PTR CALLBACK ListViewDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 //
 //
 SmartListBox::SmartListBox(const TRect & rRect, ListBoxDef * pDef, bool isTreeList) : TView(rRect), Columns(sizeof(ColumnDescr)),
-	State(0), SrchPatternPos(0), ColumnsSpcPos(0), P_Def(0), Range(0), ItemHeight(0), Top(0), HIML(0), SrchFunc(PTR_CMPFUNC(_PcharNoCase))
+	State(0), SrchPatternPos(0), ColumnsSpcPos(0), P_Def(0), Range(0), ItemHeight_(0), Top(0), HIML(0), SrchFunc(PTR_CMPFUNC(_PcharNoCase)),
+	P_ExpandedTreeBranchList(0)
 {
 	SubSign = TV_SUBSIGN_LISTBOX;
 	StrPool.add("$"); // zero index - is empty string
@@ -179,7 +183,8 @@ SmartListBox::SmartListBox(const TRect & rRect, ListBoxDef * pDef, bool isTreeLi
 }
 
 SmartListBox::SmartListBox(const TRect & rRect, ListBoxDef * pDef, const char * pColumnsDeclaration) : TView(rRect), Columns(sizeof(ColumnDescr)),
-	State(0), SrchPatternPos(0), ColumnsSpcPos(0), P_Def(0), Range(0), ItemHeight(0), Top(0), HIML(0), SrchFunc(PTR_CMPFUNC(_PcharNoCase))
+	State(0), SrchPatternPos(0), ColumnsSpcPos(0), P_Def(0), Range(0), ItemHeight_(0), Top(0), HIML(0), SrchFunc(PTR_CMPFUNC(_PcharNoCase)),
+	P_ExpandedTreeBranchList(0)
 {
 	SubSign = TV_SUBSIGN_LISTBOX;
 	StrPool.add("$"); // zero index - is empty string
@@ -207,6 +212,7 @@ SmartListBox::~SmartListBox()
 	delete P_Def;
 	if(HIML)
 		ImageList_Destroy(static_cast<HIMAGELIST>(HIML));
+	delete P_ExpandedTreeBranchList; // @v12.5.6
 }
 
 int SmartListBox::SearchColumnByIdent(long ident, uint * pPos) const
@@ -232,18 +238,18 @@ int SmartListBox::AddColumn(int pos, const char * pTitle, uint width, uint forma
 	if(!title.NotEmptyS()) {
 		title.Space();
 	}
-	uint cf = CHKXORFLAGS(format, STRF_ANSI, STRF_OEM);
+	uint cf = CHKXORFLAGS(format, STRF_TOANSI, STRF_TOOEM);
 	if(title.C(0) == '@') {
-		if(cf == STRF_ANSI) {
+		if(cf == STRF_TOANSI) {
 			title.Transf(CTRANSF_OUTER_TO_INNER);
-			cf = STRF_OEM;
+			cf = STRF_TOOEM;
 		}
 		if(SLS.LoadString_(title.ShiftLeft(), temp_buf) > 0) {
 			title = temp_buf.Strip();
-			cf = STRF_OEM;
+			cf = STRF_TOOEM;
 		}
 	}
-	if(oneof2(cf, STRF_OEM, 0))
+	if(oneof2(cf, STRF_TOOEM, 0))
 		title.Transf(CTRANSF_INNER_TO_OUTER);
 	SETIFZ(width, title.Len());
 	{
@@ -325,7 +331,7 @@ int SmartListBox::SetupColumns(const char * pColsBuf)
 					ss.get(&pos, title_buf);
 				}
 			}
-			AddColumn(-1, title_buf, width, format, 0); // @v12.3.9 (format|STRF_ANSI)-->(format)
+			AddColumn(-1, title_buf, width, format, 0); // @v12.3.9 (format|STRF_TOANSI)-->(format)
 		}
 		StrPool.add(columns_buf, &ColumnsSpcPos);
 	}
@@ -426,11 +432,11 @@ int  SmartListBox::getID(long itemN, long * pID)
 		if(p) {
 			uint   h = (P_Def->Options & lbtAutoID) ? 0 : ((P_Def->Options & lbtWordID) ? 2 : 4);
 			if(h == 2) {
-				int16  id = *reinterpret_cast<const int16 *>(p);
+				const  int16 id = *reinterpret_cast<const int16 *>(p);
 				ASSIGN_PTR(pID, static_cast<long>(id));
 			}
 			else {
-				long   id = *reinterpret_cast<const long *>(p);
+				const  long id = *reinterpret_cast<const long *>(p);
 				ASSIGN_PTR(pID, id);
 			}
 			ok = 1;
@@ -445,7 +451,7 @@ void SmartListBox::Helper_InsertColumn(uint pos)
 		ColumnDescr & slbc = *static_cast<ColumnDescr *>(Columns.at(pos));
 		SString title_buf;
 		LVCOLUMN lv;
-		lv.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
+		lv.mask = LVCF_FMT|LVCF_TEXT|LVCF_WIDTH;
 		lv.cx = 6 * slbc.Width;
 		StrPool.getnz(slbc.TitlePos, title_buf);
 		lv.pszText = const_cast<TCHAR *>(SUcSwitch(title_buf.cptr())); // @badcast
@@ -458,6 +464,16 @@ void SmartListBox::Helper_InsertColumn(uint pos)
 		else
 			lv.fmt = LVCFMT_LEFT;
 		ListView_InsertColumn(getHandle(), pos, &lv);
+	}
+}
+
+void SmartListBox::SetExpandedTreeBranchList(const LongArray * pList) // @v12.5.6
+{
+	ZDELETE(P_ExpandedTreeBranchList);
+	if(State & stTreeList) {
+		if(SVectorBase::GetCount(pList)) {
+			P_ExpandedTreeBranchList = new LongArray(*pList);
+		}
 	}
 }
 
@@ -570,11 +586,11 @@ void SmartListBox::onInitDialog(int useScrollBar)
 			::GetWindowRect(hwh, &rc);
 			item_height = rc.bottom - rc.top - 4;
 			SForEachVectorItem(Columns, i) { Helper_InsertColumn(i); }
-			ItemHeight = ((list_height-3) / item_height) - 1;
+			ItemHeight_ = ((list_height-3) / item_height) - 1;
 			ListView_SetExtendedListViewStyle(h_lb, LVS_EX_FULLROWSELECT|LVS_EX_GRIDLINES);
 		}
 		else {
-			ItemHeight = GetMaxListHeight();
+			ItemHeight_ = GetMaxListHeight();
 			/*
 			item_height = ::SendMessageW(h_lb, LB_GETITEMHEIGHT, 0, 0);
 			ItemHeight = (def && def->Options & lbtHSizeAlreadyDef) ? def->ViewHight : (item_height ? (list_height-5) / item_height : 0);
@@ -589,7 +605,7 @@ void SmartListBox::onInitDialog(int useScrollBar)
 				SetScrollBarPos(scroll_pos, 1);
 			}
 		}
-		CALLPTRMEMB(P_Def, setViewHight(ItemHeight));
+		CALLPTRMEMB(P_Def, setViewHight(ItemHeight_));
 		dlg_proc = IsMultiColumn() ? ListViewDialogProc : ListBoxDialogProc;
 	}
 	State |= stInited;
@@ -623,7 +639,6 @@ int  SmartListBox::SetupTreeWnd2(void * pParent)
 			StrAssocTree * p_tree = p_def2->P_SaList;
 			if(p_tree) {
 				if(pParent) {
-					//SPtrHandle h = p_tree->Search(parentP);
 					h_parent = reinterpret_cast<HTREEITEM>(p_tree->GetNodeExtraPtr(SPtrHandle(pParent)));
 				}
 				else {
@@ -641,14 +656,9 @@ int  SmartListBox::SetupTreeWnd2(void * pParent)
 					}
 				}
 				{
-					//LongArray item_id_list;
-					//p_tree->GetListByParent(parentP, false, item_id_list);
 					TSVector <SPtrHandle> item_h_list;
 					p_tree->GetListByParent_Unsafe(SPtrHandle(pParent), false, item_h_list);
-					//for(uint i = 0; i < item_id_list.getCount(); i++) {
 					for(uint i = 0; i < item_h_list.getCount(); i++) {
-						//const long current_id = item_id_list.get(i);
-						//SPtrHandle current_h = p_tree->Search(current_id);
 						SPtrHandle current_h = item_h_list.at(i);
 						if(current_h) {
 							const long current_id = p_tree->GetNodeKey(current_h);
@@ -662,16 +672,14 @@ int  SmartListBox::SetupTreeWnd2(void * pParent)
 									is.item.iSelectedImage = I_IMAGECALLBACK;
 									is.item.mask |= (TVIF_IMAGE|TVIF_SELECTEDIMAGE);
 								}
-								//const  uint32 first_child_p = p_tree->GetFirstChildP(t_iter.GetCurrentPos());
-								bool has_children = p_tree->HasNodeChildren(current_h);
-								is.item.cChildren = has_children ? 1 : 0;
+								const  bool has_children = p_tree->HasNodeChildren(current_h);
+								is.item.cChildren = BIN(has_children);
 								is.item.pszText = LPSTR_TEXTCALLBACK;
 								is.item.lParam  = current_id;
 								HTREEITEM h_tree = TreeView_InsertItem(h_lb, &is);
 								if(h_tree) {
 									p_tree->SetNodeExtraPtr(current_h, reinterpret_cast<uintptr_t>(h_tree));
-									//p_item->H = h_tree;
-									if(has_children /*&& !(parentP == 0 && p_item->Id == 0)*/)
+									if(has_children)
 										SetupTreeWnd2(current_h); // @recursion
 								}
 								else {
@@ -688,7 +696,7 @@ int  SmartListBox::SetupTreeWnd2(void * pParent)
 			}
 		}
 		else if(p_def) {
-			uint32 parent_idx = reinterpret_cast<uint32>(pParent);
+			const  uint32 parent_idx = reinterpret_cast<uint32>(pParent);
 			if(parent_idx) {
 				const StdTreeListBoxDef::TreeItem * p_item = static_cast<const StdTreeListBoxDef::TreeItem *>(p_def->T.GetData(parent_idx));
 				if(p_item)
@@ -712,24 +720,40 @@ int  SmartListBox::SetupTreeWnd2(void * pParent)
 				for(STree::Iter t_iter(parent_idx); p_def->T.Enum(t_iter);) {
 					StdTreeListBoxDef::TreeItem * p_item = static_cast<StdTreeListBoxDef::TreeItem *>(t_iter.GetData());
 					if(p_item) {
-						TVINSERTSTRUCT is;
+						TVINSERTSTRUCTW is;
+						MEMSZERO(is);
 						is.hParent      = NZOR(h_parent, TVI_ROOT);
 						is.hInsertAfter = TVI_LAST;
-						is.item.mask    = TVIF_TEXT | TVIF_PARAM | TVIF_CHILDREN;
+						is.item.mask    = TVIF_TEXT|TVIF_PARAM|TVIF_CHILDREN;
 						if(p_def->GetImageIdxByID(p_item->Id, 0) > 0) {
 							is.item.iImage = I_IMAGECALLBACK;
 							is.item.iSelectedImage = I_IMAGECALLBACK;
 							is.item.mask |= (TVIF_IMAGE|TVIF_SELECTEDIMAGE);
 						}
 						const  uint32 first_child_p = p_def->T.GetFirstChildP(t_iter.GetCurrentPos());
-						is.item.cChildren = first_child_p ? 1 : 0;
+						is.item.cChildren = BIN(first_child_p);
 						is.item.pszText = LPSTR_TEXTCALLBACK;
 						is.item.lParam  = p_item->Id;
 						HTREEITEM h_tree = TreeView_InsertItem(h_lb, &is);
 						if(h_tree) {
 							p_item->H = h_tree;
-							if(first_child_p && !(parent_idx == 0 && p_item->Id == 0))
+							if(first_child_p && !(parent_idx == 0 && p_item->Id == 0)) {
 								SetupTreeWnd2(reinterpret_cast<void *>(t_iter.GetCurrentPos())); // @recursion
+								// @v12.5.6 {
+								if(p_item->Id && first_child_p && P_ExpandedTreeBranchList && P_ExpandedTreeBranchList->lsearch(p_item->Id)) {
+									/*
+									TVITEMW item_to_set;
+									MEMSZERO(item_to_set);
+									item_to_set.hItem = h_tree;
+									item_to_set.mask = TVIF_STATE;
+									item_to_set.stateMask = TVIS_EXPANDED;
+									item_to_set.state = TVIS_EXPANDED;
+									::SendMessageW(h_lb, TVM_SETITEM, 0, reinterpret_cast<LPARAM>(&item_to_set));
+									*/
+									TreeView_Expand(h_lb, h_tree, TVE_EXPAND);
+								}
+								// } @v12.5.6
+							}
 						}
 						else {
 							//
@@ -749,18 +773,25 @@ int  SmartListBox::SetupTreeWnd2(void * pParent)
 	return ok;
 }
 
-int  SmartListBox::GetStringByID(long id, SString & rBuf)
+int  SmartListBox::GetStringByID(long id, SString & rBufUtf8)
 {
-	rBuf.Z();
+	rBufUtf8.Z();
 	int    ok = 0;
 	if(P_Def) {
 		if(P_Def->GetSignature() == SlConst::ListBoxDefSignature_STDTREE) {
 			StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(P_Def);
-			ok = p_def->GetStringByID(id, rBuf);
+			ok = p_def->GetStringByID(id, rBufUtf8);
 		}
 		else if(P_Def->GetSignature() == SlConst::ListBoxDefSignature_STDTREE2) {
 			StdTreeListBoxDef2_ * p_def = static_cast<StdTreeListBoxDef2_ *>(P_Def);
-			ok = p_def->GetStringByID(id, rBuf);
+			ok = p_def->GetStringByID(id, rBufUtf8);
+		}
+		if(P_Def->Options & lbtTextUtf8) {
+			;
+		}
+		else {
+			// rBufUtf8.Transf(CTRANSF_INNER_TO_OUTER); // @v12.5.6 @movedfrom(SmartListBox::handleWindowsMessage) 
+			rBufUtf8.Transf(CTRANSF_INNER_TO_UTF8); // @v12.5.6 @movedfrom(SmartListBox::handleWindowsMessage) 
 		}
 	}
 	return ok;
@@ -832,6 +863,7 @@ int  SmartListBox::GetImageIdxByID(long id, long * pIdx)
 
 int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	bool   debug_mark = false; // @debug
 	switch(uMsg) {
 		case WM_INITDIALOG:
 			onInitDialog(1);
@@ -972,7 +1004,7 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			Scroll(LOWORD(wParam), static_cast<int16>(HIWORD(wParam)));
 			break;
 		case WM_NOTIFY:
-			const NMHDR * p_nm = reinterpret_cast<const NMHDR *>(lParam);
+			NMHDR * p_nm = reinterpret_cast<NMHDR *>(lParam);
 			/* @construction
 			if(p_nm->code == LVN_BEGINDRAG) {
 				NMLISTVIEW * p_nmlv = (NMLISTVIEW *)lParam;
@@ -982,7 +1014,7 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				switch(p_nm->code) {
 					case TVN_GETDISPINFO:
 						{
-							LPNMTVDISPINFO lptvdi = reinterpret_cast<LPNMTVDISPINFO>(lParam);
+							LPNMTVDISPINFOW lptvdi = reinterpret_cast<LPNMTVDISPINFOW>(lParam);
 							if(lptvdi->item.mask & TVIF_TEXT) {
 								SString & r_temp_buf = SLS.AcquireRvlStr();
 								GetStringByID(static_cast<long>(lptvdi->item.lParam), r_temp_buf);
@@ -990,8 +1022,9 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 								if(!r_temp_buf.NotEmptyS())
 									r_temp_buf.Z().CatChar('#').Cat(lptvdi->item.lParam);
 								// } @debug
-								r_temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
-								strnzcpy(lptvdi->item.pszText, SUcSwitch(r_temp_buf), lptvdi->item.cchTextMax);
+								// @v12.5.6 Начиная с этой версии строка, возвращаемая функцией GetStringByID трактуется как utf8
+								// @v12.5.6 @movedto(GetStringByID) r_temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+								strnzcpy(lptvdi->item.pszText, SUcSwitchWUtf8(r_temp_buf), lptvdi->item.cchTextMax); // @v12.5.6 SUcSwitchW-->SUcSwitchWUtf8
 							}
 							if(lptvdi->item.mask & (TVIF_IMAGE|TVIF_SELECTEDIMAGE)) {
 								long idx = 0;
@@ -1054,10 +1087,21 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					case NM_CLICK:
 						State |= stLButtonDown;
 						break;
-					/*
-					case NM_CUSTOMDRAW:
+					case NM_CUSTOMDRAW: // @v12.5.6
 						{
+							TEvent e_;
 							long lvn_res = 0;
+							NMTVCUSTOMDRAW * p_tv_blk = reinterpret_cast<NMTVCUSTOMDRAW *>(lParam);
+							debug_mark = true; // @debug
+							if(P_Owner) {
+								/* @construction
+								TEvent local_ev;
+								local_ev.setCmd(cmCustomDraw, 0);
+								local_ev.message.infoPtr = reinterpret_cast<void *>(lParam);
+								P_Owner->handleEvent(local_ev);
+								*/
+							}
+							/*
 							NMLVCUSTOMDRAW * p_nmlvcd = (NMLVCUSTOMDRAW*)lParam;
 							switch(p_nmlvcd->nmcd.dwDrawStage) {
 								case CDDS_PREPAINT:
@@ -1070,16 +1114,16 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 							}
 							//SetWindowLong(hWnd, DWL_MSGRESULT, lvn_res);
 							TView::SetWindowProp(hWnd, DWL_MSGRESULT, lvn_res);
+							*/
 						}
-						break;
-					*/
+						return CDRF_DODEFAULT;
 					default:
 						return 0;
 				}
 			}
 			else {
 				if(p_nm && p_nm->code == NM_CUSTOMDRAW) {
-					NMTVCUSTOMDRAW * p_cd = (NMTVCUSTOMDRAW *)p_nm;
+					NMTVCUSTOMDRAW * p_cd = reinterpret_cast<NMTVCUSTOMDRAW *>(p_nm);
 					//HWND   h_ctl = p_nm->hwndFrom;
 					long   result = CDRF_DODEFAULT;
 					if(!p_cd)
@@ -1575,9 +1619,9 @@ void FASTCALL SmartListBox::setDef(ListBoxDef * aDef)
 		P_Def = aDef;
 		setRange(P_Def->GetRecsCount());
 		if(P_Def->Options & lbtHSizeAlreadyDef)
-			ItemHeight = P_Def->ViewHight;
+			ItemHeight_ = P_Def->ViewHight;
 		else
-			P_Def->setViewHight(ItemHeight);
+			P_Def->setViewHight(ItemHeight_);
 		P_Def->top();
 	}
 }
@@ -1758,7 +1802,7 @@ void SmartListBox::Implement_Draw()
 				if(HIML)
 		 			ListView_SetImageList(h_lb, HIML, LVSIL_SMALL);
 			}
-			if(ItemHeight) {
+			if(ItemHeight_) {
 				long   first_item = 0;
 				long   last_item = 0;
 				StringSet ss(SLBColumnDelim);
@@ -1777,7 +1821,7 @@ void SmartListBox::Implement_Draw()
 					if(cc) {
 						long   id = 0;
 						long   img_idx = 0;
-						LVITEMW    lvi;
+						LVITEMW lvi;
 						ss.setBuf(text_buf);
 						lvi.mask  = LVIF_TEXT;
 						lvi.iItem = i;
@@ -1796,11 +1840,11 @@ void SmartListBox::Implement_Draw()
 							lvi.iSubItem = k;
 							if(k) {
 								// @v12.5.5 ListView_SetItem(h_lb, &lvi);
-								SendMessageW(h_lb, LVM_SETITEMW, 0, reinterpret_cast<LPARAM>(&lvi)); // @v12.5.5 
+								::SendMessageW(h_lb, LVM_SETITEMW, 0, reinterpret_cast<LPARAM>(&lvi)); // @v12.5.5 
 							}
 							else {
 								// @v12.5.5 ListView_InsertItem(h_lb, &lvi);
-								SendMessageW(h_lb, LVM_INSERTITEMW, 0, reinterpret_cast<LPARAM>(&lvi)); // @v12.5.5 
+								::SendMessageW(h_lb, LVM_INSERTITEMW, 0, reinterpret_cast<LPARAM>(&lvi)); // @v12.5.5 
 							}
 						}
 					}
@@ -1874,7 +1918,16 @@ void SmartListBox::freeAll()
 //
 //
 //
-ListWindowSmartListBox::ListWindowSmartListBox(const TRect & r, ListBoxDef * d, int) : SmartListBox(r, d, false), combo(0) {}
+ListWindowSmartListBox::ListWindowSmartListBox(const TRect & rR, ListBoxDef * pDef, TView * pLinkView) : SmartListBox(rR, pDef, false), P_Combo(0), P_LinkView(pLinkView)
+{
+}
+
+TView * ListWindowSmartListBox::GetLinkView() // @v12.5.6
+{
+	TView * p_result = P_Combo ? P_Combo->GetLink() : 0;
+	SETIFZQ(p_result, P_LinkView);
+	return p_result;
+}
 //
 //
 //

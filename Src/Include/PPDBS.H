@@ -3327,8 +3327,7 @@ public:
 		LTIME  Tm;
 		char   Version[8];
 		int32  OwnerGuaID;
-		uint8  Reserve[24]; // raw
-		TSLob <2048> VT;
+		uint8  Reserve[32]; // raw
 	} data;
 	struct Key0 {
 		int32  ID;
@@ -3369,7 +3368,6 @@ public:
 	DBField Version;
 	DBField OwnerGuaID;
 	DBField Reserve;
-	DBField VT;
 };
 #pragma pack(pop)
 

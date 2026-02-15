@@ -187,11 +187,9 @@ static int socket_errno(void) {
 }
 
 #ifdef SUPPORT_IP6
-static
-int have_ipv6(void) {
-	SOCKET s;
-
-	s = socket(AF_INET6, SOCK_STREAM, 0);
+static int have_ipv6(void) 
+{
+	SOCKET s = socket(AF_INET6, SOCK_STREAM, 0);
 	if(s != INVALID_SOCKET) {
 		close(s);
 		return (1);
@@ -1290,7 +1288,6 @@ int xmlNanoHTTPRead(void * ctx, void * dest, int len) {
 		return(len - ctxt->strm->avail_out);
 	}
 #endif
-
 	while(ctxt->inptr - ctxt->inrptr < len) {
 		if(xmlNanoHTTPRecv(ctxt) <= 0) break;
 	}
@@ -1298,7 +1295,7 @@ int xmlNanoHTTPRead(void * ctx, void * dest, int len) {
 		len = ctxt->inptr - ctxt->inrptr;
 	memcpy(dest, ctxt->inrptr, len);
 	ctxt->inrptr += len;
-	return(len);
+	return len;
 }
 /**
  * xmlNanoHTTPClose:

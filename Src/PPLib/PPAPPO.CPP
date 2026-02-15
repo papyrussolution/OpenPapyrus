@@ -474,7 +474,6 @@ int PPApp::processCommand(uint cmd)
 		case cmSwProgramCategory:    ShowObjects(PPOBJ_SWPROGRAMCATEGORY, 0); break; // @v11.9.12
 		case cmComputerCategory:     ShowObjects(PPOBJ_COMPUTERCATEGORY, 0);  break; // @v12.0.1
 		case cmRawMaterials:         ShowObjects(PPOBJ_RAWMATERIAL, 0);       break; // @v12.0.10
-		case cmNotes:                ShowObjects(PPOBJ_NOTES, 0);             break; // @v12.5.6  
 		case cmObjTag:               ShowTags_(PPOBJ_PERSON);                 break;
 		case cmLotTag:               ShowTags_(PPOBJ_LOT);                    break;
 		case cmBillTag:              ShowTags_(PPOBJ_BILL);                   break;
@@ -1822,6 +1821,7 @@ void PPApp::login(int processCmdLine)
 					login_param.Dbes.SetupSingleDbEntry(p_centrigo_db_symb, centrigo_db_descr);
 					dbentry_id = login_param.Dbes.GetBySymb(p_centrigo_db_symb, 0);
 				}
+				login_param.UserName.SetIfEmpty("master");
 				if(!dbentry_id)
 					TView::messageCommand(this, cmQuit); // @todo @message
 			}

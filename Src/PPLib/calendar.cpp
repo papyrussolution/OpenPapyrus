@@ -2004,7 +2004,7 @@ SCalendarPicker::LayoutExtra::LayoutExtra(int ident, uint value) : Ident(ident),
 	return p_symb ? PPLoadStringS(p_symb, SLS.AcquireRvlStr()) : "";
 }
 
-SCalendarPicker::SCalendarPicker(int kind) : TWindowBase(SUcSwitchW(SCalendarPicker::GetWindowTitle(kind)), wbcDrawBuffer), 
+SCalendarPicker::SCalendarPicker(int kind) : TWindowBase(SUcSwitchW(SCalendarPicker::GetWindowTitle(kind)), wbcDrawBuffer),
 	Kind(kind), LoExtraList(GetLayoutExtraVector()), FontId(0), CStyleId(0), CStyleFocusId(0), P_LoFocused(0), StartLoYear(0),
 	PeriodTerm(PRD_DAY), PeriodPredef(0)
 {
@@ -2899,7 +2899,7 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 							}
 							HICON h_icon = static_cast<HICON>(ib.TransformToIcon());
 							if(h_icon) {
-								::SendMessage(H(), WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(h_icon));
+								::SendMessageW(H(), WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(h_icon));
 								::DestroyIcon(h_icon);
 							}
 						}
@@ -2951,6 +2951,7 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 			EvaluateLayout(p_blk->Coord);
 			// @v11.2.6 invalidateAll(true);
 			//::UpdateWindow(H());
+			// @debug ::RedrawWindow(H(), 0, 0, RDW_ERASE); // @v12.5.6
 		}
 		else if(event.isCbSelected(CTLSEL_CALENDAR_FASTPRD)) {
 			if(Kind == SUiCtrlSupplement::kDateRangeCalendar) {
@@ -3314,6 +3315,10 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 					if(GetWbCapability() & wbcDrawBuffer) {
 						// Если используется буферизованная отрисовка, то фон нужно перерисовать в любом случае а на событие PaintEvent::tEraseBackground
 						// не реагировать
+						/* @v12.5.6 (окно перестало правильно отрисовываться при создании) if(p_blk->PaintType == PaintEvent::tPaint) */
+						//
+						//
+						//
 						if(p_blk->PaintType == PaintEvent::tPaint) {
 							TCanvas2 canv(*p_tb, static_cast<HDC>(p_blk->H_DeviceContext));
 							canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);

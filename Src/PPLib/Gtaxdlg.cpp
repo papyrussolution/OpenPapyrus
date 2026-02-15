@@ -191,7 +191,7 @@ class GoodsTaxListDialog : public PPListDialog {
 public:
 	GoodsTaxListDialog() : PPListDialog(DLG_GDSTAXLST, CTL_GDSTAXLST_LIST)
 	{
-		disableCtrl(CTL_GDSTAXLST_NAME, true);
+		// @v12.5.6 disableCtrl(CTL_GDSTAXLST_NAME, true);
 		updateList(-1);
 	}
 	DECL_DIALOG_SETDTS()
@@ -199,7 +199,7 @@ public:
 		RVALUEPTR(Data, pData);
 		setCtrlData(CTL_GDSTAXLST_NAME, Data.Rec.Name);
 		setCtrlData(CTL_GDSTAXLST_ID, &Data.Rec.ID);
-		disableCtrl(CTL_GDSTAXLST_ID, true);
+		// @v12.5.6 disableCtrl(CTL_GDSTAXLST_ID, true);
 		updateList(-1);
 		return 1;
 	}

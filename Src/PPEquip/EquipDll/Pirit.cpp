@@ -604,6 +604,7 @@ static void FASTCALL CreateStr(int value, SString & dst) { dst.Cat(value).CatCha
 static void FASTCALL CreateStr(int64 value, SString & dst) { dst.Cat(value).CatChar(CHR_FS); }
 // @v11.2.11 static void FASTCALL CreateStr(double value, SString & dst) { dst.Cat(value, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatChar(CHR_FS); } // @v11.2.9 0-->MKSFMTD(0, 3, NMBF_NOTRAILZ)
 static void FASTCALL CreateStr(double value, SString & dst) { dst.Cat(value).CatChar(CHR_FS); } // @v11.2.9 0-->MKSFMTD(0, 3, NMBF_NOTRAILZ) // @v11.2.11
+static void FASTCALL CreateStr_Price(double value, SString & dst) { dst.Cat(value, MKSFMTD(0, 2, 0)).CatChar(CHR_FS); } // @v12.5.6
 
 EXPORT int /*STDAPICALLTYPE*/ RunCommand(const char * pCmd, const char * pInputData, char * pOutputData, size_t outSize)
 {
@@ -2650,6 +2651,7 @@ int PiritEquip::RunCheck(int opertype)
 						case 12: product_type_bytes = 0x444D; break; // @v11.9.4 GTCHZNPT_DRAFTBEER
 						case 1012: product_type_bytes = 0x444D; break; // @v11.9.4 GTCHZNPT_DRAFTBEER_AWR
 						case 14: product_type_bytes = 0x444D; break; // @v12.0.3 GTCHZNPT_BEER
+						case 21: product_type_bytes = 0x444D; break; // @v12.5.6 GTCHZNPT_NCP
 						default: product_type_bytes = 0x444D; break; // @v11.0.5
 					}
 					const char * p_serial = Check.ChZnSerial.NotEmpty() ? Check.ChZnSerial.cptr() : Check.ChZnPartN.cptr();
@@ -2865,7 +2867,7 @@ int PiritEquip::RunCheck(int opertype)
 				}
 				// @v12.3.7 {
 				if(Check.ChZnProdType == 4) { // #2 (tag 1191) GTCHZNPT_MEDICINE
-					if(FractionalMedcineTo1291) { 
+					if(true) { // @v12.5.6 FractionalMedcineTo1291-->true (try)
 						if(Check.Qtty > 0.0 && Check.Qtty < 1.0 && Check.UomFragm > 0) {
 							double ip = 0.0;
 							double nmrtr = 0.0;
@@ -2873,6 +2875,7 @@ int PiritEquip::RunCheck(int opertype)
 							if(fsplitintofractions(Check.Qtty, Check.UomFragm, 1E-5, &ip, &nmrtr, &dnmntr)) {
 								str.Z().Cat(R0i(nmrtr)).Slash().Cat(R0i(dnmntr));
 								CreateStr(str, in_data);
+								price = price / R0i(dnmntr); // @v12.5.6
 								qtty_done = true;
 							}
 						}
@@ -2883,7 +2886,7 @@ int PiritEquip::RunCheck(int opertype)
 					CreateStr(qtty, in_data);
 					qtty_done = true;
 				}
-				CreateStr(price, in_data);
+				CreateStr_Price(price, in_data); // @v12.5.6 CreateStr-->CreateStr_Price
 			}
 			CreateStr((int)Check.Tax, in_data); // Номер налоговой ставки
 			CreateStr((int)0, in_data);    // Номер товарной позиции

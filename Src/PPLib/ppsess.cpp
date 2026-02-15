@@ -165,7 +165,7 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 			SString & r_sbuf = SLS.AcquireRvlStr();
 			p_app->ClearStatusBar();
 			if(timer >= 0) {
-				PPLoadTextWin(PPTXT_AUTOEXIT_INFO, r_sbuf);
+				PPLoadTextAnsi(PPTXT_AUTOEXIT_INFO, r_sbuf);
 				SString & r_temp_buf = SLS.AcquireRvlStr();
 				r_temp_buf.Printf(r_sbuf, timer);
 				p_app->AddStatusBarItem(r_temp_buf, 0, GetColorRef(SClrRed), 0, GetColorRef(SClrBlack));
@@ -2343,6 +2343,8 @@ int PPSession::Init(long internalAppId, long flags, HINSTANCE hInst, const char 
         epb.F_GetDefaultEncrKey = PPGetDefaultEncrKey;
         epb.F_QueryPath = PPQueryPathFunc;
 		epb.F_InitDialog = PPInitializeDialogFunc; // @v12.3.6
+		epb.F_LoadObjText = PPObject::LoadObjectText; // @v12.5.6
+		epb.F_StoreObjText = PPObject::StoreObjectText; // @v12.5.6
         SLS.SetExtraProcBlock(&epb);
 	}
 	if(!(flags & fNoInstalledInfrastructure)) {
@@ -2935,6 +2937,7 @@ int PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 				THROW_SL(SFile::CreateDir(temp_buf));
 				_data_directory = temp_buf;
 			}
+			data_path = _data_directory; // @v12.5.6
 		}
 		else if(server_type == sqlstSQLite) {
 			if(SFile::IsDir(data_path)) {
@@ -3016,7 +3019,7 @@ int PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 		}
 		else if(server_type == sqlstMySQL) {
 #if (_MSC_VER >= 1900)
-			THROW_MEM(p_db = new SMySqlDbProvider());
+			THROW_MEM(p_db = new SMySqlDbProvider(data_path));
 #endif
 		}
 		else if(server_type == sqlstSQLite) { // @v12.4.1
@@ -4116,47 +4119,46 @@ int PPSession::Implement_PPLogin(const PPDbEntrySet2 * pDbes, const char * pDbSy
 						THROW(Convert4911());
 						*/
 						// ------
-
 						// [Перенесено в Convert6202()] THROW(Convert5006()); // VADIM
-						// [Перенесено в Convert6407()] THROW(Convert5009()); // @v5.0.9 AHTOXA
-						// [Перенесено в Convert5200()] THROW(Convert5109()); // @v5.1.9
-						// @v7.8.10 THROW(Convert5200()); // @v5.2.0
+						// [Перенесено в Convert6407()] THROW(Convert5009()); // AHTOXA
+						// [Перенесено в Convert5200()] THROW(Convert5109());
+						// @v7.8.10 THROW(Convert5200());
 						// @v7.8.10 THROW(Convert5207());
-						// @v7.8.10 THROW(Convert5501()); // @v5.5.1
-						// [Перенесено в Convert6202()] THROW(Convert5512()); // @v5.5.12
-						// @v7.8.10 THROW(Convert5608()); // @v5.6.8
-						// [Перенесено в Convert6202()] THROW(Convert5506()); // @v5.5.6 VADIM
-						// @v7.8.10 THROW(Convert5810()); // @v5.8.10
-						// @v8.6.1 THROW(Convert6202()); // @v6.1.9 + @v6.2.2
-						// @v8.6.1 THROW(Convert6303()); // @v6.3.3
-						// @v8.6.1 THROW(Convert6407()); // @v6.4.7
-						// @v8.6.1 THROW(Convert6611()); // @v6.6.11
-						// @v7.6.01 THROW(Convert6708()); // @v6.7.8
-						// @v12.4.1 THROW(Convert7305()); // @v7.3.5
-						// @v12.2.6 THROW(Convert7311()); // @v7.3.11
-						// @v11.1.12 moved to PPCvtTech11112 THROW(Convert7506()); // @v7.5.6
-						// @v12.4.1 THROW(Convert7601()); // @v7.6.1
-						// @v9.4.0 (Перенесено в Convert9400) THROW(Convert7702()); // @v7.7.2
-						// @v12.4.1 THROW(Convert7708()); // @v7.7.8
-						// @v12.4.1 THROW(Convert7712()); // @v7.7.12
+						// @v7.8.10 THROW(Convert5501());
+						// [Перенесено в Convert6202()] THROW(Convert5512());
+						// @v7.8.10 THROW(Convert5608());
+						// [Перенесено в Convert6202()] THROW(Convert5506()); // VADIM
+						// @v7.8.10 THROW(Convert5810());
+						// @v8.6.1 THROW(Convert6202());
+						// @v8.6.1 THROW(Convert6303());
+						// @v8.6.1 THROW(Convert6407());
+						// @v8.6.1 THROW(Convert6611());
+						// @v7.6.01 THROW(Convert6708());
+						// @v12.4.1 THROW(Convert7305());
+						// @v12.2.6 THROW(Convert7311());
+						// @v11.1.12 moved to PPCvtTech11112 THROW(Convert7506());
+						// @v12.4.1 THROW(Convert7601());
+						// @v9.4.0 (Перенесено в Convert9400) THROW(Convert7702());
+						// @v12.4.1 THROW(Convert7708());
+						// @v12.4.1 THROW(Convert7712());
 						// @v12.4.1 THROW(Convert7907());
 						// @v8.3.6 THROW(Convert8203());
 						// @v12.0.0 (Перенесено в Convert12000) THROW(Convert8306());
 						// @v12.4.1 THROW(Convert8800());
-						// @v12.4.1 THROW(Convert8910()); // @v8.9.10
-						// @v12.4.1 THROW(Convert9004()); // @v9.0.3 // @v9.0.4 Convert9003-->Convert9004
-						// @v12.4.1 THROW(Convert9108()); // @v9.1.8 GoodsDebt
-						// @v12.4.1 THROW(Convert9214()); // @v9.2.14 EgaisProduct
-						// @v12.4.1 THROW(Convert9400()); // @v9.4.0
-						// @v12.4.1 THROW(ConvertSCardSeries9809()); // @v9.8.9
-						// @v12.4.1 THROW(Convert9811()); // @v9.8.11
-						// @v10.2.9 THROW(Convert10012()); // @v10.0.12
-						THROW(Convert10209()); // @v10.2.9
-						THROW(Convert10507()); // @v10.5.7
-						THROW(Convert10702()); // @v10.7.2
-						THROW(Convert10903()); // @v10.9.3 конвертация ссылок на рабочие столы и меню в группах и пользователях
-						THROW(Convert10905()); // @v10.9.5
-						THROW(Convert11004()); // @v11.0.4 Конвертация TSessLine (добавлены поля LotDimX, LotDimY, LotDimZ)
+						// @v12.4.1 THROW(Convert8910()); 
+						// @v12.4.1 THROW(Convert9004()); 
+						// @v12.4.1 THROW(Convert9108()); // GoodsDebt
+						// @v12.4.1 THROW(Convert9214()); // EgaisProduct
+						// @v12.4.1 THROW(Convert9400());
+						// @v12.4.1 THROW(ConvertSCardSeries9809());
+						// @v12.4.1 THROW(Convert9811());
+						// @v10.2.9 THROW(Convert10012());
+						THROW(Convert10209());
+						THROW(Convert10507());
+						THROW(Convert10702());
+						THROW(Convert10903()); // конвертация ссылок на рабочие столы и меню в группах и пользователях
+						THROW(Convert10905());
+						THROW(Convert11004()); // Конвертация TSessLine (добавлены поля LotDimX, LotDimY, LotDimZ)
 						THROW(Convert11112()); // @v11.1.12 Bill
 						THROW(Convert11200()); // @v11.2.0 Соглашения с клиентами
 						THROW(Convert12000()); // @v12.0.0 Регистры (увеличились длины серии и номера регистра)
@@ -4164,6 +4166,7 @@ int PPSession::Implement_PPLogin(const PPDbEntrySet2 * pDbes, const char * pDbSy
 						THROW(Convert12207()); // @v12.2.7 VATBook
 						THROW(Convert12401()); // @v12.4.1 LocTransf
 						THROW(Convert12407()); // @v12.4.7 PrjTask
+						THROW(Convert12506()); // @v12.5.6 Workbook
 						{
 							PPVerHistory verh;
 							PPVerHistory::Info vh_info;
@@ -4310,6 +4313,7 @@ int PPSession::Implement_PPLogin(const PPDbEntrySet2 * pDbes, const char * pDbSy
 			r_lc.State |= CFGST_INITIATE;
 			if(empty_secur_base)
 				r_lc.State |= CFGST_EMPTYBASE;
+				logmode = logmEmptyBaseCreation; // @v12.5.6
 			//
 			// Флаг ECF_FULLGOODSCACHE должен быть определен до создания экземпляра
 			// PPObjGoods (который создается внутри конструктора PPObjBill)

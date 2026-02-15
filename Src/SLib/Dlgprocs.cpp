@@ -127,6 +127,7 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 	TDialog * p_dlg;
 	TView * v;
 	TEvent event;
+	RECT cli_rect;
 	switch(uMsg) {
 		case WM_INITDIALOG:
 			if(lParam) {
@@ -140,12 +141,11 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 				p_dlg = reinterpret_cast<TDialog *>(lParam);
 				p_dlg->HW = hwndDlg;
 				const bool export_mode = p_dlg->CheckFlag(TDialog::fExport);
+				::GetClientRect(hwndDlg, &cli_rect);
 				{
 					CreateBlock cr_blk;
 					MEMSZERO(cr_blk);
-					RECT cr;
-					::GetClientRect(hwndDlg, &cr);
-					cr_blk.Coord = cr;
+					cr_blk.Coord = cli_rect;
 					cr_blk.Param = p_dlg;
 					cr_blk.H_Process = 0;
 					cr_blk.Style = 0;
@@ -162,6 +162,7 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 				p_dlg->InitControls(hwndDlg, wParam, lParam);
 				if(!export_mode)
 					EnumChildWindows(hwndDlg, SetupCtrlTextProc, 0);
+				::GetClientRect(hwndDlg, &cli_rect); // @debug
 			}
 			return 1;
 		case WM_DESTROY:
@@ -492,12 +493,11 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 						PAINTSTRUCT ps;
 						HDC hdc = ::BeginPaint(hwndDlg, &ps);
 						// Draw size grip only if resizable and not maximized
-						if((GetWindowLong(hwndDlg, GWL_STYLE) & WS_THICKFRAME) && !IsZoomed(hwndDlg)) {
-							RECT rc;
-							::GetClientRect(hwndDlg, &rc);
+						if((::GetWindowLong(hwndDlg, GWL_STYLE) & WS_THICKFRAME) && !IsZoomed(hwndDlg)) {
+							::GetClientRect(hwndDlg, &cli_rect);
 							// Define grip area (bottom-right corner)
 							int    grip_size = ::GetSystemMetrics(SM_CXVSCROLL);
-							RECT   grip_rect = {rc.right - grip_size, rc.bottom - grip_size, rc.right, rc.bottom};
+							RECT   grip_rect = {cli_rect.right - grip_size, cli_rect.bottom - grip_size, cli_rect.right, cli_rect.bottom};
 							// Draw standard size grip
 							::DrawFrameControl(hdc, &grip_rect, DFC_SCROLL, DFCS_SCROLLSIZEGRIP);
 						}

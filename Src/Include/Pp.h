@@ -2976,18 +2976,20 @@ private:
 //
 //
 //
-class TextRefIdent { // @flat
+/* @v12.5.6 TextRefIdent__-->SObjTextRefIdent
+class TextRefIdent__ { // @flat
 public:
-	TextRefIdent();
-	TextRefIdent(PPID objType, PPID objID, int16 prop);
-	int operator !() const;
+	TextRefIdent__();
+	TextRefIdent__(PPID objType, PPID objID, int16 prop);
+	bool   operator !() const;
 
 	SObjID O; // Идентификатор объекта 
-	int16   P; // Идентификатор свойства PPTRPROP_XXX (ppdefs.h). В дальнейшем планируется объединение семейства PPTRPROP_XXX с PPOBJATTR_XXX
-	int16   L; // Идентификатор языка (slangXXX; 0 - default)
+	int16  P; // Идентификатор свойства PPTRPROP_XXX (ppdefs.h). В дальнейшем планируется объединение семейства PPTRPROP_XXX с PPOBJATTR_XXX
+	int16  L; // Идентификатор языка (slangXXX; 0 - default)
 };
+*/
 
-class TextRefEnumItem : public TextRefIdent {
+class TextRefEnumItem : public SObjTextRefIdent {
 public:
 	SString	S; // Строка UTF8
 };
@@ -2995,9 +2997,9 @@ public:
 class TextRefCore : public TextRefTbl {
 public:
 	TextRefCore();
-	int    Search(const TextRefIdent & rI, SStringU & rBuf);
+	int    Search(const SObjTextRefIdent & rI, SStringU & rBuf);
 	int    SearchSelfRef(long id, SStringU & rBuf);
-	int    SearchText(const TextRefIdent & rI, const wchar_t * pText, TextRefIdent * pResult);
+	int    SearchText(const SObjTextRefIdent & rI, const wchar_t * pText, SObjTextRefIdent * pResult);
 	int    SearchSelfRefText(const wchar_t * pText, PPID * pID);
 	//
 	// Descr: Находит SelfRefText через кэш.
@@ -3005,9 +3007,9 @@ public:
 	//
 	int    FetchSelfRefText(const char * pText, PPID * pID);
 	int    GetSelfRefText(const wchar_t * pText, PPID * pID, int use_ta);
-	int    SetText(const TextRefIdent & rI, const wchar_t * pText, int use_ta);
-	int    SearchTextByPrefix(const TextRefIdent & rI, const wchar_t * pPrefix, TSVector <TextRefIdent> * pList);
-	int    SearchSelfRefTextByPrefix(const wchar_t * pPrefix, TSVector <TextRefIdent> * pList);
+	int    SetText(const SObjTextRefIdent & rI, const wchar_t * pText, int use_ta);
+	int    SearchTextByPrefix(const SObjTextRefIdent & rI, const wchar_t * pPrefix, TSVector <SObjTextRefIdent> * pList);
+	int    SearchSelfRefTextByPrefix(const wchar_t * pPrefix, TSVector <SObjTextRefIdent> * pList);
 private:
 	int    GetLastObjId(PPID objType, int prop, PPID * pID);
 };
@@ -3018,23 +3020,24 @@ public:
 	//
 	// Descr: Возвращает текст в кодировке utf-8
 	//
-	int    SearchUtf8(const TextRefIdent & rI, SString & rBufUtf8); // @v12.4.7
-	int    SearchU(const TextRefIdent & rI, SStringU & rBuf);
-	int    SearchTS(const TextRefIdent & rI, STimeSeries & rTs);
+	int    SearchUtf8(const SObjTextRefIdent & rI, SString & rBufUtf8); // @v12.4.7
+	int    SearchU(const SObjTextRefIdent & rI, SStringU & rBuf);
+	int    SearchTS(const SObjTextRefIdent & rI, STimeSeries & rTs);
 	//
 	// Descr: Сохраняет текст, заданный в кодировке utf-8
 	//
-	int    SetTextUtf8(const TextRefIdent & rI, const SString & rTextUtf8, int use_ta); // @v12.4.7
+	int    SetTextUtf8(const SObjTextRefIdent & rI, const SString & rTextUtf8, int use_ta); // @v12.4.7
+	int    SetTextUtf8_(const SObjTextRefIdent & rI, const void * pTextUtf8, size_t textLen, int use_ta); // @v12.5.6
 	//
 	// Descr: Удаляет запись, идентифицируемую как rI.
 	//
-	int    Remove(const TextRefIdent & rI, int use_ta); // @v12.4.7
+	int    Remove(const SObjTextRefIdent & rI, int use_ta); // @v12.4.7
 	int    FilterIdList(PPID objType, int prop, const char * pPattern, const PPIDArray * pFiltIdList, PPIDArray & rResultIdList);
 	int    FilterIdRange(PPID objType, int prop, const char * pPattern, const IntRange * pFiltIdRange, PPIDArray & rResultIdList);
 	//
 	// Descr: Сохраняет временную серию в записи.
 	//
-	int    SetTimeSeries(const TextRefIdent & rI, STimeSeries * pTs, int use_ta);
+	int    SetTimeSeries(const SObjTextRefIdent & rI, STimeSeries * pTs, int use_ta);
 	//
 	SEnum::Imp * Enum(PPID objType, int prop);
 	SEnum::Imp * Enum(PPID objType, int prop, PPID minObjID);
@@ -3308,14 +3311,16 @@ private:
 class ObjVersioningCore : public ObjVerTbl {
 public:
 	ObjVersioningCore();
-	int    IsInited() const;
+	bool   IsInited() const;
 	int    InitSerializeContext(int use_ta);
 	SSerializeContext & GetSCtx();
 	int    Add(PPID * pID, SObjID oid, SBuffer * pBuf, int use_ta);
 	int    Search(PPID id, SObjID * pOid, long * pVer, SBuffer * pPackBuf);
 	int    SearchOid(SObjID oid, long ver, ObjVerTbl::Rec * pRec, SBuffer * pDataBuf);
-	int    GetNextVer(SObjID oid, long * pVer);
+	int    GetNextVer(SObjID oid, int32 * pVer);
 private:
+	int    Helper_ReadObjectBuffer(SBuffer * pDataBuf);
+
 	enum {
 		stSCtxInited = 0x0001
 	};
@@ -3358,8 +3363,7 @@ struct PPObjectTag2 {   // @persistent @store(Reference2Tbl+)
 	char   Name[48];    // @name @!refname
 	char   Symb[20];    // Символ для использования в формулах
 	char   Reserve[44]; // @reserve // @v11.2.8 [48]--[44]
-	uint32 HotKey;      // @v11.2.8 Горячая клавиша для редактирования тега из таблиц (после '/')
-		// LOWORD - keycode, HIWORD - modifier (alt||ctrl||shift)
+	uint32 HotKey;      // @v11.2.8 Горячая клавиша для редактирования тега из таблиц (после '/') LOWORD - keycode, HIWORD - modifier (alt||ctrl||shift)
 	PPID   LinkObjGrp;  // Дополнительный параметр для ссылочного объекта
 	PPID   TagEnumID;   // Тип ссылочного объекта
 	long   TagDataType; // OTTYP_XXX
@@ -5085,6 +5089,7 @@ class STAcct : public DataType {
 public:
 	explicit STAcct(uint32 sz = sizeof(Acct));
 	char * tostr(const void *, long, char *) const;
+	virtual SString & ToStr_(const void * pData, long fmt, SString & rBuf) const; // @v12.5.6
 	int    fromstr(void *, long, const char *) const;
 };
 
@@ -8515,6 +8520,8 @@ struct PPObjPack {
 //
 class PPObject {
 public:
+	static int LoadObjectText(const SObjTextRefIdent & rIdent, SString & rBuf, void * extraPtr); // @v12.5.6 LoadObjectTextFunc
+	static int StoreObjectText(const SObjTextRefIdent & rIdent, const void * pTextUtf8, size_t textLen, void * extraPtr); // @v12.5.6 StoreObjectTextFunc
 	//
 	// Descr: Создает сигнатуру объекта данных, хранящегося вне базы данных. Сигнатура формируется как текст base32
 	//   бинарной конкатенации некоего глобального идентификатора rGlobalIdent, идентификатора объекта данных и 
@@ -24258,6 +24265,7 @@ private:
 #define PPWBTYP_FOLDER  4
 #define PPWBTYP_SITE    5
 #define PPWBTYP_KEYWORD 6
+#define PPWBTYP_NOTE    7 // @v12.5.6 @centrigo заметка 
 //
 // Descr: Флаги записей Workbook
 // @persistent
@@ -24265,10 +24273,6 @@ private:
 #define PPWBF_HIDDEN           0x0001
 #define PPWBF_DONTSHOWCHILDREN 0x0002
 #define PPWBF_KWDONTSHOWMAINC  0x0004
-//
-// Descr: Коды дополнительных строковых значений записей рабочей книги
-//
-#define WBEXSTR_DESCRIPTION    1
 
 struct PPWorkbookConfig { // @persistent @store(PropertyTbl)
 	PPWorkbookConfig();
@@ -24287,6 +24291,9 @@ struct PPWorkbookConfig { // @persistent @store(PropertyTbl)
 
 class PPWorkbookPacket {
 public:
+	enum { // @persistent
+		extssDescription = 1,
+	};
 	PPWorkbookPacket();
 	~PPWorkbookPacket();
 	bool   FASTCALL IsEq(const PPWorkbookPacket & rS) const;
@@ -24303,6 +24310,8 @@ public:
 	ObjTagList TagL;        // Список тегов
 	ObjLinkFiles F;
 	SString ExtString;
+	SString NTextUtf8;      // @v12.5.6 Отдельное поле для текста заметки (PPWBTYP_NOTE). Этот текст может быть очень 
+		// большим потому нет резона инкапсулировать его в ExtString со специальным идентификатором.
 };
 
 class WorkbookCore : public WorkbookTbl {
@@ -24348,6 +24357,7 @@ public:
 	int    SearchAnalog(const WorkbookTbl::Rec * pSample, PPID * pID, WorkbookTbl::Rec * pRec);
 	int    Fetch(PPID id, WorkbookTbl::Rec * pRec);
 	int    MakeUniqueCode(SString & rBuf, int use_ta);
+	int    MakeUniqueName(SString & rBuf, const char * pPrefix, int use_ta);
 	int    PutPacket(PPID * pID, PPWorkbookPacket * pPack, int use_ta);
 	int    GetPacket(PPID id, PPWorkbookPacket * pPack);
 	StrAssocArray * MakeStrAssocList(void * extraPtr);
@@ -24613,6 +24623,7 @@ private:
 #define GTCHZNPT_NONALCBEER         UED::GetRawValue32(UED_RUCHZNPRODTYPE_NONALCBEER)/*18*/ // @v12.2.6 Пиво безалкогольное
 #define GTCHZNPT_PETFOOD            UED::GetRawValue32(UED_RUCHZNPRODTYPE_PETFOOD)/*19*/ // @v12.3.9 Корм для животных
 #define GTCHZNPT_VEGETABLEOIL       UED::GetRawValue32(UED_RUCHZNPRODTYPE_VEGETABLEOIL)/*20*/ // @v12.4.8 Растительное масло
+#define GTCHZNPT_NCP                UED::GetRawValue32(UED_RUCHZNPRODTYPE_NCP)/*21*/ // @v12.5.6 Никотиносодержащая продукция //
 
 struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	PPGoodsType2();
@@ -26380,7 +26391,7 @@ private:
 
 	int    Helper_GetHierarchy(PPID id, long flags, FiasHouseObjTbl::Rec * pHseRec, TSArray <FiasAddrObjTbl::Rec> & rList, long * pZip);
 	uint   IsObjInHierarchy(PPID objID, const TSArray <FiasAddrObjTbl::Rec> & rList) const;
-	int    SearchObjByTextRefList(const TSVector <TextRefIdent> & rTRefList, PPIDArray & rList);
+	int    SearchObjByTextRefList(const TSVector <SObjTextRefIdent> & rTRefList, PPIDArray & rList);
 };
 //
 //
@@ -48584,51 +48595,6 @@ private:
 	SStrGroup StrPool; // Пул строковых полей, на который ссылаются поля в TempPrjTask
 };
 //
-// @ModuleDecl(PPObjNotes)
-//
-struct PPNotesPacket : public PPExtStrContainer {
-	enum {
-		extssTitle = 1,
-		extssText  = 2,
-	};
-	PPNotesPacket();
-	PPNotesPacket & Z();
-
-	NotesTbl::Rec Rec;
-	ObjTagList TagL;
-};
-//
-// Descr: Объект, управляющих заметками. 
-// Note: Объект разработан в рамках проекта Centrigo.
-//
-class PPObjNotes : public PPObject { // @v12.5.6
-public:
-	explicit PPObjNotes(void * extraPtr = 0);
-	~PPObjNotes();
-	int    IsPacketEq(const PPNotesPacket & rS1, const PPNotesPacket & rS2, long flags);
-	int    SerializePacket(int dir, PPNotesPacket * pPack, SBuffer & rBuf, SSerializeContext * pCtx);
-	int    GetPacket(PPID id, PPNotesPacket * pPack);
-	int    PutPacket(PPID * pID, PPNotesPacket * pPack, int use_ta);
-	int    GetName(PPID id, SString & rName);
-	int    GetText(PPID id, SString & rText);
-	virtual int Search(PPID id, void * pRec = 0);
-	virtual int Browse(void * extraPtr);
-	virtual int Edit(PPID * pID, void * extraPtr);
-	virtual int DeleteObj(PPID id);
-private:
-	virtual StrAssocArray * MakeStrAssocList(void * extraPtr);
-	virtual const char * GetNamePtr();
-	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
-	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
-	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
-	int    PutExtText(PPID id, const PPNotesPacket * pPack, int use_ta);
-	int    AddItemToSelectorList(const NotesTbl::Rec & rRec, AislBlock & rBlk); // @recursion
-
-	TLP_MEMB(NotesTbl, P_Tbl);
-	void * ExtraPtr;
-};
-//
 // @ModuleDecl(PPViewPriceAnlz)
 //
 class PriceAnlzFilt : public PPBaseFilt {
@@ -62596,7 +62562,7 @@ int    STDCALL PPLoadError(int code, SString & s, const char * pAddInfo);
 //
 // Descr: Загружает строку категории PPSTR_TEXT в буфер s и перекодирует ее функцией s.Transf(CTRANSF_INNER_TO_OUTER)
 //
-int    FASTCALL PPLoadTextWin(int code, SString & s);
+int    FASTCALL PPLoadTextAnsi(int code, SString & s);
 int    PPGetSubStr(const char * pStr, int idx, SString &);
 int    PPGetSubStr(const char * pStr, int idx /* 0.. */, char * pBuf, size_t bufLen);
 	// @>>PPGetSubStr(const char *, int, SString &)
@@ -63932,6 +63898,7 @@ int    EditDebtLimList(PPClientAgreement & rCliAgt);
 int    EditCheckInPersonItem(const PPCheckInPersonConfig * pCfg, PPCheckInPersonItem * pData);
 int    EditCheckInPersonList(const PPCheckInPersonConfig * pCfg, PPCheckInPersonArray * pData);
 void   PPViewTextBrowser(const char * pFileName, const char * pTitle, const char * pLexerSymb, int toolbarId = -1);
+void   PPViewTextBrowser(const SObjTextRefIdent & rIdent, const char * pTitle, const char * pLexerSymb, int toolbarId = -1);
 
 class EditTextFileParam : public PPBaseFilt {
 public:
@@ -64053,6 +64020,7 @@ int Convert12005(); // @v12.0.5 SCardOp (добавлены поля CtAmount & 
 int Convert12207(); // @v12.2.7 VATBook (добавлены дополнительные поля для новых ставок НДС, увеличены длины номеров документов, перестроен порядок полей)
 int Convert12401(); // @v12.4.1 LocTransf
 int Convert12407(); // @v12.4.7 PrjTask
+int Convert12506(); // @v12.5.6 Workbook
 int DoChargeSalary();
 int DoDebtRate();
 int DoBizScore(PPID bzsID);

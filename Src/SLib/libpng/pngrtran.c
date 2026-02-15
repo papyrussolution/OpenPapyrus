@@ -742,116 +742,108 @@ void PNGAPI png_set_tRNS_to_alpha(png_structrp png_ptr)
 		return;
 	png_ptr->transformations |= (PNG_EXPAND | PNG_EXPAND_tRNS);
 }
-
 #endif /* READ_EXPAND */
-
 #ifdef PNG_READ_EXPAND_16_SUPPORTED
-/* Expand to 16-bit channels, expand the tRNS chunk too (because otherwise
- * it may not work correctly.)
- */
-void PNGAPI png_set_expand_16(png_structrp png_ptr)
-{
-	png_debug(1, "in " __FUNCTION__);
-	if(!png_rtran_ok(png_ptr, 0))
-		return;
-	png_ptr->transformations |= (PNG_EXPAND_16 | PNG_EXPAND | PNG_EXPAND_tRNS);
-}
+	/* Expand to 16-bit channels, expand the tRNS chunk too (because otherwise
+	 * it may not work correctly.)
+	 */
+	void PNGAPI png_set_expand_16(png_structrp png_ptr)
+	{
+		png_debug(1, "in " __FUNCTION__);
+		if(!png_rtran_ok(png_ptr, 0))
+			return;
+		png_ptr->transformations |= (PNG_EXPAND_16 | PNG_EXPAND | PNG_EXPAND_tRNS);
+	}
 #endif
-
 #ifdef PNG_READ_GRAY_TO_RGB_SUPPORTED
-void PNGAPI png_set_gray_to_rgb(png_structrp png_ptr)
-{
-	png_debug(1, "in " __FUNCTION__);
-	if(!png_rtran_ok(png_ptr, 0))
-		return;
-	/* Because rgb must be 8 bits or more: */
-	png_set_expand_gray_1_2_4_to_8(png_ptr);
-	png_ptr->transformations |= PNG_GRAY_TO_RGB;
-}
-
+	void PNGAPI png_set_gray_to_rgb(png_structrp png_ptr)
+	{
+		png_debug(1, "in " __FUNCTION__);
+		if(!png_rtran_ok(png_ptr, 0))
+			return;
+		/* Because rgb must be 8 bits or more: */
+		png_set_expand_gray_1_2_4_to_8(png_ptr);
+		png_ptr->transformations |= PNG_GRAY_TO_RGB;
+	}
 #endif
-
 #ifdef PNG_READ_RGB_TO_GRAY_SUPPORTED
-void PNGFAPI png_set_rgb_to_gray_fixed(png_structrp png_ptr, int error_action, png_fixed_point red, png_fixed_point green)
-{
-	png_debug(1, "in " __FUNCTION__);
-	/* Need the IHDR here because of the check on color_type below. */
-	/* @todo fix this */
-	if(png_rtran_ok(png_ptr, 1) == 0)
-		return;
-	switch(error_action) {
-		case PNG_ERROR_ACTION_NONE:
-		    png_ptr->transformations |= PNG_RGB_TO_GRAY;
-		    break;
-		case PNG_ERROR_ACTION_WARN:
-		    png_ptr->transformations |= PNG_RGB_TO_GRAY_WARN;
-		    break;
-		case PNG_ERROR_ACTION_ERROR:
-		    png_ptr->transformations |= PNG_RGB_TO_GRAY_ERR;
-		    break;
-		default:
-		    png_error(png_ptr, "invalid error action to rgb_to_gray");
-	}
-	if(png_ptr->color_type == PNG_COLOR_TYPE_PALETTE)
-#ifdef PNG_READ_EXPAND_SUPPORTED
-		png_ptr->transformations |= PNG_EXPAND;
-#else
+	void PNGFAPI png_set_rgb_to_gray_fixed(png_structrp png_ptr, int error_action, png_fixed_point red, png_fixed_point green)
 	{
-		/* Make this an error in 1.6 because otherwise the application may assume
-		 * that it just worked and get a memory overwrite.
-		 */
-		png_error(png_ptr, "Cannot do RGB_TO_GRAY without EXPAND_SUPPORTED");
-		/* png_ptr->transformations &= ~PNG_RGB_TO_GRAY; */
-	}
-#endif
-	{
-		if(red >= 0 && green >= 0 && red + green <= PNG_FP_1) {
-			uint16 red_int, green_int;
-
-			/* NOTE: this calculation does not round, but this behavior is retained
-			 * for consistency; the inaccuracy is very small.  The code here always
-			 * overwrites the coefficients, regardless of whether they have been
-			 * defaulted or set already.
-			 */
-			red_int = (uint16)(((uint32)red*32768)/100000);
-			green_int = (uint16)(((uint32)green*32768)/100000);
-
-			png_ptr->rgb_to_gray_red_coeff   = red_int;
-			png_ptr->rgb_to_gray_green_coeff = green_int;
-			png_ptr->rgb_to_gray_coefficients_set = 1;
+		png_debug(1, "in " __FUNCTION__);
+		/* Need the IHDR here because of the check on color_type below. */
+		/* @todo fix this */
+		if(png_rtran_ok(png_ptr, 1) == 0)
+			return;
+		switch(error_action) {
+			case PNG_ERROR_ACTION_NONE:
+				png_ptr->transformations |= PNG_RGB_TO_GRAY;
+				break;
+			case PNG_ERROR_ACTION_WARN:
+				png_ptr->transformations |= PNG_RGB_TO_GRAY_WARN;
+				break;
+			case PNG_ERROR_ACTION_ERROR:
+				png_ptr->transformations |= PNG_RGB_TO_GRAY_ERR;
+				break;
+			default:
+				png_error(png_ptr, "invalid error action to rgb_to_gray");
 		}
-
-		else {
-			if(red >= 0 && green >= 0)
-				png_app_warning(png_ptr, "ignoring out of range rgb_to_gray coefficients");
-
-			/* Use the defaults, from the cHRM chunk if set, else the historical
-			 * values which are close to the sRGB/HDTV/ITU-Rec 709 values.  See
-			 * png_do_rgb_to_gray for more discussion of the values.  In this case
-			 * the coefficients are not marked as 'set' and are not overwritten if
-			 * something has already provided a default.
+		if(png_ptr->color_type == PNG_COLOR_TYPE_PALETTE)
+	#ifdef PNG_READ_EXPAND_SUPPORTED
+			png_ptr->transformations |= PNG_EXPAND;
+	#else
+		{
+			/* Make this an error in 1.6 because otherwise the application may assume
+			 * that it just worked and get a memory overwrite.
 			 */
-			if(png_ptr->rgb_to_gray_red_coeff == 0 && png_ptr->rgb_to_gray_green_coeff == 0) {
-				png_ptr->rgb_to_gray_red_coeff   = 6968;
-				png_ptr->rgb_to_gray_green_coeff = 23434;
-				/* png_ptr->rgb_to_gray_blue_coeff  = 2366; */
+			png_error(png_ptr, "Cannot do RGB_TO_GRAY without EXPAND_SUPPORTED");
+			/* png_ptr->transformations &= ~PNG_RGB_TO_GRAY; */
+		}
+	#endif
+		{
+			if(red >= 0 && green >= 0 && red + green <= PNG_FP_1) {
+				uint16 red_int, green_int;
+
+				/* NOTE: this calculation does not round, but this behavior is retained
+				 * for consistency; the inaccuracy is very small.  The code here always
+				 * overwrites the coefficients, regardless of whether they have been
+				 * defaulted or set already.
+				 */
+				red_int = (uint16)(((uint32)red*32768)/100000);
+				green_int = (uint16)(((uint32)green*32768)/100000);
+
+				png_ptr->rgb_to_gray_red_coeff   = red_int;
+				png_ptr->rgb_to_gray_green_coeff = green_int;
+				png_ptr->rgb_to_gray_coefficients_set = 1;
+			}
+
+			else {
+				if(red >= 0 && green >= 0)
+					png_app_warning(png_ptr, "ignoring out of range rgb_to_gray coefficients");
+
+				/* Use the defaults, from the cHRM chunk if set, else the historical
+				 * values which are close to the sRGB/HDTV/ITU-Rec 709 values.  See
+				 * png_do_rgb_to_gray for more discussion of the values.  In this case
+				 * the coefficients are not marked as 'set' and are not overwritten if
+				 * something has already provided a default.
+				 */
+				if(png_ptr->rgb_to_gray_red_coeff == 0 && png_ptr->rgb_to_gray_green_coeff == 0) {
+					png_ptr->rgb_to_gray_red_coeff   = 6968;
+					png_ptr->rgb_to_gray_green_coeff = 23434;
+					/* png_ptr->rgb_to_gray_blue_coeff  = 2366; */
+				}
 			}
 		}
 	}
-}
 
-#ifdef PNG_FLOATING_POINT_SUPPORTED
-/* Convert a RGB image to a grayscale of the same width.  This allows us,
- * for example, to convert a 24 bpp RGB image into an 8 bpp grayscale image.
- */
-
-void PNGAPI png_set_rgb_to_gray(png_structrp png_ptr, int error_action, double red, double green)
-{
-	png_set_rgb_to_gray_fixed(png_ptr, error_action, png_fixed(png_ptr, red, "rgb to gray red coefficient"), png_fixed(png_ptr, green, "rgb to gray green coefficient"));
-}
-
-#endif /* FLOATING POINT */
-
+	#ifdef PNG_FLOATING_POINT_SUPPORTED
+		/* Convert a RGB image to a grayscale of the same width.  This allows us,
+		 * for example, to convert a 24 bpp RGB image into an 8 bpp grayscale image.
+		 */
+		void PNGAPI png_set_rgb_to_gray(png_structrp png_ptr, int error_action, double red, double green)
+		{
+			png_set_rgb_to_gray_fixed(png_ptr, error_action, png_fixed(png_ptr, red, "rgb to gray red coefficient"), png_fixed(png_ptr, green, "rgb to gray green coefficient"));
+		}
+	#endif /* FLOATING POINT */
 #endif /* RGB_TO_GRAY */
 
 #if defined(PNG_READ_USER_TRANSFORM_SUPPORTED) || defined(PNG_WRITE_USER_TRANSFORM_SUPPORTED)
@@ -908,11 +900,9 @@ static void /*PRIVATE*/ png_init_palette_transformations(png_structrp png_ptr)
 	 */
 	int input_has_alpha = 0;
 	int input_has_transparency = 0;
-
 	if(png_ptr->num_trans > 0) {
 		int i;
-
-		/* Ignore if all the entries are opaque (unlikely!) */
+		// Ignore if all the entries are opaque (unlikely!) 
 		for(i = 0; i<png_ptr->num_trans; ++i) {
 			if(png_ptr->trans_alpha[i] == 255)
 				continue;
@@ -925,8 +915,7 @@ static void /*PRIVATE*/ png_init_palette_transformations(png_structrp png_ptr)
 			}
 		}
 	}
-
-	/* If no alpha we can optimize. */
+	// If no alpha we can optimize.
 	if(input_has_alpha == 0) {
 		/* Any alpha means background and associative alpha processing is
 		 * required, however if the alpha is 0 or 1 throughout OPTIMIZE_ALPHA
@@ -934,11 +923,9 @@ static void /*PRIVATE*/ png_init_palette_transformations(png_structrp png_ptr)
 		 */
 		png_ptr->transformations &= ~PNG_ENCODE_ALPHA;
 		png_ptr->flags &= ~PNG_FLAG_OPTIMIZE_ALPHA;
-
 		if(input_has_transparency == 0)
 			png_ptr->transformations &= ~(PNG_COMPOSE | PNG_BACKGROUND_EXPAND);
 	}
-
 #if defined(PNG_READ_EXPAND_SUPPORTED) && defined(PNG_READ_BACKGROUND_SUPPORTED)
 	/* png_set_background handling - deals with the complexity of whether the
 	 * background color is in the file format or the screen format in the case

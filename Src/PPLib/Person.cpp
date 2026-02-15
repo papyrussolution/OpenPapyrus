@@ -972,7 +972,7 @@ SString & PersonCore::GetItemMemo(PPID id, SString & rBuf)
 {
 	rBuf.Z();
 	if(id) {
-		PPRef->UtrC.SearchUtf8(TextRefIdent(PPOBJ_PERSON, id, PPTRPROP_MEMO), rBuf);
+		PPRef->UtrC.SearchUtf8(SObjTextRefIdent(PPOBJ_PERSON, id, PPTRPROP_MEMO), rBuf);
 		rBuf.Transf(CTRANSF_UTF8_TO_INNER);
 	}
 	return rBuf;
@@ -1085,13 +1085,13 @@ int PersonCore::Put(PPID * pID, PPPerson * pPack, int use_ta)
 				strip(pPack->Rec.Name);
 				pPack->Rec.ID = *pID;
 				THROW_DB(updateRecBuf(&pPack->Rec)); // @sfu
-				THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_PERSON, *pID, PPTRPROP_MEMO), memo_buf_utf8, 0)); // @v11.1.12
+				THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(PPOBJ_PERSON, *pID, PPTRPROP_MEMO), memo_buf_utf8, 0)); // @v11.1.12
 				THROW(PutKinds(*pID, pPack));
 				THROW(PutRelList(*pID, &pPack->GetRelList(), 0));
 			}
 			else {
 				THROW_DB(deleteRec()); // @sfu
-				THROW(p_ref->UtrC.Remove(TextRefIdent(PPOBJ_PERSON, *pID, PPTRPROP_MEMO), 0)); // @v11.1.12
+				THROW(p_ref->UtrC.Remove(SObjTextRefIdent(PPOBJ_PERSON, *pID, PPTRPROP_MEMO), 0)); // @v11.1.12
 				THROW(RemoveKind(*pID, 0, 0));
 				THROW(PutRelList(*pID, 0, 0));
 			}
@@ -1102,7 +1102,7 @@ int PersonCore::Put(PPID * pID, PPPerson * pPack, int use_ta)
 			CopyBufFrom(&pPack->Rec, sizeof(pPack->Rec));
 			THROW_DB(insertRec(0, pID));
 			pPack->Rec.ID = *pID;
-			THROW(p_ref->UtrC.SetTextUtf8(TextRefIdent(PPOBJ_PERSON, *pID, PPTRPROP_MEMO), memo_buf_utf8, 0)); // @v11.1.12
+			THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(PPOBJ_PERSON, *pID, PPTRPROP_MEMO), memo_buf_utf8, 0)); // @v11.1.12
 			THROW(PutKinds(*pID, pPack));
 			THROW(PutRelList(*pID, &pPack->GetRelList(), 0));
 		}

@@ -537,7 +537,7 @@ void ComDispInterface::SetErrCode()
 		SSystem::SFormatMessage(hr, sys_err_buf); // @v10.3.11
 	}
 	if(sys_err_buf.IsEmpty()) {
-		//PPLoadTextWin(PPTXT_RETCODE, temp_buf);
+		//PPLoadTextAnsi(PPTXT_RETCODE, temp_buf);
 		sys_err_buf.Cat("retcode").Space().CatHex(HRes);
 	}
 	err_msg.CatQStr(ProgIdent).Space().Cat(sys_err_buf.Transf(CTRANSF_OUTER_TO_INNER));

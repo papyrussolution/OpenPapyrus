@@ -1,5 +1,5 @@
 // OBJBROWS.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -82,14 +82,14 @@ static ListBoxDef * __ListBoxDefFactory(PPID objType, StrAssocArray * pList, voi
 }
 
 PPObjListWindow::PPObjListWindow(PPID objType, StrAssocArray * pList, uint aFlags, void * extraPtr) :
-	ListWindow(__ListBoxDefFactory(objType, pList, extraPtr))
+	ListWindow(__ListBoxDefFactory(objType, pList, extraPtr), 0)
 {
 	PPObject * p_obj = GetPPObject(objType, extraPtr);
 	Init(p_obj, aFlags|OLW_OUTERLIST, extraPtr);
 }
 
 PPObjListWindow::PPObjListWindow(PPObject * aPPObj, uint aFlags, void * extraPtr) :
-	ListWindow((aFlags & OLW_LOADDEFONOPEN) ? 0 : aPPObj->Selector(0, aFlags, extraPtr))
+	ListWindow((aFlags & OLW_LOADDEFONOPEN) ? 0 : aPPObj->Selector(0, aFlags, extraPtr), 0)
 {
 	Init(aPPObj, aFlags, extraPtr);
 }
@@ -178,11 +178,11 @@ IMPL_HANDLE_EVENT(PPObjListWindow)
 			switch(TVCMD) {
 				case cmLBLoadDef:
 					if(!P_Def && (Flags & OLW_LOADDEFONOPEN)) {
-						ListWindowSmartListBox * p_box = listBox();
+						ListWindowSmartListBox * p_box = GetListBox();
 						if(p_box) {
 							setDef(p_obj->Selector(0, 0, ExtraPtr));
 							p_box->setDef(P_Def);
-							ComboBox * p_combo = p_box->combo;
+							ComboBox * p_combo = p_box->GetCombo();
 							if(p_combo) {
 								p_combo->setDef(P_Def);
 								p_combo->setDataByUndefID();
@@ -515,7 +515,7 @@ IMPL_HANDLE_EVENT(PPListDialog)
 			case cmRightClick:
 				{
 					SString temp_buf;
-					if(PPLoadTextWin(PPTXT_MENU_LISTBOX, temp_buf)) {
+					if(PPLoadTextAnsi(PPTXT_MENU_LISTBOX, temp_buf)) {
 						getCurItem(&p, &i);
 						if(ContextMenuID) {
 							PPExecuteContextMenu(p_box, ContextMenuID);

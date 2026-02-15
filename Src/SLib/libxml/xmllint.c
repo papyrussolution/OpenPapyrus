@@ -210,10 +210,9 @@ static xmlChar * paths[MAX_PATHS + 1];
 static int nbpaths = 0;
 static int load_trace = 0;
 
-static
-void parsePath(const xmlChar * path) {
+static void parsePath(const xmlChar * path) 
+{
 	const xmlChar * cur;
-
 	if(path == NULL)
 		return;
 	while(*path != 0) {

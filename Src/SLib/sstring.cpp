@@ -25,6 +25,13 @@ const wchar_t * FASTCALL SUcSwitchW(const SString & rStr)
 	SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
 	return r_temp_buf_u.CopyFromMb_OUTER(rStr, rStr.Len()).ucptr();
 }
+
+const wchar_t * FASTCALL SUcSwitchWUtf8(const SString & rStrUtf8) // @v12.5.6
+{
+	SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+	r_temp_buf_u.CopyFromUtf8(rStrUtf8);
+	return r_temp_buf_u.ucptr();
+}
 //
 //
 //
@@ -1577,6 +1584,109 @@ SString & FASTCALL SString::SetIfEmpty(const SString & rS)
 	return *this;
 }
 
+/*
+char * STDCALL strfmt(const char * pStr, long fmt, char * pBuf)
+{
+	char * p_org_buf = pBuf;
+	int    flag = SFMTFLAG(fmt);
+	if(isempty(pStr)) {
+		if(flag & COMF_SQL) {
+			pBuf[0] = '\'';
+			pBuf[1] = ' ';
+			pBuf[2] = '\'';
+			pBuf[3] = 0;
+		}
+		else
+			pBuf[0] = 0;
+	}
+	else {
+		char   temp_buf[4096];
+		int    use_temp_buf = 0;
+		if(flag & COMF_SQL) {
+			if(pBuf == pStr) {
+				pBuf = temp_buf;
+				use_temp_buf = 1;
+			}
+			*pBuf++ = '\'';
+		}
+		if(flag & STRF_TOOEM) {
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			(r_temp_buf = pStr).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pBuf, 0);
+		}
+		else if(flag & STRF_TOANSI) {
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			(r_temp_buf = pStr).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(pBuf, 0);
+		}
+		else if(pBuf != pStr)
+			strcpy(pBuf, pStr);
+
+		if(flag & STRF_UPPER)
+			strupr866(pBuf);
+		else if(flag & STRF_LOWER)
+			strlwr866(pBuf);
+		if(flag & STRF_PASSWORD)
+			strset(pBuf, SlConst::DefaultPasswordSymb);
+		if(flag & COMF_SQL) {
+			const size_t len = sstrlen(pBuf);
+			pBuf[len] = '\'';
+			pBuf[len+1] = 0;
+		}
+		if(use_temp_buf)
+			strcpy(p_org_buf, temp_buf);
+	}
+	return _commfmt(fmt, p_org_buf);
+}
+*/
+SString & SString::SetSFmt(const char * pS, long fmt, size_t len) // @v12.5.6
+{
+	// @attention: всегда полагаемся на то, что длина строки pS - len (не используем strlen)
+	// 
+	Z();
+	const  int flag = SFMTFLAG(fmt);
+	if(isempty(pS)) {
+		if(flag & COMF_SQL) {
+			CatChar('\'').Space().CatChar('\'');
+		}
+	}
+	else {
+		if(flag & COMF_SQL) {
+			CatChar('\'');
+		}
+		if(flag & STRF_PASSWORD) {
+			CatCharN(SlConst::DefaultPasswordSymb, len);
+		}
+		else {
+			CatN(pS, len);
+			if(flag & STRF_UPPER) {
+				if(flag & STRF_TOOEM) {
+					ToUpper1251();
+				}
+				else {
+					ToUpper();
+				}
+			}
+			else if(flag & STRF_LOWER) {
+				if(flag & STRF_TOOEM) {
+					ToLower1251();
+				}
+				else {
+					ToLower();
+				}
+			}
+			if(flag & STRF_TOOEM) {
+				Transf(CTRANSF_OUTER_TO_INNER);
+			}
+			else if(flag & STRF_TOANSI) {
+				Transf(CTRANSF_INNER_TO_OUTER);
+			}
+		}
+		if(flag & COMF_SQL) {
+			CatChar('\'');
+		}
+	}
+	return _commfmt(fmt, *this);
+}
+
 int SString::GetSubFrom(const char * pStr, int div, int idx)
 {
 	uint   pos = 0;
@@ -2224,30 +2334,31 @@ SString & SString::FromUrl()
 SString & SString::ToOem()
 {
 	if(Len())
-		CharToOemA(P_Buf, P_Buf); // @unicodeproblem
+		CharToOemA(P_Buf, P_Buf);
 	return *this;
 }
 
-SString & SString::ToChar()
+/* @v12.5.6 (replaced with Transf(CTRANSF_INNER_TO_OUTER)) SString & SString::ToAnsii()
 {
 	if(Len())
-		OemToCharA(P_Buf, P_Buf); // @unicodeproblem
+		OemToCharA(P_Buf, P_Buf);
 	return *this;
-}
+}*/
 
 SString & FASTCALL SString::Transf(int ctransf)
 {
 	// @v11.8.5 При попытке преобразования строки в utf8-формат функция теперь предварительно
 	// проверяет не пребывает ли строка this уже в utf8-формате.
-	if(Len()) {
+	// @v12.5.6 if(Len()) {
+	if(!IsAscii()) { // @v12.5.6 Считаем, что проверить что строка состоит из ascii-символов или пустая быстрее, нежели в холостую конвертировать такой текст.
 		switch(ctransf) {
-			case CTRANSF_INNER_TO_OUTER: OemToCharA(P_Buf, P_Buf); break; // @unicodeproblem
-			case CTRANSF_OUTER_TO_INNER: CharToOemA(P_Buf, P_Buf); break; // @unicodeproblem
+			case CTRANSF_INNER_TO_OUTER: OemToCharA(P_Buf, P_Buf); break;
+			case CTRANSF_OUTER_TO_INNER: CharToOemA(P_Buf, P_Buf); break;
 			case CTRANSF_INNER_TO_UTF8:
 				if(IsLegalUtf8() && !IsCp866()) // @v11.8.5 // @v11.9.1 (&& !IsCp866())
 					return *this;
 				else {
-					OemToCharA(P_Buf, P_Buf); // @unicodeproblem
+					OemToCharA(P_Buf, P_Buf);
 					return Helper_MbToMb(CP_ACP, CP_UTF8);
 				}
 			case CTRANSF_OUTER_TO_UTF8: 
@@ -4132,10 +4243,10 @@ SString & SString::Sub(size_t startPos, size_t len, SString & rBuf) const
 SString & SString::Fmt(long fmt)
 {
 	int    flag = SFMTFLAG(fmt);
-	if(flag & STRF_OEM) {
+	if(flag & STRF_TOOEM) {
 		Transf(CTRANSF_OUTER_TO_INNER);
 	}
-	else if(flag & STRF_ANSI) {
+	else if(flag & STRF_TOANSI) {
 		Transf(CTRANSF_INNER_TO_OUTER);
 	}
 	if(flag & STRF_UPPER) {
@@ -5225,10 +5336,7 @@ SStringU & SStringU::Sub(size_t startPos, size_t len, SStringU & rBuf) const
 	return len;
 }
 
-int SString::IsAscii() const
-{
-	return sisascii(P_Buf, Len());
-}
+bool SString::IsAscii() const { return sisascii(P_Buf, Len()); }
 
 bool SString::IsCp866() const
 {

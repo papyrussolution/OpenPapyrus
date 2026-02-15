@@ -55,7 +55,7 @@ void BExtQuery::Init(DBTable * pTbl, int idx, uint aBufSize)
 	State      = 0;
 	State     |= stFillBuf;
 	MaxReject  = 0xffffU;
-	P_Stmt = 0;
+	P_SStmt = 0;
 	const long dbp_capabilities = P_Tbl->GetDb() ? P_Tbl->GetDb()->GetCapability() : 0;
 	if(dbp_capabilities & DbProvider::cSQL) {
 		State |= stSqlProvider;
@@ -83,7 +83,7 @@ BExtQuery::BExtQuery(DBTable * pTbl, int idx) : Buf(0)
 
 BExtQuery::~BExtQuery()
 {
-	delete P_Stmt;
+	delete P_SStmt;
 	if(P_Restrict) {
 		P_Restrict->destroy(1);
 		delete P_Restrict;
@@ -112,15 +112,26 @@ int BExtQuery::CreateSqlExpr(Generator_SQL & rSg, int reverse, const char * pIni
 			rSg.Text(Fields.GetField(i).Name);
 		}
 	}
-	else
-		rSg.Aster();
+	else {
+		if(rSg.GetServerType() == sqlstMySQL) { // @v12.5.6
+			rSg.Aster();
+		}
+		else {
+			rSg.Aster();
+		}
+	}
 	rSg.Sp().From(P_Tbl->GetName());
 	if(rSg.GetServerType() == sqlstSQLite) {
 		if(rSg.GetIndexName(*P_Tbl, Index_, temp_buf)) {
 			rSg.Sp().Tok(Generator_SQL::tokIndexedBy).Sp().Text(temp_buf);
 		}
 	}
-	int _where_tok = 0;
+	else if(rSg.GetServerType() == sqlstMySQL) { // @v12.5.6
+		if(rSg.GetIndexName(*P_Tbl, Index_, temp_buf)) {
+			rSg.Sp().Tok(Generator_SQL::tokForceIndex).LPar().Text(temp_buf).RPar();
+		}
+	}
+	int    _where_tok = 0;
 	if(pInitKey && initSpMode != -1) {
 		auto   make_key_seg_value = [](Generator_SQL & rSg, const BNField & rFld, size_t offs, const char * pInitKey, void * pBuffer)
 		{
@@ -358,7 +369,7 @@ int BExtQuery::CreateSqlExpr(Generator_SQL & rSg, int reverse, const char * pIni
 			rSg.Sp().Tok(Generator_SQL::tokAnd).Sp();
 		P_Tree->CreateSqlExpr(rSg, -1);
 	}
-	if(rSg.GetServerType() == sqlstSQLite) {
+	if(oneof2(rSg.GetServerType(), sqlstSQLite, sqlstMySQL)) {
 		if(reverse) { // Обратное направление поиска
 			rSg.Tok(Generator_SQL::tokOrderBy);
 			for(int i = 0; i < ns; i++) {
@@ -418,7 +429,7 @@ int BExtQuery::nextIteration()
 	}
 	else {
 		if(++Cur < ActCount) {
-			ok = (State & stSqlProvider) ? (P_Stmt ? P_Stmt->GetData(Cur) : 0) : 1;
+			ok = (State & stSqlProvider) ? (P_SStmt ? P_SStmt->GetData(Cur) : 0) : 1;
 		}
 		else if(!(State & stEOF)) {
 			Cur = 0;
@@ -460,21 +471,47 @@ int BExtQuery::search_first(const char * pInitKey, int initSpMode, int spMode)
 	const  uint fields_count = Fields.GetCount();
 	BExtTail * p_tail = 0;
 	if(State & stSqlProvider) {
-		const DbProvider * p_dbs = P_Tbl->GetDb();
+		DbProvider * p_dbs = P_Tbl->GetDb();
 		if(!p_dbs) {
 			ok = -1; // @todo @err
 		}
 		else {
 			const SqlServerType sql_server_type = p_dbs->GetSqlServerType();
 			Generator_SQL sg(sql_server_type, 0);
-			ZDELETE(P_Stmt);
+			DBFieldList * p_fld_list = 0;
+			DBFieldList full_fld_list; // для случая selectAll()
+			if(fields_count) {
+				p_fld_list = &Fields;
+			}
+			else {
+				/* @v12.5.6 @construction
+				const  uint fc = P_Tbl->GetFields().getCount();
+				for(uint i = 0; i < fc; i++) {
+					const BNField & r_fld = P_Tbl->GetFields().GetFieldByPosition(i);
+					bool  do_skip = false;
+					if(sstreq(r_fld.Name, SlConst::P_SurrogateRowIdFieldName)) {
+						do_skip = false; // Сюрприз, сюрприз: не пропускаем это поле (собственно для того отдельный цикл здесь и нужен)
+					}
+					if(!do_skip) {
+						DBField dbfld;
+						dbfld.Id = P_Tbl->GetHandle();
+						dbfld.fld = r_fld.Id;
+						full_fld_list.Add(dbfld);
+					}
+				}
+				p_fld_list = &full_fld_list;
+				*/
+			}
+			ZDELETE(P_SStmt);
 			CreateSqlExpr(sg, BIN(State & stReverse), pInitKey, initSpMode);
 			{
 				int    r;
 				uint   actual = 0;
-				SSqlStmt stmt(P_Tbl->GetDb(), sg);
-				THROW_V(P_Stmt = new SSqlStmt(P_Tbl->GetDb(), sg), BE_NOMEM);
-				THROW(P_Stmt->Exec(0, OCI_DEFAULT));
+				// @v12.5.6 SSqlStmt stmt(p_dbs, sg);
+				//THROW(p_stmt = new DBTable::SelectStmt(this, r_ce.Conn.GetH(), pTbl, sqb.SqlG, idx, sqb.SrchMode, sf));
+				// @v12.5.6 THROW_V(P_Stmt = new SSqlStmt(p_dbs, sg), BE_NOMEM);
+				THROW_V(P_SStmt = new DBTable::SelectStmt(p_dbs, 0/*conn*/, 0/*P_Tbl*/, sg, Index_, initSpMode, DBTable::sfBExtQuery), BE_NOMEM); // @v12.5.6
+				THROW(P_SStmt->Exec(0, OCI_DEFAULT));
 				//
 				// Распределяем буфер для хранения записи.
 				//
@@ -482,35 +519,42 @@ int BExtQuery::search_first(const char * pInitKey, int initSpMode, int spMode)
 				// на одну запись. Поскольку SSqlStmt сам содержит внутренний буфер, в котором
 				// все извлеченные записи и так успешно храняться.
 				//
-				if(fields_count) {
-					for(uint i = 0; i < fields_count; i++)
-						RecSize += Fields.GetField(i).size();
+				if(p_fld_list) {
+					for(uint i = 0; i < p_fld_list->GetCount(); i++)
+						RecSize += p_fld_list->GetField(i).size();
 				}
 				else {
-					//
-					// Здесь нельзя использовать tbl->fields.CalculateFixedRecSize() поскольку
-					// эта функция возвращает размер записи без полей переменной длины и без NOTE-полей.
-					//
-					for(uint i = 0; i < P_Tbl->GetFields().getCount(); i++)
-						RecSize += P_Tbl->GetFields()[i].size();
+					if(fields_count) {
+						for(uint i = 0; i < fields_count; i++)
+							RecSize += Fields.GetField(i).size();
+					}
+					else {
+						RecSize = P_Tbl->GetFields().CalculateFixedRecSize(
+							BNFieldList2::crsfIncludeNote|BNFieldList2::crsfIncludeLOB|BNFieldList2::crsfIncludeSurrogateRowId); // @v12.5.6
+					}
 				}
 				THROW_V(Buf.Alloc(RecSize), BE_NOMEM);
 				if(p_dbs->GetCapability() & DbProvider::cDirectSelectDataMapping) {
 					assert(MaxRecs == 1); // Установлено в конструкторе BExtQuery
-					if(fields_count) {
-						THROW(P_Stmt->BindData(+1, 1, Fields, Buf.vcptr(), P_Tbl->getLobBlock()));
+					if(p_fld_list) {
+						THROW(P_SStmt->BindData(+1, 1, *p_fld_list, Buf.vcptr(), P_Tbl->getLobBlock()));
 					}
 					else {
-						THROW(P_Stmt->BindData(+1, 1, P_Tbl->GetFields(), Buf.vcptr(), P_Tbl->getLobBlock()));
+						if(fields_count) {
+							THROW(P_SStmt->BindData(+1, 1, Fields, Buf.vcptr(), P_Tbl->getLobBlock()));
+						}
+						else {
+							THROW(P_SStmt->BindData(+1, 1, P_Tbl->GetFields(), Buf.vcptr(), P_Tbl->getLobBlock()));
+						}
 					}
 					// @20251003
 					{
 						uint    local_actual_count = 0;
-						THROW(r = P_Stmt->Fetch(1, &local_actual_count));
+						THROW(r = P_SStmt->Fetch(1, &local_actual_count));
 						if(r > 0) {
 							/* @v12.4.2 это, кажись, не надо - функция Fetch уже получила данные //
 							if(ActCount) {
-								THROW(P_Stmt->GetData(0));
+								THROW(P_SStmt->GetData(0));
 							}*/
 							ActCount += local_actual_count;
 							ok = 1;
@@ -522,17 +566,22 @@ int BExtQuery::search_first(const char * pInitKey, int initSpMode, int spMode)
 					}
 				}
 				else {
-					if(fields_count) {
-						THROW(P_Stmt->BindData(+1, MaxRecs, Fields, Buf.vcptr(), P_Tbl->getLobBlock()));
+					if(p_fld_list) {
+						THROW(P_SStmt->BindData(+1, MaxRecs, *p_fld_list, Buf.vcptr(), P_Tbl->getLobBlock()));
 					}
 					else {
-						THROW(P_Stmt->BindData(+1, MaxRecs, P_Tbl->GetFields(), Buf.vcptr(), P_Tbl->getLobBlock()));
+						if(fields_count) {
+							THROW(P_SStmt->BindData(+1, MaxRecs, Fields, Buf.vcptr(), P_Tbl->getLobBlock()));
+						}
+						else {
+							THROW(P_SStmt->BindData(+1, MaxRecs, P_Tbl->GetFields(), Buf.vcptr(), P_Tbl->getLobBlock()));
+						}
 					}
-					THROW(r = P_Stmt->Fetch(MaxRecs, &ActCount));
+					THROW(r = P_SStmt->Fetch(MaxRecs, &ActCount));
 					if(r > 0) {
 						/* @v12.4.2 это, кажись, не надо - функция Fetch уже получила данные //
 						if(ActCount) {
-							THROW(P_Stmt->GetData(0));
+							THROW(P_SStmt->GetData(0));
 						}*/
 						ok = 1;
 					}
@@ -602,17 +651,17 @@ __again:
 	int    r = 0;
 	ActCount = 0;
 	if(State & stSqlProvider) {
-		if(P_Stmt) {
+		if(P_SStmt) {
 			const DbProvider * p_dbs = P_Tbl->GetDb();
 			if(p_dbs->GetCapability() & DbProvider::cDirectSelectDataMapping) {
 				assert(MaxRecs == 1); // Установлено в конструкторе BExtQuery
 				{
 					uint    local_actual_count = 0;
-					r = P_Stmt->Fetch(1, &local_actual_count);
+					r = P_SStmt->Fetch(1, &local_actual_count);
 					if(r > 0) {
 						/* @v12.4.2 это, кажись, не надо - функция Fetch уже получила данные //
 						if(ActCount) {
-							THROW(P_Stmt->GetData(0));
+							THROW(P_SStmt->GetData(0));
 						}*/
 						ActCount += local_actual_count;
 					}
@@ -623,10 +672,10 @@ __again:
 				}
 			}
 			else {
-				r = P_Stmt->Fetch(MaxRecs, &ActCount);
+				r = P_SStmt->Fetch(MaxRecs, &ActCount);
 				if(r > 0) {
 					if(ActCount)
-						if(!P_Stmt->GetData(0))
+						if(!P_SStmt->GetData(0))
 							r = 0;
 				}
 			}
@@ -821,8 +870,8 @@ const char * BExtQuery::getRecImage()
 	if(Buf.IsValid()) {
 		const  uint n = Cur;
 		if(State & stSqlProvider) {
-			if(P_Stmt && n < ActCount) {
-				P_Stmt->GetData(n);
+			if(P_SStmt && n < ActCount) {
+				P_SStmt->GetData(n);
 				p_ret = PTRCHR(Buf.vptr());
 			}
 		}

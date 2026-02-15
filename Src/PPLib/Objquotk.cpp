@@ -582,7 +582,7 @@ int PPObjQuotKind::GetPacket(PPID id, PPQuotKindPacket * pPack)
 	// @v12.0.10 {
 	{
 		SString text_buf;
-		THROW(P_Ref->UtrC.SearchUtf8(TextRefIdent(Obj, id, PPTRPROP_QUOTKIND), text_buf));
+		THROW(P_Ref->UtrC.SearchUtf8(SObjTextRefIdent(Obj, id, PPTRPROP_QUOTKIND), text_buf));
 		text_buf.Transf(CTRANSF_UTF8_TO_INNER);
 		pack.SetBuffer(text_buf.Strip());
 	}
@@ -609,7 +609,7 @@ int PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use_ta)
 					THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
 					// @v12.0.10 {
 					(ext_buffer = pPack->GetBuffer()).Strip();
-					THROW(P_Ref->UtrC.SetTextUtf8(TextRefIdent(Obj, *pID, PPTRPROP_QUOTKIND), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+					THROW(P_Ref->UtrC.SetTextUtf8(SObjTextRefIdent(Obj, *pID, PPTRPROP_QUOTKIND), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 					// } @v12.0.10 
 				}
 				// @v12.3.6 {
@@ -623,7 +623,7 @@ int PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use_ta)
 					PPObjGoods goods_obj;
 					THROW(goods_obj.P_Tbl->RemoveAllQuotForQuotKind(*pID, 0));
 					THROW(P_Ref->RemoveItem(Obj, *pID, 0));
-					THROW(P_Ref->UtrC.Remove(TextRefIdent(Obj, *pID, PPTRPROP_QUOTKIND), 0)); // @v12.0.10
+					THROW(P_Ref->UtrC.Remove(SObjTextRefIdent(Obj, *pID, PPTRPROP_QUOTKIND), 0)); // @v12.0.10
 					THROW(RemoveSync(*pID));
 				}
 			}
@@ -635,7 +635,7 @@ int PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use_ta)
 			THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
 			// @v12.0.10 {
 			(ext_buffer = pPack->GetBuffer()).Strip();
-			THROW(P_Ref->UtrC.SetTextUtf8(TextRefIdent(Obj, *pID, PPTRPROP_QUOTKIND), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(P_Ref->UtrC.SetTextUtf8(SObjTextRefIdent(Obj, *pID, PPTRPROP_QUOTKIND), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 			// } @v12.0.10
 		}
 		THROW(tra.Commit());
@@ -681,7 +681,7 @@ int PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use_ta)
 			THROW(tra);
 			THROW(goods_obj.P_Tbl->RemoveAllQuotForQuotKind(id, 0));
 			THROW(P_Ref->RemoveItem(Obj, id, 0));
-			THROW(P_Ref->UtrC.Remove(TextRefIdent(Obj, id, PPTRPROP_QUOTKIND), 0)); // @v12.0.10
+			THROW(P_Ref->UtrC.Remove(SObjTextRefIdent(Obj, id, PPTRPROP_QUOTKIND), 0)); // @v12.0.10
 			THROW(RemoveSync(id));
 			THROW(tra.Commit());
 		}

@@ -1,5 +1,5 @@
 // PPCOLORS.CPP
-// Copyright (c) A.Starodub 2007, 2009, 2010, 2011, 2013, 2016, 2017, 2018, 2019, 2020, 2022, 2025
+// Copyright (c) A.Starodub 2007, 2009, 2010, 2011, 2013, 2016, 2017, 2018, 2019, 2020, 2022, 2025, 2026
 //
 #include <pp.h>
 #pragma hdrstop
@@ -799,7 +799,7 @@ int ColorCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
 	for(size_t i = 0; i < SIZEOFARRAY(OwnerDrawCtrls); i++) {
 		if(OwnerDrawCtrls[i].CtrlType == 0 && OwnerDrawCtrls[i].CtrlID == 0) {
-			OwnerDrawCtrls[i].CtrlType = ctListBox;
+			OwnerDrawCtrls[i].CtrlType = ODC::ctListBox;
 			OwnerDrawCtrls[i].CtrlID   = CTL_OWNDRAWLBX_LIST;
 			OwnerDrawCtrls[i].ExtraParam = 22;
 			break;
@@ -864,9 +864,9 @@ int ColorCtrlGroup::getData(TDialog * pDlg, void * pData)
 		}
 		else if(TVCMD == cmDrawItem) {
 			TDrawItemData * p_di = static_cast<TDrawItemData *>(TVINFOPTR);
-			if(p_di && p_di->P_View && p_di->CtlType == ODT_LISTBOX/*ctListBox*/) {
+			if(p_di && p_di->P_View && p_di->CtlType == ODT_LISTBOX/*ODC::ctListBox*/) {
 				ListWindowSmartListBox * p_lbx = static_cast<ListWindowSmartListBox *>(p_di->P_View);
-				if(p_lbx && p_lbx->combo->TestId(CtlSel)) {
+				if(p_lbx && p_lbx->GetCombo() && p_lbx->GetCombo()->TestId(CtlSel)) {
 					HDC      h_dc = p_di->H_DC;
 					HBRUSH   old_brush = 0;
 					HBRUSH   brush = 0;

@@ -78,8 +78,8 @@ int FiasAddrCache::GetAddrObjListByText(const char * pText, PPIDArray & rList)
 					ok = 1;
 				}
 				else {
-					TextRefIdent tri(PPOBJ_SELFREFTEXT, text_ref_id, PPTRPROP_DEFAULT);
-					TSVector <TextRefIdent> text_ref_list;
+					SObjTextRefIdent tri(PPOBJ_SELFREFTEXT, text_ref_id, PPTRPROP_DEFAULT);
+					TSVector <SObjTextRefIdent> text_ref_list;
 					text_ref_list.insert(&tri);
 					ok = P_T->SearchObjByTextRefList(text_ref_list, rList);
 					if(ok > 0) {
@@ -6422,12 +6422,12 @@ int PPFiasReference::MakeAddressText(PPID terminalID, long flags, SString & rBuf
 	return ok;
 }
 
-int PPFiasReference::SearchObjByTextRefList(const TSVector <TextRefIdent> & rTRefList, PPIDArray & rList)
+int PPFiasReference::SearchObjByTextRefList(const TSVector <SObjTextRefIdent> & rTRefList, PPIDArray & rList)
 {
 	int    ok = -1;
 	const int use_bextq = 1;
 	for(uint i = 0; i < rTRefList.getCount(); i++) {
-		const TextRefIdent & r_i = rTRefList.at(i);
+		const SObjTextRefIdent & r_i = rTRefList.at(i);
 		FiasAddrObjTbl & r_t = FT.AdrT;
 		FiasAddrObjTbl::Key3 k3;
 		MEMSZERO(k3);
@@ -6467,7 +6467,7 @@ int PPFiasReference::SearchObjByText(const char * pText, long flags, PPID upperI
 		pattern_mb.Transf(CTRANSF_INNER_TO_OUTER);
     pattern_mb.ToLower1251();
     pattern.CopyFromUtf8((temp_buf = pattern_mb).ToUtf8());
-	TSVector <TextRefIdent> text_ref_list;
+	TSVector <SObjTextRefIdent> text_ref_list;
 	int   sr = 0;
 	if(flags & stfPrefix)
 		sr = p_ref->TrT.SearchSelfRefTextByPrefix(pattern, &text_ref_list);
@@ -6489,7 +6489,7 @@ int PPFiasReference::SearchObjByText(const char * pText, long flags, PPID upperI
 			PPID   _id = 0;
 			sr = p_ref->TrT.SearchSelfRefText(pattern, &_id);
 			if(sr > 0) {
-				TextRefIdent tri(PPOBJ_SELFREFTEXT, _id, PPTRPROP_DEFAULT);
+				SObjTextRefIdent tri(PPOBJ_SELFREFTEXT, _id, PPTRPROP_DEFAULT);
 				text_ref_list.insert(&tri);
 			}
 		}

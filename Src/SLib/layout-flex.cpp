@@ -1714,6 +1714,34 @@ void SUiLayout::DeleteItem(uint idx)
 	}
 }
 
+int SUiLayout::Helper_DeleteItemByManagedPtr(TSCollection <SUiLayout> * pChildren, void * pManagedPtr) // @v12.5.6
+{
+	int    ok = -1;
+	if(pManagedPtr && pChildren) {
+		uint   i = pChildren->getCount();
+		if(i) do {
+			SUiLayout * p_iter_child = pChildren->at(--i);
+			if(p_iter_child) {
+				if(p_iter_child->managed_ptr == pManagedPtr) {
+					pChildren->atFree(i);
+					ok = 1;
+				}
+				else {
+					const int r = Helper_DeleteItemByManagedPtr(p_iter_child->P_Children, pManagedPtr); // @recursion
+					if(r > 0)
+						ok = 1;
+				}
+			}
+		} while(i);
+	}
+	return ok;
+}
+
+int SUiLayout::DeleteItemByManagedPtr(void * pManagedPtr) // @v12.5.6
+{
+	return Helper_DeleteItemByManagedPtr(P_Children, pManagedPtr);
+}
+
 void SUiLayout::DeleteAllItems()
 {
 	uint i = GetChildrenCount();

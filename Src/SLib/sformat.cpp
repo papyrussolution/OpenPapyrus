@@ -1,5 +1,5 @@
 // SFORMAT.CPP
-// Copyright (c) A.Sobolev 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2020, 2021, 2022, 2023, 2025
+// Copyright (c) A.Sobolev 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2020, 2021, 2022, 2023, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -31,9 +31,9 @@ int SFormat_TranslateFlagsToStringSet(long fmt, TYPEID typeId, StringSet & rSs)
 					if(SFMTFLAG(fmt) & STRF_PASSWORD) {
 						rSs.add("password");
 					}
-					if(SFMTFLAG(fmt) & STRF_OEM)
+					if(SFMTFLAG(fmt) & STRF_TOOEM)
 						rSs.add("oem");
-					if(SFMTFLAG(fmt) & STRF_ANSI)
+					if(SFMTFLAG(fmt) & STRF_TOANSI)
 						rSs.add("ansi");
 				}
 				break;
@@ -174,7 +174,7 @@ long SFormat_TranslateFlagFromString(const char * pText, TYPEID typeId)
 			flags = DATF_ANSI;
 		}
 		else if(bt == BTS_STRING) {
-			flags = STRF_ANSI;
+			flags = STRF_TOANSI;
 		}
 	}
 	else if(sstreqi_ascii(pText, "binary")) {
@@ -272,7 +272,7 @@ long SFormat_TranslateFlagFromString(const char * pText, TYPEID typeId)
 		int_base = 8;
 	}
 	else if(sstreqi_ascii(pText, "oem")) {
-		flags = STRF_OEM;
+		flags = STRF_TOOEM;
 	}
 	else if(sstreqi_ascii(pText, "omiteps")) {
 		flags = NMBF_OMITEPS;
@@ -398,50 +398,50 @@ SString & FASTCALL _commfmt(long fmt, SString & rBuf)
 //
 //
 //
-char * STDCALL strfmt(const char * str, long fmt, char * buf)
+char * STDCALL strfmt(const char * pStr, long fmt, char * pBuf)
 {
-	char * p_org_buf = buf;
+	char * p_org_buf = pBuf;
 	int    flag = SFMTFLAG(fmt);
-	if(str[0] == 0) {
+	if(isempty(pStr)) {
 		if(flag & COMF_SQL) {
-			buf[0] = '\'';
-			buf[1] = ' ';
-			buf[2] = '\'';
-			buf[3] = 0;
+			pBuf[0] = '\'';
+			pBuf[1] = ' ';
+			pBuf[2] = '\'';
+			pBuf[3] = 0;
 		}
 		else
-			buf[0] = 0;
+			pBuf[0] = 0;
 	}
 	else {
 		char   temp_buf[4096];
 		int    use_temp_buf = 0;
 		if(flag & COMF_SQL) {
-			if(buf == str) {
-				buf = temp_buf;
+			if(pBuf == pStr) {
+				pBuf = temp_buf;
 				use_temp_buf = 1;
 			}
-			*buf++ = '\'';
+			*pBuf++ = '\'';
 		}
-		if(flag & STRF_OEM) {
+		if(flag & STRF_TOOEM) {
 			SString & r_temp_buf = SLS.AcquireRvlStr();
-			(r_temp_buf = str).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(buf, 0);
+			(r_temp_buf = pStr).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pBuf, 0);
 		}
-		else if(flag & STRF_ANSI) {
+		else if(flag & STRF_TOANSI) {
 			SString & r_temp_buf = SLS.AcquireRvlStr();
-			(r_temp_buf = str).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(buf, 0);
+			(r_temp_buf = pStr).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(pBuf, 0);
 		}
-		else if(buf != str)
-			strcpy(buf, str);
+		else if(pBuf != pStr)
+			strcpy(pBuf, pStr);
 		if(flag & STRF_UPPER)
-			strupr866(buf);
+			strupr866(pBuf);
 		else if(flag & STRF_LOWER)
-			strlwr866(buf);
+			strlwr866(pBuf);
 		if(flag & STRF_PASSWORD)
-			strset(buf, SlConst::DefaultPasswordSymb);
+			strset(pBuf, SlConst::DefaultPasswordSymb);
 		if(flag & COMF_SQL) {
-			const size_t len = sstrlen(buf);
-			buf[len] = '\'';
-			buf[len+1] = 0;
+			const size_t len = sstrlen(pBuf);
+			pBuf[len] = '\'';
+			pBuf[len+1] = 0;
 		}
 		if(use_temp_buf)
 			strcpy(p_org_buf, temp_buf);
@@ -966,19 +966,22 @@ char * STDCALL decfmt(const char * pBcdVal, int len, int prec, long fmt, char * 
 	char * s = str;
 	int    sign;
 	dectostr(pBcdVal, (int16)len, (int16)prec, s);
-	if(*s == '-')
-		s++, sign = 1;
+	if(*s == '-') {
+		s++;
+		sign = 1;
+	}
 	else
 		sign = 0;
 	c = sstrchr(s, '.');
 	if(c)
 		strcpy(c, c + 1);
-	return fmtnumber(s, sstrlen(s) - prec, sign, fmt, pBuf);
+	return fmtnumber(s, sstrleni(s) - prec, sign, fmt, pBuf);
 }
 
 char * STDCALL realfmt(double val, long fmt, char * pBuf)
 {
-	int    dec, sign;
+	int    dec;
+	int    sign;
 	int    prc = static_cast<int>(static_cast<signed char>(SFMTPRC(fmt)));
 	if(prc < 0) {
 		val = val * fpow10i(prc);
@@ -1003,7 +1006,7 @@ char * STDCALL realfmt(double val, long fmt, char * pBuf)
 		}
 		SETSFMTPRC(fmt, prc);
 		if(val != 0.0 && SFMTFLAG(fmt) & NMBF_OMITEPS) {
-			const uint _len = sstrlen(str);
+			const uint _len = static_cast<uint>(sstrlen(str));
 			uint   c_0 = 0; // количество '0'
 			uint   c_9 = 0; // количество '9'
 			uint   last_n09_pos = 0; // Позиция последней цифры, не являющейся '0' или '9'
@@ -1053,28 +1056,28 @@ char * STDCALL intfmt(long val, long fmt, char * pBuf)
 {
 	char   s[64];
 	ltoa(labs(val), s, 10);
-	return fmtnumber(s, sstrlen(s), val < 0, fmt, pBuf);
+	return fmtnumber(s, sstrleni(s), val < 0, fmt, pBuf);
 }
 
 char * STDCALL int64fmt(int64 val, long fmt, char * pBuf)
 {
 	char   s[128];
 	_i64toa(_abs64(val), s, 10);
-	return fmtnumber(s, sstrlen(s), val < 0, fmt, pBuf);
+	return fmtnumber(s, sstrleni(s), val < 0, fmt, pBuf);
 }
 
 char * STDCALL uintfmt(ulong val, long fmt, char * pBuf)
 {
 	char   s[64];
 	ultoa(val, s, 10);
-	return fmtnumber(s, sstrlen(s), 0, fmt, pBuf);
+	return fmtnumber(s, sstrleni(s), 0, fmt, pBuf);
 }
 
 char * STDCALL uint64fmt(uint64 val, long fmt, char * pBuf)
 {
 	char   s[128];
 	_ui64toa(val, s, 10);
-	return fmtnumber(s, sstrlen(s), 0, fmt, pBuf);
+	return fmtnumber(s, sstrleni(s), 0, fmt, pBuf);
 }
 
 static char * FASTCALL clearDelimiters(char * b)

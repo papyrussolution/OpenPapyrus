@@ -2659,7 +2659,7 @@ static int uripRead(void * context, char * buffer, int len) {
 	if(len > urip_rlen)  len = urip_rlen;
 	memcpy(buffer, ptr, len);
 	urip_rlen -= len;
-	return(len);
+	return len;
 }
 
 static int urip_checkURL(const char * URL) {
@@ -4198,7 +4198,7 @@ static int launchTests(testDescPtr tst)
 			err++;
 		}
 	}
-	return(err);
+	return err;
 }
 
 static int verbose = 0;

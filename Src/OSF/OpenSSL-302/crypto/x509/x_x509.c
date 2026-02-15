@@ -28,8 +28,7 @@ IMPLEMENT_ASN1_FUNCTIONS(X509_CINF)
 
 extern void ossl_policy_cache_free(X509_POLICY_CACHE * cache);
 
-static int x509_cb(int operation, ASN1_VALUE ** pval, const ASN1_ITEM * it,
-    void * exarg)
+static int x509_cb(int operation, ASN1_VALUE ** pval, const ASN1_ITEM * it, void * exarg)
 {
 	X509 * ret = (X509*)*pval;
 	switch(operation) {
@@ -180,13 +179,10 @@ void * X509_get_ex_data(const X509 * r, int idx)
 
 X509 * d2i_X509_AUX(X509 ** a, const uchar ** pp, long length)
 {
-	const uchar * q;
 	X509 * ret;
 	int freeret = 0;
-
 	/* Save start position */
-	q = *pp;
-
+	const uchar * q = *pp;
 	if(a == NULL || *a == NULL)
 		freeret = 1;
 	ret = d2i_X509(a, &q, length);
@@ -207,7 +203,6 @@ err:
 	}
 	return NULL;
 }
-
 /*
  * Serialize trusted certificate to *pp or just return the required buffer
  * length if pp == NULL.  We ultimately want to avoid modifying *pp in the
@@ -216,18 +211,16 @@ err:
  */
 static int i2d_x509_aux_internal(const X509 * a, uchar ** pp)
 {
-	int length, tmplen;
+	int tmplen;
 	uchar * start = pp != NULL ? *pp : NULL;
-
 	/*
 	 * This might perturb *pp on error, but fixing that belongs in i2d_X509()
 	 * not here.  It should be that if a == NULL length is zero, but we check
 	 * both just in case.
 	 */
-	length = i2d_X509(a, pp);
+	int length = i2d_X509(a, pp);
 	if(length <= 0 || a == NULL)
 		return length;
-
 	tmplen = i2d_X509_CERT_AUX(a->aux, pp);
 	if(tmplen < 0) {
 		if(start != NULL)
@@ -235,10 +228,8 @@ static int i2d_x509_aux_internal(const X509 * a, uchar ** pp)
 		return tmplen;
 	}
 	length += tmplen;
-
 	return length;
 }
-
 /*
  * Serialize trusted certificate to *pp, or just return the required buffer
  * length if pp == NULL.
@@ -264,7 +255,6 @@ int i2d_X509_AUX(const X509 * a, uchar ** pp)
 		ERR_raise(ERR_LIB_X509, ERR_R_MALLOC_FAILURE);
 		return -1;
 	}
-
 	/* Encode, but keep *pp at the originally malloced pointer */
 	length = i2d_x509_aux_internal(a, &tmp);
 	if(length <= 0) {
@@ -280,8 +270,7 @@ int i2d_re_X509_tbs(X509 * x, uchar ** pp)
 	return i2d_X509_CINF(&x->cert_info, pp);
 }
 
-void X509_get0_signature(const ASN1_BIT_STRING ** psig,
-    const X509_ALGOR ** palg, const X509 * x)
+void X509_get0_signature(const ASN1_BIT_STRING ** psig, const X509_ALGOR ** palg, const X509 * x)
 {
 	if(psig)
 		*psig = &x->signature;

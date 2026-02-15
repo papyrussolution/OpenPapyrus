@@ -1,5 +1,5 @@
 // PPRIGHTS.CPP
-// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Права доступа
 //
@@ -1507,7 +1507,8 @@ int FastEditRightsDlg::setupGrpUsrList()
 {
 	int    ok = -1;
 	uint   i = 0;
-	SString temp_buf, inh_buf;
+	SString temp_buf;
+	SString inh_buf;
 	StrAssocArray * p_list = 0;
 	StdTreeListBoxDef * p_grp_usr_def = 0;
 	PPSecurPacket * p_pack = 0;
@@ -1527,7 +1528,7 @@ int FastEditRightsDlg::setupGrpUsrList()
 		THROW_SL(p_list->Add(p_pack->Secur.ID, (p_pack->Secur.Tag == PPOBJ_USR) ? p_pack->Secur.ParentID : 0, temp_buf));
 	}
 	p_lbx = static_cast<SmartListBox *>(getCtrlView(CTL_EDITRHTS_GRPUSRLIST));
-	p_grp_usr_def = new StdTreeListBoxDef(p_list, lbtDisposeData | lbtDblClkNotify | lbtFocNotify | lbtSelNotify, 0);
+	p_grp_usr_def = new StdTreeListBoxDef(p_list, lbtDisposeData|lbtDblClkNotify|lbtFocNotify|lbtSelNotify, 0);
 	THROW_MEM(p_grp_usr_def);
 	p_lbx->setDef(p_grp_usr_def);
 	p_lbx->P_Def->go(0);

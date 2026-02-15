@@ -1324,13 +1324,14 @@ int GcCalcDialog::SetupFormulaCombo()
 	ComboBox   * p_cb = 0;
 	ListWindow * p_lw = 0;
 	if((p_cb = static_cast<ComboBox *>(getCtrlView(CTLSEL_GDSCLSCALC_FORM))) != 0) {
-		long   single_idx = 0, default_idx = 0;
+		long   single_idx = 0;
+		long   default_idx = 0;
 		uint   idx = 0;
 		PPGdsClsFormula form;
 		THROW(p_lw = CreateListWindow_Simple(lbtDblClkNotify));
 		for(int i = 1; i <= GcPack.FormulaList.getCountI(); i++)
 			if(GcPack.GetFormula(i, &form) > 0) {
-				p_lw->listBox()->addItem(i, form.Name);
+				p_lw->GetListBox()->addItem(i, form.Name);
 				if(form.Flags & PPGdsClsFormula::fDefault)
 					default_idx = i;
 				single_idx = (single_idx == 0) ? i : 0;

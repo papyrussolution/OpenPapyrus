@@ -722,30 +722,17 @@ static int notRecursiveHugeTest(const char * filename ATTRIBUTE_UNUSED,
 		res = 1;
 	}
 	xmlFreeTextReader(reader);
-
 	return res;
 }
-
 #endif
-
-/************************************************************************
-*									*
-*			Tests Descriptions				*
-*									*
-************************************************************************/
-
-static
-testDesc testDescriptions[] = {
-	{ "Parsing recursive test cases",
-	  recursiveDetectTest, "./test/recurse/lol*.xml", NULL, NULL, NULL,
-	  0 },
-	{ "Parsing non-recursive test cases",
-	  notRecursiveDetectTest, "./test/recurse/good*.xml", NULL, NULL, NULL,
-	  0 },
+// 
+// Tests Descriptions
+// 
+static testDesc testDescriptions[] = {
+	{ "Parsing recursive test cases", recursiveDetectTest, "./test/recurse/lol*.xml", NULL, NULL, NULL, 0 },
+	{ "Parsing non-recursive test cases", notRecursiveDetectTest, "./test/recurse/good*.xml", NULL, NULL, NULL, 0 },
 #ifdef LIBXML_READER_ENABLED
-	{ "Parsing non-recursive huge case",
-	  notRecursiveHugeTest, NULL, NULL, NULL, NULL,
-	  0 },
+	{ "Parsing non-recursive huge case", notRecursiveHugeTest, NULL, NULL, NULL, NULL, 0 },
 #endif
 	{NULL, NULL, NULL, NULL, NULL, NULL, 0}
 };
@@ -842,7 +829,7 @@ static int launchTests(testDescPtr tst) {
 			err++;
 		}
 	}
-	return(err);
+	return err;
 }
 
 static int verbose = 0;

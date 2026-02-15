@@ -1459,7 +1459,7 @@ public:
 	{
 		setDTS(pAry);
 		SString temp_buf;
-		PPLoadTextWin(PPTXT_OPENFILET_LINKBILLFILES, temp_buf);
+		PPLoadTextAnsi(PPTXT_OPENFILET_LINKBILLFILES, temp_buf);
 		FileBrowseCtrlGroup * p_fbg = new FileBrowseCtrlGroup(cmLink, 0, temp_buf, 0);
 		if(p_fbg) {
 			p_fbg->addPattern(PPTXT_FILPAT_ALLLINKFILES);
@@ -3344,27 +3344,30 @@ int PPObjBill::ViewBillInfo(PPID billID)
 				if(!P_Pack->Rec.EdiOp && isCurrCtlID(CTL_BILLINFO_EDIOP)) {
 					ListWindow * p_lw = CreateListWindow_Simple(lbtDblClkNotify);
 					if(p_lw) {
-						long   edi_op = P_Pack->Rec.EdiOp;
-						assert(edi_op == 0); // see above
-						SString temp_buf;
-						SString id_buf;
-						SString txt_buf;
-						for(uint idx = 0; PPGetSubStr(PPTXT_EDIOP, idx, temp_buf) > 0; idx++) {
-							long   id = 0;
-							if(temp_buf.Divide(',', id_buf, txt_buf) > 0) {
-								const long _id = id_buf.ToLong();
-								if(_id > 0 && txt_buf.NotEmptyS()) {
-									p_lw->listBox()->addItem(_id, txt_buf);
+						ListWindowSmartListBox * p_lb = p_lw->GetListBox();
+						if(p_lb) {
+							long   edi_op = P_Pack->Rec.EdiOp;
+							assert(edi_op == 0); // see above
+							SString temp_buf;
+							SString id_buf;
+							SString txt_buf;
+							for(uint idx = 0; PPGetSubStr(PPTXT_EDIOP, idx, temp_buf) > 0; idx++) {
+								long   id = 0;
+								if(temp_buf.Divide(',', id_buf, txt_buf) > 0) {
+									const long _id = id_buf.ToLong();
+									if(_id > 0 && txt_buf.NotEmptyS()) {
+										p_lb->addItem(_id, txt_buf);
+									}
 								}
 							}
-						}
-						p_lw->listBox()->TransmitData(+1, &edi_op);
-						if(ExecView(p_lw) == cmOK) {
-							p_lw->listBox()->TransmitData(-1, &edi_op);
-							if(edi_op) {
-								P_Pack->Rec.EdiOp = static_cast<int16>(edi_op);
-								PPGetSubStrById(PPTXT_EDIOP, P_Pack->Rec.EdiOp, temp_buf.Z());
-								setCtrlString(CTL_BILLINFO_EDIOP, temp_buf);
+							p_lb->TransmitData(+1, &edi_op);
+							if(ExecView(p_lw) == cmOK) {
+								p_lb->TransmitData(-1, &edi_op);
+								if(edi_op) {
+									P_Pack->Rec.EdiOp = static_cast<int16>(edi_op);
+									PPGetSubStrById(PPTXT_EDIOP, P_Pack->Rec.EdiOp, temp_buf.Z());
+									setCtrlString(CTL_BILLINFO_EDIOP, temp_buf);
+								}
 							}
 						}
 						ZDELETE(p_lw);

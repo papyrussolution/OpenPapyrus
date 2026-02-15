@@ -149,11 +149,9 @@ static char * proxyPasswd = NULL; /* passwd for proxy authentication */
 static int proxyType = 0;       /* uses TYPE or a@b ? */
 
 #ifdef SUPPORT_IP6
-static
-int have_ipv6(void) {
-	int s;
-
-	s = socket(AF_INET6, SOCK_STREAM, 0);
+static int have_ipv6(void) 
+{
+	int s = socket(AF_INET6, SOCK_STREAM, 0);
 	if(s != -1) {
 		close(s);
 		return (1);
@@ -603,7 +601,7 @@ static int xmlNanoFTPGetMore(void * ctx) {
 	ctxt->controlBufUsed += len;
 	ctxt->controlBuf[ctxt->controlBufUsed] = 0;
 
-	return(len);
+	return len;
 }
 
 /**
@@ -1938,7 +1936,7 @@ int xmlNanoFTPRead(void * ctx, void * dest, int len) {
 #ifdef DEBUG_FTP
 	xmlGenericError(xmlGenericErrorContext, "Recvd %d bytes\n", len);
 #endif
-	return(len);
+	return len;
 }
 
 /**

@@ -1035,6 +1035,15 @@ int PPObjGoodsTax::Browse(void * extraPtr)
 				clearEvent(event);
 			}
 		}
+		virtual void extraProc(long id) // @v12.5.6
+		{
+			if(id) {
+				GoodsFilt filt;
+				filt.TaxGrpID = id;
+				filt.Flags &= ~GoodsFilt::fHidePassive;
+				PPView::Execute(PPVIEW_GOODS, &filt, 1, 0);
+			}
+		}
 	};
 	int    ok = 1;
 	if(CheckRights(PPR_READ)) {

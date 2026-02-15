@@ -68,6 +68,7 @@ SLTEST_R(SQLite)
 			{ Generator_SQL::tokUseIndex,   "USE INDEX" },      // @v12.4.12 
 			{ Generator_SQL::tokForceIndex, "FORCE INDEX" }, // @v12.4.12 
 			{ Generator_SQL::tokUsing,      "USING" }, // @v12.5.0 
+			{ Generator_SQL::tokTemporary,  "TEMPORARY" }, // @v12.5.6
 		};
 		//Generator_SQL gen(sqlstSQLite, 0);
 		for(uint i = 0; i < SIZEOFARRAY(tok_list); i++) {

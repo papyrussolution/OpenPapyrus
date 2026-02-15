@@ -65,10 +65,12 @@ SMySqlDbProvider::TransactionBlock::~TransactionBlock()
 	}
 }
 
-SMySqlDbProvider::SMySqlDbProvider() :
-	DbProvider(sqlstMySQL, cpUTF8, DbDictionary::CreateInstance(0, 0), DbProvider::cSQL|DbProvider::cDbDependTa), SqlGen(sqlstMySQL, 0), Flags(0),
-	P_TraBlk(0)
+SMySqlDbProvider::SMySqlDbProvider(const char * pDataPath) :
+	DbProvider(sqlstMySQL, cpUTF8, DbDictionary::CreateInstance(0, 0), DbProvider::cSQL|DbProvider::cDbDependTa), 
+	SqlGen(sqlstMySQL, 0), Flags(0), P_TraBlk(0)
 {
+	DataPath = pDataPath;
+	DBS.GetDbPathID(DataPath, &DbPathID);
 }
 
 SMySqlDbProvider::~SMySqlDbProvider()
@@ -475,10 +477,13 @@ const BNField * SMySqlDbProvider::GetRowIdField(const DBTable * pTbl, uint * pFl
 	//     idx[tbl_name]MsqRowId (P_SurrogateRowIdFieldName)
 	//
 	int    ok = 1;
-	const int cm = RESET_CRM_TEMP(createMode);
+	const  bool is_temp_table = IS_CRM_TEMP(createMode);
+	const  int cm = RESET_CRM_TEMP(createMode);
 	uint   ctf = Generator_SQL::ctfIndent;
 	if(oneof2(cm, crmNoReplace, crmTTSNoReplace))
 		ctf |= Generator_SQL::ctfIfNotExists;
+	if(is_temp_table)
+		ctf |= Generator_SQL::ctfTemporary;
 	THROW(SqlGen.Z().CreateTable(*pTbl, 0, ctf, 0/*pCollationSymb*/));
 	{
 		SSqlStmt stmt(this, SqlGen);
@@ -524,10 +529,7 @@ const BNField * SMySqlDbProvider::GetRowIdField(const DBTable * pTbl, uint * pFl
 		}
 	}*/
 	if(createMode < 0 && IS_CRM_TEMP(createMode)) {
-		//
-		// Регистрируем имя временного файла в драйвере БД для последующего удаления //
-		//
-		AddTempFileName(pFileName);
+		AddTempFileName(pFileName); // Регистрируем имя временного файла в драйвере БД для последующего удаления //
 	}
 	CATCHZOK
 	return ok;
@@ -545,7 +547,10 @@ const BNField * SMySqlDbProvider::GetRowIdField(const DBTable * pTbl, uint * pFl
 
 /*virtual*/SString & SMySqlDbProvider::GetTemporaryFileName(SString & rFileNameBuf, long * pStart, bool forceInDataPath)
 {
-	return rFileNameBuf.Z();
+	rFileNameBuf.Z();
+	uint  _clk = clock();
+	rFileNameBuf.Cat("_tt").Cat(SLS.GetSessUuid(), S_GUID::fmtPlain).CatChar('_').Cat(_clk);
+	return rFileNameBuf;
 }
 
 /*virtual*/int SMySqlDbProvider::DropFile(const char * pFileName) // @v12.5.5
@@ -815,9 +820,7 @@ SMySqlDbProvider::SearchQueryBlock & SMySqlDbProvider::SearchQueryBlock::Z() // 
 	memzero(TempKey, sizeof(TempKey));
 	return *this;
 }
-//
-// Скорпировано из SSqliteDbProvider::Helper_MakeSearchQuery
-//
+
 int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf, SearchQueryBlock & rBlk) 
 {
 	rBlk.Z();
@@ -839,15 +842,11 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 	rBlk.SqlG.Z().Tok(Generator_SQL::tokSelect);
 	rBlk.SqlG.Sp();
 	{
-		//rBlk.SqlG.Text(p_alias).Dot().Aster().Com().Text(p_alias).Dot().Tok(Generator_SQL::tokRowId);
-		//rBlk.SqlG.Text(p_alias).Dot().Aster();
-		//
 		for(uint i = 0; i < fld_count; i++) {
 			const BNField & r_fld = pTbl->FldL.GetFieldByPosition(i);
 			if(i)
 				rBlk.SqlG.Com();
-			// @v12.4.10 SqlGen.Param(temp_buf.NumberToLat(subst_no));
-			rBlk.SqlG.Text(p_alias).Dot().Text(r_fld.Name); // @v12.4.10 
+			rBlk.SqlG.Text(p_alias).Dot().Text(r_fld.Name);
 			subst_no++;
 			const bool is_surrogate_rowid_field = sstreqi_ascii(r_fld.Name, SlConst::P_SurrogateRowIdFieldName);
 			if(GETSTYPE(r_fld.T) == S_AUTOINC) {
@@ -855,7 +854,6 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 				if(is_surrogate_rowid_field)
 					rBlk.Flags |= SearchQueryBlock::fAutoincFldIsSurrogate;
 			}
-			//stmt.BindItem(subst_no, 1, r_fld.T, is_surrogate_rowid_field ? static_cast<void *>(&row_id_zero) : PTR8(pTbl->getDataBuf()) + r_fld.Offs);
 		}
 	}
 	rBlk.SqlG.Sp().From(pTbl->FileName_, p_alias);
@@ -1257,17 +1255,22 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 				}
 			}
 		}
-		if(!is_surrogate_rowid_field) {
-			if(subst_no)
-				SqlGen.Com();
-			SqlGen.Text("?");
-			subst_no++;
-			stmt.BindItem(-subst_no, 1, r_fld.T, is_surrogate_rowid_field ? static_cast<void *>(&row_id_zero) : PTR8(pTbl->getDataBuf()) + r_fld.Offs);
+		if(subst_no)
+			SqlGen.Com();
+		SqlGen.Text("?");
+		subst_no++;
+		if(is_surrogate_rowid_field) {
+			stmt.BindItem(-subst_no, 1, r_fld.T, &row_id_zero);
+		}
+		else {
+			stmt.BindItem(-subst_no, 1, r_fld.T, PTR8(pTbl->getDataBuf()) + r_fld.Offs);
 		}
 	}
 	SqlGen.RPar();
 	// В MySQL нет RETURNING
 	{
+		ConnectionEntry & r_ce = GetWorkingConnection(0, false);
+		r_ce.DestroyLastSelectStatement();
 		THROW(stmt.SetSqlText(SqlGen));
 		THROW(Binding(stmt, -1));
 		THROW(stmt.SetDataDML(0));
@@ -1342,11 +1345,6 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 		}
 	}
 	{
-		/*
-		//THROW(pTbl->getCurRowIdPtr()->IsI32());
-		pTbl->getCurRowIdPtr()->ToStr__(temp_buf);
-		SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp().Tok(Generator_SQL::tokRowId)._Symb(_EQ_).Text(temp_buf);
-		*/
 		uint   rowid_fld_pos = 0;
 		const  BNField * p_rowid_fld = GetRowIdField(pTbl, &rowid_fld_pos);
 		DBRowId * p_rowid = pTbl->getCurRowIdPtr();
@@ -1367,7 +1365,7 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 	return ok;
 }
 
-/*virtual*/int SMySqlDbProvider::Implement_DeleteRec(DBTable * pTbl) // @v12.5.3 @construction
+/*virtual*/int SMySqlDbProvider::Implement_DeleteRec(DBTable * pTbl) // @v12.5.3
 {
 	int    ok = 1;
 	const  uint fld_count = pTbl->FldL.getCount();
@@ -1414,7 +1412,39 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 		const  uint fld_count = p_tbl->FldL.getCount();
 		SString temp_buf;
 		SSqlStmt stmt(this);
+		/*
+			INSERT INTO имя_таблицы (поле1, поле2, поле3, ...) VALUES (значение1, значение2, значение3, ...);
+		*/ 
 		SqlGen.Z().Tok(Generator_SQL::tokInsert).Sp().Tok(Generator_SQL::tokInto).Sp().Text(p_tbl->FileName_).Sp();
+		{
+			SqlGen.LPar();
+			{
+				bool is_first_fld_enum_item = true;
+				for(i = 0; i < fld_count; i++) {
+					const BNField & r_fld = p_tbl->FldL.GetFieldByPosition(i);
+					bool  do_skip_this_fld = false;
+					if(sstreqi_ascii(r_fld.Name, SlConst::P_SurrogateRowIdFieldName)) {
+						do_skip_this_fld = true;
+					}
+					else if(GETSTYPE(r_fld.T) == S_AUTOINC) {
+						int64  val = 0;
+						size_t val_sz = 0;
+						r_fld.getValue(p_tbl->getDataBufConst(), &val, &val_sz);
+						// @v12.5.6 assert(val_sz == sizeof(val));
+						if(val == 0) {
+							// (похоже, не надо так делать - надо привязывать null-значение явно) do_skip_this_fld = true;
+						}
+					}
+					if(!do_skip_this_fld) {
+						if(!is_first_fld_enum_item)
+							SqlGen.Com();
+						SqlGen.Text(r_fld.Name);
+						is_first_fld_enum_item = false;
+					}
+				}
+			}
+			SqlGen.RPar().Sp();
+		}
 		SqlGen.Tok(Generator_SQL::tokValues).Sp().LPar();
 		//
 			stmt.BL.Dim = 1;
@@ -1424,11 +1454,14 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 				for(i = 0; i < fld_count; i++) {
 					const BNField & r_fld = p_tbl->FldL.GetFieldByPosition(i);
 					bool  do_skip_this_fld = false;
-					if(GETSTYPE(r_fld.T) == S_AUTOINC) {
-						long   val = 0;
+					if(sstreqi_ascii(r_fld.Name, SlConst::P_SurrogateRowIdFieldName)) {
+						do_skip_this_fld = true;
+					}
+					else if(GETSTYPE(r_fld.T) == S_AUTOINC) {
+						int64  val = 0;
 						size_t val_sz = 0;
 						r_fld.getValue(p_tbl->getDataBufConst(), &val, &val_sz);
-						assert(val_sz == sizeof(val));
+						// @v12.5.6 assert(val_sz == sizeof(val));
 						if(val == 0) {
 							// (похоже, не надо так делать - надо привязывать null-значение явно) do_skip_this_fld = true;
 						}
@@ -1436,14 +1469,14 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 					if(!do_skip_this_fld) {
 						if(!is_first_fld_enum_item)
 							SqlGen.Com();
-						SqlGen.Param(temp_buf.NumberToLat(in_subst_no++));
+						SqlGen.Text("?");
 						stmt.BindItem(-in_subst_no, 1, r_fld.T, PTR8(p_tbl->getDataBuf()) + r_fld.Offs);
 						is_first_fld_enum_item = false;
 					}
 				}
 			}
 			SqlGen.RPar();
-			SqlGen.Sp().Tok(Generator_SQL::tokReturning).Sp().Tok(Generator_SQL::tokRowId);
+			// @v12.5.6 SqlGen.Sp().Tok(Generator_SQL::tokReturning).Sp().Tok(Generator_SQL::tokRowId);
 		//
 		{
 			THROW(stmt.SetSqlText(SqlGen));
@@ -1533,11 +1566,42 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 /*virtual*/int SMySqlDbProvider::CreateStmt(SSqlStmt * pS, const char * pText, long flags)
 {
 	int    ok = 1;
-	MYSQL_STMT * p_stmt = 0;
-	ConnectionEntry & r_ce = GetWorkingConnection(pS, false);
-	THROW(p_stmt = mysql_stmt_init(GetHandle(r_ce)));
-	pS->H = p_stmt;
-	THROW(ProcessError(r_ce, mysql_stmt_prepare(p_stmt, pText, static_cast<ulong>(sstrlen(pText)))));
+	bool   debug_mark = false; // @debug
+	if(pS) {
+		MYSQL_STMT * p_stmt = 0;
+		ConnectionEntry * p_ce_ = 0;
+		if(pS->Typ == Generator_SQL::typSelect && pS->GetSignature() == SlConst::SSqlStmtSignature_Select && (pS->Sf & DBTable::sfBExtQuery)) {
+			DBTable::SelectStmt * p_ss = static_cast<DBTable::SelectStmt *>(pS);
+			debug_mark = true; // @debug
+			//DBTable * p_tbl = p_ss->GetOwnerTblRef();
+			if(/*p_tbl*/true) {
+				//
+				// Для BExtQuery безусловно получаем новое соединение не ассоциированное с транзакцией
+				// 
+				//ConnectionEntry & r_ce_local = GetWorkingConnection(0, true/*can_continue*/);
+				ConnectionEntry * p_ce_local = GetConnection();
+				THROW(p_ce_local);
+				assert(p_ce_local->IsConsistent());
+				{
+					//p_tbl->DestroySelectStmt();
+					p_ce_local->DestroyLastSelectStatement();
+				}
+				// В качестве ExternalConnection в SelectStmt передается "чистый" хандлер MySQL-соединения. То есть, ConnectionEntry::Conn::GetH()
+				pS->SetExternalConnection(p_ce_local->Conn.GetH());
+				p_ce_ = p_ce_local;
+			}
+		}
+		if(!p_ce_) {
+			ConnectionEntry & r_ce = GetWorkingConnection(pS, false);
+			p_ce_ = &r_ce;
+		}
+		THROW(p_ce_); // @todo @err
+		THROW(p_stmt = mysql_stmt_init(GetHandle(*p_ce_)));
+		pS->H = p_stmt;
+		THROW(ProcessError(*p_ce_, mysql_stmt_prepare(p_stmt, pText, static_cast<ulong>(sstrlen(pText)))));
+	}
+	else
+		ok = 0;
 	CATCHZOK
 	return ok;
 }
@@ -1745,6 +1809,21 @@ void FASTCALL SMySqlDbProvider::OdFree(SMySqlDbProvider::OD & rO)
 				assert(InvalidSizeOfFloatType);
 			}
 			break;
+		case S_DEC:
+		case S_MONEY:
+			if(action == 0) {
+				pBind->SetNtvTypeAndSize(MYSQL_TYPE_DOUBLE, sizeof(double));
+				pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
+			}
+			else {
+				const int16 dec_len = static_cast<int16>(GETSSIZED(pBind->Typ));
+				const int16 dec_prc = static_cast<int16>(GETSPRECD(pBind->Typ));
+				if(action < 0)
+					*static_cast<double *>(p_data) = dectobin(static_cast<const char *>(pBind->P_Data), dec_len, dec_prc);
+				else if(action == 1)
+					dectodec(*static_cast<double *>(p_data), static_cast<char *>(pBind->P_Data), dec_len, dec_prc);
+			}
+			break;
 		case S_DATE:
 			if(action == 0) {
 				pBind->SetNtvTypeAndSize(MYSQL_TYPE_DATE, sizeof(MYSQL_TIME));
@@ -1840,35 +1919,6 @@ void FASTCALL SMySqlDbProvider::OdFree(SMySqlDbProvider::OD & rO)
 			else if(action == 1000)
 				ProcessBinding_FreeDescr(count, pStmt, pBind);
 			break;
-		/*case S_NOTE:
-			{
-				const uint32 ntv_size = sz;
-				if(action == 0) {
-					pBind->Flags |= SSqlStmt::Bind::fUseRetActualSize;
-					pBind->SetNtvTypeAndSize(MYSQL_TYPE_VAR_STRING, ntv_size);
-					pStmt->AllocBindSubst(count, pBind->NtvSize*2, pBind);
-				}
-				else if(action < 0) {
-					if(p_data) {
-						SString & r_temp_buf = SLS.AcquireRvlStr();
-						r_temp_buf.CatN(static_cast<const char *>(pBind->P_Data), sz).Transf(CTRANSF_INNER_TO_UTF8);
-						strnzcpy(static_cast<char *>(p_data), r_temp_buf, ntv_size);
-					}
-				}
-				else if(action == 1) {
-					const int16 * p_ind = static_cast<const int16 *>(pStmt->GetIndPtr(pBind, count));
-					if(p_ind && *p_ind == -1) {
-						PTR8(pBind->P_Data)[0] = 0;
-					}
-					else {
-						SString & r_temp_buf = SLS.AcquireRvlStr();
-						r_temp_buf = static_cast<const char *>(p_data);
-						r_temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-						strnzcpy(static_cast<char *>(pBind->P_Data), r_temp_buf, sz);
-					}
-				}
-			}
-			break;*/
 		case S_NOTE:
 		case S_ZSTRING:
 			{
@@ -1959,7 +2009,7 @@ void FASTCALL SMySqlDbProvider::OdFree(SMySqlDbProvider::OD & rO)
 		case S_CLOB:
 			if(action == 0) {
 				const uint32 ntv_size = 0; // @debug
-				pBind->SetNtvTypeAndSize(/*MYSQL_TYPE_MEDIUM_BLOB*/MYSQL_TYPE_VAR_STRING, ntv_size);
+				pBind->SetNtvTypeAndSize(MYSQL_TYPE_VAR_STRING, ntv_size);
 				pBind->Flags |= SSqlStmt::Bind::fUseRetActualSize;
 				//pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
 			}
@@ -1971,13 +2021,11 @@ void FASTCALL SMySqlDbProvider::OdFree(SMySqlDbProvider::OD & rO)
 					if(p_lob_data && lob_size) {
 						SString & r_temp_buf = SLS.AcquireRvlStr();
 						r_temp_buf.CatN(static_cast<const char *>(p_lob_data), lob_size).Transf(CTRANSF_INNER_TO_UTF8);
-						//sqlite3_bind_text(h_stmt, idx, r_temp_buf.cptr(), r_temp_buf.Len(), SQLITE_TRANSIENT);
 						mysql_stmt_send_long_data(static_cast<MYSQL_STMT *>(pStmt->H), abs(pBind->Pos)-1, r_temp_buf.cptr(), r_temp_buf.Len32());
 					}
 				}
 			}
 			else if(action == 1) {
-				// @construction
 				SLob * p_lob = static_cast<SLob *>(p_data);
 				if(p_lob) {
 					bool   _err = false;
@@ -2018,10 +2066,66 @@ void FASTCALL SMySqlDbProvider::OdFree(SMySqlDbProvider::OD & rO)
 				}
 			}
 			break;
+		case S_BLOB:
+			if(action == 0) {
+				const uint32 ntv_size = 0; // @debug
+				pBind->SetNtvTypeAndSize(MYSQL_TYPE_BLOB, ntv_size);
+				pBind->Flags |= SSqlStmt::Bind::fUseRetActualSize;
+			}
+			else if(action < 0) {
+				if(p_data) {
+					SLob * p_lob = static_cast<SLob *>(p_data);
+					const size_t lob_size = p_lob->GetPtrSize();
+					const void * p_lob_data = p_lob->GetRawDataPtrC();
+					if(p_lob_data && lob_size) {
+						mysql_stmt_send_long_data(static_cast<MYSQL_STMT *>(pStmt->H), abs(pBind->Pos)-1, static_cast<const char *>(p_lob_data), lob_size);
+					}
+				}
+			}
+			else if(action == 1) {
+				SLob * p_lob = static_cast<SLob *>(p_data);
+				if(p_lob) {
+					bool   _err = false;
+					bool   _no_more_data = false;
+					SBuffer _buffer;
+					const  ulong _total_len = static_cast<ulong>(pBind->RetActualSize);
+					ulong  _offs = 0;
+					char   _chunk_buffer[2048];
+					while(!_err && !_no_more_data && _offs < _total_len) {
+						ulong  _len = 0;
+						MYSQL_BIND msq_bind;
+						MEMSZERO(msq_bind);
+						msq_bind.buffer_type = MYSQL_TYPE_VAR_STRING;
+						msq_bind.buffer = _chunk_buffer;
+						msq_bind.buffer_length = sizeof(_chunk_buffer);
+						msq_bind.length = &_len;
+						int fcr = mysql_stmt_fetch_column(static_cast<MYSQL_STMT *>(pStmt->H), &msq_bind, abs(pBind->Pos)-1, _offs);
+						if(fcr == 0) {
+							if(_len) {
+								_buffer.Write(_chunk_buffer, _len);
+								_offs += _len;
+							}
+							else
+								_no_more_data = true;
+						}
+						else {
+							_err = true;
+						}
+					} 
+					{
+						p_lob->InitPtr(_buffer.GetAvailableSize());
+						void * p_lob_ptr = p_lob->GetRawDataPtr();
+						if(p_lob_ptr) {
+							memcpy(p_lob_ptr, _buffer.GetBufC(), _buffer.GetAvailableSize());
+						}
+					}
+				}
+			}
+			break;
 		case S_RAW:
 			{
 				if(action == 0) {
-					pBind->SetNtvTypeAndSize(SQLT_BIN, static_cast<uint16>(sz));
+					pBind->SetNtvTypeAndSize(MYSQL_TYPE_BLOB, static_cast<uint16>(sz));
 					pStmt->AllocBindSubst(count, sz, pBind);
 				}
 				else if(action < 0) {
@@ -2037,69 +2141,8 @@ void FASTCALL SMySqlDbProvider::OdFree(SMySqlDbProvider::OD & rO)
 				}
 			}
 			break;
+		// (В MySQL нет rowid) case S_ROWID: break;
 #if 0 // {
-		case S_BLOB:
-		case S_CLOB:
-			if(action == 0)
-				ProcessBinding_AllocDescr(count, pStmt, pBind, MYSQL_TYPE_BLOB, OCI_DTYPE_LOB);
-			else if(action < 0) {
-				OD ocilob = *static_cast<const OD *>(p_data);
-				DBLobBlock * p_lob = pStmt->GetBindingLob();
-				size_t lob_sz = 0;
-				uint64 lob_loc = 0;
-				if(p_lob) {
-					p_lob->GetSize(labs(pBind->Pos)-1, &lob_sz);
-					p_lob->GetLocator(labs(pBind->Pos)-1, &lob_loc);
-					SETIFZ(lob_loc, reinterpret_cast<uint64>(OdAlloc(OCI_DTYPE_LOB).H));
-					ProcessError(OCILobAssign(Env, Err, (const OCILobLocator *)(lob_loc), reinterpret_cast<OCILobLocator **>(&ocilob.H)));
-				}
-				LobWrite(ocilob, pBind->Typ, static_cast<SLob *>(pBind->P_Data), lob_sz);
-			}
-			else if(action == 1) {
-				OD ocilob = *static_cast<const OD *>(p_data);
-				DBLobBlock * p_lob = pStmt->GetBindingLob();
-				size_t lob_sz = 0;
-				uint64 lob_loc = 0;
-				LobRead(ocilob, pBind->Typ, static_cast<SLob *>(pBind->P_Data), &lob_sz);
-				if(p_lob) {
-					SETIFZ(lob_loc, reinterpret_cast<uint64>(OdAlloc(OCI_DTYPE_LOB).H));
-					ProcessError(OCILobAssign(Env, Err, ocilob, (OCILobLocator **)&lob_loc));
-					p_lob->SetSize(labs(pBind->Pos)-1, lob_sz);
-					p_lob->SetLocator(labs(pBind->Pos)-1, lob_loc);
-				}
-			}
-			else if(action == 1000)
-				ProcessBinding_FreeDescr(count, pStmt, pBind);
-			break;
-		case S_DEC:
-		case S_MONEY:
-			if(action == 0) {
-				pBind->SetNtvTypeAndSize(SQLT_FLT, sizeof(double));
-				pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
-			}
-			else {
-				const int16 dec_len = static_cast<int16>(GETSSIZED(pBind->Typ));
-				const int16 dec_prc = static_cast<int16>(GETSPRECD(pBind->Typ));
-				if(action < 0)
-					*static_cast<double *>(p_data) = dectobin(static_cast<const char *>(pBind->P_Data), dec_len, dec_prc);
-				else if(action == 1)
-					dectodec(*static_cast<double *>(p_data), static_cast<char *>(pBind->P_Data), dec_len, dec_prc);
-			}
-			break;
-		case S_ROWID:
-			if(action == 0)
-				ProcessBinding_AllocDescr(count, pStmt, pBind, SQLT_RDD, OCI_DTYPE_ROWID);
-			else if(action < 0) {
-				//assert(0);
-			}
-			else if(action == 1) {
-				OD ocirid = *static_cast<const OD *>(p_data);
-				uint16 len = sizeof(DBRowId);
-				OCIRowidToChar(ocirid, static_cast<OraText *>(pBind->P_Data), &len, Err);
-			}
-			else if(action == 1000)
-				ProcessBinding_FreeDescr(count, pStmt, pBind);
-			break;
 		//case S_LSTRING:
 		//case S_WCHAR:
 		//case S_LOGICAL:

@@ -610,7 +610,8 @@ int PriceChecker::GetGoodInfo(const char * pRequest, StGoodInfo & rGoodInfo)
 			if(pos)
 				rGoodInfo.Name.Trim(pos);
 			// } @vmiller
-			rGoodInfo.Name.ToChar();
+			// @v12.5.6 rGoodInfo.Name.ToAnsii();
+			rGoodInfo.Name.Transf(CTRANSF_INNER_TO_OUTER); // @v12.5.6
 			rGoodInfo.Info.CopyFromOleStr(goods_rec.KindText);
 			rGoodInfo.Qtty = qtty;
 			ok = 1;

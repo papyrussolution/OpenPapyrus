@@ -107,7 +107,8 @@ void TagFilt::MergeString(const char * pRestrictionString, const char * pColorSt
 
 /*static*/void FASTCALL TagFilt::SetColor(const SColor * pClr, SString & rItemBuf)
 {
-	SString rbuf, cbuf;
+	SString rbuf;
+	SString cbuf;
 	ParseString(rItemBuf, &rbuf, &cbuf);
 	if(pClr)
 		pClr->ToStr(SColorBase::fmtHEX, cbuf);
@@ -135,8 +136,7 @@ void TagFilt::MergeString(const char * pRestrictionString, const char * pColorSt
 
 IMPLEMENT_PPFILT_FACTORY(Tag); TagFilt::TagFilt() : PPBaseFilt(PPFILT_TAG, 0, 1)
 {
-	SetFlatChunk(offsetof(TagFilt, ReserveStart),
-		offsetof(TagFilt, TagsRestrict) - offsetof(TagFilt, ReserveStart));
+	SetFlatChunk(offsetof(TagFilt, ReserveStart), offsetof(TagFilt, TagsRestrict) - offsetof(TagFilt, ReserveStart));
 	SetBranchStrAssocArray(offsetof(TagFilt, TagsRestrict));
 	Init(1, 0);
 }
@@ -2560,6 +2560,17 @@ static int EditPosRights(ObjTagItem * pItem)
 	delete dlg;
 	return ok;
 }
+//
+// Descr: Читает файл dd/cocacola-esi_specification-activity_codes.csv и извлекает из него:
+//   либо пары {Activity Code;RU Описание на русском языке}, которые вставляются в список rList как {key; val} соответственно
+//   либо пары {Activity Code;Activity Code Group}, которые вставляются в список rList как {key; val} соответственно
+// ARG(scheme IN): Схема извлечения данных. Значения следющие: 1 - {Activity Code; RU Описание на русском языке}, 2 - {Activity Code; Activity Code Group}
+//   Первый вариант используется для выбора кода человеком, второй варинт - для передачи данных поставщику.
+// Return:
+//   >0 - данные успешно прочитаны. 
+//    0 - error
+//
+int COCACOLA_ReadBailmentAaFile(int scheme, StrStrAssocArray & rList); // @v12.5.6 @prototype(ppsupplix.cpp)
 
 int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const PPIDArray * pAllowedTags)
 {
@@ -2602,9 +2613,8 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 			}
 			else if(event.isCmd(cmLinkObj)) {
 				if(ObjID) {
-					PPObjTag tag_obj;
 					PPObjectTag2 tag;
-					if(tag_obj.Fetch(Data.TagID, &tag) > 0 && tag.ObjTypeID) {
+					if(TagObj.Fetch(Data.TagID, &tag) > 0 && tag.ObjTypeID) {
 						if(EditPPObj(tag.ObjTypeID, ObjID) > 0) {
 							SString obj_name;
 							if(GetObjectName(tag.ObjTypeID, ObjID, obj_name) > 0)
@@ -2614,9 +2624,8 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 				}
 			}
 			else if(event.isCbSelected(CTLSEL_TAGV_HOBJ1)) { // @v12.2.10
-				PPObjTag tag_obj;
 				PPObjectTag2 tag;
-				if(tag_obj.Fetch(Data.TagID, &tag) > 0) {
+				if(TagObj.Fetch(Data.TagID, &tag) > 0) {
 					if(tag.TagDataType == OTTYP_OBJLINK && tag.TagEnumID == PPOBJ_LOCATION) {
 						PPID person_id = getCtrlLong(CTLSEL_TAGV_HOBJ1);
 						{
@@ -2633,9 +2642,8 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 				if(oneof2(ctl_id, CTL_TAGV_LINK, CTLSEL_TAGV_LINK)) {
 					ComboBox * p_combo = static_cast<ComboBox *>(getCtrlView(CTLSEL_TAGV_LINK));
 					if(p_combo && Data.TagDataType == OTTYP_OBJLINK) {
-						PPObjTag tag_obj;
 						PPObjectTag2 tag;
-						if(tag_obj.Fetch(Data.TagID, &tag) > 0) {
+						if(TagObj.Fetch(Data.TagID, &tag) > 0) {
 							if(tag.TagEnumID == PPOBJ_PERSON && tag.LinkObjGrp) {
 								PPObjPersonKind pk_obj;
 								PPPersonKind pk_rec;
@@ -2667,6 +2675,41 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 							setCtrlString(CTL_TAGV_STR, line_buf);
 						}
 					}
+					else {
+						PPObjectTag2 tag;
+						if(TagObj.Fetch(Data.TagID, &tag) > 0) {
+							if(sstreqi_ascii(tag.Symb, "CC-BAILMENT-AA")) { // see COCACOLA::MakeReply (ppsupplix.cpp)
+								TView * p_il = getCtrlView(CTL_TAGV_STR);
+								if(p_il) {
+									StrStrAssocArray aa_list;
+									int    r = COCACOLA_ReadBailmentAaFile(1, aa_list);
+									if(r > 0) {
+										StrAssocArray * p_lb_list = new StrAssocArray;
+										SString temp_buf;
+										for(uint i = 0; i < aa_list.getCount(); i++) {
+											const SStrToStrAssoc item = aa_list.at(i);
+											if(!isempty(item.Key) && !isempty(item.Val)) {
+												temp_buf.Z().Cat(item.Key).CatDiv('|', 1).Cat(item.Val);
+												p_lb_list->AddFast(i+1, temp_buf);
+											}
+										}
+										{
+											ListWindow * p_lw = CreateListWindow(p_lb_list, lbtDisposeData|lbtDblClkNotify|lbtTextUtf8, p_il);
+											if(ExecView(p_lw) == cmOK) {
+												long   _id = 0;
+												p_lw->getResult(&_id);
+												if(_id >= 0 && _id <= aa_list.getCount()) {
+													const SStrToStrAssoc item = aa_list.at(_id-1);
+													setCtrlString(CTL_TAGV_STR, temp_buf = item.Key);
+												}
+											}
+											delete p_lw;
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 			else
@@ -2675,6 +2718,7 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 		}
 		const  PPID ObjID;
 		TagDlgParam & R_Tdp; // @v12.2.10
+		PPObjTag TagObj;
 	};
 	int    ok = -1;
 	int    r;
@@ -2775,7 +2819,8 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 	}
 	else {
 		param.GetDlgID(*pItem/*pItem->TagDataType*/, &dlg_id);
-		THROW(CheckDialogPtr(&(dlg = new TagValDialog(dlg_id, objID, param))));
+		dlg = new TagValDialog(dlg_id, objID, param);
+		THROW(CheckDialogPtr(&dlg));
 		// @v12.2.10 THROW(param.SetDlgData(dlg, pItem));
 		dlg->setDTS(pItem); // @v12.2.10 
 		while(!valid_data && (r = ExecView(dlg)) == cmOK)

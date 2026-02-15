@@ -2290,8 +2290,21 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 	{
 		SPaintToolBox * p_tb = GetUiToolBox();
 		if(p_tb) {
+			//
+			// @20260204
+			// По поводу do_begin_paint: фрейм BeginPaint...EndPaint введен из-за того, что в каком-то диалоге (черт! не помню в каком)
+			// все время дергалась пересовываясь без причины кнопка. Фрейм решил эту проблему, 
+			// однако вылезла другая: календари (IMPL_HANDLE_EVENT(SCalendarPicker) cmPaint calendar.cpp) частично перестали отрисовываться при 
+			// открытии окна календаря (при изменении или при наведении мыши - отрисовывались).
+			// Как только я залочил здесь фрейм BeginPaint...EndPaint проблема ушла. Вот, блядь, и придумывай теперь как 
+			// решить эту загадку! 
+			// Пока делаю do_begin_paint=false
+			//
+			bool   do_begin_paint = false;
 			PAINTSTRUCT ps; // @v12.5.5
-			::BeginPaint(hwnd, &ps); // @v12.5.5
+			if(do_begin_paint) { // @v12.5.6
+				::BeginPaint(hwnd, &ps); // @v12.5.5
+			}
 			TCanvas2 canv(*p_tb, pDi->hDC);
 			int   brush_id = tbiButtonBrush + item_state;
 			int   pen_id = tbiButtonPen + item_state;
@@ -2390,7 +2403,9 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 					}
 				}
 			}
-			::EndPaint(hwnd, &ps); // @v12.5.5
+			if(do_begin_paint) { // @v12.5.6
+				::EndPaint(hwnd, &ps); // @v12.5.5
+			}
 		}
 	}
 	return ok;

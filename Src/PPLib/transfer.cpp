@@ -1502,7 +1502,8 @@ long FASTCALL MASK_TFR_FLAGS(long f)
 //
 int Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 {
-	int    ok = 1, r;
+	int    ok = 1;
+	int    r;
 	int    _reverse = 0;
 	const  bool is_reval = LOGIC(ti->Flags & PPTFR_REVAL);
 	ReceiptTbl::Rec lot_rec;

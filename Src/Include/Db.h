@@ -1508,14 +1508,18 @@ public:
 	//   интерфейсом с конкретной СУБД.
 	//
 	//SSqlStmt(DbProvider * pDb, const char * pText);
-	static bool IsConsistent(const SSqlStmt * pThis) { return (pThis && pThis->Signature == SlConst::SSqlStmtSignature); }
+	static bool IsConsistent(const SSqlStmt * pThis) { return (pThis && oneof2(pThis->Signature, SlConst::SSqlStmtSignature, SlConst::SSqlStmtSignature_Select)); }
 	SSqlStmt(DbProvider * pDb, const Generator_SQL & rSql);
-	SSqlStmt(DbProvider * pDb, void * pExternalConnection, const Generator_SQL & rSql);
 	SSqlStmt(DbProvider * pDb);
 	~SSqlStmt();
 	int    SetSqlText(const char * pText);
 	int    SetSqlText(const Generator_SQL & pSql); // @v12.3.12
 	bool   IsValid() const;
+	//
+	// Descr: Возвращает сигнатуру класса. Так как порожденные классы могут иметь иную сигнатуру, то
+	//   эта функция может применяться для точной идентификации класса.
+	//
+	uint32 GetSignature() const { return Signature; }
 	//
 	// Descr: Инициализирует подстановочные буферы для связывания переменных
 	//   SQL-оператора.
@@ -1542,14 +1546,12 @@ public:
 	int    BindData(int dir, uint count, const DBFieldList & rFldList, const void * pDataBuf, DBLobBlock *);
 	int    BindKey(const BNKeyList & rKeyList, int idxN, const void * pDataBuf);
 	//
-	// Descr: Подставляет реальные данные по привязкам (binding), заданным до этого
-	//   функцией SSqlStmt::BindData(-1,...)
+	// Descr: Подставляет реальные данные по привязкам (binding), заданным до этого функцией SSqlStmt::BindData(-1,...)
 	// ARG(recNo   IN): @#{0..BL.Dim-1} номер записи, данные которой должны быть подставлены в привязку.
 	//
 	int    SetData(uint recNo);
 	//
-	// Descr: Подставляет реальные данные по привязкам (binding), заданным до этого
-	//   функцией SSqlStmt::BindData(-1,...)
+	// Descr: Подставляет реальные данные по привязкам (binding), заданным до этого функцией SSqlStmt::BindData(-1,...)
 	// Note: Отличается от SetData тем, что вызывает DbProvider::ProcessBinding
 	//   с параметром action = -2 (привязка для изменения данных).
 	//
@@ -1590,8 +1592,11 @@ public:
 		TYPEID Typ;        // Внутренний тип данных
 	};
 
+	DBTable * GetOwnerTblRef() { return P_OwnerTbl; } // @v12.5.6
 	bool   SetExternalConnection(void * pConn); // @v12.5.4
 	void * GetExternalConnection(); // @v12.5.4
+protected:
+	SSqlStmt(DbProvider * pDb, void * pExternalConnection, DBTable * pTbl, uint32 signature, const Generator_SQL & rSql, int sf);
 private:
 	enum {
 		fError      = 0x0001,
@@ -1614,13 +1619,17 @@ private:
 	size_t FASTCALL GetBindOuterSize(const Bind * pBind) const;
 	void * FASTCALL GetIndPtr(const Bind * pBind, uint rowN) const;
 
-	uint32 Signature; // 0x3597B6D4
+	uint32 Signature; // SlConst::SSqlStmtSignature(0x3597B6D4)
 	DbProvider * P_Db;
 	void * H;
 	void * P_Result;
 	void * P_ExternalConnection; // @v12.5.4 Если запрос должен быть ассоциирован с отдельным соединением, то это - указатель на специфичную для провайдера структуру соединения.
+	DBTable * P_OwnerTbl; // @v12.5.6 (movedfrom DBTable::SelectStmt) Таблица - владелец запроса
 	long   Flags;
 	int    Typ; // @v12.3.12 Generator_SQL::typXXX
+protected:
+	long   Sf;  // @v12.5.6 (movedfrom DBTable::SelectStmt) 
+private:
 	BindArray BL;
 	SdRecord Descr;
 	SBaseBuffer BS;       // Буфер обмена для связывания входящих и исходящих переменных
@@ -1813,7 +1822,9 @@ public:
 	enum {
 		sfForUpdate = 0x0001, // SELECT FOR UPDATE
 		sfKeyOnly   = 0x0002, // Извлечь только ключевые поля, по заданному индексу
-		sfDirect    = 0x0004  // Извлечь запись по rowid
+		sfDirect    = 0x0004, // Извлечь запись по rowid
+		sfBExtQuery = 0x0008, // @v12.5.6 Флаг индицирующий тот факт, что запрос был сформирован объектом BExtQuery. 
+			// Флаг нужен для специализированной обработки запроса драйвером SQL-сервера.
 	};
 
 	int    search(void * key, int srchMode);
@@ -1911,20 +1922,17 @@ public:
 	int    FASTCALL AddKey(BNKey & rK);
 public:
 	//
-	struct SelectStmt : public SSqlStmt {
+	class SelectStmt : public SSqlStmt {
+	public:
 		SelectStmt(DbProvider * pDb, void * pExternalConnection, DBTable * pTbl, const Generator_SQL & rSql, int idx, int sp, int sf);
 		//
 		// Descr: В случае использования этого конструктора sql-оператор должен быть присвоен ему позже
 		//   функцией SSqlStmt::SetSqlText
 		//
 		// @v12.5.4 SelectStmt(DbProvider * pDb, DBTable * pTbl, int idx, int sp, int sf);
-		DBTable * GetOwnerTblRef() { return P_OwnerTbl; }
 		int    Idx;
 		int    Sp;
-		long   Sf;
 		int8   Key[512];
-	private:
-		DBTable * P_OwnerTbl; // @v12.5.2 Таблица - владелец запроса
 	};
 	void   SetStmt(SelectStmt * pStmt); // @private
 	SelectStmt * GetStmt();             // @private
@@ -2748,6 +2756,7 @@ public:
 		tokUseIndex,    // @v12.4.12 use index
 		tokForceIndex,  // @v12.4.12 force index
 		tokUsing,       // @v12.5.0 using
+		tokTemporary,   // @v12.5.6 temporary
 		
 		tokCountOfTokens,
 	};
@@ -3009,7 +3018,7 @@ public:
 	//
 	static constexpr uint GetTinyTextFieldSize(uint nominalSize) { return smin(nominalSize * 2, 254U); }
 
-	SMySqlDbProvider();
+	SMySqlDbProvider(const char * pDataPath);
 	~SMySqlDbProvider();
 	virtual int DbLogin(const DbLoginBlock * pBlk, long options);
 	virtual int Logout();
@@ -4426,7 +4435,8 @@ private:
 		stSqlProvider  = 0x0200  // Таблица tbl находится в подчинении провайдера SQL-сервера
 	};
 	long   State;
-	SSqlStmt * P_Stmt;
+	// @v12.5.6 SSqlStmt * P_Stmt;
+	DBTable::SelectStmt * P_SStmt; // @v12.5.6
 	int    InitSpMode;
 	BtrDbKey InitKey_;
 	BtrDbKey _Key_;

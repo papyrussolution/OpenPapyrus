@@ -2551,7 +2551,7 @@ int PPObjTSession::GetExtention(PPID id, PPProcessorPacket::ExtBlock * pExt)
 SString & PPObjTSession::GetItemMemo(PPID id, SString & rBuf)
 {
 	rBuf.Z();
-	PPRef->UtrC.SearchUtf8(TextRefIdent(Obj, id, PPTRPROP_MEMO), rBuf);
+	PPRef->UtrC.SearchUtf8(SObjTextRefIdent(Obj, id, PPTRPROP_MEMO), rBuf);
 	rBuf.Transf(CTRANSF_UTF8_TO_INNER);
 	return rBuf;
 }

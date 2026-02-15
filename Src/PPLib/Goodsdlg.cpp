@@ -1142,17 +1142,20 @@ int ClsdGoodsDialog::selectDim(uint ctlID, PPGdsClsDim * pDim)
 	long   lval = static_cast<long>(rval * fpow10i(scale));
 	ListWindow * p_lw = CreateListWindow_Simple(lbtDblClkNotify);
 	if(p_lw) {
-		for(uint i = 0; i < pDim->ValList.getCount(); i++) {
-			char   item_buf[64];
-			long   tmp_lval = pDim->ValList.at(i);
-			realfmt(static_cast<double>(tmp_lval) / fpow10i(scale), MKSFMTD(0, scale, NMBF_NOTRAILZ), item_buf);
-			p_lw->listBox()->addItem(tmp_lval, item_buf);
-		}
-		p_lw->listBox()->TransmitData(+1, &lval);
-		if(ExecView(p_lw) == cmOK) {
-			p_lw->listBox()->TransmitData(-1, &lval);
-			setCtrlReal(ctlID, static_cast<double>(lval) / fpow10i(scale));
-			ok = 1;
+		ListWindowSmartListBox * p_lb = p_lw->GetListBox();
+		if(p_lb) {
+			for(uint i = 0; i < pDim->ValList.getCount(); i++) {
+				char   item_buf[64];
+				long   tmp_lval = pDim->ValList.at(i);
+				realfmt(static_cast<double>(tmp_lval) / fpow10i(scale), MKSFMTD(0, scale, NMBF_NOTRAILZ), item_buf);
+				p_lb->addItem(tmp_lval, item_buf);
+			}
+			p_lb->TransmitData(+1, &lval);
+			if(ExecView(p_lw) == cmOK) {
+				p_lb->TransmitData(-1, &lval);
+				setCtrlReal(ctlID, static_cast<double>(lval) / fpow10i(scale));
+				ok = 1;
+			}
 		}
 	}
 	else

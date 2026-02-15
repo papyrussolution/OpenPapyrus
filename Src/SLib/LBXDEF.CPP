@@ -80,7 +80,12 @@ bool ListBoxDef::TranslateTextToUnicode(const SString & rText, SStringU & rTextU
 	rTextU.Z();
 	bool   ok = true;
 	if(rText.NotEmpty()) {
-		rTextU.CopyFromMb((Cp == cpUndef) ? cpOEM : Cp, rText, rText.Len());
+		int    local_cp = 0;
+		if(Options & lbtTextUtf8)
+			local_cp = cpUTF8;
+		else
+			local_cp = (Cp == cpUndef) ? cpOEM : Cp;
+		rTextU.CopyFromMb(local_cp, rText, rText.Len());
 	}
 	return ok;
 }

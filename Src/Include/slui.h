@@ -866,6 +866,15 @@ public:
 	SUiLayout * Insert(SUiLayout * pOriginalLayout);
 	SUiLayout * InsertCopy(const SUiLayout * pOriginalLayout);
 	void   DeleteItem(uint idx);
+	//
+	// Descr: Удаляет все элементы, у которых managed_ptr == pManagedPtr на всю глубину дерева, начиная с this, 
+	//   но только если pManagedPtr != 0 и не пытается ничего делать с this даже если у него managed_ptr == pManagedPtr.
+	// Returns:
+	//   >0 - найден и удален по крайней мере один элемент
+	//   <0 - не ни одного элемента с managed_ptr == pManagedPtr (this в расчет не принимается).
+	//    0 - error
+	//
+	int    DeleteItemByManagedPtr(void * pManagedPtr); // @v12.5.6
 	void   DeleteAllItems();
 	int    GetOrder() const;
 	void   SetOrder(int o);
@@ -1105,6 +1114,7 @@ private:
 	//   Функция нужна для автоматического присвоения уникального идентификатора одному из элементов (see func SetupUniqueID)
 	//
 	int    GetMaxComponentID() const;
+	int    Helper_DeleteItemByManagedPtr(TSCollection <SUiLayout> * pChildren,  void * pManagedPtr); // @v12.5.6
 
 	enum {
 		setupfChildrenOnly = 0x0001 // Вызывать callback-функцию CbSetup только для дочерних элементов, но не для самого себя //
@@ -4015,13 +4025,15 @@ public:
 	static LRESULT CALLBACK DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	enum {
-		spcfReadOnly      = 0x0001,
-		spcfMultiline     = 0x0002,
-		spcfWantReturn    = 0x0004,
-		spcfPassword      = 0x0008, // @v12.3.11
-		spcfLeftAligned   = 0x0010, // @v12.5.3
-		spcfRightAligned  = 0x0020, // @v12.5.3
-		spcfCenterAligned = spcfLeftAligned|spcfRightAligned, // @v12.5.3
+		spcfReadOnly          = 0x0001,
+		spcfMultiline         = 0x0002,
+		spcfWantReturn        = 0x0004,
+		spcfPassword          = 0x0008, // @v12.3.11
+		spcfLeftAligned       = 0x0010, // @v12.5.3
+		spcfRightAligned      = 0x0020, // @v12.5.3
+		spcfCenterAligned     = spcfLeftAligned|spcfRightAligned, // @v12.5.3
+		spcfSendReturnToOwner = 0x0040, // @v12.5.6 Если оконная функция TInputLine::DlgProc засекает нажатие ENTER, то отсылает 
+			// сообщение WM_USER_KEYDOWN родительскому окну. Если установлен spcfWantReturn, то этот флаг игнорируется.
 	};
 
 	TInputLine(const TRect & rBounds, uint spcFlags, TYPEID aType, long fmt);
@@ -4081,7 +4093,7 @@ public:
 	};
 
 	int    GetStatistics(Statistics * pStat) const;
-	ComboBox * GetCombo();
+	ComboBox * GetCombo() { return P_Combo; }
 
 	static const wchar_t * WndClsName;
 protected:
@@ -4699,7 +4711,7 @@ public:
 	int    FASTCALL getCurData(void * pData);
 	int    FASTCALL getCurString(SString & rBuf);
 	uint   GetSelectionList(LongArray * pList);
-	int    getText(long itemN  /* 0.. */, SString & rBuf);
+	int    getText(long itemN/*0..*/, SString & rBuf);
 	int    getID(long itemN, long * pID);
 	bool   IsTreeList() const { return (P_Def && P_Def->_isTreeList()); }
 	bool   IsMultiColumn() const { return (Columns.getCount() > 0); }
@@ -4722,11 +4734,11 @@ public:
 	//   одно из следующих значений: 0, ALIGN_LEFT, ALIGN_RIGHT, ALIGN_CENTER.
 	//   Если флаги ALIGN_XXX в format не указаны, то колонка выравнивается по левому краю.
 	//
-	//   Если в поле format установлен флаг STRF_OEM, то функция считает, что
+	//   Если в поле format установлен флаг STRF_TOOEM, то функция считает, что
 	//   строка pTitle передана в OEM-кодировке.
-	//   Если в поле format установлен флаг STRF_ANSI, то функция считает, что
+	//   Если в поле format установлен флаг STRF_TOANSI, то функция считает, что
 	//   строка pTitle передана в ANSI-кодировке.
-	//   Если format не содержит ни флага STRF_OEM, ни флага STRF_ANSI, либо оба эти флага,
+	//   Если format не содержит ни флага STRF_TOOEM, ни флага STRF_TOANSI, либо оба эти флага,
 	//   то функция считает, что строка передана в OEM-кодировке.
 	//
 	// Returns:
@@ -4770,10 +4782,15 @@ public:
 	// Перемещает окно Scrollbar в соответствии со списком. При этом старое окно Scrollbar разрушается и создается новое
 	//
 	void   MoveScrollBar(int autoHeight);
+	void   SetExpandedTreeBranchList(const LongArray * pList); // @v12.5.6
 
 	ListBoxDef * P_Def; // @todo must be private
 protected:
-	int    GetStringByID(long id, SString & rBuf);
+	//
+	// Descr: Получает текстовую строку элемента с идентификатором id.
+	// Note: Функция возвращает строку в кодировке utf8
+	//
+	int    GetStringByID(long id, SString & rBufUtf8);
 	int    GetImageIdxByID(long id, long * pIdx);
 	void   SelectTreeItem();
 	void   onInitDialog(int useScrollbar);
@@ -4805,26 +4822,45 @@ private:
 	long   State;
 	long   Range;
 	long   Top;
-	long   ItemHeight; // @v12.2.4 Height-->ItemHeight
+	long   ItemHeight_; // @v12.2.4 Height-->ItemHeight
 	CompFunc SrchFunc;
 	uint   SrchPatternPos; // Позиция последнего образца поиска в StrPool
 	uint   ColumnsSpcPos;  // Позиция строки спецификации колонок в StrPool
 	SArray Columns;
 	StringSet StrPool;
 	void * HIML;
+	LongArray * P_ExpandedTreeBranchList; // @v12.5.6 Список идентификаторов веток древовидного списка, которые должны быть развернуты 
+		// при очередном формировании
 };
 
 class ListWindowSmartListBox : public SmartListBox {
 public:
-	ListWindowSmartListBox(const TRect & r, ListBoxDef * pDef, int = 0);
-	ComboBox * combo;
+	ComboBox * GetCombo() { return P_Combo; }
+	//
+	// Descr: Если P_Combo != 0 && P_Combo->GetLink() != 0, то возвращает P_Combo->GetLink(), в противном случае возвращает P_LinkView.
+	//
+	TView * GetLinkView();
+protected:
+	ListWindowSmartListBox(const TRect & rR, ListBoxDef * pDef, TView * pLinkView);
+private:
+	friend class ComboBox; // Для установки P_Combo функцией ComboBox::setListWindow()
+	friend class ListWindow;
+
+	ComboBox * P_Combo; // @notowned
+	TView * P_LinkView; // @v12.5.6 @notowned Это - "мягко" связанный со списком управляющий элемент. 
+		// Например, поле ввода, куда попадут данные выбранные из списка. Это нужно пока только для того, чтобы 
+		// правильно спозиционировать список отностильно этого элемента.
 };
 
 class ListWindow : public TDialog {
 	friend class ComboBox;
 public:
 	ListWindow();
-	explicit ListWindow(ListBoxDef * pDef);
+	//
+	// ARG(pLinkView IN): Управляющий элемент, к которому привязывается окно списка.
+	//   @attention: Это - не ComboBox! ComboBox - привязывается отличным от этого способом.
+	//
+	ListWindow(ListBoxDef * pDef, TView * pLinkView); // @v12.5.6 
 
 	DECL_HANDLE_EVENT;
 	void executeNM(HWND parent); // Немодальный диалог
@@ -4844,7 +4880,7 @@ public:
 	bool   IsTreeList() const { return (P_Def && P_Def->_isTreeList()); }
 	void   FASTCALL setDef(ListBoxDef * pDef);
 	void   setCompFunc(CompFunc f);
-	ListWindowSmartListBox * listBox() const;
+	ListWindowSmartListBox * GetListBox() const { return P_Lb; }
 	void   Move_(HWND linkHwnd, long right);
 	void   Move_(const RECT & rRect);
 	ListBoxDef * getDef() const { return P_Def; }
@@ -4898,7 +4934,7 @@ private:
 
 ListWindow * CreateListWindow(DBQuery & rQuery, uint options);
 ListWindow * CreateListWindow(SArray * pAry, uint options, TYPEID);
-ListWindow * CreateListWindow(StrAssocArray * pAry, uint options);
+ListWindow * CreateListWindow(StrAssocArray * pAry, uint options, TView * pLinkView = 0);
 // @v11.2.5 ListWindow * CreateListWindow(uint sz, uint options);
 ListWindow * CreateListWindow_Simple(uint options); // @v11.2.5
 // WordSelector * CreateWordSelector(StrAssocArray * pAry, uint optons, UiWordSel_Helper * pHelper);
@@ -4981,6 +5017,7 @@ private:
 #define ODT_FRAME      (ODT_STATIC+14) // @v12.5.5
 
 struct TDrawItemData {
+	TDrawItemData();
 	uint   CtlType;
 	uint   CtlID;
 	uint   ItemID;
@@ -5882,6 +5919,7 @@ protected:
 		bbsWoScrollbars = 0x00000004,
 		bbsCancel       = 0x00000008, // Какой-то из виртуальных методов порожденного класса потребовал прекратить выполнение
 		bbsInner        = 0x00000010, // @v12.5.4 Окно встраивается внутрь другого прикладного окна. В противном случае, окно встроено в главное окно.
+		bbsCtlParent    = 0x00000020, // @v12.5.6 Создаваемое окно получает exstyle WS_EX_CONTROLPARENT
 		//      Начиная с 0x00010000 флаги зарезервированы за наследующими классами
 	};
 	const  SStringU ClsName; // Window class name
@@ -6577,7 +6615,7 @@ protected:
 			stNewFile  = 0x0010
 		};
 		Document();
-		Document & FASTCALL Reset(int preserveFileName);
+		Document & FASTCALL Reset(bool preserveSourceInfo);
 		long   SetState(long st, int set);
 
 		SCodepageIdent OrgCp;
@@ -6586,6 +6624,7 @@ protected:
 		long   State;
 		SciDocument SciDoc;
 		SString FileName;
+		SObjTextRefIdent OtrIdent; // @v12.5.6 
 	};
 	SKeyAccelerator KeyAccel; // Ассоциации клавиатурных кодов с командами. {KeyDownCommand Key, long Val}
 	SKeyAccelerator OuterKeyAccel; // Ассоциации клавиатурных кодов с командами, заданные из-вне: вливаются в KeyAccel
@@ -6624,14 +6663,18 @@ public:
 
 	STextBrowser();
 	STextBrowser(const char * pFileName, const char * pLexerSymb, int toolbarId = -1);
+	STextBrowser(const SObjTextRefIdent & rIdent, const char * pLexerSymb, int toolbarId = -1); // @v12.5.6
 	~STextBrowser();
 	int    Init(const char * pFileName, const char * pLexerSymb, int toolbarId = -1);
+	int    Init(const SObjTextRefIdent & rIdent, const char * pLexerSymb, int toolbarId = -1);
 	int    GetStatus(StatusBlock * pSb);
 	int    SetSpecialMode(int spcm);
 	int    WMHCreate();
 	HWND   GetSciWnd() const { return HwndSci; }
 	void   Resize();
 	int    CmpFileName(const char * pFileName);
+	int    ObjectLoad(const SObjTextRefIdent & rIdent, SCodepage cp, long flags); // @v12.5.6
+	int    ObjectSave(const SObjTextRefIdent & rIdent, long flags); // @v12.5.6
 	int    FileLoad(const char * pFileName, SCodepage cp, long flags);
 	int    FileSave(const char * pFileName, long flags);
 	int    FileClose();

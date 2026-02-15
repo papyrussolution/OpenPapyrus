@@ -1429,7 +1429,7 @@ int PPObjTimeSeries::PutPacket(PPID * pID, PPTimeSeriesPacket * pPack, int use_t
 		}
 		if(pPack == 0) {
 			if(*pID) {
-				TextRefIdent tri(Obj, _id, PPTRPROP_TIMESERIES);
+				SObjTextRefIdent tri(Obj, _id, PPTRPROP_TIMESERIES);
 				THROW(CheckRights(PPR_DEL));
 				THROW(P_Ref->RemoveItem(Obj, _id, 0));
 				THROW(P_Ref->RemoveProperty(Obj, _id, 0, 0));
@@ -1607,7 +1607,7 @@ int PPObjTimeSeries::SetTimeSeries(PPID id, STimeSeries * pTs, int use_ta)
 		long   stored_ts_count = 0;
 		PPUserFuncProfiler ufp(PPUPRF_TIMSERWRITE);
 		{
-			TextRefIdent tri(Obj, id, PPTRPROP_TIMESERIES);
+			SObjTextRefIdent tri(Obj, id, PPTRPROP_TIMESERIES);
 			PPTransaction tra(use_ta);
 			THROW(tra);
 			THROW(Search(id, &ts_rec) > 0);
@@ -1625,7 +1625,7 @@ int PPObjTimeSeries::SetTimeSeries(PPID id, STimeSeries * pTs, int use_ta)
 
 int PPObjTimeSeries::GetTimeSeries(PPID id, STimeSeries & rTs)
 {
-	TextRefIdent tri(Obj, id, PPTRPROP_TIMESERIES);
+	SObjTextRefIdent tri(Obj, id, PPTRPROP_TIMESERIES);
 	return P_Ref->UtrC.SearchTS(tri, rTs);
 }
 //

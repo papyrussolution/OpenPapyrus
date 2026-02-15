@@ -561,6 +561,11 @@ bool SObjID_Base::FromDouble(double oid)
 
 SObjID_Base::operator double() const { return ToDouble(); }
 
+SString & FASTCALL SObjID_Base::ToStr(SString & rBuf) const
+{
+	return rBuf.Z().CatChar('{').Cat(Obj).Semicol().Cat(Id).CatChar('}');
+}
+
 SObjID_Base & FASTCALL SObjID_Base::operator = (double oid)
 {
 	FromDouble(oid);
@@ -640,6 +645,33 @@ int SObjID::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) // @v1
 	CATCHZOK
 	return ok;	
 }
+
+SObjTextRefIdent::SObjTextRefIdent() : P(0), L(0)
+{
+}
+
+SObjTextRefIdent::SObjTextRefIdent(int32 objType, int32 objID, int16 prop) : O(objType, objID), P(prop), L(0)
+{
+}
+
+SObjTextRefIdent::SObjTextRefIdent(const SObjID & rOid, int16 prop) : O(rOid), P(prop), L(0)
+{
+}
+
+SObjTextRefIdent & SObjTextRefIdent::Z()
+{
+	O.Z();
+	P = 0;
+	L = 0;
+	return *this;
+}
+
+SString & FASTCALL SObjTextRefIdent::ToStr(SString & rBuf) const
+{
+	return rBuf.Z().CatChar('{').Cat(O.Obj).Semicol().Cat(O.Id).Semicol().Cat(P).Semicol().Cat(L).CatChar('}');
+}
+
+bool SObjTextRefIdent::operator !() const { return O.IsZero(); }
 //
 //
 //

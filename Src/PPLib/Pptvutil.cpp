@@ -67,13 +67,35 @@ int InitSTimeChunkBrowserParam(const char * pSymbol, STimeChunkBrowser::Param * 
 	return ok;
 }
 //
-// В следующих трех функциях проверка не ненулевой APPL сделана из-за того, что
+// В следующих трех функциях проверка на ненулевой APPL сделана из-за того, что
 // функции эти могут вызываться в контексте JobServer'а
 //
 BrowserWindow * PPFindLastBrowser() { return APPL ? static_cast<BrowserWindow *>(APPL->FindBrowser(static_cast<PPApp *>(APPL)->LastCmd, 0)) : 0; }
 STimeChunkBrowser * PPFindLastTimeChunkBrowser() { return APPL ? static_cast<STimeChunkBrowser *>(APPL->FindBrowser(static_cast<PPApp *>(APPL)->LastCmd, 1)) : 0; }
 PPPaintCloth * PPFindLastPaintCloth() { return APPL ? (PPPaintCloth*)APPL->FindBrowser(static_cast<PPApp *>(APPL)->LastCmd, 2) : 0; }
 static STextBrowser * PPFindLastTextBrowser(const char * pFileName) { return APPL ? static_cast<STextBrowser *>(APPL->FindBrowser(static_cast<PPApp *>(APPL)->LastCmd, 3, pFileName)) : 0; }
+
+void PPViewTextBrowser(const SObjTextRefIdent & rIdent, const char * pTitle, const char * pLexerSymb, int toolbarId/*= -1*/) // @v12.5.6
+{
+	SString temp_buf;
+	STextBrowser * p_brw = PPFindLastTextBrowser(rIdent.ToStr(temp_buf));
+	if(p_brw) {
+		PPCloseBrowser(p_brw);
+		p_brw = 0;
+	}
+	p_brw = new STextBrowser(rIdent, pLexerSymb, toolbarId);
+	{
+		SString title_buf;
+		if(!isempty(pTitle))
+			title_buf = pTitle;
+		else {
+			//SFsPath ps(pFileName);
+			//ps.Merge(SFsPath::fNam|SFsPath::fExt, title_buf);
+		}
+		p_brw->setTitle(title_buf);
+	}
+	InsertView(p_brw);
+}
 
 void PPViewTextBrowser(const char * pFileName, const char * pTitle, const char * pLexerSymb, int toolbarId)
 {
@@ -1654,7 +1676,7 @@ int SetupStringComboDevice(TDialog * dlg, uint ctlID, uint dvcClass, long initID
 					THROW_SL(p_list->Add((int)i, drv_name));
 				}
 			}
-			p_cb->setListWindow(CreateListWindow(p_list, lbtDisposeData | lbtDblClkNotify), initID);
+			p_cb->setListWindow(CreateListWindow(p_list, lbtDisposeData|lbtDblClkNotify), initID);
 		}
 	}
 	else
@@ -1730,7 +1752,7 @@ int STDCALL SetupStrAssocTreeCombo(TWindow * dlg, uint ctlID, const StrAssocArra
 		const uint options = ownerDrawListBox ? (lbtOwnerDraw|lbtDisposeData|lbtDblClkNotify) : (lbtDisposeData|lbtDblClkNotify);
 		StrAssocArray * p_list = new StrAssocArray(rList);
 		THROW_MEM(p_list);
-		THROW_MEM(p_lw = new ListWindow(new StdTreeListBoxDef(p_list, options, MKSTYPE(S_ZSTRING, 128))));
+		THROW_MEM(p_lw = new ListWindow(new StdTreeListBoxDef(p_list, options, MKSTYPE(S_ZSTRING, 128)), 0));
 		p_cb->setListWindow(p_lw, initID);
 	}
 	CATCHZOK
@@ -1758,7 +1780,7 @@ int STDCALL SetupStrAssocCombo(TWindow * dlg, uint ctlID, const StrAssocArray & 
 		}
 		else
 			*p_list = rList;
-		THROW_MEM(p_lw = new ListWindow(new StrAssocListBoxDef(p_list, options)));
+		THROW_MEM(p_lw = new ListWindow(new StrAssocListBoxDef(p_list, options), 0));
 		p_cb->setListWindow(p_lw, initID);
 	}
 	CATCHZOK
@@ -1785,7 +1807,7 @@ int STDCALL SetupSCollectionComboBox(TDialog * dlg, uint ctl, SCollection * pSC,
 				else
 					id = i + 1;
 				ss.get(&pos, temp_buf, sizeof(temp_buf));
-				lw->listBox()->addItem(id, temp_buf);
+				lw->GetListBox()->addItem(id, temp_buf);
 			}
 		}
 		cb->setListWindow(lw, initID);
@@ -1843,7 +1865,7 @@ int SetupSubstGoodsCombo(TDialog * dlg, uint ctlID, long initID)
 				txt_buf = item_buf;
 			}
 			if(id != sggAlcoCategory || (PrcssrAlcReport::ReadConfig(&alr_cfg) > 0 && (alr_cfg.CategoryTagID || alr_cfg.CategoryClsDim))) {
-				p_lw->listBox()->addItem(id, txt_buf);
+				p_lw->GetListBox()->addItem(id, txt_buf);
 			}
 		}
 		{
@@ -1855,7 +1877,7 @@ int SetupSubstGoodsCombo(TDialog * dlg, uint ctlID, long initID)
 			PPLoadText(PPTXT_GROUPLEVELX, item_buf);
 			for(long j = 2, id = sggGroupSecondLvl; id < count; id++, j++) {
 				txt_buf.Printf(item_buf.cptr(), j);
-				p_lw->listBox()->addItem(id, txt_buf);
+				p_lw->GetListBox()->addItem(id, txt_buf);
 			}
 		}
 		{
@@ -1863,7 +1885,7 @@ int SetupSubstGoodsCombo(TDialog * dlg, uint ctlID, long initID)
 			for(SEnum en = PPRef->Enum(PPOBJ_TAG, 0); en.Next(&tag_rec) > 0;) {
 				if(tag_rec.ObjTypeID == PPOBJ_GOODS && tag_rec.TagDataType != OTTYP_GROUP) {
 					txt_buf.Z().Cat("Tag").CatDiv(':', 2).Cat(tag_rec.Name);
-					p_lw->listBox()->addItem(tag_rec.ID + sggTagBias, txt_buf);
+					p_lw->GetListBox()->addItem(tag_rec.ID + sggTagBias, txt_buf);
 				}
 			}
 		}
@@ -2102,7 +2124,7 @@ static int SplitPath(const char * pDirNFile, SString & rDir, SString & rFile)
 	if(dlg) {
 		SString title;
 		if(titleTextId)
-			PPLoadTextWin(titleTextId, title);
+			PPLoadTextAnsi(titleTextId, title);
 		FileBrowseCtrlGroup * p_fbb = new FileBrowseCtrlGroup(btnCtlID, inputCtlID, title, flags);
 		if(p_fbb) {
 			p_fbb->addPattern(patternId);
@@ -2139,7 +2161,7 @@ int FileBrowseCtrlGroup::addPattern(uint strID)
 	int    ok = 1;
 	SString temp_buf, name, pattern;
 	SETIFZ(strID, PPTXT_FILPAT_ALL);
-	if(PPLoadTextWin(strID, temp_buf) && temp_buf.Divide(':', name, pattern) > 0) {
+	if(PPLoadTextAnsi(strID, temp_buf) && temp_buf.Divide(':', name, pattern) > 0) {
 		Patterns.add(name);
 		Patterns.add(pattern);
 	}
@@ -2387,7 +2409,7 @@ int PPOpenFile(uint strID, SString & rPath, long flags, HWND owner)
 {
 	int    ok = -1;
 	SString temp_buf, name, pattern;
-	if(PPLoadTextWin(strID, temp_buf)) {
+	if(PPLoadTextAnsi(strID, temp_buf)) {
 		StringSet ss_pat;
 		StringSet ss(',', temp_buf);
 		for(uint i = 0; ss.get(&i, temp_buf);) {
@@ -2444,7 +2466,7 @@ int PPOpenDir(SString & rPath, const char * pTitle, HWND owner /*=0*/)
 	(title = pTitle).Transf(CTRANSF_INNER_TO_OUTER);
 	{
 		SString temp_buf, name, patt;
-		if(!PPLoadTextWin(PPTXT_FILPAT_ALL, temp_buf) || temp_buf.Divide(':', name, patt) <= 0) {
+		if(!PPLoadTextAnsi(PPTXT_FILPAT_ALL, temp_buf) || temp_buf.Divide(':', name, patt) <= 0) {
 			name = " ";
 			patt = "*.*";
 		}
@@ -2599,7 +2621,7 @@ ImageBrowseCtrlGroup::ImageBrowseCtrlGroup(uint ctlImage, uint cmChgImage, uint 
 {
 	SString buf, name, ext;
 	uint patterns_id = PPTXT_PICFILESEXTS; // can be PPTXT_FILPAT_PICT
-	PPLoadTextWin(/*patternsID*/patterns_id, buf);
+	PPLoadTextAnsi(/*patternsID*/patterns_id, buf);
 	StringSet ss(',', buf);
 	for(uint i = 0; ss.get(&i, buf);) {
 		if(buf.Divide(':', name, ext) > 0) {

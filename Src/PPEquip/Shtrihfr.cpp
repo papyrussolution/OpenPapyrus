@@ -1046,6 +1046,7 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 									case GTCHZNPT_NONALCBEER: marking_type = 0x444D; break; // @v12.2.6 
 									case GTCHZNPT_PETFOOD: marking_type = 0x444D; break; // @v12.3.9 
 									case GTCHZNPT_VEGETABLEOIL: marking_type = 0x444D; break; // @v12.4.8
+									case GTCHZNPT_NCP: marking_type = 0x444D; break; // @v12.5.6
 								}
 								if(marking_type) {
 									/* @v12.0.4
