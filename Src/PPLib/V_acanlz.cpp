@@ -1134,7 +1134,7 @@ bool PPViewAccAnlz::IsDedicatedRestEvaluationNeeded() const
 		EffDlvrLocID = Filt.DlvrLocID;
 	}
 	if(!(Filt.Flags & AccAnlzFilt::fTotalOnly && IsDedicatedRestEvaluationNeeded())) {
-		THROW(AdjustPeriodToRights(Filt.Period, 0));
+		THROW(AdjustPeriodToRights(Filt.Period, false));
 	}
 	if(Filt.AccID && (!Filt.AcctId.ac || !Filt.AcctId.ar)) {
 		if(Filt.Aco == ACO_3)

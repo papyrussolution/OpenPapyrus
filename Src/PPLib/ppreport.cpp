@@ -1897,8 +1897,8 @@ int CrystalReportPrint2_ClientExecution(CrystalReportPrintParamBlock & rBlk, Cry
 
 	int    result = 0;
 	const  char * p_ext_process_name = "crr32_support.exe";
-	const  bool   force_ext_process = LOGIC(CConfig.Flags2 & CCFLG2_FORCE_CRR32_SUPPORT_SERVER);
-	const  bool   use_ext_process = ((force_ext_process || SlDebugMode::CT()) && !(CConfig.Flags2 & CCFLG2_DISABLE_CRR32_SUPPORT_SERVER));
+	const  bool   force_ext_process = LOGIC(CConfig.Flags2__ & CCFLG2_FORCE_CRR32_SUPPORT_SERVER);
+	const  bool   use_ext_process = ((force_ext_process || SlDebugMode::CT()) && !(CConfig.Flags2__ & CCFLG2_DISABLE_CRR32_SUPPORT_SERVER));
 	bool   do_use_local_func = !use_ext_process;
 	void * h_parent_window_for_preview = APPL ? APPL->H_TopOfStack : 0;
 	SString temp_buf;

@@ -6924,7 +6924,7 @@ private:
 		if(temp_buf.NotEmptyS()) {
 			temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
 			PPEAddr::Phone::NormalizeStr(temp_buf, 0, phone_buf);
-			if(Data.Flags & Data.fDelivery && CConfig.Flags2 & CCFLG2_INDEXEADDR) {
+			if(Data.Flags & Data.fDelivery && CConfig.Flags2__ & CCFLG2_INDEXEADDR) {
 				if(phone_buf.NotEmptyS()) {
 					PPIDArray addr_list;
 					PPIDArray dlvr_addr_list;
@@ -10422,7 +10422,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 										for(uint i = 0; i < pm_code_list.getCount(); i++) {
 											const PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = pm_code_list.at(i);
 											if(p_cle) {
-												if(CConfig.Flags2 & CCFLG2_RESTRICTCHZNPMPRICE) { // @v12.2.5
+												if(CConfig.Flags2__ & CCFLG2_RESTRICTCHZNPMPRICE) { // @v12.2.5
 													// @v12.2.2 {
 													const double _mrp = R2(p_cle->Mrp / 100.0);
 													const double _smp = R2(p_cle->Smp / 100.0);
@@ -10435,7 +10435,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 														}
 														// @v12.2.4 {
 														if(gt_rec.ChZnProdType == GTCHZNPT_TOBACCO) { // @v12.2.5 @fix (!=)-->(==)
-															if(CConfig.Flags2 & CCFLG2_RESTRICTCHZNCIGPRICEASMRC) {
+															if(CConfig.Flags2__ & CCFLG2_RESTRICTCHZNCIGPRICEASMRC) {
 																if(_mrp > 0.0) {
 																	rBlk.AllowedPriceRange.SetVal(_mrp);
 																}

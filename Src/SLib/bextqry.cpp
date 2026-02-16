@@ -484,8 +484,9 @@ int BExtQuery::search_first(const char * pInitKey, int initSpMode, int spMode)
 				p_fld_list = &Fields;
 			}
 			else {
-				/* @v12.5.6 @construction
+				///* @v12.5.6 @construction
 				const  uint fc = P_Tbl->GetFields().getCount();
+				const  int  h_tbl = P_Tbl->GetHandle();
 				for(uint i = 0; i < fc; i++) {
 					const BNField & r_fld = P_Tbl->GetFields().GetFieldByPosition(i);
 					bool  do_skip = false;
@@ -494,13 +495,13 @@ int BExtQuery::search_first(const char * pInitKey, int initSpMode, int spMode)
 					}
 					if(!do_skip) {
 						DBField dbfld;
-						dbfld.Id = P_Tbl->GetHandle();
-						dbfld.fld = r_fld.Id;
+						dbfld.Id = h_tbl;
+						dbfld.fld = i;
 						full_fld_list.Add(dbfld);
 					}
 				}
 				p_fld_list = &full_fld_list;
-				*/
+				//*/
 			}
 			ZDELETE(P_SStmt);
 			CreateSqlExpr(sg, BIN(State & stReverse), pInitKey, initSpMode);
@@ -520,8 +521,11 @@ int BExtQuery::search_first(const char * pInitKey, int initSpMode, int spMode)
 				// все извлеченные записи и так успешно храняться.
 				//
 				if(p_fld_list) {
-					for(uint i = 0; i < p_fld_list->GetCount(); i++)
-						RecSize += p_fld_list->GetField(i).size();
+					for(uint i = 0; i < p_fld_list->GetCount(); i++) {
+						const BNField * p_bnfld = &p_fld_list->GetField(i);
+						if(p_bnfld)
+							RecSize += p_bnfld->size();
+					}
 				}
 				else {
 					if(fields_count) {
@@ -919,28 +923,81 @@ int BExtQuery::fillTblBuf()
 			p += sizeof(BExtResultItem);
 		}
 		const  uint c = Fields.GetCount();
+		auto  move_data_to_rec = [](const BNField & rBnF, size_t localRecSize, size_t queryRecSize, uint8 * pDest, const void * pSrc)
+		{
+			const  uint s = rBnF.size();
+			memcpy(pDest + rBnF.Offs, pSrc, s);
+			if(localRecSize && GETSTYPE(rBnF.T) == S_NOTE) {
+				if(localRecSize < queryRecSize) {
+					PTR8(pDest + rBnF.Offs)[s+localRecSize-queryRecSize] = 0; // @v12.4.10 [s-RecSize+rs]-->[s+rs-RecSize]
+				}
+			}
+		};
 		if(c) {
 			for(uint i = 0; i < c; i++) {
-				const  BNField & f = Fields.GetField(i);
-				const  uint s = f.size();
+				const  BNField & r_bnf = Fields.GetField(i);
+				const  uint s = r_bnf.size();
+				/* @v12.5.7
 				if(s == sizeof(uint32))
-					*reinterpret_cast<uint32 *>(b + f.Offs) = *reinterpret_cast<const uint32 *>(p);
-				else if(s == (sizeof(uint32) * 2)) {
-					*reinterpret_cast<uint32 *>(b + f.Offs) = *reinterpret_cast<const uint32 *>(p);
-					*reinterpret_cast<uint32 *>(b + f.Offs + sizeof(uint32)) = *reinterpret_cast<const uint32 *>(p + sizeof(uint32));
-				}
+					*reinterpret_cast<uint32 *>(b + r_bnf.Offs) = *reinterpret_cast<const uint32 *>(p);
+				else if(s == sizeof(uint64))
+					*reinterpret_cast<uint64 *>(b + r_bnf.Offs) = *reinterpret_cast<const uint64 *>(p);
 				else
-					memcpy(b + f.Offs, p, s);
-				if(rs && GETSTYPE(f.T) == S_NOTE) {
+					memcpy(b + r_bnf.Offs, p, s);
+				if(rs && GETSTYPE(r_bnf.T) == S_NOTE) {
 					if(rs < RecSize) {
-						PTR8(b+f.Offs)[s+rs-RecSize] = 0; // @v12.4.10 [s-RecSize+rs]-->[s+rs-RecSize]
+						PTR8(b+r_bnf.Offs)[s+rs-RecSize] = 0; // @v12.4.10 [s-RecSize+rs]-->[s+rs-RecSize]
+					}
+				}*/
+				//move_data_to_rec(r_bnf, rs, RecSize, PTR8(b), p); // @v12.5.7
+				{
+					const  uint s = r_bnf.size();
+					memcpy(b + r_bnf.Offs, p, s);
+					if(rs && GETSTYPE(r_bnf.T) == S_NOTE) {
+						if(rs < RecSize) {
+							PTR8(b + r_bnf.Offs)[s+rs-RecSize] = 0; // @v12.4.10 [s-RecSize+rs]-->[s+rs-RecSize]
+						}
 					}
 				}
 				p += s;
 			}
 		}
 		else {
-			memcpy(b, p, RecSize);
+			// @v12.5.7 {
+			{
+				const  uint fc = P_Tbl->GetFields().getCount();
+				const  int  h_tbl = P_Tbl->GetHandle();
+				for(uint i = 0; i < fc; i++) {
+					const  BNField & r_bnf = P_Tbl->GetFields().GetFieldByPosition(i);
+					const  uint s = r_bnf.size();
+					if(sstreq(r_bnf.Name, SlConst::P_SurrogateRowIdFieldName)) {
+						DBRowId * p_row_id = P_Tbl->getCurRowIdPtr();
+						if(p_row_id) {
+							if(s == sizeof(uint64)) {
+								p_row_id->SetI64(*reinterpret_cast<const int64 *>(p));
+							}
+							else if(s == sizeof(uint32)) {
+								p_row_id->SetI32(*reinterpret_cast<const uint32 *>(p));
+							}
+						}
+					}
+					else {
+						//move_data_to_rec(r_bnf, rs, RecSize, PTR8(b), p); // @v12.5.7
+						{
+							const  uint s = r_bnf.size();
+							memcpy(b + r_bnf.Offs, p, s);
+							if(rs && GETSTYPE(r_bnf.T) == S_NOTE) {
+								if(rs < RecSize) {
+									PTR8(b + r_bnf.Offs)[s+rs-RecSize] = 0; // @v12.4.10 [s-RecSize+rs]-->[s+rs-RecSize]
+								}
+							}
+						}
+					}
+					p += s;
+				}
+			}
+			// } @v12.5.7 
+			// @v12.5.7 memcpy(b, p, RecSize);
 			// @todo Обработать поля переменной длины
 		}
 		return 1;

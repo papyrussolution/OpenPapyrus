@@ -540,7 +540,7 @@ int PPObject::SerializeSignature::Write(SBuffer & rBuf) const
 /*static*/int PPObject::IndexPhones()
 {
 	int    ok = 1;
-	THROW_PP(CConfig.Flags2 & CCFLG2_INDEXEADDR, PPERR_CCFG_INDEXEADDRNEEDED);
+	THROW_PP(CConfig.Flags2__ & CCFLG2_INDEXEADDR, PPERR_CCFG_INDEXEADDRNEEDED);
 	{
 		PPLogger logger;
 		PPObjPerson psn_obj;
@@ -725,7 +725,7 @@ int PPObject::CreateReservedObjects(long flags)
 					comm_cfg.Flags |= (CCFLG_USEDRAFTBILL|CCFLG_USEGDSCLS|CCFLG_USEHISTBILL|CCFLG_USEHISTGOODS|
 						CCFLG_THROUGHSCARDUNIQ|CCFLG_USECCHECKEXT|CCFLG_USECCHECKLINEEXT|CCFLG_GENLOTONUNLIMORDER|
 						CCFLG_USEARGOODSCODE|CCFLG_LOGCCHECK|CCFLG_RSRVSJ);
-					comm_cfg.Flags2 |= (CCFLG2_QUOT2|CCFLG2_INDEXEADDR|CCFLG2_SYNCLOT);
+					comm_cfg.Flags2__ |= (CCFLG2_QUOT2|CCFLG2_INDEXEADDR|CCFLG2_SYNCLOT);
 					comm_cfg.IncomeCalcMethod = INCM_BYSHIPMENT;
 					if(rcpt_op_id)
 						comm_cfg.ReceiptOp = rcpt_op_id;

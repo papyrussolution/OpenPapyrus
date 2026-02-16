@@ -140,7 +140,7 @@ PPObjBill::PPObjBill(void * extraPtr) : PPObject(PPOBJ_BILL), CcFlags(CConfig.Fl
 	if(CcFlags & CCFLG_USEHISTBILL) {
 		State2 |= stDoObjVer;
 	}
-	if(CConfig.Flags2 & CCFLG2_USELOTXCODE)
+	if(CConfig.Flags2__ & CCFLG2_USELOTXCODE)
 		TLP_OPEN(P_LotXcT);
 	// @v12.4.1 {
 	{

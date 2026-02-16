@@ -1796,7 +1796,7 @@ int PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, int diff
 		if(ArObj.Fetch(clientID, &ar_rec) > 0) {
 			P_OpObj->GetPayableOpList(ar_rec.AccSheetID, &op_list);
 			if(op_list.getCount()) {
-				const bool use_omt_paymamt = LOGIC(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT);
+				const bool use_omt_paymamt = LOGIC(CConfig.Flags2__ & CCFLG2_USEOMTPAYMAMT);
 				PROFILE_START
 				BillCore * p_t = P_Tbl;
 				PPObjDebtDim dd_obj;

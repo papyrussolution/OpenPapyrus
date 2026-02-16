@@ -572,7 +572,7 @@ public:
 		getCtrlData(CTLSEL_BILLFLT_MPGUA, &Data.MarketplaceGuaID);
 		if(!(Data.Flags & GoodsOpAnalyzeFilt::fCrosstab) && Data.CmpPeriod.IsZero())
 			Data.CompareItems.freeAll();
-		if(!AdjustPeriodToRights(Data.Period, 1)) {
+		if(!AdjustPeriodToRights(Data.Period, true)) {
 			selectCtrl(CTL_BILLFLT_PERIOD);
 			CALLEXCEPT();
 		}

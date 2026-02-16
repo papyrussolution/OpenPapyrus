@@ -76,7 +76,7 @@ public:
 		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_QUOTUPD_GGRP, CTLSEL_QUOTUPD_GOODS));
 		{
 			PPIDArray ext_loc_list, * p_ext_loc_list = 0;
-			if(CConfig.Flags2 & CCFLG2_QUOT2) {
+			if(CConfig.Flags2__ & CCFLG2_QUOT2) {
 				Quotation2Core qc2;
 				if(qc2.GetAddressLocList(ext_loc_list) > 0)
 					p_ext_loc_list = &ext_loc_list;
@@ -141,7 +141,7 @@ public:
 		AddClusterAssoc(CTL_QUOTUPD_WARN, 1, QuotUpdFilt::fSkipNoDisGoods);
 		AddClusterAssoc(CTL_QUOTUPD_WARN, 2, QuotUpdFilt::fSkipDatedQuot);
 		AddClusterAssoc(CTL_QUOTUPD_WARN, 3, QuotUpdFilt::fTest);
-		DisableClusterItem(CTL_QUOTUPD_WARN, 3, !(CConfig.Flags2 & CCFLG2_DEVELOPMENT));
+		DisableClusterItem(CTL_QUOTUPD_WARN, 3, !(CConfig.Flags2__ & CCFLG2_DEVELOPMENT));
 		SetClusterData(CTL_QUOTUPD_WARN, Data.Flags);
 		if(Data.ByWhat == QuotUpdFilt::byFormula) {
 			temp_buf = Data.Formula;
@@ -207,7 +207,7 @@ public:
 		else
 			Data.Flags |= QuotUpdFilt::fExistOnly;
 		GetClusterData(CTL_QUOTUPD_WARN, &Data.Flags);
-		if(!(CConfig.Flags2 & CCFLG2_DEVELOPMENT))
+		if(!(CConfig.Flags2__ & CCFLG2_DEVELOPMENT))
 			Data.Flags &= ~QuotUpdFilt::fTest;
 		getCtrlString(sel = CTL_QUOTUPD_PCT, temp_buf.Z());
 		if(Data.ByWhat == QuotUpdFilt::byFormula) {
@@ -901,7 +901,7 @@ int UpdateQuots(const QuotUpdFilt * pFilt)
 	}
 	while(pFilt || EditQuotUpdDialog(&flt) > 0) {
 		// @erik v10.5.8 { 
-		if(flt.Flags & QuotUpdFilt::fTest && CConfig.Flags2 & CCFLG2_DEVELOPMENT) {
+		if(flt.Flags & QuotUpdFilt::fTest && CConfig.Flags2__ & CCFLG2_DEVELOPMENT) {
 			getcurdatetime(&date_time_test);
 			qc2_test.DumpCurrent(buf_before_test, qc2_test.dumpfIgnoreTimestamp,  &items_count_before_test);
 		}
@@ -1185,7 +1185,7 @@ int UpdateQuots(const QuotUpdFilt * pFilt)
 		}
 		PPWaitStop();
 		// @erik v10.5.8 {
-		if(ok && flt.Flags & QuotUpdFilt::fTest && CConfig.Flags2 & CCFLG2_DEVELOPMENT) {
+		if(ok && flt.Flags & QuotUpdFilt::fTest && CConfig.Flags2__ & CCFLG2_DEVELOPMENT) {
 			if(RollbackQuots(&date_time_test)) {
 				qc2_test.DumpCurrent(buf_after_test, qc2_test.dumpfIgnoreTimestamp, &items_count_after_test);
 				THROW(buf_after_test.IsEq(buf_before_test));

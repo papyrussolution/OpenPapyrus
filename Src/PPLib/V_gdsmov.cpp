@@ -133,7 +133,7 @@ int GoodsMovFiltDialog::getDTS(GoodsMovFilt * pData)
 	getGroupData(ctlgroupLoc, &l_rec);
 	Data.LocList = l_rec.LocList;
 	THROW(GetPeriodInput(this, CTL_GTO_PERIOD, &Data.Period));
-	THROW(AdjustPeriodToRights(Data.Period, 0));
+	THROW(AdjustPeriodToRights(Data.Period, false));
 	getCtrlData(CTLSEL_GTO_SUPPL, &Data.SupplID);
 	THROW(getGroupData(ctlgroupGoodsFilt, &gf_rec));
 	Data.GoodsGrpID = gf_rec.GoodsGrpID;

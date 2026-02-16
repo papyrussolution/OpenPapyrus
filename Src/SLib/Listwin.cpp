@@ -135,7 +135,7 @@ IMPL_HANDLE_EVENT(ListWindow)
 			LDATETIME lost_focus_start_tm = ZERODATETIME;
 			do {
 				::GetMessageW(&msg, 0, 0, 0);
-				HWND h_focus_wnd = GetFocus();
+				HWND   h_focus_wnd = GetFocus();
 				if(H() != h_focus_wnd && h_ctl_wnd != h_focus_wnd) {
 					const LDATETIME now_dtm = getcurdatetime_();
 					if(!lost_focus_start_tm)

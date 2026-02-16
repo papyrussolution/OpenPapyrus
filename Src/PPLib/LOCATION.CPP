@@ -157,7 +157,7 @@ int LocationFilt::SetExField(int fldId, const char * pBuf)
 	return ok;
 }
 
-LocationCore::LocationCore() : LocationTbl(), P_Eac((CConfig.Flags2 & CCFLG2_INDEXEADDR) ? new EAddrCore : 0)
+LocationCore::LocationCore() : LocationTbl(), P_Eac((CConfig.Flags2__ & CCFLG2_INDEXEADDR) ? new EAddrCore : 0)
 {
 }
 
@@ -383,7 +383,7 @@ int LocationCore::Add(PPID * pID, LocationTbl::Rec * pRec, int use_ta)
 			c = 1;
 		pRec->Counter = c;
 		THROW(AddObjRecByID(this, PPOBJ_LOCATION, pID, pRec, 0));
-		if(CConfig.Flags2 & CCFLG2_INDEXEADDR) {
+		if(CConfig.Flags2__ & CCFLG2_INDEXEADDR) {
 			SString temp_buf;
 			GetExField(pRec, LOCEXSTR_PHONE, temp_buf);
 			SObjID objid(PPOBJ_LOCATION, *pID);

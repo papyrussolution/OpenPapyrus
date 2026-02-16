@@ -33,7 +33,7 @@ int PPViewLotOp::InitIteration()
 	THROW_MEM(P_IterQuery = new BExtQuery(p_tt, 2));
 	P_IterQuery->selectAll();
 	period.Z();
-	AdjustPeriodToRights(period, 0);
+	AdjustPeriodToRights(period, false);
 	if(Filt.Flags & LotOpFilt::fZeroLotOps)
 		dbq = & (p_tt->LotID == 0L && daterange(p_tt->Dt, &period) && (p_tt->Flags & PPTFR_RECEIPT) == PPTFR_RECEIPT);
 	else {
@@ -150,7 +150,7 @@ DBQuery * PPViewLotOp::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	DBConst zero_cost;
 	zero_cost.init(0.0);
 	period.Z();
-	AdjustPeriodToRights(period, 0);
+	AdjustPeriodToRights(period, false);
 	THROW(CheckTblPtr(trf = new TransferTbl));
 	THROW(CheckTblPtr(bll = new BillTbl));
 	PPDbqFuncPool::InitObjNameFunc(dbe_ar, PPDbqFuncPool::IdObjNameAr, bll->Object);

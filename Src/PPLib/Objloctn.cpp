@@ -2193,7 +2193,7 @@ int PPObjLocation::PutPacket(PPID * pID, PPLocationPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref(PPRef);
-	const  bool do_index_phones = LOGIC(CConfig.Flags2 & CCFLG2_INDEXEADDR);
+	const  bool do_index_phones = LOGIC(CConfig.Flags2__ & CCFLG2_INDEXEADDR);
 	SString temp_buf;
 	THROW_MEM(SETIFZ(P_RegObj, new PPObjRegister()));
 	{
@@ -2293,7 +2293,7 @@ int PPObjLocation::PutPacket(PPID * pID, PPLocationPacket * pPack, int use_ta)
 int PPObjLocation::PutRecord(PPID * pID, LocationTbl::Rec * pPack, int use_ta)
 {
 	int    ok = 1;
-	const  int do_index_phones = BIN(CConfig.Flags2 & CCFLG2_INDEXEADDR);
+	const  int do_index_phones = BIN(CConfig.Flags2__ & CCFLG2_INDEXEADDR);
 	SString temp_buf;
 	{
 		PPTransaction tra(use_ta);
@@ -3077,7 +3077,7 @@ void DivisionView::viewStaffList()
 class LocationCache : public ObjCacheHash {
 public:
 	LocationCache() : ObjCacheHash(PPOBJ_LOCATION, sizeof(LocationData), 1024*1024, 4),
-		WhObjList(sizeof(WHObjEntry)), FullEaList(BIN(CConfig.Flags2 & CCFLG2_INDEXEADDR)), IsWhObjTabInited(0)
+		WhObjList(sizeof(WHObjEntry)), FullEaList(BIN(CConfig.Flags2__ & CCFLG2_INDEXEADDR)), IsWhObjTabInited(0)
 	{
 		LoadWarehouseTab();
 		// @v12.2.1 @ctr MEMSZERO(Cfg);
@@ -3755,7 +3755,7 @@ uint PPObjLocation::GetWarehouseList(PPIDArray * pList, bool * pHasRestrictions)
 	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (PPOBJ_LOCATION);
 	PPID   result = p_cache ? p_cache->ObjToWarehouse(arID, 0) : 0;
 	PPID   verif_result = 0;
-	if(CConfig.Flags2 & CCFLG2_VERIFYARTOLOCMETHS) {
+	if(CConfig.Flags2__ & CCFLG2_VERIFYARTOLOCMETHS) {
 		PPID   acs_id = 0;
 		verif_result = ObjToWarehouse_Direct(arID, &acs_id);
 		if(verif_result != result) {
@@ -3773,7 +3773,7 @@ uint PPObjLocation::GetWarehouseList(PPIDArray * pList, bool * pHasRestrictions)
 	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (PPOBJ_LOCATION);
 	PPID   result = p_cache ? p_cache->ObjToWarehouse(arID, 1) : 0;
 	PPID   verif_result = 0;
-	if(CConfig.Flags2 & CCFLG2_VERIFYARTOLOCMETHS) {
+	if(CConfig.Flags2__ & CCFLG2_VERIFYARTOLOCMETHS) {
 		PPID   acs_id = 0;
 		verif_result = ObjToWarehouse_IgnoreRights_Direct(arID, &acs_id);
 		if(verif_result != result) {
@@ -3791,7 +3791,7 @@ uint PPObjLocation::GetWarehouseList(PPIDArray * pList, bool * pHasRestrictions)
 	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (PPOBJ_LOCATION);
 	PPID   result = p_cache ? p_cache->WarehouseToObj(locID, 0) : 0;
 	PPID   verif_result = 0;
-	if(CConfig.Flags2 & CCFLG2_VERIFYARTOLOCMETHS) {
+	if(CConfig.Flags2__ & CCFLG2_VERIFYARTOLOCMETHS) {
 		verif_result = WarehouseToObj_Direct(locID);
 		if(verif_result != result) {
 			SString msg_buf;

@@ -648,7 +648,7 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 	Filt.Period.Actualize(ZERODATE);
 	Filt.LotsPeriod.Actualize(ZERODATE);
 	Filt.DueDatePeriod.Actualize(ZERODATE);
-	THROW(AdjustPeriodToRights(Filt.Period, 0));
+	THROW(AdjustPeriodToRights(Filt.Period, false));
 	ZDELETE(P_InnerIterItem);
 	if(!(Flags & fOnceInited) || !Filt.IsEqualExcept(prev_filt, TrfrAnlzFilt::eqxOrder|TrfrAnlzFilt::eqxCrosstab)) {
 		PPUserFuncProfiler ufp(PPUPRF_VIEW_TRFRANLZ);

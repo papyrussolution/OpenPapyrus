@@ -8572,11 +8572,14 @@ public:
 
 template <class T> class TSVector : public SVector {
 public:
-	TSVector() : SVector(sizeof(T)) {}
-	TSVector(const TSVector & rS) : SVector(rS) {}
+	TSVector() : SVector(sizeof(T)) 
+	{
+	}
+	TSVector(const TSVector & rS) : SVector(rS) 
+	{
+	}
 	T &    FASTCALL at(uint pos) const { return *reinterpret_cast<T *>(SVector::at(pos)); }
-protected:
-	bool   FASTCALL Implement_Simple_IsEq(const TSVector <T> * pS) const
+	bool   FASTCALL IsEq_Simple(const TSVector <T> * pS) const
 	{
 		bool    result = false;
 		if(pS) {

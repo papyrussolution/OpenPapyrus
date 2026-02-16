@@ -1228,7 +1228,7 @@ SrDatabase * PPThreadLocalArea::GetSrDatabase()
 	SrDatabase * p_db = 0;
 	if(P_SrDb)
 		p_db = P_SrDb;
-    else if(Cc.Flags2 & CCFLG2_USESARTREDB) {
+    else if(Cc.Flags2__ & CCFLG2_USESARTREDB) {
 		SString db_path;
 		PPGetPath(PPPATH_SARTREDB, db_path);
 		if(SFile::IsDir(db_path.RmvLastSlash())) {
@@ -4272,8 +4272,8 @@ int PPSession::Implement_PPLogin(const PPDbEntrySet2 * pDbes, const char * pDbSy
 				r_tla.SupplDevUpQuotKindID       = suppl_agt.DevUpQuotKindID;
 				r_tla.SupplDevDnQuotKindID       = suppl_agt.DevDnQuotKindID;
 				r_tla.InvalidSupplDealQuotAction = suppl_agt.InvPriceAction;
-				SETFLAG(r_cc.Flags2, CCFLG2_USESDONPURCHOP, suppl_agt.Flags & AGTF_USESDONPURCHOP);
-				SETFLAG(r_cc.Flags2, CCFLG2_INHSUPPLTAXGRPINLOT, suppl_agt.Flags & AGTF_INHSUPPLTAXGRPINLOT); // @v12.2.1
+				SETFLAG(r_cc.Flags2__, CCFLG2_USESDONPURCHOP, suppl_agt.Flags & AGTF_USESDONPURCHOP);
+				SETFLAG(r_cc.Flags2__, CCFLG2_INHSUPPLTAXGRPINLOT, suppl_agt.Flags & AGTF_INHSUPPLTAXGRPINLOT); // @v12.2.1
 			}
 			if(!empty_secur_base)
 				THROW(r_tla.Paths.Get(PPOBJ_USR, r_lc.UserID));
@@ -4311,9 +4311,10 @@ int PPSession::Implement_PPLogin(const PPDbEntrySet2 * pDbes, const char * pDbSy
 			}
 			GetSync().LoginUser(r_lc.UserID, user_name, &r_lc.SessionID, &machine_id, term_sess_id);
 			r_lc.State |= CFGST_INITIATE;
-			if(empty_secur_base)
+			if(empty_secur_base) {
 				r_lc.State |= CFGST_EMPTYBASE;
 				logmode = logmEmptyBaseCreation; // @v12.5.6
+			}
 			//
 			// Флаг ECF_FULLGOODSCACHE должен быть определен до создания экземпляра
 			// PPObjGoods (который создается внутри конструктора PPObjBill)
@@ -4457,33 +4458,33 @@ int PPSession::Implement_PPLogin(const PPDbEntrySet2 * pDbes, const char * pDbSy
 						r_tla.DL600XmlCp.FromStr(sv);
 				}
 				if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ADJCPANCCLINETRANS, &(iv = 0)) > 0 && iv != 0)
-					r_cc.Flags2 |= CCFLG2_ADJCPANCCLINETRANS;
+					r_cc.Flags2__ |= CCFLG2_ADJCPANCCLINETRANS;
 				else
-					r_cc.Flags2 &= ~CCFLG2_ADJCPANCCLINETRANS; // @paranoic
+					r_cc.Flags2__ &= ~CCFLG2_ADJCPANCCLINETRANS; // @paranoic
 				if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DONTUSE3TIERGMTX, &(iv = 0)) > 0 && iv != 0)
-					r_cc.Flags2 |= CCFLG2_DONTUSE3TIERGMTX;
+					r_cc.Flags2__ |= CCFLG2_DONTUSE3TIERGMTX;
 				else
-					r_cc.Flags2 &= ~CCFLG2_DONTUSE3TIERGMTX; // @paranoic
+					r_cc.Flags2__ &= ~CCFLG2_DONTUSE3TIERGMTX; // @paranoic
 				{
-					r_cc.Flags2 &= ~CCFLG2_USEVETIS;
+					r_cc.Flags2__ &= ~CCFLG2_USEVETIS;
 					PPAlbatrossConfig acfg;
 					if(DS.FetchAlbatrosConfig(&acfg) > 0) {
 						acfg.GetExtStrData(ALBATROSEXSTR_VETISUSER, temp_buf);
 						if(temp_buf.NotEmpty()) {
 							acfg.GetExtStrData(ALBATROSEXSTR_VETISAPIKEY, temp_buf);
 							if(temp_buf.NotEmpty())
-								r_cc.Flags2 |= CCFLG2_USEVETIS;
+								r_cc.Flags2__ |= CCFLG2_USEVETIS;
 						}
 					}
 				}
 				if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DEVELOPMENT, &(iv = 0)) > 0 && iv == 1)
-					r_cc.Flags2 |= CCFLG2_DEVELOPMENT;
+					r_cc.Flags2__ |= CCFLG2_DEVELOPMENT;
 				else
-					r_cc.Flags2 &= ~CCFLG2_DEVELOPMENT;
+					r_cc.Flags2__ &= ~CCFLG2_DEVELOPMENT;
 				if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_VERIFYARTOLOCMETHODS, &(iv = 0)) > 0 && iv == 1)
-					r_cc.Flags2 |= CCFLG2_VERIFYARTOLOCMETHS;
+					r_cc.Flags2__ |= CCFLG2_VERIFYARTOLOCMETHS;
 				else
-					r_cc.Flags2 &= ~CCFLG2_VERIFYARTOLOCMETHS;
+					r_cc.Flags2__ &= ~CCFLG2_VERIFYARTOLOCMETHS;
 				r_cc._InvcMergeTaxCalcAlg2Since = ZERODATE;
 				if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_INVCMERGETAXCALCALG2SINCE, sv) > 0) {
 					dt = strtodate_(sv, DATF_DMY);
@@ -4508,47 +4509,47 @@ int PPSession::Implement_PPLogin(const PPDbEntrySet2 * pDbes, const char * pDbSy
 				// @v12.1.9 {
 				{
 					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_UNITECHZNCIGBLK10, &(iv = 0)) > 0 && iv == 1)
-						r_cc.Flags2 |= CCFLG2_UNITECHZNCIGBLK10;
+						r_cc.Flags2__ |= CCFLG2_UNITECHZNCIGBLK10;
 					else
-						r_cc.Flags2 &= ~CCFLG2_UNITECHZNCIGBLK10;
+						r_cc.Flags2__ &= ~CCFLG2_UNITECHZNCIGBLK10;
 				}
 				// } @v12.1.9
 				// @v12.2.4 {
 				{
 					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_RESTRICTCHZNCIGPRICEASMRC, &(iv = 0)) > 0 && iv == 1)
-						r_cc.Flags2 |= CCFLG2_RESTRICTCHZNCIGPRICEASMRC;
+						r_cc.Flags2__ |= CCFLG2_RESTRICTCHZNCIGPRICEASMRC;
 					else
-						r_cc.Flags2 &= ~CCFLG2_RESTRICTCHZNCIGPRICEASMRC;
+						r_cc.Flags2__ &= ~CCFLG2_RESTRICTCHZNCIGPRICEASMRC;
 				}
 				// } @v12.2.4 
 				// @v12.2.5 {
 				{
 					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_RESTRICTCHZNPMPRICE, &(iv = 0)) > 0 && iv == 1)
-						r_cc.Flags2 |= CCFLG2_RESTRICTCHZNPMPRICE;
+						r_cc.Flags2__ |= CCFLG2_RESTRICTCHZNPMPRICE;
 					else
-						r_cc.Flags2 &= ~CCFLG2_RESTRICTCHZNPMPRICE;
+						r_cc.Flags2__ &= ~CCFLG2_RESTRICTCHZNPMPRICE;
 				}
 				// } @v12.2.5
 				// @v12.4.1 {
 				{
 					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DISABLE_CRR32_SUPPORT_SERVER, &(iv = 0)) > 0 && iv == 1)
-						r_cc.Flags2 |= CCFLG2_DISABLE_CRR32_SUPPORT_SERVER;
+						r_cc.Flags2__ |= CCFLG2_DISABLE_CRR32_SUPPORT_SERVER;
 					else
-						r_cc.Flags2 &= ~CCFLG2_DISABLE_CRR32_SUPPORT_SERVER;
+						r_cc.Flags2__ &= ~CCFLG2_DISABLE_CRR32_SUPPORT_SERVER;
 				}
 				{
 					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_FORCE_CRR32_SUPPORT_SERVER, &(iv = 0)) > 0 && iv == 1)
-						r_cc.Flags2 |= CCFLG2_FORCE_CRR32_SUPPORT_SERVER;
+						r_cc.Flags2__ |= CCFLG2_FORCE_CRR32_SUPPORT_SERVER;
 					else
-						r_cc.Flags2 &= ~CCFLG2_FORCE_CRR32_SUPPORT_SERVER;
+						r_cc.Flags2__ &= ~CCFLG2_FORCE_CRR32_SUPPORT_SERVER;
 				}
 				// } @v12.4.1 
 				// @v12.5.3 {
 				{
 					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_FORCE_IMPEXP_EXCEL_OLEAUTO, &(iv = 0)) > 0 && iv == 1)
-						r_cc.Flags2 |= CCFLG2_FORCE_IMPEXP_EXCEL_OLEAUTO;
+						r_cc.Flags2__ |= CCFLG2_FORCE_IMPEXP_EXCEL_OLEAUTO;
 					else
-						r_cc.Flags2 &= ~CCFLG2_FORCE_IMPEXP_EXCEL_OLEAUTO;
+						r_cc.Flags2__ &= ~CCFLG2_FORCE_IMPEXP_EXCEL_OLEAUTO;
 				}
 				// } @v12.5.3 
 				{
@@ -4583,10 +4584,10 @@ int PPSession::Implement_PPLogin(const PPDbEntrySet2 * pDbes, const char * pDbSy
 						}
 						if(_for_all) {
 							if(!(r_lc.State & CFGST_MASTER) && !_this_user_found_with_neg)
-								r_cc.Flags2 |= CCFLG2_HIDEINVENTORYSTOCK;
+								r_cc.Flags2__ |= CCFLG2_HIDEINVENTORYSTOCK;
 						}
 						else if(_this_user_found)
-							r_cc.Flags2 |= CCFLG2_HIDEINVENTORYSTOCK;
+							r_cc.Flags2__ |= CCFLG2_HIDEINVENTORYSTOCK;
 					}
 				}
 				// @v12.4.1 {

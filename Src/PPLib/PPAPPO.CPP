@@ -2029,7 +2029,7 @@ int PPApp::InitMenuBar()
 	const  bool is_master = LOGIC(PPMaster);
 	const  int  from_rc = (!!r_cfg.MenuUuid && !is_master) ? 0 : 1;
 	if(r_cfg.Menu || !!r_cfg.MenuUuid || is_master) {
-		int not_found = 0;
+		int    not_found = 0;
 		HMENU  m = from_rc ? PPLoadResourceMenu(P_SlRez, r_cfg.Menu, &not_found) : PPLoadCommandMenu(r_cfg.MenuUuid, &not_found);
 		if(!m || not_found) {
 			if(is_master) {

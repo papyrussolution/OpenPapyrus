@@ -95,7 +95,7 @@ int PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 	//
 	if(Filt.GoodsGrpID || Filt.GoodsID)
 		Filt.ExtGoodsTypeID = 0;
-	THROW(AdjustPeriodToRights(Filt.Period, 0));
+	THROW(AdjustPeriodToRights(Filt.Period, false));
 	if(P_TempTbl) {
 		if(Filt.IsEq(&prev_filt, 1))
 			done = 1;
@@ -595,7 +595,7 @@ public:
 		getGroupData(ctlgroupLoc, &l_rec);
 		Data.LocList = l_rec.LocList;
 		THROW(GetPeriodInput(this, CTL_GTO_PERIOD, &Data.Period));
-		THROW(AdjustPeriodToRights(Data.Period, 1));
+		THROW(AdjustPeriodToRights(Data.Period, true));
 		getCtrlData(CTLSEL_GTO_SUPPL,  &Data.SupplID);
 		getCtrlData(CTLSEL_GTO_OPR,    &Data.OpID);
 		getCtrlData(CTLSEL_GTO_OBJECT, &Data.ArID);

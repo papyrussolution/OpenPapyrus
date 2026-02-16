@@ -146,7 +146,7 @@ int PPViewGoodsTrnovr::EditFilt(GoodsTrnovrFilt * pFilt)
 			Data.LocList = l_rec.LocList;
 			// } AHTOXA
 			THROW(GetPeriodInput(this, sel = CTL_GTO_PERIOD, &Data.Period));
-			THROW(AdjustPeriodToRights(Data.Period, 1));
+			THROW(AdjustPeriodToRights(Data.Period, true));
 			getCtrlData(CTLSEL_GTO_SUPPL, &Data.SupplID);
 			getCtrlData(CTLSEL_GTO_OPR,   &Data.OpID);
 			THROW(getGroupData(sel = ctlgroupGoodsFilt, &gf_rec));

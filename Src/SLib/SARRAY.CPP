@@ -4473,7 +4473,7 @@ Int64Array & FASTCALL Int64Array::operator = (const Int64Array & rS)
 	return *this;
 }
 
-bool   FASTCALL Int64Array::IsEq(const Int64Array * pS) const { return Implement_Simple_IsEq(pS); }
+bool   FASTCALL Int64Array::IsEq(const Int64Array * pS) const { return IsEq_Simple(pS); }
 bool   FASTCALL Int64Array::operator == (const Int64Array & rS) const { return IsEq(&rS); }
 bool   FASTCALL Int64Array::operator != (const Int64Array & rS) const { return !IsEq(&rS); }
 int64  FASTCALL Int64Array::get(uint pos) const { return at(pos); }
@@ -4542,7 +4542,7 @@ Uint64Array & FASTCALL Uint64Array::operator = (const Uint64Array & rS)
 	return *this;
 }
 
-bool FASTCALL Uint64Array::IsEq(const Uint64Array * pS) const { return Implement_Simple_IsEq(pS); }
+bool FASTCALL Uint64Array::IsEq(const Uint64Array * pS) const { return IsEq_Simple(pS); }
 bool FASTCALL Uint64Array::operator == (const Uint64Array & rS) const { return IsEq(&rS); }
 bool FASTCALL Uint64Array::operator != (const Uint64Array & rS) const { return !IsEq(&rS); }
 void Uint64Array::sort() { SVector::sort(CMPF_UINT64); }

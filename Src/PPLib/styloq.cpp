@@ -7443,7 +7443,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportClients(const SBinaryCh
 	int    ok = 1;
 	SString temp_buf;
 	PPObjBill * p_bobj(BillObj);
-	const  bool use_omt_paym_amt = LOGIC(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT);
+	const  bool use_omt_paym_amt = LOGIC(CConfig.Flags2__ & CCFLG2_USEOMTPAYMAMT);
 	DebtTrnovrViewItem debt_item;
 	PPViewDebtTrnovr * p_debt_view = 0; // @stub
 	PPStyloPalmPacket palm_pack;

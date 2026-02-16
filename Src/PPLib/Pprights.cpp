@@ -45,7 +45,7 @@ bool FASTCALL ObjRights::IsEq(const ObjRights & rS) const
 //
 //
 //
-int FASTCALL AdjustPeriodToRights(DateRange & rPeriod, int checkOnly)
+int FASTCALL AdjustPeriodToRights(DateRange & rPeriod, bool checkOnly)
 {
 	return ObjRts.AdjustBillPeriod(rPeriod, checkOnly);
 }

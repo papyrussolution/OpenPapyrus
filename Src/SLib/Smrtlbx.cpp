@@ -1089,17 +1089,21 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 						break;
 					case NM_CUSTOMDRAW: // @v12.5.6
 						{
+							int    local_ret = CDRF_DODEFAULT;
 							TEvent e_;
 							long lvn_res = 0;
 							NMTVCUSTOMDRAW * p_tv_blk = reinterpret_cast<NMTVCUSTOMDRAW *>(lParam);
 							debug_mark = true; // @debug
 							if(P_Owner) {
-								/* @construction
+								///* @construction
 								TEvent local_ev;
 								local_ev.setCmd(cmCustomDraw, 0);
 								local_ev.message.infoPtr = reinterpret_cast<void *>(lParam);
 								P_Owner->handleEvent(local_ev);
-								*/
+								if(local_ev.what == TEvent::evNothing) {
+									local_ret = local_ev.message.infoLong;
+								}
+								//*/
 							}
 							/*
 							NMLVCUSTOMDRAW * p_nmlvcd = (NMLVCUSTOMDRAW*)lParam;
@@ -1115,8 +1119,8 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 							//SetWindowLong(hWnd, DWL_MSGRESULT, lvn_res);
 							TView::SetWindowProp(hWnd, DWL_MSGRESULT, lvn_res);
 							*/
+							return local_ret;
 						}
-						return CDRF_DODEFAULT;
 					default:
 						return 0;
 				}

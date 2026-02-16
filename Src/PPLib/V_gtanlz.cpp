@@ -105,7 +105,7 @@ int PPViewGoodsTaxAnalyze::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			ushort v = 0;
 			GoodsFiltCtrlGroup::Rec gf_rec;
 			THROW(GetPeriodInput(this, sel = CTL_GDSGRPRLZ_PERIOD, &Data.Period));
-			THROW(AdjustPeriodToRights(Data.Period, 1));
+			THROW(AdjustPeriodToRights(Data.Period, true));
 			THROW(GetPeriodInput(this, sel = CTL_GDSGRPRLZ_LOTSPRD, &Data.LotsPeriod));
 			getCtrlData(CTLSEL_GDSGRPRLZ_LOC, &Data.LocID);
 			getCtrlData(CTLSEL_GDSGRPRLZ_OP,  &Data.OpID);
@@ -243,7 +243,7 @@ int PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 	}
 	else
 		CycleList.freeAll();
-	THROW(AdjustPeriodToRights(Filt.Period, 0));
+	THROW(AdjustPeriodToRights(Filt.Period, false));
 	//
 	Gsl.Clear();
 	ZDELETE(P_TempTbl);

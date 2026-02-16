@@ -5932,7 +5932,7 @@ int SapEfes::PrepareDebtsData(TSCollection <SapEfesDebtReportEntry> & rList, TSC
 {
     int    ok = 1;
 	{
-		const int use_omt_paym_amt = BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT);
+		const int use_omt_paym_amt = BIN(CConfig.Flags2__ & CCFLG2_USEOMTPAYMAMT);
 		PPViewBill bill_view;
 		BillFilt bill_filt;
 		bill_filt.Period.Set(P_BObj->GetConfig().LowDebtCalcDate, ZERODATE);

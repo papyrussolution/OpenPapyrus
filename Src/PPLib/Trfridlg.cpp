@@ -877,7 +877,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 					}
 					break;
 				case cmVetisMatch:
-					if(Item.Flags & PPTFR_RECEIPT && CConfig.Flags2 & CCFLG2_USEVETIS && checkdate(P_Pack->Rec.Dt)) {
+					if(Item.Flags & PPTFR_RECEIPT && CConfig.Flags2__ & CCFLG2_USEVETIS && checkdate(P_Pack->Rec.Dt)) {
 						const  PPID suppl_person_id = ObjectToPerson(P_Pack->Rec.Object, 0);
 						if(suppl_person_id) {
 							SString temp_buf;
@@ -2191,7 +2191,7 @@ int TrfrItemDialog::CheckPrice()
 	int    ok = 1;
 	SString msg;
 	const  PPCommConfig & r_ccfg = CConfig;
-	if(OpTypeID == PPOPT_GOODSRECEIPT || (P_Pack->Rec.OpID == r_ccfg.DraftRcptOp && r_ccfg.Flags2 & CCFLG2_USESDONPURCHOP)) {
+	if(OpTypeID == PPOPT_GOODSRECEIPT || (P_Pack->Rec.OpID == r_ccfg.DraftRcptOp && r_ccfg.Flags2__ & CCFLG2_USESDONPURCHOP)) {
 		int    ret = Sd.CheckCost(Item.Cost);
 		if(!ret) {
 			const int invp_act = DS.GetTLA().InvalidSupplDealQuotAction;

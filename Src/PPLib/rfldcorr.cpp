@@ -2018,7 +2018,7 @@ int PPImpExp::Helper_OpenFile(const char * pFileName, int readOnly, int truncOnW
 		THROW_SL(P_SoapT->Open(filename, &P.SdfParam, readOnly));
 	}
 	else if(P.DataFormat == PPImpExpParam::dfExcel) { // 
-		const  bool use_impexp_excel_oleauto = LOGIC(CConfig.Flags2 & CCFLG2_FORCE_IMPEXP_EXCEL_OLEAUTO); // @v12.5.3
+		const  bool use_impexp_excel_oleauto = LOGIC(CConfig.Flags2__ & CCFLG2_FORCE_IMPEXP_EXCEL_OLEAUTO); // @v12.5.3
 		PPWaitMsg(PPSTR_TEXT, PPTXT_SCANEXCELFILE, filename);
 		if(readOnly) {
 			SFileFormat ff;

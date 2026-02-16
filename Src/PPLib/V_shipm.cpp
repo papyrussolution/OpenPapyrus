@@ -88,7 +88,7 @@ int PPViewShipmAnalyze::EditBaseFilt(PPBaseFilt * pFilt)
 		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
-			if(!GetPeriodInput(this, CTL_SHANLZFLT_PERIOD, &Data.Period) || !AdjustPeriodToRights(Data.Period, 1))
+			if(!GetPeriodInput(this, CTL_SHANLZFLT_PERIOD, &Data.Period) || !AdjustPeriodToRights(Data.Period, true))
 				ok = PPErrorByDialog(this, CTL_SHANLZFLT_PERIOD);
 			else {
 				getCtrlData(CTLSEL_SHANLZFLT_OPRKIND, &Data.OpID);
@@ -251,7 +251,7 @@ int PPViewShipmAnalyze::Init_(const PPBaseFilt * pFilt)
 			BillTbl::Rec bill_rec, shipm_bill_rec, ack_bill_rec;
 			PPTransferItem ti, shipm_ti, ack_ti;
 			Filt.Period.Actualize(ZERODATE);
-			THROW(AdjustPeriodToRights(Filt.Period, 0));
+			THROW(AdjustPeriodToRights(Filt.Period, false));
 			Filt.TranslateToBillFilt(&flt);
 			THROW(bv.Init_(&flt));
 			THROW(bv.GetBillIDList(&bill_list));

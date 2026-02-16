@@ -2078,7 +2078,7 @@ int PrcssrPhoneListImport::Run()
 		if(w_obj.Search(P.DefCityID, &w_rec) > 0 && w_rec.Kind == WORLDOBJ_CITY)
 			def_city_id = P.DefCityID;
 	}
-	THROW_PP(CConfig.Flags2 & CCFLG2_INDEXEADDR, PPERR_CCFG_INDEXEADDRNEEDED);
+	THROW_PP(CConfig.Flags2__ & CCFLG2_INDEXEADDR, PPERR_CCFG_INDEXEADDRNEEDED);
 	THROW(ie.OpenFileForReading(0));
 	THROW(ie.GetNumRecs(&numrecs));
 	if(numrecs) {

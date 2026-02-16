@@ -1,5 +1,5 @@
 // V_ASSET.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2025
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -267,9 +267,9 @@ int PPViewAsset::Init_(const PPBaseFilt * pBaseFilt)
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
 	Filt.Period.Actualize(ZERODATE);
-	THROW(AdjustPeriodToRights(Filt.Period, 0));
+	THROW(AdjustPeriodToRights(Filt.Period, false));
 	Filt.OperPeriod.Actualize(ZERODATE);
-	THROW(AdjustPeriodToRights(Filt.OperPeriod, 0));
+	THROW(AdjustPeriodToRights(Filt.OperPeriod, false));
 	ZDELETE(P_TempTbl);
 	{
 		ReceiptCore * p_rcpt = & P_BObj->trfr->Rcpt;

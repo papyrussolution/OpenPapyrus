@@ -440,7 +440,7 @@ int TwoDimBarcodeFormatArray::Search(GoodsCore * pGoodsTbl, const char * pCodeLi
 void GoodsCore::InitQc()
 {
 	if(!P_Qc && !P_Qc2) {
-		if(CConfig.Flags2 & CCFLG2_QUOT2)
+		if(CConfig.Flags2__ & CCFLG2_QUOT2)
 			P_Qc2 = new Quotation2Core;
 		else
 			P_Qc = new QuotationCore;
@@ -3787,7 +3787,7 @@ int GoodsCore::Helper_GetMtxByLoc(PPID locID, PPIDArray & rResult)
 	rResult.clear();
 #if 0 // возникли проблемы {
 	PPJobSrvClient * p_cli = DS.GetClientSession(false/*dontReconnect*/);
-	if(p_cli && !(CConfig.Flags2 & CCFLG2_DONTUSE3TIERGMTX)) {
+	if(p_cli && !(CConfig.Flags2__ & CCFLG2_DONTUSE3TIERGMTX)) {
 		SString q;
 		q.Cat("GETGOODSMATRIX").Space().Cat("LOCATION").CatChar('(').Cat(locID).CatChar(')').Space();
 		q.Cat("FORMAT").DotCat("BIN").CatParStr(static_cast<const char *>(0));

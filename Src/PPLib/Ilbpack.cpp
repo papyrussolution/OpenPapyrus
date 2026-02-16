@@ -1,5 +1,5 @@
 // ILBPACK.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1421,7 +1421,7 @@ int ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 						ti.Init(&Rec, 0, 1);
 				}
 				ilti.Init(&ti);
-				if(CConfig.Flags2 & CCFLG2_SYNCLOT && !cvt_to_opid) {
+				if(CConfig.Flags2__ & CCFLG2_SYNCLOT && !cvt_to_opid) {
 					TransferTbl::Rec mirr_rec;
 					ilti.LotSyncID = ti.LotID;
 					ilti.LotMirrID = (p_bobj->trfr->SearchByBill(ti.BillID, 1, ti.RByBill, &mirr_rec) > 0) ? mirr_rec.LotID : 0;
@@ -1627,7 +1627,7 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 		}
 	}
 	else {
-		const int ccflg_synclot = BIN(CConfig.Flags2 & CCFLG2_SYNCLOT);
+		const  bool ccflg_synclot = LOGIC(CConfig.Flags2__ & CCFLG2_SYNCLOT);
 		ObjTagList lot_tag_list;
 		PPLotExtCodeContainer::MarkSet lotxcode_set;
 		LongArray rows;
@@ -2780,7 +2780,7 @@ int PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext 
 					PPObjBill::MakeCodeString(&p_pack->Rec, 0, err_bill_code);
 					THROW(ExtractPacket(*pID, &bp) > 0);
 					// @v9.8.0 От избыточной осторожности пока для товарных заказов (PPOPT_GOODSORDER) синхронизацию по лотам не включаем
-					if(CConfig.Flags2 & CCFLG2_SYNCLOT && GetConfig().Flags & BCF_ACCEPTGOODSBILLCHG && op_type_id != PPOPT_GOODSORDER) {
+					if(CConfig.Flags2__ & CCFLG2_SYNCLOT && GetConfig().Flags & BCF_ACCEPTGOODSBILLCHG && op_type_id != PPOPT_GOODSORDER) {
 						if(bp.Rec.Flags2 & BILLF2_FULLSYNC) {
 							err_code = PPTXT_ERRACCEPTBILL_CONVERT;
 							THROW(p_pack->ConvertToBillPacket(bp, &warn, pCtx, 0));
@@ -3115,7 +3115,7 @@ int PPObjBill::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, ObjTransm
 			else if(op_type_id == PPOPT_INVENTORY)
 				ok = 1;
 			else if(oneof2(op_type_id, PPOPT_GOODSREVAL, PPOPT_CORRECTION)) {
-				if(CConfig.Flags2 & CCFLG2_SYNCLOT)
+				if(CConfig.Flags2__ & CCFLG2_SYNCLOT)
 					ok = 1;
 				else
 					msg_id = PPTXT_LOG_NTRANS_BILLRVLLS;

@@ -1247,7 +1247,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 	PPObjSCardSeries sc_obj;
 	THROW(Helper_InitBaseFilt(pFilt));
 	Filt.Period.Actualize(ZERODATE);
-	THROW(ObjRts.AdjustCSessPeriod(Filt.Period, 0));
+	THROW(ObjRts.AdjustCSessPeriod(Filt.Period, false));
 	ZDELETE(P_TmpGrpTbl);
 	ZDELETE(P_InnerIterItem);
 	CcIdList.Set(0);

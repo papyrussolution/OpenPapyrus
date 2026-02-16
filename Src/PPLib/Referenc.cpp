@@ -1731,7 +1731,7 @@ int PPRights::CheckBillDate(/*LDATE dt*/const BillTbl::Rec & rRec, int forRead) 
 		}
 		else {
 			accsr.GetWBillPeriod(&bill_period);
-			if(!AdjustBillPeriod(bill_period, 1))
+			if(!AdjustBillPeriod(bill_period, true))
 				ok = 0;
 			else if(rRec.Dt < bill_period.low || (bill_period.upp && rRec.Dt > bill_period.upp)) {
 				PPObjBill::MakeCodeString(&rRec, PPObjBill::mcsAddOpName, added_msg);
@@ -1742,7 +1742,7 @@ int PPRights::CheckBillDate(/*LDATE dt*/const BillTbl::Rec & rRec, int forRead) 
 	return ok;
 }
 
-int PPRights::AdjustBillPeriod(DateRange & rPeriod, int checkOnly) const
+int PPRights::AdjustBillPeriod(DateRange & rPeriod, bool checkOnly) const
 {
 	int    ok = 1;
 	if(!IsEmpty() && !PPMaster) {
@@ -1769,7 +1769,7 @@ int PPRights::AdjustBillPeriod(DateRange & rPeriod, int checkOnly) const
 	return ok;
 }
 
-int PPRights::AdjustCSessPeriod(DateRange & rPeriod, int checkOnly) const
+int PPRights::AdjustCSessPeriod(DateRange & rPeriod, bool checkOnly) const
 {
 	int    ok = 1;
 	if(!IsEmpty() && !PPMaster) {
@@ -1799,8 +1799,8 @@ int PPRights::AdjustCSessPeriod(DateRange & rPeriod, int checkOnly) const
 	return ok;
 }
 
-int PPRights::IsOpRights() const { return BIN(P_OpList && P_OpList->getCount()); }
-int PPRights::IsLocRights() const { return BIN(P_LocList && P_LocList->getCount()); }
+bool PPRights::IsOpRights() const { return (P_OpList && P_OpList->getCount()); }
+bool PPRights::IsLocRights() const { return (P_LocList && P_LocList->getCount()); }
 
 int PPRights::MaskOpRightsByOps(const PPIDArray * pOpList, PPIDArray * pResultOpList) const
 {
@@ -1875,8 +1875,9 @@ int PPRights::CheckOpID(PPID opID, long rtflags) const
 	int    ok = 1;
 	if(IsOpRights()) {
 		uint   pos = 0;
+		SString temp_buf;
+		SString added_msg;
 		if(!P_OpList->SearchItemByID(opID, &pos)) {
-			SString added_msg;
 			GetOpName(opID, added_msg);
 			ok = PPSetError(PPERR_OPNOTACCESSIBLE, added_msg);
 		}
@@ -1884,7 +1885,6 @@ int PPRights::CheckOpID(PPID opID, long rtflags) const
 			const ObjRestrictItem & r_item = P_OpList->at(pos);
 			if(r_item.Flags & 0x80000000) {
 				if((r_item.Flags & rtflags) != rtflags) {
-					SString added_msg, temp_buf;
 					GetOpName(opID, added_msg);
 					added_msg.CatDiv('-', 1);
 					static const SIntToSymbTabEntry ftos_list[] = { 

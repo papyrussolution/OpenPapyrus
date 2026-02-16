@@ -3332,7 +3332,7 @@ int SynchronizeObjects(PPID dest)
 			THROW(SyncTblObj(&r_sync, scobj.P_Tbl,     PPOBJ_SCARD,      dest));
 			if(!(param.Flags & SelfSyncParam::fDontSyncBills)) {
 				THROW(SyncTblObj(&r_sync, p_bobj->P_Tbl, PPOBJ_BILL, dest));
-				if(CConfig.Flags2 & CCFLG2_SYNCLOT) {
+				if(CConfig.Flags2__ & CCFLG2_SYNCLOT) {
 					THROW(SyncTblObj(&r_sync, &p_bobj->trfr->Rcpt, PPOBJ_LOT, dest));
 				}
 			}

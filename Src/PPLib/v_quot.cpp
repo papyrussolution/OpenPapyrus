@@ -182,7 +182,7 @@ int QuotFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 PPViewQuot::PPViewQuot() : PPView(0, &Filt, PPVIEW_QUOT, 0, 0), P_Qc(0), P_Qc2(0), P_BObj(BillObj), P_TempTbl(0), P_TempSerTbl(0), P_TempOrd(0),
 	P_GoodsSelDlg(0), FirstQuotBrwColumn(0), HasPeriodVal(0), Spc(PPObjQuotKind::Special::ctrInitializeWithCache)
 {
-	if(CConfig.Flags2 & CCFLG2_QUOT2)
+	if(CConfig.Flags2__ & CCFLG2_QUOT2)
 		P_Qc2 = new Quotation2Core;
 	else
 		P_Qc = new QuotationCore;

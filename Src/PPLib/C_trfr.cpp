@@ -1784,7 +1784,7 @@ int Transfer::RecalcLcr()
 	int    inner_tbl = 0;
 	const  PPCommConfig & r_ccfg = CConfig;
 	const LDATE start_date = checkdate(r_ccfg.LcrUsageSince) ? r_ccfg.LcrUsageSince : ZERODATE;
-	if(r_ccfg.Flags2 & CCFLG2_USELCR2) {
+	if(r_ccfg.Flags2__ & CCFLG2_USELCR2) {
 		LotCurRest2Tbl * p_tbl = P_Lcr2T;
 		if(!P_Lcr2T) {
 			P_Lcr2T = new LotCurRest2Tbl;

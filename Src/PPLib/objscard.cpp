@@ -1946,7 +1946,7 @@ PPObjSCard::Filt::Filt() : Signature(PPConst::Signature_PPObjSCard_Filt), Series
 TLP_IMPL(PPObjSCard, CCheckCore, P_CcTbl);
 
 PPObjSCard::PPObjSCard(void * extraPtr) : PPObject(PPOBJ_SCARD), ExtraPtr(extraPtr), P_CsObj(0),
-	DoObjVer_SCard(CConfig.Flags2 & CCFLG2_USEHISTSCARD)
+	DoObjVer_SCard(CConfig.Flags2__ & CCFLG2_USEHISTSCARD)
 {
 	TLP_OPEN(P_CcTbl);
 	P_Tbl = P_CcTbl ? &P_CcTbl->Cards : 0;
@@ -3925,7 +3925,7 @@ int PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 	SBuffer hist_buf;
 	int    do_dirty = 0;
 	PPID   id = DEREFPTRORZ(pID);
-	const  int do_index_phones = BIN(CConfig.Flags2 & CCFLG2_INDEXEADDR);
+	const  int do_index_phones = BIN(CConfig.Flags2__ & CCFLG2_INDEXEADDR);
 	SString temp_buf;
 	PPID   log_action_id = 0;
 	PPSCardPacket org_pack;

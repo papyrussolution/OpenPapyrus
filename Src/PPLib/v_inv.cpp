@@ -1025,7 +1025,7 @@ public:
 				PPLoadString("inventory_price", temp_buf);
 			setLabelText(CTL_INVITEM_PRICE, temp_buf);
 		}
-		if(CConfig.Flags2 & CCFLG2_HIDEINVENTORYSTOCK) {
+		if(CConfig.Flags2__ & CCFLG2_HIDEINVENTORYSTOCK) {
 			showCtrl(CTL_INVITEM_STOCKREST, false);
 			showCtrl(CTL_INVITEM_DIFFREST, false);
 			enableCommand(cmLot, 0);
@@ -1976,7 +1976,7 @@ int PPViewInventory::CellStyleFunc_(const void * pData, long col, int paintActio
 					}
 				}
 				else if(r_col.OrgOffs == 10) { // Difference
-					if(!(CConfig.Flags2 & CCFLG2_HIDEINVENTORYSTOCK)) {
+					if(!(CConfig.Flags2__ & CCFLG2_HIDEINVENTORYSTOCK)) {
 						if(p_hdr->Flags & INVENTF_LACK) {
 							pStyle->Color = GetColorRef(SClrRed);
 							pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
@@ -2057,7 +2057,7 @@ DBQuery * PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	uint   brw_id = 0;
 	const  PPID single_bill_id = Filt.GetSingleBillID();
 	const  int  is_subst = Filt.HasSubst();
-	const  long ccfg_flags2 = CConfig.Flags2;
+	const  long ccfg_flags2 = CConfig.Flags2__;
 	{
 		dbe_empty.init();
 		dbe_empty.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));

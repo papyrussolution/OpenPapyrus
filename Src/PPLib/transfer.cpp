@@ -11,7 +11,7 @@ Transfer::Transfer() : TransferTbl(), __DontCheckQttyInUpdateTransferItem__(0), 
 	const  PPCommConfig & r_ccfg = CConfig;
 	const int lcrusage = r_ccfg.LcrUsage;
 	if(oneof2(lcrusage, 1, 2)) {
-		if(r_ccfg.Flags2 & CCFLG2_USELCR2)
+		if(r_ccfg.Flags2__ & CCFLG2_USELCR2)
 			P_Lcr2T = new LotCurRest2Tbl;
 		else
 			P_LcrT = new LotCurRestTbl;

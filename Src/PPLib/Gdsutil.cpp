@@ -1354,7 +1354,7 @@ int EditQuotVal(PPQuot * pQ, int quotCls)
 		DECL_DIALOG_DATA(PPQuot);
 	public:
 		SetQuotDialog(int quotCls) : TDialog((quotCls == PPQuot::clsPredictCoeff) ? DLG_SETQUOTPC : DLG_SETQUOT), QuotCls(quotCls),
-			UseQuot2(BIN(CConfig.Flags2 & CCFLG2_QUOT2))
+			UseQuot2(BIN(CConfig.Flags2__ & CCFLG2_QUOT2))
 		{
 			PPObjQuotKind qk_obj;
 			if(!qk_obj.CheckRights(QUOTRT_UPDQUOTS)) {

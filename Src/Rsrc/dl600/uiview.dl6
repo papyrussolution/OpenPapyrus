@@ -3496,7 +3496,111 @@ dialog DLG_TAGFLT [vertical title: "@tagfilt" size: (590, 340) minsize: (590, 34
 	}	
 }
 
-// @20260210 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
+dialog DLG_TAGVSTR [vertical title: "@tagvalue" size: (600, 220) minsize: (600, 220) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.5.6
+	view [horizontal width: bycontainer height: 45] {
+		input CTL_TAGV_OBJNAME [growfactor: 1 height: 21 margin: 4 readonly label: "@object"] string[128];
+		button STDCTL_LINKOBJBUTTON [title: "@{linkobject}..." tabstop size: (120, 21) margin: (4, 17, 4, 4) command: cmLinkObj];
+	}
+	view [horizontal width: bycontainer height: 45] {
+		view [horizontal growfactor: 1 height: bycontainer] {
+			input CTL_TAGV_TAG [growfactor: 1 height: 21 margin: 4 readonly label: "@tag"] string[48];
+			input CTL_TAGV_TAGID [size: (75, 21) margin: 4 readonly fmtf: (nozero) label: "@tagid"] int32;
+		}
+		view [horizontal size: (120, 21) margin: 4] { // stub (see button STDCTL_LINKOBJBUTTON above)
+		}
+	}
+	input CTL_TAGV_STR [width: bycontainer height: 21 margin: 4 tabstop label: "@value"] string[128];
+	view [horizontal width: bycontainer(100) growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}	
+}
+
+dialog DLG_RTOPLIST [vertical title: "@rt_item_op_s" size: (380, 350) minsize: (380, 300) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.7
+	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
+		listbox CTL_RTOPLIST_LIST [tabstop width: bycontainer growfactor: 1 margin: 4 columns: "@lbt_accsoplist"];
+		view [horizontal width: bycontainer height: 28 justifycontent: start] {
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+		}
+	}
+	view [horizontal width: bycontainer height: 28 margin_right: 8 justifycontent: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_RTLOCLIST [vertical title: "@rt_item_warehouse_s" size: (380, 350) minsize: (380, 300) padding: 4 font: "MS Shell Dlg,8"] {
+	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
+		listbox CTL_RTLOCLIST_LIST [tabstop width: bycontainer growfactor: 1 margin: 4 columns: "34,L,@warehouse;2,L"];
+		view [horizontal width: bycontainer height: 28 justifycontent: start] {
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+		}
+	}
+	view [horizontal width: bycontainer height: 28 margin_right: 8 justifycontent: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_RTPOSLIST [vertical title: "@rt_item_posnode_p" size: (380, 350) minsize: (380, 300) padding: 4 font: "MS Shell Dlg,8"] {
+	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
+		listbox CTL_RTPOSLIST_LIST [tabstop width: bycontainer growfactor: 1 margin: 4 columns: "@lbt_rtposlist"];
+		view [horizontal width: bycontainer height: 28 justifycontent: start] {
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+		}
+	}
+	view [horizontal width: bycontainer height: 28 margin_right: 8 justifycontent: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_RTACCLIST [vertical title: "@rt_item_account_s" size: (380, 350) minsize: (380, 300) padding: 4 font: "MS Shell Dlg,8"] {
+	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
+		listbox CTL_RTACCLIST_LIST [tabstop width: bycontainer growfactor: 1 margin: 4 columns: "@lbt_rtacclist"];
+		view [horizontal width: bycontainer height: 28 justifycontent: start] {
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+		}
+	}
+	view [horizontal width: bycontainer height: 28 margin_right: 8 justifycontent: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_RTCFGLIST [vertical title: "@rt_item_config_s" size: (380, 350) minsize: (380, 300) padding: 4 font: "MS Shell Dlg,8"] {
+	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
+		listbox CTL_RTCFGLIST_LIST [tabstop width: bycontainer growfactor: 1 margin: 4 columns: "34,L,@config;12,L,@accessible"];
+		view [horizontal width: bycontainer height: 28 justifycontent: start] {
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+		}
+	}
+	view [horizontal width: bycontainer height: 28 margin_right: 8 justifycontent: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_RTQKLIST [vertical title: "@rt_item_quotkind_p" size: (380, 350) minsize: (380, 300) padding: 4 font: "MS Shell Dlg,8"] {
+	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
+		listbox CTL_RTQKLIST_LIST [tabstop width: bycontainer growfactor: 1 margin: 4 columns: "@lbt_rtquotkindlist"];
+		view [horizontal width: bycontainer height: 28 justifycontent: start] {
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+		}
+	}
+	view [horizontal width: bycontainer height: 28 margin_right: 8 justifycontent: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+// @20260216 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
 // Диалоги, представленные здесь с изменными символами (DLG_CASHREPORTS_L__, например) в ppdlg.list не отмечены поскольку находятся в работе.
 
 // @construction
@@ -3555,24 +3659,4 @@ dialog DLG_CASHREPORTS_L__ [vertical title: "@posnodecmd" size: (595, 525) minsi
 	view [horizontal width: bycontainer(80) growfactor: 2 alignitems: center justifycontent: spaceevenly] {
 		button STDCTL_CANCELBUTTON [title: "@but_close" tabstop width: bycontainer height: 50 margin: 8 command: cmCancel];
 	}
-}
-
-dialog DLG_TAGVSTR [vertical title: "@tagvalue" size: (600, 220) minsize: (600, 220) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.5.6
-	view [horizontal width: bycontainer height: 45] {
-		input CTL_TAGV_OBJNAME [growfactor: 1 height: 21 margin: 4 readonly label: "@object"] string[128];
-		button STDCTL_LINKOBJBUTTON [title: "@{linkobject}..." tabstop size: (120, 21) margin: (4, 17, 4, 4) command: cmLinkObj];
-	}
-	view [horizontal width: bycontainer height: 45] {
-		view [horizontal growfactor: 1 height: bycontainer] {
-			input CTL_TAGV_TAG [growfactor: 1 height: 21 margin: 4 readonly label: "@tag"] string[48];
-			input CTL_TAGV_TAGID [size: (75, 21) margin: 4 readonly fmtf: (nozero) label: "@tagid"] int32;
-		}
-		view [horizontal size: (120, 21) margin: 4] { // stub (see button STDCTL_LINKOBJBUTTON above)
-		}
-	}
-	input CTL_TAGV_STR [width: bycontainer height: 21 margin: 4 tabstop label: "@value"] string[128];
-	view [horizontal width: bycontainer(100) growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
-		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
-		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
-	}	
 }

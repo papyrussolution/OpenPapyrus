@@ -70,10 +70,10 @@ int PPConfig::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 	THROW_SL(pSCtx->Serialize(dir, SessionID, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, DBDiv, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, BaseRateTypeID, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, DesktopID_Obsolete, rBuf)); // @v10.9.3 DesktopID-->DesktopID_Obsolete
-	THROW_SL(pSCtx->Serialize(dir, MenuID_Obsolete, rBuf));    // @v10.9.3 MenuID-->MenuID_Obsolete
-	THROW_SL(pSCtx->Serialize(dir, DesktopUuid_, rBuf)); // @v10.9.3
-	THROW_SL(pSCtx->Serialize(dir, MenuUuid, rBuf));    // @v10.9.3
+	THROW_SL(pSCtx->Serialize(dir, DesktopID_Obsolete, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, MenuID_Obsolete, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, DesktopUuid_, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, MenuUuid, rBuf));
 	CATCHZOK
 	return ok;
 }

@@ -36,7 +36,7 @@ int PPViewBalance::Init_(const PPBaseFilt * pBaseFilt)
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
 	Filt.Period.Actualize(ZERODATE);
-	THROW(AdjustPeriodToRights(Filt.Period, 0));
+	THROW(AdjustPeriodToRights(Filt.Period, false));
 	List.freeAll();
 	MEMSZERO(Total);
 	{
@@ -255,7 +255,7 @@ public:
 	{
 		ushort v = 0;
 		PPID   cur_id = 0;
-		if(!GetPeriodInput(this, CTL_BALFORM_PERIOD, &Data.Period) || !AdjustPeriodToRights(Data.Period, 1))
+		if(!GetPeriodInput(this, CTL_BALFORM_PERIOD, &Data.Period) || !AdjustPeriodToRights(Data.Period, true))
 			return PPErrorZ();
 		getCtrlData(CTLSEL_BALFORM_CUR, &cur_id);
 		GetClusterData(CTL_BALFORM_OPTIONS, &Data.Flags);

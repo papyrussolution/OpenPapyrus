@@ -417,7 +417,7 @@ int PPViewAccturn::CreateGrouping()
 		THROW_MEM(P_TmpBillTbl = CreateTempFile());
 		//THROW(AddBillToList(Filt.BillID));
 	}
-	else if(AdjustPeriodToRights(Filt.Period, 0)) {
+	else if(AdjustPeriodToRights(Filt.Period, false)) {
 		if(Filt.OpID)
 			if(IsGenericOp(Filt.OpID) > 0)
 				GetGenericOpList(Filt.OpID, &OpList);
@@ -651,7 +651,7 @@ void PPViewAccturn::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 			ushort v = getCtrlUInt16(CTL_ATFLT_LASTONLY);
 			SETFLAG(Data.Flags, AccturnFilt::fLastOnly,   v & 0x01);
 			SETFLAG(Data.Flags, AccturnFilt::fLabelOnly, getWL());
-			THROW(Data.Flags & AccturnFilt::fLastOnly || AdjustPeriodToRights(Data.Period, 1));
+			THROW(Data.Flags & AccturnFilt::fLastOnly || AdjustPeriodToRights(Data.Period, true));
 			getCtrlData(CTL_ATFLT_ALLCUR, &v);
 			SETFLAG(Data.Flags, AccturnFilt::fAllCurrencies, v & 1);
 			getCtrlData(CTLSEL_ATFLT_OPRKIND, &Data.OpID);

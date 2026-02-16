@@ -105,7 +105,7 @@ int CommCfgDialog::editSysParams()
 			AddClusterAssoc(CTL_CCFGSYS_LCRUSAGE, 2, 2);
 			SetClusterData(CTL_CCFGSYS_LCRUSAGE, Data.LcrUsage);
 			AddClusterAssoc(CTL_CCFGSYS_LCRV2, 0, CCFLG2_USELCR2);
-			SetClusterData(CTL_CCFGSYS_LCRV2, Data.Flags2);
+			SetClusterData(CTL_CCFGSYS_LCRV2, Data.Flags2__);
 			setCtrlData(CTL_CCFGSYS_LCRSINCE, &Data.LcrUsageSince);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 0, CCFLG2_QUOT2);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 1, CCFLG2_INDEXEADDR);
@@ -114,13 +114,13 @@ int CommCfgDialog::editSysParams()
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 4, CCFLG2_USEOMTPAYMAMT);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 5, CCFLG2_USESARTREDB);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 6, CCFLG2_USELOTXCODE);
-			SetClusterData(CTL_CCFGSYS_FLAGS2, Data.Flags2);
+			SetClusterData(CTL_CCFGSYS_FLAGS2, Data.Flags2__);
 			{
 				long   usehistobj = 0;
 				SETFLAG(usehistobj, usehistobjBill,   Data.Flags & CCFLG_USEHISTBILL);
 				SETFLAG(usehistobj, usehistobjGoods,  Data.Flags & CCFLG_USEHISTGOODS);
-				SETFLAG(usehistobj, usehistobjPerson, Data.Flags2 & CCFLG2_USEHISTPERSON);
-				SETFLAG(usehistobj, usehistobjSCard,  Data.Flags2 & CCFLG2_USEHISTSCARD);
+				SETFLAG(usehistobj, usehistobjPerson, Data.Flags2__ & CCFLG2_USEHISTPERSON);
+				SETFLAG(usehistobj, usehistobjSCard,  Data.Flags2__ & CCFLG2_USEHISTSCARD);
 				AddClusterAssoc(CTL_CCFGSYS_OBJHISTF, 0, usehistobjBill);
 				AddClusterAssoc(CTL_CCFGSYS_OBJHISTF, 1, usehistobjGoods);
 				AddClusterAssoc(CTL_CCFGSYS_OBJHISTF, 2, usehistobjPerson);
@@ -144,15 +144,15 @@ int CommCfgDialog::editSysParams()
 			getCtrlData(CTL_CCFGSYS_CSFWPRD,    &Data.CSessFwAsscPeriod);
 			GetClusterData(CTL_CCFGSYS_FLAGS, &Data.Flags);
 			Data.LcrUsage = (int16)GetClusterData(CTL_CCFGSYS_LCRUSAGE);
-			GetClusterData(CTL_CCFGSYS_LCRV2, &Data.Flags2);
+			GetClusterData(CTL_CCFGSYS_LCRV2, &Data.Flags2__);
 			getCtrlData(CTL_CCFGSYS_LCRSINCE, &Data.LcrUsageSince);
-			GetClusterData(CTL_CCFGSYS_FLAGS2, &Data.Flags2);
+			GetClusterData(CTL_CCFGSYS_FLAGS2, &Data.Flags2__);
 			{
 				long   usehistobj = GetClusterData(CTL_CCFGSYS_OBJHISTF);
 				SETFLAG(Data.Flags, CCFLG_USEHISTBILL, usehistobj & usehistobjBill);
 				SETFLAG(Data.Flags, CCFLG_USEHISTGOODS, usehistobj & usehistobjGoods);
-				SETFLAG(Data.Flags2, CCFLG2_USEHISTPERSON, usehistobj & usehistobjPerson);
-				SETFLAG(Data.Flags2, CCFLG2_USEHISTSCARD, usehistobj & usehistobjSCard);
+				SETFLAG(Data.Flags2__, CCFLG2_USEHISTPERSON, usehistobj & usehistobjPerson);
+				SETFLAG(Data.Flags2__, CCFLG2_USEHISTSCARD, usehistobj & usehistobjSCard);
 			}
 			ASSIGN_PTR(pData, Data);
 			return 1;

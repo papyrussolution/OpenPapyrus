@@ -2243,10 +2243,10 @@ public:
 	//   0  - дата dt не доступна.
 	//
 	int    CheckBillDate(/*LDATE dt*/const BillTbl::Rec & rRec, int forRead = 0) const;
-	int    AdjustBillPeriod(DateRange & rPeriod, int checkOnly) const;
-	int    AdjustCSessPeriod(DateRange & rPeriod, int checkOnly) const;
-	int    IsOpRights() const;
-	int    IsLocRights() const;
+	int    AdjustBillPeriod(DateRange & rPeriod, bool checkOnly) const;
+	int    AdjustCSessPeriod(DateRange & rPeriod, bool checkOnly) const;
+	bool   IsOpRights() const;
+	bool   IsLocRights() const;
 	int    ExtentOpRights();
 	int    MaskOpRightsByOps(const PPIDArray * pOpList, PPIDArray * pResultOpList) const;
 	int    MaskOpRightsByTypes(const PPIDArray * pOpTypeList, PPIDArray * pResultOpList) const;
@@ -5178,6 +5178,7 @@ struct PPAccTurn { // @persistent
 class PPAccTurnTempl { // @persistent @flat @store(PropertyTbl)
 public:
 	static int Convert_6407(PropertyTbl::Rec * pRec);
+	bool   FASTCALL IsEq(const PPAccTurnTempl & rS) const; // @v12.5.7
 	int    SetupSubst(const char * primStr, const char * foreignStr);
 	int    SubstToStrings(SString & rPrimStr, SString & rForeignStr);
 	int    CreateAccturns(PPBillPacket *);
@@ -5400,7 +5401,7 @@ struct PPCommConfig {      // @persistent @store(PropertyTbl)
 	int16  LcrUsage;                    // Варианты использования текущих остатков по лотам:
 		// 0 - не использовать, 1 - только поддерживать в актуальном состоянии, 2 - применять при расчетах остатков
 	PPID   DynGoodsTypeForSupplAgent;   // Динамический тип товара для лотов, имеющих агента поставщика
-	long   Flags2;                      // CCFLG2_XXX Дополнительное поле флагов
+	long   Flags2__;                    // CCFLG2_XXX Дополнительное поле флагов
 	int16  IltiCvtQttyEpsilon;          // 1E-7 Величина количественного дефицита, которую следует игнорировать при
 		// проведении расходных товарных операций. Умножается на 1E-7.
 	int16  StringHistoryUsage;          // Использование StringHistory: 0 - disabled, 1 - enabled, -1 - в зависимости от установки в конфигурации пользовательского интерфейса
@@ -8238,7 +8239,7 @@ int    STDCALL PPPutExtStrData(int fldID, SString & rLine, const SString & rBuf)
 // Descr: преобразует период *pPeriod в пересечение с периодом документов, определенным в правах
 //   пользователя. Если результат является пустым, то возвращает 0 и устанавливает код ошибки (PPERR_NORTPERIOD).
 //
-int    FASTCALL AdjustPeriodToRights(DateRange & rPeriod, int checkOnly);
+int    FASTCALL AdjustPeriodToRights(DateRange & rPeriod, bool checkOnly);
 int    FASTCALL CalcBarcodeCheckDigit(const char * pBarcode);
 char * FASTCALL AddBarcodeCheckDigit(char * pBarcode);
 SString & FASTCALL AddBarcodeCheckDigit(SString & rBarcode);
@@ -19340,6 +19341,7 @@ public:
 
 struct PPOpCounter2 {      // @persistent @store(Reference2Tbl+)
 	PPOpCounter2();
+	bool   FASTCALL IsEq(const PPOpCounter2 & rS) const;
 	long   Tag;            // Const=PPOBJ_OPCOUNTER
 	long   ID;             // @id
 	char   Name[48];       // @name @!refname
@@ -19357,6 +19359,7 @@ class PPOpCounterPacket {
 public:
 	PPOpCounterPacket();
 	~PPOpCounterPacket();
+	bool   FASTCALL IsEq(const PPOpCounterPacket & rS) const;
 	PPOpCounterPacket & FASTCALL operator = (const PPOpCounterPacket &aPack);
 	int    Init(const PPOpCounter *, const LAssocArray *);
 	int    Init(const LAssocArray *);
@@ -19779,6 +19782,8 @@ struct PPOprKind2 {        // @persistent @store(Reference2Tbl+)
 struct PPInventoryOpEx {   // @persistent @store(PropertyTbl)
 	PPInventoryOpEx();
 	static int FASTCALL Helper_GetAccelInputMode(long flags);
+	bool   FASTCALL IsEq(const PPInventoryOpEx & rS) const; // @v12.5.7
+	bool   FASTCALL operator == (const PPInventoryOpEx & rS) const { return IsEq(rS); } // @v12.5.7
 	int    GetAccelInputMode() const;
 	void   SetAccelInputMode(int mode);
 
@@ -19818,6 +19823,9 @@ struct PPInventoryOpEx {   // @persistent @store(PropertyTbl)
 // Descr: Дополнительная запись инвентаризации задолженности
 //
 struct PPDebtInventOpEx {    // @persistent @store(PropertyTbl)
+	PPDebtInventOpEx();
+	bool   FASTCALL IsEq(const PPDebtInventOpEx & rS) const;
+
 	PPID   Tag;              // Const=PPOBJ_OPRKIND
 	PPID   ID;               // ->Ref(PPOBJ_OPRKIND)
 	PPID   Prop;             // Const=OPKPRP_DEBTINVENT
@@ -19851,6 +19859,7 @@ struct PPReckonOpEx {
 	PPReckonOpEx();
 	PPReckonOpEx & Z();
 	bool   IsEmpty() const;
+	bool   FASTCALL IsEq(const PPReckonOpEx & rS) const;
 	PPReckonOpEx & FASTCALL operator = (const PPReckonOpEx &);
 	int    GetReckonPeriod(LDATE debtDate, DateRange & rPeriod) const;
 	void   GetDebtPeriod(LDATE paymDate, DateRange & rPeriod) const;
@@ -19880,6 +19889,7 @@ struct PPReckonOpEx {
 struct PPDraftOpEx {
 	PPDraftOpEx();
 	void   Init();
+	bool   FASTCALL IsEq(const PPDraftOpEx & rS); // @v12.5.7
 	PPDraftOpEx & FASTCALL operator = (const PPDraftOpEx &);
 
 	PPID   WrOffOpID;       // Операция списания                        //
@@ -19903,6 +19913,7 @@ struct PPDraftOpEx {
 struct PPBillPoolOpEx {
 	PPBillPoolOpEx();
 	void   Init();
+	bool   FASTCALL IsEq(const PPBillPoolOpEx & rS) const; // @v12.5.7
 	PPBillPoolOpEx & FASTCALL operator = (const PPBillPoolOpEx &);
 
 	long   Reserve[16];
@@ -19999,6 +20010,7 @@ public:
 	virtual int  Browse(void * extraPtr);
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr);
 	// @v11.1.11 (@construction) virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
+	int    IsPacketEq(const PPOprKindPacket & rS1, const PPOprKindPacket & rS2, long flags);
 	int    Edit(PPID *, long opTypeID, long linkOpID);
 	//
 	// Descr: Вызывает диалог редактирования пакета вида операции.
@@ -34707,7 +34719,7 @@ struct PayableBillListItem {
 	LDATE  Dt;
 	double Amount;
 	double ExtAmt;  // Сумма документа в ценах поступления //
-	double PaymAmt; // Сумма оплаты из записи документа. Используется если (CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT)
+	double PaymAmt; // Сумма оплаты из записи документа. Используется если (CConfig.Flags2__ & CCFLG2_USEOMTPAYMAMT)
 };
 
 class PayableBillList : public TSVector <PayableBillListItem> {
@@ -43973,7 +43985,7 @@ private:
 	//
 	int    ProcessBillPaymPlanEntry(const BillTbl::Rec & rRec, const PayPlanTbl::Rec & rPayPlanEntry, PPID arID, bool inverseSign, ProcessBlock & rBlk);
 
-	const int UseOmtPaymAmt;        // = BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT)
+	const int UseOmtPaymAmt;        // = BIN(CConfig.Flags2__ & CCFLG2_USEOMTPAYMAMT)
 	DebtTrnovrFilt  Filt;           // @viewstatefilt
 	PPIDArray PayableOpList;        // @!Init_() Список операций, требующих оплаты для таблицы Filt.AccSheetID. // @viewstate
 	PPIDArray GoodsList;            // @!Init_() Список товаров, ограничивающих отчет

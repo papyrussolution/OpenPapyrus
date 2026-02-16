@@ -12,6 +12,12 @@ PPOpCounter2::PPOpCounter2()
 	THISZERO();
 }
 
+bool FASTCALL PPOpCounter2::IsEq(const PPOpCounter2 & rS) const
+{
+	return (ID == rS.ID && ObjType == rS.ObjType && Flags == rS.Flags && Counter == rS.Counter && OwnerObjID == rS.OwnerObjID
+		&& sstreq(Name, rS.Name) && sstreq(Symb, rS.Symb) && sstreq(CodeTemplate, rS.CodeTemplate));
+}
+
 PPOpCounterPacket::PPOpCounterPacket() : P_Items(0), Flags(0)
 {
 	STRNSCPY(Head.CodeTemplate, "%05");
@@ -20,6 +26,19 @@ PPOpCounterPacket::PPOpCounterPacket() : P_Items(0), Flags(0)
 PPOpCounterPacket::~PPOpCounterPacket()
 {
 	ZDELETE(P_Items);
+}
+
+bool FASTCALL PPOpCounterPacket::IsEq(const PPOpCounterPacket & rS) const // @v12.5.7
+{
+	bool   eq = (Head.IsEq(rS.Head) && Flags == rS.Flags);
+	if(!eq) {
+		if(LOGIC(P_Items) != LOGIC(rS.P_Items))
+			eq = false;
+		else if(P_Items && rS.P_Items) {
+			eq = P_Items->IsEq(*rS.P_Items);
+		}
+	}
+	return eq;
 }
 
 int PPOpCounterPacket::Init(const PPOpCounter * pHead, const LAssocArray * pItems)

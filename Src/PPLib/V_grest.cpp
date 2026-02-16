@@ -635,7 +635,7 @@ int GoodsRestFiltDlg::getDTS(GoodsRestFilt * pFilt)
 		DateRange temp;
 		THROW_SL(checkdate(&Data.Date));
 		temp.SetDate(Data.Date);
-		THROW(AdjustPeriodToRights(temp, 1));
+		THROW(AdjustPeriodToRights(temp, true));
 		Data.Date = temp.low;
 	}
 	getCtrlData(CTLSEL_GOODSREST_SUPPL, &Data.SupplID);
@@ -875,7 +875,7 @@ int GoodsRestWPrgnFltDlg::getDTS(GoodsRestFilt * pFilt)
 	if(Filt.Date) {
 		DateRange temp;
 		temp.SetDate(Filt.Date);
-		THROW(AdjustPeriodToRights(temp, 1));
+		THROW(AdjustPeriodToRights(temp, true));
 		Filt.Date = temp.low;
 	}
 	THROW(getGroupData(ctlgroupGoodsFilt, &gf_rec));

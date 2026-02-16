@@ -1004,18 +1004,19 @@ uint TView::getHelpCtx()
 	return ctx;
 }
 
-void FASTCALL TView::clearEvent(TEvent & event)
+void FASTCALL TView::clearEvent(TEvent & rEv)
 {
-	event.what = TEvent::evNothing;
-	event.message.command = 0; // @v12.2.8
-	event.message.infoPtr = this;
+	rEv.what = TEvent::evNothing;
+	rEv.message.command = 0; // @v12.2.8
+	rEv.message.infoPtr = this;
+	rEv.message.infoLong = 0; // @v12.5.7
 }
 
-void FASTCALL TView::NegativeReplyOnValidateCommand(TEvent & event) // @v12.2.8
+void FASTCALL TView::NegativeReplyOnValidateCommand(TEvent & rEv) // @v12.2.8
 {
-	event.what = TEvent::evNothing;
-	event.message.command = cmValidateCommand;
-	event.message.infoPtr = this;
+	rEv.what = TEvent::evNothing;
+	rEv.message.command = cmValidateCommand;
+	rEv.message.infoPtr = this;
 }
 
 IMPL_HANDLE_EVENT(TView)

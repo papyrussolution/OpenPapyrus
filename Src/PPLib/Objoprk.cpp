@@ -10,6 +10,30 @@ PPInventoryOpEx::PPInventoryOpEx()
 	THISZERO();
 }
 
+bool FASTCALL PPInventoryOpEx::IsEq(const PPInventoryOpEx & rS) const // @v12.5.7
+{
+	bool   eq = true;
+	if(ID != rS.ID)
+		eq = false;
+	else if(WrDnOp != rS.WrDnOp)
+		eq = false;
+	else if(WrDnObj != rS.WrDnObj)
+		eq = false;
+	else if(WrUpOp != rS.WrUpOp)
+		eq = false;
+	else if(WrUpObj != rS.WrUpObj)
+		eq = false;
+	else if(AmountCalcMethod != rS.AmountCalcMethod)
+		eq = false;
+	else if(AutoFillMethod != rS.AutoFillMethod)
+		eq = false;
+	else if(OnWrOffStatusID != rS.OnWrOffStatusID)
+		eq = false;
+	else if(Flags != rS.Flags)
+		eq = false;
+	return eq;
+}
+
 /*static*/int FASTCALL PPInventoryOpEx::Helper_GetAccelInputMode(long flags)
 {
 	int    mode = accsliNo;
@@ -37,11 +61,41 @@ void PPInventoryOpEx::SetAccelInputMode(int mode)
 	}
 }
 //
+//
+//
+PPDebtInventOpEx::PPDebtInventOpEx()
+{
+	THISZERO();
+}
+
+bool FASTCALL PPDebtInventOpEx::IsEq(const PPDebtInventOpEx & rS) const
+{
+	bool   eq = true;
+	if(ID != rS.ID)
+		eq = false;
+	else if(WrDnOp != rS.WrDnOp)
+		eq = false;
+	else if(WrDnGoodsID != rS.WrDnGoodsID)
+		eq = false;
+	else if(WrUpOp != rS.WrUpOp)
+		eq = false;
+	else if(WrUpGoodsID != rS.WrUpGoodsID)
+		eq = false;
+	else if(Flags != rS.Flags)
+		eq = false;
+	return eq;
+}
+//
 // PPReckonOpEx
 //
 PPReckonOpEx::PPReckonOpEx() : Beg(ZERODATE), End(ZERODATE), Flags(0), PersonRelTypeID(0)
 {
 	memzero(Reserve, sizeof(Reserve));
+}
+
+bool FASTCALL PPReckonOpEx::IsEq(const PPReckonOpEx & rS) const // @v12.5.7
+{
+	return (Beg == rS.Beg && End == rS.End && Flags == rS.Flags && PersonRelTypeID == rS.PersonRelTypeID && OpList.IsEq(&OpList));
 }
 
 PPReckonOpEx & PPReckonOpEx::Z()
@@ -50,7 +104,7 @@ PPReckonOpEx & PPReckonOpEx::Z()
 	Flags = 0;
 	PersonRelTypeID = 0;
 	memzero(Reserve, sizeof(Reserve));
-	OpList.clear(); // @v10.6.1 freeAll-->clear
+	OpList.clear();
 	return *this;
 }
 
@@ -198,6 +252,11 @@ PPBillPoolOpEx::PPBillPoolOpEx()
 	Init();
 }
 
+bool FASTCALL PPBillPoolOpEx::IsEq(const PPBillPoolOpEx & rS) const // @v12.5.7
+{
+	return (Flags == rS.Flags && OpList.IsEq(&OpList));
+}
+
 void PPBillPoolOpEx::Init()
 {
 	Flags = 0;
@@ -295,6 +354,11 @@ int PPOprKindPacket::PutExtStrData(int fldID, const char * pBuf) { return PPPutE
 PPDraftOpEx::PPDraftOpEx()
 {
 	Init();
+}
+
+bool FASTCALL PPDraftOpEx::IsEq(const PPDraftOpEx & rS) // @v12.5.7
+{
+	return (WrOffOpID == rS.WrOffOpID && WrOffObjID == rS.WrOffObjID && WrOffComplOpID == rS.WrOffComplOpID && Flags == rS.Flags);
 }
 
 void PPDraftOpEx::Init()
@@ -557,49 +621,172 @@ int PPObjOprKind::GetPacket(PPID id, PPOprKindPacket * pack)
 	return ok;
 }
 
-int PPObjOprKind::PutPacket(PPID * pID, PPOprKindPacket * pack, int use_ta)
+int PPObjOprKind::IsPacketEq(const PPOprKindPacket & rS1, const PPOprKindPacket & rS2, long flags) // @v12.5.7 @construction
+{
+#define CMP_MEMB(m)  if(rS1.Rec.m != rS2.Rec.m) return 0;
+#define CMP_MEMBS(m) if(!sstreq(rS1.Rec.m, rS2.Rec.m)) return 0;
+	CMP_MEMB(ID);
+	CMP_MEMB(InitStatusID);
+	CMP_MEMB(ExtFlags);
+	CMP_MEMB(Rank);
+	CMP_MEMB(LinkOpID);
+	CMP_MEMB(AccSheet2ID);
+	CMP_MEMB(OpCounterID);
+	CMP_MEMB(PrnFlags);
+	CMP_MEMB(DefLocID);
+	CMP_MEMB(PrnOrder);
+	CMP_MEMB(SubType);
+	CMP_MEMB(Flags);
+	CMP_MEMB(OpTypeID);
+	CMP_MEMB(AccSheetID);
+	CMP_MEMBS(Name);
+	CMP_MEMBS(Symb);
+#undef CMP_MEMBS
+#undef CMP_MEMB
+	if(!rS1.Amounts.IsEq(&rS2.Amounts))
+		return 0;
+	else if(!rS1.ATTmpls.IsEq(rS2.ATTmpls))
+		return 0;
+	else if(rS1.ExtString != rS2.ExtString)
+		return 0;
+	else {
+		{
+			if(LOGIC(rS1.P_IOE) != LOGIC(rS2.P_IOE))
+				return 0;
+			else if(rS1.P_IOE && rS2.P_IOE) {
+				if(!rS1.P_IOE->IsEq(*rS2.P_IOE))
+					return 0;
+			}
+		}
+		{
+			if(LOGIC(rS1.P_GenList) != LOGIC(rS2.P_GenList))
+				return 0;
+			else if(rS1.P_GenList && rS2.P_GenList) {
+				if(!rS1.P_GenList->IsEq(*rS2.P_GenList))
+					return 0;
+			}
+		}
+		{
+			if(LOGIC(rS1.P_ReckonData) != LOGIC(rS2.P_ReckonData))
+				return 0;
+			else if(rS1.P_ReckonData && rS2.P_ReckonData) {
+				if(!rS1.P_ReckonData->IsEq(*rS2.P_ReckonData))
+					return 0;
+			}
+		}
+		{
+			if(LOGIC(rS1.P_PoolData) != LOGIC(rS2.P_PoolData))
+				return 0;
+			else if(rS1.P_PoolData && rS2.P_PoolData) {
+				if(!rS1.P_PoolData->IsEq(*rS2.P_PoolData))
+					return 0;
+			}
+		}
+		{
+			if(LOGIC(rS1.P_DraftData) != LOGIC(rS2.P_DraftData))
+				return 0;
+			else if(rS1.P_DraftData && rS2.P_DraftData) {
+				if(!rS1.P_DraftData->IsEq(*rS2.P_DraftData))
+					return 0;
+			}
+		}
+		{
+			if(LOGIC(rS1.P_DIOE) != LOGIC(rS2.P_DIOE))
+				return 0;
+			else if(rS1.P_DIOE && rS2.P_DIOE) {
+				if(!rS1.P_DIOE->IsEq(*rS2.P_DIOE))
+					return 0;
+			}
+		}
+		/* тут есть сомнения: счетчики могут быть как автономными, так и принадлежащми пакету PPOprKindPacket
+		if(!rS1.OpCntrPack.IsEq(rS2.OpCntrPack))
+			return 0;
+		*/
+	}
+	return 1;
+}
+
+int PPObjOprKind::PutPacket(PPID * pID, PPOprKindPacket * pPack, int use_ta)
 {
 	int    ok = 1;
+	bool   do_obj_ver = false;
 	int    r = 0;
 	uint   i;
 	PPOpCounter opc_rec;
 	PPOpCounterPacket opc_pack;
 	PPObjOpCounter opc_obj;
+	ObjVersioningCore * p_ovc = P_Ref->P_OvT;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		if(pack->Rec.OpTypeID == PPOPT_INVENTORY) {
-			if(pack->P_IOE && pack->P_IOE->Flags & INVOPF_COSTNOMINAL) {
-				pack->Rec.Flags |= OPKF_BUYING;
-				pack->Rec.Flags &= ~OPKF_SELLING;
+		if(pPack->Rec.OpTypeID == PPOPT_INVENTORY) {
+			if(pPack->P_IOE && pPack->P_IOE->Flags & INVOPF_COSTNOMINAL) {
+				pPack->Rec.Flags |= OPKF_BUYING;
+				pPack->Rec.Flags &= ~OPKF_SELLING;
 			}
 			else {
-				pack->Rec.Flags |= OPKF_SELLING;
-				pack->Rec.Flags &= ~OPKF_BUYING;
+				pPack->Rec.Flags |= OPKF_SELLING;
+				pPack->Rec.Flags &= ~OPKF_BUYING;
 			}
 		}
 		// AHTOXA
-		THROW(r = opc_obj.GetPacket(pack->Rec.OpCounterID, &opc_pack));
+		THROW(r = opc_obj.GetPacket(pPack->Rec.OpCounterID, &opc_pack));
 		if(r > 0) {
 			if(opc_pack.Head.OwnerObjID)
 				opc_pack.Head.OwnerObjID = NZOR(*pID, -1L);
 		}
 		else
 			opc_pack.Head.OwnerObjID = *pID ? *pID : -1L;
-		STRNSCPY(opc_pack.Head.CodeTemplate, pack->OpCntrPack.Head.CodeTemplate);
-		opc_pack.Head.Counter = pack->OpCntrPack.Head.Counter;
-		opc_pack.Head.Flags   = pack->OpCntrPack.Head.Flags;
-		opc_pack.Init(pack->OpCntrPack.P_Items);
-		THROW(opc_obj.PutPacket(&pack->Rec.OpCounterID, &opc_pack, 0));
-		pack->OpCntrPack.Head.ID = pack->Rec.OpCounterID;
+		STRNSCPY(opc_pack.Head.CodeTemplate, pPack->OpCntrPack.Head.CodeTemplate);
+		opc_pack.Head.Counter = pPack->OpCntrPack.Head.Counter;
+		opc_pack.Head.Flags   = pPack->OpCntrPack.Head.Flags;
+		opc_pack.Init(pPack->OpCntrPack.P_Items);
+		THROW(opc_obj.PutPacket(&pPack->Rec.OpCounterID, &opc_pack, 0));
+		pPack->OpCntrPack.Head.ID = pPack->Rec.OpCounterID;
 		// } AHTOXA
+		{
+			if(*pID) {
+				if(pPack) {
+					PPOprKindPacket org_pack;
+					THROW(GetPacket(*pID, &org_pack) > 0);
+					if(IsPacketEq(*pPack, org_pack, 0)) {
+						ok = -1;
+					}
+					else {
+						if(do_obj_ver) {
+							if(p_ovc && p_ovc->InitSerializeContext(0)) {
+								SSerializeContext & r_sctx = p_ovc->GetSCtx();
+								// @todo THROW(SerializePacket(+1, &org_pack, hist_buf, &r_sctx));
+							}
+						}
+
+						//THROW(UpdateByID(this, obj_type, *pID, &pPack->Rec, 0));
+						//(temp_buf = pPack->Text).Strip().Transf(CTRANSF_INNER_TO_UTF8);
+						//THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(obj_type, *pID, PPTRPROP_BIZSCORE2_TEXT), temp_buf, 0));
+						//DS.LogAction(PPACN_OBJUPD, obj_type, *pID, 0, 0);
+					}
+				}
+				else {
+					//THROW(RemoveByID(this, *pID, 0));
+					//THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(obj_type, *pID, PPTRPROP_BIZSCORE2_TEXT), temp_buf.Z(), 0));
+					//DS.LogAction(PPACN_OBJRMV, obj_type, *pID, 0, 0);
+				}
+			}
+			else if(pPack) {
+				//*pID = pPack->Rec.ID;
+				//THROW(AddByID(this, pID, &pPack->Rec, 0));
+				//(temp_buf = pPack->Text).Strip().Transf(CTRANSF_INNER_TO_UTF8);
+				//THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(obj_type, *pID, PPTRPROP_BIZSCORE2_TEXT), temp_buf, 0));
+				//pPack->Rec.ID = *pID;
+			}
+		}
 		if(*pID) {
 			PPOprKind org_rec;
 			PPID   prop = 0;
 			THROW(P_Ref->GetItem(Obj, *pID, &org_rec) > 0);
-			THROW_DB(deleteFrom(&P_Ref->Prop, 0, (P_Ref->Prop.ObjType == Obj && P_Ref->Prop.ObjID == *pID && P_Ref->Prop.Prop <= (long)PP_MAXATURNTEMPLATES)));
-			THROW(P_Ref->UpdateItem(Obj, *pID, &pack->Rec, 1, 0));
-			if(org_rec.OpCounterID != pack->Rec.OpCounterID) {
+			THROW_DB(deleteFrom(&P_Ref->Prop, 0, (P_Ref->Prop.ObjType == Obj && P_Ref->Prop.ObjID == *pID && P_Ref->Prop.Prop <= PP_MAXATURNTEMPLATES)));
+			THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+			if(org_rec.OpCounterID != pPack->Rec.OpCounterID) {
 				if(P_Ref->GetItem(PPOBJ_OPCOUNTER, org_rec.OpCounterID, &opc_rec) > 0) {
 					if(opc_rec.OwnerObjID) {
 						THROW(opc_obj.PutPacket(&org_rec.OpCounterID, 0, 0));
@@ -609,30 +796,37 @@ int PPObjOprKind::PutPacket(PPID * pID, PPOprKindPacket * pack, int use_ta)
 			Dirty(*pID);
 		}
 		else {
-			*pID = pack->Rec.ID;
-			THROW(P_Ref->AddItem(PPOBJ_OPRKIND, pID, &pack->Rec, 0));
+			*pID = pPack->Rec.ID;
+			THROW(P_Ref->AddItem(PPOBJ_OPRKIND, pID, &pPack->Rec, 0));
 		}
-		for(i = 0; i < pack->ATTmpls.getCount(); i++) {
-			THROW(P_Ref->PutProp(Obj, *pID, static_cast<PPID>(i+1), &pack->ATTmpls.at(i), sizeof(PPAccTurnTempl), 0));
+		for(i = 0; i < pPack->ATTmpls.getCount(); i++) {
+			THROW(P_Ref->PutProp(Obj, *pID, static_cast<PPID>(i+1), &pPack->ATTmpls.at(i), sizeof(PPAccTurnTempl), 0));
 		}
-		if(pack->Rec.OpTypeID == PPOPT_GENERIC) {
-			THROW(P_Ref->PutPropArray(PPOBJ_OPRKIND, *pID, OPKPRP_GENLIST2, pack->P_GenList, 0));
+		THROW(P_Ref->PutPropVlrString(Obj, *pID, OPKPRP_EXTSTRDATA, pPack->ExtString));
+		THROW(P_Ref->PutPropArray(Obj, *pID, OPKPRP_EXAMTLIST, &pPack->Amounts, 0));
+		switch(pPack->Rec.OpTypeID) {
+			case PPOPT_GENERIC:
+				THROW(P_Ref->PutPropArray(PPOBJ_OPRKIND, *pID, OPKPRP_GENLIST2, pPack->P_GenList, 0));
+				break;
+			case PPOPT_POOL:
+				THROW(SetPoolExData(*pID, pPack->P_PoolData, 0));
+				break;
+			case PPOPT_DRAFTRECEIPT:
+			case PPOPT_DRAFTEXPEND:
+			case PPOPT_DRAFTTRANSIT:
+			case PPOPT_DRAFTQUOTREQ:
+				THROW(SetDraftExData(*pID, pPack->P_DraftData));
+				break;
+			case PPOPT_INVENTORY:
+				THROW(P_Ref->PutProp(Obj, *pID, OPKPRP_INVENTORY, pPack->P_IOE));
+				break;
 		}
-		else if(pack->Rec.OpTypeID == PPOPT_POOL) {
-			THROW(SetPoolExData(*pID, pack->P_PoolData, 0));
+		if(pPack->Rec.Flags & OPKF_RECKON) {
+			THROW(SetReckonExData(*pID, pPack->P_ReckonData, 0));
 		}
-		else if(oneof4(pack->Rec.OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ)) { // @v10.5.7 PPOPT_DRAFTQUOTREQ
-			THROW(SetDraftExData(*pID, pack->P_DraftData));
+		if(pPack->Rec.SubType == OPSUBT_DEBTINVENT) {
+			THROW(P_Ref->PutProp(Obj, *pID, OPKPRP_DEBTINVENT, pPack->P_DIOE));
 		}
-		if(pack->Rec.Flags & OPKF_RECKON) {
-			THROW(SetReckonExData(*pID, pack->P_ReckonData, 0));
-		}
-		THROW(P_Ref->PutPropVlrString(Obj, *pID, OPKPRP_EXTSTRDATA, pack->ExtString));
-		THROW(P_Ref->PutPropArray(Obj, *pID, OPKPRP_EXAMTLIST, &pack->Amounts, 0));
-		if(pack->Rec.OpTypeID == PPOPT_INVENTORY)
-			THROW(P_Ref->PutProp(Obj, *pID, OPKPRP_INVENTORY, pack->P_IOE));
-		if(pack->Rec.SubType == OPSUBT_DEBTINVENT)
-			THROW(P_Ref->PutProp(Obj, *pID, OPKPRP_DEBTINVENT, pack->P_DIOE));
 		THROW(tra.Commit());
 	}
 	CATCHZOK

@@ -1092,14 +1092,14 @@ void PPPersonConfig::Init()
 TLP_IMPL(PPObjPerson, PersonCore, P_Tbl);
 
 PPObjPerson::PPObjPerson(SCtrLite sctr) : PPObject(PPOBJ_PERSON), LocObj(sctr), P_ArObj(0), P_PrcObj(0), P_ScObj(0), ExtraPtr(0),
-	DoObjVer_Person(CConfig.Flags2 & CCFLG2_USEHISTPERSON)
+	DoObjVer_Person(CConfig.Flags2__ & CCFLG2_USEHISTPERSON)
 {
 	TLP_OPEN(P_Tbl);
 	Cfg.Flags &= ~PPPersonConfig::fValid;
 }
 
 PPObjPerson::PPObjPerson(void * extraPtr) : PPObject(PPOBJ_PERSON), LocObj(), P_ArObj(new PPObjArticle), P_PrcObj(new PPObjProcessor), P_ScObj(0), ExtraPtr(extraPtr),
-	DoObjVer_Person(CConfig.Flags2 & CCFLG2_USEHISTPERSON)
+	DoObjVer_Person(CConfig.Flags2__ & CCFLG2_USEHISTPERSON)
 {
 	TLP_OPEN(P_Tbl);
 	Cfg.Flags &= ~PPPersonConfig::fValid;
@@ -3287,7 +3287,7 @@ int PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 	uint   i;
 	PPID   id = DEREFPTRORZ(pID);
 	const  bool is_new = (pPack && !id);
-	const  bool do_index_phones = LOGIC(CConfig.Flags2 & CCFLG2_INDEXEADDR);
+	const  bool do_index_phones = LOGIC(CConfig.Flags2__ & CCFLG2_INDEXEADDR);
 	PPID   action = 0;
 	PPID   dirty_id = 0;
 	SString temp_buf;

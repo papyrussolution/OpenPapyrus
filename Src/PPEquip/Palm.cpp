@@ -3632,7 +3632,7 @@ int PPObjStyloPalm::ExportClients(PPID acsID, long palmFlags, ExportBlock & rBlk
 {
 	int    ok = -1;
 	PPObjBill * p_bobj(BillObj);
-	const  bool use_omt_paym_amt = LOGIC(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT);
+	const  bool use_omt_paym_amt = LOGIC(CConfig.Flags2__ & CCFLG2_USEOMTPAYMAMT);
 	DbfTable * p_client_tbl = 0, * p_debt_tbl = 0, * p_addr_tbl = 0;
 	DebtTrnovrViewItem debt_item;
 

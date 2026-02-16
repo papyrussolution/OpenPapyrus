@@ -5506,7 +5506,7 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 	int    ok = 1;
 	Reference * p_ref(PPRef);
 	const  PPID loc_id = pCurrentRestPack ? pCurrentRestPack->Rec.LocID : 0;
-	const  bool use_lotxcode = LOGIC(CConfig.Flags2 & CCFLG2_USELOTXCODE);
+	const  bool use_lotxcode = LOGIC(CConfig.Flags2__ & CCFLG2_USELOTXCODE);
 	PPID   op_id = 0;
 	SString temp_buf;
 	SString fmt_buf;

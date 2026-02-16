@@ -3367,6 +3367,27 @@ IMPL_HANDLE_EVENT(TFacadeWindow)
 			//MouseEvent * p_me = static_cast<MouseEvent *>(TVINFOPTR);
 			;
 		}
+		else if(event.isCmd(cmCustomDraw)) {
+			NMTVCUSTOMDRAW * p_tv_blk = reinterpret_cast<NMTVCUSTOMDRAW *>(event.message.infoPtr);
+			if(p_tv_blk && p_tv_blk->nmcd.hdr.idFrom == CTL_FACADEWINDOW_NAVPANE) {
+				TView * p_view = getCtrlView(CTL_FACADEWINDOW_NAVPANE);
+				if(p_view) {
+					switch(p_tv_blk->nmcd.dwDrawStage) {
+						case CDDS_PREPAINT:
+							clearEvent(event);
+							event.message.infoLong = CDRF_NOTIFYITEMDRAW;
+							break;
+						case CDDS_ITEMPREPAINT:
+							{
+								HTREEITEM h_item = reinterpret_cast<HTREEITEM>(p_tv_blk->nmcd.dwItemSpec);
+								debug_mark = true; // @debug
+							}
+							break;
+					}
+				}
+			}
+			debug_mark = true;
+		}
 		/*
 		else if(event.isCmd(cmDrawItem)) {
 			if(false) {

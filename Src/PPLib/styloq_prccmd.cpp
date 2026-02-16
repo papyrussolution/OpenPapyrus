@@ -3097,7 +3097,7 @@ int PPStyloQInterchange::ProcessCommand_DebtList(const StyloQCommandList::Item &
 {
 	int    ok = -1;
 	const LDATETIME now_dtm = getcurdatetime_();
-	const  bool use_omt_paym_amt = LOGIC(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT);
+	const  bool use_omt_paym_amt = LOGIC(CConfig.Flags2__ & CCFLG2_USEOMTPAYMAMT);
 	PPID   ar_id = 0;
 	SString temp_buf;
 	PPObjBill * p_bobj(BillObj);

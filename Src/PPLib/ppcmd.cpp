@@ -361,7 +361,7 @@ int PPCommandItem::Read2(const void * pHandler, const long rwFlag) //@erik v10.6
 	return ok;
 }
 
-bool PPCommandItem::IsEq(const void * pCommand) const  //@erik v10.6.1
+bool PPCommandItem::IsEq(const void * pCommand) const //@erik
 {
 	//bool   yes = true;
 	if(!pCommand)

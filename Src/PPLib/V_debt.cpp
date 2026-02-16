@@ -186,7 +186,7 @@ PPViewDebtTrnovr::DebtEntry::DebtEntry(PPID ident) : ID(ident), _AvgPaym(0.0)
 {
 }
 
-PPViewDebtTrnovr::PPViewDebtTrnovr() : PPView(0, &Filt, PPVIEW_DEBTTRNOVR, implUseServer, 0), UseOmtPaymAmt(BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT)),
+PPViewDebtTrnovr::PPViewDebtTrnovr() : PPView(0, &Filt, PPVIEW_DEBTTRNOVR, implUseServer, 0), UseOmtPaymAmt(BIN(CConfig.Flags2__ & CCFLG2_USEOMTPAYMAMT)),
 	P_BObj(BillObj), P_DebtDimAgentList(0), P_TempTbl(0), P_IterBillList(0), IterBillCounter(0), ExpiryDate(ZERODATE), IsDlvrAddrListInited(0)
 {
 }

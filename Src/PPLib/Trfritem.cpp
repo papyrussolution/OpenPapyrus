@@ -239,7 +239,7 @@ int PPTransferItem::Init(const BillTbl::Rec * pBillRec, int zeroRByBill, int for
 				Suppl = pBillRec->Object;
 			LotDate = pBillRec->Dt;
 			// @v12.2.1 (наследование в лоте специальной налоговой группы поставщика) {
-			if(Suppl && op_type_id == PPOPT_GOODSRECEIPT && CConfig.Flags2 & CCFLG2_INHSUPPLTAXGRPINLOT) {
+			if(Suppl && op_type_id == PPOPT_GOODSRECEIPT && CConfig.Flags2__ & CCFLG2_INHSUPPLTAXGRPINLOT) {
 				const PPID supp_psn_id = ObjectToPerson(Suppl, 0);
 				if(supp_psn_id) {
 					ObjTagItem tag_item;

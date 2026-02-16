@@ -1103,7 +1103,7 @@ int BillFiltDialog::getDTS(BillFilt * pFilt)
 	SETFLAG(Data.Flags, BillFilt::fDiscountOnly, v & 0x08);
 	//SETFLAG(Data.Flags, BillFilt::fCcPrintedOnly, v & 0x10); // @v9.7.12 @erikTMP
 	sel = CTL_BILLFLT_PERIOD;
-	THROW((Data.Flags & BillFilt::fDebtOnly) || AdjustPeriodToRights(temp_period, 1));
+	THROW((Data.Flags & BillFilt::fDebtOnly) || AdjustPeriodToRights(temp_period, true));
 	Data.Period = temp_period;
 	Data.SortOrder = (int16)GetClusterData(CTL_BILLFLT_ORDER);
 	// @v11.7.4 {
@@ -1306,7 +1306,7 @@ int PPViewBill::Init_(const PPBaseFilt * pFilt)
 		}
 	}
 	if(!(Filt.Flags & BillFilt::fIgnoreRtPeriod))
-		THROW(AdjustPeriodToRights(Filt.Period, 0));
+		THROW(AdjustPeriodToRights(Filt.Period, false));
 	// @v11.0.11 {
 	if(Filt.GoodsGroupID) {
 		GoodsIterator::GetListByGroup(Filt.GoodsGroupID, &GoodsList);
@@ -2952,7 +2952,7 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 
 DBQuery * PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
-	const bool use_omt_paymamt = LOGIC(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT);
+	const bool use_omt_paymamt = LOGIC(CConfig.Flags2__ & CCFLG2_USEOMTPAYMAMT);
 	const PPID single_loc_id = LocList_.getSingle();
 	BillTbl  * bll  = 0;
 	TempBillTbl   * bllt = 0;
@@ -6342,7 +6342,7 @@ int PPViewBill::Browse(bool modeless)
 	const  PPID save_loc = r_cfg.Location;
 	PPID   single_loc_id = LocList_.getSingle();
 	Filt.Period.Actualize(ZERODATE);
-	THROW((Filt.Flags & BillFilt::fDebtOnly) || AdjustPeriodToRights(Filt.Period, 0));
+	THROW((Filt.Flags & BillFilt::fDebtOnly) || AdjustPeriodToRights(Filt.Period, false));
 	if(single_loc_id && single_loc_id != r_cfg.Location)
 		DS.SetLocation(single_loc_id);
 	ok = PPView::Browse(modeless);

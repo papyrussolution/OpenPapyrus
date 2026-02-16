@@ -2164,7 +2164,7 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 					const QuotIdent qi(r_ti.LocID, 0, r_ti.CurID, arID);
 					goods_obj.GetSupplDeal(r_ti.GoodsID, qi, &sd, 1);
 					THROW_PP(!sd.IsDisabled, PPERR_GOODSRCPTDISABLED);
-					if(invp_act == PPSupplAgreement::invpaRestrict && (OpTypeID == PPOPT_GOODSRECEIPT || (Rec.OpID == r_ccfg.DraftRcptOp && r_ccfg.Flags2 & CCFLG2_USESDONPURCHOP))) {
+					if(invp_act == PPSupplAgreement::invpaRestrict && (OpTypeID == PPOPT_GOODSRECEIPT || (Rec.OpID == r_ccfg.DraftRcptOp && r_ccfg.Flags2__ & CCFLG2_USESDONPURCHOP))) {
 						THROW_PP_S(sd.CheckCost(r_ti.Cost), PPERR_SUPPLDEALVIOLATION, sd.Format(temp_buf));
 					}
 				}

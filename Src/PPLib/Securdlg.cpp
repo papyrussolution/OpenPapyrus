@@ -518,6 +518,12 @@ public:
 					Data.MenuUuid = entry.Uuid;
 					Data.MenuID_Obsolete = entry.NativeID;
 				}
+				// @v12.5.7 {
+				else {
+					Data.MenuUuid.Z();
+					Data.MenuID_Obsolete = 0;
+				}
+				// } @v12.5.7 
 			}
 		}
 		Data.RealizeOrder = static_cast<short>(GetClusterData(CTL_CFGOPTIONS_RLZORD));

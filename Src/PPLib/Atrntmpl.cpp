@@ -1,5 +1,5 @@
 // ATRNTMPL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Шаблон бухгалтерской проводки
 //
@@ -877,6 +877,38 @@ int PPAccTurnTempl::ParseSubstString(const char * str, int * lp, int * _skipzobj
 	else
 		ok = 0;
 	return ok;
+}
+
+bool FASTCALL PPAccTurnTempl::IsEq(const PPAccTurnTempl & rS) const // @v12.5.7
+{
+	bool   eq = true;
+	if(ObjType != rS.ObjType)
+		eq = false;
+	else if(ObjID != rS.ObjID)
+		eq = false;
+	else if(ID != rS.ID)
+		eq = false;
+	else if(DbtID != rS.DbtID)
+		eq = false;
+	else if(CrdID != rS.CrdID)
+		eq = false;
+	else if(Flags != rS.Flags)
+		eq = false;
+	else if(Period != rS.Period)
+		eq = false;
+	else if(!sstreq(Expr, rS.Expr))
+		eq = false;
+	else {
+		const PPID * p_s1 = Subst;
+		const PPID * p_s2 = rS.Subst;
+		for(uint i = 0; eq && i < SIZEOFARRAY(Subst); i++) {
+			if(p_s1[i] != p_s2[i])
+				eq = false;
+			else if(p_s1[i] == 0)
+				break;
+		}
+	}
+	return eq;
 }
 
 int PPAccTurnTempl::SetupSubst(const char * pPrimStr, const char * pForeignStr)
