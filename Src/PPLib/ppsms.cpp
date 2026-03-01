@@ -701,7 +701,7 @@ int SendSmsDialog::GetAutoSmsText(PPID psnID, PPID objID, SString & rText)
 					PPFilt _pf(psnID);
 					ep.P_F = &_pf;
 					THROW(t.Process("Person", temp_buf, /*prsn_id, 0*/ep, &param_list, text));
-					rText.Z().CopyFromN(text.GetBufC(), text.GetAvailableSize()).ToOem();
+					rText.CopyFromN(text.GetBufC(), text.GetAvailableSize()).Transf(CTRANSF_OUTER_TO_INNER); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 				}
 			}
 			break;
@@ -1006,8 +1006,12 @@ int GetSmsConfig(PPSmsAccPacket & rPack, StConfig & rConfig)
 int FormatPhone(const char * pPhone, SString & rPhone, SString & rErrMsg)
 {
 	int   ok = 1;
-	SString phone(pPhone), old_phone(pPhone);
-	SString str, sub_str, fmt_buf, added_buf;
+	SString phone(pPhone);
+	SString old_phone(pPhone);
+	SString str;
+	SString sub_str;
+	SString fmt_buf;
+	SString added_buf;
 	if(phone.NotEmpty()) {
 		if(!phone.IsDec()) {
 			for(size_t j = 0; j < phone.Len();) {
@@ -1026,7 +1030,7 @@ int FormatPhone(const char * pPhone, SString & rPhone, SString & rErrMsg)
 		phone.PadLeft(1, '7');
 	}
 	if(phone.Len() != 11) {
-		str = 0;
+		str.Z();
 		if(phone.CmpNC(old_phone) != 0) {
 			PPLoadText(PPTXT_SMS_PNONENUMCHNGD, fmt_buf);
 			(added_buf = old_phone).Cat("->").Cat(phone).CR();
@@ -1035,7 +1039,8 @@ int FormatPhone(const char * pPhone, SString & rPhone, SString & rErrMsg)
 		else
 			str.Cat(phone).Space();
 		PPLoadText(PPTXT_SMS_ELEVENNUMS, sub_str);
-		str.ToOem().Cat(sub_str);
+		str.Transf(CTRANSF_OUTER_TO_INNER); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
+		str.Cat(sub_str);
 		rErrMsg = str;
 		//PPSetError(0, str);
 		ok = 0;
@@ -1489,7 +1494,7 @@ int SmsClient::Bind()
 	THROW(Receive(BIND_RECEIVE_TIMEOUT));
 	if((cmd_status = SMResults.GetResult(SMResults.BindResult)) != ESME_ROK) {
 		GetSmscErrorText(cmd_status, err_msg);
-		PPSetError(PPERR_SMS_BINDERROR, err_msg.ToOem());
+		PPSetError(PPERR_SMS_BINDERROR, err_msg.Transf(CTRANSF_OUTER_TO_INNER)); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 		ok = 0;
 	}
 	if(ok == 1)
@@ -2186,7 +2191,7 @@ int SmsClient::Unbind()
 				int    cmd_status = SMResults.GetResult(SMResults.UnbindResult);
 				if(cmd_status != ESME_ROK) {
 					GetSmscErrorText(cmd_status, err_msg);
-					PPSetError(PPERR_SMS_UNBINDERROR, err_msg.ToOem());
+					PPSetError(PPERR_SMS_UNBINDERROR, err_msg.Transf(CTRANSF_OUTER_TO_INNER)); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 					ok = 0;
 				}
 			}

@@ -1,5 +1,5 @@
 // ATOL.CPP
-// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Интерфейс (асинхронный) к драйверу "Атол"
 //
@@ -997,10 +997,9 @@ int ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath)
 			}
 		}
 		else if(oneof2(op_type, OPTYPE_PAYM1, OPTYPE_PAYM2)) { // Оплата
-			long   paym_type;
 			ss.get(&pos, buf);        // Поле 8 - пропускаем
 			ss.get(&pos, buf);
-			paym_type = buf.ToLong(); // Тип оплаты (1 - наличные)
+			const  long paym_type = buf.ToLong(); // Тип оплаты (1 - наличные)
 			if(paym_type != PAYMENT_CASH) {
 				THROW(r = SearchTempCheckByCode(cash_no, chk_no));
 				if(r > 0 && !(P_TmpCcTbl->data.Flags & CCHKF_BANKING)) {
@@ -1066,7 +1065,7 @@ int ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath)
 					BarcodeTbl::Rec  bc_rec;
 					if(goods_obj.SearchByArticle(goods_id, &bc_rec) > 0 && goods_obj.GetPacket(bc_rec.GoodsID, &gds_pack, 0) > 0) {
 						goods_id = bc_rec.GoodsID;
-						buf.Strip().ToOem().CopyTo(gds_pack.Rec.Name, sizeof(gds_pack.Rec.Name));
+						buf.Strip().Transf(CTRANSF_OUTER_TO_INNER).CopyTo(gds_pack.Rec.Name, sizeof(gds_pack.Rec.Name)); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 						STRNSCPY(gds_pack.Rec.Abbr, gds_pack.Rec.Name);
 						gds_pack.Codes.insert(&bc_rec); // Добавляем артикул в список штрихкодов, т.к. GetPacket его пропускает
 						for(pos = 0; ss_comma.get(&pos, buf);) {

@@ -150,7 +150,7 @@ static BOOL CALLBACK CloseTooltipWnd2(HWND hwnd, LPARAM lParam)
 								pic_bounds.MoveCenterTo(rect_elem.GetCenter());
 							}
 							else {
-
+								;
 							}
 						}
 						canv.AddTransform(vp.GetMatrix(pic_bounds, mtx));

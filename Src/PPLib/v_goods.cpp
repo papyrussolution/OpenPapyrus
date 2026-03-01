@@ -540,7 +540,8 @@ int GoodsFilt::Setup()
 bool GoodsFilt::IsEmpty() const
 {
 	const long nemp_fl = (fWithStrucOnly|fIntUnitOnly|fFloatUnitOnly|fHidePassive|
-		fPassiveOnly|fHideGeneric|fGenGoodsOnly|fWOTaxGdsOnly|fNoDisOnly|fRestrictByMatrix|fOutOfMatrix|fActualOnly|fHasImages|fUseIndepWtOnly|fWoBrand);
+		fPassiveOnly|fHideGeneric|fGenGoodsOnly|fWOTaxGdsOnly|fNoDisOnly|fRestrictByMatrix|fOutOfMatrix|fActualOnly|fHasImages|
+		fUseIndepWtOnly|fWoBrand|fWoTaxGrp); // @v12.5.7 fWoTaxGrp
 	// Setup();
 	/*
 	return !(GrpID || ManufID || UnitID || SupplID || GoodsTypeID || BrandID || PhUnitID ||
@@ -1820,8 +1821,7 @@ int PPViewGoods::Init_(const PPBaseFilt * pFilt)
 		const  PPID assoc_type = NZOR(Filt.GoodsLocAssocID, PPASS_GOODS2WAREPLACE);
 		delete P_G2OAssoc;
 		P_G2OAssoc = new GoodsToObjAssoc(assoc_type, PPOBJ_LOCATION);
-		if(P_G2OAssoc)
-			P_G2OAssoc->Load();
+		CALLPTRMEMB(P_G2OAssoc, Load());
 	}
 	THROW(CreateTempTable(static_cast<IterOrder>(Filt.InitOrder), &P_TempTbl));
 	CATCH
@@ -3885,7 +3885,7 @@ int PPViewGoods::CreateTempTable(IterOrder ord, TempOrderTbl ** ppTbl)
 	if(IsTempTblNeeded() || !oneof2(ord, OrdByID, OrdByDefault)) { // @v11.7.12 OrdByID
 		THROW(p_o = CreateTempOrderFile());
 		{
-			GoodsFilt flt = Filt;
+			GoodsFilt flt(Filt);
 			GoodsIterator gi;
 			Goods2Tbl::Rec goods_rec;
 			TempOrderTbl::Rec rec; // MakeTempRec обнуляет запись поэтому нет смыслы на каждой итерации вызывать конструктор

@@ -1090,8 +1090,9 @@ int PPObject::RemoveSync(PPID id)
 /*virtual*/int PPObject::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
 {
 	int    r;
-	if(!(options & not_checkrights))
+	if(!(options & not_checkrights)) {
 		THROW(CheckRights(PPR_DEL));
+	}
 	r = (options & user_request) ? PPMessage(mfConf|mfYes|mfCancel, PPCFM_DELETE) : cmYes;
 	if(r == cmYes) {
 		if(!(options & no_wait_indicator))

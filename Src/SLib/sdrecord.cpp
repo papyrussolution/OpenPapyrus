@@ -1,5 +1,5 @@
 // SDRECORD.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -778,7 +778,7 @@ int SdRecord::UpdateField(uint pos, const SdbField * pFld)
 	THROW(checkupper(pos, GetCount()));
 	p_item = Get(pos);
 	{
-		SString temp_buf = pFld->Name;
+		SString temp_buf(pFld->Name);
 		if(Flags & fNamesToUpper)
 			temp_buf.ToUpper();
 		if(!(Flags & fAllowDupID) || !(Flags & fAllowDupName)) {
@@ -788,7 +788,8 @@ int SdRecord::UpdateField(uint pos, const SdbField * pFld)
 				if(pos != i) {
 					StringPool.get(p_f->NamePos, name_buf);
 					if(pFld->ID != 0 || !(pFld->T.Flags & STypEx::fZeroID)) {
-						THROW_S_S((p_f->ID != pFld->ID || Flags & fAllowDupID), SLERR_SDREC_DUPFLDID, (temp_buf = name_buf).ToOem());
+						THROW_S_S((p_f->ID != pFld->ID || Flags & fAllowDupID), SLERR_SDREC_DUPFLDID, 
+							(temp_buf = name_buf).Transf(CTRANSF_OUTER_TO_INNER)); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 					}
 					if(!(Flags & fAllowDupName)) {
 						THROW_S(name_buf.CmpNC(temp_buf), SLERR_SDREC_DUPFLDNAME);

@@ -2119,6 +2119,8 @@
 	#define CTL_STATUS_USEGDSMATRIX     (22 + WINDOWS_ID_BIAS)
 	#define CTL_STATUS_IMG              (23 + WINDOWS_ID_BIAS)
 	#define CTL_STATUS_LOGPATH          (24 + WINDOWS_ID_BIAS)
+	#define CTL_STATUS_LOCALPATH        (25 + WINDOWS_ID_BIAS) // @v12.5.7
+	#define CTL_STATUS_CMD_AEQSTAT      (26 + WINDOWS_ID_BIAS) // @v12.5.7 
 #define DLG_WAIT                   10
 	#define CTL_WAIT_TEXT                (1 + WINDOWS_ID_BIAS)
 #define DLG_COUNTRY                20 // COUNTRY
@@ -3093,6 +3095,9 @@
 	#define CTLSEL_GTO_ACS              (45 + WINDOWS_ID_BIAS)
 	#define CTL_GTO_DUEPERIOD           (46 + WINDOWS_ID_BIAS)
 	#define CTLCAL_GTO_DUEPERIOD        (47 + WINDOWS_ID_BIAS)
+	#define CTL_GTO_SHOWALL_AR          (48 + WINDOWS_ID_BIAS) // @v12.5.7 замена single CTL_GTO_SHOWALL
+	#define CTL_GTO_SHOWALL_AGENT       (49 + WINDOWS_ID_BIAS) // @v12.5.7 замена single CTL_GTO_SHOWALL
+	#define CTL_GTO_SHOWALL_GOODS       (50 + WINDOWS_ID_BIAS) // @v12.5.7 замена single CTL_GTO_SHOWALL
 #define DLG_PRINT                 134 // Общий диалог параметров печати
 	#define CTL_PRINT_PORT               (1 + WINDOWS_ID_BIAS) // Порт вывода
 	#define CTL_PRINT_PGHT               (2 + WINDOWS_ID_BIAS) // Длина листа
@@ -3335,6 +3340,7 @@
 	#define CTLSEL_SYSJFILT_SUBST        (11 + WINDOWS_ID_BIAS)
 	#define CTL_SYSJFILT_SUBSTDT         (12 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SYSJFILT_SUBSTDT      (13 + WINDOWS_ID_BIAS)
+	#define CTLCMD_SYSJFILT_ACTIONLIST   (14 + WINDOWS_ID_BIAS) // @v12.5.7 (не работает supplement без команды)
 #define DLG_BILLINFO              154 // Системная информация о документе
 	#define CTL_BILLINFO_ID              (1 + WINDOWS_ID_BIAS)
 	#define CTL_BILLINFO_ACCESS          (2 + WINDOWS_ID_BIAS)
@@ -11946,6 +11952,11 @@
 	#define CTL_NOTES_PARENT                    (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_NOTES_PARENT                 (4 + WINDOWS_ID_BIAS)
 	#define CTL_NOTES_TEXT                      (5 + WINDOWS_ID_BIAS)
+#define LAYOUT_LI_CENTRIGONAV     1590 // @v12.5.7 Лейаут элемента списка навигации centrigo. Note: Это - первая попытка формализовать лейауты, отличные от диалогов.
+	// Дальше идентификаторы лейаутов будет так же в общем поле с диалогами. 
+	#define LOITEM_LI_CENTRIGONAV_HIND          (1 + WINDOWS_ID_BIAS) // Индикатор иерархии
+	#define LOITEM_LI_CENTRIGONAV_IMG           (2 + WINDOWS_ID_BIAS) // Изображение
+	#define LOITEM_LI_CENTRIGONAV_MAINTEXT      (3 + WINDOWS_ID_BIAS) // Основной текст
 //
 // Win32 Dialog Identifiers
 //

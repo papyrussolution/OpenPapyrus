@@ -1,12 +1,12 @@
 // BEXTINS.CPP
-// Copyright (c) A.Sobolev 1997-1999, 2000, 2004, 2008, 2009, 2010, 2015, 2017, 2018, 2022
+// Copyright (c) A.Sobolev 1997-1999, 2000, 2004, 2008, 2009, 2010, 2015, 2017, 2018, 2022, 2026
 // @codepage UTF-8
 // Поддержка операции расширенной вставки записей
 //
 #include <slib-internal.h>
 #pragma hdrstop
 
-const size_t BExtInsert::DefBufSize = (28*1024U);
+const size_t BExtInsert::DefBufSize = SKILOBYTE(28);
 
 BExtInsert::BExtInsert(DBTable * pTbl, size_t aBufSize) : SdRecordBuffer(NZOR(aBufSize, DefBufSize)), State(stValid), P_Tbl(pTbl), ActualCount(0xffffU)
 {

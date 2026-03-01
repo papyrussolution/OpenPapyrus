@@ -129,7 +129,7 @@
 //       @done @todo Перенос Account в Reference2
 //       @done @todo Перенос BankAccount в одну из общих таблиц (пока не совсем ясно куда и как)
 // @todo Добавить в стуктуры оплаты по чеку валюту
-//
+// @test Участок кода, который не следует модернизировать по причине того, что он работает как тест.
 //
 #ifndef __PP_H // {
 #define __PP_H
@@ -5178,6 +5178,7 @@ struct PPAccTurn { // @persistent
 class PPAccTurnTempl { // @persistent @flat @store(PropertyTbl)
 public:
 	static int Convert_6407(PropertyTbl::Rec * pRec);
+	PPAccTurnTempl();
 	bool   FASTCALL IsEq(const PPAccTurnTempl & rS) const; // @v12.5.7
 	int    SetupSubst(const char * primStr, const char * foreignStr);
 	int    SubstToStrings(SString & rPrimStr, SString & rForeignStr);
@@ -5185,6 +5186,7 @@ public:
 	int    CreateBaseProjectionAccturns(PPBillPacket *);
 	int    AccTemplToStr(int side, SString & rBuf) const;
 	int    AccTemplFromStr(int side, const char * pBuf);
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
 	PPID   ObjType;       // Const=PPOBJ_OPRKIND
 	PPID   ObjID;         // ->Ref(PPOBJ_OPRKIND)
@@ -8545,13 +8547,11 @@ public:
 		//
 		SerializeSignature();
 		//
-		// Descr: Конструктор, создающий экземпляр с заданным типом объекта objType
-		//   и текущим номером версии.
+		// Descr: Конструктор, создающий экземпляр с заданным типом объекта objType и текущим номером версии.
 		//
 		explicit SerializeSignature(PPID objType);
 		//
-		// Descr: Комплексный конструктор, реализующий логику препроцессинга
-		//   сериализации общего пакета объекта.
+		// Descr: Комплексный конструктор, реализующий логику препроцессинга сериализации общего пакета объекта.
 		// ARG(objType  IN): Тип объекта данных
 		// ARG(dir      IN): Направление сериализации #{-1||+1}
 		// ARG(rBuf IN/OUT): Буфер сериализации.
@@ -13222,13 +13222,13 @@ public:
 	struct LotDimensions {
 		static int EditTag(const PPGdsClsPacket * pGcPack, ObjTagItem * pItem);
 		LotDimensions();
-		void   Clear();
+		LotDimensions & Z();
 		SString & FASTCALL ToStr(SString & rBuf) const;
 		int    FASTCALL FromString(const char * pBuf);
 
-		double X;
-		double Y;
-		double Z;
+		double DimX;
+		double DimY;
+		double DimZ;
 		uint8  Reserve[64];
 	};
 
@@ -19786,6 +19786,7 @@ struct PPInventoryOpEx {   // @persistent @store(PropertyTbl)
 	bool   FASTCALL operator == (const PPInventoryOpEx & rS) const { return IsEq(rS); } // @v12.5.7
 	int    GetAccelInputMode() const;
 	void   SetAccelInputMode(int mode);
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
 	enum { // Методы расчета цен
 		acmLIFO     = 0,
@@ -19825,6 +19826,7 @@ struct PPInventoryOpEx {   // @persistent @store(PropertyTbl)
 struct PPDebtInventOpEx {    // @persistent @store(PropertyTbl)
 	PPDebtInventOpEx();
 	bool   FASTCALL IsEq(const PPDebtInventOpEx & rS) const;
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx); // @v12.5.7
 
 	PPID   Tag;              // Const=PPOBJ_OPRKIND
 	PPID   ID;               // ->Ref(PPOBJ_OPRKIND)
@@ -19891,6 +19893,7 @@ struct PPDraftOpEx {
 	void   Init();
 	bool   FASTCALL IsEq(const PPDraftOpEx & rS); // @v12.5.7
 	PPDraftOpEx & FASTCALL operator = (const PPDraftOpEx &);
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx); // @v12.5.7
 
 	PPID   WrOffOpID;       // Операция списания                        //
 	PPID   WrOffObjID;      // Контрагент для операции списания //
@@ -19915,6 +19918,7 @@ struct PPBillPoolOpEx {
 	void   Init();
 	bool   FASTCALL IsEq(const PPBillPoolOpEx & rS) const; // @v12.5.7
 	PPBillPoolOpEx & FASTCALL operator = (const PPBillPoolOpEx &);
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx); // @v12.5.7
 
 	long   Reserve[16];
 	long   Flags;        // BPOXF_XXX
@@ -19949,7 +19953,7 @@ struct PPBillPoolOpEx {
 //
 #define GOIF_NEGATIVE        0x0001 // В отчетах значения, соответствующие этой операции вычитаются //
 
-typedef TSArray <PPAccTurnTempl> PPAccTurnTemplArray;
+typedef TSVector <PPAccTurnTempl> PPAccTurnTemplArray; // @v12.5.7 TSArray-->TSVector
 
 class PPOprKindPacket {
 public:
@@ -20009,15 +20013,18 @@ public:
 	virtual int  Edit(PPID*, void * extraPtr);
 	virtual int  Browse(void * extraPtr);
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr);
+	virtual int  RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam);
 	// @v11.1.11 (@construction) virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
 	int    IsPacketEq(const PPOprKindPacket & rS1, const PPOprKindPacket & rS2, long flags);
 	int    Edit(PPID *, long opTypeID, long linkOpID);
+	int    ViewVersion(PPID histID);
 	//
 	// Descr: Вызывает диалог редактирования пакета вида операции.
 	//   Может изменить поля пакета даже в том случае, если пользователь не нажал [OK]
 	//   Проверяет уникальность имени пакета обращением к функции PPObjReference::CheckDupName.
+	// ARG(viewOnly IN): Если true то диалог только показывать текущее состояние объекта, но не позволяет сохранить изменения.
 	//
-	int    EditPacket(PPOprKindPacket *);
+	int    EditPacket(PPOprKindPacket * pPack, bool viewOnly);
 	int    AddBySample(PPID * pID, PPID sampleID);
 	int    GetExtStrData(PPID opID, int fldID, SString & rBuf);
 	int    GetExAmountList(PPID, PPIDArray *);
@@ -20073,6 +20080,7 @@ private:
 		const char * P_CodeTempl;
 	};
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
+	virtual int  DeleteObj(PPID id);
 	virtual int  EditRights(uint, ObjRights *, EmbedDialog * pDlg = 0);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
@@ -20084,6 +20092,14 @@ private:
 	int    SetDraftExData(PPID id, const PPDraftOpEx * pData);
 	int    Helper_GetReservedOp(PPID * pID, const ReservedOpCreateBlock & rBlk, int use_ta);
 	int    Helper_GetOpListByLink(PPID opTypeID, PPID linkOpID, PPIDArray * pList);
+	//
+	// Descr: Флаги функции Helper_SerializePacket
+	//
+	enum {
+		spfInternalHistory = 0x0001 // @v12.5.7 Сериализация в режиме внутренней истории пакета (временно отличается от сериализации с целью синхронизации
+			// с целью избежать изменения форматов пакетов обмена).
+	};
+	int    Helper_SerializePacket(int dir, PPOprKindPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx, uint flags); // @v12.5.7
 	// @v11.1.11 (@construction) int    AssignImages(ListBoxDef * pDef);
 };
 //
@@ -31444,11 +31460,11 @@ public:
 		PPID   LocID;
 		PPID   ArID;
 		PPID   CurID;
-		PPID   LotID; // @v11.1.12
-		long   Flags; // 
+		PPID   LotID;
+		long   Flags;
 		double Qtty;
-		double Cost;  //
-		double Price; //
+		double Cost;
+		double Price;
 		ReceiptCore::LotDimensions LotDim;
 	};
 	enum {
@@ -40822,7 +40838,6 @@ public:
 	long   Reserve;
 };
 
-
 struct LotOpViewItem : public TransferTbl::Rec {
 	LotOpViewItem() : TransferTbl::Rec(), OldQtty(0.0), OldCost(0.0), OldPrice(0.0)
 	{
@@ -40970,24 +40985,24 @@ struct LotTotal {
 	//
 	// Base fields
 	//
-	long   Count;            // Количество лотов
-	double Qtty;             // Общее пришедшее по лотам количество товара (в торговых единицах)
-	double Rest;             // Общий текущий остаток по лотам (в торговых единицах)
-	double Cost;             // Сумма остатка в ценах поступления //
-	double Price;            // Сумма остатка в ценах реализации  //
-	double OpRestBeg;        // Остаток на начало операционного периода
-	double OpRestEnd;        // Остаток на конец операционного периода
+	long   Count;     // Количество лотов
+	double Qtty;      // Общее пришедшее по лотам количество товара (в торговых единицах)
+	double Rest;      // Общий текущий остаток по лотам (в торговых единицах)
+	double Cost;      // Сумма остатка в ценах поступления //
+	double Price;     // Сумма остатка в ценах реализации  //
+	double OpRestBeg; // Остаток на начало операционного периода
+	double OpRestEnd; // Остаток на конец операционного периода
 	//
 	// Extended fields
 	//
-	PPID   LocID;            //
-	long   Progress;         //
-	long   DCount;           // Количество порожденных лотов
-	double InCost;           // Начальная сумма поступивших по лотам товаров в ценах поступления //
-	double InPrice;          // Начальная сумма поступивших по лотам товаров в ценах реализации  //
-	double DRest;            // Остаток порожденных лотов в тороговых единицах
-	double DCost;            // Остаток порожденных лотов в ценах поступления //
-	double DPrice;           // Остаток порожденных лотов в ценах реализации  //
+	PPID   LocID;     //
+	long   Progress;  //
+	long   DCount;    // Количество порожденных лотов
+	double InCost;    // Начальная сумма поступивших по лотам товаров в ценах поступления //
+	double InPrice;   // Начальная сумма поступивших по лотам товаров в ценах реализации  //
+	double DRest;     // Остаток порожденных лотов в тороговых единицах
+	double DCost;     // Остаток порожденных лотов в ценах поступления //
+	double DPrice;    // Остаток порожденных лотов в ценах реализации  //
 };
 
 struct LotViewItem : public ReceiptTbl::Rec {
@@ -44763,12 +44778,14 @@ public:
 	bool   IsSimpleLedger() const { return (Kind == PPVTB_SIMPLELEDGER); }
 
 	enum {
-		fShowLink     = 0x0001,
-		fShowFree     = 0x0002,
-		fPaymPeriod   = 0x0004,   // Период указан по дате оплаты
-		fShowExcluded = 0x0008,   // Показывать исключенные записи
-		fIterateClb   = 0x0010,   // Итератор книги покупок должен на каждую запись книги перебрать все номера ГТД
-		fOnlyEmptyExtAr = 0x0020  // Только с пустой дополнительной статьей
+		fShowLink       = 0x0001,
+		fShowFree       = 0x0002,
+		fPaymPeriod     = 0x0004, // Период указан по дате оплаты
+		fShowExcluded   = 0x0008, // Показывать исключенные записи
+		fIterateClb     = 0x0010, // Итератор книги покупок должен на каждую запись книги перебрать все номера ГТД
+		fOnlyEmptyExtAr = 0x0020, // Только с пустой дополнительной статьей
+		fFiltByPerson   = 0x0040, // @v12.5.7 Если выбран критерий ArticleID и статья связана с персоналией, 
+			// то фактически фильтровать по соответствующей персоналии, а не по статье.
 	};
 	char   ReserveStart[28]; // @anchor
 	PPID   LocID;          // ->Location.ID
@@ -44848,7 +44865,7 @@ private:
 		OpEntry();
 		PPID   OpID;
 		PPID   AmtTypeID;
-		int    SignFilt; // @v11.0.3 -1 только отрицательные, +1 только положительные, 0 - все равно
+		int    SignFilt; // -1 только отрицательные, +1 только положительные, 0 - все равно
 	};
 	class OpEntryVector : public TSVector <OpEntry> {
 	public:
@@ -44866,8 +44883,6 @@ private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	int    EditAutoBuildFilt(AutoBuildFilt *);
-	// @v11.0.3 int    ProcessOp(uint, const PPIDArray *, const PPIDArray * pNegOpList,
-		// @v11.0.3 const AutoBuildFilt *, int byPayment, PPObjBill::PplBlock * pEbfBlk, PPID mainAmtTypeID);
 	int    ProcessOp2(const OpEntryVector & rList, uint listIdx, const OpEntryVector * pNegList, const AutoBuildFilt *, int byPayment, PPObjBill::PplBlock * pEbfBlk);
 	//
 	// ARG(slUseCostVatAddendum IN): параметр определяет специальный вариант формирования записей расходов с НДС для книги доходов/расходов
@@ -44906,7 +44921,6 @@ private:
 		uint8  Reserve[2]; // @alignment
 	};
 	MainOrgBlock MOBlk;
-	//int    IsMainOrgVatFree;
 	UintHashTable AbBillList; // Список идентификаторов документов, которые уже были просмотрены при
 		// автоматическом построении книги. Необходим для того, чтобы избежать удаления записей, принадлежащих
 		// одному документу, но сформированных за один цикл.
@@ -44918,6 +44932,9 @@ private:
 	SArray * P_ClbList;       // items char[VBV_CLB_ITEM_SIZE]
 	uint   ClbListIterPos;
 	LAssocArray TaxOpSymbAssoc; // Список ассоциаций {вид операции - экспортный символ} Используется при экспорте
+	ObjIdListFilt FiltArByPersonList; // @v12.5.7 Если не пустой, то - список персоналий, по которым следует фильтровать строки книги.
+		// Может быть инициирован в случае, если (Filt.Flags & fFiltByPerson) && Filt.ArticleID и, плюс к тому, если Filt.ArticleID
+		// ассоциирована с персоналией и с этой же персоналией связаны иные статьи (что-то как-то сложно получается).
 };
 //
 // @ModuleDecl(PPViewOpGrouping)
@@ -55882,15 +55899,14 @@ struct PickLotParam {
 int PickLot(PickLotParam & rParam, TIDlgInitData * pResult);
 
 class SysJFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(SysJournalFilt);
 public:
-	SysJFiltDialog(uint resID);
-	int    setDTS(const SysJournalFilt *);
-	int    getDTS(SysJournalFilt *);
+	explicit SysJFiltDialog(uint resID);
+	int    setDTS(const SysJournalFilt * pData);
+	int    getDTS(SysJournalFilt * pData);
 private:
 	DECL_HANDLE_EVENT;
 	void   SetupCtrls();
-
-	SysJournalFilt Filt;
 };
 //
 //
@@ -63010,7 +63026,8 @@ int    PPOpenDir(SString & rPath, const char * pTitle, HWND owner);
 //   модулю SLIB методом SlSession::SetExtraProcBlock() дабы класс TDialog мог воспользоваться техникой
 //   описания диалогом DL600.
 //
-int PPInitializeDialogFunc(TDialog * pThis, const void * pIdent, void * extraPtr); // @v12.3.6 @construction
+int    PPInitializeDialogFunc(TDialog * pThis, const void * pIdent, void * extraPtr); // @v12.3.6
+SUiLayout * PPLoadDl600Layout(const void * pIdent, void * extraPtr); // @v12.5.7 @construction
 //
 //
 //

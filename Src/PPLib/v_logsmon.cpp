@@ -1,5 +1,5 @@
 // V_LOGSMON.CPP
-// A. Kurilov 2008, 2009, 2015, 2016, 2018, 2019, 2020, 2023, 2024
+// A. Kurilov 2008, 2009, 2015, 2016, 2018, 2019, 2020, 2023, 2024, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -359,18 +359,20 @@ int PPViewLogsMonitor::UpdateTempTable(LogsArray *pExpiredLogs)
 						if(tail.Divide('\t', time, log_line) > 0 && time.Len()>4) {
 							strtotime(time, 0, &log_record.Tm);
 							// #2 необязательно имя пользователя до 2-й табуляции
-							if(log_line.Divide('\t', t, tail) > 0)
-								t.ToOem().CopyTo(log_record.UserName, sizeof(log_record.UserName));
+							if(log_line.Divide('\t', t, tail) > 0) {
+								t.Transf(CTRANSF_OUTER_TO_INNER).CopyTo(log_record.UserName, sizeof(log_record.UserName)); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER) 
+							}
 							else
 								tail = log_line;
 							// #3 необязательно имя базы до 3-й табуляции
-							if(tail.Divide('\t', t, log_line) > 0)
-								t.ToOem().CopyTo(log_record.DbSymb, sizeof(log_record.DbSymb));
+							if(tail.Divide('\t', t, log_line) > 0) {
+								t.Transf(CTRANSF_OUTER_TO_INNER).CopyTo(log_record.DbSymb, sizeof(log_record.DbSymb)); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
+							}
 							else
 								log_line = tail;
 							// #4 обязательно сообщение до конца
 							if(log_line.NotEmpty()) {
-								log_line.ToOem().CopyTo(log_record.Text, sizeof(log_record.Text));
+								log_line.Transf(CTRANSF_OUTER_TO_INNER).CopyTo(log_record.Text, sizeof(log_record.Text)); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER) 
 								THROW_DB(P_TmpTbl->insertRecBuf(&log_record));
 							}
 						}

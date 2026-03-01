@@ -7565,6 +7565,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @directory_input                     "@{input}"
 @directory_output                    "@{output}"
 @directory_log                       "Журналы"
+@directory_local                     "Локальный каталог пользователя"
 @file                                "Файл"
 @files                               "Файлы"
 @filetoupload                        "Файл для выгрузки"
@@ -19300,6 +19301,34 @@ PPHSC_RU_SHIPPINGMETH          "ФТДКРСпособОтгрузки"        /
 PPHSC_RU_CHAINOFSTORESKIND     "ФТДТТСетеваяПринадлежность" // Tsaritsyno
 PPHSC_RU_STOREKIND             "ФТДТТФорматТорговойТочки"   // Tsaritsyno
 PPHSC_RU_DISTRIBUTIONCHANNEL   "КаналСбыта"                 // Tsaritsyno
+//
+// Книги продаж/покупок
+//
+PPHSC_RU_VATB_BUYIAMT         "СтоимПокупВ"   // @v12.5.7
+PPHSC_RU_VATB_SLLIAMT         "СтоимПродСФ"   // @v12.5.7
+PPHSC_RU_VATB_SLLIAMT_CUR     "СтоимПродСФВ"  // @v12.5.7
+PPHSC_RU_VATB_SLLIAMT_VATFREE "СтоимПродОсв"  // @v12.5.7
+PPHSC_RU_VATB_SLLIAMT_VAT00   "СтоимПродСФ0"  // @v12.5.7
+PPHSC_RU_VATB_SLLIAMT_VAT10   "СтоимПродСФ10" // @v12.5.7
+PPHSC_RU_VATB_SLLIAMT_VAT18   "СтоимПродСФ18" // @v12.5.7
+PPHSC_RU_VATB_SLLIAMT_VAT20   "СтоимПродСФ20" // @v12.5.7
+PPHSC_RU_VATB_SLLIAMT_VAT22   "СтоимПродСФ22" // @v12.5.7
+PPHSC_RU_VATB_SLLIAMT_VAT05   "СтоимПродСФ5"  // @v12.5.7
+PPHSC_RU_VATB_SLLIAMT_VAT07   "СтоимПродСФ7"  // @v12.5.7
+
+PPHSC_RU_VATB_ITEMN           "НомерПор"     // @v12.5.7
+PPHSC_RU_VATB_CINVCN          "НомКСчФПрод"  // @v12.5.7
+PPHSC_RU_VATB_CINVCD          "ДатаКСчФПрод" // @v12.5.7
+PPHSC_RU_VATB_INVCN           "НомСчФПрод"   // @v12.5.7
+PPHSC_RU_VATB_INVCD           "ДатаСчФПрод"  // @v12.5.7
+PPHSC_RU_VATB_BUYIVATDEDUCT   "СумНДСВыч"    // @v12.5.7
+PPHSC_RU_VATB_SLLIAMT_SVAT10  "СумНДССФ10"   // @v12.5.7
+PPHSC_RU_VATB_SLLIAMT_SVAT18  "СумНДССФ18"   // @v12.5.7
+PPHSC_RU_VATB_SLLIAMT_SVAT20  "СумНДССФ20"   // @v12.5.7
+PPHSC_RU_VATB_SLLIAMT_SVAT22  "СумНДССФ22"   // @v12.5.7
+PPHSC_RU_VATB_SLLIAMT_SVAT05  "СумНДССФ5"    // @v12.5.7
+PPHSC_RU_VATB_SLLIAMT_SVAT07  "СумНДССФ7"    // @v12.5.7
+
 //
 // Далее следуют 16 типов документов, используемых системой VETIS. Текст точно соответствует xsd спецификации dictionary_v2.0.xsd.
 // Номер после PPHSC_VETIS_DOCTYP_ точно соответствует значению enum в спецификации (хотя, это, скорее всего, и не важно).

@@ -9418,11 +9418,8 @@ private:
 	xpath_ast_node(const xpath_ast_node&);
 	xpath_ast_node& operator=(const xpath_ast_node&);
 
-	template <class Comp> static bool compare_eq(xpath_ast_node* lhs,
-	    xpath_ast_node* rhs,
-	    const xpath_context& c,
-	    const xpath_stack& stack,
-	    const Comp& comp)
+	template <class Comp> static bool compare_eq(xpath_ast_node* lhs, xpath_ast_node* rhs, const xpath_context& c,
+	    const xpath_stack& stack, const Comp& comp)
 	{
 		xpath_value_type lt = lhs->rettype(), rt = rhs->rettype();
 
@@ -9433,23 +9430,18 @@ private:
 				return comp(lhs->eval_number(c, stack), rhs->eval_number(c, stack));
 			else if(lt == xpath_type_string || rt == xpath_type_string) {
 				xpath_allocator_capture cr(stack.result);
-
 				xpath_string ls = lhs->eval_string(c, stack);
 				xpath_string rs = rhs->eval_string(c, stack);
-
 				return comp(ls, rs);
 			}
 		}
 		else if(lt == xpath_type_node_set && rt == xpath_type_node_set) {
 			xpath_allocator_capture cr(stack.result);
-
 			xpath_node_set_raw ls = lhs->eval_node_set(c, stack, nodeset_eval_all);
 			xpath_node_set_raw rs = rhs->eval_node_set(c, stack, nodeset_eval_all);
-
 			for(const xpath_node* li = ls.begin(); li != ls.end(); ++li)
 				for(const xpath_node* ri = rs.begin(); ri != rs.end(); ++ri) {
 					xpath_allocator_capture cri(stack.result);
-
 					if(comp(string_value(*li, stack.result), string_value(*ri, stack.result)))
 						return true;
 				}
@@ -9461,41 +9453,31 @@ private:
 				swap(lhs, rhs);
 				swap(lt, rt);
 			}
-
 			if(lt == xpath_type_boolean)
 				return comp(lhs->eval_boolean(c, stack), rhs->eval_boolean(c, stack));
 			else if(lt == xpath_type_number) {
 				xpath_allocator_capture cr(stack.result);
-
 				double l = lhs->eval_number(c, stack);
 				xpath_node_set_raw rs = rhs->eval_node_set(c, stack, nodeset_eval_all);
-
 				for(const xpath_node* ri = rs.begin(); ri != rs.end(); ++ri) {
 					xpath_allocator_capture cri(stack.result);
-
 					if(comp(l, convert_string_to_number(string_value(*ri, stack.result).c_str())))
 						return true;
 				}
-
 				return false;
 			}
 			else if(lt == xpath_type_string) {
 				xpath_allocator_capture cr(stack.result);
-
 				xpath_string l = lhs->eval_string(c, stack);
 				xpath_node_set_raw rs = rhs->eval_node_set(c, stack, nodeset_eval_all);
-
 				for(const xpath_node* ri = rs.begin(); ri != rs.end(); ++ri) {
 					xpath_allocator_capture cri(stack.result);
-
 					if(comp(l, string_value(*ri, stack.result)))
 						return true;
 				}
-
 				return false;
 			}
 		}
-
 		assert(false && "Wrong types");         // unreachable
 		return false;
 	}
@@ -9505,65 +9487,47 @@ private:
 		return type == xpath_node_set::type_sorted ? eval != nodeset_eval_all : eval == nodeset_eval_any;
 	}
 
-	template <class Comp> static bool compare_rel(xpath_ast_node* lhs,
-	    xpath_ast_node* rhs,
-	    const xpath_context& c,
-	    const xpath_stack& stack,
-	    const Comp& comp)
+	template <class Comp> static bool compare_rel(xpath_ast_node* lhs, xpath_ast_node* rhs, const xpath_context& c,
+	    const xpath_stack& stack, const Comp& comp)
 	{
 		xpath_value_type lt = lhs->rettype(), rt = rhs->rettype();
-
 		if(lt != xpath_type_node_set && rt != xpath_type_node_set)
 			return comp(lhs->eval_number(c, stack), rhs->eval_number(c, stack));
 		else if(lt == xpath_type_node_set && rt == xpath_type_node_set) {
 			xpath_allocator_capture cr(stack.result);
-
 			xpath_node_set_raw ls = lhs->eval_node_set(c, stack, nodeset_eval_all);
 			xpath_node_set_raw rs = rhs->eval_node_set(c, stack, nodeset_eval_all);
-
 			for(const xpath_node* li = ls.begin(); li != ls.end(); ++li) {
 				xpath_allocator_capture cri(stack.result);
-
 				double l = convert_string_to_number(string_value(*li, stack.result).c_str());
-
 				for(const xpath_node* ri = rs.begin(); ri != rs.end(); ++ri) {
 					xpath_allocator_capture crii(stack.result);
-
 					if(comp(l, convert_string_to_number(string_value(*ri, stack.result).c_str())))
 						return true;
 				}
 			}
-
 			return false;
 		}
 		else if(lt != xpath_type_node_set && rt == xpath_type_node_set) {
 			xpath_allocator_capture cr(stack.result);
-
 			double l = lhs->eval_number(c, stack);
 			xpath_node_set_raw rs = rhs->eval_node_set(c, stack, nodeset_eval_all);
-
 			for(const xpath_node* ri = rs.begin(); ri != rs.end(); ++ri) {
 				xpath_allocator_capture cri(stack.result);
-
 				if(comp(l, convert_string_to_number(string_value(*ri, stack.result).c_str())))
 					return true;
 			}
-
 			return false;
 		}
 		else if(lt == xpath_type_node_set && rt != xpath_type_node_set) {
 			xpath_allocator_capture cr(stack.result);
-
 			xpath_node_set_raw ls = lhs->eval_node_set(c, stack, nodeset_eval_all);
 			double r = rhs->eval_number(c, stack);
-
 			for(const xpath_node* li = ls.begin(); li != ls.end(); ++li) {
 				xpath_allocator_capture cri(stack.result);
-
 				if(comp(convert_string_to_number(string_value(*li, stack.result).c_str()), r))
 					return true;
 			}
-
 			return false;
 		}
 		else{

@@ -1075,7 +1075,6 @@ int DBDataCell::CreateSqlExpr(Generator_SQL & rGen) const
 	else if(GetId() == DBConst_ID) {
 		char   temp[512];
 		bool   local_done = false;
-		// @v12.4.4 {
 		if(rGen.GetServerType() == sqlstSQLite) {
 			if(C.baseType() == BTS_DATE) {
 				ultoa(C.dval.v, temp, 10);
@@ -1086,7 +1085,20 @@ int DBDataCell::CreateSqlExpr(Generator_SQL & rGen) const
 				local_done = true;
 			}
 		}
-		// } @v12.4.4 
+		else if(rGen.GetServerType() == sqlstMySQL) {
+			if(C.baseType() == BTS_DATE) {
+				if(SMySqlDbProvider::TypeDateAsInt32) {
+					ultoa(C.dval.v, temp, 10);
+					local_done = true;
+				}
+			}
+			else if(C.baseType() == BTS_TIME) {
+				if(SMySqlDbProvider::TypeTimeAsInt32) {
+					ultoa(C.tval.v, temp, 10);
+					local_done = true;
+				}
+			}
+		}
 		if(!local_done)
 			C.tostring(COMF_SQL, temp);
 		rGen.Text(temp);

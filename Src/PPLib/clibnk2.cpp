@@ -1,5 +1,5 @@
 // CLIBNK2.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Модуль формирования данных для передачи в системы клиент-банк
 //
@@ -319,7 +319,7 @@ static int GetOurInfo(BankStmntItem * pItem)
 		PPID   org_id = GetMainOrgID();
 		THROW(psn_obj.GetPacket(org_id, &org_pack, 0));
 		org_pack.GetRegNumber(PPREGT_TPID, temp_buf); temp_buf.CopyTo(pItem->PayerINN, sizeof(pItem->PayerINN));
-		org_pack.GetRegNumber(PPREGT_KPP,  temp_buf); temp_buf.CopyTo(pItem->PayerKPP, sizeof(pItem->PayerKPP)); // @v7.4.5
+		org_pack.GetRegNumber(PPREGT_KPP,  temp_buf); temp_buf.CopyTo(pItem->PayerKPP, sizeof(pItem->PayerKPP));
 		org_pack.GetRegNumber(PPREGT_BIC, temp_buf); temp_buf.CopyTo(pItem->PayerBankCode, sizeof(pItem->PayerBankCode));
 		org_pack.GetRegNumber(PPREGT_BNKCORRACC, temp_buf); temp_buf.CopyTo(pItem->PayerBankCorr, sizeof(pItem->PayerBankCorr));
 		STRNSCPY(pItem->PayerName, org_pack.Rec.Name);

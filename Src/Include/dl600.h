@@ -1,5 +1,5 @@
 // DL600.H
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2011, 2015, 2016б 2017, 2018, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2011, 2015, 2016б 2017, 2018, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #ifndef __DL600_H
@@ -295,7 +295,9 @@ public:
 		sfDbtCompress   = 0x0080,
 		sfDbtBalanced   = 0x0100,
 		sfDbtTemporary  = 0x0200,
-		sfDbtSystem     = 0x0400
+		sfDbtSystem     = 0x0400,
+		sfOnDemand      = 0x0800, // @v12.5.7 файл таблицы создается только по требованию. Флаг применяется для тех ситуаций,
+			// когда для сервера DBMS необходимо создать все рабочие таблицы. Для таблицы с этим флагом правило игнорируется.
 	};
 	//
 	// Descr: Флаги областей индексов таблиц базы данных
@@ -387,6 +389,10 @@ public:
 		cuifSupplementCmdSymb   = 43, // @v12.3.7 string
 		cuifSupplementText      = 44, // @v12.3.7 string
 		cuifDesign              = 45, // @v12.3.9 string Вариант дизайна комплексного UI-элемента
+		//
+		cdbtDBMS                = 61, // @v12.5.7 (опция таблицы базы данных) string символ типа сервера базы данных, для которого допустимо 
+			// работать с этой таблицей. Вероятно, эта опция будет применяться очень редко. Мотивацией для ввода ее послужила необходимость 
+			// определить в общем описании DB-таблиц специализированную таблицу SQLite для хранения текущий состояний.
 	};
 	struct IfaceBase {
 		bool   FASTCALL IsEq(const IfaceBase & rS) const { return (ID == rS.ID && Flags == rS.Flags); }
@@ -856,6 +862,7 @@ public:
 	//   константы DlScope::cucmSymbolIdent == symbolIdent
 	//
 	const  DlScope * GetDialogScopeBySymbolIdent_Const(uint symbolIdent) const;
+	const  DlScope * GetLayoutScopeBySymbolIdent_Const(uint symbolIdent) const;
 
 	enum {
 		crsymfCatCurScope = 0x0001,
@@ -959,7 +966,7 @@ public:
 	//   же является вложенной).
 	//
 	DLSYMBID EnterViewScope(const char * pSymb);
-	DLSYMBID EnterDialogScope(const char * pSymb);
+	// @v12.5.7 DLSYMBID EnterDialogScope(const char * pSymb);
 	int    PushScope();
 	int    PopScope();
 	int    CompleteExportDataStruc();
@@ -1003,11 +1010,11 @@ public:
 	//   ID созданного элемента описания.
 	//   0  - error.
 	//
-	uint   AddUiCtrl(int kind, const CtmToken & rSymb, const CtmToken & rText, DLSYMBID typeID, const UiRelRect & rRect);
-	uint   AddUiButton(const CtmToken & rSymb, const CtmToken & rText, const UiRelRect & rRect, const CtmToken & rCmdSymb);
-	uint   AddUiListbox(const CtmToken & rSymb, const CtmToken & rText, const UiRelRect & rRect, const CtmToken & rColumns);
-	uint   AddUiCluster(int kind, const CtmToken & rSymb, const CtmToken & rText, DLSYMBID typeID, const UiRelRect & rRect);
-	int    AddUiClusterItem(const CtmToken & rText, const UiRelRect & rRect, const CtmToken & rDescr);
+	// @v12.5.7 uint   AddUiCtrl(int kind, const CtmToken & rSymb, const CtmToken & rText, DLSYMBID typeID, const UiRelRect & rRect);
+	// @v12.5.7 uint   AddUiButton(const CtmToken & rSymb, const CtmToken & rText, const UiRelRect & rRect, const CtmToken & rCmdSymb);
+	// @v12.5.7 uint   AddUiListbox(const CtmToken & rSymb, const CtmToken & rText, const UiRelRect & rRect, const CtmToken & rColumns);
+	// @v12.5.7 uint   AddUiCluster(int kind, const CtmToken & rSymb, const CtmToken & rText, DLSYMBID typeID, const UiRelRect & rRect);
+	// @v12.5.7 int    AddUiClusterItem(const CtmToken & rText, const UiRelRect & rRect, const CtmToken & rDescr);
 	int    AddTempFldProp(const CtmToken & rSymb, long val);
 	int    AddTempFldProp(const CtmToken & rSymb, double val);
 	int    AddTempFldProp(const CtmToken & rSymb, const char * pStr);
@@ -1093,7 +1100,8 @@ private:
 			// заданного вида. Внутри этой области уже не искать!
 	};
 	int    Helper_GetScopeList(int kind, int recursive, StrAssocArray * pList) const;
-	DlScope * GetCurDialogScope();
+	// @v12.5.7 DlScope * GetCurDialogScope();
+	const  DlScope * Helper_GetViewScopeBySymbolIdent_Const(uint32 viewKind, uint symbolIdent) const; // @v12.5.7
 	int    GetUiSymbSeries(const char * pSymb, SString & rSerBuf, DLSYMBID * pId);
 	bool   Helper_AddBFunc(const char * pFuncName, uint implID, const char * pRetType, va_list pArgList);
 	bool   CDECL AddBOp(int op, uint implID, const char * pRetType, ...);

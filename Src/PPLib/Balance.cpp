@@ -1,5 +1,5 @@
 // BALANCE.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2007, 2008, 2009, 2012, 2014, 2015, 2016, 2018, 2020, 2022, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2007, 2008, 2009, 2012, 2014, 2015, 2016, 2018, 2020, 2022, 2025, 2026
 // @codepage UTF-8
 // @Kernel
 //
@@ -142,8 +142,9 @@ int Balance::GetTurnover(PPID bal, LDATE beg, LDATE end, double * dbt, double * 
 
 int Balance::GetBalance(PPID bal, LDATE beg, LDATE end, double row[])
 {
-	double d, c;
-	SETIFZ(end, encodedate(31, 12, 3000));
+	double d;
+	double c;
+	SETIFZ(end, MAXDATEVALID);
 	if(!GetRest(bal, end, &row[2], &row[3]))
 		return 0;
 	if(!GetRest(bal, beg ? plusdate(beg, -1) : ZERODATE, &d, &c))

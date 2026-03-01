@@ -538,7 +538,7 @@ typedef int32               TYPEID;
 //
 //
 #define ASSIGN_PTR(ptr,val)   if(ptr) *(ptr) = (val);
-#define RVALUEPTR(val,ptr)    ((ptr)?((val = *(ptr)), 1) : 0)
+#define RVALUEPTR(val,ptr)    ((ptr)?((val = *(ptr)), true) : false)
 #define DEREFPTROR(ptr,alt)   ((ptr)?(*(ptr)):(alt))
 #define DEREFPTRORZ(ptr)      DEREFPTROR(ptr,0)
 #define CENUMINCR(et, v)      (v) = static_cast<et>(static_cast<int>(v)+1) // @v11.3.8 Макрос для обхода ошибки c++ при инкременте enum-value, унаследованного из c-кода
@@ -1465,6 +1465,8 @@ public:
 	static constexpr uint32 SSqlStmtSignature_Select = 0x194AF5CCU; // @v12.5.6 Сигнатура объекта DBTable::SelectStmt
 	static constexpr uint32 DBTableSignature  = 0x6E805ED7; // @v12.5.2 Сигнатура объекта DBTable
 	static constexpr uint64 DBConnSignature   = 0xDE4F9DF4FE840FDEULL; // @v12.5.4 Сигнатура объекта DbProvider::Connection
+	static constexpr uint32 Signature_TView   = 0x09990999UL;          // @v12.5.7 Сигнатура классов, порожденных от TView до уровня TWindow (не включая TWindow)
+	static constexpr uint32 Signature_TWindow = 0x09990997UL;          // @v12.5.7 Сигнатура классов, порожденных от TWindow
 };
 // @v11.7.4 extern const SlConstParam _SlConst_Removed;
 //
@@ -3459,7 +3461,7 @@ public:
 	explicit DataType(uint32 sz) : S(sz) {}
 	DataType() : S(0) {}
 	virtual uint32 size() const;
-	virtual int    comp(const void * i1, const void * i2) const;
+	virtual int    Cmp_(const void * pItem1, const void * pItem2) const;
 	virtual char * tostr(const void * pData, long format, char * pBuf) const;
 	//
 	// Descr: Функция должна преобразовать бинарное представление данные pData
@@ -3490,6 +3492,7 @@ TYPEID     FASTCALL bt2st(int baseType);
 uint32 FASTCALL stsize(TYPEID t);
 int    FASTCALL stcomp(TYPEID t, const void * i1, const void * i2);
 char * FASTCALL sttostr(TYPEID t, const void * d, long f, char * b);
+SString & FASTCALL sttosstr(TYPEID t, const void * d, long f, SString & rBuf); // @v12.5.7
 int    FASTCALL stfromstr(TYPEID t, void * d, long f, const char * b);
 int    FASTCALL stbase(TYPEID t);
 void   FASTCALL sttobase(TYPEID t, const void * data, void * baseData);
@@ -4348,7 +4351,22 @@ public:
 	//
 	uint   OneOf(int div, const char * pPattern, int ignoreCase) const;
 	int    Last() const;
+	//
+	// Descr: Копирует строку this в буфер pS. 
+	//   Если параметр bufLen > 0, то функция копирует не более bufLen байт включая терминальный ноль.
+	//   Если bufLen == 0, то фукнция не контролирует количество скопированных в pS байт.
+	// Returns:
+	//   pS
+	//
 	char * CopyTo(char * pS, size_t bufLen) const;
+	//
+	// Descr: Копирует строку this в буфер pS. Копирует столько данных, сколько есть. Именно
+	//   по-этому функция имеет суффикс _Unsafe().
+	// Note: Функция введена для замены вызова CopyTo(pS, 0) чтобы отделить безопасные вызовы с опасных.
+	// Returns:
+	//   pS
+	//
+	char * CopyTo_Unsafe(char * pS) const;
 	//
 	// Descr: Копирует строку this в pS так, чтобы не перейти максимальный доступный размер bufLen.
 	//   При этом учитывается тот факт, что копируемая строка имеет кодировку utf8 и все символы должны быть скопированы корректно.
@@ -6004,8 +6022,10 @@ int    STDCALL  strtorrng(const char * pBuf, double * pLow, double * pUpp);
 int    FASTCALL strtorrng(const char * pBuf, RealRange & rRng);
 int    FASTCALL strtodoub(const char * pBuf, double *);
 int    FASTCALL strtolong(const char * pBuf, long *);
-int    FASTCALL strtouint(const char * pBuf, uint *);
-int    FASTCALL strtouint(const char * pBuf, ulong *);
+int    FASTCALL strtoint64(const char * pBuf, int64 *); // @v12.5.7
+int    FASTCALL strtouint(const char * pBuf, uint * pVal);
+int    FASTCALL strtouint(const char * pBuf, ulong * pVal);
+int    FASTCALL strtouint64(const char * pBuf, uint64 * pVal); // @v12.5.7
 //
 enum {
 	strtodatefZero     = 0x0001, // Пустая дата
@@ -7914,6 +7934,7 @@ double FASTCALL round(double n, int prec);
 //
 double STDCALL  round(double n, double prec, int dir);
 double FASTCALL R0(double);
+float  FASTCALL R0f(float); // @v12.5.7
 //
 // Descr: Округляет входящий параметр до ближайшего целого числа
 //
@@ -15454,6 +15475,7 @@ double Gamma(double x);
 double GammaIncompleteP(double a, double x);
 double GammaIncompleteQ(double a, double x);
 inline int fsign(double x) { return (x >= 0.0) ? +1 : -1; }
+inline int fsignf(float x) { return (x >= 0.0f) ? +1 : -1; }
 inline int fsignz(double x) { return (x > 0) ? +1 : ((x < 0) ? -1 : 0); }
 FORCEINLINE uint64 mul32x32to64(uint32 x, uint32 y)
 {
@@ -15502,8 +15524,9 @@ struct FRect { // @persistent
 	FRect();
 	FRect(float left, float top, float right, float bottom);
 	FRect(float width, float height);
-	FRect(const TRect & r);
-	FRect(const RECT & r);
+	FRect(const FRect & rS); // @v12.5.7
+	FRect(const TRect & rS);
+	FRect(const RECT & rS);
 	bool   FASTCALL operator == (const FRect & rS) const;
 	bool   FASTCALL operator != (const FRect & rS) const;
 	FRect & Z();

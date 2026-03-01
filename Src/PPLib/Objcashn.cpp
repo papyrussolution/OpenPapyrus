@@ -1127,7 +1127,7 @@ int PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 					p_ed->BnkTermFlags = p_scn->BnkTermFlags;
 					p_ed->PhnSvcID     = p_scn->PhnSvcID;
 					STRNSCPY(p_ed->BnkTermPort, p_scn->BnkTermPort);
-					p_scn->ExtString.CopyTo(p_ed->ExtStrBuf, 0); // Размер буфера p_ed точно отмерен для того, чтобы вместить p_scn->ExtString: см. выше
+					p_scn->ExtString.CopyTo_Unsafe(p_ed->ExtStrBuf); // Размер буфера p_ed точно отмерен для того, чтобы вместить p_scn->ExtString: см. выше
 					if(!p_ed->IsEmpty()) {
 						THROW(P_Ref->PutProp(Obj, *pID, CNPRP_EXTDEVICES, p_ed, ed_size, 0));
 					}
@@ -1362,7 +1362,7 @@ int SelectPrinterFromWinPool(SString & rPrinter)
 		prn_list.swap(0, (uint)(def_prn_id-1));
 	//
 	for(uint j = 0; j < prn_list.getCount(); j++) {
-		temp_buf.Z().Cat(prn_list.at(j).PrinterName).ToOem();
+		temp_buf.Z().Cat(prn_list.at(j).PrinterName).Transf(CTRANSF_OUTER_TO_INNER); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 		p_list->Add(j+1, temp_buf);
 	}
 	{

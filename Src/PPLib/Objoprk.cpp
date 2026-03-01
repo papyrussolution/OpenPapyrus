@@ -34,6 +34,30 @@ bool FASTCALL PPInventoryOpEx::IsEq(const PPInventoryOpEx & rS) const // @v12.5.
 	return eq;
 }
 
+int PPInventoryOpEx::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok  = 1;
+	THROW_SL(pSCtx->Serialize(dir, ID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, WrDnOp, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, WrDnObj, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, WrUpOp, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, WrUpObj, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, AmountCalcMethod, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, AutoFillMethod, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, OnWrOffStatusID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, Flags, rBuf));
+	if(dir < 0) {
+		Tag = PPOBJ_OPRKIND;
+		Prop = OPKPRP_INVENTORY;
+		Reserve1 = 0;
+		Reserve2 = 0;
+		Reserve3[0] = 0;
+		Reserve4 = 0;
+	}
+	CATCHZOK
+	return ok;
+}
+
 /*static*/int FASTCALL PPInventoryOpEx::Helper_GetAccelInputMode(long flags)
 {
 	int    mode = accsliNo;
@@ -84,6 +108,19 @@ bool FASTCALL PPDebtInventOpEx::IsEq(const PPDebtInventOpEx & rS) const
 	else if(Flags != rS.Flags)
 		eq = false;
 	return eq;
+}
+
+int PPDebtInventOpEx::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) // @v12.5.7
+{
+	int    ok = 1;
+	THROW_SL(pSCtx->Serialize(dir, ID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, WrDnOp, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, WrUpOp, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, WrDnGoodsID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, WrUpGoodsID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, Flags, rBuf));
+	CATCHZOK
+	return ok;
 }
 //
 // PPReckonOpEx
@@ -271,6 +308,15 @@ PPBillPoolOpEx & FASTCALL PPBillPoolOpEx::operator = (const PPBillPoolOpEx & src
 	OpList.copy(src.OpList);
 	return *this;
 }
+
+int PPBillPoolOpEx::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) // @v12.5.7
+{
+	int    ok = 1;
+	THROW_SL(pSCtx->Serialize(dir, Flags, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, &OpList, rBuf));
+	CATCHZOK
+	return ok;
+}
 //
 //
 //
@@ -378,6 +424,17 @@ PPDraftOpEx & FASTCALL PPDraftOpEx::operator = (const PPDraftOpEx & s)
 	Flags = s.Flags;
 	memcpy(Reserve, s.Reserve, sizeof(Reserve));
 	return *this;
+}
+
+int PPDraftOpEx::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) // @v12.5.7
+{
+	int    ok = 1;
+	THROW_SL(pSCtx->Serialize(dir, WrOffOpID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, WrOffObjID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, WrOffComplOpID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, Flags, rBuf));
+	CATCHZOK
+	return ok;
 }
 //
 //
@@ -675,27 +732,31 @@ int PPObjOprKind::IsPacketEq(const PPOprKindPacket & rS1, const PPOprKindPacket 
 			}
 		}
 		{
-			if(LOGIC(rS1.P_PoolData) != LOGIC(rS2.P_PoolData))
+			if(LOGIC(rS1.P_PoolData) != LOGIC(rS2.P_PoolData)) {
 				return 0;
+			}
 			else if(rS1.P_PoolData && rS2.P_PoolData) {
-				if(!rS1.P_PoolData->IsEq(*rS2.P_PoolData))
+				if(!rS1.P_PoolData->IsEq(*rS2.P_PoolData)) {
 					return 0;
+				}
 			}
 		}
 		{
 			if(LOGIC(rS1.P_DraftData) != LOGIC(rS2.P_DraftData))
 				return 0;
 			else if(rS1.P_DraftData && rS2.P_DraftData) {
-				if(!rS1.P_DraftData->IsEq(*rS2.P_DraftData))
+				if(!rS1.P_DraftData->IsEq(*rS2.P_DraftData)) {
 					return 0;
+				}
 			}
 		}
 		{
 			if(LOGIC(rS1.P_DIOE) != LOGIC(rS2.P_DIOE))
 				return 0;
 			else if(rS1.P_DIOE && rS2.P_DIOE) {
-				if(!rS1.P_DIOE->IsEq(*rS2.P_DIOE))
+				if(!rS1.P_DIOE->IsEq(*rS2.P_DIOE)) {
 					return 0;
+				}
 			}
 		}
 		/* тут есть сомнения: счетчики могут быть как автономными, так и принадлежащми пакету PPOprKindPacket
@@ -706,126 +767,210 @@ int PPObjOprKind::IsPacketEq(const PPOprKindPacket & rS1, const PPOprKindPacket 
 	return 1;
 }
 
+int PPObjOprKind::DeleteObj(PPID id) { return PutPacket(&id, 0, 0); }
+
+/*virtual*/int PPObjOprKind::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
+{
+	int    ok = -1;
+	if(!(options & not_checkrights)) {
+		THROW(CheckRights(PPR_DEL));
+	}
+	if(!(options & PPObject::user_request) || PPMessage(mfConf|mfYesNo, PPCFM_DELETE) == cmYes) {
+		if(!(options & no_wait_indicator))
+			PPWaitStart();
+		{
+			PPTransaction tra(BIN(options & use_transaction));
+			THROW(tra);
+			options &= ~use_transaction;
+			if(!(options & not_objnotify)) {
+				THROW(SendObjMessage(DBMSG_OBJDELETE, 0, Obj, id, pExtraParam, pObjColl) == DBRPL_OK);
+			}
+			THROW(PutPacket(&id, 0, 0));
+			//THROW(PPObject::RemoveObjV(id, pObjColl, options, pExtraParam));
+			THROW(RemoveSync(id));
+			/* (PutPacket have done it)
+			if(!(options & not_addtolog))
+				DS.LogAction(PPACN_OBJRMV, Obj, id, 0, 0);
+			*/
+			THROW(tra.Commit());
+			ok = 1;
+		}
+		if(!(options & no_wait_indicator))
+			PPWaitStop();
+	}
+	CATCH
+		if(options & PPObject::user_request)
+			PPError();
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+
+int PPObjOprKind::ViewVersion(PPID histID)
+{
+	int    ok = -1;
+	if(histID) {
+		SBuffer buf;
+		PPOprKindPacket pack;
+		ObjVersioningCore * p_ovc = PPRef->P_OvT;
+		if(p_ovc && p_ovc->InitSerializeContext(1)) {
+			SSerializeContext & r_sctx = p_ovc->GetSCtx();
+			SObjID oid;
+			long   vv = 0;
+			THROW(p_ovc->Search(histID, &oid, &vv, &buf) > 0);
+			THROW(Helper_SerializePacket(-1, &pack, buf, &r_sctx, spfInternalHistory));
+			EditPacket(&pack, true/*viewOnly*/);
+			ok = 1;
+		}
+	}
+	CATCHZOKPPERR
+	return ok;
+}
+
 int PPObjOprKind::PutPacket(PPID * pID, PPOprKindPacket * pPack, int use_ta)
 {
 	int    ok = 1;
-	bool   do_obj_ver = false;
+	bool   do_obj_ver = true; // @v12.5.7
+	bool   no_changes = false;
 	int    r = 0;
 	uint   i;
+	PPID   action = 0;
 	PPOpCounter opc_rec;
 	PPOpCounterPacket opc_pack;
 	PPObjOpCounter opc_obj;
 	ObjVersioningCore * p_ovc = P_Ref->P_OvT;
+	SBuffer hist_buf;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		if(pPack->Rec.OpTypeID == PPOPT_INVENTORY) {
-			if(pPack->P_IOE && pPack->P_IOE->Flags & INVOPF_COSTNOMINAL) {
-				pPack->Rec.Flags |= OPKF_BUYING;
-				pPack->Rec.Flags &= ~OPKF_SELLING;
+		if(pPack) {
+			if(pPack->Rec.OpTypeID == PPOPT_INVENTORY) {
+				if(pPack->P_IOE && pPack->P_IOE->Flags & INVOPF_COSTNOMINAL) {
+					pPack->Rec.Flags |= OPKF_BUYING;
+					pPack->Rec.Flags &= ~OPKF_SELLING;
+				}
+				else {
+					pPack->Rec.Flags |= OPKF_SELLING;
+					pPack->Rec.Flags &= ~OPKF_BUYING;
+				}
+			}
+			// AHTOXA
+			r = opc_obj.GetPacket(pPack->Rec.OpCounterID, &opc_pack);
+			if(r > 0) {
+				if(opc_pack.Head.OwnerObjID)
+					opc_pack.Head.OwnerObjID = NZOR(*pID, -1L);
 			}
 			else {
-				pPack->Rec.Flags |= OPKF_SELLING;
-				pPack->Rec.Flags &= ~OPKF_BUYING;
+				THROW(r);
+				opc_pack.Head.OwnerObjID = *pID ? *pID : -1L;
 			}
+			STRNSCPY(opc_pack.Head.CodeTemplate, pPack->OpCntrPack.Head.CodeTemplate);
+			opc_pack.Head.Counter = pPack->OpCntrPack.Head.Counter;
+			opc_pack.Head.Flags   = pPack->OpCntrPack.Head.Flags;
+			opc_pack.Init(pPack->OpCntrPack.P_Items);
+			THROW(opc_obj.PutPacket(&pPack->Rec.OpCounterID, &opc_pack, 0));
+			pPack->OpCntrPack.Head.ID = pPack->Rec.OpCounterID;
+			// } AHTOXA
 		}
-		// AHTOXA
-		THROW(r = opc_obj.GetPacket(pPack->Rec.OpCounterID, &opc_pack));
-		if(r > 0) {
-			if(opc_pack.Head.OwnerObjID)
-				opc_pack.Head.OwnerObjID = NZOR(*pID, -1L);
-		}
-		else
-			opc_pack.Head.OwnerObjID = *pID ? *pID : -1L;
-		STRNSCPY(opc_pack.Head.CodeTemplate, pPack->OpCntrPack.Head.CodeTemplate);
-		opc_pack.Head.Counter = pPack->OpCntrPack.Head.Counter;
-		opc_pack.Head.Flags   = pPack->OpCntrPack.Head.Flags;
-		opc_pack.Init(pPack->OpCntrPack.P_Items);
-		THROW(opc_obj.PutPacket(&pPack->Rec.OpCounterID, &opc_pack, 0));
-		pPack->OpCntrPack.Head.ID = pPack->Rec.OpCounterID;
-		// } AHTOXA
 		{
 			if(*pID) {
+				PPOprKindPacket org_pack;
+				THROW(GetPacket(*pID, &org_pack) > 0);
+				if(pPack && IsPacketEq(*pPack, org_pack, 0)) {
+					no_changes = true;
+				}
 				if(pPack) {
-					PPOprKindPacket org_pack;
-					THROW(GetPacket(*pID, &org_pack) > 0);
-					if(IsPacketEq(*pPack, org_pack, 0)) {
+					if(no_changes) {
 						ok = -1;
 					}
 					else {
-						if(do_obj_ver) {
-							if(p_ovc && p_ovc->InitSerializeContext(0)) {
-								SSerializeContext & r_sctx = p_ovc->GetSCtx();
-								// @todo THROW(SerializePacket(+1, &org_pack, hist_buf, &r_sctx));
-							}
+						THROW(CheckRights(PPR_MOD));
+						if(do_obj_ver && p_ovc && p_ovc->InitSerializeContext(0)) {
+							SSerializeContext & r_sctx = p_ovc->GetSCtx();
+							THROW(Helper_SerializePacket(+1, &org_pack, hist_buf, &r_sctx, spfInternalHistory));
 						}
-
-						//THROW(UpdateByID(this, obj_type, *pID, &pPack->Rec, 0));
-						//(temp_buf = pPack->Text).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-						//THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(obj_type, *pID, PPTRPROP_BIZSCORE2_TEXT), temp_buf, 0));
-						//DS.LogAction(PPACN_OBJUPD, obj_type, *pID, 0, 0);
+						{
+							THROW_DB(deleteFrom(&P_Ref->Prop, 0, (P_Ref->Prop.ObjType == Obj && P_Ref->Prop.ObjID == *pID && P_Ref->Prop.Prop <= PP_MAXATURNTEMPLATES)));
+							THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 0/*logAction*/, 0));
+							if(org_pack.Rec.OpCounterID != pPack->Rec.OpCounterID) {
+								if(P_Ref->GetItem(PPOBJ_OPCOUNTER, org_pack.Rec.OpCounterID, &opc_rec) > 0) {
+									if(opc_rec.OwnerObjID) {
+										THROW(opc_obj.PutPacket(&org_pack.Rec.OpCounterID, 0, 0));
+									}
+								}
+							}
+							action = PPACN_OBJUPD;
+							Dirty(*pID);
+						}
 					}
 				}
 				else {
-					//THROW(RemoveByID(this, *pID, 0));
-					//THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(obj_type, *pID, PPTRPROP_BIZSCORE2_TEXT), temp_buf.Z(), 0));
-					//DS.LogAction(PPACN_OBJRMV, obj_type, *pID, 0, 0);
+					THROW(CheckRights(PPR_DEL));
+					{
+						if(do_obj_ver && p_ovc && p_ovc->InitSerializeContext(0)) {
+							SSerializeContext & r_sctx = p_ovc->GetSCtx();
+							THROW(Helper_SerializePacket(+1, &org_pack, hist_buf, &r_sctx, spfInternalHistory));
+						}
+						//
+						// Вызов P_Ref->RemoveItem заменил на deleteFrom & RemoveProperty из-за того, что
+						// P_Ref->RemoveItem вызывает широковещательное сообщение об удалении объекта, но 
+						// его уже (скорее всего) вызывали выше по стеку в PPObjOprKind::RemoveObjV()
+						// 
+						//THROW(P_Ref->RemoveItem(Obj, *pID, 0));
+						{
+							THROW_DB(deleteFrom(P_Ref, 0, (P_Ref->ObjType == Obj && P_Ref->ObjID == *pID)));
+							THROW(P_Ref->RemoveProperty(Obj, *pID, 0, 0));
+						}
+					}
+					action = PPACN_OBJRMV;
 				}
 			}
 			else if(pPack) {
-				//*pID = pPack->Rec.ID;
-				//THROW(AddByID(this, pID, &pPack->Rec, 0));
-				//(temp_buf = pPack->Text).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-				//THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(obj_type, *pID, PPTRPROP_BIZSCORE2_TEXT), temp_buf, 0));
-				//pPack->Rec.ID = *pID;
+				THROW(CheckRights(PPR_INS));
+				*pID = pPack->Rec.ID;
+				THROW(P_Ref->AddItem(PPOBJ_OPRKIND, pID, &pPack->Rec, 0));
+				action = 0; // P_Ref->AddItem вставит событие PPACN_OBJADD
+				pPack->Rec.ID = *pID;
 			}
 		}
-		if(*pID) {
-			PPOprKind org_rec;
-			PPID   prop = 0;
-			THROW(P_Ref->GetItem(Obj, *pID, &org_rec) > 0);
-			THROW_DB(deleteFrom(&P_Ref->Prop, 0, (P_Ref->Prop.ObjType == Obj && P_Ref->Prop.ObjID == *pID && P_Ref->Prop.Prop <= PP_MAXATURNTEMPLATES)));
-			THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
-			if(org_rec.OpCounterID != pPack->Rec.OpCounterID) {
-				if(P_Ref->GetItem(PPOBJ_OPCOUNTER, org_rec.OpCounterID, &opc_rec) > 0) {
-					if(opc_rec.OwnerObjID) {
-						THROW(opc_obj.PutPacket(&org_rec.OpCounterID, 0, 0));
-					}
+		if(pPack && !no_changes) {
+			for(i = 0; i < pPack->ATTmpls.getCount(); i++) {
+				THROW(P_Ref->PutProp(Obj, *pID, static_cast<PPID>(i+1), &pPack->ATTmpls.at(i), sizeof(PPAccTurnTempl), 0));
+			}
+			THROW(P_Ref->PutPropVlrString(Obj, *pID, OPKPRP_EXTSTRDATA, pPack->ExtString));
+			THROW(P_Ref->PutPropArray(Obj, *pID, OPKPRP_EXAMTLIST, &pPack->Amounts, 0));
+			switch(pPack->Rec.OpTypeID) {
+				case PPOPT_GENERIC:
+					THROW(P_Ref->PutPropArray(PPOBJ_OPRKIND, *pID, OPKPRP_GENLIST2, pPack->P_GenList, 0));
+					break;
+				case PPOPT_POOL:
+					THROW(SetPoolExData(*pID, pPack->P_PoolData, 0));
+					break;
+				case PPOPT_DRAFTRECEIPT:
+				case PPOPT_DRAFTEXPEND:
+				case PPOPT_DRAFTTRANSIT:
+				case PPOPT_DRAFTQUOTREQ:
+					THROW(SetDraftExData(*pID, pPack->P_DraftData));
+					break;
+				case PPOPT_INVENTORY:
+					THROW(P_Ref->PutProp(Obj, *pID, OPKPRP_INVENTORY, pPack->P_IOE));
+					break;
+			}
+			if(pPack->Rec.Flags & OPKF_RECKON) {
+				THROW(SetReckonExData(*pID, pPack->P_ReckonData, 0));
+			}
+			if(pPack->Rec.SubType == OPSUBT_DEBTINVENT) {
+				THROW(P_Ref->PutProp(Obj, *pID, OPKPRP_DEBTINVENT, pPack->P_DIOE));
+			}
+		}
+		if(action) {
+			PPID   hid = 0; // Версионный идентификатор для сохранения в системном журнале
+			if(*pID && do_obj_ver && hist_buf.GetAvailableSize()) {
+				if(p_ovc && p_ovc->InitSerializeContext(0)) {
+					THROW(p_ovc->Add(&hid, SObjID(Obj, *pID), &hist_buf, 0));
 				}
 			}
-			Dirty(*pID);
-		}
-		else {
-			*pID = pPack->Rec.ID;
-			THROW(P_Ref->AddItem(PPOBJ_OPRKIND, pID, &pPack->Rec, 0));
-		}
-		for(i = 0; i < pPack->ATTmpls.getCount(); i++) {
-			THROW(P_Ref->PutProp(Obj, *pID, static_cast<PPID>(i+1), &pPack->ATTmpls.at(i), sizeof(PPAccTurnTempl), 0));
-		}
-		THROW(P_Ref->PutPropVlrString(Obj, *pID, OPKPRP_EXTSTRDATA, pPack->ExtString));
-		THROW(P_Ref->PutPropArray(Obj, *pID, OPKPRP_EXAMTLIST, &pPack->Amounts, 0));
-		switch(pPack->Rec.OpTypeID) {
-			case PPOPT_GENERIC:
-				THROW(P_Ref->PutPropArray(PPOBJ_OPRKIND, *pID, OPKPRP_GENLIST2, pPack->P_GenList, 0));
-				break;
-			case PPOPT_POOL:
-				THROW(SetPoolExData(*pID, pPack->P_PoolData, 0));
-				break;
-			case PPOPT_DRAFTRECEIPT:
-			case PPOPT_DRAFTEXPEND:
-			case PPOPT_DRAFTTRANSIT:
-			case PPOPT_DRAFTQUOTREQ:
-				THROW(SetDraftExData(*pID, pPack->P_DraftData));
-				break;
-			case PPOPT_INVENTORY:
-				THROW(P_Ref->PutProp(Obj, *pID, OPKPRP_INVENTORY, pPack->P_IOE));
-				break;
-		}
-		if(pPack->Rec.Flags & OPKF_RECKON) {
-			THROW(SetReckonExData(*pID, pPack->P_ReckonData, 0));
-		}
-		if(pPack->Rec.SubType == OPSUBT_DEBTINVENT) {
-			THROW(P_Ref->PutProp(Obj, *pID, OPKPRP_DEBTINVENT, pPack->P_DIOE));
+			DS.LogAction(action, Obj, *pID, hid, 0);
 		}
 		THROW(tra.Commit());
 	}
@@ -919,7 +1064,8 @@ struct PPDraftOpEx_Strg {
 
 int PPObjOprKind::SetDraftExData(PPID id, const PPDraftOpEx * pData)
 {
-	PPDraftOpEx_Strg strg, * p_strg = 0;
+	PPDraftOpEx_Strg strg;
+	PPDraftOpEx_Strg * p_strg = 0;
 	size_t sz = 0;
 	if(pData) {
 		p_strg = &strg;
@@ -2820,7 +2966,7 @@ void OprKindDialog::editPoolOptions()
 		THROW_MEM(SETIFZ(P_Data->P_PoolData, new PPBillPoolOpEx));
 		op_type_list.addzlist(PPOPT_ACCTURN, PPOPT_PAYMENT, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND,
 			PPOPT_GOODSRETURN, PPOPT_GOODSREVAL, PPOPT_GOODSORDER, PPOPT_GOODSMODIF, PPOPT_GOODSACK,
-			PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTQUOTREQ, 0L); // @v10.5.7 PPOPT_DRAFTQUOTREQ
+			PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTQUOTREQ, 0L);
 		THROW(CheckDialogPtr(&(dlg = new OpkPoolDialog(&op_type_list))));
 		dlg->setDTS(P_Data);
 		if(ExecView(dlg) == cmOK)
@@ -2858,7 +3004,7 @@ int PPObjOprKind::Edit(PPID * pID, long opTypeID, PPID linkOpID)
 			done = 1;
 	}
 	if(!done) {
-		for(bool valid_data = false; !valid_data && EditPacket(&pack) > 0;) {
+		for(bool valid_data = false; !valid_data && EditPacket(&pack, false) > 0;) {
 			THROW(PutPacket(pID, &pack, 1));
 			valid_data = true;
 			r = cmOK;
@@ -2868,7 +3014,7 @@ int PPObjOprKind::Edit(PPID * pID, long opTypeID, PPID linkOpID)
 	return ok ? r : 0;
 }
 
-int PPObjOprKind::EditPacket(PPOprKindPacket * pPack)
+int PPObjOprKind::EditPacket(PPOprKindPacket * pPack, bool viewOnly)
 {
 	int    ok = -1;
 	uint   dlg_id = DLG_OPRKIND;
@@ -2893,19 +3039,26 @@ int PPObjOprKind::EditPacket(PPOprKindPacket * pPack)
 	}
 	dlg = new OprKindDialog(dlg_id, pPack);
 	if(CheckDialogPtr(&dlg)) {
-		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
-			if(dlg->getDTS(pPack)) {
-				if(!CheckName(pPack->Rec.ID, pPack->Rec.Name, 0))
-					dlg->selectCtrl(CTL_OPRKIND_NAME);
-				else if(!CheckDupSymb(pPack->Rec.ID, pPack->Rec.Symb))
-					PPErrorByDialog(dlg, CTL_OPRKIND_SYMB);
-				else
-					ok = valid_data = 1;
+		if(viewOnly) {
+			dlg->enableCommand(cmOK, false);
+			ExecView(dlg);
+		}
+		else {
+			for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
+				if(dlg->getDTS(pPack)) {
+					if(!CheckName(pPack->Rec.ID, pPack->Rec.Name, 0))
+						dlg->selectCtrl(CTL_OPRKIND_NAME);
+					else if(!CheckDupSymb(pPack->Rec.ID, pPack->Rec.Symb))
+						PPErrorByDialog(dlg, CTL_OPRKIND_SYMB);
+					else
+						ok = valid_data = 1;
+				}
 			}
 		}
 	}
-	else
+	else {
 		ok = 0;
+	}
 	delete dlg;
 	return ok;
 }
@@ -2936,7 +3089,7 @@ int PPObjOprKind::AddBySample(PPID * pID, PPID sampleID)
 			if(cntr_rec.OwnerObjID)
 				pack.Rec.OpCounterID = 0;
 	}
-	for(valid_data = 0; !valid_data && EditPacket(&pack) > 0;) {
+	for(valid_data = 0; !valid_data && EditPacket(&pack, false/*viewOnly*/) > 0;) {
 		THROW(PutPacket(pID, &pack, 1));
 		valid_data = 1;
 		ok = cmOK;
@@ -2974,10 +3127,50 @@ int PPObjOprKind::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 
 IMPL_DESTROY_OBJ_PACK(PPObjOprKind, PPOprKindPacket);
 
-int PPObjOprKind::SerializePacket(int dir, PPOprKindPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+template <typename T> int PPObjOprKind_SerializePacketMember(T ** ppV, int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
+	int   ok = 1;
+	assert(ppV);
+	if(ppV) {
+		uint32 z_indicator = BIN(dir > 0 && !*ppV);
+		THROW_SL(pSCtx->Serialize(dir, z_indicator, rBuf));
+		if(dir > 0) {
+			if(*ppV) {
+				THROW((*ppV)->Serialize(dir, rBuf, pSCtx));
+			}
+		}
+		else if(dir < 0) {
+			if(z_indicator) {
+				ZDELETE(*ppV);
+			}
+			else {
+				SETIFZQ(*ppV, new T());
+				THROW((*ppV)->Serialize(dir, rBuf, pSCtx));
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPObjOprKind::Helper_SerializePacket(int dir, PPOprKindPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx, uint flags) // @v12.5.7
+{
+	/*
+		//PPOprKind2 Rec;
+		//PPIDArray Amounts;
+		// PPAccTurnTemplArray ATTmpls;
+		//SString ExtString;
+		PPInventoryOpEx  * P_IOE;
+		ObjRestrictArray * P_GenList;
+		//PPReckonOpEx * P_ReckonData;
+		PPBillPoolOpEx   * P_PoolData;  //
+		PPDraftOpEx * P_DraftData; //
+		PPDebtInventOpEx * P_DIOE;      //
+		PPOpCounterPacket OpCntrPack;   //
+	*/ 
 	int    ok = 1;
 	PPReckonOpEx roe;
+	PPAccTurnTemplArray attmpls;
 	THROW_SL(P_Ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW_SL(pSCtx->Serialize(dir, pPack->ExtString, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, &pPack->Amounts, rBuf));
@@ -2996,8 +3189,118 @@ int PPObjOprKind::SerializePacket(int dir, PPOprKindPacket * pPack, SBuffer & rB
 			*pPack->P_ReckonData = roe;
 		}
 	}
+	if(flags & spfInternalHistory) {
+		// @done @todo @20260218 Сериализация оставшихся компонентов пакета
+		// @todo @20260219 template-функция для идентичных блоков ниже
+		THROW_SL(TSVector_Serialize(pPack->ATTmpls, dir, rBuf, pSCtx));
+		{
+			THROW(PPObjOprKind_SerializePacketMember(&pPack->P_IOE, dir, rBuf, pSCtx));
+			/*
+			uint32 z_indicator = BIN(dir > 0 && !pPack->P_IOE);
+			THROW_SL(pSCtx->Serialize(dir, z_indicator, rBuf));
+			if(dir > 0) {
+				if(pPack->P_IOE) {
+					THROW(pPack->P_IOE->Serialize(dir, rBuf, pSCtx));
+				}
+			}
+			else if(dir < 0) {
+				if(z_indicator) {
+					ZDELETE(pPack->P_IOE);
+				}
+				else {
+					SETIFZQ(pPack->P_IOE, new PPInventoryOpEx());
+					THROW(pPack->P_IOE->Serialize(dir, rBuf, pSCtx));
+				}
+			}
+			*/
+		}
+		{
+			THROW(PPObjOprKind_SerializePacketMember(&pPack->P_PoolData, dir, rBuf, pSCtx));
+			/*
+			uint32 z_indicator = BIN(dir > 0 && !pPack->P_PoolData);
+			THROW_SL(pSCtx->Serialize(dir, z_indicator, rBuf));
+			if(dir > 0) {
+				if(pPack->P_PoolData) {
+					THROW(pPack->P_PoolData->Serialize(dir, rBuf, pSCtx));
+				}
+			}
+			else if(dir < 0) {
+				if(z_indicator) {
+					ZDELETE(pPack->P_PoolData);
+				}
+				else {
+					SETIFZQ(pPack->P_PoolData, new PPBillPoolOpEx());
+					THROW(pPack->P_PoolData->Serialize(dir, rBuf, pSCtx));
+				}
+			}
+			*/
+		}
+		{
+			THROW(PPObjOprKind_SerializePacketMember(&pPack->P_DraftData, dir, rBuf, pSCtx));
+			/*
+			uint32 z_indicator = BIN(dir > 0 && !pPack->P_DraftData);
+			THROW_SL(pSCtx->Serialize(dir, z_indicator, rBuf));
+			if(dir > 0) {
+				if(pPack->P_DraftData) {
+					THROW(pPack->P_DraftData->Serialize(dir, rBuf, pSCtx));
+				}
+			}
+			else if(dir < 0) {
+				if(z_indicator) {
+					ZDELETE(pPack->P_DraftData);
+				}
+				else {
+					SETIFZQ(pPack->P_DraftData, new PPDraftOpEx());
+					THROW(pPack->P_DraftData->Serialize(dir, rBuf, pSCtx));
+				}
+			}
+			*/
+		}
+		{
+			THROW(PPObjOprKind_SerializePacketMember(&pPack->P_DIOE, dir, rBuf, pSCtx));
+			/*
+			uint32 z_indicator = BIN(dir > 0 && !pPack->P_DIOE);
+			THROW_SL(pSCtx->Serialize(dir, z_indicator, rBuf));
+			if(dir > 0) {
+				if(pPack->P_DIOE) {
+					THROW(pPack->P_DIOE->Serialize(dir, rBuf, pSCtx));
+				}
+			}
+			else if(dir < 0) {
+				if(z_indicator) {
+					ZDELETE(pPack->P_DIOE);
+				}
+				else {
+					SETIFZQ(pPack->P_DIOE, new PPDebtInventOpEx());
+					THROW(pPack->P_DIOE->Serialize(dir, rBuf, pSCtx));
+				}
+			}*/
+		}
+		{
+			if(dir > 0) {
+				THROW_SL(pSCtx->Serialize(dir, pPack->P_GenList, rBuf));
+			}
+			else if(dir < 0) {
+				ObjRestrictArray temp_list;
+				THROW_SL(pSCtx->Serialize(dir, &temp_list, rBuf));
+				if(temp_list.getCount()) {
+					if(pPack->P_GenList) {
+						*pPack->P_GenList = temp_list;
+					}
+					else {
+						pPack->P_GenList = new ObjRestrictArray(temp_list);
+					}
+				}
+			}
+		}
+	}
 	CATCHZOK
 	return ok;
+}
+
+int PPObjOprKind::SerializePacket(int dir, PPOprKindPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	return Helper_SerializePacket(dir, pPack, rBuf, pSCtx, 0/*flags*/);
 }
 
 int PPObjOprKind::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)

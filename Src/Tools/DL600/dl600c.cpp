@@ -2024,6 +2024,7 @@ int DlContext::AddTempFldProp(const CtmToken & rSymb, const void * pData, size_t
 	return ok;
 }
 
+#if 0 // @v12.5.7 {
 uint DlContext::AddUiCluster(int kind, const CtmToken & rSymb, const CtmToken & rText, DLSYMBID typeID, const UiRelRect & rRect)
 {
 	uint   fld_id = 0;
@@ -2108,6 +2109,7 @@ DlScope * DlContext::GetCurDialogScope()
 	}
 	return const_cast<DlScope *>(p_scope); // @badcast
 }
+#endif // } 0 @v12.5.7 
 
 int DlContext::GetUiSymbSeries(const char * pSymb, SString & rSerBuf, DLSYMBID * pId)
 {
@@ -2150,6 +2152,7 @@ int DlContext::GetUiSymbSeries(const char * pSymb, SString & rSerBuf, DLSYMBID *
 	return ok;
 }
 
+#if 0 // @v12.5.7 {
 uint DlContext::AddUiListbox(const CtmToken & rSymb, const CtmToken & rText, const UiRelRect & rRect, const CtmToken & rColumns)
 {
 	DlScope * p_scope = 0;
@@ -2208,7 +2211,9 @@ uint DlContext::AddUiCtrl(int kind, const CtmToken & rSymb, const CtmToken & rTe
 	uint   fld_id = 0;
 	uint   pos = 0;
 	int    ss_r = 0;
-	SString temp_buf, symb_ser, dlg_symb_ser;
+	SString temp_buf;
+	SString symb_ser;
+	SString dlg_symb_ser;
 	TypeEntry te;
 	SdbField fld;
 	DLSYMBID ss_id = 0; // Ид серии символов
@@ -2304,6 +2309,7 @@ uint DlContext::AddUiCtrl(int kind, const CtmToken & rSymb, const CtmToken & rTe
 	ENDCATCH
 	return fld_id;
 }
+#endif // } 0 @v12.5.7
 //
 //
 //
@@ -3184,11 +3190,12 @@ int DlContext::ResolveDbFileDefinition(const CtmToken & rSymb, const char * pCon
 	else if(sstreqi_ascii(rSymb.U.S, "page")) {
 		ok = 0;
 		val = 0;
-		for(uint i = 0; !ok && i < NUMPGSIZES; i++)
+		for(uint i = 0; !ok && i < NUMPGSIZES; i++) {
 			if(Btrieve::LimitPgInfo[i].pgSz == constInt) {
 				val = (uint32)constInt;
 				ok = 1;
 			}
+		}
 		THROW(AddConst((uint32)val, &c));
 		THROW(p_scope->AddConst(DlScope::cdbtPageSize, c, 1));
 		if(!ok)
@@ -3222,6 +3229,15 @@ int DlContext::ResolveDbFileDefinition(const CtmToken & rSymb, const char * pCon
 			THROW(p_scope->AddConst(DlScope::cdbtAcsName, c, 1));
 		}
 	}
+	else if(sstreqi_ascii(rSymb.U.S, "dbms")) { // @v12.5.7
+		if(!isempty(pConstStr)) {
+			SqlServerType st = GetSqlServerTypeBySymb(pConstStr);
+			if(GetSqlServerTypeSymb(st, temp_buf)) {
+				THROW(AddConst(temp_buf, &c));
+				THROW(p_scope->AddConst(DlScope::cdbtDBMS, c, 1));
+			}
+		}
+	}
 	else if(sstreqi_ascii(rSymb.U.S, "vlr")) {
 		attr.A = DlScope::sfDbtVLR;
 		p_scope->SetAttrib(attr);
@@ -3252,6 +3268,10 @@ int DlContext::ResolveDbFileDefinition(const CtmToken & rSymb, const char * pCon
 	}
 	else if(sstreqi_ascii(rSymb.U.S, "system")) {
 		attr.A = DlScope::sfDbtSystem;
+		p_scope->SetAttrib(attr);
+	}
+	else if(sstreqi_ascii(rSymb.U.S, "ondemand")) { // @v12.5.7
+		attr.A = DlScope::sfOnDemand;
 		p_scope->SetAttrib(attr);
 	}
 	else if(sstreqi_ascii(rSymb.U.S, "access")) {
@@ -3309,13 +3329,15 @@ int DlContext::ProcessQuestArgList(const DlFunc & rFunc, CtmExpr * pExpr, const 
 		THROW(c12 && c21);
 		if(c12 == c21) {
 			if(loss12 > loss21) {
-				if(c21 > tcrEqual)
+				if(c21 > tcrEqual) {
 					THROW_V(p_arg2->SetImplicitCast(arg_typ1), PPERR_DL6_IMPLICITCVTOVRD);
+				}
 				res_typ = arg_typ1;
 			}
 			else {
-				if(c12 > tcrEqual)
+				if(c12 > tcrEqual) {
 					THROW_V(p_arg1->SetImplicitCast(arg_typ2), PPERR_DL6_IMPLICITCVTOVRD);
+				}
 				res_typ = arg_typ2;
 			}
 		}
@@ -3377,15 +3399,15 @@ int DlContext::IsFuncSuited(const DlFunc & rFunc, CtmExpr * pExpr, LongArray * p
 				break;
 			}
 			else if(r == tcrEqual)
-				s = MAX(s, 1);
+				s = smax(s, 1);
 			else {
 				cvt_arg_list.insert(&j);
 				if(r == tcrCast)
-					s = MAX(s, 1);
+					s = smax(s, 1);
 				else if(r == tcrCastSuper)
-					s = MAX(s, 2);
+					s = smax(s, 2);
 				else if(r == tcrCastLoss)
-					s = MAX(s, 3);
+					s = smax(s, 3);
 				else {
 					CALLEXCEPT();
 				}
@@ -3437,8 +3459,8 @@ int DlContext::ResolveFunc(DLSYMBID scopeID, int exactScope, CtmExpr * pExpr)
 				THROW_V(p_scope->GetFuncByPos(func_pos_list.at(i), &func), PPERR_DL6_NOFUNCBYPOS);
 				int    s = IsFuncSuited(func, pExpr, &cvt_arg_list);
 				THROW(s);
-				if(s > 0)
-					for(j = 0; j < 3; j++)
+				if(s > 0) {
+					for(j = 0; j < 3; j++) {
 						if(s == (j+1)) {
 							//
 							// Так как неоднозначность может встретиться на менее
@@ -3455,6 +3477,8 @@ int DlContext::ResolveFunc(DLSYMBID scopeID, int exactScope, CtmExpr * pExpr)
 								break;
 							}
 						}
+					}
+				}
 			}
 			if(s_[0] >= 0 || s_[1] >= 0 || s_[2] >= 0) {
 				rf.ScopeID = p_scope->ID;
@@ -3469,7 +3493,7 @@ int DlContext::ResolveFunc(DLSYMBID scopeID, int exactScope, CtmExpr * pExpr)
 						else {
 							THROW(AddCvtFuncToArgList(func, pExpr, cvt_al[i]));
 							long proc_addr = 0;
-							if(AdjRetTypeProcList.Search(func.ImplID, &proc_addr, 0)) {
+							if(AdjRetTypeProcList.Search(static_cast<long>(func.ImplID), &proc_addr, 0)) {
 								AdjRetTypeProc proc = reinterpret_cast<AdjRetTypeProc>(proc_addr);
 								DLSYMBID ret_type_id = proc(this, pExpr);
 								THROW(ret_type_id);
@@ -3922,7 +3946,7 @@ DLSYMBID DlContext::Helper_EnterViewScope(uint scopeKind, const char * pSymb)
 }
 
 DLSYMBID DlContext::EnterViewScope(const char * pSymb) { return Helper_EnterViewScope(DlScope::kUiView, pSymb); }
-DLSYMBID DlContext::EnterDialogScope(const char * pSymb) { return Helper_EnterViewScope(DlScope::kUiDialog, pSymb); }
+// @v12.5.7 DLSYMBID DlContext::EnterDialogScope(const char * pSymb) { return Helper_EnterViewScope(DlScope::kUiDialog, pSymb); }
 
 int DlContext::LeaveScope()
 {
@@ -5706,6 +5730,7 @@ int DlContext::Compile(const char * pInFileName, const char * pDictPath, const c
 				}
 			}
 			// } @v12.2.9 
+#if 0 // @v12.5.7 {
 			if(Sc.GetFirstChildByKind(DlScope::kUiDialog, 1)) {
 				SString symb;
 				DLSYMBID ss_id = 0;
@@ -5756,6 +5781,7 @@ int DlContext::Compile(const char * pInFileName, const char * pDictPath, const c
 					}
 				}
 			}
+#endif // } 0 @v12.5.7 
 			if(Sc.GetFirstChildByKind(DlScope::kDbTable, 1)) {
 				gen.Wr_Include("db.h", 0);
 				gen.Wr_Include("dl600.h", 0);

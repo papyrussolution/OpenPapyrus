@@ -2107,7 +2107,8 @@ int PPTextAnalyzer::Test()
 				IterCounter cntr;
 				cntr.Init(line_count);
 				while(inf.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
-					line_buf.ToOem().ToLower().Transf(CTRANSF_INNER_TO_OUTER);
+					// @v12.5.7 line_buf.ToOem().ToLower().Transf(CTRANSF_INNER_TO_OUTER);
+					line_buf.ToLower1251(); // @v12.5.7
 					Reset(0);
 					THROW(ProcessString(rpl, 0, line_buf, result_buf, &fb, 0/*&outf*/));
 					csvf.WriteLine(line_buf.Tab().Cat(result_buf).CR());
@@ -2438,7 +2439,7 @@ int PrcssrObjText::Run()
 				}
 				if(r > 0 && P.Flags & P.fReplace) {
 					if(result_buf != text_buf) {
-						result_buf.ToOem();
+						result_buf.Transf(CTRANSF_OUTER_TO_INNER); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 						THROW(goods_obj.UpdateName(goods_rec.ID, result_buf, 0));
 					}
 				}
@@ -2476,7 +2477,7 @@ int PrcssrObjText::Run()
 				id_list.sortAndUndup();
 				for(i = 0; i < id_list.getCount(); i++){
 					PersonTbl::Rec psn_rec;
-					PPID psn_id = id_list.get(i);
+					PPID   psn_id = id_list.get(i);
 					if(psn_obj.Search(psn_id, &psn_rec) > 0){
 						(text_buf = psn_rec.Name).ToLower().Transf(CTRANSF_INNER_TO_OUTER);
 						SObjID_ToStr(oi.Set(PPOBJ_PERSON, psn_id), resource_buf);
@@ -2489,7 +2490,7 @@ int PrcssrObjText::Run()
 						if(r > 0 && P.Flags & P.fReplace) {
 							if(result_buf != text_buf) {
 								THROW(psn_obj.GetPacket(psn_id, &psn_pack, 0) > 0);
-								result_buf.ToOem();
+								result_buf.Transf(CTRANSF_OUTER_TO_INNER); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 								STRNSCPY(psn_pack.Rec.Name, result_buf);
 								THROW(psn_obj.PutPacket(&psn_id, &psn_pack, 1));
 							}
@@ -2637,11 +2638,14 @@ int PPObjectTokenizer::SearchObjects(const char * pText, PPID objType, long flag
 				const SearchBlockEntry * p_entry = result.at(i);
 				const int sw_r = GetTextById(p_entry->T, src_word_buf);
 				const bool _digital = src_word_buf.IsDec();
-				if(debug_output)
-					if(sw_r > 0)
-						PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf.Z().Tab().Cat((temp_buf = src_word_buf).ToOem()), LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+				if(debug_output) {
+					if(sw_r > 0) {
+						(temp_buf = src_word_buf).Transf(CTRANSF_OUTER_TO_INNER); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
+						PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf.Z().Tab().Cat(temp_buf), LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+					}
 					else
 						PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf.Z().Tab().CatChar('$').Cat(p_entry->T), LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+				}
 				for(uint j = 0; j < p_entry->RL.getCount(); j++) {
 					if(GetTextById(p_entry->RL.at(j).RP, temp_buf) > 0) {
 						SObjID oi;
@@ -3369,7 +3373,9 @@ int PPKeywordListGenerator::ReadData(const char * pFileName)
 	THROW_SL(f_in.IsValid());
 	SFile::GetTime(pFileName, 0, 0, &new_data_file_dtm);
 	if(DataFileName.IsEmpty() || !DataFileDtm || DataFileDtm != new_data_file_dtm) {
-		SString line_buf, temp_buf, prob_buf;
+		SString line_buf;
+		SString temp_buf;
+		SString prob_buf;
 		SString cur_context;
 		Clear();
 		DataFileDtm = new_data_file_dtm;
@@ -3383,7 +3389,8 @@ int PPKeywordListGenerator::ReadData(const char * pFileName)
 						temp_buf.CatChar(line_buf[rb++]);
 					}
 					if(line_buf[rb] == ']') {
-						(cur_context = temp_buf).Strip().ToOem().ToLower().Transf(CTRANSF_INNER_TO_OUTER);
+						// @v12.5.7 (cur_context = temp_buf).Strip().ToOem().ToLower().Transf(CTRANSF_INNER_TO_OUTER);
+						(cur_context = temp_buf).Strip().ToLower1251(); // @v12.5.7
 						THROW(CreateGroup(cur_context, &cur_grp_pos));
 					}
 					else {
@@ -3409,7 +3416,8 @@ int PPKeywordListGenerator::ReadData(const char * pFileName)
 						else if(temp_buf.IsEqiAscii("#itemlimit"))
 							p_group->ItemsLimit = (uint)new_item.Prob;
 						else {
-							temp_buf.ToOem().ToLower().Transf(CTRANSF_INNER_TO_OUTER);
+							// @v12.5.7 temp_buf.ToOem().ToLower().Transf(CTRANSF_INNER_TO_OUTER);
+							temp_buf.ToLower1251(); // @v12.5.7
 							AddS(temp_buf, &new_item.TextP);
 							THROW_SL(p_group->insert(&new_item));
 						}

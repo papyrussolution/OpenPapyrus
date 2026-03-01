@@ -1410,4 +1410,9 @@
       <UniqueIdentifier>{5724c59d-c15e-4005-8669-6c0d29da5253}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="..\PPMain\papyrus-windows.manifest">
+      <Filter>Resource</Filter>
+    </Manifest>
+  </ItemGroup>
 </Project>

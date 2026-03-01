@@ -898,10 +898,16 @@ void TInputLine::InputStat::CheckIn()
 		case WM_KEYDOWN:
 			if(p_view) {
 				const  long _style = TView::SGetWindowStyle(hWnd);
-				const  bool _ml = LOGIC(_style & ES_MULTILINE);
+				const  bool _is_multi_line = LOGIC(_style & ES_MULTILINE);
 				const  bool is_ws_visible = p_view->IsWsVisible();
 				const  int  _k = wParam;
-				if(_k == VK_DOWN) {
+				if((GetKeyState(VK_MENU) & 0x8000) && oneof4(_k, VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN)) { // @v12.5.7 комбинации alt-left, alt-up, alt-right, alt-down уходят родителю
+					if(p_view && p_view->P_Owner) {
+						p_view->P_Owner->TView::HandleKeyboardEvent(LOWORD(wParam));
+						return 0;
+					}
+				}
+				else if(_k == VK_DOWN) {
 					if(p_view->P_WordSel) {
 						if(is_ws_visible)
 							p_view->P_WordSel->Activate();
@@ -914,12 +920,31 @@ void TInputLine::InputStat::CheckIn()
 				}
 				else if(is_ws_visible && _k == VK_RETURN) {
 				}
-				if((_k >= VK_F1 && _k <= VK_F12) || (!_ml && oneof6(_k, VK_ADD, VK_SUBTRACT, VK_DOWN, VK_UP, VK_PRIOR, VK_NEXT)) ||
+				// @v12.5.7 (заменил один сложный услоный блок на несколько простых) {
+				if(_k >= VK_F1 && _k <= VK_F12) {
+					p_view->SendToParent(hWnd, WM_VKEYTOITEM, MAKELPARAM((WORD)_k, 0), reinterpret_cast<LPARAM>(hWnd));
+					return 0;
+				}
+				else if(!_is_multi_line && oneof6(_k, VK_ADD, VK_SUBTRACT, VK_DOWN, VK_UP, VK_PRIOR, VK_NEXT)) {
+					p_view->SendToParent(hWnd, WM_VKEYTOITEM, MAKELPARAM((WORD)_k, 0), reinterpret_cast<LPARAM>(hWnd));
+					return 0;
+				}
+				else if(_k == VK_DELETE && (p_view->GetCombo() || p_view->HasWordSelector())) {
+					p_view->SendToParent(hWnd, WM_VKEYTOITEM, MAKELPARAM((WORD)_k, 0), reinterpret_cast<LPARAM>(hWnd));
+					return 0;
+				}
+				else if(_k == VK_RETURN && (GetKeyState(VK_CONTROL) & 0x8000)) {
+					p_view->SendToParent(hWnd, WM_VKEYTOITEM, MAKELPARAM((WORD)_k, 0), reinterpret_cast<LPARAM>(hWnd));
+					return 0;
+				}
+				// } @v12.5.7 
+				/* @v12.5.7
+				if((_k >= VK_F1 && _k <= VK_F12) || (!_is_multi_line && oneof6(_k, VK_ADD, VK_SUBTRACT, VK_DOWN, VK_UP, VK_PRIOR, VK_NEXT)) ||
 					((p_view->GetCombo() || p_view->HasWordSelector()) && _k == VK_DELETE) ||
 					(_k == VK_RETURN && (GetKeyState(VK_CONTROL) & 0x8000))) {
 					p_view->SendToParent(hWnd, WM_VKEYTOITEM, MAKELPARAM((WORD)_k, 0), reinterpret_cast<LPARAM>(hWnd));
 					return 0;
-				}
+				}*/
 				else {
 					bool   local_skip = false;
 					if(_k == VK_ESCAPE)
@@ -1371,7 +1396,7 @@ IMPL_HANDLE_EVENT(TInputLine)
 			if(event.message.command == cmGetFocusedNumber)
 				*static_cast<double *>(event.message.infoPtr) = Data.ToReal();
 			else if(event.message.command == cmGetFocusedText)
-				Data.CopyTo(static_cast<char *>(event.message.infoPtr), 0);
+				Data.CopyTo_Unsafe(static_cast<char *>(event.message.infoPtr));
 			else
 				return;
 		else

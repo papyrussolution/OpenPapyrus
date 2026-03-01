@@ -546,7 +546,7 @@ int StringStore2::Error(int errCode, long flags)
 	temp_buf.SetIfEmpty("Unknown error");
 	ess_msg_buf.Printf(temp_buf, ErrAddedMsg.cptr());
 	msg_buf.Printf("%s(%d): error sc2c: %s", p_file_name, line, ess_msg_buf.cptr());
-	printf((const char *)msg_buf.CR().ToOem());
+	printf(msg_buf.CR().Transf(CTRANSF_OUTER_TO_INNER).cptr()); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER) 
 	return 0;
 }
 

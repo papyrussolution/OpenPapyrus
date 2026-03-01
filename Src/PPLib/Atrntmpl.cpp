@@ -879,6 +879,33 @@ int PPAccTurnTempl::ParseSubstString(const char * str, int * lp, int * _skipzobj
 	return ok;
 }
 
+PPAccTurnTempl::PPAccTurnTempl()
+{
+	THISZERO();
+}
+
+int PPAccTurnTempl::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) // @v12.5.7
+{
+	int    ok = 1;
+	THROW(pSCtx->Serialize(dir, ObjType, rBuf));
+	THROW(pSCtx->Serialize(dir, ObjID, rBuf));
+	THROW(pSCtx->Serialize(dir, ID, rBuf));
+	THROW(pSCtx->Serialize(dir, DbtID.ac, rBuf));
+	THROW(pSCtx->Serialize(dir, DbtID.ar, rBuf));
+	THROW(pSCtx->Serialize(dir, CrdID.ac, rBuf));
+	THROW(pSCtx->Serialize(dir, CrdID.ar, rBuf));
+	THROW(pSCtx->Serialize(dir, Flags, rBuf));
+	THROW(pSCtx->Serialize(dir, Period, rBuf));
+	{
+		for(uint i = 0; i < SIZEOFARRAY(Subst); i++) {
+			THROW(pSCtx->Serialize(dir, Subst[i], rBuf));
+		}
+	}
+	THROW(pSCtx->Serialize(dir, Expr, sizeof(Expr), rBuf));
+	CATCHZOK
+	return ok;
+}
+
 bool FASTCALL PPAccTurnTempl::IsEq(const PPAccTurnTempl & rS) const // @v12.5.7
 {
 	bool   eq = true;

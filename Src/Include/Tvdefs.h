@@ -162,6 +162,11 @@
 #define kbCtrlTab        0x8b00
 #define kbAlt            0xf000
 #define kbAltIns         0xf100
+#define kbAltUp          0xf200 // @v12.5.7
+#define kbAltLeft        0xf300 // @v12.5.7
+#define kbAltRight       0xf400 // @v12.5.7
+#define kbAltDown        0xf500 // @v12.5.7
+
 #define kbNoKey          0x0000
 //
 //  Keyboard state and shift masks

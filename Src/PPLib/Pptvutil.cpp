@@ -563,7 +563,8 @@ int ViewStatus()
 		{ CTL_STATUS_INPATH,   PPPATH_IN },
 		{ CTL_STATUS_OUTPATH,  PPPATH_OUT },
 		{ CTL_STATUS_TEMPPATH, PPPATH_TEMP },
-		{ CTL_STATUS_LOGPATH,  PPPATH_LOG }
+		{ CTL_STATUS_LOGPATH,  PPPATH_LOG },
+		{ CTL_STATUS_LOCALPATH, PPPATH_LOCAL }, // @v12.5.7
 	};
 	class StatusDialog : public TDialog {
 		enum {
@@ -628,6 +629,7 @@ int ViewStatus()
 	int    ok = 1;
 	DbProvider * p_dict = CurDict;
 	PPID   main_org_id = 0;
+	SString temp_buf;
 	SString sbuf;
 	SString datapath;
 	LDATE  oper_dt = LConfig.OperDate;
@@ -653,7 +655,8 @@ int ViewStatus()
 	dlg->setCtrlString(CTL_STATUS_DATAPATH, datapath.Transf(CTRANSF_OUTER_TO_INNER));
 	for(uint i = 0; i < SIZEOFARRAY(ctrl_to_path_map); i++) {
 		const CtrlToPathMapEntry & r_map_entry = ctrl_to_path_map[i];
-		PPGetPath(r_map_entry.PathID, datapath);
+		PPGetPath(r_map_entry.PathID, temp_buf);
+		SFsPath::NormalizePath(temp_buf,  SFsPath::npfCompensateDotDot|SFsPath::npfKeepCase, datapath); // @v12.5.7
 		dlg->setCtrlString(r_map_entry.CtlId, datapath.Transf(CTRANSF_OUTER_TO_INNER));
 	}
 	if(LConfig.Flags & CFGFLG_USEGOODSMATRIX) {
@@ -9722,6 +9725,79 @@ int PPInitializeDialogFunc(TDialog * pThis, const void * pIdent, void * extraPtr
 		}
 	}
 	return ok;
+}
+
+static long Helper_GetScopeID(const DlScope * pScope) { return pScope ? (pScope->ID + 2000) : 0; }
+
+static SUiLayout * Helper_MakeLayoutFromDlScope(const DlContext & rCtx, const DlScope * pScope) // @v12.5.7 @construction
+{
+	SUiLayout * p_result = 0;
+	if(pScope) {
+		SUiLayoutParam __alb;
+		const SUiLayoutParam * p_alb = rCtx.GetLayoutBlock(pScope, DlScope::cuifLayoutBlock, &__alb) ? &__alb : 0;
+		if(p_alb) {
+			p_result = new SUiLayout(*p_alb);
+			if(p_result) {
+				uint32 symb_ident = 0;
+				rCtx.GetConst_Uint32(pScope, DlScope::cucmSymbolIdent, symb_ident);
+				const uint32 item_id = NZOR(symb_ident, Helper_GetScopeID(pScope));
+				p_result->SetID(item_id);
+				const DlScopeList & r_scope_list = pScope->GetChildList();
+				for(uint ci = 0; ci < r_scope_list.getCount(); ci++) {
+					const DlScope * p_scope = r_scope_list.at(ci);
+					if(p_scope) {
+						SUiLayout * p_lo_child = Helper_MakeLayoutFromDlScope(rCtx, p_scope);
+						if(p_lo_child) {
+							p_result->Insert(p_lo_child);
+						}
+					}
+				}
+			}
+		}
+	}
+	return p_result;
+}
+
+SUiLayout * PPLoadDl600Layout(const void * pIdent, void * extraPtr) // @v12.5.7 @construction
+{
+	SUiLayout * p_result = 0;
+	DlContext * p_ctx = 0;
+	const DlScope * p_scope = 0;
+	const size_t ident_len = sstrnlen(static_cast<const char *>(pIdent), 128);
+	if(ident_len && sisascii(static_cast<const char *>(pIdent), ident_len)) {
+		SString ident_buf(static_cast<const char *>(pIdent));
+		if(ident_buf.IsDec()) {
+			uint   id = ident_buf.ToULong();
+			if(id) {
+				p_ctx = DS.GetInterfaceContext(PPSession::ctxUiViewLocal);
+				if(p_ctx) {
+					p_scope = p_ctx->GetLayoutScopeBySymbolIdent_Const(id);
+				}
+				if(!p_scope) {
+					p_ctx = DS.GetInterfaceContext(PPSession::ctxUiView);
+					if(p_ctx)
+						p_scope = p_ctx->GetLayoutScopeBySymbolIdent_Const(id);
+				}
+			}
+		}
+		else {
+			p_ctx = DS.GetInterfaceContext(PPSession::ctxUiViewLocal);
+			if(p_ctx) {
+				p_scope = p_ctx->GetScopeByName_Const(DlScope::kUiView, ident_buf);
+			}
+			if(!p_scope) {
+				p_ctx = DS.GetInterfaceContext(PPSession::ctxUiView);
+				if(p_ctx)
+					p_scope = p_ctx->GetScopeByName_Const(DlScope::kUiView, ident_buf);
+			}
+		}
+	}
+	if(p_scope) {
+		assert(p_ctx);
+		if(p_ctx)
+			p_result = Helper_MakeLayoutFromDlScope(*p_ctx, p_scope);
+	}
+	return p_result;
 }
 
 #if 0 // @v12.3.10 {

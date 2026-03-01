@@ -866,13 +866,13 @@ int FASTCALL PPWait(int begin)
 	return ok;
 }
 
-void PPWaitStart() // @v11.0.3 PPWait(1)
+void PPWaitStart()
 {
 	if(DS.IsThreadInteractive())
 		__WD.Start();
 }
 
-void PPWaitStop() // @v11.0.3 PPWait(0)
+void PPWaitStop()
 {
 	DS.SetThreadNotification(PPSession::stntMessage, 0);
 	if(DS.IsThreadInteractive())

@@ -2630,8 +2630,7 @@ int PPImpExp::ConvertInnerToOuter(int hdr, const void * pInnerBuf, size_t bufLen
 					sttostr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_cbuf);
 					temp_buf = temp_cbuf;
 					if(P.TdfParam.Flags & TextDbFile::fCpOem) {
-						//SCharToOem(temp_cbuf)
-						temp_buf.ToOem();
+						temp_buf.Transf(CTRANSF_OUTER_TO_INNER); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 					}
 					else
 						temp_buf.ToUtf8();

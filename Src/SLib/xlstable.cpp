@@ -1,5 +1,5 @@
 // XLSTABLE.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -109,10 +109,21 @@ int ExcelDbFile::Open(const char * pFileName, const ExcelIoParam * pParam, int r
 		SString name;
 		ComExcelWorksheet * p_sheet = 0;
 		while(!P_Sheet && (p_sheet = P_Sheets->Enum(&idx))) {
-			if(p_sheet->GetName(name) && (name.ToOem()).Cmp(P.SheetName_, 0) == 0 && name.Len() == P.SheetName_.Len())
+			// @v12.5.7 {
+			if(p_sheet->GetName(name)) {
+				name.Transf(CTRANSF_OUTER_TO_INNER);
+				if(name.IsEqNC(P.SheetName_)) {
+					P_Sheet = p_sheet;
+				}
+			}
+			if(!P_Sheet) {
+				ZDELETE(p_sheet);
+			}
+			// } @v12.5.7 
+			/* @v12.5.7 if(p_sheet->GetName(name) && (name.ToOem()).Cmp(P.SheetName_, 0) == 0 && name.Len() == P.SheetName_.Len())
 				P_Sheet = p_sheet;
 			else
-				ZDELETE(p_sheet);
+				ZDELETE(p_sheet);*/
 		}
 		SETIFZQ(P_Sheet, P_Sheets->Get(P.SheetNum));
 	}
@@ -227,7 +238,7 @@ int ExcelDbFile::Scan()
 			else
 				empty_count++;
 			if(empty_count < max_empty) {
-				temp_buf.Strip().ToOem();
+				temp_buf.Strip().Transf(CTRANSF_OUTER_TO_INNER); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 				if(end_str_decl && temp_buf.CmpNC(end_str) == 0) {
 					if(is_vert) {
 						if(found_data)

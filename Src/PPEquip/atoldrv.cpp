@@ -1,5 +1,5 @@
 // ATOLDRV.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2010, 2011, 2013, 2015, 2016, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Starodub, A.Sobolev 2010, 2011, 2013, 2015, 2016, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Интерфейс с драйвером оборудования АТОЛ 
 //
@@ -1320,7 +1320,7 @@ void SCS_ATOLDRV::WriteLogFile(PPID id)
 		P_Disp->GetNameByID(id, oper_name);
 		GetProp(Mode, &mode);
 		mode_descr.Cat(mode);
-		mode_descr.ToOem();
+		mode_descr.Transf(CTRANSF_OUTER_TO_INNER); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 		if(err_msg.SearchChar('\n', &pos))
 			err_msg.Trim(pos);
 		GetProp(AdvancedMode, &adv_mode);

@@ -543,7 +543,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				out_buf = in_buf;
 				out_buf.ToUtf8();
 				out_buf.Utf8ToChar();
-				out_buf.ToOem();
+				out_buf.ToOem(); // @test
 				out_buf.Transf(CTRANSF_INNER_TO_OUTER);
 				SLCHECK_Z(in_buf.Cmp(out_buf, 0));
 
@@ -554,7 +554,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 					s16.CopyFromUtf8Strict(out_buf, out_buf.Len());
 					s16.CopyToUtf8(out_buf, 1);
 					out_buf.Utf8ToChar();
-					out_buf.ToOem();
+					out_buf.ToOem(); // @test
 					out_buf.Transf(CTRANSF_INNER_TO_OUTER);
 					SLCHECK_Z(in_buf.Cmp(out_buf, 0));
 				}

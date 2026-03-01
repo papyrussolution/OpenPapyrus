@@ -1,5 +1,5 @@
 // SCLIPBOARD.CPP
-// Copyright (c) A.Sobolev 2019, 2020, 2022
+// Copyright (c) A.Sobolev 2019, 2020, 2022, 2026
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -81,11 +81,12 @@
 	if(rText.Len()) {
 		THROW(Helper_OpenClipboardForCopy(cb_has_been_openen));
 		{
-			HGLOBAL h_glb = ::GlobalAlloc(GMEM_MOVEABLE, (rText.Len() + 1));
+			const  size_t dest_buf_size = (rText.Len() + 1);
+			HGLOBAL h_glb = ::GlobalAlloc(GMEM_MOVEABLE, dest_buf_size);
 			THROW_S(h_glb, SLERR_WINDOWS);
 			char * p_buf = static_cast<char *>(::GlobalLock(h_glb));
 			THROW_S(p_buf, SLERR_WINDOWS);
-			rText.CopyTo(p_buf, 0);
+			rText.CopyTo(p_buf, dest_buf_size);
 			::GlobalUnlock(h_glb);
 			::SetClipboardData(CF_SYLK, h_glb);
 		}

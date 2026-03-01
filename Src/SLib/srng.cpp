@@ -1144,8 +1144,8 @@ void SRandGenerator::ObfuscateBuffer(void * pBuffer, size_t bufferSize) const
 				p += 4;
 			}
 			else {
-                		PTR8(pBuffer)[p] = static_cast<uint8>(P_Inner->GetUniformInt(256));
-                		p++;
+				PTR8(pBuffer)[p] = static_cast<uint8>(P_Inner->GetUniformInt(256));
+				p++;
 			}
 		}
 		assert(p == bufferSize);

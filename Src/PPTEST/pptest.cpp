@@ -50,6 +50,7 @@ int  SimpleCpp_Test_Main(int argc, char ** argv);
 int  SimpleCpp_Test_Main2();
 int  TestGlobalServiceAccessibility();
 int  TestRestic();
+void Test_MySQL_ReadBLOB(); // @v12.5.7
 //
 // 
 // 
@@ -2040,7 +2041,8 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
-	TestGtinStruc();
+	Test_MySQL_ReadBLOB(); // @v12.5.7
+	//TestGtinStruc();
 	//SentencePieceExperiments();
 	//PPChZnPrcssr::Test();
 	//TestRestic();
@@ -2517,3 +2519,166 @@ int TestGlobalServiceAccessibility()
 	}
 	return ok;
 }
+//
+// @v12.5.7 {
+// Пытаюсь понять в чем проблема с чтением BLOB'ов для MySQL
+//
+#include <mariadb-20251208/mysql.h>
+
+void Test_MySQL_ReadBLOB()
+{
+	int    ok = 1;
+	bool   debug_mark = false;
+	DbProvider * p_dict = CurDict;
+	if(p_dict && p_dict->GetSqlServerType() == sqlstMySQL) {
+		SMySqlDbProvider * p_dbp = static_cast<SMySqlDbProvider *>(p_dict);
+		{
+			ObjVersioningCore * p_ovc = PPRef->P_OvT;
+			int   ovc_add_r = 0;
+			int   ovc_get_r = 0;
+			if(p_ovc) {
+				PPID   _ov_id = 0;
+				SObjID oid(PPOBJ_UNASSIGNED, 1);
+				SObjID oid_out;
+				long   ver_out = 0;
+				SBuffer sbuf_in;
+				SBuffer sbuf_out;
+				char   mem_pattern[4096];
+				const  size_t mem_pattern_len = 1391;
+				SLS.GetTLA().Rg.ObfuscateBuffer(mem_pattern, mem_pattern_len);
+				sbuf_in.Write(mem_pattern, mem_pattern_len);
+				ovc_add_r = p_ovc->Add(&_ov_id, oid, &sbuf_in, 1/*use_ta*/);
+				if(ovc_add_r) {
+					ovc_get_r = p_ovc->Search(_ov_id, &oid_out, &ver_out, &sbuf_out);
+				}
+			}
+			debug_mark = true;
+		}
+		MYSQL_BIND bind_param[3];
+		MYSQL_BIND bind_result[7];  // для всех 7 полей
+		bool   is_null[7];
+		int    error[7];
+		ulong  length[7];
+    
+		// Параметры для поиска
+		int obj_type = 0;
+		int obj_id = 0;
+		int ver = 201326592;
+    
+		// Переменные для результатов
+		int    id;
+		int    obj_type_r;
+		int    obj_id_r;
+		int    ver_r;
+		int    sysver_r;
+		int    size_r;
+		char   blob_data[24*1024];  // фиксированный буфер 1MB
+		const  char * query = "SELECT ID, ObjType, ObjID, Ver, SysVer, Size, Data FROM ObjVer WHERE ObjType=? AND ObjID=? AND Ver=?";    
+		// Подготовка запроса
+		SMySqlDbProvider::ConnectionEntry & r_ce = p_dbp->GetWorkingConnection(0, false);
+		MYSQL_STMT * stmt = mysql_stmt_init(static_cast<MYSQL *>(r_ce.Conn.GetH()));
+		THROW(stmt);
+		THROW(mysql_stmt_prepare(stmt, query, strlen(query)) == 0);
+   
+		// Привязка параметров
+		memzero(bind_param, sizeof(bind_param));
+		bind_param[0].buffer_type = MYSQL_TYPE_LONG;
+		bind_param[0].length_value = sizeof(obj_type);
+		bind_param[0].buffer = (char *)&obj_type;
+		bind_param[1].buffer_type = MYSQL_TYPE_LONG;
+		bind_param[1].length_value = sizeof(obj_id);
+		bind_param[1].buffer = (char *)&obj_id;
+		bind_param[2].buffer_type = MYSQL_TYPE_LONG;
+		bind_param[2].length_value = sizeof(ver);
+		bind_param[2].buffer = (char *)&ver;
+		THROW(mysql_stmt_bind_param(stmt, bind_param) == 0);
+		THROW(mysql_stmt_execute(stmt) == 0); // Выполнение
+		// Привязка результатов для первых 6 полей (все кроме Data)
+		memzero(bind_result, sizeof(bind_result));
+		memzero(is_null, sizeof(is_null));
+		memzero(error, sizeof(error));
+		memzero(length, sizeof(length));
+		memzero(blob_data, sizeof(blob_data));
+    
+		bind_result[0].buffer_type = MYSQL_TYPE_LONG;  // ID
+		bind_result[0].buffer = (char *)&id;
+		bind_result[0].is_null = &is_null[0];
+		bind_result[0].P_Error = &error[0];
+		bind_result[0].length = &length[0];
+    
+		bind_result[1].buffer_type = MYSQL_TYPE_LONG;  // ObjType
+		bind_result[1].buffer = (char *)&obj_type_r;
+		bind_result[1].is_null = &is_null[1];
+		bind_result[1].P_Error = &error[1];
+		bind_result[1].length = &length[1];
+    
+		bind_result[2].buffer_type = MYSQL_TYPE_LONG;  // ObjID
+		bind_result[2].buffer = (char *)&obj_id_r;
+		bind_result[2].is_null = &is_null[2];
+		bind_result[2].P_Error = &error[2];
+		bind_result[2].length = &length[2];
+    
+		bind_result[3].buffer_type = MYSQL_TYPE_LONG;  // Ver
+		bind_result[3].buffer = (char *)&ver_r;
+		bind_result[3].is_null = &is_null[3];
+		bind_result[3].P_Error = &error[3];
+		bind_result[3].length = &length[3];
+    
+		bind_result[4].buffer_type = MYSQL_TYPE_LONG;  // SysVer
+		bind_result[4].buffer = (char *)&sysver_r;
+		bind_result[4].is_null = &is_null[4];
+		bind_result[4].P_Error = &error[4];
+		bind_result[4].length = &length[4];
+    
+		bind_result[5].buffer_type = MYSQL_TYPE_LONG;  // Size
+		bind_result[5].buffer = (char *)&size_r;
+		bind_result[5].is_null = &is_null[5];
+		bind_result[5].P_Error = &error[5];
+		bind_result[5].length = &length[5];
+		THROW(mysql_stmt_bind_result(stmt, bind_result) == 0); // Data не привязываем сейчас
+		const int fr = mysql_stmt_fetch(stmt); // Fetch записи (без Data)
+		if(oneof2(fr, 0, MYSQL_DATA_TRUNCATED)) {
+			// Теперь читаем Data (колонка 6)
+			ulong  blob_length = 0;
+			bool   blob_is_null = 0;
+			int    blob_error = 0;
+			// Сначала узнаем размер
+			MYSQL_BIND blob_bind;
+			memzero(&blob_bind, sizeof(blob_bind));
+			blob_bind.buffer_type = MYSQL_TYPE_MEDIUM_BLOB;
+			blob_bind.buffer = NULL;
+			blob_bind.buffer_length = 0;
+			blob_bind.length = &blob_length;
+			blob_bind.is_null = &blob_is_null;
+			blob_bind.P_Error = &blob_error;
+			THROW(mysql_stmt_fetch_column(stmt, &blob_bind, 6, 0) == 0);
+			//THROW(mysql_stmt_fetch_column(stmt, &blob_bind, 6, 0) == 0); // ВТОРОЙ ВЫЗОВ - теперь blob_real_size содержит реальный размер (1391)
+			if(!blob_is_null && blob_length > 0 && blob_length <= sizeof(blob_data)) {
+				// Читаем данные
+				memzero(&blob_bind, sizeof(blob_bind));
+				blob_bind.buffer_type = MYSQL_TYPE_MEDIUM_BLOB;
+				blob_bind.buffer = blob_data;
+				blob_bind.buffer_length = blob_length;
+				blob_bind.length = &blob_length;
+				blob_bind.is_null = &blob_is_null;
+				blob_bind.P_Error = &blob_error;
+				THROW(mysql_stmt_fetch_column(stmt, &blob_bind, 6, 0) == 0);
+				{
+					MYSQL_RES * p_metadata = mysql_stmt_result_metadata(stmt);
+					MYSQL_FIELD * p_fld_data = p_metadata ? mysql_fetch_field_direct(p_metadata, 6) : 0; // колонка Data
+					mysql_free_result(p_metadata);
+					p_metadata = 0;
+				}
+				debug_mark = true;
+			}
+		}
+		// В отладчике смотрим:
+		// - blob_length - реальный размер
+		// - blob_error - было ли обрезание
+		// - blob_data - первые байты данных
+		// - id, obj_type_r, obj_id_r, ver_r - что пришло в ключевых полях
+		CATCHZOK
+		mysql_stmt_close(stmt);
+	}
+}
+// } @v12.5.7

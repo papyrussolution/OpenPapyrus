@@ -1,5 +1,5 @@
 // V_SSTAT.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// Copyright (c) A.Starodub, A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1467,7 +1467,7 @@ int PPViewSStat::AddPurchaseBill()
 				SString memo;
 				const LDATETIME now_dtm = getcurdatetime_();
 				(memo = "@autoorder").Space().Cat(now_dtm).Dot().Space().CatEq("Период заказа дней", (long)Filt.OrdTerm);
-				memo.ToOem();
+				memo.Transf(CTRANSF_OUTER_TO_INNER); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 				memo.CopyTo(pack.Rec.Memo, sizeof(pack.Rec.Memo));
 			}
 			*/

@@ -110,8 +110,9 @@ int PPViewLotOp::GetLotRec(ReceiptTbl::Rec * pRec)
 	int    ok = -1;
 	if(Filt.LotID && P_BObj->trfr->Rcpt.Search(Filt.LotID, pRec) > 0)
 		ok = 1;
-	else
-		memzero(pRec, sizeof(ReceiptTbl::Rec));
+	else {
+		CALLPTRMEMB(pRec, Clear());
+	}
 	return ok;
 }
 

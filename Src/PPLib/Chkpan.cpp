@@ -4233,18 +4233,8 @@ int CheckPaneDialog::IsSalCode(const SString & rInput, SString & rCode)
 		SString & r_temp_buf = SLS.AcquireRvlStr();;
 		TranslateLocaleKeyboardTextToLatin(rInput, r_temp_buf); // @v11.2.5
 		do {
-			// @v11.2.5 {
 			if(IsCode(r_temp_buf, pfx = "SAL", asterix, rCode))
 				ok = 1;
-			// } @v11.2.5 
-			/* @v11.2.5
-			if(IsCode(rInput, pfx = "SAL", asterix, rCode))
-				ok = 1;
-			else if(IsCode(rInput, pfx = "ЫФД", asterix, rCode))
-				ok = 1;
-			else if(IsCode(rInput, (pfx = "ЫФД").ToOem(), asterix, rCode))
-				ok = 1;
-			*/
 		} while(!ok && ++asterix < 2);
 	}
 	return ok;

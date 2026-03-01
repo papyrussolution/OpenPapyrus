@@ -1,5 +1,5 @@
 // SBUFFER.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -455,7 +455,7 @@ int FASTCALL SBuffer::Read(SArray * pAry, long options)
 {
 	assert(pAry != 0);
 	if(pAry) {
-		pAry->clear(); // @v11.3.0 freeAll()-->clear()
+		pAry->clear();
 		return Helper_Read(pAry, options);
 	}
 	else
@@ -466,16 +466,16 @@ int FASTCALL SBuffer::Read(SVector * pAry, long options)
 {
 	assert(pAry != 0);
 	if(pAry) {
-		pAry->clear(); // @v11.3.0 freeAll()-->clear()
+		pAry->clear();
 		return Helper_Read(pAry, options);
 	}
 	else
 		return 0;
 }
 
-int FASTCALL SBuffer::Write(const SString & rBuf)
+int FASTCALL SBuffer::Write(const SString & rBuf) 
 {
-	uint16 sz = (uint16)rBuf.Len();
+	uint16 sz = static_cast<uint16>(rBuf.Len()); // @todo @20260220 uint16-->uint32
 	return BIN(Write(&sz, sizeof(sz)) && Write(rBuf.cptr(), sz));
 }
 
@@ -483,7 +483,7 @@ int FASTCALL SBuffer::Read(SString & rBuf)
 {
 	EXCEPTVAR(SLibError);
 	int    ok = 1;
-	uint16 sz = 0;
+	uint16 sz = 0; // @todo @20260220 uint16-->uint32      
 	char * p_temp_buf = 0;
 	char   shrt_buf[512];
 	rBuf.Z();

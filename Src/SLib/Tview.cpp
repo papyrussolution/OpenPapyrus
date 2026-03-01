@@ -6,7 +6,8 @@
 #pragma hdrstop
 //#include <htmlhelp.h> // @Muxa
 //
-//
+// @v12.5.7 (replaced with SlConst::Signature_TView)   #define SIGN_TVIEW   0x09990999UL
+// @v12.5.7 (replaced with SlConst::Signature_TWindow) #define SIGN_TWINDOW 0x09990997UL // @v12.5.7
 //
 /*static*/void * FASTCALL TView::messageCommand(TView * pReceiver, uint command)
 {
@@ -235,23 +236,23 @@ TView::EvBarrier::~EvBarrier()
 
 bool TView::EvBarrier::operator !() const { return (Busy != 0); }
 
-#define SIGN_TVIEW 0x09990999UL
-
 void TView::SendToParent(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	if(Sf & sfMsgToParent)
-		::SendMessageW(GetParent(hWnd), uMsg, wParam, lParam);
+	if(Sf & sfMsgToParent) {
+		HWND   h_parent = GetParent(hWnd);
+		::SendMessageW(h_parent, uMsg, wParam, lParam);
+	}
 	else
 		handleWindowsMessage(uMsg, wParam, lParam);
 }
 
-TView::TView(const TRect & rBounds) : Sign(SIGN_TVIEW), SubSign(0), Id(0), Reserve(0), Sf(sfVisible | sfMsgToParent),
+TView::TView(const TRect & rBounds) : Sign(SlConst::Signature_TView), SubSign(0), Id(0), Reserve(0), Sf(sfVisible|sfMsgToParent),
 	ViewOptions(0), EndModalCmd(0), HelpCtx(0), P_Next(0), P_Owner(0), Parent(0), PrevWindowProc(0), P_CmdSet(0), P_WordSelBlk(0)
 {
 	setBounds(rBounds);
 }
 
-TView::TView() : Sign(SIGN_TVIEW), SubSign(0), Id(0), Reserve(0), Sf(sfVisible | sfMsgToParent),
+TView::TView() : Sign(SlConst::Signature_TView), SubSign(0), Id(0), Reserve(0), Sf(sfVisible | sfMsgToParent),
 	ViewOptions(0), EndModalCmd(0), HelpCtx(0), P_Next(0), P_Owner(0), Parent(0), PrevWindowProc(0), P_CmdSet(0), P_WordSelBlk(0)
 {
 }
@@ -791,7 +792,7 @@ bool TView::IsConsistent() const
 {
 	bool   ok = true;
 	__try {
-		if(Sign == SIGN_TVIEW) {
+		if(oneof2(Sign, SlConst::Signature_TView, SlConst::Signature_TWindow)) { // @v12.5.7 SlConst::Signature_TWindow
 			// @v12.2.5 {
 			const void * vptr = *(const void **)(this);
 			if(vptr == 0 || vptr == reinterpret_cast<const void *>(0x04U))
@@ -994,7 +995,20 @@ uint   TView::GetId() const { return (this && IsConsistent()) ? static_cast<uint
 bool   FASTCALL TView::TestId(uint id) const { return (this && IsConsistent() && id && id == static_cast<uint>(Id)); }
 bool   FASTCALL TView::IsInState(uint s) const { return ((Sf & s) == s); }
 void * FASTCALL TView::MessageCommandToOwner(uint command) { return P_Owner ? TView::messageCommand(P_Owner, command, this) : 0; }
-HWND   TView::getHandle() const { return GetDlgItem(Parent, Id); }
+
+HWND   TView::getHandle() const 
+{ 
+	HWND   h_result = 0;
+	if(GetSignature() == SlConst::Signature_TView) {
+		h_result = GetDlgItem(Parent, Id);
+	}
+	// @v12.5.7 {
+	else if(GetSignature() == SlConst::Signature_TWindow) {
+		h_result = static_cast<const TWindow *>(this)->H();
+	}
+	// } @v12.5.7 
+	return h_result;
+}
 // @v12.2.6 int    FASTCALL TView::valid(ushort) { return 1; } // @cmValidateCommand
 
 uint TView::getHelpCtx()
@@ -1995,6 +2009,43 @@ void TViewGroup::Insert_(TView * p) { insertBefore(p, GetFirstView()); }
 uint TViewGroup::GetCurrId() const { return P_Current ? P_Current->GetId() : 0; }
 bool FASTCALL TViewGroup::IsCurrentView(const TView * pV) const { return (pV && P_Current == pV); }
 bool FASTCALL TViewGroup::isCurrCtlID(uint ctlID) const { return (P_Current && P_Current->TestId(ctlID)); }
+
+const TView * FASTCALL TViewGroup::getCtrlViewByHandleC(/*HWND*/void * pHandle) const // @v12.5.7
+{
+	const TView * p_result = 0;
+	if(pHandle) {
+		HWND   h_key = reinterpret_cast<HWND>(pHandle);
+		const TView * p_temp = P_Last;
+		if(p_temp) {
+			const TView * p_term = P_Last;
+			do {
+				p_temp = p_temp->P_Next;
+				if(p_temp && p_temp->IsConsistent()) {
+					HWND   h_iter = 0;
+					if(p_temp->GetSignature() == SlConst::Signature_TWindow) {
+						h_iter = static_cast<const TWindow *>(p_temp)->H();
+						if(h_iter == h_key) {
+							p_result = p_temp;
+						}
+						else if(::IsChild(h_iter, h_key)) {
+							p_result = p_temp;
+						}
+					}
+					else {
+						h_iter = p_temp->getHandle();
+						if(h_iter == h_key) {
+							p_result = p_temp;
+						}
+					}
+				}
+				else {
+					break;
+				}
+			} while(!p_result && p_temp != p_term);
+		}
+	}
+	return p_result;
+}
 
 const TView * FASTCALL TViewGroup::getCtrlViewC(ushort ctlID) const // @v12.3.7 moved from TWindow
 {

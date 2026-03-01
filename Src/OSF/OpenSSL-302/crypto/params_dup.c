@@ -98,32 +98,30 @@ OSSL_PARAM * OSSL_PARAM_dup(const OSSL_PARAM * src)
 {
 	size_t param_blocks;
 	OSSL_PARAM_BUF buf[OSSL_PARAM_BUF_MAX];
-	OSSL_PARAM * last, * dst;
+	OSSL_PARAM * last;
+	OSSL_PARAM * dst = 0;
 	int param_count = 1; /* Include terminator in the count */
-
-	if(src == NULL)
+	if(!src)
 		return NULL;
 	memzero(buf, sizeof(buf));
-	/* First Pass: get the param_count and block sizes required */
+	// First Pass: get the param_count and block sizes required
 	(void)ossl_param_dup(src, NULL, buf, &param_count);
 	param_blocks = ossl_param_bytes_to_blocks(param_count * sizeof(*src));
-	/*
-	 * The allocated buffer consists of an array of OSSL_PARAM followed by
-	 * aligned data bytes that the array elements will point to.
-	 */
+	// 
+	// The allocated buffer consists of an array of OSSL_PARAM followed by
+	// aligned data bytes that the array elements will point to.
+	// 
 	if(!ossl_param_buf_alloc(&buf[OSSL_PARAM_BUF_PUBLIC], param_blocks, 0))
 		return NULL;
-	/* Allocate a secure memory buffer if required */
+	// Allocate a secure memory buffer if required 
 	if(buf[OSSL_PARAM_BUF_SECURE].blocks > 0 && !ossl_param_buf_alloc(&buf[OSSL_PARAM_BUF_SECURE], 0, 1)) {
 		OPENSSL_free(buf[OSSL_PARAM_BUF_PUBLIC].alloc);
 		return NULL;
 	}
-
 	dst = (OSSL_PARAM*)buf[OSSL_PARAM_BUF_PUBLIC].alloc;
 	last = ossl_param_dup(src, dst, buf, NULL);
-	/* Store the allocated secure memory buffer in the last param block */
-	ossl_param_set_secure_block(last, buf[OSSL_PARAM_BUF_SECURE].alloc,
-	    buf[OSSL_PARAM_BUF_SECURE].alloc_sz);
+	// Store the allocated secure memory buffer in the last param block
+	ossl_param_set_secure_block(last, buf[OSSL_PARAM_BUF_SECURE].alloc, buf[OSSL_PARAM_BUF_SECURE].alloc_sz);
 	return dst;
 }
 

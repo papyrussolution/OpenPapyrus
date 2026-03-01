@@ -318,8 +318,10 @@ void JsonEscaping::Escape(strings::ByteSource* input, strings::ByteSink* output)
 			num_read = 0;
 		} while(i < str.length()); // case iv
 		// First copy the un-escaped prefix, if any, to the output ByteSink.
-		if(i > 0) input->CopyTo(output, i);
-		if(num_read > 0) input->Skip(num_read);
+		if(i > 0) 
+			input->CopyTo(output, i);
+		if(num_read > 0) 
+			input->Skip(num_read);
 		if(!ok) {
 			// Case iii: Report error.
 			// TODO(wpoon): Add error reporting.

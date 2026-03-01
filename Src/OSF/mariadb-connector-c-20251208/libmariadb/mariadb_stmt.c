@@ -830,13 +830,14 @@ uchar* mysql_stmt_execute_generate_bulk_request(MYSQL_STMT * stmt, size_t * requ
 	size_t free_bytes = 0;
 	ushort flags = 0;
 	uchar * tmp_start;
-	uint i, j;
-	uchar * start = NULL, * p;
+	uint i;
+	uint j;
+	uchar * start = NULL;
+	uchar * p;
 	if(!MARIADB_STMT_BULK_SUPPORTED(stmt)) {
 		stmt_set_error(stmt, CR_FUNCTION_NOT_SUPPORTED, "IM001", CER(CR_FUNCTION_NOT_SUPPORTED), "Bulk operation");
 		return NULL;
 	}
-
 	if(!stmt->param_count) {
 		stmt_set_error(stmt, CR_BULK_WITHOUT_PARAMETERS, "IM001", CER(CR_BULK_WITHOUT_PARAMETERS));
 		return NULL;
@@ -855,11 +856,11 @@ uchar* mysql_stmt_execute_generate_bulk_request(MYSQL_STMT * stmt, size_t * requ
 	   not knowm, so we need to assign prebind_params, which was previously
 	   set by mysql_stmt_attr_set
 	 */
-	if(!stmt->param_count && stmt->prebind_params)
+	if(!stmt->param_count && stmt->prebind_params) {
 		stmt->param_count = stmt->prebind_params;
+	}
 	if(stmt->param_count) {
 		free_bytes = length - (p - start);
-
 		/* Store type information:
 		   2 bytes per type
 		 */
@@ -1072,9 +1073,7 @@ bool STDCALL mysql_stmt_bind_param(MYSQL_STMT * stmt, MYSQL_BIND * bind)
 		stmt_set_error(stmt, CR_SERVER_LOST, SQLSTATE_UNKNOWN, 0);
 		return 1;
 	}
-	/* If number of parameters was specified via mysql_stmt_attr_set we need to realloc
-	   them, e.g. for mariadb_stmt_execute_direct()
-	 */
+	// If number of parameters was specified via mysql_stmt_attr_set we need to realloc them, e.g. for mariadb_stmt_execute_direct()
 	if((stmt->state < MYSQL_STMT_PREPARED || stmt->state >= MYSQL_STMT_EXECUTED) && stmt->prebind_params > 0) {
 		if(!stmt->params && stmt->prebind_params) {
 			if(!(stmt->params = (MYSQL_BIND*)ma_alloc_root(&stmt->mem_root, stmt->prebind_params * sizeof(MYSQL_BIND)))) {
@@ -1097,12 +1096,10 @@ bool STDCALL mysql_stmt_bind_param(MYSQL_STMT * stmt, MYSQL_BIND * bind)
 				stmt_set_error(stmt, CR_UNSUPPORTED_PARAM_TYPE, SQLSTATE_UNKNOWN, 0);
 				return 1;
 			}
-			if(!stmt->params[i].is_null)
-				stmt->params[i].is_null = &is_not_null;
+			SETIFZQ(stmt->params[i].is_null, &is_not_null);
 			if(stmt->params[i].long_data_used)
 				stmt->params[i].long_data_used = 0;
-			if(!stmt->params[i].length)
-				stmt->params[i].length = &stmt->params[i].buffer_length;
+			SETIFZQ(stmt->params[i].length, &stmt->params[i].buffer_length);
 			switch(stmt->params[i].buffer_type) {
 				case MYSQL_TYPE_NULL:
 				    stmt->params[i].is_null = &is_null;
@@ -1182,12 +1179,9 @@ bool STDCALL mysql_stmt_bind_result(MYSQL_STMT * stmt, MYSQL_BIND * bind)
 			stmt_set_error(stmt, CR_UNSUPPORTED_PARAM_TYPE, SQLSTATE_UNKNOWN, 0);
 			return 1;
 		}
-		if(!stmt->bind[i].is_null)
-			stmt->bind[i].is_null = &stmt->bind[i].is_null_value;
-		if(!stmt->bind[i].length)
-			stmt->bind[i].length = &stmt->bind[i].length_value;
-		if(!stmt->bind[i].P_Error)
-			stmt->bind[i].P_Error = &stmt->bind[i].error_value;
+		SETIFZQ(stmt->bind[i].is_null, &stmt->bind[i].is_null_value);
+		SETIFZQ(stmt->bind[i].length, &stmt->bind[i].length_value);
+		SETIFZQ(stmt->bind[i].P_Error, &stmt->bind[i].error_value);
 		/* set length values for numeric types */
 		switch(bind[i].buffer_type) {
 			case MYSQL_TYPE_NULL:
@@ -1228,7 +1222,7 @@ static bool net_stmt_close(MYSQL_STMT * stmt, bool remove)
 {
 	char stmt_id[STMT_ID_LENGTH];
 	MA_MEM_ROOT * fields_ma_alloc_root = &((MADB_STMT_EXTENSION*)stmt->extension)->fields_ma_alloc_root;
-	/* clear memory */
+	// clear memory 
 	ma_free_root(&stmt->result.alloc, MYF(0)); /* allocated in mysql_stmt_store_result */
 	ma_free_root(&stmt->mem_root, MYF(0));
 	ma_free_root(fields_ma_alloc_root, MYF(0));
@@ -1277,7 +1271,6 @@ void STDCALL mysql_stmt_data_seek(MYSQL_STMT * stmt, uint64 offset)
 		ptr = ptr->next;
 	stmt->result_cursor = ptr;
 	stmt->state = MYSQL_STMT_USER_FETCHING;
-	return;
 }
 
 uint STDCALL mysql_stmt_errno(MYSQL_STMT * stmt) { return stmt->last_errno; }
@@ -1651,9 +1644,8 @@ int stmt_read_execute_response(MYSQL_STMT * stmt)
 	stmt->upsert_status.affected_rows = stmt->mysql->affected_rows;
 	if(ret) {
 		stmt_set_error(stmt, mysql->net.last_errno, mysql->net.sqlstate, mysql->net.last_error);
-		/* if mariadb_stmt_execute_direct was used, we need to send the number
-		   of parameters to the specified prebinded value to prevent possible
-		   memory overrun */
+		// if mariadb_stmt_execute_direct was used, we need to send the number
+		// of parameters to the specified prebinded value to prevent possible memory overrun 
 		if(stmt->prebind_params)
 			stmt->param_count = stmt->prebind_params;
 		stmt->state = MYSQL_STMT_PREPARED;

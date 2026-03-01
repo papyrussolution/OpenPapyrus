@@ -40,8 +40,9 @@ uint32 FASTCALL stsize(TYPEID t)
 	}
 }
 
-int    FASTCALL stcomp(TYPEID t, const void * i1, const void * i2) { DataType _t; return stype(t, &_t).comp(i1, i2); }
+int    FASTCALL stcomp(TYPEID t, const void * i1, const void * i2) { DataType _t; return stype(t, &_t).Cmp_(i1, i2); }
 char * FASTCALL sttostr(TYPEID t, const void * d, long f, char * b) { DataType _t; return stype(t, &_t).tostr(d, f, b); }
+SString & FASTCALL sttosstr(TYPEID t, const void * d, long f, SString & rBuf) { DataType _t; return stype(t, &_t).ToStr_(d, f, rBuf); } // @v12.5.7
 int    FASTCALL stfromstr(TYPEID t, void * d, long f, const char * b) { DataType _t; return stype(t, &_t).fromstr(d, f, b); }
 int    FASTCALL stbase(TYPEID t) { DataType _t; return stype(t, &_t).base(); }
 void   FASTCALL sttobase(TYPEID t, const void * data, void * baseData) { DataType _t; stype(t, &_t).tobase(data, baseData); }
@@ -54,7 +55,7 @@ void   FASTCALL stmaxval(TYPEID t, void * d) { DataType _t; stype(t, &_t).maxval
 //
 //
 uint32 DataType::size() const { return S; }
-int    DataType::comp(const void * i1, const void * i2) const { return memcmp(i1, i2, size()); }
+int    DataType::Cmp_(const void * i1, const void * i2) const { return memcmp(i1, i2, size()); }
 char * DataType::tostr(const void *, long, char * b) const { return &(b[0] = 0); }
 
 /*virtual*/SString & DataType::ToStr_(const void * pData, long format, SString & rBuf) const

@@ -5043,7 +5043,7 @@ int PPObjPerson::ViewVersion(PPID histID)
 			{
 				THROW(CheckDialogPtr(&(dlg = new PersonDialog(DLG_PERSON))));
 				dlg->setDTS(&pack);
-				dlg->enableCommand(cmOK, 0);
+				dlg->enableCommand(cmOK, false);
 				ExecView(dlg);
 			}
 			ok = 1;

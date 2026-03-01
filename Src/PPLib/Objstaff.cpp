@@ -232,10 +232,7 @@ PPObjStaffList::~PPObjStaffList()
 	TLP_CLOSE(P_PostTbl);
 }
 
-int PPObjStaffList::DeleteObj(PPID id)
-{
-	return PutPacket(&id, 0, 0);
-}
+int PPObjStaffList::DeleteObj(PPID id) { return PutPacket(&id, 0, 0); }
 
 int PPObjStaffList::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 {

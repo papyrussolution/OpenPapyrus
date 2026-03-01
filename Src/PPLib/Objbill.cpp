@@ -5679,8 +5679,7 @@ public:
 		double Amount;
 		PPID   CurID;
 	};
-	BillCache() : ObjCacheHash(PPOBJ_BILL, sizeof(Data),
-		(DS.CheckExtFlag(ECF_SYSSERVICE) ? (12*1024*1024) : (4*1024U*1024U)),
+	BillCache() : ObjCacheHash(PPOBJ_BILL, sizeof(Data), (DS.CheckExtFlag(ECF_SYSSERVICE) ? SMEGABYTE(12) : SMEGABYTE(4)),
 		(DS.CheckExtFlag(ECF_SYSSERVICE) ? 16 : 12)), FullSerialList(1)
 	{
 	}

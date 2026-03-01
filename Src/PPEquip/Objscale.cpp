@@ -3786,10 +3786,9 @@ void ShtrihPrint::SetErrorMessage()
 {
 	char   err_buf[MAX_PATH];
 	MEMSZERO(err_buf);
-	if(ResCode != RESCODE_NO_ERROR && P_DrvShtrih &&
-		P_DrvShtrih->GetProperty(ResultCodeDescription, err_buf, sizeof(err_buf) - 1) > 0) {
+	if(ResCode != RESCODE_NO_ERROR && P_DrvShtrih && P_DrvShtrih->GetProperty(ResultCodeDescription, err_buf, sizeof(err_buf) - 1) > 0) {
 		SString err_msg;
-		PPSetAddedMsgString(err_msg.Cat(err_buf).ToOem());
+		PPSetAddedMsgString(err_msg.Cat(err_buf).Transf(CTRANSF_OUTER_TO_INNER)); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 		PPSetError(PPERR_SHTRIHPRINT);
 	}
 }

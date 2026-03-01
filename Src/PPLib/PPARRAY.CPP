@@ -1,5 +1,5 @@
 // PPARRAY.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 // @Kernel
 //
@@ -259,11 +259,11 @@ ObjRestrictItem::ObjRestrictItem(PPID objID, long flags) : ObjID(objID), Flags(f
 {
 }
 
-ObjRestrictArray::ObjRestrictArray() : /*TSArray*/TSVector <ObjRestrictItem> ()
+ObjRestrictArray::ObjRestrictArray() : TSVector <ObjRestrictItem> ()
 {
 }
 
-ObjRestrictArray::ObjRestrictArray(const ObjRestrictArray & s) : /*TSArray*/TSVector <ObjRestrictItem> (s)
+ObjRestrictArray::ObjRestrictArray(const ObjRestrictArray & s) : TSVector <ObjRestrictItem> (s)
 {
 }
 
@@ -278,8 +278,8 @@ int FASTCALL ObjRestrictArray::Helper_MergeItems(const ObjRestrictArray * pS)
 	int    ok = 1;
 	if(pS) {
 		for(uint i = 0; i < pS->getCount(); i++) {
-			const ObjRestrictItem & r_si = pS->at(i);
-			uint  _p = 0;
+			const  ObjRestrictItem & r_si = pS->at(i);
+			uint   _p = 0;
 			if(SearchItemByID(r_si.ObjID, &_p)) {
 				at(_p).Flags |= r_si.Flags;
 			}
@@ -294,16 +294,19 @@ int FASTCALL ObjRestrictArray::Helper_MergeItems(const ObjRestrictArray * pS)
 int ObjRestrictArray::Merge(const ObjRestrictArray * pS, long options)
 {
 	int    ok = 1;
+	const  uint _sc = SVectorBase::GetCount(pS);
     if(options & moEmptyListIsFull) {
-		if(pS == 0 || pS->getCount() == 0) {
+		if(!_sc) {
             freeAll();
             ok = 100;
 		}
-		else
+		else {
 			Helper_MergeItems(pS);
+		}
     }
-    else if(SVectorBase::GetCount(pS))
+    else if(_sc) {
 		Helper_MergeItems(pS);
+	}
     return ok;
 }
 

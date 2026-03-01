@@ -2401,7 +2401,7 @@ int PPViewProcessor::ExportUhtt()
 							logger.Log(PPFormatT(PPTXT_UHTTEXPPRC_EXPORTED, &msg_buf, (const char *)pack.Rec.Name));
 						}
 						else {
-							(temp_buf = uhtt_cli.GetLastMessage()).ToOem();
+							(temp_buf = uhtt_cli.GetLastMessage()).Transf(CTRANSF_OUTER_TO_INNER); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 							logger.Log(PPFormatT(PPTXT_UHTTEXPPRC_EEXPORT, &msg_buf, (const char *)pack.Rec.Name, temp_buf.cptr()));
 						}
 					}

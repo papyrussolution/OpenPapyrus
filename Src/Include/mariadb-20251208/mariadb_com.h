@@ -321,18 +321,22 @@ enum enum_session_state_type {
    TODO: Remove this after server fixes */
 #define SESSION_TRACK_TRANSACTION_TYPE SESSION_TRACK_TRANSACTION_STATE
 
-enum enum_field_types { MYSQL_TYPE_DECIMAL, MYSQL_TYPE_TINY,
-			MYSQL_TYPE_SHORT,  MYSQL_TYPE_LONG,
-			MYSQL_TYPE_FLOAT,  MYSQL_TYPE_DOUBLE,
-			MYSQL_TYPE_NULL,   MYSQL_TYPE_TIMESTAMP,
+enum enum_field_types { 
+	MYSQL_TYPE_DECIMAL, 
+	MYSQL_TYPE_TINY,
+	MYSQL_TYPE_SHORT,  
+	MYSQL_TYPE_LONG,
+	MYSQL_TYPE_FLOAT,  
+	MYSQL_TYPE_DOUBLE,
+	MYSQL_TYPE_NULL,   
+	MYSQL_TYPE_TIMESTAMP,
 			MYSQL_TYPE_LONGLONG, MYSQL_TYPE_INT24,
 			MYSQL_TYPE_DATE,   MYSQL_TYPE_TIME,
 			MYSQL_TYPE_DATETIME, MYSQL_TYPE_YEAR,
 			MYSQL_TYPE_NEWDATE, MYSQL_TYPE_VARCHAR,
 			MYSQL_TYPE_BIT,
 	                /*
-	                   the following types are not used by client,
-	                   only for mysqlbinlog!!
+	                   the following types are not used by client, only for mysqlbinlog!!
 	                 */
 			MYSQL_TYPE_TIMESTAMP2,
 			MYSQL_TYPE_DATETIME2,

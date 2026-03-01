@@ -774,6 +774,7 @@ int ComExcelWorksheet::SetName(const char * pName) { return pName ? SetProperty(
 
 int ComExcelWorksheet::GetName(SString & rName)
 {
+	rName.Z(); // @v12.5.7
 	char   buf[2048];
 	int    ok = GetProperty(Name, buf, sizeof(buf));
 	if(ok > 0)

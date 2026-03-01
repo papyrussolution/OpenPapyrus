@@ -144,6 +144,20 @@ int BExtQuery::CreateSqlExpr(Generator_SQL & rSg, int reverse, const char * pIni
 					local_done = true;
 				}
 			}
+			else if(rSg.GetServerType() == sqlstMySQL) {
+				if(st == S_DATE) {
+					if(SMySqlDbProvider::TypeDateAsInt32) {
+						sttostr(MKSTYPE(S_INT, 4), PTR8C(pInitKey)+offs, COMF_SQL, static_cast<char *>(pBuffer));
+						local_done = true;
+					}
+				}
+				else if(st == S_TIME) {
+					if(SMySqlDbProvider::TypeTimeAsInt32) {
+						sttostr(MKSTYPE(S_INT, 4), PTR8C(pInitKey)+offs, COMF_SQL, static_cast<char *>(pBuffer));
+						local_done = true;
+					}
+				}
+			}
 			if(!local_done)
 				sttostr(rFld.T, PTR8C(pInitKey)+offs, COMF_SQL, static_cast<char *>(pBuffer));
 		};
@@ -923,40 +937,24 @@ int BExtQuery::fillTblBuf()
 			p += sizeof(BExtResultItem);
 		}
 		const  uint c = Fields.GetCount();
-		auto  move_data_to_rec = [](const BNField & rBnF, size_t localRecSize, size_t queryRecSize, uint8 * pDest, const void * pSrc)
-		{
-			const  uint s = rBnF.size();
-			memcpy(pDest + rBnF.Offs, pSrc, s);
-			if(localRecSize && GETSTYPE(rBnF.T) == S_NOTE) {
-				if(localRecSize < queryRecSize) {
-					PTR8(pDest + rBnF.Offs)[s+localRecSize-queryRecSize] = 0; // @v12.4.10 [s-RecSize+rs]-->[s+rs-RecSize]
-				}
-			}
-		};
 		if(c) {
 			for(uint i = 0; i < c; i++) {
 				const  BNField & r_bnf = Fields.GetField(i);
 				const  uint s = r_bnf.size();
-				/* @v12.5.7
-				if(s == sizeof(uint32))
-					*reinterpret_cast<uint32 *>(b + r_bnf.Offs) = *reinterpret_cast<const uint32 *>(p);
-				else if(s == sizeof(uint64))
-					*reinterpret_cast<uint64 *>(b + r_bnf.Offs) = *reinterpret_cast<const uint64 *>(p);
-				else
-					memcpy(b + r_bnf.Offs, p, s);
-				if(rs && GETSTYPE(r_bnf.T) == S_NOTE) {
-					if(rs < RecSize) {
-						PTR8(b+r_bnf.Offs)[s+rs-RecSize] = 0; // @v12.4.10 [s-RecSize+rs]-->[s+rs-RecSize]
-					}
-				}*/
-				//move_data_to_rec(r_bnf, rs, RecSize, PTR8(b), p); // @v12.5.7
 				{
-					const  uint s = r_bnf.size();
-					memcpy(b + r_bnf.Offs, p, s);
-					if(rs && GETSTYPE(r_bnf.T) == S_NOTE) {
-						if(rs < RecSize) {
-							PTR8(b + r_bnf.Offs)[s+rs-RecSize] = 0; // @v12.4.10 [s-RecSize+rs]-->[s+rs-RecSize]
+					if(GETSTYPE(r_bnf.T) == S_NOTE) {
+						// Меры предосторожности чтобы не выйти за пределы доступной области чтения памяти начиная с адреса p
+						const size_t len_of_p = strlen(p);
+						const size_t size_to_copy = smin(len_of_p+1, static_cast<size_t>(s));
+						memcpy(b + r_bnf.Offs, p, size_to_copy);
+						if(rs) {
+							if(rs < RecSize) {
+								PTR8(b + r_bnf.Offs)[s+rs-RecSize] = 0; // @v12.4.10 [s-RecSize+rs]-->[s+rs-RecSize]
+							}
 						}
+					}
+					else {
+						memcpy(b + r_bnf.Offs, p, s);
 					}
 				}
 				p += s;
@@ -984,12 +982,19 @@ int BExtQuery::fillTblBuf()
 					else {
 						//move_data_to_rec(r_bnf, rs, RecSize, PTR8(b), p); // @v12.5.7
 						{
-							const  uint s = r_bnf.size();
-							memcpy(b + r_bnf.Offs, p, s);
-							if(rs && GETSTYPE(r_bnf.T) == S_NOTE) {
-								if(rs < RecSize) {
-									PTR8(b + r_bnf.Offs)[s+rs-RecSize] = 0; // @v12.4.10 [s-RecSize+rs]-->[s+rs-RecSize]
+							if(GETSTYPE(r_bnf.T) == S_NOTE) {
+								// Меры предосторожности чтобы не выйти за пределы доступной области чтения памяти начиная с адреса p
+								const size_t len_of_p = strlen(p);
+								const size_t size_to_copy = smin(len_of_p+1, static_cast<size_t>(s));
+								memcpy(b + r_bnf.Offs, p, size_to_copy);
+								if(rs) {
+									if(rs < RecSize) {
+										PTR8(b + r_bnf.Offs)[s+rs-RecSize] = 0; // @v12.4.10 [s-RecSize+rs]-->[s+rs-RecSize]
+									}
 								}
+							}
+							else {
+								memcpy(b + r_bnf.Offs, p, s);
 							}
 						}
 					}

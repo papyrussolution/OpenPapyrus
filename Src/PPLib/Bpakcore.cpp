@@ -4408,7 +4408,8 @@ void FASTCALL PPBillPacket::InitAmounts(const AmtList & rList)
 			}
 			if(do_calc_amount && amt_formula.NotEmptyS()) {
 				double main_amt = 0.0;
-				if((r = PPCalcExpression(amt_formula, &main_amt, this, Rec.CurID, 0)) > 0) {
+				r = PPCalcExpression(amt_formula, &main_amt, this, Rec.CurID, 0);
+				if(r > 0) {
 					Amounts.Put(PPAMT_MAIN, Rec.CurID, main_amt, 0, 1);
 					Rec.Amount = BR2(main_amt);
 				}

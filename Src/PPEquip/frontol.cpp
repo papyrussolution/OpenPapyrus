@@ -314,7 +314,7 @@ int ACS_FRONTOL::ExportData(int updOnly)
 					f_str.Cat(scs_rec.ID).Semicol();    // Series ID
 					f_str.Cat(info.Rec.Code).Semicol(); // Code
 					f_str.Cat(NZOR(info.Rec.Dt, encodedate(1, 1, 2000)), DATF_GERMANCENT).Semicol();
-					f_str.Cat(NZOR(info.Rec.Expiry, encodedate(1, 1, 3000)), DATF_GERMANCENT).Semicol();
+					f_str.Cat(NZOR(info.Rec.Expiry, MAXDATEVALID), DATF_GERMANCENT).Semicol();
 					f_str.Cat((info.Flags & AsyncCashSCardInfo::fClosed) ? 0 : 1).Semicol();  // Passive | Active
 					f_str.Cat(0L).Semicol();                     // Скидка уменьшающая цену в процентах (0)
 					f_str.Cat(fdiv100i(info.Rec.PDis), MKSFMTD(0, 2, NMBF_NOTRAILZ)).Semicol();
@@ -417,7 +417,7 @@ int ACS_FRONTOL::ExportData(int updOnly)
 						f_str.Cat(info.Rec.Code).Semicol(); // #7 Начало диапазона префиксов
 						f_str.Cat(info.Rec.Code).Semicol(); // #8 Конец диапазона префиксов
 						f_str.Cat(NZOR(info.Rec.Dt, encodedate(1, 1, 2000)), DATF_GERMAN | DATF_CENTURY).Semicol();     // #09 Начальная дата действия сертификата
-						f_str.Cat(NZOR(info.Rec.Expiry, encodedate(1, 1, 3000)), DATF_GERMAN | DATF_CENTURY).Semicol(); // #10 Конечная дата действия сертификата
+						f_str.Cat(NZOR(info.Rec.Expiry, MAXDATEVALID), DATF_GERMAN | DATF_CENTURY).Semicol(); // #10 Конечная дата действия сертификата
 						f_str.Semicol();                       // #11 Не используется //
 						f_str.Cat(R0i(info.Rest)).Semicol(); // #12 Конец диапазона длин сертификатов
 						f_str.Cat((info.Flags & AsyncCashSCardInfo::fClosed) ? 0 : 1).Semicol();  // #13 Passive | Active

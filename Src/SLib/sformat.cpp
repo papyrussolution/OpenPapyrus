@@ -424,11 +424,11 @@ char * STDCALL strfmt(const char * pStr, long fmt, char * pBuf)
 		}
 		if(flag & STRF_TOOEM) {
 			SString & r_temp_buf = SLS.AcquireRvlStr();
-			(r_temp_buf = pStr).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pBuf, 0);
+			(r_temp_buf = pStr).Transf(CTRANSF_OUTER_TO_INNER).CopyTo_Unsafe(pBuf);
 		}
 		else if(flag & STRF_TOANSI) {
 			SString & r_temp_buf = SLS.AcquireRvlStr();
-			(r_temp_buf = pStr).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(pBuf, 0);
+			(r_temp_buf = pStr).Transf(CTRANSF_INNER_TO_OUTER).CopyTo_Unsafe(pBuf);
 		}
 		else if(pBuf != pStr)
 			strcpy(pBuf, pStr);
@@ -1129,7 +1129,15 @@ int FASTCALL strtodoub(const char * pBuf, double * pVal)
 int FASTCALL strtolong(const char * pBuf, long * pVal)
 {
 	char   temp[64];
-	ASSIGN_PTR(pVal, atol(clearDelimiters(STRNSCPY(temp, pBuf))));
+	ASSIGN_PTR(pVal, satoi(clearDelimiters(STRNSCPY(temp, pBuf))));
+	return 1;
+}
+
+int FASTCALL strtoint64(const char * pBuf, int64 * pVal) // @v12.5.7
+{
+	
+	char   temp[64];
+	ASSIGN_PTR(pVal, satoi64(clearDelimiters(STRNSCPY(temp, pBuf))));
 	return 1;
 }
 
@@ -1144,6 +1152,13 @@ int FASTCALL strtouint(const char * pBuf, ulong * pVal)
 {
 	char   temp[64];
 	ASSIGN_PTR(pVal, strtoul(clearDelimiters(STRNSCPY(temp, pBuf)), 0, 10));
+	return 1;
+}
+
+int FASTCALL strtouint64(const char * pBuf, uint64 * pVal) // @v12.5.7
+{
+	char   temp[64];
+	ASSIGN_PTR(pVal, strtoull(clearDelimiters(STRNSCPY(temp, pBuf)), 0, 10));
 	return 1;
 }
 //

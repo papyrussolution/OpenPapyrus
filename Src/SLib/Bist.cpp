@@ -18,8 +18,8 @@ public:
 
 class SInt : public DataType {
 public:
-	explicit SInt(uint32 sz/*= 2*/); 
-	virtual int    comp(const void *, const void *) const;
+	explicit SInt(uint32 sz); 
+	virtual int    Cmp_(const void *, const void *) const;
 	virtual char * tostr(const void *, long, char *) const;
 	virtual SString & ToStr_(const void * pData, long format, SString & rBuf) const; // @v12.5.6
 	virtual int    fromstr(void *, long, const char *) const;
@@ -36,7 +36,7 @@ typedef SInt SAutoinc;
 class SInt64 : public DataType {
 public:
 	SInt64(); 
-	virtual int    comp(const void *, const void *) const;
+	virtual int    Cmp_(const void *, const void *) const;
 	virtual char * tostr(const void *, long, char *) const;
 	virtual SString & ToStr_(const void * pData, long format, SString & rBuf) const; // @v12.5.6
 	virtual int    fromstr(void *, long, const char *) const;
@@ -51,7 +51,7 @@ public:
 class SUInt64 : public DataType { // @v11.9.2 @construction
 public:
 	SUInt64(); 
-	virtual int    comp(const void *, const void *) const;
+	virtual int    Cmp_(const void *, const void *) const;
 	virtual char * tostr(const void *, long, char *) const;
 	virtual SString & ToStr_(const void * pData, long format, SString & rBuf) const; // @v12.5.6
 	virtual int    fromstr(void *, long, const char *) const;
@@ -66,7 +66,7 @@ public:
 class SBool : public DataType {
 public:
 	explicit SBool(uint32 sz = 4);
-	virtual int    comp(const void *, const void *) const;
+	virtual int    Cmp_(const void *, const void *) const;
 	virtual char * tostr(const void *, long, char *) const;
 	virtual SString & ToStr_(const void * pData, long format, SString & rBuf) const; // @v12.5.6
 	virtual int    fromstr(void *, long, const char *) const;
@@ -80,8 +80,11 @@ public:
 
 class SUInt : public DataType {
 public:
- 	explicit SUInt(uint32 sz = 2);
-	virtual int    comp(const void *, const void *) const;
+ 	explicit SUInt(uint32 sz) : DataType(sz)
+	{
+		assert(oneof4(sz, 1, 2, 4, 8));
+	}
+	virtual int    Cmp_(const void *, const void *) const;
 	virtual char * tostr(const void *, long, char *) const;
 	virtual SString & ToStr_(const void * pData, long format, SString & rBuf) const; // @v12.5.6
 	virtual int    fromstr(void *, long, const char *) const;
@@ -95,8 +98,11 @@ public:
 
 class SFloat : public DataType {
 public:
-	explicit SFloat(uint32 sz = 8);
-	virtual int    comp(const void *, const void *) const;
+	explicit SFloat(uint32 sz = 8) : DataType(sz)
+	{
+		assert(oneof3(sz, 4, 8, 10));
+	}
+	virtual int    Cmp_(const void *, const void *) const;
 	virtual char * tostr(const void *, long, char *) const;
 	virtual SString & ToStr_(const void * pData, long format, SString & rBuf) const; // @v12.5.6
 	virtual int    fromstr(void *, long, const char *) const;
@@ -112,7 +118,7 @@ class SDec : public DataType {
 public:
 	SDec(size_t sz = 8, size_t prec = 2);
 	virtual uint32 size() const;
-	virtual int    comp(const void *, const void *) const;
+	virtual int    Cmp_(const void *, const void *) const;
 	virtual char * tostr(const void *, long, char *) const;
 	virtual SString & ToStr_(const void * pData, long format, SString & rBuf) const; // @v12.5.6
 	virtual int    fromstr(void *, long, const char *) const;
@@ -132,8 +138,10 @@ public:
 
 class SDate : public DataType {
 public:
-	SDate();
-	virtual int    comp(const void *, const void *) const;
+	SDate() : DataType(4) 
+	{
+	}
+	virtual int    Cmp_(const void *, const void *) const;
 	virtual char * tostr(const void *, long, char *) const;
 	virtual SString & ToStr_(const void * pData, long format, SString & rBuf) const; // @v12.5.6
 	virtual int    fromstr(void *, long, const char *) const;
@@ -148,7 +156,7 @@ public:
 class STime : public DataType {
 public:
 	STime();
-	virtual int    comp(const void *, const void *) const;
+	virtual int    Cmp_(const void *, const void *) const;
 	virtual char * tostr(const void *, long, char *) const;
 	virtual SString & ToStr_(const void * pData, long format, SString & rBuf) const; // @v12.5.6
 	virtual int    fromstr(void *, long, const char *) const;
@@ -163,7 +171,7 @@ public:
 class SDateTime : public DataType {
 public:
 	SDateTime();
-	virtual int    comp(const void *, const void *) const;
+	virtual int    Cmp_(const void *, const void *) const;
 	virtual char * tostr(const void *, long, char *) const;
 	virtual SString & ToStr_(const void * pData, long format, SString & rBuf) const; // @v12.5.6
 	virtual int    fromstr(void *, long, const char *) const;
@@ -178,7 +186,7 @@ public:
 class SChar : public DataType {
 public:
 	explicit SChar(uint32 sz = 0);
-	int    comp(const void *, const void *) const;
+	int    Cmp_(const void *, const void *) const;
 	char * tostr(const void *, long, char *) const;
 	virtual SString & ToStr_(const void * pData, long fmt, SString & rBuf) const; // @v12.5.6
 	int    fromstr(void *, long, const char *) const;
@@ -191,8 +199,10 @@ public:
 
 class SZString : public DataType {
 public:
-	explicit SZString(uint32 = 0);
-	int    comp(const void *, const void *) const;
+	explicit SZString(uint32 sz) : DataType(sz)
+	{
+	}
+	int    Cmp_(const void *, const void *) const;
 	char * tostr(const void *, long, char *) const;
 	virtual SString & ToStr_(const void * pData, long format, SString & rBuf) const; // @v12.5.6
 	int    fromstr(void *, long, const char *) const;
@@ -212,7 +222,7 @@ public:
 	// Размер указывается в байтах (не символах)
 	//
 	explicit SWcString(uint32 = sizeof(wchar_t));
-	int    comp(const void *, const void *) const;
+	int    Cmp_(const void *, const void *) const;
 	char * tostr(const void *, long, char *) const;
 	virtual SString & ToStr_(const void * pData, long format, SString & rBuf) const; // @v12.5.6
 	int    fromstr(void *, long, const char *) const;
@@ -226,7 +236,7 @@ public:
 class SLString : public DataType {
 public:
 	explicit SLString(uint32 = 0);
-	int    comp(const void *, const void *) const;
+	int    Cmp_(const void *, const void *) const;
 	char * tostr(const void *, long, char *) const;
 	virtual SString & ToStr_(const void * pData, long format, SString & rBuf) const; // @v12.5.6
 	int    fromstr(void *, long, const char *) const;
@@ -247,7 +257,7 @@ public:
 class SRaw : public DataType {
 public:
 	explicit SRaw(uint32 sz = 0);
-	int    comp(const void *, const void *) const;
+	int    Cmp_(const void *, const void *) const;
 	char * tostr(const void *, long, char *) const;
 	virtual SString & ToStr_(const void * pData, long format, SString & rBuf) const; // @v12.5.6
 	int    fromstr(void *, long, const char *) const;
@@ -261,7 +271,7 @@ public:
 class SIPoint2 : public DataType {
 public:
 	explicit SIPoint2(uint32 sz = 4);
-	int    comp(const void *, const void *) const;
+	int    Cmp_(const void *, const void *) const;
 	char * tostr(const void *, long, char *) const;
 	virtual SString & ToStr_(const void * pData, long format, SString & rBuf) const; // @v12.5.6
 	int    fromstr(void *, long, const char *) const;
@@ -276,7 +286,7 @@ public:
 class SFPoint2 : public DataType {
 public:
 	explicit SFPoint2(uint32 sz = 8);
-	int    comp(const void *, const void *) const;
+	int    Cmp_(const void *, const void *) const;
 	char * tostr(const void *, long, char *) const;
 	virtual SString & ToStr_(const void * pData, long format, SString & rBuf) const; // @v12.5.6
 	int    fromstr(void *, long, const char *) const;
@@ -291,7 +301,7 @@ public:
 class SGuid : public DataType {
 public:
 	SGuid();
-	// @baseused int    comp(const void *, const void *) const;
+	// @baseused int    Cmp_(const void *, const void *) const;
 	virtual char * tostr(const void *, long, char *) const;
 	virtual SString & ToStr_(const void * pData, long format, SString & rBuf) const; // @v12.5.6
 	virtual int    fromstr(void *, long, const char *) const;
@@ -306,7 +316,7 @@ public:
 class SDataType_Color : public DataType {
 public:
 	SDataType_Color();
-	// @baseused int    comp(const void *, const void *) const;
+	// @baseused int    Cmp_(const void *, const void *) const;
 	virtual char * tostr(const void *, long, char *) const;
 	virtual SString & ToStr_(const void * pData, long format, SString & rBuf) const; // @v12.5.6
 	virtual int    fromstr(void *, long, const char *) const;
@@ -324,19 +334,19 @@ void RegisterBIST()
 {
 	RegisterSType(S_VOID,        &SVoid());
 	RegisterSType(S_CHAR,     	 &SChar());
-	RegisterSType(S_INT,      	 &SInt(4));
+	RegisterSType(S_INT,      	 &SInt(4)); // @tested
 	// @v11.9.9 (S_BOOL is S_LOGICAL) RegisterSType(S_BOOL,     	 &SBool());
-	RegisterSType(S_UINT,     	 &SUInt());
+	RegisterSType(S_UINT,     	 &SUInt(4)); // @tested
 	RegisterSType(S_LOGICAL,  	 &SBool());
-	RegisterSType(S_FLOAT,    	 &SFloat());
+	RegisterSType(S_FLOAT,    	 &SFloat()); // @tested
 	RegisterSType(S_DEC,      	 &SDec());
 	RegisterSType(S_MONEY,    	 &SMoney());
 	RegisterSType(S_DATE,     	 &SDate());
 	RegisterSType(S_DATETIME, 	 &SDateTime());
 	RegisterSType(S_TIME,     	 &STime());
-	RegisterSType(S_ZSTRING,  	 &SZString());
+	RegisterSType(S_ZSTRING,  	 &SZString(0));
 	RegisterSType(S_AUTOINC,  	 &SAutoinc(4));
-	RegisterSType(S_NOTE,     	 &SNote());
+	RegisterSType(S_NOTE,     	 &SNote(0));
 	RegisterSType(S_LSTRING,  	 &SLString());
 	RegisterSType(S_VARIANT,  	 &SVariant());
 	RegisterSType(S_WCHAR,    	 &SWcString());
@@ -356,7 +366,7 @@ SChar::SChar(uint32 sz) : DataType(sz)
 {
 }
 
-int SChar::comp(const void * i1, const void * i2) const
+int SChar::Cmp_(const void * i1, const void * i2) const
 {
 	return S ? strncmp(static_cast<const char *>(i1), static_cast<const char *>(i2), S) : strcmp(static_cast<const char *>(i1), static_cast<const char *>(i2));
 }
@@ -411,7 +421,7 @@ SWcString::SWcString(uint32 sz) : DataType(ALIGNSIZE(sz, 1))
 {
 }
 
-int SWcString::comp(const void * i1, const void * i2) const
+int SWcString::Cmp_(const void * i1, const void * i2) const
 {
 	return S ? wcsncmp(static_cast<const wchar_t *>(i1), static_cast<const wchar_t *>(i2), S/2) : wcscmp(static_cast<const wchar_t *>(i1), static_cast<const wchar_t *>(i2));
 }
@@ -449,18 +459,10 @@ void SWcString::maxval(void * d) const
 //
 // SZString
 //
-SZString::SZString(uint32 sz) : DataType(sz)
-{
-}
-
-#pragma option -K
-
-int SZString::comp(const void * i1, const void * i2) const
+int SZString::Cmp_(const void * i1, const void * i2) const
 {
 	return S ? strncmp(static_cast<const char *>(i1), static_cast<const char *>(i2), S) : strcmp(static_cast<const char *>(i1), static_cast<const char *>(i2));
 }
-
-#pragma option -K.
 
 char * SZString::tostr(const void * d, long fmt, char * buf) const
 {
@@ -561,7 +563,7 @@ SLString::SLString(uint32 sz) : DataType(sz)
 
 #pragma option -K
 
-int SLString::comp(const void * i1, const void * i2) const
+int SLString::Cmp_(const void * i1, const void * i2) const
 {
 	const  size_t l1 = *static_cast<const char *>(i1);
 	const  size_t l2 = *static_cast<const char *>(i2);
@@ -617,18 +619,19 @@ static int64 FASTCALL _tolong(const void * d, int sz)
 static void FASTCALL _longto(int64 v, void * d, int sz)
 {
 	switch(sz) {
-		case 4: *static_cast<int32 *>(d) = static_cast<int32>(v); break;
-		case 2: *static_cast<int16 *>(d) = static_cast<int16>(v); break;
 		case 1: *static_cast<int8 *>(d) = static_cast<int8>(v); break;
+		case 2: *static_cast<int16 *>(d) = static_cast<int16>(v); break;
+		case 4: *static_cast<int32 *>(d) = static_cast<int32>(v); break;
 		case 8: *static_cast<int64 *>(d) = v; break;
 	}
 }
 
 SInt::SInt(uint32 sz) : DataType(sz)
 {
+	assert(oneof4(S, 1, 2, 4, 8));
 }
 
-int SInt::comp(const void * i1, const void * i2) const
+int SInt::Cmp_(const void * i1, const void * i2) const
 {
 	if(S == 0) {
 		const int64 l1 = *static_cast<const int64 *>(i1);
@@ -661,12 +664,21 @@ SString & SInt::ToStr_(const void * pData, long fmt, SString & rBuf) const // @v
 	return (rBuf = temp_b);
 }
 
-int SInt::fromstr(void * d, long, const char * buf) const
+int SInt::fromstr(void * pData, long, const char * pBuf) const
 {
-	long   lv;
-	int    r = strtolong(buf, &lv);
-	_longto(lv, d, S);
-	return r;
+	int    result = 0;
+	if(S == 8) {
+		int64  _v = 0;
+		result = strtoint64(pBuf, &_v);
+		if(pData)
+			*static_cast<int64 *>(pData) = _v;
+	}
+	else {
+		long   _v = 0;
+		result = strtolong(pBuf, &_v);
+		_longto(_v, pData, S);
+	}
+	return result;
 }
 
 void SInt::tobase(const void * d, void * baseData) const
@@ -682,10 +694,10 @@ int SInt::baseto(void * d, const void * baseData) const
 void SInt::minval(void * d) const
 {
 	switch(S) {
-		case 2: *static_cast<int16 *>(d) = SHRT_MIN;  break;
-		case 4: *static_cast<int32 *>(d) = LONG_MIN;  break;
-		case 1: *static_cast<int8  *>(d) = SCHAR_MIN; break;
-		case 8: *static_cast<int64 *>(d) = LLONG_MIN; break;
+		case 1: *static_cast<int8  *>(d) = INT8_MIN; break;
+		case 2: *static_cast<int16 *>(d) = INT16_MIN;  break;
+		case 4: *static_cast<int32 *>(d) = INT32_MIN;  break;
+		case 8: *static_cast<int64 *>(d) = INT64_MIN; break;
 		default: ; // assert(INVALID_DATA_SIZE);
 	}
 }
@@ -693,10 +705,10 @@ void SInt::minval(void * d) const
 void SInt::maxval(void * d) const
 {
 	switch(S) {
-		case 2: *static_cast<int16 *>(d) = SHRT_MAX; break;
-		case 4: *static_cast<int32 *>(d) = LONG_MAX; break;
-		case 1: *static_cast<int8  *>(d) = SCHAR_MAX; break;
-		case 8: *static_cast<int64 *>(d) = LLONG_MAX; break;
+		case 1: *static_cast<int8  *>(d) = INT8_MAX; break;
+		case 2: *static_cast<int16 *>(d) = INT16_MAX; break;
+		case 4: *static_cast<int32 *>(d) = INT32_MAX; break;
+		case 8: *static_cast<int64 *>(d) = INT64_MAX; break;
 		default: ; // assert(INVALID_DATA_SIZE);
 	}
 }
@@ -814,7 +826,7 @@ SUInt64::SUInt64() : DataType(8) // @v11.9.2 @construction
 {
 }
 
-int SUInt64::comp(const void * i1, const void * i2) const
+int SUInt64::Cmp_(const void * i1, const void * i2) const
 {
 	const uint64 l1 = *static_cast<const uint64 *>(i1);
 	const uint64 l2 = *static_cast<const uint64 *>(i2);
@@ -834,11 +846,11 @@ SString & SUInt64::ToStr_(const void * pData, long fmt, SString & rBuf) const //
 	return (rBuf = temp_b);
 }
 
-int SUInt64::fromstr(void * d, long, const char * buf) const
+int SUInt64::fromstr(void * pData, long, const char * pBuf) const
 {
 	// @todo Нужен вариант функции преобразования строки в целое с диагностикой ошибки
-	uint64 lv = satou64(buf);
-	_longto(lv, d, S);
+	uint64 lv = satou64(pBuf);
+	_longto(lv, pData, S);
 	return 1;
 }
 
@@ -920,7 +932,7 @@ SInt64::SInt64() : DataType(8)
 {
 }
 
-int SInt64::comp(const void * i1, const void * i2) const
+int SInt64::Cmp_(const void * i1, const void * i2) const
 {
 	const int64 l1 = *static_cast<const int64 *>(i1);
 	const int64 l2 = *static_cast<const int64 *>(i2);
@@ -1027,7 +1039,7 @@ SBool::SBool(uint32 sz) : DataType(sz)
 {
 }
 
-int SBool::comp(const void * p1, const void * p2) const
+int SBool::Cmp_(const void * p1, const void * p2) const
 {
 	const long   l1 = BIN(_tolong(p1, S));
 	const long   l2 = BIN(_tolong(p2, S));
@@ -1135,14 +1147,12 @@ int SBool::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSeria
 //
 // STUInt
 //
-#pragma warn -rvl
-
 static ulong FASTCALL _toulong(const void * d, int sz)
 {
 	switch(sz) {
-		case 4: return *static_cast<const ulong *>(d);
-		case 2: return (ulong)*static_cast<const uint16 *>(d);
 		case 1: return (ulong)*static_cast<const uchar *>(d);
+		case 2: return (ulong)*static_cast<const uint16 *>(d);
+		case 4: return *static_cast<const ulong *>(d);
 		case 8: return (ulong)*static_cast<const uint64 *>(d);
 	}
 	return 0;
@@ -1151,20 +1161,14 @@ static ulong FASTCALL _toulong(const void * d, int sz)
 static void FASTCALL _ulongto(ulong ul, void * d, int sz)
 {
 	switch(sz) {
+		case 1: *static_cast<uint8  *>(d) = static_cast<uint8>(ul); break;
+		case 2: *static_cast<uint16 *>(d) = static_cast<uint16>(ul); break;
 		case 4: *static_cast<ulong  *>(d) = ul; break;
-		case 2: *static_cast<uint16 *>(d) = (uint16)ul; break;
-		case 1: *static_cast<uint8  *>(d) = (uint8)ul; break;
-		case 8: *static_cast<uint64 *>(d) = (uint64)ul; break;
+		case 8: *static_cast<uint64 *>(d) = static_cast<uint64>(ul); break;
 	}
 }
 
-#pragma warn +rvl
-
-SUInt::SUInt(uint32 sz) : DataType(sz)
-{
-}
-
-int SUInt::comp(const void * i1, const void * i2) const
+int SUInt::Cmp_(const void * i1, const void * i2) const
 {
 	if(S == 8) {
 		const uint64 v1 = *static_cast<const uint64 *>(i1);
@@ -1197,12 +1201,21 @@ SString & SUInt::ToStr_(const void * pData, long fmt, SString & rBuf) const // @
 	return (rBuf = temp_b);
 }
 
-int SUInt::fromstr(void * d, long, const char * buf) const
+int SUInt::fromstr(void * pData, long, const char * pBuf) const
 {
-	ulong  lv;
-	int    r = strtouint(buf, &lv);
-	_ulongto(lv, d, S);
-	return r;
+	int    result = 0;
+	if(S == 8) {
+		uint64 _v;
+		result = strtouint64(pBuf, &_v);
+		if(pData)
+			*static_cast<uint64 *>(pData) = _v;
+	}
+	else {
+		ulong  _v;
+		result = strtouint(pBuf, &_v);
+		_ulongto(_v, pData, S);
+	}
+	return result;
 }
 
 void SUInt::tobase(const void * d, void * baseData) const { *static_cast<long *>(baseData) = static_cast<long>(_toulong(d, S)); }
@@ -1212,9 +1225,10 @@ void SUInt::minval(void * d) const { _ulongto(0L, d, S); }
 void SUInt::maxval(void * d) const
 {
 	switch(S) {
-		case 1: *static_cast<uint8 *>(d)  = 255; break;
-		case 2: *static_cast<uint16 *>(d) = USHRT_MAX; break;
-		case 4: *static_cast<ulong *>(d)  = ULONG_MAX; break;
+		case 1: *static_cast<uint8 *>(d)  = UINT8_MAX; break;
+		case 2: *static_cast<uint16 *>(d) = UINT16_MAX; break;
+		case 4: *static_cast<ulong *>(d)  = UINT32_MAX; break;
+		case 8: *static_cast<uint64 *>(d)  = UINT64_MAX; break; // @v12.5.7
 		default: ; //CHECK(INVALID_DATA_SIZE);
 	}
 }
@@ -1321,23 +1335,15 @@ int SUInt::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSeria
 //
 // SFloat
 //
-SFloat::SFloat(uint32 sz) : DataType(sz)
-{
-}
-
-#pragma warn -rvl
-
 static double FASTCALL __toldbl(const void * d, int s)
 {
 	switch(s) {
 		case 8: return *static_cast<const double *>(d);
-		case 4: return (double)*static_cast<const float *>(d);
-		case 10: return (double)*static_cast<const long double *>(d);
+		case 4: return static_cast<double>(*static_cast<const float *>(d));
+		case 10: return static_cast<double>(*static_cast<const long double *>(d));
 	}
 	return 0.0;
 }
-
-#pragma warn +rvl
 
 static void __ldblto(double v, void * d, int s)
 {
@@ -1349,7 +1355,7 @@ static void __ldblto(double v, void * d, int s)
 	}
 }
 
-int SFloat::comp(const void * i1, const void * i2) const
+int SFloat::Cmp_(const void * i1, const void * i2) const
 {
 	const long double v1 = __toldbl(i1, S);
 	const long double v2 = __toldbl(i2, S);
@@ -1519,7 +1525,7 @@ SDec::SDec(size_t sz, size_t prec) : DataType(GETSSIZE(MKSTYPED(S_DEC, sz, prec)
 
 uint32 SDec::size() const { return (S & 0x00ff); }
 
-int SDec::comp(const void * i1, const void * i2) const
+int SDec::Cmp_(const void * i1, const void * i2) const
 {
 	return deccmp(static_cast<const char *>(i1), static_cast<const char *>(i2), static_cast<int16>(S & 0x00ff));
 }
@@ -1569,12 +1575,12 @@ int SDec::baseto(void * d, const void * baseData) const
 	return (dectodec(*static_cast<const double *>(baseData), static_cast<char *>(d), static_cast<int16>(S & 0x00ff), static_cast<int16>(S >> 8)), 1);
 }
 
-static void FASTCALL _bound(void * d, int s, int sign)
+static void FASTCALL _bound(void * pData, int s, int sign)
 {
 	int    sz = (s & 0x00ff);
 	int    dec = (s >> 8);
 	double v = (pow(10.0, sz * 2 - 1) - 1) / pow(10.0, dec);
-	dectodec(sign ? -v : v, static_cast<char *>(d), sz, dec);
+	dectodec(sign ? -v : v, static_cast<char *>(pData), sz, dec);
 }
 
 void SDec::minval(void * d) const { _bound(d, S, 1); }
@@ -1582,10 +1588,6 @@ void SDec::maxval(void * d) const { _bound(d, S, 0); }
 //
 // SDate
 //
-SDate::SDate() : DataType(4) 
-{
-}
-
 char * SDate::tostr(const void * v, long fmt, char * b) const { return datefmt(v, fmt, b); }
 
 SString & SDate::ToStr_(const void * pData, long fmt, SString & rBuf) const // @v12.5.6
@@ -1597,9 +1599,15 @@ SString & SDate::ToStr_(const void * pData, long fmt, SString & rBuf) const // @
 }
 
 int  SDate::fromstr(void * v, long f, const char * b) const { return strtodate(b, f, v); }
-void SDate::minval(void * d) const { return encodedate(0, 0, 0, d); }
-void SDate::maxval(void * d) const { return encodedate(1, 1, 3000, d); }
-int  SDate::comp(const void * i1, const void * i2) const { return CMPSIGN(*static_cast<const ulong *>(i1), *static_cast<const ulong *>(i2)); }
+void SDate::minval(void * pData) const { return encodedate(0, 0, 0, pData); }
+
+void SDate::maxval(void * pData) const
+{ 
+	if(pData)
+		*static_cast<LDATE *>(pData) = MAXDATEVALID; /*encodedate(1, 1, 3000, pData);*/ 
+}
+
+int  SDate::Cmp_(const void * i1, const void * i2) const { return CMPSIGN(*static_cast<const ulong *>(i1), *static_cast<const ulong *>(i2)); }
 
 int SDate::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx)
 {
@@ -1690,7 +1698,7 @@ SString & STime::ToStr_(const void * pData, long fmt, SString & rBuf) const // @
 int STime::fromstr(void * v, long f, const char * b) const { return strtotime(b, f, (LTIME *)v); }
 void STime::minval(void * d) const { (((LTIME *)d)->v = 0UL); }
 void STime::maxval(void * d) const { ((LTIME *)d)->v = static_cast<ulong>(LONG_MAX); } // @v12.4.7 ULONG_MAX-->LONG_MAX (причина: переполнение при трактовке величины как знаковое целое)
-int STime::comp(const void * i1, const void * i2) const { return CMPSIGN(*(ulong *)i1, *(ulong *)i2); }
+int STime::Cmp_(const void * i1, const void * i2) const { return CMPSIGN(*(ulong *)i1, *(ulong *)i2); }
 
 int STime::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx)
 {
@@ -1829,7 +1837,7 @@ void SDateTime::maxval(void * d) const
 	}
 }
 
-int SDateTime::comp(const void * i1, const void * i2) const
+int SDateTime::Cmp_(const void * i1, const void * i2) const
 {
 	return cmp(*static_cast<const LDATETIME *>(i1), *static_cast<const LDATETIME *>(i2));
 }
@@ -1880,15 +1888,12 @@ SRaw::SRaw(uint32 sz) : DataType(sz)
 {
 }
 
-int SRaw::comp(const void * p1, const void *p2) const
-{
-	return memcmp(p1, p2, S);
-}
+int SRaw::Cmp_(const void * p1, const void *p2) const { return memcmp(p1, p2, S); }
 
 char * SRaw::tostr(const void * pData, long, char * pStr) const
 {
 	SString temp_buf;
-	temp_buf.EncodeMime64(pData, S).CopyTo(pStr, 256);
+	temp_buf.EncodeMime64(pData, S).CopyTo_Unsafe(pStr); // @v12.5.7 CopyTo(pStr, 256)-->CopyTo_Unsafe(pStr)
 	return pStr;
 }
 
@@ -1925,7 +1930,7 @@ SIPoint2::SIPoint2(uint32 sz) : DataType(sz)
 	assert(sz == 4);
 }
 
-int SIPoint2::comp(const void * i1, const void * i2) const
+int SIPoint2::Cmp_(const void * i1, const void * i2) const
 {
 	SPoint2F p1 = *static_cast<const SPoint2S *>(i1);
 	SPoint2F p2 = *static_cast<const SPoint2S *>(i2);
@@ -2032,7 +2037,7 @@ SFPoint2::SFPoint2(uint32 sz) : DataType(sz)
 	assert(sz == sizeof(SPoint2F));
 }
 
-int SFPoint2::comp(const void * i1, const void * i2) const
+int SFPoint2::Cmp_(const void * i1, const void * i2) const
 {
 	return CMPSIGN(static_cast<const SPoint2F *>(i1)->Hypot(), static_cast<const SPoint2F *>(i2)->Hypot());
 }
@@ -2139,7 +2144,7 @@ char * SGuid::tostr(const void * pData, long f, char * pBuf) const
 {
 	SString temp_buf;
 	static_cast<const S_GUID *>(pData)->ToStr(S_GUID::fmtIDL, temp_buf);
-	temp_buf.CopyTo(pBuf, 0);
+	temp_buf.CopyTo_Unsafe(pBuf);
 	return pBuf;
 }
 
@@ -2162,12 +2167,12 @@ void SGuid::maxval(void * pData) const { memset(pData, 0xff, sizeof(S_GUID)); }
 SDataType_Color::SDataType_Color() : DataType(sizeof(SColorBase))
 {
 }
-// @baseused int    comp(const void *, const void *) const;
+// @baseused int    Cmp_(const void *, const void *) const;
 char * SDataType_Color::tostr(const void * pData, long format, char * pBuf) const
 {
 	SString temp_buf;
 	static_cast<const SColorBase *>(pData)->ToStr(0/*format*/, temp_buf);
-	temp_buf.CopyTo(pBuf, 0);
+	temp_buf.CopyTo_Unsafe(pBuf);
 	return pBuf;
 }
 

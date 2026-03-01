@@ -1,0 +1,30 @@
+[
+	{
+		"function": "styloq-rabbitmq",
+		"name": "Сервер Rabbit-MQ NL",
+		"url": "amqp://213.166.70.221",
+		"accessname": "Admin",
+		"accesspassword": "CX8U3kM9wTQb"
+	},
+	{
+		"function": "styloq-rabbitmq",
+		"name": "Сервер Rabbit-MQ PFT local",
+		"url": "amqp://192.168.0.205",
+		"accessname": "Admin",
+		"accesspassword": "CX8U3kM9wTQb"
+	},
+	{
+		"function": "styloq-rabbitmq",
+		"name": "Сервер Rabbit-MQ PFT uhtt.ru",
+		"url": "amqp://217.77.50.185",
+		"accessname": "Admin",
+		"accesspassword": "CX8U3kM9wTQb"
+	},
+	{
+		"function": "styloq-rabbitmq",
+		"name": "Сервер Rabbit-MQ PFT open-ip",
+		"url": "amqp://212.109.15.97",
+		"accessname": "Admin",
+		"accesspassword": "CX8U3kM9wTQb"
+	}	
+]

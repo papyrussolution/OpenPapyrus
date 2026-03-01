@@ -1,5 +1,5 @@
 // OBJQCERT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2019, 2020, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2019, 2020, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 // Управление сертификатами качества.
 //
@@ -89,10 +89,7 @@ int PPObjQCert::SetPassiveTag(PPID id, int set, int use_ta)
 	return ok;
 }
 
-int PPObjQCert::DeleteObj(PPID id)
-{
-	return PutPacket(&id, 0, 0);
-}
+int PPObjQCert::DeleteObj(PPID id) { return PutPacket(&id, 0, 0); }
 
 ListBoxDef * PPObjQCert::Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr)
 {

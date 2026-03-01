@@ -1,5 +1,5 @@
 // OBJGOODS.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -918,7 +918,7 @@ int PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 						PPIDArray struc_ref_goods_list;
 						SearchGListByStruc(rec.StrucID, false/*expandGenerics*/, struc_ref_goods_list);
 						for(uint k = 0; !has_forein_ref && k < struc_ref_goods_list.getCount(); k++) {
-							PPID   ref_goods_id = struc_ref_goods_list.get(k);
+							const  PPID ref_goods_id = struc_ref_goods_list.get(k);
 							if(ref_goods_id && ref_goods_id != *pID)
 								has_forein_ref = 1;
 						}
@@ -1071,7 +1071,7 @@ int PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 						// сформировать событие, индицирующее этот факт.
 						//
 						if(mtx_qk_id) {
-							int    has_mtx = 0;
+							bool   has_mtx = false;
 							PPID   parent_id = pPack->Rec.ParentID;
 							PPIDArray recur_list;
 							Goods2Tbl::Rec parent_rec;
@@ -1085,9 +1085,11 @@ int PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 								else {
 									PPQuotArray ql;
 									P_Tbl->GetQuotList(parent_id, 0, ql);
-									for(uint i = 0; !has_mtx && i < ql.getCount(); i++)
-										if(ql.at(i).Kind == mtx_qk_id && ql.at(i).Quot > 0.0)
-											has_mtx = 1;
+									for(uint i = 0; !has_mtx && i < ql.getCount(); i++) {
+										if(ql.at(i).Kind == mtx_qk_id && ql.at(i).Quot > 0.0) {
+											has_mtx = true;
+										}
+									}
 									if(!has_mtx)
 										parent_id = parent_rec.ParentID;
 								}
@@ -1879,7 +1881,7 @@ int GoodsSubstList::GetAlcoCategoryText(PPID substID, SString & rBuf) const
 	long   arp_pos = (substID & ~GOODSSUBSTMASK);
 	if(arp_pos && P_Arp) {
 		ok = P_Arp->GetCategoryNameByCodePos(arp_pos, rBuf);
-		rBuf.ToOem();
+		rBuf.Transf(CTRANSF_OUTER_TO_INNER); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 	}
 	return ok;
 }
@@ -2770,12 +2772,14 @@ int PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFlags)
 	else if(pFilt->Flags & GoodsFilt::fWoTaxGrp) {
 		if(rec.TaxGrpID)
 			CFF_RET;
+		/* @v12.5.7 Пришли к выводу, что правильнее трактовать этот флаг только как "отсутствие налоговой группы у самого товара без оглядки на группу"
 		else {
 			Goods2Tbl::Rec parent_rec;
 			Fetch(rec.ParentID, &parent_rec);
 			if(parent_rec.TaxGrpID)
 				CFF_RET;
 		}
+		*/
 	}
 	if(pFilt->ManufCountryID) {
 		if(rec.ManufID) {
@@ -3539,8 +3543,7 @@ int PPObjGoods::SearchByBarcode(const char * pCode, BarcodeTbl::Rec * pBcRec, Go
 
 int PPObjGoods::SearchBy2dBarcode(const char * pCodeLine, BarcodeTbl::Rec * pRec, Goods2Tbl::Rec * pGoodsRec)
 	{ return P_Tbl->SearchBy2dBarcode(pCodeLine, pRec, pGoodsRec); }
-int PPObjGoods::DeleteObj(PPID id)
-	{ return PutPacket(&id, 0, 0); }
+int PPObjGoods::DeleteObj(PPID id) { return PutPacket(&id, 0, 0); }
 
 StrAssocArray * PPObjGoods::CreateListByList(const PPIDArray * pIdList)
 {
@@ -5241,7 +5244,7 @@ int PPObjGoods::SetupAttrByTextDescr(PPID id, const char * pLine, int use_ta)
 						grp_id = bc_rec.GoodsID;
 					}
 					else {
-						THROW(gg_obj.SearchByName(temp_buf.ToOem(), &grp_id, &gg_rec) > 0);
+						THROW(gg_obj.SearchByName(temp_buf.Transf(CTRANSF_OUTER_TO_INNER), &grp_id, &gg_rec) > 0); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 					}
 					THROW(gg_obj.Fetch(grp_id, &gg_rec) > 0);
 					THROW(gg_rec.Kind == PPGDSK_GROUP && !(gg_rec.Flags & (GF_ALTGROUP|GF_FOLDER)));

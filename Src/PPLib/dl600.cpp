@@ -1,5 +1,5 @@
 // DL600.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage Windows-1251
 //
 #include <pp.h>
@@ -2510,7 +2510,7 @@ const  DlScope * DlContext::GetScopeByName_Const(uint kind, const char * pName) 
 	return p_scope;
 }
 
-const DlScope * DlContext::GetDialogScopeBySymbolIdent_Const(uint symbolIdent) const
+const  DlScope * DlContext::Helper_GetViewScopeBySymbolIdent_Const(uint32 viewKind, uint symbolIdent) const // @v12.5.7
 {
 	const DlScope * p_scope = 0;
 	if(symbolIdent) {
@@ -2524,7 +2524,7 @@ const DlScope * DlContext::GetDialogScopeBySymbolIdent_Const(uint symbolIdent) c
 					uint32 vk = 0;
 					uint32 symb_ident = 0;
 					GetConst_Uint32(p_iter_scope, DlScope::cuifViewKind, vk);
-					if(vk == UiItemKind::kDialog) {
+					if(vk == viewKind) {
 						GetConst_Uint32(p_iter_scope, DlScope::cucmSymbolIdent, symb_ident);
 						if(symb_ident == symbolIdent)
 							p_scope = p_iter_scope;
@@ -2534,6 +2534,16 @@ const DlScope * DlContext::GetDialogScopeBySymbolIdent_Const(uint symbolIdent) c
 		}
 	}
 	return p_scope;
+}
+
+const DlScope * DlContext::GetDialogScopeBySymbolIdent_Const(uint symbolIdent) const
+{
+	return Helper_GetViewScopeBySymbolIdent_Const(UiItemKind::kDialog, symbolIdent);
+}
+
+const DlScope * DlContext::GetLayoutScopeBySymbolIdent_Const(uint symbolIdent) const // @v12.5.7
+{
+	return Helper_GetViewScopeBySymbolIdent_Const(UiItemKind::kGenericView, symbolIdent);
 }
 
 int DlContext::AddStructType(DLSYMBID symbId)
@@ -3040,7 +3050,7 @@ int DlContext::GetDbTableSpecList(StrAssocArray * pList) const
 	{ return Helper_GetScopeList(DlScope::kDbTable, 1, pList); }
 int DlContext::GetDialogList(StrAssocArray * pList) const
 { 
-	return Helper_GetScopeList(/*DlScope::kUiDialog*/DlScope::kUiView, DlScope::srchfRecursive|DlScope::srchfTopLevel, pList); 
+	return Helper_GetScopeList(DlScope::kUiView, DlScope::srchfRecursive|DlScope::srchfTopLevel, pList); 
 }
 
 //const SUiLayoutParam * DlContext::GetConst_LayoutBlock(const DlScope * pScope, DlScope::COption propId) const
@@ -3277,7 +3287,7 @@ int DlContext::Error(int errCode, const char * pAddedInfo, long flags /* erfXXX 
 	msg_buf.FormatFileParsingMessage(InFileName, yyline, 0).Cat("error").Space().Cat("dl600").CatDiv(':', 2).Cat(temp_buf);
 	if(flags & erfLog)
 		SLS.LogMessage(LogFileName, msg_buf);
-	printf(msg_buf.CR().ToOem().cptr());
+	printf(msg_buf.CR().Transf(CTRANSF_OUTER_TO_INNER).cptr()); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 	if(flags & erfExit)
 		exit(-1);
 	return 0;

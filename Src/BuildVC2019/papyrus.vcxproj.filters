@@ -1410,4 +1410,9 @@
       <Filter>Resource</Filter>
     </ResourceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="..\PPMain\papyrus-windows.manifest">
+      <Filter>Resource</Filter>
+    </Manifest>
+  </ItemGroup>
 </Project>

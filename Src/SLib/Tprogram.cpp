@@ -1986,14 +1986,13 @@ int TProgram::DrawButton2(HWND hwnd, DRAWITEMSTRUCT * pDi)
 	return ok;
 }
 
-int TProgram::GetDialogTextLayout(const SString & rText, int fontId, int penId, STextLayout & rTlo, int adj)
+int TProgram::GetDialogTextLayoutU(const wchar_t * pText, int fontId, int penId, STextLayout & rTlo, int adj) // @v12.5.7
 {
 	int    ok = -1;
 	rTlo.Reset();
-	if(fontId && rText.NotEmpty()) {
+	if(fontId && !isempty(pText)) {
 		SPaintToolBox * p_tb = GetUiToolBox();
 		if(p_tb) {
-			SString temp_buf;
 			int    tool_text_brush_id = 0; //SPaintToolBox::rbr3DFace;
 			int    tid_cs = p_tb->CreateCStyle(0, fontId, penId, tool_text_brush_id);
 			SParaDescr pd;
@@ -2002,12 +2001,19 @@ int TProgram::GetDialogTextLayout(const SString & rText, int fontId, int penId, 
 			else if(adj == ADJ_RIGHT)
 				pd.Flags |= SParaDescr::fJustRight;
 			int    tid_para = p_tb->CreateParagraph(0, &pd);
-			rTlo.SetText(rText);
+			rTlo.SetTextU(pText);
 			rTlo.SetOptions(STextLayout::fWrap, tid_para, tid_cs);
 			ok = 1;
 		}
 	}
 	return ok;
+}
+
+int TProgram::GetDialogTextLayoutUtf8(const SString & rText, int fontId, int penId, STextLayout & rTlo, int adj)
+{
+	SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+	rText.CopyToUnicode(r_temp_buf_u);
+	return GetDialogTextLayoutU(r_temp_buf_u, fontId, penId, rTlo, adj);
 }
 
 /*int TProgram::DrawCtrlImage(HWND hwnd, DRAWITEMSTRUCT * pDi)
@@ -2331,13 +2337,9 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			{
 				draw_bitmap = 0;
 				{
-					//SETIFZ(dv_id, PPDV_TESTFLOWER);
 					TWhatmanToolArray::Item tool_item;
-					// @v11.9.2 const SDrawFigure * p_fig = DvToolList.GetFigById(1, dv_id, &tool_item);
-					// @v11.9.2 {
 					const TWhatmanToolArray * p_dv_tool_list = GetVectorTools();
 					const SDrawFigure * p_fig = p_dv_tool_list ? p_dv_tool_list->GetFigById(1, dv_id, &tool_item) : 0;
-					// } @v11.9.2 
 					if(p_fig) {
 						if(!tool_item.ReplacedColor.IsEmpty()) {
 							SColor replacement_color;
@@ -2393,8 +2395,8 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 				if(temp_font_id) {
 					STextLayout tlo;
 					SDrawContext dctx = canv;
-					text_buf.Transf(CTRANSF_OUTER_TO_INNER);
-					if(GetDialogTextLayout(text_buf, temp_font_id, text_pen_id, tlo, draw_bitmap ? ADJ_LEFT : ADJ_CENTER) > 0) {
+					text_buf.Transf(CTRANSF_OUTER_TO_UTF8);
+					if(GetDialogTextLayoutUtf8(text_buf, temp_font_id, text_pen_id, tlo, draw_bitmap ? ADJ_LEFT : ADJ_CENTER) > 0) {
 						FRect fr(out_r);
 						tlo.SetBounds(fr);
 						tlo.SetOptions(tlo.fVCenter, -1, -1);
@@ -2413,20 +2415,14 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 
 const SDrawFigure * TProgram::LoadDrawFigureBySymb(const char * pSymb, TWhatmanToolArray::Item * pInfo) const
 {
-	// @v11.9.2 return DvToolList.GetFig(1, pSymb, pInfo);
-	// @v11.9.2 {
 	const TWhatmanToolArray * p_dv_tool_list = GetVectorTools();
 	return p_dv_tool_list ? p_dv_tool_list->GetFig(1, pSymb, pInfo) : 0;
-	// } @v11.9.2 
 }
 
 const SDrawFigure * TProgram::LoadDrawFigureById(uint id, TWhatmanToolArray::Item * pInfo) const
 {
-	// @v11.9.2 return DvToolList.GetFigById(1, id, pInfo);
-	// @v11.9.2 {
 	const TWhatmanToolArray * p_dv_tool_list = GetVectorTools();
 	return p_dv_tool_list ? p_dv_tool_list->GetFigById(1, id, pInfo) : 0;
-	// } @v11.9.2 
 }
 
 int TProgram::DrawNumStepper(HWND hwnd, DRAWITEMSTRUCT * pDi) // @v12.5.3 @construction
@@ -2473,8 +2469,8 @@ int TProgram::DrawFrame(HWND hwnd, DRAWITEMSTRUCT * pDi) // @v12.5.5 @constructi
 						if(temp_font_id) {
 							STextLayout tlo;
 							SDrawContext dctx = canv;
-							text_buf.Transf(CTRANSF_OUTER_TO_INNER);
-							if(GetDialogTextLayout(text_buf, temp_font_id, text_pen_id, tlo, ADJ_LEFT) > 0) {
+							text_buf.Transf(CTRANSF_OUTER_TO_UTF8);
+							if(GetDialogTextLayoutUtf8(text_buf, temp_font_id, text_pen_id, tlo, ADJ_LEFT) > 0) {
 								FRect fr(pDi->rcItem);
 								fr.a.x += 8;
 								fr.a.y -= 4; // Если поднимать выше, то текст будет затираться //

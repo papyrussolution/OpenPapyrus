@@ -252,12 +252,12 @@ PPEgaisProcessor::Packet::Packet(int docType) : DocType(docType), Flags(0), Intr
 		case PPEDIOP_EGAIS_REPLYFORMA:
 		case PPEDIOP_EGAIS_REPLYFORM1: // @v11.3.4
 			P_Data = new EgaisRefATbl::Rec;
-			memzero(P_Data, sizeof(EgaisRefATbl::Rec));
+			// @v12.5.7 (@ctr) memzero(P_Data, sizeof(EgaisRefATbl::Rec));
 			break;
 		case PPEDIOP_EGAIS_WAYBILL:
 		case PPEDIOP_EGAIS_WAYBILL_V2:
 		case PPEDIOP_EGAIS_WAYBILL_V3:
-		case PPEDIOP_EGAIS_WAYBILL_V4: // @v11.0.12
+		case PPEDIOP_EGAIS_WAYBILL_V4:
 		case PPEDIOP_EGAIS_WAYBILLACT:
 		case PPEDIOP_EGAIS_WAYBILLACT_V2:
 		case PPEDIOP_EGAIS_WAYBILLACT_V3:

@@ -1,5 +1,5 @@
 // DLGPROCS.CPP
-// Copyright (c) V.Antonov, A.Osolotkin 1999-2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2018, 2019, 2020, 2021, 2023, 2024
+// Copyright (c) V.Antonov, A.Osolotkin 1999-2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2018, 2019, 2020, 2021, 2023, 2024, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -31,10 +31,10 @@ static const __KeyAssoc _KeyAssocTab[] = {
 	{ VK_F10,      kbF10,       kbShiftF10, kbCtrlF10,   kbAltF10 },
 	{ VK_F11,      kbF11,       kbShiftF11, kbCtrlF11,   kbAltF11 },
 	{ VK_F12,      kbF12,       kbShiftF12, kbCtrlF12,   kbAltF12 },
-	{ VK_UP,       kbUp,        0,          0,           0 },
-	{ VK_DOWN,     kbDown,      0,          0,           0 },
-	{ VK_LEFT,     kbLeft,      0,          0,           0 }, 
-	{ VK_RIGHT,    kbRight,     0,          0,           0 },
+	{ VK_UP,       kbUp,        0,          0,           kbAltUp/*@v12.5.7*/ },
+	{ VK_DOWN,     kbDown,      0,          0,           kbAltDown/*@v12.5.7*/ },
+	{ VK_LEFT,     kbLeft,      0,          0,           kbAltLeft/*@v12.5.7*/ },
+	{ VK_RIGHT,    kbRight,     0,          0,           kbAltRight/*@v12.5.7*/ },
 	{ VK_TAB,      kbTab,       kbShiftTab, kbCtrlTab,   0 },
 };
 
@@ -338,10 +338,7 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 				short  def_inln_id = (p_dlg->DefInputLine && GetDlgItem(hwndDlg, p_dlg->DefInputLine)) ? p_dlg->DefInputLine : 0;
 				if(def_inln_id && def_inln_id != ctrl_id) {
 					::SetFocus(GetDlgItem(hwndDlg, def_inln_id));
-					// @v11.20 SString temp_buf;
-					// @v11.20 temp_buf.CatChar(static_cast<char>(LOWORD(wParam)));
-					// @v11.20 TView::SSetWindowText(GetDlgItem(hwndDlg, def_inln_id), temp_buf);
-					TView::SSetWindowText(GetDlgItem(hwndDlg, def_inln_id), SLS.AcquireRvlStr().CatChar(static_cast<char>(LOWORD(wParam)))); // @v11.20
+					TView::SSetWindowText(GetDlgItem(hwndDlg, def_inln_id), SLS.AcquireRvlStr().CatChar(static_cast<char>(LOWORD(wParam))));
 					::SendDlgItemMessage(hwndDlg, def_inln_id, WM_KEYDOWN, VK_END, 0);
 					return 0;
 				}

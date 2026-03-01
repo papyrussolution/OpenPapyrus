@@ -1943,7 +1943,7 @@ void FormatSubstDate(SubstGrpDate sgd, LDATE dt, char * pBuf, size_t bufLen, lon
 	char * p = temp;
 	SString temp_buf;
 	int    d = 0, m = 0, y = 0;
-	long format = (fmt) ? fmt : DATF_DMY|DATF_CENTURY;
+	long   format = (fmt) ? fmt : DATF_DMY|DATF_CENTURY;
 	decodedate(&d, &m, &y, &dt);
 	if(sgd == sgdMonth) {
 		//p = p + sstrlen(getMonthText(m, MONF_SHORT | MONF_OEM, temp));
@@ -1968,7 +1968,7 @@ void FormatSubstDate(SubstGrpDate sgd, LDATE dt, char * pBuf, size_t bufLen, lon
 	else if(sgd == sgdWeekDay) {
 		format = (format >= 1 && format <= 4) ? format : 3;
 		GetDayOfWeekText(format, dt.v, temp_buf);
-		temp_buf.ToOem().CopyTo(temp, sizeof(temp));
+		temp_buf.Transf(CTRANSF_OUTER_TO_INNER).CopyTo(temp, sizeof(temp)); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 	}
 	else
 		datefmt(&dt, format, temp);

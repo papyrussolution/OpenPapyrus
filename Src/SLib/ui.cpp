@@ -1,5 +1,5 @@
 // UI.CPP
-// Copyright (c) A.Sobolev 2011, 2016, 2018, 2020, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2011, 2016, 2018, 2020, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -162,7 +162,7 @@ SScroller & FASTCALL SScroller::Copy(const SScroller & rS)
 int SScroller::Setup(const SetupBlock & rBlk)
 {
 	int    ok = 1;
-	assert(rBlk.ViewSize > 0.0f);
+	// @v12.5.7 assert(rBlk.ViewSize > 0.0f);
 	assert(rBlk.FixedItemSize >= 0.0f);
 	assert(rBlk.FixedItemSize == 0.0f || rBlk.ItemSizeList.getCount() == rBlk.ItemCount);
 	if(rBlk.ViewSize > 0.0f && rBlk.FixedItemSize >= 0.0f && (rBlk.FixedItemSize == 0.0f || rBlk.ItemSizeList.getCount() == rBlk.ItemCount)) {

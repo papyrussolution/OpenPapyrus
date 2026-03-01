@@ -5,7 +5,15 @@
 #include <slib-internal.h>
 #pragma hdrstop
 #include <mariadb-20251208/mysql.h>
+/*
+	Включение режима логирования запросов:
+	SET GLOBAL general_log = ON;
+	SET GLOBAL log_output = 'TABLE';	
 
+	Анализ лога запросов:
+	SELECT * FROM mysql.general_log 
+	SELECT * FROM mysql.general_log where argument LIKE '%Transfer%' ORDER BY event_time desc
+*/
 static void FASTCALL DEBUG_LOG(const char * pMsg)
 {
 	if(SlDebugMode::CT())
@@ -234,6 +242,8 @@ bool SMySqlDbProvider::Helper_Connect(const DbLoginBlock * pBlk, SString * pDbNa
 	if(pBlk) {
 		rConnEntry.Conn.SetH(mysql_init(0));
 		if(!!rConnEntry.Conn) {
+			// SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
 			MYSQL * p_h = GetHandle(rConnEntry.Conn);
 			SString temp_buf;
 			SString url_buf;
@@ -294,6 +304,20 @@ bool SMySqlDbProvider::Helper_Connect(const DbLoginBlock * pBlk, SString * pDbNa
 				const char * p_db_name = dontUseDatabase ? 0 : db_name.cptr();
 				if(mysql_real_connect(p_h, host, user, pw, p_db_name, port, 0/*unix-socket*/, 0/*client_flags*/)) {
 					//CurrentDatabase = db_name;
+					mysql_query(p_h, "SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"); // @v12.5.7
+					/*
+						Для отладочной проверки уровня изоляции перед исполнением select:
+						// После SET SESSION ... но перед SELECT
+						MYSQL_RES *res = mysql_query(p_h, "SELECT @@transaction_isolation");
+						if(res) {
+							MYSQL_ROW row = mysql_fetch_row(res);
+							printf("Isolation level: %s\n", row[0]); // Должно быть "READ-COMMITTED"
+							mysql_free_result(res);
+						} 
+						else {
+							printf("Error: %s\n", mysql_error(p_h));
+						}
+					*/ 
 					ASSIGN_PTR(pDbName, db_name);
 					ok = true;
 				}
@@ -586,6 +610,8 @@ const BNField * SMySqlDbProvider::GetRowIdField(const DBTable * pTbl, uint * pFl
 			}
 			if(P_TraBlk) {
 				P_TraBlk->Conn.DestroyLastSelectStatement();
+				const  int tilr = mysql_query(GetHandle(P_TraBlk->Conn), "SET TRANSACTION ISOLATION LEVEL READ COMMITTED;"); // @v12.5.7
+				assert(tilr == 0); // @debug
 				if(ProcessError(P_TraBlk->Conn, mysql_query(GetHandle(P_TraBlk->Conn), SqlGen.GetTextC()))) {
 					ok = 1;
 					State |= stTransaction;
@@ -865,9 +891,18 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 		rBlk.SqlG.Sp().Tok(Generator_SQL::tokWhere).Sp().Text(p_rowid_fld->Name)._Symb(_EQ_).QText(temp_buf);
 	}
 	else {
-		if(rBlk.SrchMode != spEq) { // Если условие EQ, то нет смысла мучить сервер требования работы по индексу - результат инвариантен
-			if(rBlk.SqlG.GetIndexName(*pTbl, idx, temp_buf)) {
-				rBlk.SqlG.Sp().Tok(Generator_SQL::tokForceIndex).LPar().Text(temp_buf).RPar();
+		{
+			bool   do_force_index = true;
+			if(rBlk.SrchMode == spEq) { // Если условие EQ, то нет смысла мучить сервер требования работы по индексу - результат инвариантен
+				do_force_index = false;
+			}
+			/*else if(oneof3(rBlk.SrchMode, spLe, spLt, spLast)) { // При обратном направлении поиска force index мешает серверу.
+				do_force_index = false;
+			}*/
+			if(do_force_index) {
+				if(rBlk.SqlG.GetIndexName(*pTbl, idx, temp_buf)) {
+					rBlk.SqlG.Sp().Tok(Generator_SQL::tokForceIndex).LPar().Text(temp_buf).RPar();
+				}
 			}
 		}
 		if(oneof2(rBlk.SrchMode, spFirst, spLast)) {
@@ -1171,10 +1206,10 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 					THROW(p_rowid_fld); // @todo @err
 					THROW(pTbl->getFieldValue(rowid_fld_pos, rowid_data, &rowid_data_size)); // @todo @err
 					if(rowid_data_size == 4) {
-						p_cur_row_id->SetI32(reinterpret_cast<uint32>(rowid_data));
+						p_cur_row_id->SetI32(*reinterpret_cast<uint32 *>(rowid_data));
 					}
 					else if(rowid_data_size == 8) {
-						p_cur_row_id->SetI64(reinterpret_cast<int64>(rowid_data));
+						p_cur_row_id->SetI64(*reinterpret_cast<int64 *>(rowid_data));
 					}
 					else {
 						constexpr bool InvalidRowIdDataSize = false;
@@ -1233,6 +1268,36 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 			do_process_lob = 1;
 	}*/
 	SqlGen.Z().Tok(Generator_SQL::tokInsert).Sp().Tok(Generator_SQL::tokInto).Sp().Text(pTbl->FileName_).Sp();
+	{
+		SqlGen.LPar();
+		{
+			bool is_first_fld_enum_item = true;
+			for(i = 0; i < fld_count; i++) {
+				const BNField & r_fld = pTbl->FldL.GetFieldByPosition(i);
+				const bool is_surrogate_rowid_field = sstreqi_ascii(r_fld.Name, SlConst::P_SurrogateRowIdFieldName);
+				bool  do_skip_this_fld = false;
+				if(is_surrogate_rowid_field) {
+					do_skip_this_fld = false; // @itsnotanerror! false
+				}
+				else if(GETSTYPE(r_fld.T) == S_AUTOINC) {
+					int64  val = 0;
+					size_t val_sz = 0;
+					r_fld.getValue(pTbl->getDataBufConst(), &val, &val_sz);
+					// @v12.5.6 assert(val_sz == sizeof(val));
+					if(val == 0) {
+						// (похоже, не надо так делать - надо привязывать null-значение явно) do_skip_this_fld = true;
+					}
+				}
+				if(!do_skip_this_fld) {
+					if(!is_first_fld_enum_item)
+						SqlGen.Com();
+					SqlGen.Text(r_fld.Name);
+					is_first_fld_enum_item = false;
+				}
+			}
+		}
+		SqlGen.RPar();
+	}
 	SqlGen.Tok(Generator_SQL::tokValues).Sp().LPar();
 	stmt.BL.Dim = 1;
 	stmt.BL.P_Lob = pTbl->getLobBlock();
@@ -1536,6 +1601,8 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 		rQ.tree->CreateSqlExpr(SqlGen, -1);
 	}
 	{
+		ConnectionEntry & r_ce = GetWorkingConnection(0, false);
+		r_ce.DestroyLastSelectStatement();
 		SSqlStmt stmt(this, SqlGen);
 		THROW(stmt.Exec(1, OCI_DEFAULT));
 	}
@@ -1653,7 +1720,7 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 			if(r_bind.Pos < 0) {
 				//OCIBind * p_bd = 0;
 				THROW(ProcessBinding(0, row_count, &rS, &r_bind));
-				{
+				if(!(r_bind.Flags & SSqlStmt::Bind::fSkip)) { // @v12.5.7 @condition
 					void * p_data = rS.GetBindOuterPtr(&r_bind, 0);
 					MYSQL_BIND bind_item;
 					MEMSZERO(bind_item);
@@ -1682,7 +1749,7 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 			SSqlStmt::Bind & r_bind = rS.BL.at(i);
 			if(r_bind.Pos > 0) {
 				THROW(ProcessBinding(0, row_count, &rS, &r_bind));
-				{
+				if(!(r_bind.Flags & SSqlStmt::Bind::fSkip)) { // @v12.5.7 @condition
 					void * p_data = rS.GetBindOuterPtr(&r_bind, 0);
 					MYSQL_BIND bind_item;
 					MEMSZERO(bind_item);
@@ -1759,6 +1826,7 @@ void FASTCALL SMySqlDbProvider::OdFree(SMySqlDbProvider::OD & rO)
 /*virtual*/int SMySqlDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind)
 {
 	int    ok = 1;
+	bool   debug_mark = false; // @debug
 	const  size_t sz = stsize(pBind->Typ);
 	uint16 out_typ = 0;
 	pBind->NtvSize = static_cast<uint16>(sz); // default value
@@ -1778,7 +1846,7 @@ void FASTCALL SMySqlDbProvider::OdFree(SMySqlDbProvider::OD & rO)
 		case S_INT:
 		case S_AUTOINC: 
 			if(sz == 4)
-				ProcessBinding_SimpleType(action, count, pStmt, pBind, MYSQL_TYPE_LONG); 
+				ProcessBinding_SimpleType(action, count, pStmt, pBind, MYSQL_TYPE_LONG);
 			else if(sz == 8)
 				ProcessBinding_SimpleType(action, count, pStmt, pBind, MYSQL_TYPE_LONGLONG);
 			else if(sz == 2)
@@ -1824,74 +1892,97 @@ void FASTCALL SMySqlDbProvider::OdFree(SMySqlDbProvider::OD & rO)
 					dectodec(*static_cast<double *>(p_data), static_cast<char *>(pBind->P_Data), dec_len, dec_prc);
 			}
 			break;
+		//
+		// Замечание по типам S_DATE и S_TIME.
+		// Во время отладки разных механизмов возникали подозрения на неадекватность представления даты и времени в родном MySQL-формате.
+		// В дальнейшем они не подтвердились, но я решил пока оставить представление этих типов как int32.
+		// 
 		case S_DATE:
-			if(action == 0) {
-				pBind->SetNtvTypeAndSize(MYSQL_TYPE_DATE, sizeof(MYSQL_TIME));
-				pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
+			if(SMySqlDbProvider::TypeDateAsInt32) {
+				ProcessBinding_SimpleType(action, count, pStmt, pBind, MYSQL_TYPE_LONG);
 			}
-			else if(action < 0) {
-				MYSQL_TIME * p_ocidt = static_cast<MYSQL_TIME *>(p_data);
-				LDATE * p_dt = static_cast<LDATE *>(pBind->P_Data);
-				memzero(p_ocidt, sizeof(*p_ocidt));
-				if(*p_dt == MAXDATE) {
-					p_ocidt->year = 2200;
-					p_ocidt->month = 12;
-					p_ocidt->day = 31;
+			else {
+				uint32 ntv_size = 0;
+				if(action == 0) {
+					if(pBind->Pos < 0) {
+						ntv_size = sizeof(MYSQL_TIME);
+						pBind->SetNtvTypeAndSize(MYSQL_TYPE_DATE, ntv_size);
+						pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
+					}
+					else {
+						ntv_size = sizeof(MYSQL_TIME);
+						pBind->SetNtvTypeAndSize(MYSQL_TYPE_DATE, ntv_size);
+						pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
+					}
 				}
-				else if(*p_dt == ZERODATE) {
-					p_ocidt->year = 1600;
-					p_ocidt->month = 1;
-					p_ocidt->day = 1;
+				else if(action < 0) {
+					const  LDATE * p_dt = static_cast<LDATE *>(pBind->P_Data);
+					LDATE  temp_dt;
+					if(*p_dt == MAXDATE) {
+						temp_dt.encode(31, 12, 2200);
+					}
+					else if(*p_dt == ZERODATE) {
+						temp_dt.encode(1, 1, 1600);
+					}
+					else 
+						temp_dt = *p_dt;
+					{
+						MYSQL_TIME * p_ocidt = static_cast<MYSQL_TIME *>(p_data);
+						memzero(p_ocidt, sizeof(*p_ocidt));
+						p_ocidt->year = temp_dt.year();
+						p_ocidt->month = temp_dt.month();
+						p_ocidt->day = temp_dt.day();
+						p_ocidt->time_type = MYSQL_TIMESTAMP_DATE;
+					}
 				}
-				else {
-					p_ocidt->year = p_dt->year();
-					p_ocidt->month = p_dt->month();
-					p_ocidt->day = p_dt->day();
+				else if(action == 1) {
+					const MYSQL_TIME * p_ocidt = static_cast<const MYSQL_TIME *>(p_data);
+					*static_cast<LDATE *>(pBind->P_Data) = encodedate(p_ocidt->day, p_ocidt->month, p_ocidt->year);
 				}
-				p_ocidt->time_type = MYSQL_TIMESTAMP_DATE;
+				else if(action == 1000)
+					ProcessBinding_FreeDescr(count, pStmt, pBind);
 			}
-			else if(action == 1) {
-				const MYSQL_TIME * p_ocidt = static_cast<const MYSQL_TIME *>(p_data);
-				*static_cast<LDATE *>(pBind->P_Data) = encodedate(p_ocidt->day, p_ocidt->month, p_ocidt->year);
-			}
-			else if(action == 1000)
-				ProcessBinding_FreeDescr(count, pStmt, pBind);
 			break;
 		case S_TIME:
-			if(action == 0) {
-				pBind->SetNtvTypeAndSize(MYSQL_TYPE_TIME, sizeof(MYSQL_TIME));
-				pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
+			if(SMySqlDbProvider::TypeTimeAsInt32) {
+				ProcessBinding_SimpleType(action, count, pStmt, pBind, MYSQL_TYPE_LONG);
 			}
-			else if(action < 0) {
-				MYSQL_TIME * p_ocidt = static_cast<MYSQL_TIME *>(p_data);
-				LTIME * p_tm = static_cast<LTIME *>(pBind->P_Data);
-				memzero(p_ocidt, sizeof(*p_ocidt));
-				if(*p_tm == MAXTIME) {
-					p_ocidt->hour = 23;
-					p_ocidt->minute = 59;
-					p_ocidt->second = 59;
-					p_ocidt->second_part = 99 * 10000; // second_part - микросекунды
+			else {
+				if(action == 0) {
+					pBind->SetNtvTypeAndSize(MYSQL_TYPE_TIME, sizeof(MYSQL_TIME));
+					pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
 				}
-				else if(*p_tm == ZEROTIME) {
-					p_ocidt->hour = 0;
-					p_ocidt->minute = 0;
-					p_ocidt->second = 0;
-					p_ocidt->second_part = 0; // second_part - микросекунды
+				else if(action < 0) {
+					MYSQL_TIME * p_ocidt = static_cast<MYSQL_TIME *>(p_data);
+					LTIME * p_tm = static_cast<LTIME *>(pBind->P_Data);
+					memzero(p_ocidt, sizeof(*p_ocidt));
+					if(*p_tm == MAXTIME) {
+						p_ocidt->hour = 23;
+						p_ocidt->minute = 59;
+						p_ocidt->second = 59;
+						p_ocidt->second_part = 99 * 10000; // second_part - микросекунды
+					}
+					else if(*p_tm == ZEROTIME) {
+						p_ocidt->hour = 0;
+						p_ocidt->minute = 0;
+						p_ocidt->second = 0;
+						p_ocidt->second_part = 0; // second_part - микросекунды
+					}
+					else {
+						p_ocidt->hour = p_tm->hour();
+						p_ocidt->minute = p_tm->minut();
+						p_ocidt->second = p_tm->sec();
+						p_ocidt->second_part = p_tm->hs() * 10000; // second_part - микросекунды
+					}
+					p_ocidt->time_type = MYSQL_TIMESTAMP_TIME;
 				}
-				else {
-					p_ocidt->hour = p_tm->hour();
-					p_ocidt->minute = p_tm->minut();
-					p_ocidt->second = p_tm->sec();
-					p_ocidt->second_part = p_tm->hs() * 10000; // second_part - микросекунды
+				else if(action == 1) {
+					const MYSQL_TIME * p_ocidt = static_cast<const MYSQL_TIME *>(p_data);
+					*static_cast<LTIME *>(pBind->P_Data) = encodetime(p_ocidt->hour, p_ocidt->minute, p_ocidt->second, p_ocidt->second_part / 10000);
 				}
-				p_ocidt->time_type = MYSQL_TIMESTAMP_TIME;
+				else if(action == 1000)
+					ProcessBinding_FreeDescr(count, pStmt, pBind);
 			}
-			else if(action == 1) {
-				const MYSQL_TIME * p_ocidt = static_cast<const MYSQL_TIME *>(p_data);
-				*static_cast<LTIME *>(pBind->P_Data) = encodetime(p_ocidt->hour, p_ocidt->minute, p_ocidt->second, p_ocidt->second_part / 10000);
-			}
-			else if(action == 1000)
-				ProcessBinding_FreeDescr(count, pStmt, pBind);
 			break;
 		case S_DATETIME:
 			if(action == 0) {
@@ -2008,44 +2099,61 @@ void FASTCALL SMySqlDbProvider::OdFree(SMySqlDbProvider::OD & rO)
 			break;
 		case S_CLOB:
 			if(action == 0) {
-				const uint32 ntv_size = 0; // @debug
-				pBind->SetNtvTypeAndSize(MYSQL_TYPE_VAR_STRING, ntv_size);
-				pBind->Flags |= SSqlStmt::Bind::fUseRetActualSize;
-				//pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
+				const uint32 ntv_size = 0;
+				pBind->SetNtvTypeAndSize(MYSQL_TYPE_LONG_BLOB, ntv_size);
 			}
 			else if(action < 0) {
 				if(p_data) {
-					SLob * p_lob = static_cast<SLob *>(p_data);
-					const size_t lob_size = p_lob->GetPtrSize();
-					const void * p_lob_data = p_lob->GetRawDataPtrC();
-					if(p_lob_data && lob_size) {
-						SString & r_temp_buf = SLS.AcquireRvlStr();
-						r_temp_buf.CatN(static_cast<const char *>(p_lob_data), lob_size).Transf(CTRANSF_INNER_TO_UTF8);
-						mysql_stmt_send_long_data(static_cast<MYSQL_STMT *>(pStmt->H), abs(pBind->Pos)-1, r_temp_buf.cptr(), r_temp_buf.Len32());
+					DBLobBlock * p_lb = pStmt->GetBindingLob();
+					size_t lob_sz = 0;
+					if(p_lb) {
+						p_lb->GetSize(labs(pBind->Pos)-1, &lob_sz);
+						SLob * p_lob = static_cast<SLob *>(p_data);
+						const void * p_lob_data = p_lob->GetRawDataPtrC();
+						if(p_lob_data && lob_sz) {
+							SString temp_buf;
+							temp_buf.CatN(static_cast<const char *>(p_lob_data), lob_sz).Transf(CTRANSF_INNER_TO_UTF8);
+							mysql_stmt_send_long_data(static_cast<MYSQL_STMT *>(pStmt->H), abs(pBind->Pos)-1, temp_buf.cptr(), temp_buf.Len32());
+						}
 					}
 				}
 			}
 			else if(action == 1) {
-				SLob * p_lob = static_cast<SLob *>(p_data);
-				if(p_lob) {
+				if(p_data) {
+					SLob * p_lob = static_cast<SLob *>(p_data);
 					bool   _err = false;
 					bool   _no_more_data = false;
-					SString & r_temp_buf = SLS.AcquireRvlStr();
-					const  ulong _total_len = static_cast<ulong>(pBind->RetActualSize);
+					//SBuffer _buffer;
+					SString temp_buf;
 					ulong  _offs = 0;
 					char   _chunk_buffer[2048];
+					ulong  _total_len = 0;
+					bool   blob_is_null = 0;
+					int    blob_error = 0;
+					{
+						// Сначала узнаем размер
+						MYSQL_BIND blob_bind;
+						MEMSZERO(blob_bind);
+						blob_bind.buffer_type = MYSQL_TYPE_LONG_BLOB;
+						blob_bind.buffer = NULL;
+						blob_bind.buffer_length = 0;
+						blob_bind.length = &_total_len;
+						blob_bind.is_null = &blob_is_null;
+						blob_bind.P_Error = &blob_error;
+						int   fcr = mysql_stmt_fetch_column(static_cast<MYSQL_STMT *>(pStmt->H), &blob_bind, 6, 0);
+					}
 					while(!_err && !_no_more_data && _offs < _total_len) {
 						ulong  _len = 0;
 						MYSQL_BIND msq_bind;
 						MEMSZERO(msq_bind);
-						msq_bind.buffer_type = MYSQL_TYPE_VAR_STRING;
+						msq_bind.buffer_type = MYSQL_TYPE_LONG_BLOB; // @v12.5.7 MYSQL_TYPE_VAR_STRING-->MYSQL_TYPE_BLOB
 						msq_bind.buffer = _chunk_buffer;
 						msq_bind.buffer_length = sizeof(_chunk_buffer);
 						msq_bind.length = &_len;
 						int fcr = mysql_stmt_fetch_column(static_cast<MYSQL_STMT *>(pStmt->H), &msq_bind, abs(pBind->Pos)-1, _offs);
 						if(fcr == 0) {
 							if(_len) {
-								r_temp_buf.CatN(_chunk_buffer, _len);
+								temp_buf.CatN(_chunk_buffer, _len);
 								_offs += _len;
 							}
 							else
@@ -2056,11 +2164,11 @@ void FASTCALL SMySqlDbProvider::OdFree(SMySqlDbProvider::OD & rO)
 						}
 					} 
 					{
-						r_temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-						p_lob->InitPtr(r_temp_buf.Len32()+1);
+						temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+						p_lob->InitPtr(temp_buf.Len32()+1);
 						void * p_lob_ptr = p_lob->GetRawDataPtr();
 						if(p_lob_ptr) {
-							strcpy(static_cast<char *>(p_lob_ptr), r_temp_buf.cptr());
+							strcpy(static_cast<char *>(p_lob_ptr), temp_buf.cptr());
 						}
 					}
 				}
@@ -2068,34 +2176,51 @@ void FASTCALL SMySqlDbProvider::OdFree(SMySqlDbProvider::OD & rO)
 			break;
 		case S_BLOB:
 			if(action == 0) {
-				const uint32 ntv_size = 0; // @debug
-				pBind->SetNtvTypeAndSize(MYSQL_TYPE_BLOB, ntv_size);
-				pBind->Flags |= SSqlStmt::Bind::fUseRetActualSize;
+				const uint32 ntv_size = 0;
+				pBind->SetNtvTypeAndSize(MYSQL_TYPE_LONG_BLOB, ntv_size);
 			}
 			else if(action < 0) {
 				if(p_data) {
-					SLob * p_lob = static_cast<SLob *>(p_data);
-					const size_t lob_size = p_lob->GetPtrSize();
-					const void * p_lob_data = p_lob->GetRawDataPtrC();
-					if(p_lob_data && lob_size) {
-						mysql_stmt_send_long_data(static_cast<MYSQL_STMT *>(pStmt->H), abs(pBind->Pos)-1, static_cast<const char *>(p_lob_data), lob_size);
+					DBLobBlock * p_lb = pStmt->GetBindingLob();
+					size_t lob_sz = 0;
+					if(p_lb) {
+						p_lb->GetSize(labs(pBind->Pos)-1, &lob_sz);
+						SLob * p_lob = static_cast<SLob *>(p_data);
+						const void * p_lob_data = p_lob->GetRawDataPtrC();
+						if(p_lob_data && lob_sz) {
+							mysql_stmt_send_long_data(static_cast<MYSQL_STMT *>(pStmt->H), abs(pBind->Pos)-1, static_cast<const char *>(p_lob_data), lob_sz);
+						}
 					}
 				}
 			}
 			else if(action == 1) {
-				SLob * p_lob = static_cast<SLob *>(p_data);
-				if(p_lob) {
+				if(p_data) {
+					SLob * p_lob = static_cast<SLob *>(p_data);
 					bool   _err = false;
 					bool   _no_more_data = false;
 					SBuffer _buffer;
-					const  ulong _total_len = static_cast<ulong>(pBind->RetActualSize);
 					ulong  _offs = 0;
 					char   _chunk_buffer[2048];
+					ulong  _total_len = 0;
+					bool   blob_is_null = 0;
+					int    blob_error = 0;
+					{
+						// Сначала узнаем размер
+						MYSQL_BIND blob_bind;
+						MEMSZERO(blob_bind);
+						blob_bind.buffer_type = MYSQL_TYPE_LONG_BLOB;
+						blob_bind.buffer = NULL;
+						blob_bind.buffer_length = 0;
+						blob_bind.length = &_total_len;
+						blob_bind.is_null = &blob_is_null;
+						blob_bind.P_Error = &blob_error;
+						int   fcr = mysql_stmt_fetch_column(static_cast<MYSQL_STMT *>(pStmt->H), &blob_bind, 6, 0);
+					}
 					while(!_err && !_no_more_data && _offs < _total_len) {
 						ulong  _len = 0;
 						MYSQL_BIND msq_bind;
 						MEMSZERO(msq_bind);
-						msq_bind.buffer_type = MYSQL_TYPE_VAR_STRING;
+						msq_bind.buffer_type = MYSQL_TYPE_LONG_BLOB; // @v12.5.7 MYSQL_TYPE_VAR_STRING-->MYSQL_TYPE_BLOB
 						msq_bind.buffer = _chunk_buffer;
 						msq_bind.buffer_length = sizeof(_chunk_buffer);
 						msq_bind.length = &_len;
@@ -2201,13 +2326,16 @@ void SMySqlDbProvider::ProcessBinding_FreeDescr(uint count, SSqlStmt * pStmt, SS
 		int    _status = mysql_stmt_fetch(StmtHandle(rS));
 		if(_status == 0) {
 			actual = 1; // @debug
+			rS.Flags &= ~SSqlStmt::fNoMoreData;
 			ok = 1;
 		}
 		else if(_status == MYSQL_NO_DATA) {
+			rS.Flags |= SSqlStmt::fNoMoreData;
 			ok = -1;
 		}
 		else if(_status == MYSQL_DATA_TRUNCATED) { // @v12.4.12
 			actual = 1; // @debug
+			rS.Flags &= ~SSqlStmt::fNoMoreData;
 			ok = 1; // ???
 		}
 		/*if(oneof2(err, OCI_SUCCESS, OCI_SUCCESS_WITH_INFO)) {

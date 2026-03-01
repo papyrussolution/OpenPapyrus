@@ -1378,7 +1378,7 @@ ILongList * DL6ICLS_PPUtil::SearchObjectsByTagStrExactly(PpyObjectIdent objType,
 }
 
 SString & DL6ICLS_PPUtil::ToChar(SString & rBuf) { return rBuf.Transf(CTRANSF_INNER_TO_OUTER); }
-SString & DL6ICLS_PPUtil::ToOem(SString & rBuf) { return rBuf.ToOem(); }
+SString & DL6ICLS_PPUtil::ToOem(SString & rBuf) { return rBuf.Transf(CTRANSF_OUTER_TO_INNER); } // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 SString & DL6ICLS_PPUtil::UTF8ToOem(SString & rBuf) { return rBuf.Utf8ToOem(); }
 SString & DL6ICLS_PPUtil::UTF8ToChar(SString & rBuf) { return rBuf.Utf8ToChar(); }
 int32  DL6ICLS_PPUtil::ToLong(SString & rBuf) { return rBuf.ToLong(); }

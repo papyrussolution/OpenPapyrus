@@ -38,5 +38,6 @@
     <ClCompile Include="..\PPTEST\UNIT\test-simplecpp.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-utf8_h.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-mysql.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-stype.cpp" />
   </ItemGroup>
 </Project>

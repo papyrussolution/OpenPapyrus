@@ -283,7 +283,7 @@ int PriceChecker::ConcoleMessage(const char * pMsg, ...)
 		str.Cat(*pp_msg).Space();
 		pp_msg++;
 	}
-	str.ToOem();
+	str.Transf(CTRANSF_OUTER_TO_INNER); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 	printf("%s\n", str.cptr());
 	return 1;
 }

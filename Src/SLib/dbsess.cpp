@@ -169,7 +169,7 @@ int DbThreadLocalArea::RollbackWork()
 class SRowId : public DataType {
 public:
 	SRowId();
-	int    comp(const void *, const void *) const;
+	int    Cmp_(const void *, const void *) const;
 	char * tostr(const void *, long, char *) const;
 	virtual SString & ToStr_(const void * pData, long fmt, SString & rBuf) const; // @v12.5.6
 	int    fromstr(void *, long, const char *) const;
@@ -184,7 +184,7 @@ SRowId::SRowId() : DataType(sizeof(DBRowId))
 {
 }
 
-int SRowId::comp(const void * i1, const void * i2) const
+int SRowId::Cmp_(const void * i1, const void * i2) const
 {
 	return memcmp(i1, i2, sizeof(DBRowId));
 }
@@ -194,7 +194,7 @@ char * SRowId::tostr(const void * pData, long, char * pStr) const
 	const DBRowId * p_row_id = static_cast<const DBRowId *>(pData);
 	if(p_row_id) {
 		SString temp_buf;
-		p_row_id->ToStr__(temp_buf).CopyTo(pStr, 0);
+		p_row_id->ToStr__(temp_buf).CopyTo_Unsafe(pStr);
 	}
 	else
 		pStr[0] = 0;

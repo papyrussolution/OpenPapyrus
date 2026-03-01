@@ -52,7 +52,7 @@ int PPViewDialog::Init_(const PPBaseFilt * pBaseFilt)
 	temp_list.SortByText();
 	for(uint i = 0; i < temp_list.getCount(); i++) {
 		StrAssocArray::Item t = temp_list.Get(i);
-		const DlScope * p_scope = Ctx.GetScope_Const(t.Id, /*DlScope::kUiDialog*/DlScope::kUiView);
+		const DlScope * p_scope = Ctx.GetScope_Const(t.Id, DlScope::kUiView);
 		if(p_scope) {
 			DialogViewItem item;
 			MEMSZERO(item);
@@ -62,7 +62,7 @@ int PPViewDialog::Init_(const PPBaseFilt * pBaseFilt)
 				text_buf.Z();
 				if(Ctx.GetConstData(p_scope->GetConst(DlScope::cuifCtrlText), c_buf, sizeof(c_buf)))
 					text_buf = c_buf;
-				text_buf.ToOem().CopyTo(item.Text, sizeof(item.Text));
+				text_buf.Transf(CTRANSF_OUTER_TO_INNER).CopyTo(item.Text, sizeof(item.Text)); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 				Ctx.GetConst_Uint32(p_scope, DlScope::cucmSymbolIdent, item.SymbIdent); // @v12.4.6
 				//
 				text_buf.Z();
@@ -374,7 +374,7 @@ int WhatmanObjectUiCtrl::CreateTextLayout(SPaintToolBox & rTb, STextLayout & rTl
 			else if(adj == ADJ_RIGHT)
 				pd.Flags |= SParaDescr::fJustRight;
 			int    tid_para = rTb.CreateParagraph(0, &pd);
-			rTlo.SetText((temp_buf = UiText).ToOem());
+			rTlo.SetText((temp_buf = UiText).Transf(CTRANSF_OUTER_TO_INNER)); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 			rTlo.SetOptions(STextLayout::fWrap, tid_para, tid_cs);
 			ok = 1;
 		}

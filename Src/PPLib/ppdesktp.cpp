@@ -2750,10 +2750,12 @@ private:
 	int    DoNote(SObjID & rOid);
 	int    HandleInputEnter(const SString & rInput);
 	int    RemoveWorkingPanel();
+	int    DrawNavTreeItem(void * pCustomDrawDescriptor);
 
 	CentrigoNavBlock NavBlk;
 	//
 	PPObjWorkbook WbObj;
+	SUiLayout * P_Lo_NavItem; // really const
 };
 
 int TFacadeWindow::MakeNavList(CentrigoNavBlock & rBlk)
@@ -2835,6 +2837,16 @@ int TFacadeWindow::MakeNavList(CentrigoNavBlock & rBlk)
 				if(p_lb_def) {
 					p_lb->setDef(p_lb_def);
 					p_lb->SetExpandedTreeBranchList(&parent_list);
+					if(P_Lo_NavItem) {
+						float  height = 0.0f;
+						const  int gfhr = P_Lo_NavItem->GetFullHeight(&height);
+						if(gfhr) {
+							HWND h_wnd_list = p_lb->getHandle();
+							if(h_wnd_list) {
+								::SendMessageW(h_wnd_list, TVM_SETITEMHEIGHT, static_cast<int>(height), 0);
+							}
+						}
+					}
 					p_lb->Draw_();
 				}
 			}
@@ -2984,7 +2996,7 @@ int TFacadeWindow::InsertWorkWindow(int ppviewId) // @debug
 			p_brw = new STextBrowser(file_path, /*pLexerSymb*/0, /*toolbarId*/0);
 		}
 		if(p_brw) {
-			InsertCtlWithCorrespondingNativeItem(p_brw, 10001, 0, /*extraPtr*/0);
+			InsertCtlWithCorrespondingNativeItem(p_brw, ViewId_Primary, 0, /*extraPtr*/0);
 			{
 				SUiLayoutParam alb_;
 				//alb_.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
@@ -3143,10 +3155,173 @@ int TFacadeWindow::WMHCreate()
 
 /*static*/const wchar_t * TFacadeWindow::WndClsName = L"TFacadeWindow"; // @global
 
+int TFacadeWindow::DrawNavTreeItem(void * pCustomDrawDescriptor)
+{
+	int    result = 0;
+	bool   debug_mark = false; // @debug
+	if(pCustomDrawDescriptor) {
+		NMTVCUSTOMDRAW * p_cd = reinterpret_cast<NMTVCUSTOMDRAW *>(pCustomDrawDescriptor);
+		if(p_cd->nmcd.dwDrawStage == CDDS_ITEMPREPAINT) {
+			if(P_Lo_NavItem) {
+				HTREEITEM h_item = reinterpret_cast<HTREEITEM>(p_cd->nmcd.dwItemSpec);
+				TVITEMW item;
+				RECT   rc_item;
+				RECT   rc_cli;
+				wchar_t _text[512];
+				item.hItem = h_item;
+				item.mask = TVIF_TEXT|TVIF_PARAM|TVIF_STATE|TVIF_CHILDREN|TVIF_HANDLE|TVIF_IMAGE;
+				item.stateMask = TVIS_EXPANDED|TVIS_EXPANDEDONCE;
+				item.pszText = _text;
+				item.cchTextMax = SIZEOFARRAY(_text);
+				if(TreeView_GetItem(p_cd->nmcd.hdr.hwndFrom, &item)) {
+					// code: Value specifying the portion of the item for which to retrieve the bounding rectangle. 
+					//   If this parameter is TRUE, the bounding rectangle includes only the text of the item. Otherwise, 
+					//   it includes the entire line that the item occupies in the tree-view control.
+					BOOL   has_valid_rect = TreeView_GetItemRect(p_cd->nmcd.hdr.hwndFrom, h_item, &rc_item, FALSE/*code*/);
+					if(!has_valid_rect || rc_item.right <= rc_item.left || rc_item.bottom <= rc_item.top) { // Область элемента не определена - предварительная фаза
+						HWND   h_focus = ::GetFocus();
+						MEMSZERO(rc_cli);
+					}
+					else {
+						SPaintToolBox * p_tb = APPL->GetUiToolBox();
+						if(p_tb) {
+							SUiLayout * p_lo = new SUiLayout(*P_Lo_NavItem);
+							TCanvas2 canv(*p_tb, p_cd->nmcd.hdc);
+							bool   is_there_image = false;
+							int    item_state = TProgram::tbisBase;
+							::GetClientRect(p_cd->nmcd.hdr.hwndFrom, &rc_cli);
+							// Получение уровня вложенности элемента
+							int    level = 0;
+							{
+								HTREEITEM h_parent = TreeView_GetParent(p_cd->nmcd.hdr.hwndFrom, h_item);
+								while(h_parent) {
+									level++;
+									h_parent = TreeView_GetParent(p_cd->nmcd.hdr.hwndFrom, h_parent);
+								}
+							}
+							const  int indent = TreeView_GetIndent(p_cd->nmcd.hdr.hwndFrom);
+							if(p_cd->nmcd.uItemState & CDIS_FOCUS) {
+								item_state = TProgram::tbisFocus;
+							}
+							else if(p_cd->nmcd.uItemState & CDIS_SELECTED) {
+								item_state = TProgram::tbisSelect;
+							}
+							else if(p_cd->nmcd.uItemState & CDIS_HOT) {
+								item_state = TProgram::tbisHover;
+							}
+							/*
+								view LAYOUT_LI_CENTRIGONAV [horizontal] {
+									view LOITEM_LI_CENTRIGONAV_HIND [size: (16, 16) margin: 4]; // Индикатор иерархии
+									view LOITEM_LI_CENTRIGONAV_IMG [size: (16, 16) margin: 4]; // Изображение
+									view LOITEM_LI_CENTRIGONAV_MAINTEXT [growfactor: 1 height: bycontainer margin: 4]; // Основной текст
+								}
+							*/ 
+							SUiLayout * p_lo_hind = p_lo->FindById(LOITEM_LI_CENTRIGONAV_HIND);
+							SUiLayout * p_lo_img = p_lo->FindById(LOITEM_LI_CENTRIGONAV_IMG);
+							SUiLayout * p_lo_text = p_lo->FindById(LOITEM_LI_CENTRIGONAV_MAINTEXT);
+							if(p_lo_img && !is_there_image) {
+								p_lo_img->SetExcludedStatus();
+							}
+							{
+								SUiLayout::Param evp;
+								evp.ForceSize.x = static_cast<float>(rc_item.right - rc_item.left);
+								evp.ForceSize.y = static_cast<float>(rc_item.bottom - rc_item.top);
+								SUiLayoutParam & r_lp = p_lo->GetLayoutBlock();
+								r_lp.Padding.a.x = indent * level;
+								p_lo->Evaluate(&evp);
+							}
+							{
+								int   state_brush_id = TProgram::tbiListBkgBrush;
+								int   state_pen_id = TProgram::tbiListBkgPen;
+								if(item_state == TProgram::tbisSelect) {
+									state_brush_id = TProgram::tbiListSelBrush;
+									state_pen_id = TProgram::tbiListSelPen;
+								}
+								else if(item_state == TProgram::tbisFocus) {
+									state_brush_id = TProgram::tbiListFocBrush;
+									state_pen_id = TProgram::tbiListFocPen;
+								}
+								else if(item_state == TProgram::tbisHover) {
+									state_brush_id = TProgram::tbiListFocBrush;
+									state_pen_id = TProgram::tbiListFocPen;
+								}
+								{
+									FRect rect_elem_f(rc_item);
+									rect_elem_f.Grow(-0.5f, -0.5f);
+									// canv.RoundRect(rect_elem_f, 3, pen_id, brush_id);
+									canv.Rect(rect_elem_f, state_pen_id, state_brush_id);
+								}
+								if(p_lo_hind && item.cChildren) {
+									const  bool is_expanded = LOGIC(item.state & TVIS_EXPANDED);
+									uint   dv_id = is_expanded ? PPDV_TRIANGLELEFT03 : PPDV_TRIANGLEDOWN03;
+									if(dv_id) {
+										TWhatmanToolArray::Item tool_item;
+										const SDrawFigure * p_fig = APPL->LoadDrawFigureById(dv_id, &tool_item);
+										if(p_fig) {
+											if(!tool_item.ReplacedColor.IsEmpty()) {
+												SColor replacement_color = p_tb->GetColor(TProgram::tbiIconRegColor);
+												canv.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
+											}
+											FRect fr = p_lo_hind->GetFrameAdjustedToParent();
+											fr.Move__(rc_item.left, rc_item.top);
+											LMatrix2D mtx;
+											SViewPort vp;
+											canv.PushTransform();
+											p_fig->GetViewPort(&vp);
+											canv.AddTransform(vp.GetMatrix(fr, mtx));
+											canv.Draw(p_fig);
+											canv.PopTransform();
+											canv.ResetColorReplacement();
+										}
+									}
+								}
+								if(p_lo_text) {
+									HFONT  hf = (HFONT)::GetStockObject(DEFAULT_GUI_FONT);
+									int    temp_font_id = p_tb->CreateFont_(0, hf, 0);
+									if(temp_font_id) {
+										STextLayout tlo;
+										SDrawContext dctx = canv;
+										int   text_pen_id = TProgram::tbiListFgPen;
+										if(item_state == TProgram::tbisSelect) {
+											text_pen_id = TProgram::tbiListSelFgPen;
+										}
+										else if(item_state == TProgram::tbisFocus) {
+											text_pen_id = TProgram::tbiListFocFgPen;
+										}
+										else if(item_state == TProgram::tbisHover) {
+											text_pen_id = TProgram::tbiListFocPen;
+										}
+										if(APPL->GetDialogTextLayoutU(_text, temp_font_id, text_pen_id, tlo, ADJ_LEFT) > 0) {
+											FRect fr = p_lo_text->GetFrameAdjustedToParent();
+											fr.Move__(rc_item.left, rc_item.top);
+											tlo.SetBounds(fr);
+											tlo.SetOptions(tlo.fVCenter, -1, -1);
+											tlo.Arrange(dctx, *p_tb);
+											canv.DrawTextLayout(&tlo);
+										}
+										//*/
+									}
+								}
+							}
+							debug_mark = true; // @debug
+							// (если мы все сами нарисовали, то возвращаем это) 
+							result = CDRF_SKIPDEFAULT;
+							delete p_lo;
+						}
+					}
+					debug_mark = true; // @debug
+				}
+			}
+		}
+	}
+	return result;
+}
+
 /*static*/LRESULT CALLBACK TFacadeWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	CREATESTRUCT * p_init_data;
 	TFacadeWindow * p_view = 0;
+	bool   debug_mark = false; // @debug
 	switch(message) {
 		case WM_CREATE:
 			{
@@ -3172,15 +3347,39 @@ int TFacadeWindow::WMHCreate()
 			}
 		case WM_NOTIFY:
 			{
+				// @todo @20260217 Здесь обработать NM_CUSTOMDRAW!
 				p_view = static_cast<TFacadeWindow *>(TView::GetWindowUserData(hWnd));
-				TView * p_iter_view = 0;
-				if(p_view && (p_iter_view = p_view->P_Last) != 0) {
-					do {
-						if(p_iter_view->TestId(wParam)) {
-							p_iter_view->handleWindowsMessage(message, wParam, lParam);
-							break;
+				if(p_view) {
+					NMHDR * p_nm = reinterpret_cast<NMHDR *>(lParam);
+					if(p_nm) {
+						if(p_nm->code == NM_CUSTOMDRAW) {
+							TView * p_ctl = p_view->getCtrlView(p_nm->idFrom);
+							if(p_ctl && p_ctl->IsSubSign(TV_SUBSIGN_LISTBOX)) {
+								NMTVCUSTOMDRAW * p_cd = reinterpret_cast<NMTVCUSTOMDRAW *>(p_nm);
+								long   result = CDRF_DODEFAULT;
+								switch(p_cd->nmcd.dwDrawStage) {
+	    							case CDDS_PREPAINT:
+										result = CDRF_NOTIFYITEMDRAW;
+										break;
+									case CDDS_ITEMPREPAINT:
+										result = p_view->DrawNavTreeItem(p_cd);
+										break;
+								}
+								return result;
+							}
 						}
-					} while((p_iter_view = p_iter_view->prev()) != p_view->P_Last);
+						else {
+							TView * p_iter_view = p_view->P_Last;
+							if(p_iter_view != 0) {
+								do {
+									if(p_iter_view->TestId(wParam)) {
+										p_iter_view->handleWindowsMessage(message, wParam, lParam);
+										break;
+									}
+								} while((p_iter_view = p_iter_view->prev()) != p_view->P_Last);
+							}
+						}
+					}
 				}
 			}
 			break;
@@ -3241,9 +3440,6 @@ int TFacadeWindow::WMHCreate()
 				TWindowBase::Helper_Finalize(hWnd, p_view);
 			}
 			return 0;
-		//case WM_DRAWITEM:
-			//p_view = static_cast<TFacadeWindow *>(TView::GetWindowUserData(hWnd));
-			//return p_view ? p_view->RedirectDrawItemMessage(message, wParam, lParam) : FALSE;
 		case WM_SETFOCUS:
 			if(!(TView::SGetWindowStyle(hWnd) & WS_CAPTION)) {
 				SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
@@ -3251,7 +3447,6 @@ int TFacadeWindow::WMHCreate()
 			}
 			p_view = static_cast<TFacadeWindow *>(TView::GetWindowUserData(hWnd));
 			if(p_view) {
-				//::SetFocus(p_view->HwndSci);
 				APPL->SelectTabItem(p_view);
 				TView::messageBroadcast(p_view, cmReceivedFocus);
 				p_view->select();
@@ -3267,14 +3462,7 @@ int TFacadeWindow::WMHCreate()
 			}
 			break;
 		case WM_KEYDOWN:
-			/*if(wParam == VK_ESCAPE) {
-				p_view = static_cast<TFacadeWindow *>(TView::GetWindowUserData(hWnd));
-				if(p_view) {
-					p_view->endModal(cmCancel);
-					return 0;
-				}
-			}
-			else*/if(wParam == VK_TAB) {
+			if(wParam == VK_TAB) {
 				p_view = static_cast<TFacadeWindow *>(TView::GetWindowUserData(hWnd));
 				if(p_view && GetKeyState(VK_CONTROL) & 0x8000 && !p_view->IsInState(sfModal)) {
 					SetFocus(GetNextBrowser(hWnd, (GetKeyState(VK_SHIFT) & 0x8000) ? 0 : 1));
@@ -3307,7 +3495,7 @@ int TFacadeWindow::WMHCreate()
 	return RegisterClassExW(&wc);
 }
 
-TFacadeWindow::TFacadeWindow() : TBaseBrowserWindow(WndClsName)
+TFacadeWindow::TFacadeWindow() : TBaseBrowserWindow(WndClsName), P_Lo_NavItem(0)
 {
 	BbState |= (bbsWoScrollbars|bbsCtlParent);
 	static bool win_cls_registered = false;
@@ -3315,10 +3503,16 @@ TFacadeWindow::TFacadeWindow() : TBaseBrowserWindow(WndClsName)
 		TFacadeWindow::RegWindowClass(TProgram::GetInst());
 		win_cls_registered = true;
 	}
+	{ // @v12.5.7 @construction
+		SString temp_buf;
+		temp_buf.Z().Cat(LAYOUT_LI_CENTRIGONAV);
+		P_Lo_NavItem = PPLoadDl600Layout(temp_buf, 0); 
+	}
 }
 
 TFacadeWindow::~TFacadeWindow()
 {
+	ZDELETE(P_Lo_NavItem);
 }
 
 int TFacadeWindow::RemoveWorkingPanel()
@@ -3337,12 +3531,43 @@ int TFacadeWindow::RemoveWorkingPanel()
 int TFacadeWindow::HandleInputEnter(const SString & rInput)
 {
 	int    ok = -1;
-	SString _input(rInput);
+	const  SString org_input(rInput);
+	SString _input(org_input);
+	SString _result_text;
 	if(_input.NotEmptyS()) {
 		if(_input.IsEqiAscii("close")) { // @debug
 			RemoveWorkingPanel();
 		}
+		else if(_input.HasPrefixIAscii("=")) {
+			_input.ShiftLeft();
+			double result = 0.0;
+			if(PPExprParser::CalcExpression(_input, &result, 0, 0)) {
+				_result_text.Cat(_input).CatDiv('=', 1).Cat(result, MKSFMTD(0, 6, NMBF_NOTRAILZ));
+			}
+			else {
+				_result_text.Cat("Bad expression to evaluate").CatDiv(':', 2).Cat(_input);
+			}
+		}
+		else {
+			// @construction @2020226
+			const uint32 fav_nt_list[] =  {
+				SNTOK_GUID, SNTOK_EMAIL, 
+			};
+			STokenRecognizer tr;
+			SNaturalTokenArray nta;
+			uint32 fav_nt_id = 0;
+			tr.Run(_input.ucptr(), _input.Len(), nta, 0);
+			for(uint i = 0; !fav_nt_id && i < nta.getCount(); i++) {
+				const SNaturalToken & r_nt = nta.at(i);
+				switch(r_nt.ID) {
+					case SNTOK_GUID: fav_nt_id = r_nt.ID; break;
+					case SNTOK_EMAIL: fav_nt_id = r_nt.ID; break;
+				}
+			}
+		}
 	}
+	setCtrlString(CTL_FACADEWINDOW_MAININPUT, _input.Z());
+	setCtrlString(CTL_FACADEWINDOW_INFOLINE, _result_text);
 	return ok;
 }
 
@@ -3351,7 +3576,61 @@ IMPL_HANDLE_EVENT(TFacadeWindow)
 	bool   debug_mark = false; // @debug
 	TWindowBase::handleEvent(event);
 	if(TVKEYDOWN) {
-		;
+		if(oneof4(TVKEY, kbAltLeft, kbAltRight, kbAltUp, kbAltDown)) {
+			HWND   h_focus = ::GetFocus();
+			if(h_focus) {
+				//TView * p_view_p = getCtrlView(ViewId_Primary);
+				const TView * p_view_ = getCtrlViewByHandleC(h_focus);
+				if(p_view_) {
+					if(p_view_->GetId() == ViewId_Primary) {
+						if(TVKEY == kbAltLeft) {
+							TView * p_new_focus = getCtrlView(CTL_FACADEWINDOW_NAVPANE);
+							if(p_new_focus) {
+								::SetFocus(p_new_focus->getHandle());
+							}
+						}
+						else if(TVKEY == kbAltUp) {
+							TView * p_new_focus = getCtrlView(CTL_FACADEWINDOW_MAININPUT);
+							if(p_new_focus) {
+								::SetFocus(p_new_focus->getHandle());
+							}
+						}
+					}
+					else if(p_view_->GetId() == CTL_FACADEWINDOW_NAVPANE) {
+						if(TVKEY == kbAltRight) {
+							TView * p_new_focus = getCtrlView(ViewId_Primary);
+							if(p_new_focus) {
+								HWND   h_new_focus = p_new_focus->getHandle();
+								::SetFocus(h_new_focus);
+							}
+						}
+						else if(TVKEY == kbAltUp) {
+							TView * p_new_focus = getCtrlView(CTL_FACADEWINDOW_MAININPUT);
+							if(p_new_focus) {
+								HWND   h_new_focus = p_new_focus->getHandle();
+								::SetFocus(h_new_focus);
+							}
+						}
+					}
+					else if(p_view_->GetId() == CTL_FACADEWINDOW_MAININPUT) {
+						if(TVKEY == kbAltDown) {
+							TView * p_new_focus = getCtrlView(ViewId_Primary);
+							if(p_new_focus) {
+								::SetFocus(p_new_focus->getHandle());
+							}
+						}
+						else if(TVKEY == kbAltLeft) {
+							TView * p_new_focus = getCtrlView(CTL_FACADEWINDOW_NAVPANE);
+							if(p_new_focus) {
+								::SetFocus(p_new_focus->getHandle());
+							}
+						}
+					}
+				}
+				//getCtrlView
+				debug_mark = true; // @debug
+			}
+		}
 	}
 	else if(TVINFOPTR) {
 		if(event.isCmd(cmInit)) {
@@ -3367,7 +3646,7 @@ IMPL_HANDLE_EVENT(TFacadeWindow)
 			//MouseEvent * p_me = static_cast<MouseEvent *>(TVINFOPTR);
 			;
 		}
-		else if(event.isCmd(cmCustomDraw)) {
+		/* (тупиковая ветка) else if(event.isCmd(cmCustomDraw)) {
 			NMTVCUSTOMDRAW * p_tv_blk = reinterpret_cast<NMTVCUSTOMDRAW *>(event.message.infoPtr);
 			if(p_tv_blk && p_tv_blk->nmcd.hdr.idFrom == CTL_FACADEWINDOW_NAVPANE) {
 				TView * p_view = getCtrlView(CTL_FACADEWINDOW_NAVPANE);
@@ -3387,7 +3666,7 @@ IMPL_HANDLE_EVENT(TFacadeWindow)
 				}
 			}
 			debug_mark = true;
-		}
+		}*/
 		/*
 		else if(event.isCmd(cmDrawItem)) {
 			if(false) {

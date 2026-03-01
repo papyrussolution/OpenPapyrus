@@ -1341,7 +1341,7 @@ StrAssocArray * PPObjTag::MakeStrAssocList(void * extraPtr)
 	for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
 		if(CheckForFilt(&ot_filt, rec)) {
 			PPID   parent_id = rec.TagGroupID;
-			if(ot_filt.Flags & ObjTagFilt::fObjTypeRoots && parent_id == 0) {
+			if(!parent_id && ot_filt.Flags & ObjTagFilt::fObjTypeRoots) {
 				parent_id = ObjTagFilt::MakeObjTypeRootIdent(rec.ObjTypeID);
 				if(obj_type_list.addUnique(rec.ObjTypeID) > 0) {
 					GetObjectTitle(rec.ObjTypeID, temp_buf.Z());

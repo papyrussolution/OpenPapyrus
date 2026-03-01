@@ -236,8 +236,22 @@ SString & Generator_SQL::GetType(TYPEID typ, SString & rBuf)
 					else
 						rBuf.Cat("DOUBLE"); 
 					break;
-				case S_DATE:     rBuf.Cat("DATE"); break;
-				case S_TIME:     rBuf.Cat("TIME(3)"); break; // @v12.4.10 TIME-->TIME(3)
+				case S_DATE:
+					if(SMySqlDbProvider::TypeDateAsInt32) {
+						rBuf.Cat("INT").CatParStr(4L); 
+					}
+					else {
+						rBuf.Cat("DATE");
+					}
+					break; 
+				case S_TIME:
+					if(SMySqlDbProvider::TypeTimeAsInt32) {
+						rBuf.Cat("INT").CatParStr(4L); 
+					}
+					else {
+						rBuf.Cat("TIME(3)");
+					}
+					break;
 				case S_DATETIME: rBuf.Cat("DATETIME(3)"); break; // @v12.4.10 DATETIME-->DATETIME(3)
 				case S_DEC:
 				case S_MONEY:

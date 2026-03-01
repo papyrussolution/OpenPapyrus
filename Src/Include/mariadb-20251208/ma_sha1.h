@@ -30,9 +30,9 @@
 
 /* SHA1 context. */
 typedef struct {
-	uint32 state[5];                /* state (ABCD) */
-	uint32 count[2];                /* number of bits, modulo 2^64 (lsb first) */
-	uchar buffer[64];       /* input buffer */
+	uint32 state[5];  /* state (ABCD) */
+	uint32 count[2];  /* number of bits, modulo 2^64 (lsb first) */
+	uchar buffer[64]; /* input buffer */
 } _MA_SHA1_CTX;
 
 void ma_SHA1Init(_MA_SHA1_CTX *);

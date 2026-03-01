@@ -216,6 +216,10 @@ FRect::FRect(float width, float height) : a(), b(width, height)
 {
 }
 
+FRect::FRect(const FRect & rS) : a(rS.a), b(rS.b) // @v12.5.7
+{
+}
+
 FRect::FRect(const TRect & r)
 {
 	a = r.a;

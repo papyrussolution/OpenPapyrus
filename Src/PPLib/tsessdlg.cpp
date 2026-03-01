@@ -1,5 +1,5 @@
 // TSESSDLG.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1869,7 +1869,6 @@ IMPL_HANDLE_EVENT(TSessLineDialog)
 			}
 			else if(event.isCtlEvent(CTL_TSESSLN_QTTY) && !(Data.Flags & TSESLF_INDEPPHQTTY))
 				SetupQtty(1, 0);
-			// @v11.0.4 {
 			else if(event.isCtlEvent(CTL_TSESSLN_LOTDIMX) || event.isCtlEvent(CTL_TSESSLN_LOTDIMY) || event.isCtlEvent(CTL_TSESSLN_LOTDIMZ)) {
 				SString formula;
 				uint dims_allowed = GetLotDimAllowence(&formula); // bit-mask X: 0x01, Y: 0x02, Z: 0x04
@@ -1877,9 +1876,9 @@ IMPL_HANDLE_EVENT(TSessLineDialog)
 					SString temp_buf;
 					GoodsContext::Param gcp;
 					gcp.GoodsID = Data.GoodsID;
-					gcp.LotDim.X = getCtrlReal(CTL_TSESSLN_LOTDIMX);
-					gcp.LotDim.Y = getCtrlReal(CTL_TSESSLN_LOTDIMY);
-					gcp.LotDim.Z = getCtrlReal(CTL_TSESSLN_LOTDIMZ);
+					gcp.LotDim.DimX = getCtrlReal(CTL_TSESSLN_LOTDIMX);
+					gcp.LotDim.DimY = getCtrlReal(CTL_TSESSLN_LOTDIMY);
+					gcp.LotDim.DimZ = getCtrlReal(CTL_TSESSLN_LOTDIMZ);
 					GoodsContext gctx(gcp);
 					//GoodsContext::Param gcp = gctx.GetParam();
 					double qtty = 0.0;
@@ -1890,7 +1889,6 @@ IMPL_HANDLE_EVENT(TSessLineDialog)
 					}
 				}
 			}
-			// } @v11.0.4 
 			else
 				return;
 		}

@@ -1611,11 +1611,11 @@ char * STDCALL strfmt(const char * pStr, long fmt, char * pBuf)
 		}
 		if(flag & STRF_TOOEM) {
 			SString & r_temp_buf = SLS.AcquireRvlStr();
-			(r_temp_buf = pStr).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pBuf, 0);
+			(r_temp_buf = pStr).Transf(CTRANSF_OUTER_TO_INNER).CopyTo_Unsafe(pBuf);
 		}
 		else if(flag & STRF_TOANSI) {
 			SString & r_temp_buf = SLS.AcquireRvlStr();
-			(r_temp_buf = pStr).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(pBuf, 0);
+			(r_temp_buf = pStr).Transf(CTRANSF_INNER_TO_OUTER).CopyTo_Unsafe(pBuf);
 		}
 		else if(pBuf != pStr)
 			strcpy(pBuf, pStr);
@@ -1756,11 +1756,26 @@ char * SString::CopyUtf8To(char * pS, size_t bufLen) const // @v12.5.2
 	return pS;
 }
 
+char * SString::CopyTo_Unsafe(char * pS) const // @v12.5.7
+{
+	if(pS) {
+		const size_t src_len = Len();
+		if(src_len) {
+			assert(P_Buf[src_len] == 0);
+			memcpy(pS, P_Buf, src_len+1);
+		}
+		else
+			pS[0] = 0;
+	}
+	return pS;
+}
+
 char * SString::CopyTo(char * pS, size_t bufLen) const
 {
 	if(pS) {
 		const size_t src_len = Len();
 		if(src_len) {
+			assert(P_Buf[src_len] == 0);
 			if(bufLen) {
 				if(src_len < bufLen)
 					memcpy(pS, P_Buf, src_len+1);

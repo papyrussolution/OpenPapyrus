@@ -2497,8 +2497,9 @@ DBQuery * PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbe_empty.init();
 		dbe_empty.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
 	}
-	if(!P_TempTbl && IsTempTblNeeded())
+	if(!P_TempTbl && IsTempTblNeeded()) {
 		THROW(CreateTempTable());
+	}
 	THROW(CheckTblPtr(rcp = new ReceiptTbl));
 	if(P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1) || (Filt.Flags & LotFilt::fOrders))
 		PPDbqFuncPool::InitObjNameFunc(dbe_ar, PPDbqFuncPool::IdObjNameAr, rcp->SupplID);

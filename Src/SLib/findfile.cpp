@@ -156,10 +156,12 @@ struct Test_SFindFile_ : public SFindFile {
 	virtual int CallbackProc(const char * pPath, SDirEntry * pEntry)
 	{
 		SString path = pPath;
-		if(pEntry->FileName[0] == 0)
+		if(pEntry->FileName[0] == 0) {
 			/*PPWaitMsg(path.ToOem())*/;
-		else
+		}
+		else {
 			PPLogMessage(PPFILNAM_DEBUG_LOG, path.Cat(pEntry->FileName).Transf(CTRANSF_OUTER_TO_INNER), 0);
+		}
 		return 1;
 	}
 };

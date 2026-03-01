@@ -643,9 +643,18 @@ void SScEditorBase::Init(HWND hScW, int preserveFileName)
 		P_SciFn  = reinterpret_cast<intptr_t (__cdecl *)(void *, uint, uintptr_t, intptr_t)>(::SendMessage(hScW, SCI_GETDIRECTFUNCTION, 0, 0));
 		P_SciPtr = reinterpret_cast<void *>(SendMessage(hScW, SCI_GETDIRECTPOINTER, 0, 0));
 		CallFunc(SCI_INDICSETSTYLE, indicUnknWord, /*INDIC_SQUIGGLE*/INDIC_COMPOSITIONTHICK);
-		CallFunc(SCI_INDICSETFORE, indicUnknWord, GetColorRef(SClrRed));
+		CallFunc(SCI_INDICSETFORE,  indicUnknWord, GetColorRef(SClrRed));
 		CallFunc(SCI_INDICSETSTYLE, indicStxRule, INDIC_PLAIN);
-		CallFunc(SCI_INDICSETFORE, indicStxRule, GetColorRef(SClrCyan));
+		CallFunc(SCI_INDICSETFORE,  indicStxRule, GetColorRef(SClrCyan));
+		// @v12.5.7 {
+		{
+			// Отключаем встроенную обработку для Alt+стрелки
+			CallFunc(SCI_ASSIGNCMDKEY, (SCMOD_ALT << 8)|SCK_LEFT,  SCI_NULL);
+			CallFunc(SCI_ASSIGNCMDKEY, (SCMOD_ALT << 8)|SCK_RIGHT, SCI_NULL);
+			CallFunc(SCI_ASSIGNCMDKEY, (SCMOD_ALT << 8)|SCK_UP,    SCI_NULL);
+			CallFunc(SCI_ASSIGNCMDKEY, (SCMOD_ALT << 8)|SCK_DOWN,  SCI_NULL);
+		}
+		// } @v12.5.7 
 	}
 }
 
@@ -1265,6 +1274,12 @@ void STextBrowser::MarginClick(/*Sci_Position*/int position, int modifiers)
 					return 0;
 				}
 			}
+			else if(oneof4(wParam, VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN) && (GetKeyState(VK_MENU) & 0x8000)) { // @v12.5.7
+				p_view = static_cast<STextBrowser *>(TView::GetWindowUserData(hWnd));
+				if(p_view && p_view->P_Owner) {
+					p_view->P_Owner->TView::HandleKeyboardEvent(LOWORD(wParam));
+				}
+			}
 			return 0;
 		case WM_SIZE:
 			p_view = static_cast<STextBrowser *>(TView::GetWindowUserData(hWnd));
@@ -1285,6 +1300,21 @@ void STextBrowser::MarginClick(/*Sci_Position*/int position, int modifiers)
 				if(p_view && p_scn->nmhdr.hwndFrom == p_view->GetSciWnd()) {
 					int    test_value = 0; // @debug
 					switch(p_scn->nmhdr.code) {
+						case SCN_KEY: // @v12.5.7 GTK only (doesn't work in Windows)
+							{
+								const  int modifiers = (p_scn->ch >> 16);    // Получаем модификаторы (Alt, Ctrl, Shift)
+								const  int key_code  = (p_scn->ch & 0xFFFF); // Получаем код клавиши
+								if((modifiers & SCMOD_ALT) && oneof4(key_code, SCK_LEFT, SCK_RIGHT, SCK_UP, SCK_DOWN)) {
+									// --- Здесь ваша собственная обработка ---
+									// Например, вызвать функцию переключения между вкладками
+									//MyHandleAltArrow(keyCode); 
+									// ---------------------------------------
+									// Возвращаем TRUE, чтобы Scintilla НЕ обрабатывала это нажатие дальше 
+									::SetWindowLongPtr(hWnd, DWLP_MSGRESULT, TRUE);
+									return TRUE;  
+								}
+							}
+							break;
 						case SCN_UPDATEUI:
 							StatusWinChange(0, -1);
 							break;
@@ -1541,20 +1571,25 @@ int SKeyAccelerator::Set(const KeyDownCommand & rK, int cmd)
 			case WM_KEYDOWN:
 				{
 					p_this->SysState &= ~p_this->sstLastKeyDownConsumed;
-					int    processed = 0;
+					bool   processed = false;
 					KeyDownCommand k;
 					k.SetWinMsgCode(wParam);
-					if(k.Code == VK_TAB && k.State & k.stateCtrl) {
+					if(k.Code == VK_TAB && k.State & KeyDownCommand::stateCtrl) {
 						::SendMessageW(p_this->H(), WM_KEYDOWN, wParam, lParam);
 						p_this->SysState |= p_this->sstLastKeyDownConsumed;
-						processed = 1;
+						processed = true;
+					}
+					else if((k.State & KeyDownCommand::stateAlt) == KeyDownCommand::stateAlt && oneof4(k.Code, VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN)) { // @v12.5.7
+						::SendMessageW(p_this->H(), WM_KEYDOWN, wParam, lParam);
+						p_this->SysState |= p_this->sstLastKeyDownConsumed;
+						processed = true;						
 					}
 					else if(p_this->KeyAccel.getCount()) {
 						long   cmd = 0;
 						if(p_this->KeyAccel.BSearch(*reinterpret_cast<const long *>(&k), &cmd, 0)) {
 							p_this->SysState |= p_this->sstLastKeyDownConsumed;
 							p_this->ProcessCommand(cmd, 0, p_this);
-							processed = 1;
+							processed = true;
 						}
 					}
 					return processed ? ::DefWindowProcW(hwnd, msg, wParam, lParam) : ::CallWindowProc(p_this->OrgScintillaWndProc, hwnd, msg, wParam, lParam);

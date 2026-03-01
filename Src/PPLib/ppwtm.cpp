@@ -922,7 +922,7 @@ int WhatmanObjectText::HandleCommand(int cmd, void * pExt)
 			if(ok) {
 				SString text("Новый текст\nЭто - новая строка!\nА вот и третья строка");
 				Tlo.SetOptions(Tlo.fWrap);
-				Tlo.SetText(text.ToOem());
+				Tlo.SetText(text.Transf(CTRANSF_OUTER_TO_INNER)); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 			}
 			break;
 		case cmdEditTool:

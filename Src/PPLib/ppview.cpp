@@ -2351,7 +2351,7 @@ int PPView::Browse(bool modeless)
 	// { Почти повторяет код PPOpenBrowser() за исключением вызова OnExecBrowser
 	if(modeless) {
 		brw->SetResID(static_cast<PPApp *>(APPL)->LastCmd);
-		int    r = InsertView(brw);
+		const  int r = InsertView(brw);
 		if(r < 0 && brw->IsConsistent())
 			OnExecBrowser(brw);
 	}

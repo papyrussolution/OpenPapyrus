@@ -1,5 +1,5 @@
 // PPJOB.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // @Kernel
 //
@@ -2654,7 +2654,7 @@ int PPObjRFIDDevice::ExecOper(PPAbstractDevice * pDvc, int cmd, StrAssocArray & 
 			if(pDvc->RunCmd__(DVCCMD_GETLASTERRORTEXT, rIn.Clear(), rOut.Clear()))
 				rOut.Get(0, err_msg);
 			if(err_msg.NotEmpty())
-				PPSetError(PPERR_READER, err_msg.ToOem());
+				PPSetError(PPERR_READER, err_msg.Transf(CTRANSF_OUTER_TO_INNER)); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 			ok = 0;
 		}
 	}
@@ -2728,13 +2728,14 @@ int PPObjRFIDDevice::Test(const PPRFIDDevice & rRec, SString & rRetBuf)
 	PPOutputMessage(temp_buf, mfOK);
 	// } @vmiller
 #endif // }
-
-	int    port_no = -1, ok = 1;
+	int    ok = 1;
+	int    port_no = -1;
 	SCommPort cp;
 	CommPortTimeouts cpt;
-	if(IsComDvcSymb(rRec.Port, &port_no) == comdvcsCom)
+	if(IsComDvcSymb(rRec.Port, &port_no) == comdvcsCom) {
 		if(port_no > 0)
 			port_no--;
+	}
 	cp.SetParams(&rRec.Cpp);
 	cp.SetReadCyclingParams(10, 10);
 

@@ -1511,10 +1511,7 @@ private:
 	}
 };
 
-int PPObjComputer::DeleteObj(PPID id)
-{
-	return Put(&id, 0, 0);
-}
+int PPObjComputer::DeleteObj(PPID id) { return Put(&id, 0, 0); }
 
 int PPObjComputer::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {

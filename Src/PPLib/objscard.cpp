@@ -3830,7 +3830,7 @@ int PPObjSCard::ViewVersion(PPID histID)
 			{
 				THROW(CheckDialogPtr(&(dlg = new SCardDialog())));
 				dlg->setDTS(&pack, 0/**/);
-				dlg->enableCommand(cmOK, 0);
+				dlg->enableCommand(cmOK, false);
 				ExecView(dlg);
 			}
 			ok = 1;

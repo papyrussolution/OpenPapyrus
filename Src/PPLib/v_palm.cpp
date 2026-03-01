@@ -1,5 +1,5 @@
 // V_PALM.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2015, 2016, 2018, 2022, 2025
+// Copyright (c) A.Starodub 2009, 2010, 2015, 2016, 2018, 2022, 2025, 2026
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -407,7 +407,7 @@ int PPViewPalm::ExportUhtt()
 					}
 					else {
 						// Ошибка экспорта адреса на сервер Universe-HTT
-						(temp_buf = uhtt_cli.GetLastMessage()).ToOem();
+						(temp_buf = uhtt_cli.GetLastMessage()).Transf(CTRANSF_OUTER_TO_INNER); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 						PPLoadText(PPTXT_UHTTEXPSTYLO_EEXPORT, fmt_buf);
 						PPFormat(fmt_buf, &msg_buf, (const char *)rec.Name, temp_buf.cptr());
 						logger.Log(msg_buf);

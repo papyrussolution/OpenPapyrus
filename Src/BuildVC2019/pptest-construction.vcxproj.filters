@@ -70,6 +70,7 @@
     <ClCompile Include="..\PPTEST\UNIT\test-simplecpp.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-oxlsx.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-mysql.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-stype.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\libdivide\constant_fast_div.h">

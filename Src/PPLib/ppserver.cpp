@@ -1,5 +1,5 @@
 // PPSERVER.CPP
-// Copyright (c) A.Sobolev 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -5498,18 +5498,18 @@ int run_client()
 					if(cli.ExecSrvCmd("ping term 0A", "0A", reply)) {
 						int r = reply.StartReading(&reply_str);
 						if(r == 2) {
-							reply_str.ToOem();
+							reply_str.Transf(CTRANSF_OUTER_TO_INNER); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 						}
 						else if(r == 1) {
 							const PPJobSrvProtocol::Header01 & hdr = reply.GetH();
 							reply_str.Z().Cat("Binary reply").CatDiv(':', 2).
 								CatEq("ProtocolVer", hdr.ProtocolVer).CatDiv(';', 2).
-								CatEq("Padding", static_cast<uint>(hdr.Padding)).CatDiv(';', 2). // @v11.0.10
+								CatEq("Padding", static_cast<uint>(hdr.Padding)).CatDiv(';', 2).
 								CatEq("DataLen", hdr.DataLen).CatDiv(';', 2).
 								CatEq("DataType", hdr.Type).CatDiv(';', 2).
 								CatEq("Flags", hdr.Flags).CRB();
 							if(hdr.Type == PPJobSrvReply::htGenericText) {
-								reply_str.Cat(reply).ToOem().CRB();
+								reply_str.Cat(reply).Transf(CTRANSF_OUTER_TO_INNER).CRB(); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 							}
 						}
 						else {
@@ -5535,18 +5535,18 @@ int run_client()
 					if(cli.ExecSrvCmd(cmd, reply)) {
 						int r = reply.StartReading(&reply_str);
 						if(r == 2) {
-							reply_str.ToOem();
+							reply_str.Transf(CTRANSF_OUTER_TO_INNER); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 						}
 						else if(r == 1) {
 							const PPJobSrvProtocol::Header01 & hdr = reply.GetH();
 							reply_str.Z().Cat("Binary reply").CatDiv(':', 2).
 								CatEq("ProtocolVer", static_cast<long>(hdr.ProtocolVer)).CatDiv(';', 2).
-								CatEq("Padding", static_cast<uint>(hdr.Padding)).CatDiv(';', 2). // @v11.0.10
+								CatEq("Padding", static_cast<uint>(hdr.Padding)).CatDiv(';', 2).
 								CatEq("DataLen", hdr.DataLen).CatDiv(';', 2).
 								CatEq("DataType", hdr.Type).CatDiv(';', 2).
 								CatEq("Flags", hdr.Flags).CRB();
 							if(hdr.Type == PPJobSrvReply::htGenericText) {
-								reply_str.Cat(reply).ToOem().CRB();
+								reply_str.Cat(reply).Transf(CTRANSF_OUTER_TO_INNER).CRB(); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 							}
 						}
 						else {

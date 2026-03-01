@@ -1487,7 +1487,7 @@ uint SUiLayout::GetMinSize(SPoint2F * pMinSize) const
 //
 // Descr: Вычисляет полную ширину элемента без рассмотрения его внутренних компонентов.
 //   Полная ширина включает собственно ширину, а так же левые и правые поля и набивки
-//   (margin_left, margin_right, padding_left, padding_right).
+//   (margin_left, margin_right, padding_left, padding_right). // @v12.5.7 padding не прибавляется: это - внутреннее пространство
 // Returns:
 //   !0 - номинальная ширина элемента представлена валидным числом (!fisnan(width)). 
 //      В этом случае по адресу pS присваивается полная ширина элемента.
@@ -1505,8 +1505,8 @@ int SUiLayout::GetFullWidth(float * pS) const
 		s += ALB.Size.x;
 		s += ALB.Margin.a.x;
 		s += ALB.Margin.b.x;
-		s += ALB.Padding.a.x;
-		s += ALB.Padding.b.x;
+		// @v12.5.7 s += ALB.Padding.a.x;
+		// @v12.5.7 s += ALB.Padding.b.x;
 		ASSIGN_PTR(pS, s);
 	}
 	return ok;
@@ -1514,7 +1514,7 @@ int SUiLayout::GetFullWidth(float * pS) const
 //
 // Descr: Вычисляет полную высоту элемента без рассмотрения его внутренних компонентов.
 //   Полная высота включает собственно ширину, а так же верхние и нижние поля и набивки
-//   (margin_top, margin_bottom, padding_top, padding_bottom).
+//   (margin_top, margin_bottom, padding_top, padding_bottom). // @v12.5.7 padding не прибавляется: это - внутреннее пространство
 // Returns:
 //   !0 - номинальная высота элемента представлена валидным числом (!fisnan(height)). 
 //      В этом случае по адресу pS присваивается полная высота элемента.
@@ -1532,8 +1532,8 @@ int SUiLayout::GetFullHeight(float * pS) const
 		s += ALB.Size.y;
 		s += ALB.Margin.a.y;
 		s += ALB.Margin.b.y;
-		s += ALB.Padding.a.y;
-		s += ALB.Padding.b.y;
+		// @v12.5.7 s += ALB.Padding.a.y;
+		// @v12.5.7 s += ALB.Padding.b.y;
 		ASSIGN_PTR(pS, s);
 	}
 	return ok;
@@ -1541,10 +1541,7 @@ int SUiLayout::GetFullHeight(float * pS) const
 //
 // Descr: Возвращает финальный расчетный прямоугольник элемента.
 //
-FRect SUiLayout::GetFrame() const
-{
-	return R;
-}
+FRect SUiLayout::GetFrame() const { return R; }
 
 FRect SUiLayout::GetFrameAdjustedToParent() const
 {

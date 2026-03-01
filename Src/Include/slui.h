@@ -1996,6 +1996,8 @@ public:
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	const  SStringU & GetText() const;
 	int    SetText(const char * pText);
+	int    SetTextU(const wchar_t * pText); // @v12.5.7
+	int    SetTextUtf8(const char * pTextUtf8); // @v12.5.7
 	void   SetOptions(long flags, int defParaStyle = -1, int defCStyle = -1);
 	int    FASTCALL HasOption(long f) const;
 	int    AddParagraph(const char * pText, int paraStyleId);
@@ -2579,6 +2581,7 @@ public:
 	TView * TopView();
 	bool   IsConsistent() const;
 	bool   FASTCALL IsSubSign(uint) const;
+	uint   GetSignature() const { return Sign; } // @v12.5.7
 	uint   GetSubSign() const { return SubSign; }
 	int    GetEndModalCmd() const { return EndModalCmd; }
 	//
@@ -2595,7 +2598,9 @@ public:
 	//
 	uint16 GetId_Unsafe() const { return Id; }
 	void   SetEndModalCmd(int cmd) { EndModalCmd = cmd; } // @v12.5.5
+	int    HandleKeyboardEvent(WPARAM wParam, int isPpyCodeType = 0); // @internal @v12.5.7 protected-->public
 private:
+	friend class TWindow; // Для установки Sign в конструкторе
 	uint32 Sign;    // Подпись экземпляра класса. Используется для идентификации инвалидных экземпляров.
 protected:
 	static int Helper_RegisterMouseTracking(void * pHandle/*HWND*/, int leaveNotify, int hoverTimeout);
@@ -2630,7 +2635,6 @@ public:
 	WNDPROC PrevWindowProc;
 protected:
 	static int Helper_SendCmSizeAsReplyOnWmSize(TView * pV, WPARAM wParam, LPARAM lParam);
-	int    HandleKeyboardEvent(WPARAM wParam, int isPpyCodeType = 0);
 	//
 	// Descr: Эта функция должна вызываться наследуемыми классами в деструкторе
 	//   для восстановления предыдущей оконной процедуры.
@@ -2677,6 +2681,7 @@ public:
 	TView * GetLastView() const { return P_Last; }
 	TView * FASTCALL getCtrlView(ushort ctl); // @v12.3.7 moved from TWindow
 	const TView * FASTCALL getCtrlViewC(ushort ctl) const; // @v12.3.7 moved from TWindow
+	const TView * FASTCALL getCtrlViewByHandleC(/*HWND*/void * pHandle) const; // @v12.5.7
 	void   redraw();
 	uint   GetCurrId() const;
 	bool   FASTCALL IsCurrentView(const TView * pV) const;
@@ -5451,6 +5456,9 @@ public:
 		tbiListSelPen       = 88, // Перо отрисовки selected строки списка
 		tbiDialogBkgColor   = 89, // @v12.5.3 Цвет для отрисовки фона диалоговых окон
 		tbiDialogBkgBrush   = 90, // @v12.5.3 Кисть для отрисовки фона диалоговых окон
+		tbiListFgPen        = 91, // @v12.5.7 "list_fg"       Перо текста для регулярных элементов списка
+		tbiListFocFgPen     = 92, // @v12.5.7 "list_focus_fg" Перо текста для focuses элементов списка
+		tbiListSelFgPen     = 93, // @v12.5.7 "list_sel_fg"   Перо текста для selected элементов списка
 		//
 		tbiControlFont      = 110, // @v11.2.3 Шрифт для отрисовки стандартных управляющих элементов 
 		tbiAccentInputFont  = 111, // @v12.5.5 Шрифт для отрисовки увеличенного поля ввода и сопутствующих элементов 
@@ -5465,6 +5473,8 @@ public:
 	virtual SPaintToolBox * GetUiToolBox();
 	const SDrawFigure * LoadDrawFigureBySymb(const char * pSymb, TWhatmanToolArray::Item * pInfo) const;
 	const SDrawFigure * LoadDrawFigureById(uint id, TWhatmanToolArray::Item * pInfo) const;
+	int    GetDialogTextLayoutU(const wchar_t * pText, int fontId, int penId, STextLayout & rTlo, int adj); // @v12.5.7
+	int    GetDialogTextLayoutUtf8(const SString & rText, int fontId, int penId, STextLayout & rTlo, int adj); // @v12.5.7 private-->public
 
 	static TProgram * application;   // @global
 	TViewGroup * P_DeskTop;
@@ -5514,7 +5524,6 @@ private:
 	int    DrawFrame(HWND hwnd, DRAWITEMSTRUCT * pDi); // @v12.5.3 @construction
 	int    DrawInputLine3(HWND hwnd, DRAWITEMSTRUCT * pDi);
 	int    DrawNumStepper(HWND hwnd, DRAWITEMSTRUCT * pDi); // @v12.5.3 @construction
-	int    GetDialogTextLayout(const SString & rText, int fontId, int penId, STextLayout & rTlo, int adj);
 	void   HandleWindowCompositionChanged(); // @v11.6.7
 	void   HandleWindowNcCalcSize(/*struct window * data,*/WPARAM wparam, LPARAM lparam); // @v11.6.7
 

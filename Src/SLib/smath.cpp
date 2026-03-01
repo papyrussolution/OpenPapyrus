@@ -720,7 +720,9 @@ float FASTCALL fpow10fi(int n)
 		case -4: return 0.0001f;
 		case -5: return 0.00001f;
 		case -6: return 0.000001f;
-		default: return fpowfi(10.0f, n);
+		default: 
+			// @v12.5.7 (тяжелый дефект - рекурсия) return fpowfi(10.0f, n);
+			return powf(10.0f, static_cast<float>(n)); // @v12.5.7
 	}
 }
 
@@ -1128,11 +1130,12 @@ int  SHistogram::GetResult(uint pos, Result * pResult) const
 //
 //
 //
-static const double _mizer = 1.0E-8; //0.00000001
+static const double _mizer  = 1.0E-8; //0.00000001
+static const float  _mizerf = 1.0E-8f; //0.00000001f
 
 static FORCEINLINE double implement_round(double n, int prec)
 {
-	const  int sign = (fsign(n) - 1);
+	const  bool sign = LOGIC(fsign(n) - 1);
 	if(sign)
 		n = _chgsign(n);
 	if(prec == 0) {
@@ -1146,6 +1149,24 @@ static FORCEINLINE double implement_round(double n, int prec)
 		n = (((t - f + _mizer) < 0.5) ? f : ceil(t)) / p;
 	}
 	return sign ? _chgsign(n) : n;
+}
+
+static FORCEINLINE float implement_roundf(float n, int prec) // @v12.5.7
+{
+	const  bool sign = LOGIC(fsignf(n) - 1);
+	if(sign)
+		n = _chgsignf(n);
+	if(prec == 0) {
+		const float f = floorf(n);
+		n = ((n - f + _mizerf) < 0.5f) ? f : ceilf(n);
+	}
+	else {
+		const float  p = fpow10fi(prec);
+		const float  t = n * p;
+		const float  f = floorf(t);
+		n = (((t - f + _mizerf) < 0.5f) ? f : ceilf(t)) / p;
+	}
+	return sign ? _chgsignf(n) : n;
 }
 
 double FASTCALL round(double n, int prec)
@@ -1199,6 +1220,7 @@ double STDCALL round(double v, double prec, int dir)
 	}
 }
 
+float  FASTCALL R0f(float v) { return implement_roundf(v, 0); } // @v12.5.7
 double FASTCALL R0(double v) { return implement_round(v, 0); }
 long   FASTCALL R0i(double v) { return static_cast<long>(implement_round(v, 0)); }
 int64  FASTCALL R0i64(double v) { return static_cast<int64>(implement_round(v, 0)); }

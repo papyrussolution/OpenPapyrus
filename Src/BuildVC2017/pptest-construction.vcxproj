@@ -234,6 +234,7 @@
     <ClCompile Include="..\PPTEST\UNIT\test-sqlite.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-sqlparser.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-string.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-stype.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-time.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-ued.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-utf8_h.cpp" />

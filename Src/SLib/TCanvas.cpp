@@ -2615,11 +2615,30 @@ void FASTCALL STextLayout::SetBounds(const FRect & rBounds)
 
 int STextLayout::SetText(const char * pText)
 {
-	FRect preserve_bounds = Bounds;
-	long  preserve_flags = Flags;
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	(r_temp_buf = pText).Transf(CTRANSF_INNER_TO_UTF8);
+	return SetTextUtf8(r_temp_buf);
+
+}
+
+int STextLayout::SetTextU(const wchar_t * pText) // @v12.5.7
+{
+	const  FRect preserve_bounds(Bounds);
+	const  long  preserve_flags(Flags);
 	Reset();
-	SString temp_buf;
-	Text.CopyFromUtf8((temp_buf = pText).Transf(CTRANSF_INNER_TO_UTF8));
+	Text = pText;
+	ParaList.Add(0, 0, 0);
+	Bounds = preserve_bounds;
+	Flags = preserve_flags;
+	return 1;
+}
+
+int STextLayout::SetTextUtf8(const char * pTextUtf8) // @v12.5.7
+{
+	const  FRect preserve_bounds(Bounds);
+	const  long  preserve_flags(Flags);
+	Reset();
+	Text.CopyFromUtf8(pTextUtf8, sstrlen(pTextUtf8));
 	ParaList.Add(0, 0, 0);
 	Bounds = preserve_bounds;
 	Flags = preserve_flags;
@@ -3030,7 +3049,7 @@ int TCanvas2::DrawTextLayout(STextLayout * pTlo)
 {
 	int    ok = 1;
 	if(pTlo) {
-		const int do_clip = 0; // pTlo->HasOption(STextLayout::fNoClip) ? 0 : 1;
+		const  bool do_clip = false; // pTlo->HasOption(STextLayout::fNoClip) ? 0 : 1;
 		STextLayout::RenderGroup re;
 		SVector glyph_list(sizeof(cairo_glyph_t));
 		if(do_clip) {

@@ -680,7 +680,7 @@ int PPExprParser::GetToken()
 			else if(sstreqi_ascii(buf, "neq"))   { Fb.SetFuncId(funcNEq); }
 			else {
 				const char * p_tagexpr_symb = "tagexpr";
-				const uint tagexpr_symb_len = sstrlen(p_tagexpr_symb);
+				const size_t tagexpr_symb_len = sstrlen(p_tagexpr_symb);
 				if(sstreqni_ascii(buf, "tagexpr", tagexpr_symb_len) && buf[tagexpr_symb_len] == '.') { // @v12.0.11
 					SString left, right;
 					const int dr = SString(buf).Divide('.', left, right);
@@ -1046,7 +1046,7 @@ int FASTCALL PPExprParser::CalcExpr(double * pResult)
 	THROW(GetTerm(&result));
 	while(oneof8(Token, '+', '-', '<', '>', '=', tokLe, tokGe, tokNe)) {
 		double add = 0.0;
-		if(Token == '+' || Token == '-') {
+		if(oneof2(Token, '+', '-')) {
 			int    sign = (Token == '+') ? 1 : -1;
 			THROW(GetTerm(&add));
 			if(sign > 0)
@@ -1082,9 +1082,9 @@ int FASTCALL PPExprParser::CalcExpr(double * pResult)
 //
 // GoodsContext
 //
-GoodsContext::Param::Param()
+GoodsContext::Param::Param() : Par1(0.0), Par2(0.0), Par3(0.0), TSessID(0), GoodsID(0), PrevGoodsID(0), LocID(0), ArID(0), CurID(0), LotID(0), Flags(0),
+	Qtty(0.0), Cost(0.0), Price(0.0)
 {
-	THISZERO();
 }
 
 GoodsContext::GoodsContext(GdsClsCalcExprContext * pCtx) : ExprEvalContext()
@@ -1095,7 +1095,7 @@ GoodsContext::GoodsContext(GdsClsCalcExprContext * pCtx) : ExprEvalContext()
 	P_Gs = pCtx->P_GsPack;
 	P_BillPack = pCtx->P_BillPack;
 	P_Ti = pCtx->P_Ti;
-	P_Ci = pCtx->P_Ci; // @v11.0.7 @fix
+	P_Ci = pCtx->P_Ci;
 	P_TslRec = pCtx->P_TslRec;
 	P.Par1 = pCtx->Par1;
 	P.Par2 = pCtx->Par2;
@@ -1742,11 +1742,11 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 						v = 0.0;
 				}
 				else if(ref.IsEqiAscii("LOTDIMX"))
-                    v = P.LotDim.X;
+                    v = P.LotDim.DimX;
 				else if(ref.IsEqiAscii("LOTDIMY"))
-					v = P.LotDim.Y;
+					v = P.LotDim.DimY;
 				else if(ref.IsEqiAscii("LOTDIMZ"))
-					v = P.LotDim.Z;
+					v = P.LotDim.DimZ;
 				else
 					r = 0;
 				if(!r) {

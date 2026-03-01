@@ -1,5 +1,5 @@
 // V_SYSJ.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -14,7 +14,8 @@ static IMPL_CMPFUNC(PPViewSysJournal_EvVerEntry, i1, i2)
 
 SysJournalViewItem & SysJournalViewItem::Z()
 {
-	memzero(this, sizeof(SysJournalTbl::Rec));
+	// @v12.5.7 memzero(this, sizeof(SysJournalTbl::Rec));
+	SysJournalTbl::Rec::Clear(); // @v12.5.7 
 	ID = 0;
 	GrpCount = 0;
 	ObjName.Z();
@@ -31,10 +32,7 @@ IMPLEMENT_PPFILT_FACTORY(SysJournal); SysJournalFilt::SysJournalFilt() : PPBaseF
 	Init(1, 0);
 }
 
-bool SysJournalFilt::IsEmpty() const
-{
-	return (Period.IsZero() && !UserID && !ObjType && !ActionIDList.getCount());
-}
+bool SysJournalFilt::IsEmpty() const { return (Period.IsZero() && !UserID && !ObjType && !ActionIDList.getCount()); }
 //
 //
 //
@@ -47,20 +45,21 @@ IMPL_HANDLE_EVENT(SysJFiltDialog)
 {
 	TDialog::handleEvent(event);
 	if(event.isCmd(cmSysJActionList)) {
-		ListToListData l2l_data(PPOBJ_ACTION, reinterpret_cast<void *>(-1), &Filt.ActionIDList);
+		ListToListData l2l_data(PPOBJ_ACTION, reinterpret_cast<void *>(-1), &Data.ActionIDList);
 		l2l_data.TitleStrID = 0; // PPTXT_XXX;
-		if(ListToListDialog(&l2l_data) > 0)
-			if(Filt.ActionIDList.isList()) {
+		if(ListToListDialog(&l2l_data) > 0) {
+			if(Data.ActionIDList.isList()) {
 				SetComboBoxListText(this, CTLSEL_SYSJFILT_ACTION);
 				disableCtrl(CTLSEL_SYSJFILT_ACTION, true);
 			}
 			else {
-				setCtrlLong(CTLSEL_SYSJFILT_ACTION, Filt.ActionIDList.getSingle());
+				setCtrlLong(CTLSEL_SYSJFILT_ACTION, Data.ActionIDList.getSingle());
 				disableCtrl(CTLSEL_SYSJFILT_ACTION, false);
 			}
+		}
 	}
 	else if(event.isCbSelected(CTLSEL_SYSJFILT_ACTION))
-		Filt.ActionIDList.setSingleNZ(getCtrlLong(CTLSEL_SYSJFILT_ACTION));
+		Data.ActionIDList.setSingleNZ(getCtrlLong(CTLSEL_SYSJFILT_ACTION));
 	else if(event.isCbSelected(CTLSEL_SYSJFILT_SUBST) || event.isCbSelected(CTLSEL_SYSJFILT_SUBSTDT))
 		SetupCtrls();
 	else
@@ -70,61 +69,61 @@ IMPL_HANDLE_EVENT(SysJFiltDialog)
 
 void SysJFiltDialog::SetupCtrls()
 {
-	int    subst_used = 0;
-	getCtrlData(CTLSEL_SYSJFILT_SUBST, &Filt.Sgsj);
-	getCtrlData(CTLSEL_SYSJFILT_SUBSTDT, &Filt.Sgd);
-	subst_used = BIN(Filt.Sgsj != sgsjNone || Filt.Sgd != sgdNone);
+	getCtrlData(CTLSEL_SYSJFILT_SUBST, &Data.Sgsj);
+	getCtrlData(CTLSEL_SYSJFILT_SUBSTDT, &Data.Sgd);
+	const  bool subst_used = (Data.Sgsj != sgsjNone || Data.Sgd != sgdNone);
 	DisableClusterItem(CTL_SYSJFILT_FLAGS, 0, subst_used);
-	DisableClusterItem(CTL_SYSJFILT_FLAGS, 1, subst_used); // @v9.9.2
+	DisableClusterItem(CTL_SYSJFILT_FLAGS, 1, subst_used);
 	if(subst_used) {
-		Filt.Flags &= ~SysJournalFilt::fShowObjects;
-		SetClusterData(CTL_SYSJFILT_FLAGS, Filt.Flags);
+		Data.Flags &= ~SysJournalFilt::fShowObjects;
+		SetClusterData(CTL_SYSJFILT_FLAGS, Data.Flags);
 	}
 }
 
-int SysJFiltDialog::setDTS(const SysJournalFilt * pFilt)
+int SysJFiltDialog::setDTS(const SysJournalFilt * pData)
 {
-	Filt = *pFilt;
-	SetPeriodInput(this, CTL_SYSJFILT_PERIOD, Filt.Period);
-	SetupPPObjCombo(this, CTLSEL_SYSJFILT_USER, PPOBJ_USR, Filt.UserID, 0, 0);
+	RVALUEPTR(Data, pData);
+	SetPeriodInput(this, CTL_SYSJFILT_PERIOD, Data.Period);
+	SetupPPObjCombo(this, CTLSEL_SYSJFILT_USER, PPOBJ_USR, Data.UserID, 0, 0);
 	SetupPPObjCombo(this, CTLSEL_SYSJFILT_ACTION, PPOBJ_ACTION, 0, 0, 0);
 	if(Id == DLG_SYSJFILT) {
-		SetupObjListCombo(this, CTLSEL_SYSJFILT_OBJ, Filt.ObjType);
+		SetupObjListCombo(this, CTLSEL_SYSJFILT_OBJ, Data.ObjType);
 		AddClusterAssoc(CTL_SYSJFILT_FLAGS, 0, SysJournalFilt::fShowObjects);
 		AddClusterAssoc(CTL_SYSJFILT_FLAGS, 1, SysJournalFilt::fShowHistoryObj);
-		SetClusterData(CTL_SYSJFILT_FLAGS, Filt.Flags);
+		SetClusterData(CTL_SYSJFILT_FLAGS, Data.Flags);
 	}
-	if(Filt.ActionIDList.isList()) {
+	if(Data.ActionIDList.isList()) {
 		SetComboBoxListText(this, CTLSEL_SYSJFILT_ACTION);
 		disableCtrl(CTLSEL_SYSJFILT_ACTION, true);
 	}
 	else {
-		setCtrlLong(CTLSEL_SYSJFILT_ACTION, Filt.ActionIDList.getSingle());
+		setCtrlLong(CTLSEL_SYSJFILT_ACTION, Data.ActionIDList.getSingle());
 		disableCtrl(CTLSEL_SYSJFILT_ACTION, false);
 	}
-	SetupStringCombo(this, CTLSEL_SYSJFILT_SUBST, PPTXT_SUBSTSYSJLIST, Filt.Sgsj);
-	SetupSubstDateCombo(this, CTLSEL_SYSJFILT_SUBSTDT, Filt.Sgd);
+	SetupStringCombo(this, CTLSEL_SYSJFILT_SUBST, PPTXT_SUBSTSYSJLIST, Data.Sgsj);
+	SetupSubstDateCombo(this, CTLSEL_SYSJFILT_SUBSTDT, Data.Sgd);
 	SetupCtrls();
 	return 1;
 }
 
-int SysJFiltDialog::getDTS(SysJournalFilt * pFilt)
+int SysJFiltDialog::getDTS(SysJournalFilt * pData)
 {
-	if(!GetPeriodInput(this, CTL_SYSJFILT_PERIOD, &Filt.Period))
-		return PPErrorByDialog(this, CTL_SYSJFILT_PERIOD);
+	int    ok = 1;
+	if(!GetPeriodInput(this, CTL_SYSJFILT_PERIOD, &Data.Period))
+		ok = PPErrorByDialog(this, CTL_SYSJFILT_PERIOD);
 	else {
-		getCtrlData(CTLSEL_SYSJFILT_USER, &Filt.UserID);
-		if(!Filt.ActionIDList.isList())
-			Filt.ActionIDList.setSingleNZ(getCtrlLong(CTLSEL_SYSJFILT_ACTION));
+		getCtrlData(CTLSEL_SYSJFILT_USER, &Data.UserID);
+		if(!Data.ActionIDList.isList())
+			Data.ActionIDList.setSingleNZ(getCtrlLong(CTLSEL_SYSJFILT_ACTION));
 		if(Id == DLG_SYSJFILT) {
-			getCtrlData(CTLSEL_SYSJFILT_OBJ, &Filt.ObjType);
-			GetClusterData(CTL_SYSJFILT_FLAGS, &Filt.Flags);
-			getCtrlData(CTL_SYSJFILT_SUBST, &Filt.Sgsj);
-			getCtrlData(CTL_SYSJFILT_SUBSTDT, &Filt.Sgd);
+			getCtrlData(CTLSEL_SYSJFILT_OBJ, &Data.ObjType);
+			GetClusterData(CTL_SYSJFILT_FLAGS, &Data.Flags);
+			getCtrlData(CTL_SYSJFILT_SUBST, &Data.Sgsj);
+			getCtrlData(CTL_SYSJFILT_SUBSTDT, &Data.Sgd);
 		}
-		*pFilt = Filt;
-		return 1;
+		ASSIGN_PTR(pData, Data);
 	}
+	return ok;
 }
 //
 //
@@ -790,18 +789,23 @@ int PPViewSysJournal::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				ok = -1;
 			}
 			else if(oneof2(hdr.Obj, PPOBJ_GOODS, PPOBJ_GOODSGROUP) && oneof2(hdr.Action, PPACN_OBJUPD, PPACN_OBJRMV)) {
-				PPObjGoods goods_obj;
-				goods_obj.ViewVersion(R0i(hdr.Extra));
+				PPObjGoods _obj;
+				_obj.ViewVersion(R0i(hdr.Extra));
 				ok = -1;
 			}
 			else if(hdr.Obj == PPOBJ_PERSON && oneof2(hdr.Action, PPACN_OBJUPD, PPACN_OBJRMV)) {
-				PPObjPerson psn_obj;
-				psn_obj.ViewVersion(R0i(hdr.Extra));
+				PPObjPerson _obj;
+				_obj.ViewVersion(R0i(hdr.Extra));
 				ok = -1;
 			}
 			else if(hdr.Obj == PPOBJ_SCARD && oneof2(hdr.Action, PPACN_OBJUPD, PPACN_OBJRMV)) {
-				PPObjSCard sc_obj;
-				sc_obj.ViewVersion(R0i(hdr.Extra));
+				PPObjSCard _obj;
+				_obj.ViewVersion(R0i(hdr.Extra));
+				ok = -1;
+			}
+			else if(hdr.Obj == PPOBJ_OPRKIND && oneof2(hdr.Action, PPACN_OBJUPD, PPACN_OBJRMV)) { // @v12.5.7
+				PPObjOprKind _obj;
+				_obj.ViewVersion(R0i(hdr.Extra));
 				ok = -1;
 			}
 		}
@@ -1521,14 +1525,12 @@ DBQuery * PPViewGtaJournal::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 			t->Op,        // #2
 			t->Dt,        // #3
 			t->Tm,        // #4
-			dbe_user,     // #5
-			dbe_action,   // #6
-			dbe_objtitle, // #7
-			dbe_objname,  // #8
-			0L).from(t, /*nm,*/ 0L);
-	}
-	else
-		q = & Select_(
+			0L);
+		q->addField(dbe_user);     // #5
+		q->addField(dbe_action);   // #6
+		q->addField(dbe_objtitle); // #7
+		q->addField(dbe_objname);  // #8
+		/* @v12.5.7 q = & Select_(
 			t->ObjType,   // #0
 			t->ObjID,     // #1
 			t->Op,        // #2
@@ -1537,7 +1539,33 @@ DBQuery * PPViewGtaJournal::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 			dbe_user,     // #5
 			dbe_action,   // #6
 			dbe_objtitle, // #7
-			0L).from(t, 0L);
+			dbe_objname,  // #8
+			0L);*/
+		q->from(t, /*nm,*/ 0L);
+	}
+	else {
+		q = & Select_(
+			t->ObjType,   // #0
+			t->ObjID,     // #1
+			t->Op,        // #2
+			t->Dt,        // #3
+			t->Tm,        // #4
+			0L);
+		q->addField(dbe_user);     // #5
+		q->addField(dbe_action);   // #6
+		q->addField(dbe_objtitle); // #7
+		/* @v12.5.7 q = & Select_(
+			t->ObjType,   // #0
+			t->ObjID,     // #1
+			t->Op,        // #2
+			t->Dt,        // #3
+			t->Tm,        // #4
+			dbe_user,     // #5
+			dbe_action,   // #6
+			dbe_objtitle, // #7
+			0L);*/
+		q->from(t, 0L);
+	}
 	q->where(*dbq);
 	if(Filt.Oi.IsFullyDefined())
 		q->orderBy(t->ObjType, t->ObjID, t->Dt, 0L);

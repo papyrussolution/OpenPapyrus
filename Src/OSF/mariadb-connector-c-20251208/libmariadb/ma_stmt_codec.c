@@ -79,8 +79,7 @@
 MYSQL_PS_CONVERSION mysql_ps_fetch_functions[MYSQL_TYPE_GEOMETRY + 1];
 bool mysql_ps_subsystem_initialized = 0;
 
-#define NUMERIC_TRUNCATION(val, min_range, max_range) \
-	((((val) > (max_range)) || ((val) < (min_range)) ? 1 : 0))
+#define NUMERIC_TRUNCATION(val, min_range, max_range) ((((val) > (max_range)) || ((val) < (min_range)) ? 1 : 0))
 
 void ma_bmove_upp(char * dst, const char * src, size_t len)
 {
@@ -88,8 +87,7 @@ void ma_bmove_upp(char * dst, const char * src, size_t len)
 }
 
 /* {{{ ps_fetch_from_1_to_8_bytes */
-void ps_fetch_from_1_to_8_bytes(MYSQL_BIND * r_param, const MYSQL_FIELD * const field,
-    uchar ** row, uint byte_count)
+void ps_fetch_from_1_to_8_bytes(MYSQL_BIND * r_param, const MYSQL_FIELD * const field, uchar ** row, uint byte_count)
 {
 	bool is_unsigned = test(field->flags & UNSIGNED_FLAG);
 	r_param->buffer_length = byte_count;
@@ -129,18 +127,15 @@ static uint64 my_strtoull(const char * str, size_t len, const char ** end, int *
 	uint64 val = 0;
 	const char * p = str;
 	const char * end_str = p + len;
-
 	for(; p < end_str; p++) {
 		if(*p < '0' || *p > '9')
 			break;
-
 		if(val > ULONGLONG_MAX /10 || val*10 > ULONGLONG_MAX - (*p - '0')) {
 			*err = ERANGE;
 			break;
 		}
 		val = val * 10 + *p -'0';
 	}
-
 	if(p == str)
 		/* Did not parse anything.*/
 		*err = ERANGE;
@@ -155,25 +150,20 @@ static long long my_strtoll(const char * str, size_t len, const char ** end, int
 	const char * p = str;
 	const char * end_str = p + len;
 	int neg;
-
 	while(p < end_str && isspace(*p))
 		p++;
-
 	if(p == end_str) {
 		*end = p;
 		*err = ERANGE;
 		return 0;
 	}
-
 	neg = *p == '-';
 	if(neg)
 		p++;
-
 	uval = my_strtoull(p, (end_str - p), &p, err);
 	*end = p;
 	if(*err)
 		return uval;
-
 	if(!neg) {
 		/* Overflow of the long long range. */
 		if(uval > LONGLONG_MAX) {
@@ -183,16 +173,13 @@ static long long my_strtoll(const char * str, size_t len, const char ** end, int
 		}
 		return uval;
 	}
-
 	if(uval == (uint64)LONGLONG_MIN)
 		return LONGLONG_MIN;
-
 	if(uval > LONGLONG_MAX) {
 		*end = p - 1;
 		uval = LONGLONG_MIN;
 		*err = ERANGE;
 	}
-
 	return -1LL * uval;
 }
 
@@ -203,15 +190,11 @@ static long long my_atoll(const char * str, const char * end_str, int * error)
 	long long ret;
 	while(p < end_str && isspace(*p))
 		p++;
-
 	ret = my_strtoll(p, end_str - p, &end, error);
-
 	while(end < end_str && isspace(*end))
 		end++;
-
 	if(end != end_str)
 		*error = 1;
-
 	return ret;
 }
 
@@ -220,18 +203,13 @@ static uint64 my_atoull(const char * str, const char * end_str, int * error)
 	const char * p = str;
 	const char * end;
 	uint64 ret;
-
 	while(p < end_str && isspace(*p))
 		p++;
-
 	ret = my_strtoull(p, end_str - p, &end, error);
-
 	while(end < end_str && isspace(*end))
 		end++;
-
 	if(end != end_str)
 		*error = 1;
-
 	return ret;
 }
 
@@ -240,22 +218,16 @@ double my_atod(const char * number, const char * end, int * error)
 	double val = 0.0;
 	char buffer[MAX_DBL_STR + 1];
 	int len = (int)(end - number);
-
 	*error = errno = 0;
-
 	if(len > MAX_DBL_STR) {
 		*error = 1;
 		len = MAX_DBL_STR;
 	}
-
 	memcpy(buffer, number, len);
 	buffer[len] = '\0';
-
 	val = strtod(buffer, NULL);
-
 	if(errno)
 		*error = errno;
-
 	return val;
 }
 
@@ -289,11 +261,9 @@ static int parse_time(const char * str, size_t length, const char ** end_ptr, MY
 	const char * end = str + length;
 	size_t frac_len;
 	int ret = 1;
-
 	tm->hour = my_strtoui(p, end-p, &p, &err);
 	if(err || tm->hour > 838 || p == end || *p != ':')
 		goto end;
-
 	p++;
 	tm->minute = my_strtoui(p, end-p, &p, &err);
 	if(err || tm->minute > 59 || p == end || *p != ':')
@@ -303,29 +273,21 @@ static int parse_time(const char * str, size_t length, const char ** end_ptr, MY
 	tm->second = my_strtoui(p, end-p, &p, &err);
 	if(err || tm->second > 59)
 		goto end;
-
 	ret = 0;
 	tm->second_part = 0;
-
 	if(p == end)
 		goto end;
-
 	/* Check for fractional part*/
 	if(*p != '.')
 		goto end;
-
 	p++;
 	frac_len = MIN(6, end-p);
-
 	tm->second_part = my_strtoui(p, frac_len, &p, &err);
 	if(err)
 		goto end;
-
 	if(frac_len < 6)
 		tm->second_part *= frac_mul[frac_len];
-
 	ret = 0;
-
 	/* Consume whole fractional part, even after 6 digits.*/
 	p += frac_len;
 	while(p < *end_ptr) {
@@ -337,7 +299,6 @@ end:
 	*end_ptr = p;
 	return ret;
 }
-
 /*
    Parse date, in MySQL format.
 
@@ -359,26 +320,20 @@ static int parse_date(const char * str, size_t length, const char ** end_ptr, MY
 	const char * p = str;
 	const char * end = str + length;
 	int ret = 1;
-
 	tm->year = my_strtoui(p, end - p, &p, &err);
 	if(err || tm->year > 9999 || p == end || *p != '-')
 		goto end;
-
 	if(p - str == 2) // 2-digit year
 		tm->year += (tm->year >= 70) ? 1900 : 2000;
-
 	p++;
 	tm->month = my_strtoui(p, end -p, &p, &err);
 	if(err || tm->month > 12 || p == end || *p != '-')
 		goto end;
-
 	p++;
 	tm->day = my_strtoui(p, end -p, &p, &err);
 	if(err || tm->day > 31)
 		goto end;
-
 	ret = 0;
-
 end:
 	*end_ptr = p;
 	return ret;
@@ -408,18 +363,14 @@ int str_to_TIME(const char * str, size_t length, MYSQL_TIME * tm)
 	const char * p = str;
 	const char * end = str + length;
 	int is_time = 0;
-
 	if(!p)
 		goto error;
-
 	while(p < end && isspace(*p))
 		p++;
 	while(p < end && isspace(end[-1]))
 		end--;
-
 	if(end -p < 5)
 		goto error;
-
 	if(*p == '-') {
 		tm->neg = 1;
 		/* Only TIME can't be negative.*/
@@ -440,11 +391,9 @@ int str_to_TIME(const char * str, size_t length, MYSQL_TIME * tm)
 			}
 		}
 	}
-
 	if(is_time) {
 		if(parse_time(p, end - p, &p, tm))
 			goto error;
-
 		tm->year = tm->month = tm->day = 0;
 		tm->time_type = MYSQL_TIMESTAMP_TIME;
 		return 0;
@@ -502,8 +451,7 @@ static void convert_froma_string(MYSQL_BIND * r_param, char * buffer, size_t len
 	    break;
 		case MYSQL_TYPE_LONGLONG:
 	    {
-		    longlong val = r_param->is_unsigned ? (longlong)my_atoull(buffer, buffer + len, &error) : my_atoll(buffer,
-			    buffer + len, &error);
+		    longlong val = r_param->is_unsigned ? (longlong)my_atoull(buffer, buffer + len, &error) : my_atoll(buffer, buffer + len, &error);
 		    *r_param->P_Error = error > 0; /* no need to check for truncation */
 		    longlongstore(r_param->buffer, val);
 		    r_param->buffer_length = sizeof(longlong);

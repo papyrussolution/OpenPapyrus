@@ -21,7 +21,23 @@
 //   -- GlobalBizScore: ScoreDescr && Str move to UnxTextRef
 //   -- UserFuncPrfSess: DbUUID_s и SessUUID_s преобразовать в guid; DbName, UserName, MachineName перенести в UnxTextRef
 //
-
+// Опции таблиц базы данных
+// - dbtable options:
+// - page: (DlScope::cdbtPageSize) uint размер странцы данных 
+// - prealloc: (DlScope::cdbtPrealloc) uint Количество страниц распределяемых при создании таблицы базы данных
+// - threshold: (DlScope::cdbtPctThreshold) uint oneof(0, 5, 10, 20, 30) BTRIEVE Процентный порог свободного места, оставляемого в странице VLR
+// - acstable: (DlScope::cdbtAcsName) string BTRIEVE AlternateCollatingSequence file name
+// - dbms: (DlScope::cdbtDBMS) string символ типа сервера базы данных, для которого допустимо работать с этой таблицей
+// - vlr: (DlScope::sfDbtVLR) flag
+// - vat: (DlScope::sfDbtVAT) flag
+// - replace: (DlScope::sfDbtReplace) flag
+// - truncate: (DlScope::sfDbtTruncate) flag
+// - compress: (DlScope::sfDbtCompress) flag
+// - balanced: (DlScope::sfDbtBalanced) flag
+// - temporary: (DlScope::sfDbtTemporary) flag
+// - system: (DlScope::sfDbtSystem) flag
+// - ondemand: (DlScope::sfOnDemand) flag
+// - access: (DlScope::cdbtAccess) uint 
 //
 // Descr: Справочники (небольшие и многочисленные)
 //
@@ -1928,7 +1944,7 @@ file:
 // Descr: Заметки.
 //   Текст заметок хранится в таблице UnxTextRef. Заголовок заметки хранится в TextRef.
 //
-table Notes { // @v12.5.6
+/* @v12.5.7 (эта таблица была ошибкой - Workbook отлично справится с этой задачей) table Notes { // @v12.5.6
 	autolong ID;
 	int64  UedCrTm;     // UED момент создания записи. Уникальный по всей таблице. Если новая запись дублирует существующее значени, то искусственно модифицируем новое на миллисекунды.
 	long   ParentID;    // ->Notes.ID Родительская заметка или папка заметок
@@ -1944,7 +1960,7 @@ index:
 	LinkObjType, LinkObjID, UedCrTm (unique mod);
 file:
 	"notes.btr";
-}
+}*/
 
 //
 // Descr: Персональные карты.
@@ -5446,5 +5462,25 @@ file:
 	page=4096;
 }
 //
+// Descr: Таблица, хранящая текущее состояние актуальное для конкретного пользователя.
+//   Предполагается хранение в SQLite и монопольный доступ на изменение.
 //
-//
+/*table LocalStateBindery { // @v12.5.7 @construction
+	autolong ID;
+	int64  UedTm; // Время создания или последнего изменения //
+	long   Kind;
+	long   ObjType;
+	long   ObjID;
+	int64  Subject;
+	string Symb[128];
+	blob   VT[2048];
+index:
+	ID (unique);
+	Kind, UedTm (unique mod);
+	Kind, Symb, UedTm (unique mod);
+file:
+	dbms="sqlite";
+	"lstateb.btr";
+	vlr;
+	ondemand;
+}*/

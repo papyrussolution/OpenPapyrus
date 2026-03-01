@@ -2935,7 +2935,7 @@ int PiritEquip::RunCheck(int opertype)
 						text_attr = (0x20|0x10);
 					if((Check.Text.Len() + 1) > 54)
 						Check.Text.Trim(52);
-					CreateStr(Check.Text.ToOem(), in_data);
+					CreateStr(Check.Text.Transf(CTRANSF_OUTER_TO_INNER), in_data); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 					if(text_attr != 0)
 						CreateStr(text_attr, in_data);
 					Check.Z();
@@ -2969,7 +2969,7 @@ int PiritEquip::RunCheck(int opertype)
 					if(Check.Text.Len() + 1 > 56)
 						Check.Text.Trim(55);
 					CreateStr(text_attr, in_data);
-					Check.Text.ToOem();
+					Check.Text.Transf(CTRANSF_OUTER_TO_INNER); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 					CreateStr(Check.Text, in_data);
 					CreateStr("", in_data);
 					CreateStr("", in_data);

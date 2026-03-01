@@ -29,8 +29,7 @@ static void ma_SHA1Transform(uint32[5], const uchar[64]);
 static void ma_SHA1Encode(uchar *, uint32 *, uint);
 static void ma_SHA1Decode(uint32 *, const uchar *, uint);
 
-static uchar PADDING[64] =
-{
+static uchar PADDING[64] = {
 	0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -49,8 +48,7 @@ static uchar PADDING[64] =
 
 /* W[i]
  */
-#define W(i) ( tmp = x[(i-3)&15]^x[(i-8)&15]^x[(i-14)&15]^x[i&15], \
-	(x[i&15] = ROTATE_LEFT(tmp, 1)) )
+#define W(i) ( tmp = x[(i-3)&15]^x[(i-8)&15]^x[(i-14)&15]^x[i&15], (x[i&15] = ROTATE_LEFT(tmp, 1)) )
 
 /* FF, GG, HH, and II transformations for rounds 1, 2, 3, and 4.
  */
@@ -97,41 +95,29 @@ void ma_SHA1Init(_MA_SHA1_CTX * context)
    operation, processing another message block, and updating the
    context.
  */
-void ma_SHA1Update(_MA_SHA1_CTX * context, const uchar * input,
-    size_t inputLen)
+void ma_SHA1Update(_MA_SHA1_CTX * context, const uchar * input, size_t inputLen)
 {
 	uint i, index, partLen;
-
 	/* Compute number of bytes mod 64 */
 	index = (uint)((context->count[0] >> 3) & 0x3F);
-
 	/* Update number of bits */
-	if((context->count[0] += ((uint32)inputLen << 3))
-	    < ((uint32)inputLen << 3))
+	if((context->count[0] += ((uint32)inputLen << 3)) < ((uint32)inputLen << 3))
 		context->count[1]++;
 	context->count[1] += ((uint32)inputLen >> 29);
-
 	partLen = 64 - index;
-
 	/* Transform as many times as possible.
 	 */
 	if(inputLen >= partLen) {
-		memcpy
-			((uchar *)&context->buffer[index], (uchar *)input, partLen);
+		memcpy((uchar *)&context->buffer[index], (uchar *)input, partLen);
 		ma_SHA1Transform(context->state, context->buffer);
-
 		for(i = partLen; i + 63 < inputLen; i += 64)
 			ma_SHA1Transform(context->state, &input[i]);
-
 		index = 0;
 	}
 	else
 		i = 0;
-
 	/* Buffer remaining input */
-	memcpy
-		((uchar *)&context->buffer[index], (uchar *)&input[i],
-	    inputLen - i);
+	memcpy((uchar *)&context->buffer[index], (uchar *)&input[i], inputLen - i);
 }
 
 /* }}} */
@@ -144,7 +130,6 @@ void ma_SHA1Final(uchar digest[20], _MA_SHA1_CTX * context)
 {
 	uchar bits[8];
 	uint index, padLen;
-
 	/* Save number of bits */
 	bits[7] = context->count[0] & 0xFF;
 	bits[6] = (context->count[0] >> 8) & 0xFF;
@@ -177,9 +162,7 @@ static void ma_SHA1Transform(uint32 state[5], const uchar block[64])
 {
 	uint32 a = state[0], b = state[1], c = state[2];
 	uint32 d = state[3], e = state[4], x[16], tmp;
-
 	ma_SHA1Decode(x, block, 64);
-
 	/* Round 1 */
 	FF(a, b, c, d, e, x[0]); /* 1 */
 	FF(e, a, b, c, d, x[1]); /* 2 */

@@ -751,10 +751,7 @@ const char * PPObjLocation::GetNamePtr()
 	return NameBuf.cptr();
 }
 
-int PPObjLocation::DeleteObj(PPID id)
-{
-	return PutRecord(&id, 0, 0);
-}
+int PPObjLocation::DeleteObj(PPID id) { return PutRecord(&id, 0, 0); }
 
 bool PPObjLocation::Validate(LocationTbl::Rec * pRec, int /*chkRefs*/)
 {

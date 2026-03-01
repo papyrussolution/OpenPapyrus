@@ -404,6 +404,7 @@ int TWindow::RedirectDrawItemMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 TWindow::TWindow(const TRect & rRect) : TViewGroup(rRect), WbCapability(0), P_Lmp(0), HW(0), PrevInStack(0), 
 	P_SymbList(0), P_FontsAry(0), P_Lfc(0), P_StUsrP(0)
 {
+	Sign = SlConst::Signature_TWindow; // @v12.5.7
 	ViewOptions |= ofSelectable;
 }
 
@@ -412,6 +413,7 @@ TWindow::TWindow(long wbCapability) :
 	// пустой прямоугольник как "сигнал бедствия" и отказаться работать дальше.
 	TViewGroup(TRect::_defr_), WbCapability(wbCapability), P_Lmp(0), HW(0), PrevInStack(0), P_SymbList(0), P_FontsAry(0), P_Lfc(0), P_StUsrP(0)
 {
+	Sign = SlConst::Signature_TWindow; // @v12.5.7
 }
 
 TWindow::~TWindow()

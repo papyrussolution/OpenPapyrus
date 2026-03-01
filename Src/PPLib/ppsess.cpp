@@ -13,9 +13,6 @@
 	#include <unicode\putil.h> // @v11.4.1
 #endif
 //
-// @v11.7.3 (все константы стали static constexpr) const PPConstParam _PPConst;
-//
-//
 // Descr: Класс, управляющий определением словаря данных в формате описания языком DL600.
 //
 class DbDict_DL600 : public DbDictionary {
@@ -155,7 +152,6 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 	int    ok = 1;
 	DWORD  gr_gdiobj  = 0;
 	DWORD  gr_userobj = 0;
-	//SString temp_buf;
 	TProgram * p_app = APPL;
 	const PPConfig & r_cfg = LConfig;
 	if(p_app && DBS.GetConstTLA().P_CurDict) {
@@ -191,8 +187,11 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 			}
 			p_app->AddStatusBarItem("www.petroglif.ru", 0, GetColorRef(SClrAliceblue), cmGotoSite, GetColorRef(SClrBlue));
 			//turistti
-			gr_gdiobj  = ::GetGuiResources(GetCurrentProcess(), GR_GDIOBJECTS);
-			gr_userobj = ::GetGuiResources(GetCurrentProcess(), GR_USEROBJECTS);
+			{
+				HANDLE h_process = GetCurrentProcess();
+				gr_gdiobj  = ::GetGuiResources(h_process, GR_GDIOBJECTS);
+				gr_userobj = ::GetGuiResources(h_process, GR_USEROBJECTS);
+			}
 			//end turistti
 #ifndef NDEBUG
 			{
@@ -625,7 +624,7 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 						if(c) {
 							PPNotifyEvent ev;
 							PPAdviseBlock adv_blk;
-							LDATETIME prev_dtm = rPrevRunTime;
+							const  LDATETIME prev_dtm = rPrevRunTime;
 							for(uint j = 0; adv_list.Enum(&j, &adv_blk);) {
 								if(adv_blk.Proc) {
 									for(uint i = 0; i < c; i++) {
@@ -2482,6 +2481,9 @@ int PPSession::Init(long internalAppId, long flags, HINSTANCE hInst, const char 
 			UiToolBox_.CreatePen_(TProgram::tbiListFocPen,       SPaintObj::psSolid, 1.0f, UiDescription::GetColorR(p_uid, p_cs, "list_focus_border", SColor(0x00, 0x66, 0xcc))/*https://www.colorhexa.com/0066cc*/);
 			UiToolBox_.CreateBrush_(TProgram::tbiListSelBrush,   SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "list_sel_bg", SColor(0xa2, 0xd2, 0xff))/*https://www.colorhexa.com/0066cc*/, 0);
 			UiToolBox_.CreatePen_(TProgram::tbiListSelPen,       SPaintObj::psDot, 1.0f, UiDescription::GetColorR(p_uid, p_cs, "list_sel_border", SColor(0x00, 0x66, 0xcc))/*https://www.colorhexa.com/0066cc*/);
+			UiToolBox_.CreatePen_(TProgram::tbiListFgPen,        SPaintObj::psSolid, 1.0f, UiDescription::GetColorR(p_uid, p_cs, "list_fg",       SClrBlack)); // @v12.5.7
+			UiToolBox_.CreatePen_(TProgram::tbiListFocFgPen,     SPaintObj::psSolid, 1.0f, UiDescription::GetColorR(p_uid, p_cs, "list_focus_fg", SClrWhite)); // @v12.5.7
+			UiToolBox_.CreatePen_(TProgram::tbiListSelFgPen,     SPaintObj::psSolid, 1.0f, UiDescription::GetColorR(p_uid, p_cs, "list_sel_fg",   SClrBlack)); // @v12.5.7
 			{
 				// linear-gradient(to bottom, #f0f9ff 0%,#cbebff 47%,#a1dbff 100%)
 				/*

@@ -1106,10 +1106,7 @@ bool PPObjWorld::IsChildOf(PPID id, PPID parentID)
 	return Helper_IsChildOf(id, parentID, &recur_trace);
 }
 
-int PPObjWorld::DeleteObj(PPID id)
-{
-	return PutPacket(&id, 0, 0);
-}
+int PPObjWorld::DeleteObj(PPID id) { return PutPacket(&id, 0, 0); }
 
 int PPObjWorld::PutPacket(PPID * pID, PPWorldPacket * pPack, int useTa)
 {

@@ -2409,11 +2409,7 @@ int PPObjTSession::MakeSessionsByRepeating(const PPIDArray * pSrcSessList, const
 	return ok;
 }
 
-int PPObjTSession::DeleteObj(PPID id)
-{
-	// @v11.0.4 return CheckRights(PPR_DEL) ? P_Tbl->Put(&id, 0, 0) : 0;
-	return CheckRights(PPR_DEL) ? PutPacket(&id, 0, 0) : 0; // @v11.0.4
-}
+int PPObjTSession::DeleteObj(PPID id) { return CheckRights(PPR_DEL) ? PutPacket(&id, 0, 0) : 0; }
 
 int PPObjTSession::CheckPossibilityToInsertLine(const TSessionTbl::Rec & rSessRec)
 {

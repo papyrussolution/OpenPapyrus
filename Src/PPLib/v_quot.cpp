@@ -1359,7 +1359,19 @@ DBQuery * PPViewQuot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			PPDbqFuncPool::InitObjNameFunc(dbe_loc, PPDbqFuncPool::IdObjNameLoc, tbl->LocID);
 			PPDbqFuncPool::InitObjNameFunc(dbe_ar,  PPDbqFuncPool::IdObjNameAr,  tbl->ArticleID);
 			PPDbqFuncPool::InitLongFunc(dbe_period, PPViewQuot::DynFuncPeriod,   tbl->PeriodIdx);
+			// @v12.5.7 {
 			q = & Select_(
+				tbl->GoodsID,       // #0
+				tbl->LocID,         // #1
+				tbl->ArticleID,     // #2
+				tbl->PeriodIdx,     // #3
+				tbl->GoodsName,     // #4
+				0L);
+			q->addField(dbe_loc);    // #5
+			q->addField(dbe_ar);     // #6
+			q->addField(dbe_period); // #7
+			// } @v12.5.7 
+			/* @v12.5.7 q = & Select_(
 				tbl->GoodsID,       // #0
 				tbl->LocID,         // #1
 				tbl->ArticleID,     // #2
@@ -1368,7 +1380,7 @@ DBQuery * PPViewQuot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				dbe_loc,            // #5
 				dbe_ar,             // #6
 				dbe_period,         // #7
-				0);
+				0);*/
 			for(uint i = 0; i < SIZEOFARRAY(dbe_qv); i++) {
 				PPDbqFuncPool::InitStrPoolRefFunc(dbe_qv[i], (&tbl->QuotP1)[i], &StrPool);
 				q->addField(dbe_qv[i]);

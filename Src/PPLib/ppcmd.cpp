@@ -3474,11 +3474,14 @@ public:
 				while(expr.Find(&scan, 0)) {
 					int has_digit = 0;
 					scan.Get(temp_buf.Z());
-					for(uint i = 0; !has_digit && i < temp_buf.Len(); i++)
-						if(temp_buf.C(i) > 47 && temp_buf.C(i) < 58)
+					for(uint i = 0; !has_digit && i < temp_buf.Len(); i++) {
+						if(temp_buf.C(i) > 47 && temp_buf.C(i) < 58) {
 							has_digit = 1;
-					if(has_digit)
-						codes_list.Add(codes_list.getCount(), 0, temp_buf.ToOem());
+						}
+					}
+					if(has_digit) {
+						codes_list.Add(codes_list.getCount(), 0, temp_buf.Transf(CTRANSF_OUTER_TO_INNER) ); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER) 
+					}
 					srch_str2.Excise(scan.Offs, scan.Len);
 					scan.Offs = 0;
 					scan.Len  = 0;

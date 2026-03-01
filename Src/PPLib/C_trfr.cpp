@@ -2547,7 +2547,7 @@ private:
 
 int PrcssrAbsenceTrfr::Init(const Param * pParam)
 {
-	P = *pParam;
+	RVALUEPTR(P, pParam);
 	return 1;
 }
 

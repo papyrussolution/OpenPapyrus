@@ -793,7 +793,7 @@ int ObjVersioningCore::InitSerializeContext(int use_ta)
 		SCtx.Init(SSerializeContext::fSeparateDataStruct|SSerializeContext::fDontProcessAttachment, ZERODATE);
 		const  uint32 sysver = DS.GetMinCompatVersion();
 		SObjID oid_dummy;
-		oid_dummy.Z();
+		// @v12.5.7 (@ctr) oid_dummy.Z();
 		ObjVerTbl::Rec rec;
 		SBuffer ctx_buf;
 		if(SearchOid(oid_dummy, static_cast<long>(sysver), &rec, &ctx_buf) > 0) {

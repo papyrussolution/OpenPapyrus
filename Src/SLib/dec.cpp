@@ -1,5 +1,5 @@
 // DEC.CPP
-// Copyright (c) Sobolev A. 1995-2001, 2003, 2004, 2008, 2010, 2016, 2017, 2018, 2020, 2021, 2024
+// Copyright (c) Sobolev A. 1995-2001, 2003, 2004, 2008, 2010, 2016, 2017, 2018, 2020, 2021, 2024, 2026
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -40,7 +40,8 @@ void STDCALL dectobcd(char * dc, char * bcd, int16 len)
 {
 	uchar * d = reinterpret_cast<uchar *>(dc);
 	uchar * b = reinterpret_cast<uchar *>(bcd);
-	int    i, j;
+	int    i;
+	int    j;
 	memzero(dc, len);
 	uchar  _dl = (b[9] == 0x80) ? 0xd : 0xc;
 	for(i = len-1, j = 0; i; i--, j++) {
@@ -82,20 +83,40 @@ char * STDCALL dectostr(const char * dc, int16 len, int16 prec, char * b)
 
 int STDCALL deccmp(const char * dec1, const char * dec2, int16 len)
 {
-	int    r1 = BIN((dec1[len] & 0xf) == 0xd);
-	int    r2 = BIN((dec2[len] & 0xf) == 0xd);
-	int    r  = r1 ? (r2 ? 0 : -1) : (r2 ? 1 : 0);
-	if(!r)
-		r = memcmp(dec1, dec2, len-1);
-	if(!r)
-		r = (dec1[len] & 0xf0) - (dec2[len] & 0xf0);
-	r = (r < 0) ? -1 : ((r > 0) ? 1 : 0);
+	int    r = 0;
+	if(len <= 0 || len > 64) {
+		r = -100;
+	}
+	else if(dec1 == 0 && dec2 == 0) {
+		r = 0;
+	}
+	else if(dec1 && dec2) {
+		const  size_t len_1 = static_cast<size_t>(len-1);
+		const  bool is_zero1 = ismemzero(dec1, len_1);
+		const  bool is_zero2 = ismemzero(dec2, len_1);
+		if(is_zero1 && is_zero2) {
+			r = 0; // Если оба значения нулевые, то считаем что они равны не глядя на знак (он может у них отличаться из-за округления малых величин)
+		}
+		else {
+			const  bool r1 = ((dec1[len_1] & 0xf) == 0xd); // @v12.5.7 @fix [len]-->[len-1]
+			const  bool r2 = ((dec2[len_1] & 0xf) == 0xd); // @v12.5.7 @fix [len]-->[len-1]
+			r  = r1 ? (r2 ? 0 : -1) : (r2 ? 1 : 0);
+			if(!r)
+				r = memcmp(dec1, dec2, len_1);
+			if(!r)
+				r = (dec1[len_1] & 0xf0) - (dec2[len_1] & 0xf0); // @v12.5.7 @fix [len]-->[len-1]
+			r = (r < 0) ? -1 : ((r > 0) ? 1 : 0);
+		}
+	}
+	else 
+		r = -100;
 	return r;
 }
 
 void STDCALL dectodec(double val, char * dc, int16 len, int16 prec)
 {
-	int    sign, dec;
+	int    sign;
+	int    dec;
 	uchar  al;
 	uchar * tmp = (uchar *)fcvt(val, prec, &dec, &sign);
 	memzero(dc, len);

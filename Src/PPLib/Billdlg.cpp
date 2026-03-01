@@ -1529,13 +1529,15 @@ IMPL_HANDLE_EVENT(LinkFilesDialog)
 int LinkFilesDialog::LinkFile(const char * pPath, uint * pPos)
 {
 	int    ok = -1;
-	if(pPath && sstrlen(pPath)) {
-		SString title, fname;
+	if(!isempty(pPath)) {
+		SString title;
+		SString fname;
 		PPLinkFile flink;
 		SFsPath ps(pPath);
 		ps.Merge(0, SFsPath::fDrv|SFsPath::fDir, fname);
 		flink.Init(pPath);
-		PPInputStringDialogParam isd_param(PPLoadTextS(PPTXT_INPUTDESCR, title), fname.ToOem());
+		fname.Transf(CTRANSF_OUTER_TO_INNER); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
+		PPInputStringDialogParam isd_param(PPLoadTextS(PPTXT_INPUTDESCR, title), fname); 
 		if(InputStringDialog(isd_param, flink.Description) > 0)
 			if(flink.Description.Len() && LinksAry.Add(&flink, pPos))
 				ok = 1;

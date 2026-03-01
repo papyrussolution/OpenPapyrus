@@ -46,14 +46,6 @@ void md4_block_data_order(MD4_CTX *c, const void *p, size_t num);
 #define G(b,c,d)        (((b) & (c)) | ((b) & (d)) | ((c) & (d)))
 #define H(b,c,d)        ((b) ^ (c) ^ (d))
 
-#define R0(a,b,c,d,k,s,t) { \
-        a+=((k)+(t)+F((b),(c),(d))); \
-        a=ROTATE(a,s); };
-
-#define R1(a,b,c,d,k,s,t) { \
-        a+=((k)+(t)+G((b),(c),(d))); \
-        a=ROTATE(a,s); };
-
-#define R2(a,b,c,d,k,s,t) { \
-        a+=((k)+(t)+H((b),(c),(d))); \
-        a=ROTATE(a,s); };
+#define R0(a,b,c,d,k,s,t) { a+=((k)+(t)+F((b),(c),(d))); a=ROTATE(a,s); };
+#define R1(a,b,c,d,k,s,t) { a+=((k)+(t)+G((b),(c),(d))); a=ROTATE(a,s); };
+#define R2(a,b,c,d,k,s,t) { a+=((k)+(t)+H((b),(c),(d))); a=ROTATE(a,s); };

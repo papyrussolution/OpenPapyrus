@@ -1918,6 +1918,9 @@
       <Project>{901495e1-9cc5-40c4-aa96-edff1b260ce8}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="..\PPMain\papyrus-windows.manifest" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

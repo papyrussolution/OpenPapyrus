@@ -55,7 +55,44 @@ INT_PTR CALLBACK TreeListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 	switch(uMsg) {
 		case WM_DESTROY: CALLPTRMEMB(p_view, OnDestroy(hWnd)); return 0; // Не вызывается. Непонятно правда почему.
 		case WM_KEYDOWN:
-		case WM_SYSKEYDOWN: ::SendMessageW(GetParent(hWnd), WM_VKEYTOITEM, MAKEWPARAM((WORD)wParam, 0), reinterpret_cast<LPARAM>(hWnd)); break; // Process by default
+			{
+				HWND   h_parent = ::GetParent(hWnd);
+				bool   processed = false;
+				// @v12.5.7 {
+				KeyDownCommand k;
+				k.SetWinMsgCode(wParam);
+				if((k.State & KeyDownCommand::stateAlt) == KeyDownCommand::stateAlt && oneof4(k.Code, VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN)) { 
+					::SendMessageW(h_parent, WM_KEYDOWN, wParam, lParam);
+					processed = true;
+				}
+				// } @v12.5.7 
+				if(processed)
+					return 0;
+				else
+					::SendMessageW(h_parent, WM_VKEYTOITEM, MAKEWPARAM((WORD)wParam, 0), reinterpret_cast<LPARAM>(hWnd)); 
+			}
+			break; // Process by default
+		case WM_SYSKEYDOWN: 
+			{
+				HWND   h_parent = ::GetParent(hWnd);
+				bool   processed = false;
+				// @v12.5.7 {
+				KeyDownCommand k;
+				k.SetWinMsgCode(wParam);
+				if((k.State & KeyDownCommand::stateAlt) == KeyDownCommand::stateAlt && oneof4(k.Code, VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN)) { 
+					if(p_view && p_view->P_Owner) {
+						p_view->P_Owner->TView::HandleKeyboardEvent(LOWORD(wParam));
+					}
+					//::SendMessageW(h_parent, WM_KEYDOWN, wParam, lParam);
+					processed = true;						
+				}
+				// } @v12.5.7 
+				if(processed)
+					return 0;
+				else
+					::SendMessageW(h_parent, WM_VKEYTOITEM, MAKEWPARAM((WORD)wParam, 0), reinterpret_cast<LPARAM>(hWnd)); 
+			}
+			break; // Process by default
 		case WM_SETFOCUS:
 		case WM_KILLFOCUS:  ::SendMessageW(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); break;
 		case WM_CHAR:       ::SendMessageW(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); return 0;
@@ -68,7 +105,7 @@ INT_PTR CALLBACK TreeListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 				di.ItemAction = TDrawItemData::iaBackground;
 				di.H_Item = hWnd;
 				di.H_DC = reinterpret_cast<HDC>(wParam);
-				GetClientRect(hWnd, &di.ItemRect);
+				::GetClientRect(hWnd, &di.ItemRect);
 				di.P_View = p_view;
 				TView::messageCommand(p_view->P_Owner, cmDrawItem, &di);
 				if(di.ItemAction == 0)
@@ -887,8 +924,8 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				case LBN_SELCHANGE:
 					if(P_Def) {
 						const int index = IsMultiColumn() ?
-							SendDlgItemMessage(Parent, Id, LVM_GETNEXTITEM, -1, MAKELPARAM(LVNI_SELECTED, 0)) :
-							SendDlgItemMessage(Parent, Id, LB_GETCURSEL, 0, 0) + P_Def->_topItem();
+							::SendDlgItemMessageW(Parent, Id, LVM_GETNEXTITEM, -1, MAKELPARAM(LVNI_SELECTED, 0)) :
+							::SendDlgItemMessageW(Parent, Id, LB_GETCURSEL, 0, 0) + P_Def->_topItem();
 						if(index >= 0) {
 							const long prev_top_item = Top;
 							P_Def->go(index);
@@ -1090,35 +1127,38 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					case NM_CUSTOMDRAW: // @v12.5.6
 						{
 							int    local_ret = CDRF_DODEFAULT;
-							TEvent e_;
-							long lvn_res = 0;
-							NMTVCUSTOMDRAW * p_tv_blk = reinterpret_cast<NMTVCUSTOMDRAW *>(lParam);
-							debug_mark = true; // @debug
-							if(P_Owner) {
-								///* @construction
-								TEvent local_ev;
-								local_ev.setCmd(cmCustomDraw, 0);
-								local_ev.message.infoPtr = reinterpret_cast<void *>(lParam);
-								P_Owner->handleEvent(local_ev);
-								if(local_ev.what == TEvent::evNothing) {
-									local_ret = local_ev.message.infoLong;
+							if(false) { // (тупиковая ветка)
+								TEvent e_;
+								long lvn_res = 0;
+								NMTVCUSTOMDRAW * p_tv_blk = reinterpret_cast<NMTVCUSTOMDRAW *>(lParam);
+								debug_mark = true; // @debug
+								if(P_Owner && p_tv_blk) {
+									///* @construction
+									TEvent local_ev;
+									local_ev.setCmd(cmCustomDraw, 0);
+									local_ev.message.infoPtr = reinterpret_cast<void *>(lParam);
+									P_Owner->handleEvent(local_ev);
+									if(local_ev.what == TEvent::evNothing) {
+										//::SetWindowLongPtr(static_cast<TWindow *>(P_Owner)->H(), DWLP_MSGRESULT, local_ev.message.infoLong);
+										local_ret = local_ev.message.infoLong;
+									}
+									//*/
 								}
-								//*/
+								/*
+								NMLVCUSTOMDRAW * p_nmlvcd = (NMLVCUSTOMDRAW*)lParam;
+								switch(p_nmlvcd->nmcd.dwDrawStage) {
+									case CDDS_PREPAINT:
+										lvn_res = CDRF_NOTIFYITEMDRAW;
+										break;
+									case CDDS_ITEMPREPAINT:
+										if(TView::messageCommand(owner, cmLBItemDraw, this))
+											lvn_res = CDRF_NEWFONT;
+										break;
+								}
+								//SetWindowLong(hWnd, DWL_MSGRESULT, lvn_res);
+								TView::SetWindowProp(hWnd, DWL_MSGRESULT, lvn_res);
+								*/
 							}
-							/*
-							NMLVCUSTOMDRAW * p_nmlvcd = (NMLVCUSTOMDRAW*)lParam;
-							switch(p_nmlvcd->nmcd.dwDrawStage) {
-								case CDDS_PREPAINT:
-									lvn_res = CDRF_NOTIFYITEMDRAW;
-									break;
-								case CDDS_ITEMPREPAINT:
-									if(TView::messageCommand(owner, cmLBItemDraw, this))
-										lvn_res = CDRF_NEWFONT;
-									break;
-							}
-							//SetWindowLong(hWnd, DWL_MSGRESULT, lvn_res);
-							TView::SetWindowProp(hWnd, DWL_MSGRESULT, lvn_res);
-							*/
 							return local_ret;
 						}
 					default:
@@ -1126,46 +1166,7 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				}
 			}
 			else {
-				if(p_nm && p_nm->code == NM_CUSTOMDRAW) {
-					NMTVCUSTOMDRAW * p_cd = reinterpret_cast<NMTVCUSTOMDRAW *>(p_nm);
-					//HWND   h_ctl = p_nm->hwndFrom;
-					long   result = CDRF_DODEFAULT;
-					if(!p_cd)
-						result = -1;
-					else {
-						switch(p_cd->nmcd.dwDrawStage) {
-	    					case CDDS_PREPAINT:
-								if(P_Def && P_Def->HasItemColorSpec())
-									result = CDRF_NOTIFYITEMDRAW;
-								else
-									result = -1;
-								break;
-							case CDDS_ITEMPREPAINT:
-								{
-									long   _top = 0; //def->_topItem();
-									long   item_pos = _top + p_cd->nmcd.dwItemSpec;
-									long   item_id = 0;
-									if((p_cd->nmcd.uItemState&CDIS_FOCUS) != CDIS_FOCUS) {
-										if(getID(item_pos, &item_id)) {
-											SColor bc, fc;
-											if(P_Def->GetItemColor(item_id, &fc, &bc) > 0) {
-												p_cd->clrText = static_cast<COLORREF>(fc);
-												p_cd->clrTextBk = static_cast<COLORREF>(bc);
-											}
-										}
-									}
-									else {
-										;
-									}
-								}
-								break;
-							}
-					}
-					TView::SetWindowProp(Parent, DWLP_MSGRESULT, reinterpret_cast<void *>(result));
-					return 0; // @v11.2.4
-				}
-				else
-					return 0;
+				return 0;
 			}
 			break;
 	}

@@ -2753,7 +2753,7 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 									if(r <= 0) {
 										PPObjGoods::GetBarcodeDiagText(diag, err_msg_buf);
 										msg_buf.Z().Cat(std).Semicol().
-											Cat(temp_buf2).Semicol().Cat(barcode).Semicol().Cat(err_msg_buf/*.ToOem()*/).CR();
+											Cat(temp_buf2).Semicol().Cat(barcode).Semicol().Cat(err_msg_buf).CR();
 										logger.Log(msg_buf);
 										if(Param.Flags & PPGoodsImpExpParam::fUHTT) {
 											temp_buf2.CopyTo(barcode, sizeof(barcode));
@@ -2771,7 +2771,7 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 									if(r <= 0) {
 										PPObjGoods::GetBarcodeDiagText(diag, err_msg_buf);
 										msg_buf.Z().Cat(std).Semicol().
-											Cat(temp_buf2).Semicol().Cat(sdr_rec.AddedCode).Semicol().Cat(err_msg_buf/*.ToOem()*/).CR();
+											Cat(temp_buf2).Semicol().Cat(sdr_rec.AddedCode).Semicol().Cat(err_msg_buf).CR();
 										logger.Log(msg_buf);
 										if(Param.Flags & PPGoodsImpExpParam::fUHTT)
 											if(r)

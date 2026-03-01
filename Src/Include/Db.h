@@ -41,15 +41,15 @@ struct sqlite3_stmt;
 //
 //
 //
-enum SqlServerType {
+enum SqlServerType { // @persistent
 	sqlstNone    = 0, // Неопределенное значение
 	sqlstGeneric = 1, // Общий
 	sqlstORA,         // Oracle
 	sqlstMSS,         // Ms SQL Server
 	sqlstFB,          // FireBird
 	sqlstPg,          // PostgreSQL
-	sqlstMySQL,       // @v10.9.0 MySQL
-	sqlstSQLite       // @v10.9.0 SQLite
+	sqlstMySQL,       // MySQL
+	sqlstSQLite       // SQLite
 };
 
 int    GetSqlServerTypeSymb(SqlServerType t, SString & rBuf);
@@ -1073,8 +1073,8 @@ int btrnfound__();
 #define XTF_BALANCED          0x00000020 // v6.x
 #define XTF_THRESHOLD10       0x00000040 // v6.x
 #define XTF_THRESHOLD20       0x00000080 // v6.x
-#define XTF_THRESHOLD30       (XTF_THRESHOLD10 | XTF_THRESHOLD20)
-#define XTF_THRESHOLD         (XTF_THRESHOLD10 | XTF_THRESHOLD20)
+#define XTF_THRESHOLD30       (XTF_THRESHOLD10|XTF_THRESHOLD20)
+#define XTF_THRESHOLD         (XTF_THRESHOLD10|XTF_THRESHOLD20)
 #define XTF_EXTRADUP          0x00000100 // v6.x
 #define XTF_MANUALKEYNUMBER   0x00000400 // v6.x
 #define XTF_VAT               0x00000800 // v6.x
@@ -1573,7 +1573,9 @@ public:
 			fCalcOnly          = 0x0002, // Если этот флаг установлен, то функция ProcessBinding
 				// при параметре action==0 только рассчитывает необходимый размер
 				// в буфере подстановки и присваивает результат полю Bind::NtvSize.
-			fUseRetActualSize  = 0x0004  // @v12.4.12 Функция привязки должна передать драйверу DBMS указатель на поле RetActualSize
+			fUseRetActualSize  = 0x0004, // @v12.4.12 Функция привязки должна передать драйверу DBMS указатель на поле RetActualSize
+			fSkip              = 0x0008, // @v12.5.7  Не привязывать этот элемент к запросу сервера. Флаг нужен для LOB-полей MySQL
+				// поскольку мы будем оперировать данными таких полей специальным образом.
 		};
 		int16  Pos;        // Позиция привязки. <0 - входящая привязка, >0 - исходящая привязка
 		uint16 NtvTyp;     // Тип данных, специфичный для SQL-сервера
@@ -3013,6 +3015,8 @@ private:
 //
 class SMySqlDbProvider : public DbProvider {
 public:
+	static constexpr bool TypeDateAsInt32 = true;
+	static constexpr bool TypeTimeAsInt32 = true;
 	//
 	// Descr: Специальная функция, вычисляющая размер 
 	//
@@ -3088,6 +3092,7 @@ public:
 	// Note: @reallyprivate (public only for the testing purpose)
 	//
 	int    ReleaseConnection(ConnectionEntry & rConnEntry); // @v12.5.3
+	ConnectionEntry & GetWorkingConnection(SSqlStmt * pStmt, bool continuousSelection); // @really-private (public for test purposes)
 private:
 	//
 	// 
@@ -3147,7 +3152,6 @@ private:
 	};
 
 	int    Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf, SearchQueryBlock & rBlk);
-	ConnectionEntry & GetWorkingConnection(SSqlStmt * pStmt, bool continuousSelection);
 
 	long   Flags;
 	ConnectionEntry MainConn;

@@ -412,12 +412,6 @@ PrjTaskTbl::Rec & PrjTaskTbl::Rec::Clear()
 	THISZERO();
 	return *this;
 }
-DBTABLE_CONSTRUCTOR(Notes, ID)
-NotesTbl::Rec & NotesTbl::Rec::Clear()
-{
-	THISZERO();
-	return *this;
-}
 DBTABLE_CONSTRUCTOR(SCard, ID)
 SCardTbl::Rec & SCardTbl::Rec::Clear()
 {

@@ -1,5 +1,5 @@
 // RECEIPT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // @Kernel
 //
@@ -16,9 +16,9 @@ int ReceiptCore::LotDimensions::EditTag(const PPGdsClsPacket * pGcPack, ObjTagIt
 		ReceiptCore::LotDimensions ld;
 		pItem->GetStr(temp_buf);
 		ld.FromString(temp_buf);
-        dlg->setCtrlReal(CTL_TAGLOTDIM_X, ld.X);
-        dlg->setCtrlReal(CTL_TAGLOTDIM_Y, ld.Y);
-        dlg->setCtrlReal(CTL_TAGLOTDIM_Z, ld.Z);
+        dlg->setCtrlReal(CTL_TAGLOTDIM_X, ld.DimX);
+        dlg->setCtrlReal(CTL_TAGLOTDIM_Y, ld.DimY);
+        dlg->setCtrlReal(CTL_TAGLOTDIM_Z, ld.DimZ);
 		if(p_gc_pack) {
 			enum {
 				dfX = 0x0001,
@@ -36,9 +36,9 @@ int ReceiptCore::LotDimensions::EditTag(const PPGdsClsPacket * pGcPack, ObjTagIt
 			dlg->setCtrlReadOnly(CTL_TAGLOTDIM_Z, LOGIC(disable_flags & dfZ));
 		}
         while(ok < 0 && ExecView(dlg) == cmOK) {
-			ld.X = dlg->getCtrlReal(CTL_TAGLOTDIM_X);
-			ld.Y = dlg->getCtrlReal(CTL_TAGLOTDIM_Y);
-			ld.Z = dlg->getCtrlReal(CTL_TAGLOTDIM_Z);
+			ld.DimX = dlg->getCtrlReal(CTL_TAGLOTDIM_X);
+			ld.DimY = dlg->getCtrlReal(CTL_TAGLOTDIM_Y);
+			ld.DimZ = dlg->getCtrlReal(CTL_TAGLOTDIM_Z);
             ld.ToStr(temp_buf);
             pItem->SetStr(pItem->TagID, temp_buf);
             ok = 1;
@@ -48,41 +48,42 @@ int ReceiptCore::LotDimensions::EditTag(const PPGdsClsPacket * pGcPack, ObjTagIt
 	return ok;
 }
 
-ReceiptCore::LotDimensions::LotDimensions() : X(0.0), Y(0.0), Z(0.0)
+ReceiptCore::LotDimensions::LotDimensions() : DimX(0.0), DimY(0.0), DimZ(0.0)
 {
 	MEMSZERO(Reserve);
 }
 
-void ReceiptCore::LotDimensions::Clear()
+ReceiptCore::LotDimensions & ReceiptCore::LotDimensions::Z()
 {
-	X = 0.0;
-	Y = 0.0;
-	Z = 0.0;
+	DimX = 0.0;
+	DimY = 0.0;
+	DimZ = 0.0;
 	MEMSZERO(Reserve);
+	return *this;
 }
 
 SString & FASTCALL ReceiptCore::LotDimensions::ToStr(SString & rBuf) const
 {
 	const long fmt = MKSFMTD(0, 6, NMBF_NOTRAILZ);
-    return rBuf.Z().CatEq("x", X, fmt).Space().CatEq("y", Y, fmt).Space().CatEq("z", Z, fmt);
+    return rBuf.Z().CatEq("x", DimX, fmt).Space().CatEq("y", DimY, fmt).Space().CatEq("z", DimZ, fmt);
 }
 
 int FASTCALL ReceiptCore::LotDimensions::FromString(const char * pBuf)
 {
 	int   ok = 1;
 	SString src_buf(pBuf);
-	Clear();
+	Z();
 	if(src_buf.NotEmptyS()) {
 		SString key_buf;
 		double value;
         SStrScan scan(src_buf);
         while(scan.Skip().GetEqN(key_buf, value)) {
 			if(key_buf.IsEqiAscii("x"))
-				X = value;
+				DimX = value;
 			else if(key_buf.IsEqiAscii("y"))
-				Y = value;
+				DimY = value;
 			else if(key_buf.IsEqiAscii("z"))
-				Z = value;
+				DimZ = value;
         }
 	}
 	return ok;

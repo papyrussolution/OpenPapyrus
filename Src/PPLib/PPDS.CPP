@@ -1,5 +1,5 @@
 // PPDS.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2009, 2010, 2015, 2016, 2017, 2018, 2021, 2023, 2025
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2009, 2010, 2015, 2016, 2017, 2018, 2021, 2023, 2025, 2026
 //
 #pragma hdrstop
 #ifdef PPDSC
@@ -210,7 +210,7 @@ int PPDeclStruc::TransferData(char * pData, size_t dataBufLen, Tfd dir, SString 
 		rBuf.Transf(CTRANSF_INNER_TO_OUTER);
 	}
 	else if(dir == tfdBufToData) {
-		rBuf.ToOem();
+		rBuf.Transf(CTRANSF_OUTER_TO_INNER); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 		for(uint i = 0; i < rBuf.Len(); i++) {
 			char c = rBuf.C(i);
 			if(c == '\\') {

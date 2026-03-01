@@ -165,8 +165,9 @@ int BillFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 			THROW_MEM(P_TagF = new TagFilt);
 			*P_TagF = *fv4.P_TagF;
 		}
-		else
+		else {
 			ZDELETE(P_TagF);
+		}
 		P_ContractorPsnTagF = 0; // new field
 		ok = 1;
 	}
@@ -175,8 +176,7 @@ int BillFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 		public:
 			BillFilt_v3() : PPBaseFilt(PPFILT_BILL, 0, 3), P_SjF(0), P_TagF(0)
 			{
-				SetFlatChunk(offsetof(BillFilt_v3, ReserveStart),
-					offsetof(BillFilt_v3, ReserveEnd)-offsetof(BillFilt_v3, ReserveStart)+sizeof(ReserveEnd));
+				SetFlatChunk(offsetof(BillFilt_v3, ReserveStart), offsetof(BillFilt_v3, ReserveEnd)-offsetof(BillFilt_v3, ReserveStart)+sizeof(ReserveEnd));
 				SetBranchObjIdListFilt(offsetof(BillFilt_v3, List));
 				SetBranchObjIdListFilt(offsetof(BillFilt_v3, LocList));
 				SetBranchBaseFiltPtr(PPFILT_SYSJOURNAL, offsetof(BillFilt_v3, P_SjF));
@@ -281,8 +281,9 @@ int BillFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 			THROW_MEM(P_TagF = new TagFilt);
 			*P_TagF = *fv3.P_TagF;
 		}
-		else
+		else {
 			ZDELETE(P_TagF);
+		}
 		PPExtStrContainer::Z(); // new field
 		ObjList.Z(); // new field
 		Obj2List.Z(); // new field
@@ -295,8 +296,7 @@ int BillFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 		public:
 			BillFilt_v2() : PPBaseFilt(PPFILT_BILL, 0, 2), P_SjF(0), P_TagF(0)
 			{
-				SetFlatChunk(offsetof(BillFilt, ReserveStart),
-					offsetof(BillFilt, ReserveEnd)-offsetof(BillFilt, ReserveStart)+sizeof(ReserveEnd));
+				SetFlatChunk(offsetof(BillFilt, ReserveStart), offsetof(BillFilt, ReserveEnd)-offsetof(BillFilt, ReserveStart)+sizeof(ReserveEnd));
 				SetBranchObjIdListFilt(offsetof(BillFilt, List));
 				SetBranchObjIdListFilt(offsetof(BillFilt, LocList));
 				SetBranchBaseFiltPtr(PPFILT_SYSJOURNAL, offsetof(BillFilt, P_SjF));
@@ -1723,7 +1723,8 @@ int PPViewBill::InitOrderRec(IterOrder ord, const BillTbl::Rec * pBillRec, TempO
 {
 	int    ok = 1;
 	SString temp_buf;
-	memzero(pOrdRec, sizeof(TempOrderTbl::Rec));
+	// @v12.5.7 memzero(pOrdRec, sizeof(TempOrderTbl::Rec));
+	CALLPTRMEMB(pOrdRec, Clear()); // @v12.5.7
 	pOrdRec->ID = pBillRec->ID;
 	if(ord == OrdByID) {
 		temp_buf.CatLongZ(pBillRec->ID, 10);
@@ -1763,7 +1764,7 @@ int PPViewBill::InitOrderRec(IterOrder ord, const BillTbl::Rec * pBillRec, TempO
 
 void PPViewBill::InitTempRec(const BillTbl::Rec * pBillRec, TempBillTbl::Rec * pTmpRec)
 {
-	memzero(pTmpRec, sizeof(TempBillTbl::Rec));
+	pTmpRec->Clear();
 	pTmpRec->BillID  = pBillRec->ID;
 	pTmpRec->Dt      = pBillRec->Dt;
 	pTmpRec->BillNo  = pBillRec->BillNo;
@@ -2821,8 +2822,9 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 				GetArticleName(Filt.ObjectID, temp_buf);
 				sub_title.CatDivIfNotEmpty('-', 1).Cat(temp_buf);
 			}
-			if(Filt.CurID > 0 && !(Filt.Flags & BillFilt::fAllCurrencies))
+			if(Filt.CurID > 0 && !(Filt.Flags & BillFilt::fAllCurrencies)) {
 				sub_title.CatDivIfNotEmpty('-', 1).Cat(GetCurSymbText(Filt.CurID, temp_buf));
+			}
 			if(!(Filt.ObjectID && Filt.Flags & BillFilt::fDebtsWithPayments)) {
 				uint   loc_col  = 1;
 				uint   bs_col   = 2;
@@ -6630,19 +6632,20 @@ int PPViewBill::UpdateTempTable(PPID id)
 
 int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr)
 {
-	int    ok = -1, update = 0;
+	int    ok = -1;
+	bool   do_update = false;
 	if(pEv) {
 		if(kind == PPAdviseBlock::evBillChanged) {
 			if(pEv->ObjID && oneof4(pEv->Action, PPACN_UPDBILL, PPACN_RMVBILL, PPACN_BILLSTATUSUPD, PPACN_UPDBILLFREIGHT))
 				P_BObj->Dirty(pEv->ObjID);
 			if(pEv->IsFinish() && UpdateBillList.getCount())
-				update = 1;
+				do_update = true;
 			else
 				UpdateBillList.add(pEv->ObjID);
 		}
 		ok = 1;
 	}
-	if(ok > 0 && update && pBrw) {
+	if(ok > 0 && do_update && pBrw) {
 		UpdateBillList.sortAndUndup();
 		if(IsTempTblNeeded()) {
 			for(uint i = 0; i < UpdateBillList.getCount(); i++) {

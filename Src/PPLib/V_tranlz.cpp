@@ -3298,28 +3298,30 @@ void TrfrAnlzFiltDialog::SetupCtrls()
 		Data.Sgp = sgpNone;
 	}
 	//
-	GetClusterData(CTL_GTO_SHOWALL, &flags);
+	GetClusterData(CTL_GTO_SHOWALL_AR, &flags);
+	GetClusterData(CTL_GTO_SHOWALL_AGENT, &flags);
+	GetClusterData(CTL_GTO_SHOWALL_GOODS, &flags);
 	if(flags & TrfrAnlzFilt::fShowAllArticles) {
-		DisableClusterItem(CTL_GTO_SHOWALL, 1, 1);
-		DisableClusterItem(CTL_GTO_SHOWALL, 2, 1);
+		DisableClusterItem(CTL_GTO_SHOWALL_AGENT, 0, true);
+		DisableClusterItem(CTL_GTO_SHOWALL_GOODS, 0, true);
 		setCtrlData(CTLSEL_GTO_OBJECT, &id);
 	}
 	else if(flags & TrfrAnlzFilt::fShowAllAgents) {
-		DisableClusterItem(CTL_GTO_SHOWALL, 0, 1);
-		DisableClusterItem(CTL_GTO_SHOWALL, 2, 1);
+		DisableClusterItem(CTL_GTO_SHOWALL_AR,    0, true);
+		DisableClusterItem(CTL_GTO_SHOWALL_GOODS, 0, true);
 		setCtrlData(CTLSEL_GTO_AGENT, &id);
 	}
 	else if(flags & TrfrAnlzFilt::fShowAllGoods) {
 		GoodsFiltCtrlGroup::Rec gf_rec(0, 0, 0, GoodsCtrlGroup::enableSelUpLevel);
 		setGroupData(ctlgroupGoodsFilt, &gf_rec);
-		DisableClusterItem(CTL_GTO_SHOWALL, 0, 1);
-		DisableClusterItem(CTL_GTO_SHOWALL, 1, 1);
+		DisableClusterItem(CTL_GTO_SHOWALL_AR,    0, true);
+		DisableClusterItem(CTL_GTO_SHOWALL_AGENT, 0, true);
 		enableCommand(cmGoodsFilt, 0);
 	}
 	else {
-		DisableClusterItem(CTL_GTO_SHOWALL, 0, 0);
-		DisableClusterItem(CTL_GTO_SHOWALL, 1, 0);
-		DisableClusterItem(CTL_GTO_SHOWALL, 2, 0);
+		DisableClusterItem(CTL_GTO_SHOWALL_AR,    0, false);
+		DisableClusterItem(CTL_GTO_SHOWALL_AGENT, 0, false);
+		DisableClusterItem(CTL_GTO_SHOWALL_GOODS, 0, false);
 		const GoodsFiltCtrlGroup * p_grp = static_cast<const GoodsFiltCtrlGroup *>(getGroup(ctlgroupGoodsFilt));
 		if(!p_grp || !p_grp->IsGroupSelectionDisabled())
 			enableCommand(cmGoodsFilt, 1);
@@ -3380,10 +3382,12 @@ int TrfrAnlzFiltDialog::setDTS(const TrfrAnlzFilt * pData)
 	}
 	if(getCtrlView(CTL_GTO_GENGGRP))
 		setCtrlUInt16(CTL_GTO_GENGGRP, BIN(Data.Flags & OPG_GRPBYGENGOODS));
-	AddClusterAssoc(CTL_GTO_SHOWALL, 0, TrfrAnlzFilt::fShowAllArticles);
-	AddClusterAssoc(CTL_GTO_SHOWALL, 1, TrfrAnlzFilt::fShowAllAgents);
-	AddClusterAssoc(CTL_GTO_SHOWALL, 2, TrfrAnlzFilt::fShowAllGoods);
-	SetClusterData(CTL_GTO_SHOWALL, Data.Flags);
+	AddClusterAssoc(CTL_GTO_SHOWALL_AR,    0, TrfrAnlzFilt::fShowAllArticles);
+	SetClusterData(CTL_GTO_SHOWALL_AR, Data.Flags);
+	AddClusterAssoc(CTL_GTO_SHOWALL_AGENT, 0, TrfrAnlzFilt::fShowAllAgents);
+	SetClusterData(CTL_GTO_SHOWALL_AGENT, Data.Flags);
+	AddClusterAssoc(CTL_GTO_SHOWALL_GOODS, 0, TrfrAnlzFilt::fShowAllGoods);
+	SetClusterData(CTL_GTO_SHOWALL_GOODS, Data.Flags);
 	AddClusterAssoc(CTL_GTO_FLAGS, 0, TrfrAnlzFilt::fCalcVat);
 	AddClusterAssoc(CTL_GTO_FLAGS, 1, TrfrAnlzFilt::fCWoVat);
 	AddClusterAssoc(CTL_GTO_FLAGS, 2, TrfrAnlzFilt::fShowGoodsCode);
@@ -3442,7 +3446,9 @@ int TrfrAnlzFiltDialog::getDTS(TrfrAnlzFilt * pData)
 		}
 	}
 	SETFLAG(Data.Flags, OPG_GRPBYGENGOODS, getCtrlUInt16(CTL_GTO_GENGGRP));
-	GetClusterData(CTL_GTO_SHOWALL, &Data.Flags);
+	GetClusterData(CTL_GTO_SHOWALL_AR, &Data.Flags);
+	GetClusterData(CTL_GTO_SHOWALL_AGENT, &Data.Flags);
+	GetClusterData(CTL_GTO_SHOWALL_GOODS, &Data.Flags);
 	GetClusterData(CTL_GTO_FLAGS, &Data.Flags);
 	ASSIGN_PTR(pData, Data);
 	CATCHZOKPPERR
@@ -3851,7 +3857,7 @@ IMPL_HANDLE_EVENT(TrfrAnlzFiltDialog)
 		SetupCtrls();
 		SetSaldoInfo();
 	}
-	else if(event.isClusterClk(CTL_GTO_SHOWALL))
+	else if(event.isClusterClk(CTL_GTO_SHOWALL_AR) || event.isClusterClk(CTL_GTO_SHOWALL_AGENT) || event.isClusterClk(CTL_GTO_SHOWALL_GOODS))
 		SetupCtrls();
 	else if(event.isClusterClk(CTL_GTO_FLAGS)) {
 		GetClusterData(CTL_GTO_FLAGS, &Data.Flags);
