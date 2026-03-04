@@ -1,11 +1,13 @@
 // GCTITER.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2020, 2021, 2024, 2025
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2020, 2021, 2024, 2025, 2026
 // @codepage UTF-8
 // @Kernel
 // GCTIterator
 //
 #include <pp.h>
 #pragma hdrstop
+
+static constexpr int32 GCTFilt_CurrentVer = 1; // @v12.5.8 0-->1
 
 void GCTFilt::Helper_Init()
 {
@@ -15,24 +17,100 @@ void GCTFilt::Helper_Init()
 	SetBranchObjIdListFilt(offsetof(GCTFilt, GoodsList));
 	SetBranchObjIdListFilt(offsetof(GCTFilt, ArList));
 	SetBranchObjIdListFilt(offsetof(GCTFilt, AgentList));
+	SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(GCTFilt, P_BillTagF)); // @v12.5.8
 	Init(1, 0);
 }
 
-IMPLEMENT_PPFILT_FACTORY(GCT); GCTFilt::GCTFilt() : PPBaseFilt(PPFILT_GCT, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(GCT); GCTFilt::GCTFilt() : PPBaseFilt(PPFILT_GCT, 0, GCTFilt_CurrentVer), P_BillTagF(0)
 {
 	Helper_Init();
 }
 
-GCTFilt::GCTFilt(const GCTFilt & rS) : PPBaseFilt(PPFILT_GCT, 0, 0)
+GCTFilt::GCTFilt(const GCTFilt & rS) : PPBaseFilt(PPFILT_GCT, 0, GCTFilt_CurrentVer), P_BillTagF(0)
 {
 	Helper_Init();
 	Copy(&rS, 1);
 }
 
-int FASTCALL GCTFilt::CheckWL(long billFlags) const
+GCTFilt & FASTCALL GCTFilt::operator = (const GCTFilt & rS) // @v12.5.8
 {
-	return BIN(!(Flags & OPG_LABELONLY) || (billFlags & BILLF_WHITELABEL));
+	Copy(&rS, 1);
+	return *this;
 }
+
+/*virtual*/int GCTFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
+{
+	int    ok = -1;
+	if(ver == 0) {
+		class GCTFilt_v0 : public PPBaseFilt {
+		public:
+			GCTFilt_v0() : PPBaseFilt(PPFILT_GCT, 0, 0)
+			{
+				SetFlatChunk(offsetof(GCTFilt_v0, ReserveStart), offsetof(GCTFilt_v0, BillList) - offsetof(GCTFilt_v0, ReserveStart));
+				SetBranchObjIdListFilt(offsetof(GCTFilt_v0, BillList));
+				SetBranchObjIdListFilt(offsetof(GCTFilt_v0, LocList));
+				SetBranchObjIdListFilt(offsetof(GCTFilt_v0, GoodsList));
+				SetBranchObjIdListFilt(offsetof(GCTFilt_v0, ArList));
+				SetBranchObjIdListFilt(offsetof(GCTFilt_v0, AgentList));
+				Init(1, 0);
+			}
+			uint8  ReserveStart[24];
+			DateRange DueDatePeriod;
+			DateRange Period;
+			DateRange LotsPeriod;
+			DateRange ShipmentPeriod;
+			PPID   OpID;
+			PPID   SupplID;
+			PPID   DlvrAddrID;
+			PPID   GoodsGrpID;
+			PPID   GoodsID;
+			PPID   ExtGoodsTypeID;
+			PPID   BrandID;
+			PPID   SupplAgentID;
+			GCTSoftRestrict SoftRestrict;
+			long   Flags;
+			long   Order;
+			int16  GrpPeriod;
+			int16  Reserve2;
+			ObjIdListFilt BillList;
+			ObjIdListFilt LocList;
+			ObjIdListFilt GoodsList;
+			ObjIdListFilt ArList;
+			ObjIdListFilt AgentList;
+		};
+		GCTFilt_v0 fv0;
+		THROW(fv0.Read(rBuf, 0));
+		memzero(ReserveStart, sizeof(ReserveStart));
+#define CPYFLD(f) f = fv0.f
+			CPYFLD(DueDatePeriod);
+			CPYFLD(Period);
+			CPYFLD(LotsPeriod);
+			CPYFLD(ShipmentPeriod);
+			CPYFLD(OpID);
+			CPYFLD(SupplID);
+			CPYFLD(DlvrAddrID);
+			CPYFLD(GoodsGrpID);
+			CPYFLD(GoodsID);
+			CPYFLD(ExtGoodsTypeID);
+			CPYFLD(BrandID);
+			CPYFLD(SupplAgentID);
+			CPYFLD(SoftRestrict);
+			CPYFLD(Flags);
+			CPYFLD(Order);
+			CPYFLD(GrpPeriod);
+			CPYFLD(BillList);
+			CPYFLD(LocList);
+			CPYFLD(GoodsList);
+			CPYFLD(ArList);
+			CPYFLD(AgentList);
+#undef CPYFLD
+		ok = 1;
+	}
+	CATCHZOK
+	return ok;
+}
+
+bool FASTCALL GCTFilt::CheckWL(long billFlags) const { return (!(Flags & OPG_LABELONLY) || (billFlags & BILLF_WHITELABEL)); }
 
 int FASTCALL GCTFilt::AcceptIntr3(const BillTbl::Rec & rRec) const
 {
@@ -77,13 +155,14 @@ GCTIterator::CurrentBillBlock::CurrentBillBlock() : P_Pack(0), P_WrOffPack(0)
 
 GCTIterator::CurrentBillBlock::~CurrentBillBlock()
 {
-    Clear();
+    Z();
 }
 
-void GCTIterator::CurrentBillBlock::Clear()
+GCTIterator::CurrentBillBlock & GCTIterator::CurrentBillBlock::Z()
 {
     ZDELETE(P_Pack);
     ZDELETE(P_WrOffPack);
+	return *this;
 }
 //
 // GCT_BillCache
@@ -92,10 +171,7 @@ GCTIterator::GCT_BillCache::GCT_BillCache() : P_BObj(BillObj)
 {
 }
 
-int FASTCALL GCTIterator::GCT_BillCache::CheckBillForAgent(PPID billID) const
-{
-	return ExtIdList.bsearch(billID);
-}
+bool FASTCALL GCTIterator::GCT_BillCache::CheckBillForAgent(PPID billID) const { return ExtIdList.bsearch(billID); }
 
 int GCTIterator::GCT_BillCache::SetupFilt(const GCTFilt * pFilt, const ObjIdListFilt & rArList, int disableCaching)
 {
@@ -110,12 +186,13 @@ int GCTIterator::GCT_BillCache::SetupFilt(const GCTFilt * pFilt, const ObjIdList
 		else
 			OpList.Add(Filt.OpID);
 	}
-	else
+	else {
 		OpList.Set(0);
+	}
 	DisableCaching = BIN(disableCaching || Filt.GoodsID || Filt.SupplID);
 	ExtIdList.freeAll();
 	if(Filt.AgentList.GetCount()) {
-		const PPIDArray & r_agent_list = Filt.AgentList.Get();
+		const  PPIDArray & r_agent_list = Filt.AgentList.Get();
 		PPIDArray temp_list;
 		BillCore * p_billc = P_BObj->P_Tbl;
 		for(uint i = 0; i < r_agent_list.getCount(); i++) {
@@ -151,6 +228,8 @@ int FASTCALL GCTIterator::GCT_BillCache::CheckBillRec(const BillTbl::Rec * pRec)
 		else if(Filt.AgentList.GetCount() && !ExtIdList.bsearch(pRec->ID))
 			return 0;
 	}
+	if(PPObjTag::CheckForTagFilt(PPOBJ_BILL, pRec->ID, Filt.P_BillTagF) <= 0) // @v12.5.8 
+		return 0;
 	if(ArList.GetSingle() && (Filt.DlvrAddrID || Filt.Flags & OPG_BYZERODLVRADDR)) {
 		PPFreight freight;
 		if(pRec->Flags & BILLF_FREIGHT && P_BObj->P_Tbl->GetFreight(pRec->ID, &freight) > 0) {
@@ -391,8 +470,8 @@ int GCTIterator::GoodsRestArray::Serialize(int dir, SBuffer & rBuf, SSerializeCo
 GCTIterator::GCTIterator(const GCTFilt * pFilt, const DateRange * pDRange) : State(0), IterPhase(iterphaseInit),
 	trfr_q(0), rcpt_q(0), cptrfr_q(0), BCache(0), P_GoodsRestList(0)
 {
-	Filt = *pFilt;
-	Period = *pDRange;
+	RVALUEPTR(Filt, pFilt);
+	RVALUEPTR(Period, pDRange);
 	{
 		PPObjBill * p_bobj(BillObj);
 		Trfr = p_bobj->trfr;
@@ -423,8 +502,7 @@ GCTIterator::GCTIterator(const GCTFilt * pFilt, const DateRange * pDRange) : Sta
 		}
 	}
 	if(Filt.SupplAgentID) {
-		BT->GetBillListByExt(Filt.SupplAgentID, 0L, SupplAgentBillList);
-		// @v8.1.0 (сортировку теперь выполняет GetBillListByExt) SupplAgentBillList.sort();
+		BT->GetBillListByExt(Filt.SupplAgentID, 0L, SupplAgentBillList); // сортировку теперь выполняет GetBillListByExt
 	}
 	{
 		PPIDArray op_list;
@@ -465,6 +543,8 @@ int FASTCALL GCTIterator::CheckBillForFilt(const BillTbl::Rec & rBillRec) const
 	else if(!Filt.BillList.CheckID(rBillRec.ID))
 		return 0;
 	else if(!Filt.AcceptIntr3(rBillRec))
+		return 0;
+	else if(PPObjTag::CheckForTagFilt(PPOBJ_BILL, rBillRec.ID, Filt.P_BillTagF) <= 0) // @v12.5.8 
 		return 0;
 	else if(!soft_restr) {
 		PPObjBill * p_bobj(BillObj);
@@ -510,8 +590,8 @@ int GCTIterator::InitQuery(int cpMode)
 	ByWhat_ = bwNone;
 	CurrID = 0;
 	State &= ~stUseGoodsList;
-	BillList.clear();
-	GoodsArray.clear();
+	BillList.Z();
+	GoodsArray.Z();
 	if(Filt.GoodsList.GetCount()) {
 		Filt.GoodsGrpID = 0;
 		Filt.GoodsID = Filt.GoodsList.GetSingle();
@@ -545,12 +625,14 @@ int GCTIterator::InitQuery(int cpMode)
 		if(State & stThereAreOrders) {
 			const uint _c = GoodsArray.getCount();
 			if(State & stOnlyOrders) {
-				for(uint i = 0; i < _c; i++)
+				for(uint i = 0; i < _c; i++) {
 					GoodsArray.at(i) = -labs(GoodsArray.get(i));
+				}
 			}
 			else {
-				for(uint i = 0; i < _c; i++)
+				for(uint i = 0; i < _c; i++) {
 					GoodsArray.add(-labs(GoodsArray.get(i)));
+				}
 			}
 		}
 		GoodsArray.sortAndUndup();
@@ -596,9 +678,15 @@ int GCTIterator::InitQuery(int cpMode)
 		if(!cpMode && Filt.Flags & OPG_STOREDAILYRESTS) {
             if(P_GoodsRestList)
 				P_GoodsRestList->clear();
-			else
+			else {
 				THROW_MEM(P_GoodsRestList = new GCTIterator::GoodsRestArray);
+			}
 		}
+		/*
+		bool   do_use_bill_list = false;
+		if(cpMode || calc_links)
+			do_use_bill_list = true;
+		*/
 		if(cpMode || calc_links || (!Filt.GoodsID && ((ArList.GetCount() && !soft_restr) || OpList.GetCount() || Filt.BillList.GetCount()))) {
 			BillCore * p_bt = BT;
 			if(Filt.BillList.GetCount()) {
@@ -645,8 +733,7 @@ int GCTIterator::InitQuery(int cpMode)
 				BillList.sort();
 				if(!cpMode && P_GoodsRestList) {
 					//
-					// Если необходимо аккумулировать товарные остатки по датам, то придется перебирать все операции,
-					// а не только по заданным документам
+					// Если необходимо аккумулировать товарные остатки по датам, то придется перебирать все операции, а не только по заданным документам
 					//
 					ByWhat_ = bwNone;
 					CurrID = 0;
@@ -680,7 +767,7 @@ int GCTIterator::NextOuter()
 {
 	int    ok = -1;
 	const  bool soft_restr = LOGIC(Filt.SoftRestrict);
-	Cbb.Clear();
+	Cbb.Z();
 	switch(ByWhat_) {
 		case bwLot:
 			while(ok < 0 && rcpt_q->nextIteration() > 0) {
@@ -918,7 +1005,7 @@ int GCTIterator::TrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec,
 	}
 	else if(ByWhat_ == bwBill) {
 		BillTbl::Rec bill_rec;
-		Cbb.Clear();
+		Cbb.Z();
 		if(Filt.Flags & OPG_COMPAREWROFF && BCache && BCache->Get(CurrID, &bill_rec) > 0) {
 			PPOprKind op_rec;
 			GetOpData(bill_rec.OpID, &op_rec);
@@ -986,7 +1073,7 @@ int GCTIterator::TrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec,
 	}
 	else if(ByWhat_ == bwGoods) {
 		idx = 3;
-		PPID   goods_id = GoodsArray.get(GoodsArray.getPointer());
+		const  PPID goods_id = GoodsArray.get(GoodsArray.getPointer());
 		k.k3.GoodsID = goods_id;
 		k.k3.Dt = Period.low;
 		dbq = & (p_tfr->GoodsID == goods_id);
@@ -1042,7 +1129,7 @@ int GCTIterator::CpTrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRe
 	int    opt_for_psales = BIN(Filt.Flags & OPG_OPTIMIZEFORPSALES && (State & stUseGoodsList) && !Filt.SoftRestrict);
 	DBQ  * dbq = 0;
 	MEMSZERO(cpk);
-	Cbb.Clear();
+	Cbb.Z();
 	if(Filt.Flags & OPG_COMPAREWROFF && ByWhat_ == bwBill) {
 		BillTbl::Rec bill_rec;
         if(BCache && BCache->Get(CurrID, &bill_rec) > 0) {
@@ -1086,7 +1173,7 @@ int GCTIterator::CpTrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRe
 					ok = NextCpTrfr(pTrfrRec, pBillRec, pExt);
 				}
 				else {
-					Cbb.Clear();
+					Cbb.Z();
 					ok = -1;
 				}
 				done = 1;

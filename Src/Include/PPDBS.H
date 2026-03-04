@@ -7,11 +7,10 @@
 #include <db.h>
 #include <dl600.h>
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class Reference2Tbl : public DBTable {
 public:
-	Reference2Tbl(const char * pFileName = 0);
+	Reference2Tbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -50,11 +49,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class PropertyTbl : public DBTable {
 public:
-	PropertyTbl(const char * pFileName = 0);
+	PropertyTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -87,11 +85,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class UuidRefTbl : public DBTable {
 public:
-	UuidRefTbl(const char * pFileName = 0);
+	UuidRefTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -110,11 +107,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TextRefTbl : public DBTable {
 public:
-	TextRefTbl(const char * pFileName = 0);
+	TextRefTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -146,11 +142,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class UnxTextRefTbl : public DBTable {
 public:
-	UnxTextRefTbl(const char * pFileName = 0);
+	UnxTextRefTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -177,11 +172,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class ExtCodeRefTbl : public DBTable {
 public:
-	ExtCodeRefTbl(const char * pFileName = 0);
+	ExtCodeRefTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -199,11 +193,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class ObjLikenessTbl : public DBTable {
 public:
-	ObjLikenessTbl(const char * pFileName = 0);
+	ObjLikenessTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -234,11 +227,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class ObjSyncTbl : public DBTable {
 public:
-	ObjSyncTbl(const char * pFileName = 0);
+	ObjSyncTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -274,11 +266,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class ObjSyncBuTbl : public DBTable {
 public:
-	ObjSyncBuTbl(const char * pFileName = 0);
+	ObjSyncBuTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -310,11 +301,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class ObjSyncQueueTbl : public DBTable {
 public:
-	ObjSyncQueueTbl(const char * pFileName = 0);
+	ObjSyncQueueTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -375,11 +365,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class ObjAssocTbl : public DBTable {
 public:
-	ObjAssocTbl(const char * pFileName = 0);
+	ObjAssocTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -418,11 +407,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class ObjTagTbl : public DBTable {
 public:
-	ObjTagTbl(const char * pFileName = 0);
+	ObjTagTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -463,11 +451,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class EAddrTbl : public DBTable {
 public:
-	EAddrTbl(const char * pFileName = 0);
+	EAddrTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -497,11 +484,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class WorldTbl : public DBTable {
 public:
-	WorldTbl(const char * pFileName = 0);
+	WorldTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -556,11 +542,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempKLADRTbl : public DBTable {
 public:
-	TempKLADRTbl(const char * pFileName = 0);
+	TempKLADRTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -591,11 +576,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class FiasAddrObjTbl : public DBTable {
 public:
-	FiasAddrObjTbl(const char * pFileName = 0);
+	FiasAddrObjTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -670,11 +654,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class FiasHouseObjTbl : public DBTable {
 public:
-	FiasHouseObjTbl(const char * pFileName = 0);
+	FiasHouseObjTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -738,11 +721,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class GeoTrackTbl : public DBTable {
 public:
-	GeoTrackTbl(const char * pFileName = 0);
+	GeoTrackTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -787,11 +769,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class PersonTbl : public DBTable {
 public:
-	PersonTbl(const char * pFileName = 0);
+	PersonTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -834,11 +815,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class PersonKindTbl : public DBTable {
 public:
-	PersonKindTbl(const char * pFileName = 0);
+	PersonKindTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -862,11 +842,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class RegisterTbl : public DBTable {
 public:
-	RegisterTbl(const char * pFileName = 0);
+	RegisterTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -923,11 +902,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class PersonEventTbl : public DBTable {
 public:
-	PersonEventTbl(const char * pFileName = 0);
+	PersonEventTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -988,11 +966,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class PersonPostTbl : public DBTable {
 public:
-	PersonPostTbl(const char * pFileName = 0);
+	PersonPostTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -1041,11 +1018,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class StaffCalendarTbl : public DBTable {
 public:
-	StaffCalendarTbl(const char * pFileName = 0);
+	StaffCalendarTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -1087,11 +1063,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempStaffCalTbl : public DBTable {
 public:
-	TempStaffCalTbl(const char * pFileName = 0);
+	TempStaffCalTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -1139,11 +1114,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class SalaryTbl : public DBTable {
 public:
-	SalaryTbl(const char * pFileName = 0);
+	SalaryTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -1204,11 +1178,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempSalaryTbl : public DBTable {
 public:
-	TempSalaryTbl(const char * pFileName = 0);
+	TempSalaryTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -1264,11 +1237,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class Goods2Tbl : public DBTable {
 public:
-	Goods2Tbl(const char * pFileName = 0);
+	Goods2Tbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -1346,11 +1318,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class BarcodeTbl : public DBTable {
 public:
-	BarcodeTbl(const char * pFileName = 0);
+	BarcodeTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -1373,11 +1344,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class ArGoodsCodeTbl : public DBTable {
 public:
-	ArGoodsCodeTbl(const char * pFileName = 0);
+	ArGoodsCodeTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -1406,11 +1376,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class GoodsExtTbl : public DBTable {
 public:
-	GoodsExtTbl(const char * pFileName = 0);
+	GoodsExtTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -1460,11 +1429,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class PackageTbl : public DBTable {
 public:
-	PackageTbl(const char * pFileName = 0);
+	PackageTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -1504,11 +1472,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class PackageLinkTbl : public DBTable {
 public:
-	PackageLinkTbl(const char * pFileName = 0);
+	PackageLinkTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -1528,11 +1495,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class SpecSeriesTbl : public DBTable {
 public:
-	SpecSeriesTbl(const char * pFileName = 0);
+	SpecSeriesTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -1591,11 +1557,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class SpecSeries2Tbl : public DBTable {
 public:
-	SpecSeries2Tbl(const char * pFileName = 0);
+	SpecSeries2Tbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -1664,11 +1629,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class LocationTbl : public DBTable {
 public:
-	LocationTbl(const char * pFileName = 0);
+	LocationTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -1745,11 +1709,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class CurrencyRateTbl : public DBTable {
 public:
-	CurrencyRateTbl(const char * pFileName = 0);
+	CurrencyRateTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -1780,11 +1743,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class BillTbl : public DBTable {
 public:
-	BillTbl(const char * pFileName = 0);
+	BillTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -1880,11 +1842,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class BillAmountTbl : public DBTable {
 public:
-	BillAmountTbl(const char * pFileName = 0);
+	BillAmountTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -1906,11 +1867,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class PayPlanTbl : public DBTable {
 public:
-	PayPlanTbl(const char * pFileName = 0);
+	PayPlanTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -1931,11 +1891,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class ReceiptTbl : public DBTable {
 public:
-	ReceiptTbl(const char * pFileName = 0);
+	ReceiptTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -2030,11 +1989,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class CurRestTbl : public DBTable {
 public:
-	CurRestTbl(const char * pFileName = 0);
+	CurRestTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -2057,11 +2015,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class LotCurRestTbl : public DBTable {
 public:
-	LotCurRestTbl(const char * pFileName = 0);
+	LotCurRestTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -2084,11 +2041,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class LotCurRest2Tbl : public DBTable {
 public:
-	LotCurRest2Tbl(const char * pFileName = 0);
+	LotCurRest2Tbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -2111,11 +2067,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class LotExtCodeTbl : public DBTable {
 public:
-	LotExtCodeTbl(const char * pFileName = 0);
+	LotExtCodeTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -2153,11 +2108,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class EgaisProductTbl : public DBTable {
 public:
-	EgaisProductTbl(const char * pFileName = 0);
+	EgaisProductTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -2190,11 +2144,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class EgaisPersonTbl : public DBTable {
 public:
-	EgaisPersonTbl(const char * pFileName = 0);
+	EgaisPersonTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -2232,11 +2185,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class EgaisRefATbl : public DBTable {
 public:
-	EgaisRefATbl(const char * pFileName = 0);
+	EgaisRefATbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -2288,11 +2240,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class VetisEntityTbl : public DBTable {
 public:
-	VetisEntityTbl(const char * pFileName = 0);
+	VetisEntityTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -2331,11 +2282,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class VetisProductTbl : public DBTable {
 public:
-	VetisProductTbl(const char * pFileName = 0);
+	VetisProductTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -2379,11 +2329,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class VetisPersonTbl : public DBTable {
 public:
-	VetisPersonTbl(const char * pFileName = 0);
+	VetisPersonTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -2419,11 +2368,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class VetisDocumentTbl : public DBTable {
 public:
-	VetisDocumentTbl(const char * pFileName = 0);
+	VetisDocumentTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -2549,11 +2497,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class InventoryTbl : public DBTable {
 public:
-	InventoryTbl(const char * pFileName = 0);
+	InventoryTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -2608,11 +2555,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempInventorySubstTbl : public DBTable {
 public:
-	TempInventorySubstTbl(const char * pFileName = 0);
+	TempInventorySubstTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -2647,11 +2593,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class QuotationTbl : public DBTable {
 public:
-	QuotationTbl(const char * pFileName = 0);
+	QuotationTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -2701,11 +2646,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class Quot2RelTbl : public DBTable {
 public:
-	Quot2RelTbl(const char * pFileName = 0);
+	Quot2RelTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -2747,11 +2691,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class Quotation2Tbl : public DBTable {
 public:
-	Quotation2Tbl(const char * pFileName = 0);
+	Quotation2Tbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -2808,11 +2751,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class PriceListTbl : public DBTable {
 public:
-	PriceListTbl(const char * pFileName = 0);
+	PriceListTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -2851,11 +2793,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class PriceLineTbl : public DBTable {
 public:
-	PriceLineTbl(const char * pFileName = 0);
+	PriceLineTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -2919,11 +2860,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TransferTbl : public DBTable {
 public:
-	TransferTbl(const char * pFileName = 0);
+	TransferTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -2991,11 +2931,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class LocTransfTbl : public DBTable {
 public:
-	LocTransfTbl(const char * pFileName = 0);
+	LocTransfTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -3079,11 +3018,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempLocTransfTbl : public DBTable {
 public:
-	TempLocTransfTbl(const char * pFileName = 0);
+	TempLocTransfTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -3141,11 +3079,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class GoodsDebtTbl : public DBTable {
 public:
-	GoodsDebtTbl(const char * pFileName = 0);
+	GoodsDebtTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -3178,11 +3115,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class CpTransfTbl : public DBTable {
 public:
-	CpTransfTbl(const char * pFileName = 0);
+	CpTransfTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -3237,11 +3173,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class AdvBillItemTbl : public DBTable {
 public:
-	AdvBillItemTbl(const char * pFileName = 0);
+	AdvBillItemTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -3303,11 +3238,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class WorkbookTbl : public DBTable {
 public:
-	WorkbookTbl(const char * pFileName = 0);
+	WorkbookTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -3371,11 +3305,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class ProjectTbl : public DBTable {
 public:
-	ProjectTbl(const char * pFileName = 0);
+	ProjectTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -3434,11 +3367,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class PrjTaskTbl : public DBTable {
 public:
-	PrjTaskTbl(const char * pFileName = 0);
+	PrjTaskTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -3544,11 +3476,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class SCardTbl : public DBTable {
 public:
-	SCardTbl(const char * pFileName = 0);
+	SCardTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -3618,11 +3549,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempSCardTbl : public DBTable {
 public:
-	TempSCardTbl(const char * pFileName = 0);
+	TempSCardTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -3698,11 +3628,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class SCardOpTbl : public DBTable {
 public:
-	SCardOpTbl(const char * pFileName = 0);
+	SCardOpTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -3755,11 +3684,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class CSessionTbl : public DBTable {
 public:
-	CSessionTbl(const char * pFileName = 0);
+	CSessionTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -3829,11 +3757,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempCSessChecksTbl : public DBTable {
 public:
-	TempCSessChecksTbl(const char * pFileName = 0);
+	TempCSessChecksTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -3906,11 +3833,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class CCheckTbl : public DBTable {
 public:
-	CCheckTbl(const char * pFileName = 0);
+	CCheckTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -3966,11 +3892,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class CCheckExtTbl : public DBTable {
 public:
-	CCheckExtTbl(const char * pFileName = 0);
+	CCheckExtTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -4018,11 +3943,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class CCheckPaymTbl : public DBTable {
 public:
-	CCheckPaymTbl(const char * pFileName = 0);
+	CCheckPaymTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -4053,11 +3977,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempCCheckQttyTbl : public DBTable {
 public:
-	TempCCheckQttyTbl(const char * pFileName = 0);
+	TempCCheckQttyTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -4125,11 +4048,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempCCheckGrpTbl : public DBTable {
 public:
-	TempCCheckGrpTbl(const char * pFileName = 0);
+	TempCCheckGrpTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -4212,11 +4134,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempCCheckGdsCorrTbl : public DBTable {
 public:
-	TempCCheckGdsCorrTbl(const char * pFileName = 0);
+	TempCCheckGdsCorrTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -4262,11 +4183,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempCCheckLineTbl : public DBTable {
 public:
-	TempCCheckLineTbl(const char * pFileName = 0);
+	TempCCheckLineTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -4307,11 +4227,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class CCheckLineTbl : public DBTable {
 public:
-	CCheckLineTbl(const char * pFileName = 0);
+	CCheckLineTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -4338,11 +4257,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class CCheckLineExtTbl : public DBTable {
 public:
-	CCheckLineExtTbl(const char * pFileName = 0);
+	CCheckLineExtTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -4365,11 +4283,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class CGoodsLineTbl : public DBTable {
 public:
-	CGoodsLineTbl(const char * pFileName = 0);
+	CGoodsLineTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -4407,11 +4324,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class DvcLoadingStatTbl : public DBTable {
 public:
-	DvcLoadingStatTbl(const char * pFileName = 0);
+	DvcLoadingStatTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -4455,11 +4371,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class DlsObjTbl : public DBTable {
 public:
-	DlsObjTbl(const char * pFileName = 0);
+	DlsObjTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -4488,11 +4403,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class QualityCertTbl : public DBTable {
 public:
-	QualityCertTbl(const char * pFileName = 0);
+	QualityCertTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -4550,11 +4464,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class ArticleTbl : public DBTable {
 public:
-	ArticleTbl(const char * pFileName = 0);
+	ArticleTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -4596,11 +4509,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class AcctRelTbl : public DBTable {
 public:
-	AcctRelTbl(const char * pFileName = 0);
+	AcctRelTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -4655,11 +4567,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class AccTurnTbl : public DBTable {
 public:
-	AccTurnTbl(const char * pFileName = 0);
+	AccTurnTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -4707,11 +4618,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class BalanceTbl : public DBTable {
 public:
-	BalanceTbl(const char * pFileName = 0);
+	BalanceTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -4736,11 +4646,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class BudgetItemTbl : public DBTable {
 public:
-	BudgetItemTbl(const char * pFileName = 0);
+	BudgetItemTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -4776,11 +4685,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class VATBookTbl : public DBTable {
 public:
-	VATBookTbl(const char * pFileName = 0);
+	VATBookTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -4894,11 +4802,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class MrpTabTbl : public DBTable {
 public:
-	MrpTabTbl(const char * pFileName = 0);
+	MrpTabTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -4946,11 +4853,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class MrpLineTbl : public DBTable {
 public:
-	MrpLineTbl(const char * pFileName = 0);
+	MrpLineTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -4994,11 +4900,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class SysJournalTbl : public DBTable {
 public:
-	SysJournalTbl(const char * pFileName = 0);
+	SysJournalTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -5031,11 +4936,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class SjRsrvTbl : public DBTable {
 public:
-	SjRsrvTbl(const char * pFileName = 0);
+	SjRsrvTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -5062,11 +4966,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class GtaJournalTbl : public DBTable {
 public:
-	GtaJournalTbl(const char * pFileName = 0);
+	GtaJournalTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -5116,11 +5019,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class ObjVerTbl : public DBTable {
 public:
-	ObjVerTbl(const char * pFileName = 0);
+	ObjVerTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -5151,11 +5053,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class Cr_PosLoadTbl : public DBTable {
 public:
-	Cr_PosLoadTbl(const char * pFileName = 0);
+	Cr_PosLoadTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -5266,11 +5167,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class Cr_CredoPayTbl : public DBTable {
 public:
-	Cr_CredoPayTbl(const char * pFileName = 0);
+	Cr_CredoPayTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -5320,11 +5220,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class Cr_ZReportTbl : public DBTable {
 public:
-	Cr_ZReportTbl(const char * pFileName = 0);
+	Cr_ZReportTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -5371,11 +5270,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class Cr_SaleTbl : public DBTable {
 public:
-	Cr_SaleTbl(const char * pFileName = 0);
+	Cr_SaleTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -5490,11 +5388,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class Cr_CashAuthTbl : public DBTable {
 public:
-	Cr_CashAuthTbl(const char * pFileName = 0);
+	Cr_CashAuthTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -5538,11 +5435,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class Cr_CashDCrdTbl : public DBTable {
 public:
-	Cr_CashDCrdTbl(const char * pFileName = 0);
+	Cr_CashDCrdTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -5590,11 +5486,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class PredictSalesTbl : public DBTable {
 public:
-	PredictSalesTbl(const char * pFileName = 0);
+	PredictSalesTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -5623,11 +5518,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class GoodsStatTbl : public DBTable {
 public:
-	GoodsStatTbl(const char * pFileName = 0);
+	GoodsStatTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -5662,11 +5556,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class ProcessorTbl : public DBTable {
 public:
-	ProcessorTbl(const char * pFileName = 0);
+	ProcessorTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -5729,11 +5622,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TechTbl : public DBTable {
 public:
-	TechTbl(const char * pFileName = 0);
+	TechTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -5807,11 +5699,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TSessionTbl : public DBTable {
 public:
-	TSessionTbl(const char * pFileName = 0);
+	TSessionTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -5914,11 +5805,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TSessLineTbl : public DBTable {
 public:
-	TSessLineTbl(const char * pFileName = 0);
+	TSessLineTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -5985,11 +5875,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class BizScoreTbl : public DBTable {
 public:
-	BizScoreTbl(const char * pFileName = 0);
+	BizScoreTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -6041,11 +5930,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class GlobalBizScoreTbl : public DBTable {
 public:
-	GlobalBizScoreTbl(const char * pFileName = 0);
+	GlobalBizScoreTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -6094,11 +5982,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class BizScore2Tbl : public DBTable {
 public:
-	BizScore2Tbl(const char * pFileName = 0);
+	BizScore2Tbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -6150,11 +6037,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class DebtStatTbl : public DBTable {
 public:
-	DebtStatTbl(const char * pFileName = 0);
+	DebtStatTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -6214,11 +6100,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class CheckOpJrnlTbl : public DBTable {
 public:
-	CheckOpJrnlTbl(const char * pFileName = 0);
+	CheckOpJrnlTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -6255,11 +6140,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class UserFuncPrfSessTbl : public DBTable {
 public:
-	UserFuncPrfSessTbl(const char * pFileName = 0);
+	UserFuncPrfSessTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -6310,11 +6194,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class UserFuncPrfTbl : public DBTable {
 public:
-	UserFuncPrfTbl(const char * pFileName = 0);
+	UserFuncPrfTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -6372,11 +6255,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class EventTbl : public DBTable {
 public:
-	EventTbl(const char * pFileName = 0);
+	EventTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -6438,11 +6320,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class StyloQSecTbl : public DBTable {
 public:
-	StyloQSecTbl(const char * pFileName = 0);
+	StyloQSecTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -6494,11 +6375,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class StyloQSettlementTbl : public DBTable {
 public:
-	StyloQSettlementTbl(const char * pFileName = 0);
+	StyloQSettlementTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -6535,11 +6415,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TsTaJournalTbl : public DBTable {
 public:
-	TsTaJournalTbl(const char * pFileName = 0);
+	TsTaJournalTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -6612,11 +6491,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class Reference_ObsoleteTbl : public DBTable {
 public:
-	Reference_ObsoleteTbl(const char * pFileName = 0);
+	Reference_ObsoleteTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -6655,11 +6533,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class Country_ObsoleteTbl : public DBTable {
 public:
-	Country_ObsoleteTbl(const char * pFileName = 0);
+	Country_ObsoleteTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -6691,11 +6568,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class Region_ObsoleteTbl : public DBTable {
 public:
-	Region_ObsoleteTbl(const char * pFileName = 0);
+	Region_ObsoleteTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -6729,11 +6605,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class City_ObsoleteTbl : public DBTable {
 public:
-	City_ObsoleteTbl(const char * pFileName = 0);
+	City_ObsoleteTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -6775,11 +6650,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class BankAccount_Pre9004Tbl : public DBTable {
 public:
-	BankAccount_Pre9004Tbl(const char * pFileName = 0);
+	BankAccount_Pre9004Tbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -6814,11 +6688,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class StaffList_Pre9003Tbl : public DBTable {
 public:
-	StaffList_Pre9003Tbl(const char * pFileName = 0);
+	StaffList_Pre9003Tbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -6865,11 +6738,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class HistGoodsTbl : public DBTable {
 public:
-	HistGoodsTbl(const char * pFileName = 0);
+	HistGoodsTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -6895,11 +6767,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class HistBillTbl : public DBTable {
 public:
-	HistBillTbl(const char * pFileName = 0);
+	HistBillTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -6954,11 +6825,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class HistTrfrTbl : public DBTable {
 public:
-	HistTrfrTbl(const char * pFileName = 0);
+	HistTrfrTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -6991,11 +6861,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class CCurPriceTbl : public DBTable {
 public:
-	CCurPriceTbl(const char * pFileName = 0);
+	CCurPriceTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -7014,11 +6883,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class Account_Pre9004Tbl : public DBTable {
 public:
-	Account_Pre9004Tbl(const char * pFileName = 0);
+	Account_Pre9004Tbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -7073,11 +6941,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempTSessRepTbl : public DBTable {
 public:
-	TempTSessRepTbl(const char * pFileName = 0);
+	TempTSessRepTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -7148,11 +7015,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempPrcBusyTbl : public DBTable {
 public:
-	TempPrcBusyTbl(const char * pFileName = 0);
+	TempPrcBusyTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -7195,11 +7061,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempPredictSalesTbl : public DBTable {
 public:
-	TempPredictSalesTbl(const char * pFileName = 0);
+	TempPredictSalesTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -7231,11 +7096,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempGoodsStatTbl : public DBTable {
 public:
-	TempGoodsStatTbl(const char * pFileName = 0);
+	TempGoodsStatTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -7284,11 +7148,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempGoodsRestTbl : public DBTable {
 public:
-	TempGoodsRestTbl(const char * pFileName = 0);
+	TempGoodsRestTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -7377,11 +7240,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempCSessExcTbl : public DBTable {
 public:
-	TempCSessExcTbl(const char * pFileName = 0);
+	TempCSessExcTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -7436,11 +7298,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempDeficitTbl : public DBTable {
 public:
-	TempDeficitTbl(const char * pFileName = 0);
+	TempDeficitTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -7481,11 +7342,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempShipmentAnlzTbl : public DBTable {
 public:
-	TempShipmentAnlzTbl(const char * pFileName = 0);
+	TempShipmentAnlzTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -7529,11 +7389,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempGoodsOprTbl : public DBTable {
 public:
-	TempGoodsOprTbl(const char * pFileName = 0);
+	TempGoodsOprTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -7616,11 +7475,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempGoodsMovTbl : public DBTable {
 public:
-	TempGoodsMovTbl(const char * pFileName = 0);
+	TempGoodsMovTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -7700,11 +7558,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempGoodsMov2Tbl : public DBTable {
 public:
-	TempGoodsMov2Tbl(const char * pFileName = 0);
+	TempGoodsMov2Tbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -7739,11 +7596,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempGoodsBillCmpTbl : public DBTable {
 public:
-	TempGoodsBillCmpTbl(const char * pFileName = 0);
+	TempGoodsBillCmpTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -7786,11 +7642,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempAccTrnovrTbl : public DBTable {
 public:
-	TempAccTrnovrTbl(const char * pFileName = 0);
+	TempAccTrnovrTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -7840,11 +7695,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempSellTrnovrTbl : public DBTable {
 public:
-	TempSellTrnovrTbl(const char * pFileName = 0);
+	TempSellTrnovrTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -7916,11 +7770,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempTrfrGrpngTbl : public DBTable {
 public:
-	TempTrfrGrpngTbl(const char * pFileName = 0);
+	TempTrfrGrpngTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -7989,11 +7842,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempTrfrAnlzTbl : public DBTable {
 public:
-	TempTrfrAnlzTbl(const char * pFileName = 0);
+	TempTrfrAnlzTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -8065,11 +7917,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempOpGrpngTbl : public DBTable {
 public:
-	TempOpGrpngTbl(const char * pFileName = 0);
+	TempOpGrpngTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -8139,11 +7990,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempPersonTbl : public DBTable {
 public:
-	TempPersonTbl(const char * pFileName = 0);
+	TempPersonTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -8195,11 +8045,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempOrderTbl : public DBTable {
 public:
-	TempOrderTbl(const char * pFileName = 0);
+	TempOrderTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -8218,11 +8067,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempDoubleIDTbl : public DBTable {
 public:
-	TempDoubleIDTbl(const char * pFileName = 0);
+	TempDoubleIDTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -8248,11 +8096,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempAssocTbl : public DBTable {
 public:
-	TempAssocTbl(const char * pFileName = 0);
+	TempAssocTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -8269,11 +8116,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempAccturnGrpngTbl : public DBTable {
 public:
-	TempAccturnGrpngTbl(const char * pFileName = 0);
+	TempAccturnGrpngTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -8344,11 +8190,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempAccAnlzTbl : public DBTable {
 public:
-	TempAccAnlzTbl(const char * pFileName = 0);
+	TempAccAnlzTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -8396,11 +8241,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempBillTbl : public DBTable {
 public:
-	TempBillTbl(const char * pFileName = 0);
+	TempBillTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -8446,11 +8290,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempFreightTbl : public DBTable {
 public:
-	TempFreightTbl(const char * pFileName = 0);
+	TempFreightTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -8518,11 +8361,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempLotTbl : public DBTable {
 public:
-	TempLotTbl(const char * pFileName = 0);
+	TempLotTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -8571,11 +8413,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempGoodsTaxAnlzTbl : public DBTable {
 public:
-	TempGoodsTaxAnlzTbl(const char * pFileName = 0);
+	TempGoodsTaxAnlzTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -8649,11 +8490,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempPaymPlanTbl : public DBTable {
 public:
-	TempPaymPlanTbl(const char * pFileName = 0);
+	TempPaymPlanTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -8689,11 +8529,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempSyncCmpTbl : public DBTable {
 public:
-	TempSyncCmpTbl(const char * pFileName = 0);
+	TempSyncCmpTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -8758,11 +8597,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempAssetTbl : public DBTable {
 public:
-	TempAssetTbl(const char * pFileName = 0);
+	TempAssetTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -8819,11 +8657,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempQuotSerialTbl : public DBTable {
 public:
-	TempQuotSerialTbl(const char * pFileName = 0);
+	TempQuotSerialTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -8854,11 +8691,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempQuotTbl : public DBTable {
 public:
-	TempQuotTbl(const char * pFileName = 0);
+	TempQuotTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -8952,11 +8788,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempGoodsCargoTbl : public DBTable {
 public:
-	TempGoodsCargoTbl(const char * pFileName = 0);
+	TempGoodsCargoTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -8984,11 +8819,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempPrjTaskTbl : public DBTable {
 public:
-	TempPrjTaskTbl(const char * pFileName = 0);
+	TempPrjTaskTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -9025,11 +8859,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempPriceAnlzTbl : public DBTable {
 public:
-	TempPriceAnlzTbl(const char * pFileName = 0);
+	TempPriceAnlzTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -9059,11 +8892,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempPersonEventTbl : public DBTable {
 public:
-	TempPersonEventTbl(const char * pFileName = 0);
+	TempPersonEventTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -9095,11 +8927,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempPersonRelTbl : public DBTable {
 public:
-	TempPersonRelTbl(const char * pFileName = 0);
+	TempPersonRelTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -9126,11 +8957,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempArAgtTbl : public DBTable {
 public:
-	TempArAgtTbl(const char * pFileName = 0);
+	TempArAgtTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -9204,11 +9034,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempScaleTbl : public DBTable {
 public:
-	TempScaleTbl(const char * pFileName = 0);
+	TempScaleTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -9240,11 +9069,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempLogFileMonTbl : public DBTable {
 public:
-	TempLogFileMonTbl(const char * pFileName = 0);
+	TempLogFileMonTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -9275,11 +9103,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempCashNodeTbl : public DBTable {
 public:
-	TempCashNodeTbl(const char * pFileName = 0);
+	TempCashNodeTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -9318,11 +9145,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempReportTbl : public DBTable {
 public:
-	TempReportTbl(const char * pFileName = 0);
+	TempReportTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -9363,11 +9189,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempPalmTbl : public DBTable {
 public:
-	TempPalmTbl(const char * pFileName = 0);
+	TempPalmTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -9408,11 +9233,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempLongOrderTbl : public DBTable {
 public:
-	TempLongOrderTbl(const char * pFileName = 0);
+	TempLongOrderTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -9428,11 +9252,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempTransportTbl : public DBTable {
 public:
-	TempTransportTbl(const char * pFileName = 0);
+	TempTransportTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -9469,11 +9292,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempBudgetTbl : public DBTable {
 public:
-	TempBudgetTbl(const char * pFileName = 0);
+	TempBudgetTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -9497,11 +9319,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempBudgItemTbl : public DBTable {
 public:
-	TempBudgItemTbl(const char * pFileName = 0);
+	TempBudgItemTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -9541,11 +9362,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempBizScTemplTbl : public DBTable {
 public:
-	TempBizScTemplTbl(const char * pFileName = 0);
+	TempBizScTemplTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -9565,11 +9385,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempCCheckTbl : public DBTable {
 public:
-	TempCCheckTbl(const char * pFileName = 0);
+	TempCCheckTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -9631,11 +9450,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempSysJournalTbl : public DBTable {
 public:
-	TempSysJournalTbl(const char * pFileName = 0);
+	TempSysJournalTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -9669,11 +9487,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempGlobUserAccTbl : public DBTable {
 public:
-	TempGlobUserAccTbl(const char * pFileName = 0);
+	TempGlobUserAccTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -9697,11 +9514,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempDBDivTbl : public DBTable {
 public:
-	TempDBDivTbl(const char * pFileName = 0);
+	TempDBDivTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -9721,11 +9537,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TempUserProfileTbl : public DBTable {
 public:
-	TempUserProfileTbl(const char * pFileName = 0);
+	TempUserProfileTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -9803,11 +9618,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TestRef01Tbl : public DBTable {
 public:
-	TestRef01Tbl(const char * pFileName = 0);
+	TestRef01Tbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -9866,11 +9680,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TestRef02Tbl : public DBTable {
 public:
-	TestRef02Tbl(const char * pFileName = 0);
+	TestRef02Tbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -9931,11 +9744,10 @@ public:
 };
 #pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 class TestTa01Tbl : public DBTable {
 public:
-	TestTa01Tbl(const char * pFileName = 0);
+	TestTa01Tbl(const char * pFileName = 0, DbProvider * pDbP = 0);
 
 	struct Rec {
 		Rec();
@@ -9982,6 +9794,46 @@ public:
 	DBField GuidVal;
 	DBField S;
 	DBField TextField;
+};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+class LocalStateBinderyTbl : public DBTable {
+public:
+	LocalStateBinderyTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
+
+	struct Rec {
+		Rec();
+		Rec & Clear();
+		int32  ID;
+		int64  UedTm;
+		int32  Kind;
+		int32  ObjType;
+		int32  ObjID;
+		int64  Subject;
+		char   Symb[128];
+		TSLob <2048> VT;
+	} data;
+	struct Key0 {
+		int32  ID;
+	};
+	struct Key1 {
+		int32  Kind;
+		int64  UedTm;
+	};
+	struct Key2 {
+		int32  Kind;
+		char   Symb[128];
+		int64  UedTm;
+	};
+	DBField ID;
+	DBField UedTm;
+	DBField Kind;
+	DBField ObjType;
+	DBField ObjID;
+	DBField Subject;
+	DBField Symb;
+	DBField VT;
 };
 #pragma pack(pop)
 

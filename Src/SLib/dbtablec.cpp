@@ -11,8 +11,7 @@
 DBTable * FASTCALL _GetTable(int handle) { return DBS.GetTLA().GetTableEntry(handle); }
 //
 //
-// static members of DBTable {
-const char * DBTable::CrTempFileNamePtr = reinterpret_cast<const char *>(0x0003);
+/*static*/const char * DBTable::CrTempFileNamePtr = reinterpret_cast<const char *>(0x0003);
 
 void   FASTCALL DBTable::InitErrFileName(const char * pFileName) { DBS.GetTLA().InitErrFileName(pFileName); }
 const  char * DBTable::GetLastErrorFileName() { return DBS.GetConstTLA().GetLastErrFileName(); }

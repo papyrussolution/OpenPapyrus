@@ -1132,3 +1132,9 @@ TestTa01Tbl::Rec & TestTa01Tbl::Rec::Clear()
 	THISZERO();
 	return *this;
 }
+DBTABLE_CONSTRUCTOR(LocalStateBindery, ID)
+LocalStateBinderyTbl::Rec & LocalStateBinderyTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}

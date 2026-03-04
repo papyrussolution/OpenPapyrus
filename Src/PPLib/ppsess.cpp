@@ -1472,15 +1472,15 @@ void FASTCALL PPSession::ThreadCollection::LocStkToStr(SString & rBuf)
 	}
 }
 
-int STDCALL PPSession::ThreadCollection::GetInfo(ThreadID tId, PPThread::Info & rInfo)
+bool STDCALL PPSession::ThreadCollection::GetInfo(ThreadID tId, PPThread::Info & rInfo)
 {
 	PPThread * p_target = SearchById(tId);
 	if(p_target) {
 		p_target->GetInfo(rInfo);
-		return 1;
+		return true;
 	}
 	else
-		return 0;
+		return false;
 }
 
 int FASTCALL PPSession::ThreadCollection::StopThread(ThreadID tId)
@@ -2624,10 +2624,10 @@ void PPSession::ReleaseThread()
 
 PPThreadLocalArea & PPSession::GetTLA() { return *static_cast<PPThreadLocalArea *>(SGetTls(TlsIdx)); }
 const PPThreadLocalArea & PPSession::GetConstTLA() const { return *static_cast<PPThreadLocalArea *>(SGetTls(TlsIdx)); }
-int PPSession::GetThreadInfoList(int type, TSCollection <PPThread::Info> & rList) { return ThreadList.GetInfoList(type, rList); }
-int PPSession::GetThreadInfo(ThreadID tId, PPThread::Info & rInfo) { return ThreadList.GetInfo(tId, rInfo); }
-int PPSession::GetThreadListByKind(int kind, LongArray & rList) { return ThreadList.GetListByKind(kind, rList); }
-int FASTCALL PPSession::PushLogMsgToQueue(const PPLogMsgItem & rItem) { return P_LogQueue ? P_LogQueue->Push(rItem) : -1; }
+int   PPSession::GetThreadInfoList(int type, TSCollection <PPThread::Info> & rList) { return ThreadList.GetInfoList(type, rList); }
+bool  PPSession::GetThreadInfo(ThreadID tId, PPThread::Info & rInfo) { return ThreadList.GetInfo(tId, rInfo); }
+int   PPSession::GetThreadListByKind(int kind, LongArray & rList) { return ThreadList.GetListByKind(kind, rList); }
+int   FASTCALL PPSession::PushLogMsgToQueue(const PPLogMsgItem & rItem) { return P_LogQueue ? P_LogQueue->Push(rItem) : -1; }
 
 bool PPSession::IsThreadInteractive() const
 {
@@ -6442,7 +6442,7 @@ uint PPAdviseEventQueue::GetCount()
 int PPAdviseEventQueue::Get(int64 lowIdent, PPAdviseEventVector & rList)
 {
 	int    ok = -1;
-	int    declined = 0;
+	bool   declined = false;
 	//
 	// Попытка получить доступ к очереди на чтение без ожидания.
 	// Принцип работы очереди в том, чтобы клиентский поток не ждал пока
@@ -6451,7 +6451,7 @@ int PPAdviseEventQueue::Get(int64 lowIdent, PPAdviseEventVector & rList)
 	{
 		SRWLOCKERTIMEOUT(Lck, SReadWriteLocker::Read, 0);
 		if(!_rwl) {
-			declined = 1;
+			declined = true;
 		}
 		else {
 			rList.clear();

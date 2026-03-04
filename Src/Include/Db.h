@@ -3069,6 +3069,7 @@ public:
 		{
 			return (Conn.IsConsistent() && ((State & ~stBusy) == 0 && (!P_LastSelectStmt || DBTable::SelectStmt::IsConsistent(P_LastSelectStmt))));
 		}
+		bool   IsReady();
 		int    DestroyLastSelectStatement();
 		enum {
 			stBusy = 0x0001

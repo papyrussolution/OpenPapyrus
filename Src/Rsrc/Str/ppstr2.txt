@@ -15577,6 +15577,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @trfranlzfilt_ctk_cntragent               "По контрагенту"
 @trfranlzfilt_ctk_location                "По складу"
 @trfranlzfilt_btn_grouping                "Параметры группировки"
+@trfranlzfilt_btn_billtags                "Теги документов"
 @trfranlzfilt_title_grouping              "Параметры группировки анализа товарных операций" // Обобщающее понятие (заголовок диалога)
 @trfranlzfilt_grouping                    "@{grouping}" // Параметр группировки
 @trfranlzfilt_g_none                      "@{no}"

@@ -4005,7 +4005,9 @@ int SFileFormat::IdentifyMime(const char * pMime)
 /*static*/int SFileFormat::Register()
 {
 	int    ok = 1;
+	//
 	Register(Xls,     mtApplication, "vnd.ms-excel", "xls",  "512:0908100000060500"); // @v12.5.3 xls ole-format (old excel format)
+	Register(Xls,     mtApplication, "vnd.ms-excel", "xls",  "D0CF11E0A1B11AE1"); // @v12.5.8 xls ole-format (old excel format) - no compound
 	Register(WinWord, mtApplication, "msword", "doc",  "512:eca5c100"); // @v12.5.3 doc ole-format (old winword format)
 	Register(XlsX,     mtApplication, "vnd.openxmlformats-officedocument.spreadsheetml.sheet", "xlsx",  "504b0304"); // @v12.5.3
 	Register(XlsM,     mtApplication, "vnd.ms-excel.sheet.macroEnabled.12", "xlsm",  "504b0304"); // @v12.5.3

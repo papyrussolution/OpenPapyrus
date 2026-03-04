@@ -1,5 +1,5 @@
 // OBJGS.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1454,8 +1454,8 @@ IMPL_HANDLE_EVENT(GSDialog)
 		Changed = (addItemBySample() > 0) ? 1 : Changed;
 	else if(event.isCmd(cmEditStruct)) {
 		if(RecurData.Rec.ID && PPObjGoodsStruc::EditDialog(&RecurData, 1) > 0) {
-			int r = 0;
-			if((r = GsObj.Put(&RecurData.Rec.ID, &RecurData, 1)) > 0)
+			const  int r = GsObj.Put(&RecurData.Rec.ID, &RecurData, 1);
+			if(r > 0)
 				updateList(-1);
 			else if(!r)
 				PPError();
@@ -2685,12 +2685,13 @@ int PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 				if(toCascade)
 					dlg->ToCascade();
 				dlg->setDTS(pData);
-				while(ok <= 0 && ((r = ExecView(dlg)) == cmOK || r == cmUtil || dlg->IsChanged() && !CONFIRM(PPCFM_WARNCANCEL)))
+				while(ok <= 0 && ((r = ExecView(dlg)) == cmOK || r == cmUtil || dlg->IsChanged() && !CONFIRM(PPCFM_WARNCANCEL))) {
 					if(r != cmCancel && dlg->getDTS(pData)) {
 						ZDELETE(dlg);
 						ok = (r == cmUtil) ? PPObjGoodsStruc::EditExtDialog(pData) : 1;
 						break;
 					}
+				}
 			}
 			else
 				ok = 0;

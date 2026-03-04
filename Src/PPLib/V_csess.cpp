@@ -301,7 +301,7 @@ int PPViewCSess::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int FASTCALL PPViewCSess::IsNotDefaultOrder(int ord) const
+bool FASTCALL PPViewCSess::IsNotDefaultOrder(int ord) const
 {
 	return oneof8(ord, ordByID, ordByDtm_CashNode, ordByDtm_CashNumber, ordByDtm_SessNumber,
 		ordByCashNode_Dtm, ordByCashNumber_Dtm, ordBySessNumber, ordByAmount);
@@ -1999,7 +1999,7 @@ int PPViewCSess::RecalcSession(PPID sessID)
 			PPViewCSess::GetSessList(&sess_list);
 			CsObj.Recover(sess_list);
 		}
-		else if(v == 4) { // @v11.0.4
+		else if(v == 4) {
 			PPObjCashNode cn_obj;
 			PPIDArray sess_list;
 			PPViewCSess::GetSessList(&sess_list);
@@ -2025,7 +2025,7 @@ int PPViewCSess::RecalcSession(PPID sessID)
 				}
 			}
 		}
-		else if(v == 5) { // @v11.0.4 4-->5
+		else if(v == 5) {
 			PPIDArray sess_list;
 			PPViewCSess::GetSessList(&sess_list);
 			if(sess_list.getCount()) {
@@ -2583,7 +2583,23 @@ DBQuery * PPViewCSessExc::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	DBE    dbe_goods;
 	TempCSessExcTbl * t = new TempCSessExcTbl(P_TempTbl->GetName());
 	PPDbqFuncPool::InitObjNameFunc(dbe_goods, PPDbqFuncPool::IdObjNameGoods, t->AltGoodsID);
-	DBQuery * q = & (Select_(
+	// @v12.5.8 {
+	DBQuery * q = & Select_(
+		t->GoodsID,       // #0
+		t->Sign,          // #1
+		t->GoodsName,     // #2
+		t->Qtty,          // #3
+		t->Rest,          // #4
+		t->Price,         // #5
+		t->RestSum,       // #6
+		0L);
+		q->addField(dbe_goods);        // #7
+		q->addField(t->AltGoodsQtty);  // #8
+		q->addField(t->AltGoodsPrice); // #9
+		q->addField(t->AltGoodsSum);   // #10
+		q->addField(t->AltDiff);       // #11
+	// } @v12.5.8 
+	/*@v12.5.8 DBQuery * q = & (Select_(
 		t->GoodsID,       // #0
 		t->Sign,          // #1
 		t->GoodsName,     // #2
@@ -2596,7 +2612,9 @@ DBQuery * PPViewCSessExc::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		t->AltGoodsPrice, // #9
 		t->AltGoodsSum,   // #10
 		t->AltDiff,       // #11
-		0L).from(t, 0L)).orderBy(t->Sign, t->GoodsName, 0L);
+		0L);*/
+	q->from(t, 0L);
+	q->orderBy(t->Sign, t->GoodsName, 0L);
 	if(!CheckQueryPtr(q))
 		ZDELETE(q);
 	ASSIGN_PTR(pBrwId, BROWSER_CSESSEXC);

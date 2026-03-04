@@ -1470,7 +1470,6 @@ bool PPViewBill::IsTempTblNeeded() const
 		(Filt.ObjectID && Filt.Flags & BillFilt::fDebtsWithPayments) ||
 		!Filt.PaymPeriod.IsZero() || Filt.SortOrder || Filt.Flags & BillFilt::fShowWoAgent || P_Arp || Filt.StatusID || Filt.GoodsGroupID ||
 		(Filt.Bbt == bbtOrderBills && Filt.OrderFulfillmentStatus > 0) || ArFBlk.IsActual) { 
-		// @v11.0.11 Filt.GoodsGroupID // @v11.1.8 OrderFulfillmentStatus // @v11.9.4 Filt.FreightPortOfDischarge // @v11.9.6 ArFBlk.IsActual
 		return true;
 	}
 	else
@@ -4885,7 +4884,7 @@ int PPViewBill::ShowDetails(PPID billID)
 			filt.Setup(billID);
 			THROW(p_v->Init_(&filt));
 			p_v->Browse(false);
-			if(p_v->GetUpdateStatus() > 0) {
+			if(p_v->GetUpdateStatus()) {
 				p_v->UpdatePacket(billID);
 				ok = 1;
 			}

@@ -2746,7 +2746,16 @@ public:
 		fNotTagsInList = 0x0001,
 		fColors        = 0x0002  // Фильтр используется для определения цветового выделения объектов, удовлетворяющих ограничениям
 	};
-
+	//
+	// Descr: Утилитная функция, предназначенная для вызова функции интерактивного редактирования фильтра тегов **ppFilt
+	//   для объектов типа objType. Если (*ppFilt) == 0, то функция создает новый экземпляр объекта (new TagFilt).
+	//   Если после редактирования фильтр оказался пустым, то функция разрушает *ppFilt и присваивает ему 0.
+	// Returns: 
+	//   >0 - пользователь подтвердил редактирование фильтра
+	//   <0 - пользователь отказался от редактирования //
+	//    0 - error
+	//
+	static int  EditTagFiltPtr(PPID objType, TagFilt ** ppFilt); // @v12.5.8
 	static void FASTCALL SetRestriction(const char * pRestrictionString, SString & rItemBuf);
 	static void FASTCALL SetColor(const SColor * pClr, SString & rItemBuf);
 	static int  FASTCALL GetRestriction(const char * pItemString, SString & rRestrictionBuf);
@@ -2754,6 +2763,7 @@ public:
 	static int  FASTCALL SetRestrictionIdList(SString & rRestrictionBuf, const PPIDArray & rList);
 	static int  FASTCALL GetRestrictionIdList(const SString & rRestrictionBuf, PPIDArray * pList);
 	TagFilt();
+	TagFilt(const TagFilt & rS); // @v12.5.8
 	virtual bool IsEmpty() const;
 	TagFilt & FASTCALL operator = (const TagFilt & rS);
 	int    FASTCALL Check(const ObjTagList * pList) const;
@@ -7449,7 +7459,7 @@ public:
 	};
 	int    SetThreadNotification(int type, const void * pData);
 	int    GetThreadInfoList(int type, TSCollection <PPThread::Info> & rList);
-	int    GetThreadInfo(ThreadID tId, PPThread::Info & rInfo);
+	bool   GetThreadInfo(ThreadID tId, PPThread::Info & rInfo);
 	int    GetThreadListByKind(int kind, LongArray & rList);
 	void   LogLocStk();
 	//
@@ -7812,7 +7822,7 @@ private:
 		int    STDCALL  SetMessage(ThreadID id, int kind, const char * pMsg);
 		uint   GetCount();
 		int    STDCALL  GetInfoList(int type, TSCollection <PPThread::Info> & rList);
-		int    STDCALL  GetInfo(ThreadID tId, PPThread::Info & rInfo);
+		bool   STDCALL  GetInfo(ThreadID tId, PPThread::Info & rInfo);
 		void   FASTCALL LocStkToStr(SString & rBuf);
 		int    FASTCALL StopThread(ThreadID tId);
 		//
@@ -36124,7 +36134,8 @@ class GCTFilt : public PPBaseFilt {
 public:
 	GCTFilt();
 	GCTFilt(const GCTFilt & rS);
-	int    FASTCALL CheckWL(long billFlags) const;
+	GCTFilt & FASTCALL operator = (const GCTFilt & rS); // @v12.5.8
+	bool   FASTCALL CheckWL(long billFlags) const;
 	int    FASTCALL AcceptIntr3(const BillTbl::Rec & rRec) const;
 
 	enum Order {
@@ -36139,9 +36150,7 @@ public:
 	DateRange ShipmentPeriod;     // Период отгрузки
 	PPID   OpID;                  //
 	PPID   SupplID;               //
-	// @v11.0.1 PPID   ArID_;                 //
 	PPID   DlvrAddrID;            // Адрес доставки. Если ArID == 0, то не используется //
-	// @v11.0.1 PPID   AgentID_;              // Агент по документам
 	PPID   GoodsGrpID;            //
 	PPID   GoodsID;               //
 	PPID   ExtGoodsTypeID;        // Used only if (!GoodsGrpID && !GoodsID && !SupplID)
@@ -36150,14 +36159,16 @@ public:
 	GCTSoftRestrict SoftRestrict; //
 	long   Flags;                 // OPG_XXX
 	long   Order;                 // GCTFilt::ordByXXX
-	int16  GrpPeriod;             // PRD_XXX
-	int16  Reserve2;              // @alignment
+	int32  GrpPeriod;             // PRD_XXX // @v12.5.8 int16-->int32
+	// @v12.5.8 int16  Reserve2;              // @alignment
 	ObjIdListFilt BillList;       // @anchor
 	ObjIdListFilt LocList;        //
 	ObjIdListFilt GoodsList;      // Список товаров (если GoodsList.getCount(), то поля GoodsID и GoodsGrpID не используются //
 	ObjIdListFilt ArList;         //
 	ObjIdListFilt AgentList;      //
+	TagFilt * P_BillTagF;         // @v12.5.8 Фильтр по тегам документов, которые перебираются при формировании отчета //
 private:
+	virtual int ReadPreviousVer(SBuffer & rBuf, int ver);
 	void   Helper_Init();
 };
 
@@ -39948,7 +39959,7 @@ private:
 		GCT_BillCache();
 		int    SetupFilt(const GCTFilt * pFilt, const ObjIdListFilt & rArList, int disableCaching);
 		int    FASTCALL Get(PPID billID, BillTbl::Rec * pRec);
-		int    FASTCALL CheckBillForAgent(PPID billID) const;
+		bool   FASTCALL CheckBillForAgent(PPID billID) const;
 	private:
 		int    FASTCALL CheckBillRec(const BillTbl::Rec *);
 		int    DisableCaching;
@@ -39975,7 +39986,7 @@ private:
     struct CurrentBillBlock {
     	CurrentBillBlock();
     	~CurrentBillBlock();
-    	void   Clear();
+    	CurrentBillBlock & Z();
 
         PPBillPacket * P_Pack;
 		PPBillPacket * P_WrOffPack; // Агрегированный пакет документов списания
@@ -40573,8 +40584,8 @@ public:
 	void   SetOuterPack(PPBillPacket * pPack);
 	int    InitIteration();
 	int    FASTCALL NextIteration(InventoryViewItem *);
-	int    GetZeroByDefaultStatus() const;
-	int    GetUpdateStatus() const;
+	bool   GetZeroByDefaultStatus() const;
+	bool   GetUpdateStatus() const;
 	//
 	// Descr: Рассчитывает сумму инвентаризации и сохраняет документ.
 	// Returns:
@@ -45350,7 +45361,7 @@ public:
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
-	int    FASTCALL IsNotDefaultOrder(int ord) const;
+	bool   FASTCALL IsNotDefaultOrder(int ord) const;
 	int    CreateOrderTable(long ord, TempOrderTbl ** ppTbl);
 	int    InitCSessIteration();
 	int    NextCSessIteration(CSessionTbl::Rec *);
@@ -45954,21 +45965,22 @@ public:
 	// Descr: Варианты отображения дополнительных факторов отчета
 	//
 	enum {
-		extfNone        = 0, //
-		extfPersonTag   = 1, // [0x40000000] Тег персоналии
-		extfPersonRegister      = 2, // [0x20000000] Регистр персоналии
-		extfLocTag      = 3, // @v11.1.0 [0x10000000] Тег локации (Flags & fDiffByDlvrAddr only)
-		extfLocRegister = 4, // @v11.1.0 [0x08000000] Регистр локации (Flags & fDiffByDlvrAddr only)
+		extfNone           = 0, //
+		extfPersonTag      = 1, // [0x40000000] Тег персоналии
+		extfPersonRegister = 2, // [0x20000000] Регистр персоналии
+		extfLocTag         = 3, // [0x10000000] Тег локации (Flags & fDiffByDlvrAddr only)
+		extfLocRegister    = 4, // [0x08000000] Регистр локации (Flags & fDiffByDlvrAddr only)
 	};
 	//
 	//
 	//
 	TrfrAnlzFilt();
+	TrfrAnlzFilt(const TrfrAnlzFilt & rS); // @v12.5.8
 	TrfrAnlzFilt & FASTCALL operator = (const TrfrAnlzFilt & rS);
-	int    HasCntragentGrouping() const;
-	int    HasGoodsGrouping() const;
-	int    HasDateGrouping() const;
-	int    HasBillGrouping() const;
+	bool   HasCntragentGrouping() const;
+	bool   HasGoodsGrouping() const;
+	bool   HasDateGrouping() const;
+	bool   HasBillGrouping() const;
 	enum {
 		eqxOrder    = 0x0001,
 		eqxCrosstab = 0x0002
@@ -45995,11 +46007,8 @@ public:
 	DateRange LotsPeriod;
 	PPID   OpID;
 	PPID   SupplID;      //
-	// @v11.0.1 PPID   ArID_;        // Если !0, то перебираются только те документы, у которых ObjectID == ArID
 	PPID   DlvrAddrID;   // Адрес доставки. Если ArID == 0, то не используется //
 		// Если Flags & fByZeroDlvrAddr, то перебираются только документы, в которых адрес доставки не указан
-	// @v11.0.1 PPID   AgentID_;     // Если !0, то перебираются только те документы, в которых установлен этот агент
-		// Если Flags & fByZeroAgent, то перебираются только те документы, в которых не установлен агент
 	PPID   PsnCatID;     // Категория персоналии
 	PPID   CityID;       // Город контрагентов, по которым перебираются операции
 	PPID   GoodsGrpID;   // Товарная группа, по которой ведется перебор операций. Если GoodsID != 0,
@@ -46019,7 +46028,9 @@ public:
 	ObjIdListFilt   CtValList;    // TrfrAnlzFilt::ctvXXX Показатель, вычисляемый в кросстаб-отчете
 	ObjIdListFilt   ArList;       // Список статей контрагентов
 	ObjIdListFilt   AgentList;    // Список статей агентов
+	TagFilt * P_BillTagF;         // @v12.5.8 Фильтр по тегам документов, которые перебираются при формировании отчета //
 private:
+	void   Helper_Init();
 	virtual int ReadPreviousVer(SBuffer & rBuf, int ver);
 };
 
@@ -46063,7 +46074,7 @@ struct TrfrAnlzViewItem {
 
 struct TrfrAnlzTotal {
 	TrfrAnlzTotal();
-	void   destroy();
+	TrfrAnlzTotal & Z();
 
 	enum {
 		stProblemPhQtty = 0x0001, // Физическое количество задано не для всех товаров
@@ -47255,7 +47266,7 @@ typedef GCTFilt GoodsTrnovrFilt;
 struct GoodsTrnovrViewItem { // @flat
 	union {
 		LDATE  Dt;
-		char   Title[12];
+		char   Title[48]; // @v12.5.8 [12]-->[48]
 	};
 	double RcptSuppl;
 	double RcptIntr;

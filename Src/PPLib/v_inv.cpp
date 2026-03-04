@@ -53,8 +53,8 @@ PPViewInventory::~PPViewInventory()
 }
 
 void PPViewInventory::SetOuterPack(PPBillPacket * pPack) { P_OuterPack = pPack; }
-int  PPViewInventory::GetZeroByDefaultStatus() const { return BIN(Flags & fIsZeroByDefault); }
-int  PPViewInventory::GetUpdateStatus() const { return BIN(Flags & fWasUpdated); }
+bool PPViewInventory::GetZeroByDefaultStatus() const { return LOGIC(Flags & fIsZeroByDefault); }
+bool PPViewInventory::GetUpdateStatus() const { return LOGIC(Flags & fWasUpdated); }
 
 class InventoryFiltDialog : public TDialog {
 	DECL_DIALOG_DATA(InventoryFilt);
@@ -2067,7 +2067,19 @@ DBQuery * PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 		brw_id = BROWSER_INVNTRYLINESSUBST;
 		THROW(CheckTblPtr(st = new TempInventorySubstTbl(P_TempSubstTbl->GetName())));
 		if(ccfg_flags2 & CCFLG2_HIDEINVENTORYSTOCK) {
+			// @v12.5.8 {
 			q = & Select_(
+				st->GoodsID,       // #00
+				st->Name,          // #01
+				st->Quantity,      // #02
+				st->SumPrice,      // #03
+				0L);
+				q->addField(dbe_empty); // #04
+				q->addField(dbe_empty); // #05
+				q->addField(dbe_empty); // #06
+				q->addField(dbe_empty); // #07
+			// } @v12.5.8 
+			/* @v12.5.8 q = & Select_(
 				st->GoodsID,       // #00
 				st->Name,          // #01
 				st->Quantity,      // #02
@@ -2076,7 +2088,7 @@ DBQuery * PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 				dbe_empty,         // #05
 				dbe_empty,         // #06
 				dbe_empty,         // #07
-				0L);
+				0L);*/
 		}
 		else {
 			q = & Select_(
@@ -2131,7 +2143,29 @@ DBQuery * PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 		if(p_tord)
 			tbl_l[tbl_count++] = p_tord;
 		tbl_l[tbl_count++] = it;
-		q = & (Select_(
+		// @v12.5.8 {
+		q = & Select_(
+			it->BillID,     // #00
+			it->OprNo,      // #01
+			it->GoodsID,    // #02
+			it->Flags,      // #03 
+			0L);
+		q->addField(dbe_goods);      // #04 
+		q->addField(it->Quantity);   // #05 
+		q->addField(it->Price);      // #06 
+		q->addField(it->WrOffPrice); // #07 
+		q->addField(*dbe_tmp1);      // #08 
+		q->addField(*dbe_tmp2);      // #09 
+		q->addField((ccfg_flags2 & CCFLG2_HIDEINVENTORYSTOCK) ? dbe_empty : dbe_diffqtty); // #10
+		//a->addField(dbe_diffqtty);   // #10 
+		q->addField(it->Serial);     // #11 
+		q->addField(dbe_barcode);    // #12 
+		q->addField(dbe_strgloc);    // #13 
+		q->addField(dbe_status);     // #14
+		q->addField(dbe_bill_code);  // #15 // @v11.1.8
+		q->addField(dbe_bill_date);  // #16 // @v11.1.8
+		// } @v12.5.8 
+		/* @v12.5.8 q = & (Select_(
 			it->BillID,     // #00
 			it->OprNo,      // #01
 			it->GoodsID,    // #02
@@ -2150,7 +2184,8 @@ DBQuery * PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 			dbe_status,     // #14
 			dbe_bill_code,  // #15 // @v11.1.8
 			dbe_bill_date,  // #16 // @v11.1.8
-			0L).from(tbl_l[0], tbl_l[1], 0L));
+			0L);*/
+		q->from(tbl_l[0], tbl_l[1], 0L);
 		ZDELETE(dbe_tmp1);
 		ZDELETE(dbe_tmp2);
 		if(!P_TempTbl) {

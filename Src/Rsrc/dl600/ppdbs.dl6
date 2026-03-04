@@ -5465,7 +5465,7 @@ file:
 // Descr: Таблица, хранящая текущее состояние актуальное для конкретного пользователя.
 //   Предполагается хранение в SQLite и монопольный доступ на изменение.
 //
-/*table LocalStateBindery { // @v12.5.7 @construction
+table LocalStateBindery { // @v12.5.7 @construction
 	autolong ID;
 	int64  UedTm; // Время создания или последнего изменения //
 	long   Kind;
@@ -5483,4 +5483,4 @@ file:
 	"lstateb.btr";
 	vlr;
 	ondemand;
-}*/
+}

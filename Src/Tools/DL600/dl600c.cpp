@@ -79,7 +79,7 @@ int CtmToken::Create(uint code, const char * pStr)
 		if(!U.Uuid.FromStr(pStr))
 			Code = 0;
 	}
-	else if(Code == T_CONST_COLORRGB) { // @v11.0.4
+	else if(Code == T_CONST_COLORRGB) {
 		if(!U.Color.FromStr(pStr))
 			Code = 0;
 	}
@@ -816,7 +816,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 			prop_key = p_prop->Key.U.S;
 			{
 				for(uint tidx = 0; !processed && tidx < SIZEOFARRAY(control_flag_list); tidx++) {
-					const ControlFlagEntry & r_entry = control_flag_list[tidx];
+					const  ControlFlagEntry & r_entry = control_flag_list[tidx];
 					if(prop_key == r_entry.P_Prop) {
 						// PPERR_DL6_PROP_REDEFFLAG "DL600 признак '%s' или аналогичный уже определен"
 						if(occurence_flags & r_entry.OccurenceFlag) {
@@ -4395,8 +4395,9 @@ int DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope, lon
 		}
 		else if(p_ds->IsKind(DlScope::kStruct)) {
 			MakeClassName(p_ds, clsnfCPP, cflags, cls_name);
-			gen.WriteLine(fld_buf.Z().Cat("#pragma pack(push)").CR());
-			gen.WriteLine(fld_buf.Z().Cat("#pragma pack(8)").CR());
+			// @v12.5.8 gen.WriteLine(fld_buf.Z().Cat("#pragma pack(push)").CR());
+			// @v12.5.8 gen.WriteLine(fld_buf.Z().Cat("#pragma pack(8)").CR());
+			gen.WriteLine(fld_buf.Z().Cat("#pragma pack(push, 8)").CR()); // @v12.5.8
 			gen.Wr_StartClassDecl(Generator_CPP::clsStruct, cls_name, 0, Generator_CPP::acsPublic, 0);
 			gen.IndentInc();
 			for(uint fldidx = 0; p_ds->EnumFields(&fldidx, &fld);) {
@@ -4427,8 +4428,9 @@ int DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope, lon
 		else if(p_ds->IsKind(DlScope::kIClass)) {
 			DlScope::IfaceBase ifb;
 			const DlScope * p_ifs;
-			gen.WriteLine(fld_buf.Z().Cat("#pragma pack(push)").CR()); // @v11.7.0
-			gen.WriteLine(fld_buf.Z().Cat("#pragma pack(8)").CR()); // @v11.7.0
+			// @v12.5.8 gen.WriteLine(fld_buf.Z().Cat("#pragma pack(push)").CR()); // @v11.7.0
+			// @v12.5.8 gen.WriteLine(fld_buf.Z().Cat("#pragma pack(8)").CR()); // @v11.7.0
+			gen.WriteLine(fld_buf.Z().Cat("#pragma pack(push, 8)").CR()); // @v12.5.8
 			MakeClassName(p_ds, clsnfCPP, cflags, cls_name);
 			gen.Wr_StartClassDecl(Generator_CPP::clsClass, cls_name, "SCoClass", Generator_CPP::acsPublic, 0);
 			gen.Wr_ClassAcsZone(Generator_CPP::acsPublic);
@@ -4479,8 +4481,9 @@ int DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope, lon
 			}
 			else {
 				DlScope * p_rec = 0;
-				gen.WriteLine(fld_buf.Z().Cat("#pragma pack(push)").CR()); // @v11.7.0
-				gen.WriteLine(fld_buf.Z().Cat("#pragma pack(1)").CR()); // @v11.7.0
+				// @v12.5.8 gen.WriteLine(fld_buf.Z().Cat("#pragma pack(push)").CR()); // @v11.7.0
+				// @v12.5.8 gen.WriteLine(fld_buf.Z().Cat("#pragma pack(1)").CR()); // @v11.7.0
+				gen.WriteLine(fld_buf.Z().Cat("#pragma pack(push, 1)").CR()); // @v12.5.8
 				gen.Wr_StartClassDecl(Generator_CPP::clsClass, cls_name, "DlRtm", Generator_CPP::acsPublic, 0);
 				gen.Wr_ClassAcsZone(Generator_CPP::acsPublic);
 				gen.IndentInc();
@@ -4561,8 +4564,9 @@ int DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope, lon
 		}
 		else if(p_ds->IsKind(DlScope::kDbTable)) {
 			MakeClassName(p_ds, clsnfCPP, cflags, cls_name);
-			gen.WriteLine(fld_buf.Z().Cat("#pragma pack(push)").CR()); // @v11.7.0
-			gen.WriteLine(fld_buf.Z().Cat("#pragma pack(1)").CR()); // @v11.7.0
+			// @v12.5.8 gen.WriteLine(fld_buf.Z().Cat("#pragma pack(push)").CR()); // @v11.7.0
+			// @v12.5.8 gen.WriteLine(fld_buf.Z().Cat("#pragma pack(1)").CR()); // @v11.7.0
+			gen.WriteLine(fld_buf.Z().Cat("#pragma pack(push, 1)").CR()); // @v12.5.8
 			gen.Wr_StartClassDecl(Generator_CPP::clsClass, cls_name, "DBTable", Generator_CPP::acsPublic, 0);
 			gen.Wr_ClassAcsZone(Generator_CPP::acsPublic);
 			gen.IndentInc();
@@ -4570,7 +4574,9 @@ int DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope, lon
 			// Конструктор
 			//
 			gen.Wr_StartDeclFunc(Generator_CPP::fkConstr, 0, 0, cls_name);
-			gen.Wr_VarDecl("const char *", "pFileName", "0", 0);
+			gen.Wr_VarDecl("const char *", "pFileName", "0", ','); // @v12.5.8 term = ','
+			gen.Wr_VarDecl("DbProvider *", "pDbP", "0", 0); // @v12.5.8 DbProvider * pDbP = 0
+			
 			gen.Wr_EndDeclFunc(1, 1);
 			gen.WriteBlancLine();
 			//
@@ -5301,7 +5307,6 @@ int DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScope, lon
 			gen.WriteLine(func_name);
 			//
 			{
-				// @construction 
 				// Реализация функции Rec::Clear()
 				if(is_flat_rec) {
 					SString rec_cls_name;
@@ -5992,7 +5997,6 @@ int DlContext::Compile(const char * pInFileName, const char * pDictPath, const c
 				}
 				else
 					Error(PPERR_DL6_UNDEFDICTPATH, 0, 0);
-				// @v11.1.2 {
 				if(cflags & cfStyloQAndroid) {
 					file_name = InFileName;
 					SFsPath::ReplaceExt(file_name, "java", 1);
@@ -6018,7 +6022,6 @@ int DlContext::Compile(const char * pInFileName, const char * pDictPath, const c
 					temp_buf.Z().CatChar('}').CR();
 					f_sq_out.WriteLine(temp_buf);
 				}
-				// } @v11.1.2 
 			}
 		}
 		if(cflags & cfDebug)

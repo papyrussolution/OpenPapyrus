@@ -24,17 +24,20 @@ TrfrAnlzViewItem & TrfrAnlzViewItem::Z()
 //
 TrfrAnlzTotal::TrfrAnlzTotal()
 {
-	destroy();
+	Z();
 }
 
-void TrfrAnlzTotal::destroy()
+TrfrAnlzTotal & TrfrAnlzTotal::Z()
 {
 	THISZERO();
+	return *this;
 }
 //
 //
 //
-IMPLEMENT_PPFILT_FACTORY(TrfrAnlz); TrfrAnlzFilt::TrfrAnlzFilt() : PPBaseFilt(PPFILT_TRFRANLZ, 0, 4) // @v7.9.11 ver 2-->3 // @v11.0.1 ver 3-->4
+static constexpr int32 TrfrAnlzFilt_CurrentVer = 5; // @v7.9.11 ver 2-->3 // @v11.0.1 ver 3-->4 // @v12.5.8 4-->5
+
+void TrfrAnlzFilt::Helper_Init()
 {
 	SetFlatChunk(offsetof(TrfrAnlzFilt, ReserveStart),
 		offsetof(TrfrAnlzFilt, BillList)-offsetof(TrfrAnlzFilt, ReserveStart));
@@ -44,22 +47,123 @@ IMPLEMENT_PPFILT_FACTORY(TrfrAnlz); TrfrAnlzFilt::TrfrAnlzFilt() : PPBaseFilt(PP
 	SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt, CtValList));
 	SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt, ArList));
 	SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt, AgentList));
+	SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(TrfrAnlzFilt, P_BillTagF)); // @v12.5.8
 	Init(1, 0);
 }
 
-int TrfrAnlzFilt::HasCntragentGrouping() const
+IMPLEMENT_PPFILT_FACTORY(TrfrAnlz); TrfrAnlzFilt::TrfrAnlzFilt() : PPBaseFilt(PPFILT_TRFRANLZ, 0, TrfrAnlzFilt_CurrentVer), P_BillTagF(0) 
+{
+	Helper_Init();
+}
+
+TrfrAnlzFilt::TrfrAnlzFilt(const TrfrAnlzFilt & rS) : PPBaseFilt(PPFILT_TRFRANLZ, 0, TrfrAnlzFilt_CurrentVer), P_BillTagF(0)
+{
+	Helper_Init();
+	Copy(&rS, 1);
+}
+
+bool TrfrAnlzFilt::HasCntragentGrouping() const
 	{ return oneof6(Grp, gCntragent, gCntragentDate, gGoodsCntragent, gGoodsCntragentDate, gDateCntragentAgentGoods, gBillCntragent); }
-int TrfrAnlzFilt::HasGoodsGrouping() const
+bool TrfrAnlzFilt::HasGoodsGrouping() const
 	{ return oneof7(Grp, gGoods, gGoodsCntragent, gGoodsCntragentDate, gGoodsBill, gDateCntragentAgentGoods, gGoodsDate, gGoodsSuppl); }
-int TrfrAnlzFilt::HasDateGrouping() const
+bool TrfrAnlzFilt::HasDateGrouping() const
 	{ return oneof4(Grp, gCntragentDate, gGoodsCntragentDate, gDateCntragentAgentGoods, gGoodsDate); }
-int TrfrAnlzFilt::HasBillGrouping() const
+bool TrfrAnlzFilt::HasBillGrouping() const
 	{ return oneof2(Grp, gGoodsBill, gBillCntragent); }
 
 int TrfrAnlzFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
-	if(ver == 3) {
+	if(ver == 4) {
+		class TrfrAnlzFilt_v4 : public PPBaseFilt {
+		public:
+			TrfrAnlzFilt_v4() : PPBaseFilt(PPFILT_TRFRANLZ, 0, 4)
+			{
+				SetFlatChunk(offsetof(TrfrAnlzFilt_v4, ReserveStart),
+					offsetof(TrfrAnlzFilt_v4, BillList)-offsetof(TrfrAnlzFilt_v4, ReserveStart));
+				SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt_v4, BillList));
+				SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt_v4, RcptBillList));
+				SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt_v4, LocList));
+				SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt_v4, CtValList));
+				SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt_v4, ArList));
+				SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt_v4, AgentList));
+				Init(1, 0);
+			}
+			uint8  ReserveStart[32];
+			DateRange DueDatePeriod;
+			long   ExtValueParam[2];
+			long   RestAddendumValue;
+			long   ExtFactorParam[3];
+			long   ExtFactorAddendum[3];
+			PPID   AcsID;
+			PPID   SupplAgentID;
+			DateRange Period;
+			DateRange LotsPeriod;
+			PPID   OpID;
+			PPID   SupplID;
+			PPID   DlvrAddrID;
+			PPID   PsnCatID;
+			PPID   CityID;
+			PPID   GoodsGrpID;
+			PPID   GoodsID;
+			long   Flags;
+			int    InitOrd;
+			long   CtKind;
+			PPID   BrandID;
+			Grouping Grp;
+			SubstGrpGoods  Sgg;
+			SubstGrpPerson Sgp;
+			SubstGrpDate   Sgd;
+			ObjIdListFilt  BillList;
+			ObjIdListFilt  RcptBillList;
+			ObjIdListFilt  LocList;
+			ObjIdListFilt  CtValList;
+			ObjIdListFilt  ArList;
+			ObjIdListFilt  AgentList;
+		};
+		TrfrAnlzFilt_v4 fv4;
+		THROW(fv4.Read(rBuf, 0));
+		memzero(ReserveStart, sizeof(ReserveStart));		
+#define CPYFLD(f) f = fv4.f
+			CPYFLD(DueDatePeriod);
+			CPYFLD(ExtValueParam[0]);
+			CPYFLD(ExtValueParam[1]);
+			CPYFLD(RestAddendumValue);
+			CPYFLD(ExtFactorParam[0]);
+			CPYFLD(ExtFactorParam[1]);
+			CPYFLD(ExtFactorParam[2]);
+			CPYFLD(ExtFactorAddendum[0]);
+			CPYFLD(ExtFactorAddendum[1]);
+			CPYFLD(ExtFactorAddendum[2]);
+			CPYFLD(AcsID);
+			CPYFLD(SupplAgentID);
+			CPYFLD(Period);
+			CPYFLD(LotsPeriod);
+			CPYFLD(OpID);
+			CPYFLD(SupplID);
+			CPYFLD(DlvrAddrID);
+			CPYFLD(PsnCatID);
+			CPYFLD(CityID);
+			CPYFLD(GoodsGrpID);
+			CPYFLD(GoodsID);
+			CPYFLD(Flags);
+			CPYFLD(InitOrd);
+			CPYFLD(CtKind);
+			CPYFLD(BrandID);
+			CPYFLD(Grp);
+			CPYFLD(Sgg);
+			CPYFLD(Sgp);
+			CPYFLD(Sgd);
+			CPYFLD(BillList);
+			CPYFLD(RcptBillList);
+			CPYFLD(LocList);
+			CPYFLD(CtValList);
+			CPYFLD(ArList);
+			CPYFLD(AgentList);
+#undef CPYFLD
+		ok = 1;
+	}
+	else if(ver == 3) {
 		class TrfrAnlzFilt_v3 : public PPBaseFilt {
 		public:
 			TrfrAnlzFilt_v3() : PPBaseFilt(PPFILT_TRFRANLZ, 0, 3)
@@ -142,7 +246,9 @@ int TrfrAnlzFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 			CPYFLD(ArList);
 			CPYFLD(AgentList);
 #undef CPYFLD
+		ok = 1;
 	}
+#if 0 // @v12.5.8 (non-actual already) {
 	else if(ver == 2) {
 		class TrfrAnlzFilt_v2 : public PPBaseFilt {
 		public:
@@ -217,6 +323,7 @@ int TrfrAnlzFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 		AgentList.Add(fv2.AgentID_);
 		ok = 1;
 	}
+#endif // } 0 @v12.5.8 (non-actual already) 
 	CATCHZOK
 	return ok;
 }
@@ -240,10 +347,8 @@ int TrfrAnlzFilt::IsEqualExcept(const TrfrAnlzFilt & rS, long flags) const
 		return 0;
 	if(NEQ_FLD(SupplID))
 		return 0;
-	// @v11.0.1 if(NEQ_FLD(ArID_)) return 0;
 	if(NEQ_FLD(DlvrAddrID))
 		return 0;
-	// @v11.0.1 if(NEQ_FLD(AgentID_)) return 0;
 	if(NEQ_FLD(SupplAgentID))
 		return 0;
 	if(NEQ_FLD(PsnCatID))
@@ -282,6 +387,12 @@ int TrfrAnlzFilt::IsEqualExcept(const TrfrAnlzFilt & rS, long flags) const
 	}
 	if(!(flags & eqxOrder)) {
 		if(NEQ_FLD(InitOrd)) // !
+			return 0;
+	}
+	if(LOGIC(P_BillTagF) != LOGIC(rS.P_BillTagF))
+		return 0;
+	else if(P_BillTagF && rS.P_BillTagF) {
+		if(!P_BillTagF->IsEq(rS.P_BillTagF, 0))
 			return 0;
 	}
 #undef NEQ_FLD
@@ -618,7 +729,7 @@ int PPViewTrfrAnlz::SerializeState(int dir, SBuffer & rBuf, SSerializeContext * 
 			THROW_MEM(P_Ct = new TrfrAnlzCrosstab(this));
 			THROW(P_Ct->Read(P_TrGrpngTbl, rBuf, pCtx));
 		}
-		Total.destroy();
+		Total.Z();
 	}
 	CATCHZOK
 	return ok;
@@ -639,9 +750,10 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	int    use_ta = 1;
-	TrfrAnlzFilt prev_filt = Filt;
+	const  TrfrAnlzFilt prev_filt(Filt);
 	BExtInsert * p_bei = 0;
-	Flags &= ~(fAsGoodsCard | fShowSaldo);
+	SString temp_buf;
+	Flags &= ~(fAsGoodsCard|fShowSaldo);
 	Cache.freeAll();
 	PPWaitStart();
 	THROW(Helper_InitBaseFilt(pFilt));
@@ -691,11 +803,9 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 			Filt.CtKind = TrfrAnlzFilt::ctNone;
 		if(Filt.CtKind && Filt.CtValList.CheckID(TrfrAnlzFilt::ctvLocCount))
 			Filt.Flags |= TrfrAnlzFilt::fInitLocCount;
-		// @v11.1.0 {
 		if(Filt.Flags & Filt.fDiffByDlvrAddr && !IsExtFactorEmpty())
 			Filt.Flags |= TrfrAnlzFilt::fForceInitDlvrAddr;
-		// } @v11.1.0 
-		Total.destroy();
+		Total.Z();
 		GctRestList.freeAll();
 		ZDELETE(P_TrAnlzTbl);
 		ZDELETE(P_TrGrpngTbl);
@@ -726,9 +836,7 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 			gct_filt.AgentList = Filt.AgentList;
 			gct_filt.OpID    = Filt.OpID;
 			gct_filt.SupplID = Filt.SupplID;
-			// @v11.0.1 gct_filt.ArID_   = Filt.ArID_;
 			gct_filt.DlvrAddrID = Filt.DlvrAddrID;
-			// @v11.0.1 gct_filt.AgentID_   = Filt.AgentID_;
 			gct_filt.GoodsGrpID = Filt.GoodsGrpID;
 			gct_filt.GoodsID    = Filt.GoodsID;
 			gct_filt.BrandID    = Filt.BrandID;
@@ -751,6 +859,11 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 				gct_filt.SoftRestrict = srGoods;
 			else
 				gct_filt.SoftRestrict = srNone;
+			// @v12.5.8 {
+			if(Filt.P_BillTagF) {
+				gct_filt.P_BillTagF = new TagFilt(*Filt.P_BillTagF);
+			}
+			// } @v12.5.8 
 			GCTIterator gctiter(&gct_filt, &Filt.Period);
 			ZDELETE(P_TrAnlzTbl);
 			ZDELETE(P_TrGrpngTbl);
@@ -784,12 +897,14 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 					LDATE  prev_dt = ZERODATE;
 					TransferTbl::Rec temp_rec;
 					BillTbl::Rec temp_bill_rec;
-					double sales = 0.0, income = 0.0;
+					double sales = 0.0;
+					double income = 0.0;
 					double d_cost = 0.0;
 					double d_price = 0.0;
 					long   oprno = 0;
 					do {
 						bool   skip = false;
+						PPWaitMsg(PPObjBill::MakeCodeString(&bill_rec, 0, msg_buf)); // @v12.5.8 
 						THROW(PPCheckUserBreak());
 						prf_measure += 1.0;
 						if(Filt.PsnCatID || Filt.CityID) {
@@ -827,7 +942,7 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 							}
 						}
 						if(!skip) {
-							PPWaitMsg(PPObjBill::MakeCodeString(&bill_rec, 0, msg_buf));
+							// @v12.5.8 PPWaitMsg(PPObjBill::MakeCodeString(&bill_rec, 0, msg_buf));
 							if(Filt.Flags & TrfrAnlzFilt::fGByDate && Flags & fAsGoodsCard) {
 								double aqtty = fabs(rec.Quantity);
 								LDATE  _date = rec.Dt;
@@ -884,8 +999,9 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 						THROW(Add(p_bei, &oprno, &temp_rec, &temp_bill_rec, 0));
 					}
 				}
-				if(p_bei)
+				if(p_bei) {
 					THROW_DB(p_bei->flash());
+				}
 				THROW(FlashCacheItems(0));
 				if(Flags & fShowSaldo) {
 					PPWaitStart();
@@ -3558,7 +3674,7 @@ public:
 			SetClusterData(CTL_TAGRPNG_EXTVALFLAGS, Data.Flags);
 			// } @v11.9.4 
 		}
-		SetupExtFactorCombo(false); // @v11.0.2
+		SetupExtFactorCombo(false);
 		SetupCtrls();
 		return 1;
 	}
@@ -3623,7 +3739,7 @@ private:
 		rList.Z();
 		SString item_text_buf;
 		SString item_prfx_buf;
-		if(Data.Flags & Data.fDiffByDlvrAddr) { // @v11.1.0
+		if(Data.Flags & Data.fDiffByDlvrAddr) {
 			{
 				// По тегам локаций
 				PPObjTag tag_obj;
@@ -3815,7 +3931,7 @@ IMPL_HANDLE_EVENT(TrfrAnlzGrpngDialog)
 	else if(event.isClusterClk(CTL_TAGRPNG_DIFFDLVRADDR)) {
 		GetClusterData(CTL_TAGRPNG_DIFFDLVRADDR, &Data.Flags); // @v11.1.0
 		disableCtrls(getCtrlUInt16(CTL_TAGRPNG_DIFFDLVRADDR), CTLSEL_TAGRPNG_CNTRAGENT, CTL_TAGRPNG_SUBSTRADDR, 0);
-		SetupExtFactorCombo(true); // @v11.1.0
+		SetupExtFactorCombo(true);
 	}
 	else if(event.isCbSelected(CTLSEL_TAGRPNG_CNTRAGENT) || event.isCbSelected(CTLSEL_TAGRPNG_GOODS) || event.isCbSelected(CTLSEL_TAGRPNG_GGRPNG) ||
 		event.isCbSelected(CTLSEL_TAGRPNG_EXTVAL1) || event.isClusterClk(CTL_TAGRPNG_CALCREST))
@@ -3847,6 +3963,9 @@ IMPL_HANDLE_EVENT(TrfrAnlzFiltDialog)
 	if(event.isCmd(cmTaGrpngOptions)) {
 		PPDialogProcBody <TrfrAnlzGrpngDialog, TrfrAnlzFilt> (&Data);
 		SetSaldoInfo();
+	}
+	else if(event.isCmd(cmBillTags)) { // @v12.5.8
+		TagFilt::EditTagFiltPtr(PPOBJ_BILL, &Data.P_BillTagF);
 	}
 	else if(event.isCmd(cmCBSelected)) {
 		SetSaldoInfo();
@@ -3916,7 +4035,7 @@ int PPViewTrfrAnlz::Export()
 int PPViewTrfrAnlz::CalcTotal(TrfrAnlzTotal * pTotal)
 {
 	if(pTotal) {
-		pTotal->destroy();
+		pTotal->Z();
 		TrfrAnlzViewItem item;
 		PPWaitStart();
 		for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
@@ -4837,7 +4956,7 @@ static int FASTCALL Base36ToAlcoCode(const SString & rS, SString & rBuf)
 	int    ok = 1;
 	rBuf.Z();
 	uint64 result = 0;
-	const uint len = rS.Len();
+	const uint len = rS.Len32();
 	for(uint i = 0; ok && i < len; i++) {
 		const  char c = toupper(rS.C(i));
 		uint64 v = 0;

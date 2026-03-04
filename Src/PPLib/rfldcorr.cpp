@@ -2023,6 +2023,9 @@ int PPImpExp::Helper_OpenFile(const char * pFileName, int readOnly, int truncOnW
 		if(readOnly) {
 			SFileFormat ff;
 			const  int ffr = ff.Identify(filename, 0);
+			// Идентифицируем строго по расширению и сигнатуре. Все из-за того, что я встретил старый excel файл у которого
+			// нет нужной сигнатуры по смещению 512 но есть сигнатура MS-compound-файла по смещению 0. Однако, последняя //
+			// сигнатура встречается и в других форматах MS).
 			THROW_PP_S((ffr == 3) && oneof3(ff, SFileFormat::Xls, SFileFormat::XlsX, SFileFormat::XlsM), PPERR_IMPEXPNONEXCELFILE, filename);
 			if(ff == SFileFormat::Xls) {
 				THROW_MEM(P_XlsT = new ExcelDbFile);

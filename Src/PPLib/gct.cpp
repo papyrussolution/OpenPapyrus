@@ -1,5 +1,5 @@
 // GCT.CPP
-// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 // Построение перекрестной отчетности по товарным операциям
 //
@@ -178,10 +178,10 @@ int PPViewGoodsTrnovr::Init(const GoodsTrnovrFilt * pFilt)
 	GoodsTrnovrViewItem total;
 	SString wait_msg;
 	IterCounter cntr;
-	GoodsGrpngEntry * e;
+	GoodsGrpngEntry * p_entry;
 	PPOprKind op_rec;
 	PPOprKind link_op_rec;
-	GCTFilt f;
+	GCTFilt filt;
 	AdjGdsGrpng agg;
 	int    zero;
 	GoodsGrpngArray gga;
@@ -192,85 +192,107 @@ int PPViewGoodsTrnovr::Init(const GoodsTrnovrFilt * pFilt)
 	else {
 		THROW_MEM(P_Items = new SArray(sizeof(GoodsTrnovrViewItem)));
 	}
-	f = Filt; // AHTOXA
+	filt = Filt; // AHTOXA
 	cntr.Init(diffdate(&Filt.Period.upp, &Filt.Period.low, 0) + 1);
-	dt = f.Period.low;
+	dt = filt.Period.low;
 	if(!dt)
 		THROW(BillObj->P_Tbl->GetFirstDate(0, &dt) > 0);
-	SETIFZ(f.Period.upp, getcurdate_());
+	SETIFZ(filt.Period.upp, getcurdate_());
 	MEMSZERO(total);
 	if(Filt.Flags & OPG_DONTSHOWPRGRSBAR)
 		PPLoadText(PPTXT_CALCOPGRPNG, wait_msg);
 	while(dt <= Filt.Period.upp) {
 		zero = 1;
 		MEMSZERO(entry);
-		f.Period.SetDate(dt);
-		f.Flags |= OPG_PROCESSRECKONING;
+		filt.Period.SetDate(dt);
+		filt.Flags |= OPG_PROCESSRECKONING;
 		entry.Dt = dt;
 		datefmt(&dt, DATF_DMY, entry.Title);
 		gga.Reset();
-		THROW(agg.BeginGoodsGroupingProcess(f));
-		THROW(gga.ProcessGoodsGrouping(f, &agg));
-		for(uint i = 0; gga.enumItems(&i, (void **)&e);) {
-			if(oneof3(e->OpID, -1, 10000, 0))
-				continue;
-			if(IsIntrExpndOp(e->OpID))
-				entry.XpndIntr += e->Cost;
-			else if(IsIntrOp(e->OpID) == INTRRCPT)
-				entry.RcptIntr += e->Cost;
-			else {
-				THROW(GetOpData(e->OpID, &op_rec));
-				if(e->OpTypeID == PPOPT_GOODSRECEIPT)
-					entry.RcptSuppl += e->Cost;
-				else if(e->Link == 0) {
-					if(CheckOpFlags(e->OpID, OPKF_PROFITABLE))
-						if(op_rec.AccSheetID)
-							entry.XpndClient += e->Price;
-						else
-							entry.XpndRetail += e->Price;
-				}
+		THROW(agg.BeginGoodsGroupingProcess(filt));
+		THROW(gga.ProcessGoodsGrouping(filt, &agg));
+		for(uint i = 0; gga.enumItems(&i, (void **)&p_entry);) {
+			if(!oneof3(p_entry->OpID, -1, 10000, 0)) {
+				if(IsIntrExpndOp(p_entry->OpID))
+					entry.XpndIntr += p_entry->Cost;
+				else if(IsIntrOp(p_entry->OpID) == INTRRCPT)
+					entry.RcptIntr += p_entry->Cost;
 				else {
-					THROW(GetOpData(e->Link, &link_op_rec));
-					if(e->OpTypeID == PPOPT_GOODSRETURN) {
-						if(link_op_rec.OpTypeID == PPOPT_GOODSRECEIPT)
-							entry.RetSuppl += e->Cost;
-						else if(link_op_rec.Flags & OPKF_PROFITABLE)
-							if(link_op_rec.AccSheetID)
-								entry.RetClient += e->Price;
+					THROW(GetOpData(p_entry->OpID, &op_rec));
+					if(p_entry->OpTypeID == PPOPT_GOODSRECEIPT)
+						entry.RcptSuppl += p_entry->Cost;
+					else if(p_entry->Link == 0) {
+						if(CheckOpFlags(p_entry->OpID, OPKF_PROFITABLE)) {
+							if(op_rec.AccSheetID)
+								entry.XpndClient += p_entry->Price;
 							else
-								entry.RetRetail += e->Price;
+								entry.XpndRetail += p_entry->Price;
+						}
 					}
-					else if(e->OpTypeID == PPOPT_PAYMENT) {
-						if(CheckOpFlags(e->Link, OPKF_PROFITABLE))
-							entry.PayClient += e->Price;
+					else {
+						THROW(GetOpData(p_entry->Link, &link_op_rec));
+						if(p_entry->OpTypeID == PPOPT_GOODSRETURN) {
+							if(link_op_rec.OpTypeID == PPOPT_GOODSRECEIPT)
+								entry.RetSuppl += p_entry->Cost;
+							else if(link_op_rec.Flags & OPKF_PROFITABLE) {
+								if(link_op_rec.AccSheetID)
+									entry.RetClient += p_entry->Price;
+								else
+									entry.RetRetail += p_entry->Price;
+							}
+						}
+						else if(p_entry->OpTypeID == PPOPT_PAYMENT) {
+							if(CheckOpFlags(p_entry->Link, OPKF_PROFITABLE))
+								entry.PayClient += p_entry->Price;
+						}
 					}
 				}
+				entry.Income += p_entry->Income();
 			}
-			entry.Income += e->Income();
 		}
-		if(entry.RcptSuppl)
-			zero = 0, total.RcptSuppl += entry.RcptSuppl;
+		if(entry.RcptSuppl) {
+			zero = 0;
+			total.RcptSuppl += entry.RcptSuppl;
+		}
 		// @todo 01/05/2005 Внутренняя передача на списке складов
-		if(f.LocList.GetCount() && entry.RcptIntr)
-			zero = 0, total.RcptIntr += entry.RcptIntr;
-		if(entry.RetRetail)
-			zero = 0, total.RetRetail += entry.RetRetail;
-		if(entry.RetClient)
-			zero = 0, total.RetClient += entry.RetClient;
-		if(entry.RetSuppl)
-			zero = 0, total.RetSuppl += entry.RetSuppl;
-		if(entry.XpndRetail)
-			zero = 0, total.XpndRetail += entry.XpndRetail;
-		if(entry.XpndClient)
-			zero = 0, total.XpndClient += entry.XpndClient;
+		if(filt.LocList.GetCount() && entry.RcptIntr) {
+			zero = 0;
+			total.RcptIntr += entry.RcptIntr;
+		}
+		if(entry.RetRetail) {
+			zero = 0;
+			total.RetRetail += entry.RetRetail;
+		}
+		if(entry.RetClient) {
+			zero = 0;
+			total.RetClient += entry.RetClient;
+		}
+		if(entry.RetSuppl) {
+			zero = 0;
+			total.RetSuppl += entry.RetSuppl;
+		}
+		if(entry.XpndRetail) {
+			zero = 0;
+			total.XpndRetail += entry.XpndRetail;
+		}
+		if(entry.XpndClient) {
+			zero = 0;
+			total.XpndClient += entry.XpndClient;
+		}
 		// @todo 01/05/2005 Внутренняя передача на списке складов
-		if(f.LocList.GetCount() && entry.XpndIntr)
-			zero = 0, total.XpndIntr += entry.XpndIntr;
-		if(entry.PayClient)
-			zero = 0, total.PayClient += entry.PayClient;
-		if(entry.Income)
-			zero = 0, total.Income += entry.Income;
-		if(!zero || !(f.Flags & OPG_IGNOREZERO))
+		if(filt.LocList.GetCount() && entry.XpndIntr) {
+			zero = 0;
+			total.XpndIntr += entry.XpndIntr;
+		}
+		if(entry.PayClient) {
+			zero = 0;
+			total.PayClient += entry.PayClient;
+		}
+		if(entry.Income) {
+			zero = 0;
+			total.Income += entry.Income;
+		}
+		if(!zero || !(filt.Flags & OPG_IGNOREZERO))
 			THROW_SL(P_Items->insert(&entry));
 		plusdate(&dt, 1, 0);
 		agg.EndGoodsGroupingProcess();
@@ -291,7 +313,8 @@ int PPViewGoodsTrnovr::Init(const GoodsTrnovrFilt * pFilt)
 int PPViewGoodsTrnovr::InitIteration()
 {
 	int    ok = 1;
-	Cntr.Init((P_Items && P_Items->getCount()) ? (P_Items->getCount()-1) : 0);
+	const  uint _c = SVectorBase::GetCount(P_Items);
+	Cntr.Init(_c ? (_c-1) : 0);
 	return ok;
 }
 

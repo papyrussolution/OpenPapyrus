@@ -1960,6 +1960,12 @@
 #define STDCTL_SINGLELISTBOX      166 // @v12.2.2 Список (SmartListBox)
 #define STDCTL_HEADERSTATICTEXT   167 // @v12.2.5 Статический текст (TStaticText) в заголовочной части окна.
 #define STDCTL_TODOBUTTON         168 // @v12.4.7 Кнопка 'Задача' cmToDo
+#define STDCTL_COPYTOCLIPBOARD       169 // @v12.5.8
+#define STDCTL_COPYTOCLIPBOARDALL    170 // @v12.5.8
+#define STDCTL_PASTEFROMCLIPBOARDALL 171 // @v12.5.8
+#define STDCTL_DELETEALL          172 // @v12.5.8   
+#define STDCTL_IMPORT             173 // @v12.5.8
+#define STDCTL_NOBUTTON           174 // @v12.5.8
 
 #define cmPPAccSelected          1101 // Сообщение, посылаемое группой
 	// AcctCtrlGroup диалогу-владельцу когда пользователь выбрал новый счет. (AcctCtrlGroup*)InfoPtr
@@ -2203,6 +2209,13 @@
 	#define CTL_PERSON_FULLSCARDBUT     (55 + WINDOWS_ID_BIAS)
 	#define CTL_PERSON_GENDER           (56 + WINDOWS_ID_BIAS)
 	#define CTL_PERSON_EMAIL            (57 + WINDOWS_ID_BIAS)
+	#define CTL_PERSON_CMD_PERSONBACCT   (58 + WINDOWS_ID_BIAS)
+	#define CTL_PERSON_CMD_PERSONPHONES  (59 + WINDOWS_ID_BIAS)
+	#define CTL_PERSON_CMD_PERSONRELLIST (60 + WINDOWS_ID_BIAS)
+	#define CTL_PERSON_CMD_PERSONADDR        (61 + WINDOWS_ID_BIAS)
+	#define CTL_PERSON_CMD_PERSONRADDR       (62 + WINDOWS_ID_BIAS)
+	#define CTL_PERSON_CMD_PERSONDLVRLOCLIST (63 + WINDOWS_ID_BIAS)
+
 #define DLG_REG_PRIVATE            26 // Регистр. данные физ. лиц
 #define DLG_REG_FREE               27 // Регистр. данные частных предпр.
 #define DLG_REG_LEGAL              28 // Регистр. данные юр. лиц
@@ -2928,6 +2941,7 @@
 	#define CTL_BILL_TPLNLOC            (93 + WINDOWS_ID_BIAS) // @v12.1.12 Поле склада, возможно, группирующего, по которому ведется планирование и анализ.
 		// Штатное поле склада документа, увы, не подходит из-за того, что существует необходимость применения группирующего склада.
 	#define CTLSEL_BILL_TPLNLOC         (94 + WINDOWS_ID_BIAS)
+	#define CTL_BILL_CMD_BILLEXTRA      (95 + WINDOWS_ID_BIAS) // @v12.5.8
 
 #define DLG_REVAL                 110 // Переоценка
 	#define CTL_REVAL_DOC                (1 + WINDOWS_ID_BIAS)
@@ -3048,6 +3062,9 @@
 	#define CTLBUT_BILLFLT_OBJPTAGS     (88 + WINDOWS_ID_BIAS) // @v11.9.6 Кнопка фильтра по тегам персоналий контрагентов
 	#define CTL_BILLFLT_MPGUA           (89 + WINDOWS_ID_BIAS) // @v12.1.12 GoodsOpAnalyzeFilt
 	#define CTLSEL_BILLFLT_MPGUA        (90 + WINDOWS_ID_BIAS) // @v12.1.12 GoodsOpAnalyzeFilt
+	#define CTL_BILLFLT_CMD_COMPARE         (91 + WINDOWS_ID_BIAS) // @v12.5.8
+	#define CTL_BILLFLT_CMD_ABCANLZOPTIONS  (92 + WINDOWS_ID_BIAS) // @v12.5.8
+
 #define DLG_GTO                   133 // Фильтр товарооборота
 	#define CTL_GTO_PERIOD               (1 + WINDOWS_ID_BIAS)
 	#define CTL_GTO_SUPPL                (3 + WINDOWS_ID_BIAS)
@@ -3098,6 +3115,8 @@
 	#define CTL_GTO_SHOWALL_AR          (48 + WINDOWS_ID_BIAS) // @v12.5.7 замена single CTL_GTO_SHOWALL
 	#define CTL_GTO_SHOWALL_AGENT       (49 + WINDOWS_ID_BIAS) // @v12.5.7 замена single CTL_GTO_SHOWALL
 	#define CTL_GTO_SHOWALL_GOODS       (50 + WINDOWS_ID_BIAS) // @v12.5.7 замена single CTL_GTO_SHOWALL
+	#define CTL_GTO_CMD_TAGRPNGOPTIONS  (51 + WINDOWS_ID_BIAS) // @v12.5.8 Команда обращения к опциям группировки
+	#define CTL_GTO_CMD_BILLTAGS        (52 + WINDOWS_ID_BIAS) // @v12.5.8 Команда фильтрации по тегам документов
 #define DLG_PRINT                 134 // Общий диалог параметров печати
 	#define CTL_PRINT_PORT               (1 + WINDOWS_ID_BIAS) // Порт вывода
 	#define CTL_PRINT_PGHT               (2 + WINDOWS_ID_BIAS) // Длина листа
@@ -3919,6 +3938,7 @@
 	#define CTL_VATBOOK_TVAT4            (54 + WINDOWS_ID_BIAS) // StaticText
 	#define CTL_VATBOOK_TVAT5            (55 + WINDOWS_ID_BIAS) // StaticText
 	#define CTL_VATBOOK_TVAT6            (56 + WINDOWS_ID_BIAS) // StaticText @v12.5.3
+	#define CTL_VATBOOK_CMD_VATBOOKLINK  (91 + WINDOWS_ID_BIAS) // @v12.5.8 
 #define DLG_VATBFLT               268 // Фильтр по книге продаж/покупок
 #define DLG_VATBWHAT              269 // Выбор книги продаж либо покупок
 	#define CTL_VATBFLT_WHAT             (1 + WINDOWS_ID_BIAS)
@@ -4094,6 +4114,12 @@
 	#define CTL_GSTRUC_KIND              (15 + WINDOWS_ID_BIAS)
 	#define CTL_GSTRUC_GIFTLIMIT         (16 + WINDOWS_ID_BIAS)
 	#define CTL_GSTRUC_ID                (17 + WINDOWS_ID_BIAS)
+	#define CTL_GSTRUC_CMD_SELNAMEDGS    (18 + WINDOWS_ID_BIAS)
+	#define CTL_GSTRUC_CMD_TREE          (19 + WINDOWS_ID_BIAS) 
+	#define CTL_GSTRUC_CMD_EDITSTRUCT         (20 + WINDOWS_ID_BIAS) 
+	#define CTL_GSTRUC_CMD_GSTRUCEXPANDREDUCE (21 + WINDOWS_ID_BIAS) 
+	#define CTL_GSTRUC_CMD_GIFTPARAM          (22 + WINDOWS_ID_BIAS)  
+	#define CTL_GSTRUC_CMD_ADDBYSAMPLE        (23 + WINDOWS_ID_BIAS)
 #define DLG_GSITEM                286 // Элемент структуры товара
 	#define cmGSItemLots              601
 	#define CTL_GSITEM_HEADER            (1 + WINDOWS_ID_BIAS)
@@ -4827,6 +4853,7 @@
 	// CTL[SEL]_OPRKIND_XXX
 #define DLG_TRFRANLZ              360 // Фильтр анализа товарных операций
 	#define cmTaGrpngOptions             110
+	#define cmBillTags                   111 // @v12.5.8 Команда фильтрации по тегам документов
 	// CTL[SEL]_GTO_XXX
 #define DLG_STAFF                 361 // Штатная должность
 	#define cmAmounts                    101
@@ -5526,6 +5553,7 @@
 	#define CTL_TAGRPNG_EXTF1            (16 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TAGRPNG_EXTF1         (17 + WINDOWS_ID_BIAS)
 	#define CTL_TAGRPNG_EXTVALFLAGS      (18 + WINDOWS_ID_BIAS) // @v11.9.4 Флаги дополнительных показателей
+	#define CTL_TAGRPNG_CMD_EDITCTPARAM  (19 + WINDOWS_ID_BIAS) // @v12.5.8
 #define DLG_FIXSTAFF              477 // Директор и гл бух организации
 	#define CTL_FIXSTAFF_ORGNAME         (1 + WINDOWS_ID_BIAS)
 	#define CTL_FIXSTAFF_DIRECTOR        (2 + WINDOWS_ID_BIAS)
@@ -8867,6 +8895,7 @@
 	#define CTL_SALARY_POST            (12 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SALARY_POST         (13 + WINDOWS_ID_BIAS)
 #define DLG_SUBSTGL               987
+	#define CTL_SUBSTGL_CMD_SUBSTGOODS (20 + WINDOWS_ID_BIAS) // @v12.5.8
 // ..CTL_LBXSEL_...
 #define DLG_FILLSCDT              988 // FILLSCDT Заполнение штатных календарей по графику дежурств
 	#define CTL_FILLSCDT_CAL           (1 + WINDOWS_ID_BIAS)
@@ -9450,6 +9479,8 @@
 	#define CTL_PRINT2_DUPLEX          (13 + WINDOWS_ID_BIAS)
 	#define CTL_PRINT2_EXPFMT          (14 + WINDOWS_ID_BIAS) // @v12.3.9
 	#define CTLSEL_PRINT2_EXPFMT       (15 + WINDOWS_ID_BIAS) // @v12.3.9
+	#define CTL_PRINT2_CMD_PRNTCFG     (16 + WINDOWS_ID_BIAS) // @v12.5.8
+	#define CTL_PRINT2_CMD_EXPORTPARAMS (17 + WINDOWS_ID_BIAS) // @v12.5.8
 #define DLG_DBDUMP                  1083 // dbdump
 	#define CTL_DBDUMP_DB              (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_DBDUMP_DB           (2 + WINDOWS_ID_BIAS)
@@ -11006,6 +11037,9 @@
 #define DLG_LOTXCLIST             1334
 	#define CTL_LOTXCLIST_LIST        (1 + WINDOWS_ID_BIAS)
 	#define CTL_LOTXCLIST_INFO        (2 + WINDOWS_ID_BIAS)
+	#define CTL_LOTXCLIST_CMD_COPYTOCLIPBOARD       (3 + WINDOWS_ID_BIAS)
+	#define CTL_LOTXCLIST_CMD_COPYTOCLIPBOARDALL    (4 + WINDOWS_ID_BIAS)
+	#define CTL_LOTXCLIST_CMD_PASTEFROMCLIPBOARDALL (5 + WINDOWS_ID_BIAS)
 #define DLG_GSFILT                1335
 	#define cmPGoodsFilt              101
 	#define cmSGoodsFilt              102

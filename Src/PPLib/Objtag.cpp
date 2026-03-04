@@ -98,6 +98,24 @@ void TagFilt::MergeString(const char * pRestrictionString, const char * pColorSt
 		rItemBuf.Slash().Cat(temp_buf);
 }
 
+/*static*/int TagFilt::EditTagFiltPtr(PPID objType, TagFilt ** ppFilt) // @v12.5.8
+{
+	int    ok = -1;
+	if(!SETIFZ((*ppFilt), new TagFilt())) {
+		ok = PPErrorZ();
+	}
+	else {
+		ok = EditTagFilt(objType, (*ppFilt));
+		if(!ok) {
+			PPError();
+		}
+		if((*ppFilt)->IsEmpty()) {
+			ZDELETE((*ppFilt));
+		}
+	}
+	return ok;
+}
+
 /*static*/void FASTCALL TagFilt::SetRestriction(const char * pRestrictionString, SString & rItemBuf)
 {
 	SString cbuf;
@@ -134,11 +152,21 @@ void TagFilt::MergeString(const char * pRestrictionString, const char * pColorSt
 	return ok;
 }
 
-IMPLEMENT_PPFILT_FACTORY(Tag); TagFilt::TagFilt() : PPBaseFilt(PPFILT_TAG, 0, 1)
+static constexpr int32 TagFilt_CurrentVer = 1; // @v12.5.8
+
+IMPLEMENT_PPFILT_FACTORY(Tag); TagFilt::TagFilt() : PPBaseFilt(PPFILT_TAG, 0, TagFilt_CurrentVer)
 {
 	SetFlatChunk(offsetof(TagFilt, ReserveStart), offsetof(TagFilt, TagsRestrict) - offsetof(TagFilt, ReserveStart));
 	SetBranchStrAssocArray(offsetof(TagFilt, TagsRestrict));
 	Init(1, 0);
+}
+
+TagFilt::TagFilt(const TagFilt & rS) : PPBaseFilt(PPFILT_TAG, 0, TagFilt_CurrentVer) // @v12.5.8
+{
+	SetFlatChunk(offsetof(TagFilt, ReserveStart), offsetof(TagFilt, TagsRestrict) - offsetof(TagFilt, ReserveStart));
+	SetBranchStrAssocArray(offsetof(TagFilt, TagsRestrict));
+	Init(1, 0);
+	Copy(&rS, 1);
 }
 
 TagFilt & FASTCALL TagFilt::operator = (const TagFilt & rS)
@@ -2222,8 +2250,8 @@ int FASTCALL EditTagFilt(PPID objType, TagFilt * pData)
 {
 	constexpr bool use_alg_12202 = true;
 	int    ok = 1;
-	ObjTagCore & r_otc = PPRef->Ot;
 	if(pFilt && !pFilt->IsEmpty()) {
+		ObjTagCore & r_otc = PPRef->Ot;
 		/*
 		Результат профилирования на нескольких тысячах документов с фильтрацией по одному тегу с критерием EXISTS.
 		Я прогнал попеременно 4 сессии (по 2 для каждого варианта) с тремя попытками в каждой попытке для нивелирования влияния кэширования.

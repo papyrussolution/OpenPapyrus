@@ -51,6 +51,7 @@ int  SimpleCpp_Test_Main2();
 int  TestGlobalServiceAccessibility();
 int  TestRestic();
 void Test_MySQL_ReadBLOB(); // @v12.5.7
+int  Test_Create_LocalStateBinderyCore(); // @v12.5.8
 //
 // 
 // 
@@ -2530,6 +2531,7 @@ void Test_MySQL_ReadBLOB()
 	int    ok = 1;
 	bool   debug_mark = false;
 	DbProvider * p_dict = CurDict;
+	Test_Create_LocalStateBinderyCore();
 	if(p_dict && p_dict->GetSqlServerType() == sqlstMySQL) {
 		SMySqlDbProvider * p_dbp = static_cast<SMySqlDbProvider *>(p_dict);
 		{

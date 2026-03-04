@@ -1008,9 +1008,11 @@ struct AddBillEntry {
 
 int GoodsGrpngArray::_ProcessBillGrpng(GCTFilt * pFilt)
 {
-	int    ok = 1, idx;
+	int    ok = 1;
+	int    idx;
 	IterCounter counter;
-	SString wait_msg, period_buf;
+	SString wait_msg;
+	SString period_buf;
 	PPID   op_type_id;
 	BillCore * p_bill = P_BObj->P_Tbl;
 	DBQ * dbq = 0;

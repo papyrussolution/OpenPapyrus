@@ -121,8 +121,7 @@ int InventoryDialog::getDTS(PPBillPacket * /*_data*/)
 		getCtrlData(CTLSEL_BILL_STRGLOC, &freight.StorageLocID);
 		P_Data->SetFreight(&freight);
 	}
-	// @v11.1.12 getCtrlData(CTL_BILL_MEMO, P_Data->Rec.Memo);
-	getCtrlString(CTL_BILL_MEMO, P_Data->SMemo); // @v11.1.12
+	getCtrlString(CTL_BILL_MEMO, P_Data->SMemo);
 	return 1;
 }
 
@@ -148,8 +147,9 @@ void InventoryDialog::editItems(int filtered)
 		SETFLAG(p_filt->Flags, InventoryFilt::fSelExistsGoodsOnly, v);
 		THROW(p_v->Init_(p_filt));
 		THROW(p_v->Browse(false));
-		if(!(P_Data->ProcessFlags & PPBillPacket::pfZombie) && p_v->GetUpdateStatus())
+		if(!(P_Data->ProcessFlags & PPBillPacket::pfZombie) && p_v->GetUpdateStatus()) {
 			THROW(p_v->UpdatePacket(P_Data->Rec.ID));
+		}
 		{
 			BillTbl::Rec bill_rec;
 			const double amount = (P_BObj->Search(P_Data->Rec.ID, &bill_rec) > 0) ? bill_rec.Amount : 0.0;

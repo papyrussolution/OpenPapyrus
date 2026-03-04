@@ -40,6 +40,16 @@ SMySqlDbProvider::ConnectionEntry & SMySqlDbProvider::ConnectionEntry::Z()
 	return *this;
 }
 
+bool SMySqlDbProvider::ConnectionEntry::IsReady()
+{
+	bool  yes = false;
+	MYSQL * p_h = static_cast<MYSQL *>(Conn.GetH());
+	if(p_h && mysql_errno(p_h) == 0 && p_h->status == MYSQL_STATUS_READY) {
+		yes = true;
+	}
+	return yes;
+}
+
 int SMySqlDbProvider::ConnectionEntry::DestroyLastSelectStatement()
 {
 	int    ok = -1;
@@ -157,13 +167,36 @@ int SMySqlDbProvider::UseDatabase(const char * pDbName) // @v12.4.8
 SMySqlDbProvider::ConnectionEntry * SMySqlDbProvider::GetConnection() // @v12.5.5
 {
 	ConnectionEntry * p_result = 0;
-	for(uint i = 0; !p_result && i < ConnPool.getCount(); i++) {
+	// @v12.5.8 {
+	{
+		//
+		// Соединение будем искать с конца поскольку, возможно, придется разрушать и удалять какие-то элементы списка.
+		//
+		uint   _p = ConnPool.getCount();
+		if(_p) {
+			do {
+				ConnectionEntry & r_item = ConnPool.at(--_p);
+				if(!(r_item.State & ConnectionEntry::stBusy) && !!r_item.Conn) {
+					if(r_item.IsReady()) {
+						p_result = &r_item;
+						r_item.State |= ConnectionEntry::stBusy;
+					}
+					else {
+						Helper_CloseConnection(r_item);
+						ConnPool.atFree(_p);
+					}
+				}
+			} while(!p_result && _p);
+		}
+	}
+	// } @v12.5.8 
+	/* @v12.5.8 for(uint i = 0; !p_result && i < ConnPool.getCount(); i++) {
 		ConnectionEntry & r_item = ConnPool.at(i);
 		if(!(r_item.State & ConnectionEntry::stBusy) && !!r_item.Conn) {
 			p_result = &r_item;
 			r_item.State |= ConnectionEntry::stBusy;
 		}
-	}
+	}*/
 	if(!p_result) {
 		ConnectionEntry new_item;
 		if(Helper_Connect(&Lb, &CurrentDatabase, new_item, false/*dontUseDatabase*/)) {
@@ -1164,6 +1197,7 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 			{
 				size_t key_len = 0;
 				p_stmt->BL.Dim = 1;
+				p_stmt->BL.P_Lob = pTbl->getLobBlock(); // @v12.5.8
 				for(uint i = 0; i < sqb.SegMap.getCount(); i++) {
 					const int  seg = sqb.SegMap.get(i);
 					const BNField & r_fld = r_indices.field(idx, seg);
@@ -1396,6 +1430,10 @@ int SMySqlDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKe
 		pTbl->CopyBufFrom(pDataBuf);
 	SqlGen.Z().Tok(Generator_SQL::tokUpdate).Sp().Text(pTbl->FileName_).Sp().Tok(Generator_SQL::tokSet).Sp();
 	{
+		// @v12.5.8 {
+		stmt.BL.Dim = 1;
+		stmt.BL.P_Lob = pTbl->getLobBlock();
+		// } @v12.5.8 
 		const  uint fld_count = pTbl->FldL.getCount();
 		for(uint i = 0; i < fld_count; i++) {
 			const BNField & r_fld = pTbl->FldL.GetFieldByPosition(i);
@@ -2165,7 +2203,16 @@ void FASTCALL SMySqlDbProvider::OdFree(SMySqlDbProvider::OD & rO)
 					} 
 					{
 						temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-						p_lob->InitPtr(temp_buf.Len32()+1);
+						const  size_t final_lob_size = temp_buf.Len()+1;
+						// @v12.5.8 {
+						{
+							DBLobBlock * p_lb = pStmt->GetBindingLob();
+							if(p_lb) {
+								p_lb->SetSize(labs(pBind->Pos)-1, final_lob_size);
+							}
+						}
+						// } @v12.5.8 
+						p_lob->InitPtr(final_lob_size);
 						void * p_lob_ptr = p_lob->GetRawDataPtr();
 						if(p_lob_ptr) {
 							strcpy(static_cast<char *>(p_lob_ptr), temp_buf.cptr());
@@ -2238,10 +2285,19 @@ void FASTCALL SMySqlDbProvider::OdFree(SMySqlDbProvider::OD & rO)
 						}
 					} 
 					{
-						p_lob->InitPtr(_buffer.GetAvailableSize());
+						const size_t final_lob_size = _buffer.GetAvailableSize();
+						// @v12.5.8 {
+						{
+							DBLobBlock * p_lb = pStmt->GetBindingLob();
+							if(p_lb) {
+								p_lb->SetSize(labs(pBind->Pos)-1, final_lob_size);
+							}
+						}
+						// } @v12.5.8 
+						p_lob->InitPtr(final_lob_size);
 						void * p_lob_ptr = p_lob->GetRawDataPtr();
 						if(p_lob_ptr) {
-							memcpy(p_lob_ptr, _buffer.GetBufC(), _buffer.GetAvailableSize());
+							memcpy(p_lob_ptr, _buffer.GetBufC(), final_lob_size);
 						}
 					}
 				}

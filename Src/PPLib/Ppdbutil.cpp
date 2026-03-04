@@ -5,6 +5,89 @@
 #include <pp.h>
 #pragma hdrstop
 //
+//
+//
+class LocalStateBinderyCore { // @v12.5.8
+public:
+	//
+	// Descr: Виды записей 
+	//
+	enum { // @persistent
+		kUndef          = 0, // 
+		kInput          = 1, // Введенные пользователем текстовые данные 
+		kViewPosition   = 2,
+		kEditorPosition = 3,
+	};
+	LocalStateBinderyCore();
+	~LocalStateBinderyCore();
+	bool   IsValid() const { return LOGIC(!(State & stError)); }
+private:
+	int    OpenDatabase();
+	enum {
+		stError = 0x0001
+	};
+	uint   State;
+	SSqliteDbProvider * P_DbP;
+	LocalStateBinderyTbl * P_Tbl;
+};
+
+LocalStateBinderyCore::LocalStateBinderyCore() : State(0), P_DbP(0), P_Tbl(0)
+{
+	if(!OpenDatabase())
+		State |= stError;
+}
+	
+LocalStateBinderyCore::~LocalStateBinderyCore()
+{
+	delete P_Tbl;
+	delete P_DbP;
+}
+
+int LocalStateBinderyCore::OpenDatabase()
+{
+	int    ok = 1;
+	ZDELETE(P_Tbl);
+	ZDELETE(P_DbP);
+	PPThreadLocalArea & r_tla = DS.GetTLA();
+	SString temp_buf;
+	SString data_path;
+	PPGetPath(PPPATH_LOCAL, data_path);
+	if(SFile::IsDir(data_path)) {
+		data_path.SetLastSlash().Cat("StateBindery");
+		if(SFile::CreateDir(data_path)) {
+			SString db_file_path(data_path);
+			db_file_path.SetLastSlash().Cat("StateBindery").Dot().Cat("sqlite3");
+			DbLoginBlock dlb;
+			long   login_flags = 0;
+			if(r_tla.GetThreadID() == 0) { // нулевой ид только у главного потока (надеюсь, не соврал)
+				login_flags |= DbProvider::openfMainThread; 
+			}
+			GetSqlServerTypeSymb(sqlstSQLite, temp_buf);
+			dlb.SetAttr(DbLoginBlock::attrServerType, temp_buf);
+			dlb.SetAttr(DbLoginBlock::attrDbPath, db_file_path);
+			P_DbP = new SSqliteDbProvider();
+			THROW(P_DbP);
+			THROW(P_DbP->IsValid());
+			THROW_DB(P_DbP->DbLogin(&dlb, login_flags));
+			{
+				P_Tbl = new LocalStateBinderyTbl(0, P_DbP);
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int Test_Create_LocalStateBinderyCore()
+{
+	int    ok = 1;
+	LocalStateBinderyCore instance;
+	if(!instance.IsValid()) {
+		ok = 0;
+	}
+	return ok;
+}
+//
 // Формат записи параметров резервной копии в файле pp.ini
 //
 // backup_name=db_name,path,period,flags(1-with compression),max_copies
@@ -1816,8 +1899,6 @@ static int UseCopyContinouos(PPIniFile * pIniFile, PPDbEntrySet2 * pDbes)
 	return r;
 }
 
-//#define CTLGRP_FBRW 1
-
 int EditJobBackupParam(SString & rDBSymb, PPBackupScen * pScen)
 {
 	class BackupParamDialog : public TDialog {
@@ -1881,7 +1962,7 @@ int EditJobBackupParam(SString & rDBSymb, PPBackupScen * pScen)
 	THROW_MEM(p_dlg);
 	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->setDTS(pScen);
-	p_dlg->setCtrlString(CTL_BUPARAM_DBSYMB, rDBSymb); // @v11.0.0
+	p_dlg->setCtrlString(CTL_BUPARAM_DBSYMB, rDBSymb);
 	while(ok < 0 && ExecView(p_dlg) == cmOK)
 		if(p_dlg->getDTS(rDBSymb, pScen))
 			ok = 1;
