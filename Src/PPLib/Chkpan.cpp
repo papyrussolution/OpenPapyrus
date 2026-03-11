@@ -549,9 +549,23 @@ int FASTCALL CPosProcessor::Packet::NextIteration(CCheckItem * pItem)
 //
 //
 //
-CPosProcessor::PgsBlock::PgsBlock(double qtty) : Flags(0), Qtty((qtty != 0.0) ? qtty : 1.0), PriceBySerial(0.0), AbstractPrice(0.0), ChZnPm_ReqTimestamp(0)
+CPosProcessor::PgsBlock::PgsBlock(PPID goodsID, double qtty) : 
+	GoodsID(goodsID), Flags(0), Qtty((qtty != 0.0) ? qtty : 1.0), PriceBySerial(0.0), AbstractPrice(0.0), ChZnPm_ReqTimestamp(0),
+	PriceByMark(0.0), PriceByMarkPmMrp(0.0), PriceByMarkPmSmp(0.0)
 {
 	AllowedPriceRange.Z(); // @v12.2.2
+}
+
+double CPosProcessor::PgsBlock::GetChZnPrice() const // @v12.5.9
+{
+	double chzn_price = 0.0;
+	if(PriceByMarkPmMrp > 0.0) {
+		chzn_price = PriceByMarkPmMrp;
+	}
+	else if(PriceByMark > 0.0) {
+		chzn_price = PriceByMark;
+	}
+	return chzn_price;
 }
 //
 //
@@ -723,6 +737,7 @@ private:
 int CPosProcessor::LoadModifiers(PPID goodsID, SaModif & rModif)
 {
 	int    ok = -1;
+	const  LDATE now_date = getcurdate_();
 	Goods2Tbl::Rec goods_rec;
 	Goods2Tbl::Rec item_goods_rec;
 	rModif.clear();
@@ -730,9 +745,9 @@ int CPosProcessor::LoadModifiers(PPID goodsID, SaModif & rModif)
 		int    r = 0;
 		PPGoodsStruc gs;
 		PPID   gen_goods_id = 0;
-		THROW(r = GObj.LoadGoodsStruc(PPGoodsStruc::Ident(goodsID, GSF_PARTITIAL|GSF_POSMODIFIER, 0, getcurdate_()), &gs));
+		THROW(r = GObj.LoadGoodsStruc(PPGoodsStruc::Ident(goodsID, GSF_PARTITIAL|GSF_POSMODIFIER, 0, now_date), &gs));
 		if(r < 0 && GObj.BelongToGen(goodsID, &gen_goods_id, 0) > 0) {
-			THROW(r = GObj.LoadGoodsStruc(PPGoodsStruc::Ident(gen_goods_id, GSF_PARTITIAL|GSF_POSMODIFIER, 0, getcurdate_()), &gs));
+			THROW(r = GObj.LoadGoodsStruc(PPGoodsStruc::Ident(gen_goods_id, GSF_PARTITIAL|GSF_POSMODIFIER, 0, now_date), &gs));
 		}
 		if(r > 0) {
 			SString temp_buf;
@@ -1182,31 +1197,17 @@ CPosProcessor::PosNodeParam::PosNodeParam(PPID posNodeID) : NodeID(posNodeID), C
 }
 
 CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOuterPack, uint ctrFlags, void * pDummy) : PNP(cashNodeID),
-	P_CcView(0), P_TSesObj(0), /*@v12.2.11 P_EgPrc_ToEliminate(0),*/ P_EgMas(0), P_CM(0), P_CM_EXT(0), P_CM_ALT(0), P_GTOA(0), P_ChkPack(pOuterPack), P_DivGrpList(0),
-	Flags(0), BonusMaxPart(1.0), OperRightsFlags(0), OrgOperRights(0), SuspCheckID(0), CheckID(checkID), AuthAgentID(0),
-	ExtCashNodeID(0), AltRegisterID(0), TouchScreenID(0), ScaleID(0), UiFlags(0),
-	State_p(0), LastGrpListUpdTime(ZERODATETIME)
+	P_CcView(0), P_TSesObj(0), P_EgMas(0), P_CM(0), P_CM_EXT(0), P_CM_ALT(0), P_GTOA(0), P_ChkPack(pOuterPack), P_DivGrpList(0),
+	Flags(0), UiFlags(0), BonusMaxPart(1.0), OperRightsFlags(0), OrgOperRights(0), SuspCheckID(0), CheckID(checkID), AuthAgentID(0),
+	ExtCashNodeID(0), AltRegisterID(0), TouchScreenID(0), ScaleID(0), State_p(0), 
+	LastGrpListUpdTime(ZERODATETIME)/*, AutoInputTolerance(5), SingleSubstPriceOrder(1)*/
 {
 	OuterOi.Z();
 	MEMSZERO(R__);
 	SETFLAG(Flags, fNoEdit, (P_ChkPack || !PNP.NodeID));
-	//PPCashNode cn_rec;
-	//CnObj.Search(PNP.NodeID, &cn_rec);
-	//PNP.CnName = cn_rec.Name;
-	//PNP.CnSymb = cn_rec.Symb;
-	//PNP.CnFlags = cn_rec.Flags & (CASHF_SELALLGOODS|CASHF_USEQUOT|CASHF_NOASKPAYMTYPE|CASHF_SHOWREST|CASHF_KEYBOARDWKEY|CASHF_WORKWHENLOCK|CASHF_DISABLEZEROAGENT|
-		//CASHF_UNIFYGDSATCHECK|CASHF_UNIFYGDSTOPRINT|CASHF_CHECKFORPRESENT|CASHF_ABOVEZEROSALE|CASHF_SYNC|CASHF_SKIPUNPRINTEDCHECKS);
-	//PNP.CnExtFlags = cn_rec.ExtFlags;
-	//PNP.CnSpeciality = static_cast<long>(cn_rec.Speciality);
-	//PNP.CnLocID = cn_rec.LocID;
-	//if(cn_rec.Flags & CASHF_SYNC) {
 	if(PNP.CnFlags & CASHF_SYNC) {
 		PPSyncCashNode cn_pack;
 		if(CnObj.GetSync(PNP.NodeID, &cn_pack) > 0) {
-			//PNP.CTblList = cn_pack.CTblList;
-			//PNP.Scf      = cn_pack.Scf;
-			//PNP.ChZnPermissiveMode = cn_pack.ChZnPermissiveMode; // @v12.0.12
-			//PNP.ChZnGuaID = cn_pack.ChZnGuaID; // @v12.0.12
 			cn_pack.GetPropString(SCN_RPTPRNPORT, RptPrnPort);
 			RptPrnPort.Strip();
 			if(oneof4(cn_pack.EgaisMode, 0, 1, 2, 3)) {
@@ -1286,7 +1287,7 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 			{ orfChgAgentInCheck,         CSESSOPRT_CHGCCAGENT,     1 },
 			{ orfEscChkLineBeforeOrder,   CSESSOPRT_ESCCLINEBORD,   1 },
 			{ orfReprnUnfCc,              CSESSOPRT_REPRNUNFCC,     1 },
-			{ orfArbitraryDiscount,       CSESSOPRT_ARBITRARYDISC,  1 }, // @v11.0.9
+			{ orfArbitraryDiscount,       CSESSOPRT_ARBITRARYDISC,  1 },
 		};
 		for(uint i = 0; i < SIZEOFARRAY(rt_tab); i++) {
 			SETFLAG(OperRightsFlags, rt_tab[i].Orf, CsObj.CheckRights(rt_tab[i].CsR, rt_tab[i].IsOprRt));
@@ -1297,6 +1298,7 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 		PPObjSCardSeries scs_obj;
 		scs_obj.GetSeriesWithSpecialTreatment(SpcTrtScsList);
 	}
+	ReadIniParams(IniPBlk);
 }
 
 CPosProcessor::~CPosProcessor()
@@ -1599,19 +1601,69 @@ int CPosProcessor::SetupAgent(PPID agentID, int asAuthAgent)
 	return ok;
 }
 
+/* @v12.5.9 (replced with CalcCurrentRest2) 
 double CPosProcessor::CalcCurrentRest(PPID goodsID, bool checkInputBuffer)
 {
 	double rest = 0.0;
 	if(GetCc().CalcGoodsRest(goodsID, getcurdate_(), GetCnLocID(goodsID), &rest)) {
-		for(uint pos = 0; P.lsearch(&goodsID, &pos, CMPF_LONG); pos++)
+		for(uint pos = 0; P.lsearch(&goodsID, &pos, CMPF_LONG); pos++) {
 			rest -= P.at(pos).Quantity;
+		}
 		if(checkInputBuffer && P.HasCur()) {
 			const CCheckItem & r_buf_item = P.GetCurC();
-			if(r_buf_item.GoodsID == goodsID)
+			if(r_buf_item.GoodsID == goodsID) {
 				rest -= r_buf_item.Quantity;
+			}
 		}
 	}
 	return rest;
+}*/
+
+int CPosProcessor::CalcCurrentRest2(PPID goodsID, uint ccrf, double * pRest) // @v12.5.9
+{
+	int    ok = 1;
+	const  LDATE now_date = getcurdate_();
+	double rest = 0.0;
+	double rest_subst = 0.0;
+	double current_expend = 0.0;
+	double current_expend_subst = 0.0;
+	{
+		for(uint pos = 0; P.lsearch(&goodsID, &pos, CMPF_LONG); pos++) {
+			current_expend += P.at(pos).Quantity;
+		}
+		if(ccrf & ccrfCheckInputBuffer && P.HasCur()) {
+			const CCheckItem & r_buf_item = P.GetCurC();
+			if(r_buf_item.GoodsID == goodsID) {
+				current_expend += r_buf_item.Quantity;
+			}
+		}
+	}
+	GetCc().CalcGoodsRest(goodsID, now_date, GetCnLocID(goodsID), &rest);
+	rest -= current_expend;
+	if(ccrf & ccrfCheckSingleSubst) {
+		double single_subst_goods_qtty = 0.0;
+		const  PPID single_subst_goods_id = GetSingleSubstGoods(goodsID, &single_subst_goods_qtty);
+		if(single_subst_goods_id && single_subst_goods_qtty > 0.0) {
+			{
+				for(uint pos = 0; P.lsearch(&single_subst_goods_id, &pos, CMPF_LONG); pos++) {
+					current_expend_subst += P.at(pos).Quantity;
+				}
+				if(ccrf & ccrfCheckInputBuffer && P.HasCur()) {
+					const CCheckItem & r_buf_item = P.GetCurC();
+					if(r_buf_item.GoodsID == single_subst_goods_id) {
+						current_expend_subst += r_buf_item.Quantity;
+					}
+				}
+			}
+			GetCc().CalcGoodsRest(single_subst_goods_id, now_date, GetCnLocID(single_subst_goods_id), &rest_subst);
+			rest_subst -= current_expend_subst;
+			rest += (rest_subst / single_subst_goods_qtty);
+			if(rest_subst != 0.0)
+				ok = 2;
+		}
+	}
+	ASSIGN_PTR(pRest, rest);
+	return ok;
 }
 
 /*virtual*/void CPosProcessor::SetupRowData(bool doCalcRest)
@@ -1621,7 +1673,14 @@ double CPosProcessor::CalcCurrentRest(PPID goodsID, bool checkInputBuffer)
 	if(doCalcRest) {
 		// @v11.8.3 Если опции кассового узла не предписывают отображение остатка, то (наверное) и расчитывать не стоит. 
 		// Расчет остатков иногда может быть долгим.
-		P.SetRest((PNP.CnFlags & CASHF_SHOWREST) ? CalcCurrentRest(r_item.GoodsID, false/*checkInputBuffer*/) : 0.0);
+		double rest = 0.0;
+		// @v12.5.9 rest = (PNP.CnFlags & CASHF_SHOWREST) ? CalcCurrentRest(r_item.GoodsID, false/*checkInputBuffer*/) : 0.0;
+		// @v12.5.9 {
+		if(PNP.CnFlags & CASHF_SHOWREST) {
+			CalcCurrentRest2(r_item.GoodsID, ccrfCheckSingleSubst, &rest);
+		}
+		// } @v12.5.9 
+		P.SetRest(rest);
 	}
 	SetupInfo(0);
 }
@@ -1903,7 +1962,7 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 	CPosProcessor_SetupDiscontBlock & r_blk = *static_cast<CPosProcessor_SetupDiscontBlock *>(pBlk);
 	if(mode == 0 || (mode == 1 && r_blk.P_Scst)) {
 		PPObjBill * p_bobj(BillObj);
-		CCheckItem * p_item;
+		//CCheckItem * p_item;
 		double min_qtty  = SMathConst::Max;
 		double max_price = 0.0;
 		//const  long rpe_flags = ((CSt.Flags & CardState::fUseMinQuotVal) ? RTLPF_USEMINEXTQVAL : 0) | RTLPF_USEQUOTWTIME;
@@ -1911,31 +1970,34 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 		PPIDArray lot_list;
 		StringSet addendum_msg_list;
 		SString temp_buf;
-		int     is_there_scst_goods_to_query = 0;
 		TSVector <SCardSpecialTreatment::DiscountBlock> scst_dbl;
-		for(i = 0; P.enumItems(&i, (void **)&p_item);) {
-			double qtty = fabs(p_item->Quantity);
+		//for(i = 0; P.enumItems(&i, (void **)&p_item);) {
+		for(i = 0; i < P.getCount(); i++) {
+			CCheckItem & r_item = P.at(i);
+			const  int row_id = static_cast<int>(i+1); // [1..]
+			double qtty = fabs(r_item.Quantity);
 			double gift_item_dis = 0.0; // Подарочная суммовая скидка по строке
-			double item_price = p_item->Price;
-			double item_discount = p_item->Discount;
+			double item_price = r_item.Price;
+			double item_discount = r_item.Discount;
 			int    no_discount = 0;
 			int    no_calcprice = 0;
 			RetailGoodsInfo rgi;
 			long   ext_rgi_flags = 0;
-			const  PPID goods_id = p_item->GoodsID;
+			const  PPID goods_id = r_item.GoodsID;
 			{
 				//
 				// Рассчитываем цену {
 				//
 				double price_by_serial = 0.0;
 				lot_list.clear();
-				if(p_item->Serial[0] && p_bobj->SearchLotsBySerialExactly(p_item->Serial, &lot_list) > 0) { // @v11.4.2 SearchLotsBySerial-->SearchLotsBySerialExactly
+				if(r_item.Serial[0] && p_bobj->SearchLotsBySerialExactly(r_item.Serial, &lot_list) > 0) {
 					ReceiptCore & r_rcpt = p_bobj->trfr->Rcpt;
 					LDATE  last_date = ZERODATE;
 					ReceiptTbl::Rec lot_rec;
-					const  PPID  loc_id = GetCnLocID(goods_id);
+					const  PPID loc_id = GetCnLocID(goods_id);
 					for(uint j = 0; j < lot_list.getCount(); j++) {
-						if(r_rcpt.Search(lot_list.get(j), &lot_rec) > 0 && lot_rec.GoodsID == goods_id && lot_rec.LocID == loc_id && last_date < lot_rec.Dt) {
+						const  PPID iter_lot_id = lot_list.get(j);
+						if(r_rcpt.Search(iter_lot_id, &lot_rec) > 0 && lot_rec.GoodsID == goods_id && lot_rec.LocID == loc_id && last_date < lot_rec.Dt) {
 							price_by_serial = lot_rec.Price;
 							last_date = lot_rec.Dt;
 						}
@@ -1948,7 +2010,8 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 				const int _gpr = GetRgi(goods_id, qtty, ext_rgi_flags, rgi);
 				if(_gpr > 0)
 					item_price = rgi.Price;
-				if(rgi.Flags & RetailGoodsInfo::fNoDiscount || item_price == 0.0) // @v11.5.8 (|| item_price == 0.0)
+				EvaluateSingleSubstPrice(goods_id, qtty, r_item.ChZnPrice, rgi, item_price); // @v12.5.9
+				if(rgi.Flags & RetailGoodsInfo::fNoDiscount || item_price == 0.0)
 					no_discount = 1;
 				//
 				if(_gpr > 0 && (rgi.QuotKindUsedForExtPrice && rgi.ExtPrice >= 0.0)) {
@@ -1972,40 +2035,41 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 				assert(r_blk.P_Scst);
 				if(r_blk.P_Scst && r_blk.P_Scst->DoesWareBelongToScope(goods_id) > 0) {
 					SCardSpecialTreatment::DiscountBlock db;
-					db.RowN = i;
+					db.RowN = row_id;
 					db.GoodsID = goods_id;
-					SETFLAG(db.Flags, db.fProcessed, p_item->RemoteProcessingTa[0]);
+					SETFLAG(db.Flags, db.fProcessed, r_item.RemoteProcessingTa[0]);
 					db.InPrice = item_price-item_discount;
 					db.ResultPrice = item_price-item_discount;
-					db.Qtty = fabs(p_item->Quantity);
-					STRNSCPY(db.TaIdent, p_item->RemoteProcessingTa);
+					db.Qtty = fabs(r_item.Quantity);
+					STRNSCPY(db.TaIdent, r_item.RemoteProcessingTa);
 					//scst_dbl.clear();
 					scst_dbl.insert(&db);
 				}
 			}
 			else {
-				if(p_item->Flags & cifGiftDiscount && r_blk.DistributeGiftDiscount) {
-					gift_item_dis = qtty * p_item->Discount;
+				if(r_item.Flags & cifGiftDiscount && r_blk.DistributeGiftDiscount) {
+					gift_item_dis = qtty * r_item.Discount;
 					if(gift_item_dis != 0.0) {
-						r_blk.GiftDisList.Add((long)(i-1), gift_item_dis);
+						assert(row_id > 0);
+						r_blk.GiftDisList.Add((long)(row_id-1), gift_item_dis);
 						if(!r_blk.IsRounding)
 							r_blk.Amount = R2(r_blk.Amount - gift_item_dis); // Сумму подарочной скидки необходимо вычесть из базы для расчета общей скидки
 					}
-					assert(p_item->Price == 0.0);
-					p_item->Discount = 0.0;
+					assert(r_item.Price == 0.0);
+					r_item.Discount = 0.0;
 				}
-				if(p_item->Flags & (cifGift|cifQuotedByGift|cifPartOfComplex)) {
+				if(r_item.Flags & (cifGift|cifQuotedByGift|cifPartOfComplex)) {
 					no_calcprice = 1;
 					no_discount = 1;
 				}
-				if(r_blk.IsRounding || (p_item->Flags & cifFixedPrice) || (P.Eccd.Flags & P.Eccd.fFixedPrice)) {
+				if(r_blk.IsRounding || (r_item.Flags & cifFixedPrice) || (P.Eccd.Flags & P.Eccd.fFixedPrice)) {
 					no_calcprice = 1;
-					if(p_item->RemoteProcessingTa[0])
+					if(r_item.RemoteProcessingTa[0])
 						no_discount = 1;
 				}
 				if(!no_calcprice) {
-					p_item->Price = item_price;
-					p_item->Discount = item_discount;
+					r_item.Price = item_price;
+					r_item.Discount = item_discount;
 				}
 				else if(!no_discount) { // Дополнительный блок для правильной идентификации блокировки скидки
 					const int _gpr = GetRgi(goods_id, qtty, ext_rgi_flags, rgi);
@@ -2013,13 +2077,13 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 						no_discount = 1;
 				}
 				if(no_discount) {
-					r_blk.WoDisPosList.addUnique(i);
+					r_blk.WoDisPosList.addUnique(row_id);
 				}
 				else {
-					const double p = R2(r_blk.IsRounding ? p_item->NetPrice() : p_item->Price);
+					const double p = R2(r_blk.IsRounding ? r_item.NetPrice() : r_item.Price);
 					r_blk.Amount = R2(r_blk.Amount + p * qtty);
 					if(qtty > 0.0 && (qtty < min_qtty || (qtty == min_qtty && p > max_price))) {
-						r_blk.LastIndex = i;
+						r_blk.LastIndex = row_id;
 						min_qtty = qtty;
 						max_price = p;
 					}
@@ -2032,16 +2096,17 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 			if(r_blk.P_Scst->QueryDiscount(&r_blk.ScstCb, scst_dbl, &qdrf, &addendum_msg_list.Z()) > 0) {
 				for(i = 0; i < scst_dbl.getCount(); i++) {
 					const SCardSpecialTreatment::DiscountBlock & r_db = scst_dbl.at(i);
-					p_item = &P.at(r_db.RowN-1);
-					if(isempty(p_item->RemoteProcessingTa)) {
-						p_item->Discount = 0.0;
-						p_item->Price = r_db.ResultPrice;
-						p_item->Flags |= cifFixedPrice;
-						STRNSCPY(p_item->RemoteProcessingTa, r_db.TaIdent);
+					CCheckItem & r_item = P.at(r_db.RowN-1);
+					if(isempty(r_item.RemoteProcessingTa)) {
+						r_item.Discount = 0.0;
+						r_item.Price = r_db.ResultPrice;
+						r_item.Flags |= cifFixedPrice;
+						STRNSCPY(r_item.RemoteProcessingTa, r_db.TaIdent);
 					}
 				}
-				for(uint sp = 0; addendum_msg_list.get(&sp, temp_buf);)
+				for(uint sp = 0; addendum_msg_list.get(&sp, temp_buf);) {
 					MsgToDisp_Add(temp_buf);
+				}
 			}
 		}
 		r_blk.Amount = R2(r_blk.Amount);
@@ -2243,6 +2308,10 @@ int CPosProcessor::GetRgi(PPID goodsID, double qtty, long extRgiFlags, RetailGoo
 	PPEgaisProcessor * p_eg_prc = DS.GetTLA().GetEgaisProcessor(); // @v12.2.11
 	int    r = GObj.GetRetailGoodsInfo(goodsID, GetCnLocID(goodsID), GetCStEqb(goodsID, &nodis), p_eg_prc, P.GetAgentID(), actual_dtm, fabs(qtty), &rRgi, rgi_flags|extRgiFlags);
 	SETFLAG(rRgi.Flags, RetailGoodsInfo::fNoDiscount, nodis);
+	// @v12.5.9 {
+	if(extRgiFlags & PPObjGoods::rgifUseSingleSubstLogic) {
+	}
+	// } @v12.5.9 
 	return r;
 }
 
@@ -3763,6 +3832,7 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 	return ok;
 }
 
+#if 0 // @v12.5.7 @obsolete {
 /*static*/int CheckPaneDialog::PalmImport(PalmBillPacket * pPack, void * extraPtr)
 {
 	int    ok = PIPR_ERROR_BREAK;
@@ -3770,37 +3840,39 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 	if(pPack && dlg->IsState(sEMPTYLIST_EMPTYBUF)) {
 		SString palm_name;
 		GetObjectName(PPOBJ_STYLOPALM, pPack->Hdr.PalmID, palm_name);
-		int    r = PPMessage(mfConf|mfYes|mfNo|mfCancel|mfDefaultYes, PPCFM_ACCEPTCHECKFROMPALM, palm_name);
-		if(r == cmYes) {
-			PalmBillItem item;
-			for(uint i = 0; pPack->EnumItems(&i, &item) > 0;) {
-				RetailGoodsInfo rgi;
-				if(dlg->GetRgi(item.GoodsID, item.Qtty, 0, rgi)) {
-					const double price = rgi.Price;
-					CCheckItem chk_item;
-					chk_item.GoodsID = item.GoodsID;
-					STRNSCPY(chk_item.GoodsName, rgi.Name);
-					STRNSCPY(chk_item.BarCode,   rgi.BarCode);
-					chk_item.Quantity = R6((dlg->IsCurrentOp(CCOP_RETURN)) ? -fabs(item.Qtty) : fabs(item.Qtty));
-					chk_item.Price    = price;
-					chk_item.Discount = 0.0;
-					dlg->P.insert(&chk_item);
+		const  int r = PPMessage(mfConf|mfYes|mfNo|mfCancel|mfDefaultYes, PPCFM_ACCEPTCHECKFROMPALM, palm_name);
+		switch(r) {
+			case cmYes:
+				{
+					PalmBillItem item;
+					for(uint i = 0; pPack->EnumItems(&i, &item) > 0;) {
+						RetailGoodsInfo rgi;
+						if(dlg->GetRgi(item.GoodsID, item.Qtty, 0, rgi)) {
+							const  double price = rgi.Price;
+							CCheckItem chk_item;
+							chk_item.GoodsID = item.GoodsID;
+							STRNSCPY(chk_item.GoodsName, rgi.Name);
+							STRNSCPY(chk_item.BarCode,   rgi.BarCode);
+							chk_item.Quantity = R6((dlg->IsCurrentOp(CCOP_RETURN)) ? -fabs(item.Qtty) : fabs(item.Qtty));
+							chk_item.Price    = price;
+							chk_item.Discount = 0.0;
+							dlg->P.insert(&chk_item);
+						}
+					}
+					dlg->SetupDiscount(0);
+					dlg->OnUpdateList(1);
+					dlg->ClearRow();
+					ok = PIPR_OK_BREAK;
 				}
-			}
-			dlg->SetupDiscount(0);
-			dlg->OnUpdateList(1);
-			dlg->ClearRow();
-			ok = PIPR_OK_BREAK;
+				break;
+			case cmNo: ok = PIPR_OK_DESTROY; break;
+			case cmCancel: ok = PIPR_OK_DESTROY; break;
+			default: ok = PIPR_ERROR_BREAK; break;
 		}
-		else if(r == cmNo)
-			ok = PIPR_OK_DESTROY;
-		else if(r == cmCancel)
-			ok = PIPR_OK_DESTROY;
-		else // Default
-			ok = PIPR_ERROR_BREAK;
 	}
 	return ok;
 }
+#endif // } 0 @v12.5.7 @obsolete
 
 /*static*/int CheckPaneDialog::SetLbxItemHight(TDialog * pDlg, void * extraPtr) // DialogPreProcFunc
 {
@@ -3902,15 +3974,71 @@ int CheckPaneDialog::PhnSvcConnect()
 	return ok;
 }
 
-CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * pOuterPack, uint ctrFlags/*int isTouchScreen*/) :
+CPosProcessor::IniParamsBlock::IniParamsBlock() : Flags(0), UiFlags(0), AutoInputTolerance(5), SingleSubstPriceOrder(1)
+{
+}
+
+int CPosProcessor::ReadIniParams(IniParamsBlock & rBlk)
+{
+	int    ok = 1;
+	SString temp_buf;
+	PPIniFile ini_file;
+	{
+		{
+			ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_ALTERNATEREGPASS, temp_buf.Z());
+			SETFLAG(rBlk.Flags, IniParamsBlock::fDisableAltRegister, !temp_buf.IsEqiAscii("yes"));
+		}
+		{
+			ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_KITCHENBELLCMD, temp_buf);
+			rBlk.KitchenBellCmd = temp_buf.NotEmptyS() ? temp_buf : "1B70000505";
+			bool   is_err = false;
+			if(rBlk.KitchenBellCmd.Len() % 2 != 0)
+				is_err = true;
+			else {
+				for(uint i = 0; i < rBlk.KitchenBellCmd.Len(); i++) {
+					if(!ishex(rBlk.KitchenBellCmd.C(i))) {
+						is_err = true;
+						break; // @error
+					}
+				}
+			}
+			if(is_err) {
+				rBlk.KitchenBellCmd.Z();
+				PPSetError(PPERR_INVKITCHENBELLCMD, rBlk.KitchenBellCmd);
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
+			}
+		}
+		{
+			int    ait = 0;
+			ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_AUTOINPUTTOLERANCE, &ait);
+			rBlk.AutoInputTolerance = (ait > 0 && ait <= 100) ? ait : 5;
+		}
+		{
+			int   r = 0;
+			ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_TSGOODSGROUPSASBUTTONS, &r);
+			SETFLAG(rBlk.UiFlags, uifTSGGroupsAsButtons, r);
+			ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_TSGGROUPLISTFLAT, &(r = 0));
+			SETFLAG(rBlk.UiFlags, uifOneGroupLevel, r);
+		}
+		{
+			int    value = 0;
+			ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_POSSINGLESUBSTPRICEORDER, &value);
+			rBlk.SingleSubstPriceOrder = oneof6(value, 1, 2, 3, 4, 5, 6) ? value : 1;
+		}		
+	}
+	return ok;
+}
+
+CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * pOuterPack, uint ctrFlags) :
 	TDialog(pOuterPack ? ((ctrFlags & ctrfTouchScreen) ? DLG_CHKPANV_L : DLG_CHKPANV) : ((ctrFlags & ctrfTouchScreen) ? DLG_CHKPAN_TS : DLG_CHKPAN),
 		(ctrFlags & ctrfTouchScreen) ? CheckPaneDialog::SetLbxItemHight : 0, reinterpret_cast<void *>(cashNodeID)),
 	CPosProcessor(cashNodeID, checkID, pOuterPack, ctrFlags, 0/*pDummy*/),
 	PhnSvcTimer(1000), UhttImportTimer(180000), BarrierViolationCounter(0)/*@debug*/, ActiveListID(0), SelGoodsGrpID(0), AltGoodsGrpID(0),
-	GoodsListFontHeight(0), GoodsListEntryGap(0), P_PalmWaiter(0), P_UhttImporter(0), P_CDY(0), P_BNKTERM(0), P_PhnSvcClient(0)
+	GoodsListFontHeight(0), GoodsListEntryGap(0), P_UhttImporter(0), P_CDY(0), P_BNKTERM(0), P_PhnSvcClient(0)
+	/*@v12.5.7 @obsolete P_PalmWaiter(0),*/
 {
 	SetupState(sEMPTYLIST_EMPTYBUF);
-	SETFLAG(DlgFlags, fLarge, /*isTouchScreen*/(ctrFlags & ctrfTouchScreen));
+	SETFLAG(DlgFlags, fLarge, (ctrFlags & ctrfTouchScreen));
 	Ptb.SetColor(clrFocus,  RGB(0x20, 0xAC, 0x90));
 	Ptb.SetColor(clrEven,   RGB(0xD3, 0xEF, 0xF4));
 	Ptb.SetColor(clrOdd,    RGB(0xDC, 0xED, 0xD5));
@@ -3931,7 +4059,7 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 	//
 	// @v11.4.5 LastGrpListUpdTime = getcurdatetime_();
 	CnSleepTimeout = 0;
-	AutoInputTolerance = 5;
+	// @v12.5.9 (moved to CPosProcessor) AutoInputTolerance = 5;
 	IdleClock = clock();
 	PrintCheckClock = 0;
 	ClearCDYTimeout = 0;
@@ -3939,13 +4067,20 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 	SString font_face;
 	if(!(Flags & fNoEdit)) {
 		CsObj.BuildCcDate2MaxIdIndex(PPObjCSession::buildccdate2maxidindexMode_SkipIfCached); // @v11.7.4
-		P_PalmWaiter = new PalmImportWaiter(CheckPaneDialog::PalmImport, this); // @newok
+		// @v12.5.7 @obsolete P_PalmWaiter = new PalmImportWaiter(CheckPaneDialog::PalmImport, this); // @newok
 		{
 			if(APPL->GetUiSettings().Flags & UserInterfaceSettings::fDisableBeep)
 				EnableBeep(0);
 		}
+		/*
+			AltRegisterID
+			KitchenBellCmd
+			AutoInputTolerance
+			SETFLAG(UiFlags, uifTSGGroupsAsButtons, r);
+			SETFLAG(UiFlags, uifOneGroupLevel, r);
+		*/ 
 		if(PNP.CnFlags & CASHF_SYNC) {
-			PPIniFile ini_file;
+			// @v12.5.9 (moved to CPosProcessor::ReadIniParams) PPIniFile ini_file;
 			PPSyncCashNode  scn;
 			if(CnObj.GetSync(PNP.NodeID, &scn) > 0) {
 				P_CDY = GetCustDisp(scn.CustDispType, scn.CustDispPort, scn.CustDispFlags);
@@ -3953,9 +4088,9 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 				CnSleepTimeout  = scn.SleepTimeout * CLOCKS_PER_SEC;
 				if(!GetBnkTerm(scn.BnkTermType, scn.BnkTermLogNum, scn.BnkTermPort, scn.BnkTermPath, &P_BNKTERM))
 					Flags |= fLockBankPaym;
-				TouchScreenID   = NZOR(scn.LocalTouchScrID, scn.TouchScreenID);
-				AltRegisterID   = scn.AlternateRegID;
-				PNP.CnPhnSvcID  = scn.PhnSvcID;
+				TouchScreenID  = NZOR(scn.LocalTouchScrID, scn.TouchScreenID);
+				AltRegisterID  = scn.AlternateRegID;
+				PNP.CnPhnSvcID = scn.PhnSvcID;
 				if(scn.ExtCashNodeID) {
 					if(scn.ExtFlags & CASHFX_EXTNODEASALT && !AltRegisterID)
 						AltRegisterID = scn.ExtCashNodeID;
@@ -3965,8 +4100,12 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 				else
 					ExtCashNodeID = 0;
 				if(AltRegisterID) {
+					/* @v12.5.9
 					ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_ALTERNATEREGPASS, temp_buf.Z());
 					if(!temp_buf.IsEqiAscii("yes"))
+						AltRegisterID = 0;
+					*/
+					if(IniPBlk.Flags & IniParamsBlock::fDisableAltRegister)
 						AltRegisterID = 0;
 				}
 				ScaleID = scn.ScaleID;
@@ -3982,7 +4121,7 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 					CALLPTRMEMB(P_GTOA, Load());
 				}
 				TableSelWhatman = scn.TableSelWhatman;
-				{
+				/* @v12.5.9 (moved to CPosProcessor::ReadIniParams) {
 					ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_KITCHENBELLCMD, temp_buf);
 					KitchenBellCmd = temp_buf.NotEmptyS() ? temp_buf : "1B70000505";
 					bool   is_err = false;
@@ -4001,13 +4140,13 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 						PPSetError(PPERR_INVKITCHENBELLCMD, KitchenBellCmd);
 						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 					}
-				}
-				{
+				}*/
+				/* @v12.5.9 (moved to CPosProcessor::ReadIniParams) {
 					int    ait = 0;
 					ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_AUTOINPUTTOLERANCE, &ait);
 					if(ait > 0 && ait <= 100)
 						AutoInputTolerance = ait;
-				}
+				}*/
 				PhnSvcConnect();
 				if(scn.ExtFlags & CASHFX_UHTTORDIMPORT) {
 					PPAlbatrossConfig acfg;
@@ -4027,10 +4166,16 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 				if(ts_obj.GetPacket(TouchScreenID, &ts_pack) > 0) {
 					LOGFONT log_font;
 					int    r = 1; // 0-->1
-					ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_TSGOODSGROUPSASBUTTONS, &r);
-					SETFLAG(UiFlags, uifTSGGroupsAsButtons, r);
-					ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_TSGGROUPLISTFLAT, &(r = 0));
-					SETFLAG(UiFlags, uifOneGroupLevel, r);
+					{
+						/* @v12.5.9
+						ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_TSGOODSGROUPSASBUTTONS, &r);
+						SETFLAG(UiFlags, uifTSGGroupsAsButtons, r);
+						ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_TSGGROUPLISTFLAT, &(r = 0));
+						SETFLAG(UiFlags, uifOneGroupLevel, r);
+						*/
+						SETFLAGBYSAMPLE(UiFlags, uifTSGGroupsAsButtons, IniPBlk.UiFlags); // @v12.5.9
+						SETFLAGBYSAMPLE(UiFlags, uifOneGroupLevel, IniPBlk.UiFlags); // @v12.5.9
+					}
 					SelGoodsGrpID = AltGoodsGrpID = ts_pack.Rec.AltGdsGrpID;
 					InitGroupList(ts_pack);
 					MEMSZERO(log_font);
@@ -4148,7 +4293,7 @@ CheckPaneDialog::~CheckPaneDialog()
 		ZDELETE(P_CDY);
 	}
 	delete P_BNKTERM;
-	delete P_PalmWaiter;
+	// @v12.5.7 @obsolete delete P_PalmWaiter;
 	delete P_PhnSvcClient;
 	delete P_UhttImporter;
 }
@@ -4276,8 +4421,8 @@ void CheckPaneDialog::AddFromBasket()
 	if(ok > 0 && bc.BasketID) {
 		ILTI * p_item;
 		for(uint i = 0; bc.Pack.Lots.enumItems(&i, (void **)&p_item);) {
-			PgsBlock pgsb(p_item->Quantity);
-			SetupNewRow(p_item->GoodsID, pgsb);
+			PgsBlock pgsb(p_item->GoodsID, p_item->Quantity);
+			SetupNewRow(pgsb);
 		}
 		AcceptRow();
 	}
@@ -4992,18 +5137,19 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 						}
 					}
 					if(r > 0 && r != 1000) {
-						PgsBlock pgsb(qtty);
+						PgsBlock pgsb(goods_id, qtty);
 						pgsb.PriceBySerial = price;
 						pgsb.Serial = is_serial ? code : 0;
-						if(gcsb.Flags & (gcsb.fMarkedCode | gcsb.fChZnCode))
+						if(gcsb.Flags & (gcsb.fMarkedCode|gcsb.fChZnCode))
 							pgsb.Flags |= PgsBlock::fMarkedBarcode;
 						if(gcsb.Flags & gcsb.fChZnCode) {
-							if(gcsb.ChZnSerial[0])
+							if(!isempty(gcsb.ChZnSerial))
 								pgsb.ChZnSerial = gcsb.ChZnSerial;
 							pgsb.ChZnMark = gcsb.Code;
 						}
-						if(PreprocessGoodsSelection(goods_id, loc_id, pgsb) > 0)
-							SetupNewRow(goods_id, pgsb);
+						if(PreprocessGoodsSelection(loc_id, pgsb) > 0) {
+							SetupNewRow(pgsb);
+						}
 					}
 					else if(CsObj.GetEqCfg().Flags & PPEquipConfig::fRecognizeCode) {
 						const  PPID acs_id = GetAgentAccSheet();
@@ -5109,10 +5255,8 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 							paym_blk2.ExclSCardID = CSt.GetID();
 							const double ccpl_total = paym_blk2.CcPl.GetTotal();
 							const bool   is_zero_amt = (ccpl_total == 0.0);
-							// @v11.3.6 paym_blk2.AltCashReg = AltRegisterID ? 0 : -1;
-							SETFLAG(paym_blk2.Flags, PosPaymentBlock::fAltCashRegEnabled, AltRegisterID); // @v11.3.6 
-							paym_blk2.Flags &= ~PosPaymentBlock::fAltCashRegUse; // @v11.3.6 
-							// @v11.3.6 {
+							SETFLAG(paym_blk2.Flags, PosPaymentBlock::fAltCashRegEnabled, AltRegisterID);
+							paym_blk2.Flags &= ~PosPaymentBlock::fAltCashRegUse;
 							if(CSt.GetID()) {
 								PPSCardPacket sc_pack;
 								if(ScObj.GetPacket(CSt.GetID(), &sc_pack) > 0) {
@@ -5138,14 +5282,12 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 										paym_blk2.SetBuyersEAddr(SNTOK_PHONE, _phone);
 								}
 							}
-							// } @v11.3.6
 							if(is_zero_amt) {
 								paym_blk2.Kind = cpmCash;
 							}
 							for(int _again = 1; _again && (is_zero_amt || paym_blk2.EditDialog2() > 0);) { // @v12.5.2 is_zero_amt
 								assert(feqeps(paym_blk2.CcPl.GetTotal(), ccpl_total, 0.00001));
 								assert(oneof3(paym_blk2.Kind, cpmCash, cpmBank, cpmIncorpCrd));
-								// @v11.3.6 {
 								if(!paym_blk2.EAddr.IsEmpty()) {
 									P.EAddr = paym_blk2.EAddr;
 									P.Paperless = LOGIC(paym_blk2.Flags & PosPaymentBlock::fPaperless);
@@ -5154,7 +5296,6 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 									P.EAddr.Z();
 									P.Paperless = false;
 								}
-								// } @v11.3.6 
 								if(!is_zero_amt && CsObj.GetEqCfg().Flags & PPEquipConfig::fUnifiedPaymentCfmBank && paym_blk2.CcPl.Get(CCAMTTYP_CASH) == 0.0 && !ConfirmPosPaymBank(paym_blk2)) {
 									_again = 1;
 								}
@@ -5184,8 +5325,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 										CDispCommand(cdispcmdChange, 0, paym_blk2.Amount, 0.0);
 									if(bnk_paym_result) {
 										PrintBankingSlip(0/*beforeReceipt*/, bnk_slip_buf); // Печатать банковский слип до чека
-										// @v11.3.6 const  PPID alt_reg_id = (paym_blk2.AltCashReg > 0) ? AltRegisterID : 0;
-										const  PPID alt_reg_id = ((paym_blk2.Flags & PosPaymentBlock::fAltCashRegUse) && (paym_blk2.Flags & PosPaymentBlock::fAltCashRegEnabled)) ? AltRegisterID : 0; // @v11.3.6
+										const  PPID alt_reg_id = ((paym_blk2.Flags & PosPaymentBlock::fAltCashRegUse) && (paym_blk2.Flags & PosPaymentBlock::fAltCashRegEnabled)) ? AltRegisterID : 0;
 										AcceptCheck(&cc_id, &paym_blk2.CcPl, alt_reg_id, paym_blk2.NoteAmt, accmRegular);
 										PrintBankingSlip(1/*afterReceipt*/, bnk_slip_buf); // Печатать банковский слип после чека
 									}
@@ -6186,7 +6326,8 @@ private:
 	long   id = 0;
 	uint   pos = 0;
 	SmartListBox * p_view = GetLeftList();
-	SArray * p_rl = GetRight(), * p_ll = GetLeft();
+	SArray * p_rl = GetRight();
+	SArray * p_ll = GetLeft();
 	if(p_view->getCurID(&id) && id && p_ll->lsearch(&id, &pos, CMPF_LONG, 0)) {
 		double qtty = 0.0;
 		ListItem * p_litem = static_cast<ListItem *>(p_ll->at(pos));
@@ -6659,19 +6800,19 @@ private:
 			SetupDeliveryCtrls(0);
 		}
 		else if(event.isClusterClk(CTL_CCHKDLVR_LPHTOCRD)) {
-			const long preserve_flags = Data.Flags;
+			const  long preserve_flags = Data.Flags;
 			SString temp_buf;
 			SString phone_buf;
 			GetClusterData(CTL_CCHKDLVR_LPHTOCRD, &Data.Flags);
 			if(Data.Flags & Data.fCreateCardByPhone) {
-				if(Data.SCardID_ == 0) {
+				if(!Data.SCardID_) {
 					getCtrlString(CTL_CCHKDLVR_PHONE, temp_buf);
 					if(temp_buf.NotEmptyS()) {
 						temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
 						PPEAddr::Phone::NormalizeStr(temp_buf, 0, phone_buf);
 						PPID   scs_pool_id = 0;
 						PPID   sc_id = 0;
-						int    scr = ScObj.SelectCardFromReservePool(&scs_pool_id, 0, &sc_id, 1);
+						const  int scr = ScObj.SelectCardFromReservePool(&scs_pool_id, 0, &sc_id, 1);
 						if(scr > 0) {
 						}
 						else {
@@ -7516,7 +7657,8 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 						CCheckPacket::lnextChZnPm_ReqId, 
 						CCheckPacket::lnextChZnPm_ReqTimestamp, 
 						CCheckPacket::lnextChZnPm_LocalModuleInstance, 
-						CCheckPacket::lnextChZnPm_LocalModuleDbVer
+						CCheckPacket::lnextChZnPm_LocalModuleDbVer,
+						CCheckPacket::lnextChZnPrice, // @v12.5.9
 					};
 					StrAssocArray cclext_list;
 					if(SmartListBox::IsValidS(p_list)) {
@@ -7560,8 +7702,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 	if(TVBROADCAST) {
 		if(TVCMD == cmIdle) {
 			clock_t diff = 0;
-			if(P_PalmWaiter && IsState(sEMPTYLIST_EMPTYBUF))
-				P_PalmWaiter->Activate();
+			// @v12.5.7 @obsolete if(P_PalmWaiter && IsState(sEMPTYLIST_EMPTYBUF)) P_PalmWaiter->Activate();
 			if(CnSleepTimeout && !(Flags & fSuspSleepTimeout)) {
 				diff = clock() - IdleClock;
 				if(diff >= CnSleepTimeout)
@@ -9909,7 +10050,7 @@ int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPri
 	const  SelLotBrowser::Entry * p_sel = 0;
 	int    r;
 	uint   s = 0;
-	const  LDATE curdt = getcurdate_();
+	const  LDATE now_date = getcurdate_();
 	double total_exp = 0.0; // Общий расход товара goodsID активными сессиями
 	SString serial;
 	DateIter diter;
@@ -9920,7 +10061,7 @@ int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPri
 	StringSet seek_serial_list;
 	const  PPID loc_id = GetCnLocID(goodsID);
 	THROW(p_ary = SelLotBrowser::CreateArray());
-	diter.Init(0, curdt);
+	diter.Init(0, now_date);
 	THROW(GetCc().CalcActiveExpendByGoods(goodsID, loc_id, 0, &total_exp));
 	while((r = r_rcpt.EnumLots(goodsID, loc_id, &diter, &lot_rec)) > 0) {
 		double exp = 0.0;
@@ -9933,28 +10074,26 @@ int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPri
 			if(!seek_serial_list.search(serial, 0, 0)) {
 				THROW(GetCc().CalcActiveExpendByGoods(goodsID, loc_id, serial, &exp));
 				{
-					CCheckItem * p_item;
-					for(uint i = 0; P.enumItems(&i, (void **)&p_item);)
-						if(p_item->GoodsID == goodsID && serial.CmpNC(p_item->Serial) == 0) {
-							exp += p_item->Quantity;
-							total_exp += p_item->Quantity;
+					for(uint i = 0; i < P.getCount(); i++) {
+						const  CCheckItem & r_item = P.at(i);
+						if(r_item.GoodsID == goodsID && serial.CmpNC(r_item.Serial) == 0) {
+							exp += r_item.Quantity;
+							total_exp += r_item.Quantity;
 						}
+					}
 				}
 				seek_serial_list.add(serial);
 			}
 			rest -= exp;
 			total_exp -= exp;
-			if(rest > 0.0 || !(PNP.CnFlags & CASHF_ABOVEZEROSALE))
-				THROW(SelLotBrowser::AddItemToArray(p_ary, &lot_rec, curdt, rest, 1));
+			if(rest > 0.0 || !(PNP.CnFlags & CASHF_ABOVEZEROSALE)) {
+				THROW(SelLotBrowser::AddItemToArray(p_ary, &lot_rec, now_date, rest, 1));
+			}
 		}
 	}
 	THROW(r);
 	if(p_ary->getCount()) {
-		long   slbf = 0;
-		// @v11.1.8 {
-		if(CsObj.GetEqCfg().Flags & PPEquipConfig::fDisableSellSpoiledSeries)
-			slbf |= SelLotBrowser::fDisableSelectionSpoiledSeries;
-		// } @v11.1.8 
+		const  long slbf = (CsObj.GetEqCfg().Flags & PPEquipConfig::fDisableSellSpoiledSeries) ? SelLotBrowser::fDisableSelectionSpoiledSeries : 0;
 		THROW_MEM(p_brw = new SelLotBrowser(p_bobj, p_ary, s, slbf)); // @newok
 		if(ExecView(p_brw) == cmOK && (p_sel = static_cast<const SelLotBrowser::Entry *>(p_brw->getCurItem())) != 0) {
 			if((serial = p_sel->Serial).NotEmptyS()) {
@@ -10104,18 +10243,18 @@ int CheckPaneDialog::ChZnMarkAutoSelect(PPID goodsID, double qtty, SString & rCh
 	return ok;
 }
 
-int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, PgsBlock & rBlk)
+int CheckPaneDialog::PreprocessGoodsSelection(PPID locID, PgsBlock & rBlk)
 {
 	int    ok = -1;
 	const  LDATETIME now_dtm = getcurdatetime_();
 	SString temp_buf;
 	Goods2Tbl::Rec goods_rec;
-	if(GObj.Fetch(goodsID, &goods_rec) > 0) { // @v11.2.8 CheckMatrix
+	if(GObj.Fetch(rBlk.GoodsID, &goods_rec) > 0) {
 		const  PPID sc_id = CSt.GetID();
-		if(PNP.CnExtFlags & CASHFX_USEGOODSMATRIX && !GObj.CheckMatrix(goodsID, GetCnLocID(goodsID), 0, 0)) { // @v11.2.8
+		if(PNP.CnExtFlags & CASHFX_USEGOODSMATRIX && !GObj.CheckMatrix(rBlk.GoodsID, GetCnLocID(rBlk.GoodsID), 0, 0)) {
 			ok = MessageError(-1, 0, eomBeep | eomPopup/*eomStatusLine*/);
 		}
-		else if(goodsID == GetChargeGoodsID(sc_id)) {
+		else if(rBlk.GoodsID == GetChargeGoodsID(sc_id)) {
 			// @todo Здесь надо проверить что бы товар не был равен ChargeGoodsID из любой кредитной серии карт
 			ok = (sc_id && ScObj.IsCreditCard(sc_id)) ? 1 : MessageError(PPERR_INVUSAGECHARGEGOODS, 0, eomStatusLine);
 		}
@@ -10136,7 +10275,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 				PPGoodsStrucItem gs_item;
 				for(uint i = 0; i < partial_struc.EnumItemsExt(&i, &gs_item, PPID parentGoodsID, double srcQtty, double * pQtty) const;
 			}
-			else*/if(LoadComplex(goodsID, complex) > 0 && InputComplexDinner(complex) > 0 && complex.IsComplete() && complex.getCount()) {
+			else*/if(LoadComplex(rBlk.GoodsID, complex) > 0 && InputComplexDinner(complex) > 0 && complex.IsComplete() && complex.getCount()) {
 				//
 				// @todo В этом блоке осуществляется агрегированная автоматическая вставка нескольких позиций из комплекса.
 				// Необходимо для каждой из этих позиций проверить валидность параметров (что-то вроде рекурсивного вызова PreprocessGoodsSelection()
@@ -10160,12 +10299,16 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 				ClearInput(0);
 				ok = -1;
 			}
-			else if(GObj.CheckFlag(goodsID, GF_GENERIC)) {
-				PPObject::SetLastErrObj(PPOBJ_GOODS, labs(goodsID));
+			else if(GObj.CheckFlag(rBlk.GoodsID, GF_GENERIC)) {
+				PPObject::SetLastErrObj(PPOBJ_GOODS, labs(rBlk.GoodsID));
 				ok = MessageError(PPERR_INVGENGOODSCCOP, 0, eomBeep | eomStatusLine);
 			}
 			else {
-				ok = CheckPaneDialog::VerifyQuantity(goodsID, rBlk.Qtty, 0, true/*adjustQtty*/, true/*checkInputBuffer*/);
+				// @v12.5.9 {
+				//double single_subst_goods_qtty = 0.0;
+				//PPID   single_subst_goods_id = GetSingleSubstGoods(rBlk.GoodsID, &single_subst_goods_qtty); // @v12.5.9
+				// } @v12.5.9 
+				ok = CheckPaneDialog::VerifyQuantity(rBlk.GoodsID, rBlk.Qtty, 0, true/*adjustQtty*/, true/*checkInputBuffer*/);
 				if(ok > 0) {
 					// @v12.0.12 {
 					/*if(rBlk.ChZnMark.NotEmpty()) {
@@ -10178,7 +10321,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 							int   first_rbb = 0;
 							long  box_no = 0;
 							if(p_lotxct->GetRecListByMark(rBlk.ChZnMark, rec_list) > 0) {
-								const  PPID loc_id = GetCnLocID(goodsID);
+								const  PPID loc_id = GetCnLocID(rBlk.GoodsID);
 								ReceiptCore & r_rcpt = p_bobj->trfr->Rcpt;
 								ReceiptTbl::Rec lot_rec;
 								for(uint lotxcidx = 0; lotxcidx < rec_list.getCount(); lotxcidx++) {
@@ -10200,7 +10343,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 					const SString preserve_chzn_mark(rBlk.ChZnMark);
 					const SString preserve_egais_mark(rBlk.EgaisMark);
 					if(Flags & fSelSerial && rBlk.Serial.IsEmpty() /*&& rBlk.ChZnMark.IsEmpty()*/) { // @v12.0.12 Если указана марка то смысла выбирать серию нет // @v12.1.1 это была плохая идея :(
-						const int r = SelectSerial(goodsID, rBlk.Serial, &rBlk.PriceBySerial);
+						const int r = SelectSerial(rBlk.GoodsID, rBlk.Serial, &rBlk.PriceBySerial);
 						ok = (r > 0 || r == -2) ? 1 : -1;
 					}
 					else {
@@ -10208,10 +10351,10 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 						if(lbpp > 0 && goods_rec.GoodsTypeID && gt_rec.Flags & GTF_LOOKBACKPRICES) {
 							RetailGoodsInfo rgi;
 							long   ext_rgi_flags = 0;
-							GetRgi(goodsID, rBlk.Qtty, ext_rgi_flags, rgi);
+							GetRgi(rBlk.GoodsID, rBlk.Qtty, ext_rgi_flags, rgi);
 							if(rgi.Price > 0.0) {
 								RealArray lbpl;
-								AsyncCashGoodsIterator::__GetDifferentPricesForLookBackPeriod(goodsID, locID, rgi.Price, lbpp, lbpl);
+								AsyncCashGoodsIterator::__GetDifferentPricesForLookBackPeriod(rBlk.GoodsID, locID, rgi.Price, lbpp, lbpl);
 								if(lbpl.getCount()) {
 									PPID   sel_id = 0;
 									lbpl.atInsert(0, &rgi.Price);
@@ -10255,9 +10398,9 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 						bool   is_mark_processed = false;
 						if(oneof3(PNP.EgaisMode, 1, 2, 3)) {
 							PPEgaisProcessor * p_eg_prc = DS.GetTLA().GetEgaisProcessor();
-							if(p_eg_prc && p_eg_prc->IsAlcGoods(goodsID)) {
+							if(p_eg_prc && p_eg_prc->IsAlcGoods(rBlk.GoodsID)) {
 								PrcssrAlcReport::GoodsItem agi;
-								if(p_eg_prc->PreprocessGoodsItem(goodsID, 0, 0, 0, agi) && agi.StatusFlags & agi.stMarkWanted) {
+								if(p_eg_prc->PreprocessGoodsItem(rBlk.GoodsID, 0, 0, 0, agi) && agi.StatusFlags & agi.stMarkWanted) {
 									is_mark_processed = true;
 									const TimeRange & r_rsat = p_eg_prc->GetConfig().E.RtlSaleAllwTime;
 									if(!r_rsat.IsZero() && !r_rsat.Check(getcurtime_())) {
@@ -10343,15 +10486,15 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 							}
 						}
 						if(!is_mark_processed) {
-							const bool is_simplified_draftbeer = PPSyncCashSession::IsSimplifiedDraftBeerPosition(PNP.NodeID, goodsID); // @v11.9.4
+							const bool is_simplified_draftbeer = PPSyncCashSession::IsSimplifiedDraftBeerPosition(PNP.NodeID, rBlk.GoodsID); // @v11.9.4
 							if((gt_rec.Flags & GTF_GMARKED || (rBlk.Flags & PgsBlock::fMarkedBarcode)) && !is_simplified_draftbeer) {
-								const int disable_chzn_mark_backtest = 0; // Проблемы с сигаретами - слишком много продаж и идентификация дубликатов занимает много времени // @v11.7.4 1-->0
+								const  int disable_chzn_mark_backtest = 0; // Проблемы с сигаретами - слишком много продаж и идентификация дубликатов занимает много времени // @v11.7.4 1-->0
 								if(!(PNP.CnSpeciality == PPCashNode::spApteka && (rBlk.Qtty > 0.0 && rBlk.Qtty < 1.0))) // @v11.6.9
 									rBlk.Qtty = 1.0; // Маркированная продукция - строго по одной штуке на строку чека (исключение: аптека и остаток менее 1)
 								SString chzn_mark(rBlk.ChZnMark);
-								int imr = -1000; // Result of the function PPChZnPrcssr::InputMark() (-1000 - wasn't called)
+								int    imr = -1000; // Result of the function PPChZnPrcssr::InputMark() (-1000 - wasn't called)
 								// @v12.0.5 {
-								if(ChZnMarkAutoSelect(goodsID, rBlk.Qtty, chzn_mark) > 0) {
+								if(ChZnMarkAutoSelect(rBlk.GoodsID, rBlk.Qtty, chzn_mark) > 0) {
 									rBlk.ChZnMark = chzn_mark;
 									imr  = 1;
 								}
@@ -10412,22 +10555,25 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 										for(uint i = 0; i < pm_code_list.getCount(); i++) {
 											const PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = pm_code_list.at(i);
 											if(p_cle) {
-												if(CConfig.Flags2__ & CCFLG2_RESTRICTCHZNPMPRICE) { // @v12.2.5
+												const  long ccfg_f2 = CConfig.Flags2__;
+												//const double _mrp = R2(p_cle->Mrp / 100.0);
+												//const double _smp = R2(p_cle->Smp / 100.0);
+												rBlk.PriceByMarkPmMrp = R2(p_cle->Mrp / 100.0);
+												rBlk.PriceByMarkPmSmp = R2(p_cle->Smp / 100.0);
+												if(ccfg_f2 & CCFLG2_RESTRICTCHZNPMPRICE) { // @v12.2.5
 													// @v12.2.2 {
-													const double _mrp = R2(p_cle->Mrp / 100.0);
-													const double _smp = R2(p_cle->Smp / 100.0);
 													if(gt_rec.ChZnProdType != GTCHZNPT_ALTTOBACCO) { // @v12.2.4 Для альтернативной табачной продукции ценовое ограничение не проверяем.
-														if(_mrp > 0.0) {
-															rBlk.AllowedPriceRange.upp = _mrp;
+														if(rBlk.PriceByMarkPmMrp > 0.0) {
+															rBlk.AllowedPriceRange.upp = rBlk.PriceByMarkPmMrp;
 														}
-														if(_smp > 0.0) {
-															rBlk.AllowedPriceRange.low = _smp;
+														if(rBlk.PriceByMarkPmSmp > 0.0) {
+															rBlk.AllowedPriceRange.low = rBlk.PriceByMarkPmSmp;
 														}
 														// @v12.2.4 {
 														if(gt_rec.ChZnProdType == GTCHZNPT_TOBACCO) { // @v12.2.5 @fix (!=)-->(==)
-															if(CConfig.Flags2__ & CCFLG2_RESTRICTCHZNCIGPRICEASMRC) {
-																if(_mrp > 0.0) {
-																	rBlk.AllowedPriceRange.SetVal(_mrp);
+															if(ccfg_f2 & CCFLG2_RESTRICTCHZNCIGPRICEASMRC) {
+																if(rBlk.PriceByMarkPmMrp > 0.0) {
+																	rBlk.AllowedPriceRange.SetVal(rBlk.PriceByMarkPmMrp);
 																}
 															}
 														}
@@ -10479,16 +10625,16 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 	if(PNP.CnFlags & CASHF_DISABLEZEROAGENT && !P.GetAgentID())
 		r = MessageError(PPERR_CHKPAN_SALERNEEDED, 0, eomBeep | eomStatusLine);
 	else if(Flags & fPrinted && !(OperRightsFlags & orfChgPrintedCheck))
-		MessageError(PPERR_NORIGHTS, 0, eomBeep | eomStatusLine);
+		MessageError(PPERR_NORIGHTS, 0, eomBeep|eomStatusLine);
 	else if(mode == sgmInnerGoodsList) {
 		SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_GDSLIST));
 		if(SmartListBox::IsValidS(p_list)) {
 			PPID   goods_id = 0;
 			p_list->P_Def->getCurID(&goods_id);
-			PgsBlock pgsb(1.0);
-			r = PreprocessGoodsSelection(goods_id, 0, pgsb);
+			PgsBlock pgsb(goods_id, 1.0);
+			r = PreprocessGoodsSelection(0, pgsb);
 			if(r > 0) {
-				r = SetupNewRow(goods_id, pgsb);
+				r = SetupNewRow(pgsb);
 				// @v12.2.2 {
 				if(!r)
 					P.ClearCur();
@@ -10499,10 +10645,10 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 	}
 	else if(mode == sgmAbstractSale) {
         if(PNP.AbstractGoodsID && GetInput()) {
-			PgsBlock pgsb(1.0);
+			PgsBlock pgsb(PNP.AbstractGoodsID, 1.0);
 			pgsb.AbstractPrice = R2(Input.ToReal());
 			if(pgsb.AbstractPrice > 0.0) {
-				r = SetupNewRow(PNP.AbstractGoodsID, pgsb);
+				r = SetupNewRow(pgsb);
 			}
 			ClearInput(0);
         }
@@ -10623,8 +10769,9 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 		PPIDArray  rand_gds_ary;
 		if(GObj.GetRandomIdsAry(100, &rand_gds_ary) > 0) {
 			for(uint i = 0; i < rand_gds_ary.getCount(); i++) {
-				PgsBlock pgsb(1.0);
-				SetupNewRow(rand_gds_ary.at(i), pgsb);
+				const  PPID iter_goods_id = rand_gds_ary.get(i);
+				PgsBlock pgsb(iter_goods_id, 1.0);
+				SetupNewRow(pgsb);
 			}
 			AcceptRow();
 		}
@@ -10684,9 +10831,9 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 			if(ExecView(P_EGSDlg) == cmOK) {
 				TIDlgInitData tidi;
 				if(P_EGSDlg->getDTS(&tidi) > 0) {
-					PgsBlock pgsb(tidi.Quantity);
-					if(PreprocessGoodsSelection(tidi.GoodsID, 0, pgsb) > 0)
-						r = SetupNewRow(tidi.GoodsID, pgsb);
+					PgsBlock pgsb(tidi.GoodsID, tidi.Quantity);
+					if(PreprocessGoodsSelection(0, pgsb) > 0)
+						r = SetupNewRow(pgsb);
 					else
 						r = 0;
 				}
@@ -10743,8 +10890,7 @@ int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, const CCheckIt
 			}
 			if(pCurItem && !isempty(pCurItem->ChZnMark)) { 
 				PPGoodsType2 gt_rec;
-				// @v11.2.5 if(CnSpeciality == PPCashNode::spApteka) {
-				if(GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.ChZnProdType == GTCHZNPT_MEDICINE) { // @v11.2.5 
+				if(GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.ChZnProdType == GTCHZNPT_MEDICINE) {
 					if(rQtty < 1.0) {
 						if(!u_rec.ValidateQuantityFraction(rQtty)) {
 							ok = MessageError(-1, 0, eomStatusLine|eomBeep);							
@@ -10773,28 +10919,35 @@ int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, const CCheckIt
 			// Проверка на непревышение текущего остатка (при установленном флаге CASHF_ABOVEZEROSALE)
 			//
 			if(ok) {
-				int    rest_check_wanted = 0;
+				bool   rest_check_wanted = false;
 				if(!is_unlim) {
 					if(PNP.CnFlags & CASHF_ABOVEZEROSALE)
-						rest_check_wanted = 1;
+						rest_check_wanted = true;
 					else if(adjustQtty && !(PNP.CnFlags & CASHF_SELALLGOODS))
-						rest_check_wanted = 1;
+						rest_check_wanted = true;
 				}
 				if(rest_check_wanted) {
-					const double rest = CalcCurrentRest(goodsID, checkInputBuffer); // @v11.0.3 @fix checkInputBuffer 0-->checkInputBuffer
+					// @v12.5.9 const double rest = CalcCurrentRest(goodsID, checkInputBuffer);
+					// @v12.5.9 {
+					double rest = 0.0;
+					uint   ccrf = checkInputBuffer ? (ccrfCheckInputBuffer|ccrfCheckSingleSubst) : ccrfCheckSingleSubst;
+					const  int ccr2r = CalcCurrentRest2(goodsID, ccrf, &rest);
+					// } @v12.5.9 
 					if(rest < rQtty) {
 						const double __prec = (u_rec.Rounding_ != 0.0) ? u_rec.Rounding_ : 0.001;
 						if(adjustQtty && rQtty == 1.0 && rest >= __prec) {
 							rQtty = round(rest, __prec, -1);
 							ok = 1;
 						}
-						else if(PNP.CnFlags & CASHF_ABOVEZEROSALE) {
-							PPObject::SetLastErrObj(PPOBJ_GOODS, labs(goodsID));
-							ok = MessageError(PPERR_LOTRESTBOUND, 0, eomBeep|eomStatusLine);
-						}
-						else if(adjustQtty) {
-							GetGoodsName(goodsID, temp_buf);
-							ok = ConfirmMessage(PPCFM_GOODSRESTNOTENOUGH, temp_buf, 1) ? 1 : -2;
+						else {
+							if(PNP.CnFlags & CASHF_ABOVEZEROSALE) {
+								PPObject::SetLastErrObj(PPOBJ_GOODS, labs(goodsID));
+								ok = MessageError(PPERR_LOTRESTBOUND, 0, eomBeep|eomStatusLine);
+							}
+							else if(adjustQtty) {
+								GetGoodsName(goodsID, temp_buf);
+								ok = ConfirmMessage(PPCFM_GOODSRESTNOTENOUGH, temp_buf, 1) ? 1 : -2;
+							}
 						}
 					}
 				}
@@ -10814,8 +10967,8 @@ void CheckPaneDialog::AcceptQuantity()
 	if(goods_id) {
 		SString temp_buf;
 		CCheckItem & r_cur = P.GetCur();
-		const CCheckItem preserve_item = r_cur;
-		double prev_qtty = r_cur.Quantity;
+		const  CCheckItem preserve_item = r_cur;
+		const  double prev_qtty = r_cur.Quantity;
 		double qtty = 0.0;
 		is_input = GetInput();
 		if(!is_input && ScaleID) {
@@ -10833,15 +10986,16 @@ void CheckPaneDialog::AcceptQuantity()
 			is_input = GetInput();
 		}
 		if(is_input) {
-			int    last_slash = 0;
 			Input.ShiftLeftChr('*').TrimRightChr('*');
-			if(Input.Last() == '/') {
-				last_slash = 1;
+			const  bool is_last_slash = (Input.Last() == '/');
+			if(is_last_slash) {
 				Input.TrimRight();
 			}
 			if(qtty == 0.0) {
-				double dr = 0.0, dd = 1.0;
-				SString dr_buf, dd_buf;
+				double dr = 0.0;
+				double dd = 1.0;
+				SString dr_buf;
+				SString dd_buf;
 				if(Input.Divide('/', dr_buf, dd_buf) > 0) {
 					dr = dr_buf.ToReal();
 					dd = dd_buf.ToReal();
@@ -10852,7 +11006,7 @@ void CheckPaneDialog::AcceptQuantity()
 			}
 			if(qtty > 0.0) {
 				r_cur.PhQtty = 0.0;
-				if(last_slash) {
+				if(is_last_slash) {
 					double phuperu;
 					if(GObj.GetPhUPerU(goods_id, 0, &phuperu) > 0) {
 						r_cur.PhQtty = qtty;
@@ -10863,8 +11017,7 @@ void CheckPaneDialog::AcceptQuantity()
 				if(ok) {
 					r_cur.Quantity = (goods_id == GetChargeGoodsID(CSt.GetID())) ? fabs(R3(qtty)) : qtty;
 					//
-					// Так как некоторые котировки могут зависеть от количества, при изменении количества необходимо
-					// снова определить цену.
+					// Так как некоторые котировки могут зависеть от количества, при изменении количества необходимо снова определить цену.
 					//
 					if(fabs(qtty) != fabs(prev_qtty) && !(r_cur.Flags & cifPriceBySerial)) {
 						RetailGoodsInfo rgi;
@@ -11925,8 +12078,8 @@ int CPosProcessor::SetupSCard(PPID scID, const SCardTbl::Rec * pScRec)
 		assert(pScRec);
 		THROW(Implement_AcceptSCard(*pScRec, 0));
 		if(pScRec->AutoGoodsID) {
-			PgsBlock pgsb(1.0);
-			SetupNewRow(pScRec->AutoGoodsID, pgsb);
+			PgsBlock pgsb(pScRec->AutoGoodsID, 1.0);
+			SetupNewRow(pgsb);
 		}
 		CSt.Discount = fdiv100i(pScRec->PDis);
 		Flags |= fPctDis;
@@ -11992,8 +12145,8 @@ int CPosProcessor::Backend_AcceptSCard(PPID scardID, const SCardSpecialTreatment
 					else {
 						THROW(Implement_AcceptSCard(sc_rec, pStirb));
 						if(sc_rec.AutoGoodsID) {
-							PgsBlock pgsb(1.0);
-							SetupNewRow(sc_rec.AutoGoodsID, pgsb);
+							PgsBlock pgsb(sc_rec.AutoGoodsID, 1.0);
+							SetupNewRow(pgsb);
 						}
 						CSt.Discount = fdiv100i(sc_rec.PDis);
 						Flags |= fPctDis;
@@ -12202,9 +12355,9 @@ void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::Ide
 										auto_goods_id = sc_rec.AutoGoodsID;
 									}
 									if(auto_goods_id) {
-										PgsBlock pgsb(1.0);
-										if(PreprocessGoodsSelection(auto_goods_id, 0, pgsb) > 0)
-											SetupNewRow(auto_goods_id, pgsb);
+										PgsBlock pgsb(auto_goods_id, 1.0);
+										if(PreprocessGoodsSelection(0, pgsb) > 0)
+											SetupNewRow(pgsb);
 									}
 								}
 								CSt.Discount = fdiv100i(sc_rec.PDis);
@@ -12265,9 +12418,9 @@ void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::Ide
 
 /*virtual*/void CheckPaneDialog::SetupRowData(bool doCalcRest)
 {
-	const CCheckItem & r_item = P.GetCurC();
-	SString temp_buf;
+	const  CCheckItem & r_item = P.GetCurC();
 	double sum = R2(r_item.Quantity * (r_item.Price - r_item.Discount));
+	SString temp_buf;
 	SString buf(r_item.GoodsName);
 	if(P.CurModifList.getCount()) {
 		buf.Space().CatChar('{').CatChar('+');
@@ -12361,13 +12514,13 @@ int CPosProcessor::CheckPriceRestrictions(PPID goodsID, const CCheckItem & rCi, 
 				if(!range.CheckValEps(price, 1E-7)) {
 					SString temp_buf;
 					if(range.low > 0.0 && price < range.low) {
-						SString & r_nam_buf = SLS.AcquireRvlStr();
-						temp_buf.Z().Cat(range.low, SFMT_MONEY).Space().Cat(GetGoodsName(goodsID, r_nam_buf));
+						// @v12.5.9 SString & r_nam_buf = SLS.AcquireRvlStr();
+						temp_buf.Z().Cat(range.low, SFMT_MONEY).Space().Cat(/*@v12.5.9 GetGoodsName(goodsID, r_nam_buf)*/goods_rec.Name);
 						ok = PPSetError(PPERR_PRICERESTRLOW, temp_buf);
 					}
 					else if(range.upp > 0.0 && price > range.upp) {
-						SString & r_nam_buf = SLS.AcquireRvlStr();
-						temp_buf.Z().Cat(range.upp, SFMT_MONEY).Space().Cat(GetGoodsName(goodsID, r_nam_buf));
+						// @v12.5.9 SString & r_nam_buf = SLS.AcquireRvlStr();
+						temp_buf.Z().Cat(range.upp, SFMT_MONEY).Space().Cat(/*@v12.5.9 GetGoodsName(goodsID, r_nam_buf)*/goods_rec.Name);
 						ok = PPSetError(PPERR_PRICERESTRUPP, temp_buf);
 					}
 				}
@@ -12377,41 +12530,210 @@ int CPosProcessor::CheckPriceRestrictions(PPID goodsID, const CCheckItem & rCi, 
 	return ok;
 }
 
-int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
+PPID CPosProcessor::GetSingleSubstGoods(PPID orgGoodsID, double * pSubstQtty) // @v12.5.9
+{
+	PPID   result_goods_id = 0;
+	double single_subst_goods_qtty = 0.0;
+	if(orgGoodsID) {
+		PPObjBill * p_bobj(BillObj);
+		if(p_bobj && p_bobj->GetConfig().GoodsSubstMethod == PPBillConfig::gsmSubstStruc) {
+			RAssocArray subst_list;
+			GObj.GetSubstList(orgGoodsID, true/*substStrucOnly*/, subst_list);
+			if(subst_list.getCount() == 1) {
+				result_goods_id = subst_list.at(0).Key;
+				single_subst_goods_qtty = subst_list.at(0).Val;
+			}
+			/*
+			PPGoodsStruc subst_gstruc;
+			if(GObj.LoadGoodsStruc(PPGoodsStruc::Ident(orgGoodsID, GSF_SUBST, 0, getcurdate_()), &subst_gstruc) > 0) {
+				if(subst_gstruc.Items.getCount() == 1) {
+					const PPGoodsStrucItem & r_gs_item = subst_gstruc.Items.at(0);
+					result_goods_id = r_gs_item.GoodsID;
+					r_gs_item.GetQtty(1.0, &single_subst_goods_qtty);
+				}
+			}*/
+		}
+	}
+	ASSIGN_PTR(pSubstQtty, single_subst_goods_qtty);
+	return result_goods_id;
+}
+//
+// Returns:
+//   <0 - у товара rBlk.GoodsID нет single-подстановки
+//   >0 - у товара rBlk.GoodsID есть single-подстановка и удалось идентифицировать цену
+//    0 - у товара rBlk.GoodsID есть single-подстановка и НЕ удалось идентифицировать цену
+//
+int CPosProcessor::EvaluateSingleSubstPrice(PPID goodsID, double qtty, double chznPrice, const RetailGoodsInfo & rRgi, double & rPrice) // @v12.5.9
+
+{
+	int    ok = -1;
+	bool   is_price_defined = (rPrice > 0.0 || (rPrice == 0.0 && rRgi.QuotKindUsedForPrice));
+	if(!is_price_defined) {
+		double single_subst_goods_qtty = 0.0;
+		const  PPID single_subst_goods_id = GetSingleSubstGoods(goodsID, &single_subst_goods_qtty);
+		if(single_subst_goods_id && single_subst_goods_qtty > 0.0) {
+			ok = 1;
+			//
+			// Если для товара есть single-подстановка, применяем сложную логику выбора источника цены
+			// На входе: price, is_price_defined — базовая цена товара
+			// На выходе: price, is_price_defined — финальная цена с учетом приоритетов
+			//
+			bool   is_subst_price_defined = false;
+			const  double chzn_price = chznPrice;
+			const  bool is_chzn_price_defined = (chzn_price > 0.0);
+			//
+			// PosSingleSubstPriceOrder
+			// 1 - own price or quot -> subst goods with qtty_coeff -> chzn mrc 
+			// 2 - subst goods with qtty_coeff -> own price or quot -> chzn mrc 
+			// 3 - subst goods with qtty_coeff -> chzn mrc -> own price or quot 
+			// 4 - chzn mrc -> subst goods with qtty_coeff -> own price or quot 
+			// 5 - chzn mrc -> own price or quot -> subst goods with qtty_coeff 
+			// 6 - own price or quot -> chzn mrc -> subst goods with qtty_coeff 
+			//
+			RetailGoodsInfo rgi_subst;
+			const  int r2 = GetRgi(single_subst_goods_id, qtty * single_subst_goods_qtty, PPObjGoods::rgifPriceOnly, rgi_subst);
+			double subst_price = 0.0;
+			if(r2 > 0 && rgi_subst.Price > 0.0) {
+				subst_price = rgi_subst.Price * single_subst_goods_qtty;
+				is_subst_price_defined = true;
+			}
+			switch(IniPBlk.SingleSubstPriceOrder) {
+				case 2: // 2 - subst goods with qtty_coeff -> own price or quot -> chzn mrc 
+					if(is_subst_price_defined) {
+						rPrice = subst_price;
+						is_price_defined = true;
+					}
+					else if(is_price_defined) {
+						assert(rPrice > 0.0 || (rPrice == 0.0 && rRgi.QuotKindUsedForPrice));
+					}
+					else if(is_chzn_price_defined) {
+						rPrice = chzn_price;
+						is_price_defined = true;
+					}
+					else
+						is_price_defined = false;
+					break;
+				case 3: // 3 - subst goods with qtty_coeff -> chzn mrc -> own price or quot 
+					if(is_subst_price_defined) {
+						rPrice = subst_price;
+						is_price_defined = true;
+					}
+					else if(is_chzn_price_defined) {
+						rPrice = chzn_price;
+						is_price_defined = true;
+					}
+					else if(is_price_defined) {
+						assert(rPrice > 0.0 || (rPrice == 0.0 && rRgi.QuotKindUsedForPrice));
+					}
+					else
+						is_price_defined = false;
+					break;
+				case 4: // 4 - chzn mrc -> subst goods with qtty_coeff -> own price or quot 
+					if(is_chzn_price_defined) {
+						rPrice = chzn_price;
+						is_price_defined = true;
+					}
+					else if(is_subst_price_defined) {
+						rPrice = subst_price;
+						is_price_defined = true;
+					}
+					else if(is_price_defined) {
+						assert(rPrice > 0.0 || (rPrice == 0.0 && rRgi.QuotKindUsedForPrice));
+					}
+					else
+						is_price_defined = false;
+					break;
+				case 5: // 5 - chzn mrc -> own price or quot -> subst goods with qtty_coeff 
+					if(is_chzn_price_defined) {
+						rPrice = chzn_price;
+						is_price_defined = true;
+					}
+					else if(is_price_defined) {
+						assert(rPrice > 0.0 || (rPrice == 0.0 && rRgi.QuotKindUsedForPrice));
+					}
+					else if(is_subst_price_defined) {
+						rPrice = subst_price;
+						is_price_defined = true;
+					}
+					else
+						is_price_defined = false;
+					break;
+				case 6: // 6 - own price or quot -> chzn mrc -> subst goods with qtty_coeff 
+					if(is_price_defined) {
+						assert(rPrice > 0.0 || (rPrice == 0.0 && rRgi.QuotKindUsedForPrice));
+					}
+					else if(is_chzn_price_defined) {
+						rPrice = chzn_price;
+						is_price_defined = true;
+					}
+					else if(is_subst_price_defined) {
+						rPrice = subst_price;
+						is_price_defined = true;
+					}
+					else
+						is_price_defined = false;
+					break;
+				case 1: // 1 - own price or quot -> subst goods with qtty_coeff -> chzn mrc 
+				default: 
+					if(is_price_defined) {
+						assert(rPrice > 0.0 || (rPrice == 0.0 && rRgi.QuotKindUsedForPrice));
+					}
+					else if(is_subst_price_defined) {
+						rPrice = subst_price;
+						is_price_defined = true;
+					}
+					else if(is_chzn_price_defined) {
+						rPrice = chzn_price;
+						is_price_defined = true;
+					}
+					else
+						is_price_defined = false;
+					break;
+			}
+			if(!is_price_defined)
+				ok = 0;
+		}
+	}
+	return ok;
+}
+
+int CPosProcessor::SetupNewRow(PgsBlock & rBlk, PPID giftID/*=0*/)
 {
 	int    ok = 1;
-	int    r = 0;
 	SString temp_buf;
 	if(Flags & fPrinted && !(OperRightsFlags & orfChgPrintedCheck)) {
 		ok = MessageError(PPERR_NORIGHTS, 0, eomBeep|eomStatusLine);
 	}
 	else {
 		const bool gift_money = (giftID && rBlk.PriceBySerial > 0.0);
-		if(AcceptRow(giftID)) {
+		if(!AcceptRow(giftID)) {
+			ok = 0;
+		}
+		else {
 			RetailGoodsInfo rgi;
 			Goods2Tbl::Rec goods_rec;
 			long   ext_rgi_flags = 0;
-			int    is_abstract = 0;
+			bool   is_abstract = false;
 			if(gift_money)
 				ext_rgi_flags |= PPObjGoods::rgifAllowUnlimWoQuot;
 			else if(rBlk.PriceBySerial > 0.0) {
 				ext_rgi_flags |= PPObjGoods::rgifUseOuterPrice;
 				rgi.OuterPrice = rBlk.PriceBySerial;
 			}
-			r = GetRgi(goodsID, rBlk.Qtty, ext_rgi_flags, rgi);
-			if(goodsID == PNP.AbstractGoodsID && rBlk.AbstractPrice > 0.0) {
+			int   r = GetRgi(rBlk.GoodsID, rBlk.Qtty, ext_rgi_flags, rgi);
+			if(rBlk.GoodsID == PNP.AbstractGoodsID && rBlk.AbstractPrice > 0.0) {
                 rgi.Price = rBlk.AbstractPrice;
-                is_abstract = 1;
+                is_abstract = true;
                 r = 1;
 			}
-			else if(goodsID == GetChargeGoodsID(CSt.GetID())) {
+			else if(rBlk.GoodsID == GetChargeGoodsID(CSt.GetID())) {
 				//
 				// Начисление на кредитную карту
 				//
-				rgi.ID = goodsID;
-				if(GObj.Fetch(goodsID, &goods_rec) > 0) {
+				rgi.ID = rBlk.GoodsID;
+				if(GObj.Fetch(rBlk.GoodsID, &goods_rec) > 0) {
 					STRNSCPY(rgi.Name, goods_rec.Name);
-					GObj.FetchSingleBarcode(goodsID, temp_buf);
+					GObj.FetchSingleBarcode(rBlk.GoodsID, temp_buf);
 					temp_buf.CopyTo(rgi.BarCode, sizeof(rgi.BarCode));
 				}
 				rBlk.Qtty = 0.0;
@@ -12419,28 +12741,36 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 					rgi.Price = 1.0;
 				r = 2000;
 			}
-			if(r > 0 || (r == -2 && (PNP.CnFlags & CASHF_USEQUOT || gift_money))) {
+			if(!r)
+				ok = MessageError(PPErrCode, 0, eomStatusLine|eomBeep);
+			else if(r > 0 || (r == -2 && (PNP.CnFlags & CASHF_USEQUOT || gift_money))) {
 				double price = 0.0;
-				bool   use_ext_price = false;
-				if(rgi.QuotKindUsedForExtPrice && rgi.ExtPrice >= 0.0 && !(rgi.Flags & rgi.fDisabledExtQuot))
-					use_ext_price = true;
-				else if(rgi.Flags & rgi.fDisabledQuot) {
-					GetGoodsName(goodsID, temp_buf);
-					ok = MessageError(PPERR_DISABLEDGOODSQUOT, temp_buf, eomStatusLine|eomBeep);
-				}
-				if(ok) {
-					int    serial_price_tag = 0;
-					int    look_back_price = 0;
-					if(!giftID) {
-						if(rBlk.PriceBySerial > 0.0) {
-							if(rBlk.Serial.IsEmpty())
-								look_back_price = 1;
-							else
-								serial_price_tag = 1;
-						}
-						price = use_ext_price ? rgi.ExtPrice : rgi.Price;
+				bool   is_price_defined = false;
+				bool   look_back_price  = false;
+				bool   serial_price_tag = false;
+				{
+					const  bool use_ext_price = (rgi.QuotKindUsedForExtPrice && rgi.ExtPrice >= 0.0 && !(rgi.Flags & rgi.fDisabledExtQuot));
+					if(!use_ext_price && rgi.Flags & rgi.fDisabledQuot) {
+						ok = MessageError(PPERR_DISABLEDGOODSQUOT, rgi.Name, eomStatusLine|eomBeep);
 					}
-					if(price > 0.0 || (price == 0.0 && rgi.QuotKindUsedForPrice) || giftID || r == 2000) {
+					if(ok) {
+						if(!giftID) {
+							if(rBlk.PriceBySerial > 0.0) {
+								if(rBlk.Serial.IsEmpty())
+									look_back_price = true;
+								else
+									serial_price_tag = true;
+							}
+							price = use_ext_price ? rgi.ExtPrice : rgi.Price;
+						}
+						is_price_defined = (price > 0.0 || (price == 0.0 && rgi.QuotKindUsedForPrice));
+						// @v12.5.9 {
+						if(EvaluateSingleSubstPrice(rBlk.GoodsID, rBlk.Qtty, rBlk.GetChZnPrice(), rgi, price) > 0) {
+							is_price_defined = (price > 0.0);
+						}
+						// } @v12.5.9 
+					}
+					if(is_price_defined || giftID || r == 2000/*начисление на кредитную карту*/) {
 						CCheckItem & r_item = P.GetCur();
 						r_item.GoodsID = rgi.ID;
 						STRNSCPY(r_item.GoodsName, rgi.Name);
@@ -12459,6 +12789,11 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 						r_item.ChZnPm_ReqTimestamp = rBlk.ChZnPm_ReqTimestamp; // @v12.1.1
 						r_item.ChZnPm_LocalModuleInstance = rBlk.ChZnPm_LocalModuleInstance; // @v12.3.12
 						r_item.ChZnPm_LocalModuleDbVer = rBlk.ChZnPm_LocalModuleDbVer; // @v12.3.12
+						// @v12.5.9 {
+						if(rBlk.GetChZnPrice() > 0) {
+							r_item.ChZnPrice = rBlk.GetChZnPrice();
+						}
+						// } @v12.5.9 
 						if(giftID) {
 							r_item.Flags |= cifGift;
 							r_item.GiftID = giftID;
@@ -12472,15 +12807,15 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 						if(!rBlk.AllowedPriceRange.CheckValEps(r_item.Price, 1E-7)) {
 							const RealRange & r_range = rBlk.AllowedPriceRange;
 							if(r_range.low > 0.0 && r_item.Price < r_range.low) {
-								temp_buf.Z().Cat(r_range.low, SFMT_MONEY).Space().Cat(GetGoodsName(goodsID, SLS.AcquireRvlStr()));
+								temp_buf.Z().Cat(r_range.low, SFMT_MONEY).Space().Cat(/* @v12.5.9 GetGoodsName(rBlk.GoodsID, SLS.AcquireRvlStr())*/rgi.Name);
 								ok = MessageError(PPERR_PRICERESTRLOW, temp_buf, eomStatusLine|eomBeep);
 							}
 							else if(r_range.upp > 0.0 && r_item.Price > r_range.upp) {
-								temp_buf.Z().Cat(r_range.upp, SFMT_MONEY).Space().Cat(GetGoodsName(goodsID, SLS.AcquireRvlStr()));
+								temp_buf.Z().Cat(r_range.upp, SFMT_MONEY).Space().Cat(/* @v12.5.9 GetGoodsName(rBlk.GoodsID, SLS.AcquireRvlStr())*/rgi.Name);
 								ok = MessageError(PPERR_PRICERESTRUPP, temp_buf, eomStatusLine|eomBeep);
 							}
 						} // } @v12.2.2 
-						else if(!CheckPriceRestrictions(goodsID, r_item, r_item.Price, 0)) {
+						else if(!CheckPriceRestrictions(rBlk.GoodsID, r_item, r_item.Price, 0)) {
 							ok = MessageError(-1, 0, eomStatusLine|eomBeep);
 						}
 						if(ok) {
@@ -12495,16 +12830,12 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 						}
 					}
 					else {
-						PPSetError(PPERR_INVGOODSPRICE, GetGoodsName(goodsID, temp_buf));
+						PPSetError(PPERR_INVGOODSPRICE, /* @v12.5.9 GetGoodsName(rBlk.GoodsID, temp_buf)*/rgi.Name);
 						ok = MessageError(PPERR_INVGOODSPRICE, temp_buf, eomStatusLine|eomBeep);
 					}
 				}
 			}
-			else if(!r)
-				ok = MessageError(PPErrCode, 0, eomStatusLine|eomBeep);
 		}
-		else
-			ok = 0;
 	}
 	return ok;
 }
@@ -12540,7 +12871,7 @@ bool CheckPaneDialog::GetInput()
 		TInputLine::Statistics stat;
 		p_il->GetStatistics(&stat);
 		if(stat.Flags & stat.fSerialized && !(stat.Flags & stat.fPaste)) {
-			if(stat.SymbCount && stat.IntervalMean <= static_cast<double>(AutoInputTolerance))
+			if(stat.SymbCount && stat.IntervalMean <= static_cast<double>(IniPBlk.AutoInputTolerance))
 				UiFlags |= uifAutoInput;
 		}
 	}
@@ -12909,9 +13240,9 @@ int CPosProcessor::ProcessGift()
 										const  QuotIdent qi(QIDATE(getcurdate_()), PNP.CnLocID, PPQUOTK_GIFT);
 										if(GObj.GetQuotExt(gift_id, qi, &gift_quot, 1) > 0)
 											gift_discount = -gift_quot;
-										PgsBlock pgsb(gift.Qtty);
+										PgsBlock pgsb(gift_id, gift.Qtty);
 										pgsb.PriceBySerial = gift_discount;
-										if(SetupNewRow(gift_id, /*gift.Qtty, gift_discount, 0*/pgsb, 1 /*gift*/)) {
+										if(SetupNewRow(pgsb, 1/*gift*/)) {
 											if(AcceptRow(1 /*gift*/)) {
 												assert(P.getCount());
 												lpos = P.getCount()-1;
@@ -13355,7 +13686,7 @@ int CPosProcessor::Print(int noAsk, const PPLocPrinter2 * pLocPrn, uint rptId)
 		ok = MessageError(PPERR_NORIGHTS, 0, eomBeep | eomStatusLine);
 	}
 	else {
-		const uint   rpt_id = rptId ? rptId : (pLocPrn ? REPORT_CCHECKDETAILVIEWLOC : REPORT_CCHECKDETAILVIEW);
+		const  uint rpt_id = rptId ? rptId : (pLocPrn ? REPORT_CCHECKDETAILVIEWLOC : REPORT_CCHECKDETAILVIEW);
 		SString loc_prn_port(pLocPrn ? pLocPrn->Port : 0);
 		loc_prn_port.Strip();
 		CCheckItemArray saved_items(P);
@@ -13399,12 +13730,12 @@ int CPosProcessor::Print(int noAsk, const PPLocPrinter2 * pLocPrn, uint rptId)
 		PPAlddPrint(rpt_id, PView(this), &env);
 		P = saved_items;
 		if(pLocPrn) {
-			if(pLocPrn->Flags & PPLocPrinter::fHasKitchenBell && KitchenBellCmd.NotEmpty()) {
+			if(pLocPrn->Flags & PPLocPrinter::fHasKitchenBell && IniPBlk.KitchenBellCmd.NotEmpty()) {
 				SString kitchen_bell_port(KitchenBellPort.NotEmpty() ? KitchenBellPort : loc_prn_port);
 				if(kitchen_bell_port.NotEmptyS()) {
 					size_t out_size = 0;
 					char   out_buf[64];
-					const char * p = KitchenBellCmd;
+					const char * p = IniPBlk.KitchenBellCmd;
 					while(p[0] && p[1]) {
 						const uint8 byte = (hex(p[0]) << 4) | hex(p[1]);
 						out_buf[out_size++] = byte;
@@ -13847,8 +14178,8 @@ int CheckPaneDialog::SetupRowByScale()
 		double weight = 0.0;
 		int    r = GetDataFromScale(&goods_id, &weight);
 		if(r > 0 && goods_id) {
-			PgsBlock pgsb(weight);
-			ok = SetupNewRow(goods_id, pgsb);
+			PgsBlock pgsb(goods_id, weight);
+			ok = SetupNewRow(pgsb);
 			Flags &= ~fNotUseScale;
 		}
 		else if(r != -2)
@@ -13889,10 +14220,10 @@ int CheckPaneDialog::LoadTSession(PPID tsessID)
 		const bool do_setup_price = LOGIC(P_TSesObj->GetConfig().Flags & PPTSessConfig::fSetupCcPricesInCPane);
 		for(SEnum en = P_TSesObj->P_Tbl->EnumLines(tsessID); en.Next(&ln_rec) > 0;) {
 			if(ln_rec.Sign < 0) {
-				PgsBlock pgsb(fabs(ln_rec.Qtty));
+				PgsBlock pgsb(ln_rec.GoodsID, fabs(ln_rec.Qtty));
 				if(!do_setup_price)
 					pgsb.PriceBySerial = ln_rec.Price;
-				/*THROW(*/SetupNewRow(ln_rec.GoodsID, /*fabs(ln_rec.Qtty), ln_rec.Price, 0*/pgsb)/*)*/;
+				/*THROW(*/SetupNewRow(pgsb)/*)*/;
 			}
 		}
 		AcceptRow();
@@ -13938,8 +14269,8 @@ int CheckPaneDialog::LoadChkInP(PPID chkinpID, PPID goodsID, double qtty)
 		}
 	}
 	{
-		PgsBlock pgsb(fabs(qtty));
-		/*THROW(*/SetupNewRow(goodsID, /*fabs(qtty), 0.0, 0*/pgsb)/*)*/;
+		PgsBlock pgsb(goodsID, fabs(qtty));
+		/*THROW(*/SetupNewRow(pgsb)/*)*/;
 		AcceptRow();
 		SetupAgent(wroff_attrib.AgentID, 0);
 		if(cip_item.SCardID)
@@ -14788,9 +15119,11 @@ int PrcssrCCheckGenerator::Run()
 	int    ok = 1;
 	ulong  cc_count = 0; // Количество сгенерированных чеков
 	const  uint sc_count = P_ScList ? P_ScList->getCount() : 0;
-	SString sc_code, temp_buf;
-	LDATETIME tm_start = getcurdatetime_();
-	LDATETIME tm_cur = getcurdatetime_();
+	SString sc_code;
+	SString temp_buf;
+	const  LDATETIME now_dtm = getcurdatetime_();
+	LDATETIME tm_start = now_dtm;
+	LDATETIME tm_cur = now_dtm;
 	LDATETIME tm_limit = tm_start;
 	tm_limit.addsec(P.MaxTime);
 	PPWaitStart();
@@ -14804,8 +15137,8 @@ int PrcssrCCheckGenerator::Run()
 				Goods2Tbl::Rec goods_rec;
 				if(GObj.Fetch(goods_id, &goods_rec) > 0) {
 					double qtty = fabs(P_RngQtty->GetGaussian(3.0) + 1.0);
-					CPosProcessor::PgsBlock pgsb(round(qtty, (goods_rec.Flags & GF_INTVAL) ? 0 : 3));
-					if(pgsb.Qtty > 0.0 && P.P_Pan->SetupNewRow(goods_id, /*qtty, 0, 0*/pgsb) > 0) {
+					CPosProcessor::PgsBlock pgsb(goods_id, round(qtty, (goods_rec.Flags & GF_INTVAL) ? 0 : 3));
+					if(pgsb.Qtty > 0.0 && P.P_Pan->SetupNewRow(pgsb) > 0) {
 						if(P.LineDelay)
 							SDelay(P.LineDelay);
 						i++;

@@ -483,7 +483,7 @@ int PPGoodsStruc::GetEstimationPrice(uint itemIdx, PPID locID, double * pPrice, 
 			}
 			else {
 				RAssocArray subst_list;
-				if(goods_obj.GetSubstList(r_item.GoodsID, 0, subst_list) > 0) {
+				if(goods_obj.GetSubstList(r_item.GoodsID, false/*substStrucOnly*/, subst_list) > 0) {
 					for(uint i = 0; !r && i < subst_list.getCount(); i++) {
 						const  PPID alt_goods_id = subst_list.at(i).Key;
 						if(::GetCurGoodsPrice(alt_goods_id, loc_id, GPRET_MOSTRECENT, &p, &rec) > 0) {
@@ -870,15 +870,13 @@ int PPGoodsStrucItem::SetEstimationString(const char * pStr)
 	// @v12.3.7 Width  = 0.0;
 	Denom  = 1.0;
 	if(PPGoodsStruc::IsSimpleQttyString(pStr)) {
-		double v;
 		SString temp_buf(pStr);
-		SString s1, s2;
+		SString s1;
+		SString s2;
 		temp_buf.Divide('/', s1, s2);
-		strtodoub(s1, &v);
-		Median = R6(v);
+		Median = R6(s1.ToReal());
 		if(s2.NotEmpty()) {
-			strtodoub(s2, &v);
-			Denom = R6(v);
+			Denom = R6(s2.ToReal());
 			if(Denom == 0.0)
 				Denom = 1.0;
 		}
@@ -2503,7 +2501,7 @@ int PPObjGoodsStruc::Get(PPID id, PPGoodsStruc * pData)
 	int    r = 0;
 	THROW(r = P_Ref->GetItem(Obj, id, &pData->Rec));
 	if(r > 0) {
-		pData->Items.clear(); // @v11.1.12 freeAll()-->clear()
+		pData->Items.clear();
 		pData->Children.freeAll();
 		if(pData->Rec.Flags & GSF_FOLDER) {
 			PPIDArray child_idlist;

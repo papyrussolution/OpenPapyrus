@@ -500,10 +500,10 @@ int Crosstab::Create(int use_ta)
 		flist.Add(CrssFld);
 		q.select(flist);
 		P_Tbl->search(0, temp_key_, spFirst);
-		const uint start_fld_pos = 1;
-		const uint idx_fld_count = IdxFldList.GetCount();
-		const long zero = 0;
-		uint  ext_sort_fld_pos = 0;
+		const  uint start_fld_pos = 1;
+		const  uint idx_fld_count = IdxFldList.GetCount();
+		const  long zero = 0L;
+		uint   ext_sort_fld_pos = 0;
 		if(Flags & fHasExtSortField && &P_RTbl->GetFields().GetFieldByName("CTIX", &ext_sort_fld_pos) == 0)
 			ext_sort_fld_pos = 0;
 		for(q.initIteration(false, 0, -1); q.nextIteration() > 0; PPWaitPercent(cntr.Increment(), msg_buf)) {

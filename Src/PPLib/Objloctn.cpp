@@ -409,7 +409,7 @@ int STDCALL SetupLocationCombo(TDialog * dlg, uint ctl, PPID id, uint flags, con
 	return r;
 }
 
-void PPObjLocation::InitInstance(SCtrLite sctr, void * extraPtr)
+void PPObjLocation::InitInstance(SCtrSpecial sctr, void * extraPtr)
 {
 	Sctr = sctr;
 	TLP_OPEN(P_Tbl);
@@ -432,7 +432,7 @@ PPObjLocation::PPObjLocation(void * extraPtr) : PPObject(PPOBJ_LOCATION)
 	InitInstance(SConstructorDef, extraPtr);
 }
 
-PPObjLocation::PPObjLocation(SCtrLite sctr) : PPObject(PPOBJ_LOCATION)
+PPObjLocation::PPObjLocation(SCtrSpecial sctr) : PPObject(PPOBJ_LOCATION)
 {
 	InitInstance(sctr, 0);
 }
@@ -5104,7 +5104,7 @@ int PPLocAddrStruc::Recognize(const char * pText)
 							break;
 						case AddrTok::tNum_Sl_Num:
 							if(last_t == tStreet) {
-								p_tok->S.Divide('/', temp_buf.Z(), temp_buf2.Z());
+								p_tok->S.Divide('/', temp_buf, temp_buf2);
 								temp_buf.Strip().Slash().Cat(temp_buf2.Strip());
 								Add(last_t = tHouse, temp_buf);
 								Add(tHouseKind, "дом");

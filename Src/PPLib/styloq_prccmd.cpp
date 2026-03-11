@@ -891,8 +891,8 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 										cpp.UpdateLine(&line_to_update);
 									}
 									else {
-										CPosProcessor::PgsBlock pgsb(p_item->Set.Qtty);
-										THROW(cpp.SetupNewRow(goods_rec.ID, /*fabs(CmdBlk.U.AL.Qtty), 0, 0*/pgsb) > 0);
+										CPosProcessor::PgsBlock pgsb(goods_rec.ID, p_item->Set.Qtty);
+										THROW(cpp.SetupNewRow(pgsb) > 0);
 										//THROW(cpp.Backend_SetModifList(CmdBlk.ModifList));
 										THROW(cpp.AcceptRow() > 0);
 									}
@@ -903,8 +903,8 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 							for(uint i = 0; i < doc.TiList.getCount(); i++) {
 								const Document::__TransferItem * p_item = doc.TiList.at(i);
 								if(gobj.Search(p_item->GoodsID, &goods_rec) > 0 && p_item->Set.Qtty > 0.0) {
-									CPosProcessor::PgsBlock pgsb(p_item->Set.Qtty);
-									THROW(cpp.SetupNewRow(goods_rec.ID, /*fabs(CmdBlk.U.AL.Qtty), 0, 0*/pgsb) > 0);
+									CPosProcessor::PgsBlock pgsb(goods_rec.ID, p_item->Set.Qtty);
+									THROW(cpp.SetupNewRow(pgsb) > 0);
 									//THROW(cpp.Backend_SetModifList(CmdBlk.ModifList));
 									THROW(cpp.AcceptRow() > 0);
 								}

@@ -2118,7 +2118,7 @@ int ChZnInterface::MakeDocumentRequest(const InitBlock & rIb, const ChZnInterfac
 	SJson * p_json_req = 0;
 	THROW(GetSign(rIb, pData, dataLen, code_sign));
 	data_base64_buf.EncodeMime64(pData, dataLen);
-	if(rIb.ProtocolId == rIb.protidGisMt) {
+	if(rIb.ProtocolId == InitBlock::protidGisMt) {
 		/*
 			{ 
 				"document_format": "string", 
@@ -2607,7 +2607,7 @@ int ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInterface:
 							}
 						}
 					}
-					else if(rIb.ProtocolId == rIb.protidGisMt) {
+					else if(rIb.ProtocolId == InitBlock::protidGisMt) {
 						ScURL c;
 						MakeHeaderFields(rIb.Token, mhffAuthBearer, &hdr_flds, temp_buf); // @v11.1.11
 						/*
@@ -2638,7 +2638,6 @@ int ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInterface:
 								}
 						*/
 						{
-							// @v11.1.11 {
 							if(rPack.ChZnProdType > 0) {
 								const char * p_chzn_prodtype_symb = 0;
 								switch(rPack.ChZnProdType) {
@@ -2660,7 +2659,6 @@ int ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInterface:
 									url.SetComponent(InetUrl::cQuery, temp_buf);
 								}
 							}
-							// } @v11.1.11 
 							SBuffer ack_buf;
 							SFile wr_stream(ack_buf.Z(), SFile::mWrite);
 							THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose|ScURL::mfTcpKeepAlive, &hdr_flds, req_buf, &wr_stream));
@@ -3380,21 +3378,19 @@ int PPChZnPrcssr::PrepareBillPacketForSending(PPID billID, void * pChZnPacket)
 	ChZnInterface::Packet * p_chzn_packet = static_cast<ChZnInterface::Packet *>(pChZnPacket);
 	PPObjBill * p_bobj(BillObj);
 	PPBillPacket * p_bp = static_cast<PPBillPacket *>(p_chzn_packet->P_Data);
-	long chzn_prod_type = 0; // @v11.1.11
-	PPObjGoods goods_obj; // @v11.1.11
-	Goods2Tbl::Rec goods_rec; // @v11.1.11
-	PPGoodsType2 gt_rec; // @v11.1.11
+	long chzn_prod_type = 0;
+	PPObjGoods goods_obj;
+	Goods2Tbl::Rec goods_rec;
+	PPGoodsType2 gt_rec;
 	if(p_bobj->ExtractPacket(billID, p_bp) > 0) {
 		PPLotExtCodeContainer::MarkSet lotxcode_set;
 		PPLotExtCodeContainer::MarkSet::Entry msentry;
-		const bool  medcine_only = IsMedcineOnly(p_chzn_packet->DocType); // @v11.9.9 
+		const  bool medcine_only = IsMedcineOnly(p_chzn_packet->DocType); // @v11.9.9 
 		for(uint tidx = 0; !suited && tidx < p_bp->GetTCount(); tidx++) {
 			const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
 			long  local_chzn_prod_type = 0; // @v11.9.9
-			// @v11.1.11 {
 			if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
 				local_chzn_prod_type = gt_rec.ChZnProdType;
-			// } @v11.1.11 
 			if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) { // @v11.9.9
 				if(local_chzn_prod_type) {
 					if(!chzn_prod_type)
@@ -3413,7 +3409,7 @@ int PPChZnPrcssr::PrepareBillPacketForSending(PPID billID, void * pChZnPacket)
 			}
 		}
 	}
-	p_chzn_packet->ChZnProdType = chzn_prod_type; // @v11.1.11
+	p_chzn_packet->ChZnProdType = chzn_prod_type;
 	return suited ? 1 : -1;
 }
 
@@ -3691,7 +3687,6 @@ int PPChZnPrcssr::Run(const Param & rP)
 							PPBillPacket * p_bp = static_cast<PPBillPacket *>(p_inner_pack->P_Data);
 							ObjTagItem tag_item;
 							if(tag_item.SetStr(PPTAG_BILL_EDIIDENT, result_doc_ident)) {
-								// @v10.8.5 @construction p_bobj->P_Tbl->SetRecFlag2(p_bp->Rec.ID, BILLF2_ACKPENDING, 1, 1);
 								if(!p_ref->Ot.PutTag(PPOBJ_BILL, p_bp->Rec.ID, &tag_item, 1))
 									LogLastError();
 							}
@@ -5162,8 +5157,8 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 			SString printable;
 			rInfoBuf.Cat("org").CatDiv(':', 2).Cat(MakePrintableCode(pOriginalText, printable));
 			GtinStruc gts;
-			const int pchzncr = PPChZnPrcssr::ParseChZnCode(pOriginalText, gts, 0);
-			const int ichzncr = PPChZnPrcssr::InterpretChZnCodeResult(pchzncr);
+			const  int pchzncr = PPChZnPrcssr::ParseChZnCode(pOriginalText, gts, 0);
+			const  int ichzncr = PPChZnPrcssr::InterpretChZnCodeResult(pchzncr);
 			if(ichzncr == PPChZnPrcssr::chznciReal) {
 				ok = 1;
 				PPChZnPrcssr::ReconstructOriginalChZnCode(gts, temp_buf);			

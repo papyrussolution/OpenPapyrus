@@ -1730,7 +1730,7 @@ void GnuPlot::PrintCommand()
 			continue;
 		}
 		ConstExpress(&a);
-		if(a.Type == STRING) {
+		if(a.Type == GPDT_STRING) {
 			if(dataline)
 				len = strappend(&dataline, &size, len, a.v.string_val);
 			else
@@ -2818,7 +2818,7 @@ int GnuPlot::Expand1LevelMacros()
 				    temp_char = *c; *c = '\0';
 				    // Look up the key and restore the original following char 
 				    udv = Ev.GetUdvByName(m);
-				    if(udv && udv->udv_value.Type == STRING) {
+				    if(udv && udv->udv_value.Type == GPDT_STRING) {
 					    nfound++;
 					    m = udv->udv_value.v.string_val;
 					    FPRINTF((stderr, "Replacing @%s with \"%s\"\n", udv->udv_name, m));

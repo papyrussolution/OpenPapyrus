@@ -2156,7 +2156,7 @@ void GnuPlot::SetLabel()
 	}
 	else {
 		ConstExpress(&a);
-		if(a.Type == STRING) {
+		if(a.Type == GPDT_STRING) {
 			Pgm.SetTokenIdx(save_token);
 			tag = AssignLabelTag();
 		}

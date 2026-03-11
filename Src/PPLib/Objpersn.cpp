@@ -1091,7 +1091,7 @@ void PPPersonConfig::Init()
 
 TLP_IMPL(PPObjPerson, PersonCore, P_Tbl);
 
-PPObjPerson::PPObjPerson(SCtrLite sctr) : PPObject(PPOBJ_PERSON), LocObj(sctr), P_ArObj(0), P_PrcObj(0), P_ScObj(0), ExtraPtr(0),
+PPObjPerson::PPObjPerson(SCtrSpecial sctr) : PPObject(PPOBJ_PERSON), LocObj(sctr), P_ArObj(0), P_PrcObj(0), P_ScObj(0), ExtraPtr(0),
 	DoObjVer_Person(CConfig.Flags2__ & CCFLG2_USEHISTPERSON)
 {
 	TLP_OPEN(P_Tbl);

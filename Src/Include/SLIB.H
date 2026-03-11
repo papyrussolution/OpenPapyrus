@@ -154,7 +154,7 @@
 		#include <AccCtrl.h>  // @v12.5.3
 		#include <psapi.h>    // @v12.5.3
 		#include <Lm.h>       // @v12.5.3
-		#include <ipexport.h> // @V12.5.4
+		#include <ipexport.h> // @v12.5.4
 	#endif
 	// } @v11.7.0 
 	#define _Windows
@@ -1609,15 +1609,14 @@ template <typename T, int N> static constexpr size_t sizeofarray(const T(&arr)[N
 #endif
 
 void * operator new(size_t sz);
-void operator delete(void * ptr);
+void   operator delete(void * ptr);
 //
-// Descr: Перечисление, обеспечивающее типизированное применение "лекого" варианта конструктора
-//   объекта. Применяется в специальных случаях, когда необходимо максимально быстро создать
-//   упрощенный экземпляр "тяжелого" объекта.
+// Descr: Перечисление, обеспечивающее специализированное конструирование экземпляров объектов.
 //
-enum SCtrLite {
-	SConstructorDef = 0,
-	SConstructorLite = 1
+enum SCtrSpecial {
+	SConstructorDef  = 0, // normal
+	SConstructorLite = 1, // lite-constructor. Применяется в специальных случаях, когда необходимо максимально быстро создать упрощенный экземпляр "тяжелого" объекта.
+	SConstructorTest = 2, // test-constructor. Применяется для создания экземпляра в тестовом случае, когда необходимо абстрагироваться от штатного окружения.
 };
 //
 // Descr: Специализированный объект, используемый в качестве аргумента конструкторов с целью автоматической
@@ -5433,6 +5432,12 @@ FORCEINLINE size_t sstrlen(const wchar_t * pStr) { return pStr  ? wcslen(pStr) :
 FORCEINLINE size_t sstrlen(const char16_t * pStr) { return pStr  ? wcslen(reinterpret_cast<const wchar_t *>(pStr)) : 0; } // @v11.9.5
 FORCEINLINE size_t sstrlen(const short * pStr) { return pStr  ? wcslen(reinterpret_cast<const wchar_t *>(pStr)) : 0; } // @v11.9.11
 FORCEINLINE size_t sstrlen(const ushort * pStr) { return pStr  ? wcslen(reinterpret_cast<const wchar_t *>(pStr)) : 0; } // @v11.9.11
+FORCEINLINE uint32 sstrlen32(const char * pStr) { return pStr ? static_cast<uint32>(strlen(pStr)) : 0; } // @v12.5.9
+FORCEINLINE uint32 sstrlen32(const uchar * pStr) { return pStr ? static_cast<uint32>(strlen(reinterpret_cast<const char *>(pStr))) : 0; } // @v12.5.9
+FORCEINLINE uint32 sstrlen32(const wchar_t * pStr) { return pStr  ? static_cast<uint32>(wcslen(pStr)) : 0; } // @v12.5.9
+FORCEINLINE uint32 sstrlen32(const char16_t * pStr) { return pStr  ? static_cast<uint32>(wcslen(reinterpret_cast<const wchar_t *>(pStr))) : 0; } // @v12.5.9
+FORCEINLINE uint32 sstrlen32(const short * pStr) { return pStr  ? static_cast<uint32>(wcslen(reinterpret_cast<const wchar_t *>(pStr))) : 0; } // @v12.5.9
+FORCEINLINE uint32 sstrlen32(const ushort * pStr) { return pStr  ? static_cast<uint32>(wcslen(reinterpret_cast<const wchar_t *>(pStr))) : 0; } // @v12.5.9
 FORCEINLINE int    sstrleni(const char * pStr) { return static_cast<int>(sstrlen(pStr)); }
 FORCEINLINE int    sstrleni(const uchar * pStr) { return static_cast<int>(sstrlen(pStr)); }
 FORCEINLINE int    sstrleni(const wchar_t * pStr) { return static_cast<int>(sstrlen(pStr)); }

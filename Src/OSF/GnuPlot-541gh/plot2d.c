@@ -3120,7 +3120,7 @@ void GnuPlot::ParsePlotTitle(curve_points * pPlot, char * pXTitle, char * pYTitl
 				if(oneof4(pPlot->plot_type, FUNC, FUNC3D, VOXELDATA, KEYENTRY)) {
 					GpValue a;
 					EvaluateAt(_Df.df_plot_title_at, &a);
-					if(a.Type == STRING) {
+					if(a.Type == GPDT_STRING) {
 						FREEANDASSIGN(pPlot->title, a.v.string_val);
 					}
 					else
@@ -3187,7 +3187,7 @@ void GnuPlot::ReevaluatePlotTitle(curve_points * pPlot)
 		_Df.evaluate_inside_using = true;
 		EvaluateAt(_Df.df_plot_title_at, &a);
 		_Df.evaluate_inside_using = false;
-		if(!Ev.IsUndefined_ && a.Type == STRING) {
+		if(!Ev.IsUndefined_ && a.Type == GPDT_STRING) {
 			FREEANDASSIGN(pPlot->title, a.v.string_val);
 			// Special case where the "title" is used as a tic label 
 			if(pPlot->plot_style == HISTOGRAMS && Gg.histogram_opts.type == HT_STACKED_IN_TOWERS) {

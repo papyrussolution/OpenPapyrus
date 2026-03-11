@@ -1,5 +1,5 @@
 // TRANSP.CPP
-// Copyright (c) A.Sobolev 1999, 2006, 2010, 2016, 2017, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 1999, 2006, 2010, 2016, 2017, 2019, 2020, 2022, 2026
 // Transpositions
 //
 #include <slib-internal.h>
@@ -37,13 +37,15 @@ void Transpos::Init(long sz, long stop, const long pattern[])
 	int    i;
 	Size = sz;
 	P_List = static_cast<long *>(SAlloc::M((size_t)(sizeof(long) * Size)));
-	for(i = 0; i < Size; i++)
+	for(i = 0; i < Size; i++) {
 		P_List[i] = i+1;
+	}
 	P_Pattern = 0;
 	if(pattern) {
 		P_Pattern = static_cast<long *>(SAlloc::M((size_t)(sizeof(long) * Size)));
-		for(i = 0; i < Size; i++)
+		for(i = 0; i < Size; i++) {
 			P_Pattern[i] = pattern[i];
+		}
 	}
 	Stop = stop;
 	Counter = 1;
@@ -51,16 +53,19 @@ void Transpos::Init(long sz, long stop, const long pattern[])
 
 void Transpos::GetTransposition(long buf[])
 {
-	for(int i = 0; i < Size; i++)
+	for(int i = 0; i < Size; i++) {
 		buf[i] = P_List[i];
+	}
 }
 
 int Transpos::CheckForTermination()
 {
 	if(P_List && P_Pattern) {
-		for(int i = 0; i < Size; i++)
-			if(P_List[i] != P_Pattern[i])
+		for(int i = 0; i < Size; i++) {
+			if(P_List[i] != P_Pattern[i]) {
 				return (Counter == Stop) ? 1 : 0;
+			}
+		}
 		return 1;
 	}
 	return (Counter == Stop) ? 1 : 0;

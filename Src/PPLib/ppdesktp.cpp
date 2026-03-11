@@ -3535,6 +3535,20 @@ int TFacadeWindow::HandleInputEnter(const SString & rInput)
 	SString _input(org_input);
 	SString _result_text;
 	if(_input.NotEmptyS()) {
+		int    lstb_reg_state_result = 0;
+		_input.Transf(CTRANSF_INNER_TO_UTF8);
+		LocalStateBinderyCore * p_lstb = DS.GetTLA().GetLocalStateBindery();
+		if(p_lstb) {
+			LocalStateBinderyCore::StateIdent state_ident;
+			state_ident.Kind = LocalStateBinderyCore::kInput;
+			state_ident.Subj = UED::SetRaw_UXControlIdent(SObjID(WNDID_FACADEWINDOW, CTL_FACADEWINDOW_MAININPUT));
+			if(state_ident.Subj) {
+				PPID   sid = 0;
+				SBuffer state_input_data;
+				state_input_data.Write(_input.cptr(), _input.Len()+1);
+				lstb_reg_state_result = p_lstb->RegisterState(&sid, state_ident, state_input_data, 1);
+			}
+		}
 		if(_input.IsEqiAscii("close")) { // @debug
 			RemoveWorkingPanel();
 		}

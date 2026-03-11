@@ -269,7 +269,7 @@ char * GnuPlot::TryToGetString()
 	if(Pgm.EndOfCommand())
 		return NULL;
 	ConstStringExpress(&a);
-	if(a.Type == STRING)
+	if(a.Type == GPDT_STRING)
 		p_newstring = a.v.string_val;
 	else
 		Pgm.SetTokenIdx(save_token);
@@ -1184,17 +1184,22 @@ char * gp_strchrn(const char * s, int N)
 // TRUE if strings a and b are identical save for leading or trailing whitespace 
 bool streq(const char * a, const char * b)
 {
-	int enda, endb;
-	while(isspace((uchar)*a))
+	int    enda;
+	int    endb;
+	while(isspace((uchar)*a)) {
 		a++;
-	while(isspace((uchar)*b))
+	}
+	while(isspace((uchar)*b)) {
 		b++;
+	}
 	enda = (*a) ? strlen(a) - 1 : 0;
 	endb = (*b) ? strlen(b) - 1 : 0;
-	while(isspace((uchar)a[enda]))
+	while(isspace((uchar)a[enda])) {
 		enda--;
-	while(isspace((uchar)b[endb]))
+	}
+	while(isspace((uchar)b[endb])) {
 		endb--;
+	}
 	return (enda == endb) ? !strncmp(a, b, ++enda) : FALSE;
 }
 // 
@@ -1207,8 +1212,9 @@ size_t strappend(char ** dest, size_t * size, size_t len, const char * src)
 	size_t destlen = (len != 0) ? len : strlen(*dest);
 	size_t srclen = strlen(src);
 	if(destlen + srclen + 1 > *size) {
-		while(destlen + srclen + 1 > *size)
+		while((destlen + srclen + 1) > *size) {
 			*size *= 2;
+		}
 		*dest = (char *)SAlloc::R(*dest, *size);
 	}
 	memcpy(*dest + destlen, src, srclen + 1);
@@ -1242,7 +1248,7 @@ char * GnuPlot::ValueToStr(const GpValue * pVal, bool needQuotes)
 		    else
 			    return num_to_str(pVal->v.cmplx_val.real);
 		    break;
-		case STRING:
+		case GPDT_STRING:
 		    if(pVal->v.string_val) {
 			    if(!needQuotes) {
 				    return pVal->v.string_val;
@@ -1252,7 +1258,7 @@ char * GnuPlot::ValueToStr(const GpValue * pVal, bool needQuotes)
 				    size_t reqsize = strlen(cstr) + 3;
 				    if(reqsize > c[j]) {
 					    // Don't leave c[j[ non-zero if realloc fails 
-					    s[j] = (char *)SAlloc::R(s[j], reqsize + 20);
+					    s[j] = static_cast<char *>(SAlloc::R(s[j], reqsize + 20));
 					    if(s[j]) {
 						    c[j] = reqsize + 20;
 					    }

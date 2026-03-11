@@ -94,7 +94,7 @@ extern char * compile_options;
 enum DATA_TYPES {
 	INTGR = 1,
 	CMPLX,
-	STRING,
+	GPDT_STRING, // @v12.5.9 STRING-->GPDT_STRING
 	DATABLOCK,
 	ARRAY,
 	VOXELGRID,
@@ -6104,7 +6104,7 @@ public:
 	void   GetUserEnv();
 	void   GpExpandTilde(char ** ppPath);
 	FILE * LoadPath_fopen(const char *, const char *);
-	bool   FASTCALL IsStringValue(int tokN) const { return (Pgm.IsString(tokN) || TypeUdv(tokN) == STRING); }
+	bool   FASTCALL IsStringValue(int tokN) const { return (Pgm.IsString(tokN) || TypeUdv(tokN) == GPDT_STRING); }
 	void   BailToCommandLine();
 	const char * LatexInputEncoding(enum set_encoding_id encoding);
 

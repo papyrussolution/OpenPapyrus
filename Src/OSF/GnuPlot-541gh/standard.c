@@ -975,7 +975,7 @@ void GnuPlot::F_Exists(union argument * /*arg*/)
 {
 	GpValue a;
 	Pop(&a);
-	if(a.Type == STRING) {
+	if(a.Type == GPDT_STRING) {
 		udvt_entry * udv = Ev.AddUdvByName(a.v.string_val);
 		gpfree_string(&a);
 		Push(Ginteger(&a, udv->udv_value.Type == NOTDEFINED ? 0 : 1));

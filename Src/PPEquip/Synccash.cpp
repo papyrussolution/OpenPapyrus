@@ -288,23 +288,23 @@ int SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 		SString left;
 		SString right;
 		PPIniFile ini_file;
-		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_POSREGISTERKEEPALIVE, temp_buf.Z()) > 0) {
-			if(temp_buf == "0" || temp_buf.IsEqiAscii("false") || temp_buf.IsEqiAscii("no"))
+		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_POSREGISTERKEEPALIVE, temp_buf) > 0) {
+			if(PPIniFile::IsValueNo(temp_buf))
 				Flags &= ~sfKeepAlive;
-			else if(temp_buf == "1" || temp_buf.IsEqiAscii("true") || temp_buf.IsEqiAscii("yes"))
+			else if(PPIniFile::IsValueYes(temp_buf))
 				Flags |= sfKeepAlive;
 		}
-		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_POSREGISTERSKIPAFVERIF, temp_buf.Z()) > 0) {
-			if(temp_buf == "0" || temp_buf.IsEqiAscii("false") || temp_buf.IsEqiAscii("no"))
+		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_POSREGISTERSKIPAFVERIF, temp_buf) > 0) {
+			if(PPIniFile::IsValueNo(temp_buf))
 				Flags &= ~sfSkipAfVerif;
-			else if(temp_buf == "1" || temp_buf.IsEqiAscii("true") || temp_buf.IsEqiAscii("yes"))
+			else if(PPIniFile::IsValueYes(temp_buf))
 				Flags |= sfSkipAfVerif;
 		}
 		// @v11.5.0 {
-		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_POSREGISTERLOGGING, temp_buf.Z()) > 0) {
-			if(temp_buf == "0" || temp_buf.IsEqiAscii("false") || temp_buf.IsEqiAscii("no"))
+		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_POSREGISTERLOGGING, temp_buf) > 0) {
+			if(PPIniFile::IsValueNo(temp_buf))
 				Flags &= ~sfLogging;
-			else if(temp_buf == "1" || temp_buf.IsEqiAscii("true") || temp_buf.IsEqiAscii("yes"))
+			else if(PPIniFile::IsValueYes(temp_buf))
 				Flags |= sfLogging;
 		}
 		// } @v11.5.0

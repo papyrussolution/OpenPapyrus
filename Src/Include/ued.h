@@ -1,5 +1,5 @@
 // UED.H
-// Copyright (c) A.Sobolev 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #ifndef __UED_H
@@ -102,6 +102,8 @@ public:
 	static bool   GetRaw_SphDir(uint64 ued, SphericalDirection & rV);
 	static uint64 SetRaw_Oid(SObjID oid);
 	static bool   GetRaw_Oid(uint64 ued, SObjID & rOid);
+	static uint64 SetRaw_UXControlIdent(SObjID ctlId); // @v12.5.9
+	static bool   GetRaw_UXControlIdent(uint64 ued, SObjID & rCtlId); // @v12.5.9
 
 	static uint64 SetRaw_Ru_INN(const char * pT, bool forceBadCD);
 	static bool   GetRaw_Ru_INN(uint64 ued, SString & rT, uint * pSpcFlags);

@@ -847,7 +847,7 @@ void GnuPlot::F_RgbColor(union argument * arg)
 	GpValue a;
 	long rgb;
 	Pop(&a);
-	if(a.Type == STRING) {
+	if(a.Type == GPDT_STRING) {
 		rgb = lookup_color_name(a.v.string_val);
 		if(rgb == -2)
 			rgb = 0;

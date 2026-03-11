@@ -1934,9 +1934,9 @@ int CPosNodeBlock::Execute(uint cmd, const char * pParams, PPJobSrvReply & rRepl
 			case PPSCMD_POS_ADDCCHECKLINE:
 				{
 					PPID   chk_id = MAXLONG;
-					CPosProcessor::PgsBlock pgsb(fabs(CmdBlk.U.AL.Qtty));
+					CPosProcessor::PgsBlock pgsb(CmdBlk.U.AL.GoodsId, fabs(CmdBlk.U.AL.Qtty));
 					THROW(P_Prcssr->GetAuthAgentID());
-					THROW(P_Prcssr->SetupNewRow(CmdBlk.U.AL.GoodsId, /*fabs(CmdBlk.U.AL.Qtty), 0, 0*/pgsb) > 0);
+					THROW(P_Prcssr->SetupNewRow(pgsb) > 0);
 					THROW(P_Prcssr->Backend_SetModifList(CmdBlk.ModifList));
 					THROW(P_Prcssr->AcceptRow() > 0);
 					rReply.SetAck();

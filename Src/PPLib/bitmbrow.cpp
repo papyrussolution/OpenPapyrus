@@ -3309,8 +3309,8 @@ protected:
 			SString text_buf;
 			if(getCurItem(&cur_pos, &cur_id) && getText(cur_pos, text_buf)) {
 				GtinStruc gts;
-				const bool iemr = PrcssrAlcReport::IsEgaisMark(text_buf, 0);
-				const int  ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(text_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk));
+				const  bool iemr = PrcssrAlcReport::IsEgaisMark(text_buf, 0);
+				const  int  ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(text_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk));
 				if(!iemr && ipczcr > 0) {
 					SString serial_buf;
 					gts.GetToken(GtinStruc::fldGTIN14, &text_buf);

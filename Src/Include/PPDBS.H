@@ -543,40 +543,6 @@ public:
 #pragma pack(pop)
 
 #pragma pack(push, 1)
-class TempKLADRTbl : public DBTable {
-public:
-	TempKLADRTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
-
-	struct Rec {
-		Rec();
-		Rec & Clear();
-		int32  ID__;
-		int32  ParentID;
-		int32  StatusCode;
-		char   Name[48];
-		char   Code[20];
-		char   ZIP[8];
-	} data;
-	struct Key0 {
-		int32  ID__;
-	};
-	struct Key1 {
-		char   Code[20];
-	};
-	struct Key2 {
-		int32  ParentID;
-		char   Name[48];
-	};
-	DBField ID__;
-	DBField ParentID;
-	DBField StatusCode;
-	DBField Name;
-	DBField Code;
-	DBField ZIP;
-};
-#pragma pack(pop)
-
-#pragma pack(push, 1)
 class FiasAddrObjTbl : public DBTable {
 public:
 	FiasAddrObjTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
@@ -1064,57 +1030,6 @@ public:
 #pragma pack(pop)
 
 #pragma pack(push, 1)
-class TempStaffCalTbl : public DBTable {
-public:
-	TempStaffCalTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
-
-	struct Rec {
-		Rec();
-		Rec & Clear();
-		int32  ID__;
-		int32  CalID;
-		int32  LinkObjID;
-		int32  NameIdx;
-		LDATE  Dt;
-		LTIME  TmStart;
-		LTIME  TmEnd;
-		int32  TmVal;
-		char   DtText[32];
-		int32  Count;
-	} data;
-	struct Key0 {
-		int32  ID__;
-	};
-	struct Key1 {
-		LDATE  Dt;
-		int32  NameIdx;
-		int32  CalID;
-	};
-	struct Key2 {
-		int32  NameIdx;
-		LDATE  Dt;
-		int32  CalID;
-	};
-	struct Key3 {
-		int32  CalID;
-		int32  LinkObjID;
-		LDATE  Dt;
-		LTIME  TmStart;
-	};
-	DBField ID__;
-	DBField CalID;
-	DBField LinkObjID;
-	DBField NameIdx;
-	DBField Dt;
-	DBField TmStart;
-	DBField TmEnd;
-	DBField TmVal;
-	DBField DtText;
-	DBField Count;
-};
-#pragma pack(pop)
-
-#pragma pack(push, 1)
 class SalaryTbl : public DBTable {
 public:
 	SalaryTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
@@ -1175,65 +1090,6 @@ public:
 	DBField RByGenBill;
 	DBField ExtObjID;
 	DBField Reserve;
-};
-#pragma pack(pop)
-
-#pragma pack(push, 1)
-class TempSalaryTbl : public DBTable {
-public:
-	TempSalaryTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
-
-	struct Rec {
-		Rec();
-		Rec & Clear();
-		int32  ID;
-		LDATE  Beg;
-		LDATE  End;
-		int32  PostID;
-		int32  SalChargeID;
-		int32  ExtObjID;
-		double Amount;
-		int32  Flags;
-		int32  LinkBillID;
-		int32  GenBillID;
-		int32  RByGenBill;
-		int32  StaffID;
-		int32  PersonID;
-		int32  OrgID;
-		int32  DivID;
-		char   Text[64];
-	} data;
-	struct Key0 {
-		int32  ID;
-	};
-	struct Key1 {
-		LDATE  Beg;
-	};
-	struct Key2 {
-		char   Text[64];
-	};
-	struct Key3 {
-		int32  PostID;
-		int32  SalChargeID;
-		int32  ExtObjID;
-		LDATE  Beg;
-	};
-	DBField ID;
-	DBField Beg;
-	DBField End;
-	DBField PostID;
-	DBField SalChargeID;
-	DBField ExtObjID;
-	DBField Amount;
-	DBField Flags;
-	DBField LinkBillID;
-	DBField GenBillID;
-	DBField RByGenBill;
-	DBField StaffID;
-	DBField PersonID;
-	DBField OrgID;
-	DBField DivID;
-	DBField Text;
 };
 #pragma pack(pop)
 
@@ -2556,44 +2412,6 @@ public:
 #pragma pack(pop)
 
 #pragma pack(push, 1)
-class TempInventorySubstTbl : public DBTable {
-public:
-	TempInventorySubstTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
-
-	struct Rec {
-		Rec();
-		Rec & Clear();
-		int32  GoodsID;
-		char   Name[128];
-		double Quantity;
-		double StockRest;
-		double SumPrice;
-		double SumStockPrice;
-		double SumWrOffPrice;
-		double DiffQtty;
-		double DiffPctQtty;
-		double DiffPrice;
-	} data;
-	struct Key0 {
-		int32  GoodsID;
-	};
-	struct Key1 {
-		char   Name[128];
-	};
-	DBField GoodsID;
-	DBField Name;
-	DBField Quantity;
-	DBField StockRest;
-	DBField SumPrice;
-	DBField SumStockPrice;
-	DBField SumWrOffPrice;
-	DBField DiffQtty;
-	DBField DiffPctQtty;
-	DBField DiffPrice;
-};
-#pragma pack(pop)
-
-#pragma pack(push, 1)
 class QuotationTbl : public DBTable {
 public:
 	QuotationTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
@@ -3015,67 +2833,6 @@ public:
 	DBField OrderBillID;
 	DBField OrderRByBill;
 	DBField Reserve2;
-};
-#pragma pack(pop)
-
-#pragma pack(push, 1)
-class TempLocTransfTbl : public DBTable {
-public:
-	TempLocTransfTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
-
-	struct Rec {
-		Rec();
-		Rec & Clear();
-		int32  ID__;
-		int32  LocID;
-		int32  RByLoc;
-		LDATE  Dt;
-		LTIME  Tm;
-		int32  UserID;
-		int32  BillID;
-		int16  RByBillLT;
-		int16  LTOp;
-		int16  Domain;
-		int16  PalletCount;
-		int32  Flags;
-		int32  GoodsID;
-		double BillQtty;
-		double DispQtty;
-		double RestByGoods;
-		double RestByLot;
-		int32  PalletTypeID;
-		int32  LocOwnerPersonID;
-	} data;
-	struct Key0 {
-		int32  ID__;
-	};
-	struct Key1 {
-		int32  BillID;
-		int16  RByBillLT;
-	};
-	struct Key2 {
-		int32  LocID;
-		int32  RByLoc;
-	};
-	DBField ID__;
-	DBField LocID;
-	DBField RByLoc;
-	DBField Dt;
-	DBField Tm;
-	DBField UserID;
-	DBField BillID;
-	DBField RByBillLT;
-	DBField LTOp;
-	DBField Domain;
-	DBField PalletCount;
-	DBField Flags;
-	DBField GoodsID;
-	DBField BillQtty;
-	DBField DispQtty;
-	DBField RestByGoods;
-	DBField RestByLot;
-	DBField PalletTypeID;
-	DBField LocOwnerPersonID;
 };
 #pragma pack(pop)
 
@@ -3550,85 +3307,6 @@ public:
 #pragma pack(pop)
 
 #pragma pack(push, 1)
-class TempSCardTbl : public DBTable {
-public:
-	TempSCardTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
-
-	struct Rec {
-		Rec();
-		Rec & Clear();
-		int32  ID;
-		char   Code[24];
-		int32  SeriesID;
-		int32  PersonID;
-		int32  Flags;
-		LDATE  Dt;
-		LDATE  Expiry;
-		int32  PDis;
-		int32  AutoGoodsID;
-		double MaxCredit;
-		double Turnover;
-		double Rest;
-		double InTrnovr;
-		LTIME  UsageTmStart;
-		LTIME  UsageTmEnd;
-		int16  PeriodTerm;
-		int16  PeriodCount;
-		int32  LocID;
-		uint8  Reserve[16]; // raw
-		uint32 PhoneP;
-		uint32 AddressP;
-		uint32 ZipP;
-		uint32 LocalAreaP;
-		uint32 CityP;
-		uint32 StreetP;
-		uint32 HouseP;
-		uint32 ApartP;
-		uint32 AddrAddendP;
-	} data;
-	struct Key0 {
-		int32  ID;
-	};
-	struct Key1 {
-		char   Code[24];
-		int32  SeriesID;
-	};
-	struct Key2 {
-		int32  SeriesID;
-		char   Code[24];
-	};
-	DBField ID;
-	DBField Code;
-	DBField SeriesID;
-	DBField PersonID;
-	DBField Flags;
-	DBField Dt;
-	DBField Expiry;
-	DBField PDis;
-	DBField AutoGoodsID;
-	DBField MaxCredit;
-	DBField Turnover;
-	DBField Rest;
-	DBField InTrnovr;
-	DBField UsageTmStart;
-	DBField UsageTmEnd;
-	DBField PeriodTerm;
-	DBField PeriodCount;
-	DBField LocID;
-	DBField Reserve;
-	DBField PhoneP;
-	DBField AddressP;
-	DBField ZipP;
-	DBField LocalAreaP;
-	DBField CityP;
-	DBField StreetP;
-	DBField HouseP;
-	DBField ApartP;
-	DBField AddrAddendP;
-};
-#pragma pack(pop)
-
-#pragma pack(push, 1)
 class SCardOpTbl : public DBTable {
 public:
 	SCardOpTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
@@ -3754,82 +3432,6 @@ public:
 	DBField Income;
 	DBField BnkAmount;
 	DBField CSCardAmount;
-};
-#pragma pack(pop)
-
-#pragma pack(push, 1)
-class TempCSessChecksTbl : public DBTable {
-public:
-	TempCSessChecksTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
-
-	struct Rec {
-		Rec();
-		Rec & Clear();
-		int32  ID;
-		int32  SuperSessID;
-		int32  CashNodeID;
-		int32  CashNumber;
-		int32  SessNumber;
-		LDATE  Dt;
-		LTIME  Tm;
-		int16  Incomplete;
-		int16  Temporary;
-		double Amount;
-		double Discount;
-		double AggrAmount;
-		double AggrRest;
-		double WrOffAmount;
-		double WrOffCost;
-		double Income;
-		double BnkAmount;
-		double CSCardAmount;
-		int32  ChkCount;
-		double WORetAmount;
-		double WORetBnkAmount;
-		double BnkDiscount;
-	} data;
-	struct Key0 {
-		int32  ID;
-	};
-	struct Key1 {
-		int32  CashNodeID;
-		LDATE  Dt;
-		LTIME  Tm;
-	};
-	struct Key2 {
-		int32  CashNodeID;
-		int32  CashNumber;
-		int32  SessNumber;
-		LDATE  Dt;
-	};
-	struct Key3 {
-		int32  SuperSessID;
-		int32  CashNumber;
-		LDATE  Dt;
-		LTIME  Tm;
-	};
-	DBField ID;
-	DBField SuperSessID;
-	DBField CashNodeID;
-	DBField CashNumber;
-	DBField SessNumber;
-	DBField Dt;
-	DBField Tm;
-	DBField Incomplete;
-	DBField Temporary;
-	DBField Amount;
-	DBField Discount;
-	DBField AggrAmount;
-	DBField AggrRest;
-	DBField WrOffAmount;
-	DBField WrOffCost;
-	DBField Income;
-	DBField BnkAmount;
-	DBField CSCardAmount;
-	DBField ChkCount;
-	DBField WORetAmount;
-	DBField WORetBnkAmount;
-	DBField BnkDiscount;
 };
 #pragma pack(pop)
 
@@ -3974,256 +3576,6 @@ public:
 	DBField SCardID;
 	DBField CurID;
 	DBField CurAmount;
-};
-#pragma pack(pop)
-
-#pragma pack(push, 1)
-class TempCCheckQttyTbl : public DBTable {
-public:
-	TempCCheckQttyTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
-
-	struct Rec {
-		Rec();
-		Rec & Clear();
-		int32  ID;
-		int32  Code;
-		int32  CashID;
-		int32  UserID;
-		int32  SessID;
-		LDATE  Dt;
-		LTIME  Tm;
-		int32  Flags;
-		double Amount;
-		double Discount;
-		double BnkAmt;
-		double CrdCardAmt;
-		int32  SCardID;
-		double Qtty;
-		int32  SkuCount;
-		int32  LinesCount;
-	} data;
-	struct Key0 {
-		int32  ID;
-	};
-	struct Key1 {
-		LDATE  Dt;
-		LTIME  Tm;
-		int32  CashID;
-		int32  Code;
-	};
-	struct Key2 {
-		int32  CashID;
-		int32  Code;
-		LDATE  Dt;
-		LTIME  Tm;
-	};
-	struct Key3 {
-		int32  SessID;
-		int32  CashID;
-		LDATE  Dt;
-		LTIME  Tm;
-		int32  Code;
-	};
-	struct Key4 {
-		int32  SCardID;
-		LDATE  Dt;
-		LTIME  Tm;
-	};
-	DBField ID;
-	DBField Code;
-	DBField CashID;
-	DBField UserID;
-	DBField SessID;
-	DBField Dt;
-	DBField Tm;
-	DBField Flags;
-	DBField Amount;
-	DBField Discount;
-	DBField BnkAmt;
-	DBField CrdCardAmt;
-	DBField SCardID;
-	DBField Qtty;
-	DBField SkuCount;
-	DBField LinesCount;
-};
-#pragma pack(pop)
-
-#pragma pack(push, 1)
-class TempCCheckGrpTbl : public DBTable {
-public:
-	TempCCheckGrpTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
-
-	struct Rec {
-		Rec();
-		Rec & Clear();
-		int32  ID__;
-		char   Text[128];
-		char   Serial[32];
-		LDATE  Dt;
-		LTIME  Tm;
-		int32  CashID;
-		int32  SCardID;
-		int32  GoodsID;
-		int32  Count;
-		int16  DivID;
-		int16  GuestCount;
-		int32  SkuCount;
-		int32  LinesCount;
-		double Amount;
-		double Discount;
-		double BnkAmt;
-		double CrdCardAmt;
-		double PctPart;
-		double Qtty;
-	} data;
-	struct Key0 {
-		int32  ID__;
-	};
-	struct Key1 {
-		LDATE  Dt;
-		LTIME  Tm;
-		int32  CashID;
-		int32  SCardID;
-		int32  GoodsID;
-		char   Serial[32];
-	};
-	struct Key2 {
-		char   Text[128];
-	};
-	struct Key3 {
-		int32  Count;
-		LDATE  Dt;
-		LTIME  Tm;
-		char   Text[128];
-	};
-	struct Key4 {
-		double Qtty;
-		LDATE  Dt;
-		LTIME  Tm;
-		char   Text[128];
-	};
-	struct Key5 {
-		double Amount;
-		LDATE  Dt;
-		LTIME  Tm;
-		char   Text[128];
-	};
-	struct Key6 {
-		char   Text[128];
-		LDATE  Dt;
-	};
-	DBField ID__;
-	DBField Text;
-	DBField Serial;
-	DBField Dt;
-	DBField Tm;
-	DBField CashID;
-	DBField SCardID;
-	DBField GoodsID;
-	DBField Count;
-	DBField DivID;
-	DBField GuestCount;
-	DBField SkuCount;
-	DBField LinesCount;
-	DBField Amount;
-	DBField Discount;
-	DBField BnkAmt;
-	DBField CrdCardAmt;
-	DBField PctPart;
-	DBField Qtty;
-};
-#pragma pack(pop)
-
-#pragma pack(push, 1)
-class TempCCheckGdsCorrTbl : public DBTable {
-public:
-	TempCCheckGdsCorrTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
-
-	struct Rec {
-		Rec();
-		Rec & Clear();
-		int32  ID__;
-		int32  Goods1ID;
-		int32  Goods2ID;
-		char   GoodsName1[64];
-		char   GoodsName2[64];
-		int32  Count;
-		int32  ChecksCount;
-		double ChecksCountPct;
-	} data;
-	struct Key0 {
-		int32  ID__;
-	};
-	struct Key1 {
-		int32  Goods1ID;
-		int32  Goods2ID;
-	};
-	struct Key2 {
-		int32  Goods2ID;
-		int32  Goods1ID;
-	};
-	struct Key3 {
-		char   GoodsName1[64];
-		int32  Count;
-		char   GoodsName2[64];
-	};
-	struct Key4 {
-		int32  Count;
-		char   GoodsName1[64];
-		char   GoodsName2[64];
-	};
-	DBField ID__;
-	DBField Goods1ID;
-	DBField Goods2ID;
-	DBField GoodsName1;
-	DBField GoodsName2;
-	DBField Count;
-	DBField ChecksCount;
-	DBField ChecksCountPct;
-};
-#pragma pack(pop)
-
-#pragma pack(push, 1)
-class TempCCheckLineTbl : public DBTable {
-public:
-	TempCCheckLineTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
-
-	struct Rec {
-		Rec();
-		Rec & Clear();
-		int32  CheckID;
-		int32  CheckCode;
-		int16  DivID;
-		LDATE  Dt;
-		int32  GoodsID;
-		char   BarCode[24];
-		double Quantity;
-		int32  Price;
-		double Dscnt;
-		int32  ExtTextSize;
-		TSLob <2048> VT;
-	} data;
-	struct Key0 {
-		int32  CheckCode;
-	};
-	struct Key1 {
-		LDATE  Dt;
-		int32  GoodsID;
-	};
-	struct Key2 {
-		int32  CheckID;
-	};
-	DBField CheckID;
-	DBField CheckCode;
-	DBField DivID;
-	DBField Dt;
-	DBField GoodsID;
-	DBField BarCode;
-	DBField Quantity;
-	DBField Price;
-	DBField Dscnt;
-	DBField ExtTextSize;
-	DBField VT;
 };
 #pragma pack(pop)
 
@@ -9619,6 +8971,654 @@ public:
 #pragma pack(pop)
 
 #pragma pack(push, 1)
+class TempSCardTbl : public DBTable {
+public:
+	TempSCardTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
+
+	struct Rec {
+		Rec();
+		Rec & Clear();
+		int32  ID;
+		char   Code[24];
+		int32  SeriesID;
+		int32  PersonID;
+		int32  Flags;
+		LDATE  Dt;
+		LDATE  Expiry;
+		int32  PDis;
+		int32  AutoGoodsID;
+		double MaxCredit;
+		double Turnover;
+		double Rest;
+		double InTrnovr;
+		LTIME  UsageTmStart;
+		LTIME  UsageTmEnd;
+		int16  PeriodTerm;
+		int16  PeriodCount;
+		int32  LocID;
+		uint8  Reserve[16]; // raw
+		uint32 PhoneP;
+		uint32 AddressP;
+		uint32 ZipP;
+		uint32 LocalAreaP;
+		uint32 CityP;
+		uint32 StreetP;
+		uint32 HouseP;
+		uint32 ApartP;
+		uint32 AddrAddendP;
+	} data;
+	struct Key0 {
+		int32  ID;
+	};
+	struct Key1 {
+		char   Code[24];
+		int32  SeriesID;
+	};
+	struct Key2 {
+		int32  SeriesID;
+		char   Code[24];
+	};
+	DBField ID;
+	DBField Code;
+	DBField SeriesID;
+	DBField PersonID;
+	DBField Flags;
+	DBField Dt;
+	DBField Expiry;
+	DBField PDis;
+	DBField AutoGoodsID;
+	DBField MaxCredit;
+	DBField Turnover;
+	DBField Rest;
+	DBField InTrnovr;
+	DBField UsageTmStart;
+	DBField UsageTmEnd;
+	DBField PeriodTerm;
+	DBField PeriodCount;
+	DBField LocID;
+	DBField Reserve;
+	DBField PhoneP;
+	DBField AddressP;
+	DBField ZipP;
+	DBField LocalAreaP;
+	DBField CityP;
+	DBField StreetP;
+	DBField HouseP;
+	DBField ApartP;
+	DBField AddrAddendP;
+};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+class TempKLADRTbl : public DBTable {
+public:
+	TempKLADRTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
+
+	struct Rec {
+		Rec();
+		Rec & Clear();
+		int32  ID__;
+		int32  ParentID;
+		int32  StatusCode;
+		char   Name[48];
+		char   Code[20];
+		char   ZIP[8];
+	} data;
+	struct Key0 {
+		int32  ID__;
+	};
+	struct Key1 {
+		char   Code[20];
+	};
+	struct Key2 {
+		int32  ParentID;
+		char   Name[48];
+	};
+	DBField ID__;
+	DBField ParentID;
+	DBField StatusCode;
+	DBField Name;
+	DBField Code;
+	DBField ZIP;
+};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+class TempStaffCalTbl : public DBTable {
+public:
+	TempStaffCalTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
+
+	struct Rec {
+		Rec();
+		Rec & Clear();
+		int32  ID__;
+		int32  CalID;
+		int32  LinkObjID;
+		int32  NameIdx;
+		LDATE  Dt;
+		LTIME  TmStart;
+		LTIME  TmEnd;
+		int32  TmVal;
+		char   DtText[32];
+		int32  Count;
+	} data;
+	struct Key0 {
+		int32  ID__;
+	};
+	struct Key1 {
+		LDATE  Dt;
+		int32  NameIdx;
+		int32  CalID;
+	};
+	struct Key2 {
+		int32  NameIdx;
+		LDATE  Dt;
+		int32  CalID;
+	};
+	struct Key3 {
+		int32  CalID;
+		int32  LinkObjID;
+		LDATE  Dt;
+		LTIME  TmStart;
+	};
+	DBField ID__;
+	DBField CalID;
+	DBField LinkObjID;
+	DBField NameIdx;
+	DBField Dt;
+	DBField TmStart;
+	DBField TmEnd;
+	DBField TmVal;
+	DBField DtText;
+	DBField Count;
+};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+class TempSalaryTbl : public DBTable {
+public:
+	TempSalaryTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
+
+	struct Rec {
+		Rec();
+		Rec & Clear();
+		int32  ID;
+		LDATE  Beg;
+		LDATE  End;
+		int32  PostID;
+		int32  SalChargeID;
+		int32  ExtObjID;
+		double Amount;
+		int32  Flags;
+		int32  LinkBillID;
+		int32  GenBillID;
+		int32  RByGenBill;
+		int32  StaffID;
+		int32  PersonID;
+		int32  OrgID;
+		int32  DivID;
+		char   Text[64];
+	} data;
+	struct Key0 {
+		int32  ID;
+	};
+	struct Key1 {
+		LDATE  Beg;
+	};
+	struct Key2 {
+		char   Text[64];
+	};
+	struct Key3 {
+		int32  PostID;
+		int32  SalChargeID;
+		int32  ExtObjID;
+		LDATE  Beg;
+	};
+	DBField ID;
+	DBField Beg;
+	DBField End;
+	DBField PostID;
+	DBField SalChargeID;
+	DBField ExtObjID;
+	DBField Amount;
+	DBField Flags;
+	DBField LinkBillID;
+	DBField GenBillID;
+	DBField RByGenBill;
+	DBField StaffID;
+	DBField PersonID;
+	DBField OrgID;
+	DBField DivID;
+	DBField Text;
+};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+class TempInventorySubstTbl : public DBTable {
+public:
+	TempInventorySubstTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
+
+	struct Rec {
+		Rec();
+		Rec & Clear();
+		int32  GoodsID;
+		char   Name[128];
+		double Quantity;
+		double StockRest;
+		double SumPrice;
+		double SumStockPrice;
+		double SumWrOffPrice;
+		double DiffQtty;
+		double DiffPctQtty;
+		double DiffPrice;
+	} data;
+	struct Key0 {
+		int32  GoodsID;
+	};
+	struct Key1 {
+		char   Name[128];
+	};
+	DBField GoodsID;
+	DBField Name;
+	DBField Quantity;
+	DBField StockRest;
+	DBField SumPrice;
+	DBField SumStockPrice;
+	DBField SumWrOffPrice;
+	DBField DiffQtty;
+	DBField DiffPctQtty;
+	DBField DiffPrice;
+};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+class TempLocTransfTbl : public DBTable {
+public:
+	TempLocTransfTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
+
+	struct Rec {
+		Rec();
+		Rec & Clear();
+		int32  ID__;
+		int32  LocID;
+		int32  RByLoc;
+		LDATE  Dt;
+		LTIME  Tm;
+		int32  UserID;
+		int32  BillID;
+		int16  RByBillLT;
+		int16  LTOp;
+		int16  Domain;
+		int16  PalletCount;
+		int32  Flags;
+		int32  GoodsID;
+		double BillQtty;
+		double DispQtty;
+		double RestByGoods;
+		double RestByLot;
+		int32  PalletTypeID;
+		int32  LocOwnerPersonID;
+	} data;
+	struct Key0 {
+		int32  ID__;
+	};
+	struct Key1 {
+		int32  BillID;
+		int16  RByBillLT;
+	};
+	struct Key2 {
+		int32  LocID;
+		int32  RByLoc;
+	};
+	DBField ID__;
+	DBField LocID;
+	DBField RByLoc;
+	DBField Dt;
+	DBField Tm;
+	DBField UserID;
+	DBField BillID;
+	DBField RByBillLT;
+	DBField LTOp;
+	DBField Domain;
+	DBField PalletCount;
+	DBField Flags;
+	DBField GoodsID;
+	DBField BillQtty;
+	DBField DispQtty;
+	DBField RestByGoods;
+	DBField RestByLot;
+	DBField PalletTypeID;
+	DBField LocOwnerPersonID;
+};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+class TempCSessChecksTbl : public DBTable {
+public:
+	TempCSessChecksTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
+
+	struct Rec {
+		Rec();
+		Rec & Clear();
+		int32  ID;
+		int32  SuperSessID;
+		int32  CashNodeID;
+		int32  CashNumber;
+		int32  SessNumber;
+		LDATE  Dt;
+		LTIME  Tm;
+		int16  Incomplete;
+		int16  Temporary;
+		double Amount;
+		double Discount;
+		double AggrAmount;
+		double AggrRest;
+		double WrOffAmount;
+		double WrOffCost;
+		double Income;
+		double BnkAmount;
+		double CSCardAmount;
+		int32  ChkCount;
+		double WORetAmount;
+		double WORetBnkAmount;
+		double BnkDiscount;
+	} data;
+	struct Key0 {
+		int32  ID;
+	};
+	struct Key1 {
+		int32  CashNodeID;
+		LDATE  Dt;
+		LTIME  Tm;
+	};
+	struct Key2 {
+		int32  CashNodeID;
+		int32  CashNumber;
+		int32  SessNumber;
+		LDATE  Dt;
+	};
+	struct Key3 {
+		int32  SuperSessID;
+		int32  CashNumber;
+		LDATE  Dt;
+		LTIME  Tm;
+	};
+	DBField ID;
+	DBField SuperSessID;
+	DBField CashNodeID;
+	DBField CashNumber;
+	DBField SessNumber;
+	DBField Dt;
+	DBField Tm;
+	DBField Incomplete;
+	DBField Temporary;
+	DBField Amount;
+	DBField Discount;
+	DBField AggrAmount;
+	DBField AggrRest;
+	DBField WrOffAmount;
+	DBField WrOffCost;
+	DBField Income;
+	DBField BnkAmount;
+	DBField CSCardAmount;
+	DBField ChkCount;
+	DBField WORetAmount;
+	DBField WORetBnkAmount;
+	DBField BnkDiscount;
+};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+class TempCCheckQttyTbl : public DBTable {
+public:
+	TempCCheckQttyTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
+
+	struct Rec {
+		Rec();
+		Rec & Clear();
+		int32  ID;
+		int32  Code;
+		int32  CashID;
+		int32  UserID;
+		int32  SessID;
+		LDATE  Dt;
+		LTIME  Tm;
+		int32  Flags;
+		double Amount;
+		double Discount;
+		double BnkAmt;
+		double CrdCardAmt;
+		int32  SCardID;
+		double Qtty;
+		int32  SkuCount;
+		int32  LinesCount;
+	} data;
+	struct Key0 {
+		int32  ID;
+	};
+	struct Key1 {
+		LDATE  Dt;
+		LTIME  Tm;
+		int32  CashID;
+		int32  Code;
+	};
+	struct Key2 {
+		int32  CashID;
+		int32  Code;
+		LDATE  Dt;
+		LTIME  Tm;
+	};
+	struct Key3 {
+		int32  SessID;
+		int32  CashID;
+		LDATE  Dt;
+		LTIME  Tm;
+		int32  Code;
+	};
+	struct Key4 {
+		int32  SCardID;
+		LDATE  Dt;
+		LTIME  Tm;
+	};
+	DBField ID;
+	DBField Code;
+	DBField CashID;
+	DBField UserID;
+	DBField SessID;
+	DBField Dt;
+	DBField Tm;
+	DBField Flags;
+	DBField Amount;
+	DBField Discount;
+	DBField BnkAmt;
+	DBField CrdCardAmt;
+	DBField SCardID;
+	DBField Qtty;
+	DBField SkuCount;
+	DBField LinesCount;
+};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+class TempCCheckGrpTbl : public DBTable {
+public:
+	TempCCheckGrpTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
+
+	struct Rec {
+		Rec();
+		Rec & Clear();
+		int32  ID__;
+		char   Text[128];
+		char   Serial[32];
+		LDATE  Dt;
+		LTIME  Tm;
+		int32  CashID;
+		int32  SCardID;
+		int32  GoodsID;
+		int32  Count;
+		int16  DivID;
+		int16  GuestCount;
+		int32  SkuCount;
+		int32  LinesCount;
+		double Amount;
+		double Discount;
+		double BnkAmt;
+		double CrdCardAmt;
+		double PctPart;
+		double Qtty;
+	} data;
+	struct Key0 {
+		int32  ID__;
+	};
+	struct Key1 {
+		LDATE  Dt;
+		LTIME  Tm;
+		int32  CashID;
+		int32  SCardID;
+		int32  GoodsID;
+		char   Serial[32];
+	};
+	struct Key2 {
+		char   Text[128];
+	};
+	struct Key3 {
+		int32  Count;
+		LDATE  Dt;
+		LTIME  Tm;
+		char   Text[128];
+	};
+	struct Key4 {
+		double Qtty;
+		LDATE  Dt;
+		LTIME  Tm;
+		char   Text[128];
+	};
+	struct Key5 {
+		double Amount;
+		LDATE  Dt;
+		LTIME  Tm;
+		char   Text[128];
+	};
+	struct Key6 {
+		char   Text[128];
+		LDATE  Dt;
+	};
+	DBField ID__;
+	DBField Text;
+	DBField Serial;
+	DBField Dt;
+	DBField Tm;
+	DBField CashID;
+	DBField SCardID;
+	DBField GoodsID;
+	DBField Count;
+	DBField DivID;
+	DBField GuestCount;
+	DBField SkuCount;
+	DBField LinesCount;
+	DBField Amount;
+	DBField Discount;
+	DBField BnkAmt;
+	DBField CrdCardAmt;
+	DBField PctPart;
+	DBField Qtty;
+};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+class TempCCheckGdsCorrTbl : public DBTable {
+public:
+	TempCCheckGdsCorrTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
+
+	struct Rec {
+		Rec();
+		Rec & Clear();
+		int32  ID__;
+		int32  Goods1ID;
+		int32  Goods2ID;
+		char   GoodsName1[64];
+		char   GoodsName2[64];
+		int32  Count;
+		int32  ChecksCount;
+		double ChecksCountPct;
+	} data;
+	struct Key0 {
+		int32  ID__;
+	};
+	struct Key1 {
+		int32  Goods1ID;
+		int32  Goods2ID;
+	};
+	struct Key2 {
+		int32  Goods2ID;
+		int32  Goods1ID;
+	};
+	struct Key3 {
+		char   GoodsName1[64];
+		int32  Count;
+		char   GoodsName2[64];
+	};
+	struct Key4 {
+		int32  Count;
+		char   GoodsName1[64];
+		char   GoodsName2[64];
+	};
+	DBField ID__;
+	DBField Goods1ID;
+	DBField Goods2ID;
+	DBField GoodsName1;
+	DBField GoodsName2;
+	DBField Count;
+	DBField ChecksCount;
+	DBField ChecksCountPct;
+};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+class TempCCheckLineTbl : public DBTable {
+public:
+	TempCCheckLineTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
+
+	struct Rec {
+		Rec();
+		Rec & Clear();
+		int32  CheckID;
+		int32  CheckCode;
+		int16  DivID;
+		LDATE  Dt;
+		int32  GoodsID;
+		char   BarCode[24];
+		double Quantity;
+		int32  Price;
+		double Dscnt;
+		int32  ExtTextSize;
+		TSLob <2048> VT;
+	} data;
+	struct Key0 {
+		int32  CheckCode;
+	};
+	struct Key1 {
+		LDATE  Dt;
+		int32  GoodsID;
+	};
+	struct Key2 {
+		int32  CheckID;
+	};
+	DBField CheckID;
+	DBField CheckCode;
+	DBField DivID;
+	DBField Dt;
+	DBField GoodsID;
+	DBField BarCode;
+	DBField Quantity;
+	DBField Price;
+	DBField Dscnt;
+	DBField ExtTextSize;
+	DBField VT;
+};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
 class TestRef01Tbl : public DBTable {
 public:
 	TestRef01Tbl(const char * pFileName = 0, DbProvider * pDbP = 0);
@@ -9808,8 +9808,6 @@ public:
 		int32  ID;
 		int64  UedTm;
 		int32  Kind;
-		int32  ObjType;
-		int32  ObjID;
 		int64  Subject;
 		char   Symb[128];
 		TSLob <2048> VT;
@@ -9823,14 +9821,17 @@ public:
 	};
 	struct Key2 {
 		int32  Kind;
+		int64  Subject;
+		int64  UedTm;
+	};
+	struct Key3 {
+		int32  Kind;
 		char   Symb[128];
 		int64  UedTm;
 	};
 	DBField ID;
 	DBField UedTm;
 	DBField Kind;
-	DBField ObjType;
-	DBField ObjID;
 	DBField Subject;
 	DBField Symb;
 	DBField VT;

@@ -780,6 +780,24 @@ PosRegisterSkipAfVerif=[1|0]
 ;
 PosRegisterLogging=[1|0]
 ;
+; @v12.5.9
+; Порядок назначения цены для товара, продаваемого чере кассу, если этот товар
+; имеет single-подстановочную стурктуру (т.е. такую, в которой есть только один вариант подстановки).
+; здесь:
+;   own price or quot           - собственная цена или котировка (в зависимости от общих условий)
+;   subst goods with qtty_coeff - цена подстановочного товара, умноженная на количественный коэффициент подстановки
+;   chzn mrc - цена mrc из марки честный знак, возвращенная функцией проверки валидности марки (разрешительный режим)
+;
+; 1 - own price or quot -> subst goods with qtty_coeff -> chzn mrc 
+; 2 - subst goods with qtty_coeff -> own price or quot -> chzn mrc 
+; 3 - subst goods with qtty_coeff -> chzn mrc -> own price or quot 
+; 4 - chzn mrc -> subst goods with qtty_coeff -> own price or quot 
+; 5 - chzn mrc -> own price or quot -> subst goods with qtty_coeff 
+; 6 - own price or quot -> chzn mrc -> subst goods with qtty_coeff 
+; default: 1
+;
+PosSingleSubstPriceOrder=[1|2|3|4|5|6]
+;
 ; @v11.9.2
 ; Если значение 1, то команды (не все) от клиентов Stylo-Q заносятся в журнал styloqsvc-talk.log
 ;

@@ -88,12 +88,6 @@ WorldTbl::Rec & WorldTbl::Rec::Clear()
 	THISZERO();
 	return *this;
 }
-DBTABLE_CONSTRUCTOR(TempKLADR, ID__)
-TempKLADRTbl::Rec & TempKLADRTbl::Rec::Clear()
-{
-	THISZERO();
-	return *this;
-}
 DBTABLE_CONSTRUCTOR(FiasAddrObj, RecUuID)
 FiasAddrObjTbl::Rec & FiasAddrObjTbl::Rec::Clear()
 {
@@ -148,20 +142,8 @@ StaffCalendarTbl::Rec & StaffCalendarTbl::Rec::Clear()
 	THISZERO();
 	return *this;
 }
-DBTABLE_CONSTRUCTOR(TempStaffCal, ID__)
-TempStaffCalTbl::Rec & TempStaffCalTbl::Rec::Clear()
-{
-	THISZERO();
-	return *this;
-}
 DBTABLE_CONSTRUCTOR(Salary, ID)
 SalaryTbl::Rec & SalaryTbl::Rec::Clear()
-{
-	THISZERO();
-	return *this;
-}
-DBTABLE_CONSTRUCTOR(TempSalary, ID)
-TempSalaryTbl::Rec & TempSalaryTbl::Rec::Clear()
 {
 	THISZERO();
 	return *this;
@@ -322,12 +304,6 @@ InventoryTbl::Rec & InventoryTbl::Rec::Clear()
 	THISZERO();
 	return *this;
 }
-DBTABLE_CONSTRUCTOR(TempInventorySubst, GoodsID)
-TempInventorySubstTbl::Rec & TempInventorySubstTbl::Rec::Clear()
-{
-	THISZERO();
-	return *this;
-}
 DBTABLE_CONSTRUCTOR(Quotation, ID)
 QuotationTbl::Rec & QuotationTbl::Rec::Clear()
 {
@@ -366,12 +342,6 @@ TransferTbl::Rec & TransferTbl::Rec::Clear()
 }
 DBTABLE_CONSTRUCTOR(LocTransf, LocID)
 LocTransfTbl::Rec & LocTransfTbl::Rec::Clear()
-{
-	THISZERO();
-	return *this;
-}
-DBTABLE_CONSTRUCTOR(TempLocTransf, ID__)
-TempLocTransfTbl::Rec & TempLocTransfTbl::Rec::Clear()
 {
 	THISZERO();
 	return *this;
@@ -418,12 +388,6 @@ SCardTbl::Rec & SCardTbl::Rec::Clear()
 	THISZERO();
 	return *this;
 }
-DBTABLE_CONSTRUCTOR(TempSCard, ID)
-TempSCardTbl::Rec & TempSCardTbl::Rec::Clear()
-{
-	THISZERO();
-	return *this;
-}
 DBTABLE_CONSTRUCTOR(SCardOp, SCardID)
 SCardOpTbl::Rec & SCardOpTbl::Rec::Clear()
 {
@@ -432,12 +396,6 @@ SCardOpTbl::Rec & SCardOpTbl::Rec::Clear()
 }
 DBTABLE_CONSTRUCTOR(CSession, ID)
 CSessionTbl::Rec & CSessionTbl::Rec::Clear()
-{
-	THISZERO();
-	return *this;
-}
-DBTABLE_CONSTRUCTOR(TempCSessChecks, ID)
-TempCSessChecksTbl::Rec & TempCSessChecksTbl::Rec::Clear()
 {
 	THISZERO();
 	return *this;
@@ -456,30 +414,6 @@ CCheckExtTbl::Rec & CCheckExtTbl::Rec::Clear()
 }
 DBTABLE_CONSTRUCTOR(CCheckPaym, CheckID)
 CCheckPaymTbl::Rec & CCheckPaymTbl::Rec::Clear()
-{
-	THISZERO();
-	return *this;
-}
-DBTABLE_CONSTRUCTOR(TempCCheckQtty, ID)
-TempCCheckQttyTbl::Rec & TempCCheckQttyTbl::Rec::Clear()
-{
-	THISZERO();
-	return *this;
-}
-DBTABLE_CONSTRUCTOR(TempCCheckGrp, ID__)
-TempCCheckGrpTbl::Rec & TempCCheckGrpTbl::Rec::Clear()
-{
-	THISZERO();
-	return *this;
-}
-DBTABLE_CONSTRUCTOR(TempCCheckGdsCorr, ID__)
-TempCCheckGdsCorrTbl::Rec & TempCCheckGdsCorrTbl::Rec::Clear()
-{
-	THISZERO();
-	return *this;
-}
-DBTABLE_CONSTRUCTOR(TempCCheckLine, CheckID)
-TempCCheckLineTbl::Rec & TempCCheckLineTbl::Rec::Clear()
 {
 	THISZERO();
 	return *this;
@@ -1110,6 +1044,72 @@ TempDBDivTbl::Rec & TempDBDivTbl::Rec::Clear()
 }
 DBTABLE_CONSTRUCTOR(TempUserProfile, ID)
 TempUserProfileTbl::Rec & TempUserProfileTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
+DBTABLE_CONSTRUCTOR(TempSCard, ID)
+TempSCardTbl::Rec & TempSCardTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
+DBTABLE_CONSTRUCTOR(TempKLADR, ID__)
+TempKLADRTbl::Rec & TempKLADRTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
+DBTABLE_CONSTRUCTOR(TempStaffCal, ID__)
+TempStaffCalTbl::Rec & TempStaffCalTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
+DBTABLE_CONSTRUCTOR(TempSalary, ID)
+TempSalaryTbl::Rec & TempSalaryTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
+DBTABLE_CONSTRUCTOR(TempInventorySubst, GoodsID)
+TempInventorySubstTbl::Rec & TempInventorySubstTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
+DBTABLE_CONSTRUCTOR(TempLocTransf, ID__)
+TempLocTransfTbl::Rec & TempLocTransfTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
+DBTABLE_CONSTRUCTOR(TempCSessChecks, ID)
+TempCSessChecksTbl::Rec & TempCSessChecksTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
+DBTABLE_CONSTRUCTOR(TempCCheckQtty, ID)
+TempCCheckQttyTbl::Rec & TempCCheckQttyTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
+DBTABLE_CONSTRUCTOR(TempCCheckGrp, ID__)
+TempCCheckGrpTbl::Rec & TempCCheckGrpTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
+DBTABLE_CONSTRUCTOR(TempCCheckGdsCorr, ID__)
+TempCCheckGdsCorrTbl::Rec & TempCCheckGdsCorrTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
+DBTABLE_CONSTRUCTOR(TempCCheckLine, CheckID)
+TempCCheckLineTbl::Rec & TempCCheckLineTbl::Rec::Clear()
 {
 	THISZERO();
 	return *this;

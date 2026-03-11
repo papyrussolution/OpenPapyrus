@@ -1048,7 +1048,8 @@ int PPSupplExchange_Baltika::ExportRest()
 int PPSupplExchange_Baltika::ExportSpoilageRest(PPID locID, uint filesIdx)
 {
 	int    ok = 1;
-	int    is_weak_alc = 0, is_wotare = 0;
+	int    is_weak_alc = 0;
+	int    is_wotare = 0;
 	long   count = 0;
 	PPID   wotarebeer_ggrpid = 0;
 	Sdr_SupplRest     head_rec;

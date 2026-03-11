@@ -426,25 +426,21 @@ SLTEST_R(SimpleCpp)
 	convertCygwinPath();
 #endif
 	{ //define1()
-		const char code[] = "#define A 1+2\n"
-			"a=A+3;";
-		ASSERT_EQUALS("#define A 1 + 2\n"
-			"a = A + 3 ;",
-			readfile(code));
-		ASSERT_EQUALS("\na = 1 + 2 + 3 ;",
-			preprocess(code));
+		const char code[] = "#define A 1+2\n" "a=A+3;";
+		ASSERT_EQUALS("# define A 1 + 2\n" "a = A + 3 ;", readfile(code));
+		ASSERT_EQUALS("\na = 1 + 2 + 3 ;", preprocess(code));
 	}
 	{ //define2()
 		const char code[] = "#define ADD(A,B) A+B\n" "ADD(1+2,3);";
-		ASSERT_EQUALS("#define ADD ( A , B ) A + B\n" "ADD ( 1 + 2 , 3 ) ;", readfile(code));
+		ASSERT_EQUALS("# define ADD ( A , B ) A + B\n" "ADD ( 1 + 2 , 3 ) ;", readfile(code));
 		ASSERT_EQUALS("\n1 + 2 + 3 ;", preprocess(code));
 	}
 	{ //define3()
 		const char code[] = "#define A   123\n"
 			"#define B   A\n"
 			"A B";
-		ASSERT_EQUALS("#define A 123\n"
-			"#define B A\n"
+		ASSERT_EQUALS("# define A 123\n"
+			"# define B A\n"
 			"A B",
 			readfile(code));
 		ASSERT_EQUALS("\n\n123 123", preprocess(code));
@@ -453,8 +449,8 @@ SLTEST_R(SimpleCpp)
 		const char code[] = "#define A      123\n"
 			"#define B(C)   A\n"
 			"A B(1)";
-		ASSERT_EQUALS("#define A 123\n"
-			"#define B ( C ) A\n"
+		ASSERT_EQUALS("# define A 123\n"
+			"# define B ( C ) A\n"
 			"A B ( 1 )",
 			readfile(code));
 		ASSERT_EQUALS("\n\n123 123", preprocess(code));
@@ -500,7 +496,7 @@ SLTEST_R(SimpleCpp)
 			"  .x = V,\n"
 			"};\n";
 		ASSERT_EQUALS("struct foo x = {\n"
-			"#define V 0\n"
+			"# define V 0\n"
 			". x = V ,\n"
 			"} ;", readfile(code));
 		ASSERT_EQUALS("struct foo x = {\n"
@@ -1774,7 +1770,7 @@ SLTEST_R(SimpleCpp)
 			"A";
 		std::vector<std::string> files;
 		simplecpp::TokenList rawtokens = makeTokenList(code, files);
-		ASSERT_EQUALS("#define A /**/ 1\n\nA", rawtokens.stringify());
+		ASSERT_EQUALS("# define A /**/ 1\n\nA", rawtokens.stringify());
 		rawtokens.removeComments();
 		std::map<std::string, simplecpp::TokenList*> filedata;
 		simplecpp::TokenList tokens2(files);
@@ -1787,7 +1783,7 @@ SLTEST_R(SimpleCpp)
 			"A";
 		std::vector<std::string> files;
 		simplecpp::TokenList rawtokens = makeTokenList(code, files);
-		ASSERT_EQUALS("#define A /*           */ 1\n\nA", rawtokens.stringify());
+		ASSERT_EQUALS("# define A /*           */ 1\n\nA", rawtokens.stringify());
 		rawtokens.removeComments();
 		std::map<std::string, simplecpp::TokenList*> filedata;
 		simplecpp::TokenList tokens2(files);
@@ -1801,7 +1797,7 @@ SLTEST_R(SimpleCpp)
 			"A";
 		std::vector<std::string> files;
 		simplecpp::TokenList rawtokens = makeTokenList(code, files);
-		ASSERT_EQUALS("#define A /*           */ 1\n\n\nA", rawtokens.stringify());
+		ASSERT_EQUALS("# define A /*           */ 1\n\n\nA", rawtokens.stringify());
 		rawtokens.removeComments();
 		std::map<std::string, simplecpp::TokenList*> filedata;
 		simplecpp::TokenList tokens2(files);
@@ -1813,7 +1809,7 @@ SLTEST_R(SimpleCpp)
 			"(";
 		std::vector<std::string> files;
 		const simplecpp::TokenList rawtokens = makeTokenList(code, files);
-		ASSERT_EQUALS("#define A (", rawtokens.stringify());
+		ASSERT_EQUALS("# define A (", rawtokens.stringify());
 		ASSERT_EQUALS(11, rawtokens.cback()->location.col);
 	}
 	{//multiline6()   // multiline string in macro
@@ -1822,7 +1818,7 @@ SLTEST_R(SimpleCpp)
 			"string\n";
 		std::vector<std::string> files;
 		const simplecpp::TokenList rawtokens = makeTokenList(code, files);
-		ASSERT_EQUALS("#define string ( \"x\" )\n"
+		ASSERT_EQUALS("# define string ( \"x\" )\n"
 			"\n"
 			"string", rawtokens.stringify());
 	}
@@ -1832,7 +1828,7 @@ SLTEST_R(SimpleCpp)
 			"A(1)";
 		std::vector<std::string> files;
 		const simplecpp::TokenList rawtokens = makeTokenList(code, files);
-		ASSERT_EQUALS("#define A ( X ) aaa { f ( \"a\" ) ; }\n"
+		ASSERT_EQUALS("# define A ( X ) aaa { f ( \"a\" ) ; }\n"
 			"\n"
 			"A ( 1 )", rawtokens.stringify());
 	}

@@ -4087,6 +4087,7 @@
 	#define CTL_EXTGSEL_INFO             (9 + WINDOWS_ID_BIAS)
 	#define CTL_EXTGSEL_MODIFMODE        (10 + WINDOWS_ID_BIAS)
 	#define CTLSEL_EXTGSEL_MODIFMODE     (11 + WINDOWS_ID_BIAS)
+	#define CTL_EXTGSEL_CMD_SELSERIAL    (12 + WINDOWS_ID_BIAS)
 #define DLG_SELMODIF              284 // Выбор типа строки модифкации товара
 	#define CTL_SELMODIF_WHAT            (1 + WINDOWS_ID_BIAS)
 	#define CTL_SELMODIF_FLAGS           (2 + WINDOWS_ID_BIAS)
@@ -11991,6 +11992,11 @@
 	#define LOITEM_LI_CENTRIGONAV_HIND          (1 + WINDOWS_ID_BIAS) // Индикатор иерархии
 	#define LOITEM_LI_CENTRIGONAV_IMG           (2 + WINDOWS_ID_BIAS) // Изображение
 	#define LOITEM_LI_CENTRIGONAV_MAINTEXT      (3 + WINDOWS_ID_BIAS) // Основной текст
+#define WNDID_FACADEWINDOW        1591 // @centrigo Основное окно проекта Centrigo
+	#define CTL_FACADEWINDOW_MAININPUT          (1 + WINDOWS_ID_BIAS) // Основное поле ввода для facade-window (TFacadeWindow)
+	#define CTL_FACADEWINDOW_INFOLINE           (2 + WINDOWS_ID_BIAS) // Информационная строка для facade-window (TFacadeWindow)
+	#define CTL_FACADEWINDOW_NAVPANE            (3 + WINDOWS_ID_BIAS) // Левая панель навигации для facade-window (TFacadeWindow)
+	#define CTL_FACADEWINDOW_NAVPANE_SZF        (4 + WINDOWS_ID_BIAS) // Полоса изменения размера левой панели навигации для facade-window (TFacadeWindow)
 //
 // Win32 Dialog Identifiers
 //
@@ -12045,13 +12051,6 @@
 #define DLGW_SELVERSION          4115
 	#define CTL_SELVERSION_LIST         1021
 #define DLGW_EMPTYDIALOGWINDOW   4116 // @v12.2.4
-//
-// 
-//
-#define CTL_FACADEWINDOW_MAININPUT   (1 + WINDOWS_ID_BIAS) // Основное поле ввода для facade-window (TFacadeWindow)
-#define CTL_FACADEWINDOW_INFOLINE    (2 + WINDOWS_ID_BIAS) // Информационная строка для facade-window (TFacadeWindow)
-#define CTL_FACADEWINDOW_NAVPANE     (3 + WINDOWS_ID_BIAS) // Левая панель навигации для facade-window (TFacadeWindow)
-#define CTL_FACADEWINDOW_NAVPANE_SZF (4 + WINDOWS_ID_BIAS) // Полоса изменения размера левой панели навигации для facade-window (TFacadeWindow)
 //
 // LastDialog
 //

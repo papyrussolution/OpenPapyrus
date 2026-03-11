@@ -254,6 +254,7 @@ SLTEST_R(MySQL) // @v12.4.7
 						if(p_rec) {
 							MEMSZERO(k0);
 							p_tbl->CopyBufLobFrom(p_rec, sizeof(*p_rec));
+							// @todo @20260307 авария при вставке - что-то не так с LOB (опять)
 							int irr = p_tbl->insertRec(0, &k0);
 							const DBRowId * p_row_id = p_tbl->getCurRowIdPtr();
 							if(p_row_id)

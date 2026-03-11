@@ -954,6 +954,7 @@ int GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 //
 class GoodsListDialog : public TDialog {
 public:
+	// DLG_EXTGSEL DLG_GDSLST
 	explicit GoodsListDialog(int disableAutoFill) : TDialog(DLG_GDSLST)
 	{
 		P_List = static_cast<SmartListBox *>(getCtrlView(CTL_GDSLST_LIST));
@@ -2821,7 +2822,7 @@ int PPViewGoods::AddItem(GoodsListDialog ** ppDlgPtr, PPViewBrowser * pBrw, PPID
 						PPObjGoodsGroup ggobj;
 						GoodsFilt tmpf;
 						if(ggobj.ReadGoodsFilt(Filt.GrpID, &tmpf) > 0 && !tmpf.IsEmpty()) {
-							int  is_autofill = 0;
+							bool   is_autofill = false;
 							Goods2Tbl::Rec grec;
 							PPWaitStart();
 							for(GoodsIterator giter(&tmpf, 0); giter.Next(&grec) > 0;) {
@@ -2829,7 +2830,7 @@ int PPViewGoods::AddItem(GoodsListDialog ** ppDlgPtr, PPViewBrowser * pBrw, PPID
 								if(!GObj.AssignGoodsToAltGrp(grec.ID, Filt.GrpID, 0, 1))
 									PPError();
 								else
-									is_autofill = 1;
+									is_autofill = true;
 								PPWaitPercent(giter.GetIterCounter());
 							}
 							if(is_autofill)

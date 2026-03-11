@@ -331,24 +331,6 @@ file:
 	balanced;
 }
 //
-// Descr: Временная таблица для импорта Российского классификатора адресов (КЛАДР)
-//
-table TempKLADR {
-	autolong ID__;      // Временный уникальный идентификатор
-	long   ParentID;    // Ссылка на родительский объект по идентификатору ID__ этой же таблицы
-	long   StatusCode;  // Код статуса объекта
-	string Name[48];
-	string Code[20];
-	string ZIP[8];
-index:
-	ID__ (unique);
-	Code (dup mod);
-	ParentID, Name (dup mod);
-file:
-	"tmp_kldr.btr";
-	temporary;
-}
-//
 //
 //
 table FiasAddrObj {
@@ -640,29 +622,6 @@ file:
 	"stafcal.btr";
 	balanced;
 }
-
-table TempStaffCal {
-	autolong ID__;         //
-	long   CalID;          // base calendar
-	long   LinkObjID;      //
-	long   NameIdx;        // Индекс наименования объекта (для правильной сортировки с
-		// избежанием необходимости хранить эти наименования в таблице, что будет весьма накладно)
-	date   Dt;             //
-	time   TmStart;        //
-	time   TmEnd;          //
-	long   TmVal;          //
-	string DtText[32];     // Для группировки по дате
-	long   Count;          // Количество позиций, для группировки по дате
-index:
-	ID__ (unique);
-	Dt, NameIdx, CalID (dup mod);
-	NameIdx, Dt, CalID (dup mod);
-	CalID, LinkObjID, Dt, TmStart (unique mod); // @v7.7.12 TmStart
-file:
-	"tmp_sc.btr";
-	temporary;
-	balanced;
-}
 //
 // Начисления зарплаты
 // Записи этой таблицы формируются как правило "гуртом" в результате запуска процедуры начисления зарплаты.
@@ -701,33 +660,6 @@ index:
 file:
 	"salary.btr";
 	balanced;
-}
-
-table TempSalary {
-	long   ID;             // @id
-	date   Beg;            // Начало периода расчета
-	date   End;            // Окончание периода расчета
-	long   PostID;         // ->PersonPost.ID
-	long   SalChargeID;    // ->Ref(PPOBJ_SALCHARGE)
-	long   ExtObjID;       // @v6.3.3
-	double Amount;         // Сумма начисления //
-	long   Flags;          // Флаги
-	long   LinkBillID;     // ->Bill.ID Документ, по которому сгенерировано начисление
-	long   GenBillID;      // ->Bill.ID Документ, сгенерированный по этому начислению
-	long   RByGenBill;     // Номер строки документа LinkBillID, соответствующей этой записи
-	long   StaffID;        //
-	long   PersonID;       //
-	long   OrgID;          //
-	long   DivID;          //
-	string Text[64];       //
-index:
-	ID (unique);
-	Beg (dup mod);
-	Text (dup mod);
-	PostID, SalChargeID, ExtObjID, Beg (unique mod);
-file:
-	"tmp_sal.btr";
-	temporary;
 }
 //
 // Товары, товарные группы, транспортные средства
@@ -1451,25 +1383,6 @@ file:
 	"inventry.btr";
 	access=1;
 }
-
-table TempInventorySubst {
-	long   GoodsID;
-	string Name[128];
-	double Quantity;       // Фактический остаток
-	double StockRest;      // Учетный остаток
-	double SumPrice;       // Фактическая цена
-	double SumStockPrice;  // Учетная цена
-	double SumWrOffPrice;  // Цена списания строки
-	double DiffQtty;       // Абсолютная величина рассогласования //
-	double DiffPctQtty;    // Абсолютная величина рассогласования в процентах
-	double DiffPrice;      // Суммовое рассогласование
-index:
-	GoodsID (unique mod);
-	Name (dup mod);
-file:
-	"tmp_inv.btr";
-	access=1;
-}
 //
 // Котировки @v2.2.4
 // Используется для хранения котировок 1-го поколения.
@@ -1695,37 +1608,6 @@ index:
 	Domain, LTOp, LocID, GoodsID, RByLoc (unique mod); // #5 Индекс для быстрого поиска текущих остатков (LTOp==0), @v12.4.1 Включен сегмент Domain
 file:
 	"loctrfr.btr";
-}
-//
-// Временная таблица для размещения по ячейкам строк товарных документов.
-//
-table TempLocTransf {
-	autolong ID__;         // @id
-	long   LocID;          // ->Location.ID
-	long   RByLoc;         //
-	date   Dt;             //
-	time   Tm;             //
-	long   UserID;         // ->Ref(PPOBJ_USR) Пользователь, создавший строку
-	long   BillID;         // ->Bill.ID
-	int16  RByBillLT;
-	int16  LTOp;           // см. примечание к LocTransf::LTOp
-	int16  Domain;         // @v12.4.1
-	int16  PalletCount;    // Количество паллетов типа PalletTypeID
-	long   Flags;          // LOCTRF_XXX
-	long   GoodsID;        // ->Goods2.ID
-	double BillQtty;       // Количество в строке документа
-	double DispQtty;       // Количество, размещенное в ячейку LocID
-	double RestByGoods;    // @#{RestByGoods >= 0.0} Остаток товара в ячейке после этой операции
-	double RestByLot;      // @#{RestByLot >= 0.0 && (LotID || RestByLot == 0.0)} Остаток лота в ячейке после этой операции
-	long   PalletTypeID;   // ->Ref(PPOBJ_PALLET) Тип паллета, используемого для загрузки
-	long   LocOwnerPersonID; // Персоналия-владелец локации (LocID) в случае, если Domain==LOCTRFRDOMAIN_BAILMENT
-index:
-	ID__ (unique);
-	BillID, RByBillLT (dup mod);
-	LocID, RByLoc (allsegnull unique mod);
-file:
-	"tmp_lctr.btr";
-	temporary;
 }
 //
 // @v4.0.7
@@ -2002,66 +1884,6 @@ file:
 	access=1;
 }
 //
-// Descr: Временная таблица для отчета по персональным картам.
-// Attention: Поля до отметки "End SCard fields" должны совпадать по типам и порядку следования с полями
-//   таблицы SCard.
-//
-table TempSCard {
-	long   ID;             //
-	string Code[24];       //
-	// @v9.4.0 string Password[8];    //
-	long   SeriesID;       // ->Ref(PPOBJ_SCARDSERIES)
-	long   PersonID;       // ->Person.ID
-	// @v9.6.5 @fix long   LocID;          // ->Location.ID @v9.4.0
-	long   Flags;          //
-	date   Dt;             // Open date
-	date   Expiry;         //
-	long   PDis;           //
-	long   AutoGoodsID;    //
-	double MaxCredit;      //
-	double Turnover;       //
-	double Rest;           //
-	double InTrnovr;       //
-	time   UsageTmStart;   //
-	time   UsageTmEnd;     //
-	int16  PeriodTerm;     // @v7.7.2 Тип периода длительности срока действия //
-	int16  PeriodCount;    // @v7.7.2 Количество периодов длительности срока действия //
-	long   LocID;          // @v9.6.5 @fix ->Location.ID
-	raw    Reserve[16];    // @v7.7.2
-	//
-	// End SCard fields
-	//
-	/* @v9.8.9
-	string Phone[48];      //
-	string Address[252];   //
-	string ZIP[12];
-	string LocalArea[64];
-	string City[48];
-	string Street[128];
-	string House[48];
-	string Apart[32];
-	string AddrAddend[64];
-	*/
-	// @v9.8.9 {
-	uint   PhoneP;
-	uint   AddressP;
-	uint   ZipP;
-	uint   LocalAreaP;
-	uint   CityP;
-	uint   StreetP;
-	uint   HouseP;
-	uint   ApartP;
-	uint   AddrAddendP;
-	// } @v9.8.9
-index:
-	ID (unique);                  // #0
-	Code, SeriesID (unique mod);  // #1
-	SeriesID, Code (unique mod);  // #2
-file:
-	"tmp_sc.btr";
-	compress;
-}
-//
 // Операции с персональными картами (для кредитных и бонусных карт).
 //
 table SCardOp {         // size=72 // @v7.7.12 48-->60 // @v12.0.6 60-->72
@@ -2122,43 +1944,6 @@ index:
 	Dt, Tm, CashNodeID (unique mod); // @v7.7.12
 file:
 	"csess.btr";
-	access=1;
-}
-//
-// @v5.0.8 VADIM
-//
-table TempCSessChecks {
-	autolong ID;           // @id Внутренний id записи
-	long   SuperSessID;    // ->CSession.ID
-	long   CashNodeID;     // ->Ref(PPOBJ_CASHNODE)
-	long   CashNumber;     //
-	long   SessNumber;     //
-	date   Dt;             //
-	time   Tm;             //
-	int16  Incomplete;     // Уровень незавершенности сессии
-	int16  Temporary;      // Сессия временная //
-	double Amount;         // Сумма чеков (с учетом скидки)
-	double Discount;       // Сумма скидки
-	double AggrAmount;     // Агрегированная по товарам сумма
-	double AggrRest;       // Агрегированная по товарам сумма за вычетом списанной суммы
-	double WrOffAmount;    // Сумма списания //
-	double WrOffCost;      // Сумма списания в ценах поступления //
-	double Income;         // Доходность
-	double BnkAmount;      // Сумма безналичных чеков
-	double CSCardAmount;   // @v6.2.1 Сумма по корпоративным кредитным картам
-	// -- До этой точки структура совпадает со структурой CSession
-	long   ChkCount;       // Количество чеков
-	double WORetAmount;    // Сумма чеков без учета скидок
-	double WORetBnkAmount; // Сумма безналичных чеков без учета скидок
-	double BnkDiscount;
-index:
-	ID (unique);
-	CashNodeID, Dt, Tm (unique mod);
-	CashNodeID, CashNumber, SessNumber, Dt (unique mod);
-	SuperSessID, CashNumber, Dt, Tm (unique mod);
-file:
-	"tmp_csch.btr";
-	temporary;
 	access=1;
 }
 //
@@ -2239,123 +2024,6 @@ index:
 	SCardID, CheckID (anysegnull unique mod);
 file:
 	"ccpaym.btr";
-	access=1;
-}
-//
-//
-//
-table TempCCheckQtty { // Size=60
-	autolong ID;        // ИД чека уникальный по этой таблице
-	long   Code;        // Код чека по внутреннему реестру ККМ, если Flags & CCHKF_ZCHECK, тогда Code - это номер Z-отчета
-	long   CashID;      // if (Flags & (CCHKF_SYNC|CCHKF_TRANSMIT)) then
-		// (CashID ->Obj(PPOBJ_CASHNODE).ID) else (CashID - Code of cash machine)
-	long   UserID;      //
-	long   SessID;      // ->CSession.ID
-	date   Dt;          //
-	time   Tm;          //
-	long   Flags;       // CCHKF_XXX
-	double Amount;      //
-	double Discount;    //
-	double BnkAmt;      // @v8.3.0
-	double CrdCardAmt;  // @v8.3.0
-	long   SCardID;     // @v3.7.2  ->SCard.ID
-	double Qtty;        //
-	long   SkuCount;    // @v6.9.3
-	long   LinesCount;  // @v6.9.3
-index:
-	ID (unique);
-	Dt, Tm, CashID, Code (unique mod); // @v7.6.3 (, Code)
-	CashID, Code, Dt, Tm (unique mod);
-	SessID, CashID, Dt, Tm, Code (unique mod);  // @v3.1.12 // @v7.6.3 (, Code)
-	SCardID, Dt, Tm (anysegnull dup mod); // @v3.11.10
-file:
-	"tmp_cchq.btr";
-	temporary;
-	access=1;
-}
-
-table TempCCheckGrp {
-	autolong ID__;
-	string Text[128];  // @v6.3.7 [48]-->[128]
-	string Serial[32]; // @v10.2.6
-	date   Dt;
-	time   Tm;
-	long   CashID;
-	long   SCardID;
-	long   GoodsID;
-	long   Count;
-	int16  DivID;      // @v6.7.10 // @v10.9.1 Div-->DivID
-	int16  GuestCount; // @v6.7.10
-	long   SkuCount;   // @v6.9.3
-	long   LinesCount; // @v6.9.3
-	double Amount;
-	double Discount;
-	double BnkAmt;      // @v8.3.0
-	double CrdCardAmt;  // @v8.3.0
-	double PctPart;
-	double Qtty;
-index:
-	ID__ (unique);
-	Dt, Tm, CashID, SCardID, GoodsID, Serial (unique mod); // @v10.2.6 Serial
-	Text (dup mod);
-	Count desc, Dt, Tm, Text (dup mod);
-	Qtty desc, Dt, Tm, Text (dup mod);
-	Amount desc, Dt, Tm, Text (dup mod);
-	Text, Dt (dup mod);
-file:
-	"tmp_cchk.btr";
-	temporary;
-	access=1;
-}
-
-table TempCCheckGdsCorr {
-	autolong ID__;
-	long   Goods1ID;
-	long   Goods2ID;
-	//string GoodsName1[128]; // @v8.3.0 [48]-->[128]
-	//string GoodsName2[128]; // @v8.3.0 [48]-->[128]
-	string GoodsName1[64];
-	string GoodsName2[64];
-	long   Count;
-	long   ChecksCount;
-	double ChecksCountPct;
-index:
-	ID__ (unique);
-	Goods1ID, Goods2ID (unique mod);
-	Goods2ID, Goods1ID (unique mod);
-	GoodsName1, Count desc, GoodsName2 (unique mod);
-	Count desc, GoodsName1, GoodsName2 (unique mod);
-file:
-	"tmp_ccgc.btr";
-	temporary;
-	// page=4096;  // @v8.4.8 При автоматически определяемом размере страницы может не хватить предела для размера файла.
-	compress; // @v8.3.0
-	access=1;
-}
-//
-//
-//
-table TempCCheckLine {     // size=
-	long   CheckID;        // ->CCheck.ID
-	long   CheckCode;      // ->CCheck.Code
-	int16  DivID;          // Отдел магазина
-	date   Dt;             // Дата продажи == CCheck(CheckCode).Dt
-	long   GoodsID;        // ->Goods.ID
-	string BarCode[24];    // Штрихкод // @v8.8.0 [16]-->[24]
-	// @v10.7.3 string Serial[24];     // Серийный номер
-	double Quantity;       // Количество товара
-	long   Price;          //
-	double Dscnt;          // @v5.2.7 long(0.01)-->double
-	long   ExtTextSize;    // @v10.7.3 Длина текста, содержащегося в VT
-	blob   VT[2048];       // @v10.7.3
-index:
-	CheckCode (dup mod);
-	Dt, GoodsID (dup mod);
-	CheckID (dup mod);
-file:
-	"tmp_ccl.btr";
-	vlr; // @v10.7.3
-	temporary;
 	access=1;
 }
 //
@@ -5384,6 +5052,338 @@ file:
 	acstable = "rusncase.alt";
 }
 //
+// Descr: Временная таблица для отчета по персональным картам.
+// Attention: Поля до отметки "End SCard fields" должны совпадать по типам и порядку следования с полями
+//   таблицы SCard.
+//
+table TempSCard {
+	long   ID;             //
+	string Code[24];       //
+	// @v9.4.0 string Password[8];    //
+	long   SeriesID;       // ->Ref(PPOBJ_SCARDSERIES)
+	long   PersonID;       // ->Person.ID
+	// @v9.6.5 @fix long   LocID;          // ->Location.ID @v9.4.0
+	long   Flags;          //
+	date   Dt;             // Open date
+	date   Expiry;         //
+	long   PDis;           //
+	long   AutoGoodsID;    //
+	double MaxCredit;      //
+	double Turnover;       //
+	double Rest;           //
+	double InTrnovr;       //
+	time   UsageTmStart;   //
+	time   UsageTmEnd;     //
+	int16  PeriodTerm;     // @v7.7.2 Тип периода длительности срока действия //
+	int16  PeriodCount;    // @v7.7.2 Количество периодов длительности срока действия //
+	long   LocID;          // @v9.6.5 @fix ->Location.ID
+	raw    Reserve[16];    // @v7.7.2
+	//
+	// End SCard fields
+	//
+	/* @v9.8.9
+	string Phone[48];      //
+	string Address[252];   //
+	string ZIP[12];
+	string LocalArea[64];
+	string City[48];
+	string Street[128];
+	string House[48];
+	string Apart[32];
+	string AddrAddend[64];
+	*/
+	// @v9.8.9 {
+	uint   PhoneP;
+	uint   AddressP;
+	uint   ZipP;
+	uint   LocalAreaP;
+	uint   CityP;
+	uint   StreetP;
+	uint   HouseP;
+	uint   ApartP;
+	uint   AddrAddendP;
+	// } @v9.8.9
+index:
+	ID (unique);                  // #0
+	Code, SeriesID (unique mod);  // #1
+	SeriesID, Code (unique mod);  // #2
+file:
+	"tmp_sc.btr";
+	compress;
+}
+//
+// Descr: Временная таблица для импорта Российского классификатора адресов (КЛАДР)
+//
+table TempKLADR {
+	autolong ID__;      // Временный уникальный идентификатор
+	long   ParentID;    // Ссылка на родительский объект по идентификатору ID__ этой же таблицы
+	long   StatusCode;  // Код статуса объекта
+	string Name[48];
+	string Code[20];
+	string ZIP[8];
+index:
+	ID__ (unique);
+	Code (dup mod);
+	ParentID, Name (dup mod);
+file:
+	"tmp_kldr.btr";
+	temporary;
+}
+
+table TempStaffCal {
+	autolong ID__;         //
+	long   CalID;          // base calendar
+	long   LinkObjID;      //
+	long   NameIdx;        // Индекс наименования объекта (для правильной сортировки с
+		// избежанием необходимости хранить эти наименования в таблице, что будет весьма накладно)
+	date   Dt;             //
+	time   TmStart;        //
+	time   TmEnd;          //
+	long   TmVal;          //
+	string DtText[32];     // Для группировки по дате
+	long   Count;          // Количество позиций, для группировки по дате
+index:
+	ID__ (unique);
+	Dt, NameIdx, CalID (dup mod);
+	NameIdx, Dt, CalID (dup mod);
+	CalID, LinkObjID, Dt, TmStart (unique mod); // @v7.7.12 TmStart
+file:
+	"tmp_sc.btr";
+	temporary;
+	balanced;
+}
+
+table TempSalary {
+	long   ID;             // @id
+	date   Beg;            // Начало периода расчета
+	date   End;            // Окончание периода расчета
+	long   PostID;         // ->PersonPost.ID
+	long   SalChargeID;    // ->Ref(PPOBJ_SALCHARGE)
+	long   ExtObjID;       // @v6.3.3
+	double Amount;         // Сумма начисления //
+	long   Flags;          // Флаги
+	long   LinkBillID;     // ->Bill.ID Документ, по которому сгенерировано начисление
+	long   GenBillID;      // ->Bill.ID Документ, сгенерированный по этому начислению
+	long   RByGenBill;     // Номер строки документа LinkBillID, соответствующей этой записи
+	long   StaffID;        //
+	long   PersonID;       //
+	long   OrgID;          //
+	long   DivID;          //
+	string Text[64];       //
+index:
+	ID (unique);
+	Beg (dup mod);
+	Text (dup mod);
+	PostID, SalChargeID, ExtObjID, Beg (unique mod);
+file:
+	"tmp_sal.btr";
+	temporary;
+}
+
+table TempInventorySubst {
+	long   GoodsID;
+	string Name[128];
+	double Quantity;       // Фактический остаток
+	double StockRest;      // Учетный остаток
+	double SumPrice;       // Фактическая цена
+	double SumStockPrice;  // Учетная цена
+	double SumWrOffPrice;  // Цена списания строки
+	double DiffQtty;       // Абсолютная величина рассогласования //
+	double DiffPctQtty;    // Абсолютная величина рассогласования в процентах
+	double DiffPrice;      // Суммовое рассогласование
+index:
+	GoodsID (unique mod);
+	Name (dup mod);
+file:
+	"tmp_inv.btr";
+	access=1;
+}
+//
+// Временная таблица для размещения по ячейкам строк товарных документов.
+//
+table TempLocTransf {
+	autolong ID__;         // @id
+	long   LocID;          // ->Location.ID
+	long   RByLoc;         //
+	date   Dt;             //
+	time   Tm;             //
+	long   UserID;         // ->Ref(PPOBJ_USR) Пользователь, создавший строку
+	long   BillID;         // ->Bill.ID
+	int16  RByBillLT;
+	int16  LTOp;           // см. примечание к LocTransf::LTOp
+	int16  Domain;         // @v12.4.1
+	int16  PalletCount;    // Количество паллетов типа PalletTypeID
+	long   Flags;          // LOCTRF_XXX
+	long   GoodsID;        // ->Goods2.ID
+	double BillQtty;       // Количество в строке документа
+	double DispQtty;       // Количество, размещенное в ячейку LocID
+	double RestByGoods;    // @#{RestByGoods >= 0.0} Остаток товара в ячейке после этой операции
+	double RestByLot;      // @#{RestByLot >= 0.0 && (LotID || RestByLot == 0.0)} Остаток лота в ячейке после этой операции
+	long   PalletTypeID;   // ->Ref(PPOBJ_PALLET) Тип паллета, используемого для загрузки
+	long   LocOwnerPersonID; // Персоналия-владелец локации (LocID) в случае, если Domain==LOCTRFRDOMAIN_BAILMENT
+index:
+	ID__ (unique);
+	BillID, RByBillLT (dup mod);
+	LocID, RByLoc (allsegnull unique mod);
+file:
+	"tmp_lctr.btr";
+	temporary;
+}
+//
+// @v5.0.8 VADIM
+//
+table TempCSessChecks {
+	autolong ID;           // @id Внутренний id записи
+	long   SuperSessID;    // ->CSession.ID
+	long   CashNodeID;     // ->Ref(PPOBJ_CASHNODE)
+	long   CashNumber;     //
+	long   SessNumber;     //
+	date   Dt;             //
+	time   Tm;             //
+	int16  Incomplete;     // Уровень незавершенности сессии
+	int16  Temporary;      // Сессия временная //
+	double Amount;         // Сумма чеков (с учетом скидки)
+	double Discount;       // Сумма скидки
+	double AggrAmount;     // Агрегированная по товарам сумма
+	double AggrRest;       // Агрегированная по товарам сумма за вычетом списанной суммы
+	double WrOffAmount;    // Сумма списания //
+	double WrOffCost;      // Сумма списания в ценах поступления //
+	double Income;         // Доходность
+	double BnkAmount;      // Сумма безналичных чеков
+	double CSCardAmount;   // @v6.2.1 Сумма по корпоративным кредитным картам
+	// -- До этой точки структура совпадает со структурой CSession
+	long   ChkCount;       // Количество чеков
+	double WORetAmount;    // Сумма чеков без учета скидок
+	double WORetBnkAmount; // Сумма безналичных чеков без учета скидок
+	double BnkDiscount;
+index:
+	ID (unique);
+	CashNodeID, Dt, Tm (unique mod);
+	CashNodeID, CashNumber, SessNumber, Dt (unique mod);
+	SuperSessID, CashNumber, Dt, Tm (unique mod);
+file:
+	"tmp_csch.btr";
+	temporary;
+	access=1;
+}
+//
+//
+//
+table TempCCheckQtty { // Size=60
+	autolong ID;        // ИД чека уникальный по этой таблице
+	long   Code;        // Код чека по внутреннему реестру ККМ, если Flags & CCHKF_ZCHECK, тогда Code - это номер Z-отчета
+	long   CashID;      // if (Flags & (CCHKF_SYNC|CCHKF_TRANSMIT)) then
+		// (CashID ->Obj(PPOBJ_CASHNODE).ID) else (CashID - Code of cash machine)
+	long   UserID;      //
+	long   SessID;      // ->CSession.ID
+	date   Dt;          //
+	time   Tm;          //
+	long   Flags;       // CCHKF_XXX
+	double Amount;      //
+	double Discount;    //
+	double BnkAmt;      // @v8.3.0
+	double CrdCardAmt;  // @v8.3.0
+	long   SCardID;     // @v3.7.2  ->SCard.ID
+	double Qtty;        //
+	long   SkuCount;    // @v6.9.3
+	long   LinesCount;  // @v6.9.3
+index:
+	ID (unique);
+	Dt, Tm, CashID, Code (unique mod); // @v7.6.3 (, Code)
+	CashID, Code, Dt, Tm (unique mod);
+	SessID, CashID, Dt, Tm, Code (unique mod);  // @v3.1.12 // @v7.6.3 (, Code)
+	SCardID, Dt, Tm (anysegnull dup mod); // @v3.11.10
+file:
+	"tmp_cchq.btr";
+	temporary;
+	access=1;
+}
+
+table TempCCheckGrp {
+	autolong ID__;
+	string Text[128];  // @v6.3.7 [48]-->[128]
+	string Serial[32]; // @v10.2.6
+	date   Dt;
+	time   Tm;
+	long   CashID;
+	long   SCardID;
+	long   GoodsID;
+	long   Count;
+	int16  DivID;      // @v6.7.10 // @v10.9.1 Div-->DivID
+	int16  GuestCount; // @v6.7.10
+	long   SkuCount;   // @v6.9.3
+	long   LinesCount; // @v6.9.3
+	double Amount;
+	double Discount;
+	double BnkAmt;      // @v8.3.0
+	double CrdCardAmt;  // @v8.3.0
+	double PctPart;
+	double Qtty;
+index:
+	ID__ (unique);
+	Dt, Tm, CashID, SCardID, GoodsID, Serial (unique mod); // @v10.2.6 Serial
+	Text (dup mod);
+	Count desc, Dt, Tm, Text (dup mod);
+	Qtty desc, Dt, Tm, Text (dup mod);
+	Amount desc, Dt, Tm, Text (dup mod);
+	Text, Dt (dup mod);
+file:
+	"tmp_cchk.btr";
+	temporary;
+	access=1;
+}
+
+table TempCCheckGdsCorr {
+	autolong ID__;
+	long   Goods1ID;
+	long   Goods2ID;
+	//string GoodsName1[128]; // @v8.3.0 [48]-->[128]
+	//string GoodsName2[128]; // @v8.3.0 [48]-->[128]
+	string GoodsName1[64];
+	string GoodsName2[64];
+	long   Count;
+	long   ChecksCount;
+	double ChecksCountPct;
+index:
+	ID__ (unique);
+	Goods1ID, Goods2ID (unique mod);
+	Goods2ID, Goods1ID (unique mod);
+	GoodsName1, Count desc, GoodsName2 (unique mod);
+	Count desc, GoodsName1, GoodsName2 (unique mod);
+file:
+	"tmp_ccgc.btr";
+	temporary;
+	// page=4096;  // @v8.4.8 При автоматически определяемом размере страницы может не хватить предела для размера файла.
+	compress; // @v8.3.0
+	access=1;
+}
+//
+//
+//
+table TempCCheckLine {     // size=
+	long   CheckID;        // ->CCheck.ID
+	long   CheckCode;      // ->CCheck.Code
+	int16  DivID;          // Отдел магазина
+	date   Dt;             // Дата продажи == CCheck(CheckCode).Dt
+	long   GoodsID;        // ->Goods.ID
+	string BarCode[24];    // Штрихкод // @v8.8.0 [16]-->[24]
+	// @v10.7.3 string Serial[24];     // Серийный номер
+	double Quantity;       // Количество товара
+	long   Price;          //
+	double Dscnt;          // @v5.2.7 long(0.01)-->double
+	long   ExtTextSize;    // @v10.7.3 Длина текста, содержащегося в VT
+	blob   VT[2048];       // @v10.7.3
+index:
+	CheckCode (dup mod);
+	Dt, GoodsID (dup mod);
+	CheckID (dup mod);
+file:
+	"tmp_ccl.btr";
+	vlr; // @v10.7.3
+	temporary;
+	access=1;
+}
+//
 // Тестовые таблицы
 //
 table TestRef01 {
@@ -5469,15 +5469,14 @@ table LocalStateBindery { // @v12.5.7 @construction
 	autolong ID;
 	int64  UedTm; // Время создания или последнего изменения //
 	long   Kind;
-	long   ObjType;
-	long   ObjID;
 	int64  Subject;
 	string Symb[128];
 	blob   VT[2048];
 index:
-	ID (unique);
-	Kind, UedTm (unique mod);
-	Kind, Symb, UedTm (unique mod);
+	ID (unique);                              // #0  
+	Kind, UedTm (unique mod);                 // #1
+	Kind, Subject, UedTm (unique mod);        // #2
+	Kind, Symb, UedTm (unique mod);           // #3
 file:
 	dbms="sqlite";
 	"lstateb.btr";

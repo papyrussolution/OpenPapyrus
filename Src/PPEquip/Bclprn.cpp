@@ -1,5 +1,5 @@
 // BCLPRN.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -246,14 +246,12 @@ load FONTS {
 }
 */
 
-// @vmiller
-struct UsbOpt {
+struct UsbOpt { // @vmiller
 	const char * P_Vid;
 	const char * P_Pid;
 };
 
-// @vmiller
-UsbOpt EltronUsbOpt[] = { {"Vid_1203",	"Pid_0160"} };// TSC TDP-225
+static const UsbOpt EltronUsbOpt[] = {{"Vid_1203", "Pid_0160"}}; // TSC TDP-225 // @vmiller
 
 struct BarcodeLabelParam {
 	char   Name[64];
@@ -269,6 +267,10 @@ struct BarcodeLabelParam {
 };
 
 struct BarcodeLabelEntry {
+	BarcodeLabelEntry()
+	{
+		THISZERO();
+	}
 	enum EntryType {
 		 etText = 1, // LABEL & LOAD
 		 etBarcode,  // LABEL
@@ -974,8 +976,9 @@ int BarcodeLabel::ParseFormat(const RetailGoodsInfo * pRgi, const char * pFileNa
 	int    skip_label = 0;
 	int    zone = 0; // 1 - label param, 2 - label format, 11 - load
 	int    line_no = 0;
-	if(!RVALUEPTR(RGI, pRgi))
-		RGI.Init();
+	if(!RVALUEPTR(RGI, pRgi)) {
+		RGI.Z();
+	}
 	MEMSZERO(BLP);
 	FILE * f = 0;
 	if(VarString.IsEmpty())
@@ -990,11 +993,12 @@ int BarcodeLabel::ParseFormat(const RetailGoodsInfo * pRgi, const char * pFileNa
 		//
 		// Skip comments (//)
 		//
-		for(char * p_c = s; p_c[0] != 0; p_c++)
+		for(char * p_c = s; p_c[0] != 0; p_c++) {
 			if(p_c[0] == '/' && p_c[1] == '/') {
 				p_c[0] = 0;
 				break;
 			}
+		}
 		if(*s == '.') {
 			THROW(zone == 1);
 			zone = 2;
@@ -1071,7 +1075,7 @@ int BarcodeLabel::ParseFormat(const RetailGoodsInfo * pRgi, const char * pFileNa
 				else if(tok == tokString) {
 					BarcodeLabelEntry ent;
 					THROW(zone == 11);
-					MEMSZERO(ent);
+					// @v12.5.9 @ctr MEMSZERO(ent);
 					ent.Type = BarcodeLabelEntry::etText;
 					ent.Text = temp;
 					AddEntry(&ent);
@@ -1079,7 +1083,7 @@ int BarcodeLabel::ParseFormat(const RetailGoodsInfo * pRgi, const char * pFileNa
 				else if(tok == tokFile) {
 					BarcodeLabelEntry ent;
 					THROW(zone == 11);
-					MEMSZERO(ent);
+					// @v12.5.9 @ctr MEMSZERO(ent);
 					ent.Type = BarcodeLabelEntry::etFile;
 					THROW(NextToken(&s, temp, sizeof(temp)) == tokString);
 					ent.Text = temp;
@@ -1407,7 +1411,8 @@ int BarcodeLabelPrinter::Helper_PrintRgiCollection(const BarcodeLabelPrintParam 
 			PPAlddPrint(rpt_id, PView(&rList), &env);
 		}
 		else {
-			SString file_name, file_path;
+			SString file_name;
+			SString file_path;
 			uint   part_count = 0;
 			int    row_delay = 0;
 			PPIniFile ini_file;
@@ -2374,8 +2379,8 @@ int PPALDD_BarcodeLabelList::NextIteration(long iterId)
 	IterProlog(iterId, 0);
 	DlBarcodeLabelListBlock * p_blk = static_cast<DlBarcodeLabelListBlock *>(Extra[0].Ptr);
 	if(p_blk && p_blk->P_RgiList && p_blk->N < p_blk->P_RgiList->getCount()) {
-		const RetailGoodsInfo * p_rgi = p_blk->P_RgiList->at(p_blk->N);
-        const uint num_copies = (p_rgi->LabelCount > 1 && p_rgi->LabelCount < 1000) ? p_rgi->LabelCount : 1;
+		const  RetailGoodsInfo * p_rgi = p_blk->P_RgiList->at(p_blk->N);
+        const  uint num_copies = (p_rgi->LabelCount > 1 && p_rgi->LabelCount < 1000) ? p_rgi->LabelCount : 1;
 		I.GoodsID = p_rgi->ID;
 		I.BillDate = p_rgi->BillDate;
 		STRNSCPY(I.BillNo, p_rgi->BillCode);

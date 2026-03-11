@@ -5249,7 +5249,7 @@ int PrcssrTsStrategyAnalyze::ReadModelParam(ModelParam & rMp)
 		rMp.BestSubsetDimention = static_cast<uint>(temp_buf.ToLong());
 	rMp.BestSubsetDimention = inrangeordefault(rMp.BestSubsetDimention, 1U, 1000U, 4U);
 	if(ini_file.Get(PPINISECT_TSSTAKE, PPINIPARAM_TSSTAKE_BESTSUBSETTF, temp_buf) > 0) {
-		if(temp_buf.IsEqiAscii("true") || temp_buf.IsEqiAscii("yes") || temp_buf.IsEq("1"))
+		if(PPIniFile::IsValueYes(temp_buf))
 			rMp.Flags |= rMp.fBestSubsetTrendFollowing;
 	}
 	{
@@ -5266,7 +5266,7 @@ int PrcssrTsStrategyAnalyze::ReadModelParam(ModelParam & rMp)
 				rMp.OptTargetCriterion = rMp.tcAmount; // @default
 		}
 		if(ini_file.Get(PPINISECT_TSSTAKE, PPINIPARAM_TSSTAKE_OPTRANGEMULTI, temp_buf) > 0) {
-			if(temp_buf.IsEqiAscii("true") || temp_buf.IsEqiAscii("yes") || temp_buf.IsEq("1"))
+			if(PPIniFile::IsValueYes(temp_buf))
 				rMp.Flags |= rMp.fOptRangeMulti;
 		}
 	}

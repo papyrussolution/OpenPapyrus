@@ -11,29 +11,6 @@
 	#define SIMPLECPP_WINDOWS
 	#define NOMINMAX
 #endif
-
-//#include <algorithm>
-//#include <cassert>
-//#include <cctype>
-//#include <climits>
-//#include <cstddef> // IWYU pragma: keep
-//#include <cstdio>
-//#include <cstdlib>
-//#include <cstring>
-//#include <ctime>
-//#include <iosfwd>
-//#include <exception>
-//#include <fstream>
-//#include <iostream>
-//#include <istream>
-//#include <limits>
-//#include <list>
-//#include <map>
-//#include <set>
-//#include <sstream>
-//#include <stack>
-//#include <stdexcept>
-//#include <string>
 #if __cplusplus >= 201103L
 #ifdef SIMPLECPP_WINDOWS
 #include <mutex>

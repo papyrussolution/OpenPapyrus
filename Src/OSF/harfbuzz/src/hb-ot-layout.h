@@ -242,12 +242,7 @@ HB_EXTERN void Xhb_ot_layout_lookup_enumerate_sequences(hb_face_t * face,
 
 /* Variations support */
 
-HB_EXTERN hb_bool_t hb_ot_layout_table_find_feature_variations(hb_face_t * face,
-    hb_tag_t table_tag,
-    const int * coords,
-    uint num_coords,
-    uint * variations_index /*OUT*/);
-
+HB_EXTERN hb_bool_t hb_ot_layout_table_find_feature_variations(hb_face_t * face, hb_tag_t table_tag, const int * coords, uint num_coords, uint * variations_index /*OUT*/);
 HB_EXTERN uint hb_ot_layout_feature_with_variations_get_lookups(hb_face_t * face,
     hb_tag_t table_tag,
     uint feature_index,

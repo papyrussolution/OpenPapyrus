@@ -35,7 +35,7 @@ void GnuPlot::PrepareCall(int calltype)
 			if(!call_args[call_argc]) {
 				int save_token = Pgm.GetCurTokenIdx();
 				// This catches call "file" STRINGVAR (expression) 
-				if(TypeUdv(Pgm.GetCurTokenIdx()) == STRING) {
+				if(TypeUdv(Pgm.GetCurTokenIdx()) == GPDT_STRING) {
 					call_args[call_argc] = sstrdup(AddUdv(Pgm.GetCurTokenIdx())->udv_value.v.string_val);
 					Pgm.Shift();
 					// Evaluate a parenthesized expression or a bare numeric user variable and store the result in a string
@@ -375,7 +375,7 @@ void GnuPlot::LfPush(FILE * fp, char * pName, char * pCmdLine)
 			if(udv && udv->udv_value.Type == ARRAY) {
 				for(int argindex = 0; argindex <= call_argc; argindex++) {
 					lf->argv[argindex] = udv->udv_value.v.value_array[argindex];
-					if(lf->argv[argindex].Type == STRING)
+					if(lf->argv[argindex].Type == GPDT_STRING)
 						lf->argv[argindex].v.string_val = sstrdup(lf->argv[argindex].v.string_val);
 				}
 			}

@@ -5,35 +5,61 @@
 #include <pp.h>
 #pragma hdrstop
 //
+// @ModuleDef(LocalStateBinderyCore)
 //
-//
-class LocalStateBinderyCore { // @v12.5.8
-public:
-	//
-	// Descr: Виды записей 
-	//
-	enum { // @persistent
-		kUndef          = 0, // 
-		kInput          = 1, // Введенные пользователем текстовые данные 
-		kViewPosition   = 2,
-		kEditorPosition = 3,
-	};
-	LocalStateBinderyCore();
-	~LocalStateBinderyCore();
-	bool   IsValid() const { return LOGIC(!(State & stError)); }
-private:
-	int    OpenDatabase();
-	enum {
-		stError = 0x0001
-	};
-	uint   State;
-	SSqliteDbProvider * P_DbP;
-	LocalStateBinderyTbl * P_Tbl;
-};
+LocalStateBinderyCore::StateIdent::StateIdent() : Kind(0), Subj(0)
+{
+}
+
+LocalStateBinderyCore::SerialEntry::SerialEntry() : ID(0), UedTm(0)
+{
+}
+
+LocalStateBinderyCore::InMemStateEntry::InMemStateEntry() : ID(0)
+{
+}
+
+LocalStateBinderyCore::InMemSerialEntry::InMemSerialEntry()
+{
+}
+
+/*static*/bool LocalStateBinderyCore::CheckKeyForIdent(const StateIdent & rIdent, const LocalStateBinderyTbl::Rec & rRec)
+{
+	bool   ok = false;
+	if(rRec.Kind == rIdent.Kind) {
+		if(rIdent.Subj) {
+			ok = (rRec.Subject == rIdent.Subj);
+		}
+		else if(rIdent.Symb.NotEmpty()) {
+			ok = (rIdent.Symb == rRec.Symb);
+		}
+	}
+	return ok;
+}
+
+/*static*/bool LocalStateBinderyCore::IsStateIdentEq(const StateIdent & rKey, const StateIdent & rCandidate)
+{
+	bool   ok = false;
+	if(rKey.Kind && (rKey.Subj || rKey.Symb.NotEmpty())) {
+		if(rKey.Kind == rCandidate.Kind) {
+			if(!rKey.Subj || rKey.Subj == rCandidate.Subj) {
+				if(rKey.Symb.IsEmpty() || rKey.Symb == rCandidate.Symb)
+					ok = true;
+			}
+		}
+	}
+	return ok;
+}
 
 LocalStateBinderyCore::LocalStateBinderyCore() : State(0), P_DbP(0), P_Tbl(0)
 {
-	if(!OpenDatabase())
+	if(!OpenDatabase(0))
+		State |= stError;
+}
+
+LocalStateBinderyCore::LocalStateBinderyCore(SCtrSpecial sctr, const char * pPath) : State(0), P_DbP(0), P_Tbl(0)
+{
+	if(!OpenDatabase(pPath))
 		State |= stError;
 }
 	
@@ -43,7 +69,7 @@ LocalStateBinderyCore::~LocalStateBinderyCore()
 	delete P_DbP;
 }
 
-int LocalStateBinderyCore::OpenDatabase()
+int LocalStateBinderyCore::OpenDatabase(const char * pPath)
 {
 	int    ok = 1;
 	ZDELETE(P_Tbl);
@@ -51,39 +77,342 @@ int LocalStateBinderyCore::OpenDatabase()
 	PPThreadLocalArea & r_tla = DS.GetTLA();
 	SString temp_buf;
 	SString data_path;
-	PPGetPath(PPPATH_LOCAL, data_path);
-	if(SFile::IsDir(data_path)) {
+	if(!isempty(pPath)) {
+		data_path = pPath;
+	}
+	else {
+		PPGetPath(PPPATH_LOCAL, data_path);
+		THROW_SL(SFile::IsDir(data_path));
 		data_path.SetLastSlash().Cat("StateBindery");
-		if(SFile::CreateDir(data_path)) {
-			SString db_file_path(data_path);
-			db_file_path.SetLastSlash().Cat("StateBindery").Dot().Cat("sqlite3");
-			DbLoginBlock dlb;
-			long   login_flags = 0;
-			if(r_tla.GetThreadID() == 0) { // нулевой ид только у главного потока (надеюсь, не соврал)
-				login_flags |= DbProvider::openfMainThread; 
-			}
-			GetSqlServerTypeSymb(sqlstSQLite, temp_buf);
-			dlb.SetAttr(DbLoginBlock::attrServerType, temp_buf);
-			dlb.SetAttr(DbLoginBlock::attrDbPath, db_file_path);
-			P_DbP = new SSqliteDbProvider();
-			THROW(P_DbP);
-			THROW(P_DbP->IsValid());
-			THROW_DB(P_DbP->DbLogin(&dlb, login_flags));
-			{
-				P_Tbl = new LocalStateBinderyTbl(0, P_DbP);
-			}
+	}
+	THROW_SL(SFile::CreateDir(data_path));
+	{
+		SString db_file_path(data_path);
+		db_file_path.SetLastSlash().Cat("StateBindery").Dot().Cat("sqlite3");
+		DbLoginBlock dlb;
+		long   login_flags = 0;
+		if(r_tla.GetThreadID() == 0) { // нулевой ид только у главного потока (надеюсь, не соврал)
+			login_flags |= DbProvider::openfMainThread; 
+		}
+		GetSqlServerTypeSymb(sqlstSQLite, temp_buf);
+		dlb.SetAttr(DbLoginBlock::attrServerType, temp_buf);
+		dlb.SetAttr(DbLoginBlock::attrDbPath, db_file_path);
+		P_DbP = new SSqliteDbProvider();
+		THROW(P_DbP);
+		THROW(P_DbP->IsValid());
+		THROW_DB(P_DbP->DbLogin(&dlb, login_flags));
+		{
+			P_Tbl = new LocalStateBinderyTbl(0, P_DbP);
 		}
 	}
 	CATCHZOK
 	return ok;
 }
 
-int Test_Create_LocalStateBinderyCore()
+int LocalStateBinderyCore::Search(PPID id, LocalStateBinderyTbl::Rec * pRec)
+{
+	return P_Tbl ? SearchByID(P_Tbl, 0, id, pRec) : 0;
+}
+
+/*static*/bool LocalStateBinderyCore::SearchSerialEntryPointByID(const TSCollection <SerialEntry> & rList, PPID id, uint * pPos)
+{
+	return rList.lsearch(&id, pPos, CMPF_LONG);
+}
+
+/*static*/bool LocalStateBinderyCore::SearchSerialEntryPointByTm(const TSCollection <SerialEntry> & rList, int64 uedTm, uint * pPos)
+{
+	return rList.lsearch(&uedTm, pPos, CMPF_UINT64, offsetof(SerialEntry, UedTm));
+}
+
+int LocalStateBinderyCore::RegisterInMemState(PPID id, int64 uedTm, const StateIdent & rIdent, SBuffer & rRawData)
 {
 	int    ok = 1;
-	LocalStateBinderyCore instance;
-	if(!instance.IsValid()) {
-		ok = 0;
+	THROW(rIdent.Kind && (rIdent.Subj || rIdent.Symb.NotEmpty())); // @todo @err
+	if(IsStateSerial(rIdent.Kind)) {
+		uint   pos = 0;
+		if(SearchInMemSerial(rIdent, &pos)) {
+			InMemSerialEntry * p_ex_entry = InMemSerialList.at(pos);
+			assert(p_ex_entry);
+			if(p_ex_entry) {
+				uint   ex_point_pos = 0;
+				if(LocalStateBinderyCore::SearchSerialEntryPointByID(p_ex_entry->D, id, &ex_point_pos)) {
+					SerialEntry * p_point = p_ex_entry->D.at(ex_point_pos);
+					assert(p_point);
+					if(p_point) {
+						if(p_point->Buf.IsEq(rRawData))
+							ok = -1;
+						else {
+							assert(p_point->UedTm == uedTm);
+							p_point->UedTm = uedTm;
+							p_point->Buf = rRawData;
+						}
+					}
+				}
+				else {
+					SerialEntry * p_new_point = p_ex_entry->D.CreateNewItem();
+					THROW_SL(p_new_point);
+					p_new_point->ID = id;
+					p_new_point->UedTm = uedTm;
+					p_new_point->Buf = rRawData;
+				}
+			}
+		}
+		else {
+			InMemSerialEntry * p_new_entry = InMemSerialList.CreateNewItem();
+			THROW_SL(p_new_entry);
+			p_new_entry->Kind = rIdent.Kind;
+			p_new_entry->Subj = rIdent.Subj;
+			p_new_entry->Symb = rIdent.Symb;
+			SerialEntry * p_new_point = p_new_entry->D.CreateNewItem();
+			THROW_SL(p_new_point);
+			p_new_point->ID = id;
+			p_new_point->UedTm = uedTm;
+			p_new_point->Buf = rRawData;
+		}
+	}
+	else {
+		uint   pos = 0;
+		if(SearchInMemState(rIdent, &pos)) {
+			InMemStateEntry * p_ex_entry = InMemStateList.at(pos);
+			assert(p_ex_entry);
+			if(p_ex_entry) {
+				if(p_ex_entry->D.IsEq(rRawData)) {
+					ok = -1;
+				}
+				else {
+					p_ex_entry->D = rRawData;
+				}
+			}
+		}
+		else {
+			InMemStateEntry * p_new_entry = InMemStateList.CreateNewItem();
+			THROW_SL(p_new_entry);
+			p_new_entry->Kind = rIdent.Kind;
+			p_new_entry->Subj = rIdent.Subj;
+			p_new_entry->Symb = rIdent.Symb;
+			p_new_entry->ID = id;
+			p_new_entry->D = rRawData;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int LocalStateBinderyCore::RegisterState(PPID * pID, const StateIdent & rIdent, SBuffer & rRawData, int use_ta)
+{
+	int    ok = 1;
+	PPID   result_id = 0;
+	THROW(P_Tbl); // @todo @err
+	THROW(rIdent.Kind && (rIdent.Subj || rIdent.Symb.NotEmpty())); // @todo @err
+	{
+		constexpr int64 ued_meta_time = UED_META_TIME_MSEC;
+		SUniTime_Internal uti;
+		uti.SetCurrent();
+		const  uint64 now_ued_time = UED::_SetRaw_Time(ued_meta_time, uti);
+		const  size_t size_to_write = rRawData.GetAvailableSize();
+		LocalStateBinderyTbl::Rec & r_tbl_rec = P_Tbl->data;
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(IsStateSerial(rIdent.Kind)) {
+			r_tbl_rec.Clear();
+			r_tbl_rec.UedTm = now_ued_time;
+			r_tbl_rec.Kind = rIdent.Kind;
+			r_tbl_rec.Subject = rIdent.Subj;
+			STRNSCPY(r_tbl_rec.Symb, rIdent.Symb);
+			if(size_to_write) {
+				THROW(P_Tbl->writeLobData(P_Tbl->VT, rRawData.constptr(), size_to_write)); 
+			}
+			THROW_DB(P_Tbl->insertRec(0, &result_id));
+			P_Tbl->destroyLobData(P_Tbl->VT);
+		}
+		else {
+			PPID   org_id = 0;
+			SBuffer org_buf;
+			if(GetState(rIdent, &org_id, &org_buf) > 0) {
+				const  size_t org_buf_size = org_buf.GetAvailableSize();
+				if(org_buf_size != size_to_write || (size_to_write && !org_buf.IsEq(rRawData))) {
+					THROW_DB(P_Tbl->rereadForUpdate(0, 0));
+					{
+						THROW(P_Tbl->writeLobData(P_Tbl->VT, rRawData.constptr(), size_to_write)); 
+					}
+					THROW_DB(P_Tbl->updateRec()); // @sfu
+					P_Tbl->destroyLobData(P_Tbl->VT);
+				}
+				result_id = org_id;
+			}
+			else {
+				r_tbl_rec.Clear();
+				r_tbl_rec.UedTm = now_ued_time;
+				r_tbl_rec.Kind = rIdent.Kind;
+				r_tbl_rec.Subject = rIdent.Subj;
+				STRNSCPY(r_tbl_rec.Symb, rIdent.Symb);
+				if(size_to_write) {
+					THROW(P_Tbl->writeLobData(P_Tbl->VT, rRawData.constptr(), size_to_write)); 
+				}
+				THROW_DB(P_Tbl->insertRec(0, &result_id));
+				P_Tbl->destroyLobData(P_Tbl->VT);
+			}
+		}
+		THROW(tra.Commit());
+		THROW(RegisterInMemState(result_id, now_ued_time, rIdent, rRawData));
+	}
+	CATCHZOK
+	ASSIGN_PTR(pID, result_id);
+	return ok;
+}
+
+int LocalStateBinderyCore::GetState(const StateIdent & rIdent, PPID * pID, SBuffer * pBuf)
+{
+	CALLPTRMEMB(pBuf, Z());
+	int    ok = -1;
+	PPID   id = 0;
+	THROW(P_Tbl); // @todo @err
+	THROW(rIdent.Kind && (rIdent.Subj || rIdent.Symb.NotEmpty())); // @todo @err
+	{
+		union {
+			LocalStateBinderyTbl::Key2 k2;
+			LocalStateBinderyTbl::Key3 k3;
+		} k;
+		int    idx = 2;
+		MEMSZERO(k);
+		if(rIdent.Subj) {
+			k.k2.Kind = rIdent.Kind;
+			k.k2.Subject = rIdent.Subj;
+			k.k2.UedTm = MININT64;
+			idx = 2;
+		}
+		else if(rIdent.Symb.NotEmpty()) {
+			k.k3.Kind = rIdent.Kind;
+			STRNSCPY(k.k3.Symb, rIdent.Symb);
+			k.k3.UedTm = MININT64;
+			idx = 3;
+		}
+		else {
+			assert(0); // Выше мы проверили условия, которые не пустят исполнение в это ветку!
+		}
+		bool   found = P_Tbl->search(idx, &k, spGe) ? LocalStateBinderyCore::CheckKeyForIdent(rIdent, P_Tbl->data) : false;
+		if(found) {
+			id = P_Tbl->data.ID;
+			if(pBuf) {
+				P_Tbl->readLobData(P_Tbl->VT, *pBuf);
+			}
+			ok = 1;
+		}
+		P_Tbl->destroyLobData(P_Tbl->VT);
+	}
+	CATCHZOK
+	ASSIGN_PTR(pID, id);
+	return ok;
+}
+
+int LocalStateBinderyCore::GetStateSerial(const StateIdent & rIdent, TSCollection <LocalStateBinderyCore::SerialEntry> * pList)
+{
+	CALLPTRMEMB(pList, freeAll());
+	int    ok = -1;
+	THROW(P_Tbl); // @todo @err
+	THROW(rIdent.Kind && (rIdent.Subj || rIdent.Symb.NotEmpty())); // @todo @err
+	{
+		union {
+			LocalStateBinderyTbl::Key2 k2;
+			LocalStateBinderyTbl::Key3 k3;
+		} k;
+		int    idx = 2;
+		MEMSZERO(k);
+		if(rIdent.Subj) {
+			k.k2.Kind = rIdent.Kind;
+			k.k2.Subject = rIdent.Subj;
+			k.k2.UedTm = MAXINT64;
+			idx = 2;
+		}
+		else if(rIdent.Symb.NotEmpty()) {
+			k.k3.Kind = rIdent.Kind;
+			STRNSCPY(k.k3.Symb, rIdent.Symb);
+			k.k3.UedTm = MAXINT64;
+			idx = 3;
+		}
+		else {
+			assert(0); // Выше мы проверили условия, которые не пустят исполнение в это ветку!
+		}
+		bool   found = false;
+		if(P_Tbl->search(idx, &k, spLe) && LocalStateBinderyCore::CheckKeyForIdent(rIdent, P_Tbl->data)) do {
+			ok = 1;
+			if(pList) {
+				SerialEntry * p_new_entry = pList->CreateNewItem();
+				p_new_entry->ID = P_Tbl->data.ID;
+				p_new_entry->UedTm = P_Tbl->data.UedTm;
+				P_Tbl->readLobData(P_Tbl->VT, p_new_entry->Buf);
+			}
+			P_Tbl->destroyLobData(P_Tbl->VT);
+		} while(P_Tbl->search(idx, &k, spPrev) && LocalStateBinderyCore::CheckKeyForIdent(rIdent, P_Tbl->data));
+		P_Tbl->destroyLobData(P_Tbl->VT);
+	}
+	CATCHZOK
+	return ok;
+}
+
+const LocalStateBinderyCore::InMemStateEntry * LocalStateBinderyCore::SearchInMemState(const StateIdent & rIdent, uint * pPos) const
+{
+	const  InMemStateEntry * p_result = 0;
+	uint   pos = 0;
+	for(uint i = 0; i < InMemStateList.getCount(); i++) {
+		const InMemStateEntry * p_entry = InMemStateList.at(i);
+		if(p_entry && LocalStateBinderyCore::IsStateIdentEq(rIdent, *p_entry)) {
+			pos = i;
+			p_result = p_entry;
+		}
+	}
+	ASSIGN_PTR(pPos, pos);
+	return p_result;
+}
+
+const LocalStateBinderyCore::InMemSerialEntry * LocalStateBinderyCore::SearchInMemSerial(const StateIdent & rIdent, uint * pPos) const
+{
+	const  InMemSerialEntry * p_result = 0;
+	uint   pos = 0;
+	for(uint i = 0; i < InMemSerialList.getCount(); i++) {
+		const InMemSerialEntry * p_entry = InMemSerialList.at(i);
+		if(p_entry && LocalStateBinderyCore::IsStateIdentEq(rIdent, *p_entry)) {
+			pos = i;
+			p_result = p_entry;
+		}
+	}
+	ASSIGN_PTR(pPos, pos);
+	return p_result;
+}
+
+int LocalStateBinderyCore::FetchState(const StateIdent & rIdent, PPID * pID, SBuffer * pBuf)
+{
+	CALLPTRMEMB(pBuf, Z());
+	int    ok = -1;
+	PPID   id = 0;
+	const  InMemStateEntry * p_in_mem_entry = SearchInMemState(rIdent, 0);
+	if(p_in_mem_entry) {
+		id = p_in_mem_entry->ID;
+		if(pBuf) {
+			*pBuf = p_in_mem_entry->D;
+		}
+		ok = 2;
+	}
+	else {
+		ok = GetState(rIdent, pID, pBuf);
+	}
+	ASSIGN_PTR(pID, id);
+	return ok;
+}
+
+int LocalStateBinderyCore::FetchStateSerial(const StateIdent & rIdent, TSCollection <SerialEntry> * pList)
+{
+	CALLPTRMEMB(pList, freeAll());
+	int    ok = -1;
+	const  InMemSerialEntry * p_in_mem_entry = SearchInMemSerial(rIdent, 0);
+	if(p_in_mem_entry) {
+		if(pList) {
+			TSCollection_Copy(*pList, p_in_mem_entry->D);
+		}
+		ok = 2;
+	}
+	else {
+		ok = GetStateSerial(rIdent, pList);
 	}
 	return ok;
 }
@@ -3368,7 +3697,7 @@ int PrcssrTestDb::GenerateString(char * pBuf, size_t maxLen)
 	int    ok = 1;
 	SString temp_buf;
 	SString line_buf;
-	const uint num_words = labs(G.GetUniformInt(maxLen / 6))+1;
+	const uint num_words = labs(G.GetUniformInt(static_cast<ulong>(maxLen) / 6))+1;
 	if(WordList.getCount() > 10) {
 		for(uint i = 0; i < num_words; i++) {
 			uint pos = labs(G.GetUniformInt(WordList.getCount()));
@@ -3409,7 +3738,7 @@ int PrcssrTestDb::GenerateString(char * pBuf, size_t maxLen)
 				temp_buf_u.Z();
 				size_t word_len = G.GetUniformInt(10)+1;
 				for(uint j = 0; j < word_len; j++) {
-					temp_buf_u.CatChar(p_alphabet[G.GetUniformInt(ab_len)]);
+					temp_buf_u.CatChar(p_alphabet[G.GetUniformInt(static_cast<ulong>(ab_len))]);
 				}
 				if(i)
 					line_buf.Space();

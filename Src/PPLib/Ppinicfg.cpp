@@ -1,5 +1,5 @@
 // PPINICFG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2026
 // @Kernel
 //
 #include <pp.h>
@@ -7,9 +7,10 @@
 //
 // PPIniFile
 //
-
-/*static*/int FASTCALL PPIniFile::GetParamSymb(int idx, SString & rBuf) { return PPLoadText(idx, rBuf.Z()); }
-/*static*/int FASTCALL PPIniFile::GetSectSymb(int idx, SString & rBuf) { return PPLoadText(idx, rBuf.Z()); }
+/*static*/int  FASTCALL PPIniFile::GetParamSymb(int idx, SString & rBuf) { return PPLoadText(idx, rBuf.Z()); }
+/*static*/int  FASTCALL PPIniFile::GetSectSymb(int idx, SString & rBuf) { return PPLoadText(idx, rBuf.Z()); }
+/*static*/bool FASTCALL PPIniFile::IsValueYes(const SString & rVal) { return (rVal == "1" || rVal.IsEqiAscii("true") || rVal.IsEqiAscii("yes")); }
+/*static*/bool FASTCALL PPIniFile::IsValueNo(const SString & rVal) { return (rVal == "0" || rVal.IsEqiAscii("false") || rVal.IsEqiAscii("no")); }
 
 PPIniFile::PPIniFile(const char * pFileName, int fcreate, int winCoding, int useIniBuf) :
 	SIniFile(pFileName, fcreate, winCoding, useIniBuf)

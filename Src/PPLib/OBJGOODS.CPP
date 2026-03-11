@@ -366,7 +366,7 @@ int PPObjGoods::Unlock(PPID id)
 	return ok;
 }
 
-void PPObjGoods::InitInstance(SCtrLite sctr, PPID kind, void * extraPtr)
+void PPObjGoods::InitInstance(SCtrSpecial sctr, PPID kind, void * extraPtr)
 {
 	Sctr = sctr;
 	P_Cfg = 0;
@@ -397,7 +397,7 @@ PPObjGoods::PPObjGoods(void * extraPtr) : PPObject(PPOBJ_GOODS)
 	InitConfig();
 }
 
-PPObjGoods::PPObjGoods(SCtrLite sctr) : PPObject(PPOBJ_GOODS)
+PPObjGoods::PPObjGoods(SCtrSpecial sctr) : PPObject(PPOBJ_GOODS)
 {
 	InitInstance(sctr, PPGDSK_GOODS, 0);
 	if(Sctr != SConstructorLite) {
@@ -4615,7 +4615,7 @@ int PPObjGoods::GetStrucSubstList(PPID goodsID, RAssocArray & rList)
 	*/
 }
 
-int PPObjGoods::GetSubstList(PPID goodsID, int substStrucOnly, RAssocArray & rList)
+int PPObjGoods::GetSubstList(PPID goodsID, bool substStrucOnly, RAssocArray & rList)
 {
 	int    ok = -1;
 	PPObjBill * p_bobj(BillObj);

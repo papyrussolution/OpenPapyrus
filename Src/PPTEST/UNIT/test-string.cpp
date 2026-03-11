@@ -1768,7 +1768,7 @@ SLTEST_R(sstrchr)
 		char buf[4096];
 		char * p;
 		for(uint i = 0; i < 0x100; i++) {
-			p = (char *)((ulong)(buf + 0xff) & ~0xff) + i;
+			p = reinterpret_cast<char *>(reinterpret_cast<size_t>(buf + 0xff) & ~0xff) + i; // reinterpret_cast<ulong>-->reinterpret_cast<size_t>
 			strcpy(p, "OK");
 			strcpy(p+3, "BAD/WRONG");
 			SLCHECK_Z(sstrchr(p, '/'));

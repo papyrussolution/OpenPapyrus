@@ -3117,6 +3117,7 @@ PPINIPARAM_WORKSPACE                     "workspace" // [path]
 PPINIPARAM_POSREGISTERKEEPALIVE          "PosRegisterKeepAlive" // [config]
 PPINIPARAM_POSREGISTERSKIPAFVERIF        "PosRegisterSkipAfVerif" // [config]
 PPINIPARAM_POSREGISTERLOGGING            "PosRegisterLogging" // [config] // @v11.5.0
+PPINIPARAM_POSSINGLESUBSTPRICEORDER      "PosSingleSubstPriceOrder" // [config] // @v12.5.9 Порядок определения цены по товару, для которого есть single-подставновка
 PPINIPARAM_SARTREDB_CACHESIZE            "sartredb_cachesize"
 PPINIPARAM_SARTREDB_CACHESIZE_RO         "sartredb_cachesize_ro"
 PPINIPARAM_SARTREDB_MAXLOCKERS           "sartredb_maxlockers"
@@ -10688,6 +10689,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cclnextss_chznpm_reqtimestamp             "Ответ разрешительного режима @{brand_chzn}: дата и время запроса"
 @cclnextss_chznpm_localmoduleinstance      "Ответ разрешительного режима @{brand_chzn}: ид локальной инсталляции"
 @cclnextss_chznpm_localmoduledbver         "Ответ разрешительного режима @{brand_chzn}: версия локальной БД"
+@cclnextss_chznprice                       "Цена товара в марке @{brand_chzn}" // @v12.5.9
 
 @pospan                                   "Кассовая панель"
 @pospanlocking                            "Блокировка кассовой панели"

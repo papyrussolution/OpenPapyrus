@@ -2215,7 +2215,10 @@ void FASTCALL SMySqlDbProvider::OdFree(SMySqlDbProvider::OD & rO)
 						p_lob->InitPtr(final_lob_size);
 						void * p_lob_ptr = p_lob->GetRawDataPtr();
 						if(p_lob_ptr) {
-							strcpy(static_cast<char *>(p_lob_ptr), temp_buf.cptr());
+							if(temp_buf.Len())
+								strcpy(static_cast<char *>(p_lob_ptr), temp_buf.cptr());
+							else
+								static_cast<char *>(p_lob_ptr)[0] = 0;
 						}
 					}
 				}

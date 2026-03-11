@@ -1147,7 +1147,6 @@ double chisq_cdf(int dof, double chisqr)
 //static double ranf(GpValue * init)
 double GnuPlot::Ranf(const GpValue * pInit)
 {
-	long k, z;
 	static int firsttime = 1;
 	static long seed1, seed2;
 	static const long Xm1 = 2147483563L;
@@ -1155,8 +1154,10 @@ double GnuPlot::Ranf(const GpValue * pInit)
 	static const long Xa1 = 40014L;
 	static const long Xa2 = 40692L;
 	// Seed values must be integer, but check for both values equal zero before casting for speed
-	const double _rp = Real(pInit);
-	const double _ip = Imag(pInit);
+	const  double _rp = Real(pInit);
+	const  double _ip = Imag(pInit);
+	long   k;
+	long   z;
 	if(_rp != 0.0 || _ip != 0.0) {
 		// Construct new seed values from input parameter 
 		long seed1cvrt = static_cast<long>(_rp);

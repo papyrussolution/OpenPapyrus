@@ -3682,10 +3682,7 @@ int PPObjBill::GetCorrectionBackChain(PPID billID, PPIDArray & rChainList)
 	return ok;
 }
 
-const PPBillConfig & PPObjBill::GetConfig() const
-{
-	return Cfg;
-}
+const PPBillConfig & PPObjBill::GetConfig() const { return Cfg; }
 //
 //
 //

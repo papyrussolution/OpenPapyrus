@@ -459,6 +459,9 @@ int GtinStruc::GetToken(int tokenId, SString * pToken) const
 		}
 		ok = 1;
 	}
+	else {
+		CALLPTRMEMB(pToken, Z()); // @v12.5.9
+	}
 	return ok;
 }
 
@@ -856,7 +859,7 @@ int TestGtinStruc()
 				{
 					GtinStruc gts;
 					(temp_buf = original_text).Transf(CTRANSF_UTF8_TO_INNER);
-					int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
+					int    pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
 					out_buf.Z().CR().Cat(original_text).Space().CatEq("parse-result", pczcr);
 					gts.Debug_Output(temp_buf);
 					out_buf.CR().Cat(temp_buf);

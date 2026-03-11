@@ -303,7 +303,7 @@ int PPCommandItem::Read_Deprecated(SBuffer & rBuf, long)
 	return ok;
 }
 
-int PPCommandItem::Write2(void * pHandler, const long rwFlag) const  //@erik v10.6.1
+int PPCommandItem::Write2(void * pHandler, const long rwFlag) const //@erik
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -331,7 +331,7 @@ int PPCommandItem::Write2(void * pHandler, const long rwFlag) const  //@erik v10
 	return ok;
 }
 
-int PPCommandItem::Read2(const void * pHandler, const long rwFlag) //@erik v10.6.1
+int PPCommandItem::Read2(const void * pHandler, const long rwFlag) //@erik
 {
 	int    ok = 1;
 	SString temp_buf;

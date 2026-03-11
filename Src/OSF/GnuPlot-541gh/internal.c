@@ -69,7 +69,7 @@ void GnuPlot::F_Pop(union argument * x)
 {
 	GpValue dummy;
 	Pop(&dummy);
-	if(dummy.Type == STRING)
+	if(dummy.Type == GPDT_STRING)
 		gpfree_string(&dummy);
 }
 
@@ -176,7 +176,7 @@ void GnuPlot::F_Sum(union argument * arg)
 	llsum = 0;
 	if(beg.Type != INTGR || end.Type != INTGR)
 		IntError(NO_CARET, "range specifiers of sum must have integer values");
-	if((varname.Type != STRING) || !(udv = Ev.GetUdvByName(varname.v.string_val)))
+	if((varname.Type != GPDT_STRING) || !(udv = Ev.GetUdvByName(varname.v.string_val)))
 		IntError(NO_CARET, "internal error: lost iteration variable for summation");
 	gpfree_string(&varname);
 	udf = arg->udf_arg;
@@ -947,11 +947,11 @@ void GnuPlot::F_Concatenate(union argument * /*arg*/)
 	Pop(&a);
 	if(b.Type == INTGR) {
 		int i = b.v.int_val;
-		b.Type = STRING;
+		b.Type = GPDT_STRING;
 		b.v.string_val = (char *)SAlloc::M(32);
 		snprintf(b.v.string_val, 32, "%d", i);
 	}
-	if(a.Type != STRING || b.Type != STRING)
+	if(a.Type != GPDT_STRING || b.Type != GPDT_STRING)
 		IntError(NO_CARET, nonstring_error);
 	Gstring(&result, gp_stradd(a.v.string_val, b.v.string_val));
 	gpfree_string(&a);
@@ -966,7 +966,7 @@ void GnuPlot::F_Eqs(union argument * /*arg*/)
 	GpValue a, b, result;
 	Pop(&b);
 	Pop(&a);
-	if(a.Type != STRING || b.Type != STRING)
+	if(a.Type != GPDT_STRING || b.Type != GPDT_STRING)
 		IntError(NO_CARET, nonstring_error);
 	Ginteger(&result, sstreq(a.v.string_val, b.v.string_val));
 	gpfree_string(&a);
@@ -980,7 +980,7 @@ void GnuPlot::F_Nes(union argument * /*arg*/)
 	GpValue a, b, result;
 	Pop(&b);
 	Pop(&a);
-	if(a.Type != STRING || b.Type != STRING)
+	if(a.Type != GPDT_STRING || b.Type != GPDT_STRING)
 		IntError(NO_CARET, nonstring_error);
 	Ginteger(&result, (int)(strcmp(a.v.string_val, b.v.string_val)!=0));
 	gpfree_string(&a);
@@ -992,7 +992,7 @@ void GnuPlot::F_Strlen(union argument * arg)
 {
 	GpValue a, result;
 	Pop(&a);
-	if(a.Type != STRING)
+	if(a.Type != GPDT_STRING)
 		IntError(NO_CARET, "internal error : strlen of non-STRING argument");
 	Ginteger(&result, (int)gp_strlen(a.v.string_val));
 	gpfree_string(&a);
@@ -1006,7 +1006,7 @@ void GnuPlot::F_Strstrt(union argument * /*arg*/)
 	int hit = 0;
 	Pop(&needle);
 	Pop(&haystack);
-	if(needle.Type != STRING || haystack.Type != STRING)
+	if(needle.Type != GPDT_STRING || haystack.Type != GPDT_STRING)
 		IntError(NO_CARET, "internal error : non-STRING argument to strstrt");
 	start = strstr(haystack.v.string_val, needle.v.string_val);
 	if(start == 0) {
@@ -1053,7 +1053,7 @@ void GnuPlot::F_Range(union argument * /*arg*/)
 		iend = ffloori(end.v.cmplx_val.real);
 	else
 		IntError(NO_CARET, "internal error: non-numeric substring range specifier");
-	if(full.Type != STRING)
+	if(full.Type != GPDT_STRING)
 		IntError(NO_CARET, "internal error: substring range operator applied to non-STRING type");
 	FPRINTF((stderr, "f_range( \"%s\", %d, %d)\n", full.v.string_val, beg.v.int_val, end.v.int_val));
 	{
@@ -1141,7 +1141,7 @@ void GnuPlot::F_Word(union argument * /*arg*/)
 	if(Pop(&b)->Type != INTGR)
 		IntError(NO_CARET, "internal error : non-INTGR argument");
 	ntarget = b.v.int_val;
-	if(Pop(&a)->Type != STRING)
+	if(Pop(&a)->Type != GPDT_STRING)
 		IntError(NO_CARET, "internal error : non-STRING argument");
 	s = a.v.string_val;
 	Gstring(&result, "");
@@ -1212,7 +1212,7 @@ void GnuPlot::F_SPrintf(union argument * /*arg*/)
 	for(i = 0; i<nargs; i++)
 		Pop(&args[i]); /* pop next argument */
 	// Make sure we got a format string of some sort 
-	if(args[nargs-1].Type != STRING) {
+	if(args[nargs-1].Type != GPDT_STRING) {
 		error_return_message = "First parameter to sprintf must be a format string";
 		goto f_sprintf_error_return;
 	}
@@ -1259,11 +1259,11 @@ void GnuPlot::F_SPrintf(union argument * /*arg*/)
 		next_start[next_length] = '\0';
 		spec_type = SPrintfSpecifier(next_start);
 		// string value <-> numerical value check 
-		if(spec_type == STRING && next_param->Type != STRING) {
+		if(spec_type == GPDT_STRING && next_param->Type != GPDT_STRING) {
 			error_return_message = "f_sprintf: attempt to print numeric value with string format";
 			goto f_sprintf_error_return;
 		}
-		if(spec_type != STRING && next_param->Type == STRING) {
+		if(spec_type != GPDT_STRING && next_param->Type == GPDT_STRING) {
 			error_return_message = "f_sprintf: attempt to print string value with numeric format";
 			goto f_sprintf_error_return;
 		}
@@ -1324,7 +1324,7 @@ void GnuPlot::F_SPrintf(union argument * /*arg*/)
 			case CMPLX:
 			    snprintf(outpos, bufsize-(outpos-buffer), next_start, Real(next_param));
 			    break;
-			case STRING:
+			case GPDT_STRING:
 			    snprintf(outpos, bufsize-(outpos-buffer), next_start, next_param->v.string_val);
 			    break;
 			default:
@@ -1391,7 +1391,7 @@ void GnuPlot::F_GPrintf(union argument * arg)
 	Pop(&val);
 	Pop(&fmt);
 	// Make sure parameters are of the correct type 
-	if(fmt.Type != STRING)
+	if(fmt.Type != GPDT_STRING)
 		IntError(NO_CARET, "First parameter to gprintf must be a format string");
 	// Make sure we have at least as much space in the output as the format itself 
 	length = 80 + strlen(fmt.v.string_val);
@@ -1415,7 +1415,7 @@ void GnuPlot::F_StrFTime(union argument * arg)
 	// Retrieve parameters from top of stack 
 	Pop(&val);
 	Pop(&fmt);
-	if(fmt.Type != STRING)
+	if(fmt.Type != GPDT_STRING)
 		IntError(NO_CARET, "First parameter to strftime must be a format string");
 	// Prepare format string.
 	// Make sure the resulting string not empty by adding a space.
@@ -1452,7 +1452,7 @@ void GnuPlot::F_StrPTime(union argument * arg)
 	double result;
 	Pop(&val);
 	Pop(&fmt);
-	if(fmt.Type != STRING || val.Type != STRING)
+	if(fmt.Type != GPDT_STRING || val.Type != GPDT_STRING)
 		IntError(NO_CARET, "Both parameters to strptime must be strings");
 	if(!fmt.v.string_val || !val.v.string_val)
 		IntError(NO_CARET, "Internal error: string not allocated");
@@ -1512,7 +1512,7 @@ void GnuPlot::F_Time(union argument * arg)
 		case CMPLX:
 		    Push(Gcomplex(&val, time_now, 0.0));
 		    break;
-		case STRING:
+		case GPDT_STRING:
 		    Push(&val); /* format string */
 		    Push(Gcomplex(&val2, time_now, 0.0));
 		    F_StrFTime(arg);
@@ -1548,7 +1548,7 @@ enum DATA_TYPES GnuPlot::SPrintfSpecifier(const char * pFormat)
 	if(illegal_pos < int_pos && illegal_pos < real_pos && illegal_pos < string_pos)
 		return INVALID_NAME;
 	if(string_pos < real_pos && string_pos < int_pos)
-		return STRING;
+		return GPDT_STRING;
 	if(real_pos < int_pos)
 		return CMPLX;
 	if(int_pos < sstrleni(pFormat) )
@@ -1567,7 +1567,7 @@ void GnuPlot::F_System(union argument * arg)
 	// Retrieve parameters from top of stack 
 	Pop(&val);
 	// Make sure parameters are of the correct type 
-	if(val.Type != STRING)
+	if(val.Type != GPDT_STRING)
 		IntError(NO_CARET, "non-string argument to system()");
 	FPRINTF((stderr, " f_system input = \"%s\"\n", val.v.string_val));
 	ierr = DoSystemFunc(val.v.string_val, &output);
@@ -1592,7 +1592,7 @@ void GnuPlot::F_Assign(union argument * arg)
 	Pop(&b); // new value 
 	Pop(&index); // index (only used if this is an array assignment) 
 	Pop(&a); // name of variable 
-	if(a.Type != STRING)
+	if(a.Type != GPDT_STRING)
 		IntError(NO_CARET, "attempt to assign to something other than a named variable");
 	if(!strncmp(a.v.string_val, "GPVAL_", 6) || !strncmp(a.v.string_val, "MOUSE_", 6))
 		IntError(NO_CARET, "attempt to assign to a read-only variable");
@@ -1630,7 +1630,7 @@ void GnuPlot::F_Value(union argument * arg)
 	GpValue a;
 	GpValue result;
 	Pop(&a);
-	if(a.Type != STRING) {
+	if(a.Type != GPDT_STRING) {
 		// IntWarn(NO_CARET,"non-string value passed to value()"); 
 		Push(&a);
 		return;
@@ -1640,7 +1640,7 @@ void GnuPlot::F_Value(union argument * arg)
 			result = p->udv_value;
 			if(p->udv_value.Type == NOTDEFINED)
 				p = NULL;
-			else if(result.Type == STRING)
+			else if(result.Type == GPDT_STRING)
 				result.v.string_val = sstrdup(result.v.string_val);
 			break;
 		}
@@ -1665,7 +1665,7 @@ void GnuPlot::F_Trim(union argument * arg)
 	char * s;
 	char * trim;
 	Pop(&a);
-	if(a.Type != STRING)
+	if(a.Type != GPDT_STRING)
 		IntError(NO_CARET, nonstring_error);
 	// Trim from front 
 	s = a.v.string_val;

@@ -1698,7 +1698,7 @@ int GnuPlot::DfReadAscii(GpDataFile & rDf, double v[], int maxSize)
 						rDf.evaluate_inside_using = true;
 						EvaluateAt(rDf.UseSpec[output].at, &a);
 						rDf.evaluate_inside_using = false;
-						if(a.Type == STRING) {
+						if(a.Type == GPDT_STRING) {
 							AddTicUser(&AxS[axis], a.v.string_val, xpos, -1);
 							gpfree_string(&a);
 						}
@@ -1753,7 +1753,7 @@ int GnuPlot::DfReadAscii(GpDataFile & rDf, double v[], int maxSize)
 					}
 					if((rDf.df_axis[output] != NO_AXIS) && AxS[rDf.df_axis[output]].datatype == DT_TIMEDATE)
 						timefield = TRUE;
-					if(timefield && (a.Type != STRING) && sstreq(AxS.P_TimeFormat, "%s")) {
+					if(timefield && (a.Type != GPDT_STRING) && sstreq(AxS.P_TimeFormat, "%s")) {
 						// Handle the case of P_TimeFormat "%s" which expects a string 
 						// containing a number. If evaluate_at() above returned a 
 						// bare number then we must convert it to a sting before  
@@ -1761,14 +1761,14 @@ int GnuPlot::DfReadAscii(GpDataFile & rDf, double v[], int maxSize)
 						// NB: We only accept time values of +/- 10^12 seconds.   
 						char * timestring = (char *)SAlloc::M(20);
 						sprintf(timestring, "%16.3f", Real(&a));
-						a.Type = STRING;
+						a.Type = GPDT_STRING;
 						a.v.string_val = timestring;
 					}
-					if(a.Type == STRING) {
+					if(a.Type == GPDT_STRING) {
 						v[output] = fgetnan(); /* found a string, not a number */
 						if(rDf.df_tabulate_strings) {
 							// Save for TABLESTYLE 
-							rDf.df_strings[output].Type = STRING;
+							rDf.df_strings[output].Type = GPDT_STRING;
 							rDf.df_strings[output].v.string_val = sstrdup(a.v.string_val);
 						}
 						// This string value will get parsed as if it were a data column 
@@ -1865,7 +1865,7 @@ int GnuPlot::DfReadAscii(GpDataFile & rDf, double v[], int maxSize)
 					else if((column <= rDf.df_no_cols) && (rDf.df_column[column-1].good == DF_MISSING)) {
 						v[output] = fgetnan();
 						if(rDf.missing_val && rDf.df_current_plot->plot_style == TABLESTYLE) {
-							rDf.df_strings[output].Type = STRING;
+							rDf.df_strings[output].Type = GPDT_STRING;
 							rDf.df_strings[output].v.string_val = sstrdup(rDf.missing_val);
 						}
 						return_value = DF_MISSING;
@@ -2151,14 +2151,14 @@ void GnuPlot::F_Column(union argument * arg)
 	Pop(&a);
 	if(!_Df.evaluate_inside_using)
 		IntError(Pgm.GetPrevTokenIdx(), "column() called from invalid context");
-	if(a.Type == STRING) {
-		int j;
-		char * name = a.v.string_val;
+	if(a.Type == GPDT_STRING) {
+		int    j;
+		const  char * p_name = a.v.string_val;
 		column = DF_COLUMN_HEADERS;
 		for(j = 0; j < _Df.df_no_cols; j++) {
 			if(_Df.df_column[j].header) {
 				int offset = (*_Df.df_column[j].header == '"') ? 1 : 0;
-				if(streq(name, _Df.df_column[j].header + offset)) {
+				if(streq(p_name, _Df.df_column[j].header + offset)) {
 					column = j+1;
 					SETIFZ(_Df.df_key_title, sstrdup(_Df.df_column[j].header));
 					break;
@@ -2166,13 +2166,13 @@ void GnuPlot::F_Column(union argument * arg)
 			}
 		}
 		// This warning should only trigger once per problematic input file 
-		if(column == DF_COLUMN_HEADERS && (*name) && _Df.df_warn_on_missing_columnheader) {
+		if(column == DF_COLUMN_HEADERS && (*p_name) && _Df.df_warn_on_missing_columnheader) {
 			_Df.df_warn_on_missing_columnheader = false;
 			IntWarn(NO_CARET, "no column with header \"%s\"", a.v.string_val);
 			for(j = 0; j < _Df.df_no_cols; j++) {
 				if(_Df.df_column[j].header) {
 					int offset = (*_Df.df_column[j].header == '"') ? 1 : 0;
-					if(!strncmp(name, _Df.df_column[j].header + offset, strlen(name)))
+					if(!strncmp(p_name, _Df.df_column[j].header + offset, strlen(p_name)))
 						IntWarn(NO_CARET, "partial match against column %d header \"%s\"", j+1, _Df.df_column[j].header);
 				}
 			}
@@ -2223,7 +2223,7 @@ void GnuPlot::F_StringColumn(union argument * /*arg*/)
 	Pop(&a);
 	if(!_Df.evaluate_inside_using || _Df.df_matrix)
 		IntError(Pgm.GetPrevTokenIdx(), "stringcolumn() called from invalid context");
-	if(a.Type == STRING) {
+	if(a.Type == GPDT_STRING) {
 		int j;
 		char * name = a.v.string_val;
 		column = DF_COLUMN_HEADERS;
@@ -2356,14 +2356,14 @@ void GnuPlot::F_TimeColumn(union argument * arg)
 		    // Only needed for backward compatibility 
 		    column = static_cast<int>(Magnitude(&b));
 		    b.v.string_val = sstrdup(AxS.P_TimeFormat);
-		    b.Type = STRING;
+		    b.Type = GPDT_STRING;
 		    break;
 		default:
 		    IntError(NO_CARET, "wrong number of parameters to timecolumn");
 	}
 	if(!_Df.evaluate_inside_using)
 		IntError(Pgm.GetPrevTokenIdx(), "timecolumn() called from invalid context");
-	if(b.Type != STRING)
+	if(b.Type != GPDT_STRING)
 		IntError(NO_CARET, "non-string passed as a format to timecolumn");
 	if(column < 1 || column > _Df.df_no_cols || !_Df.df_column[column-1].position) {
 		Ev.IsUndefined_ = true;
@@ -4406,7 +4406,7 @@ int GnuPlot::DfReadBinary(GpDataFile & rDf, double v[], int maxSize)
 						v[output] = fgetnan();
 						return DF_UNDEFINED;
 					}
-					if(a.Type == STRING) {
+					if(a.Type == GPDT_STRING) {
 						v[output] = fgetnan(); /* found a string, not a number */
 						if(rDf.UseSpec[output].expected_type == CT_STRING) {
 							char * s = (char *)SAlloc::M(strlen(a.v.string_val)+3);
@@ -4526,7 +4526,7 @@ int GnuPlot::DfReadBinary(GpDataFile & rDf, double v[], int maxSize)
 				rDf.evaluate_inside_using = true;
 				EvaluateAt(rDf.UseSpec[i].at, &a);
 				rDf.evaluate_inside_using = false;
-				if(a.Type == STRING) {
+				if(a.Type == GPDT_STRING) {
 					axcol = AxColForTicLabel((COLUMN_TYPE)rDf.UseSpec[i].expected_type, &axis);
 					AddTicUser(&AxS[axis], a.v.string_val, v[axcol], -1);
 					gpfree_string(&a);
@@ -4739,7 +4739,7 @@ char * GnuPlot::DfGenerateAsciiArrayEntry()
 		return NULL;
 	else {
 		const GpValue * entry = &(_Pb.df_array->udv_value.v.value_array[_Df.df_array_index]);
-		if(entry->Type == STRING) {
+		if(entry->Type == GPDT_STRING) {
 			while(_Df.MaxLineLen < strlen(entry->v.string_val))
 				_Df.df_line = (char *)SAlloc::R(_Df.df_line, _Df.MaxLineLen *= 2);
 			snprintf(_Df.df_line, _Df.MaxLineLen-1, "%d \"%s\"", _Df.df_array_index, entry->v.string_val);

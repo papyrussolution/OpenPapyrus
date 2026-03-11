@@ -1898,6 +1898,90 @@ private:
 	PPSync * P_Sync;
 };
 //
+// Descr: Класс, управляющий хранением и использованием текущих пользовательских состояний системы.
+//   Данные долговременно хранятся в базе данных SQLite.
+//
+class LocalStateBinderyCore { // @v12.5.8
+public:
+	//
+	// Descr: Виды записей 
+	//
+	enum { // @persistent
+		kUndef          = 0, // 
+		kInput          = 1, // [serial] Введенные пользователем текстовые данные 
+		kViewPosition   = 2, // [current]
+		kEditorPosition = 3, // [current]
+	};
+
+	static constexpr bool IsStateSerial(int kind) { return (kind == kInput); }
+
+	struct StateIdent {
+		StateIdent();
+		int    Kind;
+		int64  Subj;
+		SString Symb;
+	};
+	struct SerialEntry {
+		SerialEntry();
+		PPID   ID; // @firstmember
+		uint64 UedTm;
+		SBuffer Buf;
+	};
+	LocalStateBinderyCore();
+	LocalStateBinderyCore(SCtrSpecial sctr, const char * pPath); // test-constructor
+	~LocalStateBinderyCore();
+	bool   IsValid() const { return LOGIC(!(State & stError)); }
+	int    Search(PPID id, LocalStateBinderyTbl::Rec * pRec);
+	int    RegisterState(PPID * pID, const StateIdent & rIdent, SBuffer & rRawData, int use_ta);
+	//
+	// Descr: Извлекает из базы данных состояние, идентифицируемое ключом rIdent.
+	//
+	int    GetState(const StateIdent & rIdent, PPID * pID, SBuffer * pBuf);
+	//
+	// Descr: Извлекает из базы данных серийное состояние, идентифицируемое ключом rIdent.
+	//
+	int    GetStateSerial(const StateIdent & rIdent, TSCollection <SerialEntry> * pList);
+	//
+	// Descr: Извлекает из InMem-буфера состояние, идентифицируемое ключом rIdent. Если в буфере
+	//   нет такого состояния, то обращается к базе данных.
+	//
+	int    FetchState(const StateIdent & rIdent, PPID * pID, SBuffer * pBuf);
+	//
+	// Descr: Извлекает из InMem-буфера серийное состояние, идентифицируемое ключом rIdent. Если в буфере
+	//   нет такого состояния, то обращается к базе данных.
+	//
+	int    FetchStateSerial(const StateIdent & rIdent, TSCollection <SerialEntry> * pList);
+private:
+	static bool CheckKeyForIdent(const StateIdent & rIdent, const LocalStateBinderyTbl::Rec & rRec);
+	static bool IsStateIdentEq(const StateIdent & rKey, const StateIdent & rCandidate);
+	static bool SearchSerialEntryPointByID(const TSCollection <SerialEntry> & rList, PPID id, uint * pPos);
+	static bool SearchSerialEntryPointByTm(const TSCollection <SerialEntry> & rList, int64 uedTm, uint * pPos);
+	int    OpenDatabase(const char * pPath);
+
+	enum {
+		stError = 0x0001
+	};
+	uint   State;
+	SSqliteDbProvider * P_DbP;
+	LocalStateBinderyTbl * P_Tbl;
+
+	struct InMemStateEntry : public StateIdent {
+		InMemStateEntry();
+		PPID   ID;
+		SBuffer D;
+	};
+	struct InMemSerialEntry : public StateIdent {
+		InMemSerialEntry();
+		TSCollection <SerialEntry> D;
+	};
+	TSCollection <InMemStateEntry> InMemStateList;
+	TSCollection <InMemSerialEntry> InMemSerialList;
+
+	int   RegisterInMemState(PPID id, int64 uedTm, const StateIdent & rIdent, SBuffer & rRawData);
+	const InMemStateEntry * SearchInMemState(const StateIdent & rIdent, uint * pPos) const;
+	const InMemSerialEntry * SearchInMemSerial(const StateIdent & rIdent, uint * pPos) const;
+};
+//
 // PPMsgLog
 //
 #define LF_BUFFSIZE  4096
@@ -2280,6 +2364,8 @@ class PPIniFile : public SIniFile {
 public:
 	static int   FASTCALL GetSectSymb(int idx, SString & rBuf);
 	static int   FASTCALL GetParamSymb(int idx, SString & rBuf);
+	static bool  FASTCALL IsValueYes(const SString & rVal);
+	static bool  FASTCALL IsValueNo(const SString & rVal);
 
 	explicit PPIniFile(const char * pFileName, int fcreate = 0, int winCoding = 0, int useIniBuf = 0);
 	PPIniFile();
@@ -6471,6 +6557,7 @@ public:
     int    GetIfcConfigParam(const char * pParam, SString & rValue) const;
     SrDatabase * GetSrDatabase();
 	PPEgaisProcessor * GetEgaisProcessor();
+	LocalStateBinderyCore * GetLocalStateBindery(); // @v12.5.9
 private:
 	int    RegisterAdviseObjects();
 	void   OnLogout();
@@ -6512,7 +6599,8 @@ private:
 	PhoneServiceEventResponder * P_PhnSvcEvRespr;
 	MqbEventResponder * P_MqbEvRespr;
 	SysMaintenanceEventResponder * P_SysMntnc;
-	PPEgaisProcessor * P_EgPrc_; // @v12.2.11
+	PPEgaisProcessor * P_EgPrc_;    // @v12.2.11
+	LocalStateBinderyCore * P_LStB; // @v12.5.9
 public:
 	class WaitBlock {
 	public:
@@ -10136,6 +10224,8 @@ struct CCheckItem { // @transient
 	double Quantity;        //
 	double PhQtty;          //
 	double Price;           //
+	double PriceByMark;     // @v12.5.9 Цена, указанная в марке. В зависимости от обстоятельств, это может быть цена,
+		// считанная непосредственно из кода марки, либо цена полученная от сервера разрешительного режима chzn.
 	double Discount;        //
 	double BeforeGiftPrice; // Цена строки, до того как к ней была применена подарочная котировка.
 		// Поле имеет значение только в том случае, если Flags & cifQuotedByGift.
@@ -10150,6 +10240,7 @@ struct CCheckItem { // @transient
 	int64  ChZnPm_ReqTimestamp; // @v12.1.1 ответ разрешительного режима чзн: дата и время формирования запроса
 	S_GUID ChZnPm_LocalModuleInstance; // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): идент локального модуля проверки
 	S_GUID ChZnPm_LocalModuleDbVer;    // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): версия базы «чёрного списка», на которой выполнялась проверка КИ
+	double ChZnPrice;       // @v12.5.9 Цена, прошитая в марке чзн
 	char   BarCode[24];     //
 	char   GoodsName[128];  //
 	char   Serial[32];      // 
@@ -10363,6 +10454,7 @@ public:
 		lnextChZnPm_ReqTimestamp = 8, // @v12.1.1 ответ разрешительного режима чзн: дата и время формирования запроса
 		lnextChZnPm_LocalModuleInstance =  9, // @v12.1.12 
 		lnextChZnPm_LocalModuleDbVer    = 10, // @v12.1.12 
+		lnextChZnPrice                  = 11, // @v12.5.9 Цена товара, прошитая в марке. Иногда используется как цена товара.
 	};
 	struct PreprocessChZnCodeResult { // @flat
 		PreprocessChZnCodeResult();
@@ -16536,9 +16628,9 @@ public:
 	virtual ~PPCommandItem();
 	virtual int    Write_Deprecated(SBuffer &, long) const;
 	virtual int    Read_Deprecated(SBuffer &, long);
-	virtual int    Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
-	virtual int    Read2(const void * pHandler, const long rwFlag); // @erik v10.6.1
-	virtual bool   IsEq(const void * pCommand) const; // @erik v10.6.1
+	virtual int    Write2(void * pHandler, const long rwFlag) const; // @erik
+	virtual int    Read2(const void * pHandler, const long rwFlag); // @erik
+	virtual bool   IsEq(const void * pCommand) const; // @erik
 	virtual const  PPCommandItem * Next(uint * pPos) const;
 	virtual PPCommandItem * Dup() const;
 	virtual void   FASTCALL SetUniqueID(long * pID);
@@ -16558,15 +16650,15 @@ public:
 	PPCommand();
 	virtual int    Write_Deprecated(SBuffer &, long) const;
 	virtual int    Read_Deprecated(SBuffer &, long);
-	virtual int    Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
-	virtual int    Read2(const void * pHandler, const long rwFlag); // @erik v10.6.1
-	virtual bool   IsEq(const void * pCommand) const; // @erik v10.6.1
+	virtual int    Write2(void * pHandler, const long rwFlag) const; // @erik
+	virtual int    Read2(const void * pHandler, const long rwFlag); // @erik
+	virtual bool   IsEq(const void * pCommand) const; // @erik
 	virtual PPCommandItem * Dup() const;
 	int    FASTCALL Copy(const PPCommand &);
-	long   CmdID;         // Идентификатор дескриптора команды (PPCommandDescr)
-	SPoint2S P;             // Позиция левого верхнего угла иконки на рабочем столе
-	uint8  Reserve[4];    // @reserve
-	mutable SUiLayout::Result LoR; // @v11.0.0 @transient. Функция ранжирования меняет это значение, потому mutable
+	long   CmdID;      // Идентификатор дескриптора команды (PPCommandDescr)
+	SPoint2S P;        // Позиция левого верхнего угла иконки на рабочем столе
+	uint8  Reserve[4]; // @reserve
+	mutable SUiLayout::Result LoR; // @transient. Функция ранжирования меняет это значение, потому mutable
 	SBuffer Param;
 };
 
@@ -16636,9 +16728,9 @@ public:
 	PPCommandFolder & FASTCALL operator = (const PPCommandFolder & rS);
 	virtual int    Write_Deprecated(SBuffer &, long) const;
 	virtual int    Read_Deprecated(SBuffer &, long);
-	virtual int    Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
-	virtual int    Read2(const void * pHandler, const long rwFlag); // @erik v10.6.1
-	virtual bool   IsEq(const void * pCommand) const; // @erik v10.6.1
+	virtual int    Write2(void * pHandler, const long rwFlag) const; // @erik
+	virtual int    Read2(const void * pHandler, const long rwFlag); // @erik
+	virtual bool   IsEq(const void * pCommand) const; // @erik
 	virtual const  PPCommandItem * Next(uint * pPos) const;
 	virtual PPCommandItem * Dup() const;
 	int    FASTCALL Copy(const PPCommandFolder &);
@@ -16684,16 +16776,16 @@ public:
 	PPCommandGroup & FASTCALL operator = (const PPCommandGroup &);
 	virtual int    Write_Deprecated(SBuffer &, long) const;
 	virtual int    Read_Deprecated(SBuffer &, long);
-	virtual int    Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
-	virtual int    Read2(const void * pHandler, const long rwFlag); // @erik v10.6.1
-	virtual bool   IsEq(const void * pCommand) const; // @erik v10.6.1
+	virtual int    Write2(void * pHandler, const long rwFlag) const; // @erik
+	virtual int    Read2(const void * pHandler, const long rwFlag); // @erik
+	virtual bool   IsEq(const void * pCommand) const; // @erik
 	virtual PPCommandItem * Dup() const;
 	void   FASTCALL SetDbSymb(const char * pDbSymb);
 	int    FASTCALL IsDbSymbEq(const char * pDbSymb) const;
 	int    FASTCALL IsDbSymbEq(const PPCommandGroup & rGrp) const;
 	int    SetLogo(const char * pPath);
-	void   GenerateGuid(); // @erik v10.6.6
-	const  S_GUID & FASTCALL GetGuid() const;  // @erik v10.7.3
+	void   GenerateGuid(); // @erik
+	const  S_GUID & FASTCALL GetGuid() const; // @erik
 	const  SString & GetLogo() const;
 	int    FASTCALL Copy(const PPCommandGroup &);
 	PPCommandGroup * GetGroup(PPCommandGroupCategory kind, const S_GUID & rUuid);
@@ -16707,8 +16799,8 @@ public:
 	// GUID - это идентификатор рабочего стола в файловой системе. В рабочих столах, которые хранятся в ppdesk.bin их нет.
 	// Генерируются при создании нового рабочего стола и при выгрузке рабочих столов из ppdesk.bin(В функции PPCommandGroup::Read)
 	//
-	S_GUID Uuid; // @erik v10.6.4
-	PPCommandGroupCategory Type; // cmdgrpcDesktop || cmdgrpcMenu @erik v10.7.6
+	S_GUID Uuid; // @erik
+	PPCommandGroupCategory Type; // cmdgrpcDesktop || cmdgrpcMenu @erik
 };
 //
 // Descr: Интерфейс, реализующий функции команд
@@ -16754,10 +16846,10 @@ public:
 	~PPCommandMngr();
 	int    IsValid_() const;
 	int    Load_Deprecated(PPCommandGroup *);
-	int    Save__2(const PPCommandGroup *, const long rwFlag); // @erik v10.6.1
-	int    Load__2(PPCommandGroup *, const char * pDbSymb, const long rwFlag); // @erik v10.6.1
-	int    SaveFromAllTo(const long rwFlag); // @erik v10.7.1
-	int    ConvertDesktopTo(const long rwFlag); //@erik v10.7.4
+	int    Save__2(const PPCommandGroup *, const long rwFlag); // @erik
+	int    Load__2(PPCommandGroup *, const char * pDbSymb, const long rwFlag); // @erik
+	int    SaveFromAllTo(const long rwFlag); // @erik
+	int    ConvertDesktopTo(const long rwFlag); //@erik
 	int    DeleteGroupByUuid(PPCommandGroupCategory kind, const S_GUID & rUuid);
 	//
 	// Descr: Находит максимальное значение идентификатора среди всех элементов,
@@ -16765,8 +16857,8 @@ public:
 	// Note: Функция очень медленная - вынуждена загружать все, что есть для перебора.
 	//
 	int    GetMaxEntryID(long * pMaxId);
-	static int GetDesksDir(SString & rPath); // @erik v10.6.7
-	static int GetMenuDir(SString & rPath); // @erik v10.7.6
+	static int GetDesksDir(SString & rPath); // @erik
+	static int GetMenuDir(SString & rPath); // @erik
 private:
 	static const SString & InitStoragePath(int kind);
 	struct Hdr {
@@ -23432,8 +23524,7 @@ public:
 	int    PutPacket(PPID * pID, PPStyloPalmPacket * pPack, int use_ta);
 	bool   CheckSignalForInput(const char * pPath);
 	void   ClearInputSemaphore(const char * pPath);
-	int    ReadInput(PPID id, PalmInputParam * pParam, long flags, PPLogger * pLogger, long * pOrdCount);
-		// @<<PPObjStyloPalm::ImportData, @<<PalmImportWaiter::Activate
+	int    ReadInput(PPID id, PalmInputParam * pParam, long flags, PPLogger * pLogger, long * pOrdCount); // @<<PPObjStyloPalm::ImportData, @<<PalmImportWaiter::Activate
 	int    ExportData(const PalmPaneData & rParam);
 	int    CopyToFTP(PPID, int delAfterCopy, PPLogger *);
 	int    CopyFromFTP(PPID, int delAfterCopy, PPLogger *);
@@ -23508,11 +23599,10 @@ private:
 	int    ExportGoods(const PPStyloPalmPacket * pPack, ExportBlock & rBlk);
 	int    ExportClients(PPID acsID, long palmFlags, ExportBlock & rBlk);
 };
+#if 0 // @v12.5.7 @obsolete {
 //
 // Класс PalmImportWaiter реализует функции ожидания, постановки в очередь и
 // обработки документов, поступивших с PDA в компьютер.
-//
-
 //
 // Функция PalmImportProc должна возвращать следующие значения //
 //
@@ -23543,6 +23633,7 @@ private:
 	void * ProcExtraPtr;
 	int    Semaphore;
 };
+#endif // } 0 @v12.5.7 @obsolete 
 //
 // @ModuleDecl(PPObjTouchScreen)
 // TouchScreen
@@ -26861,13 +26952,13 @@ public:
 	//
 	PPID   GetTrunkPointByDlvrAddr(PPID dlvrAddrID);
 private:
-	friend class LocationCache; // Только для использования PPObjLocation(SCtrLite)
-	friend class PPObjPerson;   // Только для использования PPObjLocation(SCtrLite)
-	friend class PPQuotArray;   // Только для использования PPObjLocation(SCtrLite)
+	friend class LocationCache; // Только для использования PPObjLocation(SCtrSpecial)
+	friend class PPObjPerson;   // Только для использования PPObjLocation(SCtrSpecial)
+	friend class PPQuotArray;   // Только для использования PPObjLocation(SCtrSpecial)
 
 	static PPID FASTCALL Implement_ObjToWarehouse_Direct(PPID arID, int ignoreRights, PPID * pAcsID);
-	void   InitInstance(SCtrLite sctr, void * extraPtr);
-	PPObjLocation(SCtrLite);
+	void   InitInstance(SCtrSpecial sctr, void * extraPtr);
+	PPObjLocation(SCtrSpecial);
 	virtual int  DeleteObj(PPID id);
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
@@ -26894,7 +26985,7 @@ private:
 	};
 	int    Helper_GetEaListBySubstring(const char * pSubstr, void * pList, long flags);
 
-	SCtrLite   Sctr;
+	SCtrSpecial Sctr;
 	LAssocArray CityCache;
 	int    IsCityCacheInited;
 	PPObjWorld * P_WObj;
@@ -27414,7 +27505,7 @@ public:
 	static int FASTCALL GetCurUserPerson(PPID * pPersonID, SString * pPersonName);
 
 	explicit PPObjPerson(void * extraPtr = 0);
-	explicit PPObjPerson(SCtrLite); // @v12.2.4 private-->public
+	explicit PPObjPerson(SCtrSpecial); // @v12.2.4 private-->public
 	~PPObjPerson();
 	virtual int Browse(void * extraPtr);
 	virtual int Edit(PPID * pID, void * extraPtr);
@@ -27831,7 +27922,7 @@ private:
 	int    Helper_GetAddrID(const PersonTbl::Rec *, PPID psnID, PPID dlvrAddrID, int option, PPID * pAddrID);
 	int    Helper_PutSCard(PPID personID, PPPersonPacket * pPack);
 
-	SCtrLite Sctr;
+	SCtrSpecial Sctr;
 	PPObjArticle * P_ArObj;    //
 	PPObjProcessor * P_PrcObj; // Скрытый экземпляр для быстрой обработки сообщений DBMSG_PERSONACQUIREKIND
 	PPObjSCard * P_ScObj;      // @v11.3.10 При изменении пакета (PPObjPerson::PutPacket) необходимо идентифицировать карты, владелец которых меняется //
@@ -30151,9 +30242,9 @@ private:
 // Descr: Информация о товаре, специфичная для розничной торговли.
 //   Используется также для печати этикеток на принтере штрихкодов.
 //
-struct RetailGoodsInfo {   // @transient
+struct RetailGoodsInfo { // @transient
 	RetailGoodsInfo();
-	void   Init();
+	RetailGoodsInfo & Z();
 
 	enum {
 		fDisabledQuot    = 0x0001, // Котировка QuotKindUsedForPrice является блокирующей - продажа товара запрещена.
@@ -30225,13 +30316,13 @@ struct RetailExtrItem { // @transient
 		fDisabledQuot    = 0x0001, // Заблокированная котировка. Этот флаг означает, что продажа товара запрещена
 		fDisabledExtQuot = 0x0002, // Заблокированная дополнительная котировка. Этот флаг означает, что продажа товара запрещена
 	};
-	double Cost;                 // Цена поступления (по последнему лоту) Если товар нелимитируемый, то 0.
-	double Price;                // Цена реализации (возможно, по котировке, обусловленной датой или временем)
-	double BasePrice;            // Цена реализации без учета розничных котировок.
-	double ExtPrice;             // Цена по котировки RetailPriceExtractor::ExtQuotKindID
-	LDATE  CurLotDate;           //
-	LDATE  Expiry;               //
-	LDATETIME ManufDtm;          // Дата/время производства товара (извлекается из лота по зарезервированному т'гу PPTAG_LOT_MANUFTIME)
+	double Cost;        // Цена поступления (по последнему лоту) Если товар нелимитируемый, то 0.
+	double Price;       // Цена реализации (возможно, по котировке, обусловленной датой или временем)
+	double BasePrice;   // Цена реализации без учета розничных котировок.
+	double ExtPrice;    // Цена по котировки RetailPriceExtractor::ExtQuotKindID
+	LDATE  CurLotDate;  //
+	LDATE  Expiry;      //
+	LDATETIME ManufDtm; // Дата/время производства товара (извлекается из лота по зарезервированному т'гу PPTAG_LOT_MANUFTIME)
 	PPID   QuotKindUsedForPrice; // Вид котировки, использованный для формирования значения Price.
 		// Если цена сформирована по последнему лоту, либо вообще не определена, то 0.
 	PPID   QuotKindUsedForExtPrice; // Вид котировки из блока RetailPriceExtractor::ExtQuotBlock, примененный для формиования ExtPrice.
@@ -30602,6 +30693,7 @@ struct GoodsCodeSrchBlock {
 	char   ChZnCode[32];   // OUT
 	char   ChZnGtin[32];   // OUT
 	char   ChZnSerial[32]; // OUT
+	double ChZnPrice;      // OUT @v12.5.9 Цена, указанная в марке chzn
 	PPID   ArID;           // IN CONST
 	long   Flags;          // IN/OUT
 	PPID   GoodsID;        // OUT
@@ -30955,17 +31047,19 @@ public:
 	// Descr: Флаги функции PPObjGoods::GetRetailGoodsInfo
 	//
 	enum {
-		rgifUseQuotWTimePeriod = 0x0001, // Использовать котировки с временным периодом действия //
-		rgifUseBaseQuotAsPrice = 0x0002, // Если для товара есть базовая котировка, то для определения //
+		rgifUseQuotWTimePeriod  = 0x0001, // Использовать котировки с временным периодом действия //
+		rgifUseBaseQuotAsPrice  = 0x0002, // Если для товара есть базовая котировка, то для определения //
 			// цены реализации использовать ее, в противном случае - учетную цену реализации.
 			// Если этот флаг не установлен, то учетная цена реализации используется с приоритетом.
-		rgifAllowUnlimWoQuot   = 0x0004, // Если нелимитированный товар не имеет котировки, то
+		rgifAllowUnlimWoQuot    = 0x0004, // Если нелимитированный товар не имеет котировки, то
 			// не инициировать ошибку, а вернуть -2 (как для обычного товара, не имеющего цены).
-		rgifConcatQttyToCode   = 0x0008, // Для весового штрихкода к этому штрихкоду добавляется в конец
+		rgifConcatQttyToCode    = 0x0008, // Для весового штрихкода к этому штрихкоду добавляется в конец
 			// количество, заданное в структуре pInfo.
-		rgifUseInBarcode       = 0x0010, // Использовать штрихкод, заданный в структуре pInfo.
-		rgifUseOuterPrice      = 0x0020, // Предписывает использовать OuterPrice в качестве цены.
-		rgifPriceOnly          = 0x0040  // Функция рассчитывает только цену (для ускорения)
+		rgifUseInBarcode        = 0x0010, // Использовать штрихкод, заданный в структуре pInfo.
+		rgifUseOuterPrice       = 0x0020, // Предписывает использовать OuterPrice в качестве цены.
+		rgifPriceOnly           = 0x0040, // Функция рассчитывает только цену (для ускорения)
+		rgifUseSingleSubstLogic = 0x0080, // @v12.5.9 Применять логику вычисления цены по single-подстановке (структуре).
+			// Применяется только в CPosProcessor::GetRgi не доходя до PPObjGoods::GetRetailGoodsInfo
  	};
 	//
 	// Descr: Возвращает информацию о товаре, необходимую для продажи
@@ -31139,7 +31233,7 @@ public:
 	//   <0 - не найдено ни одного варианта подстановки
 	//   0  - error
 	//
-	int    GetSubstList(PPID goodsID, int substStrucOnly, RAssocArray & rList);
+	int    GetSubstList(PPID goodsID, bool substStrucOnly, RAssocArray & rList);
 		// @>>PPObjGoods::GetAltGenGoodsList
 		// @>>PPObjGoods::GetStrucSubstList
 	int    BelongToGen(PPID goodsID, PPID * pGenID, ObjAssocTbl::Rec * = 0);
@@ -31414,9 +31508,9 @@ private:
 	friend class GoodsCache;
 	friend int FASTCALL GetGoodsNameR(PPID goodsID, SString & rBuf);
 
-	PPObjGoods(SCtrLite);
+	PPObjGoods(SCtrSpecial);
 	virtual const char * GetNamePtr();
-	void   InitInstance(SCtrLite sctr, PPID kind, void * extraPtr);
+	void   InitInstance(SCtrSpecial sctr, PPID kind, void * extraPtr);
 	void   InitConfig();
 	int    MakeReplaceStr(const PPGoodsPacket *, const PPGoodsReplaceNameParam *, const char * pFragment, SString &);
 	int    Helper_ReplaceName(const PPGoodsPacket *, const PPGoodsReplaceNameParam *, char *, size_t);
@@ -31441,7 +31535,7 @@ private:
 	int    CombineTaxEntry(const PPGoodsTaxEntry & rGtx, PPID taxPayerPersonID, PPID taxPayerLocID, LDATE dt, PPID opID, PPGoodsTaxEntry * pResultGtx);
 
 	PPGoodsConfig * P_Cfg;
-	SCtrLite Sctr;
+	SCtrSpecial Sctr;
 	int16  EcoSel;         // if !0 && !__WIN32__ then 'exists only' selection uses DBQuery, not SArray
 	int16  DoObjVer;       // Хранить версии измененных и удаленных объектов
 	PPObjPerson * P_PsnObj;
@@ -32492,8 +32586,8 @@ public:
 	GoodsStrucProcessingBlock Cb; // @todo must be private
 private:
 	SString & MakeText(const GoodsStrucProcessingBlock::StrucEntry & rSe, SString & rTitleBuf);
-	void AddEntry_TopDown(StrAssocTree * pList, uint level, uint idx, const GoodsStrucProcessingBlock::ItemEntry & rEntry, SPtrHandle hParent, LongArray & rRecurList);
-	const long ItemOffset;
+	void   AddEntry_TopDown(StrAssocTree * pList, uint level, uint idx, const GoodsStrucProcessingBlock::ItemEntry & rEntry, SPtrHandle hParent, LongArray & rRecurList);
+	const  long ItemOffset;
 	SString TitleBuf;
 };
 //
@@ -36212,30 +36306,30 @@ struct GoodsGrpngEntry { // @flat
 	int    Compose(const GoodsGrpngEntry & rAddendum);
 
 	PPID   OpID;           // -1 input rest, 10000 - output rest
-	PPID   LotID;          //
-	PPID   LotTaxGrpID;    //
-	PPID   GoodsTaxGrpID;  //
-	PPID   OpTypeID;       //
-	PPID   Link;           //
-	long   Count;          //
+	PPID   LotID;
+	PPID   LotTaxGrpID;
+	PPID   GoodsTaxGrpID;
+	PPID   OpTypeID;
+	PPID   Link;
+	long   Count;
 	long   LnCount;        // Суммарное количество товарных строк в документах
 	long   AvgLn;          // Среднее количество товарных строк в документах
 	char   OpName[48];     // Наименование вида операции
 	int16  Sign;           // Знак операции
 	int16  Reserve;        // @alignment
-	double Quantity;       //
-	double Volume;         //
-	double TaxFactor;      //
-	double Cost;           //
-	double Price;          //
-	double Discount;       //
-	double Amount;         //
-	double ExtCost;        //
-	double ExtPrice;       //
-	double ExtDis;         //
+	double Quantity;
+	double Volume;
+	double TaxFactor;
+	double Cost;
+	double Price;
+	double Discount;
+	double Amount;
+	double ExtCost;
+	double ExtPrice;
+	double ExtDis;
 	double CostPaymPart;   // Оплаченная часть документа оригинального лота операции
 		// Рассчитывается только если GGEF_COSTBYPAYM. В противном случае 1.0.
-	long   Flags;          //
+	long   Flags;
 	LDATE  LotDate;        // Дата поступления товара. Необходима для расчета налогов в ценах поступления.
 private:
 	double FASTCALL IncomeByOpr(PPID) const;
@@ -57030,14 +57124,19 @@ public:
 	//   и передаваемая в CPosProcessorCPosProcessor::SetupNewRow()
 	//
 	struct PgsBlock {
-		explicit PgsBlock(double qtty);
+		explicit PgsBlock(PPID goodsID, double qtty);
+		double GetChZnPrice() const;
 		enum {
 			fMarkedBarcode = 0x0001 // Товар был выбран по маркированному штрихкоду
 		};
+		const  PPID GoodsID; // @v12.5.9
 		long   Flags; //
 		double Qtty;
 		double PriceBySerial; // Если PriceBySerial != 0 && Serial.Empty() это означает, что выбрана
 			// одна из look-back-price (фиксированные цены, меняющиеся со временем)
+		double PriceByMarkPmMrp; // @v12.5.9 Цена MRP полученная от сервера разрешительного режима chzn
+		double PriceByMarkPmSmp; // @v12.5.9 Цена SMP полученная от сервера разрешительного режима chzn
+		double PriceByMark;   // @v12.5.9 Цена полученная из состава марки chzn парсингом
 		double AbstractPrice; // Цена, определенная оператором, без выбора товара.
 		SString Serial;
 		SString EgaisMark;
@@ -57051,7 +57150,7 @@ public:
 		RealRange AllowedPriceRange; // @v12.2.2 диапазон допустимых цен на товар (пока только по результату запроса разрешительного режима марки chzn)
 	};
 	//int    SetupNewRow(PPID goodsID, double qtty, double priceBySerial, const char * pSerial, PPID giftID = 0);
-	int    SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID = 0);
+	int    SetupNewRow(/*PPID goodsID,*/PgsBlock & rBlk, PPID giftID = 0);
 	int    AcceptRow(PPID giftID = 0);
 	//
 	// Descr: Заполняет пакет чека по указателю pPack данными из текущего состояния панели.
@@ -57106,6 +57205,19 @@ public:
 	//
 	const  RetailPriceExtractor::ExtQuotBlock * GetCStEqb(PPID goodsID, bool * pNoDiscount);
 	const  RetailPriceExtractor::ExtQuotBlock * GetCStEqbND(bool nodiscount) const;
+	//
+	// ARG(goodsID     IN): Товар, для которого определяются значения.
+	// ARG(qtty        IN): Используется для нахождения правильного значения котировки, если та задана в привязке к количеству.
+	//   Фактически этот аргумент используется вызовом RetailPriceExtractor::GetPrice, который делается внутри PPObjGoods::GetRetailGoodsInfo().
+	// ARG(extRgiFlags IN): Дополнительные флаги вызова PPObjGoods::GetRetailGoodsInfo() которые комбинируются с предопределенным набором.
+	// ARG(rRgi       OUT): Собственно, блок, в который заносятся данные товара goodsID
+	// Returns (совпадает с возвратом вызываемой функции PPObjGoods::GetRetailGoodsInfo):
+	//   >0 - информация успешно извлечена
+	//   0  - error
+	//   -1 - не найден товар с ИД goodsID
+	//   -2 - не найдено ни одного лота для указанного товара (поля Expiry, Cost, Price,
+	//        LotID, BillDate, BillCode, Serial, Qtty, PhQtty, UnitPerPack не заполнены)
+	//
 	int    GetRgi(PPID goodsID, double qtty, long extRgiFlags, RetailGoodsInfo & rRgi);
 	//
 	// Descr: Режимы распознавания кода функцией RecognizeCode
@@ -57203,6 +57315,21 @@ protected:
 	virtual int    Implement_AcceptCheckOnEquipment(const CcAmountList * pPl, AcceptCheckProcessBlock & rB);
 	virtual void   NotifyGift(PPID giftID, const SaGiftArray::Gift * pGift);
 	virtual void   SetPrintedFlag(int set);
+	//
+	// Descr: Блок параметров, которые считываются из pp.ini.
+	//
+	struct IniParamsBlock {
+		IniParamsBlock();
+		enum {
+			fDisableAltRegister = 0x0001
+		};
+		long   Flags;
+		long   UiFlags;
+		long   AutoInputTolerance;
+		long   SingleSubstPriceOrder;
+		SString KitchenBellCmd;
+	};
+	int    ReadIniParams(IniParamsBlock & rBlk);
 	int    InitCashMachine();
 	bool   InitCcView();
 	int    InitGroupList(const PPTouchScreenPacket & rTsPack);
@@ -57260,7 +57387,16 @@ protected:
 	int    VerifyPrices();
 	int    ProcessGift();
 	int    AddGiftSaleItem(TSVector <SaSaleItem> & rList, const CCheckItem & rItem) const;
-	double CalcCurrentRest(PPID goodsID, bool checkInputBuffer);
+	// @v12.5.9 (replced with CalcCurrentRest2) double CalcCurrentRest(PPID goodsID, bool checkInputBuffer);
+	//
+	// Descr: Флаги функции CalcCurrentRest2
+	//
+	enum {
+		ccrfCheckInputBuffer = 0x0001, // Учитывать количество, установленное в буфере ввода
+		ccrfCheckSingleSubst = 0x0002, // Проверять остаток по одиночному подстановочному товару 
+	};
+
+	int    CalcCurrentRest2(PPID goodsID, uint ccrf, double * pRest); // @v12.5.9
 	int    LoadComplex(PPID goodsID, SaComplex & rComplex);
 	int    LoadPartialStruc(PPID goodsID, PPGoodsStruc & rGs);
 	int    SetupSCard(PPID scID, const SCardTbl::Rec * pScRec);
@@ -57278,6 +57414,16 @@ protected:
 	int    LoadModifiers(PPID goodsID, SaModif & rModif);
 	int    Helper_GetPriceRestrictions_ByFormula(SString & rFormula, const CCheckItem & rCi, double & rBound) const;
 	int    CheckPriceRestrictions(PPID goodsID, const CCheckItem & rCi, double price, RealRange * pRange);
+	//
+	// Descr: Находит подстановочную структуру для товара orgGoodsID на текущую дату.
+	//   Если такая структура существует и в ней содержится только один компонент и конфигурация документов
+	//   предписывает использовать подстановочные структуры (PPBillConfig::GoodsSubstMethod == PPBillConfig::gsmSubstStruc)
+	//   то возвращает идентификатор подстановочного товара, а по указателю pSubstQtty присваивает
+	//   количество подстановочного товара, соответствующее одной торговой единицы оригинального.
+	//   Если, в соответствии с перечисленными выше условиями, подстановочный товар не обнаружен, то возвращает 0,
+	//   а по указателю pSubstQtty присваивает 0.0.
+	//
+	PPID   GetSingleSubstGoods(PPID orgGoodsID, double * pSubstQtty); // @v12.5.9
 	void   MsgToDisp_Clear();
 	int    MsgToDisp_Add(const char * pMsg);
 	virtual int MsgToDisp_Show();
@@ -57294,6 +57440,13 @@ protected:
 	//
 	int    SetCurrentOp(int op); // @v12.2.9
 	int    TurnShadowEgaisMarkAutoselectionCcPacket(const CCheckPacket & rMainCcPack, CCheckPacket & rCcPack, int use_ta);
+	//
+	// Returns:
+	//   <0 - у товара rBlk.GoodsID нет single-подстановки
+	//   >0 - у товара rBlk.GoodsID есть single-подстановка и удалось идентифицировать цену
+	//    0 - у товара rBlk.GoodsID есть single-подстановка и НЕ удалось идентифицировать цену
+	//
+	int    EvaluateSingleSubstPrice(/*const PgsBlock & rBlk,*/PPID goodsID, double qtty, double chznPrice, const RetailGoodsInfo & rRgi, double & rPrice); // @v12.5.9
 	
 	struct GrpListItem { // @flat
 		GrpListItem();
@@ -57516,33 +57669,15 @@ protected:
 		SString CnSymb;          // Символ кассового узла
 		LongArray CTblList;
 	};
-
-	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) const  PPID CashNodeID;  // @*CheckPaneDialog::CheckPaneDialog
-	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) PPID   CnPhnSvcID;       // PPObjCashNode(CashNodeID).PhSvcID
-	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) long   CnFlags;          // @*CheckPaneDialog::CheckPaneDialog (PPObjCashNode(CashNodeID).Flags & (CASHF_SELALLGOODS | CASHF_USEQUOT | CASHF_NOASKPAYMTYPE))
-	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) long   CnExtFlags;       // @*CheckPaneDialog::CheckPaneDialog PPObjCashNode(CashNodeID).ExtFlags
-	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) long   CnSpeciality;     // PPObjCashNode(CashNodeID).Speciality
-	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) PPID   CnLocID;          // PPObjCashNode(CashNodeID).LocID
-	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) PPID   ExtCnLocID;       // PPObjCashNode(ExtCashNodeID).LocID
-	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) int    EgaisMode;        // Режим работы с ЕГАИС (0 - нет, 1 - использовать, 2 - тестовый режим, 3 - только сканировать марку).
-		// Извлекается из записи синхронного кассового узла (PPSyncCashNode::EgaisMode)
-		// Если EgaisMode != 0 и !(Flags & fNoEdit), то в конструкторе создается *P_EgPrc.
-	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) int    ChZnPermissiveMode; // @v11.9.12 Режим работы с разрешительным режимом честный знак.
-	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) PPID   ChZnGuaID;        // @v12.0.12 
-	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) PPID   AbstractGoodsID;  // Абстрактный товар для проведения строк по свободной цене.
-		// Если (CnExtFlags & CASHFX_ABSTRGOODSALLOWED), то равно PPGoodsConfig::DefGoodsID, в противном случае - 0.
-	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) PPSyncCashNode::SuspCheckFilt Scf;
-	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) SString CnName;          // Наименование кассового узла
-	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) SString CnSymb;          // Символ кассового узла
 	PosNodeParam PNP;        // @v12.3.8 
 	PPID   ExtCashNodeID;    // @*CheckPaneDialog::CheckPaneDialog
 	PPID   AltRegisterID;    // @*CheckPaneDialog::CheckPaneDialog
 	PPID   TouchScreenID;    // @*CheckPaneDialog::CheckPaneDialog
 	PPID   ScaleID;          // @*CheckPaneDialog::CheckPaneDialog
-	long   Flags;            // CheckPaneDialog::fXXX
-	long   UiFlags;          // CheckPaneDialog::uifXXX Флаги пользовательского интерфейса
-	int    State_p;          // CheckPaneDialog::sXXX
-	long   OperRightsFlags;  // CheckPaneDialog::orfXXX
+	long   Flags;            // CPosProcessor::fXXX
+	long   UiFlags;          // CPosProcessor::uifXXX Флаги пользовательского интерфейса
+	int    State_p;          // CPosProcessor::sXXX
+	long   OperRightsFlags;  // CPosProcessor::orfXXX
 	double BonusMaxPart;     // @*CPosProcessor::CPosProcessor()
 	long   OrgOperRights;    // Права доступа установленные в конструкторе либо по ключу.
 		// Так как агент может переопределять права доступа, то при изменении агента OperRightsFlags
@@ -57551,14 +57686,17 @@ protected:
 	PPID   CheckID;
 	PPID   SuspCheckID;      // Загружен отложенный чек с указанным идентификатором
 	PPID   AuthAgentID;      // Агент, который изначально авторизовался в сессии (для поддержки мобильного официанта)
+	// @v12.5.9 (move to IniPBlk) long   AutoInputTolerance; // Мин среднее время (ms) между вводом символом, ниже которого считается, что данные были введены автоматическим средством ввода (напр. сканером штрихкодов)
+	// @v12.5.9 (move to IniPBlk) long   SingleSubstPriceOrder; // @v12.5.9 Порядок определения цены для позиций, имеющих single-подстановочную структуру. Задается параметром pp.ini [config] PosSingleSubstPriceOrder=v
 	SObjID OuterOi;         // Внешний объект, к которому привязывается чек.
 	LDATETIME LastGrpListUpdTime;     // Время последнего обновления списка групп товаров
 	S_GUID SessUUID;
-	PPGenCashNode::RoundParam R__;      // Параметры округления //
+	PPGenCashNode::RoundParam R__;  // Параметры округления //
+	IniParamsBlock IniPBlk;         // @v12.5.9
 	SString Input;
 	SString ErrMsgBuf;
 	SString TableSelWhatman;
-	SString KitchenBellCmd;  // Команда кухонного звонка
+	// @v12.5.9 (move to IniPBlk) SString KitchenBellCmd;  // Команда кухонного звонка
 	SString KitchenBellPort; // Порты отправки команды кухонного звонка
 	SString PhnSvcLocalChannelSymb;
 	SString RptPrnPort;      // Порт принтера для печати регулярный отчетов (предчек, например)
@@ -57574,12 +57712,12 @@ protected:
 	PPObjGoodsStruc GSObj;
 	PPObjCashNode CnObj;
 	CardState CSt;
-	ManualDiscount ManDis; // @v11.0.9
+	ManualDiscount ManDis;
 	PPCashMachine * P_CM;     // Основной кассовый регистратор
 	PPCashMachine * P_CM_EXT; // Сдвоенный кассовый регистратор (на нем проходят чеки по заданным товарным группам)
 	PPCashMachine * P_CM_ALT; // Альтернативный кассовый регистратор (кассир принимает решение о проведении чека через него)
-	GoodsToObjAssoc  * P_GTOA;
-	PPObjTSession    * P_TSesObj;
+	GoodsToObjAssoc * P_GTOA;
+	PPObjTSession * P_TSesObj;
 	SArray * P_DivGrpList;
 	CCheckPacket * P_ChkPack;
 	PPViewCCheck * P_CcView;
@@ -57604,7 +57742,7 @@ public:
 	int    LoadTSession(PPID tsessID);
 	int    LoadChkInP(PPID chkinpID, PPID goodsID, double qtty);
 private:
-	static  int PalmImport(PalmBillPacket *, void * extraPtr);
+	// @v12.5.7 @obsolete static  int PalmImport(PalmBillPacket *, void * extraPtr);
 	DECL_HANDLE_EVENT;
 	// @v12.2.6 virtual int  FASTCALL valid(ushort command);
 	virtual int  SetupState(int st);
@@ -57670,7 +57808,7 @@ private:
 	int    SelectCheck(const char * pTitle, long flags, SelectCheckResult & rResult);
 	int    SelectBill(PPID * pBillID, const char * pTitle); // @v11.8.7
 	int    UpdateGList(int updGoodsList, PPID selGroupID);
-	int    PreprocessGoodsSelection(PPID goodsID, PPID locID, PgsBlock & rBlk);
+	int    PreprocessGoodsSelection(PPID locID, PgsBlock & rBlk);
 	int    SelectSerial(PPID goodsID, SString & rSerial, double * pPriceBySerial);
 	void   ResetListWindows(int listCtrlID);
 	int    SuspendCheck();
@@ -57713,7 +57851,6 @@ private:
 	int    ChZnMarkAutoSelect(PPID goodsID, double qtty, SString & rChZnBuf);
 
 	ExtGoodsSelDialog * P_EGSDlg;
-	long   AutoInputTolerance; // Мин среднее время (ms) между вводом символом, ниже которого считается, что данные были введены автоматическим средством ввода (напр. сканером штрихкодов)
 	long   BarrierViolationCounter; // @debug
 	PPID   AltGoodsGrpID;    //
 	PPID   SelGoodsGrpID;    //
@@ -57724,7 +57861,7 @@ private:
 	long   ClearCDYTimeout;  // @*CheckPaneDialog::CheckPaneDialog() Таймаут очистки дисплея покупателя после печати чека
 	PPCustDisp  * P_CDY;
 	PPBnkTerminal	 * P_BNKTERM; // @vmiller
-	PalmImportWaiter * P_PalmWaiter;
+	// @v12.5.7 @obsolete PalmImportWaiter * P_PalmWaiter;
 	AsteriskAmiClient * P_PhnSvcClient;
 	PPBillImporter * P_UhttImporter;
 	SCycleTimer PhnSvcTimer;
@@ -60760,7 +60897,7 @@ private:
 		bool   Done;
 		uint8  Reserve[3];
 		TSVector <RefBEntry> RecentEgaisStock;
-		PPIDArray WrOffBillIdList; // @v12.5.0 Документы списания марок вида PPOPK_EDI_WROFFWITHMARKS, которые была фактически отправлены в ЕГАИС. 
+		PPIDArray WrOffBillIdList; // @v12.5.0 Документы списания марок вида PPOPK_EDI_WROFFWITHMARKS, которые были фактически отправлены в ЕГАИС. 
 			// Для учета израсходованных марок
 	};
 	InitBlock Ib;

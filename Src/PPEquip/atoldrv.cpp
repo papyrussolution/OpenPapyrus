@@ -432,7 +432,7 @@ private:
 		param_buf.Divide(',', CashierPassword, temp_buf);
 		AdmPassword = CashierPassword;
 		// @v11.5.6 {
-		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_POSREGISTERLOGGING, temp_buf.Z()) > 0) {
+		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_POSREGISTERLOGGING, temp_buf) > 0) {
 			if(temp_buf == "0" || temp_buf.IsEqiAscii("false") || temp_buf.IsEqiAscii("no"))
 				Flags &= ~sfLogging;
 			else if(temp_buf == "1" || temp_buf.IsEqiAscii("true") || temp_buf.IsEqiAscii("yes"))

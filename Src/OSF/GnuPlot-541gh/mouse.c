@@ -350,7 +350,7 @@ char * GnuPlot::GetAnnotateString(char * s, double x, double y, int mode, char *
 		EvaluateAt(mouse_readout_function.at, &readout);
 		plot_x->udv_value = original_x;
 		plot_y->udv_value = original_y;
-		if(readout.Type != STRING) {
+		if(readout.Type != GPDT_STRING) {
 			IntWarn(NO_CARET, "mouseformat function did not return a string");
 		}
 		else {

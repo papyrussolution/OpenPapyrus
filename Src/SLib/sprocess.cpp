@@ -4,17 +4,17 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
+#include <sl-packing-set_compiler_default.h> // @v12.5.9
 // @v12.5.3 (@movedto slib.h) #include <UserEnv.h> // SlProcess
 // @v12.5.3 (@movedto slib.h) #include <sddl.h> // SlProcess
 // @v12.5.3 (@movedto slib.h) #include <AccCtrl.h>
 #include <NTSecAPI.h>
 #include <strsafe.h>
-//#include <iostream>
 #include <dsgetdc.h>
 // @v12.5.3 (@movedto slib.h) #include <Lm.h>
-#include <tlhelp32.h> // CreateToolhelp32Snapshot
-
+#include <tlhelp32.h>
 // #include <..\SLib\subprocess\subprocess.h> // @v11.9.3 @experimental
+#include <sl-packing-reset.h> // @v12.5.9
 
 typedef HRESULT (WINAPI * FN_CREATEAPPCONTAINERPROFILE)(PCWSTR, PCWSTR, PCWSTR, PSID_AND_ATTRIBUTES, DWORD, PSID *); // Userenv.dll:CreateAppContainerProfile
 typedef HRESULT (WINAPI * FN_DERIVEAPPCONTAINERSIDFROMAPPCONTAINERNAME)(PCWSTR, PSID *); // Userenv.dll:DeriveAppContainerSidFromAppContainerName
@@ -389,14 +389,12 @@ bool SlProcess::AddPrivilegeToAccessToken(SPtrHandle token, const wchar_t * pPri
 		wprintf(L"GetTokenInformation failed - 0x%08x\n", GetLastError());
 		goto cleanup;
 	}
-	priv_name_len = StringCchLength(pPrivilegeName, MAX_PRIVNAME, &priv_name_len); // ??? StringCchLength возвращает HRESULT
+	HRESULT hr_scchl = StringCchLengthW(pPrivilegeName, MAX_PRIVNAME, &priv_name_len);
 	privilege[0].Buffer = (PWCHAR)pPrivilegeName;
 	privilege[0].Length = static_cast<ushort>(priv_name_len * sizeof(WCHAR));
 	privilege[0].MaximumLength = static_cast<ushort>((priv_name_len+1)*sizeof(WCHAR));
 	MEMSZERO(obj_attr);
-	ret = LsaOpenPolicy(NULL, &obj_attr, 
-		/*POLICY_ALL_ACCESS*/POLICY_LOOKUP_NAMES|POLICY_CREATE_ACCOUNT/*|POLICY_VIEW_LOCAL_INFORMATION|POLICY_WRITE*/,
-		&h_policy);
+	ret = LsaOpenPolicy(NULL, &obj_attr, /*POLICY_ALL_ACCESS*/POLICY_LOOKUP_NAMES|POLICY_CREATE_ACCOUNT/*|POLICY_VIEW_LOCAL_INFORMATION|POLICY_WRITE*/, &h_policy);
 	/*
 		SCESTATUS_SUCCESS 	The function succeeded.
 		SCESTATUS_INVALID_PARAMETER 	One of the parameters passed to the function was not valid.

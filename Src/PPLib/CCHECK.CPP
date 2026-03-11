@@ -18,6 +18,7 @@ static const SIntToSymbTabEntry CCheckLnExtNameSymbList[] = { // @v12.4.1
 	{ CCheckPacket::lnextChZnPm_ReqTimestamp, "cclnextss_chznpm_reqtimestamp" },
 	{ CCheckPacket::lnextChZnPm_LocalModuleInstance, "cclnextss_chznpm_localmoduleinstance" },
 	{ CCheckPacket::lnextChZnPm_LocalModuleDbVer, "cclnextss_chznpm_localmoduledbver" },
+	{ CCheckPacket::lnextChZnPrice, "cclnextss_chznprice" }, // @v12.5.9
 };
 
 static const SIntToSymbTabEntry CCheckExtSsList[] = {
@@ -1132,6 +1133,15 @@ bool CCheckPacket::EnumLines(uint * pPos, CCheckItem * pItem) const
 				}
 			}
 			// } @v12.1.1 
+			// @v12.5.9 {
+			{
+				GetLineTextExt(_pos, CCheckPacket::lnextChZnPrice, temp_buf);
+				const double chznp = temp_buf.ToReal_Plain();
+				if(chznp > 0.0) {
+					pItem->ChZnPrice = chznp;
+				}
+			}
+			// } @v12.5.9 
 			if(ExtList.lsearch(&_pos, &ep, CMPF_LONG)) {
 				const LineExt & r_le = ExtList.at(ep);
 				pItem->Queue = r_le.Queue;
@@ -1528,6 +1538,7 @@ int CCheckPacket::InsertCclRec(const CCheckLineTbl::Rec * pItem, const char * pS
 int CCheckPacket::InsertCcl(const CCheckItem & rItem)
 {
 	int    ok = 1;
+	SString temp_buf;
 	CCheckLineTbl::Rec rec;
 	rItem.GetRec(rec, LOGIC(Rec.Flags & CCHKF_RETURN));
 	THROW_SL(Items_.insert(&rec));
@@ -1551,9 +1562,14 @@ int CCheckPacket::InsertCcl(const CCheckItem & rItem)
 		if(!isempty(rItem.ChZnMark)) {
 			THROW(SetLineTextExt(idx, CCheckPacket::lnextChZnMark, rItem.ChZnMark));
 		}
+		// @v12.5.9 { 
+		if(rItem.ChZnPrice > 0.0) {
+			temp_buf.Z().Cat(rItem.ChZnPrice, MKSFMTD(0, 2, 0));
+			THROW(SetLineTextExt(idx, CCheckPacket::lnextChZnPrice, temp_buf));
+		}
+		// } @v12.5.9 
 		// @v12.1.1 {
 		if(!rItem.ChZnPm_ReqId.IsZero() && rItem.ChZnPm_ReqTimestamp) {
-			SString temp_buf;
 			rItem.ChZnPm_ReqId.ToStr(S_GUID::fmtPlain, temp_buf);
 			THROW(SetLineTextExt(idx, CCheckPacket::lnextChZnPm_ReqId, temp_buf));
 			//
@@ -3869,8 +3885,8 @@ int CCheckCore::CalcActiveExpendByGoods(PPID goodsID, PPID locID, const char * p
 	PPObjCSession cs_obj;
 	if(cs_obj.P_Tbl->GetActiveSessList(locID, &sess_list) > 0) {
 		ObjIdListFilt check_list;
+		CCheckLineArray lines_list;
 		if(LoadChecksByList(&sess_list, 0, &check_list, 0) > 0) {
-			CCheckLineArray lines_list;
 			if(LoadLinesByList(goodsID, &check_list, &lines_list) > 0) {
 				Reference * p_ref(PPRef);
 				PPObjCashNode cn_obj;
@@ -3885,16 +3901,16 @@ int CCheckCore::CalcActiveExpendByGoods(PPID goodsID, PPID locID, const char * p
 					CCheckLineTbl::Rec & r_line_rec = lines_list.at(--pos);
 					const  PPID cc_id = r_line_rec.CheckID;
 					if(Search(cc_id, &cc_rec) > 0) {
-						int    skip = 0;
+						bool   skip = false;
 						if(cc_rec.Flags & CCHKF_SKIP)
-							skip = 1;
+							skip = true;
 						else if(!(cc_rec.Flags & CCHKF_PRINTED)) {
-							if(cs_obj.Search(cc_rec.SessID, &cs_rec) > 0 && cn_obj.Fetch(cs_rec.CashNodeID, &cn_rec) > 0) {
+							if(cs_obj.Fetch(cc_rec.SessID, &cs_rec) > 0 && cn_obj.Fetch(cs_rec.CashNodeID, &cn_rec) > 0) { // @v12.5.9 cs_obj.Search-->cs_obj.Fetch
 								if(cn_rec.Flags & CASHF_SKIPUNPRINTEDCHECKS)
-									skip = 1;
+									skip = true;
 							}
 							else
-								skip = 1;
+								skip = true;
 						}
 						if(!skip) {
 							if(isempty(pSerial)) {

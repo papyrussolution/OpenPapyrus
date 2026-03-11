@@ -1,5 +1,5 @@
 // PALM.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -20,8 +20,8 @@ int  PalmBillQueue::Push(PalmBillPacket * pPack) { return insert(pPack) ? 1 : PP
 
 IMPL_CMPFUNC(PalmBillPacket, i1, i2)
 {
-	const PalmBillPacket * p_i1 = static_cast<const PalmBillPacket *>(i1);
-	const PalmBillPacket * p_i2 = static_cast<const PalmBillPacket *>(i2);
+	const  PalmBillPacket * p_i1 = static_cast<const PalmBillPacket *>(i1);
+	const  PalmBillPacket * p_i2 = static_cast<const PalmBillPacket *>(i2);
 	int    si = 0;
 	CMPCASCADE2(si, p_i1, p_i2, Hdr.PalmID, Hdr.ID);
 	return si;
@@ -30,7 +30,7 @@ IMPL_CMPFUNC(PalmBillPacket, i1, i2)
 int PalmBillQueue::PushUnique(PalmBillPacket * pPack)
 {
 	int    ok = -1;
-	uint pos = 0;
+	uint   pos = 0;
 	if(lsearch(pPack, &pos, PTR_CMPFUNC(PalmBillPacket))) {
 		PalmBillPacket * p_pack = static_cast<PalmBillPacket *>(at(pos));
 		ZDELETE(p_pack);
@@ -2367,7 +2367,8 @@ int PPObjStyloPalm::CopyFromFTP(PPID id, int delAfterCopy, PPLogger * pLog)
 // @<<PPObjStyloPalm::ImpExp
 int PPObjStyloPalm::ImportData(PPID id, PPID opID, PPID locID, PPLogger * pLogger)
 {
-	int    ok = -1, r = 1;
+	int    ok = -1;
+	int    r = 1;
 	uint   i = 0;
 	long   ord_count = 0L;
 	SString path;
@@ -4268,6 +4269,8 @@ private:
 	return ok;
 }
 
+#if 0 // @v12.5.7 @obsolete {
+
 PalmImportWaiter::PalmImportWaiter(PalmImportProc proc, void * procExtraPtr) : Semaphore(0), P_DeviceList(0), Proc(proc), ProcExtraPtr(procExtraPtr)
 {
 	InitDeviceList();
@@ -4342,6 +4345,7 @@ int PalmImportWaiter::Activate()
 	}
 	return ok;
 }
+#endif // } 0 @v12.5.7 @obsolete
 //
 //
 //

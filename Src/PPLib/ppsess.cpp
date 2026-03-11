@@ -367,6 +367,7 @@ PPThreadLocalArea::PPThreadLocalArea() : Prf(1), UfpSess(0), RvlSsSCD(256)
 
 PPThreadLocalArea::~PPThreadLocalArea()
 {
+	ZDELETE(P_LStB); // @v12.5.9
 	ZDELETE(P_EgPrc_); // @v12.2.11
 	ZDELETE(P_WObj);
 	ZDELETE(P_WbObj);
@@ -1220,6 +1221,17 @@ PPEgaisProcessor * PPThreadLocalArea::GetEgaisProcessor()
 		P_EgPrc_ = new PPEgaisProcessor(egcf, 0, 0); // @instantiation(PPEgaisProcessor)
 	}
 	return P_EgPrc_;
+}
+
+LocalStateBinderyCore * PPThreadLocalArea::GetLocalStateBindery() // @v12.5.9
+{
+	if(!P_LStB) {
+		P_LStB = new LocalStateBinderyCore();
+	}
+	if(P_LStB && !P_LStB->IsValid()) {
+		ZDELETE(P_LStB);
+	}
+	return P_LStB;
 }
 
 SrDatabase * PPThreadLocalArea::GetSrDatabase()
@@ -5121,8 +5133,7 @@ int PPSession::DirtyDbCache(long dbPathID, PPAdviseEventQueue::Client * pCli)
 	return ok;
 }
 
-// Prototype
-int CreateBackupCopy(const char *, int);
+int CreateBackupCopy(const char *, int); // @prototype
 
 void PPThreadLocalArea::OnLogout()
 {

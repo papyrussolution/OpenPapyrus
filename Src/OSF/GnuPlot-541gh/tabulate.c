@@ -439,7 +439,7 @@ bool GnuPlot::TabulateOneLine(double v[MAXDATACOLS], GpValue str[MAXDATACOLS], i
 	if(Tab.P_Var == NULL) {
 		char sep = (Tab.P_Sep && *Tab.P_Sep) ? *Tab.P_Sep : '\t';
 		for(col = 0; col < ncols; col++) {
-			if(str[col].Type == STRING)
+			if(str[col].Type == GPDT_STRING)
 				fprintf(f_out, " %s", str[col].v.string_val);
 			else
 				fprintf(f_out, " %g", v[col]);
@@ -456,7 +456,7 @@ bool GnuPlot::TabulateOneLine(double v[MAXDATACOLS], GpValue str[MAXDATACOLS], i
 		size_t len = 0;
 		line[0] = '\0';
 		for(col = 0; col < ncols; col++) {
-			if(str[col].Type == STRING) {
+			if(str[col].Type == GPDT_STRING) {
 				len = strappend(&line, &size, 0, str[col].v.string_val);
 			}
 			else {

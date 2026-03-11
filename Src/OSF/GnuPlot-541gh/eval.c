@@ -42,7 +42,7 @@ void FASTCALL GnuPlot::Push(GpValue * x)
 		IntError(NO_CARET, "stack overflow");
 	EvStk.St[++EvStk.Sp] = *x;
 	// WARNING - This is a memory leak if the string is not later freed 
-	if(x->Type == STRING && x->v.string_val)
+	if(x->Type == GPDT_STRING && x->v.string_val)
 		EvStk.St[EvStk.Sp].v.string_val = sstrdup(x->v.string_val);
 }
 
@@ -604,7 +604,7 @@ double FASTCALL GnuPlot::Real(const GpValue * pVal)
 	switch(pVal->Type) {
 		case INTGR: return static_cast<double>(pVal->v.int_val);
 		case CMPLX: return (pVal->v.cmplx_val.real);
-		case STRING: return satof(pVal->v.string_val); // is this ever used? 
+		case GPDT_STRING: return satof(pVal->v.string_val); // is this ever used? 
 		case NOTDEFINED: return fgetnan();
 		default: IntError(NO_CARET, "unknown type in real()");
 	}
@@ -618,7 +618,7 @@ double FASTCALL GnuPlot::Imag(const GpValue * pVal)
 	switch(pVal->Type) {
 		case INTGR: return (0.0);
 		case CMPLX: return (pVal->v.cmplx_val.imag);
-		case STRING:
+		case GPDT_STRING:
 		    // This is where we end up if the user tries: 
 		    //     x = 2;  plot sprintf(format,x)         
 		    IntWarn(NO_CARET, "encountered a string when expecting a number");
@@ -703,7 +703,7 @@ GpValue * FASTCALL Ginteger(GpValue * a, intgr_t i)
 
 GpValue * FASTCALL Gstring(GpValue * a, char * s) 
 {
-	a->Type = STRING;
+	a->Type = GPDT_STRING;
 	a->v.string_val = s ? s : sstrdup("");
 	return (a);
 }
@@ -747,7 +747,7 @@ int GpValue::IntCheck() const
 // 
 void FASTCALL gpfree_string(GpValue * a)
 {
-	if(a->Type == STRING) {
+	if(a->Type == GPDT_STRING) {
 		SAlloc::F(a->v.string_val);
 		a->Type = NOTDEFINED;
 	}
@@ -800,7 +800,7 @@ GpValue * FASTCALL GnuPlot::PopOrConvertFromString(GpValue * v)
 	// FIXME: Test for INVALID_VALUE? Other corner cases? 
 	if(v->Type == INVALID_NAME)
 		IntError(NO_CARET, "invalid dummy variable name");
-	if(v->Type == STRING) {
+	if(v->Type == GPDT_STRING) {
 		char * eov;
 		if(*(v->v.string_val) && strspn(v->v.string_val, "0123456789 ") == strlen(v->v.string_val)) {
 			int64 li = atoll(v->v.string_val);
@@ -1244,7 +1244,7 @@ void FASTCALL GpEval::FillGpValString(const char * var, const char * pValue)
 {
 	udvt_entry * v = AddUdvByName(var);
 	if(v) {
-		if(v->udv_value.Type == STRING && sstreq(v->udv_value.v.string_val, pValue))
+		if(v->udv_value.Type == GPDT_STRING && sstreq(v->udv_value.v.string_val, pValue))
 			return;
 		else
 			gpfree_string(&v->udv_value);

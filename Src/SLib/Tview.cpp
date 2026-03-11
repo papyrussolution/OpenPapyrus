@@ -1023,7 +1023,7 @@ void FASTCALL TView::clearEvent(TEvent & rEv)
 	rEv.what = TEvent::evNothing;
 	rEv.message.command = 0; // @v12.2.8
 	rEv.message.infoPtr = this;
-	rEv.message.infoLong = 0; // @v12.5.7
+	// @v12.5.9 (нельзя было так делать - модальные окна здесь держат команду возврата) rEv.message.infoLong = 0; // @v12.5.7
 }
 
 void FASTCALL TView::NegativeReplyOnValidateCommand(TEvent & rEv) // @v12.2.8

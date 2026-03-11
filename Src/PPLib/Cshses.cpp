@@ -1342,6 +1342,7 @@ int PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArray * pH
 					CCheckPacket::lnextChZnPm_ReqTimestamp,         // @v12.4.5
 					CCheckPacket::lnextChZnPm_LocalModuleInstance,  // @v12.4.5
 					CCheckPacket::lnextChZnPm_LocalModuleDbVer,     // @v12.4.5  
+					CCheckPacket::lnextChZnPrice,                   // @v12.5.9
 				};
 				for(uint lnefidx = 0; lnefidx < SIZEOFARRAY(lnextf_list); lnefidx++) {
 					ext_strings.GetExtStrData(lnextf_list[lnefidx], temp_buf);

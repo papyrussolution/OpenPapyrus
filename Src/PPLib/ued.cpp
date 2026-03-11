@@ -1,10 +1,9 @@
 // UED.CPP
-// Copyright (c) A.Sobolev 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2023, 2024, 2025, 2026
 //
 #include <pp.h>
 #pragma hdrstop
 #if(_MSC_VER >= 1900)
-	#include <cmath>
 	#include <unicode\uclean.h>
 	#include <unicode\brkiter.h>
 	#include <unicode\measunit.h>
@@ -339,7 +338,7 @@ uint64 SrUedContainer_Base::Recognize(SStrScan & rScan, uint64 implicitMeta, uin
 //
 // Descr:  одирует real-число в диапазоне [0..upp] в целочисленное представление
 //   шириной bits бит, гранул€рностью granulation.
-//   ѕо€снение по поводу гранул€рности: иде€ заключаетс€ в том, чтобы естественно выгл€дещие 
+//   ѕо€снение по поводу гранул€рности: иде€ заключаетс€ в том, чтобы естественно выгл€д€щие 
 //   real-значени€ кодировались без потери точности. Ќапример, угол 71deg должен после 
 //   кодировани€/декодировани€ оставатьс€ таким же. 
 //   Not a static for the testing purpose
@@ -348,7 +347,15 @@ uint64 UedEncodeRange(uint64 upp, uint granulation, uint bits, double value)
 {
 	assert(value >= 0.0 && value <= static_cast<double>(upp));
 	assert(bits >= 8 && bits <= 64);
-	assert(granulation < ((1ULL << bits) - 1));
+	// @v12.5.9 {
+	if(bits == 64) {
+		assert(granulation < MAXUINT64);
+	}
+	else 
+	// } @v12.5.9 
+	{
+		assert(granulation < ((1ULL << bits) - 1));
+	}
 	uint64 result = 0;
 	const uint64 ued_width = ((1ULL << bits) - 1) / granulation * granulation;
 	result = static_cast<uint64>((ued_width / upp) * value);
@@ -399,6 +406,34 @@ bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * 
 				rOid.Id = static_cast<int32>(raw_value);
 				ok = true;
 			}
+		}
+	}
+	return ok;
+}
+
+/*static*/uint64 UED::SetRaw_UXControlIdent(SObjID ctlId) // @v12.5.9
+{
+	uint64 result = 0;
+	constexpr uint64 meta = UED_META_UXCONTROL;
+	if(meta != 0ULL && checkirange(ctlId.Obj, 0L, static_cast<long>(MAXINT16)) && checkirange(ctlId.Id, 0L, static_cast<long>(MAXINT16))) {
+		uint64 raw_value = (ctlId.Obj << 16) | ctlId.Id;
+		result = ApplyMetaToRawValue(meta, raw_value);
+	}
+	return result;
+}
+
+/*static*/bool UED::GetRaw_UXControlIdent(uint64 ued, SObjID & rCtlId) // @v12.5.9
+{
+	rCtlId.Z();
+	bool   ok = false;
+	uint64 meta = GetMeta(ued);
+	uint64 raw_value = 0;
+	if(GetRawValue(ued, &raw_value)) {
+		const  long container_id = static_cast<long>((raw_value & _FFFF32) >> 16);
+		const  long item_id = static_cast<long>(raw_value & _FFFF16);
+		if(meta != 0ULL && checkirange(container_id, 0L, static_cast<long>(MAXINT16)) && checkirange(item_id, 0L, static_cast<long>(MAXINT16))) {
+			rCtlId.Set(container_id, item_id);
+			ok = true;
 		}
 	}
 	return ok;
@@ -508,16 +543,16 @@ bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * 
 	const uint bits = GetMetaRawDataBits(meta);
 	if(bits) {
 		if(flagsBits <= 8 && (!flags || ((sizeof(flags) << 3) - SBits::Clz(flags)) <= flagsBits)) {
-			const uint tlen = sstrlen(pT);
+			const size_t tlen = sstrlen(pT);
 			if(tlen) {
-				bool all_dec = true;
+				bool   all_dec = true;
 				for(uint i = 0; all_dec && i < tlen; i++) {
 					if(!isdec(pT[i]))
 						all_dec = false;
 				}
 				if(all_dec) {
-					uint64 val = _texttodec64(pT, tlen);
-					uint val_bits = val ? ((sizeof(val) << 3) - SBits::Clz(val)) : 0;
+					uint64 val = _texttodec64(pT, static_cast<uint>(tlen));
+					uint   val_bits = val ? ((sizeof(val) << 3) - SBits::Clz(val)) : 0;
 					if((val_bits + flagsBits) <= bits) {
 						uint64 raw = (static_cast<uint64>(flags) << (bits - flagsBits)) | val;
 						result = ApplyMetaToRawValue(meta, raw);
@@ -561,7 +596,7 @@ bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * 
 		STokenRecognizer tr;
 		SNaturalTokenArray nta;
 		const size_t len = sstrlen(pT);
-		tr.Run(reinterpret_cast<const uchar *>(pT), len, nta, 0);
+		tr.Run(reinterpret_cast<const uchar *>(pT), static_cast<uint>(len), nta, 0);
 		const float p = nta.Has(SNTOK_RU_INN);
 		if(p > 0.0f) {
 			uint    spc_flags = 0;
@@ -591,7 +626,7 @@ bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * 
 	uint   flags = 0;
 	bool   ok = Helper_GetRaw_DecimalString(UED_META_RU_INN, ued, rT, 4, &flags);
 	if(ok) {
-		const  uint _pre_len = rT.Len();
+		const  uint _pre_len = rT.Len32();
 		if(flags & UED_SPCF_INN_010 && _pre_len < 10) {
 			rT.PadLeft(10 - _pre_len, '0');
 		}
@@ -609,7 +644,7 @@ bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * 
 	if(!isempty(pT)) {
 		STokenRecognizer tr;
 		SNaturalTokenArray nta;
-		tr.Run(reinterpret_cast<const uchar *>(pT), sstrlen(pT), nta, 0);
+		tr.Run(reinterpret_cast<const uchar *>(pT), static_cast<uint32>(sstrlen(pT)), nta, 0);
 		if(nta.Has(SNTOK_RU_KPP))
 			result = Helper_SetRaw_DecimalString(UED_META_RU_KPP, pT, 4, 0);
 	}
@@ -621,7 +656,7 @@ bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * 
 	uint flags = 0;
 	bool ok = Helper_GetRaw_DecimalString(UED_META_RU_KPP, ued, rT, 4, &flags);
 	if(ok) {
-		const  uint _pre_len = rT.Len();
+		const  uint _pre_len = rT.Len32();
 		if(_pre_len < 9) {
 			rT.PadLeft(9 - _pre_len, '0');
 		}
@@ -635,7 +670,7 @@ bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * 
 	if(!isempty(pT)) {
 		STokenRecognizer tr;
 		SNaturalTokenArray nta;
-		tr.Run(reinterpret_cast<const uchar *>(pT), sstrlen(pT), nta, 0);
+		tr.Run(reinterpret_cast<const uchar *>(pT), sstrlen32(pT), nta, 0);
 		if(nta.Has(SNTOK_RU_SNILS))
 			result = Helper_SetRaw_DecimalString(UED_META_RU_SNILS, pT, 4, 0);
 	}
@@ -655,7 +690,7 @@ bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * 
 	if(!isempty(pT)) {
 		STokenRecognizer tr;
 		SNaturalTokenArray nta;
-		tr.Run(reinterpret_cast<const uchar *>(pT), sstrlen(pT), nta, 0);
+		tr.Run(reinterpret_cast<const uchar *>(pT), sstrlen32(pT), nta, 0);
 		if(nta.Has(SNTOK_AR_DNI))
 			result = Helper_SetRaw_DecimalString(UED_META_AR_DNI, pT, 4, 0);
 	}
@@ -675,7 +710,7 @@ bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * 
 	if(!isempty(pT)) {
 		STokenRecognizer tr;
 		SNaturalTokenArray nta;
-		tr.Run(reinterpret_cast<const uchar *>(pT), sstrlen(pT), nta, 0);
+		tr.Run(reinterpret_cast<const uchar *>(pT), sstrlen32(pT), nta, 0);
 		if(nta.Has(SNTOK_CL_RUT))
 			result = Helper_SetRaw_DecimalString(UED_META_CL_RUT, pT, 4, 0);
 	}
@@ -695,7 +730,7 @@ bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * 
 	if(!isempty(pT)) {
 		STokenRecognizer tr;
 		SNaturalTokenArray nta;
-		tr.Run(reinterpret_cast<const uchar *>(pT), sstrlen(pT), nta, 0);
+		tr.Run(reinterpret_cast<const uchar *>(pT), sstrlen32(pT), nta, 0);
 		if(nta.Has(SNTOK_EAN13))
 			result = Helper_SetRaw_DecimalString(UED_META_BARCODE_EAN13, pT, 4, 0);
 	}
@@ -715,7 +750,7 @@ bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * 
 	if(!isempty(pT)) {
 		STokenRecognizer tr;
 		SNaturalTokenArray nta;
-		tr.Run(reinterpret_cast<const uchar *>(pT), sstrlen(pT), nta, 0);
+		tr.Run(reinterpret_cast<const uchar *>(pT), sstrlen32(pT), nta, 0);
 		if(nta.Has(SNTOK_EAN8))
 			result = Helper_SetRaw_DecimalString(UED_META_BARCODE_EAN8, pT, 4, 0);
 	}
@@ -735,7 +770,7 @@ bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * 
 	if(!isempty(pT)) {
 		STokenRecognizer tr;
 		SNaturalTokenArray nta;
-		tr.Run(reinterpret_cast<const uchar *>(pT), sstrlen(pT), nta, 0);
+		tr.Run(reinterpret_cast<const uchar *>(pT), sstrlen32(pT), nta, 0);
 		// @todo –азличие между upca и upce необходимо задать флагами
 		if(nta.Has(SNTOK_UPCA))
 			result = Helper_SetRaw_DecimalString(UED_META_BARCODE_UPC, pT, 4, 0);
@@ -758,7 +793,7 @@ bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * 
 	if(!isempty(pT)) {
 		STokenRecognizer tr;
 		SNaturalTokenArray nta;
-		tr.Run(reinterpret_cast<const uchar *>(pT), sstrlen(pT), nta, 0);
+		tr.Run(reinterpret_cast<const uchar *>(pT), sstrlen32(pT), nta, 0);
 		if(nta.Has(SNTOK_EAN13))
 			result = Helper_SetRaw_DecimalString(UED_META_GLN, pT, 4, 0);
 	}
@@ -2189,7 +2224,7 @@ bool SrUedContainer_Ct::GenerateSourceDecl_C(const char * pFileName, const char 
 				assert(meta_symb.NotEmpty());
 				meta_symb.ToUpper();
 				(def_symb = "UED").CatChar('_').Cat("META").CatChar('_').Cat(meta_symb);
-				SETMAX(max_symb_len, def_symb.Len());
+				SETMAX(max_symb_len, def_symb.Len32());
 				if(r_be.Id != 0x0000000100000001ULL) { // super-meta wich identifies other meta's
 					for(uint j = 0; j < BL.getCount(); j++) {
 						const BaseEntry & r_be_inner = BL.at(j);
@@ -2198,7 +2233,7 @@ bool SrUedContainer_Ct::GenerateSourceDecl_C(const char * pFileName, const char 
 							assert(temp_buf.NotEmpty());
 							temp_buf.ToUpper();
 							(def_symb = "UED").CatChar('_').Cat(meta_symb).CatChar('_').Cat(temp_buf);
-							SETMAX(max_symb_len, def_symb.Len());
+							SETMAX(max_symb_len, def_symb.Len32());
 						}
 					}
 					gen.IndentDec();
@@ -2283,7 +2318,7 @@ bool SrUedContainer_Ct::GenerateSourceDecl_Java(const char * pFileName, uint ver
 				assert(meta_symb.NotEmpty());
 				meta_symb.ToUpper();
 				(def_symb = "UED").CatChar('_').Cat("META").CatChar('_').Cat(meta_symb);
-				SETMAX(max_symb_len, def_symb.Len());
+				SETMAX(max_symb_len, def_symb.Len32());
 				if(r_be.Id != 0x0000000100000001ULL) { // super-meta wich identifies other meta's
 					for(uint j = 0; j < BL.getCount(); j++) {
 						const BaseEntry & r_be_inner = BL.at(j);
@@ -2292,7 +2327,7 @@ bool SrUedContainer_Ct::GenerateSourceDecl_Java(const char * pFileName, uint ver
 							assert(temp_buf.NotEmpty());
 							temp_buf.ToUpper();
 							(def_symb = "UED").CatChar('_').Cat(meta_symb).CatChar('_').Cat(temp_buf);
-							SETMAX(max_symb_len, def_symb.Len());
+							SETMAX(max_symb_len, def_symb.Len32());
 						}
 					}
 				}

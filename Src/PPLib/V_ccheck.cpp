@@ -3560,7 +3560,7 @@ int PPViewCCheck::Recover()
 	return ok;
 }
 
-int PPViewCCheck::ExportToChZn() // @v11.0.1
+int PPViewCCheck::ExportToChZn()
 {
 	int    ok = -1;
 	SString temp_buf;

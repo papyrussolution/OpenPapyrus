@@ -467,7 +467,7 @@ void FASTCALL StringSet::setDelim(const char * pDelim)
 	}
 }
 
-uint StringSet::getDelimLen() const { return Delim[0] ? static_cast<uint>(sstrlen(Delim)) : 1; }
+uint StringSet::getDelimLen() const { return Delim[0] ? sstrlen32(Delim) : 1U; }
 bool StringSet::isZeroDelim() const { return Delim[0] == 0; }
 
 int FASTCALL StringSet::add(const StringSet & rS)
@@ -575,7 +575,7 @@ bool StringSet::search(const char * pPattern, CompFunc fcmp, uint * pPos, uint *
 	bool   ok = false;
 	size_t p = DEREFPTRORZ(pPos);
 	size_t next_pos = p+1;
-	const  uint fix_delim_len = Delim[0] ? static_cast<uint>(sstrlen(Delim)) : 1U;
+	const  uint fix_delim_len = Delim[0] ? sstrlen32(Delim) : 1U;
 	SString temp_buf;
 	while(!ok && p < DataLen) {
 		uint   delim_len = fix_delim_len;

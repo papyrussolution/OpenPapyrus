@@ -121,7 +121,7 @@ const char * GnuPlot::StringOrExpress(at_type ** ppAt)
 		// no dummy variables: evaluate expression 
 		GpValue val;
 		EvaluateAt(_Pb.P_At, &val);
-		if(!Ev.IsUndefined_ && val.Type == STRING) {
+		if(!Ev.IsUndefined_ && val.Type == GPDT_STRING) {
 			// prevent empty string variable from treated as special file '' or "" 
 			if(*val.v.string_val == '\0') {
 				SAlloc::F(val.v.string_val);
@@ -173,7 +173,7 @@ struct at_type * create_call_column_at(char * string)
 	at->a_count = 2;
 	at->actions[0].index = PUSHC;
 	at->actions[0].arg.j_arg = 3; /* FIXME - magic number! */
-	at->actions[0].arg.v_arg.Type = STRING;
+	at->actions[0].arg.v_arg.Type = GPDT_STRING;
 	at->actions[0].arg.v_arg.v.string_val = string;
 	at->actions[1].index = COLUMN;
 	at->actions[1].arg.j_arg = 0;
@@ -310,7 +310,7 @@ int GnuPlot::ParseAssignmentExpression()
 		union argument * foo = AddAction(PUSHC);
 		char * varname = NULL;
 		Pgm.MCapture(&varname, Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx());
-		foo->v_arg.Type = STRING;
+		foo->v_arg.Type = GPDT_STRING;
 		foo->v_arg.v.string_val = varname;
 		// push a dummy variable that would be the index if this were an array 
 		// FIXME: It would be nice to hide this from "show at" 
@@ -361,7 +361,7 @@ int GnuPlot::ParseArrayAssignmentExpression()
 		// push the array name 
 		Pgm.MCapture(&varname, Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx());
 		foo = AddAction(PUSHC);
-		foo->v_arg.Type = STRING;
+		foo->v_arg.Type = GPDT_STRING;
 		foo->v_arg.v.string_val = varname;
 		// push the index 
 		Pgm.Shift();
@@ -561,7 +561,7 @@ void GnuPlot::ParsePrimaryExpression()
 	// Maybe it's a string constant 
 	else if(Pgm.IsString(Pgm.GetCurTokenIdx())) {
 		union argument * foo = AddAction(PUSHC);
-		foo->v_arg.Type = STRING;
+		foo->v_arg.Type = GPDT_STRING;
 		foo->v_arg.v.string_val = NULL;
 		// this dynamically allocated string will be freed by free_at() 
 		MQuoteCapture(&(foo->v_arg.v.string_val), Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx());
@@ -1161,7 +1161,7 @@ GpIterator * GnuPlot::CheckForIteration()
 			GpValue v;
 			iteration_start_at = PermAt();
 			EvaluateAt(iteration_start_at, &v);
-			if(v.Type != STRING)
+			if(v.Type != GPDT_STRING)
 				IntError(Pgm.GetPrevTokenIdx(), p_errormsg);
 			if(!Pgm.EqualsCurShift("]"))
 				IntError(Pgm.GetPrevTokenIdx(), p_errormsg);
@@ -1218,7 +1218,7 @@ void GnuPlot::ReevaluateIterationLimits(GpIterator * iter)
 		if(iter->iteration_string) {
 			// unnecessary if iteration string is a constant 
 			SAlloc::F(iter->iteration_string);
-			if(v.Type != STRING)
+			if(v.Type != GPDT_STRING)
 				IntError(NO_CARET, "corrupt iteration string");
 			iter->iteration_string = v.v.string_val;
 			iter->iteration_start = 1;
@@ -1366,7 +1366,7 @@ void GnuPlot::SetUpColumnHeaderParsing(const at_entry * previous)
 {
 	// column("string") means we expect the first row of 
 	// a data file to contain headers rather than data.  
-	if(previous->index == PUSHC && previous->arg.v_arg.Type == STRING)
+	if(previous->index == PUSHC && previous->arg.v_arg.Type == GPDT_STRING)
 		_Pb.parse_1st_row_as_headers = TRUE;
 	// This allows plot ... using (column(<const>)) title columnhead 
 	if(previous->index == PUSHC && previous->arg.v_arg.Type == INTGR) {
