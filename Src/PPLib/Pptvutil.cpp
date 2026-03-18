@@ -4288,17 +4288,6 @@ int LocationCtrlGroup::getData(TDialog * pDlg, void * pData)
 //
 //
 //
-/*
-class TextHistorySelExtra : public WordSel_ExtraBlock {
-public:
-	explicit TextHistorySelExtra(const char * pKey);
-	virtual StrAssocArray * GetList(const char * pText);
-	virtual int Search(long id, SString & rBuf);
-	virtual int SearchText(const char * pText, long * pID, SString & rBuf);
-private:
-	const SString Key;
-};
-*/
 TextHistorySelExtra::TextHistorySelExtra(const char * pKey) : WordSel_ExtraBlock(0, 0, 0, 0, 2, WordSel_ExtraBlock::fFreeText), Key(pKey)
 {
 	SetTextMode(true);
@@ -4358,8 +4347,7 @@ TextHistorySelExtra::TextHistorySelExtra(const char * pKey) : WordSel_ExtraBlock
 /*virtual*/void TextHistorySelExtra::OnAcceptInput(const char * pText, long id)
 {
 	if(Key.NotEmpty()) {
-		SString temp_buf;
-		temp_buf = pText;
+		SString temp_buf(pText);
 		if(temp_buf.NotEmptyS()) {
 			temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 			DS.AddStringHistory(Key, temp_buf);
@@ -4554,8 +4542,8 @@ StrAssocArray * PersonSelExtra::GetList(const char * pText)
 		// сначала обычный поиск по имени (поиск неточный)
 		//
 		int   search_yourself = 1;
-		if(P_OutDlg) {
-			TView * p_view = P_OutDlg->getCtrlView(OutCtlId);
+		if(P_OutWindow) {
+			TView * p_view = P_OutWindow->getCtrlView(OutCtlId);
 			if(p_view && p_view->GetSubSign() == TV_SUBSIGN_LISTBOX) {
 				p_list = WordSel_ExtraBlock::GetList(pText);
 				search_yourself = 0;

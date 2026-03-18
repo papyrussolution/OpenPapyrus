@@ -23,6 +23,74 @@ LocalStateBinderyCore::InMemSerialEntry::InMemSerialEntry()
 {
 }
 
+/*static*/int LocalStateBinderyCore::PutStringToStateBuf(int treat, SBuffer & rBuf, const char * pStr)
+{
+	int   ok = 0;
+	if(treat == treatbStringUtf8) {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		r_temp_buf = pStr;
+		if(r_temp_buf.IsLegalUtf8()) {
+			rBuf.Write(r_temp_buf.cptr(), r_temp_buf.Len()+1);
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+/*static*/int LocalStateBinderyCore::GetStringFromStateBuf(int treat, const SBuffer & rBuf, SString & rStr)
+{
+	rStr.Z();
+	int   ok = 0;
+	if(treat == treatbStringUtf8) {
+		const  size_t src_buf_size = rBuf.GetAvailableSize();
+		if(src_buf_size) {
+			const char * p_src_buf = static_cast<const char *>(rBuf.constptr());
+			assert(p_src_buf);
+			for(size_t i = 0; i < src_buf_size && p_src_buf[i] != 0; i++) {
+				rStr.CatChar(p_src_buf[i]);
+			}
+		}
+		if(rStr.IsLegalUtf8()) {
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+/*static*/int LocalStateBinderyCore::SearchInSerial(const TSCollection <SerialEntry> & rList, const void * pKey, int treat, LongArray & rFoundPosList)
+{
+	rFoundPosList.Z();
+	int   ok = -1;
+	if(oneof2(treat, treatsStringUtf8List, treatsSubStringUtf8List)) {
+		if(!isempty(static_cast<const char *>(pKey))) {
+			SString key_buf(static_cast<const char *>(pKey));
+			if(key_buf.IsLegalUtf8()) {
+				SString temp_buf;
+				SSrchPattern sp(key_buf, SSrchPattern::fUtf8|SSrchPattern::fNoCase);
+				for(uint i = 0; i < rList.getCount(); i++) {
+					const SerialEntry * p_entry = rList.at(i);
+					if(p_entry && p_entry->Buf.GetAvailableSize()) {
+						GetStringFromStateBuf(treatbStringUtf8, p_entry->Buf, temp_buf);
+						if(treat == treatsStringUtf8List) {
+							if(temp_buf.IsEqiUtf8(key_buf)) {
+								rFoundPosList.add(i+1);
+							}
+						}
+						else if(treat == treatsSubStringUtf8List) {
+							size_t start_pos = 0;
+							size_t found_pos = 0;
+							if(temp_buf.Search(&sp, start_pos, &found_pos)) {
+								rFoundPosList.add(i+1);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 /*static*/bool LocalStateBinderyCore::CheckKeyForIdent(const StateIdent & rIdent, const LocalStateBinderyTbl::Rec & rRec)
 {
 	bool   ok = false;
@@ -365,7 +433,7 @@ const LocalStateBinderyCore::InMemStateEntry * LocalStateBinderyCore::SearchInMe
 	return p_result;
 }
 
-const LocalStateBinderyCore::InMemSerialEntry * LocalStateBinderyCore::SearchInMemSerial(const StateIdent & rIdent, uint * pPos) const
+const LocalStateBinderyCore::InMemSerialEntry * LocalStateBinderyCore::SearchInMemSerial(const StateIdent & rIdent, uint * pPos)
 {
 	const  InMemSerialEntry * p_result = 0;
 	uint   pos = 0;
@@ -374,6 +442,21 @@ const LocalStateBinderyCore::InMemSerialEntry * LocalStateBinderyCore::SearchInM
 		if(p_entry && LocalStateBinderyCore::IsStateIdentEq(rIdent, *p_entry)) {
 			pos = i;
 			p_result = p_entry;
+		}
+	}
+	if(!p_result) {
+		InMemSerialEntry * p_new_entry = new InMemSerialEntry();
+		if(p_new_entry) {
+			int    r2 = GetStateSerial(rIdent, &p_new_entry->D);
+			if(r2 > 0) {
+				assert(p_new_entry->D.getCount());
+				*static_cast<StateIdent *>(p_new_entry) = rIdent;
+				InMemSerialList.insert(p_new_entry);
+				pos = InMemSerialList.getCount()-1;
+				p_result = InMemSerialList.at(pos);
+			}
+			else
+				delete p_new_entry;
 		}
 	}
 	ASSIGN_PTR(pPos, pos);
@@ -1469,6 +1552,8 @@ int PrcssrDbDump::Helper_Undump(long tblID)
 			const TableEntry & r_entry = *static_cast<const TableEntry *>(TblEntryList.at(pos));
 			SString tbl_name;
 			TblNameList.GetText(tblID, tbl_name);
+			//PPERR_DBUNDUMP_INVENTRYOFFS "Недопустимое значение смещения в потоке для dump-точки таблицы '%s'"
+			THROW_PP(r_entry.Offs >= 0LL, PPERR_DBUNDUMP_INVENTRYOFFS, tbl_name);
 			THROW_SL(FDump.Seek64(r_entry.Offs));
 			{
 				DbProvider * p_dict = CurDict;
@@ -1476,14 +1561,14 @@ int PrcssrDbDump::Helper_Undump(long tblID)
 				DBTable tbl(tbl_name);
 				int    has_lob = 0;
 				DBField lob_fld;
-				RECORDSIZE fix_rec_size = tbl.getRecSize();
+				const  RECORDSIZE fix_rec_size = tbl.getRecSize();
 				THROW(tbl.AllocateOwnBuffer(SKILOBYTE(16)));
 				if(tbl.HasLob(&lob_fld) > 0) {
 					has_lob = 1;
 				}
 				THROW_DB(p_dict->RenewFile(tbl, crmNoReplace, 0));
 				{
-					cntr.Init((long)r_entry.NumRecs); // @32-64
+					cntr.Init(static_cast<ulong>(r_entry.NumRecs)); // @32-64
 					for(int64 i = 0; i < r_entry.NumChunks; i++) {
 						int64  local_count = 0;
 						buffer.Z();

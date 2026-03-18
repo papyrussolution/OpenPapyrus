@@ -238,7 +238,10 @@ int PPScaleDevice::GetAddedMsgLines(const ScalePLU * pPlu, uint maxLineLen, uint
 	rLines.Z();
 	if(pPlu->HasAddedMsg()) {
 		int    done = 0;
-		SString temp_buf, head, tail, line_buf;
+		SString temp_buf;
+		SString head;
+		SString tail;
+		SString line_buf;
 		StringSet ss(SLBColumnDelim);
 		ss.setBuf(pPlu->AddMsgBuf, sstrlen(pPlu->AddMsgBuf) + 1);
 		for(uint p = 0; !done && ss.get(&p, temp_buf);) {

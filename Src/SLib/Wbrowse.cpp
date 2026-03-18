@@ -1136,19 +1136,22 @@ IMPL_HANDLE_EVENT(BrowserWindow)
 				{
 					double * p_number = static_cast<double *>(event.message.infoPtr);
 					if(p_number) {
-						char b[1024];
-						P_Def->GetCellText(P_Def->_curItem(), GetCurColumn(), true, b);
-						strtodoub(b, p_number);
+						//char b[1024];
+						SString temp_buf;
+						P_Def->GetCellText(P_Def->_curItem(), GetCurColumn(), true, /*b*/temp_buf);
+						//strtodoub(b, p_number);
+						*p_number = temp_buf.ToReal();
 					}
 				}
 				break;
-			case cmGetFocusedText:
+			/* @v12.5.10 (похоже, не используется - а переводить GetCellText здесь - проблема) case cmGetFocusedText:
 				{
 					char * p_text = static_cast<char *>(event.message.infoPtr);
-					if(p_text)
+					if(p_text) {
 						P_Def->GetCellText(P_Def->_curItem(), GetCurColumn(), true, p_text);
+					}
 				}
-				break;
+				break;*/
 			case cmaDesktop:
 				if(APPL->H_Desktop && !IsInState(sfModal)) {
 					TWindow * p_desk = static_cast<TWindow *>(TView::GetWindowUserData(APPL->H_Desktop));
@@ -1674,7 +1677,7 @@ void BrowserWindow::Refresh()
 	invalidateAll(true);
 }
 
-bool BrowserWindow::DrawTextUnderCursor(HDC hdc, char * pBuf, RECT * pTextRect, uint _fmt, int isLineCursor)
+bool BrowserWindow::DrawTextUnderCursor(HDC hdc, const char * pBuf, RECT * pTextRect, uint _fmt, int isLineCursor)
 {
 	bool   ok = false;
 	if(pTextRect && pBuf) {
@@ -1717,7 +1720,8 @@ int BrowserWindow::EvaluateColumnSizeStat(TSVector <ColumnWidthStat> & rStat) //
 		HWND  h_wnd = H();
 		HDC   h_dc = h_wnd ? GetDC(h_wnd) : 0;
 		if(h_dc) {
-			char  cbuf[2048];
+			//char  cbuf[2048];
+			SString temp_buf;
 			TSCollection <StatBase> raw_stat_list;
 			{
 				for(uint ci = 0; ci < cc; ci++) {
@@ -1735,14 +1739,15 @@ int BrowserWindow::EvaluateColumnSizeStat(TSVector <ColumnWidthStat> & rStat) //
 						uint   height_mult = 0;
 						uint   new_row_height = 0;
 						//P_Def->getMultiLinesText(ri, ci, cbuf, height_mult, &new_row_height);
-						P_Def->GetCellText(ri, ci, true/*dontRestrictByFmtLen*/, cbuf);
-						strip(cbuf);
-						const  int cbuf_len = sstrleni(cbuf);
+						P_Def->GetCellText(ri, ci, true/*dontRestrictByFmtLen*/, /*cbuf*/temp_buf);
+						//strip(cbuf);
+						temp_buf.Strip();
+						const  int cbuf_len = temp_buf.Len();//sstrleni(cbuf);
 						if(cbuf_len > 0) {
 							uint   _fmt = DT_NOPREFIX|DT_SINGLELINE|DT_CALCRECT;
 							RECT   rect;
 							MEMSZERO(rect);
-							::DrawTextW(h_dc, SUcSwitchW(cbuf), cbuf_len, &rect, _fmt);
+							::DrawTextW(h_dc, SUcSwitchW(/*cbuf*/temp_buf), cbuf_len, &rect, _fmt);
 							const long width_px = rect.right - rect.left;
 							{
 								StatBase * p_raw_stat_entry = raw_stat_list.at(ci);
@@ -2207,6 +2212,7 @@ void BrowserWindow::Paint()
 		if(P_Def->getCount()) {
 			{
 				const uint view_height = (P_RowsHeightAry && P_RowsHeightAry->getCount()) ? P_RowsHeightAry->getCount() : ViewHeight;
+				SString prev_text; // @v12.5.10
 				for(uint row = 0; row < view_height; row++) {
 					ItemRect(Left, row, &r, false);
 					r.left    = 0;
@@ -2242,11 +2248,20 @@ void BrowserWindow::Paint()
 							if(SIntersectRect(ps.rcPaint, r)) {
 								const BroColumn & r_column = p_def_->at(cn);
 								const uint height_mult = GetRowHeightMult(row);
-								strip(p_def_->getMultiLinesText(_row_idx, cn, cbuf, height_mult));
+								p_def_->getMultiLinesText(_row_idx, cn, /*cbuf*/temp_buf, height_mult);
+								//strip(cbuf);
+								temp_buf.Strip();
 								if(row > 0 && (r_column.Options & BCO_DONTSHOWDUPL)) {
-									strip(p_def_->GetCellText(_row_idx-1, cn, false, prev_buf));
+									p_def_->GetCellText(_row_idx-1, cn, false, prev_text);
+									//strip(prev_buf);
+									prev_text.Strip();
+									/*
 									if(sstreq(cbuf, prev_buf))
 										cbuf[0] = 0;
+									*/
+									if(temp_buf == /*prev_buf*/prev_text) {
+										temp_buf.Z();
+									}
 								}
 								const  int opt = r_column.format;
 								const  int align = SFMTALIGN(opt);
@@ -2259,22 +2274,23 @@ void BrowserWindow::Paint()
 									tfmt = DT_CENTER;
 								else
 									tfmt = DT_LEFT;
-								SOemToChar(cbuf);
+								//SOemToChar(cbuf);
+								temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 								tfmt |= (DT_NOPREFIX|DT_SINGLELINE);
 								if(is_focused && cn == HScrollPos)
 									SetBkMode(ps.hdc, TRANSPARENT);
 								bool   already_drawn = false;
 								if(SIntersectRect(RectCursors.CellCursor, r))
-									already_drawn = DrawTextUnderCursor(ps.hdc, cbuf, &r, tfmt, 0);
+									already_drawn = DrawTextUnderCursor(ps.hdc, /*cbuf*/temp_buf, &r, tfmt, 0);
 								else if(SIntersectRect(RectCursors.LineCursor, r))
-									already_drawn = DrawTextUnderCursor(ps.hdc, cbuf, &r, tfmt, 1);
+									already_drawn = DrawTextUnderCursor(ps.hdc, /*cbuf*/temp_buf, &r, tfmt, 1);
 								if(!already_drawn) {
 									ItemRect(cn, row, &paint_rect, true);
 									paint_rect.top    += hdr_width;
 									paint_rect.bottom += hdr_width - 1;
 									paint_rect.right -= 2;
 									PaintCell(ps.hdc, paint_rect, row, cn, BrowserWindow::paintNormal);
-									DrawMultiLinesText(ps.hdc, cbuf, &r, tfmt);
+									DrawMultiLinesText(ps.hdc, /*cbuf*/temp_buf, &r, tfmt);
 								}
 							}
 						}
@@ -2854,6 +2870,7 @@ int BrowserWindow::CalcRowsHeight(long topItem, long bottomItem)
 			uint   row;
 			int    stop = 0;
 			uint   view_height = 0;
+			SString temp_buf;
 			const  long recs_count = P_Def->GetRecsCount();
 			RowHeightInfo heights_info;
 			heights_info.Top = 0;
@@ -2862,17 +2879,15 @@ int BrowserWindow::CalcRowsHeight(long topItem, long bottomItem)
 				if(bro_row >= 0) {
 					heights_info.HeightMult = 1;
 					for(uint cn = 0; cn < count; cn++) {
-						uint new_row_height = 0;
-						P_Def->getMultiLinesText(bro_row, cn, 0, 0, &new_row_height);
-						heights_info.HeightMult = (heights_info.HeightMult > new_row_height && new_row_height) ?
-							heights_info.HeightMult : new_row_height;
+						uint   new_row_height = 0;
+						P_Def->getMultiLinesText(bro_row, cn, temp_buf, 0, &new_row_height);
+						heights_info.HeightMult = (heights_info.HeightMult > new_row_height && new_row_height) ? heights_info.HeightMult : new_row_height;
 					}
 					if(heights_info.HeightMult == 0)
 						stop = 1;
 					else {
 						view_height += heights_info.HeightMult;
-						heights_info.HeightMult = (view_height > ViewHeight) ?
-							heights_info.HeightMult - (view_height - ViewHeight) : heights_info.HeightMult;
+						heights_info.HeightMult = (view_height > ViewHeight) ? (heights_info.HeightMult - (view_height - ViewHeight)) : heights_info.HeightMult;
 						if(bottomItem)
 							P_RowsHeightAry->atInsert(0, &heights_info);
 						else

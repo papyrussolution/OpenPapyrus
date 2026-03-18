@@ -1,5 +1,5 @@
 // TDDO.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2021, 2022
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2021, 2022, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -739,10 +739,8 @@ int DlContext::ResolveFunc(DlRtm * pRtm, const DlScope * pScope, int exactScope,
 							}
 							else {
 								const  TYPEID st = ret_te.T.GetDbFieldType();
-								char   temp_buf[1024];
-								temp_buf[0] = 0;
-								sttostr(st, S.GetPtr(ret_sp), 0, temp_buf);
-								rResult = temp_buf;
+								/* @v12.5.10 char   temp_buf[1024]; temp_buf[0] = 0; sttostr(st, S.GetPtr(ret_sp), 0, temp_buf); rResult = temp_buf;*/
+								sttosstr(st, S.GetPtr(ret_sp), 0, rResult); // @v12.5.10
 							}
 						}
 						ok = 1;

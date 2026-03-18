@@ -1281,6 +1281,86 @@ int TWindow::ReckonUserPosition(const TRect & rRect) // @v12.2.6
 	return ok;
 }
 //
+// Ассоциирует с элементом диалога специальный список выбора, который фильтруется по мере ввода текста.
+// Если proc = 0, то используется GetListFromSmartLbx
+// Если wordSelExtra = 0 и элемент ctlID является списком или комбобоксом, то wordSelExtra = (long)SmartListBox*
+//
+int TWindow::SetupWordSelector(uint ctlID, WordSel_ExtraBlock * pExtra, long id, int minSymbCount, long flags)
+{
+	int    ok = -1;
+	TView * p_v = getCtrlView(ctlID);
+	if(p_v) {
+		if(p_v->IsSubSign(TV_SUBSIGN_LISTBOX) || p_v->IsSubSign(TV_SUBSIGN_COMBOBOX)) {
+			if(SETIFZ(pExtra, new WordSel_ExtraBlock())) {
+				TWindow * p_dlg = this;
+				SmartListBox * p_list = 0;
+				if(p_v->IsSubSign(TV_SUBSIGN_LISTBOX))
+					p_list = static_cast<SmartListBox *>(p_v);
+				else {
+					ListWindow * p_lw = static_cast<ComboBox *>(p_v)->getListWindow();
+					if(p_lw) {
+						p_list = p_lw->GetListBox();
+						p_dlg = p_lw;
+					}
+				}
+				if(p_list) {
+					// hInputDlg, в данном случае это значение будет подставлено при вызове UiSearchBlock, который является диалогом
+					pExtra->Init_Env(CTL_LBX_LIST, 0, p_dlg, p_list->GetId(), minSymbCount, flags);
+					p_list->SetWordSelBlock(pExtra);
+					ok = 1;
+				}
+			}
+		}
+		else if(p_v->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
+			if(flags & WordSel_ExtraBlock::fFreeText) {
+				//
+				// В случае WordSel_ExtraBlock::fFreeText нулевой pExtra сбросит текущую установку селектора
+				//
+				TInputLine * p_il = static_cast<TInputLine *>(p_v);
+				CALLPTRMEMB(pExtra, Init_Env(p_il->GetId(), /*H()*/0, this, p_il->GetId(), minSymbCount, flags));
+				p_il->setupFreeTextWordSelector(pExtra);
+				ok = 1;
+			}
+			else if(pExtra) {
+				pExtra->Init_Env(CTL_LBX_LIST, 0, this, p_v->GetId(), minSymbCount, flags);
+				p_v->SetWordSelBlock(pExtra);
+				pExtra->SetupData(id);
+				ok = 1;
+			}
+		}
+	}
+	if(ok <= 0)
+		delete pExtra;
+	return ok;
+}
+
+int TWindow::ResetWordSelector(uint ctlID)
+{
+	int    ok = -1;
+	TView * p_v = getCtrlView(ctlID);
+	if(p_v) {
+		if(p_v->IsSubSign(TV_SUBSIGN_LISTBOX) || p_v->IsSubSign(TV_SUBSIGN_COMBOBOX)) {
+			SmartListBox * p_list = 0;
+			if(p_v->IsSubSign(TV_SUBSIGN_LISTBOX))
+				p_list = static_cast<SmartListBox *>(p_v);
+			else {
+				ListWindow * p_lw = static_cast<ComboBox *>(p_v)->getListWindow();
+				if(p_lw)
+					p_list = p_lw->GetListBox();
+			}
+			if(p_list) {
+				p_list->SetWordSelBlock(0);
+				ok = 1;
+			}
+		}
+		else if(p_v->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
+			p_v->SetWordSelBlock(0);
+			ok = 1;
+		}
+	}
+	return ok;
+}
+//
 //
 //
 static wchar_t * P_SLibWindowBaseClsName = L"SLibWindowBase";

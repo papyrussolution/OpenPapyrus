@@ -362,6 +362,63 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			}
 		}
 		{
+			// @v12.5.10 @construction
+			// Тестирование функций Search для utf8
+			//
+			if(true) { // @construction
+				(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("rustext.txt");
+				SFile inf(in_buf, SFile::mRead);
+				if(inf.IsValid()) {
+					STempBuffer text_buf(SMEGABYTE(1));
+					size_t actual_size = 0;
+					if(inf.ReadAll(text_buf, 0, &actual_size)) {
+						in_buf.Z().CatN(text_buf.cptr(), actual_size);
+						in_buf.Transf(CTRANSF_OUTER_TO_UTF8);
+						SLCHECK_NZ(in_buf.IsLegalUtf8());
+						{
+							const char * p_pattern = "серЕбр";
+							SSrchPattern sp(p_pattern, SSrchPattern::fUtf8|SSrchPattern::fNoCase);
+							size_t start_pos = 0;
+							size_t found_pos = 0;
+							uint   found_count = 0;
+							while(in_buf.Search(&sp, start_pos, &found_pos)) {
+								found_count++;
+								const  uint extra = SUtfConst::TrailingBytesForUTF8[in_buf.ucptr()[found_pos]];
+								start_pos = found_pos+1+extra;
+							}
+							SLCHECK_EQ(found_count, 28U);
+						}
+						{
+							const char * p_pattern = "Кен  томпсОн из  BeLL Labs, создатель ";
+							SSrchPattern sp(p_pattern, SSrchPattern::fUtf8|SSrchPattern::fNoCase);
+							size_t start_pos = 0;
+							size_t found_pos = 0;
+							uint   found_count = 0;
+							while(in_buf.Search(&sp, start_pos, &found_pos)) {
+								found_count++;
+								const  uint extra = SUtfConst::TrailingBytesForUTF8[in_buf.ucptr()[found_pos]];
+								start_pos = found_pos+1+extra;
+							}
+							SLCHECK_EQ(found_count, 1U);
+						}
+						{
+							const char * p_pattern = "нет такой буквы";
+							SSrchPattern sp(p_pattern, SSrchPattern::fUtf8|SSrchPattern::fNoCase);
+							size_t start_pos = 0;
+							size_t found_pos = 0;
+							uint   found_count = 0;
+							while(in_buf.Search(&sp, start_pos, &found_pos)) {
+								found_count++;
+								const  uint extra = SUtfConst::TrailingBytesForUTF8[in_buf.ucptr()[found_pos]];
+								start_pos = found_pos+1+extra;
+							}
+							SLCHECK_EQ(found_count, 0U);
+						}
+					}
+				}
+			}
+		}
+		{
 			//
 			// Тестирование функций Search
 			//

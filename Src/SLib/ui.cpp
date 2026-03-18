@@ -1525,7 +1525,8 @@ bool FASTCALL SColorSet::IsInnerEntryEq(const InnerEntry & rE1, const SColorSet 
 	
 int SColorSet::Get(const char * pSymb, const TSCollection <SColorSet> * pSetList, SColor & rC) const
 {
-	return Helper_Get(pSymb, pSetList, rC, 0);
+	return (Helper_Get(pSymb, pSetList, rC, 0) > 0); // @v12.5.10 Helper_Get(pSymb, pSetList, rC, 0)-->(Helper_Get(pSymb, pSetList, rC, 0) > 0)
+		// Исправление необходимо потому, что вызывающие функции всегда проверять !=0, а вызовов много - пришлось менять здесь.
 }
 //
 //

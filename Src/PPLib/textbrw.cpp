@@ -8,6 +8,316 @@
 #include <sartre.h>
 #include <scintilla.h>
 #include <scilexer.h>
+/*
+	Структура состояния редактирования из notepad++
+
+struct Position {
+	intptr_t _firstVisibleLine = 0;
+	intptr_t _startPos = 0;
+	intptr_t _endPos = 0;
+	intptr_t _xOffset = 0;
+	intptr_t _selMode = 0;
+	intptr_t _scrollWidth = 1;
+	intptr_t _offset = 0;
+	intptr_t _wrapCount = 0;
+};
+
+struct MapPosition {
+private:
+	intptr_t _maxPeekLenInKB = 512; // 512 KB
+public:
+	intptr_t _firstVisibleDisplayLine = -1;
+	intptr_t _firstVisibleDocLine = -1; // map
+	intptr_t _lastVisibleDocLine = -1;  // map
+	intptr_t _nbLine = -1;              // map
+	intptr_t _higherPos = -1;           // map
+	intptr_t _width = -1;
+	intptr_t _height = -1;
+	intptr_t _wrapIndentMode = -1;
+	intptr_t _KByteInDoc = _maxPeekLenInKB;
+
+	bool _isWrap = false;
+	bool isValid() const { return (_firstVisibleDisplayLine != -1); };
+	bool canScroll() const { return (_KByteInDoc < _maxPeekLenInKB); }; // _nbCharInDoc < _maxPeekLen : Don't scroll the document for the performance issue
+};
+
+struct sessionFileInfo : public Position {
+	sessionFileInfo(const wchar_t* fn, const wchar_t * ln, int encoding, bool userReadOnly,
+	    bool isPinned, bool isUntitleTabRenamed, const Position & pos, const wchar_t * backupFilePath,
+	    FILETIME originalFileLastModifTimestamp, const MapPosition & mapPos) :
+		Position(pos), _encoding(encoding), _isUserReadOnly(userReadOnly), _isPinned(isPinned), _isUntitledTabRenamed(isUntitleTabRenamed), _originalFileLastModifTimestamp(
+			originalFileLastModifTimestamp), _mapPos(mapPos)
+	{
+		if(fn)  
+			_fileName = fn;
+		if(ln)  
+			_langName = ln;
+		if(backupFilePath)  
+			_backupFilePath = backupFilePath;
+	}
+	sessionFileInfo(const std::wstring& fn) : _fileName(fn) 
+	{
+	}
+	std::wstring _fileName;
+	std::wstring _langName;
+	std::vector<size_t> _marks;
+	std::vector<size_t> _foldStates;
+	int    _encoding = -1;
+	bool   _isUserReadOnly = false;
+	bool   _isMonitoring = false;
+	int    _individualTabColour = -1;
+	bool   _isRTL = false;
+	bool   _isPinned = false;
+	bool   _isUntitledTabRenamed = false;
+	std::wstring _backupFilePath;
+	FILETIME _originalFileLastModifTimestamp {};
+	MapPosition _mapPos;
+};
+*/
+
+struct SScEditorPosition {
+	SScEditorPosition();
+	SJson * ToJsonObj() const;
+	bool   FromJsonObj(const SJson * pJsObj);
+	SScEditorPosition & Z();
+
+	int64  FirstVisibleLine;
+	int64  StartPos;
+	int64  EndPos;
+	int64  XOffset;
+	int64  SelMode;
+	int64  ScrollWidth;
+	int64  Offset;
+	int64  WrapCount;
+};
+
+struct SScEditorMapPosition {
+private:
+	static constexpr int64  MaxPeekLenInKB = 512; // 512 KB
+public:
+	SScEditorMapPosition();
+	SScEditorMapPosition & Z();
+	SJson * ToJsonObj() const;
+	bool   FromJsonObj(const SJson * pJsObj);
+	enum {
+		fIsWrap = 0x0001, // bool   IsWrap = false;
+	};
+	int64  FirstVisibleDisplayLine;
+	int64  FirstVisibleDocLine; // map
+	int64  LastVisibleDocLine;  // map
+	int64  NbLine;              // map
+	int64  HigherPos;           // map
+	int64  Width;
+	int64  Height;
+	int64  WrapIndentMode;
+	int64  KByteInDoc;
+	uint   Flags;
+	//bool   isValid() const { return (_firstVisibleDisplayLine != -1); };
+	//bool   canScroll() const { return (_KByteInDoc < _maxPeekLenInKB); }; // _nbCharInDoc < _maxPeekLen : Don't scroll the document for the performance issue
+};
+
+struct SScEditorTextInfo : public SScEditorPosition {
+	SScEditorTextInfo();
+	SJson * ToJsonObj() const;
+	bool   FromJsonObj(const SJson * pJsObj);
+
+	int    Lingua; //std::wstring _langName;
+	int    Cp; // codepage
+	int    IndividualTabColour;
+	enum {
+		fUserReadOnly       = 0x0001, // bool   _isUserReadOnly = false;
+		fMonitoring         = 0x0002, // bool   _isMonitoring = false;
+		fRTL                = 0x0004, // bool   _isRTL = false;
+		fPinned             = 0x0008, // bool   _isPinned = false;
+		fUntitledTabRenamed = 0x0010  // bool   _isUntitledTabRenamed = false;
+	};
+	uint   Flags;
+	uint64 UedOrgFileModTm; // FILETIME _originalFileLastModifTimestamp {};
+	SScEditorMapPosition MapPos;
+	SString FileNameUtf8;
+	SString BackupPathUtf8; // std::wstring _backupFilePath;
+	Int64Array MarkList; // std::vector<size_t> _marks;
+	Int64Array FoldStateList; // std::vector<size_t> _foldStates;
+};
+
+SScEditorPosition::SScEditorPosition() : FirstVisibleLine(0), StartPos(0), EndPos(0), XOffset(0), SelMode(0), ScrollWidth(1), Offset(0), WrapCount(0)
+{
+}
+
+SScEditorPosition & SScEditorPosition::Z()
+{
+	FirstVisibleLine = 0;
+	StartPos = 0;
+	EndPos = 0;
+	XOffset = 0;
+	SelMode = 0;
+	ScrollWidth = 1;
+	Offset = 0;
+	WrapCount = 0;
+	return *this;
+}
+
+SJson * SScEditorPosition::ToJsonObj() const
+{
+	SJson * p_result = SJson::CreateObj();
+	if(SJson::IsObject(p_result)) {
+		if(FirstVisibleLine)
+			p_result->InsertInt64("FirstVisLn", FirstVisibleLine);
+		if(StartPos)
+			p_result->InsertInt64("Start", StartPos);
+		if(EndPos)
+			p_result->InsertInt64("End", EndPos);
+		if(XOffset)
+			p_result->InsertInt64("XOffs", XOffset);
+		if(SelMode)
+			p_result->InsertInt64("SelMode", SelMode);
+		if(ScrollWidth != 1)
+			p_result->InsertInt64("ScrollWidth", ScrollWidth);
+		if(Offset)
+			p_result->InsertInt64("Offs", Offset);
+		if(WrapCount)
+			p_result->InsertInt64("WrapCt", WrapCount);
+	}
+	return p_result;
+}
+
+bool SScEditorPosition::FromJsonObj(const SJson * pJs)
+{
+	bool   ok = true;
+	Z();
+	for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
+		if(p_cur->Text.IsEqiAscii("FirstVisLn")) {
+			SJson::GetChildInt64(p_cur, FirstVisibleLine);
+		}
+		else if(p_cur->Text.IsEqiAscii("Start")) {
+			SJson::GetChildInt64(p_cur, StartPos);
+		}
+		else if(p_cur->Text.IsEqiAscii("End")) {
+			SJson::GetChildInt64(p_cur, EndPos);
+		}
+		else if(p_cur->Text.IsEqiAscii("XOffs")) {
+			SJson::GetChildInt64(p_cur, XOffset);
+		}
+		else if(p_cur->Text.IsEqiAscii("SelMode")) {
+			SJson::GetChildInt64(p_cur, SelMode);
+		}
+		else if(p_cur->Text.IsEqiAscii("ScrollWidth")) {
+			SJson::GetChildInt64(p_cur, ScrollWidth);
+		}
+		else if(p_cur->Text.IsEqiAscii("Offs")) {
+			SJson::GetChildInt64(p_cur, Offset);
+		}
+		else if(p_cur->Text.IsEqiAscii("WrapCt")) {
+			SJson::GetChildInt64(p_cur, WrapCount);
+		}
+	}
+	return ok;
+}
+
+SScEditorMapPosition::SScEditorMapPosition() : FirstVisibleDisplayLine(-1), FirstVisibleDocLine(-1), LastVisibleDocLine(-1), NbLine(-1),
+	HigherPos(-1), Width(-1), Height(-1), WrapIndentMode(-1), KByteInDoc(MaxPeekLenInKB), Flags(0)
+{
+}
+
+SScEditorMapPosition & SScEditorMapPosition::Z()
+{
+	FirstVisibleDisplayLine = -1;
+	FirstVisibleDocLine = -1;
+	LastVisibleDocLine = -1;
+	NbLine = -1;
+	HigherPos = -1;
+	Width = -1;
+	Height = -1;
+	WrapIndentMode = -1;
+	KByteInDoc = MaxPeekLenInKB;
+	Flags = 0;
+	return *this;
+}
+	
+SJson * SScEditorMapPosition::ToJsonObj() const
+{
+	SJson * p_result = SJson::CreateObj();
+	if(SJson::IsObject(p_result)) {
+		if(FirstVisibleDisplayLine != -1)
+			p_result->InsertInt64("FirstVisDispLn", FirstVisibleDisplayLine);
+		if(FirstVisibleDocLine != -1)
+			p_result->InsertInt64("FirstVisDocLn", FirstVisibleDocLine);
+		if(LastVisibleDocLine != -1)
+			p_result->InsertInt64("LastVisDocLn", LastVisibleDocLine);
+		if(NbLine != -1)
+			p_result->InsertInt64("NbLn", NbLine);
+		if(HigherPos != -1)
+			p_result->InsertInt64("HigherPos", HigherPos);
+		if(Width != -1)
+			p_result->InsertInt64("Width", Width);
+		if(Height != -1)
+			p_result->InsertInt64("Height", Height);
+		if(WrapIndentMode != -1)
+			p_result->InsertInt64("WrapIndentMode", WrapIndentMode);
+		if(KByteInDoc != MaxPeekLenInKB)
+			p_result->InsertInt64("KByteInDoc", KByteInDoc);
+		if(Flags != 0)
+			p_result->InsertUInt("Flags", Flags);
+	}
+	return p_result;
+}
+
+bool SScEditorMapPosition::FromJsonObj(const SJson * pJs)
+{
+	bool   ok = true;
+	Z();
+	for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
+		if(p_cur->Text.IsEqiAscii("FirstVisDispLn")) {
+			SJson::GetChildInt64(p_cur, FirstVisibleDisplayLine);
+		}
+
+		else if(p_cur->Text.IsEqiAscii("FirstVisDocLn")) {
+			SJson::GetChildInt64(p_cur, FirstVisibleDocLine);
+		}
+
+		else if(p_cur->Text.IsEqiAscii("LastVisDocLn")) {
+			SJson::GetChildInt64(p_cur, LastVisibleDocLine);
+		}
+		else if(p_cur->Text.IsEqiAscii("NbLn")) {
+			SJson::GetChildInt64(p_cur, NbLine);
+		}
+		else if(p_cur->Text.IsEqiAscii("HigherPos")) {
+			SJson::GetChildInt64(p_cur, HigherPos);
+		}
+		else if(p_cur->Text.IsEqiAscii("Width")) {
+			SJson::GetChildInt64(p_cur, Width);
+		}
+		else if(p_cur->Text.IsEqiAscii("Height")) {
+			SJson::GetChildInt64(p_cur, Height);
+		}
+		else if(p_cur->Text.IsEqiAscii("WrapIndentMode")) {
+			SJson::GetChildInt64(p_cur, WrapIndentMode);
+		}
+		else if(p_cur->Text.IsEqiAscii("KByteInDoc")) {
+			SJson::GetChildInt64(p_cur, KByteInDoc);
+		}
+		else if(p_cur->Text.IsEqiAscii("Flags")) {
+			SJson::GetChildUInt(p_cur, Flags);
+		}
+	}
+	return ok;
+}
+
+SScEditorTextInfo::SScEditorTextInfo() : SScEditorPosition(), Lingua(0), Cp(-1), IndividualTabColour(-1), Flags(0), UedOrgFileModTm(0)
+{
+}
+	
+SJson * SScEditorTextInfo::ToJsonObj() const
+{
+	SJson * p_result = 0;
+	return p_result;
+}
+	
+bool SScEditorTextInfo::FromJsonObj(const SJson * pJsObj)
+{
+	bool   ok = false;
+	return ok;
+}
 //
 //
 //

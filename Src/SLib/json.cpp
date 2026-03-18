@@ -10,7 +10,7 @@
 // Free Software Foundation, Inc.,
 // 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
-// Adopted to SLIB by A.Sobolev 2010-2021, 2022, 2024, 2025
+// Adopted to SLIB by A.Sobolev 2010-2021, 2022, 2024, 2025, 2026
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -260,6 +260,16 @@ uint SJson::GetArrayCount() const
 	bool   ok = true;
 	if(pN && SJson::IsNumber(pN->P_Child))
 		rResult = pN->P_Child->Text.ToLong();
+	else
+		ok = false;
+	return ok;
+}
+
+/*static*/bool FASTCALL SJson::GetChildUInt(const SJson * pN, uint & rResult) // @v12.5.10
+{
+	bool   ok = true;
+	if(pN && SJson::IsNumber(pN->P_Child))
+		rResult = pN->P_Child->Text.ToULong();
 	else
 		ok = false;
 	return ok;

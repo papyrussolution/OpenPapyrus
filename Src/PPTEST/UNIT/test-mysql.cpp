@@ -220,7 +220,7 @@ SLTEST_R(MySQL) // @v12.4.7
 						uint str_idx = (i % some_text_list.getCount());
 						StrAssocArray::Item text_item = some_text_list.Get(str_idx);
 						temp_buf = text_item.Txt;
-						const size_t text_len = temp_buf.Len();
+						const uint32 text_len = temp_buf.Len32();
 						if(text_len) {
 							temp_buf.Transf(CTRANSF_OUTER_TO_INNER);
 							p_new_rec->TextField.InitPtr(text_len+1);

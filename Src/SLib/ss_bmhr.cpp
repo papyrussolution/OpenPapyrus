@@ -245,7 +245,7 @@ int SSrchPattern::Preprocess()
 			for(i = 0; i < len; i++)
 				P_Pat[i] = p_coll[P_Pat[i]];
 		}
-		if(Alg == algBmBadChr || Alg == algBmGoodSfx) {
+		if(oneof2(Alg, algBmBadChr, algBmGoodSfx)) {
 			//
 			// Препроцессинг по правилу плохого символа
 			//
@@ -281,6 +281,7 @@ int SSrchPattern::Preprocess()
 
 int SSrchPattern::Init(const char * pPattern, long flags, int alg)
 {
+	int    ok = 1;
 	Flags = flags;
 	Len = sstrlen(pPattern);
 	Alg = alg;
@@ -294,7 +295,10 @@ int SSrchPattern::Init(const char * pPattern, long flags, int alg)
 	}
 	P_Pat = oneof2(Alg, algBmBadChr, algBmGoodSfx) ? (PTR8(P_PatAlloc) + Len % 4) : PTR8(P_PatAlloc);
 	memcpy(P_Pat, pPattern, Len);
-	return (AllocPreprocBuf() && Preprocess()) ? 1 : 0;
+	if((Flags & (fNoCase|fUtf8)) != (fNoCase|fUtf8)) { // @v12.5.10 @construction
+		ok = (AllocPreprocBuf() && Preprocess()) ? 1 : 0;
+	}
+	return ok;
 }
 
 size_t SSrchPattern::GetLen() const
@@ -305,18 +309,75 @@ size_t SSrchPattern::GetLen() const
 int SSrchPattern::Search(const char * pText, size_t start, size_t end, size_t * pPos) const
 {
 	if(Len > 0) {
-		if(Len == 1 || Alg == algDefault) {
+		if((Flags & (fNoCase|fUtf8)) == (fNoCase|fUtf8)) { // @v12.5.10 @construction
+			size_t inv_char_pos = 0;
+			size_t cursor = start;
+			size_t found_start_pos = 0; // Позиция в тексте, начиная с которой стартуют совпавшие символы (found_pos)
+			size_t found_pos = 0; // Позиция в образце, следующая за последним совпавшим символом
+			while(!inv_char_pos && cursor < end) {
+				char   utf8char[8];
+				char   utf8char_pattern[8];
+				if(!found_pos)
+					found_start_pos = cursor;
+				const  uint cp_len = SUnicode::GetLegalUtf8Char(pText+cursor, utf8char, end-cursor);
+				if(cp_len) {
+					size_t found_pos_incr = 0;
+					if(cp_len <= (Len-found_pos)) {
+						if(cp_len == 1 && chreqi_ascii(P_Pat[found_pos], utf8char[0])) {
+							found_pos_incr = cp_len;
+						}
+						else if(memcmp(P_Pat+found_pos, utf8char, cp_len) == 0) {
+							found_pos_incr = cp_len;
+						}
+						else {
+							const  uint cp_pattern_len = SUnicode::GetLegalUtf8Char(P_Pat+found_pos, utf8char_pattern, Len-found_pos);
+							if(cp_pattern_len) {
+								const  uint32 uc = SUnicode::Helper_Utf8ToUtf32(utf8char, cp_len);
+								const  uint32 uc_pattern = SUnicode::Helper_Utf8ToUtf32(utf8char_pattern, cp_pattern_len);
+								if(uc == uc_pattern) {
+									found_pos_incr = cp_pattern_len;
+								}
+								else {
+									const  wchar_t lwr = UToLowerCase(uc);
+									const  wchar_t lwr_pattern = UToLowerCase(uc_pattern);
+									if(lwr == lwr_pattern) {
+										found_pos_incr = cp_pattern_len;
+									}
+								}
+							}
+						}
+					}
+					if(found_pos_incr)
+						found_pos += found_pos_incr;
+					else
+						found_pos = 0;
+					if(found_pos == Len) {
+						ASSIGN_PTR(pPos, found_start_pos);
+						return 1;						
+					}
+					else {
+						cursor += cp_len;
+					}
+				}
+				else {
+					inv_char_pos = cursor+1;
+					break;
+				}
+			}
+		}
+		else if(Len == 1 || Alg == algDefault) {
 			uint8  pat0 = P_Pat[0];
 			uint8  U = (Flags & fNoCase) ? toupper(pat0) : pat0;
 			const  uint8 * p = 0;
 			const  uint8 * p2 = 0;
 			size_t text_len = 0;
-			if(Flags & fNoCase)
+			if(Flags & fNoCase) {
 				if(Alg == algBmGoodSfx)
 					text_len = (256 + Len * 3) * sizeof(uint16);
 				else if(Alg == algBmBadChr)
 					text_len = 256 * sizeof(uint16);
-			const uint8 * p_coll = (reinterpret_cast<const uint8 *>(P_PreprocBuf) + text_len);
+			}
+			const  uint8 * p_coll = (reinterpret_cast<const uint8 *>(P_PreprocBuf) + text_len);
 			do {
 				const  uint8 * p_text = reinterpret_cast<const uint8 *>(pText)+start;
 				text_len = end-start;
@@ -345,8 +406,9 @@ int SSrchPattern::Search(const char * pText, size_t start, size_t end, size_t * 
 __fail:
 					p = 0;
 				}
-				else
+				else {
 					p = PTR8C(smemchr(p_text, pat0, text_len)); // @v11.7.0 memchr-->smemchr
+				}
 				if(p) {
 __succ:
 					if(Len == 1) {
@@ -356,11 +418,12 @@ __succ:
 					else if((text_len-(p-p_text)) >= Len) {
 						if(Flags & fNoCase) {
 							size_t i = 1;
-							while(i < Len)
+							while(i < Len) {
 								if(P_Pat[i] != p_coll[p[i]])
 									break;
 								else
 									++i;
+							}
 							if(i == Len) {
 								ASSIGN_PTR(pPos, (p-PTR8C(pText)));
 								return 1;

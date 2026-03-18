@@ -358,14 +358,25 @@ int BillCore::SetFreight(PPID id, const PPFreight * pFreight, int use_ta)
 int BillCore::GetFreight(PPID id, PPFreight * pFreight)
 {
 	PPFreight freight;
-	if(PPRef->GetProperty(PPOBJ_BILL, id, BILLPRP_FREIGHT, &freight, sizeof(freight)) > 0) {
+	int    ok = PPRef->GetProperty(PPOBJ_BILL, id, BILLPRP_FREIGHT, &freight, sizeof(freight));
+	if(ok > 0) {
 		ASSIGN_PTR(pFreight, freight);
-		return 1;
+	}
+	else
+		memzero(pFreight, sizeof(*pFreight));
+	return ok;
+}
+
+int BillCore::GetAgreement(PPID id, PPBill::Agreement * pAgt) // @v12.5.10
+{
+	PPBill::Agreement agt;
+	int    ok = PPRef->GetProperty(PPOBJ_BILL, id, BILLPRP_AGREEMENT, &agt, sizeof(agt));
+	if(ok > 0) {
+		ASSIGN_PTR(pAgt, agt);
 	}
 	else {
-		memzero(pFreight, sizeof(*pFreight));
-		return -1;
 	}
+	return ok;
 }
 
 int BillCore::GetListByFreightFilt(const FreightFilt & rFilt, UintHashTable & rList)
@@ -594,10 +605,10 @@ int BillCore::Extract(PPID id, PPBill * pInfo)
 	Reference * p_ref(PPRef);
 	pInfo->BaseDestroy();
 	THROW(Search(id, &pInfo->Rec) > 0);
-	// @v11.1.12 BillCore::GetCode(pInfo->Rec.Code);
-	BillCore::GetItemMemo(id, pInfo->SMemo); // @v11.1.12
-	if(pInfo->Rec.Flags & BILLF_EXTRA)
+	BillCore::GetItemMemo(id, pInfo->SMemo);
+	if(pInfo->Rec.Flags & BILLF_EXTRA) {
 		THROW(GetExtraData(id, &pInfo->Ext));
+	}
 	if(pInfo->Rec.Flags & BILLF_RENT) {
 		THROW(r = GetRentCondition(id, &pInfo->Rent));
 		if(r < 0)
@@ -614,11 +625,8 @@ int BillCore::Extract(PPID id, PPBill * pInfo)
 	}
 	if(pInfo->Rec.Flags & BILLF_FREIGHT) {
 		PPFreight freight;
-		if(GetFreight(id, &freight) > 0) {
-			THROW(pInfo->SetFreight(&freight));
-		}
-		else
-			THROW(pInfo->SetFreight(0));
+		const PPFreight * p_freight = (GetFreight(id, &freight) > 0) ? &freight : 0;
+		THROW(pInfo->SetFreight(p_freight));
 	}
 	if(pInfo->Rec.Flags & BILLF_ADVANCEREP) {
 		PPAdvanceRep advrep;
@@ -630,12 +638,20 @@ int BillCore::Extract(PPID id, PPBill * pInfo)
 			memzero(pInfo->P_AdvRep, sizeof(*pInfo->P_AdvRep));
 	}
 	if(GetOpType(pInfo->Rec.OpID) == PPOPT_AGREEMENT) {
-		PPBill::Agreement agt;
-		if(p_ref->GetProperty(PPOBJ_BILL, id, BILLPRP_AGREEMENT, &agt, sizeof(agt)) > 0) {
-			THROW_MEM(SETIFZ(pInfo->P_Agt, new PPBill::Agreement(agt)));
+		// @v12.5.12 {
+		SETIFZQ(pInfo->P_Agt, new PPBill::Agreement);
+		if(GetAgreement(id, pInfo->P_Agt) > 0) {
+			;
+		}
+		else {
+			ZDELETE(pInfo->P_Agt);
+		}
+		// } @v12.5.12 
+		/* @v12.5.10 if(p_ref->GetProperty(PPOBJ_BILL, id, BILLPRP_AGREEMENT, &agt, sizeof(agt)) > 0) {
+			THROW_MEM(SETIFZ(pInfo->P_Agt, new PPBill::Agreement(agt))); // это - ошибка, кстати (что если pInfo->P_Agt != 0?)
 		}
 		else
-			ZDELETE(pInfo->P_Agt);
+			ZDELETE(pInfo->P_Agt);*/
 	}
 	THROW(GetAmountList(id, &pInfo->Amounts));
 	THROW(GetPayPlan(id, &pInfo->Pays));
@@ -966,8 +982,8 @@ int BillCore::GetListOfActualAgreemts(PPID arID, PPID addendumArID, LDATE dt, in
 		ArticleTbl::Rec ar_rec;
 		ArticleTbl::Rec ar2_rec;
 		if(ar_obj.Fetch(arID, &ar_rec) > 0) {
-			const PPID acs_id = ar_rec.AccSheetID;
-			const PPID acs2_id = (ar_obj.Fetch(addendumArID, &ar2_rec) > 0) ? ar2_rec.AccSheetID : 0;
+			const  PPID acs_id = ar_rec.AccSheetID;
+			const  PPID acs2_id = (ar_obj.Fetch(addendumArID, &ar2_rec) > 0) ? ar2_rec.AccSheetID : 0;
 			PPIDArray op_list;
 			PPOprKind op_rec;
 			for(PPID op_id = 0; EnumOperations(PPOPT_AGREEMENT, &op_id, &op_rec) > 0;) {
@@ -985,8 +1001,8 @@ int BillCore::GetListOfActualAgreemts(PPID arID, PPID addendumArID, LDATE dt, in
 				k3.Dt = dt;
 				k3.BillNo = MAXINT;
 				if(search(3, &k3, spLe) && data.Object == arID) do {
-					bool suitable = false;
-					if(!(data.Flags2 & BILLF2_DECLINED) && op_list.bsearch(data.OpID)) {
+					bool   suitable = false;
+					if(!(data.Flags2 & BILLF2_DECLINED) && !(data.Flags & BILLF_CLOSEDORDER) && op_list.bsearch(data.OpID)) { // @v12.5.10 !(data.Flags & BILLF_CLOSEDORDER)
 						if(GetOpData(data.OpID, &op_rec) > 0 && (!op_rec.AccSheet2ID || data.Object2 == addendumArID)) { // @v12.3.9
 							suitable = true;
 						}
@@ -994,11 +1010,13 @@ int BillCore::GetListOfActualAgreemts(PPID arID, PPID addendumArID, LDATE dt, in
 					if(suitable) {
 						rList.add(data.ID);
 						ok = 1;
-						if(maxItems > 0 && rList.getCountI() >= maxItems)
+						if(maxItems > 0 && rList.getCountI() >= maxItems) {
 							break;
+						}
 					}
-					else if(dt && maxDays > 0 && diffdate(dt, data.Dt) > maxDays)
+					else if(dt && maxDays > 0 && diffdate(dt, data.Dt) > maxDays) {
 						break;
+					}
 				} while(search(3, &k3, spPrev) && data.Object == arID);
 			}
 		}
@@ -1012,16 +1030,25 @@ int BillCore::EnumLinks(PPID id, DateIter * diter, uint blnk, BillTbl::Rec * pRe
 	while((r = _Enum(4, id, diter, pRec)) > 0) {
 		PPOprKind op_rec;
 		BillTbl::Rec bill_rec;
-		if(blnk == BLNK_ALL)                                    break;
-		if(blnk & BLNK_SHADOW && data.OpID == 0)                break;
+		if(blnk == BLNK_ALL)
+			break;
+		if(blnk & BLNK_SHADOW && data.OpID == 0) 
+			break;
 		const PPID op_type_id = GetOpType(data.OpID, &op_rec);
-		if(blnk & BLNK_PAYMENT && op_type_id == PPOPT_PAYMENT)     break;
-		if(blnk & BLNK_RETURN  && op_type_id == PPOPT_GOODSRETURN) break;
-		if(blnk & BLNK_CHARGE  && op_type_id == PPOPT_CHARGE)      break;
-		if(blnk & BLNK_ACK     && op_type_id == PPOPT_GOODSACK)    break;
-		if(blnk & BLNK_CORRECTION && op_type_id == PPOPT_CORRECTION) break;
-		if(blnk & BLNK_CHARGEPAYM && op_type_id == PPOPT_CHARGE && op_rec.Flags & OPKF_CHARGENEGPAYM) break;
-		if(blnk & BLNK_EDIRECADV && data.OpID == PPOPK_EDI_RECADV) break;
+		if(blnk & BLNK_PAYMENT && op_type_id == PPOPT_PAYMENT)
+			break;
+		if(blnk & BLNK_RETURN  && op_type_id == PPOPT_GOODSRETURN)
+			break;
+		if(blnk & BLNK_CHARGE  && op_type_id == PPOPT_CHARGE)
+			break;
+		if(blnk & BLNK_ACK     && op_type_id == PPOPT_GOODSACK)
+			break;
+		if(blnk & BLNK_CORRECTION && op_type_id == PPOPT_CORRECTION) 
+			break;
+		if(blnk & BLNK_CHARGEPAYM && op_type_id == PPOPT_CHARGE && op_rec.Flags & OPKF_CHARGENEGPAYM) 
+			break;
+		if(blnk & BLNK_EDIRECADV && data.OpID == PPOPK_EDI_RECADV) 
+			break;
 		if(blnk & BLNK_WROFFDRAFT) {
 			if(BillObj->Fetch(id, &bill_rec) > 0 && IsDraftOp(bill_rec.OpID))
 				break;

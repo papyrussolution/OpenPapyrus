@@ -110,8 +110,6 @@ int DataType::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSe
 //
 //
 //
-#pragma warn -rvl
-
 TYPEID FASTCALL bt2st(int baseType)
 {
 	switch(baseType) {
@@ -124,8 +122,6 @@ TYPEID FASTCALL bt2st(int baseType)
 		default: return 0;
 	}
 }
-
-#pragma warn +rvl
 
 int FASTCALL stcast(TYPEID st, TYPEID dt, const void * sd, void * dd, long f)
 {

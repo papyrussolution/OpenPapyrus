@@ -429,28 +429,7 @@ bool FASTCALL SStrScan::IsTagBrace() const { return (P_Buf[Offs] == '<'); }
 
 uint SStrScan::IsLegalUtf8() const
 {
-	return SUnicode::GetUtf8Len(reinterpret_cast<const uint8 *>(P_Buf + Offs)); // @v11.8.5
-	/* @v11.8.5
-	const uint8 * p = reinterpret_cast<const uint8 *>(P_Buf + Offs);
-	const size_t extra = SUtfConst::TrailingBytesForUTF8[*p];
-	if(extra == 0)
-		return 1;
-	else {
-		//
-		// Чтобы не вызывать лишний раз функцию strlen для наиболее частых случаев (extra == 1 и extra == 2)
-		// сделаем отдельные ветки алгоритма.
-		//
-		if(extra == 1) {
-			return (p[1] != 0 && SUnicode::IsLegalUtf8Char(p, 2)) ? 2 : 0;
-		}
-		else if(extra == 2) {
-			return (p[1] != 0 && p[2] != 0 && SUnicode::IsLegalUtf8Char(p, 3)) ? 3 : 0;
-		}
-		else {
-			const size_t tail = sstrlen(p);
-			return ((extra+1) <= tail && SUnicode::IsLegalUtf8Char(p, extra+1)) ? static_cast<int>(1+extra) : 0;
-		}
-	}*/
+	return SUnicode::GetUtf8Len(reinterpret_cast<const uint8 *>(P_Buf + Offs));
 }
 
 int FASTCALL SStrScan::GetUtf8(SString & rBuf)
@@ -950,12 +929,14 @@ int FASTCALL SStrScan::IncrChr(int chr)
 
 int FASTCALL SStrScan::SearchChar(int c)
 {
-	if(P_Buf)
-		for(size_t p = Offs; P_Buf[p]; p++)
+	if(P_Buf) {
+		for(size_t p = Offs; P_Buf[p]; p++) {
 			if(P_Buf[p] == c) {
 				Len = p-Offs;
 				return 1;
 			}
+		}
+	}
 	return 0;
 }
 
@@ -1426,17 +1407,18 @@ int SString::Divide(int divChr, SString & rLeft, SString & rRight) const
 int SString::Wrap(uint maxLen, SString & rHead, SString & rTail) const
 {
 	int    ok = 1;
-	size_t len = Len();
+	const  size_t len = Len();
 	if(len > 0) {
 		size_t p = maxLen;
 		if(p > 0 && p < len) {
 			size_t temp_pos = p;
 			size_t next_pos = p;
-			while(P_Buf[temp_pos] != ' ')
+			while(P_Buf[temp_pos] != ' ') {
 				if(temp_pos)
 					temp_pos--;
 				else
 					break;
+			}
 			if(temp_pos) {
 				p = temp_pos;
 				next_pos = temp_pos+1;
@@ -2078,30 +2060,40 @@ SString & SString::RevertHtmlSpecSymb()
 }
 #endif // } 0 @v8.8.3
 
-SString & SString::ReplaceCR()
+SString & SString::ReplaceCR(uint * pCount)
 {
+	uint   count = 0;
 	if(P_Buf && L > 1) {
 		size_t len = Len();
 		for(size_t i = 0; i < len; i++) {
 			if((P_Buf[i] == '\r' && P_Buf[i+1] == '\n') || (P_Buf[i] == '\n' && P_Buf[i+1] == '\r')) {
 				if(len <= (i+2)) {
+					count++;
 					P_Buf[i] = 0;
 					len -= 2;
 				}
 				else {
+					count++;
 					memcpy(P_Buf+i, P_Buf+i+1, len-i-2);
 					P_Buf[i] = ' ';
 					len--;
 				}
 			}
 			else if(P_Buf[i] == '\x0A') {
+				count++;
 				P_Buf[i] = ' ';
 			}
 		}
 		L = len+1;
 		P_Buf[len] = 0;
 	}
+	ASSIGN_PTR(pCount, count);
 	return *this;
+}
+
+SString & SString::ReplaceCR()
+{
+	return ReplaceCR(0/*pCount*/);
 }
 
 SString & SString::Escape()
@@ -5331,6 +5323,59 @@ SStringU & SStringU::Sub(size_t startPos, size_t len, SStringU & rBuf) const
 	return k;
 }
 
+/*static*/uint32 FASTCALL SUnicode::Helper_Utf8ToUtf32(const char * pUtf8Buf, uint utf8len) // @v12.5.10
+{
+	// TrailingBytesForUTF8
+	uint32 result = 0;
+	if(pUtf8Buf && (utf8len >= 1 && utf8len <= 6)) {
+		const  uint8 * p_src_buf = reinterpret_cast<const uint8 *>(pUtf8Buf);
+		uint32 ch = 0;
+		//uint16 extra = SUtfConst::TrailingBytesForUTF8[p_src[i]];
+		//THROW_S((i + extra + 1) <= srcSize, SLERR_UTFCVT_SRCEXHAUSTED);
+		//THROW_S(SUnicode::IsLegalUtf8Char(p_src+i, extra+1), SLERR_UTFCVT_ILLUTF8);
+		//
+		// The cases all fall through. See "Note A" below.
+	 	//
+		if(!SUnicode::IsLegalUtf8Char(p_src_buf, utf8len)) {
+			result = static_cast<wchar_t>(UNI_REPLACEMENT_CHAR);
+		}
+		else {
+			size_t i = 0;
+			switch(utf8len-1) {
+	    		case 5: ch += p_src_buf[i++]; ch <<= 6; // remember, illegal UTF-8
+	    		case 4: ch += p_src_buf[i++]; ch <<= 6; // remember, illegal UTF-8
+	    		case 3: ch += p_src_buf[i++]; ch <<= 6;
+	    		case 2: ch += p_src_buf[i++]; ch <<= 6;
+	    		case 1: ch += p_src_buf[i++]; ch <<= 6;
+	    		case 0: ch += p_src_buf[i++];
+			}
+			ch -= SUtfConst::OffsetsFromUTF8[utf8len-1];
+			if(ch <= UNI_MAX_BMP) { // Target is a character <= 0xFFFF
+	    		// UTF-16 surrogate values are illegal in UTF-32
+	    		if(ch >= UNI_SUR_HIGH_START && ch <= UNI_SUR_LOW_END) {
+					//THROW_S(!strictConversion, SLERR_UTFCVT_ILLUTF8);
+					result = static_cast<wchar_t>(UNI_REPLACEMENT_CHAR);
+	    		}
+				else
+					result = static_cast<wchar_t>(ch); // normal case
+			}
+			else if(ch > UNI_MAX_UTF16) {
+	    		//THROW_S(!strictConversion, SLERR_UTFCVT_ILLUTF8);
+				result = static_cast<wchar_t>(UNI_REPLACEMENT_CHAR);
+			}
+			else {
+				// target is a character in range 0xFFFF - 0x10FFFF.
+    			ch -= SUtfConst::HalfBase;
+				reinterpret_cast<wchar_t *>(&result)[0] = static_cast<wchar_t>((ch >> SUtfConst::HalfShift) + UNI_SUR_HIGH_START);
+				reinterpret_cast<wchar_t *>(&result)[1] = static_cast<wchar_t>((ch & SUtfConst::HalfMask) + UNI_SUR_LOW_START);
+				//line[line_ptr++] = static_cast<wchar_t>((ch >> SUtfConst::HalfShift) + UNI_SUR_HIGH_START);
+    			//line[line_ptr++] = static_cast<wchar_t>((ch & SUtfConst::HalfMask) + UNI_SUR_LOW_START);
+			}
+		}
+	}
+	return result;
+}
+
 /*static*/uint FASTCALL SUnicode::Utf8Length(const wchar_t * pUcBuf, uint tlen)
 {
 	uint len = 0;
@@ -7641,13 +7686,16 @@ uint16 STokenizer::NextChr()
 						else
 							result = (wchar_t)ch; // normal case
 					}
-					else if(ch > UNI_MAX_UTF16)
+					else if(ch > UNI_MAX_UTF16) {
 						result = (wchar_t)UNI_REPLACEMENT_CHAR;
-					else // target is a character in range 0xFFFF - 0x10FFFF.
+					}
+					else { // target is a character in range 0xFFFF - 0x10FFFF.
 						result = (wchar_t)UNI_REPLACEMENT_CHAR;
+					}
 				}
-				else
+				else {
 					result = (wchar_t)UNI_REPLACEMENT_CHAR;
+				}
 			}
 		}
 		else
@@ -9041,7 +9089,6 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 					rResultList.AddTok(SNTOK_NUMERIC_DOT, num_potential_tri_delim ? 0.8f : 0.99f, 0/*flags*/);
 				}
 			}
-			// @v11.0.3 {
 			if(rIb.F & ImplementBlock::fPhoneSet) {
 				if(rIb.DecCount >= 5 && rIb.DecCount <= 14) {
 					// "^([+]?[\\s0-9]+)?(\\d{3}|[(]?[0-9]+[)])?([-]?[\\s]?[0-9])+"
@@ -9057,7 +9104,6 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 					}
 				}
 			}
-			// } @v11.0.3
 			// @v11.6.0 {
 			if(rIb.F & ImplementBlock::fClRut) {
 				if(rIb.DecCount >= 7 && rIb.DecCount <= 13) {

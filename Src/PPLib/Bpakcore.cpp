@@ -316,7 +316,6 @@ static int GetDefaultPaymPeriod(const PPBillPacket * pPack, int * pDays)
 		ar_rec.Clear();
 	const  int    agt_kind = PPObjArticle::GetAgreementKind(&ar_rec);
 	if(agt_kind == 1) {
-		int    is_agreement = 0;
 		PPClientAgreement ca_rec;
 		if(arobj.GetClientAgreement(client_id, ca_rec, 1) > 0)
 			paym_period = ca_rec.DefPayPeriod;
@@ -586,6 +585,12 @@ PPBill::Agreement::Agreement()
 PPBill::Agreement::Agreement(const Agreement & rS)
 {
 	Copy(rS);
+}
+
+PPBill::Agreement & PPBill::Agreement::Z() // @v12.5.10
+{
+	THISZERO();
+	return *this;
 }
 
 PPBill::Agreement & FASTCALL PPBill::Agreement::operator = (const Agreement & rS)
@@ -1858,6 +1863,7 @@ PPBillPacket::SetupObjectBlock & PPBillPacket::SetupObjectBlock::Z()
 	RegInfoList.clear();
 	CliAgt.Z();
 	SupplAgt.Z();
+	DedicatedAgt.Z(); // @v12.5.10
 	return *this;
 }
 
@@ -2018,7 +2024,7 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 	rRet.Z();
 	ProcessFlags &= ~(pfRestrictByArCodes | pfSubCostOnSubPartStr);
 	LAssocArray rglist;
-	const bool getopdata_result = (GetOpData(Rec.OpID, &op_rec) > 0); // @v12.0.8
+	const  bool getopdata_result = (GetOpData(Rec.OpID, &op_rec) > 0); // @v12.0.8
 	THROW(!arID || getopdata_result);
 	if(arID) {
 		PPObjArticle ar_obj;
@@ -2037,6 +2043,25 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 			THROW_PP_S(!local_err, PPERR_ARDONTBELONGOPACS, ar_rec.Name);
 		}
 		// } @v12.2.5 
+		// @v12.5.10 {
+		/* @construction {
+			bool   do_force_replace_agt_bill = true;
+			PPID   new_agt_bill_id = 0;
+			BillTbl::Rec prev_agt_bill_rec;
+			if(Rec.AgtBillID && P_BObj->Search(Rec.AgtBillID, &prev_agt_bill_rec) > 0) {
+				if(prev_agt_bill_rec.Object == arID) {
+					do_force_replace_agt_bill = false;
+				}
+			}
+			if(do_force_replace_agt_bill) {
+				if(P_BObj->GetMostSuitableAgreement(*this, &new_agt_bill_id) > 0) {
+					PPBill::Agreement agt;
+					if(P_BObj->P_Tbl->GetAgreement(new_agt_bill_id, &agt) > 0) {
+					}
+				}
+			}
+		}*/
+		// } @v12.5.10 
 		const  int    agt_kind = PPObjArticle::GetAgreementKind(&ar_rec);
 		rRet.PsnID = ObjectToPerson(arID, &acs_id);
 		rRet.Name = ar_rec.Name;
@@ -2256,7 +2281,8 @@ int PPBillPacket::AttachToOrder(const PPBillPacket * pOrdPack)
 
 int PPBillPacket::SetupRow(int itemNo, PPTransferItem * pItem, const PPTransferItem * pOrdItem, double extraQtty)
 {
-	int    ok = 1, j = -2;
+	int    ok = 1;
+	int    j = -2;
 	uint   p;
 	if(pItem->Flags & PPTFR_ONORDER) {
 		uint    i = 0;
@@ -2888,7 +2914,8 @@ int PPBillPacket::CreateBlankBySample(PPID sampleBillID, int use_ta)
 			{
 				ZDELETE(P_Agt);
 				PPBill::Agreement agt;
-				if(p_ref->GetProperty(PPOBJ_BILL, sampleBillID, BILLPRP_AGREEMENT, &agt, sizeof(agt)) > 0 && !agt.IsEmpty()) {
+				if(P_BObj->P_Tbl->GetAgreement(sampleBillID, &agt) > 0 && !agt.IsEmpty()) { // @v12.5.10
+				// @v12.5.10 if(p_ref->GetProperty(PPOBJ_BILL, sampleBillID, BILLPRP_AGREEMENT, &agt, sizeof(agt)) > 0 && !agt.IsEmpty()) {
 					THROW_MEM(P_Agt = new PPBill::Agreement(agt));
 				}
 			}

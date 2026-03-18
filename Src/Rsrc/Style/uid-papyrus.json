@@ -157,7 +157,11 @@
 			"invalid_value_input_bg": "#coral",
 			"valid_value_input_bg": "#aqua",
 			"eaddr_phone_input_bg": "#aqua",
-			"eaddr_email_input_bg": "#cadetblue"
+			"eaddr_email_input_bg": "#cadetblue",
+			"autocomplete_bg": "#yellow",
+			"autocomplete_freetext_bg": "#antiquewhite",
+			"autocomplete_focus_bg": "#20AC90",
+			"autocomplete_odd_bg": "#DCEDD5"
 		}
 	],
 	"layout_list": [

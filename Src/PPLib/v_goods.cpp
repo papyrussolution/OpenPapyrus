@@ -3135,8 +3135,9 @@ int PPViewGoods::Repair(PPID /*id*/)
 								ArGoodsCodeTbl::Rec & r_ac_rec = pack.ArCodes.at(acidx);
 								temp_buf = r_ac_rec.Code;
 								if(!temp_buf.IsAscii()) {
-									bool is_there_susp_chars = false;
-									bool is_outer_text = true;
+									bool   is_there_susp_chars = false;
+									bool   is_outer_text = true;
+									const  bool is_utf8 = temp_buf.IsLegalUtf8(); // @v12.5.10
 									for(uint cidx = 0; cidx < temp_buf.Len(); cidx++) {
 										const uchar c = static_cast<uchar>(temp_buf.C(cidx));
 										if(!isascii(c) && !IsLetter1251(c)) 
@@ -3144,13 +3145,28 @@ int PPViewGoods::Repair(PPID /*id*/)
 										if(!isascii(c) && !IsLetter866(c))
 											is_there_susp_chars = true;
 									}
+									//
+									// Обращаю внимание, что иногда короткие строки могут одновременно распознаваться как legal utf8 и как cp866
+									// поэтому, если вся строка распознается как cp866 (!is_there_susp_chars) то считаем, что все в порядке.
+									//
 									if(is_there_susp_chars) {
 										err = 1;
-										if(is_outer_text) {
-											long uniqn = 0;
+										ArGoodsCodeTbl::Rec dup_ac_rec;
+										long   uniqn = 0;
+										// @v12.5.10 {
+										if(is_utf8) {
+											temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+											SString new_code(temp_buf);
+											while(GObj.P_Tbl->SearchByArCode(r_ac_rec.ArID, temp_buf, &dup_ac_rec) > 0) {
+												(temp_buf = new_code).CatChar('#').Cat(++uniqn);
+											}
+											STRNSCPY(r_ac_rec.Code, temp_buf);
+											to_turn_packet = 1;
+										}
+										// } @v12.5.10 
+										else if(is_outer_text) {
 											temp_buf.Transf(CTRANSF_OUTER_TO_INNER);
-											SString new_code = temp_buf;
-											ArGoodsCodeTbl::Rec dup_ac_rec;
+											SString new_code(temp_buf);
 											while(GObj.P_Tbl->SearchByArCode(r_ac_rec.ArID, temp_buf, &dup_ac_rec) > 0) {
 												(temp_buf = new_code).CatChar('#').Cat(++uniqn);
 											}

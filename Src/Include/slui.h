@@ -46,9 +46,9 @@ struct BroColumn;
 class WordSel_ExtraBlock {
 public:
 	WordSel_ExtraBlock();
-	WordSel_ExtraBlock(uint inputCtl, HWND hInputDlg, TDialog * pOutDlg, uint outCtlId, uint minSymbCount, long flags = 0);
+	WordSel_ExtraBlock(uint inputCtl, HWND hInputDlg, TWindow * pOutWindow, uint outCtlId, uint minSymbCount, long flags = 0);
 	virtual ~WordSel_ExtraBlock();
-	void   Init(uint inputCtl, HWND hInputDlg, TDialog * pOutDlg, uint outCtlId, uint minSymbCount, long flags = 0);
+	void   Init_Env(uint inputCtl, HWND hInputDlg, TWindow * pOutWindow, uint outCtlId, uint minSymbCount, long flags = 0);
 	virtual int Search(long id, SString & rBuf);
 	//
 	// Descr: Позволяет идентифицировать уникальный объект по текстовому ключу pText.
@@ -78,7 +78,8 @@ public:
 
 	enum {
 		fAlwaysSearchBySubStr = 0x0001,
-		fFreeText             = 0x0002 // Текст в основной строке вводится свободно без вызова окна поиска
+		fFreeText             = 0x0002, // Текст в основной строке вводится свободно без вызова окна поиска
+		fUtf8                 = 0x0004, // @v12.5.10 Строки обрабатываются в кодировке utf-8
 	};
 //protected:
 	long   Flags;
@@ -91,7 +92,7 @@ public:
 	HWND   H_InputDlg;
 	long   SelId;
 	uint   OutCtlId;
-	TDialog * P_OutDlg;
+	TWindow * P_OutWindow;
 };
 //
 // Mouse button state masks
@@ -2235,6 +2236,7 @@ public:
 		// @>>BOOL GetTextExtentPoint32(HDC hdc, LPCTSTR lpString, int cbString, LPSIZE lpSize);
 	int    TextOut(SPoint2S p, const char * pText);
 	int    _DrawText(const TRect & rRect, const char * pText, uint options);
+	int    _DrawTextUtf8(const TRect & rRect, const char * pText, uint options);
 	int    DrawTextLayout(STextLayout * pTlo);
 	int    FASTCALL Draw(const SImageBuffer * pImg);
 	int    FASTCALL Draw(const SDrawFigure * pDraw);
@@ -2969,6 +2971,13 @@ public:
 	int    InsertCtlWithCorrespondingNativeItem(TView * pCtl, uint id, const char * pSymb, void * extraPtr);
 	HWND   GetPrevInStackWindowHandle() const { return PrevInStack; }
 	void   SetPrevInStackWindowHandle(HWND h) { PrevInStack = h; }
+	//
+	// Descr: Ассоциирует с элементом диалога специальный список выбора, который фильтруется по мере ввода текста.
+	//   Если proc = 0, то используется GetListFromSmartLbx
+	//   Если wordSelExtra = 0 и элемент ctlID является списком или комбобоксом, то wordSelExtra = (long)SmartListBox*
+	//
+	int    SetupWordSelector(uint ctlID, WordSel_ExtraBlock * pExtra, long id, int minSymbCount, long flags);
+	int    ResetWordSelector(uint ctlID);
 	//
 	// Descr: Устанавливает дополнительный суффикс для символа окна, используемого в качестве ключа
 	//   для сохранения пользовательских параметров окна.
@@ -3837,13 +3846,6 @@ public:
 	void   SetupCalDate(uint calCtlID, uint inputCtlID);
 	void   SetupCalPeriod(uint calCtlID, uint inputCtlID);
 	void   SetCtrlState(uint ctlID, uint state, bool enable);
-	//
-	// Descr: Ассоциирует с элементом диалога специальный список выбора, который фильтруется по мере ввода текста.
-	//   Если proc = 0, то используется GetListFromSmartLbx
-	//   Если wordSelExtra = 0 и элемент ctlID является списком или комбобоксом, то wordSelExtra = (long)SmartListBox*
-	//
-	int    SetupWordSelector(uint ctlID, WordSel_ExtraBlock * pExtra, long id, int minSymbCount, long flags);
-	int    ResetWordSelector(uint ctlID);
 
 	TView * P_Frame;
 protected:
@@ -4919,6 +4921,7 @@ private:
 	DECL_HANDLE_EVENT;
 	void   DrawListItem2(TDrawItemData * pDrawItem);
 	int    Helper_PullDown(const char * pText, int recent);
+	void   SetupListWindowPosition();
 
 	enum {
 		dummyFirst = 1,
@@ -4926,8 +4929,6 @@ private:
 		clrOdd,
 		clrBkgnd,
 	};
-	//int    IsVisible_;
-	//int    IsActive_;
 	enum {
 		wssVisible = 0x0001,
 		wssActive  = 0x0002
@@ -5733,13 +5734,14 @@ public:
 	// @v12.4.8 (unused) uint   groupWidth(const BroGroup *, uint atColumn) const;
 	int    GetCellData(const void * pRowData, int column, TYPEID * pType, void * pDataBuf, size_t dataBufLen);
 	int    GetCellData(long row, int column, TYPEID * pType, void * pDataBuf, size_t dataBufLen);
-	char * GetCellText(long row, int column, bool dontRestrictByFmtLen, char * pBuf);
+	// @v12.5.10 char * GetCellText(long row, int column, bool dontRestrictByFmtLen, char * pBuf);
+	SString & GetCellText(long row, int column, bool dontRestrictByFmtLen, SString & rBuf);
 	//
 	// Descr: Извлекает текст полностью (512 символов), независимо от ширины колонки в броузере
 	//
 	SString & getFullText(long row, int column, SString & rBuf);
 	SString & getFullText(const void * pRowData, int column, SString & rBuf);
-	char * getMultiLinesText(long, int, char *, uint = 0, uint * = 0);
+	SString & getMultiLinesText(long, int, /*char * pBuf*/SString & rBuf, uint = 0, uint * = 0);
 	long   _topItem() const { return topItem; }
 	long   _curItem() const { return curItem; }
 	long   _curFrameItem() const { return (curItem - topItem); }
@@ -6134,7 +6136,7 @@ private:
 	//
 	int    PaintCell(HDC hdc, RECT r, long row, long col, int paintAction);
 	int    search(void * pPattern, CompFunc fcmp, int srchMode);
-	bool   DrawTextUnderCursor(HDC hdc, char * pBuf, RECT * pTextRect, uint fmt, int isLineCursor);
+	bool   DrawTextUnderCursor(HDC hdc, const char * pBuf, RECT * pTextRect, uint fmt, int isLineCursor);
 	void   AdjustCursorsForHdr();
 	int    CalcRowsHeight(long topItem, long bottom = 0);
 	void   DrawMultiLinesText(HDC hdc, const char * pBuf, RECT * pTextRect, uint fmt);

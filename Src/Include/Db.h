@@ -3779,7 +3779,7 @@ public:
 	void   FASTCALL destroy();
 	int    FASTCALL convert(TYPEID, void *) const;
 	int    FASTCALL fromfld(DBField);
-	char * FASTCALL tostring(long fmt, char * pBuf) const;
+	SString & FASTCALL tosstring(long fmt, SString & rBuf) const;
 
 	enum {
 		fNotOwner = 0x0001 // Экземпляр не владеет объектом, на который указывает sptr (или иной) в union

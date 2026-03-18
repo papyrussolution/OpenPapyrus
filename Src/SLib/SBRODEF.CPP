@@ -320,33 +320,31 @@ int BrowserDef::GetCellData(long row, int column, TYPEID * pType, void * pDataBu
 	return GetCellData(getRow(row), column, pType, pDataBuf, dataBufLen);
 }
 
-char * BrowserDef::GetCellText(long row, int column, bool dontRestrictByFmtLen, char * pBuf)
+SString & BrowserDef::GetCellText(long row, int column, bool dontRestrictByFmtLen, SString & rBuf)
 {
-	if(pBuf) {
-		*pBuf = 0;
-		TYPEID typ = 0;
-		long   fmt = 0;
-		char   dest_data[1024];
-		const  void * p_final_data = Helper_GetCellData(getRow(row), column, &typ, &fmt, 0/*coptions*/, dest_data, sizeof(dest_data));
-		if(p_final_data) {
-			// @v12.4.12 {
-			if(dontRestrictByFmtLen) {
-				if(GETSTYPE(typ) == S_ZSTRING) {
-					const  uint typ_sz = GETSSIZE(typ);
-					if(typ_sz) {
-						uint fmt_len = SFMTLEN(fmt);
-						if(fmt_len > 0 && fmt_len < (typ_sz-1)) {
-							fmt_len = (typ_sz-1);
-							SETSFMTLEN(fmt, fmt_len);
-						}
+	rBuf.Z();
+	TYPEID typ = 0;
+	long   fmt = 0;
+	char   dest_data[1024];
+	const  void * p_final_data = Helper_GetCellData(getRow(row), column, &typ, &fmt, 0/*coptions*/, dest_data, sizeof(dest_data));
+	if(p_final_data) {
+		// @v12.4.12 {
+		if(dontRestrictByFmtLen) {
+			if(GETSTYPE(typ) == S_ZSTRING) {
+				const  uint typ_sz = GETSSIZE(typ);
+				if(typ_sz) {
+					uint fmt_len = SFMTLEN(fmt);
+					if(fmt_len > 0 && fmt_len < (typ_sz-1)) {
+						fmt_len = (typ_sz-1);
+						SETSFMTLEN(fmt, fmt_len);
 					}
 				}
 			}
-			// } @v12.4.12 
-			sttostr(typ, p_final_data, fmt, pBuf);
 		}
+		// } @v12.4.12 
+		sttosstr(typ, p_final_data, fmt, rBuf);
 	}
-	return pBuf;
+	return rBuf;
 }
 
 SString & BrowserDef::getFullText(const void * pRowData, int column, SString & rBuf)
@@ -357,11 +355,17 @@ SString & BrowserDef::getFullText(const void * pRowData, int column, SString & r
 	char   dest_data[1024];
 	const  void * p_final_data = Helper_GetCellData(pRowData, column, &typ, &fmt, 0/*coptions*/, dest_data, sizeof(dest_data));
 	if(p_final_data) {
+		/* @v12.5.10
 		char   dest_text[1024];
 		dest_text[0] = 0;
 		SETSFMTLEN(fmt, 0);
 		sttostr(typ, p_final_data, fmt, dest_text);
 		rBuf = dest_text;		
+		*/
+		// @v12.5.10 {
+		SETSFMTLEN(fmt, 0);
+		sttosstr(typ, p_final_data, fmt, rBuf);
+		// } @v12.5.10 
 	}
 	return rBuf;
 }
@@ -371,8 +375,29 @@ SString & BrowserDef::getFullText(long row, int column, SString & rBuf)
 	return getFullText(getRow(row), column, rBuf);
 }
 
-// AHTOXA {
-static uint FASTCALL GetTextHeight(char * pBuf, size_t strLen)
+static uint FASTCALL GetTextHeight_(SString & rBuf, size_t strLen) // AHTOXA
+{
+	uint   text_height = 1;
+	if(rBuf.Len() > strLen) {
+		SString head;
+		SString tail;
+		if(rBuf.Wrap(strLen, head, tail) > 0) {
+			SString result;
+			do {
+				text_height++;
+				result.Cat(head).CR();
+				rBuf = tail; // !rBuf дальше работает как временная переменная!
+			} while(rBuf.Wrap(strLen, head, tail) > 0);
+			if(rBuf.NotEmpty()) {
+				result.Cat(rBuf);
+			}
+			rBuf = result;
+		}
+	}
+	return text_height;
+}
+
+static uint FASTCALL GetTextHeight(char * pBuf, size_t strLen) // AHTOXA
 {
 	uint   text_height = 1;
 	const  size_t buf_len = sstrlen(pBuf);
@@ -391,7 +416,7 @@ static uint FASTCALL GetTextHeight(char * pBuf, size_t strLen)
 				real_pos += cut_pos;
 				replacestr(pBuf, "\n", &real_pos, &len, 0);
 				real_pos++;
-				if(sstrlen(p_buf) > cut_pos + 1)
+				if(sstrlen(p_buf) > (cut_pos + 1))
 					p_buf += cut_pos + 1;
 				else
 					p_buf = 0;
@@ -409,7 +434,6 @@ static uint FASTCALL GetTextHeight(char * pBuf, size_t strLen)
 	}
 	return text_height;
 }
-// } AHTOXA
 
 static void FASTCALL RemoveCtrlNFromStr(char * pBuf, size_t bufLen)
 {
@@ -419,7 +443,7 @@ static void FASTCALL RemoveCtrlNFromStr(char * pBuf, size_t bufLen)
 			s = (bufLen-1);
 			pBuf[bufLen-1] = 0;
 		}
-		if(smemchr(pBuf, '\n', s) || smemchr(pBuf, '\r', s)) { // @v11.7.0 memchr-->smemchr
+		if(smemchr(pBuf, '\n', s) || smemchr(pBuf, '\r', s)) {
 			char   c;
 			for(size_t i = 0; (c = pBuf[i]) != 0; i++) {
 				if((c == '\r' && pBuf[i+1] == '\n') || (c == '\n' && pBuf[i+1] == '\r')) {
@@ -434,42 +458,58 @@ static void FASTCALL RemoveCtrlNFromStr(char * pBuf, size_t bufLen)
 	}
 }
 
-char * BrowserDef::getMultiLinesText(long row, int column, char * pBuf, uint heightMult, uint * pCalcHeight)
+static void FASTCALL RemoveCtrlNFromStr_(SString & rBuf)
 {
-	//char   ptr[4096];
-	char   buf[4096];
-	buf[0] = 0;
+	rBuf.ReplaceCR();
+	rBuf.ReplaceChar('\t', ' ');
+}
 
+SString & BrowserDef::getMultiLinesText(long row, int column, /*char * pBuf*/SString & rBuf, uint heightMult, uint * pCalcHeight)
+{
+	rBuf.Z();
+	//char   buf[4096];
+	//buf[0] = 0;
+	//SString temp_buf;
 	TYPEID typ = 0;
 	long   fmt = 0;
 	uint   coptions = 0;
 	char   dest_data[1024];
 	const  void * p_final_data = Helper_GetCellData(getRow(row), column, &typ, &fmt, &coptions, dest_data, sizeof(dest_data));
 	if(p_final_data) {
-		sttostr(typ, p_final_data, fmt, buf);
+		// @v12.5.10 sttostr(typ, p_final_data, fmt, buf);
+		sttosstr(typ, p_final_data, fmt, rBuf); // @v12.5.10 
 		if((heightMult > 1 || pCalcHeight) && coptions & BCO_RESIZEABLE) {
+			SString iter_buf;
 			uint   text_height = 0;
-			strip(buf);
-			RemoveCtrlNFromStr(buf, sizeof(buf));
-			text_height = GetTextHeight(buf, SFMTLEN(fmt));
-			StringSet ss('\n', buf);
-			buf[0] = 0;
-			for(uint i = 0, j = 0; ss.get(&i, dest_data, sizeof(dest_data)); j++) {
-				strcat(buf, strip(dest_data));
-				if(j < ss.getCount()-1)
-					if(j < (heightMult - 1) || pCalcHeight)
-						strcat(buf, "\n");
-					else
-						strcat(buf, " ");
+			//strip(buf);
+			rBuf.Strip();
+			RemoveCtrlNFromStr_(rBuf);
+			text_height = GetTextHeight_(rBuf, SFMTLEN(fmt));
+			StringSet ss('\n', rBuf);
+			rBuf.Z();
+			for(uint i = 0, j = 0; ss.get(&i, iter_buf/*dest_data, sizeof(dest_data)*/); j++) {
+				//strcat(buf, strip(dest_data));
+				rBuf.Cat(iter_buf);
+				if(j < ss.getCount()-1) {
+					if(j < (heightMult - 1) || pCalcHeight) {
+						//strcat(buf, "\n");
+						rBuf.CR();
+					}
+					else {
+						//strcat(buf, " ");
+						rBuf.Space();
+					}
+				}
 			}
 			ASSIGN_PTR(pCalcHeight, text_height);
 		}
 		else {
-			RemoveCtrlNFromStr(buf, sizeof(buf));
+			RemoveCtrlNFromStr_(rBuf);
 			ASSIGN_PTR(pCalcHeight, 1);
 		}
 	}
-	return strnzcpy(pBuf, buf, 0);
+	//return strnzcpy(pBuf, buf, 0);
+	return rBuf;
 }
 
 int BrowserDef::go(long row)
@@ -529,21 +569,32 @@ long   BrowserDef::GetRecsCount() const { return 0; }
 const  void * BrowserDef::getRow(long) const { return 0; }
 int    BrowserDef::refresh() { return 1; }
 
-int BrowserDef::search(const void * pPattern, CompFunc /*cfn*/, int srchMode, int srchCol)
+int BrowserDef::search(const void * pPattern, CompFunc/*cfn*/, int srchMode, int srchCol)
 {
-	char   str[2048]; // @v11.7.11 [256]-->[2048]
+	//char   str[2048]; // @v11.7.11 [256]-->[2048]
+	int   r = 0;
 	const  char * p = static_cast<const char *>(pPattern);
-	int    r = (srchMode == srchFirst) ? top() : step(1);
-	if(r) do {
-		GetCellText(_curItem(), srchCol, true, str);
-		strip(str);
-		if(p[0] != '*') {
-			str[sstrlen(p)] = 0;
-			r = stricmp866(str, p) ? 0 : 1;
-		}
-		else
-			r = BIN(stristr866(str, p + 1));
-	} while(!r && step(1) > 0);
+	const  size_t pattern_len = sstrlen(p);
+	if(pattern_len) {
+		SString text;
+		r = (srchMode == srchFirst) ? top() : step(1);
+		if(r) do {
+			GetCellText(_curItem(), srchCol, true, text);
+			text.Strip();
+			if(p[0] != '*') {
+				//str[sstrlen(p)] = 0;
+				//r = stricmp866(str, p) ? 0 : 1;
+				text.Trim(pattern_len);
+				if(text.IsEqNC(p))
+					r = 1;
+			}
+			else {
+				//r = BIN(stristr866(str, p + 1));
+				if(text.Search(p+1, 0, 1, 0))
+					r = 1;
+			}
+		} while(!r && step(1) > 0);
+	}
 	return r;
 }
 //

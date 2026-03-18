@@ -3,11 +3,6 @@
 // @codepage windows-1251
 // Part of project Papyrus
 //
-// @v11.0.0  TBBM_PERCENT-->PPDV_PERCENT
-// @v11.0.0  TBBM_GOODS-->PPDV_WARESINGLE01
-// @v11.0.0  TBBM_GOODSVIEW2-->PPDV_WAREMULTI01
-// @v11.3.11 TBBM_ADDTISTOBASKET-->PPDV_SHOPPINGCARTINTO01
-//
 declare command DEFAULT     // kbEnter
 declare command ADDITEM     // kbInsert
 declare command EDITITEM    // kbEnter
@@ -841,6 +836,7 @@ toolbar export ARTICLE TB_FIRST_TOOLBAR {
 	EDTILINKOBJ   : kbF2,     PPDV_LINK01,          "@{linkobject}\tF2"
 	VIEWBILLS     : kbF3,     PPDV_DOCUMENT_PL02,   "@{doshowdocsbyar}\tF3"
 	EDITAGREEMENT : kbF4,     TBBM_HANDSHAKE,       "@{agreement}\tF4"
+	VIEWBILLS_AGT : kbCtrlF4, PPDV_NOICON,          "@{doshowagtdocsbyar}\tCtrl-F4" // @v12.5.10
 	EDITDEBTLIMS  : kbCtrlD,  PPDV_NOICON,          "@{cfgclientdealdebtlimit}\tCtrl-D"
 	VIEWQUOT      : kbCtrlQ,  TBBM_QUOTATION,       "@{quotes}\tCtrl-Q"
 	VIEWGOODS     : kbF5,     PPDV_WARESINGLE01,    "@{doshowarrelatedgoods}\tF5"
@@ -9130,7 +9126,7 @@ ctrlmenu QuotList { // @v10.9.11
 	("@{quotkind}\tF3"   kbF3 cmQuotKind)
 }
 
-ctrlmenu LotxcodeList { // @v10.9.0
+ctrlmenu LotxcodeList {
 	("@{add}\tInsert" kbIns cmaInsert)
 	("@{delete}\tDelete" kbDel cmaDelete)
 	("@{lotxcodelist_cbcopy}\tCtrl-Insert" kbCtrlIns cmCopyToClipboard)

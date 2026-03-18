@@ -101,6 +101,7 @@ PPView::DescriptionList::DescriptionList(int kind) : Kind(kind), Fail(0)
 					{ BillFilt::FiltExtraParam(0, bbtDraftBills), "Bill_Draft", "@{draftdocument_pl}" },
 					//{ BillFilt::FiltExtraParam(0, bbtRealTypes), "Bill_Real", "bbtRealTypes" },
 					{ BillFilt::FiltExtraParam(0, bbtWmsBills), "Bill_Wms", "@{cmd_wmsbilllist}" },
+					{ BillFilt::FiltExtraParam(0, bbtAgreemen), "Bill_Agreement", "@{agreementdocument_pl}" }, // @v12.5.10
 				};
 				for(uint i = 0; i < SIZEOFARRAY(ep); i++) {
 					InnerEntry ie;

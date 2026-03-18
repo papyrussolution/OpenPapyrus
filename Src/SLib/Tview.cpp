@@ -423,9 +423,11 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 			do {
 				p_temp = p_temp->P_Next;
 				if(p_temp && p_temp->IsConsistent()) {
+					TView::messageCommand(p_temp, cmNotifyCommit, pG); // @v12.5.10
+					/* @v12.5.10
 					if(p_temp->P_WordSelBlk) {
 						p_temp->P_WordSelBlk->OnAcceptInput(0, 0);
-					}
+					}*/
 				}
 				else
 					break;

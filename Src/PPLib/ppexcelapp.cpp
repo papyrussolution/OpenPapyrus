@@ -1,5 +1,5 @@
 // ppexcelapp.cpp
-// Copyright (c) A.Sobolev 2025
+// Copyright (c) A.Sobolev 2025, 2026
 // @codepage UTF-8
 // Функционал, использующий работу с Excel-таблицами (посредством OpenXLSX)
 //
@@ -308,12 +308,10 @@ int PPViewBrowser::Helper_Export_Excel_OXLSX(SString & rResultFileName)
 								}
 								else {
 									//p_def->getFullText(p_def->_curItem(), cn, val_buf);
-									char   dest_text[1024];
-									dest_text[0] = 0;
 									long   fmt = r_column.format;
 									SETSFMTLEN(fmt, 0);
-									sttostr(r_column.T, cell_data, fmt, dest_text);
-									val_buf = dest_text;
+									/* @v12.5.10 char   dest_text[1024]; dest_text[0] = 0; sttostr(r_column.T, cell_data, fmt, dest_text); val_buf = dest_text; */
+									sttosstr(r_column.T, cell_data, fmt, val_buf);
 									//
 									val_buf.Strip().Transf(CTRANSF_INNER_TO_UTF8);
 									wks.cell(row + beg_row, static_cast<uint16>(cn+1)).value() = val_buf.cptr();

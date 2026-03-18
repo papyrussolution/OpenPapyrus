@@ -200,19 +200,13 @@ SString & Generator_SQL::GetType(TYPEID typ, SString & rBuf)
 		case sqlstMySQL:
 			switch(_t) {
 				case S_CHAR:     
-					// @v12.4.10 rBuf.Cat("VARCHAR").CatParStr(_s); 
-					// @v12.5.0 rBuf.Cat("TEXT"); // @v12.4.10
-					rBuf.Cat("VARCHAR").CatParStr(_s).Space().Cat("CHARACTER SET utf8"); // @v12.5.0 
+					rBuf.Cat("VARCHAR").CatParStr(_s).Space().Cat("CHARACTER SET utf8mb4"); // @v12.5.0 // @v12.5.10 utf8-->utf8mb4
 					break;
 				case S_LSTRING:  
-					// @v12.4.10 rBuf.Cat("VARCHAR").CatParStr(_s); 
-					// @v12.5.0 rBuf.Cat("TEXT"); // @v12.4.10
-					rBuf.Cat("VARCHAR").CatParStr(_s).Space().Cat("CHARACTER SET utf8"); // @v12.5.0 
+					rBuf.Cat("VARCHAR").CatParStr(_s).Space().Cat("CHARACTER SET utf8mb4"); // @v12.5.0 // @v12.5.10 utf8-->utf8mb4
 					break;
 				case S_ZSTRING:  
-					// @v12.4.10 rBuf.Cat("VARCHAR").CatParStr(_s);
-					// @v12.5.0 rBuf.Cat("TEXT"); // @v12.4.10
-					rBuf.Cat("VARCHAR").CatParStr(_s).Space().Cat("CHARACTER SET utf8"); // @v12.5.0 
+					rBuf.Cat("VARCHAR").CatParStr(_s).Space().Cat("CHARACTER SET utf8mb4"); // @v12.5.0 // @v12.5.10 utf8-->utf8mb4
 					break;
 				case S_INT:
 				case S_UINT:     

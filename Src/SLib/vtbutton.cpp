@@ -34,7 +34,7 @@ IMPL_HANDLE_EVENT(TCalcInputLine)
 	TInputLine::handleEvent(event);
 	if(TVBROADCAST && TVCMD == cmSearchVirtButton && TVINFOVIEW == this) {
 		event.what = TEvent::evNothing;
-		event.message.infoPtr = (void *)Vbwe.ButtonCtrlId;
+		event.message.infoPtr = reinterpret_cast<void *>(Vbwe.ButtonCtrlId);
 	}
 }
 
@@ -76,9 +76,9 @@ public:
 	}
 private:
 	DECL_HANDLE_EVENT;
-	void   InLnCalcCapture();                  // Win32
-	void   InLnCalcUncapture();                // Win32
-	int    IsWindowArea(const RECT &, int x, int y); // Win32
+	void   InLnCalcCapture();
+	void   InLnCalcUncapture();
+	int    IsWindowArea(const RECT &, int x, int y);
 	void   ShowNumber();
 	int    Calculate();
 	void   ProcessCommand(uint cmd);
@@ -89,12 +89,13 @@ private:
 	TInputLine *P_Il;
 	char	NumSym[20];
 	double	Number[2];
-	char	CharNumber[256];
+	SString NumberText; // @v12.5.10
+	// @v12.5.10 char	CharNumber[256];
 	char	InLnNumber[256];
 	int     MaxLen;
 	TYPEID	NType;
 	long	NFormat;
-	int     IsNumber;
+	//int     IsNumber_obsolete;
 	int     IsDot;
 	int     Command;
 	HWND	PrevCaptureWnd;
@@ -153,8 +154,9 @@ InputLineCalc::InputLineCalc(uint dlgID, TDialog *pParentDlg, uint fieldCtlId) :
 	SETIFZQ(MaxLen, 20); // @v12.5.5
 	NType   = MKSTYPE(S_FLOAT, 8);
 	NFormat = MKSFMTD(0, SFMTPRC(ln_fmt), ((SFMTFLAG(ln_fmt) | NMBF_NOTRAILZ) & ~SFALIGNMASK));
-	sttostr(P_Il->getType(), InLnNumber, ln_fmt, CharNumber);
-	stfromstr(NType, &Number[0], NFormat, CharNumber);
+	// @v12.5.10 sttostr(P_Il->getType(), InLnNumber, ln_fmt, CharNumber);
+	sttosstr(P_Il->getType(), InLnNumber, ln_fmt, /*CharNumber*/NumberText);
+	stfromstr(NType, &Number[0], NFormat, /*CharNumber*/NumberText);
 	//
 	ViewOrigin.x = P_ParentDlg->ViewOrigin.x + P_Il->ViewOrigin.x;
 	if(ViewSize.x < P_Il->ViewSize.x)
@@ -165,7 +167,8 @@ InputLineCalc::InputLineCalc(uint dlgID, TDialog *pParentDlg, uint fieldCtlId) :
 	if(ViewOrigin.y + ViewSize.y > 23)
 		ViewOrigin.y = P_ParentDlg->ViewOrigin.y + P_Il->ViewOrigin.y - ViewSize.y -1;
 	//
-	IsNumber = 0;
+	//IsNumber_obsolete = 0;
+	NumberText.Z();
 	IsDot = 0;
 	Command = ILC_NO_COMMAND;
 	InLnCalcCapture();
@@ -192,20 +195,21 @@ int InputLineCalc::IsWindowArea(const RECT & r, int x, int y)
 
 void InputLineCalc::ShowNumber()
 {
-	int    i = (Command && IsNumber) ? 1 : 0;
-	if(Command || IsNumber)
-		stfromstr(NType, &Number[i], NFormat, CharNumber);
-	sttostr(NType, &Number[i], NFormat, CharNumber);
-	if(IsNumber)
-		IsNumber = sstrlen(CharNumber);
-	stfromstr(P_Il->getType(), InLnNumber, P_Il->getFormat(), CharNumber);
+	int    i = (Command && /*IsNumber_obsolete*/NumberText.NotEmpty()) ? 1 : 0;
+	if(Command || /*IsNumber_obsolete*/NumberText.NotEmpty()) {
+		stfromstr(NType, &Number[i], NFormat, /*CharNumber*/NumberText);
+	}
+	sttosstr(NType, &Number[i], NFormat, /*CharNumber*/NumberText);
+	/*if(IsNumber_obsolete)
+		IsNumber_obsolete = sstrleni(CharNumber);*/
+	stfromstr(P_Il->getType(), InLnNumber, P_Il->getFormat(), /*CharNumber*/NumberText);
 	P_ParentDlg->setCtrlData(CtlId, InLnNumber);
 }
 
 int InputLineCalc::Calculate()
 {
 	int    ok = 1;
-	if(IsNumber == 0)
+	if(/*IsNumber_obsolete == 0*/NumberText.IsEmpty())
 		Number[1] = Number[0];
 	switch(Command) {
 		case ILC_INVERSE: Number[0] = -Number[1]; break;
@@ -224,7 +228,8 @@ int InputLineCalc::Calculate()
 	}
 	Number[1] = 0;
 	Command = ILC_NO_COMMAND;
-	IsNumber = 0;
+	//IsNumber_obsolete = 0;
+	NumberText.Z();
 	return ok;
 }
 
@@ -267,35 +272,43 @@ void InputLineCalc::ProcessCommand(uint cmd)
 		case CTL_INLNCALC_7:
 		case CTL_INLNCALC_8:
 		case CTL_INLNCALC_9:
-			if(IsNumber == 1 && CharNumber[0] == '0')
-				IsNumber = 0;
-			if(IsNumber < MaxLen) {
-				CharNumber[IsNumber++] = NumSym[abs((int)cmd - CTL_INLNCALC_0)];
-				CharNumber[IsNumber] = 0;
-				P_Il->setText(CharNumber);
+			//if(IsNumber_obsolete == 1 && CharNumber[0] == '0')
+				//IsNumber_obsolete = 0;
+			if(NumberText == "0")
+				NumberText.Z();
+			//if(IsNumber_obsolete < MaxLen) {
+			if(NumberText.Len() < MaxLen) {
+				//CharNumber[IsNumber_obsolete++] = NumSym[abs((int)cmd - CTL_INLNCALC_0)];
+				//CharNumber[IsNumber_obsolete] = 0;
+				NumberText.CatChar(NumSym[abs((int)cmd - CTL_INLNCALC_0)]);
+				P_Il->setText(/*CharNumber*/NumberText);
 			}
 			break;
 		case CTL_INLNCALC_DOT:
-			if(IsDot == 0 && IsNumber < MaxLen) {
-				if(IsNumber == 0)
-					CharNumber[IsNumber++] = '0';
-				CharNumber[IsNumber++] = '.';
-				CharNumber[IsNumber] = 0;
+			if(IsDot == 0 && /*IsNumber_obsolete*/NumberText.Len() < MaxLen) {
+				if(/*IsNumber_obsolete == 0*/NumberText.IsEmpty()) {
+					//CharNumber[IsNumber_obsolete++] = '0';
+					NumberText.CatChar('0');
+				}
+				//CharNumber[IsNumber_obsolete++] = '.';
+				//CharNumber[IsNumber_obsolete] = 0;
+				NumberText.Dot();
 				IsDot = 1;
-				P_Il->setText(CharNumber);
+				P_Il->setText(/*CharNumber*/NumberText);
 			}
 			break;
 		case CTL_INLNCALC_CLEAR:
 			Command = ILC_NO_COMMAND;
 		case CTL_INLNCALC_CLEAR_ENTER:
-			if(Command && IsNumber == 0)
+			if(Command && /*IsNumber_obsolete == 0*/NumberText.IsEmpty())
 				Command = ILC_NO_COMMAND;
 			else {
-				CharNumber[0] = '0';
-				CharNumber[1] = 0;
-				IsNumber = 1;
+				//CharNumber[0] = '0';
+				//CharNumber[1] = 0;
+				//IsNumber_obsolete = 1;
+				NumberText.CatChar('0');
 				IsDot = 0;
-				P_Il->setText(CharNumber);
+				P_Il->setText(/*CharNumber*/NumberText);
 			}
 			break;
 		case CTL_INLNCALC_INVERSE:
@@ -314,7 +327,8 @@ void InputLineCalc::ProcessCommand(uint cmd)
 					break;
 			}
 			ShowNumber();
-			IsNumber = 0;
+			//IsNumber_obsolete = 0;
+			NumberText.Z();
 			IsDot = 0;
 			Command = cmd - CTL_INLNCALC_CLEAR;
 			if(Command == ILC_EQVAL)

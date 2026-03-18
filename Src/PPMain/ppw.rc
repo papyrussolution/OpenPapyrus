@@ -8717,7 +8717,7 @@ BEGIN
     PUSHBUTTON      "@but_bills",4020,115,255,100,13
     PUSHBUTTON      "@{cfgclientdealdebtlimit}...",4021,10,255,100,13
     PUSHBUTTON      "@cfgclientdeal_bmpp",4022,220,255,220,13
-    PUSHBUTTON      "@but_ok",STDCTL_OKBUTTON,325,274,50,13
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,325,274,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,390,274,50,13
     GROUPBOX        "@cfgclientdeal_retlim",IDC_STATIC,10,205,160,45
     LTEXT           "@cfgclientdeal_addedlimitval",4023,285,35,140,8

@@ -2595,6 +2595,11 @@ public:
 	//
 	static uint  FASTCALL Utf8Length(const wchar_t * pUcBuf, uint tlen);
 	static uint  FASTCALL Utf32ToUtf8(uint32 u32, char * pUtf8Buf);
+	//
+	// Descr: Вспомогательная функция, преобразующая utf8-символ, начинающийся с pUtf8Buf общей длиной utf8len
+	//   в unicode-символ. Функция заточена на то, чтобы быть быстрой. Потому никаких лишних проверок не делает, это - задача вызывающей функции.
+	//
+	static uint32 FASTCALL Helper_Utf8ToUtf32(const char * pUtf8Buf, uint utf8len); // @v12.5.10
 };
 
 enum SEOLFormat {
@@ -3457,8 +3462,12 @@ inline constexpr bool FASTCALL btnumber(int bt) { return oneof3(bt, BTS_INT, BTS
 //
 class DataType {
 public:
-	explicit DataType(uint32 sz) : S(sz) {}
-	DataType() : S(0) {}
+	explicit DataType(uint32 sz) : S(sz) 
+	{
+	}
+	DataType() : S(0) 
+	{
+	}
 	virtual uint32 size() const;
 	virtual int    Cmp_(const void * pItem1, const void * pItem2) const;
 	virtual char * tostr(const void * pData, long format, char * pBuf) const;
@@ -4173,6 +4182,7 @@ public:
 	};
 	enum {
 		fNoCase = 0x0001, // Поиск без учета регистра символов
+		fUtf8   = 0x0002, // @v12.5.10 И образец и строка - в кодировке utf8
 		fDebug  = 0x8000  // Класс собирает отладочную статистику и проверяет корректность алгоритмов
 	};
 	explicit SSrchPattern(const char * pPattern, long flags = 0, int algorithm = algBmGoodSfx);
@@ -4596,6 +4606,7 @@ public:
 	SString & FASTCALL ReplaceSpecSymb(int fileFormat);
 	SString & FASTCALL RevertSpecSymb(int fileFormat);
 	SString & ReplaceCR();
+	SString & ReplaceCR(uint * pCount);
 	SString & Escape();
 	SString & Unescape();
 	SString & ToUrl();
@@ -8970,7 +8981,7 @@ struct BNField { // @flat
 	bool   IsEq(const BNField & rS, bool nameAndTypeOnly = false) const;
 	int    getValue(const void * pDataBuf, void * pValBuf, size_t * pSize) const;
 	int    setValue(void * pDataBuf, const void * pValBuf) const;
-	int    putValueToString(const void * pDataBuf, char * pBuf) const;
+	int    putValueToString(const void * pDataBuf, /*char * pBuf*/SString & rBuf) const;
 
 	int32  Id;   // If object attached to dictionary then id = X$FIELD.XeId, else id = 0,1,..
 	char   Name[20];
@@ -14035,6 +14046,7 @@ struct SJson {
 	// Note: В случае неудачи (false returned) функция не меняет значение по ссылке rResult.
 	//
 	static bool FASTCALL GetChildInt(const SJson * pN, int & rResult); // @v12.3.12
+	static bool FASTCALL GetChildUInt(const SJson * pN, uint & rResult); // @v12.5.10
 	//
 	// Note: В случае неудачи (false returned) функция не меняет значение по ссылке rResult.
 	//

@@ -1619,6 +1619,7 @@
 #define BBT_REALTYPES           8  // Товарные, бухгалтерские документы и оплаты
 #define BBT_WMSBILLS            9  // Документы складских операций
 #define BBT_SPC_CHARGEONMARKS  10  // Special: постановка на баланс маркированной продукции
+#define BBT_AGREEMENT          11  // @v12.5.10 Документы договоров (PPOPT_AGREEMENT)
 //
 // Вид анализа счета. Применяются в PPViewAccAnlz
 // Перечисление AccAnlzKind (pp.h) однозначно проецируется в эти константы.

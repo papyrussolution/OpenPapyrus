@@ -1222,6 +1222,9 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 						</product>
 					</products_list> 
 				</withdrawal>
+
+				kpp - string - КПП участника оборота 
+				fias_id - string - Идентификатор ФИАС
 			*/
 			// Далее все не верно (по ошибке сделано в соответствии с doctGisMt_LpShipReceipt)
 			const  PPID   rcvr_ar_id = p_bp->Rec.Object;
@@ -1230,6 +1233,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 			SString receiver_inn;
 			SString doc_date_text;
 			PPID   subj_psn_id = main_org_id;
+			const  PPID   subj_loc_id = p_bp->Rec.LocID;
 			doc_date_text.Z().Cat(p_bp->Rec.Dt, DATF_GERMANCENT);
 			psn_obj.GetRegNumber(subj_psn_id, PPREGT_TPID, sender_inn);
 			if(rcvr_psn_id)
@@ -1245,10 +1249,25 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 			(temp_buf = p_bp->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8); // @v11.1.12 
 			nh.PutInner("primary_document_number", temp_buf);
 			nh.PutInner("primary_document_date", doc_date_text);
-			// @v11.1.10 {
 			PPLoadString("document_upd_s", temp_buf); // УПД
 			nh.PutInner("primary_document_custom_name", temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
-			// } @v11.1.10 
+			// @v12.5.10 {
+			{
+				PPLocationPacket loc_pack;
+				psn_obj.GetRegNumber(subj_psn_id, PPREGT_KPP, temp_buf);
+				if(temp_buf.NotEmpty()) {
+					nh.PutInner("kpp", temp_buf);
+				}
+				if(psn_obj.LocObj.GetPacket(subj_loc_id, &loc_pack) > 0) {
+					const ObjTagItem * p_tag_item = loc_pack.TagL.GetItem(PPTAG_LOC_FIASGUID_ADR);
+					S_GUID fias_uuid;
+					if(p_tag_item && p_tag_item->GetGuid(&fias_uuid)) {
+						temp_buf.Z().Cat(fias_uuid, S_GUID::fmtIDL);
+						nh.PutInner("fias_id", temp_buf);
+					}
+				}
+			}
+			// } @v12.5.10 
 			//nh.PutInner("primary_document_custom_name", "custom");
 			//nh.PutInner("kkt_number", "234");
 			//nh.PutInner("st_contract_id", ""); // optional

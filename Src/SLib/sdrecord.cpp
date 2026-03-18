@@ -64,10 +64,8 @@ void SdbField::GetFieldDataFromBuf(SString & rTextData, const void * pRecBuf, co
 		fmt = rFmt.FTime;
 	else if(base_type == BTS_REAL)
 		fmt = rFmt.FReal;
-	char   temp_buf[8192];
-	temp_buf[0] = 0;
-	sttostr(st, p_fld_data, fmt, temp_buf);
-	rTextData = temp_buf;
+	/* @v12.5.10 char   temp_buf[8192]; temp_buf[0] = 0; sttostr(st, p_fld_data, fmt, temp_buf); rTextData = temp_buf;*/
+	sttosstr(st, p_fld_data, fmt, rTextData); // @v12.5.10
 	if(base_type == BTS_STRING && rFmt.Flags & SFormatParam::fQuotText)
 		rTextData.Quot('\"', '\"');
 }

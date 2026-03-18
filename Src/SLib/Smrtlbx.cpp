@@ -1464,7 +1464,7 @@ UiSearchTextBlock::~UiSearchTextBlock()
 						}
 					}
 				}
-				SendDlgItemMessage(hwndDlg, p_slb->InputCtlId, EM_SETLIMITTEXT, UISEARCHTEXTBLOCK_MAXLEN, 0);
+				::SendDlgItemMessageW(hwndDlg, p_slb->InputCtlId, EM_SETLIMITTEXT, UISEARCHTEXTBLOCK_MAXLEN, 0);
 				TView::SSetWindowText(GetDlgItem(hwndDlg, p_slb->InputCtlId), (temp_buf = p_slb->Text).Transf(CTRANSF_INNER_TO_OUTER));
 				p_slb->IsBnClicked = 0;
 				if(p_slb->P_OuterWordSelBlk) {

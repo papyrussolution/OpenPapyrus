@@ -1064,8 +1064,9 @@ int PPObjArticle::EditAgreement(PPID arID)
 	THROW(CheckCfgRights(PPCFGOBJ_CLIENTDEAL, PPR_MOD, 0));
 	THROW(arobj.CheckRights(ARTRT_CLIAGT));
 	THROW(arobj.GetClientAgreement(0, agt));
-	if(arobj.EditClientAgreement(&agt) > 0)
+	if(arobj.EditClientAgreement(&agt) > 0) {
 		THROW(arobj.PutClientAgreement(0, &agt, 1));
+	}
 	CATCHZOKPPERR
 	return ok;
 }

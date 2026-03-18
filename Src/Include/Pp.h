@@ -18,6 +18,7 @@
 //   Поценковскоей Элине
 //   Соболеву Эрику
 //   Егорову Геннадию Николаевичу [rip]
+//   Соболеву Всеволоду (SevaSob)
 //
 //  Соглашение об обозначениях:
 //
@@ -1912,6 +1913,15 @@ public:
 		kViewPosition   = 2, // [current]
 		kEditorPosition = 3, // [current]
 	};
+	//
+	// Descr: Варианты трактовки значений, хранящихся в буферах и сериях
+	//
+	enum {
+		treatUndef = 0,       // Не определено
+		treatbStringUtf8        = 1, // buffer. Строка utf8
+		treatsStringUtf8List    = 2, // series. Список utf8-строк. Поиск по всей строке без учета регистра.
+		treatsSubStringUtf8List = 3, // series. Список utf8-строк. Поиск по подстроке без учета регистра.
+	};
 
 	static constexpr bool IsStateSerial(int kind) { return (kind == kInput); }
 
@@ -1951,6 +1961,10 @@ public:
 	//   нет такого состояния, то обращается к базе данных.
 	//
 	int    FetchStateSerial(const StateIdent & rIdent, TSCollection <SerialEntry> * pList);
+	//
+	static int PutStringToStateBuf(int treat, SBuffer & rBuf, const char * pStr);
+	static int GetStringFromStateBuf(int treat, const SBuffer & rBuf, SString & rStr);
+	static int SearchInSerial(const TSCollection <SerialEntry> & rList, const void * pKey, int treat, LongArray & rFoundPosList);
 private:
 	static bool CheckKeyForIdent(const StateIdent & rIdent, const LocalStateBinderyTbl::Rec & rRec);
 	static bool IsStateIdentEq(const StateIdent & rKey, const StateIdent & rCandidate);
@@ -1979,7 +1993,7 @@ private:
 
 	int   RegisterInMemState(PPID id, int64 uedTm, const StateIdent & rIdent, SBuffer & rRawData);
 	const InMemStateEntry * SearchInMemState(const StateIdent & rIdent, uint * pPos) const;
-	const InMemSerialEntry * SearchInMemSerial(const StateIdent & rIdent, uint * pPos) const;
+	const InMemSerialEntry * SearchInMemSerial(const StateIdent & rIdent, uint * pPos);
 };
 //
 // PPMsgLog
@@ -9810,16 +9824,13 @@ struct PPClientAgreement { // @persistent
 	double Dscnt;          // Обычная скидка в %%
 	int16  DefPayPeriod;   // Количество дней от отгрузки до оплаты по умолчанию
 	int16  PriceRoundDir;  // Направление округления окончательной цены в документах
-	int16  RetLimPrd;      // @v11.2.0 (moved up) Период ограничения доли возвратов от суммы товарооборота
-	uint16 RetLimPart;     // @v11.2.0 (moved up) Макс доля возвратов от суммы товарооборота за период RetLimPrd (в промилле)
+	int16  RetLimPrd;      // Период ограничения доли возвратов от суммы товарооборота
+	uint16 RetLimPart;     // Макс доля возвратов от суммы товарооборота за период RetLimPrd (в промилле)
 	PPID   DefAgentID;     // Агент, закрепленный за клиентом
 	PPID   DefQuotKindID;  // Вид котировки, закрепленный за клиентом
 	PPID   ExtObjectID;    // Дополнительный объект (таблица дополнительных объектов для общего соглашения)
 	LDATE  LockPrcBefore;  // Дата, до которой процессинг должников не меняет параметры соглашения //
-	// @v11.2.0 uint8  Reserve2[12];
 	float  PriceRoundPrec; // Точность округления окончательной цены в документах
-	// @v11.2.0 (moved up) int16  RetLimPrd;      // Период ограничения доли возвратов от суммы товарооборота
-	// @v11.2.0 (moved up) uint16 RetLimPart;     // Макс доля возвратов от суммы товарооборота за период RetLimPrd (в промилле)
 	//
 	// Descr: Значения базы определения даты оплаты по документу
 	//
@@ -9833,12 +9844,11 @@ struct PPClientAgreement { // @persistent
 	};
 	long   PaymDateBase;   // База для определения даты оплаты по документу.
 	PPID   EdiPrvID;       // ->Ref(PPOBJ_EDIPROVIDER)
-	// @v11.2.0 char   Code2[24];      // Номер соглашения
-	uint8  Reserve3_[22];     // @v11.2.0 Переведено в резерв. Номер соглашения - в поле Code_ // @v11.4.8 [24]-->[22]
+	uint8  Reserve3_[22];     // Переведено в резерв. Номер соглашения - в поле Code_ // @v11.4.8 [24]-->[22]
 	uint16 DefDuePeriodHour; // @v11.4.8 Номинальное количество часов от формирования заказа до отгрузки (срок доставки).
 	TSVector <DebtLimit> DebtLimList; // @anchor долговые ограничения по командам агентов
-	SString Code_;            // @v11.2.0 Номер соглашения //
-	BillMultiPrintParam Bmpp; // @v11.2.0 Параметры множественной печати документов. Позволит быстро установить эти параметры для документа
+	SString Code_;            // Номер соглашения //
+	BillMultiPrintParam Bmpp; // Параметры множественной печати документов. Позволит быстро установить эти параметры для документа
 		// по конкретному контрагенту.
 };
 
@@ -11792,6 +11802,7 @@ public:
 		Agreement();
 		Agreement(const Agreement & rS);
 		Agreement & FASTCALL operator = (const Agreement & rS);
+		Agreement & Z(); // @v12.5.10
 		bool   IsEmpty() const;
 		bool   FASTCALL IsEq(const Agreement & rS) const;
 		int    FASTCALL Copy(const Agreement & rS);
@@ -12308,8 +12319,9 @@ public:
 		};
 		long   Flags; // [IN] Флаги вызова функции PPBillPacket::SetupObject
 		enum {
-			stHasCliAgreement   = 0x0001,
-			stHasSupplAgreement = 0x0002
+			stHasCliAgreement       = 0x0001,
+			stHasSupplAgreement     = 0x0002,
+			stHasDedicatedAgreement = 0x0004  // @v12.5.10 
 		};
 		long   State;
 		PPID   PsnID;
@@ -12320,6 +12332,7 @@ public:
 			// контаргент должна иметь такой регистр, но не имеет.
 		PPClientAgreement CliAgt;
 		PPSupplAgreement  SupplAgt;
+		PPBill::Agreement DedicatedAgt; // @v12.5.10
 	};
 	//
 	// Descr: Устанавливает статью контрагента в пакет документа (Rec.Object). Выполняет все необходимые проверки.
@@ -13093,7 +13106,8 @@ public:
 	int    SearchAnalog(const BillTbl::Rec * pSample, long flags, PPID * pID, BillTbl::Rec * pRec);
 	int    GetRentCondition(PPID, PPRentCondition *);
 	int    SetFreight(PPID id, const PPFreight * pFreight, int use_ta);
-	int    GetFreight(PPID, PPFreight * pFreight);
+	int    GetFreight(PPID id, PPFreight * pFreight);
+	int    GetAgreement(PPID id, PPBill::Agreement * pAgt); // @v12.5.10
 	int    GetDlvrAddrList(LAssocArray * pList);
 	int    GetListByFreightFilt(const FreightFilt & rFilt, UintHashTable & rList);
 	//
@@ -20219,6 +20233,7 @@ private:
 #define BILSTF_READYFOREDIACK         0x0100 // Документ с таким статусом готов к отправке по нему подтверждения провайдеру EDI
 #define BILSTF_STRICTPRICECONSTRAINS  0x0200 // Для документов с таким статусом включается блокировка проведения если какая-либо из цен реализации
 	// нарушает ограничения, заданные в товарных типах.
+#define BILSTF_DENY_MERGE             0x0400 // @v12.5.10 Нельзя объединять документ с другими документами
 //
 // Флаги обязательности атрибутов документа
 //
@@ -26766,7 +26781,7 @@ public:
 
 	RegisterArray Regs;
 	ObjTagList TagL;
-	ObjIdListFilt WarehouseList; // @v11.0.6 Список складов, ассоциированных с подразделением главной организации
+	ObjIdListFilt WarehouseList; // Список складов, ассоциированных с подразделением главной организации
 };
 
 class PPObjLocation : public PPObject {
@@ -35031,6 +35046,7 @@ public:
 	int    ExtractPacket(PPID id, PPBillPacket * pPack);
 	int    ExtractPacketWithFlags(PPID id, PPBillPacket * pPack, uint flags /* BPLD_XXX */);
 	int    ExtractPacketWithRestriction(PPID id, PPBillPacket * pPack, uint flags /* BPLD_XXX */, const PPIDArray * pGoodsList);
+	int    GetMostSuitableAgreement(const PPBillPacket & rPack, PPID * pAgtBillID);
 	//
 	// Descr: Выясняет содержит ли документ с идентификатором id по крайней мере один товар из списка rGoodsList.
 	//   NB: Список rGoodsList должен быть отсортирован по возврстанию (LongArray::sort)
@@ -35406,7 +35422,7 @@ public:
 	//
 	int    ViewAccturns(PPID billID);
 	int    FillTurnList(PPBillPacket *);
-	int    UniteGoodsBill(PPBillPacket *, PPID addBillID, int use_ta);
+	int    UniteGoodsBill(PPBillPacket & rPack, PPID addBillID, int use_ta);
 	int    UniteReceiptBill(PPID destBillID, const PPIDArray & rSrcArray, int use_ta);
 	int    PrintCheck__(PPBillPacket * pPack, PPID posNodeID, int addSummator);
 	int    PosPrintByBill(PPID billID);
@@ -40170,18 +40186,19 @@ private:
 // @ModuleDecl(PPViewBill)
 //
 enum BrowseBillsType {
-	bbtUndef            = BBT_UNDEF,            //
-	bbtGoodsBills       = BBT_GOODSBILLS,       //
-	bbtOrderBills       = BBT_ORDERBILLS,       //
-	bbtAccturnBills     = BBT_ACCTURNBILLS,     //
-	bbtInventoryBills   = BBT_INVENTORYBILLS,   //
-	bbtPoolBills        = BBT_POOLBILLS,        //
-	bbtClientDebt       = BBT_CLIENTDEBT,       //
-	bbtClientRPayment   = BBT_CLIENTRPAYMENT,   //
-	bbtDraftBills       = BBT_DRAFTBILLS,       //
-	bbtRealTypes        = BBT_REALTYPES,        // Товарные, бухгалтерские документы и оплаты
-	bbtWmsBills         = BBT_WMSBILLS,         // Документы складских операций
-	bbtSpcChargeOnMarks = BBT_SPC_CHARGEONMARKS //
+	bbtUndef            = BBT_UNDEF,             //
+	bbtGoodsBills       = BBT_GOODSBILLS,        //
+	bbtOrderBills       = BBT_ORDERBILLS,        //
+	bbtAccturnBills     = BBT_ACCTURNBILLS,      //
+	bbtInventoryBills   = BBT_INVENTORYBILLS,    //
+	bbtPoolBills        = BBT_POOLBILLS,         //
+	bbtClientDebt       = BBT_CLIENTDEBT,        //
+	bbtClientRPayment   = BBT_CLIENTRPAYMENT,    //
+	bbtDraftBills       = BBT_DRAFTBILLS,        //
+	bbtRealTypes        = BBT_REALTYPES,         // Товарные, бухгалтерские документы и оплаты
+	bbtWmsBills         = BBT_WMSBILLS,          // Документы складских операций
+	bbtSpcChargeOnMarks = BBT_SPC_CHARGEONMARKS, //
+	bbtAgreemen         = BBT_AGREEMENT,         // @v12.5.10
 };
 //
 // Descr: Фильтр выборки документов.
@@ -40225,7 +40242,7 @@ public:
 	bool   HasMultiArRestriction() const { return (ObjList.IsExists() || (P_ContractorPsnTagF && !P_ContractorPsnTagF->IsEmpty())); }
 	enum bff_tag {
 		fShowDebt          = 0x00000001, // Показывать долг
-		fDebtOnly          = 0x00000002, // Выводить только неоплаченные документы
+		fDebtOnly          = 0x00000002, // Выводить только неоплаченные документы.
 		// if(fOrderOnly) then выводить только не закрытые заказы
 		fPaymNeeded        = 0x00000004, // Выводить документы, требующие оплаты (независимо от операции)
 		fFreightedOnly     = 0x00000008, // Только зафрахтованные документы (BillTbl::Rec.Flags & BILLF_FREIGHT)
@@ -40266,10 +40283,11 @@ public:
 		ccmRPayments       // Зачетные документы контрагента
 	};
 	enum {
-		ordByDate     = 0,
-		ordByCode     = 1,
-		ordByObject   = 2,
-		ordByDateCode = 3  // @v11.0.11 Сортировка по дате и номеру
+		ordByDate               = 0,
+		ordByCode               = 1,
+		ordByObject             = 2,
+		ordByDateCode           = 3, // Сортировка по дате и номеру
+		ordByContragentDateCode = 4, // @todo @v12.5.10
 	};
 	//
 	// Идентификаторы (дополнительных) полей для отображения в таблице //
@@ -40285,10 +40303,10 @@ public:
 		dliStdAmtCost,                // @v12.1.0 @construction Стандартная сумма в ценах поступления // 
 		dliStdAmtPrice,               // @v12.1.0 @construction Стандартная сумма в ценах реализации //
 	};
-	char   ReserveStart[20]; // @anchor @v11.0.11 [32]-->[28] // @v11.1.9 [28]-->[24] // @v11.9.4 [24]-->[20]
+	char   ReserveStart[20]; // @anchor // @v11.9.4 [24]-->[20]
 	PPID   FreightPortOfDischarge; // @v11.9.4 @construction Порт (пункт) разгрузки (из фрахта документа) //
-	PPID   CliPsnCategoryID; // @v11.1.9 Категория персоналии, соответствующей контрагенту документа
-	PPID   GoodsGroupID;   // @v11.0.11 Товарная группа, ограничивающая выборку документов по содержимому
+	PPID   CliPsnCategoryID; // Категория персоналии, соответствующей контрагенту документа
+	PPID   GoodsGroupID;   // Товарная группа, ограничивающая выборку документов по содержимому
 	long   Tag;            // @#0 reserved
 	DateRange DuePeriod;   // Период исполнения //
 	uint32 Count;          // Максимальное количество документов в выборке
@@ -40297,7 +40315,7 @@ public:
 	PPID   StorageLocID;   // Место хранение, ассоциированное с фрахтом документа
 	int16  EdiRecadvStatus;     // Статус RECADV по каналу EDI. -1 - с нулевым статусом
 	int16  EdiRecadvConfStatus; // Статус подтверждения на RECADV по каналу EDI. -1 - с нулевым статусом
-	int16  OrderFulfillmentStatus; // @v11.1.8 Статус выполнения заказа (-1) unused (0) ignored, (1) полностью не исполнен, (2) - полностью исполнен, (3) - исполнен частично
+	int16  OrderFulfillmentStatus; // Статус выполнения заказа (-1) unused (0) ignored, (1) полностью не исполнен, (2) - полностью исполнен, (3) - исполнен частично
 	uint8  Reserve[6];     // @#0 !Использовать начиная со старших адресов // @v11.1.8 [8]-->[6]
 	BrowseBillsType Bbt;   // @#1f
 	DateRange Period;      //
@@ -58900,6 +58918,18 @@ private:
 
 class DocNalogRu_WriteBillBlock {
 public:
+	//
+	// Descr: Получает список специальных символьных признаков контрагента по документу rBp.
+	//   Признаки извлекаются из тега PPTAG_PERSON_NOTCH персоналии.
+	//
+	// Обрабатываемые notch-признаки: 
+	//   #esphere - провайдер sber sphera
+	//   #sbis    - провайдер SBIS
+	//   #diadoc  - провайдер DIADOC
+	//   #nomarks - экспортировать документ так, словно в нем нет и не должно быть марок // @v12.5.10
+	//
+	static void GetNotchList(const PPBillPacket & rBp, StringSet & rSs);
+
 	DocNalogRu_WriteBillBlock(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, const char * pHeaderSymb, const SString & rFileName);
 	~DocNalogRu_WriteBillBlock();
 	const  bool IsValid() const { return !(State & stError); }

@@ -3824,7 +3824,8 @@ int PrcssrDebtRate::Run()
 						p_bobj->CalcClientDebt(ar_id, &period, update_stop_debtdim, blk.Z());
 						if(blk.Debt > 0.0) {
 							if(blk.MaxExpiry > P.Gandicap || P.Flags & Param::fAllowForMaxCredit && agt_rec.MaxCredit > 0.0 || update_stop_debtdim) {
-								AmtList amt_list, paym_list;
+								AmtList amt_list;
+								AmtList paym_list;
 								PayableBillList list(&amt_list, &paym_list);
 								THROW(p_bobj->GetReceivableBillList(ar_id, 0, &list));
 								rckn = amt_list.Get(0, 0) - paym_list.Get(0, 0);

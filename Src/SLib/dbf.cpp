@@ -1,5 +1,5 @@
 // DBF.CPP
-// Copyright (c) A. Sobolev 1993-2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2025
+// Copyright (c) A. Sobolev 1993-2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -148,15 +148,17 @@ int FASTCALL DbfRecord::getFieldType(uint fldN, int * pType)
 
 int DbfRecord::put(int fldN, TYPEID typ, const void * pData)
 {
-	char   temp_buf[256];
 	long   base_long = 0;
 	double base_real;
 	LDATE  base_date;
 	const  int bt = stbase(typ);
 	switch(bt) {
 		case BTS_STRING:
-			sttobase(typ, pData, temp_buf);
-			put(fldN, temp_buf);
+			{
+				char   temp_str[1024];
+				sttobase(typ, pData, temp_str);
+				put(fldN, temp_str);
+			}
 			break;
 		case BTS_INT:
 			sttobase(typ, pData, &base_long);
@@ -175,7 +177,14 @@ int DbfRecord::put(int fldN, TYPEID typ, const void * pData)
 			put(fldN, base_long ? 'T' : 'F');
 			break;
 		default:
-			put(fldN, sttostr(typ, pData, TIMF_HMS, temp_buf));
+			{
+				/* @v12.5.10 char   temp_str[1024]; sttostr(typ, pData, TIMF_HMS, temp_str);*/
+				// @v12.5.10 {
+				SString temp_buf;
+				sttosstr(typ, pData, TIMF_HMS, temp_buf);
+				// } @v12.5.10 
+				put(fldN, temp_buf);
+			}
 			break;
 	}
 	return 1;
@@ -186,10 +195,14 @@ int DbfRecord::put(int fld, const char * data)
 	DBFF   f;
 	if(P_Tbl->getField(fld, &f)) {
 		if(f.ftype == 'T' && f.fsize == 8) {
-			int   d = 1, m = 1, y = 2000;
-			long  first_date = 0x00256859, date = 0L;
+			int   d = 1;
+			int   m = 1;
+			int   y = 2000;
+			long  first_date = 0x00256859;
+			long  date = 0L;
 			char  buf[128];
-			LDATE dt, f_dt;
+			LDATE dt;
+			LDATE f_dt;
 			encodedate(d, m, y, &f_dt);
 			STRNSCPY(buf, data);
 			d = satoi(buf + 6);
@@ -205,8 +218,7 @@ int DbfRecord::put(int fld, const char * data)
 		}
 		else {
 			size_t len = sstrlen(data);
-			if(len > f.fsize)
-				len = f.fsize;
+			SETMIN(len, f.fsize);
 			memcpy(P_Buffer + f.offset, data, len);
 			memset(P_Buffer + f.offset + len, ' ', f.fsize - len);
 		}

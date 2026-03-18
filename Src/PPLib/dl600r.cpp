@@ -1355,7 +1355,7 @@ int DlRtm::Helper_PutScopeToJson(const DlScope * pScope, SJson * pJsonObj, int c
 {
 	int    ok = 1;
 	const  DlScope * p_scope = 0;
-	SString buf;
+	SString temp_buf;
 	SdbField fld;
 	SFormatParam fp;
 	fp.FReal  = MKSFMTD(0, 5, NMBF_NOTRAILZ|NMBF_OMITEPS);
@@ -1365,40 +1365,44 @@ int DlRtm::Helper_PutScopeToJson(const DlScope * pScope, SJson * pJsonObj, int c
 	for(uint j = 0; pScope->EnumInheritance(&j, &p_scope);) {
 		for(uint i = 0; p_scope->EnumFields(&i, &fld);) {
 			const void * p_rec_data = p_scope->GetDataC(0);
-			buf.Z();
+			temp_buf.Z();
 			if(fld.T.IsZStr(0))	{
-				fld.GetFieldDataFromBuf(buf, p_rec_data, fp);
+				fld.GetFieldDataFromBuf(temp_buf, p_rec_data, fp);
 				if(cp == cpUTF8)
-					buf.Transf(CTRANSF_INNER_TO_UTF8);
+					temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 				else
-					buf.Transf(CTRANSF_INNER_TO_OUTER);
-				buf.Escape();
-				pJsonObj->InsertString(fld.Name.cptr(), buf);
+					temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+				temp_buf.Escape();
+				pJsonObj->InsertString(fld.Name.cptr(), temp_buf);
 			}
 			else {
-				char   temp_text_buf[8192];
+				//char   temp_text_buf[8192];
 				const  TYPEID st = fld.T.GetDbFieldType();
 				const  int    base_type = stbase(st);
-				PTR32(temp_text_buf)[0] = 0;
+				//temp_text_buf[0] = 0;
 				if(adoptTypes && base_type == BTS_REAL) {
-					const void * p_fld_data = PTR8C(p_rec_data)+fld.InnerOffs;
+					const  void * p_fld_data = PTR8C(p_rec_data)+fld.InnerOffs;
 					// Мы здесь должны ради осторожности убрать дополнительные флаги форматирования дабы
 					// не получить в числовом значении запятой вместо точки или разделителей разрядов.
-					const int fmt_real = MKSTYPED(0, GETSSIZED(fp.FReal), GETSPRECD(fp.FReal));
-					sttostr(st, p_fld_data, fmt_real, temp_text_buf);
-					(buf = temp_text_buf).Escape();
-					pJsonObj->InsertNumber(fld.Name.cptr(), buf);
+					const  int fmt_real = MKSTYPED(0, GETSSIZED(fp.FReal), GETSPRECD(fp.FReal));
+					// @v12.5.10 sttostr(st, p_fld_data, fmt_real, temp_text_buf);
+					// @v12.5.10 (buf = temp_text_buf).Escape();
+					sttosstr(st, p_fld_data, fmt_real, temp_buf); // @v12.5.10
+					temp_buf.Escape(); // @v12.5.10
+					pJsonObj->InsertNumber(fld.Name.cptr(), /*buf*/temp_buf);
 				}
 				else if(adoptTypes && base_type == BTS_INT) {
 					const void * p_fld_data = PTR8C(p_rec_data)+fld.InnerOffs;
-					sttostr(st, p_fld_data, 0, temp_text_buf);
-					(buf = temp_text_buf).Escape();
-					pJsonObj->InsertNumber(fld.Name.cptr(), buf);
+					// @v12.5.10 sttostr(st, p_fld_data, 0, temp_text_buf);
+					// @v12.5.10 (buf = temp_text_buf).Escape();
+					sttosstr(st, p_fld_data, 0, temp_buf); // @v12.5.10
+					temp_buf.Escape(); // @v12.5.10
+					pJsonObj->InsertNumber(fld.Name.cptr(), temp_buf);
 				}
 				else {
-					fld.GetFieldDataFromBuf(buf, p_rec_data, fp);
-					buf.Escape();
-					pJsonObj->InsertString(fld.Name.cptr(), buf);
+					fld.GetFieldDataFromBuf(temp_buf, p_rec_data, fp);
+					temp_buf.Escape();
+					pJsonObj->InsertString(fld.Name.cptr(), temp_buf);
 				}
 			}
 		}

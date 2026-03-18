@@ -135,7 +135,7 @@ int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 			if(acs_obj.Fetch(Filt.AccSheetID, &acs_rec) > 0) {
 				if(acs_rec.Flags & ACSHF_USECLIAGT) {
 					PPObjDebtDim obj_dd;
-					AgtProp = ARTPRP_CLIAGT2; // @v11.2.0 ARTPRP_CLIAGT-->ARTPRP_CLIAGT2
+					AgtProp = ARTPRP_CLIAGT2;
 					P_DebtDimList = obj_dd.MakeStrAssocList(0);
 				}
 				else if(acs_rec.Flags & ACSHF_USESUPPLAGT)
@@ -811,6 +811,20 @@ int PPViewArticle::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 					::ViewGoodsBills(&bill_flt, true/*modeless*/);
 				}
 				break;
+			case PPVCMD_VIEWBILLS_AGT:
+				ok = -1;
+				if(id) {
+					ArticleTbl::Rec ar_rec;
+					if(ArObj.Search(id, &ar_rec) > 0) {
+						BillFilt bill_flt;
+						bill_flt.AccSheetID = ar_rec.AccSheetID;
+						bill_flt.ObjectID   = id;
+						bill_flt.Bbt        = bbtAgreemen;
+						bill_flt.Flags      = BillFilt::fSetupNewBill;
+						::ViewGoodsBills(&bill_flt, true/*modeless*/);
+					}
+				}
+				break;				
 			case PPVCMD_VIEWGOODS:
 				ok = -1;
 				if(id) {

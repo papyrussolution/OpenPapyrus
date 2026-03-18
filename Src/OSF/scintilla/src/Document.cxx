@@ -1852,7 +1852,7 @@ long Document::FindText(int minPos, int maxPos, const char * search, int flags, 
 		}
 		if(caseSensitive) {
 			const int endSearch = (startPos <= endPos) ? endPos - lengthFind + 1 : endPos;
-			const char charStartSearch =  search[0];
+			const char charStartSearch = search[0];
 			while(forward ? (pos < endSearch) : (pos >= endSearch)) {
 				if(CharAt(pos) == charStartSearch) {
 					bool found = (pos + lengthFind) <= limitPos;
@@ -1870,8 +1870,7 @@ long Document::FindText(int minPos, int maxPos, const char * search, int flags, 
 		else if(SC_CP_UTF8 == dbcsCodePage) {
 			const size_t maxFoldingExpansion = 4;
 			std::vector <char> searchThing(lengthFind * UTF8MaxBytes * maxFoldingExpansion + 1);
-			const int lenSearch = static_cast<int>(
-			    pcf->Fold(&searchThing[0], searchThing.size(), search, lengthFind));
+			const int lenSearch = static_cast<int>(pcf->Fold(&searchThing[0], searchThing.size(), search, lengthFind));
 			char bytes[UTF8MaxBytes + 1];
 			char folded[UTF8MaxBytes * maxFoldingExpansion + 1];
 			while(forward ? (pos < endPos) : (pos >= endPos)) {

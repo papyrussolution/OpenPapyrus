@@ -450,6 +450,7 @@ int BillFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 			__BBT(bbtDraftBills);
 			__BBT(bbtRealTypes);
 			__BBT(bbtWmsBills);
+			__BBT(bbtAgreemen); // @v12.5.10
 		}
 #undef __BBT
 		PutMembToBuf(buf,  STRINGIZE(Bbt),  rBuf);
@@ -497,46 +498,50 @@ void FASTCALL BillFilt::SetupBrowseBillsType(BrowseBillsType bbt)
 {
 	switch(bbt) {
 		case bbtGoodsBills:
-			if(Flags & (fOrderOnly | fInvOnly | fAccturnOnly | fPoolOnly))
+			if(Flags & (fOrderOnly|fInvOnly|fAccturnOnly|fPoolOnly))
 				OpID = ObjectID = 0;
-			Flags &= ~(fOrderOnly | fInvOnly | fAccturnOnly | fPoolOnly | fWmsOnly);
+			Flags &= ~(fOrderOnly|fInvOnly|fAccturnOnly|fPoolOnly|fWmsOnly);
 			break;
 		case bbtOrderBills:
 			if(!(Flags & fOrderOnly))
 				OpID = ObjectID = 0;
-			Flags &= ~(fInvOnly | fAccturnOnly | fPoolOnly | fWmsOnly);
+			Flags &= ~(fInvOnly|fAccturnOnly|fPoolOnly|fWmsOnly);
 			Flags |= fOrderOnly;
 			break;
 		case bbtAccturnBills:
 			if(!(Flags & fAccturnOnly))
 				OpID = ObjectID = 0;
-			Flags &= ~(fOrderOnly | fInvOnly | fPoolOnly | fWmsOnly);
+			Flags &= ~(fOrderOnly|fInvOnly|fPoolOnly|fWmsOnly);
 			Flags |= fAccturnOnly;
 			break;
 		case bbtInventoryBills:
 			if(!(Flags & fInvOnly))
 				OpID = ObjectID = 0;
-			Flags &= ~(fOrderOnly | fAccturnOnly | fPoolOnly | fWmsOnly);
+			Flags &= ~(fOrderOnly|fAccturnOnly|fPoolOnly|fWmsOnly);
 			Flags |= fInvOnly;
 			break;
 		case bbtPoolBills:
 			if(!(Flags & fPoolOnly))
 				OpID = ObjectID = 0;
-			Flags &= ~(fOrderOnly | fInvOnly | fAccturnOnly | fWmsOnly);
+			Flags &= ~(fOrderOnly|fInvOnly|fAccturnOnly|fWmsOnly);
 			Flags |= fPoolOnly;
 			break;
 		case bbtDraftBills:
 			if(!(Flags & fDraftOnly))
 				OpID = ObjectID = 0;
-			Flags &= ~(fOrderOnly | fAccturnOnly | fPoolOnly | fInvOnly | fWmsOnly);
+			Flags &= ~(fOrderOnly|fAccturnOnly|fPoolOnly|fInvOnly|fWmsOnly);
 			Flags |= fDraftOnly;
 			Ft_ClosedOrder = -1;
 			break;
 		case bbtWmsBills:
 			if(!(Flags & fDraftOnly))
 				OpID = ObjectID = 0;
-			Flags &= ~(fOrderOnly | fAccturnOnly | fPoolOnly | fInvOnly | fDraftOnly);
+			Flags &= ~(fOrderOnly|fAccturnOnly|fPoolOnly|fInvOnly|fDraftOnly);
 			Flags |= fWmsOnly;
+			break;
+		case bbtAgreemen: // @v12.5.10
+			Flags &= ~(fOrderOnly|fAccturnOnly|fPoolOnly|fInvOnly|fDraftOnly|fWmsOnly);
+			Flags |= fAccturnOnly;
 			break;
 		default:
 			bbt = bbtUndef;
@@ -964,7 +969,10 @@ int BillFiltDialog::setDTS(const BillFilt * pFilt)
 		SetupLocationCombo();
 		SetPeriodInput(this, CTL_BILLFLT_PERIOD, Data.Period);
 		SetPeriodInput(this, CTL_BILLFLT_DUEPERIOD, Data.DuePeriod);
-		if(Data.Flags & BillFilt::fOrderOnly)
+		if(Data.Bbt == bbtAgreemen) { // @v12.5.10
+			types.add(PPOPT_AGREEMENT);
+		}
+		else if(Data.Flags & BillFilt::fOrderOnly)
 			types.addzlist(PPOPT_GOODSORDER, PPOPT_GENERIC, 0L);
 		else if(Data.Flags & BillFilt::fAccturnOnly) {
 			types.addzlist(PPOPT_ACCTURN, PPOPT_AGREEMENT, PPOPT_GENERIC, 0L);
@@ -1383,6 +1391,9 @@ int PPViewBill::EditBaseFilt(PPBaseFilt * pFilt)
 				p_filt->Flags |= BillFilt::fWmsOnly;
 				caption = 6;
 				break;
+			case bbtAgreemen: // @v12.5.10
+				p_filt->Flags |= BillFilt::fAccturnOnly;
+				caption = 7;
 			default:
 				caption = 0;
 				break;
@@ -1493,6 +1504,9 @@ int PPViewBill::GetOpList(const BillFilt * pFilt, PPIDArray * pList, PPID * pSin
 			ot = PPOPT_POOL;
 		if(ot)
 			ot_list.add(ot);
+		else if(pFilt->Bbt == bbtAgreemen) { // @v12.5.10
+			ot_list.add(PPOPT_AGREEMENT);
+		}
 		else if(pFilt->Flags & BillFilt::fAccturnOnly)
 			ot_list.addzlist(PPOPT_ACCTURN, PPOPT_AGREEMENT, 0L);
 		else if(pFilt->Flags & BillFilt::fDraftOnly)
@@ -3341,27 +3355,42 @@ int PPViewBill::AddItem(PPID * pID, PPID opID)
 						op_id = GetCashOp();
 				}
 				else {
+					PPIDArray base_op_type_list; // @v12.5.10
+					uint   opklf = 0;
 					PPIDArray op_type_list;
+					{
+						if(Filt.Bbt == bbtAgreemen) { // @v12.5.10
+							base_op_type_list.add(PPOPT_AGREEMENT);
+						}
+						else if(Filt.Flags & BillFilt::fAccturnOnly)
+							base_op_type_list.addzlist(PPOPT_ACCTURN, PPOPT_AGREEMENT, 0L);
+						else if(Filt.Flags & BillFilt::fOrderOnly)
+							base_op_type_list.add(PPOPT_GOODSORDER);
+						else if(Filt.Flags & BillFilt::fInvOnly)
+							base_op_type_list.add(PPOPT_INVENTORY);
+						else if(Filt.Flags & BillFilt::fPoolOnly)
+							base_op_type_list.add(PPOPT_POOL);
+						else if(Filt.Flags & BillFilt::fDraftOnly)
+							base_op_type_list.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ, 0L);
+						else if(Filt.Flags & BillFilt::fWmsOnly)
+							base_op_type_list.addzlist(PPOPT_WAREHOUSE, 0L);
+						else
+							base_op_type_list.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF, PPOPT_PAYMENT, 0L);
+					}
 					if(Filt.AccSheetID) {
-						while(EnumOperations(0, &op_id, &op_rec) > 0)
-							if(Filt.AccSheetID == op_rec.AccSheetID)
-								op_type_list.add(op_id);
+						while(EnumOperations(0, &op_id, &op_rec) > 0) {
+							if(Filt.AccSheetID == op_rec.AccSheetID) {
+								if(!base_op_type_list.getCount() || base_op_type_list.lsearch(op_rec.OpTypeID)) {
+									op_type_list.add(op_id);
+								}
+							}
+						}
+						opklf |= OPKLF_OPLIST;
 						op_id = 0;
 					}
-					else if(Filt.Flags & BillFilt::fAccturnOnly)
-						op_type_list.addzlist(PPOPT_ACCTURN, PPOPT_AGREEMENT, 0L);
-					else if(Filt.Flags & BillFilt::fOrderOnly)
-						op_type_list.add(PPOPT_GOODSORDER);
-					else if(Filt.Flags & BillFilt::fInvOnly)
-						op_type_list.add(PPOPT_INVENTORY);
-					else if(Filt.Flags & BillFilt::fPoolOnly)
-						op_type_list.add(PPOPT_POOL);
-					else if(Filt.Flags & BillFilt::fDraftOnly)
-						op_type_list.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ, 0L);
-					else if(Filt.Flags & BillFilt::fWmsOnly)
-						op_type_list.addzlist(PPOPT_WAREHOUSE, 0L);
-					else
-						op_type_list.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF, PPOPT_PAYMENT, 0L);
+					else {
+						op_type_list = base_op_type_list;
+					}
 					// @v12.3.9 {
 					if(!op_id && Filt.OpID && !IsGenericOp(Filt.OpID)) {
 						if(Filt.AccSheetID)	{
@@ -3919,9 +3948,11 @@ int PPViewBill::DeleteBillFromPool(PPID billID)
 				do {
 					const  PPID bill_id = bill_list.get(--i);
 					THROW(RemoveFromPool(bill_id, 0));
-					if(v == 0)
-						if(P_BObj->Search(bill_id) > 0)
+					if(v == 0) {
+						if(P_BObj->Search(bill_id) > 0) {
 							THROW(P_BObj->RemovePacket(bill_id, 0));
+						}
+					}
 					ok = 1;
 				} while(i);
 			THROW(tra.Commit());
@@ -3937,13 +3968,13 @@ int PPViewBill::DeleteItem(PPID billID)
 	int    ok = -1;
 	int    i, r;
 	if(!(Filt.DenyFlags & BillFilt::fDenyRemove)) {
-		int    is_bill_found = 0;
-		int    is_wrd_draft = 0;
+		bool   is_bill_found = false;
+		bool   is_wrd_draft = false;
 		BillTbl::Rec bill_rec;
 		if(billID && P_BObj->Search(billID, &bill_rec) > 0) {
-			is_bill_found = 1;
+			is_bill_found = true;
 			if(IsDraftOp(bill_rec.OpID) && bill_rec.Flags & BILLF_WRITEDOFF)
-				is_wrd_draft = 1;
+				is_wrd_draft = true;
 		}
 		if(!is_wrd_draft && ((Filt.Flags & BillFilt::fEditPoolByType) || (Filt.PoolBillID && PPMaster && (CConfig.Flags & CCFLG_DEBUG))))
 			ok = DeleteBillFromPool(billID);
@@ -4022,15 +4053,19 @@ int PPViewBill::DeleteItem(PPID billID)
 int PPViewBill::ViewPayments(PPID billID, int kind)
 {
 	int    ok = -1;
-	BillTbl::Rec bill_rec, link_rec;
+	BillTbl::Rec bill_rec;
+	BillTbl::Rec link_rec;
 	PPViewBill * p_v = 0;
 	if(P_BObj->Search(billID, &bill_rec) > 0) {
 		if(GetOpType(bill_rec.OpID) == PPOPT_INVENTORY /*|| IsDraftOp(bill_rec.OpID)*/) {
-			SString bill_code, fmt_buf, title;
+			SString bill_code;
+			SString fmt_buf;
+			SString title;
 			BillFilt flt;
 			flt.List.InitEmpty();
-			for(DateIter di; P_BObj->P_Tbl->EnumLinks(billID, &di, BLNK_ALL, &link_rec) > 0;)
+			for(DateIter di; P_BObj->P_Tbl->EnumLinks(billID, &di, BLNK_ALL, &link_rec) > 0;) {
 				flt.List.Add(link_rec.ID);
+			}
 			THROW_MEM(p_v = new PPViewBill);
 			THROW(p_v->Init_(&flt));
 			{
@@ -4062,14 +4097,16 @@ int PPViewBill::ViewPayments(PPID billID, int kind)
 int PPViewBill::ViewBillsByOrder(PPID billID)
 {
 	int    ok = -1;
-	BillTbl::Rec bill_rec, sh_rec;
+	BillTbl::Rec bill_rec;
+	BillTbl::Rec sh_rec;
 	PPViewBill * p_v = 0;
 	if(P_BObj->Search(billID, &bill_rec) > 0 && GetOpType(bill_rec.OpID) == PPOPT_GOODSORDER) {
 		BillFilt flt;
 		flt.List.InitEmpty();
 		for(DateIter di; P_BObj->P_Tbl->EnumByObj(billID, &di, &sh_rec) > 0;) {
-			if(sh_rec.OpID == 0)
+			if(!sh_rec.OpID) {
 				THROW(flt.List.Add(sh_rec.LinkBillID));
+			}
 		}
 		THROW_MEM(p_v = new PPViewBill);
 		THROW(p_v->Init_(&flt));
@@ -4119,13 +4156,14 @@ int PPViewBill::AttachBill(PPID billID, const BrowserWindow * pBrw)
 
 int PPViewBill::AttachBillToOrder(PPID billID)
 {
-	int    ok = -1, r;
+	int    ok = -1;
+	int    r;
 	BillTbl::Rec bill_rec;
 	if(P_BObj->Search(billID, &bill_rec) > 0 && CheckOpFlags(bill_rec.OpID, OPKF_ONORDER)) {
 		BillFilt flt;
 		PPOprKind op_rec;
 		GetOpData(bill_rec.OpID, &op_rec);
-		PPID   acc_sheet_id = op_rec.AccSheetID;
+		const  PPID acc_sheet_id = op_rec.AccSheetID;
 		flt.Period.upp = bill_rec.Dt;
 		PPID   op_id = 0;
 		if(op_rec.AccSheetID == LConfig.LocAccSheetID) {
@@ -4149,14 +4187,16 @@ int PPViewBill::AttachBillToOrder(PPID billID)
 			flt.LocList.Add(bill_rec.LocID);
 		}
 		else {
-			for(PPID id = 0; (r = EnumOperations(PPOPT_GOODSORDER, &id, &op_rec)) > 0;)
-				if(op_rec.AccSheetID == acc_sheet_id)
+			for(PPID id = 0; (r = EnumOperations(PPOPT_GOODSORDER, &id, &op_rec)) > 0;) {
+				if(op_rec.AccSheetID == acc_sheet_id) {
 					if(op_id == 0)
 						op_id = id;
 					else {
 						op_id = 0;
 						break;
 					}
+				}
+			}
 			flt.ObjectID = bill_rec.Object;
 		}
 		flt.OpID = op_id;
@@ -4170,7 +4210,7 @@ int PPViewBill::AttachBillToOrder(PPID billID)
 			}
 		}
 		if(ViewGoodsBills(&flt, true/*modeless*/) > 0) {
-			PPID   order_bill_id = flt.Sel;
+			const  PPID order_bill_id = flt.Sel;
 			LastSelID = flt.Sel;
 			PPBillPacket pack, ord_pack;
 			THROW(P_BObj->ExtractPacket(billID, &pack) > 0);
@@ -4185,7 +4225,8 @@ int PPViewBill::AttachBillToOrder(PPID billID)
 
 int PPViewBill::AttachBillToDraft(PPID billID, const BrowserWindow * pBrw)
 {
-	int    ok = -1, r;
+	int    ok = -1;
+	int    r;
 	BillTbl::Rec bill_rec;
 	if(P_BObj->Search(billID, &bill_rec) > 0) {
 		uint   msg_id = 0;
@@ -4198,10 +4239,9 @@ int PPViewBill::AttachBillToDraft(PPID billID, const BrowserWindow * pBrw)
 			PPObjOprKind op_obj;
 			PPOprKind op_rec;
 			GetOpData(bill_rec.OpID, &op_rec);
-			PPID   acc_sheet_id = op_rec.AccSheetID;
+			const  PPID acc_sheet_id = op_rec.AccSheetID;
 			DateRange period;
-			period.upp = bill_rec.Dt;
-			period.low = plusdate(bill_rec.Dt, -180);
+			period.Set(plusdate(bill_rec.Dt, -180), bill_rec.Dt);
 			PPIDArray op_list;
 			LAssocArray doe_flags_list;
 			const  int is_intrrcpt = (IsIntrOp(bill_rec.OpID) == INTRRCPT);
@@ -4253,7 +4293,7 @@ int PPViewBill::AttachBillToDraft(PPID billID, const BrowserWindow * pBrw)
 				for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 					t->CopyBufTo(&draft_bill_rec);
 					if(op_list.lsearch(draft_bill_rec.OpID) && (egais_rcpt_op_id == draft_bill_rec.OpID || draft_bill_rec.Object == bill_rec.Object)) {
-						int   suited = 0;
+						int    suited = 0;
 						if(draft_bill_rec.Flags & BILLF_WRITEDOFF) {
 							long doe_flags = 0;
 							if(doe_flags_list.Search(draft_bill_rec.OpID, &doe_flags, 0) && doe_flags & DROXF_MULTWROFF)
@@ -4262,19 +4302,9 @@ int PPViewBill::AttachBillToDraft(PPID billID, const BrowserWindow * pBrw)
 						else if(draft_bill_rec.OpID == egais_rcpt_op_id) {
 							suited = 0;
 							if(oneof4(draft_bill_rec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILL_V4)) {
-								/* @v11.1.12 
-								BillTbl::Rec temp_bill_rec; // В итерационном запросе примечания нет - здесь получим полную запись
-								if(P_BObj->Search(draft_bill_rec.ID, &temp_bill_rec) > 0) {
-									temp_buf = temp_bill_rec.Memo;
-									if(temp_buf.HasPrefixIAscii(PPConst::P_BillNotePrefix_IntrExpnd))
-										suited = 1;
-								}
-								*/
-								// @v11.1.12 {
 								P_BObj->P_Tbl->GetItemMemo(draft_bill_rec.ID, temp_buf);
 								if(temp_buf.HasPrefixIAscii(PPConst::P_BillNotePrefix_IntrExpnd))
 									suited = 1;
-								// } @v11.1.12 
 							}
 						}
 						else
@@ -4315,7 +4345,9 @@ int PPViewBill::AttachBillToDraft(PPID billID, const BrowserWindow * pBrw)
 				msg_id = PPTXT_NODRAFTOPFORLINK;
 		}
 		if(ok < 0 && msg_id && pBrw) {
-			SString fmt_buf, msg_buf, bill_text;
+			SString fmt_buf;
+			SString msg_buf;
+			SString bill_text;
 			if(PPLoadText(msg_id, fmt_buf)) {
 				PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddOpName, bill_text);
 				msg_buf.Printf(fmt_buf, bill_text.cptr());
@@ -4331,38 +4363,62 @@ int PPViewBill::AttachBillToDraft(PPID billID, const BrowserWindow * pBrw)
 int PPViewBill::UniteInventory()
 {
 	int    ok = -1;
+	SString temp_buf;
 	ushort v;
 	PPObjBill::InvMovSgo sgo;
 	int    rmv_src = 1;
-	PPIDArray ary;
 	TDialog * dlg = new TDialog(DLG_UNITEINVENT);
 	THROW(CheckDialogPtr(&dlg));
 	dlg->setCtrlUInt16(CTL_UNITEINVENT_SGOPTION, 0);
 	dlg->setCtrlUInt16(CTL_UNITEINVENT_FLAGS,    1);
 	if(ExecView(dlg) == cmOK) {
 		v = dlg->getCtrlUInt16(CTL_UNITEINVENT_SGOPTION);
-		if(v == 0)
-			sgo = PPObjBill::imsgoAdd;
-		else if(v == 1)
-			sgo = PPObjBill::imsgoSkip;
-		else if(v == 2)
-			sgo = PPObjBill::imsgoFail;
-		else
-			sgo = PPObjBill::imsgoAdd;
+		switch(v) {
+			case 0: sgo = PPObjBill::imsgoAdd; break;
+			case 1: sgo = PPObjBill::imsgoSkip; break;
+			case 2: sgo = PPObjBill::imsgoFail; break;
+			default: sgo = PPObjBill::imsgoAdd; break;
+		}
 		v = dlg->getCtrlUInt16(CTL_UNITEINVENT_FLAGS);
 		rmv_src = BIN(v & 0x01);
-		PPWaitStart();
-		THROW(GetBillIDList(&ary));
-		if(ary.getCount() > 1) {
-			PPID   dest_id = ary.get(0);
-			PPIDArray src_ids;
-			for(uint i = ary.getCount()-1; i > 0; i--)
-				src_ids.add(ary.get(i));
-			ary.freeAll();
-			THROW(P_BObj->UniteInventory(dest_id, &src_ids, sgo, rmv_src, 1));
-			ok = 1;
+		{
+			PPLogger logger;
+			PPIDArray ary;
+			PPWaitStart();
+			THROW(GetBillIDList(&ary));
+			// @v12.5.10 {
+			{
+				BillTbl::Rec bill_rec;
+				uint   iter_idx = ary.getCount();
+				if(iter_idx) {
+					do {
+						const  PPID bill_id = ary.get(--iter_idx);
+						if(P_BObj->Search(bill_id, &bill_rec) > 0) {
+							if(P_BObj->CheckStatusFlag(bill_rec.StatusID, BILSTF_DENY_MERGE)) {
+								//PPINF_BILLCANTBEMERGED_STATUS "Документ '%s' не можеть быть объединен поскольку это запрещено его статусом" // @v12.5.10
+								PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddObjName, temp_buf);
+								logger.LogMsgCode(mfInfo, PPINF_BILLCANTBEMERGED_STATUS, temp_buf);
+								ary.atFree(iter_idx);
+							}
+						}
+						else {
+							ary.atFree(iter_idx);
+						}
+					} while(iter_idx);
+				}
+			}
+			// } @v12.5.10 
+			if(ary.getCount() > 1) {
+				const  PPID dest_id = ary.get(0);
+				PPIDArray src_ids;
+				for(uint i = ary.getCount()-1; i > 0; i--)
+					src_ids.add(ary.get(i));
+				ary.freeAll();
+				THROW(P_BObj->UniteInventory(dest_id, &src_ids, sgo, rmv_src, 1));
+				ok = 1;
+			}
+			PPWaitStop();
 		}
-		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	delete dlg;
@@ -4372,16 +4428,41 @@ int PPViewBill::UniteInventory()
 int PPViewBill::UniteSellBills()
 {
 	int    ok = -1;
-	PPIDArray  src_ids, dest_ids;
+	PPIDArray src_ids;
+	PPIDArray dest_ids;
 	PPBillPacket pack;
+	SString temp_buf;
 	if(PPMessage(mfConf|mfYesNo, PPCFM_UNITESELL) == cmYes) {
+		PPLogger logger;
 		PPWaitStart();
 		THROW(GetBillIDList(&src_ids));
+		// @v12.5.10 {
+		{
+			BillTbl::Rec bill_rec;
+			uint   iter_idx = src_ids.getCount();
+			if(iter_idx) {
+				do {
+					const  PPID bill_id = src_ids.get(--iter_idx);
+					if(P_BObj->Search(bill_id, &bill_rec) > 0) {
+						if(P_BObj->CheckStatusFlag(bill_rec.StatusID, BILSTF_DENY_MERGE)) {
+							//PPINF_BILLCANTBEMERGED_STATUS "Документ '%s' не можеть быть объединен поскольку это запрещено его статусом" // @v12.5.10
+							PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddObjName, temp_buf);
+							logger.LogMsgCode(mfInfo, PPINF_BILLCANTBEMERGED_STATUS, temp_buf);
+							src_ids.atFree(iter_idx);
+						}
+					}
+					else {
+						src_ids.atFree(iter_idx);
+					}
+				} while(iter_idx);
+			}
+		}
+		// } @v12.5.10 
 		if(src_ids.getCount() > 1) {
 			uint   i;
 			PPBill last_bill;
 			PPTransaction tra(1);
-			const  PPID src_bill_id = src_ids.at(src_ids.getCount()-1);
+			const  PPID src_bill_id = src_ids.get(src_ids.getCount()-1);
 			THROW(tra);
 			THROW(P_BObj->P_Tbl->Extract(src_bill_id, &last_bill) > 0);
 			THROW(pack.CreateBlank2(Filt.OpID, last_bill.Rec.Dt, last_bill.Rec.LocID, 0));
@@ -4394,7 +4475,7 @@ int PPViewBill::UniteSellBills()
 			dest_ids.addUnique(pack.Rec.ID);
 			for(i = 0; i < src_ids.getCount(); i++) {
 				PPWaitPercent(i, src_ids.getCount());
-				THROW(P_BObj->UniteGoodsBill(&pack, src_ids.at(i), 0));
+				THROW(P_BObj->UniteGoodsBill(pack, src_ids.get(i), 0));
 				if(pack.CheckLargeBill(0)) {
 					if(P_BObj->P_LotXcT) {
 						THROW(P_BObj->P_LotXcT->PutContainer(pack.Rec.ID, &pack.XcL, 0)); // Здесь надо сохранить расширенные коды лотов для pack
@@ -4429,15 +4510,39 @@ int PPViewBill::UniteSellBills()
 int PPViewBill::UniteReceiptBills()
 {
 	int    ok = -1;
-	PPIDArray ary;
+	SString temp_buf;
+	PPIDArray src_ids;
 	if(PPMessage(mfConf|mfYesNo, PPCFM_UNITERCPT) == cmYes) {
+		PPLogger logger;
 		PPWaitStart();
-		THROW(GetBillIDList(&ary));
-		if(ary.getCount() > 1) {
-			const PPID dest_id = ary.get(0);
-			ary.reverse(0, ary.getCount());
-			ary.atFree(ary.getCount()-1);
-			THROW(P_BObj->UniteReceiptBill(dest_id, ary, 1));
+		THROW(GetBillIDList(&src_ids));
+		// @v12.5.10 {
+		{
+			BillTbl::Rec bill_rec;
+			uint   iter_idx = src_ids.getCount();
+			if(iter_idx) {
+				do {
+					const  PPID bill_id = src_ids.get(--iter_idx);
+					if(P_BObj->Search(bill_id, &bill_rec) > 0) {
+						if(P_BObj->CheckStatusFlag(bill_rec.StatusID, BILSTF_DENY_MERGE)) {
+							//PPINF_BILLCANTBEMERGED_STATUS "Документ '%s' не можеть быть объединен поскольку это запрещено его статусом" // @v12.5.10
+							PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddObjName, temp_buf);
+							logger.LogMsgCode(mfInfo, PPINF_BILLCANTBEMERGED_STATUS, temp_buf);
+							src_ids.atFree(iter_idx);
+						}
+					}
+					else {
+						src_ids.atFree(iter_idx);
+					}
+				} while(iter_idx);
+			}
+		}
+		// } @v12.5.10 
+		if(src_ids.getCount() > 1) {
+			const PPID dest_id = src_ids.get(0);
+			src_ids.reverse(0, src_ids.getCount());
+			src_ids.atFree(src_ids.getCount()-1);
+			THROW(P_BObj->UniteReceiptBill(dest_id, src_ids, 1));
 			ok = 1;
 		}
 		PPWaitStop();
@@ -5572,9 +5677,13 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 							int    r = 0;
 							THROW(b_e.Init(&bill_param, &brow_param, &pack, 0 /*&result_file_list*/));
 							{
-								const SString nominal_file_name = b_e.BillParam.FileName;
-								bool   pack_has_marks = pack.HasChZnMarks(is_exp_correction);
-								if(is_exp_correction) {
+								const  SString nominal_file_name(b_e.BillParam.FileName);
+								StringSet ss_notch; // @v12.5.10
+								DocNalogRu_WriteBillBlock::GetNotchList(pack, ss_notch); // @v12.5.10
+								const  bool no_marks_because_notch = ss_notch.searchNcAscii("#nomarks", 0, 0); // @v12.5.10
+								bool   pack_has_marks = no_marks_because_notch ? false : pack.HasChZnMarks(is_exp_correction);
+								//const  bool no_marks_because_notch = SsNotch.searchNcAscii("#nomarks", 0, 0); // @v12.5.10
+								if(is_exp_correction && !no_marks_because_notch) {
 									if(!pack_has_marks && pack.P_LinkPack) {
 										pack_has_marks = pack.P_LinkPack->HasChZnMarks(is_exp_correction);
 									}
@@ -6670,10 +6779,12 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 		const PPConfig & r_cfg = LConfig;
 		BillTbl::Rec bill_rec;
 		BrwHdr hdr;
-		if(pHdr && ppvCmd != PPVCMD_INPUTCHAR && ppvCmd != PPVCMD_RECEIVEDFOCUS)
+		if(pHdr && ppvCmd != PPVCMD_INPUTCHAR && ppvCmd != PPVCMD_RECEIVEDFOCUS) {
 			hdr = *static_cast<const PPViewBill::BrwHdr *>(pHdr);
-		else
+		}
+		else {
 			MEMSZERO(hdr);
+		}
 		id = hdr.ID;
 		switch(ppvCmd) {
 			case PPVCMD_EDITITEM:
@@ -6721,22 +6832,25 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 				ok = P_BObj->EditBillExtData(hdr.ID);
 				break;
 			case PPVCMD_EDITBILLFREIGHT:
-				if((ok = P_BObj->EditBillFreight(hdr.ID)) > 0)
+				ok = P_BObj->EditBillFreight(hdr.ID);
+				if(ok > 0)
 					update = 1;
 				break;
 			case PPVCMD_BROWSE:
-				if((ok = ShowDetails(hdr.ID)) > 0)
+				ok = ShowDetails(hdr.ID);
+				if(ok > 0)
 					update = 1;
 				break;
 			case PPVCMD_DELACKBILL:
 				ok = -1;
 				if(hdr.ID && !(Filt.DenyFlags & BillFilt::fDenyRemove)) {
 					BillTbl::Rec link_rec;
-					for(DateIter di; P_BObj->P_Tbl->EnumLinks(hdr.ID, &di, BLNK_ACK, &link_rec) > 0;)
+					for(DateIter di; P_BObj->P_Tbl->EnumLinks(hdr.ID, &di, BLNK_ACK, &link_rec) > 0;) {
 						if(link_rec.ID) {
 							P_BObj->RemoveObjV(link_rec.ID, 0, PPObject::use_transaction, 0);
 							ok = 1;
 						}
+					}
 				}
 				break;
 			case PPVCMD_EDITACKBILL:
@@ -6796,12 +6910,15 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 					}
 					else if(Filt.OpID && (Filt.ObjectID || GetOpType(Filt.OpID, &op_rec) == PPOPT_INVENTORY || !op_rec.AccSheetID))
 						if(P_BObj->CheckRights(BILLOPRT_UNITEBILLS, 1)) {
-							if(GetOpType(Filt.OpID) == PPOPT_GOODSEXPEND)
+							if(GetOpType(Filt.OpID) == PPOPT_GOODSEXPEND) {
 								ok = UniteSellBills();
-							else if(GetOpType(Filt.OpID) == PPOPT_GOODSRECEIPT)
+							}
+							else if(GetOpType(Filt.OpID) == PPOPT_GOODSRECEIPT) {
 								ok = UniteReceiptBills();
-							else if(GetOpType(Filt.OpID) == PPOPT_INVENTORY)
+							}
+							else if(GetOpType(Filt.OpID) == PPOPT_INVENTORY) {
 								ok = UniteInventory();
+							}
 							if(ok > 0)
 								update = 1;
 						}

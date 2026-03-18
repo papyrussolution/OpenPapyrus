@@ -48,12 +48,16 @@ int STDCALL SetupArCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID _a
 int FASTCALL GetArticleSheetID(PPID arID, PPID * pAccSheetID, PPID * pLnkObjID)
 {
 	int    ok = -1;
-	PPID   acc_sheet_id = 0, lnk_obj_id = 0;
-	PPObjArticle ar_obj;
-	ArticleTbl::Rec rec;
-	if(arID && (ok = ar_obj.Fetch(arID, &rec)) > 0) {
-		acc_sheet_id = rec.AccSheetID;
-		lnk_obj_id = rec.ObjID;
+	PPID   acc_sheet_id = 0;
+	PPID   lnk_obj_id = 0;
+	if(arID) {
+		PPObjArticle ar_obj;
+		ArticleTbl::Rec rec;
+		ok = ar_obj.Fetch(arID, &rec);
+		if(ok > 0) {
+			acc_sheet_id = rec.AccSheetID;
+			lnk_obj_id = rec.ObjID;
+		}
 	}
 	ASSIGN_PTR(pAccSheetID, acc_sheet_id);
 	ASSIGN_PTR(pLnkObjID, lnk_obj_id);

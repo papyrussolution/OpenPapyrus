@@ -454,8 +454,7 @@ int PPObjBill::ValidatePacket(PPBillPacket * pPack, long flags)
 						if(GetOpData(pPack->Rec.OpID, &op_rec) > 0)
 							THROW_PP(op_rec.AccSheet2ID == 0, PPERR_BILLSTCHECKFLD_OBJECT2);
 					}
-                    // @v11.1.12 BillCore::GetCode(temp_buf = pPack->Rec.Code);
-					temp_buf = pPack->Rec.Code; // @v11.1.12 
+					temp_buf = pPack->Rec.Code;
 					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_CODE) || temp_buf.NotEmpty(), PPERR_BILLSTCHECKFLD_CODE);
 					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_AGENT) || pPack->Ext.AgentID, PPERR_BILLSTCHECKFLD_AGENT);
 					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_PAYER) || pPack->Ext.PayerID, PPERR_BILLSTCHECKFLD_PAYER);
@@ -2361,46 +2360,87 @@ int PPObjBill::AddGoodsBillByFilt(PPID * pBillID, const BillFilt * pFilt, PPID o
 				pack.Rec.LocID = op_rec.DefLocID;
 		}
 	}
-	if(op_type == PPOPT_GOODSMODIF || (op_type == PPOPT_GOODSRECEIPT && op_rec.AccSheetID == 0)) {
-		//
-		// Так как чаще всего при модификации товаров в
-		// образующихся лотах поставщиком выступает главная //
-		// организация, проверим наличие соответствующей
-		// статьи и, если отсутствует - создадим.
-		//
-		PPID   moas = 0;
-		THROW(ArObj.GetMainOrgAsSuppl(&moas, 1, 1));
-	}
-	if(sCardID && oneof5(op_type, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND, PPOPT_GOODSORDER, PPOPT_PAYMENT, PPOPT_ACCTURN)) {
-		int    use_total_dis = 1;
-		PPObjSCard sc_obj;
-		SCardTbl::Rec sc_rec;
-		if(op_type == PPOPT_DRAFTEXPEND && pChkRec && pChkRec->ID) {
-			CCheckLineTbl::Rec cc_line;
-			pack.Rec.Dt = pChkRec->Dt;
-			for(int i = 0; sc_obj.P_CcTbl->EnumLines(pChkRec->ID, &i, &cc_line) > 0;) {
-				ReceiptTbl::Rec lot_rec;
-				PPTransferItem ti;
-				THROW(ti.Init(&pack.Rec));
-				THROW(ti.SetupGoods(cc_line.GoodsID));
-				ti.SetupLot(0, 0, 0);
-				ti.Quantity_ = cc_line.Quantity;
-				if(trfr->Rcpt.GetLastLot(ti.GoodsID, 0L, pack.Rec.Dt, &lot_rec) > 0) {
-					ti.Cost  = R5(lot_rec.Cost);
-					ti.QCert = lot_rec.QCertID;
-					ti.UnitPerPack = lot_rec.UnitPerPack;
+	if(op_type == PPOPT_AGREEMENT) { // @v12.5.10
+		if(pack.Rec.Object) {
+			// @todo Здесь надо установить параметры из соглашения //
+			ArticleTbl::Rec ar_rec;
+			PPObjAccSheet acs_obj;
+			PPAccSheet2 acs_rec;
+			if(ArObj.Fetch(pack.Rec.Object, &ar_rec) > 0) {
+				if(acs_obj.Fetch(ar_rec.AccSheetID, &acs_rec) > 0 && (acs_rec.Flags & ACSHF_USECLIAGT || acs_rec.ID == GetSellAccSheet())) {
+					PPIDArray agt_list;
+					P_Tbl->GetListOfActualAgreemts(pack.Rec.Object, pack.Rec.Object2, pack.Rec.Dt, 365*10, 1, agt_list);
+					if(!agt_list.getCount()) {
+						PPClientAgreement agt;
+						if(ArObj.GetClientAgreement(pack.Rec.Object, agt, 0) > 0) {
+							if(SETIFZ(pack.P_Agt, new PPBill::Agreement)) {
+								pack.P_Agt->ObjType = PPOBJ_BILL;
+								pack.P_Agt->Expiry = agt.Expiry;
+								pack.P_Agt->MaxCredit = agt.MaxCredit;
+								pack.P_Agt->MaxDscnt = agt.MaxDscnt;
+								pack.P_Agt->Dscnt = agt.Dscnt;
+								pack.P_Agt->DefAgentID = agt.DefAgentID;
+								pack.P_Agt->DefQuotKindID = agt.DefQuotKindID;
+								pack.P_Agt->PaymDateBase = agt.PaymDateBase;
+								pack.P_Agt->DefPayPeriod = agt.DefPayPeriod;
+								pack.P_Agt->RetLimPrd = agt.RetLimPrd;
+								pack.P_Agt->RetLimPart = agt.RetLimPart;
+								//pack.P_Agt->DefDlvrTerm
+								//pack.P_Agt->PctRet
+								if(checkdate(agt.BegDt)) {
+									pack.Rec.Dt = agt.BegDt;
+								}
+								if(agt.Code_.NotEmpty())
+									STRNSCPY(pack.Rec.Code, agt.Code_);
+							}
+						}
+					}
 				}
-				ti.Price = TR5(intmnytodbl(cc_line.Price) - cc_line.Dscnt);
-				THROW(pack.InsertRow(&ti, 0));
 			}
-			use_total_dis = 0;
 		}
-		if(sc_obj.Search(sCardID, &sc_rec) > 0) {
-			if(sc_rec.PDis && use_total_dis) {
-				pack.SetTotalDiscount(fdiv100i(sc_rec.PDis), 1, 0);
-				pack.Rec.Flags |= BILLF_TOTALDISCOUNT;
+	}
+	else {
+		if(op_type == PPOPT_GOODSMODIF || (op_type == PPOPT_GOODSRECEIPT && op_rec.AccSheetID == 0)) {
+			//
+			// Так как чаще всего при модификации товаров в
+			// образующихся лотах поставщиком выступает главная //
+			// организация, проверим наличие соответствующей
+			// статьи и, если отсутствует - создадим.
+			//
+			PPID   moas = 0;
+			THROW(ArObj.GetMainOrgAsSuppl(&moas, 1, 1));
+		}
+		if(sCardID && oneof5(op_type, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND, PPOPT_GOODSORDER, PPOPT_PAYMENT, PPOPT_ACCTURN)) {
+			int    use_total_dis = 1;
+			PPObjSCard sc_obj;
+			SCardTbl::Rec sc_rec;
+			if(op_type == PPOPT_DRAFTEXPEND && pChkRec && pChkRec->ID) {
+				CCheckLineTbl::Rec cc_line;
+				pack.Rec.Dt = pChkRec->Dt;
+				for(int i = 0; sc_obj.P_CcTbl->EnumLines(pChkRec->ID, &i, &cc_line) > 0;) {
+					ReceiptTbl::Rec lot_rec;
+					PPTransferItem ti;
+					THROW(ti.Init(&pack.Rec));
+					THROW(ti.SetupGoods(cc_line.GoodsID));
+					ti.SetupLot(0, 0, 0);
+					ti.Quantity_ = cc_line.Quantity;
+					if(trfr->Rcpt.GetLastLot(ti.GoodsID, 0L, pack.Rec.Dt, &lot_rec) > 0) {
+						ti.Cost  = R5(lot_rec.Cost);
+						ti.QCert = lot_rec.QCertID;
+						ti.UnitPerPack = lot_rec.UnitPerPack;
+					}
+					ti.Price = TR5(intmnytodbl(cc_line.Price) - cc_line.Dscnt);
+					THROW(pack.InsertRow(&ti, 0));
+				}
+				use_total_dis = 0;
 			}
-			pack.Rec.SCardID = sCardID;
+			if(sc_obj.Search(sCardID, &sc_rec) > 0) {
+				if(sc_rec.PDis && use_total_dis) {
+					pack.SetTotalDiscount(fdiv100i(sc_rec.PDis), 1, 0);
+					pack.Rec.Flags |= BILLF_TOTALDISCOUNT;
+				}
+				pack.Rec.SCardID = sCardID;
+			}
 		}
 	}
 	r = Helper_EditGoodsBill(pBillID, &pack);
@@ -8208,18 +8248,16 @@ static int FASTCALL GetBillOpUserProfileFunc(PPID opID, int action)
 					case PPACN_RMVBILL:  func_id = PPUPRF_BILLRMV_MOD; break;
 				}
 				break;
-			/*
-			case PPOPT_CASHSESS:
-			case PPOPT_WAREHOUSE:
-			case PPOPT_EXTERNAL:
-			case PPOPT_ACCTURN:
-			case PPOPT_PAYMENT:
-			case PPOPT_CHARGE:
-			case PPOPT_AGREEMENT:
-			case PPOPT_GOODSACK: // ?
-			case PPOPT_INVENTORY:
-			case PPOPT_POOL:
-			*/
+			//case PPOPT_CASHSESS:
+			//case PPOPT_WAREHOUSE:
+			//case PPOPT_EXTERNAL:
+			//case PPOPT_ACCTURN:
+			//case PPOPT_PAYMENT:
+			//case PPOPT_CHARGE:
+			//case PPOPT_AGREEMENT:
+			//case PPOPT_GOODSACK: // ?
+			//case PPOPT_INVENTORY:
+			//case PPOPT_POOL:
 			default:
 				switch(action) {
 					case PPACN_TURNBILL: func_id = PPUPRF_BILLTURN_ETC; break;
@@ -9297,6 +9335,37 @@ int PPObjBill::ExtractPacketWithFlags(PPID id, PPBillPacket * pPack, uint fl/*BP
 int PPObjBill::ExtractPacketWithRestriction(PPID id, PPBillPacket * pPack, uint fl/*BPLD_XXX*/, const PPIDArray * pGoodsList)
 	{ return Helper_ExtractPacket(id, pPack, fl, pGoodsList); }
 
+int PPObjBill::GetMostSuitableAgreement(const PPBillPacket & rPack, PPID * pAgtBillID) // @v12.5.10
+{
+	int    ok = -1;
+	PPID   id_by_recent_date = 0;
+	if(rPack.Rec.Object) {
+		PPIDArray agt_list;
+		if(rPack.Rec.Object) {
+			LDATE  recent_date = ZERODATE;
+			P_Tbl->GetListOfActualAgreemts(rPack.Rec.Object, rPack.Rec.Object2, rPack.Rec.Dt, 365*10, 20, agt_list);
+			if(agt_list.getCount()) {
+				agt_list.sortAndUndup();
+				for(uint i = 0; i < agt_list.getCount(); i++) {
+					const  PPID agt_bill_id = agt_list.get(i);
+					BillTbl::Rec agt_bill_rec;
+					if(Fetch(agt_bill_id, &agt_bill_rec) > 0) {
+						if(checkdate(agt_bill_rec.Dt) && agt_bill_rec.Dt > recent_date) {
+							recent_date = agt_bill_rec.Dt;
+							id_by_recent_date = agt_bill_rec.ID;
+						}
+					}
+				}
+			}
+		}
+	}
+	if(id_by_recent_date > 0) {
+		ok = 1;	
+	}
+	ASSIGN_PTR(pAgtBillID, id_by_recent_date);
+	return ok;
+}
+
 int PPObjBill::DoesContainGoods(PPID id, const PPIDArray & rGoodsList)
 {
 	int    ok = -1;
@@ -9629,29 +9698,31 @@ static int IsBillsCompatible(const BillTbl::Rec * pBillPack1, const BillTbl::Rec
 // Бухгалтерские проводки не пересчитывает.
 // Это должна сделать вызывающая функция.
 //
-int PPObjBill::UniteGoodsBill(PPBillPacket * pPack, PPID addBillID, int use_ta)
+int PPObjBill::UniteGoodsBill(PPBillPacket & rPack, PPID addBillID, int use_ta)
 {
 	int    ok = 1;
 	short  rbybill;
+	SString temp_buf;
 	DateIter diter;
 	PPBillPacket add_pack;
 	PPTransferItem ti;
 	PPLotExtCodeContainer::MarkSet src_lotxcode_set;
+	THROW_PP_S(!CheckStatusFlag(rPack.Rec.StatusID, BILSTF_DENY_MERGE), PPERR_BILLST_DENY_MOD, PPObjBill::MakeCodeString(&rPack.Rec, PPObjBill::mcsAddOpName, temp_buf)); // @v12.5.10
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(ExtractPacket(addBillID, &add_pack));
-		THROW(IsBillsCompatible(&pPack->Rec, &add_pack.Rec));
-		THROW_PP((pPack->OpTypeID == PPOPT_GOODSEXPEND && !IsIntrOp(pPack->OpTypeID)) ||
-			pPack->Rec.OpID == GetCashOp() || pPack->Rec.OpID == GetCashRetOp(), PPERR_UNITERETAIL);
-		if(IsIntrOp(pPack->Rec.OpID) == INTREXPND) {
+		THROW(IsBillsCompatible(&rPack.Rec, &add_pack.Rec));
+		THROW_PP_S(!CheckStatusFlag(add_pack.Rec.StatusID, BILSTF_DENY_MERGE), PPERR_BILLST_DENY_MOD, PPObjBill::MakeCodeString(&add_pack.Rec, PPObjBill::mcsAddOpName, temp_buf)); // @v12.5.10
+		THROW_PP((rPack.OpTypeID == PPOPT_GOODSEXPEND && !IsIntrOp(rPack.OpTypeID)) || rPack.Rec.OpID == GetCashOp() || rPack.Rec.OpID == GetCashRetOp(), PPERR_UNITERETAIL);
+		if(IsIntrOp(rPack.Rec.OpID) == INTREXPND) {
 			CALLEXCEPT_PP(PPERR_UNITEINTREXPND);
 			// @todo Сделать объединение документов внутренней передачи
 		}
 		else {
 			const double _eps = 1.0e07;
 			TBlock tb_;
-			THROW(BeginTFrame(pPack->Rec.ID, tb_));
+			THROW(BeginTFrame(rPack.Rec.ID, tb_));
 			//
 			// Цикл по строкам исходного документа (который будет удален)
 			//
@@ -9659,8 +9730,8 @@ int PPObjBill::UniteGoodsBill(PPBillPacket * pPack, PPID addBillID, int use_ta)
 				PPTransferItem & r_ati = add_pack.TI(atiidx);
 				bool done = false;
 				add_pack.XcL.Get(atiidx+1, 0, src_lotxcode_set);
-				for(uint j = 0; !done && pPack->SearchLot(r_ati.LotID, &j); j++) {
-					PPTransferItem * p_ti = &pPack->TI(j);
+				for(uint j = 0; !done && rPack.SearchLot(r_ati.LotID, &j); j++) {
+					PPTransferItem * p_ti = &rPack.TI(j);
 					if(feqeps(p_ti->Cost, r_ati.Cost, _eps) && feqeps(p_ti->Price, r_ati.Price, _eps) && feqeps(p_ti->Discount, r_ati.Discount, _eps)) {
 						p_ti->Quantity_ += r_ati.Quantity_;
 						p_ti->WtQtty += r_ati.WtQtty;
@@ -9672,7 +9743,7 @@ int PPObjBill::UniteGoodsBill(PPBillPacket * pPack, PPID addBillID, int use_ta)
 							THROW(trfr->RemoveItem(r_ati.BillID, r_ati.RByBill, 0, 0));
 							THROW(trfr->UpdateTransferItem(p_ti, tb_.Rbb(), 0, 0));
 						}
-						pPack->XcL.Add(j+1, src_lotxcode_set);
+						rPack.XcL.Add(j+1, src_lotxcode_set);
 						done = true;
 					}
 				}
@@ -9681,17 +9752,17 @@ int PPObjBill::UniteGoodsBill(PPBillPacket * pPack, PPID addBillID, int use_ta)
 					const short a_r_by_bill = r_ati.RByBill;
 					rbybill = tb_.GetNewRbb();
 					THROW(trfr->SearchByBill(a_bill_id, 0, a_r_by_bill, 0) > 0);
-					trfr->data.BillID  = r_ati.BillID  = pPack->Rec.ID;
+					trfr->data.BillID  = r_ati.BillID  = rPack.Rec.ID;
 					trfr->data.RByBill = r_ati.RByBill = rbybill;
 					trfr->data.Flags &= ~PPTFR_QUOT;
 					trfr->data.QuotPrice = 0.0;
 					THROW_DB(trfr->updateRec());
 					{
 						LongArray new_row_idx_list;
-						THROW(pPack->InsertRow(&r_ati, &new_row_idx_list));
+						THROW(rPack.InsertRow(&r_ati, &new_row_idx_list));
 						if(src_lotxcode_set.GetCount()) {
 							if(new_row_idx_list.getCount() == 1) {
-								pPack->XcL.Add(new_row_idx_list.get(0)+1, src_lotxcode_set); 
+								rPack.XcL.Add(new_row_idx_list.get(0)+1, src_lotxcode_set); 
 							}
 						}
 					}
@@ -9699,13 +9770,13 @@ int PPObjBill::UniteGoodsBill(PPBillPacket * pPack, PPID addBillID, int use_ta)
 				}
 			}
 			add_pack.destroy();
-			THROW(FinishTFrame(pPack->Rec.ID, tb_));
-			pPack->Rec.LastRByBill = tb_.Rbb();
+			THROW(FinishTFrame(rPack.Rec.ID, tb_));
+			rPack.Rec.LastRByBill = tb_.Rbb();
 		}
 		//
-		// Для всех документов, слинкованных с addBill, перекидываем ссылки на pPack->Rec.ID.
+		// Для всех документов, слинкованных с addBill, перекидываем ссылки на rPack.Rec.ID.
 		//
-		THROW_DB(updateFor(P_Tbl, 0, (P_Tbl->LinkBillID == addBillID), set(P_Tbl->LinkBillID, dbconst(pPack->Rec.ID))));
+		THROW_DB(updateFor(P_Tbl, 0, (P_Tbl->LinkBillID == addBillID), set(P_Tbl->LinkBillID, dbconst(rPack.Rec.ID))));
 		THROW(RemovePacket(addBillID, 0));
 		THROW(tra.Commit());
 	}
@@ -9720,6 +9791,7 @@ int PPObjBill::UniteReceiptBill(PPID destBillID, const PPIDArray & rSrcList, int
 	int    r_by_bill = 0;
 	PPID   src_bill_id = 0;
 	PPID   src_lot_id = 0; // @debug
+	SString temp_buf;
 	SString src_clb;
 	SString dest_clb;
 	LAssocArray ary;
@@ -9730,13 +9802,16 @@ int PPObjBill::UniteReceiptBill(PPID destBillID, const PPIDArray & rSrcList, int
 	PPBillPacket dest_pack;
 	THROW(atobj->P_Tbl->LockingFRR(1, &frrl_tag, use_ta));
 	THROW(ExtractPacketWithFlags(destBillID, &dest_pack, BPLD_LOCK) > 0);
-	for(i = 0; dest_pack.EnumTItems(&i, &p_ti);)
+	THROW_PP_S(!CheckStatusFlag(dest_pack.Rec.StatusID, BILSTF_DENY_MERGE), PPERR_BILLST_DENY_MOD, PPObjBill::MakeCodeString(&dest_pack.Rec, PPObjBill::mcsAddOpName, temp_buf)); // @v12.5.10
+	for(i = 0; dest_pack.EnumTItems(&i, &p_ti);) {
 		THROW_SL(ary.Add(p_ti->GoodsID, p_ti->LotID, 0, 0));
+	}
 	ary.Sort();
 	for(j = 0; j < rSrcList.getCount(); j++) {
 		/*PPID*/src_bill_id = rSrcList.at(j);
 		BillTbl::Rec src_bill_rec;
 		THROW(Search(src_bill_id, &src_bill_rec) > 0);
+		THROW_PP_S(!CheckStatusFlag(src_bill_rec.StatusID, BILSTF_DENY_MERGE), PPERR_BILLST_DENY_MOD, PPObjBill::MakeCodeString(&src_bill_rec, PPObjBill::mcsAddOpName, temp_buf)); // @v12.5.10
 		if(dest_pack.Rec.Object == src_bill_rec.Object && dest_pack.Rec.OpID == src_bill_rec.OpID &&
 			dest_pack.Rec.LocID == src_bill_rec.LocID && dest_pack.Rec.LinkBillID == src_bill_rec.LinkBillID) {
 			int    recalc_dest_bill = 0;
@@ -9793,8 +9868,7 @@ int PPObjBill::UniteReceiptBill(PPID destBillID, const PPIDArray & rSrcList, int
 	if(ok == 0)
 		PPSaveErrContext();
 	// @Caution @v4.0.7
-	// Если этот вызов завершится с ошибкой, то остатки по
-	// счетам останутся неправильными.
+	// Если этот вызов завершится с ошибкой, то остатки по счетам останутся неправильными.
 	if(!atobj->P_Tbl->LockingFRR(0, &frrl_tag, use_ta))
 		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 	if(ok == 0)

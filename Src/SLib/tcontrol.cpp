@@ -1282,16 +1282,16 @@ void TInputLine::setupFreeTextWordSelector(WordSel_ExtraBlock * pBlk)
 void TInputLine::disableDeleteSelection(int _disable)
 {
 	SETFLAG(InlSt, stDisableDelSel, _disable);
-	::SendDlgItemMessage(Parent, Id, EM_SETSEL, -1, -1);
+	::SendDlgItemMessageW(Parent, Id, EM_SETSEL, -1, -1);
 }
 
 void TInputLine::Implement_Draw()
 {
 	TView::SSetWindowText(GetDlgItem(Parent, Id), SString(Data).Transf(CTRANSF_INNER_TO_OUTER));
 	if(IsInState(sfSelected))
-		::SendDlgItemMessage(Parent, Id, EM_SETSEL, (InlSt & stDisableDelSel) ? -1 : 0, -1);
+		::SendDlgItemMessageW(Parent, Id, EM_SETSEL, (InlSt & stDisableDelSel) ? -1 : 0, -1);
 	if(InlSt & stDisableDelSel)
-		::SendDlgItemMessage(Parent, Id, WM_KEYDOWN, VK_END, 0);
+		::SendDlgItemMessageW(Parent, Id, WM_KEYDOWN, VK_END, 0);
 }
 
 void TInputLine::setType(TYPEID typ)
@@ -1303,7 +1303,7 @@ void TInputLine::setType(TYPEID typ)
 void TInputLine::setFormat(long f)
 {
 	if(f != Format) {
-		char   buf[1024];
+		char   buf[4096]; // @v12.5.10 [1024]-->[4096]
 		TransmitData(-1, buf);
 		Format = f;
 		setMaxLen(SFMTLEN(Format));
@@ -1316,12 +1316,14 @@ void TInputLine::setFormat(long f)
 int TInputLine::TransmitData(int dir, void * pData)
 {
 	int    s = stsize(Type);
+	SString temp_buf;
 	if(dir > 0) {
-		char   temp[4096];
 		if(HasWordSelector() && !P_WordSelBlk->IsTextMode()) {
 			P_WordSelBlk->SetupData(pData ? *static_cast<long *>(pData) : 0);
 		}
 		else {
+			/* @v12.5.10 
+			char   temp[4096];
 			if(pData == 0)
 				temp[0] = 0;
 			else {
@@ -1329,6 +1331,14 @@ int TInputLine::TransmitData(int dir, void * pData)
 				sttostr(Type, pData, f, temp);
 			}
 			setText(temp);
+			*/
+			// @v12.5.10 {
+			if(pData) {
+				const long f = MKSFMTD(0, SFMTPRC(Format), SFMTFLAG(Format)) & ~(SFALIGNMASK|STRF_PASSWORD);
+				sttosstr(Type, pData, f, temp_buf);
+			}
+			setText(temp_buf);
+			// } @v12.5.10 
 		}
 	}
 	else if(dir < 0) {
@@ -1336,8 +1346,8 @@ int TInputLine::TransmitData(int dir, void * pData)
 			s = P_Combo->TransmitData(dir, pData);
 		else if(HasWordSelector() && !P_WordSelBlk->IsTextMode()) {
 			long   id = 0L;
-			SString buf;
-			P_WordSelBlk->GetData(&id, buf);
+			//SString buf;
+			P_WordSelBlk->GetData(&id, /*buf*/temp_buf);
 			s = 4;
 			ASSIGN_PTR(static_cast<long *>(pData), id);
 		}
@@ -1384,9 +1394,7 @@ IMPL_HANDLE_EVENT(TInputLine)
 		Implement_Draw();
 	}
 	else if(event.isCmd(cmNotifyCommit)) {
-		if(P_OuterWordSelBlk) {
-			P_OuterWordSelBlk->OnAcceptInput(Data, 0);
-		}
+		CALLPTRMEMB(P_OuterWordSelBlk, OnAcceptInput(Data, 0));
 	}
 	else if(event.isCmd(cmSetBounds)) {
 		TView::HandleCmSetBounds(event);
@@ -1471,14 +1479,11 @@ bool TInputLine::SetDateRange(const DateRange * pData)
 {
 	bool   ok = false;
 	if(oneof2(GETSTYPE(Type), S_ZSTRING, S_DATERANGE)) {
-		//char   b[64];
-		//b[0] = 0;
 		SString temp_buf;
 		if(pData) {
-			//periodfmt(*pData, b);
 			pData->ToStr(0, temp_buf);
 		}
-		setText(temp_buf/*b*/);
+		setText(temp_buf);
 	}
 	return ok;
 }

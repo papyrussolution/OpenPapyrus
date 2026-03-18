@@ -749,8 +749,8 @@ int DBTable::setFieldValByName(const char * pName, const void * pVal)
 int DBTable::putRecToString(SString & rBuf, int withFieldNames)
 {
 	rBuf.Z();
+	SString temp_buf;
 	for(uint i = 0; i < FldL.getCount(); i++) {
-		char   temp_buf[1024];
 		const  BNField & r_fld = FldL[i];
 		r_fld.putValueToString(P_DBuf, temp_buf);
 		if(withFieldNames)

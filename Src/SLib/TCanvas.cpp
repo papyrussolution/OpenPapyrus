@@ -994,6 +994,20 @@ int TCanvas2::_DrawText(const TRect & rRect, const char * pText, uint options)
 	return BIN(::DrawTextW(static_cast<HDC>(S.HCtx), SUcSwitchW(pText), len, &rect, options));
 }
 
+int TCanvas2::_DrawTextUtf8(const TRect & rRect, const char * pText, uint options)
+{
+	char   zero[16];
+	if(isempty(pText)) {
+		zero[0] = 0;
+		pText = zero;
+	}
+	RECT   rect = rRect;
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	r_temp_buf = pText;
+	const wchar_t * p_text_u = SUcSwitchWUtf8(r_temp_buf);
+	return BIN(::DrawTextW(static_cast<HDC>(S.HCtx), p_text_u, sstrleni(p_text_u), &rect, options));
+}
+
 int TCanvas2::TextOut(SPoint2S p, const char * pText)
 {
 	char   zero[16];

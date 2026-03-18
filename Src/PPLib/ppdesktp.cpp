@@ -81,7 +81,8 @@ int PPDesktopAssocCmd::ParseCode(CodeBlock & rBlk) const
 				done = 1;
 			}
 			if(rBlk.LenRange.IsZero()) {
-				double low = 0.0, upp = 0.0;
+				double low = 0.0;
+				double upp = 0.0;
 				strtorrng(temp_buf, &low, &upp);
 				SETMAX(low, 0.0);
 				SETMAX(upp, 0.0);
@@ -2731,6 +2732,140 @@ private:
 //
 //
 //
+class LocalStateBinderySelExtra : public WordSel_ExtraBlock {
+public:
+	explicit LocalStateBinderySelExtra(const LocalStateBinderyCore::StateIdent & rIdent);
+	virtual StrAssocArray * GetList(const char * pText);
+	virtual StrAssocArray * GetRecentList();
+	virtual int Search(long id, SString & rBuf);
+	virtual int SearchText(const char * pText, long * pID, SString & rBuf);
+	virtual void OnAcceptInput(const char * pText, long id);
+private:
+	const LocalStateBinderyCore::StateIdent StI;
+};
+
+LocalStateBinderySelExtra::LocalStateBinderySelExtra(const LocalStateBinderyCore::StateIdent & rIdent) : WordSel_ExtraBlock(), StI(rIdent)
+{
+}
+
+/*virtual*/StrAssocArray * LocalStateBinderySelExtra::GetList(const char * pText)
+{
+	StrAssocArray * p_result = 0;
+	if(!isempty(pText)) {
+		LocalStateBinderyCore * p_lstb = DS.GetTLA().GetLocalStateBindery();
+		if(p_lstb) {
+			SString temp_buf;
+			SString key(pText);
+			key.Transf(CTRANSF_INNER_TO_UTF8);
+			TSCollection <LocalStateBinderyCore::SerialEntry> serial_list;
+			LongArray pos_list; // [+1]
+			p_lstb->FetchStateSerial(StI, &serial_list);
+			LocalStateBinderyCore::SearchInSerial(serial_list, key, LocalStateBinderyCore::treatsSubStringUtf8List, pos_list);
+			if(pos_list.getCount()) {
+				for(uint i = 0; i < pos_list.getCount(); i++) {
+					const  long iter_idx = pos_list.get(i);
+					const  uint iter_pos = static_cast<uint>(iter_idx-1);
+					const  LocalStateBinderyCore::SerialEntry * p_entry = serial_list.at(iter_pos);
+					if(p_entry && p_entry->Buf.GetAvailableSize()) {
+						if(!p_result) {
+							p_result = new StrAssocArray();
+						}
+						LocalStateBinderyCore::GetStringFromStateBuf(LocalStateBinderyCore::treatbStringUtf8, p_entry->Buf, temp_buf);
+						if(temp_buf.NotEmpty()) {
+							if(!p_result->SearchByTextNcUtf8(temp_buf, 0))
+								p_result->AddFast(p_entry->ID, temp_buf);
+						}
+					}
+				}
+			}
+		}
+	}
+	return p_result;
+}
+
+/*virtual*/StrAssocArray * LocalStateBinderySelExtra::GetRecentList()
+{
+	StrAssocArray * p_result = 0;
+	return p_result;
+}
+
+/*virtual*/int LocalStateBinderySelExtra::Search(long id, SString & rBuf)
+{
+	rBuf.Z();
+	int    ok = 0;
+	if(id) {
+		LocalStateBinderyCore * p_lstb = DS.GetTLA().GetLocalStateBindery();
+		if(p_lstb) {
+			TSCollection <LocalStateBinderyCore::SerialEntry> serial_list;
+			p_lstb->FetchStateSerial(StI, &serial_list);
+			uint   pos = 0;
+			if(serial_list.lsearch(&id, &pos, CMPF_LONG)) {
+				const  LocalStateBinderyCore::SerialEntry * p_entry = serial_list.at(pos);
+				if(p_entry) {
+					LocalStateBinderyCore::GetStringFromStateBuf(LocalStateBinderyCore::treatbStringUtf8, p_entry->Buf, rBuf);
+					ok = 1;
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+/*virtual*/int LocalStateBinderySelExtra::SearchText(const char * pText, long * pID, SString & rBuf)
+{
+	rBuf.Z();
+	int    ok = 0;
+	long   result_id = 0;
+	if(!isempty(pText)) {
+		LocalStateBinderyCore * p_lstb = DS.GetTLA().GetLocalStateBindery();
+		if(p_lstb) {
+			SString key(pText);
+			TSCollection <LocalStateBinderyCore::SerialEntry> serial_list;
+			LongArray pos_list; // [+1]
+			p_lstb->FetchStateSerial(StI, &serial_list);
+			LocalStateBinderyCore::SearchInSerial(serial_list, key, LocalStateBinderyCore::treatsStringUtf8List, pos_list);
+			if(pos_list.getCount()) {
+				const  long _idx = pos_list.get(0);
+				const  uint _pos = static_cast<uint>(_idx-1);
+				const  LocalStateBinderyCore::SerialEntry * p_entry = serial_list.at(_pos);
+				if(p_entry && p_entry->Buf.GetAvailableSize()) {
+					LocalStateBinderyCore::GetStringFromStateBuf(LocalStateBinderyCore::treatbStringUtf8, p_entry->Buf, rBuf);
+					if(rBuf.NotEmpty()) {
+						result_id = p_entry->ID;
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	ASSIGN_PTR(pID, result_id);
+	return ok;
+}
+
+/*virtual*/void LocalStateBinderySelExtra::OnAcceptInput(const char * pText, long id)
+{
+	int    lstb_reg_state_result = 0;
+	if(!isempty(pText)) {
+		SString temp_buf(pText);
+		if(temp_buf.NotEmptyS()) {
+			LocalStateBinderyCore * p_lstb = DS.GetTLA().GetLocalStateBindery();
+			if(p_lstb) {
+				temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+				//LocalStateBinderyCore::StateIdent state_ident;
+				//state_ident.Kind = LocalStateBinderyCore::kInput;
+				//state_ident.Subj = UED::SetRaw_UXControlIdent(SObjID(WNDID_FACADEWINDOW, CTL_FACADEWINDOW_MAININPUT));
+				//if(state_ident.Subj) {
+				{
+					PPID   sid = 0;
+					SBuffer state_input_data;
+					state_input_data.Write(temp_buf.cptr(), temp_buf.Len()+1);
+					lstb_reg_state_result = p_lstb->RegisterState(&sid, StI, state_input_data, 1);
+				}
+			}
+		}
+	}
+}
+
 class TFacadeWindow : public TBaseBrowserWindow {
 public:
 	static constexpr int ViewId_Primary = 10001;
@@ -3049,6 +3184,13 @@ int TFacadeWindow::WMHCreate()
 								p_il->handleWindowsMessage(WM_INITDIALOG, 0, 0);
 							}
 						}
+					}
+					{
+						LocalStateBinderyCore::StateIdent state_ident;
+						state_ident.Kind = LocalStateBinderyCore::kInput;
+						state_ident.Subj = UED::SetRaw_UXControlIdent(SObjID(WNDID_FACADEWINDOW, CTL_FACADEWINDOW_MAININPUT));
+						SetupWordSelector(CTL_FACADEWINDOW_MAININPUT, new LocalStateBinderySelExtra(state_ident), 0, 1, 
+							WordSel_ExtraBlock::fUtf8|WordSel_ExtraBlock::fFreeText/*|WordSel_ExtraBlock::fAlwaysSearchBySubStr*/);
 					}
 				}
 				{
@@ -3535,6 +3677,7 @@ int TFacadeWindow::HandleInputEnter(const SString & rInput)
 	SString _input(org_input);
 	SString _result_text;
 	if(_input.NotEmptyS()) {
+		/*
 		int    lstb_reg_state_result = 0;
 		_input.Transf(CTRANSF_INNER_TO_UTF8);
 		LocalStateBinderyCore * p_lstb = DS.GetTLA().GetLocalStateBindery();
@@ -3549,6 +3692,8 @@ int TFacadeWindow::HandleInputEnter(const SString & rInput)
 				lstb_reg_state_result = p_lstb->RegisterState(&sid, state_ident, state_input_data, 1);
 			}
 		}
+		*/
+		TView::CallOnAcceptInputForWordSelExtraBlocks(this); // @v12.5.10
 		if(_input.IsEqiAscii("close")) { // @debug
 			RemoveWorkingPanel();
 		}

@@ -297,24 +297,24 @@ void ListWindow::Move_(const RECT & rRect)
 //
 WordSel_ExtraBlock::WordSel_ExtraBlock()
 {
-	Init(0, 0, 0, 0, 0, 0);
+	Init_Env(0, 0, 0, 0, 0, 0);
 }
 
-WordSel_ExtraBlock::WordSel_ExtraBlock(uint inputCtl, HWND hInputDlg, TDialog * pOutDlg, uint outCtlId, uint minSymbCount, long flags)
+WordSel_ExtraBlock::WordSel_ExtraBlock(uint inputCtl, HWND hInputDlg, TWindow * pOutWindow, uint outCtlId, uint minSymbCount, long flags)
 {
-	Init(inputCtl, hInputDlg, pOutDlg, outCtlId, minSymbCount, flags);
+	Init_Env(inputCtl, hInputDlg, pOutWindow, outCtlId, minSymbCount, flags);
 }
 
 WordSel_ExtraBlock::~WordSel_ExtraBlock()
 {
 }
 
-void WordSel_ExtraBlock::Init(uint inputCtl, HWND hInputDlg, TDialog * pOutDlg, uint outCtlId, uint minSymbCount, long flags)
+void WordSel_ExtraBlock::Init_Env(uint inputCtl, HWND hInputDlg, TWindow * pOutWindow, uint outCtlId, uint minSymbCount, long flags)
 {
 	Flags        = flags;
 	InputCtl     = inputCtl;
 	H_InputDlg   = hInputDlg;
-	P_OutDlg     = pOutDlg;
+	P_OutWindow  = pOutWindow;
 	OutCtlId     = outCtlId;
 	MinSymbCount = NZOR(minSymbCount, 2);
 	SelId        = 0;
@@ -328,9 +328,9 @@ void   WordSel_ExtraBlock::SetTextMode(bool v) { CtrlTextMode = v; }
 void WordSel_ExtraBlock::SetData(long id, const char * pText)
  {
  	SelId = id;
- 	if(P_OutDlg && OutCtlId) {
+ 	if(P_OutWindow && OutCtlId) {
  		uint   ctl_id = OutCtlId;
- 		TDialog * p_dlg = P_OutDlg;
+ 		TWindow * p_dlg = P_OutWindow;
 		TView * p_v = p_dlg->getCtrlView(ctl_id);
  		if(p_v) {
  			if(p_v->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
@@ -368,13 +368,13 @@ int WordSel_ExtraBlock::GetData(long * pId, SString & rBuf)
 {
 	StrAssocArray * p_list = 0;
 	SString text;
-	uint text_len = sstrlen(pText);
+	uint   text_len = sstrlen32(pText);
 	if(text_len > 0) {
 		uint min_symb_count = MinSymbCount;
 		text_len = (pText[0] == '*') ? (text_len-1) : text_len;
 		if(text_len >= min_symb_count) {
-			if(P_OutDlg) {
-				TView * p_view = P_OutDlg->getCtrlView(OutCtlId);
+			if(P_OutWindow) {
+				TView * p_view = P_OutWindow->getCtrlView(OutCtlId);
 				if(p_view && (p_view->IsSubSign(TV_SUBSIGN_LISTBOX) || p_view->IsSubSign(TV_SUBSIGN_COMBOBOX))) {
 					//SmartListBox * p_lbx = (P_OutDlg) ? (SmartListBox *)P_OutDlg->getCtrlView(OutCtlId) : 0;
 					SmartListBox * p_lbx = static_cast<SmartListBox *>(p_view);
@@ -392,15 +392,47 @@ int WordSel_ExtraBlock::GetData(long * pId, SString & rBuf)
 
 WordSelector::WordSelector(WordSel_ExtraBlock * pBlk) : WsState(0), P_Blk(pBlk)
 {
-	P_Def = new StrAssocListBoxDef(new StrAssocArray(), lbtDisposeData|lbtDblClkNotify|lbtSelNotify|lbtOwnerDraw);
+	uint    lbdef_options = lbtDisposeData|lbtDblClkNotify|lbtSelNotify|lbtOwnerDraw;
+	// @v12.5.10 {
+	if(P_Blk && P_Blk->Flags & WordSel_ExtraBlock::fUtf8)
+		lbdef_options |= lbtTextUtf8;
+	// } @v12.5.10 
+	P_Def = new StrAssocListBoxDef(new StrAssocArray(), lbdef_options);
 	P_Lb = new WordSelectorSmartListBox(TRect::_defr_, P_Def);
 	P_Lb->SetOwnerDrawState();
 	setDef(P_Def);
 	TButton * b = new TButton(TRect::_defr_, "OK", cmOK, TButton::spcfDefault);
 	Insert_(&b->SetId(IDOK)); /*CTLID_LISTBOXOKBUTTON*/
-	Ptb.SetColor(clrFocus,  RGB(0x20, 0xAC, 0x90));
-	Ptb.SetColor(clrOdd,    RGB(0xDC, 0xED, 0xD5));
-	Ptb.SetColor(clrBkgnd,  GetColorRef((P_Blk && P_Blk->Flags & WordSel_ExtraBlock::fFreeText) ? SClrAntiquewhite : SClrYellow));
+	{
+		// @v12.5.10 {
+		const UiDescription * p_uid = SLS.GetUiDescription();
+		const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
+		{
+			SColor _color;
+			if(!p_cs || !p_cs->Get("autocomplete_focus_bg", &p_uid->ClrList, _color))
+				_color = RGB(0x20, 0xAC, 0x90); // Mountain Meadow
+			Ptb.SetColor(clrFocus, _color); 
+		}
+		{
+			SColor _color;
+			if(!p_cs || !p_cs->Get("autocomplete_odd_bg", &p_uid->ClrList, _color))
+				_color = RGB(0xDC, 0xED, 0xD5); // Sprout
+			Ptb.SetColor(clrOdd, _color); 
+		}
+		{
+			SColor _color_;
+			SColor _color_free_text;
+			if(!p_cs || !p_cs->Get("autocomplete_bg", &p_uid->ClrList, _color_))
+				_color_ = GetColorRef(SClrYellow);
+			if(!p_cs || !p_cs->Get("autocomplete_freetext_bg", &p_uid->ClrList, _color_free_text))
+				_color_free_text = GetColorRef(SClrAntiquewhite);
+			Ptb.SetColor(clrBkgnd,  (P_Blk && P_Blk->Flags & WordSel_ExtraBlock::fFreeText) ? _color_free_text : _color_);
+		}
+		// } @v12.5.10 
+		// @v12.5.10 Ptb.SetColor(clrFocus,  RGB(0x20, 0xAC, 0x90)); // Mountain Meadow
+		// @v12.5.10 Ptb.SetColor(clrOdd,    RGB(0xDC, 0xED, 0xD5)); // Sprout
+		// @v12.5.10 Ptb.SetColor(clrBkgnd,  GetColorRef((P_Blk && P_Blk->Flags & WordSel_ExtraBlock::fFreeText) ? SClrAntiquewhite : SClrYellow));
+	}
 }
 
 bool WordSelector::CheckActive() const { return LOGIC(WsState & wssActive); }
@@ -422,15 +454,53 @@ int WordSelector::Activate()
 void WordSelector::ActivateInput()
 {
 	WsState &= ~wssActive;
-	SetFocus(GetDlgItem(P_Blk->H_InputDlg, P_Blk->InputCtl));
+	HWND   hw_to_focus = 0;
+	if(P_Blk->H_InputDlg) {
+		if(P_Blk->InputCtl) {
+			hw_to_focus = ::GetDlgItem(P_Blk->H_InputDlg, P_Blk->InputCtl);
+		}
+	}
+	else if(P_Blk->P_OutWindow) {
+		if(P_Blk->InputCtl) {
+			TView * p_ctl = P_Blk->P_OutWindow->getCtrlView(P_Blk->InputCtl);
+			if(p_ctl) {
+				hw_to_focus = p_ctl->getHandle();
+			}
+		}
+	}
+	if(hw_to_focus)
+		::SetFocus(hw_to_focus);
+}
+
+void WordSelector::SetupListWindowPosition()
+{
+	HWND   hw_resize_base = 0;
+	if(P_Blk->H_InputDlg) {
+		if(P_Blk->InputCtl) {
+			hw_resize_base = ::GetDlgItem(P_Blk->H_InputDlg, P_Blk->InputCtl);
+		}
+		SETIFZ(hw_resize_base, P_Blk->H_InputDlg);
+	}
+	// @v12.5.10 {
+	else if(P_Blk->P_OutWindow) {
+		if(P_Blk->InputCtl) {
+			TView * p_ctl = P_Blk->P_OutWindow->getCtrlView(P_Blk->InputCtl);
+			if(p_ctl) {
+				hw_resize_base = p_ctl->getHandle();
+			}
+		}
+	}
+	// } @v12.5.10 
+	Move_(hw_resize_base, 0);
 }
 
 int WordSelector::Helper_PullDown(const char * pText, int recent)
 {
+	// @v12.5.10 Модифицировал код так, чтобы при пустом тексте список убирался. А именно, вывел последнее в фукнции (see below) условие за границу первого условного блока.
+	int    r = 0;
+	StrAssocArray * p_data = 0;
 	if(recent || sstrlen(pText) >= P_Blk->MinSymbCount) {
-		int    r = 0;
 		SString temp_buf;
-		StrAssocArray * p_data = 0;
 		if(recent)
 			p_data = P_Blk->GetRecentList();
 		else {
@@ -455,13 +525,7 @@ int WordSelector::Helper_PullDown(const char * pText, int recent)
 			if(P_Def) {
 				static_cast<StrAssocListBoxDef *>(P_Def)->setArray(p_data);
 				setDef(P_Def);
-				HWND hw_resize_base = 0;
-				if(P_Blk->H_InputDlg) {
-					if(P_Blk->InputCtl)
-						hw_resize_base = GetDlgItem(P_Blk->H_InputDlg, P_Blk->InputCtl);
-					SETIFZ(hw_resize_base, P_Blk->H_InputDlg);
-				}
-				Move_(hw_resize_base, 0);
+				SetupListWindowPosition();
 			}
 			if(!CheckVisible()) {
 				WsState |= (wssVisible|wssActive);
@@ -469,14 +533,18 @@ int WordSelector::Helper_PullDown(const char * pText, int recent)
 					long   id = 0L;
 					getResult(&id);
 					if(id && P_Blk->Search(id, temp_buf) > 0) {
-						;
+						// @v12.5.10 {
+						if(P_Blk->Flags & WordSel_ExtraBlock::fUtf8) {
+							temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+						}
+						// } @v12.5.10 
 					}
 					else
 						getString(temp_buf);
 					WsState &= ~(wssVisible|wssActive);
 					P_Blk->SetData(id, temp_buf);
-					if(P_Blk->P_OutDlg && P_Blk->P_OutDlg->IsConsistent() && P_Blk->OutCtlId) { // @v9.4.11 P_Blk->P_OutDlg->IsConsistent()
-						TView * p_v = P_Blk->P_OutDlg->getCtrlView(P_Blk->OutCtlId);
+					if(P_Blk->P_OutWindow && P_Blk->P_OutWindow->IsConsistent() && P_Blk->OutCtlId) {
+						TView * p_v = P_Blk->P_OutWindow->getCtrlView(P_Blk->OutCtlId);
  						if(p_v) {
  							if(p_v->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
  								SetFocus(p_v->getHandle());
@@ -495,12 +563,12 @@ int WordSelector::Helper_PullDown(const char * pText, int recent)
 				Draw_();
 			r = 1;
 		}
-		if(r <= 0 && CheckVisible() == 1) {
-			ZDELETE(p_data);
-			::SetFocus(H());
-			TView::messageCommand(this, cmCancel);
-			WsState &= ~wssVisible;
-		}
+	}
+	if(r <= 0 && CheckVisible() == 1) {
+		ZDELETE(p_data);
+		::SetFocus(H());
+		TView::messageCommand(this, cmCancel);
+		WsState &= ~wssVisible;
 	}
 	return 1;
 }
@@ -511,20 +579,18 @@ IMPL_HANDLE_EVENT(WordSelector)
 		if(P_Blk) {
 			ushort last_cmd = 0;
 			int    lw_dlg_id = DLGW_LBXFLAT;
-			HWND   hwnd_parent = P_Blk->H_InputDlg;
+			HWND   hwnd_parent = 0;
+			if(P_Blk->H_InputDlg) {
+				hwnd_parent = P_Blk->H_InputDlg;
+			}
+			else if(P_Blk->P_OutWindow) {
+				hwnd_parent = P_Blk->P_OutWindow->H();
+			}
 			MessageCommandToOwner(cmLBLoadDef);
 			Id = lw_dlg_id;
 			HW = APPL->CreateDlg(Id, hwnd_parent, TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
 			APPL->SetWindowViewByKind(H(), TProgram::wndtypListDialog);
-			{
-				HWND hw_resize_base = 0;
-				if(P_Blk->H_InputDlg) {
-					if(P_Blk->InputCtl)
-						hw_resize_base = GetDlgItem(P_Blk->H_InputDlg, P_Blk->InputCtl);
-					SETIFZ(hw_resize_base, P_Blk->H_InputDlg);
-				}
-				Move_(hw_resize_base, 0);
-			}
+			SetupListWindowPosition();
 			if(APPL->PushModalWindow(this, H())) {
 				::ShowWindow(H(), SW_SHOW);
 				resourceID = -1;
@@ -552,15 +618,24 @@ IMPL_HANDLE_EVENT(WordSelector)
 				EndModalCmd = 0;
 				APPL->PopModalWindow(this, 0);
 				{
-					HWND h_input = P_Blk ? P_Blk->H_InputDlg : 0;
-					if(h_input) {
-						if(EndModalCmd == cmOK) {
-							::PostMessage(h_input, WM_COMMAND, IDCANCEL, 0);
+					HWND   h_input = 0;
+					if(P_Blk) {
+						if(P_Blk->H_InputDlg) {
+							h_input = P_Blk->H_InputDlg;
 						}
-						else {
-							SetForegroundWindow(h_input);
-							SetActiveWindow(h_input);
+						else if(P_Blk->P_OutWindow) {
+							h_input = P_Blk->P_OutWindow->H();
 						}
+						if(h_input) {
+							if(EndModalCmd == cmOK) {
+								::PostMessageW(h_input, WM_COMMAND, IDCANCEL, 0);
+							}
+							else {
+								::SetForegroundWindow(h_input);
+								::SetActiveWindow(h_input);
+							}
+						}
+						ActivateInput();
 					}
 				}
 			}
@@ -607,8 +682,16 @@ void WordSelector::DrawListItem2(TDrawItemData * pDrawItem)
 					SString & r_temp_buf = SLS.AcquireRvlStr();
 					SmartListBox * p_lbx = static_cast<SmartListBox *>(pDrawItem->P_View);
 					p_lbx->getText((long)pDrawItem->ItemData, r_temp_buf);
-					r_temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
-					canv._DrawText(_rc, r_temp_buf.cptr(), DT_LEFT|DT_VCENTER|DT_SINGLELINE);
+					// @v12.5.10 {
+					if(P_Def && P_Def->Options & lbtTextUtf8) {
+						canv._DrawTextUtf8(_rc, r_temp_buf.cptr(), DT_LEFT|DT_VCENTER|DT_SINGLELINE);
+					}
+					else 
+					// } @v12.5.10 
+					{
+						r_temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+						canv._DrawText(_rc, r_temp_buf.cptr(), DT_LEFT|DT_VCENTER|DT_SINGLELINE);
+					}
 				}
 			}
 		}

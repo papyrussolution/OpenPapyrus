@@ -1,5 +1,5 @@
 // PPEXPORT.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2025
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2025, 2026
 // @codepage UTF-8
 // Импорт/Экспорт данных
 //
@@ -130,12 +130,13 @@ int PPDbTableXmlExporter::Run(const char * pOutFileName)
 			while(Next() > 0) {
 				SXml::WNode n_rec(p_writer, "record");
 				for(uint i = 0; i < r_fl.getCount(); i++) {
-					char   _buf[1024];
+					// @v12.5.10 char   _buf[1024];
 					const BNField & f = r_fl[i];
 					{
-						(fld_name = f.Name).ToUtf8();
-						f.putValueToString(p_t->getDataBufConst(), _buf);
-						(temp_buf = _buf).Transf(CTRANSF_INNER_TO_UTF8);
+						(fld_name = f.Name).ToUtf8(); 
+						/* @v12.5.10 f.putValueToString(p_t->getDataBufConst(), _buf); (temp_buf = _buf).Transf(CTRANSF_INNER_TO_UTF8);*/
+						f.putValueToString(p_t->getDataBufConst(), temp_buf); // @v12.5.10
+						temp_buf.Transf(CTRANSF_INNER_TO_UTF8); // @v12.5.10
 						XMLReplaceSpecSymb(temp_buf, "&<>\'");
 						SXml::WNode(p_writer, fld_name, temp_buf);
 					}

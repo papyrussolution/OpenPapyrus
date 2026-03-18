@@ -1,5 +1,5 @@
 // DBQ.CPP
-// Copyright (c) Sobolev A. 1996-2001, 2002, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2018, 2019, 2020, 2022, 2023, 2025
+// Copyright (c) Sobolev A. 1996-2001, 2002, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2018, 2019, 2020, 2022, 2023, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -231,9 +231,10 @@ int FASTCALL DBConst::convert(TYPEID type, void * d) const
 	return stcast(bt2st(Tag), type, ((Tag == sp) ? static_cast<const void *>(sptr) : static_cast<const void *>(&lval)), d, 0L);
 }
 
-char * FASTCALL DBConst::tostring(long fmt, char * pBuf) const
+SString & FASTCALL DBConst::tosstring(long fmt, /*char * pBuf*/SString & rBuf) const // @todo @20260316 изменить спецификацию чтобы можно было заменить sttostr-->sttosstr @done
 {
-	return sttostr(bt2st(Tag), ((Tag == sp) ? static_cast<const void *>(sptr) : static_cast<const void *>(&lval)), fmt, pBuf);
+	// @v12.5.10 return sttostr(bt2st(Tag), ((Tag == sp) ? static_cast<const void *>(sptr) : static_cast<const void *>(&lval)), fmt, pBuf);
+	return sttosstr(bt2st(Tag), ((Tag == sp) ? static_cast<const void *>(sptr) : static_cast<const void *>(&lval)), fmt, rBuf); // @v12.5.10
 }
 
 int FASTCALL DBConst::fromfld(DBField f)
@@ -445,7 +446,7 @@ int FASTCALL DBE::call(int option, DBConst * r)
 						return 0;
 					if(option == CALC_SIZE)
 						if(c.Tag == DBConst::sp) {
-							const long len = sstrlen(c.sptr)+1;
+							const long len = sstrleni(c.sptr)+1;
 							c.destroy();
 							c.init(len);
 						}
@@ -662,9 +663,7 @@ int DBDataCell::toString(SString & rBuf, long options) const
 		rBuf.Cat(F.getTable()->GetName()).Dot().Cat(F.getField().Name);
 	}
 	else if(GetId() == DBConst_ID) {
-		char   temp[512];
-		C.tostring(0, temp);
-		rBuf.Cat(temp);
+		C.tosstring(0, rBuf);
 	}
 	else
 		rBuf.Cat("DBE");
@@ -1073,35 +1072,41 @@ int DBDataCell::CreateSqlExpr(Generator_SQL & rGen) const
 		rGen./*Text(f.getTable()->tableName).Text(".").*/Text(F.getField().Name);
 	}
 	else if(GetId() == DBConst_ID) {
-		char   temp[512];
+		//char   temp[512];
+		SString temp_buf;
 		bool   local_done = false;
 		if(rGen.GetServerType() == sqlstSQLite) {
 			if(C.baseType() == BTS_DATE) {
-				ultoa(C.dval.v, temp, 10);
+				// @v12.5.10 ultoa(C.dval.v, temp, 10);
+				temp_buf.Cat(C.dval.v); // @v12.5.10
 				local_done = true;
 			}
 			else if(C.baseType() == BTS_TIME) {
-				ultoa(C.tval.v, temp, 10);
+				// @v12.5.10 ultoa(C.tval.v, temp, 10);
+				temp_buf.Cat(C.tval.v); // @v12.5.10
 				local_done = true;
 			}
 		}
 		else if(rGen.GetServerType() == sqlstMySQL) {
 			if(C.baseType() == BTS_DATE) {
 				if(SMySqlDbProvider::TypeDateAsInt32) {
-					ultoa(C.dval.v, temp, 10);
+					// @v12.5.10 ultoa(C.dval.v, temp, 10);
+					temp_buf.Cat(C.dval.v); // @v12.5.10
 					local_done = true;
 				}
 			}
 			else if(C.baseType() == BTS_TIME) {
 				if(SMySqlDbProvider::TypeTimeAsInt32) {
-					ultoa(C.tval.v, temp, 10);
+					// @v12.5.10 ultoa(C.tval.v, temp, 10);
+					temp_buf.Cat(C.tval.v); // @v12.5.10
 					local_done = true;
 				}
 			}
 		}
-		if(!local_done)
-			C.tostring(COMF_SQL, temp);
-		rGen.Text(temp);
+		if(!local_done) {
+			C.tosstring(COMF_SQL, temp_buf);
+		}
+		rGen.Text(temp_buf);
 	}
 	else if(GetId() == DBE_ID)
 		rGen.Text("(DBE)");

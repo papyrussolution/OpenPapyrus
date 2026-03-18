@@ -338,7 +338,7 @@ int PPCashMachine::_SyncCloseBill(int ret, int use_ta)
 					NodeRec.DownBill = pack.Rec.ID;
 					THROW(UpdateNode(0));
 				}
-				THROW(p_bobj->UniteGoodsBill(&pack, bill_rec.ID, 0));
+				THROW(p_bobj->UniteGoodsBill(pack, bill_rec.ID, 0));
 				PPWaitLong(++count);
 			}
 		}

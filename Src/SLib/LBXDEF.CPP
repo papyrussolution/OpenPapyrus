@@ -66,9 +66,8 @@ const char * ListBoxDef::getText(long item, SString & rBuf)
 	const char * p = static_cast<const char *>(getRow_(item));
 	if(p) {
 		const  uint h = (Options & lbtAutoID) ? 0 : ((Options & lbtWordID) ? sizeof(int16) : sizeof(int32));
-		char   temp_buf[1024];
-		sttostr(Type, p+h, Format, temp_buf);
-		rBuf = temp_buf;
+		/* @v12.5.10 char   temp_buf[1024]; sttostr(Type, p+h, Format, temp_buf); rBuf = temp_buf;*/
+		sttosstr(Type, p+h, Format, rBuf); // @v12.5.10
 	}
 	else
 		rBuf.Z();

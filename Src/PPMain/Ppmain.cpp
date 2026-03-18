@@ -298,11 +298,8 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, 
 						::SystemParametersInfo(SPI_SETFONTSMOOTHINGTYPE, 0, (PVOID)FE_FONTSMOOTHINGCLEARTYPE, 0); 
 						int   fsc = 0;
 						p_uid->VList.Get(UiValueList::vFontSmoothingContrast, fsc);
-						if(fsc >= 1000 && fsc <= 2200)
-							::SystemParametersInfo(SPI_SETFONTSMOOTHINGCONTRAST, 0, (PVOID)fsc, SPIF_UPDATEINIFILE|SPIF_SENDCHANGE);
-						else {
-							::SystemParametersInfo(SPI_SETFONTSMOOTHINGCONTRAST, 0, (PVOID)1400, SPIF_UPDATEINIFILE|SPIF_SENDCHANGE);
-						}
+						fsc = inirangeor(fsc, 1000, 2200, 1400);
+						::SystemParametersInfo(SPI_SETFONTSMOOTHINGCONTRAST, 0, (PVOID)fsc, SPIF_UPDATEINIFILE|SPIF_SENDCHANGE);
 					}
 					else 
 						font_smoothing_settled = false;

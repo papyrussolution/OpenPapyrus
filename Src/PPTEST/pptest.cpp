@@ -2041,7 +2041,9 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
-	Test_MySQL_ReadBLOB(); // @v12.5.7
+	//TestConfigDatabase_StringHistory();
+	TestConfigDatabase_StringHistory_Interactive();
+	//Test_MySQL_ReadBLOB(); // @v12.5.7
 	//TestGtinStruc();
 	//SentencePieceExperiments();
 	//PPChZnPrcssr::Test();
@@ -2121,8 +2123,6 @@ int DoConstructionTest()
 	//TestTsDensityMap();
 	//TestAddressRecognition();
 	//TestGravity();
-	//TestConfigDatabase_StringHistory();
-	//TestConfigDatabase_StringHistory_Interactive();
 	//TestReadXmlMem_EgaisAck();
 	//TestUhttClient();
 	//Test_MailMsg_ReadFromFile();

@@ -3440,14 +3440,13 @@ enum enum_dyncol_func_result mariadb_dyncol_check(DYNAMIC_COLUMN * str) {
 			goto end;
 		}
 	}
-
 	rc = ER_DYNCOL_OK;
 end:
 	return rc;
 }
 
-enum enum_dyncol_func_result mariadb_dyncol_val_str(DYNAMIC_STRING * str, DYNAMIC_COLUMN_VALUE * val,
-    MARIADB_CHARSET_INFO * cs, char quote){
+enum enum_dyncol_func_result mariadb_dyncol_val_str(DYNAMIC_STRING * str, DYNAMIC_COLUMN_VALUE * val, MARIADB_CHARSET_INFO * cs, char quote)
+{
 	char buff[40];
 	size_t len;
 	switch(val->type) {
@@ -3496,27 +3495,18 @@ enum enum_dyncol_func_result mariadb_dyncol_val_str(DYNAMIC_STRING * str, DYNAMI
 				    /* convert to the destination */
 				    str->length +=
 #ifndef LIBMARIADB
-					copy_and_convert_extended(str->str, bufflen,
-					    cs,
-					    from, (uint32)len,
-					    val->x.string.charset,
-					    &dumma_errors);
+					copy_and_convert_extended(str->str, bufflen, cs, from, (uint32)len, val->x.string.charset, &dumma_errors);
 #else
-					mariadb_convert_string(from, &len, val->x.string.charset,
-					    str->str, (size_t*)&bufflen, cs, &dumma_errors);
+					mariadb_convert_string(from, &len, val->x.string.charset, str->str, (size_t*)&bufflen, cs, &dumma_errors);
 #endif
 				    return ER_DYNCOL_OK;
 			    }
 			    if((alloc = (char*)SAlloc::M(bufflen))) {
 				    len =
 #ifndef LIBMARIADB
-					copy_and_convert_extended(alloc, bufflen, cs,
-					    from, (uint32)len,
-					    val->x.string.charset,
-					    &dumma_errors);
+					copy_and_convert_extended(alloc, bufflen, cs, from, (uint32)len, val->x.string.charset, &dumma_errors);
 #else
-					mariadb_convert_string(from, &len, val->x.string.charset,
-					    alloc, (size_t*)&bufflen, cs, &dumma_errors);
+					mariadb_convert_string(from, &len, val->x.string.charset, alloc, (size_t*)&bufflen, cs, &dumma_errors);
 #endif
 				    from = alloc;
 			    }
@@ -3571,7 +3561,8 @@ enum enum_dyncol_func_result mariadb_dyncol_val_str(DYNAMIC_STRING * str, DYNAMI
 	return(ER_DYNCOL_OK);
 }
 
-enum enum_dyncol_func_result mariadb_dyncol_val_long(longlong * ll, DYNAMIC_COLUMN_VALUE * val) {
+enum enum_dyncol_func_result mariadb_dyncol_val_long(longlong * ll, DYNAMIC_COLUMN_VALUE * val) 
+{
 	enum enum_dyncol_func_result rc = ER_DYNCOL_OK;
 	*ll = 0;
 	switch(val->type) {
@@ -3593,9 +3584,8 @@ enum enum_dyncol_func_result mariadb_dyncol_val_long(longlong * ll, DYNAMIC_COLU
 		    char * src = val->x.string.value.str;
 		    size_t len = val->x.string.value.length;
 		    longlong i = 0, sign = 1;
-
-		    while(len && isspace(*src)) src++, len--;
-
+		    while(len && isspace(*src)) 
+				src++, len--;
 		    if(len) {
 			    if(*src == '-') {
 				    sign = -1;
@@ -3650,7 +3640,8 @@ enum enum_dyncol_func_result mariadb_dyncol_val_long(longlong * ll, DYNAMIC_COLU
 	return rc;
 }
 
-enum enum_dyncol_func_result mariadb_dyncol_val_double(double * dbl, DYNAMIC_COLUMN_VALUE * val) {
+enum enum_dyncol_func_result mariadb_dyncol_val_double(double * dbl, DYNAMIC_COLUMN_VALUE * val) 
+{
 	enum enum_dyncol_func_result rc = ER_DYNCOL_OK;
 	*dbl = 0;
 	switch(val->type) {
@@ -3696,16 +3687,10 @@ enum enum_dyncol_func_result mariadb_dyncol_val_double(double * dbl, DYNAMIC_COL
 			(val->x.time_value.neg ? -1 : 1);
 		    break;
 		case DYN_COL_DATE:
-		    *dbl = (double)(val->x.time_value.year * 10000 +
-			val->x.time_value.month * 100 +
-			val->x.time_value.day) *
-			(val->x.time_value.neg ? -1 : 1);
+		    *dbl = (double)(val->x.time_value.year * 10000 + val->x.time_value.month * 100 + val->x.time_value.day) * (val->x.time_value.neg ? -1 : 1);
 		    break;
 		case DYN_COL_TIME:
-		    *dbl = (double)(val->x.time_value.hour * 10000 +
-			val->x.time_value.minute * 100 +
-			val->x.time_value.second) *
-			(val->x.time_value.neg ? -1 : 1);
+		    *dbl = (double)(val->x.time_value.hour * 10000 + val->x.time_value.minute * 100 + val->x.time_value.second) * (val->x.time_value.neg ? -1 : 1);
 		    break;
 		case DYN_COL_DYNCOL:
 		case DYN_COL_NULL:
@@ -3728,31 +3713,24 @@ enum enum_dyncol_func_result mariadb_dyncol_val_double(double * dbl, DYNAMIC_COL
 
 #define JSON_STACK_PROTECTION 10
 
-static enum enum_dyncol_func_result mariadb_dyncol_json_internal(DYNAMIC_COLUMN * str, DYNAMIC_STRING * json,
-    uint lvl){
+static enum enum_dyncol_func_result mariadb_dyncol_json_internal(DYNAMIC_COLUMN * str, DYNAMIC_STRING * json, uint lvl)
+{
 	DYN_HEADER header;
 	uint i;
 	enum enum_dyncol_func_result rc;
-
 	if(lvl >= JSON_STACK_PROTECTION) {
 		rc = ER_DYNCOL_RESOURCE;
 		goto err;
 	}
-
 	if(str->length == 0)
 		return ER_DYNCOL_OK;            /* no columns */
-
 	if((rc = init_read_hdr(&header, str)) < 0)
 		goto err;
-
-	if(header.entry_size * header.column_count + FIXED_HEADER_SIZE >
-	    str->length) {
+	if(header.entry_size * header.column_count + FIXED_HEADER_SIZE > str->length) {
 		rc = ER_DYNCOL_FORMAT;
 		goto err;
 	}
-
 	rc = ER_DYNCOL_RESOURCE;
-
 	if(ma_dynstr_append_mem(json, "{", 1))
 		goto err;
 	for(i = 0, header.entry = header.header;
@@ -3761,8 +3739,7 @@ static enum enum_dyncol_func_result mariadb_dyncol_json_internal(DYNAMIC_COLUMN 
 		DYNAMIC_COLUMN_VALUE val;
 		if(i != 0 && ma_dynstr_append_mem(json, ",", 1))
 			goto err;
-		header.length =
-		    hdr_interval_length(&header, header.entry + header.entry_size);
+		header.length = hdr_interval_length(&header, header.entry + header.entry_size);
 		header.data = header.dtpool + header.offset;
 		/*
 		   Check that the found data is within the ranges. This can happen if
@@ -3810,8 +3787,7 @@ static enum enum_dyncol_func_result mariadb_dyncol_json_internal(DYNAMIC_COLUMN 
 			dc.str = NULL; dc.length = 0;
 		}
 		else {
-			if((rc = mariadb_dyncol_val_str(json, &val,
-			    ma_charset_utf8_general_ci, '"')) < 0)
+			if((rc = mariadb_dyncol_val_str(json, &val, ma_charset_utf8_general_ci, '"')) < 0)
 				goto err;
 		}
 	}
@@ -3820,16 +3796,15 @@ static enum enum_dyncol_func_result mariadb_dyncol_json_internal(DYNAMIC_COLUMN 
 		goto err;
 	}
 	return ER_DYNCOL_OK;
-
 err:
 	json->length = 0;
 	return rc;
 }
 
-enum enum_dyncol_func_result mariadb_dyncol_json(DYNAMIC_COLUMN * str, DYNAMIC_STRING * json) {
+enum enum_dyncol_func_result mariadb_dyncol_json(DYNAMIC_COLUMN * str, DYNAMIC_STRING * json) 
+{
 	if(ma_init_dynamic_string(json, NULL, str->length * 2, 100))
 		return ER_DYNCOL_RESOURCE;
-
 	return mariadb_dyncol_json_internal(str, json, 1);
 }
 

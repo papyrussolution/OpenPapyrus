@@ -46,11 +46,12 @@ int BNField::setValue(void * pDataBuf, const void * pBuf) const
 		return 0;
 }
 
-int BNField::putValueToString(const void * pDataBuf, char * pBuf) const
+int BNField::putValueToString(const void * pDataBuf, /*char * pBuf*/SString & rBuf) const
 {
-	if(pDataBuf && pBuf) {
+	if(pDataBuf/*&& pBuf*/) {
 		const void * p_data = PTR8C(pDataBuf)+Offs;
-		sttostr(T, p_data, 0, pBuf);
+		// @v12.5.10 sttostr(T, p_data, 0, pBuf);
+		sttosstr(T, p_data, 0, rBuf); // @v12.5.10
 		return 1;
 	}
 	else

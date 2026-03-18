@@ -2023,10 +2023,17 @@ int PPImpExp::Helper_OpenFile(const char * pFileName, int readOnly, int truncOnW
 		if(readOnly) {
 			SFileFormat ff;
 			const  int ffr = ff.Identify(filename, 0);
-			// Идентифицируем строго по расширению и сигнатуре. Все из-за того, что я встретил старый excel файл у которого
-			// нет нужной сигнатуры по смещению 512 но есть сигнатура MS-compound-файла по смещению 0. Однако, последняя //
-			// сигнатура встречается и в других форматах MS).
-			THROW_PP_S((ffr == 3) && oneof3(ff, SFileFormat::Xls, SFileFormat::XlsX, SFileFormat::XlsM), PPERR_IMPEXPNONEXCELFILE, filename);
+			bool   is_excel_file = false;
+			if(oneof2(ff, SFileFormat::XlsX, SFileFormat::XlsM) && oneof2(ffr, 2, 3)) {
+				is_excel_file = true;
+			}
+			else if((ff == SFileFormat::Xls) && ffr == 3) {
+				// Здесь идентифицируем строго по расширению и сигнатуре. Все из-за того, что я встретил старый excel файл у которого
+				// нет нужной сигнатуры по смещению 512 но есть сигнатура MS-compound-файла по смещению 0. Однако, последняя //
+				// сигнатура встречается и в других форматах MS).
+				is_excel_file = true;
+			}
+			THROW_PP_S(is_excel_file, PPERR_IMPEXPNONEXCELFILE, filename);
 			if(ff == SFileFormat::Xls) {
 				THROW_MEM(P_XlsT = new ExcelDbFile);
 				THROW_SL(P_XlsT->Open(filename, &P.XlsdfParam, readOnly));
@@ -2220,7 +2227,6 @@ enum {
 		if(rRec.GetFieldByPos(pos, &inner_fld)) {
 			const void * p_fld_data = rRec.GetDataC(pos);
 			if(p_fld_data) {
-				char   buf[512];
 				long   fmt = 0;
 				const  int t = GETSTYPE(inner_fld.T.Typ);
 				// @v12.2.4 {
@@ -2269,9 +2275,13 @@ enum {
 				{
 					if(oneof4(t, S_FLOAT, S_DEC, S_MONEY, S_INT)) {
 						fmt = SFMT_MONEY;
-						sttostr(inner_fld.T.Typ, p_fld_data, fmt, buf);
-						val = satof(buf);
+						/* @v12.5.10 char   buf[512]; sttostr(inner_fld.T.Typ, p_fld_data, fmt, buf); val = satof(buf);*/
+						// @v12.5.10 {
+						SString & r_temp_buf = SLS.AcquireRvlStr();
+						sttosstr(inner_fld.T.Typ, p_fld_data, fmt, r_temp_buf);
+						val = r_temp_buf.ToReal_Plain();
 						is_processed = true;
+						// } @v12.5.10 
 					}
 				}
 				// @v12.2.4 {
@@ -2338,10 +2348,10 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 		rResult.Cat(dbl_val);
 	}
 	else {
-		SString temp_buf, reg_type_symb;
+		SString temp_buf;
+		SString reg_type_symb;
 		SString temp_fld_name;
 		SdbField temp_fld;
-		char   dest_str_buf[2048];
 		PPSymbTranslator st(PPSSYM_IMPEXPFORMULA);
 		SString input_buf(pFormula);
 		SStrScan scan(input_buf);
@@ -2387,8 +2397,11 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 												fmt = MKSFMT(0, DATF_DMY|DATF_CENTURY);
 											else if(GETSTYPE(temp_fld.T.Typ) == S_FLOAT)
 												fmt = SFMT_MONEY;
-											stcast(temp_fld.T.Typ, MKSTYPE(S_ZSTRING, 256), p_outer_fld_buf, dest_str_buf, fmt);
-											temp_buf = dest_str_buf;
+											{
+												char   dest_str_buf[2048];
+												stcast(temp_fld.T.Typ, MKSTYPE(S_ZSTRING, 256), p_outer_fld_buf, dest_str_buf, fmt);
+												temp_buf = dest_str_buf;
+											}
 										}
 									}
                                     if(sym == iefrmCats && _count)
@@ -2421,9 +2434,9 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 							if(GetArgList(scan, arg_list)) {
 								uint arg_p = 0;
 								if(arg_list.get(&arg_p, reg_type_symb) && arg_list.get(&arg_p, temp_buf)) {
-									PPID ar_id = temp_buf.ToLong();
-									PPID person_id = ObjectToPerson(ar_id, 0);
-									PPID reg_type_id = 0;
+									const  PPID ar_id = temp_buf.ToLong();
+									const  PPID person_id = ObjectToPerson(ar_id, 0);
+									PPID   reg_type_id = 0;
 									if(person_id && PPObjRegisterType::GetByCode(reg_type_symb, &reg_type_id) > 0) {
 										PPObjPerson psn_obj;
 										psn_obj.GetRegNumber(person_id, reg_type_id, temp_buf);
@@ -2543,14 +2556,19 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 												fmt = MKSFMT(0, DATF_DMY);
 											else if(t == S_TIME)
 												fmt = MKSFMT(0, TIMF_HMS);
-											sttostr(inner_fld.T.Typ, p_fld_data, fmt, dest_str_buf);
-											if(t == S_ZSTRING) {
-												(temp_buf = dest_str_buf).Transf(CTRANSF_OUTER_TO_INNER);
-												rResult.Cat(temp_buf);
+											{
+												/* @v12.5.10 char   dest_str_buf[2048]; sttostr(inner_fld.T.Typ, p_fld_data, fmt, dest_str_buf);*/
+												sttosstr(inner_fld.T.Typ, p_fld_data, fmt, temp_buf); // @v12.5.10
+												if(t == S_ZSTRING) {
+													// @v12.5.10 (temp_buf = dest_str_buf).Transf(CTRANSF_OUTER_TO_INNER);
+													temp_buf.Transf(CTRANSF_OUTER_TO_INNER); // @v12.5.10
+													rResult.Cat(temp_buf);
 
+												}
+												else {
+													rResult.Cat(/*dest_str_buf*/temp_buf);
+												}
 											}
-											else
-												rResult.Cat(dest_str_buf);
 										}
 									}
 								}
@@ -2629,9 +2647,8 @@ int PPImpExp::ConvertInnerToOuter(int hdr, const void * pInnerBuf, size_t bufLen
 			}
 			if(stbase(outer_fld.T.Typ) == BTS_STRING) {
 				if(P.TdfParam.Flags & (TextDbFile::fCpOem|TextDbFile::fCpUtf8)) {
-					char   temp_cbuf[4096];
-					sttostr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_cbuf);
-					temp_buf = temp_cbuf;
+					/* @v12.5.10 char   temp_cbuf[4096]; sttostr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_cbuf); temp_buf = temp_cbuf; */
+					sttosstr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_buf); // @v12.5.10
 					if(P.TdfParam.Flags & TextDbFile::fCpOem) {
 						temp_buf.Transf(CTRANSF_OUTER_TO_INNER); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
 					}
@@ -2706,9 +2723,8 @@ int PPImpExp::ConvertOuterToInner(void * pInnerBuf, size_t bufLen, SdRecord * pD
 					THROW_SL(pDynRec->GetFieldByPos(dyn_fld_pos, &inner_fld));
 					if(stbase(outer_fld.T.Typ) == BTS_STRING) {
 						if(P.TdfParam.Flags & (TextDbFile::fCpOem|TextDbFile::fCpUtf8)) {
-							temp_cbuf[0] = 0;
-							sttostr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_cbuf);
-							temp_buf = temp_cbuf;
+							/* @v12.5.10 temp_cbuf[0] = 0; sttostr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_cbuf); temp_buf = temp_cbuf; */
+							sttosstr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_buf); // @v12.5.10
 							if(P.TdfParam.Flags & TextDbFile::fCpOem) {
 								// @v12.5.6 temp_buf.ToAnsii();
 								temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v12.5.6
@@ -2729,9 +2745,8 @@ int PPImpExp::ConvertOuterToInner(void * pInnerBuf, size_t bufLen, SdRecord * pD
 				THROW_SL(P.InrRec.GetFieldByID(outer_fld.ID, &inner_pos, &inner_fld));
 				if(stbase(outer_fld.T.Typ) == BTS_STRING) {
 					if(P.TdfParam.Flags & (TextDbFile::fCpOem|TextDbFile::fCpUtf8)) {
-						temp_cbuf[0] = 0;
-						sttostr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_cbuf);
-						temp_buf = temp_cbuf;
+						/* @v12.5.10 temp_cbuf[0] = 0; sttostr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_cbuf); temp_buf = temp_cbuf;*/
+						sttosstr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_buf); // @v12.5.10
 						if(P.TdfParam.Flags & TextDbFile::fCpOem) {
 							// @v12.5.6 temp_buf.ToAnsii();
 							temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v12.5.6

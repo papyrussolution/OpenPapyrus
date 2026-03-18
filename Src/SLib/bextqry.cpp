@@ -133,35 +133,41 @@ int BExtQuery::CreateSqlExpr(Generator_SQL & rSg, int reverse, const char * pIni
 	}
 	int    _where_tok = 0;
 	if(pInitKey && initSpMode != -1) {
-		auto   make_key_seg_value = [](Generator_SQL & rSg, const BNField & rFld, size_t offs, const char * pInitKey, void * pBuffer)
+		auto   make_key_seg_value = [](Generator_SQL & rSg, const BNField & rFld, size_t offs, const char * pInitKey, /*void * pBuffer*/SString & rBuffer)
 		{
-			assert(pBuffer);
+			//assert(pBuffer);
+			rBuffer.Z();
 			const  int st = GETSTYPE(rFld.T);
 			bool   local_done = false;
 			if(rSg.GetServerType() == sqlstSQLite) {
 				if(oneof2(st, S_DATE, S_TIME)) {
-					sttostr(MKSTYPE(S_INT, 4), PTR8C(pInitKey)+offs, COMF_SQL, static_cast<char *>(pBuffer));
+					// @v12.5.10 sttostr(MKSTYPE(S_INT, 4), PTR8C(pInitKey)+offs, COMF_SQL, static_cast<char *>(pBuffer));
+					sttosstr(MKSTYPE(S_INT, 4), PTR8C(pInitKey)+offs, COMF_SQL, rBuffer); // @v12.5.10
 					local_done = true;
 				}
 			}
 			else if(rSg.GetServerType() == sqlstMySQL) {
 				if(st == S_DATE) {
 					if(SMySqlDbProvider::TypeDateAsInt32) {
-						sttostr(MKSTYPE(S_INT, 4), PTR8C(pInitKey)+offs, COMF_SQL, static_cast<char *>(pBuffer));
+						// @v12.5.10 sttostr(MKSTYPE(S_INT, 4), PTR8C(pInitKey)+offs, COMF_SQL, static_cast<char *>(pBuffer));
+						sttosstr(MKSTYPE(S_INT, 4), PTR8C(pInitKey)+offs, COMF_SQL, rBuffer); // @v12.5.10
 						local_done = true;
 					}
 				}
 				else if(st == S_TIME) {
 					if(SMySqlDbProvider::TypeTimeAsInt32) {
-						sttostr(MKSTYPE(S_INT, 4), PTR8C(pInitKey)+offs, COMF_SQL, static_cast<char *>(pBuffer));
+						// @v12.5.10 sttostr(MKSTYPE(S_INT, 4), PTR8C(pInitKey)+offs, COMF_SQL, static_cast<char *>(pBuffer));
+						sttosstr(MKSTYPE(S_INT, 4), PTR8C(pInitKey)+offs, COMF_SQL, rBuffer); // @v12.5.10 
 						local_done = true;
 					}
 				}
 			}
-			if(!local_done)
-				sttostr(rFld.T, PTR8C(pInitKey)+offs, COMF_SQL, static_cast<char *>(pBuffer));
+			if(!local_done) {
+				// @v12.5.10 sttostr(rFld.T, PTR8C(pInitKey)+offs, COMF_SQL, static_cast<char *>(pBuffer));
+				sttosstr(rFld.T, PTR8C(pInitKey)+offs, COMF_SQL, rBuffer); // @v12.5.10
+			}
 		};
-		char   temp[1024];
+		// @v12.5.10 char   temp[1024];
 		rSg.Sp().Tok(Generator_SQL::tokWhere).Sp();
 		_where_tok = 1;
 		rSg.LPar();
@@ -192,8 +198,8 @@ int BExtQuery::CreateSqlExpr(Generator_SQL & rSg, int reverse, const char * pIni
 						cat_field_term(rSg, r_key, i, r_fld);
 						rSg._Symb(_EQ_);
 						//rSg.Param(temp_buf.NumberToLat(i));
-						make_key_seg_value(rSg, r_fld, r_indices.getSegOffset(Index_, i), pInitKey, temp);
-						rSg.Text(temp);
+						make_key_seg_value(rSg, r_fld, r_indices.getSegOffset(Index_, i), pInitKey, temp_buf);
+						rSg.Text(temp_buf);
 						//
 						if(use_collation_term && r_key.getFlags(i) & XIF_ACS) {
 							rSg.Sp().Tok(Generator_SQL::tokCollate).Sp().Text(p_collation);
@@ -243,8 +249,8 @@ int BExtQuery::CreateSqlExpr(Generator_SQL & rSg, int reverse, const char * pIni
 										rSg._Symb(cmps);
 									}
 									//rSg.Param(temp_buf.NumberToLat(j)); // J!
-									make_key_seg_value(rSg, r_fld_j, r_indices.getSegOffset(Index_, j), pInitKey, temp); // J!
-									rSg.Text(temp);
+									make_key_seg_value(rSg, r_fld_j, r_indices.getSegOffset(Index_, j), pInitKey, temp_buf); // J!
+									rSg.Text(temp_buf);
 									if(use_collation_term && r_key.getFlags(j) & XIF_ACS) { // J!
 										rSg.Sp().Tok(Generator_SQL::tokCollate).Sp().Text(p_collation);
 									}
@@ -267,8 +273,8 @@ int BExtQuery::CreateSqlExpr(Generator_SQL & rSg, int reverse, const char * pIni
 									rSg._Symb(cmps);
 								}
 								//rSg.Param(temp_buf.NumberToLat(i)); // I!
-								make_key_seg_value(rSg, r_fld, r_indices.getSegOffset(Index_, i), pInitKey, temp); // I!
-								rSg.Text(temp);
+								make_key_seg_value(rSg, r_fld, r_indices.getSegOffset(Index_, i), pInitKey, temp_buf); // I!
+								rSg.Text(temp_buf);
 								if(use_collation_term && r_key.getFlags(i) & XIF_ACS) { // I!
 									rSg.Sp().Tok(Generator_SQL::tokCollate).Sp().Text(p_collation);
 								}
@@ -335,8 +341,8 @@ int BExtQuery::CreateSqlExpr(Generator_SQL & rSg, int reverse, const char * pIni
 				else if(oneof2(initSpMode, spGe, spFirst))
 					cmps = _GE_;
 				rSg._Symb(cmps);
-				make_key_seg_value(rSg, r_fld, offs, pInitKey, temp);
-				rSg.Text(temp);
+				make_key_seg_value(rSg, r_fld, offs, pInitKey, temp_buf);
+				rSg.Text(temp_buf);
 				if(i > 0 && initSpMode != spEq) {
 					//
 					// При каскадном сравнении ключа второй и последующие сегменты
@@ -364,8 +370,8 @@ int BExtQuery::CreateSqlExpr(Generator_SQL & rSg, int reverse, const char * pIni
 						else
 							rSg.Text(r_fld2.Name);
 						rSg._Symb(_NE_);
-						make_key_seg_value(rSg, r_fld2, r_indices.getSegOffset(Index_, j), pInitKey, temp);
-						rSg.Text(temp);
+						make_key_seg_value(rSg, r_fld2, r_indices.getSegOffset(Index_, j), pInitKey, temp_buf);
+						rSg.Text(temp_buf);
 						rSg.Sp();
 					}
 					rSg.RPar().RPar().Sp();

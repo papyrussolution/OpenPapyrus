@@ -5044,9 +5044,8 @@ SString & STypArray::itemToString(uint idx, long fmt, SString & rBuf) const
 	rBuf.Z();
 	const void * p = at(idx);
 	if(p) {
-		char   temp_buf[256];
-		if(sttostr(type, p, fmt, temp_buf))
-			rBuf = temp_buf;
+		/* @v12.5.10 char   temp_buf[256]; if(sttostr(type, p, fmt, temp_buf)) rBuf = temp_buf;*/
+		sttosstr(type, p, fmt, rBuf); // @v12.5.10
 	}
 	return rBuf;
 }
