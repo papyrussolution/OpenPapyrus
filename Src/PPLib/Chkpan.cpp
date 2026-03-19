@@ -10548,12 +10548,12 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID locID, PgsBlock & rBlk)
 								}
 								// @v12.0.12 {
 								if(rBlk.ChZnMark.NotEmpty() && PNP.ChZnPermissiveMode == PPSyncCashNode::chznpmStrict && PNP.ChZnGuaID) {
-									PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection pm_code_list;
+									PPChZnPrcssr::CodeStatusCollection pm_code_list;
 									pm_code_list.AddCodeEntry(rBlk.ChZnMark, 0, 0);
 									if(pm_code_list.getCount()) {
 										PPChZnPrcssr::PmCheck(PNP.ChZnGuaID, 0, 2/*regular online/offline mode*/, pm_code_list);
 										for(uint i = 0; i < pm_code_list.getCount(); i++) {
-											const PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = pm_code_list.at(i);
+											const PPChZnPrcssr::CodeStatus * p_cle = pm_code_list.at(i);
 											if(p_cle) {
 												const  long ccfg_f2 = CConfig.Flags2__;
 												//const double _mrp = R2(p_cle->Mrp / 100.0);
@@ -10585,7 +10585,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID locID, PgsBlock & rBlk)
 													int    local_err_code = 0;
 													if(p_cle->ErrorCode != 0)
 														local_err_code = PPERR_CHZNMARKPMFAULT;
-													else if(p_cle->Flags & PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fSold)
+													else if(p_cle->Flags & PPChZnPrcssr::CodeStatus::fSold)
 														local_err_code = PPERR_CHZNMARKPMFAULT_SOLD;
 													else if(checkdate(p_cle->ExpiryDtm.d) && now_dtm.d >= p_cle->ExpiryDtm.d) // @v12.1.1
 														local_err_code = PPERR_CHZNMARKPMFAULT_EXPIRY;

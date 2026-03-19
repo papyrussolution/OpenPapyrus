@@ -213,10 +213,13 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 						} while(v != p_dlg->P_Last);
 					}
 				}
-				else if((v = p_dlg->P_Current) != 0) {
-					HWND h_ctl = GetDlgItem(hwndDlg, v->GetId());
-					if(h_ctl)
-						SetFocus(h_ctl);
+				else {
+					v = p_dlg->P_Current;
+					if(v) {
+						HWND h_ctl = GetDlgItem(hwndDlg, v->GetId());
+						if(h_ctl)
+							SetFocus(h_ctl);
+					}
 				}
 			}
 			break;

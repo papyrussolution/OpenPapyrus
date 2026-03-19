@@ -1308,7 +1308,7 @@ void TInputLine::setFormat(long f)
 		Format = f;
 		setMaxLen(SFMTLEN(Format));
 		if(Format & STRF_PASSWORD)
-			::SendDlgItemMessage(Parent, Id, EM_SETPASSWORDCHAR, SlConst::DefaultPasswordSymb, 0);
+			::SendDlgItemMessageW(Parent, Id, EM_SETPASSWORDCHAR, SlConst::DefaultPasswordSymb, 0);
 		TransmitData(+1, buf);
 	}
 }

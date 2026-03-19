@@ -608,7 +608,6 @@ int PPCalculator(void * hParentWnd, const char * pInitData)
 			getCtrlString(CTL_CALC_INPUT, input);
 			if(input.NotEmptyS()) {
 				bool done = false;
-				// @v11.0.2 {
 				{
 					GtinStruc gts;
 					if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(input, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk)) > 0) {
@@ -622,7 +621,6 @@ int PPCalculator(void * hParentWnd, const char * pInitData)
 						}
 					}
 				}
-				// } @v11.0.2 
 				if(!done) {
 					input.ReplaceChar(',', '.');
 					Err = !PPCalcExpression(input, &Result, &CFL);

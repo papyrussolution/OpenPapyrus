@@ -295,6 +295,16 @@ uint SJson::GetArrayCount() const
 	return ok;
 }
 
+/*static*/bool FASTCALL SJson::GetChildUInt64(const SJson * pN, uint64 & rResult) // @v12.5.11
+{
+	bool   ok = true;
+	if(pN && SJson::IsNumber(pN->P_Child))
+		rResult = pN->P_Child->Text.ToUInt64();
+	else
+		ok = false;
+	return ok;
+}
+
 /*static*/bool FASTCALL SJson::GetChildDouble(const SJson * pN, double & rResult) // @v12.3.12
 {
 	bool   ok = true;

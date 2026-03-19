@@ -11798,14 +11798,14 @@ public:
 	// Descr: Блок, содержащий данные о договоре на поставку/продажу. Используется в документах, относящихся к
 	//   типу операции PPOPT_AGREEMENT.
 	//
-	struct Agreement { // @persistent
-		Agreement();
-		Agreement(const Agreement & rS);
-		Agreement & FASTCALL operator = (const Agreement & rS);
-		Agreement & Z(); // @v12.5.10
+	struct AgreementBlock { // @persistent
+		AgreementBlock();
+		AgreementBlock(const AgreementBlock & rS);
+		AgreementBlock & FASTCALL operator = (const AgreementBlock & rS);
+		AgreementBlock & Z(); // @v12.5.10
 		bool   IsEmpty() const;
-		bool   FASTCALL IsEq(const Agreement & rS) const;
-		int    FASTCALL Copy(const Agreement & rS);
+		bool   FASTCALL IsEq(const AgreementBlock & rS) const;
+		int    FASTCALL Copy(const AgreementBlock & rS);
 
 		long   ObjType;          // Const=PPOBJ_BILL
 		long   ObjID;            // BillID
@@ -11830,7 +11830,7 @@ public:
 		int32  ReserveVal1;
 		int32  ReserveVal2;
 	};
-	Agreement * P_Agt;
+	AgreementBlock * P_Agt;
 };
 //
 // Пакет документа
@@ -12332,7 +12332,7 @@ public:
 			// контаргент должна иметь такой регистр, но не имеет.
 		PPClientAgreement CliAgt;
 		PPSupplAgreement  SupplAgt;
-		PPBill::Agreement DedicatedAgt; // @v12.5.10
+		PPBill::AgreementBlock DedicatedAgt; // @v12.5.10
 	};
 	//
 	// Descr: Устанавливает статью контрагента в пакет документа (Rec.Object). Выполняет все необходимые проверки.
@@ -13107,7 +13107,8 @@ public:
 	int    GetRentCondition(PPID, PPRentCondition *);
 	int    SetFreight(PPID id, const PPFreight * pFreight, int use_ta);
 	int    GetFreight(PPID id, PPFreight * pFreight);
-	int    GetAgreement(PPID id, PPBill::Agreement * pAgt); // @v12.5.10
+	int    SetAgreement(PPID id, const PPBill::AgreementBlock * pAgt, int use_ta); // @v12.5.11 prop=BILLPRP_AGREEMENT
+	int    GetAgreement(PPID id, PPBill::AgreementBlock * pAgt); // @v12.5.10 prop=BILLPRP_AGREEMENT
 	int    GetDlvrAddrList(LAssocArray * pList);
 	int    GetListByFreightFilt(const FreightFilt & rFilt, UintHashTable & rList);
 	//
@@ -61019,7 +61020,99 @@ public:
 	int    TransmitCcList(const Param & rP, const TSCollection <CCheckPacket> & rList);
 	static int Test();
 	static int InteractiveCheck();
+	//
+	// Descr: Структура проверки статуса марки, применяемая совместно и для разрешительного режима и для ТС-ПИОТ
+	//
+	struct CodeStatus {
+		CodeStatus();
+		enum {
+			fFound      = 0x0001, // Признак наличия кода. Возможные значения: true — «Код найден»; false — «Код не найден»
+			fValid      = 0x0002, // Результат проверки валидности структуры КМ. Возможные значения: true — «Структура валидная»; false — «Структура не валидная»
+			fVerified   = 0x0004, // Результат проверки крипто-подписи КМ. Возможные значения: true — «Проверка крипто-подписи завершилась успешно»; false — «Проверка крипто-подписи.
+			fRealizable = 0x0008, // Признак ввода в оборот. Признак показывает, находится ли КИ в статусе «В обороте». Возможные значения: true – «КИ в статусе «В обороте»»; false – «КИ в статусе, отличном от «В обороте»».
+			fUtilised   = 0x0010, // Признак нанесения КИ на упаковку. Возможные значения: true — «КИ нанесён»; false — «КИ не нанесён»
+			fIsOwner    = 0x0020, // Признак, определяющий что запрос направлен владельцем кода. true — КМ принадлежит участнику, который направил запрос; false — КМ не принадлежит участнику, который направил запрос.
+			fIsBlocked  = 0x0040, // Признак того, что розничная продажа продукции заблокирована по решению ОГВ. true — продажа заблокирована; false — продажа не заблокирована.
+			fIsTracking = 0x0080, // Признак контроля прослеживаемости в товарной группе. true — контроль прослеживаемости в товарной группе для данного КМ включен; false — контроль прослеживаемости в товарной группе для данного КМ выключен.
+			fSold       = 0x0100, // Признак вывода из оборота товара. true — товар выведен из оборота; false — товар не выведен из оборота.
+			fGrayZone   = 0x0200, // Признак принадлежности табачной продукции к «серой зоне». true — принадлежит; false — не принадлежит. (@v12.3.12 для локального pm - isGreyGtin)
+		};
+		CodeStatus & AssignExceptOrgValues(const CodeStatus & rS);
 
+		uint   OrgRowId; // IN Идентификатор строки документа (или еще чего нибудь), которому соответствует код. Вызывающая функция сама интерпретирует это значение.
+		SString OrgMark; // IN Текст марки, подаваемый на вход процедуре проверки
+		SString OrgMark_Offl; // IN @v12.3.11 Текст марки без криптохвоста для подачи на проверку оффлайн-серверу
+		//
+		SString Cis; //
+		int    ErrorCode; // Код ошибки. 
+			// 0 — ошибки отсутствуют; 
+			// 1 — ошибка валидации КМ; 
+			// 2 — КМ не содержит GTIN; 
+			// 3 — КМ не содержит серийный номер; 
+			// 4 — КМ содержит недопустимые символы; 
+			// 5 — ошибка верификации крипто-подписи КМ (формат крипто-подписи не соответствует типу КМ); 
+			// 6 — ошибка верификации крипто-подписи КМ (крипто-подпись не валидная); 
+			// 7 — ошибка верификации крипто-подписи КМ (крипто-ключ не валиден); 
+			// 8 — КМ не прошел верификацию в стране эмитента; 
+			// 9 — Найденные AI в КМ не поддерживаются; 
+			// 10 — КМ не найден в ГИС МТ 11 — КМ не найден в трансгране
+		int    EliminationState; // Дополнительная информация по КМ. 
+			// 1 — товар выведен из оборота по причинам «по образцам» или «дистанционная продажа»; 
+			// 2 — товар выведен из оборота по причинам «для собственных нужд» или «для производственных целей» Заполняется для товаров, выведенных из оборота по этим причинам с 08.02.24
+		uint   Mrp; // Максимальная розничная цена. В копейках (для табака).
+		uint   Smp; // Минимальная из возможных единых минимальных цен. В копейках (для табака).
+		uint   PackageQtty;    // 
+		uint   InnerUnitCount; // Количество единиц товара в потребительской упаковке / Фактический объём / Фактический вес.
+		uint   SoldUnitCount;  // Счётчик проданного и возвращённого товара.
+		uint   Flags;
+		uint   GroupIds[64];
+		LDATETIME ExpiryDtm; // Формат yyyy-MM-dd’T’HH:mm:ss.SSSz
+		LDATETIME ProductionDtm; // Формат yyyy-MM-dd’T’HH:mm:ss.SSSz
+		double Weight; // Переменный вес продукции (в граммах). Возвращается только для товарной группы «Молочная продукция»
+		SString PrVetDocument; // Производственный ветеринарный сопроводительный документ. Возвращается только для товарной группы «Молочная продукция»
+		SString Message; // Сообщение об ошибке
+		S_GUID ReqId;    // Уникальный идентификатор запроса
+		int64  ReqTimestamp; // Дата и время формирования запроса. Параметр возвращает дату и время с точностью до миллисекунд.
+		SString PackageType; // Тип упаковки. См. «Справочник "Типы упаковки"»
+		SString Parent;      // КИ агрегата.
+		SString ProducerInn; // ИНН производителя.
+	};
+
+	class CodeStatusCollection : public TSCollection <CodeStatus> {
+	public:
+		CodeStatusCollection();
+		CodeStatusCollection & Z();
+		int    AddCodeEntry(const char * pCode, uint orgRowId, SString * pReconstructedCode);
+		//
+		// Descr: Сопоставляет результат проверки, полученный от честного знака с коллекцией this
+		//   и, если находит, соответствующий элемент, то присваивает ему поля результата проверки.
+		// ARG(rowN IN): Если значение больше или равно нулю, то предполагается, что элемент rEntry
+		//   находится в rowN позиции списка результатов. Это может помочь сопоставлению.
+		// Returns:
+		//   >0 - номер позиции (+1) в коллекции this, с которым успешно сопоставлен результат
+		//    0 - не удалось найти соответствие.
+		//
+		int    SetupResultEntry(int rowN, const CodeStatus & rEntry);
+
+		int    Code; // Result code. 0 - ok
+		SString Description; // error message or "ok"
+		S_GUID ReqId;
+		int64  ReqTimestamp;
+		S_GUID LocalModuleInstance; // @v12.3.12 Идент локального модуля проверки
+		S_GUID LocalModuleDbVer;    // @v12.3.12 Версия базы «чёрного списка», на которой выполнялась проверка КИ
+	};
+	//
+	// Descr: Интерфейс с ТС-ПИОТ (не спрашивайте: пидоры в кремле не успокоятся пока не загонят нас всех под землю)
+	//
+	class TsPiotInterface { // @v12.5.11 
+	public:
+		TsPiotInterface();
+		~TsPiotInterface();
+		int    Query(int protVer);
+	};
+	//
+	// Descr: Интерфейс с разрешительным режимом честный знак
+	//
 	class PermissiveModeInterface {
 	public:
 		struct CdnStatus {
@@ -61028,85 +61121,6 @@ public:
 			int    Code; // 0 - ok, !0 - error
 			int    AvgTimeMs;
 		};
-		struct CodeStatus {
-			CodeStatus();
-			enum {
-				fFound      = 0x0001, // Признак наличия кода. Возможные значения: true — «Код найден»; false — «Код не найден»
-				fValid      = 0x0002, // Результат проверки валидности структуры КМ. Возможные значения: true — «Структура валидная»; false — «Структура не валидная»
-				fVerified   = 0x0004, // Результат проверки крипто-подписи КМ. Возможные значения: true — «Проверка крипто-подписи завершилась успешно»; false — «Проверка крипто-подписи.
-				fRealizable = 0x0008, // Признак ввода в оборот. Признак показывает, находится ли КИ в статусе «В обороте». Возможные значения: true – «КИ в статусе «В обороте»»; false – «КИ в статусе, отличном от «В обороте»».
-				fUtilised   = 0x0010, // Признак нанесения КИ на упаковку. Возможные значения: true — «КИ нанесён»; false — «КИ не нанесён»
-				fIsOwner    = 0x0020, // Признак, определяющий что запрос направлен владельцем кода. true — КМ принадлежит участнику, который направил запрос; false — КМ не принадлежит участнику, который направил запрос.
-				fIsBlocked  = 0x0040, // Признак того, что розничная продажа продукции заблокирована по решению ОГВ. true — продажа заблокирована; false — продажа не заблокирована.
-				fIsTracking = 0x0080, // Признак контроля прослеживаемости в товарной группе. true — контроль прослеживаемости в товарной группе для данного КМ включен; false — контроль прослеживаемости в товарной группе для данного КМ выключен.
-				fSold       = 0x0100, // Признак вывода из оборота товара. true — товар выведен из оборота; false — товар не выведен из оборота.
-				fGrayZone   = 0x0200, // Признак принадлежности табачной продукции к «серой зоне». true — принадлежит; false — не принадлежит. (@v12.3.12 для локального pm - isGreyGtin)
-			};
-			CodeStatus & AssignExceptOrgValues(const CodeStatus & rS);
-
-			uint   OrgRowId; // IN Идентификатор строки документа (или еще чего нибудь), которому соответствует код. Вызывающая функция сама интерпретирует это значение.
-			SString OrgMark; // IN Текст марки, подаваемый на вход процедуре проверки
-			SString OrgMark_Offl; // IN @v12.3.11 Текст марки без криптохвоста для подачи на проверку оффлайн-серверу
-			//
-			SString Cis; //
-			int    ErrorCode; // Код ошибки. 
-				// 0 — ошибки отсутствуют; 
-				// 1 — ошибка валидации КМ; 
-				// 2 — КМ не содержит GTIN; 
-				// 3 — КМ не содержит серийный номер; 
-				// 4 — КМ содержит недопустимые символы; 
-				// 5 — ошибка верификации крипто-подписи КМ (формат крипто-подписи не соответствует типу КМ); 
-				// 6 — ошибка верификации крипто-подписи КМ (крипто-подпись не валидная); 
-				// 7 — ошибка верификации крипто-подписи КМ (крипто-ключ не валиден); 
-				// 8 — КМ не прошел верификацию в стране эмитента; 
-				// 9 — Найденные AI в КМ не поддерживаются; 
-				// 10 — КМ не найден в ГИС МТ 11 — КМ не найден в трансгране
-			int    EliminationState; // Дополнительная информация по КМ. 
-				// 1 — товар выведен из оборота по причинам «по образцам» или «дистанционная продажа»; 
-				// 2 — товар выведен из оборота по причинам «для собственных нужд» или «для производственных целей» Заполняется для товаров, выведенных из оборота по этим причинам с 08.02.24
-			uint   Mrp; // Максимальная розничная цена. В копейках (для табака).
-			uint   Smp; // Минимальная из возможных единых минимальных цен. В копейках (для табака).
-			uint   PackageQtty;    // 
-			uint   InnerUnitCount; // Количество единиц товара в потребительской упаковке / Фактический объём / Фактический вес.
-			uint   SoldUnitCount;  // Счётчик проданного и возвращённого товара.
-			uint   Flags;
-			uint   GroupIds[64];
-			LDATETIME ExpiryDtm; // Формат yyyy-MM-dd’T’HH:mm:ss.SSSz
-			LDATETIME ProductionDtm; // Формат yyyy-MM-dd’T’HH:mm:ss.SSSz
-			double Weight; // Переменный вес продукции (в граммах). Возвращается только для товарной группы «Молочная продукция»
-			SString PrVetDocument; // Производственный ветеринарный сопроводительный документ. Возвращается только для товарной группы «Молочная продукция»
-			SString Message; // Сообщение об ошибке
-			S_GUID ReqId;    // Уникальный идентификатор запроса
-			int64  ReqTimestamp; // Дата и время формирования запроса. Параметр возвращает дату и время с точностью до миллисекунд.
-			SString PackageType; // Тип упаковки. См. «Справочник "Типы упаковки"»
-			SString Parent;      // КИ агрегата.
-			SString ProducerInn; // ИНН производителя.
-		};
-
-		class CodeStatusCollection : public TSCollection <CodeStatus> {
-		public:
-			CodeStatusCollection();
-			CodeStatusCollection & Z();
-			int    AddCodeEntry(const char * pCode, uint orgRowId, SString * pReconstructedCode);
-			//
-			// Descr: Сопоставляет результат проверки, полученный от честного знака с коллекцией this
-			//   и, если находит, соответствующий элемент, то присваивает ему поля результата проверки.
-			// ARG(rowN IN): Если значение больше или равно нулю, то предполагается, что элемент rEntry
-			//   находится в rowN позиции списка результатов. Это может помочь сопоставлению.
-			// Returns:
-			//   >0 - номер позиции (+1) в коллекции this, с которым успешно сопоставлен результат
-			//    0 - не удалось найти соответствие.
-			//
-			int    SetupResultEntry(int rowN, const CodeStatus & rEntry);
-
-			int    Code; // Result code. 0 - ok
-			SString Description; // error message or "ok"
-			S_GUID ReqId;
-			int64  ReqTimestamp;
-			S_GUID LocalModuleInstance; // @v12.3.12 Идент локального модуля проверки
-			S_GUID LocalModuleDbVer;    // @v12.3.12 Версия базы «чёрного списка», на которой выполнялась проверка КИ
-		};
-
 		enum {
 			queryGetCdnList = 1,
 			queryGetCdnStatus,
@@ -61193,7 +61207,7 @@ public:
 	//   1 - offline only
 	//   2 - regular mode: try online and if failed then try offline
 	//
-	static int PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offlineMode, PermissiveModeInterface::CodeStatusCollection & rList);
+	static int PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offlineMode, CodeStatusCollection & rList);
 private:
 	int    PrepareBillPacketForSending(PPID billID, void * pChZnPacket);
 	void * P_Ib; // Блок инициализации
@@ -61358,21 +61372,21 @@ public:
 		icacnLoadStock       = 0x0004,
 		icacnPrepareOutgoing = 0x0008,
 		icacnSendOutgoing    = 0x0010,
-		icacnRefsImport      = 0x0020  // @v11.0.10
+		icacnRefsImport      = 0x0020,
 	};
 	enum {
-		refimpfCountry = 0x0001,
-		refimpfRegion  = 0x0002,
-		refimpfUOM     = 0x0004,
+		refimpfCountry         = 0x0001,
+		refimpfRegion          = 0x0002,
+		refimpfUOM             = 0x0004,
 		refimpfEnterprise      = 0x0008,
 		refimpfLocation        = 0x0010,
 		refimpfProductGroup    = 0x0020,
 		refimpfProductSubGroup = 0x0040,
 		refimpfProductItem     = 0x0080,
-		refimpfPurpose = 0x0100,
+		refimpfPurpose         = 0x0100,
 	};
 	enum {
-		fAsSelector      = 0x0001
+		fAsSelector = 0x0001
 	};
 	int16  Ft_Expiry;   // Селектор по признаку истечения срока годности. (0) ignored, (< 0) off, (> 0) on
 	int16  Ft_LotMatch; // Селектор по признаку сопоставления со строкой документа. (0) ignored, (< 0) off, (> 0) on
@@ -61392,8 +61406,8 @@ public:
 	DateRange WayBillPeriod;
 	long    VDStatusFlags;
 	long    Sel;              // Если установлен флаг fAsSelector, то после закрытия окна таблицы в этом поле будет выбранный идентификатор
-	long    RefsImpFlags;     // @v11.0.10 Флаги импорта справочников
-	uint8   ReserveEnd[24];   // @anchor @v11.0.10 [28]-->[24]
+	long    RefsImpFlags;     // Флаги импорта справочников
+	uint8   ReserveEnd[24];   // @anchor
 };
 
 struct VetisDocumentTotal {
@@ -61452,7 +61466,7 @@ private:
 	static int DynFuncVetDForm;
 	static int DynFuncVetDType;
 	static int DynFuncVetStockByDoc;
-	static int DynFuncVetUUID;  //@erik v10.4.11
+	static int DynFuncVetUUID;  //@erik
 	static int DynFuncCheckExpiry;
 	static int DynFuncCheckLocation; // @v11.5.8
 
@@ -63270,8 +63284,8 @@ void   FASTCALL DisableOKButton(TDialog *);
 int    STDCALL  SetupPhoneButton(TDialog * pDlg, uint inputCtlId, uint btnCmd);
 int    STDCALL  SetupGeoLocButton(TDialog * pDlg, uint inputCtlId, uint btnCmd); // @v11.6.2 @construction
 int    FASTCALL PPWait(int begin);
-void   PPWaitStart(); // @v11.0.3 PPWait(1)
-void   PPWaitStop(); // @v11.0.3 PPWait(0)
+void   PPWaitStart();
+void   PPWaitStop();
 void   FASTCALL PPWaitMsg(const char *);
 void   STDCALL  PPWaitMsg(int msgGrpID, int msgID, const char * = 0);
 void   FASTCALL PPWaitLong(long);

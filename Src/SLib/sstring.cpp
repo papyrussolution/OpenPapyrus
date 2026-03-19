@@ -1351,7 +1351,7 @@ int SString::SearchRev(const char * pPattern, size_t startPos, int ignoreCase, s
 int SString::Search(const char * pPattern, size_t startPos, int ignoreCase, size_t * pPos) const
 {
 	int    ok = 0;
-	const size_t _len = Len();
+	const  size_t _len = Len();
 	if(startPos < _len) {
 		const size_t _pat_len = sstrlen(pPattern);
 		if(_pat_len) {

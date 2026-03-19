@@ -77,8 +77,8 @@ struct sessionFileInfo : public Position {
 
 struct SScEditorPosition {
 	SScEditorPosition();
-	SJson * ToJsonObj() const;
-	bool   FromJsonObj(const SJson * pJsObj);
+	SJson * ToJsonObj() const; // non-virtual
+	bool   FromJsonObj(const SJson * pJsObj); // non-virtual
 	SScEditorPosition & Z();
 
 	int64  FirstVisibleLine;
@@ -97,8 +97,8 @@ private:
 public:
 	SScEditorMapPosition();
 	SScEditorMapPosition & Z();
-	SJson * ToJsonObj() const;
-	bool   FromJsonObj(const SJson * pJsObj);
+	SJson * ToJsonObj() const; // non-virtual
+	bool   FromJsonObj(const SJson * pJsObj); // non-virtual
 	enum {
 		fIsWrap = 0x0001, // bool   IsWrap = false;
 	};
@@ -118,12 +118,9 @@ public:
 
 struct SScEditorTextInfo : public SScEditorPosition {
 	SScEditorTextInfo();
-	SJson * ToJsonObj() const;
-	bool   FromJsonObj(const SJson * pJsObj);
-
-	int    Lingua; //std::wstring _langName;
-	int    Cp; // codepage
-	int    IndividualTabColour;
+	SJson * ToJsonObj() const; // non-virtual
+	bool   FromJsonObj(const SJson * pJsObj); // non-virtual
+	SScEditorTextInfo & Z(); // non-virtual
 	enum {
 		fUserReadOnly       = 0x0001, // bool   _isUserReadOnly = false;
 		fMonitoring         = 0x0002, // bool   _isMonitoring = false;
@@ -131,6 +128,9 @@ struct SScEditorTextInfo : public SScEditorPosition {
 		fPinned             = 0x0008, // bool   _isPinned = false;
 		fUntitledTabRenamed = 0x0010  // bool   _isUntitledTabRenamed = false;
 	};
+	int    Lingua; //std::wstring _langName;
+	int    Cp; // codepage
+	int    IndividualTabColour;
 	uint   Flags;
 	uint64 UedOrgFileModTm; // FILETIME _originalFileLastModifTimestamp {};
 	SScEditorMapPosition MapPos;
@@ -270,11 +270,9 @@ bool SScEditorMapPosition::FromJsonObj(const SJson * pJs)
 		if(p_cur->Text.IsEqiAscii("FirstVisDispLn")) {
 			SJson::GetChildInt64(p_cur, FirstVisibleDisplayLine);
 		}
-
 		else if(p_cur->Text.IsEqiAscii("FirstVisDocLn")) {
 			SJson::GetChildInt64(p_cur, FirstVisibleDocLine);
 		}
-
 		else if(p_cur->Text.IsEqiAscii("LastVisDocLn")) {
 			SJson::GetChildInt64(p_cur, LastVisibleDocLine);
 		}
@@ -306,16 +304,134 @@ bool SScEditorMapPosition::FromJsonObj(const SJson * pJs)
 SScEditorTextInfo::SScEditorTextInfo() : SScEditorPosition(), Lingua(0), Cp(-1), IndividualTabColour(-1), Flags(0), UedOrgFileModTm(0)
 {
 }
+
+SScEditorTextInfo & SScEditorTextInfo::Z()
+{
+	SScEditorPosition::Z();
+	Lingua = 0;
+	Cp = -1;
+	IndividualTabColour = -1;
+	Flags = 0;
+	UedOrgFileModTm = 0;
+	MapPos.Z();
+	FileNameUtf8.Z();
+	BackupPathUtf8.Z();
+	MarkList.clear();
+	FoldStateList.clear();
+	return *this;
+}
 	
 SJson * SScEditorTextInfo::ToJsonObj() const
 {
-	SJson * p_result = 0;
+	SJson * p_result = SJson::CreateObj();
+	if(SJson::IsObject(p_result)) {
+		{
+			SJson * p_js_inner = SScEditorPosition::ToJsonObj();
+			if(p_js_inner) {
+				p_result->Insert("Position", p_js_inner);
+			}
+		}
+		if(Lingua != 0)
+			p_result->InsertInt("Lingua", Lingua);
+		if(Cp != -1)
+			p_result->InsertInt("Cp", Cp);
+		if(IndividualTabColour != -1)
+			p_result->InsertInt("IndTabClr", IndividualTabColour);
+		if(Flags != 0)
+			p_result->InsertUInt("Flags", Flags);
+		if(UedOrgFileModTm != 0)
+			p_result->InsertUInt("UedOrgFileModTm", UedOrgFileModTm);
+		{
+			SJson * p_js_inner = MapPos.ToJsonObj();
+			if(p_js_inner) {
+				p_result->Insert("MapPos", p_js_inner);
+			}
+		}
+		if(FileNameUtf8.NotEmpty()) {
+			p_result->InsertString("FileName", FileNameUtf8);
+		}
+		if(BackupPathUtf8.NotEmpty()) {
+			p_result->InsertString("BackupPath", BackupPathUtf8);
+		}
+		if(MarkList.getCount()) {
+			SJson * p_js_inner = SJson::CreateArr();
+			if(p_js_inner) {
+				for(uint i = 0; i < MarkList.getCount(); i++) {
+					p_js_inner->InsertChild(SJson::CreateInt64(MarkList.get(i)));
+				}
+				p_result->Insert("MarkList", p_js_inner);
+			}
+		}
+		if(FoldStateList.getCount()) {
+			SJson * p_js_inner = SJson::CreateArr();
+			if(p_js_inner) {
+				for(uint i = 0; i < FoldStateList.getCount(); i++) {
+					p_js_inner->InsertChild(SJson::CreateInt64(FoldStateList.get(i)));
+				}
+				p_result->Insert("FoldStateList", p_js_inner);
+			}
+		}
+	}
 	return p_result;
 }
 	
-bool SScEditorTextInfo::FromJsonObj(const SJson * pJsObj)
+bool SScEditorTextInfo::FromJsonObj(const SJson * pJs)
 {
-	bool   ok = false;
+	bool   ok = true;
+	SScEditorTextInfo::Z();
+	for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
+		if(p_cur->Text.IsEqiAscii("Position")) {
+			if(SJson::IsObject(p_cur->P_Child)) { 
+				SScEditorPosition::FromJsonObj(p_cur->P_Child);
+			}
+		}
+		else if(p_cur->Text.IsEqiAscii("Lingua")) {
+			SJson::GetChildInt(p_cur, Lingua);
+		}
+		else if(p_cur->Text.IsEqiAscii("Cp")) {
+			SJson::GetChildInt(p_cur, Cp);
+		}
+		else if(p_cur->Text.IsEqiAscii("IndTabClr")) {
+			SJson::GetChildInt(p_cur, IndividualTabColour);
+		}
+		else if(p_cur->Text.IsEqiAscii("Flags")) {
+			SJson::GetChildUInt(p_cur, Flags);
+		}
+		else if(p_cur->Text.IsEqiAscii("UedOrgFileModTm")) {
+			SJson::GetChildUInt64(p_cur, UedOrgFileModTm);
+		}
+		else if(p_cur->Text.IsEqiAscii("MapPos")) {
+			if(SJson::IsObject(p_cur->P_Child)) {
+				MapPos.FromJsonObj(p_cur->P_Child);
+			}
+		}
+		else if(p_cur->Text.IsEqiAscii("FileName")) {
+			SJson::GetChildTextUnescaped(p_cur, FileNameUtf8);
+		}
+		else if(p_cur->Text.IsEqiAscii("BackupPath")) {
+			SJson::GetChildTextUnescaped(p_cur, BackupPathUtf8);
+		}
+		else if(p_cur->Text.IsEqiAscii("MarkList")) {
+			if(SJson::IsArray(p_cur->P_Child)) { 
+				for(const SJson * p_sj_item = p_cur->P_Child->P_Child; p_sj_item; p_sj_item = p_sj_item->P_Next) {
+					if(SJson::IsNumber(p_sj_item)) {
+						int64 v = p_sj_item->Text.ToInt64();
+						MarkList.add(v);
+					}
+				}
+			}
+		}
+		else if(p_cur->Text.IsEqiAscii("FoldStateList")) {
+			if(SJson::IsArray(p_cur->P_Child)) { 
+				for(const SJson * p_sj_item = p_cur->P_Child->P_Child; p_sj_item; p_sj_item = p_sj_item->P_Next) {
+					if(SJson::IsNumber(p_sj_item)) {
+						int64 v = p_sj_item->Text.ToInt64();
+						FoldStateList.add(v);
+					}
+				}
+			}
+		}
+	}
 	return ok;
 }
 //

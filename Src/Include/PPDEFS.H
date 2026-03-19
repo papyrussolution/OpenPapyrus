@@ -9115,6 +9115,7 @@
 #define DLG_CLIBNKFMTLIST        1017
 	#define cmCliBnkFmtListAssoc         101
 	#define CTL_CLIBNKFMTLIST_LIST       (1 + WINDOWS_ID_BIAS)
+	#define CTL_CLIBNKFMTLIST_CMD_ASSOC  (2 + WINDOWS_ID_BIAS)
 #define DLG_RTACCLIST            1018
 	#define CTL_RTACCLIST_LIST           (1 + WINDOWS_ID_BIAS)
 #define DLG_RTACCLI              1019

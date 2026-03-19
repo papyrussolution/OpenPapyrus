@@ -2434,7 +2434,7 @@ int PPBillImporter::ProcessDynField(const SdRecord & rDynRec, uint dynFldN, PPIm
 	int    ok = -1;
 	SdbField dyn_fld;
 	if(rDynRec.GetFieldByPos(dynFldN, &dyn_fld) && dyn_fld.InnerFormula.NotEmptyS()) {
-		char   temp_str_[1024];
+		//char   temp_str_[1024];
 		SString temp_buf;
 		SdbField inner_fld;
 		SdbField outer_fld;
@@ -8547,7 +8547,7 @@ int DocNalogRu_Generator::GetAgreementParams(/*PPID arID*/const PPBillPacket & r
 		// Замечание по поводу следующего условия: если у документа договора есть дата и номер, то считаем его валидным даже
 		// если набор специфических атрибутов (PPBill::Agreement) пустой!
 		if(checkdate(agt_bill_rec.Dt) && !isempty(agt_bill_rec.Code)) { // @v12.5.10
-			PPBill::Agreement agt;
+			PPBill::AgreementBlock agt;
 			if(p_bobj->P_Tbl->GetAgreement(agt_bill_rec.ID, &agt) > 0 && !agt.IsEmpty()) { // @v12.5.10
 			// @v12.5.10 if(PPRef->GetProperty(PPOBJ_BILL, agt_bill_rec.ID, BILLPRP_AGREEMENT, &agt, sizeof(agt)) > 0 && !agt.IsEmpty()) {
 				rAgtExpiry = agt.Expiry;

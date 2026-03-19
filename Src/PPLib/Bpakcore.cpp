@@ -577,41 +577,41 @@ int PPFreight::SetupDlvrAddr(PPID dlvrAddrID)
 //
 //
 //
-PPBill::Agreement::Agreement()
+PPBill::AgreementBlock::AgreementBlock()
 {
 	THISZERO();
 }
 
-PPBill::Agreement::Agreement(const Agreement & rS)
+PPBill::AgreementBlock::AgreementBlock(const AgreementBlock & rS)
 {
 	Copy(rS);
 }
 
-PPBill::Agreement & PPBill::Agreement::Z() // @v12.5.10
+PPBill::AgreementBlock & PPBill::AgreementBlock::Z() // @v12.5.10
 {
 	THISZERO();
 	return *this;
 }
 
-PPBill::Agreement & FASTCALL PPBill::Agreement::operator = (const Agreement & rS)
+PPBill::AgreementBlock & FASTCALL PPBill::AgreementBlock::operator = (const AgreementBlock & rS)
 {
 	Copy(rS);
 	return *this;
 }
 
-bool PPBill::Agreement::IsEmpty() const
+bool PPBill::AgreementBlock::IsEmpty() const
 {
 	return !(Flags || Expiry || MaxCredit > 0.0 || MaxDscnt != 0.0 || Dscnt != 0.0 || DefAgentID ||
 		DefQuotKindID || DefPayPeriod > 0 || RetLimPrd || RetLimPart || DefDlvrTerm > 0 || PctRet);
 }
 
-int FASTCALL PPBill::Agreement::Copy(const Agreement & rS)
+int FASTCALL PPBill::AgreementBlock::Copy(const AgreementBlock & rS)
 {
 	memcpy(this, &rS, sizeof(*this));
 	return 1;
 }
 
-bool FASTCALL PPBill::Agreement::IsEq(const Agreement & rS) const
+bool FASTCALL PPBill::AgreementBlock::IsEq(const AgreementBlock & rS) const
 {
 	#define CF(f) if(f != rS.f) return false
 	CF(Flags);
@@ -757,7 +757,7 @@ int FASTCALL PPBill::Copy(const PPBill & rS)
 	else
 		ZDELETE(P_AdvRep);
 	if(rS.P_Agt)
-		P_Agt = new Agreement(*rS.P_Agt);
+		P_Agt = new AgreementBlock(*rS.P_Agt);
 	else
 		ZDELETE(P_Agt);
 	Turns = rS.Turns;
@@ -2043,8 +2043,8 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 			THROW_PP_S(!local_err, PPERR_ARDONTBELONGOPACS, ar_rec.Name);
 		}
 		// } @v12.2.5 
-		// @v12.5.10 {
-		/* @construction {
+		/* @construction // @v12.5.11 {
+		{
 			bool   do_force_replace_agt_bill = true;
 			PPID   new_agt_bill_id = 0;
 			BillTbl::Rec prev_agt_bill_rec;
@@ -2060,8 +2060,8 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 					}
 				}
 			}
-		}*/
-		// } @v12.5.10 
+		}
+		// } @v12.5.11 */
 		const  int    agt_kind = PPObjArticle::GetAgreementKind(&ar_rec);
 		rRet.PsnID = ObjectToPerson(arID, &acs_id);
 		rRet.Name = ar_rec.Name;
@@ -2085,7 +2085,7 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 		}
 		if(OpTypeID == PPOPT_AGREEMENT) {
 			if(!P_Agt || P_Agt->IsEmpty()) {
-				SETIFZ(P_Agt, new Agreement);
+				SETIFZ(P_Agt, new AgreementBlock);
 				if(rRet.State & rRet.stHasCliAgreement) {
 					P_Agt->DefAgentID = rRet.CliAgt.DefAgentID;
 					P_Agt->DefPayPeriod = rRet.CliAgt.DefPayPeriod;
@@ -2913,10 +2913,10 @@ int PPBillPacket::CreateBlankBySample(PPID sampleBillID, int use_ta)
 		case PPOPT_AGREEMENT:
 			{
 				ZDELETE(P_Agt);
-				PPBill::Agreement agt;
+				PPBill::AgreementBlock agt;
 				if(P_BObj->P_Tbl->GetAgreement(sampleBillID, &agt) > 0 && !agt.IsEmpty()) { // @v12.5.10
 				// @v12.5.10 if(p_ref->GetProperty(PPOBJ_BILL, sampleBillID, BILLPRP_AGREEMENT, &agt, sizeof(agt)) > 0 && !agt.IsEmpty()) {
-					THROW_MEM(P_Agt = new PPBill::Agreement(agt));
+					THROW_MEM(P_Agt = new PPBill::AgreementBlock(agt));
 				}
 			}
 			break;
@@ -3089,7 +3089,7 @@ int PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int dontI
 		}
 	}
 	if(OpTypeID == PPOPT_AGREEMENT) {
-		P_Agt = new Agreement;
+		P_Agt = new AgreementBlock;
 	}
 	if(Rec.LinkBillID) {
 		SString msg_buf;

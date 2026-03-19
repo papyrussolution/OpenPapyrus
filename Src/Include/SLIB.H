@@ -14055,6 +14055,7 @@ struct SJson {
 	// Note: В случае неудачи (false returned) функция не меняет значение по ссылке rResult.
 	//
 	static bool FASTCALL GetChildInt64(const SJson * pN, int64 & rResult); // @v12.3.12
+	static bool FASTCALL GetChildUInt64(const SJson * pN, uint64 & rResult); // @v12.5.11
 	//
 	// Note: В случае неудачи (false returned) функция не меняет значение по ссылке rResult.
 	//

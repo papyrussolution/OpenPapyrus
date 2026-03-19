@@ -1084,8 +1084,7 @@ int SetupCliBnkFormats()
 	return CheckDialogPtrErr(&dlg) ? ((ExecViewAndDestroy(dlg) == cmOK) ? 1 : -1) : 0;
 }
 //
-// @todo Сохранение конфигурации должно осуществляться единой транзакцией, а не отдельными
-//   методами диалога.
+// @todo Сохранение конфигурации должно осуществляться единой транзакцией, а не отдельными методами диалога.
 //
 int SetupCliBnkAssoc()
 {
@@ -1143,9 +1142,10 @@ int SetupCliBnkAssoc()
 			SString temp_buf;
 			SVector cfg(sizeof(BankStmntAssocItem));
 			BankStmntAssocItem * p_assoc_item;
+			StringSet ss(SLBColumnDelim);
 			THROW(ClientBankImportDef::ReadAssocList(&cfg));
 			for(i = 0; cfg.enumItems(&i, (void **)&p_assoc_item);) {
-				StringSet ss(SLBColumnDelim);
+				ss.Z();
 				if(acs_obj.Fetch(p_assoc_item->AccSheetID, &acs_rec) <= 0)
 					ideqvalstr(p_assoc_item->AccSheetID, acs_rec.Name, sizeof(acs_rec.Name));
 				ss.add(acs_rec.Name);
@@ -1168,7 +1168,8 @@ int SetupCliBnkAssoc()
 		virtual int addItem(long * pPos, long * pID)
 		{
 			int    ok = 1;
-			*pPos = *pID = 0;
+			ASSIGN_PTR(pPos, 0);
+			ASSIGN_PTR(pID, 0);
 			SVector cfg(sizeof(BankStmntAssocItem));
 			BankStmntAssocItem assoc_item;
 			THROW(CheckCfgRights(PPCFGOBJ_CLIBNKAS, PPR_INS, 0));
@@ -1178,7 +1179,8 @@ int SetupCliBnkAssoc()
 				THROW(ClientBankImportDef::ReadAssocList(&cfg));
 				THROW_SL(cfg.insert(&assoc_item));
 				THROW(ClientBankImportDef::WriteAssocList(&cfg, 1));
-				*pPos = *pID = cfg.getCount();
+				ASSIGN_PTR(pPos, cfg.getCount());
+				ASSIGN_PTR(pID, cfg.getCount());
 				updateList(-1);
 			}
 			CATCHZOKPPERR

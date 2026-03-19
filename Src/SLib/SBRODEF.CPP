@@ -585,13 +585,15 @@ int BrowserDef::search(const void * pPattern, CompFunc/*cfn*/, int srchMode, int
 				//str[sstrlen(p)] = 0;
 				//r = stricmp866(str, p) ? 0 : 1;
 				text.Trim(pattern_len);
-				if(text.IsEqNC(p))
-					r = 1;
+				r = text.IsEqNC(p);
 			}
 			else {
-				//r = BIN(stristr866(str, p + 1));
-				if(text.Search(p+1, 0, 1, 0))
-					r = 1;
+				//bool   debug_mark = false; // @debug
+				//const  int r2 = BIN(stristr866(text.cptr(), p+1)); // @debug
+				r = text.Search(p+1, 0, 1, 0) ? 1 : 0;
+				//else if(r2) {
+					//debug_mark = true;
+				//}
 			}
 		} while(!r && step(1) > 0);
 	}

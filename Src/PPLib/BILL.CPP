@@ -367,14 +367,104 @@ int BillCore::GetFreight(PPID id, PPFreight * pFreight)
 	return ok;
 }
 
-int BillCore::GetAgreement(PPID id, PPBill::Agreement * pAgt) // @v12.5.10
+struct Agreement_Strg { // @persistent(PropertyTbl::Rec)
+	explicit Agreement_Strg(const PPBill::AgreementBlock * pS)
+	{
+		THISZERO();
+		ObjType = PPOBJ_BILL;
+		Prop = BILLPRP_AGREEMENT;
+		if(pS) {
+			// @todo ObjID = pS->BillID;
+			#define CPY(f) f = pS->f
+			CPY(Flags);
+			CPY(Expiry);
+			CPY(MaxCredit);
+			CPY(MaxDscnt);
+			CPY(Dscnt);
+			CPY(DefAgentID);
+			CPY(DefQuotKindID);
+			CPY(PaymDateBase);
+			CPY(DefPayPeriod);
+			CPY(RetLimPrd);
+			CPY(RetLimPart);
+			CPY(DefDlvrTerm);
+			CPY(PctRet);
+			#undef CPY
+		}
+	}
+	void   Get(PPBill::AgreementBlock * pS) const
+	{
+		if(pS) {
+			pS->Z();
+			// @todo ObjID = rS.BillID;
+			#define CPY(f) pS->f = f
+			CPY(ObjType); // @temp
+			CPY(Prop);    // @temp
+			CPY(Flags);
+			CPY(Expiry);
+			CPY(MaxCredit);
+			CPY(MaxDscnt);
+			CPY(Dscnt);
+			CPY(DefAgentID);
+			CPY(DefQuotKindID);
+			CPY(PaymDateBase);
+			CPY(DefPayPeriod);
+			CPY(RetLimPrd);
+			CPY(RetLimPart);
+			CPY(DefDlvrTerm);
+			CPY(PctRet);
+			#undef CPY
+		}
+	}
+	long   ObjType;          // Const=PPOBJ_BILL
+	long   ObjID;            // BillID
+	long   Prop;             // Const=BILLPRP_AGREEMENT
+	// start Text {
+	long   Flags;            // @flags
+	LDATE  Expiry;           // Дата истечения срока действия договора
+	double MaxCredit;        // Максимальный кредит
+	double MaxDscnt;         // Максимальная скидка в %% (>= 100% - неограниченная)
+	double Dscnt;            // Обычная скидка в %%
+	PPID   DefAgentID;       // Агент, закрепленный за клиентом
+	PPID   DefQuotKindID;    // Вид котировки, закрепленный за клиентом
+	long   PaymDateBase;     //
+	int16  DefPayPeriod;     // Количество дней от отгрузки до оплаты по умолчанию
+	int16  RetLimPrd;        // Период ограничения доли возвратов от суммы товарооборота
+	uint16 RetLimPart;       // Макс доля возвратов от суммы товарооборота за период RetLimPrd (в промилле)
+	int16  DefDlvrTerm;      // Срок доставки товара в днях, начиная с даты документа закупки
+	int16  PctRet;           // Максимальный объем возврата товара по накладной в процентах от суммы накладной //
+	uint16 Reserve;          // @alignment
+	uint8  ReserveEnd[8];
+	// } end Text
+	int32  ReserveVal1;
+	int32  ReserveVal2;
+};
+
+int BillCore::SetAgreement(PPID id, const PPBill::AgreementBlock * pAgt, int use_ta) // @v12.5.11 prop=BILLPRP_AGREEMENT
 {
-	PPBill::Agreement agt;
-	int    ok = PPRef->GetProperty(PPOBJ_BILL, id, BILLPRP_AGREEMENT, &agt, sizeof(agt));
-	if(ok > 0) {
-		ASSIGN_PTR(pAgt, agt);
+	STATIC_ASSERT(sizeof(Agreement_Strg) == offsetof(PropertyTbl::Rec, VT));
+	int    ok = 1;
+	Reference * p_ref(PPRef);
+	if(pAgt && !pAgt->IsEmpty()) {
+		Agreement_Strg strg(pAgt);
+		ok = p_ref->PutProp(PPOBJ_BILL, id, BILLPRP_AGREEMENT, &strg, sizeof(strg), use_ta);
 	}
 	else {
+		ok = p_ref->PutProp(PPOBJ_BILL, id, BILLPRP_AGREEMENT, 0, sizeof(Agreement_Strg), use_ta);
+	}
+	return ok;
+}
+
+int BillCore::GetAgreement(PPID id, PPBill::AgreementBlock * pAgt) // @v12.5.10
+{
+	STATIC_ASSERT(sizeof(Agreement_Strg) == offsetof(PropertyTbl::Rec, VT));
+	Agreement_Strg strg(0);
+	int    ok = PPRef->GetProperty(PPOBJ_BILL, id, BILLPRP_AGREEMENT, &strg, sizeof(strg));
+	if(ok > 0) {
+		strg.Get(pAgt);
+	}
+	else {
+		CALLPTRMEMB(pAgt, Z());
 	}
 	return ok;
 }
@@ -639,7 +729,7 @@ int BillCore::Extract(PPID id, PPBill * pInfo)
 	}
 	if(GetOpType(pInfo->Rec.OpID) == PPOPT_AGREEMENT) {
 		// @v12.5.12 {
-		SETIFZQ(pInfo->P_Agt, new PPBill::Agreement);
+		SETIFZQ(pInfo->P_Agt, new PPBill::AgreementBlock);
 		if(GetAgreement(id, pInfo->P_Agt) > 0) {
 			;
 		}
@@ -780,7 +870,8 @@ int BillCore::Edit(PPID * pID, PPBill * pInfo, int use_ta)
 		THROW(PutBillProp(*pID, BILLPRP_PAYMORDER, (pInfo->Rec.Flags & BILLF_BANKING), pInfo->P_PaymOrder, sizeof(PPBankingOrder)));
 		THROW(PutBillProp(*pID, BILLPRP_FREIGHT, (pInfo->Rec.Flags & BILLF_FREIGHT), pInfo->P_Freight, sizeof(PPFreight)));
 		THROW(PutBillProp(*pID, BILLPRP_ADVANCEREP, (pInfo->Rec.Flags & BILLF_ADVANCEREP), pInfo->P_AdvRep, sizeof(PPAdvanceRep)));
-		THROW(PutBillProp(*pID, BILLPRP_AGREEMENT, GetOpType(pInfo->Rec.OpID) == PPOPT_AGREEMENT, pInfo->P_Agt, sizeof(PPBill::Agreement)));
+		// @v12.5.11 THROW(PutBillProp(*pID, BILLPRP_AGREEMENT, GetOpType(pInfo->Rec.OpID) == PPOPT_AGREEMENT, pInfo->P_Agt, sizeof(PPBill::Agreement)));
+		THROW(SetAgreement(*pID, ((GetOpType(pInfo->Rec.OpID) == PPOPT_AGREEMENT) ? pInfo->P_Agt : 0), 0)); // @v12.5.11
 		if(is_new) {
 			{
 				//

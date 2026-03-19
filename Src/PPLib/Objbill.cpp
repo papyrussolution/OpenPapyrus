@@ -1042,7 +1042,7 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 								int64  chznpm_reqtimestamp = 0; // ответ разрешительного режима чзн: дата и время формирования запроса. Параметр возвращает дату и время с точностью до миллисекунд.
 								S_GUID chznpm_local_module_instance; // @v12.3.12
 								S_GUID chznpm_local_module_dbver;    // @v12.3.12  
-								PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection pm_code_list;
+								PPChZnPrcssr::CodeStatusCollection pm_code_list;
 								if(pm_code_list.AddCodeEntry(chzn_mark, tiidx, &chzn_mark_reconstructed) > 0) { // Кроме всего прочего, эта функция проверяет марку на валидность. 
 									// @v12.1.6 {
 									assert(chzn_mark.NotEmpty());
@@ -1052,7 +1052,7 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 										if(pm_code_list.getCount()) {
 											PPChZnPrcssr::PmCheck(cn_rec.ChZnGuaID, 0, 2/*regular online/offline mode*/, pm_code_list);
 											for(uint i = 0; i < pm_code_list.getCount(); i++) {
-												const PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = pm_code_list.at(i);
+												const PPChZnPrcssr::CodeStatus * p_cle = pm_code_list.at(i);
 												if(p_cle) {
 													//debug_mark = true;
 													if(p_cle->ErrorCode != 0) {
@@ -1065,7 +1065,7 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 														}
 														chznpm_ok = false;
 													}
-													else if(p_cle->Flags & PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fSold) {
+													else if(p_cle->Flags & PPChZnPrcssr::CodeStatus::fSold) {
 														if(pErrList) {
 															SCompoundError * p_err_item = pErrList->CreateNewItem();
 															p_err_item->ItemI = p_cle->OrgRowId;
@@ -2373,7 +2373,7 @@ int PPObjBill::AddGoodsBillByFilt(PPID * pBillID, const BillFilt * pFilt, PPID o
 					if(!agt_list.getCount()) {
 						PPClientAgreement agt;
 						if(ArObj.GetClientAgreement(pack.Rec.Object, agt, 0) > 0) {
-							if(SETIFZ(pack.P_Agt, new PPBill::Agreement)) {
+							if(SETIFZ(pack.P_Agt, new PPBill::AgreementBlock)) {
 								pack.P_Agt->ObjType = PPOBJ_BILL;
 								pack.P_Agt->Expiry = agt.Expiry;
 								pack.P_Agt->MaxCredit = agt.MaxCredit;

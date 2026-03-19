@@ -2818,7 +2818,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	}
 	setCtrlString(CTL_BILL_MEMO, P_Pack->SMemo);
 	if(P_Pack->OpTypeID == PPOPT_AGREEMENT) {
-		SETIFZ(P_Pack->P_Agt, new PPBill::Agreement);
+		SETIFZ(P_Pack->P_Agt, new PPBill::AgreementBlock);
 		setCtrlData(CTL_BILL_EXPIRY, &P_Pack->P_Agt->Expiry);
 		setCtrlData(CTL_BILL_MAXCREDIT, &P_Pack->P_Agt->MaxCredit);
 		setCtrlData(CTL_BILL_MAXDSCNT, &P_Pack->P_Agt->MaxDscnt);
@@ -3181,7 +3181,7 @@ int BillDialog::getDTS(int onCancel)
 	}
 	getCtrlString(CTL_BILL_MEMO, P_Pack->SMemo);
 	if(P_Pack->OpTypeID == PPOPT_AGREEMENT) {
-		SETIFZ(P_Pack->P_Agt, new PPBill::Agreement);
+		SETIFZ(P_Pack->P_Agt, new PPBill::AgreementBlock);
 		getCtrlData(CTL_BILL_EXPIRY, &P_Pack->P_Agt->Expiry);
 		getCtrlData(CTL_BILL_MAXCREDIT, &P_Pack->P_Agt->MaxCredit);
 		getCtrlData(CTL_BILL_MAXDSCNT, &P_Pack->P_Agt->MaxDscnt);

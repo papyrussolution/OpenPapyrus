@@ -1820,7 +1820,7 @@ public:
 		RVALUEPTR(Data, pData);
 		SString ex_titles;
 		if(Data.Rec.Name[0]) {
-			SString title_buf = getTitle();
+			SString title_buf(getTitle());
 			title_buf.CatDiv('-', 1).Cat(Data.Rec.Name);
 			setTitle(title_buf);
 		}
@@ -1964,7 +1964,8 @@ private:
 	int    ok = -1;
 	if(id >= 0) {
 		double qtty = 0.0;
-		SString title, input_title;
+		SString title;
+		SString input_title;
 		PPLoadString("qtty", input_title);
 		PPLoadString("minstock", title);
 		qtty = Data.Stock.GetMinStock(id, 0);
@@ -2121,9 +2122,8 @@ IMPL_HANDLE_EVENT(GoodsVadDialog)
 		const uint curr_id = GetCurrId();
 		const ExtStrCtlEntry * p_entry = GetExtStrEntryByCtl(curr_id);
 		if(p_entry) {
-			SString title_buf;
 			SString subtitle_buf;
-			title_buf = Data.Rec.Name;
+			SString title_buf(Data.Rec.Name);
             if(p_entry->LabelId) {
 				SString ex_titles;
 				PPObjGoods::ReadGoodsExTitles(Data.Rec.ParentID, ex_titles);

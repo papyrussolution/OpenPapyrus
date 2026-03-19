@@ -700,6 +700,11 @@ static HMENU _CtlIdForCreateWindow(uint ctlId) { return reinterpret_cast<HMENU>(
 							style |= ES_WANTRETURN;
 						if(p_cv->GetSpcFlags() & TInputLine::spcfPassword)
 							style |= ES_PASSWORD;
+						// @v12.5.11 {
+						if(style & ES_MULTILINE) {
+							style |= ES_AUTOVSCROLL;
+						}
+						// } @v12.5.11 
 						// @v12.5.3 {
 						{
 							if((p_cv->GetSpcFlags() & TInputLine::spcfCenterAligned) == TInputLine::spcfCenterAligned)

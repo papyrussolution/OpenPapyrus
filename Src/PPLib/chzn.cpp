@@ -3780,13 +3780,13 @@ PPChZnPrcssr::PermissiveModeInterface::CdnStatus::CdnStatus() : Code(-1), AvgTim
 {
 }
 
-PPChZnPrcssr::PermissiveModeInterface::CodeStatus::CodeStatus() : OrgRowId(0), ErrorCode(0), EliminationState(0), Mrp(0), Smp(0), InnerUnitCount(0), SoldUnitCount(0), Flags(0), ExpiryDtm(ZERODATETIME),
+PPChZnPrcssr::CodeStatus::CodeStatus() : OrgRowId(0), ErrorCode(0), EliminationState(0), Mrp(0), Smp(0), InnerUnitCount(0), SoldUnitCount(0), Flags(0), ExpiryDtm(ZERODATETIME),
 	ProductionDtm(ZERODATETIME), Weight(0.0), ReqTimestamp(0), PackageQtty(0)
 {
 	memzero(GroupIds, sizeof(GroupIds));
 }
 
-PPChZnPrcssr::PermissiveModeInterface::CodeStatus & PPChZnPrcssr::PermissiveModeInterface::CodeStatus::AssignExceptOrgValues(const CodeStatus & rS)
+PPChZnPrcssr::CodeStatus & PPChZnPrcssr::CodeStatus::AssignExceptOrgValues(const CodeStatus & rS)
 {
 	Cis = rS.Cis;
 	ErrorCode = rS.ErrorCode;
@@ -3811,11 +3811,11 @@ PPChZnPrcssr::PermissiveModeInterface::CodeStatus & PPChZnPrcssr::PermissiveMode
 	return *this;
 }
 
-PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection::CodeStatusCollection() : TSCollection <CodeStatus>(), Code(0), ReqTimestamp(0)
+PPChZnPrcssr::CodeStatusCollection::CodeStatusCollection() : TSCollection <CodeStatus>(), Code(0), ReqTimestamp(0)
 {
 }
 		
-PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection & PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection::Z()
+PPChZnPrcssr::CodeStatusCollection & PPChZnPrcssr::CodeStatusCollection::Z()
 {
 	Code = 0;
 	ReqTimestamp = 0;
@@ -3827,7 +3827,7 @@ PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection & PPChZnPrcssr::Perm
 	return *this;
 }
 
-int PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection::AddCodeEntry(const char * pCode, uint orgRowId, SString * pReconstructedCode)
+int PPChZnPrcssr::CodeStatusCollection::AddCodeEntry(const char * pCode, uint orgRowId, SString * pReconstructedCode)
 {
 	int    ok = 0;
 	SString reconstructed_code;
@@ -3838,7 +3838,7 @@ int PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection::AddCodeEntry(co
 		if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
 			uint clp = 0;
 			PPChZnPrcssr::ReconstructOriginalChZnCode(gts, reconstructed_code);
-			PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = CreateNewItem(&clp);
+			PPChZnPrcssr::CodeStatus * p_cle = CreateNewItem(&clp);
 			if(p_cle) {
 				p_cle->OrgMark = reconstructed_code;
 				SString chzn_mark_serial;
@@ -3854,7 +3854,7 @@ int PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection::AddCodeEntry(co
 	return ok;
 }
 
-int PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection::SetupResultEntry(int rowN, const CodeStatus & rEntry)
+int PPChZnPrcssr::CodeStatusCollection::SetupResultEntry(int rowN, const CodeStatus & rEntry)
 {
 	int    result = 0;
 	if(rEntry.Cis.NotEmpty()) {
@@ -4541,7 +4541,7 @@ int PPChZnPrcssr::PermissiveModeInterface::GetLocalSvrStatus(const char * pFisca
 	return ok;
 }
 
-int PPChZnPrcssr::PermissiveModeInterface::LocalCheckCodeList(const char * pFiscalDriveNumber, PermissiveModeInterface::CodeStatusCollection & rList)
+int PPChZnPrcssr::PermissiveModeInterface::LocalCheckCodeList(const char * pFiscalDriveNumber, CodeStatusCollection & rList)
 {
 	int    ok = 0;
 	SJson * p_js_reply = 0;
@@ -4720,7 +4720,7 @@ int PPChZnPrcssr::PermissiveModeInterface::LocalCheckCodeList(const char * pFisc
 	return ok;
 }
 
-int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offlineMode, PermissiveModeInterface::CodeStatusCollection & rList)
+int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offlineMode, CodeStatusCollection & rList)
 {
 	int    ok = -1;
 	PPChZnPrcssr prcssr(0);
@@ -4768,7 +4768,7 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 	ChZnInterface::Document single_doc;
 	TSCollection <PPChZnPrcssr::PermissiveModeInterface::CdnStatus> cdn_host_list;
 	SString best_cdn_host;
-	PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection pm_code_list;
+	PPChZnPrcssr::CodeStatusCollection pm_code_list;
 	if(prcssr.EditParam(&param) > 0) {
 		//StringSet mark_list;
 		if(0) {
@@ -5073,9 +5073,9 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 				}
 			}
 		}
-		void   OutputPmCheckResult(const PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection & rList, bool offline, SString & rBuf) const
+		void   OutputPmCheckResult(const PPChZnPrcssr::CodeStatusCollection & rList, bool offline, SString & rBuf) const
 		{
-			const PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_result_cle = rList.getCount() ? rList.at(0) : 0;
+			const PPChZnPrcssr::CodeStatus * p_result_cle = rList.getCount() ? rList.at(0) : 0;
 			rBuf.Z();
 			rBuf.CRB().Cat(offline ? "Offline pm result" : "Inline pm result").CatDiv(':', 2);
 
@@ -5137,20 +5137,20 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 				rBuf.CRB().Tab().Cat("Flags").CatDiv(':', 2).Cat(p_result_cle->Flags);
 				{
 					static const SIntToSymbTabEntry chzn_pm_flags[] = {
-						{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fFound, "found" },
-						{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fValid, "valid" },
-						{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fVerified, "verified" },
-						{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fRealizable, "realizable" },
-						{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fUtilised, "utilised" },
-						{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fIsOwner, "is-owner" },
-						{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fIsBlocked, "is-blocked" },
-						{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fIsTracking, "is-tracking" },
-						{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fSold, "sold" },
-						{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fGrayZone, "gray-zone" },
+						{ PPChZnPrcssr::CodeStatus::fFound, "found" },
+						{ PPChZnPrcssr::CodeStatus::fValid, "valid" },
+						{ PPChZnPrcssr::CodeStatus::fVerified, "verified" },
+						{ PPChZnPrcssr::CodeStatus::fRealizable, "realizable" },
+						{ PPChZnPrcssr::CodeStatus::fUtilised, "utilised" },
+						{ PPChZnPrcssr::CodeStatus::fIsOwner, "is-owner" },
+						{ PPChZnPrcssr::CodeStatus::fIsBlocked, "is-blocked" },
+						{ PPChZnPrcssr::CodeStatus::fIsTracking, "is-tracking" },
+						{ PPChZnPrcssr::CodeStatus::fSold, "sold" },
+						{ PPChZnPrcssr::CodeStatus::fGrayZone, "gray-zone" },
 					};
 					for(uint i = 0; i < SIZEOFARRAY(chzn_pm_flags); i++) {
-						if(!offline || oneof3(chzn_pm_flags[i].Id, PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fIsBlocked, 
-							PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fSold, PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fGrayZone)) {
+						if(!offline || oneof3(chzn_pm_flags[i].Id, PPChZnPrcssr::CodeStatus::fIsBlocked, 
+							PPChZnPrcssr::CodeStatus::fSold, PPChZnPrcssr::CodeStatus::fGrayZone)) {
 							rBuf.CRB().Tab_(2).Cat(chzn_pm_flags[i].P_Symb).CatDiv(':', 2).Cat(STextConst::GetBool(p_result_cle->Flags & chzn_pm_flags[i].Id));
 						}
 					}
@@ -5185,7 +5185,7 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 				{
 					const PPID gua_id = getCtrlLong(CTLSEL_CHKCHZNMARK_GUA);
 					if(gua_id) {
-						PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection pm_code_list;
+						PPChZnPrcssr::CodeStatusCollection pm_code_list;
 						if(pm_code_list.AddCodeEntry(pOriginalText, 0, 0) > 0) {
 							if(offline) {
 								if(PPChZnPrcssr::PmCheck(gua_id, 0, 1/*offline only*/, pm_code_list)) {
@@ -5258,7 +5258,7 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 								if(ProcessMark(p_bc_entry->Code, true, false/*offline*/, info_buf) > 0) {
 									SsRecognizedMark.add(p_bc_entry->Code);	
 									setCtrlString(CTL_CHKCHZNMARK_INFO, info_buf);
-									//PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_new_entry = pm_code_list.CreateNewItem();
+									//PPChZnPrcssr::CodeStatus * p_new_entry = pm_code_list.CreateNewItem();
 									//p_new_entry->OrgRowId = i+1;
 									//p_new_entry->OrgMark = p_bc_entry->Code;
 								}
@@ -5299,3 +5299,6 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 	delete dlg;
 	return ok;
 }
+//
+//
+//

@@ -977,7 +977,7 @@ int PPCashMachine::SyncPrintCheck(CCheckPacket * pCcPack, int addSummator)
 			// @v12.0.12 if(oneof2(r_cn.ChZnPermissiveMode, PPSyncCashNode::chznpmSoft, PPSyncCashNode::chznpmStrict)) {
 			if(r_cn.ChZnPermissiveMode == PPSyncCashNode::chznpmSoft) { // @v12.0.12
 				if(r_cn.ChZnGuaID) {
-					PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection pm_code_list;
+					PPChZnPrcssr::CodeStatusCollection pm_code_list;
 					PPObjGoods goods_obj;
 					CCheckLineTbl::Rec ccl;
 					for(uint pos = 0; pCcPack->EnumLines(&pos, &ccl);) {
@@ -991,7 +991,7 @@ int PPCashMachine::SyncPrintCheck(CCheckPacket * pCcPack, int addSummator)
 					if(pm_code_list.getCount()) {
 						PPChZnPrcssr::PmCheck(r_cn.ChZnGuaID, 0, 2/*regular online/offline mode*/, pm_code_list);
 						for(uint i = 0; i < pm_code_list.getCount(); i++) {
-							const PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = pm_code_list.at(i);
+							const PPChZnPrcssr::CodeStatus * p_cle = pm_code_list.at(i);
 							if(p_cle) {
 								debug_mark = true;
 							}

@@ -2061,7 +2061,7 @@ static void InitTest()
 	STATIC_ASSERT(sizeof(PPUhttStore) == sizeof(Reference2Tbl::Rec));
 	STATIC_ASSERT(sizeof(PPGeoTrackingMode) == 8);
 	STATIC_ASSERT(sizeof(PPCycleFilt) == 4);
-	STATIC_ASSERT(sizeof(PPBill::Agreement) == offsetof(PropertyTbl::Rec, VT));
+	// @v12.5.11 (это правило более не действует поскольку хранимый блок теперь отделен от прикладного) STATIC_ASSERT(sizeof(PPBill::AgreementBlock) == offsetof(PropertyTbl::Rec, VT));
 	STATIC_ASSERT(sizeof(PrjTaskTbl::Rec) == 144); // @v12.4.7 (проверка в предверье конвертации - вводится поле LinkBillID за счет резерва)
 	//
 	// Гарантируем, что функции семейства PPSetError всегда возвращают 0
