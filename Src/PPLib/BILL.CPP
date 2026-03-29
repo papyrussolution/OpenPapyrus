@@ -398,8 +398,8 @@ struct Agreement_Strg { // @persistent(PropertyTbl::Rec)
 			pS->Z();
 			// @todo ObjID = rS.BillID;
 			#define CPY(f) pS->f = f
-			CPY(ObjType); // @temp
-			CPY(Prop);    // @temp
+			//CPY(ObjType); // @temp
+			//CPY(Prop);    // @temp
 			CPY(Flags);
 			CPY(Expiry);
 			CPY(MaxCredit);
@@ -728,20 +728,13 @@ int BillCore::Extract(PPID id, PPBill * pInfo)
 			memzero(pInfo->P_AdvRep, sizeof(*pInfo->P_AdvRep));
 	}
 	if(GetOpType(pInfo->Rec.OpID) == PPOPT_AGREEMENT) {
-		// @v12.5.12 {
-		SETIFZQ(pInfo->P_Agt, new PPBill::AgreementBlock);
+		THROW(pInfo->SetupAgreement(true));
 		if(GetAgreement(id, pInfo->P_Agt) > 0) {
-			;
+			pInfo->SetupAgreement(false); // GetAgreement() грохнула Dt и Code вызовом pInfo->P_Agt->Z()
 		}
 		else {
 			ZDELETE(pInfo->P_Agt);
 		}
-		// } @v12.5.12 
-		/* @v12.5.10 if(p_ref->GetProperty(PPOBJ_BILL, id, BILLPRP_AGREEMENT, &agt, sizeof(agt)) > 0) {
-			THROW_MEM(SETIFZ(pInfo->P_Agt, new PPBill::Agreement(agt))); // это - ошибка, кстати (что если pInfo->P_Agt != 0?)
-		}
-		else
-			ZDELETE(pInfo->P_Agt);*/
 	}
 	THROW(GetAmountList(id, &pInfo->Amounts));
 	THROW(GetPayPlan(id, &pInfo->Pays));
@@ -759,7 +752,7 @@ int BillCore::Remove(PPID id, int use_ta)
 		THROW(UpdateAmount(id, 0, 0)); // Удаляем все суммы для документа id
 		THROW(PutPayPlan(id, 0, 0));
 		THROW(PPRef->RemoveProperty(PPOBJ_BILL, id, 0, 0));
-		THROW(PutItemMemo(id, 0, 0)); // @v11.1.12
+		THROW(PutItemMemo(id, 0, 0));
 		THROW_DB(deleteFrom(this, 0, (this->ID == id)));
 		THROW(tra.Commit());
 	}

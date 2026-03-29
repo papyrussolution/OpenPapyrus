@@ -966,7 +966,7 @@ struct VetisRegionalizationCondition : public VetisGenericVersioningEntity { // 
 	VetisNamedGenericVersioningEntity RelatedDisease; // AnimalDisease
 };
 
-class VetisRegionalizationRequirement { // @v11.0.11
+class VetisRegionalizationRequirement {
 	VetisRegionalizationRequirement(const VetisRegionalizationRequirement & rS) {} // @disable-copy-ctr
 public:
 	VetisRegionalizationRequirement() : Type(0)
@@ -984,7 +984,7 @@ public:
 	TSCollection <VetisRegionalizationCondition> ConditionGroup;
 };
 
-class VetisRegionalizationShippingRule { // @v11.0.11
+class VetisRegionalizationShippingRule {
 	VetisRegionalizationShippingRule(const VetisRegionalizationShippingRule & rS) {} // @disable-copy-ctr
 public:
 	VetisRegionalizationShippingRule() : Decision(0)
@@ -1002,7 +1002,7 @@ public:
 	TSCollection <VetisRegionalizationRequirement> ReqList;
 };
 
-class VetisRouteSectionR13nRules { // @v11.0.11
+class VetisRouteSectionR13nRules {
 	VetisRouteSectionR13nRules(const VetisRouteSectionR13nRules & rS) {} // @disable-copy-ctr
 public:
 	VetisRouteSectionR13nRules() : SqnId(0)
@@ -9562,7 +9562,7 @@ int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long fla
 											status_text.Z().Cat(src_rec.VetisDocStatus);
 										}
 										(temp_buf = bill_text).CatDiv(':', 2).Cat(src_rec.EntityID).Space().Cat(src_rec.IssueDate, DATF_DMY).
-											Space().Cat(src_rec.IssueNumber).Space().CatEq("ID", ex_rec.EntityID).Space().Cat(status_text); // @v11.0.7 (CatEq("ID", ex_rec.EntityID).Space())
+											Space().Cat(src_rec.IssueNumber).Space().CatEq("ID", ex_rec.EntityID).Space().Cat(status_text);
 										msg_buf.Printf(fmt_buf, temp_buf.cptr());
 										P_Logger->Log(msg_buf);
 									}

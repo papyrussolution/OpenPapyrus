@@ -271,7 +271,6 @@ int PrcssrBillAutoCreate::CreateDraftByTrfrAnlz()
 							suppl_list.sortAndUndup();
 							for(i = 0; i < suppl_list.getCount(); i++) {
 								const  PPID suppl_id = suppl_list.get(i);
-								PPBillPacket::SetupObjectBlock sob;
                                 PPBillPacket bp;
 								int    skip = 0;
 								MakeTaAutocreationTag(suppl_id, loc_id, last_rep_date, bill_tag_buf);
@@ -288,6 +287,7 @@ int PrcssrBillAutoCreate::CreateDraftByTrfrAnlz()
 									}
                                 }
                                 if(!skip) {
+									PPBillPacket::SetupObjectBlock sob_unused;
 									ObjTagItem tag;
 									PPTransaction tra(1);
 									THROW(tra);
@@ -298,7 +298,7 @@ int PrcssrBillAutoCreate::CreateDraftByTrfrAnlz()
 									else {
 										logger.LogLastError();
 									}
-									if(bp.SetupObject(suppl_id, sob)) {
+									if(bp.SetupObject(suppl_id, sob_unused)) {
 										for(uint j = 0; j < result_list.getCount(); j++) {
 											const TaBonusSupplItem & r_result_item = result_list.at(j);
 											if(r_result_item.SupplID == suppl_id) {

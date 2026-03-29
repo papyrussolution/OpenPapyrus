@@ -328,8 +328,9 @@ int Crosstab::CreateTable()
 		key.addSegment(P_RTbl->GetFields().GetFieldByPosition(0U).Id, XIF_EXT);
 		P_RTbl->AddKey(key);
 		key.setKeyParams(0, 0);
-		for(i = 0; i < IdxFldList.GetCount(); i++)
+		for(i = 0; i < IdxFldList.GetCount(); i++) {
 			key.addSegment(P_RTbl->GetFields().GetFieldByPosition(start_fld_pos+i).Id, XIF_EXT | XIF_MOD);
+		}
 		key.setKeyParams(1, 0);
 		P_RTbl->AddKey(key);
 		if(SortIdxList.getCount()) {
@@ -364,12 +365,13 @@ int Crosstab::CreateTable()
 	}
 	P_RTbl->AllocateOwnBuffer(-1);
 	CrssFldList.Destroy();
-	for(i = 0; i < P_CtValList->getCount(); i++)
+	for(i = 0; i < P_CtValList->getCount(); i++) {
 		for(j = 0; j < AggrFldList.GetCount(); j++) {
 			DBField fld;
 			if(P_RTbl->getField(GetTabFldPos(i, j), &fld))
 				CrssFldList.Add(fld);
 		}
+	}
 	CATCHZOK
 	return ok;
 }
@@ -396,10 +398,11 @@ int Crosstab::SetAggrValues(uint ctValPos)
 	for(uint j = 0; j < aggr_count; j++) {
 		char   addendum[256];
 		const  uint fld_pos = GetTabFldPos(ctValPos, j);
-		double val, radd;
+		double val;
+		double radd;
 		AggrFldList.GetValue(j, addendum, 0);
 		P_RTbl->getFieldValue(fld_pos, &val, 0);
-		AggrFunc func = (AggrFunc)AggrFuncList.at(j);
+		AggrFunc func = static_cast<AggrFunc>(AggrFuncList.at(j));
 		if(func == afSum) {
 			stcast(AggrFldList.GetField(j).T, MKSTYPE(S_FLOAT, 8), addendum, &radd, 0);
 			val = val+radd;

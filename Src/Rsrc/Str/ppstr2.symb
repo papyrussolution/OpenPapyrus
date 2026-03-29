@@ -1,6 +1,6 @@
 
 [hash]
-base=ppstr2.txt,YqpU56/1X67PMh0HJ5mIGB1UQzII8OPHY6KxHXAP4OQ=,ppstr2.bin,CHv9wgAKXlIBFL9OUbGdU4IigTuGu1e6d0HsPgTp0A0=
+base=ppstr2.txt,mSsVAkhAnHzrupsHJ6bJOaNknQpZVHx/Pd5cfZfx6yo=,ppstr2.bin,fqnx9kmmIvLRbT4uUZymOUbFQSw9YyjaIuKnJMy/ETo=
 lang-de=ppstr2-de.txt,uiF+XJVJlyDjw7nInhf/AFcW9Tl0++UYflUahSBUK/Y=,ppstr2-de.bin,z5tTW3wrQRt4866sMd5LWX/oYCLHknIJxj6FbKYnSek=
 lang-en=ppstr2-en.txt,wNMuDQEJ8iXS8+Jpd9MAWdg8exLsMCYnqYI0euY1I0Y=,ppstr2-en.bin,5cMKdf3XAXJZe9nWJkS0b2yRiluKkMmBbOM4faM39TI=
 lang-es=ppstr2-es.txt,6DBYF21pt4umLyjG1Rx9bHiNzqHNfQg0oJPNpqQHaL8=,ppstr2-es.bin,jN0oN2zuyiQYf2BQ4rSZo9Fbb/rXRRQTRRg9UgDu54E=
@@ -11,7 +11,7 @@ java=ppstr2.java,QsJk1UcPhiZicRd69Nl7EnyD8Zb4x7Rcq3hSJb5esp4=
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147499117
+LastSignatureCode=2147499122
 LastAutoCodeList=1,12453;102,10179;103,10074;110,10000;111,13054;112,10000;119,10000;114,10012;7,10000;4,10000;6,10000;342,10000;118,10313;120,10010;1001,10000;121,10000;122,10000;123,10661;124,10831;125,10128;126,10000
 
 [SignatureList]
@@ -1001,6 +1001,7 @@ chiefaccountant=2147484421
 cashier=2147484422
 cashierno=2147484423
 contact=2147484424
+contact_pl=2147499121
 agreement=2147484425
 sender=2147484426
 recipient=2147484427
@@ -2675,6 +2676,7 @@ rtag_loc_spctaxgroup=2147495332
 rtag_goods_salesrestr=2147499004
 rtag_gua_chznlocpmurl=2147499049
 rtag_person_notch=2147499089
+rtag_gua_chzntspioturl=2147499118
 rregt_passport=2147485696
 rregt_regfree=2147485697
 rregt_tpid=2147495333
@@ -7792,6 +7794,7 @@ billfilt_ordbydate=2147497446
 billfilt_ordbycode=2147490330
 billfilt_ordbyobject=2147490331
 billfilt_ordbydate_code=2147493874
+billfilt_ordbycontragentdatecode=2147499119
 billfilt_storagelocid=2147497447
 billfilt_period=2147497448
 billfilt_op=2147497449
@@ -10344,6 +10347,7 @@ chznprcssrparam_afquerykizinfo=2147492723
 chznprcssrparam_afquerydoclistin=2147498419
 chznprcssrparam_loc=2147498420
 chzn_check_offline=2147499051
+chzn_check_tspiot=2147499120
 restorelostprjtperson=2147492725
 restorelostprjtperson_resolvecreator=2147492726
 restorelostprjtperson_resolveemployer=2147492727
@@ -11523,6 +11527,7 @@ mpviewkind_pickuppoints=2147499046
 brwwin_lcsetdefcolsizes=2147499091
 brwwin_lcevaluatecolsizes=2147499092
 centrigo_cmd_notes=2147499105
+centrigo_cmd_contacts=2147499122
 centrigo_cmd_todo=2147499106
 centrigo_cmd_wallet=2147499107
 centrigo_cmd_secrets=2147499108

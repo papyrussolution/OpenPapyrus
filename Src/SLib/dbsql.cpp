@@ -402,8 +402,8 @@ void SSqlStmt::InitBinding()
 	BL.clear();
 	BL.Dim = 1;
 	BS.Destroy();
-	BS.Alloc(SKILOBYTE(16)); // @todo Указатель должен быть неперемещаемым. В дальнейшем надо
-		// придумать более умную схему распределения памяти под binding
+	BS.Alloc(SKILOBYTE(64)); // @todo Указатель должен быть неперемещаемым. В дальнейшем надо
+		// придумать более умную схему распределения памяти под binding // @v12.5.11 SKILOBYTE(16)-->SKILOBYTE(64)
 	TopBindSubst = 4; // Нулевое смещение резервируется как неиспользование буфера
 	IndSubstPlus = 0;
 	IndSubstMinus = 0;

@@ -955,7 +955,7 @@ DBQuery * PPViewTSession::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 void PPViewTSession::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
-		const PPTSessConfig & r_cfg = TSesObj.GetConfig();
+		const  PPTSessConfig & r_cfg = TSesObj.GetConfig();
 		if(r_cfg.ViewRefreshPeriod)
 			pBrw->SetRefreshPeriod(r_cfg.ViewRefreshPeriod);
 	}

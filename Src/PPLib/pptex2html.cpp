@@ -1005,7 +1005,6 @@ int PrcssrPPTex2Html::ResolvePict(const char * pOrgSymb, const char * pName, uin
 			StateBlock::PictItem * p_new_item = new StateBlock::PictItem;
 			THROW_MEM(p_new_item);
 			p_new_item->OrgSymb = org_symb;
-
 			if(SFile::IsDir(in_pic_path) && SFile::IsDir(out_pic_path)) {
 				(temp_buf = in_pic_path).SetLastSlash().Cat(org_symb).DotCat("png");
 				if(fileExists(temp_buf)) {
@@ -1018,7 +1017,7 @@ int PrcssrPPTex2Html::ResolvePict(const char * pOrgSymb, const char * pName, uin
 							SString wb_symb;
 							wb_symb.Cat(anchor_prefix).Cat(org_symb);
 							PPID   wb_id = 0;
-                            int r = WbObj.SearchByLongSymb(wb_symb, &wb_id, &wb_rec);
+                            int    r = WbObj.SearchByLongSymb(wb_symb, &wb_id, &wb_rec);
                             if(r > 0) {
 								// @todo Если r == 2, то выдать сообщение, что есть более одной записи с заданным символом
                             	p_new_item->WbID = wb_id;

@@ -5920,7 +5920,7 @@ public:
 	};
 	static void MakeDefaultWindowClassBlock(WNDCLASSEXW * pClsBlk, HINSTANCE hInst);
 protected:
-	TBaseBrowserWindow(const wchar_t * pWndClsName);
+	explicit TBaseBrowserWindow(const wchar_t * pWndClsName);
 	DECL_HANDLE_EVENT;
 	static TBaseBrowserWindow * Helper_InitCreation(LPARAM lParam, void ** ppInitData);
 
@@ -6577,17 +6577,152 @@ private:
 	TSVector <InnerLangModelKeywords> KwL;
 	TSVector <InnerStyle> L;
 };
+//
+// Descr: Набор атрибутов, определяющих снимок текущего окна редактирования //
+//
+struct SScEditorPosition {
+	SScEditorPosition();
+	SJson * ToJsonObj() const; // non-virtual
+	bool   FromJsonObj(const SJson * pJsObj); // non-virtual
+	SScEditorPosition & Z();
 
+	int64  FirstVisibleLine; // SCI_GETFIRSTVISIBLELINE
+	int64  StartPos;    // SCI_GETANCHOR
+	int64  EndPos;      // SCI_GETCURRENTPOS
+	int64  XOffset;     // SCI_GETXOFFSET
+	int64  SelMode;     // SCI_GETSELECTIONMODE
+	int64  ScrollWidth; // SCI_GETSCROLLWIDTH
+	int64  Offset;
+	int64  WrapCount;
+};
+//
+//
+//
+struct SScEditorMapPosition {
+private:
+	static constexpr int64  MaxPeekLenInKB = 512; // 512 KB
+public:
+	SScEditorMapPosition();
+	SScEditorMapPosition & Z();
+	SJson * ToJsonObj() const; // non-virtual
+	bool   FromJsonObj(const SJson * pJsObj); // non-virtual
+	enum {
+		fIsWrap = 0x0001, // bool   IsWrap = false;
+	};
+	int64  FirstVisibleDisplayLine;
+	int64  FirstVisibleDocLine; // map
+	int64  LastVisibleDocLine;  // map
+	int64  NbLine;              // map
+	int64  HigherPos;           // map
+	int64  Width;
+	int64  Height;
+	int64  WrapIndentMode;
+	int64  KByteInDoc;
+	uint   Flags;
+	//bool   isValid() const { return (_firstVisibleDisplayLine != -1); };
+	//bool   canScroll() const { return (_KByteInDoc < _maxPeekLenInKB); }; // _nbCharInDoc < _maxPeekLen : Don't scroll the document for the performance issue
+};
+//
+//
+//
+struct SScEditorTextInfo : public SScEditorPosition {
+	SScEditorTextInfo();
+	SJson * ToJsonObj() const; // non-virtual
+	bool   FromJsonObj(const SJson * pJsObj); // non-virtual
+	SScEditorTextInfo & Z(); // non-virtual
+	enum {
+		fUserReadOnly       = 0x0001, // bool   _isUserReadOnly = false;
+		fMonitoring         = 0x0002, // bool   _isMonitoring = false;
+		fRTL                = 0x0004, // bool   _isRTL = false;
+		fPinned             = 0x0008, // bool   _isPinned = false;
+		fUntitledTabRenamed = 0x0010  // bool   _isUntitledTabRenamed = false;
+	};
+	int    Lingua; //std::wstring _langName;
+	int    Cp; // codepage
+	int    IndividualTabColour;
+	uint   Flags;
+	uint64 UedOrgFileModTm; // FILETIME _originalFileLastModifTimestamp {};
+	SScEditorMapPosition MapPos;
+	SString FileNameUtf8;
+	SString BackupPathUtf8; // std::wstring _backupFilePath;
+	Int64Array MarkList; // std::vector<size_t> _marks;
+	Int64Array FoldStateList; // std::vector<size_t> _foldStates;
+};
+//
+//
+//
 class SScEditorBase {
 public:
+	struct Config {
+		Config() : Flags(0), BuTextIntervalMs(0), BuStateIntervalMs(0)
+		{
+		}
+		enum {
+			fAutoBackupText  = 0x0001,
+			fAutoBackupState = 0x0002,
+			fAutoSaveText    = 0x0004,
+			fAutoSaveState   = 0x0008,
+		};
+		uint   Flags;
+		uint   BuTextIntervalMs;  // Интервал сохранения текста после последнего сохранения (при условии, что нечто поменялось), ms
+		uint   BuStateIntervalMs; // Интервал сохранения состояния после последнего сохранения (при условии, что нечто поменялось), ms
+		SString BackupPath;       // Путь, по которому сохраняются резервные копии
+	};
+	//
+	// Descr: Предметы сохранения при редактировании
+	//
+	enum {
+		storagesubjUndef = 0, // 
+		storagesubjText,      // Собственно, редактируемый текст
+		storagesubjState,     // Состояние окна редактора //
+	};	
+	//
+	typedef void * SciDocument;
+
+	class Document {
+	public:
+		enum {
+			stInit     = 0x0001,
+			stDirty    = 0x0002,
+			stReadOnly = 0x0004,
+			stUtf8Mode = 0x0008,
+			stNewFile  = 0x0010
+		};
+		Document();
+		Document & FASTCALL Reset(bool preserveSourceInfo);
+		long   SetState(long st, int set);
+		//
+		// Descr: Создает текстовое символьное представление имени документа.
+		// ARG(storagesubj IN): Предмет для сохранения storagesubjXXX
+		// ARG(withoutExt IN:) Если withoutExt == false, то функция добавит к концу символа расширение (для сохранения в виде файла).
+		//   Если же withoutExt == true, то расширение добавлено не будет (если символ нужен вне контекста файловой системы)
+		//
+		bool   MakeNameSymbol(int storagesubj, bool withoutExt, SString & rBuf) const;
+
+		SCodepageIdent OrgCp;
+		SCodepageIdent Cp;
+		SEOLFormat Eolf;
+		long   State;
+		SciDocument SciDoc;
+		SString FileName;
+		SObjTextRefIdent OtrIdent; // @v12.5.6 
+	};
 	enum {
 		indicUnknWord = 27,
 		indicStxRule  = 28 // @experimental Распознанное синтаксическое правило
 	};
 	SScEditorBase();
 	~SScEditorBase();
+	int    GetConfig(Config & rCfg) const;
+	int    SetConfig(const Config & rCfg);
 	int    SetKeybAccelerator(KeyDownCommand & rK, int cmd);
+	int    GetCurrentState(SScEditorTextInfo & rResult);
+	int    ApplyPreservedState(SScEditorTextInfo & rResult);
 protected:
+	static constexpr int MARK_BOOKMARK = 20;
+	static constexpr int MARK_HIDELINESBEGIN = 19;
+	static constexpr int MARK_HIDELINESEND = 18;
+	static constexpr int MAX_FOLD_LINES_MORE_THAN = 99;
 	//
 	// Descr: Константы для полей редактирования
 	//
@@ -6609,41 +6744,104 @@ protected:
 	int    FASTCALL GetSelection(IntRange & rR);
 	int    FASTCALL SetSelection(const IntRange * pR);
 	int    FASTCALL GetSelectionText(SString & rBuf);
+	int64  GetDocSize(); // SCI_GETLENGTH
+	int    GetWrapMode();
+	int    SetWrapMode(bool willBeWrapped);
+	void   Scroll(int64 column, int64 line);
+	int    ScrollSnapshotWith(const SScEditorMapPosition & rMapPos, int textZoneWidth); // @construction
+	int    GetTextZoneWidth();
+	//
+	// Descr: Инициализирует переменную по ссылке rR прямоугольником клиенской области окна редактирования //
+	// Returns:
+	//   true - success
+	//   false - error (вероятнее всего H_Window - инвалидный ид)
+	//
+	bool   GetRectCli(TRect & rR);
+	//
+	// Descr: Инициализирует переменную по ссылке rR прямоугольником полной области окна редактирования //
+	// Returns:
+	//   true - success
+	//   false - error (вероятнее всего H_Window - инвалидный ид)
+	//
+	bool   GetRectWin(TRect & rR);
 	enum {
 		srfUseDialog = 0x0001
 	};
 	int    SearchAndReplace(long flags);
-
-	typedef void * SciDocument;
-
-	class Document {
-	public:
+	//
+	// Descr: Специализированный блок для связки вызовов RestoreCurrentPosition_PreStep и RestoreCurrentPosition_PostStep
+	//
+	struct RestorePositionBlock {
+		RestorePositionBlock() : RestorePositionRetryCount(0), Flags(0)
+		{
+		}
 		enum {
-			stInit     = 0x0001,
-			stDirty    = 0x0002,
-			stReadOnly = 0x0004,
-			stUtf8Mode = 0x0008,
-			stNewFile  = 0x0010
+			fPosRestoreNeeded = 0x0001
 		};
-		Document();
-		Document & FASTCALL Reset(bool preserveSourceInfo);
-		long   SetState(long st, int set);
-
-		SCodepageIdent OrgCp;
-		SCodepageIdent Cp;
-		SEOLFormat Eolf;
-		long   State;
-		SciDocument SciDoc;
-		SString FileName;
-		SObjTextRefIdent OtrIdent; // @v12.5.6 
+		uint   RestorePositionRetryCount;
+		uint   Flags;
 	};
+	int    GetCurrentPosition(SScEditorPosition & rResult);
+	//
+	// Returns:
+	//   1   - Позиции успешно восстановлены. Вызов 
+	//   100 - Редактор в режиме переноса слов, потому при обработке SCN_PAINTED следует вызывать RestoreCurrentPosition_PostStep()
+	//   0   - error
+	//
+	int    RestoreCurrentPosition_PreStep(const SScEditorPosition & rPos, RestorePositionBlock & rBlk);
+	int    RestoreCurrentPosition_PostStep(const SScEditorPosition & rPos, RestorePositionBlock & rBlk);
+	int    GetCurrentSnapshot(SScEditorMapPosition & rResult);
+	int    GetCurrentFoldStateList(Int64Array & rList);
+	int    ApplyFoldStateList(const Int64Array & rList);
+	bool   IsFolded(int64 line);
+	//
+	// ARG(mode IN): true - expand, false - collapse
+	//
+	void   Fold(int64 line, bool mode, bool shouldBeNotified);
+	//
+	// ARG(subject IN): Предмет сохранения. storagesubjXXX
+	//
+	int    MakeBackupPath(const Document & rDoc, int storagesubj, SString & rBuf);
+	int    DoBackup(int storagesubj); // @v12.5.11 @construction
+	//
+	// Descr: Низкоуровневая функция сохранения текущего текста в файл с именем pDestFileName.
+	//   Функция принимает имя файла как есть ничего не пытаясь с ним сделать. Если это имя пустое,
+	//   то возвращает 0.
+	//   Если сохранение было успешным, то функция не будет выставлять каких бы то нибыло флагов и 
+	//   менять иные атрибуты внутреннего состояния.
+	// Returns:
+	//   true - сохранение прошло успешно
+	//   false - error
+	//
+	bool   StoreText(const char * pDestFileName);
+	bool   StoreState(const char * pDestFileName);
+	void   RegisterEditEvent();
+	void   RegisterStateEvent();
+
 	SKeyAccelerator KeyAccel; // Ассоциации клавиатурных кодов с командами. {KeyDownCommand Key, long Val}
 	SKeyAccelerator OuterKeyAccel; // Ассоциации клавиатурных кодов с командами, заданные из-вне: вливаются в KeyAccel
 	intptr_t (*P_SciFn)(void * ptr, uint msg, uintptr_t wParam, intptr_t lParam);
 	void * P_SciPtr;
 	SSearchReplaceParam LastSrParam;
 	Document Doc;
+	Config Cfg; // @v12.5.11 Набор конфигурационных параметров
 	STokenizer * P_Tknzr;
+	struct AutoSaveState {
+		AutoSaveState()
+		{
+			THISZERO();
+		}
+		LDATETIME LastEditEventMoment;   // Время последнего события редактирования //
+		LDATETIME LastUiEventMoment;     // Время последнего события изменения состояния фрейма редактирования //
+		LDATETIME LastBackupTextMoment;  // Время последнего сохранения резервной копии текста
+		LDATETIME LastBackupStateMoment; // Время последнего сохранения резервной копии состояния //
+		LDATETIME LastAutoSaveTextMoment;  // Время последнего сохранения текста в оригинальный источник
+		LDATETIME LastAutoSaveStateMoment; // Время последнего сохранения состояния в общий контейнер состояний //
+	};
+	AutoSaveState ASSt;
+private:
+	HWND   H_Window;
+	RestorePositionBlock * P_RestorePosBlk;
 };
 
 class STextBrowser : public TBaseBrowserWindow, public SScEditorBase {
@@ -6680,6 +6878,7 @@ public:
 	int    Init(const SObjTextRefIdent & rIdent, const char * pLexerSymb, int toolbarId = -1);
 	int    GetStatus(StatusBlock * pSb);
 	int    SetSpecialMode(int spcm);
+	int    SetIdlePeriod(long periodMs); // @v12.5.11
 	int    WMHCreate();
 	HWND   GetSciWnd() const { return HwndSci; }
 	void   Resize();
@@ -6690,6 +6889,7 @@ public:
 	int    FileSave(const char * pFileName, long flags);
 	int    FileClose();
 private:
+	DECL_HANDLE_EVENT; // @v12.5.11
 	static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK ScintillaWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	virtual TBaseBrowserWindow::IdentBlock & GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk);
@@ -6702,12 +6902,11 @@ private:
 	int    InsertWorkbookLink();
 	int    BraceHtmlTag();
 	int    UpdateIndicators();
-	bool   IsFolded(size_t line);
-	void   Fold(size_t line, bool mode);
 	void   Expand(size_t & rLine, bool doExpand, bool force, int visLevels, int level);
 	void   MarginClick(/*Sci_Position*/int position, int modifiers);
 	void   RunMarkers(bool doHide, size_t searchStart, bool endOfDoc, bool doDelete);
 	int    Run();
+	int    DoAutosaveByIdle(int kind);
 
 	enum {
 		sstLastKeyDownConsumed = 0x0001
@@ -6717,6 +6916,7 @@ private:
 	HWND   HwndSci;
 	SString LexerSymb;
 	WNDPROC OrgScintillaWndProc;
+	SCycleTimer IdleTimer; // @v12.5.11
 };
 //
 // 

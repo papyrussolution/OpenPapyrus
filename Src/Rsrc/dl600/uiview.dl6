@@ -906,10 +906,10 @@ dialog DLG_BILLPRELUDE [vertical title: "@billprelude" size: (384, 463) minsize:
 	}
 }
 
-dialog DLG_CHZNLOCPMURL [vertical title: "" size: (384, 463) font: "MS Shell Dlg,8"] {
-	input CTL_CHZNLOCPMURL_ADDR [design: B width: bycontainer(75) height: 21 margin: (4, 4, 12, 4) tabstop label: "@serveraddr"] string[64];
-	input CTL_CHZNLOCPMURL_USER [design: B width: bycontainer(75) height: 21 margin: (4, 4, 12, 4) tabstop label: "@username"] string[64];
-	input CTL_CHZNLOCPMURL_PW   [design: B width: bycontainer(75) height: 21 margin: (4, 4, 12, 4) tabstop password label: "@password"] string[64];
+dialog DLG_CHZNLOCPMURL [vertical title: "" size: (385, 220) minsize: (385, 220) padding: 4 font: "MS Shell Dlg,8"] {
+	input CTL_CHZNLOCPMURL_ADDR [width: bycontainer height: 21 margin: 4 tabstop label: "@serveraddr"] string[64];
+	input CTL_CHZNLOCPMURL_USER [width: bycontainer height: 21 margin: 4 tabstop label: "@username"] string[64];
+	input CTL_CHZNLOCPMURL_PW   [width: bycontainer height: 21 margin: 4 tabstop password label: "@password"] string[64];
 	view [horizontal width: bycontainer growfactor: 1 margin_right: 12 gravity: right justifycontent: end alignitems: end] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
@@ -924,6 +924,7 @@ dialog DLG_CHKCHZNMARK [vertical title: "@ttl_checkchzmark" size: (909, 530) min
 			view [horizontal width: bycontainer height: 32 margin_top: 13] {
 				button [title: "@doclear" tabstop size: (75, 21) margin: 4 command: cmClear];
 				button [title: "@chzn_check_offline" tabstop size: (150, 21) margin: 4 command: cmCheckOffline];
+				button [title: "@chzn_check_tspiot"  tabstop size: (150, 21) margin: 4 command: cmCheckTsPiot];
 			}
 		}
 		view [vertical growfactor: 5 height: bycontainer] {
@@ -4211,7 +4212,156 @@ dialog DLG_RCVRGOODS [vertical title: "@goodsrecoverparam" size: (440, 265) mins
 	}
 }
 
-// @20260318 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
+dialog DLG_BILLFLT [vertical title: "%s" size: (650, 540) minsize: (650, 540) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.5.11 
+	view [horizontal width: bycontainer height: 45] {
+		view [horizontal growfactor: 2 height: bycontainer] {
+			input CTL_BILLFLT_PERIOD [growfactor: 1 height: 21 margin: 4 tabstop label: "@daterange"] string[30] supplement daterangecalbutton(CTLCAL_BILLFLT_PERIOD);
+			input CTL_BILLFLT_DUEPERIOD [growfactor: 1 height: 21 margin: 4 tabstop label: "@billfilt_dueperiod"] string[30] supplement daterangecalbutton(CTLCAL_BILLFLT_DUEPERIOD);
+		}
+		view [horizontal growfactor: 1 height: bycontainer justifycontent: end] {
+			statictext CTL_BILLFLT_LABEL [size: (21, 21) margin: (4, 17, 4, 4) staticedge];
+		}
+	}
+	view [horizontal width: bycontainer growfactor: 0.8] {
+		framebox [vertical growfactor: 2 height: bycontainer margin: 4 padding: 4] {
+			combobox CTLSEL_BILLFLT_OPRKIND [tabstop width: bycontainer height: 21 margin: 4 label: "@oprkind" cblinesymb: CTL_BILLFLT_OPRKIND ];
+			combobox CTLSEL_BILLFLT_OBJECT [tabstop width: bycontainer height: 21 margin: 4 label: "@contractor" cblinesymb: CTL_BILLFLT_OBJECT ];
+			view [horizontal width: bycontainer height: 21 justifycontent: end] {
+				button CTLBUT_BILLFLT_OBJPTAGS [title: "@{contractortag_pl}..." tabstop size: (128, 21) margin: 4 command: cmContractorTags];
+			}
+			statictext CTL_BILLFLT_OBJ2NAME [title: "@billfilt_object2" width: bycontainer height: 13 margin: (4, 4, 4, 1)];
+			combobox CTLSEL_BILLFLT_OBJ2 [tabstop width: bycontainer height: 21 margin: (4, 1, 4, 4) cblinesymb: CTL_BILLFLT_OBJ2 ];
+		}
+		view [vertical growfactor: 1 height: bycontainer] {
+			radiocluster CTL_BILLFLT_ORDER [title: "@sortby" width: bycontainer margin: (4, 3, 4, 4) padding: 4] {
+				radiobutton [title: "@billfilt_ordbydate"];
+				radiobutton [title: "@billfilt_ordbydate_code"];
+				radiobutton [title: "@billfilt_ordbycode"];
+				radiobutton [title: "@billfilt_ordbyobject"];
+				radiobutton [title: "@billfilt_ordbycontragentdatecode"];
+			}
+			input CTL_BILLFLT_AMOUNT [width: bycontainer height: 21 margin: 4 tabstop label: "@amount"] string[30];
+		}
+	}
+	view [horizontal width: bycontainer height: 45] {
+		combobox CTLSEL_BILLFLT_LOC [tabstop growfactor: 2 height: 21 margin: 4 label: "@warehouse" cblinesymb: CTL_BILLFLT_LOC] supplement listbutton(STDCTL_LOCLISTBUTTON cmLocList);
+		combobox CTLSEL_BILLFLT_STATUS [tabstop growfactor: 1 height: 21 margin: 4 label: "@status" cblinesymb: CTL_BILLFLT_STATUS];
+	}
+	view [horizontal width: bycontainer growfactor: 0.5] {
+		view [horizontal growfactor: 2 height: bycontainer] {
+			checkcluster CTL_BILLFLT_PAYM [growfactor: 1 margin: (4, 3, 4, 4)] {
+				checkbox [title: "@billfilt_fshowdebt"];
+				checkbox [title: "@billfilt_fdebtonly"];
+				checkbox [title: "@billfilt_funshippedonly"];
+				checkbox [title: "@billfilt_fshippedonly"];
+			}
+			framebox [title: "@currency" vertical growfactor: 1 height: bycontainer margin: 4 padding: 4 justifycontent: center alignitems: center] {
+				combobox CTLSEL_BILLFLT_CUR [tabstop width: bycontainer height: 21 margin: 4 cblinesymb: CTL_BILLFLT_CUR];
+				checkbox CTL_BILLFLT_ALLCUR [title: "@billfilt_fallcurrencies" tabstop width: bycontainer height: 21 margin: 4];
+			}
+		}
+		view [vertical growfactor: 1 height: bycontainer alignitems: end] {
+			button STDCTL_SJBUTTON [title: "@but_sysj" tabstop size: (158, 21) margin: 4 command: cmSysjFilt2];
+			button CTL_CMD_MORE [title: "@{extension}..." tabstop size: (158, 21) margin: 4 command: cmaMore];
+			button STDCTL_VIEWOPTBUTTON [title: "@but_viewoptions" tabstop size: (158, 21) margin: 4 command: cmViewOptions];
+		}
+	}
+	//framebox [origin: (8, 49) size: (413, 171) ];
+	//framebox [title: "@currency" origin: (206, 270) size: (179, 73) ];
+	view [horizontal width: bycontainer growfactor: 0.5] {
+		checkcluster CTL_BILLFLT_FLAGS [growfactor: 1 height: bycontainer margin: 4] {
+			checkbox [title: "@billfilt_fsetupnewbill"];
+			checkbox [title: "@billfilt_fshowcreatoronly_"];
+			checkbox [title: "@billfilt_fshowwoagent"];
+			checkbox [title: "@billfilt_fdiscountonly"];
+		}
+		view [vertical growfactor: 1 height: bycontainer] {
+			input CTL_BILLFLT_MEMOTEXT [width: bycontainer height: 21 margin: 4 tabstop label: "@billfilt_extssmemotext" ] string[128];
+			view [horizontal width: bycontainer growfactor: 1 justifycontent: end alignitems: end] {
+				button STDCTL_TAGSBUTTON [title: "@but_tags" tabstop size: (90, 21) margin: 4 command: cmTags];
+				button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+				button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+			}
+		}
+	}
+}
+
+dialog DLG_GTO [vertical title: "@view_goodstrnovr" size: (545, 325) minsize: (545, 325) padding: 4 font: "MS Shell Dlg,8"] {
+	input CTL_GTO_PERIOD [size: (135, 21) margin: 4 tabstop label: "@daterange"] string[30] supplement daterangecalbutton(CTLCAL_GTO_PERIOD);
+	combobox CTLSEL_GTO_LOC [tabstop width: bycontainer height: 21 margin: 4 label: "@warehouse" cblinesymb: CTL_GTO_LOC] supplement listbutton(STDCTL_LOCLISTBUTTON cmLocList);
+	combobox CTLSEL_GTO_SUPPL [tabstop width: bycontainer height: 21 margin: 4 label: "@supplier" cblinesymb: CTL_GTO_SUPPL];
+	framebox [vertical width: bycontainer growfactor: 3 margin: 4 padding: 4 justifycontent: spacearound] {
+		combobox CTLSEL_GTO_GGRP [tabstop width: bycontainer height: 21 margin: 4 label: "@goodsgroup" cblinesymb: CTL_GTO_GGRP] supplement filtbutton(STDCTL_GOODSFILTBUTTON cmGoodsFilt);
+		combobox CTLSEL_GTO_GOODS [tabstop width: bycontainer height: 21 margin: 4 label: "@ware" cblinesymb: CTL_GTO_GOODS];
+	}
+	view [horizontal width: bycontainer growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_SG [vertical title: "" size: (695, 315) minsize: (695, 315) padding: 4 font: "MS Shell Dlg,8"] {
+	view [horizontal width: bycontainer height: 45] {
+		combobox CTLSEL_SG_CLS [growfactor: 5 height: 21 margin: 4 tabstop label: "@goods_gdscls" cblinesymb: CTL_SG_CLS];
+		view [horizontal growfactor: 4 height: bycontainer] { // @stub
+		}
+	}
+	view [horizontal width: bycontainer growfactor: 1] {
+		framebox [vertical growfactor: 5 height: bycontainer margin: 4 padding: 4] {
+			statictext CTL_SG_L_KIND [title: "@kind" width: bycontainer height: 13 margin: (4, 4, 4, 1)];
+			combobox CTLSEL_SG_KIND [tabstop width: bycontainer height: 21 margin: (4, 1, 4, 4) cblinesymb: CTL_SG_KIND];
+			statictext CTL_SG_L_ADDPROP [title: "@{addendumparameter}" width: bycontainer height: 13 margin: (4, 4, 4, 1)];
+			combobox CTLSEL_SG_ADDPROP [tabstop width: bycontainer height: 21 margin: (4, 1, 4, 4) cblinesymb: CTL_SG_ADDPROP];
+			statictext CTL_SG_L_GRADE [title: "@sort" width: bycontainer height: 13 margin: (4, 4, 4, 1)];
+			combobox CTLSEL_SG_GRADE [tabstop width: bycontainer height: 21 margin: (4, 1, 4, 4) cblinesymb: CTL_SG_GRADE];
+			statictext CTL_SG_L_ADD2PROP [title: "@{addendumparameter} 2" width: bycontainer height: 13 margin: (4, 4, 4, 1)];
+			combobox CTLSEL_SG_ADD2PROP [tabstop width: bycontainer height: 21 margin: (4, 1, 4, 4) cblinesymb: CTL_SG_ADD2PROP];
+		}
+		framebox [vertical growfactor: 4 height: bycontainer margin: 4 padding: 4] {
+			view [horizontal width: bycontainer height: 30] {
+				statictext CTL_SG_L_DIMX [title: "Dim X" growfactor: 1 height: 13 margin: 4];
+				input CTL_SG_DIMX [size: (70, 21) margin: 4 tabstop fmtf: (notrailz nozero) fmtprec: 6] double supplement ellipsisbutton (CTL_SG_CMD_SGDIMX cmSgDimX "*");
+				//button CTL_CMD_SGDIMX [title: "*" size: (23, 21)  command: cmSgDimX];
+				checkbox CTL_SG_ZEROX [title: "@zero" tabstop size: (54, 21) margin: 4];
+			}
+			view [horizontal width: bycontainer height: 30] {
+				statictext CTL_SG_L_DIMY [title: "Dim Y" growfactor: 1 height: 13 margin: 4];
+				input CTL_SG_DIMY [size: (70, 21) margin: 4 tabstop fmtf: (notrailz nozero) fmtprec: 6] double supplement ellipsisbutton (CTL_SG_CMD_SGDIMY cmSgDimY "*");
+				//button CTL_CMD_SGDIMY [title: "*" size: (23, 21)  command: cmSgDimY];
+				checkbox CTL_SG_ZEROY [title: "@zero" tabstop size: (54, 21) margin: 4];
+			}
+			view [horizontal width: bycontainer height: 30] {
+				statictext CTL_SG_L_DIMZ [title: "Dim Z" growfactor: 1 height: 13 margin: 4];
+				input CTL_SG_DIMZ [size: (70, 21) margin: 4 tabstop fmtf: (notrailz nozero) fmtprec: 6] double supplement ellipsisbutton (CTL_SG_CMD_SGDIMZ cmSgDimZ "*");
+				//button CTL_CMD_SGDIMZ [title: "*" size: (23, 21)  command: cmSgDimZ];
+				checkbox CTL_SG_ZEROZ [title: "@zero" tabstop size: (54, 21) margin: 4];
+			}
+			view [horizontal width: bycontainer height: 30] {
+				statictext CTL_SG_L_DIMW [title: "Dim W" growfactor: 1 height: 13 margin: 4];
+				input CTL_SG_DIMW [size: (70, 21) margin: 4 tabstop fmtf: (notrailz nozero) fmtprec: 6] double supplement ellipsisbutton (CTL_SG_CMD_SGDIMW cmSgDimW "*");
+				//button CTL_CMD_SGDIMW [title: "*" size: (23, 21)  command: cmSgDimW];
+				checkbox CTL_SG_ZEROW [title: "@zero" tabstop size: (54, 21) margin: 4];
+			}
+			view [horizontal width: bycontainer height: 30] {
+				statictext CTL_SG_L_VOLUME [title: "Added Value" growfactor: 1 height: 13 margin: 4];
+				input CTL_SG_VOLUME [size: (75, 21) margin: 4 tabstop fmtf: (nozero) fmtprec: 0] double;
+			}
+		}
+	}
+	view [horizontal width: bycontainer height: 30] {
+		view [horizontal growfactor: 1 height: bycontainer justifycontent: start] {
+			button CTL_SG_FULLDLGBUTTON [title: "@{goodsclass_fstdeditdlg}..." tabstop size: (145, 21) margin: 4 command: cmFullGoodsDialog];
+		}
+		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+	//framebox [origin: (375, 49) size: (293, 187) ];
+	//framebox [origin: (8, 49) size: (360, 187) ];
+}
+
+// @20260327 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
 // Диалоги, представленные здесь с изменными символами (DLG_CASHREPORTS_L__, например) в ppdlg.list не отмечены поскольку находятся в работе.
 
 // @construction
@@ -4277,3 +4427,4 @@ view LAYOUT_LI_CENTRIGONAV [horizontal height: 32 padding: 4 alignitems: center]
 	view LOITEM_LI_CENTRIGONAV_IMG [size: (24, 24) margin: 4]; // Изображение
 	view LOITEM_LI_CENTRIGONAV_MAINTEXT [growfactor: 1 height: bycontainer]; // Основной текст
 }
+

@@ -2184,8 +2184,8 @@ int PPBillImporter::RunUhttImport()
 								}
 							}
 							if(ar_id) {
-								PPBillPacket::SetupObjectBlock sob;
-								THROW(pack.SetupObject(ar_id, sob));
+								PPBillPacket::SetupObjectBlock sob_unused;
+								THROW(pack.SetupObject(ar_id, sob_unused));
 							}
 							if(psn_id && !dlvr_loc_pack.IsEmptyAddress()) {
 								//
@@ -5061,7 +5061,6 @@ int PPBillImporter::Helper_AcceptCokeData(const SCollection * pRowList, PPID opI
 			//if(p_item->OrderIdent != prev_order_ident) {
 			PPID   ar_id = 0;
 			PPID   dlvr_loc_id = 0;
-			PPBillPacket::SetupObjectBlock sob;
 			PPBillPacket pack;
 			const SString current_order_ident = p_item->OrderIdent;
 			pack.CreateBlank_WithoutCode(BillParam.ImpOpID, 0, LocID, 0);
@@ -5085,13 +5084,12 @@ int PPBillImporter::Helper_AcceptCokeData(const SCollection * pRowList, PPID opI
 				ResolveINN(p_item->INN, 0, 0, 0, op_rec.AccSheetID, &ar_id, 0);
 			}
 			if(ar_id) {
-				// @v11.4.3 {
+				PPBillPacket::SetupObjectBlock sob;
 				if(GetOpType(opID) == PPOPT_GOODSORDER)
 					sob.Flags |= PPBillPacket::SetupObjectBlock::fEnableStop;
-				// } @v11.4.3 
 				if(!pack.SetupObject(ar_id, sob)) {
 					Logger.LogLastError();
-					rowidx++; // @important // @v11.4.7 @fix
+					rowidx++; // @important
 				}
 				else {
 					if(dlvr_loc_id) {
@@ -5112,11 +5110,11 @@ int PPBillImporter::Helper_AcceptCokeData(const SCollection * pRowList, PPID opI
 							}
 						}
 					}
-					(pack.SMemo = p_item->Memo).Transf(CTRANSF_UTF8_TO_INNER); // @v11.5.8
+					(pack.SMemo = p_item->Memo).Transf(CTRANSF_UTF8_TO_INNER);
 					bool skip_this_doc = false;
 					if(!Period.CheckDate(pack.Rec.Dt)) {
 						skip_this_doc = true;
-						rowidx++; // @important // @v11.4.7 @fix
+						rowidx++; // @important
 					}
 					else {
 						do {
@@ -5234,10 +5232,8 @@ int PPBillImporter::Helper_AcceptCokeData(const SCollection * pRowList, PPID opI
 				rowidx++; // @important
 			}
 			//}
-			// @v11.4.7 @fix {
 			if(rowidx == preserve_idx)
 				rowidx++;
-			// } @v11.4.7 @fix 
 			assert(rowidx > preserve_idx || (rowidx < pRowList->getCount())); // Защита от зацикливания //
 		}
 	}
@@ -5569,8 +5565,8 @@ int PPBillImporter::Run()
 						}
 						pack.CreateBlank2(_op_id, init_bill_date, LocID, 0);
 						if(seller_ar_id) {
-							PPBillPacket::SetupObjectBlock sob;
-							if(!pack.SetupObject(seller_ar_id, sob)) {
+							PPBillPacket::SetupObjectBlock sob_unused;
+							if(!pack.SetupObject(seller_ar_id, sob_unused)) {
 								Logger.LogLastError();
 								skip = 1;
 							}

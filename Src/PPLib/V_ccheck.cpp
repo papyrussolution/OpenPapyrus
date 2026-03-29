@@ -737,11 +737,28 @@ int FASTCALL PPViewCCheck::CheckForFilt(const CCheckTbl::Rec * pRec, const CChec
 			if(Filt.SCardID) {
 				if(pRec->SCardID != Filt.SCardID) {
 					if(pRec->Flags & CCHKF_PAYMLIST) {
+						//
+						// Из-за изменения формата индекса #1 таблицы CCheckPaym здесь немного меняется подход к поиску соответствия //
+						//
+						/* @v12.5.11
 						CCheckPaymTbl::Key1 pk1;
 						pk1.SCardID = Filt.SCardID;
 						pk1.CheckID = pRec->ID;
 						if(!P_CC->PaymT.search(1, &pk1, spEq))
 							return 0;
+						*/
+						// @v12.5.11 {
+						CCheckPaymTbl::Key1 pk1;
+						MEMSZERO(pk1);
+						pk1.SCardID = Filt.SCardID;
+						pk1.CheckID = pRec->ID;
+						if(P_CC->PaymT.search(1, &pk1, spGe) && P_CC->PaymT.data.SCardID == Filt.SCardID && P_CC->PaymT.data.CheckID == pRec->ID) {
+							;
+						}
+						else {
+							return 0;
+						}
+						// } @v12.5.11 
 					}
 					else
 						return 0;

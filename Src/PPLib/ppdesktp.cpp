@@ -2880,9 +2880,10 @@ private:
 	static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	int    WMHCreate();
 	void   InitLayout();
-	int    InsertWorkWindow(int ppviewId); // @debug
+	int    InsertWorkWindow(int ppviewId, const PPBaseFilt * pFilt); // @debug
 	int    MakeNavList(CentrigoNavBlock & rBlk);
 	int    DoNote(SObjID & rOid);
+	int    DoContacts(const PersonFilt * pFilt);
 	int    HandleInputEnter(const SString & rInput);
 	int    RemoveWorkingPanel();
 	int    DrawNavTreeItem(void * pCustomDrawDescriptor);
@@ -2906,6 +2907,7 @@ int TFacadeWindow::MakeNavList(CentrigoNavBlock & rBlk)
 			// @attention номера команд сейчас фиктивные только для отладки списка - потом установить правильные значения//
 			static const SIntToSymbTabEntry cmd_list[] = {
 				{ cmCentrigoNotes, "centrigo_cmd_notes" },
+				{ cmCentrigoContacts, "centrigo_cmd_contacts" },
 				{ cmCentrigoToDo, "centrigo_cmd_todo" },
 				{ cmCentrigoWallet, "centrigo_cmd_wallet" },
 				{ cmCentrigoSecrets, "centrigo_cmd_secrets" },
@@ -3044,7 +3046,14 @@ void TFacadeWindow::InitLayout()
 	}
 }
 
-int TFacadeWindow::DoNote(SObjID & rOid) // @construction
+int TFacadeWindow::DoContacts(const PersonFilt * pFilt)
+{
+	int    ok = -1;
+	ok = InsertWorkWindow(PPVIEW_PERSON, pFilt);
+	return ok;
+}
+
+int TFacadeWindow::DoNote(SObjID & rOid)
 {
 	int    ok = -1;
 	const  LDATETIME now_dtm = getcurdatetime_();
@@ -3078,7 +3087,20 @@ int TFacadeWindow::DoNote(SObjID & rOid) // @construction
 			if(p_lo) {
 				// @construction
 				SObjTextRefIdent tri(rOid, PPTRPROP_MEMO);
-				p_brw = new STextBrowser(tri, /*pLexerSymb*/0, /*toolbarId*/-1);
+				STextBrowser * p_tb = new STextBrowser(tri, /*pLexerSymb*/0, /*toolbarId*/-1);
+				if(p_tb) {
+					STextBrowser::Config cfg;
+					p_tb->GetConfig(cfg);
+					//fAutoBackupText  = 0x0001,
+					//fAutoBackupState = 0x0002,
+					//fAutoSaveText    = 0x0004,
+					//fAutoSaveState   = 0x0008,
+					cfg.Flags |= (STextBrowser::Config::fAutoSaveText|STextBrowser::Config::fAutoSaveState);
+					//cfg.Flags |= (STextBrowser::Config::fAutoBackupText|STextBrowser::Config::fAutoBackupState);
+					p_tb->SetConfig(cfg);
+					p_tb->SetIdlePeriod(3);
+					p_brw = p_tb;
+				}
 				if(p_brw) {
 					InsertCtlWithCorrespondingNativeItem(p_brw, ViewId_Primary, 0, /*extraPtr*/0);
 					{
@@ -3096,6 +3118,7 @@ int TFacadeWindow::DoNote(SObjID & rOid) // @construction
 									invalidateAll(true);
 									::UpdateWindow(H());
 								}
+								::PostMessageW(p_brw->H(), WM_SETFOCUS, 0, 0);
 							}
 						}
 					}
@@ -3109,43 +3132,22 @@ int TFacadeWindow::DoNote(SObjID & rOid) // @construction
 	return ok;
 }
 
-int TFacadeWindow::InsertWorkWindow(int ppviewId) // @debug
+int TFacadeWindow::InsertWorkWindow(int ppviewId, const PPBaseFilt * pFilt)
 {
 	int    ok = -1;
-	SUiLayout * p_lo = P_Lfc->FindBySymb("Facade_Center");
-	if(p_lo) {
-		TBaseBrowserWindow * p_brw = 0;
-		if(ppviewId) {
+	if(ppviewId) {
+		SUiLayout * p_lo = P_Lfc->FindBySymb("Facade_Center");
+		if(p_lo) {
 			PPView * p_view = 0;
-			if(PPView::Execute(ppviewId, 0/*pFilt*/, PPView::exefModeless|PPView::exefDontLaunchWindow, &p_view, 0)) { // @v12.5.4
+			RemoveWorkingPanel();
+			if(PPView::Execute(ppviewId, pFilt, PPView::exefModeless|PPView::exefDontLaunchWindow, &p_view, 0)) { // @v12.5.4
 				SUiLayoutParam alb_;
 				alb_.GrowFactor = 1.0;
 				alb_.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 				//alb_.SetMargin(8.0f);
 				//p_view->Browse(true/*modeless*/);
-				p_view->BrowseInLayout(this, "Facade_Center", alb_, 10002); // @v12.5.4
-			}
-		}
-		else {
-			SString file_path;
-			p_brw = new STextBrowser(file_path, /*pLexerSymb*/0, /*toolbarId*/0);
-		}
-		if(p_brw) {
-			InsertCtlWithCorrespondingNativeItem(p_brw, ViewId_Primary, 0, /*extraPtr*/0);
-			{
-				SUiLayoutParam alb_;
-				//alb_.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-				alb_.GrowFactor = 1.0;
-				alb_.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-				//alb_.SetMargin(8.0f);
-				{
-					SUiLayout * p_result = 0;
-					p_result = p_lo->InsertItem(p_brw, &alb_);
-					if(p_result) {
-						p_result->SetCallbacks(0, TView::SetupLayoutItemFrameProc, p_brw);
-						p_brw->Launch_(this);
-					}
-				}
+				p_view->BrowseInLayout(this, "Facade_Center", alb_, /*10002*/ViewId_Primary); // @v12.5.4
+				ok = 1;
 			}
 		}
 	}
@@ -3864,6 +3866,12 @@ IMPL_HANDLE_EVENT(TFacadeWindow)
 											{
 												SObjID oid(PPOBJ_WORKBOOK, 0);
 												DoNote(oid);
+											}
+											break;
+										case cmCentrigoContacts:
+											{
+												PersonFilt filt;
+												DoContacts(&filt);
 											}
 											break;
 										case cmCentrigoToDo:

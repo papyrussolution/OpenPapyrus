@@ -349,8 +349,8 @@ int PPViewQuoteReqAnalyze::CreateLinkedRequest(PPID leadBillID, int leadRbb)
 					p_ti->Cost = 0.0;
 					p_ti->Discount = 0.0;
 					if(p_ti->Suppl) {
-						PPBillPacket::SetupObjectBlock sob;
-						seq_bpack.SetupObject(p_ti->Suppl, sob);
+						PPBillPacket::SetupObjectBlock sob_unused;
+						seq_bpack.SetupObject(p_ti->Suppl, sob_unused);
 					}
 					p_ti->Lbr.ID = leadBillID;
 					p_ti->Lbr.RByBill = leadRbb;

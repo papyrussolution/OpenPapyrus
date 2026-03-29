@@ -10581,6 +10581,15 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID locID, PgsBlock & rBlk)
 													}
 													// } @v12.2.2 
 												}
+												// @v12.5.11 (дабы CCFLG2_RESTRICTCHZNCIGPRICEASMRC работал без CCFLG2_RESTRICTCHZNPMPRICE) {
+												else if(ccfg_f2 & CCFLG2_RESTRICTCHZNCIGPRICEASMRC) {
+													if(gt_rec.ChZnProdType == GTCHZNPT_TOBACCO) {
+														if(rBlk.PriceByMarkPmMrp > 0.0) {
+															rBlk.AllowedPriceRange.SetVal(rBlk.PriceByMarkPmMrp);
+														}
+													}
+												}
+												// } @v12.5.11 
 												{
 													int    local_err_code = 0;
 													if(p_cle->ErrorCode != 0)
@@ -14923,12 +14932,13 @@ int InfoKioskDialog::SetupLots(PPID goodsID)
 		if(p_list) {
 			p_list->freeAll();
 			if(goodsID) {
-				uint   i = 0, lots_count = 5;
+				uint   i = 0;
+				uint   lots_count = 5;
 				long   lots = 0;
 				long   oprno = MAXLONG;
 				ReceiptTbl::Rec lot_rec;
 				for(LDATE dt = getcurdate_(); i < (uint)lots_count && BillObj->trfr->Rcpt.EnumLastLots(goodsID, Rec.LocID, &dt, &oprno, &lot_rec) > 0; i++) {
-					char sub[64];
+					char   sub[64];
 					QualityCertTbl::Rec qc_rec;
 					StringSet ss(SLBColumnDelim);
 					ss.add(datefmt(&lot_rec.Dt, DATF_DMY, sub));

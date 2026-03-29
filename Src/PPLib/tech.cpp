@@ -243,7 +243,7 @@ int PPObjTech::CreateAutoTech(PPID prcID, PPID goodsID, PPID * pTechID, int use_
 /*virtual*/int PPObjTech::Search(PPID id, void * b) { return SearchByID(P_Tbl, Obj, id, b); }
 /*virtual*/const char * PPObjTech::GetNamePtr() { return P_Tbl->data.Code; }
 
-SString & PPObjTech::GetItemMemo(PPID id, SString & rBuf) // @v11.1.12
+SString & PPObjTech::GetItemMemo(PPID id, SString & rBuf)
 {
 	PPRef->UtrC.SearchUtf8(SObjTextRefIdent(Obj, id, PPTRPROP_MEMO), rBuf);
 	rBuf.Transf(CTRANSF_UTF8_TO_INNER);

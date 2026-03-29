@@ -227,11 +227,11 @@ table ObjSyncQueue {       // size=112
 	long   RedirID;        // ->ObjSyncQueue.ID Идентификатор записи, которая замещает этот объект
 	note   ObjName[256];   // Наименование объекта в разделе-отправителе
 index:
-	ID (unique);
-	ObjType, ObjID, DBID (anysegnull unique mod);
-	ObjType, CommIdPfx, CommID, DBID (anysegnull unique mod);
-	Priority, ModDt, ModTm (dup mod);
-	RedirID (anysegnull dup mod);
+	ID (unique);                                               // #0 
+	ObjType, ObjID, DBID (anysegnull unique mod);              // #1 // @todo @20260320 Избавиться от anysegnull
+	ObjType, CommIdPfx, CommID, DBID (anysegnull unique mod);  // #2 // @todo @20260320 Избавиться от anysegnull // Этот индекс вообще не используется //
+	Priority, ModDt, ModTm (dup mod);                          // #3  
+	RedirID (anysegnull dup mod);                              // #4 // @todo @20260320 Избавиться от anysegnull // Этот индекс вообще не используется //
 file:
 	"objsyque.btr";
 	vlr;
@@ -419,7 +419,7 @@ table GeoTrack {
 	int16  Speed;      // Скорость, dm/sec
 index:
 	ObjType, ObjID, Dts2010, Tm (unique);
-	ExtObjType, ExtObjID, Dts2010, Tm (anysegnull unique);
+	// @v12.5.11 ExtObjType, ExtObjID, Dts2010, Tm (anysegnull unique); // @todo @20260320 Убрать индекс или, по крайней мере, элиминировать anysegnull
 file:
 	"geotrack.btr";
 }
@@ -567,7 +567,7 @@ index:
 	Dt, OprNo (unique mod);                      // #1
 	OpID, Dt, OprNo (unique mod);                // #2
 	PersonID, Dt, OprNo (unique mod);            // #3
-	SecondID, Dt, OprNo (anysegnull unique mod); // #4 @v11.1.12
+	SecondID, Dt, OprNo (opt_anysegnull unique mod); // #4 @v11.1.12 // @v12.5.11 anysegnull-->opt_anysegnull
 file:
 	"psnevent.btr";
 	// @v11.1.12 vlr;
@@ -801,6 +801,7 @@ file:
 //
 //
 //
+/* @v12.5.11 таблица была сконвертирована в SpecSeries2 версией 6.1.9 - можно элиминировать 
 table SpecSeries {
 	string Serial[64];
 	string Barcode[64];
@@ -827,7 +828,7 @@ index:
 	InfoKind, InfoIdent (dup mod);
 file:
 	"spcsn.btr";
-}
+}*/
 //
 // Информация о специальных серийных номерах (брак и т.д.)
 // Большинство неиндексируемых текстовых полей храняться в Tail
@@ -916,8 +917,8 @@ index:
 	ID (unique);                                       // #0
 	Counter (unique mod);                              // #1
 	Type, ParentID, Counter (unique mod);              // #2
-	Type, OwnerID, Counter (anysegnull unique mod);    // #3
-	CityID, Counter (anysegnull unique mod);           // #4
+	Type, OwnerID, Counter (opt_anysegnull unique mod); // #3 @v12.5.11 anysegnull-->opt_anysegnull
+	CityID, Counter (opt_anysegnull unique mod);       // #4 @v12.5.11 anysegnull-->opt_anysegnull
 	Code, Counter (unique mod);                        // #5 @v6.4.0 (anysegnull) removed
 file:
 	"location.btr";
@@ -986,11 +987,11 @@ index:
 	Dt, BillNo (unique mod);                                       // #1
 	OpID, Dt, BillNo (unique mod);                                 // #2
 	Object, Dt, BillNo (unique mod);                               // #3
-	LinkBillID, Dt, BillNo (anysegnull unique mod);                // #4
+	LinkBillID, Dt, BillNo (opt_anysegnull unique mod);            // #4 // @v12.5.11 anysegnull-->opt_anysegnull
 	LocID, Dt, BillNo (unique mod);                                // #5 @v4.1.08
-	SCardID, Dt, BillNo (anysegnull unique mod);                   // #6 @v4.1.08
+	SCardID, Dt, BillNo (opt_anysegnull unique mod);               // #6 @v4.1.08 // @v12.5.11 anysegnull-->opt_anysegnull
 	// @v11.1.12 MainOrgID, Dt, BillNo (anysegnull unique mod);       // #7 @v4.9.10
-	Code acs, Dt, BillNo (anysegnull unique mod);                  // #7 @v11.1.12
+	Code acs, Dt, BillNo (opt_anysegnull unique mod);              // #7 @v11.1.12 // @v12.5.11 anysegnull-->opt_anysegnull
 	//
 	// При изменении структуры или порядка следования индексов
 	// аналогичные изменения необходимо сделать в таблице TempBill
@@ -1599,7 +1600,7 @@ table LocTransf { // size=104
 	raw    Reserve2[14];     // @reserve
 index:
 	LocID, RByLoc (unique mod);                       // #0
-	LotID, LocID, RByLoc (anysegnull unique mod);     // #1
+	LotID, LocID, RByLoc (opt_anysegnull unique mod); // #1 // @v12.5.11 anysegnull-->opt_anysegnull
 	GoodsID, LocID, RByLoc (unique mod);              // #2
 	BillID, RByBillLT (allsegnull dup mod);           // #3 В случае с ORACLE allsegnull не помогает боротся с неуникальностью пары {0; 0}. Поэтому индекс dup.
 		// В дополнение к предыдущему замечанию: по одной строке документа может быть несколько операций размещения. Важно лишь, чтобы программа
@@ -1729,7 +1730,7 @@ index:
 	Rank, Name acs (unique mod);           // #2
 	Type, Rank, Name acs (unique mod);     // #3
 	ParentID, Rank, Name acs (unique mod); // #4
-	Symb acs (allsegnull unique mod);      // #5
+	Symb acs (allsegnull unique mod);      // #5 @todo @20260320 Убрать allsegnull. Для этого придется форсированно создавать уникальный код при создании новой записи.
 file:
 	"workbook.btr";
 	// @v12.5.6 vlr;
@@ -1910,7 +1911,7 @@ index:
 	SCardID, Dt, Tm (unique mod);
 	// @v7.7.12 CheckID, Dt, Tm (unique mod); // @todo anysegnull
 	// @v7.7.12 BillID,  Dt, Tm (anysegnull unique mod);
-	LinkObjType, LinkObjID, SCardID, Dt, Tm (anysegnull unique mod); // @v7.7.12 сегмент SCardID необходим только для обеспечения уникальности
+	LinkObjType, LinkObjID, SCardID, Dt, Tm (opt_anysegnull unique mod); // @v7.7.12 сегмент SCardID необходим только для обеспечения уникальности // @v12.5.11 anysegnull-->opt_anysegnull
 file:
 	"scardop.btr";
 }
@@ -2000,9 +2001,8 @@ table CCheckExt {          // size=20
 	note   Memo[256];      // @v6.7.8 Примечание к чеку
 index:
 	CheckID (unique mod);
-	LinkCheckID, CheckID (anysegnull unique mod); // @v6.7.8
-	TableNo, CheckID (anysegnull unique mod);     // @v6.7.8
-	// @todo AddCrdCardID, CheckID (anysegnull unique mod);
+	LinkCheckID, CheckID (opt_anysegnull unique mod); // @v6.7.8 // @v12.5.11 anysegnull-->opt_anysegnull
+	TableNo, CheckID (opt_anysegnull unique mod);     // @v6.7.8 // @v12.5.11 anysegnull-->opt_anysegnull
 file:
 	"ccext.btr";
 	vlr;
@@ -2020,8 +2020,9 @@ table CCheckPaym {
 	long   CurID;     // @v9.0.4 Валюта оплаты
 	long   CurAmount; // @v9.0.4 Сумма оплаты в валюте CurID
 index:
-	CheckID, RByCheck (unique mod);
-	SCardID, CheckID (anysegnull unique mod);
+	CheckID, RByCheck (unique mod);           // #0
+	// @v12.5.11 SCardID, CheckID (anysegnull unique mod); // #1 @todo @20260319 (убрать anysegnull и добавить сегмент RByCheck)
+	SCardID, CheckID, RByCheck (unique mod); // #1 @todo @20260319 (убрать anysegnull и добавить сегмент RByCheck)
 file:
 	"ccpaym.btr";
 	access=1;
@@ -2924,7 +2925,7 @@ table Tech {               // size=104+160
 	// @v11.1.12 note   Memo[512];      // @memo @v7.0.0 [160]-->[512]
 index:
 	ID (unique);                           // #0
-	Code acs (anysegnull unique mod);      // #1
+	Code acs (anysegnull unique mod);      // #1 // @todo @20260320 Сделать индекс дублируемым и без anysegnull. Используется только в PPObjTech::SearchByCode()
 	PrcID, GoodsID, GStrucID (unique mod); // #2
 	GoodsID, GStrucID, PrcID (unique mod); // #3
 	GStrucID, GoodsID, PrcID (unique mod); // #4
@@ -2985,8 +2986,8 @@ index:
 	PrcID, StDt, StTm (unique mod);                    // #4
 	TechID, StDt, StTm (dup mod);                      // #5
 	ParentID, PrcID, Num (unique mod);                 // #6
-	OrderLotID, PrcID, Num (anysegnull unique mod);    // #7 @v4.9.17
-	PrevSessID, PrcID, Num (anysegnull unique mod);    // #8 @v5.0.2 // @v6.3.0 +(PrcID, Num)
+	OrderLotID, PrcID, Num (opt_anysegnull unique mod);    // #7 @v4.9.17 // @v12.5.11 anysegnull-->opt_anysegnull
+	PrevSessID, PrcID, Num (opt_anysegnull unique mod);    // #8 @v5.0.2 // @v6.3.0 +(PrcID, Num) // @v12.5.11 anysegnull-->opt_anysegnull
 file:
 	"tsess.btr";
 	// @v11.0.4 vlr;
@@ -5224,7 +5225,7 @@ table TempLocTransf {
 index:
 	ID__ (unique);
 	BillID, RByBillLT (dup mod);
-	LocID, RByLoc (allsegnull unique mod);
+	LocID, RByLoc (unique mod); // @v12.5.11 (allsegnull unique mod)-->(unique mod)
 file:
 	"tmp_lctr.btr";
 	temporary;

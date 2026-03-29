@@ -2384,8 +2384,9 @@ int PiritEquip::RunCheck(int opertype)
 			CreateStr(Check.Department, in_data);
 			CreateStr(CshrName, in_data);
 			CreateStr(Check.CheckNum, in_data);
-			if(Check.TaxSys >= 0 && Check.TaxSys <= 5)
+			if(Check.TaxSys >= 0 && Check.TaxSys <= 5) {
 				CreateStr(inrangeordefault(static_cast<long>(Check.TaxSys), 0L, 5L, 0L), in_data);
+			}
 			THROW(ExecCmd("30", in_data, out_data, r_error));
 			break;
 		case 6: // Открыть чек коррекции
@@ -2575,7 +2576,6 @@ int PiritEquip::RunCheck(int opertype)
 					int    rl = STokenRecognizer::EncodeChZn1162(product_type_bytes, Check.ChZnGTIN, 0, chzn_1162_bytes, sizeof(chzn_1162_bytes));
 					if(rl > 0) {
 						str.Z();
-						// @v11.1.10 {
 						if(OfdVer.IsGe(1, 2, 0)) {
 							{
 								in_data.Z();
@@ -2652,6 +2652,7 @@ int PiritEquip::RunCheck(int opertype)
 						case 1012: product_type_bytes = 0x444D; break; // @v11.9.4 GTCHZNPT_DRAFTBEER_AWR
 						case 14: product_type_bytes = 0x444D; break; // @v12.0.3 GTCHZNPT_BEER
 						case 21: product_type_bytes = 0x444D; break; // @v12.5.6 GTCHZNPT_NCP
+						case 22: product_type_bytes = 0x444D; break; // @v12.5.11 GTCHZNPT_MOTOROIL
 						default: product_type_bytes = 0x444D; break; // @v11.0.5
 					}
 					const char * p_serial = Check.ChZnSerial.NotEmpty() ? Check.ChZnSerial.cptr() : Check.ChZnPartN.cptr();

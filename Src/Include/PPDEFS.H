@@ -1496,6 +1496,7 @@
 #define PPTAG_GUA_CHZNLOCPMURL         131L // @v12.3.11 Параметры сервера для локальной проверки марок честный знак. Тег композитный - для редактирования применяется специальный диалог.
 #define PPTAG_PERSON_NOTCH             132L // @v12.4.11 Текстовый тег, содержащий одну или несколько текстовых меток для тонкой корректировки некоторых функций системы
 	// в применении к этой персоналии. Инициирующим толчком послужила необходимость модифицировать экспорт документов в формате nalog.ru в зависимости от контрагента или провайдера.
+#define PPTAG_GUA_CHZNTSPIOTURL        133L // @v12.5.11 Адрес компьютера, на котором установлен модуль тс-пиот для проверки марок честный знак 
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -5654,6 +5655,10 @@
 	#define CTL_SG_ZEROY                 (27 + WINDOWS_ID_BIAS)
 	#define CTL_SG_ZEROZ                 (28 + WINDOWS_ID_BIAS)
 	#define CTL_SG_ZEROW                 (29 + WINDOWS_ID_BIAS)
+	#define CTL_SG_CMD_SGDIMX            (30 + WINDOWS_ID_BIAS)
+	#define CTL_SG_CMD_SGDIMY            (31 + WINDOWS_ID_BIAS)
+	#define CTL_SG_CMD_SGDIMZ            (32 + WINDOWS_ID_BIAS)
+	#define CTL_SG_CMD_SGDIMW            (33 + WINDOWS_ID_BIAS)
 
 #define DLG_MSGNCMPL3             484 // CTL_MSGNCMPL_XXX
 #define DLG_GOODSS                485 // @obsolete @v4.6.4 Сокращенная форма диалога товара
@@ -11786,6 +11791,7 @@
 	#define CTL_COMPCAT_CNTEMPL            (4 + WINDOWS_ID_BIAS)
 #define DLG_CHKCHZNMARK           1442 // @v12.0.4 Тестовый диалог проверки марки честный знак
 	#define cmCheckOffline                 101 // @v12.3.12
+	#define cmCheckTsPiot                  102 // @v12.5.11 Проверка тс-пиот
 	#define CTL_CHKCHZNMARK_INPUT          (1 + WINDOWS_ID_BIAS)
 	#define CTL_CHKCHZNMARK_PIC            (2 + WINDOWS_ID_BIAS)
 	#define CTL_CHKCHZNMARK_INFO           (3 + WINDOWS_ID_BIAS)

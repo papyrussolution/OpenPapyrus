@@ -3993,7 +3993,7 @@ int PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID, int 
 						const LAssoc & r_pl = by_kpp_loc_list.at(0);
 						THROW(PsnObj.GetPacket(r_pl.Key, pPack, 0) > 0);
 						pack_extracted = 1;
-						for(uint dlp = 0; pPack->EnumDlvrLoc(&dlp, &loc_pack) > 0;) {
+						for(uint dlp = 0; pPack->EnumDlvrLoc(&dlp, &loc_pack);) {
 							if(loc_pack.ID == r_pl.Val) {
 								pPack->SelectedLocPos = dlp;
 								break;
@@ -4657,7 +4657,6 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 			PPID   ar_id = 0;
 			PPID   dlvr_loc_id = 0;
 			PPOprKind op_rec;
-			PPBillPacket::SetupObjectBlock sob;
 			if(!pPack) {
 				; // @skip next block
 			}
@@ -4723,12 +4722,18 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 						ArObj.P_Tbl->PersonToArticle(psn_shipper.Rec.ID, op_rec.AccSheetID, &ar_id);
 					else if(psn_suppl.Rec.ID)
 						ArObj.P_Tbl->PersonToArticle(psn_suppl.Rec.ID, op_rec.AccSheetID, &ar_id);
-					if(ar_id)
-						p_bp->SetupObject(ar_id, sob);
-					if(P_UtmEntry && P_UtmEntry->MainOrgID && AcsObj.IsLinkedToMainOrg(op_rec.AccSheet2ID)) {
+					{
 						PPID   ar2_id = 0;
-						ArObj.P_Tbl->PersonToArticle(P_UtmEntry->MainOrgID, op_rec.AccSheet2ID, &ar2_id);
-						p_bp->SetupObject2(ar2_id);
+						if(P_UtmEntry && P_UtmEntry->MainOrgID && AcsObj.IsLinkedToMainOrg(op_rec.AccSheet2ID)) {
+							ArObj.P_Tbl->PersonToArticle(P_UtmEntry->MainOrgID, op_rec.AccSheet2ID, &ar2_id);
+						}
+						if(ar_id) {
+							PPBillPacket::SetupObjectBlock sob_unused;
+							p_bp->SetupObject(ar_id, sob_unused);
+						}
+						if(ar2_id) { // @seeabove
+							p_bp->SetupObject2(ar2_id);
+						}
 					}
 					is_pack_inited = 1;
 				}
@@ -4768,14 +4773,19 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 								dlvr_loc_id = loc_pack.ID;
 						}
 					}
-					if(ar_id) {
-						p_bp->SetupObject(ar_id, sob);
-						freight.SetupDlvrAddr(dlvr_loc_id);
-					}
-					if(P_UtmEntry && P_UtmEntry->MainOrgID && AcsObj.IsLinkedToMainOrg(op_rec.AccSheet2ID)) {
+					{
 						PPID   ar2_id = 0;
-						ArObj.P_Tbl->PersonToArticle(P_UtmEntry->MainOrgID, op_rec.AccSheet2ID, &ar2_id);
-						p_bp->SetupObject2(ar2_id);
+						if(P_UtmEntry && P_UtmEntry->MainOrgID && AcsObj.IsLinkedToMainOrg(op_rec.AccSheet2ID)) {
+							ArObj.P_Tbl->PersonToArticle(P_UtmEntry->MainOrgID, op_rec.AccSheet2ID, &ar2_id);
+						}
+						if(ar_id) {
+							PPBillPacket::SetupObjectBlock sob_unused;
+							p_bp->SetupObject(ar_id, sob_unused);
+							freight.SetupDlvrAddr(dlvr_loc_id);
+						}
+						if(ar2_id) { // @seeabove
+							p_bp->SetupObject2(ar2_id);
+						}
 					}
 					is_pack_inited = 1;
 				}
@@ -7568,7 +7578,7 @@ int PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, long flag
 					// Note: Следующий вызов правильнее разместить в точке @1, однако пока
 					// механизмы не будут окончательно отлажены будем финишировать цикл
 					// обработки документа не зависимо от инфраструктуры хранения данных об
-					// отправленных и ожищающих ответа запросов (DGQ).
+					// отправленных и ожидающих ответа запросов (DGQ).
 					//
 					THROW(FinishBillProcessingByTicket(p_tick, 1));
 					if(!(flags & rifOffline) && diffdate(now_dtm.d, p_tick->TicketTime.d) > 1)

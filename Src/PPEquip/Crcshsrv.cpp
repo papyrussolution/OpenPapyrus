@@ -5694,29 +5694,6 @@ static void Cristal2SetRetailGateway_CSessDictionaryOutput(const char * pDictPat
 								}
 							}
 							{
-								/*
-									//
-									// Index flags
-									// Note:
-									//     XIF_DUP, XIF_MOD, XIF_REPDUP, XIF_ALLSEGNULL, XIF_ANYSEGNULL
-									//     flags must be equal for all segments of the same key
-									//
-									#define XIF_DUP            0x0001 // Index allows duplicates
-									#define XIF_MOD            0x0002 // Index is modifiable
-									#define XIF_BINARY         0x0004 // Standard binary type
-									#define XIF_ALLSEGNULL     0x0008 // Null Key (All-Segment)
-									#define XIF_SEG            0x0010 // Another seg is concat to this one in the index
-									#define XIF_ACS            0x0020 // There is alternate collating sequence
-									#define XIF_DESC           0x0040 // Index is in descending order
-									#define XIF_NAMED          0x0080 // Supplemental index v5.x
-									#define XIF_REPDUP         0x0080 // Repeating Duplicatable index v6.1
-									#define XIF_EXT            0x0100 // Index is an extended data type
-									#define XIF_ANYSEGNULL     0x0200 // Null Key (Any-Segment)
-									#define XIF_NOCASE         0x0400 // Case insensitivity
-									#define XIF_ALLSEGFLAGS (XIF_DUP|XIF_REPDUP|XIF_MOD|XIF_ALLSEGNULL|XIF_ANYSEGNULL)
-									#define XIF_UNIQUE     0x08000000 // Индекс уникальный (этот флаг используется только для //
-										// отрицания XIF_DUP. В словаре Btrieve не прописывается //
-								*/ 
 								SString index_buf;
 								for(uint ii = 0; ii < r_idx_list.getNumKeys(); ii++) {
 									BNKey k = r_idx_list.getKey(ii);

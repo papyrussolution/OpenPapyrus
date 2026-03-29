@@ -1,5 +1,5 @@
 // DBTABLE.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -616,8 +616,8 @@ int FASTCALL DBTable::getNumRecs(RECORDNUMBER * pNumRecs)
 {
 	DBFileSpec * p_info;
 	uint16 buf_size;
-	int    ok;
-	if((ok = getStat((void **)&p_info, &buf_size)) != 0) {
+	int    ok = getStat((void **)&p_info, &buf_size);
+	if(ok != 0) {
 		*pNumRecs = p_info->NumRecs;
 		delete p_info;
 	}
@@ -626,10 +626,10 @@ int FASTCALL DBTable::getNumRecs(RECORDNUMBER * pNumRecs)
 
 int DBTable::getNumKeys(int16 * pNumKeys)
 {
-	int    ok;
 	DBFileSpec * p_info;
 	uint16 buf_size;
-	if((ok = getStat((void **)&p_info, &buf_size)) != FALSE) {
+	int    ok = getStat((void **)&p_info, &buf_size);
+	if(ok != 0) {
 		*pNumKeys = p_info->NumKeys;
 		delete p_info;
 	}

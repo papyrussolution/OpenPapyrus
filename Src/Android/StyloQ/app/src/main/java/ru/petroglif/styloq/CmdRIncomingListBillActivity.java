@@ -1120,7 +1120,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 														if(ctl != null) {
 															int rcid = 0;
 															//
-															if(goods_item != null & goods_item.Item.ChZnCat > 0) {
+															if(goods_item != null & goods_item.Item.ChZnCat > 0 && goods_item.Item.ChZnMarkedWhs) { // @v12.5.11 (&& goods_item.Item.ChZnMarkedWhs)
 																mark_count = (ti.XcL != null) ? ti.XcL.size() : 0;
 																if(mark_count > 0) {
 																	rcid = R.drawable.ic_qrcode01scan;

@@ -30,18 +30,20 @@ S_GUID_Base & S_GUID_Base::Z()
 
 static char * FASTCALL format_uuid_part(const uint8 * pData, size_t numBytes, int useLower, char * pBuf)
 {
-	if(useLower)
+	if(useLower) {
 		switch(numBytes) {
 			case 2: sprintf(pBuf, "%04x", *reinterpret_cast<const uint16 *>(pData)); break;
 			case 4: sprintf(pBuf, "%08x", *reinterpret_cast<const uint32 *>(pData)); break;
 			case 1: sprintf(pBuf, "%02x", *pData); break;
 		}
-	else
+	}
+	else {
 		switch(numBytes) {
 			case 2:	sprintf(pBuf, "%04X", *reinterpret_cast<const uint16 *>(pData)); break;
 			case 4: sprintf(pBuf, "%08X", *reinterpret_cast<const uint32 *>(pData)); break;
 			case 1: sprintf(pBuf, "%02X", *pData); break;
 		}
+	}
 	return pBuf;
 }
 
@@ -656,6 +658,22 @@ SObjTextRefIdent::SObjTextRefIdent(int32 objType, int32 objID, int16 prop) : O(o
 
 SObjTextRefIdent::SObjTextRefIdent(const SObjID & rOid, int16 prop) : O(rOid), P(prop), L(0)
 {
+}
+
+SObjTextRefIdent & SObjTextRefIdent::Set(int32 objType, int32 objID, int16 prop)
+{
+	O.Set(objType, objID);
+	P = prop;
+	L = 0;
+	return *this;
+}
+
+SObjTextRefIdent & SObjTextRefIdent::Set(const SObjID & rOid, int16 prop)
+{
+	O = rOid;
+	P = prop;
+	L = 0;
+	return *this;
 }
 
 SObjTextRefIdent & SObjTextRefIdent::Z()

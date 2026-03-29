@@ -1813,8 +1813,7 @@ int PPObjPerson::GetPersonReq(PPID id, PersonReq * pPersonReq)
 		}
 		else
 			STRNSCPY(pPersonReq->ExtName, pack.Rec.Name);
-		// @v11.1.12 STRNSCPY(pPersonReq->Memo, pack.Rec.Memo);
-		STRNSCPY(pPersonReq->Memo, pack.SMemo); // @v11.1.12
+		STRNSCPY(pPersonReq->Memo, pack.SMemo);
 		pPersonReq->AddrID = pack.Rec.MainLoc;
 		pPersonReq->RAddrID = pack.Rec.RLoc;
 		pack.GetAddress(0, temp_buf);  temp_buf.CopyTo(pPersonReq->Addr, sizeof(pPersonReq->Addr));
@@ -2438,11 +2437,9 @@ int PPObjPerson::SerializePacket(int dir, PPPersonPacket * pPack, SBuffer & rBuf
 	LAssocArray rel_list;
 	SerializeSignature srzs(Obj, dir, rBuf); // @v11.1.12
 	THROW_SL(P_Tbl->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
-	// @v11.1.12 {
 	if(srzs.V.IsGe(11, 1, 12)) {
 		THROW_SL(pSCtx->Serialize(dir, pPack->SMemo, rBuf));
 	}
-	// } @v11.1.12
 	THROW_SL(pSCtx->Serialize(dir, &pPack->Kinds, rBuf));
 	if(dir > 0) {
 		pPack->GetExtName(ext_name);
@@ -3147,7 +3144,7 @@ int PPObjPerson::GetBankData(PPID id, PPBank * pData)
 		STRNSCPY(pData->BIC, temp_buf);
 		regs.GetRegNumber(PPREGT_BNKCORRACC, temp_buf);
 		STRNSCPY(pData->CorrAcc, temp_buf);
-		LocObj.GetCity(bnk_rec.MainLoc, 0, &temp_buf.Z(), 1); // @v8.7.12 useCache=1
+		LocObj.GetCity(bnk_rec.MainLoc, 0, &temp_buf.Z(), 1/*useCache*/);
 		STRNSCPY(pData->City, temp_buf);
 		GetExtName(id, temp_buf);
 		STRNSCPY(pData->ExtName, temp_buf);
@@ -3296,7 +3293,6 @@ int PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 	Reference * p_ref(PPRef);
 	ObjVersioningCore * p_ovc = p_ref->P_OvT;
 	PPPersonPacket org_pack;
-	// @v11.3.10 PPObjSCard * p_sc_obj = 0;
 	PPLocationPacket loc_pack;
 	PPIDArray dlvr_loc_list;
 	PPIDArray * p_dlvr_loc_list = 0;
@@ -3431,14 +3427,16 @@ int PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 						p_dlvr_loc_list = dlvr_loc_list.getCount() ? &dlvr_loc_list : 0;
 						THROW(p_ref->PutPropArray(Obj, id, PSNPRP_DLVRLOCLIST, p_dlvr_loc_list, 0));
 						// }
-						if(pPack->UpdFlags & PPPersonPacket::ufDontChgImgFlag)
+						if(pPack->UpdFlags & PPPersonPacket::ufDontChgImgFlag) {
 							SETFLAG(pPack->Rec.Flags, PSNF_HASIMAGES, org_rec.Flags & GF_HASIMAGES);
-						if(!(pPack->UpdFlags & PPPersonPacket::ufDontChgStaffAmt))
+						}
+						if(!(pPack->UpdFlags & PPPersonPacket::ufDontChgStaffAmt)) {
 							THROW(PutStaffAmtList(id, &pPack->Amounts));
+						}
 						THROW(P_Tbl->Put(&id, pPack, 0));
-						if(!sstreq(pPack->Rec.Name, org_rec.Name))
+						if(!sstreq(pPack->Rec.Name, org_rec.Name)) {
 							THROW(SendObjMessage(DBMSG_OBJNAMEUPDATE, PPOBJ_ARTICLE, PPOBJ_PERSON, id, pPack->Rec.Name, 0));
-						// @v11.3.10 {
+						}
 						assert(P_ScObj); // В начале функции мы должны были предусмотреть гарантированную инициализацию экземпляра
 						if(P_ScObj) {
 							PPIDArray sc_list;
@@ -3452,7 +3450,6 @@ int PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 								}
 							}
 						}
-						// } @v11.3.10
 						action = PPACN_OBJUPD;
 						dirty_id = id;
 					}

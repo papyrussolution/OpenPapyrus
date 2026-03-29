@@ -2041,10 +2041,10 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
+	TestGtinStruc();
 	//TestConfigDatabase_StringHistory();
-	TestConfigDatabase_StringHistory_Interactive();
+	//TestConfigDatabase_StringHistory_Interactive();
 	//Test_MySQL_ReadBLOB(); // @v12.5.7
-	//TestGtinStruc();
 	//SentencePieceExperiments();
 	//PPChZnPrcssr::Test();
 	//TestRestic();

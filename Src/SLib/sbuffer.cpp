@@ -1603,7 +1603,7 @@ int SSerializeContext::SerializeStateOfContext(int dir, SBuffer & rBuf)
 					THROW(p_new_item);
 					THROW(rBuf.Read(TempStrBuf));
 					THROW(rBuf.Read(p_new_item->DbtID));
-					THROW(SerializeFieldList(-1, &p_new_item->Fields, rBuf));
+					THROW(SerializeFieldList(-1, &p_new_item->Fields, rBuf)); // @20260327 Брейкпоинт с условием (i==7 && blk.StructCount==10) для поимки проблемы с тестовой mysql-базой
 					THROW(P_DbtDescrList->insert(p_new_item));
 					THROW(SymbTbl.Add(TempStrBuf, p_new_item->DbtID, 0));
 				}

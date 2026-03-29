@@ -2968,7 +2968,6 @@ int iSalesPepsi::ReceiveReceipts()
 					PPID   ex_bill_id = 0;
 					PPBillPacket pack;
 					Goods2Tbl::Rec goods_rec;
-					PPBillPacket::SetupObjectBlock sob;
 					src_receipt_code = p_src_pack->Code;
 					PPID   ar_id = P.SupplID;
 					PPID   loc_id = P.LocList.GetSingle();
@@ -2981,11 +2980,13 @@ int iSalesPepsi::ReceiveReceipts()
 						}
 					}
 					THROW(pack.CreateBlank_WithoutCode(acfg.Hdr.EdiDesadvOpID, 0, loc_id, 1));
-					pack.SetupObject(ar_id, sob);
+					{
+						PPBillPacket::SetupObjectBlock sob_unused;
+						pack.SetupObject(ar_id, sob_unused);
+					}
 					STRNSCPY(pack.Rec.Code, p_src_pack->Code);
 					pack.Rec.Dt = ValidDateOr(p_src_pack->Dtm.d, getcurdate_());
-					// @v11.1.12 STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
-					pack.SMemo = p_src_pack->Memo; // @v11.1.12
+					pack.SMemo = p_src_pack->Memo;
 					if(P_BObj->P_Tbl->SearchAnalog(&pack.Rec, BillCore::safDefault, &ex_bill_id, &ex_bill_rec) > 0) {
 						;
 					}
@@ -3108,7 +3109,6 @@ int iSalesPepsi::ReceiveVDocs()
 					PPID   ex_bill_id = 0;
 					PPBillPacket pack;
 					Goods2Tbl::Rec goods_rec;
-					PPBillPacket::SetupObjectBlock sob;
 					src_order_code = p_src_pack->Code;
 					const  PPID   _src_loc_id = p_src_pack->SrcLocCode.ToLong();
 					temp_buf = p_src_pack->PayerCode;
@@ -3154,7 +3154,8 @@ int iSalesPepsi::ReceiveVDocs()
 						else
 							R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_DLVRLOCNID, &msg_buf, static_cast<const char *>(pack.Rec.Code), _src_dlvrloc_id));
 						if(local_psn_id && ArObj.P_Tbl->PersonToArticle(local_psn_id, op_rec.AccSheetID, &ar_id)) {
-							if(!pack.SetupObject(ar_id, sob))
+							PPBillPacket::SetupObjectBlock sob_unused;
+							if(!pack.SetupObject(ar_id, sob_unused))
 								R_Logger.LogLastError();
 						}
 						else
@@ -3336,7 +3337,6 @@ int iSalesPepsi::ReceiveOrder_Csv(const char * pInBuf, size_t inBufLen)
 			SString isales_ident;
 			SString token;
 			SString prev_token;
-			PPBillPacket::SetupObjectBlock sob;
 			THROW(pack.CreateBlank_WithoutCode(op_id, 0, /*loc_id*/0, 1));
 			for(size_t offs = 0; inBufLen > offs;) {
 				size_t ll = InnerBlock::ReadLine(pInBuf+offs, inBufLen-offs, line_buf);
@@ -3413,6 +3413,7 @@ int iSalesPepsi::ReceiveOrder_Csv(const char * pInBuf, size_t inBufLen)
 								else
 									R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_DLVRLOCNID, &msg_buf, static_cast<const char *>(pack.Rec.Code), native_dlvrloc_id));
 								if(local_psn_id && ArObj.P_Tbl->PersonToArticle(local_psn_id, op_rec.AccSheetID, &ar_id)) {
+									PPBillPacket::SetupObjectBlock sob;
 									sob.Flags |= sob.fEnableStop;
 									if(!pack.SetupObject(ar_id, sob))
 										R_Logger.LogLastError();
@@ -3604,7 +3605,6 @@ int iSalesPepsi::ReceiveOrders()
 					PPID   ex_bill_id = 0;
 					PPBillPacket pack;
 					Goods2Tbl::Rec goods_rec;
-					PPBillPacket::SetupObjectBlock sob;
 					src_order_code = p_src_pack->Code;
 					const  PPID   _src_loc_id = p_src_pack->SrcLocCode.ToLong();
 					temp_buf = p_src_pack->PayerCode;
@@ -3636,8 +3636,7 @@ int iSalesPepsi::ReceiveOrders()
 					pack.Rec.DueDate = ValidDateOr(p_src_pack->IncDtm.d, ZERODATE);
 					if(treat_duedate_as_maindate && checkdate(pack.Rec.DueDate))
 						pack.Rec.Dt = pack.Rec.DueDate;
-					// @v11.1.12 STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
-					pack.SMemo = p_src_pack->Memo; // @v11.1.12
+					pack.SMemo = p_src_pack->Memo;
 					{
 						PPID   local_psn_id = _src_psn_id;
 						if(_src_dlvrloc_id && LocObj.Search(_src_dlvrloc_id, &loc_rec) > 0 && loc_rec.Type == LOCTYP_ADDRESS && 
@@ -3650,6 +3649,7 @@ int iSalesPepsi::ReceiveOrders()
 						else
 							R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_DLVRLOCNID, &msg_buf, static_cast<const char *>(pack.Rec.Code), _src_dlvrloc_id));
 						if(local_psn_id && ArObj.P_Tbl->PersonToArticle(local_psn_id, op_rec.AccSheetID, &ar_id)) {
+							PPBillPacket::SetupObjectBlock sob;
 							sob.Flags |= sob.fEnableStop;
 							if(!pack.SetupObject(ar_id, sob))
 								R_Logger.LogLastError();
@@ -5352,7 +5352,6 @@ int SapEfes::ReceiveOrders()
 					PersonTbl::Rec psn_rec;
 					BillTbl::Rec ex_bill_rec;
 					PPBillPacket pack;
-					PPBillPacket::SetupObjectBlock sob;
 					THROW(pack.CreateBlank_WithoutCode(acfg.Hdr.OpID, 0, loc_id, 1));
 					pack.Rec.Dt = p_src_pack->Date.d;
 					if(checkdate(p_src_pack->DueDate)) {
@@ -5378,7 +5377,7 @@ int SapEfes::ReceiveOrders()
 					}
 					if(Ep.Fb.CliCodeTagID && p_src_pack->Buyer.Code.NotEmpty()) {
 						p_ref->Ot.SearchObjectsByStr(PPOBJ_PERSON, Ep.Fb.CliCodeTagID, p_src_pack->Buyer.Code, &person_list);
-						uint pli = person_list.getCount();
+						uint   pli = person_list.getCount();
 						if(pli) do {
 							const  PPID _psn_id = person_list.get(--pli);
 							ArObj.P_Tbl->PersonToArticle(_psn_id, op_rec.AccSheetID, &contractor_ar_id);
@@ -5388,6 +5387,7 @@ int SapEfes::ReceiveOrders()
 						if(contractor_ar_id && contractor_ar_id != contractor_by_loc_ar_id) {
 							// message
 						}
+						PPBillPacket::SetupObjectBlock sob;
 						sob.Flags |= PPBillPacket::SetupObjectBlock::fEnableStop;
 						if(!pack.SetupObject(contractor_by_loc_ar_id, sob)) {
 							R_Logger.LogLastError();
@@ -5395,6 +5395,7 @@ int SapEfes::ReceiveOrders()
 						}
 					}
 					else if(contractor_ar_id) {
+						PPBillPacket::SetupObjectBlock sob;
 						sob.Flags |= PPBillPacket::SetupObjectBlock::fEnableStop;
 						if(!pack.SetupObject(contractor_ar_id, sob)) {
 							R_Logger.LogLastError();
@@ -5429,8 +5430,7 @@ int SapEfes::ReceiveOrders()
 								R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_AGENTNCODE, &msg_buf, (const char *)pack.Rec.Code, p_src_pack->TerrIdent.cptr()));
 							}
 						}
-						// @v11.1.12 STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
-						pack.SMemo = p_src_pack->Memo; // @v11.1.12
+						pack.SMemo = p_src_pack->Memo;
 						if(P_BObj->P_Tbl->SearchAnalog(&pack.Rec, BillCore::safDefault, &ex_bill_id, &ex_bill_rec) > 0) {
 							PPObjBill::MakeCodeString(&ex_bill_rec, PPObjBill::mcsAddOpName, temp_buf).Quot('(', ')');
 							if(PPGetMessage(mfError, PPERR_DOC_ALREADY_EXISTS, temp_buf, 1, msg_buf))

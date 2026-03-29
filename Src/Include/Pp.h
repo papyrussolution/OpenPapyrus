@@ -485,6 +485,7 @@ public:
 	static constexpr long   Signature_LaunchAppParam               = 0x4c484150L; // 'LHAP'
 	static constexpr uint32 Signature_EgaisMarkAutoSelector_ResultBlock = 0x938EF619U; // @v12.2.11 Сигнатура класса EgaisMarkAutoSelector::ResultBlock. Для сериализации.
 	static constexpr uint32 Signature_AdviseEventQueueClient       = 0x12ABCDEFU; // @v12.3.11 Сигнатура класса PPAdviseEventQueue::Client.
+	static constexpr uint32 Signature_BillAgreement_Serialize      = 0x5EA22F71U; // @v12.5.11 Сигнатура сериализации PPBill::AgreementBlock. При изменении формата возможно создание новых сигнатур.
 	static constexpr const char * P_SubjectDbDiv = "$PpyDbDivTransmission$";
 	static constexpr const char * P_SubjectOrder = "$PpyOrderTransmission$";
 	static constexpr const char * P_SubjectCharry = "$PpyCharryTransmission$";
@@ -1354,7 +1355,7 @@ private:
 	DBFieldList InhFldList;    // @viewstate Список полей, унаследованных из исходой таблицы
 	DBFieldList CrssFldList;   // @viewstate Список результирующих кросс-таб полей
 	DBFieldList AggrFldList;   // @viewstate Список агрегируемых полей
-	LongArray    AggrFuncList;  // @viewstate Список агрегатных функций, ассоциированный со списком AggrFldList
+	LongArray AggrFuncList;    // @viewstate Список агрегатных функций, ассоциированный со списком AggrFldList.
 	SStrCollection AggrFldColNames; // @viewstate Наименования столбцов агрегируемых полей
 	LAssocArray   AggrFldFormats; // @viewstate Формат и опции колонки
 	STypArray * P_CtValList;   // @viewstate
@@ -1927,7 +1928,7 @@ public:
 
 	struct StateIdent {
 		StateIdent();
-		int    Kind;
+		int    Kind;   // LocalStateBinderyCore::kXXX
 		int64  Subj;
 		SString Symb;
 	};
@@ -6641,7 +6642,7 @@ public:
 		HCURSOR OrgCur;
 		TView * PrevView;
 		ulong  PrevPercent;
-		ulong  PrevPromille; // @v11.4.4
+		ulong  PrevPromille;
 		SString Text;
 		SString PrevMsg;
 		SCycleTimer IdleTimer;
@@ -9778,7 +9779,7 @@ public:
 #define AGTF_DDLIST715           0x0100L // Установленный флаг означает, что в БД запись сохранена с форматом списка DebtLimitList v7.1.5
 #define AGTF_USESDONPURCHOP      0x0200L // Применять ограничение контрактных цен на операции закупки
 #define AGTF_DONTUSEMINSHIPMQTTY 0x0400L // Не следует применять минимальное отгружаемое количество (GoodsStockExt;:MinShippmQtty)
-#define AGTF_DEFAGENTLOCTODBDIV  0x0800L // @v11.0.10 Агент по умолчанию в соглашениях с поставщиками локален по отношению к разделу базы данных.
+#define AGTF_DEFAGENTLOCTODBDIV  0x0800L // Агент по умолчанию в соглашениях с поставщиками локален по отношению к разделу базы данных.
 	// То есть, при акцепте в разделе базы данных соглашения из другого раздела, поле агент-по-умолчанию не меняется.
 #define AGTF_PREPAYEDSALESONLY   0x1000L // @v11.3.2 @construction Отгрузка клиенту допускается только по предоплате
 #define AGTF_INHSUPPLTAXGRPINLOT 0x2000L // @v12.2.1 (только общее соглашение) При создании строки приходного документа налоговую группу поставщика (PPTAG_PERSON_SPCTAXGROUP) наследовать в лоте
@@ -11743,6 +11744,70 @@ private:
 
 class PPBill : public ObjTagContainerHelper {
 public:
+	//
+	// Descr: Блок, содержащий данные о договоре на поставку/продажу. Используется в документах, относящихся к
+	//   типу операции PPOPT_AGREEMENT.
+	//   Для сохранения в базе данных проецируется на Agreement_Strg
+	//
+	struct AgreementBlock { // @persistent @store(SSerializeContext)
+		//
+		// Descr: Функция сериализации объекта. 
+		//   В составе пакета документа этот блок удерживается как указатель на динамически распределенный экземпляр.
+		//   Чтобы правильно сериализовать нулевой указатель функция и сделана статической.
+		//
+		static int Serialize_Static(AgreementBlock ** ppThis, int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+
+		AgreementBlock();
+		AgreementBlock(const AgreementBlock & rS);
+		AgreementBlock & FASTCALL operator = (const AgreementBlock & rS);
+		AgreementBlock & Z(); // @v12.5.10
+		//
+		// Note: не учитывает поля {ID, Dt, Code}
+		//
+		bool   IsEmpty() const;
+		//
+		// Note: не учитывает поля {ID, Dt, Code}
+		//
+		bool   FASTCALL IsEq(const AgreementBlock & rS) const;
+		int    FASTCALL Copy(const AgreementBlock & rS);
+		//
+		// Descr: Применяет параметры соглашения this к клиентскому соглашению rCliAgt. В результате блоком rCliAgt
+		//   можно пользоваться на прикладном уровне так, словно это и есть полное соглашение с клиентом.
+		// Note: Мотивация для ввода функции - необходимость отдельных документов соглашений, к которым привязываются иные клиентские документы
+		//   при том, что вся инфраструктура системы завязана на PPClientAgreement.
+		// Returns:
+		//   >0 - часть параметров rCliAgt была замещеная из this
+		//   <0 - rCliAgt остался неизменным. Например, из-за того, что this имеет признаки неопределенного.
+		//    0 - error
+		//
+		int    ApplyTo(PPClientAgreement & rCliAgt);
+		int    ApplyTo(PPSupplAgreement & rSupplAgt);
+
+		// @v12.5.11 long   ObjType;          // Const=PPOBJ_BILL
+		// @v12.5.11 long   ObjID;            // BillID
+		// @v12.5.11 long   Prop;             // Const=BILLPRP_AGREEMENT
+		// start Text {
+		PPID   ID;               // @transient ИД документа договора 
+		LDATE  Dt;               // @transient Дата документа договора 
+		char   Code[48];         // @transient Номер документа договора 
+		long   Flags;            // @flags
+		LDATE  Expiry;           // Дата истечения срока действия договора
+		double MaxCredit;        // Максимальный кредит
+		double MaxDscnt;         // Максимальная скидка в %% (>= 100% - неограниченная)
+		double Dscnt;            // Обычная скидка в %%
+		PPID   DefAgentID;       // Агент, закрепленный за клиентом
+		PPID   DefQuotKindID;    // Вид котировки, закрепленный за клиентом
+		long   PaymDateBase;     //
+		int16  DefPayPeriod;     // Количество дней от отгрузки до оплаты по умолчанию
+		int16  RetLimPrd;        // Период ограничения доли возвратов от суммы товарооборота
+		uint16 RetLimPart;       // Макс доля возвратов от суммы товарооборота за период RetLimPrd (в промилле)
+		int16  DefDlvrTerm;      // Срок доставки товара в днях, начиная с даты документа закупки
+		int16  PctRet;           // Максимальный объем возврата товара по накладной в процентах от суммы накладной //
+		uint16 Reserve;          // @alignment
+		// @v12.5.11 uint8  ReserveEnd[8];
+		// @v12.5.11 int32  ReserveVal1;
+		// @v12.5.11 int32  ReserveVal2;
+	};
 	PPBill();
 	PPBill(const PPBill & rS);
 	PPBill & FASTCALL operator = (const PPBill & rS);
@@ -11756,7 +11821,7 @@ public:
 	//
 	int    SetPayDate(LDATE dt, double amount);
 	//
-	// Descr: Присваивает по указателю pFreight блок данных о фрайхте документа.
+	// Descr: Присваивает по указателю pFreight блок данных о фрахте документа.
 	// ARG(pFreight IN): @#{vptr0}
 	// Returns:
 	//   >0 - this->P_Freight != 0
@@ -11766,16 +11831,31 @@ public:
 	int    FASTCALL SetFreight(const PPFreight * pFreight);
 	int    FASTCALL SetFreight_DlvrAddrOnly(PPID dlvrAddrID);
 	PPID   GetDlvrAddrID() const;
+	//
+	// @internal
+	// Descr: Если P_Agt != 0, то устанавливает в соглашение заголовочные поля {this->Rec.Dt, this->Rec.Code}.
+	// ARG(allocate IN): Если P_Agt == 0, то распределеяет создает экземпляр по этому указателю.
+	// Returns:
+	//   true - функция успешно выполнена
+	//   false - ошибка распределения памяти под указатель P_Agt
+	//
+	bool   SetupAgreement(bool allocate);
+	//
+	// @internal
+	// Descr: Если pAgt != 0 и pThis != 0, то устанавливает в соглашение заголовочные поля {pThis->Rec.Dt, pThis->Rec.Code}.
+	//
+	static void SetupAgreement(const PPBill * pThis, AgreementBlock * pAgt);
+	static void SetupAgreement(const BillTbl::Rec * pBillRec, AgreementBlock * pAgt);
 
 	BillTbl::Rec Rec;
-	SString SMemo; // @v11.1.12 replacemnt for the BillTbl::Rec::Memo
+	SString SMemo;    // Примечание к документу. Хранится в UnxTextRef {PPOBJ_BILL, id, PPTRPROP_MEMO}
 	AmtList Amounts;
 	PayPlanArray Pays;
 	PPBillExt    Ext;
 	PPRentCondition  Rent;
 	PPBankingOrder * P_PaymOrder;
 	PPFreight * P_Freight;
-	PPAdvanceRep   * P_AdvRep;
+	PPAdvanceRep * P_AdvRep;
 	//
 	// @v9.8.11 Следующие компоненты перенесены из PPBillPacket и из ILBillPacket
 	// с целью избежать дублирования функционала, управляющего этими компонентами и в обоих контейнерах.
@@ -11794,42 +11874,6 @@ public:
 	PPLotExtCodeContainer _VXcL; // Валидирующий контейнер спецкодов. Применяется для проверки
 		// кодов, поступивших с документом в XcL
 	SVerT  Ver; // Версия системы, которая создала сериализованную копию объекта
-	//
-	// Descr: Блок, содержащий данные о договоре на поставку/продажу. Используется в документах, относящихся к
-	//   типу операции PPOPT_AGREEMENT.
-	//
-	struct AgreementBlock { // @persistent
-		AgreementBlock();
-		AgreementBlock(const AgreementBlock & rS);
-		AgreementBlock & FASTCALL operator = (const AgreementBlock & rS);
-		AgreementBlock & Z(); // @v12.5.10
-		bool   IsEmpty() const;
-		bool   FASTCALL IsEq(const AgreementBlock & rS) const;
-		int    FASTCALL Copy(const AgreementBlock & rS);
-
-		long   ObjType;          // Const=PPOBJ_BILL
-		long   ObjID;            // BillID
-		long   Prop;             // Const=BILLPRP_AGREEMENT
-		// start Text {
-		long   Flags;            // @flags
-		LDATE  Expiry;           // Дата истечения срока действия договора
-		double MaxCredit;        // Максимальный кредит
-		double MaxDscnt;         // Максимальная скидка в %% (>= 100% - неограниченная)
-		double Dscnt;            // Обычная скидка в %%
-		PPID   DefAgentID;       // Агент, закрепленный за клиентом
-		PPID   DefQuotKindID;    // Вид котировки, закрепленный за клиентом
-		long   PaymDateBase;     //
-		int16  DefPayPeriod;     // Количество дней от отгрузки до оплаты по умолчанию
-		int16  RetLimPrd;        // Период ограничения доли возвратов от суммы товарооборота
-		uint16 RetLimPart;       // Макс доля возвратов от суммы товарооборота за период RetLimPrd (в промилле)
-		int16  DefDlvrTerm;      // Срок доставки товара в днях, начиная с даты документа закупки
-		int16  PctRet;           // Максимальный объем возврата товара по накладной в процентах от суммы накладной //
-		uint16 Reserve;          // @alignment
-		uint8  ReserveEnd[8];
-		// } end Text
-		int32  ReserveVal1;
-		int32  ReserveVal2;
-	};
 	AgreementBlock * P_Agt;
 };
 //
@@ -11877,13 +11921,8 @@ struct PPCurTransit {      // @transient
 //
 //
 struct BillVatEntry {
-	BillVatEntry() : Rate(0.0), VatSum(0.0), BaseAmount(0.0), AmountByVat(0.0)
-	{
-	}
-	bool   FASTCALL IsEq(const BillVatEntry & rS) const
-	{
-		return (Rate == rS.Rate && VatSum == rS.VatSum && BaseAmount == rS.BaseAmount && AmountByVat == rS.AmountByVat);
-	}
+	BillVatEntry();
+	bool   FASTCALL IsEq(const BillVatEntry & rS) const;
 	double Rate;
 	double VatSum;      // Сумма НДС
 	double BaseAmount;  // Сумма налогооблагаемой базы (без НДС)
@@ -12321,10 +12360,14 @@ public:
 		enum {
 			stHasCliAgreement       = 0x0001,
 			stHasSupplAgreement     = 0x0002,
-			stHasDedicatedAgreement = 0x0004  // @v12.5.10 
+			stHasDedicatedAgreement = 0x0004, // @v12.5.10 
+			stForceReplaceAgtBill   = 0x0008, // @v12.5.11 По совокупности факторов контекста в документе должен быть изменен документ договора на DedicatedAgt.ID
+			stForceRemoveAgtBill    = 0x0010, // @v12.5.11 По совокупности факторов контекста в документе должна быть снята привязка к документу договора
+			stArIsStopped           = 0x0020, // @v12.5.11 У основной статьи по документу установлен флаг ARTRF_STOPBILL
 		};
 		long   State;
 		PPID   PsnID;
+		PPID   AcsID; // @v12.5.11 Таблица статей, которой принадлежит (потенциальная)основная статья документа
 		SString Name;
 		LAssocArray RegInfoList; // Список регистров, с которыми у контрагента существует проблема.
 			// Поле Key каждого элемента хранит ID типа регистрационного документа,
@@ -12841,6 +12884,7 @@ private:
 	int    Helper_DistributeExtCost(double extCostSum, int alg);
 	int    DistributeExtCost();
 	void   Implement_SumAmounts(AmtList & rList, const PPBillPacket * pOrgPack, int * pFirstDiffRowN);
+	int    PreprocessArContext(PPID arID, PPID ar2ID, SetupObjectBlock & rRet); // @v12.5.11
 
 	PPTrfrArray Lots;
 	TiIter * P_Iter;
@@ -24769,6 +24813,7 @@ private:
 #define GTCHZNPT_PETFOOD            UED::GetRawValue32(UED_RUCHZNPRODTYPE_PETFOOD)/*19*/ // @v12.3.9 Корм для животных
 #define GTCHZNPT_VEGETABLEOIL       UED::GetRawValue32(UED_RUCHZNPRODTYPE_VEGETABLEOIL)/*20*/ // @v12.4.8 Растительное масло
 #define GTCHZNPT_NCP                UED::GetRawValue32(UED_RUCHZNPRODTYPE_NCP)/*21*/ // @v12.5.6 Никотиносодержащая продукция //
+#define GTCHZNPT_MOTOROIL           UED::GetRawValue32(UED_RUCHZNPRODTYPE_MOTOROIL)/*22*/ // @v12.5.11 Моторное масло //
 
 struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	PPGoodsType2();
@@ -27354,6 +27399,14 @@ struct CashierInfo {
 
 class PPPersonPacket : public PPPerson, public ObjTagContainerHelper { // Managed by class PPObjPerson
 public:
+	//
+	// Descr: Текстовые поля расширения персоналии //
+	//
+	enum { // @persistent
+		extssExtName = 1, // Расширенное (очень длинное) имя персоналии
+		extssLabels  = 2, // @v12.5.11 @centrigo Тег-метки персоналии
+		extssAtrText = 3, // @v12.5.11 @centrigo Текст, содержащий атрибуты персоналии, введенные в произвольном текстовом виде (телефоны, адреса, инн etc). Не путать с примечанием.
+	};
 	PPPersonPacket();
 	PPPersonPacket(const PPPersonPacket & rS);
 	~PPPersonPacket();
@@ -27408,7 +27461,7 @@ public:
 	uint   GetDlvrLocCount() const;
 	int    AddDlvrLoc(const PPLocationPacket & rAddr);
 	int    PutDlvrLoc(uint pos, const PPLocationPacket * pAddr);
-	void   ClearDlvrLocList();      // @Muxa  @v7.3.7
+	void   ClearDlvrLocList(); // @Muxa
 	//
 	// Descr: Замещает адрес доставки locID в пакете на адрес доставки с идентификатором replacementID.
 	// Note: Фукнция проверяет идентификатор replacementID на существование и, кроме того, проверяет
@@ -27423,14 +27476,14 @@ public:
 	int    SetSCard(const PPSCardPacket * pScPack, int autoCreate);
 	const  PPSCardPacket * GetSCard() const;
 
-	RegisterArray    Regs;          // Список регистров
-	PPLocationPacket Loc;           // Юридический адрес
-	PPLocationPacket RLoc;          // Фактический адрес
-	PPELinkArray ELA;           // Список электронных адресов
-	CashierInfo  CshrInfo;      // Специфическая информация о кассире (для загрузки в кассовые модули)
-	ObjLinkFiles LinkFiles;     // @transient
-	ObjTagList   TagL;          // @transient
-	StaffAmtList Amounts;       // Список штатных сумм (только для работодателей)
+	RegisterArray    Regs;  // Список регистров
+	PPLocationPacket Loc;   // Юридический адрес
+	PPLocationPacket RLoc;  // Фактический адрес
+	PPELinkArray ELA;       // Список электронных адресов
+	CashierInfo  CshrInfo;  // Специфическая информация о кассире (для загрузки в кассовые модули)
+	ObjLinkFiles LinkFiles; // @transient
+	ObjTagList   TagL;      // @transient
+	StaffAmtList Amounts;   // Список штатных сумм (только для работодателей)
 	enum {
 		ufDontChgImgFlag  = 0x0001, // Функция PPObjPerson::PutPacket не должна изменять флаг GF_HASIMAGES
 		ufDontChgStaffAmt = 0x0002, // Функция PPObjPerson::PutPacket не должна изменять список штатных сумм
@@ -27448,7 +27501,8 @@ public:
 	//
 	long   SelectedLocPos;          // @transient
 private:
-	SString ExtString;
+	SString ExtString; // Здесь сейчас хранится только расширенное имя персоналии. В базе данных держится в Prop {PSNPRP_EXTSTRDATA}. 
+		// @todo @20260328 Перестроить на хранение набора строк расширения (PPExtStrContainer) и перенести в UnxTextRef
 	TSCollection <PPLocationPacket> DlvrLocList; // Список адресов доставки
 	PPSCardPacket * P_SCardPack; // @transient Используется при одновременном редактировании персоналии и карты
 };
@@ -35047,7 +35101,7 @@ public:
 	int    ExtractPacket(PPID id, PPBillPacket * pPack);
 	int    ExtractPacketWithFlags(PPID id, PPBillPacket * pPack, uint flags /* BPLD_XXX */);
 	int    ExtractPacketWithRestriction(PPID id, PPBillPacket * pPack, uint flags /* BPLD_XXX */, const PPIDArray * pGoodsList);
-	int    GetMostSuitableAgreement(const PPBillPacket & rPack, PPID * pAgtBillID);
+	int    GetMostSuitableAgreement(/*const PPBillPacket & rPack,*/LDATE dt, PPID arID, PPID ar2ID, PPID * pAgtBillID);
 	//
 	// Descr: Выясняет содержит ли документ с идентификатором id по крайней мере один товар из списка rGoodsList.
 	//   NB: Список rGoodsList должен быть отсортирован по возврстанию (LongArray::sort)
@@ -35889,8 +35943,7 @@ private:
 	int    Helper_WrOffDrft_DrftRcptModif(WrOffDraftBlock & rBlk, PPIDArray * pWrOffBills);
 	int    Helper_WrOffDrft_Acct(WrOffDraftBlock & rBlk, int use_ta);
 	int    Helper_PutBillToMrpTab(PPID billID, MrpTabPacket *, const PPDraftOpEx *, int use_ta);
-	// @v11.1.12 int    InitDraftWrOffPacket(const PPDraftOpEx *, const BillTbl::Rec *, PPBillPacket *, int use_ta);
-	int    InitDraftWrOffPacket(const PPDraftOpEx *, const PPBillPacket * pDraftPack, PPBillPacket *, int use_ta); // @v11.1.12
+	int    InitDraftWrOffPacket(const PPDraftOpEx *, const PPBillPacket * pDraftPack, PPBillPacket *, int use_ta);
 	int    RemoveTransferItem(PPID billID, int rByBill, int force = 0);
 	int    ProcessLink(BillTbl::Rec & rRec, PPID paymLinkID, const BillTbl::Rec * pOrgRec);
 	int    ProcessShadowPacket(PPBillPacket *, int update);
@@ -38065,7 +38118,7 @@ struct PPTechPacket {
 	PPTechPacket();
 	TechTbl::Rec Rec;
 	SString ExtString;
-	SString SMemo; // @v11.1.12
+	SString SMemo;
 };
 
 class PPObjTech : public PPObject {
@@ -40288,7 +40341,7 @@ public:
 		ordByCode               = 1,
 		ordByObject             = 2,
 		ordByDateCode           = 3, // Сортировка по дате и номеру
-		ordByContragentDateCode = 4, // @todo @v12.5.10
+		ordByContragentDateCode = 4, // @v12.5.10 @construction
 	};
 	//
 	// Идентификаторы (дополнительных) полей для отображения в таблице //
@@ -40395,7 +40448,8 @@ public:
 		OrdByCode,
 		OrdByObjectName,
 		OrdByOpName,
-		OrdByDateCode // @v11.0.11
+		OrdByDateCode,
+		OrdByContragentDateCode, // @v12.5.11
 	};
 
 	PPViewBill();
@@ -47412,6 +47466,26 @@ private:
 	SArray * P_Items;
 	GoodsTrnovrFilt Filt;
 	IterCounter Cntr;
+};
+
+class PPViewGoodsTrnovr2 : public PPView { // @v12.5.11 will replace the PPViewGoodsTrnovr
+public:
+	PPViewGoodsTrnovr2();
+	~PPViewGoodsTrnovr2();
+	virtual int  EditBaseFilt(PPBaseFilt * pBaseFilt);
+	virtual int  Init_(const PPBaseFilt * pBaseFilt);
+	int    InitIteration();
+	int    FASTCALL NextIteration(GoodsTrnovrViewItem * pItem);
+private:
+	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual int  Print(const void *);
+	virtual int  Detail(const void *, PPViewBrowser * pBrw);
+	virtual void ViewTotal();
+	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+
+	GoodsTrnovrFilt Filt;
+	SArray * P_DsList;
 };
 //
 // Descr: План платежей
@@ -54855,7 +54929,7 @@ public:
 	PPViewBrowser(uint brwId, SArray *, PPView *, int dataOwner);
 	~PPViewBrowser();
 	void   Update(); // @>>PPViewBrowser::updateView()
-	int    SetRefreshPeriod(long);
+	int    SetRefreshPeriod(long periodMs);
 	//
 	// Descr: Экспортирует содержимое таблицы в Excel
 	//
@@ -60938,7 +61012,8 @@ private:
 //
 class PPChZnPrcssr : private PPEmbeddedLogger {
 public:
-	static constexpr int LocalSvrDefaultPort = 5995;
+	static constexpr int LocalSvrDefaultPort  =  5995;
+	static constexpr int TsPiotSvrDefaultPort = 51401; // @v12.5.11
 
 	struct Param {
 		Param();
@@ -60956,7 +61031,7 @@ public:
 		enum {
 			_afQueryTicket    = 0x0001,
 			_afQueryKizInfo   = 0x0002,
-			_afSendCc         = 0x0004, // @v11.0.1 Отправка кассовых чеков
+			_afSendCc         = 0x0004, // Отправка кассовых чеков
 			_afQueryDocListIn = 0x0008, // @v11.8.2 Запрос списка входящих документов
 		};
 		long   DocType;
@@ -61106,9 +61181,19 @@ public:
 	//
 	class TsPiotInterface { // @v12.5.11 
 	public:
-		TsPiotInterface();
+		explicit TsPiotInterface(InetUrl & rLocalSvrUrl);
 		~TsPiotInterface();
-		int    Query(int protVer);
+
+		struct QueryBlock {
+			SString AppName; // @utf8 наименование ПМСР (кассового ПО)
+			SVerT  AppVer;   
+			S_GUID AppUuid;
+			SBinaryChunk AppToken;
+		};
+		int    CheckCodeList(const QueryBlock & rQBlk, CodeStatusCollection & rList);
+	private:
+		InetUrl SvrUrl; // URL сервера, на котором расположен, блядь, тс-пиот.
+		PPGlobalServiceLogTalkingHelper Lth;
 	};
 	//
 	// Descr: Интерфейс с разрешительным режимом честный знак
@@ -61208,6 +61293,7 @@ public:
 	//   2 - regular mode: try online and if failed then try offline
 	//
 	static int PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offlineMode, CodeStatusCollection & rList);
+	static int TsPiotCheck(PPID guaID, CodeStatusCollection & rList); // @v12.5.11
 private:
 	int    PrepareBillPacketForSending(PPID billID, void * pChZnPacket);
 	void * P_Ib; // Блок инициализации
@@ -63368,8 +63454,8 @@ int    EditSecurDialog(PPID obj, PPID * id, void * extraPtr);
 int    STDCALL ViewLots(const LotFilt *, int asOrders, int modeless);
 int    STDCALL ViewLots(PPID goodsID, PPID locID, PPID supplID, PPID qcertID, int modeless);
 int    BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pExt, ObjTagList * pTagList, int isFilt);
-int    BillFilterDialog(uint rezID, BillFilt *, const char * addText = 0);
-int    BillFilterDialog(uint rezID, BillFilt *, TDialog ** d, const char * addText = 0);
+int    BillFilterDialog(uint dlgID, BillFilt *, const char * addText = 0);
+int    BillFilterDialog(uint dlgID, BillFilt *, TDialog ** d, const char * addText = 0);
 int    ViewStatus();
 int    ViewPredictSales(PredictSalesFilt *);
 void   STDCALL SetPeriodInput(TDialog *, uint fldID, const DateRange & rPeriod);
@@ -64242,6 +64328,7 @@ int Convert12207(); // @v12.2.7 VATBook (добавлены дополнител
 int Convert12401(); // @v12.4.1 LocTransf
 int Convert12407(); // @v12.4.7 PrjTask
 int Convert12506(); // @v12.5.6 Workbook
+int Convert12511(); // @v12.5.11 CCheckPaym, GeoTrack. Элиминация xxxsegnull-индексов
 int DoChargeSalary();
 int DoDebtRate();
 int DoBizScore(PPID bzsID);

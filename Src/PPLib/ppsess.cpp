@@ -4181,6 +4181,7 @@ int PPSession::Implement_PPLogin(const PPDbEntrySet2 * pDbes, const char * pDbSy
 						THROW(Convert12401()); // @v12.4.1 LocTransf
 						THROW(Convert12407()); // @v12.4.7 PrjTask
 						THROW(Convert12506()); // @v12.5.6 Workbook
+						THROW(Convert12511()); // @v12.5.11 CCheckPaym, GeoTrack. Элиминация xxxsegnull-индексов
 						{
 							PPVerHistory verh;
 							PPVerHistory::Info vh_info;

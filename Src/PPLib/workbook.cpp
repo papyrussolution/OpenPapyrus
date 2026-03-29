@@ -346,7 +346,7 @@ int PPObjWorkbook::SearchByName(const char * pName, PPID * pID, WorkbookTbl::Rec
 
 int PPObjWorkbook::SearchBySymb(const char * pSymb, PPID * pID, WorkbookTbl::Rec * pRec)
 {
-	//Symb (allsegnull unique mod);        // #5
+	//Symb (allsegnull unique mod); // #5
 	WorkbookTbl::Key5 k5;
 	MEMSZERO(k5);
 	strip(STRNSCPY(k5.Symb, pSymb));

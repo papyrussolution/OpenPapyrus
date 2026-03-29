@@ -1467,6 +1467,7 @@ public:
 	static constexpr uint64 DBConnSignature   = 0xDE4F9DF4FE840FDEULL; // @v12.5.4 Сигнатура объекта DbProvider::Connection
 	static constexpr uint32 Signature_TView   = 0x09990999UL;          // @v12.5.7 Сигнатура классов, порожденных от TView до уровня TWindow (не включая TWindow)
 	static constexpr uint32 Signature_TWindow = 0x09990997UL;          // @v12.5.7 Сигнатура классов, порожденных от TWindow
+	static constexpr uint32 Seed32_FileName   = 0x1357ACE1UL;          // @v12.5.11 HashSeed для формирование хэшей имен файлов
 };
 // @v11.7.4 extern const SlConstParam _SlConst_Removed;
 //
@@ -7325,6 +7326,8 @@ public:
 	SObjTextRefIdent(const SObjID & rOid, int16 prop);
 	SObjTextRefIdent & Z();
 	bool   operator !() const;
+	SObjTextRefIdent & Set(int32 objType, int32 objID, int16 prop);
+	SObjTextRefIdent & Set(const SObjID & rOid, int16 prop);
 	//
 	// Descr: Формирует канонизированную строку вида {O.Obj;O.Id;P;L}.
 	//
@@ -13665,7 +13668,7 @@ private:
 	};
 
 	const  uint BucketCount;
-	const  uint HashSeed;
+	// @v12.5.11 const  uint HashSeed;
 	uint   State;
 	SString BasePath;
 	struct InnerWritingBlock {

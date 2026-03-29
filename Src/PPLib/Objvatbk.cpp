@@ -3319,7 +3319,7 @@ int PPViewVatBook::Export()
                             	//n_item.PutAttrib("Ќом»спр—ч‘", temp_buf.Z());
                             	//n_item.PutAttrib("ƒата»спр—ч‘", temp_buf.Z());
                             	if(item.CBillCode[0]) {
-									n_item.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VATB_CINVCN)/*"Ќом —ч‘ѕрод"*/, item.CBillCode);
+									n_item.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VATB_CINVCN)/*"Ќом —ч‘ѕрод"*/, (temp_buf = item.CBillCode).Transf(CTRANSF_INNER_TO_OUTER)); // @v12.5.11 @fix encoding
 									n_item.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VATB_CINVCD)/*"ƒата —ч‘ѕрод"*/, temp_buf.Z().Cat(item.CBillDt, DATF_GERMANCENT));
                             	}
                             	//n_item.PutAttrib("Ќом»спр —ч‘", temp_buf.Z());

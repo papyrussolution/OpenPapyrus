@@ -3162,6 +3162,16 @@ int DlContext::ResolveDbIndexFlag(const char * pSymb)
 		attr.A = DlScope::sfDbiAnySegNull;
 		p_scope->SetAttrib(attr);
 	}
+	// @v12.5.11 {
+	else if(sstreqi_ascii(pSymb, "OPT_ALLSEGNULL")) { 
+		attr.A = (DlScope::sfDbiAllSegNull|DlScope::sfDbiSegNullOpt);
+		p_scope->SetAttrib(attr);
+	}
+	else if(sstreqi_ascii(pSymb, "OPT_ANYSEGNULL")) {
+		attr.A = (DlScope::sfDbiAnySegNull|DlScope::sfDbiSegNullOpt);
+		p_scope->SetAttrib(attr);
+	}
+	// } @v12.5.11 
 	else {
 		Error(PPERR_DL6_INVIDXSEGFLAG, pSymb, erfLog);
 		ok = 0;
@@ -4168,7 +4178,8 @@ int DlContext::Write_Func(Generator_CPP & gen, const DlFunc & rFunc, int format,
 
 int DlContext::Write_IDL_Attr(Generator_CPP & gen, const DlScope & rScope)
 {
-	SString line_buf, temp_buf;
+	SString temp_buf;
+	SString line_buf;
 	uint   pos = 0;
 	int    next = 0;
 	S_GUID uuid;
@@ -4358,7 +4369,8 @@ int DlContext::MakeDlRecName(const DlScope * pRec, int instanceName, SString & r
 {
 	int    ok = 1;
 	rBuf.Z();
-	SString left, right;
+	SString left;
+	SString right;
 	if(pRec->IsKind(DlScope::kExpDataHdr))
 		rBuf = instanceName ? "H" : "Head";
 	else if(pRec->IsKind(DlScope::kExpDataIter))

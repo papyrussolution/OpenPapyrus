@@ -26,6 +26,7 @@ declare command SETUPSARTREINDICATORS    // @internal
 declare command USERSORT                 // @internal ¬ызываетс€ базовым классом PPViewBrowser в ответ на cmSort дл€ информировани€ порожденного класса о том, что надо отсортировать данные
 declare command FOREIGNFOCUCNOTIFICATION // @v11.1.12 ¬ызываетс€ базовым классом PPViewBrowser в ответ на cmNotifyForeignFocus
 declare command QUICKTAGEDIT             // @v11.2.8  ¬ызываетс€ базовым классом PPViewBrowser в ответ на нажатие '/' и следом гор€чей клавиши редактировани€ тега
+declare command IDLE                     // @internal @v12.5.11  ¬ызываетс€ базовым классом PPViewBrowser в ответ cmIdle (если установлен IdleTimer)
 //
 // —писок изображений дл€ иконок тулбаров
 // (текст после TBBM_ должен с точностью до регистра совпадать с наименованием соответствующего файла в каталоге)
@@ -2895,23 +2896,23 @@ browser TRFRANLZ_GC north(100), 1, 2, "@{view_trfranlz}", OWNER|GRID, 0
 //
 browser GOODSTURNOVER_BYLOC north(100), 3, 1, "@{view_goodstrnovr}", OWNER|GRID, 0
 {
-	"@date", 0, zstring(12), 0, 8
+	"@date",                          0, zstring(48), 0, 8 // @v12.5.11 (12)-->(48)
 	group "@goodsreceipt" {
-		"@supplier",               12, double, NMBF_NOZERO, 9.2
-		"@oprcategory_intrrcpt_2", 20, double, NMBF_NOZERO, 9.2
+		"@supplier",                 48, double, NMBF_NOZERO, 9.2 // @v12.5.11 offset +36
+		"@oprcategory_intrrcpt_2",   56, double, NMBF_NOZERO, 9.2 // @v12.5.11 offset +36
 	}
 	group "@return" {
-		"@selling_retail", 28, double, NMBF_NOZERO, 9.2
-		"@client",    36, double, NMBF_NOZERO, 9.2
-		"@supplier",  44, double, NMBF_NOZERO, 9.2
+		"@selling_retail",           64, double, NMBF_NOZERO, 9.2 // @v12.5.11 offset +36
+		"@client",                   72, double, NMBF_NOZERO, 9.2 // @v12.5.11 offset +36
+		"@supplier",                 80, double, NMBF_NOZERO, 9.2 // @v12.5.11 offset +36
 	}
 	group "@expend" {
-		"@selling_retail",          52, double, NMBF_NOZERO, 9.2
-		"@client",                  60, double, NMBF_NOZERO, 9.2
-		"@oprcategory_intrexpnd_2", 68, double, NMBF_NOZERO, 9.2
+		"@selling_retail",           88, double, NMBF_NOZERO, 9.2 // @v12.5.11 offset +36
+		"@client",                   96, double, NMBF_NOZERO, 9.2 // @v12.5.11 offset +36
+		"@oprcategory_intrexpnd_2", 104, double, NMBF_NOZERO, 9.2 // @v12.5.11 offset +36
 	}
-	"@payment",       76, double, NMBF_NOZERO, 9.2
-	"@income",        84, double, NMBF_NOZERO, 9.2
+	"@payment",                     112, double, NMBF_NOZERO, 9.2 // @v12.5.11 offset +36
+	"@income",                      120, double, NMBF_NOZERO, 9.2 // @v12.5.11 offset +36
 	toolbar TB_FIRST_TOOLBAR {
 		kbEnter, "@{opgrouping}\tEnter", TBBM_OPGRPNG
 		kbF7,    "@{print}\tF7",         PPDV_PRINTER01
@@ -2920,19 +2921,65 @@ browser GOODSTURNOVER_BYLOC north(100), 3, 1, "@{view_goodstrnovr}", OWNER|GRID,
 
 browser GOODSTURNOVER north(100), 3, 1, "@{view_goodstrnovr}", OWNER|GRID, 0
 {
-	"@date",                      0, zstring(12), 0, 8
-	"@oprcategory_rcptsupplier", 12, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
+	"@date",                      0, zstring(48), 0, 8                          // @v12.5.11 (12)-->(48) 
+	"@oprcategory_rcptsupplier", 48, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2  // @v12.5.11 offset +36
 	group "@return" {
-		"@selling_retail", 28, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
-		"@client",         36, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
-		"@supplier",       44, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
+		"@selling_retail",       64, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2  // @v12.5.11 offset +36
+		"@client",               72, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2  // @v12.5.11 offset +36
+		"@supplier",             80, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2  // @v12.5.11 offset +36
 	}
 	group "@expend" {
-		"@selling_retail", 52, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
-		"@client",         60, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
+		"@selling_retail",       88, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2  // @v12.5.11 offset +36
+		"@client",               96, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2  // @v12.5.11 offset +36
 	}
-	"@payment",       76, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
-	"@income",        84, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
+	"@payment",                 112, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2  // @v12.5.11 offset +36
+	"@income",                  120, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2  // @v12.5.11 offset +36
+	toolbar TB_FIRST_TOOLBAR {
+		kbEnter, "@{opgrouping}\tEnter", TBBM_OPGRPNG
+		kbF7,    "@{print}\tF7",         PPDV_PRINTER01
+	}
+}
+
+browser GOODSTURNOVER2_BYLOC north(100), 3, 1, "@{view_goodstrnovr}", OWNER|GRID, 0 // @v12.5.11 
+{
+	"@date",                          1, zstring(48), 0, 8
+	group "@goodsreceipt" {
+		"@supplier",                  2, double, NMBF_NOZERO, 9.2
+		"@oprcategory_intrrcpt_2",    3, double, NMBF_NOZERO, 9.2
+	}
+	group "@return" {
+		"@selling_retail",            4, double, NMBF_NOZERO, 9.2
+		"@client",                    5, double, NMBF_NOZERO, 9.2
+		"@supplier",                  6, double, NMBF_NOZERO, 9.2
+	}
+	group "@expend" {
+		"@selling_retail",            7, double, NMBF_NOZERO, 9.2
+		"@client",                    8, double, NMBF_NOZERO, 9.2
+		"@oprcategory_intrexpnd_2",   9, double, NMBF_NOZERO, 9.2
+	}
+	"@payment",                      10, double, NMBF_NOZERO, 9.2
+	"@income",                       11, double, NMBF_NOZERO, 9.2
+	toolbar TB_FIRST_TOOLBAR {
+		kbEnter, "@{opgrouping}\tEnter", TBBM_OPGRPNG
+		kbF7,    "@{print}\tF7",         PPDV_PRINTER01
+	}
+}
+
+browser GOODSTURNOVER2 north(100), 3, 1, "@{view_goodstrnovr}", OWNER|GRID, 0 // @v12.5.11
+{
+	"@date",                      1, zstring(48), 0, 8
+	"@oprcategory_rcptsupplier",  2, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
+	group "@return" {
+		"@selling_retail",        4, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
+		"@client",                5, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
+		"@supplier",              6, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
+	}
+	group "@expend" {
+		"@selling_retail",        7, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
+		"@client",                8, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
+	}
+	"@payment",                  10, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
+	"@income",                   11, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
 	toolbar TB_FIRST_TOOLBAR {
 		kbEnter, "@{opgrouping}\tEnter", TBBM_OPGRPNG
 		kbF7,    "@{print}\tF7",         PPDV_PRINTER01

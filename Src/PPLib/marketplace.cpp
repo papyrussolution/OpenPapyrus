@@ -4919,7 +4919,7 @@ PPID PPMarketplaceInterface_Wildberries::CreateReceipt(int64 incomeId, const War
 	double adj_price = 0.0;
 	SString bill_code;
 	SString serial_buf;
-	PPBillPacket::SetupObjectBlock sob;
+	PPBillPacket::SetupObjectBlock sob_unused;
 	PPBillPacket pack;
 	THROW(incomeId); // @todo @err
 	THROW(rcpt_op_id); // @todo @err
@@ -4933,7 +4933,7 @@ PPID PPMarketplaceInterface_Wildberries::CreateReceipt(int64 incomeId, const War
 		pack.Rec.Object = suppl_id;
 		pack.Rec.Dt = dt;
 		STRNSCPY(pack.Rec.Code, bill_code);
-		THROW(pack.SetupObject(suppl_id, sob));
+		THROW(pack.SetupObject(suppl_id, sob_unused));
 		{
 			THROW(InsertReceiptItem(pack, MakeSerialIdent(incomeId, rWare, serial_buf), goodsID, qtty));
 			if(surrogateAutoLot)
@@ -5010,9 +5010,9 @@ int PPMarketplaceInterface_Wildberries::ImportReceipts()
 						PPBillPacket pack;
 						PPID   ex_bill_id = 0;
 						Goods2Tbl::Rec goods_rec;
-						PPBillPacket::SetupObjectBlock sob;
+						//PPBillPacket::SetupObjectBlock sob;
 						const LDATE dt = ValidDateOr(p_wb_item->Dtm.d, getcurdate_());
-						const PPID lot_id = CreateReceipt(p_wb_item->IncomeID, p_wb_item->Ware, dt, wh_id, goods_id, fabs(p_wb_item->Qtty), false, 1);
+						const PPID  lot_id = CreateReceipt(p_wb_item->IncomeID, p_wb_item->Ware, dt, wh_id, goods_id, fabs(p_wb_item->Qtty), false, 1);
 						if(lot_id) {
 							ok = 1;
 						}
@@ -5276,7 +5276,6 @@ PPID PPMarketplaceInterface_Wildberries::AdjustReceiptOnExpend(
 					{
 						const  PPID ar_id = PPObjLocation::WarehouseToObj(locID);
 						SString bill_code;
-						PPBillPacket::SetupObjectBlock sob;
 						PPBillPacket pack;
 						bill_code.Z().Cat("TRANSF").CatChar('-').Cat(incomeId);
 						THROW(p_bobj->trfr->Rcpt.Search(lot_candidate_for_intrexpend, &lot_rec) > 0 && lot_rec.GoodsID == goodsID);
@@ -5286,7 +5285,10 @@ PPID PPMarketplaceInterface_Wildberries::AdjustReceiptOnExpend(
 							THROW(pack.CreateBlank(intrexp_op_id, 0, lot_rec.LocID, 0));
 							pack.Rec.Dt = dt;
 							STRNSCPY(pack.Rec.Code, bill_code);
-							THROW(pack.SetupObject(ar_id, sob));
+							{
+								PPBillPacket::SetupObjectBlock sob_unused;
+								THROW(pack.SetupObject(ar_id, sob_unused));
+							}
 							{
 								{
 									PPTransferItem ti;
@@ -5486,7 +5488,6 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 					PPBillPacket ord_pack;
 					PPBillPacket pack;
 					Goods2Tbl::Rec goods_rec;
-					PPBillPacket::SetupObjectBlock sob;
 					PPID   ar_id = CreateBuyer(p_wb_item, 1/*use_ta*/);
 					THROW(p_bobj->ExtractPacketWithFlags(ord_bill_rec.ID, &ord_pack, BPLD_FORCESERIALS) > 0);
 					if(is_return) {
@@ -5532,7 +5533,8 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 								pack.Rec.Dt = ValidDateOr(p_wb_item->Dtm.d, getcurdate_());
 								STRNSCPY(pack.Rec.Code, bill_code);
 								if(ar_id) {
-									pack.SetupObject(ar_id, sob);
+									PPBillPacket::SetupObjectBlock sob_unused;
+									pack.SetupObject(ar_id, sob_unused);
 								}
 								ReceiptTbl::Rec lot_rec;
 								PPTransferItem ti;
@@ -5590,7 +5592,8 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 							pack.Rec.Dt = ValidDateOr(p_wb_item->Dtm.d, getcurdate_());
 							STRNSCPY(pack.Rec.Code, bill_code);
 							if(ar_id) {
-								pack.SetupObject(ar_id, sob);
+								PPBillPacket::SetupObjectBlock sob_unused;
+								pack.SetupObject(ar_id, sob_unused);
 							}
 							//
 							//pack.Rec.DueDate = checkdate(p_src_pack->DlvrDtm.d) ? p_src_pack->DlvrDtm.d : ZERODATE;
@@ -5799,14 +5802,13 @@ int PPMarketplaceInterface_Wildberries::ImportOrders()
 							PPBillPacket pack;
 							PPID   ex_bill_id = 0;
 							Goods2Tbl::Rec goods_rec;
-							PPBillPacket::SetupObjectBlock sob;
 							PPID   ar_id = CreateBuyer(p_wb_item, 1/*use_ta*/);
 							if(pack.CreateBlank_WithoutCode(order_op_id, 0, wh_id, 1)) {
 								pack.Rec.Dt = ValidDateOr(p_wb_item->Dtm.d, getcurdate_());
 								STRNSCPY(pack.Rec.Code, bill_code);
 								if(ar_id) {
-									PPBillPacket::SetupObjectBlock sob;
-									pack.SetupObject(ar_id, sob);
+									PPBillPacket::SetupObjectBlock sob_unused;
+									pack.SetupObject(ar_id, sob_unused);
 								}
 								//
 								//pack.Rec.DueDate = checkdate(p_src_pack->DlvrDtm.d) ? p_src_pack->DlvrDtm.d : ZERODATE;
@@ -6385,8 +6387,8 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 															pack.Rec.Dt = bill_date;
 															STRNSCPY(pack.Rec.Code, bill_code);
 															if(mp_ar_id) {
-																PPBillPacket::SetupObjectBlock sob;
-																pack.SetupObject(mp_ar_id, sob);
+																PPBillPacket::SetupObjectBlock sob_unused;
+																pack.SetupObject(mp_ar_id, sob_unused);
 															}
 															{
 																PPTransferItem ti;

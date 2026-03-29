@@ -576,5 +576,6 @@
 #define cmCentrigoToDo                1002 // @v12.5.6 
 #define cmCentrigoWallet              1003 // @v12.5.6 
 #define cmCentrigoSecrets             1004 // @v12.5.6 
+#define cmCentrigoContacts            1005 // @v12.5.11
 
 #endif /* __PPMENU_H */

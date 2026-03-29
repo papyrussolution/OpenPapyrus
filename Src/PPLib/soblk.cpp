@@ -2220,7 +2220,6 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					{
 						long   temp_bill_id = 0;
 						PPBillPacket pack;
-						PPBillPacket::SetupObjectBlock sob;
 						PPObjCurrency cur_obj;
 						PPCurrency cur_rec;
 						PPOprKind op_rec;
@@ -2238,15 +2237,20 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 							THROW_PP_S(loc_rec.Type == LOCTYP_WAREHOUSE, PPERR_INCLOCTYPE, PsnObj.LocObj.MakeCodeString(&loc_rec, 0, temp_buf));
 						}
 						THROW(pack.CreateBlank2(P_SetBlk->U.B.OpID, P_SetBlk->U.B.Dt, P_SetBlk->U.B.LocID, 1));
-						THROW(pack.SetupObject(P_SetBlk->U.B.ArID, sob));
+						{
+							PPBillPacket::SetupObjectBlock sob_unused;
+							THROW(pack.SetupObject(P_SetBlk->U.B.ArID, sob_unused));
+						}
 						if(P_SetBlk->U.B.DlvrLocID) {
 							THROW(PsnObj.LocObj.Fetch(P_SetBlk->U.B.DlvrLocID, &loc_rec) > 0);
 							THROW_PP_S(loc_rec.Type == LOCTYP_ADDRESS, PPERR_INCLOCTYPE, PsnObj.LocObj.MakeCodeString(&loc_rec, 0, temp_buf));
 							if(pack.Rec.Object == 0 && loc_rec.OwnerID && op_rec.AccSheetID) {
 								PPID   ar_id = 0;
 								ArObj.P_Tbl->PersonToArticle(loc_rec.OwnerID, op_rec.AccSheetID, &ar_id);
-								if(ar_id)
-									THROW(pack.SetupObject(ar_id, sob));
+								if(ar_id) {
+									PPBillPacket::SetupObjectBlock sob_unused;
+									THROW(pack.SetupObject(ar_id, sob_unused));
+								}
 							}
 							THROW_PP_S((loc_rec.Flags & LOCF_STANDALONE) || (loc_rec.OwnerID == ObjectToPerson(pack.Rec.Object, 0)), PPERR_DLVRADDNOTOWNEDBYBILLAR,
 								PsnObj.LocObj.MakeCodeString(&loc_rec, 0, temp_buf));
@@ -2266,8 +2270,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 						}
 						temp_buf = P_SetBlk->Memo;
 						if(temp_buf.NotEmptyS()) {
-							// @v11.1.12 temp_buf.Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pack.Rec.Memo, sizeof(pack.Rec.Memo));
-							pack.SMemo = temp_buf.Transf(CTRANSF_OUTER_TO_INNER); // @v11.1.12
+							pack.SMemo = temp_buf.Transf(CTRANSF_OUTER_TO_INNER);
 						}
 						pack.GenerateGuid(0);
 						THROW(p_bobj->GetCrBillEntry(temp_bill_id, &pack));

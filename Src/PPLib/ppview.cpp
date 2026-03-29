@@ -2290,8 +2290,17 @@ int PPView::BrowseInLayout(TWindow * pParent, const char * pParentLayoutSymb, co
 					if(p_result) {
 						p_result->SetCallbacks(0, TView::SetupLayoutItemFrameProc, brw);
 						brw->Launch_(pParent);
-						if(brw->IsConsistent())
+						if(brw->IsConsistent()) {
 							OnExecBrowser(brw);
+							// @v12.5.11 {
+							{
+								pParent->EvaluateLayout(pParent->getClientRect());
+								pParent->invalidateAll(true);
+								::UpdateWindow(pParent->H());
+							}
+							::PostMessageW(brw->H(), WM_SETFOCUS, 0, 0);
+							// } @v12.5.11 
+						}
 					}
 				}
 			}
@@ -2468,14 +2477,14 @@ int PPView::DefaultCmdProcessor(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 //
 //
 //
-PPViewBrowser::PPViewBrowser(uint brwId, DBQuery * pQ, PPView * pV, int dataOwner) : BrowserWindow(brwId, pQ, 0), RefreshTimer(0),
-	P_View(pV), VbState(dataOwner ? vbsDataOwner : 0), P_ComboBox(0), P_InputLine(0), H_ComboFont(0)
+PPViewBrowser::PPViewBrowser(uint brwId, DBQuery * pQ, PPView * pV, int dataOwner) : BrowserWindow(brwId, pQ, 0), 
+	RefreshTimer(0), P_View(pV), VbState(dataOwner ? vbsDataOwner : 0), P_ComboBox(0), P_InputLine(0), H_ComboFont(0)
 {
 	Advise();
 }
 
-PPViewBrowser::PPViewBrowser(uint brwId, SArray * pQ, PPView * pV, int dataOwner) : BrowserWindow(brwId, pQ, 0), RefreshTimer(0),
-	P_View(pV), VbState(dataOwner ? vbsDataOwner : 0), P_ComboBox(0), P_InputLine(0), H_ComboFont(0)
+PPViewBrowser::PPViewBrowser(uint brwId, SArray * pQ, PPView * pV, int dataOwner) : BrowserWindow(brwId, pQ, 0), 
+	RefreshTimer(0), P_View(pV), VbState(dataOwner ? vbsDataOwner : 0), P_ComboBox(0), P_InputLine(0), H_ComboFont(0)
 {
 	Advise();
 }
@@ -2492,7 +2501,7 @@ PPViewBrowser::~PPViewBrowser()
 	ZDELETE(P_InputLine);
 	for(uint i = 0; i < TempGoodsGrpList.getCount(); i++) {
 		const  PPID grp_id = TempGoodsGrpList.at(i);
-		PPObjGoodsGroup::RemoveDynamicAlt(grp_id, (long)this);
+		PPObjGoodsGroup::RemoveDynamicAlt(grp_id, reinterpret_cast<long>(this)); // @x64crit
 	}
 	Unadvise();
 }
@@ -2580,10 +2589,10 @@ void PPViewBrowser::Unadvise()
 void PPViewBrowser::Update() { updateView(); }
 void PPViewBrowser::updateView() { Refresh(); }
 
-int PPViewBrowser::SetRefreshPeriod(long period)
+int PPViewBrowser::SetRefreshPeriod(long periodMs)
 {
-	if(period >= 0 && period < 86400L) {
-		RefreshTimer.Restart((uint32)period * 1000);
+	if(periodMs >= 0 && periodMs < 86400L) {
+		RefreshTimer.Restart(static_cast<uint32>(periodMs) * 1000);
 		return 1;
 	}
 	else
@@ -2593,7 +2602,7 @@ int PPViewBrowser::SetRefreshPeriod(long period)
 int PPViewBrowser::SetTempGoodsGrp(PPID grpID)
 {
 	int    ok = -1;
-	if(PPObjGoodsGroup::SetDynamicOwner(grpID, 0, (long)this) > 0) {
+	if(PPObjGoodsGroup::SetDynamicOwner(grpID, 0, reinterpret_cast<long>(this)) > 0) { // @x64crit
 		TempGoodsGrpList.addUnique(grpID);
 		ok = 1;
 	}

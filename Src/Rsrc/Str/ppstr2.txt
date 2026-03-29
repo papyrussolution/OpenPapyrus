@@ -7100,6 +7100,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cashier                             "Кассир"
 @cashierno                           "Номер кассира"
 @contact                             "Контакт" // В смысле персоналия для контакта
+@contact_pl                          "Контакты" // В смысле персоналии для контакта
 @agreement                           "Соглашение"
 @sender                              "Отправитель"
 @recipient                           "Получатель"
@@ -8841,6 +8842,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_goods_salesrestr                    "@{salesrestriction}" // @v12.3.7
 @rtag_gua_chznlocpmurl                    "URL offline-проверки марок честный знак"        // @v12.3.11
 @rtag_person_notch                        "NOTCH" // @v12.4.11 PPTAG_PERSON_NOTCH
+@rtag_gua_chzntspioturl                   "URL модуля тс-пиот"                             // @v12.5.11
 //
 // Зарезервированные типы регистрационных документов
 //
@@ -14260,6 +14262,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @billfilt_ordbycode                       "По номеру документа"
 @billfilt_ordbyobject                     "По контрагенту"
 @billfilt_ordbydate_code                  "По дате и номеру документа"
+@billfilt_ordbycontragentdatecode         "По контрагенту, дате и номеру документа" // @v12.5.11
 @billfilt_storagelocid                    "@{warehouse}"
 @billfilt_period                          "@{daterange}"
 @billfilt_op                              "@{oprkind}"
@@ -17027,6 +17030,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @chznprcssrparam_loc                      "@{warehouse}"
 
 @chzn_check_offline                       "Проверить в offline-режиме" // @v12.3.12 Команда в диалоге проверки марок чзн (DLG_CHKCHZNMARK)
+@chzn_check_tspiot                        "Проверить в тс-пиот" // @v12.5.11 Команда в диалоге проверки марок чзн (DLG_CHKCHZNMARK)
 
 @restorelostprjtperson                    "Восстановление утерянных персоналий для задач"
 @restorelostprjtperson_resolvecreator     "Восстановить создателя"
@@ -18387,6 +18391,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 // Рабочие команды centrigo
 //
 @centrigo_cmd_notes      "Заметки"
+@centrigo_cmd_contacts   "@{contact_pl}"
 @centrigo_cmd_todo       "Задачи"
 @centrigo_cmd_wallet     "Кошелек"
 @centrigo_cmd_secrets    "Секреты"

@@ -882,7 +882,7 @@ int PPApp::processCommand(uint cmd)
 		case cmBuildLocalDL600:         BuildLocalDL600(); break;
 		case cmValidateXml:             PPValidateXml(); break;
 		case cmDumpData:                DoDbDump(0); break;
-		case cmProcessTSessions:        TSessionMaintenance(); break; // @v11.0.4
+		case cmProcessTSessions:        TSessionMaintenance(); break;
 		case cmProcessBomEstimatedValues: PPObjGoods::ProcessBomEstimatedValues(); break; // @v11.7.11
 		case cmGatherClientActivityStat: GatherClientActivityStatistics(); break; // @v12.2.2 @construction
 		case cmConstructionTest:        DoConstructionTest(); break;

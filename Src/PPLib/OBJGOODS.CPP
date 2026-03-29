@@ -3707,14 +3707,14 @@ int PPObjGoods::ViewVersion(PPID histID)
 
 int PPObjGoods::EditClsdGoods(PPGoodsPacket * pPack, int modifyOnlyExtRec)
 {
-	int    ok = -1, cmd = 0;
+	int    ok = -1;
+	int    cmd = 0;
 	PPObjGoodsClass gc_obj;
 	PPGdsClsPacket  gc_pack;
-	uint   dlg_id = DLG_SG;
 	ClsdGoodsDialog * dlg = 0;
 	if(modifyOnlyExtRec != 2)
 		THROW(gc_obj.GetPacket(pPack->Rec.GdsClsID, &gc_pack) > 0);
-	THROW(CheckDialogPtr(&(dlg = new ClsdGoodsDialog(dlg_id, &gc_pack, modifyOnlyExtRec))));
+	THROW(CheckDialogPtr(&(dlg = new ClsdGoodsDialog(DLG_SG, &gc_pack, modifyOnlyExtRec))));
 	dlg->setDTS(pPack);
 	while(ok <= 0 && ((cmd = ExecView(dlg)) == cmOK || cmd == cmFullGoodsDialog)) {
 		if(dlg->getDTS(pPack)) {

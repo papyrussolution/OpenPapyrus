@@ -308,7 +308,8 @@ public:
 		sfDbiUnique     = 0x0004, // @#{sfDbiDup ^ sfDbiUnique}
 		sfDbiMod        = 0x0020,
 		sfDbiAllSegNull = 0x0040,
-		sfDbiAnySegNull = 0x0080
+		sfDbiAnySegNull = 0x0080,
+		sfDbiSegNullOpt = 0x0100, // @v12.5.11 Любой из флагов sfDbiAllSegNull или sfDbiAnySegNull может трактоваться как опциональный
 	};
 	//
 	// Descr: Типы областей-манипуляторов (kHandler)

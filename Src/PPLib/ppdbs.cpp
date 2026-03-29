@@ -184,12 +184,6 @@ PackageLinkTbl::Rec & PackageLinkTbl::Rec::Clear()
 	THISZERO();
 	return *this;
 }
-DBTABLE_CONSTRUCTOR(SpecSeries, Serial)
-SpecSeriesTbl::Rec & SpecSeriesTbl::Rec::Clear()
-{
-	THISZERO();
-	return *this;
-}
 DBTABLE_CONSTRUCTOR(SpecSeries2, ID)
 SpecSeries2Tbl::Rec & SpecSeries2Tbl::Rec::Clear()
 {

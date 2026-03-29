@@ -1,5 +1,5 @@
 // CPTRANSF.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025, 2026
 // @codepage UTF-8
 // @Kernel
 //
@@ -313,8 +313,7 @@ int CpTransfCore::ReplaceGoods(PPID destGoodsID, PPID srcGoodsID, int use_ta)
 //
 //
 //
-// @v11.1.12 int PPObjBill::InitDraftWrOffPacket(const PPDraftOpEx * pWrOffParam, const BillTbl::Rec * pDraftRec, PPBillPacket * pPack, int use_ta)
-int PPObjBill::InitDraftWrOffPacket(const PPDraftOpEx * pWrOffParam, const PPBillPacket * pDraftPack, PPBillPacket * pPack, int use_ta) // @v11.1.12
+int PPObjBill::InitDraftWrOffPacket(const PPDraftOpEx * pWrOffParam, const PPBillPacket * pDraftPack, PPBillPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	PPOprKind wroff_op_rec;
@@ -358,8 +357,7 @@ int PPObjBill::InitDraftWrOffPacket(const PPDraftOpEx * pWrOffParam, const PPBil
 		pPack->Rec.CRate = rate;
 	}
 	pPack->Rec.LinkBillID = pDraftPack->Rec.ID;
-	// @v11.1.12 STRNSCPY(pPack->Rec.Memo, pDraftRec->Memo);
-	pPack->SMemo = pDraftPack->SMemo; // @v11.1.12
+	pPack->SMemo = pDraftPack->SMemo;
 	if(pDraftPack->Rec.Flags & BILLF_FREIGHT && CheckOpFlags(pPack->Rec.OpID, OPKF_FREIGHT)) {
 		PPFreight freight;
 		if(P_Tbl->GetFreight(pDraftPack->Rec.ID, &freight) > 0) {
@@ -375,7 +373,8 @@ int PPObjBill::InitDraftWrOffPacket(const PPDraftOpEx * pWrOffParam, const PPBil
 
 static int InsertComplList(PPBillPacket * pPack, PPComplBlock & rList, int sign, const SString * pSrcSerial, PUGL * pDfctList)
 {
-	int    ok = 1, incomplete = 0;
+	int    ok = 1;
+	bool   incomplete = false;
 	PPObjGoods goods_obj;
 	LongArray positions;
 	SString src_serial;
@@ -413,7 +412,7 @@ static int InsertComplList(PPBillPacket * pPack, PPComplBlock & rList, int sign,
 			r_item.FreeQty = r_item.NeedQty - fabs(ilti.Rest);
 			if(ilti.HasDeficit()) {
 				THROW(p_deficit_list->Add(&ilti, pPack->Rec.LocID, i-1, pPack->Rec.Dt));
-				incomplete = 1;
+				incomplete = true;
 			}
 		}
 	}
@@ -433,7 +432,6 @@ int PPObjBill::CreateModifByPUGL(PPID modifOpID, PPID * pID, PUGL * pPugl, PPID 
 {
 	//
 	// @>>PPBillPacket::InsertComplete >> PPObjBill::ConvertILTI
-	//
 	//
 	int    ok = 1;
 	uint   i;
@@ -457,15 +455,10 @@ int PPObjBill::CreateModifByPUGL(PPID modifOpID, PPID * pID, PUGL * pPugl, PPID 
 	// то вносим это наименование в примечание к документу
 	//
 	if(pPugl->getCount() == 1) {
-		/* @v11.1.12
-		SString memo_buf;
-		GetGoodsName(static_cast<const PUGI *>(pPugl->at(0))->GoodsID, memo_buf);
-		memo_buf.CopyTo(pack.Rec.Memo, sizeof(pack.Rec.Memo));
-		*/
-		GetGoodsName(static_cast<const PUGI *>(pPugl->at(0))->GoodsID, pack.SMemo); // @v11.1.12
+		GetGoodsName(static_cast<const PUGI *>(pPugl->at(0))->GoodsID, pack.SMemo);
 	}
 	for(i = 0; i < pPugl->getCount();) {
-		PUGI   pugi = *static_cast<const PUGI *>(pPugl->at(i++));
+		const  PUGI pugi = *static_cast<const PUGI *>(pPugl->at(i++)); // not a reference - strictly copy instance (see below: pPugl->atFree)
 		PPGoodsStruc gs;
 		uint   acpos = 0;
 		const  int lgs_r = LoadGoodsStruc(PPGoodsStruc::Ident(pugi.GoodsID, GSF_COMPL, GSF_PARTITIAL, pack.Rec.Dt), &gs);
@@ -1049,7 +1042,8 @@ int PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOffParam
 	int    r;
 	PPID   compl_bill_id = 0;
 	PPTransferItem ti;
-	SString serial_buf, clb_buf;
+	SString serial_buf;
+	SString clb_buf;
 	PPBillPacket * p_pack = 0;
 	PPGoodsStruc gs;
 	PPLotExtCodeContainer::MarkSet lotxcode_set;
@@ -1139,7 +1133,7 @@ int PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOffParam
 								ti.Price = r_src_ti.Price;
 								if(ti.CurID) {
 									ti.CurPrice = r_src_ti.CurPrice;
-									double base_price = TR5(ti.CurPrice * p_pack->Rec.CRate);
+									const  double base_price = TR5(ti.CurPrice * p_pack->Rec.CRate);
 									if(ti.Flags & PPTFR_SELLING)
 										ti.Price = base_price;
 									else

@@ -582,7 +582,7 @@ int PPViewJob::DeleteItem(PPID id)
 	return ok;
 }
 
-/*virtual*/SArray  * PPViewJob::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+/*virtual*/SArray * PPViewJob::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	ASSIGN_PTR(pBrwId, BROWSER_JOB);
 	return new SArray(List);

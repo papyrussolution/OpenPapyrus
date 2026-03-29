@@ -1871,7 +1871,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 		ReplyCntragntSelection(0);
 	}
 	else if(event.isCbSelected(CTLSEL_BILL_OBJ2)) {
-		const PPID ar_id = getCtrlLong(CTLSEL_BILL_OBJ2);
+		const  PPID ar_id = getCtrlLong(CTLSEL_BILL_OBJ2);
 		if(!P_Pack->SetupObject2(ar_id)) {
 			PPError();
 			setCtrlLong(CTLSEL_BILL_OBJ2, P_Pack->Rec.Object2);
@@ -2338,7 +2338,12 @@ void BillDialog::ReplyCntragntSelection(int force)
 		P_BObj->SetupQuot(P_Pack, client_id);
 	PPBillPacket::SetupObjectBlock sob;
 	if(P_Pack->SetupObject(client_id, sob)) {
+		assert(client_id > 0);
 		PPID   agent_id = 0; // Агент, взятый из соглашения, которого следует установить в документ
+		if(Flags & fCheckCreditLim && to_force_update) {
+			CurrDebt = 0.0;
+			CDebtList.clear();
+		}
 		if(sob.State & PPBillPacket::SetupObjectBlock::stHasCliAgreement) {
 			if(!(sob.CliAgt.Flags & AGTF_DEFAULT))
 				agent_id = sob.CliAgt.DefAgentID;
@@ -2346,31 +2351,8 @@ void BillDialog::ReplyCntragntSelection(int force)
 				PaymTerm = sob.CliAgt.DefPayPeriod;
 				PayDateBase = sob.CliAgt.PaymDateBase;
 			}
-		}
-		else if(sob.State & PPBillPacket::SetupObjectBlock::stHasSupplAgreement) {
-			if(!(sob.SupplAgt.Flags & AGTF_DEFAULT))
-				agent_id = sob.SupplAgt.DefAgentID;
-			if(P_Pack->Rec.Flags & BILLF_NEEDPAYMENT) {
-				PaymTerm = sob.SupplAgt.DefPayPeriod;
-				PayDateBase = 0;
-			}
-		}
-		if(agent_id && !P_Pack->Ext.AgentID && GetAgentAccSheet())
-			P_Pack->Ext.AgentID = agent_id;
-		if(sob.State & PPBillPacket::SetupObjectBlock::stHasCliAgreement)
 			CliAgt = sob.CliAgt;
-		else
-			CliAgt.Z();
-		if(Flags & fSetupObj2ByCliAgt) {
-			if(P_Pack->SetupObject2(CliAgt.ExtObjectID)) {
-				setCtrlLong(CTLSEL_BILL_OBJ2, P_Pack->Rec.Object2);
-			}
-		}
-		if(Flags & fCheckCreditLim && to_force_update) {
-			int    has_matured_debt = 0;
-			CurrDebt = 0.0;
-			CDebtList.clear();
-			if(sob.State & PPBillPacket::SetupObjectBlock::stHasCliAgreement) {
+			if(Flags & fCheckCreditLim && to_force_update) {
 				ushort v;
 				double dis;
 				if(!(P_Pack->Rec.Flags & BILLF_TOTALDISCOUNT)) {
@@ -2381,7 +2363,8 @@ void BillDialog::ReplyCntragntSelection(int force)
 					SetupDiscountCtrls();
 					CalcAmounts();
 				}
-				if(client_id && (CliAgt.MaxCredit > 0.0 || P_BObj->Cfg.Flags & BCF_WARNMATCLIDEBT) && !(CliAgt.Flags & AGTF_DONTCALCDEBTINBILL)) {
+				if((CliAgt.MaxCredit > 0.0 || P_BObj->Cfg.Flags & BCF_WARNMATCLIDEBT) && !(CliAgt.Flags & AGTF_DONTCALCDEBTINBILL)) {
+					int   has_matured_debt = 0;
 					int * p_has_matured_debt = (P_BObj->Cfg.Flags & BCF_WARNMATCLIDEBT) ? &has_matured_debt : 0;
 					DateRange cdp;
 					PPObjBill::DebtBlock blk;
@@ -2389,10 +2372,28 @@ void BillDialog::ReplyCntragntSelection(int force)
 					ASSIGN_PTR(p_has_matured_debt, blk.HasMatured);
 					CurrDebt = blk.Debt;
 					blk.GetDimList(CDebtList);
+					if(has_matured_debt)
+						PPMessage(mfInfo|mfOK, PPINF_CLIHASMATDEBT, add_msg.Z().Cat(CurrDebt, SFMT_MONEY));
 				}
 			}
-			if(has_matured_debt)
-				PPMessage(mfInfo|mfOK, PPINF_CLIHASMATDEBT, add_msg.Z().Cat(CurrDebt, SFMT_MONEY));
+		}
+		else {
+			CliAgt.Z();
+			if(sob.State & PPBillPacket::SetupObjectBlock::stHasSupplAgreement) {
+				if(!(sob.SupplAgt.Flags & AGTF_DEFAULT))
+					agent_id = sob.SupplAgt.DefAgentID;
+				if(P_Pack->Rec.Flags & BILLF_NEEDPAYMENT) {
+					PaymTerm = sob.SupplAgt.DefPayPeriod;
+					PayDateBase = 0;
+				}
+			}
+		}
+		if(agent_id && !P_Pack->Ext.AgentID && GetAgentAccSheet())
+			P_Pack->Ext.AgentID = agent_id;
+		if(Flags & fSetupObj2ByCliAgt) {
+			if(P_Pack->SetupObject2(CliAgt.ExtObjectID)) {
+				setCtrlLong(CTLSEL_BILL_OBJ2, P_Pack->Rec.Object2);
+			}
 		}
 		if(Flags & fCheckAgreement && (P_BObj->Cfg.Flags & BCF_WARNAGREEMENT) && client_id) {
 			if(P_Pack->OpTypeID != PPOPT_AGREEMENT) { // @v12.5.10 Нет смысла в такой диагностике в случае документа соглашения.
@@ -2671,7 +2672,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	SString temp_buf;
 	P_Pack   = pPack;
 	Pattern  = pPack->Rec;
-	PatternMemo = pPack->SMemo; // @v11.1.12
+	PatternMemo = pPack->SMemo;
 	Flags &= ~(fModified|fCheckCreditLim|fCheckRetLim);
 	THROW(op_obj.GetPacket(P_Pack->Rec.OpID, &op_pack) > 0);
 	{
@@ -3181,11 +3182,14 @@ int BillDialog::getDTS(int onCancel)
 	}
 	getCtrlString(CTL_BILL_MEMO, P_Pack->SMemo);
 	if(P_Pack->OpTypeID == PPOPT_AGREEMENT) {
-		SETIFZ(P_Pack->P_Agt, new PPBill::AgreementBlock);
-		getCtrlData(CTL_BILL_EXPIRY, &P_Pack->P_Agt->Expiry);
-		getCtrlData(CTL_BILL_MAXCREDIT, &P_Pack->P_Agt->MaxCredit);
-		getCtrlData(CTL_BILL_MAXDSCNT, &P_Pack->P_Agt->MaxDscnt);
-		getCtrlData(CTL_BILL_PAYPERIOD, &P_Pack->P_Agt->DefPayPeriod);
+		THROW(P_Pack->SetupAgreement(true));
+		assert(P_Pack->P_Agt);
+		if(P_Pack->P_Agt) { // @paranoic
+			getCtrlData(CTL_BILL_EXPIRY, &P_Pack->P_Agt->Expiry);
+			getCtrlData(CTL_BILL_MAXCREDIT, &P_Pack->P_Agt->MaxCredit);
+			getCtrlData(CTL_BILL_MAXDSCNT, &P_Pack->P_Agt->MaxDscnt);
+			getCtrlData(CTL_BILL_PAYPERIOD, &P_Pack->P_Agt->DefPayPeriod);
+		}
 	}
 	if(P_Pack->Rec.Flags & BILLF_ADVANCEREP && P_Pack->P_AdvRep) {
 		THROW(getAdvanceRepData(P_Pack->P_AdvRep));
@@ -3197,8 +3201,8 @@ int BillDialog::getDTS(int onCancel)
 			intr = IsIntrOp(doe.WrOffOpID);
 	}
 	if(intr) {
-		const PPID prim_sheet_id    = LConfig.LocAccSheetID;
-		const PPID foreign_sheet_id = P_Pack->AccSheetID;
+		const  PPID prim_sheet_id    = LConfig.LocAccSheetID;
+		const  PPID foreign_sheet_id = P_Pack->AccSheetID;
 		THROW_PP(P_Pack->Rec.Object || intr != INTREXPND, PPERR_INTRDESTNEEDED);
 		if(prim_sheet_id && prim_sheet_id == foreign_sheet_id) {
 			const  PPID prim_obj_id = PPObjLocation::WarehouseToObj(P_Pack->Rec.LocID);
@@ -3229,14 +3233,8 @@ int BillDialog::getDTS(int onCancel)
 		memcpy(Pattern.Code, P_Pack->Rec.Code, sizeof(Pattern.Code));
 	if(P_Pack->GetAmount() == BR2(Pattern.Amount))
 		Pattern.Amount = BR2(P_Pack->Rec.Amount);
-	/* @v11.1.12
-	if(sstreq(strip(P_Pack->Rec.Memo), strip(Pattern.Memo)))
-		memcpy(Pattern.Memo, P_Pack->Rec.Memo, sizeof(Pattern.Memo));
-	*/
-	// @v11.1.12 {
 	if(P_Pack->SMemo.Strip() == PatternMemo.Strip())
 		PatternMemo = P_Pack->SMemo;
-	// } @v11.1.12 
 	if((Flags & fModified) || memcmp(&P_Pack->Rec, &Pattern, sizeof(Pattern)) != 0)
 		Flags |= fModified;
 	return ok;

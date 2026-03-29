@@ -575,8 +575,53 @@ int PPFreight::SetupDlvrAddr(PPID dlvrAddrID)
 	return ok;
 }
 //
+// 
 //
-//
+/*static*/int PPBill::AgreementBlock::Serialize_Static(AgreementBlock ** ppThis, int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	assert(ppThis);
+	assert(pSCtx);
+	int    ok = 1;
+	uint32 indicator = 0; // 1 - empty, PPConst::Signature_BillAgreement_Serialize - real
+	if(dir > 0) {
+		if(*(ppThis) == 0)
+			indicator = 1;
+		else 
+			indicator = PPConst::Signature_BillAgreement_Serialize;
+		THROW_SL(pSCtx->Serialize(dir, indicator, rBuf));
+	}
+	else if(dir < 0) {
+		THROW_SL(pSCtx->Serialize(dir, indicator, rBuf));
+		if(indicator == PPConst::Signature_BillAgreement_Serialize) {
+			if((*ppThis) == 0)
+				(*ppThis) = new AgreementBlock;
+		}
+		else {
+			THROW(indicator == 1); // @todo @err
+			ZDELETE(*ppThis);
+		}
+	}
+	if(*ppThis) {
+		THROW_SL(pSCtx->Serialize(dir, (*ppThis)->Flags, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, (*ppThis)->Expiry, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, (*ppThis)->MaxCredit, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, (*ppThis)->MaxDscnt, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, (*ppThis)->Dscnt, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, (*ppThis)->DefAgentID, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, (*ppThis)->DefQuotKindID, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, (*ppThis)->PaymDateBase, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, (*ppThis)->DefPayPeriod, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, (*ppThis)->RetLimPrd, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, (*ppThis)->RetLimPart, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, (*ppThis)->DefDlvrTerm, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, (*ppThis)->PctRet, rBuf));
+		//Dt;               // @transient Дата документа 
+		//char   Code[48];         // @transient Номер документа 
+	}
+	CATCHZOK
+	return ok;
+}
+
 PPBill::AgreementBlock::AgreementBlock()
 {
 	THISZERO();
@@ -631,6 +676,68 @@ bool FASTCALL PPBill::AgreementBlock::IsEq(const AgreementBlock & rS) const
 	return true;
 }
 
+int PPBill::AgreementBlock::ApplyTo(PPClientAgreement & rCliAgt) // @v12.5.11 @construction
+{
+	int    ok = -1;
+	if(ID && checkdate(Dt)) {
+		rCliAgt.BegDt = Dt;
+		rCliAgt.Code_ = Code;
+		if(checkdate(Expiry)) {
+			rCliAgt.Expiry = Expiry;
+		}
+		if(MaxCredit > 0.0) {
+			rCliAgt.MaxCredit = MaxCredit;
+		}
+		if(MaxDscnt > 0.0) {
+			rCliAgt.MaxDscnt = MaxDscnt;
+		}
+		if(Dscnt != 0.0) {
+			rCliAgt.Dscnt = Dscnt;
+		}
+		if(DefPayPeriod > 0) {
+			rCliAgt.DefPayPeriod = DefPayPeriod;
+		}
+		if(DefAgentID) {
+			rCliAgt.DefAgentID = DefAgentID;
+		}
+		if(DefQuotKindID) {
+			rCliAgt.DefQuotKindID = DefQuotKindID;
+		}
+		if(RetLimPrd) {
+			rCliAgt.RetLimPrd = RetLimPrd;
+		}
+		if(RetLimPart) {
+			rCliAgt.RetLimPart = RetLimPart;
+		}
+		ok = 1;
+	}
+	return ok;
+}
+
+int PPBill::AgreementBlock::ApplyTo(PPSupplAgreement & rSupplAgt) // @v12.5.11 @construction
+{
+	int    ok = -1;
+	if(ID && checkdate(Dt)) {
+		rSupplAgt.BegDt = Dt;
+		if(checkdate(Expiry))
+			rSupplAgt.Expiry = Expiry;
+		if(DefPayPeriod > 0) {
+			rSupplAgt.DefPayPeriod = DefPayPeriod;
+		}
+		if(DefDlvrTerm) {
+			rSupplAgt.DefDlvrTerm = DefDlvrTerm;
+		}
+		if(PctRet) {
+			rSupplAgt.PctRet = PctRet;
+		}
+		if(DefAgentID) {
+			rSupplAgt.DefAgentID = DefAgentID;
+		}
+		ok = 1;
+	}
+	return ok;
+}
+
 PPBill::PPBill() : P_PaymOrder(0), P_Freight(0), P_AdvRep(0), P_Agt(0), Ver(DS.GetVersion()), ObjTagContainerHelper(BTagL, PPOBJ_BILL, PPTAG_BILL_UUID)
 {
 }
@@ -644,7 +751,7 @@ void PPBill::BaseDestroy()
 {
 	Pays.clear();
 	Amounts.clear();
-	SMemo.Z(); // @v11.1.12
+	SMemo.Z();
 	Rec.Clear();
 	MEMSZERO(Rent);
 	MEMSZERO(Ext);
@@ -756,8 +863,10 @@ int FASTCALL PPBill::Copy(const PPBill & rS)
 		P_AdvRep = new PPAdvanceRep(*rS.P_AdvRep);
 	else
 		ZDELETE(P_AdvRep);
-	if(rS.P_Agt)
+	if(rS.P_Agt) {
 		P_Agt = new AgreementBlock(*rS.P_Agt);
+		SetupAgreement(false);
+	}
 	else
 		ZDELETE(P_Agt);
 	Turns = rS.Turns;
@@ -858,6 +967,35 @@ PPID PPBill::GetDlvrAddrID() const
 	return (p_bobj && p_bobj->GetDlvrAddrID(Rec, P_Freight, &result) > 0) ? result : 0;
 	// } @v12.1.11 
 	// @v12.1.11 return P_Freight ? P_Freight->DlvrAddrID__ : 0; 
+}
+
+/*static*/void PPBill::SetupAgreement(const BillTbl::Rec * pBillRec, AgreementBlock * pAgt)
+{
+	if(pBillRec && pAgt) {
+		pAgt->ID = pBillRec->ID;
+		pAgt->Dt = checkdate(pBillRec->Dt) ? pBillRec->Dt : ZERODATE;
+		STRNSCPY(pAgt->Code, pBillRec->Code);
+	}
+}
+
+/*static*/void PPBill::SetupAgreement(const PPBill * pThis, AgreementBlock * pAgt)
+{
+	if(pThis && pAgt) {
+		SetupAgreement(&pThis->Rec, pAgt);
+	}
+}
+
+bool PPBill::SetupAgreement(bool allocate)
+{
+	bool   ok = true;
+	if(allocate && !P_Agt) {
+		P_Agt = new AgreementBlock();
+		if(!P_Agt) {
+			ok = PPSetErrorSLib();
+		}
+	}
+	PPBill::SetupAgreement(this, P_Agt);
+	return ok;
 }
 
 int FASTCALL PPBill::GetFreight(PPFreight * pFreight) const
@@ -1848,7 +1986,7 @@ bool PPBankingOrder::TaxMarkers::IsEmpty() const
 //
 //
 //
-PPBillPacket::SetupObjectBlock::SetupObjectBlock() : State(0), PsnID(0)
+PPBillPacket::SetupObjectBlock::SetupObjectBlock() : State(0), PsnID(0), AcsID(0)
 {
     //Clear_();
 	Flags = 0;
@@ -1859,6 +1997,7 @@ PPBillPacket::SetupObjectBlock & PPBillPacket::SetupObjectBlock::Z()
 	// Flags = 0;
 	State = 0;
 	PsnID = 0;
+	AcsID = 0; // @v12.5.11
 	Name.Z();
 	RegInfoList.clear();
 	CliAgt.Z();
@@ -1987,25 +2126,33 @@ void PPBillPacket::SetupEdiAttributes(int ediOp, const char * pEdiChannel, const
 	BTagL.PutItemStrNE(PPTAG_BILL_EDIIDENT, pEdiIdent);
 }
 
-int PPBillPacket::SetupObject2(PPID arID)
+int PPBillPacket::SetupObject2(PPID ar2ID)
 {
 	int    ok = -1;
 	const  PPID preserve_ar2 = Rec.Object2;
-	if(arID != Rec.Object2) {
-		if(arID) {
+	const  PPID preserve_ar_id = Rec.Object;
+	if(ar2ID != Rec.Object2) {
+		SetupObjectBlock sob;
+		const  int  pacr = PreprocessArContext(Rec.Object, ar2ID, sob); // @v12.5.11
+		if(ar2ID) {
 			PPOprKind op_rec;
 			PPObjArticle ar_obj;
 			ArticleTbl::Rec ar_rec;
 			THROW(GetOpData(Rec.OpID, &op_rec) > 0);
 			THROW_PP_S(op_rec.AccSheet2ID, PPERR_OPHASNTACS2, op_rec.Name);
-			THROW(ar_obj.Fetch(arID, &ar_rec) > 0);
+			THROW(ar_obj.Fetch(ar2ID, &ar_rec) > 0);
 			THROW_PP_S(ar_rec.AccSheetID == op_rec.AccSheet2ID, PPERR_ARDONTBELONGOPACS2, ar_rec.Name);
 		}
-		Rec.Object2 = arID;
+		Rec.Object2 = ar2ID;
 		for(uint i = 0; i < GetTCount(); i++) {
 			const PPTransferItem & r_ti = ConstTI(i);
-			THROW(CheckGoodsForRestrictions((int)i, r_ti.GoodsID, TISIGN_UNDEF, r_ti.Qtty(), cgrfObject2, 0));
+			THROW(CheckGoodsForRestrictions(static_cast<int>(i), r_ti.GoodsID, TISIGN_UNDEF, r_ti.Qtty(), cgrfObject2, 0));
 		}
+		// @v12.5.11 {
+		if(sob.State & SetupObjectBlock::stForceReplaceAgtBill) {
+			Rec.AgtBillID = sob.DedicatedAgt.ID;
+		}
+		// } @v12.5.11 
 		ok = 1;
 	}
 	CATCH
@@ -2015,24 +2162,18 @@ int PPBillPacket::SetupObject2(PPID arID)
 	return ok;
 }
 
-int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
+int PPBillPacket::PreprocessArContext(PPID arID, PPID ar2ID, SetupObjectBlock & rRet) // @v12.5.11
 {
 	int    ok = 1;
-	const  PPID preserve_ar_id = Rec.Object;
-	SString temp_buf;
-	PPOprKind op_rec;
-	rRet.Z();
-	ProcessFlags &= ~(pfRestrictByArCodes | pfSubCostOnSubPartStr);
-	LAssocArray rglist;
-	const  bool getopdata_result = (GetOpData(Rec.OpID, &op_rec) > 0); // @v12.0.8
-	THROW(!arID || getopdata_result);
 	if(arID) {
 		PPObjArticle ar_obj;
 		ArticleTbl::Rec ar_rec;
-		PPID   acs_id = 0;
+		PPOprKind op_rec;
+		const  bool getopdata_result = (GetOpData(Rec.OpID, &op_rec) > 0);
+		PPID   force_ar2_id = 0; // Если в соглашении для клиента жестко задана доп статья, то это - она
+		THROW(getopdata_result);
 		THROW(ar_obj.Search(arID, &ar_rec) > 0);
-		// @v12.2.5 THROW_PP_S(ar_rec.AccSheetID == op_rec.AccSheetID, PPERR_ARDONTBELONGOPACS, ar_rec.Name); // @v12.0.8
-		// @v12.2.5 {
+		SETFLAG(rRet.State, SetupObjectBlock::stArIsStopped, ar_rec.Flags & ARTRF_STOPBILL);
 		if(ar_rec.AccSheetID != op_rec.AccSheetID) {
 			bool local_err = true;
 			if(!op_rec.AccSheetID && op_rec.LinkOpID) {
@@ -2042,50 +2183,109 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 			}
 			THROW_PP_S(!local_err, PPERR_ARDONTBELONGOPACS, ar_rec.Name);
 		}
-		// } @v12.2.5 
-		/* @construction // @v12.5.11 {
-		{
-			bool   do_force_replace_agt_bill = true;
-			PPID   new_agt_bill_id = 0;
-			BillTbl::Rec prev_agt_bill_rec;
-			if(Rec.AgtBillID && P_BObj->Search(Rec.AgtBillID, &prev_agt_bill_rec) > 0) {
-				if(prev_agt_bill_rec.Object == arID) {
-					do_force_replace_agt_bill = false;
-				}
-			}
-			if(do_force_replace_agt_bill) {
-				if(P_BObj->GetMostSuitableAgreement(*this, &new_agt_bill_id) > 0) {
-					PPBill::Agreement agt;
-					if(P_BObj->P_Tbl->GetAgreement(new_agt_bill_id, &agt) > 0) {
-					}
-				}
-			}
-		}
-		// } @v12.5.11 */
-		const  int    agt_kind = PPObjArticle::GetAgreementKind(&ar_rec);
-		rRet.PsnID = ObjectToPerson(arID, &acs_id);
+		const  int agt_kind = PPObjArticle::GetAgreementKind(&ar_rec);
+		rRet.PsnID = ObjectToPerson(arID, &rRet.AcsID);
 		rRet.Name = ar_rec.Name;
 		if(agt_kind == 1) {
 			if(ar_obj.GetClientAgreement(arID, rRet.CliAgt, 1) > 0) {
 				rRet.State |= rRet.stHasCliAgreement;
-				AgtQuotKindID = rRet.CliAgt.DefQuotKindID;
-				if(rRet.CliAgt.Flags & AGTF_USEMARKEDGOODSONLY)
-					ProcessFlags |= pfRestrictByArCodes;
+				ArticleTbl::Rec ar2_rec;
+				if(!(rRet.CliAgt.Flags & AGTF_DEFAULT) && rRet.CliAgt.ExtObjectID && ar_obj.Search(rRet.CliAgt.ExtObjectID, &ar2_rec) > 0) {
+					force_ar2_id = rRet.CliAgt.ExtObjectID;
+				}
 			}
 		}
 		else if(agt_kind == 2) {
-			PPSupplAgreement sa_rec;
 			if(ar_obj.GetSupplAgreement(arID, &rRet.SupplAgt, 1) > 0) {
 				rRet.State |= rRet.stHasSupplAgreement;
-				if(rRet.SupplAgt.Flags & AGTF_USEMARKEDGOODSONLY)
-					ProcessFlags |= pfRestrictByArCodes;
-				if(rRet.SupplAgt.Flags & AGTF_SUBCOSTONSUBPARTSTR)
-					ProcessFlags |= pfSubCostOnSubPartStr;
 			}
 		}
+		{
+			rRet.DedicatedAgt.ID = 0;
+			bool   do_force_replace_agt_bill = true;
+			BillTbl::Rec agt_bill_rec;
+			PPBill::AgreementBlock agt;
+			if(Rec.AgtBillID && P_BObj->Search(Rec.AgtBillID, &agt_bill_rec) > 0) {
+				if(agt_bill_rec.Object == arID && (!agt_bill_rec.Object || agt_bill_rec.Object2 == ar2ID)) {
+					if(P_BObj->P_Tbl->GetAgreement(agt_bill_rec.ID, &agt) > 0) {
+						;
+					}
+					// Не обязательно наличие специфических параметров в документе соглашения (возвращаются методом P_BObj->P_Tbl->GetAgreement)
+					rRet.DedicatedAgt = agt;
+					PPBill::SetupAgreement(&agt_bill_rec, &rRet.DedicatedAgt);
+					do_force_replace_agt_bill = false;
+				}
+			}
+			if(do_force_replace_agt_bill) {
+				PPID   new_agt_bill_id = 0;
+				rRet.DedicatedAgt.ID = 0;
+				if(P_BObj->GetMostSuitableAgreement(Rec.Dt, arID, ar2ID, &new_agt_bill_id) > 0 && P_BObj->Search(new_agt_bill_id, &agt_bill_rec) > 0) {
+					if(P_BObj->P_Tbl->GetAgreement(new_agt_bill_id, &agt) > 0) {
+						;
+					}
+					// Не обязательно наличие специфических параметров в документе соглашения (возвращаются методом P_BObj->P_Tbl->GetAgreement)
+					rRet.DedicatedAgt = agt;
+					PPBill::SetupAgreement(&agt_bill_rec, &rRet.DedicatedAgt);
+					if(do_force_replace_agt_bill) {
+						rRet.State |= SetupObjectBlock::stForceReplaceAgtBill;
+						//force_agt_bill_id = new_agt_bill_id;
+					}
+				}
+			}
+		}
+		if(agt_kind == 1 && (rRet.State & rRet.stHasCliAgreement)) {
+			if(rRet.DedicatedAgt.ID) {
+				if(rRet.DedicatedAgt.ApplyTo(rRet.CliAgt) > 0) {
+					rRet.State |= rRet.stHasDedicatedAgreement;
+				}
+			}
+			AgtQuotKindID = rRet.CliAgt.DefQuotKindID;
+			if(rRet.CliAgt.Flags & AGTF_USEMARKEDGOODSONLY) {
+				ProcessFlags |= pfRestrictByArCodes;
+			}
+		}
+		else if(agt_kind == 2 && (rRet.State & rRet.stHasSupplAgreement)) {
+			if(rRet.DedicatedAgt.ID) {
+				if(rRet.DedicatedAgt.ApplyTo(rRet.SupplAgt) > 0) {
+					rRet.State |= rRet.stHasDedicatedAgreement;
+				}
+			}
+			if(rRet.SupplAgt.Flags & AGTF_USEMARKEDGOODSONLY)
+				ProcessFlags |= pfRestrictByArCodes;
+			if(rRet.SupplAgt.Flags & AGTF_SUBCOSTONSUBPARTSTR)
+				ProcessFlags |= pfSubCostOnSubPartStr;
+		}
+	}
+	else {
+		if(Rec.AgtBillID) {
+			rRet.State |= SetupObjectBlock::stForceRemoveAgtBill;
+		}
+		ok = -1;
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
+{
+	int    ok = 1;
+	const  PPID preserve_ar_id = Rec.Object;
+	const  PPID preserve_agt_id = Rec.AgtBillID; // @v12.5.11
+	//PPID   force_agt_bill_id = 0; // Если необходимо установить новый документ соглашения в данный документ, то здесь - ид этого соглашения //
+	SString temp_buf;
+	PPOprKind op_rec;
+	rRet.Z();
+	ProcessFlags &= ~(pfRestrictByArCodes | pfSubCostOnSubPartStr);
+	LAssocArray rglist;
+	const  bool getopdata_result = (GetOpData(Rec.OpID, &op_rec) > 0); // @v12.0.8
+	const  int  pacr = PreprocessArContext(arID, Rec.Object2, rRet); // @v12.5.11
+	THROW(pacr);
+	THROW(!arID || getopdata_result);
+	if(pacr > 0) {
+		assert(arID > 0);
 		if(OpTypeID == PPOPT_AGREEMENT) {
 			if(!P_Agt || P_Agt->IsEmpty()) {
-				SETIFZ(P_Agt, new AgreementBlock);
+				THROW(SetupAgreement(true));
 				if(rRet.State & rRet.stHasCliAgreement) {
 					P_Agt->DefAgentID = rRet.CliAgt.DefAgentID;
 					P_Agt->DefPayPeriod = rRet.CliAgt.DefPayPeriod;
@@ -2109,8 +2309,8 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 				if(!ignore_stop) {
 					int    is_stopped = -1;
 					SString stop_err_addedmsg;
-					PPObjBill::MakeCodeString(&Rec, 0, stop_err_addedmsg); // @v11.4.3
-					stop_err_addedmsg.CatDiv('-', 1).Cat(ar_rec.Name);
+					PPObjBill::MakeCodeString(&Rec, 0, stop_err_addedmsg);
+					stop_err_addedmsg.CatDiv('-', 1).Cat(rRet.Name);
 					if(rRet.State & rRet.stHasCliAgreement) {
 						PPID   debt_dim_id = 0;
 						GetDebtDim(&debt_dim_id);
@@ -2120,8 +2320,10 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 							stop_err_addedmsg.Colon().Cat(temp_buf);
 						}
 					}
-					if(is_stopped < 0)
-						is_stopped = BIN(ar_rec.Flags & ARTRF_STOPBILL);
+					if(is_stopped < 0) {
+						// @v12.5.11 is_stopped = BIN(ar_rec.Flags & ARTRF_STOPBILL);
+						is_stopped = BIN(rRet.State & SetupObjectBlock::stArIsStopped); // @v12.5.11
+					}
 					THROW_PP_S(!is_stopped, PPERR_DENYSTOPPEDAR, stop_err_addedmsg);
 				}
 			}
@@ -2129,7 +2331,8 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 				PPID   restrict_psn_kind = 0;
 				PPAccSheet acs_rec;
 				PPObjAccSheet acs_obj;
-				if(acs_obj.Fetch(acs_id, &acs_rec) > 0) {
+				assert(rRet.AcsID); // Коль скоро rRet.PsnID != 0, то его мы получили методом PreprocessArContext() из arID. Мы не могли его получить, не получив "живого" rRet.AcsID!
+				if(acs_obj.Fetch(rRet.AcsID, &acs_rec) > 0) {
 					restrict_psn_kind = acs_rec.ObjGroup;
 				}
 				{
@@ -2197,8 +2400,18 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 		}
 	}
 	Rec.Object = arID;
+	// @v12.5.11 {
+	if(rRet.State & SetupObjectBlock::stForceReplaceAgtBill) {
+		//assert(rRet.DedicatedAgt.ID);
+		Rec.AgtBillID = rRet.DedicatedAgt.ID;
+	}
+	else if(rRet.State & SetupObjectBlock::stForceRemoveAgtBill) {
+		Rec.AgtBillID = 0;
+	}
+	// } @v12.5.11 
 	CATCH
 		Rec.Object = preserve_ar_id;
+		Rec.AgtBillID = preserve_agt_id; // @v12.5.11
 		ok = 0;
 	ENDCATCH
 	return ok;
@@ -2427,7 +2640,7 @@ int PPBillPacket::SetupItemQuotInfo(int itemNo, PPID quotKindID, double quotValu
 			}
 			else {
 				QuotSetupInfoItem item;
-				item.TiPos = (uint)itemNo;
+				item.TiPos = static_cast<uint>(itemNo);
 				item.QkID = quotKindID;
 				item.Value = quotValue;
 				item.Flags = flags;
@@ -2917,6 +3130,7 @@ int PPBillPacket::CreateBlankBySample(PPID sampleBillID, int use_ta)
 				if(P_BObj->P_Tbl->GetAgreement(sampleBillID, &agt) > 0 && !agt.IsEmpty()) { // @v12.5.10
 				// @v12.5.10 if(p_ref->GetProperty(PPOBJ_BILL, sampleBillID, BILLPRP_AGREEMENT, &agt, sizeof(agt)) > 0 && !agt.IsEmpty()) {
 					THROW_MEM(P_Agt = new PPBill::AgreementBlock(agt));
+					THROW(SetupAgreement(false));
 				}
 			}
 			break;
@@ -2952,8 +3166,7 @@ int PPBillPacket::CreateBlankBySample(PPID sampleBillID, int use_ta)
 			}
 			break;
 	}
-	// @v11.1.12 STRNSCPY(Rec.Memo, rec.Memo);
-	P_BObj->P_Tbl->GetItemMemo(sampleBillID, SMemo); // @v11.1.12
+	P_BObj->P_Tbl->GetItemMemo(sampleBillID, SMemo);
 	CATCHZOK
 	return ok;
 }
@@ -3089,7 +3302,7 @@ int PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int dontI
 		}
 	}
 	if(OpTypeID == PPOPT_AGREEMENT) {
-		P_Agt = new AgreementBlock;
+		THROW(SetupAgreement(true));
 	}
 	if(Rec.LinkBillID) {
 		SString msg_buf;
@@ -5654,6 +5867,15 @@ bool FASTCALL BillTotalData::IsEq(const BillTotalData & rS) const // @v12.2.8 @c
 	else if(!PriceVatList.IsEq(rS.PriceVatList))
 		eq = false;
 	return eq;
+}
+
+BillVatEntry::BillVatEntry() : Rate(0.0), VatSum(0.0), BaseAmount(0.0), AmountByVat(0.0)
+{
+}
+
+bool FASTCALL BillVatEntry::IsEq(const BillVatEntry & rS) const
+{
+	return (Rate == rS.Rate && VatSum == rS.VatSum && BaseAmount == rS.BaseAmount && AmountByVat == rS.AmountByVat);
 }
 
 BillVatArray::BillVatArray() : TSVector <BillVatEntry>()

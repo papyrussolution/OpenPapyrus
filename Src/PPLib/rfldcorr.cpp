@@ -2600,7 +2600,8 @@ int PPImpExp::ConvertInnerToOuter(int hdr, const void * pInnerBuf, size_t bufLen
 	int    ok = 1;
 	SString formula_result;
 	SString temp_buf;
-	SdbField outer_fld, inner_fld;
+	SdbField outer_fld;
+	SdbField inner_fld;
 	if(hdr) {
 		if(P.HdrOtrRec.GetDataC() == 0)
 			THROW_SL(P.HdrOtrRec.AllocDataBuf());

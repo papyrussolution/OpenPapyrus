@@ -45,7 +45,7 @@ SString & DateToStr(LDATE dt, SString & rBuf)
 		SString txt_month;
 		SGetMonthText(dt.month(), MONF_CASEGEN, txt_month);
 		SString & r_yr_buf = SLS.AcquireRvlStr();
-		(r_yr_buf = "г.").Transf(CTRANSF_UTF8_TO_INNER);
+		(r_yr_buf = "г.").Transf(CTRANSF_UTF8_TO_INNER); // @cstr
 		rBuf.CatLongZ(dt.day(), 2).Space().Cat(txt_month).Space().Cat(dt.year()).Space().Cat(r_yr_buf);
 		rBuf.Transf(CTRANSF_OUTER_TO_INNER);
 	}
@@ -1388,7 +1388,7 @@ int PPExtStringStorage::Enum(const SString & rLine, uint * pPos, int * pFldID, S
 				rBuf.CopyFromN(rLine+start, scan.Offs-start);
 			}
 			else {
-				pos = (uint)rLine.Len();
+				pos = rLine.Len32();
 				rBuf.CopyFrom(rLine+start);
 			}
 			ok = 1;
@@ -1439,7 +1439,8 @@ int STDCALL PPGetExtStrData(int fldID, const SString & rLine, SString & rBuf)
 
 int STDCALL PPCmpExtStrData(int fldID, const SString & rLine1, const SString & rLine2, long options)
 {
-    SString buf1, buf2;
+    SString buf1;
+	SString buf2;
     PPExtStringStorage ess;
     ess.Get(rLine1, fldID, buf1);
     ess.Get(rLine2, fldID, buf2);

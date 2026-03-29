@@ -61,9 +61,11 @@ char * DataType::tostr(const void *, long, char * b) const { return &(b[0] = 0);
 /*virtual*/SString & DataType::ToStr_(const void * pData, long format, SString & rBuf) const
 {
 	rBuf.Z();
+	/* @v12.5.11 Базовая функция ничего не будет делать 
 	char    temp_buf[4096];
 	tostr(pData, format, temp_buf);
 	rBuf = temp_buf;
+	*/
 	return rBuf;
 }
 
@@ -173,8 +175,11 @@ int FASTCALL stcast(TYPEID st, TYPEID dt, const void * sd, void * dd, long f)
 			return stype(dt, &_t).fromstr(dd, f, str_base);
 		}
 		else if(dbt == BTS_STRING) {
-			stype(st, &_t).tostr(sd, f, str_base);
-			return stype(dt, &_t).baseto(dd, str_base);
+			SString temp_buf; // @v12.5.11
+			// @v12.5.11 stype(st, &_t).tostr(sd, f, str_base);
+			temp_buf.Space().Z(); // @v12.5.11 ensure non-null buffer
+			stype(st, &_t).ToStr_(sd, f, temp_buf); // @v12.5.11 
+			return stype(dt, &_t).baseto(dd, /*str_base*/temp_buf.cptr());
 		}
 		else {
 			if(sbt == BTS_INT) {

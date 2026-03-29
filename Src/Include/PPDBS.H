@@ -714,12 +714,6 @@ public:
 		int16  Dts2010;
 		LTIME  Tm;
 	};
-	struct Key1 {
-		int16  ExtObjType;
-		int32  ExtObjID;
-		int16  Dts2010;
-		LTIME  Tm;
-	};
 	DBField ObjType;
 	DBField ExtObjType;
 	DBField ObjID;
@@ -1348,68 +1342,6 @@ public:
 	};
 	DBField PckgID;
 	DBField LotID;
-};
-#pragma pack(pop)
-
-#pragma pack(push, 1)
-class SpecSeriesTbl : public DBTable {
-public:
-	SpecSeriesTbl(const char * pFileName = 0, DbProvider * pDbP = 0);
-
-	struct Rec {
-		Rec();
-		Rec & Clear();
-		char   Serial[64];
-		char   Barcode[64];
-		char   GoodsName[128];
-		char   ManufName[128];
-		LDATE  InfoDate;
-		int32  InfoKind;
-		char   InfoIdent[24];
-		uint8  Reserve[48]; // raw
-		int32  GoodsID;
-		int32  LabID;
-		char   LabName[160];
-		int32  ManufID;
-		int32  ManufCountryID;
-		char   ManufCountryName[128];
-		LDATE  AllowDate;
-		char   AllowNumber[24];
-		char   SpecName[160];
-		char   LetterType[8];
-		int32  Flags;
-	} data;
-	struct Key0 {
-		int32  InfoKind;
-		char   Serial[64];
-	};
-	struct Key1 {
-		int32  InfoKind;
-		char   Barcode[64];
-	};
-	struct Key2 {
-		int32  InfoKind;
-		char   InfoIdent[24];
-	};
-	DBField Serial;
-	DBField Barcode;
-	DBField GoodsName;
-	DBField ManufName;
-	DBField InfoDate;
-	DBField InfoKind;
-	DBField InfoIdent;
-	DBField Reserve;
-	DBField GoodsID;
-	DBField LabID;
-	DBField LabName;
-	DBField ManufID;
-	DBField ManufCountryID;
-	DBField ManufCountryName;
-	DBField AllowDate;
-	DBField AllowNumber;
-	DBField SpecName;
-	DBField LetterType;
-	DBField Flags;
 };
 #pragma pack(pop)
 
@@ -3568,6 +3500,7 @@ public:
 	struct Key1 {
 		int32  SCardID;
 		int32  CheckID;
+		int16  RByCheck;
 	};
 	DBField CheckID;
 	DBField RByCheck;

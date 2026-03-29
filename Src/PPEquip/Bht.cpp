@@ -4431,8 +4431,8 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 							}
 						}
 						if(article_id) {
-							PPBillPacket::SetupObjectBlock sob;
-							if(!pack.SetupObject(article_id, sob))
+							PPBillPacket::SetupObjectBlock sob_unused;
+							if(!pack.SetupObject(article_id, sob_unused))
 								accept_doc = 0;
 						}
 						if(!accept_doc) {

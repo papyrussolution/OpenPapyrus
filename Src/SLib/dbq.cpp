@@ -260,9 +260,10 @@ int FASTCALL DBConst::fromfld(DBField f)
 
 int FASTCALL compare(DBConst * c1, DBConst * c2)
 {
-	double  d1, d2;
 	if(c1->Tag != c2->Tag) {
 		if(btnumber(c1->Tag) && btnumber(c2->Tag)) {
+			double d1;
+			double d2;
 			stcast(bt2st(c1->Tag), bt2st(BTS_REAL), &c1->rval, &d1, 0);
 			stcast(bt2st(c2->Tag), bt2st(BTS_REAL), &c2->rval, &d2, 0);
 			c1->init(d1);

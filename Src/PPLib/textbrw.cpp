@@ -9,6 +9,58 @@
 #include <scintilla.h>
 #include <scilexer.h>
 /*
+   Specs and Algorithm of session snapshot & periodic backup system:
+   Notepad++ quits without asking for saving unsaved file.
+   It restores all the unsaved files and document as the states they left.
+
+   For existing file (c:\tmp\foo.h)
+        - Open
+        In the next session, Notepad++
+        1. load backup\FILENAME@CREATION_TIMESTAMP (backup\foo.h@198776) if exist, otherwise load FILENAME
+           (c:\tmp\foo.h).
+        2. if backup\FILENAME@CREATION_TIMESTAMP (backup\foo.h@198776) is loaded, set it dirty (red).
+        3. if backup\FILENAME@CREATION_TIMESTAMP (backup\foo.h@198776) is loaded, last modif timestamp of FILENAME
+           (c:\tmp\foo.h), compare with tracked timestamp (in session.xml).
+        4. in the case of unequal result, tell user the FILENAME (c:\tmp\foo.h) was modified. ask user if he want to
+           reload FILENAME(c:\tmp\foo.h)
+
+        - Editing
+        when a file starts being modified, a file will be created with name: FILENAME@CREATION_TIMESTAMP
+           (backup\foo.h@198776)
+        the Buffer object will associate with this FILENAME@CREATION_TIMESTAMP file (backup\foo.h@198776).
+        1. sync: (every N seconds) the backup file will be saved if the buffer is dirty and modifications are present. A
+           boolean flag is set to true upon modification notification, and it's set to false after the backup file is
+           saved.
+        2. sync: each save file, or close file, the backup file will be deleted (if buffer is not dirty).
+        3. before switch off to another tab (or close files on exit), check 1 & 2 (sync with backup).
+
+        - Close
+        In the current session, Notepad++
+        1. track FILENAME@CREATION_TIMESTAMP (backup\foo.h@198776) if exist (in session.xml).
+        2. track last modified timestamp of FILENAME (c:\tmp\foo.h) if FILENAME@CREATION_TIMESTAMP (backup\foo.h@198776)
+           was tracked  (in session.xml).
+
+   For untitled document (new 4)
+        - Open
+        In the next session, Notepad++
+        1. open file UNTITLED_NAME@CREATION_TIMESTAMP (backup\new 4@198776)
+        2. set label as UNTITLED_NAME (new 4) and disk icon as red.
+
+        - Editing
+        when a untitled document starts being modified, a backup file will be created with name:
+           UNTITLED_NAME@CREATION_TIMESTAMP (backup\new 4@198776)
+        the Buffer object will associate with this UNTITLED_NAME@CREATION_TIMESTAMP file (backup\new 4@198776).
+        1. Sync: (every N seconds) the backup file will be saved if the buffer is dirty and modifications are present. A
+           boolean flag is set to true upon modification notification, and it's set to false after the backup file is
+           saved.
+        2. sync: if untitled document is saved, or closed, the backup file will be deleted.
+        3. before switch off to another tab (or close documents on exit), check 1 & 2 (sync with backup).
+
+        - Close
+        In the current session, Notepad++
+        1. track UNTITLED_NAME@CREATION_TIMESTAMP (backup\new 4@198776) in session.xml.
+*/
+/*
 	Структура состояния редактирования из notepad++
 
 struct Position {
@@ -74,71 +126,635 @@ struct sessionFileInfo : public Position {
 	MapPosition _mapPos;
 };
 */
+/*
+	SCN_UPDATEUI SCN_MODIFIED события, которые надо отслеживать для засечки необходимости сохранить состояние //
+*/ 
+int SScEditorBase::MakeBackupPath(const Document & rDoc, int storagesubj, SString & rBuf) // @v12.5.11
+{
+	rBuf.Z();
+	int    ok = 0;
+	SString temp_buf;
+	SString base_path;
+	SString file_name;
+	//if(GetKnownFolderPath(UED_FSKNOWNFOLDER_LOCAL_APP_DATA, local_path)) { // @v11.8.5
+	if(Cfg.BackupPath.NotEmpty()) {
+		if(SFile::IsDir(Cfg.BackupPath)) {
+			base_path = Cfg.BackupPath;
+		}
+		else {
+			if(SFile::CreateDir(Cfg.BackupPath)) {
+				base_path = Cfg.BackupPath;
+			}
+		}
+	}
+	if(base_path.IsEmpty()) {
+		// UED_FSKNOWNFOLDER_LOCAL_APP_DATA - C:\Users\USERNAME\AppData\Local 
+		// UED_FSKNOWNFOLDER_LOCAL_APP_DATA_LOW - C:\Users\USERNAME\AppData\LocalLow
+		// UED_FSKNOWNFOLDER_ROAMING_APP_DATA - C:\Users\USERNAME\AppData\Roaming
+		GetKnownFolderPath(UED_FSKNOWNFOLDER_ROAMING_APP_DATA, base_path);
+		if(SFile::IsDir(base_path)) {
+			const char * p_app_name = SLS.GetAppName();
+			if(!isempty(p_app_name)) {
+				base_path.SetLastSlash().Cat(p_app_name);
+			}
+			base_path.SetLastSlash().Cat("TEdSt");
+			{
+				DbProvider * p_dict = CurDict;
+				if(p_dict && p_dict->GetDbSymb(temp_buf)) {
+					base_path.SetLastSlash().Cat(temp_buf);
+				}
+			}
+			if(SFile::CreateDir(base_path)) {
+				;
+			}
+			else
+				base_path.Z();
+		}
+	}
+	if(base_path.NotEmpty()) {
+		SString name_symb;
+		if(rDoc.MakeNameSymbol(storagesubj, false/*withoutExt*/, name_symb)) {
+			rBuf.Cat(base_path).SetLastSlash().Cat(name_symb);
+			ok = 1;
+		}
+	}
+	return ok;
+}
 
-struct SScEditorPosition {
-	SScEditorPosition();
-	SJson * ToJsonObj() const; // non-virtual
-	bool   FromJsonObj(const SJson * pJsObj); // non-virtual
-	SScEditorPosition & Z();
+bool SScEditorBase::StoreText(const char * pDestFileName)
+{
+	bool   ok = true;
+	if(!isempty(pDestFileName)) {
+		const  uint8 * p_buf = reinterpret_cast<const uint8 *>(CallFunc(SCI_GETCHARACTERPOINTER, 0, 0)); // to get characters directly from Scintilla buffer;
+		const  size_t len = static_cast<size_t>(CallFunc(SCI_GETLENGTH));
+		SFile  file;
+		THROW_SL(file.Open(pDestFileName, SFile::mWrite|SFile::mBinary));
+		if(Doc.OrgCp == Doc.Cp) {
+			THROW_SL(file.Write(p_buf, len));
+		}
+		else if(Doc.Cp == cpUTF8) {
+			SString temp_buf;
+			temp_buf.CatN(reinterpret_cast<const char *>(p_buf), len);
+			temp_buf.Utf8ToCp(Doc.OrgCp);
+			THROW_SL(file.Write(temp_buf, temp_buf.Len()));
+		}
+		else {
+			THROW_SL(file.Write(p_buf, len));
+		}
+	}
+	else
+		ok = false;
+	CATCHZOK
+	return ok;
+}
 
-	int64  FirstVisibleLine;
-	int64  StartPos;
-	int64  EndPos;
-	int64  XOffset;
-	int64  SelMode;
-	int64  ScrollWidth;
-	int64  Offset;
-	int64  WrapCount;
-};
+bool SScEditorBase::StoreState(const char * pDestFileName)
+{
+	bool   ok = true;
+	SJson * p_js = 0;
+	if(!isempty(pDestFileName)) {
+		SString temp_buf;
+		SScEditorTextInfo state;
+		THROW(GetCurrentState(state));
+		p_js = state.ToJsonObj();
+		THROW_SL(p_js);
+		THROW_SL(p_js->ToStr(temp_buf));
+		{
+			SFile  file;
+			THROW_SL(file.Open(pDestFileName, SFile::mWrite|SFile::mBinary));
+			THROW_SL(file.Write(temp_buf, temp_buf.Len()));
+		}
+	}
+	else
+		ok = false;
+	CATCHZOK
+	delete p_js;
+	return ok;
+}
 
-struct SScEditorMapPosition {
-private:
-	static constexpr int64  MaxPeekLenInKB = 512; // 512 KB
-public:
-	SScEditorMapPosition();
-	SScEditorMapPosition & Z();
-	SJson * ToJsonObj() const; // non-virtual
-	bool   FromJsonObj(const SJson * pJsObj); // non-virtual
-	enum {
-		fIsWrap = 0x0001, // bool   IsWrap = false;
-	};
-	int64  FirstVisibleDisplayLine;
-	int64  FirstVisibleDocLine; // map
-	int64  LastVisibleDocLine;  // map
-	int64  NbLine;              // map
-	int64  HigherPos;           // map
-	int64  Width;
-	int64  Height;
-	int64  WrapIndentMode;
-	int64  KByteInDoc;
-	uint   Flags;
-	//bool   isValid() const { return (_firstVisibleDisplayLine != -1); };
-	//bool   canScroll() const { return (_KByteInDoc < _maxPeekLenInKB); }; // _nbCharInDoc < _maxPeekLen : Don't scroll the document for the performance issue
-};
+int SScEditorBase::DoBackup(int storagesubj) // @v12.5.11 @construction
+{
+	int    ok = -1;
+	SString backup_path;
+	if(storagesubj == storagesubjText) {
+		THROW(MakeBackupPath(Doc, storagesubjText, backup_path));
+		THROW(StoreText(backup_path));
+	}
+	if(storagesubj == storagesubjState) {
+		THROW(MakeBackupPath(Doc, storagesubjState, backup_path));
+		THROW(StoreState(backup_path));
+	}
+	CATCHZOK
+	return ok;
+}
 
-struct SScEditorTextInfo : public SScEditorPosition {
-	SScEditorTextInfo();
-	SJson * ToJsonObj() const; // non-virtual
-	bool   FromJsonObj(const SJson * pJsObj); // non-virtual
-	SScEditorTextInfo & Z(); // non-virtual
-	enum {
-		fUserReadOnly       = 0x0001, // bool   _isUserReadOnly = false;
-		fMonitoring         = 0x0002, // bool   _isMonitoring = false;
-		fRTL                = 0x0004, // bool   _isRTL = false;
-		fPinned             = 0x0008, // bool   _isPinned = false;
-		fUntitledTabRenamed = 0x0010  // bool   _isUntitledTabRenamed = false;
-	};
-	int    Lingua; //std::wstring _langName;
-	int    Cp; // codepage
-	int    IndividualTabColour;
-	uint   Flags;
-	uint64 UedOrgFileModTm; // FILETIME _originalFileLastModifTimestamp {};
-	SScEditorMapPosition MapPos;
-	SString FileNameUtf8;
-	SString BackupPathUtf8; // std::wstring _backupFilePath;
-	Int64Array MarkList; // std::vector<size_t> _marks;
-	Int64Array FoldStateList; // std::vector<size_t> _foldStates;
-};
+void SScEditorBase::RegisterEditEvent()
+{
+	const  LDATETIME now_dtm = getcurdatetime_();
+	ASSt.LastEditEventMoment = now_dtm;
+	Doc.SetState(Document::stDirty, 1);
+}
+
+void SScEditorBase::RegisterStateEvent()
+{
+	const  LDATETIME now_dtm = getcurdatetime_();
+	ASSt.LastUiEventMoment = now_dtm;
+}
+
+bool SScEditorBase::IsFolded(int64 line) 
+{ 
+	return (CallFunc(SCI_GETFOLDEXPANDED, line) != 0); 
+}
+
+void SScEditorBase::Fold(int64 line, bool mode, bool shouldBeNotified)
+{
+	int    end_styled = CallFunc(SCI_GETENDSTYLED);
+	int    len = CallFunc(SCI_GETTEXTLENGTH);
+	if(end_styled < len)
+		CallFunc(SCI_COLOURISE, 0, -1);
+	int32  header_line;
+	int    level = CallFunc(SCI_GETFOLDLEVEL, line);
+	if(level & SC_FOLDLEVELHEADERFLAG)
+		header_line = static_cast<int32>(line);
+	else {
+		header_line = static_cast<int32>(CallFunc(SCI_GETFOLDPARENT, line));
+		if(header_line == -1)
+			return;
+	}
+	if(IsFolded(header_line) != mode) {
+		CallFunc(SCI_TOGGLEFOLD, header_line);
+		if(shouldBeNotified) {
+			SCNotification scnN;
+			scnN.nmhdr.code = SCN_FOLDINGSTATECHANGED;
+			scnN.nmhdr.hwndFrom = H_Window;
+			scnN.nmhdr.idFrom = 0;
+			scnN.line = header_line;
+			scnN.foldLevelNow = IsFolded(header_line) ? 1 : 0; // folded:1, unfolded:0
+			::SendMessageW(/*_hParent*/GetParent(H_Window), WM_NOTIFY, 0, reinterpret_cast<LPARAM>(&scnN));
+		}
+	}
+}
+
+int SScEditorBase::GetCurrentFoldStateList(Int64Array & rList)
+{
+	rList.clear();
+	int    ok = -1;
+	if(P_SciFn && P_SciPtr) {
+		// xCodeOptimization1304: For active document get folding state from Scintilla.
+		// The code using SCI_CONTRACTEDFOLDNEXT is usually 10%-50% faster than checking each line of the document!!
+		int64  contracted_fold_header_line = 0;
+		do {
+			contracted_fold_header_line = CallFunc(SCI_CONTRACTEDFOLDNEXT, contracted_fold_header_line);
+			if(contracted_fold_header_line != -1) {
+				//-- Store contracted line
+				rList.add(contracted_fold_header_line);
+				//-- Start next search with next line
+				++contracted_fold_header_line;
+				ok = 1;
+			}
+		} while(contracted_fold_header_line != -1);
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int SScEditorBase::ApplyFoldStateList(const Int64Array & rList)
+{
+	int    ok = -1;
+	if(P_SciFn && P_SciPtr) {
+		const  int64 nb_line_state = rList.getCount();
+		if(nb_line_state > 0) {
+			if(nb_line_state > MAX_FOLD_LINES_MORE_THAN) { // Block WM_SETREDRAW messages
+				::SendMessageW(H_Window, WM_SETREDRAW, FALSE, 0);
+			}
+			for(size_t i = 0; i < nb_line_state; ++i) {
+				const  int64 line = rList.at(i);
+				Fold(line, false/*fold_collapse*/, false/*shouldBeNotified*/);
+			}
+			if(nb_line_state > MAX_FOLD_LINES_MORE_THAN) {
+				::SendMessageW(H_Window, WM_SETREDRAW, TRUE, 0);
+				CallFunc(SCI_SCROLLCARET);
+				::InvalidateRect(H_Window, nullptr, TRUE);
+			}
+			ok = 1;
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int SScEditorBase::GetCurrentState(SScEditorTextInfo & rResult)
+{
+	rResult.Z();
+	int    ok = 1;
+	THROW(GetCurrentPosition(rResult));
+	THROW(GetCurrentSnapshot(rResult.MapPos));
+	{
+		{
+			const int64 max_line = static_cast<int64>(CallFunc(SCI_GETLINECOUNT));
+			for(int64 j = 0; j < max_line; ++j) {
+				const int64 iter_marker = CallFunc(SCI_MARKERGET, j);
+				if(iter_marker & (1 << MARK_BOOKMARK)) {
+					rResult.MarkList.add(j);
+				}
+			}
+		}
+		GetCurrentFoldStateList(rResult.FoldStateList);
+		// @tod Остальные атрибут (искать аналогии в notepad++)
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SScEditorBase::ApplyPreservedState(SScEditorTextInfo & rSet)
+{
+	int    ok = -1;
+	SETIFZQ(P_RestorePosBlk, new RestorePositionBlock);
+	if(P_RestorePosBlk) {
+		P_RestorePosBlk->RestorePositionRetryCount = 0;
+		P_RestorePosBlk->Flags = 0;
+		THROW(RestoreCurrentPosition_PreStep(rSet, *P_RestorePosBlk));
+	}
+	{
+		{
+			for(uint i = 0; i < rSet.MarkList.getCount(); i++) {
+				const  int64 mark_state = rSet.MarkList.get(i);
+				CallFunc(SCI_MARKERADD, mark_state, MARK_BOOKMARK);
+			}
+		}
+		ApplyFoldStateList(rSet.FoldStateList);
+	}
+	CATCHZOK
+	return ok;
+}
+
+int64 SScEditorBase::GetDocSize()
+{
+	int64  result = 0;
+	if(P_SciFn && P_SciPtr) {
+		result = CallFunc(SCI_GETLENGTH);
+	}
+	return result;
+}
+
+int SScEditorBase::SetWrapMode(bool willBeWrapped)
+{
+	int    ok = 1;
+	if(P_SciFn && P_SciPtr) {
+		CallFunc(SCI_SETWRAPMODE, willBeWrapped);
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int SScEditorBase::GetWrapMode()
+{ 
+	int    result = 0;
+	if(P_SciFn && P_SciPtr) {
+		result = CallFunc(SCI_GETWRAPMODE); //(execute(SCI_GETWRAPMODE) == SC_WRAP_WORD); 
+	}
+	return result;
+}
+
+void SScEditorBase::Scroll(int64 column, int64 line)
+{
+	CallFunc(SCI_LINESCROLL, column, line);
+}
+
+int  SScEditorBase::GetTextZoneWidth()
+{
+	int    result = 0;
+	TRect  editor_rect;
+	if(GetRectCli(editor_rect)) {
+		intptr_t margin_widths = 0;
+		for(int m = 0; m < 4; ++m) {
+			margin_widths += CallFunc(SCI_GETMARGINWIDTHN, m);
+		}
+		result = (editor_rect.width() - static_cast<int>(margin_widths));
+	}
+	return result;
+}
+
+bool SScEditorBase::GetRectCli(TRect & rR)
+{
+	bool   ok = true;
+	RECT   r;
+	if(::GetClientRect(H_Window, &r)) {
+		rR = r;
+	}
+	else {
+		rR.Z();
+		ok = false;
+	}
+	return ok;
+}
+
+bool SScEditorBase::GetRectWin(TRect & rR)
+{
+	bool   ok = true;
+	RECT   r;
+	if(::GetWindowRect(H_Window, &r)) {
+		rR = r;
+	}
+	else {
+		rR.Z();
+		ok = false;
+	}
+	return ok;
+}
+
+int SScEditorBase::GetCurrentSnapshot(SScEditorMapPosition & rResult) // @construction
+{
+	// by-example-of: notepad++ DocumentPeeker::saveCurrentSnapshot
+	int    ok = 1;
+	const  bool is_wrap = (GetWrapMode() == SC_WRAP_WORD);
+	//Buffer * buffer = editView.getCurrentBuffer();
+	//MapPosition mapPos = buffer->getMapPosition();
+	// First visible document line for scrolling to this line
+	rResult.FirstVisibleDisplayLine = CallFunc(SCI_GETFIRSTVISIBLELINE);
+	rResult.FirstVisibleDocLine = CallFunc(SCI_DOCLINEFROMVISIBLE, rResult.FirstVisibleDisplayLine);
+	rResult.NbLine = CallFunc(SCI_LINESONSCREEN, rResult.FirstVisibleDisplayLine);
+	rResult.LastVisibleDocLine = CallFunc(SCI_DOCLINEFROMVISIBLE, rResult.FirstVisibleDisplayLine + rResult.NbLine);
+
+	auto line_height = CallFunc(SCI_TEXTHEIGHT, rResult.FirstVisibleDocLine);
+	rResult.Height = rResult.NbLine * line_height;
+	//
+	TRect editor_rect;
+	GetRectCli(editor_rect);
+	intptr_t margin_widths = 0;
+	for(int m = 0; m < 4; ++m) {
+		margin_widths += CallFunc(SCI_GETMARGINWIDTHN, m);
+	}
+	double edit_view_width  = editor_rect.width() - static_cast<LONG>(margin_widths);
+	double edit_view_height = editor_rect.height();
+	rResult.Width = static_cast<int64>((edit_view_width / edit_view_height) * static_cast<double>(rResult.Height));
+	rResult.WrapIndentMode = CallFunc(SCI_GETWRAPINDENTMODE);
+	SETFLAG(rResult.Flags, SScEditorMapPosition::fIsWrap, /*editView.isWrap()*/is_wrap);
+	if(/*editView.isWrap()*/is_wrap) {
+		rResult.HigherPos = CallFunc(SCI_POSITIONFROMPOINT, 0, 0);
+	}
+	rResult.KByteInDoc = GetDocSize() / 1024; // Length of document
+	//buffer->setMapPosition(rResult); // set current map position in buffer
+	return ok;
+}
+
+int SScEditorBase::ScrollSnapshotWith(const SScEditorMapPosition & rMapPos, int textZoneWidth) // @construction
+{
+	int    ok = 1;
+	/*if(_pPeekerView)*/ {
+		TRect  wrect; // судя по исходникам notepad++, _rc - полная область окна (не клиентская). Где я использую wrect было _rc
+		bool   has_been_changed = false;
+		GetRectWin(wrect);
+		//
+		// if window size has been changed, resize windows
+		//
+		if(rMapPos.Height != -1 && /*_rc.bottom*/wrect.b.y != (/*_rc.top*/wrect.a.y + rMapPos.Height)) {
+			//_rc.bottom = _rc.top + static_cast<LONG>(rMapPos.Height);
+			wrect.b.y = wrect.a.y + static_cast<int16>(rMapPos.Height);
+			has_been_changed = true;
+		}
+		if(rMapPos.Width != -1 && /*_rc.right*/wrect.b.x != (/*_rc.left*/wrect.a.x + rMapPos.Width)) {
+			//_rc.right = _rc.left + static_cast<LONG>(rMapPos.Width);
+			wrect.b.x = wrect.a.x + static_cast<int16>(rMapPos.Width);
+			has_been_changed = true;
+		}
+		if(has_been_changed)
+			::MoveWindow(H_Window, 0, 0, /*_rc.right - _rc.left*/wrect.width(), /*_rc.bottom - _rc.top*/wrect.height(), TRUE);
+		//
+		// Wrapping
+		//
+		SetWrapMode(LOGIC(rMapPos.Flags & SScEditorMapPosition::fIsWrap));
+		CallFunc(SCI_SETWRAPINDENTMODE, rMapPos.WrapIndentMode);
+		//
+		// Add padding
+		//
+		/*
+		const ScintillaViewParams & svp = NppParameters::getInstance().getSVP();
+		if(svp._paddingLeft || svp._paddingRight) {
+			int docPeekerWidth = GetTextZoneWidth();
+			int paddingMapLeft = static_cast<int>(svp._paddingLeft / (textZoneWidth / docPeekerWidth));
+			int paddingMapRight = static_cast<int>(svp._paddingRight / (textZoneWidth / docPeekerWidth));
+			CallFunc(SCI_SETMARGINLEFT, 0, paddingMapLeft);
+			CallFunc(SCI_SETMARGINRIGHT, 0, paddingMapRight);
+		}
+		*/
+		//
+		// Reset to zero
+		//
+		CallFunc(SCI_HOMEDISPLAY);
+		//
+		// Visible line for the code view
+		//
+		// scroll to the first visible display line
+		CallFunc(SCI_LINESCROLL, 0, rMapPos.FirstVisibleDisplayLine);
+	}
+	return ok;
+}
+/*
+void DocumentPeeker::scrollSnapshotWith(const MapPosition & mapPos, int textZoneWidth)
+{
+	if(_pPeekerView) {
+		bool hasBeenChanged = false;
+		//
+		// if window size has been changed, resize windows
+		//
+		if(mapPos._height != -1 && _rc.bottom != _rc.top + mapPos._height) {
+			_rc.bottom = _rc.top + static_cast<LONG>(mapPos._height);
+			hasBeenChanged = true;
+		}
+		if(mapPos._width != -1 && _rc.right != _rc.left + mapPos._width) {
+			_rc.right = _rc.left + static_cast<LONG>(mapPos._width);
+			hasBeenChanged = true;
+		}
+
+		if(hasBeenChanged)
+			::MoveWindow(_pPeekerView->getHSelf(), 0, 0, _rc.right - _rc.left, _rc.bottom - _rc.top, TRUE);
+		//
+		// Wrapping
+		//
+		_pPeekerView->wrap(mapPos._isWrap);
+		_pPeekerView->execute(SCI_SETWRAPINDENTMODE, mapPos._wrapIndentMode);
+		//
+		// Add padding
+		//
+		const ScintillaViewParams& svp = NppParameters::getInstance().getSVP();
+		if(svp._paddingLeft || svp._paddingRight) {
+			int docPeekerWidth = _pPeekerView->getTextZoneWidth();
+			int paddingMapLeft = static_cast<int>(svp._paddingLeft / (textZoneWidth / docPeekerWidth));
+			int paddingMapRight = static_cast<int>(svp._paddingRight / (textZoneWidth / docPeekerWidth));
+			_pPeekerView->execute(SCI_SETMARGINLEFT, 0, paddingMapLeft);
+			_pPeekerView->execute(SCI_SETMARGINRIGHT, 0, paddingMapRight);
+		}
+		//
+		// Reset to zero
+		//
+		_pPeekerView->execute(SCI_HOMEDISPLAY);
+		//
+		// Visible line for the code view
+		//
+		// scroll to the first visible display line
+		_pPeekerView->execute(SCI_LINESCROLL, 0, mapPos._firstVisibleDisplayLine);
+	}
+}
+
+ void DocumentPeeker::saveCurrentSnapshot(ScintillaEditView & editView)
+{
+	if(_pPeekerView) {
+		Buffer * buffer = editView.getCurrentBuffer();
+		MapPosition mapPos = buffer->getMapPosition();
+		// First visible document line for scrolling to this line
+		mapPos._firstVisibleDisplayLine = editView.execute(SCI_GETFIRSTVISIBLELINE);
+		mapPos._firstVisibleDocLine = editView.execute(SCI_DOCLINEFROMVISIBLE, mapPos._firstVisibleDisplayLine);
+		mapPos._nbLine = editView.execute(SCI_LINESONSCREEN, mapPos._firstVisibleDisplayLine);
+		mapPos._lastVisibleDocLine = editView.execute(SCI_DOCLINEFROMVISIBLE, mapPos._firstVisibleDisplayLine + mapPos._nbLine);
+
+		auto lineHeight = _pPeekerView->execute(SCI_TEXTHEIGHT, mapPos._firstVisibleDocLine);
+		mapPos._height = mapPos._nbLine * lineHeight;
+
+		// Width
+		RECT editorRect;
+		editView.getClientRect(editorRect);
+		intptr_t marginWidths = 0;
+		for(int m = 0; m < 4; ++m) {
+			marginWidths += editView.execute(SCI_GETMARGINWIDTHN, m);
+		}
+		double editViewWidth = editorRect.right - editorRect.left - static_cast<LONG>(marginWidths);
+		double editViewHeight = editorRect.bottom - editorRect.top;
+		mapPos._width = static_cast<intptr_t>((editViewWidth / editViewHeight) * static_cast<double>(mapPos._height));
+		mapPos._wrapIndentMode = editView.execute(SCI_GETWRAPINDENTMODE);
+		mapPos._isWrap = editView.isWrap();
+		if(editView.isWrap()) {
+			mapPos._higherPos = editView.execute(SCI_POSITIONFROMPOINT, 0, 0);
+		}
+		mapPos._KByteInDoc = editView.getCurrentDocLen() / 1024; // Length of document
+		buffer->setMapPosition(mapPos); // set current map position in buffer
+	}
+}
+*/
+//
+// Descr: restore current position is executed in two steps.
+//   The detection wrap state done in the pre step function:
+//   if wrap is enabled, then _positionRestoreNeeded is activated
+//   so post step function will be called in the next SCN_PAINTED message
+//
+int SScEditorBase::RestoreCurrentPosition_PreStep(const SScEditorPosition & rPos, RestorePositionBlock & rBlk)
+{
+	int    ok = 1;
+	if(P_SciFn && P_SciPtr) {
+		//Buffer * buf = MainFileManager.getBufferByID(_currentBufferID);
+		//const Position & pos = buf->getPosition(this);
+		CallFunc(SCI_SETSELECTIONMODE, rPos.SelMode);    //enable
+		CallFunc(SCI_SETANCHOR, rPos.StartPos);
+		CallFunc(SCI_SETCURRENTPOS, rPos.EndPos);
+		CallFunc(SCI_CANCEL); //disable
+		//if(!isWrap()) { //only offset if not wrapping, otherwise the offset isn't needed at all
+		if(GetWrapMode() != SC_WRAP_WORD) {
+			CallFunc(SCI_SETSCROLLWIDTH, rPos.ScrollWidth);
+			CallFunc(SCI_SETXOFFSET, rPos.XOffset);
+		}
+		CallFunc(SCI_CHOOSECARETX); // choose current x position
+		int64  line_to_show = CallFunc(SCI_VISIBLEFROMDOCLINE, rPos.FirstVisibleLine);
+		CallFunc(SCI_SETFIRSTVISIBLELINE, line_to_show);
+		//if(isWrap()) {
+		if(GetWrapMode() == SC_WRAP_WORD) {
+			// Enable flag 'positionRestoreNeeded' so that function restoreCurrentPosPostStep get called
+			// once scintilla send SCN_PAINTED notification
+			//_positionRestoreNeeded = true;
+			rBlk.Flags |= RestorePositionBlock::fPosRestoreNeeded;
+			ok = 100;
+		}
+		//_restorePositionRetryCount = 0;
+		rBlk.RestorePositionRetryCount = 0;
+	}
+	else
+		ok = 0;
+	return ok;
+}
+//
+// Descr: If wrap is enabled, the post step function will be called in the next SCN_PAINTED message
+//   to scroll several lines to set the first visible line to the correct wrapped line.
+//
+#if 1 // @construction {
+int SScEditorBase::RestoreCurrentPosition_PostStep(const SScEditorPosition & rPos, RestorePositionBlock & rBlk)
+{
+	int    ok = 1;
+	if(P_SciFn && P_SciPtr) {
+		//if(!_positionRestoreNeeded)
+			//return;
+		if(rBlk.Flags & RestorePositionBlock::fPosRestoreNeeded) {
+			//Buffer * buf = MainFileManager.getBufferByID(_currentBufferID);
+			//const Position & pos = buf->getPosition(this);
+			//++_restorePositionRetryCount;
+			rBlk.RestorePositionRetryCount++;
+			// Scintilla can send several SCN_PAINTED notifications before the buffer is ready to be displayed.
+			// this post step function is therefore iterated several times in a maximum of 8 iterations.
+			// 8 is an arbitrary number. 2 is a minimum. Maximum value is unknown.
+			if(rBlk.RestorePositionRetryCount > 8) {
+				// Abort the position restoring  process. Buffer topology may have changed
+				//_positionRestoreNeeded = false;
+				rBlk.Flags &= ~RestorePositionBlock::fPosRestoreNeeded;
+			}
+			else {
+				const  int64 displayed_line = CallFunc(SCI_GETFIRSTVISIBLELINE);
+				const  int64 doc_line = CallFunc(SCI_DOCLINEFROMVISIBLE, displayed_line); //linenumber of the line displayed in the
+				// check docLine must equals saved position
+				if(doc_line != rPos.FirstVisibleLine) {
+					// Scintilla has paint the buffer but the position is not correct.
+					const  int64 line_to_show = CallFunc(SCI_VISIBLEFROMDOCLINE, rPos.FirstVisibleLine);
+					CallFunc(SCI_SETFIRSTVISIBLELINE, line_to_show);
+				}
+				else if(rPos.Offset > 0) {
+					// don't scroll anything if the wrap count is different than the saved one.
+					// Buffer update may be in progress (in case wrap is enabled)
+					const  int64 wrap_count = CallFunc(SCI_WRAPCOUNT, doc_line);
+					if(wrap_count == rPos.WrapCount) {
+						Scroll(0, rPos.Offset);
+						//_positionRestoreNeeded = false;
+						rBlk.Flags &= ~RestorePositionBlock::fPosRestoreNeeded;
+					}
+				}
+				else {
+					// Buffer position is correct, and there is no scroll to apply
+					//_positionRestoreNeeded = false;
+					rBlk.Flags &= ~RestorePositionBlock::fPosRestoreNeeded;
+				}
+			}
+		}
+		else
+			ok = -1;
+	}
+	else
+		ok = 0;
+	return ok;
+}
+#endif // } 0 @construction
+
+int SScEditorBase::GetCurrentPosition(SScEditorPosition & rResult)
+{
+	rResult.Z();
+	int    ok = 1;
+	if(P_SciFn && P_SciPtr) {
+		int64  displayed_line = CallFunc(SCI_GETFIRSTVISIBLELINE);
+		int64  doc_line = CallFunc(SCI_DOCLINEFROMVISIBLE, displayed_line); //linenumber of the line displayed in the top
+		int64  offset = displayed_line - CallFunc(SCI_VISIBLEFROMDOCLINE, doc_line); //use this to calc offset of wrap. If no wrap this should be zero
+		int64  wrap_count = CallFunc(SCI_WRAPCOUNT, doc_line);
+		// the correct visible line number
+		rResult.FirstVisibleLine = doc_line;
+		rResult.StartPos = CallFunc(SCI_GETANCHOR);
+		rResult.EndPos = CallFunc(SCI_GETCURRENTPOS);
+		rResult.XOffset = CallFunc(SCI_GETXOFFSET);
+		rResult.SelMode = CallFunc(SCI_GETSELECTIONMODE);
+		rResult.ScrollWidth = CallFunc(SCI_GETSCROLLWIDTH);
+		rResult.Offset = offset;
+		rResult.WrapCount = wrap_count;
+	}
+	else
+		ok = 0;
+	return ok;
+}
 
 SScEditorPosition::SScEditorPosition() : FirstVisibleLine(0), StartPos(0), EndPos(0), XOffset(0), SelMode(0), ScrollWidth(1), Offset(0), WrapCount(0)
 {
@@ -848,13 +1464,13 @@ void SScEditorBase::SetSpecialStyle(const SScEditorStyleSet::Style & rStyle)
 		CallFunc(SCI_STYLESETSIZE, styleID, rStyle.FontSize);
 }
 
-const int LANG_INDEX_INSTR  = 0;
-const int LANG_INDEX_INSTR2 = 1;
-const int LANG_INDEX_TYPE   = 2;
-const int LANG_INDEX_TYPE2  = 3;
-const int LANG_INDEX_TYPE3  = 4;
-const int LANG_INDEX_TYPE4  = 5;
-const int LANG_INDEX_TYPE5  = 6;
+constexpr int LANG_INDEX_INSTR  = 0;
+constexpr int LANG_INDEX_INSTR2 = 1;
+constexpr int LANG_INDEX_TYPE   = 2;
+constexpr int LANG_INDEX_TYPE2  = 3;
+constexpr int LANG_INDEX_TYPE3  = 4;
+constexpr int LANG_INDEX_TYPE4  = 5;
+constexpr int LANG_INDEX_TYPE5  = 6;
 
 static int GetKwClassFromName(const char * pStr, const char * pLexerName)
 {
@@ -1042,7 +1658,7 @@ int EditSearchReplaceParam(SSearchReplaceParam * pData) { DIALOG_PROC_BODY(Searc
 //
 //
 //
-SScEditorBase::SScEditorBase() : P_SciFn(0), P_SciPtr(0), P_Tknzr(0)
+SScEditorBase::SScEditorBase() : P_SciFn(0), P_SciPtr(0), P_Tknzr(0), H_Window(0), P_RestorePosBlk(0)
 {
 	Init(0, 0);
 }
@@ -1050,6 +1666,19 @@ SScEditorBase::SScEditorBase() : P_SciFn(0), P_SciPtr(0), P_Tknzr(0)
 SScEditorBase::~SScEditorBase()
 {
 	delete P_Tknzr;
+	delete P_RestorePosBlk;
+}
+
+int SScEditorBase::GetConfig(Config & rCfg) const
+{
+	rCfg = Cfg;
+	return 1;
+}
+
+int SScEditorBase::SetConfig(const Config & rCfg)
+{
+	Cfg = rCfg;
+	return 1;
 }
 
 void SScEditorBase::ClearIndicator(int indicatorNumber)
@@ -1082,6 +1711,7 @@ void SScEditorBase::Init(HWND hScW, int preserveFileName)
 		}
 		// } @v12.5.7 
 	}
+	H_Window = hScW;
 }
 
 int SScEditorBase::Release()
@@ -1168,7 +1798,7 @@ int SScEditorBase::SearchAndReplace(long flags)
 	}
 	if(!(flags & srfUseDialog) || EditSearchReplaceParam(&param) > 0) {
 		LastSrParam = param;
-		SString pattern = param.Pattern;
+		SString pattern(param.Pattern);
 		pattern.Transf(CTRANSF_INNER_TO_UTF8);
 		if(pattern.NotEmpty()) {
 			IntRange sel;
@@ -1292,18 +1922,54 @@ long STextBrowser::Document::SetState(long st, int set)
 	return State;
 }
 
-STextBrowser::STextBrowser() : TBaseBrowserWindow(WndClsName), SScEditorBase(), SpcMode(spcmNo)
+bool STextBrowser::Document::MakeNameSymbol(int storagesubj, bool withoutExt, SString & rBuf) const
+{
+	rBuf.Z();
+	bool   ok = true;
+	if(OtrIdent.O.IsFullyDefined() && OtrIdent.P) {
+		OtrIdent.ToStr(rBuf);
+		if(oneof2(storagesubj, storagesubjUndef, storagesubjText)) {
+			rBuf.DotCat("txt");
+		}
+		else if(storagesubj == storagesubjState) {
+			rBuf.DotCat("json");
+		}
+	}
+	else if(FileName.NotEmpty()) {
+		SString temp_buf;
+		SFsPath::NormalizePath(FileName, SFsPath::npfCompensateDotDot|SFsPath::npfSlash, temp_buf); // Это - важно (иначе хэши не совпадут)!
+		SFsPath ps(temp_buf);
+		ps.Merge(SFsPath::fNam, rBuf);
+		const  uint32 hash = SlHash::XX32(temp_buf.ucptr(), temp_buf.Len(), /*HashSeed*/SlConst::Seed32_FileName);
+		rBuf.CatChar('#').CatHex(hash);
+		if(!withoutExt) {
+			if(oneof2(storagesubj, storagesubjUndef, storagesubjText)) {
+				if(ps.Ext.NotEmpty())
+					rBuf.DotCat(ps.Ext);
+			}
+			else if(storagesubj == storagesubjState) {
+				rBuf.DotCat("json");
+			}
+		}
+	}
+	else
+		ok = false;
+	return ok;
+}
+
+STextBrowser::STextBrowser() : TBaseBrowserWindow(WndClsName), SScEditorBase(), SpcMode(spcmNo), IdleTimer(0)
 {
 	Init(0, 0, 0);
 }
 
-STextBrowser::STextBrowser(const char * pFileName, const char * pLexerSymb, int toolbarId) : TBaseBrowserWindow(WndClsName), SScEditorBase(), SpcMode(spcmNo)
+STextBrowser::STextBrowser(const char * pFileName, const char * pLexerSymb, int toolbarId) : 
+	TBaseBrowserWindow(WndClsName), SScEditorBase(), SpcMode(spcmNo), IdleTimer(0)
 {
 	Init(pFileName, pLexerSymb, toolbarId);
 }
 
 STextBrowser::STextBrowser(const SObjTextRefIdent & rIdent, const char * pLexerSymb, int toolbarId/*=-1*/) : 
-	TBaseBrowserWindow(WndClsName), SScEditorBase(), SpcMode(spcmNo) // @v12.5.6
+	TBaseBrowserWindow(WndClsName), SScEditorBase(), SpcMode(spcmNo), IdleTimer(0) // @v12.5.6
 {
 	Init(rIdent, pLexerSymb, toolbarId);
 }
@@ -1362,6 +2028,7 @@ int STextBrowser::Init(const SObjTextRefIdent & rIdent, const char * pLexerSymb,
 		k.SetTvKeyCode(kbF3);
 		SetKeybAccelerator(k, PPVCMD_SEARCHNEXT);
 	}
+	//SetIdlePeriod(3);
 	return 1;
 }
 
@@ -1387,6 +2054,20 @@ int STextBrowser::Init(const char * pFileName, const char * pLexerSymb, int tool
 	return 1;
 }
 
+IMPL_HANDLE_EVENT(STextBrowser) // @v12.5.11
+{
+	TBaseBrowserWindow::handleEvent(event);
+	if(TVBROADCAST) {
+		if(TVCMD == cmIdle) {
+			if(IdleTimer.Check(0)) {
+				DoAutosaveByIdle(0);
+				//P_View->ProcessCommand(PPVCMD_IDLE, 0, this);
+			}
+			return; // в конце функции стоит clearEvent(event) который препятствует дальнейшей обработке cmIdle
+		}
+	}
+}
+
 /*static*/const wchar_t * STextBrowser::WndClsName = L"STextBrowser"; // @global
 
 /*static*/int STextBrowser::RegWindowClass(HINSTANCE hInst)
@@ -1400,11 +2081,6 @@ int STextBrowser::Init(const char * pFileName, const char * pLexerSymb, int tool
 	Scintilla_RegisterClasses(hInst);
 #endif
 	return RegisterClassExW(&wc);
-}
-
-bool STextBrowser::IsFolded(size_t line) 
-{ 
-	return (CallFunc(SCI_GETFOLDEXPANDED, line) != 0); 
 }
 //
 // Run through full document. When switching in or opening folding
@@ -1549,33 +2225,6 @@ void STextBrowser::Expand(size_t & rLine, bool doExpand, bool force, int visLeve
 	RunMarkers(true, 0, true, false);
 }
 
-void STextBrowser::Fold(size_t line, bool mode)
-{
-	int    end_styled = CallFunc(SCI_GETENDSTYLED);
-	int    len = CallFunc(SCI_GETTEXTLENGTH);
-	if(end_styled < len)
-		CallFunc(SCI_COLOURISE, 0, -1);
-	int32 header_line;
-	int   level = CallFunc(SCI_GETFOLDLEVEL, line);
-	if(level & SC_FOLDLEVELHEADERFLAG)
-		header_line = static_cast<int32>(line);
-	else {
-		header_line = static_cast<int32>(CallFunc(SCI_GETFOLDPARENT, line));
-		if(header_line == -1)
-			return;
-	}
-	if(IsFolded(header_line) != mode) {
-		CallFunc(SCI_TOGGLEFOLD, header_line);
-		SCNotification scnN;
-		scnN.nmhdr.code = SCN_FOLDINGSTATECHANGED;
-		scnN.nmhdr.hwndFrom = /*_hSelf*/HwndSci;
-		scnN.nmhdr.idFrom = 0;
-		scnN.line = header_line;
-		scnN.foldLevelNow = IsFolded(header_line) ? 1 : 0; // folded:1, unfolded:0
-		::SendMessage(/*_hParent*/GetParent(HwndSci), WM_NOTIFY, 0, reinterpret_cast<LPARAM>(&scnN));
-	}
-}
-
 void STextBrowser::MarginClick(/*Sci_Position*/int position, int modifiers)
 {
 	size_t line_click = CallFunc(SCI_LINEFROMPOSITION, position, 0);
@@ -1601,7 +2250,7 @@ void STextBrowser::MarginClick(/*Sci_Position*/int position, int modifiers)
 		else {
 			// Toggle this line
 			bool mode = IsFolded(line_click);
-			Fold(line_click, !mode);
+			Fold(line_click, !mode, true/*shouldBeNotified*/);
 			RunMarkers(true, line_click, true, false);
 		}
 	}
@@ -1742,15 +2391,19 @@ void STextBrowser::MarginClick(/*Sci_Position*/int position, int modifiers)
 							}
 							break;
 						case SCN_UPDATEUI:
+							p_view->RegisterStateEvent(); // @v12.5.11
 							StatusWinChange(0, -1);
 							break;
 						case SCN_CHARADDED:
 						case SCN_MODIFIED:
 							if(p_scn->modificationType & (SC_MOD_DELETETEXT|SC_MOD_INSERTTEXT|SC_PERFORMED_UNDO|SC_PERFORMED_REDO)) {
-								p_view->Doc.SetState(Document::stDirty, 1);
+								if(!(p_scn->modificationType & SC_STARTACTION)) {
+									// @v12.5.11 p_view->Doc.SetState(Document::stDirty, 1);
+									p_view->RegisterEditEvent(); // @v12.5.11
+								}
 							}
 							break;
-						case SCN_MARGINCLICK: // @v11.1.12
+						case SCN_MARGINCLICK:
 							{
 								/*
 								if(p_scn->nmhdr.hwndFrom == _mainEditView.getHSelf())
@@ -2094,6 +2747,51 @@ int STextBrowser::WMHCreate()
 	else {
 		FileLoad(Doc.FileName, cpUTF8, 0);
 	}
+	// @v12.5.11 @construction {
+	{
+		bool   state_restoration_done = false;
+		SJson * p_js = 0;
+		{
+			LocalStateBinderyCore * p_lstb = DS.GetTLA().GetLocalStateBindery();
+			if(p_lstb) {
+				LocalStateBinderyCore::StateIdent sident;
+				sident.Kind = LocalStateBinderyCore::kEditorPosition;
+				Doc.MakeNameSymbol(storagesubjState, true/*withoutExt*/, sident.Symb);
+				PPID   _ret_id = 0;
+				SString temp_buf;
+				SBuffer sbuf;
+				SScEditorTextInfo state;
+				if(p_lstb->FetchState(sident, &_ret_id, &sbuf)) {
+					if(LocalStateBinderyCore::GetStringFromStateBuf(LocalStateBinderyCore::treatbStringUtf8, sbuf, temp_buf)) {
+						p_js = SJson::Parse(temp_buf);
+						if(p_js) {
+							SScEditorTextInfo state;
+							if(state.FromJsonObj(p_js)) {
+								ApplyPreservedState(state);
+								state_restoration_done = true;
+							}
+						}
+					}
+				}
+			}
+		}
+		if(!state_restoration_done) {
+			SString path;
+			MakeBackupPath(Doc, storagesubjState, path);
+			if(fileExists(path)) {
+				p_js = SJson::ParseFile(path);
+				if(p_js) {
+					SScEditorTextInfo state;
+					if(state.FromJsonObj(p_js)) {
+						ApplyPreservedState(state);
+						state_restoration_done = true;
+					}
+				}
+			}
+		}
+		delete p_js;
+	}
+	// }
 	return BIN(P_SciFn && P_SciPtr);
 }
 
@@ -2186,6 +2884,16 @@ int STextBrowser::InsertWorkbookLink()
 //
 //
 //
+int STextBrowser::SetIdlePeriod(long periodMs) // @v12.5.11
+{
+	if(periodMs >= 0 && periodMs < 86400L) {
+		IdleTimer.Restart(static_cast<uint32>(periodMs) * 1000);
+		return 1;
+	}
+	else
+		return 0;
+}
+
 int STextBrowser::ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw)
 {
 	int    ok = -2;
@@ -2201,8 +2909,9 @@ int STextBrowser::ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw)
 			if(Doc.OtrIdent.O.IsFullyDefined() && Doc.OtrIdent.P) {
 				ok = ObjectSave(Doc.OtrIdent, 0); 
 			}
-			else
+			else {
 				ok = FileSave(0, 0); 
+			}
 			break;
 		case PPVCMD_SAVEAS: 
 			ok = FileSave(0, ofInteractiveSaveAs); 
@@ -2512,27 +3221,96 @@ int STextBrowser::FileSave(const char * pFileName, long flags)
 			skip = true;
 	}
 	if(!skip) {
-		const  uint8 * p_buf = reinterpret_cast<const uint8 *>(CallFunc(SCI_GETCHARACTERPOINTER, 0, 0)); // to get characters directly from Scintilla buffer;
-		const  size_t len = static_cast<size_t>(CallFunc(SCI_GETLENGTH));
-		SFile file;
-		THROW_SL(file.Open(path, SFile::mWrite|SFile::mBinary));
-		if(Doc.OrgCp == Doc.Cp) {
-			THROW_SL(file.Write(p_buf, len));
-		}
-		else if(Doc.Cp == cpUTF8) {
-			SString temp_buf;
-			temp_buf.CatN(reinterpret_cast<const char *>(p_buf), len);
-			temp_buf.Utf8ToCp(Doc.OrgCp);
-			THROW_SL(file.Write(temp_buf, temp_buf.Len()));
-		}
-		else {
-			THROW_SL(file.Write(p_buf, len));
-		}
+		THROW(SScEditorBase::StoreText(path));
 		Doc.FileName = path;
 		Doc.SetState(Document::stDirty, 0);
 		ok = 1;
 	}
 	CATCHZOK
+	return ok;
+}
+
+int STextBrowser::DoAutosaveByIdle(int kind)
+{
+	const  long   edit_event_idle_timeout = 3; // seconds
+	const  long   state_event_idle_timeout = 3; // seconds
+	int    ok = -1;
+	const  LDATETIME now_dtm = getcurdatetime_();
+	if(!!ASSt.LastEditEventMoment) {
+		if(diffdatetimesec(now_dtm, ASSt.LastEditEventMoment) > edit_event_idle_timeout) {
+			if(Cfg.Flags & Config::fAutoBackupText) {
+				if(!ASSt.LastBackupTextMoment || diffdatetimesec(ASSt.LastEditEventMoment, ASSt.LastBackupTextMoment) > 0) {
+					if(DoBackup(storagesubjText) > 0) {
+						ASSt.LastBackupTextMoment = getcurdatetime_();
+						ok = 1;
+					}
+				}
+			}
+			if(Cfg.Flags & Config::fAutoSaveText) {
+				if(!ASSt.LastAutoSaveTextMoment || diffdatetimesec(ASSt.LastEditEventMoment, ASSt.LastAutoSaveTextMoment) > 0) {
+					if(Doc.OtrIdent.O.IsFullyDefined() && Doc.OtrIdent.P) {
+						if(ObjectSave(Doc.OtrIdent, 0)) {
+							ASSt.LastAutoSaveTextMoment = getcurdatetime_();
+							ok = 1;
+						}
+						else {
+							ok = 0;
+						}
+					}
+					else {
+						if(FileSave(0, 0)) {
+							ASSt.LastAutoSaveTextMoment = getcurdatetime_();
+							ok = 1;
+						}
+						else {
+							ok = 0;
+						}
+					}
+				}
+			}
+		}
+	}
+	if(!!ASSt.LastUiEventMoment) {
+		if(diffdatetimesec(now_dtm, ASSt.LastUiEventMoment) > state_event_idle_timeout) {
+			if(Cfg.Flags & Config::fAutoBackupState) {
+				if(!ASSt.LastBackupStateMoment || diffdatetimesec(ASSt.LastUiEventMoment, ASSt.LastBackupStateMoment) > 0) {
+					if(DoBackup(storagesubjState) > 0) {
+						ASSt.LastBackupStateMoment = getcurdatetime_();
+						if(ok == 1)
+							ok = 3;
+						else
+							ok = 2;
+					}
+				}
+			}
+			if(Cfg.Flags & Config::fAutoSaveState) {
+				if(!ASSt.LastAutoSaveStateMoment || diffdatetimesec(ASSt.LastUiEventMoment, ASSt.LastAutoSaveStateMoment) > 0) {
+					LocalStateBinderyCore * p_lstb = DS.GetTLA().GetLocalStateBindery();
+					if(p_lstb) {
+						LocalStateBinderyCore::StateIdent sident;
+						sident.Kind = LocalStateBinderyCore::kEditorPosition;
+						Doc.MakeNameSymbol(storagesubjState, true/*withoutExt*/, sident.Symb);
+						PPID   _ret_id = 0;
+						SString temp_buf;
+						SScEditorTextInfo state;
+						if(GetCurrentState(state)) {
+							SJson * p_js = state.ToJsonObj();
+							if(p_js && p_js->ToStr(temp_buf)) {
+								SBuffer sbuf;
+								if(LocalStateBinderyCore::PutStringToStateBuf(LocalStateBinderyCore::treatbStringUtf8, sbuf, temp_buf)) {
+									if(p_lstb->RegisterState(&_ret_id, sident, sbuf, 1)) {
+										ASSt.LastAutoSaveStateMoment = getcurdatetime_();
+										ok = 1;
+									}
+								}
+							}
+							ZDELETE(p_js);
+						}
+					}
+				}
+			}
+		}
+	}
 	return ok;
 }
 

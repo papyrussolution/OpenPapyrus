@@ -51,6 +51,7 @@ public:
 		SString EndPoint; // URL для запросов
 		SString PermissiveModeToken; // @v11.9.11 Токен доступа к сервису разрешительного режима
 		InetUrl PermissiveModeLocalSvrUrl; // @v12.3.11 url локального сервера (с именем пользователя и паролем) для офф-лайн проверки кодов
+		InetUrl TsPiotSvrUrl; // @v12.5.11 url (всегда локального) сервера для работы с тс-пиот
 		//
 		SString Token;
 	};
@@ -1245,14 +1246,13 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 			nh.PutInner("withdrawal_type", "RETAIL");
 			nh.PutInner("withdrawal_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMANCENT));
 			nh.PutInner("primary_document_type", "OTHER");
-			// @v11.1.12 BillCore::GetCode(temp_buf = p_bp->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8);
-			(temp_buf = p_bp->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8); // @v11.1.12 
+			(temp_buf = p_bp->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8);
 			nh.PutInner("primary_document_number", temp_buf);
 			nh.PutInner("primary_document_date", doc_date_text);
 			PPLoadString("document_upd_s", temp_buf); // УПД
 			nh.PutInner("primary_document_custom_name", temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 			// @v12.5.10 {
-			{
+			if(false) { // @v12.5.11 @condition Блядь! Сделал и выяснилось, что не надо было. 
 				PPLocationPacket loc_pack;
 				psn_obj.GetRegNumber(subj_psn_id, PPREGT_KPP, temp_buf);
 				if(temp_buf.NotEmpty()) {
@@ -1818,16 +1818,25 @@ int ChZnInterface::SetupInitBlock(const PPGlobalUserAccPacket & rGuaPack, const 
 		// Требуется в доверенные еще внести сертификат Крипто-Про (в инструкции по быстрому старту про это есть). 
 	rBlk.GuaPack.TagL.GetItemStr(PPTAG_GUA_CERTSUBJCN, rBlk.Cn);
 	rBlk.GuaPack.TagL.GetItemStr(PPTAG_GUA_CHZN_PM_TOKEN, rBlk.PermissiveModeToken); // @v11.9.11
-	// @v12.3.11 {
 	{
-		rBlk.GuaPack.TagL.GetItemStr(PPTAG_GUA_CHZNLOCPMURL, temp_buf);
-		if(temp_buf.NotEmptyS()) {
-			InetUrl url;
-			if(PPObjGlobalUserAcc::GetChZnLocPmUrl(temp_buf, url) > 0)
+		InetUrl url;
+		// @v12.3.11 {
+		{
+			rBlk.GuaPack.TagL.GetItemStr(PPTAG_GUA_CHZNLOCPMURL, temp_buf);
+			if(temp_buf.NotEmptyS() && PPObjGlobalUserAcc::GetChZnLocPmUrl(temp_buf, url) > 0) {
 				rBlk.PermissiveModeLocalSvrUrl = url;
+			}
 		}
+		// } @v12.3.11 
+		// @v12.5.11 {
+		{
+			rBlk.GuaPack.TagL.GetItemStr(PPTAG_GUA_CHZNTSPIOTURL, temp_buf);
+			if(temp_buf.NotEmptyS() && url.Parse(temp_buf)) {
+				rBlk.TsPiotSvrUrl = url;
+			}
+		}
+		// } @v12.5.11 
 	}
-	// } @v12.3.11 
 	if(rBlk.Cn.NotEmptyS()) {
 		//rBlk.Cn.ReplaceStr("\"", " ", 0);
 		//rBlk.Cn.ElimDblSpaces();
@@ -2656,11 +2665,43 @@ int ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInterface:
 									"type": "string"
 								}
 						*/
+						/*
+							1 lp Предметы одежды, бельё постельное, столовое, туалетное и кухонное
+							2 shoes Обувные товары
+							3 tobacco Табачная продукция
+							4 perfumery Духи и туалетная вода
+							5 tires Шины и покрышки пневматические резиновые новые
+							6 electronics Фотокамеры (кроме кинокамер), фотовспышки и лампы-вспышки
+							8 milk Молочная продукция
+							9 bicycle Велосипеды и велосипедные рамы
+							10 wheelchairs Медицинские изделия
+							12 otp Альтернативная табачная продукция
+							13 water Упакованная вода
+							14 furs Товары из натурального меха
+							15 beer Пиво, напитки, изготавливаемые на основе пива, слабоалкогольные напитки
+							16 ncp Никотинсодержащая продукция
+							17 bio Биологически активные добавки к пище (в т.ч. спортивное питание)
+							19 antiseptic Антисептики и дезинфицирующие средства
+							20 petfood Корма для животных
+							21 seafood Морепродукты
+							22 nabeer Безалкогольное пиво
+							23 softdrinks Соковая продукция и безалкогольные напитки
+							26 vetpharma Ветеринарные препараты
+							27 toys Игры и игрушки для детей
+							28 radio Радиоэлектронная продукция
+							32 conserve Консервированная продукция
+							33 vegetableoil Растительные масла
+							35 chemistry Косметика, бытовая химия и товары личной гигиены
+							37 grocery Бакалейная продукция
+							39 construction Строительные материалы
+							43 autofluids Моторные масла
+							45 sweets Сладости и кондитерские изделия
+						*/ 
 						{
 							if(rPack.ChZnProdType > 0) {
 								const char * p_chzn_prodtype_symb = 0;
 								switch(rPack.ChZnProdType) {
-									case GTCHZNPT_FUR: p_chzn_prodtype_symb = ""; break;
+									case GTCHZNPT_FUR: p_chzn_prodtype_symb = "furs"; break;
 									case GTCHZNPT_TOBACCO: 
 									case GTCHZNPT_ALTTOBACCO: // @v11.9.0
 										p_chzn_prodtype_symb = "tobacco"; break;
@@ -2670,8 +2711,12 @@ int ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInterface:
 									case GTCHZNPT_TEXTILE: p_chzn_prodtype_symb = "lp"; break;
 									case GTCHZNPT_PERFUMERY: p_chzn_prodtype_symb = "perfumery"; break;
 									case GTCHZNPT_MILK: p_chzn_prodtype_symb = "milk"; break;
-									case GTCHZNPT_BEER: p_chzn_prodtype_symb = "beer"; break; // @v12.0.3 @? я не уверен, что символ "beer" здесь правильный - вносил интуитивно (не по документации)
+									case GTCHZNPT_BEER: p_chzn_prodtype_symb = "beer"; break; // @v12.0.3
+									case GTCHZNPT_NONALCBEER: p_chzn_prodtype_symb = "nabeer"; break; // @v12.5.11
+									case GTCHZNPT_PETFOOD: p_chzn_prodtype_symb = "petfood"; break; // @v12.5.11
+									case GTCHZNPT_VEGETABLEOIL: p_chzn_prodtype_symb = "vegetableoil"; break; // @v12.5.11
 									case GTCHZNPT_NCP: p_chzn_prodtype_symb = "ncp"; break; // @v12.5.6
+									case GTCHZNPT_MOTOROIL: p_chzn_prodtype_symb = "autofluids"; break; // @v12.5.11
 								}
 								if(!isempty(p_chzn_prodtype_symb)) {
 									temp_buf.Z().CatEq("pg", p_chzn_prodtype_symb);
@@ -4755,6 +4800,131 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 	ENDCATCH
 	return ok;
 }
+
+/*static*/int PPChZnPrcssr::TsPiotCheck(PPID guaID, CodeStatusCollection & rList) // @v12.5.11
+{
+	int   ok = -1;
+	PPChZnPrcssr prcssr(0);
+	ChZnInterface ifc;
+	ChZnInterface::InitBlock * p_ib = static_cast<ChZnInterface::InitBlock *>(prcssr.P_Ib);
+	THROW(ifc.SetupInitBlock(guaID, 0, *p_ib));
+	THROW(!p_ib->TsPiotSvrUrl.IsEmpty()); // @todo @err
+	{
+	}
+	CATCH
+		ok = 0;
+		PPLogMessage(PPFILNAM_CHZN_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+	ENDCATCH
+	return ok;
+}
+//
+//
+//
+PPChZnPrcssr::TsPiotInterface::TsPiotInterface(InetUrl & rLocalSvrUrl) : Lth(PPFILNAM_CHZNTALK_LOG), SvrUrl(rLocalSvrUrl)
+{
+}
+		
+PPChZnPrcssr::TsPiotInterface::~TsPiotInterface()
+{
+}
+
+int PPChZnPrcssr::TsPiotInterface::CheckCodeList(const QueryBlock & rQBlk, CodeStatusCollection & rList)
+{
+	int    ok = -1;
+	SString temp_buf;
+	SString host;
+	SString url_buf;
+	SString req_buf;
+	SString reply_buf;
+	SBuffer ack_buf;
+	//SJson * p_js_query = 0;
+	THROW(!SvrUrl.IsEmpty()); // @todo @err
+	if(rList.getCount()) {
+		SvrUrl.GetComponent(InetUrl::cHost, 0, host);
+		if(host.NotEmpty()) {
+			SvrUrl.GetComponent(InetUrl::cPort, 0, temp_buf);
+			int    port = temp_buf.ToLong();
+			if(port <= 0) {
+				port = PPChZnPrcssr::TsPiotSvrDefaultPort;
+				SvrUrl.GetComponent(InetUrl::cPort, 0, temp_buf.Z().Cat(port));
+			}
+			//SvrUrl.GetComponent(InetUrl::cUserName, 0, user);
+			//SvrUrl.GetComponent(InetUrl::cPassword, 0, pw);
+			SvrUrl.Compose(InetUrl::stScheme|InetUrl::stHost|InetUrl::stPort, url_buf);
+			{
+				/*
+					curl --location --request POST https://localhost:51401/api/v2/codes/check --header "Content-Type: application/json" 
+					--header "Accept: application/json" --data-raw '{ "codes": [ "MDEwNDY3MDU0MDE3NjA5OTIxNSdXOVVtHTkzZEdWeg==" ] .. }'
+				*/
+				InetUrl url(url_buf);
+				url.SetComponent(InetUrl::cPath, "api/v1/cis/outCheck");
+				ScURL c; //...GET
+				StrStrAssocArray hdr_flds;
+				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json");
+				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAccept, "application/json");
+				/*{
+					//temp_buf.Z().Cat(user).Colon().Cat(pw).Transf(CTRANSF_INNER_TO_UTF8);
+					SString & r_u_p_buf = SLS.AcquireRvlStr();
+					r_u_p_buf.EncodeMime64(temp_buf.cptr(), temp_buf.Len());
+					temp_buf.Z().Cat("Basic").Space().Cat(r_u_p_buf);
+					SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAuthorization, temp_buf);
+				}*/
+				{
+					SJson js_req(SJson::tOBJECT);
+					{
+						SJson * p_js_list = SJson::CreateArr();
+						for(uint i = 0; i < rList.getCount(); i++) {
+							const CodeStatus * p_item = rList.at(i);
+							if(p_item && p_item->OrgMark.NotEmpty()) {
+								p_js_list->InsertChild(SJson::CreateString(p_item->OrgMark));
+							}
+						}
+						js_req.Insert("codes", p_js_list);
+					}
+					{
+						SJson * p_js_inner = SJson::CreateObj();
+						p_js_inner->InsertString("name", (temp_buf = rQBlk.AppName).Escape());
+						p_js_inner->InsertString("version", rQBlk.AppVer.ToStr(temp_buf));
+						p_js_inner->InsertString("id", rQBlk.AppUuid.ToStr(S_GUID::fmtIDL, temp_buf));
+						temp_buf;
+						if(rQBlk.AppToken.Len() == sizeof(S_GUID)) {
+							S_GUID temp_uuid(*reinterpret_cast<const S_GUID *>(rQBlk.AppToken.PtrC()));
+							temp_uuid.ToStr(S_GUID::fmtIDL, temp_buf);
+						}
+						else {
+							rQBlk.AppToken.Mime64(temp_buf);
+						}
+						p_js_inner->InsertString("token", temp_buf.Escape());
+						//
+						js_req.Insert("client_info", p_js_inner);
+					}
+					js_req.ToStr(req_buf);
+				}
+				SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+				Lth.Log("req (ts-piot)", 0, req_buf);
+				{
+					const PPCommConfig & r_cc = CConfig;
+					const int conn_timeout_ms   = inirangeor(r_cc.ChZnPmLocalConnTimeout,   1U, 120000U, 20000U);
+					const int ovrall_timeout_ms = inirangeor(r_cc.ChZnPmLocalOvrallTimeout, 1U, 120000U, 40000U);
+					c.SetQueryParam_ConnectionTimeout(conn_timeout_ms);
+					c.SetQueryParam_OverallTimeout(ovrall_timeout_ms);
+				}
+				if(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream)) {
+					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+					if(p_ack_buf) {
+						reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+						Lth.Log("rep (ts-piot)", 0, reply_buf);
+						{
+							// @todo
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
 //
 //
 //
@@ -4902,6 +5072,9 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 			else if(event.isCmd(cmCheckOffline)) { // @v12.3.12
 				CheckOffline();
 			}
+			else if(event.isCmd(cmCheckTsPiot)) { // @v12.5.11
+				CheckTsPiot();
+			}
 			else if(event.isCbSelected(CTLSEL_CHKCHZNMARK_GOODS)) {
 				const PPID goods_id = getCtrlLong(CTLSEL_CHKCHZNMARK_GOODS);
 				SString info_buf;
@@ -4919,6 +5092,7 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 		{
 			bool    is_there_pm_token = false;
 			bool    is_there_pm_offl_acc = false;
+			bool    is_there_tspiot_acc = false;
 			if(guaID) {
 				PPObjGlobalUserAcc gua_obj;
 				PPGlobalUserAccPacket gua_pack;
@@ -4936,11 +5110,17 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 								}
 							}
 						}
-					
 					}
+					// @v12.5.11 {
+					gua_pack.TagL.GetItemStr(PPTAG_GUA_CHZNTSPIOTURL, temp_buf);
+					if(temp_buf.NotEmpty()) {
+						is_there_tspiot_acc = true;
+					}
+					// } @v12.5.11 
 				}
 			}
 			enableCommand(cmCheckOffline, is_there_pm_offl_acc);
+			enableCommand(cmCheckTsPiot, is_there_tspiot_acc); // @v12.5.11
 			ProcessInputPicture();
 		}
 		SString & MakePrintableCode(const char * pOrgText, SString & rResult)
@@ -5169,7 +5349,13 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 				}
 			}
 		}
-		int    ProcessMark(const char * pOriginalText, bool imgScan, bool offline, SString & rInfoBuf)
+		enum {
+			prcsmarkMethodUndef = 0,
+			prcsmarkMethodPmOnline,
+			prcsmarkMethodPmOffline,
+			prcsmarkMethodTsPiot,
+		};
+		int    ProcessMark(const char * pOriginalText, bool imgScan, /*bool offline*/int method/*prcsmarkMethodXXX*/, SString & rInfoBuf)
 		{
 			int    ok = -1;
 			SString temp_buf;
@@ -5187,18 +5373,23 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 					if(gua_id) {
 						PPChZnPrcssr::CodeStatusCollection pm_code_list;
 						if(pm_code_list.AddCodeEntry(pOriginalText, 0, 0) > 0) {
-							if(offline) {
+							if(method == prcsmarkMethodPmOffline) {
 								if(PPChZnPrcssr::PmCheck(gua_id, 0, 1/*offline only*/, pm_code_list)) {
 									OutputPmCheckResult(pm_code_list, true/*offline*/, temp_buf);
 									rInfoBuf.Cat(temp_buf);
 								}
 							}
-							else if(PPChZnPrcssr::PmCheck(gua_id, 0, 2/*regular online/offline mode*/, pm_code_list)) {
-								OutputPmCheckResult(pm_code_list, false/*offline*/, temp_buf);
-								rInfoBuf.Cat(temp_buf);
+							else if(method == prcsmarkMethodPmOnline) {
+								if(PPChZnPrcssr::PmCheck(gua_id, 0, 2/*regular online/offline mode*/, pm_code_list)) {
+									OutputPmCheckResult(pm_code_list, false/*offline*/, temp_buf);
+									rInfoBuf.Cat(temp_buf);
+								}
+								else {
+									rInfoBuf.CRB().Cat("Permissive mode failure.");
+								}
 							}
-							else {
-								rInfoBuf.CRB().Cat("Permissive mode failure.");
+							else if(method == prcsmarkMethodTsPiot) { // @v12.5.11 @construction
+								// @todo
 							}
 						}
 					}
@@ -5226,7 +5417,7 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 			SString info_buf;
 			const PPID gua_id = getCtrlLong(CTLSEL_CHKCHZNMARK_GUA);
 			getCtrlString(CTL_CHKCHZNMARK_INPUT, inp_buf);
-			ProcessMark(inp_buf, true, false/*offline*/, info_buf);
+			ProcessMark(inp_buf, true, prcsmarkMethodPmOnline, info_buf);
 			setCtrlString(CTL_CHKCHZNMARK_INFO, info_buf);
 		}
 		void    ProcessInputPicture()
@@ -5255,7 +5446,7 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 						for(uint bcidx = 0; bcidx < bc_list.getCount(); bcidx++) {
 							const PPBarcode::Entry * p_bc_entry = bc_list.at(bcidx);
 							if(p_bc_entry && p_bc_entry->BcStd == BARCSTD_DATAMATRIX) {
-								if(ProcessMark(p_bc_entry->Code, true, false/*offline*/, info_buf) > 0) {
+								if(ProcessMark(p_bc_entry->Code, true, prcsmarkMethodPmOnline, info_buf) > 0) {
 									SsRecognizedMark.add(p_bc_entry->Code);	
 									setCtrlString(CTL_CHKCHZNMARK_INFO, info_buf);
 									//PPChZnPrcssr::CodeStatus * p_new_entry = pm_code_list.CreateNewItem();
@@ -5281,9 +5472,12 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 			}
 			if(mark_buf.NotEmptyS()) {
 				SString info_buf;
-				ProcessMark(mark_buf, false, true/*offline*/, info_buf);
+				ProcessMark(mark_buf, false, prcsmarkMethodPmOffline, info_buf);
 				setCtrlString(CTL_CHKCHZNMARK_INFO, info_buf);
 			}
+		}
+		void CheckTsPiot()
+		{
 		}
 
 		ObjLinkFiles LinkFiles;

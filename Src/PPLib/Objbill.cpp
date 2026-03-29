@@ -1975,7 +1975,7 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 		// @v12.0.9 LAssocArray pos_to_src_lot_list; // Список ассоциаций номеров строк исходного документа с номерами строк p_rcpt_bpack, 
 			// для определения лотов, из которых необходимо расходовать товары.
 			// Используется при установленном флаге SelAddBySampleParam::fRcptAllOnShipm
-		PPBillPacket::SetupObjectBlock sob;
+		PPBillPacket::SetupObjectBlock sob_unused;
 		if(pParam->Flags & SelAddBySampleParam::fCopyBillCode) {
 			THROW(pack.CreateBlank_WithoutCode(pParam->OpID, 0, loc_id, 1));
 			STRNSCPY(pack.Rec.Code, sample_pack.Rec.Code);
@@ -1988,7 +1988,7 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 			new_bill_dt.getactual(sample_pack.Rec.Dt);
 			pack.Rec.Dt = (new_bill_dt > sample_pack.Rec.Dt) ? new_bill_dt : sample_pack.Rec.Dt;
 		}
-		THROW(pack.SetupObject(sample_pack.Rec.Object, sob));
+		THROW(pack.SetupObject(sample_pack.Rec.Object, sob_unused));
 		pack.SampleBillID = sampleBillID;
 		if(pack.Rec.SCardID == 0 && sample_pack.Rec.SCardID > 0)
 			pack.Rec.SCardID = sample_pack.Rec.SCardID;
@@ -2026,7 +2026,6 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 				PPOprKind rcpt_op_rec;
 				//PPID   rcpt_ar_id = 0;
 				PPID   default_suppl_id = 0;
-				PPBillPacket::SetupObjectBlock rcpt_sob;
 				// @v12.0.7 {
 				const  double ignore_epsilon = BillCore::GetQttyEpsilon();
 				DateRange lot_period;
@@ -2046,10 +2045,13 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 							default_suppl_id = temp_ar_id;
 					}
 				}
-				//THROW(rcpt_bpack.SetupObject(default_suppl_id, rcpt_sob));
 				//{
-					//PPObjBill::MakeCodeString(&sample_pack.Rec, PPObjBill::mcsAddObjName, temp_buf);
-					//(rcpt_bpack.SMemo = "@autoreceipt").Space().Cat(temp_buf); // @v11.1.12
+					//PPBillPacket::SetupObjectBlock sob_unused;
+					//THROW(rcpt_bpack.SetupObject(default_suppl_id, sob_unused));
+					//{
+						//PPObjBill::MakeCodeString(&sample_pack.Rec, PPObjBill::mcsAddObjName, temp_buf);
+						//(rcpt_bpack.SMemo = "@autoreceipt").Space().Cat(temp_buf); // @v11.1.12
+					//}
 				//}
 				for(uint sample_pack_tiidx = 0; sample_pack_tiidx < sample_pack.GetTCount(); sample_pack_tiidx++) {
 					const PPTransferItem & r_src_ti = sample_pack.ConstTI(sample_pack_tiidx);
@@ -2074,7 +2076,10 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 							if(!p_rcpt_bpack) {
 								THROW_SL(p_rcpt_bpack = rcpt_bpack_list.CreateNewItem());
 								THROW(p_rcpt_bpack->CreateBlank(rcpt_op_id, 0, loc_id, 1));
-								THROW(p_rcpt_bpack->SetupObject(suppl_id, rcpt_sob));
+								{
+									PPBillPacket::SetupObjectBlock sob_unused;
+									THROW(p_rcpt_bpack->SetupObject(suppl_id, sob_unused));
+								}
 								p_rcpt_bpack->SetPoolMembership(PPBillPacket::bpkOrdAccomplish, sampleBillID); // @v12.0.11
 								p_rcpt_bpack->Rec.Dt = pack.Rec.Dt;
 								{
@@ -2214,7 +2219,6 @@ int PPObjBill::AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddB
 		const bool is_coke_order = (sample_pack.Rec.EdiOp == PPEDIOP_SALESORDER && edi_channel.IsEqiAscii("COKE"));
 		// } @v11.6.0 
 		const bool is_src_draft = IsDraftOp(sample_pack.Rec.OpID);
-		PPBillPacket::SetupObjectBlock sob;
 		if(pParam->Flags & SelAddBySampleParam::fCopyBillCode) {
 			THROW(pack.CreateBlank_WithoutCode(pParam->OpID, 0, loc_id, 1));
 			STRNSCPY(pack.Rec.Code, sample_pack.Rec.Code);
@@ -2235,11 +2239,12 @@ int PPObjBill::AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddB
 		if(sample_pack.Rec.Object) {
 			ArticleTbl::Rec ar_rec;
 			if(ArObj.Fetch(sample_pack.Rec.Object, &ar_rec) > 0 && ar_rec.AccSheetID == op_rec.AccSheetID) {
-				THROW(pack.SetupObject(sample_pack.Rec.Object, sob));
+				PPBillPacket::SetupObjectBlock sob_unused;
+				THROW(pack.SetupObject(sample_pack.Rec.Object, sob_unused));
 			}
 		}
 		pack.SampleBillID = sampleBillID;
-		if(pack.Rec.SCardID == 0 && sample_pack.Rec.SCardID > 0)
+		if(!pack.Rec.SCardID && sample_pack.Rec.SCardID > 0)
 			pack.Rec.SCardID = sample_pack.Rec.SCardID;
 		if(sample_pack.P_Freight && op_type == PPOPT_DRAFTEXPEND)
 			THROW(pack.SetFreight(sample_pack.P_Freight));
@@ -2287,7 +2292,6 @@ int PPObjBill::AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddB
 						}
 					}
 					new_ti.SetupSign(pack.Rec.OpID);
-					// @v11.0.2 {
 					{
 						row_idx_list.Z();
 						THROW(pack.InsertRow(&new_ti, &row_idx_list));
@@ -2297,7 +2301,7 @@ int PPObjBill::AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddB
 							const  PPID _tag_id_list[] = { PPTAG_LOT_SN, PPTAG_LOT_CLB, PPTAG_LOT_FSRARINFA, PPTAG_LOT_FSRARINFB, PPTAG_LOT_FSRARLOTGOODSCODE };
 							for(uint tagidx = 0; tagidx < SIZEOFARRAY(_tag_id_list); tagidx++) {
 								const  PPID row_tag_id = _tag_id_list[tagidx];
-								if(sample_pack.LTagL.GetTagStr(i-1, row_tag_id, temp_buf) > 0) // @v11.0.3 @fix i-->(i-1)
+								if(sample_pack.LTagL.GetTagStr(i-1, row_tag_id, temp_buf) > 0)
 									row_tag_list.PutItemStr(row_tag_id, temp_buf);
 							}
 							pack.LTagL.Set(ti_pos, &row_tag_list); 
@@ -2307,7 +2311,6 @@ int PPObjBill::AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddB
 								pack.XcL.Set_2(ti_pos+1, &lotxcode_set);
 						}
 					}
-					// } @v11.0.2 
 				}
 			}
 		}
@@ -2347,7 +2350,7 @@ int PPObjBill::AddGoodsBillByFilt(PPID * pBillID, const BillFilt * pFilt, PPID o
 	ASSIGN_PTR(pBillID, 0L);
 	THROW(CheckRights(PPR_INS));
 	THROW(pack.CreateBlankByFilt(opID, pFilt, 1));
-	if(!(GetConfig().Flags & BCF_NEWDOCBYFILTUSEFLTDATE)) { // @v11.1.7
+	if(!(GetConfig().Flags & BCF_NEWDOCBYFILTUSEFLTDATE)) {
 		pack.Rec.Dt = getcurdate_(); //@SevaSob
 	}
 	op_type = GetOpType(pack.Rec.OpID, &op_rec);
@@ -2373,8 +2376,10 @@ int PPObjBill::AddGoodsBillByFilt(PPID * pBillID, const BillFilt * pFilt, PPID o
 					if(!agt_list.getCount()) {
 						PPClientAgreement agt;
 						if(ArObj.GetClientAgreement(pack.Rec.Object, agt, 0) > 0) {
-							if(SETIFZ(pack.P_Agt, new PPBill::AgreementBlock)) {
-								pack.P_Agt->ObjType = PPOBJ_BILL;
+							THROW(pack.SetupAgreement(true));
+							assert(pack.P_Agt);
+							if(pack.P_Agt) { // @paranoic
+								// @v12.5.11 pack.P_Agt->ObjType = PPOBJ_BILL;
 								pack.P_Agt->Expiry = agt.Expiry;
 								pack.P_Agt->MaxCredit = agt.MaxCredit;
 								pack.P_Agt->MaxDscnt = agt.MaxDscnt;
@@ -2390,8 +2395,9 @@ int PPObjBill::AddGoodsBillByFilt(PPID * pBillID, const BillFilt * pFilt, PPID o
 								if(checkdate(agt.BegDt)) {
 									pack.Rec.Dt = agt.BegDt;
 								}
-								if(agt.Code_.NotEmpty())
+								if(agt.Code_.NotEmpty()) {
 									STRNSCPY(pack.Rec.Code, agt.Code_);
+								}
 							}
 						}
 					}
@@ -9335,25 +9341,23 @@ int PPObjBill::ExtractPacketWithFlags(PPID id, PPBillPacket * pPack, uint fl/*BP
 int PPObjBill::ExtractPacketWithRestriction(PPID id, PPBillPacket * pPack, uint fl/*BPLD_XXX*/, const PPIDArray * pGoodsList)
 	{ return Helper_ExtractPacket(id, pPack, fl, pGoodsList); }
 
-int PPObjBill::GetMostSuitableAgreement(const PPBillPacket & rPack, PPID * pAgtBillID) // @v12.5.10
+int PPObjBill::GetMostSuitableAgreement(/*const PPBillPacket & rPack,*/LDATE dt, PPID arID, PPID ar2ID, PPID * pAgtBillID) // @v12.5.10
 {
 	int    ok = -1;
 	PPID   id_by_recent_date = 0;
-	if(rPack.Rec.Object) {
+	if(arID) {
 		PPIDArray agt_list;
-		if(rPack.Rec.Object) {
-			LDATE  recent_date = ZERODATE;
-			P_Tbl->GetListOfActualAgreemts(rPack.Rec.Object, rPack.Rec.Object2, rPack.Rec.Dt, 365*10, 20, agt_list);
-			if(agt_list.getCount()) {
-				agt_list.sortAndUndup();
-				for(uint i = 0; i < agt_list.getCount(); i++) {
-					const  PPID agt_bill_id = agt_list.get(i);
-					BillTbl::Rec agt_bill_rec;
-					if(Fetch(agt_bill_id, &agt_bill_rec) > 0) {
-						if(checkdate(agt_bill_rec.Dt) && agt_bill_rec.Dt > recent_date) {
-							recent_date = agt_bill_rec.Dt;
-							id_by_recent_date = agt_bill_rec.ID;
-						}
+		LDATE  recent_date = ZERODATE;
+		P_Tbl->GetListOfActualAgreemts(arID, ar2ID, dt, 365*10, 20, agt_list);
+		if(agt_list.getCount()) {
+			agt_list.sortAndUndup();
+			for(uint i = 0; i < agt_list.getCount(); i++) {
+				const  PPID agt_bill_id = agt_list.get(i);
+				BillTbl::Rec agt_bill_rec;
+				if(Fetch(agt_bill_id, &agt_bill_rec) > 0) {
+					if(checkdate(agt_bill_rec.Dt) && agt_bill_rec.Dt > recent_date) {
+						recent_date = agt_bill_rec.Dt;
+						id_by_recent_date = agt_bill_rec.ID;
 					}
 				}
 			}
@@ -9592,8 +9596,8 @@ int PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl, cons
 		}
 	}
 	{
-		PPBillPacket::SetupObjectBlock sob;
-		pPack->SetupObject(pPack->Rec.Object, sob);
+		PPBillPacket::SetupObjectBlock sob_unused;
+		pPack->SetupObject(pPack->Rec.Object, sob_unused);
 	}
 	pPack->LoadMoment = getcurdatetime_();
 	CATCHZOK

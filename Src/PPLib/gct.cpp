@@ -8,92 +8,7 @@
 //
 // Отчет о товарообороте
 //
-//
-// GoodsTrnovrBrowser
-//
-class GoodsTrnovrBrowser : public BrowserWindow {
-public:
-	GoodsTrnovrBrowser(uint rezID, SArray * a, PPViewGoodsTrnovr *pView, GCTFilt * f, int dataOwner) :
-		BrowserWindow(rezID, a, 0), P_View(pView), IsDataOwner(dataOwner)
-	{
-		const GoodsTrnovrFilt * p_filt = P_View ? static_cast<PPViewGoodsTrnovr *>(P_View)->GetFilt() : 0;
-		if(p_filt)
-			PPObjGoodsGroup::SetOwner(p_filt->GoodsGrpID, 0, reinterpret_cast<long>(this)); // @x64crit
-	}
-	~GoodsTrnovrBrowser()
-	{
-		const GoodsTrnovrFilt * p_filt = P_View ? static_cast<PPViewGoodsTrnovr *>(P_View)->GetFilt() : 0;
-		if(p_filt)
-			PPObjGoodsGroup::RemoveTempAlt(p_filt->GoodsGrpID, reinterpret_cast<long>(this)); // @x64crit
-		if(IsDataOwner)
-			delete P_View;
-	}
-	PPViewGoodsTrnovr * P_View;
-private:
-	DECL_HANDLE_EVENT;
-	LDATE  GetDate();
-
-	int    IsDataOwner;
-};
-
-LDATE GoodsTrnovrBrowser::GetDate()
-{
-	struct _H {
-		char str_dt[12];
-	};
-	const _H * h_dt = static_cast<const _H *>(getCurItem());
-	LDATE  dt = ZERODATE;
-	if(h_dt)
-		strtodate(h_dt->str_dt, DATF_DMY, &dt);
-	return dt;
-}
-
-IMPL_HANDLE_EVENT(GoodsTrnovrBrowser)
-{
-	LDATE  dt;
-   	BrowserWindow::handleEvent(event);
-	if(TVCOMMAND) {
-		switch(TVCMD) {
-			case cmPrint:
-				P_View->Print();
-				break;
-			case cmaEdit:
-				dt = GetDate();
-				if(dt)
-					P_View->ViewGrouping(dt);
-				break;
-			default:
-				return;
-		}
-	}
-	else if(TVKEYDOWN) {
-		switch(TVKEY) {
-			case kbF7:
-				P_View->Print();
-				break;
-			default:
-				return;
-		}
-	}
-	else
-		return;
-	clearEvent(event);
-}
-//
-// @ModuleDef(PPViewGoodsTrnovr)
-//
-PPViewGoodsTrnovr::PPViewGoodsTrnovr() : P_Items(0)
-{
-}
-
-PPViewGoodsTrnovr::~PPViewGoodsTrnovr()
-{
-	delete P_Items;
-}
-
-const GoodsTrnovrFilt * PPViewGoodsTrnovr::GetFilt() const { return &Filt; }
-
-int PPViewGoodsTrnovr::EditFilt(GoodsTrnovrFilt * pFilt)
+static int EditGoodsTrnovrFilt(GoodsTrnovrFilt * pFilt)
 {
 	class GCTFiltDialog : public WLDialog {
 		DECL_DIALOG_DATA(GCTFilt);
@@ -168,6 +83,358 @@ int PPViewGoodsTrnovr::EditFilt(GoodsTrnovrFilt * pFilt)
 		int    ForceGoodsSelection;
 	};
 	DIALOG_PROC_BODY_P2(GCTFiltDialog, DLG_GTO, (int)(pFilt->Flags & OPG_FORCEGOODS), pFilt);
+}
+
+PPViewGoodsTrnovr2::PPViewGoodsTrnovr2() : PPView(0, &Filt, PPVIEW_GOODSTRNOVR, implBrowseArray, 0), P_DsList(0)
+{
+}
+
+PPViewGoodsTrnovr2::~PPViewGoodsTrnovr2()
+{
+	delete P_DsList;
+}
+
+/*virtual*/int PPViewGoodsTrnovr2::EditBaseFilt(PPBaseFilt * pBaseFilt)
+{
+	int    ok = -1;
+	if(Filt.IsA(pBaseFilt)) {
+		GoodsTrnovrFilt * p_filt = static_cast<GoodsTrnovrFilt *>(pBaseFilt);
+		ok = EditGoodsTrnovrFilt(p_filt);
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+/*virtual*/int PPViewGoodsTrnovr2::Init_(const PPBaseFilt * pBaseFilt)
+{
+	int    ok = 1;
+	LDATE  dt = ZERODATE;
+	GoodsTrnovrViewItem entry;
+	GoodsTrnovrViewItem total;
+	SString wait_msg;
+	IterCounter cntr;
+	GoodsGrpngEntry * p_entry;
+	PPOprKind op_rec;
+	PPOprKind link_op_rec;
+	GCTFilt filt;
+	AdjGdsGrpng agg;
+	int    zero;
+	GoodsGrpngArray gga;
+
+	THROW(Helper_InitBaseFilt(pBaseFilt));
+	Filt.Period.Actualize(ZERODATE);
+	if(P_DsList)
+		P_DsList->clear();
+	else {
+		THROW_MEM(P_DsList = new SArray(sizeof(GoodsTrnovrViewItem)));
+	}
+	filt = Filt; // AHTOXA
+	cntr.Init(diffdate(&Filt.Period.upp, &Filt.Period.low, 0) + 1);
+	dt = filt.Period.low;
+	if(!checkdate(dt)) {
+		THROW(BillObj->P_Tbl->GetFirstDate(0, &dt) > 0);
+	}
+	SETIFZ(filt.Period.upp, getcurdate_());
+	MEMSZERO(total);
+	if(Filt.Flags & OPG_DONTSHOWPRGRSBAR)
+		PPLoadText(PPTXT_CALCOPGRPNG, wait_msg);
+	while(dt <= Filt.Period.upp) {
+		zero = 1;
+		MEMSZERO(entry);
+		filt.Period.SetDate(dt);
+		filt.Flags |= OPG_PROCESSRECKONING;
+		entry.Dt = dt;
+		datefmt(&dt, DATF_DMY, entry.Title);
+		gga.Reset();
+		THROW(agg.BeginGoodsGroupingProcess(filt));
+		THROW(gga.ProcessGoodsGrouping(filt, &agg));
+		for(uint i = 0; gga.enumItems(&i, (void **)&p_entry);) {
+			if(!oneof3(p_entry->OpID, -1, 10000, 0)) {
+				if(IsIntrExpndOp(p_entry->OpID))
+					entry.XpndIntr += p_entry->Cost;
+				else if(IsIntrOp(p_entry->OpID) == INTRRCPT)
+					entry.RcptIntr += p_entry->Cost;
+				else {
+					THROW(GetOpData(p_entry->OpID, &op_rec));
+					if(p_entry->OpTypeID == PPOPT_GOODSRECEIPT)
+						entry.RcptSuppl += p_entry->Cost;
+					else if(p_entry->Link == 0) {
+						if(CheckOpFlags(p_entry->OpID, OPKF_PROFITABLE)) {
+							if(op_rec.AccSheetID)
+								entry.XpndClient += p_entry->Price;
+							else
+								entry.XpndRetail += p_entry->Price;
+						}
+					}
+					else {
+						THROW(GetOpData(p_entry->Link, &link_op_rec));
+						if(p_entry->OpTypeID == PPOPT_GOODSRETURN) {
+							if(link_op_rec.OpTypeID == PPOPT_GOODSRECEIPT)
+								entry.RetSuppl += p_entry->Cost;
+							else if(link_op_rec.Flags & OPKF_PROFITABLE) {
+								if(link_op_rec.AccSheetID)
+									entry.RetClient += p_entry->Price;
+								else
+									entry.RetRetail += p_entry->Price;
+							}
+						}
+						else if(p_entry->OpTypeID == PPOPT_PAYMENT) {
+							if(CheckOpFlags(p_entry->Link, OPKF_PROFITABLE))
+								entry.PayClient += p_entry->Price;
+						}
+					}
+				}
+				entry.Income += p_entry->Income();
+			}
+		}
+		if(entry.RcptSuppl) {
+			zero = 0;
+			total.RcptSuppl += entry.RcptSuppl;
+		}
+		// @todo 01/05/2005 Внутренняя передача на списке складов
+		if(filt.LocList.GetCount() && entry.RcptIntr) {
+			zero = 0;
+			total.RcptIntr += entry.RcptIntr;
+		}
+		if(entry.RetRetail) {
+			zero = 0;
+			total.RetRetail += entry.RetRetail;
+		}
+		if(entry.RetClient) {
+			zero = 0;
+			total.RetClient += entry.RetClient;
+		}
+		if(entry.RetSuppl) {
+			zero = 0;
+			total.RetSuppl += entry.RetSuppl;
+		}
+		if(entry.XpndRetail) {
+			zero = 0;
+			total.XpndRetail += entry.XpndRetail;
+		}
+		if(entry.XpndClient) {
+			zero = 0;
+			total.XpndClient += entry.XpndClient;
+		}
+		// @todo 01/05/2005 Внутренняя передача на списке складов
+		if(filt.LocList.GetCount() && entry.XpndIntr) {
+			zero = 0;
+			total.XpndIntr += entry.XpndIntr;
+		}
+		if(entry.PayClient) {
+			zero = 0;
+			total.PayClient += entry.PayClient;
+		}
+		if(entry.Income) {
+			zero = 0;
+			total.Income += entry.Income;
+		}
+		if(!zero || !(filt.Flags & OPG_IGNOREZERO)) {
+			THROW_SL(P_DsList->insert(&entry));
+		}
+		plusdate(&dt, 1, 0);
+		agg.EndGoodsGroupingProcess();
+		PPWaitPercent(cntr.Increment(), wait_msg);
+	}
+	PPGetWord(PPWORD_TOTAL, 0, total.Title, sizeof(total.Title));
+	THROW_SL(P_DsList->insert(&total));
+	agg.EndGoodsGroupingProcess();
+	//THROW(P_Items = MakeGoodsTurnover());
+	//Cntr.Init(P_DsList->getCount() ? (P_DsList->getCount()-1) : 0);
+	CATCH
+		ZDELETE(P_DsList);
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+
+int PPViewGoodsTrnovr2::InitIteration()
+{
+	Counter.Init(SVectorBase::GetCount(P_DsList));
+	return 1;
+}
+
+int FASTCALL PPViewGoodsTrnovr2::NextIteration(GoodsTrnovrViewItem * pItem)
+{
+	int    ok = -1;
+	while(ok < 0 && P_DsList && P_DsList->testPointer()) {
+		const  GoodsTrnovrViewItem * p_iter_item = static_cast<const GoodsTrnovrViewItem *>(P_DsList->at(P_DsList->getPointer()));
+		if(p_iter_item) {
+			ASSIGN_PTR(pItem, *p_iter_item);
+			P_DsList->incPointer();
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+/*virtual*/SArray * PPViewGoodsTrnovr2::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+{
+	SArray * p_result = 0;
+	return p_result;
+}
+
+/*virtual*/int PPViewGoodsTrnovr2::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+{
+	int    ok = -2;
+	ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
+	if(ok == -2) {
+		//
+	}
+	return ok;
+}
+
+/*virtual*/int PPViewGoodsTrnovr2::Print(const void *)
+{
+	return -1;
+}
+
+/*virtual*/int PPViewGoodsTrnovr2::Detail(const void *, PPViewBrowser * pBrw)
+{
+	return -1;
+}
+
+/*virtual*/void PPViewGoodsTrnovr2::ViewTotal()
+{
+}
+
+int PPViewGoodsTrnovr2::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	/*
+browser GOODSTURNOVER2_BYLOC north(100), 3, 1, "@{view_goodstrnovr}", OWNER|GRID, 0 // @v12.5.11 
+{
+	"@date",                          1, zstring(48), 0, 8
+	group "@goodsreceipt" {
+		"@supplier",                  2, double, NMBF_NOZERO, 9.2
+		"@oprcategory_intrrcpt_2",    3, double, NMBF_NOZERO, 9.2
+	}
+	group "@return" {
+		"@selling_retail",            4, double, NMBF_NOZERO, 9.2
+		"@client",                    5, double, NMBF_NOZERO, 9.2
+		"@supplier",                  6, double, NMBF_NOZERO, 9.2
+	}
+	group "@expend" {
+		"@selling_retail",            7, double, NMBF_NOZERO, 9.2
+		"@client",                    8, double, NMBF_NOZERO, 9.2
+		"@oprcategory_intrexpnd_2",   9, double, NMBF_NOZERO, 9.2
+	}
+	"@payment",                      10, double, NMBF_NOZERO, 9.2
+	"@income",                       11, double, NMBF_NOZERO, 9.2
+	toolbar TB_FIRST_TOOLBAR {
+		kbEnter, "@{opgrouping}\tEnter", TBBM_OPGRPNG
+		kbF7,    "@{print}\tF7",         PPDV_PRINTER01
+	}
+}
+	*/ 
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	const  GoodsTrnovrViewItem * p_item = static_cast<const GoodsTrnovrViewItem *>(pBlk->P_SrcData);
+	int    r = 0;
+	switch(pBlk->ColumnN) {
+		case  0: break; // @?
+		case  1: pBlk->Set(p_item->Dt); break; // date
+		case  2: pBlk->Set(p_item->RcptSuppl); break; // goodsreceipt - supplier
+		case  3: pBlk->Set(p_item->RcptIntr); break; // goodsreceipt - oprcategory_intrrcpt_2
+		case  4: pBlk->Set(p_item->RetRetail); break; // return - selling_retail
+		case  5: pBlk->Set(p_item->RetClient); break; // return - client
+		case  6: pBlk->Set(p_item->RetSuppl); break; // return - supplier
+		case  7: pBlk->Set(p_item->XpndRetail); break; // expend - selling_retail
+		case  8: pBlk->Set(p_item->XpndClient); break; // expend - client
+		case  9: pBlk->Set(p_item->XpndIntr); break; // expend - oprcategory_intrexpnd_2
+		case 10: pBlk->Set(p_item->PayClient); break; // payment
+		case 11: pBlk->Set(p_item->Income); break; // income
+	}
+	return ok;
+}
+//
+// GoodsTrnovrBrowser
+//
+class GoodsTrnovrBrowser : public BrowserWindow {
+public:
+	GoodsTrnovrBrowser(uint rezID, SArray * a, PPViewGoodsTrnovr *pView, GCTFilt * f, int dataOwner) :
+		BrowserWindow(rezID, a, 0), P_View(pView), IsDataOwner(dataOwner)
+	{
+		const GoodsTrnovrFilt * p_filt = P_View ? static_cast<PPViewGoodsTrnovr *>(P_View)->GetFilt() : 0;
+		if(p_filt)
+			PPObjGoodsGroup::SetOwner(p_filt->GoodsGrpID, 0, reinterpret_cast<long>(this)); // @x64crit
+	}
+	~GoodsTrnovrBrowser()
+	{
+		const GoodsTrnovrFilt * p_filt = P_View ? static_cast<PPViewGoodsTrnovr *>(P_View)->GetFilt() : 0;
+		if(p_filt)
+			PPObjGoodsGroup::RemoveTempAlt(p_filt->GoodsGrpID, reinterpret_cast<long>(this)); // @x64crit
+		if(IsDataOwner)
+			delete P_View;
+	}
+	PPViewGoodsTrnovr * P_View;
+private:
+	DECL_HANDLE_EVENT;
+	LDATE  GetDate();
+
+	int    IsDataOwner;
+};
+
+LDATE GoodsTrnovrBrowser::GetDate()
+{
+	struct _H {
+		char str_dt[48]; // @v12.5.11 [12]-->[48]
+	};
+	const _H * h_dt = static_cast<const _H *>(getCurItem());
+	LDATE  dt = ZERODATE;
+	if(h_dt)
+		strtodate(h_dt->str_dt, DATF_DMY, &dt);
+	return dt;
+}
+
+IMPL_HANDLE_EVENT(GoodsTrnovrBrowser)
+{
+	LDATE  dt;
+   	BrowserWindow::handleEvent(event);
+	if(TVCOMMAND) {
+		switch(TVCMD) {
+			case cmPrint:
+				P_View->Print();
+				break;
+			case cmaEdit:
+				dt = GetDate();
+				if(dt)
+					P_View->ViewGrouping(dt);
+				break;
+			default:
+				return;
+		}
+	}
+	else if(TVKEYDOWN) {
+		switch(TVKEY) {
+			case kbF7:
+				P_View->Print();
+				break;
+			default:
+				return;
+		}
+	}
+	else
+		return;
+	clearEvent(event);
+}
+//
+// @ModuleDef(PPViewGoodsTrnovr)
+//
+PPViewGoodsTrnovr::PPViewGoodsTrnovr() : P_Items(0)
+{
+}
+
+PPViewGoodsTrnovr::~PPViewGoodsTrnovr()
+{
+	delete P_Items;
+}
+
+const GoodsTrnovrFilt * PPViewGoodsTrnovr::GetFilt() const { return &Filt; }
+
+int PPViewGoodsTrnovr::EditFilt(GoodsTrnovrFilt * pFilt)
+{
+	return EditGoodsTrnovrFilt(pFilt);
 }
 
 int PPViewGoodsTrnovr::Init(const GoodsTrnovrFilt * pFilt)
@@ -436,7 +703,8 @@ PPALDD_DESTRUCTOR(GoodsTurnovr) { Destroy(); }
 
 int PPALDD_GoodsTurnovr::InitData(PPFilt & rFilt, long rsrv)
 {
-	SString loc_name, name_buf;
+	SString loc_name;
+	SString name_buf;
 	INIT_PPVIEW_ALDD_DATA(GoodsTrnovr, rsrv);
 	GetLocationName(p_filt->LocList.GetSingle(), loc_name);
 	loc_name.CopyTo(H.FltLocName, sizeof(H.FltLocName));

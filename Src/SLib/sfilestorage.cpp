@@ -1,5 +1,5 @@
 // SFILESTORAGE.CPP
-// Copyright (c) A.Sobolev 2022, 2023
+// Copyright (c) A.Sobolev 2022, 2023, 2026
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -14,7 +14,7 @@ SFileStorage::InnerReadingBlock::InnerReadingBlock() : FileSize(0), TotalRdSize(
 {
 }
 
-SFileStorage::SFileStorage(const char * pBasePath) : BucketCount(256), HashSeed(0x1357ace1), State(0)
+SFileStorage::SFileStorage(const char * pBasePath) : BucketCount(256), /* (replaced with SlConst::Seed32_FileName) HashSeed(0x1357ace1),*/State(0)
 {
 	if(pBasePath)
 		Init(pBasePath);
@@ -64,7 +64,7 @@ int SFileStorage::MakeFileEntry(const char * pName, SString & rEntryName, bool w
 	{
 		//char   subdir[64];
 		SString & r_subdir = SLS.AcquireRvlStr();
-		const uint32 hash = SlHash::XX32(pName, sstrlen(pName), HashSeed);
+		const uint32 hash = SlHash::XX32(pName, sstrlen(pName), /*HashSeed*/SlConst::Seed32_FileName);
 		const uint   bucket_no = hash % BucketCount;
 		r_subdir.CatHex(static_cast<ulong>(bucket_no));
 		if(r_subdir.Len() < 2) {
@@ -536,7 +536,7 @@ SLTEST_R(SFileStorage)
 		fs.CloseFile(hw);
 	if(hr)
 		fs.CloseFile(hr);
-	RemoveDir(storage_base_path);
+	/*RemoveDir*/SFile::RemoveDir(storage_base_path);
 	return BIN(CurrentStatus == 1);
 }
 

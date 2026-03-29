@@ -815,56 +815,64 @@ int TestGtinStruc()
 			//static const int8 serial_len_variant_list[] = { 13, 12, 11, 8, 6 }; 
 			static const int8 serial_len_variant_list[] = { 6, 7, 8, 11, 12, 13 }; // @v11.9.1 (7)
 			while(f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
-				const SString original_text(temp_buf);
-				{
-					uint   serial_len_variant_idx = 0;
-					GtinStruc gts;
-					gts.AddOnlyToken(GtinStruc::fldGTIN14);
-					gts.AddOnlyToken(GtinStruc::fldSerial);
-					gts.SetSpecialFixedToken(GtinStruc::fldSerial, /*13*/serial_len_variant_list[serial_len_variant_idx++]);
-					gts.AddOnlyToken(GtinStruc::fldPart);
-					// @todo (не работает - надо отлаживать) gts.SetSpecialMinLenToken(GtinStruc::fldPart, 5); // @v10.9.6 // @v12.3.12 (вернул назад)
-
-					gts.SetSpecialMinLenToken(GtinStruc::fldPart, 5); // @debug
-
-					gts.AddOnlyToken(GtinStruc::fldAddendumId);
-					gts.AddOnlyToken(GtinStruc::fldUSPS);
-					gts.SetSpecialFixedToken(GtinStruc::fldUSPS, 4);
-					gts.AddOnlyToken(GtinStruc::fldInner1);
-					gts.SetSpecialFixedToken(GtinStruc::fldInner1, 1000/*UNTIL EOL*/);
-					gts.AddOnlyToken(GtinStruc::fldInner2);
-					gts.SetSpecialFixedToken(GtinStruc::fldInner2, 1000/*UNTIL EOL*/); // @v11.4.11
-					gts.AddOnlyToken(GtinStruc::fldSscc18);
-					gts.AddOnlyToken(GtinStruc::fldExpiryDate);
-					gts.AddOnlyToken(GtinStruc::fldManufDate);
-					// @v12.3.12 gts.AddOnlyToken(GtinStruc::fldVariant);
-					gts.AddOnlyToken(GtinStruc::fldMutualCode);
-					//gts.AddOnlyToken(GtinStruc::fldPriceRuTobacco);
-					//gts.AddOnlyToken(GtinStruc::fldPrice);
-					gts.AddSpecialStopChar(0x1D);
-					gts.AddSpecialStopChar(0xE8);
-					int pr = gts.Parse(original_text);
-					if(gts.GetToken(GtinStruc::fldGTIN14, 0)) {
-						while(pr != 1 && serial_len_variant_idx < SIZEOFARRAY(serial_len_variant_list)) {
-							gts.SetSpecialFixedToken(GtinStruc::fldSerial, serial_len_variant_list[serial_len_variant_idx++]);
-							pr = gts.Parse(original_text);					
-						}
-					}
-					out_buf.Z().CR().Cat(original_text).Space().CatEq("parse-result", pr);
-					gts.Debug_Output(temp_buf);
-					out_buf.CR().Cat(temp_buf);
-					f_out.WriteLine(out_buf);
-					logger.Log(out_buf);
+				// @v12.5.11 {
+				size_t comment_pos = 0;
+				if(temp_buf.Search("///", 0, 0, &comment_pos)) {
+					temp_buf.Trim(comment_pos).Strip();
 				}
-				{
-					GtinStruc gts;
-					(temp_buf = original_text).Transf(CTRANSF_UTF8_TO_INNER);
-					int    pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
-					out_buf.Z().CR().Cat(original_text).Space().CatEq("parse-result", pczcr);
-					gts.Debug_Output(temp_buf);
-					out_buf.CR().Cat(temp_buf);
-					f_out2.WriteLine(out_buf);
-					logger.Log(out_buf);
+				if(temp_buf.NotEmpty()) {
+				// } @v12.5.11 
+					const  SString original_text(temp_buf);
+					{
+						uint   serial_len_variant_idx = 0;
+						GtinStruc gts;
+						gts.AddOnlyToken(GtinStruc::fldGTIN14);
+						gts.AddOnlyToken(GtinStruc::fldSerial);
+						gts.SetSpecialFixedToken(GtinStruc::fldSerial, /*13*/serial_len_variant_list[serial_len_variant_idx++]);
+						gts.AddOnlyToken(GtinStruc::fldPart);
+						// @todo (не работает - надо отлаживать) gts.SetSpecialMinLenToken(GtinStruc::fldPart, 5); // @v10.9.6 // @v12.3.12 (вернул назад)
+
+						gts.SetSpecialMinLenToken(GtinStruc::fldPart, 5); // @debug
+
+						gts.AddOnlyToken(GtinStruc::fldAddendumId);
+						gts.AddOnlyToken(GtinStruc::fldUSPS);
+						gts.SetSpecialFixedToken(GtinStruc::fldUSPS, 4);
+						gts.AddOnlyToken(GtinStruc::fldInner1);
+						gts.SetSpecialFixedToken(GtinStruc::fldInner1, 1000/*UNTIL EOL*/);
+						gts.AddOnlyToken(GtinStruc::fldInner2);
+						gts.SetSpecialFixedToken(GtinStruc::fldInner2, 1000/*UNTIL EOL*/); // @v11.4.11
+						gts.AddOnlyToken(GtinStruc::fldSscc18);
+						gts.AddOnlyToken(GtinStruc::fldExpiryDate);
+						gts.AddOnlyToken(GtinStruc::fldManufDate);
+						// @v12.3.12 gts.AddOnlyToken(GtinStruc::fldVariant);
+						gts.AddOnlyToken(GtinStruc::fldMutualCode);
+						//gts.AddOnlyToken(GtinStruc::fldPriceRuTobacco);
+						//gts.AddOnlyToken(GtinStruc::fldPrice);
+						gts.AddSpecialStopChar(0x1D);
+						gts.AddSpecialStopChar(0xE8);
+						int pr = gts.Parse(original_text);
+						if(gts.GetToken(GtinStruc::fldGTIN14, 0)) {
+							while(pr != 1 && serial_len_variant_idx < SIZEOFARRAY(serial_len_variant_list)) {
+								gts.SetSpecialFixedToken(GtinStruc::fldSerial, serial_len_variant_list[serial_len_variant_idx++]);
+								pr = gts.Parse(original_text);					
+							}
+						}
+						out_buf.Z().CR().Cat(original_text).Space().CatEq("parse-result", pr);
+						gts.Debug_Output(temp_buf);
+						out_buf.CR().Cat(temp_buf);
+						f_out.WriteLine(out_buf);
+						logger.Log(out_buf);
+					}
+					{
+						GtinStruc gts;
+						(temp_buf = original_text).Transf(CTRANSF_UTF8_TO_INNER);
+						int    pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
+						out_buf.Z().CR().Cat(original_text).Space().CatEq("parse-result", pczcr);
+						gts.Debug_Output(temp_buf);
+						out_buf.CR().Cat(temp_buf);
+						f_out2.WriteLine(out_buf);
+						logger.Log(out_buf);
+					}
 				}
 			}
 		}
@@ -1099,8 +1107,8 @@ int PPDocumentInterchangeContext::ResolveContractor(const char * pText, int part
 					THROW(ArObj.GetByPersonList(GetSupplAccSheet(), &psn_list_by_gln, &ar_list));
 					THROW_PP_S(ar_list.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
 					{
-						PPBillPacket::SetupObjectBlock sob;
-						THROW(pPack->SetupObject(ar_list.get(0), sob));
+						PPBillPacket::SetupObjectBlock sob_unused;
+						THROW(pPack->SetupObject(ar_list.get(0), sob_unused));
 					}
 				}
 				else if(oneof2(pPack->Rec.EdiOp, PPEDIOP_ORDER, PPEDIOP_RECADV)) {
@@ -1128,8 +1136,8 @@ int PPDocumentInterchangeContext::ResolveContractor(const char * pText, int part
 					THROW(ArObj.GetByPersonList(GetSellAccSheet(), &psn_list_by_gln, &ar_list));
 					THROW_PP_S(ar_list.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
 					{
-						PPBillPacket::SetupObjectBlock sob;
-						THROW(pPack->SetupObject(ar_list.get(0), sob));
+						PPBillPacket::SetupObjectBlock sob_unused;
+						THROW(pPack->SetupObject(ar_list.get(0), sob_unused));
 					}
 				}
 			}
@@ -4119,7 +4127,6 @@ int PPEanComDocument::Read_Document(/*PPEdiProcessor::ProviderImplementation * p
 			}
 			{
 				PartyResolveBlock parties_blk;
-				PPBillPacket::SetupObjectBlock sob;
 				THROW_MEM(p_pack = new PPEdiProcessor::Packet(PPEDIOP_DESADV));
 				THROW(PreprocessPartiesOnReading(p_pack->DocType, &document, &parties_blk));
 				p_bpack = static_cast<PPBillPacket *>(p_pack->P_Data);
@@ -4129,7 +4136,10 @@ int PPEanComDocument::Read_Document(/*PPEdiProcessor::ProviderImplementation * p
 				p_bpack->Rec.Dt = bill_dt;
 				if(checkdate(bill_due_dt, 0))
 					p_bpack->Rec.DueDate = bill_due_dt;
-				THROW(p_bpack->SetupObject(parties_blk.BillObjID, sob));
+				{
+					PPBillPacket::SetupObjectBlock sob_unused;
+					THROW(p_bpack->SetupObject(parties_blk.BillObjID, sob_unused));
+				}
 				{
 					const LDATE  order_date = document.GetLinkedOrderDate();
 					document.GetLinkedOrderNumber(order_number);
@@ -4332,7 +4342,6 @@ int PPEanComDocument::Read_Document(/*PPEdiProcessor::ProviderImplementation * p
 			//document-->p_pack
 			assert(p_bpack);
 			PartyResolveBlock parties_blk;
-			PPBillPacket::SetupObjectBlock sob;
 			THROW(PreprocessPartiesOnReading(p_pack->DocType, &document, &parties_blk));
 			p_bpack->CreateBlank_WithoutCode(op_id, 0/*link_bill_id*/, loc_id, 1); // @v12.4.10
 			p_bpack->Rec.EdiOp = p_pack->DocType;
@@ -4341,7 +4350,10 @@ int PPEanComDocument::Read_Document(/*PPEdiProcessor::ProviderImplementation * p
 			const LDATE  bill_due_dt = document.GetBillDueDate();
 			p_bpack->Rec.Dt = bill_dt;
 			p_bpack->Rec.DueDate = bill_due_dt;
-			THROW(p_bpack->SetupObject(parties_blk.BillObjID, sob));
+			{
+				PPBillPacket::SetupObjectBlock sob_unused;
+				THROW(p_bpack->SetupObject(parties_blk.BillObjID, sob_unused));
+			}
 			p_bpack->SetupDlvrAddr(parties_blk.BillLocID);
 			for(uint i = 0; i < document.DetailL.getCount(); i++) {
 				const DocumentDetailValue * p_item = document.DetailL.at(i);
@@ -8627,8 +8639,8 @@ int PPEdiProcessor::ProviderImplementation::ResolveOwnFormatContractor(const Own
 				THROW(ArObj.GetByPersonList(GetSupplAccSheet(), &psn_list_by_gln, &ar_list));
 				THROW_PP_S(ar_list.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
 				{
-					PPBillPacket::SetupObjectBlock sob;
-					THROW(pPack->SetupObject(ar_list.get(0), sob));
+					PPBillPacket::SetupObjectBlock sob_unused;
+					THROW(pPack->SetupObject(ar_list.get(0), sob_unused));
 				}
 			}
 			else if(pPack->Rec.EdiOp == PPEDIOP_ORDER) {
@@ -8668,16 +8680,16 @@ int PPEdiProcessor::ProviderImplementation::ResolveOwnFormatContractor(const Own
 					THROW(ArObj.GetByPersonList(GetSellAccSheet(), &psn_list_by_gln, &ar_list));
 					THROW_PP_S(ar_list.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
 					{
-						PPBillPacket::SetupObjectBlock sob;
-						THROW(pPack->SetupObject(ar_list.get(0), sob));
+						PPBillPacket::SetupObjectBlock sob_unused;
+						THROW(pPack->SetupObject(ar_list.get(0), sob_unused));
 					}
 				}
 				else if(psn_list_by_inn.getCount()) {
 					THROW(ArObj.GetByPersonList(GetSellAccSheet(), &psn_list_by_inn, &ar_list));
 					THROW_PP_S(ar_list.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
 					{
-						PPBillPacket::SetupObjectBlock sob;
-						THROW(pPack->SetupObject(ar_list.get(0), sob));
+						PPBillPacket::SetupObjectBlock sob_unused;
+						THROW(pPack->SetupObject(ar_list.get(0), sob_unused));
 					}
 				}
 			}

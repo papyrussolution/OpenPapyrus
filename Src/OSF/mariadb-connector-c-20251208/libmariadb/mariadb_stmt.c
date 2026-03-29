@@ -1378,26 +1378,30 @@ MYSQL_STMT * STDCALL mysql_stmt_init(MYSQL * mysql)
 
 bool mthd_stmt_read_prepare_response(MYSQL_STMT * stmt)
 {
-	uchar * p;
-	ulong packet_length = ma_net_safe_read(stmt->mysql);
-	if(packet_length == packet_error)
-		return 1;
-	p = (uchar*)stmt->mysql->net.read_pos;
-	if(0xFF == p[0]) { /* Error occurred */
+	ulong  packet_length = ma_net_safe_read(stmt->mysql);
+	if(packet_length == packet_error) {
 		return 1;
 	}
-	p++;
-	stmt->stmt_id = uint4korr(p);
-	p += 4;
-	stmt->field_count = uint2korr(p);
-	p += 2;
-	stmt->param_count = uint2korr(p);
-	p += 2;
-	/* filler */
-	p++;
-	/* for backward compatibility we also update mysql->warning_count */
-	stmt->mysql->warning_count = stmt->upsert_status.warning_count = uint2korr(p);
-	return 0;
+	else {
+		uchar * p = (uchar*)stmt->mysql->net.read_pos;
+		if(0xFF == p[0]) { /* Error occurred */
+			return 1;
+		}
+		else {
+			p++;
+			stmt->stmt_id = uint4korr(p);
+			p += 4;
+			stmt->field_count = uint2korr(p);
+			p += 2;
+			stmt->param_count = uint2korr(p);
+			p += 2;
+			/* filler */
+			p++;
+			/* for backward compatibility we also update mysql->warning_count */
+			stmt->mysql->warning_count = stmt->upsert_status.warning_count = uint2korr(p);
+			return 0;
+		}
+	}
 }
 
 bool mthd_stmt_get_param_metadata(MYSQL_STMT * stmt)

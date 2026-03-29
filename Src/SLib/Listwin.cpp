@@ -496,7 +496,7 @@ void WordSelector::SetupListWindowPosition()
 
 int WordSelector::Helper_PullDown(const char * pText, int recent)
 {
-	// @v12.5.10 Модифицировал код так, чтобы при пустом тексте список убирался. А именно, вывел последнее в фукнции (see below) условие за границу первого условного блока.
+	// @v12.5.10 Модифицировал код так, чтобы при пустом тексте список убирался. А именно, вывел последнее в функции (see below) условие за границу первого условного блока.
 	int    r = 0;
 	StrAssocArray * p_data = 0;
 	if(recent || sstrlen(pText) >= P_Blk->MinSymbCount) {

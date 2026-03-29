@@ -543,6 +543,10 @@ const BNField * SMySqlDbProvider::GetRowIdField(const DBTable * pTbl, uint * pFl
 		ctf |= Generator_SQL::ctfTemporary;
 	THROW(SqlGen.Z().CreateTable(*pTbl, 0, ctf, 0/*pCollationSymb*/));
 	{
+		// @v12.5.11 {
+		ConnectionEntry & r_ce = GetWorkingConnection(0, false);
+		r_ce.DestroyLastSelectStatement();
+		// } @v12.5.11 
 		SSqlStmt stmt(this, SqlGen);
 		THROW(stmt.Exec(1, OCI_DEFAULT));
 	}
@@ -567,6 +571,10 @@ const BNField * SMySqlDbProvider::GetRowIdField(const DBTable * pTbl, uint * pFl
 			if(!do_skip_index) {
 				THROW(SqlGen.Z().CreateIndex(*pTbl, pFileName, j, 0/*pCollationSymb*/));
 				{
+					// @v12.5.11 {
+					ConnectionEntry & r_ce = GetWorkingConnection(0, false);
+					r_ce.DestroyLastSelectStatement();
+					// } @v12.5.11 
 					SSqlStmt stmt(this, SqlGen);
 					THROW(stmt.Exec(1, OCI_DEFAULT));
 				}
@@ -786,26 +794,32 @@ int SMySqlDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTable
 		(temp_buf = CurrentDatabase).ToUpper(); // @debug
 		SqlGen.Sp().Tok(Generator_SQL::tokAnd).Sp().Eq("TABLE_SCHEMA", temp_buf);
 	}
-	SSqlStmt stmt(this, SqlGen);
-	THROW(stmt.Exec(0, 0));
-	THROW(stmt.BindData(+1, 1, fld_list, &rec_buf, 0));
-	if(Fetch(stmt, 1, &actual) && actual) {
-		THROW(stmt.GetData(0));
-		ok = 1;
-		if(pStat) {
-			pStat->NumRecs = rec_buf.NumRows;
-			pStat->CrDtm = rec_buf.CrTm;
-			pStat->ModDtm = rec_buf.UpdTm;
-			pStat->TblName = rec_buf.TableName;
-			pStat->Collation = rec_buf.Collation;
-			pStat->SpaceName = rec_buf.TableCatalog;
-			pStat->DbEngine = rec_buf.Engine;
-			SETFLAG(pStat->Flags, XTF_TEMP, rec_buf.Temp[0] == 'Y');
-			//pStat->OwnerName = rec_buf.Owner;
-			//pStat->SpaceName = rec_buf.TableSpace; // DbTableStat
-			if(reqItems & DbTableStat::iFldList) {
-			}
-			if(reqItems & DbTableStat::iIdxList) {
+	{
+		// @v12.5.11 {
+		ConnectionEntry & r_ce = GetWorkingConnection(0, false);
+		r_ce.DestroyLastSelectStatement();
+		// } @v12.5.11 
+		SSqlStmt stmt(this, SqlGen);
+		THROW(stmt.Exec(0, 0));
+		THROW(stmt.BindData(+1, 1, fld_list, &rec_buf, 0));
+		if(Fetch(stmt, 1, &actual) && actual) {
+			THROW(stmt.GetData(0));
+			ok = 1;
+			if(pStat) {
+				pStat->NumRecs = rec_buf.NumRows;
+				pStat->CrDtm = rec_buf.CrTm;
+				pStat->ModDtm = rec_buf.UpdTm;
+				pStat->TblName = rec_buf.TableName;
+				pStat->Collation = rec_buf.Collation;
+				pStat->SpaceName = rec_buf.TableCatalog;
+				pStat->DbEngine = rec_buf.Engine;
+				SETFLAG(pStat->Flags, XTF_TEMP, rec_buf.Temp[0] == 'Y');
+				//pStat->OwnerName = rec_buf.Owner;
+				//pStat->SpaceName = rec_buf.TableSpace; // DbTableStat
+				if(reqItems & DbTableStat::iFldList) {
+				}
+				if(reqItems & DbTableStat::iIdxList) {
+				}
 			}
 		}
 	}

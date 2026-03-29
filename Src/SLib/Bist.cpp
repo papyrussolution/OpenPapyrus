@@ -605,24 +605,28 @@ void SLString::maxval(void * d) const
 //
 // SInt
 //
-static int64 FASTCALL _tolong(const void * d, int sz)
+static int64 FASTCALL _tolong(const void * pData, int sz)
 {
-	switch(sz) {
-		case 4: return static_cast<int64>(*static_cast<const long *>(d));
-		case 2: return static_cast<int64>(*static_cast<const int16 *>(d));
-		case 1: return static_cast<int64>(*static_cast<const int8 *>(d));
-		case 8: return *static_cast<const int64 *>(d);
+	if(pData) {
+		switch(sz) {
+			case 4: return static_cast<int64>(*static_cast<const long *>(pData));
+			case 2: return static_cast<int64>(*static_cast<const int16 *>(pData));
+			case 1: return static_cast<int64>(*static_cast<const int8 *>(pData));
+			case 8: return *static_cast<const int64 *>(pData);
+		}
 	}
 	return 0L;
 }
 
-static void FASTCALL _longto(int64 v, void * d, int sz)
+static void FASTCALL _longto(int64 v, void * pData, int sz)
 {
-	switch(sz) {
-		case 1: *static_cast<int8 *>(d) = static_cast<int8>(v); break;
-		case 2: *static_cast<int16 *>(d) = static_cast<int16>(v); break;
-		case 4: *static_cast<int32 *>(d) = static_cast<int32>(v); break;
-		case 8: *static_cast<int64 *>(d) = v; break;
+	if(pData) {
+		switch(sz) {
+			case 1: *static_cast<int8 *>(pData) = static_cast<int8>(v); break;
+			case 2: *static_cast<int16 *>(pData) = static_cast<int16>(v); break;
+			case 4: *static_cast<int32 *>(pData) = static_cast<int32>(v); break;
+			case 8: *static_cast<int64 *>(pData) = v; break;
+		}
 	}
 }
 
@@ -1335,23 +1339,27 @@ int SUInt::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSeria
 //
 // SFloat
 //
-static double FASTCALL __toldbl(const void * d, int s)
+static double FASTCALL __toldbl(const void * pData, int s)
 {
-	switch(s) {
-		case 8: return *static_cast<const double *>(d);
-		case 4: return static_cast<double>(*static_cast<const float *>(d));
-		case 10: return static_cast<double>(*static_cast<const long double *>(d));
+	if(pData) { // @v12.5.11 @condition
+		switch(s) {
+			case 8: return *static_cast<const double *>(pData);
+			case 4: return static_cast<double>(*static_cast<const float *>(pData));
+			case 10: return static_cast<double>(*static_cast<const long double *>(pData));
+		}
 	}
 	return 0.0;
 }
 
-static void __ldblto(double v, void * d, int s)
+static void __ldblto(double v, void * pData, int s)
 {
-	switch(s) {
-		case 8: *(double *)d = v; break;
-		case 4: *(float *)d = (float)v; break;
-		case 10: *(long double *)d = v; break;
-		default: break;
+	if(pData) { // @v12.5.11 @condition
+		switch(s) {
+			case 8: *static_cast<double *>(pData) = v; break;
+			case 4: *static_cast<float *>(pData) = static_cast<float>(v); break;
+			case 10: *static_cast<long double *>(pData) = v; break;
+			default: break;
+		}
 	}
 }
 
@@ -1362,7 +1370,7 @@ int SFloat::Cmp_(const void * i1, const void * i2) const
 	return CMPSIGN(v1, v2);
 }
 
-char * SFloat::tostr(const void * d, long fmt, char * buf) const
+char * SFloat::tostr(const void * pData, long fmt, char * pBuf) const
 {
 	long   f;
 	if(SFMTFLAG(fmt) & COMF_SQL)
@@ -1371,7 +1379,7 @@ char * SFloat::tostr(const void * d, long fmt, char * buf) const
 		f = MKSFMTD(0, 6, NMBF_NOTRAILZ);
 	else
 		f = fmt;
-	return realfmt(__toldbl(d, S), f, buf);
+	return realfmt(__toldbl(pData, S), f, pBuf);
 }
 
 SString & SFloat::ToStr_(const void * pData, long fmt, SString & rBuf) const // @v12.5.6
@@ -2155,7 +2163,17 @@ SString & SGuid::ToStr_(const void * pData, long format, SString & rBuf) const
 	return rBuf;
 }
 
-int  SGuid::fromstr(void * pData, long f, const char * pStr) const { return static_cast<S_GUID *>(pData)->FromStr(pStr); }
+int  SGuid::fromstr(void * pData, long f, const char * pStr) const 
+{ 
+	if(pData)
+		return static_cast<S_GUID *>(pData)->FromStr(pStr);
+	else {
+		// Здесь нам просто вернуть результат преобразования. Само преобразование видимо не нужно, коль клиент не предоставил буфер
+		S_GUID t;
+		return t.FromStr(pStr);
+	}
+}
+
 int  SGuid::base() const { return BTS_STRING; }
 void SGuid::tobase(const void * pData, void * pBase) const { tostr(pData, 0L, static_cast<char *>(pBase)); }
 int  SGuid::baseto(void * pData, const void * pBase) const { fromstr(pData, 0L, static_cast<const char *>(pBase)); return 1; }
@@ -2183,12 +2201,12 @@ SString & SDataType_Color::ToStr_(const void * pData, long format, SString & rBu
 	return rBuf;
 }
 
-int SDataType_Color::fromstr(void * pData, long fmt, const char * pStr) const { return static_cast<SColorBase *>(pData)->FromStr(pStr); }
-int SDataType_Color::base() const { return BTS_STRING; }
-void SDataType_Color::tobase(const void * pData, void * pBase) const { tostr(pData, 0L, static_cast<char *>(pBase)); }
-int SDataType_Color::baseto(void * pData, const void * pBase) const { fromstr(pData, 0L, static_cast<const char *>(pBase)); return 1; }
-void SDataType_Color::minval(void * pData) const { memzero(pData, sizeof(SColorBase)); }
-void SDataType_Color::maxval(void * pData) const { memset(pData, 0xff, sizeof(SColorBase)); }
+int    SDataType_Color::fromstr(void * pData, long fmt, const char * pStr) const { return static_cast<SColorBase *>(pData)->FromStr(pStr); }
+int    SDataType_Color::base() const { return BTS_STRING; }
+void   SDataType_Color::tobase(const void * pData, void * pBase) const { tostr(pData, 0L, static_cast<char *>(pBase)); }
+int    SDataType_Color::baseto(void * pData, const void * pBase) const { fromstr(pData, 0L, static_cast<const char *>(pBase)); return 1; }
+void   SDataType_Color::minval(void * pData) const { memzero(pData, sizeof(SColorBase)); }
+void   SDataType_Color::maxval(void * pData) const { memset(pData, 0xff, sizeof(SColorBase)); }
 
 int SDataType_Color::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx)
 {

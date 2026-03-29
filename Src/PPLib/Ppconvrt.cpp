@@ -7947,7 +7947,7 @@ int Convert12407()
 //
 //
 //
-class PPCvtWorkbook12506 : public PPTableConversion { // @construction
+class PPCvtWorkbook12506 : public PPTableConversion {
 public:
 	struct WorkbookRec_Before12506 {
 		int32  ID;
@@ -8012,6 +8012,85 @@ int Convert12506()
 	PPWaitStart();
 	{
 		PPCvtWorkbook12506 cvt01;
+		THROW(cvt01.Convert());
+	}
+	PPWaitStop();
+	CATCHZOK
+	return ok;
+}
+//
+//
+//
+class PPCvtCCheckPaym12511 : public PPTableConversion { // @construction
+public:
+	//
+	// Формат записи не меняется - изменяется только индекс #1 (убираю anysegnull)
+	//
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
+	{
+		DBTable * p_tbl = new CCheckPaymTbl;
+		if(!p_tbl)
+			PPSetErrorNoMem();
+		else if(pNeedConversion) {
+			// Было: SCardID, CheckID (anysegnull unique mod); // #1
+			// Стало: SCardID, CheckID, RByCheck (unique mod); // #1
+			const RECORDSIZE recsz = p_tbl->getRecSize();
+			int    num_seg = 0;
+			DBIdxSpec * p_is = p_tbl->getIndexSpec(1, &num_seg);
+			*pNeedConversion = BIN(p_is && num_seg == 2);
+		}
+		return p_tbl;
+	}
+	virtual int ConvertRec(DBTable * newTbl, void * pRec, int * pNewRecLen)
+	{
+		const CCheckPaymTbl::Rec * p_old_rec = static_cast<const CCheckPaymTbl::Rec *>(pRec);
+		CCheckPaymTbl::Rec * p_data = static_cast<CCheckPaymTbl::Rec *>(newTbl->getDataBuf());
+		newTbl->clearDataBuf();
+		memcpy(p_data, p_old_rec, sizeof(*p_data));
+		*pNewRecLen = sizeof(CCheckPaymTbl::Rec);
+		return 1;
+	}
+};
+
+class PPCvtGeoTrack12511 : public PPTableConversion { // @construction
+public:
+	//
+	// Формат записи не меняется - только исчез индекс #1 (убираю anysegnull)
+	//
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
+	{
+		DBTable * p_tbl = new GeoTrackTbl;
+		if(!p_tbl)
+			PPSetErrorNoMem();
+		else if(pNeedConversion) {
+			const  RECORDSIZE recsz = p_tbl->getRecSize();
+			int16  num_keys = 0;
+			const  int gnkr = p_tbl->getNumKeys(&num_keys);
+			*pNeedConversion = BIN(gnkr && num_keys == 2);
+		}
+		return p_tbl;
+	}
+	virtual int ConvertRec(DBTable * newTbl, void * pRec, int * pNewRecLen)
+	{
+		const GeoTrackTbl::Rec * p_old_rec = static_cast<const GeoTrackTbl::Rec *>(pRec);
+		GeoTrackTbl::Rec * p_data = static_cast<GeoTrackTbl::Rec *>(newTbl->getDataBuf());
+		newTbl->clearDataBuf();
+		memcpy(p_data, p_old_rec, sizeof(*p_data));
+		*pNewRecLen = sizeof(GeoTrackTbl::Rec);
+		return 1;
+	}
+};
+
+int Convert12511()
+{
+	int    ok = 1;
+	PPWaitStart();
+	{
+		PPCvtCCheckPaym12511 cvt01;
+		THROW(cvt01.Convert());
+	}
+	{
+		PPCvtGeoTrack12511 cvt01;
 		THROW(cvt01.Convert());
 	}
 	PPWaitStop();

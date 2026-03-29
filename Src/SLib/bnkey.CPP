@@ -1,5 +1,5 @@
 // BNKEY.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2025
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -118,10 +118,10 @@ int BNKey::setFlags(int flags, int seg)
 		const int _ns = HEAD.numSeg;
 		if(seg == static_cast<int>(UNDEF)) {
 			for(int i = 0; i < _ns; i++) {
-				int32 * f = &SEG(i).flags;
-				*f &= ~XIF_ALLSEGFLAGS;
-				*f |= flags;
-				SETFLAG(*f, XIF_SEG, i < (_ns - 1));
+				int32 * p_f = &SEG(i).flags;
+				*p_f &= ~XIF_ALLSEGFLAGS;
+				*p_f |= flags;
+				SETFLAG(*p_f, XIF_SEG, i < (_ns - 1));
 			}
 			ok = 1;
 		}
@@ -139,11 +139,12 @@ int BNKey::containsField(int fldID, int * pSeg) const
 {
 	if(data) {
 		const int _ns = HEAD.numSeg;
-		for(int i = 0; i < _ns; i++)
+		for(int i = 0; i < _ns; i++) {
 			if(SEG(i).fldID == fldID) {
 				*pSeg = i;
 				return 1;
 			}
+		}
 	}
 	return 0;
 }
@@ -198,7 +199,7 @@ int FASTCALL BNKeyList::copy(const BNKeyList * src)
 int BNKeyList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * /*pCtx*/)
 {
 	int    ok = 1;
-	uint32 sz;
+	uint32 sz = 0;
 	if(dir > 0) {
 		sz = sizeof(BNKeyCell) * GetNumCells();
 		THROW(rBuf.Write(sz));
@@ -221,10 +222,11 @@ uint BNKeyList::GetNumCells() const
 {
 	uint   count = 0;
 	if(P_Data) {
-		const  BNKeyCell * cells = static_cast<const BNKeyCell *>(P_Data);
-		int    num_keys = cells[count++].ih.numKeys;
-		for(int i = 0; i < num_keys; i++)
-			count += (cells[count].h.numSeg + 1);
+		const  BNKeyCell * p_cells = static_cast<const BNKeyCell *>(P_Data);
+		const  int num_keys = p_cells[count++].ih.numKeys;
+		for(int i = 0; i < num_keys; i++) {
+			count += (p_cells[count].h.numSeg + 1);
+		}
 	}
 	return count;
 }
@@ -233,14 +235,16 @@ int FASTCALL BNKeyList::findKeyByNumber(int keyNumber) const
 {
 	int    count = 0;
 	if(P_Data) {
-#define cells (static_cast<const BNKeyCell *>(P_Data))
-		const int num_keys = cells[count++].ih.numKeys;
-		for(int i = 0; i < num_keys; i++)
-			if(keyNumber == cells[count].h.keyNumber)
+// @v12.5.11 #define cells (static_cast<const BNKeyCell *>(P_Data))
+		const  BNKeyCell * p_cells = static_cast<const BNKeyCell *>(P_Data); // @v12.5.11 
+		const  int num_keys = p_cells[count++].ih.numKeys;
+		for(int i = 0; i < num_keys; i++) {
+			if(keyNumber == p_cells[count].h.keyNumber)
 				return count;
 			else
-				count += (cells[count].h.numSeg + 1);
-#undef cells
+				count += (p_cells[count].h.numSeg + 1);
+		}
+// @v12.5.11 #undef cells
 	}
 	return count;
 }
@@ -249,14 +253,16 @@ int FASTCALL BNKeyList::findKey(int key) const
 {
 	int    count = 0;
 	if(P_Data) {
-#define cells (static_cast<const BNKeyCell *>(P_Data))
-		const int num_keys = cells[count++].ih.numKeys;
-		for(int i = 0; i < num_keys; i++)
+// @v12.5.11 #define cells (static_cast<const BNKeyCell *>(P_Data))
+		const  BNKeyCell * p_cells = static_cast<const BNKeyCell *>(P_Data); // @v12.5.11 
+		const  int num_keys = p_cells[count++].ih.numKeys;
+		for(int i = 0; i < num_keys; i++) {
 			if(key == i)
 				return count;
 			else
-				count += (cells[count].h.numSeg + 1);
-#undef cells
+				count += (p_cells[count].h.numSeg + 1);
+		}
+// @v12.5.11 #undef cells
 	}
 	return 0;
 }

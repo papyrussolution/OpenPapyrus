@@ -1270,7 +1270,7 @@ bool PPViewAccAnlz::IsDedicatedRestEvaluationNeeded() const
 				PPID   rel_person_id = 0;
 				AccAnlzTotal  total;
 				TempAccTrnovrTbl::Rec rec;
-				AccAnlzFilt   temp_flt = Filt;
+				AccAnlzFilt temp_flt = Filt;
 				temp_flt.Flags |= AccAnlzFilt::fTotalOnly;
 				temp_flt.Flags &= ~AccAnlzFilt::fTrnovrBySheet;
 				temp_flt.Aco    = ACO_3;

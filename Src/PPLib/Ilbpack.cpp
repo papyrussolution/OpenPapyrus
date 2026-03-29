@@ -132,15 +132,21 @@ int PPObjBill::OrderLots(const PPBillPacket * pPack, PPIDArray * pLots, PPID gen
 }
 
 struct CmpGenLots { // @flat
-	CmpGenLots(PPID lot, LDATE d, long oprNo) : lotID(lot), dt(d), o(oprNo)
+	CmpGenLots(const ReceiptTbl::Rec & rLotRec) : LotID(rLotRec.ID), Dt(rLotRec.Dt), OprNo(rLotRec.OprNo)
 	{
 	}
-	LDATE  dt;
-	long   o;
-	PPID   lotID;
+	LDATE  Dt;
+	long   OprNo;
+	PPID   LotID;
 };
 
 static IMPL_CMPFUNC(CmpGenLots, i1, i2) { return memcmp(i1, i2, sizeof(CmpGenLots)); }
+
+static void AddLotRecToCmpGenLotList(SVector & rList, const ReceiptTbl::Rec & rLotRec)
+{
+	CmpGenLots cgls(rLotRec);
+	rList.ordInsert(&cgls, 0, PTR_CMPFUNC(CmpGenLots));
+}
 
 static int SetupTI(PPTransferItem * pTI, const PPBillPacket * pPack, PPID goodsID, PPID lotID)
 {
@@ -153,13 +159,11 @@ static int SetupTI(PPTransferItem * pTI, const PPBillPacket * pPack, PPID goodsI
 	return ok;
 }
 
-int PPObjBill::Helper_ConvertILTI_Subst(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows,
-	double * pQtty, long flags, const GoodsReplacementArray * pGra, char * pSerial)
+int PPObjBill::Helper_ConvertILTI_Subst(ILTI * pIlti, PPBillPacket * pPack, LongArray * pRows, double * pQtty, long flags, const GoodsReplacementArray * pGra, char * pSerial)
 {
 	int    ok = 1;
 	int    r;
-	uint   i;
-	const  PPID dest_goods_id = labs(ilti->GoodsID);
+	const  PPID dest_goods_id = labs(pIlti->GoodsID);
 	PPID   goods_id = 0;
 	double qtty = *pQtty;
 	PPIDArray lots;
@@ -168,109 +172,167 @@ int PPObjBill::Helper_ConvertILTI_Subst(ILTI * ilti, PPBillPacket * pPack, LongA
 	const  int   by_serial = isempty(strip(pSerial)) ? 0 : 1;
 	const  LDATE dt = pPack->Rec.Dt;
 	const  PPID  loc_id = pPack->Rec.LocID;
+	ReceiptTbl::Rec lot_rec;
 	LotArray lot_list;
 	SVector cgla(sizeof(CmpGenLots));
-	const bool do_optimize_lots = /*LOGIC(flags & CILTIF_OPTMZLOTS)*/false; // Оптимизация лотов заблокирована потому что из-за нее нарушается балансировка использования подстановок
-	const PPIDArray * p_spc_list = pGra ? pGra->GetSpecialSubstGoodsList() : 0;
-	if(p_spc_list) {
-		PPGoodsTaxEntry dest_gte;
-		Goods2Tbl::Rec dest_goods_rec;
-		Goods2Tbl::Rec src_goods_rec;
-		const  double dest_price = ilti->Price;
-		const  double dest_cost = ilti->Cost;
-		const  double dest_cost_mark = (dest_cost > 0.0) ? dest_cost : dest_price;
-		const  PPID   dest_unit_id = (GObj.Fetch(dest_goods_id, &dest_goods_rec) > 0) ? dest_goods_rec.UnitID : 0;
-		if(dest_unit_id && GObj.FetchTaxEntry2(dest_goods_id, 0/*lotID*/, 0/*taxPayerID*/, dt, pPack->Rec.OpID, &dest_gte) > 0) {
-			PPGoodsTaxEntry src_gte;
-			for(i = 0; i < p_spc_list->getCount(); i++) {
-				const  PPID src_goods_id = p_spc_list->get(i);
-				const  PPID src_unit_id = (GObj.Fetch(src_goods_id, &src_goods_rec) > 0) ? src_goods_rec.UnitID : 0;
-				if(src_unit_id == dest_unit_id && GObj.FetchTaxEntry2(src_goods_id, 0/*lotID*/, 0/*taxPayerID*/, dt, pPack->Rec.OpID, &src_gte) > 0 && src_gte.VAT == dest_gte.VAT) {
-					r = 0;
-					lot_list.clear();
-					trfr->Rcpt.GetListOfOpenedLots(-1, src_goods_id, loc_id, dt, &lot_list);
-					for(uint j = 0; j < lot_list.getCount(); j++) {
-						const ReceiptTbl::Rec & r_lot_rec = lot_list.at(j);
-						if(r_lot_rec.Cost < dest_cost_mark) {
-							CmpGenLots cgls(r_lot_rec.ID, r_lot_rec.Dt, r_lot_rec.OprNo);
-							cgla.ordInsert(&cgls, 0, PTR_CMPFUNC(CmpGenLots));
-							r = 1;
+	const  bool do_optimize_lots = /*LOGIC(flags & CILTIF_OPTMZLOTS)*/false; // Оптимизация лотов заблокирована потому что из-за нее нарушается балансировка использования подстановок
+	const  PPIDArray * p_spc_list = pGra ? pGra->GetSpecialSubstGoodsList() : 0;
+	if(qtty < 0.0) {
+		if(p_spc_list) {
+			PPGoodsTaxEntry dest_gte;
+			Goods2Tbl::Rec dest_goods_rec;
+			Goods2Tbl::Rec src_goods_rec;
+			const  double dest_price = pIlti->Price;
+			const  double dest_cost = pIlti->Cost;
+			const  double dest_cost_mark = (dest_cost > 0.0) ? dest_cost : dest_price;
+			const  PPID   dest_unit_id = (GObj.Fetch(dest_goods_id, &dest_goods_rec) > 0) ? dest_goods_rec.UnitID : 0;
+			if(dest_unit_id && GObj.FetchTaxEntry2(dest_goods_id, 0/*lotID*/, 0/*taxPayerID*/, dt, pPack->Rec.OpID, &dest_gte) > 0) {
+				PPGoodsTaxEntry src_gte;
+				for(uint i = 0; i < p_spc_list->getCount(); i++) {
+					const  PPID src_goods_id = p_spc_list->get(i);
+					const  PPID src_unit_id = (GObj.Fetch(src_goods_id, &src_goods_rec) > 0) ? src_goods_rec.UnitID : 0;
+					if(src_unit_id == dest_unit_id && GObj.FetchTaxEntry2(src_goods_id, 0/*lotID*/, 0/*taxPayerID*/, dt, pPack->Rec.OpID, &src_gte) > 0 && src_gte.VAT == dest_gte.VAT) {
+						r = 0;
+						lot_list.clear();
+						trfr->Rcpt.GetListOfOpenedLots(-1, src_goods_id, loc_id, dt, &lot_list);
+						for(uint j = 0; j < lot_list.getCount(); j++) {
+							const ReceiptTbl::Rec & r_lot_rec = lot_list.at(j);
+							if(r_lot_rec.Cost < dest_cost_mark) {
+								AddLotRecToCmpGenLotList(cgla, r_lot_rec);
+								r = 1;
+							}
 						}
+						if(r)
+							local_gri.Add(src_goods_id, SMathConst::Max, 1.0/*ratio*/);
 					}
-					if(r)
-						local_gri.Add(src_goods_id, SMathConst::Max, 1.0/*ratio*/);
 				}
-			}
-		}
-	}
-	else {
-		if(p_gri) {
-			for(i = 0; i < p_gri->getCount(); i++) {
-				goods_id = p_gri->GetSrcID(i);
-				r = 0;
-				lot_list.clear();
-				trfr->Rcpt.GetListOfOpenedLots(-1, goods_id, loc_id, dt, &lot_list);
-				for(uint j = 0; j < lot_list.getCount(); j++) {
-					const ReceiptTbl::Rec & r_lot_rec = lot_list.at(j);
-					CmpGenLots cgls(r_lot_rec.ID, r_lot_rec.Dt, r_lot_rec.OprNo);
-					cgla.ordInsert(&cgls, 0, PTR_CMPFUNC(CmpGenLots));
-					r = 1;
-				}
-				if(r)
-					local_gri.Add(goods_id, p_gri->GetQtty(i), p_gri->GetRatio(i));
 			}
 		}
 		else {
-			RAssocArray goods_list;
-			GObj.GetSubstList(dest_goods_id, BIN(flags & CILTIF_USESUBST_STRUCONLY), goods_list);
-			for(i = 0; i < goods_list.getCount(); i++) {
-				goods_id = goods_list.at(i).Key;
-				r = 0;
-				lot_list.clear();
-				trfr->Rcpt.GetListOfOpenedLots(-1, goods_id, loc_id, dt, &lot_list);
-				for(uint j = 0; j < lot_list.getCount(); j++) {
-					const ReceiptTbl::Rec & r_lot_rec = lot_list.at(j);
-					CmpGenLots cgls(r_lot_rec.ID, r_lot_rec.Dt, r_lot_rec.OprNo);
-					cgla.ordInsert(&cgls, 0, PTR_CMPFUNC(CmpGenLots));
-					r = 1;
+			if(p_gri) {
+				for(uint i = 0; i < p_gri->getCount(); i++) {
+					goods_id = p_gri->GetSrcID(i);
+					r = 0;
+					lot_list.clear();
+					trfr->Rcpt.GetListOfOpenedLots(-1, goods_id, loc_id, dt, &lot_list);
+					for(uint j = 0; j < lot_list.getCount(); j++) {
+						AddLotRecToCmpGenLotList(cgla, lot_list.at(j));
+						r = 1;
+					}
+					if(r)
+						local_gri.Add(goods_id, p_gri->GetQtty(i), p_gri->GetRatio(i));
 				}
-				if(r)
-					local_gri.Add(goods_id, SMathConst::Max, goods_list.at(i).Val);
+			}
+			else {
+				RAssocArray goods_list;
+				GObj.GetSubstList(dest_goods_id, BIN(flags & CILTIF_USESUBST_STRUCONLY), goods_list);
+				for(uint i = 0; i < goods_list.getCount(); i++) {
+					goods_id = goods_list.at(i).Key;
+					r = 0;
+					lot_list.clear();
+					trfr->Rcpt.GetListOfOpenedLots(-1, goods_id, loc_id, dt, &lot_list);
+					for(uint j = 0; j < lot_list.getCount(); j++) {
+						AddLotRecToCmpGenLotList(cgla, lot_list.at(j));
+						r = 1;
+					}
+					if(r)
+						local_gri.Add(goods_id, SMathConst::Max, goods_list.at(i).Val);
+				}
 			}
 		}
-	}
-	for(i = 0; i < cgla.getCount(); i++)
-		lots.addUnique(static_cast<const CmpGenLots *>(cgla.at(i))->lotID);
-	if(do_optimize_lots)
-		THROW(OrderLots(pPack, &lots, dest_goods_id, ilti->Cost, ilti->Price, qtty));
-	for(i = 0; qtty < 0.0 && i < lots.getCount(); i++) {
-		const  PPID lot_id = lots.at(i);
-		ReceiptTbl::Rec lot_rec;
-		THROW(trfr->Rcpt.Search(lot_id, &lot_rec) > 0);
-		if(!by_serial || CmpSnrWithLotSnr(lot_id, pSerial, false)) {
-			goods_id = lot_rec.GoodsID;
-			uint   gri_pos = 0;
-			if(local_gri.GetPosByGoods(goods_id, &gri_pos)) {
-				double ratio    = local_gri.GetRatio(gri_pos);
-				double max_qtty = local_gri.GetQtty(gri_pos);
-				if(max_qtty > 0.0) {
-					double rest = 0.0;
-					THROW(pPack->BoundsByLot(lot_id, 0, -1, &rest, 0));
-					if(rest > 0.0) {
-						const double rq  = MAX(qtty, -max_qtty) * ratio;
-						const double q   = (rest < -rq) ? rest : -rq;
-						PPTransferItem ti;
-						THROW(SetupTI(&ti, pPack, goods_id, lot_id));
-						ti.Quantity_ = -q;
-						ti.Discount = (ilti->Price > 0.0) ? (ti.Price - ilti->Price) : 0.0;
-						THROW(pPack->InsertRow(&ti, pRows));
-						qtty += q / ratio;
-						local_gri.Add(goods_id, -fabs(q), local_gri.GetRatio(gri_pos));
+		{
+			for(uint i = 0; i < cgla.getCount(); i++) {
+				lots.addUnique(static_cast<const CmpGenLots *>(cgla.at(i))->LotID);
+			}
+			if(do_optimize_lots) {
+				THROW(OrderLots(pPack, &lots, dest_goods_id, pIlti->Cost, pIlti->Price, qtty));
+			}
+		}
+		for(uint i = 0; qtty < 0.0 && i < lots.getCount(); i++) {
+			const  PPID lot_id = lots.at(i);
+			THROW(trfr->Rcpt.Search(lot_id, &lot_rec) > 0);
+			if(!by_serial || CmpSnrWithLotSnr(lot_id, pSerial, false)) {
+				goods_id = lot_rec.GoodsID;
+				uint   gri_pos = 0;
+				if(local_gri.GetPosByGoods(goods_id, &gri_pos)) {
+					const  double ratio    = local_gri.GetRatio(gri_pos);
+					const  double max_qtty = local_gri.GetQtty(gri_pos);
+					if(max_qtty > 0.0) {
+						double rest = 0.0;
+						THROW(pPack->BoundsByLot(lot_id, 0, -1, &rest, 0));
+						if(rest > 0.0) {
+							const  double rq = smax(qtty, -max_qtty) * ratio;
+							const  double q  = (rest < -rq) ? rest : -rq;
+							PPTransferItem ti;
+							THROW(SetupTI(&ti, pPack, goods_id, lot_id));
+							ti.Quantity_ = -q;
+							ti.Discount = (pIlti->Price > 0.0) ? (ti.Price - pIlti->Price) : 0.0;
+							THROW(pPack->InsertRow(&ti, pRows));
+							qtty += q / ratio;
+							local_gri.Add(goods_id, -fabs(q), local_gri.GetRatio(gri_pos));
+						}
 					}
 				}
 			}
 		}
 	}
+	// @v12.5.11 {
+	else if(qtty > 0.0) { // @v12.5.11 Возврат
+		PPIDArray seen_lot_id_list;
+		const long f1 = (pIlti->Flags & PPTFR_PRICEWOTAXES);
+		if(!p_spc_list) {
+			if(p_gri) {
+				for(uint i = 0; i < p_gri->getCount(); i++) {
+					goods_id = p_gri->GetSrcID(i);
+					local_gri.Add(goods_id, p_gri->GetQtty(i), p_gri->GetRatio(i));
+				}
+			}
+			else {
+				RAssocArray goods_list;
+				GObj.GetSubstList(dest_goods_id, BIN(flags & CILTIF_USESUBST_STRUCONLY), goods_list);
+				for(uint i = 0; i < goods_list.getCount(); i++) {
+					goods_id = goods_list.at(i).Key;
+					local_gri.Add(goods_id, SMathConst::Max, goods_list.at(i).Val);
+				}
+			}
+		}
+		{
+			for(uint i = 0; qtty > 0.0 && i < local_gri.getCount(); i++) {
+				const  PPID   subst_goods_id = local_gri.GetSrcID(i);
+				const  double subst_qtty = local_gri.GetQtty(i);
+				const  double subst_ratio = local_gri.GetRatio(i);
+				if(subst_ratio > 0.0) {
+					LDATE  dt    = pPack->Rec.Dt;
+					long   oprno = MAXLONG;
+					while(qtty > 0.0 && trfr->Rcpt.EnumLastLots(subst_goods_id, pPack->Rec.LocID, &dt, &oprno, &lot_rec) > 0) {
+						const  PPID lot_id = lot_rec.ID;
+						if(!seen_lot_id_list.lsearch(lot_id)) {
+							const long f2 = (lot_rec.Flags & LOTF_PRICEWOTAXES);
+							if((f1 && f2) || (!f1 && !f2)) {
+								double q = 0.0;
+								double rest = 0.0;
+								const  double needed_qtty = (qtty * subst_ratio);
+								THROW(pPack->BoundsByLot(lot_id, 0, -1, &rest, &q));
+								SETMIN(q, needed_qtty);
+								if(q > 0.0) {
+									PPTransferItem ti;
+									THROW(ti.Init(&pPack->Rec, 1, 1));
+									THROW(ti.SetupGoods(subst_goods_id, 0));
+									ti.Price = fabs(pIlti->Price) / subst_ratio;
+									THROW(ti.SetupLot(lot_id, &lot_rec, 0));
+									ti.Quantity_ = q;
+									THROW(pPack->InsertRow(&ti, pRows));
+									qtty -= (q / subst_ratio);
+									seen_lot_id_list.add(lot_id);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	// } @v12.5.11
 	CATCHZOK
 	ASSIGN_PTR(pQtty, qtty);
 	return ok;
@@ -1035,7 +1097,7 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pBp, LongArray * pRows, u
 				// Если необходимо оприходовать некоторое количество товара без образования лота (возвраты, например),
 				// то перебираем все последние лоты и заносим в них столько товара, чтобы остаток не превысил первоначальное количество.
 				//
-				PPIDArray seen_lot_id_list; // @v11.4.5 Так как процесс выбора лота многоступенчатый, то здесь мы будем хранить лоты, которые уже использованы
+				PPIDArray seen_lot_id_list; // Так как процесс выбора лота многоступенчатый, то здесь мы будем хранить лоты, которые уже использованы
 				const long f1 = (ilti->Flags & PPTFR_PRICEWOTAXES);
 				if(sync_lot_id && trfr->Rcpt.Search(sync_lot_id, &lot_rec) > 0) {
 					//
@@ -1090,7 +1152,7 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pBp, LongArray * pRows, u
 									ti.Quantity_ = q;
 									THROW(pBp->InsertRow(&ti, &rows));
 									qtty -= q;
-									seen_lot_id_list.add(lot_id); // @v11.4.5
+									seen_lot_id_list.add(lot_id);
 								}
 							}
 						}
@@ -1104,7 +1166,7 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pBp, LongArray * pRows, u
 					while(qtty > 0.0 && trfr->Rcpt.EnumLastLots(ilti->GoodsID, pBp->Rec.LocID, &dt, &oprno, &lot_rec) > 0) {
 						const  PPID lot_id = lot_rec.ID;
 						if(!seen_lot_id_list.lsearch(lot_id)) {
-							const long f2 = (lot_rec.Flags & LOTF_PRICEWOTAXES);
+							const  long f2 = (lot_rec.Flags & LOTF_PRICEWOTAXES);
 							if((f1 && f2) || (!f1 && !f2)) {
 								double q = 0.0;
 								THROW(pBp->BoundsByLot(lot_id, 0, -1, &rest, &q));
@@ -1118,12 +1180,17 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pBp, LongArray * pRows, u
 									ti.Quantity_ = q;
 									THROW(pBp->InsertRow(&ti, &rows));
 									qtty -= q;
-									seen_lot_id_list.add(lot_id); // @v11.4.5
+									seen_lot_id_list.add(lot_id);
 								}
 							}
 						}
 					}
 				}
+				// @v12.5.11 {
+				if(qtty > 0.0 && flags & CILTIF_USESUBST) {
+					THROW(Helper_ConvertILTI_Subst(ilti, pBp, &rows, &qtty, flags, pGra, /*serial*/0));
+				}
+				// } @v12.5.11 
 			}
 		}
 		ilti->Rest = R6(qtty);
@@ -2434,11 +2501,9 @@ int PPObjBill::SerializePacket_Base(int dir, PPBill * pPack, SBuffer & rBuf, SSe
 	int    ok = 1;
 	THROW_SL(pPack->Ver.Serialize(dir, rBuf, pSCtx)); // Номер версии идет самым первым сериализируемым объектом
 	THROW_SL(P_Tbl->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
-	// @v11.1.12 {
 	if(dir > 0 || pPack->Ver.IsGe(11, 1, 12)) {
 		THROW_SL(pSCtx->Serialize(dir, pPack->SMemo, rBuf)); 
 	}
-	// } @v11.1.12 
 	THROW(pPack->Ext.Serialize(dir, rBuf, pSCtx));
 	THROW_SL(pSCtx->Serialize(dir, &pPack->Amounts, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, &pPack->Pays, rBuf));
@@ -2480,6 +2545,9 @@ int PPObjBill::SerializePacket_Base(int dir, PPBill * pPack, SBuffer & rBuf, SSe
 			THROW_MEM(SETIFZ(pPack->P_AdvRep, new PPAdvanceRep));
 			*pPack->P_AdvRep = adv_rep;
 		}
+	}
+	{ 
+		// @dbd_exchange @todo @202060321 THROW(PPBill::AgreementBlock::Serialize_Static(&pPack->P_Agt, dir, rBuf, pSCtx));
 	}
 	CATCHZOK
 	return ok;
