@@ -614,7 +614,7 @@ PPCheckInPersonMngr::PPCheckInPersonMngr()
 int PPCheckInPersonMngr::Search(PPID id, PPCheckInPersonItem * pItem)
 {
 	ObjAssocTbl::Rec rec;
-	int    ok = PPRef->Assc.Search(id, &rec);
+	int    ok = PPRef->AsscC.Search(id, &rec);
 	if(ok > 0) {
 		if(pItem)
 			StorageToItem(rec, *pItem);
@@ -629,7 +629,7 @@ int PPCheckInPersonMngr::Search(/*int kind, PPID prmrID, PPID personID*/const PP
 	if(assc_type) {
 		ObjAssocTbl::Rec rec;
 		PPID   person_id = rKeyItem.PersonID;
-		ok = PPRef->Assc.Search(assc_type, rKeyItem.PrmrID, person_id, &rec);
+		ok = PPRef->AsscC.Search(assc_type, rKeyItem.PrmrID, person_id, &rec);
 		if(ok > 0) {
 			if(pItem)
 				StorageToItem(rec, *pItem);
@@ -648,7 +648,7 @@ int PPCheckInPersonMngr::GetList(int kind, PPID prmrID, PPCheckInPersonArray & r
 	PPID   assc_type = GetAssocType(kind);
 	rList.Init(kind, prmrID);
 	THROW(assc_type);
-	THROW(p_ref->Assc.GetItemsListByPrmr(assc_type, prmrID, &items_list));
+	THROW(p_ref->AsscC.GetItemsListByPrmr(assc_type, prmrID, &items_list));
 	for(uint i = 0; i < items_list.getCount(); i++) {
 		const ObjAssocTbl::Rec & r_rec = items_list.at(i);
 		PPCheckInPersonItem item;
@@ -692,19 +692,19 @@ int PPCheckInPersonMngr::Put(PPCheckInPersonItem & rItem, int use_ta)
 			else {
 				THROW_PP_S(rItem.ID == org_item.ID, PPERR_CHKINP_CONFLICTID, rItem.ID);
 				if(rItem.Num != org_item.Num) {
-					THROW(r = p_ref->Assc.SearchNum(assc_type, rItem.PrmrID, rItem.Num, &assc_rec));
+					THROW(r = p_ref->AsscC.SearchNum(assc_type, rItem.PrmrID, rItem.Num, &assc_rec));
 					THROW_PP_S(r < 0, PPERR_CHKINP_CONFLICTNUM, rItem.Num);
 				}
 				THROW(ItemToStorage(rItem, assc_rec));
-				THROW(p_ref->Assc.Update(rItem.ID, &assc_rec, 0));
+				THROW(p_ref->AsscC.Update(rItem.ID, &assc_rec, 0));
 			}
 		}
 		else {
 			PPID   assc_id = 0;
 			THROW(r);
-			THROW(p_ref->Assc.SearchFreeNum(assc_type, rItem.PrmrID, &rItem.Num, 0));
+			THROW(p_ref->AsscC.SearchFreeNum(assc_type, rItem.PrmrID, &rItem.Num, 0));
 			THROW(ItemToStorage(rItem, assc_rec));
-			THROW(p_ref->Assc.Add(&assc_id, &assc_rec, use_ta));
+			THROW(p_ref->AsscC.Add(&assc_id, &assc_rec, use_ta));
 			rItem.ID = assc_id;
 		}
 		THROW(tra.Commit());
@@ -764,7 +764,7 @@ int PPCheckInPersonMngr::Put(PPCheckInPersonArray & rList, int use_ta)
 		}
 		for(i = 0; i < rmv_orgpos_list.getCount(); i++) {
 			const  PPCheckInPersonItem & r_org_item = org_list.Get(rmv_orgpos_list.get(i));
-			THROW(p_ref->Assc.Remove(r_org_item.ID, 0));
+			THROW(p_ref->AsscC.Remove(r_org_item.ID, 0));
 			ok = 1;
 		}
 		for(i = 0; i < upd_pos_list.getCount(); i++) {

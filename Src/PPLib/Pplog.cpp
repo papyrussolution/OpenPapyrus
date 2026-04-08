@@ -1162,7 +1162,27 @@ PPLogMsgSession::PPLogMsgSession(PPLogMsgQueue * pQueue) : PPThread(PPThread::kL
 			timeout--;
 		} while(!f && timeout);
 		if(f) {
-			rLb.TempBuf.Z().Cat(rMsgItem.Prefix).Cat(rMsgItem.Text).CR().Transf((rMsgItem.Options & LOGMSGF_UTF8) ? CTRANSF_INNER_TO_UTF8 : CTRANSF_INNER_TO_OUTER);
+			rLb.TempBuf.Z().Cat(rMsgItem.Prefix).Cat(rMsgItem.Text).CR();
+			// @v12.5.12 rLb.TempBuf.Transf((rMsgItem.Options & LOGMSGF_UTF8) ? CTRANSF_INNER_TO_UTF8 : CTRANSF_INNER_TO_OUTER);
+			// @v12.5.12 {
+			if(!rLb.TempBuf.IsAscii()) {
+				if(rMsgItem.Options & LOGMSGF_UTF8) {
+					if(rLb.TempBuf.IsLegalUtf8()) {
+					}
+					else {
+						rLb.TempBuf.Transf(CTRANSF_INNER_TO_UTF8);
+					}
+				}
+				else {
+					if(rLb.TempBuf.IsLegalUtf8()) {
+						rLb.TempBuf.Transf(CTRANSF_UTF8_TO_OUTER);
+					}
+					else {
+						rLb.TempBuf.Transf(CTRANSF_INNER_TO_OUTER);
+					}
+				}
+			}
+			// } @v12.5.12 
 			fputs(rLb.TempBuf, f);
 			SFile::ZClose(&f);
 			if(rMsgItem.DupFileName.NotEmpty()) {

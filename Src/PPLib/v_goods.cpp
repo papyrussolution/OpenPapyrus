@@ -1131,7 +1131,7 @@ PPViewGoods::~PPViewGoods()
 void PPViewGoods::RemoveTempAltGroup()
 {
 	if(Filt.GrpID < 0) {
-		PPRef->Assc.Remove(PPASS_ALTGOODSGRP, Filt.GrpID, 0, 1);
+		PPRef->AsscC.Remove(PPASS_ALTGOODSGRP, Filt.GrpID, 0, 1);
 		Filt.GrpID = 0;
 	}
 }
@@ -1988,7 +1988,7 @@ int PPViewGoods::DeleteItem(PPID id)
 		}
 		else if(IsAltFltGroup()) {
 			if(!GObj.CheckFlag(Filt.GrpID, GF_DYNAMIC) && CONFIRM(PPCFM_DELETE)) {
-				ok = PPRef->Assc.Remove(PPASS_ALTGOODSGRP, Filt.GrpID, id, 1);
+				ok = PPRef->AsscC.Remove(PPASS_ALTGOODSGRP, Filt.GrpID, id, 1);
 				if(ok == 0)
 					PPError();
 			}
@@ -2452,7 +2452,7 @@ int PPViewGoods::RemoveAll()
 				if(assc_type && assc_owner_id) {
 					for(uint i = 0; i < id_list.getCount(); i++) {
 						const  PPID goods_id = id_list.get(i);
-						THROW(PPRef->Assc.Remove(assc_type, assc_owner_id, goods_id, 0));
+						THROW(PPRef->AsscC.Remove(assc_type, assc_owner_id, goods_id, 0));
 						if(P_TempTbl)
 							deleteFrom(P_TempTbl, 0, P_TempTbl->ID == goods_id);
 						success_count++;
@@ -2864,7 +2864,7 @@ int PPViewGoods::AddItem(GoodsListDialog ** ppDlgPtr, PPViewBrowser * pBrw, PPID
 								PPID   miss_grp_id = DS.GetConstTLA().LastErrObj.Id;
 								if(PPMessage(mfConf|mfYesNo, PPCFM_DUPEXCLALTGRPMEMBER, GetGoodsName(miss_grp_id, grp_name)) == cmYes) {
 									THROW(PPStartTransaction(&ta, 1));
-									THROW(PPRef->Assc.Remove(PPASS_ALTGOODSGRP, miss_grp_id, id, 0));
+									THROW(PPRef->AsscC.Remove(PPASS_ALTGOODSGRP, miss_grp_id, id, 0));
 									if((s = GObj.AssignGoodsToAltGrp(id, Filt.GrpID, 0, 0)) > 0) {
 										THROW(PPCommitWork(&ta));
 										ok = 1;

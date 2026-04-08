@@ -454,7 +454,7 @@ int PPObjGoods::IsScaleBarcode(const char * pCode, PPID * pScaleID, PPID * pGood
 						//
 						code[6] = 0;
 						plu = atol(code+max_len);
-						if(PPRef->Assc.SearchNum(PPASS_ALTGOODSGRP, sc_pack.Rec.AltGoodsGrp, plu, &assc_rec) > 0) {
+						if(PPRef->AsscC.SearchNum(PPASS_ALTGOODSGRP, sc_pack.Rec.AltGoodsGrp, plu, &assc_rec) > 0) {
 							goods_id = assc_rec.ScndObjID;
 							if(Fetch(goods_id, &goods_rec) > 0 && goods_rec.Kind == PPGDSK_GOODS)
 								ok = 2;

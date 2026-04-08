@@ -316,7 +316,7 @@ int GtinStruc::DetectPrefix(const char * pSrc, uint flags, int currentId, uint *
 		temp_buf.Z().CatN(pSrc, 2);
 		int _id = SIntToSymbTab_GetId(GtinPrefix, SIZEOFARRAY(GtinPrefix), temp_buf);
 		if(_id > 0 && (!OnlyTokenList.getCount() || OnlyTokenList.lsearch(_id)) && _id != currentId && !StrAssocArray::Search(_id)) {
-			if((flags & dpfBOL) || !oneof2(_id, fldSscc18, fldGTIN14)) {
+			if((flags & dpfBOL) || (_id != fldGTIN14)) { // !oneof2(_id, fldSscc18, fldGTIN14)-->(_id!=fldGTIN14): fldSscc18 может быть в середине кода
 				prefix_len = 2;
 				prefix_id = _id;
 			}
@@ -499,7 +499,7 @@ bool GtinStruc::IsSpecialStopChar(const char * pSrc) const
 	return false;
 }
 
-// dosn't work :(
+// doesn't work :(
 static int FASTCALL Base80ToTobaccoPrice(const SString & rS, SString & rBuf)
 {
 	/*
@@ -600,6 +600,63 @@ static int FASTCALL Base36ToTobaccoPrice(const SString & rS, SString & rBuf)
 	return ok;
 }
 
+#if 0 // {
+//
+// Код для разбора табачного мрц от LLM
+//
+#include <stdio.h>
+#include <string.h>
+
+// Официальный алфавит Честного ЗНАКа для МРЦ табака (строго 40 символов)
+// Буквы идут первыми! A=0, B=1 ... Z=25, 0=26, 1=27 ... 9=35, пробел=36, .=37, /=38, %=39
+const char* MRPC_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ./%";
+
+// Функция декодирования МРЦ
+// Возвращает 0 при успехе, -1 при ошибке
+int decode_mrpc(const char* mrpc_str, int* rubles, int* kopecks) 
+{
+	if(strlen(mrpc_str) != 4) {
+		return -1; // Ошибка: МРЦ должна быть ровно 4 символа
+	}
+	int base = 40;
+	int total_kopecks = 0;
+	for(int i = 0; i < 4; i++) {
+		// Ищем символ в алфавите
+		char* ptr = strchr(MRPC_ALPHABET, mrpc_str[i]);
+		if(ptr == NULL) {
+			return -1; // Ошибка: символ не из алфавита
+		}
+		// Получаем индекс символа (его числовое значение)
+		int index = ptr - MRPC_ALPHABET;
+		// Позиционная система счисления: умножаем текущее значение на основание и прибавляем индекс
+		total_kopecks = total_kopecks * base + index;
+	}
+	// Переводим копейки в рубли и остаток копеек
+	*rubles = total_kopecks / 100;
+	*kopecks = total_kopecks % 100;
+	return 0;
+}
+
+int main() 
+{
+	// Тестовая строка из твоей выборки (берем последние 4 символа)
+	const char* test_code = "00000046224811%&bF;tSAE3A";
+	char mrpc[5] = {0};
+	// Копируем последние 4 символа (индексы 21, 22, 23, 24)
+	strncpy(mrpc, test_code + 21, 4);
+	int rub, kop;
+	if(decode_mrpc(mrpc, &rub, &kop) == 0) {
+		printf("Марка: %s\n", test_code);
+		printf("МРЦ (сырое): %s\n", mrpc);
+		printf("МРЦ (рубли): %d руб. %02d коп.\n", rub, kop);
+	} 
+	else {
+		printf("Ошибка декодирования МРЦ!\n");
+	}
+	return 0;
+}
+#endif // }
+
 int GtinStruc::Parse(const char * pCode)
 {
 	int    ok = 1;
@@ -611,8 +668,6 @@ int GtinStruc::Parse(const char * pCode)
 			uint Len;
 		};
 		SString temp_buf;
-		//SString prefix_;
-		//SString next_prefix_;
 		StrAssocArray::Add(fldOriginalText, code_buf);
 		STokenRecognizer tr;
 		SNaturalTokenArray nta;
@@ -630,12 +685,14 @@ int GtinStruc::Parse(const char * pCode)
 		if(nta.Has(SNTOK_CHZN_CIGITEM) || nta.Has(SNTOK_CHZN_ALTCIGITEM)) { // @v11.9.4 (SNTOK_CHZN_ALTCIGITEM)
 			// Розничные сигареты и альтернативная табачная продукция по структуре кода схожи. Разнича в том, что 
 			// код альтернативной табачной продукции вместо цены содержит "AAAA".
-			assert(code_buf.Len() == 29);
+			assert(oneof2(code_buf.Len(), 29, 25)); // Возможно,что у марки не будет криптохвоста (len==25)
 			size_t offs = 0; 
 			static const _FldEntry fe_list[] = { { fldGTIN14, 14 }, { fldSerial, 7 }, { fldPriceRuTobacco, 4 }, { fldControlRuTobacco, 4 } };
 			for(uint feidx = 0; feidx < SIZEOFARRAY(fe_list); feidx++) {
-				StrAssocArray::Add(fe_list[feidx].Id, temp_buf.Z().CatN(code_buf+offs, fe_list[feidx].Len));
-				offs += fe_list[feidx].Len;
+				if(feidx < (SIZEOFARRAY(fe_list)-1) || code_buf.Len() == 29) { // @v12.5.12 @condition
+					StrAssocArray::Add(fe_list[feidx].Id, temp_buf.Z().CatN(code_buf+offs, fe_list[feidx].Len));
+					offs += fe_list[feidx].Len;
+				}
 			}
 			assert(offs == code_buf.Len());
 			if(nta.Has(SNTOK_CHZN_CIGITEM))

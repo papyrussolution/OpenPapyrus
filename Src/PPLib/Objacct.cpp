@@ -952,13 +952,15 @@ int AccountDialog::setupList()
 		char   str[48];
 		PPCurrency cur_rec;
 		const  PPID  cur_id = AccPack.CurList.at(i);
-		if(SearchObject(PPOBJ_CURRENCY, cur_id, &cur_rec) > 0)
+		if(SearchObject(PPOBJ_CURRENCY, cur_id, &cur_rec) > 0) {
 			if(*strip(cur_rec.Symb))
 				STRNSCPY(str, cur_rec.Symb);
 			else
 				STRNSCPY(str, cur_rec.Name);
-		else
+		}
+		else {
 			ltoa(cur_id, str, 10);
+		}
 		if(!addStringToList(cur_id, str))
 			return 0;
 	}
@@ -967,29 +969,31 @@ int AccountDialog::setupList()
 
 int AccountDialog::addItem(long *, long * pID)
 {
-	int    r;
 	PPID   cur_id = 0;
 	PPObjCurrency cur_obj;
-	const PPIDArray exclude_list(AccPack.CurList);
-	if((r = cur_obj.Select(1, 0, &exclude_list, &cur_id)) > 0) {
+	const  PPIDArray exclude_list(AccPack.CurList);
+	const  int r = cur_obj.Select(1, 0, &exclude_list, &cur_id);
+	if(r > 0) {
 		*pID = cur_id;
 		AccPack.CurList.insert(&cur_id);
 		return 1;
 	}
-	return r ? -1 : 0;
+	else
+		return r ? -1 : 0;
 }
 
 int AccountDialog::delItem(long, long id)
 {
 	int    ok = -1;
 	uint   p;
-	if(AccPack.CurList.lsearch(id, &p))
+	if(AccPack.CurList.lsearch(id, &p)) {
 		if(AtObj.VerifyRevokingCurFromAccount(AccPack.Rec.ID, id)) {
 			AccPack.CurList.atFree(p);
 			ok = 1;
 		}
 		else
 			ok = PPErrorZ();
+	}
 	return ok;
 }
 

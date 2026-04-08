@@ -4195,7 +4195,7 @@ public:
 	DBQ  * w_restrict; // 'Where' restriction
 	// @v12.4.4 @unused DBQ  * h_restrict; // 'Having' restriction
 	uint   tblCount;
-	uint   fldCount;
+	uint   FieldCount; // @v12.5.12 fldCount-->FieldCount
 	uint   ordCount;
 	DBField * order;
 	RECORDSIZE recSize;  // Size of record (bytes)

@@ -1135,13 +1135,13 @@ int PPViewSStat::CellStyleFunc_(const void * pData, long col, int paintAction, B
 					long   stat_count = -1;
 					bool   is_new_goods = false;
 					if(p_q) {
-						if(p_q->fldCount > 15) { // #15 - поле запроса, содержащее признак доверия к прогнозу
+						if(p_q->FieldCount > 15) { // #15 - поле запроса, содержащее признак доверия к прогнозу
 							size_t offs = 0;
 							for(uint i = 0; i < 15; i++)
 								offs += stsize(p_q->flds[i].type);
 							memcpy(&is_trust, PTR8C(pData) + offs, sizeof(short));
 						}
-						if(p_q->fldCount > 3) { // #03 - поле запроса, содержащее количество элементов статистики
+						if(p_q->FieldCount > 3) { // #03 - поле запроса, содержащее количество элементов статистики
 							size_t offs = 0;
 							for(uint i = 0; i < 3; i++)
 								offs += stsize(p_q->flds[i].type);

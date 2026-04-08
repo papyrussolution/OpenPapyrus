@@ -1038,7 +1038,98 @@ private:
 	DataBlock Data;
 	PPObjGoodsStruc & R_GsObj;
 };
+//
+//
+//
+class NamedGoodsStrucListWindow : public PPObjListWindow {
+public:
+	NamedGoodsStrucListWindow(PPObject * pObj, uint flags, void * extraPtr);
+	int    InitIteration();
+	int    FASTCALL NextIteration(PPGdsCls * pRec);
+private:
+	DECL_HANDLE_EVENT;
 
+	uint   CurIterPos;
+};
+
+NamedGoodsStrucListWindow::NamedGoodsStrucListWindow(PPObject * pObj, uint flags, void * extraPtr) :
+	PPObjListWindow(pObj, flags, extraPtr), CurIterPos(0)
+{
+	if(pObj) {
+		//static_cast<PPObjGoodsClass *>(pObj)->InitFilt(extraPtr, Filt);
+	}
+	//ExtraPtr = &Filt;
+	DefaultCmd = cmaMore;
+	SetToolbar(TOOLBAR_LIST_NAMEDGOODSSTRUC);
+}
+
+int NamedGoodsStrucListWindow::InitIteration()
+{
+	CurIterPos = 0;
+	return 1;
+}
+
+int FASTCALL NamedGoodsStrucListWindow::NextIteration(PPGdsCls * pRec)
+{
+	int    ok = -1;
+	if(pRec && P_Def) {
+		const  StrAssocArray * p_ary = static_cast<const StrAssocListBoxDef *>(P_Def)->getArray();
+		if(p_ary && CurIterPos < p_ary->getCount()) {
+			StrAssocArray::Item item = p_ary->Get(CurIterPos++);
+			PPID   id = item.Id;
+			PPObjGoodsStruc * p_gs_obj = static_cast<PPObjGoodsStruc *>(P_Obj);
+			if(p_gs_obj && p_gs_obj->Search(id, pRec) > 0)
+				ok = 1;
+		}
+	}
+	return ok;
+}
+
+IMPL_HANDLE_EVENT(NamedGoodsStrucListWindow)
+{
+	int    update = 0;
+	PPObjListWindow::handleEvent(event);
+	if(P_Obj) {
+		PPID   current_id = 0;
+		PPObjGoodsStruc * p_gs_obj = static_cast<PPObjGoodsStruc *>(P_Obj);
+		getResult(&current_id);
+		if(TVCOMMAND) {
+			switch(TVCMD) {
+				case cmaMore:
+					if(current_id) {
+						//GoodsFilt flt;
+						//flt.GoodsStrucID = current_id;
+						//PPView::Execute(PPVIEW_GOODS, &flt, 1, 0);
+						{
+							PPObjGoodsStruc * p_gsobj = static_cast<PPObjGoodsStruc *>(P_Obj);
+							PPGoodsStrucHeader gsh;
+							if(p_gsobj->Search(current_id, &gsh) > 0) {
+								PPObjGoods goods_obj;
+								PPIDArray goods_list;
+								goods_obj.SearchGListByStruc(current_id, false/*expandGenerics*/, goods_list);
+								if(goods_list.getCount()) {
+									GoodsFilt flt;
+									flt.GoodsStrucID = current_id;
+									PPView::Execute(PPVIEW_GOODS, &flt, 1, 0);
+								}
+							}
+						}
+					}
+					break;
+				default:
+					break;
+			}
+		}
+		PostProcessHandleEvent(update, current_id);
+	}
+}
+
+/*virtual*/void * PPObjGoodsStruc::CreateObjListWin(uint flags, void * extraPtr)
+{
+	return new NamedGoodsStrucListWindow(this, flags, extraPtr);
+}
+
+// @obsolete since @v12.5.12 (replaced with NamedGoodsStrucListWindow) {
 int PPObjGoodsStruc::Browse(void * extraPtr)
 {
 	class NamedGoodsStrucView : public ObjViewDialog {
@@ -1234,8 +1325,12 @@ public:
 		if(!temp_buf.NotEmptyS()) {
 			THROW_PP(!(Data.Rec.Flags & GSF_NAMED), PPERR_NAMENEEDED);
 		}
-		else if(!(Data.Rec.Flags & GSF_CHILD))
-			Data.Rec.Flags |= GSF_NAMED;
+		else {
+			THROW(GsObj.CheckDupName(Data.Rec.ID, temp_buf)); // @v12.5.12
+			if(!(Data.Rec.Flags & GSF_CHILD)) {
+				Data.Rec.Flags |= GSF_NAMED;
+			}
+		}
 		STRNSCPY(Data.Rec.Name, temp_buf);
 		getCtrlData(CTLSEL_GSTRUC_VAROBJ, &Data.Rec.VariedPropObjType);
 		//
@@ -1328,7 +1423,7 @@ private:
 	}
 };
 
-void GSDialog::ViewHierarchy() // @v11.2.11
+void GSDialog::ViewHierarchy()
 {
 	class GoodsStrucHierarchyDialog : public TDialog {
 	public:
@@ -1340,9 +1435,8 @@ void GSDialog::ViewHierarchy() // @v11.2.11
 				GoodsStrucTreeListViewBlock vb(Cb);
 				StrAssocTree * p_tree = vb.MakeTree();
 				if(p_tree) {
-					//PPListDialog a;
 					StdTreeListBoxDef2_ * p_def = new StdTreeListBoxDef2_(p_tree, 0, 0);
-					p_def->AddTopLevelRestrictionId(strucID); // @v11.4.0
+					p_def->AddTopLevelRestrictionId(strucID);
 					P_Box->setDef(p_def);
 					P_Box->Draw_();
 				}
@@ -1448,8 +1542,9 @@ IMPL_HANDLE_EVENT(GSDialog)
 				PPError();
 		}
 	}
-	else if(event.isCmd(cmAddBySample))
+	else if(event.isCmd(cmAddBySample)) {
 		Changed = (addItemBySample() > 0) ? 1 : Changed;
+	}
 	else if(event.isCmd(cmEditStruct)) {
 		if(RecurData.Rec.ID && PPObjGoodsStruc::EditDialog(&RecurData, 1) > 0) {
 			const  int r = GsObj.Put(&RecurData.Rec.ID, &RecurData, 1);
@@ -1919,7 +2014,8 @@ private:
 		else if(event.isKeyDown(kbF6)) {
 			if(R_Struc.GoodsID && isCurrCtlID(CTL_GSITEM_VALUE)) {
 				SString temp_buf;
-				double qtty = 0.0, phuperu;
+				double qtty = 0.0;
+				double phuperu;
 				PPGoodsStrucItem item;
 				getCtrlString(CTL_GSITEM_VALUE, temp_buf);
 				if(item.SetEstimationString(temp_buf) && item.GetQtty(1, &qtty) > 0) {
@@ -2015,9 +2111,10 @@ static int EditGoodsStrucItem(const PPGoodsStruc & rStruc, int itemIdx, PPGoodsS
 int GSDialog::checkDupGoods(int pos, const PPGoodsStrucItem * pItem)
 {
 	int    ok = 1;
-	for(int i = 0; ok && i < static_cast<int>(Data.Items.getCount()); i++)
+	for(int i = 0; ok && i < static_cast<int>(Data.Items.getCount()); i++) {
 		if(i != pos && pItem->GoodsID == Data.Items.at(i).GoodsID)
 			ok = PPSetError(PPERR_DUPGSTRUCITEM);
+	}
 	return ok;
 }
 
@@ -2192,8 +2289,8 @@ public:
 	{
 		updateList(-1);
 	}
-	int setDTS(const PPGoodsStruc *);
-	int getDTS(PPGoodsStruc *);
+	int    setDTS(const PPGoodsStruc *);
+	int    getDTS(PPGoodsStruc *);
 private:
 	DECL_HANDLE_EVENT;
 	virtual int  setupList();
@@ -2229,8 +2326,9 @@ int GSExtDialog::getDTS(PPGoodsStruc * pData)
 		if(Data.Rec.Flags & GSF_NAMED)
 			return PPSetError(PPERR_NAMENEEDED);
 	}
-	else
+	else {
 		Data.Rec.Flags |= GSF_NAMED;
+	}
 	STRNSCPY(Data.Rec.Name, buf);
 	ASSIGN_PTR(pData, Data);
 	return 1;
@@ -2306,17 +2404,13 @@ void GSExtDialog::selNamedGS()
 
 int GSExtDialog::setupList()
 {
-	//PPGoodsStruc * p_item = 0;
-	//for(uint i = 0; Data.Children.enumItems(&i, (void **)&p_item);) {
 	SString temp_buf;
 	StringSet ss(SLBColumnDelim);
 	for(uint i = 0; i < Data.Children.getCount(); i++) {
 		const PPGoodsStruc * p_item = Data.Children.at(i);
-		// @v12.3.12 char   sub[128];
 		ss.Z();
 		ss.add(p_item->Rec.Name);
-		// @v12.3.7 ss.add(periodfmt(p_item->Rec.Period, sub));
-		ss.add(p_item->Rec.Period.ToStr(0, temp_buf)); // @v12.3.7
+		ss.add(p_item->Rec.Period.ToStr(0, temp_buf));
 		if(!addStringToList(i+1, ss.getBuf()))
 			return 0;
 	}
@@ -2461,7 +2555,7 @@ int PPObjGoodsStruc::Helper_LoadItems(PPID id, PPGoodsStruc * pData)
 	SString temp_buf;
 	SString formula;
 	THROW(P_Ref->GetPropVlrString(Obj, id, GSPRP_EXTITEMSTR, temp_buf));
-	THROW(P_Ref->Assc.GetItemsListByPrmr(PPASS_GOODSSTRUC, id, &raw_items_list));
+	THROW(P_Ref->AsscC.GetItemsListByPrmr(PPASS_GOODSSTRUC, id, &raw_items_list));
 	raw_items_list.sort(PTR_CMPFUNC(_GSItem));
 	//
 	// !Мы получили вектор записей типа <ObjAssocTbl::Rec> но обрабатываем его так, как будто
@@ -2546,6 +2640,11 @@ int PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 			pData->Rec.Flags &= ~GSF_DYNGEN;
 			if(*strip(pData->Rec.Name) != 0 && !(pData->Rec.Flags & GSF_CHILD))
 				pData->Rec.Flags |= GSF_NAMED;
+			// @v12.5.12 {
+			if(pData->Rec.Flags & GSF_NAMED) {
+				THROW(CheckDupName(*pID, pData->Rec.Name));
+			}
+			// } @v12.5.12 
 			if(*pID) {
 				THROW(r = P_Ref->UpdateItem(Obj, *pID, &pData->Rec, 1, 0));
 				if(r < 0)
@@ -2570,7 +2669,7 @@ int PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 		}
 		if(*pID) {
 			if(pData) {
-				uint i;
+				uint   i;
 				PPGoodsStruc temp_struc;
 				LongArray pos_list;
 				THROW(Helper_LoadItems(*pID, &temp_struc));
@@ -2595,7 +2694,7 @@ int PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 				}
 			}
 			if(!items_unchg)
-				THROW(P_Ref->Assc.Remove(PPASS_GOODSSTRUC, *pID, 0, 0));
+				THROW(P_Ref->AsscC.Remove(PPASS_GOODSSTRUC, *pID, 0, 0));
 		}
 		if(pData && !items_unchg) {
 			_GSItem gsi;
@@ -2622,8 +2721,8 @@ int PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 				gsi.Netto  = pi->Netto;
 				STRNSCPY(gsi.Symb, pi->Symb);
 				gsi.Num    = i;
-				THROW(P_Ref->Assc.SearchFreeNum(gsi.Tag, *pID, &gsi.Num));
-				THROW(P_Ref->Assc.Add(&assc_id, (ObjAssocTbl::Rec *)&gsi, 0));
+				THROW(P_Ref->AsscC.SearchFreeNum(gsi.Tag, *pID, &gsi.Num));
+				THROW(P_Ref->AsscC.Add(&assc_id, (ObjAssocTbl::Rec *)&gsi, 0));
 				THROW(PPPutExtStrData(i, ext_buf, strip(pi->Formula__)));
 			}
 			THROW(P_Ref->PutPropVlrString(Obj, *pID, GSPRP_EXTITEMSTR, ext_buf));
@@ -2635,10 +2734,8 @@ int PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 				ok = -1;
 			else {
 				DS.LogAction(PPACN_OBJUPD, Obj, *pID, 0, 0);
-				// @v10.2.1 {
 				if(items_components_updated)
 					DS.LogAction(PPACN_GSTRUCCUPD, Obj, *pID, 0, 0);
-				// } @v10.2.1
 			}
 		}
 		THROW(tra.Commit());
@@ -2652,9 +2749,9 @@ int PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 	int    ok = -1;
 	GSExtDialog * dlg = new GSExtDialog;
 	if(CheckDialogPtrErr(&dlg)) {
-		int r;
+		int    r;
 		dlg->setDTS(pData);
-		while(ok <= 0 && ((r = ExecView(dlg)) == cmOK || r == cmUtil))
+		while(ok <= 0 && ((r = ExecView(dlg)) == cmOK || r == cmUtil)) {
 			if(dlg->getDTS(pData)) {
 				ZDELETE(dlg);
 				ok = (r == cmUtil) ? PPObjGoodsStruc::EditDialog(pData) : 1;
@@ -2662,6 +2759,7 @@ int PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 			}
 			else
 				PPError();
+		}
 	}
 	else
 		ok = 0;
@@ -2716,7 +2814,8 @@ int PPObjGoodsStruc::Edit(PPID * pID, void * extraPtr /*goodsID*/)
 		if(owner_list.getCount() == 1)
 			data.GoodsID = owner_list.get(0);
 	}
-	if((ok = EditDialog(&data)) > 0) {
+	ok = EditDialog(&data);
+	if(ok > 0) {
 		THROW(Put(pID, &data, 1));
 		ok = cmOK;
 	}
@@ -2832,7 +2931,7 @@ int PPObjGoodsStruc::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	if(msg == DBMSG_OBJDELETE) {
 		if(_obj == PPOBJ_GOODS) {
 			ObjAssocTbl::Rec assc_rec;
-			SEnum en = P_Ref->Assc.Enum(PPASS_GOODSSTRUC, _id, 1);
+			SEnum en = P_Ref->AsscC.Enum(PPASS_GOODSSTRUC, _id, 1);
 			if(en.Next(&assc_rec) > 0) {
 				ok = RetRefsExistsErr(Obj, assc_rec.PrmrObjID);
 			}
@@ -2840,7 +2939,7 @@ int PPObjGoodsStruc::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	}
 	if(msg == DBMSG_OBJREPLACE) {
 		if(_obj == PPOBJ_GOODS) {
-			ObjAssocTbl * t = &P_Ref->Assc;
+			ObjAssocTbl * t = &P_Ref->AsscC;
 			if(!updateFor(t, 0, (t->AsscType == PPASS_GOODSSTRUC && t->ScndObjID == _id),
 				set(t->ScndObjID, dbconst(reinterpret_cast<long>(extraPtr))))) {
 				ok = PPSetErrorDB();

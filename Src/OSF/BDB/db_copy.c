@@ -10,8 +10,7 @@
 #pragma hdrstop
 
 #ifdef HAVE_QUEUE
- // @v9.5.5 #include "dbinc/qam.h"
-static int copy_queue_extents(DB*, const char *, const char *);
+	static int copy_queue_extents(DB*, const char *, const char *);
 #endif
 /*
  * db_copy --

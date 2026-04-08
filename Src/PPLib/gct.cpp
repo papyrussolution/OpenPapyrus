@@ -8,6 +8,8 @@
 //
 // Отчет о товарообороте
 //
+IMPLEMENT_PPFILT_FACTORY(GoodsTrnovr);
+
 static int EditGoodsTrnovrFilt(GoodsTrnovrFilt * pFilt)
 {
 	class GCTFiltDialog : public WLDialog {
@@ -85,16 +87,16 @@ static int EditGoodsTrnovrFilt(GoodsTrnovrFilt * pFilt)
 	DIALOG_PROC_BODY_P2(GCTFiltDialog, DLG_GTO, (int)(pFilt->Flags & OPG_FORCEGOODS), pFilt);
 }
 
-PPViewGoodsTrnovr2::PPViewGoodsTrnovr2() : PPView(0, &Filt, PPVIEW_GOODSTRNOVR, implBrowseArray, 0), P_DsList(0)
+PPViewGoodsTrnovr::PPViewGoodsTrnovr() : PPView(0, &Filt, PPVIEW_GOODSTRNOVR, implBrowseArray, 0), P_DsList(0)
 {
 }
 
-PPViewGoodsTrnovr2::~PPViewGoodsTrnovr2()
+PPViewGoodsTrnovr::~PPViewGoodsTrnovr()
 {
 	delete P_DsList;
 }
 
-/*virtual*/int PPViewGoodsTrnovr2::EditBaseFilt(PPBaseFilt * pBaseFilt)
+/*virtual*/int PPViewGoodsTrnovr::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	int    ok = -1;
 	if(Filt.IsA(pBaseFilt)) {
@@ -106,7 +108,7 @@ PPViewGoodsTrnovr2::~PPViewGoodsTrnovr2()
 	return ok;
 }
 
-/*virtual*/int PPViewGoodsTrnovr2::Init_(const PPBaseFilt * pBaseFilt)
+/*virtual*/int PPViewGoodsTrnovr::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	LDATE  dt = ZERODATE;
@@ -249,13 +251,13 @@ PPViewGoodsTrnovr2::~PPViewGoodsTrnovr2()
 	return ok;
 }
 
-int PPViewGoodsTrnovr2::InitIteration()
+int PPViewGoodsTrnovr::InitIteration()
 {
 	Counter.Init(SVectorBase::GetCount(P_DsList));
 	return 1;
 }
 
-int FASTCALL PPViewGoodsTrnovr2::NextIteration(GoodsTrnovrViewItem * pItem)
+int FASTCALL PPViewGoodsTrnovr::NextIteration(GoodsTrnovrViewItem * pItem)
 {
 	int    ok = -1;
 	while(ok < 0 && P_DsList && P_DsList->testPointer()) {
@@ -269,13 +271,15 @@ int FASTCALL PPViewGoodsTrnovr2::NextIteration(GoodsTrnovrViewItem * pItem)
 	return ok;
 }
 
-/*virtual*/SArray * PPViewGoodsTrnovr2::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+/*virtual*/SArray * PPViewGoodsTrnovr::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
-	SArray * p_result = 0;
+	SArray * p_result = new SArray(*P_DsList);
+	const  uint res_id = Filt.LocList.GetCount() ? BROWSER_GOODSTURNOVER2_BYLOC : BROWSER_GOODSTURNOVER2;
+	ASSIGN_PTR(pBrwId, res_id);
 	return p_result;
 }
 
-/*virtual*/int PPViewGoodsTrnovr2::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int PPViewGoodsTrnovr::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -2;
 	ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
@@ -285,21 +289,36 @@ int FASTCALL PPViewGoodsTrnovr2::NextIteration(GoodsTrnovrViewItem * pItem)
 	return ok;
 }
 
-/*virtual*/int PPViewGoodsTrnovr2::Print(const void *)
+/*virtual*/int PPViewGoodsTrnovr::Print(const void *)
 {
-	return -1;
+	int    ok = 1;
+	uint   rpt_id = Filt.LocList.GetCount() ? REPORT_LGOODSTRNOVR : REPORT_GOODSTRNOVR;
+	PPReportEnv env(0, 0);
+	PPAlddPrint(rpt_id, PView(this), &env);
+	return ok;
 }
 
-/*virtual*/int PPViewGoodsTrnovr2::Detail(const void *, PPViewBrowser * pBrw)
+/*virtual*/int PPViewGoodsTrnovr::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
-	return -1;
+	int    ok = -1;
+	const GoodsTrnovrViewItem * p_item = static_cast<const GoodsTrnovrViewItem *>(pHdr);
+	if(p_item && checkdate(p_item->Dt)) {
+		OpGroupingFilt op_grpng_flt;
+		op_grpng_flt.Period.SetDate(p_item->Dt);
+		op_grpng_flt.LocList = Filt.LocList;
+		op_grpng_flt.SupplID = Filt.SupplID;
+		op_grpng_flt.GoodsGrpID = Filt.GoodsGrpID;
+		op_grpng_flt.GoodsID    = Filt.GoodsID;
+		ViewOpGrouping(&op_grpng_flt);
+	}
+	return ok;
 }
 
-/*virtual*/void PPViewGoodsTrnovr2::ViewTotal()
+/*virtual*/void PPViewGoodsTrnovr::ViewTotal()
 {
 }
 
-int PPViewGoodsTrnovr2::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int PPViewGoodsTrnovr::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	/*
 browser GOODSTURNOVER2_BYLOC north(100), 3, 1, "@{view_goodstrnovr}", OWNER|GRID, 0 // @v12.5.11 
@@ -333,7 +352,7 @@ browser GOODSTURNOVER2_BYLOC north(100), 3, 1, "@{view_goodstrnovr}", OWNER|GRID
 	int    r = 0;
 	switch(pBlk->ColumnN) {
 		case  0: break; // @?
-		case  1: pBlk->Set(p_item->Dt); break; // date
+		case  1: pBlk->Set(p_item->Title); break; // date
 		case  2: pBlk->Set(p_item->RcptSuppl); break; // goodsreceipt - supplier
 		case  3: pBlk->Set(p_item->RcptIntr); break; // goodsreceipt - oprcategory_intrrcpt_2
 		case  4: pBlk->Set(p_item->RetRetail); break; // return - selling_retail
@@ -347,6 +366,40 @@ browser GOODSTURNOVER2_BYLOC north(100), 3, 1, "@{view_goodstrnovr}", OWNER|GRID
 	}
 	return ok;
 }
+
+void PPViewGoodsTrnovr::PreprocessBrowser(PPViewBrowser * pBrw)
+{
+	if(pBrw) {
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewGoodsTrnovr *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
+	}
+}
+//
+// @ModuleDef(PPViewGoodsTrnovr)
+//
+#if 0 // @v12.5.12 {
+class PPViewGoodsTrnovr { // @todo @20260117 Перевести на PPView
+public:
+	PPViewGoodsTrnovr();
+	~PPViewGoodsTrnovr();
+	const  GoodsTrnovrFilt * GetFilt() const;
+	int    EditFilt(GoodsTrnovrFilt *);
+	int    Init(const GoodsTrnovrFilt *);
+	int    InitIteration();
+	int    FASTCALL NextIteration(GoodsTrnovrViewItem *);
+	int    GetIterationCount(long *, long *);
+	int    ViewGrouping(LDATE);
+	int    Browse(int modeless);
+	int    Print();
+private:
+	SArray * CreateBrowserQuery();
+
+	SArray * P_Items;
+	GoodsTrnovrFilt Filt;
+	IterCounter Cntr;
+};
 //
 // GoodsTrnovrBrowser
 //
@@ -418,9 +471,7 @@ IMPL_HANDLE_EVENT(GoodsTrnovrBrowser)
 		return;
 	clearEvent(event);
 }
-//
-// @ModuleDef(PPViewGoodsTrnovr)
-//
+
 PPViewGoodsTrnovr::PPViewGoodsTrnovr() : P_Items(0)
 {
 }
@@ -664,7 +715,7 @@ int ViewGoodsTurnover(long)
 	int    ok = 1;
 	int    view_in_use = 0;
 	const  bool modeless = GetModelessStatus();
-	GCTFilt flt;
+	GoodsTrnovrFilt flt;
 	PPViewGoodsTrnovr * p_v = new PPViewGoodsTrnovr;
 	BrowserWindow * p_prev_win = modeless ? PPFindLastBrowser() : 0;
 	if(p_prev_win)
@@ -688,6 +739,7 @@ int ViewGoodsTurnover(long)
 		delete p_v;
 	return ok;
 }
+#endif // } @v12.5.12
 //
 // Implementation of PPALDD_GoodsTurnovr
 //
@@ -705,7 +757,7 @@ int PPALDD_GoodsTurnovr::InitData(PPFilt & rFilt, long rsrv)
 {
 	SString loc_name;
 	SString name_buf;
-	INIT_PPVIEW_ALDD_DATA(GoodsTrnovr, rsrv);
+	INIT_PPVIEW_ALDD_DATA_U(GoodsTrnovr, rsrv);
 	GetLocationName(p_filt->LocList.GetSingle(), loc_name);
 	loc_name.CopyTo(H.FltLocName, sizeof(H.FltLocName));
 	GetSupplText(p_filt->SupplID, name_buf);

@@ -4067,7 +4067,7 @@ int PPObjGoods::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * p
 		else if(gp->Rec.Kind == PPGDSK_GROUP && (_gf & GF_ALTGROUP) && !(_gf & GF_DYNAMIC)) {
 			if(P_Tbl->FetchConfig(&cfg) > 0 && cfg.Flags & GCF_XCHG_SENDALTGROUP) {
 				PPIDArray member_list;
-				PPRef->Assc.GetListByPrmr(PPASS_ALTGOODSGRP, id, &member_list);
+				PPRef->AsscC.GetListByPrmr(PPASS_ALTGOODSGRP, id, &member_list);
 				gp->GenericList.Set(&member_list);
 			}
 		}

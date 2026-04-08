@@ -5779,9 +5779,9 @@ protected:
 	BroGroup * P_Groups;
 	int    viewHight;
 	long   scrollDelta;
-	bool   isBOQ; // @v11.3.4 int-->bool
-	bool   isEOQ; // @v11.3.4 int-->bool
-	uint8  Reserve[2]; // @v11.3.4 @alignment
+	bool   isBOQ;
+	bool   isEOQ;
+	uint8  Reserve[2]; // @alignment
 	long   topItem;
 	long   curItem;
 private:

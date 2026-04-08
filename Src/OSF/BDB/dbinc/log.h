@@ -5,8 +5,6 @@
 #ifndef _DB_LOG_H_
 #define	_DB_LOG_H_
 
-// @v9.5.5 #include "dbinc/db_swap.h"
-
 #if defined(__cplusplus)
 extern "C" {
 #endif

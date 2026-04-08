@@ -1,5 +1,5 @@
 // PSNEVENT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -241,38 +241,11 @@ PPObjPersonEvent::~PPObjPersonEvent()
 	delete P_ScObj;
 }
 
-#if 0 // @v11.1.12 (no more used) {
-/*static*/SString & FASTCALL PPObjPersonEvent::MakeCodeString_(const PersonEventTbl::Rec * pRec, int options, SString & rBuf)
-{
-	rBuf.Z();
-	if(pRec) {
-		rBuf.Cat(pRec->Dt).Space().Cat(pRec->Tm);
-		if(pRec->PersonID) {
-			rBuf.CatDiv('-', 1);
-			GetObjectName(PPOBJ_PERSON, pRec->PersonID, rBuf, 1);
-		}
-		else if(pRec->SecondID) {
-			rBuf.CatDiv('-', 1);
-			GetObjectName(PPOBJ_PERSON, pRec->SecondID, rBuf, 1);
-		}
-		{
-			if(pRec->Memo[0]) {
-				rBuf.CatDiv('-', 1).Cat(pRec->Memo);
-			}
-		}
-		rBuf.Trim(127); // @v11.1.12 (63)-->(127)
-	}
-	return rBuf;
-}
-#endif // } @v11.1.12 
-
 int PPObjPersonEvent::Search(PPID id, void * b) { return P_Tbl->Search(id, (PersonEventTbl::Rec *)b); }
 int PPObjPersonEvent::DeleteObj(PPID id) { return PutPacket(&id, 0, 0); }
 
 const char * PPObjPersonEvent::GetNamePtr()
 { 
-	// @v11.1.12 return PPObjPersonEvent::MakeCodeString(&P_Tbl->data, 1, NameBuf).cptr(); 
-	// @v11.1.12 {
 	const PersonEventTbl::Rec & r_rec = P_Tbl->data;
 	{
 		NameBuf.Z().Cat(r_rec.Dt).Space().Cat(r_rec.Tm);
@@ -293,7 +266,6 @@ const char * PPObjPersonEvent::GetNamePtr()
 		NameBuf.Trim(127); // @v11.1.12 (63)-->(127)
 	}
 	return NameBuf;
-	// } @v11.1.12 
 }
 
 int PPObjPersonEvent::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)

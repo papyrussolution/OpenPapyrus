@@ -2029,8 +2029,8 @@ IMPL_HANDLE_EVENT(PPDesktop)
 					e.message.infoView = 0;
 					p_desk->handleEvent(e);
 					p_desk->select();
-					::InvalidateRect(hWnd, 0, TRUE); // @v11.2.8
-					::UpdateWindow(hWnd); // @v11.2.8
+					::InvalidateRect(hWnd, 0, TRUE);
+					::UpdateWindow(hWnd);
 				}
 			}
 			break;
@@ -2892,6 +2892,7 @@ private:
 	//
 	PPObjWorkbook WbObj;
 	SUiLayout * P_Lo_NavItem; // really const
+	TSVector <HWND> Children;
 };
 
 int TFacadeWindow::MakeNavList(CentrigoNavBlock & rBlk)
@@ -3871,6 +3872,7 @@ IMPL_HANDLE_EVENT(TFacadeWindow)
 										case cmCentrigoContacts:
 											{
 												PersonFilt filt;
+												filt.Flags |= (PersonFilt::fInMemView|PersonFilt::fCentrigoContacts);
 												DoContacts(&filt);
 											}
 											break;

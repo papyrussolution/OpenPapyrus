@@ -1,18 +1,18 @@
 // OBJASSOC.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2019, 2024, 2025
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2019, 2024, 2025, 2026
 // @Kernel
 //
 #include <pp.h>
 #pragma hdrstop
 
-ObjAssoc::ObjAssoc() : ObjAssocTbl()
+ObjAssocCore::ObjAssocCore() : ObjAssocTbl()
 {
 }
 
 #define MAX_DEADLOCK_TRY 10
 #define DEADLOCK_TIMEOUT 1000
 
-int ObjAssoc::Add(PPID * pID, ObjAssocTbl::Rec * b, int use_ta)
+int ObjAssocCore::Add(PPID * pID, ObjAssocTbl::Rec * b, int use_ta)
 {
 	int    deadlock_try = 0;
 	do {
@@ -26,7 +26,7 @@ int ObjAssoc::Add(PPID * pID, ObjAssocTbl::Rec * b, int use_ta)
 	return 0;
 }
 
-int ObjAssoc::Update(PPID id, ObjAssocTbl::Rec * b, int use_ta)
+int ObjAssocCore::Update(PPID id, ObjAssocTbl::Rec * b, int use_ta)
 {
 	int    deadlock_try = 0;
 	do {
@@ -40,7 +40,7 @@ int ObjAssoc::Update(PPID id, ObjAssocTbl::Rec * b, int use_ta)
 	return 0;
 }
 
-int ObjAssoc::Remove(PPID id, int use_ta)
+int ObjAssocCore::Remove(PPID id, int use_ta)
 {
 	int    deadlock_try = 0;
 	do {
@@ -54,21 +54,27 @@ int ObjAssoc::Remove(PPID id, int use_ta)
 	return 0;
 }
 
-int ObjAssoc::Search(PPID id, ObjAssocTbl::Rec * pRec) { return SearchByID(this, PPOBJ_OBJASSOC, id, pRec); }
-int ObjAssoc::SearchNum(PPID asscTyp, PPID prmr, long num, ObjAssocTbl::Rec * pRec) { return _SearchNum(asscTyp, prmr, num, num ? spEq : spGe, pRec); }
+int ObjAssocCore::Search(PPID id, ObjAssocTbl::Rec * pRec) { return SearchByID(this, PPOBJ_OBJASSOC, id, pRec); }
+int ObjAssocCore::SearchNum(PPID asscTyp, PPID prmr, long num, ObjAssocTbl::Rec * pRec) { return _SearchNum(asscTyp, prmr, num, num ? spEq : spGe, pRec); }
 
-int ObjAssoc::_SearchNum(PPID asscTyp, PPID prmr, long num, int spMode, ObjAssocTbl::Rec * b)
+int ObjAssocCore::_SearchNum(PPID asscTyp, PPID prmr, long num, int spMode, ObjAssocTbl::Rec * b)
 {
+	int    ok = -1;
 	ObjAssocTbl::Key3 k;
 	k.AsscType  = asscTyp;
 	k.PrmrObjID = prmr;
 	k.InnerNum  = num;
-	if(search(3, &k, spMode) && k.AsscType == asscTyp && k.PrmrObjID == prmr)
-		return (CopyBufTo(b), 1);
-	return PPDbSearchError();
+	if(search(3, &k, spMode) && k.AsscType == asscTyp && k.PrmrObjID == prmr) {
+		CopyBufTo(b);
+		ok = 1;
+	}
+	else {
+		ok = PPDbSearchError();
+	}
+	return ok;
 }
 
-int ObjAssoc::SearchFreeNum(PPID asscTyp, PPID prmr, long * pNum, ObjAssocTbl::Rec * b)
+int ObjAssocCore::SearchFreeNum(PPID asscTyp, PPID prmr, long * pNum, ObjAssocTbl::Rec * b)
 {
 	int    r;
 	if(*pNum)
@@ -93,7 +99,7 @@ int ObjAssoc::SearchFreeNum(PPID asscTyp, PPID prmr, long * pNum, ObjAssocTbl::R
 	return r;
 }
 
-int ObjAssoc::GetByPrmr_Helper(PPID asscTyp, PPID prmrID, PPIDArray * pList, long * pCount, TSVector <ObjAssocTbl::Rec> * pItemsList)
+int ObjAssocCore::GetByPrmr_Helper(PPID asscTyp, PPID prmrID, PPIDArray * pList, long * pCount, TSVector <ObjAssocTbl::Rec> * pItemsList)
 {
 	int    ok = -1;
 	long   count = 0;
@@ -126,23 +132,23 @@ int ObjAssoc::GetByPrmr_Helper(PPID asscTyp, PPID prmrID, PPIDArray * pList, lon
 	return ok;
 }
 
-int ObjAssoc::GetListByPrmr(PPID asscTyp, PPID prmrID, PPIDArray * pList)
+int ObjAssocCore::GetListByPrmr(PPID asscTyp, PPID prmrID, PPIDArray * pList)
 {
 	return GetByPrmr_Helper(asscTyp, prmrID, pList, 0, 0);
 }
 
-int ObjAssoc::Count(PPID asscTyp, PPID prmrID, long * pCount)
+int ObjAssocCore::Count(PPID asscTyp, PPID prmrID, long * pCount)
 {
 	return GetByPrmr_Helper(asscTyp, prmrID, 0, pCount, 0);
 }
 
-int ObjAssoc::GetItemsListByPrmr(PPID asscTyp, PPID prmrID, TSVector <ObjAssocTbl::Rec> * pList)
+int ObjAssocCore::GetItemsListByPrmr(PPID asscTyp, PPID prmrID, TSVector <ObjAssocTbl::Rec> * pList)
 {
 	return (pList && pList->getItemSize() == sizeof(ObjAssocTbl::Rec)) ?
 		GetByPrmr_Helper(asscTyp, prmrID, 0, 0, pList) : PPSetErrorInvParam();
 }
 
-int ObjAssoc::EnumByPrmr(PPID asscTyp, PPID prmrID, PPID * pScndID, ObjAssocTbl::Rec * b)
+int ObjAssocCore::EnumByPrmr(PPID asscTyp, PPID prmrID, PPID * pScndID, ObjAssocTbl::Rec * b)
 {
 	int    ok = 1;
 	ObjAssocTbl::Key1 k;
@@ -158,7 +164,7 @@ int ObjAssoc::EnumByPrmr(PPID asscTyp, PPID prmrID, PPID * pScndID, ObjAssocTbl:
 	return ok;
 }
 
-SEnum::Imp * ObjAssoc::Enum(PPID asscType, PPID keyID, int byScnd)
+SEnum::Imp * ObjAssocCore::Enum(PPID asscType, PPID keyID, int byScnd)
 {
 	union {
 		ObjAssocTbl::Key1 k1;
@@ -181,10 +187,10 @@ SEnum::Imp * ObjAssoc::Enum(PPID asscType, PPID keyID, int byScnd)
 		q->where(this->AsscType == asscType && this->PrmrObjID == keyID);
 	}
 	q->initIteration(false, &k, spGe);
-	return EnumList.RegisterIterHandler(q, &h) ? (new PPTblEnum <ObjAssoc> (this, h)) : 0;
+	return EnumList.RegisterIterHandler(q, &h) ? (new PPTblEnum <ObjAssocCore> (this, h)) : 0;
 }
 
-int ObjAssoc::AddArray(PPID asscTyp, PPID prmrID, const TSVector <ObjAssocTbl::Rec> * pList, int preRemove, int use_ta)
+int ObjAssocCore::AddArray(PPID asscTyp, PPID prmrID, const TSVector <ObjAssocTbl::Rec> * pList, int preRemove, int use_ta)
 {
 	int    ok = 1;
 	THROW_INVARG(asscTyp && prmrID);
@@ -213,7 +219,7 @@ int ObjAssoc::AddArray(PPID asscTyp, PPID prmrID, const TSVector <ObjAssocTbl::R
 	return ok;
 }
 
-int ObjAssoc::AddArray(PPID asscTyp, const LAssocArray * pList, int preRemove, int use_ta)
+int ObjAssocCore::AddArray(PPID asscTyp, const LAssocArray * pList, int preRemove, int use_ta)
 {
 	int    ok = 1;
 	THROW_INVARG(asscTyp);
@@ -241,7 +247,7 @@ int ObjAssoc::AddArray(PPID asscTyp, const LAssocArray * pList, int preRemove, i
 	return ok;
 }
 
-int ObjAssoc::GetList(PPID asscTyp, LAssocArray * pList)
+int ObjAssocCore::GetList(PPID asscTyp, LAssocArray * pList)
 {
 	int    ok = -1;
 	ObjAssocTbl::Key1 k;
@@ -262,7 +268,7 @@ int ObjAssoc::GetList(PPID asscTyp, LAssocArray * pList)
 	return ok;
 }
 
-int ObjAssoc::Remove(PPID asscTyp, PPID prmr, PPID scnd, int use_ta)
+int ObjAssocCore::Remove(PPID asscTyp, PPID prmr, PPID scnd, int use_ta)
 {
 	//
 	// Возможны следующие случаи:
@@ -290,7 +296,7 @@ int ObjAssoc::Remove(PPID asscTyp, PPID prmr, PPID scnd, int use_ta)
 	return deleteFrom(this, use_ta, *dbq) ? 1 : 0;
 }
 
-int ObjAssoc::Search(PPID asscTyp, PPID prmr, PPID scnd, ObjAssocTbl::Rec * b)
+int ObjAssocCore::Search(PPID asscTyp, PPID prmr, PPID scnd, ObjAssocTbl::Rec * b)
 {
 	ObjAssocTbl::Key1 k;
 	k.AsscType  = asscTyp;

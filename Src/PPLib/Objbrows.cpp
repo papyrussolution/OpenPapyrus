@@ -647,7 +647,7 @@ int ObjRestrictListDialog::addItem(long * pPos, long * pID)
 	if(P_ORList) {
 		uint   pos = 0;
 		ObjRestrictItem item;
-		if(editItemDialog(&item) > 0)
+		if(editItemDialog(&item) > 0) {
 			if(P_ORList->Add(item.ObjID, item.Flags, &pos)) {
 				ASSIGN_PTR(pID, item.ObjID);
 				ASSIGN_PTR(pPos, pos);
@@ -655,6 +655,7 @@ int ObjRestrictListDialog::addItem(long * pPos, long * pID)
 			}
 			else
 				return 0;
+		}
 	}
 	return -1;
 }

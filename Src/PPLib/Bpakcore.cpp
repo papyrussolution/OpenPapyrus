@@ -2126,42 +2126,6 @@ void PPBillPacket::SetupEdiAttributes(int ediOp, const char * pEdiChannel, const
 	BTagL.PutItemStrNE(PPTAG_BILL_EDIIDENT, pEdiIdent);
 }
 
-int PPBillPacket::SetupObject2(PPID ar2ID)
-{
-	int    ok = -1;
-	const  PPID preserve_ar2 = Rec.Object2;
-	const  PPID preserve_ar_id = Rec.Object;
-	if(ar2ID != Rec.Object2) {
-		SetupObjectBlock sob;
-		const  int  pacr = PreprocessArContext(Rec.Object, ar2ID, sob); // @v12.5.11
-		if(ar2ID) {
-			PPOprKind op_rec;
-			PPObjArticle ar_obj;
-			ArticleTbl::Rec ar_rec;
-			THROW(GetOpData(Rec.OpID, &op_rec) > 0);
-			THROW_PP_S(op_rec.AccSheet2ID, PPERR_OPHASNTACS2, op_rec.Name);
-			THROW(ar_obj.Fetch(ar2ID, &ar_rec) > 0);
-			THROW_PP_S(ar_rec.AccSheetID == op_rec.AccSheet2ID, PPERR_ARDONTBELONGOPACS2, ar_rec.Name);
-		}
-		Rec.Object2 = ar2ID;
-		for(uint i = 0; i < GetTCount(); i++) {
-			const PPTransferItem & r_ti = ConstTI(i);
-			THROW(CheckGoodsForRestrictions(static_cast<int>(i), r_ti.GoodsID, TISIGN_UNDEF, r_ti.Qtty(), cgrfObject2, 0));
-		}
-		// @v12.5.11 {
-		if(sob.State & SetupObjectBlock::stForceReplaceAgtBill) {
-			Rec.AgtBillID = sob.DedicatedAgt.ID;
-		}
-		// } @v12.5.11 
-		ok = 1;
-	}
-	CATCH
-		Rec.Object2 = preserve_ar2;
-		ok = 0;
-	ENDCATCH
-	return ok;
-}
-
 int PPBillPacket::PreprocessArContext(PPID arID, PPID ar2ID, SetupObjectBlock & rRet) // @v12.5.11
 {
 	int    ok = 1;
@@ -2231,6 +2195,9 @@ int PPBillPacket::PreprocessArContext(PPID arID, PPID ar2ID, SetupObjectBlock & 
 						//force_agt_bill_id = new_agt_bill_id;
 					}
 				}
+				else if(Rec.AgtBillID) {
+					rRet.State |= SetupObjectBlock::stForceReplaceAgtBill;
+				}
 			}
 		}
 		if(agt_kind == 1 && (rRet.State & rRet.stHasCliAgreement)) {
@@ -2263,6 +2230,43 @@ int PPBillPacket::PreprocessArContext(PPID arID, PPID ar2ID, SetupObjectBlock & 
 		ok = -1;
 	}
 	CATCHZOK
+	return ok;
+}
+
+int PPBillPacket::SetupObject2(PPID ar2ID, SetupObjectBlock * pSob)
+{
+	int    ok = -1;
+	const  PPID preserve_ar2 = Rec.Object2;
+	const  PPID preserve_ar_id = Rec.Object;
+	SetupObjectBlock sob_;
+	SetupObjectBlock * p_sob = NZOR(pSob, &sob_);
+	if(ar2ID != Rec.Object2) {
+		const  int  pacr = PreprocessArContext(Rec.Object, ar2ID, *p_sob); // @v12.5.11
+		if(ar2ID) {
+			PPOprKind op_rec;
+			PPObjArticle ar_obj;
+			ArticleTbl::Rec ar_rec;
+			THROW(GetOpData(Rec.OpID, &op_rec) > 0);
+			THROW_PP_S(op_rec.AccSheet2ID, PPERR_OPHASNTACS2, op_rec.Name);
+			THROW(ar_obj.Fetch(ar2ID, &ar_rec) > 0);
+			THROW_PP_S(ar_rec.AccSheetID == op_rec.AccSheet2ID, PPERR_ARDONTBELONGOPACS2, ar_rec.Name);
+		}
+		Rec.Object2 = ar2ID;
+		for(uint i = 0; i < GetTCount(); i++) {
+			const PPTransferItem & r_ti = ConstTI(i);
+			THROW(CheckGoodsForRestrictions(static_cast<int>(i), r_ti.GoodsID, TISIGN_UNDEF, r_ti.Qtty(), cgrfObject2, 0));
+		}
+		// @v12.5.11 {
+		if(p_sob->State & SetupObjectBlock::stForceReplaceAgtBill) {
+			Rec.AgtBillID = p_sob->DedicatedAgt.ID;
+		}
+		// } @v12.5.11 
+		ok = 1;
+	}
+	CATCH
+		Rec.Object2 = preserve_ar2;
+		ok = 0;
+	ENDCATCH
 	return ok;
 }
 
@@ -2328,13 +2332,10 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 				}
 			}
 			if(rRet.PsnID) {
-				PPID   restrict_psn_kind = 0;
 				PPAccSheet acs_rec;
 				PPObjAccSheet acs_obj;
 				assert(rRet.AcsID); // Коль скоро rRet.PsnID != 0, то его мы получили методом PreprocessArContext() из arID. Мы не могли его получить, не получив "живого" rRet.AcsID!
-				if(acs_obj.Fetch(rRet.AcsID, &acs_rec) > 0) {
-					restrict_psn_kind = acs_rec.ObjGroup;
-				}
+				const  PPID restrict_psn_kind = (acs_obj.Fetch(rRet.AcsID, &acs_rec) > 0) ? acs_rec.ObjGroup : 0;
 				{
 					PPObjPerson psn_obj;
 					PPObjRegisterType rt_obj;
@@ -3843,7 +3844,7 @@ int PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int sign, 
 							int    local_ok = 0;
 							Reference * p_ref(PPRef);
 							{
-								for(SEnum en = p_ref->Assc.Enum(PPASS_GOODSSTRUC, _id1, 1); !local_ok && en.Next(&assc_rec) > 0;) {
+								for(SEnum en = p_ref->AsscC.Enum(PPASS_GOODSSTRUC, _id1, 1); !local_ok && en.Next(&assc_rec) > 0;) {
 									const  PPID gs_id = assc_rec.PrmrObjID;
 									if(gs_obj.Fetch(gs_id, &gs_hdr) > 0 && gs_hdr.Flags & GSF_SUBST) {
 										aggr_list1.add(gs_id);
@@ -3855,7 +3856,7 @@ int PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int sign, 
 								aggr_list1.sortAndUndup();
 							}
 							if(!local_ok) {
-								for(SEnum en = p_ref->Assc.Enum(PPASS_GOODSSTRUC, _id2, 1); !local_ok && en.Next(&assc_rec) > 0;) {
+								for(SEnum en = p_ref->AsscC.Enum(PPASS_GOODSSTRUC, _id2, 1); !local_ok && en.Next(&assc_rec) > 0;) {
 									const  PPID gs_id = assc_rec.PrmrObjID;
 									if(gs_obj.Fetch(gs_id, &gs_hdr) > 0 && gs_hdr.Flags & GSF_SUBST) {
 										aggr_list2.add(gs_id);
@@ -5294,7 +5295,7 @@ int TiIter::OrderRows_Mem(const PPBillPacket * pPack, Order o)
 						else if(o == ordByPLU) {
 							Goods2Tbl::Rec grp_rec;
 							ObjAssocTbl::Rec assc_rec;
-							for(SEnum en = PPRef->Assc.Enum(PPASS_ALTGOODSGRP, goods_rec.ID, 1); en.Next(&assc_rec) > 0;) {
+							for(SEnum en = PPRef->AsscC.Enum(PPASS_ALTGOODSGRP, goods_rec.ID, 1); en.Next(&assc_rec) > 0;) {
 								const  PPID grp_id = assc_rec.PrmrObjID;
 								if(scale_alt_grp_list.lsearch(grp_id) && goods_obj.Fetch(grp_id, &grp_rec) > 0) {
 									ord_list.Add(++uniq_counter, temp_buf.Z().Cat(grp_rec.Name).Cat(goods_name), 1);
@@ -5533,7 +5534,7 @@ int PPBillPacket::GetNextPLU(TiIter * pI, long * pPLU, SString & rObjAsscName)
 		TiIter::IndexItem * p_p = 0;
 		if(p_iter->Index.enumItems(&pos, reinterpret_cast<void **>(&p_p))) {
 			ObjAssocTbl::Rec oa_rec;
-			if(PPRef->Assc.Search(p_p->Ext, &oa_rec) > 0) {
+			if(PPRef->AsscC.Search(p_p->Ext, &oa_rec) > 0) {
 				plu = oa_rec.InnerNum;
 				GetGoodsName(oa_rec.PrmrObjID, rObjAsscName);
 			}

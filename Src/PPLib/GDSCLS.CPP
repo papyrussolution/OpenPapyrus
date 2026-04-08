@@ -779,8 +779,90 @@ int PPObjGoodsClass::Edit(PPID * pID, void * extraPtr)
 	return ok;
 }
 
-int PPObjGoodsClass::Print(PPID id) { return PPAlddPrint(REPORT_GOODSCLASSVIEW, PView((void *)0), 0); }
+int PPObjGoodsClass::Print(PPID id) { return PPAlddPrint(REPORT_GOODSCLASSVIEW, PView(nullptr), 0); }
+//
+//
+//
+class PPObjGoodsClassListWindow : public PPObjListWindow {
+public:
+	PPObjGoodsClassListWindow(PPObject * pObj, uint flags, void * extraPtr);
+	int    InitIteration();
+	int    FASTCALL NextIteration(PPGdsCls * pRec);
+private:
+	DECL_HANDLE_EVENT;
 
+	uint   CurIterPos;
+};
+
+PPObjGoodsClassListWindow::PPObjGoodsClassListWindow(PPObject * pObj, uint flags, void * extraPtr) :
+	PPObjListWindow(pObj, flags, extraPtr), CurIterPos(0)
+{
+	if(pObj) {
+		//static_cast<PPObjGoodsClass *>(pObj)->InitFilt(extraPtr, Filt);
+	}
+	//ExtraPtr = &Filt;
+	DefaultCmd = cmaMore;
+	SetToolbar(TOOLBAR_LIST_GOODSCLASS);
+}
+
+int PPObjGoodsClassListWindow::InitIteration()
+{
+	CurIterPos = 0;
+	return 1;
+}
+
+int FASTCALL PPObjGoodsClassListWindow::NextIteration(PPGdsCls * pRec)
+{
+	int    ok = -1;
+	if(pRec && P_Def) {
+		const StrAssocArray * p_ary = static_cast<const StrAssocListBoxDef *>(P_Def)->getArray();
+		if(p_ary && CurIterPos < p_ary->getCount()) {
+			StrAssocArray::Item item = p_ary->Get(CurIterPos++);
+			PPID   id = item.Id;
+			PPObjGoodsClass * p_gc_obj = static_cast<PPObjGoodsClass *>(P_Obj);
+			if(p_gc_obj && p_gc_obj->Search(id, pRec) > 0)
+				ok = 1;
+		}
+	}
+	return ok;
+}
+
+IMPL_HANDLE_EVENT(PPObjGoodsClassListWindow)
+{
+	int    update = 0;
+	PPObjListWindow::handleEvent(event);
+	if(P_Obj) {
+		PPID   current_id = 0;
+		PPObjGoodsClass * p_gc_obj = static_cast<PPObjGoodsClass *>(P_Obj);
+		getResult(&current_id);
+		if(TVCOMMAND) {
+			switch(TVCMD) {
+				case cmaMore:
+					if(current_id) {
+						GoodsFilt flt;
+						flt.Ep.GdsClsID = current_id;
+						PPView::Execute(PPVIEW_GOODS, &flt, 1, 0);
+					}
+					break;
+				case cmPrint:
+					CALLPTRMEMB(p_gc_obj, Print(current_id/*unused*/));
+					break;
+				default:
+					break;
+			}
+		}
+		PostProcessHandleEvent(update, current_id);
+	}
+}
+
+/*virtual*/void * PPObjGoodsClass::CreateObjListWin(uint flags, void * extraPtr)
+{
+	return new PPObjGoodsClassListWindow(this, flags, extraPtr);
+}
+//
+//
+//
+// @obsolete since @v12.5.12 (replaced with PPObjGoodsClassListWindow) {
 int PPObjGoodsClass::Browse(void * extraPtr)
 {
 	class GdsClsView : public ObjViewDialog {
@@ -814,6 +896,7 @@ int PPObjGoodsClass::Browse(void * extraPtr)
 		ok = PPErrorZ();
 	return ok;
 }
+// } @obsolete since @v12.5.12 (replaced with PPObjGoodsClassListWindow)
 //
 //
 //

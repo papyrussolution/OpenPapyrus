@@ -1,5 +1,5 @@
 // DBQBRO.CPP
-// Copyright (c) Sobolev A. 1996, 1997-2000, 2003, 2005, 2008, 2010, 2011, 2013, 2018, 2019, 2020, 2022, 2025
+// Copyright (c) Sobolev A. 1996, 1997-2000, 2003, 2005, 2008, 2010, 2011, 2013, 2018, 2019, 2020, 2022, 2025, 2026
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -42,7 +42,7 @@ int DBQBrowserDef::setQuery(DBQuery & rQuery, uint aBufSize)
 		bc.Offs = fldNo;
 	}
 	else {
-		assert(fldNo < P_Query->fldCount);
+		assert(fldNo < P_Query->FieldCount);
 		bc.T = P_Query->flds[fldNo].type;
 		bc.Offs = 0;
 		for(uint i = 0; i < fldNo; i++)

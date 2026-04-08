@@ -2431,15 +2431,18 @@ int TProgram::DrawNumStepper(HWND hwnd, DRAWITEMSTRUCT * pDi) // @v12.5.3 @const
 	return ok;
 }
 
-int TProgram::DrawFrame(HWND hwnd, DRAWITEMSTRUCT * pDi) // @v12.5.5 @construction
+int TProgram::DrawFrame(HWND hwnd, DRAWITEMSTRUCT * pDi) // @v12.5.5
 {
 	int    ok = 0;
 	InitUiToolBox();
 	{
 		SPaintToolBox * p_tb = GetUiToolBox();
 		if(p_tb) {
-			PAINTSTRUCT ps;
-			::BeginPaint(hwnd, &ps);
+			bool   do_begin_paint = true;
+			PAINTSTRUCT ps; 
+			if(do_begin_paint) { // @v12.5.12
+				::BeginPaint(hwnd, &ps);
+			}
 			TCanvas2 canv(*p_tb, pDi->hDC);
 			//
 			void * p_user_data = TView::GetWindowUserData(pDi->hwndItem);
@@ -2491,7 +2494,9 @@ int TProgram::DrawFrame(HWND hwnd, DRAWITEMSTRUCT * pDi) // @v12.5.5 @constructi
 				}
 				ok = 1;
 			}
-			::EndPaint(hwnd, &ps);
+			if(do_begin_paint) { // @v12.5.12
+				::EndPaint(hwnd, &ps);
+			}
 		}
 	}
 	return ok;

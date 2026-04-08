@@ -28,12 +28,12 @@ bool  GoodsToObjAssoc::IsValid() const { return !(Flags & fError); }
 GoodsToObjAssoc::operator const LAssocArray & () const { return List; }
 uint  GoodsToObjAssoc::GetCount() const { return List.getCount(); }
 const LAssoc & FASTCALL GoodsToObjAssoc::at(uint pos) const { return List.at(pos); }
-int   GoodsToObjAssoc::Save() { return PPRef->Assc.AddArray(AsscType, &List, 1, 1); }
+int   GoodsToObjAssoc::Save() { return PPRef->AsscC.AddArray(AsscType, &List, 1, 1); }
 
 int GoodsToObjAssoc::Load()
 {
 	List.freeAll();
-	return PPRef->Assc.GetList(AsscType, &List);
+	return PPRef->AsscC.GetList(AsscType, &List);
 }
 
 SString & GoodsToObjAssoc::GetKeyName(PPID id, SString & rBuf)

@@ -27,8 +27,8 @@ android {
             targetSdkVersion 29
             versionNameSuffix 'bhtcrystal'
             signingConfig signingConfigs.release
-            versionName '0.8.12'
-            versionCode 117
+            versionName '0.9.0'
+            versionCode 118
         }
         standard {
             dimension "android-version"
@@ -36,13 +36,13 @@ android {
             targetSdkVersion 30
             versionNameSuffix 'std'
             signingConfig signingConfigs.release
-            versionCode 117
-            versionName '0.8.12'
+            versionCode 118
+            versionName '0.9.0'
         }
         android12 {
             dimension 'android-version'
-            versionCode 117
-            versionName '0.8.12'
+            versionCode 118
+            versionName '0.9.0'
             versionNameSuffix 'android12'
             targetSdkVersion 31
             minSdkVersion 31
@@ -53,8 +53,8 @@ android {
         applicationId "ru.petroglif.styloq"
         minSdkVersion 30
         targetSdkVersion 30
-        versionCode 117
-        versionName '0.8.12'
+        versionCode 118
+        versionName '0.9.0'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.release
     }

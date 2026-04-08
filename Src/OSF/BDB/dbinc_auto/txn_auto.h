@@ -2,7 +2,6 @@
 
 #ifndef	__txn_AUTO_H
 #define	__txn_AUTO_H
-// @v9.5.5 #include "dbinc/log.h"
 #define	DB___txn_regop_42	10
 typedef struct ___txn_regop_42_args {
 	uint32 type;

@@ -1028,24 +1028,10 @@ bool SScEditorTextInfo::FromJsonObj(const SJson * pJs)
 			SJson::GetChildTextUnescaped(p_cur, BackupPathUtf8);
 		}
 		else if(p_cur->Text.IsEqiAscii("MarkList")) {
-			if(SJson::IsArray(p_cur->P_Child)) { 
-				for(const SJson * p_sj_item = p_cur->P_Child->P_Child; p_sj_item; p_sj_item = p_sj_item->P_Next) {
-					if(SJson::IsNumber(p_sj_item)) {
-						int64 v = p_sj_item->Text.ToInt64();
-						MarkList.add(v);
-					}
-				}
-			}
+			SJson::GetArrayAsInt64Vector(p_cur->P_Child, MarkList);
 		}
 		else if(p_cur->Text.IsEqiAscii("FoldStateList")) {
-			if(SJson::IsArray(p_cur->P_Child)) { 
-				for(const SJson * p_sj_item = p_cur->P_Child->P_Child; p_sj_item; p_sj_item = p_sj_item->P_Next) {
-					if(SJson::IsNumber(p_sj_item)) {
-						int64 v = p_sj_item->Text.ToInt64();
-						FoldStateList.add(v);
-					}
-				}
-			}
+			SJson::GetArrayAsInt64Vector(p_cur->P_Child, FoldStateList);
 		}
 	}
 	return ok;

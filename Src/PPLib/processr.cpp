@@ -1,5 +1,5 @@
 // PROCESSR.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2232,9 +2232,11 @@ DBQuery * PPViewProcessor::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	DBE    dbe_loc;
 	DBE    dbe_parent;
 	DBE    dbe_linkobj;
+	DBE    dbe_wroffop; // @v12.5.12
 	THROW(CheckTblPtr(p_prct = new ProcessorTbl));
 	PPDbqFuncPool::InitObjNameFunc(dbe_loc, PPDbqFuncPool::IdObjNameLoc,    p_prct->LocID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_parent, PPDbqFuncPool::IdObjNamePrc, p_prct->ParentID);
+	PPDbqFuncPool::InitObjNameFunc(dbe_wroffop, PPDbqFuncPool::IdObjNameOprKind, p_prct->WrOffOpID); // @v12.5.12
 	// @v12.2.0 {
 	{
 		dbe_linkobj.init();
@@ -2243,7 +2245,24 @@ DBQuery * PPViewProcessor::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 		dbe_linkobj.push(static_cast<DBFunc>(PPDbqFuncPool::IdOidText));
 	}
 	// } @v12.2.0 
-	q = & Select_(p_prct->ID, p_prct->Name, p_prct->Code, dbe_parent, dbe_loc, dbe_linkobj, 0L).from(p_prct, 0L);
+	// @v12.5.12 {
+	q = & Select_(p_prct->ID, // #0
+		p_prct->Name,         // #1
+		p_prct->Code,         // #2
+		0);
+	q->addField(dbe_parent);  // #3
+	q->addField(dbe_loc);     // #4  
+	q->addField(dbe_linkobj); // #5
+	q->addField(dbe_wroffop); // #6 // @v12.5.12
+	// } @v12.5.12 
+	/* @v12.5.12 q = & Select_(p_prct->ID, 
+		p_prct->Name, 
+		p_prct->Code, 
+		dbe_parent, 
+		dbe_loc, 
+		dbe_linkobj, 
+		0L);*/
+	q->from(p_prct, 0L);
 	dbq = ppcheckfiltid(dbq, p_prct->Kind, Filt.Kind);
 	dbq = ppcheckfiltid(dbq, p_prct->ParentID, Filt.ParentID);
 	dbq = ppcheckfiltid(dbq, p_prct->LocID, Filt.LocID);
@@ -2255,16 +2274,18 @@ DBQuery * PPViewProcessor::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	THROW(CheckQueryPtr(q));
 	if(pSubTitle) {
 		SString fmt_buf;
-		uint   title_id = (Filt.Kind == PPPRCK_GROUP) ? 1 : 0;
+		const  uint title_id = (Filt.Kind == PPPRCK_GROUP) ? 1 : 0;
 		if(PPGetSubStr(PPTXT_PRCTITLES, title_id, fmt_buf)) {
-			PPID   parent_id = (Filt.ParentID & ~PRCEXDF_GROUP);
+			const  PPID parent_id = (Filt.ParentID & ~PRCEXDF_GROUP);
 			ProcessorTbl::Rec rec;
-			if(!parent_id || PrcObj.Fetch(parent_id, &rec) <= 0)
+			if(!parent_id || PrcObj.Fetch(parent_id, &rec) <= 0) {
 				rec.Name[0] = 0;
+			}
 			pSubTitle->Printf(fmt_buf, rec.Name);
 		}
-		else
+		else {
 			*pSubTitle = 0;
+		}
 	}
 	CATCH
 		if(q)

@@ -1690,7 +1690,7 @@ SLTEST_R(PPSync) // @v12.4.1 @construction
 	return CurrentStatus;
 }
 
-SLTEST_R(LocalStateBinderyCore) // @v12.5.9 @construction
+SLTEST_R(LocalStateBinderyCore) // @v12.5.9
 {
 	constexpr uint max_iter = 1000;
 	constexpr uint max_serial_iter = 50;
@@ -1838,6 +1838,39 @@ SLTEST_R(LocalStateBinderyCore) // @v12.5.9 @construction
 							}
 						}
 					}
+				}
+			}
+		}
+	}
+	return CurrentStatus;
+}
+
+SLTEST_R(ChZnCode)
+{
+	SString temp_buf;
+	SString out_buf;
+	(temp_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("chzn-marks.txt");
+	SFile f_in(temp_buf, SFile::mRead);
+	if(f_in.IsValid()) {
+		PPGetPath(PPPATH_TESTROOT, temp_buf);
+		(temp_buf = GetSuiteEntry()->OutPath).SetLastSlash().Cat("chzn-marks-result-regular_test.txt");
+		SFile f_out2(temp_buf, SFile::mWrite);
+		if(f_out2.IsValid()) {
+			while(f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+				size_t comment_pos = 0;
+				if(temp_buf.Search("///", 0, 0, &comment_pos)) {
+					temp_buf.Trim(comment_pos).Strip();
+				}
+				if(temp_buf.NotEmpty()) {
+					const  SString original_text(temp_buf);
+					GtinStruc gts;
+					(temp_buf = original_text).Transf(CTRANSF_UTF8_TO_INNER);
+					int    pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
+					SLCHECK_NZ(pczcr);
+					out_buf.Z().CR().Cat(original_text).Space().CatEq("parse-result", pczcr);
+					gts.Debug_Output(temp_buf);
+					out_buf.CR().Cat(temp_buf);
+					f_out2.WriteLine(out_buf);
 				}
 			}
 		}

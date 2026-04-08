@@ -82,6 +82,10 @@ public class STokenRecognizer {
 	public static final int SNTOK_BG_EGN                   = 58; // @v12.3.4 @todo Болгария Единый Гражданский Код
 	public static final int SNTOK_CA_SIN                   = 59; // @v12.3.4 @todo Canada Social Insurance Number
 	public static final int SNTOK_CHZN_PALLET_GTIN         = 60; // @v12.4.5 честный знак Специальная конструкция, не являющаяся маркой (00 GTIN14 9999)
+	public static final int SNTOK_SSCC                     = 61; // @v12.5.12 Код транспортной упаковки. Это может быть либо 18-значное число, либо 20-значное с 00 в начале.
+			// Важно: SNTOK_CHZN_PALLET_GTIN является мутантной вариацией SSCC в связи с этим SNTOK_CHZN_PALLET_GTIN обработка, а, возможно, и символ кода изменится.
+	public static final int SNTOK_CHZN_PALLET_MOTOROIL     = 62; // @v12.5.12 Код транспортной упаковки чзн моторное масло
+	public static final int SNTOK_CHZN_BULK                = 63; // @v12.5.12 Код чзн весового товара с префиксом 02-
 
 	public static final int SNTOKSEQ_DEC        = 0x00000001; // 0-9
 	public static final int SNTOKSEQ_LATLWR     = 0x00000002; // a-z
@@ -772,6 +776,12 @@ public class STokenRecognizer {
 								result.Add(SNTOK_DIGITCODE, 0.1f);
 							}
 							break;
+						case 18: // @v12.5.12
+							// SSCC without two fixed leading zeros
+							if(SLib.SCalcCheckDigit(SLib.SCHKDIGALG_SSCC|SLib.SCHKDIGALG_TEST, input, toklen) != 0) {
+								result.Add(SNTOK_SSCC, 0.9f);
+							}
+							break;
 						case 19:
 							if(SLib.SCalcCheckDigit(SLib.SCHKDIGALG_LUHN|SLib.SCHKDIGALG_TEST, input, toklen) != 0) {
 								result.Add(SNTOK_LUHN, 0.9f);
@@ -779,6 +789,12 @@ public class STokenRecognizer {
 							}
 							else {
 								result.Add(SNTOK_EGAISWARECODE, 1.0f);
+							}
+							break;
+						case 20: // @v12.5.12
+							// SSCC with two fixed leading zeros. Контрольная цифра остается верной даже с учетом префикса, поскольку там два нуля (чет/нечет)
+							if((input[0] == '0' && input[1] == '0') && SLib.SCalcCheckDigit(SLib.SCHKDIGALG_SSCC|SLib.SCHKDIGALG_TEST, input, toklen) != 0) {
+								result.Add(SNTOK_SSCC, 0.9f);
 							}
 							break;
 					}

@@ -550,7 +550,7 @@ public:
 #ifdef DL600C // {
 	int    AddTempFldConst(COption id, const CtmExprConst & rConst);
 	int    AcceptTempFldConstList(uint fldID);
-	int    AcceptBrakPropList(const CtmPropertySheet & rS); // @v11.0.4
+	int    AcceptBrakPropList(const CtmPropertySheet & rS);
 	void   InitLocalIdCounter(DLSYMBID initVal) { LastLocalId = initVal; }
 	DLSYMBID GetLocalId() { return ++LastLocalId; }
 #endif
@@ -646,9 +646,9 @@ struct CtmToken {
 		SColorBase Color; // @v11.0.4
 		int    I2[2];
 		int    I4[4];
-		UiCoord UIC; // @v11.0.4
-		UiRelPoint PT; // @v11.0.4
-		UiRelRect Rect; // @v11.0.4
+		UiCoord UIC;
+		UiRelPoint PT;
+		UiRelRect Rect;
 	} U;
 };
 

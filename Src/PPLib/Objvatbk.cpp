@@ -3185,7 +3185,7 @@ int PPViewVatBook::Export()
 		}
 		out_file_name.Z().Cat(id_file).DotCat("xml");
 		PPGetFilePath(PPPATH_OUT, out_file_name, path);
-		g.StartDocument(path, cp1251); // @v11.2.10
+		g.StartDocument(path, cp1251);
 		{
 			{
 				SXml::WNode n_file(g.P_X, g.GetToken_Ansi(PPHSC_RU_FILE));
@@ -3198,7 +3198,7 @@ int PPViewVatBook::Export()
 					left.Space().Cat(ver.ToStr(temp_buf));
 					n_file.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VERPROG), left);
 				}
-				n_file.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VERFORM), "5.11"); // @v11.2.12 "5.06"-->"5.08" // @v12.3.2 "5.08"-->"5.11"
+				n_file.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VERFORM), "5.12"); // @v12.3.2 "5.08"-->"5.11" // "5.11"-->"5.12" @v12.5.12
 				{
 					SXml::WNode n_doc(g.P_X, g.GetToken_Ansi(PPHSC_RU_DOCUMENT));
 					if(Filt.Kind == PPVTB_BUY) {

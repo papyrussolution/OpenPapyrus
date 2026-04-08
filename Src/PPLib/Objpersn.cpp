@@ -1160,11 +1160,18 @@ int PPObjPerson::IsPacketEq(const PPPersonPacket & rS1, const PPPersonPacket & r
 		}
 	}
 	if(eq) {
+		const  int exfl[] = { PPPersonPacket::extssExtName, PPPersonPacket::extssLabels, PPPersonPacket::extssAtrText };
+		if(rS1.GetBuffer() != rS2.GetBuffer()) {
+			if(!rS1.PPExtStrContainer::IsEq(rS2, SIZEOFARRAY(exfl), exfl)) 
+				eq = 0;
+		}
+		/* @v12.5.12 
 		SString en1, en2;
 		rS1.GetExtName(en1);
 		rS2.GetExtName(en2);
 		if(en1 != en2)
 			eq = 0;
+		*/
 	}
 	return eq;
 }
@@ -2149,7 +2156,7 @@ int PPObjPerson::AddToAddrBook(PPID personID, PPID userID, int use_ta)
 	int    ok = 1;
 	Reference * p_ref(PPRef);
 	PPID   usr_id = (userID >= 0) ? userID : LConfig.UserID;
-	if(p_ref->Assc.Search(PPASS_ADDRESSBOOK, usr_id, personID) > 0)
+	if(p_ref->AsscC.Search(PPASS_ADDRESSBOOK, usr_id, personID) > 0)
 		ok = -1;
 	else {
 		PPID   id = 0;
@@ -2161,9 +2168,9 @@ int PPObjPerson::AddToAddrBook(PPID personID, PPID userID, int use_ta)
 			rec.AsscType = PPASS_ADDRESSBOOK;
 			rec.PrmrObjID = usr_id;
 			rec.ScndObjID = personID;
-			THROW(p_ref->Assc.SearchFreeNum(PPASS_ADDRESSBOOK, usr_id, &free_num, 0));
+			THROW(p_ref->AsscC.SearchFreeNum(PPASS_ADDRESSBOOK, usr_id, &free_num, 0));
 			rec.InnerNum = free_num;
-			THROW(p_ref->Assc.Add(&id, &rec, 0));
+			THROW(p_ref->AsscC.Add(&id, &rec, 0));
 			THROW(tra.Commit());
 		}
 	}
@@ -2177,8 +2184,8 @@ int PPObjPerson::RemoveFromAddrBook(PPID personID, PPID userID, int use_ta)
 	Reference * p_ref(PPRef);
 	PPID   usr_id = (userID >= 0) ? userID : LConfig.UserID;
 	ObjAssocTbl::Rec rec;
-	if(p_ref->Assc.Search(PPASS_ADDRESSBOOK, usr_id, personID, &rec) > 0) {
-		if(!p_ref->Assc.Remove(rec.ID, use_ta))
+	if(p_ref->AsscC.Search(PPASS_ADDRESSBOOK, usr_id, personID, &rec) > 0) {
+		if(!p_ref->AsscC.Remove(rec.ID, use_ta))
 			ok = 0;
 	}
 	else
@@ -2189,13 +2196,13 @@ int PPObjPerson::RemoveFromAddrBook(PPID personID, PPID userID, int use_ta)
 int PPObjPerson::EnumAddrBookItems(PPID userID, PPID * pPersonID, ObjAssocTbl::Rec * b)
 {
 	PPID   usr_id = (userID >= 0) ? userID : LConfig.UserID;
-	return PPRef->Assc.EnumByPrmr(PPASS_ADDRESSBOOK, usr_id, pPersonID, b);
+	return PPRef->AsscC.EnumByPrmr(PPASS_ADDRESSBOOK, usr_id, pPersonID, b);
 }
 
 int PPObjPerson::GetAddrBookIDList(PPID userID, PPIDArray * pList)
 {
 	PPID   usr_id = (userID >= 0) ? userID : LConfig.UserID;
-	return PPRef->Assc.GetListByPrmr(PPASS_ADDRESSBOOK, usr_id, pList);
+	return PPRef->AsscC.GetListByPrmr(PPASS_ADDRESSBOOK, usr_id, pList);
 }
 
 int PPObjPerson::AddRegisterToPacket(PPPersonPacket & rPack, PPID regTypeID, const char * pNumber, int checkUnique /* = 1 */)
@@ -2435,7 +2442,7 @@ int PPObjPerson::SerializePacket(int dir, PPPersonPacket * pPack, SBuffer & rBuf
 	SString ext_name;
 	PPIDArray addr_id_list;
 	LAssocArray rel_list;
-	SerializeSignature srzs(Obj, dir, rBuf); // @v11.1.12
+	SerializeSignature srzs(Obj, dir, rBuf);
 	THROW_SL(P_Tbl->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	if(srzs.V.IsGe(11, 1, 12)) {
 		THROW_SL(pSCtx->Serialize(dir, pPack->SMemo, rBuf));
@@ -2448,7 +2455,12 @@ int PPObjPerson::SerializePacket(int dir, PPPersonPacket * pPack, SBuffer & rBuf
 			addr_id_list.add(addr.ID);
 		rel_list = pPack->GetRelList();
 	}
-	THROW_SL(pSCtx->Serialize(dir, ext_name, rBuf));
+	if(srzs.V.IsGe(12, 5, 12)) { // @v12.5.12
+		THROW(pPack->PPExtStrContainer::SerializeB(dir, rBuf, pSCtx));
+	}
+	else {
+		THROW_SL(pSCtx->Serialize(dir, ext_name, rBuf));
+	}
 	THROW_SL(pSCtx->Serialize(dir, &addr_id_list, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, &rel_list, rBuf));
 	THROW(pPack->ELA.Serialize(dir, rBuf, pSCtx));
@@ -2457,14 +2469,20 @@ int PPObjPerson::SerializePacket(int dir, PPPersonPacket * pPack, SBuffer & rBuf
 	THROW(pPack->TagL.Serialize(dir, rBuf, pSCtx));
 	THROW(pPack->LinkFiles.Serialize(dir, (GetConfig().Flags & PPPersonConfig::fSendAttachment) ? 0 : 1, rBuf, pSCtx));
 	if(dir < 0) {
-		pPack->SetExtName(ext_name);
+		if(srzs.V.IsGe(12, 5, 12)) { // @v12.5.12
+			;
+		}
+		else {
+			pPack->SetExtName(ext_name);
+		}
 		for(i = 0; i < addr_id_list.getCount(); i++) {
 			PPLocationPacket addr;
 			addr.ID = addr_id_list.at(i);
 			THROW(pPack->AddDlvrLoc(addr));
 		}
-		for(i = 0; i < rel_list.getCount(); i++)
+		for(i = 0; i < rel_list.getCount(); i++) {
 			pPack->AddRelation(rel_list.at(i).Key, rel_list.at(i).Val, 0);
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -2545,14 +2563,16 @@ int PPObjPerson::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContex
 				else if(r_cfg.Flags & PPPersonConfig::fSyncBySrchReg) {
 					PPObjPersonKind pk_obj;
 					PPPersonKind pk_rec;
-					for(uint i = 0; !is_analog && i < p_pack->Kinds.getCount(); i++)
-						if(pk_obj.Fetch(p_pack->Kinds.get(i), &pk_rec) > 0 && pk_rec.CodeRegTypeID)
+					for(uint i = 0; !is_analog && i < p_pack->Kinds.getCount(); i++) {
+						if(pk_obj.Fetch(p_pack->Kinds.get(i), &pk_rec) > 0 && pk_rec.CodeRegTypeID) {
 							if(SearchMaxLike(p_pack, &same_id, smlRegisterOnly, pk_rec.CodeRegTypeID) > 0) {
 								*pID = same_id;
 								is_analog = 1;
 								(msg_buf = p_pack->Rec.Name).CatDiv('-', 1).Cat(pk_rec.Name);
 								pCtx->OutputString(PPTXT_ACCEPTANALOG_PSN_CODE, msg_buf);
 							}
+						}
+					}
 				}
 			}
 			if(*pID) {
@@ -3047,7 +3067,6 @@ int PPObjPerson::GetPacket(PPID id, PPPersonPacket * pPack, uint flags)
 	uint   i;
 	PPIDArray dlvr_loc_list;
 	if(PPCheckGetObjPacketID(Obj, id)) {
-		SString ext_str_buf;
 		PPLocationPacket loc_pack;
 		PropertyTbl::Rec cshr_prop;
 		THROW(P_Tbl->Get(id, pPack));
@@ -3083,8 +3102,13 @@ int PPObjPerson::GetPacket(PPID id, PPPersonPacket * pPack, uint flags)
 				pPack->AddDlvrLoc(loc_pack);
 		}
 		THROW(P_Tbl->GetELinks(id, pPack->ELA));
-		THROW(GetExtName(id, ext_str_buf));
-		pPack->SetExtName(ext_str_buf);
+		{
+			SString ext_str_buf;
+			// @v12.5.12 THROW(GetExtName(id, ext_str_buf));
+			// @v12.5.12 pPack->SetExtName(ext_str_buf);
+			const  int gpvsr = p_ref->GetPropVlrString(Obj, id, PSNPRP_EXTSTRDATA, ext_str_buf); // @v12.5.12 
+			pPack->SetBuffer(ext_str_buf); // @v12.5.12 
+		}
 		THROW(p_ref->Ot.GetList(Obj, id, &pPack->TagL));
 	}
 	else
@@ -3503,8 +3527,8 @@ int PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 						THROW(p_ref->PutProp(Obj, id, PSNPRP_CASHIERINFO, (pPack->CshrInfo.Flags & CIF_CASHIER) ? &cshr_prop : 0));
 					}
 					//
-					pPack->GetExtName(temp_buf);
-					THROW(p_ref->PutPropVlrString(Obj, id, PSNPRP_EXTSTRDATA, temp_buf));
+					// @v12.5.12 pPack->GetExtName(temp_buf);
+					THROW(p_ref->PutPropVlrString(Obj, id, PSNPRP_EXTSTRDATA, /*temp_buf*/pPack->PPExtStrContainer::GetBuffer()));
 					//
 					if(pPack->LinkFiles.IsChanged(id, 0L)) {
 						THROW_PP(CheckRights(PSNRT_UPDIMAGE), PPERR_NRT_UPDIMAGE);
@@ -3572,8 +3596,9 @@ int PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 			DS.LogAction(action, Obj, id, hid, 0);
 		THROW(tra.Commit());
 	}
-	if(dirty_id)
+	if(dirty_id) {
 		Dirty(dirty_id);
+	}
 	CATCH
 		{
 			int do_recover_loc_owners = BIN(BTROKORNFOUND && pPack && *pID && is_in_db_mism_owner_loc);
@@ -3607,7 +3632,6 @@ int PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 		}
 		ok = 0;
 	ENDCATCH
-	// @v11.3.10 delete p_sc_obj;
 	return ok;
 }
 
@@ -3962,8 +3986,6 @@ int AddrListDialog::delItem(long pos, long /*id*/)
 //
 int EditELink(PPELink * pLink); // @prototype(elinkdlg.cpp)
 
-//#define GRP_IBG 1
-
 class PersonDialogBase : public TDialog {
 	enum {
 		ctlgroupIbg = 1
@@ -4066,13 +4088,13 @@ public:
 	explicit PersonDialog(int dlgID) : PersonDialogBase(dlgID), IsCashier(0)
 	{
 		if(!PsnObj.RegObj.CheckRights(PPR_READ))
-			enableCommand(cmPersonReg, 0);
+			enableCommand(cmPersonReg, false);
 		if(!PsnObj.RegObj.CheckRights(PPR_READ))
-			enableCommand(cmPersonBAcct, 0);
+			enableCommand(cmPersonBAcct, false);
 		CashiersPsnKindID = GetCashiersPsnKindID();
 		PPObjSecur obj_secur(PPOBJ_USR, 0);
 		if(!obj_secur.CheckRights(PPR_READ))
-			enableCommand(cmCashierRights, 0);
+			enableCommand(cmCashierRights, false);
 		addGroup(ctlgroupIbg, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_PERSON_IMAGE,
 			cmAddImage, cmDelImage, PsnObj.CheckRights(PSNRT_UPDIMAGE), ImageBrowseCtrlGroup::fUseExtOpenDlg));
 		Ptb.SetBrush(brushHumanName,    SPaintObj::bsSolid, LightenColor(GetColorRef(SClrYellow), 0.8f), 0);
@@ -4100,9 +4122,10 @@ public:
 		setCtrlData(CTL_PERSON_NAME, Data.Rec.Name);
 		Data.GetExtName(temp_buf);
 		setCtrlString(CTL_PERSON_EXTNAME, temp_buf);
-		p_list->setDef(createKindListDef());
-		p_list->Draw_();
-		//
+		if(p_list) {
+			p_list->setDef(createKindListDef());
+			p_list->Draw_();
+		}
 		AddClusterAssoc(CTL_PERSON_FLAGS, 0, PSNF_NOVATAX);
 		AddClusterAssoc(CTL_PERSON_FLAGS, 1, PSNF_NONOTIFICATIONS);
 		AddClusterAssoc(CTL_PERSON_FLAGS, 2, PSNF_DONTSENDCCHECK);
@@ -4121,9 +4144,16 @@ public:
 			Data.LinkFiles.At(0, rec.Path);
 			setGroupData(ctlgroupIbg, &rec);
 		}
-		if(Data.Rec.Status)
+		if(Data.Rec.Status) {
 			selectCtrl(CTL_PERSON_NAME);
+		}
 		enableCommand(cmSelectAnalog, !Data.Rec.ID);
+		// @v12.5.12 {
+		{
+			Data.GetExtStrData(PPPersonPacket::extssAtrText, temp_buf);
+			setCtrlString(CTL_PERSON_ETCTEXT, temp_buf);
+		}
+		// } @v12.5.12 
 		return 1;
 	}
 	DECL_DIALOG_GETDTS()
@@ -4141,17 +4171,24 @@ public:
 		GetClusterData(CTL_PERSON_FLAGS, &Data.Rec.Flags);
 		getCtrlString(CTL_PERSON_MEMO, Data.SMemo);
 		Data.SMemo.Strip();
+		// @v12.5.12 {
+		{
+			getCtrlString(CTL_PERSON_ETCTEXT, temp_buf);
+			Data.PutExtStrData(PPPersonPacket::extssAtrText, temp_buf.Strip());
+		}
+		// } @v12.5.12 
 		getCtrlData(CTLSEL_PERSON_CATEGORY, &Data.Rec.CatID);
 		if(getCtrlView(CTL_PERSON_GENDER))
 			PersonCore::SetGender(Data.Rec, GetClusterData(CTL_PERSON_GENDER));
 		{
 			ImageBrowseCtrlGroup::Rec rec;
-			if(getGroupData(ctlgroupIbg, &rec))
+			if(getGroupData(ctlgroupIbg, &rec)) {
 				if(rec.Path.Len()) {
 					THROW(Data.LinkFiles.Replace(0, rec.Path));
 				}
 				else
 					Data.LinkFiles.Remove(0);
+			}
 			SETFLAG(Data.Rec.Flags, PSNF_HASIMAGES, Data.LinkFiles.GetCount());
 		}
 		{
@@ -4203,16 +4240,16 @@ private:
 		int    r;
 		uint   pos = 0;
 		PPID   k;
-		SmartListBox * box = static_cast<SmartListBox *>(getCtrlView(CTL_PERSON_KIND));
-		if(box->getCurID(&k) && k) {
+		SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_PERSON_KIND));
+		if(p_box && p_box->getCurID(&k) && k) {
 			THROW_PP(k != PPPRK_MAIN || PPMaster, PPERR_UNCHANGABLEPERSONKIND);
 			THROW_PP(Data.Kinds.getCount() > 1, PPERR_LASTPERSONSKIND);
 			if(Data.Kinds.lsearch(k, &pos)) {
 				r = DBRPL_OK;
 				if(Data.Rec.ID == 0 || (r = SendObjMessage(DBMSG_PERSONLOSEKIND, 0, Data.Rec.ID, Data.Kinds.at(pos))) == DBRPL_OK) {
 					Data.Kinds.atFree(pos);
-					box->setDef(createKindListDef());
-					box->Draw_();
+					p_box->setDef(createKindListDef());
+					p_box->Draw_();
 				}
 				THROW(r != DBRPL_ERROR);
 			}
@@ -4273,8 +4310,7 @@ public:
 		setCtrlData(CTL_PERSON_NAME, Data.Rec.Name);
 		SetupPPObjCombo(this, CTLSEL_PERSON_STATUS, PPOBJ_PRSNSTATUS, Data.Rec.Status, OLW_CANINSERT, 0);
 		SetupPPObjCombo(this, CTLSEL_PERSON_CATEGORY, PPOBJ_PRSNCATEGORY, Data.Rec.CatID, OLW_CANINSERT, 0);
-		// @v11.1.12 setCtrlData(CTL_PERSON_MEMO, Data.Rec.Memo);
-		setCtrlString(CTL_PERSON_MEMO, Data.SMemo); // @v11.1.12
+		setCtrlString(CTL_PERSON_MEMO, Data.SMemo);
 		if(InitPhone.NotEmpty()) {
 			PPELink el;
 			if(PPELinkArray::SetupNewPhoneEntry(InitPhone, el) > 0)
@@ -4789,20 +4825,27 @@ PPObjPerson::EditBlock::EditBlock() : InitKindID(0), InitStatusID(0), ShortDialo
 
 void PPObjPerson::InitEditBlock(PPID kindID, EditBlock & rBlk)
 {
-	rBlk.InitKindID = kindID;
-	rBlk.ShortDialog = 0;
+	if(kindID == PPObjPerson::EditBlock::CentrigoNewContactSpecialKind) {
+		rBlk.InitKindID = PPPRK_UNKNOWN;
+		rBlk.ShortDialog = DLG_CNTRG_PERSON;
+	}
+	else {
+		rBlk.InitKindID = kindID;
+		rBlk.ShortDialog = 0;
+	}
 	rBlk.SCardSeriesID = 0;
 	rBlk.Name.Z();
 	rBlk.InitPhone.Z();
 	rBlk.RetSCardID = 0;
 	rBlk.UpdFlags = 0;
-	if(kindID) {
+	if(rBlk.InitKindID) {
 		PPObjPersonKind pk_obj;
 		PPPersonKind2 pk_rec;
-		if(pk_obj.Fetch(kindID, &pk_rec) > 0) {
+		if(pk_obj.Fetch(rBlk.InitKindID, &pk_rec) > 0) {
 			rBlk.InitStatusID = pk_rec.DefStatusID;
-			if(pk_rec.Flags & PPPersonKind::fUseShortPersonDialog)
+			if(!rBlk.ShortDialog && pk_rec.Flags & PPPersonKind::fUseShortPersonDialog) {
 				rBlk.ShortDialog = 1;
+			}
 		}
 		else
 			rBlk.InitKindID = 0;
@@ -4913,10 +4956,15 @@ int PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 		pack.Kinds.add(kind_id);
 		rBlk.Name.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
 		pack.Rec.Status = rBlk.InitStatusID;
-		if(rBlk.ShortDialog) {
+		if(rBlk.ShortDialog == 1) {
 			dlg_id = DLG_PERSON_S1;
 			short_dlg_kind_id = kind_id;
 		}
+		// @v12.5.12 {
+		else if(rBlk.ShortDialog > 1) {
+			dlg_id = rBlk.ShortDialog;
+		}
+		// } @v12.5.12 
 		// @v12.5.4 {
 		else if(kind_id == PPPRK_EMPL) {
 			is_staff = true;
@@ -4924,6 +4972,11 @@ int PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 		// } @v12.5.4 
 	}
 	else {
+		// @v12.5.12 {
+		if(rBlk.ShortDialog > 1) {
+			dlg_id = rBlk.ShortDialog;
+		}
+		// } @v12.5.12 
 		PPObjPersonKind pk_obj;
 		PPPersonKind pk_rec;
 		THROW(GetPacket(*pID, &pack, 0) > 0);
@@ -4973,11 +5026,13 @@ int PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 		THROW(CheckDialogPtr(&(dlg = new PersonDialog(dlg_id))));
 		{
 			PersonDialog * p_dlg = static_cast<PersonDialog *>(dlg);
-			if(rBlk.InitPhone.NotEmpty())
+			if(rBlk.InitPhone.NotEmpty()) {
 				p_dlg->SetupPhoneOnInit(rBlk.InitPhone);
+			}
 			p_dlg->setDTS(&pack);
-			if(!is_new && !CheckRights(PPR_MOD))
+			if(!is_new && !CheckRights(PPR_MOD)) {
 				p_dlg->enableCommand(cmOK, 0);
+			}
 			while(!valid_data && (r = ExecView(p_dlg)) == cmOK) {
 				THROW(is_new || CheckRights(PPR_MOD));
 				const  PPID dup_id = p_dlg->GetDupID();
@@ -8542,7 +8597,7 @@ int PrcssrClientActivityStatistics::Run()
 			SFile f_out(out_file_name, SFile::mWrite);
 			for(_view.InitIteration(); _view.NextIteration(&view_item) > 0;) {
 				PPWaitPercent(_view.GetCounter(), view_item.Name);
-				const PPID person_id = view_item.ID;
+				const  PPID person_id = view_item.ID;
 				TSVector <ClientActivityDetailedEntry> dlist;
 				Implement_ScanDetailedActivityListForSinglePerson(&bill_view, person_id, dlist);
 				if(dlist.getCount()) {
@@ -8554,7 +8609,7 @@ int PrcssrClientActivityStatistics::Run()
 					if(ssr) {
 						PPObjPerson::ClientActivityStatistics test_total_entry;
 						TSVector <uint16> test_date_list;
-						const int rsr = PsnObj.ReadClientActivityStatistics(person_id, test_total_entry, &test_date_list);
+						const  int rsr = PsnObj.ReadClientActivityStatistics(person_id, test_total_entry, &test_date_list);
 						if(ssr > 0) {
 							assert(rsr > 0);
 							if(rsr <= 0)

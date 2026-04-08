@@ -8978,8 +8978,8 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 							}
 							break;
 						case 20:
-							// SSCC with two fixed leading zeros
-							if(SCalcCheckDigit(SCHKDIGALG_SSCC|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), toklen)) {
+							// SSCC with two fixed leading zeros. Контрольная цифра остается верной даже с учетом префикса, поскольку там два нуля (чет/нечет)
+							if(pToken[0] == '0' && pToken[1] == '0' && SCalcCheckDigit(SCHKDIGALG_SSCC|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), toklen)) {
 								rResultList.AddTok(SNTOK_SSCC, 0.9f, 0/*flags*/);
 							}
 							break;
@@ -9226,27 +9226,27 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 				//
 				// Проверка на маркировки сигаретных пачек (SNTOK_CHZN_CIGITEM)
 				//
-				if(toklen == 29) {
+				if(oneof2(toklen, 25, 29)) { // Может встретится марка без криптохвоста (toklen==25)
 					size_t _offs = 0;
 					if(pToken[_offs++] == '0') {
-						int    is_chzn_cigitem = 1;
+						bool   is_chzn_cigitem = true;
 						while(_offs < 14) {
 							if(!isdec(pToken[_offs]))
-								is_chzn_cigitem = 0;
+								is_chzn_cigitem = false;
 							_offs++;
 						}
 						if(is_chzn_cigitem) {
 							if(memcmp(pToken+21, "AAAA", 4) == 0) { // @v11.9.0
-								rResultList.AddTok(SNTOK_CHZN_ALTCIGITEM, 0.8f, 0/*flags*/);
-								rResultList.AddTok(SNTOK_CHZN_CIGITEM, 0.4f, 0/*flags*/);
+								rResultList.AddTok(SNTOK_CHZN_ALTCIGITEM, (toklen == 29) ? 0.8f : 0.4f, 0/*flags*/);
+								rResultList.AddTok(SNTOK_CHZN_CIGITEM, (toklen == 29) ? 0.4f : 0.2f, 0/*flags*/);
 							}
 							else {
-								rResultList.AddTok(SNTOK_CHZN_CIGITEM, 0.8f, 0/*flags*/);
+								rResultList.AddTok(SNTOK_CHZN_CIGITEM, (toklen == 29) ? 0.8f : 0.4f, 0/*flags*/);
 							}
 						}
 					}
 				}
-				else if(oneof5(toklen, 25, 35, 41, 52, 55) || (toklen == 43 && r_chr_list.BSearch(static_cast<long>('\x1D'), &val, &pos) && val == 2)) {
+				if(oneof5(toklen, 25, 35, 41, 52, 55) || (toklen == 43 && r_chr_list.BSearch(static_cast<long>('\x1D'), &val, &pos) && val == 2)) {
 					int    sig_prefix = 0; // 0 - no, 1 - '0', 2 - '(01)'
 					size_t _offs = 0;
 					if(pToken[_offs] == '0') {

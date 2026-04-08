@@ -50,7 +50,7 @@ int  SimpleCpp_Test_Main(int argc, char ** argv);
 int  SimpleCpp_Test_Main2();
 int  TestGlobalServiceAccessibility();
 int  TestRestic();
-void Test_MySQL_ReadBLOB(); // @v12.5.7
+// @v12.5.12 void Test_MySQL_ReadBLOB(); // @v12.5.7
 //
 // 
 // 
@@ -2519,6 +2519,7 @@ int TestGlobalServiceAccessibility()
 	}
 	return ok;
 }
+#if 0 // @v12.5.12 {
 //
 // @v12.5.7 {
 // Пытаюсь понять в чем проблема с чтением BLOB'ов для MySQL
@@ -2682,3 +2683,4 @@ void Test_MySQL_ReadBLOB()
 	}
 }
 // } @v12.5.7
+#endif // } 0 @v12.5.12

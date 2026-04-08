@@ -3271,6 +3271,8 @@ int DlContext::Error(int errCode, const char * pAddedInfo, long flags /* erfXXX 
 		{PPERR_DL6_PROP_INVALIDSYMB,       "DL600 неизвестный символ свойства '%s'" }, // @v12.3.7
 		{PPERR_DL6_UISUPPLEMENT_UNDEFKIND, "DL600 неизвстный вид дополнени€ '%s' к управл€ющему элементу UI" }, // @v12.3.7
 		{PPERR_DL6_PROP_REDEF,             "DL600 ошибка в свойстве '%s' - это свойство уже определено" }, // @v12.3.9
+		{PPERR_DL6_PROP_INVWIDTHVAL,       "DL600 недопустимое значение ширины(width) '%s'" }, // @v12.5.12
+		{PPERR_DL6_PROP_INVHEIGHTVAL,      "DL600 недопустимое значение высоты(height) '%s'" }, // @v12.5.12
 	};
 	SETIFZ(errCode, LastError);
 	const char * p_msg = SIntToSymbTab_GetSymbPtr(msg_list, SIZEOFARRAY(msg_list), errCode);

@@ -3033,14 +3033,13 @@ DBQuery * PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		PPDbqFuncPool::InitObjNameFunc(dbe_bill_memo, PPDbqFuncPool::IdObjMemoBill, bll->ID);
 		if(Filt.ObjectID && Filt.Flags & BillFilt::fDebtsWithPayments) {
 			q = &Select_(
-				bllt->BillID, // #0
-				bllt->Dt,     // #1
-				bll->Code,    // #2
-				dbe_oprkind,  // #3
-				bllt->Debit,  // #4
-				bllt->Credit, // #5
-				// @v11.1.12 bll->Memo,    // #6
-				dbe_bill_memo, // #6 @v11.1.12
+				bllt->BillID,  // #0
+				bllt->Dt,      // #1
+				bll->Code,     // #2
+				dbe_oprkind,   // #3
+				bllt->Debit,   // #4
+				bllt->Credit,  // #5
+				dbe_bill_memo, // #6
 				0L).from(bllt, bll, 0L).where(bll->ID == bllt->BillID).orderBy(bllt->Dt, bllt->BillNo, 0L);
 			brw_id = BROWSER_DEBTCARD;
 		}

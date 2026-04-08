@@ -214,7 +214,6 @@ struct __db_foreign_info {
  * primary keys that are used in secondary lookups (for example, with the
  * DB_GET_BOTH flag on a secondary get).
  */
-// @v9.5.5 #include "dbinc/db_swap.h"
 #define	SWAP_IF_NEEDED(sdbp, pkey) do { if(oneof2((sdbp)->s_primary->type, DB_QUEUE, DB_RECNO) && F_ISSET((sdbp), DB_AM_SWAP)) P_32_SWAP((pkey)->data); } while(0)
 /*
  * Cursor adjustment:

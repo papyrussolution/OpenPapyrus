@@ -1,5 +1,5 @@
 // PAYMENT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -7,7 +7,7 @@
 
 struct _PaymentEntry {
 	LDATE  Date;           // Дата документа
-	char   Code[48];       // Номер документа // @v11.1.12 [24]-->[48]
+	char   Code[48];       // Номер документа //
 	char   StatusName[48]; //
 	char   OpName[48];     // Наименование вида операции
 	double Amount;         // Сумма документа
@@ -149,13 +149,10 @@ SArray * PPObjBill::MakePaymentList(PPID id, int kind)
 					no_paym = BIN(bs_rec.Flags & BILSTF_LOCK_PAYMENT);
 					STRNSCPY(entry.StatusName, bs_rec.Name);
 				}
-				// @v11.1.12 STRNSCPY(entry.Memo, bill_rec.Memo);
-				// @v11.1.12 {
 				{
 					P_Tbl->GetItemMemo(bill_rec.ID, temp_buf);
 					STRNSCPY(entry.Memo, temp_buf);
 				}
-				// } @v11.1.12 
 				GetOpName(bill_rec.OpID, entry.OpName, sizeof(entry.OpName));
 				entry.Amount = bill_rec.Amount;
 				entry.Payment = no_paym ? 0.0 : BR2(is_paym_charge ? -bill_rec.Amount : bill_rec.Amount);
@@ -239,18 +236,17 @@ int FASTCALL PPViewLinkedBill::NextIteration(LinkedBillViewItem * pItem)
 		while(Counter < Counter.GetTotal() && ok < 0) {
 			if(pItem) {
 				const Entry & r_entry = List.at(Counter);
-				if(P_BObj->Fetch(r_entry.ID, pItem) > 0) { // Fetch-->Search (кэш не хранит примечание к документу) // @v11.1.12 и не надо
+				if(P_BObj->Fetch(r_entry.ID, pItem) > 0) {
 					pItem->Payment = r_entry.Payment;
 					pItem->Rest = r_entry.Rest;
 					pItem->LinkBillID = r_entry.LinkBillID;
 					pItem->RcknBillID = r_entry.RcknBillID;
-					// @v11.1.12 {
 					{
+						// кэш не хранит примечание к документу
 						SString & r_temp_buf = SLS.AcquireRvlStr();
 						P_BObj->P_Tbl->GetItemMemo(r_entry.ID, r_temp_buf);
 						STRNSCPY(pItem->_Memo, r_temp_buf);
 					}
-					// } @v11.1.12
 					ok = 1;
 				}
 			}
@@ -506,15 +502,9 @@ int PPViewLinkedBill::MakeList()
 					total += entry.Payment;
 				}
 				THROW_SL(List.insert(&entry));
-				/* @v11.1.12 
-				if(bill_rec.Memo[0])
-					MemoList.Add(bill_rec.ID, bill_rec.Memo);
-				*/
-				// @v11.1.12 {
 				p_bt->GetItemMemo(bill_rec.ID, temp_buf);
 				if(temp_buf.NotEmptyS())
 					MemoList.Add(bill_rec.ID, temp_buf);
-				// } @v11.1.12 
 			}
 		}
 	}
@@ -1960,7 +1950,7 @@ struct CBO_BillEntry { // @flat
 	PPID   ArID;
 	PPID   Ar2ID;
 	double Amount;
-	char   Code[48]; // @v11.1.12 [24]-->[48]
+	char   Code[48];
 };
 
 IMPL_CMPFUNC(CBO_BillEntry, i1, i2) { RET_CMPCASCADE4(static_cast<const CBO_BillEntry *>(i1), static_cast<const CBO_BillEntry *>(i2), ArID, Ar2ID, Dt, Amount); }
@@ -2110,18 +2100,11 @@ int FASTCALL PPViewPaymBill::NextIteration(PaymBillViewItem * pItem)
 	if(pItem && P_PaymBillList && P_BObj) {
 		if(Counter < Counter.GetTotal()) {
 			const _PaymentEntry * p_be = static_cast<const PaymBillViewItem *>(P_PaymBillList->at(Counter));
-			/* @v11.1.12
-			BillTbl::Rec bill_rec;
-			if(P_BObj->Search(p_be->ID, &bill_rec) > 0)
-				STRNSCPY(pItem->Memo, bill_rec.Memo);
-			*/
-			// @v11.1.12 {
 			{
 				SString & r_temp_buf = SLS.AcquireRvlStr();
 				P_BObj->P_Tbl->GetItemMemo(p_be->ID, r_temp_buf);
 				STRNSCPY(pItem->Memo, r_temp_buf);
 			}
-			// } @v11.1.12 
 			STRNSCPY(pItem->Code, p_be->Code);
 			STRNSCPY(pItem->StatusName, p_be->StatusName);
 			STRNSCPY(pItem->OpName, p_be->OpName);

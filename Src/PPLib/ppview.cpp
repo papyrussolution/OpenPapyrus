@@ -523,6 +523,7 @@ int PPGetObjViewFiltMapping_Filt(int filtId, PPID * pObjType, int * pViewId)
 			case PPVIEW_UNITEC:          p_v = new PPViewUnitEc(); break; // @v12.3.7
 			case PPVIEW_WBPUBLICGOODS:   p_v = new PPViewWbPublicGoods(); break; // @v12.3.9
 			case PPVIEW_UNIFINDOBJ:      p_v = new PPViewUniFindObj(0); break;
+			case PPVIEW_GOODSTRNOVR:     p_v = new PPViewGoodsTrnovr(); break; // @v12.5.12
 			default: ok = PPSetError(PPERR_UNDEFVIEWID);
 		}
 		if(p_v) {
@@ -2105,6 +2106,22 @@ int PPView::ExportXml(uint rptId, int ord)
 	return ok;
 }
 
+int PPView::GetDataSourceType() // @v12.5.12
+{
+	int    result = 0;
+	const  int pcr = ProcessCommand(PPVCMD_QUERYDATASOURCETYPE, 0, 0);
+	if(oneof2(pcr, datasourcetypeDBQuery, datasourcetypeArray)) {
+		result = pcr;
+	}
+	else if(ImplementFlags & implBrowseArray) {
+		result = datasourcetypeArray;
+	}
+	else {
+		result = datasourcetypeDBQuery;
+	}
+	return result;
+}
+
 int PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
 {
 	int    ok = -1;
@@ -2117,59 +2134,17 @@ int PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
 	if(p_src_filt)
 		p_filt->Copy(p_src_filt, 1);
 	if(refreshOnly || EditBaseFilt(p_filt) > 0) {
-		uint   brw_id = 0;
-		int    was_ct = BIN(P_Ct);
-		PPWaitStart();
-		SString sub_title;
-		THROW(Helper_Init(p_filt, ExecFlags));
-		if(ImplementFlags & implBrowseArray) {
-			THROW(p_array = CreateBrowserArray(&brw_id, &sub_title));
-			if(pW->ChangeResource(brw_id, ExtToolbarId, p_array, true) == 2) {
-				if(DS.CheckExtFlag(ECF_PREPROCBRWONCHGFILT)) {
-					PreprocessBrowser(pW);
-					pW->LoadToolbarResource(ExtToolbarId);
-					pW->EvaluateSomeMetricsOnInit(); // @v12.2.2
-				}
-				OnExecBrowser(pW);
-				ok = 2;
-			}
-			else
-				ok = 1;
-		}
-		else {
-			THROW(p_q = CreateBrowserQuery(&brw_id, &sub_title));
-			if(P_Ct) {
-				int    r;
-				THROW_PP(p_q == PPView::CrosstabDbQueryStub, PPERR_INVPPVIEWQUERY);
-				THROW(p_q = P_Ct->CreateBrowserQuery());
-				//
-				// Если до этого у нас был кросстаб, то изменяем ресурс броузера с признаком force,
-				// то есть, броузер будет загружен заново даже если его ID совпадает с предыдущим.
-				//
-				r = pW->ChangeResource(brw_id, ExtToolbarId, p_q, true/*was_ct*/);
-				if(r > 0) {
-					if(r == 2) {
-						if(DS.CheckExtFlag(ECF_PREPROCBRWONCHGFILT)) {
-							if(!(ImplementFlags & implDontSetupCtColumnsOnChgFilt))
-								P_Ct->SetupBrowserCtColumns(pW);
-							PreprocessBrowser(pW);
-							pW->LoadToolbarResource(ExtToolbarId);
-							pW->EvaluateSomeMetricsOnInit(); // @v12.2.2
-						}
-						else
-							P_Ct->SetupBrowserCtColumns(pW);
-						OnExecBrowser(pW);
-						ok = 2;
-					}
-					else {
-						P_Ct->SetupBrowserCtColumns(pW);
-						ok = 1;
-					}
-				}
-			}
-			else {
-				THROW_PP(p_q != PPView::CrosstabDbQueryStub, PPERR_INVPPVIEWQUERY);
-				if(pW->ChangeResource(brw_id, ExtToolbarId, p_q, true/*force*/) == 2) {
+		const  int datasourcetype = GetDataSourceType();
+		if(oneof2(datasourcetype, datasourcetypeArray, datasourcetypeDBQuery)) { // @v12.5.12
+			uint   brw_id = 0;
+			int    was_ct = BIN(P_Ct);
+			SString sub_title;
+			PPWaitStart();
+			THROW(Helper_Init(p_filt, ExecFlags));
+			// @v12.5.12 if(ImplementFlags & implBrowseArray) {
+			if(datasourcetype == datasourcetypeArray) { // @v12.5.12
+				THROW(p_array = CreateBrowserArray(&brw_id, &sub_title));
+				if(pW->ChangeResource(brw_id, ExtToolbarId, p_array, true) == 2) {
 					if(DS.CheckExtFlag(ECF_PREPROCBRWONCHGFILT)) {
 						PreprocessBrowser(pW);
 						pW->LoadToolbarResource(ExtToolbarId);
@@ -2181,13 +2156,60 @@ int PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
 				else
 					ok = 1;
 			}
+			//else {
+			else if(datasourcetype == datasourcetypeDBQuery) { // @v12.5.12
+				THROW(p_q = CreateBrowserQuery(&brw_id, &sub_title));
+				if(P_Ct) {
+					int    r;
+					THROW_PP(p_q == PPView::CrosstabDbQueryStub, PPERR_INVPPVIEWQUERY);
+					THROW(p_q = P_Ct->CreateBrowserQuery());
+					//
+					// Если до этого у нас был кросстаб, то изменяем ресурс броузера с признаком force,
+					// то есть, броузер будет загружен заново даже если его ID совпадает с предыдущим.
+					//
+					r = pW->ChangeResource(brw_id, ExtToolbarId, p_q, true/*was_ct*/);
+					if(r > 0) {
+						if(r == 2) {
+							if(DS.CheckExtFlag(ECF_PREPROCBRWONCHGFILT)) {
+								if(!(ImplementFlags & implDontSetupCtColumnsOnChgFilt))
+									P_Ct->SetupBrowserCtColumns(pW);
+								PreprocessBrowser(pW);
+								pW->LoadToolbarResource(ExtToolbarId);
+								pW->EvaluateSomeMetricsOnInit(); // @v12.2.2
+							}
+							else
+								P_Ct->SetupBrowserCtColumns(pW);
+							OnExecBrowser(pW);
+							ok = 2;
+						}
+						else {
+							P_Ct->SetupBrowserCtColumns(pW);
+							ok = 1;
+						}
+					}
+				}
+				else {
+					THROW_PP(p_q != PPView::CrosstabDbQueryStub, PPERR_INVPPVIEWQUERY);
+					if(pW->ChangeResource(brw_id, ExtToolbarId, p_q, true/*force*/) == 2) {
+						if(DS.CheckExtFlag(ECF_PREPROCBRWONCHGFILT)) {
+							PreprocessBrowser(pW);
+							pW->LoadToolbarResource(ExtToolbarId);
+							pW->EvaluateSomeMetricsOnInit(); // @v12.2.2
+						}
+						OnExecBrowser(pW);
+						ok = 2;
+					}
+					else
+						ok = 1;
+				}
+			}
+			pW->SetResID(prev_rez_id);
+			pW->setSubTitle(sub_title);
+			pW->SetupColumnsWith(0/*flags*/);
+			pW->Refresh();
+			APPL->NotifyFrame(0);
+			PPWaitStop();
 		}
-		pW->SetResID(prev_rez_id);
-		pW->setSubTitle(sub_title);
-		pW->SetupColumnsWith(0/*flags*/);
-		pW->Refresh();
-		APPL->NotifyFrame(0);
-		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	delete p_filt;
@@ -2232,16 +2254,88 @@ void PPView::SetExtToolbar(uint toolbarId)
 	ExtToolbarId = toolbarId;
 }
 
+PPView::CreateBrowserBlock::CreateBrowserBlock() : BrwId(0), P_Q(0), P_Array(0), P_Brw(0)
+{
+}
+
+PPView::CreateBrowserBlock & PPView::CreateBrowserBlock::Z()
+{
+	BrwId = 0;
+	P_Q = 0;
+	P_Array = 0;
+	P_Brw = 0;
+	return *this;
+}
+
+void PPView::CreateBrowserBlock::Destroy()
+{
+	if(!P_Brw) {
+		if(P_Array) {
+			delete P_Array;
+		}
+		else if(P_Q && P_Q != PPView::CrosstabDbQueryStub) {
+			delete P_Q;
+		}
+	}
+	else {
+		delete P_Brw;
+	}
+	Z();
+}
+
+int PPView::CreateBrowser_OnStart(CreateBrowserBlock & rBlk, bool modeless) // @v12.5.12 @construction
+{
+	rBlk.Z();
+	int    ok = 1;
+	const  int datasourcetype = GetDataSourceType();
+	THROW(oneof2(datasourcetype, datasourcetypeArray, datasourcetypeDBQuery)); // @v12.5.12 на самом деле это условие всегда выполняется.
+	{
+		SString title;
+		SString sub_title;
+		//if(ImplementFlags & implBrowseArray) {
+		if(datasourcetype == datasourcetypeArray) {
+			THROW(rBlk.P_Array = CreateBrowserArray(&rBlk.BrwId, &sub_title));
+			THROW_MEM(rBlk.P_Brw = new PPViewBrowser(rBlk.BrwId, rBlk.P_Array, this, modeless));
+		}
+		//else {
+		else if(datasourcetype == datasourcetypeDBQuery) {
+			THROW(rBlk.P_Q = CreateBrowserQuery(&rBlk.BrwId, &sub_title));
+			if(P_Ct) {
+				THROW_PP(rBlk.P_Q == PPView::CrosstabDbQueryStub, PPERR_INVPPVIEWQUERY);
+				THROW(rBlk.P_Brw = static_cast<PPViewBrowser *>(P_Ct->CreateBrowser(rBlk.BrwId, modeless)));
+			}
+			else {
+				THROW_PP(rBlk.P_Q != PPView::CrosstabDbQueryStub, PPERR_INVPPVIEWQUERY);
+				THROW_MEM(rBlk.P_Brw = new PPViewBrowser(rBlk.BrwId, rBlk.P_Q, this, modeless));
+			}
+		}
+		assert(rBlk.P_Brw); // Иначе бы мы сюда не попали!
+		if(GetOuterTitle(&title))
+			rBlk.P_Brw->setTitle(title);
+		else
+			rBlk.P_Brw->setSubTitle(sub_title);
+		PreprocessBrowser(rBlk.P_Brw);
+		rBlk.P_Brw->LoadToolbarResource(ExtToolbarId);
+	}
+	CATCH
+		ok = 0;
+		rBlk.Destroy();
+	ENDCATCH
+	return ok;
+}
+
+int PPView::CreateBrowser_OnUpdate(CreateBrowserBlock & rBlk) // @v12.5.12 @construction
+{
+	rBlk.Z();
+	int    ok = 1;
+	return ok;
+}
+
 int PPView::BrowseInLayout(TWindow * pParent, const char * pParentLayoutSymb, const SUiLayoutParam & rLoP, uint destinationId) // @v12.5.4
 {
 	int    ok = 1;
 	const  bool modeless = true;
-	DBQuery * q = 0;
-	SArray * p_array = 0;
-	PPViewBrowser * brw = 0;
-	uint   brw_id = 0;
-	SString sub_title;
-	SString title;
+	CreateBrowserBlock blk;
 	SUiLayout * p_lo = 0;
 	THROW(pParent && pParent->IsConsistent()); // @todo @err
 	if(!isempty(pParentLayoutSymb)) {
@@ -2251,32 +2345,12 @@ int PPView::BrowseInLayout(TWindow * pParent, const char * pParentLayoutSymb, co
 	THROW(p_lo); // @todo @err
 	PPWaitStart();
 	THROW(!P_Obj || P_Obj->CheckRights(PPR_READ));
-	if(ImplementFlags & implBrowseArray) {
-		THROW(p_array = CreateBrowserArray(&brw_id, &sub_title));
-		THROW_MEM(brw = new PPViewBrowser(brw_id, p_array, this, modeless));
-	}
-	else {
-		THROW(q = CreateBrowserQuery(&brw_id, &sub_title));
-		if(P_Ct) {
-			THROW_PP(q == PPView::CrosstabDbQueryStub, PPERR_INVPPVIEWQUERY);
-			THROW(brw = static_cast<PPViewBrowser *>(P_Ct->CreateBrowser(brw_id, modeless)));
-		}
-		else {
-			THROW_PP(q != PPView::CrosstabDbQueryStub, PPERR_INVPPVIEWQUERY);
-			THROW_MEM(brw = new PPViewBrowser(brw_id, q, this, modeless));
-		}
-	}
-	if(GetOuterTitle(&title))
-		brw->setTitle(title);
-	else
-		brw->setSubTitle(sub_title);
-	PreprocessBrowser(brw);
-	brw->LoadToolbarResource(ExtToolbarId);
+	THROW(CreateBrowser_OnStart(blk, modeless)); // @v12.5.12
 	PPWaitStop();
 	{
-		brw->SetResID(static_cast<PPApp *>(APPL)->LastCmd);
+		blk.P_Brw->SetResID(static_cast<PPApp *>(APPL)->LastCmd);
 		{
-			pParent->InsertCtlWithCorrespondingNativeItem(brw, destinationId, 0, /*extraPtr*/0);
+			pParent->InsertCtlWithCorrespondingNativeItem(blk.P_Brw, destinationId, 0, /*extraPtr*/0);
 			{
 				/*
 				SUiLayoutParam alb_;
@@ -2286,19 +2360,19 @@ int PPView::BrowseInLayout(TWindow * pParent, const char * pParentLayoutSymb, co
 				*/
 				{
 					SUiLayout * p_result = 0;
-					p_result = p_lo->InsertItem(brw, &rLoP);
+					p_result = p_lo->InsertItem(blk.P_Brw, &rLoP);
 					if(p_result) {
-						p_result->SetCallbacks(0, TView::SetupLayoutItemFrameProc, brw);
-						brw->Launch_(pParent);
-						if(brw->IsConsistent()) {
-							OnExecBrowser(brw);
+						p_result->SetCallbacks(0, TView::SetupLayoutItemFrameProc, blk.P_Brw);
+						blk.P_Brw->Launch_(pParent);
+						if(blk.P_Brw->IsConsistent()) {
+							OnExecBrowser(blk.P_Brw);
 							// @v12.5.11 {
 							{
 								pParent->EvaluateLayout(pParent->getClientRect());
 								pParent->invalidateAll(true);
 								::UpdateWindow(pParent->H());
 							}
-							::PostMessageW(brw->H(), WM_SETFOCUS, 0, 0);
+							::PostMessageW(blk.P_Brw->H(), WM_SETFOCUS, 0, 0);
 							// } @v12.5.11 
 						}
 					}
@@ -2312,73 +2386,42 @@ int PPView::BrowseInLayout(TWindow * pParent, const char * pParentLayoutSymb, co
 		*/
 	}
 	CATCH
-		ok = (PPWaitStop(), 0);
-		if(brw == 0) {
-			if(p_array)
-				delete p_array;
-			else if(q != PPView::CrosstabDbQueryStub)
-				delete q;
-		}
+		PPWaitStop();
+		ok = 0;
 	ENDCATCH
-	if(!ok)
-		delete brw;
+	if(!ok) {
+		// @v12.5.12 delete brw;
+		blk.Destroy(); // @v12.5.12
+	}
 	return ok;
 }
 
 int PPView::Browse(bool modeless)
 {
 	int    ok = 1;
-	DBQuery * q = 0;
-	SArray * p_array = 0;
-	PPViewBrowser * brw = 0;
-	uint   brw_id = 0;
-	SString sub_title;
-	SString title;
+	CreateBrowserBlock blk;
 	PPWaitStart();
 	THROW(!P_Obj || P_Obj->CheckRights(PPR_READ));
-	if(ImplementFlags & implBrowseArray) {
-		THROW(p_array = CreateBrowserArray(&brw_id, &sub_title));
-		THROW_MEM(brw = new PPViewBrowser(brw_id, p_array, this, modeless));
-	}
-	else {
-		THROW(q = CreateBrowserQuery(&brw_id, &sub_title));
-		if(P_Ct) {
-			THROW_PP(q == PPView::CrosstabDbQueryStub, PPERR_INVPPVIEWQUERY);
-			THROW(brw = static_cast<PPViewBrowser *>(P_Ct->CreateBrowser(brw_id, modeless)));
-		}
-		else {
-			THROW_PP(q != PPView::CrosstabDbQueryStub, PPERR_INVPPVIEWQUERY);
-			THROW_MEM(brw = new PPViewBrowser(brw_id, q, this, modeless));
-		}
-	}
-	if(GetOuterTitle(&title))
-		brw->setTitle(title);
-	else
-		brw->setSubTitle(sub_title);
-	PreprocessBrowser(brw);
-	brw->LoadToolbarResource(ExtToolbarId);
+	THROW(CreateBrowser_OnStart(blk, modeless)); // @v12.5.12
 	PPWaitStop();
 	// { Почти повторяет код PPOpenBrowser() за исключением вызова OnExecBrowser
 	if(modeless) {
-		brw->SetResID(static_cast<PPApp *>(APPL)->LastCmd);
-		const  int r = InsertView(brw);
-		if(r < 0 && brw->IsConsistent())
-			OnExecBrowser(brw);
+		blk.P_Brw->SetResID(static_cast<PPApp *>(APPL)->LastCmd);
+		const  int r = InsertView(blk.P_Brw);
+		if(r < 0 && blk.P_Brw->IsConsistent())
+			OnExecBrowser(blk.P_Brw);
 	}
 	else
-		ok = (ExecView(brw) == cmOK) ? 1 : -1;
+		ok = (ExecView(blk.P_Brw) == cmOK) ? 1 : -1;
 	// }
 	CATCH
-		ok = (PPWaitStop(), 0);
-		if(brw == 0) {
-			if(p_array)
-				delete p_array;
-			else if(q != PPView::CrosstabDbQueryStub)
-				delete q;
-		}
+		PPWaitStop();
+		ok = 0;
 	ENDCATCH
-	if(!modeless || !ok)
-		delete brw;
+	if(!modeless || !ok) {
+		// @v12.5.12 delete brw;
+		blk.Destroy(); // @v12.5.12
+	}
 	return ok;
 }
 

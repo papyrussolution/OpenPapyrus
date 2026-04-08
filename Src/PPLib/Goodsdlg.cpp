@@ -3006,7 +3006,7 @@ int GoodsAsscDialog::EditPLU(PPID goodsGrpID, long * pPLU)
 			int    ok = 1;
 			ObjAssocTbl::Rec rec;
 			long   plu = getCtrlLong(CTL_EDITPLU_PLU);
-			THROW_PP(PPRef->Assc.SearchNum(PPASS_ALTGOODSGRP, GoodsGrpID, plu, &rec) <= 0 || rec.ScndObjID == GoodsID, PPERR_DUPLPLU);
+			THROW_PP(PPRef->AsscC.SearchNum(PPASS_ALTGOODSGRP, GoodsGrpID, plu, &rec) <= 0 || rec.ScndObjID == GoodsID, PPERR_DUPLPLU);
 			ASSIGN_PTR(pPLU, plu);
 			CATCH
 				ok = PPErrorByDialog(this, CTL_EDITPLU_PLU);
@@ -3031,12 +3031,12 @@ IMPL_HANDLE_EVENT(GoodsAsscDialog)
 				LAssoc item = AsscList.at(pos);
 				if(item.Val && item.Key == PPASS_ALTGOODSGRP) {
 					ObjAssocTbl::Rec rec;
-					if(p_ref->Assc.Search(PPASS_ALTGOODSGRP, item.Val, GoodsID, &rec) > 0) {
+					if(p_ref->AsscC.Search(PPASS_ALTGOODSGRP, item.Val, GoodsID, &rec) > 0) {
 						int  old_inner_num = rec.InnerNum;
 						EditPLU(item.Val, &rec.InnerNum);
 						// @todo Операцию изменения номера принадлежности товара группе перенести
 						// в PPObjGoods и реализовать в одной транзакции с LogAction
-						if(!p_ref->Assc.Update(rec.ID, &rec, 1))
+						if(!p_ref->AsscC.Update(rec.ID, &rec, 1))
 							PPError();
 						else {
 							if(rec.InnerNum != old_inner_num)
@@ -3062,7 +3062,7 @@ int GoodsAsscDialog::setupAssoc(PPID asscType, uint asscText, PPID objType)
 	StringSet ss(SLBColumnDelim);
 	ObjAssocTbl::Rec assc_rec;
 	PPGetSubStr(PPTXT_GOODS_ASSC_NAME, asscText, assc_name);
-	for(SEnum en = PPRef->Assc.Enum(asscType, GoodsID, 1); en.Next(&assc_rec) > 0;) {
+	for(SEnum en = PPRef->AsscC.Enum(asscType, GoodsID, 1); en.Next(&assc_rec) > 0;) {
 		const  PPID assc_id = assc_rec.PrmrObjID;
 		name.Z();
 		if(asscType == PPASS_GOODSSTRUC) {

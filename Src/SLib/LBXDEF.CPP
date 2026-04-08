@@ -1099,7 +1099,7 @@ int DBQListBoxDef::setQuery(DBQuery & rQuery, uint aBufSize)
 			else if(t == MKSTYPE(S_INT, 4) || t == MKSTYPE(S_AUTOINC, 4))
 				Options &= ~lbtWordID;
 		}
-		assert((int)query->fldCount > c);
+		assert(static_cast<int>(query->FieldCount) > c);
 		Type = query->flds[c].type;
 		query->P_Frame->SRange = 1000;
 		query->top();

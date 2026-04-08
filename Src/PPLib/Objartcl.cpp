@@ -942,7 +942,7 @@ int PPObjArticle::EditGrpArticle(PPID * pID, PPID sheetID)
 		THROW(tra);
 		if(*pID) {
 			THROW(UpdateByID(P_Tbl, Obj, *pID, &ar_rec, 0));
-			THROW(p_ref->Assc.Remove(PPASS_GROUPARTICLE, ar_rec.ID, 0, 0));
+			THROW(p_ref->AsscC.Remove(PPASS_GROUPARTICLE, ar_rec.ID, 0, 0));
 		}
 		else {
 			THROW(AddObjRecByID(P_Tbl, Obj, pID, &ar_rec, 0));
@@ -953,8 +953,8 @@ int PPObjArticle::EditGrpArticle(PPID * pID, PPID sheetID)
 			oa_rec.AsscType  = PPASS_GROUPARTICLE;
 			oa_rec.PrmrObjID = ar_rec.ID;
 			oa_rec.ScndObjID = oa_ary.at(i);
-			THROW(p_ref->Assc.SearchFreeNum(PPASS_GROUPARTICLE, ar_rec.ID, &oa_rec.InnerNum));
-			THROW(p_ref->Assc.Add(&(id = 0), &oa_rec, 0));
+			THROW(p_ref->AsscC.SearchFreeNum(PPASS_GROUPARTICLE, ar_rec.ID, &oa_rec.InnerNum));
+			THROW(p_ref->AsscC.Add(&(id = 0), &oa_rec, 0));
 		}
 		THROW(tra.Commit());
 		ok = 1;
@@ -1394,10 +1394,10 @@ int PPObjArticle::DeleteObj(PPID id)
 	int    ok = 1;
 	THROW(Search(id) > 0);
 	if(P_Tbl->data.Flags & ARTRF_GROUP) {
-		THROW(PPRef->Assc.Remove(PPASS_GROUPARTICLE, id, 0, 0));
+		THROW(PPRef->AsscC.Remove(PPASS_GROUPARTICLE, id, 0, 0));
 	}
 	else
-		THROW(PPRef->Assc.Remove(PPASS_GROUPARTICLE, 0, id, 0));
+		THROW(PPRef->AsscC.Remove(PPASS_GROUPARTICLE, 0, id, 0));
 	THROW(P_Tbl->Remove(id, 0));
 	Dirty(id);
 	CATCHZOK
@@ -1485,11 +1485,13 @@ int PPObjArticle::PutPacket(PPID * pID, PPArticlePacket * pPack, int use_ta)
 			if(!IsPacketEq(*pPack, org_pack, pPack->DontUpdateAliasSubst ? peoDontCmpAliasSubst : 0)) {
 				THROW(CheckRights(PPR_MOD));
 				THROW(UpdateByID(P_Tbl, Obj, *pID, &pPack->Rec, 0));
-				if(pPack->Rec.Article != org_pack.Rec.Article)
+				if(pPack->Rec.Article != org_pack.Rec.Article) {
 					THROW(at_obj.P_Tbl->UpdateRelsArRef(*pID, pPack->Rec.Article, 0));
+				}
 				THROW(Helper_PutAgreement(*pID, pPack));
-				if(!pPack->DontUpdateAliasSubst)
+				if(!pPack->DontUpdateAliasSubst) {
 					THROW(PutAliasSubst(*pID, pPack->GetAliasSubst(), 0));
+				}
 				Dirty(*pID);
 				DS.LogAction(PPACN_OBJUPD, Obj, *pID, 0, 0);
 				if((org_pack.Rec.Flags & ARTRF_STOPBILL) != (pPack->Rec.Flags & ARTRF_STOPBILL)) {
@@ -1502,8 +1504,8 @@ int PPObjArticle::PutPacket(PPID * pID, PPArticlePacket * pPack, int use_ta)
 		else {
 			THROW(CheckRights(PPR_DEL));
 			THROW(P_Tbl->Remove(*pID, 0));
-			THROW(PPRef->Assc.Remove(PPASS_GROUPARTICLE, *pID, 0, 0));
-			THROW(PPRef->Assc.Remove(PPASS_GROUPARTICLE, 0, *pID, 0));
+			THROW(PPRef->AsscC.Remove(PPASS_GROUPARTICLE, *pID, 0, 0));
+			THROW(PPRef->AsscC.Remove(PPASS_GROUPARTICLE, 0, *pID, 0));
 			THROW(PutClientAgreement(*pID, 0, 0));
 			THROW(PutSupplAgreement(*pID, 0, 0));
 			THROW(PutAliasSubst(*pID, 0, 0));

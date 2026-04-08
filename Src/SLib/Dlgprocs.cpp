@@ -70,7 +70,7 @@ int TView::HandleKeyboardEvent(WPARAM wParam, int isPpyCodeType)
 		}
 		else if(GetKeyState(VK_MENU) & 0x8000)
 			event.keyDown.keyCode = __MapVk(wParam, 3);
-		else if(wParam == VK_ESCAPE) // @v11.2.4
+		else if(wParam == VK_ESCAPE)
 			event.keyDown.keyCode = kbEsc;
 		else
 			event.keyDown.keyCode = __MapVk(wParam, 0);
@@ -257,10 +257,10 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 		case WM_LBUTTONDBLCLK:
 			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg) {
-				event.what      = TEvent::evMouseDown;
-				event.mouse.buttons     = static_cast<uchar>(wParam);
-				event.mouse.WhereX      = LOWORD(lParam);
-				event.mouse.WhereY      = HIWORD(lParam);
+				event.what = TEvent::evMouseDown;
+				event.mouse.buttons = static_cast<uchar>(wParam);
+				event.mouse.WhereX  = LOWORD(lParam);
+				event.mouse.WhereY  = HIWORD(lParam);
 				event.mouse.doubleClick = 1;
 				p_dlg->handleEvent(event);
 			}

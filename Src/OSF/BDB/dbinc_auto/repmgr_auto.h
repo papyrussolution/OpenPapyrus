@@ -3,7 +3,6 @@
 #ifndef	__repmgr_AUTO_H
 #define	__repmgr_AUTO_H
 #ifdef HAVE_REPLICATION_THREADS
-// @v9.5.5 #include "dbinc/log.h"
 #define	DB___repmgr_member	200
 typedef struct ___repmgr_member_args {
 	uint32 type;

@@ -3156,10 +3156,30 @@ void BrowserWindow::SpecialMenu() // @v12.4.12
 					{ VK_LEFT,  WM_HSCROLL, SB_LINEUP },
 					{ VK_RIGHT, WM_HSCROLL, SB_LINEDOWN }
 				};
-				for(i = 0; i < SIZEOFARRAY(key2scroll); i++) {
-					if(wParam == key2scroll[i].wVirtkey) {
-						SendMessage(hWnd, key2scroll[i].iMessage, key2scroll[i].wRequest, 0L);
+				const bool is_alt   = LOGIC(GetKeyState(VK_MENU) & 0x8000);
+				const bool is_ctrl  = LOGIC(GetKeyState(VK_CONTROL) & 0x8000);
+				const bool is_shift = LOGIC(GetKeyState(VK_SHIFT) & 0x8000);
+				// @v12.5.12 {
+				if(is_alt) {
+					TEvent event;
+					event.what = TEvent::evKeyDown;
+					switch(wParam) {
+						case VK_LEFT: event.keyDown.keyCode = kbAltLeft; break;
+						case VK_RIGHT: event.keyDown.keyCode = kbAltRight; break;
+						case VK_UP: event.keyDown.keyCode = kbAltUp; break;
+						case VK_DOWN: event.keyDown.keyCode = kbAltDown; break;
+					}
+					if(event.keyDown.keyCode) {
+						p_view->handleEvent(event);
 						return 0;
+					}
+				} // } @v12.5.12
+				else if(!is_alt && !is_ctrl && !is_shift) { // @v12.5.12 @condition
+					for(i = 0; i < SIZEOFARRAY(key2scroll); i++) {
+						if(wParam == key2scroll[i].wVirtkey) {
+							::SendMessageW(hWnd, key2scroll[i].iMessage, key2scroll[i].wRequest, 0L);
+							return 0;
+						}
 					}
 				}
 				if(wParam == VK_ESCAPE) {
@@ -3169,8 +3189,8 @@ void BrowserWindow::SpecialMenu() // @v12.4.12
 					}
 				}
 				else if(wParam == VK_TAB) {
-					if(GetKeyState(VK_CONTROL) & 0x8000 && !p_view->IsInState(sfModal)) {
-						SetFocus(GetNextBrowser(hWnd, (GetKeyState(VK_SHIFT) & 0x8000) ? 0 : 1));
+					if(is_ctrl && !p_view->IsInState(sfModal)) {
+						SetFocus(GetNextBrowser(hWnd, is_shift ? 0 : 1));
 						return 0;
 					}
 				}
@@ -3187,11 +3207,11 @@ void BrowserWindow::SpecialMenu() // @v12.4.12
 			}
 			return 0;
 		case WM_LBUTTONDBLCLK:
-			::SendMessage(GetParent(hWnd), BRO_LDBLCLKNOTIFY, reinterpret_cast<WPARAM>(hWnd), lParam);
+			::SendMessageW(GetParent(hWnd), BRO_LDBLCLKNOTIFY, reinterpret_cast<WPARAM>(hWnd), lParam);
 			TView::messageCommand(p_view, cmaEdit);
 			return 0;
 		case WM_RBUTTONDBLCLK:
-			::SendMessage(GetParent(hWnd), BRO_RDBLCLKNOTIFY, reinterpret_cast<WPARAM>(hWnd), lParam);
+			::SendMessageW(GetParent(hWnd), BRO_RDBLCLKNOTIFY, reinterpret_cast<WPARAM>(hWnd), lParam);
 			return 0;
 		case WM_NCLBUTTONDOWN:
 			if(hWnd != GetFocus())
@@ -3315,10 +3335,10 @@ void BrowserWindow::SpecialMenu() // @v12.4.12
 				}
 			}
 			return 0;
-		case WM_USER_NOTIFYOTHERWNDEVNT: // @v11.1.12
+		case WM_USER_NOTIFYOTHERWNDEVNT:
 			if(p_view) {
-				RECT rc_client;
-				GetClientRect(hWnd, &rc_client); // @debug				
+				//RECT rc_client;
+				//GetClientRect(hWnd, &rc_client); // @debug				
 				e.what = TEvent::evCommand;
 				e.message.command = cmNotifyForeignFocus;
 				e.message.infoPtr = (void *)lParam;

@@ -40,7 +40,7 @@ static void WriteLogFile_PageWidthOver(const char * pFormatName)
 	SString msg_fmt;
 	SString msg;
 	msg.Printf(PPLoadTextS(PPTXT_SLIPFMT_WIDTHOVER, msg_fmt), pFormatName);
-	PPLogMessage(PPFILNAM_ATOLDRV_LOG, msg, LOGMSGF_TIME|LOGMSGF_USER);
+	PPLogMessage(PPFILNAM_ATOLDRV_LOG, msg, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_UTF8);
 }
 
 class SCS_ATOLDRV : public PPSyncCashSession {
@@ -392,7 +392,7 @@ private:
 			if(Flags & sfLogging) {
 				temp_buf.CopyUtf8FromUnicode(temp_buf_u, temp_buf_u.Len(), 0);
 				log_buf.Z().Cat("json-req").CatDiv(':', 2).Cat(temp_buf);
-				PPLogMessage(PPFILNAM_ATOLDRV_LOG, log_buf, LOGMSGF_TIME|LOGMSGF_COMP);
+				PPLogMessage(PPFILNAM_ATOLDRV_LOG, log_buf, LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_UTF8);
 			}
 			// } @v11.5.6 
 			P_Fptr10->SetParamStrProc(h, LIBFPTR_PARAM_JSON_DATA, temp_buf_u.ucptr());
@@ -411,7 +411,7 @@ private:
 				// @v11.5.6 {
 				if(Flags & sfLogging) {
 					log_buf.Z().Cat("json-rep").CatDiv(':', 2).Cat(rResultJsonBuf);
-					PPLogMessage(PPFILNAM_ATOLDRV_LOG, log_buf, LOGMSGF_TIME|LOGMSGF_COMP);
+					PPLogMessage(PPFILNAM_ATOLDRV_LOG, log_buf, LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_UTF8);
 				}
 				// } @v11.5.6 
 			}
@@ -819,12 +819,12 @@ SCS_ATOLDRV::SCS_ATOLDRV(PPID n, char * name, char * port) :
 			SString settings_buf;
 			{
 				temp_buf.Z().Cat("atol-driver").CatDiv(':', 2).Cat("mode").Space().Cat("fptr10");
-				PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP);
+				PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_UTF8);
 			}
 			ReadSettingsBulk(settings_buf);
 			if(settings_buf.NotEmpty()) {
 				temp_buf.Z().Cat("atol-driver-settings").CatDiv(':', 2).Cat(settings_buf);
-				PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP);
+				PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_UTF8);
 			}
 			{
 				SJson * p_json_doc = SJson::Parse(settings_buf);
@@ -860,7 +860,7 @@ SCS_ATOLDRV::SCS_ATOLDRV(PPID n, char * name, char * port) :
 			RefToIntrf++;
 			{
 				temp_buf.Z().Cat("atol-driver").CatDiv(':', 2).Cat("mode").Space().Cat("dispatch-interface");
-				PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP);
+				PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_UTF8);
 			}
 		}
 	}
@@ -1309,13 +1309,14 @@ int	SCS_ATOLDRV::PrintDiscountInfo(const CCheckPacket * pPack, uint flags)
 void SCS_ATOLDRV::WriteLogFile(PPID id)
 {
 	if(P_Disp && (CConfig.Flags & CCFLG_DEBUG)) {
-		long   mode = 0, adv_mode = 0;
+		long   mode = 0;
+		long   adv_mode = 0;
 		size_t pos = 0;
 		SString msg_fmt;
 		SString msg;
 		SString oper_name;
 		SString mode_descr;
-		SString err_msg = DS.GetConstTLA().AddedMsgString;
+		SString err_msg(DS.GetConstTLA().AddedMsgString);
 		PPLoadText(PPTXT_LOG_SHTRIH, msg_fmt);
 		P_Disp->GetNameByID(id, oper_name);
 		GetProp(Mode, &mode);
@@ -1325,7 +1326,7 @@ void SCS_ATOLDRV::WriteLogFile(PPID id)
 			err_msg.Trim(pos);
 		GetProp(AdvancedMode, &adv_mode);
 		msg.Printf(msg_fmt, oper_name.cptr(), err_msg.cptr(), mode_descr.cptr(), adv_mode);
-		PPLogMessage(PPFILNAM_ATOLDRV_LOG, msg, LOGMSGF_TIME|LOGMSGF_USER);
+		PPLogMessage(PPFILNAM_ATOLDRV_LOG, msg, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_UTF8);
 	}
 }
 
@@ -1819,7 +1820,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 								if(sl_param.ChZnProductType && sl_param.ChZnGTIN.NotEmpty() && sl_param.ChZnSerial.NotEmpty()) {
 									{
 										temp_buf.Z().Cat("chzn-mark").CatDiv(':', 2).Cat(sl_param.ChZnProductType).CatChar('-').Cat(sl_param.ChZnGTIN).CatChar('-').Cat(sl_param.ChZnSerial);
-										PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);
+										PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_UTF8);
 									}
 									if(P_Fptr10->UtilFormNomenclature) {
 										int marking_type = -1;
@@ -1856,7 +1857,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 											P_Fptr10->UtilFormNomenclature(fph);
 											mark_buf_data_len = P_Fptr10->GetParamByteArrayProc(fph, LIBFPTR_PARAM_TAG_VALUE, fptr10_mark_buf, sizeof(fptr10_mark_buf));
 											temp_buf.Z().Cat("chzn-mark-composed").CatDiv(':', 2).CatEq("length", static_cast<long>(mark_buf_data_len));
-											PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);										
+											PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_UTF8);
 											/*
 											fptr.setParam(fptr.LIBFPTR_PARAM_NOMENCLATURE_TYPE, fptr.LIBFPTR_NT_TOBACCO);
 											fptr.setParam(fptr.LIBFPTR_PARAM_GTIN, '98765432101234');
@@ -2089,10 +2090,12 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 						}
 					}
 					else if(running_total > amt) {
-						SString fmt_buf, msg_buf, added_buf;
+						SString fmt_buf;
+						SString msg_buf;
+						SString added_buf;
 						added_buf.Z().Cat(running_total, MKSFMTD(0, 12, NMBF_NOTRAILZ)).CatChar('>').Cat(amt, MKSFMTD(0, 12, NMBF_NOTRAILZ));
 						msg_buf.Printf(PPLoadTextS(PPTXT_SHTRIH_RUNNGTOTALGTAMT, fmt_buf), added_buf.cptr());
-						PPLogMessage(PPFILNAM_ATOLDRV_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+						PPLogMessage(PPFILNAM_ATOLDRV_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_UTF8);
 					}
 					debug_log_buf.CatChar('}');
 				}
@@ -2171,7 +2174,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 				SString no_print_txt;
 				PPLoadText(PPTXT_CHECK_NOT_PRINTED, no_print_txt);
 				ErrCode = (Flags & sfCheckOpened) ? SYNCPRN_CANCEL_WHILE_PRINT : SYNCPRN_CANCEL;
-				PPLogMessage(PPFILNAM_ATOLDRV_LOG, pPack ? CCheckCore::MakeCodeString(&pPack->Rec, 0, no_print_txt) : "", LOGMSGF_TIME|LOGMSGF_USER);
+				PPLogMessage(PPFILNAM_ATOLDRV_LOG, pPack ? CCheckCore::MakeCodeString(&pPack->Rec, 0, no_print_txt) : "", LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_UTF8);
 				ok = 0;
 			}
 		}
@@ -2180,7 +2183,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 			DoBeep();
 			if(Flags & sfCheckOpened)
 				ErrCode = SYNCPRN_ERROR_WHILE_PRINT;
-			PPLogMessage(PPFILNAM_ATOLDRV_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
+			PPLogMessage(PPFILNAM_ATOLDRV_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_UTF8);
 			ok = 0;
 		}
 		if(P_Fptr10) {
@@ -2406,7 +2409,7 @@ int SCS_ATOLDRV::PrintIncasso(double sum, bool isIncome)
 /*virtual*/int SCS_ATOLDRV::PrintBnkTermReport(const char * pZCheck)
 {
 	int    ok = 1;
-	size_t zc_len = sstrlen(pZCheck);
+	const  size_t zc_len = sstrlen(pZCheck);
 	if(zc_len) {
 		StateBlock stb;
 		SEOLFormat eolf = SDetermineEOLFormat(pZCheck, zc_len);

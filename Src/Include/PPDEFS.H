@@ -1182,6 +1182,7 @@
 	#define PRCPRP_EXT2          2L // Структура расширения пакета процессора (новая версия с сериализацией)
 #define PPOBJ_TECH          1038L  // Технологии
 	#define TECPRP_EXTSTR        1L  // Строка дополнительных параметров
+	#define TECPRP_ROUTE         2L  // @v12.5.12 Сериализованный буфер маршрута технологии (PPTechRoute)
 #define PPOBJ_TSESSION      1039L  // Процессорные сессии
 	//
 	// Extra record of PPOBJ_TSESSION
@@ -2217,6 +2218,7 @@
 	#define CTL_PERSON_CMD_PERSONADDR        (61 + WINDOWS_ID_BIAS)
 	#define CTL_PERSON_CMD_PERSONRADDR       (62 + WINDOWS_ID_BIAS)
 	#define CTL_PERSON_CMD_PERSONDLVRLOCLIST (63 + WINDOWS_ID_BIAS)
+	#define CTL_PERSON_ETCTEXT          (64 + WINDOWS_ID_BIAS)
 
 #define DLG_REG_PRIVATE            26 // Регистр. данные физ. лиц
 #define DLG_REG_FREE               27 // Регистр. данные частных предпр.
@@ -7050,6 +7052,7 @@
 	#define CTLSEL_PRCFILT_LOC           (5 + WINDOWS_ID_BIAS)
 #define DLG_TECH                  670 // TECH Технология //
 #define DLG_TECHAUTO             1045 // TECHAUTO Автотехнология //
+	#define cmTechRoute                  101 // Кнопка редактирования маршрута процессинга, связанного с технологией 
 	#define CTL_TECH_ID                  (1 + WINDOWS_ID_BIAS)
 	#define CTL_TECH_CODE                (2 + WINDOWS_ID_BIAS)
 	#define CTL_TECH_PRCGRPONLY          (3 + WINDOWS_ID_BIAS)
@@ -7079,6 +7082,8 @@
 	#define CTLSEL_TECH_PARENT           (27 + WINDOWS_ID_BIAS)
 	#define CTL_TECH_ORDERN              (28 + WINDOWS_ID_BIAS)
 	#define CTL_TECH_CIPMAX              (29 + WINDOWS_ID_BIAS)
+	#define CTL_TECH_CMD_GOODSSTRUC      (30 + WINDOWS_ID_BIAS)
+	#define CTL_TECH_CMD_ROUTE           (31 + WINDOWS_ID_BIAS)
 #define DLG_TECHFILT              671 // Фильтр технологий
 	#define CTL_TECHFILT_PRCGRPONLY      (1 + WINDOWS_ID_BIAS)
 	#define CTL_TECHFILT_PRC             (2 + WINDOWS_ID_BIAS)
@@ -7161,6 +7166,14 @@
 	#define CTL_TSESS_ST_CC              (39 + WINDOWS_ID_BIAS)
 	#define CTL_TSESS_ADDPAYMBUTT        (40 + WINDOWS_ID_BIAS)
 	#define CTL_TSESS_PAYMINFO           (41 + WINDOWS_ID_BIAS)
+	#define CTL_TSESS_CMD_SELSCARD       (42 + WINDOWS_ID_BIAS)
+	#define CTL_TSESS_CMD_BROWSETSESSBYAR (43 + WINDOWS_ID_BIAS)
+	#define CTL_TSESS_CMD_SELORDER       (44 + WINDOWS_ID_BIAS)
+	#define CTL_TSESS_CMD_AUTOFILL       (45 + WINDOWS_ID_BIAS)
+	#define CTL_TSESS_CMD_FREELIST       (46 + WINDOWS_ID_BIAS)  
+	#define CTL_TSESS_ST_PLAN            (47 + WINDOWS_ID_BIAS)   
+	#define CTL_TSESS_ST_FACT            (48 + WINDOWS_ID_BIAS)   
+	#define CTL_TSESS_CMD_SELTECHBYGOODS (49 + WINDOWS_ID_BIAS)
 
 #define DLG_TSESSLN               674 // Строка технологической сессии
 	#define CTL_TSESSLN_SESSID           (1 + WINDOWS_ID_BIAS)
@@ -7186,10 +7199,11 @@
 	#define CTL_TSESSLN_NETPRICE         (21 + WINDOWS_ID_BIAS)
 	#define CTLMNU_TSESSLN_QTTY          (22 + WINDOWS_ID_BIAS)
 	#define CTLMNU_TSESSLN_PHQTTY        (23 + WINDOWS_ID_BIAS)
-	#define CTL_TSESSLN_LOTDIMX          (24 + WINDOWS_ID_BIAS) // @v11.0.4
-	#define CTL_TSESSLN_LOTDIMY          (25 + WINDOWS_ID_BIAS) // @v11.0.4
-	#define CTL_TSESSLN_LOTDIMZ          (26 + WINDOWS_ID_BIAS) // @v11.0.4
-	#define CTL_TSESSLN_ORGQTTY          (27 + WINDOWS_ID_BIAS) // @v11.0.7
+	#define CTL_TSESSLN_LOTDIMX          (24 + WINDOWS_ID_BIAS)
+	#define CTL_TSESSLN_LOTDIMY          (25 + WINDOWS_ID_BIAS)
+	#define CTL_TSESSLN_LOTDIMZ          (26 + WINDOWS_ID_BIAS)
+	#define CTL_TSESSLN_ORGQTTY          (27 + WINDOWS_ID_BIAS)
+	#define CTL_TSESSLN_CMD_SELSERIAL    (28 + WINDOWS_ID_BIAS) // @v12.5.12
 #define DLG_TSESSFILT             675 // Фильтр по технологическим сессиям
 	#define CTL_TSESSFILT_PRC            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TSESSFILT_PRC         (2 + WINDOWS_ID_BIAS)
@@ -12005,6 +12019,13 @@
 	#define CTL_FACADEWINDOW_INFOLINE           (2 + WINDOWS_ID_BIAS) // Информационная строка для facade-window (TFacadeWindow)
 	#define CTL_FACADEWINDOW_NAVPANE            (3 + WINDOWS_ID_BIAS) // Левая панель навигации для facade-window (TFacadeWindow)
 	#define CTL_FACADEWINDOW_NAVPANE_SZF        (4 + WINDOWS_ID_BIAS) // Полоса изменения размера левой панели навигации для facade-window (TFacadeWindow)
+#define DLG_CNTRG_PERSON          1592 // @v12.5.12 Диалог персоналии для centrigo
+	// Ctrls same as for DLG_PERSON
+#define DLG_TECHROUTE             1593 // @v12.5.12 Технологический маршрут
+	#define CTL_TECHROUTE_LIST                  (1 + WINDOWS_ID_BIAS)
+#define DLG_TECHROUTEITEM         1594 // @v12.5.12 Элемент технологического маршрута
+	#define CTL_TECHROUTEITEM_TECH              (1 + WINDOWS_ID_BIAS)
+	#define CTLSEL_TECHROUTEITEM_TECH           (2 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

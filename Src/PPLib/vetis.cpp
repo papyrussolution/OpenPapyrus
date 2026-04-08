@@ -1545,7 +1545,7 @@ public:
 	S_GUID StockEntryUuid;
 	VetisTransportInfo Transp;
 	SString TranspStorageType;
-	const TSCollection <VetisRouteSectionR13nRules> * P_RegionRules; // @v11.0.11 @notowned
+	const TSCollection <VetisRouteSectionR13nRules> * P_RegionRules; // @notowned
 };
 
 class VetisWithdrawVetDocumentRequest : public VetisApplicationData {
@@ -1691,7 +1691,7 @@ struct VetisApplicationBlock {
 	TSCollection <VetisPurpose> PurposeList;
 	TSCollection <VetisCountry> CountryList;
 	TSCollection <VetisAddressObjectView> RegionList;
-	TSCollection <VetisRouteSectionR13nRules> R13RulesList; // @v11.0.11
+	TSCollection <VetisRouteSectionR13nRules> R13RulesList;
 };
 //
 //
@@ -1879,7 +1879,7 @@ int FASTCALL VetisApplicationBlock::Copy(const VetisApplicationBlock & rS)
 	TSCollection_Copy(PurposeList, rS.PurposeList);
 	TSCollection_Copy(CountryList, rS.CountryList);
 	TSCollection_Copy(RegionList, rS.RegionList);
-	TSCollection_Copy(R13RulesList, rS.R13RulesList); // @v11.0.11
+	TSCollection_Copy(R13RulesList, rS.R13RulesList);
 	ListResult = rS.ListResult;
 	AppData = rS.AppData;
 	P_AppParam = rS.P_AppParam;
@@ -1893,20 +1893,22 @@ VetisEntityCore::Entity::Entity() : ID(0), Kind(kUndef), Flags(0), Status(0), Gu
 VetisEntityCore::Entity::Entity(int kind, const VetisProductItem & rS) : ID(0), Kind(kind), Status(rS.Status), Flags(rS.Flags)
 {
 	assert(oneof3(kind, kProductItem, kProduct, kSubProduct));
-	if(kind == kProductItem) {
-		Guid = rS.Guid;
-		Uuid = rS.Uuid;
-		Name = rS.Name;
-	}
-	else if(kind == kProduct) {
-		Guid = rS.Product.Guid;
-		Uuid = rS.Product.Uuid;
-		Name = rS.Product.Name;
-	}
-	else if(kind == kSubProduct) {
-		Guid = rS.SubProduct.Guid;
-		Uuid = rS.SubProduct.Uuid;
-		Name = rS.SubProduct.Name;
+	switch(kind) {
+		case kProductItem:
+			Guid = rS.Guid;
+			Uuid = rS.Uuid;
+			Name = rS.Name;
+			break;
+		case kProduct:
+			Guid = rS.Product.Guid;
+			Uuid = rS.Product.Uuid;
+			Name = rS.Product.Name;
+			break;
+		case kSubProduct:
+			Guid = rS.SubProduct.Guid;
+			Uuid = rS.SubProduct.Uuid;
+			Name = rS.SubProduct.Name;
+			break;
 	}
 }
 
@@ -3258,9 +3260,9 @@ public:
 		Param(PPID mainOrgID, PPID locID, long flags);
 		Param & Z();
 		enum {
-			fTestContour   = 0x0001,
+			fTestContour           = 0x0001,
 			fSkipLocInitialization = 0x0002,
-			fLogTalk       = 0x0004  // @v11.1.6 Если установлен, то пишется журнал общения с сервисами VETIS (vetis-talk.log)
+			fLogTalk               = 0x0004  // Если установлен, то пишется журнал общения с сервисами VETIS (vetis-talk.log)
 		};
 		long   Flags;
 		PPID   MainOrgID;
@@ -6202,6 +6204,25 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 													// @v11.8.11 SXml::WNode n_auth(srb, _xmlnst_vd("authentication"));
 													const char * p_ce_symb = SIntToSymbTab_GetSymbPtr(
 														VetAuthCargoExpertized_SymbTab, SIZEOFARRAY(VetAuthCargoExpertized_SymbTab), r_org_doc.Authentication.CargoExpertized);
+													// @v12.5.12 {
+													char   ce_symb_by_goods[64];
+													if(!p_ce_symb && p_req->VdRec.LinkGoodsID) {
+														PPObjTag tag_obj;
+														PPObjectTag2 tag_rec;
+														PPID   tag_id = 0;
+														if(tag_obj.FetchBySymb("VETIS-RSRCH-RESULT", &tag_id) > 0 && tag_obj.Fetch(tag_id, &tag_rec) > 0) {
+															if(tag_rec.ObjTypeID == PPOBJ_GOODS && tag_rec.TagDataType == OTTYP_STRING) {
+																if(p_ref->Ot.GetTagStr(PPOBJ_GOODS, p_req->VdRec.LinkGoodsID, tag_id, temp_buf) > 0) {
+																	const int ce_id = SIntToSymbTab_GetId(VetAuthCargoExpertized_SymbTab, SIZEOFARRAY(VetAuthCargoExpertized_SymbTab), temp_buf);
+																	if(ce_id) { // Обязательно проверить, что в теге задан вадидный символ
+																		STRNSCPY(ce_symb_by_goods, temp_buf);
+																		p_ce_symb = ce_symb_by_goods;
+																	}
+																}
+															}
+														}
+													}
+													// } @v12.5.12 
 													n_vc.PutInner(_xmlnst_vd("cargoExpertized"), p_ce_symb ? p_ce_symb : "VSERAW"); // @v11.6.6 VSEFULL-->VSERAW // @v11.8.5
 												}
 												PPLoadText(PPTXT_VETISLOCATIONPROSPERITYISOK, temp_buf);
@@ -6210,7 +6231,6 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 												//PPLoadText(PPTXT_VETIS_SPCMARK_SRCWARENAME, temp_buf);
 												//temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 												//n_vc.PutInner(_xmlnst_vd("specialMarks"), temp_buf);
-												// @v11.0.11 {
 												if(p_req->P_RegionRules && p_req->P_RegionRules->getCount()) {
 													//SXml::WNode n_r13(srb, _xmlnst_vd("r13nClause"));
 													for(uint rlidx = 0; rlidx < p_req->P_RegionRules->getCount(); rlidx++) {
@@ -6244,7 +6264,6 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 														}
 													}
 												}
-												// } @v11.0.11 
 											}
 										}
 									}
@@ -8532,7 +8551,6 @@ int PPVetisInterface::PrepareOutgoingConsignment(PPID docEntityID, const TSColle
 	if(GetVetDocumentByUuid(org_doc_entity.Uuid, org_doc_reply) > 0 && org_doc_reply.VetDocList.getCount() == 1) {
 		rReply.Clear();
 		app_data.OrgDoc = *org_doc_reply.VetDocList.at(0);
-		// @v11.0.1 {
 		{
 			//
 			// Выше была проверка на срок годности, но там этот срок брался из внутренней базы данных.
@@ -8545,7 +8563,6 @@ int PPVetisInterface::PrepareOutgoingConsignment(PPID docEntityID, const TSColle
 				THROW_PP_S(final_expiry_date > getcurdate_(), PPERR_VETISORGDOCEXPIRY, temp_buf);
 			}
 		}
-		// } @v11.0.1
 		{
 			THROW_PP(app_data.VdRec.FromEntityID, PPERR_VETISFROMBUSENTUNDEF);
 			PeC.GetEntity(app_data.VdRec.FromEntityID, sub_entity);
@@ -8565,11 +8582,9 @@ int PPVetisInterface::PrepareOutgoingConsignment(PPID docEntityID, const TSColle
 			app_data.ToEnterpiseGuid = sub_entity.Guid;
 		}
 		PrepareOutgoingTransportData(app_data.VdRec.LinkBillID, app_data);
-		// @v11.0.11 {
 		if(pRegionRules && pRegionRules->getCount()) {
 			app_data.P_RegionRules = pRegionRules; 
 		}
-		// } @v11.0.11
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
 			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
@@ -11905,7 +11920,6 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 							logger.LogLastError();
 					}
 					else {
-						// @v11.0.11 {
 						const TSCollection <VetisRouteSectionR13nRules> * p_region_rules = 0;
 						{
 							for(uint ridx = 0; !p_region_rules && ridx < regroute_list.getCount(); ridx++) {
@@ -11914,7 +11928,6 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 									p_region_rules = &p_rrl_item->R13RulesList;
 							}
 						}
-						// } @v11.0.11
 						// @v11.3.4 {
 						const int sodiqfr = EC.SetOutgoingDocInQueueFlag(entity_id, 1); 
 						THROW(sodiqfr);
@@ -12671,8 +12684,7 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 							}
 						}
 						{
-							// @v11.1.12 BillCore::GetCode(temp_buf = bp.Rec.Code);
-							temp_buf = bp.Rec.Code; // @v11.1.12 
+							temp_buf = bp.Rec.Code;
 							(slp.Title = temp_buf).Space().Cat(bp.Rec.Dt, DATF_DMY).CatDiv('-', 1).Cat(rRec.Volume, MKSFMTD_030);
 							if(VetisEntityCore::GetProductItemName(rRec.EntityID, rRec.ProductItemID, rRec.SubProductID, rRec.ProductID, temp_buf) > 0)
 								slp.Title.CatDiv('-', 1).Cat(temp_buf);

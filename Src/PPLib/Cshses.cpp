@@ -537,7 +537,7 @@ int PPSyncCashSession::CompleteSession(PPID sessID)
 						}
 						// } @v12.2.2 
 						p_js_item->InsertString("paymentObject", ""); // "commodity" etc
-						if(sl_param.ChZnProductType && /*sl_param.ChZnGTIN.NotEmpty() && sl_param.ChZnSerial.NotEmpty()*/sl_param.ChZnCode.NotEmpty()) {
+						if(sl_param.ChZnProductType && sl_param.ChZnCode.NotEmpty()) {
 							if(rOfdf.IsOfdVerGe12()) {
 								if(sl_param.PpChZnR.LineIdx > 0) {
 									//p_js_item->InsertString("measurementUnit", "");
@@ -635,11 +635,11 @@ int PPSyncCashSession::CompleteSession(PPID sessID)
 										// } @v11.8.12 
 										{
 											SJson * p_js_checkresult = SJson::CreateObj();
-											p_js_checkresult->InsertBool("imcCheckFlag", LOGIC(sl_param.PpChZnR.CheckResult & (1<<0)));
-											p_js_checkresult->InsertBool("imcCheckResult", LOGIC(sl_param.PpChZnR.CheckResult & (1<<1)));
-											p_js_checkresult->InsertBool("imcStatusInfo", LOGIC(sl_param.PpChZnR.CheckResult & (1<<2)));
-											p_js_checkresult->InsertBool("imcEstimatedStatusCorrect", LOGIC(sl_param.PpChZnR.CheckResult & (1<<3)));
-											p_js_checkresult->InsertBool("ecrStandAloneFlag", LOGIC(sl_param.PpChZnR.CheckResult & (1<<4))); 
+											p_js_checkresult->InsertBool("imcCheckFlag", true/*LOGIC(sl_param.PpChZnR.CheckResult & (1<<0))*/); // @v12.5.12 true
+											p_js_checkresult->InsertBool("imcCheckResult", true/*LOGIC(sl_param.PpChZnR.CheckResult & (1<<1))*/); // @v12.5.12 true
+											p_js_checkresult->InsertBool("imcStatusInfo", true/*LOGIC(sl_param.PpChZnR.CheckResult & (1<<2))*/); // @v12.5.12 true
+											p_js_checkresult->InsertBool("imcEstimatedStatusCorrect", true/*LOGIC(sl_param.PpChZnR.CheckResult & (1<<3))*/); // @v12.5.12 true
+											p_js_checkresult->InsertBool("ecrStandAloneFlag", true/*LOGIC(sl_param.PpChZnR.CheckResult & (1<<4))*/); // @v12.5.12 true
 											p_js_imcparams->Insert("itemInfoCheckResult", p_js_checkresult); // ofdtag-2106
 										}
 										p_js_imcparams->InsertInt("itemQuantity", 1); // ofdtag-1023

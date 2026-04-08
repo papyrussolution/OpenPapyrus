@@ -1770,6 +1770,8 @@ public class SLib {
 	static public int HiDWord(long L) { return (int)(L >> 32); }
 
 	static public int MakeInt(int low, int high) { return ((low & 0x0000ffff) | ((high << 16) & 0xffff0000)); }
+	static public int iroundup(int a, int n) { return (n != 0) ? (((a + n - 1) / n) * n) : 0; } // @v12.5.12 точная копия одноименной функции в C++ SLib
+	static public int irounddn(int a, int n) { return (n != 0) ? ((a / n) * n) : 0; } // @v12.5.12 точная копия одноименной функции в C++ SLib
 	//
 	//
 	//
@@ -4547,6 +4549,7 @@ public class SLib {
 	public static final int SCHKDIGALG_RUINN   = 3; // Контрольная цифра ИНН (Россия)
 	public static final int SCHKDIGALG_RUOKATO = 4; // Контрольная цифра ОКАТО (Россия)
 	public static final int SCHKDIGALG_RUSNILS = 5; // Контрольная цифра СНИЛС (Россия)
+	public static final int SCHKDIGALG_SSCC    = 6; // @v12.5.12 Контрольная цифра SSCC (GS1)
 	public static final int SCHKDIGALG_TEST    = 0x80000000; // Флаг, предписывающий функции SCalcCheckDigit проверить последовательность на
 		// предмет соответствия контрольной цифре, содержащейся в ней.
 
@@ -4668,6 +4671,34 @@ public class SLib {
 				else if(_alg == SCHKDIGALG_RUOKATO) {
 				}
 				else if(_alg == SCHKDIGALG_RUSNILS) {
+				}
+				else if(_alg == SCHKDIGALG_SSCC) { // @v12.5.12
+					/*
+						Алгоритм расчета контрольной цифры для (00)04611234567890123):
+																   12345678901234567
+
+							Присвойте веса: цифры на нечетных позициях (считая слева) умножаются на 3, на четных — на 1.
+							Позиции: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17
+							Цифры: 0, 4, 6, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3
+							Считаем:
+								Нечетные позиции (x3): (0x3) + (6x3) + (1x3) + (3x3) + (5x3) + (7x3) + (9x3) + (1x3) + (3x3) = 0 + 18 + 3 + 9 + 15 + 21 + 27 + 3 + 9 = 105
+								Четные позиции (x1): (4x1) + (1x1) + (2x1) + (4x1) + (6x1) + (8x1) + (0x1) + (2x1) = 4 + 1 + 2 + 4 + 6 + 8 + 0 + 2 = 27
+							Суммируем: 105 + 27 = 132
+							Контрольная цифра — это наименьшее число, которое, будучи добавленным к сумме, дает число, кратное 10: 132 + 8 = 140.
+							Контрольная цифра = 8
+					*/
+					if(len == 18 || (len == 20 && code[0] == '0' && code[1] == '0')) {
+						final int _shift = (len == 20) ? 2 : 0;
+						int sum = 0;
+						for(i = 1; i <= (len-1-_shift); i++) { // i odd/even?
+							final int dig = code[i-1+_shift] - '0';
+							sum += (((i & 0x01) != 0) ? (dig * 3) : (dig));
+						}
+						cd = (iroundup(sum, 10) - sum) + '0';
+						if(_do_check) {
+							cd = (cd == code[len-1]) ? 1 : 0;
+						}
+					}
 				}
 			}
 		}

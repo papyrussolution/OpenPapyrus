@@ -11163,7 +11163,7 @@ SOAP_FMAC1 char ** /*SOAP_FMAC2*/FASTCALL soap_instring(struct soap * soap, cons
 	if(soap->null)
 		*p = NULL;
 	else if(soap->body) {
-		*p = soap_string_in(soap, flag, minLen, /*maxLen*/ -1); // @v9.5.1 maxLen-->-1
+		*p = soap_string_in(soap, flag, minLen, /*maxLen*/-1);
 		if(!*p || !(char *)soap_id_enter(soap, soap->id, *p, t, sizeof(char *), 0, NULL, NULL, NULL))
 			return NULL;
 		if(!**p && tag && *tag == '-') {

@@ -2896,7 +2896,7 @@ file:
 // (производимыми или расходуемыми) товарами и, возможно, структурами этих товаров.
 // @done @v11.1.12 @todo Memo перенести в UnxTextRef
 //
-table Tech {               // size=104+160
+table Tech {               //
 	autolong ID;           // @id
 	string Code[48];       // Код технологии // @v11.1.12 [24]-->[48]
 	long   PrcID;          // ->Processor.ID
@@ -2911,8 +2911,7 @@ table Tech {               // size=104+160
 	double Capacity;       // Производительность процессора ProcID при использовании этой технологии (торговых единиц / sec).
 	double Rounding;       // @v5.0.6 Округление в торговых единицах основного товара
 	//
-	// Следующие два поля используются технологиями перенастройки
-	// для идентификации варианов перенастройки.
+	// Следующие два поля используются технологиями перенастройки для идентификации варианов перенастройки.
 	//
 	long   TransClsID;     // @v5.2.1 Переходный класс товара
 	long   TransMask;      // @v5.2.1 Маска изменения параметра
@@ -2921,15 +2920,15 @@ table Tech {               // size=104+160
 	long   OrderN;         // @v7.5.6 Счетчик, обеспечивающий уникальность по родительской технологии.
 		// Кроме того, этот счетчик управляет порядком следования технологий внутри родительской технологии.
 	int16  CipMax;         // @v7.7.2 Максимальное количество персоналий, которое может быть загеристрировано на тех сессии процессора.
-	raw    Reserve3[10];   // @reserve  // @v11.1.12 [2]-->[10]
+	raw    Reserve3[64];   // @reserve  // @v11.1.12 [2]-->[10] // @v12.5.12 [10]-->[64]
 	// @v11.1.12 note   Memo[512];      // @memo @v7.0.0 [160]-->[512]
 index:
-	ID (unique);                           // #0
-	Code acs (anysegnull unique mod);      // #1 // @todo @20260320 Сделать индекс дублируемым и без anysegnull. Используется только в PPObjTech::SearchByCode()
-	PrcID, GoodsID, GStrucID (unique mod); // #2
-	GoodsID, GStrucID, PrcID (unique mod); // #3
-	GStrucID, GoodsID, PrcID (unique mod); // #4
-	ParentID, OrderN (unique mod);         // #5 @v7.5.6
+	ID (unique);                        // #0
+	Code acs (dup mod);                 // #1 // @v12.5.12 (anysegnull unique mod)-->(dup mod)
+	PrcID, GoodsID, GStrucID (dup mod); // #2 // @v12.5.12 (unique mod)-->(dup mod)
+	GoodsID, GStrucID, PrcID (dup mod); // #3 // @todo @v12.5.12 (unique mod)-->(dup mod)
+	GStrucID, GoodsID, PrcID (dup mod); // #4 // @todo @v12.5.12 (unique mod)-->(dup mod)
+	ParentID, OrderN (unique mod);      // #5 @v7.5.6
 file:
 	"tech.btr";
 	compress; // @v11.1.12

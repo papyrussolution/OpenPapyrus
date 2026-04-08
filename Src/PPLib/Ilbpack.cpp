@@ -263,10 +263,11 @@ int PPObjBill::Helper_ConvertILTI_Subst(ILTI * pIlti, PPBillPacket * pPack, Long
 						if(rest > 0.0) {
 							const  double rq = smax(qtty, -max_qtty) * ratio;
 							const  double q  = (rest < -rq) ? rest : -rq;
+							const  double rp = R5(pIlti->Price / ratio); // @v12.5.12
 							PPTransferItem ti;
 							THROW(SetupTI(&ti, pPack, goods_id, lot_id));
 							ti.Quantity_ = -q;
-							ti.Discount = (pIlti->Price > 0.0) ? (ti.Price - pIlti->Price) : 0.0;
+							ti.Discount = (rp > 0.0) ? (ti.Price - rp) : 0.0;
 							THROW(pPack->InsertRow(&ti, pRows));
 							qtty += q / ratio;
 							local_gri.Add(goods_id, -fabs(q), local_gri.GetRatio(gri_pos));

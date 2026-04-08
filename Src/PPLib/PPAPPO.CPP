@@ -630,7 +630,10 @@ int PPApp::processCommand(uint cmd)
 		case cmViewLots:             ViewLots(0, 0, 1);                 break;
 		case cmViewOrdLots:          ViewLots(0, 1, 1);                 break;
 		case cmTrfrAnalyze:          ViewTrfrAnlz(0);                   break;
-		case cmGoodsTurnover:        ViewGoodsTurnover(0);              break;
+		case cmGoodsTurnover:        
+			// @v12.5.12 ViewGoodsTurnover(0);
+			PPView::Execute(PPVIEW_GOODSTRNOVR, 0, PPView::exefModeless, 0); // @v12.5.12
+			break;
 		case cmGoodsRestTest:        GoodsRestTest();                   break;
 		case cmPredictSales:         ViewPredictSales(0);               break;
 		case cmFillPredictSalesTbl:  FillPredictSales();                break;

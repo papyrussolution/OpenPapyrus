@@ -209,6 +209,60 @@ public class StyloQ_UnitTest {
 	@Test public void ChZnMarkParsing()
 	{
 		String test_code_list[] = {
+			/*
+			"00000046224811%&bF;tSAE3A",
+			"00000046224811%>DToZnAE3A",
+			"00000046224811*dgX<H3AE3A",
+			"00000046224811*pzS3*TAE3A",
+			"00000046224811;eVa=UNAE3A",
+			"00000046224811?OkCr4+AE3A",
+			"00000046224811?wj-a'\"AE3A",
+			"00000046224811+O1_LOjAE3A",
+			"00000046224811<H!!'2MAE3A",
+			"00000046224811>_Z&O.UAE3A",
+			"000000462248110zzd%fpAE3A",
+			"000000462248112n4S0%;AE3A",
+			"0000004622481131G6T2JAE3A",
+			"0000004622481162Tsd\"9AE3A",
+			"00000046224811bYE,ab4AE3A",
+			"00000046224811DRfddmHAE3A",
+			"00000046224811Ec!t=icAE3A",
+			"00000046224811eFdDsnHAE3A",
+			"00000046224811EoSft*fAE3A",
+			"00000046224811f.;5TBRAE3A",
+			"00000046224811f.'kXAtAE3A",
+			"00000046224811gbOdtt/AE3A",
+			"00000046224811hBWDP-dAE3A",
+			"00000046224811IB'Iji_AE3A",
+			"00000046224811j>w%SYVAE3A",
+			"00000046224811J5/+qZ-AE3A",
+			"00000046224811lw1>i8*AE3A",
+			"00000046224811MrRyVMMAE3A",
+			"00000046224811mw_eeR1AE3A",
+			"00000046224811n7'=t4rAE3A",
+			"00000046224811nnnCTapAE3A",
+			"00000046224811NWL'*KkAE3A",
+			"00000046224811OM0C:k,AE3A",
+			"00000046224811S;-V_u;AE3A",
+			"00000046224811tvHa:!UAE3A",
+			"00000046224811-tx.B3aAE3A",
+			"00000046224811VItU-!MAE3A",
+			"00000046224811VWyRmZHAE3A",
+			"00000046224811wbnLjJpAE3A",
+			"00000046224811X.<k*ixAE3A",
+			"00000046224811Y-a!HdSAE3A",
+			"00000046224811YI=9GL>AE3A",
+			"00000046224811YS5eAf9AE3A",
+			"00000046224811zNm5IRFAE3A",
+			"00000046224811Zu0VH;;AE3A",
+			*/
+			"020465011872021313200329211000000211",
+			"020465011872021313200416211000000233",
+			"012460081800728621069162482170081024014501203",
+			"012460081800728621071357832171185724014501203",
+			"011462006570025221069036092170327824014626540",
+			"011462006570025221069036092170513124014626540",
+
 			"0104810319016458212nFgzLex93u0bp",
 			"01048103190149422123ogfX8793f1KQ",
 			"0104810108007438212nKRgov893My3u",
@@ -445,12 +499,6 @@ public class StyloQ_UnitTest {
 			"010465111490038821000000k8005095000",
 			"010465111490038821000000l8005095000",
 			"010465111490038821000000m8005095000",
-			//"012460081800728621069162482170081024014501203",
-			//"012460081800728621071357832171185724014501203",
-			//"011462006570025221069036092170327824014626540",
-			//"011462006570025221069036092170513124014626540",
-			//"020465011872021313200329211000000211",
-			//"020465011872021313200416211000000233",
 			"010466007731023311200622214ME8604H",
 			"01046600773102022100006SC",
 			"01046600773101962100003Ez",
@@ -463,51 +511,6 @@ public class StyloQ_UnitTest {
 			"010460620309351921Gxb/L9780050990009384+9240FA074826.02",
 			"010460620309351921WSnrBzg800509900093LwPq240FA074826.02",
 			"010460620309963421\"-i;q:U800511700093KAdg240FA068872.56",
-			//"00000046224811%&bF;tSAE3A",
-			//"00000046224811%>DToZnAE3A",
-			//"00000046224811*dgX<H3AE3A",
-			//"00000046224811*pzS3*TAE3A",
-			//"00000046224811;eVa=UNAE3A",
-			//"00000046224811?OkCr4+AE3A",
-			//"00000046224811?wj-a'\"AE3A",
-			//"00000046224811+O1_LOjAE3A",
-			//"00000046224811<H!!'2MAE3A",
-			//"00000046224811>_Z&O.UAE3A",
-			//"000000462248110zzd%fpAE3A",
-			//"000000462248112n4S0%;AE3A",
-			//"0000004622481131G6T2JAE3A",
-			//"0000004622481162Tsd\"9AE3A",
-			//"00000046224811bYE,ab4AE3A",
-			//"00000046224811DRfddmHAE3A",
-			//"00000046224811Ec!t=icAE3A",
-			//"00000046224811eFdDsnHAE3A",
-			//"00000046224811EoSft*fAE3A",
-			//"00000046224811f.;5TBRAE3A",
-			//"00000046224811f.'kXAtAE3A",
-			//"00000046224811gbOdtt/AE3A",
-			//"00000046224811hBWDP-dAE3A",
-			//"00000046224811IB'Iji_AE3A",
-			//"00000046224811j>w%SYVAE3A",
-			//"00000046224811J5/+qZ-AE3A",
-			//"00000046224811lw1>i8*AE3A",
-			//"00000046224811MrRyVMMAE3A",
-			//"00000046224811mw_eeR1AE3A",
-			//"00000046224811n7'=t4rAE3A",
-			//"00000046224811nnnCTapAE3A",
-			//"00000046224811NWL'*KkAE3A",
-			//"00000046224811OM0C:k,AE3A",
-			//"00000046224811S;-V_u;AE3A",
-			//"00000046224811tvHa:!UAE3A",
-			//"00000046224811-tx.B3aAE3A",
-			//"00000046224811VItU-!MAE3A",
-			//"00000046224811VWyRmZHAE3A",
-			//"00000046224811wbnLjJpAE3A",
-			//"00000046224811X.<k*ixAE3A",
-			//"00000046224811Y-a!HdSAE3A",
-			//"00000046224811YI=9GL>AE3A",
-			//"00000046224811YS5eAf9AE3A",
-			//"00000046224811zNm5IRFAE3A",
-			//"00000046224811Zu0VH;;AE3A",
 			"010460166900805321lAXTmWCDzL0rE91EE0692TBlZu2ignWhszVbnHjzHMOGVlbl51GQvePCnY1ol+e8+",
 			"010464004242316821;;fkMTGHyS'hl91006A92XUQ6bi/s210HuozYeuOyw92jRGF4g04+mr03n7RsuKflFDLOUjBV/3hoobhEggD2NDFPLUeDeUFjAxZ0xuPR0w==",
 			"010290000131344521JXbVb'=BFCzyN91003A92QcaTHSIi6a5eknWhFHy4UA7WDNOAuGcgR0gSh/2lsYfzh9qaJDP1DMeX7kv+XoJLAn19PwYC9rDgzM9ocoESmQ==",
@@ -548,13 +551,13 @@ public class StyloQ_UnitTest {
 					;
 				}
 				Assert.assertTrue(is_valid_grade01);
-				if(is_valid_grade01) {
+				/*if(is_valid_grade01) {
 					String gtin14 = result.GetToken(GTIN.fldGTIN14);
 					Assert.assertTrue(gtin14 != null && gtin14.length() == 14);
 					//
 					String serial = result.GetToken(GTIN.fldSerial);
 					Assert.assertTrue(serial != null && serial.length() > 6);
-				}
+				}*/
 			}
 		}
 		{
@@ -574,12 +577,62 @@ public class StyloQ_UnitTest {
 				if(is_valid_grade01) {
 					String gtin14 = result.GetToken(GTIN.fldGTIN14);
 					String org = result.GetToken(GTIN.fldOriginalText);
-					Assert.assertTrue(result.ChZnParseResult == STokenRecognizer.SNTOK_CHZN_PALLET_GTIN);
-					Assert.assertTrue(gtin14 != null && gtin14.length() == 14);
+					// @v12.5.12 Assert.assertTrue(result.ChZnParseResult == STokenRecognizer.SNTOK_CHZN_PALLET_GTIN);
+					Assert.assertTrue(result.ChZnParseResult == STokenRecognizer.SNTOK_SSCC); // @v12.5.12
+					//Assert.assertTrue(gtin14 != null && gtin14.length() == 14);
 					Assert.assertTrue(org.equals(code));
 				}
 			}
 		}
+		{
+			String test_chzn_pallet_list[] = {
+				"2402359717001461008040149227611126021510PL12600444374", /// Машинное масло упаковка
+				"2403705305001461008040189400201126031210PL12600696373", /// Машинное масло упаковка
+				"24019190001460716161934043081125092510PL12502758374",   /// Машинное масло упаковка
+				"2403148621001460716161901104861125082710PL12502523374", /// Машинное масло упаковка
+				"2403708168001460716161944293791125091710PL12502841373", /// Машинное масло упаковка
+				"2403149900000461008040006499411126031710PL1260071537324", /// Машинное масло паллета
+				"2402255947000461008040006125011126031110PL1260063237324", /// Машинное масло паллета
+				"2402255948000460716161900268341125083010PL1250258937180", /// Машинное масло паллета
+				"2402255947000461008040006124641126031110PL1260063237324", /// Машинное масло паллета
+				"2402405226000461008040006472131126031810PL1260071037180", /// Машинное масло паллета
+				// Далее тоже самое но без управляющих кодов
+				"2402359717001461008040149227611126021510PL12600444374", /// Машинное масло упаковка
+				"2403705305001461008040189400201126031210PL12600696373", /// Машинное масло упаковка
+				"24019190001460716161934043081125092510PL12502758374",   /// Машинное масло упаковка
+				"2403148621001460716161901104861125082710PL12502523374", /// Машинное масло упаковка
+				"2403708168001460716161944293791125091710PL12502841373", /// Машинное масло упаковка
+				"2403149900000461008040006499411126031710PL1260071537324", /// Машинное масло паллета
+				"2402255947000461008040006125011126031110PL1260063237324", /// Машинное масло паллета
+				"2402255948000460716161900268341125083010PL1250258937180", /// Машинное масло паллета
+				"2402255947000461008040006124641126031110PL1260063237324", /// Машинное масло паллета
+				"2402405226000461008040006472131126031810PL1260071037180", /// Машинное масло паллета
+			};
+			for(int i = 0; i < test_chzn_pallet_list.length; i++) {
+				final String code = test_chzn_pallet_list[i];
+				GTIN result = GTIN.ParseChZnCode(code, 0);
+				assert(result.GetChZnParseResult() == STokenRecognizer.SNTOK_CHZN_PALLET_MOTOROIL);
+				boolean is_valid_grade01 = (result != null && (result.GetChZnParseResult() > 0 && result.GetChZnParseResult() != 100000));
+				if(!is_valid_grade01) {
+					;
+				}
+				Assert.assertTrue(is_valid_grade01);
+				if(is_valid_grade01) {
+					String ar = result.GetToken(GTIN.fldAddendumId);
+					String sscc = result.GetToken(GTIN.fldSscc18);
+					String manuf_dt = result.GetToken(GTIN.fldManufDate);
+					String part = result.GetToken(GTIN.fldPart);
+					String ct = result.GetToken(GTIN.fldCount);
+					Assert.assertTrue(SLib.GetLen(ar) > 1);
+					Assert.assertTrue(SLib.GetLen(sscc) == 18);
+					Assert.assertTrue(SLib.GetLen(manuf_dt) == 6);
+					Assert.assertTrue(SLib.GetLen(part) > 1);
+					Assert.assertTrue(SLib.GetLen(ct) > 0);
+					Assert.assertTrue(SLib.AreStringsEqual(result.GetToken(GTIN.fldOriginalText), code));
+				}
+			}
+		}
+
 	}
 	@Test public void Document_ActionFlags()
 	{

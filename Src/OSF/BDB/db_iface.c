@@ -8,9 +8,6 @@
 #include "db_config.h"
 #include "db_int.h"
 #pragma hdrstop
-#ifndef HAVE_QUEUE
-	// @v9.5.5 #include "dbinc/qam.h"                 /* For __db_no_queue_am(). */
-#endif
 
 static int __db_associate_arg(DB*, DB*, int (*)(DB *, const DBT *, const DBT *, DBT *), uint32);
 static int __dbc_del_arg(DBC*, uint32);

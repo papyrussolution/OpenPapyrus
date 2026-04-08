@@ -200,6 +200,58 @@ static rstring_code FASTCALL rcs_catc(RcString * pre, const char c)
 	return result;
 }
 
+/*static*/int SJson::GetArrayAsStringSet(const SJson * pN, StringSet & rResult) // @v12.5.12
+{
+	rResult.Z();
+	int    ok = 0;
+	if(SJson::IsArray(pN)) {
+		for(const SJson * p_js_item = pN->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+			if(SJson::IsString(p_js_item)) {
+				SString & r_temp_buf = SLS.AcquireRvlStr();
+				if((r_temp_buf = p_js_item->Text).NotEmptyS()) {
+					rResult.add(r_temp_buf.Unescape());
+				}
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
+/*static*/int SJson::GetArrayAsIntVector(const SJson * pN, LongArray & rResult) // @v12.5.12
+{
+	rResult.Z();
+	int    ok = 0;
+	if(SJson::IsArray(pN)) {
+		for(const SJson * p_js_item = pN->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+			if(SJson::IsNumber(p_js_item)) {
+				const  int64 dest_item = p_js_item->Text.ToInt64();
+				assert(dest_item <= LONG_MAX);
+				if(dest_item <= LONG_MAX)
+					rResult.add(static_cast<long>(dest_item));
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
+/*static*/int SJson::GetArrayAsInt64Vector(const SJson * pN, Int64Array & rResult) // @v12.5.12
+{
+	rResult.clear();
+	int    ok = 0;
+	if(SJson::IsArray(pN)) {
+		for(const SJson * p_js_item = pN->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+			if(SJson::IsNumber(p_js_item)) {
+				const  int64 dest_item = p_js_item->Text.ToInt64();
+				rResult.add(dest_item);
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
 SJson::SJson(int aType) : Type(aType), P_Next(0), P_Previous(0), P_Parent(0), P_Child(0), P_ChildEnd(0), State(0)
 {
 }
@@ -335,6 +387,22 @@ uint SJson::GetArrayCount() const
 			ok = true;
 		}
 	}
+	return ok;
+}
+
+/*static*/bool FASTCALL SJson::GetChildBool(const SJson * pN, bool & rResult) // @v12.5.12
+{
+	bool   ok = true;
+	if(pN) {
+		if(SJson::IsTrue(pN->P_Child))
+			rResult = true;
+		else if(SJson::IsFalse(pN->P_Child))
+			rResult = false;
+		else
+			ok = false;
+	}
+	else
+		ok = false;
 	return ok;
 }
 

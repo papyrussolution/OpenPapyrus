@@ -328,7 +328,7 @@ int PPObjGoodsBasket::GetPacket(PPID id, PPBasketPacket * pData, long options)
 		int    new_load_method = 1; // Проверено: этот метод быстрее
 		if(new_load_method) {
 			PROFILE_START
-			for(SEnum en = P_Ref->Assc.Enum(PPASS_GOODSBASKET, gb.ID, 0); en.Next(&item_rec) > 0;) {
+			for(SEnum en = P_Ref->AsscC.Enum(PPASS_GOODSBASKET, gb.ID, 0); en.Next(&item_rec) > 0;) {
 				ILTI item;
 				PPObjGoodsBasket::ObjAssocRecToBasketEntry(item_rec, item);
 				THROW_SL(pData->Lots.insert(&item));
@@ -338,7 +338,7 @@ int PPObjGoodsBasket::GetPacket(PPID id, PPBasketPacket * pData, long options)
 		else {
 			PROFILE_START
 			PPID   scnd_id = -MAXLONG;
-			while(P_Ref->Assc.EnumByPrmr(PPASS_GOODSBASKET, gb.ID, &scnd_id, &item_rec) > 0) {
+			while(P_Ref->AsscC.EnumByPrmr(PPASS_GOODSBASKET, gb.ID, &scnd_id, &item_rec) > 0) {
 				ILTI item;
 				PPObjGoodsBasket::ObjAssocRecToBasketEntry(item_rec, item);
 				THROW_SL(pData->Lots.insert(&item));
@@ -419,7 +419,7 @@ int PPObjGoodsBasket::PutPacket(PPID * pID, PPBasketPacket * pData, int use_ta)
 		}
 		if(!skip_items) {
 			if(items.getCount() == 0) {
-				THROW(P_Ref->Assc.Remove(PPASS_GOODSBASKET, *pID, 0, 0));
+				THROW(P_Ref->AsscC.Remove(PPASS_GOODSBASKET, *pID, 0, 0));
 				ok = 1;
 			}
 			else {
@@ -427,7 +427,7 @@ int PPObjGoodsBasket::PutPacket(PPID * pID, PPBasketPacket * pData, int use_ta)
 				PPGoodsBasketItem gbi;
 				SVector prev_items(sizeof(ObjAssocTbl::Rec));
 				LongArray found_pos_list;
-				for(SEnum en = P_Ref->Assc.Enum(PPASS_GOODSBASKET, *pID, 0); en.Next(&gbi) > 0;) {
+				for(SEnum en = P_Ref->AsscC.Enum(PPASS_GOODSBASKET, *pID, 0); en.Next(&gbi) > 0;) {
 					THROW_SL(prev_items.insert(&gbi));
 					SETMAX(last_num, gbi.Num);
 				}
@@ -445,19 +445,19 @@ int PPObjGoodsBasket::PutPacket(PPID * pID, PPBasketPacket * pData, int use_ta)
 							gbi.Price = p_list_item->Price;
 							gbi.UnitPerPack = p_list_item->UnitPerPack;
 							gbi.Expiry = p_list_item->Expiry;
-							THROW(P_Ref->Assc.Update(gbi.Id, reinterpret_cast<ObjAssocTbl::Rec *>(&gbi), 0));
+							THROW(P_Ref->AsscC.Update(gbi.Id, reinterpret_cast<ObjAssocTbl::Rec *>(&gbi), 0));
 							ok = 1;
 						}
 					}
 					else {
 						if(gbi.Num == last_num)
 							last_num--;
-						THROW(P_Ref->Assc.Remove(gbi.Id, 0));
+						THROW(P_Ref->AsscC.Remove(gbi.Id, 0));
 						ok = 1;
 					}
 				}
 				{
-					BExtInsert bei(&P_Ref->Assc);
+					BExtInsert bei(&P_Ref->AsscC);
 					for(i = 0; i < items.getCount(); i++) {
 						if(!found_pos_list.lsearch((long)i)) {
 							PPGoodsBasketItem * p_list_item = static_cast<PPGoodsBasketItem *>(items.at(i));
@@ -511,7 +511,7 @@ StrAssocArray * PPObjGoodsBasket::MakeStrAssocList(void * extraPtr)
 			LAssocArray b2g_list;
 			PPID   basket_id = 0;
 			uint   pos = 0;
-			P_Ref->Assc.GetList(PPASS_GOODSBASKET, &b2g_list);
+			P_Ref->AsscC.GetList(PPASS_GOODSBASKET, &b2g_list);
 			if(b2g_list.SearchByVal(_id, &basket_id, &pos)) {
 				ok = RetRefsExistsErr(Obj, basket_id);
 			}
@@ -524,21 +524,21 @@ StrAssocArray * PPObjGoodsBasket::MakeStrAssocList(void * extraPtr)
 			{
 				LAssocArray b2g_list;
 				ObjAssocTbl::Rec assc_rec;
-				P_Ref->Assc.GetList(PPASS_GOODSBASKET, &b2g_list);
+				P_Ref->AsscC.GetList(PPASS_GOODSBASKET, &b2g_list);
 				for(uint i = 0; i < b2g_list.getCount(); i++) {
 					const LAssoc & r_item = b2g_list.at(i);
 					if(r_item.Val == _id) {
-						if(P_Ref->Assc.Search(PPASS_GOODSBASKET, r_item.Key, r_item.Val, &assc_rec) > 0) {
+						if(P_Ref->AsscC.Search(PPASS_GOODSBASKET, r_item.Key, r_item.Val, &assc_rec) > 0) {
 							if(assc_rec.AsscType == PPASS_GOODSBASKET && assc_rec.PrmrObjID == r_item.Key && assc_rec.ScndObjID == r_item.Val) { // @paranoic
 								// @v12.2.6 assc_rec.ScndObjID = replacer_id;
-								// @v12.2.6 THROW(P_Ref->Assc.Update(assc_rec.ID, &assc_rec, 0));
+								// @v12.2.6 THROW(P_Ref->AsscC.Update(assc_rec.ID, &assc_rec, 0));
 								// @v12.2.6 {
 								PPGoodsBasket2 basket_rec;
 								if(Search(r_item.Key, &basket_rec) > 0) {
 									ObjAssocTbl::Rec dest_item_rec;
-									if(P_Ref->Assc.Search(PPASS_GOODSBASKET, r_item.Key, replacer_id, &dest_item_rec) > 0) { // Элемент корзины с таким товаром уже существует
+									if(P_Ref->AsscC.Search(PPASS_GOODSBASKET, r_item.Key, replacer_id, &dest_item_rec) > 0) { // Элемент корзины с таким товаром уже существует
 										// Удаляем запись корзины, соответствующую объединяемому товару
-										THROW(P_Ref->Assc.Remove(PPASS_GOODSBASKET, r_item.Key, r_item.Val, 0));
+										THROW(P_Ref->AsscC.Remove(PPASS_GOODSBASKET, r_item.Key, r_item.Val, 0));
 										{
 											// Теперь в элемент корзины с объединяющим товаров добавляем количество из объединяемого элемента и меняем запись.
 											ILTI dest_item;
@@ -548,16 +548,16 @@ StrAssocArray * PPObjGoodsBasket::MakeStrAssocList(void * extraPtr)
 											dest_item.Quantity += src_item.Quantity;
 											dest_item.Rest += src_item.Rest;
 											PPObjGoodsBasket::BasketEntryToObjAssocRec(dest_item, dest_item_rec.InnerNum, true/*dontResetDestRecBefore*/, dest_item_rec);
-											THROW(P_Ref->Assc.Update(dest_item_rec.ID, &dest_item_rec, 0));
+											THROW(P_Ref->AsscC.Update(dest_item_rec.ID, &dest_item_rec, 0));
 										}
 									}
 									else {
 										assc_rec.ScndObjID = replacer_id;
-										THROW(P_Ref->Assc.Update(assc_rec.ID, &assc_rec, 0));
+										THROW(P_Ref->AsscC.Update(assc_rec.ID, &assc_rec, 0));
 									}
 								}
 								else {
-									THROW(P_Ref->Assc.Remove(PPASS_GOODSBASKET, r_item.Key, r_item.Val, 0));
+									THROW(P_Ref->AsscC.Remove(PPASS_GOODSBASKET, r_item.Key, r_item.Val, 0));
 								}
 								// } @v12.2.6 
 							}

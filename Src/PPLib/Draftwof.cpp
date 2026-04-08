@@ -893,7 +893,7 @@ int PrcssrWrOffDraft::UniteToPool(PPID poolOpID, const PPIDArray * pBillList, in
 			THROW(P_BObj->TurnPacket(&pool_pack, 0));
 			{
 				const  PPID pool_id = pool_pack.Rec.ID;
-				THROW(PPRef->Assc.AddArray(PPASS_OPBILLPOOL, pool_id, &pool_list, 1, 0));
+				THROW(PPRef->AsscC.AddArray(PPASS_OPBILLPOOL, pool_id, &pool_list, 1, 0));
 				THROW(P_BObj->UpdatePool(pool_id, 0));
 			}
 			THROW(tra.Commit());

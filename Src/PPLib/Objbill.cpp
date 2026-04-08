@@ -10061,57 +10061,60 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 {
 	class AgtBlock {
 	public:
-		AgtBlock() : Kind(0), P_CliAgt(0)
+		AgtBlock() : Kind(0)
 		{
 		}
 		~AgtBlock()
 		{
-			if(Kind == 1) {
-				ZDELETE(P_CliAgt);
-			}
-			else if(Kind == 2) {
-				ZDELETE(P_SupplAgt);
-			}
 		}
-		int    Init(PPID arID)
+		int    Init(const PPBillPacket * pPack)
 		{
 			int    ok = -1;
-			if(Kind == 0) {
-				PPObjArticle ar_obj;
-				ArticleTbl::Rec ar_rec;
-				if(ar_obj.Fetch(arID, &ar_rec) > 0) {
-					int    k = PPObjArticle::GetAgreementKind(&ar_rec);
-					if(k == 1) {
-						PPClientAgreement ca_rec;
-						if(ar_obj.GetClientAgreement(arID, ca_rec, 0) > 0) {
-							P_CliAgt = new PPClientAgreement;
-							*P_CliAgt = ca_rec;
-							Kind = k;
-							ok = 1;
+			const  PPID ar_id = pPack->Rec.Object;
+			if(ar_id) {
+				if(Kind == 0) {
+					if(pPack->Rec.AgtBillID) {
+						PPObjBill * p_bobj(BillObj);
+						if(p_bobj && p_bobj->Search(pPack->Rec.AgtBillID, &AgtBillRec) > 0) {
+							p_bobj->P_Tbl->GetAgreement(AgtBillRec.ID, &AgtBlk);
+							Kind = 3;
+							ok = 3;
 						}
 					}
-					else if(k == 2) {
-						PPSupplAgreement sa_rec;
-						if(ar_obj.GetSupplAgreement(arID, &sa_rec, 1) > 0) {
-							P_SupplAgt = new PPSupplAgreement;
-							*P_SupplAgt = sa_rec;
-							Kind = k;
-							ok = 2;
+					else {
+						PPObjArticle ar_obj;
+						ArticleTbl::Rec ar_rec;
+						if(ar_obj.Fetch(ar_id, &ar_rec) > 0) {
+							int    k = PPObjArticle::GetAgreementKind(&ar_rec);
+							if(k == 1) {
+								if(ar_obj.GetClientAgreement(ar_id, CliAgt, 0) > 0) {
+									Kind = k;
+									ok = 1;
+								}
+							}
+							else if(k == 2) {
+								if(ar_obj.GetSupplAgreement(ar_id, &SupplAgt, 1) > 0) {
+									Kind = k;
+									ok = 2;
+								}
+							}
 						}
 					}
 				}
+				else if(Kind == 1)
+					ok = 1;
+				else if(Kind == 2)
+					ok = 2;
+				else if(Kind == 3)
+					ok = 3;
 			}
-			else if(Kind == 1)
-				ok = 1;
-			else if(Kind == 2)
-				ok = 2;
 			return ok;
 		}
 		int    Kind;
-		union {
-			PPClientAgreement * P_CliAgt;
-			PPSupplAgreement * P_SupplAgt;
-		};
+		PPClientAgreement CliAgt; // kind==1
+		PPSupplAgreement SupplAgt; // kind==2
+		PPBill::AgreementBlock AgtBlk; // kind==3
+		BillTbl::Rec AgtBillRec; // kind==3
 	};
 	rResult.Z();
 
@@ -10119,8 +10122,7 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 	SString subst_buf;
 	PPObjTSession * p_tses_obj = 0;
 	PPObjCSession * p_cses_obj = 0;
-	// @v11.0.4 TSessionTbl::Rec tsess_rec;
-	TSessionPacket tsess_pack; // @v11.0.4 
+	TSessionPacket tsess_pack;
 	CSessionTbl::Rec csess_rec;
 	LocationTbl::Rec loc_rec;
 	PPBillPacket * p_link_pack = 0, * p_rckn_pack = 0;
@@ -10139,8 +10141,7 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 				}
 				else {
 					const  PPBillPacket * pk = pPack;
-					// @v11.0.4 const TSessionTbl::Rec * p_tsess_rec = 0;
-					const TSessionPacket * p_tsess_pack = 0; // @v11.0.4 
+					const TSessionPacket * p_tsess_pack = 0;
 					const CSessionTbl::Rec * p_csess_rec = 0;
 					switch(sym) {
 						case PPSYM_LINK:
@@ -10254,8 +10255,7 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 					subst_buf.Z();
 					switch(sym) {
 						case PPSYM_BILLNO: 
-							// @v11.1.12 BillCore::GetCode(subst_buf = pk->Rec.Code); 
-							subst_buf = pk->Rec.Code; // @v11.1.12 
+							subst_buf = pk->Rec.Code;
 							break;
 						case PPSYM_DATE: subst_buf.Cat(pk->Rec.Dt, DATF_DMY); break;
 						case PPSYM_DUEDATE:
@@ -10282,10 +10282,8 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 						case PPSYM_INVOICENO:
 							if(pk->Ext.InvoiceCode[0])
 								subst_buf = pk->Ext.InvoiceCode;
-							else {
-								// @v11.1.12 BillCore::GetCode(subst_buf = pk->Rec.Code);
-								subst_buf = pk->Rec.Code; // @v11.1.12 
-							}
+							else
+								subst_buf = pk->Rec.Code;
 							break;
 						case PPSYM_AMOUNT: subst_buf.Cat(pk->GetAmount(), MKSFMTD(0, 0, NMBF_TRICOMMA)); break;
 						case PPSYM_LOCCODE:
@@ -10305,8 +10303,8 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 								}
 							}
 							break;
-						case PPSYM_OBJ2INN:     // @obj2inn ИНН персоналии, ассоциированной со дополнительной статьей документа
-						case PPSYM_OBJ2KPP:     // @obj2kpp КПП персоналии, ассоциированной со дополнительной статьей документа
+						case PPSYM_OBJ2INN: // @obj2inn ИНН персоналии, ассоциированной со дополнительной статьей документа
+						case PPSYM_OBJ2KPP: // @obj2kpp КПП персоналии, ассоциированной со дополнительной статьей документа
 							if(pk->Rec.Object2) {
 								const  PPID psn_id = ObjectToPerson(pk->Rec.Object2);
 								if(psn_id) {
@@ -10356,8 +10354,7 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 							}
 							// @fallthrough
 						case PPSYM_BILLMEMO:
-							// @v11.1.12 subst_buf = pk->Rec.Memo;
-							subst_buf = pk->SMemo; // @v11.1.12
+							subst_buf = pk->SMemo;
 							break;
 						case PPSYM_CLIENTADDR:
 							{
@@ -10368,7 +10365,7 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 								}
 							}
 							break;
-						case PPSYM_CLIENTEXTNAME: // @v11.1.10
+						case PPSYM_CLIENTEXTNAME:
 							{
 								const  PPID psn_id = ObjectToPerson(pk->Rec.Object);
 								if(psn_id) {
@@ -10398,26 +10395,42 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 							}
 							break;
 						case PPSYM_AGTCODE:
-							if(agt_blk.Init(pk->Rec.Object) == 1) {
-								//
-								// В @v5.7.12 номера есть только у соглашений с покупателями
-								//
-								subst_buf = agt_blk.P_CliAgt->Code_; // @v11.2.0 Code2-->Code_
+							{
+								const  int agt_kind = agt_blk.Init(pk);
+								if(agt_kind == 1) {
+									//
+									// В @v5.7.12 номера есть только у соглашений с покупателями
+									//
+									subst_buf = agt_blk.CliAgt.Code_;
+								}
+								else if(agt_kind == 3) {
+									subst_buf = agt_blk.AgtBillRec.Code;
+								}
 							}
 							break;
 						case PPSYM_AGTDATE:
-							if(agt_blk.Init(pk->Rec.Object) > 0)
-								if(agt_blk.Kind == 1)
-									subst_buf.Cat(agt_blk.P_CliAgt->BegDt, DATF_DMY|DATF_CENTURY);
-								else if(agt_blk.Kind == 2)
-									subst_buf.Cat(agt_blk.P_SupplAgt->BegDt, DATF_DMY|DATF_CENTURY);
+							{
+								const  int agt_kind = agt_blk.Init(pk);
+								if(agt_kind == 1)
+									subst_buf.Cat(agt_blk.CliAgt.BegDt, DATF_DMY|DATF_CENTURY);
+								else if(agt_kind == 2)
+									subst_buf.Cat(agt_blk.SupplAgt.BegDt, DATF_DMY|DATF_CENTURY);
+								else if(agt_kind == 3) {
+									subst_buf.Cat(agt_blk.AgtBillRec.Dt, DATF_DMY|DATF_CENTURY);
+								}
+							}
 							break;
 						case PPSYM_AGTEXPIRY:
-							if(agt_blk.Init(pk->Rec.Object) > 0)
-								if(agt_blk.Kind == 1)
-									subst_buf.Cat(agt_blk.P_CliAgt->Expiry, DATF_DMY|DATF_CENTURY);
-								else if(agt_blk.Kind == 2)
-									subst_buf.Cat(agt_blk.P_SupplAgt->Expiry, DATF_DMY|DATF_CENTURY);
+							{
+								const  int agt_kind = agt_blk.Init(pk);
+								if(agt_kind == 1)
+									subst_buf.Cat(agt_blk.CliAgt.Expiry, DATF_DMY|DATF_CENTURY);
+								else if(agt_kind == 2)
+									subst_buf.Cat(agt_blk.SupplAgt.Expiry, DATF_DMY|DATF_CENTURY);
+								else if(agt_kind == 3) {
+									subst_buf.Cat(agt_blk.AgtBlk.Expiry, DATF_DMY|DATF_CENTURY);
+								}
+							}
 							break;
 						case PPSYM_DUMMY:
 							break;
@@ -10447,12 +10460,11 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 int PPObjBill::SubstMemo(PPBillPacket * pPack)
 {
 	int    ok = 1;
-	SString temp_buf, result_buf;
-	// @v11.1.12 if(pPack->Rec.Memo[0] == 0 && P_OpObj->GetExtStrData(pPack->Rec.OpID, OPKEXSTR_MEMO, temp_buf) > 0) {
-	if(pPack->SMemo.IsEmpty() && P_OpObj->GetExtStrData(pPack->Rec.OpID, OPKEXSTR_MEMO, temp_buf) > 0) { // @v11.1.12
+	SString temp_buf;
+	SString result_buf;
+	if(pPack->SMemo.IsEmpty() && P_OpObj->GetExtStrData(pPack->Rec.OpID, OPKEXSTR_MEMO, temp_buf) > 0) {
         THROW(SubstText(pPack, temp_buf.Strip(), result_buf));
-		// @v11.1.12 STRNSCPY(pPack->Rec.Memo, result_buf);
-		pPack->SMemo = result_buf; // @v11.1.12
+		pPack->SMemo = result_buf;
 	}
 	else
 		ok = -1;

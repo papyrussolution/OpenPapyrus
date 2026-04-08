@@ -513,7 +513,7 @@ int TSessionCore::Put_(PPID * pID, TSessionTbl::Rec * pRec, long options, int us
 				//
 				THROW(deleteFrom(&Lines, 0, Lines.TSessID == *pID));
 				THROW(RemoveByID(this, *pID, 0));
-				THROW(PPRef->Assc.Remove(PPASS_CHECKINPSNTSES, 0, *pID, 0));
+				THROW(PPRef->AsscC.Remove(PPASS_CHECKINPSNTSES, 0, *pID, 0));
 				// log_action_id не инициализируем, по-скольку удаление объекта обычно
 				// реализуется функцией PPObject::Remove, которая самостоятельно заносит
 				// это событие
@@ -526,7 +526,7 @@ int TSessionCore::Put_(PPID * pID, TSessionTbl::Rec * pRec, long options, int us
 				if(PPObjTSession::IsIdleInsignificant(pRec, rec.Status)) {
 					THROW(deleteFrom(&Lines, 0, Lines.TSessID == *pID));
 					THROW(RemoveByID(this, *pID, 0));
-					THROW(PPRef->Assc.Remove(PPASS_CHECKINPSNTSES, 0, *pID, 0));
+					THROW(PPRef->AsscC.Remove(PPASS_CHECKINPSNTSES, 0, *pID, 0));
 					log_action_id = PPACN_OBJRMV;
 				}
 				else {

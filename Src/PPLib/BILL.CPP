@@ -1616,19 +1616,19 @@ int BillCore::HasWLabel(PPID id)
 //
 //
 int BillCore::EnumMembersOfPool(PPID poolType, PPID poolOwnerID, PPID * pMemberID, ObjAssocTbl::Rec * b)
-	{ return PPRef->Assc.EnumByPrmr(poolType, poolOwnerID, pMemberID, b); }
+	{ return PPRef->AsscC.EnumByPrmr(poolType, poolOwnerID, pMemberID, b); }
 int BillCore::GetPoolMembersList(PPID poolType, PPID poolOwnerID, PPIDArray * pList)
-	{ return PPRef->Assc.GetListByPrmr(poolType, poolOwnerID, pList); }
+	{ return PPRef->AsscC.GetListByPrmr(poolType, poolOwnerID, pList); }
 int BillCore::GetPoolList(PPID poolType, LAssocArray * pAry) 
-	{ return PPRef->Assc.GetList(poolType, pAry); }
+	{ return PPRef->AsscC.GetList(poolType, pAry); }
 int BillCore::RemoveFromPool(PPID billID, PPID poolType, PPID poolOwnerID, int use_ta)
-	{ return PPRef->Assc.Remove(poolType, poolOwnerID, billID, use_ta); }
+	{ return PPRef->AsscC.Remove(poolType, poolOwnerID, billID, use_ta); }
 
 int BillCore::GetPoolOwnerList(PPID billID, PPID poolType, PPIDArray * pList)
 {
 	int    ok = -1;
 	ObjAssocTbl::Rec assc_rec;
-	for(SEnum en = PPRef->Assc.Enum(poolType, billID, 1); en.Next(&assc_rec) > 0;) {
+	for(SEnum en = PPRef->AsscC.Enum(poolType, billID, 1); en.Next(&assc_rec) > 0;) {
 		CALLPTRMEMB(pList, addUnique(assc_rec.PrmrObjID));
 		ok = 1;
 	}
@@ -1641,12 +1641,12 @@ int BillCore::IsMemberOfPool(PPID billID, PPID poolType, PPID * pPoolOwnerID)
 	PPID   owner_id = DEREFPTRORZ(pPoolOwnerID);
 	Reference * p_ref(PPRef);
 	if(owner_id) {
-		if(p_ref->Assc.Search(poolType, owner_id, billID) > 0)
+		if(p_ref->AsscC.Search(poolType, owner_id, billID) > 0)
 			yes = 1;
 	}
 	else {
 		ObjAssocTbl::Rec assc_rec;
-		for(SEnum en = p_ref->Assc.Enum(poolType, billID, 1); !yes && en.Next(&assc_rec) > 0;) {
+		for(SEnum en = p_ref->AsscC.Enum(poolType, billID, 1); !yes && en.Next(&assc_rec) > 0;) {
 			owner_id = assc_rec.PrmrObjID;
 			yes = 1;
 		}
@@ -1662,20 +1662,20 @@ int BillCore::UpdatePool(PPID billID, PPID pullType, PPID pullOwnerID, int use_t
 	size_t max_va_sz = sizeof(ObjAssocTbl::Rec) - offsetof(ObjAssocTbl::Rec, /*Name*/Text);
 	ObjAssocTbl::Rec assc_rec;
 	Reference * p_ref(PPRef);
-	if(p_ref->Assc.Search(pullType, pullOwnerID, billID, &assc_rec) > 0) {
+	if(p_ref->AsscC.Search(pullType, pullOwnerID, billID, &assc_rec) > 0) {
 		const ObjAssocTbl::Rec org_assc_rec(assc_rec);
 		assc_id = assc_rec.ID;
 		memzero(assc_rec.Text, max_va_sz);
 		if(memcmp(&assc_rec, &org_assc_rec, sizeof(assc_rec)) != 0)
-			THROW(p_ref->Assc.Update(assc_id, &assc_rec, use_ta));
+			THROW(p_ref->AsscC.Update(assc_id, &assc_rec, use_ta));
 	}
 	else {
 		assc_rec.Clear();
 		assc_rec.AsscType  = pullType;
 		assc_rec.PrmrObjID = pullOwnerID;
 		assc_rec.ScndObjID = billID;
-		THROW(p_ref->Assc.SearchFreeNum(pullType, pullOwnerID, &assc_rec.InnerNum, 0));
-		THROW(p_ref->Assc.Add(&assc_id, &assc_rec, use_ta));
+		THROW(p_ref->AsscC.SearchFreeNum(pullType, pullOwnerID, &assc_rec.InnerNum, 0));
+		THROW(p_ref->AsscC.Add(&assc_id, &assc_rec, use_ta));
 	}
 	CATCHZOK
 	return ok;

@@ -1,5 +1,5 @@
 // PPDBQF.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 //
 #include <pp.h>
 #pragma hdrstop
@@ -728,7 +728,7 @@ static IMPL_DBE_PROC(dbqf_istxtuuideq_ss)
 	result->init(is_eq);
 }
 
-static IMPL_DBE_PROC(dbqf_ariscatperson_ii) // @v11.1.9
+static IMPL_DBE_PROC(dbqf_ariscatperson_ii)
 {
 	long    r = 0;
 	const  PPID ar_id = params[0].lval;
@@ -1283,6 +1283,23 @@ static IMPL_DBE_PROC(dbqf_objmemo_personevent_i) // @v11.1.12
 	}
 }
 
+static IMPL_DBE_PROC(dbqf_objmemo_tech_i) // @v11.1.12
+{
+	char   name_buf[512];
+	if(!DbeInitSize(option, result, sizeof(name_buf))) {
+		PPID   id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
+		if(id) {
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			if(id) {
+				PPRef->UtrC.SearchUtf8(SObjTextRefIdent(PPOBJ_TECH, id, PPTRPROP_MEMO), r_temp_buf);
+				r_temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+			}
+			STRNSCPY(name_buf, r_temp_buf);
+		}
+		result->init(name_buf);
+	}
+}
+
 static IMPL_DBE_PROC(dbqf_objname_acctrel_i)
 {
 	char   name_buf[32];
@@ -1601,6 +1618,7 @@ int PPDbqFuncPool::IdBillAmount           = 0; // @v12.1.0 (fldBillID, amountTyp
 int PPDbqFuncPool::IdClientActivityStatisticsIndicator = 0; // @v12.2.2 (personID, actualDate, indicator/*PPObjPerson::casiXXX*/) ¬озвращает значение индикатора статистики клиентской активности
 int PPDbqFuncPool::IdClientActivityState  = 0; // @v12.2.2 (personID, LDATE actualDate, LDATE newCliPeriodLo, LDATE newCliPeriodUp) ¬озвращает ClientActivityState::State
 int PPDbqFuncPool::IdObjLocAddress        = 0; // @v12.4.1
+int PPDbqFuncPool::IdObjMemoTech          = 0; // @v12.5.12 (fldTechID)
 
 static IMPL_DBE_PROC(dbqf_goodsstockdim_i)
 {
@@ -1841,6 +1859,7 @@ static IMPL_DBE_PROC(dbqf_datebase_id)
 	THROW(DbqFuncTab::RegisterDyn(&IdObjMemoBill,         BTS_STRING, dbqf_objmemo_bill_i,         1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdObjMemoPerson,       BTS_STRING, dbqf_objmemo_person_i,       1, BTS_INT)); // @v11.1.12
 	THROW(DbqFuncTab::RegisterDyn(&IdObjMemoPersonEvent,  BTS_STRING, dbqf_objmemo_personevent_i,  1, BTS_INT)); // @v11.1.12
+	THROW(DbqFuncTab::RegisterDyn(&IdObjMemoTech,         BTS_STRING, dbqf_objmemo_tech_i,         1, BTS_INT)); // @v12.5.12 (fldTechID)
 	THROW(DbqFuncTab::RegisterDyn(&IdObjNameSCardSer,     BTS_STRING, dbqf_objname_scardser_i,     1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdObjNameDebtDim,      BTS_STRING, dbqf_objname_debtdim_i,      1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdObjCodeSCard,        BTS_STRING, dbqf_objcode_scard_i,        1, BTS_INT));

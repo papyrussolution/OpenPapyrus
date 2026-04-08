@@ -613,12 +613,12 @@ public:
 	bool   FASTCALL Copy(const PPExtStrContainer & rS);
 	//
 	// Descr: Определяет эквивалентность объекта this объекту rS по множеству подстрок,
-	//   размером fldCount и с идентификаторами переданными в pFldList.
+	//   размером fieldCount и с идентификаторами переданными в pFldList.
 	// Descr:
-	//   !0 - объекты this и rS эквивалентны по множетсву pFldList[fldCount]
+	//   !0 - объекты this и rS эквивалентны по множеству pFldList[fldCount]
 	//   0 - объекты this и rS не эквивалентны
 	//
-	bool   IsEq(const PPExtStrContainer & rS, int fldCount, const int * pFldList) const;
+	bool   IsEq(const PPExtStrContainer & rS, int fieldCount, const int * pFldList) const;
 	int    GetExtStrData(int fldID, SString & rBuf) const;
 	int    PutExtStrData(int fldID, const char * pStr);
 	int    SerializeB(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
@@ -1517,6 +1517,7 @@ public:
 	static int IdClientActivityStatisticsIndicator; // @v12.2.2 (personID, actualDate, indicator/*PPObjPerson::casiXXX*/) Возвращает значение индикатора статистики клиентской активности
 	static int IdClientActivityState; // @v12.2.2 (personID, LDATE actualDate, LDATE newCliPeriodLo, LDATE newCliPeriodUp) Возвращает ClientActivityState::State
 	static int IdObjLocAddress;     // @v12.4.1 (fldLocID) текст адреса локации
+	static int IdObjMemoTech;       // @v12.5.12 (fldTechID)
 
 	static int Register();
 	static void STDCALL InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld);
@@ -3175,11 +3176,11 @@ private:
 //
 //
 //
-class ObjAssoc : public ObjAssocTbl {
+class ObjAssocCore : public ObjAssocTbl {
 public:
-	friend class PPTblEnum <ObjAssoc>;
+	friend class PPTblEnum <ObjAssocCore>;
 
-	ObjAssoc();
+	ObjAssocCore();
 	int    Add(PPID * pID, ObjAssocTbl::Rec * b, int use_ta);
 	//
 	// Descr: если pList != 0, добавляет в таблицу записи со следующими полями:
@@ -3914,9 +3915,8 @@ public:
 	int    GetPropSBuffer(PPID obj, PPID id, PPID prop, SBuffer & rBuf);
 	int    FASTCALL GetPropSBuffer_Current(SBuffer & rBuf);
 	//
-	// Если в функции RemoveProp параметр prop == 0, то удаляются все
-	// свойства объекта { obj, id }. В противном случае удаляются только
-	// свойства с ИД == prop.
+	// Note: Если в функции RemoveProp параметр prop == 0, то удаляются все свойства объекта { obj, id }. 
+	//   В противном случае удаляются только свойства с ИД == prop.
 	//
 	int    RemoveProperty(PPID objType, PPID objID, PPID prop, int use_ta);
 	int    GetProperty(PPID objType, PPID objID, PPID prop, void * pBuf = 0, size_t sz = 0);
@@ -3946,7 +3946,7 @@ private:
 	PPTblEnumList EnumList;
 public:
 	PropertyTbl Prop;
-	ObjAssoc    Assc;
+	ObjAssocCore AsscC;
 	ObjTagCore  Ot;
 	UnxTextRefCore UtrC;
 	TextRefCore TrT;
@@ -12384,7 +12384,7 @@ public:
 	//
 	// Descr: Устанавливает дополнительную статью в пакет документа (Rec.Object2). Выполняет все необходимые проверки.
 	//
-	int    SetupObject2(PPID arID);
+	int    SetupObject2(PPID arID, SetupObjectBlock * pSob);
 	int    SetupDlvrAddr(PPID dlvrAddrID);
 	//
 	// Descr: Устанавливает в пакете специальные атрибуты, зависящие от EDI-источника документа:
@@ -16335,7 +16335,6 @@ public:
 	static int FASTCALL WriteFiltPtr(SBuffer & rBuf, const PPBaseFilt * pFilt);
 	static int FASTCALL ReadFiltPtr(SBuffer & rBuf, PPBaseFilt ** ppFilt);
 	static int EditExecNfViewParam(ExecNfViewParam & rData);
-
 	enum {
 		exefModeless         = 0x0001,
 		exefDisable3Tier     = 0x0002,
@@ -16367,7 +16366,7 @@ public:
 		long   Id;
 		SString Symb;
 		SString Descr;
-		const  void * P_ExtraParam; // @v11.4.4
+		const  void * P_ExtraParam;
 	};
 	//
 	// Descr: Загружает из ресурсов описание объекта PPView или PPBaseFilt
@@ -16396,10 +16395,26 @@ public:
 		implBrowseArray         = 0x0010, // Данные для броузера поcтавляются массивом SArray а не запросом DBQuery
 		implUseServer           = 0x0020, // Объект может делегировать инициализацию серверу
 		implDontEditNullFilter  = 0x0040, // Если указатель на фильтр равен 0, то использовать пустой фильтр и не вызывать диалог редактирования фильтра
-		implUseQuickTagEditFunc = 0x0080  // @v11.2.8 Если установлен, то в таблице применяется функция быстрого редактирования тега
-			// по нажанию клавишь '/' и горячей клавиши, заданной в теге.
+		implUseQuickTagEditFunc = 0x0080, // Если установлен, то в таблице применяется функция быстрого редактирования тега по нажанию клавишь '/' и горячей клавиши, заданной в теге.
+		implQueryDataSourceType = 0x0100, // @v12.5.12 Если установлен, то методы PPView, конструирующие таблицу, будут сначала запрашивать 
+			// какой тип данных (DbQuery or Array) предоставляет класс и только потом вызывает CreateBrowserQuery или CreateBrowserArray.
+			// То есть, теперь (ну, после того, как все заработает) классы семейства PPView могут предоставлять и тот и другой интерфейсы.	
 	};
 	long   GetImplementFlags() const { return ImplementFlags; }
+	//
+	// Descr: Типы источников данных для отображения в таблицах.
+	//   Чаще всего тип источника определяется флагом PPView::implBrowseArray (ImplementFlags): если установлен, то данные берутся из inmem-массива, 
+	//   в противном случае - из запроса DBQuery. Но если класс семейства PPView хочет предоставлять либо тот либо иной источник в зависимости от 
+	//   текущего состояния, то для этого применяется команда PPVCMD_QUERYDATASOURCETYPE, отправляемая экземпляру класса (обрабатывается методом ProcessCommand). 
+	//   Если в ответ на сообщение будет получено одно из значений datasourcetypeDBQuery или datasourcetypeArray, то класс PPView
+	//   будет считать, что это и есть верный тип источника данных, в противном случае, будет полагаться на ImplementFlags.
+	//   See GetDataSourceType().
+	//
+	enum {
+		datasourcetypeDBQuery = 1001,
+		datasourcetypeArray   = 1002,
+	};
+	int   GetDataSourceType(); // @v12.5.12
 	//
 	// Descr: Создает экземпляр класса PPBaseFilt. Дополнительный параметр extraPtr
 	//   позволяет задать специфичную информацию для инициализации фильтра.
@@ -16431,7 +16446,7 @@ public:
 	//  100 - вызывающая функция должна обновить содержимое таблицы, а также пересчитать размеры колонок (construction)
 	//    0 - error
 	//
-	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int   ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int   HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
 	//
 	// Протокол передачи серверу задания на формирование PPView:
@@ -16484,6 +16499,26 @@ private:
 	static int CreateInstance(int viewID, int32 * pSrvInstId, PPView ** ppV);
 	static int Helper_Execute(int viewID, const PPBaseFilt * pFilt, int flags, PPView ** ppResult, void * extraPtr);
 	int    Helper_Init(const PPBaseFilt * pFilt, int flags /* exefXXX */);
+
+	struct CreateBrowserBlock {
+		CreateBrowserBlock();
+		CreateBrowserBlock & Z();
+		//
+		// Descr: Если P_Brw != 0 то разрушает P_Brw, в противном случае разрушает 
+		//   P_Array и P_Q (если P_Q != CrosstabDbQueryStub).
+		//   В конце обнуляет объект.
+		// Note: Вызывать только в случае ошибки: в нормальной ситуации все указатели ссылаются на объекты, которые сами отлично 
+		//   знают что когда разрушать.
+		//
+		void   Destroy();
+
+		uint   BrwId;
+		DBQuery * P_Q;
+		SArray  * P_Array;
+		PPViewBrowser * P_Brw;
+	};
+	int    CreateBrowser_OnStart(CreateBrowserBlock & rBlk, bool modeless); // @v12.5.12
+	int    CreateBrowser_OnUpdate(CreateBrowserBlock & rBlk); // @v12.5.12
 protected:
 	static DBQuery * CrosstabDbQueryStub; // realy const (bad ptr)
 	//
@@ -17498,7 +17533,9 @@ private:
 //
 #define OBJTAG_ONLYGROUP -1L
 #define OBJTAG_ONLYTAGS  -2L
-
+//
+// Descr: Фильтр тегов
+//
 struct ObjTagFilt {
 	enum {
 		fOnlyGroups   = 0x0001, // Только группы тегов
@@ -17524,14 +17561,24 @@ struct ObjTagFilt {
 };
 
 class PPObjTag : public PPObjReference {
-	/* Зарезервированные символы тегов:
-		ASTRAZENECAGOODS
-		GAZPROMNEFT-WHUUID
-		HEINEKEN-RORDN
-		LOC-AGENT-VLDSTD
-		setretail-prodtagb
-		SERVICE-TODO-CODE // @v12.4.7
-	*/
+	//
+	// Зарезервированные символы тегов:
+	//   ASTRAZENECAGOODS
+	//   GAZPROMNEFT-WHUUID
+	//   HEINEKEN-RORDN
+	//   LOC-AGENT-VLDSTD
+	//   setretail-prodtagb
+	//   SERVICE-TODO-CODE // @v12.4.7
+	//   CC-BAILMENT-AA
+	//   BALTIKA-ORDER-NO
+	//   BALTIKA-PROMO-LABEL
+	//   WBD-ORD-EMAILACC
+	//   COCACOLA-LOC-CODE
+	//   AGENT-COKE
+	//   UNKNAGENTCODE
+	//   COKE-PROMOLOTCODE
+	//   TI-ORDER-CODE       // @v12.5.12 Строковый тег лота (строки документа), ассоциирующий номер заказа с этой самой строкой (это в случае, если не администрируются нормальные заказы) 
+	//
 public:
 	static int     CheckForTagFilt(PPID objType, PPID objID, const TagFilt * pFilt);
 	//
@@ -17996,7 +18043,7 @@ struct PPPersonCat {
 
 class PPObjPersonCat : public PPObjReference {
 public:
-	PPObjPersonCat(void * extraPtr = 0);
+	explicit PPObjPersonCat(void * extraPtr = 0);
 	int    FASTCALL Fetch(PPID id, PPPersonCat * pRec);
 private:
 	virtual int HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr);
@@ -19753,6 +19800,7 @@ private:
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
+	virtual void * CreateObjListWin(uint flags, void * extraPtr); // @v12.5.12
 	int    PutDim(PPID gdsClsID, PPID propID, PPGdsClsDim *);
 	int    GetDim(PPID gdsClsID, PPID propID, PPGdsClsDim *);
 	int    ReplacePropRefList(PPID prevObjType, PPID newObjType, LAssocArray * pAssc, LAssocArray * pBadRefList);
@@ -20718,7 +20766,7 @@ public:
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int   OnExecBrowser(PPViewBrowser * pBrw);
-	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int   ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual void * GetEditExtraParam();
 
 	BizScoreFilt Filt;
@@ -20819,7 +20867,7 @@ public:
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int   ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 
 	BizScoreCore Tbl;
 	BizScoreValFilt Filt;
@@ -20864,7 +20912,7 @@ private:
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int   ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	int    MakeList(PPViewBrowser * pBrw);
 	int    MakeListEntry(const BizScore2Tbl::Rec & rRec, BrwItem & rEntry);
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
@@ -21078,7 +21126,7 @@ public:
 	int    FASTCALL NextIteration(GlobalUserAccViewItem *);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	int    UpdateTempTable(const PPIDArray * pIdList);
 	TempGlobUserAccTbl::Rec & MakeTempEntry(const PPGlobalUserAcc & rRec, TempGlobUserAccTbl::Rec & rTempRec);
 	int    CheckForFilt(const PPGlobalUserAcc * pRec) const;
@@ -23984,7 +24032,7 @@ public:
 private:
 	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int    ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int    ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	int    Update();
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    CreatePhnSvcClient();
@@ -25477,6 +25525,7 @@ private:
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
+	virtual void * CreateObjListWin(uint flags, void * extraPtr); // @v12.5.12 список именованных структур
 	int    Helper_LoadItems(PPID id, PPGoodsStruc * pData);
 	int    SerializePacket(int dir, PPGoodsStruc * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 };
@@ -25917,7 +25966,10 @@ public:
 
 	PPQuotKind Rec;
 };
-
+//
+// Зарезервированные символы видов котировок:
+//   ISALES-SUPPORT
+//
 //
 // Специфические флаги прав доступа по котировкам
 //
@@ -27397,7 +27449,7 @@ struct CashierInfo {
 	long   Flags;		 // CIF_XXX
 };
 
-class PPPersonPacket : public PPPerson, public ObjTagContainerHelper { // Managed by class PPObjPerson
+class PPPersonPacket : public PPPerson, public ObjTagContainerHelper, public PPExtStrContainer { // Managed by class PPObjPerson
 public:
 	//
 	// Descr: Текстовые поля расширения персоналии //
@@ -27501,7 +27553,7 @@ public:
 	//
 	long   SelectedLocPos;          // @transient
 private:
-	SString ExtString; // Здесь сейчас хранится только расширенное имя персоналии. В базе данных держится в Prop {PSNPRP_EXTSTRDATA}. 
+	// @v12.5.12 (PPExtStrContainer) SString ExtString; // Здесь сейчас хранится только расширенное имя персоналии. В базе данных держится в Prop {PSNPRP_EXTSTRDATA}. 
 		// @todo @20260328 Перестроить на хранение набора строк расширения (PPExtStrContainer) и перенести в UnxTextRef
 	TSCollection <PPLocationPacket> DlvrLocList; // Список адресов доставки
 	PPSCardPacket * P_SCardPack; // @transient Используется при одновременном редактировании персоналии и карты
@@ -27584,6 +27636,9 @@ public:
 	int    IsPacketEq(const PPPersonPacket & rS1, const PPPersonPacket & rS2, long flags);
 
 	struct EditBlock {
+		// @v12.5.12 Специальное значение, возвращаемое методом PPViewPerson::GetEditExtraParam() для того, чтобы сигнализировать
+		// функции PPObjPerson::Edit() что необходимо включить механизм создания контакта в контексте проекта Centrigo.
+		static constexpr PPID CentrigoNewContactSpecialKind = 0x0A701B4EL; 
 		EditBlock();
 
 		PPID   InitKindID;
@@ -28311,7 +28366,7 @@ public:
 private:
 	static void FASTCALL MakeListEntry(const PPStaffEntry & rSrc, PPViewStaffList::BrwEntry & rEntry);
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
-	virtual int    ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int    ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual void * GetEditExtraParam();
 	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
@@ -28366,7 +28421,7 @@ public:
 	int    FASTCALL NextIteration(StaffPostViewItem *);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int   ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual void * GetEditExtraParam();
 	int    CreateTempTable(int order);
 
@@ -28800,7 +28855,7 @@ public:
 	int    GetTimeGridItemText(PPID taskID, SString & rBuf);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int   ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int   Detail(const void *, PPViewBrowser * pBrw);
 	virtual int   Print(const void *);
 	int    CreateEntryByObj(PPID objType, PPID objID, StrAssocArray * pNameList, int refresh = 0);
@@ -28899,7 +28954,7 @@ public:
 	int    SetPostDateListItem(PPID postID, LDATE dt);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int   ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int   Print(const void *);
 	bool   IsTempTblNeeded() const;
 	void   MakeTempRec(int order, const SalaryTbl::Rec * pRec, TempSalaryTbl::Rec * pTempRec);
@@ -29193,7 +29248,7 @@ public:
 	int    FASTCALL NextIteration(PersonEventViewItem *);
 	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw);
 private:
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void ViewTotal();
 	virtual int  Print(const void *);
@@ -29342,22 +29397,25 @@ struct PersonFilt : public PPBaseFilt {
 	//
 	enum {
 		spcGeneral = 0,         // Общее назначение
-		spcClientActivityStats  // Статистика клиентской активности
+		spcClientActivityStats, // Статистика клиентской активности. Транслируется в PersonFilt::fCliActivityStats
+		spcCentrigoContacts     // Транслируется в PersonFilt::fCentrigoContacts
 	};
 	enum {
-		fExtEdit          = 0x0002, // @unused Отдельный диалог редактирования главной организации
-		fVatFree          = 0x0004, // Свободен от НДС
-		fTagsCrsstab      = 0x0008, // Показывать броузер персоналий, как кросстаб с тегами
-		fHasImages        = 0x0010, // Только с картинками
-		fShowNewCli       = 0x0020, // Идентифицировать новых клиентов (требуется NewCliPeriod)
-		fPrecName         = 0x0040, // SrchStr содержит точное имя персоналии (не чувствительно к регистру)
-		fShowHangedAddr   = 0x0080, // При использовании атрибута PPPSNATTR_ALLADDR отображать адреса, не
+		fExtEdit          = 0x00000002, // @unused Отдельный диалог редактирования главной организации
+		fVatFree          = 0x00000004, // Свободен от НДС
+		fTagsCrsstab      = 0x00000008, // Показывать броузер персоналий, как кросстаб с тегами
+		fHasImages        = 0x00000010, // Только с картинками
+		fShowNewCli       = 0x00000020, // Идентифицировать новых клиентов (требуется NewCliPeriod)
+		fPrecName         = 0x00000040, // SrchStr содержит точное имя персоналии (не чувствительно к регистру)
+		fShowHangedAddr   = 0x00000080, // При использовании атрибута PPPSNATTR_ALLADDR отображать адреса, не
 			// привязанные ни к одной из персоналий (но не являющиеся автономными)
-		fLocTagF          = 0x0100, // Субфильтр P_TagF применяется к локациям, а не к персоналиям
-		fShowFiasRcgn     = 0x0200, // Показывать результаты распознавания адресов и сопоставления с ФИАС
+		fLocTagF          = 0x00000100, // Субфильтр P_TagF применяется к локациям, а не к персоналиям
+		fShowFiasRcgn     = 0x00000200, // Показывать результаты распознавания адресов и сопоставления с ФИАС
 		// @v12.2.2 (замещено более общим функционалом анализа клиентской активности) fNewClientsOnly   = 0x0400, // Только новые клиенты (действует при не пустом NewCliPeriod)
-		fCliActivityStats = 0x0800, // @v12.2.2 Отображать статистику активности клиентов. 
-		fNoTempTable      = 0x1000, // @v12.3.3 @construction Не создавать временную таблицу, даже если условия фильтрации этого требуют
+		fCliActivityStats = 0x00000800, // @v12.2.2 Отображать статистику активности клиентов. 
+		fNoTempTable      = 0x00001000, // @v12.3.3 @construction Не создавать временную таблицу, даже если условия фильтрации этого требуют
+		fInMemView        = 0x00002000, // @v12.5.12 @construction Данные для отображения строятся в виде массива. Не всегда может быть обработано.
+		fCentrigoContacts = 0x00004000, // @v12.5.12 @construction Данные для суб-проекта centrigo
 	};
 	//
 	// Descr: Идентификаторы текстовых субполей, содержащихся в строке SrchStr_
@@ -29426,11 +29484,10 @@ private:
 typedef TempPersonTbl::Rec PsnAttrViewItem;
 
 struct PersonViewItem : public PersonTbl::Rec {
-	PersonViewItem()
-	{
-	}
+	PersonViewItem();
+	PersonViewItem & Z();
+
 	PsnAttrViewItem AttrItem;
-	//
 	long    CaEventCount;      // @v12.2.10
 	double  CaGapDaysAvg;      // @v12.2.10
 	double  CaGapDaysStdDev;   // @v12.2.10
@@ -29444,15 +29501,16 @@ struct PersonViewItem : public PersonTbl::Rec {
 class PPViewPerson : public PPView {
 public:
 	struct BrwHdr {
-		PPID ID;
+		PPID   ID;
 	};
 	PPViewPerson();
 	~PPViewPerson();
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int  EditBaseFilt(PPBaseFilt *);
 	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
 	virtual void ViewTotal();
+	bool   IsInMemView() const;
 	int    InitIteration();
 	int    FASTCALL NextIteration(PersonViewItem * pViewItem);
 	int    AddItem(PPID * pID);
@@ -29480,7 +29538,7 @@ public:
 	int    FASTCALL HasImage(const void * pData);
 	int    CheckIDForFilt(PPID id, const PersonTbl::Rec * pRec);
 	//
-	// Descr: Элемент с дополнительной информацией о персоналии
+	// Descr: Элемент с дополнительной информацией о персоналии. 
 	//
 	struct ExtEntry { // @v12.2.10
 		ExtEntry();
@@ -29496,6 +29554,34 @@ public:
 		uint   FiasAddrGuidP;  //
 		uint   FiasHouseGuidP; //
 		uint   AddrTypeP;      // Ссылка на строку наименования типа адреса (адрес доставки, юридически, реальный etc)
+		/*
+		// @v12.5.12 {
+		PPID   Status;
+		PPID   MainLocID;
+		PPID   RLocID;
+		long   Flags;
+		// } @v12.5.12 
+		*/
+	};
+	//
+	// Descr: Структура для хранения элемента VIEW при отсутствии временной таблицы (Filt.Flags & PersonFilt::fNoTempTable).
+	//   Начиная с v12.5.12 используется также как элемент inmem-списка P_DsList
+	//
+	struct InternalViewItem { // @v12.3.3 @flat
+		InternalViewItem();
+		void   Setup(const TempPersonTbl::Rec & rRec);
+		PPID   PersonID;
+		PPID   TabID;
+		uint32 PhoneP;
+		uint32 EMailP;
+		uint32 AddressP;
+		uint32 RAddressP;
+		uint32 BnkNameP;
+		uint32 BnkAcctP;
+		uint32 RegSerialP;
+		uint32 FiasAddrGuidP;
+		uint32 FiasHouseGuidP;
+		uint32 AddrTypeP;
 	};
 	//
 	static int CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw);
@@ -29503,10 +29589,12 @@ public:
 	static bool CheckClientActivityState(PPID personID, long filtFlags, const TSVector <ExtEntry> * pExtList);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
+	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle); // @v12.5.12
 	virtual int   OnExecBrowser(PPViewBrowser * pBrw);
 	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual void * GetEditExtraParam();
 	virtual int   Print(const void *);
+	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    InitPersonAttribIteration();
 	int    InitPersonIteration();
 	bool   IsTempTblNeeded(); // non-const because calls PsnObj.GetConfig
@@ -29537,6 +29625,7 @@ private:
 	const  ExtEntry * FASTCALL SearchExtEntry(PPID id) const;
 	ExtEntry * SearchExtEntryForUpdate(PPID id, uint * pIdx);
 	bool   SearchInternalViewItem(PPID personID, PPID tabID, uint * pPos) const;
+	int    BuildIdList(PPIDArray & rResult); // @v12.5.12
 
 	PPID   DefaultTagID;
 	//
@@ -29556,26 +29645,7 @@ private:
 	PPObjWorld WObj;
 	PPFiasReference * P_Fr;
 	TSVector <ExtEntry> ExtList;
-	//
-	// Descr: Структура для хранения элемента VIEW при отсутствии временной таблицы (Filt.Flags & PersonFilt::fNoTempTable)
-	//
-	struct InternalViewItem { // @v12.3.3 @construction @flat
-		InternalViewItem();
-		void   Setup(const TempPersonTbl::Rec & rRec);
-		PPID   PersonID;
-		PPID   TabID;
-		uint32 PhoneP;
-		uint32 EMailP;
-		uint32 AddressP;
-		uint32 RAddressP;
-		uint32 BnkNameP;
-		uint32 BnkAcctP;
-		uint32 RegSerialP;
-		uint32 FiasAddrGuidP;
-		uint32 FiasHouseGuidP;
-		uint32 AddrTypeP;
-	};
-	TSVector <InternalViewItem> InternalViewList; // @v12.3.3 @construction
+	TSVector <InternalViewItem> InternalViewList; // @v12.3.3
 	//
 	static int DynFuncCheckClientActivityStatus; // @v12.2.2
 };
@@ -29900,7 +29970,7 @@ public:
 	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual void ViewTotal();
 	virtual int Detail(const void *, PPViewBrowser * pBrw);
 	virtual int Print(const void *);
@@ -29973,7 +30043,7 @@ public:
 	int    GetObjName(const SObjID & rOid, SString & rBuf) const;
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	//virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	//virtual int ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int Detail(const void *, PPViewBrowser * pBrw);
 	//virtual int Print(const void *);
 	//virtual int HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
@@ -30034,7 +30104,7 @@ public:
 	//int CheckRecForFilt(const TempLogFileMonTbl::Rec *pRec);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint *pBrwId, SString *pSubTitle);
-	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
 	int UpdateTempTable(LogsArray *pExpiredLogs);
 	//virtual int Print(const void *);
@@ -30088,7 +30158,7 @@ public:
 	int    CalcTotal(GeoTrackingTotal * pTotal);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int  Detail(const void *, PPViewBrowser * pBrw);
 	virtual void ViewTotal();
 	int    Export();
@@ -30689,7 +30759,7 @@ public:
 		ufDontChgPltList = 0x0010, // Функция PPObjGoods::PutPacket не должна изменять параметры размещения на паллете
 	};
 	long   UpdFlags;          // @transient Флаги, определяющие правила изменения некоторых полей
-	long   ClsDimZeroFlags;   // @transient Флаги обнуляние числовых классификаторов товаров. Используется в
+	long   ClsDimZeroFlags;   // @transient Флаги обнуление числовых классификаторов товаров. Используется в
 		// специальном случае массового изменения атрибутов товаров (функция PPViewGoods::RemoveAll())
 	SString ExtString;        // Дополнительные текстовые поля товара
 	SString ExTitles;         // Список наименований дополнительных текстовых полей товара. Используется только для обыкновенных групп.
@@ -33226,7 +33296,7 @@ private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int  OnExecBrowser(PPViewBrowser * pBrw);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int  Print(const void *);
 	virtual void ViewTotal();
 	virtual int  Detail(const void *, PPViewBrowser *);
@@ -33253,7 +33323,7 @@ private:
 			aChgTaxGroup,       //
 			aChgGoodsType,      //
 			aAssignCodeByTemplate, //
-			aSetAlcoCategory    // @v11.3.8
+			aSetAlcoCategory,
 		};
 		enum {
 			fMassOpAllowed  = 0x0001,
@@ -33366,7 +33436,7 @@ public:
 	int    CmpSortIndexItems(PPViewBrowser * pBrw, const GoodsStrucProcessingBlock::ItemEntry * pItem1, const GoodsStrucProcessingBlock::ItemEntry * pItem2);
 private:
 	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	int    FASTCALL _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	//int    UpdateTempTable(PPID goodsID, PPID parentStrucID, PPID strucID, int goodsIsItem, int use_ta);
@@ -33425,7 +33495,7 @@ private:
 		PPID   GoodsID;
 		PPID   ObjID;
 	};
-	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int   ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
@@ -33824,7 +33894,7 @@ public:
 private:
 	static  int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr);
 	static  int DynFuncPeriod;
-	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  OnExecBrowser(PPViewBrowser * pBrw);
@@ -34175,7 +34245,7 @@ private:
 	static int AcceptBillsToGBasketPalm(const char * pHName, const char * pLName, PPLogger *);
 	static int AcceptInventPalm(const char * pHName, const char * pLName, PPID opID, PPLogger *);
 	static int AcceptExpendBillsPalm(const char * pHName, const char * pLName, const PPBhtTerminal *, PPLogger *);
-	static int AcceptTechSessPalm(const char * pLName, PPLogger *);
+	// @v12.5.12 @obsolete static int AcceptTechSessPalm(const char * pLName, PPLogger *);
 	static int AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID destIntrLocID, const char * pHName, const char * pLName, PPLogger *);
 	int    PrepareGoodsData(PPID bhtID, const char * pPath, const char * pPath2, PPID bhtTypeID, const PPIDArray * pAddendumGoodsIdList);
 	int    PrepareSupplData(const char * pPath, PPBhtTerminalPacket * pPack = 0);
@@ -34286,7 +34356,7 @@ public:
 	int    InitIteration();
 	int    FASTCALL NextIteration(QCertViewItem *);
 private:
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void ViewTotal();
 	int    Transmit();
@@ -35011,8 +35081,7 @@ public:
 	int    GetCrBillEntry(long & rTempID, PPBillPacket * pPack);
 	int    SetCrBillEntry(long tempID, const PPBillPacket * pPack);
 	//
-	// Descr: осуществляет кэшированное извлечение расширенных примечаний
-	//   по документу id.
+	// Descr: осуществляет кэшированное извлечение расширенных примечаний по документу id.
 	// Returns:
 	//   >0 - строка расширенных примечаний найдена
 	//   <0 - для документа id расширенное примечание отсутствует
@@ -36221,7 +36290,7 @@ public:
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int   ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int   Detail(const void * pHdr, PPViewBrowser * pBrw);
 	int    AddItem(PPID curLocID, long curRByLoc);
 	int    EditItem(PPID tempRecID, PPID curLocID, long curRByLoc);
@@ -37513,7 +37582,7 @@ public:
 	int    InitIteration();
 	int    FASTCALL NextIteration(DvcLoadingStatViewItem *);
 private:
-	virtual int    ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int    ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
 
@@ -37551,7 +37620,7 @@ public:
 	int    InitIteration();
 	int    NextIteration(DLSDetailViewItem * pItem);
 private:
-	virtual int    ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int    ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
 
@@ -38083,6 +38152,7 @@ private:
 #define TECK_TOOLING    1 // Технология перенастройки
 #define TECK_AUTO       2 // Автотехнология (правило автоматического создания) //
 #define TECK_FOLDER     3 // @v11.6.2 Папка
+#define TECK_ROUTE      4 // @v12.5.12 TechRoute
 //
 // Флаги, передаваемые с дополнительным параметром
 //
@@ -38107,18 +38177,38 @@ private:
 	// для процессора и время выполнения количества, заданного по строке прибавляется к планируемому времени сессии
 #define TECF_AUTOMAIN         0x0008 // Основной товар автоматически вставляется в строки сессии
 #define TECF_ABSCAPACITYTIME  0x0010 // Производительность определяет абсолютное время работы процессора (не зависимо от количества обоабатываемой позиции).
-#define TECF_RVRSCMAINGOODS   0x0020 // Обратный расчет количества основого товара по заданным в строках сессии компонентам
+#define TECF_RVRSCMAINGOODS   0x0020 // Обратный расчет количества основного товара по заданным в строках сессии компонентам
 //
 //
 //
 #define TECEXSTR_TLNGCOND          1 // Формула условия использования технологии перенастройки //
 #define TECEXSTR_CAPACITY          2 // Формула производительности для автотехнологий
 
+class PPTechRoute { // @v12.5.12
+public:
+	struct Entry {
+		Entry();
+
+		PPID   TechID;      // ->Tech.ID Ид технологии, определяющей конкретную фазу процесса
+		uint8  Reserve[16];
+	};
+	PPTechRoute();
+	PPTechRoute & Z();
+	bool   IsEmpty() const { return (L.getCount() == 0); }
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+	int    AddEntry(PPID techID, const PPID ownerTechID);
+	
+	TSVector <Entry> L;
+};
+
 struct PPTechPacket {
 	PPTechPacket();
+	PPTechPacket & Z();
+
 	TechTbl::Rec Rec;
 	SString ExtString;
 	SString SMemo;
+	PPTechRoute Route; // @v12.5.12
 };
 
 class PPObjTech : public PPObject {
@@ -38128,11 +38218,11 @@ public:
 	explicit PPObjTech(void * extraPtr = 0);
 	~PPObjTech();
 	virtual int Search(PPID, void *);
-	virtual int Edit(PPID * pID, void * extraPtr /*parentID*/);
+	virtual int Edit(PPID * pID, void * extraPtr/*parentID*/);
 	virtual int Browse(void * extraPtr);
 	int    InitPacket(PPTechPacket *, long extraData, int use_ta);
 	int    SerializePacket(int dir, PPTechPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
-	SString & GetItemMemo(PPID id, SString & rBuf); // @v11.1.12
+	SString & GetItemMemo(PPID id, SString & rBuf);
 	int    Fetch(PPID id, TechTbl::Rec * pRec);
 	int    AddBySample(PPID * pID, PPID sampleID);
 	int    SearchByCode(const char * pCode, TechTbl::Rec * pRec);
@@ -38177,6 +38267,7 @@ private:
 	int    AddItemsToList(StrAssocArray *, PPIDArray * pIdList, PPIDArray * pGoodsIdList, long extraParam, PPID goodsID = 0);
 		// @<<PPObjTech::MakeList_
 	int    SearchAuto(PPID prcID, PPID goodsID, PPID * pTechID);
+	static int EditTechRoute(PPID ownerTechID, PPTechRoute & rData);
 public:
 	TLP_MEMB(TechTbl, P_Tbl);
 	void * ExtraPtr;
@@ -38776,7 +38867,7 @@ public:
 	//   2 - штатное завершение процесса обработки данных.  pRec не инициализирована.
 	//  -1 - нештатное (по ошибке) завершение процесса обработки данных. pRec не инициализирована.
 	//
-	int    ProcessBhtRec(int signal, const BhtTSessRec * pRec, PPLogger * pLogger, int use_ta);
+	// @v12.5.12 @obsolete int    ProcessBhtRec(int signal, const BhtTSessRec * pRec, PPLogger * pLogger, int use_ta);
 	int    GetLabelInfo(PPID tsesID, long oprNo, PPID * pPrnID, RetailGoodsInfo *);
 	//
 	// Descr: Печатает этикетку по строке {tsesID, oprNo}. Если silent == 0, то перед
@@ -38922,7 +39013,7 @@ private:
 	SString NameBuf;
 	PPTSessConfig Cfg;
 	//
-	struct BhtCurSessData {
+	/* @v12.5.12 @obsolete struct BhtCurSessData {
 		BhtCurSessData();
 		int    Set(PPID sessID, PPID prcID, PPID arID, const LDATETIME & rDtm);
 		void   Reset();
@@ -38938,6 +39029,7 @@ private:
 		PPObjGoods GObj;
 	};
 	BhtTSess * P_BhtCurSess;
+	*/
 public:
 	PPObjTech TecObj;
 	PPObjProcessor PrcObj;
@@ -39092,7 +39184,7 @@ private:
 	virtual void * GetEditExtraParam();
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int  Detail(const void * pHdr, PPViewBrowser * pBrw);
 	virtual void ViewTotal();
 	virtual int  Print(const void *);
@@ -39246,7 +39338,7 @@ public:
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int    ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int    ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int    Print(const void *);
 	int    CreateTSessFiltByPlan(const TSessionTbl::Rec * pPlanRec, TSessionFilt * pFilt) const;
 	int    CreateBySess(PPID sessID, TSessAnlzList * pResult, PPIDArray * pProcessedList);
@@ -39304,7 +39396,7 @@ private:
 	};
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int  Print(const void *);
 	virtual void ViewTotal();
 	bool   IsTempTblNeeded();
@@ -39379,7 +39471,7 @@ public:
 	void   SetOuterContext(const OuterContext * pOCtx);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int  Detail(const void * pHdr, PPViewBrowser * pBrw);
 	virtual int  Print(const void *);
 	virtual int  OnExecBrowser(PPViewBrowser * pBrw);
@@ -40519,7 +40611,7 @@ public:
 	};
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int   ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int   HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
 	bool   IsTempTblNeeded() const;
@@ -40659,7 +40751,7 @@ private:
 	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  OnExecBrowser(PPViewBrowser * pBrw);
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual void ViewTotal();
 	virtual int  Print(const void *);
 	int    MakeList();
@@ -40746,7 +40838,7 @@ public:
 	~PPViewInventory();
 	virtual int  EditBaseFilt(PPBaseFilt * pFilt);
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
-	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int   ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int   Print(const void *);
 	void   SetOuterPack(PPBillPacket * pPack);
 	int    InitIteration();
@@ -40976,7 +41068,7 @@ public:
 private:
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  Browse(bool modeless);
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void ViewTotal();
 	virtual int  Detail(const void *, PPViewBrowser * pBrw);
@@ -41032,7 +41124,7 @@ public:
 		long   OprNo;
 	};
 	PPViewLotOp();
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration();
 	int    FASTCALL NextIteration(LotOpViewItem *);
@@ -41215,7 +41307,7 @@ public:
 	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
 	virtual int EditBaseFilt(PPBaseFilt *);
-	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	int    InitIteration(IterOrder = OrdByDefault);
 	int    FASTCALL NextIteration(LotViewItem *);
 	int    GetItem(PPID, LotViewItem *);
@@ -41312,7 +41404,7 @@ public:
 	int    InitIteration();
 	int    FASTCALL NextIteration(LotExtCodeViewItem *);
 private:
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void ViewTotal();
 	int    GetRec(const void * pHdr, LotExtCodeTbl::Rec & rRec);
@@ -41394,7 +41486,7 @@ public:
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int  Detail(const void *, PPViewBrowser * pBrw);
 	virtual void ViewTotal();
 	virtual int  Print(const void *);
@@ -41815,7 +41907,7 @@ private:
 	static int EnumProc_CrTmpTbl(PredictSalesItem *, long);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual void ViewTotal();
 	int    InitCycleList(const PPIDArray * pGoodsList);
 	int    ConvertHdr(const void * pHdr, BrwHdr * pOut) const;
@@ -42873,7 +42965,7 @@ class PPViewWbPublicGoods : public PPView {
 public:
 	PPViewWbPublicGoods();
 	~PPViewWbPublicGoods();
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int  EditBaseFilt(PPBaseFilt *);
 	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
@@ -43268,7 +43360,7 @@ private:
 	};
 
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  OnExecBrowser(PPViewBrowser * pBrw);
 	virtual void ViewTotal();
@@ -43325,7 +43417,7 @@ private:
 	CCheckCore    CCheckTbl;
 	GoodsSubstList Gsl;
 	Predictor * P_Predictor;
-	SpecSeriesCore * P_SpoilTbl; // @v11.1.8
+	SpecSeriesCore * P_SpoilTbl;
 	enum {
 		fAccsCost      = 0x0001,
 		fExclAltFold   = 0x0002,
@@ -43701,7 +43793,7 @@ public:
 	int    PrintTotal(const GoodsTaxAnalyzeTotal * pTotal);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual void ViewTotal();
 	virtual int  Print(const void *);
 	virtual int  Detail(const void *, PPViewBrowser * pBrw);
@@ -44053,7 +44145,7 @@ public:
 	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int  EditBaseFilt(PPBaseFilt *);
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	int    InitIteration(IterOrder);
 	int    FASTCALL NextIteration(DebtTrnovrViewItem *);
 	int    GetItem(PPID arID, PPID curID, long tabID, DebtTrnovrViewItem *);
@@ -44408,7 +44500,7 @@ public:
 	int    FASTCALL CheckForFilt(const DebtStatTbl::Rec & rRec) const;
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int   ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
 	int    UpdateTempTable();
 	void   MakeTempRec(long order, const DebtorStatViewItem * pItem, TempOrderTbl::Rec * pRec);
@@ -44526,7 +44618,7 @@ public:
 	int    FASTCALL NextIteration(ShipmAnalyzeViewItem *);
 protected:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int    ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int    ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int    Print(const void * pHdr);
 
@@ -44594,7 +44686,7 @@ public:
 	int    Transmit(PPID id, int transmitKind);
 private:
 	static void FASTCALL MakeListEntry(const PPAccount & rSrc, PPViewAccount::BrwEntry & rEntry);
-	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int   ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void * GetEditExtraParam();
 	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
@@ -44646,7 +44738,7 @@ public:
 	int    GetRate(const CurRateIdent *, double * pRate);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int   ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int   Print(const void *);
 
 	CurRateFilt Filt;
@@ -45229,7 +45321,7 @@ private:
 	};
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int    ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int    ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int    Detail(const void * pHdr, PPViewBrowser * pBrw);
 	virtual int    Print(const void * pHdr);
 	int    ViewGraph(const void * pHdr, PPViewBrowser * pBrw);
@@ -45361,7 +45453,7 @@ public:
 	int    PrintWoPacks;
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	virtual void ViewTotal();
@@ -45414,7 +45506,7 @@ public:
 	int    PrintWoPacks;
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	virtual void ViewTotal();
@@ -45587,7 +45679,7 @@ public:
 	int    FASTCALL NextIteration(CSessExcViewItem *);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int  Print(const void *);
 	virtual void ViewTotal();
 	int    MakeTempTable(PPID sessID);
@@ -45861,7 +45953,7 @@ public:
 private:
 	static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr);
 	void   Helper_Construct();
-	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  OnExecBrowser(PPViewBrowser * pBrw);
@@ -45957,7 +46049,7 @@ public:
 	int    EditItem(const ObjSyncIdent *);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	int    EditRecord(ObjSyncTbl::Rec *);
 
 	ObjSyncFilt Filt;
@@ -46046,7 +46138,7 @@ public:
 	int    FASTCALL NextIteration(ObjSyncQueueViewItem *);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 
 	ObjSyncQueueFilt Filt;
 	ObjSyncQueueCore Tbl;
@@ -46311,7 +46403,7 @@ public:
 
 	PPViewTrfrAnlz();
 	~PPViewTrfrAnlz();
-	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int   ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int   EditBaseFilt(PPBaseFilt *);
 	virtual int   Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration(IterOrder);
@@ -46718,7 +46810,7 @@ public:
 	void   GetTabTitle(long tabID, SString & rBuf);
 	void   GetEditIds(const void * pRow, PPID * pLocID, PPID * pGoodsID, long col);
 private:
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void ViewTotal();
@@ -47228,7 +47320,7 @@ public:
 	int    InitIteration();
 	int    FASTCALL NextIteration(ArticleViewItem *);
 private:
-	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int   ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual void * GetEditExtraParam();
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
@@ -47428,13 +47520,13 @@ private:
 //
 // @ModuleDecl(PPViewGoodsTrnovr)
 //
-typedef GCTFilt GoodsTrnovrFilt;
+// @v12.5.12 typedef GCTFilt GoodsTrnovrFilt;
+
+class GoodsTrnovrFilt : public GCTFilt {}; // @v12.5.12 Полная копия GCTFilt. Класс вместо typedef нужен потому, что требуется декларация экспортируемой функции-фабрики
 
 struct GoodsTrnovrViewItem { // @flat
-	union {
-		LDATE  Dt;
-		char   Title[48]; // @v12.5.8 [12]-->[48]
-	};
+	LDATE  Dt;
+	char   Title[48]; // @v12.5.8 [12]-->[48]
 	double RcptSuppl;
 	double RcptIntr;
 	double RetRetail;
@@ -47447,37 +47539,17 @@ struct GoodsTrnovrViewItem { // @flat
 	double Income;
 };
 
-class PPViewGoodsTrnovr { // @todo @20260117 Перевести на PPView
+class PPViewGoodsTrnovr : public PPView { // @v12.5.11 will replace the PPViewGoodsTrnovr
 public:
 	PPViewGoodsTrnovr();
 	~PPViewGoodsTrnovr();
-	const  GoodsTrnovrFilt * GetFilt() const;
-	int    EditFilt(GoodsTrnovrFilt *);
-	int    Init(const GoodsTrnovrFilt *);
-	int    InitIteration();
-	int    FASTCALL NextIteration(GoodsTrnovrViewItem *);
-	int    GetIterationCount(long *, long *);
-	int    ViewGrouping(LDATE);
-	int    Browse(int modeless);
-	int    Print();
-private:
-	SArray * CreateBrowserQuery();
-
-	SArray * P_Items;
-	GoodsTrnovrFilt Filt;
-	IterCounter Cntr;
-};
-
-class PPViewGoodsTrnovr2 : public PPView { // @v12.5.11 will replace the PPViewGoodsTrnovr
-public:
-	PPViewGoodsTrnovr2();
-	~PPViewGoodsTrnovr2();
 	virtual int  EditBaseFilt(PPBaseFilt * pBaseFilt);
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration();
 	int    FASTCALL NextIteration(GoodsTrnovrViewItem * pItem);
 private:
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int  Print(const void *);
 	virtual int  Detail(const void *, PPViewBrowser * pBrw);
@@ -48125,7 +48197,7 @@ public:
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration();
 	int    FASTCALL NextIteration(MrpTabViewItem *);
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int  Detail(const void *, PPViewBrowser * pBrw);
@@ -48556,7 +48628,7 @@ public:
 	SString & GetItemDescr(PPID id, SString & rBuf); // @>>PPObjProject::GetItemDescr
 	SString & GetItemMemo(PPID id, SString & rBuf); // @>>PPObjProject::GetItemMemo
 private:
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void ViewTotal();
 	virtual void * GetEditExtraParam();
@@ -48771,7 +48843,7 @@ public:
 	//
 	int    Transmit(PPID id, int kind);
 private:
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int  HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
@@ -48877,7 +48949,7 @@ public:
 	int    FASTCALL NextIteration(PriceAnlzViewItem *);
 	void   GetTabTitle(PPID tabID, SString & rBuf);
 private:
-	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	int    SetContractPrices();
@@ -50668,7 +50740,7 @@ public:
 	int    CreateRptList(ReportViewItemArray *);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	void   MakeTempRec(const ReportViewItem *, TempReportTbl::Rec *);
 	int    CheckForFilt(const ReportViewItem *);
 	int    EditItem(PPID * pID);
@@ -50753,7 +50825,7 @@ public:
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int OnExecBrowser(PPViewBrowser * pBrw);
-	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	int    UpdateTempTable(PPID prmrID, const PPIDArray & rScndList, PPID relation, int reverse);
 	int    CreateOrderTable(long ord, TempOrderTbl ** ppTbl);
 	TempPersonRelTbl::Rec & MakeTempEntry(const PersonCore::RelationRecord & rRec, TempPersonRelTbl::Rec & rTempRec);
@@ -50802,7 +50874,7 @@ public:
 	int    FASTCALL NextIteration(ObjLikenessViewItem *);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int Print(const void *);
 	int    UniteObjects(PPID objType, PPID srcID, PPID destID);
 
@@ -50858,7 +50930,7 @@ public:
 	int    CheckScaleStatus(PPID scaleID, int statusFromList);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	int    UpdateTempTable(const PPIDArray * pIdList);
 	TempScaleTbl::Rec & MakeTempEntry(const PPScalePacket & rPack, TempScaleTbl::Rec & rTempRec);
 	int    CheckForFilt(const PPScalePacket * pPack) const;
@@ -50916,7 +50988,7 @@ public:
 	void   GetTabTitle(long tabID, SString & rBuf);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual void * GetEditExtraParam();
 	virtual int   Detail(const void *, PPViewBrowser * pBrw);
 	virtual int   Print(const void *);
@@ -51005,7 +51077,7 @@ public:
 	int    FASTCALL NextIteration(BizScValByTemplViewItem *);
 private:
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
-	virtual int    ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int    ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
 	int    FetchData();
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
@@ -51066,7 +51138,7 @@ public:
 	int    FASTCALL CheckRecForFilt(const CheckOpJrnlTbl::Rec * pRec);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int Print(const void *);
 
 	CheckOpJrnlFilt Filt;
@@ -51112,7 +51184,7 @@ public:
 	int    FASTCALL NextIteration(CashNodeViewItem *);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	int    UpdateTempTable(const PPIDArray * pIdList);
 	TempCashNodeTbl::Rec & MakeTempEntry(const PPCashNode & rRec, TempCashNodeTbl::Rec & rTempRec);
 	int    CheckForFilt(const PPCashNode * pRec) const;
@@ -51166,7 +51238,7 @@ public:
 	int    FASTCALL NextIteration(PalmViewItem *);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	int    UpdateTempTable(const PPIDArray * pIdList);
 	TempPalmTbl::Rec & MakeTempEntry(const PPStyloPalmPacket & rPack, TempPalmTbl::Rec & rTempRec);
 	int    CheckForFilt(const PPStyloPalm * pRec);
@@ -51256,7 +51328,7 @@ public:
 	int    FASTCALL NextIteration(TransportViewItem *);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual void ViewTotal();
 	bool   IsTempTblNeeded();
 	int    CheckForFilt(TransportFilt * pFilt, PPID transpID, const PPTransportPacket * pRec);
@@ -51307,7 +51379,7 @@ public:
 	int    FASTCALL NextIteration(AmountTypeViewItem *);
 private:
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
-	virtual int    ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int    ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
 	int    FetchData(long id);
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
@@ -51450,7 +51522,7 @@ public:
 private:
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int   ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int   Detail(const void *, PPViewBrowser * pBrw);
 	int    MakeList(PPViewBrowser * pBrw);
 	//int    MakeListEntry(const BizScore2Tbl::Rec & rRec, BrwItem & rEntry);
@@ -51661,7 +51733,7 @@ public:
 	int    FASTCALL NextIteration(SuprWareViewItem * pItem);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int Detail(const void *, PPViewBrowser * pBrw);
 	int    DeleteAll();
 
@@ -51840,7 +51912,7 @@ public:
 	int    FASTCALL NextIteration(UserProfileViewItem * pItem);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int    ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int    ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int    HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
 	int LoadFromFile(PPIDArray * pIdList);
@@ -51894,7 +51966,7 @@ private:
 	static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr);
 	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int    ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int    ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int    Print(const void *);
 	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw);
 	int    CheckForFilt(PPJob & rJob);
@@ -51953,7 +52025,7 @@ private:
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	//
 	// Descr: Интерактивное создание нового элемента.
 	// ARG(kind        IN): Категория нового элемента. Если kind == cmdgrpcUndef то
@@ -52744,7 +52816,7 @@ private:
 	};
 	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int  Detail(const void * pHdr, PPViewBrowser * pBrw);
 	int    FASTCALL _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	void   ProcessStock(int startOrEnd, PPID divID, const ObjIdListFilt & rWhList, const PPIDArray & rGoodsList);
@@ -54969,7 +55041,7 @@ protected:
 	enum {
 		vbsDataOwner = 0x0001,
 		vbsKbF10     = 0x0002,
-		vbsTagPreKey = 0x0004  // @v11.2.8 Нажата клавиша, предваряющая последующее нажатие горячей клавиши для редактирования тега.
+		vbsTagPreKey = 0x0004  // Нажата клавиша, предваряющая последующее нажатие горячей клавиши для редактирования тега.
 			// Так как теги используются многими объектами данных и это состояние требует переопределения базовой функции
 			// поиска по вводу первой буквы, то флаг внесен именно в базовый класс, а не множится по производным классам.
 	};
@@ -55982,7 +56054,7 @@ private:
 #define TIDIF_DSBLGSEL         0x00000004L // Запретить выбор товара, отличного от TIDlgInitData::GoodsID
 #define TIDIF_AUTOQTTY         0x00000008L // автоматическое добавление 1-цы товара, без вывода диалога
 #define TIDIF_SEQQREQ          0x00000010L // Последовательный запрос котировки
-#define TIDIF_RECURUNROLLMODIF 0x00000020L // @v11.2.4 Рекурсивная декомплектация товаров по структурам
+#define TIDIF_RECURUNROLLMODIF 0x00000020L // Рекурсивная декомплектация товаров по структурам
 
 struct TIDlgInitData {
 	TIDlgInitData();
@@ -58954,7 +59026,8 @@ public:
 private:
 	int    MakeOutFileIdent(const PPBillPacket * pBPack, FileInfo & rHi);
 	int    MakeOutFileName(const char * pFileIdent, SString & rFileName);
-	void   WriteMarkListOnInvoiceItem(SXml::WNode & rN, const PPBillImpExpParam & rParam, int chznProdType, int chznIntQtty, const PPLotExtCodeContainer::MarkSet & rSet);
+	// @v12.5.12 void   WriteMarkListOnInvoiceItem(SXml::WNode & rN, const PPBillImpExpParam & rParam, int chznProdType, int chznIntQtty, const PPLotExtCodeContainer::MarkSet & rSet);
+	void   WriteMarkListOnInvoiceItem2(xmlTextWriter * pX, int tagToken, bool tagTokenOnEechItem, const PPBillImpExpParam & rParam, int chznProdType, int chznIntQtty, const PPLotExtCodeContainer::MarkSet & rSet);
 	//
 	// Descr: Извлекает из базы данных идентификатор участника документооборота.
 	//   Сложность в том, что этот идентификатор может быть задан либо в виде тега персоналии (PPTAG_PERSON_ENALOGID),
@@ -58998,10 +59071,11 @@ public:
 	//   Признаки извлекаются из тега PPTAG_PERSON_NOTCH персоналии.
 	//
 	// Обрабатываемые notch-признаки: 
-	//   #esphere - провайдер sber sphera
-	//   #sbis    - провайдер SBIS
-	//   #diadoc  - провайдер DIADOC
-	//   #nomarks - экспортировать документ так, словно в нем нет и не должно быть марок // @v12.5.10
+	//   #esphere   - провайдер sber sphera
+	//   #sbis      - провайдер SBIS
+	//   #diadoc    - провайдер DIADOC
+	//   #nomarks   - экспортировать документ так, словно в нем нет и не должно быть марок // @v12.5.10
+	//   #autopiter - портал AUTOPITER (еще этих тут не хватало, блядь: у них особые требования к номеру заказа в документе) // @v12.5.12
 	//
 	static void GetNotchList(const PPBillPacket & rBp, StringSet & rSs);
 
@@ -59079,13 +59153,16 @@ public:
 	long   Flags;             // @persistent
 	PPID   ImpOpID;           // @persistent
 	long   PredefFormat;      // @persistent PredefinedImpExpFormat
-	PPID   FixTagID;          // @v11.5.6 @persistent Тег, фиксирующий факт экспорта документа. Если в документе такой тег установлен, то документ снова не экспортируется.
+	PPID   FixTagID;          // @v11.5.6  @persistent Тег, фиксирующий факт экспорта документа. Если в документе такой тег установлен, то документ снова не экспортируется.
+	PPID   TiOrdCodeTagID;    // @v12.5.12 @transient Тег, привязанный к строке документа и содержащий номер заказа, по которому товар отгружен.
 	PPID   DtoPersonID;       // @v11.9.12 Ид персоналии оператора передачи данных. Введен ради использования в EDI. В ini-файле не сохраняется и не читается из него!
 	SString Object1SrchCode;  // @persistent
 	SString Object2SrchCode;  // @persistent
 	SString OuterFormatVer;   // @v11.6.5 @persistent Номер формата внешних данных. Если пусто, то применяется программно предопределенное значение.
 	SString EdiProviderSymb;  // @v11.9.12 Символ EDI-провайдера. Требутся для того, чтобы видоизменять экспортируемые форматы в соответствии с нюансами, заваемыми провайдером.
 		// Допустимые символы  провайдеров перечислены в начале класса PPEdiProcessor.
+private:
+	mutable PPObjTag TagObj; // @v12.5.12 (что бы часто не создавать локальные экземпляры)
 };
 //
 // Экспорт/импорт инвентаризации
@@ -61070,7 +61147,7 @@ public:
 	{
 		if(r == 1000)
 			return chznciPretend;
-		else if(r == SNTOK_CHZN_PALLET_GTIN) // @v12.3.5
+		else if(oneof3(r, SNTOK_CHZN_PALLET_GTIN, SNTOK_SSCC, SNTOK_CHZN_PALLET_MOTOROIL)) // @v12.3.5 // @v12.5.12 SNTOK_CHZN_PALLET_MOTOROIL
 			return chznciPallet;
 		else if(oneof2(r, SNTOK_CHZN_SURROGATE_GTINCOUNT, SNTOK_CHZN_SURROGATE_GTIN))
 			return chznciSurrogate;
@@ -61190,7 +61267,7 @@ public:
 			S_GUID AppUuid;
 			SBinaryChunk AppToken;
 		};
-		int    CheckCodeList(const QueryBlock & rQBlk, CodeStatusCollection & rList);
+		int    CheckCodeList_v2(const QueryBlock & rQBlk, CodeStatusCollection & rList);
 	private:
 		InetUrl SvrUrl; // URL сервера, на котором расположен, блядь, тс-пиот.
 		PPGlobalServiceLogTalkingHelper Lth;
@@ -63475,7 +63552,7 @@ int    FASTCALL SetIntRangeInput(TDialog *, uint ctl, const IntRange *);
 int    FASTCALL GetIntRangeInput(TDialog *, uint ctl, IntRange *);
 int    FASTCALL PPSetupCtrlMenu(TDialog * pDlg, uint ctl, uint ctlButton, uint ctrlMenuID);
 int    PPExecuteContextMenu(TView * pView, uint menuID);
-int    ViewGoodsTurnover(long);
+// @v12.5.12 int    ViewGoodsTurnover(long);
 // @v12.3.11 int    PrintDialog(SPrinter *);
 int    FastEditRightsDialog();
 int    ActiveUsersListDialog();
@@ -64329,6 +64406,7 @@ int Convert12401(); // @v12.4.1 LocTransf
 int Convert12407(); // @v12.4.7 PrjTask
 int Convert12506(); // @v12.5.6 Workbook
 int Convert12511(); // @v12.5.11 CCheckPaym, GeoTrack. Элиминация xxxsegnull-индексов
+int Convert12512(); // @v12.5.12 Tech
 int DoChargeSalary();
 int DoDebtRate();
 int DoBizScore(PPID bzsID);

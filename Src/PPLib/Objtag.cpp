@@ -9,10 +9,6 @@
 //
 // TagFilt
 //
-// @v11.3.6 (moved to PPConstParam::P_TagValRestrict_Empty) const char * P_EmptyTagValRestrict = "#EMPTY";
-// @v11.3.6 (moved to PPConstParam::P_TagValRestrict_Exist) const char * P_ExistTagValRestrict = "#EXIST";
-// @v11.3.6 (moved to PPConstParam::P_TagValRestrict_List)  const char * P_ListTagValRestrict = "#LIST";
-
 /*static*/int TagFilt::ParseString(const char * pItemString, SString * pRestrictionBuf, SString * pColorBuf)
 {
 	int    ok = 0;
@@ -529,9 +525,11 @@ int PPTagEnumList::Write(int use_ta)
 		{
 			int    update = 0;
 			PPID   id = 0;
-			// @v9.5.5 { Переопределяет код из PPObjListWindow::handleEvent для предустановки типа объекта в создаваемом теге
 			PPID   preserve_focus_id = 0;
 			if(event.isCmd(cmaInsert) && P_Obj && Flags & OLW_CANINSERT && !(Flags & OLW_OUTERLIST)) {
+				//
+				// Переопределяем код из PPObjListWindow::handleEvent для предустановки типа объекта в создаваемом теге
+				//
 				PPID   obj_type_id = 0;
 				if(getResult(&id) > 0 && !ObjTagFilt::ObjTypeRootIdentToObjType(id, &obj_type_id)) {
 					PPObjectTag2 tag_rec;
@@ -549,7 +547,7 @@ int PPTagEnumList::Write(int use_ta)
 					::SetFocus(H());
 				PostProcessHandleEvent(update, preserve_focus_id);
 			}
-			else { // } @v9.5.5
+			else { 
 				PPObjListWindow::handleEvent(event);
 				if(P_Obj) {
 					getResult(&id);
@@ -584,7 +582,7 @@ int PPTagEnumList::Write(int use_ta)
 		}
 		ObjTagFilt Filt;
 	};
-	return /*0; */ new PPObjTagListWindow(this, flags, extraPtr);
+	return new PPObjTagListWindow(this, flags, extraPtr);
 }
 //
 // DLG_TAGENUMVIEW, CTL_TAGENUMVIEW_LIST, 48
@@ -1147,7 +1145,6 @@ int PPObjTag::Edit(PPID * pID, void * extraPtr)
 				}
 				clearEvent(event);
 			}
-			// @v11.2.8 {
 			else if(event.isCmd(cmWinKeyDown)) {
 				if(isCurrCtlID(CTL_OBJTAG_HOTKEY)) {
 					SString buf;
@@ -1161,7 +1158,6 @@ int PPObjTag::Edit(PPID * pID, void * extraPtr)
 					Data.Rec.HotKey = hk;
 				}
 			}
-			// } @v11.2.8 
 		}
 		int CheckRecursion(PPID id, PPID grpID)
 		{
@@ -2667,23 +2663,23 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 			}
 			else if(event.isKeyDown(kbF2)) {
 				const uint ctl_id = GetCurrId();
+				PPObjectTag2 tag;
+				SString temp_buf;
 				if(oneof2(ctl_id, CTL_TAGV_LINK, CTLSEL_TAGV_LINK)) {
 					ComboBox * p_combo = static_cast<ComboBox *>(getCtrlView(CTLSEL_TAGV_LINK));
 					if(p_combo && Data.TagDataType == OTTYP_OBJLINK) {
-						PPObjectTag2 tag;
 						if(TagObj.Fetch(Data.TagID, &tag) > 0) {
 							if(tag.TagEnumID == PPOBJ_PERSON && tag.LinkObjGrp) {
 								PPObjPersonKind pk_obj;
 								PPPersonKind pk_rec;
 								if(pk_obj.Fetch(tag.LinkObjGrp, &pk_rec) > 0 && pk_rec.CodeRegTypeID) {
 									SString code;
-									SString title;
 									PPIDArray psn_list;
 									PPObjPerson psn_obj;
 									PPRegisterType reg_type_rec;
 									SearchObject(PPOBJ_REGISTERTYPE, pk_rec.CodeRegTypeID, &reg_type_rec);
-									PPLoadText(PPTXT_SEARCHPERSON, title);
-									PPInputStringDialogParam isd_param(title, reg_type_rec.Name);
+									PPLoadText(PPTXT_SEARCHPERSON, temp_buf);
+									PPInputStringDialogParam isd_param(temp_buf, reg_type_rec.Name);
 									if(InputStringDialog(isd_param, code) > 0) {
 										psn_obj.GetListByRegNumber(pk_rec.CodeRegTypeID, pk_rec.ID, code, psn_list);
 										if(psn_list.getCount())
@@ -2695,45 +2691,117 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 					}
 				}
 				else if(ctl_id == CTL_TAGV_STR) {
+
+					auto FnUiSelectSymbolFromStrStrAssocList = [](TView * pV, const StrStrAssocArray & rList, SString & rResultSymb)->int
+					{
+						int    ok = -1;
+						if(pV && rList.getCount()) {
+							StrAssocArray * p_lb_list = new StrAssocArray;
+							SString temp_buf;
+							for(uint i = 0; i < rList.getCount(); i++) {
+								const SStrToStrAssoc item = rList.at(i);
+								if(!isempty(item.Key) && !isempty(item.Val)) {
+									temp_buf.Z().Cat(item.Key).CatDiv('|', 1).Cat(item.Val);
+									p_lb_list->AddFast(i+1, temp_buf);
+								}
+							}
+							{
+								ListWindow * p_lw = CreateListWindow(p_lb_list, lbtDisposeData|lbtDblClkNotify|lbtTextUtf8, pV);
+								if(ExecView(p_lw) == cmOK) {
+									long   _id = 0;
+									p_lw->getResult(&_id);
+									if(_id > 0 && _id <= static_cast<long>(rList.getCount())) { // @v12.5.12 @fix (_id >= 0)-->(_id > 0)
+										const SStrToStrAssoc item = rList.at(_id-1);
+										rResultSymb = item.Key;
+										ok = 1;
+										//setCtrlString(CTL_TAGV_STR, temp_buf = item.Key);
+									}
+								}
+								delete p_lw;
+							}
+						}
+						return ok;
+					};
+
 					if(oneof7(Data.TagID, PPTAG_GUA_GOODSRIGHTS, PPTAG_GUA_PERSONRIGHTS,
 						PPTAG_GUA_SCARDRIGHTS, PPTAG_GUA_FILESRIGHTS, PPTAG_GUA_SALOCRIGHTS, PPTAG_GUA_TSESSRIGHTS, PPTAG_GUA_PRCRIGHTS)) {
-						SString line_buf;
-						getCtrlString(CTL_TAGV_STR, line_buf);
-						if(PPGlobalAccRights::EditDialog(Data.TagID, line_buf) > 0) {
-							setCtrlString(CTL_TAGV_STR, line_buf);
+						getCtrlString(CTL_TAGV_STR, temp_buf);
+						if(PPGlobalAccRights::EditDialog(Data.TagID, temp_buf) > 0) {
+							setCtrlString(CTL_TAGV_STR, temp_buf);
 						}
 					}
-					else {
-						PPObjectTag2 tag;
-						if(TagObj.Fetch(Data.TagID, &tag) > 0) {
-							if(sstreqi_ascii(tag.Symb, "CC-BAILMENT-AA")) { // see COCACOLA::MakeReply (ppsupplix.cpp)
-								TView * p_il = getCtrlView(CTL_TAGV_STR);
-								if(p_il) {
-									StrStrAssocArray aa_list;
-									int    r = COCACOLA_ReadBailmentAaFile(1, aa_list);
-									if(r > 0) {
-										StrAssocArray * p_lb_list = new StrAssocArray;
-										SString temp_buf;
-										for(uint i = 0; i < aa_list.getCount(); i++) {
-											const SStrToStrAssoc item = aa_list.at(i);
-											if(!isempty(item.Key) && !isempty(item.Val)) {
-												temp_buf.Z().Cat(item.Key).CatDiv('|', 1).Cat(item.Val);
-												p_lb_list->AddFast(i+1, temp_buf);
-											}
-										}
-										{
-											ListWindow * p_lw = CreateListWindow(p_lb_list, lbtDisposeData|lbtDblClkNotify|lbtTextUtf8, p_il);
-											if(ExecView(p_lw) == cmOK) {
-												long   _id = 0;
-												p_lw->getResult(&_id);
-												if(_id >= 0 && _id <= aa_list.getCount()) {
-													const SStrToStrAssoc item = aa_list.at(_id-1);
-													setCtrlString(CTL_TAGV_STR, temp_buf = item.Key);
+					else if(TagObj.Fetch(Data.TagID, &tag) > 0) {
+						if(sstreqi_ascii(tag.Symb, "VETIS-RSRCH-RESULT")) { // @v12.5.12
+							TView * p_il = getCtrlView(CTL_TAGV_STR);
+							if(p_il) {
+								StrStrAssocArray aa_list;
+								{
+									PPGetFilePath(PPPATH_DD, "vetis-research-result.csv", temp_buf);
+									// Code;Descr
+									if(fileExists(temp_buf)) {
+										StringSet ss;
+										SString key;
+										SString val;
+										SFile f_in(temp_buf, SFile::mRead);
+										SFile::ReadLineCsvContext csv_ctx(';');
+										uint   line_n = 0;
+										while(f_in.ReadLineCsv(csv_ctx, ss)) {
+											line_n++;
+											if(line_n > 1) {
+												for(uint ssp = 0, fld_n = 0; ss.get(&ssp, temp_buf); fld_n++) {
+													if(fld_n == 0) {
+														key = temp_buf;
+													}
+													else if(fld_n == 1) {
+														val = temp_buf;
+													}
+												}
+												if(key.NotEmptyS() && val.NotEmpty()) {
+													aa_list.Add(key, val, 0);
 												}
 											}
-											delete p_lw;
 										}
 									}
+								}
+								int    sr = FnUiSelectSymbolFromStrStrAssocList(p_il, aa_list, temp_buf);
+								if(sr > 0) {
+									setCtrlString(CTL_TAGV_STR, temp_buf);
+								}
+							}
+						}
+						else if(sstreqi_ascii(tag.Symb, "CC-BAILMENT-AA")) { // see COCACOLA::MakeReply (ppsupplix.cpp)
+							TView * p_il = getCtrlView(CTL_TAGV_STR);
+							if(p_il) {
+								StrStrAssocArray aa_list;
+								int    r = COCACOLA_ReadBailmentAaFile(1, aa_list);
+								if(r > 0) {
+									// @v12.5.12 {
+									int    sr = FnUiSelectSymbolFromStrStrAssocList(p_il, aa_list, temp_buf);
+									if(sr > 0) {
+										setCtrlString(CTL_TAGV_STR, temp_buf);
+									}
+									// } @v12.5.12 
+									/* @v12.5.12 
+									StrAssocArray * p_lb_list = new StrAssocArray;
+									for(uint i = 0; i < aa_list.getCount(); i++) {
+										const SStrToStrAssoc item = aa_list.at(i);
+										if(!isempty(item.Key) && !isempty(item.Val)) {
+											temp_buf.Z().Cat(item.Key).CatDiv('|', 1).Cat(item.Val);
+											p_lb_list->AddFast(i+1, temp_buf);
+										}
+									}
+									{
+										ListWindow * p_lw = CreateListWindow(p_lb_list, lbtDisposeData|lbtDblClkNotify|lbtTextUtf8, p_il);
+										if(ExecView(p_lw) == cmOK) {
+											long   _id = 0;
+											p_lw->getResult(&_id);
+											if(_id > 0 && _id <= static_cast<long>(aa_list.getCount())) { // @v12.5.12 @fix (_id >= 0)-->(_id > 0)
+												const SStrToStrAssoc item = aa_list.at(_id-1);
+												setCtrlString(CTL_TAGV_STR, temp_buf = item.Key);
+											}
+										}
+										delete p_lw;
+									}*/
 								}
 							}
 						}

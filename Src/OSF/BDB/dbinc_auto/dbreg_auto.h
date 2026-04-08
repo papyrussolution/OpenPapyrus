@@ -2,7 +2,6 @@
 
 #ifndef	__dbreg_AUTO_H
 #define	__dbreg_AUTO_H
-// @v9.5.5 #include "dbinc/log.h"
 #define	DB___dbreg_register	2
 typedef struct ___dbreg_register_args {
 	uint32 type;

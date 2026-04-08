@@ -1568,7 +1568,9 @@ PPERR_DL6_PROP_PPADDINGOCCURED     "DL600 ошибка в свойстве 'padd
 PPERR_DL6_PROP_PADDINGRANGEVIOL    "DL600 ошибка в свойстве 'padding' - недопустимое значение одного или нескольких компонентов padding"
 PPERR_DL6_PROP_INVALIDSYMB         "DL600 неизвестный символ свойства '%s'"
 PPERR_DL6_PROP_REDEFFLAG           "DL600 признак '%s' или аналогичный уже определен"
-PPERR_DL6_UISUPPLEMENT_UNDEFKIND   "DL600 неизвстный вид дополнения '%s' к управляющему элементу UI"
+PPERR_DL6_UISUPPLEMENT_UNDEFKIND   "DL600 неизвестный вид дополнения '%s' к управляющему элементу UI"
+PPERR_DL6_PROP_INVWIDTHVAL         "DL600 недопустимое значение ширины(width) '%s'"
+PPERR_DL6_PROP_INVHEIGHTVAL        "DL600 недопустимое значение высоты(height) '%s'"
 
 PPERR_UNABLETESTPSALESBYALLGOODS   "Не допускается тестирование таблицы продаж по всей выборке товаров"
 PPERR_INVPERIOD                    "Неверный период '%s'"
@@ -6622,6 +6624,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @error_abs                           "Ошибка, absolute"
 @errorcount                          "Количество ошибок"
 @info                                "Информация"
+@info_s                              "Инфо"
 @confirm                             "Подтвердите"
 @number                              "Номер"
 @logicalnumber                       "Логический номер"
@@ -13212,7 +13215,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @processor_tcbquant                       "@{prc_tcbquant}"
 @processor_timeunit                       "Единицы времени"
 @processor_wroffar                        "Контрагент списания сессий"
-@processor_wroffop                        "Вид операции сессий"
+@processor_wroffop                        "Вид операции списания сессий" // @v12.5.12 "Вид операции списания сессий"-->"Вид операции сессий"
 @processor_checkintime                    "Расчетный час начала"
 @processor_checkouttime                   "Расчетный час окончания"
 @processor_timeflags                      ""
@@ -13763,6 +13766,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @tech_transmask                           "Маска изменения параметра" // ?=@transitionmask
 @tech_exs_tlngcond                        "Формула условия перехода" // TECEXSTR_TLNGCOND
 @tech_exs_capacity                        "Формула производительности, 1/сек" // TECEXSTR_CAPACITY
+@tech_route                               "Маршрут процессинга" // @v12.5.12 TechRoute
 @coststructure                            "Структура издержек"
 @transitionmask                           "Маска перехода"
 
@@ -19212,6 +19216,7 @@ PPHSC_RU_EXTRA_ORDERDATE       "ЗаказДата"           // @v11.9.12 SBIS
 PPHSC_RU_EXTRA_ORDERDATE3      "дата_заказа"         // @v12.4.11 так требует то ли провайдер корус, то ли ритейлер градусы
 PPHSC_RU_EXTRA_ORDERCODE2      "заказ_номер"         // @v12.1.11 азбука вкуса требует такой тег для указания номера заказа
 PPHSC_RU_EXTRA_ORDERCODE3      "номер_заказа"        // @v12.4.11 так требует то ли провайдер корус, то ли ритейлер градусы
+PPHSC_RU_EXTRA_ORDERCODE4      "ИдентификаторЗаказаКлиента" // @v12.5.12 не спрашивайте ничего у меня! Это какой-то, нахуй, автопитер трибует такой тег.
 PPHSC_RU_EXTRA_SHIPDATE        "ОтгрузкаДата"        // @v11.9.12 SBIS
 PPHSC_RU_EXTRA_VATRATE         "СтавкаНДС"           // @v11.9.12 SBIS
 PPHSC_RU_EXTRA_WHNAME          "СкладНаименование"   // @v11.9.12 SBIS

@@ -2604,7 +2604,7 @@ int PPObjSuprWare::Get(PPID id, PPSuprWarePacket * pPack)
 			{
 				PPSuprWareAssoc goods_comp;
 				TSVector <ObjAssocTbl::Rec> items_list;
-				THROW(PPRef->Assc.GetItemsListByPrmr(PPASS_GOODSCOMP, id, &items_list));
+				THROW(PPRef->AsscC.GetItemsListByPrmr(PPASS_GOODSCOMP, id, &items_list));
 				for(i = 0; i < items_list.getCount(); i++) {
 					const ObjAssocTbl::Rec & r_assc = items_list.at(i);
 					goods_comp = r_assc;
@@ -2705,7 +2705,7 @@ int PPObjSuprWare::Put(PPID * pID, const PPSuprWarePacket * pPack, int use_ta)
 		}
 		if(!skip_items) {
 			if(items.getCount() == 0) {
-				THROW(p_ref->Assc.Remove(assoc_type, *pID, 0, 0));
+				THROW(p_ref->AsscC.Remove(assoc_type, *pID, 0, 0));
 				ok = 1;
 			}
 			else {
@@ -2713,7 +2713,7 @@ int PPObjSuprWare::Put(PPID * pID, const PPSuprWarePacket * pPack, int use_ta)
 				_GCompItem gci;
 				SArray prev_items(sizeof(ObjAssocTbl::Rec));
 				LongArray found_pos_list;
-				for(SEnum en = p_ref->Assc.Enum(assoc_type, *pID, 0); en.Next(&gci) > 0;) {
+				for(SEnum en = p_ref->AsscC.Enum(assoc_type, *pID, 0); en.Next(&gci) > 0;) {
 					THROW_SL(prev_items.insert(&gci));
 					SETMAX(last_num, gci.InnerNum);
 				}
@@ -2726,19 +2726,19 @@ int PPObjSuprWare::Put(PPID * pID, const PPSuprWarePacket * pPack, int use_ta)
 						if(p_list_item->Qtty != gci.Qtty || p_list_item->UnitID != gci.UnitID) {
 							gci.Qtty = p_list_item->Qtty;
 							gci.UnitID = p_list_item->UnitID;
-							THROW(p_ref->Assc.Update(gci.ID, (ObjAssocTbl::Rec *)&gci, 0));
+							THROW(p_ref->AsscC.Update(gci.ID, (ObjAssocTbl::Rec *)&gci, 0));
 							ok = 1;
 						}
 					}
 					else {
 						if(gci.InnerNum == last_num)
 							last_num--;
-						THROW(p_ref->Assc.Remove(gci.ID, 0));
+						THROW(p_ref->AsscC.Remove(gci.ID, 0));
 						ok = 1;
 					}
 				}
 				{
-					BExtInsert bei(&p_ref->Assc);
+					BExtInsert bei(&p_ref->AsscC);
 					for(i = 0; i < items.getCount(); i++) {
 						if(!found_pos_list.lsearch((long)i)) {
 							_GCompItem * p_list_item = static_cast<_GCompItem *>(items.at(i));
@@ -2779,19 +2779,19 @@ int PPObjSuprWare::PutAssoc(const PPSuprWareAssoc & rItem, int use_ta)
 		gci.InnerNum = rItem.Num;
 		gci.UnitID   = rItem.UnitID;
 		gci.Qtty     = rItem.Qtty;
-		if(p_ref->Assc.Search(assoc_type, rItem.GoodsID, rItem.CompID, reinterpret_cast<ObjAssocTbl::Rec *>(&org_gci)) > 0) {
+		if(p_ref->AsscC.Search(assoc_type, rItem.GoodsID, rItem.CompID, reinterpret_cast<ObjAssocTbl::Rec *>(&org_gci)) > 0) {
 			if(gci.Qtty != org_gci.Qtty || gci.UnitID != org_gci.UnitID) {
 				org_gci.Qtty = gci.Qtty;
 				org_gci.UnitID = gci.UnitID;
-				THROW(p_ref->Assc.Update(org_gci.ID, reinterpret_cast<ObjAssocTbl::Rec *>(&org_gci), 0));
+				THROW(p_ref->AsscC.Update(org_gci.ID, reinterpret_cast<ObjAssocTbl::Rec *>(&org_gci), 0));
 				ok = 2;
 			}
 			else
 				ok = -1;
 		}
 		else {
-			THROW(p_ref->Assc.SearchFreeNum(assoc_type, gci.GoodsID, &gci.InnerNum, 0));
-			THROW(p_ref->Assc.Add(&assc_id, reinterpret_cast<ObjAssocTbl::Rec *>(&gci), 0));
+			THROW(p_ref->AsscC.SearchFreeNum(assoc_type, gci.GoodsID, &gci.InnerNum, 0));
+			THROW(p_ref->AsscC.Add(&assc_id, reinterpret_cast<ObjAssocTbl::Rec *>(&gci), 0));
 			ok = 1;
 		}
 		THROW(tra.Commit());
@@ -2823,7 +2823,7 @@ int PPObjSuprWare::GetListByComponent(PPID componentID, PPIDArray & rList)
 	int    ok = -1;
 	rList.clear();
 	_GCompItem rec;
-	for(SEnum en = PPRef->Assc.Enum(assoc_type, componentID, 1); en.Next(&rec) > 0;) {
+	for(SEnum en = PPRef->AsscC.Enum(assoc_type, componentID, 1); en.Next(&rec) > 0;) {
 		rList.add(rec.GoodsID);
 	}
 	if(rList.getCount()) {

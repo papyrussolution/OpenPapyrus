@@ -1,5 +1,5 @@
 // DBQUERY.CPP
-// Copyright (c) Sobolev A. 1995, 1996-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025
+// Copyright (c) Sobolev A. 1995, 1996-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -38,7 +38,7 @@ DBQuery::~DBQuery()
 		SAlloc::F(tbls);
 	}
 	if(flds) {
-		uint i = fldCount;
+		uint i = FieldCount;
 		if(i) do {
 			flds[--i].cell.I.destroy();
 		} while(i);
@@ -327,11 +327,11 @@ int FASTCALL DBQuery::analyzeOrder(int * pKeyArray)
 
 int FASTCALL DBQuery::addField(DBConst & r)
 {
-	flds = static_cast<DBQuery::Fld *>(SAlloc::R(flds, sizeof(DBQuery::Fld) * (fldCount+1)));
+	flds = static_cast<DBQuery::Fld *>(SAlloc::R(flds, sizeof(DBQuery::Fld) * (FieldCount+1)));
 	if(flds) {
-		flds[fldCount].cell.C = r;
-		flds[fldCount].type = static_cast<const DBItem *>(&r)->stype();
-		fldCount++;
+		flds[FieldCount].cell.C = r;
+		flds[FieldCount].type = static_cast<const DBItem *>(&r)->stype();
+		FieldCount++;
 		calcRecSize();
 		return 1;
 	}
@@ -341,11 +341,11 @@ int FASTCALL DBQuery::addField(DBConst & r)
 
 int FASTCALL DBQuery::addField(DBE & r)
 {
-	flds = static_cast<DBQuery::Fld *>(SAlloc::R(flds, sizeof(DBQuery::Fld) * (fldCount+1)));
+	flds = static_cast<DBQuery::Fld *>(SAlloc::R(flds, sizeof(DBQuery::Fld) * (FieldCount+1)));
 	if(flds) {
-		flds[fldCount].cell.E = r;
-		flds[fldCount].type = static_cast<const DBItem *>(&r)->stype();
-		fldCount++;
+		flds[FieldCount].cell.E = r;
+		flds[FieldCount].type = static_cast<const DBItem *>(&r)->stype();
+		FieldCount++;
 		calcRecSize();
 		return 1;
 	}
@@ -355,11 +355,11 @@ int FASTCALL DBQuery::addField(DBE & r)
 
 int FASTCALL DBQuery::addField(const DBField & r)
 {
-	flds = static_cast<DBQuery::Fld *>(SAlloc::R(flds, sizeof(DBQuery::Fld) * (fldCount+1)));
+	flds = static_cast<DBQuery::Fld *>(SAlloc::R(flds, sizeof(DBQuery::Fld) * (FieldCount+1)));
 	if(flds) {
-		flds[fldCount].cell.F = r;
-		flds[fldCount].type = static_cast<const DBItem *>(&r)->stype();
-		fldCount++;
+		flds[FieldCount].cell.F = r;
+		flds[FieldCount].type = static_cast<const DBItem *>(&r)->stype();
+		FieldCount++;
 		calcRecSize();
 		return 1;
 	}
@@ -377,11 +377,11 @@ DBQuery & FASTCALL select(const DBFieldList & list)
 				fld.cell.F = list.Get(i);
 				fld.type   = list.Get(i).stype();
 			}
-			q.fldCount = list.GetCount();
+			q.FieldCount = list.GetCount();
 		}
 		else {
 			q.Error_ = 1;
-			q.fldCount = 0;
+			q.FieldCount = 0;
 		}
 		q.syntax |= DBQuery::tSelect;
 	}
@@ -402,7 +402,7 @@ DBQuery & FASTCALL selectbycell(int count, const DBDataCell * pList)
 			q.Error_ = 1;
 			count   = 0;
 		}
-		q.fldCount = count;
+		q.FieldCount = count;
 		q.syntax |= DBQuery::tSelect;
 	}
 	return q;
@@ -448,7 +448,7 @@ DBQuery & CDECL Select_(DBField first_arg, ...)
 				i++;
 			}
 		}
-		q.fldCount = i;
+		q.FieldCount = i;
 		q.syntax |= DBQuery::tSelect;
 	}
 	va_end(list);
@@ -590,7 +590,7 @@ int DBQuery::calcRecSize()
 		}
 	}
 	else {
-		for(uint i = 0; i < fldCount;)
+		for(uint i = 0; i < FieldCount;)
 			recSize += static_cast<RECORDSIZE>(stsize(flds[i++].type));
 	}
 	return 1;
@@ -598,11 +598,12 @@ int DBQuery::calcRecSize()
 
 int DBQuery::getFieldPosByName(const char * pFldName, uint * pPos) const
 {
-	for(uint i = 0; i < fldCount; i++)
+	for(uint i = 0; i < FieldCount; i++) {
 		if(flds[i].cell.GetId() > 0 && sstreqi_ascii(flds[i].cell.F.getField().Name, pFldName)) {
 			ASSIGN_PTR(pPos, i);
 			return 1;
 		}
+	}
 	ASSIGN_PTR(pPos, 0);
 	return 0;
 }
@@ -741,7 +742,7 @@ void DBQuery::fillRecord(char * pBuf, /*RECORDNUMBER*/DBRowId * pPos)
 			}
 		}
 		else {
-			for(uint i = 0; i < fldCount; i++) {
+			for(uint i = 0; i < FieldCount; i++) {
 				const TYPEID t = flds[i].type;
 				flds[i].cell.getValue(t, pBuf+p);
 				p += static_cast<RECORDSIZE>(stsize(t));

@@ -4732,7 +4732,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 							p_bp->SetupObject(ar_id, sob_unused);
 						}
 						if(ar2_id) { // @seeabove
-							p_bp->SetupObject2(ar2_id);
+							p_bp->SetupObject2(ar2_id, 0);
 						}
 					}
 					is_pack_inited = 1;
@@ -4784,7 +4784,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 							freight.SetupDlvrAddr(dlvr_loc_id);
 						}
 						if(ar2_id) { // @seeabove
-							p_bp->SetupObject2(ar2_id);
+							p_bp->SetupObject2(ar2_id, 0);
 						}
 					}
 					is_pack_inited = 1;
@@ -6461,7 +6461,7 @@ int PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const DateRan
 			if(P_UtmEntry && P_UtmEntry->MainOrgID && AcsObj.IsLinkedToMainOrg(op_rec.AccSheet2ID)) {
 				PPID   ar2_id = 0;
 				ArObj.P_Tbl->PersonToArticle(P_UtmEntry->MainOrgID, op_rec.AccSheet2ID, &ar2_id);
-				p_bp->SetupObject2(ar2_id);
+				p_bp->SetupObject2(ar2_id, 0);
 			}
 			{
 				tag_item.SetTimestamp(PPTAG_BILL_CREATEDTM, rest_dtm);

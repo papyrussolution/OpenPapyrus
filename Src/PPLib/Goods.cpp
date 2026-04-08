@@ -522,10 +522,10 @@ int GoodsCore::Update(PPID * pGoodsID, Goods2Tbl::Rec * pRec, int use_ta)
 				THROW_PP(r < 0, PPERR_REFSEXISTS);
 				THROW(UpdateBarcodes(id, 0, 0));
 				THROW(UpdateArCodes(id, 0, 0));
-				THROW(P_Ref->Assc.Remove(PPASS_ALTGOODSGRP, 0, id, 0));
-				THROW(P_Ref->Assc.Remove(PPASS_ALTGOODSGRP, id, 0, 0));
+				THROW(P_Ref->AsscC.Remove(PPASS_ALTGOODSGRP, 0, id, 0));
+				THROW(P_Ref->AsscC.Remove(PPASS_ALTGOODSGRP, id, 0, 0));
 				THROW(RemoveGoodsFromGen(id, 0, 0));
-				THROW(P_Ref->Assc.Remove(PPASS_GENGOODS, id, 0, 0));
+				THROW(P_Ref->AsscC.Remove(PPASS_GENGOODS, id, 0, 0));
 				THROW_DB(deleteFrom(this, 0, this->ID == id));
 			}
 			Dirty(id);
@@ -2213,7 +2213,7 @@ int GoodsCore::GetGoodsCodeInAltGrp(PPID goodsID, PPID grpID, long * pInnerNum)
 		Goods2Tbl::Rec grp_rec;
 		if(Fetch(grpID, &grp_rec) > 0 && (grp_rec.Flags & GF_ALTGROUP) && !(grp_rec.Flags & GF_DYNAMIC)) {
 			ObjAssocTbl::Rec oa_rec;
-			if(P_Ref->Assc.Search(PPASS_ALTGOODSGRP, grpID, goodsID, &oa_rec) > 0) {
+			if(P_Ref->AsscC.Search(PPASS_ALTGOODSGRP, grpID, goodsID, &oa_rec) > 0) {
 				num = oa_rec.InnerNum;
 				ok = 1;
 			}
@@ -2226,7 +2226,7 @@ int GoodsCore::GetGoodsCodeInAltGrp(PPID goodsID, PPID grpID, long * pInnerNum)
 int GoodsCore::GetAltGroupsForGoods(PPID goodsID, PPIDArray * pGrpIDList)
 {
 	ObjAssocTbl::Rec assc_rec;
-	for(SEnum en = P_Ref->Assc.Enum(PPASS_ALTGOODSGRP, goodsID, 1); en.Next(&assc_rec) > 0;) {
+	for(SEnum en = P_Ref->AsscC.Enum(PPASS_ALTGOODSGRP, goodsID, 1); en.Next(&assc_rec) > 0;) {
 		if(!pGrpIDList->add(assc_rec.PrmrObjID))
 			return PPSetErrorSLib();
 	}
@@ -2306,21 +2306,21 @@ int GoodsCore::AssignGoodsToAltGrp(PPID goodsID, PPID altGrpID, long innerNum, i
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(Fetch(goodsID, &goods_rec) > 0);
-		if(P_Ref->Assc.Search(PPASS_ALTGOODSGRP, altGrpID, goodsID) < 0) {
+		if(P_Ref->AsscC.Search(PPASS_ALTGOODSGRP, altGrpID, goodsID) < 0) {
 			ObjAssocTbl::Rec rec;
 			rec.AsscType  = PPASS_ALTGOODSGRP;
 			rec.PrmrObjID = altGrpID;
 			rec.ScndObjID = goodsID;
 			if(innerNum) {
-				int    r = P_Ref->Assc.SearchNum(PPASS_ALTGOODSGRP, altGrpID, innerNum, 0);
+				int    r = P_Ref->AsscC.SearchNum(PPASS_ALTGOODSGRP, altGrpID, innerNum, 0);
 				THROW(r != 0);
 				THROW_PP_S(r < 0, PPERR_ALTGOODSGRPNUMBUSY, innerNum);
 				rec.InnerNum = innerNum;
 			}
 			else {
-				THROW(P_Ref->Assc.SearchFreeNum(PPASS_ALTGOODSGRP, altGrpID, &rec.InnerNum));
+				THROW(P_Ref->AsscC.SearchFreeNum(PPASS_ALTGOODSGRP, altGrpID, &rec.InnerNum));
 			}
-			THROW(P_Ref->Assc.Add(&id, &rec, 0));
+			THROW(P_Ref->AsscC.Add(&id, &rec, 0));
 		}
 		THROW(tra.Commit());
 	}
@@ -2338,7 +2338,7 @@ int GoodsCore::SetAltGrpList(PPID grpID, const PPIDArray & rList, int use_ta)
 		PPIDArray new_member_list, rmv_member_list;
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		P_Ref->Assc.GetListByPrmr(PPASS_ALTGOODSGRP, grpID, &rmv_member_list);
+		P_Ref->AsscC.GetListByPrmr(PPASS_ALTGOODSGRP, grpID, &rmv_member_list);
 		rmv_member_list.sortAndUndup();
 		uint   i = rmv_member_list.getCount();
 		if(i) do {
@@ -2354,7 +2354,7 @@ int GoodsCore::SetAltGrpList(PPID grpID, const PPIDArray & rList, int use_ta)
 		}
 		for(i = 0; i < rmv_member_list.getCount(); i++) {
 			const  PPID item_id = rmv_member_list.get(i);
-			THROW(P_Ref->Assc.Remove(PPASS_ALTGOODSGRP, grpID, item_id, 0));
+			THROW(P_Ref->AsscC.Remove(PPASS_ALTGOODSGRP, grpID, item_id, 0));
 		}
 		for(i = 0; i < new_member_list.getCount(); i++) {
 			const  PPID item_id = new_member_list.get(i);
@@ -2441,7 +2441,7 @@ int GoodsCore::Helper_BelongToGroup(PPID id, PPID grp, PPID * pSubGrpID, PPIDArr
 				}
 			}
 			else
-				r = BIN(P_Ref->Assc.Search(PPASS_ALTGOODSGRP, grp, id) > 0);
+				r = BIN(P_Ref->AsscC.Search(PPASS_ALTGOODSGRP, grp, id) > 0);
 		}
 		else if(grp_rec.Flags & GF_GENERIC)
 			r = BIN(BelongToGen(id, &grp, 0) > 0);
@@ -2470,12 +2470,12 @@ int GoodsCore::BelongToGen(PPID goodsID, PPID * pGenID, ObjAssocTbl::Rec * b)
 	int    ok = -1;
 	if(pGenID) {
 		if(*pGenID) {
-			if(P_Ref->Assc.Search(PPASS_GENGOODS, *pGenID, goodsID, b) > 0)
+			if(P_Ref->AsscC.Search(PPASS_GENGOODS, *pGenID, goodsID, b) > 0)
 				ok = 1;
 		}
 		else {
 			ObjAssocTbl::Rec assc_rec;
-			SEnum en = P_Ref->Assc.Enum(PPASS_GENGOODS, goodsID, 1);
+			SEnum en = P_Ref->AsscC.Enum(PPASS_GENGOODS, goodsID, 1);
 			if(en.Next(&assc_rec) > 0) {
 				ASSIGN_PTR(pGenID, assc_rec.PrmrObjID);
 				ASSIGN_PTR(b, assc_rec);
@@ -2497,7 +2497,7 @@ int GoodsCore::GetGenericList(PPID genID, PPIDArray * pList)
 	if(Fetch(genID, &gen_rec) > 0) {
 		PPIDArray temp_list;
 		THROW_PP(gen_rec.Flags & GF_GENERIC, PPERR_NOTGENGOODS);
-		THROW(P_Ref->Assc.GetListByPrmr(PPASS_GENGOODS, genID, &temp_list));
+		THROW(P_Ref->AsscC.GetListByPrmr(PPASS_GENGOODS, genID, &temp_list));
 		if(gen_rec.GdsClsID)
 			THROW(GetDynGenericList(genID, &temp_list));
 		THROW(pList->addUnique(&temp_list));
@@ -2532,8 +2532,8 @@ int GoodsCore::AssignGoodsToGen(PPID goodsID, PPID genID, int abbr, int use_ta)
 			assc_rec.AsscType  = PPASS_GENGOODS;
 			assc_rec.PrmrObjID = genID;
 			assc_rec.ScndObjID = goodsID;
-			THROW(P_Ref->Assc.SearchFreeNum(PPASS_GENGOODS, genID, &assc_rec.InnerNum));
-			THROW(P_Ref->Assc.Add(&(id = 0), &assc_rec, 0));
+			THROW(P_Ref->AsscC.SearchFreeNum(PPASS_GENGOODS, genID, &assc_rec.InnerNum));
+			THROW(P_Ref->AsscC.Add(&(id = 0), &assc_rec, 0));
 		}
 		THROW(tra.Commit());
 	}
@@ -2543,7 +2543,7 @@ int GoodsCore::AssignGoodsToGen(PPID goodsID, PPID genID, int abbr, int use_ta)
 
 int GoodsCore::RemoveGoodsFromGen(PPID goodsID, PPID genID, int use_ta)
 {
-	return P_Ref->Assc.Remove(PPASS_GENGOODS, genID, goodsID, use_ta);
+	return P_Ref->AsscC.Remove(PPASS_GENGOODS, genID, goodsID, use_ta);
 }
 
 int GoodsCore::SetGenericList(PPID goodsID, const PPIDArray & rList, int use_ta)
@@ -2571,7 +2571,7 @@ int GoodsCore::SetGenericList(PPID goodsID, const PPIDArray & rList, int use_ta)
 					THROW_SL(assc_list.insert(&assc_rec));
 				}
 			}
-			THROW(P_Ref->Assc.AddArray(PPASS_GENGOODS, goodsID, &assc_list, 1, 0));
+			THROW(P_Ref->AsscC.AddArray(PPASS_GENGOODS, goodsID, &assc_list, 1, 0));
 		}
 		THROW(tra.Commit());
 	}

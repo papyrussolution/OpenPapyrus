@@ -147,7 +147,7 @@ int ArticleCore::GetListByGroup(PPID grpArID, PPIDArray * pList)
 	int    ok = 1;
 	if(pList) {
 		PPIDArray temp_list;
-		if(!PPRef->Assc.GetListByPrmr(PPASS_GROUPARTICLE, grpArID, &temp_list) || !pList->addUnique(&temp_list))
+		if(!PPRef->AsscC.GetListByPrmr(PPASS_GROUPARTICLE, grpArID, &temp_list) || !pList->addUnique(&temp_list))
 			ok = 0;
 	}
 	else

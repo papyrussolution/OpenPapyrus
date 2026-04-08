@@ -707,14 +707,15 @@ int RemoveBadReckons()
 	PPObjBill * p_bobj(BillObj);
 	IterCounter cntr;
 	PPObjOprKind op_obj;
-	ObjAssoc & a = PPRef->Assc;
+	ObjAssocCore & r_ac = PPRef->AsscC;
 	ObjAssocTbl::Key1 k1;
 	MEMSZERO(k1);
 	k1.AsscType = PPASS_PAYMBILLPOOL;
 	{
 		long num_iters = 0;
-		while(a.search(1, &k1, spGt) && k1.AsscType == PPASS_PAYMBILLPOOL)
+		while(r_ac.search(1, &k1, spGt) && k1.AsscType == PPASS_PAYMBILLPOOL) {
 			num_iters++;
+		}
 		cntr.Init(num_iters);
 		MEMSZERO(k1);
 		k1.AsscType = PPASS_PAYMBILLPOOL;
@@ -723,7 +724,7 @@ int RemoveBadReckons()
 	{
 		PPTransaction tra(1);
 		THROW(tra);
-		while(a.search(1, &k1, spGt) && k1.AsscType == PPASS_PAYMBILLPOOL) {
+		while(r_ac.search(1, &k1, spGt) && k1.AsscType == PPASS_PAYMBILLPOOL) {
 			BillTbl::Rec prmr_bill_rec;
 			BillTbl::Rec scnd_bill_rec;
 			int    r1 = p_bobj->Search(k1.PrmrObjID, &prmr_bill_rec);
@@ -741,19 +742,19 @@ int RemoveBadReckons()
 				PPOprKind op_rec;
 				PPID   op_type_id = GetOpType(scnd_bill_rec.OpID, &op_rec);
 				if(op_type_id != PPOPT_PAYMENT) {
-					THROW_DB(a.deleteRec());
+					THROW_DB(r_ac.deleteRec());
 					is_removed = 1;
 				}
 				else {
 					PPReckonOpEx rox;
 					if(op_obj.GetReckonExData(prmr_bill_rec.OpID, &rox) <= 0 || !rox.OpList.lsearch(scnd_bill_rec.OpID)) {
-						THROW_DB(a.deleteRec());
+						THROW_DB(r_ac.deleteRec());
 						is_removed = 1;
 					}
 				}
 			}
 			else {
-				THROW_DB(a.deleteRec());
+				THROW_DB(r_ac.deleteRec());
 				is_removed = 1;
 			}
 			if(is_removed)

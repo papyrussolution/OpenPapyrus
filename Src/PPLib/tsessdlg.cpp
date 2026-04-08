@@ -80,7 +80,7 @@ void PrcTechCtrlGroup::onPrcSelection(TDialog * pDlg, int onIdleStatus)
 				PPObjTech::SetupCombo(pDlg, CtlselTech, Data.TechID, GetTechComboOlwFlags(), Data.PrcID, SelGoodsID);
 			}
 			else
-				SetupPPObjCombo(pDlg, CtlselTech, PPOBJ_TECH, Data.TechID, GetTechComboOlwFlags() | OLW_SETUPSINGLE, reinterpret_cast<void *>(Data.PrcID));
+				SetupPPObjCombo(pDlg, CtlselTech, PPOBJ_TECH, Data.TechID, GetTechComboOlwFlags()|OLW_SETUPSINGLE, reinterpret_cast<void *>(Data.PrcID));
 			setupGoodsName(pDlg);
 			if(prc_rec.WrOffOpID != prev_prc_rec.WrOffOpID)
 				setupArticle(pDlg, &prc_rec);
@@ -103,7 +103,7 @@ void PrcTechCtrlGroup::selTechByGoods(TDialog * pDlg)
 			if(goods_id_list.lsearch(SelGoodsID))
 				tidi.GoodsID = SelGoodsID;
 			dlg->setDTS(&tidi);
-			if(ExecView(dlg) == cmOK)
+			if(ExecView(dlg) == cmOK) {
 				if(dlg->getDTS(&tidi) > 0) {
 					SelGoodsID = tidi.GoodsID;
 					if(SelGoodsID)
@@ -113,6 +113,7 @@ void PrcTechCtrlGroup::selTechByGoods(TDialog * pDlg)
 					setupGoodsName(pDlg);
 					TView::messageCommand(pDlg, cmCBSelected, pDlg->getCtrlView(CtlselTech));
 				}
+			}
 			delete dlg;
 		}
 	}
@@ -1327,7 +1328,8 @@ int TSessionDialog::SetupTiming(int master)
 	int    ok = 1;
 	uint   sel = 0;
 	LTIME  tm = ZEROTIME;
-	LDATETIME start, finish;
+	LDATETIME start = ZERODATETIME;
+	LDATETIME finish = ZERODATETIME;
 	long   timing = 0;
 	long   force_timing = -1;
 	getCtrlData(sel = CTL_TSESS_STDT, &Data.Rec.StDt);
@@ -1744,13 +1746,14 @@ void TSessLineDialog::SetupCtrlsOnGoodsSelection()
 	Goods2Tbl::Rec goods_rec;
 	PPUnit unit_rec;
 	setStaticText(CTL_TSESSLN_ST_PHQTTY, 0);
-	if(Data.GoodsID && GObj.Fetch(Data.GoodsID, &goods_rec) > 0 && GObj.FetchUnit(goods_rec.PhUnitID, &unit_rec) > 0)
+	if(Data.GoodsID && GObj.Fetch(Data.GoodsID, &goods_rec) > 0 && GObj.FetchUnit(goods_rec.PhUnitID, &unit_rec) > 0) {
 		setStaticText(CTL_TSESSLN_ST_PHQTTY, unit_rec.Name);
+	}
 	showCtrl(CTL_TSESSLN_PHQTTY, !(Data.Flags & TSESLF_INDEPPHQTTY));
 	showCtrl(CTL_TSESSLN_INDEPPHQTTY, LOGIC(Data.Flags & TSESLF_INDEPPHQTTY));
 	showCtrl(CTLMNU_TSESSLN_PHQTTY, LOGIC(Data.Flags & TSESLF_INDEPPHQTTY));
-	disableCtrls(Data.Flags & TSESLF_RECOMPL, CTL_TSESSLN_QTTY, CTL_TSESSLN_SIGN, CTL_TSESSLN_ORGQTTY, 0); // @v11.0.7 CTL_TSESSLN_QTTY
-	SetupLotDimention(); // @v11.0.4
+	disableCtrls((Data.Flags & TSESLF_RECOMPL), CTL_TSESSLN_QTTY, CTL_TSESSLN_SIGN, CTL_TSESSLN_ORGQTTY, 0); // @v11.0.7 CTL_TSESSLN_QTTY
+	SetupLotDimention();
 }
 
 uint TSessLineDialog::GetLotDimAllowence(SString * pQttyFormula)
@@ -1980,8 +1983,10 @@ int PPObjTSession::EditDialog(TSessionPacket * pData)
 		if(!tec_id) {
 			PPIDArray tec_list;
 			TecObj.GetListByPrcGoods(pData->Rec.PrcID, 0, &tec_list);
-			if(tec_list.getCount() == 1)
-				tec_id = pData->Rec.TechID = tec_list.get(0);
+			// Пытаемся автоматически установить единственную технологию (ежели это возможно)
+			tec_id = tec_list.getSingle();
+			if(tec_id)
+				pData->Rec.TechID = tec_id;
 		}
 		if(tec_id && TecObj.Fetch(tec_id, &tec_rec) > 0 && IsTimingTech(&tec_rec, 0) > 0) {
 			//

@@ -248,7 +248,7 @@ DBQuery * PPViewLogsMonitor::CreateBrowserQuery(uint *pBrwId, SString *)
 //
 int PPViewLogsMonitor::ProcessCommand(uint ppvCmd, const void *pHdr, PPViewBrowser *pBrw)
 {
-	int ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
+	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
 		BrwHdr hdr;
 		if(pHdr)

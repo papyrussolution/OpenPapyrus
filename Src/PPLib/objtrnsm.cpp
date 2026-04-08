@@ -1,5 +1,5 @@
 // OBJTRNSM.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Передача объектов между разделами БД
 //
@@ -652,13 +652,14 @@ int PPObjectTransmit::PutSyncCmpToIndex(PPID objType, PPID id)
 	PPCommSyncID comm_id;
 	ObjSyncTbl::Rec sync_rec;
 	ObjSyncQueueTbl::Key1 k1;
+	const  PPID db_div = LConfig.DBDiv;
 	THROW_PP(DestDbDivID, PPERR_INVDESTDBDIV);
 	THROW_PP(SyncCmpTransmit, PPERR_PPOS_NSYNCCMPMODE);
 	THROW(SETIFZ(P_TmpIdxTbl, CreateTempIndex()));
 	MEMSZERO(k1);
-	k1.ObjType = (short)objType;
+	k1.ObjType = static_cast<short>(objType);
 	k1.ObjID = id;
-	k1.DBID  = (short)LConfig.DBDiv;
+	k1.DBID  = static_cast<short>(db_div);
 	THROW(r = SearchByKey(P_TmpIdxTbl, 1, &k1, 0));
 	if(r < 0) {
 		if(SyncTbl.SearchPrivate(objType, id, 0, &sync_rec) > 0)
@@ -671,7 +672,7 @@ int PPObjectTransmit::PutSyncCmpToIndex(PPID objType, PPID id)
 				LDATETIME modif;
 				ObjSyncQueueTbl::Rec rec;
 				PPID   dest_id = (!comm_id.IsZero() && SyncTbl.SearchCommon(objType, comm_id, DestDbDivID, &sync_rec) > 0) ? sync_rec.ObjID : 0;
-				rec.DBID    = static_cast<short>(LConfig.DBDiv);
+				rec.DBID    = static_cast<short>(db_div);
 				rec.ObjType = static_cast<short>(objType);
 				comm_id.Get(&rec);
 				rec.ObjID   = id;
@@ -711,7 +712,6 @@ int PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updProtocol
 	THROW(SETIFZ(P_TmpIdxTbl, CreateTempIndex()));
 	{
 		PPIDArray exclude_obj_type_list;
-		// @v11.1.7 PPOBJ_STYLOQBINDERY
 		exclude_obj_type_list.addzlist(PPOBJ_CONFIG, PPOBJ_SCALE, PPOBJ_BHT, PPOBJ_BCODEPRINTER, PPOBJ_STYLOPALM, PPOBJ_STYLOQBINDERY, /*PPOBJ_USRGRP, PPOBJ_USR,*/ 0L); 
 		if(!(Ctx.Cfg.Flags & DBDXF_SYNCUSRANDGRPS)) {
 			exclude_obj_type_list.add(PPOBJ_USR);

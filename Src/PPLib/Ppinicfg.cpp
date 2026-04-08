@@ -872,46 +872,49 @@ int PPConfigDatabase::DeleteObj(int32 id, int use_ta)
 int PPConfigDatabase::PutObj(int32 * pID, CObjHeader & rHdr, SBuffer & rData, int use_ta)
 {
 	int    ok = 1;
-	BDbTable::Buffer key_buf, data_buf;
+	BDbTable::Buffer key_buf;
+	BDbTable::Buffer data_buf;
 	SBuffer buf;
-	BDbTransaction tra(P_Db, use_ta);
-	THROW_DB(tra);
-	if(*pID == 0) {
-		P_OT->SerializeKeyBuf(+1, &rHdr, buf.Z());
-		key_buf = buf;
-		data_buf.Alloc(16);
-		if(P_OT->Search(key_buf, data_buf)) {
-			data_buf.Get(pID);
+	if(P_OT) {
+		BDbTransaction tra(P_Db, use_ta);
+		THROW_DB(tra);
+		if(*pID == 0) {
+			P_OT->SerializeKeyBuf(+1, &rHdr, buf.Z());
+			key_buf = buf;
+			data_buf.Alloc(16);
+			if(P_OT->Search(key_buf, data_buf)) {
+				data_buf.Get(pID);
+			}
 		}
-	}
-	if(*pID) {
-		data_buf.Alloc(1024);
-		if(P_OT->Search(1, key_buf = *pID, data_buf)) {
-			CObjHeader rec;
-			key_buf.Get(buf);
-			THROW(P_OT->SerializeKeyBuf(-1, &rec, buf));
-			if(rHdr.Cmp(rec, 0x0001) != 0) {
-				THROW_DB(P_OT->DeleteRec(key_buf));
-				{
-					P_OT->SerializeKeyBuf(+1, &rHdr, buf.Z());
-					key_buf = buf;
-					data_buf = *pID;
-					THROW_DB(P_OT->InsertRec(key_buf, data_buf));
+		if(*pID) {
+			data_buf.Alloc(1024);
+			if(P_OT->Search(1, key_buf = *pID, data_buf)) {
+				CObjHeader rec;
+				key_buf.Get(buf);
+				THROW(P_OT->SerializeKeyBuf(-1, &rec, buf));
+				if(rHdr.Cmp(rec, 0x0001) != 0) {
+					THROW_DB(P_OT->DeleteRec(key_buf));
+					{
+						P_OT->SerializeKeyBuf(+1, &rHdr, buf.Z());
+						key_buf = buf;
+						data_buf = *pID;
+						THROW_DB(P_OT->InsertRec(key_buf, data_buf));
+					}
 				}
 			}
 		}
+		else {
+			int64 _id = 0;
+			THROW_DB(P_Db->GetSequence(P_OT->SeqID, &_id));
+			*pID = (int32)_id;
+			P_OT->SerializeKeyBuf(+1, &rHdr, buf.Z());
+			key_buf = buf;
+			data_buf = *pID;
+			THROW_DB(P_OT->InsertRec(key_buf, data_buf));
+		}
+		THROW_DB(P_OtT->InsertRec(key_buf = *pID, data_buf = rData));
+		THROW_DB(tra.Commit(1));
 	}
-	else {
-		int64 _id = 0;
-		THROW_DB(P_Db->GetSequence(P_OT->SeqID, &_id));
-		*pID = (int32)_id;
-		P_OT->SerializeKeyBuf(+1, &rHdr, buf.Z());
-		key_buf = buf;
-		data_buf = *pID;
-		THROW_DB(P_OT->InsertRec(key_buf, data_buf));
-	}
-	THROW_DB(P_OtT->InsertRec(key_buf = *pID, data_buf = rData));
-	THROW_DB(tra.Commit(1));
 	CATCHZOK
 	return ok;
 }

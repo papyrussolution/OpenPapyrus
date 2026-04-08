@@ -5504,7 +5504,7 @@ int GetScaleData(PPID scaleID, TIDlgInitData * pData)
 			if(r > 0) {
 				ObjAssocTbl::Rec assoc_rec;
 				if(gds_no) {
-					THROW(r = PPRef->Assc.SearchNum(PPASS_ALTGOODSGRP, pack.Rec.AltGoodsGrp, gds_no, &assoc_rec));
+					THROW(r = PPRef->AsscC.SearchNum(PPASS_ALTGOODSGRP, pack.Rec.AltGoodsGrp, gds_no, &assoc_rec));
 					tidi.GoodsGrpID = pack.Rec.AltGoodsGrp;
 					tidi.GoodsID    = (r > 0) ? assoc_rec.ScndObjID : 0;
 				}

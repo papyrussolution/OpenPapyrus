@@ -4082,6 +4082,7 @@ int PPObjBHT::AcceptInvent(PPID opID, PPObjBHT::InventRec * pRec, BillTbl::Rec *
 	return ok;
 }
 
+#if 0 // @v12.5.12 @obsolete {
 int PPObjBHT::AcceptTechSessPalm(const char * pLName, PPLogger * pLog)
 {
 	int    ok = -1;
@@ -4137,6 +4138,7 @@ int PPObjBHT::AcceptTechSessPalm(const char * pLName, PPLogger * pLog)
 	CATCHZOK
 	return ok;
 }
+#endif // } 0 @v12.5.12 @obsolete
 
 int PPObjBHT::AcceptBillsPalm(const char * pHName, const char * pLName, PPLogger * pLog)
 {
@@ -5488,9 +5490,7 @@ int IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID, Goods
 			}
 		}
 		if(fi_tsline >= 0) {
-			if(oneof2(bht_type, PPObjBHT::btPalm, PPObjBHT::btWinCe)) {
-				THROW(AcceptTechSessPalm(files.at(fi_tsline), &logger));
-			}
+			// @v12.5.12 @obsolete if(oneof2(bht_type, PPObjBHT::btPalm, PPObjBHT::btWinCe)) { THROW(AcceptTechSessPalm(files.at(fi_tsline), &logger)); }
 		}
 		if(oneof3(bht_type, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
 			if(bht_type == PPObjBHT::btPalm) {

@@ -1,8 +1,11 @@
 // GTIN.JAVA
-// Copyright (c) A.Sobolev 2022, 2025
+// Copyright (c) A.Sobolev 2022, 2025, 2026
 // Класс для разбора кодов GTIN (портирован из Papyrus)
 //
 package ru.petroglif.styloq;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class GTIN {
 	// A.I. Описание Количество цифр и формат
@@ -423,7 +426,8 @@ public class GTIN {
 			temp_buf = src.substring(0, 2);
 			int _id = SLib.SIntToSymbTab_GetId(GtinPrefix, temp_buf);
 			if(IsTokenEnabled(_id) && _id != currentId && !HasToken(_id)) {
-				if((flags & dpfBOL) != 0 || (_id != fldSscc18 && _id != fldGTIN14)) {
+				//if((flags & dpfBOL) != 0 || (_id != fldGTIN14)) { // @v12.5.12 (_id != fldSscc18 && _id != fldGTIN14)-->(_id != fldGTIN14)
+				if((flags & dpfBOL) != 0 || (/*_id != fldSscc18 &&*/_id != fldGTIN14)) {
 					prefix_len = 2;
 					prefix_id = _id;
 				}
@@ -759,9 +763,9 @@ public class GTIN {
 	}
 	void SetSpecialFixedToken(int token, int fixedLen)
 	{
-		if(fixedLen == 1000 || (fixedLen >= 1 && fixedLen <= 50) && SLib.SIntToSymbTab_HasId(GtinPrefix, token)) { // @v10.9.0 30-->50
+		if(fixedLen == 1000 || (fixedLen >= 1 && fixedLen <= 50) && SLib.SIntToSymbTab_HasId(GtinPrefix, token)) {
 			if(SpecialFixedTokens != null) {
-				SpecialFixedTokens.Remove(token); // @v10.7.12
+				SpecialFixedTokens.Remove(token);
 				SpecialFixedTokens.AddUnique(token, fixedLen);
 			}
 			else {
@@ -801,33 +805,29 @@ public class GTIN {
 		}
 		return result;
 	}
+	enum DedicatedCase {
+		undef,
+		dedicatedcase_37_01_21_93,
+		motoroil_package,              // @v12.5.12
+		dedicatedcase_mdlp_01,         // @v12.5.12 "^01(\\d{14})17(\\d{6})10(.{1,20}?)21(.{13})$"
+		dedicatedcase_01_21_91_92,     // @v12.5.12 "^01(\\d{14})21(.{13})91(.{1,4}?)92(.+)$"
+		dedicatedcase_01_21_240_10_17, // @v12.5.12 "^01(\\d{14})21(.{13})240(.+?)10(.+?)17(\\d{6})$"
+		dedicatedcase_01_17_10_21,     // @v12.5.12 "^01(\\d{14})17(\\d{6})10(.{1,20}?)21(.{1,20})$"
+		dedicatedcase_tobacco_wo_ct,   // @v12.5.12 "^(\\d{14})(.{7})(.{4})$" // ["^(\\d{14})(.{7})(.{4})(.{4})?$"]
+		dedicatedcase_01_21_240,       // @v12.5.12 "^01(\\d{14})21(.{16})240(.{8})$" 012460081800728621069162482170081024014501203
+		dedicatedcase_02_13_21,        // @v12.5.12 "^02(\\d{14})13(\\d{6})21(.{10})$" весовой товар
+		dedicatedcase_mdlp_02,         // @v12.5.12 "^01(\\d{14})17(\\d{6})10(.{1,20}?)11(\\d{6})21(.{13})91(.{4})92(.{44})$"
+	};
 	public static GTIN ParseChZnCode(String code, int flags)
 	{
 		GTIN result = new GTIN();
 		final int serial_len_variant_list[] = { 13, 12, 11, 8, 6 };
 		// @v12.3.5 (сейчас в Papyrus'е вот так) final int serial_len_variant_list[] = { 6, 7, 8, 11, 12, 13 }; // @v12.3.5
 		final int serial_len_variant_list_83[] = { 13 }; // @v12.3.5 Длины серии [21] для марок с длиной 83 байта
+		//
+		DedicatedCase dedicated_case = DedicatedCase.undef;
 
 		int serial_len_variant_idx = 0;
-		result.ChZnParseResult = 0;
-		result.AddSpecialStopChar('\u001D');
-		result.AddSpecialStopChar('\u00E8');
-		result.AddOnlyToken(fldGTIN14);
-		result.AddOnlyToken(fldSerial);
-		result.SetSpecialFixedToken(fldSerial, /*13*/serial_len_variant_list[serial_len_variant_idx]); serial_len_variant_idx++;
-		result.AddOnlyToken(fldPart);
-		result.AddOnlyToken(fldAddendumId);
-		result.AddOnlyToken(fldUSPS); //
-		result.SetSpecialFixedToken(fldUSPS, 4);
-		result.AddOnlyToken(fldInner1);
-		result.SetSpecialFixedToken(fldInner1, 1000/*UNTIL EOL*/);
-		result.AddOnlyToken(fldInner2);
-		result.AddOnlyToken(fldSscc18);
-		result.AddOnlyToken(fldExpiryDate);
-		result.AddOnlyToken(fldManufDate);
-		result.AddOnlyToken(fldVariant);
-		//result.AddOnlyToken(GtinStruc::fldPriceRuTobacco);
-		//result.AddOnlyToken(GtinStruc::fldPrice);
 		int   pr = 0;
 		//
 		String raw_buf;
@@ -839,7 +839,6 @@ public class GTIN {
 			if(temp_buf.charAt(0) == '\u00E8')
 				temp_buf = temp_buf.substring(1);
 			// "]C1"
-			// @v11.0.1 {
 			//if(temp_buf.HasPrefixIAscii("]C1")) { // Выяснилось, что и такие служебные префиксы встречаются //
 			if(temp_buf.startsWith("]C1") || temp_buf.startsWith("]c1")) { // Выяснилось, что и такие служебные префиксы встречаются //
 				//temp_buf.ShiftLeft(3);
@@ -875,15 +874,246 @@ public class GTIN {
 					result.ChZnParseResult = STokenRecognizer.SNTOK_CHZN_SURROGATE_GTIN;
 				}
 			}
+			else if(code_len == 20) { // @v12.5.12 SNTOK_SSCC
+				STokenRecognizer tr = new STokenRecognizer();
+				STokenRecognizer.TokenArray nta = tr.Run(code);
+				if(nta.Has(STokenRecognizer.SNTOK_SSCC) != 0) {
+					String sub = code.substring(2, 16);
+					if(SLib.IsDecimal(sub)) {
+						result.AddToken(GTIN.fldGTIN14, sub);
+						result.AddToken(GTIN.fldOriginalText, code);
+						result.ChZnParseResult = STokenRecognizer.SNTOK_SSCC;
+					}
+				}
+			}
 			else if(code.startsWith("00") && code_len == (2+14+4) && SLib.IsDecimal(code)) { // @v12.3.5 Специальный случай: никакая не марка, но код паллеты комбинация 00 GTIN 9999
 				String sub = code.substring(2, 16);
 				result.AddToken(GTIN.fldGTIN14, sub);
 				result.AddToken(GTIN.fldOriginalText, code);
 				result.ChZnParseResult = STokenRecognizer.SNTOK_CHZN_PALLET_GTIN;
 			}
+			// @v12.5.12 {
 			if(result.ChZnParseResult == 0) {
+				if(code.startsWith("240") && code_len >= 51) {
+					// (240)...(00)...(11)...(10)...(37)...
+					final String re_motoroil_package = "^240(.*?)00(\\d{18})11(\\d{6})10(.*?)37(\\d{1,8})$";
+					Pattern re_pattern = Pattern.compile(re_motoroil_package);
+					if(re_pattern != null) {
+						Matcher re_matcher = re_pattern.matcher(code);
+						if(re_matcher.matches()) {
+							String ar = re_matcher.group(1); // Артикул (до 30 символов)
+							String sscc = re_matcher.group(2); // SSCC / Код упаковки (ровно 18 цифр)
+							String manuf_dt = re_matcher.group(3); // Дата (ровно 6 цифр)
+							String batch = re_matcher.group(4); // Партия (до 20 символов)
+							String count = re_matcher.group(5); // Количество (от 1 до 8 цифр)
+							if(SLib.GetLen(ar) > 0 && SLib.GetLen(sscc) > 0 && SLib.GetLen(manuf_dt) > 0 && SLib.GetLen(batch) > 0 && SLib.GetLen(count) > 0) {
+								result.AddOnlyToken(fldAddendumId);
+								result.SetSpecialFixedToken(fldAddendumId, SLib.GetLen(ar));
+								result.AddOnlyToken(fldSscc18);
+								result.AddOnlyToken(fldManufDate);
+								result.AddOnlyToken(fldPart);
+								result.SetSpecialFixedToken(fldPart, SLib.GetLen(batch));
+								result.AddOnlyToken(fldCount);
+								result.SetSpecialFixedToken(fldCount, SLib.GetLen(count));
+								//
+								dedicated_case = DedicatedCase.motoroil_package;
+							}
+						}
+					}
+				}
+				if(dedicated_case == DedicatedCase.undef) {
+					final String re_text = "^01(\\d{14})17(\\d{6})10(.{4,20}?)21(.{13})$";
+					Pattern re_pattern = Pattern.compile(re_text);
+					if(re_pattern != null) {
+						Matcher re_matcher = re_pattern.matcher(code);
+						if(re_matcher.matches()) {
+							String _3 = re_matcher.group(3);
+							String _4 = re_matcher.group(4);
+							if(SLib.GetLen(_3) > 0 && SLib.GetLen(_4) > 0) {
+								result.AddOnlyToken(fldGTIN14);
+								result.AddOnlyToken(fldExpiryDate);
+								result.AddOnlyToken(fldPart);
+								result.SetSpecialFixedToken(fldPart, SLib.GetLen(_3));
+								result.AddOnlyToken(fldSerial);
+								result.SetSpecialFixedToken(fldSerial, SLib.GetLen(_4));
+								//
+								dedicated_case = DedicatedCase.dedicatedcase_mdlp_01;
+							}
+						}
+					}
+				}
+				if(dedicated_case == DedicatedCase.undef) {
+					final String re_text = "^01(\\d{14})17(\\d{6})10(.{1,20}?)11(\\d{6})21(.{13})91(.{4})92(.{44})$";
+					Pattern re_pattern = Pattern.compile(re_text);
+					if(re_pattern != null) {
+						Matcher re_matcher = re_pattern.matcher(code);
+						if(re_matcher.matches()) {
+							String _3 = re_matcher.group(3);
+							String _5 = re_matcher.group(5);
+							String _6 = re_matcher.group(6);
+							String _7 = re_matcher.group(7);
+							if(SLib.GetLen(_3) > 0 && SLib.GetLen(_5) > 0 && SLib.GetLen(_6) > 0 && SLib.GetLen(_7) > 0) {
+								result.AddOnlyToken(fldGTIN14);
+								result.AddOnlyToken(fldExpiryDate);
+								result.AddOnlyToken(fldPart);
+								result.SetSpecialFixedToken(fldPart, SLib.GetLen(_3));
+								result.AddOnlyToken(fldManufDate);
+								result.AddOnlyToken(fldSerial);
+								result.SetSpecialFixedToken(fldSerial, SLib.GetLen(_5));
+								result.AddOnlyToken(fldUSPS);
+								result.SetSpecialFixedToken(fldUSPS, SLib.GetLen(_6));
+								result.AddOnlyToken(fldInner1);
+								result.SetSpecialFixedToken(fldInner1, SLib.GetLen(_7));
+								//
+								dedicated_case = DedicatedCase.dedicatedcase_mdlp_02;
+							}
+						}
+					}
+				}
+				if(dedicated_case == DedicatedCase.undef) {
+					final String re_text = "^01(\\d{14})21(.{13})91(.{1,4}?)92(.+)$";
+					Pattern re_pattern = Pattern.compile(re_text);
+					if(re_pattern != null) {
+						Matcher re_matcher = re_pattern.matcher(code);
+						if(re_matcher.matches()) {
+							String _2 = re_matcher.group(2);
+							String _3 = re_matcher.group(3);
+							String _4 = re_matcher.group(4);
+							if(SLib.GetLen(_2) > 0 && SLib.GetLen(_3) > 0 && SLib.GetLen(_4) > 0) {
+								result.AddOnlyToken(fldGTIN14);
+								result.AddOnlyToken(fldSerial);
+								result.SetSpecialFixedToken(fldSerial, SLib.GetLen(_2));
+								result.AddOnlyToken(fldUSPS);
+								result.SetSpecialFixedToken(fldUSPS, SLib.GetLen(_3));
+								result.AddOnlyToken(fldInner1);
+								result.SetSpecialFixedToken(fldInner1, SLib.GetLen(_4));
+								//
+								dedicated_case = DedicatedCase.dedicatedcase_01_21_91_92;
+							}
+						}
+					}
+				}
+				if(dedicated_case == DedicatedCase.undef) {
+					final String re_text = "^01(\\d{14})21(.{13})240(.+?)10(.+?)17(\\d{6})$";
+					Pattern re_pattern = Pattern.compile(re_text);
+					if(re_pattern != null) {
+						Matcher re_matcher = re_pattern.matcher(code);
+						if(re_matcher.matches()) {
+							String _2 = re_matcher.group(2);
+							String _3 = re_matcher.group(3);
+							String _4 = re_matcher.group(4);
+							if(SLib.GetLen(_2) > 0 && SLib.GetLen(_3) > 0 && SLib.GetLen(_4) > 0) {
+								result.AddOnlyToken(fldGTIN14);
+								result.AddOnlyToken(fldSerial);
+								result.SetSpecialFixedToken(fldSerial, SLib.GetLen(_2));
+								result.AddOnlyToken(fldAddendumId);
+								result.SetSpecialFixedToken(fldAddendumId, SLib.GetLen(_3));
+								result.AddOnlyToken(fldPart);
+								result.SetSpecialFixedToken(fldPart, SLib.GetLen(_4));
+								result.AddOnlyToken(fldExpiryDate);
+								//
+								dedicated_case = DedicatedCase.dedicatedcase_01_21_240_10_17;
+							}
+						}
+					}
+				}
+				if(dedicated_case == DedicatedCase.undef) {
+					final String re_text = "^01(\\d{14})17(\\d{6})10(.{2,20}?)21(.{2,20})$";
+					Pattern re_pattern = Pattern.compile(re_text);
+					if(re_pattern != null) {
+						Matcher re_matcher = re_pattern.matcher(code);
+						if(re_matcher.matches()) {
+							String _3 = re_matcher.group(3);
+							String _4 = re_matcher.group(4);
+							if(SLib.GetLen(_3) > 0 && SLib.GetLen(_4) > 0) {
+								result.AddOnlyToken(fldGTIN14);
+								result.AddOnlyToken(fldExpiryDate);
+								result.AddOnlyToken(fldPart);
+								result.SetSpecialFixedToken(fldPart, SLib.GetLen(_3));
+								result.AddOnlyToken(fldSerial);
+								result.SetSpecialFixedToken(fldSerial, SLib.GetLen(_4));
+								//
+								dedicated_case = DedicatedCase.dedicatedcase_01_17_10_21;
+							}
+						}
+					}
+				}
+				if(dedicated_case == DedicatedCase.undef) {
+					final String re_text = "^01(\\d{14})21(.{16})240(.{8})$";
+					Pattern re_pattern = Pattern.compile(re_text);
+					if(re_pattern != null) {
+						Matcher re_matcher = re_pattern.matcher(code);
+						if(re_matcher.matches()) {
+							String _2 = re_matcher.group(2);
+							String _3 = re_matcher.group(3);
+							if(SLib.GetLen(_2) > 0 && SLib.GetLen(_3) > 0) {
+								result.AddOnlyToken(fldGTIN14);
+								result.AddOnlyToken(fldSerial);
+								result.SetSpecialFixedToken(fldSerial, SLib.GetLen(_2));
+								result.AddOnlyToken(fldAddendumId);
+								result.SetSpecialFixedToken(fldAddendumId, SLib.GetLen(_3));
+								//
+								dedicated_case = DedicatedCase.dedicatedcase_01_21_240;
+							}
+						}
+					}
+				}
+				if(dedicated_case == DedicatedCase.undef) {
+					final String re_text = "^02(\\d{14})13(\\d{6})21(.{10})$";
+					Pattern re_pattern = Pattern.compile(re_text);
+					if(re_pattern != null) {
+						Matcher re_matcher = re_pattern.matcher(code);
+						if(re_matcher.matches()) {
+							String _3 = re_matcher.group(3);
+							if(SLib.GetLen(_3) > 0) {
+								result.AddOnlyToken(fldContainerCt);
+								result.AddOnlyToken(fldPackDate);
+								result.AddOnlyToken(fldSerial);
+								result.SetSpecialFixedToken(fldSerial, SLib.GetLen(_3));
+								//
+								dedicated_case = DedicatedCase.dedicatedcase_02_13_21;
+							}
+						}
+					}
+				}
+			}
+			// } @v12.5.12
+			if(result.ChZnParseResult == 0) {
+				if(dedicated_case == DedicatedCase.undef) {
+					result.ChZnParseResult = 0;
+					result.AddSpecialStopChar('\u001D');
+					result.AddSpecialStopChar('\u00E8');
+					result.AddOnlyToken(fldGTIN14);
+					result.AddOnlyToken(fldSerial);
+					result.SetSpecialFixedToken(fldSerial, /*13*/serial_len_variant_list[serial_len_variant_idx]); serial_len_variant_idx++;
+					result.AddOnlyToken(fldPart);
+					result.AddOnlyToken(fldAddendumId);
+					result.AddOnlyToken(fldUSPS); //
+					result.SetSpecialFixedToken(fldUSPS, 4);
+					result.AddOnlyToken(fldInner1);
+					result.SetSpecialFixedToken(fldInner1, 1000/*UNTIL EOL*/);
+					result.AddOnlyToken(fldInner2);
+					result.AddOnlyToken(fldSscc18);
+					result.AddOnlyToken(fldExpiryDate);
+					result.AddOnlyToken(fldManufDate);
+					result.AddOnlyToken(fldVariant);
+					//result.AddOnlyToken(GtinStruc::fldPriceRuTobacco);
+					//result.AddOnlyToken(GtinStruc::fldPrice);
+				}
 				pr = result.Parse(code);
-				if(result.GetToken(fldGTIN14) != null) {
+				if(dedicated_case == DedicatedCase.motoroil_package) { // @v12.5.12
+					if(pr == 1) {
+						String sscc = result.GetToken(fldSscc18);
+						if(SLib.GetLen(sscc) > 0) {
+							String sub = sscc.substring(0, 14);
+							if(SLib.IsDecimal(sub)) {
+								result.AddToken(GTIN.fldGTIN14, sub);
+								result.ChZnParseResult = STokenRecognizer.SNTOK_CHZN_PALLET_MOTOROIL;
+							}
+						}
+					}
+				}
+				else if(result.GetToken(fldGTIN14) != null) {
 					while(pr != 1 && serial_len_variant_idx < serial_len_variant_list.length) {
 						result.SetSpecialFixedToken(fldSerial, serial_len_variant_list[serial_len_variant_idx]);
 						serial_len_variant_idx++;
@@ -908,6 +1138,9 @@ public class GTIN {
 							result.ChZnParseResult = STokenRecognizer.SNTOK_CHZN_SIGN_SGTIN;
 						else
 							result.ChZnParseResult = STokenRecognizer.SNTOK_CHZN_GS1_GTIN;
+					}
+					else if(result.GetToken(fldContainerCt) != null && result.GetToken(fldSerial) != null) {
+						result.ChZnParseResult = STokenRecognizer.SNTOK_CHZN_BULK;
 					}
 				}
 				if(result.ChZnParseResult == 0 && (flags & pchzncfPretendEverythingIsOk) != 0) {

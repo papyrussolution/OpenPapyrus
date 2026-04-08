@@ -1231,8 +1231,14 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 							alb.SetVariableSizeY(SUiLayoutParam::szByContent, 0.0f);
 						}
 						else {
-							THROW(fv > 0.0f && fv <= 32000.0f); // @err invalid height value
-							alb.SetFixedSizeY(p_prop->Value.U.UIC.Val);
+							//THROW(fv > 0.0f && fv <= 32000.0f); // @err invalid height value
+							if(fv > 0.0f && fv <= 32000.0f) {
+								alb.SetFixedSizeY(fv);
+							}
+							else {
+								unterm_errcode = PPERR_DL6_PROP_INVHEIGHTVAL;
+								unterm_error_addedmsg.Z().Cat(fv, MKSFMTD(0, 3, NMBF_NOTRAILZ));
+							}
 						}
 					}
 					else {
@@ -1253,8 +1259,13 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 							alb.SetVariableSizeX(SUiLayoutParam::szByContent, 0.0f);
 						}
 						else {
-							THROW(fv > 0.0f && fv <= 32000.0f); // @err invalid width value
-							alb.SetFixedSizeX(p_prop->Value.U.UIC.Val);
+							if(fv > 0.0f && fv <= 32000.0f) {
+								alb.SetFixedSizeX(fv);
+							}
+							else {
+								unterm_errcode = PPERR_DL6_PROP_INVWIDTHVAL;
+								unterm_error_addedmsg.Z().Cat(fv, MKSFMTD(0, 3, NMBF_NOTRAILZ));
+							}
 						}
 					}
 					else {

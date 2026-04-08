@@ -222,7 +222,7 @@ int GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID grpID
 						}
 					}
 					else {
-						p_ref->Assc.GetListByPrmr(PPASS_ALTGOODSGRP, grp_id, &id_list);
+						p_ref->AsscC.GetListByPrmr(PPASS_ALTGOODSGRP, grp_id, &id_list);
 						if(DS.IsThreadInteractive()) {
 							const long _mc = SVectorBase::GetCount(pList) + id_list.getCount();
 							(msg_buf = fmt_buf).Space().Cat(_mc);
@@ -246,7 +246,7 @@ int GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID grpID
 								THROW(id_list.add(&temp_alt_list));
 							}
 							else {
-								THROW(p_ref->Assc.GetListByPrmr(PPASS_ALTGOODSGRP, int_grp_id, &temp_alt_list));
+								THROW(p_ref->AsscC.GetListByPrmr(PPASS_ALTGOODSGRP, int_grp_id, &temp_alt_list));
 								if(DS.IsThreadInteractive()) {
 									const long _mc = SVectorBase::GetCount(pList) + temp_alt_list.getCount();
 									(msg_buf = fmt_buf).Space().Cat(_mc);

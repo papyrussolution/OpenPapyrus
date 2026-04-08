@@ -1,5 +1,5 @@
 // V_STAFF.CPP
-// Copyright (c) A.Sobolev 2007, 2009, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2007, 2009, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1074,12 +1074,13 @@ int FastEditSumByDivDlg::EditAmount(long * pPos)
 
 /*virtual*/int FastEditSumByDivDlg::addItem(long * pPos, long * pID)
 {
-	int ok = -1, create_cal = 0;
-	long pos = -1, id = 0;
-	uint what = 0;
+	int    ok = -1;
+	int    create_cal = 0;
+	long   pos = -1;
+	long   id = 0;
+	uint   what = 0;
 	DivType divt;
-	PPID real_div_id = GetRealDivID(&ObjPsn, CurDivID, &divt);
-
+	PPID   real_div_id = GetRealDivID(&ObjPsn, CurDivID, &divt);
 	if(oneof2(divt, divtTop, divtPerson))
 		create_cal = 1;
 	if(!create_cal && SelectorDialog(DLG_SELNEWSTAFFAMT, CTL_SELNEWSTAFFAMT_WHAT, &what) > 0)

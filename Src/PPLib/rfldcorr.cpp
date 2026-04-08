@@ -3187,7 +3187,7 @@ ImpExpCfgsListDialog::ImpExpCfgsListDialog() : PPListDialog(DLG_IMPEXPCFGS, CTL_
 		db_dir.SetLastSlash().Cat("CDB");
 		CDb.Open(db_dir);
 	}
-	showButton(cmImport, SlDebugMode::CT());
+	showButton(cmImport, /*SlDebugMode::CT()*/false);
 	updateList(-1);
 }
 
@@ -3203,8 +3203,10 @@ IMPL_HANDLE_EVENT(ImpExpCfgsListDialog)
 		}
 	}
 	else if(event.isCmd(cmImport)) {
+		/* @v12.5.12 (тупиковая ветвь)
 		ConvertImpExpConfig_IniToBdb();
 		clearEvent(event);
+		*/
 	}
 }
 
@@ -3224,10 +3226,12 @@ int ImpExpCfgsListDialog::editItem(long pos, long id)
 	int    ok = -1;
 	char   section[256];
 	PTR32(section)[0] = 0;
-	if(DS.CheckExtFlag(ECF_USECDB))
+	if(DS.CheckExtFlag(ECF_USECDB)) {
 		ok = EditParam(section, &id);
-	else
+	}
+	else {
 		ok = Sections.get(reinterpret_cast<uint *>(&id), section, sizeof(section)) ? EditParam(section, &id) : -1;
+	}
 	return ok;
 }
 
@@ -3386,12 +3390,13 @@ int ImpExpCfgsListDialog::EditParam(const char * pIniSection, long * pCDbID)
 			SetParamDlgDTS(p_param_dlg, CfgPos, p_param);
 			while(ok <= 0 && ExecView(p_param_dlg) == cmOK) {
 				if(GetParamDlgDTS(p_param_dlg, CfgPos, p_param)) {
-					int is_new = (pIniSection && *pIniSection && p_param->Direction == direction) ? 0 : 1;
-					if(!isempty(pIniSection))
+					int    is_new = (pIniSection && *pIniSection && p_param->Direction == direction) ? 0 : 1;
+					if(!isempty(pIniSection)) {
 						if(is_new)
 							ini_file.RemoveSection(pIniSection);
 						else
 							ini_file.ClearSection(pIniSection);
+					}
 					PPErrCode = PPERR_DUPOBJNAME;
 					if((!is_new || ini_file.IsSectExists(p_param->Name) == 0) && p_param->WriteIni(&ini_file, p_param->Name) && ini_file.FlashIniBuf())
 						ok = 1;
@@ -3413,7 +3418,8 @@ int ImpExpCfgsListDialog::setupList()
 {
 	int    ok = 1;
 	PROFILE_START
-	SString sect, sub;
+	SString sect;
+	SString sub;
 	StringSet ss(SLBColumnDelim);
 	setStaticText(CTL_IMPEXPCFGS_CFGNAME, CfgsList.Get(CfgPos).Txt);
 	PPImpExpParam * p_param = PPImpExpParam::CreateInstance(CfgsList.Get(CfgPos).Id, 0); //P_ParamList[CfgPos];
@@ -3427,7 +3433,7 @@ int ImpExpCfgsListDialog::setupList()
 				StrAssocArray::Item item = list.Get(i);
 				PPConfigDatabase::CObjHeader cobj_hdr;
 				p_param->OtrRec.Clear();
-				p_param->FileName = 0;
+				p_param->FileName.Z();
 				THROW(CDb.GetObj(item.Id, &cobj_hdr, &cobj_tail.Z()));
 				const int r = p_param->SerializeConfig(-1, cobj_hdr, cobj_tail, &SCtx);
 				if(r) {

@@ -135,7 +135,7 @@ int PPViewPersonRel::Init_(const PPBaseFilt * pBaseFilt)
 	THROW(Helper_InitBaseFilt(pBaseFilt));
 	{
 		ObjAssocTbl::Key1 k;
-		ObjAssocTbl & r_assc = PPRef->Assc;
+		ObjAssocTbl & r_assc = PPRef->AsscC;
 		ZDELETE(P_TempTbl);
 		PrmrList.Clear();
 		ScndList.Clear();
@@ -151,8 +151,9 @@ int PPViewPersonRel::Init_(const PPBaseFilt * pBaseFilt)
 				THROW(PersonList.InitEmpty());
 				THROW_MEM(p_psnv = new PPViewPerson());
 				THROW(p_psnv->Init_(Filt.P_PsnFilt));
-				for(p_psnv->InitIteration(); p_psnv->NextIteration(&item) > 0;)
+				for(p_psnv->InitIteration(); p_psnv->NextIteration(&item) > 0;) {
 					psn_list.add(item.ID);
+				}
 				psn_list.sort();
 				PersonList.Set(&psn_list);
 			}
@@ -239,7 +240,7 @@ int PPViewPersonRel::UpdateTempTable(PPID prmrID, const PPIDArray & rScndList, P
 			if(P_TempTbl->search(1, &k1, spEq) > 0)
 				id = P_TempTbl->data.ID;
 
-			for(PPID next_id = 0; !found && PPRef->Assc.EnumByPrmr(PPASS_PERSONREL, prmr_id, &next_id, (ObjAssocTbl::Rec *)&rel_rec) > 0;)
+			for(PPID next_id = 0; !found && PPRef->AsscC.EnumByPrmr(PPASS_PERSONREL, prmr_id, &next_id, (ObjAssocTbl::Rec *)&rel_rec) > 0;)
 				if(rel_rec.RelTypeID == relation && scnd_id == (rel_rec.ScndObjID & ~0xff000000)) {
 					found = 1;
 					if(!Filt.RelTypeID || relation == Filt.RelTypeID) {

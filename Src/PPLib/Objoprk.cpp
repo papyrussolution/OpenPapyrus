@@ -132,7 +132,7 @@ PPReckonOpEx::PPReckonOpEx() : Beg(ZERODATE), End(ZERODATE), Flags(0), PersonRel
 
 bool FASTCALL PPReckonOpEx::IsEq(const PPReckonOpEx & rS) const // @v12.5.7
 {
-	return (Beg == rS.Beg && End == rS.End && Flags == rS.Flags && PersonRelTypeID == rS.PersonRelTypeID && OpList.IsEq(&OpList));
+	return (Beg == rS.Beg && End == rS.End && Flags == rS.Flags && PersonRelTypeID == rS.PersonRelTypeID && OpList.IsEq(&rS.OpList)); // @v12.5.12 @fix &OpList-->&rS.OpList
 }
 
 PPReckonOpEx & PPReckonOpEx::Z()

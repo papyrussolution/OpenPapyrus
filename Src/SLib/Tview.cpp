@@ -1796,9 +1796,9 @@ ushort FASTCALL TViewGroup::execView(TWindow * p)
 		p->ViewOptions &= ~ofSelectable;
 		p->setState(sfModal, true);
 		SetCurrentView(p, enterSelect);
-		// @v11.2.5 ::SetFocus(p->H()); // @v11.2.4
-		if(!p_save_owner)
+		if(!p_save_owner) {
 			Insert_(p);
+		}
 		{
 			TEvent event;
 			p->handleEvent(event.setCmd(cmExecute, 0));

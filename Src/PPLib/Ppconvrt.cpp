@@ -7017,11 +7017,13 @@ public:
 	}
 };
 
+#if 0 // @v12.5.12 moved to PPCvtTech12512 {
 class PPCvtTech11112 : public PPTableConversion {
 	enum {
 		recfmtCurrent = 0,
 		recfmtBefore7506,
 		recfmtBefore11112,
+		recfmtBefore12512, // @v12.5.12
 	};
 	int    RecFmt;
 	long   OrderN_Counter;
@@ -7049,6 +7051,28 @@ class PPCvtTech11112 : public PPTableConversion {
 		uint8  Reserve3[2]; // raw
 		char   Memo[512];  // note
 	};
+	struct TechRec_Before12512 { // @v12.5.12
+		int32  ID;
+		char   Code[48];
+		int32  PrcID;
+		int32  GoodsID;
+		int32  GStrucID;
+		int32  Flags;
+		int16  Sign;
+		int16  Kind;
+		int32  PrevGoodsID;
+		int32  Duration;
+		double Cost;
+		double Capacity;
+		double Rounding;
+		int32  TransClsID;
+		int32  TransMask;
+		float  InitQtty;
+		int32  ParentID;
+		int32  OrderN;
+		int16  CipMax;
+		uint8  Reserve3[10]; // raw
+	};
 public:
 	PPCvtTech11112() : PPTableConversion(), P_Ref(0), RecFmt(0), OrderN_Counter(0)
 	{
@@ -7069,8 +7093,10 @@ public:
 			p_tbl->getNumKeys(&num_keys);
 			if(num_keys < 6)
 				RecFmt = recfmtBefore7506;
-			else if(recsz < sizeof(TechTbl::Rec))
+			else if(recsz < sizeof(TechRec_Before12512))
 				RecFmt = recfmtBefore11112;
+			else if(recsz < sizeof(TechTbl::Rec))
+				RecFmt = recfmtBefore12512;
 			else
 				RecFmt = recfmtCurrent;
 			*pNeedConversion = BIN(RecFmt != recfmtCurrent);
@@ -7080,18 +7106,19 @@ public:
 	}
 	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
-		#define CF(f) p_data->f = p_old_rec->f
 		int    ok = 1;
 		SString memo_buf;
 		TechTbl::Rec * p_data = static_cast<TechTbl::Rec *>(pNewTbl->getDataBuf());
-		const TechRec_Before11112 * p_old_rec = static_cast<TechRec_Before11112 *>(pOldRec);
+		const TechRec_Before11112 * p_old_rec_Before11112 = static_cast<TechRec_Before11112 *>(pOldRec);
+		const TechRec_Before12512 * p_old_rec_Before12512 = static_cast<TechRec_Before12512 *>(pOldRec);
 		pNewTbl->clearDataBuf();
 		Reference * p_ref = GetReferenceInstance(&P_Ref);
 		THROW(p_ref);
-		assert(oneof2(RecFmt, recfmtBefore7506, recfmtBefore11112));
-		THROW(oneof2(RecFmt, recfmtBefore7506, recfmtBefore11112));
+		assert(oneof3(RecFmt, recfmtBefore7506, recfmtBefore11112, recfmtBefore12512)); // @v12.5.12 recfmtBefore12512
+		THROW(oneof3(RecFmt, recfmtBefore7506, recfmtBefore11112, recfmtBefore12512)); // @v12.5.12 recfmtBefore12512
 		const  PPID id = *static_cast<const long *>(pOldRec); // Идент записи в любом случае - самое первое поле 
-		{
+		if(RecFmt == recfmtBefore12512) {
+			#define CF(f) p_data->f = p_old_rec_Before12512->f
 			CF(ID);
 			CF(PrcID);
 			CF(GoodsID);
@@ -7110,21 +7137,47 @@ public:
 			CF(ParentID);
 			CF(OrderN);
 			CF(CipMax);
-			STRNSCPY(p_data->Code, p_old_rec->Code);
-			//uint8  Reserve3[2]; // raw
-			//char   Memo[512];  // note
+			STRNSCPY(p_data->Code, p_old_rec_Before12512->Code);
+			#undef CF
 		}
-		(memo_buf = p_old_rec->Memo).Strip();
-		if(RecFmt == recfmtBefore7506) {
-			p_data->ParentID = 0;
-			p_data->OrderN = ++OrderN_Counter;
+		else if(oneof2(RecFmt, recfmtBefore7506, recfmtBefore11112)) {
+			#define CF(f) p_data->f = p_old_rec_Before11112->f
+			{
+				CF(ID);
+				CF(PrcID);
+				CF(GoodsID);
+				CF(GStrucID);
+				CF(Flags);
+				CF(Sign);
+				CF(Kind);
+				CF(PrevGoodsID);
+				CF(Duration);
+				CF(Cost);
+				CF(Capacity);
+				CF(Rounding);
+				CF(TransClsID);
+				CF(TransMask);
+				CF(InitQtty);
+				CF(ParentID);
+				CF(OrderN);
+				CF(CipMax);
+				STRNSCPY(p_data->Code, p_old_rec_Before11112->Code);
+				//uint8  Reserve3[2]; // raw
+				//char   Memo[512];  // note
+			}
+			(memo_buf = p_old_rec_Before11112->Memo).Strip();
+			if(RecFmt == recfmtBefore7506) {
+				p_data->ParentID = 0;
+				p_data->OrderN = ++OrderN_Counter;
+			}
+			THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(PPOBJ_TECH, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			#undef CF
 		}
-		THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(PPOBJ_TECH, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
 		CATCHZOK
 		return ok;
-		#undef CF
 	}
 };
+#endif // } 0 @v12.5.12 moved to PPCvtTech12512
 
 class PPCvtPerson11112 : public PPTableConversion {
 	enum {
@@ -7231,7 +7284,8 @@ public:
 		THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(PPOBJ_PERSON, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
 		CATCHZOK
 		return ok;
-		#define CF(f) p_data->f = p_old_rec->f
+		// @v12.5.12 @fix #define CF(f) p_data->f = p_old_rec->f
+		#undef CF // @v12.5.12 @fix
 	}
 };
 
@@ -7309,7 +7363,8 @@ public:
 		THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(PPOBJ_PERSONEVENT, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
 		CATCHZOK
 		return ok;
-		#define CF(f) p_data->f = p_old_rec->f
+		// @v12.5.12 @fix #define CF(f) p_data->f = p_old_rec->f
+		#undef CF // @v12.5.12 @fix
 	}
 };
 
@@ -7321,10 +7376,10 @@ int Convert11112()
 		PPCvtBill11112 cvt01;
 		THROW(cvt01.Convert());
 	}
-	{
+	/* @v12.5.12 moved to PPCvtTech12512 {
 		PPCvtTech11112 cvt02;
 		THROW(cvt02.Convert());
-	}
+	}*/
 	{
 		PPCvtPerson11112 cvt03;
 		THROW(cvt03.Convert());
@@ -8091,6 +8146,181 @@ int Convert12511()
 	}
 	{
 		PPCvtGeoTrack12511 cvt01;
+		THROW(cvt01.Convert());
+	}
+	PPWaitStop();
+	CATCHZOK
+	return ok;
+}
+//
+//
+//
+class PPCvtTech12512 : public PPTableConversion {
+	enum {
+		recfmtCurrent = 0,
+		recfmtBefore7506,
+		recfmtBefore11112,
+		recfmtBefore12512, // @v12.5.12
+	};
+	int    RecFmt;
+	long   OrderN_Counter;
+	Reference * P_Ref;
+	struct TechRec_Before11112 {
+		int32  ID;
+		char   Code[24];
+		int32  PrcID;
+		int32  GoodsID;
+		int32  GStrucID;
+		int32  Flags;
+		int16  Sign;
+		int16  Kind;
+		int32  PrevGoodsID;
+		int32  Duration;
+		double Cost;
+		double Capacity;
+		double Rounding;
+		int32  TransClsID;
+		int32  TransMask;
+		float  InitQtty;
+		int32  ParentID;
+		int32  OrderN;
+		int16  CipMax;
+		uint8  Reserve3[2]; // raw
+		char   Memo[512];  // note
+	};
+	struct TechRec_Before12512 { // @v12.5.12
+		int32  ID;
+		char   Code[48];
+		int32  PrcID;
+		int32  GoodsID;
+		int32  GStrucID;
+		int32  Flags;
+		int16  Sign;
+		int16  Kind;
+		int32  PrevGoodsID;
+		int32  Duration;
+		double Cost;
+		double Capacity;
+		double Rounding;
+		int32  TransClsID;
+		int32  TransMask;
+		float  InitQtty;
+		int32  ParentID;
+		int32  OrderN;
+		int16  CipMax;
+		uint8  Reserve3[10]; // raw
+	};
+public:
+	PPCvtTech12512() : PPTableConversion(), P_Ref(0), RecFmt(0), OrderN_Counter(0)
+	{
+	}
+	~PPCvtTech12512()
+	{
+		RestoreCommonRefFlags();
+		delete P_Ref;
+	}
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
+	{
+		TechTbl * p_tbl = new TechTbl;
+		if(!p_tbl)
+			PPSetErrorNoMem();
+		else if(pNeedConversion) {
+			int16  num_keys = 0;
+			const  RECORDSIZE recsz = p_tbl->getRecSize();
+			p_tbl->getNumKeys(&num_keys);
+			if(num_keys < 6)
+				RecFmt = recfmtBefore7506;
+			else if(recsz < sizeof(TechRec_Before12512))
+				RecFmt = recfmtBefore11112;
+			else if(recsz < sizeof(TechTbl::Rec))
+				RecFmt = recfmtBefore12512;
+			else
+				RecFmt = recfmtCurrent;
+			*pNeedConversion = BIN(RecFmt != recfmtCurrent);
+		}
+		OrderN_Counter = 0;
+		return p_tbl;
+	}
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	{
+		int    ok = 1;
+		SString memo_buf;
+		TechTbl::Rec * p_data = static_cast<TechTbl::Rec *>(pNewTbl->getDataBuf());
+		const TechRec_Before11112 * p_old_rec_Before11112 = static_cast<TechRec_Before11112 *>(pOldRec);
+		const TechRec_Before12512 * p_old_rec_Before12512 = static_cast<TechRec_Before12512 *>(pOldRec);
+		pNewTbl->clearDataBuf();
+		assert(oneof3(RecFmt, recfmtBefore7506, recfmtBefore11112, recfmtBefore12512)); // @v12.5.12 recfmtBefore12512
+		THROW(oneof3(RecFmt, recfmtBefore7506, recfmtBefore11112, recfmtBefore12512)); // @v12.5.12 recfmtBefore12512
+		const  PPID id = *static_cast<const long *>(pOldRec); // Идент записи в любом случае - самое первое поле 
+		if(RecFmt == recfmtBefore12512) {
+			#define CF(f) p_data->f = p_old_rec_Before12512->f
+			CF(ID);
+			CF(PrcID);
+			CF(GoodsID);
+			CF(GStrucID);
+			CF(Flags);
+			CF(Sign);
+			CF(Kind);
+			CF(PrevGoodsID);
+			CF(Duration);
+			CF(Cost);
+			CF(Capacity);
+			CF(Rounding);
+			CF(TransClsID);
+			CF(TransMask);
+			CF(InitQtty);
+			CF(ParentID);
+			CF(OrderN);
+			CF(CipMax);
+			STRNSCPY(p_data->Code, p_old_rec_Before12512->Code);
+			#undef CF
+		}
+		else if(oneof2(RecFmt, recfmtBefore7506, recfmtBefore11112)) {
+			Reference * p_ref = GetReferenceInstance(&P_Ref);
+			THROW(p_ref);
+			#define CF(f) p_data->f = p_old_rec_Before11112->f
+			{
+				CF(ID);
+				CF(PrcID);
+				CF(GoodsID);
+				CF(GStrucID);
+				CF(Flags);
+				CF(Sign);
+				CF(Kind);
+				CF(PrevGoodsID);
+				CF(Duration);
+				CF(Cost);
+				CF(Capacity);
+				CF(Rounding);
+				CF(TransClsID);
+				CF(TransMask);
+				CF(InitQtty);
+				CF(ParentID);
+				CF(OrderN);
+				CF(CipMax);
+				STRNSCPY(p_data->Code, p_old_rec_Before11112->Code);
+				//uint8  Reserve3[2]; // raw
+				//char   Memo[512];  // note
+			}
+			(memo_buf = p_old_rec_Before11112->Memo).Strip();
+			if(RecFmt == recfmtBefore7506) {
+				p_data->ParentID = 0;
+				p_data->OrderN = ++OrderN_Counter;
+			}
+			THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(PPOBJ_TECH, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			#undef CF
+		}
+		CATCHZOK
+		return ok;
+	}
+};
+
+int Convert12512()
+{
+	int    ok = 1;
+	PPWaitStart();
+	{
+		PPCvtTech12512 cvt01;
 		THROW(cvt01.Convert());
 	}
 	PPWaitStop();

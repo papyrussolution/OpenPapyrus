@@ -820,7 +820,7 @@ static const SIntToSymbTabEntry DlScopePropIdAssocList[] = {
 		return ok;
 	}
 
-	int DlScope::AcceptBrakPropList(const CtmPropertySheet & rS) // @v11.0.4
+	int DlScope::AcceptBrakPropList(const CtmPropertySheet & rS)
 	{
 		int    ok = 1;
 		const  uint _c = SVectorBase::GetCount(rS.P_List);

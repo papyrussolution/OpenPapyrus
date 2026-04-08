@@ -729,7 +729,7 @@ IMPL_HANDLE_EVENT(TDialog)
 	else if(event.isCmd(cmExecute)) {
 		ushort retval = 0;
 		if(H()) {
-			bool is_list_win = false;
+			bool   is_list_win = false;
 			TView::SetWindowProp(H(), GWLP_USERDATA, this);
 			if(APPL->PushModalWindow(this, H())) {
 				setupPosition();

@@ -168,10 +168,7 @@ private:
 		}
 		bool serialize(hb_serialize_context_t * c, const str_buff_vec_t &buffArray)
 		{
-			auto it =
-			    +hb_iter(buffArray)
-			    | hb_map([] (const str_buff_t &_) { return byte_str_t(_.arrayZ, _.length); })
-			;
+			auto it = +hb_iter(buffArray) | hb_map([] (const str_buff_t &_) { return byte_str_t(_.arrayZ, _.length); });
 			return serialize(c, it);
 		}
 		template <typename Iterator, hb_requires(hb_is_iterator(Iterator))> bool serialize_header(hb_serialize_context_t * c, Iterator it)

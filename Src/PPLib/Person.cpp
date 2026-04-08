@@ -700,13 +700,13 @@ int FASTCALL CashierInfo::IsEq(const CashierInfo & rS) const
 //
 // PPPersonPacket
 //
-PPPersonPacket::PPPersonPacket() : PPPerson(), ObjTagContainerHelper(TagL, PPOBJ_PERSON, PPTAG_PERSON_UUID), P_SCardPack(0), LinkFiles(PPOBJ_PERSON)
+PPPersonPacket::PPPersonPacket() : PPPerson(), ObjTagContainerHelper(TagL, PPOBJ_PERSON, PPTAG_PERSON_UUID), P_SCardPack(0), LinkFiles(PPOBJ_PERSON), PPExtStrContainer()
 {
-	// @v11.5.5 destroy();
 }
 
-PPPersonPacket::PPPersonPacket(const PPPersonPacket & rS) : PPPerson(rS), ObjTagContainerHelper(rS), P_SCardPack(0), Regs(rS.Regs), ELA(rS.ELA),
-	Loc(rS.Loc), RLoc(rS.RLoc), CshrInfo(rS.CshrInfo), ExtString(rS.ExtString), LinkFiles(rS.LinkFiles), TagL(rS.TagL), UpdFlags(rS.UpdFlags), SelectedLocPos(rS.SelectedLocPos)
+PPPersonPacket::PPPersonPacket(const PPPersonPacket & rS) : PPPerson(rS), ObjTagContainerHelper(rS), PPExtStrContainer(rS), 
+	P_SCardPack(0), Regs(rS.Regs), ELA(rS.ELA), Loc(rS.Loc), RLoc(rS.RLoc), CshrInfo(rS.CshrInfo), /*ExtString(rS.ExtString),*/
+	LinkFiles(rS.LinkFiles), TagL(rS.TagL), UpdFlags(rS.UpdFlags), SelectedLocPos(rS.SelectedLocPos)
 {
 	TSCollection_Copy(DlvrLocList, rS.DlvrLocList);
 	if(rS.P_SCardPack)
@@ -725,7 +725,8 @@ PPPersonPacket & PPPersonPacket::Z()
 	ELA.clear();
 	Loc.destroy();
 	RLoc.destroy();
-	ExtString.Z();
+	// @v12.5.12 ExtString.Z();
+	PPExtStrContainer::Z(); // @v12.5.12
 	DlvrLocList.freeAll();
 	ZDELETE(P_SCardPack);
 	LinkFiles.Clear();
@@ -744,7 +745,8 @@ PPPersonPacket & FASTCALL PPPersonPacket::operator = (const PPPersonPacket & s)
 	Loc = s.Loc;
 	RLoc = s.RLoc;
 	CshrInfo = s.CshrInfo;
-	ExtString = s.ExtString;
+	// @v12.5.12 ExtString = s.ExtString;
+	PPExtStrContainer::Copy(s); // @v12.5.12
 	TSCollection_Copy(DlvrLocList, s.DlvrLocList);
 	if(s.P_SCardPack)
 		P_SCardPack = new PPSCardPacket(*s.P_SCardPack);
@@ -768,7 +770,6 @@ int    PPPersonPacket::GetPhones(uint maxCount, SString & rBuf) { return ELA.Get
 int    PPPersonPacket::GetRegister(PPID regTyp, uint * pos) const { return Regs.GetRegister(regTyp, pos, 0); }
 int    PPPersonPacket::GetRegNumber(PPID regTyp, SString & rBuf) const { return Regs.GetRegNumber(regTyp, rBuf); }
 uint   PPPersonPacket::GetDlvrLocCount() const { return DlvrLocList.getCount(); }
-void   FASTCALL PPPersonPacket::SetExtName(const char * pName) { ExtString = pName; }
 void   PPPersonPacket::ClearDlvrLocList() { DlvrLocList.freeAll(); }
 const  PPSCardPacket * PPPersonPacket::GetSCard() const { return P_SCardPack; }
 
@@ -828,9 +829,17 @@ int PPPersonPacket::GetCurrBnkAcct(PPBankAccount * pRec) const
 	return ok;
 }
 
+void FASTCALL PPPersonPacket::SetExtName(const char * pName) 
+{ 
+	// @v12.5.12 ExtString = pName; 
+	PPExtStrContainer::PutExtStrData(extssExtName, pName); // @v12.5.12
+}
+
 bool FASTCALL PPPersonPacket::GetExtName(SString & rBuf) const
 {
-	rBuf = ExtString;
+	const  int r = PPGetExtStrData_def(extssExtName, extssExtName, PPExtStrContainer::ExtString, rBuf);
+	//PPExtStrContainer::GetExtStrData(extssExtName, rBuf);
+	//rBuf = ExtString;
 	return rBuf.NotEmptyS();
 }
 
@@ -1270,7 +1279,7 @@ int PersonCore::PutRelList(PPID id, const LAssocArray * pList, int use_ta)
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(p_ref->Assc.Remove(PPASS_PERSONREL, id, 0, 0));
+		THROW(p_ref->AsscC.Remove(PPASS_PERSONREL, id, 0, 0));
 		if(pList) {
 			LAssoc * p_item = 0;
 			LAssocArray list = *pList;
@@ -1292,8 +1301,8 @@ int PersonCore::PutRelList(PPID id, const LAssocArray * pList, int use_ta)
 					c = 0;
 				}
 				rel_rec.RelTypeID = p_item->Val;
-				p_ref->Assc.SearchFreeNum(rel_rec.AsscType, rel_rec.PrmrObjID, &rel_rec.InnerNum, 0);
-				THROW(p_ref->Assc.Add(&assc_id, (ObjAssocTbl::Rec *)&rel_rec, 0));
+				p_ref->AsscC.SearchFreeNum(rel_rec.AsscType, rel_rec.PrmrObjID, &rel_rec.InnerNum, 0);
+				THROW(p_ref->AsscC.Add(&assc_id, (ObjAssocTbl::Rec *)&rel_rec, 0));
 				prev_scnd = p_item->Key;
 			}
 		}
@@ -1311,7 +1320,7 @@ int PersonCore::GetRelList(PPID id, LAssocArray * pList, int reverse)
 	STATIC_ASSERT(sizeof(rel_rec) == sizeof(ObjAssocTbl::Rec));
 	pList->clear();
 	if(!reverse) {
-		for(PPID next_id = 0; p_ref->Assc.EnumByPrmr(PPASS_PERSONREL, id, &next_id, (ObjAssocTbl::Rec *)&rel_rec) > 0;) {
+		for(PPID next_id = 0; p_ref->AsscC.EnumByPrmr(PPASS_PERSONREL, id, &next_id, (ObjAssocTbl::Rec *)&rel_rec) > 0;) {
 			PPID   scnd_id = (rel_rec.ScndObjID & ~0xff000000);
 			if(!pList->SearchPair(scnd_id, rel_rec.RelTypeID, 0))
 				pList->Add(scnd_id, rel_rec.RelTypeID, 0, 0);
@@ -1320,7 +1329,7 @@ int PersonCore::GetRelList(PPID id, LAssocArray * pList, int reverse)
 	else {
 		for(uint i = 0; i < MAXSAMEPSNREL; i++) {
 			const  PPID scnd_id = id | (i << 24);
-			for(SEnum en = p_ref->Assc.Enum(PPASS_PERSONREL, scnd_id, 1); en.Next(&rel_rec) > 0;) {
+			for(SEnum en = p_ref->AsscC.Enum(PPASS_PERSONREL, scnd_id, 1); en.Next(&rel_rec) > 0;) {
 				if(!pList->SearchPair(rel_rec.PrmrObjID, rel_rec.RelTypeID, 0))
 					pList->Add(rel_rec.PrmrObjID, rel_rec.RelTypeID, 0, 0);
 			}

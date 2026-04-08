@@ -1291,7 +1291,7 @@ int PPObjComputer::Get(PPID id, PPComputerPacket * pPack)
 /*static*/int PPObjComputer::Helper_SetRec(const PPComputer * pRec, Goods2Tbl::Rec & rGoodsRec)
 {
 	int    ok = 1;
-	memzero(&rGoodsRec, sizeof(rGoodsRec));
+	rGoodsRec.Clear();
 	if(pRec) {
 		rGoodsRec.ID = pRec->ID;
 		rGoodsRec.Kind = PPGDSK_COMPUTER;
@@ -2046,7 +2046,7 @@ int PPObjSwProgram::Put(PPID * pID, PPSwProgramPacket * pPack, int use_ta)
 /*static*/int PPObjSwProgram::Helper_SetRec(const PPSwProgram * pRec, Goods2Tbl::Rec & rGoodsRec)
 {
 	int    ok = 1;
-	memzero(&rGoodsRec, sizeof(rGoodsRec));
+	rGoodsRec.Clear();
 	if(pRec) {
 		rGoodsRec.ID = pRec->ID;
 		rGoodsRec.Kind = PPGDSK_SWPROGRAM;

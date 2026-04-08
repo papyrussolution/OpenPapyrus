@@ -1,5 +1,5 @@
 // UNIPRICE.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024, 2026
 // @codepage UTF-8
 // Унификация цен реализации товара
 //
@@ -117,7 +117,6 @@ int PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
 		}
 		DECL_DIALOG_SETDTS()
 		{
-			// @v11.1.12 {
 			bool allow_psrcGtPriceRestrLow = false;
 			bool allow_psrcGtPriceRestrUpp = false;
 			{
@@ -141,7 +140,6 @@ int PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
 					}
 				}
 			}
-			// } @v11.1.12 
 			RVALUEPTR(Data, pData);
 			size_t spctval_len = 0;
 			char   spctval[64];
@@ -154,7 +152,6 @@ int PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
 			SetupPPObjCombo(this, CTLSEL_UNIPRICE_QUOTK,   PPOBJ_QUOTKIND,   Data.QuotKindID, 0);
 			AddClusterAssoc(CTL_UNIPRICE_EXCLGGRPF, 0, PrcssrUnifyPriceFilt::fExcludeGoodsGrp);
 			SetClusterData(CTL_UNIPRICE_EXCLGGRPF, Data.Flags);
-			// @v11.1.12 {
 			AddClusterAssocDef(CTL_UNIPRICE_PSRC, 0, PrcssrUnifyPriceFilt::psrcImplicit);
 			AddClusterAssoc(CTL_UNIPRICE_PSRC, 1, PrcssrUnifyPriceFilt::psrcQuot);
 			AddClusterAssoc(CTL_UNIPRICE_PSRC, 2, PrcssrUnifyPriceFilt::psrcGtPriceRestrLow);
@@ -162,7 +159,6 @@ int PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
 			SetClusterData(CTL_UNIPRICE_PSRC, Data.PriceSource);
 			DisableClusterItem(CTL_UNIPRICE_PSRC, 2, !allow_psrcGtPriceRestrLow);
 			DisableClusterItem(CTL_UNIPRICE_PSRC, 3, !allow_psrcGtPriceRestrUpp);
-			// } @v11.1.12 
 			AddClusterAssoc(CTL_UNIPRICE_FLAGS, 0, PrcssrUnifyPriceFilt::fConfirm);
 			SetClusterData(CTL_UNIPRICE_FLAGS, Data.Flags);
 
@@ -195,7 +191,7 @@ int PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
 			setCtrlData(CTL_UNIPRICE_PREC,     &Data.RoundPrec);
 			setCtrlData(CTL_UNIPRICE_OLDPRICE, &Data.OldPrice);
 			disableCtrl(CTL_UNIPRICE_PCT, BIN(Data.QuotKindID));
-			SetupPriceSource(); // @v11.1.12
+			SetupPriceSource();
 			return 1;
 		}
 		DECL_DIALOG_GETDTS()
@@ -215,7 +211,7 @@ int PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
 			getCtrlData(CTLSEL_UNIPRICE_QUOTK,   &Data.QuotKindID);
 			THROW(getGroupData(ctlgroupGoodsFilt, &gf_rec));
 			Data.GoodsGrpID = gf_rec.GoodsGrpID;
-			GetClusterData(CTL_UNIPRICE_PSRC, &Data.PriceSource); // @v11.1.12
+			GetClusterData(CTL_UNIPRICE_PSRC, &Data.PriceSource);
 			GetClusterData(CTL_UNIPRICE_EXCLGGRPF, &Data.Flags);
 			GetClusterData(CTL_UNIPRICE_FLAGS,     &Data.Flags);
 			GetClusterData(CTL_UNIPRICE_MODE,      &Data.Mode);
@@ -270,7 +266,7 @@ int PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
 				return;
 			clearEvent(event);
 		}
-		void SetupPriceSource() // @v11.1.12
+		void SetupPriceSource()
 		{
 			GetClusterData(CTL_UNIPRICE_PSRC, &Data.PriceSource); 
 			disableCtrl(CTLSEL_UNIPRICE_QUOTK, oneof2(Data.PriceSource, Data.psrcGtPriceRestrLow, Data.psrcGtPriceRestrUpp));
@@ -459,7 +455,6 @@ int PrcssrUnifyPrice::ProcessGoods2(const Goods2Tbl::Rec * pGoodsRec, PPID * pTu
 	int    count = 0;
 	int    diff = 0;
 	double last_price = 0.0;
-	// @v11.1.12 {
 	bool   skip_this_goods = false;
 	bool   use_price_restr_limit = false;
 	SString price_restr_formula;
@@ -503,7 +498,6 @@ int PrcssrUnifyPrice::ProcessGoods2(const Goods2Tbl::Rec * pGoodsRec, PPID * pTu
 			}
 		}
 	}
-	// } @v11.1.12 
 	if(!skip_this_goods) {
 		for(DateIter diter; (r = rcpt.EnumLots(pGoodsRec->ID, P.LocID, &diter)) > 0;) {
 			if(R6(rcpt.data.Rest) > 0.0) {

@@ -12055,34 +12055,36 @@ public:
 		syntaxOniguruma
 	};
 	enum {
-		fIgnoreCase                 = 0x00000001,
-		fExtend           	   				= 0x00000002,
-		fMultiLine        	   				= 0x00000004,
-		fSingleLine       	   				= 0x00000008,
-		fFindLongest      	   				= 0x00000010,
-		fFindNotEmpty     	   				= 0x00000020,
-		fNegateSingleLine 	   				= 0x00000040,
-		fDontCaptureGroup 	   				= 0x00000080,
-		fCaptureGroup          				= 0x00000100,
+		fIgnoreCase            = 0x00000001,
+		fExtend           	   = 0x00000002,
+		fMultiLine        	   = 0x00000004,
+		fSingleLine       	   = 0x00000008,
+		fFindLongest      	   = 0x00000010,
+		fFindNotEmpty     	   = 0x00000020,
+		fNegateSingleLine 	   = 0x00000040,
+		fDontCaptureGroup 	   = 0x00000080,
+		fCaptureGroup          = 0x00000100,
 		// (search time)
-		fNotBOL                				= 0x00000200,
-		fNotEOL                				= 0x00000400,
-		fPosixRegion           				= 0x00000800,
-		fCheckValidityOfString 				= 0x00001000,
-		fNotBeginString        				= 0x00002000,
-		fNotEndString          				= 0x00004000,
-		fNotBeginPosition      				= 0x00008000,
+		fNotBOL                = 0x00000200,
+		fNotEOL                = 0x00000400,
+		fPosixRegion           = 0x00000800,
+		fCheckValidityOfString = 0x00001000,
+		fNotBeginString        = 0x00002000,
+		fNotEndString          = 0x00004000,
+		fNotBeginPosition      = 0x00008000,
 		// (compile time)
-		fIgnoreCaseIsAscii     				= 0x00010000,
-		fWordIsAscii           				= 0x00020000,
-		fDigitIsAscii          				= 0x00040000,
-		fSpaceIsAscii          				= 0x00080000,
-		fPosixIsAscii          				= 0x00100000,
+		fIgnoreCaseIsAscii     = 0x00010000,
+		fWordIsAscii           = 0x00020000,
+		fDigitIsAscii          = 0x00040000,
+		fSpaceIsAscii          = 0x00080000,
+		fPosixIsAscii          = 0x00100000,
 		fTextSegmentExtendedGraphemeCluster = 0x00200000,
-		fTextSegmentWord            = 0x00400000,
+		fTextSegmentWord       = 0x00400000,
 	};
 	struct FindResult : public TSVector <IntRange> {
 		FindResult & Z();
+		int   GetItemOffs(uint i) const { return (i < getCount()) ? at(i).low : -1; }
+		int   GetItemLen(uint i) const { return (i < getCount()) ? (at(i).upp - at(i).low) : 0; }
 	};
 	struct Error {
 		Error();
@@ -12591,8 +12593,10 @@ int STDCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags);
 #define SNTOK_BG_EGN                    58 // @v12.3.4 @todo Болгария Единый Гражданский Код 
 #define SNTOK_CA_SIN                    59 // @v12.3.4 @todo Canada Social Insurance Number
 #define SNTOK_CHZN_PALLET_GTIN          60 // @v12.3.5 честный знак Специальная конструкция, не являющаяся маркой (00 GTIN14 9999)
-#define SNTOK_SSCC                      61 // @v12.4.2 Код транспортной упаковки. Важно: SNTOK_CHZN_PALLET_GTIN является мутантной вариацией SSCC
-	// в связи с этим SNTOK_CHZN_PALLET_GTIN обработка, а, возможно, и символ кода изменится.
+#define SNTOK_SSCC                      61 // @v12.4.2 Код транспортной упаковки. Это может быть либо 18-значное число, либо 20-значное с 00 в начале.
+	// Важно: SNTOK_CHZN_PALLET_GTIN является мутантной вариацией SSCC в связи с этим SNTOK_CHZN_PALLET_GTIN обработка, а, возможно, и символ кода изменится.
+#define SNTOK_CHZN_PALLET_MOTOROIL      62 // @v12.5.12 Код транспортной упаковки чзн моторное масло
+#define SNTOK_CHZN_BULK                 63 // @v12.5.12 Код чзн весового товара с префиксом 02-
 
 #define SNTOKSEQ_DEC                0x00000001 // 0-9
 #define SNTOKSEQ_LATLWR             0x00000002 // a-z
@@ -14071,6 +14075,7 @@ struct SJson {
 	// Note: В случае неудачи (false returned) функция не меняет значение по ссылке rResult.
 	//
 	static bool FASTCALL GetChildGuid(const SJson * pN, S_GUID & rResult); // @v12.3.12
+	static bool FASTCALL GetChildBool(const SJson * pN, bool & rResult); // @v12.5.12
 	static bool FASTCALL FormatText(const char * pSrcJsText, SString & rBuf);
 	//
 	// Descr: Если pN != 0 и имеет одно из логических значений SJson::tTRUE или SJson::tFALSE,
@@ -14078,6 +14083,34 @@ struct SJson {
 	//   то возвращает -1.
 	//
 	static int  FASTCALL GetBoolean(const SJson * pN);
+	//
+	// Descr: Если pN является массивом, то забирает из него все элементы, которые имеют тип SJson::tSTRING,
+	//   и помещает в набор rResult. 
+	// Note: rResult очищается в начале функции.
+	// Returns: 
+	//   >0 - если pN - массив и содержит хотя бы одну строку.
+	//    0 - pN - не массив или не содержит ни одной строки.
+	//
+	static int  GetArrayAsStringSet(const SJson * pN, StringSet & rResult); // @v12.5.12
+	//
+	// Descr: Если pN является массивом, то забирает из него все элементы, которые имеют тип SJson::tNUMBER,
+	//   и помещает в набор rResult. При этом, если значение не может быть преобразовано в long из-за того, что слишком большое,
+	//   то оно не будет помещено в rResult. В отладочном варианте такое событие вызовет срабатываение assertion failed.
+	// Note: rResult очищается в начале функции.
+	// Returns: 
+	//   >0 - если pN - массив и содержит хотя бы одно значение типа SJson::tNUMBER.
+	//    0 - pN - не массив или не содержит ни одного числового значения.
+	//
+	static int  GetArrayAsIntVector(const SJson * pN, LongArray & rResult); // @v12.5.12
+	//
+	// Descr: Если pN является массивом, то забирает из него все элементы, которые имеют тип SJson::tNUMBER,
+	//   и помещает в набор rResult. 
+	// Note: rResult очищается в начале функции.
+	// Returns: 
+	//   >0 - если pN - массив и содержит хотя бы одно значение типа SJson::tNUMBER.
+	//    0 - pN - не массив или не содержит ни одного числового значения.
+	//
+	static int  GetArrayAsInt64Vector(const SJson * pN, Int64Array & rResult); // @v12.5.12
 	//
 	// Descr: Возвращает строку, в которой экранированные с помощью символа '\' знаки заменены
 	//   на свои оригинальные значения.
@@ -15927,15 +15960,15 @@ struct UiCoord { // @noctr
 		dfGravity = 0x0004, // Координата притягивается к соответствующей границе контейнера.
 		dfOpp     = 0x0008, // Координата отсчитывается от противоположной стороны контейнера.
 		dfSize    = 0x0010, // Структура представляет линейный размер (не координату)
-		dfContent = 0x0020  // @v11.0.4 Только для размера: он определяется содержимым
+		dfContent = 0x0020  // Только для размера: он определяется содержимым
 	};
 	void   Set(float v, int f);
 	UiCoord & Z();
 	bool   IsEmpty() const;
 
-	float  Val;     // @v11.0.4 int16-->float
+	float  Val;     //
 	int16  Flags;   // UiCoord::dfXXX
-	uint16 Reserve; // @alignment @v11.0.4
+	uint16 Reserve; // @alignment
 };
 
 struct UiRelPoint { // @noctr

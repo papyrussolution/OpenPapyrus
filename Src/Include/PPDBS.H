@@ -4934,7 +4934,7 @@ public:
 		int32  ParentID;
 		int32  OrderN;
 		int16  CipMax;
-		uint8  Reserve3[10]; // raw
+		uint8  Reserve3[64]; // raw
 	} data;
 	struct Key0 {
 		int32  ID;

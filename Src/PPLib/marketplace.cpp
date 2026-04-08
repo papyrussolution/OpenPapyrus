@@ -2818,7 +2818,7 @@ bool PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::FromJsonObj(const SJs
 	}
 	else if(rFilt.CatID) {
 		const  SString base_url(InetUrl::MkHttps("catalog.wb.ru", "catalog"));
-		const CategoryPool::Entry * p_entry = rCatPool.GetByID(rFilt.CatID);
+		const  CategoryPool::Entry * p_entry = rCatPool.GetByID(rFilt.CatID);
 		if(p_entry) {
 			SString shard;
 			SString sub_query;

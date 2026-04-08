@@ -1,5 +1,5 @@
 // V_PERSON.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -155,9 +155,7 @@ int ViewPersonInfoBySCard(const char * pCode)
 //
 //
 //
-PPViewPerson::PPViewPerson() : PPView(&PsnObj, &Filt, PPVIEW_PERSON, implUseQuickTagEditFunc, 0), 
-	DefaultTagID(0), P_TempPsn(0), P_Fr(0)
-	// @v12.2.10 , P_ClientActivityStateList(0) // @v11.2.8 0-->&PsnObj; implUseQuickTagEditFunc
+PPViewPerson::PPViewPerson() : PPView(&PsnObj, &Filt, PPVIEW_PERSON, implUseQuickTagEditFunc, 0), DefaultTagID(0), P_TempPsn(0), P_Fr(0)
 {
 }
 
@@ -165,7 +163,6 @@ PPViewPerson::~PPViewPerson()
 {
 	delete P_TempPsn;
 	delete P_Fr;
-	// @v12.2.10 delete P_ClientActivityStateList; // @v12.2.2
 }
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempPersonFile, TempPerson);
@@ -205,6 +202,162 @@ bool PPViewPerson::IsTempTblNeeded()
 	return static_cast<PPBaseFilt *>(p_filt);	
 }
 
+bool PPViewPerson::IsInMemView() const
+{
+	return ((Filt.Flags & PersonFilt::fInMemView) && !(Filt.Flags & PersonFilt::fTagsCrsstab));
+}
+
+PersonViewItem::PersonViewItem() : PersonTbl::Rec(), CaEventCount(0), CaGapDaysAvg(0.0), CaGapDaysStdDev(0.0), CaDelayDays(0), CaDelaySd(0.0), CaIsNew(false), CaActivityState(0)
+{
+	memzero(Reserve, sizeof(Reserve));
+}
+	
+PersonViewItem & PersonViewItem::Z()
+{
+	PersonTbl::Rec::Clear();
+	AttrItem.Clear();
+	CaEventCount = 0;
+	CaGapDaysAvg = 0.0;
+	CaGapDaysStdDev = 0.0;
+	CaDelayDays = 0;
+	CaDelaySd = 0.0;
+	CaIsNew = false;
+	CaActivityState = 0;
+	memzero(Reserve, sizeof(Reserve));
+	return *this;
+}
+
+int PPViewPerson::BuildIdList(PPIDArray & rResult) // @v12.5.12 @construction
+{
+	rResult.Z();
+	int    ok = -1;
+	SString srch_buf;
+	IterCounter cntr;
+	PersonTbl * pt = PsnObj.P_Tbl;
+	PersonKindTbl * kt = & PsnObj.P_Tbl->Kind;
+	{
+		//PPIDArray id_list;
+		PPIDArray local_list;
+		bool   use_list = false;
+		if(Filt.P_SjF && !Filt.P_SjF->IsEmpty()) {
+			SysJournal * p_sj = DS.GetTLA().P_SysJ;
+			local_list.Z();
+			Filt.P_SjF->Period.Actualize(ZERODATE);
+			THROW(p_sj->GetObjListByEventPeriod(PPOBJ_PERSON, Filt.P_SjF->UserID, &Filt.P_SjF->ActionIDList, &Filt.P_SjF->Period, local_list));
+			if(use_list)
+				rResult.intersect(&local_list);
+			else {
+				rResult = local_list;
+				use_list = true;
+			}
+		}
+		if(Filt.P_RegF) {
+			local_list.Z();
+			PsnObj.RegObj.SearchByFilt(Filt.P_RegF, 0, &local_list);
+			if(use_list)
+				rResult.intersect(&local_list);
+			else {
+				rResult = local_list;
+				use_list = true;
+			}
+		}
+		if(Filt.PersonKindID) {
+			local_list.Z();
+			PersonKindTbl::Key0 k0;
+			PersonKindTbl::Key0 k0_;
+			MEMSZERO(k0);
+			k0.KindID = Filt.PersonKindID;
+			BExtQuery kq(kt, 0);
+			kq.select(kt->PersonID, 0L).where(kt->KindID == Filt.PersonKindID);
+			k0_ = k0;
+			cntr.Init(kq.countIterations(0, &k0_, spGe));
+			for(kq.initIteration(false, &k0, spGe); kq.nextIteration() > 0; cntr.Increment()) {
+				local_list.add(kt->data.PersonID);
+				PPWaitPercent(cntr);
+			}
+			if(use_list)
+				rResult.intersect(&local_list);
+			else {
+				rResult = local_list;
+				use_list = true;
+			}
+		}
+		if(use_list) {
+			Filt.GetExtssData(PersonFilt::extssNameText, srch_buf);
+			if(Filt.PersonCategoryID || Filt.Status || srch_buf.NotEmptyS()) {
+				local_list.clear();
+				for(uint i = 0; i < rResult.getCount(); i++) {
+					const  PPID id = rResult.get(i);
+					PersonTbl::Rec rec;
+					if(PsnObj.Fetch(id, &rec) > 0) {
+						if((!Filt.PersonCategoryID || rec.CatID == Filt.PersonCategoryID) && (!Filt.Status || rec.Status == Filt.Status)) {
+							if(srch_buf.NotEmptyS()) {
+								if(Filt.Flags & PersonFilt::fPrecName) {
+									if(srch_buf.CmpNC(rec.Name) == 0)
+										local_list.add(id);
+								}
+								else {
+									if(ExtStrSrch(rec.Name, srch_buf, 0))
+										local_list.add(id);
+								}
+							}
+							else
+								local_list.add(id);
+						}
+					}
+				}
+				rResult = local_list;
+			}
+		}
+		else {
+			union {
+				PersonTbl::Key0 k0;
+				PersonTbl::Key1 k1;
+				PersonTbl::Key2 k2;
+			} k, k_;
+			MEMSZERO(k);
+			Filt.GetExtssData(PersonFilt::extssNameText, srch_buf);
+			if(srch_buf.NotEmptyS() && Filt.Flags & PersonFilt::fPrecName) {
+				srch_buf.CopyTo(k.k1.Name, sizeof(k.k1.Name));
+				if(pt->search(1, &k, spEq)) do {
+					if((!Filt.PersonCategoryID || pt->data.CatID == Filt.PersonCategoryID) && (!Filt.Status || pt->data.Status == Filt.Status)) {
+						local_list.add(pt->data.ID);
+					}
+				} while(pt->search(1, &k, spNext) && srch_buf.CmpNC(pt->data.Name) == 0);
+			}
+			else {
+				BExtQuery pq(pt, Filt.PersonCategoryID ? 2 : 0);
+				DBQ * dbq = 0;
+				pq.select(pt->ID, pt->Name, pt->Status, pt->MainLoc, pt->Flags, pt->RLoc, 0L);
+				dbq = ppcheckfiltid(dbq, pt->CatID, Filt.PersonCategoryID);
+				dbq = ppcheckfiltid(dbq, pt->Status, Filt.Status);
+				pq.where(*dbq);
+				if(Filt.PersonCategoryID) {
+					k.k2.CatID = Filt.PersonCategoryID;
+				}
+				k_ = k;
+				cntr.Init(pq.countIterations(0, &k_, spGe));
+				local_list.clear();
+				for(pq.initIteration(false, &k, spGe); pq.nextIteration() > 0; cntr.Increment()) {
+					if(srch_buf.IsEmpty() || ExtStrSrch(pt->data.Name, srch_buf, 0))
+						local_list.add(pt->data.ID);
+					PPWaitPercent(cntr);
+				}
+			}
+			if(use_list)
+				rResult.intersect(&local_list);
+			else {
+				rResult = local_list;
+				use_list = true;
+			}
+		}
+		if(use_list)
+			ok = 1;
+	}
+	CATCHZOK
+	return ok;
+}
+
 /*virtual*/int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
@@ -234,11 +387,11 @@ bool PPViewPerson::IsTempTblNeeded()
 		Filt.NewCliPeriod.Actualize(actual_date);
 	}
 	// } @v12.2.3 
-	if(IsTempTblNeeded()) {
+	if(IsTempTblNeeded() || IsInMemView()) {
 		IterCounter cntr;
 		PersonTbl * pt = PsnObj.P_Tbl;
 		PersonKindTbl * kt = & PsnObj.P_Tbl->Kind;
-		if(Filt.Flags & PersonFilt::fNoTempTable) { // @v12.3.3
+		if(IsInMemView() || Filt.Flags & PersonFilt::fNoTempTable) { // @v12.3.3
 			State |= stUseInternalList;
 		}
 		else {
@@ -279,15 +432,15 @@ bool PPViewPerson::IsTempTblNeeded()
 					PPIDArray sj_id_list;
 					SysJournal * p_sj = DS.GetTLA().P_SysJ;
 					Filt.P_SjF->Period.Actualize(ZERODATE);
-					THROW(p_sj->GetObjListByEventPeriod(PPOBJ_LOCATION, Filt.P_SjF->UserID,
-						&Filt.P_SjF->ActionIDList, &Filt.P_SjF->Period, sj_id_list));
+					THROW(p_sj->GetObjListByEventPeriod(PPOBJ_LOCATION, Filt.P_SjF->UserID, &Filt.P_SjF->ActionIDList, &Filt.P_SjF->Period, sj_id_list));
 					for(uint i = 0; i < sj_id_list.getCount(); i++) {
 						const  PPID loc_id = sj_id_list.get(i);
 						if(PsnObj.LocObj.Search(loc_id, &loc_rec) > 0 && loc_rec.Flags & LOCF_STANDALONE) {
 							PsnAttrViewItem vi;
 							if(CreateAddrRec(loc_rec.ID, &loc_rec, "standalone", &vi) > 0) {
-								if(loc_rec.OwnerID && PsnObj.Fetch(loc_rec.OwnerID, &owner_rec) > 0)
+								if(loc_rec.OwnerID && PsnObj.Fetch(loc_rec.OwnerID, &owner_rec) > 0) {
 									STRNSCPY(vi.Name, owner_rec.Name);
+								}
 								if(P_TempPsn) {
 									THROW_DB(P_TempPsn->insertRecBuf(&vi));
 								}
@@ -304,7 +457,7 @@ bool PPViewPerson::IsTempTblNeeded()
 				else {
 					PROFILE_START
 					for(SEnum en = PsnObj.LocObj.P_Tbl->Enum(LOCTYP_ADDRESS, 0, LocationCore::eoIgnoreParent); en.Next(&loc_rec) > 0;) {
-						int do_insert = 0;
+						int    do_insert = 0;
 						if(Filt.GetAttribType() == PPPSNATTR_HANGEDADDR && !(loc_rec.Flags & LOCF_STANDALONE) && !id_list.Has(loc_rec.ID)) {
 							if(PsnObj.LocObj.Fetch(loc_rec.ID, &loc_rec) > 0)
 								do_insert = 1;
@@ -341,119 +494,9 @@ bool PPViewPerson::IsTempTblNeeded()
 				else
 					DefaultTagID = 0;
 				PPIDArray id_list;
-				PPIDArray local_list;
-				int    use_list = 0;
-				if(Filt.P_SjF && !Filt.P_SjF->IsEmpty()) {
-					SysJournal * p_sj = DS.GetTLA().P_SysJ;
-					local_list.Z();
-					Filt.P_SjF->Period.Actualize(ZERODATE);
-					THROW(p_sj->GetObjListByEventPeriod(PPOBJ_PERSON, Filt.P_SjF->UserID, &Filt.P_SjF->ActionIDList, &Filt.P_SjF->Period, local_list));
-					if(use_list)
-						id_list.intersect(&local_list);
-					else {
-						id_list = local_list;
-						use_list = 1;
-					}
-				}
-				if(Filt.P_RegF) {
-					local_list.Z();
-					PsnObj.RegObj.SearchByFilt(Filt.P_RegF, 0, &local_list);
-					if(use_list)
-						id_list.intersect(&local_list);
-					else {
-						id_list = local_list;
-						use_list = 1;
-					}
-				}
-				if(Filt.PersonKindID) {
-					local_list.Z();
-					PersonKindTbl::Key0 k0, k0_;
-					MEMSZERO(k0);
-					k0.KindID = Filt.PersonKindID;
-					BExtQuery kq(kt, 0);
-					kq.select(kt->PersonID, 0L).where(kt->KindID == Filt.PersonKindID);
-					k0_ = k0;
-					cntr.Init(kq.countIterations(0, &k0_, spGe));
-					for(kq.initIteration(false, &k0, spGe); kq.nextIteration() > 0; cntr.Increment()) {
-						local_list.add(kt->data.PersonID);
-						PPWaitPercent(cntr);
-					}
-					if(use_list)
-						id_list.intersect(&local_list);
-					else {
-						id_list = local_list;
-						use_list = 1;
-					}
-				}
-				if(use_list) {
-					Filt.GetExtssData(PersonFilt::extssNameText, srch_buf);
-					if(Filt.PersonCategoryID || Filt.Status || srch_buf.NotEmptyS()) {
-						local_list.clear();
-						for(uint i = 0; i < id_list.getCount(); i++) {
-							const  PPID id = id_list.get(i);
-							PersonTbl::Rec rec;
-							if(PsnObj.Fetch(id, &rec) > 0) {
-								if((!Filt.PersonCategoryID || rec.CatID == Filt.PersonCategoryID) && (!Filt.Status || rec.Status == Filt.Status)) {
-									if(srch_buf.NotEmptyS()) {
-										if(Filt.Flags & PersonFilt::fPrecName) {
-											if(srch_buf.CmpNC(rec.Name) == 0)
-												local_list.add(id);
-										}
-										else {
-											if(ExtStrSrch(rec.Name, srch_buf, 0))
-												local_list.add(id);
-										}
-									}
-									else
-										local_list.add(id);
-								}
-							}
-						}
-						id_list = local_list;
-					}
-				}
-				else {
-					union {
-						PersonTbl::Key0 k0;
-						PersonTbl::Key1 k1;
-						PersonTbl::Key2 k2;
-					} k, k_;
-					MEMSZERO(k);
-					Filt.GetExtssData(PersonFilt::extssNameText, srch_buf);
-					if(srch_buf.NotEmptyS() && Filt.Flags & PersonFilt::fPrecName) {
-						srch_buf.CopyTo(k.k1.Name, sizeof(k.k1.Name));
-						if(pt->search(1, &k, spEq)) do {
-							if((!Filt.PersonCategoryID || pt->data.CatID == Filt.PersonCategoryID) && (!Filt.Status || pt->data.Status == Filt.Status)) {
-								local_list.add(pt->data.ID);
-							}
-						} while(pt->search(1, &k, spNext) && srch_buf.CmpNC(pt->data.Name) == 0);
-					}
-					else {
-						BExtQuery pq(pt, Filt.PersonCategoryID ? 2 : 0);
-						DBQ * dbq = 0;
-						pq.select(pt->ID, pt->Name, pt->Status, pt->MainLoc, pt->Flags, pt->RLoc, 0L);
-						dbq = ppcheckfiltid(dbq, pt->CatID, Filt.PersonCategoryID);
-						dbq = ppcheckfiltid(dbq, pt->Status, Filt.Status);
-						pq.where(*dbq);
-						if(Filt.PersonCategoryID) {
-							k.k2.CatID = Filt.PersonCategoryID;
-						}
-						k_ = k;
-						cntr.Init(pq.countIterations(0, &k_, spGe));
-						local_list.clear();
-						for(pq.initIteration(false, &k, spGe); pq.nextIteration() > 0; cntr.Increment()) {
-							if(srch_buf.IsEmpty() || ExtStrSrch(pt->data.Name, srch_buf, 0))
-								local_list.add(pt->data.ID);
-							PPWaitPercent(cntr);
-						}
-					}
-					if(use_list)
-						id_list.intersect(&local_list);
-					else {
-						id_list = local_list;
-						use_list = 1;
-					}
-				}
+				const  int bilr = BuildIdList(id_list);
+				THROW(bilr);
+				bool   use_list = (bilr > 0);
 				{
 					UintHashTable used_loc_list;
 					UintHashTable * p_used_loc_list = (Filt.GetAttribType() == PPPSNATTR_ALLADDR && Filt.Flags & PersonFilt::fShowHangedAddr) ? &used_loc_list : 0;
@@ -463,12 +506,6 @@ bool PPViewPerson::IsTempTblNeeded()
 					for(uint i = 0; i < id_list.getCount(); i++) {
 						const  PPID person_id = id_list.get(i);
 						bool   skip = false;
-						/* @v12.2.2 (замещено более общим функционалом анализа клиентской активности) if(Filt.NewCliPeriod.low) {
-							if(ncd_blk.IsNewPerson(person_id, Filt.NewCliPeriod))
-								NewCliList.Add(person_id);
-							else if(Filt.Flags & Filt.fNewClientsOnly)
-								skip = true;
-						}*/
 						if(!skip) {
 							THROW(AddTempRec(person_id, p_used_loc_list, 0));
 						}
@@ -525,54 +562,54 @@ bool PPViewPerson::IsTempTblNeeded()
 				THROW(P_Ct->Create(use_ta));
 			}
 		}
-	}
-	/* @v12.2.2 (замещено более общим функционалом анализа клиентской активности)
-	else if(Filt.NewCliPeriod.low && !oneof2(Filt.GetAttribType(), PPPSNATTR_HANGEDADDR, PPPSNATTR_STANDALONEADDR)) {
-		PersonViewItem item;
-		PPWaitStart();
-		for(InitIteration(); NextIteration(&item) > 0;) {
-			if(ncd_blk.IsNewPerson(item.ID, Filt.NewCliPeriod)) {
-				NewCliList.Add(item.ID);
+		/* @v12.2.2 (замещено более общим функционалом анализа клиентской активности)
+		else if(Filt.NewCliPeriod.low && !oneof2(Filt.GetAttribType(), PPPSNATTR_HANGEDADDR, PPPSNATTR_STANDALONEADDR)) {
+			PersonViewItem item;
+			PPWaitStart();
+			for(InitIteration(); NextIteration(&item) > 0;) {
+				if(ncd_blk.IsNewPerson(item.ID, Filt.NewCliPeriod)) {
+					NewCliList.Add(item.ID);
+				}
+				PPWaitPercent(GetCounter());
 			}
-			PPWaitPercent(GetCounter());
-		}
-		PPWaitStop();
-	}*/
-	// @v12.2.2 {
-	if(Filt.Flags & PersonFilt::fCliActivityStats) {
-		// @v12.2.10 assert(P_ClientActivityStateList == 0); // @see top of function
-		PersonViewItem item;
-		PPWaitStart();
-		LAssocArray local_client_activity_state_list;
-		for(InitIteration(); Helper_NextIteration(nifOmitCliActivityFlags, &item) > 0;) {
-			PPObjPerson::ClientActivityState cas;
-			cas.PersonID = item.ID;
-			cas.ActualDate = Filt.ClientActivityEvalDate;
-			cas.NewCliPeriod = Filt.NewCliPeriod;
-			PsnObj.IdentifyClientActivityState(cas);
-			local_client_activity_state_list.Add(item.ID, cas.State);
-			PPWaitPercent(GetCounter());
-		}
-		//
-		// Отложенная инициализация P_ClientActivityStateList из-за того, что метод NextIteration фильтрует
-		// записи опираясь на P_ClientActivityStateList.
-		//
-		// @v12.2.10 THROW_MEM(P_ClientActivityStateList = new LAssocArray(local_client_activity_state_list));
-		// @v12.2.10 {
-		{
-			for(uint i = 0; i < local_client_activity_state_list.getCount(); i++) {
-				const LAssoc & r_item = local_client_activity_state_list.at(i);
-				uint idx = 0;
-				ExtEntry * p_entry = SearchExtEntryForUpdate(r_item.Key, &idx);
-				if(p_entry) {
-					p_entry->ClientActivityState = static_cast<uint>(r_item.Val);
+			PPWaitStop();
+		}*/
+		// @v12.2.2 {
+		if(Filt.Flags & PersonFilt::fCliActivityStats) {
+			// @v12.2.10 assert(P_ClientActivityStateList == 0); // @see top of function
+			PersonViewItem item;
+			PPWaitStart();
+			LAssocArray local_client_activity_state_list;
+			for(InitIteration(); Helper_NextIteration(nifOmitCliActivityFlags, &item) > 0;) {
+				PPObjPerson::ClientActivityState cas;
+				cas.PersonID = item.ID;
+				cas.ActualDate = Filt.ClientActivityEvalDate;
+				cas.NewCliPeriod = Filt.NewCliPeriod;
+				PsnObj.IdentifyClientActivityState(cas);
+				local_client_activity_state_list.Add(item.ID, cas.State);
+				PPWaitPercent(GetCounter());
+			}
+			//
+			// Отложенная инициализация P_ClientActivityStateList из-за того, что метод NextIteration фильтрует
+			// записи опираясь на P_ClientActivityStateList.
+			//
+			// @v12.2.10 THROW_MEM(P_ClientActivityStateList = new LAssocArray(local_client_activity_state_list));
+			// @v12.2.10 {
+			{
+				for(uint i = 0; i < local_client_activity_state_list.getCount(); i++) {
+					const LAssoc & r_item = local_client_activity_state_list.at(i);
+					uint idx = 0;
+					ExtEntry * p_entry = SearchExtEntryForUpdate(r_item.Key, &idx);
+					if(p_entry) {
+						p_entry->ClientActivityState = static_cast<uint>(r_item.Val);
+					}
 				}
 			}
+			// } @v12.2.10 
+			PPWaitStop();		
 		}
-		// } @v12.2.10 
-		PPWaitStop();		
+		// } @v12.2.2 
 	}
-	// } @v12.2.2 
 	CATCH
 		ZDELETE(P_Ct);
 		ZDELETE(P_TempPsn);
@@ -618,16 +655,32 @@ int PPViewPerson::UpdateHungedAddr(PPID addrID)
 	return ok;
 }
 
-/*virtual*/void * PPViewPerson::GetEditExtraParam() { return Filt.PersonKindID ? reinterpret_cast<void *>(Filt.PersonKindID) : 0; }
+/*virtual*/void * PPViewPerson::GetEditExtraParam() 
+{ 
+	PPID   result_int = 0;
+	if(Filt.Flags & PersonFilt::fCentrigoContacts) {
+		result_int = PPObjPerson::EditBlock::CentrigoNewContactSpecialKind;
+	}
+	else 
+		result_int = Filt.PersonKindID ? Filt.PersonKindID : 0; 
+	return reinterpret_cast<void *>(result_int); 
+}
 
 int PPViewPerson::AddItem(PPID * pID)
 {
 	int    ok = -1;
 	PPID   id = 0;
-	if(PsnObj.Edit(&id, reinterpret_cast<void *>(Filt.PersonKindID)) == cmOK) {
-		AddTempRec(id, 0, 1);
-		ASSIGN_PTR(pID, id);
-		ok = 1;
+	if(Filt.Flags & PersonFilt::fCentrigoContacts) {
+		PPObjPerson::EditBlock eb;
+		PsnObj.InitEditBlock(Filt.PersonKindID, eb);
+		ok = PsnObj.Edit_(pID, eb);
+	}
+	else {
+		if(PsnObj.Edit(&id, reinterpret_cast<void *>(Filt.PersonKindID)) == cmOK) {
+			AddTempRec(id, 0, 1);
+			ASSIGN_PTR(pID, id);
+			ok = 1;
+		}
 	}
 	return ok;
 }
@@ -658,8 +711,8 @@ int PPViewPerson::OpenClientDir(PPID PersonId)
 		while(!ok && kind_pos < pack.Kinds.getCount()) {
 			PPPersonKind kind_rec;
 			PPID   id = 0;
-			while(!ok && pk_obj.EnumItems(&id, &kind_rec) > 0)
-				if(pack.Kinds.at(kind_pos) == kind_rec.ID)
+			while(!ok && pk_obj.EnumItems(&id, &kind_rec) > 0) {
+				if(pack.Kinds.at(kind_pos) == kind_rec.ID) {
 					for(uint regs_pos = 0; !ok && regs_pos < pack.Regs.getCount(); regs_pos++) {
 						RegisterTbl::Rec & r_reg = pack.Regs.at(regs_pos);
 						if(r_reg.RegTypeID == kind_rec.FolderRegTypeID) {
@@ -667,6 +720,8 @@ int PPViewPerson::OpenClientDir(PPID PersonId)
 							ok = 1;
 						}
 					}
+				}
+			}
 			kind_pos++;
 		}
 		if(ok) {
@@ -674,8 +729,7 @@ int PPViewPerson::OpenClientDir(PPID PersonId)
 			TCHAR full_path_to_expl[MAX_PATH];
 			full_path_to_expl[0] = 0;
 			if(GetWindowsDirectory(full_path_to_expl, sizeof(full_path_to_expl))) {
-				SString final_path;
-				final_path = SUcSwitch(full_path_to_expl);
+				SString final_path(SUcSwitch(full_path_to_expl));
 				final_path.SetLastSlash().Cat("explorer.exe");
 				//setLastSlash(full_path_to_expl);
 				//strcat(full_path_to_expl, "explorer.exe");
@@ -775,8 +829,9 @@ int PPViewPerson::EditRegs(PPID personID, PPID locID, int oneReg)
 					if(r > 0 && PsnObj.RegObj.CheckUnique(rec.RegTypeID, &pack.Regs)) {
 						THROW_SL(pack.Regs.insert(&rec));
 					}
-					else if(r >= 0)
+					else if(r >= 0) {
 						r = PPErrorZ();
+					}
 				} while(r == 0);
 			}
 		}
@@ -1007,8 +1062,9 @@ int PPViewPerson::DeleteItem(PPID id)
 	int    ok = -1;
 	if(id) {
 		if(PsnObj.RemoveObjV(id, 0, PPObject::rmv_default, 0) > 0) {
-			if(P_TempPsn)
+			if(P_TempPsn) {
 				THROW_DB(deleteFrom(P_TempPsn, 1, (P_TempPsn->ID == id)));
+			}
 			ok = 1;
 		}
 	}
@@ -1132,8 +1188,9 @@ int PPViewPerson::Transmit(PPID id, int transmitKind)
 			const PPIDArray & rary = param.DestDBDivList.Get();
 			PPObjIDArray objid_ary;
 			PPWaitStart();
-			for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter()))
+			for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter())) {
 				objid_ary.Add(PPOBJ_PERSON, item.ID);
+			}
 			THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
 			ok = 1;
 		}
@@ -1392,83 +1449,88 @@ int PPViewPerson::CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnAttrVie
 	int    ok = 1;
 	SString temp_buf;
 	PsnAttrViewItem item;
-	item.ID = pPsnRec->ID;
-	item.TabID = tabID;
-	STRNSCPY(item.Name, pPsnRec->Name);
 	//
 	// Случаи oneof2(Filt.AttribType, PPPSNATTR_ALLADDR, PPPSNATTR_BNKACCT) обрабатываются в вызывающий функции
 	//
-	if(Filt.GetAttribType() == PPPSNATTR_PHONEADDR) {
-		PPELinkArray elink_ary;
-		if(PsnObj.P_Tbl->GetELinks(pPsnRec->ID, elink_ary)) {
-			const int buf_len = 128;
-			SString phone_list, fax_list;
-			elink_ary.GetPhones(5, phone_list, ELNKRT_PHONE);
-			elink_ary.GetPhones(2, fax_list, ELNKRT_FAX);
-			if(fax_list.Len() && (phone_list.Len() + fax_list.Len() + 6) < buf_len)
-				phone_list.CatDiv(';', 2).Cat("fax").Space().Cat(fax_list);
-			//phone_list.CopyTo(item.Phone, sizeof(item.Phone));
-			StrPool.AddS(phone_list, &item.PhoneP);
-		}
-		if(pPsnRec->MainLoc) {
-			PsnObj.LocObj.GetAddress(pPsnRec->MainLoc, 0, temp_buf);
-			StrPool.AddS(temp_buf, &item.AddressP);
-		}
-		if(pPsnRec->RLoc) {
-			PsnObj.LocObj.GetAddress(pPsnRec->RLoc, 0, temp_buf);
-			StrPool.AddS(temp_buf, &item.RAddressP);
-		}
-		if(!item.PhoneP && !item.AddressP && !item.RAddressP) {
-			if(Filt.EmptyAttrib == EA_NOEMPTY)
-				ok = 0;
-		}
-		else if(Filt.EmptyAttrib == EA_EMPTY)
-			ok = 0;
+	switch(Filt.GetAttribType()) {
+		case PPPSNATTR_PHONEADDR:
+			{
+				PPELinkArray elink_ary;
+				if(PsnObj.P_Tbl->GetELinks(pPsnRec->ID, elink_ary)) {
+					const int buf_len = 128;
+					SString phone_list;
+					SString fax_list;
+					elink_ary.GetPhones(5, phone_list, ELNKRT_PHONE);
+					elink_ary.GetPhones(2, fax_list, ELNKRT_FAX);
+					if(fax_list.Len() && (phone_list.Len() + fax_list.Len() + 6) < buf_len)
+						phone_list.CatDiv(';', 2).Cat("fax").Space().Cat(fax_list);
+					StrPool.AddS(phone_list, &item.PhoneP);
+				}
+				if(pPsnRec->MainLoc) {
+					PsnObj.LocObj.GetAddress(pPsnRec->MainLoc, 0, temp_buf);
+					StrPool.AddS(temp_buf, &item.AddressP);
+				}
+				if(pPsnRec->RLoc) {
+					PsnObj.LocObj.GetAddress(pPsnRec->RLoc, 0, temp_buf);
+					StrPool.AddS(temp_buf, &item.RAddressP);
+				}
+				if(!item.PhoneP && !item.AddressP && !item.RAddressP) {
+					if(Filt.EmptyAttrib == EA_NOEMPTY)
+						ok = 0;
+				}
+				else if(Filt.EmptyAttrib == EA_EMPTY)
+					ok = 0;
+			}
+			break;
+		case PPPSNATTR_EMAIL:
+			{
+				PPELinkArray elink_ary;
+				if(PsnObj.P_Tbl->GetELinks(pPsnRec->ID, elink_ary)) {
+					elink_ary.GetPhones(1, temp_buf, ELNKRT_EMAIL);
+					StrPool.AddS(temp_buf, &item.EMailP);
+				}
+				if(!item.EMailP) {
+					if(Filt.EmptyAttrib == EA_NOEMPTY)
+						ok = 0;
+				}
+				else if(Filt.EmptyAttrib == EA_EMPTY)
+					ok = 0;
+			}
+			break;
+		case PPPSNATTR_REGISTER:
+			if(Filt.RegTypeID) {
+				RegisterTbl::Rec reg_rec;
+				if(PsnObj.GetRegister(pPsnRec->ID, Filt.RegTypeID, &reg_rec) > 0) {
+					StrPool.AddS(reg_rec.Serial, &item.RegSerialP);
+					STRNSCPY(item.RegNumber, reg_rec.Num);
+					item.RegInitDate = reg_rec.Dt;
+					item.RegExpiry   = reg_rec.Expiry;
+				}
+				if(!item.RegSerialP && !item.RegNumber[0]) {
+					if(Filt.EmptyAttrib == EA_NOEMPTY)
+						ok = 0;
+				}
+				else if(Filt.EmptyAttrib == EA_EMPTY)
+					ok = 0;
+			}
+			break;
+		case PPPSNATTR_TAG:
+			if(Filt.RegTypeID) {
+				Helper_GetTagValue(SObjID(PPOBJ_PERSON, pPsnRec->ID), Filt.RegTypeID - TAGOFFSET, temp_buf);
+				STRNSCPY(item.RegNumber, temp_buf);
+				if(item.RegNumber[0] == 0) {
+					if(Filt.EmptyAttrib == EA_NOEMPTY)
+						ok = 0;
+				}
+				else if(Filt.EmptyAttrib == EA_EMPTY)
+					ok = 0;
+			}
+			break;
 	}
-	else if(Filt.GetAttribType() == PPPSNATTR_EMAIL) {
-		PPELinkArray elink_ary;
-		if(PsnObj.P_Tbl->GetELinks(pPsnRec->ID, elink_ary)) {
-			elink_ary.GetPhones(1, temp_buf, ELNKRT_EMAIL);
-			StrPool.AddS(temp_buf, &item.EMailP); // @v12.1.11 item.PhoneP-->item.EMailP
-		}
-		if(!item.EMailP) { // @v12.1.11 item.PhoneP-->item.EMailP
-			if(Filt.EmptyAttrib == EA_NOEMPTY)
-				ok = 0;
-		}
-		else if(Filt.EmptyAttrib == EA_EMPTY)
-			ok = 0;
-	}
-	else if(Filt.GetAttribType() == PPPSNATTR_REGISTER && Filt.RegTypeID) {
-		RegisterTbl::Rec reg_rec;
-		if(PsnObj.GetRegister(pPsnRec->ID, Filt.RegTypeID, &reg_rec) > 0) {
-			//STRNSCPY(item.RegSerial, reg_rec.Serial);
-			StrPool.AddS(reg_rec.Serial, &item.RegSerialP);
-			STRNSCPY(item.RegNumber, reg_rec.Num);
-			item.RegInitDate = reg_rec.Dt;
-			item.RegExpiry   = reg_rec.Expiry;
-		}
-		//if(item.RegSerial[0] == 0 && item.RegNumber[0] == 0) {
-		if(!item.RegSerialP && !item.RegNumber[0]) {
-			if(Filt.EmptyAttrib == EA_NOEMPTY)
-				ok = 0;
-		}
-		else if(Filt.EmptyAttrib == EA_EMPTY)
-			ok = 0;
-	}
-	else if(Filt.GetAttribType() == PPPSNATTR_TAG && Filt.RegTypeID) {
-		Helper_GetTagValue(SObjID(PPOBJ_PERSON, pPsnRec->ID), Filt.RegTypeID - TAGOFFSET, temp_buf);
-		STRNSCPY(item.RegNumber, temp_buf);
-		//if(item.RegSerial[0] == 0 && item.RegNumber[0] == 0) {
-		if(item.RegNumber[0] == 0) {
-			if(Filt.EmptyAttrib == EA_NOEMPTY)
-				ok = 0;
-		}
-		else if(Filt.EmptyAttrib == EA_EMPTY)
-			ok = 0;
-	}
-	if(ok == 0) {
-		item.ID = 0;
-		item.Name[0] = 0;
+	if(ok) {
+		item.ID = pPsnRec->ID;
+		item.TabID = tabID;
+		STRNSCPY(item.Name, pPsnRec->Name);
 	}
 	ASSIGN_PTR(pItem, item);
 	return ok;
@@ -1860,8 +1922,7 @@ int PPViewPerson::Helper_NextIteration(uint flags, PersonViewItem * pItem)
 {
 	int    ok = -1;
 	PersonViewItem item;
-	MEMSZERO(item); // @v12.2.9
-	if(State & stUseInternalList) { // @v12.3.3
+	if(State & stUseInternalList) {
 		while(ok < 0 && InternalViewList.getPointer() < InternalViewList.getCount()) {
 			const InternalViewItem & r_ii = InternalViewList.at(InternalViewList.getPointer());
 			if(PsnObj.Search(r_ii.PersonID, &item) > 0) {
@@ -2641,8 +2702,6 @@ PPViewPerson::ExtEntry::ExtEntry()
 			const PersonFilt * p_filt = static_cast<const PersonFilt *>(p_view->GetBaseFilt());
 			//
 			if(!p_view->IsCrosstab() && p_filt) {
-				int is_register  = (p_filt->GetAttribType() == PPPSNATTR_REGISTER) ? oneof2(p_filt->RegTypeID, PPREGT_OKPO, PPREGT_TPID/*, PPREGT_BNKCORRACC*/) : 0;
-				int is_bank_acct = (p_filt->GetAttribType() == PPPSNATTR_BNKACCT);
 				if(col == 0 && p_view->HasImage(pData)) { // К персоналии привязана картинка?
 					pStyle->Flags  = BrowserWindow::CellStyle::fLeftBottomCorner;
 					pStyle->Color2 = GetColorRef(SClrGreen);
@@ -2654,13 +2713,10 @@ PPViewPerson::ExtEntry::ExtEntry()
 					ok = 1;
 				}*/
 				else if(r_col.OrgOffs == 1) { // name
-					//if(p_view->P_ClientActivityStateList) {
 					if(p_view->Filt.Flags & PersonFilt::fCliActivityStats) {
 						uint caslp = 0;
 						const ExtEntry * p_ext_entry = p_view->SearchExtEntry(p_hdr->ID);
-						//if(p_view->P_ClientActivityStateList->Search(p_hdr->ID, &caslp)) {
 						if(p_ext_entry) {
-							//const long state = p_view->P_ClientActivityStateList->at(caslp).Val;
 							const uint state = p_ext_entry->ClientActivityState;
 							switch(state & ~PPObjPerson::ClientActivityState::stfNewClient) {
 								case PPObjPerson::ClientActivityState::stDelayedTa:
@@ -2682,40 +2738,44 @@ PPViewPerson::ExtEntry::ExtEntry()
 				/*else if(r_col.OrgOffs == 9) { // client activity state
 				}*/
 				/* @v9.8.4 @todo Из-за замены текстовых полей во временной таблице на ссылки в StrPool следующий блок надо переделать
-				else if((is_register && col == 3) || (is_bank_acct && col == 5)) {
-					int is_valid = 0;
-					// @v10.8.1 {
-					STokenRecognizer tr;
-					SNaturalTokenStat nts;
-					SNaturalTokenArray nta;
-					tr.Run(temp_buf.ucptr(), temp_buf.Len(), nta.Z(), &nts); 
-					// } @v10.8.1 
-					SString code = is_bank_acct ? ((BnkAcct_*)pData)->BnkAcct : ((Register_*)pData)->RegNumber;
-					SString bic  = is_bank_acct ? ((BnkAcct_*)pData)->BIC     : ((Register_*)pData)->RegSerial;
-					if(code.Strip().Len()) {
-						if(is_bank_acct)
-							is_valid = CheckBnkAcc(code, bic.Strip());
-						else {
-							if(p_filt->RegTypeID == PPREGT_OKPO) {
-								// @v10.8.1 is_valid = CheckOKPO(code);
-								is_valid = (nta.Has(SNTOK_RU_OKPO) > 0.0f); // @v10.8.1 
+				else {
+					int is_register  = (p_filt->GetAttribType() == PPPSNATTR_REGISTER) ? oneof2(p_filt->RegTypeID, PPREGT_OKPO, PPREGT_TPID) : 0; // PPREGT_BNKCORRACC
+					int is_bank_acct = (p_filt->GetAttribType() == PPPSNATTR_BNKACCT);
+					if((is_register && col == 3) || (is_bank_acct && col == 5)) {
+						int is_valid = 0;
+						// @v10.8.1 {
+						STokenRecognizer tr;
+						SNaturalTokenStat nts;
+						SNaturalTokenArray nta;
+						tr.Run(temp_buf.ucptr(), temp_buf.Len(), nta.Z(), &nts); 
+						// } @v10.8.1 
+						SString code = is_bank_acct ? ((BnkAcct_*)pData)->BnkAcct : ((Register_*)pData)->RegNumber;
+						SString bic  = is_bank_acct ? ((BnkAcct_*)pData)->BIC     : ((Register_*)pData)->RegSerial;
+						if(code.Strip().Len()) {
+							if(is_bank_acct)
+								is_valid = CheckBnkAcc(code, bic.Strip());
+							else {
+								if(p_filt->RegTypeID == PPREGT_OKPO) {
+									// @v10.8.1 is_valid = CheckOKPO(code);
+									is_valid = (nta.Has(SNTOK_RU_OKPO) > 0.0f); // @v10.8.1 
+								}
+								else if(p_filt->RegTypeID == PPREGT_TPID) {
+									// @v8.7.4 is_valid = CheckINN(code);
+									// @v10.8.1 is_valid = SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, code, code.Len()); // @v8.7.4
+									is_valid = (nta.Has(SNTOK_RU_INN) > 0.0f); // @v10.8.1 
+								}
+								else
+									is_valid = CheckCorrAcc(code, bic);
 							}
-							else if(p_filt->RegTypeID == PPREGT_TPID) {
-								// @v8.7.4 is_valid = CheckINN(code);
-								// @v10.8.1 is_valid = SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, code, code.Len()); // @v8.7.4
-								is_valid = (nta.Has(SNTOK_RU_INN) > 0.0f); // @v10.8.1 
-							}
-							else
-								is_valid = CheckCorrAcc(code, bic);
+							ok = 1;
 						}
-						ok = 1;
-					}
-					if(ok > 0) {
-						pStyle->Flags = 0;
-						if(is_valid)
-							pStyle->Color = GetColorRef(SClrAqua);
-						else
-							pStyle->Color = GetColorRef(SClrCoral);
+						if(ok > 0) {
+							pStyle->Flags = 0;
+							if(is_valid)
+								pStyle->Color = GetColorRef(SClrAqua);
+							else
+								pStyle->Color = GetColorRef(SClrCoral);
+						}
 					}
 				}
 				*/
@@ -2740,6 +2800,12 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 {
 	SString temp_buf;
 	if(pBrw) {
+		// @v12.5.12 {
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewPerson *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
+		// } @v12.5.12 
 		BrowserDef * p_def = pBrw->getDef();
 		CALLPTRMEMB(p_def, SetCapHeight(2));
 		if(Filt.Flags & PersonFilt::fShowFiasRcgn && Filt.IsLocAttr() && P_TempPsn) {
@@ -2841,7 +2907,6 @@ const PPViewPerson::ExtEntry * FASTCALL PPViewPerson::SearchExtEntry(PPID id) co
 	return PPViewPerson::Implement_SearchExtEntry(&ExtList, id);
 }
 
-///*static*/bool PPViewPerson::CheckClientActivityState(PPID personID, long filtFlags, const LAssocArray * pClientActivityStateList)
 /*static*/bool PPViewPerson::CheckClientActivityState(PPID personID, long filtFlags, const TSVector <PPViewPerson::ExtEntry> * pExtList)
 {
 	bool   ok = false;
@@ -2900,7 +2965,90 @@ static IMPL_DBE_PROC(dbqf_person_check_clientactivitystatus_iip)
 
 int PPViewPerson::DynFuncCheckClientActivityStatus = DbqFuncTab::RegisterDynR(BTS_INT, dbqf_person_check_clientactivitystatus_iip, 3, BTS_INT, BTS_INT, BTS_PTR);
 
-DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+int PPViewPerson::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	SString temp_buf;
+	const InternalViewItem * p_item = static_cast<const InternalViewItem *>(pBlk->P_SrcData);
+	/*
+browser PERSON_INMEM north(100), 1, 1, "@{person_pl} {%s}", OWNER|GRID, 0
+{
+	"@id",       0, notype, 0,  4, BCO_USERPROC
+	"@name",     1, notype, 0, 30, BCO_USERPROC
+	"@status",   2, notype, 0, 10, BCO_USERPROC
+	"@category", 3, notype, 0, 10, BCO_USERPROC
+	"@memo",     4, notype, 0, 40, BCO_USERPROC
+	toolbar PERSON
+}
+	*/ 
+	PersonTbl::Rec psn_rec;
+	switch(pBlk->ColumnN) {
+		case 0: // ИД
+			pBlk->Set(p_item->PersonID);
+			break;
+		case 1: // name
+			{
+				if(PsnObj.Fetch(p_item->PersonID, &psn_rec) > 0) {
+					temp_buf = psn_rec.Name;
+				}
+				pBlk->Set(temp_buf);
+			}
+			break;
+		case 2: // status
+			{
+				if(PsnObj.Fetch(p_item->PersonID, &psn_rec) > 0 && psn_rec.Status) {
+					PPObjPersonStatus ps_obj;
+					PPPersonStatus st_rec;
+					if(ps_obj.Fetch(psn_rec.Status, &st_rec) > 0) {
+						temp_buf = st_rec.Name;
+					}
+				}
+				pBlk->Set(temp_buf);
+			}			
+			break;
+		case 3: // category
+			{
+				if(PsnObj.Fetch(p_item->PersonID, &psn_rec) > 0 && psn_rec.CatID) {
+					PPObjPersonCat pc_obj;
+					PPPersonCat pc_rec;
+					if(pc_obj.Fetch(psn_rec.CatID, &pc_rec) > 0) {
+						temp_buf = pc_rec.Name;
+					}
+				}
+				pBlk->Set(temp_buf);
+			}
+			break;
+		case 4: // memo
+			{
+				PPRef->UtrC.SearchUtf8(SObjTextRefIdent(PPOBJ_PERSON, p_item->PersonID, PPTRPROP_MEMO), temp_buf);
+				temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+				pBlk->Set(temp_buf);
+			}
+			break;
+	}
+	return ok;
+}
+
+/*virtual*/SArray * PPViewPerson::CreateBrowserArray(uint * pBrwId, SString * pSubTitle) // @v12.5.12
+{
+	SArray * p_array = 0;
+	uint   brw_id = BROWSER_PERSON_INMEM;
+	SString title_buf;
+	if(IsInMemView()) {
+		p_array = new SArray(sizeof(InternalViewItem));
+		if(p_array) {
+			for(uint i = 0; i < InternalViewList.getCount(); i++) {
+				p_array->insert(&InternalViewList.at(i));
+			}
+		}
+	}
+	ASSIGN_PTR(pBrwId,    brw_id);
+	ASSIGN_PTR(pSubTitle, title_buf);
+	return p_array;
+}
+
+/*virtual*/DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBQuery * q  = 0;
 	PersonTbl * p  = 0;
@@ -3030,21 +3178,38 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			PPDbqFuncPool::InitStrPoolRefFunc(dbe_addrtype,  tmp_pt->AddrTypeP, &StrPool); // @v12.1.11
 			PPDbqFuncPool::InitStrPoolRefFunc(dbe_phone, tmp_pt->PhoneP, &StrPool); // @v12.1.11
 			PPDbqFuncPool::InitStrPoolRefFunc(dbe_email, tmp_pt->EMailP, &StrPool); // @v12.1.11
+			// @v12.5.12 {
 			q = & Select_(
-				p->ID,                // #0
-				tmp_pt->TabID,        // #1 ИД адреса
-				p->Name,              // #2 Наименование персоналии
-				dbe_addr,             // #3 Строка адреса
-				dbe_bnkacct,          // #4 Код из адреса доставки
-				/*tmp_pt->RegNumber*/dbe_addrtype, // #5 Тип адреса (юридический | физический | доставки)
-				dbe_city,             // #6
-				p->Flags,             // #7
-				dbe_fiasadrguid,      // #8
-				dbe_fiashseguid,      // #9
-				dbe_phone,            // #10 @v12.1.11
-				dbe_email,            // #11 @v12.1.11
-				tmp_pt->RegNumber,    // #12 @v12.1.11 либо текстовое представление тега (PPPSNATTR_TAG), либо номер регистрационного документа (PPPSNATTR_REGISTER)
+				p->ID,             // #0
+				tmp_pt->TabID,     // #1 ИД адреса
+				p->Name,           // #2 Наименование персоналии
 				0L);
+			q->addField(dbe_addr);          // #3 Строка адреса
+			q->addField(dbe_bnkacct);       // #4 Код из адреса доставки
+			q->addField(dbe_addrtype);      // #5 Тип адреса (юридический | физический | доставки)
+			q->addField(dbe_city);          // #6
+			q->addField(p->Flags);          // #7
+			q->addField(dbe_fiasadrguid);   // #8
+			q->addField(dbe_fiashseguid);   // #9
+			q->addField(dbe_phone);         // #10 @v12.1.11
+			q->addField(dbe_email);         // #11 @v12.1.11
+			q->addField(tmp_pt->RegNumber); // #12 @v12.1.11 либо текстовое представление тега (PPPSNATTR_TAG), либо номер регистрационного документа (PPPSNATTR_REGISTER)
+			// } @v12.5.12 
+			/* @v12.5.12 q = & Select_(
+				p->ID,             // #0
+				tmp_pt->TabID,     // #1 ИД адреса
+				p->Name,           // #2 Наименование персоналии
+				dbe_addr,          // #3 Строка адреса
+				dbe_bnkacct,       // #4 Код из адреса доставки
+				dbe_addrtype,      // #5 Тип адреса (юридический | физический | доставки)
+				dbe_city,          // #6
+				p->Flags,          // #7
+				dbe_fiasadrguid,   // #8
+				dbe_fiashseguid,   // #9
+				dbe_phone,         // #10 @v12.1.11
+				dbe_email,         // #11 @v12.1.11
+				tmp_pt->RegNumber, // #12 @v12.1.11 либо текстовое представление тега (PPPSNATTR_TAG), либо номер регистрационного документа (PPPSNATTR_REGISTER)
+				0L);*/
 			if(Filt.GetAttribType() == PPPSNATTR_REGISTER) {
 				PPDbqFuncPool::InitStrPoolRefFunc(dbe_regser,  tmp_pt->RegSerialP, &StrPool); // @v12.1.11
 				q->addField(dbe_regser);          // #13 
@@ -3060,25 +3225,45 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_phone, tmp_pt->PhoneP, &StrPool);
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_addr,  tmp_pt->AddressP, &StrPool);
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_raddr, tmp_pt->RAddressP, &StrPool);
+						// @v12.5.12 {
 						q = & Select_(
 							p->ID,                         // #0 
 							p->Name,                       // #1
-							/*tmp_pt->Phone*/dbe_phone,    // #2  
-							/*tmp_pt->Address*/dbe_addr,   // #3
-							/*tmp_pt->RAddress*/dbe_raddr, // #4
-							p->Flags,                      // #5
-							0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], 0L);
+							0L);
+						q->addField(dbe_phone); // #2  
+						q->addField(dbe_addr);  // #3
+						q->addField(dbe_raddr); // #4
+						q->addField(p->Flags);  // #5
+						// } @v12.5.12 
+						/* @v12.5.12 q = & Select_(
+							p->ID,     // #0 
+							p->Name,   // #1
+							dbe_phone, // #2  
+							dbe_addr,  // #3
+							dbe_raddr, // #4
+							p->Flags,  // #5
+							0L);*/
+						q->from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], 0L);
 					}
 					break;
 				case PPPSNATTR_EMAIL:
 					{
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_phone, tmp_pt->EMailP, &StrPool); // @v12.1.11 tmp_pt->PhoneP-->tmp_pt->EMailP
+						// @v12.5.12 {
 						q = & Select_(
-							p->ID,                      // #0
-							p->Name,                    // #1 
-							/*tmp_pt->Phone*/dbe_phone, // #2
-							p->Flags,                   // #3
-							0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], 0L);
+							p->ID,     // #0
+							p->Name,   // #1 
+							0L);
+						q->addField(dbe_phone); // #2
+						q->addField(p->Flags);  // #3
+						// } @v12.5.12 
+						/* @v12.5.12 q = & Select_(
+							p->ID,     // #0
+							p->Name,   // #1 
+							dbe_phone, // #2
+							p->Flags,  // #3
+							0L);*/
+						q->from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], 0L);
 					}
 					break;
 				case PPPSNATTR_ALLADDR:
@@ -3091,18 +3276,34 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_fiasadrguid,  tmp_pt->FiasAddrGuidP, &StrPool);
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_fiashseguid,  tmp_pt->FiasHouseGuidP, &StrPool);
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_addrtype,  tmp_pt->AddrTypeP, &StrPool); // @v12.1.11
+						// @v12.5.12 {
+						q = & Select_(
+							p->ID,                // #0
+							tmp_pt->TabID,        // #1 ИД адреса
+							0L);
+						q->addField(p->Name);         // #2 Наименование персоналии
+						q->addField(dbe_addr);        // #3 Строка адреса
+						q->addField(dbe_bnkacct);     // #4 Код из адреса доставки
+						q->addField(dbe_addrtype);    // #5 Тип адреса (юридический | физический | доставки)
+						q->addField(dbe_city);        // #6
+						q->addField(p->Flags);        // #7
+						q->addField(dbe_fiasadrguid); // #8
+						q->addField(dbe_fiashseguid); // #9
+						// } @v12.5.12 
+						/* @v12.5.12 
 						q = & Select_(
 							p->ID,                // #0
 							tmp_pt->TabID,        // #1 ИД адреса
 							p->Name,              // #2 Наименование персоналии
 							dbe_addr,             // #3 Строка адреса
 							dbe_bnkacct,          // #4 Код из адреса доставки
-							/*tmp_pt->RegNumber*/dbe_addrtype, // #5 Тип адреса (юридический | физический | доставки)
+							dbe_addrtype,         // #5 Тип адреса (юридический | физический | доставки)
 							dbe_city,             // #6
 							p->Flags,             // #7
 							dbe_fiasadrguid,      // #8
 							dbe_fiashseguid,      // #9
-							0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], 0L);
+							0L);*/
+						q->from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], 0L);
 					}
 					break;
 				case PPPSNATTR_HANGEDADDR:
@@ -3114,17 +3315,32 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_phone,  tmp_pt->PhoneP, &StrPool);
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_bnkname,  tmp_pt->BnkNameP, &StrPool);
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_addrtype,  tmp_pt->AddrTypeP, &StrPool); // @v12.1.11
+						// @v12.5.12 {
+						q = & Select_(
+							tmp_pt->ID,        // #0
+							tmp_pt->TabID,     // #1 ИД адреса
+							tmp_pt->Name,      // #2 Наименование персоналии
+							0L);
+						q->addField(dbe_addr);     // #3 Строка адреса
+						q->addField(dbe_bnkacct);  // #4 Код из адреса доставки
+						q->addField(dbe_addrtype); // #5 Тип адреса (юридический | физический | доставки)
+						q->addField(dbe_city);     // #6
+						q->addField(dbe_phone);    // #7 Телефон (ассоциированный с адресом)
+						q->addField(dbe_bnkname);  // #8 Контакт (ассоциированный с адресом)
+						// } @v12.5.12
+						/* @v12.5.12 
 						q = & Select_(
 							tmp_pt->ID,        // #0
 							tmp_pt->TabID,     // #1 ИД адреса
 							tmp_pt->Name,      // #2 Наименование персоналии
 							dbe_addr,          // #3 Строка адреса
 							dbe_bnkacct,       // #4 Код из адреса доставки
-							/*tmp_pt->RegNumber*/dbe_addrtype, // #5 Тип адреса (юридический | физический | доставки)
+							dbe_addrtype,      // #5 Тип адреса (юридический | физический | доставки)
 							dbe_city,          // #6
 							dbe_phone,         // #7 Телефон (ассоциированный с адресом)
 							dbe_bnkname,       // #8 Контакт (ассоциированный с адресом)
-							0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], 0L);
+							0L);*/
+						q->from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], 0L);
 					}
 					break;
 				case PPPSNATTR_BNKACCT:
@@ -3132,6 +3348,20 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_bnkname,  tmp_pt->BnkNameP, &StrPool);
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_bnkacct, tmp_pt->BnkAcctP, &StrPool);
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_phone,  tmp_pt->PhoneP, &StrPool);
+						// @v12.5.12 {
+						q = & Select_(
+							p->ID,               // #0
+							tmp_pt->TabID,       // #1
+							p->Name,             // #2
+							0L);
+						q->addField(dbe_bnkname);         // #3
+						q->addField(dbe_bnkacct);         // #4
+						q->addField(tmp_pt->RegNumber);   // #5 Тип счета
+						q->addField(tmp_pt->RegInitDate); // #6 Дата открытия //
+						q->addField(dbe_phone);           // #7 БИК банка
+						q->addField(p->Flags);            // #8
+						// } @v12.5.12
+						/* @v12.5.12 
 						q = & Select_(
 							p->ID,               // #0
 							tmp_pt->TabID,       // #1
@@ -3142,12 +3372,25 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 							tmp_pt->RegInitDate, // #6 Дата открытия //
 							dbe_phone,           // #7 БИК банка
 							p->Flags,            // #8
-							0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], 0L);
+							0L);*/
+						q->from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], 0L);
 					}
 					break;
 				case PPPSNATTR_REGISTER:
 					{
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_regser,  tmp_pt->RegSerialP, &StrPool);
+						// @v12.5.12 {
+						q = & Select_(
+							p->ID,               // #0
+							p->Name,             // #1
+							0L);
+						q->addField(dbe_regser);          // #2  
+						q->addField(tmp_pt->RegNumber);   // #3 
+						q->addField(tmp_pt->RegInitDate); // #4
+						q->addField(tmp_pt->RegExpiry);   // #5
+						q->addField(p->Flags);            // #6
+						// } @v12.5.12 
+						/* @v12.5.12 
 						q = & Select_(
 							p->ID,               // #0
 							p->Name,             // #1
@@ -3156,7 +3399,8 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 							tmp_pt->RegInitDate, // #4
 							tmp_pt->RegExpiry,   // #5
 							p->Flags,            // #6
-							0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], 0L);
+							0L);*/
+						q->from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], 0L);
 					}
 					break;
 				case PPPSNATTR_TAG:
@@ -3173,23 +3417,25 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					{
 						DBE    dbe_status;
 						DBE    dbe_cat;
-						DBE    dbe_memo; // @v11.1.12
+						DBE    dbe_memo;
 						PPDbqFuncPool::InitObjNameFunc(dbe_status, PPDbqFuncPool::IdObjNamePersonStatus, p->Status);
 						PPDbqFuncPool::InitObjNameFunc(dbe_cat,    PPDbqFuncPool::IdObjNamePersonCat,    p->CatID);
-						PPDbqFuncPool::InitObjNameFunc(dbe_memo,   PPDbqFuncPool::IdObjMemoPerson,       p->ID); // @v11.1.12
+						PPDbqFuncPool::InitObjNameFunc(dbe_memo,   PPDbqFuncPool::IdObjMemoPerson,       p->ID);
 						// @v12.5.0 {
-						q = & Select_(p->ID, p->Name, 0L);
-						q->addField(dbe_status);
-						q->addField(dbe_cat);
-						q->addField(dbe_memo);
-						q->addField(p->Flags);
+						q = & Select_(p->ID, // #0
+							p->Name,         // #1
+							0L); 
+						q->addField(dbe_status); // #2
+						q->addField(dbe_cat);    // #3
+						q->addField(dbe_memo);   // #4
+						q->addField(p->Flags);   // #5
 						// } @v12.5.0 
 						/* @v12.5.0 q = & Select_(
 							p->ID,      // #0
 							p->Name,    // #1 
 							dbe_status, // #2
 							dbe_cat,    // #3
-							dbe_memo,   // #4 @v11.1.12 p->Memo-->dbe_memo
+							dbe_memo,   // #4
 							p->Flags,   // #5
 							0L);*/
 
@@ -3606,6 +3852,7 @@ int PPViewPerson::ExportUhtt()
 
 int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
+	int    ok = 0;
 	BrwHdr hdr;
 	if(pHdr) {
 		hdr = *static_cast<const BrwHdr *>(pHdr);
@@ -3618,286 +3865,322 @@ int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 	}
 	else
 		MEMSZERO(hdr);
-	int ok = PPView::ProcessCommand(ppvCmd, &hdr, pBrw);
-	if(ok == -2) {
-		switch(ppvCmd) {
-			case PPVCMD_GRAPH: // @v12.2.6 @construction
-				if(Filt.Flags & PersonFilt::fCliActivityStats) {
-					if(hdr.ID)
-						DrawClientActivityStatistics(hdr.ID);
-				}
-				break;
-			case PPVCMD_CLIACTIVITYDETAILS:
-				if(Filt.Flags & PersonFilt::fCliActivityStats) {
-					if(hdr.ID) {
-						ClientActivityDetailsFilt filt;
-						filt.PersonID = hdr.ID;
-						PPView::Execute(PPVIEW_CLIENTACTIVITYDETAILS, &filt, 0, 0);
+	if(ppvCmd == PPVCMD_QUERYDATASOURCETYPE) {
+		ok = IsInMemView() ? PPView::datasourcetypeArray : PPView::datasourcetypeDBQuery;
+	}
+	else {
+		ok = PPView::ProcessCommand(ppvCmd, &hdr, pBrw);
+		if(ok == -2) {
+			switch(ppvCmd) {
+				case PPVCMD_GRAPH: // @v12.2.6 @construction
+					if(Filt.Flags & PersonFilt::fCliActivityStats) {
+						if(hdr.ID)
+							DrawClientActivityStatistics(hdr.ID);
 					}
-				}
-				break;
-			case PPVCMD_ADDITEM:
-				{
-					PPID id = 0;
-					ok = AddItem(&id);
-					if(ok > 0) {
-						pBrw->Update();
-						pBrw->search2(&id, CMPF_LONG, srchFirst, 0);
-						ok = -1; // Не надо обновлять таблицу после этого вызова
+					break;
+				case PPVCMD_CLIACTIVITYDETAILS:
+					if(Filt.Flags & PersonFilt::fCliActivityStats) {
+						if(hdr.ID) {
+							ClientActivityDetailsFilt filt;
+							filt.PersonID = hdr.ID;
+							PPView::Execute(PPVIEW_CLIENTACTIVITYDETAILS, &filt, 0, 0);
+						}
 					}
-				}
-				break;
-			case PPVCMD_DELETEITEM:
-				if(Filt.GetAttribType() == PPPSNATTR_HANGEDADDR) {
-					PPID   loc_id = static_cast<PPID>(pHdr ? PTR32C(pHdr)[1] : 0);
-					if(loc_id && CONFIRM(PPCFM_DELETE)) {
-						if(!PsnObj.LocObj.PutRecord(&loc_id, 0, 1) || !UpdateHungedAddr(loc_id))
-							PPError();
-						else
-							ok = 1;
+					break;
+				case PPVCMD_ADDITEM:
+					{
+						PPID   id = 0;
+						ok = AddItem(&id);
+						if(ok > 0) {
+							pBrw->Update();
+							pBrw->search2(&id, CMPF_LONG, srchFirst, 0);
+							ok = -1; // Не надо обновлять таблицу после этого вызова
+						}
 					}
-				}
-				else if(hdr.ID)
-					ok = DeleteItem(hdr.ID);
-				break;
-			case PPVCMD_DELETEALL:
-				ok = -1;
-				if(!oneof2(Filt.GetAttribType(), PPPSNATTR_HANGEDADDR, PPPSNATTR_STANDALONEADDR)) {
-					ok = UpdateList();
-				}
-				break;
-			case PPVCMD_EDITITEM:
-				if(oneof2(Filt.GetAttribType(), PPPSNATTR_HANGEDADDR, PPPSNATTR_STANDALONEADDR)) {
-					PPID   loc_id = static_cast<PPID>(pHdr ? PTR32C(pHdr)[1] : 0);
-					if(loc_id) {
-						if(PsnObj.LocObj.Edit(&loc_id, 0) > 0) {
-							if(!UpdateHungedAddr(loc_id))
+					break;
+				case PPVCMD_DELETEITEM:
+					if(Filt.GetAttribType() == PPPSNATTR_HANGEDADDR) {
+						PPID   loc_id = static_cast<PPID>(pHdr ? PTR32C(pHdr)[1] : 0);
+						if(loc_id && CONFIRM(PPCFM_DELETE)) {
+							if(!PsnObj.LocObj.PutRecord(&loc_id, 0, 1) || !UpdateHungedAddr(loc_id))
 								PPError();
 							else
 								ok = 1;
 						}
 					}
-				}
-				else if(hdr.ID != 0)
-					ok = EditItem(hdr.ID);
-				break;
-			case PPVCMD_QUICKTAGEDIT: // @v11.2.8
-				// В этой команде указатель pHdr занят под список идентификаторов тегов, соответствующих нажатой клавише
-				// В связи с этим текущий элемент таблицы придется получить явным вызовом pBrw->getCurItem()
-				//
-				{
-					const BrwHdr * p_row = static_cast<const BrwHdr *>(pBrw->getCurItem());
-					ok = PPView::Helper_ProcessQuickTagEdit(SObjID(PPOBJ_PERSON, p_row ? p_row->ID : 0), pHdr/*(LongArray *)*/);
-				}
-				break;
-			case PPVCMD_TAGS:
-				ok = -1;
-				{
-					SObjID oid;
-					if(Filt.IsLocAttr() && Filt.Flags & PersonFilt::fLocTagF)
-						oid.Set(PPOBJ_LOCATION, static_cast<PPID>(pHdr ? PTR32C(pHdr)[1] : 0));
-					else
-						oid.Set(PPOBJ_PERSON, hdr.ID);
-					if(oid.IsFullyDefined())
-						ok = EditObjTagValList(oid.Obj, oid.Id, 0);
-				}
-				break;
-			case PPVCMD_CURREG:
-				if(Filt.IsLocAttr()) {
-					PPID   _id_to_edit = static_cast<PPID>(pHdr ? PTR32C(pHdr)[1] : 0);
-					if(_id_to_edit)
-						ok = (PsnObj.LocObj.Edit(&_id_to_edit, 0) == cmOK) ? 1 : -1;
-				}
-				else {
-					PPID   loc_id = 0;
-					if(Filt.Flags & PersonFilt::fLocTagF && Filt.GetAttribType()) {
-						loc_id = static_cast<PPID>(PTR32C(pHdr)[1]);
+					else if(hdr.ID)
+						ok = DeleteItem(hdr.ID);
+					break;
+				case PPVCMD_DELETEALL:
+					ok = -1;
+					if(!oneof2(Filt.GetAttribType(), PPPSNATTR_HANGEDADDR, PPPSNATTR_STANDALONEADDR)) {
+						ok = UpdateList();
 					}
-					ok = EditRegs(hdr.ID, loc_id, 1);
-				}
-				break;
-			/* @v12.2.8 case PPVCMD_DLVRADDREXFLDS:
-				if(Filt.IsLocAttr()) {
-					const PPID loc_id = static_cast<PPID>(pHdr ? PTR32C(pHdr)[1] : 0);
-					if(loc_id)
-						if((ok = EditDlvrAddrExtFlds(loc_id)) == 0)
-							PPError();
-				}
-				break;*/
-			case PPVCMD_RELATIONS:
-			case PPVCMD_REVERSEREL:
-				{
-					PersonRelFilt filt;
-					if(ppvCmd == PPVCMD_RELATIONS)
-						filt.PrmrPersonID = hdr.ID;
-					else
-						filt.ScndPersonID = hdr.ID;
-					ok = PPView::Execute(PPVIEW_PERSONREL, &filt, PPView::exefModeless, 0);
-				}
-				break;
-			case PPVCMD_EDITFIXSTAFF:
-				if(hdr.ID)
-					StLObj.EditFixedStaffPost(hdr.ID);
-				ok = -1;
-				break;
-			case PPVCMD_VIEWSCARDS:
-				if(oneof2(Filt.GetAttribType(), PPPSNATTR_STANDALONEADDR, PPPSNATTR_HANGEDADDR)) {
-					const  PPID loc_id = pHdr ? static_cast<const long *>(pHdr)[1] : 0;
-					if(loc_id) {
+					break;
+				case PPVCMD_EDITITEM:
+					if(oneof2(Filt.GetAttribType(), PPPSNATTR_HANGEDADDR, PPPSNATTR_STANDALONEADDR)) {
+						PPID   loc_id = static_cast<PPID>(pHdr ? PTR32C(pHdr)[1] : 0);
+						if(loc_id) {
+							if(PsnObj.LocObj.Edit(&loc_id, 0) > 0) {
+								if(!UpdateHungedAddr(loc_id))
+									PPError();
+								else
+									ok = 1;
+							}
+						}
+					}
+					else if(hdr.ID != 0)
+						ok = EditItem(hdr.ID);
+					break;
+				case PPVCMD_QUICKTAGEDIT: // @v11.2.8
+					// В этой команде указатель pHdr занят под список идентификаторов тегов, соответствующих нажатой клавише
+					// В связи с этим текущий элемент таблицы придется получить явным вызовом pBrw->getCurItem()
+					//
+					{
+						const BrwHdr * p_row = static_cast<const BrwHdr *>(pBrw->getCurItem());
+						ok = PPView::Helper_ProcessQuickTagEdit(SObjID(PPOBJ_PERSON, p_row ? p_row->ID : 0), pHdr/*(LongArray *)*/);
+					}
+					break;
+				case PPVCMD_TAGS:
+					ok = -1;
+					{
+						SObjID oid;
+						if(Filt.IsLocAttr() && Filt.Flags & PersonFilt::fLocTagF)
+							oid.Set(PPOBJ_LOCATION, static_cast<PPID>(pHdr ? PTR32C(pHdr)[1] : 0));
+						else
+							oid.Set(PPOBJ_PERSON, hdr.ID);
+						if(oid.IsFullyDefined())
+							ok = EditObjTagValList(oid.Obj, oid.Id, 0);
+					}
+					break;
+				case PPVCMD_CURREG:
+					if(Filt.IsLocAttr()) {
+						PPID   _id_to_edit = static_cast<PPID>(pHdr ? PTR32C(pHdr)[1] : 0);
+						if(_id_to_edit)
+							ok = (PsnObj.LocObj.Edit(&_id_to_edit, 0) == cmOK) ? 1 : -1;
+					}
+					else {
+						PPID   loc_id = 0;
+						if(Filt.Flags & PersonFilt::fLocTagF && Filt.GetAttribType()) {
+							loc_id = static_cast<PPID>(PTR32C(pHdr)[1]);
+						}
+						ok = EditRegs(hdr.ID, loc_id, 1);
+					}
+					break;
+				/* @v12.2.8 case PPVCMD_DLVRADDREXFLDS:
+					if(Filt.IsLocAttr()) {
+						const PPID loc_id = static_cast<PPID>(pHdr ? PTR32C(pHdr)[1] : 0);
+						if(loc_id)
+							if((ok = EditDlvrAddrExtFlds(loc_id)) == 0)
+								PPError();
+					}
+					break;*/
+				case PPVCMD_RELATIONS:
+				case PPVCMD_REVERSEREL:
+					{
+						PersonRelFilt filt;
+						if(ppvCmd == PPVCMD_RELATIONS)
+							filt.PrmrPersonID = hdr.ID;
+						else
+							filt.ScndPersonID = hdr.ID;
+						ok = PPView::Execute(PPVIEW_PERSONREL, &filt, PPView::exefModeless, 0);
+					}
+					break;
+				case PPVCMD_EDITFIXSTAFF:
+					if(hdr.ID)
+						StLObj.EditFixedStaffPost(hdr.ID);
+					ok = -1;
+					break;
+				case PPVCMD_VIEWSCARDS:
+					if(oneof2(Filt.GetAttribType(), PPPSNATTR_STANDALONEADDR, PPPSNATTR_HANGEDADDR)) {
+						const  PPID loc_id = pHdr ? static_cast<const long *>(pHdr)[1] : 0;
+						if(loc_id) {
+							SCardFilt sc_flt;
+							sc_flt.LocID = loc_id;
+							ViewSCard(&sc_flt, 1);
+						}
+					}
+					else if(hdr.ID) {
 						SCardFilt sc_flt;
-						sc_flt.LocID = loc_id;
+						sc_flt.PersonID = hdr.ID;
 						ViewSCard(&sc_flt, 1);
 					}
-				}
-				else if(hdr.ID) {
-					SCardFilt sc_flt;
-					sc_flt.PersonID = hdr.ID;
-					ViewSCard(&sc_flt, 1);
-				}
-				ok = -1;
-				break;
-			case PPVCMD_SYSJ:
-				if(oneof2(Filt.GetAttribType(), PPPSNATTR_STANDALONEADDR, PPPSNATTR_HANGEDADDR)) {
-					const  PPID loc_id = pHdr ? static_cast<const long *>(pHdr)[1] : 0;
-					if(loc_id) {
-						ok = ViewSysJournal(PPOBJ_LOCATION, loc_id, 0);
-					}
-				}
-				else if(hdr.ID)
-					ok = ViewSysJournal(PPOBJ_PERSON, hdr.ID, 0);
-				break;
-			case PPVCMD_UNITEOBJ:
-				if(oneof4(Filt.GetAttribType(), PPPSNATTR_ALLADDR, PPPSNATTR_HANGEDADDR, PPPSNATTR_DLVRADDR, PPPSNATTR_DUPDLVRADDR)) {
-					PPID   loc_id = static_cast<PPID>(pHdr ? PTR32C(pHdr)[1] : 0);
-					if(loc_id)
-						ok = PPObjPerson::ReplaceDlvrAddr(loc_id);
-				}
-				else
-					ok = PPObjPerson::ReplacePerson(hdr.ID, Filt.PersonKindID);
-				break;
-			case PPVCMD_ARTICLES:
-				if(hdr.ID) {
-					ArticleFilt ar_flt;
-					ar_flt.PersonID = hdr.ID;
-					ok = ViewArticle(&ar_flt);
-				}
-				break;
-			case PPVCMD_STAFFCAL:
-				if(hdr.ID) {
-					StaffCalFilt sc_flt;
-					sc_flt.LinkObjType = PPOBJ_PERSON;
-					sc_flt.LinkObjList.Add(hdr.ID);
-					ShowObjects(PPOBJ_STAFFCAL, &sc_flt);
-				}
-				break;
-			case PPVCMD_TRANSPOWNER:
-				if(hdr.ID) {
-					TransportFilt   t_filt;
-					t_filt.OwnerID = hdr.ID;
-					PPView::Execute(PPVIEW_TRANSPORT, &t_filt, PPView::exefModeless, 0);
-				}
-				break;
-			case PPVCMD_TB_CBX_SELECTED:
-				{
 					ok = -1;
-					PPID psn_kind = 0;
-					if(pBrw && pBrw->GetToolbarComboData(&psn_kind) && Filt.PersonKindID != psn_kind) {
-						Filt.PersonKindID = psn_kind;
-						ok = ChangeFilt(1, pBrw);
-					}
-				}
-				break;
-			case PPVCMD_MOUSEHOVER:
-				{
-					const  int has_images = HasImage(pHdr);
-					long   h = 0;
-					if(pBrw->ItemByMousePos(&h, 0) && oneof2(h, 0, 1)) {
-						int r = 0;
-						SString buf;
-						PPELinkArray phones_ary;
-						PersonCore::GetELinks(hdr.ID, phones_ary);
-						for(uint i = 0; i < phones_ary.getCount(); i++) {
-							if(i != 0)
-								buf.CR();
-							CatObjectName(PPOBJ_ELINKKIND, phones_ary.at(i).KindID, buf);
-							buf.CatDiv(':', 2).Cat(phones_ary.at(i).Addr);
-							r = 1;
+					break;
+				case PPVCMD_SYSJ:
+					if(oneof2(Filt.GetAttribType(), PPPSNATTR_STANDALONEADDR, PPPSNATTR_HANGEDADDR)) {
+						const  PPID loc_id = pHdr ? static_cast<const long *>(pHdr)[1] : 0;
+						if(loc_id) {
+							ok = ViewSysJournal(PPOBJ_LOCATION, loc_id, 0);
 						}
-						if(r > 0 || has_images) {
-							SString img_path;
-							if(has_images) {
-								ObjLinkFiles link_files(PPOBJ_PERSON);
-								link_files.Load(hdr.ID, 0L);
-								link_files.At(0, img_path);
+					}
+					else if(hdr.ID)
+						ok = ViewSysJournal(PPOBJ_PERSON, hdr.ID, 0);
+					break;
+				case PPVCMD_UNITEOBJ:
+					if(oneof4(Filt.GetAttribType(), PPPSNATTR_ALLADDR, PPPSNATTR_HANGEDADDR, PPPSNATTR_DLVRADDR, PPPSNATTR_DUPDLVRADDR)) {
+						PPID   loc_id = static_cast<PPID>(pHdr ? PTR32C(pHdr)[1] : 0);
+						if(loc_id)
+							ok = PPObjPerson::ReplaceDlvrAddr(loc_id);
+					}
+					else
+						ok = PPObjPerson::ReplacePerson(hdr.ID, Filt.PersonKindID);
+					break;
+				case PPVCMD_ARTICLES:
+					if(hdr.ID) {
+						ArticleFilt ar_flt;
+						ar_flt.PersonID = hdr.ID;
+						ok = ViewArticle(&ar_flt);
+					}
+					break;
+				case PPVCMD_STAFFCAL:
+					if(hdr.ID) {
+						StaffCalFilt sc_flt;
+						sc_flt.LinkObjType = PPOBJ_PERSON;
+						sc_flt.LinkObjList.Add(hdr.ID);
+						ShowObjects(PPOBJ_STAFFCAL, &sc_flt);
+					}
+					break;
+				case PPVCMD_TRANSPOWNER:
+					if(hdr.ID) {
+						TransportFilt   t_filt;
+						t_filt.OwnerID = hdr.ID;
+						PPView::Execute(PPVIEW_TRANSPORT, &t_filt, PPView::exefModeless, 0);
+					}
+					break;
+				case PPVCMD_TB_CBX_SELECTED:
+					{
+						ok = -1;
+						PPID psn_kind = 0;
+						if(pBrw && pBrw->GetToolbarComboData(&psn_kind) && Filt.PersonKindID != psn_kind) {
+							Filt.PersonKindID = psn_kind;
+							ok = ChangeFilt(1, pBrw);
+						}
+					}
+					break;
+				case PPVCMD_MOUSEHOVER:
+					{
+						const  int has_images = HasImage(pHdr);
+						long   h = 0;
+						if(pBrw->ItemByMousePos(&h, 0) && oneof2(h, 0, 1)) {
+							int r = 0;
+							SString buf;
+							PPELinkArray phones_ary;
+							PersonCore::GetELinks(hdr.ID, phones_ary);
+							for(uint i = 0; i < phones_ary.getCount(); i++) {
+								if(i != 0)
+									buf.CR();
+								CatObjectName(PPOBJ_ELINKKIND, phones_ary.at(i).KindID, buf);
+								buf.CatDiv(':', 2).Cat(phones_ary.at(i).Addr);
+								r = 1;
 							}
-							PPTooltipMessage(buf, img_path, pBrw->H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
-								SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
+							if(r > 0 || has_images) {
+								SString img_path;
+								if(has_images) {
+									ObjLinkFiles link_files(PPOBJ_PERSON);
+									link_files.Load(hdr.ID, 0L);
+									link_files.At(0, img_path);
+								}
+								PPTooltipMessage(buf, img_path, pBrw->H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
+									SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
+							}
 						}
 					}
-				}
-				break;
-			case PPVCMD_SENDSMS:
-				{
-					uint   what = 0;
-					if(SelectorDialog(DLG_DISPTYPE, CTL_DISPTYPE_WHAT, &what) > 0) {
-						PPAlbatrossConfig albtr_cfg;
- 						SString msg;
- 						PPLogger logger;
- 						StrAssocArray psn_list;
- 						StrAssocArray phone_list;
- 						if(PPAlbatrosCfgMngr::Get(&albtr_cfg) > 0) {
-							GetSmsLists(psn_list, phone_list, what);
- 							if(phone_list.getCount()) {
-								if(what > 0)
-									SendMail(albtr_cfg.Hdr.MailAccID, &phone_list, &logger);
-								else if(!PPObjSmsAccount::BeginDelivery(albtr_cfg.Hdr.SmsAccID, psn_list, phone_list))
-									PPError();
- 							}
- 							else {
-								if(what == 0)
-									PPLoadText(PPTXT_SMS_NOPHONENUMBER, msg);
-								else
-									PPLoadError(PPERR_MAILACCOUNTSNF, msg, 0);
- 								logger.Log(msg);
+					break;
+				case PPVCMD_SENDSMS:
+					{
+						uint   what = 0;
+						if(SelectorDialog(DLG_DISPTYPE, CTL_DISPTYPE_WHAT, &what) > 0) {
+							PPAlbatrossConfig albtr_cfg;
+ 							SString msg;
+ 							PPLogger logger;
+ 							StrAssocArray psn_list;
+ 							StrAssocArray phone_list;
+ 							if(PPAlbatrosCfgMngr::Get(&albtr_cfg) > 0) {
+								GetSmsLists(psn_list, phone_list, what);
+ 								if(phone_list.getCount()) {
+									if(what > 0)
+										SendMail(albtr_cfg.Hdr.MailAccID, &phone_list, &logger);
+									else if(!PPObjSmsAccount::BeginDelivery(albtr_cfg.Hdr.SmsAccID, psn_list, phone_list))
+										PPError();
+ 								}
+ 								else {
+									if(what == 0)
+										PPLoadText(PPTXT_SMS_NOPHONENUMBER, msg);
+									else
+										PPLoadError(PPERR_MAILACCOUNTSNF, msg, 0);
+ 									logger.Log(msg);
+ 								}
  							}
  						}
  					}
- 				}
-				break;
-			case PPVCMD_VIEWCCHECKS:
-				ok = -1;
-				if(Filt.GetAttribType() == PPPSNATTR_STANDALONEADDR) {
-					const PPID loc_id = static_cast<PPID>(pHdr ? PTR32C(pHdr)[1] : 0);
-					if(loc_id) {
-						CCheckFilt cc_filt;
-						cc_filt.DlvrAddrID = loc_id;
-						ViewCCheck(&cc_filt, 0);
+					break;
+				case PPVCMD_VIEWCCHECKS:
+					ok = -1;
+					if(Filt.GetAttribType() == PPPSNATTR_STANDALONEADDR) {
+						const PPID loc_id = static_cast<PPID>(pHdr ? PTR32C(pHdr)[1] : 0);
+						if(loc_id) {
+							CCheckFilt cc_filt;
+							cc_filt.DlvrAddrID = loc_id;
+							ViewCCheck(&cc_filt, 0);
+						}
 					}
-				}
-				break;
-			case PPVCMD_CREATEAUTHFILE:
-				ok = -1;
-				CreateAuthFile(hdr.ID);
-				break;
-			case PPVCMD_EVENTS:         ok = ViewPersonEvents(hdr.ID); break;
-			case PPVCMD_FOLDER:         ok = OpenClientDir(hdr.ID); break;
-			case PPVCMD_REGISTERS:      ok = EditRegs(hdr.ID, 0, 0); break;
-			case PPVCMD_AMOUNTS:        ok = PsnObj.EditAmountList(hdr.ID); break;
-			case PPVCMD_ADDREL:         ok = AddRelation(hdr.ID); break;
-			case PPVCMD_PRINT:          ok = Print(0); break;
-			case PPVCMD_TOTAL:          
-				ok = -1;
-				ViewTotal(); 
-				break;
-			case PPVCMD_TASKS:          ok = ViewTasks(hdr.ID); break;
-			case PPVCMD_TRANSMIT:       ok = Transmit(hdr.ID, 0); break;
-			case PPVCMD_TRANSMKIND:     ok = Transmit(hdr.ID, 1); break;
-			case PPVCMD_EXPORTVCARD:    ok = Transmit(hdr.ID, 2); break;
-			case PPVCMD_EXPORTUHTT:     ok = ExportUhtt(); break;
-			case PPVCMD_RMVHANGEDITEMS: ok = RemoveHangedAddr(); break;
-			case PPVCMD_DORECOVER:      ok = Recover(); break;
+					break;
+				case PPVCMD_CREATEAUTHFILE:
+					ok = -1;
+					CreateAuthFile(hdr.ID);
+					break;
+				case PPVCMD_EVENTS:         ok = ViewPersonEvents(hdr.ID); break;
+				case PPVCMD_FOLDER:         ok = OpenClientDir(hdr.ID); break;
+				case PPVCMD_REGISTERS:      ok = EditRegs(hdr.ID, 0, 0); break;
+				case PPVCMD_AMOUNTS:        ok = PsnObj.EditAmountList(hdr.ID); break;
+				case PPVCMD_ADDREL:         ok = AddRelation(hdr.ID); break;
+				case PPVCMD_PRINT:          ok = Print(0); break;
+				case PPVCMD_TOTAL:          
+					ok = -1;
+					ViewTotal(); 
+					break;
+				case PPVCMD_TASKS:          ok = ViewTasks(hdr.ID); break;
+				case PPVCMD_TRANSMIT:       ok = Transmit(hdr.ID, 0); break;
+				case PPVCMD_TRANSMKIND:     ok = Transmit(hdr.ID, 1); break;
+				case PPVCMD_EXPORTVCARD:    ok = Transmit(hdr.ID, 2); break;
+				case PPVCMD_EXPORTUHTT:     ok = ExportUhtt(); break;
+				case PPVCMD_RMVHANGEDITEMS: ok = RemoveHangedAddr(); break;
+				case PPVCMD_DORECOVER:      ok = Recover(); break;
+			}
 		}
 	}
+	// @v12.5.12 {
+	if(ok > 0 && IsInMemView()) {
+		AryBrowserDef * p_def = pBrw ? static_cast<AryBrowserDef *>(pBrw->getDef()) : 0;
+		if(p_def) {
+			LongArray id_list;
+			PPID   last_id = 0;
+			if(GetLastUpdatedObjects(hdr.ID, id_list) > 0) {
+				for(uint i = 0; i < id_list.getCount(); i++) {
+					last_id = id_list.get(i);
+					if(ppvCmd == PPVCMD_ADDITEM) {
+						AddTempRec(last_id, 0, 1);
+					}
+					PsnObj.Dirty(last_id);
+				}
+			}
+			if(last_id) {
+				{
+					SArray * p_array = new SArray(sizeof(InternalViewItem));
+					if(p_array) {
+						for(uint i = 0; i < InternalViewList.getCount(); i++) {
+							p_array->insert(&InternalViewList.at(i));
+						}
+					}
+					p_def->setArray(p_array, 0, 1);
+				}
+				if(ppvCmd != PPVCMD_DELETEITEM)
+					pBrw->search2(&last_id, CMPF_LONG, srchFirst, 0);
+			}
+		}
+	}
+	// } @v12.5.12 
 	return ok;
 }
 
@@ -4702,22 +4985,18 @@ int PPViewClientActivityDetails::_GetDataForBrowser(SBrowserDataProcBlock * pBlk
 			break;
 		case 1: // event
 			{
+				const char * p_tsymb = 0;
 				switch(p_item->Oid.Obj) {
-					case PPOBJ_BILL:
-						pBlk->Set(PPLoadStringS("document", SLS.AcquireRvlStr()));
-						break;
-					case PPOBJ_SCARD:
-						pBlk->Set(PPLoadStringS("scard", SLS.AcquireRvlStr()));
-						break;
-					case PPOBJ_CCHECK:
-						pBlk->Set(PPLoadStringS("poscheck", SLS.AcquireRvlStr()));
-						break;
-					case PPOBJ_PERSONEVENT:
-						pBlk->Set(PPLoadStringS("personevent", SLS.AcquireRvlStr()));
-						break;
-					default:
-						pBlk->Set("unexpected-event-source-object");
-						break;							
+					case PPOBJ_BILL: p_tsymb = "document"; break;
+					case PPOBJ_SCARD: p_tsymb = "scard"; break;
+					case PPOBJ_CCHECK: p_tsymb = "poscheck"; break;
+					case PPOBJ_PERSONEVENT: p_tsymb = "personevent"; break;
+				}
+				if(!isempty(p_tsymb)) {
+					pBlk->Set(PPLoadStringS(p_tsymb, SLS.AcquireRvlStr()));
+				}
+				else {
+					pBlk->Set("unexpected-event-source-object");
 				}
 			}
 			break;

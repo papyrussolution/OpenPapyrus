@@ -705,13 +705,14 @@ int AddrBookDialog::setupList()
 	int    ok = 1;
 	SString sub;
 	PPIDArray id_list;
+	StringSet ss(SLBColumnDelim);
 	PsnObj.GetAddrBookIDList(-1, &id_list);
 	for(uint i = 0; i < id_list.getCount(); i++) {
 		PPID   psn_id = id_list.at(i);
 		PersonTbl::Rec psn_rec;
 		if(PsnObj.Fetch(psn_id, &psn_rec) > 0) {
 			PPELinkArray el_list;
-			StringSet ss(SLBColumnDelim);
+			ss.Z();
 			ss.add(psn_rec.Name);
 			PsnObj.P_Tbl->GetELinks(psn_id, el_list);
 			el_list.GetPhones(1, sub, ELNKRT_EMAIL);

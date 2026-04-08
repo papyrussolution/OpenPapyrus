@@ -811,7 +811,7 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 	PPID   parent_struc_id = 0;
 	GoodsStrucProcessingBlock::ItemEntry brw_hdr;
 	if(ok == -2) {
-		if(pHdr && ppvCmd != PPVCMD_FOREIGNFOCUCNOTIFICATION) // @v11.1.12 PPVCMD_FOREIGNFOCUCNOTIFICATION
+		if(pHdr && ppvCmd != PPVCMD_FOREIGNFOCUCNOTIFICATION)
 			brw_hdr = *static_cast<const GoodsStrucProcessingBlock::ItemEntry *>(pHdr);
 		else
 			MEMSZERO(brw_hdr);
@@ -893,7 +893,7 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				ok = -1;
 				ViewTotal();
 				break;
-			case PPVCMD_TREEVIEW: // @v11.1.12 @construction
+			case PPVCMD_TREEVIEW:
 				ok = -1;
 				MakeTreeListView(pBrw);
 				break;
@@ -935,7 +935,7 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 					}
 				}
 				break;
-			case PPVCMD_FOREIGNFOCUCNOTIFICATION: // @v11.1.12
+			case PPVCMD_FOREIGNFOCUCNOTIFICATION:
 				{
 					ok = -1;
 					const ForeignFocusEvent * p_ev_data = static_cast<const ForeignFocusEvent *>(pHdr);
@@ -1033,7 +1033,8 @@ StrAssocTree * GoodsStrucTreeListViewBlock::MakeTree()
 		PPGoodsStrucHeader gs_rec;
 		for(uint sidx = 0; sidx < slc; sidx++) {
 			const GoodsStrucProcessingBlock::StrucEntry & r_se = Cb.StrucList.at(sidx);
-			if(r_se.ParentStrucID == 0) {
+			// @v12.5.12 if(r_se.ParentStrucID == 0) {
+			if(true) { // @v12.5.12
 				const  PPID gs_id = r_se.GStrucID;
 				SPtrHandle _ph = p_list->Search(gs_id);
 				if(!_ph) {
@@ -1042,7 +1043,7 @@ StrAssocTree * GoodsStrucTreeListViewBlock::MakeTree()
 						for(uint iidx = 0; iidx < Cb.ItemList.getCount(); iidx++) {
 							const GoodsStrucProcessingBlock::ItemEntry & r_ie = Cb.ItemList.at(iidx);
 							if(r_ie.GStrucID == gs_id) {
-								recur_list.Z(); // @v11.4.0
+								recur_list.Z();
 								AddEntry_TopDown(p_list, 0, iidx, r_ie, result, recur_list);
 							}
 						}
@@ -1299,7 +1300,7 @@ static int CopyTreeListToClipboard(const StrAssocTree * pData)
 	return ok;
 }
 
-int PPViewGoodsStruc::MakeTreeListView(PPViewBrowser * pBrw) // @v11.1.12 
+int PPViewGoodsStruc::MakeTreeListView(PPViewBrowser * pBrw)
 {
 	class GStrucListWindow : public ListWindow {
 	public:

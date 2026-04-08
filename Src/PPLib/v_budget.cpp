@@ -1560,8 +1560,8 @@ void PPViewBudget::ViewTotal()
 /*virtual*/int PPViewBudget::Print(const void * pHdr)
 {
 	int    ok = 1;
-	uint rpt_id = rpt_id = REPORT_BUDGET;
-	PPID budg_id = (Filt.Kind == BudgetFilt::kBudget) ? (pHdr ? *static_cast<const long *>(pHdr) : 0) : Filt.BudgetID;
+	uint   rpt_id = rpt_id = REPORT_BUDGET;
+	PPID   budg_id = (Filt.Kind == BudgetFilt::kBudget) ? (pHdr ? *static_cast<const long *>(pHdr) : 0) : Filt.BudgetID;
 	PPBudgetPacket pack;
 	if(budg_id && ObjBudg.GetPacket(budg_id, &pack) > 0) {
 		PPReportEnv env(0, 0);

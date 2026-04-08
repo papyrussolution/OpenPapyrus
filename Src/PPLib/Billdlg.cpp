@@ -622,7 +622,14 @@ private:
 	void   SetupInfoText(); // CTL_BILL_ST_SCARD
 	void   setupDebtText();
 	void   setupByCntragnt();
-	void   ReplyCntragntSelection(int force);
+	//
+	// Descr: Функция нужна чтобы не дублировать установка параметров соглашения при изменении либо основной, либо дополнительной 
+	//   статьи документа (соответственно, SetupObject и SetupObject2).
+	// ARG(arID IN): основная статья документа. 
+	//
+	int    SetupCommonAgreementFactors(PPID arID, const PPBillPacket::SetupObjectBlock & rSob, bool forceUpdate); // @v12.5.12 @construction
+	void   ReplyCntragntSelection(bool force);
+	void   ReplyObject2Selection(bool force); // @v12.5.12 аналог ReplyCntragntSelection ради правильной обработки автоматической смены привязанного документа соглашения!
 	void   setDiscount(double, int inPersent);
 	int    getDiscount(double * d, int * inPersent, int * rmvExcise);
 	void   SetupDiscountCtrls();
@@ -1082,9 +1089,9 @@ size_t PPLinkFile::Size() const
 
 int PPLinkFile::CopyTo(void ** ppBuf)
 {
-	const uint32 ext_len  = Ext.Len()  + 1;
-	const uint32 path_len = Path.Len() + 1;
-	const uint32 descr_len = Description.Len() + 1;
+	const  size_t ext_len  = Ext.Len()  + 1;
+	const  size_t path_len = Path.Len() + 1;
+	const  size_t descr_len = Description.Len() + 1;
 	char * p = static_cast<char *>(*ppBuf);
 	Flags &= ~PPLinkFile::fIsNew;
 	memcpy(p, &Id, sizeof(Id));
@@ -1853,8 +1860,9 @@ IMPL_HANDLE_EVENT(BillDialog)
 			editItems();
 		// Далее управление передается базовому классу
 	}
-	else if(event.isCmd(cmOK))
+	else if(event.isCmd(cmOK)) {
 		CalcAmounts();
+	}
 	if(!(TVKEYDOWN && TVKEY == KB_CTRLENTER)) {
 		//
 		// Функция PPListDialog::handleEvent обрабатывает F11 как cmOK.
@@ -1868,14 +1876,18 @@ IMPL_HANDLE_EVENT(BillDialog)
 		CalcAmounts();
 	}
 	else if(event.isCbSelected(CTLSEL_BILL_OBJECT)) {
-		ReplyCntragntSelection(0);
+		ReplyCntragntSelection(false);
 	}
 	else if(event.isCbSelected(CTLSEL_BILL_OBJ2)) {
+		ReplyObject2Selection(false); // @v12.5.12
+		/* @v12.5.12
 		const  PPID ar_id = getCtrlLong(CTLSEL_BILL_OBJ2);
-		if(!P_Pack->SetupObject2(ar_id)) {
+		PPBillPacket::SetupObjectBlock sob;
+		if(!P_Pack->SetupObject2(ar_id, &sob)) {
 			PPError();
 			setCtrlLong(CTLSEL_BILL_OBJ2, P_Pack->Rec.Object2);
 		}
+		*/
 	}
 	else if(event.isCbSelected(CTLSEL_BILL_CUR)) {
 		if(P_Pack->GetTCount()) {
@@ -1929,7 +1941,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 							PPViewBill bill_view;
 							if(bill_view.Init_(&bill_filt)) {
 								if(bill_view.Browse(false) > 0) {
-									PPID bill_id = ((BillFilt*)bill_view.GetBaseFilt())->Sel;
+									const  PPID bill_id = static_cast<const BillFilt *>(bill_view.GetBaseFilt())->Sel;
 									BillTbl::Rec bill_rec;
 									if(P_BObj->Search(bill_id, &bill_rec) > 0) {
 										P_Pack->Rec.LinkBillID = bill_id;
@@ -1938,7 +1950,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 											// Приходится использовать SetupArCombo поскольку из-за OLW_LOADDEFONOPEN
 											// setCtrlLong не установит значение.
 											SetupArCombo(this, CTLSEL_BILL_OBJECT, P_Pack->Rec.Object, OLW_LOADDEFONOPEN|OLW_CANINSERT, P_Pack->AccSheetID, sacfNonGeneric);
-											ReplyCntragntSelection(1);
+											ReplyCntragntSelection(true);
 										}
 										const double amt = getCtrlReal(CTL_BILL_AMOUNT);
 										if(amt == 0.0) {
@@ -1947,13 +1959,10 @@ IMPL_HANDLE_EVENT(BillDialog)
 											if(paym < bill_rec.Amount)
 												setCtrlReal(CTL_BILL_AMOUNT, bill_rec.Amount - paym);
 										}
-										// @v11.1.12 getCtrlData(CTL_BILL_MEMO, P_Pack->Rec.Memo);
-										// @v11.1.12 P_Pack->Rec.Memo[0] = 0;
-										getCtrlString(CTL_BILL_MEMO, P_Pack->SMemo); // @v11.1.12
-										P_Pack->SMemo.Z(); // @v11.1.12
+										getCtrlString(CTL_BILL_MEMO, P_Pack->SMemo);
+										P_Pack->SMemo.Z();
 										P_BObj->SubstMemo(P_Pack);
-										// @v11.1.12 setCtrlData(CTL_BILL_MEMO, P_Pack->Rec.Memo);
-										setCtrlString(CTL_BILL_MEMO, P_Pack->SMemo); // @v11.1.12 
+										setCtrlString(CTL_BILL_MEMO, P_Pack->SMemo);
 										{
 											SString text;
 											SetButtonText(cmLinkedBill, PPLoadStringS("but_linkbill", text).Transf(CTRANSF_INNER_TO_OUTER));
@@ -2164,6 +2173,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 								}
 							}
 							break;
+						/* @v12.5.12 этот участок вообще не работает - функция перехватывается и реализуется на уровне ArticleCtrlGroup
 						case CTLSEL_BILL_OBJECT:
 						case CTL_BILL_OBJECT:
 							{
@@ -2179,6 +2189,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 								}
 							}
 							break;
+						*/
 						case CTL_BILL_PAYDATE:
 							if(PaymTerm >= 0) {
 								// @v12.1.12 getCtrlData(CTL_BILL_DATE, &P_Pack->Rec.Dt);
@@ -2193,8 +2204,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 						case CTL_BILL_MEMO:
 							getDTS(0);
 							P_BObj->SubstMemo(P_Pack);
-							// @v11.1.12 setCtrlData(CTL_BILL_MEMO, P_Pack->Rec.Memo);
-							setCtrlString(CTL_BILL_MEMO, P_Pack->SMemo); // @v11.1.12
+							setCtrlString(CTL_BILL_MEMO, P_Pack->SMemo);
 							break;
 						case CTL_BILL_LNKFILELIST:
 							if(P_Pack && P_Pack->LnkFiles.getCount() && SmartListBox::IsValidS(P_Box) && P_Pack->LnkFiles.EditDescr(P_Box->P_Def->_curItem()))
@@ -2289,7 +2299,7 @@ void BillDialog::setupByCntragnt()
 	if(ar_id) {
 		ArticleTbl::Rec ar_rec;
 		if(ArObj.Fetch(ar_id, &ar_rec) > 0) {
-			const  int    agt_kind = PPObjArticle::GetAgreementKind(&ar_rec);
+			const  int agt_kind = PPObjArticle::GetAgreementKind(&ar_rec);
 			PPClientAgreement cli_agt;
 			if(agt_kind == 1 && ArObj.GetClientAgreement(ar_id, cli_agt, 1) > 0)
 				CliAgt = cli_agt;
@@ -2326,38 +2336,55 @@ void BillDialog::setupByCntragnt()
 	setupDebtText();
 }
 
-void BillDialog::ReplyCntragntSelection(int force)
+void BillDialog::ReplyObject2Selection(bool force) // @v12.5.12 @construction
 {
-	P_Pack->AgtQuotKindID = 0;
-	PaymTerm = -1; // Срок оплаты по документу (в днях), взятый из соглашения //
-	PayDateBase = 0;
-	SString add_msg;
-	const  PPID client_id = force ? P_Pack->Rec.Object : getCtrlLong(CTLSEL_BILL_OBJECT);
-	const  bool to_force_update = ((force && client_id) || client_id != P_Pack->Rec.Object);
-	if(P_Pack->SampleBillID)
-		P_BObj->SetupQuot(P_Pack, client_id);
+	const  PPID preserve_ar2_id = P_Pack->Rec.Object2;
+	const  PPID preserve_agt_id = P_Pack->Rec.AgtBillID;
+	const  PPID ar2_id = force ? P_Pack->Rec.Object2 : getCtrlLong(CTLSEL_BILL_OBJ2);
+	const  PPID ar_id = P_Pack->Rec.Object;
+	const  bool to_force_update = ((force && ar2_id) || ar2_id != P_Pack->Rec.Object2);
 	PPBillPacket::SetupObjectBlock sob;
-	if(P_Pack->SetupObject(client_id, sob)) {
-		assert(client_id > 0);
+	THROW(P_Pack->SetupObject2(ar2_id, &sob));
+	if(P_Pack->Rec.AgtBillID != preserve_agt_id) {
+		THROW(SetupCommonAgreementFactors(ar_id/*!здесь - основная статья*/, sob, to_force_update)); // @v12.5.12
+	}
+	CATCH
+		P_Pack->Rec.Object2 = preserve_ar2_id;
+		PPError();
+	ENDCATCH
+}
+
+int BillDialog::SetupCommonAgreementFactors(PPID arID, const PPBillPacket::SetupObjectBlock & rSob, bool forceUpdate) // @v12.5.12 @construction
+{
+	int    ok = 1;
+	SString add_msg;
+	{
 		PPID   agent_id = 0; // Агент, взятый из соглашения, которого следует установить в документ
-		if(Flags & fCheckCreditLim && to_force_update) {
+		if(Flags & fCheckCreditLim && forceUpdate) {
 			CurrDebt = 0.0;
 			CDebtList.clear();
 		}
-		if(sob.State & PPBillPacket::SetupObjectBlock::stHasCliAgreement) {
-			if(!(sob.CliAgt.Flags & AGTF_DEFAULT))
-				agent_id = sob.CliAgt.DefAgentID;
+		if(Flags & fSetupObj2ByCliAgt && CliAgt.ExtObjectID) { // Флаг fSetupObj2ByCliAgt устанавливается на основе информации о виде операции //
+			//
+			// @todo Этот блок требует значительного переосмысления и доработки: фактически здесь вероятно изменение соглашения и
+			// параметры rSob должны быть пересмотрены с учетом sob_ext
+			//
+			PPBillPacket::SetupObjectBlock sob_ext;
+			THROW(P_Pack->SetupObject2(CliAgt.ExtObjectID, &sob_ext));
+			setCtrlLong(CTLSEL_BILL_OBJ2, P_Pack->Rec.Object2);
+		}
+		if(rSob.State & PPBillPacket::SetupObjectBlock::stHasCliAgreement) {
+			if(!(rSob.CliAgt.Flags & AGTF_DEFAULT))
+				agent_id = rSob.CliAgt.DefAgentID;
 			if(P_Pack->Rec.Flags & BILLF_NEEDPAYMENT) {
-				PaymTerm = sob.CliAgt.DefPayPeriod;
-				PayDateBase = sob.CliAgt.PaymDateBase;
+				PaymTerm = rSob.CliAgt.DefPayPeriod;
+				PayDateBase = rSob.CliAgt.PaymDateBase;
 			}
-			CliAgt = sob.CliAgt;
-			if(Flags & fCheckCreditLim && to_force_update) {
-				ushort v;
-				double dis;
+			CliAgt = rSob.CliAgt;
+			if(Flags & fCheckCreditLim && forceUpdate) {
 				if(!(P_Pack->Rec.Flags & BILLF_TOTALDISCOUNT)) {
-					dis = CliAgt.Dscnt;
-					v   = BIN(dis != 0.0);
+					double dis = CliAgt.Dscnt;
+					ushort v   = BIN(dis != 0.0);
 					setDiscount(dis, v);
 					setCtrlUInt16(CTL_BILL_TTLDISCOUNT, v);
 					SetupDiscountCtrls();
@@ -2368,7 +2395,7 @@ void BillDialog::ReplyCntragntSelection(int force)
 					int * p_has_matured_debt = (P_BObj->Cfg.Flags & BCF_WARNMATCLIDEBT) ? &has_matured_debt : 0;
 					DateRange cdp;
 					PPObjBill::DebtBlock blk;
-					P_BObj->CalcClientDebt(client_id, P_BObj->GetDefaultClientDebtPeriod(cdp), 1, blk);
+					P_BObj->CalcClientDebt(arID, P_BObj->GetDefaultClientDebtPeriod(cdp), 1, blk);
 					ASSIGN_PTR(p_has_matured_debt, blk.HasMatured);
 					CurrDebt = blk.Debt;
 					blk.GetDimList(CDebtList);
@@ -2379,109 +2406,136 @@ void BillDialog::ReplyCntragntSelection(int force)
 		}
 		else {
 			CliAgt.Z();
-			if(sob.State & PPBillPacket::SetupObjectBlock::stHasSupplAgreement) {
-				if(!(sob.SupplAgt.Flags & AGTF_DEFAULT))
-					agent_id = sob.SupplAgt.DefAgentID;
+			if(rSob.State & PPBillPacket::SetupObjectBlock::stHasSupplAgreement) {
+				if(!(rSob.SupplAgt.Flags & AGTF_DEFAULT))
+					agent_id = rSob.SupplAgt.DefAgentID;
 				if(P_Pack->Rec.Flags & BILLF_NEEDPAYMENT) {
-					PaymTerm = sob.SupplAgt.DefPayPeriod;
+					PaymTerm = rSob.SupplAgt.DefPayPeriod;
 					PayDateBase = 0;
 				}
 			}
 		}
-		if(agent_id && !P_Pack->Ext.AgentID && GetAgentAccSheet())
+		if(agent_id && !P_Pack->Ext.AgentID && GetAgentAccSheet()) {
 			P_Pack->Ext.AgentID = agent_id;
-		if(Flags & fSetupObj2ByCliAgt) {
-			if(P_Pack->SetupObject2(CliAgt.ExtObjectID)) {
-				setCtrlLong(CTLSEL_BILL_OBJ2, P_Pack->Rec.Object2);
-			}
 		}
-		if(Flags & fCheckAgreement && (P_BObj->Cfg.Flags & BCF_WARNAGREEMENT) && client_id) {
+		if(Flags & fCheckAgreement && (P_BObj->Cfg.Flags & BCF_WARNAGREEMENT) && arID) {
 			if(P_Pack->OpTypeID != PPOPT_AGREEMENT) { // @v12.5.10 Нет смысла в такой диагностике в случае документа соглашения.
-				if(!(sob.State & PPBillPacket::SetupObjectBlock::stHasCliAgreement) || sob.CliAgt.Flags & AGTF_DEFAULT) {
-					PPMessage(mfInfo|mfOK, PPINF_ARHASNTAGREEMENT, sob.Name);
+				if(!(rSob.State & PPBillPacket::SetupObjectBlock::stHasCliAgreement) || rSob.CliAgt.Flags & AGTF_DEFAULT) {
+					PPMessage(mfInfo|mfOK, PPINF_ARHASNTAGREEMENT, rSob.Name);
 				}
-				else if(sob.CliAgt.Expiry < P_Pack->Rec.Dt) {
-					add_msg.Z().Cat(sob.Name).CatDiv('-', 1).Cat(sob.CliAgt.Expiry, DATF_DMY|DATF_CENTURY);
+				else if(rSob.CliAgt.Expiry < P_Pack->Rec.Dt) {
+					add_msg.Z().Cat(rSob.Name).CatDiv('-', 1).Cat(rSob.CliAgt.Expiry, DATF_DMY|DATF_CENTURY);
 					PPMessage(mfInfo|mfOK, PPINF_ARHASEXPIREDAGREEMENT, add_msg);
 				}
 			}
 		}
-		if(to_force_update && PaymTerm >= 0) {
+		if(forceUpdate && PaymTerm >= 0) {
 			if(P_Pack->Rec.Flags & BILLF_NEEDPAYMENT || P_Pack->OpTypeID == PPOPT_GOODSORDER) {
 				P_Pack->SetupDefaultPayDate(PaymTerm, PayDateBase);
 				SetupPaymDateCtrls();
 			}
 		}
-		if(P_Pack->P_PaymOrder && !force && sob.PsnID != P_Pack->P_PaymOrder->RcvrID) {
-			if(PPMessage(mfConf|mfYesNo, PPCFM_UPDATEBNKPAYMRCVR) == cmYes)
-				editPaymOrder(1);
+	}
+	CATCHZOK
+	return ok;
+}
+
+void BillDialog::ReplyCntragntSelection(bool force)
+{
+	P_Pack->AgtQuotKindID = 0;
+	PaymTerm = -1; // Срок оплаты по документу (в днях), взятый из соглашения //
+	PayDateBase = 0;
+	SString add_msg;
+	const  PPID client_id = force ? P_Pack->Rec.Object : getCtrlLong(CTLSEL_BILL_OBJECT);
+	const  bool to_force_update = ((force && client_id) || client_id != P_Pack->Rec.Object);
+	if(P_Pack->SampleBillID)
+		P_BObj->SetupQuot(P_Pack, client_id);
+	PPBillPacket::SetupObjectBlock sob;
+	if(!P_Pack->SetupObject(client_id, sob)) {
+		if(PPErrCode == PPERR_DENYSTOPPEDAR)
+			P_Pack->Rec.Object = 0;
+		PPError();
+	}
+	else {
+		assert(client_id > 0);
+		// @v12.5.12
+		// Тут был значительный участок кода, который инкапуслирован в SetupCommonAgreementFactors с целью унифицировать 
+		// соответствующее поведение при изменени соглашения при смене либо основной либо дополнительной статьи документа.
+		if(!SetupCommonAgreementFactors(client_id, sob, to_force_update)) {
+			PPError();
 		}
-		if(sob.RegInfoList.getCount()) {
-			PPObjRegister reg_obj;
-			RegisterTbl::Rec reg_rec;
-			StringSet ss(SLBColumnDelim);
-			TDialog * dlg = new TDialog(DLG_EXPIRYREG);
-			if(CheckDialogPtr(&dlg)) {
-				SetupStrListBox(dlg, CTL_EXPIRYREG_LIST);
-				SmartListBox * p_list = static_cast<SmartListBox *>(dlg->getCtrlView(CTL_EXPIRYREG_LIST));
-				if(p_list) {
-					p_list->freeAll();
-					for(uint i = 0; i < sob.RegInfoList.getCount(); i++) {
-						const LAssoc & r_item = sob.RegInfoList.at(i);
-						GetRegisterTypeName(r_item.Key, add_msg);
-						ss.Z().add(add_msg);
-						if(r_item.Val && reg_obj.Search(r_item.Val, &reg_rec) > 0) {
-							ss.add(reg_rec.Serial);
-							ss.add(reg_rec.Num);
-						}
-						else {
-							ss.add(0);
-							PPLoadString("absence", add_msg);
-							ss.add(add_msg);
-						}
-						p_list->addItem(i+1, ss.getBuf());
-					}
-					p_list->Draw_();
-					GetPersonName(sob.PsnID, add_msg);
-					dlg->setStaticText(CTL_EXPIRYREG_PSNTEXT, add_msg);
-				}
-				ExecViewAndDestroy(dlg);
+		else {
+			if(P_Pack->P_PaymOrder && !force && sob.PsnID != P_Pack->P_PaymOrder->RcvrID) {
+				if(PPMessage(mfConf|mfYesNo, PPCFM_UPDATEBNKPAYMRCVR) == cmYes)
+					editPaymOrder(1);
 			}
-		}
-		if(client_id) {
-			const uint tcount = P_Pack->GetTCount();
-			if(tcount) {
-				if(P_Pack->AccSheetID == GetSupplAccSheet()) {
-					if(P_Pack->OpTypeID == PPOPT_GOODSRECEIPT) {
-						bool is_there_force_suppl = false;
-						{
-							for(uint i = 0; !is_there_force_suppl && i < tcount; i++) {
-								PPTransferItem & r_ti = P_Pack->TI(i);
-								if(r_ti.Flags & PPTFR_FORCESUPPL)
-									is_there_force_suppl = true;
+			if(sob.RegInfoList.getCount()) {
+				PPObjRegister reg_obj;
+				RegisterTbl::Rec reg_rec;
+				StringSet ss(SLBColumnDelim);
+				TDialog * dlg = new TDialog(DLG_EXPIRYREG);
+				if(CheckDialogPtr(&dlg)) {
+					SetupStrListBox(dlg, CTL_EXPIRYREG_LIST);
+					SmartListBox * p_list = static_cast<SmartListBox *>(dlg->getCtrlView(CTL_EXPIRYREG_LIST));
+					if(p_list) {
+						p_list->freeAll();
+						for(uint i = 0; i < sob.RegInfoList.getCount(); i++) {
+							const LAssoc & r_item = sob.RegInfoList.at(i);
+							GetRegisterTypeName(r_item.Key, add_msg);
+							ss.Z().add(add_msg);
+							if(r_item.Val && reg_obj.Search(r_item.Val, &reg_rec) > 0) {
+								ss.add(reg_rec.Serial);
+								ss.add(reg_rec.Num);
+							}
+							else {
+								ss.add(0);
+								PPLoadString("absence", add_msg);
+								ss.add(add_msg);
+							}
+							p_list->addItem(i+1, ss.getBuf());
+						}
+						p_list->Draw_();
+						GetPersonName(sob.PsnID, add_msg);
+						dlg->setStaticText(CTL_EXPIRYREG_PSNTEXT, add_msg);
+					}
+					ExecViewAndDestroy(dlg);
+				}
+			}
+			if(client_id) {
+				const uint tcount = P_Pack->GetTCount();
+				if(tcount) {
+					if(P_Pack->AccSheetID == GetSupplAccSheet()) {
+						if(P_Pack->OpTypeID == PPOPT_GOODSRECEIPT) {
+							bool is_there_force_suppl = false;
+							{
+								for(uint i = 0; !is_there_force_suppl && i < tcount; i++) {
+									PPTransferItem & r_ti = P_Pack->TI(i);
+									if(r_ti.Flags & PPTFR_FORCESUPPL)
+										is_there_force_suppl = true;
+								}
+							}
+							if(is_there_force_suppl && CONFIRM(PPCFM_REPLCTIFORCESUPPL)) {
+								for(uint i = 0; i < tcount; i++) {
+									PPTransferItem & r_ti = P_Pack->TI(i);
+									if(r_ti.Flags & PPTFR_FORCESUPPL)
+										r_ti.Flags &= ~PPTFR_FORCESUPPL;
+								}
 							}
 						}
-						if(is_there_force_suppl && CONFIRM(PPCFM_REPLCTIFORCESUPPL)) {
+						else if(P_Pack->OpTypeID == PPOPT_DRAFTRECEIPT) { // @v12.0.8
+							//
+							// В случае, если мы устанавливаем поставщика в драфт-приходе и в какой-то строке цена поступления не определена,
+							// то применяем в этом случае контрактную цену поставщика (если такая есть)
+							//
 							for(uint i = 0; i < tcount; i++) {
 								PPTransferItem & r_ti = P_Pack->TI(i);
-								if(r_ti.Flags & PPTFR_FORCESUPPL)
-									r_ti.Flags &= ~PPTFR_FORCESUPPL;
-							}
-						}
-					}
-					else if(P_Pack->OpTypeID == PPOPT_DRAFTRECEIPT) { // @v12.0.8
-						//
-						// В случае, если мы устанавливаем поставщика в драфт-приходе и в какой-то строке цена поступления не определена,
-						// то применяем в этом случае контрактную цену поставщика (если такая есть)
-						//
-						for(uint i = 0; i < tcount; i++) {
-							PPTransferItem & r_ti = P_Pack->TI(i);
-							if(r_ti.Cost == 0.0) {
-								QuotIdent qi(P_Pack->Rec.LocID, 0, P_Pack->Rec.CurID, client_id);
-								PPSupplDeal sd;
-								GObj.GetSupplDeal(r_ti.GoodsID, qi, &sd, 1);
-								if(!sd.IsDisabled && sd.Cost > 0) {
-									r_ti.Cost = sd.Cost;
+								if(r_ti.Cost == 0.0) {
+									QuotIdent qi(P_Pack->Rec.LocID, 0, P_Pack->Rec.CurID, client_id);
+									PPSupplDeal sd;
+									GObj.GetSupplDeal(r_ti.GoodsID, qi, &sd, 1);
+									if(!sd.IsDisabled && sd.Cost > 0) {
+										r_ti.Cost = sd.Cost;
+									}
 								}
 							}
 						}
@@ -2489,11 +2543,6 @@ void BillDialog::ReplyCntragntSelection(int force)
 				}
 			}
 		}
-	}
-	else {
-		if(PPErrCode == PPERR_DENYSTOPPEDAR)
-			P_Pack->Rec.Object = 0;
-		PPError();
 	}
 	// @v11.7.7 {
 	bool do_reset_scard = false;
@@ -2695,12 +2744,14 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 		if(P_Pack->Rec.LinkBillID == 0) {
 			SetButtonText(cmLinkedBill, PPLoadStringS("but_dolinkbill", temp_buf).Transf(CTRANSF_INNER_TO_OUTER));
 		}
-		else
-			enableCommand(cmLinkedBill, 1);
+		else {
+			enableCommand(cmLinkedBill, true);
+		}
 	}
-	else
-		enableCommand(cmLinkedBill, BIN(P_Pack->Rec.LinkBillID));
-	enableCommand(cmReckonBill, BIN(P_Pack->PaymBillID));
+	else {
+		enableCommand(cmLinkedBill, LOGIC(P_Pack->Rec.LinkBillID));
+	}
+	enableCommand(cmReckonBill, LOGIC(P_Pack->PaymBillID));
 	{
 		const int sqs = oneof2(P_Pack->Rec.OpID, PPOPK_EDI_STOCK, PPOPK_EDI_SHOPCHARGEON) ? -1 : 0;
 		P_Pack->SetQuantitySign(sqs);
@@ -2771,7 +2822,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	}
 	SetupInfoText();
 	{
-		int r = setupDebt();
+		const  int r = setupDebt();
 		THROW(r);
 		if(r > 0)
 			dsbl_object = false;
@@ -2870,9 +2921,9 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	showButton(cmEdiAckBill, false);
 	showButton(cmDetail, (P_Pack->OpTypeID != PPOPT_AGREEMENT));
 	if(getCtrlView(CTL_BILL_EDIACKRESP)) {
-		const int recadv_status = BillCore::GetRecadvStatus(P_Pack->Rec);
+		const  int recadv_status = BillCore::GetRecadvStatus(P_Pack->Rec);
         if(recadv_status) {
-			int    recadv_conf_status = BillCore::GetRecadvConfStatus(P_Pack->Rec);
+			const  int recadv_conf_status = BillCore::GetRecadvConfStatus(P_Pack->Rec);
 			AddClusterAssocDef(CTL_BILL_EDIACKRESP, 0, PPEDI_RECADVCONF_STATUS_UNDEF);
 			AddClusterAssoc(CTL_BILL_EDIACKRESP, 1, PPEDI_RECADVCONF_STATUS_ACCEPT);
 			AddClusterAssoc(CTL_BILL_EDIACKRESP, 2, PPEDI_RECADVCONF_STATUS_REJECT);
@@ -2890,16 +2941,16 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 			showCtrl(CTL_BILL_EDIACKRESP, true);
 			showCtrl(CTL_BILL_EDIACKSTATUS, true);
 			if(recadv_status == PPEDI_RECADV_STATUS_PARTACCEPT)
-				showButton(cmEdiAckBill, 1);
+				showButton(cmEdiAckBill, true);
         }
 	}
 	if(P_Pack->Rec.ID == 0 && P_Pack->Rec.Object)
-		ReplyCntragntSelection(1);
+		ReplyCntragntSelection(true);
 	else {
 		setupByCntragnt();
 		setupParentOfContragent();
 	}
-	SetupMarks(); // @v11.3.1
+	SetupMarks();
 	CATCHZOK
 	return ok;
 }
@@ -3618,7 +3669,6 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 				else
 					disableCtrl(CTL_FREIGHT_TRTYP, false);
 			}
-			// @v11.2.9 {
 			else if(event.isCbSelected(CTLSEL_FREIGHT_DLVRLOC)) { 
 				Data.PortOfDischarge = getCtrlLong(CTLSEL_FREIGHT_ARRIVLOC);
 				const  PPID dlvr_loc_id = getCtrlLong(CTLSEL_FREIGHT_DLVRLOC);
@@ -3626,13 +3676,10 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 				if(!sdar) {
 					PPError();
 				}
-				// @v11.3.2 {	
 				else if(sdar == 2) {
 					setCtrlLong(CTLSEL_FREIGHT_ARRIVLOC, Data.PortOfDischarge);
 				}
-				// } @v11.3.2
 			}
-			// } @v11.2.9 
 			else if(event.isClusterClk(CTL_FREIGHT_TRTYP)) {
 				GetClusterData(CTL_FREIGHT_TRTYP, &Data.TrType);
 				SetupPPObjCombo(this, CTLSEL_FREIGHT_SHIP, PPOBJ_TRANSPORT, 0, OLW_CANINSERT|OLW_WORDSELECTOR, reinterpret_cast<void *>(Data.TrType));
