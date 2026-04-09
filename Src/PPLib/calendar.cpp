@@ -1459,7 +1459,8 @@ static INT_PTR CALLBACK PeriodWndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 			if(pc && pc->P_Dlg && pc->DateCtlID) {
 				HWND   h_ctl = GetDlgItem(pc->P_Dlg->H(), pc->DateCtlID);
 				if(h_ctl) {
-					RECT   rect, this_rect;
+					RECT   rect;
+					RECT   this_rect;
 					GetWindowRect(h_ctl, &rect);
 					GetWindowRect(hWnd, &this_rect);
 					int    sizey = this_rect.bottom - this_rect.top;
@@ -1675,7 +1676,35 @@ int PPExecSupplementWindow(int supplementKind, void * hParentWnd, uint linkCtlId
 		}
 	}
 	if(oneof3(supplementKind, SUiCtrlSupplement::kDateCalendar, SUiCtrlSupplement::kDateRangeCalendar, SUiCtrlSupplement::kTime)) {
-		ok = SCalendarPicker::Exec(supplementKind, p_parent, linkCtlId, &data);
+		// @v12.5.12 {
+		const  bool use_new_calendar = !(APPL->GetUiSettings().Flags & UserInterfaceSettings::fDateTimePickerBefore1124);
+		if(use_new_calendar || (supplementKind == SUiCtrlSupplement::kTime)) {
+			ok = SCalendarPicker::Exec(supplementKind, p_parent, linkCtlId, &data);
+		}
+		else {
+			if(supplementKind == SUiCtrlSupplement::kDateCalendar) {
+				TDateCalendar * p_pc = new TDateCalendar(0, 0);
+				if(p_pc) {
+					p_pc->setDTS(data.Dtm.d);
+					p_pc->ShowCalendar(static_cast<HWND>(hParentWnd));
+					if(p_pc->GetRetCmd() == cmOK) {
+						p_pc->getDTS(&data.Dtm.d);
+						ok = 1;
+					}
+					delete p_pc;
+				}
+			}
+			else if(supplementKind == SUiCtrlSupplement::kDateRangeCalendar) {
+				TPeriodCalendar * pc = new TPeriodCalendar(p_parent, linkCtlId);
+				if(pc) {
+					pc->Show();
+					delete pc;
+				}
+				// Здесь не следует возвращать >0 поскольку pc->Show() сама установит период в поле ввода
+			}
+		}
+		// } @v12.5.12 
+		// @v12.5.12 ok = SCalendarPicker::Exec(supplementKind, p_parent, linkCtlId, &data);
 		if(ok > 0)
 			ASSIGN_PTR(pData, data);
 	}
@@ -1694,7 +1723,7 @@ int PPExecSupplementWindow(int supplementKind, void * hParentWnd, uint linkCtlId
 
 int ExecDateCalendar(void * hParentWnd, LDATE * pDate)
 {
-	const bool use_new_calendar = !(APPL->GetUiSettings().Flags & UserInterfaceSettings::fDateTimePickerBefore1124);
+	const  bool use_new_calendar = !(APPL->GetUiSettings().Flags & UserInterfaceSettings::fDateTimePickerBefore1124);
 	int    ok = -1;
 	if(use_new_calendar) {
 		SUiCtrlSupplement::DataBlock data;
@@ -1827,7 +1856,7 @@ static void STDCALL SetupCalCtrl(int buttCtlID, TDialog * pDlg, uint editCtlID, 
 					return 0;
 				case WM_LBUTTONUP:
 					{
-						const bool use_new_calendar = !(APPL->GetUiSettings().Flags & UserInterfaceSettings::fDateTimePickerBefore1124);
+						const  bool use_new_calendar = !(APPL->GetUiSettings().Flags & UserInterfaceSettings::fDateTimePickerBefore1124);
 						if(p_cbwe->CalType) {
 							if(use_new_calendar) {
 								// @v12.4.6 SCalendarPicker::Exec(SUiCtrlSupplement::kDateRangeCalendar, p_cbwe->Dlg, p_cbwe->EditID, 0);

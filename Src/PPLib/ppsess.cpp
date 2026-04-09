@@ -2233,7 +2233,7 @@ static void FpeCatcher(int sig, int fpe)
 
 int PPCallHelp(void * hWnd, uint cmd, uint ctx); // @prototype(pptvutil.cpp)
 //@v12.3.7 int ExecDateCalendar(void * hParentWnd, LDATE * pDate); // @prototype(calendar.cpp)
-int PPExecSupplementWindow(int supplementKind, void * hParentWnd, uint linkCtlId, SUiCtrlSupplement::DataBlock * pData); // @v12.3.7 // @prototype(calendar.cpp)
+int    PPExecSupplementWindow(int supplementKind, void * hParentWnd, uint linkCtlId, SUiCtrlSupplement::DataBlock * pData); // @v12.3.7 // @prototype(calendar.cpp)
 void * PPFindSupplementWindow(int supplementKind, void * hParentWnd, uint linkCtlId); // @v12.4.7 // @prototype(calendar.cpp)
 static int PPLoadStringFunc(const char * pSignature, SString & rBuf) { return PPLoadString(pSignature, rBuf); }
 static int PPExpandStringFunc(SString & rBuf, int ctransf) { return PPExpandString(rBuf, ctransf); }

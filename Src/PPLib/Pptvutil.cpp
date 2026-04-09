@@ -6832,7 +6832,7 @@ void SetupTimePicker(TDialog * pDlg, uint editCtlID, int buttCtlID)
 					return 0;
 				case WM_LBUTTONUP:
 					{
-						const bool use_new_calendar = !(APPL->GetUiSettings().Flags & UserInterfaceSettings::fDateTimePickerBefore1124);						
+						const  bool use_new_calendar = !(APPL->GetUiSettings().Flags & UserInterfaceSettings::fDateTimePickerBefore1124);
 						if(use_new_calendar) 
 							SCalendarPicker::Exec(SUiCtrlSupplement::kTime, p_cbwe->Dlg, p_cbwe->EditID, 0);
 						else {

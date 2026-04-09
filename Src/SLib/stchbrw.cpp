@@ -1277,8 +1277,10 @@ int STimeChunkBrowser::ProcessDblClk(SPoint2S p)
 				*/ 
 				SUiCtrlSupplement::DataBlock dblk;
 				dblk.Dtm.d = dt;
-				if(epb.F_UiSupplementWindow && epb.F_UiSupplementWindow(SUiCtrlSupplement::kDateCalendar, H(), 0, &dblk) > 0) {
-					ok = SetupDate(dblk.Dtm.d);
+				if(epb.F_UiSupplementWindow) {
+					const  int swr = epb.F_UiSupplementWindow(SUiCtrlSupplement::kDateCalendar, H(), 0, &dblk);
+					if(swr > 0)
+						ok = SetupDate(dblk.Dtm.d);
 				}
 				// } @v12.3.7 
 			}

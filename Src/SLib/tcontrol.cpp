@@ -803,7 +803,8 @@ void TButton::Press()
 						}
 						if(is_data_type_valid) {
 							done = true;
-							if(epb.F_UiSupplementWindow(SupplementRole, P_Owner, SupplementLinkCtrlId, &dblk) > 0) {
+							const   int swr = epb.F_UiSupplementWindow(SupplementRole, P_Owner, SupplementLinkCtrlId, &dblk);
+							if(swr > 0) {
 								//ok = SetupDate(dblk.Dtm.d);
 								if(SupplementRole == SUiCtrlSupplement::kDateCalendar) {
 									if(il_type_id == T_DATE) {
