@@ -3790,8 +3790,8 @@ int PPBillImporter::Import(int useTa)
 							ss_chzn_mark.Z();
 							ss_egais_mark.Z();
 							for(uint uidx = 0; uidx < unite_pos_list.getCount(); uidx++) {
-								const uint upos = unite_pos_list.get(uidx);
-								const Sdr_BRow & r_u_row = BillsRows.at(upos);
+								const  uint upos = unite_pos_list.get(uidx);
+								const  Sdr_BRow & r_u_row = BillsRows.at(upos);
 								quantity += r_u_row.Quantity;
 								pckg_quantity += r_u_row.PckgQtty;
 								ph_quantity += r_u_row.PhQtty;
@@ -3823,7 +3823,7 @@ int PPBillImporter::Import(int useTa)
 								}
 							}
 							ilti.Setup(r_row.GoodsID, -1, /*r_row.Quantity*/quantity, r_row.Cost, r_row.Price);
-							const int rconv = P_BObj->ConvertILTI(&ilti, &pack, 0, ciltif_, serial.NotEmpty() ? serial.cptr() : 0, 0);
+							const int rconv = P_BObj->ConvertILTI(ilti, &pack, 0, ciltif_, serial.NotEmpty() ? serial.cptr() : 0, 0);
 							if(!rconv) {
 								Logger.LogLastError();
 								SETIFZ(is_bad_packet, 1);
@@ -3854,7 +3854,7 @@ int PPBillImporter::Import(int useTa)
 							ti.Price    = r_row.Price;
 							if(r_row.LotID > 0) {
 								ReceiptTbl::Rec temp_lot_rec;
-								const int lot_id_exists = BIN(P_BObj->trfr->Rcpt.Search(r_row.LotID, &temp_lot_rec) > 0);
+								const  bool lot_id_exists = (P_BObj->trfr->Rcpt.Search(r_row.LotID, &temp_lot_rec) > 0);
 								if(ti.IsReceipt()) {
 									if(!lot_id_exists && !pack.SearchLot(r_row.LotID, 0)) {
 										ti.LotID = r_row.LotID;
@@ -7357,7 +7357,7 @@ void DocNalogRu_Generator::WriteMarkListOnInvoiceItem2(xmlTextWriter * pX, int t
 				if(rParam.Flags & PPBillImpExpParam::fChZnMarkAsCDATA) {
 					// Для CDATA не следует экранировать символы (так же в марке нет русских символов). По-этому мы здесь не применяем EncText
 					SXml::WNode::CDATA(mark_buf);
-					p_n_marks_local->PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_KIZ), mark_buf);
+					p_n_scope->PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_KIZ), mark_buf);
 				}
 				else {
 					if(chznProdType == GTCHZNPT_ALTTOBACCO) {
@@ -7374,10 +7374,10 @@ void DocNalogRu_Generator::WriteMarkListOnInvoiceItem2(xmlTextWriter * pX, int t
 						else {
 							temp_buf = mark_buf;
 						}
-						p_n_marks_local->PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
+						p_n_scope->PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
 					}
 					else {
-						p_n_marks_local->PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(mark_buf));
+						p_n_scope->PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(mark_buf));
 					}
 				}
 				ZDELETE(p_n_marks_local);

@@ -4552,7 +4552,7 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 								ilti.Setup(sdr_brow.GoodsID, sign, sdr_brow.Qtty, ilti.Cost, ilti.Price);
 								SETFLAG(ilti.Flags, PPTFR_RECEIPT, sign > 0);
 								ilti.Expiry = sdr_brow.Expiry;
-								if(p_bobj->ConvertILTI(&ilti, &pack, 0, CILTIF_INHLOTTAGS|CILTIF_ALLOWZPRICE, is_serial ? serial : (const char *)0) > 0) {
+								if(p_bobj->ConvertILTI(ilti, &pack, 0, CILTIF_INHLOTTAGS|CILTIF_ALLOWZPRICE, is_serial ? serial : (const char *)0) > 0) {
 									if(sign == -1 && ilti.HasDeficit()) {
 										if(pLog) {
 											PPSetObjError(PPERR_LOTRESTBOUND, PPOBJ_GOODS, labs(ilti.GoodsID));
@@ -4646,7 +4646,7 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 			ilti.GoodsID  = goods_rec.ID;
 			ilti.SetQtty(-qtty);
 			ilti.Price    = price;
-			THROW(p_bobj->ConvertILTI(&ilti, pPack, 0, CILTIF_DEFAULT, 0));
+			THROW(p_bobj->ConvertILTI(ilti, pPack, 0, CILTIF_DEFAULT, 0));
 			if(ilti.HasDeficit())
 				THROW(deficit_list.Add(&ilti, pPack->Rec.LocID, 0, pPack->Rec.Dt));
 		}

@@ -1922,21 +1922,21 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 			return 0;
 		case WM_CHAR:
 			if(p_view && (wParam != VK_RETURN || LOBYTE(HIWORD(lParam)) != 0x1c))
-				TView::messageKeyDown(p_view, wParam);
+				TView::messageKeyDown(p_view, static_cast<uint>(wParam));
 			return 0;
 		case WM_DRAWITEM:
 			return p_view ? p_view->RedirectDrawItemMessage(message, wParam, lParam) : FALSE;
-		case WM_CLOSE: // @v11.2.4
+		case WM_CLOSE:
 			if(p_view && p_view->IsInState(sfModal)) {
 				TView::messageCommand(p_view, cmCancel, p_view);
 				return 0;
 			}
 			break;
-		case WM_COMMAND: // @v11.2.0
+		case WM_COMMAND:
 			// Этот участок кода почти в точности скопирован из класса TDialog. Вполне возможно, что возникнут проблемы!
 			{
-				uint16 hiw = HIWORD(wParam);
-				uint16 low = LOWORD(wParam);
+				const  uint16 hiw = HIWORD(wParam);
+				const  uint16 low = LOWORD(wParam);
 				if(GetKeyState(VK_CONTROL) & 0x8000 && low != cmaCalculate && hiw != EN_UPDATE && hiw != EN_CHANGE) {
 					//return 0;
 					;

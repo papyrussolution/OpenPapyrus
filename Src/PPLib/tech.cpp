@@ -103,47 +103,6 @@ TGSArray & TGSArray::Z()
 //
 // @ModuleDef(PPObjTech)
 //
-PPTechRoute::Entry::Entry() : TechID(0)
-{
-	memzero(Reserve, sizeof(Reserve));
-}
-
-PPTechRoute::PPTechRoute()
-{
-}
-	
-PPTechRoute & PPTechRoute::Z()
-{
-	L.clear();
-	return *this;
-}
-
-int PPTechRoute::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
-{
-	static constexpr uint32 PPTechRoute_Ver = 0;
-	int    ok = 1;
-	uint32 ver = PPTechRoute_Ver;
-	THROW_SL(pSCtx->Serialize(dir, ver, rBuf));
-	if(dir < 0) {
-		THROW_SL(ver == PPTechRoute_Ver); // Мы только начали, стало быть версия обязана быть равна PPTechRoute_Ver. Если формат изменится здесь появится дополнительная логика.
-	}
-	THROW_SL(pSCtx->Serialize(dir, &L, rBuf));
-	CATCHZOK
-	return ok;
-}
-
-int PPTechRoute::AddEntry(PPID techID, const PPID ownerTechID)
-{
-	int    ok = 1;
-	Entry  new_entry;
-	THROW(techID); // @todo @err
-	THROW(techID != ownerTechID); // @todo @err
-	new_entry.TechID = techID;
-	THROW_SL(L.insert(&new_entry));
-	CATCHZOK
-	return ok;
-}
-
 PPTechPacket::PPTechPacket()
 {
 }
@@ -529,17 +488,13 @@ int PPObjTech::GetPacket(PPID id, PPTechPacket * pPack)
 	if(Search(id, &pPack->Rec) > 0) {
 		THROW(p_ref->GetPropVlrString(Obj, id, TECPRP_EXTSTR, pPack->ExtString));
 		GetItemMemo(id, pPack->SMemo);
-		// @v12.5.12 {
+		// @v12.6.0 {
 		{
-			SBuffer route_sbuf;
-			const  int gpr = p_ref->GetPropSBuffer(Obj, id, TECPRP_ROUTE, route_sbuf);
-			THROW(gpr);
-			if(gpr > 0) {
-				SSerializeContext sctx;
-				THROW(pPack->Route.Serialize(-1, route_sbuf, &sctx));
-			}
+			PPTechRouteManager trmgr;
+			pPack->Route.Oid.Set(Obj, id);
+			THROW(trmgr.Get(pPack->Route));
 		}
-		// } @v12.5.12 		
+		// } @v12.6.0 
 		ok = 1;
 	}
 	CATCHZOK
@@ -620,16 +575,12 @@ int PPObjTech::PutPacket(PPID * pID, PPTechPacket * pPack, int use_ta)
 				ext_buffer.Z();
 			THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(Obj, *pID, PPTRPROP_MEMO), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 		}
-		// @v12.5.12 {
+		// @v12.6.0 {
 		{
-			SBuffer route_sbuf;
-			if(pPack && !pPack->Route.IsEmpty()) {
-				SSerializeContext sctx;
-				THROW(pPack->Route.Serialize(+1, route_sbuf, &sctx));
-			}
-			THROW(p_ref->PutPropSBuffer(Obj, *pID, TECPRP_ROUTE, route_sbuf, 0));
+			PPTechRouteManager trmgr;
+			THROW(trmgr.Put(pPack->Route, 0));
 		}
-		// } @v12.5.12 
+		// } @v12.6.0 
 		DS.LogAction(log_action_id, Obj, *pID, 0, 0);
 		THROW(tra.Commit());
 	}
@@ -853,121 +804,6 @@ int EditCapacity(CalcCapacity * pData)
 //
 //
 //
-/*static*/int PPObjTech::EditTechRoute(PPID ownerTechID, PPTechRoute & rData) // @v12.5.12 @construction
-{
-	class TechRouteDialog : public PPListDialog {
-		DECL_DIALOG_DATA(PPTechRoute);
-		const  PPID OwnerTechID;
-	public:
-		explicit TechRouteDialog(PPID ownerTechID) : PPListDialog(DLG_TECHROUTE, CTL_TECHROUTE_LIST), OwnerTechID(ownerTechID)
-		{
-		}
-		DECL_DIALOG_SETDTS()
-		{
-			RVALUEPTR(Data, pData);
-			//setParams(PPOBJ_PROCESSOR, &Data);
-			updateList(-1);
-			return 1;
-		}
-		DECL_DIALOG_GETDTS()
-		{
-			ASSIGN_PTR(pData, Data);
-			return 1;
-		}
-	private:
-		virtual int  setupList()
-		{
-			int    ok = 1;
-			SString sub;
-			PPIDArray id_list;
-			StringSet ss(SLBColumnDelim);
-			for(uint i = 0; i < Data.L.getCount(); i++) {
-				const  PPID tec_id = Data.L.at(i).TechID;
-				TechTbl::Rec tec_rec;
-				if(TecObj.Fetch(tec_id, &tec_rec) > 0) {
-					ss.Z();
-					ss.add(tec_rec.Code);
-					ss.add(sub.Z());
-					if(!addStringToList(tec_id, ss.getBuf()))
-						ok = 0;
-				}
-			}
-			return ok;
-		}
-		virtual int  addItem(long * pPos, long * pID)
-		{
-			uint   pos = 0;
-			PPTechRoute::Entry item;
-			if(editItemDialog(&item) > 0) {
-				if(Data.AddEntry(item.TechID, OwnerTechID)) {
-					ASSIGN_PTR(pID, pos+1);
-					ASSIGN_PTR(pPos, pos);
-					return 1;
-				}
-				else {
-					return PPErrorZ();
-				}
-			}
-		}
-		virtual int  editItem(long pos, long id)
-		{
-			const uint p = static_cast<uint>(pos);
-			if(p < Data.L.getCount()) {
-				PPTechRoute::Entry item = Data.L.at(p);
-				if(editItemDialog(&item) > 0) {
-					Data.L.at(p) = item; // @todo Тут надо проверять на ошибки!
-					return 1;
-				}
-			}
-			return -1;
-		}
-		virtual int  delItem(long pos, long id)
-		{
-			if(pos < Data.L.getCountI()) {
-				Data.L.atFree(static_cast<uint>(pos));
-				return 1;
-			}
-			else
-				return -1;
-		}
-		virtual int moveItem(long pos, long id, int up)
-		{
-			int    ok = 1;
-			if(up && pos > 0)
-				Data.L.swap(pos, pos-1);
-			else if(!up && pos < (Data.L.getCountI()-1))
-				Data.L.swap(pos, pos+1);
-			else
-				ok = -1;
-			return ok;
-		}
-		virtual int editItemDialog(PPTechRoute::Entry * pItem)
-		{
-			int    ok = -1;
-			TDialog * dlg = new TDialog(DLG_TECHROUTEITEM);
-			if(CheckDialogPtrErr(&dlg)) {
-				SetupPPObjCombo(dlg, CTLSEL_TECHROUTEITEM_TECH, PPOBJ_TECH, pItem->TechID, 0, 0);
-				for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
-					dlg->getCtrlData(CTLSEL_TECHROUTEITEM_TECH, &pItem->TechID);
-					if(!pItem->TechID) {
-						PPError(PPERR_TECHNEEDED, 0);
-					}
-					else {
-						ok = 1;
-						valid_data = 1;
-					}
-				}
-			}
-			else
-				ok = 0;
-			delete dlg;
-			return ok;
-		}
-		PPObjTech TecObj;
-	};
-	DIALOG_PROC_BODY_P1(TechRouteDialog, ownerTechID, &rData);
-}
-
 int PPObjTech::EditDialog(PPTechPacket * pData)
 {
 	if(pData) {
@@ -1028,7 +864,7 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 					TDialog::handleEvent(event);
 					if(event.isCbSelected(CTLSEL_TECH_PARENT)) {
 						UI_LOCAL_LOCK_ENTER
-						PPID parent_id = getCtrlLong(CTLSEL_TECH_PARENT);
+						const  PPID parent_id = getCtrlLong(CTLSEL_TECH_PARENT);
 						if(Data.Rec.ID && parent_id == Data.Rec.ID) {
 							setCtrlLong(CTLSEL_TECH_PARENT, 0);
 							{
@@ -1106,7 +942,6 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 					PPObjTech tec_obj;
 					GoodsCtrlGroup::Rec rec;
 					PrcCtrlGroup::Rec prc_grp_rec;
-
 					getCtrlData(sel = CTL_TECH_CODE, Data.Rec.Code);
 					THROW_PP(*strip(Data.Rec.Code), PPERR_CODENEEDED);
 					if(tec_obj.SearchByCode(Data.Rec.Code, &tec_rec) > 0 && tec_rec.ID != Data.Rec.ID) {
@@ -1158,7 +993,9 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 						}
 					}
 					else if(event.isCmd(cmTechRoute)) { // @v12.5.12
-						PPObjTech::EditTechRoute(Data.Rec.ID, Data.Route);
+						PPTechRouteManager mgr;
+						Data.Route.Oid.Set(PPOBJ_TECH, Data.Rec.ID);
+						mgr.Edit(Data.Route);
 					}
 					else if(event.isCbSelected(CTLSEL_TECH_GOODS)) {
 						PPID   prev_goods_id = Data.Rec.GoodsID;
@@ -1742,14 +1579,12 @@ IMPL_DESTROY_OBJ_PACK(PPObjTech, PPTechPacket);
 int PPObjTech::SerializePacket(int dir, PPTechPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	SerializeSignature srzs(Obj, dir, rBuf); // @v11.1.12 
+	SerializeSignature srzs(Obj, dir, rBuf);
 	THROW_SL(P_Tbl->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW_SL(pSCtx->Serialize(dir, pPack->ExtString, rBuf));
-	// @v11.1.12 {
 	if(srzs.V.IsGe(11, 1, 12)) {
 		THROW_SL(pSCtx->Serialize(dir, pPack->SMemo, rBuf)); 
 	}
-	// } @v11.1.12
 	CATCHZOK
 	return ok;
 }
@@ -2012,7 +1847,8 @@ int PPViewTech::InitIteration()
 	BExtQuery::ZDelete(&P_IterQuery);
 	Counter.Init();
 
-	int    ok = 1, idx = 0;
+	int    ok = 1;
+	int    idx = 0;
 	TechTbl * p_t = TecObj.P_Tbl;
 	DBQ * dbq = 0;
 	union {
@@ -2385,8 +2221,6 @@ void PPALDD_TechView::Destroy() { DESTROY_PPVIEW_ALDD(Tech); }
 //
 //
 //
-//#define _CMP(a,b,x) (((a)==(b)) ? (0 : ((a)<(b)) ? -1 : 1))
-
 class ToolingSelector {
 public:
 	struct Entry {
@@ -2406,7 +2240,7 @@ public:
 	ToolingSelector(PPID prcID, PPID goodsID, PPID prevGoodsID) : List(sizeof(Entry)), PrcID(prcID), GoodsID(goodsID), PrevGoodsID(prevGoodsID)
 	{
 	}
-	int    Run(TSVector <TechTbl::Rec> * pList); // @v9.8.4 TSArray-->TSVect
+	int    Run(TSVector <TechTbl::Rec> * pList);
 private:
 	int    LoadList(PPID prcID); // @recursion
 	bool   IsSuited(const Entry * pEntry);
@@ -2430,7 +2264,7 @@ IMPL_CMPFUNC(ToolingEntry, i1, i2)
 			if(p1->PrevGoodsID == p2->PrevGoodsID)
 				return 0;
 			else {
-				if(p1->PrevGoodsKind == p2->PrevGoodsKind)
+				if(p1->PrevGoodsKind == p2->PrevGoodsKind) {
 					if(p1->IsTranMask == p2->IsTranMask) {
 						if(p1->IsFormula == p2->IsFormula)
 							return 0;
@@ -2443,6 +2277,7 @@ IMPL_CMPFUNC(ToolingEntry, i1, i2)
 						return -1;
 					else
 						return 1;
+				}
 				else if(p1->PrevGoodsKind < p2->PrevGoodsKind)
 					return -1;
 				else
@@ -2451,13 +2286,14 @@ IMPL_CMPFUNC(ToolingEntry, i1, i2)
 		}
 		else {
 			if(p1->GoodsKind == p2->GoodsKind) {
-				if(p1->IsTranMask == p2->IsTranMask)
+				if(p1->IsTranMask == p2->IsTranMask) {
 					if(p1->IsFormula == p2->IsFormula)
 						return 0;
 					else if(p1->IsFormula < p2->IsFormula)
 						return -1;
 					else
 						return 1;
+				}
 				else if(p1->IsTranMask < p2->IsTranMask)
 					return -1;
 				else
@@ -2516,23 +2352,26 @@ int ToolingSelector::LoadList(PPID prcID)
 			if(TecObj.GetToolingCondition(entry.ID, formula) > 0)
 				entry.IsFormula = 1;
 		}
-		if(GObj.Fetch(entry.GoodsID, &goods_rec) > 0)
+		if(GObj.Fetch(entry.GoodsID, &goods_rec) > 0) {
 			if(goods_rec.Kind == PPGDSK_GOODS)
 				entry.GoodsKind = (goods_rec.Flags & GF_GENERIC) ? 2 : 1;
 			else
 				entry.GoodsKind = (goods_rec.Flags & GF_ALTGROUP) ? 4 : ((goods_rec.Flags & GF_FOLDER) ? 5 : 3);
+		}
 		entry.PrevGoodsID = p_t->data.PrevGoodsID;
-		if(GObj.Fetch(entry.PrevGoodsID, &goods_rec) > 0)
+		if(GObj.Fetch(entry.PrevGoodsID, &goods_rec) > 0) {
 			if(goods_rec.Kind == PPGDSK_GOODS)
 				entry.PrevGoodsKind = (goods_rec.Flags & GF_GENERIC) ? 2 : 1;
 			else
 				entry.PrevGoodsKind = (goods_rec.Flags & GF_ALTGROUP) ? 4 : ((goods_rec.Flags & GF_FOLDER) ? 5 : 3);
+		}
 		if(!List.insert(&entry))
 			return PPSetErrorSLib();
 	}
-	if(prc_rec.ParentID)
+	if(prc_rec.ParentID) {
 		if(!LoadList(prc_rec.ParentID)) // @recursion
 			return 0;
+	}
 	return 1;
 }
 
@@ -2653,3 +2492,469 @@ int PPObjTech::SelectTooling(PPID prcID, PPID goodsID, PPID prevGoodsID, TSVecto
 //
 //
 //
+PPTechRoute::Entry::Entry() : TechID(0), NominalPrice(0.0), NominalTimeSec(0)
+{
+	memzero(Reserve, sizeof(Reserve));
+}
+
+PPTechRoute::PPTechRoute()
+{
+}
+	
+PPTechRoute & PPTechRoute::Z()
+{
+	L.clear();
+	return *this;
+}
+
+int PPTechRoute::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	static constexpr uint32 PPTechRoute_Ver = 1; // @v12.6.0 0-->1
+	int    ok = 1;
+	uint32 ver = PPTechRoute_Ver;
+	THROW_SL(pSCtx->Serialize(dir, ver, rBuf));
+	if(dir < 0) {
+		THROW_SL(oneof2(ver, 0, PPTechRoute_Ver));
+		if(ver >= 1) {
+			THROW_SL(Oid.Serialize(dir, rBuf, pSCtx));
+			THROW_SL(pSCtx->Serialize(dir, &L, rBuf));
+		}
+		else {
+			struct Entry_v0 {
+				PPID   TechID;         // ->Tech.ID Ид технологии, определяющей конкретную фазу процесса
+				uint8  Reserve[16];
+			};
+			TSVector <Entry_v0> l_v0;
+			THROW_SL(pSCtx->Serialize(dir, &l_v0, rBuf));
+			L.clear();
+			for(uint i = 0; i < l_v0.getCount(); i++) {
+				const Entry_v0 & r_ev0 = l_v0.at(i);
+				Entry new_entry;
+				new_entry.TechID = r_ev0.TechID;
+				THROW_SL(L.insert(&new_entry));
+			}
+		}
+	}
+	else {
+		THROW_SL(Oid.Serialize(dir, rBuf, pSCtx));
+		THROW_SL(pSCtx->Serialize(dir, &L, rBuf));
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPTechRoute::AddEntry(PPID techID)
+{
+	int    ok = 1;
+	Entry  new_entry;
+	THROW(Oid.IsFullyDefined()); // @todo @err
+	THROW(Oid.Obj != PPOBJ_TECH || Oid.Id != techID); // @todo @err
+	new_entry.TechID = techID;
+	THROW_SL(L.insert(&new_entry));
+	CATCHZOK
+	return ok;
+}
+//
+//
+//
+PPTechRouteManager::PPTechRouteManager()
+{
+}
+
+int PPTechRouteManager::Put(PPTechRoute & rRoute, int use_ta)
+{
+	int    ok = 1;
+	Reference * p_ref(PPRef);
+	THROW(rRoute.Oid.IsFullyDefined()); // @todo @err
+	{
+		SBuffer route_sbuf;
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(!rRoute.IsEmpty()) {
+			SSerializeContext sctx;
+			THROW(rRoute.Serialize(+1, route_sbuf, &sctx));
+		}
+		THROW(p_ref->PutPropSBuffer(PPOBJ_TECHROUTE, rRoute.Oid.Obj, rRoute.Oid.Id, route_sbuf, 0)); // @see comment to PPOBJ_TECHROUTE
+		THROW(tra.Commit());
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPTechRouteManager::Get(PPTechRoute & rRoute)
+{
+	int    ok = -1;
+	const  SObjID preserve_oid = rRoute.Oid;
+	Reference * p_ref(PPRef);
+	THROW(rRoute.Oid.IsFullyDefined()); // @todo @err
+	{
+		SBuffer route_sbuf;
+		const  int gpr = p_ref->GetPropSBuffer(PPOBJ_TECHROUTE, rRoute.Oid.Obj, rRoute.Oid.Id, route_sbuf);
+		THROW(gpr);
+		if(gpr > 0) {
+			SSerializeContext sctx;
+			THROW(rRoute.Serialize(-1, route_sbuf, &sctx));
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPTechRouteManager::Edit(PPTechRoute & rRoute)
+{
+	class TechRouteDialog : public PPListDialog {
+		DECL_DIALOG_DATA(PPTechRoute);
+	public:
+		explicit TechRouteDialog() : PPListDialog(DLG_TECHROUTE, CTL_TECHROUTE_LIST)
+		{
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			RVALUEPTR(Data, pData);
+			//setParams(PPOBJ_PROCESSOR, &Data);
+			updateList(-1);
+			return 1;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			ASSIGN_PTR(pData, Data);
+			return 1;
+		}
+	private:
+		virtual int  setupList()
+		{
+			int    ok = 1;
+			SString sub;
+			PPIDArray id_list;
+			StringSet ss(SLBColumnDelim);
+			for(uint i = 0; i < Data.L.getCount(); i++) {
+				const  PPID tec_id = Data.L.at(i).TechID;
+				TechTbl::Rec tec_rec;
+				if(TecObj.Fetch(tec_id, &tec_rec) > 0) {
+					ss.Z();
+					ss.add(tec_rec.Code);
+					ss.add(sub.Z());
+					if(!addStringToList(tec_id, ss.getBuf()))
+						ok = 0;
+				}
+			}
+			return ok;
+		}
+		virtual int  addItem(long * pPos, long * pID)
+		{
+			uint   pos = 0;
+			PPTechRoute::Entry item;
+			if(editItemDialog(&item) > 0) {
+				if(Data.AddEntry(item.TechID)) {
+					ASSIGN_PTR(pID, pos+1);
+					ASSIGN_PTR(pPos, pos);
+					return 1;
+				}
+				else {
+					return PPErrorZ();
+				}
+			}
+		}
+		virtual int  editItem(long pos, long id)
+		{
+			const uint p = static_cast<uint>(pos);
+			if(p < Data.L.getCount()) {
+				PPTechRoute::Entry item = Data.L.at(p);
+				if(editItemDialog(&item) > 0) {
+					Data.L.at(p) = item; // @todo Тут надо проверять на ошибки!
+					return 1;
+				}
+			}
+			return -1;
+		}
+		virtual int  delItem(long pos, long id)
+		{
+			if(pos < Data.L.getCountI()) {
+				Data.L.atFree(static_cast<uint>(pos));
+				return 1;
+			}
+			else
+				return -1;
+		}
+		virtual int moveItem(long pos, long id, int up)
+		{
+			int    ok = 1;
+			if(up && pos > 0)
+				Data.L.swap(pos, pos-1);
+			else if(!up && pos < (Data.L.getCountI()-1))
+				Data.L.swap(pos, pos+1);
+			else
+				ok = -1;
+			return ok;
+		}
+		virtual int editItemDialog(PPTechRoute::Entry * pItem)
+		{
+			int    ok = -1;
+			TDialog * dlg = new TDialog(DLG_TECHROUTEITEM);
+			if(CheckDialogPtrErr(&dlg)) {
+				SetupPPObjCombo(dlg, CTLSEL_TECHROUTEITEM_TECH, PPOBJ_TECH, pItem->TechID, 0, 0);
+				for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
+					dlg->getCtrlData(CTLSEL_TECHROUTEITEM_TECH, &pItem->TechID);
+					if(!pItem->TechID) {
+						PPError(PPERR_TECHNEEDED, 0);
+					}
+					else {
+						ok = 1;
+						valid_data = 1;
+					}
+				}
+			}
+			else
+				ok = 0;
+			delete dlg;
+			return ok;
+		}
+		PPObjTech TecObj;
+	};
+	DIALOG_PROC_BODY(TechRouteDialog, &rRoute);
+}
+//
+//
+//
+class TechRouteFilt : public PPBaseFilt {
+public:
+	TechRouteFilt();
+	TechRouteFilt & FASTCALL operator = (const TechRouteFilt & rS);
+
+	char   ReserveStart[64]; // @anchor
+	PPID   ObjType;
+	long   Flags;          // @flags
+	long   Reserve;        // @anchor Заглушка для отмера "плоского" участка фильтра
+	ObjIdListFilt IdList;  // Работает только в случае ObjType != 0
+};
+
+class PPViewTechRoute : public PPView {
+public:
+	struct BrwItem { // @flat
+		SObjID Oid;
+		long   ItemN; // Порядковый номер элемента внутри одного маршрута
+		PPID   TechID;
+		PPID   PrcID;    // ->Tech(TechID).PrcID
+		uint   ObjNameP; // Смещение до имени объекта Oid 
+		double NominalPrice;
+		uint   NominalTimeSec;
+	};
+	PPViewTechRoute();
+	~PPViewTechRoute();
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
+	virtual int   EditBaseFilt(PPBaseFilt *);
+	virtual int   Init_(const PPBaseFilt * pBaseFilt);
+private:
+	virtual int   ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
+	virtual int   OnExecBrowser(PPViewBrowser * pBrw);
+	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
+	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	int    MakeList(PPViewBrowser * pBrw);
+
+	TechRouteFilt Filt;
+	TSArray <BrwItem> * P_DsList;
+	PPTechRouteManager Mgr;
+	SStrGroup StrPool; // Пул строковых полей, на который ссылаются поля в BrwItem
+	PPObjTech TecObj;
+	PPObjProcessor PrcObj;
+};
+
+IMPLEMENT_PPFILT_FACTORY(TechRoute); TechRouteFilt::TechRouteFilt() : PPBaseFilt(PPFILT_TECHROUTE, 0, 0)
+{
+	SetFlatChunk(offsetof(TechRouteFilt, ReserveStart),
+		offsetof(TechRouteFilt, Reserve)-offsetof(TechRouteFilt, ReserveStart)+sizeof(Reserve));
+	SetBranchObjIdListFilt(offsetof(TechRouteFilt, IdList));
+	Init(1, 0);
+}
+
+TechRouteFilt & FASTCALL TechRouteFilt::operator = (const TechRouteFilt & s)
+{
+	this->Copy(&s, 1);
+	return *this;
+}
+
+PPViewTechRoute::PPViewTechRoute() : PPView(0, &Filt, PPVIEW_TECHROUTE, implBrowseArray, 0), P_DsList(0)
+{
+}
+
+PPViewTechRoute::~PPViewTechRoute()
+{
+	delete P_DsList;
+}
+
+/*virtual*/PPBaseFilt * PPViewTechRoute::CreateFilt(const void * extraPtr) const
+{
+	TechRouteFilt * p_filt = 0;
+	if(PPView::CreateFiltInstance(PPFILT_TECHROUTE, reinterpret_cast<PPBaseFilt **>(&p_filt))) {
+		;
+	}
+	return static_cast<PPBaseFilt *>(p_filt);	
+}
+
+/*virtual*/int PPViewTechRoute::EditBaseFilt(PPBaseFilt *)
+{
+	int    ok = -1;
+	return ok;
+}
+
+/*virtual*/int PPViewTechRoute::Init_(const PPBaseFilt * pBaseFilt)
+{
+	int    ok = 1;
+	StrPool.ClearS();
+	MakeList(0);
+	return ok;
+}
+
+int PPViewTechRoute::MakeList(PPViewBrowser * pBrw)
+{
+	int    ok = 1;
+	SString temp_buf;
+	if(P_DsList)
+		P_DsList->clear();
+	else
+		P_DsList = new TSArray <BrwItem>();
+	{
+		TSVector <BrwItem> temp_list;
+		Reference * p_ref(PPRef);
+		PropertyTbl * p_tbl = &p_ref->Prop;
+		PropertyTbl::Key0 k;
+		k.ObjType = PPOBJ_TECHROUTE;
+		k.ObjID   = Filt.ObjType;
+		k.Prop    = 0;
+		PropertyTbl::Rec prop_rec;
+		DBQ * dbq = 0;
+		BExtQuery q(p_tbl, 0);
+		dbq = &(p_tbl->ObjType == PPOBJ_TECHROUTE);
+		dbq = ppcheckfiltid(dbq, p_tbl->ObjID, Filt.ObjType);
+		q.select(p_tbl->ObjType, p_tbl->ObjID, p_tbl->Prop, 0L).where(*dbq);
+		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
+			if(!Filt.ObjType || Filt.IdList.CheckID(p_tbl->data.Prop)) {
+				BrwItem new_item;
+				MEMSZERO(new_item);
+				new_item.Oid.Set(p_tbl->data.ObjID, p_tbl->data.Prop);
+				temp_list.insert(&new_item);
+			}
+		}
+		{
+			PPTechRoute trt;
+			for(uint i = 0; i < temp_list.getCount(); i++) {
+				trt.Oid = temp_list.at(i).Oid;
+				if(Mgr.Get(trt) > 0) {
+					for(uint j = 0; j < trt.L.getCount(); j++) {
+						const  PPTechRoute::Entry & r_entry = trt.L.at(j);
+						BrwItem new_item;
+						MEMSZERO(new_item);
+						new_item.Oid = trt.Oid;
+						if(new_item.Oid.IsFullyDefined()) {
+							GetObjectName(new_item.Oid, temp_buf);
+							StrPool.AddS(temp_buf, &new_item.ObjNameP);
+						}
+						new_item.TechID = r_entry.TechID;
+						{
+							TechTbl::Rec tec_rec;
+							if(new_item.TechID && TecObj.Fetch(new_item.TechID, &tec_rec) > 0) {
+								new_item.PrcID = tec_rec.PrcID;	
+							}
+						}
+						new_item.NominalPrice = r_entry.NominalPrice;
+						new_item.NominalTimeSec = r_entry.NominalTimeSec;
+						P_DsList->insert(&new_item);
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+/*virtual*/int PPViewTechRoute::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+{
+	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
+	AryBrowserDef * p_def = pBrw ? static_cast<AryBrowserDef *>(pBrw->getDef()) : 0;
+	const  BrwItem * p_item = pHdr ? static_cast<const BrwItem *>(pHdr) : 0;
+	PPID   new_id = 0;
+	PPID   update_id = 0;
+	//PPID   cur_id = p_item ? p_item->ID : 0;
+	if(ok == -2) {
+		const  long cur_pos = p_def ? p_def->_curItem() : 0;
+		long   update_pos = cur_pos;
+		switch(ppvCmd) {
+		}
+	}
+	return ok;
+}
+
+int PPViewTechRoute::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	const  BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
+	SString temp_buf;
+	/*
+		browser TECHROUTE north(100), 3, 1, "", OWNER|GRID, 0
+		{
+			"@objtype",                  1, zstring(48),  0, 10, BCO_USERPROC
+			"@object",                   2, zstring(128), 0, 20, BCO_USERPROC
+			"N",                         3, long,         0,  8, BCO_USERPROC
+			"@tech",                     4, zstring(48),  0, 10, BCO_USERPROC
+			"@processor",                5, zstring(48),  0, 10, BCO_USERPROC
+			"(price)",                   6, double,   NMBF_NOZERO, 12.5, BCO_USERPROC
+			"(time)",                    7, long,         0,  8, BCO_USERPROC
+		}
+	*/ 
+	switch(pBlk->ColumnN) {
+		case 1: // owner-object-type
+			break;
+		case 2: // owner-object-name
+			break; 
+		case 3: // N
+			break; 
+		case 4:  // @tech
+			break;
+		case 5:  // @processor
+			break;
+		case 6:  // (price)
+			break;
+		case 7:  // (time)
+			break;
+	}
+	return ok;
+}
+
+/*virtual*/void PPViewTechRoute::PreprocessBrowser(PPViewBrowser * pBrw)
+{
+	if(pBrw) {
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewTechRoute *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;
+			}, this);
+	}
+}
+
+/*virtual*/SArray * PPViewTechRoute::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+{
+	TSArray <BrwItem> * p_array = 0;
+	if(!P_DsList) {
+		THROW(MakeList(0));
+	}
+	p_array = new TSArray <BrwItem>(*P_DsList);
+	/*if(pSubTitle) {
+		PersonTbl::Rec psn_rec;
+		if(Filt.PersonID && PeObj.PsnObj.Search(Filt.PersonID, &psn_rec) > 0) {
+			*pSubTitle = psn_rec.Name;
+		}
+	}*/
+	CATCH
+		ZDELETE(P_DsList);
+	ENDCATCH
+	ASSIGN_PTR(pBrwId, BROWSER_TECHROUTE);
+	return p_array;
+}
+
+/*virtual*/int PPViewTechRoute::OnExecBrowser(PPViewBrowser * pBrw)
+{
+	int    ok = -1;
+	return ok;
+}

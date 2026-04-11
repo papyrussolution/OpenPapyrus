@@ -4429,7 +4429,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 														ti.Expiry   = p_h_item->Expiry;
 														ti.Flags    = p_h_item->Flags;
 														ILTI ilti(&ti);
-														if(!P_BObj->ConvertILTI(&ilti, &R_Pack, 0, CILTIF_ABSQTTY, 0, 0))
+														if(!P_BObj->ConvertILTI(ilti, &R_Pack, 0, CILTIF_ABSQTTY, 0, 0))
 															PPError();
 													}
 													update(0);

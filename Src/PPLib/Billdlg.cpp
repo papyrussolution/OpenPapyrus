@@ -2970,12 +2970,12 @@ double BillDialog::CalcAmounts()
 		int   _pctdis = BIN(Flags & fPctDis);
 		getDiscount(&result_amount, &_pctdis, &rmvexcise);
 		SETFLAG(Flags, fPctDis, _pctdis);
-		P_Pack->SetTotalDiscount(result_amount, _pctdis, rmvexcise);
+		P_Pack->SetTotalDiscount(result_amount, LOGIC(_pctdis), rmvexcise);
 	}
 	else {
 		Flags &= ~fPctDis;
 		if(P_Pack->Rec.Flags & BILLF_TOTALDISCOUNT) {
-			P_Pack->SetTotalDiscount(0, 0, 0);
+			P_Pack->SetTotalDiscount(0, false/*pctdic*/, 0);
 			P_Pack->Rec.Flags &= ~BILLF_TOTALDISCOUNT;
 		}
 	}

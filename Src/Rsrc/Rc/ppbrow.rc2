@@ -1115,6 +1115,16 @@ browser PERSON_INMEM north(100), 1, 1, "@{person_pl} {%s}", OWNER|GRID, 0
 	toolbar PERSON
 }
 
+browser PERSON_INMEM_CENTRIGO north(100), 1, 1, "@{person_pl}", OWNER|GRID, 0
+{
+	"@id",       0, long,          0,  4, BCO_USERPROC
+	"@name",     1, zstring(128),  0, 30, BCO_USERPROC
+	"@phone",   16, zstring(48),   0, 10, BCO_USERPROC
+	"@email",   17, zstring(48),   0, 10, BCO_USERPROC
+	"@etc",     18, zstring(2048), 0, 40, BCO_USERPROC
+	toolbar PERSON
+}
+
 browser PERSON north(100), 1, 1, "@{person_pl} {%s}", OWNER|GRID, 0
 {
 	"@id",       0, notype, 0,  4
@@ -2267,12 +2277,11 @@ browser GOODSITEM_BAILMENT south(73), 1, 1, "@{view_billitem_goods} {%s}", OWNER
 //
 browser SELECTLOT north(43), 1, 0, "@{lots} {%s}", OWNER|GRID, 0
 {
-	"@id",              0, long,        0, 0, BCO_USERPROC // @v10.4.3
+	"@id",              0, long,        0, 0, BCO_USERPROC
 	"@date",            1, date, DATF_DMY, 8, BCO_USERPROC
 	"@supplier",        2, zstring(128), 0, 20, BCO_USERPROC
 	"@rest",            3, double, NMBF_NOTRAILZ, 7.5, BCO_USERPROC
 	"@munit",           4, zstring(48), 0, 6, BCO_USERPROC
-	// @v10.1.0 (will set automaticaly) "@serial",          5, zstring(32), 0, 20, BCO_USERPROC
 	"@termcost",        6, double, NMBF_NOZERO, 8.2, BCO_USERPROC
 	"@termprice",       7, double, NMBF_NOZERO, 8.2, BCO_USERPROC
 	"@expirationdate",  8, date, DATF_DMY, 8, BCO_USERPROC
@@ -2376,20 +2385,20 @@ browser ZEROLOTOPS north(100), 1, 3, "@{view_lotop_zerolots}", OWNER|GRID, 0
 	"@termprice",  7, notype, NMBF_NOZERO, 8.2
 }
 
-browser OPSBYGOODS north(100), 1, 0, "ќперации по товару {%s}", OWNER|GRID, 0
-{
-	"@date",       1, notype, DATF_DMY, 8
-	"@billno",       2, notype, 0, 7
-	"@contractor", 3, notype, 0, 20
-	"@qtty",       4, notype, NMBF_NOTRAILZ, 7.3
-	"@rest",       5, notype, NMBF_NOTRAILZ, 10.7
-	"@termcost",   6, notype, NMBF_NOZERO,   8.2
-	"@termprice",  7, notype, NMBF_NOZERO,   8.2
-}
+// @v12.6.0 (@unused) browser OPSBYGOODS north(100), 1, 0, "ќперации по товару {%s}", OWNER|GRID, 0
+// {
+	// "@date",       1, notype, DATF_DMY, 8
+	// "@billno",       2, notype, 0, 7
+	// "@contractor", 3, notype, 0, 20
+	// "@qtty",       4, notype, NMBF_NOTRAILZ, 7.3
+	// "@rest",       5, notype, NMBF_NOTRAILZ, 10.7
+	// "@termcost",   6, notype, NMBF_NOZERO,   8.2
+	// "@termprice",  7, notype, NMBF_NOZERO,   8.2
+// }
 
 browser LOT2 north(100), 1, 0, "@{view_lot} {%s}", OWNER|GRID, 0
 {
-	"@id",             0, notype, 0, 8 // @v9.9.3
+	"@id",             0, notype, 0,  8
 	"@date",           1, notype, DATF_DMY, 8
 	"@billno",        12, notype, 0, 12 // @v11.1.6
 	"@warehouse",      3, notype, 0, 16
@@ -2902,7 +2911,7 @@ browser TRFRGR_DPAG north(100), 1, 2, "@{view_opgrouping} по дате, контрагенту, 
 {
 	"@date",            8, notype, 0, 10
 	"@contractor",      7, notype, 0, 30
-	"@agent",          22, notype, 0, 30 // @v10.3.6 21-->22
+	"@agent",          22, notype, 0, 30
 	"@ware",            6, notype, 0, 30
 	"@qtty",            9, notype, NMBF_NOTRAILZ, 8.3
 	"@phqtty",         10, notype, NMBF_NOTRAILZ, 8.3
@@ -3571,7 +3580,7 @@ browser SYSJ north(100), 1, 1, "@{view_sysjournal}", OWNER|GRID, 0
 	"@date",          4, notype, DATF_DMY, 8
 	"@time",          5, notype, TIMF_HMS | TIMF_MSEC, 11
 	"@user",          6, notype, 0, 12
-	"@person",       10, notype, 0, 12 // @v7.5.11
+	"@person",       10, notype, 0, 12
 	"@op",            7, notype, 0, 20
 	"@objtype",       9, notype, 0, 16
 	"@id",            1, notype, 0,  8
@@ -3583,7 +3592,7 @@ browser SYSJ north(100), 1, 1, "@{view_sysjournal}", OWNER|GRID, 0
 		RESTOREGOODS     : kbCtrlR, PPDV_NOICON,         "@{doundowarechange}\tCtrl-R"
 		PRINT            : kbF7,    PPDV_PRINTER01,      "@{print}\tF7"
 		separator
-		TOTAL            : kbF9,    PPDV_SIGMA02,        "@{totals}\tF9" // @v11.2.11
+		TOTAL            : kbF9,    PPDV_SIGMA02,        "@{totals}\tF9"
 		TRANSMIT         : kbCtrlH, PPDV_SYNC01,         "@{dotransmit}\tCtrl-H"
 		CHANGEFILT       : kbCtrlV, PPDV_FILTER01,       "@{filter}\tCtrl-V"
 		SPCFUNC          : kbCtrlX, PPDV_NOICON, hidden, "@{specialfunction}\tCtrl-X"
@@ -3711,9 +3720,7 @@ browser PLINES north(100), 1, 1, "@{pricelist} {%s}", OWNER|GRID, 0
 		ADDTOBASKET      : kbCtrlF4,   PPDV_SHOPPINGCART01,   "@{doputtobasket}\tCtrl-F4"
 		ADDFROMBASKET    : kbCtrlF5,   TBBM_ADDTISFROMBASKET, "@{doextractpricelistfromcart}\tCtrl-F5"
 		PUTTOBASKETALL   : kbCtrlF9,   PPDV_SHOPPINGCARTINTO01, "@{doputtobasketall}\tCtrl-F9"
-		// @v7.6.0 POSTALBATROS     : kbF6,       TBBM_POSTALBATROS,     "ќпубликовать прайс-лист в Albatros\tF6"
 		EXPORTUHTT       : kbAltU,     TBBM_EXPORTUHTT,       "@{exporttouhtt}\tAlt-U" // @v7.6.0
-		// @v9.3.2 EXPORT           : kbCtrlL,    PPDV_EXPORT01,           "Ёкспорт в формате EXCEL\tCtrl-L"
 		EXPORT           : kbCtrlR,    PPDV_EXPORT01,         "@{export}\tCtrl-R" // @v9.3.2
 		IMPORT           : kbCtrlI,    PPDV_NOICON,           "@{pricelistimport}\tCtrl-I"
 		PRINT            : kbF7,       PPDV_PRINTER01,        "@{print}\tF7"
@@ -3741,9 +3748,7 @@ browser PLINES_BYALLQUOTS north(100), 1, 1, "@{pricelist} {%s}", OWNER|GRID, 0
 		ADDTOBASKET      : kbCtrlF4,   PPDV_SHOPPINGCART01,      "@{doputtobasket}\tCtrl-F4"
 		ADDFROMBASKET    : kbCtrlF5,   TBBM_ADDTISFROMBASKET,    "@{doextractpricelistfromcart}\tCtrl-F5"
 		PUTTOBASKETALL   : kbCtrlF9,   PPDV_SHOPPINGCARTINTO01,  "@{doputtobasketall}\tCtrl-F9"
-		// @v7.6.0 POSTALBATROS     : kbF6,       TBBM_POSTALBATROS,     "ќпубликовать прайс-лист в Albatros\tF6"
 		EXPORTUHTT       : kbAltU,     TBBM_EXPORTUHTT,          "@{exporttouhtt}\tAlt-U" // @v7.6.0
-		// @v9.3.2 EXPORT           : kbCtrlL,    PPDV_EXPORT01, "Ёкспорт в формате EXCEL\tCtrl-L"
 		EXPORT           : kbCtrlR,    PPDV_EXPORT01,            "@{export}\tCtrl-R" // @v9.3.2
 		IMPORT           : kbCtrlI,    PPDV_NOICON,              "@{pricelistimport}\tCtrl-I"
 		PRINT            : kbF7,       PPDV_PRINTER01,           "@{print}\tF7"
@@ -6957,7 +6962,7 @@ browser UNITEC_PVT north(100), 3, 1, "Unit-анализ", OWNER|GRID, 0 // @v12.4.7 @c
 	}
 }
 
-browser UNIFINDOBJ north(100), 3, 1, "”ниверсальный поиск объектов", OWNER|GRID, 0
+browser UNIFINDOBJ north(100), 3, 1, "@unifindobj", OWNER|GRID, 0
 {
 	"@object",                   1, zstring(128), 0, 30, BCO_USERPROC
 	"@id",                       2, long,         0,  8, BCO_USERPROC
@@ -6968,6 +6973,17 @@ browser UNIFINDOBJ north(100), 3, 1, "”ниверсальный поиск объектов", OWNER|GRID,
 		DETAIL        : kbEnter,   PPDV_LINS01,         "@{detail}\tEnter"
 		CHANGEFILT    : kbCtrlV,   PPDV_FILTER01,       "@{filter}\tCtrl-V"
 	}
+}
+
+browser TECHROUTE north(100), 3, 1, "", OWNER|GRID, 0
+{
+	"@objtype",                  1, zstring(48),  0, 10, BCO_USERPROC
+	"@object",                   2, zstring(128), 0, 20, BCO_USERPROC
+	"N",                         3, long,         0,  8, BCO_USERPROC
+	"@tech",                     4, zstring(48),  0, 10, BCO_USERPROC
+	"@processor",                5, zstring(48),  0, 10, BCO_USERPROC
+	"(price)",                   6, double,   NMBF_NOZERO, 12.5, BCO_USERPROC
+	"(time)",                    7, long,         0,  8, BCO_USERPROC
 }
 //
 // -------------- ќписани€ команд меню и рабочих столов
@@ -7531,7 +7547,7 @@ filter EditTextFileParam       { "@{filter_edittextfileparam}" }
 view   Event                   { "@{view_events}" }
 view   UserMenu                { "@{view_usermenu}" }
 view   AlcoDeclRu              { "@{view_alcodeclru}" } // @v11.0.4
-view   GoodsTrnovr             { "@{view_goodstrnovr}" } // @v11.0.6 @todo Ётот отчет так до сих пор и не переведен на PPView
+view   GoodsTrnovr             { "@{view_goodstrnovr}" } // @v11.0.6 @done (@v12.5.11) @todo Ётот отчет так до сих пор и не переведен на PPView //
 view   StyloQBindery           { "@{view_styloqbindery}" } // @v11.1.6
 view   StyloQCommand           { "@{view_styloqcommands}" } // @v11.1.9
 filter StyloQAttendancePrereqParam { "@{filter_styloqattendanceprereqparam}" } // @v11.3.3
@@ -7552,6 +7568,7 @@ view   UnitEc                       { "@{view_unitec}" } // @v12.3.7
 view   WbPublicGoods                { "" } // @v12.3.8
 filter MarketplaceGoodsSelection    { "@{filter_marketplacegoodsselection}" } // @v12.3.8
 view   UniFindObj                   { "@{unifindobj}" } // @v12.4.10
+view   TechRoute                    { "@view_techroute" } // @v12.6.0
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //

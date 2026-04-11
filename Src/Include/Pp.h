@@ -12549,12 +12549,11 @@ public:
 	//
 	// Descr: распределяет заданную на весь документ скидку по товарным строкам пакета.
 	// ARG(dis       IN): значение скидки. Если dis == 0, то во всех строках значение скидки обнуляется.
-	// ARG(pctdis    IN): если !0, то скидка задана в процентах (не в долях
-	//   от единицы, а именно в процентах).
+	// ARG(pctdis    IN): если true, то скидка задана в процентах (не в долях от единицы, а именно в процентах).
 	// ARG(rmvexcise IN): указывает на необходимость снятия со всех строк налога с продаж.
 	//   Скидка в этом случае рассчитывается на сумму без налога с продаж.
 	//
-	void   SetTotalDiscount(double dis, int pctdis, int rmvexcise);
+	void   SetTotalDiscount(double dis, bool pctdis, int rmvexcise);
 	void   SumAmounts(AmtList & rList);
 	void   SumAmounts_ComparingWithOrgPack(AmtList & rList, const PPBillPacket * pOrgPack, int * pFirstDiffRowN);
 	void   FASTCALL InitAmounts(const AmtList &);
@@ -30646,7 +30645,7 @@ enum GoodsGroupTag {
 #define GF_TRANSQUOT         0x00200000L // @transient Пакет передачи предназначен для трансмиссии котировок
 	// Сами товары не меняются. Не удаляются остутствующие в пакете, но присутствующие в базе котировки.
 #define GF_TEMPALTGRP_       0x00400000L //
-#define GF_USEINDEPWT        0x00800000L // Операции по товару ведуться параллельно в торговых и физических единицах
+#define GF_USEINDEPWT        0x00800000L // Операции по товару ведутся параллельно в торговых и физических единицах
 #define GF_DYNAMIC           0x01000000L // Динамическая альтернативная группа
 #define GF_HASIMAGES         0x02000000L // К товару присоединены картинки
 #define GF_ABBREQNAME        0x04000000L // @transient Используется у элементов кэша для информации о том, что
@@ -34907,9 +34906,9 @@ struct ComplItem {
 	PPID   GoodsID;
 	long   GoodsFlags;
 	uint   SrcGsPos;       // [1..] Позиция строки в исходной структуре (+1), к которой относится данных элемент
-	long   GsID;           // @v11.2.4 Ид структуры, из которой сформирован элемент. Необходим в случаях, когда контейнер PPComplBlock формируется из нескольких структур
+	long   GsID;           // Ид структуры, из которой сформирован элемент. Необходим в случаях, когда контейнер PPComplBlock формируется из нескольких структур
 	long   GsiFlags;       // Флаги элемента структуры
-	uint   FormulaP;       // @v11.2.4 Если количество элемента рассчитывается по формуле, то здесь хранится ненулевая позиция формулы в PPComplBlock::FPool
+	uint   FormulaP;       // Если количество элемента рассчитывается по формуле, то здесь хранится ненулевая позиция формулы в PPComplBlock::FPool
 	double PartQty;
 	double NeedQty;
 	double FreeQty;
@@ -35572,7 +35571,7 @@ public:
 	//   значение не равно 0, значит функции не удалось полностью вставить
 	//   строку в документ (например, из-за недостатка товара pItem->GoodsID).
 	//
-	int    ConvertILTI(ILTI *, PPBillPacket *, LongArray * pRows, uint, const char * pSerial, const GoodsReplacementArray * pGri = 0);
+	int    ConvertILTI(ILTI & rIlti, PPBillPacket *, LongArray * pRows, uint, const char * pSerial, const GoodsReplacementArray * pGri = 0);
 	//
 	// Descr: Флаги функции InsertShipmentItemByOrder()
 	//
@@ -35745,7 +35744,7 @@ public:
 			fAutoLineAllowZero       = 0x0020,
 			fAutoLineZero            = 0x0040,
 			fRestrictZeroRestWithMtx = 0x0080, // Проекция флага AutoFillInvFilt::fRestrictZeroRestWithMtx
-			fExcludeZeroRestPassiv   = 0x0100  // @v11.1.2
+			fExcludeZeroRestPassiv   = 0x0100,
 		};
 		explicit InvBlock(long flags = 0);
 	private:
@@ -36051,7 +36050,7 @@ private:
 	int    SetTagNumberByLot(PPID lotID, PPID tagID, const char * pNumber, int use_ta);
 	int    Helper_GetPoolMembership(PPID id, const PPBillPacket * pPack, long flag, PPID poolType, PPID * pPoolID);
 		// @<<PPObjBill::GetPoolsMembership
-	int    Helper_ConvertILTI_Subst(ILTI *, PPBillPacket *, LongArray * pRows, double * pQtty, long flags, const GoodsReplacementArray *, char * pSerial);
+	int    Helper_ConvertILTI_Subst(ILTI & rIlti, PPBillPacket *, LongArray * pRows, double * pQtty, long flags, const GoodsReplacementArray *, char * pSerial);
 		// @<<PPObjBill::ConvertILTI
 	int    CheckPoolStatus(PPID billID, int poolType);
 	int    Debug_TrfrError(const PPBillPacket * pPack);
@@ -38189,16 +38188,32 @@ public:
 	struct Entry {
 		Entry();
 
-		PPID   TechID;      // ->Tech.ID Ид технологии, определяющей конкретную фазу процесса
-		uint8  Reserve[16];
+		PPID   TechID;         // ->Tech.ID Ид технологии, определяющей конкретную фазу процесса
+		double NominalPrice;   // @v12.6.0 Номинальная цена за операцию на единицу продукции
+		uint32 NominalTimeSec; // @v12.6.0 Номинальное время исполнения операции на единицу продукции
+		uint8  Reserve[32];
 	};
 	PPTechRoute();
 	PPTechRoute & Z();
 	bool   IsEmpty() const { return (L.getCount() == 0); }
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
-	int    AddEntry(PPID techID, const PPID ownerTechID);
+	int    AddEntry(PPID techID);
 	
+	SObjID Oid; // @v12.6.0
 	TSVector <Entry> L;
+};
+//
+// Descr: Класс, управляющий технологическими маршрутами
+//
+class PPTechRouteManager { // PPOBJ_TECHROUTE
+public:
+	PPTechRouteManager();
+	int    Put(PPTechRoute & rRoute, int use_ta);
+	//
+	// ARG(rRoute IN/OUT): Поле rRoute.Oid должно быть полностью определено (Obj != 0 && Id != 0)
+	//
+	int    Get(PPTechRoute & rRoute);
+	int    Edit(PPTechRoute & rRoute);
 };
 
 struct PPTechPacket {
@@ -38267,7 +38282,6 @@ private:
 	int    AddItemsToList(StrAssocArray *, PPIDArray * pIdList, PPIDArray * pGoodsIdList, long extraParam, PPID goodsID = 0);
 		// @<<PPObjTech::MakeList_
 	int    SearchAuto(PPID prcID, PPID goodsID, PPID * pTechID);
-	static int EditTechRoute(PPID ownerTechID, PPTechRoute & rData);
 public:
 	TLP_MEMB(TechTbl, P_Tbl);
 	void * ExtraPtr;

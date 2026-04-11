@@ -1131,7 +1131,7 @@
 	#define GDSPRP_MINSTOCKBYLOC 6L  // Минимальный запас товара по складам
 	#define GGPRP_GOODSFILT2     7L  // Фильтр товаров для альтернативной группы (сериализованный вариант)
 #define PPOBJ_LOCATION      1010L  // Позиции @store(LocationTbl)
-	#define LOCPRP_WAREHOUSELIST 1L // @v11.0.6 Список складов, ассоциированных с подразделением главной организации
+	#define LOCPRP_WAREHOUSELIST 1L // Список складов, ассоциированных с подразделением главной организации
 	// @v12.1.2 // Зарезервированные позиции (не используются)
 	// @v12.1.2 #define PPLOC_RECEIPT        1L // @unused Поступление товара из-вне
 	// @v12.1.2 #define PPLOC_EXPEND         2L // @unused Расход товара
@@ -1182,7 +1182,7 @@
 	#define PRCPRP_EXT2          2L // Структура расширения пакета процессора (новая версия с сериализацией)
 #define PPOBJ_TECH          1038L  // Технологии
 	#define TECPRP_EXTSTR        1L  // Строка дополнительных параметров
-	#define TECPRP_ROUTE         2L  // @v12.5.12 Сериализованный буфер маршрута технологии (PPTechRoute)
+	// @v12.6.0 (схема управления маршрутами была пересмотрена) #define TECPRP_ROUTE         2L  // @v12.5.12 Сериализованный буфер маршрута технологии (PPTechRoute)
 #define PPOBJ_TSESSION      1039L  // Процессорные сессии
 	//
 	// Extra record of PPOBJ_TSESSION
@@ -1266,6 +1266,8 @@
 // (не надо было вводить этот объект) #define PPOBJ_NOTES         1103L   // @v12.5.6 @construction PPObjNotes. Структурированные заметки. 
 #define PPOBJ_UXCMD         1103L   // @v12.5.6 !PPObject Команды пользовательского интерфейса. Конкретное наполнение зависит от контекста.
 	// Введен из-за проекта Centrigo, но, вероятно будет полезен и в других применениях.
+#define PPOBJ_TECHROUTE     1104L   // @v12.6.0 !PPObject Технологический маршрут, привязанный к какому-либо объекту данных
+	// Элементы PPOBJ_TECHROUTE сохраняются в Property с координатами {ObjType=PPOBJ_TECHROUTE, ObjID=LinkObjType, Prop=LinkObjID}
 #define PPOBJ_SELFREFTEXT   2000L   // Специальное значение для записей в TextRef, представлющих только текст с автоматически назначенным идентификатором
 // LastObject
 //
@@ -1969,6 +1971,7 @@
 #define STDCTL_DELETEALL          172 // @v12.5.8   
 #define STDCTL_IMPORT             173 // @v12.5.8
 #define STDCTL_NOBUTTON           174 // @v12.5.8
+#define STDCTL_TRANSMITCHARRY     175 // @v12.6.0 
 
 #define cmPPAccSelected          1101 // Сообщение, посылаемое группой
 	// AcctCtrlGroup диалогу-владельцу когда пользователь выбрал новый счет. (AcctCtrlGroup*)InfoPtr
@@ -2520,6 +2523,10 @@
 #define DLG_GGVIEW                 71
 	#define CTL_GGVIEW_GGRPTYPE     (1 + WINDOWS_ID_BIAS)
 	#define CTL_GGVIEW_LIST         (2 + WINDOWS_ID_BIAS)
+	#define CTL_GGVIEW_CMD_QUOT                (3 + WINDOWS_ID_BIAS)
+	#define CTL_GGVIEW_CMD_SUPPLCOST           (4 + WINDOWS_ID_BIAS)
+	#define CTL_GGVIEW_CMD_GOODSMATRIX         (5 + WINDOWS_ID_BIAS)   
+	#define CTL_GGVIEW_CMD_GOODSMATRIXRESTRICT (6 + WINDOWS_ID_BIAS)
 #define DLG_GOODS                  72 // Товар
 	#define cmGoodsEditTax            602
 	#define cmGoodsExt                131
@@ -3853,6 +3860,7 @@
 	#define CTL_LST2LST_BW               (5 + WINDOWS_ID_BIAS) // Button
 	#define CTL_LST2LST_ALLBW            (6 + WINDOWS_ID_BIAS) // Button
 	#define CTL_LST2LST_CT2              (7 + WINDOWS_ID_BIAS) // Количество элементов в правом списке
+	#define CTL_LST2LST_CMD_SELECTBYTAG  (8 + WINDOWS_ID_BIAS) // @v12.6.0
 #define DLG_GDSLST                262 // Список товаров для добавления в группу
 	#define CTL_GDSLST_GGRP              (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GDSLST_GGRP           (2 + WINDOWS_ID_BIAS)
@@ -4056,7 +4064,13 @@
 	#define CTL_CSPANEL_CSESSCLOSE       (6 + WINDOWS_ID_BIAS)
 	#define CTL_CSPANEL_XREP             (7 + WINDOWS_ID_BIAS)
 	#define CTL_CSPANEL_BMP              (8 + WINDOWS_ID_BIAS)
-	#define CTL_CSPANEL_RESETCHZNPMSVRADDR (9 + WINDOWS_ID_BIAS) // @v12.4.1
+	#define CTL_CSPANEL_RESETCHZNPMSVRADDR    ( 9 + WINDOWS_ID_BIAS) // @v12.4.1
+	#define CTL_CSPANEL_CMD_SCSINCASSO        (10 + WINDOWS_ID_BIAS) // @v12.6.0
+	#define CTL_CSPANEL_CMD_SCSLOCK           (11 + WINDOWS_ID_BIAS) // @v12.6.0
+	#define CTL_CSPANEL_CMD_SCSPRINTCHECKCOPY (12 + WINDOWS_ID_BIAS) // @v12.6.0
+	#define CTL_CSPANEL_CMD_SCSZREPORTCOPY    (13 + WINDOWS_ID_BIAS) // @v12.6.0
+	#define CTL_CSPANEL_CMD_SCSUNLOCK         (14 + WINDOWS_ID_BIAS) // @v12.6.0
+	#define CTL_CSPANEL_CMD_SCSDRAWEROPEN     (15 + WINDOWS_ID_BIAS) // @v12.6.0
 #define DLG_LOTTOTAL              280 // Итоги выборки лотов
 #define DLG_LOTTOTALE             281 // Раширенные итоги выборки лотов
 	#define CTL_LOTTOTAL_FRAME           (1 + WINDOWS_ID_BIAS)
@@ -4989,6 +5003,7 @@
 	#define CTLCAL_GDSTAX_PERIOD         (12 + WINDOWS_ID_BIAS)
 	#define CTL_GDSTAX_SYMB              (13 + WINDOWS_ID_BIAS)
 	#define CTL_GDSTAX_SPCVAT            (14 + WINDOWS_ID_BIAS) // @v12.2.3
+	#define CTL_GDSTAX_CMD_GOODSTAXLIST  (15 + WINDOWS_ID_BIAS) // @v12.6.0
 #define DLG_GTAXTEST              403
 	#define CTL_GTAXTEST_AMOUNT          (1 + WINDOWS_ID_BIAS)
 	#define CTL_GTAXTEST_AMTTYPE         (2 + WINDOWS_ID_BIAS)
@@ -5787,6 +5802,8 @@
 	#define CTL_GBTRUC_ID                (14 + WINDOWS_ID_BIAS)
 	#define CTL_GBTRUC_PRIVATE           (15 + WINDOWS_ID_BIAS)
 	#define CTL_GBTRUC_USER              (16 + WINDOWS_ID_BIAS) // @v11.4.1 read-only user-name
+	#define CTL_GBTRUC_CMD_ADDFROMBASKET (17 + WINDOWS_ID_BIAS) // @v12.6.0
+	#define CTL_GBTRUC_CMD_CLEARGB       (18 + WINDOWS_ID_BIAS) // @v12.6.0
 #define DLG_GBITEM                501   // Элемент корзины товаров
 	#define cmShowBasket                 104
 	#define cmPrognosis                  105
@@ -6051,6 +6068,10 @@
 	#define CTLSEL_SCARDSER_RPDEST       (31 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDSER_FIXBON          (32 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDSER_RESTRICTIONS    (33 + WINDOWS_ID_BIAS) // @v12.5.1 cmRestrictions
+	#define CTL_SCARDSER_CMD_SCARDRULE   (34 + WINDOWS_ID_BIAS)
+	#define CTL_SCARDSER_CMD_CCHECKRULE  (35 + WINDOWS_ID_BIAS)
+	#define CTL_SCARDSER_CMD_BONUSRULE   (36 + WINDOWS_ID_BIAS)
+
 #define DLG_SCARD                 530 // Персональная карта
 	#define cmNotifyOptions              101
 	#define cmSCardAction1               102
@@ -7174,6 +7195,9 @@
 	#define CTL_TSESS_ST_PLAN            (47 + WINDOWS_ID_BIAS)   
 	#define CTL_TSESS_ST_FACT            (48 + WINDOWS_ID_BIAS)   
 	#define CTL_TSESS_CMD_SELTECHBYGOODS (49 + WINDOWS_ID_BIAS)
+	#define CTL_TSESS_CMD_TSESSDETAIL    (50 + WINDOWS_ID_BIAS)
+	#define CTL_TSESS_CMD_CCHECK         (51 + WINDOWS_ID_BIAS)
+	#define CTL_TSESS_CMD_CHKINP         (52 + WINDOWS_ID_BIAS)
 
 #define DLG_TSESSLN               674 // Строка технологической сессии
 	#define CTL_TSESSLN_SESSID           (1 + WINDOWS_ID_BIAS)

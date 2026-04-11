@@ -300,7 +300,7 @@ dialog DLG_TLST2TLST [title: "" vertical size: (724, 431)  font: "MS Shell Dlg,8
 	}
 	view [horizontal width: bycontainer(100) height: 32] {
 		view [horizontal growfactor: 1 height: bycontainer(100) justifycontent: start] {
-			button CTL_CMD_SELECTBYTAG [title: "@{selectbytag}..." tabstop size: (135, 21) margin: 4 command: cmSelectByTag];
+			button CTL_LST2LST_CMD_SELECTBYTAG [title: "@{selectbytag}..." tabstop size: (135, 21) margin: 4 command: cmSelectByTag];
 			button STDCTL_INSBUTTON [title: "@{addnew}... <Insert>" tabstop size: (173, 21) margin: 4 command: cmaInsert];
 		}
 		view [vertical width: 42 height: bycontainer(100) justifycontent: spaceevenly] { // ѕустышка дл€ выравнивани€ по верхней зоне списков
@@ -326,7 +326,7 @@ dialog DLG_LST2LST [title: "" vertical size: (724, 431)  font: "MS Shell Dlg,8"]
 	}
 	view [horizontal width: bycontainer(100) height: 32] {
 		view [horizontal growfactor: 1 height: bycontainer(100) justifycontent: start] {
-			button CTL_CMD_SELECTBYTAG [title: "@{selectbytag}..." tabstop size: (135, 21) margin: 4 command: cmSelectByTag];
+			button CTL_LST2LST_CMD_SELECTBYTAG [title: "@{selectbytag}..." tabstop size: (135, 21) margin: 4 command: cmSelectByTag];
 			button STDCTL_INSBUTTON [title: "@{addnew}... <Insert>" tabstop size: (173, 21) margin: 4 command: cmaInsert];
 		}
 		view [vertical width: 42 height: bycontainer(100) justifycontent: spaceevenly] { // ѕустышка дл€ выравнивани€ по верхней зоне списков
@@ -397,10 +397,10 @@ dialog DLG_GGVIEW [horizontal title: "@cmd_goodsgroup" size: (700, 580) minsize:
 		button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
 		button STDCTL_MORE [title: "@{cmd_goods}..." tabstop size: (90, 21) margin: 4 command: cmaMore];
 		framebox [vertical width: bycontainer(100) height: 180 margin: 4 padding: 4 justifycontent: spaceevenly alignitems: center] {
-			button CTL_CMD_QUOT [title: "@but_quots" tabstop size: (120, 21) margin: 4 command: cmQuot];
-			button CTL_CMD_SUPPLCOST [title: "@{qkcls_suppldeal}..." tabstop size: (120, 41) margin: 4 command: cmSupplCost];
-			button CTL_CMD_GOODSMATRIX [title: "@{matrix}..." tabstop size: (120, 21) margin: 4 command: cmGoodsMatrix];
-			button CTL_CMD_GOODSMATRIXRESTRICT [title: "@{qkcls_goodsmatrixrestr}..." tabstop size: (120, 41) margin: 4 command: cmGoodsMatrixRestrict];
+			button CTL_GGVIEW_CMD_QUOT [title: "@but_quots" tabstop size: (120, 21) margin: 4 command: cmQuot];
+			button CTL_GGVIEW_CMD_SUPPLCOST [title: "@{qkcls_suppldeal}..." tabstop size: (120, 41) margin: 4 command: cmSupplCost];
+			button CTL_GGVIEW_CMD_GOODSMATRIX [title: "@{matrix}..." tabstop size: (120, 21) margin: 4 command: cmGoodsMatrix];
+			button CTL_GGVIEW_CMD_GOODSMATRIXRESTRICT [title: "@{qkcls_goodsmatrixrestr}..." tabstop size: (120, 41) margin: 4 command: cmGoodsMatrixRestrict];
 		}
 		button STDCTL_TRANSMITBUTTON [title: "@but_transmit" tabstop size: (90, 21) margin: 4 command: cmTransmit];
 		button STDCTL_SJBUTTON [title: "@but_sysj" tabstop size: (90, 21) margin: 4 command: cmSysJournalByObj];
@@ -417,8 +417,8 @@ dialog DLG_REFOBJVIEW [horizontal title: "" size: (489, 424) minsize: (380, 310)
 			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
 			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
 		}
-		view [vertical growfactor: 3 width: bycontainer(100)] {
-			button CTL_CMD_TRANSMITCHARRY [title: "@dotransmitcharry" tabstop size: (90, 37) margin: 4 command: cmTransmitCharry];
+		view [vertical growfactor: 3 width: bycontainer] {
+			button STDCTL_TRANSMITCHARRY [title: "@dotransmitcharry" tabstop size: (90, 37) margin: 4 command: cmTransmitCharry];
 			button STDCTL_TRANSMITBUTTON [title: "@but_transmit" tabstop size: (90, 21) margin: 4 command: cmTransmit];
 			button STDCTL_SJBUTTON [title: "@but_sysj" tabstop size: (90, 21) margin: 4 command: cmSysJournalByObj];
 		}
@@ -474,7 +474,7 @@ dialog DLG_LOCPRNVIEW [horizontal title: "@objects" size: (394, 380) minsize: (3
 		}
 		view [vertical growfactor: 2 width: bycontainer(100)] {
 			button STDCTL_SJBUTTON [title: "@but_sysj" tabstop size: (90, 21) margin: 4 command: cmSysJournalByObj];
-			button CTL_CMD_TEST [title: "@test" tabstop size: (90, 21) margin: 4 command: cmTest];
+			button STDCTL_TESTBUTTON [title: "@test" tabstop size: (90, 21) margin: 4 command: cmTest];
 		}
 		view [vertical growfactor: 1 width: bycontainer(100) justifycontent: end] {
 			button STDCTL_OKBUTTON [title: "@but_close" tabstop size: (90, 21) margin: 4 command: cmOK];
@@ -546,7 +546,7 @@ dialog DLG_GBSTRUC_N [title: "@basket" vertical size: (700, 550) minsize: (650, 
 			button STDCTL_EDITBUTTON [title: "@but_edit" tabstop margin: 4 size: (90, 21)  command: cmaEdit];
 			button STDCTL_INSBUTTON [title: "@but_add" tabstop margin: 4 size: (90, 21)  command: cmaInsert];
 			button STDCTL_DELBUTTON [title: "@but_delete" tabstop margin: 4 size: (90, 21)  command: cmaDelete];
-			button CTL_CMD_CLEARGB [title: "@doclear" tabstop margin: 4 size: (90, 21)  command: cmClearGB];
+			button CTL_GBTRUC_CMD_CLEARGB [title: "@doclear" tabstop margin: 4 size: (90, 21)  command: cmClearGB];
 			button STDCTL_PRINTBUTTON [title: "@but_print" tabstop margin: 4 size: (90, 21)  command: cmPrint];
 		}
 	}
@@ -562,7 +562,7 @@ dialog DLG_GBSTRUC_N [title: "@basket" vertical size: (700, 550) minsize: (650, 
 				input CTL_GBTRUC_ID [width: 48 height: 21 margin: 4 tabstop readonly fmtf: (nozero) label: "@id"] int32;
 				input CTL_GBTRUC_USER [width: 120 height: 21 margin: 4 tabstop readonly label: "@user"] string[48];
 				view [horizontal growfactor: 1 height: bycontainer(100) justifycontent: end alignitems: end] {
-					button CTL_CMD_ADDFROMBASKET [title: "@{dogetfrombasket}..." tabstop size: (143, 21) margin: 4 command: cmAddFromBasket];
+					button CTL_GBTRUC_CMD_ADDFROMBASKET [title: "@{dogetfrombasket}..." tabstop size: (143, 21) margin: 4 command: cmAddFromBasket];
 					button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
 					button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 				}
@@ -1236,12 +1236,12 @@ dialog DLG_CASHREPORTS [vertical title: "@posnodecmd" size: (300, 395) minsize: 
 		button CTL_CSPANEL_XREP [title: "@posnodecmd_sync_xreport" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmSCSXReport];
 		button CTL_CSPANEL_CSESSCLOSE [title: "@posnodecmd_sync_closesess" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmCSClose];
 		button CTL_CSPANEL_CSESSOPEN [title: "@posnodecmd_sync_opensess" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmCSOpen];
-		button CTL_CMD_SCSZREPORTCOPY [title: "@posnodecmd_sync_zreportcopy" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmSCSZReportCopy];
-		button CTL_CMD_SCSINCASSO [title: "@posnodecmd_sync_encashment" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmSCSIncasso];
-		button CTL_CMD_SCSLOCK [title: "@posnodecmd_sync_lock" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmSCSLock];
-		button CTL_CMD_SCSUNLOCK [title: "@posnodecmd_sync_unlock" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmSCSUnlock];
-		button CTL_CMD_SCSPRINTCHECKCOPY [title: "@posnodecmd_sync_printcheckcopy" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmSCSPrintCheckCopy];
-		button CTL_CMD_SCSDRAWEROPEN [title: "@posnodecmd_sync_opendrawer" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmSCSDrawerOpen];
+		button CTL_CSPANEL_CMD_SCSZREPORTCOPY [title: "@posnodecmd_sync_zreportcopy" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmSCSZReportCopy];
+		button CTL_CSPANEL_CMD_SCSINCASSO [title: "@posnodecmd_sync_encashment" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmSCSIncasso];
+		button CTL_CSPANEL_CMD_SCSLOCK [title: "@posnodecmd_sync_lock" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmSCSLock];
+		button CTL_CSPANEL_CMD_SCSUNLOCK [title: "@posnodecmd_sync_unlock" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmSCSUnlock];
+		button CTL_CSPANEL_CMD_SCSPRINTCHECKCOPY [title: "@posnodecmd_sync_printcheckcopy" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmSCSPrintCheckCopy];
+		button CTL_CSPANEL_CMD_SCSDRAWEROPEN [title: "@posnodecmd_sync_opendrawer" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmSCSDrawerOpen];
 		button CTL_CSPANEL_RESETCHZNPMSVRADDR [title: "@posnodecmd_sync_resetchznpmsvraddr" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmCSResetChZnPmSvrAddr];
 	}
 	view [horizontal width: bycontainer growfactor: 2 alignitems: center justifycontent: spaceevenly] {
@@ -2492,9 +2492,9 @@ dialog DLG_SCARDSER [vertical title: "@scard_series" size: (695, 635) minsize: (
 			checkbox [title: "@scardseries_scrdsf_quantaccounting"];
 		}
 		framebox [vertical growfactor: 2 height: bycontainer padding: 4 justifycontent: center margin: 4] {
-			button CTL_CMD_SCARDRULE [title: "@scardrule_dis" tabstop width: bycontainer height: 21 margin: 4 command: cmSCardRule];
-			button CTL_CMD_CCHECKRULE [title: "@scardrule_ccdis" tabstop width: bycontainer height: 21 margin: 4 command: cmCCheckRule];
-			button CTL_CMD_BONUSRULE [title: "@scardrule_bonus" tabstop width: bycontainer height: 21 margin: 4 command: cmBonusRule];
+			button CTL_SCARDSER_CMD_SCARDRULE [title: "@scardrule_dis" tabstop width: bycontainer height: 21 margin: 4 command: cmSCardRule];
+			button CTL_SCARDSER_CMD_CCHECKRULE [title: "@scardrule_ccdis" tabstop width: bycontainer height: 21 margin: 4 command: cmCCheckRule];
+			button CTL_SCARDSER_CMD_BONUSRULE [title: "@scardrule_bonus" tabstop width: bycontainer height: 21 margin: 4 command: cmBonusRule];
 			button CTL_SCARDSER_RESTRICTIONS [title: "@{scardrule_restrictions}..." tabstop width: bycontainer height: 21 margin: (4, 8, 4, 4) command: cmRestrictions];
 		}
 	}
@@ -3437,7 +3437,7 @@ dialog DLG_GDSTAX [vertical title: "@taxgroup" size: (535, 420) minsize: (535, 4
 	}
 	framebox [horizontal width: bycontainer height: 40 margin: 4 padding: 4 alignitems: center] {
 		checkbox CTL_GDSTAX_FLAGS [title: "@goodstax_gtaxf_uselist" tabstop growfactor: 1 height: 21 margin: 4];
-		button CTL_CMD_GOODSTAXLIST [title: "@but_list" tabstop size: (75, 21) margin: 4 command: cmGoodsTaxList];
+		button CTL_GDSTAX_CMD_GOODSTAXLIST [title: "@but_list" tabstop size: (75, 21) margin: 4 command: cmGoodsTaxList];
 	}
 	view [horizontal width: bycontainer height: 28 margin_right: 8 justifycontent: end] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
@@ -4263,7 +4263,7 @@ dialog DLG_BILLFLT [vertical title: "%s" size: (650, 540) minsize: (650, 540) pa
 		}
 		view [vertical growfactor: 1 height: bycontainer alignitems: end] {
 			button STDCTL_SJBUTTON [title: "@but_sysj" tabstop size: (158, 21) margin: 4 command: cmSysjFilt2];
-			button CTL_CMD_MORE [title: "@{extension}..." tabstop size: (158, 21) margin: 4 command: cmaMore];
+			button STDCTL_MORE [title: "@{extension}..." tabstop size: (158, 21) margin: 4 command: cmaMore];
 			button STDCTL_VIEWOPTBUTTON [title: "@but_viewoptions" tabstop size: (158, 21) margin: 4 command: cmViewOptions];
 		}
 	}
@@ -4487,9 +4487,9 @@ dialog DLG_TSESS [vertical title: "@{tsession}" size: (700, 660) minsize: (700, 
 	input CTL_TSESS_MEMO [width: bycontainer height: 21 margin: 4 tabstop label: "@tsession_memo"] string[160];
 	view [horizontal width: bycontainer height: 30] {
 		view [horizontal growfactor: 5 height: bycontainer justifycontent: start] {
-			button CTL_CMD_TSESSDETAIL [title: "@{sessitem_pl}..." tabstop size: (150, 21) margin: 4 command: cmTSessDetail];
-			button CTL_CMD_CCHECK [title: "@{poscheck}..." tabstop size: (90, 21) margin: 4 command: cmCCheck];
-			button CTL_CMD_CHKINP [title: "@{registration}..." tabstop size: (90, 21) margin: 4 command: cmChkInP];
+			button CTL_TSESS_CMD_TSESSDETAIL [title: "@{sessitem_pl}..." tabstop size: (150, 21) margin: 4 command: cmTSessDetail];
+			button CTL_TSESS_CMD_CCHECK [title: "@{poscheck}..." tabstop size: (90, 21) margin: 4 command: cmCCheck];
+			button CTL_TSESS_CMD_CHKINP [title: "@{registration}..." tabstop size: (90, 21) margin: 4 command: cmChkInP];
 		}
 		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
 			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
@@ -4670,18 +4670,18 @@ dialog DLG_CASHREPORTS_L__ [vertical title: "@posnodecmd" size: (595, 525) minsi
 		view [vertical growfactor: 1 height: bycontainer] {
 			button CTL_CSPANEL_XREP [title: "@posnodecmd_sync_xreport" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSXReport];
 			button CTL_CSPANEL_CSESSCLOSE [title: "@posnodecmd_sync_closesess" tabstop width: bycontainer height: 50 margin: 8 command: cmCSClose];
-			button CTL_CMD_SCSINCASSO [title: "@posnodecmd_sync_encashment" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSIncasso];
-			button CTL_CMD_SCSLOCK [title: "@posnodecmd_sync_lock" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSLock];
+			button CTL_CSPANEL_CMD_SCSINCASSO [title: "@posnodecmd_sync_encashment" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSIncasso];
+			button CTL_CSPANEL_CMD_SCSLOCK [title: "@posnodecmd_sync_lock" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSLock];
 		}
 		view [vertical growfactor: 1 height: bycontainer] {
-			button CTL_CMD_SCSPRINTCHECKCOPY [title: "@posnodecmd_sync_printcheckcopy" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSPrintCheckCopy];
+			button CTL_CSPANEL_CMD_SCSPRINTCHECKCOPY [title: "@posnodecmd_sync_printcheckcopy" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSPrintCheckCopy];
 			button CTL_CSPANEL_CSESSOPEN [title: "@posnodecmd_sync_opensess" tabstop width: bycontainer height: 50 margin: 8 command: cmCSOpen];
-			button CTL_CMD_SCSZREPORTCOPY [title: "@posnodecmd_sync_zreportcopy" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSZReportCopy];
-			button CTL_CMD_SCSUNLOCK [title: "@posnodecmd_sync_unlock" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSUnlock];
+			button CTL_CSPANEL_CMD_SCSZREPORTCOPY [title: "@posnodecmd_sync_zreportcopy" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSZReportCopy];
+			button CTL_CSPANEL_CMD_SCSUNLOCK [title: "@posnodecmd_sync_unlock" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSUnlock];
 		}
 	}
 	view [vertical width: bycontainer(80) growfactor: 2] {
-		button CTL_CMD_SCSDRAWEROPEN [title: "@posnodecmd_sync_opendrawer" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSDrawerOpen];
+		button CTL_CSPANEL_CMD_SCSDRAWEROPEN [title: "@posnodecmd_sync_opendrawer" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSDrawerOpen];
 		button CTL_CSPANEL_RESETCHZNPMSVRADDR [title: "@posnodecmd_sync_resetchznpmsvraddr" tabstop width: bycontainer height: 50 margin: 8 command: cmCSResetChZnPmSvrAddr];
 	}
 	view [horizontal width: bycontainer(80) growfactor: 2 alignitems: center justifycontent: spaceevenly] {

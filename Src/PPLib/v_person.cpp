@@ -194,7 +194,7 @@ bool PPViewPerson::IsTempTblNeeded()
 {
 	PersonFilt * p_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_PERSON, reinterpret_cast<PPBaseFilt **>(&p_filt))) {
-		int speciality = reinterpret_cast<int>(extraPtr);
+		const  int speciality = reinterpret_cast<int>(extraPtr);
 		if(speciality == PersonFilt::spcClientActivityStats) {
 			p_filt->Flags |= PersonFilt::fCliActivityStats;
 		}
@@ -1531,6 +1531,28 @@ int PPViewPerson::CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnAttrVie
 		item.ID = pPsnRec->ID;
 		item.TabID = tabID;
 		STRNSCPY(item.Name, pPsnRec->Name);
+		if(Filt.Flags & PersonFilt::fCentrigoContacts) {
+			if(!item.PhoneP || !item.EMailP) {
+				PPELinkArray elink_ary;
+				if(PsnObj.P_Tbl->GetELinks(pPsnRec->ID, elink_ary)) {
+					if(!item.PhoneP) {
+						temp_buf.Z();
+						const int buf_len = 256;
+						SString fax_list;
+						elink_ary.GetPhones(5, temp_buf, ELNKRT_PHONE);
+						elink_ary.GetPhones(2, fax_list, ELNKRT_FAX);
+						if(fax_list.Len() && (temp_buf.Len() + fax_list.Len() + 6) < buf_len)
+							temp_buf.CatDiv(';', 2).Cat("fax").Space().Cat(fax_list);
+						StrPool.AddS(temp_buf, &item.PhoneP);
+					}
+					if(!item.EMailP) {
+						temp_buf.Z();
+						elink_ary.GetPhones(1, temp_buf, ELNKRT_EMAIL);
+						StrPool.AddS(temp_buf, &item.EMailP);
+					}
+				}
+			}
+		}
 	}
 	ASSIGN_PTR(pItem, item);
 	return ok;
@@ -1845,12 +1867,21 @@ int PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
 int PPViewPerson::EditTempRec(PPID id, int use_ta)
 {
 	int    ok = -1;
-	if(P_TempPsn && id) {
-		PPTransaction tra(ppDbDependTransaction, use_ta);
-		THROW(tra);
-		THROW_DB(deleteFrom(P_TempPsn, 0, P_TempPsn->ID == id));
-		THROW(AddTempRec(id, 0, 0));
-		THROW(tra.Commit());
+	if(id) {
+		if(State & stUseInternalList) {
+			uint   pos = 0;
+			if(SearchInternalViewItem(id, 0, &pos)) {
+				InternalViewList.atFree(pos);
+			}
+			THROW(AddTempRec(id, 0, 0));
+		}
+		else if(P_TempPsn) {
+			PPTransaction tra(ppDbDependTransaction, use_ta);
+			THROW(tra);
+			THROW_DB(deleteFrom(P_TempPsn, 0, P_TempPsn->ID == id));
+			THROW(AddTempRec(id, 0, 0));
+			THROW(tra.Commit());
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -2979,7 +3010,10 @@ browser PERSON_INMEM north(100), 1, 1, "@{person_pl} {%s}", OWNER|GRID, 0
 	"@status",   2, notype, 0, 10, BCO_USERPROC
 	"@category", 3, notype, 0, 10, BCO_USERPROC
 	"@memo",     4, notype, 0, 40, BCO_USERPROC
-	toolbar PERSON
+
+	"@phone",   16, zstring(48),   0, 10, BCO_USERPROC
+	"@email",   17, zstring(48),   0, 10, BCO_USERPROC
+	"@etc",     18, zstring(2048), 0, 40, BCO_USERPROC
 }
 	*/ 
 	PersonTbl::Rec psn_rec;
@@ -3026,6 +3060,26 @@ browser PERSON_INMEM north(100), 1, 1, "@{person_pl} {%s}", OWNER|GRID, 0
 				pBlk->Set(temp_buf);
 			}
 			break;
+		case 16: // phone
+			{
+				StrPool.GetS(p_item->PhoneP, temp_buf);
+				pBlk->Set(temp_buf);
+			}
+			break;
+		case 17: // email
+			{
+				StrPool.GetS(p_item->EMailP, temp_buf);
+				pBlk->Set(temp_buf);
+			}
+			break;
+		case 18: // etc
+			{
+				pBlk->Set(temp_buf);
+			}
+			break;
+		default:
+			ok = 0;
+			break;
 	}
 	return ok;
 }
@@ -3033,7 +3087,7 @@ browser PERSON_INMEM north(100), 1, 1, "@{person_pl} {%s}", OWNER|GRID, 0
 /*virtual*/SArray * PPViewPerson::CreateBrowserArray(uint * pBrwId, SString * pSubTitle) // @v12.5.12
 {
 	SArray * p_array = 0;
-	uint   brw_id = BROWSER_PERSON_INMEM;
+	uint   brw_id = (Filt.Flags & PersonFilt::fCentrigoContacts) ? BROWSER_PERSON_INMEM_CENTRIGO : BROWSER_PERSON_INMEM;
 	SString title_buf;
 	if(IsInMemView()) {
 		p_array = new SArray(sizeof(InternalViewItem));
@@ -3101,6 +3155,27 @@ browser PERSON_INMEM north(100), 1, 1, "@{person_pl} {%s}", OWNER|GRID, 0
 		q = PPView::CrosstabDbQueryStub;
 	}
 	else {
+		/*
+			Использованные идентификаторы полей:
+			// #0 ID
+			// #1 Табулятор (ИД адреса)
+			// #2 Наименование персоналии
+			// #3 Строка адреса
+			// #4 Код из адреса доставки
+			// #5 Тип адреса (юридический | физический | доставки)
+			// #6 Наименование города
+			// #7 Флаги
+			// #8 ФИАС guid адреса
+			// #9 ФИАС guid дома
+			// #10 Телефон
+			// #11 email
+			// #12 либо текстовое представление тега (PPPSNATTR_TAG), либо номер регистрационного документа (PPPSNATTR_REGISTER)
+			// #13 Номер регистрационного документа
+			// #14 Дата регистрационного документа
+			// #15 Дата истечения срока действия регистрационного документа
+			//
+			// #16 @v12.6.0 etc-text (centrigo)
+		*/ 
 		DBE    cq;
 		DBE    dbe_city;
 		DBE    dbe_phone;
@@ -4161,6 +4236,9 @@ int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 					last_id = id_list.get(i);
 					if(ppvCmd == PPVCMD_ADDITEM) {
 						AddTempRec(last_id, 0, 1);
+					}
+					else if(ppvCmd == PPVCMD_EDITITEM) {
+						EditTempRec(last_id, 1);
 					}
 					PsnObj.Dirty(last_id);
 				}

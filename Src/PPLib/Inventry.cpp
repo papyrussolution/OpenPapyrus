@@ -1169,7 +1169,7 @@ int InventoryConversion::Run(PPID billID)
 			   						ilti.Price   = 0.0;
 									ilti.SetQtty(diff);
 									rows.clear();
-									THROW(P_BObj->ConvertILTI(&ilti, &wrDnPack, &rows, cvt_flags, p_cvt_serial));
+									THROW(P_BObj->ConvertILTI(ilti, &wrDnPack, &rows, cvt_flags, p_cvt_serial));
 									{
 										double amt = 0.0, t_qtty = 0.0;
 										for(uint rp = 0; rp < rows.getCount(); rp++) {
@@ -1214,7 +1214,7 @@ int InventoryConversion::Run(PPID billID)
 											ilti.Cost = ilti.Price;
 										ilti.SetQtty(diff);
 										rows.clear();
-										THROW(P_BObj->ConvertILTI(&ilti, &wrUpPack, &rows, CILTIF_DEFAULT|CILTIF_INHLOTTAGS, r_ir.Serial));
+										THROW(P_BObj->ConvertILTI(ilti, &wrUpPack, &rows, CILTIF_DEFAULT|CILTIF_INHLOTTAGS, r_ir.Serial));
 										THROW(wrUpPack.LTagL.SetString(PPTAG_LOT_CLB, &rows, clb));
 										{
 											double amt = 0.0, t_qtty = 0.0;

@@ -8796,8 +8796,12 @@ protected:
 
 template <class T> class TSArray : public SArray {
 public:
-	explicit TSArray(uint o = O_ARRAY) : SArray(sizeof(T), o) {}
-	TSArray(const TSArray & src) : SArray(src) {}
+	explicit TSArray(uint o = O_ARRAY) : SArray(sizeof(T), o) 
+	{
+	}
+	TSArray(const TSArray & rS) : SArray(rS) 
+	{
+	}
 	T &    FASTCALL at(uint pos) const { return *reinterpret_cast<T *>(SArray::at(pos)); }
 };
 

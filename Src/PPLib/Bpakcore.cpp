@@ -2538,7 +2538,7 @@ int PPBillPacket::SetupRow(int itemNo, PPTransferItem * pItem, const PPTransferI
 				fl |= CILTIF_ALLOWZPRICE;
 		}
 		// } @v11.7.4 
-		THROW(P_BObj->ConvertILTI(&ilti, this, &row_pos_list, fl, 0));
+		THROW(P_BObj->ConvertILTI(ilti, this, &row_pos_list, fl, 0));
 		if(IsIntrExpndOp(Rec.OpID)) {
 			for(uint i = 0; i < row_pos_list.getCount(); i++) {
 				const uint row_pos = row_pos_list.at(i);
@@ -4183,20 +4183,20 @@ static void FASTCALL set_ti_dis(PPTransferItem * pTi, double d)
 		pTi->Discount += d;
 }
 
-void PPBillPacket::SetTotalDiscount(double dis, int pctdis, int rmvexcise)
+void PPBillPacket::SetTotalDiscount(double dis, bool pctdis, int rmvexcise)
 {
 	if(!oneof2(OpTypeID, PPOPT_GOODSREVAL, PPOPT_CORRECTION)) {
 		const  PPCommConfig & r_ccfg = CConfig;
 		const  PPBillConfig & cfg = P_BObj->GetConfig();
-		const  int zero = BIN(dis == 0.0 && rmvexcise == 0);
-		const  int empty_toggle = BIN((r_ccfg.Flags & CCFLG_TGGLEXCSNPRICE) || (Rec.Flags & BILLF_TGGLEXCSNPRICE));
+		const  bool is_zero = (dis == 0.0 && rmvexcise == 0);
+		const  bool empty_toggle = ((r_ccfg.Flags & CCFLG_TGGLEXCSNPRICE) || (Rec.Flags & BILLF_TGGLEXCSNPRICE));
 		uint   i;
 		PPTransferItem * ti;
 		uint   last_index = 0;
 		double min_qtty  = SMathConst::Max;
 		double max_price = 0.0;
 		double amount    = 0.0;
-		PPObjGoods     gobj;
+		PPObjGoods gobj;
 		Goods2Tbl::Rec grec;
 		PPGoodsTaxEntry gtx;
 		SArray list(sizeof(TiDisItem));
@@ -4233,7 +4233,7 @@ void PPBillPacket::SetTotalDiscount(double dis, int pctdis, int rmvexcise)
 						}
 						SETFLAG(ti->Flags, PPTFR_RMVEXCISE, rmvexcise);
 					}
-					if(!skip_dis && !(ti->Flags & PPTFR_NODISCOUNT) && !zero) {
+					if(!skip_dis && !(ti->Flags & PPTFR_NODISCOUNT) && !is_zero) {
 						const double qtty = fabs(ti->Quantity_);
 						const double p    = ti_price2(ti);
 						amount += R2(p * qtty);
@@ -4252,8 +4252,8 @@ void PPBillPacket::SetTotalDiscount(double dis, int pctdis, int rmvexcise)
 					}
 				}
 			}
-			if(dis != 0 && amount != 0) {
-				const double discount = pctdis ? (dis * fdiv100r(amount)) : dis;
+			if(dis != 0.0 && amount != 0.0) {
+				const  double discount = pctdis ? (dis * fdiv100r(amount)) : dis;
 				double d;
 				double part_dis = 0.0;
 				double part_amount = 0.0;
@@ -4341,16 +4341,18 @@ void PPBillPacket::SetTotalDiscount(double dis, int pctdis, int rmvexcise)
 					const  int skip_dis = 0;
 					gobj.Fetch(ti->GoodsID, &grec);
 					SETFLAG(ti->Flags, PPTFR_NODISCOUNT, grec.Flags & GF_NODISCOUNT);
-					if(!skip_dis)
-						if(ti->Flags & PPTFR_QUOT)
+					if(!skip_dis) {
+						if(ti->Flags & PPTFR_QUOT) {
 							if(ti->Flags & PPTFR_ORDER) {
 								ti->Discount = 0.0;
 								ti->Price = ti->QuotPrice;
 							}
 							else
 								ti->Discount = ti->Price - ti->QuotPrice;
+						}
 						else if(!(empty_toggle && dis == 0.0))
-							ti->Discount = 0;
+							ti->Discount = 0.0;
+					}
 					if(!v3918_calc_method) {
 						int    qr = BIN(ti->Flags & PPTFR_QUOT && ti->Flags & PPTFR_RMVEXCISE);
 						if(rmvexcise || qr) {
@@ -4372,9 +4374,9 @@ void PPBillPacket::SetTotalDiscount(double dis, int pctdis, int rmvexcise)
 						if(!rmvexcise)
 							ti->Flags &= ~PPTFR_RMVEXCISE;
 					}
-					if(!skip_dis && !(ti->Flags & PPTFR_NODISCOUNT) && !zero) {
+					if(!skip_dis && !(ti->Flags & PPTFR_NODISCOUNT) && !is_zero) {
 						const double qtty = fabs(ti->Quantity_);
-						const double p    = R2((ti->Flags & PPTFR_ORDER) ? ti->Price : ti->NetPrice());
+						const double p = R2((ti->Flags & PPTFR_ORDER) ? ti->Price : ti->NetPrice());
 						amount += R2(p * qtty);
 						if(v418_calc_method) {
 							TiDisItem tdi;
@@ -4451,13 +4453,14 @@ void PPBillPacket::SetTotalDiscount(double dis, int pctdis, int rmvexcise)
 				}
 				else {
 					const double rel = pctdis ? fdiv100r(dis) : (dis / amount);
-					for(i = 0; EnumTItems(&i, &ti);)
+					for(i = 0; EnumTItems(&i, &ti);) {
 						if(!ti->CurID && !(ti->Flags & (PPTFR_NODISCOUNT | PPTFR_PCKG)))
 							set_ti_dis(ti, R2(ti_price(ti) * rel));
+					}
 				}
 			}
-			if(v3918_calc_method)
-				for(i = 0; EnumTItems(&i, &ti);)
+			if(v3918_calc_method) {
+				for(i = 0; EnumTItems(&i, &ti);) {
 					if(!(ti->Flags & PPTFR_PCKG)) {
 						if(rmvexcise && !empty_toggle) {
 							gobj.FetchTaxEntry2(ti->GoodsID, 0/*lotID*/, 0/*taxPayerID*/, ti->Date, Rec.OpID, &gtx); // SALES_TAX
@@ -4465,6 +4468,8 @@ void PPBillPacket::SetTotalDiscount(double dis, int pctdis, int rmvexcise)
 						}
 						SETFLAG(ti->Flags, PPTFR_RMVEXCISE, rmvexcise);
 					}
+				}
+			}
 		}
 		if(pctdis) {
 			Amounts.Put(PPAMT_PCTDIS, 0L/*@curID*/, dis, 1, 1);

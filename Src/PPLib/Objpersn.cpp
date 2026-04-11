@@ -3991,7 +3991,7 @@ class PersonDialogBase : public TDialog {
 		ctlgroupIbg = 1
 	};
 public:
-	explicit PersonDialogBase(uint dlgID) : TDialog(dlgID), DupID(0)
+	explicit PersonDialogBase(uint dlgID) : TDialog(dlgID), DupID(0), PhonePos(-1), EmailPos(-1)
 	{
 		TView * p_ctrl = getCtrlView(CTL_PERSON_GENDER);
 		if(p_ctrl) {
@@ -4033,6 +4033,88 @@ protected:
 				showCtrl(CTL_PERSON_GENDER, false);
 		}
 		return ok;
+	}
+	int  SetupPhone() // @v12.6.0
+	{
+		int    ok = 1;
+		PhonePos = -1;
+		if(getCtrlView(CTL_PERSON_PHONE)) {
+			uint   i;
+			SString temp_buf;
+			if(InitPhone.NotEmpty()) {
+				PPELink el;
+				if(PPELinkArray::SetupNewPhoneEntry(InitPhone, el) > 0)
+					Data.ELA.insert(&el);
+			}
+			if(Data.ELA.GetSinglePhone(temp_buf, &i) > 0) {
+				PhonePos = static_cast<int>(i);
+				setCtrlString(CTL_PERSON_PHONE, temp_buf);
+			}
+		}
+		return ok;
+	}
+	void GetPhone() // @v12.6.0
+	{
+		if(getCtrlView(CTL_PERSON_PHONE)) {
+			SString temp_buf;
+			PPObjELinkKind elk_obj;
+			getCtrlString(CTL_PERSON_PHONE, temp_buf);
+			if(PhonePos >= 0) {
+				if(temp_buf.NotEmptyS()) {
+					PPELink & r_el = Data.ELA.at(PhonePos);
+					temp_buf.CopyTo(r_el.Addr, sizeof(r_el.Addr));
+				}
+				else
+					Data.ELA.atFree(PhonePos);
+			}
+			else if(temp_buf.NotEmptyS()) {
+				PPELink ele;
+				if(PPELinkArray::SetupNewPhoneEntry(temp_buf, ele) > 0)
+					Data.ELA.insert(&ele);
+			}
+		}
+	}
+	int  SetupEMail() // @v12.6.0
+	{
+		int    ok = 1;
+		EmailPos = -1;
+		if(getCtrlView(CTL_PERSON_EMAIL)) {
+			SString temp_buf;
+			{
+				PPObjELinkKind elk_obj;
+				PPELinkKind elk_rec;
+				for(uint i = 0; i < Data.ELA.getCount(); i++) {
+					const PPELink & r_item = Data.ELA.at(i);
+					temp_buf = r_item.Addr;
+					if(temp_buf.NotEmptyS() && elk_obj.Fetch(r_item.KindID, &elk_rec) > 0 && elk_rec.Type == ELNKRT_EMAIL) {
+						EmailPos = static_cast<int>(i);
+						setCtrlString(CTL_PERSON_EMAIL, temp_buf);
+						break;
+					}
+				}
+			}
+		}
+		return ok;
+	}
+	void GetEMail() // @v12.6.0
+	{
+		if(getCtrlView(CTL_PERSON_EMAIL)) {
+			SString temp_buf;
+			getCtrlString(CTL_PERSON_EMAIL, temp_buf);
+			if(EmailPos >= 0) {
+				if(temp_buf.NotEmptyS()) {
+					PPELink & r_el = Data.ELA.at(EmailPos);
+					temp_buf.CopyTo(r_el.Addr, sizeof(r_el.Addr));
+				}
+				else
+					Data.ELA.atFree(EmailPos);
+			}
+			else if(temp_buf.NotEmptyS()) {
+				PPELink ele;
+				if(PPELinkArray::SetupNewEmailEntry(temp_buf, ele) > 0)
+					Data.ELA.insert(&ele);
+			}
+		}
 	}
 	void GetDOB()
 	{
@@ -4076,6 +4158,8 @@ protected:
 	}
 	PPObjPerson PsnObj;
 	PPID   DupID;
+	int    PhonePos;
+	int    EmailPos;
 	SString Name_;
 	SString InitPhone;
 };
@@ -4131,6 +4215,8 @@ public:
 		AddClusterAssoc(CTL_PERSON_FLAGS, 2, PSNF_DONTSENDCCHECK);
 		SetClusterData(CTL_PERSON_FLAGS, Data.Rec.Flags);
 		//
+		SetupPhone(); // @v12.6.0
+		SetupEMail(); // @v12.6.0
 		setCtrlString(CTL_PERSON_MEMO, Data.SMemo);
 		SetupPPObjCombo(this, CTLSEL_PERSON_CATEGORY, PPOBJ_PRSNCATEGORY, Data.Rec.CatID, OLW_CANINSERT);
 		SetupGender();
@@ -4169,8 +4255,13 @@ public:
 		getCtrlString(CTL_PERSON_EXTNAME, temp_buf);
 		Data.SetExtName(temp_buf.Strip());
 		GetClusterData(CTL_PERSON_FLAGS, &Data.Rec.Flags);
+		GetPhone(); // @v12.6.0
+		GetEMail(); // @v12.6.0
 		getCtrlString(CTL_PERSON_MEMO, Data.SMemo);
 		Data.SMemo.Strip();
+		{
+			//CTL_PERSON_PHONE
+		}
 		// @v12.5.12 {
 		{
 			getCtrlString(CTL_PERSON_ETCTEXT, temp_buf);
@@ -4186,23 +4277,27 @@ public:
 				if(rec.Path.Len()) {
 					THROW(Data.LinkFiles.Replace(0, rec.Path));
 				}
-				else
+				else {
 					Data.LinkFiles.Remove(0);
+				}
 			}
 			SETFLAG(Data.Rec.Flags, PSNF_HASIMAGES, Data.LinkFiles.GetCount());
 		}
 		{
 			PPIDArray new_kind_list;
-			for(i = 0; i < Data.Kinds.getCount(); i++)
-				if(!PrevKindList.lsearch(Data.Kinds.get(i)))
-					new_kind_list.add(Data.Kinds.get(i));
+			for(i = 0; i < Data.Kinds.getCount(); i++) {
+				const  PPID kind_id = Data.Kinds.get(i);
+				if(!PrevKindList.lsearch(kind_id)) {
+					new_kind_list.add(kind_id);
+				}
+			}
 			if(new_kind_list.getCount()) {
-				int    is_private = 0;
+				bool   is_private = false;
 				{
 					PPObjPersonStatus ps_obj;
 					PPPersonStatus ps_rec;
 					if(Data.Rec.Status > 0 && ps_obj.Fetch(Data.Rec.Status, &ps_rec) > 0)
-					   is_private = BIN(ps_rec.Flags & PSNSTF_PRIVATE);
+					   is_private = LOGIC(ps_rec.Flags & PSNSTF_PRIVATE);
 				}
 				PPIDArray reg_list;
 				PPObjRegisterType obj_regt;
@@ -4283,8 +4378,7 @@ private:
 class ShortPersonDialog : public PersonDialogBase {
 public:
 	ShortPersonDialog(uint dlgId, PPID kindID, PPID scardSerID) : PersonDialogBase(dlgId),
-		KindID(kindID), SCardSerID(scardSerID), Preserve_SCardSerID(scardSerID),
-		SCardID(0), PhonePos(-1), EmailPos(-1), CodeRegPos(-1), CodeRegTypeID(0), St(0)
+		KindID(kindID), SCardSerID(scardSerID), Preserve_SCardSerID(scardSerID), SCardID(0), CodeRegPos(-1), CodeRegTypeID(0), St(0)
 	{
 		SetupCalDate(CTLCAL_PERSON_DOB, CTL_PERSON_DOB);
 		SetupCalDate(CTLCAL_PERSON_SCEXPIRY, CTL_PERSON_SCEXPIRY);
@@ -4311,30 +4405,8 @@ public:
 		SetupPPObjCombo(this, CTLSEL_PERSON_STATUS, PPOBJ_PRSNSTATUS, Data.Rec.Status, OLW_CANINSERT, 0);
 		SetupPPObjCombo(this, CTLSEL_PERSON_CATEGORY, PPOBJ_PRSNCATEGORY, Data.Rec.CatID, OLW_CANINSERT, 0);
 		setCtrlString(CTL_PERSON_MEMO, Data.SMemo);
-		if(InitPhone.NotEmpty()) {
-			PPELink el;
-			if(PPELinkArray::SetupNewPhoneEntry(InitPhone, el) > 0)
-				Data.ELA.insert(&el);
-		}
-		if(Data.ELA.GetSinglePhone(temp_buf, &i) > 0) {
-			PhonePos = static_cast<int>(i);
-			setCtrlString(CTL_PERSON_PHONE, temp_buf);
-		}
-		// @v11.3.10 {
-		{
-			PPObjELinkKind elk_obj;
-			PPELinkKind elk_rec;
-			for(uint i = 0; i < Data.ELA.getCount(); i++) {
-				const PPELink & r_item = Data.ELA.at(i);
-				temp_buf = r_item.Addr;
-				if(temp_buf.NotEmptyS() && elk_obj.Fetch(r_item.KindID, &elk_rec) > 0 && elk_rec.Type == ELNKRT_EMAIL) {
-					EmailPos = static_cast<int>(i);
-					setCtrlString(CTL_PERSON_EMAIL, temp_buf);
-					break;
-				}
-			}
-		}
-		// } @v11.3.10 
+		SetupPhone();
+		SetupEMail();
 		if(KindID) {
 			if(!Data.Kinds.lsearch(KindID)) {
 				if(Data.Kinds.getCount())
@@ -4387,45 +4459,9 @@ public:
 		getCtrlData(CTL_PERSON_NAME, Data.Rec.Name);
 		getCtrlData(CTLSEL_PERSON_STATUS, &Data.Rec.Status);
 		getCtrlData(CTLSEL_PERSON_CATEGORY, &Data.Rec.CatID);
-		// @v11.1.12 getCtrlData(CTL_PERSON_MEMO, Data.Rec.Memo);
-		getCtrlString(CTL_PERSON_MEMO, Data.SMemo); // @v11.1.12
-		{
-			PPObjELinkKind elk_obj;
-			//PPELinkKind elk_rec;
-			//
-			getCtrlString(CTL_PERSON_PHONE, temp_buf);
-			if(PhonePos >= 0) {
-				if(temp_buf.NotEmptyS()) {
-					PPELink & r_el = Data.ELA.at(PhonePos);
-					temp_buf.CopyTo(r_el.Addr, sizeof(r_el.Addr));
-				}
-				else
-					Data.ELA.atFree(PhonePos);
-			}
-			else if(temp_buf.NotEmptyS()) {
-				PPELink ele;
-				if(PPELinkArray::SetupNewPhoneEntry(temp_buf, ele) > 0)
-					Data.ELA.insert(&ele);
-			}
-			// @v11.3.10 {
-			{
-				getCtrlString(CTL_PERSON_EMAIL, temp_buf);
-				if(EmailPos >= 0) {
-					if(temp_buf.NotEmptyS()) {
-						PPELink & r_el = Data.ELA.at(EmailPos);
-						temp_buf.CopyTo(r_el.Addr, sizeof(r_el.Addr));
-					}
-					else
-						Data.ELA.atFree(EmailPos);
-				}
-				else if(temp_buf.NotEmptyS()) {
-					PPELink ele;
-					if(PPELinkArray::SetupNewEmailEntry(temp_buf, ele) > 0)
-						Data.ELA.insert(&ele);
-				}
-			}
-			// } @v11.3.10 
-		}
+		getCtrlString(CTL_PERSON_MEMO, Data.SMemo);
+		GetPhone();
+		GetEMail();
 		if(CodeRegTypeID) {
 			getCtrlString(CTL_PERSON_SRCHCODE, temp_buf);
 			if(CodeRegPos >= 0) {
@@ -4470,8 +4506,6 @@ private:
 		// Если при очередном набранном символе карта уже не находится, то серия возвращается
 		// к значению Preserve_SCardSerID
 	PPID   SCardID;
-	int    PhonePos;
-	int    EmailPos; // @v11.3.10
 	int    CodeRegPos;
 	enum {
 		stSCardAutoCreate = 0x0001,
@@ -4641,18 +4675,16 @@ int ShortPersonDialog::AcceptSCard(uint * pSel)
 		GetClusterData(CTL_PERSON_SCARDAUTO, &St);
 		getCtrlString(CTL_PERSON_SCARD, temp_buf);
 		if(temp_buf.NotEmpty()) {
-			int r = 0;
-			THROW(r = ScObj.SearchCode(0, temp_buf, &sc_pack.Rec));
+			const  int r = ScObj.SearchCode(0, temp_buf, &sc_pack.Rec);
+			THROW(r);
 			if(r < 0) {
 				sc_pack.Rec.ID = 0;
 				sc_pack.Rec.SeriesID = SCardSerID;
 				temp_buf.CopyTo(sc_pack.Rec.Code, sizeof(sc_pack.Rec.Code));
 			}
-			// @v11.7.8 {
 			else {
 				THROW(ScObj.GetPacket(sc_pack.Rec.ID, &sc_pack) > 0);
 			}
-			// } @v11.7.8 
 			sc_pack.Rec.Expiry = getCtrlDate(CTL_PERSON_SCEXPIRY);
 			sc_pack.Rec.PDis = fmul100i(getCtrlReal(CTL_PERSON_SCDIS));
 			THROW(GetTimeRangeInput(this, sel = CTL_PERSON_SCTIME, TIMF_HM, &sc_pack.Rec.UsageTmStart, &sc_pack.Rec.UsageTmEnd));
@@ -4719,8 +4751,9 @@ void ShortPersonDialog::ShowSCardCtrls(bool doShow)
 {
 	static constexpr ushort ctl_list[] = { CTL_PERSON_SCFRAME, CTL_PERSON_SCARD, CTL_PERSON_SCARDAUTO, CTL_PERSON_SCARDSER, CTLSEL_PERSON_SCARDSER,
 		CTL_PERSON_ST_SCARDINFO, CTL_PERSON_SCEXPIRY, CTLCAL_PERSON_SCEXPIRY, CTL_PERSON_SCDIS, CTL_PERSON_SCAG, CTLSEL_PERSON_SCAG, CTL_PERSON_SCTIME };
-	for(uint i = 0; i < SIZEOFARRAY(ctl_list); i++)
+	for(uint i = 0; i < SIZEOFARRAY(ctl_list); i++) {
 		showCtrl(ctl_list[i], doShow);
+	}
 	showButton(cmFullSCardDialog, doShow);
 	enableCommand(cmFullSCardDialog, doShow);
 }
@@ -4851,7 +4884,7 @@ void PPObjPerson::InitEditBlock(PPID kindID, EditBlock & rBlk)
 			rBlk.InitKindID = 0;
 	}
 	//
-	// @v11.3.1 Несколько более умное чем раньше автоматическое определение юридического статуста новой персоналии
+	// Несколько более умное чем раньше автоматическое определение юридического статуста новой персоналии
 	//
 	if(!rBlk.InitStatusID && rBlk.InitKindID) {
 		if(oneof3(rBlk.InitKindID, PPPRK_EMPL, PPPRK_AGENT, PPPRK_CAPTAIN))
@@ -5040,9 +5073,12 @@ int PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 					valid_data = 1;
 					ASSIGN_PTR(pID, dup_id);
 				}
-				else if((valid_data = p_dlg->getDTS(&pack)) != 0) {
-					if(!PutPacket(pID, &pack, 1))
-						valid_data = PPErrorZ();
+				else {
+					valid_data = p_dlg->getDTS(&pack);
+					if(valid_data) {
+						if(!PutPacket(pID, &pack, 1))
+							valid_data = PPErrorZ();
+					}
 				}
 			}
 		}

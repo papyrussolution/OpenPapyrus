@@ -964,7 +964,7 @@ int PPBillPacket::InsertComplete(PPGoodsStruc & rGs, uint pos, PUGL * pDfctList,
 					}
 					ilti.SetQtty(ps->NeedQty, 0.0, PPTFR_MINUS);
 				}
-				THROW(P_BObj->ConvertILTI(&ilti, this, &positions, convert_ilti_flags, serial, pGra));
+				THROW(P_BObj->ConvertILTI(ilti, this, &positions, convert_ilti_flags, serial, pGra));
 				ps->FreeQty = ps->NeedQty - fabs(ilti.Rest);
 				if(ilti.HasDeficit()) {
 					THROW(p_deficit_list->Add(&ilti, Rec.LocID, i-1));
@@ -1143,7 +1143,7 @@ int PPBillPacket::InsertPartitialStruc()
 						goods_obj.GetQuotExt(ilti.GoodsID, QuotIdent(Rec.LocID, PPQUOTK_BASE, Rec.CurID), &ilti.Price, 1);
 					}
 					ilti.SetQtty(qtty, 0, (sign > 0) ? (PPTFR_RECEIPT|PPTFR_PLUS) : PPTFR_MINUS);
-					THROW(P_BObj->ConvertILTI(&ilti, this, &pos_list, CILTIF_OPTMZLOTS | CILTIF_ABSQTTY, 0));
+					THROW(P_BObj->ConvertILTI(ilti, this, &pos_list, CILTIF_OPTMZLOTS | CILTIF_ABSQTTY, 0));
 					ok = 1;
 					if(ilti.HasDeficit()) {
 						const int reply = ProcessUnsuffisientGoods(ilti.GoodsID, pugpNoBalance);

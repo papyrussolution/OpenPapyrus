@@ -1922,7 +1922,8 @@ int PPObjectTransmit::AcceptDependedNonObject(SObjID foreignObjId, PPID primaryI
 int PPObjectTransmit::CreateTransmitPacket(long extra /*=0*/)
 {
 	int    ok = -1;
-	SString file_name, temp_file_name;
+	SString file_name;
+	SString temp_file_name;
 	RECORDNUMBER obj_count = 0;
 	int    todo = BIN(P_TmpIdxTbl && P_TmpIdxTbl->getNumRecs(&obj_count));
 	const  uint packet_type = SyncCmpTransmit ? PPOT_SYNCCMP : PPOT_OBJ;
@@ -2432,26 +2433,27 @@ int BillTransmitParam::Edit() { DIALOG_PROC_BODY(BillTransDialog, this); }
 		if(flt.OpID) {
 			while(r < 0 && op_id) {
 				THROW(r = p_bobj->P_Tbl->EnumByOpr(op_id, &diter, &br));
-				if(r < 0)
+				if(r < 0) {
 	   		        if(is_generic_op && gen_op_iterator < op_list.getCount()) {
 						op_id = op_list.at(gen_op_iterator++);
 						diter.Init(&flt.Period);
 					}
 					else
 				   		op_id = 0;
+				}
 			}
 		}
 		else {
 			THROW(r = p_bobj->P_Tbl->EnumByDate(&diter, &br));
 		}
 		if(r > 0) {
-			int    is_suit = 1;
+			bool  is_suited = true;
 			if((flt.OpID && flt.Ar2ID) && br.Object2 != flt.Ar2ID)
-				is_suit = 0;
+				is_suited = false;
 			else if((flt.OpID && flt.ArID) && br.Object != flt.ArID)
-				is_suit = 0;
+				is_suited = false;
 			else if((flt.Flags & BillTransmitParam::fLabelOnly) && !(br.Flags & BILLF_WHITELABEL))
-				is_suit = 0;
+				is_suited = false;
 			else {
 				THROW(p_ot->PutObjectToIndex(PPOBJ_BILL, br.ID, PPOTUP_FORCE, PPOTUP_BYTIME, flt.ToOpID));
 			}
@@ -2473,15 +2475,13 @@ int BillTransmitParam::Edit() { DIALOG_PROC_BODY(BillTransDialog, this); }
 int PPObjectTransmit::Transmit(const PPIDArray * pDBDivAry, const PPObjIDArray * pObjAry, const ObjTransmitParam * pParam)
 {
 	int    ok = 1;
-	// @v10.4.1 PPLogger logger;
 	if(pDBDivAry && pObjAry) {
 		for(uint i = 0; i < pDBDivAry->getCount(); i++) {
 			PPWaitStart();
 			int    r = Transmit(pDBDivAry->at(i), pObjAry, pParam);
 			if(!r) {
 				if(pDBDivAry->getCount() > 1) {
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO); // @v10.4.1
-					// @v10.4.1 logger.LogLastError();
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 					ok = 0;
 				}
 				else
@@ -2493,7 +2493,6 @@ int PPObjectTransmit::Transmit(const PPIDArray * pDBDivAry, const PPObjIDArray *
 	else
 		ok = -1;
 	CATCHZOK
-	// @v10.4.1 logger.Save(PPFILNAM_ERR_LOG, 0); // @v10.4.0
 	return ok;
 }
 
@@ -2502,7 +2501,6 @@ int PPObjectTransmit::Transmit(const PPIDArray * pDBDivAry, const PPObjIDArray *
 	int    ok = 0;
 	PPObjectTransmit * p_ot = 0;
 	if(pObjAry && dbDivID && pParam) {
-		//const int sync_cmp = BIN(pParam->Flags & ObjTransmitParam::fSyncCmp);
 		uint   ot_ctrf = 0;
 		if(pParam->Flags & ObjTransmitParam::fSyncCmp)
 			ot_ctrf |= PPObjectTransmit::ctrfSyncCmp;

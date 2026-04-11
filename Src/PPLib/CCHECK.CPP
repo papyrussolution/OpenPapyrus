@@ -5194,7 +5194,7 @@ int CSessGrouping::ConvertSign(const int sign, const  PPID sessID, const  PPID l
 								}
 							}
 							if(qtty > 0.0 && sign > 0) {
-								THROW(p_bobj->ConvertILTI(&ilti, &pack, 0, cvt_flags, serial_buf));
+								THROW(p_bobj->ConvertILTI(ilti, &pack, 0, cvt_flags, serial_buf));
 								if(ComplDfct && autocompl_op_id && R6(ilti.Rest) != 0.0) {
 									PUGL * p_pugl = compl_dfct_list.CreateNewItem();
 									THROW_SL(p_pugl);
@@ -5203,7 +5203,7 @@ int CSessGrouping::ConvertSign(const int sign, const  PPID sessID, const  PPID l
 								}
 							}
 							else if(qtty < 0.0 && sign < 0) {
-								THROW(p_bobj->ConvertILTI(&ilti, &pack, 0, cvt_flags, serial_buf));
+								THROW(p_bobj->ConvertILTI(ilti, &pack, 0, cvt_flags, serial_buf));
 							}
 							if(R6(ilti.Rest + cg_rec.Rest) != 0.0) {
 								cg_rec.Rest = -ilti.Rest;

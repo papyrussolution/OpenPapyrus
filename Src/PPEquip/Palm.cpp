@@ -1724,7 +1724,7 @@ int PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID locID
 				LongArray rows;
 				uint   fl = 0;
 				ilti.Setup(item.GoodsID, -1, item.Qtty, 0, item.Price);
-				r = p_bobj->ConvertILTI(&ilti, &pack, &rows, fl, 0);
+				r = p_bobj->ConvertILTI(ilti, &pack, &rows, fl, 0);
 				if(r > 0 && ilti.HasDeficit()) {
 					int   r2 = ProcessUnsuffisientGoods(item.GoodsID, pugpNoBalance);
 					if(r2 == PCUG_EXCLUDE)
@@ -1736,7 +1736,7 @@ int PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID locID
 		}
 		if(r > 0 && !skip && pack.GetTCount()) {
 			if(pSrcPack->Hdr.PctDis) {
-				pack.SetTotalDiscount(pSrcPack->Hdr.PctDis, 1, 0);
+				pack.SetTotalDiscount(pSrcPack->Hdr.PctDis, true/*pctdic*/, 0);
 				pack.Rec.Flags |= BILLF_TOTALDISCOUNT;
 			}
 			pack.InitAmounts();

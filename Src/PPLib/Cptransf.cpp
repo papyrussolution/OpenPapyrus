@@ -406,7 +406,7 @@ static int InsertComplList(PPBillPacket * pPack, PPComplBlock & rList, int sign,
 					convert_ilti_flags = 0;
 				}
 			}
-			THROW(BillObj->ConvertILTI(&ilti, pPack, &positions, convert_ilti_flags, src_serial, 0));
+			THROW(BillObj->ConvertILTI(ilti, pPack, &positions, convert_ilti_flags, src_serial, 0));
 			if(src_serial.NotEmpty())
 				ok = 2;
 			r_item.FreeQty = r_item.NeedQty - fabs(ilti.Rest);
@@ -555,7 +555,7 @@ int PPObjBill::Helper_WrOffDrft_ExpModif(WrOffDraftBlock & rBlk, int use_ta)
 		ILTI ilti(&r_src_ti);
 		ilti.Flags |= PPTFR_MINUS;
 		rows.clear();
-		THROW(ConvertILTI(&ilti, p_pack, &rows, CILTIF_DEFAULT, 0));
+		THROW(ConvertILTI(ilti, p_pack, &rows, CILTIF_DEFAULT, 0));
 		if(!ilti.HasDeficit()) {
 			if(LoadGoodsStruc(PPGoodsStruc::Ident(r_src_ti.GoodsID, GSF_DECOMPL, GSF_PARTITIAL, p_pack->Rec.Dt), &gs) > 0) {
 				// @v11.1.10 {
@@ -622,7 +622,7 @@ int PPObjBill::Helper_WrOffDrft_ExpExp(WrOffDraftBlock & rBlk, int use_ta)
 				if(!(CcFlags & CCFLG_NOADJPRWROFFDRAFT))
 					ciltif |= CILTIF_CAREFULLYALIGNPRICE;
 				local_row_pos_list.clear();
-				THROW(ConvertILTI(&ilti, p_pack, &local_row_pos_list, ciltif, serial_buf));
+				THROW(ConvertILTI(ilti, p_pack, &local_row_pos_list, ciltif, serial_buf));
 				{
 					// @v12.3.1 {
 					PPLotExtCodeContainer::MarkSet xcl_set;
@@ -1101,7 +1101,7 @@ int PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOffParam
 							const PPTransferItem & r_src_ti = blk.SrcDraftPack.ConstTI(i);
 							ILTI ilti(&r_src_ti);
 							rows.clear();
-							THROW(ConvertILTI(&ilti, p_pack, &rows, CILTIF_DEFAULT|CILTIF_ABSQTTY, 0));
+							THROW(ConvertILTI(ilti, p_pack, &rows, CILTIF_DEFAULT|CILTIF_ABSQTTY, 0));
 						}
 						THROW_SL(blk.ResultList.insert(p_pack));
 						p_pack = 0;
@@ -1243,7 +1243,7 @@ int PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOffParam
 							const PPTransferItem & r_src_ti = blk.SrcDraftPack.ConstTI(i);
 							ILTI ilti(&r_src_ti);
 							rows.clear();
-							THROW(ConvertILTI(&ilti, p_pack, &rows, CILTIF_DEFAULT|CILTIF_ABSQTTY, 0));
+							THROW(ConvertILTI(ilti, p_pack, &rows, CILTIF_DEFAULT|CILTIF_ABSQTTY, 0));
 						}
 						THROW_SL(blk.ResultList.insert(p_pack));
 						p_pack = 0;

@@ -1232,7 +1232,7 @@ int GenerateGoodsBills()
 							sign = (op_type == PPOPT_GOODSRECEIPT) ? 1 : -1;
 							//добавление товарной строки
 							ilti.Setup(goods_id, sign, qtty, cost, price);
-							p_bobj->ConvertILTI(&ilti, &bpack, 0, 0, 0);
+							p_bobj->ConvertILTI(ilti, &bpack, 0, 0, 0);
 							bpack.InitAmounts();
 						}
 						//добавление документа

@@ -2408,10 +2408,8 @@ int PPObjBill::AddGoodsBillByFilt(PPID * pBillID, const BillFilt * pFilt, PPID o
 	else {
 		if(op_type == PPOPT_GOODSMODIF || (op_type == PPOPT_GOODSRECEIPT && op_rec.AccSheetID == 0)) {
 			//
-			// Так как чаще всего при модификации товаров в
-			// образующихся лотах поставщиком выступает главная //
-			// организация, проверим наличие соответствующей
-			// статьи и, если отсутствует - создадим.
+			// Так как чаще всего при модификации товаров в образующихся лотах поставщиком выступает главная //
+			// организация, проверим наличие соответствующей статьи и, если отсутствует - создадим.
 			//
 			PPID   moas = 0;
 			THROW(ArObj.GetMainOrgAsSuppl(&moas, 1, 1));
@@ -2442,7 +2440,7 @@ int PPObjBill::AddGoodsBillByFilt(PPID * pBillID, const BillFilt * pFilt, PPID o
 			}
 			if(sc_obj.Search(sCardID, &sc_rec) > 0) {
 				if(sc_rec.PDis && use_total_dis) {
-					pack.SetTotalDiscount(fdiv100i(sc_rec.PDis), 1, 0);
+					pack.SetTotalDiscount(fdiv100i(sc_rec.PDis), true/*pctdic*/, 0);
 					pack.Rec.Flags |= BILLF_TOTALDISCOUNT;
 				}
 				pack.Rec.SCardID = sCardID;

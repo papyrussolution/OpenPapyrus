@@ -43,17 +43,17 @@ void ILTI::SetQtty(double qtty, double wtQtty, long flags)
 void FASTCALL ILTI::Init(const PPTransferItem * pTi)
 {
 	if(pTi) {
-		const double qtty = pTi->Qtty();
-		BillID      = 0;
-		GoodsID     = pTi->GoodsID;
+		const  double qtty = pTi->Qtty();
+		BillID  = 0;
+		GoodsID = pTi->GoodsID;
 		//
 		// При необходимости поля LotSyncID и LotMirrID должны инициализироваться после вызова ILTI::Init
 		//
-		LotSyncID   = 0;
-		LotMirrID   = 0;
+		LotSyncID = 0;
+		LotMirrID = 0;
 		//
 		UnitPerPack = pTi->UnitPerPack;
-		double nq   = R6(Quantity + qtty);
+		const  double nq = R6(Quantity + qtty);
 		if(nq > 0.0) {
 			Cost = (Cost * Quantity + pTi->Cost * qtty) / nq;
 			const double mp = Price * Quantity;
@@ -113,11 +113,12 @@ int PPObjBill::OrderLots(const PPBillPacket * pPack, PPIDArray * pLots, PPID gen
 		if(rest > 0.0) {
 			_LotCmp lc;
 			THROW(trfr->Rcpt.Search(lot_id, &lot_rec) > 0);
-			if(genGoodsID)
+			if(genGoodsID) {
 				if(GObj.IsGoodsCompatibleByUnit(lot_rec.GoodsID, genGoodsID, &ratio) > 0)
 					rest /= ratio;
 				else
 					continue;
+			}
 			THROW(trfr->GetLotPrices(&lot_rec, pPack->Rec.Dt));
 			THROW_SL(_lots.ordInsert(&lc.init(i, &lot_rec, cost, price), 0, PTR_CMPFUNC(_LotCmp)));
 			if(lc.CostDiff == 0.0 && lc.PriceDiff == 0.0)
@@ -125,8 +126,9 @@ int PPObjBill::OrderLots(const PPBillPacket * pPack, PPIDArray * pLots, PPID gen
 		}
    	}
 	pLots->clear();
-	for(i = 0; i < _lots.getCount(); i++)
+	for(i = 0; i < _lots.getCount(); i++) {
 		THROW_SL(pLots->add(_lots.at(i).LotID));
+	}
 	CATCHZOK
 	return ok;
 }
@@ -159,11 +161,11 @@ static int SetupTI(PPTransferItem * pTI, const PPBillPacket * pPack, PPID goodsI
 	return ok;
 }
 
-int PPObjBill::Helper_ConvertILTI_Subst(ILTI * pIlti, PPBillPacket * pPack, LongArray * pRows, double * pQtty, long flags, const GoodsReplacementArray * pGra, char * pSerial)
+int PPObjBill::Helper_ConvertILTI_Subst(ILTI & rIlti, PPBillPacket * pPack, LongArray * pRows, double * pQtty, long flags, const GoodsReplacementArray * pGra, char * pSerial)
 {
 	int    ok = 1;
 	int    r;
-	const  PPID dest_goods_id = labs(pIlti->GoodsID);
+	const  PPID dest_goods_id = labs(rIlti.GoodsID);
 	PPID   goods_id = 0;
 	double qtty = *pQtty;
 	PPIDArray lots;
@@ -182,8 +184,8 @@ int PPObjBill::Helper_ConvertILTI_Subst(ILTI * pIlti, PPBillPacket * pPack, Long
 			PPGoodsTaxEntry dest_gte;
 			Goods2Tbl::Rec dest_goods_rec;
 			Goods2Tbl::Rec src_goods_rec;
-			const  double dest_price = pIlti->Price;
-			const  double dest_cost = pIlti->Cost;
+			const  double dest_price = rIlti.Price;
+			const  double dest_cost = rIlti.Cost;
 			const  double dest_cost_mark = (dest_cost > 0.0) ? dest_cost : dest_price;
 			const  PPID   dest_unit_id = (GObj.Fetch(dest_goods_id, &dest_goods_rec) > 0) ? dest_goods_rec.UnitID : 0;
 			if(dest_unit_id && GObj.FetchTaxEntry2(dest_goods_id, 0/*lotID*/, 0/*taxPayerID*/, dt, pPack->Rec.OpID, &dest_gte) > 0) {
@@ -245,7 +247,7 @@ int PPObjBill::Helper_ConvertILTI_Subst(ILTI * pIlti, PPBillPacket * pPack, Long
 				lots.addUnique(static_cast<const CmpGenLots *>(cgla.at(i))->LotID);
 			}
 			if(do_optimize_lots) {
-				THROW(OrderLots(pPack, &lots, dest_goods_id, pIlti->Cost, pIlti->Price, qtty));
+				THROW(OrderLots(pPack, &lots, dest_goods_id, rIlti.Cost, rIlti.Price, qtty));
 			}
 		}
 		for(uint i = 0; qtty < 0.0 && i < lots.getCount(); i++) {
@@ -263,7 +265,7 @@ int PPObjBill::Helper_ConvertILTI_Subst(ILTI * pIlti, PPBillPacket * pPack, Long
 						if(rest > 0.0) {
 							const  double rq = smax(qtty, -max_qtty) * ratio;
 							const  double q  = (rest < -rq) ? rest : -rq;
-							const  double rp = R5(pIlti->Price / ratio); // @v12.5.12
+							const  double rp = R5(rIlti.Price / ratio); // @v12.5.12
 							PPTransferItem ti;
 							THROW(SetupTI(&ti, pPack, goods_id, lot_id));
 							ti.Quantity_ = -q;
@@ -280,7 +282,7 @@ int PPObjBill::Helper_ConvertILTI_Subst(ILTI * pIlti, PPBillPacket * pPack, Long
 	// @v12.5.11 {
 	else if(qtty > 0.0) { // @v12.5.11 Возврат
 		PPIDArray seen_lot_id_list;
-		const long f1 = (pIlti->Flags & PPTFR_PRICEWOTAXES);
+		const long f1 = (rIlti.Flags & PPTFR_PRICEWOTAXES);
 		if(!p_spc_list) {
 			if(p_gri) {
 				for(uint i = 0; i < p_gri->getCount(); i++) {
@@ -319,7 +321,7 @@ int PPObjBill::Helper_ConvertILTI_Subst(ILTI * pIlti, PPBillPacket * pPack, Long
 									PPTransferItem ti;
 									THROW(ti.Init(&pPack->Rec, 1, 1));
 									THROW(ti.SetupGoods(subst_goods_id, 0));
-									ti.Price = fabs(pIlti->Price) / subst_ratio;
+									ti.Price = fabs(rIlti.Price) / subst_ratio;
 									THROW(ti.SetupLot(lot_id, &lot_rec, 0));
 									ti.Quantity_ = q;
 									THROW(pPack->InsertRow(&ti, pRows));
@@ -396,12 +398,11 @@ int PPObjBill::AdjustIntrPrice(const PPBillPacket * pPack, PPID goodsID, double 
 	return ok;
 }
 
-static SString & _MakeNSyncMsg(const ILTI * pIlti, SString & rMsgBuf, const char * pReason)
+static SString & _MakeNSyncMsg(const ILTI & rIlti, SString & rMsgBuf, const char * pReason)
 {
 	// PPTXT_SYNCLOT_ROWNSYNC       "Строка преобразована без синхронизации. Причина:"
 	SString fmt_buf;
-	rMsgBuf.Z().Tab().Cat(pIlti->RByBill).CatDiv(',', 2).Cat(pIlti->LotSyncID).CatDiv(',', 2).Cat(pIlti->LotMirrID).
-		CatDiv(',', 2).Cat(pIlti->GoodsID);
+	rMsgBuf.Z().Tab().Cat(rIlti.RByBill).CatDiv(',', 2).Cat(rIlti.LotSyncID).CatDiv(',', 2).Cat(rIlti.LotMirrID).CatDiv(',', 2).Cat(rIlti.GoodsID);
 	PPLoadText(PPTXT_SYNCLOT_ROWNSYNC, fmt_buf);
 	fmt_buf.Space();
 	if(pReason)
@@ -416,25 +417,24 @@ static SString & _MakeNAvlLotMsg(const ILTI * pIlti, SString & rMsgBuf)
 {
 	// PPTXT_SYNCLOT_LOTNAVL        "Среди доступных лотов не найдено синхронизированного"
 	SString fmt_buf;
-	rMsgBuf.Z().Tab().Cat(pIlti->RByBill).CatDiv(',', 2).Cat(pIlti->LotSyncID).CatDiv(',', 2).Cat(pIlti->LotMirrID).
-		CatDiv(',', 2).Cat(pIlti->GoodsID);
+	rMsgBuf.Z().Tab().Cat(pIlti->RByBill).CatDiv(',', 2).Cat(pIlti->LotSyncID).CatDiv(',', 2).Cat(pIlti->LotMirrID).CatDiv(',', 2).Cat(pIlti->GoodsID);
 	rMsgBuf.CatDiv(':', 1).Cat(PPLoadTextS(PPTXT_SYNCLOT_LOTNAVL, fmt_buf));
 	return rMsgBuf;
 }
 
-static int _RowNSyncDiag(const ILTI * pIlti, const LongArray & rRows, long flags)
+static int _RowNSyncDiag(const ILTI & rIlti, const LongArray & rRows, long flags)
 {
 	int    ok = 1;
 	SString msg_buf;
 	if(rRows.getCount() != 1) {
 		if(flags & CILTIF_REPFULLSYNCPROBLEM) {
-			PPLogMessage(PPFILNAM_SYNCLOT_LOG, _MakeNSyncMsg(pIlti, msg_buf, "rows.getCount()!=1"), LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+			PPLogMessage(PPFILNAM_SYNCLOT_LOG, _MakeNSyncMsg(rIlti, msg_buf, "rows.getCount()!=1"), LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 		}
 		ok = 0;
 	}
-	else if(pIlti->RByBill == 0) {
+	else if(rIlti.RByBill == 0) {
 		if(flags & CILTIF_REPFULLSYNCPROBLEM) {
-			PPLogMessage(PPFILNAM_SYNCLOT_LOG, _MakeNSyncMsg(pIlti, msg_buf, "ilti->RByBill==0"), LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+			PPLogMessage(PPFILNAM_SYNCLOT_LOG, _MakeNSyncMsg(rIlti, msg_buf, "ilti->RByBill==0"), LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 		}
 		ok = 0;
 	}
@@ -699,17 +699,17 @@ private:
 	double RunningPriceVat;
 };
 
-int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pBp, LongArray * pRows, uint flags, const char * pSerial, const GoodsReplacementArray * pGra)
+int PPObjBill::ConvertILTI(ILTI & rIlti, PPBillPacket * pBp, LongArray * pRows, uint flags, const char * pSerial, const GoodsReplacementArray * pGra)
 {
 	int    ok = 1;
-	Reference * p_ref(PPRef); // @v11.4.0
-	int    full_sync = 0; // Признак того, что сформированная строка документа полностью идентична ilti
+	Reference * p_ref(PPRef);
+	bool   full_sync = false; // Признак того, что сформированная строка документа полностью идентична rIlti
 	uint   i = 0;
 	LongArray rows;
 	StringSet * p_excl_serial = 0;
 	PPTransferItem ti;
 	double rest;
-	double qtty = R6(ilti->Rest);
+	double qtty = R6(rIlti.Rest);
 	double vatrate = 0.0;
 	PPIDArray  lots;
 	ReceiptTbl::Rec lot_rec;
@@ -730,67 +730,67 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pBp, LongArray * pRows, u
 		}
 	}
 	bool   by_serial = (!(flags & CILTIF_EXCLUDESERIAL) && serial.NotEmpty());
-	if(GObj.Fetch(labs(ilti->GoodsID), &goods_rec) <= 0) {
+	if(GObj.Fetch(labs(rIlti.GoodsID), &goods_rec) <= 0) {
 		BillTbl::Rec src_bill_rec;
 		temp_buf.Z();
-		if(ilti->BillID && Search(ilti->BillID, &src_bill_rec) > 0) {
+		if(rIlti.BillID && Search(rIlti.BillID, &src_bill_rec) > 0) {
 			PPObjBill::MakeCodeString(&src_bill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, temp_buf);
-			temp_buf.Space().CatChar('#').Cat(ilti->RByBill).Space();
+			temp_buf.Space().CatChar('#').Cat(rIlti.RByBill).Space();
 		}
 		else
-			temp_buf.CatChar('#').Cat(ilti->RByBill).Space();
-		temp_buf.CatEq("id", labs(ilti->GoodsID));
+			temp_buf.CatChar('#').Cat(rIlti.RByBill).Space();
+		temp_buf.CatEq("id", labs(rIlti.GoodsID));
 		CALLEXCEPT_PP_S(PPERR_NEXISTGOODSINBILL, temp_buf);
 	}
 	if(GObj.FetchTaxEntry2(goods_rec.ID, 0/*lotID*/, 0/*taxPayerID*/, pBp->Rec.Dt, 0L, &gtx) > 0)
 		vatrate = gtx.GetVatRate();
 	if(goods_rec.Flags & GF_UNLIM) {
-		THROW(SetupTI(&ti, pBp, ilti->GoodsID, 0));
+		THROW(SetupTI(&ti, pBp, rIlti.GoodsID, 0));
 		ti.Quantity_ = (flags & CILTIF_ABSQTTY) ? fabs(qtty) : qtty;
-		ti.Cost     = ilti->Cost;
-		ti.Price    = ilti->Price;
+		ti.Cost     = rIlti.Cost;
+		ti.Price    = rIlti.Price;
 		if(ti.CurID)
-			ti.CurPrice = ilti->CurPrice;
+			ti.CurPrice = rIlti.CurPrice;
 		if(flags & CILTIF_QUOT)
 			ti.Flags |= PPTFR_QUOT;
 		THROW(pBp->InsertRow(&ti, &rows));
 		if(flags & CILTIF_SYNC) {
-			if(_RowNSyncDiag(ilti, rows, flags)) {
+			if(_RowNSyncDiag(rIlti, rows, flags)) {
 				const uint ti_pos = static_cast<uint>(rows.at(0));
-				pBp->TI(ti_pos).RByBill = ilti->RByBill;
-				full_sync = 1;
+				pBp->TI(ti_pos).RByBill = rIlti.RByBill;
+				full_sync = true;
 			}
 		}
-		ilti->Rest = 0.0;
+		rIlti.Rest = 0.0;
 	}
 	else {
-		PPID   sync_lot_id = (flags & CILTIF_USESYNCLOT && ilti->LotSyncID) ? ilti->LotSyncID : 0;
+		PPID   sync_lot_id = (flags & CILTIF_USESYNCLOT && rIlti.LotSyncID) ? rIlti.LotSyncID : 0;
 		//
 		// Подготовительные операции для выравнивания цены при межскладском приходе
 		// по последнему лоту на складе-получателе
 		//
 		double adj_intr_price_val = 0.0;
-		AdjustIntrPrice(pBp, ilti->GoodsID, &adj_intr_price_val);
+		AdjustIntrPrice(pBp, rIlti.GoodsID, &adj_intr_price_val);
 		//
 		if(oneof4(pBp->OpTypeID, PPOPT_GOODSORDER, PPOPT_GOODSACK, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT)) {
 			MEMSZERO(ti);
 			double lot_price = 0.0;
-			THROW(trfr->Rcpt.GetCurrentGoodsPrice(labs(ilti->GoodsID), pBp->Rec.LocID, GPRET_MOSTRECENT, &lot_price, &lot_rec));
+			THROW(trfr->Rcpt.GetCurrentGoodsPrice(labs(rIlti.GoodsID), pBp->Rec.LocID, GPRET_MOSTRECENT, &lot_price, &lot_rec));
 			THROW(ti.Init(&pBp->Rec, 1, -1));
-			THROW(ti.SetupGoods(ilti->GoodsID, TISG_SETPWOTF));
-			ti.Price = ilti->Price;
+			THROW(ti.SetupGoods(rIlti.GoodsID, TISG_SETPWOTF));
+			ti.Price = rIlti.Price;
 			if(pBp->IsDraft())
-				ti.Cost = ilti->Cost;
+				ti.Cost = rIlti.Cost;
 			else {
 				const long tisl = (flags & CILTIF_ZERODSCNT && ti.Price > 0.0) ? (TISL_ADJPRICE|TISL_IGNPRICE) : TISL_ADJPRICE;
 				THROW(ti.SetupLot(lot_rec.ID, &lot_rec, tisl));
 			}
 			ti.LotID = 0;
 			ti.Quantity_ = (flags & CILTIF_ABSQTTY) ? fabs(qtty) : qtty;
-			if(ilti->Flags & PPTFR_ORDER) {
-				if(ilti->QuotPrice > 0.0) {
-					ti.Discount = ilti->QuotPrice - ilti->Price;
-					ti.Price = ilti->QuotPrice;
+			if(rIlti.Flags & PPTFR_ORDER) {
+				if(rIlti.QuotPrice > 0.0) {
+					ti.Discount = rIlti.QuotPrice - rIlti.Price;
+					ti.Price = rIlti.QuotPrice;
 				}
 			}
 			else {
@@ -803,39 +803,39 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pBp, LongArray * pRows, u
 				pBp->LTagL.SetString(PPTAG_LOT_SN, &temp_rows, serial);
 				if(flags & CILTIF_SYNC && rows.getCount() == 1) {
 					/* @todo строки таких документов пока не будем считать полностью синхронизированными. Надо доделать синхронизацию лотов заказов.
-					ti.RByBill = ilti->RByBill;
-					full_sync = 1;
+					ti.RByBill = rIlti.RByBill;
+					full_sync = true;
 					*/
 				}
 				SForEachVectorItem(temp_rows, i) { THROW_SL(rows.insert(&temp_rows.at(i))) }
 			}
-			ilti->Rest = 0.0;
+			rIlti.Rest = 0.0;
 			qtty = 0.0;
 		}
 		else if(pBp->OpTypeID == PPOPT_GOODSREVAL) {
 			THROW_PP_S(sync_lot_id, PPERR_CANTACCEPTBILLRVL_SYNCLOT, goods_rec.Name);
 			THROW(trfr->Rcpt.Search(sync_lot_id, &lot_rec) > 0);
 			THROW(ti.Init(&pBp->Rec, 1, -1));
-			THROW(ti.SetupGoods(ilti->GoodsID, 0));
+			THROW(ti.SetupGoods(rIlti.GoodsID, 0));
 			THROW(ti.SetupLot(sync_lot_id, &lot_rec, 0));
-			ti.Cost = ilti->Cost;
-			ti.Price = ilti->Price;
+			ti.Cost = rIlti.Cost;
+			ti.Price = rIlti.Price;
 			THROW(pBp->InsertRow(&ti, &rows));
-			ilti->Rest = 0.0;
+			rIlti.Rest = 0.0;
 			qtty = 0.0;
-			full_sync = 1;
+			full_sync = true;
 		}
 		else if(pBp->OpTypeID == PPOPT_CORRECTION) {
-			// @v11.5.9 const bool is_corr_exp = LOGIC(ilti->Flags & PPTFR_CORRECTION && !(ilti->Flags & PPTFR_REVAL));
+			// @v11.5.9 const bool is_corr_exp = LOGIC(rIlti.Flags & PPTFR_CORRECTION && !(rIlti.Flags & PPTFR_REVAL));
 			THROW_PP_S(sync_lot_id, PPERR_CANTACCEPTBILLRVL_SYNCLOT, goods_rec.Name);
 			THROW(trfr->Rcpt.Search(sync_lot_id, &lot_rec) > 0);
 			THROW(ti.Init(&pBp->Rec, 1, -1));
-			ti.RByBill = ilti->RByBill;
-			THROW(ti.SetupGoods(ilti->GoodsID, 0));
+			ti.RByBill = rIlti.RByBill;
+			THROW(ti.SetupGoods(rIlti.GoodsID, 0));
 			THROW(ti.SetupLot(sync_lot_id, &lot_rec, 0));
-			ti.Cost = ilti->Cost;
-			ti.Price = ilti->Price;
-			ti.Quantity_ = ilti->Quantity;
+			ti.Cost = rIlti.Cost;
+			ti.Price = rIlti.Price;
+			ti.Quantity_ = rIlti.Quantity;
 			{
 				PPIDArray correction_bill_chain;
 				if(GetCorrectionBackChain(pBp->Rec, correction_bill_chain) > 0) {
@@ -856,25 +856,25 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pBp, LongArray * pRows, u
 				}
 			}
 			THROW(pBp->InsertRow(&ti, &rows));
-			ilti->Rest = 0.0;
+			rIlti.Rest = 0.0;
 			qtty = 0.0;
-			full_sync = 1;
+			full_sync = true;
 		}
 		else if(qtty < 0.0) {
 			uint   pass = 0;
 			BillTotalData total_src;
-			const double org_qtty = fabs(ilti->Quantity);
-			const double org_sum_price = ilti->Price * org_qtty;
+			const double org_qtty = fabs(rIlti.Quantity);
+			const double org_sum_price = rIlti.Price * org_qtty;
 			if(flags & CILTIF_CAREFULLYALIGNPRICE) {
 				const double __q = -qtty;
 				PPTransferItem total_ti;
-				THROW(SetupTI(&total_ti, pBp, ilti->GoodsID, 0));
+				THROW(SetupTI(&total_ti, pBp, rIlti.GoodsID, 0));
 				total_ti.Quantity_ = (flags & CILTIF_ABSQTTY) ? __q : -__q;
-				const double price = (adj_intr_price_val > 0.0) ? adj_intr_price_val : ilti->Price;
-				total_ti.Cost = ilti->Cost;
-				total_ti.Price = ilti->Price;
+				const double price = (adj_intr_price_val > 0.0) ? adj_intr_price_val : rIlti.Price;
+				total_ti.Cost = rIlti.Cost;
+				total_ti.Price = rIlti.Price;
 				if(total_ti.CurID)
-					total_ti.CurPrice = ilti->CurPrice;
+					total_ti.CurPrice = rIlti.CurPrice;
                 BillTotalBlock btb(total_src, *pBp, 0, pBp->OutAmtType, BTC_CALCSALESTAXES);
                 btb.Add(total_ti);
                 btb.Finish();
@@ -884,7 +884,7 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pBp, LongArray * pRows, u
 				if(flags & CILTIF_EXCLUDESERIAL && !isempty(pSerial)) {
 					THROW_MEM(p_excl_serial = new StringSet(';', pSerial));
 				}
-				THROW(trfr->Rcpt.GetListOfOpenedLots(-1, ilti->GoodsID, pBp->Rec.LocID, pBp->Rec.Dt, &lot_list));
+				THROW(trfr->Rcpt.GetListOfOpenedLots(-1, rIlti.GoodsID, pBp->Rec.LocID, pBp->Rec.Dt, &lot_list));
 				for(i = 0; i < lot_list.getCount(); i++) {
 					const  PPID lot_id = lot_list.at(i).ID;
 					if(!p_excl_serial || GetSerialNumberByLot(lot_id, temp_buf, 0) <= 0 || !p_excl_serial->search(temp_buf, 0, 0))
@@ -892,14 +892,14 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pBp, LongArray * pRows, u
 				}
 			}
 			if(flags & CILTIF_OPTMZLOTS) {
-				THROW(OrderLots(pBp, &lots, 0, ilti->Cost, ilti->Price, qtty));
+				THROW(OrderLots(pBp, &lots, 0, rIlti.Cost, rIlti.Price, qtty));
 			}
 			if(sync_lot_id) {
 				uint sync_lot_pos = 0;
 				if(!lots.lsearch(sync_lot_id, &sync_lot_pos)) {
 					sync_lot_id = 0;
 					if(flags & CILTIF_REPFULLSYNCPROBLEM) {
-						PPLogMessage(PPFILNAM_SYNCLOT_LOG, _MakeNAvlLotMsg(ilti, msg_buf), LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+						PPLogMessage(PPFILNAM_SYNCLOT_LOG, _MakeNAvlLotMsg(&rIlti, msg_buf), LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 					}
 				}
 				else if(sync_lot_pos > 0) {
@@ -918,9 +918,9 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pBp, LongArray * pRows, u
 						THROW(pBp->BoundsByLot(lot_id, 0, -1, &rest, 0));
 						if(rest >= _qtty_epsilon || (flags & CILTIF_CUTRESTTOZERO)) {
 							const double q = ((flags & CILTIF_CUTRESTTOZERO) || rest < -qtty) ? rest : -qtty; // @v11.0.4 (|| (flags & CILTIF_CUTRESTTOZERO))
-							THROW(SetupTI(&ti, pBp, ilti->GoodsID, lot_id));
+							THROW(SetupTI(&ti, pBp, rIlti.GoodsID, lot_id));
 							ti.Quantity_ = (flags & CILTIF_ABSQTTY) ? q : -q;
-							const double price = (adj_intr_price_val > 0.0) ? adj_intr_price_val : ilti->Price;
+							const double price = (adj_intr_price_val > 0.0) ? adj_intr_price_val : rIlti.Price;
 							if((flags & CILTIF_ZERODSCNT) && !(flags & CILTIF_QUOT))
 								ti.Discount = 0.0;
 							else if(flags & CILTIF_ALLOWZPRICE && price == 0.0)
@@ -930,7 +930,7 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pBp, LongArray * pRows, u
 							if(flags & CILTIF_QUOT)
 								ti.SetupQuot(price, 1);
 							if(ti.CurID)
-								ti.CurPrice = ilti->CurPrice;
+								ti.CurPrice = rIlti.CurPrice;
 							THROW(pBp->InsertRow(&ti, &rows));
 							qtty += q;
 						}
@@ -943,14 +943,14 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pBp, LongArray * pRows, u
 			}
 			if(feqeps(qtty, 0.0, _qtty_epsilon)) {
 				if(flags & CILTIF_SYNC && sync_lot_id) {
-					if(_RowNSyncDiag(ilti, rows, flags)) {
+					if(_RowNSyncDiag(rIlti, rows, flags)) {
 						const uint ti_pos = static_cast<uint>(rows.at(0));
 						if(pBp->TI(ti_pos).LotID == sync_lot_id) {
-							pBp->TI(ti_pos).RByBill = ilti->RByBill;
-							full_sync = 1;
+							pBp->TI(ti_pos).RByBill = rIlti.RByBill;
+							full_sync = true;
 						}
 						else if(flags & CILTIF_REPFULLSYNCPROBLEM) {
-							_MakeNSyncMsg(ilti, msg_buf, "TI(ti_pos).LotID!=sync_lot_id");
+							_MakeNSyncMsg(rIlti, msg_buf, "TI(ti_pos).LotID!=sync_lot_id");
 							PPLogMessage(PPFILNAM_SYNCLOT_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 						}
 					}
@@ -962,8 +962,8 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pBp, LongArray * pRows, u
 					THROW(prr);
 					int   iar = _aa.IsInappropriateResult();
 					if(iar && prr == 2) {
-						const double _org_delta = _aa.GetDelta();
-						const double _org_vat_delta = _aa.GetVatDelta();
+						const  double _org_delta = _aa.GetDelta();
+						const  double _org_vat_delta = _aa.GetVatDelta();
 						TSCollection <UlongArray> enum_list;
 						double _min_delta = SMathConst::Max;
 						double _min_vat_delta = SMathConst::Max;
@@ -1023,42 +1023,42 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pBp, LongArray * pRows, u
 				if(flags & CILTIF_SYNC) {
 					if(flags & CILTIF_REPFULLSYNCPROBLEM) {
 						temp_buf.Z().CatEq("deficit", qtty, MKSFMTD(0, 8, NMBF_NOTRAILZ));
-						_MakeNSyncMsg(ilti, msg_buf, temp_buf);
+						_MakeNSyncMsg(rIlti, msg_buf, temp_buf);
 						PPLogMessage(PPFILNAM_SYNCLOT_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 					}
 				}
 				if(qtty < 0.0 && flags & CILTIF_USESUBST) {
-					THROW(Helper_ConvertILTI_Subst(ilti, pBp, &rows, &qtty, flags, pGra, /*serial*/0));
+					THROW(Helper_ConvertILTI_Subst(rIlti, pBp, &rows, &qtty, flags, pGra, /*serial*/0));
 				}
 			}
 		}
 		else if(qtty > 0.0) {
-			if(ilti->Flags & PPTFR_RECEIPT || oneof2(pBp->OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT)) {
+			if(rIlti.Flags & PPTFR_RECEIPT || oneof2(pBp->OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT)) {
 				uint   i;
 				const  LDATE sd = MAXDATE;
 				ReceiptTbl::Rec tmpl_lot_rec;
 				LongArray temp_rows;
 				ObjTagList tag_list;
 				MEMSZERO(ti);
-				if(ilti->Flags & PPTFR_FORCESUPPL) {
+				if(rIlti.Flags & PPTFR_FORCESUPPL) {
 					ti.Flags |= PPTFR_FORCESUPPL;
-					ti.Suppl  = ilti->Suppl;
+					ti.Suppl  = rIlti.Suppl;
 				}
 				THROW(ti.Init(&pBp->Rec, 1, 1));
-				THROW(ti.SetupGoods(ilti->GoodsID, 0));
+				THROW(ti.SetupGoods(rIlti.GoodsID, 0));
 				THROW(ti.SetupLot(0, 0, 0));
-				SETFLAGBYSAMPLE(ti.Flags, PPTFR_COSTWOVAT,    ilti->Flags);
-				SETFLAGBYSAMPLE(ti.Flags, PPTFR_PRICEWOTAXES, ilti->Flags);
-				ti.UnitPerPack = ilti->UnitPerPack;
+				SETFLAGBYSAMPLE(ti.Flags, PPTFR_COSTWOVAT,    rIlti.Flags);
+				SETFLAGBYSAMPLE(ti.Flags, PPTFR_PRICEWOTAXES, rIlti.Flags);
+				ti.UnitPerPack = rIlti.UnitPerPack;
 				ti.Quantity_   = qtty;
-				ti.Cost        = ilti->Cost;
-				ti.Price       = (adj_intr_price_val > 0.0) ? adj_intr_price_val : ilti->Price;
+				ti.Cost        = rIlti.Cost;
+				ti.Price       = (adj_intr_price_val > 0.0) ? adj_intr_price_val : rIlti.Price;
 				if(ti.CurID)
-					ti.CurPrice = ilti->CurPrice;
+					ti.CurPrice = rIlti.CurPrice;
 				ti.Discount    = 0.0;
-				ti.QCert       = ilti->QCert;
-				ti.Expiry      = ilti->Expiry;
-				ti.LotTaxGrpID = ilti->InTaxGrpID;
+				ti.QCert       = rIlti.QCert;
+				ti.Expiry      = rIlti.Expiry;
+				ti.LotTaxGrpID = rIlti.InTaxGrpID;
 				//
 				THROW(pBp->InsertRow(&ti, &temp_rows));
 				if(ti.Flags & PPTFR_RECEIPT && flags & CILTIF_INHLOTTAGS && trfr->Rcpt.GetLastLot(ti.GoodsID, -labs(ti.LocID), sd, &tmpl_lot_rec) > 0) {
@@ -1084,10 +1084,10 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pBp, LongArray * pRows, u
 					THROW_SL(rows.insert(&row_idx));
 				}
 				if(flags & CILTIF_SYNC) {
-					if(_RowNSyncDiag(ilti, rows, flags)) {
+					if(_RowNSyncDiag(rIlti, rows, flags)) {
 						const uint ti_pos = (uint)rows.at(0);
-						pBp->TI(ti_pos).RByBill = ilti->RByBill;
-						full_sync = 1;
+						pBp->TI(ti_pos).RByBill = rIlti.RByBill;
+						full_sync = true;
 					}
 				}
 				//
@@ -1099,7 +1099,7 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pBp, LongArray * pRows, u
 				// то перебираем все последние лоты и заносим в них столько товара, чтобы остаток не превысил первоначальное количество.
 				//
 				PPIDArray seen_lot_id_list; // Так как процесс выбора лота многоступенчатый, то здесь мы будем хранить лоты, которые уже использованы
-				const long f1 = (ilti->Flags & PPTFR_PRICEWOTAXES);
+				const long f1 = (rIlti.Flags & PPTFR_PRICEWOTAXES);
 				if(sync_lot_id && trfr->Rcpt.Search(sync_lot_id, &lot_rec) > 0) {
 					//
 					// Синхронизированный лот пытаемся использовать в первую очередь
@@ -1112,20 +1112,20 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pBp, LongArray * pRows, u
 						if(q > 0.0) {
 							MEMSZERO(ti);
 							THROW(ti.Init(&pBp->Rec, 1, 1));
-							THROW(ti.SetupGoods(ilti->GoodsID, 0));
-							ti.Price = fabs(ilti->Price);
+							THROW(ti.SetupGoods(rIlti.GoodsID, 0));
+							ti.Price = fabs(rIlti.Price);
 							THROW(ti.SetupLot(lot_rec.ID, &lot_rec, 0));
 							ti.Quantity_ = q;
 							THROW(pBp->InsertRow(&ti, &rows));
 							qtty -= q;
-							seen_lot_id_list.add(lot_rec.ID); // @v11.4.5
+							seen_lot_id_list.add(lot_rec.ID);
 						}
 					}
-					if(qtty == 0.0 && flags & CILTIF_SYNC && rows.getCount() == 1 && ilti->RByBill) {
+					if(qtty == 0.0 && flags & CILTIF_SYNC && rows.getCount() == 1 && rIlti.RByBill) {
 						const uint ti_pos = static_cast<uint>(rows.at(0));
 						if(pBp->TI(ti_pos).LotID == sync_lot_id) { // @paranoic
-							pBp->TI(ti_pos).RByBill = ilti->RByBill;
-							full_sync = 1;
+							pBp->TI(ti_pos).RByBill = rIlti.RByBill;
+							full_sync = true;
 						}
 					}
 				}
@@ -1136,7 +1136,7 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pBp, LongArray * pRows, u
 				if(qtty > 0.0 && by_serial) {
 					LDATE  dt    = pBp->Rec.Dt;
 					long   oprno = MAXLONG;
-					while(qtty > 0.0 && trfr->Rcpt.EnumLastLots(ilti->GoodsID, pBp->Rec.LocID, &dt, &oprno, &lot_rec) > 0) {
+					while(qtty > 0.0 && trfr->Rcpt.EnumLastLots(rIlti.GoodsID, pBp->Rec.LocID, &dt, &oprno, &lot_rec) > 0) {
 						const  PPID lot_id = lot_rec.ID;
 						if(!seen_lot_id_list.lsearch(lot_id) && CmpSnrWithLotSnr(lot_id, serial, serial_is_refb)) {
 							const long f2 = (lot_rec.Flags & LOTF_PRICEWOTAXES);
@@ -1147,8 +1147,8 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pBp, LongArray * pRows, u
 								if(q > 0.0) {
 									MEMSZERO(ti);
 									THROW(ti.Init(&pBp->Rec, 1, 1));
-									THROW(ti.SetupGoods(ilti->GoodsID, 0));
-									ti.Price = fabs(ilti->Price);
+									THROW(ti.SetupGoods(rIlti.GoodsID, 0));
+									ti.Price = fabs(rIlti.Price);
 									THROW(ti.SetupLot(lot_id, &lot_rec, 0));
 									ti.Quantity_ = q;
 									THROW(pBp->InsertRow(&ti, &rows));
@@ -1164,7 +1164,7 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pBp, LongArray * pRows, u
 					assert(by_serial == false);
 					LDATE  dt    = pBp->Rec.Dt;
 					long   oprno = MAXLONG;
-					while(qtty > 0.0 && trfr->Rcpt.EnumLastLots(ilti->GoodsID, pBp->Rec.LocID, &dt, &oprno, &lot_rec) > 0) {
+					while(qtty > 0.0 && trfr->Rcpt.EnumLastLots(rIlti.GoodsID, pBp->Rec.LocID, &dt, &oprno, &lot_rec) > 0) {
 						const  PPID lot_id = lot_rec.ID;
 						if(!seen_lot_id_list.lsearch(lot_id)) {
 							const  long f2 = (lot_rec.Flags & LOTF_PRICEWOTAXES);
@@ -1175,8 +1175,8 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pBp, LongArray * pRows, u
 								if(q > 0.0) {
 									MEMSZERO(ti);
 									THROW(ti.Init(&pBp->Rec, 1, 1));
-									THROW(ti.SetupGoods(ilti->GoodsID, 0));
-									ti.Price = fabs(ilti->Price);
+									THROW(ti.SetupGoods(rIlti.GoodsID, 0));
+									ti.Price = fabs(rIlti.Price);
 									THROW(ti.SetupLot(lot_id, &lot_rec, 0));
 									ti.Quantity_ = q;
 									THROW(pBp->InsertRow(&ti, &rows));
@@ -1189,12 +1189,12 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pBp, LongArray * pRows, u
 				}
 				// @v12.5.11 {
 				if(qtty > 0.0 && flags & CILTIF_USESUBST) {
-					THROW(Helper_ConvertILTI_Subst(ilti, pBp, &rows, &qtty, flags, pGra, /*serial*/0));
+					THROW(Helper_ConvertILTI_Subst(rIlti, pBp, &rows, &qtty, flags, pGra, /*serial*/0));
 				}
 				// } @v12.5.11 
 			}
 		}
-		ilti->Rest = R6(qtty);
+		rIlti.Rest = R6(qtty);
 	}
 	CATCHZOK
 	delete p_excl_serial;
@@ -1703,6 +1703,7 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 		long __ciltif = _update ? (ciltif_const_|CILTIF_MOD) : ciltif_const_;
 		if(pCtx && pCtx->P_Gra && pCtx->P_Gra->GetSpecialSubstGoodsList())
 			__ciltif |= CILTIF_USESUBST;
+		//__ciltif |= CILTIF_CAREFULLYALIGNPRICE; // @v12.6.0 @construction
 		if(trace_sync_lot) {
 			__Debug_TraceLotSync(*this, &rPack, msg_buf);
 			PPLogMessage(PPFILNAM_SYNCLOT_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
@@ -1840,7 +1841,7 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 					}
 				}
 				if(do_add) {
-					const int rconv = p_bobj->ConvertILTI(p_ilti, &rPack, &rows, __ciltif, org_serial, pCtx->P_Gra);
+					const int rconv = p_bobj->ConvertILTI(*p_ilti, &rPack, &rows, __ciltif, org_serial, pCtx->P_Gra);
 					p_ilti->LotSyncID = preserve_frgn_lot_id;
 					p_ilti->LotMirrID = preserve_frgn_lot_mirr_id;
 					THROW(rconv);
@@ -1880,16 +1881,17 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 				warn = 2;
 		}
 		if(Rec.Flags & BILLF_RMVEXCISE) {
-			const long sav_cconf_flags = DS.SetLCfgFlags(CConfig.Flags | CCFLG_TGGLEXCSNPRICE);
+			const  long sav_cconf_flags = DS.SetLCfgFlags(CConfig.Flags | CCFLG_TGGLEXCSNPRICE);
 			rPack.Rec.Flags |= (BILLF_TGGLEXCSNPRICE | BILLF_TOTALDISCOUNT);
-			rPack.SetTotalDiscount(0.0, 0, 1);
+			rPack.SetTotalDiscount(0.0, false/*pctdic*/, 1);
 			DS.SetLCfgFlags(sav_cconf_flags);
 		}
 		if(Rec.Flags & BILLF_FIXEDAMOUNTS) {
-			AmtEntry * p_ae = 0;
-			for(i = 0; Amounts.enumItems(&i, (void **)&p_ae);)
-				if(p_ae->AmtTypeID != PPAMT_PAYMENT)
-					rPack.Amounts.Put(p_ae, 1, 1);
+			for(i = 0; i < Amounts.getCount(); i++) {
+				const AmtEntry & r_ae = Amounts.at(i);
+				if(r_ae.AmtTypeID != PPAMT_PAYMENT)
+					rPack.Amounts.Put(&r_ae, 1, 1);
+			}
 		}
 		rPack.InitAmounts();
 		rPack.Pays.copy(Pays);
@@ -2064,8 +2066,9 @@ int BillTransmDeficit::CompleteGoodsRest()
 			prev_rec = rec;
 			prev_rec_inited = 1;
 		}
-		if(prev_rec_inited && start_pos < rec_list.getCount())
+		if(prev_rec_inited && start_pos < rec_list.getCount()) {
 			THROW(_CompleteGoodsRest(prev_rec.Location, prev_rec.GoodsID, &rec_list, start_pos, suppl_qtty));
+		}
 	}
 	for(uint i = 0; rec_list.enumItems(&i, (void **)&p_rec);) {
 		THROW(Search(p_rec->Location, p_rec->GoodsID, p_rec->SupplID, 0) > 0);
@@ -2548,7 +2551,7 @@ int PPObjBill::SerializePacket_Base(int dir, PPBill * pPack, SBuffer & rBuf, SSe
 		}
 	}
 	{ 
-		// @dbd_exchange @todo @202060321 THROW(PPBill::AgreementBlock::Serialize_Static(&pPack->P_Agt, dir, rBuf, pSCtx));
+		// @dbd_exchange @todo @20260321 THROW(PPBill::AgreementBlock::Serialize_Static(&pPack->P_Agt, dir, rBuf, pSCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -2682,7 +2685,8 @@ int PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext 
 	const short save_rlz_order = r_cfg.RealizeOrder;
 	if(p_pack) {
 		if(stream == 0) {
-			int    skip = 0, warn = 0;
+			int    skip = 0;
+			int    warn = 0;
 			PPBillPacket bp;
 			const  PPID op_type_id = GetOpType(p_pack->Rec.OpID);
 			if(oneof2(pCtx->Cfg.RealizeOrder, RLZORD_FIFO, RLZORD_LIFO))
@@ -2804,8 +2808,7 @@ int PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext 
 						const  PPID op_id = bp.Rec.OpID;
 						bp.Rec.ID = *pID;
 						//
-						// Для draft-документов необходимо сохранить оригинальное значение
-						// признака списания документа.
+						// Для draft-документов необходимо сохранить оригинальное значение признака списания документа.
 						//
 						if(IsDraftOp(op_id) && Search(*pID, &bill_rec) > 0) {
 							err_code = PPTXT_ERRACCEPTBILL_INCOMPATOP;
@@ -2815,8 +2818,7 @@ int PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext 
 						}
 						//
 						// Для долговых и зачетных документов пересчитываем сумму долга, так как
-						// в базе-приемнике оплаты (зачеты) по документу могут быть не такими,
-						// как в базе-отправителе
+						// в базе-приемнике оплаты (зачеты) по документу могут быть не такими, как в базе-отправителе
 						//
 						if(CheckOpFlags(op_id, OPKF_NEEDPAYMENT) || CheckOpFlags(op_id, OPKF_RECKON)) {
 							double paym = 0.0;
@@ -2907,7 +2909,7 @@ int PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext 
 						for(i = 0; i < p_pack->Amounts.getCount(); i++) {
 							AmtEntry & r_entry = p_pack->Amounts.at(i);
 							if(amtt_obj.Fetch(r_entry.AmtTypeID, &amtt_rec) > 0 && amtt_rec.Flags & PPAmountType::fManual) {
-								double val = bp.Amounts.Get(r_entry.AmtTypeID, r_entry.CurID);
+								const  double val = bp.Amounts.Get(r_entry.AmtTypeID, r_entry.CurID);
 								if(R6(val-r_entry.Amt) != 0.0) {
 									bp.Amounts.Put(&r_entry, 0, 1);
 									to_turn = 1;
@@ -3031,7 +3033,6 @@ int PPObjBill::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, Ob
 		THROW(ProcessObjRefInArray(PPOBJ_CURRENCY, &p_pack->Rec.CurID,       ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_BILL,     &p_pack->Rec.LinkBillID,  ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_SCARD,    &p_pack->Rec.SCardID,     ary, replace));
-		// @v11.1.12 THROW(ProcessObjRefInArray(PPOBJ_PERSON,   &p_pack->Rec.MainOrgID,   ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_BILLSTATUS, &p_pack->Rec.StatusID,  ary, replace));
 		for(i = 0; p_pack->Turns.enumItems(&i, (void **)&at);) {
 			THROW(ProcessObjRefInArray(PPOBJ_ACCOUNT2, &at->DbtID.ac, ary, replace));
@@ -3042,8 +3043,9 @@ int PPObjBill::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, Ob
 		for(i = 0; p_pack->Lots.enumItems(&i, (void **)&ilti);) {
 			goods_id = labs(ilti->GoodsID);
 			THROW(ProcessObjRefInArray(PPOBJ_GOODS,   &goods_id,    ary, replace));
-			if(replace)
+			if(replace) {
 				ilti->GoodsID = (ilti->GoodsID < 0) ? -goods_id : goods_id;
+			}
 			{
 				//
 				// Идентификаторы лотов не должны замещаться поскольку этим занимается функция PPObjBill::Write
@@ -3058,7 +3060,9 @@ int PPObjBill::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, Ob
 			THROW(ProcessObjRefInArray(PPOBJ_GOODSTAX, &ilti->InTaxGrpID, ary, replace));
 		}
 		if(p_pack->InvList.getCount()) {
-			SString fmt_buf, msg_buf, goods_name;
+			SString fmt_buf;
+			SString msg_buf;
+			SString goods_name;
 			for(i = 0; i < p_pack->InvList.getCount(); i++) {
 				InventoryTbl::Rec & r_inv_rec = p_pack->InvList.at(i);
 				goods_id = labs(r_inv_rec.GoodsID);
@@ -3090,8 +3094,9 @@ int PPObjBill::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, Ob
 				}
 			}
 		}
-		for(i = 0; p_pack->Amounts.enumItems(&i, (void **)&p_ae);)
+		for(i = 0; p_pack->Amounts.enumItems(&i, (void **)&p_ae);) {
 			THROW(ProcessObjRefInArray(PPOBJ_AMOUNTTYPE, &p_ae->AmtTypeID, ary, replace));
+		}
 		THROW(ProcessObjRefInArray(PPOBJ_ARTICLE, &p_pack->Ext.AgentID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_ARTICLE, &p_pack->Ext.PayerID, ary, replace));
 		if(p_pack->P_AdvRep) {
@@ -3136,7 +3141,8 @@ int PPObjBill::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, ObjTransm
 {
 	int    ok = -1, r;
 	uint   msg_id = 0;
-	BillTbl::Rec bill_rec, link_rec;
+	BillTbl::Rec bill_rec;
+	BillTbl::Rec link_rec;
 	if(Search(id, &bill_rec) > 0 && bill_rec.OpID && !(bill_rec.Flags & BILLF_CASH) && bill_rec.OpID != PPOPK_EDI_STOCK) {
 		if(!bill_rec.StatusID || !CheckStatusFlag(bill_rec.StatusID, BILSTF_DENY_TRANSM)) {
 			const  PPID op_id = bill_rec.OpID;

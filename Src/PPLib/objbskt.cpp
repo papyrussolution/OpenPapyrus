@@ -2341,7 +2341,7 @@ int PPObjBill::ConvertBasket(const PPBasketPacket & rBasket, PPBillPacket * pPac
 				if(op_type_id == PPOPT_GOODSRECEIPT)
 					ilti.Flags |= PPTFR_RECEIPT;
 			}
-			if(!ConvertILTI(&ilti, pPack, &one_goods_rows, cvt_ilti_flags, 0)) {
+			if(!ConvertILTI(ilti, pPack, &one_goods_rows, cvt_ilti_flags, 0)) {
 				logger.LogLastError();
 				continue;
 			}
