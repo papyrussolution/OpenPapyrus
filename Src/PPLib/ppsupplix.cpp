@@ -2981,7 +2981,7 @@ int iSalesPepsi::ReceiveReceipts()
 					}
 					THROW(pack.CreateBlank_WithoutCode(acfg.Hdr.EdiDesadvOpID, 0, loc_id, 1));
 					{
-						PPBillPacket::SetupObjectBlock sob_unused;
+						PPBillPacket::SetupObjectBlock sob_unused(SConstructorLite);
 						pack.SetupObject(ar_id, sob_unused);
 					}
 					STRNSCPY(pack.Rec.Code, p_src_pack->Code);
@@ -3140,8 +3140,7 @@ int iSalesPepsi::ReceiveVDocs()
 					pack.Rec.DueDate = ValidDateOr(p_src_pack->IncDtm.d, ZERODATE);
 					if(treat_duedate_as_maindate && checkdate(pack.Rec.DueDate))
 						pack.Rec.Dt = pack.Rec.DueDate;
-					// @v11.1.12 STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
-					pack.SMemo = p_src_pack->Memo; // @v11.1.12
+					pack.SMemo = p_src_pack->Memo;
 					{
 						PPID   local_psn_id = _src_psn_id;
 						if(_src_dlvrloc_id && LocObj.Search(_src_dlvrloc_id, &loc_rec) > 0 && loc_rec.Type == LOCTYP_ADDRESS && 
@@ -3154,7 +3153,7 @@ int iSalesPepsi::ReceiveVDocs()
 						else
 							R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_DLVRLOCNID, &msg_buf, static_cast<const char *>(pack.Rec.Code), _src_dlvrloc_id));
 						if(local_psn_id && ArObj.P_Tbl->PersonToArticle(local_psn_id, op_rec.AccSheetID, &ar_id)) {
-							PPBillPacket::SetupObjectBlock sob_unused;
+							PPBillPacket::SetupObjectBlock sob_unused(SConstructorLite);
 							if(!pack.SetupObject(ar_id, sob_unused))
 								R_Logger.LogLastError();
 						}

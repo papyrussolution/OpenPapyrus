@@ -2290,7 +2290,7 @@ int PPObjGoods::GetPhUPerU(const Goods2Tbl::Rec * pRec, PPID * pPhUnitID, double
 	double phuperu = 0.0;
 	PPUnit unit_rec;
 	if(pRec) {
-		if(pRec->PhUnitID && pRec->PhUPerU > 0) {
+		if(pRec->PhUnitID && pRec->PhUPerU > 0.0) {
 			ph_unit_id = pRec->PhUnitID;
 			phuperu    = pRec->PhUPerU;
 			ok = 1;
@@ -2298,7 +2298,7 @@ int PPObjGoods::GetPhUPerU(const Goods2Tbl::Rec * pRec, PPID * pPhUnitID, double
 		else if(FetchUnit(pRec->UnitID, &unit_rec) > 0) {
 			ph_unit_id = pRec->UnitID;
 			phuperu = 1.0;
-			ok = 1;
+			ok = 2;
 		}
 	}
 	ASSIGN_PTR(pPhUnitID, ph_unit_id);

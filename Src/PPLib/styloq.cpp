@@ -1307,7 +1307,7 @@ int StyloQCommandList::Store(const char * pFileName) const
 		THROW(full_list.Store(pFileName));
 	}
 	else {
-		THROW_SL(p_writer = xmlNewTextWriterFilename(pFileName, 0), 0);  // создание writerA
+		THROW_SL(p_writer = xmlNewTextWriterFilename(pFileName, 0));  // создание writerA
 		{
 			xmlTextWriterSetIndent(p_writer, 1);
 			xmlTextWriterSetIndentTab(p_writer);
@@ -2941,7 +2941,101 @@ int StyloQCore::SvcDbSymbMap::Read(const char * pFilePath, int loadTimeUsage)
 
 /*static*/int StyloQCore::BuildSvcDbSymbMap()
 {
+	class InnerThread : public PPThread {
+	public:
+		InnerThread() : PPThread(kUnknown, "BuildSvcDbSymbMap", 0)
+		{
+			InitStartupSignal();
+		}
+		virtual void Startup()
+		{
+			PPThread::Startup();
+			SignalStartup();
+		}
+		virtual void Run()
+		{
+			SString temp_buf;
+			SString db_symb;
+			SString msg_buf;
+			SBinaryChunk bc;
+			SSerializeContext sctx;
+			PPDbEntrySet2 dbes;
+			DbLoginBlock dlb;
+			PPSession::LimitedDatabaseBlock * p_ldb = 0;
+			StyloQCore::SvcDbSymbMap map;
+			PPLogMessage(PPFILNAM_INFO_LOG, PPLoadTextS(PPTXT_LOG_BUILDSVCDBSYMBMAPSTARTING, msg_buf), LOGMSGF_TIME|LOGMSGF_COMP);
+			{
+				PPIniFile ini_file;
+				THROW(dbes.ReadFromProfile(&ini_file, true, true));
+			}
+			for(uint i = 0; i < dbes.GetCount(); i++) {
+				if(dbes.GetByPos(i, &dlb)) {
+					// @v12.6.0 {
+					dlb.GetAttr(DbLoginBlock::attrServerType, temp_buf); 
+					const SqlServerType server_type = GetSqlServerTypeBySymb(temp_buf);
+					if(server_type != sqlstNone) {
+						;
+					} // } @v12.6.0 
+					else if(dlb.GetAttr(DbLoginBlock::attrDbSymb, db_symb) && db_symb.NotEmpty()) {
+						p_ldb = DS.LimitedOpenDatabase(db_symb, PPSession::lodfReference|PPSession::lodfStyloQCore);
+						if(!p_ldb)
+							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
+						else if(p_ldb->P_Sqc) {
+							StyloQCore::StoragePacket sp;
+							if(p_ldb->P_Sqc->GetOwnPeerEntry(&sp) <= 0) {
+								PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
+							}
+							else if(!sp.Pool.Get(SSecretTagPool::tagSvcIdent, &bc)) {
+								PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
+							}
+							else {
+								assert(bc.Len() > 0);
+								StyloQCore::SvcDbSymbMapEntry * p_entry = map.CreateNewItem();
+								THROW_SL(p_entry);
+								p_entry->DbSymb = db_symb;
+								p_entry->SvcIdent = bc;
+								{
+									//
+									// Выясняем существует ли хоть одна клиентская запись, ассоциированная с пользователем.
+									// Эта информация понадобиться для принятия решения при выборе базы данных пользователем:
+									// нужно ли отображать QR-код для авторизации с помощью смартфона.
+									//
+									StyloQSecTbl::Key1 k1;
+									MEMSZERO(k1);
+									k1.Kind = StyloQCore::kClient;
+									if(p_ldb->P_Sqc->search(1, &k1, spGe) && p_ldb->P_Sqc->data.Kind == StyloQCore::kClient) do {
+										StyloQSecTbl::Rec rec;
+										p_ldb->P_Sqc->CopyBufTo(&rec);
+										if(rec.Kind == StyloQCore::kClient && rec.LinkObjType == PPOBJ_USR && rec.LinkObjID > 0) {
+											p_entry->Flags |= StyloQCore::SvcDbSymbMapEntry::fHasUserAssocEntries;
+											break;
+										}
+									} while(p_ldb->P_Sqc->search(1, &k1, spNext) && p_ldb->P_Sqc->data.Kind == StyloQCore::kClient);
+									p_ldb->P_Sqc->destroyLobData(p_ldb->P_Sqc->VT); // @v11.4.9 @fix
+								}
+							}
+						}
+						ZDELETE(p_ldb);
+					}
+				}
+			}
+			THROW(map.Store(0));
+			StyloQCore::SvcDbSymbMap::Dump(0, 0);
+			PPLogMessage(PPFILNAM_INFO_LOG, PPLoadTextS(PPTXT_LOG_BUILDSVCDBSYMBMAPFINISHED, msg_buf), LOGMSGF_TIME|LOGMSGF_COMP);
+			CATCH
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_COMP);
+			ENDCATCH
+			delete p_ldb;
+		}
+	};
 	int    ok = 1;
+	InnerThread * p_thread = new InnerThread();
+	if(p_thread) {
+		p_thread->Start(true);
+		::WaitForSingleObject(*p_thread, INFINITE);
+	}
+#if 0 // {
+	SString temp_buf;
 	SString db_symb;
 	SString msg_buf;
 	SBinaryChunk bc;
@@ -2950,6 +3044,7 @@ int StyloQCore::SvcDbSymbMap::Read(const char * pFilePath, int loadTimeUsage)
 	DbLoginBlock dlb;
 	PPSession::LimitedDatabaseBlock * p_ldb = 0;
 	StyloQCore::SvcDbSymbMap map;
+	DbProvider * p_preserve_dict(CurDict); // @v12.6.0
 	PPLogMessage(PPFILNAM_INFO_LOG, PPLoadTextS(PPTXT_LOG_BUILDSVCDBSYMBMAPSTARTING, msg_buf), LOGMSGF_TIME|LOGMSGF_COMP);
 	{
 		PPIniFile ini_file;
@@ -2957,7 +3052,13 @@ int StyloQCore::SvcDbSymbMap::Read(const char * pFilePath, int loadTimeUsage)
 	}
 	for(uint i = 0; i < dbes.GetCount(); i++) {
 		if(dbes.GetByPos(i, &dlb)) {
-			if(dlb.GetAttr(DbLoginBlock::attrDbSymb, db_symb) && db_symb.NotEmpty()) {
+			// @v12.6.0 {
+			dlb.GetAttr(DbLoginBlock::attrServerType, temp_buf); 
+			const SqlServerType server_type = GetSqlServerTypeBySymb(temp_buf);
+			if(server_type != sqlstNone) {
+				;
+			} // } @v12.6.0 
+			else if(dlb.GetAttr(DbLoginBlock::attrDbSymb, db_symb) && db_symb.NotEmpty()) {
 				p_ldb = DS.LimitedOpenDatabase(db_symb, PPSession::lodfReference|PPSession::lodfStyloQCore);
 				if(!p_ldb)
 					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
@@ -3008,6 +3109,8 @@ int StyloQCore::SvcDbSymbMap::Read(const char * pFilePath, int loadTimeUsage)
 		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_COMP);
 	ENDCATCH
 	delete p_ldb;
+	CurDict = p_preserve_dict; // @v12.6.0
+#endif // } 0
 	return ok;
 }
 
@@ -4475,6 +4578,7 @@ int PPStyloQInterchange::ServiceSelfregisterInMediator(const StyloQCore::Storage
 							break;
 						}
 						else {
+							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER); // @v12.6.0
 							SJson * p_js_reply = svc_reply.GetJson(SSecretTagPool::tagRawData);
 							if(p_js_reply) {
 								// do something...
@@ -9094,11 +9198,59 @@ private:
 	{
 		const  PPID op_id = getCtrlLong(CTLSEL_STQINLPARAM_OP);
 		const  PPID op_type_id = GetOpType(op_id);
-		DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 1, !oneof4(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND)); // StyloQIncomingListParam::actionDocAcceptance
-		DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 2, !oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSRECEIPT)); // StyloQIncomingListParam::actionDocAcceptanceMarks
-		DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 3, !oneof2(op_type_id, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND)); // StyloQIncomingListParam::actionDocSettingMarks
-		DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 4, (op_type_id != PPOPT_INVENTORY)); // StyloQIncomingListParam::actionDocInventory
-		DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 5, !oneof2(op_type_id, PPOPT_GOODSORDER, PPOPT_GOODSEXPEND)); //StyloQIncomingListParam::actionGoodsItemCorrection
+		PPID   single_op_type_id = 0;
+		PPIDArray op_type_list;
+		PPObjOprKind op_obj;
+		//
+		// Если операция обобщенная, то придется ориентироваться но общие при разрешении флагов
+		//
+		if(op_type_id == PPOPT_GENERIC) {
+			PPIDArray op_list;
+			op_obj.GetGenericList(op_id, &op_list);
+			for(uint i = 0; i < op_list.getCount(); i++) {
+				const  PPID local_op_id = op_list.get(i);
+				const  PPID local_op_type_id = GetOpType(local_op_id);
+				op_type_list.addnz(local_op_type_id);
+			}
+			op_type_list.sortAndUndup();
+		}
+		else {
+			op_type_list.addnz(op_type_id);
+		}
+		single_op_type_id = op_type_list.getSingle();
+		{
+			bool   local_suited = true;
+			for(uint i = 0; local_suited && i < op_type_list.getCount(); i++) {
+				const  PPID local_op_type_id = op_type_list.get(i);
+				local_suited = oneof4(local_op_type_id, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND);
+			}
+			DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 1, !local_suited); // StyloQIncomingListParam::actionDocAcceptance
+		}
+		{
+			bool   local_suited = true;
+			for(uint i = 0; local_suited && i < op_type_list.getCount(); i++) {
+				const  PPID local_op_type_id = op_type_list.get(i);
+				local_suited = oneof2(local_op_type_id, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT);
+			}
+			DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 2, !local_suited); // StyloQIncomingListParam::actionDocAcceptanceMarks
+		}
+		{
+			bool   local_suited = true;
+			for(uint i = 0; local_suited && i < op_type_list.getCount(); i++) {
+				const  PPID local_op_type_id = op_type_list.get(i);
+				local_suited = oneof2(local_op_type_id, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND);
+			}
+			DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 3, !local_suited); // StyloQIncomingListParam::actionDocSettingMarks
+		}
+		DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 4, (single_op_type_id != PPOPT_INVENTORY)); // StyloQIncomingListParam::actionDocInventory
+		{
+			bool   local_suited = true;
+			for(uint i = 0; local_suited && i < op_type_list.getCount(); i++) {
+				const  PPID local_op_type_id = op_type_list.get(i);
+				local_suited = oneof2(local_op_type_id, PPOPT_GOODSORDER, PPOPT_GOODSEXPEND);
+			}
+			DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 5, !local_suited); //StyloQIncomingListParam::actionGoodsItemCorrection
+		}
 	}
 };
 

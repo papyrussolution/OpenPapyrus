@@ -306,8 +306,8 @@ void GetSupportedTypesForMetadata(const PhoneMetadata& metadata,
 
 // Helper method to check a number against possible lengths for this number
 // type, and determine whether it matches, or is too short or too long.
-PhoneNumberUtil::ValidationResult TestNumberLength(const string & number, const PhoneMetadata& metadata,
-    PhoneNumberUtil::PhoneNumberType type) {
+PhoneNumberUtil::ValidationResult TestNumberLength(const string & number, const PhoneMetadata& metadata, PhoneNumberUtil::PhoneNumberType type) 
+{
 	const PhoneNumberDesc* desc_for_type = GetNumberDescByType(metadata, type);
 	// There should always be "possibleLengths" set for every element. This is
 	// declared in the XML schema which is verified by
@@ -316,23 +316,17 @@ PhoneNumberUtil::ValidationResult TestNumberLength(const string & number, const 
 	// parent, this is missing, so we fall back to the general desc (where no
 	// numbers of the type exist at all, there is one possible length (-1) which
 	// is guaranteed not to match the length of any real phone number).
-	RepeatedField<int> possible_lengths =
-	    desc_for_type->possible_length_size() == 0
-	    ? metadata.general_desc().possible_length()
-	    : desc_for_type->possible_length();
-	RepeatedField<int> local_lengths =
-	    desc_for_type->possible_length_local_only();
+	RepeatedField<int> possible_lengths = desc_for_type->possible_length_size() == 0 ? metadata.general_desc().possible_length() : desc_for_type->possible_length();
+	RepeatedField<int> local_lengths = desc_for_type->possible_length_local_only();
 	if(type == PhoneNumberUtil::FIXED_LINE_OR_MOBILE) {
-		const PhoneNumberDesc* fixed_line_desc =
-		    GetNumberDescByType(metadata, PhoneNumberUtil::FIXED_LINE);
+		const PhoneNumberDesc* fixed_line_desc = GetNumberDescByType(metadata, PhoneNumberUtil::FIXED_LINE);
 		if(!DescHasPossibleNumberData(*fixed_line_desc)) {
 			// The rare case has been encountered where no fixedLine data is available
 			// (true for some non-geographical entities), so we just check mobile.
 			return TestNumberLength(number, metadata, PhoneNumberUtil::MOBILE);
 		}
 		else {
-			const PhoneNumberDesc* mobile_desc =
-			    GetNumberDescByType(metadata, PhoneNumberUtil::MOBILE);
+			const PhoneNumberDesc* mobile_desc = GetNumberDescByType(metadata, PhoneNumberUtil::MOBILE);
 			if(DescHasPossibleNumberData(*mobile_desc)) {
 				// Merge the mobile data in if there was any. Note that when adding the
 				// possible lengths from mobile, we have to again check they aren't

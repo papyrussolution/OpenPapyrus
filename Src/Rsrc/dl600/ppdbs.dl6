@@ -4160,6 +4160,7 @@ table TempPerson {
 	uint   FiasAddrGuidP;
 	uint   FiasHouseGuidP;
 	uint   AddrTypeP;      // @v12.1.11 Ссылка на строку наименования типа адреса (адрес доставки, юридически, реальный etc)
+	uint   AtrTextP;       // @v12.6.0  @centrigo Текст со слабо структурированными данными персоналии.
 	string RegNumber[64];  // сюда же запихивается значение тега. PPPSNATTR_BNKACCT: Тип счета
 	long   CityID;         // PPPSNATTR_DLVRADDR: Город в адресе
 	date   RegInitDate;

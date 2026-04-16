@@ -644,7 +644,7 @@
 	#define HELP_BROWSER_UNITEC_PVT                             297
 #define BROWSER_UNIFINDOBJ                             298 // @unifindobj
 	#define HELP_BROWSER_UNIFINDOBJ                             298
-#define BROWSER_TECHROUTE                              299 // 
+#define BROWSER_TECHROUTE                              299 // @view_techroute
 	#define HELP_BROWSER_TECHROUTE                              299
 
 //
@@ -1565,6 +1565,7 @@
 #define PPCMD_EXPORTGOODS                           1363
 #define PPCMD_TESTGLOBALSVCACCESSIBILITY            1364
 #define PPCMD_CONSTRUCTIONFACADEWINDOW              1365
+#define PPCMD_EXECSESSIONONTECHROUTE                1366
 //
 // PPJOB definitions
 //
@@ -5233,4 +5234,10 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_TRIANGLELEFT03                  33039
 #define PPDV_TRIANGLERIGHT03                 33040
 #define PPDV_TRIANGLEUP03                    33041
+#define PPDV_FOLDER_PERSON01                 33042
+#define PPDV_TODO_LIST01                     33043
+#define PPDV_ROTARY_SWITCH01                 33044
+#define PPDV_LIGHTNING01                     33045
+#define PPDV_CHART_GANTT01                   33046
+#define PPDV_PRINTER_EXCLGREEN01             33047
 

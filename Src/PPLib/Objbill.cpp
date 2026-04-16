@@ -1943,7 +1943,8 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 	int    ok = 1;
 	int    r = 1;
 	int    res = cmCancel;
-	const  PPID preserve_cfg_loc = LConfig.Location;
+	const  PPConfig & r_cfg(LConfig);
+	const  PPID preserve_cfg_loc = r_cfg.Location;
 	PPID   loc_id = preserve_cfg_loc;
 	PPID   op_type = 0;
 	SString temp_buf;
@@ -1963,11 +1964,11 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 		loc_id = sample_pack.Rec.LocID;
 	}
 	else {
-		while(r > 0 && !LConfig.Location) {
+		while(r > 0 && !r_cfg.Location) {
 			THROW(r = PPObjLocation::SelectWarehouse());
 		}
 		if(r > 0)
-			loc_id = LConfig.Location;
+			loc_id = r_cfg.Location;
 	}
 	if(loc_id) {
 		// PPBillPacket rcpt_bpack; // @v12.0.9 do-remove
@@ -1975,7 +1976,7 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 		// @v12.0.9 LAssocArray pos_to_src_lot_list; // Список ассоциаций номеров строк исходного документа с номерами строк p_rcpt_bpack, 
 			// для определения лотов, из которых необходимо расходовать товары.
 			// Используется при установленном флаге SelAddBySampleParam::fRcptAllOnShipm
-		PPBillPacket::SetupObjectBlock sob_unused;
+		PPBillPacket::SetupObjectBlock sob_unused(SConstructorLite);
 		if(pParam->Flags & SelAddBySampleParam::fCopyBillCode) {
 			THROW(pack.CreateBlank_WithoutCode(pParam->OpID, 0, loc_id, 1));
 			STRNSCPY(pack.Rec.Code, sample_pack.Rec.Code);
@@ -1997,8 +1998,7 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 		}
 		if(sample_pack.Ext.AgentID)
 			pack.Ext.AgentID = sample_pack.Ext.AgentID;
-		// @v11.1.12 STRNSCPY(pack.Rec.Memo, sample_pack.Rec.Memo);
-		pack.SMemo = sample_pack.SMemo; // @v11.1.12
+		pack.SMemo = sample_pack.SMemo;
 		if(sample_pack.Rec.EdiOp == PPEDIOP_SALESORDER && sample_pack.BTagL.GetItemStr(PPTAG_BILL_EDICHANNEL, temp_buf) > 0 && temp_buf.IsEqiAscii("STYLOAGENT")) {
 			PPStyloPalmConfig sp_cfg;
 			PPObjStyloPalm::ReadConfig(&sp_cfg);
@@ -2077,7 +2077,7 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 								THROW_SL(p_rcpt_bpack = rcpt_bpack_list.CreateNewItem());
 								THROW(p_rcpt_bpack->CreateBlank(rcpt_op_id, 0, loc_id, 1));
 								{
-									PPBillPacket::SetupObjectBlock sob_unused;
+									PPBillPacket::SetupObjectBlock sob_unused(SConstructorLite);
 									THROW(p_rcpt_bpack->SetupObject(suppl_id, sob_unused));
 								}
 								p_rcpt_bpack->SetPoolMembership(PPBillPacket::bpkOrdAccomplish, sampleBillID); // @v12.0.11
@@ -2185,7 +2185,8 @@ int PPObjBill::AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddB
 	int    ok = 1;
 	int    r = 1;
 	int    res = cmCancel;
-	const  PPID preserve_loc = LConfig.Location;
+	const  PPConfig & r_cfg(LConfig);
+	const  PPID preserve_loc = r_cfg.Location;
 	PPID   loc_id = preserve_loc;
 	PPID   op_type = 0;
 	SString temp_buf;
@@ -2205,11 +2206,11 @@ int PPObjBill::AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddB
 		loc_id = sample_pack.Rec.LocID;
 	}
 	else {
-		while(r > 0 && !LConfig.Location) {
+		while(r > 0 && !r_cfg.Location) {
 			THROW(r = PPObjLocation::SelectWarehouse());
 		}
 		if(r > 0)
-			loc_id = LConfig.Location;
+			loc_id = r_cfg.Location;
 	}
 	if(loc_id) {
 		// @v11.6.0 {
@@ -2239,7 +2240,7 @@ int PPObjBill::AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddB
 		if(sample_pack.Rec.Object) {
 			ArticleTbl::Rec ar_rec;
 			if(ArObj.Fetch(sample_pack.Rec.Object, &ar_rec) > 0 && ar_rec.AccSheetID == op_rec.AccSheetID) {
-				PPBillPacket::SetupObjectBlock sob_unused;
+				PPBillPacket::SetupObjectBlock sob_unused(SConstructorLite);
 				THROW(pack.SetupObject(sample_pack.Rec.Object, sob_unused));
 			}
 		}
@@ -2250,8 +2251,7 @@ int PPObjBill::AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddB
 			THROW(pack.SetFreight(sample_pack.P_Freight));
 		if(sample_pack.Ext.AgentID && op_type == PPOPT_DRAFTEXPEND)
 			pack.Ext.AgentID = sample_pack.Ext.AgentID;
-		// @v11.1.12 STRNSCPY(pack.Rec.Memo, sample_pack.Rec.Memo);
-		pack.SMemo = sample_pack.SMemo; // @v11.1.12
+		pack.SMemo = sample_pack.SMemo;
 		{
 			pack.Rec.LinkBillID = sample_pack.Rec.ID; // Сохраняем привязку драфт-документа к документу заказа.
 				// По этой привязке при списании драфт-документа мы учтем исполнение заказа.
@@ -9594,7 +9594,7 @@ int PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl, cons
 		}
 	}
 	{
-		PPBillPacket::SetupObjectBlock sob_unused;
+		PPBillPacket::SetupObjectBlock sob_unused(SConstructorLite);
 		pPack->SetupObject(pPack->Rec.Object, sob_unused);
 	}
 	pPack->LoadMoment = getcurdatetime_();

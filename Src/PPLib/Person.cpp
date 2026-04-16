@@ -681,9 +681,17 @@ int PPELinkArray::GetSinglePhone(SString & rBuf, uint * pPos) const
 //
 //
 //
-CashierInfo::CashierInfo()
+CashierInfo::CashierInfo() : Rights(0), Flags(0)
 {
-	THISZERO();
+	Password[0] = 0;
+}
+
+CashierInfo & CashierInfo::Z()
+{
+	Rights = 0;
+	Flags = 0;
+	Password[0] = 0;
+	return *this;
 }
 
 int FASTCALL CashierInfo::IsEq(const CashierInfo & rS) const

@@ -6425,6 +6425,10 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @autotech_pl                         "Автотехнологии"
 @reconftech                          "Технология перенастройки"
 @reconftech_pl                       "Технологии перенастройки"
+@techroute                           "Технологический маршрут" // @v12.6.0
+@techroute_pl                        "Технологические маршруты" // @v12.6.0
+@techroute_item                      "Элемент технологического маршрута" // @v12.6.0
+
 @latitude                            "Широта"
 @longitude                           "Долгота"
 @altitude                            "Высота"
@@ -7581,6 +7585,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @filetoupload                        "Файл для выгрузки"
 @folder                              "Папка"
 @parentfolder                        "Родительская папка"
+@clientfolder                        "Папка клиента"
 @filetype                            "Тип файла"
 @filename                            "Имя файла"
 @logfilename                         "Имя файла журнала"
@@ -8185,6 +8190,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @doshowallprcsessions                "Все сессии процессора"
 @dodeletecheckswithundefsess         "Удалить все чеки с неопределенной сессией"
 @domarkasdelivered                   "Пометить как доставленный"
+@dotodolistbyperson                  "Задачи по персоналии"
 @clearsrc                            "Очищать источник"
 @cleardest                           "Очищать приемник"
 @sendemail                           "Отправить по электронной почте"
@@ -9033,7 +9039,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @view_clientactivity                      "Анализ клиентской активности" // derivative of @view_person
 @view_unitec                              "Unit-анализ"
 @view_wbpublicgoods                       "Импорт товаров с маркетплейса Wildberries"
-@view_techroute                           "Технологические маршруты" // @v12.6.0
+@view_techroute                           "@{techroute_pl}" // @v12.6.0
 
 @filter_cashnodepane                      "Фильтр кассовой панели"
 @filter_prcssrwroffdraftparam             "Параметры списания драфт-документов"
@@ -9587,6 +9593,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_clientactivity                       "@{view_clientactivity}" // @v12.2.8
 @cmd_unitec                               "Unit-анализ" // @v12.3.7
 @cmd_constructionfacadewindow             "Конструирование фасадного окна" // @v12.5.3
+@cmd_techroute                            "@{view_techroute}" // @v12.6.0
+@cmd_execsessionontechroute               "Запуск исполнения фазы технологического маршрута" // @v12.6.0
 
 @cmdpu_admin           			          "Админ"
 @cmdpu_salesanalyze    			          "Анализ продаж"
@@ -10556,6 +10564,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cashnode_chznpm_softmode                 "Мягкий режим"
 @cashnode_chznpm_strictmode               "Строгий режим"
 @cashnode_chzngua                         "@{globaluseracc} @{brand_chzn}"
+@cashnode_chzn_usetspiot                  "Использовать тс-пиот" // @v12.6.0 CASHFX_CHZNTSPIOT
 
 @cashnode_async_exppaths                  "Пути экспорта"
 @cashnode_async_impfiles                  "Файлы импорта"
@@ -14097,7 +14106,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @workbook_type_page                       "@{page}"
 @workbook_type_css                        "Таблица стилей CSS"
 @workbook_type_media                      "Медиа"
-@workbook_type_folder                     "Папка"
+@workbook_type_folder                     "@{folder}"
 @workbook_type_keyword                    "@{keyword}"
 @workbook_type_note                       "Заметка" // @v12.5.6
 @workbook_parent                          "@{parentitem}"

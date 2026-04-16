@@ -7296,6 +7296,7 @@ public:
 		uint32 FiasAddrGuidP;
 		uint32 FiasHouseGuidP;
 		uint32 AddrTypeP;
+		uint32 AtrTextP;
 		char   RegNumber[64];
 		int32  CityID;
 		LDATE  RegInitDate;
@@ -7322,6 +7323,7 @@ public:
 	DBField FiasAddrGuidP;
 	DBField FiasHouseGuidP;
 	DBField AddrTypeP;
+	DBField AtrTextP;
 	DBField RegNumber;
 	DBField CityID;
 	DBField RegInitDate;

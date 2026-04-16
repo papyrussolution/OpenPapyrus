@@ -100,36 +100,26 @@ public:
 	 * - UMEASFMT_WIDTH_WIDE/SHORT/NARROW: sideways alias for missing data
 	 */
 	UMeasureFormatWidth widthFallback[WIDTH_INDEX_COUNT];
-
 	MeasureFormatCacheData();
 	virtual ~MeasureFormatCacheData();
-
-	void adoptCurrencyFormat(int32_t widthIndex, NumberFormat * nfToAdopt) {
+	void adoptCurrencyFormat(int32_t widthIndex, NumberFormat * nfToAdopt) 
+	{
 		delete currencyFormats[widthIndex];
 		currencyFormats[widthIndex] = nfToAdopt;
 	}
-
-	const NumberFormat * getCurrencyFormat(UMeasureFormatWidth width) const {
-		return currencyFormats[getRegularWidth(width)];
-	}
-
-	void adoptIntegerFormat(NumberFormat * nfToAdopt) {
+	const NumberFormat * getCurrencyFormat(UMeasureFormatWidth width) const { return currencyFormats[getRegularWidth(width)]; }
+	void adoptIntegerFormat(NumberFormat * nfToAdopt) 
+	{
 		delete integerFormat;
 		integerFormat = nfToAdopt;
 	}
-
-	const NumberFormat * getIntegerFormat() const {
-		return integerFormat;
-	}
-
-	void adoptNumericDateFormatters(NumericDateFormatters * formattersToAdopt) {
+	const NumberFormat * getIntegerFormat() const { return integerFormat; }
+	void adoptNumericDateFormatters(NumericDateFormatters * formattersToAdopt) 
+	{
 		delete numericDateFormatters;
 		numericDateFormatters = formattersToAdopt;
 	}
-
-	const NumericDateFormatters * getNumericDateFormatters() const {
-		return numericDateFormatters;
-	}
+	const NumericDateFormatters * getNumericDateFormatters() const { return numericDateFormatters; }
 
 private:
 	NumberFormat* currencyFormats[WIDTH_INDEX_COUNT];
@@ -158,13 +148,10 @@ MeasureFormatCacheData::~MeasureFormatCacheData()
 	delete numericDateFormatters;
 }
 
-static bool isCurrency(const MeasureUnit &unit) {
-	return (strcmp(unit.getType(), "currency") == 0);
-}
+static bool isCurrency(const MeasureUnit &unit) { return (strcmp(unit.getType(), "currency") == 0); }
 
-static bool getString(const UResourceBundle * resource,
-    UnicodeString & result,
-    UErrorCode & status) {
+static bool getString(const UResourceBundle * resource, UnicodeString & result, UErrorCode & status) 
+{
 	int32_t len = 0;
 	const char16_t * resStr = ures_getString(resource, &len, &status);
 	if(U_FAILURE(status)) {
@@ -174,8 +161,7 @@ static bool getString(const UResourceBundle * resource,
 	return TRUE;
 }
 
-static UnicodeString loadNumericDateFormatterPattern(const UResourceBundle * resource,
-    const char * pattern, UErrorCode & status) 
+static UnicodeString loadNumericDateFormatterPattern(const UResourceBundle * resource, const char * pattern, UErrorCode & status) 
 {
 	UnicodeString result;
 	if(U_FAILURE(status)) {

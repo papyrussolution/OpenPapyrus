@@ -1986,10 +1986,12 @@ bool PPBankingOrder::TaxMarkers::IsEmpty() const
 //
 //
 //
-PPBillPacket::SetupObjectBlock::SetupObjectBlock() : State(0), PsnID(0), AcsID(0)
+PPBillPacket::SetupObjectBlock::SetupObjectBlock() : State(0), PsnID(0), AcsID(0), Flags(0)
 {
-    //Clear_();
-	Flags = 0;
+}
+
+PPBillPacket::SetupObjectBlock::SetupObjectBlock(SCtrSpecial sctr) : State(0), PsnID(0), AcsID(0), Flags((sctr == SConstructorLite) ? fLightweightMode : 0)
+{
 }
 
 PPBillPacket::SetupObjectBlock & PPBillPacket::SetupObjectBlock::Z()
@@ -2130,13 +2132,13 @@ int PPBillPacket::PreprocessArContext(PPID arID, PPID ar2ID, SetupObjectBlock & 
 {
 	int    ok = 1;
 	if(arID) {
-		PPObjArticle ar_obj;
+		PPObjArticle & r_ar_obj = P_BObj->ArObj;
 		ArticleTbl::Rec ar_rec;
 		PPOprKind op_rec;
 		const  bool getopdata_result = (GetOpData(Rec.OpID, &op_rec) > 0);
 		PPID   force_ar2_id = 0; // Если в соглашении для клиента жестко задана доп статья, то это - она
 		THROW(getopdata_result);
-		THROW(ar_obj.Search(arID, &ar_rec) > 0);
+		THROW(r_ar_obj.Fetch(arID, &ar_rec) > 0); // @v12.6.0 Search-->Fetch
 		SETFLAG(rRet.State, SetupObjectBlock::stArIsStopped, ar_rec.Flags & ARTRF_STOPBILL);
 		if(ar_rec.AccSheetID != op_rec.AccSheetID) {
 			bool local_err = true;
@@ -2148,19 +2150,21 @@ int PPBillPacket::PreprocessArContext(PPID arID, PPID ar2ID, SetupObjectBlock & 
 			THROW_PP_S(!local_err, PPERR_ARDONTBELONGOPACS, ar_rec.Name);
 		}
 		const  int agt_kind = PPObjArticle::GetAgreementKind(&ar_rec);
-		rRet.PsnID = ObjectToPerson(arID, &rRet.AcsID);
+		if(!(rRet.Flags & SetupObjectBlock::fLightweightMode)) { // @v12.6.0 @condition
+			rRet.PsnID = ObjectToPerson(arID, &rRet.AcsID);
+		}
 		rRet.Name = ar_rec.Name;
 		if(agt_kind == 1) {
-			if(ar_obj.GetClientAgreement(arID, rRet.CliAgt, 1) > 0) {
+			if(r_ar_obj.GetClientAgreement(arID, rRet.CliAgt, 1) > 0) {
 				rRet.State |= rRet.stHasCliAgreement;
 				ArticleTbl::Rec ar2_rec;
-				if(!(rRet.CliAgt.Flags & AGTF_DEFAULT) && rRet.CliAgt.ExtObjectID && ar_obj.Search(rRet.CliAgt.ExtObjectID, &ar2_rec) > 0) {
+				if(!(rRet.CliAgt.Flags & AGTF_DEFAULT) && rRet.CliAgt.ExtObjectID && r_ar_obj.Fetch(rRet.CliAgt.ExtObjectID, &ar2_rec) > 0) { // @v12.6.0 Search-->Fetch
 					force_ar2_id = rRet.CliAgt.ExtObjectID;
 				}
 			}
 		}
 		else if(agt_kind == 2) {
-			if(ar_obj.GetSupplAgreement(arID, &rRet.SupplAgt, 1) > 0) {
+			if(r_ar_obj.GetSupplAgreement(arID, &rRet.SupplAgt, 1) > 0) {
 				rRet.State |= rRet.stHasSupplAgreement;
 			}
 		}
@@ -2180,6 +2184,13 @@ int PPBillPacket::PreprocessArContext(PPID arID, PPID ar2ID, SetupObjectBlock & 
 					do_force_replace_agt_bill = false;
 				}
 			}
+			// @v12.6.0 {
+			// Если мы - в существующем документе с пустым документом соглашения, то не будет форсировать поиск и установку подходящего договора
+			// иначе очень медленно выходит.
+			if(do_force_replace_agt_bill && !Rec.AgtBillID && Rec.ID) {
+				do_force_replace_agt_bill = false;
+			}
+			// } @v12.6.0 
 			if(do_force_replace_agt_bill) {
 				PPID   new_agt_bill_id = 0;
 				rRet.DedicatedAgt.ID = 0;
@@ -2331,39 +2342,41 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 					THROW_PP_S(!is_stopped, PPERR_DENYSTOPPEDAR, stop_err_addedmsg);
 				}
 			}
-			if(rRet.PsnID) {
-				PPAccSheet acs_rec;
-				PPObjAccSheet acs_obj;
-				assert(rRet.AcsID); // Коль скоро rRet.PsnID != 0, то его мы получили методом PreprocessArContext() из arID. Мы не могли его получить, не получив "живого" rRet.AcsID!
-				const  PPID restrict_psn_kind = (acs_obj.Fetch(rRet.AcsID, &acs_rec) > 0) ? acs_rec.ObjGroup : 0;
-				{
-					PPObjPerson psn_obj;
-					PPObjRegisterType rt_obj;
-					PPRegisterType rt_rec;
-					RegisterArray reg_list;
-					psn_obj.GetRegList(rRet.PsnID, &reg_list, 1);
-					for(uint i = 0; i < reg_list.getCount(); i++) {
-						RegisterTbl::Rec & r_reg_rec = reg_list.at(i);
-						if(rt_obj.Fetch(r_reg_rec.RegTypeID, &rt_rec) > 0) {
-							if(rt_rec.Flags & REGTF_WARNEXPIRY && r_reg_rec.Expiry && Rec.Dt > r_reg_rec.Expiry) {
-								rRet.RegInfoList.Add(rt_rec.ID, r_reg_rec.ID, 0);
-							}
-							if(rt_rec.RestrictGoodsGrpID) {
-								if(rt_rec.RestrictGoodsKind == PPRegisterType::ggrpaOnlyGroup)
-									rglist.Add(rt_rec.RestrictGoodsGrpID, 1, 0);
-								else if(rt_rec.RestrictGoodsKind == PPRegisterType::ggrpaDenyGroup)
-									rglist.Add(rt_rec.RestrictGoodsGrpID, -1, 0);
+			if(!(rRet.Flags & SetupObjectBlock::fLightweightMode)) { // @v12.6.0 @condition
+				if(rRet.PsnID) {
+					PPAccSheet acs_rec;
+					PPObjAccSheet acs_obj;
+					assert(rRet.AcsID); // Коль скоро rRet.PsnID != 0, то его мы получили методом PreprocessArContext() из arID. Мы не могли его получить, не получив "живого" rRet.AcsID!
+					const  PPID restrict_psn_kind = (acs_obj.Fetch(rRet.AcsID, &acs_rec) > 0) ? acs_rec.ObjGroup : 0;
+					{
+						PPObjPerson psn_obj;
+						PPObjRegisterType rt_obj;
+						PPRegisterType rt_rec;
+						RegisterArray reg_list;
+						psn_obj.GetRegList(rRet.PsnID, &reg_list, 1);
+						for(uint i = 0; i < reg_list.getCount(); i++) {
+							RegisterTbl::Rec & r_reg_rec = reg_list.at(i);
+							if(rt_obj.Fetch(r_reg_rec.RegTypeID, &rt_rec) > 0) {
+								if(rt_rec.Flags & REGTF_WARNEXPIRY && r_reg_rec.Expiry && Rec.Dt > r_reg_rec.Expiry) {
+									rRet.RegInfoList.Add(rt_rec.ID, r_reg_rec.ID, 0);
+								}
+								if(rt_rec.RestrictGoodsGrpID) {
+									if(rt_rec.RestrictGoodsKind == PPRegisterType::ggrpaOnlyGroup)
+										rglist.Add(rt_rec.RestrictGoodsGrpID, 1, 0);
+									else if(rt_rec.RestrictGoodsKind == PPRegisterType::ggrpaDenyGroup)
+										rglist.Add(rt_rec.RestrictGoodsGrpID, -1, 0);
+								}
 							}
 						}
-					}
-					for(SEnum en = PPRef->Enum(PPOBJ_REGISTERTYPE, 0); en.Next(&rt_rec) > 0;) {
-						if(reg_list.GetRegister(rt_rec.ID, 0, 0) < 0) {
-							if(rt_rec.Flags & REGTF_WARNABSENCE) {
-								rRet.RegInfoList.Add(rt_rec.ID, 0, 0);
-							}
-							if(rt_rec.RestrictGoodsGrpID && rt_rec.RestrictGoodsKind == PPRegisterType::ggrpaAllowByReg) {
-								if(!rt_rec.PersonKindID || rt_rec.PersonKindID == acs_rec.ObjGroup) {
-									rglist.Add(rt_rec.RestrictGoodsGrpID, -1, 0);
+						for(SEnum en = PPRef->Enum(PPOBJ_REGISTERTYPE, 0); en.Next(&rt_rec) > 0;) {
+							if(reg_list.GetRegister(rt_rec.ID, 0, 0) < 0) {
+								if(rt_rec.Flags & REGTF_WARNABSENCE) {
+									rRet.RegInfoList.Add(rt_rec.ID, 0, 0);
+								}
+								if(rt_rec.RestrictGoodsGrpID && rt_rec.RestrictGoodsKind == PPRegisterType::ggrpaAllowByReg) {
+									if(!rt_rec.PersonKindID || rt_rec.PersonKindID == acs_rec.ObjGroup) {
+										rglist.Add(rt_rec.RestrictGoodsGrpID, -1, 0);
+									}
 								}
 							}
 						}

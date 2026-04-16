@@ -5176,3 +5176,147 @@ int TestRestic()
 	}
 	return ok;
 }
+//
+//
+//
+struct PhoneNumberMetaData { // @v12.6.0 @construction 
+	enum {
+		fMainCountry                = 0x0001, // mainCountryForCode?: "true" # Основная страна для этого кода
+		fMobileNumberPortableRegion = 0x0002, // mobileNumberPortableRegion
+	};
+	struct NumberDescriptor {
+		uint32 PossibleLen_National; //"possibleLengths": { "national": "10" },
+		uint32 PossibleLen_LocalOnly;
+		uint   NationalPatternP; //"nationalNumberPattern": "[3-9]\\d{9}",
+		uint   ExampleP; //"exampleNumber": "9123456789"
+	};
+	struct NumberFormat { // Форматирование вывода
+		uint   PatternP;    // pattern: string                    # Regex для применения формата
+		uint   FormatP;     // format: string                     # Шаблон вывода ("$1 $2 $3")
+		uint   IntlFormatP; // intlFormat?: string | "NA"         # Международный формат
+		// leadingDigits?: string[]           # Ограничение по начальным цифрам
+		uint   NatonalPfxFormatRuleP;  // nationalPrefixFormattingRule?: string # Правило вставки нац. префикса
+		// nationalPrefixOptionalWhenFormatting?: "true"
+		uint   CarrierCodeFormatFuleP; // carrierCodeFormattingRule?: string # Правило для кода оператора
+
+	};
+	struct Terr { // territory
+		Terr() : Flags(0)
+		{
+			Id[0] = 0;
+			E164[0] = 0;
+		}
+		char   Id[8];
+		char   E164[8]; // Телефонный код страны в E.164 ("1", "7", "44")
+		uint   Flags;
+		uint   LeadingDigitsP; // leadingDigits?: string[]      # Префиксы для разрешения коллизий кодов
+		//
+		uint   IntlPfxP;      // internationalPrefix: string          # Префикс междугородней связи ("00")
+		uint   PrefIntlPfxP;  // preferredInternationalPrefix?: string # Предпочтительный вариант
+		uint   NationalPfxP;  // nationalPrefix?: string              # Национальный префикс ("0")
+		uint   NationalPfxForParsingP;    // nationalPrefixForParsing?: string    # Regex для извлечения кода
+		uint   NationalPfxTransformRuleP; // nationalPrefixTransformRule?: string # Правило трансформации ("9$1")
+		uint   PrefExtnPfxP;              // preferredExtnPrefix?: string         # Префикс добавочного номера
+		// mobileNumberPortableRegion?: "true"  # Поддержка переноса номеров
+	};
+	SStrGroup StrPool;
+};
+
+int ParsePhoneNumberMetadata(const char * pJsFileName)
+{
+	/*
+		ROOT
+		└── phoneNumberMetadata
+			└── territories
+				└── territory[]  ← массив объектов по странам/регионам
+					│
+					├── 🔹 Идентификаторы
+					│   ├── id: string                    # ISO 3166-1 alpha-2 ("US", "RU", "001")
+					│   ├── countryCode: string           # Код страны в E.164 ("1", "7", "44")
+					│   ├── mainCountryForCode?: "true"   # Основная страна для этого кода
+					│   └── leadingDigits?: string[]      # Префиксы для разрешения коллизий кодов
+					│
+					├── 🔹 Префиксы и правила парсинга
+					│   ├── internationalPrefix: string          # Префикс междугородней связи ("00")
+					│   ├── preferredInternationalPrefix?: string # Предпочтительный вариант
+					│   ├── nationalPrefix?: string              # Национальный префикс ("0")
+					│   ├── nationalPrefixForParsing?: string    # Regex для извлечения кода
+					│   ├── nationalPrefixTransformRule?: string # Правило трансформации ("9$1")
+					│   ├── preferredExtnPrefix?: string         # Префикс добавочного номера
+					│   └── mobileNumberPortableRegion?: "true"  # Поддержка переноса номеров
+					│
+					├── 🔹 Форматирование вывода
+					│   └── availableFormats?:
+					│       └── numberFormat[]
+					│           ├── pattern: string                    # Regex для применения формата
+					│           ├── format: string                     # Шаблон вывода ("$1 $2 $3")
+					│           ├── intlFormat?: string | "NA"         # Международный формат
+					│           ├── leadingDigits?: string[]           # Ограничение по начальным цифрам
+					│           ├── nationalPrefixFormattingRule?: string # Правило вставки нац. префикса
+					│           ├── nationalPrefixOptionalWhenFormatting?: "true"
+					│           └── carrierCodeFormattingRule?: string # Правило для кода оператора
+					│
+					└── 🔹 Описание типов номеров (повторяющаяся структура)
+						│
+						├── generalDesc?: NumberDescriptor      # Общее описание всех номеров
+						├── fixedLine?: NumberDescriptor        # Стационарные
+						├── mobile?: NumberDescriptor           # Мобильные
+						├── pager?: NumberDescriptor            # Пейджеры
+						├── tollFree?: NumberDescriptor         # Бесплатные (800, 888...)
+						├── premiumRate?: NumberDescriptor      # Платные (900...)
+						├── sharedCost?: NumberDescriptor       # Разделение стоимости
+						├── personalNumber?: NumberDescriptor   # Персональные номера
+						├── voip?: NumberDescriptor             # VoIP
+						├── uan?: NumberDescriptor              # Унифицированные доступные номера
+						├── voicemail?: NumberDescriptor        # Голосовая почта
+						└── noInternationalDialling?: NumberDescriptor # Запрет междугороднего набора
+							│
+							└── NumberDescriptor:
+								├── possibleLengths:
+								│   ├── national: string    # Допустимые длины: "7,8" или "[6-9]"
+								│   └── localOnly?: string  # Длины только для локального набора
+								│
+								├── exampleNumber: string   # Пример валидного номера
+								│
+								└── nationalNumberPattern: string  # Regex для валидации
+		---------
+		{
+		  "id": "RU",
+		  "countryCode": "7",
+		  "internationalPrefix": "8~10|00",
+		  "nationalPrefix": "8",
+		  "mobileNumberPortableRegion": "true",
+
+		  "availableFormats": {
+			"numberFormat": [
+			  {
+				"pattern": "(\\d{3})(\\d{3})(\\d{2})(\\d{2})",
+				"format": "$1 $2-$3-$4",
+				"leadingDigits": "[346789]",
+				"nationalPrefixFormattingRule": "8 ($FG)"
+			  }
+			]
+		  },
+
+		  "generalDesc": {
+			"nationalNumberPattern": "[3-9]\\d{9}",
+			"possibleLengths": { "national": "10" },
+			"exampleNumber": "9123456789"
+		  },
+
+		  "mobile": {
+			"nationalNumberPattern": "9\\d{9}",
+			"possibleLengths": { "national": "10" },
+			"exampleNumber": "9123456789"
+		  },
+
+		  "fixedLine": {
+			"nationalNumberPattern": "(?:3[014-9]|4[0-27-9]|5[0-57-9]|8[0-6])\\d{7}",
+			"possibleLengths": { "national": "10", "localOnly": "7" },
+			"exampleNumber": "3011234567"
+		  }
+		}
+			*/ 
+	int    ok = 1;
+	return ok;
+}

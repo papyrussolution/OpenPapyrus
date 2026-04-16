@@ -39,7 +39,9 @@ PPViewStyloQBindery::PPViewStyloQBindery() : PPView(0, &Filt, PPVIEW_STYLOQBINDE
 
 PPViewStyloQBindery::~PPViewStyloQBindery()
 {
-	bool do_build_svc_db_symb_map = LOGIC(State & stMatchingUpdated);
+	bool   do_build_svc_db_symb_map = LOGIC(State & stMatchingUpdated);
+	DbProvider * p_dict = CurDict;
+	DbProvider * p_db_after = 0; // @debug
 	if(!do_build_svc_db_symb_map) {
 		StyloQCore::StoragePacket sp;
 		SBinaryChunk own_svc_ident;
@@ -50,22 +52,18 @@ PPViewStyloQBindery::~PPViewStyloQBindery()
 			uint   ex_flags;
 			if(!map.FindSvcIdent(own_svc_ident, &ex_db_symb, &ex_flags))
 				do_build_svc_db_symb_map = true;
-			else {
-				// @v11.8.11 {
-				DbProvider * p_dict = CurDict;
-				if(p_dict) {
-					SString db_symb;
-					const int gdbsr = p_dict->GetDbSymb(db_symb); 				
-					if(ex_db_symb != db_symb)
-						do_build_svc_db_symb_map = true;
-				}
-				// } @v11.8.11 
+			else if(p_dict) {
+				SString db_symb;
+				const int gdbsr = p_dict->GetDbSymb(db_symb); 				
+				if(ex_db_symb != db_symb)
+					do_build_svc_db_symb_map = true;
 			}
 		}
 	}
 	if(do_build_svc_db_symb_map) {
 		StyloQCore::BuildSvcDbSymbMap();
 	}
+	p_db_after = CurDict; // @debug
 	ZDELETE(P_DsList);
 }
 
@@ -453,7 +451,7 @@ int PPViewStyloQBindery::Invitation()
 			case PPVCMD_INVITATION:
 				Invitation();
 				break;
-			case PPVCMD_TEST: // @v11.3.3
+			case PPVCMD_TEST:
 				ok = -1;
 				if(id) {
 					PPStyloQInterchange ic;

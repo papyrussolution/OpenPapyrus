@@ -552,6 +552,8 @@ int PPApp::processCommand(uint cmd)
 		case cmSwProgram:            PPView::Execute(PPVIEW_SWPROGRAM,       0, PPView::exefModeless, 0); break; // @v11.9.12
 		case cmComputer:             PPView::Execute(PPVIEW_COMPUTER,        0, PPView::exefModeless, 0); break; // @v12.0.0
 		case cmWbPublicGoods:        PPView::Execute(PPVIEW_WBPUBLICGOODS,   0, PPView::exefModeless, 0); break; // @v12.4.1
+		case cmTechRoute:            PPView::Execute(PPVIEW_TECHROUTE,       0, PPView::exefModeless, 0); break; // @v12.6.0
+		case cmGoodsTurnover:        PPView::Execute(PPVIEW_GOODSTRNOVR,     0, PPView::exefModeless, 0); break; // @v12.5.12 ViewGoodsTurnover(0)-->PPView::Execute
 		case cmVetisInterchange:     PPViewVetisDocument::RunInterchangeProcess(0); break;
 		case cmProcessUED: // @v11.6.6
 			{
@@ -630,10 +632,6 @@ int PPApp::processCommand(uint cmd)
 		case cmViewLots:             ViewLots(0, 0, 1);                 break;
 		case cmViewOrdLots:          ViewLots(0, 1, 1);                 break;
 		case cmTrfrAnalyze:          ViewTrfrAnlz(0);                   break;
-		case cmGoodsTurnover:        
-			// @v12.5.12 ViewGoodsTurnover(0);
-			PPView::Execute(PPVIEW_GOODSTRNOVR, 0, PPView::exefModeless, 0); // @v12.5.12
-			break;
 		case cmGoodsRestTest:        GoodsRestTest();                   break;
 		case cmPredictSales:         ViewPredictSales(0);               break;
 		case cmFillPredictSalesTbl:  FillPredictSales();                break;
@@ -906,6 +904,7 @@ int PPApp::processCommand(uint cmd)
 		case cmConvertVersionToHtml:    PPVer2Html(); break; // @internal
 		case cmSourceCodeProcessing:    /*@todo*/ break; // @v12.2.10 @internal
 		case cmConstructionFacadeWindow: Launch_TFacadeWindow(); break; // @v12.5.3 @construction
+		case cmExecSessionOnTechRoute: PPObjTSession::ExecSessionOnTechRoute(); break; // @v12.6.0 @construction
 		// @underconstruction case cmGenerateGoodsBills:   GenerateGoodsBills(); break;
 		// @v4.4.2 case cmConvert329:           Convert329();         break;
 		// @v4.4.5 case cmConvert3512:          Convert3512();        break;

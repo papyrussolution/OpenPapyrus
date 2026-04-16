@@ -4738,7 +4738,7 @@ public:
 	SString & Dot();     // @>>CatChar('.')
 	SString & Comma();   // @>>CatChar(',')
 	SString & Semicol(); // @>>CatChar(';')
-	SString & Colon();   // @v11.1.12 @>>CatChar(':')
+	SString & Colon();   // @>>CatChar(':')
 	SString & Eq();      // @>>CatChar('=')
 	SString & Slash();   // @>>Slash()
 	SString & BSlash();   // @>>BSlash()

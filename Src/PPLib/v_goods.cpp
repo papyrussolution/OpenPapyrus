@@ -4042,7 +4042,7 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 						double qtty = 0.0;
 						const  int r = GObj.SelectGoodsByBarcode(c, NZOR(Filt.CodeArID, Filt.SupplID), &goods_rec, &qtty, 0);
 						if(r > 0) {
-							CALLPTRMEMB(pBrw, search2(&goods_rec.ID, CMPF_LONG, srchFirst, 0));
+							CALLPTRMEMB(pBrw, search2(&goods_rec.ID, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/));
 						}
 						else if(r != -1 && pBrw)
 							pBrw->bottom();
@@ -4079,7 +4079,7 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 						if(AddItem(&p_dlg, pBrw, &(temp_id = 0)) > 0) {
 							UpdateTempTable(temp_id, pBrw);
 							pBrw->Update();
-							pBrw->search2(&temp_id, CMPF_LONG, srchFirst, 0);
+							pBrw->search2(&temp_id, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/);
 							ok = 1;
 						}
 					} while(p_dlg != 0);
@@ -4090,7 +4090,7 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 				if(id && GObj.AddBySample(&(temp_id = 0), id) == cmOK) {
 					UpdateTempTable(temp_id, pBrw);
 					pBrw->Update();
-					pBrw->search2(&temp_id, CMPF_LONG, srchFirst, 0);
+					pBrw->search2(&temp_id, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/);
 					ok = 1;
 				}
 				break;

@@ -2933,11 +2933,11 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 	if(Filt.Flags & BillFilt::fAsSelector) {
 		PPGetWord(PPWORD_SELBILL, 0, sub_title);
 		if(Filt.Sel)
-			pBrw->search2(&Filt.Sel, CMPF_LONG, srchFirst, 0);
+			pBrw->search2(&Filt.Sel, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/);
 	}
 	else if(Filt.Sel) {
 		if(CheckIDForFilt(Filt.Sel, 0))
-			pBrw->search2(&Filt.Sel, CMPF_LONG, srchFirst, 0);
+			pBrw->search2(&Filt.Sel, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/);
 	}
 	if(Filt.PoolBillID && Filt.AssocID)
 		caption = 6;
@@ -3077,8 +3077,7 @@ DBQuery * PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			q->addField(bll->Dt);     // #1
 			q->addField(bll->Code);   // #2
 			q->addField(bll->Amount); // #3
-			// @v11.1.12 q->addField(bll->Memo);   // #4
-			q->addField(dbe_bill_memo); // #4 // @v11.1.12
+			q->addField(dbe_bill_memo); // #4
 			q->addField(dbe_oprkind); // #5
 			q->addField(dbe_ar);      // #6
 			q->addField(dbe_loc);     // #7
@@ -3263,7 +3262,6 @@ DBQuery * PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			}
 			else
 				dbq = ppcheckfiltid(dbq, bll->UserID, Filt.CreatorID);
-			// @v11.1.9 {
 			if(Filt.CliPsnCategoryID) {
 				dbe_chkpsncat.init();
 				dbe_chkpsncat.push(bll->Object);
@@ -3273,7 +3271,6 @@ DBQuery * PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				dbe_chkpsncat.push(static_cast<DBFunc>(PPDbqFuncPool::IdArIsCatPerson));
 				dbq = & (*dbq && dbe_chkpsncat == 1L);
 			}
-			// } @v11.1.9 
 			// @v11.7.4 {
 			{
 				SString memo_pattern;
@@ -3291,7 +3288,7 @@ DBQuery * PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				dbq = ppcheckflag(dbq, bll->Flags, BILLF_NEEDPAYMENT,   BIN(Filt.Flags & BillFilt::fPaymNeeded));
 				dbq = ppcheckflag(dbq, bll->Flags, BILLF_WHITELABEL,    BIN(Filt.Flags & BillFilt::fLabelOnly));
 				dbq = ppcheckflag(dbq, bll->Flags, BILLF_TOTALDISCOUNT, BIN(Filt.Flags & BillFilt::fDiscountOnly));
-				// @v10.7.0 dbq = ppcheckflag(dbq, bll->Flags, BILLF_CHECK, (Filt.Flags & BillFilt::fCcNotPrintedOnly) ? -1 : BIN(Filt.Flags & BillFilt::fCcPrintedOnly)); // @erik v10.6.13
+				// @v10.7.0 dbq = ppcheckflag(dbq, bll->Flags, BILLF_CHECK, (Filt.Flags & BillFilt::fCcNotPrintedOnly) ? -1 : BIN(Filt.Flags & BillFilt::fCcPrintedOnly)); // @erik
 			}
 			q->where(*dbq);
 			//
@@ -7180,7 +7177,7 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 		if(update == 2 && pBrw) {
 			pBrw->Update();
 			if(CheckIDForFilt(id, 0)) {
-				pBrw->search2(&id, CMPF_LONG, srchFirst, 0);
+				pBrw->search2(&id, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/);
 			}
 		}
 	}

@@ -2298,16 +2298,8 @@ void STextBrowser::MarginClick(/*Sci_Position*/int position, int modifiers)
 			{
 				p_view = static_cast<STextBrowser *>(TView::GetWindowUserData(hWnd));
 				if(p_view && !(p_view->Sf & (sfOnDestroy|sfOnParentDestruction))) { // @v12.5.4
-					if(!(TView::SGetWindowStyle(hWnd) & WS_CAPTION)) {
-						SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
-						APPL->NotifyFrame(0);
-					}
-					{
-						::SetFocus(p_view->HwndSci);
-						APPL->SelectTabItem(p_view);
-						TView::messageBroadcast(p_view, cmReceivedFocus);
-						p_view->select();
-					}
+					TWindowBase::Helper_SetFocus(hWnd, p_view);
+					::SetFocus(p_view->HwndSci);
 				}
 			}
 			break;

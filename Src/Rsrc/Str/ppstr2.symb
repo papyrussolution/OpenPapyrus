@@ -1,6 +1,6 @@
 
 [hash]
-base=ppstr2.txt,o8hAt4KobfDSGROfVUMjbGqCaQMnbKK6t7ATJxwSnRI=,ppstr2.bin,RoHxsnyRhw2V34TcLfrVdQVaPvRi0xdzMF6nayTMjyM=
+base=ppstr2.txt,YWAxf9MvnC/GzAqFDvYUqBSyw3CINLCa7eUOSfj98rc=,ppstr2.bin,tZM1VV2Rzhn7op6obFlZw3AyycaVQrp4MNYvIC+g/qE=
 lang-de=ppstr2-de.txt,uiF+XJVJlyDjw7nInhf/AFcW9Tl0++UYflUahSBUK/Y=,ppstr2-de.bin,z5tTW3wrQRt4866sMd5LWX/oYCLHknIJxj6FbKYnSek=
 lang-en=ppstr2-en.txt,wNMuDQEJ8iXS8+Jpd9MAWdg8exLsMCYnqYI0euY1I0Y=,ppstr2-en.bin,5cMKdf3XAXJZe9nWJkS0b2yRiluKkMmBbOM4faM39TI=
 lang-es=ppstr2-es.txt,6DBYF21pt4umLyjG1Rx9bHiNzqHNfQg0oJPNpqQHaL8=,ppstr2-es.bin,jN0oN2zuyiQYf2BQ4rSZo9Fbb/rXRRQTRRg9UgDu54E=
@@ -11,7 +11,7 @@ java=ppstr2.java,Jwib2wtM4DSmSFfbbZjKZvOe89iXxF9zgnSZQxY9bNE=
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147499125
+LastSignatureCode=2147499133
 LastAutoCodeList=1,12455;102,10179;103,10074;110,10000;111,13054;112,10000;119,10000;114,10012;7,10000;4,10000;6,10000;342,10000;118,10313;120,10010;1001,10000;121,10000;122,10000;123,10661;124,10832;125,10128;126,10000
 
 [SignatureList]
@@ -340,6 +340,9 @@ autotech=2147483912
 autotech_pl=2147483913
 reconftech=2147483914
 reconftech_pl=2147483915
+techroute=2147499127
+techroute_pl=2147499128
+techroute_item=2147499129
 latitude=2147483916
 longitude=2147483917
 altitude=2147483918
@@ -1480,6 +1483,7 @@ files=2147484801
 filetoupload=2147493750
 folder=2147484802
 parentfolder=2147484803
+clientfolder=2147499130
 filetype=2147484804
 filename=2147484805
 logfilename=2147484806
@@ -2079,6 +2083,7 @@ doshowarrelatedgoods=2147494248
 doshowallprcsessions=2147494276
 dodeletecheckswithundefsess=2147494414
 domarkasdelivered=2147494415
+dotodolistbyperson=2147499131
 clearsrc=2147485232
 cleardest=2147485233
 sendemail=2147485234
@@ -3395,6 +3400,8 @@ cmd_gathercliactivitystatistics=2147495591
 cmd_clientactivity=2147495592
 cmd_unitec=2147498998
 cmd_constructionfacadewindow=2147499095
+cmd_techroute=2147499126
+cmd_execsessionontechroute=2147499133
 cmdpu_admin=2147486280
 cmdpu_salesanalyze=2147486281
 cmdpu_accounting=2147486282
@@ -4299,6 +4306,7 @@ cashnode_chznpm_dontuse=2147496032
 cashnode_chznpm_softmode=2147496033
 cashnode_chznpm_strictmode=2147496034
 cashnode_chzngua=2147496035
+cashnode_chzn_usetspiot=2147499132
 cashnode_async_exppaths=2147487093
 cashnode_async_impfiles=2147487094
 cashnode_async_lognumlist=2147487095

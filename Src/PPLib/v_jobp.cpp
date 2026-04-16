@@ -1,5 +1,5 @@
 // V_JOBP.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2005, 2007, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Редактирование списка задач JobServer'а
 //
@@ -428,14 +428,17 @@ int PPViewJob::LoadPool()
 {
 	int    ok = 1;
 	SString db_symb;
-	SavePool();
-	ZDELETE(P_Pool);
-	THROW_MEM(P_Pool = new PPJobPool(&Mngr, 0, 0));
-	THROW_PP(CurDict->GetDbSymb(db_symb), PPERR_DBSYMBUNDEF);
-	{
-		const int ljpr = Mngr.LoadJobPool2(db_symb, P_Pool, false);
-		THROW(ljpr); // @erik v10.7.4 LoadPool-->LoadPool2
-		Mngr.GetResourceList(0, CmdSymbList);
+	DbProvider * p_db(CurDict); // @v12.6.0
+	if(p_db) { // @v12.6.0
+		SavePool();
+		ZDELETE(P_Pool);
+		THROW_MEM(P_Pool = new PPJobPool(&Mngr, 0, 0));
+		THROW_PP(p_db->GetDbSymb(db_symb), PPERR_DBSYMBUNDEF);
+		{
+			const int ljpr = Mngr.LoadJobPool2(db_symb, P_Pool, false);
+			THROW(ljpr); // @erik v10.7.4 LoadPool-->LoadPool2
+			Mngr.GetResourceList(0, CmdSymbList);
+		}
 	}
 	CATCH
 		ZDELETE(P_Pool);

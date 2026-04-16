@@ -31,9 +31,7 @@ IndianCalendar::~IndianCalendar()
 {
 }
 
-const char * IndianCalendar::getType() const {
-	return "indian";
-}
+const char * IndianCalendar::getType() const { return "indian"; }
 
 static const int32_t LIMITS[UCAL_FIELD_COUNT][4] = {
 	// Minimum  Greatest     Least   Maximum

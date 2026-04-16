@@ -6168,6 +6168,7 @@
 	#define CTL_PALM_QUOTKIND            (27 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PALM_QUOTKIND         (28 + WINDOWS_ID_BIAS)
 	#define CTL_PALM_QUOTKINDOPTIONS     (29 + WINDOWS_ID_BIAS) // @v11.7.1
+	#define CTL_PALM_CMD_GEOTRACKING     (30 + WINDOWS_ID_BIAS) // @v12.6.0
 #define DLG_PALMPANE              535 // PDA Import/Export Panel
 	#define CTL_PALMPANE_PALM            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PALMPANE_PALM         (2 + WINDOWS_ID_BIAS)
@@ -7073,7 +7074,7 @@
 	#define CTLSEL_PRCFILT_LOC           (5 + WINDOWS_ID_BIAS)
 #define DLG_TECH                  670 // TECH Технология //
 #define DLG_TECHAUTO             1045 // TECHAUTO Автотехнология //
-	#define cmTechRoute                  101 // Кнопка редактирования маршрута процессинга, связанного с технологией 
+	// @v12.6.0 (точно такая же команда используется для глобального редактирования маршрутов) #define cmTechRoute 101 // Кнопка редактирования маршрута процессинга, связанного с технологией 
 	#define CTL_TECH_ID                  (1 + WINDOWS_ID_BIAS)
 	#define CTL_TECH_CODE                (2 + WINDOWS_ID_BIAS)
 	#define CTL_TECH_PRCGRPONLY          (3 + WINDOWS_ID_BIAS)
@@ -7198,6 +7199,7 @@
 	#define CTL_TSESS_CMD_TSESSDETAIL    (50 + WINDOWS_ID_BIAS)
 	#define CTL_TSESS_CMD_CCHECK         (51 + WINDOWS_ID_BIAS)
 	#define CTL_TSESS_CMD_CHKINP         (52 + WINDOWS_ID_BIAS)
+	#define CTL_TSESS_SERIAL             (53 + WINDOWS_ID_BIAS)
 
 #define DLG_TSESSLN               674 // Строка технологической сессии
 	#define CTL_TSESSLN_SESSID           (1 + WINDOWS_ID_BIAS)
@@ -8996,6 +8998,7 @@
 	#define CTL_EXTDEV_CHZNPM           (30 + WINDOWS_ID_BIAS)
 	#define CTL_EXTDEV_CHZNGUA          (31 + WINDOWS_ID_BIAS)
 	#define CTLSEL_EXTDEV_CHZNGUA       (32 + WINDOWS_ID_BIAS)
+	#define CTL_EXTDEV_CHZNTSPIOT       (33 + WINDOWS_ID_BIAS) // @v12.6.0 checkbox CASHFX_CHZNTSPIOT
 
 #define DLG_STAFFCALFLT           991 // F_STCAL Фильтр штатных календарей
 	#define cmStaffCalFiltObjList       101
@@ -12047,9 +12050,19 @@
 	// Ctrls same as for DLG_PERSON
 #define DLG_TECHROUTE             1593 // @v12.5.12 Технологический маршрут
 	#define CTL_TECHROUTE_LIST                  (1 + WINDOWS_ID_BIAS)
+	#define CTL_TECHROUTE_OBJTYPE               (2 + WINDOWS_ID_BIAS)
+	#define CTLSEL_TECHROUTE_OBJTYPE            (3 + WINDOWS_ID_BIAS)
+	#define CTL_TECHROUTE_OBJGROUP              (4 + WINDOWS_ID_BIAS)
+	#define CTLSEL_TECHROUTE_OBJGROUP           (5 + WINDOWS_ID_BIAS)
+	#define CTL_TECHROUTE_OBJ                   (6 + WINDOWS_ID_BIAS)
+	#define CTLSEL_TECHROUTE_OBJ                (7 + WINDOWS_ID_BIAS)
 #define DLG_TECHROUTEITEM         1594 // @v12.5.12 Элемент технологического маршрута
 	#define CTL_TECHROUTEITEM_TECH              (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TECHROUTEITEM_TECH           (2 + WINDOWS_ID_BIAS)
+	#define CTL_TECHROUTEITEM_NTIME             (3 + WINDOWS_ID_BIAS)
+	#define CTL_TECHROUTEITEM_NPRICE            (4 + WINDOWS_ID_BIAS)
+#define DLG_TSESS_EXEC_TR         1595 // @v12.6.0 Запуск/остановка технологической сессии на фазе маршрута (по процессору и серийному номеру лота)
+	// Ctrls CTL_TSESS_XXX
 //
 // Win32 Dialog Identifiers
 //

@@ -1803,18 +1803,18 @@ MeasureUnit &MeasureUnit::operator = (MeasureUnit &&other) noexcept {
 	return *this;
 }
 
-MeasureUnit * MeasureUnit::clone() const {
-	return new MeasureUnit(*this);
-}
+MeasureUnit * MeasureUnit::clone() const { return new MeasureUnit(*this); }
 
-MeasureUnit::~MeasureUnit() {
+MeasureUnit::~MeasureUnit() 
+{
 	if(fImpl != nullptr) {
 		delete fImpl;
 		fImpl = nullptr;
 	}
 }
 
-const char * MeasureUnit::getType() const {
+const char * MeasureUnit::getType() const 
+{
 	// We have a type & subtype only if fTypeId is present.
 	if(fTypeId == -1) {
 		return "";
@@ -1822,7 +1822,8 @@ const char * MeasureUnit::getType() const {
 	return gTypes[fTypeId];
 }
 
-const char * MeasureUnit::getSubtype() const {
+const char * MeasureUnit::getSubtype() const 
+{
 	// We have a type & subtype only if fTypeId is present.
 	if(fTypeId == -1) {
 		return "";

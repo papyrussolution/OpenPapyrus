@@ -1788,7 +1788,7 @@ int PPViewUserMenu::DeleteItem(const S_GUID & rUuid)
 								id_to_locate = p_iter_item->ID;
 						}
 						p_def->setArray(new SArray(*P_DsList), 0, 1);
-						pBrw->search2(&id_to_locate, CMPF_LONG, srchFirst, 0);
+						pBrw->search2(&id_to_locate, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/);
 					}
 				}
 				else if(ppvCmd == PPVCMD_EDITITEM) {
@@ -1796,7 +1796,7 @@ int PPViewUserMenu::DeleteItem(const S_GUID & rUuid)
 					const long preserve_id = p_item->ID;
 					if(MakeList(pBrw)) {
 						p_def->setArray(new SArray(*P_DsList), 0, 1);
-						pBrw->search2(&preserve_id, CMPF_LONG, srchFirst, 0);
+						pBrw->search2(&preserve_id, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/);
 					}
 				}
 				else if(ppvCmd == PPVCMD_DELETEITEM) {
@@ -1809,7 +1809,7 @@ int PPViewUserMenu::DeleteItem(const S_GUID & rUuid)
 					if(MakeList(pBrw)) {
 						p_def->setArray(new SArray(*P_DsList), 0, 0);
 						if(preserve_id)
-							pBrw->search2(&preserve_id, CMPF_LONG, srchFirst, 0);
+							pBrw->search2(&preserve_id, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/);
 					}
 				}
 			}

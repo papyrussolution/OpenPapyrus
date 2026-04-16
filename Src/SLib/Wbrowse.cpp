@@ -770,12 +770,12 @@ void BrowserWindow::bottom()
 	Refresh();
 }
 
-int BrowserWindow::search2(const void * pSrchData, CompFunc cmpFunc, int srchMode, size_t offs)
+int BrowserWindow::search2(const void * pSrchData, CompFunc cmpFunc, int srchMode, size_t offs, void * pExtraData)
 {
 	int    ok = 0;
 	long   hdr_width = CalcHdrWidth(1);
-	if(P_Def && P_Def->search2(pSrchData, cmpFunc, srchMode, offs) > 0) {
-		long scrollDelta, scrollPos;
+	if(P_Def && P_Def->search2(pSrchData, cmpFunc, srchMode, offs, pExtraData) > 0) {
+		long    scrollDelta, scrollPos;
 		P_Def->getScrollData(&scrollDelta, &scrollPos);
 		VScrollPos = P_Def->_curFrameItem();
 		ItemRect(HScrollPos, VScrollPos, &RectCursors.CellCursor, true);
@@ -3109,15 +3109,7 @@ void BrowserWindow::SpecialMenu() // @v12.4.12
 			TView::messageBroadcast(p_view, cmMouseHover, &tp);
 			break;
 		case WM_SETFOCUS:
-			if(!(TView::SGetWindowStyle(hWnd) & WS_CAPTION)) {
-				SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
-				APPL->NotifyFrame(0);
-			}
-			if(p_view) {
-				APPL->SelectTabItem(p_view);
-				TView::messageBroadcast(p_view, cmReceivedFocus);
-				p_view->select();
-			}
+			TWindowBase::Helper_SetFocus(hWnd, p_view);
 			break;
 		case WM_KILLFOCUS:
 			if(!(TView::SGetWindowStyle(hWnd) & WS_CAPTION))

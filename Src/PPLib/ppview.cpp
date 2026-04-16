@@ -524,14 +524,14 @@ int PPGetObjViewFiltMapping_Filt(int filtId, PPID * pObjType, int * pViewId)
 			case PPVIEW_WBPUBLICGOODS:   p_v = new PPViewWbPublicGoods(); break; // @v12.3.9
 			case PPVIEW_UNIFINDOBJ:      p_v = new PPViewUniFindObj(0); break;
 			case PPVIEW_GOODSTRNOVR:     p_v = new PPViewGoodsTrnovr(); break; // @v12.5.12
+			case PPVIEW_TECHROUTE:       p_v = new PPViewTechRoute(); break; // @v12.6.0
 			default: ok = PPSetError(PPERR_UNDEFVIEWID);
 		}
 		if(p_v) {
-			p_v->ViewId = viewID_; // @v11.4.4
+			p_v->ViewId = viewID_;
 			if(p_v->Symb.IsEmpty()) {
 				Rc rc;
-				// @v11.4.4 if(LoadResource(0, viewID, rc))
-				if(GetDescriptionById(viewID_, rc)) // @v11.4.4
+				if(GetDescriptionById(viewID_, rc))
 					p_v->Symb = rc.Symb;
 			}
 		}
@@ -2461,7 +2461,7 @@ int PPView::DefaultCmdProcessor(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 					}
 					if(ImplementFlags & implOnAddSetupPos && pBrw) {
 						pBrw->Update();
-						pBrw->search2(&id, CMPF_LONG, srchFirst, 0);
+						pBrw->search2(&id, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/);
 						ok = -1; // pBrw не должен теперь обновлять содержимое таблицы
 					}
 				}

@@ -1,5 +1,5 @@
 // CmdRIncomingListBillActivity.java
-// Copyright (c) A.Sobolev 2022, 2024
+// Copyright (c) A.Sobolev 2022, 2024, 2025, 2026
 //
 package ru.petroglif.styloq;
 
@@ -50,7 +50,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 	private BarcodeScannerClipboardReader BSCReader; // @v12.2.10
 	enum ScanType {
 		Undef,
-		Veriy,
+		Verify,
 		Setting,
 		Search
 	}
@@ -300,24 +300,27 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 				CPM.SetTabVisibility(CommonPrereqModule.Tab.tabXclSetting, View.GONE);
 				if((CPM.GetActionFlags() & Document.actionDocAcceptanceMarks) != 0) {
 					CPM.SetTabVisibility(CommonPrereqModule.Tab.tabXclVerify, View.VISIBLE);
-					ScanSource = ScanType.Veriy;
+					ScanSource = ScanType.Verify;
 					NotifyTabContentChanged(CommonPrereqModule.Tab.tabXclVerify, R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_LIST);
 				}
 				else {
 					CPM.SetTabVisibility(CommonPrereqModule.Tab.tabXclVerify, View.GONE);
 				}
 			}
-			if(Document.DoesStatusAllowModifications(CPM.GetCurrentDocument().GetDocStatus())) {
-				//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoods, View.VISIBLE);
-				//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBrands, View.VISIBLE);
-				//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoodsGroups, View.VISIBLE);
-				//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabClients, View.VISIBLE);
-			}
-			else {
-				//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoods, View.GONE);
-				//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBrands, View.GONE);
-				//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoodsGroups, View.GONE);
-				//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabClients, View.GONE);
+			{
+				Document cur_doc = CPM.GetCurrentDocument();
+				if(cur_doc != null && Document.DoesStatusAllowModifications(cur_doc.GetDocStatus())) {
+					//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoods, View.VISIBLE);
+					//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBrands, View.VISIBLE);
+					//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoodsGroups, View.VISIBLE);
+					//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabClients, View.VISIBLE);
+				}
+				else {
+					//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoods, View.GONE);
+					//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBrands, View.GONE);
+					//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoodsGroups, View.GONE);
+					//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabClients, View.GONE);
+				}
 			}
 			if(gotoTabIfNotEmpty)
 				GotoTab(CommonPrereqModule.Tab.tabCurrentDocument, R.id.CTL_DOCUMENT_TILIST, -1, -1);
@@ -822,6 +825,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 				{
 					Intent intent = getIntent();
 					// @v12.2.2 {
+					ScanDvc = null; // @v12.6.0
 					if((CPM.GetOwnCfgUserFlags() & StyloQConfig.userfClipboardBcScanner) == 0) { // @v12.2.12
 						try {
 							ScanDvc = new ScanDevice();
@@ -912,6 +916,10 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 							else
 								SetupCurrentDocument(false, true);
 							{
+								// @v12.6.0 {
+								if(CPM.Callback_BackButton != null)
+									CPM.Callback_BackButton.remove();
+								// } @v12.6.0
 								CPM.Callback_BackButton = new OnBackPressedCallback(true /* enabled by default */) {
 									@Override public void handleOnBackPressed() { CPM.BackTab(R.id.VIEWPAGER_INCOMINGLISTBILL); }
 								};
@@ -972,16 +980,37 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 					ScanDvc.stopScan ();
 					ScanDvc.setScanLaserMode (8);
 					ScanDvc.closeScan ();
+					// @v12.6.0 {
+					try {
+						unregisterReceiver(BarcodeScanDeviceReceiver);
+					} catch(Exception exn) {
+						;
+					}
+					BarcodeScanDeviceReceiver = null;
+					// } @v12.6.0
 				}
 				// @v12.2.10 {
 				if(BSCReader != null) {
 					BSCReader.UnregisterListener();
 				}
 				// } @v12.2.10
+				// @v12.6.0 {
+				if(RefreshSvcDataPollTmr != null) {
+					RefreshSvcDataPollTmr.cancel();
+					RefreshSvcDataPollTmr.purge();
+				}
+				// } @v12.6.0
 				break;
 			case SLib.EV_PAUSE: // @v12.2.2
 				if(ScanDvc != null) {
-					unregisterReceiver(BarcodeScanDeviceReceiver);
+					// @v12.6.0 {
+					try {
+						unregisterReceiver(BarcodeScanDeviceReceiver);
+					} catch(Exception exn) {
+						;
+					}
+					BarcodeScanDeviceReceiver = null;
+					// } @v12.6.0
 				}
 				// @v12.2.12 {
 				if(BSCReader != null) {
@@ -1043,7 +1072,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 						case R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_LIST:
 							{
 								Document _doc = CPM.GetCurrentDocument();
-								if(ScanSource == ScanType.Veriy) {
+								if(ScanSource == ScanType.Verify) {
 									result = new Integer((_doc == null || _doc.VXcL == null) ? 0 : _doc.VXcL.size());
 								}
 								else if(ScanSource == ScanType.Setting) {
@@ -1119,8 +1148,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 														int mark_count = 0;
 														if(ctl != null) {
 															int rcid = 0;
-															//
-															if(goods_item != null & goods_item.Item.ChZnCat > 0 && goods_item.Item.ChZnMarkedWhs) { // @v12.5.11 (&& goods_item.Item.ChZnMarkedWhs)
+															if(goods_item != null && goods_item.Item != null && goods_item.Item.ChZnCat > 0 && goods_item.Item.ChZnMarkedWhs) { // @v12.5.11 (&& goods_item.Item.ChZnMarkedWhs)
 																mark_count = (ti.XcL != null) ? ti.XcL.size() : 0;
 																if(mark_count > 0) {
 																	rcid = R.drawable.ic_qrcode01scan;
@@ -1233,7 +1261,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 									case R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_LIST:
 										Document _doc = CPM.GetCurrentDocument();
 										if(_doc != null) {
-											if(ScanSource == ScanType.Veriy) {
+											if(ScanSource == ScanType.Verify) {
 												if(SLib.IsInRange(ev_subj.ItemIdx, _doc.VXcL)) {
 													View iv = ev_subj.RvHolder.itemView;
 													Document.LotExtCode cur_entry = _doc.VXcL.get(ev_subj.ItemIdx);
@@ -1445,7 +1473,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 					if(vg_id == R.id.LAYOUT_INCOMINGLIST_BILL_SCANMARKS) { // @v12.3.5
 						Document _doc = CPM.GetCurrentDocument();
 						int mark_count = 0;
-						if(ScanSource == ScanType.Veriy) {
+						if(ScanSource == ScanType.Verify) {
 							mark_count = (_doc == null || _doc.VXcL == null) ? 0 : _doc.VXcL.size();
 						}
 						else if(ScanSource == ScanType.Setting) {
@@ -1659,7 +1687,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 											lv = fv.findViewById(R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_LIST);
 											if(lv != null) {
 												((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
-												if(ScanSource == ScanType.Veriy)
+												if(ScanSource == ScanType.Verify)
 													SetupRecyclerListView(fv, R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_LIST, R.layout.li_incominglist_bill_scanmarks);
 												else if(ScanSource == ScanType.Setting)
 													SetupRecyclerListView(fv, R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_LIST, R.layout.li_incominglist_bill_scanmarks_setting);
@@ -1945,7 +1973,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 										CommonPrereqModule.Tab tab = CommonPrereqModule.Tab.tabUndef;
 										if(ScanSource == ScanType.Setting)
 											tab = CommonPrereqModule.Tab.tabXclSetting;
-										else if(ScanSource == ScanType.Veriy)
+										else if(ScanSource == ScanType.Verify)
 											tab = CommonPrereqModule.Tab.tabXclVerify;
 										if(tab != CommonPrereqModule.Tab.tabUndef)
 											NotifyTabContentChanged(tab, R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_LIST);
@@ -2274,7 +2302,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 				Document _doc = CPM.GetCurrentDocument();
 				if(_doc != null) {
 					if(SLib.GetLen(pbr.ChZnMark) > 0) {
-						if(ScanSource == ScanType.Veriy) {
+						if(ScanSource == ScanType.Verify) {
 							if(_doc.VXcL == null)
 								_doc.VXcL = new ArrayList<Document.LotExtCode>();
 							Document.LotExtCode lec = new Document.LotExtCode();

@@ -2181,7 +2181,7 @@ int PPBillImporter::RunUhttImport()
 								}
 							}
 							if(ar_id) {
-								PPBillPacket::SetupObjectBlock sob_unused;
+								PPBillPacket::SetupObjectBlock sob_unused(SConstructorLite);
 								THROW(pack.SetupObject(ar_id, sob_unused));
 							}
 							if(psn_id && !dlvr_loc_pack.IsEmptyAddress()) {
@@ -5555,7 +5555,7 @@ int PPBillImporter::Run()
 						}
 						pack.CreateBlank2(_op_id, init_bill_date, LocID, 0);
 						if(seller_ar_id) {
-							PPBillPacket::SetupObjectBlock sob_unused;
+							PPBillPacket::SetupObjectBlock sob_unused(SConstructorLite);
 							if(!pack.SetupObject(seller_ar_id, sob_unused)) {
 								Logger.LogLastError();
 								skip = 1;
@@ -6829,7 +6829,7 @@ int DocNalogRu_Generator::MakeOutFileIdent(const PPBillPacket * pBPack, FileInfo
 						pack_has_marks = pBPack->P_LinkPack->HasChZnMarks(is_exp_correction);
 					}
 					if(pack_has_marks) {
-						n_list[1] = 1; // _N3
+						n_list[1] = no_marks_because_notch ? 0 : 1; // _N3 // @v12.6.0 @fix 1-->(no_marks_because_notch ? 0 : 1)
 					}
 					//
 					PPGoodsType2 gt_rec;
@@ -8190,6 +8190,7 @@ int DocNalogRu_Generator::WriteParticipant(const char * pHeaderTag, PPID psnID, 
 					n__.PutAttrib(GetToken_Ansi(PPHSC_RU_IND_REG), EncText(priv_reg_text)); 
 				// } @v11.7.6 
 				WriteFIO(psn_pack.Rec.Name, 0, false);
+				// @todo @20260415 ОГРНИП
 			}
 			else if(inn.Len() == 10) { // Юридическое лицо
 				SXml::WNode n__(P_X, GetToken_Ansi(PPHSC_RU_ORGINFO));
@@ -8660,6 +8661,7 @@ int DocNalogRu_Generator::WriteOrgInfo(const char * pScopeXmlTag, PPID personID,
 					n_p.PutAttrib(GetToken_Ansi(PPHSC_RU_IND_REG), EncText(priv_reg_text)); 
 				// } @v11.7.6 
 				WriteFIO(psn_pack.Rec.Name, 0, false);
+				// @todo @20260415 ОГРНИП
 			}
 			else {
 				SXml::WNode n_p(P_X, GetToken_Ansi(PPHSC_RU_JURINFO));

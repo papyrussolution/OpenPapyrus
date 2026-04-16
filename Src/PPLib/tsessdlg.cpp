@@ -1502,18 +1502,15 @@ int TSessionDialog::setDTS(const TSessionPacket * pData)
 		setCtrlString(CTL_TSESS_SCARD, scard_no);
 	}
 	setupOrder();
-	// @v11.0.4 setCtrlData(CTL_TSESS_MEMO, Data.Rec.Memo);
-	// @v11.0.4 {
 	Data.Ext.GetExtStrData(PRCEXSTR_MEMO, temp_buf.Z());
 	setCtrlString(CTL_TSESS_MEMO, temp_buf); 
-	// } @v11.0.4 
 	disableCtrl(CTL_TSESS_IDLE, Data.Rec.ID);
 	disableCtrl(CTLSEL_TSESS_TECH, Data.Rec.Flags & (TSESF_IDLE | TSESF_PLAN));
 	enableCommand(cmSelTechByGoods, !(Data.Rec.Flags & (TSESF_IDLE | TSESF_PLAN)));
 	enableCommand(cmBrowseTSessByAr, Data.Rec.ArID);
 	SetupCCheckButton();
 	SetupCipAndRepButton();
-	SetupAutoFillButton(); // @v10.8.12
+	SetupAutoFillButton();
 	SetupPayment();
 	InpUpdLock--;
 	return ok;
@@ -1560,13 +1557,10 @@ int TSessionDialog::getDTS(TSessionPacket * pData)
 			}
 		}
 	}
-	// @v11.0.4 getCtrlData(CTL_TSESS_MEMO, Data.Rec.Memo);
-	// @v11.0.4 {
 	{
 		getCtrlString(CTL_TSESS_MEMO, temp_buf.Z()); 
 		Data.Ext.PutExtStrData(PRCEXSTR_MEMO, temp_buf);
 	}
-	// } @v11.0.4
 	getCtrlData(sel = CTL_TSESS_FNDT, &Data.Rec.FinDt);
 	THROW_SL(checkdate(Data.Rec.FinDt, 1));
 	getCtrlData(CTL_TSESS_FNTM, &Data.Rec.FinTm);
@@ -1609,7 +1603,7 @@ public:
 	{
 		SetupCalDate(CTLCAL_TSESSLN_DT, CTL_TSESSLN_DT);
 		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_TSESSLN_GGRP, CTLSEL_TSESSLN_GOODS));
-		showCtrl(CTL_TSESSLN_ORGQTTY, false); // @v11.0.7
+		showCtrl(CTL_TSESSLN_ORGQTTY, false);
 		if(!(TSesObj.GetConfig().Flags & PPTSessConfig::fUsePricing)) {
 			showCtrl(CTL_TSESSLN_PRICE, false);
 			showCtrl(CTL_TSESSLN_DSCNT, false);
@@ -1659,16 +1653,18 @@ public:
 		setCtrlData(CTL_TSESSLN_DT, &Data.Dt);
 		setCtrlData(CTL_TSESSLN_TM, &Data.Tm);
 		setCtrlReal(CTL_TSESSLN_QTTY,        Data.Qtty);
-		setCtrlReal(CTL_TSESSLN_INDEPPHQTTY, Data.WtQtty);
+		// @v12.6.0 setCtrlReal(CTL_TSESSLN_INDEPPHQTTY, Data.WtQtty);
+		SetupQtty(false, Data.Qtty); // @v12.6.0
 		SetupPricing(0);
 		setCtrlData(CTL_TSESSLN_SERIAL, Data.Serial);
-		disableCtrl(CTL_TSESSLN_SERIAL, true);
+		// @v12.6.0 disableCtrl(CTL_TSESSLN_SERIAL, true);
+		setCtrlReadOnly(CTL_TSESSLN_SERIAL, true); // @v12.6.0
 		disableCtrl(CTL_TSESSLN_SIGN, Data.OprNo != 0);
 		disableCtrl(CTL_TSESSLN_FLAG_REST, Data.OprNo != 0);
 		if(Data.GoodsID)
 			selectCtrl(CTL_TSESSLN_QTTY);
-		disableCtrl(CTL_TSESSLN_SERIAL, BIN(Data.Sign < 0));
-		// @v11.0.4 {
+		// @v12.6.0 disableCtrl(CTL_TSESSLN_SERIAL, BIN(Data.Sign < 0));
+		setCtrlReadOnly(CTL_TSESSLN_SERIAL, (Data.Sign < 0)); // @v12.6.0
 		{
 			uint lda = GetLotDimAllowence(0);
 			if(lda & 0x01)
@@ -1678,8 +1674,7 @@ public:
 			if(lda & 0x04)
 				setCtrlReal(CTL_TSESSLN_LOTDIMZ, Data.LotDimZ);
 		}
-		// } @v11.0.4 
-		enableCommand(cmSelSerial, BIN(Data.Sign < 0));
+		enableCommand(cmSelSerial, (Data.Sign < 0));
 		SetupCtrlsOnGoodsSelection();
 		CATCHZOKPPERR
 		return ok;
@@ -1696,17 +1691,18 @@ public:
 		GetClusterData(CTL_TSESSLN_PLANFLAGS, &Data.Flags);
 		getCtrlData(sel = CTL_TSESSLN_QTTY, &Data.Qtty);
 		THROW_PP(Data.Qtty > 0, PPERR_QTTYMUSTBEGTZ);
-		if(Data.Flags & TSESLF_INDEPPHQTTY)
+		if(Data.Flags & TSESLF_INDEPPHQTTY) { 
 			getCtrlData(sel = CTL_TSESSLN_INDEPPHQTTY, &Data.WtQtty); // float WtQtty
-		else
+		}
+		else {
 			Data.WtQtty = 0.0;
+		}
 		Data.Price    = getCtrlReal(CTL_TSESSLN_PRICE);
 		Data.Discount = getCtrlReal(CTL_TSESSLN_DSCNT);
 		getCtrlData(sel = CTL_TSESSLN_DT, &Data.Dt);
 		THROW_SL(checkdate(Data.Dt));
 		getCtrlData(CTL_TSESSLN_TM, &Data.Tm);
 		getCtrlData(CTL_TSESSLN_SERIAL, Data.Serial);
-		// @v11.0.4 {
 		{
 			uint lda = GetLotDimAllowence(0);
 			if(lda & 0x01)
@@ -1722,7 +1718,6 @@ public:
 			else
 				Data.LotDimZ = 0.0;
 		}
-		// } @v11.0.4 
 		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERRBYDLG
 		return ok;
@@ -1730,7 +1725,7 @@ public:
 private:
 	DECL_HANDLE_EVENT;
 	void   SetupCtrlsOnGoodsSelection();
-	void   SetupQtty(int readFromField, double qtty);
+	void   SetupQtty(bool readFromField, double qtty);
 	void   SetupPricing(int recalcDiscount);
 	void   SetupLotDimention();
 	uint   GetLotDimAllowence(SString * pQttyFormula);
@@ -1749,10 +1744,16 @@ void TSessLineDialog::SetupCtrlsOnGoodsSelection()
 	if(Data.GoodsID && GObj.Fetch(Data.GoodsID, &goods_rec) > 0 && GObj.FetchUnit(goods_rec.PhUnitID, &unit_rec) > 0) {
 		setStaticText(CTL_TSESSLN_ST_PHQTTY, unit_rec.Name);
 	}
-	showCtrl(CTL_TSESSLN_PHQTTY, !(Data.Flags & TSESLF_INDEPPHQTTY));
-	showCtrl(CTL_TSESSLN_INDEPPHQTTY, LOGIC(Data.Flags & TSESLF_INDEPPHQTTY));
+	//
+	// В версии 12.6.0 мы перевели диалог DLG_TSESSLN на новый формат DL600 и "скрытый" статик-текст CTL_TSESSLN_PHQTTY упразднили.
+	// Теперь если (Data.Flags & TSESLF_INDEPPHQTTY), то в CTL_TSESSLN_INDEPPHQTTY можно ввести физические единцы,
+	// в противном случае, в этом поле просто отображаются физические единицы, соответствующие полю CTL_TSESSLN_QTTY
+	// 
+	// @v12.6.0 showCtrl(CTL_TSESSLN_PHQTTY, !(Data.Flags & TSESLF_INDEPPHQTTY));
+	// @v12.6.0 showCtrl(CTL_TSESSLN_INDEPPHQTTY, LOGIC(Data.Flags & TSESLF_INDEPPHQTTY));
+	setCtrlReadOnly(CTL_TSESSLN_INDEPPHQTTY, !(Data.Flags & TSESLF_INDEPPHQTTY)); // @v12.6.0 
 	showCtrl(CTLMNU_TSESSLN_PHQTTY, LOGIC(Data.Flags & TSESLF_INDEPPHQTTY));
-	disableCtrls((Data.Flags & TSESLF_RECOMPL), CTL_TSESSLN_QTTY, CTL_TSESSLN_SIGN, CTL_TSESSLN_ORGQTTY, 0); // @v11.0.7 CTL_TSESSLN_QTTY
+	disableCtrls((Data.Flags & TSESLF_RECOMPL), CTL_TSESSLN_QTTY, CTL_TSESSLN_SIGN, CTL_TSESSLN_ORGQTTY, 0);
 	SetupLotDimention();
 }
 
@@ -1794,10 +1795,8 @@ void TSessLineDialog::SetupLotDimention()
 	}
 }
 
-void TSessLineDialog::SetupQtty(int readFromField, double qtty)
+void TSessLineDialog::SetupQtty(bool readFromField, double qtty)
 {
-	SString phq_txt;
-	double phuperu;
 	GetClusterData(CTL_TSESSLN_PLANFLAGS, &Data.Flags);
 	if(readFromField)
 		Data.Qtty = getCtrlReal(CTL_TSESSLN_QTTY);
@@ -1805,11 +1804,35 @@ void TSessLineDialog::SetupQtty(int readFromField, double qtty)
 		setCtrlReal(CTL_TSESSLN_QTTY, Data.Qtty = qtty);
 	if(Data.Flags & TSESLF_INDEPPHQTTY)
 		setCtrlReal(CTL_TSESSLN_INDEPPHQTTY, R6(Data.WtQtty));
-	else if(Data.Flags & TSESLF_PLAN_PHUNIT)
-		phq_txt.Cat(R6(Data.Qtty), MKSFMTD(0, 6, NMBF_NOZERO|NMBF_NOTRAILZ));
-	else if(GObj.GetPhUPerU(Data.GoodsID, 0, &phuperu) > 0)
-		phq_txt.Cat(R6(Data.Qtty * phuperu), MKSFMTD(0, 6, NMBF_NOZERO|NMBF_NOTRAILZ));
-	setStaticText(CTL_TSESSLN_PHQTTY, phq_txt);
+	else {
+		// @v12.6.0 SString phq_txt;
+		SString unit_name;
+		double phuperu = 0.0;
+		double phqtty = 0.0;
+		PPID   ph_unit_id = 0;
+		if(Data.Flags & TSESLF_PLAN_PHUNIT) {
+			phqtty = R6(Data.Qtty);
+			// @v12.6.0 phq_txt.Cat(phqtty, MKSFMTD(0, 6, NMBF_NOZERO|NMBF_NOTRAILZ));
+		}
+		else {
+			const  int gphupur = GObj.GetPhUPerU(Data.GoodsID, &ph_unit_id, &phuperu);
+			if(gphupur == 1) {
+				phqtty = R6(Data.Qtty * phuperu);
+				if(ph_unit_id) {
+					PPUnit2 unit_rec;
+					if(GObj.FetchUnit(ph_unit_id, &unit_rec) > 0) {
+						unit_name = unit_rec.Name;
+					}
+				}
+				// @v12.6.0 phq_txt.Cat(phqtty, MKSFMTD(0, 6, NMBF_NOZERO|NMBF_NOTRAILZ));
+			}
+		}
+		// @v12.6.0 setStaticText(CTL_TSESSLN_PHQTTY, phq_txt);
+		// @v12.6.0 {
+		setLabelText(CTL_TSESSLN_INDEPPHQTTY, unit_name);
+		setCtrlReal(CTL_TSESSLN_INDEPPHQTTY, phqtty);
+		// } @v12.6.0 
+	}
 }
 
 IMPL_HANDLE_EVENT(TSessLineDialog)
@@ -1846,14 +1869,15 @@ IMPL_HANDLE_EVENT(TSessLineDialog)
 			}
 		}
 		else if(event.isClusterClk(CTL_TSESSLN_PLANFLAGS))
-			SetupQtty(1, 0);
-		else if(event.isClusterClk(CTL_TSESSLN_SIGN)) { // @v11.0.4 @fix CTL_TSESSLN_PLANFLAGS-->CTL_TSESSLN_SIGN
+			SetupQtty(true, 0.0);
+		else if(event.isClusterClk(CTL_TSESSLN_SIGN)) {
 			long   temp_long = 0;
 			if(GetClusterData(CTL_TSESSLN_SIGN, &temp_long)) {
 				Data.Sign = static_cast<int16>(temp_long);
-				disableCtrl(CTL_TSESSLN_SERIAL, BIN(Data.Sign < 0));
+				// @v12.6.0 disableCtrl(CTL_TSESSLN_SERIAL, BIN(Data.Sign < 0));
+				setCtrlReadOnly(CTL_TSESSLN_SERIAL, (Data.Sign < 0)); // @v12.6.0
 				enableCommand(cmSelSerial, BIN(Data.Sign < 0));
-				SetupLotDimention(); // @v11.0.4
+				SetupLotDimention();
 			}
 		}
 		else if(event.isCmd(cmInputUpdated)) {
@@ -1871,7 +1895,7 @@ IMPL_HANDLE_EVENT(TSessLineDialog)
 				setCtrlReal(CTL_TSESSLN_NETPRICE, Data.Price - Data.Discount);
 			}
 			else if(event.isCtlEvent(CTL_TSESSLN_QTTY) && !(Data.Flags & TSESLF_INDEPPHQTTY))
-				SetupQtty(1, 0);
+				SetupQtty(true, 0.0);
 			else if(event.isCtlEvent(CTL_TSESSLN_LOTDIMX) || event.isCtlEvent(CTL_TSESSLN_LOTDIMY) || event.isCtlEvent(CTL_TSESSLN_LOTDIMZ)) {
 				SString formula;
 				uint dims_allowed = GetLotDimAllowence(&formula); // bit-mask X: 0x01, Y: 0x02, Z: 0x04
@@ -1907,7 +1931,7 @@ IMPL_HANDLE_EVENT(TSessLineDialog)
 					PPID   goods_id = getCtrlLong(CTLSEL_TSESSLN_GOODS);
 					GoodsStockExt gse;
 					if(GObj.GetStockExt(Data.GoodsID, &gse) > 0 && gse.Package > 0)
-						SetupQtty(0, R0(qtty * gse.Package));
+						SetupQtty(false, R0(qtty * gse.Package));
 				}
 			}
 			else
@@ -1918,20 +1942,22 @@ IMPL_HANDLE_EVENT(TSessLineDialog)
 				double phuperu;
 				double qtty = 0.0;
 				GetClusterData(CTL_TSESSLN_PLANFLAGS, &Data.Flags);
-				if(!(Data.Flags & TSESLF_PLAN_PHUNIT) && getCtrlData(CTL_TSESSLN_QTTY, &qtty) && qtty > 0)
+				if(!(Data.Flags & TSESLF_PLAN_PHUNIT) && getCtrlData(CTL_TSESSLN_QTTY, &qtty) && qtty > 0.0)
 					if(Data.GoodsID && GObj.GetPhUPerU(Data.GoodsID, 0, &phuperu) > 0)
-						SetupQtty(0, R6(qtty / phuperu));
+						SetupQtty(false, R6(qtty / phuperu));
 			}
 			else
 				return;
 		}
 		else if(TVKEY == kbShiftF6) {
 			if(curr_ctl_id == CTL_TSESSLN_QTTY) {
-				double qtty = getCtrlReal(CTL_TSESSLN_QTTY);
-				if(qtty > 0.0 && Data.GoodsID) {
-					PPGoodsStruc gs;
-					if(TSesObj.GetGoodsStruc(Data.TSessID, &gs) > 0 && gs.RecalcQttyByMainItemPh(&qtty) > 0)
-						SetupQtty(0, qtty);
+				if(Data.GoodsID) {
+					double qtty = getCtrlReal(CTL_TSESSLN_QTTY);
+					if(qtty > 0.0) {
+						PPGoodsStruc gs;
+						if(TSesObj.GetGoodsStruc(Data.TSessID, &gs) > 0 && gs.RecalcQttyByMainItemPh(&qtty) > 0)
+							SetupQtty(false, qtty);
+					}
 				}
 			}
 			else
@@ -1945,7 +1971,7 @@ IMPL_HANDLE_EVENT(TSessLineDialog)
 				if(PPGoodsCalculator(goods_id, Data.TSessID, 1, _arg, &result) > 0 && result > 0.0) {
 					setCtrlReal(curr_ctl_id, R6(result));
 					if(curr_ctl_id == CTL_LOT_QUANTITY)
-						SetupQtty(1, 0);
+						SetupQtty(true, 0.0);
 				}
 			}
 		}
@@ -2027,6 +2053,100 @@ int PPObjTSession::EditDialog(TSessionPacket * pData)
 
 int PPObjTSession::EditLineDialog(TSessLineTbl::Rec * pData, int asPlanLine)
 {
-	uint   dlg_id = asPlanLine ? DLG_TSESSPLANLN : DLG_TSESSLN;
+	const  uint dlg_id = asPlanLine ? DLG_TSESSPLANLN : DLG_TSESSLN;
 	DIALOG_PROC_BODY_P1(TSessLineDialog, dlg_id, pData);
+}
+
+struct ExecSessionOnTechRouteBlock {
+	ExecSessionOnTechRouteBlock() : PrcID(0), TechID(0), TSessID(0), GoodsID(0), Flags(0)
+	{
+	}
+	enum {
+		fStopCurrentSess = 0x0001,
+	};
+	PPID   PrcID;
+	PPID   TechID;
+	PPID   GoodsID;
+	PPID   TSessID; // 
+	uint   Flags;
+	SString Serial;
+};
+
+int PPObjTSession::Edit_ExecSessionOnTechRoute(PPID prcID, bool stopCurrentSession)
+{
+	class ExecSessionOnTechRouteDialog : public TDialog {
+		DECL_DIALOG_DATA(ExecSessionOnTechRouteBlock);
+		PPObjTSession TSesObj;
+	public:
+		enum {
+			ctlgroupPrcTech = 1
+		};
+		ExecSessionOnTechRouteDialog() : TDialog(DLG_TSESS_EXEC_TR), P_BObj(BillObj)
+		{
+			addGroup(ctlgroupPrcTech, new PrcTechCtrlGroup(CTLSEL_TSESS_PRC, CTLSEL_TSESS_TECH, CTL_TSESS_ST_GOODS,
+				CTLSEL_TSESS_OBJ, CTLSEL_TSESS_OBJ2, 0/*cmSelTechByGoods*/, 0/*cmCreateGoods*/));
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			PrcTechCtrlGroup::Rec ptcg_rec;
+			ptcg_rec.PrcID = Data.PrcID;
+			if(setGroupData(ctlgroupPrcTech, &ptcg_rec)) {
+				;
+			}
+		}
+		DECL_DIALOG_GETDTS()
+		{
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_TSESS_SERIAL)) {
+				if(Data.PrcID) {
+					SString serial;
+					getCtrlString(CTL_TSESS_SERIAL, serial);
+					if(serial.NotEmptyS()) {
+						PPIDArray lot_id_list;
+						P_BObj->SearchLotsBySerialExactly(serial, &lot_id_list);
+						if(lot_id_list.getCount()) {
+							ProcessorTbl::Rec prc_rec;
+							ReceiptTbl::Rec lot_rec;
+							if(TSesObj.GetPrc(Data.PrcID, &prc_rec, 1, 1) > 0) {
+								const  PPID loc_id = prc_rec.LocID;
+								for(uint i = 0; i < lot_id_list.getCount(); i++) {
+									const  PPID lot_id = lot_id_list.get(i);
+									if(P_BObj->trfr->Rcpt.Search(lot_id, &lot_rec) > 0 && lot_rec.LocID == loc_id && lot_rec.GoodsID > 0) {
+										
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			else if(event.isCbSelected(CTLSEL_TSESS_PRC)) {
+				Data.PrcID = getCtrlLong(CTLSEL_TSESS_PRC);
+			}
+		}
+		PPObjBill * P_BObj;
+	};
+
+	int    ok = -1;
+	ExecSessionOnTechRouteBlock data;
+	if(stopCurrentSession) {
+		THROW(prcID); // @todo @err
+	}
+	else {
+	}
+	ok = PPDialogProcBody<ExecSessionOnTechRouteDialog, ExecSessionOnTechRouteBlock>(&data);
+	CATCHZOK
+	return ok;
+}
+
+/*static*/int PPObjTSession::ExecSessionOnTechRoute() // @v12.6.0
+{
+	int    ok = -1;
+	PPObjTSession tses_obj;
+	tses_obj.Edit_ExecSessionOnTechRoute(0, false);
+	return ok;
 }

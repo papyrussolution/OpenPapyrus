@@ -501,13 +501,12 @@ ArgExtractor::ArgExtractor(const NumberFormat& /*nf*/, const Formattable& obj, U
 	}
 }
 
-ArgExtractor::~ArgExtractor() {
+ArgExtractor::~ArgExtractor() 
+{
 }
 
-UnicodeString & NumberFormat::format(const number::impl::DecimalQuantity &number,
-    UnicodeString & appendTo,
-    FieldPositionIterator* posIter,
-    UErrorCode & status) const {
+UnicodeString & NumberFormat::format(const number::impl::DecimalQuantity &number, UnicodeString & appendTo, FieldPositionIterator* posIter, UErrorCode & status) const 
+{
 	// DecimalFormat overrides this function, and handles DigitList based big decimals.
 	// Other subclasses (ChoiceFormat) do not (yet) handle DigitLists,
 	// so this default implementation falls back to formatting decimal numbers as doubles.
@@ -519,10 +518,8 @@ UnicodeString & NumberFormat::format(const number::impl::DecimalQuantity &number
 	return appendTo;
 }
 
-UnicodeString &NumberFormat::format(const number::impl::DecimalQuantity &number,
-    UnicodeString & appendTo,
-    FieldPosition& pos,
-    UErrorCode & status) const {
+UnicodeString &NumberFormat::format(const number::impl::DecimalQuantity &number, UnicodeString & appendTo, FieldPosition& pos, UErrorCode & status) const 
+{
 	// DecimalFormat overrides this function, and handles DigitList based big decimals.
 	// Other subclasses (ChoiceFormat) do not (yet) handle DigitLists,
 	// so this default implementation falls back to formatting decimal numbers as doubles.
@@ -534,17 +531,13 @@ UnicodeString &NumberFormat::format(const number::impl::DecimalQuantity &number,
 	return appendTo;
 }
 
-UnicodeString &NumberFormat::format(const Formattable& obj,
-    UnicodeString & appendTo,
-    FieldPosition& pos,
-    UErrorCode & status) const
+UnicodeString &NumberFormat::format(const Formattable& obj, UnicodeString & appendTo, FieldPosition& pos, UErrorCode & status) const
 {
-	if(U_FAILURE(status)) return appendTo;
-
+	if(U_FAILURE(status)) 
+		return appendTo;
 	ArgExtractor arg(*this, obj, status);
 	const Formattable * n = arg.number();
 	const char16_t * iso = arg.iso();
-
 	if(arg.wasCurrency() && u_strcmp(iso, getCurrency())) {
 		// trying to format a different currency.
 		// Right now, we clone.
@@ -553,7 +546,6 @@ UnicodeString &NumberFormat::format(const Formattable& obj,
 		// next line should NOT recurse, because n is numeric whereas obj was a wrapper around currency amount.
 		return cloneFmt->format(*n, appendTo, pos, status);
 	}
-
 	if(n->isNumeric() && n->getDecimalQuantity()) {
 		// Decimal Number.  We will have a DigitList available if the value was
 		//   set to a decimal number, or if the value originated with a parse.
@@ -567,21 +559,12 @@ UnicodeString &NumberFormat::format(const Formattable& obj,
 	}
 	else {
 		switch(n->getType()) {
-			case Formattable::kDouble:
-			    format(n->getDouble(), appendTo, pos, status);
-			    break;
-			case Formattable::kLong:
-			    format(n->getLong(), appendTo, pos, status);
-			    break;
-			case Formattable::kInt64:
-			    format(n->getInt64(), appendTo, pos, status);
-			    break;
-			default:
-			    status = U_INVALID_FORMAT_ERROR;
-			    break;
+			case Formattable::kDouble: format(n->getDouble(), appendTo, pos, status); break;
+			case Formattable::kLong: format(n->getLong(), appendTo, pos, status); break;
+			case Formattable::kInt64: format(n->getInt64(), appendTo, pos, status); break;
+			default: status = U_INVALID_FORMAT_ERROR; break;
 		}
 	}
-
 	return appendTo;
 }
 //

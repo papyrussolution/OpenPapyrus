@@ -1,5 +1,5 @@
 // CRCSHSRV.CPP
-// Copyright (c) V.Nasonov, A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) V.Nasonov, A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Интерфейс (асинхронный) к драйверу кассового сервера (ООО Кристалл Сервис)
 //
@@ -3613,25 +3613,7 @@ int ACS_CRCSHSRV::CcXmlReader::Next(Packet * pPack)
 
 IMPL_CMPFUNC(AcceptedCheck_, i1, i2)
 {
-	/* @v11.4.0
-	const ACS_CRCSHSRV::AcceptedCheck_ * p_i1 = static_cast<const ACS_CRCSHSRV::AcceptedCheck_ *>(i1);
-	const ACS_CRCSHSRV::AcceptedCheck_ * p_i2 = static_cast<const ACS_CRCSHSRV::AcceptedCheck_ *>(i2);
-	if(p_i1->CashNum > p_i2->CashNum)
-		return 1;
-	else if(p_i1->CashNum < p_i2->CashNum)
-		return -1;
-	else if(p_i1->Dt > p_i2->Dt)
-		return 1;
-	else if(p_i1->Dt < p_i2->Dt)
-		return -1;
-	else if(p_i1->Tm > p_i2->Tm)
-		return 1;
-	else if(p_i1->Tm < p_i2->Tm)
-		return -1;
-	else
-		return 0;
-	*/
-	RET_CMPCASCADE3(static_cast<const ACS_CRCSHSRV::AcceptedCheck_ *>(i1), static_cast<const ACS_CRCSHSRV::AcceptedCheck_ *>(i2), CashNum, Dt, Tm); // @v11.4.0 
+	RET_CMPCASCADE3(static_cast<const ACS_CRCSHSRV::AcceptedCheck_ *>(i1), static_cast<const ACS_CRCSHSRV::AcceptedCheck_ *>(i2), CashNum, Dt, Tm);
 }
 
 int ACS_CRCSHSRV::ConvertWareListV10(const SVector * pZRepList, const char * pPath, const char * pWaitMsg)

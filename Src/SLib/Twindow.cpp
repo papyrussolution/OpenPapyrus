@@ -610,7 +610,7 @@ TLabel * FASTCALL TWindow::GetCtrlLabel(uint ctlID) { return GetCtrlLabel(getCtr
 
 int TWindow::getLabelText(uint ctlID, SString & rText)
 {
-	rText.Z(); // @v11.3.1
+	rText.Z();
 	TLabel * p_label = GetCtrlLabel(ctlID);
 	return p_label ? (p_label->GetText(rText), 1) : 0;
 }
@@ -686,7 +686,7 @@ int STDCALL TWindow::setCtrlString(uint ctlID, const SString & s)
 	if(p_v) {
 		const uint ctrl_subsign = p_v->GetSubSign();
 		if(ctrl_subsign == TV_SUBSIGN_INPUTLINE) {
-			const size_t max_len = static_cast<TInputLine *>(p_v)->getMaxLen();
+			const size_t max_len = static_cast<TInputLine *>(p_v)->GetMaxLen();
 			if(max_len > temp_len && s.Len() >= temp_len) {
 				temp_len = max_len+32;
 				p_temp = static_cast<char *>(SAlloc::M(temp_len));
@@ -715,7 +715,7 @@ int STDCALL TWindow::setCtrlString(uint ctlID, const SString & s)
 	return ok;
 }
 
-int STDCALL TWindow::getCtrlString(uint ctlID, SString & s)
+int STDCALL TWindow::getCtrlString(uint ctlID, SString & rS)
 {
 	int    ok = 0;
 	char   temp_buf[1024];
@@ -723,14 +723,14 @@ int STDCALL TWindow::getCtrlString(uint ctlID, SString & s)
 	int    is_temp_allocated = 0;
 	TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(ctlID));
 	if(TView::IsSubSign(p_il, TV_SUBSIGN_INPUTLINE)) {
-		const size_t max_len = p_il->getMaxLen();
+		size_t max_len = p_il->GetMaxLen();
 		if(max_len > sizeof(temp_buf)) {
 			p_temp = static_cast<char *>(SAlloc::M(max_len+32));
 			if(p_temp)
 				is_temp_allocated = 1;
 		}
 		if(getCtrlData(ctlID, p_temp)) {
-			s = p_temp;
+			rS = p_temp;
 			ok = 1;
 		}
 	}
@@ -1396,6 +1396,22 @@ static wchar_t * P_SLibWindowBaseClsName = L"SLibWindowBase";
 			if(!(pView->Sf & sfOnDestroy)) { // @v12.5.4
 				delete pView;
 			}
+		}
+	}
+}
+
+/*static*/void TWindowBase::Helper_SetFocus(HWND hWnd, TBaseBrowserWindow * pView)
+{
+	if(!(TView::SGetWindowStyle(hWnd) & WS_CAPTION)) {
+		SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
+		APPL->NotifyFrame(0);
+	}
+	if(pView && pView->IsConsistent()) {
+		APPL->SelectTabItem(pView);
+		TView::messageBroadcast(pView, cmReceivedFocus);
+		pView->select();
+		if(pView->P_Owner) {
+			TView::messageCommand(pView->P_Owner, cmChildFocusReceived, pView);
 		}
 	}
 }

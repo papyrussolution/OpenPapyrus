@@ -1,5 +1,5 @@
 // V_GLOBUS.CPP
-// Copyright (c) A.Starodub 2012, 2016, 2017, 2019, 2020, 2021, 2025
+// Copyright (c) A.Starodub 2012, 2016, 2017, 2019, 2020, 2021, 2025, 2026
 // @codepage UTF-8
 // PPViewGlobalUserAcc
 //
@@ -185,7 +185,7 @@ int FASTCALL PPViewGlobalUserAcc::NextIteration(GlobalUserAccViewItem * pItem)
 			case PPVCMD_ADDITEM:
 				ok = (ObjGlobAcc.Edit(&(id = 0), 0) == cmOK) ? 1 : -1;
 				break;
-			case PPVCMD_QUICKTAGEDIT: // @v11.2.8
+			case PPVCMD_QUICKTAGEDIT:
 				// В этой команде указатель pHdr занят под список идентификаторов тегов, соответствующих нажатой клавише
 				// В связи с этим текущий элемент таблицы придется получить явным вызовом pBrw->getCurItem()
 				//

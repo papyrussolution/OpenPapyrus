@@ -1,5 +1,5 @@
 // MENU.RC
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2022, 2023, 2024, 2025, 2026
 // Part of project Papyrus
 // Описание ресурсов меню для проекта Papyrus
 //
@@ -214,6 +214,7 @@
 			MENUITEM "@cmd_processor",					cmProcessor
 			MENUITEM "@cmd_tech",						cmTech
 			MENUITEM SEPARATOR
+			MENUITEM "@cmd_techroute",                  cmTechRoute // @v12.6.0
 			MENUITEM "@cmd_tsesswrofforder",			cmTSessWrOffOrder
 		}
 		POPUP "@cmdpu_equipment" {
@@ -257,9 +258,6 @@
 		}
 		MENUITEM SEPARATOR
 		POPUP "@cmdpu_industryrefs" {
-			/* @v10.9.3 POPUP "@cmdpu_sawmilling" {
-				MENUITEM "@cmd_woodbreed",				cmWoodBreed
-			} */
 			MENUITEM "@cmd_transport",					cmTransport
 			MENUITEM "@cmd_rawmaterials",               cmRawMaterials // @v12.0.10
 			MENUITEM "@cmd_timeseries",                 cmTimeSeries // @v10.2.3

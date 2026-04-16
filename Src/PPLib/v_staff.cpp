@@ -364,7 +364,7 @@ int PPViewStaffList::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 			if(last_id) {
 				p_def->setArray(new SArray(Data), 0, 1);
 				if(ppvCmd != PPVCMD_DELETEITEM)
-					pBrw->search2(&last_id, CMPF_LONG, srchFirst, 0);
+					pBrw->search2(&last_id, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/);
 			}
 		}
 	}

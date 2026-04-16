@@ -2426,7 +2426,8 @@ static int Implement_Backup(const SString & rDbSymb, PPBackup * pBu, PPBackupSce
 	PPDriveMapping drv_map;
 	drv_map.Load(pIniFile);
 	if(useCopyContinuous) {
-		SString fmt_buf, msg_buf;
+		SString fmt_buf;
+		SString msg_buf;
 		msg_buf.Printf(PPLoadTextS(PPTXT_BACKUPLOG_CONINOUOS_MODE, fmt_buf), rDbSymb.cptr());
 		PPLogMessage(PPFILNAM_BACKUP_LOG, msg_buf, LOGMSGF_TIME);
 	}

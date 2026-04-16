@@ -1,5 +1,5 @@
 // PRCPAN.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2011, 2013, 2015, 2016, 2017, 2019, 2020, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2011, 2013, 2015, 2016, 2017, 2019, 2020, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -16,17 +16,17 @@ private:
 	// Состояния панели процессоров
 	//
 	enum {
-		sUNDEF = 0,             // Неопределенное (такое состояние недопустимо)
-		sEMPTY_NOSESS,          // На процессоре нет активной сессии
-		sEMPTY_SESS,            // На процессоре есть активная сессия //
-		sGOODS_NOQTTY,          // Выбран товар - количество не определено
-		sGOODS_QTTY,            // Выбран товар - количество определено
-		sIDLE,                  // Состояние простоя процессора
-		sREST,                  // Состояние ввода остатка партии на конец сессии
-		sREST_SERIAL_NOQTTY,    // Ввод остатка - серийный номер определен - количество не определено
-		sREST_SERIAL_QTTY,      // Ввод остатка - серийный номер определен - количество определено
-		sEXPIRY,                // @v5.1.10 Ввод срока годности
-		sCOST                   // @v5.2.0  Ввод стоимости
+		sUNDEF = 0,          // Неопределенное (такое состояние недопустимо)
+		sEMPTY_NOSESS,       // На процессоре нет активной сессии
+		sEMPTY_SESS,         // На процессоре есть активная сессия //
+		sGOODS_NOQTTY,       // Выбран товар - количество не определено
+		sGOODS_QTTY,         // Выбран товар - количество определено
+		sIDLE,               // Состояние простоя процессора
+		sREST,               // Состояние ввода остатка партии на конец сессии
+		sREST_SERIAL_NOQTTY, // Ввод остатка - серийный номер определен - количество не определено
+		sREST_SERIAL_QTTY,   // Ввод остатка - серийный номер определен - количество определено
+		sEXPIRY,             // Ввод срока годности
+		sCOST                // Ввод стоимости
 	};
 	struct Header {
 		Header() : PrcID(0), SessID(0), MainGoodsID(0), MainGoodsPack(0.0), LinkBillID(0)
@@ -51,7 +51,7 @@ private:
 		PPID   SessID;
 		char   SessText[64];
 		PPID   MainGoodsID;        // Основной товар технологии
-		char   MainGoodsName[64];  // Наименование основного товара технологии
+		char   MainGoodsName[128]; // Наименование основного товара технологии
 		double MainGoodsPack;      // Емкость упаковки основного товара
 		PPID   LinkBillID;         // ИД связанного документа
 	};
@@ -751,7 +751,11 @@ void PrcPaneDialog::selectGoods(int mode)
 {
 	SString temp_buf;
 	setCtrlString(CTL_PRCPAN_INFO, temp_buf.Z());
-	if(H.SessID && oneof6(State, sEMPTY_SESS, sGOODS_NOQTTY, sGOODS_QTTY, sREST, sREST_SERIAL_NOQTTY, sREST_SERIAL_QTTY)) {
+	if(!H.SessID && State == sEMPTY_NOSESS) { // @v12.6.0 @construction
+		if(mode == 2) {
+		}
+	}
+	else if(H.SessID && oneof6(State, sEMPTY_SESS, sGOODS_NOQTTY, sGOODS_QTTY, sREST, sREST_SERIAL_NOQTTY, sREST_SERIAL_QTTY)) {
 		if(mode == 0) {
 			const long egsd_flags = ExtGoodsSelDialog::GetDefaultFlags();
 			ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(0, NewGoodsGrpID, egsd_flags);
@@ -759,7 +763,7 @@ void PrcPaneDialog::selectGoods(int mode)
 				TIDlgInitData tidi;
 				PPIDArray goods_list;
 				TGSArray tgs_list;
-				if(TSesObj.GetGoodsStrucList(H.SessID, 1, 0, &tgs_list) > 0 && tgs_list.GetGoodsList(&goods_list) > 0) {
+				if(TSesObj.GetGoodsStrucList(H.SessID, 1, 0, &tgs_list) > 0 && tgs_list.GetGoodsList(goods_list) > 0) {
 					dlg->setSelectionByGoodsList(&goods_list);
 					dlg->setDTS(&tidi);
 				}
@@ -780,7 +784,8 @@ void PrcPaneDialog::selectGoods(int mode)
 			setupGoods(H.MainGoodsID);
 		}
 		else if(mode == 2) {
-			int    r = -1, err_code = PPERR_BARCODEORSERNFOUND;
+			int    r = -1;
+			int    err_code = PPERR_BARCODEORSERNFOUND;
 			temp_buf = Input;
 			BarcodeTbl::Rec bc_rec;
 			if(GObj.SearchByBarcode(temp_buf, &bc_rec, 0, 1) > 0) {

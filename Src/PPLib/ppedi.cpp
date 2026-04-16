@@ -1164,7 +1164,7 @@ int PPDocumentInterchangeContext::ResolveContractor(const char * pText, int part
 					THROW(ArObj.GetByPersonList(GetSupplAccSheet(), &psn_list_by_gln, &ar_list));
 					THROW_PP_S(ar_list.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
 					{
-						PPBillPacket::SetupObjectBlock sob_unused;
+						PPBillPacket::SetupObjectBlock sob_unused(SConstructorLite);
 						THROW(pPack->SetupObject(ar_list.get(0), sob_unused));
 					}
 				}
@@ -1193,7 +1193,7 @@ int PPDocumentInterchangeContext::ResolveContractor(const char * pText, int part
 					THROW(ArObj.GetByPersonList(GetSellAccSheet(), &psn_list_by_gln, &ar_list));
 					THROW_PP_S(ar_list.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
 					{
-						PPBillPacket::SetupObjectBlock sob_unused;
+						PPBillPacket::SetupObjectBlock sob_unused(SConstructorLite);
 						THROW(pPack->SetupObject(ar_list.get(0), sob_unused));
 					}
 				}
@@ -4194,7 +4194,7 @@ int PPEanComDocument::Read_Document(/*PPEdiProcessor::ProviderImplementation * p
 				if(checkdate(bill_due_dt, 0))
 					p_bpack->Rec.DueDate = bill_due_dt;
 				{
-					PPBillPacket::SetupObjectBlock sob_unused;
+					PPBillPacket::SetupObjectBlock sob_unused(SConstructorLite);
 					THROW(p_bpack->SetupObject(parties_blk.BillObjID, sob_unused));
 				}
 				{
@@ -4408,7 +4408,7 @@ int PPEanComDocument::Read_Document(/*PPEdiProcessor::ProviderImplementation * p
 			p_bpack->Rec.Dt = bill_dt;
 			p_bpack->Rec.DueDate = bill_due_dt;
 			{
-				PPBillPacket::SetupObjectBlock sob_unused;
+				PPBillPacket::SetupObjectBlock sob_unused(SConstructorLite);
 				THROW(p_bpack->SetupObject(parties_blk.BillObjID, sob_unused));
 			}
 			p_bpack->SetupDlvrAddr(parties_blk.BillLocID);
@@ -8696,7 +8696,7 @@ int PPEdiProcessor::ProviderImplementation::ResolveOwnFormatContractor(const Own
 				THROW(ArObj.GetByPersonList(GetSupplAccSheet(), &psn_list_by_gln, &ar_list));
 				THROW_PP_S(ar_list.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
 				{
-					PPBillPacket::SetupObjectBlock sob_unused;
+					PPBillPacket::SetupObjectBlock sob_unused(SConstructorLite);
 					THROW(pPack->SetupObject(ar_list.get(0), sob_unused));
 				}
 			}
@@ -8737,7 +8737,7 @@ int PPEdiProcessor::ProviderImplementation::ResolveOwnFormatContractor(const Own
 					THROW(ArObj.GetByPersonList(GetSellAccSheet(), &psn_list_by_gln, &ar_list));
 					THROW_PP_S(ar_list.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
 					{
-						PPBillPacket::SetupObjectBlock sob_unused;
+						PPBillPacket::SetupObjectBlock sob_unused(SConstructorLite);
 						THROW(pPack->SetupObject(ar_list.get(0), sob_unused));
 					}
 				}
@@ -8745,7 +8745,7 @@ int PPEdiProcessor::ProviderImplementation::ResolveOwnFormatContractor(const Own
 					THROW(ArObj.GetByPersonList(GetSellAccSheet(), &psn_list_by_inn, &ar_list));
 					THROW_PP_S(ar_list.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
 					{
-						PPBillPacket::SetupObjectBlock sob_unused;
+						PPBillPacket::SetupObjectBlock sob_unused(SConstructorLite);
 						THROW(pPack->SetupObject(ar_list.get(0), sob_unused));
 					}
 				}

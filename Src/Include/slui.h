@@ -3070,6 +3070,7 @@ public:
 	int    AddChildWithLayout(TWindowBase * pChildWindow, long createOptions, SUiLayout * pLayout);
 protected:
 	static void Helper_Finalize(HWND hWnd, TBaseBrowserWindow * pView);
+	static void Helper_SetFocus(HWND hWnd, TBaseBrowserWindow * pView);
 	//
 	// Descr: Вызывается в ответ на windows-сообщение WM_CREATE. Выделена в отдельную функцию
 	//   для использования порожденными классами.
@@ -4063,7 +4064,7 @@ public:
 	void   setType(TYPEID typ);
 	TYPEID getType() const { return Type; }
 	const char * getText();
-	size_t getMaxLen() const { return MaxLen; }
+	size_t GetMaxLen() const;
 	void   setMaxLen(int newMaxLen);
 	size_t getCaret();
 	void   setCaret(size_t);
@@ -5721,7 +5722,7 @@ public:
 	virtual const  void * getRow(long) const;
 	virtual int    refresh();
 	virtual int    search(const void * pPattern, CompFunc, int srchMode, int srchCol);
-	virtual int    search2(const void * pSrchData, CompFunc, int srchMode, size_t offs);
+	virtual int    search2(const void * pSrchData, CompFunc, int srchMode, size_t offs, void * pExtraData);
 	BroColumn & FASTCALL at(uint) const;
 	bool   IsSignature(uint signature) const { return Signature == signature; }
 	void   initOffset(int);
@@ -5950,14 +5951,14 @@ public:
 	public:
 		int    FASTCALL SetFullCellColor(COLORREF c); // returns strictly 1
 		int    FASTCALL SetRightFigCircleColor(COLORREF c); // returns strictly 1
-		int    FASTCALL SetRightFigTriangleColor(COLORREF c); // @v11.1.12 returns strictly 1
+		int    FASTCALL SetRightFigTriangleColor(COLORREF c); // returns strictly 1
 		int    FASTCALL SetLeftBottomCornerColor(COLORREF c); // returns strictly 1
 		int    FASTCALL SetLeftTopCornerColor(COLORREF c); // returns strictly 1
 		enum {
 			fCorner           = 0x0001,
 			fLeftBottomCorner = 0x0002,
 			fRightFigCircle   = 0x0004,
-			fRightFigTriangle = 0x0008 // @v11.1.12
+			fRightFigTriangle = 0x0008,
 		};
 
 		COLORREF Color;
@@ -6043,7 +6044,7 @@ public:
 	void   bottom();
 	void   setRange(ushort aRange);
 	void   search(const char * pFirstLetter, int srchMode);
-	int    search2(const void * pSrchData, CompFunc, int srchMode, size_t offs);
+	int    search2(const void * pSrchData, CompFunc, int srchMode, size_t offs, void * pExtraData);
 	//
 	// Descr: Возвращает текущую колонку в таблице.
 	// Returns:

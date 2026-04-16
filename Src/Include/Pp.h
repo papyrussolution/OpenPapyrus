@@ -12348,13 +12348,16 @@ public:
 	//
 	struct SetupObjectBlock {
 		SetupObjectBlock();
+		explicit SetupObjectBlock(SCtrSpecial);
 		//
 		// Note: Функция не обнуляет поле Flags так как оно задается как параметр для PPBillPacket::SetupObjectBlock.
 		//
 		SetupObjectBlock & Z();
 
 		enum {
-			fEnableStop = 0x0001 // Допускается устанавливать контрагента с признаком STOP
+			fEnableStop      = 0x0001, // Допускается устанавливать контрагента с признаком STOP
+			fLightweightMode = 0x0002, // @v12.6.0 Облегченный режим исполнения, предполагающий, что содержимое блока this
+				// не будут использоваться после вызова PPBillPacket::SetupObject или PPBillPacket::SetupObject2
 		};
 		long   Flags; // [IN] Флаги вызова функции PPBillPacket::SetupObject
 		enum {
@@ -20222,7 +20225,6 @@ public:
 	virtual int  Browse(void * extraPtr);
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr);
 	virtual int  RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam);
-	// @v11.1.11 (@construction) virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
 	int    IsPacketEq(const PPOprKindPacket & rS1, const PPOprKindPacket & rS2, long flags);
 	int    Edit(PPID *, long opTypeID, long linkOpID);
 	int    ViewVersion(PPID histID);
@@ -20308,7 +20310,6 @@ private:
 			// с целью избежать изменения форматов пакетов обмена).
 	};
 	int    Helper_SerializePacket(int dir, PPOprKindPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx, uint flags); // @v12.5.7
-	// @v11.1.11 (@construction) int    AssignImages(ListBoxDef * pDef);
 };
 //
 // @ModuleDecl(PPObjBillStatus)
@@ -21682,10 +21683,11 @@ extern "C" typedef PPAbstractDevice * (*FN_PPDEVICE_FACTORY)();
 #define CASHFX_IGNPENNYFROMBCARD  0x02000000L // @erik игнорировать копейки при списывании бонусов с бонусной карты
 #define CASHFX_NOTIFYEQPTIMEMISM  0x04000000L // (sync) Информировать в кассовой панели о расхождении времени на регистраторе со временем на компьютере
 #define CASHFX_BNKSLIPAFTERRCPT   0x08000000L // (sync) Печатать банковский слип после кассового чека (иначе сначала слип, потом чек)
-#define CASHFX_USEGOODSMATRIX     0x10000000L // @v11.2.8 Применять ограничения товарной матрицы в кассовой панели
-#define CASHFX_SYNCOPENSESSSOFT   0x20000000L // @v11.4.7 (sync) Открывать кассовую сессию без подачи соответствующей команды устройству.
+#define CASHFX_USEGOODSMATRIX     0x10000000L // Применять ограничения товарной матрицы в кассовой панели
+#define CASHFX_SYNCOPENSESSSOFT   0x20000000L // (sync) Открывать кассовую сессию без подачи соответствующей команды устройству.
 	// Причина: на некоторых устройствах функция открытия сессии влечет проблемы.
-#define CASHFX_ZEROBONUS          0x40000000L // @v11.4.9 (sync) Использование бонусов не допускается.
+#define CASHFX_ZEROBONUS          0x40000000L // (sync) Использование бонусов не допускается.
+#define CASHFX_CHZNTSPIOT         0x80000000L // @v12.6.0 (sync) При продаже маркированного товара проверять марку через тс-пиот (это - такая очередная хуйня для выкачивания денег из податного люда)
 //
 // Идентификаторы строковых свойств кассовых узлов.
 // Attention: Ни в коем случае не менять значения идентификаторов - @persistent
@@ -23438,8 +23440,10 @@ public:
 	int    MakePath(const char * pSuffix, SString & rBuf) const;
 
 	PPStyloPalm2 Rec;
-	char * P_Path;
-	char * P_FTPPath;
+	//char * P_Path;
+	//char * P_FTPPath;
+	SString XcPath;
+	SString XcFtpPath;
 	ObjIdListFilt LocList;
 	ObjIdListFilt QkList__; // Список видов котировок, используемых для передачи цен на устройства
 };
@@ -27441,6 +27445,7 @@ struct PersonReq { // @flat
 
 struct CashierInfo {
 	CashierInfo();
+	CashierInfo & Z();
 	int    FASTCALL IsEq(const CashierInfo & rS) const;
 
 	char   Password[20]; // Пароль кассира
@@ -27728,7 +27733,8 @@ public:
 	int    AddRelationList(PPID * pPrmrID, PPIDArray * pScndList, PPID * pRelTypeID, int reverse);
 	int    RemoveRelation(PPID prmrID, PPID scndID, PPID relTypeID);
 	int    GetRelPersonList(PPID personID, PPID relTypeID, int reverse, PPIDArray * pList, int lastInHieararhy = 0, PPIDArray * pHierarhIDList = 0);
-	int    GetPacket(PPID, PPPersonPacket *, uint flags /* PGETPCKF_XXX */);
+	int    GetExtStrings(PPID id, PPExtStrContainer & rContainer);
+	int    GetPacket(PPID id, PPPersonPacket *, uint flags /* PGETPCKF_XXX */);
 	int    PutPacket(PPID * pID, PPPersonPacket *, int use_ta);
 	int    ValidatePacket(const PPPersonPacket * pPack, long flags);
 	int    PutGuid(PPID id, const S_GUID * pUuid, int use_ta);
@@ -29568,7 +29574,7 @@ public:
 	//
 	struct InternalViewItem { // @v12.3.3 @flat
 		InternalViewItem();
-		void   Setup(const TempPersonTbl::Rec & rRec);
+		void   Setup(const TempPersonTbl::Rec & rRec, PPViewPerson * pView);
 		PPID   PersonID;
 		PPID   TabID;
 		uint32 PhoneP;
@@ -29581,12 +29587,15 @@ public:
 		uint32 FiasAddrGuidP;
 		uint32 FiasHouseGuidP;
 		uint32 AddrTypeP;
+		uint32 AtrTextP; // @v12.6.0
+		uint32 NameP;    // @v12.6.0
 	};
 	//
 	static int CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw);
 	// @v12.2.10 static bool CheckClientActivityState(PPID personID, long filtFlags, const LAssocArray * pClientActivityStateList);
 	static bool CheckClientActivityState(PPID personID, long filtFlags, const TSVector <ExtEntry> * pExtList);
 private:
+	static DECL_CMPFUNC(PPViewPerson_InternalViewItem_ByName);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle); // @v12.5.12
 	virtual int   OnExecBrowser(PPViewBrowser * pBrw);
@@ -29797,7 +29806,6 @@ public:
 	//   2  - статья использует соглашение с поставщиком
 	//
 	static int FASTCALL GetAgreementKind(const ArticleTbl::Rec * pArRec);
-	// @v11.2.0 static int FASTCALL PropToClientAgt(const PropertyTbl::Rec * pPropRec, PPClientAgreement * pAgt, int loadDebtLimList = 0);
 	static int FASTCALL GetSupplAgreement(PPID id, PPSupplAgreement * pAgt, int useInheritance = 0);
 	static int FASTCALL EditSupplAgreement(PPSupplAgreement *);
 	static int FASTCALL PropToSupplAgt(const PropertyTbl::Rec & rPropRec, PPSupplAgreement * pAgt);
@@ -29839,6 +29847,10 @@ public:
 	// Descr: Проверяет согласуется ли изменяемый пакет персоналии с соответствующими статьями
 	//
 	int    CheckPersonPacket(const PPPersonPacket * pPack, PPIDArray * pAbsentKinds);
+	//
+	// Descr: Извлекает запись статьи с идентификатором id через кэш
+	//   Поля: ID, AccSheetID, Article, ObjID, Flags, Name
+	//
 	int    FASTCALL Fetch(PPID id, ArticleTbl::Rec * pRec); // @macrow
 	int    GetPacket(PPID, PPArticlePacket *);
 	int    PutPacket(PPID *, PPArticlePacket *, int use_ta);
@@ -31267,6 +31279,13 @@ public:
 	int    BelongToGroup(PPID id, PPID grpID, PPID * pSubGrpID = 0);
 	int    GetPhUPerU(PPID goodsID, PPID * pPhUnitID, double * pPhUPerU);
 		// @>>PPObjGoods::GetPhUPerU(const Goods2Tbl::Rec *, PPID *, double *)
+	//
+	// Returns:
+	//   1 - у товара есть физическая единица измерения и ненулевое соотношение физических единиц к товарным
+	//   2 - у товара нет физической единицы измерения или соотношение физических единиц к товарным нулевое. В этом случае 
+	//     по указателю pPhUnitID присваивается ид товарное единицы, а по указателю pPhUPerU присваивается 1.0
+	//  -1 - указатель pRec == 0. По указателю pPhUnitID присваивается 0, а по указателю pPhUPerU присваивается 0.0
+	//
 	int    GetPhUPerU(const Goods2Tbl::Rec * pRec, PPID * pPhUnitID, double * pPhUPerU);
 	int    IsAltGroup(PPID grpID); // @>>GoodsCore::IsAltGroup
 	int    IsTempAltGroup(PPID grpID); // @>>GoodsCore::IsTempAltGroup
@@ -38128,9 +38147,9 @@ public:
 	//
 	// Descr: Возвращает список идентификаторов товаров, включенных в контейнер.
 	//   Если встречается обобщенный товар, то вместо него в результирующий список попадают включенные в обобщение товары.
-	//   Список pList (если !0) предварительно очищается.
+	//   Список rList предварительно очищается.
 	//
-	int    GetGoodsList(PPIDArray * pList) const;
+	int    GetGoodsList(PPIDArray & rList) const;
 	int    AddItem(PPID goodsID, int sign, const char * pFormula);
 	void   SetStrucID(PPID strucID);
 	PPID   GetStrucID() const;
@@ -38197,9 +38216,10 @@ public:
 	PPTechRoute & Z();
 	bool   IsEmpty() const { return (L.getCount() == 0); }
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
-	int    AddEntry(PPID techID);
+	int    AddEntry(const Entry & rEntry);
 	
-	SObjID Oid; // @v12.6.0
+	SObjID Oid;      // @v12.6.0
+	PPID   ObjGroup; // @v12.6.0 Дополнительное значение для уточнения выбора связанного объекта
 	TSVector <Entry> L;
 };
 //
@@ -38330,6 +38350,62 @@ private:
 	PPObjTech TecObj;
 	PPObjProcessor PrcObj;
 	PPObjGoods GObj;
+};
+//
+// @ModuleDecl(PPViewTechRoute)
+//
+class TechRouteFilt : public PPBaseFilt {
+public:
+	TechRouteFilt();
+	TechRouteFilt & FASTCALL operator = (const TechRouteFilt & rS);
+
+	char   ReserveStart[64]; // @anchor
+	PPID   ObjType;
+	long   Flags;          // @flags
+	long   Reserve;        // @anchor Заглушка для отмера "плоского" участка фильтра
+	ObjIdListFilt IdList;  // Работает только в случае ObjType != 0
+};
+
+class PPViewTechRoute : public PPView {
+public:
+	struct ItemKey {
+		ItemKey() : ItemN(0)
+		{
+		}
+		SObjID Oid;
+		long   ItemN; // Порядковый номер элемента внутри одного маршрута		
+	};
+	struct BrwItem : public ItemKey { // @flat
+		BrwItem();
+		PPID   TechID;
+		PPID   PrcID;    // ->Tech(TechID).PrcID
+		uint   ObjNameP; // Смещение до имени объекта Oid 
+		double NominalPrice;
+		uint   NominalTimeSec;
+	};
+	PPViewTechRoute();
+	~PPViewTechRoute();
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
+	virtual int   EditBaseFilt(PPBaseFilt *);
+	virtual int   Init_(const PPBaseFilt * pBaseFilt);
+private:
+	static DECL_CMPFUNC(PPViewTechRoute_BrwItem);
+	static DECL_CMPFUNC(PPViewTechRoute_ItemKey);
+	static const  BrwItem * SearchListItem(TSArray <BrwItem> * pList, const ItemKey & rKye, uint * pPos);
+	virtual int   ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
+	virtual int   OnExecBrowser(PPViewBrowser * pBrw);
+	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
+	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	int    MakeList(PPViewBrowser * pBrw);
+	int    UpdateListItem(const PPTechRoute & rTrt, ItemKey * pKeyToSet);
+
+	TechRouteFilt Filt;
+	TSArray <BrwItem> * P_DsList;
+	PPTechRouteManager Mgr;
+	SStrGroup StrPool; // Пул строковых полей, на который ссылаются поля в BrwItem
+	PPObjTech TecObj;
+	PPObjProcessor PrcObj;
 };
 //
 // @ModuleDecl(PPObjTSession)
@@ -38578,6 +38654,7 @@ public:
 	//   В противном случае, возвращает 0.
 	//
 	static int  IsIdleInsignificant(const TSessionTbl::Rec * pRec, int prevStatus);
+	static int  ExecSessionOnTechRoute(); // @v12.6.0
 	//
 	// Descr: Реализует полный цикл редактирования порядка списания технологических сессий.
 	//   То есть, 1. создает объект TSessWrOffOrder; 2. извлекает его из базы данных;
@@ -38872,6 +38949,7 @@ public:
 	//
 	int    EditDialog(TSessionPacket * pRec);
 	int    EditNewIdleSession(PPID prcID, PPID curSessID, PPID * pSessID);
+	int    Edit_ExecSessionOnTechRoute(PPID prcID, bool stopCurrentSession);
 	int    EditLineDialog(TSessLineTbl::Rec *, int asPlanLine);
 	//
 	// Descr: Интерфейсная функция, обеспечивающая обработку записей с BHT-терминала.
@@ -49762,10 +49840,10 @@ public:
 		};
 		uint32 Capabilities; // capXXX
 		SBinaryChunk SvcIdent;
-		SBinaryChunk LoclAddendum; // @v11.2.3 Специальное дополнение, индицирующее локальный сервер (то есть, ассоциированный с конкретной машиной или сеансом)
+		SBinaryChunk LoclAddendum; // Специальное дополнение, индицирующее локальный сервер (то есть, ассоциированный с конкретной машиной или сеансом)
 		SString AccessPoint;
-		SString MqbAuth;   // @v11.2.8 ???
-		SString MqbSecret; // @v11.2.8 ???
+		SString MqbAuth;
+		SString MqbSecret;
 	};
 	struct RunServerParam : public ServerParamBase {
 		RunServerParam();
@@ -49785,7 +49863,7 @@ public:
 		bool   FASTCALL IsEq(const InterchangeParam & rS) const;
 
 		SString CommandJson;
-		SBinaryChunk Blob; // @v11.3.8
+		SBinaryChunk Blob;
 	};
 	struct DocumentDeclaration {
 		DocumentDeclaration(const StyloQCommandList::Item * pCmdItem, const char * pDl600Symb);
@@ -49919,16 +49997,16 @@ public:
 		int    PosNodeID; // @v11.4.6 service-domain-id
 		int    StatusSurrId; // @v11.5.1 Специальное суррогатное значение, идентифицирующее клиентский статус документа.
 			// Значение ссылается на поле BusinessEntity.DocStatus.SurrId.
-		double Amount;    // @v11.3.10 Номинальная сумма документа
+		double Amount;    // Номинальная сумма документа
 		SString Code;
-		SString BaseCurrencySymb; // @v11.3.12
+		SString BaseCurrencySymb;
 		SBinaryChunk SvcIdent;
 		S_GUID Uuid; // Уникальный идентификатор, генерируемый на стороне эмитента
-		S_GUID OrgCmdUuid; // @v11.4.0 Идентификатор команды сервиса, на основании данных которой сформирован документ.
+		S_GUID OrgCmdUuid; // Идентификатор команды сервиса, на основании данных которой сформирован документ.
 			// Поле нужно для сопоставления сохраненных документов с данными сервиса.
 		SString Memo;
 		TSCollection <__TransferItem> TiList;
-		TSCollection <BookingItem> BkList; // @v11.3.6
+		TSCollection <BookingItem> BkList;
 		TSVector <LotExtCode> VXcL; // Валидирующий контейнер спецкодов. Применяется для проверки кодов, поступивших с документом в XcL
 	};
 	//
@@ -50046,7 +50124,7 @@ public:
 		StyloQCore::StoragePacket StP; // Блок собственных данных, извлеченных из хранилища
 		PPMqbClient * P_Mqbc; // Экземпляр клиента MQ уже "заряженный" на прослушку регулярной очереди от визави
 		PPMqbClient::RoutingParamEntry * P_MqbRpe; // Параметры маршрутизации при использовании брокера MQ
-		SlSRP::Verifier * P_SrpV; // @v11.2.0 SRP-верификатор для серверной части. При асинхронной обработке
+		SlSRP::Verifier * P_SrpV; // SRP-верификатор для серверной части. При асинхронной обработке
 			// он нужен для обслуживания процесса верификации клиента в несколько заходов запрос-ответ.
 		PPID   InnerSvcID;
 		PPID   InnerSessID;
@@ -51770,12 +51848,8 @@ struct ClientActivityDetailsFilt : public PPBaseFilt {
 };
 
 struct ClientActivityDetailsViewItem {
-	ClientActivityDetailsViewItem() : Dtm(ZERODATETIME), Amount(0.0), Flags(0)
-	{
-		TransactionOp[0] = 0;
-		TransactionCode[0] = 0;
-		TransactionEtc[0] = 0;
-	}
+	ClientActivityDetailsViewItem();
+
 	SObjID Oid;
 	LDATETIME Dtm;
 	char   TransactionOp[48];
@@ -57931,6 +58005,9 @@ private:
 	virtual void ClearRow();
 	virtual void SetupRowData(bool doCalcRest);
 	virtual void SetPrintedFlag(int set);
+	//
+	// Returns: 0
+	//
 	virtual int  MessageError(int errCode, const char * pAddedMsg, long outputMode);
 	virtual int  ConfirmMessage(int msgId, const char * pAddedMsg, int defaultResponse);
 	virtual int  CDispCommand(int cmd, int iVal, double rv1, double rv2);
@@ -57987,6 +58064,7 @@ private:
 	int    SelectCheck(const char * pTitle, long flags, SelectCheckResult & rResult);
 	int    SelectBill(PPID * pBillID, const char * pTitle); // @v11.8.7
 	int    UpdateGList(int updGoodsList, PPID selGroupID);
+	int    VerifyChZnMark(PgsBlock & rBlk, int chznProdType);
 	int    PreprocessGoodsSelection(PPID locID, PgsBlock & rBlk);
 	int    SelectSerial(PPID goodsID, SString & rSerial, double * pPriceBySerial);
 	void   ResetListWindows(int listCtrlID);

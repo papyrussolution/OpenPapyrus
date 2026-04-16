@@ -104,7 +104,6 @@ static const SIntToSymbTabEntry ICalTokenList[] = {
 			rBuf.Colon().Cat(pProduct);
 			rBuf.CRB();
 			if(pVer) {
-				SString & r_temp_buf = SLS.AcquireRvlStr();
 				WriteToken(tokVERSION, rBuf);
 				rBuf.Colon().Cat("2.0");
 				rBuf.CRB();
@@ -668,30 +667,29 @@ int PrjTaskFilt::GetStatusList(PPIDArray & rList) const
 
 SString & PrjTaskFilt::GetStatusListText(SString & rDest) const
 {
+	rDest.Z();
 	PPIDArray id_list;
 	GetStatusList(id_list);
-	rDest.Z();
 	SString temp_buf;
-	for(uint i = 0; i < id_list.getCount(); i++)
+	for(uint i = 0; i < id_list.getCount(); i++) {
 		rDest.CatDivIfNotEmpty(';', 2).Cat(PPObjPrjTask::GetStatusText(id_list.get(i), temp_buf));
+	}
 	return rDest;
 }
 
 SString & PrjTaskFilt::GetPriorListText(SString & rDest) const
 {
+	rDest.Z();
 	PPIDArray id_list;
 	GetPriorList(id_list);
-	rDest.Z();
 	SString temp_buf;
-	for(uint i = 0; i < id_list.getCount(); i++)
+	for(uint i = 0; i < id_list.getCount(); i++) {
 		rDest.CatDivIfNotEmpty(';', 2).Cat(PPObjPrjTask::GetPriorText(id_list.get(i), temp_buf));
+	}
 	return rDest;
 }
 
-int PrjTaskFilt::GetPriorList(PPIDArray & rList) const
-{
-	return GetList(PriorList, SIZEOFARRAY(PriorList), rList);
-}
+int PrjTaskFilt::GetPriorList(PPIDArray & rList) const { return GetList(PriorList, SIZEOFARRAY(PriorList), rList); }
 //
 //
 //
@@ -722,8 +720,9 @@ int PPViewPrjTask::UpdateTempTable(const PPIDArray * pIdList, int use_ta)
 				if(SearchByID(P_TempOrd, 0, id, &ord_rec) > 0) {
 					UpdateByID(P_TempOrd, 0, id, &ord_rec, 0);
 				}
-				else
+				else {
 					AddByID(P_TempOrd, &id, &ord_rec, 0);
+				}
 				AddItemToTimeGrid(&rec, 0);
 			}
 			else if(SearchByID(P_TempOrd, 0, id, &ord_rec) > 0) {
@@ -768,7 +767,7 @@ int PPViewPrjTask::CheckRecForFilt(const PrjTaskTbl::Rec * pRec)
 		return 0;
 	if(Filt.GetPriorList(f_list) > 0 && !f_list.lsearch(pRec->Priority))
 		return 0;
-	if(Filt.CliCityID)
+	if(Filt.CliCityID) {
 		if(pRec->ClientID) {
 			PPID   addr_id = 0;
 			PPID   city_id = 0;
@@ -783,6 +782,7 @@ int PPViewPrjTask::CheckRecForFilt(const PrjTaskTbl::Rec * pRec)
 		}
 		else
 			return 0;
+	}
 	return 1;
 }
 
@@ -862,7 +862,7 @@ int CrosstabProcessor::Finish()
 	int    ok = 1;
 	TempPrjTaskTbl * p_tbl = 0;
 	if(Filt.TabParam == PrjTaskFilt::ctpComplTaskRatio) {
-		long   tab_type = Filt.TabType;
+		const  long tab_type = Filt.TabType;
 		IterCounter counter;
 		TempPrjTaskTbl::Key0 k, k_;
 		THROW(CheckTblPtr(p_tbl = new TempPrjTaskTbl(P_TempTbl->GetName())));
@@ -927,7 +927,7 @@ int CrosstabProcessor::ProcessRec(PrjTaskTbl::Rec * pRec)
 					else if(tab_param == PrjTaskFilt::ctpWrofBillPrct) {
 					}
 					else if(tab_param == PrjTaskFilt::ctpTaskCount)
-						tab_param_val = pRec->StartTm.hour() <= h ? 1 : 0;
+						tab_param_val = (pRec->StartTm.hour() <= h) ? 1 : 0;
 					THROW(AddRec(tab_id, tab_param_val, 1, pRec));
 				}
 				break;

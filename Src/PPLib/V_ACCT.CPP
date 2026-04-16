@@ -1,5 +1,5 @@
 // V_ACCT.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2011, 2016, 2018, 2019, 2020, 2021, 2025
+// Copyright (c) A.Sobolev, A.Starodub 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2011, 2016, 2018, 2019, 2020, 2021, 2025, 2026
 // @codepage UTF-8
 // PPViewAccount
 //
@@ -425,7 +425,7 @@ int PPViewAccount::Transmit(PPID id, int transmitKind)
 			if(last_id) {
 				p_def->setArray(new SArray(Data), 0, 1);
 				if(ppvCmd != PPVCMD_DELETEITEM)
-					pBrw->search2(&last_id, CMPF_LONG, srchFirst, 0);
+					pBrw->search2(&last_id, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/);
 			}
 		}
 	}

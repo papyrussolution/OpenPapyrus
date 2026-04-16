@@ -1068,7 +1068,7 @@ void TView::setState(uint aState, bool enable)
 	if(Sf != sfEventBarrier) { // Нельзя произвольно менять флаг sfEventBarrier
 		SETFLAG(Sf, aState, enable);
 		if(aState & sfDisabled)
-			EnableWindow(getHandle(), !(Sf & sfDisabled));
+			::EnableWindow(getHandle(), !(Sf & sfDisabled));
 		if(P_Owner) {
 			switch(aState) {
 				case sfVisible:

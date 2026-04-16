@@ -2238,7 +2238,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 						}
 						THROW(pack.CreateBlank2(P_SetBlk->U.B.OpID, P_SetBlk->U.B.Dt, P_SetBlk->U.B.LocID, 1));
 						{
-							PPBillPacket::SetupObjectBlock sob_unused;
+							PPBillPacket::SetupObjectBlock sob_unused(SConstructorLite);
 							THROW(pack.SetupObject(P_SetBlk->U.B.ArID, sob_unused));
 						}
 						if(P_SetBlk->U.B.DlvrLocID) {
@@ -2248,7 +2248,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 								PPID   ar_id = 0;
 								ArObj.P_Tbl->PersonToArticle(loc_rec.OwnerID, op_rec.AccSheetID, &ar_id);
 								if(ar_id) {
-									PPBillPacket::SetupObjectBlock sob_unused;
+									PPBillPacket::SetupObjectBlock sob_unused(SConstructorLite);
 									THROW(pack.SetupObject(ar_id, sob_unused));
 								}
 							}

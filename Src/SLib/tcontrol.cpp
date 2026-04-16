@@ -1253,6 +1253,19 @@ bool TInputLine::SetupMaxTextLen(uint maxTextLen)
 	return ok;
 }
 
+size_t TInputLine::GetMaxLen() const
+{
+	size_t result = MaxLen;
+	// @v12.6.0 {
+	const  long st = getType();
+	if(GETSTYPE(st) == S_ZSTRING) {
+		const  size_t ss = GETSSIZE(st);
+		SETMAX(result, ss);
+	}
+	// } @v12.6.0 
+	return result;
+}
+
 void TInputLine::setMaxLen(int newMaxLen)
 {
 	MaxLen = newMaxLen;

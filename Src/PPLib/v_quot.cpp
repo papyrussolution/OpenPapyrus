@@ -1416,11 +1416,8 @@ DBQuery * PPViewQuot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 
 int PPViewQuot::OnExecBrowser(PPViewBrowser * pBrw)
 {
-	int    disable_group_selection = 0;
 	PPAccessRestriction accsr;
-	if(ObjRts.GetAccessRestriction(accsr).OnlyGoodsGrpID && accsr.CFlags & PPAccessRestriction::cfStrictOnlyGoodsGrp) {
-		disable_group_selection = 1;
-	}
+	const  bool disable_group_selection = (ObjRts.GetAccessRestriction(accsr).OnlyGoodsGrpID && accsr.CFlags & PPAccessRestriction::cfStrictOnlyGoodsGrp);
 	if(!disable_group_selection)
 		pBrw->SetupToolbarCombo(PPOBJ_GOODSGROUP, Filt.GoodsGrpID, OLW_CANSELUPLEVEL, 0);
 	return -1;
@@ -1606,7 +1603,7 @@ int PPViewQuot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * p
 					double qtty = 0.0;
 					if(pBrw) {
 						if((r = GObj.SelectGoodsByBarcode(init_char, Filt.ArID, &goods_rec, &qtty, 0)) > 0) {
-							if(pBrw->search2(&goods_rec.ID, CMPF_LONG, srchFirst, 0) <= 0)
+							if(pBrw->search2(&goods_rec.ID, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/) <= 0)
 								if(AddItem(&goods_rec.ID) > 0)
 									ok = 1;
 						}

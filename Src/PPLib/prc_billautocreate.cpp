@@ -287,7 +287,7 @@ int PrcssrBillAutoCreate::CreateDraftByTrfrAnlz()
 									}
                                 }
                                 if(!skip) {
-									PPBillPacket::SetupObjectBlock sob_unused;
+									PPBillPacket::SetupObjectBlock sob_unused(SConstructorLite);
 									ObjTagItem tag;
 									PPTransaction tra(1);
 									THROW(tra);

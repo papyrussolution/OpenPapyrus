@@ -3995,7 +3995,7 @@ int PPViewGoodsRest::ExportUhtt(int silent)
 						Goods2Tbl::Rec goods_rec;
 						double qtty = 0.0;
 						if(GObj.SelectGoodsByBarcode(init_char, Filt.SupplID, &goods_rec, &qtty, 0) > 0) {
-							if(pBrw->search2(&goods_rec.ID, CMPF_LONG, srchFirst, sizeof(long)) > 0)
+							if(pBrw->search2(&goods_rec.ID, CMPF_LONG, srchFirst, sizeof(long), nullptr/*pExtraData*/) > 0)
 								ok = 1;
 						}
 					}

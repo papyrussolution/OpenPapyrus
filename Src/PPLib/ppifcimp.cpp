@@ -3115,8 +3115,10 @@ static void FASTCALL FillStyloPalmRec(const PPStyloPalmPacket * pInner, SPpyO_St
 	#undef FLD
 	pOuter->LocID = pInner->LocList.GetSingle();
 	(temp_buf = pInner->Rec.Name).CopyToOleStr(&pOuter->Name);
-	(temp_buf = pInner->P_Path).CopyToOleStr(&pOuter->Path);
-	(temp_buf = pInner->P_FTPPath).CopyToOleStr(&pOuter->FTPPath);
+	//(temp_buf = pInner->P_Path).CopyToOleStr(&pOuter->Path);
+	//(temp_buf = pInner->P_FTPPath).CopyToOleStr(&pOuter->FTPPath);
+	pInner->XcPath.CopyToOleStr(&pOuter->Path);
+	pInner->XcFtpPath.CopyToOleStr(&pOuter->FTPPath);
 }
 
 static void FASTCALL FillStyloPalmPack(const SPpyO_StyloPalm * pInner, PPStyloPalmPacket * pOuter)
@@ -3124,7 +3126,6 @@ static void FASTCALL FillStyloPalmPack(const SPpyO_StyloPalm * pInner, PPStyloPa
 	SString temp_buf;
 	#define FLD(f) pOuter->Rec.f = pInner->f
 	FLD(ID);
-	// @v8.6.8 FLD(LocID);
 	FLD(GoodsGrpID);
 	FLD(AgentID);
 	FLD(GroupID);
@@ -3132,23 +3133,25 @@ static void FASTCALL FillStyloPalmPack(const SPpyO_StyloPalm * pInner, PPStyloPa
 	FLD(FTPAcctID);
 	FLD(OrderOpID);
 	#undef FLD
-	// @v8.6.8 {
 	pOuter->LocList.Set(0);
 	if(pInner->LocID)
 		pOuter->LocList.Add(pInner->LocID);
-	// } @v8.6.8
 	pOuter->Rec.Tag = PPOBJ_STYLOPALM;
 	temp_buf.CopyFromOleStr(pInner->Name).CopyTo(pOuter->Rec.Name, sizeof(pOuter->Rec.Name));
-	temp_buf.CopyFromOleStr(pInner->Path);
-	if(temp_buf.Len()) {
-		pOuter->P_Path = new char[temp_buf.Len() + 1];
-		temp_buf.CopyTo(pOuter->P_Path, temp_buf.Len());
-	}
-	temp_buf.CopyFromOleStr(pInner->FTPPath);
-	if(temp_buf.Len()) {
-		pOuter->P_FTPPath = new char[temp_buf.Len() + 1];
-		temp_buf.CopyTo(pOuter->P_FTPPath, temp_buf.Len());
-	}
+	//	
+	pOuter->XcPath.CopyFromOleStr(pInner->Path);
+	pOuter->XcFtpPath.CopyFromOleStr(pInner->FTPPath);
+	//temp_buf.CopyFromOleStr(pInner->Path);
+	//if(temp_buf.Len()) {
+		//pOuter->P_Path = new char[temp_buf.Len() + 1];
+		//temp_buf.CopyTo(pOuter->P_Path, temp_buf.Len());
+	//}
+	
+	//temp_buf.CopyFromOleStr(pInner->FTPPath);
+	//if(temp_buf.Len()) {
+		//pOuter->P_FTPPath = new char[temp_buf.Len() + 1];
+		//temp_buf.CopyTo(pOuter->P_FTPPath, temp_buf.Len());
+	//}
 }
 
 DL6_IC_CONSTRUCTION_EXTRA(PPObjStyloPalm, DL6ICLS_PPObjStyloPalm_VTab, PPObjStyloPalm);

@@ -1,5 +1,5 @@
 // rc2.y
-// Copyright (c) V. Antonov, A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2020, 2025
+// Copyright (c) V. Antonov, A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2020, 2025, 2026
 // Part of project Papyrus
 // Процессор для языка описания броузеров
 //
@@ -127,8 +127,8 @@ static FormatFlag FormatFlagList[] = {
 	FMT_F_ENTRY(STRF_UPPER,    BTS_STRING),
 	FMT_F_ENTRY(STRF_LOWER,    BTS_STRING),
 	FMT_F_ENTRY(STRF_PASSWORD, BTS_STRING),
-	FMT_F_ENTRY(STRF_OEM,      BTS_STRING),
-	FMT_F_ENTRY(STRF_ANSI,     BTS_STRING)
+	FMT_F_ENTRY(STRF_TOOEM,    BTS_STRING),
+	FMT_F_ENTRY(STRF_TOANSI,   BTS_STRING)
 };
 
 static long GetFmtFlag(const char * pSymb)

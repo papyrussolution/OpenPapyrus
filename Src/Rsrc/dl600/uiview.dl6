@@ -1,6 +1,7 @@
 // UIVIEW.DL6
 // Copyright (c) A.Sobolev 2025, 2026
 //
+cinclude "../../include/ppmenu.h"
 cinclude "../../include/tvdefs.h"
 cinclude "../../include/ppdefs.h"
 // @todo @20260401 width: bycontaier - не генерирует ошибку!
@@ -770,7 +771,7 @@ dialog DLG_CRREXPPARAM_PDF [vertical size: (400, 300) title: "@printrpt_exportpa
 		radiobutton [title: "@file"];
 		radiobutton [title: "@application"];
 	}
-	input CTL_CRREXPPARAM_FILE [width: bycontainer height: 21 margin: 4 tabstop label: "@printrpt_exportparams_filename"] string[252] supplement filebrowsebutton(CTLBRW_CRREXPPARAM_FILE);	
+	input CTL_CRREXPPARAM_FILE [width: bycontainer height: 21 margin: 4 tabstop label: "@printrpt_exportparams_filename"] string[252] supplement filebrowsebutton(CTLBRW_CRREXPPARAM_FILE);
 	input CTL_CRREXPPARAM_PGRANGE [design: B width: 100 height: 21 margin: 4 tabstop label: "@printrpt_exportparams_pagerange"] string[32];
 	view [horizontal width: bycontainer growfactor: 1 margin_right: 12 gravity: right justifycontent: end alignitems: end] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
@@ -4388,116 +4389,6 @@ dialog DLG_CNTRG_PERSON [vertical title: "@person" size: (600, 400) minsize: (60
 	}
 }
 
-dialog DLG_TSESS [vertical title: "@{tsession}" size: (700, 660) minsize: (700, 660) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.12
-	view [horizontal width: bycontainer height: 45] {
-		input CTL_TSESS_NUMBER [growfactor: 1 height: 21 margin: 4 tabstop label: "@tsession_num"] int32;
-		input CTL_TSESS_ID [growfactor: 1 height: 21 margin: 4 tabstop readonly label: "@id"] int32;
-		checkbox CTL_TSESS_IDLE [title: "@tsession_tsesf_idle" tabstop growfactor: 1 height: 21 margin: (4, 17, 4, 4)];
-		input CTL_TSESS_INCOMPL [growfactor: 1 height: 21 margin: 4 tabstop readonly label: "@tsession_incomplete"] int16;
-	}
-	view [horizontal width: bycontainer height: 150] {
-		framebox [vertical growfactor: 1 height: bycontainer margin: 4 padding: 4] {
-			view [horizontal width: bycontainer growfactor: 1] {
-				view [vertical growfactor: 1 height: bycontainer] {
-					combobox CTLSEL_TSESS_PRC [tabstop width: bycontainer height: 21 margin: 4 label: "@processor" cblinesymb: CTL_TSESS_PRC];
-					combobox CTLSEL_TSESS_TECH [tabstop width: bycontainer height: 21 margin: 4 label: "@tsession_tech" cblinesymb: CTL_TSESS_TECH];
-				}
-				view [vertical width: 140 height: bycontainer] {
-					button CTL_TSESS_CMD_SELTECHBYGOODS [title: "@{byware}..." tabstop width: bycontainer height: 33 margin: (4, 17, 4, 4) command: cmSelTechByGoods];
-					button STDCTL_INSBUTTON [title: "@{tsession_createware}..." tabstop width: bycontainer height: 33 margin: 4 command: cmCreateGoods];
-				}
-			}
-			view [horizontal width: bycontainer height: 32] {
-				statictext CTL_TSESS_ST_GOODS [width: bycontainer height: bycontainer margin: 4 staticedge];
-			}
-		}
-		view [vertical width: 130 height: bycontainer] {
-			radiocluster CTL_TSESS_STATUS [tabstop title: "@status" width: bycontainer margin: 4 padding: 4] {
-				radiobutton [title: "@tsks_planned"];
-				radiobutton [title: "@tsks_pending"];
-				radiobutton [title: "@tsks_runned"];
-				radiobutton [title: "@tsks_closed"];
-				radiobutton [title: "@tsks_canceled"];
-			}
-			button CTL_TSESS_ADDPAYMBUTT [title: "@{payment}..." tabstop width: bycontainer height: 21 margin: 4 command: cmAddPaym];
-		}
-	}
-	view [horizontal width: bycontainer height: 140] {
-		view [horizontal growfactor: 1 height: bycontainer] {
-			framebox [title: "@{date}/@{time}" vertical growfactor: 2 height: bycontainer margin: 4 padding: 4] {
-				view [horizontal width: bycontainer growfactor: 1] {
-					input CTL_TSESS_STDT [growfactor: 1 height: 21 margin: (4, 9, 4, 1) tabstop fmtf: (dmy) label: "@tsession_stdt"] date supplement datecalbutton(CTLCAL_TSESS_STDT);
-					input CTL_TSESS_STTM [growfactor: 1 height: 21 margin: (1, 22, 4, 4) tabstop fmtf: (hms)] time supplement timebutton(CTLTM_TSESS_STTM);
-				}
-				view [horizontal width: bycontainer growfactor: 1] {
-					input CTL_TSESS_FNDT [growfactor: 1 height: 21 margin: (4, 4, 4, 1) tabstop fmtf: (dmy) label: "@tsession_findt"] date supplement datecalbutton(CTLCAL_TSESS_FNDT);
-					input CTL_TSESS_FNTM [growfactor: 1 height: 21 margin: (1, 17, 4, 4) tabstop fmtf: (hms)] time supplement timebutton(CTLTM_TSESS_FNTM);
-				}
-				button CTL_TSESS_CMD_FREELIST [title: "@{tsession_prcavailability}..." tabstop size: (173, 21) margin: 4 command: cmFreeList];
-			}
-			framebox [horizontal growfactor: 2 height: bycontainer margin: 4 padding: 4] {
-				view [vertical growfactor: 3 height: bycontainer] {
-					statictext CTL_TSESS_ST_PLAN [title: "@plan" width: bycontainer height: 13 margin: 4];
-					input CTL_TSESS_PLANQTTY [design: B size: (75, 21) margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 6 label: "@tsession_plannedqtty"] double;
-					input CTL_TSESS_PLANTIMING [design: B size: (75, 21) margin: 4 tabstop label: "@tsession_plannedtiming"] string[32];
-					button CTL_TSESS_CMD_AUTOFILL [title: "@{tsession_autofill}..." tabstop size: (175, 21) margin: (4, 17, 4, 4) command: cmAutoFill];
-				}
-				view [vertical growfactor: 1 height: bycontainer] {
-					statictext CTL_TSESS_ST_FACT [title: "@fact" width: bycontainer height: 13 margin: 4];
-					input CTL_TSESS_ACTQTTY [width: bycontainer height: 21 margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 6] double;
-					input CTL_TSESS_ACTTIMING [width: bycontainer height: 21 margin: 4 tabstop] string[32];
-					input CTL_TSESS_AMOUNT [width: bycontainer height: 21 margin: 4 tabstop readonly fmtf: (nozero) fmtprec: 2 label: "@amount"] double;
-				}
-			}
-		}
-		view [vertical width: 130 height: bycontainer] {
-			input CTL_TSESS_PAYMINFO [width: bycontainer growfactor: 1 margin: (4, 7, 4, 4) tabstop readonly multiline] string[128];
-			button STDCTL_BILLSBUTTON [title: "@but_bills" tabstop width: bycontainer height: 21 margin: 4 command: cmBills];
-			button STDCTL_REPEATINGBUTTON [title: "@{repeating}..." tabstop width: bycontainer height: 21 margin: 4 command: cmRepeating];
-		}
-	}
-	view [horizontal width: bycontainer height: 45] {
-		combobox CTLSEL_TSESS_SUPERSES [tabstop growfactor: 3 height: 21 margin: 4 label: "@supersession" cblinesymb: CTL_TSESS_SUPERSES];
-		view [horizontal growfactor: 2 height: bycontainer margin: 4] { // @stub
-		}
-	}
-	view [horizontal width: bycontainer height: 45] {
-		combobox CTLSEL_TSESS_OBJ [tabstop growfactor: 3 height: 21 margin: 4 label: "@contractor" cblinesymb: CTL_TSESS_OBJ];
-		input CTL_TSESS_SCARD [growfactor: 2 height: 21 margin: 4 tabstop readonly label: "@card"] string[24] supplement ellipsisbutton(CTL_TSESS_CMD_SELSCARD cmSelSCard);
-	}
-	view [horizontal width: bycontainer height: 50] {
-		view [vertical growfactor: 3 height: bycontainer] {
-			statictext CTL_TSESS_ST_EXTOBJNAME [title: "@tsession_ar2" width: bycontainer height: 13 margin: (4, 4, 4, 1)];
-			combobox CTLSEL_TSESS_OBJ2 [tabstop width: bycontainer height: 21 margin: (4, 1, 4, 4) cblinesymb: CTL_TSESS_OBJ2];
-		}
-		view [horizontal growfactor: 2 height: bycontainer justifycontent: end] {
-			button CTL_TSESS_CMD_BROWSETSESSBYAR [title: "@but_tsessbyar" tabstop size: (210, 37) margin: (4, 17, 4, 4) command: cmBrowseTSessByAr];
-		}
-	}
-	view [horizontal width: bycontainer height: 45] {
-		view [horizontal growfactor: 3 height: bycontainer] {
-			input CTL_TSESS_ORDER [growfactor: 1 height: 21 margin: (4, 4, 1, 4) tabstop readonly label: "@booking"] string[64];
-			button CTL_TSESS_CMD_SELORDER [title: "@but_orders" tabstop size: (60, 21) margin: (1, 17, 4, 4) command: cmSelOrder];
-		}
-		view [horizontal growfactor: 2 height: bycontainer justifycontent: end] {
-			button STDCTL_MORE [title: "@but_addendum" tabstop size: (115, 21) margin: (4, 17, 4, 4) command: cmaMore];
-		}
-	}
-	//
-	input CTL_TSESS_MEMO [width: bycontainer height: 21 margin: 4 tabstop label: "@tsession_memo"] string[160];
-	view [horizontal width: bycontainer height: 30] {
-		view [horizontal growfactor: 5 height: bycontainer justifycontent: start] {
-			button CTL_TSESS_CMD_TSESSDETAIL [title: "@{sessitem_pl}..." tabstop size: (150, 21) margin: 4 command: cmTSessDetail];
-			button CTL_TSESS_CMD_CCHECK [title: "@{poscheck}..." tabstop size: (90, 21) margin: 4 command: cmCCheck];
-			button CTL_TSESS_CMD_CHKINP [title: "@{registration}..." tabstop size: (90, 21) margin: 4 command: cmChkInP];
-		}
-		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
-			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
-			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
-		}
-	}
-}
-
 dialog DLG_TECH [vertical title: "@tech" size: (800, 500) minsize: (800, 500) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.5.12
 	view [horizontal width: bycontainer growfactor: 1] {
 		view [vertical growfactor: 1 height: bycontainer] {
@@ -4601,34 +4492,205 @@ dialog DLG_TSESWOORDI [vertical title: "@tsesswrofforder_item" size: (485, 140) 
 }
 
 // Технологический маршрут
-dialog DLG_TECHROUTE [horizontal title: "" size: (535, 375) minsize: (535, 375) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.12
-	listbox CTL_TECHROUTE_LIST [tabstop height: bycontainer growfactor: 1 margin: 4 columns: "48,L,@tech;2,L"];
-	view [vertical height: bycontainer width: 110] {
-		view [vertical growfactor: 2 width: bycontainer justifycontent: start alignitems: center] {
-			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
-			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
-		}
-		view [vertical growfactor: 2 width: bycontainer alignitems: center] {
-			button STDCTL_UPBUTTON [title: "@but_up" tabstop size: (23, 21) margin: 4 command: cmUp];
-			button STDCTL_DOWNBUTTON [title: "@but_down" tabstop size: (23, 21) margin: 4 command: cmDown];
-		}
-		view [vertical growfactor: 2 width: bycontainer justifycontent: end alignitems: center] {
-			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (90, 21) margin: 4 command: cmOK];
-			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (90, 21) margin: 4 command: cmCancel];
+dialog DLG_TECHROUTE [vertical title: "@techroute" size: (550, 450) minsize: (550, 450) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.12
+	framebox [vertical title: "@linkobject" width: bycontainer height: 140 margin: 4 padding: (4, 12, 4, 4)] {
+		combobox CTLSEL_TECHROUTE_OBJTYPE [width: bycontainer height: 21 margin: 4 tabstop label: "@objtype" cblinesymb: CTL_TECHROUTE_OBJTYPE];
+		combobox CTLSEL_TECHROUTE_OBJGROUP [width: bycontainer height: 21 margin: 4 tabstop label: "@{objectgroup}" cblinesymb: CTL_TECHROUTE_OBJGROUP];
+		combobox CTLSEL_TECHROUTE_OBJ [width: bycontainer height: 21 margin: 4 tabstop label: "@object" cblinesymb: CTL_TECHROUTE_OBJ];
+	}
+	view [horizontal width: bycontainer growfactor: 1] {
+		listbox CTL_TECHROUTE_LIST [tabstop height: bycontainer growfactor: 1 margin: 4 columns: "48,L,@tech;10,R,@{time} sec;10,R,@price"];
+		view [vertical height: bycontainer width: 110] {
+			view [vertical growfactor: 2 width: bycontainer justifycontent: start alignitems: center] {
+				button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+				button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+			}
+			view [vertical growfactor: 2 width: bycontainer alignitems: center] {
+				button STDCTL_UPBUTTON [title: "@but_up" tabstop size: (23, 21) margin: 4 command: cmUp];
+				button STDCTL_DOWNBUTTON [title: "@but_down" tabstop size: (23, 21) margin: 4 command: cmDown];
+			}
+			view [vertical growfactor: 2 width: bycontainer justifycontent: end alignitems: center] {
+				button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (90, 21) margin: 4 command: cmOK];
+				button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (90, 21) margin: 4 command: cmCancel];
+			}
 		}
 	}
 }
 
 // Элемент технологического маршрута
-dialog DLG_TECHROUTEITEM [vertical title: "" size: (485, 140) minsize: (485, 140) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.12
+dialog DLG_TECHROUTEITEM [vertical title: "@techroute_item" size: (485, 200) minsize: (485, 200) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.12
 	combobox CTLSEL_TECHROUTEITEM_TECH [tabstop width: bycontainer height: 21 margin: 4 label: "@tech" cblinesymb: CTL_TECHROUTEITEM_TECH];
+	view [horizontal width: bycontainer height: 45] {
+		input CTL_TECHROUTEITEM_NTIME [title: "(time)" growfactor: 1 height: 21 margin: 4 tabstop fmtf: (nozero) fmtprec: 10] uint32;
+		input CTL_TECHROUTEITEM_NPRICE [title: "(price)" growfactor: 1 height: 21 margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 10] double;
+	}
 	view [horizontal width: bycontainer growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }
 
-// @20260404 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
+dialog DLG_TSESSLN [vertical title: "@tsessline" size: (560, 530) minsize: (560, 530) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.12 @construction
+	statictext CTL_TSESSLN_SESSTITLE [width: bycontainer height: 24 margin: 4 staticedge];
+	framebox [vertical width: bycontainer height: 100 margin: 4 padding: 4] {
+		combobox CTLSEL_TSESSLN_GGRP [tabstop width: bycontainer height: 21 margin: 4 label: "@goodsgroup" cblinesymb: CTL_TSESSLN_GGRP];
+		combobox CTLSEL_TSESSLN_GOODS [tabstop width: bycontainer height: 21 margin: 4 label: "@ware" cblinesymb: CTL_TSESSLN_GOODS];
+	}
+	view [horizontal width: bycontainer height: 135] {
+		view [horizontal growfactor: 2 height: bycontainer margin_top: 13] {
+			view [horizontal growfactor: 1 height: bycontainer] {
+				input CTL_TSESSLN_DT [design: B size: (75, 21) margin: 4 tabstop fmtf: (dmy) label: "@tsessline_time"] date;
+			}
+			input CTL_TSESSLN_TM [size: (75, 21) margin: 4 tabstop fmtf: (hms)] time;
+		}
+		view [vertical growfactor: 1 height: bycontainer] {
+			radiocluster CTL_TSESSLN_SIGN [vertical width: bycontainer margin: 4] {
+				radiobutton [title: "@tsessline_sign_expend"];
+				radiobutton [title: "@tsessline_sign_incoming"];
+				radiobutton [title: "@tsessline_sign_using"];
+			}
+			checkbox CTL_TSESSLN_FLAG_REST [title: "@rest" tabstop width: bycontainer height: 21 margin: 4];
+		}
+		view [vertical growfactor: 1 height: bycontainer] {
+			input CTL_TSESSLN_LOTDIMX [width: bycontainer height: 21 margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 6 label: "@{dimension} X"] double;
+			input CTL_TSESSLN_LOTDIMY [width: bycontainer height: 21 margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 6 label: "@{dimension} Y"] double;
+			input CTL_TSESSLN_LOTDIMZ [width: bycontainer height: 21 margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 6 label: "@{dimension} Z"] double;
+		}
+	}
+	view [horizontal width: bycontainer height: 100] {
+		framebox [vertical growfactor: 3 height: bycontainer margin: 4 padding: 4] {
+			view [horizontal width: bycontainer growfactor: 1] {
+				input CTL_TSESSLN_ORGQTTY [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (nozero) fmtprec: 3 label: "@tsessline_orgqtty"] double;
+				view [horizontal growfactor: 1 height: 21] { // @stubt
+				}
+			}
+			view [horizontal width: bycontainer growfactor: 1] {
+				input CTL_TSESSLN_QTTY [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (notrailz nozero) fmtprec: 3 label: "@tsessline_qtty"] double
+					supplement asterbutton (CTLMNU_TSESSLN_QTTY cmLocalMenu "*");
+				input CTL_TSESSLN_INDEPPHQTTY [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (notrailz nozero) fmtprec: 6 label: "@tsessline_wtqtty"] double
+					supplement asterbutton (CTLMNU_TSESSLN_PHQTTY cmLocalMenu "*");
+			}
+		}
+		framebox [vertical growfactor: 2 height: bycontainer margin: 4 padding: 4] {
+			view [horizontal width: bycontainer growfactor: 1] {
+				input CTL_TSESSLN_PRICE [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (nozero) fmtprec: 2 label: "@price"] double;
+				view [horizontal growfactor: 1 height: 21] { // @stubt
+				}
+			}
+			view [horizontal width: bycontainer growfactor: 1] {
+				input CTL_TSESSLN_DSCNT [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (nozero) fmtprec: 2 label: "@discount"] double;
+				input CTL_TSESSLN_NETPRICE [growfactor: 1 height: 21 margin: (4, 17, 4, 4) tabstop readonly fmtf: (nozero) fmtprec: 2] double;
+			}
+		}
+	}
+	input CTL_TSESSLN_SERIAL [width: bycontainer(60) height: 21 margin: 4 tabstop label: "@serial"] string[24]
+		supplement asterbutton (CTL_TSESSLN_CMD_SELSERIAL cmSelSerial "*");
+		//button CTL_CMD_SELSERIAL [title: "*" tabstop size: (23, 21)  command: cmSelSerial];
+	view [horizontal width: bycontainer growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_TSESSPLANLN [vertical title: "@tsesslineplan" size: (485, 370) minsize: (485, 370) padding: 4 font: "MS Shell Dlg,8"] {
+	statictext CTL_TSESSLN_SESSTITLE [width: bycontainer height: 24 margin: 4 staticedge];
+	framebox [vertical width: bycontainer height: 100 margin: 4 padding: 4] {
+		combobox CTLSEL_TSESSLN_GGRP [tabstop width: bycontainer height: 21 margin: 4 label: "@goodsgroup" cblinesymb: CTL_TSESSLN_GGRP];
+		combobox CTLSEL_TSESSLN_GOODS [tabstop width: bycontainer height: 21 margin: 4 label: "@ware" cblinesymb: CTL_TSESSLN_GOODS];
+	}
+	framebox [horizontal width: bycontainer growfactor: 1 margin: 4 padding: 4 alignitems: spacebetween] {
+		radiocluster CTL_TSESSLN_SIGN [vertical growfactor: 1 height: bycontainer margin: 4] {
+			radiobutton [title: "@tsessline_sign_expend"];
+			radiobutton [title: "@tsessline_sign_incoming"];
+			radiobutton [title: "@tsessline_sign_using"];
+		}
+		view [vertical growfactor: 2 height: bycontainer] {
+			view [horizontal width: bycontainer growfactor: 1 alignitems: end] {
+				checkbox CTL_TSESSLN_PLANFLAGS [title: "@tsessline_fplanphunit" tabstop width: bycontainer height: 21 margin: 4];
+			}
+			view [horizontal width: bycontainer growfactor: 1] {
+				input CTL_TSESSLN_QTTY [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (notrailz nozero) fmtprec: 3 label: "@tsessline_qtty"] double
+					supplement asterbutton (CTLMNU_TSESSLN_QTTY cmLocalMenu "*");
+				input CTL_TSESSLN_INDEPPHQTTY [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (notrailz nozero) fmtprec: 6 label: "@tsessline_wtqtty"] double
+					supplement asterbutton (CTLMNU_TSESSLN_PHQTTY cmLocalMenu "*");
+			}
+		}
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_EXTDEV [vertical title: "@cashnode_sync_devices" size: (700, 605) minsize: (700, 605) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.6.0
+	view [horizontal width: bycontainer height: 140] {
+		framebox [vertical growfactor: 1 height: bycontainer margin: (6, 4, 6, 4) padding: 4] {
+			combobox CTLSEL_EXTDEV_TCHSCREEN [width: bycontainer height: 21 margin: 4 tabstop label: "@cashnode_sync_touchscreen" cblinesymb: CTL_EXTDEV_TCHSCREEN ];
+			combobox CTLSEL_EXTDEV_LOCTCHSCR [width: bycontainer height: 21 margin: 4 tabstop label: "@cashnode_sync_localtouchscr" cblinesymb: CTL_EXTDEV_LOCTCHSCR ];
+			statictext [title: "@cashnode_sync_localtouchscr_prompt" width: bycontainer height: 31 margin: 4];
+		}
+		framebox [vertical growfactor: 1 height: bycontainer margin: (6, 4, 6, 4) padding: 4] {
+			combobox CTLSEL_EXTDEV_CASHNODE [width: bycontainer height: 21 margin: 4 tabstop label: "@cashnode_sync_extcashnode" cblinesymb: CTL_EXTDEV_CASHNODE ];
+			combobox CTLSEL_EXTDEV_ALTREG [width: bycontainer height: 21 margin: 4 tabstop label: "@cashnode_sync_altregister" cblinesymb: CTL_EXTDEV_ALTREG ];
+			checkbox CTL_EXTDEV_EXTNODEASALT [title: "@cashnode_cashfx_fextnodeasalt" tabstop width: bycontainer height: 24 margin: 4];
+		}
+	}
+	view [horizontal width: bycontainer growfactor: 1] {
+		view [vertical growfactor: 1 height: bycontainer margin: 4 justifycontent: spacebetween] {
+			combobox CTLSEL_EXTDEV_SCALE [width: bycontainer height: 21 margin: 4 tabstop label: "@cashnode_sync_scale" cblinesymb: CTL_EXTDEV_SCALE ];
+			combobox CTLSEL_EXTDEV_PHNSVC [width: bycontainer height: 21 margin: 4 tabstop label: "@cashnode_sync_phnsvc" cblinesymb: CTL_EXTDEV_PHNSVC ];
+			input CTL_EXTDEV_PRINTER [width: bycontainer height: 21 margin: 4 tabstop label: "@cashnode_sync_printerport"] string[128]
+				supplement asterbutton (CTLMNU_EXTDEV_PRINTER cmLocalMenu "*");
+			input CTL_EXTDEV_RPTPRNPORT [width: bycontainer height: 21 margin: 4 tabstop label: "@cashnode_scn_rptprnport"] string[128]
+				supplement asterbutton (CTLMNU_EXTDEV_RPTPRNPORT cmLocalMenu "*");
+			view [horizontal width: bycontainer height: 45] {
+				input CTL_EXTDEV_MANUFSERIAL [growfactor: 3 height: 21 margin: 4 tabstop label: "@cashnode_scn_manufserial"] string[64];
+				input CTL_EXTDEV_DRVVER [growfactor: 2 height: 21 margin: 4 tabstop label: "@cashnode_drvver"] string[16];
+			}
+			input CTL_EXTDEV_HOSTICURL [width: bycontainer height: 21 margin: 4 tabstop label: "@cashnode_sync_exchangeurl"] string[128] supplement filebrowsebutton(CTLBRW_EXTDEV_HOSTICURL);
+			checkcluster CTL_EXTDEV_CHKEGMUNIQ [width: bycontainer margin: 4] {
+				checkbox [title: "@cashnode_cashfx_checkegaismuniq"];
+				checkbox [title: "@cashnode_cashfx_bnkslipafterrcpt"];
+				checkbox [title: "@cashnode_cashfx_syncopensesssoft"];
+			}
+		}
+		view [vertical growfactor: 1 height: bycontainer margin: 4 justifycontent: spacebetween] {
+			framebox [horizontal width: bycontainer height: 55 margin: 4 padding: (4, 12, 4, 4) title: "@cashnode_scn_cashdrawer"] {
+				input CTL_EXTDEV_DRAWERPORT [growfactor: 2 height: 21 margin: 4 tabstop label: "@cashnode_scn_cashdrawer_port"] string[64];
+				input CTL_EXTDEV_DRAWERCMD [growfactor: 3 height: 21 margin: 4  tabstop label: "@cashnode_scn_cashdrawer_cmd"] string[128];
+			}
+			framebox [horizontal width: bycontainer height: 55 margin: 4 padding: (4, 12, 4, 4) title: "@cashnode_scn_kitchenbell"] {
+				input CTL_EXTDEV_KBELLPORT [growfactor: 2 height: 21 margin: 4 tabstop label: "@cashnode_scn_kitchenbell_port"] string[64];
+				input CTL_EXTDEV_KBELLCMD [growfactor: 3 height: 21 margin: 4 tabstop label: "@cashnode_scn_kitchenbell_cmd"] string[128];
+			}
+			radiocluster CTL_EXTDEV_EGAISMODE [vertical width: bycontainer margin: 4 padding: (4, 12, 4, 4) title: "@cashnode_egaismode" ] {
+				radiobutton [title: "@cashnode_egaismode_use"];
+				radiobutton [title: "@cashnode_egaismode_dontuse"];
+				radiobutton [title: "@cashnode_egaismode_testmode"];
+				radiobutton [title: "@cashnode_egaismode_scanmarkonly"];
+			}
+			combobox CTLSEL_EXTDEV_CHZNGUA [width: bycontainer height: 21 margin: 4 tabstop label: "@cashnode_chzngua" cblinesymb: CTL_EXTDEV_CHZNGUA];
+			checkbox CTL_EXTDEV_CHZNTSPIOT [title: "@cashnode_chzn_usetspiot" tabstop width: bycontainer height: 21 margin: 4];
+			radiocluster CTL_EXTDEV_CHZNPM [title: "@cashnode_chznpm" width: bycontainer margin: 4 padding: (4, 12, 4, 4)] {
+				radiobutton [title: "@cashnode_chznpm_dontuse"];
+				radiobutton [title: "@cashnode_chznpm_softmode"];
+				radiobutton [title: "@cashnode_chznpm_strictmode"];
+			}
+		}
+	}
+	view [horizontal width: bycontainer height: 30] {
+		view [horizontal growfactor: 4 height: bycontainer justifycontent: start] {
+			button CTL_CMD_CUSTDISP [title: "@{cashnode_sync_custdisp}..." tabstop size: (135, 21)  margin: 4 command: cmCustDisp];
+			button CTL_CMD_BNKTERMINAL [title: "@{cashnode_sync_bnkterm}..." tabstop size: (135, 21)  margin: 4 command: cmBnkTerminal];
+		}
+		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+// @20260414 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
 // Диалоги, представленные здесь с изменными символами (DLG_CASHREPORTS_L__, например) в ppdlg.list не отмечены поскольку находятся в работе.
 
 // @construction
@@ -4689,79 +4751,305 @@ dialog DLG_CASHREPORTS_L__ [vertical title: "@posnodecmd" size: (595, 525) minsi
 	}
 }
 
+dialog DLG_PALM [vertical title: "Palm" size: (830, 590) minsize: (830, 590) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.6.0
+	view [horizontal width: bycontainer growfactor: 1] {
+		view [vertical growfactor: 5 height: bycontainer] {
+			view [horizontal width: bycontainer height: 45] {
+				input CTL_PALM_NAME [growfactor: 2 height: 21 margin: 4 tabstop label: "@appellation"] string[48];
+				input CTL_PALM_SYMB [growfactor: 1 height: 21 margin: 4 tabstop label: "@symbol"] string[20];
+				input CTL_PALM_ID [size: (60, 21) margin: 4 tabstop readonly label: "@id"] int32;
+			}
+			radiocluster CTL_PALM_DVCTYPE [title: "@devicetype" width: bycontainer(80) margin: 4 padding: (4, 13, 4, 4)] {
+				radiobutton [title: "Stylo CE"];
+				radiobutton [title: "Stylo Android"];
+			}
+			combobox CTLSEL_PALM_GROUP [width: bycontainer(80) height: 21 margin: 4 tabstop label: "@group" cblinesymb: CTL_PALM_GROUP];
+			combobox CTLSEL_PALM_AGENT [width: bycontainer(80) height: 21 margin: 4 tabstop label: "@agent" cblinesymb: CTL_PALM_AGENT];
+			combobox CTLSEL_PALM_LOC [width: bycontainer height: 21 margin: 4 tabstop label: "@warehouse" cblinesymb: CTL_PALM_LOC] supplement listbutton(STDCTL_LOCLISTBUTTON cmLocList);
+			combobox CTLSEL_PALM_QUOTKIND [width: bycontainer height: 21 margin: 4 tabstop label: "@quotkind" cblinesymb: CTL_PALM_QUOTKIND] supplement listbutton(STDCTL_QKLISTBUTTON cmQuotKindList);
+			radiocluster CTL_PALM_QUOTKINDOPTIONS [title: "@stylopalm_quotkindoptions" width: bycontainer(80) margin: 4 padding: (4, 13, 4, 4)] {
+				radiobutton [title: "@stylopalm_qkonone"];
+				radiobutton [title: "@stylopalm_qkoauto"];
+				radiobutton [title: "@stylopalm_qkomanual"];
+			}
+			combobox CTLSEL_PALM_GGRP [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsgroup" cblinesymb: CTL_PALM_GGRP];
+			input CTL_PALM_MAXNOTSENTORD [design: B size: (70, 21) margin: (4, 17, 4, 4) tabstop label: "@stylopalm_maxnotsentord"] int32;
+			input CTL_PALM_MAXSENTDAYS [design: B size: (70, 21) margin: (4, 17, 4, 4) tabstop fmtf: (nozero) label: "@stylopalm_transfdaysago"] int16;
+		}
+		view [vertical growfactor: 4 height: bycontainer] {
+			combobox CTLSEL_PALM_OP [width: bycontainer height: 21 margin: 4 tabstop label: "@stylopalm_orderop" cblinesymb: CTL_PALM_OP];
+			combobox CTLSEL_PALM_INHBTAGVAL [width: bycontainer height: 21 margin: 4 tabstop label: "@stylopalm_inhbilltagval" cblinesymb: CTL_PALM_INHBTAGVAL];
+			combobox CTLSEL_PALM_FTPACCT [width: bycontainer height: 21 margin: 4 tabstop label: "@ftpaccount" cblinesymb: CTL_PALM_FTPACCT];
+			checkcluster CTL_PALM_FLAGS [width: bycontainer margin: 4] {
+				checkbox [title: "@stylopalm_plmf_inhflags"];
+				checkbox [title: "@stylopalm_plmf_impaschecks"];
+				checkbox [title: "@doexportreceivables"];
+				checkbox [title: "@doexportsales"];
+				checkbox [title: "@stylopalm_plmf_expbrand"];
+				checkbox [title: "@stylopalm_plmf_exploc"];
+				checkbox [title: "@stylopalm_plmf_expstopflag"];
+				checkbox [title: "@stylopalm_plmf_disablcediscount"];
+				checkbox [title: "@stylopalm_plmf_blocked"];
+				checkbox [title: "@stylopalm_plmf_treatduedateasdate"];
+				checkbox [title: "@{stylopalm_plmf_expzstock}"];
+				checkbox [title: "@stylopalm_plmf_expgoodsexpirytags"];
+			}
+			view [horizontal width: bycontainer height: 30 margin_top: 5 alignitems: center] {
+				input CTL_PALM_REGINFO [growfactor: 1 height: 21 margin: 4 tabstop readonly] string[128];
+				checkbox CTL_PALM_REGISTERED [title: "@stylopalm_plmf_registered" tabstop size: (120, 21)];
+			}
+			input CTL_PALM_PATH [width: bycontainer height: 21 margin: 4 tabstop label: "@stylopalm_ixpath"] string[128] supplement filebrowsebutton(CTLBRW_PALM_PATH);
+			input CTL_PALM_FTPPATH [width: bycontainer height: 21 margin: 4 tabstop label: "@stylopalm_ixftppath"] string[128];
+		}
+	}
+	view [horizontal width: bycontainer height: 30] {
+		view [horizontal growfactor: 2 height: bycontainer justifycontent: start] {
+			button CTL_PALM_CMD_GEOTRACKING [title: "GEO-tracking" tabstop size: (90, 21) margin: 4 command: cmTechRoute];
+		}
+		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
 view LAYOUT_LI_CENTRIGONAV [horizontal height: 32 padding: 4 alignitems: center] {
 	view LOITEM_LI_CENTRIGONAV_HIND [size: (24, 24) margin: 4]; // Индикатор иерархии
 	view LOITEM_LI_CENTRIGONAV_IMG [size: (24, 24) margin: 4]; // Изображение
 	view LOITEM_LI_CENTRIGONAV_MAINTEXT [growfactor: 1 height: bycontainer]; // Основной текст
 }
 
-dialog DLG_TSESSLN__ [vertical title: "@tsessline" size: (560, 530) minsize: (560, 530) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.12 @construction
-	statictext CTL_TSESSLN_SESSTITLE [width: bycontainer height: 24 margin: 4 staticedge];
-	framebox [vertical width: bycontainer height: 100 margin: 4 padding: 4] {
-		combobox CTLSEL_TSESSLN_GGRP [tabstop width: bycontainer height: 21 margin: 4 label: "@goodsgroup" cblinesymb: CTL_TSESSLN_GGRP];
-		combobox CTLSEL_TSESSLN_GOODS [tabstop width: bycontainer height: 21 margin: 4 label: "@ware" cblinesymb: CTL_TSESSLN_GOODS];
+dialog DLG_TSESS [vertical title: "@{tsession}" size: (700, 660) minsize: (700, 660) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.12
+	view [horizontal width: bycontainer height: 45] {
+		input CTL_TSESS_NUMBER [growfactor: 1 height: 21 margin: 4 tabstop label: "@tsession_num"] int32;
+		input CTL_TSESS_ID [growfactor: 1 height: 21 margin: 4 tabstop readonly label: "@id"] int32;
+		checkbox CTL_TSESS_IDLE [title: "@tsession_tsesf_idle" tabstop growfactor: 1 height: 21 margin: (4, 17, 4, 4)];
+		input CTL_TSESS_INCOMPL [growfactor: 1 height: 21 margin: 4 tabstop readonly label: "@tsession_incomplete"] int16;
 	}
-	view [horizontal width: bycontainer height: 135] {
-		view [horizontal growfactor: 2 height: bycontainer margin_top: 13] {
-			view [horizontal growfactor: 1 height: bycontainer] {
-				input CTL_TSESSLN_DT [design: B size: (75, 21) margin: 4 tabstop fmtf: (dmy) label: "@tsessline_time"] date;
-			}
-			input CTL_TSESSLN_TM [size: (75, 21) margin: 4 tabstop fmtf: (hms)] time;
-		}
-		view [vertical growfactor: 1 height: bycontainer] {
-			radiocluster CTL_TSESSLN_SIGN [vertical width: bycontainer margin: 4] {
-				radiobutton [title: "@tsessline_sign_expend"];
-				radiobutton [title: "@tsessline_sign_incoming"];
-				radiobutton [title: "@tsessline_sign_using"];
-			}
-			checkbox CTL_TSESSLN_FLAG_REST [title: "@rest" tabstop width: bycontainer height: 21 margin: 4];
-		}
-		view [vertical growfactor: 1 height: bycontainer] {
-			input CTL_TSESSLN_LOTDIMX [width: bycontainer height: 21 margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 6 label: "@{dimension} X"] double;
-			input CTL_TSESSLN_LOTDIMY [width: bycontainer height: 21 margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 6 label: "@{dimension} Y"] double;
-			input CTL_TSESSLN_LOTDIMZ [width: bycontainer height: 21 margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 6 label: "@{dimension} Z"] double;
-		}
-	}
-	view [horizontal width: bycontainer height: 100] {
-		framebox [vertical growfactor: 3 height: bycontainer margin: 4 padding: 4] {
+	view [horizontal width: bycontainer height: 150] {
+		framebox [vertical growfactor: 1 height: bycontainer margin: 4 padding: 4] {
 			view [horizontal width: bycontainer growfactor: 1] {
-				input CTL_TSESSLN_ORGQTTY [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (nozero) fmtprec: 3 label: "@tsessline_orgqtty"] double;
-				view [horizontal growfactor: 1 height: 21] { // @stubt
+				view [vertical growfactor: 1 height: bycontainer] {
+					combobox CTLSEL_TSESS_PRC [tabstop width: bycontainer height: 21 margin: 4 label: "@processor" cblinesymb: CTL_TSESS_PRC];
+					combobox CTLSEL_TSESS_TECH [tabstop width: bycontainer height: 21 margin: 4 label: "@tsession_tech" cblinesymb: CTL_TSESS_TECH];
+				}
+				view [vertical width: 140 height: bycontainer] {
+					button CTL_TSESS_CMD_SELTECHBYGOODS [title: "@{byware}..." tabstop width: bycontainer height: 33 margin: (4, 17, 4, 4) command: cmSelTechByGoods];
+					button STDCTL_INSBUTTON [title: "@{tsession_createware}..." tabstop width: bycontainer height: 33 margin: 4 command: cmCreateGoods];
 				}
 			}
-			//bycontaier
-			view [horizontal width: bycontainer growfactor: 1] {
-				input CTL_TSESSLN_QTTY [growfactor: 1 height: 21 margin: 4 tabstop fmtprec: 3 label: "@tsessline_qtty"] double
-					supplement asterbutton (CTLMNU_TSESSLN_QTTY cmLocalMenu "*");
-					//button CTLMNU_TSESSLN_QTTY [title: " " size: (21, 21)  command: cmLocalMenu];
-				input CTL_TSESSLN_INDEPPHQTTY [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (notrailz) fmtprec: 6 label: "@tsessline_wtqtty"] double
-					supplement asterbutton (CTLMNU_TSESSLN_PHQTTY cmLocalMenu "*");
-					//button CTLMNU_TSESSLN_PHQTTY [title: " " size: (21, 21)  command: cmLocalMenu];
+			view [horizontal width: bycontainer height: 32] {
+				statictext CTL_TSESS_ST_GOODS [width: bycontainer height: bycontainer margin: 4 staticedge];
 			}
 		}
-		framebox [vertical growfactor: 2 height: bycontainer margin: 4 padding: 4] {
-			view [horizontal width: bycontainer growfactor: 1] {
-				input CTL_TSESSLN_PRICE [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (nozero) fmtprec: 2 label: "@price"] double;
-				view [horizontal growfactor: 1 height: 21] { // @stubt
+		view [vertical width: 130 height: bycontainer] {
+			radiocluster CTL_TSESS_STATUS [tabstop title: "@status" width: bycontainer margin: 4 padding: 4] {
+				radiobutton [title: "@tsks_planned"];
+				radiobutton [title: "@tsks_pending"];
+				radiobutton [title: "@tsks_runned"];
+				radiobutton [title: "@tsks_closed"];
+				radiobutton [title: "@tsks_canceled"];
+			}
+			button CTL_TSESS_ADDPAYMBUTT [title: "@{payment}..." tabstop width: bycontainer height: 21 margin: 4 command: cmAddPaym];
+		}
+	}
+	view [horizontal width: bycontainer height: 140] {
+		view [horizontal growfactor: 1 height: bycontainer] {
+			framebox [title: "@{date}/@{time}" vertical growfactor: 2 height: bycontainer margin: 4 padding: 4] {
+				view [horizontal width: bycontainer growfactor: 1] {
+					input CTL_TSESS_STDT [growfactor: 1 height: 21 margin: (4, 9, 4, 1) tabstop fmtf: (dmy) label: "@tsession_stdt"] date supplement datecalbutton(CTLCAL_TSESS_STDT);
+					input CTL_TSESS_STTM [growfactor: 1 height: 21 margin: (1, 22, 4, 4) tabstop fmtf: (hms)] time supplement timebutton(CTLTM_TSESS_STTM);
+				}
+				view [horizontal width: bycontainer growfactor: 1] {
+					input CTL_TSESS_FNDT [growfactor: 1 height: 21 margin: (4, 4, 4, 1) tabstop fmtf: (dmy) label: "@tsession_findt"] date supplement datecalbutton(CTLCAL_TSESS_FNDT);
+					input CTL_TSESS_FNTM [growfactor: 1 height: 21 margin: (1, 17, 4, 4) tabstop fmtf: (hms)] time supplement timebutton(CTLTM_TSESS_FNTM);
+				}
+				button CTL_TSESS_CMD_FREELIST [title: "@{tsession_prcavailability}..." tabstop size: (173, 21) margin: 4 command: cmFreeList];
+			}
+			framebox [horizontal growfactor: 2 height: bycontainer margin: 4 padding: 4] {
+				view [vertical growfactor: 3 height: bycontainer] {
+					statictext CTL_TSESS_ST_PLAN [title: "@plan" width: bycontainer height: 13 margin: 4];
+					input CTL_TSESS_PLANQTTY [design: B size: (75, 21) margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 6 label: "@tsession_plannedqtty"] double;
+					input CTL_TSESS_PLANTIMING [design: B size: (75, 21) margin: 4 tabstop label: "@tsession_plannedtiming"] string[32];
+					button CTL_TSESS_CMD_AUTOFILL [title: "@{tsession_autofill}..." tabstop size: (175, 21) margin: (4, 17, 4, 4) command: cmAutoFill];
+				}
+				view [vertical growfactor: 1 height: bycontainer] {
+					statictext CTL_TSESS_ST_FACT [title: "@fact" width: bycontainer height: 13 margin: 4];
+					input CTL_TSESS_ACTQTTY [width: bycontainer height: 21 margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 6] double;
+					input CTL_TSESS_ACTTIMING [width: bycontainer height: 21 margin: 4 tabstop] string[32];
+					input CTL_TSESS_AMOUNT [width: bycontainer height: 21 margin: 4 tabstop readonly fmtf: (nozero) fmtprec: 2 label: "@amount"] double;
 				}
 			}
+		}
+		view [vertical width: 130 height: bycontainer] {
+			input CTL_TSESS_PAYMINFO [width: bycontainer growfactor: 1 margin: (4, 9, 4, 4) tabstop readonly multiline] string[128];
+			button STDCTL_BILLSBUTTON [title: "@but_bills" tabstop width: bycontainer height: 21 margin: 4 command: cmBills];
+			button STDCTL_REPEATINGBUTTON [title: "@{repeating}..." tabstop width: bycontainer height: 21 margin: 4 command: cmRepeating];
+		}
+	}
+	view [horizontal width: bycontainer height: 45] {
+		combobox CTLSEL_TSESS_SUPERSES [tabstop growfactor: 3 height: 21 margin: 4 label: "@supersession" cblinesymb: CTL_TSESS_SUPERSES];
+		view [horizontal growfactor: 2 height: bycontainer margin: 4] { // @stub
+		}
+	}
+	view [horizontal width: bycontainer height: 45] {
+		combobox CTLSEL_TSESS_OBJ [tabstop growfactor: 3 height: 21 margin: 4 label: "@contractor" cblinesymb: CTL_TSESS_OBJ];
+		input CTL_TSESS_SCARD [growfactor: 2 height: 21 margin: 4 tabstop readonly label: "@card"] string[24] supplement ellipsisbutton(CTL_TSESS_CMD_SELSCARD cmSelSCard);
+	}
+	view [horizontal width: bycontainer height: 50] {
+		view [vertical growfactor: 3 height: bycontainer] {
+			//statictext CTL_TSESS_ST_EXTOBJNAME [title: "@tsession_ar2" width: bycontainer height: 13 margin: (4, 4, 4, 1)];
+			combobox CTLSEL_TSESS_OBJ2 [title: "@tsession_ar2" tabstop width: bycontainer height: 21 margin: (4, 1, 4, 4) cblinesymb: CTL_TSESS_OBJ2];
+		}
+		view [horizontal growfactor: 2 height: bycontainer justifycontent: end] {
+			button CTL_TSESS_CMD_BROWSETSESSBYAR [title: "@but_tsessbyar" tabstop size: (210, 37) margin: (4, 17, 4, 4) command: cmBrowseTSessByAr];
+		}
+	}
+	view [horizontal width: bycontainer height: 45] {
+		view [horizontal growfactor: 3 height: bycontainer] {
+			input CTL_TSESS_ORDER [growfactor: 1 height: 21 margin: (4, 4, 1, 4) tabstop readonly label: "@booking"] string[64];
+			button CTL_TSESS_CMD_SELORDER [title: "@but_orders" tabstop size: (60, 21) margin: (1, 17, 4, 4) command: cmSelOrder];
+		}
+		view [horizontal growfactor: 2 height: bycontainer justifycontent: end] {
+			button STDCTL_MORE [title: "@but_addendum" tabstop size: (115, 21) margin: (4, 17, 4, 4) command: cmaMore];
+		}
+	}
+	input CTL_TSESS_MEMO [width: bycontainer height: 21 margin: 4 tabstop label: "@tsession_memo"] string[160];
+	view [horizontal width: bycontainer height: 30] {
+		view [horizontal growfactor: 5 height: bycontainer justifycontent: start] {
+			button CTL_TSESS_CMD_TSESSDETAIL [title: "@{sessitem_pl}..." tabstop size: (150, 21) margin: 4 command: cmTSessDetail];
+			button CTL_TSESS_CMD_CCHECK [title: "@{poscheck}..." tabstop size: (90, 21) margin: 4 command: cmCCheck];
+			button CTL_TSESS_CMD_CHKINP [title: "@{registration}..." tabstop size: (90, 21) margin: 4 command: cmChkInP];
+		}
+		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_TSESSSIMPLE [vertical title: "@{tsession}" size: (700, 600) minsize: (700, 600) padding: 4 font: "MS Shell Dlg,8"] { // @v12.6.0 
+	view [horizontal width: bycontainer height: 45] {
+		input CTL_TSESS_NUMBER [growfactor: 1 height: 21 margin: 4 tabstop label: "@tsession_num"] int32;
+		input CTL_TSESS_ID [growfactor: 1 height: 21 margin: 4 tabstop readonly label: "@id"] int32;
+		//checkbox CTL_TSESS_IDLE [title: "@tsession_tsesf_idle" tabstop growfactor: 1 height: 21 margin: (4, 17, 4, 4)];
+		//input CTL_TSESS_INCOMPL [growfactor: 1 height: 21 margin: 4 tabstop readonly label: "@tsession_incomplete"] int16;
+	}
+	view [horizontal width: bycontainer height: 150] {
+		framebox [vertical growfactor: 1 height: bycontainer margin: 4 padding: 4] {
 			view [horizontal width: bycontainer growfactor: 1] {
-				input CTL_TSESSLN_DSCNT [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (nozero) fmtprec: 2 label: "@discount"] double;
-				input CTL_TSESSLN_NETPRICE [growfactor: 1 height: 21 margin: (4, 17, 4, 4) tabstop readonly fmtf: (nozero) fmtprec: 2] double;
+				view [vertical growfactor: 1 height: bycontainer] {
+					combobox CTLSEL_TSESS_PRC [tabstop width: bycontainer height: 21 margin: 4 label: "@processor" cblinesymb: CTL_TSESS_PRC];
+					combobox CTLSEL_TSESS_TECH [tabstop width: bycontainer height: 21 margin: 4 label: "@tsession_tech" cblinesymb: CTL_TSESS_TECH];
+				}
+				view [vertical width: 140 height: bycontainer] {
+					button CTL_TSESS_CMD_SELTECHBYGOODS [title: "@{byware}..." tabstop width: bycontainer height: 33 margin: (4, 17, 4, 4) command: cmSelTechByGoods];
+					button STDCTL_INSBUTTON [title: "@{tsession_createware}..." tabstop width: bycontainer height: 33 margin: 4 command: cmCreateGoods];
+				}
+			}
+			view [horizontal width: bycontainer height: 32] {
+				statictext CTL_TSESS_ST_GOODS [width: bycontainer height: bycontainer margin: 4 staticedge];
+			}
+		}
+		view [vertical width: 130 height: bycontainer] {
+			radiocluster CTL_TSESS_STATUS [tabstop title: "@status" width: bycontainer margin: 4 padding: 4] {
+				radiobutton [title: "@tsks_pending"];
+				radiobutton [title: "@tsks_runned"];
+				radiobutton [title: "@tsks_closed"];
+				radiobutton [title: "@tsks_canceled"];
+			}
+			button CTL_TSESS_ADDPAYMBUTT [title: "@{payment}..." tabstop width: bycontainer height: 21 margin: 4 command: cmAddPaym];
+		}
+	}
+	view [horizontal width: bycontainer height: 140] {
+		view [horizontal growfactor: 1 height: bycontainer] {
+			framebox [title: "@{date}/@{time}" vertical growfactor: 2 height: bycontainer margin: 4 padding: 4] {
+				view [horizontal width: bycontainer growfactor: 1] {
+					input CTL_TSESS_STDT [growfactor: 1 height: 21 margin: (4, 9, 4, 1) tabstop fmtf: (dmy) label: "@tsession_stdt"] date supplement datecalbutton(CTLCAL_TSESS_STDT);
+					input CTL_TSESS_STTM [growfactor: 1 height: 21 margin: (1, 22, 4, 4) tabstop fmtf: (hms)] time supplement timebutton(CTLTM_TSESS_STTM);
+				}
+				view [horizontal width: bycontainer growfactor: 1] {
+					input CTL_TSESS_FNDT [growfactor: 1 height: 21 margin: (4, 4, 4, 1) tabstop fmtf: (dmy) label: "@tsession_findt"] date supplement datecalbutton(CTLCAL_TSESS_FNDT);
+					input CTL_TSESS_FNTM [growfactor: 1 height: 21 margin: (1, 17, 4, 4) tabstop fmtf: (hms)] time supplement timebutton(CTLTM_TSESS_FNTM);
+				}
+				button CTL_TSESS_CMD_FREELIST [title: "@{tsession_prcavailability}..." tabstop size: (173, 21) margin: 4 command: cmFreeList];
+			}
+			framebox [horizontal growfactor: 2 height: bycontainer margin: 4 padding: 4] {
+				view [vertical growfactor: 3 height: bycontainer] {
+					statictext CTL_TSESS_ST_PLAN [title: "@plan" width: bycontainer height: 13 margin: 4];
+					input CTL_TSESS_PLANQTTY [design: B size: (75, 21) margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 6 label: "@tsession_plannedqtty"] double;
+					input CTL_TSESS_PLANTIMING [design: B size: (75, 21) margin: 4 tabstop label: "@tsession_plannedtiming"] string[32];
+					//button CTL_TSESS_CMD_AUTOFILL [title: "@{tsession_autofill}..." tabstop size: (175, 21) margin: (4, 17, 4, 4) command: cmAutoFill];
+				}
+				view [vertical growfactor: 1 height: bycontainer] {
+					statictext CTL_TSESS_ST_FACT [title: "@fact" width: bycontainer height: 13 margin: 4];
+					input CTL_TSESS_ACTQTTY [width: bycontainer height: 21 margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 6] double;
+					input CTL_TSESS_ACTTIMING [width: bycontainer height: 21 margin: 4 tabstop] string[32];
+					input CTL_TSESS_AMOUNT [width: bycontainer height: 21 margin: 4 tabstop readonly fmtf: (nozero) fmtprec: 2 label: "@amount"] double;
+				}
+			}
+		}
+		view [vertical width: 130 height: bycontainer] {
+			input CTL_TSESS_PAYMINFO [width: bycontainer growfactor: 1 margin: (4, 9, 4, 4) tabstop readonly multiline] string[128];
+			button STDCTL_BILLSBUTTON [title: "@but_bills" tabstop width: bycontainer height: 21 margin: 4 command: cmBills];
+			button STDCTL_REPEATINGBUTTON [title: "@{repeating}..." tabstop width: bycontainer height: 21 margin: 4 command: cmRepeating];
+		}
+	}
+	view [horizontal width: bycontainer height: 45] {
+		combobox CTLSEL_TSESS_OBJ [tabstop growfactor: 3 height: 21 margin: 4 label: "@contractor" cblinesymb: CTL_TSESS_OBJ];
+		input CTL_TSESS_SCARD [growfactor: 2 height: 21 margin: 4 tabstop readonly label: "@card"] string[24] supplement ellipsisbutton(CTL_TSESS_CMD_SELSCARD cmSelSCard);
+	}
+	view [horizontal width: bycontainer height: 50] {
+		view [vertical growfactor: 3 height: bycontainer] {
+			//statictext CTL_TSESS_ST_EXTOBJNAME [title: "@tsession_ar2" width: bycontainer height: 13 margin: (4, 4, 4, 1)];
+			combobox CTLSEL_TSESS_OBJ2 [title: "@tsession_ar2" tabstop width: bycontainer height: 21 margin: (4, 1, 4, 4) cblinesymb: CTL_TSESS_OBJ2];
+		}
+		view [horizontal growfactor: 2 height: bycontainer justifycontent: end] {
+			button CTL_TSESS_CMD_BROWSETSESSBYAR [title: "@but_tsessbyar" tabstop size: (210, 37) margin: (4, 17, 4, 4) command: cmBrowseTSessByAr];
+		}
+	}
+	input CTL_TSESS_MEMO [width: bycontainer height: 21 margin: 4 tabstop label: "@tsession_memo"] string[160];
+	view [horizontal width: bycontainer height: 30] {
+		view [horizontal growfactor: 6 height: bycontainer justifycontent: start] {
+			button CTL_TSESS_CMD_TSESSDETAIL [title: "@{sessitem_pl}..." tabstop size: (150, 21) margin: 4 command: cmTSessDetail];
+			button CTL_TSESS_CMD_CCHECK [title: "@{poscheck}..." tabstop size: (90, 21) margin: 4 command: cmCCheck];
+			button CTL_TSESS_CMD_CHKINP [title: "@{registration}..." tabstop size: (90, 21) margin: 4 command: cmChkInP];
+			button STDCTL_MORE [title: "@but_addendum" tabstop size: (90, 21) margin: 4 command: cmaMore];
+		}
+		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_TSESS_EXEC_TR [vertical title: "@{tsession}" size: (700, 400) minsize: (700, 400) padding: 4 font: "MS Shell Dlg,8"] { // @v12.6.0 
+	view [horizontal width: bycontainer height: 120] {
+		view [vertical growfactor: 2 height: bycontainer] {
+			combobox CTLSEL_TSESS_PRC [tabstop width: bycontainer height: 21 margin: 4 label: "@processor" cblinesymb: CTL_TSESS_PRC];
+			input CTL_TSESS_SERIAL [width: bycontainer(60) height: 21 margin: 4 tabstop label: "@serial"] string[64];
+		}
+		framebox [title: "@{date}/@{time}" vertical growfactor: 1 height: 90 margin: 4 padding: 4] {
+			view [horizontal width: bycontainer growfactor: 1] {
+				input CTL_TSESS_STDT [growfactor: 1 height: 21 margin: (4, 9, 4, 1) tabstop fmtf: (dmy) label: "@tsession_stdt"] date supplement datecalbutton(CTLCAL_TSESS_STDT);
+				input CTL_TSESS_STTM [growfactor: 1 height: 21 margin: (1, 22, 4, 4) tabstop fmtf: (hms)] time supplement timebutton(CTLTM_TSESS_STTM);
+			}
+			view [horizontal width: bycontainer growfactor: 1] {
+				input CTL_TSESS_FNDT [growfactor: 1 height: 21 margin: (4, 4, 4, 1) tabstop fmtf: (dmy) label: "@tsession_findt"] date supplement datecalbutton(CTLCAL_TSESS_FNDT);
+				input CTL_TSESS_FNTM [growfactor: 1 height: 21 margin: (1, 17, 4, 4) tabstop fmtf: (hms)] time supplement timebutton(CTLTM_TSESS_FNTM);
 			}
 		}
 	}
-	input CTL_TSESSLN_SERIAL [width: bycontainer(60) height: 21 margin: 4 tabstop label: "@serial"] string[24]
-		supplement asterbutton (CTL_TSESSLN_CMD_SELSERIAL cmSelSerial "*");
-		//button CTL_CMD_SELSERIAL [title: "*" tabstop size: (23, 21)  command: cmSelSerial];
-	
-	//statictext CTL_TSESSLN_ST_PHQTTY [title: "@tsessline_wtqtty" size: (150, 16) ];
-	//statictext CTL_TSESSLN_PHQTTY [size: (83, 21) ];
-	
-	view [horizontal width: bycontainer growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
-		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
-		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	statictext CTL_TSESS_ST_GOODS [width: bycontainer height: 21 margin: 4 staticedge];
+	combobox CTLSEL_TSESS_TECH [tabstop width: bycontainer height: 21 margin: 4 label: "@tsession_tech" cblinesymb: CTL_TSESS_TECH];
+	combobox CTLSEL_TSESS_OBJ [tabstop width: bycontainer height: 21 margin: 4 label: "@contractor" cblinesymb: CTL_TSESS_OBJ];
+	combobox CTLSEL_TSESS_OBJ2 [title: "@tsession_ar2" tabstop width: bycontainer height: 21 margin: 4 cblinesymb: CTL_TSESS_OBJ2];
+	view [horizontal width: bycontainer height: 30] {
+		view [horizontal growfactor: 6 height: bycontainer justifycontent: start] {
+		}
+		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
 	}
-	//framebox [origin: (8, 33) size: (518, 106) ];
-	//framebox [origin: (15, 325) size: (233, 106) ];
 }

@@ -155,6 +155,25 @@ int ViewPersonInfoBySCard(const char * pCode)
 //
 //
 //
+/*static*/IMPL_CMPMEMBFUNC(PPViewPerson, PPViewPerson_InternalViewItem_ByName, i1, i2, void * pExtraData)
+{
+	int   si = 0;
+	const PPViewPerson::InternalViewItem * p1 = static_cast<const PPViewPerson::InternalViewItem *>(i1);
+	const PPViewPerson::InternalViewItem * p2 = static_cast<const PPViewPerson::InternalViewItem *>(i2);
+	if(pExtraData) {
+		PPViewPerson * p_view = static_cast<PPViewPerson *>(pExtraData);
+		SString & r_nm1 = SLS.AcquireRvlStr();
+		SString & r_nm2 = SLS.AcquireRvlStr();
+		p_view->StrPool.GetS(p1->NameP, r_nm1);
+		p_view->StrPool.GetS(p2->NameP, r_nm2);
+		si = r_nm1.CmpNC(r_nm2);
+	}
+	else {
+		si = CMPSIGN(p1->PersonID, p2->PersonID);
+	}
+	return si;
+}
+
 PPViewPerson::PPViewPerson() : PPView(&PsnObj, &Filt, PPVIEW_PERSON, implUseQuickTagEditFunc, 0), DefaultTagID(0), P_TempPsn(0), P_Fr(0)
 {
 }
@@ -446,7 +465,7 @@ int PPViewPerson::BuildIdList(PPIDArray & rResult) // @v12.5.12 @construction
 								}
 								else {
 									InternalViewItem ivi;
-									ivi.Setup(vi);
+									ivi.Setup(vi, this);
 									InternalViewList.insert(&ivi);
 								}
 							}
@@ -478,7 +497,7 @@ int PPViewPerson::BuildIdList(PPIDArray & rResult) // @v12.5.12 @construction
 								}
 								else {
 									InternalViewItem ivi;
-									ivi.Setup(vi);
+									ivi.Setup(vi, this);
 									InternalViewList.insert(&ivi);
 								}
 							}
@@ -521,7 +540,7 @@ int PPViewPerson::BuildIdList(PPIDArray & rResult) // @v12.5.12 @construction
 									}
 									else {
 										InternalViewItem ivi;
-										ivi.Setup(vi);
+										ivi.Setup(vi, this);
 										InternalViewList.insert(&ivi);
 									}
 								}
@@ -531,6 +550,9 @@ int PPViewPerson::BuildIdList(PPIDArray & rResult) // @v12.5.12 @construction
 				}
 			}
 			THROW(tra.Commit());
+		}
+		if(IsInMemView()) {
+			InternalViewList.sort2(PTR_CMPFUNC(PPViewPerson_InternalViewItem_ByName), this);
 		}
 		{
 			class PersonTagsCrosstab : public Crosstab {
@@ -1532,6 +1554,14 @@ int PPViewPerson::CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnAttrVie
 		item.TabID = tabID;
 		STRNSCPY(item.Name, pPsnRec->Name);
 		if(Filt.Flags & PersonFilt::fCentrigoContacts) {
+			// @v12.6.0 {
+			if(!item.AtrTextP) {
+				PPExtStrContainer exsc;
+				PsnObj.GetExtStrings(pPsnRec->ID, exsc);
+				exsc.GetExtStrData(PPPersonPacket::extssAtrText, temp_buf);
+				StrPool.AddS(temp_buf, &item.AtrTextP);
+			}
+			// } @v12.6.0 
 			if(!item.PhoneP || !item.EMailP) {
 				PPELinkArray elink_ary;
 				if(PsnObj.P_Tbl->GetELinks(pPsnRec->ID, elink_ary)) {
@@ -1563,7 +1593,7 @@ PPViewPerson::InternalViewItem::InternalViewItem()
 	THISZERO();
 }
 		
-void PPViewPerson::InternalViewItem::Setup(const TempPersonTbl::Rec & rRec)
+void PPViewPerson::InternalViewItem::Setup(const TempPersonTbl::Rec & rRec, PPViewPerson * pView)
 {
 	PersonID = rRec.ID;
 	TabID = rRec.TabID;
@@ -1576,6 +1606,13 @@ void PPViewPerson::InternalViewItem::Setup(const TempPersonTbl::Rec & rRec)
 	FiasAddrGuidP = rRec.FiasAddrGuidP;
 	FiasHouseGuidP = rRec.FiasHouseGuidP;
 	AddrTypeP = rRec.AddrTypeP;
+	// @v12.6.0 {
+	AtrTextP = rRec.AtrTextP; 
+	NameP = 0;
+	if(pView) {
+		pView->StrPool.AddS(rRec.Name, &NameP);
+	}
+	// } @v12.6.0 
 }
 
 bool PPViewPerson::SearchInternalViewItem(PPID personID, PPID tabID, uint * pPos) const
@@ -1608,7 +1645,7 @@ int PPViewPerson::Helper_InsertTempRec(const TempPersonTbl::Rec & rRec)
 	else {
 		uint   pos = 0;
 		InternalViewItem ivi;
-		ivi.Setup(rRec);
+		ivi.Setup(rRec, this);
 		if(SearchInternalViewItem(rRec.ID, rRec.TabID, &pos)) {
 			InternalViewList.at(pos) = ivi;
 			ok = 1;
@@ -1662,7 +1699,7 @@ int PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
 						}
 						else if(CreateTempRec(&psn_rec, tab_id, &vi) > 0) {
 							InternalViewItem ivi;
-							ivi.Setup(vi);
+							ivi.Setup(vi, this);
 							InternalViewList.insert(&ivi);
 						}
 					}
@@ -1851,7 +1888,7 @@ int PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
 						}
 						else if(CreateTempRec(&psn_rec, tab_id, &vi) > 0) {
 							InternalViewItem ivi;
-							ivi.Setup(vi);
+							ivi.Setup(vi, this);
 							InternalViewList.insert(&ivi);
 						}
 					}
@@ -3074,6 +3111,7 @@ browser PERSON_INMEM north(100), 1, 1, "@{person_pl} {%s}", OWNER|GRID, 0
 			break;
 		case 18: // etc
 			{
+				StrPool.GetS(p_item->AtrTextP, temp_buf);
 				pBlk->Set(temp_buf);
 			}
 			break;
@@ -3938,8 +3976,9 @@ int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 				fld_list.GetValue(0, &hdr.ID, 0);
 		}
 	}
-	else
+	else {
 		MEMSZERO(hdr);
+	}
 	if(ppvCmd == PPVCMD_QUERYDATASOURCETYPE) {
 		ok = IsInMemView() ? PPView::datasourcetypeArray : PPView::datasourcetypeDBQuery;
 	}
@@ -3968,7 +4007,7 @@ int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 						ok = AddItem(&id);
 						if(ok > 0) {
 							pBrw->Update();
-							pBrw->search2(&id, CMPF_LONG, srchFirst, 0);
+							pBrw->search2(&id, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/);
 							ok = -1; // Не надо обновлять таблицу после этого вызова
 						}
 					}
@@ -4242,6 +4281,7 @@ int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 					}
 					PsnObj.Dirty(last_id);
 				}
+				InternalViewList.sort2(PTR_CMPFUNC(PPViewPerson_InternalViewItem_ByName), this);
 			}
 			if(last_id) {
 				{
@@ -4254,7 +4294,7 @@ int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 					p_def->setArray(p_array, 0, 1);
 				}
 				if(ppvCmd != PPVCMD_DELETEITEM)
-					pBrw->search2(&last_id, CMPF_LONG, srchFirst, 0);
+					pBrw->search2(&last_id, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/);
 			}
 		}
 	}
@@ -4851,6 +4891,13 @@ int PPALDD_SupplNameList::InitData(PPFilt & rFilt, long rsrv)
 //
 //
 //
+ClientActivityDetailsViewItem::ClientActivityDetailsViewItem() : Dtm(ZERODATETIME), Amount(0.0), Flags(0)
+{
+	TransactionOp[0] = 0;
+	TransactionCode[0] = 0;
+	TransactionEtc[0] = 0;
+}
+
 IMPLEMENT_PPFILT_FACTORY(ClientActivityDetails); ClientActivityDetailsFilt::ClientActivityDetailsFilt() : PPBaseFilt(PPFILT_CLIENTACTIVITYDETAILS, 0, 1)
 {
 	SetFlatChunk(offsetof(ClientActivityDetailsFilt, ReserveStart), offsetof(ClientActivityDetailsFilt, ReserveEnd) - offsetof(ClientActivityDetailsFilt, ReserveStart));

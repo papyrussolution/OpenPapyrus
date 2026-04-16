@@ -117,6 +117,13 @@ private:
 	int    _GetCommonFigAttrAndInsert(const StrAssocArray & rAttrList, CommonFigAttr & rA, SDrawFigure * pFig, SDrawGroup * pParent);
 	int    GetAttr(const xmlNode * pNode, const char * pAttr, SString & rVal);
 	int    GetAttrList(const xmlNode * pNode, StrAssocArray & rList);
+	//
+	// Descr: Применяет некоторые родительские атрибуты к текущеме объекту.
+	// @attention: Сейчас (@v12.6.0) rParentList - просто список xml-атрибутов (преобразованный). Проблема в том,
+	//   что есть атрибут style которы аккумулирует один или несколько атрибутов, которые должны наследоваться по-раздельности (別々).
+	//   Это - @todo
+	//
+	int    ApplyParentAttrList(const StrAssocArray & rParentList, StrAssocArray & rCurrentList); // @v12.6.0
 	int    GetColor(const SString & rProp, SColor & rC) const;
 
 	enum {
@@ -127,7 +134,7 @@ private:
 
 	int    ProcessStyleItem(int token, const SString & rVal, StyleBlock & rBlk);
 	int    ParseStyle(const xmlNode * pNode, SDraw & rDraw, StyleBlock & rBlk);
-	int    ParsePrimitivs(const xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & rTempScan);
+	int    ParsePrimitivs(const xmlNode * pParentNode, const StrAssocArray & rParentAttrList, SDrawGroup & rGroup, SStrScan & rTempScan);
 	int    GetViewPortAttr(const StrAssocArray & rAttrList, SViewPort & rVp);
 
 	SColor CurColor;
@@ -165,7 +172,7 @@ SSvg::CommonFigAttr::CommonFigAttr() : SSvg::StyleBlock(), P_Mtx(0)
 void SSvg::CommonFigAttr::Init()
 {
 	StyleBlock::Init();
-	Sid = 0;
+	Sid.Z();
 	P_Mtx = 0;
 	Mtx.InitUnit();
 }
@@ -177,6 +184,36 @@ SSvg::SSvg() : TTab(1024, 0), P_Result(0), LastOwnSymbNo(0), ReScpNumber(0)
 
 SSvg::~SSvg()
 {
+}
+
+int SSvg::ApplyParentAttrList(const StrAssocArray & rParentList, StrAssocArray & rCurrentList) // @v12.6.0
+{
+	/*
+		fill*, stroke*, color, fill-opacity*, stroke-opacity*, opacity*,
+		stroke-width*, stroke-linecap*, stroke-linejoin*, stroke-dasharray*, font-*, text-anchor, visibility, display
+
+		tFill, tFillOpacity, tStroke, tStrokeOpacity, tStrokeLineCap, tStrokeLineJoin, tStrokeWidth, tStrokeDashArray, tOpacity
+	};
+	*/ 
+	int    ok = -1;
+	const  long inh_attr_list[] = { tFill, tFillOpacity, tStroke, tStrokeOpacity, tStrokeLineCap, tStrokeLineJoin, tStrokeWidth, tStrokeDashArray, tOpacity };
+	for(uint i = 0; i < rParentList.getCount(); i++) {
+		StrAssocArray::Item parent_item = rParentList.at_WithoutParent(i);
+		bool    is_inh = false;
+		for(uint j = 0; !is_inh && j < SIZEOFARRAY(inh_attr_list); j++) {
+			if(inh_attr_list[j] == parent_item.Id)
+				is_inh = true;
+		}
+		if(is_inh) {
+			uint   cpos = 0;
+			if(!rCurrentList.Search(parent_item.Id, &cpos)) {
+				THROW(rCurrentList.AddFast(parent_item.Id, parent_item.Txt));
+				ok = 1;
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
 }
 
 int SSvg::GetAttr(const xmlNode * pNode, const char * pAttr, SString & rVal)
@@ -200,7 +237,7 @@ int SSvg::GetAttrList(const xmlNode * pNode, StrAssocArray & rList)
 	if(pNode && pNode->type == XML_ELEMENT_NODE) {
 		xmlAttr * p_prop = pNode->properties;
 		for(xmlAttr * p_prop = pNode->properties; p_prop; p_prop = p_prop->next) {
-			int    token = GetToken(reinterpret_cast<const char *>(p_prop->name));
+			const  int token = GetToken(reinterpret_cast<const char *>(p_prop->name));
 			if(token) {
 				if(p_prop->type == XML_ATTRIBUTE_NODE) {
 					if(p_prop->children) {
@@ -453,9 +490,9 @@ int SSvg::ProcessStyleItem(int token, const SString & rVal, StyleBlock & rBlk)
 			break;
 		case tStrokeLineJoin:
 			switch(GetToken(rVal)) {
-				case tMiter: rBlk.Pen.LineCap = SPaintObj::ljMiter; break;
-				case tRound: rBlk.Pen.LineCap = SPaintObj::ljRound; break;
-				case tBevel: rBlk.Pen.LineCap = SPaintObj::ljBevel; break;
+				case tMiter: rBlk.Pen.Join = SPaintObj::ljMiter; break; // @v12.6.0 @fix rBlk.Pen.LineCap-->rBlk.Pen.Join
+				case tRound: rBlk.Pen.Join = SPaintObj::ljRound; break; // @v12.6.0 @fix rBlk.Pen.LineCap-->rBlk.Pen.Join
+				case tBevel: rBlk.Pen.Join = SPaintObj::ljBevel; break; // @v12.6.0 @fix rBlk.Pen.LineCap-->rBlk.Pen.Join
 			}
 			break;
 		case tStrokeMiterLimit:
@@ -613,7 +650,7 @@ int SSvg::_GetCommonFigAttrAndInsert(const StrAssocArray & rAttrList, CommonFigA
 	return ok;
 }
 
-int SSvg::ParsePrimitivs(const xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & rTempScan)
+int SSvg::ParsePrimitivs(const xmlNode * pParentNode, const StrAssocArray & rParentAttrList, SDrawGroup & rGroup, SStrScan & rTempScan)
 {
 	int    ok = 1;
 	StrAssocArray attr_list;
@@ -623,16 +660,17 @@ int SSvg::ParsePrimitivs(const xmlNode * pParentNode, SDrawGroup & rGroup, SStrS
 	StringSet ss_style;
 	SPaintToolBox * p_tb = P_Result ? P_Result->GetToolBox() : 0;
 	for(const xmlNode * p_node = pParentNode->children; p_node != 0; p_node = p_node->next) {
-		int    token = (p_node->type == XML_ELEMENT_NODE) ? GetToken(reinterpret_cast<const char *>(p_node->name)) : 0;
+		const  int token = (p_node->type == XML_ELEMENT_NODE) ? GetToken(reinterpret_cast<const char *>(p_node->name)) : 0;
 		uint32 coord_ready = 0;
 		switch(token) {
-			case tSymbol: // @v10.4.5
+			case tSymbol:
 				{
 					SDrawGroup * p_group = new SDrawGroup(0, SDrawGroup::dgtSymbol);
 					THROW_S(p_group, SLERR_NOMEM);
 					GetAttrList(p_node, attr_list);
+					ApplyParentAttrList(rParentAttrList, attr_list); // @v12.6.0
 					THROW(_GetCommonFigAttrAndInsert(attr_list, cfa, p_group, &rGroup));
-					ParsePrimitivs(p_node, *p_group, rTempScan); // @recursion
+					ParsePrimitivs(p_node, attr_list, *p_group, rTempScan); // @recursion
 				}
 				break;
 			case tGroup:
@@ -640,8 +678,9 @@ int SSvg::ParsePrimitivs(const xmlNode * pParentNode, SDrawGroup & rGroup, SStrS
 					SDrawGroup * p_group = new SDrawGroup;
 					THROW_S(p_group, SLERR_NOMEM);
 					GetAttrList(p_node, attr_list);
+					ApplyParentAttrList(rParentAttrList, attr_list); // @v12.6.0
 					THROW(_GetCommonFigAttrAndInsert(attr_list, cfa, p_group, &rGroup));
-					ParsePrimitivs(p_node, *p_group, rTempScan); // @recursion
+					ParsePrimitivs(p_node, attr_list, *p_group, rTempScan); // @recursion
 				}
 				break;
 			case tPath:
@@ -649,6 +688,7 @@ int SSvg::ParsePrimitivs(const xmlNode * pParentNode, SDrawGroup & rGroup, SStrS
 					SDrawPath * p_path = new SDrawPath;
 					THROW_S(p_path, SLERR_NOMEM);
 					GetAttrList(p_node, attr_list);
+					ApplyParentAttrList(rParentAttrList, attr_list); // @v12.6.0
 					if(attr_list.GetText(tD, temp_buf) > 0)
 						p_path->FromStr(temp_buf, SDrawPath::fmtSVG);
 					THROW(_GetCommonFigAttrAndInsert(attr_list, cfa, p_path, &rGroup));
@@ -658,6 +698,7 @@ int SSvg::ParsePrimitivs(const xmlNode * pParentNode, SDrawGroup & rGroup, SStrS
 				{
 					FShape::Line line;
 					GetAttrList(p_node, attr_list);
+					ApplyParentAttrList(rParentAttrList, attr_list); // @v12.6.0
 					for(uint i = 0; i < attr_list.getCount(); i++) {
 						StrAssocArray::Item item = attr_list.Get(i);
 						if(item.Id == tX1) {
@@ -693,6 +734,7 @@ int SSvg::ParsePrimitivs(const xmlNode * pParentNode, SDrawGroup & rGroup, SStrS
 					float width = 0.0f;
 					SPoint2F vr;
 					GetAttrList(p_node, attr_list);
+					// ApplyParentAttrList(rParentAttrList, attr_list); // @v12.6.0
 					for(uint i = 0; i < attr_list.getCount(); i++) {
 						StrAssocArray::Item item = attr_list.Get(i);
 						switch(item.Id) {
@@ -747,6 +789,7 @@ int SSvg::ParsePrimitivs(const xmlNode * pParentNode, SDrawGroup & rGroup, SStrS
 				{
 					FShape::Circle circle;
 					GetAttrList(p_node, attr_list);
+					ApplyParentAttrList(rParentAttrList, attr_list); // @v12.6.0
 					for(uint i = 0; i < attr_list.getCount(); i++) {
 						StrAssocArray::Item item = attr_list.Get(i);
 						if(item.Id == tCx) {
@@ -773,6 +816,7 @@ int SSvg::ParsePrimitivs(const xmlNode * pParentNode, SDrawGroup & rGroup, SStrS
 				{
 					FShape::Ellipse ellipse;
 					GetAttrList(p_node, attr_list);
+					ApplyParentAttrList(rParentAttrList, attr_list); // @v12.6.0
 					for(uint i = 0; i < attr_list.getCount(); i++) {
 						StrAssocArray::Item item = attr_list.Get(i);
 						if(item.Id == tCx) {
@@ -803,6 +847,7 @@ int SSvg::ParsePrimitivs(const xmlNode * pParentNode, SDrawGroup & rGroup, SStrS
 				{
 					FShape::Polygon polygon;
 					GetAttrList(p_node, attr_list);
+					ApplyParentAttrList(rParentAttrList, attr_list); // @v12.6.0
 					if(attr_list.GetText(tPoints, temp_buf) > 0) {
 						if(_GetPoints(rTempScan, temp_buf, polygon))
 							coord_ready |= 0x0001;
@@ -821,6 +866,7 @@ int SSvg::ParsePrimitivs(const xmlNode * pParentNode, SDrawGroup & rGroup, SStrS
 				{
 					FShape::Polyline polyline;
 					GetAttrList(p_node, attr_list);
+					ApplyParentAttrList(rParentAttrList, attr_list); // @v12.6.0
 					if(attr_list.GetText(tPoints, temp_buf) > 0) {
 						if(_GetPoints(rTempScan, temp_buf, polyline))
 							coord_ready |= 0x0001;
@@ -836,26 +882,27 @@ int SSvg::ParsePrimitivs(const xmlNode * pParentNode, SDrawGroup & rGroup, SStrS
 				}
 				break;
 			case tDefs:
-				ParsePrimitivs(p_node, rGroup, rTempScan); // @recursion
+				ParsePrimitivs(p_node, rParentAttrList, rGroup, rTempScan); // @recursion // @v12.6.0 @fixme замечание от LLM: Содержимое <defs> не должно рендериться напрямую — это только определения для последующего использования через <use>. Сейчас они добавляются в текущую группу и будут отрисованы.
 				break;
-			case tUse: // @v10.4.5
+			case tUse:
 				{
 					SDrawRef * p_ref = new SDrawRef;
 					SPoint2F sz;
 					GetAttrList(p_node, attr_list);
+					ApplyParentAttrList(rParentAttrList, attr_list); // @v12.6.0
 					if(attr_list.GetText(tHRef, temp_buf)) {
 						p_ref->Ref = temp_buf.Strip();
 					}
-					else if(attr_list.GetText(tX, temp_buf)) {
+					if(attr_list.GetText(tX, temp_buf)) { // @v12.6.0 @fix else if-->if
 						p_ref->Origin.x = temp_buf.ToFloat();
 					}
-					else if(attr_list.GetText(tY, temp_buf)) {
+					if(attr_list.GetText(tY, temp_buf)) { // @v12.6.0 @fix else if-->if
 						p_ref->Origin.y = temp_buf.ToFloat();
 					}
-					/*else if(attr_list.GetText(tWidth, temp_buf)) {
+					/*if(attr_list.GetText(tWidth, temp_buf)) { // @v12.6.0 @fix else if-->if
 						sz.x = temp_buf.ToFloat();
 					}
-					else if(attr_list.GetText(tHeight, temp_buf)) {
+					if(attr_list.GetText(tHeight, temp_buf)) { // @v12.6.0 @fix else if-->if
 						sz.y = temp_buf.ToFloat();
 					}*/
 					p_ref->SetSize(sz);
@@ -873,6 +920,7 @@ int SSvg::ParsePrimitivs(const xmlNode * pParentNode, SDrawGroup & rGroup, SStrS
 					int    units = 0;
 					const  SPaintObj::Gradient * p_prototype = 0;
 					GetAttrList(p_node, attr_list);
+					ApplyParentAttrList(rParentAttrList, attr_list); // @v12.6.0
 					if(attr_list.GetText(tGradientUnits, temp_buf)) {
 						if(temp_buf == "userSpaceOnUse")
 							units = SPaintObj::Gradient::uUserSpace;
@@ -882,8 +930,7 @@ int SSvg::ParsePrimitivs(const xmlNode * pParentNode, SDrawGroup & rGroup, SStrS
 							; // @error
 						}
 					}
-					SPaintObj::Gradient gradient(((token == tLinearGradient) ?
-						SPaintObj::Gradient::kLinear : SPaintObj::Gradient::kRadial), units);
+					SPaintObj::Gradient gradient(((token == tLinearGradient) ? SPaintObj::Gradient::kLinear : SPaintObj::Gradient::kRadial), units);
 					if(attr_list.GetText(tId, temp_buf))
 						sid = temp_buf;
 					if(attr_list.GetText(tHRef, temp_buf)) {
@@ -1016,7 +1063,7 @@ int SSvg::ParsePrimitivs(const xmlNode * pParentNode, SDrawGroup & rGroup, SStrS
 					// Сохраняем градиент
 					//
 					if(p_tb) {
-						int ident = p_tb->CreateDynIdent(MakePaintObjSymb(sid.Strip()));
+						const  int ident = p_tb->CreateDynIdent(MakePaintObjSymb(sid.Strip()));
 						if(ident) {
 							SPaintObj * p_obj = p_tb->CreateObj(ident);
 							CALLPTRMEMB(p_obj, CreateGradient(&gradient));
@@ -1070,13 +1117,12 @@ int SSvg::ParseFile(const char * pFileName, SDraw & rResult)
 		StrAssocArray attr_list;
 		SStrScan temp_scan;
 		THROW(p_doc = xmlReadFile(pFileName, NULL, options));
-		xmlNode * p_node = 0;
 		xmlNode * p_root = xmlDocGetRootElement(p_doc);
 		THROW(p_root);
 		P_Result = &rResult;
-		for(p_node = p_root; p_node; p_node = p_node->next) {
+		for(const xmlNode * p_node = p_root; p_node; p_node = p_node->next) {
 			if(sstreqi_ascii(reinterpret_cast<const char *>(p_node->name), "svg")) {
-				GetAttrList(p_node, attr_list);
+				GetAttrList(p_node, attr_list); // root svg 
 				{
 					SPoint2F sz;
 					if(attr_list.GetText(tWidth, temp_buf)) {
@@ -1092,7 +1138,7 @@ int SSvg::ParseFile(const char * pFileName, SDraw & rResult)
 					GetViewPortAttr(attr_list, vp);
 					rResult.SetViewPort(&vp);
 				}
-				ParsePrimitivs(p_node, rResult, temp_scan);
+				ParsePrimitivs(p_node, attr_list, rResult, temp_scan);
 			}
 		}
 	}

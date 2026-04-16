@@ -1,5 +1,5 @@
 // V_BBOARD.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
+// Copyright (c) A.Starodub 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -141,7 +141,7 @@ int PPViewServerStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 			const void * p_cr = p_def->getRow(cp);
 			const long tid = p_cr ? *static_cast<const long *>(p_cr) : 0;
 			p_def->setArray(new SArray(Data), 0, 1);
-			if(!p_def->search2(&tid, CMPF_LONG, srchFirst, 0))
+			if(!p_def->search2(&tid, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/))
 				p_def->top();
 		}
 		ok = 1;

@@ -198,63 +198,76 @@ PPStyloPalm2 & PPStyloPalm2::Z()
 	return *this;
 }
 
-PPStyloPalmPacket::PPStyloPalmPacket() : P_Path(0), P_FTPPath(0)
+PPStyloPalmPacket::PPStyloPalmPacket() /*: P_Path(0), P_FTPPath(0)*/
 {
 }
 
 PPStyloPalmPacket::~PPStyloPalmPacket()
 {
-	ZDELETE(P_Path);
-	ZDELETE(P_FTPPath);
+	//ZDELETE(P_Path);
+	//ZDELETE(P_FTPPath);
 }
 
 PPStyloPalmPacket & PPStyloPalmPacket::Z()
 {
 	Rec.Z();
-	ZDELETE(P_Path);
-	ZDELETE(P_FTPPath);
+	//ZDELETE(P_Path);
+	//ZDELETE(P_FTPPath);
+	XcPath.Z();
+	XcFtpPath.Z();
 	LocList.Set(0);
 	QkList__.Set(0);
 	return *this;
 }
 
-PPStyloPalmPacket & FASTCALL PPStyloPalmPacket::operator = (const PPStyloPalmPacket & s)
+PPStyloPalmPacket & FASTCALL PPStyloPalmPacket::operator = (const PPStyloPalmPacket & rS)
 {
-	ZDELETE(P_Path);
-	ZDELETE(P_FTPPath);
-	Rec = s.Rec;
-	if(s.P_Path)
-		P_Path = newStr(s.P_Path);
-	if(s.P_FTPPath)
-		P_FTPPath = newStr(s.P_FTPPath);
-	LocList = s.LocList;
-	QkList__ = s.QkList__;
+	//ZDELETE(P_Path);
+	//ZDELETE(P_FTPPath);
+	Rec = rS.Rec;
+	XcPath = rS.XcPath;
+	XcFtpPath = rS.XcFtpPath;
+	//if(rS.P_Path)
+		//P_Path = newStr(rS.P_Path);
+	//if(s.P_FTPPath)
+		//P_FTPPath = newStr(rS.P_FTPPath);
+	LocList = rS.LocList;
+	QkList__ = rS.QkList__;
 	return *this;
 }
 
 void PPStyloPalmPacket::Setup()
 {
-	if(P_Path && *strip(P_Path) == 0)
-		ZDELETE(P_Path);
-	if(P_FTPPath && *strip(P_FTPPath) == 0)
-		ZDELETE(P_FTPPath);
+	//if(P_Path && *strip(P_Path) == 0)
+		//ZDELETE(P_Path);
+	//if(P_FTPPath && *strip(P_FTPPath) == 0)
+		//ZDELETE(P_FTPPath);
 }
 
 int PPStyloPalmPacket::MakePath(const char * pSuffix, SString & rBuf) const
 {
-	rBuf = P_Path;
+	int    ok = 0;
+	//rBuf = P_Path;
+	rBuf = XcPath;
+	DS.ConvertPathToUnc(rBuf); // @v12.6.0
 	if(rBuf.NotEmptyS()) {
 		if(pSuffix)
 			rBuf.SetLastSlash().Cat(pSuffix);
 		SFile::CreateDir(rBuf);
-		return 1;
+		ok = 1;
 	}
-	else
-		return 0;
+	return ok;
 }
 
-int PPStyloPalmPacket::MakeOutputPath(SString & rBuf) const { return MakePath("IN", rBuf); }
-int PPStyloPalmPacket::MakeInputPath(SString & rBuf) const { return (Rec.Flags & PLMF_ANDROID) ? MakePath(0, rBuf) : MakePath("OUT", rBuf); }
+int PPStyloPalmPacket::MakeOutputPath(SString & rBuf) const 
+{ 
+	return MakePath("IN", rBuf); 
+}
+
+int PPStyloPalmPacket::MakeInputPath(SString & rBuf) const 
+{ 
+	return (Rec.Flags & PLMF_ANDROID) ? MakePath(0, rBuf) : MakePath("OUT", rBuf); 
+}
 //
 //
 //
@@ -547,8 +560,8 @@ public:
 			}
 			disableCtrl(CTLSEL_PALM_INHBTAGVAL, disable_inhtagval);
 		}
-		setCtrlString(CTL_PALM_PATH, temp_buf = Data.P_Path);
-		setCtrlString(CTL_PALM_FTPPATH, temp_buf = Data.P_FTPPath);
+		setCtrlString(CTL_PALM_PATH, /*temp_buf = Data.P_Path*/Data.XcPath);
+		setCtrlString(CTL_PALM_FTPPATH, /*temp_buf = Data.P_FTPPath*/Data.XcFtpPath);
 		setCtrlData(CTL_PALM_MAXNOTSENTORD, &Data.Rec.MaxUnsentOrders);
 		setCtrlData(CTL_PALM_MAXSENTDAYS, &Data.Rec.TransfDaysAgo);
 		AddClusterAssoc(CTL_PALM_FLAGS, 0, PLMF_INHFLAGS);
@@ -637,15 +650,17 @@ public:
 		getCtrlString(CTL_PALM_PATH,     path);
 		getCtrlData(CTL_PALM_MAXNOTSENTORD, &Data.Rec.MaxUnsentOrders);
 		getCtrlData(CTL_PALM_MAXSENTDAYS, &Data.Rec.TransfDaysAgo);
-		ZDELETE(Data.P_Path);
-		if(path.NotEmptyS()) {
-			THROW_MEM(Data.P_Path = newStr(path));
-		}
+		Data.XcPath = path;
+		//ZDELETE(Data.P_Path);
+		//if(path.NotEmptyS()) {
+			//THROW_MEM(Data.P_Path = newStr(path));
+		//}
 		getCtrlString(CTL_PALM_FTPPATH,  path);
-		ZDELETE(Data.P_FTPPath);
-		if(path.NotEmptyS()) {
-			THROW_MEM(Data.P_FTPPath = newStr(path));
-		}
+		Data.XcFtpPath = path;
+		//ZDELETE(Data.P_FTPPath);
+		//if(path.NotEmptyS()) {
+			//THROW_MEM(Data.P_FTPPath = newStr(path));
+		//}
 		GetClusterData(CTL_PALM_FLAGS, &Data.Rec.Flags);
 		if(!(Data.Rec.Flags & PLMF_GENERIC)) {
 			GetClusterData(CTL_PALM_REGISTERED, &Data.Rec.Flags);
@@ -809,8 +824,8 @@ int PPObjStyloPalm::PutPacket(PPID * pID, PPStyloPalmPacket * pPack, int use_ta)
 			THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
 		}
 		if(ok > 0) {
-			THROW(P_Ref->PutPropVlrString(Obj, *pID, PLMPRP_PATH, pPack ? pPack->P_Path : 0));
-			THROW(P_Ref->PutPropVlrString(Obj, *pID, PLMPRP_FTPPATH, pPack ? pPack->P_FTPPath : 0));
+			THROW(P_Ref->PutPropVlrString(Obj, *pID, PLMPRP_PATH, pPack ? pPack->XcPath.cptr()/*P_Path*/ : 0));
+			THROW(P_Ref->PutPropVlrString(Obj, *pID, PLMPRP_FTPPATH, pPack ? pPack->XcFtpPath.cptr()/*P_FTPPath*/ : 0));
 			THROW(P_Ref->PutPropArray(Obj, *pID, PLMPRP_LOCLIST, pPack ? &pPack->LocList.Get() : 0, 0));
 			THROW(P_Ref->PutPropArray(Obj, *pID, PLMPRP_QUOTKINDLIST, pPack ? &pPack->QkList__.Get() : 0, 0));
 		}
@@ -840,24 +855,27 @@ int PPObjStyloPalm::Helper_GetPacket(PPID id, PPStyloPalmPacket * pPack, PPIDArr
 {
 	int    ok = -1;
 	PPIDArray inner_stack;
-	ZDELETE(pPack->P_Path);
-	ZDELETE(pPack->P_FTPPath);
+	//ZDELETE(pPack->P_Path);
+	//ZDELETE(pPack->P_FTPPath);
+	pPack->XcPath.Z();
+	pPack->XcFtpPath.Z();
 	pPack->LocList.Set(0);
 	if(Search(id, &pPack->Rec) > 0) {
 		SString path;
 		THROW(P_Ref->GetPropVlrString(Obj, id, PLMPRP_PATH, path));
 		THROW(GetLocList(id, pPack->LocList));
 		THROW(GetQuotKindList(id, pPack->QkList__));
-		THROW_MEM(pPack->P_Path = newStr(path));
+		//THROW_MEM(pPack->P_Path = newStr(path));
+		pPack->XcPath = path;
 		THROW(P_Ref->GetPropVlrString(Obj, id, PLMPRP_FTPPATH, path));
-		THROW_MEM(pPack->P_FTPPath = newStr(path));
+		//THROW_MEM(pPack->P_FTPPath = newStr(path));
+		pPack->XcFtpPath = path;
 		if(pPack->Rec.GroupID) {
 			PPStyloPalmPacket group_pack;
 			SETIFZ(pStack, &inner_stack);
 			if(pStack->addUnique(pPack->Rec.GroupID) < 0) {
 				//
-				// Не завершаем функцию, дабы не смотря на рекурсию она могла работать.
-				// В журнале pperror.log появится информация о проблеме.
+				// Не завершаем функцию, дабы не смотря на рекурсию она могла работать. В журнале pperror.log появится информация о проблеме.
 				//
 				PPSetError(PPERR_STYLOPALMCYCLE, pPack->Rec.Name);
 				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
@@ -1952,7 +1970,7 @@ static int DeleteImportFile(int fileID, const char * pFileName, const char * pEx
 static int DeleteImportFiles(const PPStyloPalmPacket * pPack)
 {
 	int    ok = 1;
-	if(pPack->P_Path) {
+	if(/*pPack->P_Path*/pPack->XcPath.NotEmpty()) {
 		const bool is_android = LOGIC(pPack->Rec.Flags & PLMF_ANDROID);
 		SString input_path;
 		SString file_name;
@@ -1964,7 +1982,7 @@ static int DeleteImportFiles(const PPStyloPalmPacket * pPack)
 			GetImportFileList(is_android, input_path, 0, &file_list, 0);
 			for(uint i = 0; i < file_list.getCount(); i++) {
 				file_name = file_list.Get(i).Txt;
-				if(file_name.CmpSuffix("in.xml", 1) != 0) { // @v11.1.1 @fix не следует удалять этот файл - он входящий для устройства
+				if(file_name.CmpSuffix("in.xml", 1) != 0) { // Не следует удалять этот файл - он входящий для устройства
 					(path_ = input_path).SetLastSlash().Cat(file_name.Strip());
 					SFile::Remove(path_);
 				}
@@ -2060,7 +2078,8 @@ static int CopyFilesToFTP(const PPStyloPalmPacket * pPack, WinInetFTP * pFtp, in
 {
 	int    ok = 1;
 	int    put_to_log = 0;
-	if(pFtp && !isempty(pPack->P_Path) && !isempty(pPack->P_FTPPath)) {
+	//if(pFtp && !isempty(pPack->P_Path) && !isempty(pPack->P_FTPPath)) {
+	if(pFtp && pPack->XcPath.NotEmpty() && pPack->XcFtpPath.NotEmpty()) {
 		int    r = 0;
 		const  bool is_android = LOGIC(pPack->Rec.Flags & PLMF_ANDROID);
 		SString ftp_path;
@@ -2069,7 +2088,8 @@ static int CopyFilesToFTP(const PPStyloPalmPacket * pPack, WinInetFTP * pFtp, in
 		SString start_msg;
 		SString fname;
 		StrAssocArray file_list;
-		(ftp_path = pPack->P_FTPPath).SetLastSlash();
+		//(ftp_path = pPack->P_FTPPath).SetLastSlash();
+		(ftp_path = pPack->XcFtpPath).SetLastSlash();
 		if(is_android)
 			pPack->MakePath(0, path);
 		else {
@@ -2218,7 +2238,8 @@ static int CopyFilesToFTP(const PPStyloPalmPacket * pPack, WinInetFTP * pFtp, in
 		}
 		if(delAfterCopy) {
 			SString spready_ftp_path;
-			(spready_ftp_path = pPack->P_FTPPath).SetLastSlash();
+			//(spready_ftp_path = pPack->P_FTPPath).SetLastSlash();
+			(spready_ftp_path = pPack->XcFtpPath).SetLastSlash();
 			if(!is_android)
 				spready_ftp_path.Cat("OUT").SetLastSlash();
 			ftp_path = spready_ftp_path;
@@ -2292,14 +2313,13 @@ int PPObjStyloPalm::IsPacketEq(const PPStyloPalmPacket & rS1, const PPStyloPalmP
 	else if(!rS1.QkList__.IsEq(rS2.QkList__))
 		return 0;
 	else {
-		SString temp_buf1, temp_buf2;
-		temp_buf1 = rS1.P_FTPPath;
-		temp_buf2 = rS2.P_FTPPath;
+		SString temp_buf1(rS1.XcFtpPath/*P_FTPPath*/);
+		SString temp_buf2(rS2.XcFtpPath/*P_FTPPath*/);
 		if(temp_buf1 != temp_buf2)
 			return 0;
 		else {
-			temp_buf1 = rS1.P_Path;
-			temp_buf2 = rS2.P_Path;
+			temp_buf1 = rS1.XcPath/*P_Path*/;
+			temp_buf2 = rS2.XcPath/*P_Path*/;
 			if(temp_buf1 != temp_buf2)
 				return 0;
 		}
@@ -2417,7 +2437,7 @@ int PPObjStyloPalm::ImportData(PPID id, PPID opID, PPID locID, PPLogger * pLogge
 	//
 	for(i = 0; i < palm_id_list.getCount(); i++) {
 		PPStyloPalmPacket palm_pack;
-		if(GetPacket(palm_id_list.at(i), &palm_pack) > 0 && sstrlen(palm_pack.P_Path)) {
+		if(GetPacket(palm_id_list.at(i), &palm_pack) > 0 && palm_pack.XcPath.NotEmpty()/*sstrlen(palm_pack.P_Path)*/) {
 			if(palm_pack.MakeInputPath(path))
 				ClearInputSemaphore(path);
 		}
@@ -3866,7 +3886,8 @@ int PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 		THROW(GetChildList(rParam.PalmID, palm_list));
 		for(i = 0; i < palm_list.getCount(); i++) {
 			THROW(GetPacket(palm_list.at(i), &palm_pack) > 0);
-			if(!isempty(palm_pack.P_Path)) {
+			//if(!isempty(palm_pack.P_Path)) {
+			if(palm_pack.XcPath.NotEmpty()) {
 				const long dvc_flags = dont_prepare_debt_data ? (palm_pack.Rec.Flags & ~PLMF_EXPCLIDEBT) : palm_pack.Rec.Flags;
 				PalmCfgItem * p_cfg_item__ = new PalmCfgItem;
 				THROW(andr_devs.Add(&palm_pack)); // Инициализируем writer для андроид устройств
@@ -4250,12 +4271,15 @@ private:
 			}
 			PPSetAddedMsgString(ftp_add_errmsg);
 			THROW_PP(import_from_ftp_ok, ftp_err_code);
-			if(data.Flags & PalmPaneData::fUpdateData)
+			if(data.Flags & PalmPaneData::fUpdateData) {
 				THROW(palm_obj.ExportData(data));
-			if(data.Flags & PalmPaneData::fExportFTP)
+			}
+			if(data.Flags & PalmPaneData::fExportFTP) {
 				THROW(palm_obj.CopyToFTP(data.PalmID, BIN(data.Flags & PalmPaneData::fDelImpData), &logger));
-			if(do_remove_imp_data)
+			}
+			if(do_remove_imp_data) {
 				THROW(palm_obj.DeleteImportData(data.PalmID));
+			}
 			PPWaitStop();
 		}
 	}

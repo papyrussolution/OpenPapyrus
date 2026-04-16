@@ -4919,7 +4919,7 @@ PPID PPMarketplaceInterface_Wildberries::CreateReceipt(int64 incomeId, const War
 	double adj_price = 0.0;
 	SString bill_code;
 	SString serial_buf;
-	PPBillPacket::SetupObjectBlock sob_unused;
+	PPBillPacket::SetupObjectBlock sob_unused(SConstructorLite);
 	PPBillPacket pack;
 	THROW(incomeId); // @todo @err
 	THROW(rcpt_op_id); // @todo @err
@@ -5286,7 +5286,7 @@ PPID PPMarketplaceInterface_Wildberries::AdjustReceiptOnExpend(
 							pack.Rec.Dt = dt;
 							STRNSCPY(pack.Rec.Code, bill_code);
 							{
-								PPBillPacket::SetupObjectBlock sob_unused;
+								PPBillPacket::SetupObjectBlock sob_unused(SConstructorLite);
 								THROW(pack.SetupObject(ar_id, sob_unused));
 							}
 							{
@@ -5533,7 +5533,7 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 								pack.Rec.Dt = ValidDateOr(p_wb_item->Dtm.d, getcurdate_());
 								STRNSCPY(pack.Rec.Code, bill_code);
 								if(ar_id) {
-									PPBillPacket::SetupObjectBlock sob_unused;
+									PPBillPacket::SetupObjectBlock sob_unused(SConstructorLite);
 									pack.SetupObject(ar_id, sob_unused);
 								}
 								ReceiptTbl::Rec lot_rec;
@@ -5592,7 +5592,7 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 							pack.Rec.Dt = ValidDateOr(p_wb_item->Dtm.d, getcurdate_());
 							STRNSCPY(pack.Rec.Code, bill_code);
 							if(ar_id) {
-								PPBillPacket::SetupObjectBlock sob_unused;
+								PPBillPacket::SetupObjectBlock sob_unused(SConstructorLite);
 								pack.SetupObject(ar_id, sob_unused);
 							}
 							//
@@ -5807,7 +5807,7 @@ int PPMarketplaceInterface_Wildberries::ImportOrders()
 								pack.Rec.Dt = ValidDateOr(p_wb_item->Dtm.d, getcurdate_());
 								STRNSCPY(pack.Rec.Code, bill_code);
 								if(ar_id) {
-									PPBillPacket::SetupObjectBlock sob_unused;
+									PPBillPacket::SetupObjectBlock sob_unused(SConstructorLite);
 									pack.SetupObject(ar_id, sob_unused);
 								}
 								//
@@ -6387,7 +6387,7 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 															pack.Rec.Dt = bill_date;
 															STRNSCPY(pack.Rec.Code, bill_code);
 															if(mp_ar_id) {
-																PPBillPacket::SetupObjectBlock sob_unused;
+																PPBillPacket::SetupObjectBlock sob_unused(SConstructorLite);
 																pack.SetupObject(mp_ar_id, sob_unused);
 															}
 															{

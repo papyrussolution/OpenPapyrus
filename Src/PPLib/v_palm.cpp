@@ -87,10 +87,12 @@ TempPalmTbl::Rec & PPViewPalm::MakeTempEntry(const PPStyloPalmPacket & rPack, Te
 	rTempRec.Flags      = rPack.Rec.Flags;
 	rTempRec.GroupID    = rPack.Rec.GroupID;
 	rTempRec.AgentID    = rPack.Rec.AgentID;
-	if(rPack.P_Path)
-		STRNSCPY(rTempRec.Path, rPack.P_Path);
-	if(rPack.P_FTPPath)
-		STRNSCPY(rTempRec.FtpPath, rPack.P_FTPPath);
+	//if(rPack.P_Path)
+		//STRNSCPY(rTempRec.Path, rPack.P_Path);
+	STRNSCPY(rTempRec.Path, rPack.XcPath);
+	//if(rPack.P_FTPPath)
+		//STRNSCPY(rTempRec.FtpPath, rPack.P_FTPPath);
+	STRNSCPY(rTempRec.FtpPath, rPack.XcFtpPath);
 	if(rPack.LocList.GetCount() == 1) {
 		rTempRec.LocID = rPack.LocList.Get(0);
 	}
@@ -238,8 +240,8 @@ int FASTCALL PPViewPalm::NextIteration(PalmViewItem * pItem)
 				PPStyloPalmPacket pack;
 				if(ObjPalm.GetPacket(P_TempTbl->data.ID, &pack) > 0) {
 					*static_cast<PPStyloPalm *>(pItem) = pack.Rec;
-					STRNSCPY(pItem->Path, pack.P_Path);
-					STRNSCPY(pItem->FtpPath, pack.P_FTPPath);
+					STRNSCPY(pItem->Path, pack.XcPath/*P_Path*/);
+					STRNSCPY(pItem->FtpPath, pack.XcFtpPath/*P_FTPPath*/);
 					ok = 1;
 				}
 			}

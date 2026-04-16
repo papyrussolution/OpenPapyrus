@@ -2884,6 +2884,7 @@ private:
 	int    MakeNavList(CentrigoNavBlock & rBlk);
 	int    DoNote(SObjID & rOid);
 	int    DoContacts(const PersonFilt * pFilt);
+	int    DoTasks(const PrjTaskFilt * pFilt);
 	int    HandleInputEnter(const SString & rInput);
 	int    RemoveWorkingPanel();
 	int    DrawNavTreeItem(void * pCustomDrawDescriptor);
@@ -2892,7 +2893,7 @@ private:
 	//
 	PPObjWorkbook WbObj;
 	SUiLayout * P_Lo_NavItem; // really const
-	TSVector <HWND> Children;
+	HWND  H_RecentFocusedChild; // @v12.6.0
 };
 
 int TFacadeWindow::MakeNavList(CentrigoNavBlock & rBlk)
@@ -3051,6 +3052,13 @@ int TFacadeWindow::DoContacts(const PersonFilt * pFilt)
 {
 	int    ok = -1;
 	ok = InsertWorkWindow(PPVIEW_PERSON, pFilt);
+	return ok;
+}
+
+int TFacadeWindow::DoTasks(const PrjTaskFilt * pFilt)
+{
+	int    ok = -1;
+	ok = InsertWorkWindow(PPVIEW_PRJTASK, pFilt);
 	return ok;
 }
 
@@ -3586,15 +3594,12 @@ int TFacadeWindow::DrawNavTreeItem(void * pCustomDrawDescriptor)
 			}
 			return 0;
 		case WM_SETFOCUS:
-			if(!(TView::SGetWindowStyle(hWnd) & WS_CAPTION)) {
-				SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
-				APPL->NotifyFrame(0);
-			}
 			p_view = static_cast<TFacadeWindow *>(TView::GetWindowUserData(hWnd));
+			TWindowBase::Helper_SetFocus(hWnd, p_view);
 			if(p_view) {
-				APPL->SelectTabItem(p_view);
-				TView::messageBroadcast(p_view, cmReceivedFocus);
-				p_view->select();
+				if(p_view->H_RecentFocusedChild && p_view->H_RecentFocusedChild != hWnd) {
+					::SetFocus(p_view->H_RecentFocusedChild);
+				}
 			}
 			break;
 		case WM_KILLFOCUS:
@@ -3640,7 +3645,7 @@ int TFacadeWindow::DrawNavTreeItem(void * pCustomDrawDescriptor)
 	return RegisterClassExW(&wc);
 }
 
-TFacadeWindow::TFacadeWindow() : TBaseBrowserWindow(WndClsName), P_Lo_NavItem(0)
+TFacadeWindow::TFacadeWindow() : TBaseBrowserWindow(WndClsName), P_Lo_NavItem(0), H_RecentFocusedChild(0)
 {
 	BbState |= (bbsWoScrollbars|bbsCtlParent);
 	static bool win_cls_registered = false;
@@ -3658,6 +3663,7 @@ TFacadeWindow::TFacadeWindow() : TBaseBrowserWindow(WndClsName), P_Lo_NavItem(0)
 TFacadeWindow::~TFacadeWindow()
 {
 	ZDELETE(P_Lo_NavItem);
+	H_RecentFocusedChild = 0;
 }
 
 int TFacadeWindow::RemoveWorkingPanel()
@@ -3808,6 +3814,13 @@ IMPL_HANDLE_EVENT(TFacadeWindow)
 			//MouseEvent * p_me = static_cast<MouseEvent *>(TVINFOPTR);
 			;
 		}
+		else if(event.isCmd(cmChildFocusReceived)) { // @v12.6.0
+			TView * p_child = static_cast<TView *>(TVINFOPTR);
+			HWND   h_c = p_child->getHandle();
+			if(h_c && h_c != H()) {
+				H_RecentFocusedChild = h_c;
+			}
+		}
 		/* (тупиковая ветка) else if(event.isCmd(cmCustomDraw)) {
 			NMTVCUSTOMDRAW * p_tv_blk = reinterpret_cast<NMTVCUSTOMDRAW *>(event.message.infoPtr);
 			if(p_tv_blk && p_tv_blk->nmcd.hdr.idFrom == CTL_FACADEWINDOW_NAVPANE) {
@@ -3877,6 +3890,10 @@ IMPL_HANDLE_EVENT(TFacadeWindow)
 											}
 											break;
 										case cmCentrigoToDo:
+											{
+												PrjTaskFilt filt;
+												DoTasks(&filt);
+											}
 											break;
 										case cmCentrigoWallet:
 											break;

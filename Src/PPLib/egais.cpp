@@ -4728,7 +4728,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 							ArObj.P_Tbl->PersonToArticle(P_UtmEntry->MainOrgID, op_rec.AccSheet2ID, &ar2_id);
 						}
 						if(ar_id) {
-							PPBillPacket::SetupObjectBlock sob_unused;
+							PPBillPacket::SetupObjectBlock sob_unused(SConstructorLite);
 							p_bp->SetupObject(ar_id, sob_unused);
 						}
 						if(ar2_id) { // @seeabove
@@ -4779,7 +4779,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 							ArObj.P_Tbl->PersonToArticle(P_UtmEntry->MainOrgID, op_rec.AccSheet2ID, &ar2_id);
 						}
 						if(ar_id) {
-							PPBillPacket::SetupObjectBlock sob_unused;
+							PPBillPacket::SetupObjectBlock sob_unused(SConstructorLite);
 							p_bp->SetupObject(ar_id, sob_unused);
 							freight.SetupDlvrAddr(dlvr_loc_id);
 						}

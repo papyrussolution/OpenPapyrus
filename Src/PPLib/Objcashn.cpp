@@ -1432,6 +1432,10 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			SetClusterData(CTL_EXTDEV_EGAISMODE, Data.EgaisMode);
 			// @v11.9.12 {
 			SetupPPObjCombo(this, CTLSEL_EXTDEV_CHZNGUA, PPOBJ_GLOBALUSERACC, Data.ChZnGuaID, 0);
+			// @v12.6.0 {
+			AddClusterAssoc(CTL_EXTDEV_CHZNTSPIOT,  0, CASHFX_CHZNTSPIOT);
+			SetClusterData(CTL_EXTDEV_CHZNTSPIOT, Data.ExtFlags);
+			// } @v12.6.0 
 			AddClusterAssocDef(CTL_EXTDEV_CHZNPM, 0, PPSyncCashNode::chznpmDontUse);
 			AddClusterAssoc(CTL_EXTDEV_CHZNPM, 1, PPSyncCashNode::chznpmSoft);
 			AddClusterAssoc(CTL_EXTDEV_CHZNPM, 2, PPSyncCashNode::chznpmStrict);
@@ -1487,6 +1491,7 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			Data.SetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf);
 			Data.EgaisMode = static_cast<int16>(GetClusterData(CTL_EXTDEV_EGAISMODE));
 			getCtrlData(CTLSEL_EXTDEV_CHZNGUA, &Data.ChZnGuaID); // @v11.9.12
+			GetClusterData(CTL_EXTDEV_CHZNTSPIOT, &Data.ExtFlags); // @v12.6.0 
 			Data.ChZnPermissiveMode = static_cast<int16>(GetClusterData(CTL_EXTDEV_CHZNPM)); // @v11.9.12
 			GetClusterData(CTL_EXTDEV_CHKEGMUNIQ, &Data.ExtFlags);
 			getCtrlString(sel = CTL_EXTDEV_DRVVER, temp_buf);

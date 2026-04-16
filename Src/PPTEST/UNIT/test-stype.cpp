@@ -22,7 +22,7 @@ SLTEST_R(SType) // @v12.5.7 @construction
 			char   _max_val[_work_buf_size];
 			uint   max_text_len = 0;
 			while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
-				SETMAX(max_text_len, line_buf.Len());
+				SETMAX(max_text_len, line_buf.Len32());
 			}
 			memzero(_data, sizeof(_data));
 			const  uint _sz = max_text_len+1;
@@ -211,7 +211,7 @@ SLTEST_R(SType) // @v12.5.7 @construction
 			const  uint _prec = 2;
 			const  uint styp = MKSTYPED(S_DEC, _sz, _prec);
 			constexpr size_t _work_buf_size = 64;
-			char   _data[_work_buf_size];
+			//char   _data[_work_buf_size];
 			char   _min_val[_work_buf_size];
 			char   _max_val[_work_buf_size];
 			SLCHECK_NZ(stsize(styp) == _sz);

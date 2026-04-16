@@ -3059,6 +3059,15 @@ int PPObjPerson::GetDlvrLocList(PPID personID, PPIDArray * pList)
 	return r;
 }
 
+int PPObjPerson::GetExtStrings(PPID id, PPExtStrContainer & rContainer) // @v12.6.0 
+{
+	Reference * p_ref(PPRef);
+	SString ext_str_buf;
+	const  int gpvsr = p_ref->GetPropVlrString(Obj, id, PSNPRP_EXTSTRDATA, ext_str_buf);
+	rContainer.SetBuffer(ext_str_buf);
+	return gpvsr;
+}
+
 int PPObjPerson::GetPacket(PPID id, PPPersonPacket * pPack, uint flags)
 {
 	int    ok = 1;
@@ -3092,22 +3101,22 @@ int PPObjPerson::GetPacket(PPID id, PPPersonPacket * pPack, uint flags)
 		THROW(r = p_ref->GetProperty(Obj, id, PSNPRP_CASHIERINFO, &cshr_prop, sizeof(cshr_prop)));
 		if(r > 0) {
 			pPack->CshrInfo.Flags = CIF_CASHIER;
-			STRNSCPY(pPack->CshrInfo.Password, (char *)cshr_prop.Text);
+			STRNSCPY(pPack->CshrInfo.Password, reinterpret_cast<const char *>(cshr_prop.Text));
 			pPack->CshrInfo.Rights = cshr_prop.Val1;
 		}
-		else
-			MEMSZERO(pPack->CshrInfo);
+		else {
+			pPack->CshrInfo.Z();
+		}
 		for(i = 0; i < dlvr_loc_list.getCount(); i++) {
 			if(LocObj.GetPacket(dlvr_loc_list.at(i), &loc_pack) > 0)
 				pPack->AddDlvrLoc(loc_pack);
 		}
 		THROW(P_Tbl->GetELinks(id, pPack->ELA));
 		{
-			SString ext_str_buf;
-			// @v12.5.12 THROW(GetExtName(id, ext_str_buf));
-			// @v12.5.12 pPack->SetExtName(ext_str_buf);
-			const  int gpvsr = p_ref->GetPropVlrString(Obj, id, PSNPRP_EXTSTRDATA, ext_str_buf); // @v12.5.12 
-			pPack->SetBuffer(ext_str_buf); // @v12.5.12 
+			// @v12.6.0 SString ext_str_buf;
+			// @v12.6.0 THROW(GetExtName(id, ext_str_buf));
+			// @v12.6.0 pPack->SetExtName(ext_str_buf);
+			GetExtStrings(id, *pPack); // @v12.6.0
 		}
 		THROW(p_ref->Ot.GetList(Obj, id, &pPack->TagL));
 	}

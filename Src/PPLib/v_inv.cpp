@@ -1421,7 +1421,7 @@ int PPViewInventory::SelectByBarcode(int initChar, PPViewBrowser * pBrw)
 			ok = AddItem(&tidi);
 		}
 		else if(pBrw) {
-			pBrw->search2(&goods_rec.ID, CMPF_LONG, srchFirst, INVDBQ_GOODSIDOFFS);
+			pBrw->search2(&goods_rec.ID, CMPF_LONG, srchFirst, INVDBQ_GOODSIDOFFS, nullptr/*pExtraData*/);
 			ok = 1;
 		}
 	}
@@ -1465,7 +1465,7 @@ int PPViewInventory::SelectByBarcode(int initChar, PPViewBrowser * pBrw)
 				}
 			}
 			else {
-				pBrw->search2(&goods_rec.ID, CMPF_LONG, srchFirst, INVDBQ_GOODSIDOFFS);
+				pBrw->search2(&goods_rec.ID, CMPF_LONG, srchFirst, INVDBQ_GOODSIDOFFS, nullptr/*pExtraData*/);
 				ok = 1;
 			}
 		}

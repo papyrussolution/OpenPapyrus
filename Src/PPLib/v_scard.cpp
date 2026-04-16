@@ -1,5 +1,5 @@
 // V_SCARD.CPP
-// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2448,7 +2448,7 @@ int PPViewSCard::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 			UpdateHtPhone(hdr.ID, -1); // @v12.4.1
 			if(ImplementFlags & implOnAddSetupPos && pBrw) {
 				pBrw->Update();
-				pBrw->search2(&id, CMPF_LONG, srchFirst, 0);
+				pBrw->search2(&id, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/);
 				ok = -1; // pBrw не должен теперь обновлять содержимое таблицы
 			}
 		}

@@ -332,7 +332,7 @@ toolbar export ACCBILL TB_FIRST_TOOLBAR {
 	ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,    "@{accturnsbybill}\tCtrl-A"
 	//BILLSBYORDER     :  kbAltF5,    PPDV_NOICON,          "Продажи по заказу\tAlt-F5"
 	separator
-	CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,            "@{dochangebillstatus}\tCtrl-F6"
+	CHANGESTATUS     :  kbCtrlF6,   PPDV_ROTARY_SWITCH01,   "@{dochangebillstatus}\tCtrl-F6" // @v12.6.0 TBBM_SWITCH-->PPDV_ROTARY_SWITCH01
 	SYSINFO          :  kbCtrlF3,   TBBM_SYSTEMINFO,        "@{dobrowsesysinfobybill}\tCtrl-F3"
 	SYSJ             :  kbCtrlJ,    PPDV_SYSJOURNAL,        "@{dobrowsesjbybill}\tCtrl-J"
 	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,          "@{doupdateflags}\tShift-F3"
@@ -351,10 +351,10 @@ toolbar export ACCBILL TB_FIRST_TOOLBAR {
 	//ATTACHBILLTOORD  :  kbCtrlY,    PPDV_LINK01,        "Привязать документ к заказу\tCtrl-Y"
 	separator
 	TAGS             :  kbF6,       PPDV_TAGS01,          "@{tags}\tF6"
-	TAGSALL          :  kbAltG,     TBBM_TAGSALL,         "@{doupdatetags}\tAlt-G" // @v11.1.9
+	TAGSALL          :  kbAltG,     TBBM_TAGSALL,         "@{doupdatetags}\tAlt-G"
 	separator
 	PRINT            :  kbF7,       PPDV_PRINTER01,       "@{printcurrentdocument}\tF7"
-	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "@{printselectionofdocuments}\tAlt-F7"
+	PRINTLIST        :  kbAltF7,    PPDV_PRINTER_EXCLGREEN01, "@{printselectionofdocuments}\tAlt-F7" // @v12.6.0 TBBM_PRINTLIST-->PPDV_PRINTER_EXCLGREEN01
 	PRINTINFOLIST    :  kbShiftF7,  PPDV_NOICON,          hidden, "@{printselectionofdocumentsinfo}\tShift-F7"
 	POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,        hidden, "@{printcheck_toposregistrar}\tCtrl-Z"
 	PRINTALLBILLS    :  kbCtrlS,    PPDV_NOICON,          hidden,     "@{printeachdoc}\tCtrl-S"
@@ -385,7 +385,7 @@ toolbar export DRAFTBILL TB_FIRST_TOOLBAR {
 	//ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,  "@{accturnsbybill}\tCtrl-A"
 	//BILLSBYORDER     :  kbAltF5,    PPDV_NOICON,          "Продажи по заказу\tAlt-F5"
 	separator
-	CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "@{dochangebillstatus}\tCtrl-F6"
+	CHANGESTATUS     :  kbCtrlF6,   PPDV_ROTARY_SWITCH01, "@{dochangebillstatus}\tCtrl-F6" // @v12.6.0 TBBM_SWITCH-->PPDV_ROTARY_SWITCH01
 	SYSINFO          :  kbCtrlF3,   TBBM_SYSTEMINFO,      "@{dobrowsesysinfobybill}\tCtrl-F3"
 	SYSJ             :  kbCtrlJ,    PPDV_SYSJOURNAL,      "@{dobrowsesjbybill}\tCtrl-J"
 	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,        "@{doupdateflags}\tShift-F3"
@@ -409,7 +409,7 @@ toolbar export DRAFTBILL TB_FIRST_TOOLBAR {
 	TAGSALL          :  kbAltG,  TBBM_TAGSALL,           "@{doupdatetags}\tAlt-G"
 	separator
 	PRINT            :  kbF7,       PPDV_PRINTER01,       "@{printcurrentdocument}\tF7"
-	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "@{printselectionofdocuments}\tAlt-F7"
+	PRINTLIST        :  kbAltF7,    PPDV_PRINTER_EXCLGREEN01, "@{printselectionofdocuments}\tAlt-F7" // @v12.6.0 TBBM_PRINTLIST-->PPDV_PRINTER_EXCLGREEN01
 	PRINTINFOLIST    :  kbShiftF7,  PPDV_NOICON,          hidden, "@{printselectionofdocumentsinfo}\tShift-F7"
 	POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,        hidden, "@{printcheck_toposregistrar}\tCtrl-Z"
 	PRINTALLBILLS    :  kbCtrlS,    PPDV_NOICON,          "@{printeachdoc}\tCtrl-S"
@@ -442,7 +442,7 @@ toolbar export ORDERBILL TB_FIRST_TOOLBAR {
 	ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,  "@{accturnsbybill}\tCtrl-A"
 	BILLSBYORDER     :  kbAltF5,    PPDV_NOICON,          "Продажи по заказу\tAlt-F5"
 	separator
-	CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "@{dochangebillstatus}\tCtrl-F6"
+	CHANGESTATUS     :  kbCtrlF6,   PPDV_ROTARY_SWITCH01, "@{dochangebillstatus}\tCtrl-F6" // @v12.6.0 TBBM_SWITCH-->PPDV_ROTARY_SWITCH01
 	SYSINFO          :  kbCtrlF3,   TBBM_SYSTEMINFO,      "@{dobrowsesysinfobybill}\tCtrl-F3"
 	SYSJ             :  kbCtrlJ,    PPDV_SYSJOURNAL,      "@{dobrowsesjbybill}\tCtrl-J"
 	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,        "@{doupdateflags}\tShift-F3"
@@ -463,7 +463,7 @@ toolbar export ORDERBILL TB_FIRST_TOOLBAR {
 	TAGSALL          :  kbAltG,  TBBM_TAGSALL,            "@{doupdatetags}\tAlt-G" // @v11.1.9
 	separator
 	PRINT            :  kbF7,       PPDV_PRINTER01,       "@{printcurrentdocument}\tF7"
-	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "@{printselectionofdocuments}\tAlt-F7"
+	PRINTLIST        :  kbAltF7,    PPDV_PRINTER_EXCLGREEN01,       "@{printselectionofdocuments}\tAlt-F7" // @v12.6.0 TBBM_PRINTLIST-->PPDV_PRINTER_EXCLGREEN01
 	PRINTINFOLIST    :  kbShiftF7,  PPDV_NOICON,          hidden, "@{printselectionofdocumentsinfo}\tShift-F7"
 	POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,        hidden, "@{printcheck_toposregistrar}\tCtrl-Z"
 	PRINTALLBILLS    :  kbCtrlS,    PPDV_NOICON,          "@{printeachdoc}\tCtrl-S"
@@ -490,7 +490,7 @@ toolbar export INVENTBILL TB_FIRST_TOOLBAR {
 	BROWSE           :  kbF3,       PPDV_LINS02,            "@{viewbillitems}\tF3"
 	BROWSESCOPE      :  kbCtrlT,    PPDV_NOICON,            "Анализ строк по выборке документов\tCtrl-T"
 	separator
-	CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,            "@{dochangebillstatus}\tCtrl-F6"
+	CHANGESTATUS     :  kbCtrlF6,   PPDV_ROTARY_SWITCH01,   "@{dochangebillstatus}\tCtrl-F6" // @v12.6.0 TBBM_SWITCH-->PPDV_ROTARY_SWITCH01
 	SYSINFO          :  kbCtrlF3,   TBBM_SYSTEMINFO,        "@{dobrowsesysinfobybill}\tCtrl-F3"
 	SYSJ             :  kbCtrlJ,    PPDV_SYSJOURNAL,        "@{dobrowsesjbybill}\tCtrl-J"
 	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,          "@{doupdateflags}\tShift-F3"
@@ -505,7 +505,7 @@ toolbar export INVENTBILL TB_FIRST_TOOLBAR {
 	TAGSALL          :  kbAltG,  TBBM_TAGSALL,              "@{doupdatetags}\tAlt-G"
 	separator
 	PRINT            :  kbF7,       PPDV_PRINTER01,         "@{printcurrentdocument}\tF7"
-	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,         "@{printselectionofdocuments}\tAlt-F7"
+	PRINTLIST        :  kbAltF7,    PPDV_PRINTER_EXCLGREEN01, "@{printselectionofdocuments}\tAlt-F7" // @v12.6.0 TBBM_PRINTLIST-->PPDV_PRINTER_EXCLGREEN01
 	PRINTINFOLIST    :  kbShiftF7,  PPDV_NOICON,          hidden, "@{printselectionofdocumentsinfo}\tShift-F7"
 	PRINTALLBILLS    :  kbCtrlS,    PPDV_NOICON,          hidden, "@{printeachdoc}\tCtrl-S"
 	separator
@@ -533,7 +533,7 @@ toolbar export GOODSBILL TB_FIRST_TOOLBAR {
 	ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,    "@{accturnsbybill}\tCtrl-A"
 	//BILLSBYORDER     :  kbAltF5,    PPDV_NOICON,          "Продажи по заказу\tAlt-F5"
 	separator
-	CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "@{dochangebillstatus}\tCtrl-F6"
+	CHANGESTATUS     :  kbCtrlF6,   PPDV_ROTARY_SWITCH01, "@{dochangebillstatus}\tCtrl-F6" // @v12.6.0 TBBM_SWITCH-->PPDV_ROTARY_SWITCH01
 	SYSINFO          :  kbCtrlF3,   TBBM_SYSTEMINFO,      "@{dobrowsesysinfobybill}\tCtrl-F3"
 	SYSJ             :  kbCtrlJ,    PPDV_SYSJOURNAL,      "@{dobrowsesjbybill}\tCtrl-J"
 	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,        "@{doupdateflags}\tShift-F3"
@@ -555,7 +555,7 @@ toolbar export GOODSBILL TB_FIRST_TOOLBAR {
 	TAGSALL          :  kbAltG, TBBM_TAGSALL,            "@{doupdatetags}\tAlt-G"
 	separator
 	PRINT            :  kbF7,       PPDV_PRINTER01,       "@{printcurrentdocument}\tF7"
-	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "@{printselectionofdocuments}\tAlt-F7"
+	PRINTLIST        :  kbAltF7,    PPDV_PRINTER_EXCLGREEN01, "@{printselectionofdocuments}\tAlt-F7" // @v12.6.0 TBBM_PRINTLIST-->PPDV_PRINTER_EXCLGREEN01
 	PRINTINFOLIST    :  kbShiftF7,  PPDV_NOICON,          hidden, "@{printselectionofdocumentsinfo}\tShift-F7"
 	POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,        hidden, "@{printcheck_toposregistrar}\tCtrl-Z"
 	PRINTALLBILLS    :  kbCtrlS,    PPDV_NOICON,                      "@{printeachdoc}\tCtrl-S"
@@ -604,7 +604,7 @@ toolbar export LOTS TB_FIRST_TOOLBAR {
 	VIEWSPOILTSER : kbCtrlN,  PPDV_NOICON,          "Просмотр информации о забракованной серии\tCtrl-N"
 	TAGS          : kbCtrlF6, PPDV_TAGS01,          "@{tags}\tCtrl-F6"
 	TAGSALL       : kbShiftF6, TBBM_TAGSALL,        "@{doupdatetags}\tShift-F6"
-	CHANGESTATUS  : kbF6,     TBBM_SWITCH,          "@{dochangebillstatus}\tF6"
+	CHANGESTATUS  : kbF6,     PPDV_ROTARY_SWITCH01, "@{dochangebillstatus}\tF6" // @v12.6.0 TBBM_SWITCH-->PPDV_ROTARY_SWITCH01
 	LOTEXTCODE    : kbCtrlE,  PPDV_NOICON,          "Коды расширения по лоту\tCtrl-E"
 	CREATESPCREST : kbCtrlI,  PPDV_NOICON,          "@{egaislotchargeon}"
 	separator
@@ -628,7 +628,7 @@ toolbar export ORDLOTS TB_FIRST_TOOLBAR {
 	separator
 	TAGS          : kbCtrlF6,  PPDV_TAGS01,         "@{tags}\tCtrl-F6"
 	TAGSALL       : kbShiftF6, TBBM_TAGSALL,        "@{doupdatetags}\tShift-F6"
-	CHANGESTATUS  : kbF6,     TBBM_SWITCH,          "@{dochangebillstatus}\tF6"
+	CHANGESTATUS  : kbF6,      PPDV_ROTARY_SWITCH01, "@{dochangebillstatus}\tF6" // @v12.6.0 TBBM_SWITCH-->PPDV_ROTARY_SWITCH01
 	separator
 	PRINT         : kbF7,      PPDV_PRINTER01,      "@{print}\tF7"
 	TOTAL         : kbF9,      PPDV_SIGMA02,        "@{totals}\tF9"
@@ -682,9 +682,9 @@ toolbar export PERSON TB_FIRST_TOOLBAR {
 	TRANSMIT       : kbCtrlH,     PPDV_SYNC01,          "@{dotransmit}\tCtrl-H"
 	TRANSMKIND     : kbCtrlB,     PPDV_NOICON,          "@{dotransmitpersonkindlist}\tCtrl-B"
 	EXPORTVCARD    : kbCtrlD,     PPDV_NOICON,          "@{dotransmitperson_vcard}\tCtrl-D"
-	FOLDER         : kbF4,        TBBM_FOLDER,          "Папка клиента\tF4"
+	FOLDER         : kbF4,        PPDV_FOLDER_PERSON01, "@{clientfolder}\tF4" // @v12.6.0 TBBM_FOLDER-->PPDV_FOLDER_PERSON01
 	ARTICLES       : kbCtrlA,     PPDV_NOICON,          "@{cmd_accarticle}\tCtrl-A"
-	TASKS          : kbCtrlT,     TBBM_PRJTASK,         "Просмотр задач по персоналии\tCtrl-T"
+	TASKS          : kbCtrlT,     PPDV_TODO_LIST01,     "@{dotodolistbyperson}\tCtrl-T" // @v12.6.0 TBBM_PRJTASK-->PPDV_TODO_LIST01
 	VIEWSCARDS     : kbCtrlS,     PPDV_CARD03,          "@{view_scard}\tCtrl-S"
 	UNITEOBJ       : kbCtrlU,     PPDV_MERGE01,         "@{unite_persons}\tCtrl-U"
 	EDITFIXSTAFF   : kbCtrlQ,     PPDV_NOICON,          "@{doeditfixedstaff}\tCtrl-Q"
@@ -824,7 +824,7 @@ toolbar export SALARY TB_FIRST_TOOLBAR {
 	EDITSALCHARGE : kbF4,     PPDV_NOICON,        "@{salarychargekind}\tF4"
 	EDITBILL      : kbCtrlF3, PPDV_DOCUMENT_PL02, "@{linkdocument}\tCtrl-F3"
 	separator
-	CHARGE        : kbF6,     TBBM_CHARGE,        "@{accrual}\tF6"
+	CHARGE        : kbF6,     PPDV_LIGHTNING01,   "@{accrual}\tF6" // @v12.6.0 TBBM_CHARGE-->PPDV_LIGHTNING01
 	separator
 	PRINT         : kbF7,     PPDV_PRINTER01,     "@{print}\tF7"
 	separator
@@ -1286,9 +1286,9 @@ browser CLIACTIVITY north(100), 1, 1, "@{view_clientactivity}", OWNER|GRID, 0
 		//TRANSMIT       : kbCtrlH,     PPDV_SYNC01,          "@{dotransmit}\tCtrl-H"
 		//TRANSMKIND     : kbCtrlB,     PPDV_NOICON,          "@{dotransmitpersonkindlist}\tCtrl-B"
 		//EXPORTVCARD    : kbCtrlD,     PPDV_NOICON,          "@{dotransmitperson_vcard}\tCtrl-D"
-		FOLDER         : kbF4,        TBBM_FOLDER,          "Папка клиента\tF4"
+		FOLDER         : kbF4,        PPDV_FOLDER_PERSON01, "@{clientfolder}\tF4" // @v12.6.0 TBBM_FOLDER-->PPDV_FOLDER_PERSON01
 		ARTICLES       : kbCtrlA,     PPDV_NOICON,          "@{cmd_accarticle}\tCtrl-A"
-		TASKS          : kbCtrlT,     TBBM_PRJTASK,         "Просмотр задач по персоналии\tCtrl-T"
+		TASKS          : kbCtrlT,     PPDV_TODO_LIST01,     "@{dotodolistbyperson}\tCtrl-T" // @v12.6.0 TBBM_PRJTASK-->PPDV_TODO_LIST01
 		VIEWSCARDS     : kbCtrlS,     PPDV_CARD03,          "@{view_scard}\tCtrl-S"
 		UNITEOBJ       : kbCtrlU,     PPDV_MERGE01,         "@{unite_persons}\tCtrl-U"
 		//EDITFIXSTAFF   : kbCtrlQ,     PPDV_NOICON,          "@{doeditfixedstaff}\tCtrl-Q"
@@ -1630,7 +1630,7 @@ browser ATURNLIST north(100), 1, 0, "@{view_accturn} {%s}", OWNER|GRID, 0
 		ADDBYSAMPLE             : kbAltF2, PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2"
 		DELETEITEM              : kbDel,   PPDV_DELETEFILE02,      "@{delete}\tDelete"
 		PRINT                   : kbF7,    PPDV_PRINTER01,         "@{printcashorder}\tF7"
-		ALTPRINT                : kbAltF7, TBBM_PRINTLIST,         "Печать описи\tAlt-F7"
+		ALTPRINT                : kbAltF7, PPDV_PRINTER_EXCLGREEN01, "Печать описи\tAlt-F7" // @v12.6.0 TBBM_PRINTLIST-->PPDV_PRINTER_EXCLGREEN01
 		TOTAL                   : kbF9,    PPDV_SIGMA02,           "@{totals}\tF9"
 		separator
 		CVTGENATURNTOEXTACCBILL : kbCtrlC,  PPDV_NOICON,      "@{doconvertgenaturntoextaturn}\tCtrl-C"
@@ -2463,7 +2463,7 @@ browser PAYMENTS south(56), 1, 0, "@{doclink_payment} (%s)", OWNER|GRID, 0
 		ADDITEM          :  kbIns,      PPDV_ADDFILE02,         "@{doadddocument}\tInsert"
 		ADDBYSAMPLE      :  kbAltF2,    PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2"
 		DELETEITEM       :  kbDel,      PPDV_DELETEFILE02,      "@{doremovebill}\tDelete"
-		CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,            "@{dochangebillstatus}\tCtrl-F6"
+		CHANGESTATUS     :  kbCtrlF6,   PPDV_ROTARY_SWITCH01,   "@{dochangebillstatus}\tCtrl-F6" // @v12.6.0 TBBM_SWITCH-->PPDV_ROTARY_SWITCH01
 		SETWLABEL        :  kbF8,       TBBM_MARK,              "@{dowhitelabel}\tF8"
 		separator
 		TOGGLE           :  kbCtrlT,    PPDV_TOGGLE01,          "@{dotoggleviewmode}\tCtrl-T"
@@ -2471,7 +2471,7 @@ browser PAYMENTS south(56), 1, 0, "@{doclink_payment} (%s)", OWNER|GRID, 0
 		ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,    "@{accturnsbybill}\tCtrl-A"
 		PRINT            :  kbF7,       PPDV_PRINTER01,         "@{printcurrentdocument}\tF7"
 		POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,          "@{printcheck_toposregistrar}\tCtrl-Z"
-		PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,         "@{printselectionofdocuments}\tAlt-F7"
+		PRINTLIST        :  kbAltF7,    PPDV_PRINTER_EXCLGREEN01, "@{printselectionofdocuments}\tAlt-F7" // @v12.6.0 TBBM_PRINTLIST-->PPDV_PRINTER_EXCLGREEN01
 		separator
 		TOTAL            :  kbF9,       PPDV_SIGMA02,           "@{totals}\tF9"
 	}
@@ -2490,14 +2490,14 @@ browser RECKONINGS south(56), 1, 0, "Зачеты документа (%s)", OWNER|GRID, 0
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM         :  kbEnter,    PPDV_EDITFILE02,      "@{doeditdocument}\tEnter"
 		DELETEITEM       :  kbDel,      PPDV_DELETEFILE02,    "@{doremovebill}\tDelete"
-		CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "@{dochangebillstatus}\tCtrl-F6"
+		CHANGESTATUS     :  kbCtrlF6,   PPDV_ROTARY_SWITCH01, "@{dochangebillstatus}\tCtrl-F6" // @v12.6.0 TBBM_SWITCH-->PPDV_ROTARY_SWITCH01
 		SETWLABEL        :  kbF8,       TBBM_MARK,            "@{dowhitelabel}\tF8"
 		separator
 		TOGGLE           :  kbCtrlT,    PPDV_TOGGLE01,        "@{dotoggleviewmode}\tCtrl-T"
 		VIEWOP           :  kbCtrlQ,    PPDV_OPLIST,          "@{oprkind}\tCtrl-Q"
 		ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,  "@{accturnsbybill}\tCtrl-A"
 		PRINT            :  kbF7,       PPDV_PRINTER01,       "@{printcurrentdocument}\tF7"
-		PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "@{printselectionofdocuments}\tAlt-F7"
+		PRINTLIST        :  kbAltF7,    PPDV_PRINTER_EXCLGREEN01, "@{printselectionofdocuments}\tAlt-F7" // @v12.6.0 TBBM_PRINTLIST-->PPDV_PRINTER_EXCLGREEN01
 		separator
 		TOTAL            :  kbF9,       PPDV_SIGMA02,         "@{totals}\tF9"
 	}
@@ -2518,16 +2518,16 @@ browser CHARGES south(73), 1, 0, "@{doclink_charge} (%s)", OWNER|GRID, 0
 		ADDITEM          :  kbIns,      PPDV_ADDFILE02,         "@{doadddocument}\tInsert"
 		ADDBYSAMPLE      :  kbAltF2,    PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2"
 		DELETEITEM       :  kbDel,      PPDV_DELETEFILE02,      "@{doremovebill}\tDelete"
-		CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,            "@{dochangebillstatus}\tCtrl-F6"
+		CHANGESTATUS     :  kbCtrlF6,   PPDV_ROTARY_SWITCH01,   "@{dochangebillstatus}\tCtrl-F6" // @v12.6.0 TBBM_SWITCH-->PPDV_ROTARY_SWITCH01
 		SETWLABEL        :  kbF8,       TBBM_MARK,              "@{dowhitelabel}\tF8"
 		separator
 		TOGGLE           :  kbCtrlT,    PPDV_TOGGLE01,        "@{dotoggleviewmode}\tCtrl-T"
 		VIEWOP           :  kbCtrlQ,    PPDV_OPLIST,          "@{oprkind}\tCtrl-Q"
 		ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,  "@{accturnsbybill}\tCtrl-A"
 		PAYMENT          :  kbF5,       TBBM_PAYMENT,         "@{doclink_payment}\tF5"
-		CHARGE           :  kbF6,       TBBM_CHARGE,          "Автоначисление\tF6"
+		CHARGE           :  kbF6,       PPDV_LIGHTNING01,     "Автоначисление\tF6" // @v12.6.0 TBBM_CHARGE-->PPDV_LIGHTNING01
 		PRINT            :  kbF7,       PPDV_PRINTER01,       "@{printcurrentdocument}\tF7"
-		PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "@{printselectionofdocuments}\tAlt-F7"
+		PRINTLIST        :  kbAltF7,    PPDV_PRINTER_EXCLGREEN01, "@{printselectionofdocuments}\tAlt-F7" // @v12.6.0 TBBM_PRINTLIST-->PPDV_PRINTER_EXCLGREEN01
 		separator
 		TOTAL            :  kbF9,       PPDV_SIGMA02,         "@{totals}\tF9"
 	}
@@ -2545,7 +2545,7 @@ browser DRAFTWROFFS south(73), 1, 0, "Документы списания драфт-документа (%s)", 
 		EDITITEM         :  kbEnter,    PPDV_EDITFILE02,      "@{doeditdocument}\tEnter"
 		ADDITEM          :  kbIns,      PPDV_ADDFILE02,       "@{doadddocument}\tInsert"
 		DELETEITEM       :  kbDel,      PPDV_DELETEFILE02,    "@{doremovebill}\tDelete"
-		CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "@{dochangebillstatus}\tCtrl-F6"
+		CHANGESTATUS     :  kbCtrlF6,   PPDV_ROTARY_SWITCH01, "@{dochangebillstatus}\tCtrl-F6" // @v12.6.0 TBBM_SWITCH-->PPDV_ROTARY_SWITCH01
 		SETWLABEL        :  kbF8,       TBBM_MARK,            "@{dowhitelabel}\tF8"
 		separator
 		ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,  "@{accturnsbybill}\tCtrl-A"
@@ -2555,7 +2555,7 @@ browser DRAFTWROFFS south(73), 1, 0, "Документы списания драфт-документа (%s)", 
 		VIEWOP           :  kbCtrlQ,    PPDV_OPLIST,          "@{oprkind}\tCtrl-Q"
 		separator
 		PRINT            :  kbF7,       PPDV_PRINTER01,       "@{printcurrentdocument}\tF7"
-		PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "@{printselectionofdocuments}\tAlt-F7"
+		PRINTLIST        :  kbAltF7,    PPDV_PRINTER_EXCLGREEN01, "@{printselectionofdocuments}\tAlt-F7" // @v12.6.0 TBBM_PRINTLIST-->PPDV_PRINTER_EXCLGREEN01
 		separator
 		TOTAL            :  kbF9,       PPDV_SIGMA02,         "@{totals}\tF9"
 	}
@@ -2577,7 +2577,7 @@ browser ORDERACCOMPLISH south(56), 1, 0, "@{doclink_ordaccomplish} (%s)", OWNER|
 		ADDITEM          :  kbIns,      PPDV_ADDFILE02,         "@{doadddocument}\tInsert"
 		ADDBYSAMPLE      :  kbAltF2,    PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2"
 		DELETEITEM       :  kbDel,      PPDV_DELETEFILE02,      "@{doremovebill}\tDelete"
-		CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,            "@{dochangebillstatus}\tCtrl-F6"
+		CHANGESTATUS     :  kbCtrlF6,   PPDV_ROTARY_SWITCH01,   "@{dochangebillstatus}\tCtrl-F6" // @v12.6.0 TBBM_SWITCH-->PPDV_ROTARY_SWITCH01
 		SETWLABEL        :  kbF8,       TBBM_MARK,              "@{dowhitelabel}\tF8"
 		separator
 		TOGGLE           :  kbCtrlT,    PPDV_TOGGLE01,          "@{dotoggleviewmode}\tCtrl-T"
@@ -2585,7 +2585,7 @@ browser ORDERACCOMPLISH south(56), 1, 0, "@{doclink_ordaccomplish} (%s)", OWNER|
 		ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,    "@{accturnsbybill}\tCtrl-A"
 		PRINT            :  kbF7,       PPDV_PRINTER01,         "@{printcurrentdocument}\tF7"
 		POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,          "@{printcheck_toposregistrar}\tCtrl-Z"
-		PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,         "@{printselectionofdocuments}\tAlt-F7"
+		PRINTLIST        :  kbAltF7,    PPDV_PRINTER_EXCLGREEN01, "@{printselectionofdocuments}\tAlt-F7" // @v12.6.0 TBBM_PRINTLIST-->PPDV_PRINTER_EXCLGREEN01
 		separator
 		TOTAL            :  kbF9,       PPDV_SIGMA02,           "@{totals}\tF9"
 	}
@@ -4409,12 +4409,12 @@ browser STAFFCAL_DT north(100), 3, 1, "@{view_staffcal} {%s}", OWNER|GRID, 0
 	"@object",               8, notype, 0, 20
 	"@calendar",             7, notype, 0, 10
 	toolbar TB_FIRST_TOOLBAR {
-		DETAIL        : kbEnter,  PPDV_LINS01,     "@{detail}\tEnter"
-		EDIT          : kbF2,     PPDV_EDITFILE02, "@{doeditstaffcalentry}\tF2"
-		PRINT         : kbF7,     PPDV_PRINTER01,  "@{print}\tF7"
+		DETAIL        : kbEnter,  PPDV_LINS01,        "@{detail}\tEnter"
+		EDIT          : kbF2,     PPDV_EDITFILE02,    "@{doeditstaffcalentry}\tF2"
+		PRINT         : kbF7,     PPDV_PRINTER01,     "@{print}\tF7"
 		separator
-		CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,   "@{filter}\tCtrl-V"
-		TIMEGRAPH     : kbCtrlA,  TBBM_TIMEGRAPH,  "@{timechart}\tCtrl-A"
+		CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,      "@{filter}\tCtrl-V"
+		TIMEGRAPH     : kbCtrlA,  PPDV_CHART_GANTT01, "@{timechart}\tCtrl-A" // @v12.6.0 TBBM_TIMEGRAPH-->PPDV_CHART_GANTT01
 	}
 }
 
@@ -4429,12 +4429,12 @@ browser STAFFCAL_OBJ north(100), 3, 1, "@{view_staffcal} {%s}", OWNER|GRID, 0
 	}
 	"@calendar",       7, notype, 0, 10
 	toolbar TB_FIRST_TOOLBAR {
-		DETAIL        : kbEnter,  PPDV_LINS01,      "@{detail}\tEnter"
-		EDIT          : kbF2,     PPDV_EDITFILE02,  "@{doeditstaffcalentry}\tF2"
-		PRINT         : kbF7,     PPDV_PRINTER01,   "@{print}\tF7"
+		DETAIL        : kbEnter,  PPDV_LINS01,        "@{detail}\tEnter"
+		EDIT          : kbF2,     PPDV_EDITFILE02,    "@{doeditstaffcalentry}\tF2"
+		PRINT         : kbF7,     PPDV_PRINTER01,     "@{print}\tF7"
 		separator
-		CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,    "@{filter}\tCtrl-V"
-		TIMEGRAPH     : kbCtrlA,  TBBM_TIMEGRAPH,   "@{timechart}\tCtrl-A"
+		CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,      "@{filter}\tCtrl-V"
+		TIMEGRAPH     : kbCtrlA,  PPDV_CHART_GANTT01, "@{timechart}\tCtrl-A" // @v12.6.0 TBBM_TIMEGRAPH-->PPDV_CHART_GANTT01
 	}
 }
 
@@ -4628,7 +4628,7 @@ toolbar export SCARD TB_FIRST_TOOLBAR {
 	separator
 	CCHECKS     : kbF3,      TBBM_CCHECKS,         "@{check_pl}\tF3"
 	OPERATIONS  : kbF4,      PPDV_LINS01,          "@{op_pl}\tF4"
-	CHARGE      : kbF6,      TBBM_CHARGE,          "Начисление по всем картам\tF6"
+	CHARGE      : kbF6,      PPDV_LIGHTNING01,     "Начисление по всем картам\tF6" // @v12.6.0 TBBM_CHARGE-->PPDV_LIGHTNING01
 	CHNGDSCNT   : kbCtrlD,   PPDV_PERCENT,         "Изменение скидки по выборке карт\tCtrl-D"
 	CALCTRNOVR  : kbCtrlR,   PPDV_REPAIR02,        "Пересчет оборотов\tCtrl-R"
 	SYSJ        : kbCtrlJ,   PPDV_SYSJOURNAL,      "@{view_sysjournal}\tCtrl-J"
@@ -4712,7 +4712,7 @@ browser PAYMPLAN north(100), 1, 1, "@{paymplan}", OWNER|GRID, 0
 		//EDITPERSON  : kbF4,      TBBM_PERSONS, "@{person}\tF4"
 		separator
 		PRINT       : kbF7,      PPDV_PRINTER01, "@{print}\tF7"
-		PRINTDETAIL : kbCtrlF7,  TBBM_PRINTLIST, "@{printindetail}\tCtrl-F7"
+		PRINTDETAIL : kbCtrlF7,  PPDV_PRINTER_EXCLGREEN01, "@{printindetail}\tCtrl-F7" // @v12.6.0 TBBM_PRINTLIST-->PPDV_PRINTER_EXCLGREEN01
 		TOTAL       : kbF9,      PPDV_SIGMA02,   "@{totals}\tF9"
 		CHANGEFILT  : kbCtrlV,   PPDV_FILTER01,  "@{filter}\tCtrl-V"
 	}
@@ -4730,7 +4730,7 @@ browser PAYMPLAN_CROSSTAB north(100), 3, 1, "@{paymplan}", OWNER|GRID, 0
 		//EDITPERSON  : kbF4,      TBBM_PERSONS, "@{person}\tF4"
 		separator
 		PRINT       : kbF7,      PPDV_PRINTER01, "@{print}\tF7"
-		PRINTDETAIL : kbCtrlF7,  TBBM_PRINTLIST, "@{printindetail}\tCtrl-F7"
+		PRINTDETAIL : kbCtrlF7,  PPDV_PRINTER_EXCLGREEN01, "@{printindetail}\tCtrl-F7" // @v12.6.0 TBBM_PRINTLIST-->PPDV_PRINTER_EXCLGREEN01
 		TOTAL       : kbF9,      PPDV_SIGMA02,   "@{totals}\tF9"
 		CHANGEFILT  : kbCtrlV,   PPDV_FILTER01,  "@{filter}\tCtrl-V"
 	}
@@ -4854,7 +4854,7 @@ browser ASSET north(100), 2, 1, "@view_asset", OWNER|GRID, 0
 		ADDEDINFO   : kbF4,    TBBM_CHNGQCERT,   "@{certification}\tF4"
 		separator
 		PRINT       : kbF7,    PPDV_PRINTER01,  "@{printinventorycard}\tF7"
-		PRINTLIST   : kbAltF7, TBBM_PRINTLIST,  "@{printlist}\tAlt-F7"
+		PRINTLIST   : kbAltF7, PPDV_PRINTER_EXCLGREEN01,  "@{printlist}\tAlt-F7" // @v12.6.0 TBBM_PRINTLIST-->PPDV_PRINTER_EXCLGREEN01
 		TOTAL       : kbF9,    PPDV_SIGMA02,    "@{totals}\tF9"
 		CHANGEFILT  : kbCtrlV, PPDV_FILTER01,   "@{filter}\tCtrl-V"
 	}
@@ -4888,7 +4888,7 @@ browser ASSETOPER north(100), 4, 1, "@{view_asset} {%s}", OWNER|GRID, 0
 		ADDEDINFO   : kbF4,    TBBM_CHNGQCERT,    "@{certification}\tF4"
 		separator
 		PRINT       : kbF7,    PPDV_PRINTER01,   "@{printinventorycard}\tF7"
-		PRINTLIST   : kbAltF7, TBBM_PRINTLIST,   "@{printlist}\tAlt-F7"
+		PRINTLIST   : kbAltF7, PPDV_PRINTER_EXCLGREEN01, "@{printlist}\tAlt-F7" // @v12.6.0 TBBM_PRINTLIST-->PPDV_PRINTER_EXCLGREEN01
 		TOTAL       : kbF9,    PPDV_SIGMA02,     "@{totals}\tF9"
 		CHANGEFILT  : kbCtrlV, PPDV_FILTER01,    "@{filter}\tCtrl-V"
 	}
@@ -5050,7 +5050,7 @@ browser FREIGHT north(100), 2, 1, "@{freight}", OWNER|GRID, 0
 		separator
 		PRINT             : kbF7,      PPDV_PRINTER01, "@{print}\tF7"
 		PRINTBILL         : kbCtrlB,   PPDV_NOICON,    "@{printcurrentdocument}\tCtrl-B"
-		PRINTBILLLIST     : kbAltF7,   TBBM_PRINTLIST, "@{printselectionofdocuments}\tAlt-F7"
+		PRINTBILLLIST     : kbAltF7,   PPDV_PRINTER_EXCLGREEN01, "@{printselectionofdocuments}\tAlt-F7" // @v12.6.0 TBBM_PRINTLIST-->PPDV_PRINTER_EXCLGREEN01
 		PRINTBILLINFOLIST : kbShiftF7, PPDV_NOICON,    "@{printselectionofdocumentsinfo}\tShift-F7"
 		PRINTALLBILLS     : kbCtrlS,   PPDV_NOICON,    "@{printeachdoc}\tCtrl-S"
 		// @v10.0.0 PRINTCHECK        : kbCtrlF7,  PPDV_NOICON,    "@{printcheck}\tCtrl-F7"
@@ -5091,7 +5091,7 @@ browser FREIGHT_LAGG north(100), 2, 1, "@{freight}", OWNER|GRID, 0
 		separator
 		PRINT             : kbF7,      PPDV_PRINTER01,    "@{print}\tF7"
 		PRINTBILL         : kbCtrlB,   PPDV_NOICON,       "@{printcurrentdocument}\tCtrl-B"
-		PRINTBILLLIST     : kbAltF7,   TBBM_PRINTLIST,    "@{printselectionofdocuments}\tAlt-F7"
+		PRINTBILLLIST     : kbAltF7,   PPDV_PRINTER_EXCLGREEN01, "@{printselectionofdocuments}\tAlt-F7" // @v12.6.0 TBBM_PRINTLIST-->PPDV_PRINTER_EXCLGREEN01
 		PRINTBILLINFOLIST : kbShiftF7, PPDV_NOICON,       "@{printselectionofdocumentsinfo}\tShift-F7"
 		PRINTALLBILLS     : kbCtrlS,   PPDV_NOICON,       "@{printeachdoc}\tCtrl-S"
 		// @v10.0.0 PRINTCHECK        : kbCtrlF7,  PPDV_NOICON,    "@{printcheck}\tCtrl-F7"
@@ -5121,7 +5121,7 @@ browser PROJECT north(100), 2, 1, "@{project_pl}", OWNER|GRID, 0
 		EDITITEM    : kbEnter, PPDV_EDITFILE02,    "@{edit}\tEnter"
 		ADDITEM     : kbIns,   PPDV_ADDFILE02,     "@{add}\tInsert"
 		DELETEITEM  : kbDel,   PPDV_DELETEFILE02,  "@{delete}\tDelete"
-		DETAIL      : kbF3,    TBBM_PRJTASK,       "@{prjtask_pl}\tF3"
+		DETAIL      : kbF3,    PPDV_TODO_LIST01,   "@{prjtask_pl}\tF3"  // @v12.6.0 TBBM_PRJTASK-->PPDV_TODO_LIST01
 		VIEWPRJPHASE: kbF4,    PPDV_LINS01,        "@{prjphase_pl}\tF4"
 		EDITBILLPOOL: kbF5,    PPDV_DOCUMENT_PL02, "@{documents}\tF5"
 		SYSJ        : kbCtrlJ, PPDV_SYSJOURNAL,    "@{view_sysjournal}\tCtrl-J"
@@ -5150,7 +5150,7 @@ browser PRJPHASE north(100), 2, 1, "@{prjphase_pl} '%s'", OWNER|GRID, 0
 		EDITITEM    : kbEnter, PPDV_EDITFILE02,    "@{edit}\tEnter"
 		ADDITEM     : kbIns,   PPDV_ADDFILE02,     "@{add}\tInsert"
 		DELETEITEM  : kbDel,   PPDV_DELETEFILE02,  "@{delete}\tDelete"
-		DETAIL      : kbF3,    TBBM_PRJTASK,       "@{prjtask_pl}\tF3"
+		DETAIL      : kbF3,    PPDV_TODO_LIST01,   "@{prjtask_pl}\tF3" // @v12.6.0 TBBM_PRJTASK-->PPDV_TODO_LIST01
 		EDITBILLPOOL: kbF5,    PPDV_DOCUMENT_PL02, "@{documents}\tF5"
 		SYSJ        : kbCtrlJ, PPDV_SYSJOURNAL,    "@{view_sysjournal}\tCtrl-J"
 		separator
@@ -5175,24 +5175,24 @@ browser PRJTASK north(100), 2, 1, "@{prjtask_pl} {%s}", OWNER|GRID, 0
 	"@prjtask_employer",     9, notype, 0, 30
 	"@description",         10, notype, 0, 60 //, BCO_RESIZEABLE
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM    : kbEnter,  PPDV_EDITFILE02,   "@{edit}\tEnter"
-		ADDITEM     : kbIns,    PPDV_ADDFILE02,    "@{add}\tInsert"
+		EDITITEM    : kbEnter,  PPDV_EDITFILE02,    "@{edit}\tEnter"
+		ADDITEM     : kbIns,    PPDV_ADDFILE02,     "@{add}\tInsert"
 		ADDBYSAMPLE : kbAltF2,  PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2"
-		DELETEITEM  : kbDel,    PPDV_DELETEFILE02, "@{delete}\tDelete"
-		DELETEALL   : kbCtrlF8, PPDV_DELETEALL02,  "@{doremoveall}\tCtrl-F8"
-		LINKTASKS   : kbF4,     TBBM_PRJTASK,      "@{prjtask_linktask_pl}\tF4"
-		EDITLINKTASK: kbCtrlL,  PPDV_LINK01,       "Просмотр связанной задачи\tCtrl-L"
+		DELETEITEM  : kbDel,    PPDV_DELETEFILE02,  "@{delete}\tDelete"
+		DELETEALL   : kbCtrlF8, PPDV_DELETEALL02,   "@{doremoveall}\tCtrl-F8"
+		LINKTASKS   : kbF4,     PPDV_TODO_LIST01,   "@{prjtask_linktask_pl}\tF4" // @v12.6.0 TBBM_PRJTASK-->PPDV_TODO_LIST01
+		EDITLINKTASK: kbCtrlL,  PPDV_LINK01,        "Просмотр связанной задачи\tCtrl-L"
 		EDITBILLPOOL: kbF5,     PPDV_DOCUMENT_PL02, "@{documents}\tF5"
 		SYSJ        : kbCtrlJ,  PPDV_SYSJOURNAL,    "@{view_sysjournal}\tCtrl-J"
 		separator
-		BUILD       : kbF6,     TBBM_CHARGE,       "@{domaketodobytemplate}\tF6"
-		TRANSMIT    : kbCtrlH,  PPDV_SYNC01,       "@{dotransmit}\tCtrl-H"
-		EXPORTVCAL  : kbCtrlN,  PPDV_NOICON,       "@{dotransmittodolist_vcal}\tCtrl-N"
-		PRINT       : kbF7,     PPDV_PRINTER01,    "@{print}\tF7"
-		TOTAL       : kbF9,     PPDV_SIGMA02,      "@{totals}\tF9"
+		BUILD       : kbF6,     PPDV_LIGHTNING01,   "@{domaketodobytemplate}\tF6" // @v12.6.0 TBBM_CHARGE-->PPDV_LIGHTNING01
+		TRANSMIT    : kbCtrlH,  PPDV_SYNC01,        "@{dotransmit}\tCtrl-H"
+		EXPORTVCAL  : kbCtrlN,  PPDV_NOICON,        "@{dotransmittodolist_vcal}\tCtrl-N"
+		PRINT       : kbF7,     PPDV_PRINTER01,     "@{print}\tF7"
+		TOTAL       : kbF9,     PPDV_SIGMA02,       "@{totals}\tF9"
 		separator
-		CHANGEFILT  : kbCtrlV,  PPDV_FILTER01,     "@{filter}\tCtrl-V"
-		TIMEGRAPH   : kbCtrlA,  TBBM_TIMEGRAPH,    "@{timechart}\tCtrl-A"
+		CHANGEFILT  : kbCtrlV,  PPDV_FILTER01,      "@{filter}\tCtrl-V"
+		TIMEGRAPH   : kbCtrlA,  PPDV_CHART_GANTT01, "@{timechart}\tCtrl-A" // @v12.6.0 TBBM_TIMEGRAPH-->PPDV_CHART_GANTT01
 	}
 }
 
@@ -5208,7 +5208,7 @@ browser PRJTASK_DATEHOURCT north(100), 3, 1, "Задачи с табуляцией Дата/Час", OWN
 		DELETEALL   : kbCtrlF8, PPDV_DELETEALL02,       "@{doremoveall}\tCtrl-F8"
 		SYSJ        : kbCtrlJ,  PPDV_SYSJOURNAL,        "@{view_sysjournal}\tCtrl-J"
 		separator
-		BUILD       : kbF6,     TBBM_CHARGE,            "@{domaketodobytemplate}\tF6"
+		BUILD       : kbF6,     PPDV_LIGHTNING01,       "@{domaketodobytemplate}\tF6" // @v12.6.0 TBBM_CHARGE-->PPDV_LIGHTNING01
 		PRINT       : kbF7,     PPDV_PRINTER01,         "@{print}\tF7"
 		TOTAL       : kbF9,     PPDV_SIGMA02,           "@{totals}\tF9"
 		separator
@@ -5228,7 +5228,7 @@ browser PRJTASK_CLIENTDATECT north(100), 3, 1, "Задачи с табуляцией Клиент/Дата"
 		DELETEALL   : kbCtrlF8, PPDV_DELETEALL02,    "@{doremoveall}\tCtrl-F8"
 		SYSJ        : kbCtrlJ,  PPDV_SYSJOURNAL,     "@{view_sysjournal}\tCtrl-J"
 		separator
-		BUILD       : kbF6,     TBBM_CHARGE,         "@{domaketodobytemplate}\tF6"
+		BUILD       : kbF6,     PPDV_LIGHTNING01,    "@{domaketodobytemplate}\tF6" // @v12.6.0 TBBM_CHARGE-->PPDV_LIGHTNING01
 		PRINT       : kbF7,     PPDV_PRINTER01,      "@{print}\tF7"
 		TOTAL       : kbF9,     PPDV_SIGMA02,        "@{totals}\tF9"
 		separator
@@ -5248,7 +5248,7 @@ browser PRJTASK_EMPLOYERDATECT north(100), 3, 1, "Задачи с табуляцией @{executor
 		DELETEALL   : kbCtrlF8, PPDV_DELETEALL02,       "@{doremoveall}\tCtrl-F8"
 		SYSJ        : kbCtrlJ,  PPDV_SYSJOURNAL,        "@{view_sysjournal}\tCtrl-J"
 		separator
-		BUILD       : kbF6,     TBBM_CHARGE,            "@{domaketodobytemplate}\tF6"
+		BUILD       : kbF6,     PPDV_LIGHTNING01,       "@{domaketodobytemplate}\tF6" // @v12.6.0 TBBM_CHARGE-->PPDV_LIGHTNING01
 		PRINT       : kbF7,     PPDV_PRINTER01,         "@{print}\tF7"
 		TOTAL       : kbF9,     PPDV_SIGMA02,           "@{totals}\tF9"
 		separator
@@ -5268,7 +5268,7 @@ browser PRJTASK_CLIENTEMPLOYERCT north(100), 3, 1, "Задачи с табуляцией @{client
 		DELETEALL   : kbCtrlF8, PPDV_DELETEALL02,       "@{doremoveall}\tCtrl-F8"
 		SYSJ        : kbCtrlJ,  PPDV_SYSJOURNAL,        "@{view_sysjournal}\tCtrl-J"
 		separator
-		BUILD       : kbF6,     TBBM_CHARGE,            "@{domaketodobytemplate}\tF6"
+		BUILD       : kbF6,     PPDV_LIGHTNING01,       "@{domaketodobytemplate}\tF6" // @v12.6.0 TBBM_CHARGE-->PPDV_LIGHTNING01
 		PRINT       : kbF7,     PPDV_PRINTER01,         "@{print}\tF7"
 		TOTAL       : kbF9,     PPDV_SIGMA02,           "@{totals}\tF9"
 		separator
@@ -5291,10 +5291,10 @@ browser PRJTASKTEMPL north(100), 2, 1, "@{prjtasktemplate_pl} {%s}", OWNER|GRID,
 		ADDBYSAMPLE : kbAltF2,  PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2"
 		DELETEITEM  : kbDel,    PPDV_DELETEFILE02, "@{delete}\tDelete"
 		DELETEALL   : kbCtrlF8, PPDV_DELETEALL02,  "@{doremoveall}\tCtrl-F8"
-		DETAIL      : kbF3,     TBBM_PRJTASK,      "@{prjtask_pl}\tF3"
+		DETAIL      : kbF3,     PPDV_TODO_LIST01,  "@{prjtask_pl}\tF3"          // @v12.6.0 TBBM_PRJTASK-->PPDV_TODO_LIST01
 		SYSJ        : kbCtrlJ,  PPDV_SYSJOURNAL,   "@{view_sysjournal}\tCtrl-J"
 		separator
-		BUILD       : kbF6,     TBBM_CHARGE,       "@{domaketodobytemplate}\tF6"
+		BUILD       : kbF6,     PPDV_LIGHTNING01,  "@{domaketodobytemplate}\tF6" // @v12.6.0 TBBM_CHARGE-->PPDV_LIGHTNING01
 		PRINT       : kbF7,     PPDV_PRINTER01,    "@{print}\tF7"
 		TOTAL       : kbF9,     PPDV_SIGMA02,      "@{totals}\tF9"
 		separator
@@ -5584,9 +5584,9 @@ browser TSESSION north(100), 3, 1, "@{tsession_pl} {%s}", OWNER|GRID, 0
 		CHECKPAN    : kbF8,      TBBM_CCHECKS,         "@{doloadsesstoccpane}\tF8"
 		separator
 		SYSJ        : kbCtrlJ,   PPDV_SYSJOURNAL,      "@{view_sysjournal}\tCtrl-J"
-		TRANSMIT    : kbCtrlH,   PPDV_SYNC01,          "@{dotransmit}\tCtrl-H" // @v7.7.2
+		TRANSMIT    : kbCtrlH,   PPDV_SYNC01,          "@{dotransmit}\tCtrl-H"
 		PRINT       : kbF7,      PPDV_PRINTER01,       "@{print}\tF7"
-		PRINTLIST   : kbAltF7,   TBBM_PRINTLIST,       "@{printselectionofsessions}\tAlt-F7"
+		PRINTLIST   : kbAltF7,   PPDV_PRINTER_EXCLGREEN01, "@{printselectionofsessions}\tAlt-F7" // @v12.6.0 TBBM_PRINTLIST-->PPDV_PRINTER_EXCLGREEN01
 		TOTAL       : kbF9,      PPDV_SIGMA02,         "@{totals}\tF9"
 		separator
 		CHANGEFILT  : kbCtrlV,   PPDV_FILTER01,        "@{filter}\tCtrl-V"
@@ -5634,16 +5634,16 @@ browser TSUBSESSION north(100), 3, 1, "@{tsubsession_pl} {%s}", OWNER|GRID, 0
 		separator
 		TSESSANLZ   : kbCtrlF3,  TBBM_TSESSANLZ,     "@{view_tsessanlz}\tCtrl-F3"
 		separator
-		COMPLETE    : kbCtrlF8,  TBBM_CHARGE,        "Cформировать автоматически\tCtrl-F8"
+		COMPLETE    : kbCtrlF8,  PPDV_LIGHTNING01,   "Cформировать автоматически\tCtrl-F8" // @v12.6.0 TBBM_CHARGE-->PPDV_LIGHTNING01
 		//WROFFSESS   : kbCtrlW,   TBBM_CLOSECSESS,  "@{dowriteoffsess}\tCtrl-W"
 		//WROFFBILLS  : kbF5,      PPDV_DOCUMENT_PL02,       "@{document_wroff_pl}\tF5"
 		//DFCTBILLS   : kbShiftF5, TBBM_DFCTBILLS,   "@{shortagecoveragedocument_pl}\tShift-F5"
 		CHECKPAN    : kbF8,      TBBM_CCHECKS,       "@{doloadsesstoccpane}\tF8"
 		separator
 		SYSJ        : kbCtrlJ,   PPDV_SYSJOURNAL,    "@{view_sysjournal}\tCtrl-J"
-		TRANSMIT    : kbCtrlH,   PPDV_SYNC01,        "@{dotransmit}\tCtrl-H" // @v7.7.2
+		TRANSMIT    : kbCtrlH,   PPDV_SYNC01,        "@{dotransmit}\tCtrl-H"
 		PRINT       : kbF7,      PPDV_PRINTER01,     "@{print}\tF7"
-		PRINTLIST   : kbAltF7,   TBBM_PRINTLIST,     "@{printselectionofsessions}\tAlt-F7"
+		PRINTLIST   : kbAltF7,   PPDV_PRINTER_EXCLGREEN01, "@{printselectionofsessions}\tAlt-F7" // @v12.6.0 TBBM_PRINTLIST-->PPDV_PRINTER_EXCLGREEN01
 		TOTAL       : kbF9,      PPDV_SIGMA02,       "@{totals}\tF9"
 		separator
 		CHANGEFILT  : kbCtrlV,   PPDV_FILTER01,      "@{filter}\tCtrl-V"
@@ -5920,7 +5920,7 @@ browser PRCBUSY north(100), 3, 1, "@{view_prcbusy} {%s}", OWNER|GRID, 0
 		CHANGEFILT     : kbCtrlV,   PPDV_FILTER01,      "@{filter}\tCtrl-V"
 		separator
 		TOGGLE         : kbCtrlT,   PPDV_TOGGLE01,      "@{freeprocessor_pl}\tCtrl-T"
-		TIMEGRAPH      : kbCtrlA,   TBBM_TIMEGRAPH,     "@{timechart}\tCtrl-A"
+		TIMEGRAPH      : kbCtrlA,   PPDV_CHART_GANTT01, "@{timechart}\tCtrl-A" // @v12.6.0 TBBM_TIMEGRAPH-->PPDV_CHART_GANTT01
 	}
 }
 
@@ -5930,17 +5930,17 @@ browser PRCFREE north(100), 3, 1, "@{freeprocessor_pl} {%s}", OWNER|GRID, 0
 	"@daterange",    2, notype, 0, 20
 	"@duration",     3, notype, 0, 12
 	toolbar TB_FIRST_TOOLBAR {
-		ADDITEM    : kbIns,    PPDV_ADDFILE02,   "@{createtsess}\tInsert"
-		EDITPRC    : kbF2,     TBBM_PRC,         "@{processor}\tF2"
-		VIEWTSESS  : kbCtrlS,  TBBM_TSESS,       "@{doshowallprcsessions}\tCtrl-S"
+		ADDITEM    : kbIns,    PPDV_ADDFILE02,     "@{createtsess}\tInsert"
+		EDITPRC    : kbF2,     TBBM_PRC,           "@{processor}\tF2"
+		VIEWTSESS  : kbCtrlS,  TBBM_TSESS,         "@{doshowallprcsessions}\tCtrl-S"
 		separator
-		PRINT      : kbF7,     PPDV_PRINTER01,   "@{print}\tF7"
+		PRINT      : kbF7,     PPDV_PRINTER01,     "@{print}\tF7"
 		separator
-		REFRESH    : kbCtrlZ,  PPDV_REFRESH01,   "@{refresh}\tCtrl-Z"
-		CHANGEFILT : kbCtrlV,  PPDV_FILTER01,    "@{filter}\tCtrl-V"
+		REFRESH    : kbCtrlZ,  PPDV_REFRESH01,     "@{refresh}\tCtrl-Z"
+		CHANGEFILT : kbCtrlV,  PPDV_FILTER01,      "@{filter}\tCtrl-V"
 		separator
-		TOGGLE     : kbCtrlT,  PPDV_TOGGLE01,    "@{busyprocessor_pl}\tCtrl-T"
-		TIMEGRAPH  : kbCtrlA,  TBBM_TIMEGRAPH,   "@{timechart}\tCtrl-A"
+		TOGGLE     : kbCtrlT,  PPDV_TOGGLE01,      "@{busyprocessor_pl}\tCtrl-T"
+		TIMEGRAPH  : kbCtrlA,  PPDV_CHART_GANTT01, "@{timechart}\tCtrl-A" // @v12.6.0 TBBM_TIMEGRAPH-->PPDV_CHART_GANTT01
 	}
 }
 
@@ -6025,7 +6025,7 @@ browser BIZSCORE north(100), 1, 1, "@bizscore_pl", OWNER|GRID, 0
 		DELETEITEM    : kbDel,    PPDV_DELETEFILE02,      "@{delete}\tDelete"
 		separator
 		BIZSCOREVAL   : kbF3,     TBBM_BIZSCORE,          "Значения показателя\tF3"
-		CHARGE        : kbF6,     TBBM_CHARGE,            "Пересчет всех показателей\tF6"
+		CHARGE        : kbF6,     PPDV_LIGHTNING01,       "Пересчет всех показателей\tF6" // @v12.6.0 TBBM_CHARGE-->PPDV_LIGHTNING01
 		separator
 		SYSJ          : kbCtrlJ,  PPDV_SYSJOURNAL,        "@{view_sysjournal}\tCtrl-J"
 		CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,          "@{filter}\tCtrl-V"
@@ -6045,7 +6045,7 @@ browser BIZSCOREVAL north(100), 3, 1, "@{view_bizscoreval}", OWNER|GRID, 0
 	"@line",           6, notype, 0, 40
 	toolbar TB_FIRST_TOOLBAR {
 		VIEWBIZSCORE  : kbF2,     PPDV_NOICON,        "@{bizscore}\tF2"
-		CHARGE        : kbF6,     TBBM_CHARGE,        "@{calculation}\tF6"
+		CHARGE        : kbF6,     PPDV_LIGHTNING01,   "@{calculation}\tF6" // @v12.6.0 TBBM_CHARGE-->PPDV_LIGHTNING01
 		DELETEITEM    : kbDel,    PPDV_DELETEFILE02,  "Удалить значение\tDelete"
 		DELETEALL     : kbCtrlF8, PPDV_DELETEALL02,   "@{doremoveall}\tCtrl-F8"
 		separator
@@ -6067,7 +6067,7 @@ browser BIZSCORE2VAL north(100), 3, 1, "@{view_bizscoreval}", OWNER|GRID, 0 // @
 		DELETEITEM    : kbDel,    PPDV_DELETEFILE02,  "@{delete}\tDelete"
 		DELETEALL     : kbCtrlF8, PPDV_DELETEALL02,   "@{doremoveall}\tCtrl-F8"
 		VIEWBIZSCORE  : kbF2,     PPDV_NOICON,        "@{bizscore}\tF2"
-		CHARGE        : kbF6,     TBBM_CHARGE,        "@{calculation}\tF6"
+		CHARGE        : kbF6,     PPDV_LIGHTNING01,   "@{calculation}\tF6" // @v12.6.0 TBBM_CHARGE-->PPDV_LIGHTNING01
 		separator
 		CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,      "@{filter}\tCtrl-V"
 	}
@@ -6210,7 +6210,7 @@ browser LOCTRANSF_DISP north(100), 3, 1, "Складское размещение документов {%s}",
 		RMVBILL       : kbF8,     PPDV_NOICON,        "Убрать размещаемый документ\tF8"
 		EDITBILL      : kbF3,     PPDV_DOCUMENT_PL02, "@{document}\tF3"
 		separator
-		DISPOSE       : kbF6,     TBBM_CHARGE,        "Автоматическое размещение\tF6"
+		DISPOSE       : kbF6,     PPDV_LIGHTNING01,   "Автоматическое размещение\tF6" // @v12.6.0 TBBM_CHARGE-->PPDV_LIGHTNING01
 		separator
 		EDITGOODS     : kbF2,     PPDV_WARESINGLE01,  "@{ware}\tF2"
 		DETAIL        : kbF4,     PPDV_LINS01,        "@{doshowstockbywhcell}\tF4"
@@ -6622,9 +6622,9 @@ browser EVENT north(100), 1, 1, "Events", OWNER|GRID, 0
 	"Object",       4, zstring(128), 0, 10, BCO_USERPROC
 	"Text",         5, zstring(128), 0, 10, BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
-		DETAIL       : kbEnter,  PPDV_EDITFILE02, "@{viewobject}\tEnter"
-		CHANGESTATUS : kbCtrlF6, TBBM_SWITCH,     "@{dochangeeventstatus}\tCtrl-F6"
-		CHANGEFILT   : kbCtrlV,  PPDV_FILTER01,   "@{filter}\tCtrl-V"
+		DETAIL       : kbEnter,  PPDV_EDITFILE02,      "@{viewobject}\tEnter"
+		CHANGESTATUS : kbCtrlF6, PPDV_ROTARY_SWITCH01, "@{dochangeeventstatus}\tCtrl-F6" // @v12.6.0 TBBM_SWITCH-->PPDV_ROTARY_SWITCH01
+		CHANGEFILT   : kbCtrlV,  PPDV_FILTER01,        "@{filter}\tCtrl-V"
 	}
 }
 
@@ -6975,15 +6975,21 @@ browser UNIFINDOBJ north(100), 3, 1, "@unifindobj", OWNER|GRID, 0
 	}
 }
 
-browser TECHROUTE north(100), 3, 1, "", OWNER|GRID, 0
+browser TECHROUTE north(100), 3, 1, "@view_techroute", OWNER|GRID, 0
 {
-	"@objtype",                  1, zstring(48),  0, 10, BCO_USERPROC
-	"@object",                   2, zstring(128), 0, 20, BCO_USERPROC
+	"@objtype",                  1, zstring(48),  0, 10, BCO_USERPROC|BCO_DONTSHOWDUPL
+	"@object",                   2, zstring(128), 0, 20, BCO_USERPROC|BCO_DONTSHOWDUPL
 	"N",                         3, long,         0,  8, BCO_USERPROC
 	"@tech",                     4, zstring(48),  0, 10, BCO_USERPROC
 	"@processor",                5, zstring(48),  0, 10, BCO_USERPROC
 	"(price)",                   6, double,   NMBF_NOZERO, 12.5, BCO_USERPROC
 	"(time)",                    7, long,         0,  8, BCO_USERPROC
+	toolbar TB_FIRST_TOOLBAR {
+		EDITITEM       : kbEnter,     PPDV_EDITFILE02,        "@{edit}\tEnter"
+		ADDITEM        : kbIns,       PPDV_ADDFILE02,         "@{add}\tInsert"
+		ADDBYSAMPLE    : kbAltF2,     PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2"
+		DELETEITEM     : kbDel,       PPDV_DELETEFILE02,      "@{delete}\tDelete"
+	}
 }
 //
 // -------------- Описания команд меню и рабочих столов
@@ -7357,6 +7363,7 @@ cmd CheckChZnMark             { "@{cmd_checkchznmark}"                        PP
 cmd ExportGoods               { "@{job_exportgoods}"                          PPDV_EXPORT01          none none } // @v12.3.10
 cmd TestGlobalSvcAccessibility { "@{testglobalserviceaccessibility}"          PPDV_TEST01            none cmTestGlobalSvcAccessibility } // @v12.3.12
 cmd ConstructionFacadeWindow  { "@{cmd_constructionfacadewindow}"             none                   none cmConstructionFacadeWindow } // @v12.5.3
+cmd ExecSessionOnTechRoute    { "@{cmd_execsessionontechroute}"               none                   none cmExecSessionOnTechRoute } // @v12.6.12
 //
 // -------------- Описания серверных задач
 //
@@ -9628,6 +9635,12 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_TRIANGLELEFT03  // @v12.5.7
 	PPDV_TRIANGLERIGHT03 // @v12.5.7
 	PPDV_TRIANGLEUP03    // @v12.5.7
+	PPDV_FOLDER_PERSON01 // @v12.6.0 
+	PPDV_TODO_LIST01     // @v12.6.0 
+	PPDV_ROTARY_SWITCH01 // @v12.6.0 
+	PPDV_LIGHTNING01     // @v12.6.0 
+	PPDV_CHART_GANTT01   // @v12.6.0 
+	PPDV_PRINTER_EXCLGREEN01 // @v12.6.0 
 }
 
 //

@@ -1873,7 +1873,7 @@ int PPViewTSessLine::AddItemExt(PPID tsesID, PPViewBrowser * pBrw)
 				else
 					tses_rec.Clear();
 				const bool free_goods_sel = LOGIC(TSesObj.GetConfig().Flags & PPTSessConfig::fFreeGoodsSelection);
-				if(!free_goods_sel && TSesObj.GetGoodsStrucList(tsesID, 1, 0, &tgs_list) > 0 && tgs_list.GetGoodsList(&goods_list) > 0) {
+				if(!free_goods_sel && TSesObj.GetGoodsStrucList(tsesID, 1, 0, &tgs_list) > 0 && tgs_list.GetGoodsList(goods_list) > 0) {
 					dlg->setSelectionByGoodsList(&goods_list);
 					dlg->setDTS(&tidi);
 				}

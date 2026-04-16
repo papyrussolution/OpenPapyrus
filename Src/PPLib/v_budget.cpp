@@ -1,5 +1,5 @@
 // V_BUDGET.CPP
-// Copyright (c) A.Starodub 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
+// Copyright (c) A.Starodub 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025, 2026
 // @codepage UTF-8
 // PPViewBudget
 //
@@ -1719,7 +1719,7 @@ int PPViewBudget::OnExecBrowser(PPViewBrowser * pBrw)
 		if(P_Ct && Filt.Kind == BudgetFilt::kBudgetItems) {
 			if((ok = ChangeFilt(1, pBrw)) > 0 && idlist.getCount()) {
 				pBrw->SetCurColumn(cur_col);
-				pBrw->search2(&ct_id, CMPF_LONG, srchFirst, 0);
+				pBrw->search2(&ct_id, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/);
 			}
 		}
 		else if(idlist.getCount())

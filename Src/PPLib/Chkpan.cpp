@@ -2154,7 +2154,6 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, int distribute
 			const double _dis = CSt.GetDiscount(sdb.Amount);
 			discount = _dis * fdiv100r(sdb.Amount);
 			CSt.SettledDiscount = _dis;
-			// @v11.0.9 {
 			if(discount < sdb.Amount && ManDis.Discount > 0.0) {
 				double mandiscount = 0.0;
 				if(ManDis.Flags & ManualDiscount::fPct) {
@@ -2168,7 +2167,6 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, int distribute
 				ManDis.SettledAbsolutDiscount = mandiscount;
 				discount = mandiscount;
 			}
-			// } @v11.0.9 
 		}
 		double part_dis = 0.0;
 		double part_amount = 0.0;
@@ -2638,14 +2636,11 @@ int CPosProcessor::Helper_InitCcPacket(CCheckPacket * pPack, CCheckPacket * pExt
 	}
 	LDBLTOMONEY(cct.Amount, pPack->Rec.Amount);
 	LDBLTOMONEY(cct.Discount, pPack->Rec.Discount);
-	// @v11.9.0 P.SetupCCheckPacket(pPack, CSt, false);
-	// @v11.9.0 {
 	if(pExtPack && pExtPack->GetCount() && pPack->GetCount() == 0) {
 		P.SetupCCheckPacket(pExtPack, CSt, false); // isExtCc == false ибо в данном случае спаренный чек ведет себя как основной чек (основного - просто нет)
 		pExtPack->SetupPaymList(pCcPl);
 		ok = 2; // @v11.9.0
 	}	
-	// } @v11.9.0 
 	else {
 		P.SetupCCheckPacket(pPack, CSt, false);
 		pPack->SetupPaymList(pCcPl);
@@ -3481,7 +3476,7 @@ int CPosProcessor::TurnShadowEgaisMarkAutoselectionCcPacket(const CCheckPacket &
 	if(oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF))
 		SetupState(sEMPTYLIST_EMPTYBUF);
 	ResetSCard();
-	ManDis.Z(); // @v11.0.9
+	ManDis.Z();
 	Flags &= ~(fBankingPayment|fReprinting);
 	OnUpdateList(0);
 	SetPrintedFlag(0);
@@ -4057,7 +4052,6 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 	Ptb.SetBrush(brDiscountGift, SPaintObj::psSolid, GetColorRef(SClrSeagreen), 0);
 	Ptb.SetBrush(brOrderBkg,     SPaintObj::psSolid, GetColorRef(SClrLightsteelblue), 0);
 	//
-	// @v11.4.5 LastGrpListUpdTime = getcurdatetime_();
 	CnSleepTimeout = 0;
 	// @v12.5.9 (moved to CPosProcessor) AutoInputTolerance = 5;
 	IdleClock = clock();
@@ -4376,7 +4370,7 @@ int CheckPaneDialog::IsSalCode(const SString & rInput, SString & rCode)
 	}
 	else {
 		SString & r_temp_buf = SLS.AcquireRvlStr();;
-		TranslateLocaleKeyboardTextToLatin(rInput, r_temp_buf); // @v11.2.5
+		TranslateLocaleKeyboardTextToLatin(rInput, r_temp_buf);
 		do {
 			if(IsCode(r_temp_buf, pfx = "SAL", asterix, rCode))
 				ok = 1;
@@ -4539,7 +4533,6 @@ int CPosProcessor::CalculatePaymentList(PosPaymentBlock & rBlk, int interactive)
 	// } @v12.3.8 
 	if(Flags & fSCardCredit && !(Flags & fSCardBonus) && CSt.GetID() && addpaym_r2 <= add_paym_epsilon) {
 		if(unified_paym_interface && ((credit_charge > 0.0) || non_crd_amt >= rBlk.GetTotal())) 
-			// @v11.1.10 (credit_charge > 0.0)-->(feqeps(credit_charge, 0.0, add_paym_epsilon))
 			// @v11.7.9 !feqeps(credit_charge, 0.0, add_paym_epsilon)-->(credit_charge > 0.0)
 			// @v11.5.11 (non_crd_amt >= rBlk.GetTotal())
 			if(Flags & fBankingPayment)
@@ -10243,6 +10236,77 @@ int CheckPaneDialog::ChZnMarkAutoSelect(PPID goodsID, double qtty, SString & rCh
 	return ok;
 }
 
+int CheckPaneDialog::VerifyChZnMark(PgsBlock & rBlk, int chznProdType/*gt_rec.ChZnProdType*/)
+{
+	int    ok = -1;
+	if(rBlk.ChZnMark.NotEmpty() && PNP.ChZnPermissiveMode == PPSyncCashNode::chznpmStrict && PNP.ChZnGuaID) {
+		ok = 1;
+		PPChZnPrcssr::CodeStatusCollection pm_code_list;
+		pm_code_list.AddCodeEntry(rBlk.ChZnMark, 0, 0);
+		if(pm_code_list.getCount()) {
+			PPChZnPrcssr::PmCheck(PNP.ChZnGuaID, 0, 2/*regular online/offline mode*/, pm_code_list);
+			for(uint i = 0; i < pm_code_list.getCount(); i++) {
+				const PPChZnPrcssr::CodeStatus * p_cle = pm_code_list.at(i);
+				if(p_cle) {
+					const  long ccfg_f2 = CConfig.Flags2__;
+					rBlk.PriceByMarkPmMrp = R2(p_cle->Mrp / 100.0);
+					rBlk.PriceByMarkPmSmp = R2(p_cle->Smp / 100.0);
+					if(ccfg_f2 & CCFLG2_RESTRICTCHZNPMPRICE) { // @v12.2.5
+						// @v12.2.2 {
+						if(chznProdType != GTCHZNPT_ALTTOBACCO) { // @v12.2.4 Для альтернативной табачной продукции ценовое ограничение не проверяем.
+							if(rBlk.PriceByMarkPmMrp > 0.0) {
+								rBlk.AllowedPriceRange.upp = rBlk.PriceByMarkPmMrp;
+							}
+							if(rBlk.PriceByMarkPmSmp > 0.0) {
+								rBlk.AllowedPriceRange.low = rBlk.PriceByMarkPmSmp;
+							}
+							// @v12.2.4 {
+							if(chznProdType == GTCHZNPT_TOBACCO) { // @v12.2.5 @fix (!=)-->(==)
+								if(ccfg_f2 & CCFLG2_RESTRICTCHZNCIGPRICEASMRC) {
+									if(rBlk.PriceByMarkPmMrp > 0.0) {
+										rBlk.AllowedPriceRange.SetVal(rBlk.PriceByMarkPmMrp);
+									}
+								}
+							}
+							// } @v12.2.4 
+						}
+						// } @v12.2.2 
+					}
+					// @v12.5.11 (дабы CCFLG2_RESTRICTCHZNCIGPRICEASMRC работал без CCFLG2_RESTRICTCHZNPMPRICE) {
+					else if(ccfg_f2 & CCFLG2_RESTRICTCHZNCIGPRICEASMRC) {
+						if(chznProdType == GTCHZNPT_TOBACCO) {
+							if(rBlk.PriceByMarkPmMrp > 0.0) {
+								rBlk.AllowedPriceRange.SetVal(rBlk.PriceByMarkPmMrp);
+							}
+						}
+					}
+					// } @v12.5.11 
+					{
+						int    local_err_code = 0;
+						if(p_cle->ErrorCode != 0)
+							local_err_code = PPERR_CHZNMARKPMFAULT;
+						else if(p_cle->Flags & PPChZnPrcssr::CodeStatus::fSold)
+							local_err_code = PPERR_CHZNMARKPMFAULT_SOLD;
+						else if(checkdate(p_cle->ExpiryDtm.d) && getcurdate_() >= p_cle->ExpiryDtm.d) // @v12.1.1
+							local_err_code = PPERR_CHZNMARKPMFAULT_EXPIRY;
+						if(local_err_code) {
+							ok = MessageError(local_err_code, rBlk.ChZnMark, eomBeep|eomStatusLine);
+						}
+						else { // @v12.1.1
+							// OK
+							rBlk.ChZnPm_ReqId = pm_code_list.ReqId;
+							rBlk.ChZnPm_ReqTimestamp = pm_code_list.ReqTimestamp;
+							rBlk.ChZnPm_LocalModuleInstance = pm_code_list.LocalModuleInstance; // @v12.3.12
+							rBlk.ChZnPm_LocalModuleDbVer    = pm_code_list.LocalModuleDbVer;    // @v12.3.12
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int CheckPaneDialog::PreprocessGoodsSelection(PPID locID, PgsBlock & rBlk)
 {
 	int    ok = -1;
@@ -10546,74 +10610,11 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID locID, PgsBlock & rBlk)
 									else if(PNP.CnSpeciality != PPCashNode::spApteka)
 										ok = -1;
 								}
-								// @v12.0.12 {
-								if(rBlk.ChZnMark.NotEmpty() && PNP.ChZnPermissiveMode == PPSyncCashNode::chznpmStrict && PNP.ChZnGuaID) {
-									PPChZnPrcssr::CodeStatusCollection pm_code_list;
-									pm_code_list.AddCodeEntry(rBlk.ChZnMark, 0, 0);
-									if(pm_code_list.getCount()) {
-										PPChZnPrcssr::PmCheck(PNP.ChZnGuaID, 0, 2/*regular online/offline mode*/, pm_code_list);
-										for(uint i = 0; i < pm_code_list.getCount(); i++) {
-											const PPChZnPrcssr::CodeStatus * p_cle = pm_code_list.at(i);
-											if(p_cle) {
-												const  long ccfg_f2 = CConfig.Flags2__;
-												//const double _mrp = R2(p_cle->Mrp / 100.0);
-												//const double _smp = R2(p_cle->Smp / 100.0);
-												rBlk.PriceByMarkPmMrp = R2(p_cle->Mrp / 100.0);
-												rBlk.PriceByMarkPmSmp = R2(p_cle->Smp / 100.0);
-												if(ccfg_f2 & CCFLG2_RESTRICTCHZNPMPRICE) { // @v12.2.5
-													// @v12.2.2 {
-													if(gt_rec.ChZnProdType != GTCHZNPT_ALTTOBACCO) { // @v12.2.4 Для альтернативной табачной продукции ценовое ограничение не проверяем.
-														if(rBlk.PriceByMarkPmMrp > 0.0) {
-															rBlk.AllowedPriceRange.upp = rBlk.PriceByMarkPmMrp;
-														}
-														if(rBlk.PriceByMarkPmSmp > 0.0) {
-															rBlk.AllowedPriceRange.low = rBlk.PriceByMarkPmSmp;
-														}
-														// @v12.2.4 {
-														if(gt_rec.ChZnProdType == GTCHZNPT_TOBACCO) { // @v12.2.5 @fix (!=)-->(==)
-															if(ccfg_f2 & CCFLG2_RESTRICTCHZNCIGPRICEASMRC) {
-																if(rBlk.PriceByMarkPmMrp > 0.0) {
-																	rBlk.AllowedPriceRange.SetVal(rBlk.PriceByMarkPmMrp);
-																}
-															}
-														}
-														// } @v12.2.4 
-													}
-													// } @v12.2.2 
-												}
-												// @v12.5.11 (дабы CCFLG2_RESTRICTCHZNCIGPRICEASMRC работал без CCFLG2_RESTRICTCHZNPMPRICE) {
-												else if(ccfg_f2 & CCFLG2_RESTRICTCHZNCIGPRICEASMRC) {
-													if(gt_rec.ChZnProdType == GTCHZNPT_TOBACCO) {
-														if(rBlk.PriceByMarkPmMrp > 0.0) {
-															rBlk.AllowedPriceRange.SetVal(rBlk.PriceByMarkPmMrp);
-														}
-													}
-												}
-												// } @v12.5.11 
-												{
-													int    local_err_code = 0;
-													if(p_cle->ErrorCode != 0)
-														local_err_code = PPERR_CHZNMARKPMFAULT;
-													else if(p_cle->Flags & PPChZnPrcssr::CodeStatus::fSold)
-														local_err_code = PPERR_CHZNMARKPMFAULT_SOLD;
-													else if(checkdate(p_cle->ExpiryDtm.d) && now_dtm.d >= p_cle->ExpiryDtm.d) // @v12.1.1
-														local_err_code = PPERR_CHZNMARKPMFAULT_EXPIRY;
-													if(local_err_code) {
-														ok = MessageError(local_err_code, chzn_mark, eomBeep|eomStatusLine);
-													}
-													else { // @v12.1.1
-														// OK
-														rBlk.ChZnPm_ReqId = pm_code_list.ReqId;
-														rBlk.ChZnPm_ReqTimestamp = pm_code_list.ReqTimestamp;
-														rBlk.ChZnPm_LocalModuleInstance = pm_code_list.LocalModuleInstance; // @v12.3.12
-														rBlk.ChZnPm_LocalModuleDbVer    = pm_code_list.LocalModuleDbVer;    // @v12.3.12
-													}
-												}
-											}
-										}
-									}
-								}
-								// } @v12.0.12
+								// @v12.6.0 (блок вынесен в отдельную функции поскольку его надо расширять на использование блядкого тс-пиот) {
+								const  int vczmr = VerifyChZnMark(rBlk, gt_rec.ChZnProdType);
+								if(!vczmr)
+									ok = 0;
+								// } @v12.6.0 
 								if(imr != -1000)
 									selectCtrl(CTL_CHKPAN_INPUT);
 							}

@@ -45,7 +45,7 @@ public class StyloQDatabase extends Database {
 		public static final int kFace = 5; // Параметры лика, которые могут быть переданы серверу для ассоциации с нашим клиентским аккаунтом
 		public static final int kDocIncoming = 6; // Входящие документы
 		public static final int kDocOutcoming = 7; // Исходящие документы
-		public static final int kCounter = 8; // @v11.2.10 Специальная единственная запись для хранения текущего счетчика (документов и т.д.)
+		public static final int kCounter = 8; // Специальная единственная запись для хранения текущего счетчика (документов и т.д.)
 		public static final int kNotification_before90v = 9; // @v11.5.9  Документ извещения. Главным образом, предполагаются извещения от сервисов к клиентам. Но, вероятно,
 			// будут возможны и извещения в обратном направлении (клиент о чем-то информирует сервис).
 		public static final int kCurrentState = 10; // @v11.7.0 Документ текущего состояния клиента.
@@ -54,10 +54,10 @@ public class StyloQDatabase extends Database {
 		//
 		public static final int styloqfMediator = 0x0001; // Запись соответствует kForeignService-медиатору. Флаг устанавливается/снимается при создании или обновлении
 		// записи после получения соответствующей информации от сервиса-медиатора
-		//public static final int styloqfDocFinished        = 0x0002; // @v11.3.12 Для документа: цикл обработки для документа завершен. Не может содержать флаги (styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv|styloqfDocDraft)
-		//public static final int styloqfDocWaitForOrdrsp   = 0x0004; // @v11.3.12 Для документа заказа: ожидает подтверждения заказа. Не может содержать флаги (styloqfDocFinished|styloqfDocDraft)
-		//public static final int styloqfDocWaitForDesadv   = 0x0008; // @v11.3.12 Для документа заказа: ожидает документа отгрузки. Не может содержать флаги (styloqfDocFinished|styloqfDocDraft)
-		//public static final int styloqfDocDraft           = 0x0010; // @v11.3.12 Для документа: драфт-версия. Не может содержать флаги (styloqfDocFinished|styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv)
+		//public static final int styloqfDocFinished        = 0x0002; // Для документа: цикл обработки для документа завершен. Не может содержать флаги (styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv|styloqfDocDraft)
+		//public static final int styloqfDocWaitForOrdrsp   = 0x0004; // Для документа заказа: ожидает подтверждения заказа. Не может содержать флаги (styloqfDocFinished|styloqfDocDraft)
+		//public static final int styloqfDocWaitForDesadv   = 0x0008; // Для документа заказа: ожидает документа отгрузки. Не может содержать флаги (styloqfDocFinished|styloqfDocDraft)
+		//public static final int styloqfDocDraft           = 0x0010; // Для документа: драфт-версия. Не может содержать флаги (styloqfDocFinished|styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv)
 		//public static final int styloqfDocTransmission    = 0x0020; // @v11.4.0  Для документа: технический флаг, устанавливаемый перед отправкой документа контрагенту и снимаемый после того, как
 		// контрагент подтвердил получение. Необходим для управления документами, передача которых не завершилась.
 		//public static final int styloqfDocCancelledByCli  = 0x0040; // @v11.4.0 Для документа: документ отменен клиентом

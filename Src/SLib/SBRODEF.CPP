@@ -325,7 +325,7 @@ SString & BrowserDef::GetCellText(long row, int column, bool dontRestrictByFmtLe
 	rBuf.Z();
 	TYPEID typ = 0;
 	long   fmt = 0;
-	char   dest_data[1024];
+	char   dest_data[4096]; // @v12.6.0 [1024]-->[4096]
 	const  void * p_final_data = Helper_GetCellData(getRow(row), column, &typ, &fmt, 0/*coptions*/, dest_data, sizeof(dest_data));
 	if(p_final_data) {
 		// @v12.4.12 {
@@ -473,7 +473,7 @@ SString & BrowserDef::getMultiLinesText(long row, int column, /*char * pBuf*/SSt
 	TYPEID typ = 0;
 	long   fmt = 0;
 	uint   coptions = 0;
-	char   dest_data[1024];
+	char   dest_data[4096]; // @v12.6.0 [1024]-->[4096]
 	const  void * p_final_data = Helper_GetCellData(getRow(row), column, &typ, &fmt, &coptions, dest_data, sizeof(dest_data));
 	if(p_final_data) {
 		// @v12.5.10 sttostr(typ, p_final_data, fmt, buf);
@@ -545,7 +545,7 @@ int BrowserDef::go(long row)
 	return result;
 }
 
-int BrowserDef::search2(const void * data, CompFunc cmpFunc, int srchMode, size_t offs)
+int BrowserDef::search2(const void * data, CompFunc cmpFunc, int srchMode, size_t offs, void * pExtraData)
 {
 	int    found = 0;
 	if(data) {
@@ -553,8 +553,9 @@ int BrowserDef::search2(const void * data, CompFunc cmpFunc, int srchMode, size_
 		if(r) {
 			do {
 				const char * p = static_cast<const char *>(getRow(_curItem()));
-				if(p && cmpFunc(p + offs, data, 0) == 0)
+				if(p && cmpFunc(p + offs, data, pExtraData) == 0) {
 					found = 1;
+				}
 			} while(!found && step(1) > 0);
 		}
 	}

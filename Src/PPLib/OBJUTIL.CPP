@@ -1366,11 +1366,39 @@ static int STDCALL Implement_GetObjectName(PPID objType, PPID objID, SString & r
 					break;
 				case PPOBJ_AMOUNTTYPE:
 					{
-						PPObjAmountType amtt_obj;
-						PPAmountType amtt_rec;
-						if(amtt_obj.Fetch(objID, &amtt_rec) > 0) {
-							_t = amtt_rec.Name;
+						PPObjAmountType _obj;
+						PPAmountType _rec;
+						if(_obj.Fetch(objID, &_rec) > 0) {
+							_t = _rec.Name;
 							ok = 1;
+						}
+						else {
+							ideqvalstr(objID, _t);
+							ok = -1;
+						}
+					}
+					break;
+				case PPOBJ_TECH:
+					{
+						PPObjTech _obj;
+						TechTbl::Rec _rec;
+						if(_obj.Fetch(objID, &_rec) > 0) {
+							_t = _rec.Code;
+							ok = 1;							
+						}
+						else {
+							ideqvalstr(objID, _t);
+							ok = -1;
+						}
+					}
+					break;
+				case PPOBJ_PROCESSOR:
+					{
+						PPObjProcessor _obj;
+						ProcessorTbl::Rec _rec;
+						if(_obj.Fetch(objID, &_rec) > 0) {
+							_t = _rec.Name;
+							ok = 1;							
 						}
 						else {
 							ideqvalstr(objID, _t);

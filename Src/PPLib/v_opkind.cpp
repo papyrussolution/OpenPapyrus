@@ -1,5 +1,5 @@
 // V_OPKIND.CPP
-// Copyright (c) A.Starodub 2004, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
+// Copyright (c) A.Starodub 2004, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025, 2026
 //
 #include <pp.h>
 #pragma hdrstop
@@ -338,12 +338,12 @@ int PPViewOprKind::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 				long   c = p_def->_curItem();
 				p_def->setArray(p_array, 0, 1);
 				if(ppvCmd == PPVCMD_USERSORT && id) {
-					pBrw->search2(&id, CMPF_LONG, srchFirst, 0);
+					pBrw->search2(&id, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/);
 				}
 				else if(!oneof2(ppvCmd, PPVCMD_DELETEITEM, PPVCMD_REFRESH) && GetLastUpdatedObjects(0, last_upd_obj_list) > 0) {
 					assert(last_upd_obj_list.getCount());
 					last_upd_obj_list.sortAndUndup();
-					pBrw->search2(&last_upd_obj_list.at(0), CMPF_LONG, srchFirst, 0);
+					pBrw->search2(&last_upd_obj_list.at(0), CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/);
 				}
 				else
 					pBrw->go(c);

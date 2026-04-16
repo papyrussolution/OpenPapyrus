@@ -689,7 +689,7 @@ static int SelectObjTagType(PPObjectTag2 * pData, const ObjTagFilt * pObjTagF)
 		void   SetupObjGroup()
 		{
 			const  PPID obj_type = getCtrlLong(CTLSEL_OBJTAG_OBJTYP);
-			int    dsbl = 0;
+			bool   dsbl = false;
 			switch(obj_type) {
 				case PPOBJ_PERSON:
 				case PPOBJ_LOCATION: // @v12.2.10 при выборе локации доп объект так же вид персоналии,
@@ -705,7 +705,7 @@ static int SelectObjTagType(PPObjectTag2 * pData, const ObjTagFilt * pObjTagF)
 					break;
 				default:
 					setCtrlLong(CTLSEL_OBJTAG_OBJGRP, 0);
-					dsbl = 1;
+					dsbl = true;
 					break;
 			}
 			disableCtrl(CTLSEL_OBJTAG_OBJGRP, dsbl);

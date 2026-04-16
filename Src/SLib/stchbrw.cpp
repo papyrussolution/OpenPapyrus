@@ -291,16 +291,8 @@ int FASTCALL STimeChunkBrowser::InvalidateChunk(long chunkId)
 			}
 			return 0;
 		case WM_SETFOCUS:
-			if(!(TView::SGetWindowStyle(hWnd) & WS_CAPTION)) {
-				SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
-				APPL->NotifyFrame(0);
-			}
 			p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
-			if(p_view) {
-				APPL->SelectTabItem(p_view);
-				TView::messageBroadcast(p_view, cmReceivedFocus);
-				p_view->select();
-			}
+			TWindowBase::Helper_SetFocus(hWnd, p_view);
 			break;
 		case WM_KILLFOCUS:
 			if(!(TView::SGetWindowStyle(hWnd) & WS_CAPTION))

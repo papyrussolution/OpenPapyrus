@@ -2022,10 +2022,22 @@ int SupplAgtDialog::EditExchangeCfg()
 	PPAccSheet acs_rec;
 	THROW_INVARG(pArRec);
 	THROW(acs_obj.Fetch(pArRec->AccSheetID, &acs_rec) > 0);
+	/* @v12.6.0
 	if(pArRec->AccSheetID == GetSupplAccSheet() && acs_rec.Flags & ACSHF_USESUPPLAGT)
 		ok = 2;
 	else if(pArRec->AccSheetID == GetSellAccSheet() || acs_rec.Flags & ACSHF_USECLIAGT)
 		ok = 1;
+	*/
+	// @v12.6.0 {
+	if(acs_rec.Flags & ACSHF_USESUPPLAGT)
+		ok = 2; // suppl-agt
+	else if(acs_rec.Flags & ACSHF_USECLIAGT)
+		ok = 1; // cli-agt
+	else if(pArRec->AccSheetID == GetSupplAccSheet())
+		ok = 2; // suppl-agt
+	else if(pArRec->AccSheetID == GetSellAccSheet())
+		ok = 1; // cli-agt
+	// } @v12.6.0 
 	CATCHZOK
 	return ok;
 }

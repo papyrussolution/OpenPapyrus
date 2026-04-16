@@ -2243,7 +2243,7 @@ int PPObjArticle::CheckObject(const ArticleTbl::Rec * pRec, SString * pMsgBuf)
 //
 class ArticleCache : public ObjCacheHash {
 public:
-	ArticleCache() : ObjCacheHash(PPOBJ_ARTICLE, sizeof(Data), 1024*1024, 4), IsVatFreeListInited(0)
+	ArticleCache() : ObjCacheHash(PPOBJ_ARTICLE, sizeof(Data), SKILOBYTE(1024), 4), IsVatFreeListInited(0)
 	{
 	}
 	virtual void FASTCALL Dirty(PPID id); // @sync_w

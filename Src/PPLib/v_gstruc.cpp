@@ -902,7 +902,7 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 					for(uint i = 0; i < Problems.getCount(); i++) {
 						const PPObjGoodsStruc::CheckGsProblem * p_problem = Problems.at(i);
 						if(static_cast<PPID>(p_problem->LocIdent) > brw_hdr.GStrucID) {
-							if(pBrw->search2(&p_problem->LocIdent, CMPF_LONG, srchFirst, 0)) {
+							if(pBrw->search2(&p_problem->LocIdent, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/)) {
 								ok = 1;
 								break;
 							}
@@ -916,7 +916,7 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 					if(i) do {
 						const PPObjGoodsStruc::CheckGsProblem * p_problem = Problems.at(--i);
 						if(static_cast<PPID>(p_problem->LocIdent) < brw_hdr.GStrucID) {
-							if(pBrw->search2(&p_problem->LocIdent, CMPF_LONG, srchFirst, 0)) {
+							if(pBrw->search2(&p_problem->LocIdent, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/)) {
 								ok = 1;
 								break;
 							}
@@ -945,7 +945,7 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 						}
 						else {
 							long gstruc_id = p_ev_data->FocusedItemIdent;
-							pBrw->search2(&gstruc_id, CMPF_LONG, srchFirst, 0);
+							pBrw->search2(&gstruc_id, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/);
 						}
 					}
 				}
@@ -957,7 +957,7 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 			AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
 			if(p_def) {
 				p_def->setArray(new SArray(Cb.ItemList), 0, 1);
-				pBrw->search2(&brw_hdr.GStrucID, CMPF_LONG, srchFirst, 0);
+				pBrw->search2(&brw_hdr.GStrucID, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/);
 			}
 		}
 		else if(ppvCmd == PPVCMD_USERSORT) {

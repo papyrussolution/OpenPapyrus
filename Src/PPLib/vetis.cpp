@@ -11698,7 +11698,7 @@ void PPViewVetisDocument::PreprocessBrowser(PPViewBrowser * pBrw)
 					sel_id = ent.ID;
 			}
 			if(sel_id)
-				pBrw->search2(&sel_id, CMPF_LONG, srchFirst, 0);
+				pBrw->search2(&sel_id, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/);
 		}
 		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
 	}

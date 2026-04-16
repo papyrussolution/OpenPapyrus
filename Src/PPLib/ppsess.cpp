@@ -3592,7 +3592,7 @@ int PPSession::Helper_Process_HostAvailability_Query(const char * pHost, int que
 	return result;
 }
 
-void PPSession::CheckRemoteHosts(const StringSet & rHostList) // @v11.1.2
+void PPSession::CheckRemoteHosts(const StringSet & rHostList)
 {
 	class InnerThread : public PPThread {
 	public:
