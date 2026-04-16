@@ -2088,14 +2088,18 @@ int PPObjTSession::Edit_ExecSessionOnTechRoute(PPID prcID, bool stopCurrentSessi
 		}
 		DECL_DIALOG_SETDTS()
 		{
+			int   ok = 1;
 			PrcTechCtrlGroup::Rec ptcg_rec;
 			ptcg_rec.PrcID = Data.PrcID;
 			if(setGroupData(ctlgroupPrcTech, &ptcg_rec)) {
 				;
 			}
+			return ok;
 		}
 		DECL_DIALOG_GETDTS()
 		{
+			int   ok = 1;
+			return ok;
 		}
 	private:
 		DECL_HANDLE_EVENT
