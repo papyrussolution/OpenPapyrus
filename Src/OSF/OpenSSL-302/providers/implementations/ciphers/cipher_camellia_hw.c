@@ -18,7 +18,8 @@
 
 static int cipher_hw_camellia_initkey(PROV_CIPHER_CTX * dat, const unsigned char * key, size_t keylen)
 {
-	int ret, mode = dat->mode;
+	int ret;
+	int mode = dat->mode;
 	PROV_CAMELLIA_CTX * adat = (PROV_CAMELLIA_CTX*)dat;
 	CAMELLIA_KEY * ks = &adat->ks.ks;
 	dat->ks = ks;

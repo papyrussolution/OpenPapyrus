@@ -1043,12 +1043,13 @@ long SHistogram::Put(double val)
 #endif
 		}
 	}
-	for(i = 0; i < c; i++)
+	for(i = 0; i < c; i++) {
 		if(val < BinList.at(i).Val) {
 			val_id = (i == 0) ? -MAXLONG : BinList.at(i-1).Key;
 			r = 1;
 			break;
 		}
+	}
 	if(!r)
 		val_id = c ? BinList.at(c-1).Key : -MAXLONG;
 	if(ValList.bsearch(&val_id, &(c = 0), CMPF_LONG)) {
@@ -1073,7 +1074,7 @@ long SHistogram::Put(double val)
 int SHistogram::GetTotal(Val * pVal) const
 {
 	int    ok = -1;
-	Val t;
+	Val    t;
 	MEMSZERO(t);
 	const uint c = ValList.getCount();
 	if(c) {
@@ -1130,13 +1131,13 @@ int  SHistogram::GetResult(uint pos, Result * pResult) const
 //
 //
 //
-static const double _mizer  = 1.0E-8; //0.00000001
-static const float  _mizerf = 1.0E-8f; //0.00000001f
+static constexpr double _mizer  = 1.0E-8; //0.00000001
+static constexpr float  _mizerf = 1.0E-8f; //0.00000001f
 
 static FORCEINLINE double implement_round(double n, int prec)
 {
-	const  bool sign = LOGIC(fsign(n) - 1);
-	if(sign)
+	const  bool is_neg = (n < 0.0);
+	if(is_neg)
 		n = _chgsign(n);
 	if(prec == 0) {
 		const double f = floor(n);
@@ -1148,13 +1149,13 @@ static FORCEINLINE double implement_round(double n, int prec)
 		const double f = floor(t);
 		n = (((t - f + _mizer) < 0.5) ? f : ceil(t)) / p;
 	}
-	return sign ? _chgsign(n) : n;
+	return is_neg ? _chgsign(n) : n;
 }
 
 static FORCEINLINE float implement_roundf(float n, int prec) // @v12.5.7
 {
-	const  bool sign = LOGIC(fsignf(n) - 1);
-	if(sign)
+	const  bool is_neg = (n < 0.0f);
+	if(is_neg)
 		n = _chgsignf(n);
 	if(prec == 0) {
 		const float f = floorf(n);
@@ -1166,7 +1167,7 @@ static FORCEINLINE float implement_roundf(float n, int prec) // @v12.5.7
 		const float  f = floorf(t);
 		n = (((t - f + _mizerf) < 0.5f) ? f : ceilf(t)) / p;
 	}
-	return sign ? _chgsignf(n) : n;
+	return is_neg ? _chgsignf(n) : n;
 }
 
 double FASTCALL round(double n, int prec)

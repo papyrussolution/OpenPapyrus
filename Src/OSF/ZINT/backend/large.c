@@ -157,6 +157,6 @@ void FASTCALL binary_load(short reg[], const char pData[], const uint srcLen)
 
 void FASTCALL binary_loads(short reg[], const char pData[])
 {
-	binary_load(reg, pData, sstrlen(pData));
+	binary_load(reg, pData, sstrlen32(pData));
 }
 

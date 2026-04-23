@@ -692,7 +692,7 @@ int PPALDD_PaymPlan::InitData(PPFilt & rFilt, long rsrv)
 }
 
 void PPALDD_PaymPlan::Destroy() { DESTROY_PPVIEW_ALDD(PaymPlan); }
-int  PPALDD_PaymPlan::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(PaymPlan); }
+int  PPALDD_PaymPlan::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/) { INIT_PPVIEW_ALDD_ITER(PaymPlan); }
 
 int PPALDD_PaymPlan::NextIteration(PPIterID iterId)
 {

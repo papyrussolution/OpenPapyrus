@@ -4000,14 +4000,14 @@ int GoodsStrucCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraD
 	PPObjGoodsStruc gs_obj;
 	PPGoodsStrucHeader rec;
 	if(gs_obj.Search(id, &rec) > 0) {
-#define CPY_FLD(Fld) p_cache_rec->Fld=rec.Fld
-		CPY_FLD(VariedPropObjType);
-		CPY_FLD(Period);
-		CPY_FLD(CommDenom);
-		CPY_FLD(GiftLimit);
-		CPY_FLD(Flags);
-		CPY_FLD(ParentID);
-#undef CPY_FLD
+#define CPYFLD(Fld) p_cache_rec->Fld=rec.Fld
+		CPYFLD(VariedPropObjType);
+		CPYFLD(Period);
+		CPYFLD(CommDenom);
+		CPYFLD(GiftLimit);
+		CPYFLD(Flags);
+		CPYFLD(ParentID);
+#undef CPYFLD
 		ok = PutName(rec.Name, p_cache_rec);
 	}
 	else
@@ -4020,16 +4020,16 @@ void GoodsStrucCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec)
 	PPGoodsStrucHeader * p_data_rec = static_cast<PPGoodsStrucHeader *>(pDataRec);
 	const D * p_cache_rec = static_cast<const D *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
-#define CPY_FLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
+#define CPYFLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
 	p_data_rec->Tag = PPOBJ_GOODSSTRUC;
-	CPY_FLD(ID);
-	CPY_FLD(VariedPropObjType);
-	CPY_FLD(Period);
-	CPY_FLD(CommDenom);
-	CPY_FLD(GiftLimit);
-	CPY_FLD(Flags);
-	CPY_FLD(ParentID);
-#undef CPY_FLD
+	CPYFLD(ID);
+	CPYFLD(VariedPropObjType);
+	CPYFLD(Period);
+	CPYFLD(CommDenom);
+	CPYFLD(GiftLimit);
+	CPYFLD(Flags);
+	CPYFLD(ParentID);
+#undef CPYFLD
 	GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));
 }
 

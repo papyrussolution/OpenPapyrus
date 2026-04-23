@@ -1100,7 +1100,7 @@ int PPALDD_GoodsTaxAnlz::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_GoodsTaxAnlz::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_GoodsTaxAnlz::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	PPViewGoodsTaxAnalyze * p_v = static_cast<PPViewGoodsTaxAnalyze *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	IterProlog(iterId, 1);
@@ -1198,7 +1198,7 @@ int PPALDD_GTaxAnlzTotal::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_GTaxAnlzTotal::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_GTaxAnlzTotal::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	IterProlog(iterId, 1);
 	if(sortId >= 0)

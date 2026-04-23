@@ -244,65 +244,6 @@ int PPView::DescriptionList::GetList(bool includeSpecialItems, TSCollection <Rc>
 	return ok;
 }
 
-#if 0 // @v11.4.4 {
-/*static*/int PPView::LoadResource(int kind, int id, PPView::Rc & rRc)
-{
-	int    ok = 1;
-	TVRez * p_rez = P_SlRez;
-	rRc.Z();
-	rRc.Id = id;
-	THROW_PP(p_rez, PPERR_RESFAULT);
-	if(kind == 0) {
-		THROW(p_rez->findResource(id, PP_RCDECLVIEW));
-		p_rez->getString(rRc.Symb, 0);
-		p_rez->getString(rRc.Descr, 0);
-		PPExpandString(rRc.Descr, CTRANSF_UTF8_TO_OUTER);
-	}
-	else if(kind == 1) {
-		THROW(p_rez->findResource(id, PP_RCDECLFILT));
-		p_rez->getString(rRc.Symb, 0);
-	}
-	else {
-		CALLEXCEPT_PP(PPERR_INVPARAM);
-	}
-	CATCHZOK
-	return ok;
-}
-
-/*static*/int PPView::GetResourceLists(bool includeSpecialItems, StrAssocArray * pSymbList, StrAssocArray * pTextList)
-{
-	int    ok = 1;
-	CALLPTRMEMB(pSymbList, Z());
-	CALLPTRMEMB(pTextList, Z());
-	TVRez * p_rez = P_SlRez;
-	THROW_PP(p_rez, PPERR_RESFAULT);
-	{
-		ulong pos = 0;
-		Rc rc;
-		for(uint rsc_id = 0; p_rez->enumResources(PP_RCDECLVIEW, &rsc_id, &pos) > 0;) {
-			if(!oneof4(rsc_id, PPVIEW_GOODSGROUP, PPVIEW_REGISTER, PPVIEW_TAG, PPVIEW_BBOARD)) { // Исключаем фиктивные PPView
-				const void * p_extra_init_ptr = 0;
-				THROW(LoadResource(0, rsc_id, rc));
-				if(pSymbList) {
-					THROW_SL(pSymbList->Add(rsc_id, rc.Symb));
-				}
-				if(pTextList) {
-					PPExpandString(rc.Descr, CTRANSF_UTF8_TO_INNER);
-					THROW_SL(pTextList->Add(rsc_id, rc.Descr));
-				}
-			}
-		}
-		// @v11.4.4 {
-		if(includeSpecialItems) {
-		}
-		// } @v11.4.4 
-		CALLPTRMEMB(pTextList, SortByText());
-	}
-	CATCHZOK
-	return ok;
-}
-#endif // } 0 @v11.4.4
-
 /*static*/int FASTCALL PPView::CreateFiltInstance(int filtID, PPBaseFilt ** ppF)
 {
 	ASSIGN_PTR(ppF, 0);

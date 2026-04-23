@@ -1278,16 +1278,16 @@ int AccountCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData
 	PPObjAccount acc_obj;
 	PPAccount rec;
 	if(acc_obj.Search(id, &rec) > 0) {
-#define CPY_FLD(Fld) p_cache_rec->Fld=rec.Fld
-		CPY_FLD(CurID);
-		CPY_FLD(AccSheetID);
-		CPY_FLD(OpenDate);
-		CPY_FLD(Type);
-		CPY_FLD(Kind);
-		CPY_FLD(Flags);
-		CPY_FLD(Limit);
-		CPY_FLD(Overdraft);
-#undef CPY_FLD
+#define CPYFLD(Fld) p_cache_rec->Fld=rec.Fld
+		CPYFLD(CurID);
+		CPYFLD(AccSheetID);
+		CPYFLD(OpenDate);
+		CPYFLD(Type);
+		CPYFLD(Kind);
+		CPYFLD(Flags);
+		CPYFLD(Limit);
+		CPYFLD(Overdraft);
+#undef CPYFLD
 		p_cache_rec->Ac = rec.A.Ac;
 		p_cache_rec->Sb = rec.A.Sb;
 		PPStringSetSCD ss;
@@ -1304,17 +1304,17 @@ void AccountCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) co
 {
 	PPAccount * p_data_rec = static_cast<PPAccount *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
-#define CPY_FLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
-	CPY_FLD(ID);
-	CPY_FLD(CurID);
-	CPY_FLD(AccSheetID);
-	CPY_FLD(OpenDate);
-	CPY_FLD(Type);
-	CPY_FLD(Kind);
-	CPY_FLD(Flags);
-	CPY_FLD(Limit);
-	CPY_FLD(Overdraft);
-#undef CPY_FLD
+#define CPYFLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
+	CPYFLD(ID);
+	CPYFLD(CurID);
+	CPYFLD(AccSheetID);
+	CPYFLD(OpenDate);
+	CPYFLD(Type);
+	CPYFLD(Kind);
+	CPYFLD(Flags);
+	CPYFLD(Limit);
+	CPYFLD(Overdraft);
+#undef CPYFLD
 	p_data_rec->A.Ac = p_cache_rec->Ac;
 	p_data_rec->A.Sb = p_cache_rec->Sb;
 	char   temp_buf[2048];

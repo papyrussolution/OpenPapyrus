@@ -50,6 +50,7 @@ int  SimpleCpp_Test_Main(int argc, char ** argv);
 int  SimpleCpp_Test_Main2();
 int  TestGlobalServiceAccessibility();
 int  TestRestic();
+int  TestAutotranslateText(); // @v12.6.1
 // @v12.5.12 void Test_MySQL_ReadBLOB(); // @v12.5.7
 //
 // 
@@ -2041,7 +2042,8 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
-	TestGtinStruc();
+	TestAutotranslateText(); // @v12.6.1
+	//TestGtinStruc();
 	//TestConfigDatabase_StringHistory();
 	//TestConfigDatabase_StringHistory_Interactive();
 	//Test_MySQL_ReadBLOB(); // @v12.5.7

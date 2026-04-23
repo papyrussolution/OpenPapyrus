@@ -1303,7 +1303,7 @@ int PPALDD_PUGL::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_PUGL::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_PUGL::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	if(sortId >= 0)
 		SortIdx = sortId;

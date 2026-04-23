@@ -4558,21 +4558,21 @@ int SCardSeriesCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extra
 	PPObjSCardSeries scs_obj;
 	PPSCardSeries rec;
 	if(scs_obj.Search(id, &rec) > 0) {
-#define CPY_FLD(Fld) p_cache_rec->Fld=rec.Fld
-		CPY_FLD(Issue);
-		CPY_FLD(Expiry);
-		CPY_FLD(PDis);
-		CPY_FLD(MaxCredit);
-		CPY_FLD(Flags);
-		CPY_FLD(QuotKindID_s);
-		CPY_FLD(PersonKindID);
-		CPY_FLD(CrdGoodsGrpID);
-		CPY_FLD(BonusGrpID);
-		CPY_FLD(BonusChrgGrpID);
-		CPY_FLD(ChargeGoodsID);
-		CPY_FLD(BonusChrgExtRule);
-		CPY_FLD(ParentID);
-#undef CPY_FLD
+#define CPYFLD(Fld) p_cache_rec->Fld=rec.Fld
+		CPYFLD(Issue);
+		CPYFLD(Expiry);
+		CPYFLD(PDis);
+		CPYFLD(MaxCredit);
+		CPYFLD(Flags);
+		CPYFLD(QuotKindID_s);
+		CPYFLD(PersonKindID);
+		CPYFLD(CrdGoodsGrpID);
+		CPYFLD(BonusGrpID);
+		CPYFLD(BonusChrgGrpID);
+		CPYFLD(ChargeGoodsID);
+		CPYFLD(BonusChrgExtRule);
+		CPYFLD(ParentID);
+#undef CPYFLD
 		StringSet & r_ss = DS.AcquireRvlSsSCD();
 		r_ss.add(rec.Name);
 		r_ss.add(rec.Symb);
@@ -4586,23 +4586,23 @@ void SCardSeriesCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec
 	PPSCardSeries * p_data_rec = static_cast<PPSCardSeries *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(PPSCardSeries));
-#define CPY_FLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
+#define CPYFLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
 	p_data_rec->Tag = PPOBJ_SCARDSERIES;
-	CPY_FLD(ID);
-	CPY_FLD(Issue);
-	CPY_FLD(Expiry);
-	CPY_FLD(PDis);
-	CPY_FLD(MaxCredit);
-	CPY_FLD(Flags);
-	CPY_FLD(QuotKindID_s);
-	CPY_FLD(PersonKindID);
-	CPY_FLD(CrdGoodsGrpID);
-	CPY_FLD(BonusGrpID);
-	CPY_FLD(BonusChrgGrpID);
-	CPY_FLD(ChargeGoodsID);
-	CPY_FLD(BonusChrgExtRule);
-	CPY_FLD(ParentID);
-#undef CPY_FLD
+	CPYFLD(ID);
+	CPYFLD(Issue);
+	CPYFLD(Expiry);
+	CPYFLD(PDis);
+	CPYFLD(MaxCredit);
+	CPYFLD(Flags);
+	CPYFLD(QuotKindID_s);
+	CPYFLD(PersonKindID);
+	CPYFLD(CrdGoodsGrpID);
+	CPYFLD(BonusGrpID);
+	CPYFLD(BonusChrgGrpID);
+	CPYFLD(ChargeGoodsID);
+	CPYFLD(BonusChrgExtRule);
+	CPYFLD(ParentID);
+#undef CPYFLD
 	char   temp_buf[1024];
 	GetName(pEntry, temp_buf, sizeof(temp_buf));
 	StringSet & r_ss = DS.AcquireRvlSsSCD();
@@ -4719,23 +4719,23 @@ int SCardCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/
 	SCardTbl::Rec rec;
 	if(id && sc_obj.Search(id, &rec) > 0) {
 
-		#define CPY_FLD(f) p_cache_rec->f = rec.f
+		#define CPYFLD(f) p_cache_rec->f = rec.f
 
-		CPY_FLD(SeriesID);
-		CPY_FLD(PersonID);
-		CPY_FLD(LocID);
-		CPY_FLD(Flags);
-		CPY_FLD(Dt);
-		CPY_FLD(Expiry);
-		CPY_FLD(PDis);
-		CPY_FLD(AutoGoodsID);
-		CPY_FLD(MaxCredit);
-		CPY_FLD(UsageTmStart);
-		CPY_FLD(UsageTmEnd);
-		CPY_FLD(PeriodTerm);
-		CPY_FLD(PeriodCount);
+		CPYFLD(SeriesID);
+		CPYFLD(PersonID);
+		CPYFLD(LocID);
+		CPYFLD(Flags);
+		CPYFLD(Dt);
+		CPYFLD(Expiry);
+		CPYFLD(PDis);
+		CPYFLD(AutoGoodsID);
+		CPYFLD(MaxCredit);
+		CPYFLD(UsageTmStart);
+		CPYFLD(UsageTmEnd);
+		CPYFLD(PeriodTerm);
+		CPYFLD(PeriodCount);
 
-		#undef CPY_FLD
+		#undef CPYFLD
 
 		MultTextBlock b;
 		b.Add(rec.Code);
@@ -4754,24 +4754,24 @@ void SCardCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) cons
 		const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 		memzero(p_data_rec, sizeof(*p_data_rec));
 
-		#define CPY_FLD(f) p_data_rec->f = p_cache_rec->f
+		#define CPYFLD(f) p_data_rec->f = p_cache_rec->f
 
-		CPY_FLD(ID);
-		CPY_FLD(SeriesID);
-		CPY_FLD(PersonID);
-		CPY_FLD(LocID);
-		CPY_FLD(Flags);
-		CPY_FLD(Dt);
-		CPY_FLD(Expiry);
-		CPY_FLD(PDis);
-		CPY_FLD(AutoGoodsID);
-		CPY_FLD(MaxCredit);
-		CPY_FLD(UsageTmStart);
-		CPY_FLD(UsageTmEnd);
-		CPY_FLD(PeriodTerm);
-		CPY_FLD(PeriodCount);
+		CPYFLD(ID);
+		CPYFLD(SeriesID);
+		CPYFLD(PersonID);
+		CPYFLD(LocID);
+		CPYFLD(Flags);
+		CPYFLD(Dt);
+		CPYFLD(Expiry);
+		CPYFLD(PDis);
+		CPYFLD(AutoGoodsID);
+		CPYFLD(MaxCredit);
+		CPYFLD(UsageTmStart);
+		CPYFLD(UsageTmEnd);
+		CPYFLD(PeriodTerm);
+		CPYFLD(PeriodCount);
 
-		#undef CPY_FLD
+		#undef CPYFLD
 
 		MultTextBlock b(this, pEntry);
 		b.Get(p_data_rec->Code, sizeof(p_data_rec->Code));

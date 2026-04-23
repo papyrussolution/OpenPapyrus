@@ -1961,11 +1961,12 @@ int ObjLinkFiles::At(uint i, SString & rPath) const
 int ObjLinkFiles::GetFreeNum(uint * pNum) const
 {
 	int    ok = 0;
-	for(uint i = 1, k = 1; !ok && i > 0; (i <<= 1), k++)
+	for(uint i = 1, k = 1; !ok && i > 0; (i <<= 1), k++) {
 		if(!(FilesNums & i)) {
 			ASSIGN_PTR(pNum, k);
 			ok = 1;
 		}
+	}
 	return ok;
 }
 
@@ -3450,4 +3451,3 @@ int UniFindObj()
 	return ok;
 	*/
 }
-// } @construction

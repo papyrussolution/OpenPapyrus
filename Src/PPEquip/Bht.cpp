@@ -3857,7 +3857,7 @@ int PPObjBHT::AcceptInvent(PPID opID, PPObjBHT::InventRec * pRec, BillTbl::Rec *
 				for(DateIter di(inv_dt, inv_dt); !new_code && P_BObj->P_Tbl->EnumByOpr(opID, &di, &bill_rec) > 0;) {
 					if(bill_code.CmpNC(bill_rec.Code) == 0) {
 						__RemoveUndupNameSuffix(bill_code);
-						bill_code.Strip().Space().CatChar('#').Cat(++uc); // @v11.1.12 @fix Cat('#')-->CatChar('#')
+						bill_code.Strip().Space().CatChar('#').Cat(++uc);
 						new_code = 1;
 					}
 				}

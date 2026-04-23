@@ -46,8 +46,8 @@ struct lzh_dec {
 	 * Bit stream reader.
 	 */
 	struct lzh_br {
-#define CACHE_TYPE              uint64
-#define CACHE_BITS              (8 * sizeof(CACHE_TYPE))
+#define CACHE_TYPE uint64
+#define CACHE_BITS (8 * sizeof(CACHE_TYPE))
 		/* Cache buffer. */
 		CACHE_TYPE cache_buffer;
 		/* Indicates how many bits avail in cache_buffer. */

@@ -560,58 +560,58 @@ int PPViewTrfrAnlz::FlashCacheItem(BExtInsert * pBei, const TagrCacheItem & rIte
 	else if(rItem.DbPos) {
 		TempTrfrGrpngTbl::Rec & r_rec = P_TrGrpngTbl->data;
 		THROW_DB(P_TrGrpngTbl->getDirectForUpdate(-1, 0, rItem.DbPos));
-#define CPY(f) r_rec.f = rItem.f
-		CPY(ID__);
-		CPY(Dt);
-		CPY(GoodsID);
-		CPY(PersonID);
-		CPY(ArticleID);
-		CPY(BillID);
-		CPY(DlvrLocID);
-		CPY(LocCount);
-		CPY(Qtty);
-		CPY(PhQtty);
-		CPY(Cost);
-		CPY(Price);
-		CPY(Discount);
-		CPY(Income);
-		CPY(SaldoQtty);
-		CPY(SaldoAmt);
-		CPY(PVat);
-		CPY(Brutto);
-		CPY(LinkQtty);
-		CPY(LinkCost);
-		CPY(LinkPrice);
-		CPY(ExtVal1);
-#undef CPY
+#define CPYFLD(f) r_rec.f = rItem.f
+		CPYFLD(ID__);
+		CPYFLD(Dt);
+		CPYFLD(GoodsID);
+		CPYFLD(PersonID);
+		CPYFLD(ArticleID);
+		CPYFLD(BillID);
+		CPYFLD(DlvrLocID);
+		CPYFLD(LocCount);
+		CPYFLD(Qtty);
+		CPYFLD(PhQtty);
+		CPYFLD(Cost);
+		CPYFLD(Price);
+		CPYFLD(Discount);
+		CPYFLD(Income);
+		CPYFLD(SaldoQtty);
+		CPYFLD(SaldoAmt);
+		CPYFLD(PVat);
+		CPYFLD(Brutto);
+		CPYFLD(LinkQtty);
+		CPYFLD(LinkCost);
+		CPYFLD(LinkPrice);
+		CPYFLD(ExtVal1);
+#undef CPYFLD
 		THROW_DB(P_TrGrpngTbl->updateRec()); // @sfu
 	}
 	else {
 		TempTrfrGrpngTbl::Rec rec;
-#define CPY(f) rec.f = rItem.f
-		CPY(ID__);  //
-		CPY(Dt);
-		CPY(GoodsID);
-		CPY(PersonID);
-		CPY(ArticleID);
-		CPY(BillID);
-		CPY(DlvrLocID);
-		CPY(LocCount);
-		CPY(Qtty);
-		CPY(PhQtty);
-		CPY(Cost);
-		CPY(Price);
-		CPY(Discount);
-		CPY(Income);
-		CPY(SaldoQtty);
-		CPY(SaldoAmt);
-		CPY(PVat);
-		CPY(Brutto);
-		CPY(LinkQtty);
-		CPY(LinkCost);
-		CPY(LinkPrice);
-		CPY(ExtVal1);
-#undef CPY
+#define CPYFLD(f) rec.f = rItem.f
+		CPYFLD(ID__);  //
+		CPYFLD(Dt);
+		CPYFLD(GoodsID);
+		CPYFLD(PersonID);
+		CPYFLD(ArticleID);
+		CPYFLD(BillID);
+		CPYFLD(DlvrLocID);
+		CPYFLD(LocCount);
+		CPYFLD(Qtty);
+		CPYFLD(PhQtty);
+		CPYFLD(Cost);
+		CPYFLD(Price);
+		CPYFLD(Discount);
+		CPYFLD(Income);
+		CPYFLD(SaldoQtty);
+		CPYFLD(SaldoAmt);
+		CPYFLD(PVat);
+		CPYFLD(Brutto);
+		CPYFLD(LinkQtty);
+		CPYFLD(LinkCost);
+		CPYFLD(LinkPrice);
+		CPYFLD(ExtVal1);
+#undef CPYFLD
 		THROW_DB(pBei->insert(&rec));
 	}
 	CATCHZOK
@@ -1525,30 +1525,30 @@ int PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec * pTr
 					r = 1;
 				}
 				else if(p_tgt->search(1, &k, spEq)) {
-	#define CPY(f) citem.f = p_tgt->data.f
-					CPY(ID__);
-					CPY(Dt);
-					CPY(GoodsID);
-					CPY(PersonID);
-					CPY(ArticleID);
-					CPY(BillID);
-					CPY(DlvrLocID);
-					CPY(LocCount);
-					CPY(Qtty);
-					CPY(PhQtty);
-					CPY(Cost);
-					CPY(Price);
-					CPY(Discount);
-					CPY(Income);
-					CPY(SaldoQtty);
-					CPY(SaldoAmt);
-					CPY(PVat);
-					CPY(Brutto);
-					CPY(LinkQtty);
-					CPY(LinkCost);
-					CPY(LinkPrice);
-					CPY(ExtVal1);
-	#undef CPY
+	#define CPYFLD(f) citem.f = p_tgt->data.f
+					CPYFLD(ID__);
+					CPYFLD(Dt);
+					CPYFLD(GoodsID);
+					CPYFLD(PersonID);
+					CPYFLD(ArticleID);
+					CPYFLD(BillID);
+					CPYFLD(DlvrLocID);
+					CPYFLD(LocCount);
+					CPYFLD(Qtty);
+					CPYFLD(PhQtty);
+					CPYFLD(Cost);
+					CPYFLD(Price);
+					CPYFLD(Discount);
+					CPYFLD(Income);
+					CPYFLD(SaldoQtty);
+					CPYFLD(SaldoAmt);
+					CPYFLD(PVat);
+					CPYFLD(Brutto);
+					CPYFLD(LinkQtty);
+					CPYFLD(LinkCost);
+					CPYFLD(LinkPrice);
+					CPYFLD(ExtVal1);
+	#undef CPYFLD
 					citem.Counter = 0;
 					p_tgt->getPosition(&citem.DbPos);
 					if(Cache.getCount() >= MaxCacheItems)
@@ -1600,29 +1600,29 @@ int PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec * pTr
 					tg_rec.LocCount = 1;
 					MEMSZERO(citem);
 					citem.ID__ = ++GrpIdCounter;
-	#define CPY(f) citem.f = tg_rec.f
-					CPY(Dt);
-					CPY(GoodsID);
-					CPY(PersonID);
-					CPY(ArticleID);
-					CPY(BillID);
-					CPY(DlvrLocID);
-					CPY(LocCount);
-					CPY(Qtty);
-					CPY(PhQtty);
-					CPY(Cost);
-					CPY(Price);
-					CPY(Discount);
-					CPY(Income);
-					CPY(SaldoQtty);
-					CPY(SaldoAmt);
-					CPY(PVat);
-					CPY(Brutto);
-					CPY(LinkQtty);
-					CPY(LinkCost);
-					CPY(LinkPrice);
-					CPY(ExtVal1);
-	#undef CPY
+	#define CPYFLD(f) citem.f = tg_rec.f
+					CPYFLD(Dt);
+					CPYFLD(GoodsID);
+					CPYFLD(PersonID);
+					CPYFLD(ArticleID);
+					CPYFLD(BillID);
+					CPYFLD(DlvrLocID);
+					CPYFLD(LocCount);
+					CPYFLD(Qtty);
+					CPYFLD(PhQtty);
+					CPYFLD(Cost);
+					CPYFLD(Price);
+					CPYFLD(Discount);
+					CPYFLD(Income);
+					CPYFLD(SaldoQtty);
+					CPYFLD(SaldoAmt);
+					CPYFLD(PVat);
+					CPYFLD(Brutto);
+					CPYFLD(LinkQtty);
+					CPYFLD(LinkCost);
+					CPYFLD(LinkPrice);
+					CPYFLD(ExtVal1);
+	#undef CPYFLD
 					citem.Counter = ++LastCacheTouch;
 					if(Cache.getCount() >= MaxCacheItems)
 						THROW(FlashCacheItems(CacheDelta));
@@ -2264,7 +2264,7 @@ int PPViewTrfrAnlz::GetExtFactorTitle(SString & rTitle) const
 		}
 		else if(oneof2(Filt.ExtFactorParam[0], TrfrAnlzFilt::extfPersonRegister, TrfrAnlzFilt::extfLocRegister)) {
 			PPObjRegisterType rt_obj;
-			PPRegisterType rt_rec;
+			PPRegisterType2 rt_rec;
 			if(rt_obj.Fetch(Filt.ExtFactorAddendum[0], &rt_rec) > 0) {
 				rTitle = rt_rec.Name;
 				ok = 1;
@@ -2498,10 +2498,8 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			brw_id = (Filt.Flags & TrfrAnlzFilt::fDiffByDlvrAddr) ? BROWSER_TRFRGR_CT_PD : BROWSER_TRFRGR_CT_P;
 		else if(Filt.Grp == TrfrAnlzFilt::gGoodsDate)
 			brw_id = BROWSER_TRFRGR_CT_G;
-		// @v11.3.0 {
 		else if(Filt.Grp == TrfrAnlzFilt::gGoodsCntragent && Filt.CtKind == TrfrAnlzFilt::ctCntragent) 
 			brw_id = BROWSER_TRFRGR_CT_G2;
-		// } @v11.3.0 
 		else //if(Filt.Grp == TrfrAnlzFilt::gGoodsCntragentDate)
 			brw_id = (Filt.Flags & TrfrAnlzFilt::fDiffByDlvrAddr) ? BROWSER_TRFRGR_CT_GPD : BROWSER_TRFRGR_CT_GP;
 		q = PPView::CrosstabDbQueryStub;
@@ -4216,7 +4214,7 @@ int PPALDD_TrfrAnlzBase::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_TrfrAnlzBase::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_TrfrAnlzBase::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	PPViewTrfrAnlz * p_v = static_cast<PPViewTrfrAnlz *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	IterProlog(iterId, 1);

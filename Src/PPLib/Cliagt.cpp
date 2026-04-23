@@ -907,21 +907,21 @@ PPSupplAgreement::ExchangeParam::ExchangeParam()
 
 int FASTCALL PPSupplAgreement::ExchangeParam::Copy(const PPSupplAgreement::ExchangeParam & rS)
 {
-#define CPY_FLD(f) f=rS.f
-	CPY_FLD(LastDt);
-	CPY_FLD(GoodsGrpID);
-	CPY_FLD(ExpendOp);
-	CPY_FLD(RcptOp);
-	CPY_FLD(SupplRetOp);
-	CPY_FLD(RetOp);
-	CPY_FLD(MovInOp);
-	CPY_FLD(MovOutOp);
-	CPY_FLD(PriceQuotID);
-	CPY_FLD(ProtVer);
-	CPY_FLD(ConnAddr);
-	CPY_FLD(ExtString);
-	CPY_FLD(Fb);
-#undef CPY_FLD
+#define CPYFLD(f) f=rS.f
+	CPYFLD(LastDt);
+	CPYFLD(GoodsGrpID);
+	CPYFLD(ExpendOp);
+	CPYFLD(RcptOp);
+	CPYFLD(SupplRetOp);
+	CPYFLD(RetOp);
+	CPYFLD(MovInOp);
+	CPYFLD(MovOutOp);
+	CPYFLD(PriceQuotID);
+	CPYFLD(ProtVer);
+	CPYFLD(ConnAddr);
+	CPYFLD(ExtString);
+	CPYFLD(Fb);
+#undef CPYFLD
 	DebtDimList = rS.DebtDimList;
 	WhList = rS.WhList;
 	return 1;

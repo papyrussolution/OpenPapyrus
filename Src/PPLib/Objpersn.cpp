@@ -2217,9 +2217,9 @@ int PPObjPerson::AddRegisterToPacket(PPPersonPacket & rPack, PPID regTypeID, con
 		reg_rec.RegTypeID = regTypeID;
 		STRNSCPY(reg_rec.Num, temp_buf);
 		PPObjRegisterType obj_regt;
-		PPRegisterType regt_rec;
-		THROW(obj_regt.Fetch(reg_rec.RegTypeID, &regt_rec) > 0);
-		if(regt_rec.Flags & REGTF_UNIQUE) {
+		PPRegisterType2 rt_rec;
+		THROW(obj_regt.Fetch(reg_rec.RegTypeID, &rt_rec) > 0);
+		if(rt_rec.Flags & REGTF_UNIQUE) {
 			RegisterTbl::Rec test_rec;
 			uint   pos = 0;
 			while(rPack.Regs.GetRegister(reg_rec.RegTypeID, &pos, &test_rec) > 0) {
@@ -4314,7 +4314,7 @@ public:
 					THROW(GetExtRegListIds(new_kind_list.get(i), Data.Rec.Status, &reg_list));
 					for(uint k = 0; k < reg_list.getCount(); k++) {
 						const  PPID reg_id = reg_list.get(k);
-						PPRegisterType rt_rec;
+						PPRegisterType2 rt_rec;
 						if(obj_regt.Fetch(reg_id, &rt_rec) > 0 && rt_rec.Flags & REGTF_INSERT) {
 							if(!rt_rec.PersonKindID || Data.Kinds.lsearch(rt_rec.PersonKindID)) {
 								const long xst = CheckXORFlags(rt_rec.Flags, REGTF_PRIVATE, REGTF_LEGAL);
@@ -4397,7 +4397,7 @@ public:
 	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
-		uint   i;
+		//uint   i;
 		PPID   reg_type_id = 0;
 		SString temp_buf;
 		RVALUEPTR(Data, pData);
@@ -4430,7 +4430,7 @@ public:
 				setStaticText(CTL_PERSON_ST_KINDNAME, pk_rec.Name);
 				{
 					PPObjRegisterType rt_obj;
-					PPRegisterType rt_rec;
+					PPRegisterType2 rt_rec;
 					if(pk_rec.CodeRegTypeID && rt_obj.Fetch(pk_rec.CodeRegTypeID, &rt_rec) > 0) {
 						CodeRegTypeID = pk_rec.CodeRegTypeID;
 						setLabelText(CTL_PERSON_SRCHCODE, rt_rec.Name);

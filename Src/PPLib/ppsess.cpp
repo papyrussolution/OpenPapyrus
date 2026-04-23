@@ -4087,21 +4087,17 @@ int PPSession::Implement_PPLogin(const PPDbEntrySet2 * pDbes, const char * pDbSy
 						DbrSignalFile(const char * pPath, const SVerT & rVer)
 						{
 							SString name;
-							int   mj, mn, rv;
-							rVer.Get(&mj, &mn, &rv);
-							name.Z().Cat("dbr").CatChar('-').CatLongZ(mj, 2).CatLongZ(mn, 2).CatLongZ(rv, 2).DotCat("signal");
+							SString ver_buf;
+							// @v12.6.1 int   mj, mn, rv;
+							// @v12.6.1 rVer.Get(&mj, &mn, &rv);
+							// @v12.6.1 name.Z().Cat("dbr").CatChar('-').CatLongZ(mj, 2).CatLongZ(mn, 2).CatLongZ(rv, 2).DotCat("signal");
+							name.Z().Cat("dbr").CatChar('-').Cat(rVer.ToStr(SVerT::fmtFlatPadZero2, ver_buf)).DotCat("signal"); // @v12.6.1 
 							(FileName = pPath).SetLastSlash().Cat(name);
 							(Direc = pPath).SetLastSlash().Cat("signal");
 							(FileName2 = Direc).SetLastSlash().Cat(name);
 						}
-						int    IsExists()
-						{
-							return (::fileExists(FileName2) || ::fileExists(FileName));
-						}
-						void   Create()
-						{
-							::createEmptyFile((SFile::IsDir(Direc) || SFile::CreateDir(Direc)) ? FileName2 : FileName);
-						}
+						int    IsExists() { return (::fileExists(FileName2) || ::fileExists(FileName)); }
+						void   Create() { ::createEmptyFile((SFile::IsDir(Direc) || SFile::CreateDir(Direc)) ? FileName2 : FileName); }
 					private:
 						SString Direc;
 						SString FileName;
@@ -4112,19 +4108,6 @@ int PPSession::Implement_PPLogin(const PPDbEntrySet2 * pDbes, const char * pDbSy
 					if(!dbr_signal.IsExists()) {
 						THROW(!GetSync().IsDBLocked());
 						PPWaitStart();
-
-						// @v4.7.7 Convert400();
-						// @v4.7.7 Convert31102();
-						// @v4.7.7 Convert31110();
-						// ------
-						// @v4.7.7 Convert4108();
-						// [Перенесено в Convert6202()] // @v5.5.1 THROW(Convert4208());
-						// @v5.5.1 THROW(Convert4405());
-						// @v5.6.8 THROW(Convert4515());
-						// @v6.3.3 THROW(Convert4707());
-						// @v6.3.3 THROW(Convert4802()); // AHTOXA
-						// @v6.3.3 THROW(Convert4805());
-						// @v6.3.3 THROW(Convert4911());
 						/* bagirov
 						THROW(Convert4515());
 						THROW(Convert4707());

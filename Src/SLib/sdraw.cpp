@@ -854,9 +854,9 @@ static int GetSvgPathNumber(SStrScan & rScan, SString & rTempBuf, float & rF)
 {
 	int    ok = 1;
 	if(rScan.Skip().GetDotPrefixedNumber(rTempBuf)) {
-		float temp_val = rTempBuf.ToFloat();
+		// @v12.6.1 float temp_val = rTempBuf.ToFloat();
 		rF = static_cast<float>(satof(rTempBuf));
-		assert(rF == temp_val);
+		// @v12.6.1 assert(rF == temp_val);
 	}
 	else
 		ok = 0;

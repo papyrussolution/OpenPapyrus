@@ -1832,14 +1832,14 @@ GdsClsCalcExprContext::GdsClsCalcExprContext(const PPTransferItem * pTi, const P
 	GoodsID = P_Ti ? P_Ti->GoodsID : 0;
 }
 
-GdsClsCalcExprContext::GdsClsCalcExprContext(const CCheckItem * pCi) // @v10.7.6
+GdsClsCalcExprContext::GdsClsCalcExprContext(const CCheckItem * pCi)
 {
 	THISZERO();
 	P_Ci = pCi;
 	GoodsID = P_Ci ? P_Ci->GoodsID : 0;
 }
 
-GdsClsCalcExprContext::GdsClsCalcExprContext(const TSessLineTbl::Rec * pTslRec) // @v11.0.7
+GdsClsCalcExprContext::GdsClsCalcExprContext(const TSessLineTbl::Rec * pTslRec)
 {
 	THISZERO();
 	P_TslRec = pTslRec;

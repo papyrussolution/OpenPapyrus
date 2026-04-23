@@ -867,13 +867,13 @@ CCheckPacket::~CCheckPacket()
 {
 	ZDELETE(P_DlvrAddr);
 	delete static_cast<SCardSpecialTreatment::IdentifyReplyBlock *>(P_Stirb);
-	ZDELETE(P_PpChZnCodeResultList); // @v11.1.11
+	ZDELETE(P_PpChZnCodeResultList);
 }
 
 CCheckPacket & CCheckPacket::Z()
 {
 	UpdFlags = 0;
-	PrintPtt = pttUndef; // @v11.1.5
+	PrintPtt = pttUndef;
 	PctDis   = 0;
 	Discount = 0.0;
 	_Cash    = 0.0;
@@ -886,7 +886,7 @@ CCheckPacket & CCheckPacket::Z()
 	ZDELETE(P_DlvrAddr);
 	delete static_cast<SCardSpecialTreatment::IdentifyReplyBlock *>(P_Stirb);
 	P_Stirb = 0;
-	ZDELETE(P_PpChZnCodeResultList); // @v11.1.11
+	ZDELETE(P_PpChZnCodeResultList);
 	CcAl.clear();
 	return *this;
 }
@@ -896,7 +896,7 @@ int FASTCALL CCheckPacket::Copy(const CCheckPacket & rS)
 	int    ok = 1;
 	PPExtStrContainer::Copy(rS);
 	UpdFlags = rS.UpdFlags;
-	PrintPtt = rS.PrintPtt; // @v11.1.5
+	PrintPtt = rS.PrintPtt;
 	PctDis = rS.PctDis;
 	Discount = rS.Discount;
 	_Cash = rS._Cash;
@@ -915,7 +915,6 @@ int FASTCALL CCheckPacket::Copy(const CCheckPacket & rS)
 		ZDELETE(P_DlvrAddr);
 	}
 	P_Stirb = 0;
-	// @v11.1.11 {
 	if(rS.P_PpChZnCodeResultList) {
 		if(P_PpChZnCodeResultList)
 			*P_PpChZnCodeResultList = *rS.P_PpChZnCodeResultList;
@@ -925,7 +924,99 @@ int FASTCALL CCheckPacket::Copy(const CCheckPacket & rS)
 	else if(P_PpChZnCodeResultList) {
 		ZDELETE(P_PpChZnCodeResultList);
 	}
-	// } @v11.1.11 
+	return ok;
+}
+
+int AdjustFractionalUnitPrice(PPID goodsID, double qtty, double orgPrice, int roundingDir, double * pAdjustedPrice) // @v12.6.1 @construction
+{
+	int    ok = -1;
+	double new_price = orgPrice;
+	if(goodsID && qtty > 0.0 && qtty < 1.0) {
+		PPObjGoods goods_obj;
+		Goods2Tbl::Rec goods_rec;
+		PPGoodsType2 gt_rec;
+		PPUnit2 unit_rec;
+		long   chzn_prod_type = 0;
+		if(goods_obj.Fetch(goodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
+			chzn_prod_type = gt_rec.ChZnProdType;
+		if(chzn_prod_type == GTCHZNPT_MEDICINE) {
+			if(goods_obj.FetchUnit(goods_rec.UnitID, &unit_rec) > 0 && unit_rec.IsFragmentationValid()) {
+				double ip = 0.0;
+				double nmrtr = 0.0;
+				double dnmntr = 0.0;
+				if(fsplitintofractions(qtty, unit_rec.Fragmentation, 1E-5, &ip, &nmrtr, &dnmntr)) {
+					//str.Z().Cat(R0i(nmrtr)).Slash().Cat(R0i(dnmntr));
+					//CreateStr(str, in_data);
+					//price = price / R0i(dnmntr); // @v12.5.6
+					//qtty_done = true;
+					long   _i_dmntr = R0i(dnmntr);
+					double frac_price = R2(orgPrice / _i_dmntr);
+					new_price = frac_price * _i_dmntr;
+					if(new_price != orgPrice) {
+						ok = 1;
+					}
+					double frac_amt = frac_price * R0i(nmrtr);
+					/*if(!feqeps(frac_amt, org_amt, 1E-6)) {
+						// @todo
+						amt_defect_increment += (frac_amt - org_amt);
+					}*/
+				}
+			}
+		}
+	}
+	ASSIGN_PTR(pAdjustedPrice, new_price);
+	return ok;
+}
+
+int CCheckPacket::SpecialTransform(uint flags) // @v12.6.1 @construction
+{
+	int   ok = -1;
+	if(flags & spctfAdjustFractionalPrices) {
+		PPObjGoods goods_obj;
+		Goods2Tbl::Rec goods_rec;
+		PPGoodsType2 gt_rec;
+		PPUnit2 unit_rec;
+		double org_cc_rec_amount = MONEYTOLDBL(Rec.Amount);
+		double org_cc_amount = 0.0;
+		double org_cc_discount = 0.0;
+		double amt_defect_increment = 0.0; // Дефект между скорректированной на округление суммой и оригинальной суммой чека
+		SString temp_buf;
+		CalcAmount(&org_cc_amount, &org_cc_discount);
+		LongArray untouched_ln_idx_list; // Список индексов строк, с которыми все в порядке (по ним можно распределить дефективный хвост суммы)
+		for(uint i = 0; i < Items_.getCount(); i++) {
+			CCheckLineTbl::Rec & r_ln = Items_.at(i);
+			const  double org_price = fdiv100i(r_ln.Price) - r_ln.Dscnt;
+			const  double org_amt = org_price * r_ln.Quantity;
+			GetLineTextExt(i+1, CCheckPacket::lnextChZnMark, temp_buf);
+			if(temp_buf.NotEmpty()) {
+				long   local_chzn_prod_type = 0;
+				if(goods_obj.Fetch(r_ln.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
+					local_chzn_prod_type = gt_rec.ChZnProdType;
+				if(local_chzn_prod_type == GTCHZNPT_MEDICINE) {
+					if(goods_obj.FetchUnit(goods_rec.UnitID, &unit_rec) > 0 && unit_rec.IsFragmentationValid()) {
+						if(r_ln.Quantity > 0.0 && r_ln.Quantity < 1.0) {
+							double ip = 0.0;
+							double nmrtr = 0.0;
+							double dnmntr = 0.0;
+							if(fsplitintofractions(r_ln.Quantity, unit_rec.Fragmentation, 1E-5, &ip, &nmrtr, &dnmntr)) {
+								//str.Z().Cat(R0i(nmrtr)).Slash().Cat(R0i(dnmntr));
+								//CreateStr(str, in_data);
+								//price = price / R0i(dnmntr); // @v12.5.6
+								//qtty_done = true;
+								long   _i_dmntr = R0i(dnmntr);
+								double frac_price = R2(org_price / _i_dmntr);
+								double frac_amt = frac_price * R0i(nmrtr);
+								if(!feqeps(frac_amt, org_amt, 1E-6)) {
+									// @todo
+									amt_defect_increment += (frac_amt - org_amt);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 	return ok;
 }
 
@@ -5304,7 +5395,9 @@ int CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pTotal)
 		}
 		if(r > 0) {
 			const  LDATE save_oper_date = r_cfg.OperDate;
-			uint   i = 0, j, k;
+			uint   i = 0;
+			uint   j;
+			uint   k;
 			PPIDArray date_list;
 			CSessDfctList dfct_list;
 			CSessDfctItem * p_item, item;
@@ -5422,10 +5515,10 @@ int CSessGrouping::Convert(PPID sessID, PPID locID, const void * pData, CSessTot
 {
 	int    ok = 1;
 	PPObjBill * p_bobj(BillObj);
-	const PPConfig & r_cfg = LConfig;
-	const  PPID   save_loc  = r_cfg.Location;
-	const LDATE  save_date = r_cfg.OperDate;
-	const PPEquipConfig & r_eq_cfg = CC.GetEqCfg();
+	const  PPConfig & r_cfg = LConfig;
+	const  PPID  save_loc  = r_cfg.Location;
+	const  LDATE save_date = r_cfg.OperDate;
+	const  PPEquipConfig & r_eq_cfg = CC.GetEqCfg();
 	DS.SetLocation(locID);
 	OptimalAmountDamper oad;
 	double local_wr_off_amount = 0.0;
@@ -5503,7 +5596,7 @@ int CSessGrouping::Convert(PPID sessID, PPID locID, const void * pData, CSessTot
 	return ok;
 }
 
-int CSessGrouping::TurnAccBill(PPID sessID, PPID locID, int use_ta) // @v11.0.4
+int CSessGrouping::TurnAccBill(PPID sessID, PPID locID, int use_ta)
 {
 	//
 	// @todo Эта функция практически один-в-один повторяет соответствующий блок функции CSessGrouping::ConvertToBills

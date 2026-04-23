@@ -802,7 +802,7 @@ int eanx(struct ZintSymbol * symbol, const uchar source[], int src_len)
 		    }
 		    break;
 		case BARCODE_ISBNX:
-		    error_number = isbn(symbol, first_part, sstrlen(first_part), (char *)dest);
+		    error_number = isbn(symbol, first_part, sstrlen32(first_part), (char *)dest);
 		    break;
 	}
 	if(error_number > 4) {

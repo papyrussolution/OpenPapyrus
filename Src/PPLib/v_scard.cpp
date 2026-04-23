@@ -3484,7 +3484,7 @@ int PPALDD_SCardList::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_SCardList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_SCardList::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	INIT_PPVIEW_ALDD_ITER(SCard);
 }
@@ -3540,7 +3540,7 @@ int PPALDD_SCardOpList::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_SCardOpList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_SCardOpList::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	INIT_PPVIEW_ALDD_ITER(SCardOp);
 }

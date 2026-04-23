@@ -104,26 +104,26 @@ int FiasAddrCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraDat
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	FiasAddrObjTbl::Rec data_rec;
 	if(id && P_T && P_T->SearchObjByID(id, &data_rec, 0) > 0) {
-		#define CPY(f) p_cache_rec->f = data_rec.f
-		CPY(RecUuID);
-		CPY(IdUuRef);
-		CPY(ParentUuRef);
-		CPY(PrevRecUuRef);
-		CPY(NextRecUuRef);
-		CPY(NameTRef);
-		CPY(OfcNameTRef);
-		CPY(SnTRef);
-		CPY(Flags);
-		CPY(LevelStatus);
-		CPY(CenterStatus);
-		CPY(ActionStatus);
-		CPY(KladrCurStatus);
-		CPY(PostalCode);
-		CPY(KladrCodeTRef);
-		CPY(UpdateDt);
-		CPY(StartDt);
-		CPY(EndDt);
-		#undef CPY
+		#define CPYFLD(f) p_cache_rec->f = data_rec.f
+		CPYFLD(RecUuID);
+		CPYFLD(IdUuRef);
+		CPYFLD(ParentUuRef);
+		CPYFLD(PrevRecUuRef);
+		CPYFLD(NextRecUuRef);
+		CPYFLD(NameTRef);
+		CPYFLD(OfcNameTRef);
+		CPYFLD(SnTRef);
+		CPYFLD(Flags);
+		CPYFLD(LevelStatus);
+		CPYFLD(CenterStatus);
+		CPYFLD(ActionStatus);
+		CPYFLD(KladrCurStatus);
+		CPYFLD(PostalCode);
+		CPYFLD(KladrCodeTRef);
+		CPYFLD(UpdateDt);
+		CPYFLD(StartDt);
+		CPYFLD(EndDt);
+		#undef CPYFLD
 	}
 	else
 		ok = -1;
@@ -136,26 +136,26 @@ void FiasAddrCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) c
 	if(p_data_rec) {
 		const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 		memzero(p_data_rec, sizeof(*p_data_rec));
-		#define CPY(f) p_data_rec->f = p_cache_rec->f
-		CPY(RecUuID);
-		CPY(IdUuRef);
-		CPY(ParentUuRef);
-		CPY(PrevRecUuRef);
-		CPY(NextRecUuRef);
-		CPY(NameTRef);
-		CPY(OfcNameTRef);
-		CPY(SnTRef);
-		CPY(Flags);
-		CPY(LevelStatus);
-		CPY(CenterStatus);
-		CPY(ActionStatus);
-		CPY(KladrCurStatus);
-		CPY(PostalCode);
-		CPY(KladrCodeTRef);
-		CPY(UpdateDt);
-		CPY(StartDt);
-		CPY(EndDt);
-		#undef CPY
+		#define CPYFLD(f) p_data_rec->f = p_cache_rec->f
+		CPYFLD(RecUuID);
+		CPYFLD(IdUuRef);
+		CPYFLD(ParentUuRef);
+		CPYFLD(PrevRecUuRef);
+		CPYFLD(NextRecUuRef);
+		CPYFLD(NameTRef);
+		CPYFLD(OfcNameTRef);
+		CPYFLD(SnTRef);
+		CPYFLD(Flags);
+		CPYFLD(LevelStatus);
+		CPYFLD(CenterStatus);
+		CPYFLD(ActionStatus);
+		CPYFLD(KladrCurStatus);
+		CPYFLD(PostalCode);
+		CPYFLD(KladrCodeTRef);
+		CPYFLD(UpdateDt);
+		CPYFLD(StartDt);
+		CPYFLD(EndDt);
+		#undef CPYFLD
 	}
 }
 //

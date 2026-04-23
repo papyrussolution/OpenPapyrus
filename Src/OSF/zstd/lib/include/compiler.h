@@ -113,10 +113,10 @@
 #define CACHELINE_SIZE 64
 
 #define PREFETCH_AREA(p, s)  {            \
-    const char* const _ptr = (const char *)(p);  \
+    const char * const _ptr = (const char *)(p);  \
     const size_t _size = (size_t)(s);     \
     size_t _pos;                          \
-    for (_pos=0; _pos<_size; _pos+=CACHELINE_SIZE) {  \
+    for(_pos=0; _pos<_size; _pos+=CACHELINE_SIZE) {  \
         PREFETCH_L2(_ptr + _pos);         \
     }                                     \
 }

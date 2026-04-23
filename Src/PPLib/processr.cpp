@@ -659,14 +659,14 @@ int PPObjProcessor::GetListByOwnerGuaID(PPID guaID, PPIDArray & rList)
 	return ok;
 }
 
-int PPObjProcessor::GetParentsList(PPID prcID, PPIDArray * pList)
+int PPObjProcessor::GetParentsList(PPID prcID, PPIDArray & rList)
 {
 	int    ok = -1;
-	PPIDArray id_list;
+	rList.Z();
 	for(PPID id = prcID; id != 0;) {
 		ProcessorTbl::Rec rec;
 		if(Search(id, &rec) > 0 && rec.ParentID) {
-			int    r = id_list.addUnique(rec.ParentID);
+			int    r = rList.addUnique(rec.ParentID);
 			THROW_SL(r);
 			// Проверка на циклические ссылки {
 			THROW_PP_S(r > 0, PPERR_CYCLELINKPRC, rec.Name);
@@ -678,7 +678,26 @@ int PPObjProcessor::GetParentsList(PPID prcID, PPIDArray * pList)
 			id = 0;
 	}
 	CATCHZOK
-	ASSIGN_PTR(pList, id_list);
+	return ok;
+}
+
+int PPObjProcessor::BelongsToHierarchy(PPID prcID, PPID hierarchyPrcID) // @v12.6.1
+{
+	int   ok = -1;
+	ProcessorTbl::Rec prc_rec;
+	if(prcID && hierarchyPrcID) {
+		if(Fetch(prcID, &prc_rec) > 0) {
+			if(prcID == hierarchyPrcID) 
+				ok = 1;
+			else if(prc_rec.ParentID) {
+				PPIDArray prc_list;
+				GetParentsList(prcID, prc_list);
+				if(prc_list.lsearch(hierarchyPrcID)) {
+					ok = 1;
+				}
+			}
+		}
+	}
 	return ok;
 }
 
@@ -719,7 +738,8 @@ int PPObjProcessor::GetExtWithInheritance(PPID prcID, PPProcessorPacket::ExtBloc
 int PPObjProcessor::GetRecWithInheritance(PPID prcID, ProcessorTbl::Rec * pRec, int useCache)
 {
 	int    ok = -1;
-	ProcessorTbl::Rec rec, parent_rec;
+	ProcessorTbl::Rec rec;
+	ProcessorTbl::Rec parent_rec;
 	PPIDArray id_list;
 	if((useCache ? Fetch(prcID, &rec) : Search(prcID, &rec)) > 0) {
 		for(PPID parent_id = rec.ParentID; parent_id != 0; parent_id = parent_rec.ParentID)
@@ -1078,23 +1098,23 @@ int ProcessorCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraDa
 	PPObjProcessor prc_obj;
 	ProcessorTbl::Rec rec;
 	if(prc_obj.Search(id, &rec) > 0) {
-#define CPY_FLD(Fld) p_cache_rec->Fld=rec.Fld
-		CPY_FLD(ParentID);
-		CPY_FLD(Kind);
-		CPY_FLD(LocID);
-		CPY_FLD(TimeUnitID);
-		CPY_FLD(Flags);
-		CPY_FLD(LinkObjType);
-		CPY_FLD(LinkObjID);
-		CPY_FLD(WrOffOpID);
-		CPY_FLD(WrOffArID);
-		CPY_FLD(SuperSessTiming);
-		CPY_FLD(RestAltGrpID);
-		CPY_FLD(PrinterID);
-		CPY_FLD(CipMax);
-		CPY_FLD(CipPersonKindID);
-		CPY_FLD(TcbQuant);
-#undef CPY_FLD
+#define CPYFLD(Fld) p_cache_rec->Fld=rec.Fld
+		CPYFLD(ParentID);
+		CPYFLD(Kind);
+		CPYFLD(LocID);
+		CPYFLD(TimeUnitID);
+		CPYFLD(Flags);
+		CPYFLD(LinkObjType);
+		CPYFLD(LinkObjID);
+		CPYFLD(WrOffOpID);
+		CPYFLD(WrOffArID);
+		CPYFLD(SuperSessTiming);
+		CPYFLD(RestAltGrpID);
+		CPYFLD(PrinterID);
+		CPYFLD(CipMax);
+		CPYFLD(CipPersonKindID);
+		CPYFLD(TcbQuant);
+#undef CPYFLD
 		MultTextBlock b;
 		b.Add(rec.Name);
 		b.Add(rec.Code);
@@ -1110,24 +1130,24 @@ void ProcessorCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) 
 	ProcessorTbl::Rec * p_data_rec = static_cast<ProcessorTbl::Rec *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
-#define CPY_FLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
-	CPY_FLD(ID);
-	CPY_FLD(ParentID);
-	CPY_FLD(Kind);
-	CPY_FLD(LocID);
-	CPY_FLD(TimeUnitID);
-	CPY_FLD(Flags);
-	CPY_FLD(LinkObjType);
-	CPY_FLD(LinkObjID);
-	CPY_FLD(WrOffOpID);
-	CPY_FLD(WrOffArID);
-	CPY_FLD(SuperSessTiming);
-	CPY_FLD(RestAltGrpID);
-	CPY_FLD(PrinterID);
-	CPY_FLD(CipMax);
-	CPY_FLD(CipPersonKindID);
-	CPY_FLD(TcbQuant);
-#undef CPY_FLD
+#define CPYFLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
+	CPYFLD(ID);
+	CPYFLD(ParentID);
+	CPYFLD(Kind);
+	CPYFLD(LocID);
+	CPYFLD(TimeUnitID);
+	CPYFLD(Flags);
+	CPYFLD(LinkObjType);
+	CPYFLD(LinkObjID);
+	CPYFLD(WrOffOpID);
+	CPYFLD(WrOffArID);
+	CPYFLD(SuperSessTiming);
+	CPYFLD(RestAltGrpID);
+	CPYFLD(PrinterID);
+	CPYFLD(CipMax);
+	CPYFLD(CipPersonKindID);
+	CPYFLD(TcbQuant);
+#undef CPYFLD
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
 	b.Get(p_data_rec->Code, sizeof(p_data_rec->Code));

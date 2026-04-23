@@ -1050,7 +1050,7 @@ SVector::~SVector()
 int FASTCALL SVector::copy(const SVector & rS)
 {
 	assert(!(rS.VFlags & aryEachItem));
-	freeAll();
+	clear(); // @v12.6.1 freeAll()-->clear()
     return SVectorBase::CopyS(rS);
 }
 

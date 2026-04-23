@@ -4824,7 +4824,7 @@ int PPALDD_CCheckView::InitData(PPFilt & rFilt, long rsrv)
 }
 
 void PPALDD_CCheckView::Destroy() { DESTROY_PPVIEW_ALDD(CCheck); }
-int  PPALDD_CCheckView::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER_ORD(CCheck, 0); }
+int  PPALDD_CCheckView::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/) { INIT_PPVIEW_ALDD_ITER_ORD(CCheck, 0); }
 
 int PPALDD_CCheckView::NextIteration(PPIterID iterId)
 {
@@ -5021,7 +5021,7 @@ int PPALDD_CCheckDetail::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_CCheckDetail::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_CCheckDetail::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	CPosProcessor * p_cpp = static_cast<CPosProcessor *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	IterProlog(iterId, 1);

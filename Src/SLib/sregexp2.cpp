@@ -253,8 +253,8 @@ bool SRegExp2::Find(SStrScan * pScan, uint flags) const
 		if(Find(p, plen, flags, &fr)) {
 			assert(fr.getCount());
 			if(fr.getCount()) {
-				int start = fr.at(0).low;
-				int end = fr.at(0).upp;
+				int    start = fr.at(0).low;
+				int    end = fr.at(0).upp;
 				assert(start >= 0 && end >= start);
 				//int start = fr.at(fr.getCount()-1).low;
 				//int end = fr.at(fr.getCount()-1).upp;

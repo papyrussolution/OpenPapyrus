@@ -532,10 +532,10 @@ int FASTCALL PPViewGoodsStruc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 								ideqvalstr(r_se.SingleAssociatedTechID, temp_buf);
 							if(r_se.InternalFlags & GoodsStrucProcessingBlock::intfMultAssociatedTech)
 								temp_buf.CatCharN('.', 3);
-							pBlk->Set(temp_buf);
 						}
 					}
 				}
+				pBlk->Set(temp_buf);
 			}
 			break;
 		case 10: // @v11.9.2 Ожидаемая цена
@@ -548,9 +548,12 @@ int FASTCALL PPViewGoodsStruc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					else if(p_item->EstPrice > 0.0) {
 						temp_buf.Cat(p_item->EstPrice, MKSFMTD_020);
 					}
-					pBlk->Set(temp_buf);
 				}
+				pBlk->Set(temp_buf);
 			}
+			break;
+		default:
+			ok = 0;
 			break;
 	}
 	return ok;
@@ -1455,7 +1458,7 @@ int PPALDD_GoodsStrucList::InitData(PPFilt & rFilt, long rsrv)
 }
 
 void PPALDD_GoodsStrucList::Destroy() { DESTROY_PPVIEW_ALDD(GoodsStruc); }
-int  PPALDD_GoodsStrucList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(GoodsStruc); }
+int  PPALDD_GoodsStrucList::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/) { INIT_PPVIEW_ALDD_ITER(GoodsStruc); }
 
 int PPALDD_GoodsStrucList::NextIteration(PPIterID iterId)
 {

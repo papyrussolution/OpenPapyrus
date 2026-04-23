@@ -445,6 +445,7 @@ struct PEExportOptions; // @v12.3.11
 class DocNalogRu_WriteBillBlock; // @v12.4.11
 struct PPGoodsTaxEntry;
 struct PPTransportConfig; // @v12.5.5
+struct ExecSessionOnTechRouteBlock; // @v12.6.1
 
 typedef struct bignum_st BIGNUM; // OpenSSL
 typedef int32 PPID; // @v11.6.8 long-->int32
@@ -5039,7 +5040,7 @@ public:
 	//   Если *pGenGoodsID != 0, то функция определяет факт принадлежности товара
 	//   обобщению *pGenGoodsID.
 	//   Если *pGenGoodsID == 0, то функция определяет факт принадлежности товара
-	//   любому обобщению идентификатор которого возврадает по адресу pGenGoodsID.
+	//   любому обобщению идентификатор которого возвращает по адресу pGenGoodsID.
 	// ARG(pAsscRec       OUT): @#{vptr0} указатель на структуру записи ассоциации,
 	//   хранящей связку товар-обобщение. Если найденное обобщение является динамическим,
 	//   то содержимое по этому указателю не изменяется.
@@ -10245,8 +10246,8 @@ struct CCheckItem { // @transient
 	int16  Division;        // Номер отдела
 	int16  LineGrpN;        // Номер группы строк (используется только для печати и инициируется функцией CheckPaneDialog::InitIteration
 	int8   Queue;           // Очередность подачи
-	int8   Reserve[1];      // @alignment // @v11.5.8 [3]-->[1]
-	int16  RByCheck;        // @v11.5.8 Проекция поля CCheckLineTbl::Rec::RByCheck
+	int8   Reserve[1];      // @alignment
+	int16  RByCheck;        // Проекция поля CCheckLineTbl::Rec::RByCheck
 	S_GUID ChZnPm_ReqId;    // @v12.1.1 ответ разрешительного режима чзн: уникальный идентификатор запроса
 	int64  ChZnPm_ReqTimestamp; // @v12.1.1 ответ разрешительного режима чзн: дата и время формирования запроса
 	S_GUID ChZnPm_LocalModuleInstance; // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): идент локального модуля проверки
@@ -10280,8 +10281,8 @@ typedef TSVector <CCheckItem> CCheckItemArray;
 	// чека, содержащим товар для начисления. Такая сумма не включается в список оплат чека, сохраняемый вместе с чеком
 #define CCAMTTYP_NOTE       13 // Сумма, полученная от покупателя (без учета сдачи)
 #define CCAMTTYP_DELIVERY   14 // Сумма сдачи, возвращенная покупателю
-#define CCAMTTYP_MANDIS     15 // @v11.0.9 Скидка на чек в абсолютном выражении, предоставленная вручную
-#define CCAMTTYP_MANPCTDIS  16 // @v11.0.9 Скидка на чек в процентах, предоставленная вручную
+#define CCAMTTYP_MANDIS     15 // Скидка на чек в абсолютном выражении, предоставленная вручную
+#define CCAMTTYP_MANPCTDIS  16 // Скидка на чек в процентах, предоставленная вручную
 	// @#{Один чек не может одновременно иметь ненулевые значения CCAMTTYP_MANDIS и CCAMTTYP_MANPCTDIS}
 //
 // Invariants:
@@ -10427,8 +10428,8 @@ public:
 		extssBuyerINN           =  6, // ИНН покупателя (при формировании чека по документу)
 		extssBuyerName          =  7, // Наименование покупателя (при формировании чека по документу)
 		extssBuyerPhone         =  8, // Телефон покупателя //
-		extssBuyerEMail         =  9, // @v11.3.6 Адрес электронной почты покупателя //
-		extssUuid               = 10, // @v11.5.2 UUID чека. Применяется в ограниченном наборе сценариев. Введен ради взаимодействия со Stylo-Q.
+		extssBuyerEMail         =  9, // Адрес электронной почты покупателя //
+		extssUuid               = 10, // UUID чека. Применяется в ограниченном наборе сценариев. Введен ради взаимодействия со Stylo-Q.
 		extssPrescrDate         = 11, // @v11.7.12 Дата медицинского рецепта. Сохраняется в формате DATF_ISO8601 без разделителей, eg 20230821
 		extssPrescrSerial       = 12, // @v11.7.12 Серия медицинского рецепта
 		extssPrescrNumber       = 13, // @v11.7.12 Номер медицинского рецепта
@@ -10532,8 +10533,8 @@ public:
 	// Descr: Функция, обеспечивающая централизованный механизм распаковки текстовых расширений чека и его строк.
 	//
 	static int  Helper_UnpackTextExt(const SString & rBuf, PPExtStrContainer * pSc, StrAssocArray * pList);
-	static int  Helper_SetLineTextExt(int pos /*[1..]*/, int lnextId, StrAssocArray & rList, const char * pText);
-	static int  Helper_GetLineTextExt(int pos /*[1..]*/, int lnextId, const StrAssocArray & rList, SString & rBuf);
+	static int  Helper_SetLineTextExt(int pos/*[1..]*/, int lnextId, StrAssocArray & rList, const char * pText);
+	static int  Helper_GetLineTextExt(int pos/*[1..]*/, int lnextId, const StrAssocArray & rList, SString & rBuf);
 	static int  CopyExtStrContainer(PPExtStrContainer & rDest, const PPExtStrContainer & rSrc, uint flags);
 	static int  GetPrescription(const PPExtStrContainer & rEss, Prescription & rP);
 	static int  SetPrescription(PPExtStrContainer & rEss, const Prescription & rP);
@@ -10549,6 +10550,24 @@ public:
 	CCheckPacket & Z();
 	int    IsEq(const CCheckPacket & rS, long options) const;
 	int    FASTCALL Copy(const CCheckPacket & rS);
+	//
+	// Descr: Флаги функции SpecialTransform() 
+	//
+	enum {
+		spctfAdjustFractionalPrices = 0x0001 // Корректировать цену товара, продаваемого дробными частями упаковки
+	};
+	//
+	// Descr: Функция специальной трансформации пакета с целью оптимизировать, унифицировать или еще что-то
+	//   для решения каких-то локальных проблем.
+	//   Инициирующая проблема: при продаже дробных лекарств на некоторых типах кассовых регистраторов (пирит, вики-принт)
+	//     возникает проблема округления цены. Подробнсти слишком длинные, но если кратко, то суть в том, что авторы прошивок этих аппаратов - мудаки.
+	// ARG(flags IN): Флаги CCheckPacket::spctfXXX
+	// Returns:
+	//   >0 - функция что-то сделала с чеком.
+	//   <0 - функция ничего не изменила 
+	//    0 - error
+	//
+	int    SpecialTransform(uint flags); // @v12.6.1 @construction
 	//
 	// Descr: Возвращает !0 если есть не пустые поля расширения чека (Ext).
 	//
@@ -16370,14 +16389,6 @@ public:
 		SString Descr;
 		const  void * P_ExtraParam;
 	};
-	//
-	// Descr: Загружает из ресурсов описание объекта PPView или PPBaseFilt
-	// ARG(kind  IN): 0 - PPView, 1 - PPBaseFilt
-	// ARG(id    IN): Идентификатор ресурса
-	// ARG(rRc  OUT): Структура дескриптора ресурса
-	//
-	// @v11.4.4 static int LoadResource(int kind, int id, PPView::Rc & rRc);
-	// @v11.4.4 static int GetResourceLists(bool includeSpecialItems, StrAssocArray * pSymbList, StrAssocArray * pTextList);
 	static int InitializeDescriptionList();
 	static int GetFilterById(long id, PPView::Rc & rEntry);
 	static int GetDescriptionById(long id, PPView::Rc & rEntry);
@@ -17196,8 +17207,8 @@ public:
 		void   SetStrucSymb(const char * pSymb);
 		int    GetEntry(uint pos, Entry & rE) const;
 		int    SetEntry(const Entry & rE);
-		int    XmlRead(const xmlNode * pParentNode); //@erik v10.7.5
-		int    XmlWrite(xmlTextWriter * pXmlWriter) const; //@erik v10.7.5
+		int    XmlRead(const xmlNode * pParentNode); //@erik
+		int    XmlWrite(xmlTextWriter * pXmlWriter) const; //@erik
 		int    RemoveEntryByPos(uint pos);
 		int    XmlWriter(void * param);
 		int    Swap(uint p1, uint p2);
@@ -17207,11 +17218,11 @@ public:
 			uint32 FieldNameP;
 			uint32 TextP;
 			int32  TotalFunc;
-			TYPEID DataType;  // @v11.4.2 0 или автоматически извлекается из DL600
-			int32  Format;    // @v11.4.2 Если DataType определен, то формат задается пользователем
-			int32  Format2;   // @v11.4.2 Если DataType определен, то в этом поле задается дополнительное значение формата 
+			TYPEID DataType;  // 0 или автоматически извлекается из DL600
+			int32  Format;    // Если DataType определен, то формат задается пользователем
+			int32  Format2;   // Если DataType определен, то в этом поле задается дополнительное значение формата 
 				// Сейчас, это формат времени для TIMESTAMP (формат даты при этом идет в Format)
-			uint8  Reserve[4]; // @reserve // @v11.4.2 [16]-->[4]
+			uint8  Reserve[4]; // @reserve
 		};
 		int    SearchEntry(const char * pZone, const char * pFieldName, uint * pPos, InnerEntry * pInneEntry) const;
 		TSVector <InnerEntry> L;
@@ -17226,15 +17237,15 @@ public:
 	//
 	// Descr: Записать данные класса в буфер
 	//
-	int    Write(SBuffer & rBuf, long);// @erik v10.5.0 const -> notConst
+	int    Write(SBuffer & rBuf, long);// @erik const -> notConst
 	//
 	// Descr: Прочитать из буфера данные и спроецировать на класс
 	//
 	int    Read(SBuffer & rBuf, long);
-	int    Write2(xmlTextWriter * pXmlWriter);//@erik v10.7.5
-	int    Read2(const xmlNode * pParentNode);//@erik v10.7.5
-	int    XmlWriteGuaList(xmlTextWriter * pXmlWriter); //@erik v10.7.5
-	int    ReadGuaListFromStr(SString & rGuaListInStr);//@erik v10.7.5
+	int    Write2(xmlTextWriter * pXmlWriter);//@erik
+	int    Read2(const xmlNode * pParentNode);//@erik
+	int    XmlWriteGuaList(xmlTextWriter * pXmlWriter); //@erik
+	int    ReadGuaListFromStr(SString & rGuaListInStr);//@erik
 
 	enum {
 		fDontWriteXmlDTD = 0x0001, // В исходящий XML-файле на писать DTD
@@ -17330,26 +17341,6 @@ public:
 	PPNamedFiltMngr();
 	~PPNamedFiltMngr();
 	//
-	// Descr: Получить данные об объекте PPView
-	// ARG(viewId  IN): идентификатор объекта PPView
-	// ARG(symb   OUT): строка символа
-	// ARG(text   OUT): строка описани
-	// ARG(pFlags OUT): флаги
-	// Returns:
-	//	>0 - успешно
-	//  0  - error
-	//
-	// @v11.4.4 int    LoadResource(PPID viewId, SString & symb, SString & text, /*long * pFlags,*/const void ** ppExtraInitPtr) const;
-	//
-	// Descr: Загрузить список ассоциаций обьектов PPView в два списка
-	// ARG(pSymbList OUT): Список ассоциаций объектов PPView {id, строка символа}
-	// ARG(pTextList OUT): Список ассоциаций объектов PPView {id, строка описания}, упорядочен по описанию
-	// Returns:
-	//  >0 - успешно
-	//	0  - error
-	//
-	// @v11.4.4 int    GetResourceLists(bool includeSpecialItems, StrAssocArray * pSymbList, StrAssocArray * pTextList) const;
-	//
 	// Descr: Прочитать пул фильтров из файла
 	// ARG(pDbSymb	IN): символ базы данных, который будет присвоен прочитанному пулу
 	// ARG(*	   OUT): пул фильтров
@@ -17367,17 +17358,16 @@ public:
 	//  0  - error
 	//
 	int    SavePool(const PPNamedFiltPool *) const;
-	int    LoadPool2(const char * pDbSymb, PPNamedFiltPool *, bool readOnly); //@erik v10.7.5
-	int    SavePool2(const PPNamedFiltPool *) const;  //@erik v10.7.5
-	int    ConvertBinToXml(); //@erik v10.7.5
-	int    GetXmlPoolDir(SString &rXmlPoolPath); //@erik v10.7.4
+	int    LoadPool2(const char * pDbSymb, PPNamedFiltPool *, bool readOnly); //@erik
+	int    SavePool2(const PPNamedFiltPool *) const;  //@erik
+	int    ConvertBinToXml(); //@erik
+	int    GetXmlPoolDir(SString &rXmlPoolPath); //@erik
 private:
-	// @v11.4.4 TVRez  * P_Rez;
 	// Путь к файлу, в котором хранится пул фильтров. Мы сохраняем этот
 	// путь в переменной потому, что при обработке фильтров все нужно делать
 	// очень быстро.
 	SString FilePath; // @*PPNamedFiltMngr::PPNamedFiltMngr
-	SString XmlFilePath; //@erik v10.7.4
+	SString XmlFilePath; //@erik
 	// Время последнего вызова функции LoadPool
 	//  Используется для определения факта изменения файла пула
 	//  с момента последней загрузки
@@ -17853,7 +17843,9 @@ private:
 #pragma pack(push,1)
 struct PPUnit2 {           // @persistent @store(Reference2Tbl+)
 	PPUnit2();
+	PPUnit2 & Z();
 	int    ValidateQuantityFraction(double qtty) const;
+	bool   IsFragmentationValid() const { return (Fragmentation > 0 && Fragmentation <= 100000); }
 	enum {
 		SI       = 0x0001, // (S) Единица системы СИ
 		Physical = 0x0002, // (P) Физическая единица
@@ -17869,8 +17861,8 @@ struct PPUnit2 {           // @persistent @store(Reference2Tbl+)
 	char   Name[48];       // @name @!refname
 	char   Abbr[20];       // Символьный код единицы измерения //
 	char   Code[12];       // Цифровой код единицы измерения //
-	char   Reserve[14];    // @reserve // @v11.2.4
-	uint16 Fragmentation;  // @v11.2.4 Дробность единицы измерения. Позволяет оперировать количествами
+	char   Reserve[14];    // @reserve
+	uint16 Fragmentation;  // Дробность единицы измерения. Позволяет оперировать количествами
 		// меньшими единицы, но пропорционально величине Fragmentation (с поправкой на десятичное округление).
 		// Например, если Fragmentation == 8, то допускается оперировать величинами 1, 0.125, 0.25, 0.5, 0.75, 0.875.
 		// Если Fragmentation == 3, то допускаются значения 1, 0.3333.., 0.6666..
@@ -17878,9 +17870,9 @@ struct PPUnit2 {           // @persistent @store(Reference2Tbl+)
 	//
 	// Следующие 4 поля будут использованы для унифицированной системы обработки атрибутов товарной логистики
 	//
-	long   X;              // Length (mm)
-	long   Y;              // Width (mm)
-	long   Z;              // Height (mm)
+	long   _X;              // Length (mm)
+	long   _Y;              // Width (mm)
+	long   _Z;              // Height (mm)
 	long   Mass;           // Mass (g)
 	double BaseRatio;      //
 	long   Flags;          //
@@ -22777,7 +22769,7 @@ struct SlipLineParam {
 	int    Kind;          // lkXXX
 	int    Flags;         // fXXX
 	int    UomId;         // @v11.9.5 Единица измерения SUOM_XXX
-	uint   UomFragm;      // @v11.2.6 Фрагментация единицы измерения товара
+	uint   UomFragm;      // Фрагментация единицы измерения товара
 	double Qtty;          // для regtoFiscal
 	double PhQtty;        // @v11.9.3 for chzn (ChZnProductType==GTCHZNPT_DRAFTBEER || GTCHZNPT_DRAFTBEER_AWR)
 	double Price;         // для regtoFiscal
@@ -22791,7 +22783,7 @@ struct SlipLineParam {
 	int    BarcodeHt;     // Высота штрихкода (в точках)
 	int    ChZnProductType; //
 	TRect  PictCoord;     // Координаты изображения
-	CCheckPacket::PreprocessChZnCodeResult PpChZnR; // @v11.1.11 Результат препроцессинга марки честный знак. Если PpChZnR.LineIdx == 0, то препроцессинга не было.
+	CCheckPacket::PreprocessChZnCodeResult PpChZnR; // Результат препроцессинга марки честный знак. Если PpChZnR.LineIdx == 0, то препроцессинга не было.
 	SString FontName;     // Наименование гарнитуры шрифта (для обычного принтера)
 	SString PictPath;     // Путь к файлу изображения
 	SString Text;         // 
@@ -25814,7 +25806,7 @@ struct PPRegisterTypePacket {
 	PPRegisterTypePacket();
 	PPRegisterTypePacket & FASTCALL operator = (const PPRegisterTypePacket &);
 
-	PPRegisterType Rec;
+	PPRegisterType2 Rec;
 	PPOpCounterPacket CntrPack;
 	SString Format;
 };
@@ -25847,7 +25839,7 @@ public:
 	// Descr: извлекает через кэш редуцированную запись PPRegisterType,
 	//   содержащую следующие актуальные поля: {ID, PersonKindID, RegOrgKind, Flags}
 	//
-	int    Fetch(PPID, PPRegisterType *);
+	int    Fetch(PPID, PPRegisterType2 *);
 	int    SearchSymb(PPID * pID, const char * pSymb);
 private:
 	virtual int  ProcessReservedItem(TVRez &);
@@ -29418,8 +29410,8 @@ struct PersonFilt : public PPBaseFilt {
 		fShowFiasRcgn     = 0x00000200, // Показывать результаты распознавания адресов и сопоставления с ФИАС
 		// @v12.2.2 (замещено более общим функционалом анализа клиентской активности) fNewClientsOnly   = 0x0400, // Только новые клиенты (действует при не пустом NewCliPeriod)
 		fCliActivityStats = 0x00000800, // @v12.2.2 Отображать статистику активности клиентов. 
-		fNoTempTable      = 0x00001000, // @v12.3.3 @construction Не создавать временную таблицу, даже если условия фильтрации этого требуют
-		fInMemView        = 0x00002000, // @v12.5.12 @construction Данные для отображения строятся в виде массива. Не всегда может быть обработано.
+		fNoTempTable      = 0x00001000, // @v12.3.3 Не создавать временную таблицу, даже если условия фильтрации этого требуют
+		fInMemView        = 0x00002000, // @v12.5.12 Данные для отображения строятся в виде массива. Не всегда может быть обработано.
 		fCentrigoContacts = 0x00004000, // @v12.5.12 @construction Данные для суб-проекта centrigo
 	};
 	//
@@ -30407,10 +30399,12 @@ struct RetailGoodsInfo { // @transient
 			// отображение остатков для товарной позиции
 	};
 	PPID   ID;             // ->Goods.ID
+	PPID   UnitID;         // @12.6.1 ->Ref(PPOBJ_UNIT).ID
+	PPID   GoodsTypeID;    // @12.6.1 ->Ref(PPOBJ_GOODSTYPE).ID
 	char   Name[128];      // =Goods(ID).Name
 	char   BarCode[24];    //
 	char   UnitName[48];   //
-	char   Manuf[128];     // @v11.4.5 [48]-->[128]
+	char   Manuf[128];     // 
 	char   ManufCountry[48];
 	PPID   LocID;          // Склад, для которого рассчитана цена
 	PPID   QuotKindUsedForPrice; // Вид котировки, использованной для получения цены Price.
@@ -31209,8 +31203,6 @@ public:
 		rgifUseInBarcode        = 0x0010, // Использовать штрихкод, заданный в структуре pInfo.
 		rgifUseOuterPrice       = 0x0020, // Предписывает использовать OuterPrice в качестве цены.
 		rgifPriceOnly           = 0x0040, // Функция рассчитывает только цену (для ускорения)
-		rgifUseSingleSubstLogic = 0x0080, // @v12.5.9 Применять логику вычисления цены по single-подстановке (структуре).
-			// Применяется только в CPosProcessor::GetRgi не доходя до PPObjGoods::GetRetailGoodsInfo
  	};
 	//
 	// Descr: Возвращает информацию о товаре, необходимую для продажи
@@ -31760,11 +31752,10 @@ private:
 	const  PPBillPacket * P_BillPack;
 	const  PPTransferItem * P_Ti;
 	const  CCheckItem * P_Ci;
-	const  TSessLineTbl::Rec * P_TslRec; // @v11.0.7
+	const  TSessLineTbl::Rec * P_TslRec;
 	PPObjGoods GObj;
 	PPObjTSession * P_TSesObj;
-	PPGoodsStruc ProperGs; // Внутренний экземпляр структуры товара на тот случай,
-		// если из-вне структура передана не была, но может быть получена из контекста.
+	PPGoodsStruc ProperGs; // Внутренний экземпляр структуры товара на тот случай, если из-вне структура передана не была, но может быть получена из контекста.
 	Param  P;
 };
 //
@@ -33365,7 +33356,7 @@ private:
 	PPObjGoods GObj;
 	PPObjPerson PsnObj;    // Используется неявно для извлечения имени производителя в броузере
 	GoodsFilt  Filt;
-	GoodsToObjAssoc * P_G2OAssoc; // @v11.5.8
+	GoodsToObjAssoc * P_G2OAssoc;
 	TempOrderTbl  * P_TempTbl;
 	GoodsIterator * P_Iter;
 	BarcodeArray BarcodeAry;
@@ -33374,7 +33365,7 @@ private:
 	SString IterGrpName;
 	GoodsMoveParam GmParam;
 	static int DynFuncStrucType;
-	static int DynFuncAssocLoc; // @v11.5.8
+	static int DynFuncAssocLoc;
 	enum {
 		stCtrlX     = 0x0002,
 	};
@@ -38030,7 +38021,11 @@ public:
 	//
 	int    GetRecWithInheritance(PPID prcID, ProcessorTbl::Rec * pRec, int useCache = 0);
 	int    GetExtWithInheritance(PPID prcID, PPProcessorPacket::ExtBlock * pExt);
-	int    GetParentsList(PPID prcID, PPIDArray * pList);
+	//
+	// ARG(rList OUT): предварительно очищается функцией
+	//
+	int    GetParentsList(PPID prcID, PPIDArray & rList);
+	int    BelongsToHierarchy(PPID prcID, PPID hierarchyPrcID); // @v12.6.1
 	//
 	// Descr: Возвращает список процессоров, дочерних по отношению к prcID.
 	//   Идентификатор prcID в список не заносится.
@@ -38166,11 +38161,11 @@ private:
 //
 // Виды записей технологий
 //
-#define TECK_GENERAL    0 // Обыкновенная технология //
-#define TECK_TOOLING    1 // Технология перенастройки
-#define TECK_AUTO       2 // Автотехнология (правило автоматического создания) //
-#define TECK_FOLDER     3 // @v11.6.2 Папка
-#define TECK_ROUTE      4 // @v12.5.12 TechRoute
+#define TECK_GENERAL    0L // Обыкновенная технология //
+#define TECK_TOOLING    1L // Технология перенастройки
+#define TECK_AUTO       2L // Автотехнология (правило автоматического создания) //
+#define TECK_FOLDER     3L // @v11.6.2 Папка
+#define TECK_ROUTE      4L // @v12.5.12 TechRoute
 //
 // Флаги, передаваемые с дополнительным параметром
 //
@@ -38210,7 +38205,11 @@ public:
 		PPID   TechID;         // ->Tech.ID Ид технологии, определяющей конкретную фазу процесса
 		double NominalPrice;   // @v12.6.0 Номинальная цена за операцию на единицу продукции
 		uint32 NominalTimeSec; // @v12.6.0 Номинальное время исполнения операции на единицу продукции
-		uint8  Reserve[32];
+		uint16 LevelCode;      // @v12.6.1 Номер уровня. Фактически, это значение необходимо для того, чтобы уравнять 
+			// приоритеты исполнения фаз маршрута. То есть, если две или более фаз имеют одинаковый номер, то не важно какая из 
+			// этих фаз исполняется раньше, а какая - позже. В остальном порядок исполнения определяется позицией фазы в списке родительского объекта PPTechRoute.
+			// Нулевое значение LevelCode - исключительное. То есть, система не будет считать одноуровнемыми фазы с LevelCode = 0
+		uint8  Reserve[30];    // @v12.6.1 [32]-->[30]
 	};
 	PPTechRoute();
 	PPTechRoute & Z();
@@ -38221,6 +38220,7 @@ public:
 	SObjID Oid;      // @v12.6.0
 	PPID   ObjGroup; // @v12.6.0 Дополнительное значение для уточнения выбора связанного объекта
 	TSVector <Entry> L;
+	LongArray SelectionList; // @v12.6.1 @transient Список позиций элементов, которые отвечают внешним критериям выбора.
 };
 //
 // Descr: Класс, управляющий технологическими маршрутами
@@ -38234,6 +38234,9 @@ public:
 	//
 	int    Get(PPTechRoute & rRoute);
 	int    Edit(PPTechRoute & rRoute);
+	int    GetListByGoods(PPID goodsID, TSCollection <PPTechRoute> & rList);
+private:
+	PPObjGoods GObj;
 };
 
 struct PPTechPacket {
@@ -38245,11 +38248,38 @@ struct PPTechPacket {
 	SString SMemo;
 	PPTechRoute Route; // @v12.5.12
 };
+//
+// Descr: Фильтр технологический сессий. 
+// Note: Вынесен выше PPObjTech для того, чтобы тот мог ссылаться на TechFilt.
+//
+class TechFilt : public PPBaseFilt {
+public:
+	enum {
+		signAll = 0,
+		signMinusOnly,
+		signPlusOnly,
+		signUsageOnly
+	};
+	TechFilt();
+	virtual int ReadPreviousVer(SBuffer & rBuf, int ver); // @v12.6.1
+
+	char   ReserveStart[32]; // @anchor
+	PPID   ParentID;
+	PPID   PrcID;
+	PPID   GoodsID;
+	PPID   GStrucID;
+	long   Kind;
+	long   Sign;        // TechFilt::signXXX
+	long   Flags;       // TechFilt::fXXX
+	long   Reserve;     // @anchor
+	ObjIdListFilt List; // @v12.6.1 Список идентификаторов технологий, которые следует показать. Изначально сделан для отображения в списках, дальше - посмотрим.
+};
 
 class PPObjTech : public PPObject {
 public:
 	static int   GenerateCode(int kind, SString & rBuf, int use_ta = 1);
-	static int   SetupCombo(TDialog *, uint ctlID, PPID id, long olwFlags, PPID prcID, PPID goodsID);
+	// @v12.6.1 static int   SetupCombo(TDialog *, uint ctlID, PPID id, long olwFlags, PPID prcID, PPID goodsID);
+	static int   SetupCombo(TDialog *, uint ctlID, PPID id, long olwFlags, const TechFilt * pFilt); // @v12.6.1 
 	explicit PPObjTech(void * extraPtr = 0);
 	~PPObjTech();
 	virtual int Search(PPID, void *);
@@ -38301,6 +38331,7 @@ private:
 	int    Helper_GetTerminalChildList(PPID techID, PPIDArray & rList, LongArray & rRecurList);
 	int    AddItemsToList(StrAssocArray *, PPIDArray * pIdList, PPIDArray * pGoodsIdList, long extraParam, PPID goodsID = 0);
 		// @<<PPObjTech::MakeList_
+	int    AddItemsToList2(StrAssocArray *, PPIDArray * pIdList, PPIDArray * pGoodsIdList, const TechFilt * pFilt);
 	int    SearchAuto(PPID prcID, PPID goodsID, PPID * pTechID);
 public:
 	TLP_MEMB(TechTbl, P_Tbl);
@@ -38309,26 +38340,6 @@ public:
 //
 // @ModuleDecl(PPViewTech)
 //
-struct TechFilt : public PPBaseFilt {
-	enum {
-		signAll = 0,
-		signMinusOnly,
-		signPlusOnly,
-		signUsageOnly
-	};
-	TechFilt();
-
-	char   ReserveStart[32]; // @anchor
-	PPID   ParentID;
-	PPID   PrcID;
-	PPID   GoodsID;
-	PPID   GStrucID;
-	long   Kind;
-	long   Sign;             // TechFilt::signXXX
-	long   Flags;            // TechFilt::fXXX
-	long   Reserve;          // @anchor
-};
-
 typedef TechTbl::Rec TechViewItem;
 
 class PPViewTech : public PPView {
@@ -38522,14 +38533,12 @@ struct PPTSessConfig { // @persistent @store(PropertyTbl)
 //
 #define TSESLF_AUTOCOMPL   0x0001L // Строка сформирована автоматически процедурой PPObjTSession::Complete
 #define TSESLF_OUTREST     0x0002L // Строка исходящих остатков по сессии
-#define TSESLF_FIXEDREST   0x0004L // Пользователь зафиксировал значение остатка по товару
-	// (автоматическое изменение недопустимо)
+#define TSESLF_FIXEDREST   0x0004L // Пользователь зафиксировал значение остатка по товару (автоматическое изменение недопустимо)
 #define TSESLF_AUTOMAIN    0x0008L // Строка сформирована автоматически по основному товару сессии,
 	// единица измерения которого является производной от секунды.
 	// @v6.4.4 Либо по основному товару, если технология предусматривает его автоматическую вставку в строки.
 #define TSESLF_EXPANDSESS  0x0010L // @transient Функция PPObjTSession::PutLine должна изменить время //
-	// окончания сессии, если оно меньше времени, которым помечена строка. При этом время строки становится   //
-	// временем окончания сессии.
+	// окончания сессии, если оно меньше времени, которым помечена строка. При этом время строки становится временем окончания сессии.
 #define TSESLF_REST        0x0020L // Строка остатка серийного номера по сессии. Используется в том случае,
 	// если в процессе производства удобнее посчитать остаток некоторой позиции, чем фактически израсходованное
 	// количество. При вводе строки остатка система проверяет, чтобы в течении сессии был расход указанного
@@ -38538,11 +38547,9 @@ struct PPTSessConfig { // @persistent @store(PropertyTbl)
 #define TSESLF_INDEPPHQTTY 0x0040L // Строка учитывает физическое количество товара независимо от
 	// торгового. Этот флаг устанавливается функцией PPObjTSession::SetupLineGoods в соответствии с флагом GF_USEINDEPWT
 #define TSESLF_RECOMPL     0x0080L // Строка с основным товаром технологии, подлежащая рекомплектации
-	// при списании. Этот флаг предполагает, что в строке установлен серийный номер, товар является основным
-	// товаром технологии и знак операции +.
+	// при списании. Этот флаг предполагает, что в строке установлен серийный номер, товар является основным товаром технологии и знак операции +.
 #define TSESLF_PLAN_PHUNIT 0x0100L // Производственный план в физических единицах
-#define TSESLF_TOOLING     0x0200L // Флаг используется в комбинации с TSESLF_AUTOCOMPL. Если установлен, то
-	// строка сформирована автоматически как издержки на перенастройку.
+#define TSESLF_TOOLING     0x0200L // Флаг используется в комбинации с TSESLF_AUTOCOMPL. Если установлен, то строка сформирована автоматически как издержки на перенастройку.
 //
 // Допустимые переходы состояний сессий:
 // Проверку допустимости переходов реализует функция PPObjTSession::SetSessionState()
@@ -38584,6 +38591,23 @@ struct BhtTSessRec {
 	LDATETIME Dtm;
 };
 //
+// Descr: Специализированный фильтр для запуска и остановки технологических сессий, обслуживающих этапы технологического маршрута
+//
+class ExecSessionOnTechRouteFilt : public PPBaseFilt {
+public:
+	ExecSessionOnTechRouteFilt();
+	ExecSessionOnTechRouteFilt & FASTCALL operator = (const ExecSessionOnTechRouteFilt & rS);
+	enum {
+		fStopCurrentSession = 0x0001
+	};
+	uint8  ReserveStart[32]; // @anchor
+	uint32 Flags;
+	PPID   PrcID;
+	PPID   ArID;
+	PPID   Ar2ID;
+	uint8  Reserve[16]; // @anchor
+};
+//
 //
 //
 class TSessionPacket : public ObjTagContainerHelper {
@@ -38607,7 +38631,6 @@ public:
 	ObjLinkFiles LinkFiles; //
 	PPProcessorPacket::ExtBlock Ext; // Некоторые параметры процессора могут быть переопределены в этом блоке.
 		// Кроме того, здесь же хранится подробное описание сессии.
-	//SString SMemo; // @v11.0.4 (replacement of TSessionTbl::Rec::Memo)
 	double OuterTimingPrice; // @v11.7.6 @transient Цена временной сессии, передаваемая из внешнего источника.
 		// Используется для форсированной установки цены в автомитически формируемых временных строках.
 };
@@ -38654,7 +38677,8 @@ public:
 	//   В противном случае, возвращает 0.
 	//
 	static int  IsIdleInsignificant(const TSessionTbl::Rec * pRec, int prevStatus);
-	static int  ExecSessionOnTechRoute(); // @v12.6.0
+	static int  ExecSessionOnTechRoute(const ExecSessionOnTechRouteFilt * pParam); // @v12.6.0
+	static int  ExecSessionOnTechRouteCmdParam(ExecSessionOnTechRouteFilt * pParam); // @v12.6.1
 	//
 	// Descr: Реализует полный цикл редактирования порядка списания технологических сессий.
 	//   То есть, 1. создает объект TSessWrOffOrder; 2. извлекает его из базы данных;
@@ -38949,7 +38973,7 @@ public:
 	//
 	int    EditDialog(TSessionPacket * pRec);
 	int    EditNewIdleSession(PPID prcID, PPID curSessID, PPID * pSessID);
-	int    Edit_ExecSessionOnTechRoute(PPID prcID, bool stopCurrentSession);
+	int    Edit_ExecSessionOnTechRoute(const ExecSessionOnTechRouteFilt * pFilt, ExecSessionOnTechRouteBlock * pData);
 	int    EditLineDialog(TSessLineTbl::Rec *, int asPlanLine);
 	//
 	// Descr: Интерфейсная функция, обеспечивающая обработку записей с BHT-терминала.
@@ -39059,6 +39083,7 @@ public:
 	//    0 - error
 	//
 	int    MakeSessionsByRepeating(const PPIDArray * pSrcSessList, const DateRange & rPeriod, PPIDArray & rResultList, int use_ta);
+	int    SelectTechRoutePhaseByLot(PPID lotID, PPID prcID, TSCollection <PPTechRoute> & rResultList); // @v12.6.1 @construction
 	//
 	// Descr: Реализация сохранения расширения сессии в таблице Property (посредством объекта Reference).
 	//   Вынесена в отдельную функцию для унификации исполнения как штатной функции PutExtension так и
@@ -40538,11 +40563,11 @@ public:
 		dliAlcoLic,                   // Регистр алкогольной лицензии, ассоциированный (прямо или косвенно) с документом
 		dliDlvrAddr,                  // Адрес доставки
 		dliTSessLinkTo,               // @v11.6.12 Тех сессия, к которой привязан документ
-		dliStdAmtCost,                // @v12.1.0 @construction Стандартная сумма в ценах поступления // 
-		dliStdAmtPrice,               // @v12.1.0 @construction Стандартная сумма в ценах реализации //
+		dliStdAmtCost,                // @v12.1.0 Стандартная сумма в ценах поступления // 
+		dliStdAmtPrice,               // @v12.1.0 Стандартная сумма в ценах реализации //
 	};
 	char   ReserveStart[20]; // @anchor // @v11.9.4 [24]-->[20]
-	PPID   FreightPortOfDischarge; // @v11.9.4 @construction Порт (пункт) разгрузки (из фрахта документа) //
+	PPID   FreightPortOfDischarge; // @v11.9.4 Порт (пункт) разгрузки (из фрахта документа) //
 	PPID   CliPsnCategoryID; // Категория персоналии, соответствующей контрагенту документа
 	PPID   GoodsGroupID;   // Товарная группа, ограничивающая выборку документов по содержимому
 	long   Tag;            // @#0 reserved
@@ -48883,7 +48908,8 @@ public:
 		fUnviewedOnly         = 0x0002, // Показывать только те задачи, которые не были кем-либо просмотрены
 		fUnviewedEmployerOnly = 0x0004, // Показывать только те задачи, которые не были просмотрены исполнителем
 		fNotShowPPWaitOnInit  = 0x0008, // Не выдавать сообщение "Подождите" в PPViewPrjTask::Init()
-		fNoTempTable          = 0x0010  // Не строить временную таблицу
+		fNoTempTable          = 0x0010, // Не строить временную таблицу
+		fInMemView            = 0x0020, // @v12.6.1 @construction Данные для отображения строятся в виде массива. Не всегда может быть обработано.
 	};
 	long   Kind;               // TODOKIND_XXX
 	PPID   ProjectID;          // ->Project.ID Проект, к которому привязана задача
@@ -48935,14 +48961,50 @@ public:
 	//
 	int    Transmit(PPID id, int kind);
 private:
+	struct InternalViewItem { // @v12.6.1 @flat
+		InternalViewItem();
+		InternalViewItem(const PrjTaskTbl::Rec & rS);
+		InternalViewItem & Z();
+		PPID   ID;
+		long   ProjectID;
+		long   Kind;
+		char   Code[24];
+		long   CreatorID;
+		long   GroupID;
+		long   EmployerID;
+		long   ClientID;
+		long   TemplateID;
+		LDATETIME Dtm;
+		LDATETIME StartDtm;
+		LDATETIME EstFinishDtm;
+		LDATETIME FinishDtm;
+		int16  Priority;
+		int16  Status;
+		int16  DrPrd;
+		int16  DrKind;
+		int32  DrDetail;
+		long   Flags;
+		long   DlvrAddrID;
+		long   LinkTaskID;
+		double Amount;
+		int32  OpenCount;
+		long   BillArID;
+		long   LinkBillID;
+		uint   DescrP;
+		uint   MemoP;
+	};
 	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int  HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
+	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle); // @v12.6.1
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual void ViewTotal();
 	virtual int  Print(const void *);
 	virtual void * GetEditExtraParam();
 	virtual int  Detail(const void *, PPViewBrowser * pBrw);
+	virtual int  OnExecBrowser(PPViewBrowser * pBrw); // @v12.6.1
+	bool   IsInMemView() const;
+	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk); // @v12.6.1
 	int    ViewCrosstabDetail(PPID tabID, const DBFieldList * pFldList);
 	TempOrderTbl::Rec & MakeTempEntry(const PrjTaskTbl::Rec & rRec, TempOrderTbl::Rec & rTempRec);
 	int    CheckRecForFilt(const PrjTaskTbl::Rec * pRec);
@@ -48956,15 +49018,19 @@ private:
 	int    AddItemToTimeGrid(const PrjTaskViewItem *, int rmv);
 	int    TimeChunkBrowser();
 	int    UpdateTimeBrowser(int destroy);
+	void   MakeSubTitle(SString * pSubTitle);
+	int    MakeInternalEntry(const PrjTaskTbl::Rec & rRec, bool forceAppend, TSArray <InternalViewItem> & rList);
 
 	PrjTaskViewItem Item;
 	PrjTaskFilt Filt;
 	PPObjPrjTask TodoObj;
 	PPObjPerson PsnObj;
-	int    UndefPriorList;
-	int    UndefStatusList;
+	bool   UndefPriorList;  // @v12.6.1 int-->bool
+	bool   UndefStatusList; // @v12.6.1 int-->bool
+	uint8  Reserve[2];      // @alignment @v12.6.1
 	PPIDArray PriorList;
 	PPIDArray StatusList;
+	TSArray <InternalViewItem> * P_DsList;
 	TempOrderTbl   * P_TempOrd;
 	TempPrjTaskTbl * P_TempTbl;
 	PPIDArray UpdateTaskList;
@@ -54452,6 +54518,22 @@ private:
 	xmlParserCtxt * P_XpCtx;
 };
 //
+//
+//
+class PPAutoTranslSvc_Google { // @v12.6.1
+public:
+	struct EndPoint {
+		const char * P_Host;
+		const char * P_Path;
+		const char * P_CliId;
+		bool  ResultAsNamedJson;
+		bool  RefererNeeded;
+	};
+	PPAutoTranslSvc_Google();
+	~PPAutoTranslSvc_Google();
+	int    Request(int srcLang, int destLang, const SString & rSrcText, SString & rResult);
+};
+//
 // PpyInetDataPrcssr
 //
 class PpyInetDataPrcssr {
@@ -56368,30 +56450,32 @@ public:
 		PPID   TechID;
 		PPID   ArID;
 		PPID   Ar2ID;
+		PPID   GoodsID;    // @v12.6.1 Если 0, то реальный товар определяется технологией TechID. В противном случае это - уточняющее значение.
 		bool   IdleStatus; // @v12.3.6 int-->bool
 		uint8  Reserve[3]; // @v12.3.6 @alignment
 	};
 	PrcTechCtrlGroup(uint ctlSelPrc, uint ctlSelTech, uint ctlStGoods, uint ctlSelAr, uint ctlSelAr2, uint cmdSelTechByGoods, uint cmdCreateGoods = 0);
 	virtual int    setData(TDialog *, void *);
 	virtual int    getData(TDialog *, void *);
-	void   setIdleStatus(TDialog *, bool s);
+	void   SetIdleStatus(TDialog *, bool s);
 	//
 	// Descr: Устанавливает возможность выбора группы процессоров в комбо-боксе процессора.
 	//   По умолчанию ВКЛЮЧЕНО.
 	//
-	void   enablePrcSelUpLevel(bool enbl);
-	void   enableTechSelUpLevel(bool enbl); // @v11.7.6
+	void   EnablePrcSelUpLevel(bool enbl);
+	void   EnableTechSelUpLevel(bool enbl); // @v11.7.6
 	//
 	// Descr: Устанавливает возможность создания нового процессора в списке
 	//   комбо-бокса процессора.
 	//
-	void   enablePrcInsert(bool enbl);
-	int    getGoodsID(TDialog *, PPID * pGoodsID);
+	void   EnablePrcInsert(bool enbl);
+	int    SetGoodsID(TDialog *, PPID goodsID); // @v12.6.1
+	int    GetGoodsID(TDialog *, PPID * pGoodsID);
 private:
 	virtual void   handleEvent(TDialog *, TEvent &);
 	void   onPrcSelection(TDialog *, int onIdleStatus = 0);
 	void   setupArticle(TDialog *, const ProcessorTbl::Rec *);
-	void   setupGoodsName(TDialog *);
+	void   SetupGoodsName(TDialog *);
 	void   setupCreateGoodsButton(TDialog *);
 	void   selTechByGoods(TDialog *);
 	long   GetTechComboOlwFlags() const; // @v11.7.6
@@ -57230,7 +57314,7 @@ struct PosPaymentBlock {
 		fCashlessBypassEq        = 0x0010, // @v12.0.6 OUT Безналичная оплата в обход банковского терминала
 		fPreferCashlessPayment   = 0x0020, // @v12.1.10 IN Безналичная оплата является более предпочтительной, нежели наличная (сложная проекция PPEquipConfig::fPreferBankingPayment)
 	};
-	long   Flags;        // @v11.3.6
+	long   Flags;
 	CCheckPacket::BuersEAddr_ EAddr;  // Электронный адрес покупателя (email or phone)
 	CcAmountList CcPl;
 private:
@@ -57240,6 +57324,7 @@ private:
 };
 
 struct SaModifEntry { // @flat
+	SaModifEntry();
 	enum {
 		fChecked = 0x0001 // Позиция выбрана (используется для организации UI где модификаторы отображаются списком)
 	};
@@ -58117,7 +58202,7 @@ private:
 	clock_t PrintCheckClock; // Время окончания печати чека
 	long   ClearCDYTimeout;  // @*CheckPaneDialog::CheckPaneDialog() Таймаут очистки дисплея покупателя после печати чека
 	PPCustDisp  * P_CDY;
-	PPBnkTerminal	 * P_BNKTERM; // @vmiller
+	PPBnkTerminal * P_BNKTERM; // @vmiller
 	// @v12.5.7 @obsolete PalmImportWaiter * P_PalmWaiter;
 	AsteriskAmiClient * P_PhnSvcClient;
 	PPBillImporter * P_UhttImporter;
@@ -59119,7 +59204,14 @@ private:
 	int    MakeOutFileIdent(const PPBillPacket * pBPack, FileInfo & rHi);
 	int    MakeOutFileName(const char * pFileIdent, SString & rFileName);
 	// @v12.5.12 void   WriteMarkListOnInvoiceItem(SXml::WNode & rN, const PPBillImpExpParam & rParam, int chznProdType, int chznIntQtty, const PPLotExtCodeContainer::MarkSet & rSet);
-	void   WriteMarkListOnInvoiceItem2(xmlTextWriter * pX, int tagToken, bool tagTokenOnEechItem, const PPBillImpExpParam & rParam, int chznProdType, int chznIntQtty, const PPLotExtCodeContainer::MarkSet & rSet);
+	// @v12.6.1 void   WriteMarkListOnInvoiceItem2(xmlTextWriter * pX, int tagToken, bool tagTokenOnEachItem, const PPBillImpExpParam & rParam, int chznProdType, int chznIntQtty, const PPLotExtCodeContainer::MarkSet & rSet);
+	enum {
+		wmlictxInvoice = 1,
+		wmlictxCorrectionBefore = 2,
+		wmlictxCorrectionAfter  = 3,
+		wmlictxUnified          = 4,
+	};
+	void   WriteMarkListOnInvoiceItem3(xmlTextWriter * pX, int contextId, const PPBillImpExpParam & rParam, int chznProdType, int chznIntQtty, const PPLotExtCodeContainer::MarkSet & rSet);
 	//
 	// Descr: Извлекает из базы данных идентификатор участника документооборота.
 	//   Сложность в том, что этот идентификатор может быть задан либо в виде тега персоналии (PPTAG_PERSON_ENALOGID),

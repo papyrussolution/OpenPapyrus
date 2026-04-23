@@ -3892,6 +3892,7 @@ IMPL_HANDLE_EVENT(TFacadeWindow)
 										case cmCentrigoToDo:
 											{
 												PrjTaskFilt filt;
+												filt.Flags |= PrjTaskFilt::fInMemView;
 												DoTasks(&filt);
 											}
 											break;

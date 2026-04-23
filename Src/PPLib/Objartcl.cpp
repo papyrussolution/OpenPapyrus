@@ -2812,9 +2812,9 @@ int DebtDimCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData
 	PPObjDebtDim dd_obj;
 	PPDebtDim rec;
 	if(dd_obj.Search(id, &rec) > 0) {
-#define CPY_FLD(Fld) p_cache_rec->Fld=rec.Fld
+#define CPYFLD(Fld) p_cache_rec->Fld=rec.Fld
 	// reserve
-#undef CPY_FLD
+#undef CPYFLD
 		p_cache_rec->Reserve = 0;
 		MultTextBlock b;
 		b.Add(rec.Name);
@@ -2831,9 +2831,9 @@ void DebtDimCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) co
 	PPDebtDim * p_data_rec = static_cast<PPDebtDim *>(pDataRec);
 	const DebtDimData * p_cache_rec = static_cast<const DebtDimData *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
-#define CPY_FLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
+#define CPYFLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
 	p_data_rec->Tag = PPOBJ_DEBTDIM;
-#undef CPY_FLD
+#undef CPYFLD
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
 	b.Get(p_data_rec->Symb, sizeof(p_data_rec->Symb));

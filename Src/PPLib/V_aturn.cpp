@@ -450,7 +450,7 @@ int PPViewAccturn::InitIteration()
 	else if(Filt.GrpAco) {
 		if(P_TmpAGTbl) {
 			TempAccturnGrpngTbl::Key1 agk;
-			THROW_MEM(P_IterQuery = new BExtQuery(P_TmpAGTbl, 1, 16 /* very large record */));
+			THROW_MEM(P_IterQuery = new BExtQuery(P_TmpAGTbl, 1, 16/*very large record*/));
 			P_IterQuery->selectAll();
 			MEMSZERO(agk);
 			P_IterQuery->initIteration(false, &agk, spFirst);

@@ -450,7 +450,13 @@ void TWindow::endModal(ushort command)
 		::PostMessageW(h_wnd, WM_NULL, 0, 0L);
 	}
 	else {
+		// @v12.6.1 {
+		Sf |= sfOnDestroy;
 		::DestroyWindow(h_wnd);
+		HW = 0;
+		Sf &= ~sfOnDestroy;
+		// } @v12.6.1 
+		// @v12.6.1 ::DestroyWindow(h_wnd);
 		// После вызова DestroyWindow экземпляр this разрушается: никаких действий с ним далее проводить нельзя.
 	}
 }
@@ -1406,7 +1412,7 @@ static wchar_t * P_SLibWindowBaseClsName = L"SLibWindowBase";
 		SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
 		APPL->NotifyFrame(0);
 	}
-	if(pView && pView->IsConsistent()) {
+	if(pView && pView->IsConsistent() && !(pView->Sf & sfOnDestroy)) { // @v12.6.1 (&& !(pView->Sf & sfOnDestroy))
 		APPL->SelectTabItem(pView);
 		TView::messageBroadcast(pView, cmReceivedFocus);
 		pView->select();

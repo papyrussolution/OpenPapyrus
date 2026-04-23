@@ -1461,9 +1461,22 @@ int STDCALL PPPutExtStrData(int fldID, SString & rLine, const SString & rBuf)
 //
 //
 //
-PPExtStrContainer::PPExtStrContainer() {}
-PPExtStrContainer & PPExtStrContainer::Z() { ExtString.Z(); return *this; }
-bool   FASTCALL PPExtStrContainer::Copy(const PPExtStrContainer & rS) { ExtString = rS.ExtString; return true; }
+PPExtStrContainer::PPExtStrContainer() 
+{
+}
+
+PPExtStrContainer & PPExtStrContainer::Z() 
+{ 
+	ExtString.Z(); 
+	return *this; 
+}
+
+bool   FASTCALL PPExtStrContainer::Copy(const PPExtStrContainer & rS) 
+{ 
+	ExtString = rS.ExtString; 
+	return true; 
+}
+
 int    PPExtStrContainer::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
 int    PPExtStrContainer::PutExtStrData(int fldID, const char * pStr) { return PPPutExtStrData(fldID, ExtString, pStr); }
 int    PPExtStrContainer::SerializeB(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) { return pSCtx->Serialize(dir, ExtString, rBuf) ? 1 : PPSetErrorSLib(); }
@@ -5184,32 +5197,246 @@ struct PhoneNumberMetaData { // @v12.6.0 @construction
 		fMainCountry                = 0x0001, // mainCountryForCode?: "true" # Основная страна для этого кода
 		fMobileNumberPortableRegion = 0x0002, // mobileNumberPortableRegion
 	};
+	static uint32 ParsePossibleLengths(const char * pText)
+	{
+		uint32 result = 0;
+		if(!isempty(pText)) {
+			StringSet ss(',', pText);
+			SString temp_buf;
+			SString num_buf;
+			SStrScan scan;
+			for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+				temp_buf.Strip();
+				scan.Set(temp_buf, 0);
+				scan.Skip();
+				bool   local_ok = false;
+				if(scan.GetNumber(num_buf)) { // "8"
+					const  long n = temp_buf.ToLong();
+					if(checkirangef(n, 1, 32)) {
+						result |= (1 << (n-1));
+						local_ok = true;
+					}
+				}
+				else if(scan.IncrChr('[')) { //"[5-13]"
+					scan.Skip();
+					if(scan.GetNumber(num_buf)) {
+						const  long i1 = temp_buf.ToLong();
+						if(checkirangef(i1, 1, 32)) {
+							scan.Skip();
+							if(scan.IncrChr('-')) {
+								scan.Skip();
+								if(scan.GetNumber(num_buf)) {
+									const  long i2 = temp_buf.ToLong();
+									if(checkirangef(i2, 1, 32)) {
+										scan.Skip();
+										if(scan.Is(']')) {
+											if(i1 <= i2) {
+												for(long n = i1; n <= i2; n++) {
+													result |= (1 << (n-1));
+												}
+												local_ok = true;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return result;
+	}
 	struct NumberDescriptor {
+		NumberDescriptor()
+		{
+			THISZERO();
+		}
+		int    FromJsonObj(SStrGroup & rPool, const SJson * pJs)
+		{
+			int    ok = 1;
+			SString temp_buf;
+			if(SJson::IsObject(pJs)) {
+				/*
+							└── NumberDescriptor:
+								├── possibleLengths:
+								│   ├── national: string    # Допустимые длины: "7,8" или "[6-9]"
+								│   └── localOnly?: string  # Длины только для локального набора
+								│
+								├── exampleNumber: string   # Пример валидного номера
+								│
+								└── nationalNumberPattern: string  # Regex для валидации
+				*/ 
+				for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
+					if(p_cur->Text.IsEqiAscii("possibleLengths")) {
+						if(SJson::IsObject(p_cur->P_Child)) {
+							for(const SJson * p_pl = p_cur->P_Child->P_Child; p_pl; p_pl = p_pl->P_Next) {
+								if(p_pl->Text.IsEqiAscii("national")) {
+									SJson::GetChildTextUnescaped(p_pl, temp_buf);
+									PossibleLen_National = ParsePossibleLengths(temp_buf);
+								}
+								else if(p_pl->Text.IsEqiAscii("localOnly")) {
+									SJson::GetChildTextUnescaped(p_pl, temp_buf);
+									PossibleLen_LocalOnly = ParsePossibleLengths(temp_buf);
+								}
+							}
+						}
+					}
+					else if(p_cur->Text.IsEqiAscii("exampleNumber")) {
+						SJson::GetChildTextUnescaped(p_cur, temp_buf);
+						rPool.AddS(temp_buf, &ExampleP);
+					}
+					else if(p_cur->Text.IsEqiAscii("nationalNumberPattern")) {
+						SJson::GetChildTextUnescaped(p_cur, temp_buf);
+						rPool.AddS(temp_buf, &NationalPatternP);
+					}
+				}
+			}
+			return ok;
+		}
 		uint32 PossibleLen_National; //"possibleLengths": { "national": "10" },
 		uint32 PossibleLen_LocalOnly;
 		uint   NationalPatternP; //"nationalNumberPattern": "[3-9]\\d{9}",
 		uint   ExampleP; //"exampleNumber": "9123456789"
 	};
-	struct NumberFormat { // Форматирование вывода
+	struct NumberFormat { // @flat Форматирование вывода
+		NumberFormat()
+		{
+			THISZERO();
+		}
+		int    FromJsonObj(SStrGroup & rPool, const SJson * pJs)
+		{
+			int    ok = 1;
+			SString temp_buf;
+			if(SJson::IsObject(pJs)) {
+				for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
+					if(p_cur->Text.IsEqiAscii("pattern")) {
+						SJson::GetChildTextUnescaped(p_cur, temp_buf);
+						rPool.AddS(temp_buf, &PatternP);
+					}
+					else if(p_cur->Text.IsEqiAscii("format")) {
+						SJson::GetChildTextUnescaped(p_cur, temp_buf);
+						rPool.AddS(temp_buf, &FormatP);
+					}
+					else if(p_cur->Text.IsEqiAscii("intlFormat")) {
+						SJson::GetChildTextUnescaped(p_cur, temp_buf);
+						rPool.AddS(temp_buf, &IntlFormatP);
+					}
+					else if(p_cur->Text.IsEqiAscii("leadingDigits")) {
+						// @todo
+					}
+					else if(p_cur->Text.IsEqiAscii("nationalPrefixFormattingRule")) {
+						SJson::GetChildTextUnescaped(p_cur, temp_buf);
+						rPool.AddS(temp_buf, &NatonalPfxFormatRuleP);
+					}
+					else if(p_cur->Text.IsEqiAscii("carrierCodeFormattingRule")) {
+						SJson::GetChildTextUnescaped(p_cur, temp_buf);
+						rPool.AddS(temp_buf, &CarrierCodeFormatRuleP);
+					}
+					else if(p_cur->Text.IsEqiAscii("nationalPrefixOptionalWhenFormatting")) {
+						const int b = SJson::GetBoolean(p_cur->P_Child);
+						if(b > 0) {
+							NatonalPfxOptionalWhenFormatting = true;	
+						}
+					}
+				}
+			}
+			return ok;
+		}
 		uint   PatternP;    // pattern: string                    # Regex для применения формата
 		uint   FormatP;     // format: string                     # Шаблон вывода ("$1 $2 $3")
 		uint   IntlFormatP; // intlFormat?: string | "NA"         # Международный формат
-		// leadingDigits?: string[]           # Ограничение по начальным цифрам
+		uint   LeadingDigitsSetP[6];   // leadingDigits?: string[]           # Ограничение по начальным цифрам
 		uint   NatonalPfxFormatRuleP;  // nationalPrefixFormattingRule?: string # Правило вставки нац. префикса
-		// nationalPrefixOptionalWhenFormatting?: "true"
-		uint   CarrierCodeFormatFuleP; // carrierCodeFormattingRule?: string # Правило для кода оператора
-
+		uint   CarrierCodeFormatRuleP; // carrierCodeFormattingRule?: string # Правило для кода оператора
+		bool   NatonalPfxOptionalWhenFormatting; // nationalPrefixOptionalWhenFormatting?: "true"
+		uint8  Reserve[3];
 	};
 	struct Terr { // territory
-		Terr() : Flags(0)
+		Terr() : Flags(0), IntlPfxP(0), PrefIntlPfxP(0), NationalPfxP(0), NationalPfxForParsingP(0), NationalPfxTransformRuleP(0), PrefExtnPfxP(0)
 		{
 			Id[0] = 0;
 			E164[0] = 0;
+			memzero(LeadingDigitsSetP, sizeof(LeadingDigitsSetP));
+		}
+		int    FromJsonObj(SStrGroup & rPool, const SJson * pJs)
+		{
+			int    ok = 1;
+			SString temp_buf;
+			if(SJson::IsObject(pJs)) {
+				for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
+					if(p_cur->Text.IsEqiAscii("id")) {
+						SJson::GetChildTextUnescaped(p_cur, temp_buf);
+						STRNSCPY(Id, temp_buf);
+					}
+					else if(p_cur->Text.IsEqiAscii("countryCode")) {
+						SJson::GetChildTextUnescaped(p_cur, temp_buf);
+						STRNSCPY(E164, temp_buf);
+					}
+					else if(p_cur->Text.IsEqiAscii("mainCountryForCode")) {
+						const int b = SJson::GetBoolean(p_cur->P_Child);
+						if(b > 0) {
+							Flags |= fMainCountry;
+						}
+					}
+					else if(p_cur->Text.IsEqiAscii("leadingDigits")) {
+					}
+					else if(p_cur->Text.IsEqiAscii("availableFormats")) {
+						if(SJson::IsObject(p_cur->P_Child)) {
+							const SJson * p_nfl = p_cur->P_Child->P_Child;
+							if(p_nfl && p_nfl->Text.IsEqiAscii("numberFormat") && SJson::IsArray(p_nfl->P_Child)) {
+								for(const SJson * p_nf_item = p_nfl->P_Child->P_Child; p_nf_item; p_nf_item = p_nf_item->P_Next) {
+									if(SJson::IsObject(p_nf_item)) {
+										NumberFormat nf;
+										if(nf.FromJsonObj(rPool, p_nf_item->P_Child)) {
+											AvailableFormatList.insert(&nf);
+										}
+									}
+								}
+							}
+						}
+					}
+					else if(p_cur->Text.IsEqiAscii("generalDesc")) {
+						GeneralDesc.FromJsonObj(rPool, p_cur->P_Child);
+					}
+					else if(p_cur->Text.IsEqiAscii("fixedLine")) {
+						FixedLine.FromJsonObj(rPool, p_cur->P_Child);
+					}
+					else if(p_cur->Text.IsEqiAscii("mobile")) {
+						Mobile.FromJsonObj(rPool, p_cur->P_Child);
+					}
+					else if(p_cur->Text.IsEqiAscii("pager")) {
+						Pager.FromJsonObj(rPool, p_cur->P_Child);
+					}
+					else if(p_cur->Text.IsEqiAscii("tollFree")) {
+						TollFree.FromJsonObj(rPool, p_cur->P_Child);
+					}
+					else if(p_cur->Text.IsEqiAscii("premiumRate")) {
+						PremiumRate.FromJsonObj(rPool, p_cur->P_Child);
+					}
+					else if(p_cur->Text.IsEqiAscii("sharedCost")) {
+						SharedCost.FromJsonObj(rPool, p_cur->P_Child);
+					}
+					else if(p_cur->Text.IsEqiAscii("personalNumber")) {
+						PersonalNumber.FromJsonObj(rPool, p_cur->P_Child);
+					}
+					else if(p_cur->Text.IsEqiAscii("voip")) {
+						VoIP.FromJsonObj(rPool, p_cur->P_Child);
+					}
+					else if(p_cur->Text.IsEqiAscii("uan")) {
+						UAN.FromJsonObj(rPool, p_cur->P_Child);
+					}
+					else if(p_cur->Text.IsEqiAscii("voicemail")) {
+						VoiceMail.FromJsonObj(rPool, p_cur->P_Child);
+					}
+				}
+			}
+			return ok;
 		}
 		char   Id[8];
 		char   E164[8]; // Телефонный код страны в E.164 ("1", "7", "44")
 		uint   Flags;
-		uint   LeadingDigitsP; // leadingDigits?: string[]      # Префиксы для разрешения коллизий кодов
+		uint   LeadingDigitsSetP[6]; // leadingDigits?: string[]      # Префиксы для разрешения коллизий кодов
 		//
 		uint   IntlPfxP;      // internationalPrefix: string          # Префикс междугородней связи ("00")
 		uint   PrefIntlPfxP;  // preferredInternationalPrefix?: string # Предпочтительный вариант
@@ -5217,7 +5444,19 @@ struct PhoneNumberMetaData { // @v12.6.0 @construction
 		uint   NationalPfxForParsingP;    // nationalPrefixForParsing?: string    # Regex для извлечения кода
 		uint   NationalPfxTransformRuleP; // nationalPrefixTransformRule?: string # Правило трансформации ("9$1")
 		uint   PrefExtnPfxP;              // preferredExtnPrefix?: string         # Префикс добавочного номера
-		// mobileNumberPortableRegion?: "true"  # Поддержка переноса номеров
+		TSVector <NumberFormat> AvailableFormatList;
+		//
+		NumberDescriptor GeneralDesc; // generalDesc?: NumberDescriptor      # Общее описание всех номеров
+		NumberDescriptor FixedLine;   // fixedLine?: NumberDescriptor        # Стационарные
+		NumberDescriptor Mobile;      // mobile?: NumberDescriptor           # Мобильные
+		NumberDescriptor Pager;       // pager?: NumberDescriptor            # Пейджеры
+		NumberDescriptor TollFree;    // tollFree?: NumberDescriptor         # Бесплатные (800, 888...)
+		NumberDescriptor PremiumRate; // premiumRate?: NumberDescriptor      # Платные (900...)
+		NumberDescriptor SharedCost;  // sharedCost?: NumberDescriptor       # Разделение стоимости
+		NumberDescriptor PersonalNumber; // personalNumber?: NumberDescriptor   # Персональные номера
+		NumberDescriptor VoIP;           // voip?: NumberDescriptor             # VoIP
+		NumberDescriptor UAN;            // uan?: NumberDescriptor              # Унифицированные доступные номера
+		NumberDescriptor VoiceMail;      // voicemail?: NumberDescriptor        # Голосовая почта
 	};
 	SStrGroup StrPool;
 };

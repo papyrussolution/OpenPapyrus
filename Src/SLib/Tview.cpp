@@ -378,7 +378,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 		if(is_allocated)
 			SAlloc::F(p_text_ptr);
 	}
-    return (int)rBuf.Len();
+    return rBuf.LenI();
 }
 
 /*static*/int FASTCALL TView::SSetWindowText(HWND hWnd, const char * pText)
@@ -799,8 +799,14 @@ bool TView::IsConsistent() const
 {
 	bool   ok = true;
 	__try {
-		if(oneof2(Sign, SlConst::Signature_TView, SlConst::Signature_TWindow)) { // @v12.5.7 SlConst::Signature_TWindow
-			// @v12.2.5 {
+		// @20260420 я тут как-бы еще работаю 
+		if(this == 0)
+			ok = false;
+		if(sizeof(void *) == 4 && this == reinterpret_cast<const void *>(0xddddddddU))
+			ok = false;
+		else if(sizeof(void *) == 8 && this == reinterpret_cast<const void *>(0xddddddddddddddddULL))
+			ok = false;
+		else {
 			const void * vptr = *(const void **)(this);
 			if(vptr == 0 || vptr == reinterpret_cast<const void *>(0x04U))
 				ok = false;
@@ -808,10 +814,9 @@ bool TView::IsConsistent() const
 				ok = false;
 			else if(sizeof(void *) == 8 && vptr == reinterpret_cast<const void *>(0xddddddddddddddddULL))
 				ok = false;
-			// } @v12.2.5
+			else if(!oneof2(Sign, SlConst::Signature_TView, SlConst::Signature_TWindow))
+				ok = false;
 		}
-		else
-			ok = false;
 	}
 	__except(1) {
 		ok = false;
@@ -1724,7 +1729,7 @@ void TViewGroup::forEach(void (*func)(TView*, void *), void *args)
 {
 	TView * p_term = P_Last;
 	TView * p_temp = P_Last;
-	if(p_temp) do {
+	if(p_temp && p_temp->IsConsistent()) do { // @v12.6.1 (&& p_temp->IsConsistent())
 		p_temp = p_temp->P_Next;
 		func(p_temp, args);
 	} while(p_temp != p_term);

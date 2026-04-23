@@ -178,7 +178,7 @@ DBE & __stdcall enumtoa(DBItem & i, int n, char ** str_array)
 	DBConst ic;
 	DBConst sc;
 	ic.init(static_cast<long>(n));
-	sc.init(reinterpret_cast<long>(str_array)); // @todo Использовать преобразование к DBConst::ptrval
+	sc.init(reinterpret_cast<long>(str_array)); // @x64crit @todo Использовать преобразование к DBConst::ptrval
 	DBE & e = newDBE();
 	e.push(i);
 	e.push(ic);

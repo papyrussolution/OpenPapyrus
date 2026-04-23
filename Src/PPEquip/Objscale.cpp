@@ -5573,21 +5573,21 @@ int ScaleCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/
 	PPScalePacket pack;
 	SString temp_buf;
 	if(sc_obj.GetPacket(id, &pack) > 0) {
-#define CPY_FLD(Fld) p_cache_rec->Fld=pack.Rec.Fld
-		CPY_FLD(Get_NumTries);
-		CPY_FLD(Get_Delay);
-		CPY_FLD(Put_NumTries);
-		CPY_FLD(Put_Delay);
-		CPY_FLD(QuotKindID);
-		CPY_FLD(ScaleTypeID);
-		CPY_FLD(ProtocolVer);
-		CPY_FLD(LogNum);
-		CPY_FLD(Flags);
-		CPY_FLD(Location);
-		CPY_FLD(AltGoodsGrp);
-		CPY_FLD(BcPrefix);
-		CPY_FLD(ParentID);
-#undef CPY_FLD
+#define CPYFLD(Fld) p_cache_rec->Fld=pack.Rec.Fld
+		CPYFLD(Get_NumTries);
+		CPYFLD(Get_Delay);
+		CPYFLD(Put_NumTries);
+		CPYFLD(Put_Delay);
+		CPYFLD(QuotKindID);
+		CPYFLD(ScaleTypeID);
+		CPYFLD(ProtocolVer);
+		CPYFLD(LogNum);
+		CPYFLD(Flags);
+		CPYFLD(Location);
+		CPYFLD(AltGoodsGrp);
+		CPYFLD(BcPrefix);
+		CPYFLD(ParentID);
+#undef CPYFLD
 		pack.GetExtStrData(pack.extssPort, temp_buf);
 		PPStringSetSCD ss;
 		ss.add(pack.Rec.Name);
@@ -5606,23 +5606,23 @@ void ScaleCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) cons
 	PPScalePacket * p_data_pack = static_cast<PPScalePacket *>(pDataRec);
 	const ScaleData * p_cache_rec = static_cast<const ScaleData *>(pEntry);
 	//memzero(p_data_rec, sizeof(*p_data_rec));
-#define CPY_FLD(Fld) p_data_pack->Rec.Fld=p_cache_rec->Fld
+#define CPYFLD(Fld) p_data_pack->Rec.Fld=p_cache_rec->Fld
 	p_data_pack->Rec.Tag = PPOBJ_SCALE;
-	CPY_FLD(ID);
-	CPY_FLD(Get_NumTries);
-	CPY_FLD(Get_Delay);
-	CPY_FLD(Put_NumTries);
-	CPY_FLD(Put_Delay);
-	CPY_FLD(QuotKindID);
-	CPY_FLD(ScaleTypeID);
-	CPY_FLD(ProtocolVer);
-	CPY_FLD(LogNum);
-	CPY_FLD(Flags);
-	CPY_FLD(Location);
-	CPY_FLD(AltGoodsGrp);
-	CPY_FLD(BcPrefix);
-	CPY_FLD(ParentID);
-#undef CPY_FLD
+	CPYFLD(ID);
+	CPYFLD(Get_NumTries);
+	CPYFLD(Get_Delay);
+	CPYFLD(Put_NumTries);
+	CPYFLD(Put_Delay);
+	CPYFLD(QuotKindID);
+	CPYFLD(ScaleTypeID);
+	CPYFLD(ProtocolVer);
+	CPYFLD(LogNum);
+	CPYFLD(Flags);
+	CPYFLD(Location);
+	CPYFLD(AltGoodsGrp);
+	CPYFLD(BcPrefix);
+	CPYFLD(ParentID);
+#undef CPYFLD
 	//memcpy(p_data_rec->Port, p_cache_rec->Port, sizeof(p_data_rec->Port));
 	//GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));
 	char   temp_zstr[2048];

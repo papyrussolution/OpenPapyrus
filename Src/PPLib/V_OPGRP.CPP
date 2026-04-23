@@ -1242,7 +1242,7 @@ int PPALDD_OpGrouping::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_OpGrouping::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_OpGrouping::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	I.RecNo = 0;
 	I.GrpNo = 0;

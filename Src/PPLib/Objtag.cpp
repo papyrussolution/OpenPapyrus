@@ -2676,7 +2676,7 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 									SString code;
 									PPIDArray psn_list;
 									PPObjPerson psn_obj;
-									PPRegisterType reg_type_rec;
+									PPRegisterType2 reg_type_rec;
 									SearchObject(PPOBJ_REGISTERTYPE, pk_rec.CodeRegTypeID, &reg_type_rec);
 									PPLoadText(PPTXT_SEARCHPERSON, temp_buf);
 									PPInputStringDialogParam isd_param(temp_buf, reg_type_rec.Name);

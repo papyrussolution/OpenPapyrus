@@ -1565,19 +1565,18 @@ int CPosNodeBlock::Parse(uint cmd, int crit, int subcriterion, const SString & r
 					}
 				}
 				else if(crit == cModif) {
-                    SString temp_buf, item_buf, fld_buf;
+                    SString temp_buf;
+					SString item_buf;
+					SString fld_buf;
+					Goods2Tbl::Rec goods_rec;
 					StringSet ss(';', rArg);
 					SStrScan scan;
 					for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 						SaModifEntry entry;
-						MEMSZERO(entry);
 						scan.Set(temp_buf, 0);
 						THROW_PP_S(scan.GetNumber(fld_buf), PPERR_CPOS_INVMODIFFORMAT, rArg);
 						entry.GoodsID = fld_buf.ToLong();
-						{
-							Goods2Tbl::Rec goods_rec;
-							THROW_PP_S(GObj.Fetch(entry.GoodsID, &goods_rec) > 0, PPERR_CPOS_INVMODIFGOODS, rArg);
-						}
+						THROW_PP_S(GObj.Fetch(entry.GoodsID, &goods_rec) > 0, PPERR_CPOS_INVMODIFGOODS, rArg);
 						scan.Skip().IncrChr(',');
 						if(scan.GetNumber(fld_buf)) {
 							entry.Qtty = fld_buf.ToReal();

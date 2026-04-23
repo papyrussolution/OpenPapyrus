@@ -9,8 +9,7 @@
 //
 IMPLEMENT_PPFILT_FACTORY(CSess); CSessFilt::CSessFilt() : PPBaseFilt(PPFILT_CSESS, 0, 0)
 {
-	SetFlatChunk(offsetof(CSessFilt, ReserveStart),
-		offsetof(CSessFilt, NodeList_)-offsetof(CSessFilt, ReserveStart));
+	SetFlatChunk(offsetof(CSessFilt, ReserveStart), offsetof(CSessFilt, NodeList_)-offsetof(CSessFilt, ReserveStart));
 	SetBranchObjIdListFilt(offsetof(CSessFilt, NodeList_));
 	Init(1, 0);
 }
@@ -2985,7 +2984,7 @@ int PPALDD_CSessionView::InitData(PPFilt & rFilt, long rsrv)
 }
 
 void PPALDD_CSessionView::Destroy() { DESTROY_PPVIEW_ALDD(CSess); }
-int  PPALDD_CSessionView::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER_ORD(CSess, sortId); }
+int  PPALDD_CSessionView::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/) { INIT_PPVIEW_ALDD_ITER_ORD(CSess, sortId); }
 
 int PPALDD_CSessionView::NextIteration(PPIterID iterId)
 {
@@ -3047,7 +3046,7 @@ int PPALDD_CSessExc::InitData(PPFilt & rFilt, long rsrv)
 }
 
 void PPALDD_CSessExc::Destroy() { DESTROY_PPVIEW_ALDD(CSessExc); }
-int  PPALDD_CSessExc::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(CSessExc); }
+int  PPALDD_CSessExc::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/) { INIT_PPVIEW_ALDD_ITER(CSessExc); }
 
 int PPALDD_CSessExc::NextIteration(PPIterID iterId)
 {

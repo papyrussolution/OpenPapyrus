@@ -2808,15 +2808,15 @@ int CashNodeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraDat
 	PPObjCashNode cn_obj;
 	PPCashNode rec;
 	if(cn_obj.Search(id, &rec) > 0) {
-#define CPY_FLD(Fld) p_cache_rec->Fld=rec.Fld
-		CPY_FLD(CashType);
-		CPY_FLD(ExtQuotID);
-		CPY_FLD(LocID);
-		CPY_FLD(ParentID);
-		CPY_FLD(Flags);
-		CPY_FLD(ExtFlags);
-		CPY_FLD(Speciality);
-#undef CPY_FLD
+#define CPYFLD(Fld) p_cache_rec->Fld=rec.Fld
+		CPYFLD(CashType);
+		CPYFLD(ExtQuotID);
+		CPYFLD(LocID);
+		CPYFLD(ParentID);
+		CPYFLD(Flags);
+		CPYFLD(ExtFlags);
+		CPYFLD(Speciality);
+#undef CPYFLD
 		MultTextBlock b;
 		b.Add(rec.Name);
 		b.Add(rec.Symb);
@@ -2832,17 +2832,17 @@ void CashNodeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) c
 	PPCashNode * p_data_rec = static_cast<PPCashNode *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
-#define CPY_FLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
+#define CPYFLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
 	p_data_rec->Tag = PPOBJ_CASHNODE;
-	CPY_FLD(ID);
-	CPY_FLD(CashType);
-	CPY_FLD(ExtQuotID);
-	CPY_FLD(LocID);
-	CPY_FLD(ParentID);
-	CPY_FLD(Flags);
-	CPY_FLD(ExtFlags);
-	CPY_FLD(Speciality);
-#undef CPY_FLD
+	CPYFLD(ID);
+	CPYFLD(CashType);
+	CPYFLD(ExtQuotID);
+	CPYFLD(LocID);
+	CPYFLD(ParentID);
+	CPYFLD(Flags);
+	CPYFLD(ExtFlags);
+	CPYFLD(Speciality);
+#undef CPYFLD
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
 	b.Get(p_data_rec->Symb, sizeof(p_data_rec->Symb));
@@ -2864,7 +2864,7 @@ PPID PPEquipConfig::GetCashierTabNumberRegTypeID() const
 	SString rt_symb;
 	if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_CSHRTABNUMREGSYMB, rt_symb) && rt_symb.NotEmpty()) {
 		PPObjRegisterType obj_regt;
-		PPRegisterType rt_rec;
+		PPRegisterType2 rt_rec;
 		for(PPID regt_id = 0; obj_regt.EnumItems(&regt_id, &rt_rec) > 0;)
 			if(oneof2(rt_rec.PersonKindID, 0, CshrsPsnKindID) && stricmp866(rt_rec.Symb, rt_symb) == 0) {
 				result = regt_id;

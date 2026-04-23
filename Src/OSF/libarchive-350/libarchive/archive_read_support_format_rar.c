@@ -255,8 +255,8 @@ struct rar {
 	 * Bit stream reader.
 	 */
 	struct rar_br {
-#define CACHE_TYPE      uint64
-#define CACHE_BITS      (8 * sizeof(CACHE_TYPE))
+#define CACHE_TYPE uint64
+#define CACHE_BITS (8 * sizeof(CACHE_TYPE))
 		/* Cache buffer. */
 		CACHE_TYPE cache_buffer;
 		/* Indicates how many bits avail in cache_buffer. */

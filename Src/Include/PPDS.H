@@ -432,7 +432,7 @@ private:
 class PPDS_CrrRegisterType : public PPDeclStruc {
 public:
 	PPDS_CrrRegisterType() : PPDeclStruc() {}
-	PPRegisterType Data;
+	PPRegisterType2 Data;
 private:
 	virtual int InitData(Ido op, void * dataPtr, long addedParam);
 	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);

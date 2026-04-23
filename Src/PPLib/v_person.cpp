@@ -2090,7 +2090,7 @@ static SArray * CreateExtRegList(const PersonFilt * pFilt, PPID * pAttrID, uint 
 	if(!oneof2(pFilt->Status, PPPRS_COUNTRY, PPPRS_REGION)) { // @v12.1.10 PPPRS_REGION
 		{
 			PPObjRegisterType rt_obj;
-			PPRegisterType rt_rec;
+			PPRegisterType2 rt_rec;
 			SString reg_name;
 			SString name;
 			if(flags & sercfRegsOnly)
@@ -4444,7 +4444,7 @@ int PPALDD_RegisterType::InitData(PPFilt & rFilt, long rsrv)
 	if(rFilt.ID == H.ID)
 		ok = DlRtm::InitData(rFilt, rsrv);
 	else {
-		PPRegisterType rt_rec;
+		PPRegisterType2 rt_rec;
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
 		if(SearchObject(PPOBJ_REGISTERTYPE, rFilt.ID, &rt_rec) > 0) {
@@ -4602,7 +4602,7 @@ int PPALDD_PersonList::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_PersonList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_PersonList::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	INIT_PPVIEW_ALDD_ITER(Person);
 }

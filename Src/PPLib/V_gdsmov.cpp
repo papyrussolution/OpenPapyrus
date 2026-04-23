@@ -450,47 +450,47 @@ int FASTCALL PPViewGoodsMov::NextIteration(GoodsMovViewItem * pItem)
 		if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 			if(pItem) {
 				memzero(pItem, sizeof(GoodsMovViewItem));
-#define CPY_FLD(fd, fs) pItem->fd = P_TempTbl->data.fs
-				CPY_FLD(GoodsID, GoodsID);
+#define CPYFLD(fd, fs) pItem->fd = P_TempTbl->data.fs
+				CPYFLD(GoodsID, GoodsID);
 				pItem->UnitsPerPack = GetUnitsPerPack(pItem->GoodsID);
 				pItem->P_GoodsGrpName = IterGrpName;
-				CPY_FLD(PhPerU, PhUPerU);
-				CPY_FLD(InRest_Qtty, InRest_Qtty);
-				CPY_FLD(InRest_Cost, InRest_Cost);
-				CPY_FLD(InRest_Price, InRest_Price);
+				CPYFLD(PhPerU, PhUPerU);
+				CPYFLD(InRest_Qtty, InRest_Qtty);
+				CPYFLD(InRest_Cost, InRest_Cost);
+				CPYFLD(InRest_Price, InRest_Price);
 
-				CPY_FLD(Rcpt_Qtty, Rcpt_Qtty);
-				CPY_FLD(Rcpt_Cost, Rcpt_Cost);
-				CPY_FLD(Rcpt_Price, Rcpt_Price);
+				CPYFLD(Rcpt_Qtty, Rcpt_Qtty);
+				CPYFLD(Rcpt_Cost, Rcpt_Cost);
+				CPYFLD(Rcpt_Price, Rcpt_Price);
 
-				CPY_FLD(_Rcpt_Qtty, ARcpt_Qtty);
-				CPY_FLD(_Rcpt_Cost, ARcpt_Cost);
-				CPY_FLD(_Rcpt_Price, ARcpt_Price);
+				CPYFLD(_Rcpt_Qtty, ARcpt_Qtty);
+				CPYFLD(_Rcpt_Cost, ARcpt_Cost);
+				CPYFLD(_Rcpt_Price, ARcpt_Price);
 
-				CPY_FLD(Rlz_Qtty, Rlz_Qtty);
-				CPY_FLD(Rlz_Cost, Rlz_Cost);
-				CPY_FLD(Rlz_Price, Rlz_Price);
+				CPYFLD(Rlz_Qtty, Rlz_Qtty);
+				CPYFLD(Rlz_Cost, Rlz_Cost);
+				CPYFLD(Rlz_Price, Rlz_Price);
 
-				CPY_FLD(SRlz_Qtty, SRlz_Qtty);
-				CPY_FLD(SRlz_Cost, SRlz_Cost);
-				CPY_FLD(SRlz_Price, SRlz_Price);
+				CPYFLD(SRlz_Qtty, SRlz_Qtty);
+				CPYFLD(SRlz_Cost, SRlz_Cost);
+				CPYFLD(SRlz_Price, SRlz_Price);
 
-				CPY_FLD(Expnd_Qtty,  Expnd_Qtty);
-				CPY_FLD(Expnd_Cost,  Expnd_Cost);
-				CPY_FLD(Expnd_Price, Expnd_Price);
+				CPYFLD(Expnd_Qtty,  Expnd_Qtty);
+				CPYFLD(Expnd_Cost,  Expnd_Cost);
+				CPYFLD(Expnd_Price, Expnd_Price);
 
-				CPY_FLD(TRcpt_Qtty, TRcpt_Qtty);
-				CPY_FLD(TRcpt_Cost, TRcpt_Cost);
-				CPY_FLD(TRcpt_Price, TRcpt_Price);
+				CPYFLD(TRcpt_Qtty, TRcpt_Qtty);
+				CPYFLD(TRcpt_Cost, TRcpt_Cost);
+				CPYFLD(TRcpt_Price, TRcpt_Price);
 
-				CPY_FLD(TExpnd_Qtty, TExpnd_Qtty);
-				CPY_FLD(TExpnd_Cost, TExpnd_Cost);
-				CPY_FLD(TExpnd_Price, TExpnd_Price);
+				CPYFLD(TExpnd_Qtty, TExpnd_Qtty);
+				CPYFLD(TExpnd_Cost, TExpnd_Cost);
+				CPYFLD(TExpnd_Price, TExpnd_Price);
 
-				CPY_FLD(OutRest_Qtty, OutRest_Qtty);
-				CPY_FLD(OutRest_Cost, OutRest_Cost);
-				CPY_FLD(OutRest_Price, OutRest_Price);
-#undef CPY_FLD
+				CPYFLD(OutRest_Qtty, OutRest_Qtty);
+				CPYFLD(OutRest_Cost, OutRest_Cost);
+				CPYFLD(OutRest_Price, OutRest_Price);
+#undef CPYFLD
 			}
 			IterCount++;
 			return 1;
@@ -735,7 +735,7 @@ int PPALDD_GoodsMov::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_GoodsMov::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_GoodsMov::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	PPViewGoodsMov * p_v = static_cast<PPViewGoodsMov *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	IterProlog(iterId, 1);

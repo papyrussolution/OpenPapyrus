@@ -991,7 +991,7 @@ int Rc2Data::GenerateDrawVectorFile(const char * pStorageFileName)
 			}
 		}
 	}
-	CATCHZOK
+	// @v12.6.1 @unused CATCHZOK
 	return ok;
 }
 

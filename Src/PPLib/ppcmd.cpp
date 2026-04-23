@@ -2585,7 +2585,7 @@ int CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 						//
 						for(uint i = 0; i < psn_pack.Regs.getCount(); i++) {
 							const RegisterTbl::Rec & r_rec = psn_pack.Regs.at(i);
-							PPRegisterType rt_rec;
+							PPRegisterType2 rt_rec;
 							if(obj_regt.Fetch(r_rec.RegTypeID, &rt_rec) > 0 && rt_rec.Flags & REGTF_WARNEXPIRY) {
 								if(r_rec.Expiry && r_rec.Expiry < getcurdate_()) {
 									warn.Printf(PPLoadTextS(PPTXT_PSNREGEXPIRED, buf), rt_rec.Name);
@@ -4962,5 +4962,48 @@ public:
 
 IMPLEMENT_CMD_HDL_FACTORY(UNIFINDOBJ);
 //
+// @v12.6.1 @construction
 //
-//
+class CMD_HDL_CLS(EXECSESSIONONTECHROUTE) : public PPCommandHandler { // @v12.6.1
+public:
+	CMD_HDL_CLS(EXECSESSIONONTECHROUTE)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	{
+	}
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = -1;
+		const  size_t preserve_offs = pParam ? pParam->GetRdOffs() : 0;
+		ExecSessionOnTechRouteFilt param;
+		if(pParam && pParam->GetAvailableSize() != 0)
+			param.Read(*pParam, 0);
+		if(PPObjTSession::ExecSessionOnTechRouteCmdParam(&param) > 0) {
+			if(pParam) {
+				THROW(param.Write(pParam->Z(), 0));
+			}
+			ok = 1;
+		}
+		else if(pParam) {
+			pParam->SetRdOffs(preserve_offs);
+		}
+		CATCH
+			CALLPTRMEMB(pParam, SetRdOffs(preserve_offs));
+			ok = 0;
+		ENDCATCH
+		return ok;
+	}
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = -1;
+		ExecSessionOnTechRouteFilt param;
+		ExecSessionOnTechRouteFilt * p_filt = 0;
+		if(pParam && param.Read(*pParam, 0) > 0) {
+			p_filt = &param;
+		}
+		if(PPObjTSession::ExecSessionOnTechRoute(&param) > 0) {
+			;
+		}
+		return ok;
+	}
+};
+
+IMPLEMENT_CMD_HDL_FACTORY(EXECSESSIONONTECHROUTE);

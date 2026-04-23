@@ -1,5 +1,5 @@
 // CHECKFMT.CPP
-// Copyright (c) V.Nasonov, A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2024, 2025
+// Copyright (c) V.Nasonov, A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -16,7 +16,7 @@ SlipLineParam & SlipLineParam::Z()
 	Kind = 0;
 	Flags = 0;
 	UomId = 0; // @v11.9.5
-	UomFragm = 0; // @v11.2.6
+	UomFragm = 0;
 	Qtty = 0.0;
 	PhQtty = 0.0; // @v11.9.3
 	Price = 0.0;
@@ -117,28 +117,10 @@ public:
 		Zone * P_Next;
 	};
 	struct Iter {
-		Iter()
-		{
-			memzero(this, offsetof(Iter, Stack));
-		}
-		Iter & Z()
-		{
-			memzero(this, offsetof(Iter, Stack));
-			Stack.freeAll();
-			return *this;
-		}
-		int    GetOuterZoneKind() const
-		{
-			int    zone_kind = -1;
-			if(P_Zone) {
-				zone_kind = P_Zone->Kind;
-				for(uint stk_ptr = Stack.getPointer(); stk_ptr && zone_kind == PPSlipFormat::Zone::kInner;) {
-					const SI * p_si = static_cast<const SI *>(Stack.at(--stk_ptr));
-					zone_kind = (p_si && p_si->P_Zone) ? p_si->P_Zone->Kind : -1;
-				}
-			}
-			return zone_kind;
-		}
+		Iter();
+		Iter & Z();
+		int    GetOuterZoneKind() const;
+
 		long   SrcItemNo;
 		long   EntryNo;
 		long   SrcItemsCount;
@@ -148,7 +130,7 @@ public:
 		uint   PageLength;    // ==PPSlipFormat::PageLength Справочное поле
 		uint   RegTo;         // ==PPSlipFormat::RegTo      Справочное поле
 		int    UomId;         // @v11.9.5 Ид единицы измерения (SUOM_XXX)     
-		uint   UomFragm;      // @v11.2.6
+		uint   UomFragm;      // Фрагментация единицы измерения //
 		double Qtty;          // Для строки чека (документа) - абсолютное количество, в остальных случаях - 0
 		double PhQtty;        // @v11.9.3 draft-beer
 		double Price;         // Для строки чека (документа) - чистая цена (с учетом скидки), в остальных случаях - 0
@@ -160,17 +142,13 @@ public:
 			// При этом полем Code содержит штрихкод этого пива (кега)
 		long   GoodsID;       //
 		CCheckPacket::PaymentTermTag Ptt; // Признак способа расчета (определяется типом товара)
-		CCheckPacket::SubjTermTag Stt;    // @erikD v10.4.12 Признак предмета расчета
-		char   Text[256];       //
-		char   Code[32];        //
-		char   ChZnCode[256];   // @v11.2.3 [64]-->[256]
-		char   ChZnGTIN[16];    // 
-		char   ChZnSerial[32];  // 
-		char   ChZnPartN[32];   // 
-		S_GUID ChZnPm_ReqId;  // @v12.1.1
-		int64  ChZnPm_ReqTimestamp; // @v12.1.1
-		S_GUID ChZnPm_LocalModuleInstance; // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): идент локального модуля проверки
-		S_GUID ChZnPm_LocalModuleDbVer;    // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): версия базы «чёрного списка», на которой выполнялась проверка КИ
+		CCheckPacket::SubjTermTag Stt;    // @erikD Признак предмета расчета
+		char   Text[256];      //
+		char   Code[32];       //
+		char   ChZnCode[256];  //
+		char   ChZnGTIN[16];   // 
+		char   ChZnSerial[32]; // 
+		char   ChZnPartN[32];  // 
 		RECT   PictCoord;
 		const  Zone * P_Zone;
 		const  Entry * P_Entry;
@@ -178,19 +156,15 @@ public:
 			const Zone * P_Zone;
 			long  EntryNo;
 		};
-		TSStack <SI> Stack; // @anchor
+		int64  ChZnPm_ReqTimestamp; // @v12.1.1
+		S_GUID ChZnPm_ReqId;        // @anchor @v12.1.1
+		S_GUID ChZnPm_LocalModuleInstance; // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): идент локального модуля проверки
+		S_GUID ChZnPm_LocalModuleDbVer;    // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): версия базы «чёрного списка», на которой выполнялась проверка КИ
+		TSStack <SI> Stack;         // @anchor
 	};
 
-	PPSlipFormat() : LineNo(0), PageWidth(0), PageLength(0), LastPictId(0), Src(0),
-		P_CcPack(0), P_Od(0), RegTo(0), IsWrap(0), RunningTotal(0.0), CurZone(0), TextOutput(0), Flags(0)
-	{
-		PPLoadText(PPTXT_SLIPFMT_KEYW, VarString);
-		PPLoadText(PPTXT_SLIPFMT_METAVAR, MetavarList);
-	}
-	~PPSlipFormat()
-	{
-		delete P_Od;
-	}
+	PPSlipFormat();
+	~PPSlipFormat();
 	int    Parse(const char * pFileName, const char * pFormatName);
 	int    GetFormList(const char * pFileName, StrAssocArray * pList, int getSlipDocForms);
 	void   SetSource(const CCheckPacket *);
@@ -291,30 +265,20 @@ private:
 		PPObjCSession CsObj;
 	};
 	struct FontBlock { // @flat
-		FontBlock() : Id(0), Size(0), PageWidth(0)
-		{
-			Face[0] = 0;
-		}
+		FontBlock();
 		int    Id;
 		int    Size;
 		int    PageWidth;
 		char   Face[64];
 	};
 	struct PictBlock { // @flat
-		PictBlock() : Id(0)
-		{
-			Path[0] = 0;
-			MEMSZERO(Coord);
-		}
+		PictBlock();
 		int    Id;
 		char   Path[256];
 		RECT   Coord;
 	};
 	struct BarcodeBlock { // @flat
-		BarcodeBlock() : Id(0), Flags(0), BcStd(0), Width(0), Height(0)
-		{
-			Code[0] = 0;
-		}
+		BarcodeBlock();
 		enum {
 			fTextAbove = 0x0001,
 			fTextBelow = 0x0002
@@ -355,10 +319,72 @@ private:
 	TSVector <BarcodeBlock> BcList;
 };
 
+PPSlipFormat::FontBlock::FontBlock() : Id(0), Size(0), PageWidth(0)
+{
+	Face[0] = 0;
+}
+
+PPSlipFormat::PictBlock::PictBlock() : Id(0)
+{
+	Path[0] = 0;
+	MEMSZERO(Coord);
+}
+
+PPSlipFormat::BarcodeBlock::BarcodeBlock() : Id(0), Flags(0), BcStd(0), Width(0), Height(0)
+{
+	Code[0] = 0;
+}
+
+PPSlipFormat::Iter::Iter()
+{
+	memzero(this, offsetof(Iter, ChZnPm_ReqId));
+}
+		
+PPSlipFormat::Iter & PPSlipFormat::Iter::Z()
+{
+	memzero(this, offsetof(Iter, ChZnPm_ReqId));
+	ChZnPm_ReqId.Z();
+	ChZnPm_LocalModuleInstance.Z();
+	ChZnPm_LocalModuleDbVer.Z();
+	Stack.freeAll();
+	return *this;
+}
+		
+int PPSlipFormat::Iter::GetOuterZoneKind() const
+{
+	int    zone_kind = -1;
+	if(P_Zone) {
+		zone_kind = P_Zone->Kind;
+		for(uint stk_ptr = Stack.getPointer(); stk_ptr && zone_kind == PPSlipFormat::Zone::kInner;) {
+			const SI * p_si = static_cast<const SI *>(Stack.at(--stk_ptr));
+			zone_kind = (p_si && p_si->P_Zone) ? p_si->P_Zone->Kind : -1;
+		}
+	}
+	return zone_kind;
+}
+
+PPSlipFormat::PPSlipFormat() : LineNo(0), PageWidth(0), PageLength(0), LastPictId(0), Src(0),
+	P_CcPack(0), P_Od(0), RegTo(0), IsWrap(0), RunningTotal(0.0), CurZone(0), TextOutput(0), Flags(0)
+{
+	PPLoadText(PPTXT_SLIPFMT_KEYW, VarString);
+	PPLoadText(PPTXT_SLIPFMT_METAVAR, MetavarList);
+}
+
+PPSlipFormat::~PPSlipFormat()
+{
+	delete P_Od;
+}
+
 void PPSlipFormat::SetSource(const CCheckPacket * pCcPack)
 {
-	P_CcPack = pCcPack;
-	Src = pCcPack ? srcCCheck : 0;
+	if(pCcPack) {
+		P_CcPack = pCcPack;
+		Src = srcCCheck;
+	}
+	else {
+		P_CcPack = 0;
+		Src = 0;
+	}
 }
 
 void PPSlipFormat::SetSource(const PPBillPacket * pBillPack)
@@ -393,16 +419,18 @@ int PPSlipFormat::InitIteration(int zoneKind, Iter * pIter)
 		if(ZoneList.at(i)->Kind == zoneKind) {
 			pIter->P_Zone = ZoneList.at(i);
 			if(zoneKind == PPSlipFormat::Zone::kDetail) {
-				if(P_CcPack)
+				if(P_CcPack) {
 					if(Src == srcCCheck)
 						pIter->SrcItemsCount = P_CcPack->GetCount();
 					else if(Src == srcGoodsBill)
 						pIter->SrcItemsCount = P_BillPack->GetTCount();
+				}
 			}
 			else if(zoneKind == PPSlipFormat::Zone::kPaymDetail) {
-				if(P_CcPack)
+				if(P_CcPack) {
 					if(Src == srcCCheck)
 						pIter->SrcItemsCount = P_CcPack->AL_Const().getCount();
+				}
 			}
 		}
 	}
@@ -1513,7 +1541,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 			pIter->Qtty = 0.0;
 			pIter->Price = 0.0;
 			pIter->UomId = 0; // @v11.9.5
-			pIter->UomFragm = 0; // @v11.2.6
+			pIter->UomFragm = 0;
 			pIter->ChZnCode[0] = 0;
 			pIter->ChZnGTIN[0] = 0;
 			pIter->ChZnSerial[0] = 0;
@@ -1530,8 +1558,8 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 					CCheckLineTbl::Rec cc_item;
 					PPTransferItem ti;
 					PPGoodsType2 gt_rec;
-					PPUnit u_rec;
-					PPUnit phu_rec; // @v11.9.3
+					PPUnit2 u_rec;
+					PPUnit2 phu_rec; // @v11.9.3
 					if(Src == srcCCheck) {
 						CCheckPacket::LineExt cc_ext;
 						if((Flags & fSkipPrintingZeroPrice) && pIter->GetOuterZoneKind() == PPSlipFormat::Zone::kDetail) {
@@ -1551,8 +1579,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 							pIter->VatRate = 0.0;
 							pIter->DivID = (cc_item.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? (cc_item.DivID - CHECK_LINE_IS_PRINTED_BIAS) : cc_item.DivID;
 							pIter->GoodsID = cc_item.GoodsID;
-							// @v11.1.5 pIter->Ptt = CCheckPacket::pttUndef;
-							pIter->Ptt = (P_CcPack->PrintPtt >= 0 && P_CcPack->PrintPtt <= 7) ? (CCheckPacket::PaymentTermTag)P_CcPack->PrintPtt : CCheckPacket::pttUndef; // @v11.1.5
+							pIter->Ptt = (P_CcPack->PrintPtt >= 0 && P_CcPack->PrintPtt <= 7) ? (CCheckPacket::PaymentTermTag)P_CcPack->PrintPtt : CCheckPacket::pttUndef;
 							pIter->Stt = CCheckPacket::sttUndef; // @erikP
 							if(P_Od && P_Od->GObj.Fetch(pIter->GoodsID, &goods_rec) > 0) {
 								STRNSCPY(pIter->Text, goods_rec.Name);
@@ -1596,9 +1623,8 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 									}
 								}
 								// } @v11.9.3 
-								// @v11.2.6 {
 								if(goods_rec.UnitID && P_Od->GObj.FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
-									if(u_rec.Fragmentation > 0 && u_rec.Fragmentation <= 100000)
+									if(u_rec.IsFragmentationValid())
 										pIter->UomFragm = u_rec.Fragmentation;
 									//
 									// @v11.9.3 {
@@ -1616,30 +1642,23 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 									}
 									// } @v11.9.3 
 								}
-								// } @v11.2.6 
 							}
 							pIter->ChZnProductType = chzn_product_type;
 							P_CcPack->GetLineTextExt(pIter->SrcItemNo+1, CCheckPacket::lnextChZnMark, temp_buf); 
 							if(temp_buf.NotEmptyS()) {
 								GtinStruc gts;
 								if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
-									// @v11.1.11 SString result_chzn_code;
-									SString reconstructed_org; // @v11.2.0
-									PPChZnPrcssr::ReconstructOriginalChZnCode(gts, reconstructed_org); // @v11.2.0
-									//STRNSCPY(pIter->ChZnCode, temp_buf); // @v11.1.11
-									STRNSCPY(pIter->ChZnCode, reconstructed_org); // @v11.2.0
+									SString reconstructed_org;
+									PPChZnPrcssr::ReconstructOriginalChZnCode(gts, reconstructed_org);
+									STRNSCPY(pIter->ChZnCode, reconstructed_org);
 									if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
 										STRNSCPY(pIter->ChZnGTIN, temp_buf);
-										// @v11.1.11 result_chzn_code.Cat(temp_buf);
 										if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
-											// @v11.1.11 result_chzn_code.Cat(temp_buf);
-											// @v11.1.11 STRNSCPY(pIter->ChZnCode, result_chzn_code);
 											STRNSCPY(pIter->ChZnSerial, temp_buf);
 										}
 										if(gts.GetToken(GtinStruc::fldPart, &temp_buf)) {
 											if(isempty(pIter->ChZnSerial)) {
-												// @v11.1.11 result_chzn_code.Cat(temp_buf);
-												// @v11.1.11 STRNSCPY(pIter->ChZnCode, result_chzn_code);
+												;
 											}
 											STRNSCPY(pIter->ChZnPartN, temp_buf); 
 										}
@@ -2612,7 +2631,7 @@ int PPSlipFormat::NextIteration(SString & rBuf, SlipLineParam * pParam)
 			SETFLAG(sl_param.Flags, SlipLineParam::fRegJournal, flags & (PPSlipFormat::Entry::fJRibbon|PPSlipFormat::Entry::fFiscal));
 			SETFLAG(sl_param.Flags, SlipLineParam::fRegFiscal,  flags & PPSlipFormat::Entry::fFiscal);
 			sl_param.UomId = CurIter.UomId; // @v11.9.5
-			sl_param.UomFragm = CurIter.UomFragm; // @v11.2.6
+			sl_param.UomFragm = CurIter.UomFragm;
 			sl_param.Qtty  = CurIter.Qtty;
 			sl_param.PhQtty = CurIter.PhQtty; // @v11.9.3
 			sl_param.Price = CurIter.Price;

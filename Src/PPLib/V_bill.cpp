@@ -6833,7 +6833,8 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 				}
 				break;
 			case PPVCMD_ADDBYSCARD:
-				if((ok = AddBySCard(&id)) > 0)
+				ok = AddBySCard(&id);
+				if(ok > 0)
 					update = 1;
 				break;
 			case PPVCMD_EDITBILLEXT:
@@ -6906,7 +6907,8 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 					ok = (P_BObj->Search(hdr.ID, &bill_rec) > 0 && P_BObj->P_OpObj->Edit(&bill_rec.OpID, 0) == cmOK) ? 1 : -1;
 				break;
 			case PPVCMD_BILLSBYORDER:
-				if((ok = ViewBillsByOrder(hdr.ID)) > 0)
+				ok = ViewBillsByOrder(hdr.ID);
+				if(ok > 0)
 					update = 1;
 				break;
 			case PPVCMD_UNITEBILLS:
@@ -7084,7 +7086,7 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 						update = 1;
 				}
 				break;
-			case PPVCMD_QUICKTAGEDIT: // @v11.2.8
+			case PPVCMD_QUICKTAGEDIT:
 				// В этой команде указатель pHdr занят под список идентификаторов тегов, соответствующих нажатой клавише
 				// В связи с этим текущий элемент таблицы придется получить явным вызовом pBrw->getCurItem()
 				//
@@ -7098,7 +7100,6 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 					ok = EditObjTagValList(PPOBJ_BILL, hdr.ID, 0);
 				break;
 			case PPVCMD_TAGSALL:
-				// @v11.1.9 {
 				ok = -1;
 				{
 					const  PPID obj_type = PPOBJ_BILL;
@@ -7121,7 +7122,6 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 						THROW(tra.Commit());
 					}
 				}
-				// } @v11.1.9 
 				break;
 			case PPVCMD_BROWSESCOPE:
 				{
@@ -7179,6 +7179,10 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 			if(CheckIDForFilt(id, 0)) {
 				pBrw->search2(&id, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/);
 			}
+			// @v12.6.1 (не надо сообщать вызывающей функции, что таблицу следует обновить - мы это уже сделали) {
+			update = 0; 
+			ok = -1; 
+			// } @v12.6.1 
 		}
 	}
 	CATCHZOKPPERR
@@ -8689,7 +8693,7 @@ int PPALDD_GoodsBillModif::InitData(PPFilt & rFilt, long rsrv)
 	return (DlRtm::InitData(rFilt, rsrv) > 0) ? 1 : -1;
 }
 
-int PPALDD_GoodsBillModif::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_GoodsBillModif::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
@@ -9372,7 +9376,7 @@ int PPALDD_BillList::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_BillList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_BillList::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	PPViewBill * p_v = static_cast<PPViewBill *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	IterProlog(iterId, 1);
@@ -9444,7 +9448,7 @@ int PPALDD_ContentBList::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_ContentBList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_ContentBList::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	PPViewBill * p_v = static_cast<PPViewBill *>(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr);
 	IterProlog(iterId, 1);
@@ -9823,7 +9827,7 @@ int PPALDD_AdvanceRep::InitData(PPFilt & rFilt, long rsrv)
 	return (DlRtm::InitData(rFilt, rsrv) > 0) ? 1 : -1;
 }
 
-int PPALDD_AdvanceRep::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_AdvanceRep::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
@@ -9964,7 +9968,7 @@ int PPALDD_BillTotal::InitData(PPFilt & rFilt, long rsrv)
 		return 0;
 }
 
-int PPALDD_BillTotal::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_BillTotal::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
@@ -10028,7 +10032,7 @@ int PPALDD_AssetReceipt::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_AssetReceipt::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_AssetReceipt::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
@@ -10091,7 +10095,7 @@ int PPALDD_Warrant::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_Warrant::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_Warrant::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	IterProlog(iterId, 1);
 	if(sortId >= 0)

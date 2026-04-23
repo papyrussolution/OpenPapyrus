@@ -472,7 +472,7 @@ int PPALDD_LotOps::InitData(PPFilt & rFilt, long rsrv)
 }
 
 void PPALDD_LotOps::Destroy() { DESTROY_PPVIEW_ALDD(LotOp); }
-int  PPALDD_LotOps::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(LotOp); }
+int  PPALDD_LotOps::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/) { INIT_PPVIEW_ALDD_ITER(LotOp); }
 
 int PPALDD_LotOps::NextIteration(PPIterID iterId)
 {

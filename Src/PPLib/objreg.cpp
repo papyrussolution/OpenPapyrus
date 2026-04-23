@@ -70,7 +70,7 @@ private:
 	{
 		int    ok = 1;
 		PPObjRegisterType rt_obj;
-		PPRegisterType    rtrec;
+		PPRegisterType2 rtrec;
 		SString temp_buf;
 		StringSet ss(SLBColumnDelim);
 		for(uint i = 0; i < P_Data->getCount(); i++) {
@@ -201,16 +201,16 @@ private:
 	{
 		int    ok = 1;
 		PPObjRegisterType rt_obj;
-		PPRegisterType    rtrec;
+		PPRegisterType2 rt_rec;
 		SString temp_buf;
 		StringSet ss(SLBColumnDelim);
 		for(uint i = 0; i < P_Data->getCount(); i++) {
 			const RegisterTbl::Rec & r_reg_rec = P_Data->at(i);
 			if(r_reg_rec.RegTypeID != PPREGT_BANKACCOUNT) {
 				ss.Z();
-				if(rt_obj.Fetch(r_reg_rec.RegTypeID, &rtrec) <= 0)
-					ltoa(r_reg_rec.RegTypeID, rtrec.Name, 10);
-				ss.add(rtrec.Name);
+				if(rt_obj.Fetch(r_reg_rec.RegTypeID, &rt_rec) <= 0)
+					ltoa(r_reg_rec.RegTypeID, rt_rec.Name, 10);
+				ss.add(rt_rec.Name);
 				ss.add(r_reg_rec.Serial);
 				if(r_reg_rec.RegTypeID == PPREGT_TAXSYSTEM) {
 					GetObjectName(PPOBJ_TAXSYSTEMKIND, r_reg_rec.ExtID, temp_buf);
@@ -352,8 +352,8 @@ int PPObjRegister::CheckUnique(PPID regTypeID, const RegisterArray * pAry) const
 {
 	int    ok = 1;
 	PPObjRegisterType rt_obj;
-	PPRegisterType rt;
-	if(rt_obj.Search(regTypeID, &rt) > 0 && rt.Flags & REGTF_UNIQUE) {
+	PPRegisterType2 rt_rec;
+	if(rt_obj.Search(regTypeID, &rt_rec) > 0 && rt_rec.Flags & REGTF_UNIQUE) {
 		for(uint i = 0; ok && i < pAry->getCount(); i++) {
 			if(pAry->at(i).RegTypeID == regTypeID) {
 				ok = PPSetError(PPERR_DUPREGISTER);
@@ -454,9 +454,9 @@ int PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const RegisterArra
 			setCtrlReadOnly(CTL_REG_PNAME, true);
 			SetupPPObjCombo(this, CTLSEL_REG_REGTYP, PPOBJ_REGISTERTYPE, Data.RegTypeID, OLW_CANINSERT, 0);
 			if(Data.RegTypeID) {
-				PPRegisterType    rt;
+				PPRegisterType2 rt_rec;
 				PPObjRegisterType rt_obj;
-				if(rt_obj.Fetch(Data.RegTypeID, &rt) > 0 && rt.Flags & REGTF_ONLYNUMBER)
+				if(rt_obj.Fetch(Data.RegTypeID, &rt_rec) > 0 && rt_rec.Flags & REGTF_ONLYNUMBER)
 					selectCtrl(CTL_REG_NUMBER);
 				else
 					selectCtrl(CTL_REG_DATE);
@@ -560,28 +560,27 @@ int PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const RegisterArra
 						PPError();
 					}
 					else {
-						PPRegisterType    rt;
+						PPRegisterType2 rt_rec;
 						PPObjRegisterType rt_obj;
 						SString numb;
 						getCtrlString(CTL_REG_NUMBER, numb);
 						if(!numb.NotEmptyS()) {
-							PPObjRegisterType rt_obj;
 							if(rt_obj.GetCode(Data.RegTypeID, 0, Data.Num, sizeof(Data.Num)) > 0)
 								setCtrlData(CTL_REG_NUMBER, Data.Num);
 						}
-						if(Data.RegTypeID && rt_obj.Fetch(Data.RegTypeID, &rt) > 0) {
-							if(P_LocPack && !(rt.Flags & REGTF_LOCATION)) {
+						if(Data.RegTypeID && rt_obj.Fetch(Data.RegTypeID, &rt_rec) > 0) {
+							if(P_LocPack && !(rt_rec.Flags & REGTF_LOCATION)) {
 								setCtrlLong(CTLSEL_REG_REGTYP, preserve_reg_type_id);
-								PPError(PPERR_REGTYPENOTFORLOC, rt.Name);
+								PPError(PPERR_REGTYPENOTFORLOC, rt_rec.Name);
 							}
 							else {
-								if(rt.ExpiryPeriod > 0 && Data.ID == 0) {
+								if(rt_rec.ExpiryPeriod > 0 && Data.ID == 0) {
 									Data.Dt = getcurdate_();
-									Data.Expiry = plusdate(Data.Dt, rt.ExpiryPeriod);
+									Data.Expiry = plusdate(Data.Dt, rt_rec.ExpiryPeriod);
 									setCtrlDate(CTL_REG_DATE, Data.Dt);
 									setCtrlDate(CTL_REG_EXPIRY, Data.Expiry);
 								}
-								if(rt.Flags & REGTF_ONLYNUMBER)
+								if(rt_rec.Flags & REGTF_ONLYNUMBER)
 									selectCtrl(CTL_REG_NUMBER);
 							}
 						}
@@ -623,20 +622,20 @@ int PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const RegisterArra
 			const bool is_taxsystem = (Data.RegTypeID == PPREGT_TAXSYSTEM);
 			SString temp_buf;
 			if(Data.RegTypeID) {
-				PPRegisterType rt;
-				if(rt_obj.Search(Data.RegTypeID, &rt) > 0) {
-					RegOrgKind = rt.RegOrgKind;
+				PPRegisterType2 rt_rec;
+				if(rt_obj.Search(Data.RegTypeID, &rt_rec) > 0) {
+					RegOrgKind = rt_rec.RegOrgKind;
 					disableCtrl(CTL_REG_NUMBER, is_taxsystem);
 					disableCtrl(CTL_REG_SERIALNO, is_taxsystem);
 					if(checkRegType && Data.ObjType == PPOBJ_PERSON && Data.ObjID) {
 						PPObjPerson pobj;
-						if(rt.PersonKindID) {
+						if(rt_rec.PersonKindID) {
 							int r = 1;
 							if(P_PsnPack) {
-								if(!P_PsnPack->Kinds.lsearch(rt.PersonKindID))
+								if(!P_PsnPack->Kinds.lsearch(rt_rec.PersonKindID))
 									r = 0;
 							}
-							else if(!pobj.P_Tbl->IsBelongsToKind(Data.ObjID, rt.PersonKindID))
+							else if(!pobj.P_Tbl->IsBelongsToKind(Data.ObjID, rt_rec.PersonKindID))
 								r = 0;
 							if(!r) {
 								ok = PPSetError(PPERR_REGTPERSON);
@@ -644,7 +643,7 @@ int PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const RegisterArra
 								RegOrgKind   = 0;
 							}
 						}
-						long f = CheckXORFlags(rt.Flags, REGTF_PRIVATE, REGTF_LEGAL);
+						long   f = CheckXORFlags(rt_rec.Flags, REGTF_PRIVATE, REGTF_LEGAL);
 						if(ok && f) {
 							PPID status = 0;
 							int  priv   = -1;
@@ -1456,16 +1455,16 @@ int RegisterCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraDat
 	PPObjRegister reg_obj;
 	RegisterTbl::Rec rec;
 	if(reg_obj.Search(id, &rec) > 0) {
-#define CPY_FLD(Fld) p_cache_rec->Fld=rec.Fld
-		CPY_FLD(ObjType);
-		CPY_FLD(ObjID);
-		CPY_FLD(PsnEventID);
-		CPY_FLD(RegTypeID);
-		CPY_FLD(Dt);
-		CPY_FLD(RegOrgID);
-		CPY_FLD(Expiry);
-		CPY_FLD(Flags);
-#undef CPY_FLD
+#define CPYFLD(Fld) p_cache_rec->Fld=rec.Fld
+		CPYFLD(ObjType);
+		CPYFLD(ObjID);
+		CPYFLD(PsnEventID);
+		CPYFLD(RegTypeID);
+		CPYFLD(Dt);
+		CPYFLD(RegOrgID);
+		CPYFLD(Expiry);
+		CPYFLD(Flags);
+#undef CPYFLD
 		MultTextBlock b;
 		b.Add(rec.Serial);
 		b.Add(rec.Num);
@@ -1481,17 +1480,17 @@ void RegisterCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) c
 	RegisterTbl::Rec * p_data_rec = static_cast<RegisterTbl::Rec *>(pDataRec);
 	const RegisterData * p_cache_rec = static_cast<const RegisterData *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
-#define CPY_FLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
-	CPY_FLD(ID);
-	CPY_FLD(ObjType);
-	CPY_FLD(ObjID);
-	CPY_FLD(PsnEventID);
-	CPY_FLD(RegTypeID);
-	CPY_FLD(Dt);
-	CPY_FLD(RegOrgID);
-	CPY_FLD(Expiry);
-	CPY_FLD(Flags);
-#undef CPY_FLD
+#define CPYFLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
+	CPYFLD(ID);
+	CPYFLD(ObjType);
+	CPYFLD(ObjID);
+	CPYFLD(PsnEventID);
+	CPYFLD(RegTypeID);
+	CPYFLD(Dt);
+	CPYFLD(RegOrgID);
+	CPYFLD(Expiry);
+	CPYFLD(Flags);
+#undef CPYFLD
 	{
 		MultTextBlock b(this, pEntry);
 		b.Get(p_data_rec->Serial, sizeof(p_data_rec->Serial));

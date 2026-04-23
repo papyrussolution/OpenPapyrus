@@ -1,6 +1,6 @@
 // UED-ID-TEMP.H
-// version: 7
-// sha256: 8a033dce5f371d680cdb757f94cbdd7c890e79450a7644d44564322ad9a41674
+// version: 8
+// sha256: 7d17472194629c855ee7b733cd51f138d93a1a834f1f0242dd670c2a1fb6ed2a
 //
 #ifndef __UED_ID_H
 #define __UED_ID_H
@@ -903,6 +903,7 @@
 	#define UED_LINGUA_ZXX                               0x330000025fULL
 	#define UED_LINGUA_ZZA                               0x3300000260ULL
 	#define UED_LINGUA_MO                                0x3300000261ULL
+	#define UED_LINGUA_META                              0x3300008000ULL
 #define UED_META_LINGUALOCUS                         0x100000034ULL
 	#define UED_LINGUALOCUS_AF                           0x3400000009ULL
 	#define UED_LINGUALOCUS_AGQ                          0x340000000bULL

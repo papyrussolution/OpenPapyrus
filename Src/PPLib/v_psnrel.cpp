@@ -514,7 +514,7 @@ int PPALDD_PsnRelList::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_PsnRelList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_PsnRelList::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	INIT_PPVIEW_ALDD_ITER(PersonRel);
 }

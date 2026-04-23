@@ -1100,32 +1100,32 @@ PPPosProtocol::ReadBlock & FASTCALL PPPosProtocol::ReadBlock::Copy(const PPPosPr
 {
 	Destroy();
 	SStrGroup::CopyS(rS);
-	#define CPY_FLD(f) f = rS.f
-	CPY_FLD(SrcFileName);
-	CPY_FLD(SrcFileUUID);
-	CPY_FLD(SrcFileDtm);
-	CPY_FLD(SrcBlkList);
-	CPY_FLD(DestBlkList);
-	CPY_FLD(GoodsBlkList);
-	CPY_FLD(GoodsGroupBlkList);
-	CPY_FLD(GoodsCodeList);
-	CPY_FLD(LotBlkList);
-	CPY_FLD(QkBlkList);
-	CPY_FLD(UnitBlkList);
-	CPY_FLD(QuotBlkList);
-	CPY_FLD(PersonBlkList);
-	CPY_FLD(ScsBlkList);
-	CPY_FLD(SCardBlkList);
-	CPY_FLD(ParentBlkList);
-	CPY_FLD(PosBlkList);
-	CPY_FLD(CSessBlkList);
-	CPY_FLD(CcBlkList);
-	CPY_FLD(CclBlkList);
-	CPY_FLD(CcPaymBlkList);
-	CPY_FLD(QueryList);
-	CPY_FLD(RefList);
-	CPY_FLD(AddressList);
-	#undef CPY_FLD
+	#define CPYFLD(f) f = rS.f
+	CPYFLD(SrcFileName);
+	CPYFLD(SrcFileUUID);
+	CPYFLD(SrcFileDtm);
+	CPYFLD(SrcBlkList);
+	CPYFLD(DestBlkList);
+	CPYFLD(GoodsBlkList);
+	CPYFLD(GoodsGroupBlkList);
+	CPYFLD(GoodsCodeList);
+	CPYFLD(LotBlkList);
+	CPYFLD(QkBlkList);
+	CPYFLD(UnitBlkList);
+	CPYFLD(QuotBlkList);
+	CPYFLD(PersonBlkList);
+	CPYFLD(ScsBlkList);
+	CPYFLD(SCardBlkList);
+	CPYFLD(ParentBlkList);
+	CPYFLD(PosBlkList);
+	CPYFLD(CSessBlkList);
+	CPYFLD(CcBlkList);
+	CPYFLD(CclBlkList);
+	CPYFLD(CcPaymBlkList);
+	CPYFLD(QueryList);
+	CPYFLD(RefList);
+	CPYFLD(AddressList);
+	#undef CPYFLD
 	return *this;
 }
 

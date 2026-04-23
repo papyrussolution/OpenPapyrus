@@ -229,7 +229,7 @@ int PPViewRegisterType::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 			case PPVCMD_VIEWPERSONS:
 				ok = -1;
 				{
-					PPRegisterType rt_rec;
+					PPRegisterType2 rt_rec;
 					if(ObjRegT.Fetch(id, &rt_rec) > 0) {
 						PersonFilt filt;
 						filt.SetAttribType(PPPSNATTR_REGISTER);

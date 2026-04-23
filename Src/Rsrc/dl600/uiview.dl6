@@ -2973,8 +2973,8 @@ dialog DLG_DYNOBJSVIEW [horizontal title: "@dynobject_pl" size: (440, 470) minsi
 }
 
 dialog DLG_GOODSTAXVIEW [horizontal title: "@obj_goodstax" size: (440, 400) minsize: (440, 400) font: "MS Shell Dlg,8"] { // @v12.5.4
-	listbox CTL_OBJVIEW_LIST [tabstop height: bycontainer(100) growfactor: 1];
-	view [vertical height: bycontainer(100) width: 130] {
+	listbox CTL_OBJVIEW_LIST [tabstop height: bycontainer growfactor: 1];
+	view [vertical height: bycontainer width: 130] {
 		view [vertical growfactor: 4 width: bycontainer(100) justifycontent: start] {
 			button STDCTL_EDITBUTTON [title: "@but_edit" tabstop defaultitem size: (90, 21) margin: 4 command: cmaEdit];
 			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
@@ -2985,6 +2985,25 @@ dialog DLG_GOODSTAXVIEW [horizontal title: "@obj_goodstax" size: (440, 400) mins
 			button STDCTL_MORE [title: "@{cmd_goods}..." tabstop size: (90, 21) margin: 4 command: cmaMore]; // @v12.5.6
 			button STDCTL_TRANSMITBUTTON [title: "@but_transmit" tabstop size: (90, 21) margin: 4 command: cmTransmit];
 			button STDCTL_SJBUTTON [title: "@but_sysj" tabstop size: (90, 21) margin: 4 command: cmSysJournalByObj];
+		}
+		view [vertical growfactor: 1 width: bycontainer(100) justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_close" tabstop size: (90, 21) margin: 4 command: cmOK];
+		}
+	}
+}
+
+dialog DLG_UNITVIEW [horizontal title: "@objects" size: (440, 400) minsize: (440, 400) padding: 4 font: "MS Shell Dlg,8"] { // @v12.6.1
+	listbox CTL_OBJVIEW_LIST [tabstop height: bycontainer growfactor: 1];
+	view [vertical height: bycontainer width: 130] {
+		view [vertical growfactor: 4 width: bycontainer(100) justifycontent: start] {
+			button STDCTL_EDITBUTTON [title: "@but_edit" tabstop defaultitem size: (90, 21) margin: 4 command: cmaEdit];
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+		}
+		view [vertical growfactor: 3 width: bycontainer(100)] {
+			button STDCTL_MORE [title: "@{cmd_goods}..." tabstop size: (90, 21) margin: 4 command: cmaMore];
+			button STDCTL_SJBUTTON [title: "@but_sysj" tabstop size: (90, 21) margin: 4 command: cmSysJournalByObj];
+			button CTL_CMD_UNITEMAXLIKE [title: "@douniteanalogs" tabstop size: (90, 57) margin: 4 command: cmUniteMaxLike];
 		}
 		view [vertical growfactor: 1 width: bycontainer(100) justifycontent: end] {
 			button STDCTL_OKBUTTON [title: "@but_close" tabstop size: (90, 21) margin: 4 command: cmOK];
@@ -4499,7 +4518,7 @@ dialog DLG_TECHROUTE [vertical title: "@techroute" size: (550, 450) minsize: (55
 		combobox CTLSEL_TECHROUTE_OBJ [width: bycontainer height: 21 margin: 4 tabstop label: "@object" cblinesymb: CTL_TECHROUTE_OBJ];
 	}
 	view [horizontal width: bycontainer growfactor: 1] {
-		listbox CTL_TECHROUTE_LIST [tabstop height: bycontainer growfactor: 1 margin: 4 columns: "48,L,@tech;10,R,@{time} sec;10,R,@price"];
+		listbox CTL_TECHROUTE_LIST [tabstop height: bycontainer growfactor: 1 margin: 4 columns: "48,L,@tech;5,R,Level;10,R,@{time} sec;10,R,@price"];
 		view [vertical height: bycontainer width: 110] {
 			view [vertical growfactor: 2 width: bycontainer justifycontent: start alignitems: center] {
 				button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
@@ -4521,7 +4540,8 @@ dialog DLG_TECHROUTE [vertical title: "@techroute" size: (550, 450) minsize: (55
 dialog DLG_TECHROUTEITEM [vertical title: "@techroute_item" size: (485, 200) minsize: (485, 200) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.12
 	combobox CTLSEL_TECHROUTEITEM_TECH [tabstop width: bycontainer height: 21 margin: 4 label: "@tech" cblinesymb: CTL_TECHROUTEITEM_TECH];
 	view [horizontal width: bycontainer height: 45] {
-		input CTL_TECHROUTEITEM_NTIME [title: "(time)" growfactor: 1 height: 21 margin: 4 tabstop fmtf: (nozero) fmtprec: 10] uint32;
+		input CTL_TECHROUTEITEM_LEVEL [title: "Level" growfactor: 1 height: 21 margin: 4 tabstop fmtf: (nozero)] uint16;
+		input CTL_TECHROUTEITEM_NTIME [title: "(time)" growfactor: 1 height: 21 margin: 4 tabstop fmtf: (nozero)] uint32;
 		input CTL_TECHROUTEITEM_NPRICE [title: "(price)" growfactor: 1 height: 21 margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 10] double;
 	}
 	view [horizontal width: bycontainer growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
@@ -5051,5 +5071,14 @@ dialog DLG_TSESS_EXEC_TR [vertical title: "@{tsession}" size: (700, 400) minsize
 			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
 			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 		}
+	}
+}
+
+dialog DLG_TSESS_EXEC_TR_PARAM [vertical title: "@{tsession}" size: (450, 200) minsize: (400, 200) padding: 4 justifycontent: spacebetween font: "MS Shell Dlg,8"] { // @v12.6.1
+	combobox CTLSEL_TSESS_PRC [tabstop width: bycontainer height: 21 margin: 4 label: "@processor" cblinesymb: CTL_TSESS_PRC];
+	combobox CTLSEL_TSESS_OBJ [tabstop width: bycontainer height: 21 margin: 4 label: "@contractor" cblinesymb: CTL_TSESS_OBJ];
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }

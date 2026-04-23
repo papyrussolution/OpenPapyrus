@@ -1,5 +1,5 @@
 // V_FRGHT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2025
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -528,15 +528,34 @@ DBQuery * PPViewFreight::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	PPDbqFuncPool::InitObjNameFunc(dbe_agent, PPDbqFuncPool::IdObjNameAr,  tbl->AgentID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_loc,   PPDbqFuncPool::IdObjNameLoc, tbl->LocID);
 	PPDbqFuncPool::InitStrPoolRefFunc(dbe_ship, tbl->ShipNameP, &StrPool);
-	// @v11.1.12 PPDbqFuncPool::InitStrPoolRefFunc(dbe_memo, tbl->MemoP, &StrPool);
-	PPDbqFuncPool::InitObjNameFunc(dbe_memo, PPDbqFuncPool::IdObjMemoBill, tbl->BillID); // @v11.1.12
+	PPDbqFuncPool::InitObjNameFunc(dbe_memo, PPDbqFuncPool::IdObjMemoBill, tbl->BillID);
+	// @v12.6.1 {
+	q = & Select_(
+		tbl->BillID,    //  #0
+		tbl->BillDate,  //  #1
+		tbl->Code,      //  #2
+		0L);
+	q->addField(dbe_ar);         //  #3
+	q->addField(tbl->ArrvlDate); //  #4
+	q->addField(dbe_ship);       //  #5 
+	q->addField(tbl->PortName);  //  #6
+	q->addField(tbl->DlvrAddr);  //  #7
+	q->addField(tbl->Amount);    //  #8
+	q->addField(tbl->Brutto);    //  #9
+	q->addField(tbl->Volume);    // #10
+	q->addField(tbl->PackCount); // #11
+	q->addField(tbl->Shipped);   // #12
+	q->addField(dbe_loc);        // #13
+	q->addField(dbe_agent);      // #14
+	q->addField(dbe_memo);       // #15
+	// } @v12.6.1 
+	/* @v12.6.1
 	q = & Select_(
 		tbl->BillID,    //  #0
 		tbl->BillDate,  //  #1
 		tbl->Code,      //  #2
 		dbe_ar,         //  #3
 		tbl->ArrvlDate, //  #4
-		// @v9.8.4 tbl->ShipName,  //  #5 @v9.8.4
 		dbe_ship,       //  #5 
 		tbl->PortName,  //  #6
 		tbl->DlvrAddr,  //  #7
@@ -547,9 +566,9 @@ DBQuery * PPViewFreight::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		tbl->Shipped,   // #12
 		dbe_loc,        // #13
 		dbe_agent,      // #14
-		// @v9.8.4 tbl->Memo,      // #15
-		dbe_memo,       // #15 @v9.8.4
-		0L).from(tbl, 0L);
+		dbe_memo,       // #15
+		0L);*/
+	q->from(tbl, 0L);
 	if(Filt.Order == OrdByBillID)
 		q->orderBy(tbl->BillID, 0L);
 	else if(oneof2(Filt.Order, OrdByDefault, OrdByBillDate))

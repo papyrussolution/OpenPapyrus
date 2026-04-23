@@ -57,6 +57,10 @@ public:
 				RandomRealList.insert(&r);
 				temp_buf.Z().Cat(r, MKSFMTD(0, 32, NMBF_NOTRAILZ));
 				SsRrl.add(temp_buf);
+				// @v12.6.1 {
+				temp_buf.Printf("%.*e", 32, r);
+				SsRrl.add(temp_buf);
+				// } @v12.6.1
 			}
 		}
 		else
@@ -1333,6 +1337,17 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				}
 			}
 		}
+		{
+			// @v12.6.1
+			SString atof_buf;
+			double result_atof;
+			double result_satof;
+			for(uint ssp = 0; F.SsRrl.get(&ssp, atof_buf);) {
+				result_atof = atof(atof_buf);
+				result_satof = satof(atof_buf);
+				SLCHECK_EQ(result_atof, result_satof);
+			}
+		}
 	}
 	else {
 		uint64 total_len = 0;
@@ -1385,27 +1400,18 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 		}
 		else if(bm == 7) {
 			SString atof_buf;
+			double r2;
 			for(uint ssp = 0; F.SsRrl.get(&ssp, atof_buf);) {
-			//for(uint j = 0; j < F.RandomRealList.getCount(); j++) {
-				//double r = F.RandomRealList.at(j);
-				//atof_buf.Z().Cat(r, MKSFMTD(0, 32, NMBF_NOTRAILZ));
-				double r2;
 				r2 = atof(atof_buf);
 			}
 		}
 		else if(bm == 8) {
 			SString atof_buf;
+			double r2;
 			for(uint ssp = 0; F.SsRrl.get(&ssp, atof_buf);) {
-			//for(uint j = 0; j < F.RandomRealList.getCount(); j++) {
-				//double r = F.RandomRealList.at(j);
-				//atof_buf.Z().Cat(r, MKSFMTD(0, 32, NMBF_NOTRAILZ));
-				double r2;
-				//satof(atof_buf, &r2);
-				//
-				const char * p_end = 0;
-				int erange = 0;
-				//dconvstr_scan(atof_buf, &p_end, &r2, &erange);
-				r2 = satof(atof_buf); // @v10.7.9 dconvstr_scan-->satof
+				//const  char * p_end = 0;
+				//int    erange = 0;
+				r2 = satof(atof_buf);
 			}
 		}
 		else if(bm == 9) { // strlen

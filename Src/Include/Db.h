@@ -2275,6 +2275,8 @@ public:
 		uint64 Signature;
 		void * H;
 	};
+
+	static bool IsConsistent(const DbProvider * pThis) { return (pThis && pThis->Signature == SlConst::DbProviderSignature); }
 	virtual ~DbProvider();
 	//
 	// Descr: Опции состояния базы данных, возвращаемые функцией GetDatabaseState()
@@ -2462,6 +2464,7 @@ protected:
 	void   Common_Login(const DbLoginBlock * pBlk);
 	void   Common_Logout();
 
+	uint32 Signature;    // @v12.6.1 @firstmember SlConst::DbProviderSignature
 	const  SqlServerType SqlSt;
 	const  SCodepage Cp; // @v12.4.10 Кодовая страница, используемая для хранения строк в базе данных.
 		// Этот параметр определяется конкретной имплементацией данного класса. 

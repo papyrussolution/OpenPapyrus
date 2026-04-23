@@ -5255,7 +5255,7 @@ int PPALDD_GoodsOpAnlz::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_GoodsOpAnlz::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_GoodsOpAnlz::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	//INIT_PPVIEW_ALDD_ITER(GoodsOpAnalyze);
 	PPViewGoodsOpAnalyze * p_v = static_cast<PPViewGoodsOpAnalyze *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
@@ -5349,7 +5349,7 @@ int PPALDD_GoodsOpAnlzCmp::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_GoodsOpAnlzCmp::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_GoodsOpAnlzCmp::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	//INIT_PPVIEW_ALDD_ITER(GoodsOpAnalyze);
 	PPViewGoodsOpAnalyze * p_v = static_cast<PPViewGoodsOpAnalyze *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));

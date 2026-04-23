@@ -176,7 +176,7 @@ int PPObjTech::SearchAutoForGoodsCreation(PPID prcID, PPID * pGoodsGrpID)
 		PPIDArray prc_list;
 		prc_list.addUnique(prcID);
 		PPObjProcessor prc_obj;
-		prc_obj.GetParentsList(prcID, &prc_list);
+		prc_obj.GetParentsList(prcID, prc_list);
 		for(uint i = 0; ok < 0 && i < prc_list.getCount(); i++) {
 			const  PPID prc_id = prc_list.get(i);
 			TechTbl::Key2 k2;
@@ -385,12 +385,68 @@ int PPObjTech::GetGoodsStrucList(PPID id, int useSubst, PPGoodsStruc * pGs, TGSA
 	return ok;
 }
 
-int PPObjTech::GetListByPrc(PPID prcID, PPIDArray * pList) { return AddItemsToList(0, pList, 0, prcID, 0); }
-int PPObjTech::GetGoodsListByPrc(PPID prcID, PPIDArray * pList) { return AddItemsToList(0, 0, pList, prcID, 0); }
-int PPObjTech::GetListByPrcGoods(PPID prcID, PPID goodsID, PPIDArray * pList) { return AddItemsToList(0, pList, 0, prcID, goodsID); }
-int PPObjTech::GetListByGoods(PPID goodsID, PPIDArray * pList) { return AddItemsToList(0, pList, 0, 0, goodsID); }
+int PPObjTech::GetListByPrc(PPID prcID, PPIDArray * pList) 
+{ 
+	CALLPTRMEMB(pList, Z());
+	int    ok = 1;
+	if(prcID) {
+		TechFilt filt;
+		filt.PrcID = prcID;
+		ok = AddItemsToList2(0, pList, 0, &filt); 
+	}
+	return ok;
+}
+
+int PPObjTech::GetGoodsListByPrc(PPID prcID, PPIDArray * pList) 
+{ 
+	CALLPTRMEMB(pList, Z());
+	int    ok = 1;
+	if(prcID) {
+		TechFilt filt;
+		filt.PrcID = prcID;
+		ok = AddItemsToList2(0, 0, pList, &filt); 
+	}
+	return ok;
+}
+
+int PPObjTech::GetListByPrcGoods(PPID prcID, PPID goodsID, PPIDArray * pList) 
+{ 
+	CALLPTRMEMB(pList, Z());
+	int    ok = 1;
+	if(prcID || goodsID) {
+		TechFilt filt;
+		filt.PrcID = prcID;
+		filt.GoodsID = goodsID;
+		ok = AddItemsToList2(0, pList, 0, &filt);
+	}
+	return ok;
+}
+
+int PPObjTech::GetListByGoods(PPID goodsID, PPIDArray * pList) 
+{ 
+	CALLPTRMEMB(pList, Z());
+	int    ok = 1;
+	if(goodsID) {
+		TechFilt filt;
+		filt.GoodsID = goodsID;
+		ok = AddItemsToList2(0, pList, 0, &filt); 
+	}
+	return ok;
+}
+
+int PPObjTech::GetListByGoodsStruc(PPID goodsStrucID, PPIDArray * pList) // @v11.7.6
+{
+	CALLPTRMEMB(pList, Z());
+	int    ok = 1;
+	if(goodsStrucID) {
+		TechFilt filt;
+		filt.GStrucID = goodsStrucID;
+		ok = AddItemsToList2(0, pList, 0, &filt); 
+	}
+	return ok;
+}
+
 int PPObjTech::DeleteObj(PPID id) { return RemoveByID(P_Tbl, id, 0); }
-int PPObjTech::GetListByGoodsStruc(PPID goodsStrucID, PPIDArray * pList) { return AddItemsToList(0, pList, 0, (TECEXDF_GSTRUC | goodsStrucID), 0); } // @v11.7.6
 
 int PPObjTech::IsChildOf(PPID techID, PPID parentID)
 {
@@ -448,7 +504,7 @@ int PPObjTech::Helper_GetTerminalChildList(PPID techID, PPIDArray & rList, LongA
 	return ok;
 }
 
-/*static*/int PPObjTech::SetupCombo(TDialog * dlg, uint ctlID, PPID id, long olwFlags, PPID prcID, PPID goodsID)
+/*static*/int PPObjTech::SetupCombo(TDialog * dlg, uint ctlID, PPID id, long olwFlags, /*PPID prcID, PPID goodsID*/const TechFilt * pFilt)
 {
 	int    ok = 0;
 	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctlID));
@@ -456,8 +512,9 @@ int PPObjTech::Helper_GetTerminalChildList(PPID techID, PPIDArray & rList, LongA
 		PPObjTech tec_obj;
 		StrAssocArray * p_list = new StrAssocArray;
 		if(p_list) {
-			if(tec_obj.AddItemsToList(p_list, 0, 0, prcID, goodsID)) {
-				PPObjListWindow * p_lw = new PPObjListWindow(PPOBJ_TECH, p_list, olwFlags | OLW_CANINSERT, 0);
+			// @v12.6.1 if(tec_obj.AddItemsToList(p_list, 0, 0, prcID, goodsID)) {
+			if(tec_obj.AddItemsToList2(p_list, 0, 0, pFilt)) {
+				PPObjListWindow * p_lw = new PPObjListWindow(PPOBJ_TECH, p_list, olwFlags|OLW_CANINSERT, 0);
 				if(p_lw) {
 					if(id == 0 && p_list->getCount() == 1)
 						id = p_list->Get(0).Id;
@@ -1390,7 +1447,7 @@ int PPObjTech::AddBySample(PPID * pID, PPID sampleID)
 int PPObjTech::Helper_AddItemToList(StrAssocArray * pList, PPID techID, PPID parentID, const char * pCode, LongArray & rRecurList)
 {
 	int    ok = 1;
-	if(pList && !pList->Search(techID) && techID != parentID) { // @v11.3.9 (techID != parentID)
+	if(pList && !pList->Search(techID) && techID != parentID) {
 		TechTbl::Rec parent_rec;
 		if(parentID && !rRecurList.lsearch(parentID)) {
 			if(Fetch(parentID, &parent_rec) > 0) {
@@ -1406,10 +1463,115 @@ int PPObjTech::Helper_AddItemToList(StrAssocArray * pList, PPID techID, PPID par
 			// (после предыдущей проверки в список мог быть добавлен элемент techID)
 			//
 			THROW_SL(pList->Add(techID, parentID, pCode));
-			rRecurList.add(techID); // @v11.3.9
+			rRecurList.add(techID);
 		}
 	}
 	CATCHZOK
+	return ok;
+}
+
+int PPObjTech::AddItemsToList2(StrAssocArray * pList, PPIDArray * pIdList, PPIDArray * pGoodsIdList, const TechFilt * pFilt) // @v12.6.1
+{
+	int    ok = 1;
+	int    idx = 0;
+	PPID   prc_id = 0;
+	PPID   goods_id = 0;
+	TechTbl::Rec tec_rec;
+	PPObjGoods goods_obj;
+	PPIDArray id_list;
+	LongArray recur_list;
+	DBQ  * dbq = 0;
+	if(pFilt && pFilt->List.GetCount()) {
+		for(uint i = 0; i < pFilt->List.GetCount(); i++) {
+			const  PPID tec_id = pFilt->List.Get(i);
+			if(Fetch(tec_id, &tec_rec) > 0) {
+				THROW(Helper_AddItemToList(pList, tec_rec.ID, 0/*tec_rec.ParentID*/, tec_rec.Code, recur_list));
+			}
+		}
+	}
+	else {
+		union {
+			TechTbl::Key1 k1;
+			TechTbl::Key2 k2;
+			TechTbl::Key3 k3;
+			TechTbl::Key4 k4;
+		} k;
+		MEMSZERO(k);
+		if(pFilt && pFilt->GoodsID) {
+			idx = 3;
+			goods_id = pFilt->GoodsID;
+			k.k3.GoodsID = goods_id;
+			dbq = ppcheckfiltid(dbq, P_Tbl->GoodsID, k.k3.GoodsID);
+		}
+		else if(pFilt && pFilt->GStrucID) {
+			idx = 4;
+			k.k4.GStrucID = pFilt->GStrucID;
+			k.k4.GoodsID = MINLONG32;
+			dbq = ppcheckfiltid(dbq, P_Tbl->GStrucID, k.k4.GStrucID);
+		}
+		else if(pFilt && pFilt->PrcID) {
+			idx = 2;
+			prc_id = pFilt->PrcID;
+			k.k2.PrcID = prc_id;
+			k.k2.GoodsID = MINLONG32;
+			dbq = ppcheckfiltid(dbq, P_Tbl->PrcID, k.k2.PrcID);
+		}
+		else {
+			idx = 1;
+		}
+		if(pFilt && pFilt->Kind == TECK_TOOLING) {
+			dbq = &(*dbq && P_Tbl->Kind == TECK_TOOLING);
+		}
+		else {
+			dbq = &(*dbq && (P_Tbl->Kind == TECK_GENERAL || P_Tbl->Kind == TECK_FOLDER));
+		}
+		RVALUEPTR(id_list, pIdList);
+		BExtQuery q(P_Tbl, idx);
+		q.select(P_Tbl->ID, P_Tbl->ParentID, P_Tbl->OrderN, P_Tbl->GoodsID, P_Tbl->Code, 0).where(*dbq);
+		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
+			P_Tbl->CopyBufTo(&tec_rec);
+			if(!(prc_id && goods_id) || tec_rec.GoodsID == labs(goods_id)) {
+				if(id_list.lsearch(tec_rec.ID)) {
+					// Зацикливание рекурсии. Следует оборвать рекурсию.
+					prc_id = 0;
+					break;
+				}
+				else {
+					THROW(id_list.add(tec_rec.ID));
+				}
+				recur_list.Z();
+				THROW(Helper_AddItemToList(pList, tec_rec.ID, tec_rec.ParentID, tec_rec.Code, recur_list));
+				if(pGoodsIdList && tec_rec.GoodsID) {
+					const  PPID local_goods_id = tec_rec.GoodsID;
+					Goods2Tbl::Rec goods_rec;
+					if(goods_obj.Fetch(local_goods_id, &goods_rec) > 0) {
+						if(goods_rec.Flags & GF_GENERIC) {
+							/*
+							PPIDArray gen_list;
+							goods_obj.P_Tbl->GetDynGenericList(local_goods_id, &gen_list);
+							THROW(pGoodsIdList->addUnique(&gen_list));
+							*/
+						}
+						else {
+							THROW(pGoodsIdList->addUnique(local_goods_id));
+						}
+					}
+				}
+			}
+		}
+		if(prc_id) {
+			PPObjProcessor prc_obj;
+			ProcessorTbl::Rec prc_rec;
+			if(prc_obj.Fetch(prc_id, &prc_rec) > 0 && prc_rec.ParentID) {
+				TechFilt inner_filt;
+				inner_filt.PrcID = prc_rec.ParentID;
+				inner_filt.GoodsID = goods_id;
+				THROW(AddItemsToList2(pList, &id_list, pGoodsIdList, &inner_filt)); // @recursion
+			}
+		}
+	}
+	CATCHZOK
+	ASSIGN_PTR(pIdList, id_list);
 	return ok;
 }
 
@@ -1513,12 +1675,11 @@ StrAssocArray * PPObjTech::MakeStrAssocList(void * extraPtr)
 {
 	StrAssocArray * p_list = new StrAssocArray;
 	if(p_list) {
-		if(!AddItemsToList(p_list, 0, 0, reinterpret_cast<long>(extraPtr), 0))
+		if(!AddItemsToList(p_list, 0, 0, reinterpret_cast<long>(extraPtr), 0)) {
 			ZDELETE(p_list);
+		}
 		else {
-			// @v11.2.6 {
-			// Если все технологии относятся к единственному процессору, то сортируем по {OrderN; Name},
-			// иначе сортируем по Name
+			// Если все технологии относятся к единственному процессору, то сортируем по {OrderN; Name}, иначе сортируем по Name
 			long   single_prc_id = -1;
 			TechTbl::Rec tec_rec;
 			for(uint i = 0; single_prc_id != 0 && i < p_list->getCount(); i++) {
@@ -1539,7 +1700,6 @@ StrAssocArray * PPObjTech::MakeStrAssocList(void * extraPtr)
 			else {
 				p_list->SortByText();
 			}
-			// } @v11.2.6 
 		}
 	}
 	else
@@ -1552,16 +1712,21 @@ int PPObjTech::Browse(void * extraPtr)
 	if(extraPtr) {
 		const long extra_param = reinterpret_cast<long>(extraPtr);
 		TechFilt filt;
-		if(extra_param & TECEXDF_GOODS)
+		if(extra_param & TECEXDF_GOODS) {
 			filt.GoodsID = (extra_param & TECEXDF_MASK);
-		else if(extra_param & TECEXDF_GSTRUC)
+		}
+		else if(extra_param & TECEXDF_GSTRUC) {
 			filt.GStrucID = (extra_param & TECEXDF_MASK);
-		else
+		}
+		else {
 			filt.PrcID = (extra_param & TECEXDF_MASK);
-		if(extra_param & TECEXDF_TOOLING)
+		}
+		if(extra_param & TECEXDF_TOOLING) {
 			filt.Kind = TECK_TOOLING;
-		else if(extra_param & TECEXDF_AUTO)
+		}
+		else if(extra_param & TECEXDF_AUTO) {
 			filt.Kind = TECK_AUTO;
+		}
 		ViewTech(&filt);
 	}
 	else
@@ -1757,11 +1922,50 @@ int PPObjTech::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 //
 // @ModuleDef(PPViewTech)
 //
-IMPLEMENT_PPFILT_FACTORY(Tech); TechFilt::TechFilt() : PPBaseFilt(PPFILT_TECH, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(Tech); TechFilt::TechFilt() : PPBaseFilt(PPFILT_TECH, 0, 1) // @v12.6.1 ver 0-->1
 {
 	SetFlatChunk(offsetof(TechFilt, ReserveStart),
 		offsetof(TechFilt, Reserve)-offsetof(TechFilt, ReserveStart)+sizeof(Reserve));
+	SetBranchObjIdListFilt(offsetof(TechFilt, List)); // @v12.6.1
 	Init(1, 0);
+}
+
+/*virtual*/int TechFilt::ReadPreviousVer(SBuffer & rBuf, int ver) // @v12.6.1
+{
+	int    ok = -1;
+	if(ver == 0) {
+		struct TechFilt_v0 : public PPBaseFilt {
+			TechFilt_v0() : PPBaseFilt(PPFILT_TECH, 0, 0)
+			{
+				SetFlatChunk(offsetof(TechFilt_v0, ReserveStart),
+					offsetof(TechFilt_v0, Reserve)-offsetof(TechFilt_v0, ReserveStart)+sizeof(Reserve));
+				Init(1, 0);
+			}
+			char   ReserveStart[32]; // @anchor
+			PPID   ParentID;
+			PPID   PrcID;
+			PPID   GoodsID;
+			PPID   GStrucID;
+			long   Kind;
+			long   Sign;
+			long   Flags;
+			long   Reserve; // @anchor
+		};
+		TechFilt_v0 fv0;
+		THROW(fv0.Read(rBuf, 0));
+#define CPYFLD(f) f = fv0.f
+		CPYFLD(ParentID);
+		CPYFLD(PrcID);
+		CPYFLD(GoodsID);
+		CPYFLD(GStrucID);
+		CPYFLD(Kind);
+		CPYFLD(Sign);
+		CPYFLD(Flags);
+#undef CPYFLD
+		ok = 1;
+	}
+	CATCHZOK
+	return ok;
 }
 
 PPViewTech::PPViewTech() : PPView(&TecObj, &Filt, PPVIEW_TECH, 0, REPORT_TECHVIEW)
@@ -1787,7 +1991,7 @@ public:
 		RVALUEPTR(Data, pData);
 		PrcCtrlGroup::Rec prc_grp_rec(Data.PrcID);
 		setGroupData(ctlgroupPrc, &prc_grp_rec);
-		SetupPPObjCombo(this, CTLSEL_TECHFILT_PARENT, PPOBJ_TECH, Data.ParentID, OLW_CANSELUPLEVEL, 0); // @v11.0.2 removed flag OLW_SETUPSINGLE
+		SetupPPObjCombo(this, CTLSEL_TECHFILT_PARENT, PPOBJ_TECH, Data.ParentID, OLW_CANSELUPLEVEL, 0);
 		GoodsCtrlGroup::Rec rec(0, Data.GoodsID);
 		setGroupData(ctlgroupGoods, &rec);
 		AddClusterAssocDef(CTL_TECHFILT_KIND, 0, 0);
@@ -1915,7 +2119,7 @@ void * PPViewTech::GetEditExtraParam()
 
 DBQuery * PPViewTech::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
-	const uint   brw_id = (Filt.Kind == TECK_TOOLING) ? BROWSER_TECHTOOLING : BROWSER_TECH;
+	const  uint brw_id = (Filt.Kind == TECK_TOOLING) ? BROWSER_TECHTOOLING : BROWSER_TECH;
 	TechTbl * p_tect = 0;
 	Reference2Tbl * p_reft = 0;
 	DBQuery * q  = 0;
@@ -2449,8 +2653,9 @@ int ToolingSelector::Run(TSVector <TechTbl::Rec> * pList)
 	int    ok = -1;
 	uint   i;
 	Entry * p_entry;
-	SString fmt_buf, msg_buf;
-	const bool is_cc_debug = LOGIC(CConfig.Flags & CCFLG_DEBUG);
+	SString fmt_buf;
+	SString msg_buf;
+	const  bool is_cc_debug = LOGIC(CConfig.Flags & CCFLG_DEBUG);
 	if(is_cc_debug) {
 		PPLoadText(PPTXT_LOG_TOOLINGSEL_START, fmt_buf);
 		PPFormat(fmt_buf, &msg_buf, PrcID, PrevGoodsID, GoodsID);
@@ -2459,8 +2664,8 @@ int ToolingSelector::Run(TSVector <TechTbl::Rec> * pList)
 	List.freeAll();
 	THROW(LoadList(PrcID));
 	List.sort(PTR_CMPFUNC(ToolingEntry));
-	THROW(PrcObj.GetParentsList(PrcID, &PrcParentList));
-	for(i = 0; List.enumItems(&i, (void **)&p_entry);)
+	THROW(PrcObj.GetParentsList(PrcID, PrcParentList));
+	for(i = 0; List.enumItems(&i, (void **)&p_entry);) {
 		if(IsSuited(p_entry)) {
 			TechTbl::Rec tec_rec;
 			THROW(TecObj.Fetch(p_entry->ID, &tec_rec) > 0);
@@ -2469,10 +2674,10 @@ int ToolingSelector::Run(TSVector <TechTbl::Rec> * pList)
 				PPFormat(fmt_buf, &msg_buf, tec_rec.ID);
 				PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 			}
-			if(pList)
-				pList->insert(&tec_rec);
+			CALLPTRMEMB(pList, insert(&tec_rec));
 			ok = 1;
 		}
+	}
 	if(ok < 0) {
 		if(is_cc_debug)
 			PPLogMessage(PPFILNAM_DEBUG_LOG, PPSTR_TEXT, PPTXT_LOG_TOOLINGSEL_NOTHING, LOGMSGF_TIME|LOGMSGF_USER);
@@ -2489,7 +2694,7 @@ int PPObjTech::SelectTooling(PPID prcID, PPID goodsID, PPID prevGoodsID, TSVecto
 //
 //
 //
-PPTechRoute::Entry::Entry() : TechID(0), NominalPrice(0.0), NominalTimeSec(0)
+PPTechRoute::Entry::Entry() : TechID(0), NominalPrice(0.0), NominalTimeSec(0), LevelCode(0)
 {
 	memzero(Reserve, sizeof(Reserve));
 }
@@ -2503,6 +2708,7 @@ PPTechRoute & PPTechRoute::Z()
 	Oid.Z();
 	ObjGroup = 0;
 	L.clear();
+	SelectionList.Z(); // @v12.6.1
 	return *this;
 }
 
@@ -2583,6 +2789,52 @@ int PPTechRouteManager::Put(PPTechRoute & rRoute, int use_ta)
 		THROW(tra.Commit());
 	}
 	CATCHZOK
+	return ok;
+}
+
+int PPTechRouteManager::GetListByGoods(PPID goodsID, TSCollection <PPTechRoute> & rList) // @v12.6.1 @construction
+{
+	rList.freeAll();
+	int    ok = -1;
+	Reference * p_ref(PPRef);
+	PPTechRoute * p_work_item = 0;
+	if(goodsID) {
+		p_work_item = new PPTechRoute;
+		p_work_item->Oid.Set(PPOBJ_GOODS, goodsID);
+		if(Get(*p_work_item) > 0 && !p_work_item->IsEmpty()) {
+			rList.insert(p_work_item);
+			p_work_item = 0;
+		}
+		else {
+			PPIDArray gen_id_list;
+			ZDELETE(p_work_item);
+			{
+				Goods2Tbl::Rec gen_goods_rec;
+				ObjAssocTbl::Rec assc_rec;
+				for(SEnum en = p_ref->AsscC.Enum(PPASS_GENGOODS, goodsID, 1); en.Next(&assc_rec) > 0;) {
+					const  PPID potential_gen_goods_id = assc_rec.PrmrObjID;
+					if(GObj.Fetch(potential_gen_goods_id, &gen_goods_rec) > 0 && gen_goods_rec.Flags & GF_GENERIC) {
+						gen_id_list.add(potential_gen_goods_id);
+					}
+				}
+			}
+			for(uint i = 0; i < gen_id_list.getCount(); i++) {
+				const   PPID gen_goods_id = gen_id_list.get(i);
+				p_work_item = new PPTechRoute;
+				p_work_item->Oid.Set(PPOBJ_GOODS, gen_goods_id);
+				if(Get(*p_work_item) > 0 && !p_work_item->IsEmpty()) {
+					rList.insert(p_work_item);
+					p_work_item = 0;
+				}
+				else {
+					ZDELETE(p_work_item);
+				}
+			}
+		}
+		if(rList.getCount())
+			ok = 1;
+	}
+	ZDELETE(p_work_item);
 	return ok;
 }
 
@@ -2710,6 +2962,12 @@ int PPTechRouteManager::Edit(PPTechRoute & rRoute)
 					ss.add(tec_rec.Code);
 					{
 						sub.Z();
+						if(r_entry.LevelCode)
+							sub.Cat(r_entry.LevelCode);
+						ss.add(sub);
+					}
+					{
+						sub.Z();
 						if(r_entry.NominalTimeSec)
 							sub.Cat(r_entry.NominalTimeSec);
 						ss.add(sub);
@@ -2781,6 +3039,7 @@ int PPTechRouteManager::Edit(PPTechRoute & rRoute)
 			TDialog * dlg = new TDialog(DLG_TECHROUTEITEM);
 			if(CheckDialogPtrErr(&dlg)) {
 				SetupPPObjCombo(dlg, CTLSEL_TECHROUTEITEM_TECH, PPOBJ_TECH, pItem->TechID, 0, 0);
+				dlg->setCtrlData(CTL_TECHROUTEITEM_LEVEL, &pItem->LevelCode); // @v12.6.1
 				dlg->setCtrlReal(CTL_TECHROUTEITEM_NPRICE, pItem->NominalPrice);
 				dlg->setCtrlLong(CTL_TECHROUTEITEM_NTIME, pItem->NominalTimeSec);
 				for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
@@ -2789,6 +3048,7 @@ int PPTechRouteManager::Edit(PPTechRoute & rRoute)
 						PPError(PPERR_TECHNEEDED, 0);
 					}
 					else {
+						dlg->getCtrlData(CTL_TECHROUTEITEM_LEVEL, &pItem->LevelCode); // @v12.6.1
 						dlg->getCtrlData(CTL_TECHROUTEITEM_NPRICE, &pItem->NominalPrice);
 						dlg->getCtrlData(CTL_TECHROUTEITEM_NTIME, &pItem->NominalTimeSec);
 						ok = 1;
@@ -2858,7 +3118,7 @@ PPViewTechRoute::BrwItem::BrwItem() : ItemKey(), TechID(0), PrcID(0), ObjNameP(0
 	return p_result;
 }
 
-/*static*/IMPL_CMPMEMBFUNC(PPViewTechRoute, PPViewTechRoute_ItemKey, i1, i2, void * pExtraData)
+/*static*/IMPL_CMPMEMBFUNC(PPViewTechRoute, PPViewTechRoute_ItemKey, i1, i2)
 {
 	int    si = 0;
 	const  PPViewTechRoute::ItemKey * k1 = static_cast<const PPViewTechRoute::ItemKey *>(i1);
@@ -2867,7 +3127,7 @@ PPViewTechRoute::BrwItem::BrwItem() : ItemKey(), TechID(0), PrcID(0), ObjNameP(0
 	return si;
 }
 
-/*static*/IMPL_CMPMEMBFUNC(PPViewTechRoute, PPViewTechRoute_BrwItem, i1, i2, void * pExtraData)
+/*static*/IMPL_CMPMEMBFUNC(PPViewTechRoute, PPViewTechRoute_BrwItem, i1, i2)
 {
 	int    si = 0;
 	const  PPViewTechRoute::BrwItem * k1 = static_cast<const PPViewTechRoute::BrwItem *>(i1);

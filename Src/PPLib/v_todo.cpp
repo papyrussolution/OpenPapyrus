@@ -693,7 +693,7 @@ int PrjTaskFilt::GetPriorList(PPIDArray & rList) const { return GetList(PriorLis
 //
 //
 //
-PPViewPrjTask::PPViewPrjTask() : PPView(&TodoObj, &Filt, PPVIEW_PRJTASK, implChangeFilt, 0), P_TempOrd(0), P_TempTbl(0), Grid(this)
+PPViewPrjTask::PPViewPrjTask() : PPView(&TodoObj, &Filt, PPVIEW_PRJTASK, implChangeFilt, 0), P_TempOrd(0), P_TempTbl(0), Grid(this), P_DsList(0)
 {
 }
 
@@ -702,6 +702,7 @@ PPViewPrjTask::~PPViewPrjTask()
 	UpdateTimeBrowser(1);
 	delete P_TempOrd;
 	delete P_TempTbl;
+	delete P_DsList; // @v12.6.1
 }
 
 int PPViewPrjTask::UpdateTempTable(const PPIDArray * pIdList, int use_ta)
@@ -807,7 +808,7 @@ TempOrderTbl::Rec & PPViewPrjTask::MakeTempEntry(const PrjTaskTbl::Rec & rRec, T
 		ord_buf.Cat(rRec.Code);
 	else // @default
 		ord_buf.Cat(rRec.Dt, DATF_YMD|DATF_CENTURY);
-	memzero(&rTempRec, sizeof(rTempRec));
+	rTempRec.Clear();
 	rTempRec.ID = rRec.ID;
 	ord_buf.CopyTo(rTempRec.Name, sizeof(rTempRec.Name));
 	return rTempRec;
@@ -1113,13 +1114,84 @@ void PPViewPrjTask::GetTabTitle(PPID tabID, SString & rBuf)
 	}
 }
 
+PPViewPrjTask::InternalViewItem::InternalViewItem()
+{
+	THISZERO();
+}
+
+PPViewPrjTask::InternalViewItem::InternalViewItem(const PrjTaskTbl::Rec & rS)
+{
+	THISZERO();
+#define CPYFLD(f) f = rS.f
+	CPYFLD(ID);
+	CPYFLD(ProjectID);
+	CPYFLD(Kind);
+	CPYFLD(CreatorID);
+	CPYFLD(GroupID);
+	CPYFLD(EmployerID);
+	CPYFLD(ClientID);
+	CPYFLD(TemplateID);
+	CPYFLD(Priority);
+	CPYFLD(Status);
+	CPYFLD(DrPrd);
+	CPYFLD(DrKind);
+	CPYFLD(DrDetail);
+	CPYFLD(Flags);
+	CPYFLD(DlvrAddrID);
+	CPYFLD(LinkTaskID);
+	CPYFLD(Amount);
+	CPYFLD(OpenCount);
+	CPYFLD(BillArID);
+	CPYFLD(LinkBillID);
+#undef CPYFLD
+	STRNSCPY(Code, rS.Code);
+	Dtm.Set(rS.Dt, rS.Tm);
+	StartDtm.Set(rS.StartDt, rS.StartTm);
+	EstFinishDtm.Set(rS.EstFinishDt, rS.EstFinishTm);
+	FinishDtm.Set(rS.FinishDt, rS.FinishTm);
+}
+
+PPViewPrjTask::InternalViewItem & PPViewPrjTask::InternalViewItem::Z()
+{
+	THISZERO();
+	return *this;
+}
+
+bool PPViewPrjTask::IsInMemView() const
+{
+	return LOGIC(Filt.Flags & PrjTaskFilt::fInMemView);
+}
+
+int PPViewPrjTask::MakeInternalEntry(const PrjTaskTbl::Rec & rRec, bool forceAppend, TSArray <InternalViewItem> & rList)
+{
+	int    ok = 1;
+	SString temp_buf;
+	InternalViewItem new_item(rRec);
+	TodoObj.GetItemDescr(rRec.ID, temp_buf);
+	StrPool.AddS(temp_buf, &new_item.DescrP);
+	TodoObj.GetItemMemo(rRec.ID, temp_buf);
+	StrPool.AddS(temp_buf, &new_item.MemoP);
+	{
+		uint   pos = 0;
+		if(!forceAppend && rList.lsearch(&rRec.ID, &pos, CMPF_LONG)) {
+			rList.at(pos) = new_item;
+		}
+		else {
+			rList.insert(&new_item);
+		}
+	}
+	return ok;
+}
+
 int PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	int    use_ta = 1;
+	SString temp_buf;
 	TempOrderTbl * p_ord = 0;
 	BExtInsert * p_bei = 0;
 	CrosstabProcessor * p_ct_prcssr = 0;
+	PrjTaskTbl::Rec rec;
 	Grid.freeAll();
 	THROW(Helper_InitBaseFilt(pFilt));
 	Filt.Period.Actualize(ZERODATE);
@@ -1127,11 +1199,12 @@ int PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 	Filt.EstFinishPeriod.Actualize(ZERODATE);
 	Filt.FinishPeriod.Actualize(ZERODATE);
 	TodoObj.LinkTaskID__ = Filt.LinkTaskID;
-	if(!(Filt.Flags & PrjTaskFilt::fNotShowPPWaitOnInit))
+	if(!(Filt.Flags & PrjTaskFilt::fNotShowPPWaitOnInit)) {
 		PPWaitStart();
+	}
 	BExtQuery::ZDelete(&P_IterQuery);
-	UndefPriorList  = (Filt.GetPriorList(PriorList) > 0) ? 0 : 1;
-	UndefStatusList = (Filt.GetStatusList(StatusList) > 0) ? 0 : 1;
+	UndefPriorList  = !(Filt.GetPriorList(PriorList) > 0);
+	UndefStatusList = !(Filt.GetStatusList(StatusList) > 0);
 	CreatorList.Set(0);
 	EmployerList.Set(0);
 	ClientList.Set(0);
@@ -1171,91 +1244,101 @@ int PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 		if(!ClientList.IsExists())
 			ClientList.Add(Filt.ClientID);
 	}
-	{
-		PrjTaskFilt filt = Filt;
-		PrjTaskTbl::Rec rec;
-		ZDELETE(P_TempOrd);
-		ZDELETE(P_TempTbl);
-		Filt.TabType = PrjTaskFilt::crstNone; // @todo Кросстабуляцию доделать!
-		if(Filt.TabType != PrjTaskFilt::crstNone) {
-			THROW(P_TempTbl = CreateTempFile());
-			THROW_MEM(p_ct_prcssr = new CrosstabProcessor(P_TempTbl, &filt));
+	ZDELETE(P_DsList);
+	if(IsInMemView()) { // @v12.6.1
+		assert(P_DsList == 0); // До цикла for(InitIteration(); NextIteration(&rec) > 0; ) {} P_DsList должен быть нулевым ибо может использоваться там
+		TSArray <InternalViewItem> temp_list;
+		for(InitIteration(); NextIteration(&rec) > 0; PPWaitPercent(GetCounter())) {
+			MakeInternalEntry(rec, true/*forceAppend*/, temp_list);
 		}
-		else if(!(Filt.Flags & PrjTaskFilt::fNoTempTable)) {
-			THROW(p_ord = CreateTempOrderFile());
-			THROW_MEM(p_bei = new BExtInsert(p_ord));
-		}
-		if(p_ct_prcssr || p_ord) {
-			PPTransaction tra(ppDbDependTransaction, use_ta);
-			THROW(tra);
-			if(p_ct_prcssr)
-				THROW(p_ct_prcssr->Start());
-			for(InitIteration(); NextIteration(&rec) > 0; PPWaitPercent(GetCounter())) {
+		P_DsList = new TSArray <InternalViewItem>(temp_list);
+	}
+	else {
+		{
+			PrjTaskFilt ct_filt = Filt;
+			ZDELETE(P_TempOrd);
+			ZDELETE(P_TempTbl);
+			Filt.TabType = PrjTaskFilt::crstNone; // @todo Кросстабуляцию доделать!
+			if(Filt.TabType != PrjTaskFilt::crstNone) {
+				THROW(P_TempTbl = CreateTempFile());
+				THROW_MEM(p_ct_prcssr = new CrosstabProcessor(P_TempTbl, &ct_filt));
+			}
+			else if(!(Filt.Flags & PrjTaskFilt::fNoTempTable)) {
+				THROW(p_ord = CreateTempOrderFile());
+				THROW_MEM(p_bei = new BExtInsert(p_ord));
+			}
+			if(p_ct_prcssr || p_ord) {
+				TempOrderTbl::Rec ord_rec;
+				PPTransaction tra(ppDbDependTransaction, use_ta);
+				THROW(tra);
 				if(p_ct_prcssr) {
-					THROW(p_ct_prcssr->ProcessRec(&rec));
+					THROW(p_ct_prcssr->Start());
+				}
+				for(InitIteration(); NextIteration(&rec) > 0; PPWaitPercent(GetCounter())) {
+					if(p_ct_prcssr) {
+						THROW(p_ct_prcssr->ProcessRec(&rec));
+					}
+					else {
+						THROW_DB(p_bei->insert(&MakeTempEntry(rec, ord_rec)));
+					}
+					THROW(AddItemToTimeGrid(&rec, 0));
+				}
+				if(p_ct_prcssr) {
+					THROW(p_ct_prcssr->Finish());
 				}
 				else {
-					TempOrderTbl::Rec ord_rec;
-					THROW_DB(p_bei->insert(&MakeTempEntry(rec, ord_rec)));
+					THROW_DB(p_bei->flash());
 				}
-				THROW(AddItemToTimeGrid(&rec, 0));
+				THROW(tra.Commit());
 			}
-			if(p_ct_prcssr) {
-				THROW(p_ct_prcssr->Finish());
-			}
-			else {
-				THROW_DB(p_bei->flash());
-			}
-			THROW(tra.Commit());
+			ZDELETE(p_bei);
+			delete p_ct_prcssr;
+			Filt.TabType = ct_filt.TabType;
+			P_TempOrd = p_ord;
 		}
-		ZDELETE(p_bei);
-		delete p_ct_prcssr;
-		Filt.TabType = filt.TabType;
-		P_TempOrd = p_ord;
-	}
-	{
-		class PrjTaskCrosstab : public Crosstab {
-		public:
-			explicit PrjTaskCrosstab(PPViewPrjTask * pV) : Crosstab(), P_V(pV)
-			{
+		{
+			class PrjTaskCrosstab : public Crosstab {
+			public:
+				explicit PrjTaskCrosstab(PPViewPrjTask * pV) : Crosstab(), P_V(pV)
+				{
+				}
+				virtual BrowserWindow * CreateBrowser(uint brwId, int dataOwner)
+				{
+					PPViewBrowser * p_brw = new PPViewBrowser(brwId, CreateBrowserQuery(), P_V, dataOwner);
+					SetupBrowserCtColumns(p_brw);
+					return p_brw;
+				}
+			protected:
+				virtual void GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+				{
+					if(pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V)
+						P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf);
+				}
+				PPViewPrjTask * P_V;
+			};
+			ZDELETE(P_Ct);
+			if(Filt.TabType && P_TempTbl) {
+				DBFieldList total_list;
+				THROW_MEM(P_Ct = new PrjTaskCrosstab(this));
+				P_Ct->SetTable(P_TempTbl, P_TempTbl->TabID);
+				if(Filt.TabType == PrjTaskFilt::crstDateHour) {
+					P_Ct->AddIdxField(P_TempTbl->StartDt);
+					P_Ct->AddInheritedFixField(P_TempTbl->ClientName);
+				}
+				else if(oneof2(Filt.TabType, PrjTaskFilt::crstClientDate, PrjTaskFilt::crstClientEmployer)) {
+					P_Ct->AddIdxField(P_TempTbl->ClientID);
+					P_Ct->AddInheritedFixField(P_TempTbl->ClientName);
+				}
+				else if(oneof2(Filt.TabType, PrjTaskFilt::crstEmployerDate, PrjTaskFilt::crstEmployerHour)) {
+					P_Ct->AddIdxField(P_TempTbl->EmployerID);
+					P_Ct->AddInheritedFixField(P_TempTbl->EmployerName);
+				}
+				P_Ct->AddAggrField(P_TempTbl->TabParam);
+				total_list.Add(P_TempTbl->TabParam);
+				P_Ct->AddTotalRow(total_list, 0, PPGetWord(PPWORD_TOTAL, 0, temp_buf));
+				P_Ct->AddTotalColumn(P_TempTbl->TabParam, 0, PPGetWord(PPWORD_TOTAL, 0, temp_buf));
+				THROW(P_Ct->Create(use_ta));
 			}
-			virtual BrowserWindow * CreateBrowser(uint brwId, int dataOwner)
-			{
-				PPViewBrowser * p_brw = new PPViewBrowser(brwId, CreateBrowserQuery(), P_V, dataOwner);
-				SetupBrowserCtColumns(p_brw);
-				return p_brw;
-			}
-		protected:
-			virtual void GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
-			{
-				if(pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V)
-					P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf);
-			}
-			PPViewPrjTask * P_V;
-		};
-		ZDELETE(P_Ct);
-		if(Filt.TabType && P_TempTbl) {
-			SString temp_buf;
-			DBFieldList total_list;
-			THROW_MEM(P_Ct = new PrjTaskCrosstab(this));
-			P_Ct->SetTable(P_TempTbl, P_TempTbl->TabID);
-			if(Filt.TabType == PrjTaskFilt::crstDateHour) {
-				P_Ct->AddIdxField(P_TempTbl->StartDt);
-				P_Ct->AddInheritedFixField(P_TempTbl->ClientName);
-			}
-			else if(oneof2(Filt.TabType, PrjTaskFilt::crstClientDate, PrjTaskFilt::crstClientEmployer)) {
-				P_Ct->AddIdxField(P_TempTbl->ClientID);
-				P_Ct->AddInheritedFixField(P_TempTbl->ClientName);
-			}
-			else if(oneof2(Filt.TabType, PrjTaskFilt::crstEmployerDate, PrjTaskFilt::crstEmployerHour)) {
-				P_Ct->AddIdxField(P_TempTbl->EmployerID);
-				P_Ct->AddInheritedFixField(P_TempTbl->EmployerName);
-			}
-			P_Ct->AddAggrField(P_TempTbl->TabParam);
-			total_list.Add(P_TempTbl->TabParam);
-			P_Ct->AddTotalRow(total_list, 0, PPGetWord(PPWORD_TOTAL, 0, temp_buf));
-			P_Ct->AddTotalColumn(P_TempTbl->TabParam, 0, PPGetWord(PPWORD_TOTAL, 0, temp_buf));
-			THROW(P_Ct->Create(use_ta));
 		}
 	}
 	CATCH
@@ -1903,7 +1986,7 @@ void * PPViewPrjTask::GetEditExtraParam()
 		extra_param = ClientList.GetSingle() + PRJTASKBIAS_CLIENT;
 	if(Filt.Kind == TODOKIND_TEMPLATE)
 		extra_param += PRJTASKBIAS_TEMPLATE;
-	return (void *)extra_param;
+	return reinterpret_cast<void *>(extra_param);
 }
 
 int PPViewPrjTask::Print(const void *)
@@ -1916,6 +1999,121 @@ int PPViewPrjTask::Export()
 	return -1;
 }
 
+int PPViewPrjTask::_GetDataForBrowser(SBrowserDataProcBlock * pBlk) // @v12.6.1
+{
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	SString temp_buf;
+	const InternalViewItem * p_item = static_cast<const InternalViewItem *>(pBlk->P_SrcData);
+	/*
+	"@id",                    0, long,   0, 4,        BCO_USERPROC
+	"@code",                  1, zstring(24), 0, 8,        BCO_USERPROC
+	"@date",                  2, date, DATF_DMY, 8, BCO_USERPROC
+	"@prjtask_startdt",       3, date, DATF_DMY, 8, BCO_USERPROC
+	"@prjtask_estfinishdt_s", 4, date, DATF_DMY, 8, BCO_USERPROC
+	"@prjtask_finishdt",      5, date, DATF_DMY, 8, BCO_USERPROC
+	"@prjtask_priority",      6, zstring(48),   0,  6, BCO_USERPROC
+	"@status",                7, zstring(48),   0,  6, BCO_USERPROC
+	"@client",                8, zstring(128),  0, 30, BCO_USERPROC
+	"@prjtask_employer",      9, zstring(128),  0, 30, BCO_USERPROC
+	"@description",          10, zstring(1024), 0, 60, BCO_USERPROC
+	*/ 
+	switch(pBlk->ColumnN) {
+		case 0: // ID
+			pBlk->Set(p_item->ID);
+			break;
+		case 1: // Code
+			pBlk->Set(p_item->Code);
+			break;
+		case 2: // date
+			pBlk->Set(p_item->Dtm.d);
+			break;
+		case 3: // start_date
+			pBlk->Set(p_item->StartDtm.d);
+			break;
+		case 4: // est_finish_date
+			pBlk->Set(p_item->EstFinishDtm.d);
+			break;
+		case 5: // finish_date
+			pBlk->Set(p_item->FinishDtm.d);
+			break;
+		case 6: // priority
+			PPGetSubStrById(PPTXT_TODO_PRIOR, p_item->Priority, temp_buf);
+			pBlk->Set(temp_buf);
+			break;
+		case 7: // status
+			PPGetSubStrById(PPTXT_TODO_STATUS, p_item->Status, temp_buf);
+			pBlk->Set(temp_buf);
+			break;
+		case 8: // client
+			GetPersonName(p_item->ClientID, temp_buf);
+			pBlk->Set(temp_buf);
+			break;
+		case 9: // employer
+			GetPersonName(p_item->EmployerID, temp_buf);
+			pBlk->Set(temp_buf);
+			break;
+		case 10: // description
+			StrPool.GetS(p_item->DescrP, temp_buf);
+			pBlk->Set(temp_buf);
+			break;
+		default:
+			ok = 0;
+			break;
+	}
+	return ok;
+}
+
+/*virtual*/int PPViewPrjTask::OnExecBrowser(PPViewBrowser * pBrw) // @v12.6.1
+{
+	int    ok = -1;
+	return ok;
+}
+
+/*virtual*/SArray * PPViewPrjTask::CreateBrowserArray(uint * pBrwId, SString * pSubTitle) // @v12.6.1
+{
+	TSArray <InternalViewItem> * p_array = 0;
+	uint   brw_id = BROWSER_PRJTASK_INMEM;
+	if(P_DsList)
+		p_array = new TSArray <InternalViewItem>(*P_DsList);
+	else
+		p_array = new TSArray <InternalViewItem>();
+	MakeSubTitle(pSubTitle);
+	ASSIGN_PTR(pBrwId, brw_id);
+	return p_array;
+}
+
+void PPViewPrjTask::MakeSubTitle(SString * pSubTitle)
+{
+	if(pSubTitle) {
+		PPObjProject prj_obj;
+		SString name_buf;
+		pSubTitle->Z();
+		if(Filt.ProjectID)
+			prj_obj.GetFullName(Filt.ProjectID, *pSubTitle);
+		if(Filt.TemplateID) {
+			pSubTitle->CatDivIfNotEmpty('-', 1);
+			CatObjectName(PPOBJ_PRJTASK, Filt.TemplateID, *pSubTitle);
+		}
+		if(Filt.EmployerID) {
+			GetPersonName(Filt.EmployerID, name_buf);
+			pSubTitle->CatDivIfNotEmpty('-', 1).Cat(name_buf);
+		}
+		if(Filt.ClientID) {
+			GetPersonName(Filt.ClientID, name_buf);
+			pSubTitle->CatDivIfNotEmpty('-', 1).Cat(name_buf);
+		}
+		if(Filt.LinkTaskID) {
+			SString link_task_name;
+			GetObjectName(PPOBJ_PRJTASK, Filt.LinkTaskID, link_task_name);
+			if(!link_task_name.NotEmptyS())
+				link_task_name.CatChar('#').Cat(Filt.LinkTaskID);
+			PPLoadString("connectedto", *pSubTitle);
+			pSubTitle->Space().Cat(link_task_name);
+		}
+	}
+}
+
 DBQuery * PPViewPrjTask::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	static DbqStringSubst prior_subst(5);  // @global @threadsafe
@@ -1925,7 +2123,8 @@ DBQuery * PPViewPrjTask::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	TempOrderTbl * p_ord = 0;
 	uint   brw_id = 0;
 	if(P_Ct == 0) {
-		PPIDArray prior_list, status_list;
+		PPIDArray prior_list;
+		PPIDArray status_list;
 		DBQ  * dbq = 0;
 		DBE  * dbe_prior = 0;
 		DBE  * dbe_status = 0;
@@ -1992,33 +2191,7 @@ DBQuery * PPViewPrjTask::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			brw_id = BROWSER_PRJTASK_CLIENTEMPLOYERCT;
 		q = PPView::CrosstabDbQueryStub;
 	}
-	if(pSubTitle) {
-		PPObjProject prj_obj;
-		SString name_buf;
-		*pSubTitle = 0;
-		if(Filt.ProjectID)
-			prj_obj.GetFullName(Filt.ProjectID, *pSubTitle);
-		if(Filt.TemplateID) {
-			pSubTitle->CatDivIfNotEmpty('-', 1);
-			CatObjectName(PPOBJ_PRJTASK, Filt.TemplateID, *pSubTitle);
-		}
-		if(Filt.EmployerID) {
-			GetPersonName(Filt.EmployerID, name_buf);
-			pSubTitle->CatDivIfNotEmpty('-', 1).Cat(name_buf);
-		}
-		if(Filt.ClientID) {
-			GetPersonName(Filt.ClientID, name_buf);
-			pSubTitle->CatDivIfNotEmpty('-', 1).Cat(name_buf);
-		}
-		if(Filt.LinkTaskID) {
-			SString  link_task_name;
-			GetObjectName(PPOBJ_PRJTASK, Filt.LinkTaskID, link_task_name);
-			if(!link_task_name.NotEmptyS())
-				link_task_name.CatChar('#').Cat(Filt.LinkTaskID);
-			PPLoadString("connectedto", *pSubTitle);
-			pSubTitle->Space().Cat(link_task_name);
-		}
-	}
+	MakeSubTitle(pSubTitle);
 	CATCH
 		if(q)
 			ZDELETE(q);
@@ -2081,150 +2254,199 @@ int PPViewPrjTask::ChangeTasks(PPIDArray * pAry)
 
 int PPViewPrjTask::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
-	PPIDArray id_list;
-	PPID   id = (pHdr) ? *static_cast<const PPID *>(pHdr) : 0;
-	PPID   temp_id;
 	int    ok = 0;
-	/*
-	if(ppvCmd == PPVCMD_PRINT || Filt.TabType == PrjTaskFilt::crstNone) {
-		if(ppvCmd != PPVCMD_ADDITEM)
-			ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
-		else
-			ok = -2;
+	if(ppvCmd == PPVCMD_QUERYDATASOURCETYPE) {
+		ok = IsInMemView() ? PPView::datasourcetypeArray : PPView::datasourcetypeDBQuery;
 	}
-	else if(ppvCmd == PPVCMD_EDITITEM)
-		ok = -2;
-	*/
-	if(ppvCmd == PPVCMD_EDITITEM && P_Ct)
-		ok = -2;
-	else
-		ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
-	if(ok == -2) {
-		switch(ppvCmd) {
-			/*
-			case PPVCMD_ADDITEM:
-				ok = (TodoObj.Edit(&(temp_id = 0), GetEditExtraParam()) == cmOK) ? 1 : -1;
-				if(ok > 0)
-					id_list.add(temp_id);
-				break;
-			*/
-			case PPVCMD_ADDBYSAMPLE:
-				ok = TodoObj.AddBySample(&(temp_id = 0), id);
-				if(ok > 0)
-					id_list.add(temp_id);
-				break;
-			case PPVCMD_BUILD:
-				ok = CreateByTemplate();
-				break;
-			case PPVCMD_CHANGEFILT:
-				{
-					STimeChunkBrowser * p_brw = PPFindLastTimeChunkBrowser();
-					ok = ChangeFilt(0, pBrw);
-					if(p_brw)
-						if(ok == 2) {
-							PPCloseBrowser(p_brw);
-							TimeChunkBrowser();
-							::SetFocus(pBrw->H());
+	else {
+		PPIDArray id_list;
+		PPID   id = (pHdr) ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   temp_id;
+		/*
+		if(ppvCmd == PPVCMD_PRINT || Filt.TabType == PrjTaskFilt::crstNone) {
+			if(ppvCmd != PPVCMD_ADDITEM)
+				ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
+			else
+				ok = -2;
+		}
+		else if(ppvCmd == PPVCMD_EDITITEM)
+			ok = -2;
+		*/
+		if(ppvCmd == PPVCMD_EDITITEM && P_Ct)
+			ok = -2;
+		else
+			ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
+		if(ok == -2) {
+			switch(ppvCmd) {
+				/*
+				case PPVCMD_ADDITEM:
+					ok = (TodoObj.Edit(&(temp_id = 0), GetEditExtraParam()) == cmOK) ? 1 : -1;
+					if(ok > 0)
+						id_list.add(temp_id);
+					break;
+				*/
+				case PPVCMD_ADDBYSAMPLE:
+					ok = TodoObj.AddBySample(&(temp_id = 0), id);
+					if(ok > 0)
+						id_list.add(temp_id);
+					break;
+				case PPVCMD_BUILD:
+					ok = CreateByTemplate();
+					break;
+				case PPVCMD_CHANGEFILT:
+					{
+						STimeChunkBrowser * p_brw = PPFindLastTimeChunkBrowser();
+						ok = ChangeFilt(0, pBrw);
+						if(p_brw)
+							if(ok == 2) {
+								PPCloseBrowser(p_brw);
+								TimeChunkBrowser();
+								::SetFocus(pBrw->H());
+							}
+							else if(ok > 0)
+								p_brw->UpdateData();
+					}
+					break;
+				case PPVCMD_EDITITEM:
+					if(P_Ct) {
+						uint   tab_idx = pBrw ? pBrw->GetCurColumn() : 0;
+						PPID   tab_id = 0;
+						DBFieldList fld_list; // realy const, do not modify
+						int    r = (tab_idx > 0) ? P_Ct->GetTab(tab_idx - 1, &tab_id) : 1;
+						if(r > 0 && P_Ct->GetIdxFields(id, &fld_list) > 0)
+							ViewCrosstabDetail(tab_id, &fld_list);
+					}
+					break;
+				case PPVCMD_EDITBILLPOOL:
+					ViewBillsByPool(PPASS_TODOBILLPOOL, id);
+					break;
+				case PPVCMD_TRANSMIT:
+					ok = -1;
+					Transmit(0, 0);
+					break;
+				case PPVCMD_EXPORTVCAL:
+					ok = -1;
+					Transmit(0, 2);
+					break;
+				case PPVCMD_LINKTASKS:
+					if(id) {
+						PPIDArray task_list;
+						PPViewPrjTask * p_v = new PPViewPrjTask;
+						PrjTaskFilt  lt_flt;
+						lt_flt.Kind = TODOKIND_TASK;
+						lt_flt.LinkTaskID = id;
+						PPWaitStart();
+						TodoObj.GetLinkTasks(id, &task_list);
+						if(p_v->Init_(&lt_flt) && p_v->Browse(false)) {
+							TodoObj.GetLinkTasks(id, &id_list);
+							for(int i = (int)task_list.getCount()-1; i >= 0; i--)
+								if(id_list.freeByKey(task_list.at(i), 0) > 0)
+									task_list.atFree(i);
+							id_list.add(&task_list);
+							ok = id_list.getCount() ? 1 : -1;
 						}
-						else if(ok > 0)
-							p_brw->UpdateData();
-				}
-				break;
-			case PPVCMD_EDITITEM:
-				if(P_Ct) {
-					uint   tab_idx = pBrw ? pBrw->GetCurColumn() : 0;
-					PPID   tab_id = 0;
-					DBFieldList fld_list; // realy const, do not modify
-					int    r = (tab_idx > 0) ? P_Ct->GetTab(tab_idx - 1, &tab_id) : 1;
-					if(r > 0 && P_Ct->GetIdxFields(id, &fld_list) > 0)
-						ViewCrosstabDetail(tab_id, &fld_list);
-				}
-				break;
-			case PPVCMD_EDITBILLPOOL:
-				ViewBillsByPool(PPASS_TODOBILLPOOL, id);
-				break;
-			case PPVCMD_TRANSMIT:
-				ok = -1;
-				Transmit(0, 0);
-				break;
-			case PPVCMD_EXPORTVCAL:
-				ok = -1;
-				Transmit(0, 2);
-				break;
-			case PPVCMD_LINKTASKS:
-				if(id) {
-					PPIDArray  task_list;
-					PPViewPrjTask * p_v = new PPViewPrjTask;
-					PrjTaskFilt  lt_flt;
-					lt_flt.Kind = TODOKIND_TASK;
-					lt_flt.LinkTaskID = id;
-					PPWaitStart();
-					TodoObj.GetLinkTasks(id, &task_list);
-					if(p_v->Init_(&lt_flt) && p_v->Browse(false)) {
-						TodoObj.GetLinkTasks(id, &id_list);
-						for(int i = (int)task_list.getCount()-1; i >= 0; i--)
-							if(id_list.freeByKey(task_list.at(i), 0) > 0)
-								task_list.atFree(i);
-						id_list.add(&task_list);
-						ok = id_list.getCount() ? 1 : -1;
+						else
+							PPError();
+						delete p_v;
 					}
-					else
-						PPError();
-					delete p_v;
-				}
-				break;
-			case PPVCMD_DELETEALL:
-				ok = ChangeTasks(&id_list);
-				break;
-			case PPVCMD_EDITLINKTASK:
-				{
-					PrjTaskTbl::Rec  pt_rec;
-					if(id && TodoObj.Search(id, &pt_rec) > 0 && pt_rec.LinkTaskID) {
-						ok = (TodoObj.Edit(&pt_rec.LinkTaskID, 0) == cmOK) ? 1 : -1;
-						if(ok > 0)
-							id_list.add(pt_rec.LinkTaskID);
+					break;
+				case PPVCMD_DELETEALL:
+					ok = ChangeTasks(&id_list);
+					break;
+				case PPVCMD_EDITLINKTASK:
+					{
+						PrjTaskTbl::Rec  pt_rec;
+						if(id && TodoObj.Search(id, &pt_rec) > 0 && pt_rec.LinkTaskID) {
+							ok = (TodoObj.Edit(&pt_rec.LinkTaskID, 0) == cmOK) ? 1 : -1;
+							if(ok > 0)
+								id_list.add(pt_rec.LinkTaskID);
+						}
 					}
-				}
-				break;
-			case PPVCMD_TIMEGRAPH:
-				ok = -1;
-				TimeChunkBrowser();
-				break;
-			case PPVCMD_MOUSEHOVER:
-				{
-					if(Filt.TabType == PrjTaskFilt::crstNone) {
-						BrowserDef * p_def = pBrw->getDef();
-						int    col = p_def ? (p_def->getCount()-1) : -1;
-						long   h = 0;
-						if(pBrw->ItemByMousePos(&h, 0) && col > 0 && h == col) {
-							PPPrjTaskPacket pt_pack;
-							ok = -1;
-							if(id && TodoObj.GetPacket(id, &pt_pack) > 0 && (pt_pack.SDescr.Len() || pt_pack.SMemo.Len())) {
-								const  long flags = SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|
-									SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow;
-								SString buf;
-								(buf = pt_pack.SDescr).ReplaceChar('\n', ' ').ReplaceChar('\r', ' ');
-								if(pt_pack.SMemo.Len()) {
-									SString word;
-									SString memo;
-									PPLoadStringS("memo", word).Colon().CR();
-									(memo = pt_pack.SMemo).ReplaceChar('\n', ' ').ReplaceChar('\r', ' ');
-									buf.CR().CR().Cat(word).Cat(memo);
+					break;
+				case PPVCMD_TIMEGRAPH:
+					ok = -1;
+					TimeChunkBrowser();
+					break;
+				case PPVCMD_MOUSEHOVER:
+					{
+						if(Filt.TabType == PrjTaskFilt::crstNone) {
+							BrowserDef * p_def = pBrw->getDef();
+							int    col = p_def ? (p_def->getCount()-1) : -1;
+							long   h = 0;
+							if(pBrw->ItemByMousePos(&h, 0) && col > 0 && h == col) {
+								PPPrjTaskPacket pt_pack;
+								ok = -1;
+								if(id && TodoObj.GetPacket(id, &pt_pack) > 0 && (pt_pack.SDescr.Len() || pt_pack.SMemo.Len())) {
+									const  long flags = SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|
+										SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow;
+									SString buf;
+									(buf = pt_pack.SDescr).ReplaceChar('\n', ' ').ReplaceChar('\r', ' ');
+									if(pt_pack.SMemo.Len()) {
+										SString word;
+										SString memo;
+										PPLoadStringS("memo", word).Colon().CR();
+										(memo = pt_pack.SMemo).ReplaceChar('\n', ' ').ReplaceChar('\r', ' ');
+										buf.CR().CR().Cat(word).Cat(memo);
+									}
+									PPTooltipMessage(buf, 0, pBrw->H(), 10000, 0, flags);
 								}
-								PPTooltipMessage(buf, 0, pBrw->H(), 10000, 0, flags);
 							}
 						}
 					}
-				}
-				break;
+					break;
+			}
 		}
-	}
-	if(ok > 0 && oneof7(ppvCmd, PPVCMD_ADDITEM, PPVCMD_EDITITEM, PPVCMD_DELETEITEM,
-		PPVCMD_ADDBYSAMPLE, PPVCMD_LINKTASKS, PPVCMD_DELETEALL, PPVCMD_EDITLINKTASK)) {
-		if(!oneof4(ppvCmd, PPVCMD_ADDBYSAMPLE, PPVCMD_ADDITEM, PPVCMD_LINKTASKS, PPVCMD_EDITLINKTASK))
-			id_list.add(id);
-		if(UpdateTempTable(&id_list, 1) > 0)
-			UpdateTimeBrowser(0);
+		if(ok > 0) {
+			if(oneof7(ppvCmd, PPVCMD_ADDITEM, PPVCMD_EDITITEM, PPVCMD_DELETEITEM, PPVCMD_ADDBYSAMPLE, PPVCMD_LINKTASKS, PPVCMD_DELETEALL, PPVCMD_EDITLINKTASK)) {
+				if(IsInMemView()) {
+					AryBrowserDef * p_def = pBrw ? static_cast<AryBrowserDef *>(pBrw->getDef()) : 0;
+					if(p_def) {
+						LongArray id_list;
+						PPID   last_id = 0;
+						if(GetLastUpdatedObjects(0, id_list) > 0) {
+							PrjTaskTbl::Rec rec;
+							for(uint i = 0; i < id_list.getCount(); i++) {
+								last_id = id_list.get(i);
+								if(TodoObj.Search(last_id, &rec) > 0) {
+									if(ppvCmd == PPVCMD_ADDITEM) {
+										MakeInternalEntry(rec, true/*forceAppend*/, *P_DsList);
+									}
+									else if(ppvCmd == PPVCMD_EDITITEM) {
+										MakeInternalEntry(rec, false/*forceAppend*/, *P_DsList);
+									}
+								}
+								else {
+									;
+								}
+								TodoObj.Dirty(last_id);
+							}
+							//InternalViewList.sort2(PTR_CMPFUNC(PPViewPerson_InternalViewItem_ByName), this);
+						}
+						if(last_id) {
+							/*
+							{
+								SArray * p_array = new SArray(sizeof(InternalViewItem));
+								if(p_array) {
+									for(uint i = 0; i < InternalViewList.getCount(); i++) {
+										p_array->insert(&InternalViewList.at(i));
+									}
+								}
+								p_def->setArray(p_array, 0, 1);
+							}
+							if(ppvCmd != PPVCMD_DELETEITEM)
+								pBrw->search2(&last_id, CMPF_LONG, srchFirst, 0, nullptr);
+							*/
+						}
+					}
+				}
+				else {
+					if(!oneof4(ppvCmd, PPVCMD_ADDBYSAMPLE, PPVCMD_ADDITEM, PPVCMD_LINKTASKS, PPVCMD_EDITLINKTASK))
+						id_list.add(id);
+					if(UpdateTempTable(&id_list, 1) > 0)
+						UpdateTimeBrowser(0);
+				}
+			}
+		}
 	}
 	return ok;
 }
@@ -2252,7 +2474,15 @@ int PPViewPrjTask::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPView
 
 void PPViewPrjTask::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	CALLPTRMEMB(pBrw, Advise(PPAdviseBlock::evTodoChanged, 0, PPOBJ_PRJTASK, 0));
+	if(pBrw) {
+		// @v12.6.1 {
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewPrjTask *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
+		// } @v12.6.1 
+		CALLPTRMEMB(pBrw, Advise(PPAdviseBlock::evTodoChanged, 0, PPOBJ_PRJTASK, 0));
+	}
 }
 //
 //

@@ -506,7 +506,7 @@ int PPALDD_GoodsBillCmp::InitData(PPFilt & rFilt, long rsrv)
 }
 
 void PPALDD_GoodsBillCmp::Destroy() { DESTROY_PPVIEW_ALDD(GoodsBillCmp); }
-int  PPALDD_GoodsBillCmp::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(GoodsBillCmp); }
+int  PPALDD_GoodsBillCmp::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/) { INIT_PPVIEW_ALDD_ITER(GoodsBillCmp); }
 
 int PPALDD_GoodsBillCmp::NextIteration(PPIterID iterId)
 {

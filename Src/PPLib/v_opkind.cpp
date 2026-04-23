@@ -540,7 +540,7 @@ int PPALDD_OprKindList::InitData(PPFilt & rFilt, long rsrv)
 }
 
 void PPALDD_OprKindList::Destroy() { DESTROY_PPVIEW_ALDD(OprKind); }
-int  PPALDD_OprKindList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(OprKind); }
+int  PPALDD_OprKindList::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/) { INIT_PPVIEW_ALDD_ITER(OprKind); }
 
 int PPALDD_OprKindList::NextIteration(PPIterID iterId)
 {

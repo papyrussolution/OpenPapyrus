@@ -3055,14 +3055,15 @@ IMPL_HANDLE_EVENT(GoodsAsscDialog)
 int GoodsAsscDialog::setupAssoc(PPID asscType, uint asscText, PPID objType)
 {
 	int    ok = 1;
+	Reference * p_ref(PPRef);
 	PPObjGoodsStruc gs_obj;
 	SString name;
 	SString assc_name;
-	char   temp_buf[128];
+	SString temp_buf;
 	StringSet ss(SLBColumnDelim);
 	ObjAssocTbl::Rec assc_rec;
 	PPGetSubStr(PPTXT_GOODS_ASSC_NAME, asscText, assc_name);
-	for(SEnum en = PPRef->AsscC.Enum(asscType, GoodsID, 1); en.Next(&assc_rec) > 0;) {
+	for(SEnum en = p_ref->AsscC.Enum(asscType, GoodsID, 1); en.Next(&assc_rec) > 0;) {
 		const  PPID assc_id = assc_rec.PrmrObjID;
 		name.Z();
 		if(asscType == PPASS_GOODSSTRUC) {
@@ -3075,12 +3076,13 @@ int GoodsAsscDialog::setupAssoc(PPID asscType, uint asscText, PPID objType)
 					GetGoodsName(goods_id, name);
 			}
 		}
-		else
+		else {
 			GetObjectName(objType, assc_id, name);
+		}
 		ss.Z();
 		ss.add(assc_name);
 		ss.add(name);
-		ss.add(ltoa(assc_rec.InnerNum, temp_buf, 10));
+		ss.add(temp_buf.Z().Cat(assc_rec.InnerNum));
 		THROW(addStringToList(++LastItemId, ss.getBuf()));
 		THROW_SL(AsscList.Add(asscType, assc_id, 0));
 	}

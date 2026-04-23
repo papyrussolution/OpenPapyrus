@@ -1,5 +1,5 @@
 // D_CHARRY.CPP
-// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1990,9 +1990,9 @@ int PPDS_CrrPersonKind::TransferField(long fldID, Tfd dir, uint * pIter, SString
 				const bool is_coderegt = (fldID == DSF_CRRPERSONKIND_CODEREGTYPEID);
 				SString buf;
 				if(dir == tfdDataToBuf) {
-					PPRegisterType regt_rec;
-					if(ObjRegT.Search((is_coderegt) ? Data.CodeRegTypeID : Data.FolderRegTypeID, &regt_rec) > 0)
-						buf.CopyFrom(regt_rec.Symb);
+					PPRegisterType2 rt_rec;
+					if(ObjRegT.Search((is_coderegt) ? Data.CodeRegTypeID : Data.FolderRegTypeID, &rt_rec) > 0)
+						buf.CopyFrom(rt_rec.Symb);
 				}
 				ok = TransferData(buf, dir, rBuf);
 				if(dir == tfdBufToData)
@@ -2339,7 +2339,7 @@ int PPDS_CrrRegisterType::InitData(Ido op, void * dataPtr, long addedParam)
 	}
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *static_cast<const PPRegisterType *>(dataPtr);
+			Data = *static_cast<const PPRegisterType2 *>(dataPtr);
 		else if(addedParam) {
 			if(Obj.Search(addedParam, &Data) > 0)
 				ok = 1;
@@ -2356,8 +2356,8 @@ int PPDS_CrrRegisterType::InitData(Ido op, void * dataPtr, long addedParam)
 			if(*strip(Data.Symb) != 0 && Obj.SearchSymb(&id, Data.Symb) > 0) {
 				Data.ID = id;
 				if(UpdateProtocol == updForce) {
-					PPRegisterType rec;
-					MEMSZERO(rec);
+					PPRegisterType2 rec;
+					// @v12.6.1 @ctr MEMSZERO(rec);
 					THROW(Obj.Search(id, &rec) > 0);
 					for(uint i = 0; i < AcceptedFields.getCount(); i++) {
 						switch(AcceptedFields.get(i)) {
@@ -3081,16 +3081,16 @@ int PPDS_CrrPersonRelType::TransferField(long fldID, Tfd dir, uint * pIter, SStr
 			break;
 		case DSF_CRRPERSONRELTYPE_INHREGTYPELIST:
 			{
-				PPRegisterType regt_rec;
+				PPRegisterType2 rt_rec;
 				TempBuf.Z();
-				MEMSZERO(regt_rec);
+				// @v12.6.1 @ctr MEMSZERO(rt_rec);
 				if(dir == tfdDataToBuf) {
 					if((*pIter) < Data.InhRegTypeList.getCount()) {
-						if(ObjRegT.Search(Data.InhRegTypeList.at(*pIter), &regt_rec) > 0) {
-							TempBuf = regt_rec.Symb;
+						if(ObjRegT.Search(Data.InhRegTypeList.at(*pIter), &rt_rec) > 0) {
+							TempBuf = rt_rec.Symb;
 							/*
 							if(TempBuf.Strip().Empty())
-								;// TempBuf = regt_rec.Name;
+								;// TempBuf = rt_rec.Name;
 							*/
 						}
 						else
@@ -3978,7 +3978,7 @@ int PPDS_CrrAccSheet::AcceptListItem(long fldID, PPDeclStruc * pData, ObjTransmC
 	int    ok = -1;
 	if(pData) {
 		if(fldID == DSF_CRRACCSHEET_CODEREGTYPE) {
-			PPRegisterType item = static_cast<const PPDS_CrrRegisterType *>(pData)->Data;
+			PPRegisterType2 item(static_cast<const PPDS_CrrRegisterType *>(pData)->Data);
 			Data.CodeRegTypeID = item.ID;
 			ok = 1;
 		}

@@ -1396,20 +1396,20 @@ int QuotKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraDat
 	PPObjQuotKind qk_obj;
 	PPQuotKindPacket pack;
 	if(qk_obj.GetPacket(id, &pack) > 0) {
-#define CPY_FLD(Fld) p_cache_rec->Fld=pack.Rec.Fld
-		CPY_FLD(Discount);
-		CPY_FLD(RoundingPrec);
-		CPY_FLD(Period);
-		CPY_FLD(AmtRestr);
-		CPY_FLD(OpID);
-		CPY_FLD(Flags);
-		CPY_FLD(AccSheetID);
-		CPY_FLD(BeginTm);
-		CPY_FLD(EndTm);
-		CPY_FLD(Rank);
-		CPY_FLD(RoundingDir);
-		CPY_FLD(DaysOfWeek);
-#undef CPY_FLD
+#define CPYFLD(Fld) p_cache_rec->Fld=pack.Rec.Fld
+		CPYFLD(Discount);
+		CPYFLD(RoundingPrec);
+		CPYFLD(Period);
+		CPYFLD(AmtRestr);
+		CPYFLD(OpID);
+		CPYFLD(Flags);
+		CPYFLD(AccSheetID);
+		CPYFLD(BeginTm);
+		CPYFLD(EndTm);
+		CPYFLD(Rank);
+		CPYFLD(RoundingDir);
+		CPYFLD(DaysOfWeek);
+#undef CPYFLD
 		// @v12.0.10 ok = PutName(pack.Rec.Name, p_cache_rec);
 		// @v12.0.10 {
 		PPStringSetSCD ss;
@@ -1434,22 +1434,22 @@ void QuotKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) c
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	//memzero(p_data_rec, sizeof(*p_data_rec));
 	p_data_pack->Z();
-#define CPY_FLD(Fld) p_data_pack->Rec.Fld=p_cache_rec->Fld
+#define CPYFLD(Fld) p_data_pack->Rec.Fld=p_cache_rec->Fld
 	p_data_pack->Rec.Tag = PPOBJ_QUOTKIND;
-	CPY_FLD(ID);
-	CPY_FLD(Discount);
-	CPY_FLD(Period);
-	CPY_FLD(BeginTm);
-	CPY_FLD(EndTm);
-	CPY_FLD(Rank);
-	CPY_FLD(DaysOfWeek);
-	CPY_FLD(OpID);
-	CPY_FLD(Flags);
-	CPY_FLD(AccSheetID);
-	CPY_FLD(AmtRestr);
-	CPY_FLD(RoundingPrec);
-	CPY_FLD(RoundingDir);
-#undef CPY_FLD
+	CPYFLD(ID);
+	CPYFLD(Discount);
+	CPYFLD(Period);
+	CPYFLD(BeginTm);
+	CPYFLD(EndTm);
+	CPYFLD(Rank);
+	CPYFLD(DaysOfWeek);
+	CPYFLD(OpID);
+	CPYFLD(Flags);
+	CPYFLD(AccSheetID);
+	CPYFLD(AmtRestr);
+	CPYFLD(RoundingPrec);
+	CPYFLD(RoundingDir);
+#undef CPYFLD
 	// @v12.0.10 GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));
 	// @v12.0.10 {
 	{

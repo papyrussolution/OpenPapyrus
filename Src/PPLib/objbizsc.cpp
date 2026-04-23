@@ -771,11 +771,11 @@ int BizScoreCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraDat
 	PPObjBizScore bs_obj;
 	PPBizScorePacket pack;
 	if(bs_obj.GetPacket(id, &pack) > 0) {
-#define CPY_FLD(Fld) p_cache_rec->Fld=pack.Rec.Fld
-		CPY_FLD(Flags);
-		CPY_FLD(UserID);
-		CPY_FLD(Bounds);
-#undef CPY_FLD
+#define CPYFLD(Fld) p_cache_rec->Fld=pack.Rec.Fld
+		CPYFLD(Flags);
+		CPYFLD(UserID);
+		CPYFLD(Bounds);
+#undef CPYFLD
 		PPStringSetSCD ss;
 		ss.add(pack.Rec.Name);
 		ss.add(pack.Rec.Symb);
@@ -792,13 +792,13 @@ void BizScoreCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) c
 {
 	PPBizScorePacket * p_data_pack = static_cast<PPBizScorePacket *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
-#define CPY_FLD(Fld) p_data_pack->Rec.Fld=p_cache_rec->Fld
+#define CPYFLD(Fld) p_data_pack->Rec.Fld=p_cache_rec->Fld
 	p_data_pack->Rec.Tag = PPOBJ_BIZSCORE;
-	CPY_FLD(ID);
-	CPY_FLD(Flags);
-	CPY_FLD(UserID);
-	CPY_FLD(Bounds);
-#undef CPY_FLD
+	CPYFLD(ID);
+	CPYFLD(Flags);
+	CPYFLD(UserID);
+	CPYFLD(Bounds);
+#undef CPYFLD
 	char   temp_buf[2048];
 	GetName(pEntry, temp_buf, sizeof(temp_buf));
 	PPStringSetSCD ss;
@@ -3286,22 +3286,22 @@ int BizScore2Cache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraDa
 	PPObjBizScore2 bs_obj;
 	PPBizScore2Packet pack;
 	if(bs_obj.GetPacket(id, &pack) > 0) {
-#define CPY_FLD(Fld) p_cache_rec->Fld=pack.Rec.Fld
-		CPY_FLD(DataType);
-		CPY_FLD(TypeEnumID);
-		CPY_FLD(TypeEnumExt);
-		CPY_FLD(TimeAggrFunc);
-		CPY_FLD(HierAggrFunc);
-		CPY_FLD(AgentAggrFunc);
-		CPY_FLD(TimeCycle);
-		CPY_FLD(AgentPsnKindID);
-		CPY_FLD(LinkObjType);
-		CPY_FLD(LinkExtID);
-		CPY_FLD(Flags);
-		CPY_FLD(ParentID);
-		CPY_FLD(AccSheetID);
-		CPY_FLD(Cls); // @v12.3.7
-#undef CPY_FLD
+#define CPYFLD(Fld) p_cache_rec->Fld=pack.Rec.Fld
+		CPYFLD(DataType);
+		CPYFLD(TypeEnumID);
+		CPYFLD(TypeEnumExt);
+		CPYFLD(TimeAggrFunc);
+		CPYFLD(HierAggrFunc);
+		CPYFLD(AgentAggrFunc);
+		CPYFLD(TimeCycle);
+		CPYFLD(AgentPsnKindID);
+		CPYFLD(LinkObjType);
+		CPYFLD(LinkExtID);
+		CPYFLD(Flags);
+		CPYFLD(ParentID);
+		CPYFLD(AccSheetID);
+		CPYFLD(Cls); // @v12.3.7
+#undef CPYFLD
 		SString temp_buf;
 		PPStringSetSCD ss;
 		ss.add(pack.Rec.Name);
@@ -3321,24 +3321,24 @@ void BizScore2Cache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) 
 {
 	PPBizScore2Packet * p_data_pack = static_cast<PPBizScore2Packet *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
-#define CPY_FLD(Fld) p_data_pack->Rec.Fld=p_cache_rec->Fld
+#define CPYFLD(Fld) p_data_pack->Rec.Fld=p_cache_rec->Fld
 	p_data_pack->Rec.Tag = PPOBJ_BIZSCORE2;
-	CPY_FLD(ID);
-	CPY_FLD(DataType);
-	CPY_FLD(TypeEnumID);
-	CPY_FLD(TypeEnumExt);
-	CPY_FLD(TimeAggrFunc);
-	CPY_FLD(HierAggrFunc);
-	CPY_FLD(AgentAggrFunc);
-	CPY_FLD(TimeCycle);
-	CPY_FLD(AgentPsnKindID);
-	CPY_FLD(LinkObjType);
-	CPY_FLD(LinkExtID);
-	CPY_FLD(Flags);
-	CPY_FLD(ParentID);
-	CPY_FLD(AccSheetID);
-	CPY_FLD(Cls); // @v12.3.7
-#undef CPY_FLD
+	CPYFLD(ID);
+	CPYFLD(DataType);
+	CPYFLD(TypeEnumID);
+	CPYFLD(TypeEnumExt);
+	CPYFLD(TimeAggrFunc);
+	CPYFLD(HierAggrFunc);
+	CPYFLD(AgentAggrFunc);
+	CPYFLD(TimeCycle);
+	CPYFLD(AgentPsnKindID);
+	CPYFLD(LinkObjType);
+	CPYFLD(LinkExtID);
+	CPYFLD(Flags);
+	CPYFLD(ParentID);
+	CPYFLD(AccSheetID);
+	CPYFLD(Cls); // @v12.3.7
+#undef CPYFLD
 	char   temp_buf[2048];
 	GetName(pEntry, temp_buf, sizeof(temp_buf));
 	PPStringSetSCD ss;

@@ -1,5 +1,5 @@
 // TEST-MEM.CPP
-// Copyright (c) A.Sobolev 2023, 2024
+// Copyright (c) A.Sobolev 2023, 2024, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -424,9 +424,9 @@ SLTEST_R(SBuffer)
 							SBinarySet::DeflateStrategy ds(512);
 							for(uint i = 0; i < SIZEOFARRAY(p_text_chunks); i++) {
 								const char * p_text = p_text_chunks[i];
-								SLCHECK_NZ(set.Put(i+1, p_text, sstrlen(p_text)));
+								SLCHECK_NZ(set.Put(i+1, p_text, sstrlen32(p_text)));
 							}
-							SLCHECK_NZ(set.Put(SIZEOFARRAY(p_text_chunks)+1, js_text, js_text.Len(), &ds));
+							SLCHECK_NZ(set.Put(SIZEOFARRAY(p_text_chunks)+1, js_text, js_text.Len32(), &ds));
 						}
 						{
 							SBinaryChunk chunk;
@@ -524,7 +524,7 @@ SLTEST_R(SBuffer)
 			//
 			HANDLE objs_to_wait[8];
 			MEMSZERO(objs_to_wait);
-			size_t objs_to_wait_count = 0;
+			uint   objs_to_wait_count = 0;
 			ThreadWriter * p_thr_wrr = new ThreadWriter(&pipe, in_file_name);
 			ThreadReader * p_thr_rdr = new ThreadReader(&pipe, out_file_name);
 			p_thr_wrr->Start();

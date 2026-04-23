@@ -183,7 +183,7 @@ SLTEST_R(SQLite)
 					if(__PrcssrTestDb_Generate_TestTa01_Rec(prc_testdbobj, p_new_rec)) {
 						uint str_idx = (i % some_text_list.getCount());
 						StrAssocArray::Item text_item = some_text_list.Get(str_idx);
-						const size_t text_len = sstrlen(text_item.Txt);
+						const  uint text_len = sstrlen32(text_item.Txt);
 						if(text_len) {
 							p_new_rec->TextField.InitPtr(text_len+1);
 							void * ptr = p_new_rec->TextField.GetRawDataPtr();

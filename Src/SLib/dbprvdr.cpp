@@ -353,12 +353,13 @@ DbProvider::Connection & DbProvider::Connection::Z()
 }
 
 DbProvider::DbProvider(SqlServerType sqlServerType, SCodepage cp, DbDictionary * pDict, long capability) : 
-	SqlSt(sqlServerType), Cp(cp), P_Dict(pDict), Capability(capability), State(0), DbPathID(0), OpenMode(0)
+	Signature(SlConst::DbProviderSignature), SqlSt(sqlServerType), Cp(cp), P_Dict(pDict), Capability(capability), State(0), DbPathID(0), OpenMode(0)
 {
 }
 
 DbProvider::~DbProvider()
 {
+	Signature = 0; // @v12.6.1
 	delete P_Dict;
 }
 

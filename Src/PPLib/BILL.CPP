@@ -8,27 +8,6 @@
 //
 // BillCore
 //
-// @v11.1.12 (более не используется) #define WHITE_LABEL_SIGN '!'
-// @v11.1.12 #define BILLCODE_SIZ     sizeof(static_cast<BillTbl::Rec *>(0)->Code)
-
-#if 0 // @v11.1.12 {
-/*static*/char * FASTCALL BillCore::SetCode(char * pCode, long f)
-{
-	char   temp[BILLCODE_SIZ];
-	strip(code);
-	if(f & BILLF_WHITELABEL) {
-		if(code[0] != WHITE_LABEL_SIGN) {
-			temp[0] = WHITE_LABEL_SIGN;
-			strnzcpy(temp+1, code, BILLCODE_SIZ-1);
-			strcpy(code, temp);
-		}
-	}
-	else if(code[0] == WHITE_LABEL_SIGN)
-		strcpy(code, code+1);
-	return code;
-}
-#endif // } 0 @v11.1.12
-
 /*static*/double BillCore::GetQttyEpsilon()
 {
 	const int eps = CConfig.IltiCvtQttyEpsilon;
@@ -110,16 +89,13 @@
 	return ok;
 }
 
-// @v11.1.12 /*static*/char * FASTCALL BillCore::GetCode(char * code) { return (code[0] == WHITE_LABEL_SIGN) ? strcpy(code, code+1) : code; }
-// @v11.1.12 /*static*/SString & FASTCALL BillCore::GetCode(SString & rCode) { return rCode.Strip().ShiftLeftChr(WHITE_LABEL_SIGN); }
-
 BillCore::BillCore() : BillTbl()
 {
 }
 
 int BillCore::Search(PPID id, BillTbl::Rec * pRec) { return SearchByID(this, PPOBJ_BILL, id, pRec); }
 
-int BillCore::PutItemMemo(PPID id, SString * pBuf, int use_ta) // @v11.1.12
+int BillCore::PutItemMemo(PPID id, SString * pBuf, int use_ta)
 {
 	int    ok = 1;
 	SString ext_buffer;
@@ -132,7 +108,7 @@ int BillCore::PutItemMemo(PPID id, SString * pBuf, int use_ta) // @v11.1.12
 	return ok;
 }
 
-SString & BillCore::GetItemMemo(PPID id, SString & rBuf) // @v11.1.12
+SString & BillCore::GetItemMemo(PPID id, SString & rBuf)
 {
 	rBuf.Z();
 	if(id) {
@@ -375,21 +351,21 @@ struct Agreement_Strg { // @persistent(PropertyTbl::Rec)
 		Prop = BILLPRP_AGREEMENT;
 		if(pS) {
 			// @todo ObjID = pS->BillID;
-			#define CPY(f) f = pS->f
-			CPY(Flags);
-			CPY(Expiry);
-			CPY(MaxCredit);
-			CPY(MaxDscnt);
-			CPY(Dscnt);
-			CPY(DefAgentID);
-			CPY(DefQuotKindID);
-			CPY(PaymDateBase);
-			CPY(DefPayPeriod);
-			CPY(RetLimPrd);
-			CPY(RetLimPart);
-			CPY(DefDlvrTerm);
-			CPY(PctRet);
-			#undef CPY
+			#define CPYFLD(f) f = pS->f
+			CPYFLD(Flags);
+			CPYFLD(Expiry);
+			CPYFLD(MaxCredit);
+			CPYFLD(MaxDscnt);
+			CPYFLD(Dscnt);
+			CPYFLD(DefAgentID);
+			CPYFLD(DefQuotKindID);
+			CPYFLD(PaymDateBase);
+			CPYFLD(DefPayPeriod);
+			CPYFLD(RetLimPrd);
+			CPYFLD(RetLimPart);
+			CPYFLD(DefDlvrTerm);
+			CPYFLD(PctRet);
+			#undef CPYFLD
 		}
 	}
 	void   Get(PPBill::AgreementBlock * pS) const
@@ -397,23 +373,23 @@ struct Agreement_Strg { // @persistent(PropertyTbl::Rec)
 		if(pS) {
 			pS->Z();
 			// @todo ObjID = rS.BillID;
-			#define CPY(f) pS->f = f
-			//CPY(ObjType); // @temp
-			//CPY(Prop);    // @temp
-			CPY(Flags);
-			CPY(Expiry);
-			CPY(MaxCredit);
-			CPY(MaxDscnt);
-			CPY(Dscnt);
-			CPY(DefAgentID);
-			CPY(DefQuotKindID);
-			CPY(PaymDateBase);
-			CPY(DefPayPeriod);
-			CPY(RetLimPrd);
-			CPY(RetLimPart);
-			CPY(DefDlvrTerm);
-			CPY(PctRet);
-			#undef CPY
+			#define CPYFLD(f) pS->f = f
+			//CPYFLD(ObjType); // @temp
+			//CPYFLD(Prop);    // @temp
+			CPYFLD(Flags);
+			CPYFLD(Expiry);
+			CPYFLD(MaxCredit);
+			CPYFLD(MaxDscnt);
+			CPYFLD(Dscnt);
+			CPYFLD(DefAgentID);
+			CPYFLD(DefQuotKindID);
+			CPYFLD(PaymDateBase);
+			CPYFLD(DefPayPeriod);
+			CPYFLD(RetLimPrd);
+			CPYFLD(RetLimPart);
+			CPYFLD(DefDlvrTerm);
+			CPYFLD(PctRet);
+			#undef CPYFLD
 		}
 	}
 	long   ObjType;          // Const=PPOBJ_BILL
@@ -763,7 +739,6 @@ int BillCore::Remove(PPID id, int use_ta)
 void BillCore::_PrepareWriting(const BillTbl::Rec * pRec)
 {
 	CopyBufFrom(pRec, sizeof(*pRec));
-	// @v11.1.12 BillCore::SetCode(data.Code, data.Flags);
 	data.Flags &= ~BILLF_NOLOADTRFR;
 	data.Flags2 &= ~BILLF2_DONTCLOSDRAFT;
 }
@@ -848,7 +823,7 @@ int BillCore::Edit(PPID * pID, PPBill * pInfo, int use_ta)
 		SETFLAG(pInfo->Rec.Flags, BILLF_BANKING, pInfo->P_PaymOrder);
 		SETFLAG(pInfo->Rec.Flags, BILLF_FREIGHT, pInfo->P_Freight);
 		THROW(EditRec(pID, &pInfo->Rec, 0));
-		THROW(PutItemMemo(*pID, &pInfo->SMemo, 0)); // @v11.1.12
+		THROW(PutItemMemo(*pID, &pInfo->SMemo, 0));
 		THROW(PutExtraData(*pID, ((pInfo->Rec.Flags & BILLF_EXTRA) ? &pInfo->Ext : 0), 0));
 		if(pInfo->Rec.Flags & BILLF_RENT) {
 			PropertyTbl::Rec prp_rec;
@@ -1061,6 +1036,7 @@ int BillCore::GetListOfActualAgreemts(PPID arID, PPID addendumArID, LDATE dt, in
 {
 	rList.clear();
     int    ok = -1;
+	const  LDATE now_date = getcurdate_();
 	if(arID) {
 		PPObjArticle ar_obj;
 		ArticleTbl::Rec ar_rec;
@@ -1078,30 +1054,46 @@ int BillCore::GetListOfActualAgreemts(PPID arID, PPID addendumArID, LDATE dt, in
 				}
 			}
 			if(op_list.getCount()) {
+				//
+				// Документов договоров относительно не много, потому перебирать будем по индексу с ведущим видом операции.
+				// Если перебирать по контрагенту, то можно напороться на торможение по контрагенту, у которого в целом дофига документов.
+				//
 				op_list.sortAndUndup();
-				BillTbl::Key3 k3;
-				MEMSZERO(k3);
-				k3.Object = arID;
-				k3.Dt = dt;
-				k3.BillNo = MAXINT;
-				if(search(3, &k3, spLe) && data.Object == arID) do {
-					bool   suitable = false;
-					if(!(data.Flags2 & BILLF2_DECLINED) && !(data.Flags & BILLF_CLOSEDORDER) && op_list.bsearch(data.OpID)) { // @v12.5.10 !(data.Flags & BILLF_CLOSEDORDER)
-						if(GetOpData(data.OpID, &op_rec) > 0 && (!op_rec.AccSheet2ID || data.Object2 == addendumArID)) { // @v12.3.9
-							suitable = true;
+				DateRange period;
+				period.upp = checkdate(dt) ? dt : ZERODATE;
+				const  int max_days = (maxDays > 0) ? maxDays : 365;
+				period.low = plusdate(checkdate(period.upp) ? period.upp : now_date, -max_days);
+				for(uint opi = 0; opi < op_list.getCount(); opi++) {
+					const  PPID op_id = op_list.get(opi);
+					if(GetOpData(op_id, &op_rec) > 0) {
+						BillTbl::Rec bill_rec;
+						BillTbl::Key2 k2;
+						MEMSZERO(k2);
+						k2.OpID = op_id;
+						k2.Dt = dt;
+						k2.BillNo = MAXINT;
+						DBQ * dbq = 0;
+						BExtQuery q(this, 2);
+						dbq = &(this->OpID == op_id && this->Object == arID);
+						if(op_rec.AccSheet2ID) {
+							dbq = &(*dbq && this->Object2 == addendumArID);
+						}
+						dbq = &(*dbq && daterange(this->Dt, &period));
+						q.selectAll().where(*dbq);
+						for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
+							CopyBufTo(&bill_rec);
+							if(!(bill_rec.Flags2 & BILLF2_DECLINED) && !(bill_rec.Flags & BILLF_CLOSEDORDER)) {
+								if(!op_rec.AccSheet2ID || bill_rec.Object2 == addendumArID) { // Избыточное условие: оно проверяется в BExtQuery
+									rList.add(bill_rec.ID);
+									ok = 1;
+									if(maxItems > 0 && rList.getCountI() >= maxItems) {
+										break;
+									}
+								}
+							}
 						}
 					}
-					if(suitable) {
-						rList.add(data.ID);
-						ok = 1;
-						if(maxItems > 0 && rList.getCountI() >= maxItems) {
-							break;
-						}
-					}
-					else if(dt && maxDays > 0 && diffdate(dt, data.Dt) > maxDays) {
-						break;
-					}
-				} while(search(3, &k3, spPrev) && data.Object == arID);
+				}
 			}
 		}
 	}
@@ -1146,7 +1138,7 @@ int BillCore::InitEnumByOp(PPID opID, const DateRange * pPeriod, int flags, long
 	int    idx = 2;
 	BExtQuery * q = new BExtQuery(this, idx);
 	q->select(this->ID, this->Code, this->Dt, this->BillNo, this->DueDate, this->OpID, this->StatusID, this->UserID,
-		/* @v11.1.12 this->MainOrgID,*/this->LocID, this->Object, this->Object2, this->CurID, this->CRate,
+		this->LocID, this->Object, this->Object2, this->CurID, this->CRate,
 		this->Amount, this->LinkBillID, this->Flags, this->Flags2, this->SCardID, 0L);
 	q->where(this->OpID == opID && daterange(this->Dt, pPeriod));
 	BillTbl::Key2 k2;
@@ -1270,18 +1262,18 @@ int BillCore::SearchByCode(const char * pCode, PPID opID, LDATE dt, BillTbl::Rec
 int BillCore::SearchAnalog(const BillTbl::Rec * pSample, long flags, PPID * pID, BillTbl::Rec * pRec)
 {
 	int    ok = -1;
-	char   scode[64]; // @v11.1.12 [32]-->[64]
+	char   scode[64];
 	DBQ  * dbq = 0;
 	union {
 		BillTbl::Key1 k1;
 		BillTbl::Key2 k2;
 		BillTbl::Key3 k3;
-		BillTbl::Key7 k7; // @v11.4.2
+		BillTbl::Key7 k7;
 	} k;
 	int    idx = 2;
 	STRNSCPY(scode, pSample->Code);
 	MEMSZERO(k);
-	if(flags & safIgnoreDate) { // @v11.4.2
+	if(flags & safIgnoreDate) {
 		STRNSCPY(k.k7.Code, scode);
 		idx = 7;
 	}
@@ -1322,7 +1314,6 @@ int BillCore::SearchAnalog(const BillTbl::Rec * pSample, long flags, PPID * pID,
 		q.select(this->ID, this->Dt, this->Code, this->EdiOp, 0L).where(*dbq);
 		for(q.initIteration(false, &k, spGe); ok < 0 && q.nextIteration() > 0;) {
 			if(!(flags & safCheckEdiOp) || data.EdiOp == pSample->EdiOp) {
-				// @v11.1.12 GetCode(data.Code);
 				if(*strip(data.Code) && stricmp866(data.Code, scode) == 0) {
 					const  PPID bill_id = data.ID;
 					if(!pRec || Search(bill_id, pRec) > 0) {

@@ -3522,7 +3522,7 @@ int GoodsCore::BelongToDynGen(PPID goodsID, PPID * pGenID, PPIDArray * pList)
 				THROW(GetListByExtFilt(&flt, &list));
 				if(list.getCount()) {
 					if(pGenID) {
-						PPID generic_id = 0;
+						PPID   generic_id = 0;
 						for(uint i = 0; !generic_id && i < list.getCount(); i++) {
 							if(Fetch(list.get(i), &rec) > 0 && rec.Flags & GF_GENERIC)
 								generic_id = rec.ID;
@@ -3558,12 +3558,12 @@ int GoodsCore::GetDynGenericList(PPID genGoodsID, PPIDArray * pList)
 		if(gc_obj.Fetch(gen_rec.GdsClsID, &gc_pack) > 0 && gc_pack.Rec.DynGenMask) {
 			GoodsExtTbl::Rec gen_ext;
 			if(GetExt(genGoodsID, &gen_ext) > 0) {
+				Goods2Tbl::Rec rec;
 				ClsdGoodsFilt flt;
 				gc_pack.GetDynGenFilt(&gen_ext, &flt);
 				THROW(GetListByExtFilt(&flt, &list));
 				for(uint i = 0; i < list.getCount();) {
 					i++;
-					Goods2Tbl::Rec rec;
 					if(Fetch(list.at(i-1), &rec) > 0) {
 						if(rec.Flags & GF_GENERIC)
 							list.atFree(--i);

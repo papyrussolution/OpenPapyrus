@@ -1570,7 +1570,7 @@ int PPALDD_SStatView::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_SStatView::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_SStatView::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	INIT_PPVIEW_ALDD_ITER(SStat);
 }

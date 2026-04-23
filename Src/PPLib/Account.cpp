@@ -405,17 +405,17 @@ int AcctRelCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData
 	AcctRel * p_tbl = &BillObj->atobj->P_Tbl->AccRel;
 	AcctRelTbl::Rec rec;
 	if(p_tbl->Search(id, &rec) > 0) {
-#define CPY_FLD(Fld) p_cache_rec->Fld=rec.Fld
-		CPY_FLD(AccID);
-		CPY_FLD(ArticleID);
-		CPY_FLD(CurID);
-		CPY_FLD(Ac);
-		CPY_FLD(Sb);
-		CPY_FLD(Ar);
-		CPY_FLD(Kind);
-		CPY_FLD(Closed);
-		CPY_FLD(Flags);
-#undef CPY_FLD
+#define CPYFLD(Fld) p_cache_rec->Fld=rec.Fld
+		CPYFLD(AccID);
+		CPYFLD(ArticleID);
+		CPYFLD(CurID);
+		CPYFLD(Ac);
+		CPYFLD(Sb);
+		CPYFLD(Ar);
+		CPYFLD(Kind);
+		CPYFLD(Closed);
+		CPYFLD(Flags);
+#undef CPYFLD
 	}
 	else
 		ok = -1;
@@ -426,18 +426,18 @@ void AcctRelCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) co
 {
 	AcctRelTbl::Rec * p_data_pack = static_cast<AcctRelTbl::Rec *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
-#define CPY_FLD(Fld) p_data_pack->Fld=p_cache_rec->Fld
-	CPY_FLD(ID);
-	CPY_FLD(AccID);
-	CPY_FLD(ArticleID);
-	CPY_FLD(CurID);
-	CPY_FLD(Ac);
-	CPY_FLD(Sb);
-	CPY_FLD(Ar);
-	CPY_FLD(Kind);
-	CPY_FLD(Closed);
-	CPY_FLD(Flags);
-#undef CPY_FLD
+#define CPYFLD(Fld) p_data_pack->Fld=p_cache_rec->Fld
+	CPYFLD(ID);
+	CPYFLD(AccID);
+	CPYFLD(ArticleID);
+	CPYFLD(CurID);
+	CPYFLD(Ac);
+	CPYFLD(Sb);
+	CPYFLD(Ar);
+	CPYFLD(Kind);
+	CPYFLD(Closed);
+	CPYFLD(Flags);
+#undef CPYFLD
 }
 
 int AcctRel::Fetch(PPID id, AcctRelTbl::Rec * pRec)

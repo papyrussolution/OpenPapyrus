@@ -650,8 +650,9 @@ int DBTable::open(const char * pTblName, const char * pFileName, int openMode)
 int DBTable::close()
 {
 	if(State & sOpened_) {
-		if(P_Db)
+		if(DbProvider::IsConsistent(P_Db)) {
 			P_Db->Implement_Close(this);
+		}
 		else {
 			Btr_Close();
 		}

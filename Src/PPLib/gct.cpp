@@ -769,7 +769,7 @@ int PPALDD_GoodsTurnovr::InitData(PPFilt & rFilt, long rsrv)
 }
 
 void PPALDD_GoodsTurnovr::Destroy() { DESTROY_PPVIEW_ALDD(GoodsTrnovr); }
-int  PPALDD_GoodsTurnovr::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(GoodsTrnovr); }
+int  PPALDD_GoodsTurnovr::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/) { INIT_PPVIEW_ALDD_ITER(GoodsTrnovr); }
 
 int PPALDD_GoodsTurnovr::NextIteration(PPIterID iterId)
 {

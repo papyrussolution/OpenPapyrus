@@ -10,7 +10,7 @@ public:
 	SSvg();
 	~SSvg();
 	int    ParseFile(const char * pFileName, SDraw & rResult);
-private:
+
 	enum {
 		tUnkn = 0,
 		tNone,
@@ -81,7 +81,7 @@ private:
 		tPreserveAspectRatio,
 		tOpacity
 	};
-
+private:
 	struct StyleBlock {
 		enum {
 			fHasStroke = 0x0001,
@@ -115,8 +115,13 @@ private:
 	int    _GetGradientCoord(const char * pStr, float & rF, int & rPct);
 	int    _GetPoints(SStrScan & rScan, const char * pTxt, FloatArray & rList);
 	int    _GetCommonFigAttrAndInsert(const StrAssocArray & rAttrList, CommonFigAttr & rA, SDrawFigure * pFig, SDrawGroup * pParent);
-	int    GetAttr(const xmlNode * pNode, const char * pAttr, SString & rVal);
 	int    GetAttrList(const xmlNode * pNode, StrAssocArray & rList);
+	//
+	// Descr: Разбирает значения rValue атрибута style и часть из них переносит как отдельные атрибуты в rList.
+	//   Те величины style, которые нет необходимости переносить остаются в строке rValue.
+	// Note: Функция нужна для корректного наследования атрибутов отрисовки.
+	//
+	int    ExpandStyleAttr(SString & rValue, StrAssocArray & rList); // @v12.6.1
 	//
 	// Descr: Применяет некоторые родительские атрибуты к текущеме объекту.
 	// @attention: Сейчас (@v12.6.0) rParentList - просто список xml-атрибутов (преобразованный). Проблема в том,
@@ -186,6 +191,19 @@ SSvg::~SSvg()
 {
 }
 
+static const long InheritableAttrList[] = { SSvg::tFill, SSvg::tFillOpacity, SSvg::tStroke, SSvg::tStrokeOpacity, SSvg::tStrokeLineCap, 
+	SSvg::tStrokeLineJoin, SSvg::tStrokeWidth, SSvg::tStrokeDashArray, SSvg::tOpacity };
+
+static bool IsInheritableAttrToken(int token)
+{
+	bool    is_inh = false;
+	for(uint j = 0; !is_inh && j < SIZEOFARRAY(InheritableAttrList); j++) {
+		if(token == InheritableAttrList[j])
+			is_inh = true;
+	}
+	return is_inh;
+}
+
 int SSvg::ApplyParentAttrList(const StrAssocArray & rParentList, StrAssocArray & rCurrentList) // @v12.6.0
 {
 	/*
@@ -196,15 +214,9 @@ int SSvg::ApplyParentAttrList(const StrAssocArray & rParentList, StrAssocArray &
 	};
 	*/ 
 	int    ok = -1;
-	const  long inh_attr_list[] = { tFill, tFillOpacity, tStroke, tStrokeOpacity, tStrokeLineCap, tStrokeLineJoin, tStrokeWidth, tStrokeDashArray, tOpacity };
 	for(uint i = 0; i < rParentList.getCount(); i++) {
 		StrAssocArray::Item parent_item = rParentList.at_WithoutParent(i);
-		bool    is_inh = false;
-		for(uint j = 0; !is_inh && j < SIZEOFARRAY(inh_attr_list); j++) {
-			if(inh_attr_list[j] == parent_item.Id)
-				is_inh = true;
-		}
-		if(is_inh) {
+		if(IsInheritableAttrToken(parent_item.Id)) {
 			uint   cpos = 0;
 			if(!rCurrentList.Search(parent_item.Id, &cpos)) {
 				THROW(rCurrentList.AddFast(parent_item.Id, parent_item.Txt));
@@ -216,17 +228,32 @@ int SSvg::ApplyParentAttrList(const StrAssocArray & rParentList, StrAssocArray &
 	return ok;
 }
 
-int SSvg::GetAttr(const xmlNode * pNode, const char * pAttr, SString & rVal)
+int SSvg::ExpandStyleAttr(SString & rValue, StrAssocArray & rList) // @v12.6.1
 {
-	int    ok = 0;
-	xmlChar * p_val = xmlGetProp(pNode, (const xmlChar *)pAttr);
-	if(p_val) {
-		rVal.Set(p_val);
-		SAlloc::F(p_val);
-		ok = 1;
+	int    ok = 1;
+	///* @debug
+	if(rValue.NotEmpty()) {
+		SString attr_item_buf;
+		SString new_value_buf;
+		StringSet ss(';', rValue);
+		SString key;
+		SString local_val;
+		for(uint i = 0; ss.get(&i, attr_item_buf);) {
+			if(attr_item_buf.Strip().Divide(':', key, local_val) > 0) {
+				const  int token = GetToken(key);
+				if(IsInheritableAttrToken(token)) {
+					rList.Add(token, local_val);
+				}
+				else {
+					new_value_buf.CatDivIfNotEmpty(';', 0).Cat(attr_item_buf);
+				}
+			}
+		}	
+		rValue = new_value_buf;
 	}
 	else
-		rVal.Z();
+		ok = -1;
+	//*/
 	return ok;
 }
 
@@ -235,27 +262,41 @@ int SSvg::GetAttrList(const xmlNode * pNode, StrAssocArray & rList)
 	int    ok = 1;
 	rList.Z();
 	if(pNode && pNode->type == XML_ELEMENT_NODE) {
+		SString temp_buf;
 		xmlAttr * p_prop = pNode->properties;
 		for(xmlAttr * p_prop = pNode->properties; p_prop; p_prop = p_prop->next) {
 			const  int token = GetToken(reinterpret_cast<const char *>(p_prop->name));
 			if(token) {
+				xmlChar * p_node_list_string = 0;
+				const char * p_attr_value = 0;
 				if(p_prop->type == XML_ATTRIBUTE_NODE) {
 					if(p_prop->children) {
 						if(!p_prop->children->next && oneof2(p_prop->children->type, XML_TEXT_NODE, XML_CDATA_SECTION_NODE)) {
-							rList.Add(token, reinterpret_cast<const char *>(p_prop->children->content));
+							p_attr_value = reinterpret_cast<const char *>(p_prop->children->content);
 						}
 						else {
-							xmlChar * p_ret = xmlNodeListGetString(p_prop->doc, p_prop->children, 1);
-							if(p_ret) {
-								rList.Add(token, reinterpret_cast<const char *>(p_ret));
-								SAlloc::F(p_ret);
+							p_node_list_string = xmlNodeListGetString(p_prop->doc, p_prop->children, 1);
+							if(p_node_list_string) {
+								p_attr_value = reinterpret_cast<const char *>(p_node_list_string);
 							}
 						}
 					}
 				}
 				else if(p_prop->type == XML_ATTRIBUTE_DECL) {
-					rList.Add(token, reinterpret_cast<const char *>(reinterpret_cast<xmlAttribute *>(p_prop)->defaultValue));
+					p_attr_value = reinterpret_cast<const char *>(reinterpret_cast<xmlAttribute *>(p_prop)->defaultValue);
 				}
+				if(p_attr_value) {
+					if(token == tStyle) {
+						// expand style attribute
+						temp_buf = p_attr_value;
+						ExpandStyleAttr(temp_buf, rList); // Наследуемые атрибуты заталкиваем по-одному в rList
+						if(temp_buf.NotEmptyS())
+							rList.Add(token, temp_buf); // ..то что осталось, скидываем в rList как tStyle
+					}
+					else
+						rList.Add(token, p_attr_value);
+				}
+				SAlloc::F(p_node_list_string);
 			}
 		}
 	}
@@ -734,7 +775,7 @@ int SSvg::ParsePrimitivs(const xmlNode * pParentNode, const StrAssocArray & rPar
 					float width = 0.0f;
 					SPoint2F vr;
 					GetAttrList(p_node, attr_list);
-					// ApplyParentAttrList(rParentAttrList, attr_list); // @v12.6.0
+					ApplyParentAttrList(rParentAttrList, attr_list); // @v12.6.0
 					for(uint i = 0; i < attr_list.getCount(); i++) {
 						StrAssocArray::Item item = attr_list.Get(i);
 						switch(item.Id) {

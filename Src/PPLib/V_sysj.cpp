@@ -1191,7 +1191,7 @@ int PPALDD_SysJournal::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_SysJournal::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_SysJournal::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	INIT_PPVIEW_ALDD_ITER(SysJournal);
 }

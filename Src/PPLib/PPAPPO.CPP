@@ -661,7 +661,7 @@ int PPApp::processCommand(uint cmd)
 		case cmTSessWrOffOrder:      PPObjTSession::EditWrOffOrder(); break;
 		case cmUnifyGoodsPrice:      UnifyGoodsPrice();               break;
 		case cmUpdateQuots:          UpdateQuots(0);                  break;
-		case cmRollbackQuots:        RollbackQuots(0);                break; // v10.5.8 @erik
+		case cmRollbackQuots:        RollbackQuots(0);                break; // @erik
 		case cmCommConfig:           EditCommConfig();                break;
 		case cmCashNodePanel:        ExecCSPanel(0);                  break;
 		case cmRemoveEmptyAcctRels:  RemoveEmptyAcctRels();           break;
@@ -684,7 +684,7 @@ int PPApp::processCommand(uint cmd)
 		case cmReplaceLikeWorld:     PPObjWorld::UniteMaxLike();        break;
 		case cmReplaceDynamicObj:    PPObject::ReplaceObjInteractive(PPOBJ_DYNAMICOBJS, 0);   break;
 		case cmReplaceBrand:         PPObject::ReplaceObjInteractive(PPOBJ_BRAND, 0); break;
-		case cmUniFindObj:           UniFindObj();                      break; // @v10.6.1 @construction
+		case cmUniFindObj:           UniFindObj();                      break;
 		case cmPrinterCfg:           EditDefaultPrinterCfg();           break;
 		case cmGoodsCfg:             PPObjGoods::EditConfig();          break;
 		case cmPersonCfg:            PPObjPerson::EditConfig();         break;
@@ -715,7 +715,7 @@ int PPApp::processCommand(uint cmd)
 		case cmResetOpCounters:      PPObjOpCounter::ResetAll();        break;
 		case cmCorrectLotsCloseTags: CorrectLotsCloseTags();            break;
 		case cmCorrectLotSuppl:      CorrectLotSuppl();                 break;
-		case cmCreateReservedObjs:   PPObject::CreateReservedObjects(PPObject::mrfCreateMqbDefaults);  break; // @v11.0.10 PPObject::mrfCreateMqbDefaults
+		case cmCreateReservedObjs:   PPObject::CreateReservedObjects(PPObject::mrfCreateMqbDefaults);  break;
 		case cmCheckPane:            CCheckPane(0, 0);                    break;
 		case cmViewCCheck:           ViewCCheck(0, PPView::exefModeless); break;
 		case cmSCardPane:            ViewSCardInfo(0, 0, 0);            break;
@@ -904,13 +904,8 @@ int PPApp::processCommand(uint cmd)
 		case cmConvertVersionToHtml:    PPVer2Html(); break; // @internal
 		case cmSourceCodeProcessing:    /*@todo*/ break; // @v12.2.10 @internal
 		case cmConstructionFacadeWindow: Launch_TFacadeWindow(); break; // @v12.5.3 @construction
-		case cmExecSessionOnTechRoute: PPObjTSession::ExecSessionOnTechRoute(); break; // @v12.6.0 @construction
+		case cmExecSessionOnTechRoute: PPObjTSession::ExecSessionOnTechRoute(0); break; // @v12.6.0 @construction
 		// @underconstruction case cmGenerateGoodsBills:   GenerateGoodsBills(); break;
-		// @v4.4.2 case cmConvert329:           Convert329();         break;
-		// @v4.4.5 case cmConvert3512:          Convert3512();        break;
-		// @v9.0.4 case cmConvert372:           Convert372();                    break;
-		// @v9.0.4 case cmConvert400:           Convert400();                    break;
-		// @v9.0.4 case cmConvert31102:         Convert31102();                  break;
 		// @v12.4.1 case cmConvert4405:          Convert4405();                   break;
 		// @v12.4.1 case cmConvert4707:          Convert4707();                   break;
 		// @v12.4.1 case cmConvert4805:          Convert4805();                   break;

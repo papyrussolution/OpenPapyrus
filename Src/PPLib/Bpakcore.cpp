@@ -2351,7 +2351,7 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 					{
 						PPObjPerson psn_obj;
 						PPObjRegisterType rt_obj;
-						PPRegisterType rt_rec;
+						PPRegisterType2 rt_rec;
 						RegisterArray reg_list;
 						psn_obj.GetRegList(rRet.PsnID, &reg_list, 1);
 						for(uint i = 0; i < reg_list.getCount(); i++) {
@@ -2361,9 +2361,9 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 									rRet.RegInfoList.Add(rt_rec.ID, r_reg_rec.ID, 0);
 								}
 								if(rt_rec.RestrictGoodsGrpID) {
-									if(rt_rec.RestrictGoodsKind == PPRegisterType::ggrpaOnlyGroup)
+									if(rt_rec.RestrictGoodsKind == PPRegisterType2::ggrpaOnlyGroup)
 										rglist.Add(rt_rec.RestrictGoodsGrpID, 1, 0);
-									else if(rt_rec.RestrictGoodsKind == PPRegisterType::ggrpaDenyGroup)
+									else if(rt_rec.RestrictGoodsKind == PPRegisterType2::ggrpaDenyGroup)
 										rglist.Add(rt_rec.RestrictGoodsGrpID, -1, 0);
 								}
 							}
@@ -2373,7 +2373,7 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 								if(rt_rec.Flags & REGTF_WARNABSENCE) {
 									rRet.RegInfoList.Add(rt_rec.ID, 0, 0);
 								}
-								if(rt_rec.RestrictGoodsGrpID && rt_rec.RestrictGoodsKind == PPRegisterType::ggrpaAllowByReg) {
+								if(rt_rec.RestrictGoodsGrpID && rt_rec.RestrictGoodsKind == PPRegisterType2::ggrpaAllowByReg) {
 									if(!rt_rec.PersonKindID || rt_rec.PersonKindID == acs_rec.ObjGroup) {
 										rglist.Add(rt_rec.RestrictGoodsGrpID, -1, 0);
 									}
@@ -3431,8 +3431,7 @@ int PPBillPacket::SetCurTransit(const PPCurTransit * pTrans)
 	Rec.OpID    = pTrans->OpID;
 	Rec.Object  = pTrans->ObjectID;
 	Rec.Flags   = pTrans->Flags;
-	// @v11.1.12 STRNSCPY(Rec.Memo, pTrans->Memo);
-	SMemo = pTrans->Memo; // @v11.1.12
+	SMemo = pTrans->Memo;
 	Rec.CRate   = pTrans->TransitCRate;
 	if(op_rec.Flags & OPKF_SELLING) {
 		Rec.CurID  = pTrans->OutCurID;

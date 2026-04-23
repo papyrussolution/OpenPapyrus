@@ -474,13 +474,18 @@ SString & SVerT::ToStr(uint fmt, SString & rBuf) const
 	rBuf.Z();
 	int    j, n, r;
 	Get(&j, &n, &r);
-	rBuf.Cat(j);
-	if(fmt & fmtMinorPadZero2)
-		rBuf.Dot().CatLongZ(n, 2);
-	else
-		rBuf.Dot().Cat(n);
-	if(!(fmt & fmtOmitZeroRelease))
-		rBuf.Dot().Cat(r);
+	if(fmt & fmtFlatPadZero2) { // @v12.6.1
+		rBuf.CatLongZ(j, 2).CatLongZ(n, 2).CatLongZ(r, 2);
+	}
+	else {
+		rBuf.Cat(j);
+		if(fmt & fmtMinorPadZero2)
+			rBuf.Dot().CatLongZ(n, 2);
+		else
+			rBuf.Dot().Cat(n);
+		if(!(fmt & fmtOmitZeroRelease))
+			rBuf.Dot().Cat(r);
+	}
 	return rBuf;
 }
 

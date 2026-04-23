@@ -3923,13 +3923,143 @@ int PPAutoTranslSvc_Microsoft::Request(int srcLang, int destLang, const SString 
 	return ok;
 }
 
+PPAutoTranslSvc_Google::PPAutoTranslSvc_Google()
+{
+}
+	
+PPAutoTranslSvc_Google::~PPAutoTranslSvc_Google()
+{
+}
+// 
+// #,Endpoint,Параметры,Формат ответа,Особенности
+// 1,translate.googleapis.com/translate_a/single,client=gtx,[[[...]]],"Самый стабильный, используется в десктоп-версии"
+// 2,translate.googleapis.com/translate_a/single,client=at,[[[...]]],"Android-клиент, структура идентична "gtx
+// 3,translate.googleapis.com/translate_a/t,client=dict-chrome-ex&dj=1,"{""sentences"":[...]}","Chrome-расширение, именованный JSON"
+// 4,clients5.google.com/translate_a/t,client=dict-chrome-ex&dj=1,"{""sentences"":[...]}","Бэкенд Chrome, строже проверяет "User-Agent
+// 5,translate.google.com/translate_a/single,client=webapp,[[[...]]],"Фронтенд сайта, иногда требует "Referer
+// 6,translate.googleapis.com/translate_a/single,client=webapp&dt=t&dt=bd&dt=rm,[[[...]]],"Расширенный вариант, возвращает транслитерацию и словарь"
+// 
+// // Для gtx / at / webapp
+// SHttpProtocol::SetHeaderField(http_header, "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36");
+// SHttpProtocol::SetHeaderField(http_header, "Accept", "application/json");
+// 
+// // Для dict-chrome-ex (варианты 3 и 4)
+// SHttpProtocol::SetHeaderField(http_header, "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
+// SHttpProtocol::SetHeaderField(http_header, "Accept", "application/json, text/plain, */*");
+// SHttpProtocol::SetHeaderField(http_header, "Referer", "https://translate.google.com/");
+// 
+
+int PPAutoTranslSvc_Google::Request(int srcLang, int destLang, const SString & rSrcText, SString & rResult)
+{
+	static const PPAutoTranslSvc_Google::EndPoint GoogleTransleteEPList[] = {
+		{ "translate.googleapis.com", "translate_a/single", "gtx", false, false },
+		{ "translate.googleapis.com", "translate_a/single", "at", false, false  },
+		{ "translate.googleapis.com", "translate_a/t",      "dict-chrome-ex", true, false },
+		{ "clients5.google.com",      "translate_a/t",      "dict-chrome-ex", true, false },
+		{ "translate.google.com",     "translate_a/single", "webapp", false, true }, 
+	};
+	rResult.Z();
+	int    ok = -1;
+	SString temp_buf;
+	SString result_str;
+	StrStrAssocArray http_header;
+	SString url_buf;
+	SString log_buf;
+	/*if(Token.NotEmpty() && !!AuthTime && ExpirySec > 0) {
+		//
+		// Проверка истечения срока действия токена.
+		// Если время истекает, то повторяем авторизацию.
+		//
+		const LDATETIME now_dtm = getcurdatetime_();
+		const long sec = diffdatetimesec(now_dtm, AuthTime);
+		if(sec > (ExpirySec * 9 / 10)) {
+			THROW(Helper_PPAutoTranslSvc_Microsoft_Auth(*this));
+		}
+	}*/
+	const EndPoint * p_ep = 0;
+	p_ep = &GoogleTransleteEPList[0];
+	assert(p_ep != 0);
+	{
+		url_buf = InetUrl::MkHttps(p_ep->P_Host, p_ep->P_Path);
+		url_buf.CatEq("client", p_ep->P_CliId); // ключевой параметр для доступа без токена
+	}
+	THROW(GetLinguaCode(srcLang, temp_buf));
+	url_buf.CatChar('&').CatEq("sl", temp_buf);
+	log_buf.Cat(temp_buf).Tab();
+	THROW(GetLinguaCode(destLang, temp_buf));
+	url_buf.CatChar('&').CatEq("tl", temp_buf);
+	log_buf.Cat(temp_buf).Tab();
+	url_buf.CatChar('&').CatEq("dt", "t");    // dt=t — вернуть перевод
+	url_buf.CatChar('&').CatEq("q", (temp_buf = rSrcText).ToUrl());
+	log_buf.Cat((temp_buf = rSrcText).Tab());
+
+	// $authHeader = "Authorization: Bearer ". $accessToken;
+	//SHttpProtocol::SetHeaderField(http_header, SHttpProtocol::hdrAuthorization, temp_buf.Z().Cat("Bearer").Space().Cat(Token));
+	SHttpProtocol::SetHeaderField(http_header, SHttpProtocol::hdrContentType, "application/json;charset=utf-8");
+	{
+		DS.GetSurrogateUserAgentString(temp_buf);
+		if(temp_buf.NotEmpty())
+			SHttpProtocol::SetHeaderField(http_header, SHttpProtocol::hdrUserAgent, temp_buf);
+	}
+	if(p_ep->RefererNeeded) {
+		SHttpProtocol::SetHeaderField(http_header, SHttpProtocol::hdrReferer, "https://translate.google.com/");
+	}
+	{
+		const uint64 at_start = SLS.GetProfileTime();
+		ScURL   curl;
+		SBuffer result_buf;
+		SFile wr_stream(result_buf, SFile::mWrite);
+		THROW(curl.HttpGet(url_buf, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &http_header, &wr_stream));
+		{
+			const uint64 at_end = SLS.GetProfileTime();
+			SBuffer * p_result_buf = static_cast<SBuffer *>(wr_stream);
+			const size_t avl_size = p_result_buf ? p_result_buf->GetAvailableSize() : 0;
+			THROW(avl_size);
+			result_str.CopyFromN(static_cast<const char *>(p_result_buf->GetBuf(p_result_buf->GetRdOffs())), avl_size);
+			{
+				;
+			}
+			if(ok <= 0) {
+				log_buf.Cat(result_str);
+				PPLogMessage(PPFILNAM_AUTOTRANSL_LOG, log_buf, 0);
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int PPAutoTranslateText(int srcLang, int destLang, const SString & rSrcUtf8, SString & rResultUtf8)
 {
+	// slangRU
 	int    ok = 1;
-	PPAutoTranslSvc_Microsoft at;
-	THROW(Helper_PPAutoTranslSvc_Microsoft_Auth(at));
-	THROW(at.Request3(srcLang, destLang, rSrcUtf8, rResultUtf8)); // @v12.4.2 Request-->Request3
+	PPAutoTranslSvc_Google at;
+	//THROW(Helper_PPAutoTranslSvc_Microsoft_Auth(at));
+	THROW(at.Request(srcLang, destLang, rSrcUtf8, rResultUtf8));
 	CATCHZOK
+	return ok;
+}
+
+int TestAutotranslateText()
+{
+	int    ok = 1;
+	SString src_text;
+	SString dest_text;
+	SString temp_buf;
+	PPGetPath(PPPATH_TESTROOT, temp_buf);
+	if(temp_buf.NotEmpty()) {
+		temp_buf.SetLastSlash().Cat("data").SetLastSlash().Cat("phrases-ru-1251.txt");
+		SFile f_in(temp_buf, SFile::mRead);
+		if(f_in.IsValid()) {
+			while(f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+				(src_text = temp_buf).Transf(CTRANSF_OUTER_TO_UTF8);
+				dest_text.Z();
+				if(PPAutoTranslateText(slangRU, slangEN, src_text, dest_text)) {
+					temp_buf = dest_text; // @debug @stub
+				}
+			}
+		}
+	}
 	return ok;
 }
 //
@@ -5331,14 +5461,14 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 							}
 							{
 								for(uint ci = 0; ci < candidate_scores.getCount(); ci++) {
-									const RAssoc & r_candidate = candidate_scores.at(ci);
-									const long doc_id = r_candidate.Key;
-									float doc_norm = 0.0f;
-									uint  doc_norm_pos = 0;
+									const  RAssoc & r_candidate = candidate_scores.at(ci);
+									const  long doc_id = r_candidate.Key;
+									float  doc_norm = 0.0f;
+									uint   doc_norm_pos = 0;
 									if(stc.DocNormList.bsearch(&doc_id, &doc_norm_pos, CMPF_LONG)) {
 										doc_norm = stc.DocNormList.at(doc_norm_pos).Val;
 									}
-									float similarity = r_candidate.Val / (pattern_tentry.Norm * doc_norm);
+									const  float similarity = static_cast<float>(r_candidate.Val / (pattern_tentry.Norm * doc_norm));
 									if(similarity >= similarity_threshould)	{
 										const int addmkr = search_result.AddMaxK(doc_id, similarity, max_candidate);
 									}

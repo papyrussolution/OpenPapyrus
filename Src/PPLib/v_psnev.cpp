@@ -746,15 +746,15 @@ int PPALDD_PersonEventOp::InitData(PPFilt & rFilt, long rsrv)
 		PPObjPsnOpKind pok_obj;
 		PPPsnOpKind pok_rec;
 		if(pok_obj.Fetch(H.ID, &pok_rec) > 0) {
-			#define CPY_FLD(f) H.f = pok_rec.f
-			CPY_FLD(RegTypeID);
-			CPY_FLD(ExValGrp);
-			CPY_FLD(PairType);
-			CPY_FLD(ExValSrc);
-			CPY_FLD(Flags);
-			CPY_FLD(LinkBillOpID);
-			CPY_FLD(PairOp);
-			#undef CPY_FLD
+			#define CPYFLD(f) H.f = pok_rec.f
+			CPYFLD(RegTypeID);
+			CPYFLD(ExValGrp);
+			CPYFLD(PairType);
+			CPYFLD(ExValSrc);
+			CPYFLD(Flags);
+			CPYFLD(LinkBillOpID);
+			CPYFLD(PairOp);
+			#undef CPYFLD
 			STRNSCPY(H.Name, pok_rec.Name);
 			STRNSCPY(H.Symb, pok_rec.Symb);
 			ok = DlRtm::InitData(rFilt, rsrv);
@@ -788,21 +788,21 @@ int PPALDD_PersonEventBase::InitData(PPFilt & rFilt, long rsrv)
 		PPObjPersonEvent * p_obj = static_cast<PPObjPersonEvent *>(Extra[0].Ptr);
 		PersonEventTbl::Rec rec;
 		if(p_obj && p_obj->Search(H.ID, &rec) > 0) {
-			#define CPY_FLD(f) H.f = rec.f
-			CPY_FLD(Dt);
-			CPY_FLD(Tm);
-			CPY_FLD(OprNo);
-			CPY_FLD(OpID);
-			CPY_FLD(PersonID);
-			CPY_FLD(SecondID);
+			#define CPYFLD(f) H.f = rec.f
+			CPYFLD(Dt);
+			CPYFLD(Tm);
+			CPYFLD(OprNo);
+			CPYFLD(OpID);
+			CPYFLD(PersonID);
+			CPYFLD(SecondID);
 			H.LocID = rec.LocationID;
-			CPY_FLD(LinkBillID);
-			CPY_FLD(Extra);
-			CPY_FLD(Flags);
-			CPY_FLD(EstDuration);
-			CPY_FLD(PrmrSCardID);
-			CPY_FLD(ScndSCardID);
-			#undef CPY_FLD
+			CPYFLD(LinkBillID);
+			CPYFLD(Extra);
+			CPYFLD(Flags);
+			CPYFLD(EstDuration);
+			CPYFLD(PrmrSCardID);
+			CPYFLD(ScndSCardID);
+			#undef CPYFLD
 			{
 				// @v11.1.12 STRNSCPY(H.Memo, rec.Memo);
 				// @v11.1.12 {
@@ -878,7 +878,7 @@ int PPALDD_PersonEvent::InitData(PPFilt & rFilt, long rsrv)
 }
 
 void PPALDD_PersonEvent::Destroy() { DESTROY_PPVIEW_ALDD(PersonEvent); }
-int  PPALDD_PersonEvent::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(PersonEvent); }
+int  PPALDD_PersonEvent::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/) { INIT_PPVIEW_ALDD_ITER(PersonEvent); }
 
 int PPALDD_PersonEvent::NextIteration(PPIterID iterId)
 {

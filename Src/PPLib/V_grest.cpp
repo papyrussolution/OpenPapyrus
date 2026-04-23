@@ -4423,7 +4423,7 @@ int PPALDD_GoodsRest::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_GoodsRest::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_GoodsRest::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	//INIT_PPVIEW_ALDD_ITER(GoodsRest);
 	PPViewGoodsRest * p_v = static_cast<PPViewGoodsRest *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
@@ -4528,7 +4528,7 @@ int PPALDD_GoodsRestTotal::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_GoodsRestTotal::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_GoodsRestTotal::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	IterProlog(iterId, 1);
 	if(sortId >= 0)

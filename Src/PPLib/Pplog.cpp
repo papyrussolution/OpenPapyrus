@@ -1318,7 +1318,7 @@ int PPALDD_LogList::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_LogList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_LogList::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	PPMsgLog * p_ml = static_cast<PPMsgLog *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	IterProlog(iterId, 1);

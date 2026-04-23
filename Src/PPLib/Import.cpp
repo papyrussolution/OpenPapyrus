@@ -1429,7 +1429,7 @@ int PPObjPerson::Import(int specKind, int use_ta)
 	PPObjWorld w_obj;
 	PPObjPersonStatus ps_obj;
 	PPObjRegisterType rt_obj;
-	PPRegisterType rt_rec;
+	PPRegisterType2 rt_rec;
 	PPLoadText(PPTXT_IMPPERSON, wait_msg);
 	PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPORT_INI, file_name);
 	if(!fileExists(file_name))

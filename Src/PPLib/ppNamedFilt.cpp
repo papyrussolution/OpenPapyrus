@@ -331,9 +331,8 @@ int PPNamedFiltPool::PutNamedFilt(PPID * pNamedFiltID, const PPNamedFilt * pNFil
 PPNamedFiltMngr::PPNamedFiltMngr() : LastLoading(ZERODATETIME)
 {
 	SString name;
-	// @v11.4.4 P_Rez = new TVRez(makeExecPathFileName("pp", "res", name), 1);
 	PPGetFilePath(PPPATH_BIN, PPFILNAM_NFPOOL, FilePath);
-	//@erik v10.7.5
+	//@erik {
 	GetXmlPoolDir(XmlFilePath);
 	XmlFilePath.SetLastSlash().Cat("namedfiltpool").DotCat("xml");
 	// } @erik
@@ -341,66 +340,7 @@ PPNamedFiltMngr::PPNamedFiltMngr() : LastLoading(ZERODATETIME)
 
 PPNamedFiltMngr::~PPNamedFiltMngr()
 {
-	// @v11.4.4 delete P_Rez;
 }
-
-#if 0 // @v11.4.4 {
-int PPNamedFiltMngr::LoadResource(PPID viewID_, SString & rSymb, SString & rText, /*long * pFlags,*/const void ** ppExtraInitPtr) const
-{
-	int    ok = 1;
-	// @v11.4.4 long   flags;
-	// @v11.4.4 {
-	PPView::Rc rc;
-	THROW(PPView::LoadResource(1, viewID_, rc));
-	rSymb = rc.Symb;
-	rText = rc.Descr;
-	// } @v11.4.4 
-	/*if(P_Rez) {
-		const long norm_view_id = (viewID_ & 0xffff0000) ? (viewID_ & 0x0000ffff) : viewID_;
-		THROW_PP(P_Rez->findResource(static_cast<uint>(norm_view_id), PP_RCDECLVIEW), PPERR_RESFAULT);
-		P_Rez->getString(rSymb, 2); // 0 - 866, 1 - w_char, 2 - 1251
-		P_Rez->getString(rText, 2);
-		flags = static_cast<long>(P_Rez->getUINT());
-		//pFlags = &flags;
-	}*/
-	CATCHZOK
-	return ok;
-}
-#endif // } @v11.4.4
-#if 0 // @v11.4.4 {
-int PPNamedFiltMngr::GetResourceLists(bool includeSpecialItems, StrAssocArray * pSymbList, StrAssocArray * pTextList) const
-{
-	int    ok = 1;
-	SString text;
-	SString symb;
-	//long flags;
-	CALLPTRMEMB(pSymbList, Z());
-	CALLPTRMEMB(pTextList, Z());
-	if(P_Rez) {
-		ulong pos = 0;
-		for(uint rsc_id = 0; P_Rez->enumResources(PP_RCDECLVIEW, &rsc_id, &pos) > 0;) {
-			if(!oneof4(rsc_id, PPVIEW_GOODSGROUP, PPVIEW_REGISTER, PPVIEW_TAG, PPVIEW_BBOARD)) { // Исключаем фиктивные PPView
-				const void * p_extra_init_ptr = 0;
-				THROW(LoadResource(rsc_id, symb, text, /*&flags,*/&p_extra_init_ptr));
-				if(pSymbList) {
-					THROW_SL(pSymbList->Add(rsc_id, symb));
-				}
-				if(pTextList) {
-					PPExpandString(text, CTRANSF_UTF8_TO_INNER);
-					THROW_SL(pTextList->Add(rsc_id, text));
-				}
-			}
-		}
-		// @v11.4.4 {
-		if(includeSpecialItems) {
-		}
-		// } @v11.4.4 
-		CALLPTRMEMB(pTextList, SortByText());
-	}
-	CATCHZOK
-	return ok;
-}
-#endif // } 0 @v11.4.4
 
 #define NFSTRGSIGN 'SFPP'
 

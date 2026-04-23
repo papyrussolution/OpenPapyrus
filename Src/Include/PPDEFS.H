@@ -7200,6 +7200,7 @@
 	#define CTL_TSESS_CMD_CCHECK         (51 + WINDOWS_ID_BIAS)
 	#define CTL_TSESS_CMD_CHKINP         (52 + WINDOWS_ID_BIAS)
 	#define CTL_TSESS_SERIAL             (53 + WINDOWS_ID_BIAS)
+	#define CTL_TSESS_FLAGS              (54 + WINDOWS_ID_BIAS)
 
 #define DLG_TSESSLN               674 // Строка технологической сессии
 	#define CTL_TSESSLN_SESSID           (1 + WINDOWS_ID_BIAS)
@@ -12061,7 +12062,10 @@
 	#define CTLSEL_TECHROUTEITEM_TECH           (2 + WINDOWS_ID_BIAS)
 	#define CTL_TECHROUTEITEM_NTIME             (3 + WINDOWS_ID_BIAS)
 	#define CTL_TECHROUTEITEM_NPRICE            (4 + WINDOWS_ID_BIAS)
+	#define CTL_TECHROUTEITEM_LEVEL             (5 + WINDOWS_ID_BIAS)
 #define DLG_TSESS_EXEC_TR         1595 // @v12.6.0 Запуск/остановка технологической сессии на фазе маршрута (по процессору и серийному номеру лота)
+	// Ctrls CTL_TSESS_XXX
+#define DLG_TSESS_EXEC_TR_PARAM   1596 // @v12.6.1 Параметры команды запуск/остановка технологической сессии на фазе маршрута
 	// Ctrls CTL_TSESS_XXX
 //
 // Win32 Dialog Identifiers

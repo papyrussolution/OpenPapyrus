@@ -3039,7 +3039,7 @@ int PPALDD_Lots::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_Lots::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_Lots::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	//INIT_PPVIEW_ALDD_ITER(Lot);
 	PPViewLot * p_v = static_cast<PPViewLot *>(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr);

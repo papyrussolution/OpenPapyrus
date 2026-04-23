@@ -1924,19 +1924,20 @@ int PsnEventDialog::GetReportID()
 	RegisterTbl::Rec regrec = Pack.Reg;
 	SETIFZ(regrec.RegTypeID, PokPack.Rec.RegTypeID);
 	if(regrec.RegTypeID) {
-		PPRegisterType     reg_type;
-		PPObjRegisterType  regt_obj;
-		if(regt_obj.Search(regrec.RegTypeID, &reg_type) > 0 && reg_type.Symb[0]) {
+		PPRegisterType2 rt_rec;
+		PPObjRegisterType regt_obj;
+		if(regt_obj.Search(regrec.RegTypeID, &rt_rec) > 0 && rt_rec.Symb[0]) {
 			int  type_no = -1;
 			SString buf;
 			PPLoadText(PPTXT_REGISTER_TYPE_SYMB, buf);
-			if(PPSearchSubStr(buf, &type_no, reg_type.Symb, 1))
+			if(PPSearchSubStr(buf, &type_no, rt_rec.Symb, 1)) {
 				switch (type_no) {
 					case 0: rpt_id = REPORT_DISPATCHORDER; break;
 					case 1: rpt_id = REPORT_LEAVEORDER;    break;
 					case 2: rpt_id = REPORT_RECEIPTORDER;  break;
 					case 3: rpt_id = REPORT_DISMISSORDER;  break;
 				}
+			}
 		}
 	}
 	return rpt_id;
@@ -2379,7 +2380,7 @@ public:
 			Data.Init(1, 0);
 		setCtrlDate(CTL_FLTADDPSNEV_DATE, Data.Dt);
 		SetupPPObjCombo(this, CTLSEL_FLTADDPSNEV_OP,  PPOBJ_PERSONOPKIND,  Data.OpID, 0);
-		SetupPPObjCombo(this, CTLSEL_FLTADDPSNEV_DVC, PPOBJ_GENERICDEVICE, Data.ReaderDvcID, 0, (void *)DVCCLS_READER); // @v7.9.6
+		SetupPPObjCombo(this, CTLSEL_FLTADDPSNEV_DVC, PPOBJ_GENERICDEVICE, Data.ReaderDvcID, 0, reinterpret_cast<void *>(DVCCLS_READER));
 		{
 			long iv = Data.DvcReadCycle;
 			setCtrlLong(CTL_FLTADDPSNEV_RDCYCLE, iv);

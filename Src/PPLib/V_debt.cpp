@@ -1,5 +1,5 @@
 // V_DEBT.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Implementation of PPViewDebtTrnovr
 //
@@ -108,7 +108,7 @@ IMPLEMENT_PPFILT_FACTORY(DebtTrnovr); DebtTrnovrFilt::DebtTrnovrFilt() : PPBaseF
 		public:
 			DebtTrnovrFilt_v1() : PPBaseFilt(PPFILT_DEBTTRNOVR, 0, 1)
 			{
-			#define _S_ DebtTrnovrFilt
+			#define _S_ DebtTrnovrFilt_v1 // @v12.6.1 @fix DebtTrnovrFilt-->DebtTrnovrFilt_v1
 				SetFlatChunk(offsetof(_S_, ReserveStart), offsetof(_S_, LocIDList)-offsetof(_S_, ReserveStart));
 				SetBranchSVector(offsetof(_S_, LocIDList));
 				SetBranchSVector(offsetof(_S_, CliIDList));
@@ -2545,7 +2545,7 @@ int PPALDD_DebtTrnovr::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_DebtTrnovr::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_DebtTrnovr::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	PPViewDebtTrnovr * p_v = static_cast<PPViewDebtTrnovr *>(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr);
 	IterProlog(iterId, 1);
@@ -4613,8 +4613,8 @@ DBQuery * PPViewDebtorStat::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 		tbl->ExpiryMean,     // #10
 		tbl->SigmFactor,     // #11
 		tbl->Flags,          // #12
-		dbe_ar,              // #13
 		0);
+	q->addField(dbe_ar);     // #13
 	if(p_ot)
 		q->from(p_ot, tbl, 0L).where(*dbq).orderBy(p_ot->Name, 0L);
 	else

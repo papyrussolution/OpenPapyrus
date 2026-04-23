@@ -882,12 +882,12 @@ int GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 				p += sizeof(int32);
 				if(sjf_ver) {
 					P_SjF = new SysJournalFilt;
-#define CPY(f,t) P_SjF->f = *reinterpret_cast<const t *>(p); p += sizeof(t)
-					CPY(Period, DateRange);
-					CPY(BegTm, LTIME);
-					CPY(UserID, PPID);
-					CPY(Flags, long);
-#undef CPY
+#define CPYFLD(f,t) P_SjF->f = *reinterpret_cast<const t *>(p); p += sizeof(t)
+					CPYFLD(Period, DateRange);
+					CPYFLD(BegTm, LTIME);
+					CPYFLD(UserID, PPID);
+					CPYFLD(Flags, long);
+#undef CPYFLD
 					uint16 c = *reinterpret_cast<const uint16 *>(p);
 					p += sizeof(uint16);
 					for(uint16 i = 0; i < c; i++) {
@@ -1119,7 +1119,7 @@ PPViewGoods::PPViewGoods() : PPView(&GObj, &Filt, PPVIEW_GOODS, implUseQuickTagE
 PPViewGoods::~PPViewGoods()
 {
 	RemoveTempAltGroup();
-	delete P_G2OAssoc; // @v11.5.8
+	delete P_G2OAssoc;
 	delete P_TempTbl;
 	delete P_Iter;
 	DBRemoveTempFiles();
@@ -1136,7 +1136,6 @@ void PPViewGoods::RemoveTempAltGroup()
 	}
 }
 
-// @v11.2.8 PPObjGoods * PPViewGoods::GetObj() { return &GObj; }
 bool PPViewGoods::IsAltFltGroup() { return (Filt.GrpID > 0 && PPObjGoodsGroup::IsAlt(Filt.GrpID) > 0); }
 bool PPViewGoods::IsGenGoodsFlt() const { return (Filt.GrpID > 0 && Filt.Flags & GoodsFilt::fGenGoods); }
 
@@ -4553,7 +4552,7 @@ int PPALDD_GoodsBasket::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_GoodsBasket::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_GoodsBasket::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	PPViewGoodsBasket * p_v = static_cast<PPViewGoodsBasket *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	IterProlog(iterId, 1);
@@ -4614,7 +4613,7 @@ int PPALDD_GoodsView::InitData(PPFilt & rFilt, long rsrv)
 }
 
 void PPALDD_GoodsView::Destroy() { DESTROY_PPVIEW_ALDD(Goods); }
-int  PPALDD_GoodsView::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(Goods); }
+int  PPALDD_GoodsView::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/) { INIT_PPVIEW_ALDD_ITER(Goods); }
 
 int PPALDD_GoodsView::NextIteration(PPIterID iterId)
 {
@@ -4691,7 +4690,7 @@ int PPALDD_GoodsStruc::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_GoodsStruc::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_GoodsStruc::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	int    ok = -1;
 	IterProlog(iterId, 1);
@@ -6130,7 +6129,7 @@ int PPALDD_GoodsLabel::InitData(PPFilt & rFilt, long rsrv)
 		return -1;
 }
 
-int PPALDD_GoodsLabel::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
+int PPALDD_GoodsLabel::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
 {
 	IterProlog(iterId, 1);
 	if(sortId >= 0)

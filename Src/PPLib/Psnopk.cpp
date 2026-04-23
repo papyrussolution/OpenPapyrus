@@ -1728,15 +1728,15 @@ int PsnOpKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraDa
 	PPObjPsnOpKind pok_obj;
 	PPPsnOpKind rec;
 	if(pok_obj.Search(id, &rec) > 0) {
-#define CPY_FLD(Fld) p_cache_rec->Fld=rec.Fld
-		CPY_FLD(RegTypeID);
-		CPY_FLD(ExValGrp);
-		CPY_FLD(PairType);
-		CPY_FLD(ExValSrc);
-		CPY_FLD(Flags);
-		CPY_FLD(LinkBillOpID);
-		CPY_FLD(PairOp);
-#undef CPY_FLD
+#define CPYFLD(Fld) p_cache_rec->Fld=rec.Fld
+		CPYFLD(RegTypeID);
+		CPYFLD(ExValGrp);
+		CPYFLD(PairType);
+		CPYFLD(ExValSrc);
+		CPYFLD(Flags);
+		CPYFLD(LinkBillOpID);
+		CPYFLD(PairOp);
+#undef CPYFLD
 		PPStringSetSCD ss;
 		ss.add(rec.Name);
 		ss.add(rec.Symb);
@@ -1752,17 +1752,17 @@ void PsnOpKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) 
 	PPPsnOpKind * p_data_rec = static_cast<PPPsnOpKind *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
-#define CPY_FLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
+#define CPYFLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
 	p_data_rec->Tag = PPOBJ_PERSONOPKIND;
-	CPY_FLD(ID);
-	CPY_FLD(RegTypeID);
-	CPY_FLD(ExValGrp);
-	CPY_FLD(PairType);
-	CPY_FLD(ExValSrc);
-	CPY_FLD(Flags);
-	CPY_FLD(LinkBillOpID);
-	CPY_FLD(PairOp);
-#undef CPY_FLD
+	CPYFLD(ID);
+	CPYFLD(RegTypeID);
+	CPYFLD(ExValGrp);
+	CPYFLD(PairType);
+	CPYFLD(ExValSrc);
+	CPYFLD(Flags);
+	CPYFLD(LinkBillOpID);
+	CPYFLD(PairOp);
+#undef CPYFLD
 	char   temp_buf[2048];
 	GetName(pEntry, temp_buf, sizeof(temp_buf));
 	PPStringSetSCD ss;

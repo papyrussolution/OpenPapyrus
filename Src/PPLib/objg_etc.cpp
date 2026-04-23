@@ -983,15 +983,15 @@ int GoodsValRestrCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*ext
 	PPObjGoodsValRestr gvr_obj;
 	PPGoodsValRestrPacket pack;
 	if(gvr_obj.GetPacket(id, &pack) > 0) {
-#define CPY_FLD(Fld) p_cache_rec->Fld=pack.Rec.Fld
-		CPY_FLD(ScpShipmOpID);
-		CPY_FLD(ScpRetOpID);
-		CPY_FLD(ScpShipmLimitOpID);
-		CPY_FLD(ScpDurationDays);
-		CPY_FLD(ScpUpDev);
-		CPY_FLD(ScpDnDev);
-		CPY_FLD(Flags);
-#undef CPY_FLD
+#define CPYFLD(Fld) p_cache_rec->Fld=pack.Rec.Fld
+		CPYFLD(ScpShipmOpID);
+		CPYFLD(ScpRetOpID);
+		CPYFLD(ScpShipmLimitOpID);
+		CPYFLD(ScpDurationDays);
+		CPYFLD(ScpUpDev);
+		CPYFLD(ScpDnDev);
+		CPYFLD(Flags);
+#undef CPYFLD
 		MultTextBlock b;
 		b.Add(pack.Rec.Name);
 		b.Add(pack.Rec.Symb);
@@ -1013,15 +1013,15 @@ void GoodsValRestrCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataR
 	p_data_pack->UppBoundFormula.Z();
 	p_data_pack->Rec.Tag   = PPOBJ_GOODSVALRESTR;
 	p_data_pack->Rec.ID    = p_cache_rec->ID;
-#define CPY_FLD(Fld) p_data_pack->Rec.Fld=p_cache_rec->Fld
-	CPY_FLD(ScpShipmOpID);
-	CPY_FLD(ScpRetOpID);
-	CPY_FLD(ScpShipmLimitOpID);
-	CPY_FLD(ScpDurationDays);
-	CPY_FLD(ScpUpDev);
-	CPY_FLD(ScpDnDev);
-	CPY_FLD(Flags);
-#undef CPY_FLD
+#define CPYFLD(Fld) p_data_pack->Rec.Fld=p_cache_rec->Fld
+	CPYFLD(ScpShipmOpID);
+	CPYFLD(ScpRetOpID);
+	CPYFLD(ScpShipmLimitOpID);
+	CPYFLD(ScpDurationDays);
+	CPYFLD(ScpUpDev);
+	CPYFLD(ScpDnDev);
+	CPYFLD(Flags);
+#undef CPYFLD
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_pack->Rec.Name, sizeof(p_data_pack->Rec.Name));
 	b.Get(p_data_pack->Rec.Symb, sizeof(p_data_pack->Rec.Symb));

@@ -221,7 +221,7 @@ SRegExpSet::~SRegExpSet()
 	ZDELETE(P_ReIdent);
 	ZDELETE(P_ReIdentWithHyphen); // @v12.0.1
 	ZDELETE(P_ReDigits);
-	ZDELETE(P_ReXDigits); // @v11.4.1
+	ZDELETE(P_ReXDigits);
 	ZDELETE(P_ReEMail);
 	ZDELETE(P_ReDate);
 	ZDELETE(P_RePhone);
@@ -682,7 +682,6 @@ bool SStrScan::IsDigits()
 }
 
 bool SStrScan::IsEnd() const { return (!P_Buf || P_Buf[Offs] == 0); }
-bool SStrScan::IsNumber() { return (InitReNumber() && P_ReNumber->Find(P_Buf+Offs)); }
 bool SStrScan::IsHex() { return (InitReHex() && P_ReHex->Find(P_Buf+Offs)); }
 uint FASTCALL SStrScan::IsEol(SEOLFormat eolf) const { return implement_iseol(P_Buf+Offs, eolf); }
 
@@ -737,22 +736,53 @@ int FASTCALL SStrScan::GetDotPrefixedNumber(SString & rBuf)
             ok = 1;
         }
     }
-    else
+    else {
         ok = GetNumber(rBuf);
+	}
     if(!ok)
         Offs = preserve_offs;
     return ok;
 }
 
+bool SStrScan::IsNumber() 
+{
+	// @v12.6.1 return (InitReNumber() && P_ReNumber->Find(P_Buf+Offs)); 
+	// @v12.6.1 {
+	const char * p_start = P_Buf+Offs;
+	const char * p_end = 0;
+	int   erange = 0;
+	int   r = SIEEE754::Scan(p_start, &p_end, 0/*pOutput*/, &erange);
+	return (r && p_end > p_start);
+	// } @v12.6.1 
+}
+
 int FASTCALL SStrScan::GetNumber(SString & rBuf)
 {
+	int    ok = 1;
+	/* @v12.6.1
+	// "^[+-]?[0-9]+([\\.][0-9]*)?([Ee][+-]?[0-9]+)?"
 	if(InitReNumber() && P_ReNumber->Find(this, 0)) {
 		Get(rBuf);
 		IncrLen();
-		return 1;
 	}
 	else
-		return 0;
+		ok = 0;
+	*/
+	// @v12.6.1 {
+	const char * p_start = P_Buf+Offs;
+	const char * p_end = 0;
+	int   erange = 0;
+	int   r = SIEEE754::Scan(p_start, &p_end, 0/*pOutput*/, &erange);
+	if(r && p_end > p_start) {
+		SetLen(p_end - p_start);
+		Get(rBuf);
+		IncrLen();
+	}
+	else {
+		ok = 0;	
+	}
+	// } @v12.6.1 
+	return ok;
 }
 
 int FASTCALL SStrScan::GetEol(SEOLFormat eolf)
@@ -8414,10 +8444,8 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 		bool   is_there_multib_utf8 = false; // true если в тексте содержатся utf8 символы с длиной более однога байта
 		h = 0xffffffffU & ~(SNTOKSEQ_LEADSHARP|SNTOKSEQ_LEADMINUS|SNTOKSEQ_LEADDOLLAR|SNTOKSEQ_BACKPCT);
 		const char the_first_chr = pToken[0];
-		// @v11.3.6 {
 		if(toklen >= 5)
 			rIb.F |= ImplementBlock::fPhoneSet;
-		// } @v11.3.6 
 		// @v11.6.0 {
 		if(toklen >= 8)
 			rIb.F |= ImplementBlock::fClRut;
@@ -8498,10 +8526,8 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 						if(h & SNTOKSEQ_LATUPR && !(c >= 'A' && c <= 'Z'))
 							h &= ~SNTOKSEQ_LATUPR;
 					}
-					// @v11.3.12 {
 					if(h & SNTOKSEQ_LATHYPHENORUSCORE && !is_asciialpha && !oneof2(c, '-', '_'))
 						h &= ~SNTOKSEQ_LATHYPHENORUSCORE;
-					// } @v11.3.12 
 					if(h & SNTOKSEQ_HEX && !is_hex_c)
 						h &= ~SNTOKSEQ_HEX;
 					else if(h & SNTOKSEQ_DEC && !is_dec_c)

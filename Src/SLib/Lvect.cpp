@@ -1,5 +1,5 @@
 // LVECT.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2007, 2008, 2010, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2002, 2003, 2007, 2008, 2010, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -949,7 +949,8 @@ int LMatrix2D::FromStr(const char * pStr, int fmt)
 	SString temp_buf;
 	InitUnit();
 	while(ok && scan.Skip().GetIdent(temp_buf)) {
-		uint   min_arg = 0, max_arg = 0;
+		uint   min_arg = 0;
+		uint   max_arg = 0;
 		enum {
 			opMatrix = 1,
 			opTranslate,

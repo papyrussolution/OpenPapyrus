@@ -2578,7 +2578,7 @@ int PPALDD_AccAnlz::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_AccAnlz::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(AccAnlz); }
+int PPALDD_AccAnlz::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/) { INIT_PPVIEW_ALDD_ITER(AccAnlz); }
 
 int PPALDD_AccAnlz::NextIteration(PPIterID iterId)
 {
@@ -2643,7 +2643,7 @@ int PPALDD_AccturnList::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_AccturnList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(Accturn); }
+int PPALDD_AccturnList::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/) { INIT_PPVIEW_ALDD_ITER(Accturn); }
 
 int PPALDD_AccturnList::NextIteration(PPIterID iterId)
 {
@@ -2685,7 +2685,7 @@ int PPALDD_AccountView::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_AccountView::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(Account); }
+int PPALDD_AccountView::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/) { INIT_PPVIEW_ALDD_ITER(Account); }
 
 int PPALDD_AccountView::NextIteration(PPIterID iterId)
 {
@@ -2834,7 +2834,7 @@ int PPALDD_CurRateView::InitData(PPFilt & rFilt, long rsrv)
 }
 
 void PPALDD_CurRateView::Destroy() { DESTROY_PPVIEW_ALDD(CurRate); }
-int  PPALDD_CurRateView::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(CurRate); }
+int  PPALDD_CurRateView::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/) { INIT_PPVIEW_ALDD_ITER(CurRate); }
 
 int PPALDD_CurRateView::NextIteration(PPIterID iterId)
 {

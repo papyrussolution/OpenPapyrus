@@ -805,7 +805,7 @@ int PPALDD_ObjSyncCmp::InitData(PPFilt & rFilt, long rsrv)
 }
 
 void PPALDD_ObjSyncCmp::Destroy() { DESTROY_PPVIEW_ALDD(ObjSyncCmp); }
-int  PPALDD_ObjSyncCmp::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(ObjSyncCmp); }
+int  PPALDD_ObjSyncCmp::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/) { INIT_PPVIEW_ALDD_ITER(ObjSyncCmp); }
 
 int PPALDD_ObjSyncCmp::NextIteration(PPIterID iterId)
 {

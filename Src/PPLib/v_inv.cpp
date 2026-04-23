@@ -2281,7 +2281,7 @@ int PPALDD_Invent::InitData(PPFilt & rFilt, long rsrv)
 }
 
 void PPALDD_Invent::Destroy() { DESTROY_PPVIEW_ALDD(Inventory); }
-int  PPALDD_Invent::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(Inventory); }
+int  PPALDD_Invent::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/) { INIT_PPVIEW_ALDD_ITER(Inventory); }
 
 int PPALDD_Invent::NextIteration(PPIterID iterId)
 {

@@ -379,12 +379,12 @@ int RegisterArray::Merge(const RegisterArray & rS)
 {
 	int    ok = -1;
 	PPObjRegisterType rt_obj;
-	PPRegisterType rt_rec;
+	PPRegisterType2 rt_rec;
 	LongArray add_pos_list;
 	LongArray rmv_pos_list;
 	uint   j;
 	for(j = 0; j < rS.getCount(); j++) {
-		const RegisterTbl::Rec & r_rec = rS.at(j);
+		const  RegisterTbl::Rec & r_rec = rS.at(j);
 		int    nfound = 1;
 		for(uint i = 0; i < getCount(); i++) {
 			const RegisterTbl::Rec & r_this_rec = at(i);

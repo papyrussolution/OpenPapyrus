@@ -655,18 +655,18 @@ public:
 		BillTbl::Rec * p_data = (BillTbl::Rec*)tbl->getDataBuf();
 		tbl->clearDataBuf();
 
-#define CPY_FLD(f) p_data->f = p_rec->f
-		CPY_FLD(ID);
-		CPY_FLD(Dt);
-		CPY_FLD(BillNo);
-		CPY_FLD(UserID);
-		CPY_FLD(Object);
-		CPY_FLD(Object2);
-		CPY_FLD(CurID);
-		CPY_FLD(CRate);
-		CPY_FLD(LinkBillID);
-		CPY_FLD(Flags);
-#undef CPY_FLD
+#define CPYFLD(f) p_data->f = p_rec->f
+		CPYFLD(ID);
+		CPYFLD(Dt);
+		CPYFLD(BillNo);
+		CPYFLD(UserID);
+		CPYFLD(Object);
+		CPYFLD(Object2);
+		CPYFLD(CurID);
+		CPYFLD(CRate);
+		CPYFLD(LinkBillID);
+		CPYFLD(Flags);
+#undef CPYFLD
 		p_data->OpID = p_rec->OprKind;
 		p_data->LocID = p_rec->Location;
 		p_data->Amount = MONEYTOLDBL(p_rec->Amount);
@@ -1931,16 +1931,16 @@ public:
 		} * p_old_data = static_cast<const OldLocationRec *>(pRec);
 		LocationTbl::Rec * p_data = static_cast<LocationTbl::Rec *>(pTbl->getDataBuf());
 		memzero(p_data, sizeof(LocationTbl::Rec));
-	#define CPY_FLD(Fld) p_data->Fld=p_old_data->Fld
-		CPY_FLD(ID);
-		CPY_FLD(Counter);
-		CPY_FLD(ParentID);
-		CPY_FLD(Type);
-		CPY_FLD(OwnerID);
-		CPY_FLD(Flags);
-		CPY_FLD(CityID);
-		CPY_FLD(RspnsPersonID);
-	#undef CPY_FLD
+	#define CPYFLD(Fld) p_data->Fld=p_old_data->Fld
+		CPYFLD(ID);
+		CPYFLD(Counter);
+		CPYFLD(ParentID);
+		CPYFLD(Type);
+		CPYFLD(OwnerID);
+		CPYFLD(Flags);
+		CPYFLD(CityID);
+		CPYFLD(RspnsPersonID);
+	#undef CPYFLD
 		STRNSCPY(p_data->Name, p_old_data->Name);
 		STRNSCPY(p_data->ZIP, p_old_data->ZIP);
 		STRNSCPY(p_data->Code, p_old_data->Code);
@@ -5944,25 +5944,25 @@ int Convert10507()
 			}
 			else {
 				PPScalePacket pack;
-#define CPYF(f) pack.Rec.f = sc_rec.f
-				CPYF(Tag);
-				CPYF(ID);
-				CPYF(ParentID);
-				CPYF(MaxAddedLn);
-				CPYF(MaxAddedLnCount);
-				CPYF(Get_NumTries);
-				CPYF(Get_Delay);
-				CPYF(Put_NumTries);
-				CPYF(Put_Delay);
-				CPYF(BcPrefix);
-				CPYF(QuotKindID);
-				CPYF(ScaleTypeID);
-				CPYF(ProtocolVer);
-				CPYF(LogNum);
-				CPYF(Flags);
-				CPYF(Location);
-				CPYF(AltGoodsGrp);
-#undef CPYF
+#define CPYFLD(f) pack.Rec.f = sc_rec.f
+				CPYFLD(Tag);
+				CPYFLD(ID);
+				CPYFLD(ParentID);
+				CPYFLD(MaxAddedLn);
+				CPYFLD(MaxAddedLnCount);
+				CPYFLD(Get_NumTries);
+				CPYFLD(Get_Delay);
+				CPYFLD(Put_NumTries);
+				CPYFLD(Put_Delay);
+				CPYFLD(BcPrefix);
+				CPYFLD(QuotKindID);
+				CPYFLD(ScaleTypeID);
+				CPYFLD(ProtocolVer);
+				CPYFLD(LogNum);
+				CPYFLD(Flags);
+				CPYFLD(Location);
+				CPYFLD(AltGoodsGrp);
+#undef CPYFLD
 				pack.Rec.Ver_Signature = DS.GetVersion();
 				STRNSCPY(pack.Rec.Name, sc_rec.Name);
 				STRNSCPY(pack.Rec.Symb, sc_rec.Symb);

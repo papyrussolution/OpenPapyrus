@@ -83,12 +83,12 @@ static int ErrorCode = 0;
 //
 // Значения флагов статуса
 //
-#define NOPRINT					0x00	// Нет печати
-#define NOPAPER					0x01	// В принтере нет бумаги
-#define PRINTAFTERNOPAPER		0x02	// Печатать после окончания ленты
-#define PRINT					0x04	// Печать
-#define CHECKOPENED				0x08	// Открыт чек
-#define CHECKCLOSED				0x10	// Чек закрыт
+#define NOPRINT           0x00 // Нет печати
+#define NOPAPER           0x01 // В принтере нет бумаги
+#define PRINTAFTERNOPAPER 0x02 // Печатать после окончания ленты
+#define PRINT             0x04 // Печать
+#define CHECKOPENED       0x08 // Открыт чек
+#define CHECKCLOSED       0x10 // Чек закрыт
 
 struct Config {
 	Config() : CashID(0), Name(0), LogNum(0), Port(0), BaudRate(0), DateTm(MAXDATETIME), Flags(0), LocalFlags(lfDoLog), ConnPass("PIRI"), ReadCycleCount(10), ReadCycleDelay(10)
@@ -105,7 +105,7 @@ struct Config {
 		int Print;
 	};
 	enum {
-		lfDoLog = 0x0001 // @v11.5.0 Вести файл журнала операций
+		lfDoLog = 0x0001 // Записывать всякую хрень в файл журнала операций
 	};
 	int    CashID;
 	char * Name;
@@ -138,7 +138,7 @@ struct CheckStruct {
 		Ptt = 0;
 		Stt = 0; // @erik v10.4.12
 		UomId = 0; // @v11.9.5
-		UomFragm = 0; // @v11.2.5
+		UomFragm = 0;
 		TaxSys = -1;
 		Text.Z();
 		Code.Z();
@@ -2660,7 +2660,6 @@ int PiritEquip::RunCheck(int opertype)
 					if(rl > 0) {
 						PreprocessChZnCodeResult pczcr;
 						str.Z();
-						// @v11.1.10 {
 						if(OfdVer.IsGe(1, 2, 0)) {
 							if(/*Check.ChZnPpStatus > 0*/true) { // @v12.5.0 (Check.ChZnPpStatus > 0)-->true
 								{
@@ -2818,8 +2817,7 @@ int PiritEquip::RunCheck(int opertype)
 							}
 						}
 						else {
-						// } @v11.1.10
-							in_data.Z(); // @v11.2.3 @fix
+							in_data.Z();
 							for(int si = 0; si < rl; si++) {
 								if(si < 8)
 									str.CatChar('$').CatHex(chzn_1162_bytes[si]);
@@ -2828,7 +2826,6 @@ int PiritEquip::RunCheck(int opertype)
 							}
 							CreateStr(str, in_data); // Код товарной номенклатуры
 							if(Check.ChZnProdType == 4) { // GTCHZNPT_MEDICINE
-								// @v11.2.6 {
 								str = "mdlp";
 								if(Check.Qtty > 0.0 && Check.Qtty < 1.0 && Check.UomFragm > 0) {
 									// Для ОФД пре-1.2 дробное количество передает так не зависимо от FractionalMedcineTo1291
@@ -2839,11 +2836,10 @@ int PiritEquip::RunCheck(int opertype)
 										str.Cat(R0i(nmrtr)).Slash().Cat(R0i(dnmntr)).CatChar('&');
 								}
 								CreateStr(str, in_data);
-								// } @v11.2.6 
-								//CreateStr("mdlp", in_data);
 							}
-							else
+							else {
 								CreateStr("[M]", in_data);
+							}
 							THROW(ExecCmd("24", in_data, out_data, r_error)); // @v11.2.3
 						}
 					}

@@ -1865,9 +1865,10 @@ SLTEST_R(ChZnCode)
 					const  SString original_text(temp_buf);
 					GtinStruc gts;
 					(temp_buf = original_text).Transf(CTRANSF_UTF8_TO_INNER);
-					int    pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
+					const  int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
+					const  int ntok = gts.GetSpecialNaturalToken();
 					SLCHECK_NZ(pczcr);
-					out_buf.Z().CR().Cat(original_text).Space().CatEq("parse-result", pczcr);
+					out_buf.Z().CR().Cat(original_text).Space().CatEq("parse-result", pczcr).CatChar('(').Cat(ntok).CatChar(')');
 					gts.Debug_Output(temp_buf);
 					out_buf.CR().Cat(temp_buf);
 					f_out2.WriteLine(out_buf);

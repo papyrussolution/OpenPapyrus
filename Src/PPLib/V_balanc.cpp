@@ -449,7 +449,7 @@ int PPALDD_Balance::InitData(PPFilt & rFilt, long rsrv)
 }
 
 void PPALDD_Balance::Destroy() { DESTROY_PPVIEW_ALDD(Balance); }
-int  PPALDD_Balance::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(Balance); }
+int  PPALDD_Balance::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/) { INIT_PPVIEW_ALDD_ITER(Balance); }
 
 int PPALDD_Balance::NextIteration(PPIterID iterId)
 {

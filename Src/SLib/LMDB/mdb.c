@@ -696,7 +696,7 @@ typedef uint64 mdb_hash_t;
  *	This value works for most CPUs. For Itanium this should be 128.
  */
 #ifndef CACHELINE
-	#define CACHELINE       64
+	#define CACHELINE 64
 #endif
 
 /**	The information we store in a single slot of the reader table.

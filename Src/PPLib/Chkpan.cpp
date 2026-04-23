@@ -184,6 +184,10 @@ bool SaComplex::RecalcFinalPrice()
 }
 
 /*virtual*/void FASTCALL SaComplex::freeItem(void * pItem) { static_cast<SaComplexEntry *>(pItem)->GenericList.freeAll(); }
+
+SaModifEntry::SaModifEntry() : GoodsID(0), Flags(0), Price(0.0), Qtty(0.0)
+{
+}
 //
 //
 //
@@ -758,7 +762,6 @@ int CPosProcessor::LoadModifiers(PPID goodsID, SaModif & rModif)
 			for(uint p = 0; gs.EnumItemsExt(&p, &gs_item, 0, 1.0, &item_qtty) > 0;) {
 				if(GObj.Fetch(gs_item.GoodsID, &item_goods_rec) > 0 && !(item_goods_rec.Flags & GF_GENERIC)) {
 					SaModifEntry entry;
-					MEMSZERO(entry);
 					entry.GoodsID = gs_item.GoodsID;
 					entry.Qtty = fabs(item_qtty);
 					{
@@ -2306,10 +2309,6 @@ int CPosProcessor::GetRgi(PPID goodsID, double qtty, long extRgiFlags, RetailGoo
 	PPEgaisProcessor * p_eg_prc = DS.GetTLA().GetEgaisProcessor(); // @v12.2.11
 	int    r = GObj.GetRetailGoodsInfo(goodsID, GetCnLocID(goodsID), GetCStEqb(goodsID, &nodis), p_eg_prc, P.GetAgentID(), actual_dtm, fabs(qtty), &rRgi, rgi_flags|extRgiFlags);
 	SETFLAG(rRgi.Flags, RetailGoodsInfo::fNoDiscount, nodis);
-	// @v12.5.9 {
-	if(extRgiFlags & PPObjGoods::rgifUseSingleSubstLogic) {
-	}
-	// } @v12.5.9 
 	return r;
 }
 
@@ -10239,12 +10238,19 @@ int CheckPaneDialog::ChZnMarkAutoSelect(PPID goodsID, double qtty, SString & rCh
 int CheckPaneDialog::VerifyChZnMark(PgsBlock & rBlk, int chznProdType/*gt_rec.ChZnProdType*/)
 {
 	int    ok = -1;
+	const  bool use_tspiot = LOGIC(PNP.CnExtFlags & CASHFX_CHZNTSPIOT);
 	if(rBlk.ChZnMark.NotEmpty() && PNP.ChZnPermissiveMode == PPSyncCashNode::chznpmStrict && PNP.ChZnGuaID) {
 		ok = 1;
 		PPChZnPrcssr::CodeStatusCollection pm_code_list;
 		pm_code_list.AddCodeEntry(rBlk.ChZnMark, 0, 0);
 		if(pm_code_list.getCount()) {
-			PPChZnPrcssr::PmCheck(PNP.ChZnGuaID, 0, 2/*regular online/offline mode*/, pm_code_list);
+			int    verif_result = 0;
+			if(use_tspiot) {
+				verif_result = PPChZnPrcssr::TsPiotCheck(PNP.ChZnGuaID, pm_code_list); // @construction
+			}
+			else {
+				verif_result = PPChZnPrcssr::PmCheck(PNP.ChZnGuaID, 0, 2/*regular online/offline mode*/, pm_code_list);
+			}
 			for(uint i = 0; i < pm_code_list.getCount(); i++) {
 				const PPChZnPrcssr::CodeStatus * p_cle = pm_code_list.at(i);
 				if(p_cle) {
@@ -10316,7 +10322,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID locID, PgsBlock & rBlk)
 	if(GObj.Fetch(rBlk.GoodsID, &goods_rec) > 0) {
 		const  PPID sc_id = CSt.GetID();
 		if(PNP.CnExtFlags & CASHFX_USEGOODSMATRIX && !GObj.CheckMatrix(rBlk.GoodsID, GetCnLocID(rBlk.GoodsID), 0, 0)) {
-			ok = MessageError(-1, 0, eomBeep | eomPopup/*eomStatusLine*/);
+			ok = MessageError(-1, 0, eomBeep|eomPopup/*eomStatusLine*/);
 		}
 		else if(rBlk.GoodsID == GetChargeGoodsID(sc_id)) {
 			// @todo Здесь надо проверить что бы товар не был равен ChargeGoodsID из любой кредитной серии карт
@@ -10325,14 +10331,15 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID locID, PgsBlock & rBlk)
 		else if(sc_id && IsOnlyChargeGoodsInPacket(sc_id, 0)) {
 			SCardTbl::Rec sc_rec;
 			if(ScObj.Search(sc_id, &sc_rec) > 0 && !ScObj.CheckRestrictions(&sc_rec, 0, now_dtm))
-				ok = MessageError(PPERR_CHKPAN_SCINVONGOODS, sc_rec.Code, eomBeep | eomPopup/*eomStatusLine*/);
+				ok = MessageError(PPERR_CHKPAN_SCINVONGOODS, sc_rec.Code, eomBeep|eomPopup/*eomStatusLine*/);
 		}
 		if(ok) {
 			SaComplex complex;
 			PPObjGoodsType gt_obj;
 			PPGoodsType2 gt_rec;
-			if(goods_rec.GoodsTypeID)
+			if(goods_rec.GoodsTypeID) {
 				gt_obj.Fetch(goods_rec.GoodsTypeID, &gt_rec);
+			}
 			//PPGoodsStruc partial_struc;
 			/*if(LoadPartialStruc(goodsID, partial_struc) > 0) {
 				AcceptRow(0);
@@ -10873,7 +10880,7 @@ int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, const CCheckIt
 			}
 			else {
 				goods_rec.Clear();
-				MEMSZERO(u_rec);
+				u_rec.Z();
 			}
 			//
 			// Проверка на кратность единицы измерения //
@@ -10913,7 +10920,7 @@ int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, const CCheckIt
 							ok = MessageError(PPERR_CHZN_MARKEDQTTY, 0, eomBeep|eomStatusLine);
 					}
 				}
-				else if(gt_rec.ChZnProdType == GTCHZNPT_TOBACCO && rQtty == 10.0) { // @v11.2.8
+				else if(gt_rec.ChZnProdType == GTCHZNPT_TOBACCO && rQtty == 10.0) {
 					// ok: блок сигарет (это - очевидный hardcoded-костыль, но пока ничего умнее нет)
 				}
 				else {

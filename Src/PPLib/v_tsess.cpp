@@ -155,7 +155,7 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			if(Data.Flags & TSessionFilt::fManufPlan) {
 				PrcTechCtrlGroup * p_grp = new PrcTechCtrlGroup(CTLSEL_TSESSFILT_PRC, 0, 0, 0, 0, 0);
 				THROW_SL(p_grp);
-				p_grp->enableTechSelUpLevel(true); // @v11.7.6
+				p_grp->EnableTechSelUpLevel(true); // @v11.7.6
  				addGroup(ctlgroupPrcTech, p_grp);
 				if(Data.PrcID == 0)
 					ptcg_rec.PrcParentID = PRCEXDF_GROUP;
@@ -165,8 +165,8 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 				PrcTechCtrlGroup * p_grp = new PrcTechCtrlGroup(CTLSEL_TSESSFILT_PRC, CTLSEL_TSESSFILT_TECH,
  					CTL_TSESSFILT_ST_GOODS, CTLSEL_TSESSFILT_AR, CTLSEL_TSESSFILT_AR2, cmSelTechByGoods);
 				THROW_SL(p_grp);
-				p_grp->setIdleStatus(this, (Data.Ft_Idle > 0));
-				p_grp->enableTechSelUpLevel(true); // @v11.7.6
+				p_grp->SetIdleStatus(this, (Data.Ft_Idle > 0));
+				p_grp->EnableTechSelUpLevel(true); // @v11.7.6
  				addGroup(ctlgroupPrcTech, p_grp);
 				ptcg_rec.TechID = Data.TechID;
 				ptcg_rec.ArID   = Data.ArID;
@@ -247,7 +247,7 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			if(event.isClusterClk(CTL_TSESSFILT_IDLE)) {
 				const long temp_long = GetClusterData(CTL_TSESSFILT_IDLE);
 				PrcTechCtrlGroup * p_grp = static_cast<PrcTechCtrlGroup *>(getGroup(ctlgroupPrcTech));
-				CALLPTRMEMB(p_grp, setIdleStatus(this, (temp_long > 0)));
+				CALLPTRMEMB(p_grp, SetIdleStatus(this, (temp_long > 0)));
 				clearEvent(event);
 			}
 		}
@@ -839,9 +839,13 @@ DBQuery * PPViewTSession::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	TempOrderTbl * p_ord = 0;
 	TSessionTbl  * p_tsst = 0;
 	DBQuery * q  = 0;
-	DBQ * dbq = 0;
-	DBE  * dbe_status = 0, * dbe_diff_qtty = 0;
-	DBE    dbe_tech, dbe_prc, dbe_ar, dbe_goods;
+	DBQ  * dbq = 0;
+	DBE  * dbe_status = 0;
+	DBE  * dbe_diff_qtty = 0;
+	DBE    dbe_tech;
+	DBE    dbe_prc;
+	DBE    dbe_ar;
+	DBE    dbe_goods;
 	DBE    dbe_memo;
 	PPIDArray status_list;
 	if(P_TempTbl)
@@ -877,8 +881,7 @@ DBQuery * PPViewTSession::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	q->addField(p_tsst->Amount);      //  #13
 	q->addField(dbe_ar);              //  #14
 	q->addField(dbe_goods);           //  #15
-	// @v11.0.4 q->addField(p_tsst->Memo);        //  #16
-	q->addField(dbe_memo);            //  #16 // @v11.0.4
+	q->addField(dbe_memo);            //  #16
 	delete dbe_status;
 	delete dbe_diff_qtty;
 	if(p_ord) {
@@ -1751,8 +1754,10 @@ DBQuery * PPViewTSessLine::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	p_dbe_sign   = & enumtoa(p_tslt->Sign, 3, sign_subst.Get(PPTXT_TSESSLN_SIGN));
 	p_dbe_price  = &(p_tslt->Price - p_tslt->Discount);
 	p_dbe_amount = &((p_tslt->Price - p_tslt->Discount) * p_tslt->Qtty);
-	q = & Select_(p_tslt->TSessID, p_tslt->OprNo, 0); // #0, #1
-	q->addField(*p_dbe_sign);            // #2
+	q = & Select_(p_tslt->TSessID, // #0
+		p_tslt->OprNo,             // #1
+		0L);         
+	q->addField(*p_dbe_sign);      // #2
 	PPDbqFuncPool::InitObjNameFunc(dbe_goods, PPDbqFuncPool::IdObjNameGoods, p_tslt->GoodsID);
 	q->addField(dbe_goods);            // #3
 	q->addField(p_tslt->Qtty);         // #4
@@ -2587,7 +2592,10 @@ int PPObjTSession::ConvertPacket(const UhttTSessionPacket * pSrc, long flags, TS
 int PPObjTSession::ImportUHTT()
 {
 	int    ok = -1;
-	SString msg_buf, fmt_buf, temp_buf, loc_text_buf;
+	SString temp_buf;
+	SString msg_buf;
+	SString fmt_buf;
+	SString loc_text_buf;
 	SString tsess_text;
 	PPLogger logger;
 	PPUhttClient uhtt_cli;
@@ -2602,7 +2610,8 @@ int PPObjTSession::ImportUHTT()
 			const UhttTSessionPacket * p_uhtt_tses_pack = uhtt_tses_list.at(i);
 			if(p_uhtt_tses_pack) {
 				int    do_turn = 0;
-				TSessionPacket pack, org_pack;
+				TSessionPacket org_pack;
+				TSessionPacket pack;
 				S_GUID uuid;
 				THROW(ConvertPacket(p_uhtt_tses_pack, 0, pack));
 				const ObjTagItem * p_uuid_tag = pack.TagL.GetItem(PPTAG_TSESS_UUID);

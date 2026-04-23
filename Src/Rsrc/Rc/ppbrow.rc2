@@ -4656,10 +4656,10 @@ browser SCARD north(100), 1, 1, "@{scard_pl} {%s}", OWNER|GRID, 0
 	"@{discount}, %",      3, notype, NMBF_NOZERO, 8.2
 	"@creditlimit",        4, notype, NMBF_NOZERO, 10.2
 	"@turnover",           5, notype, NMBF_NOZERO, 10.2
-	"@phone",             12, notype, 0, 10 // @v9.6.1
+	"@phone",             12, notype, 0, 10
 	"@owner",              7, notype, 0, 30
 	"@scard_autogoods",   11, notype, 0, 20
-	"@memo",              13, notype, 0, 30 // @v9.6.1
+	"@memo",              13, notype, 0, 30
 	toolbar SCARD
 }
 
@@ -5162,38 +5162,56 @@ browser PRJPHASE north(100), 2, 1, "@{prjphase_pl} '%s'", OWNER|GRID, 0
 	}
 }
 
+toolbar export PRJTASK TB_FIRST_TOOLBAR {
+	EDITITEM    : kbEnter,  PPDV_EDITFILE02,    "@{edit}\tEnter"
+	ADDITEM     : kbIns,    PPDV_ADDFILE02,     "@{add}\tInsert"
+	ADDBYSAMPLE : kbAltF2,  PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2"
+	DELETEITEM  : kbDel,    PPDV_DELETEFILE02,  "@{delete}\tDelete"
+	DELETEALL   : kbCtrlF8, PPDV_DELETEALL02,   "@{doremoveall}\tCtrl-F8"
+	LINKTASKS   : kbF4,     PPDV_TODO_LIST01,   "@{prjtask_linktask_pl}\tF4" // @v12.6.0 TBBM_PRJTASK-->PPDV_TODO_LIST01
+	EDITLINKTASK: kbCtrlL,  PPDV_LINK01,        "@{prjtask_linktask}\tCtrl-L"
+	EDITBILLPOOL: kbF5,     PPDV_DOCUMENT_PL02, "@{documents}\tF5"
+	SYSJ        : kbCtrlJ,  PPDV_SYSJOURNAL,    "@{view_sysjournal}\tCtrl-J"
+	separator
+	BUILD       : kbF6,     PPDV_LIGHTNING01,   "@{domaketodobytemplate}\tF6" // @v12.6.0 TBBM_CHARGE-->PPDV_LIGHTNING01
+	TRANSMIT    : kbCtrlH,  PPDV_SYNC01,        "@{dotransmit}\tCtrl-H"
+	EXPORTVCAL  : kbCtrlN,  PPDV_NOICON,        "@{dotransmittodolist_vcal}\tCtrl-N"
+	PRINT       : kbF7,     PPDV_PRINTER01,     "@{print}\tF7"
+	TOTAL       : kbF9,     PPDV_SIGMA02,       "@{totals}\tF9"
+	separator
+	CHANGEFILT  : kbCtrlV,  PPDV_FILTER01,      "@{filter}\tCtrl-V"
+	TIMEGRAPH   : kbCtrlA,  PPDV_CHART_GANTT01, "@{timechart}\tCtrl-A" // @v12.6.0 TBBM_TIMEGRAPH-->PPDV_CHART_GANTT01
+}
+
+browser PRJTASK_INMEM north(100), 2, 1, "@{prjtask_pl} {%s}", OWNER|GRID, 0
+{
+	"@id",                    0, long,        0, 4, BCO_USERPROC
+	"@code",                  1, zstring(24), 0, 8, BCO_USERPROC
+	"@date",                  2, date, DATF_DMY, 8, BCO_USERPROC
+	"@prjtask_startdt",       3, date, DATF_DMY, 8, BCO_USERPROC
+	"@prjtask_estfinishdt_s", 4, date, DATF_DMY, 8, BCO_USERPROC
+	"@prjtask_finishdt",      5, date, DATF_DMY, 8, BCO_USERPROC
+	"@prjtask_priority",      6, zstring(48),   0,  6, BCO_USERPROC
+	"@status",                7, zstring(48),   0,  6, BCO_USERPROC
+	"@client",                8, zstring(128),  0, 30, BCO_USERPROC
+	"@prjtask_employer",      9, zstring(128),  0, 30, BCO_USERPROC
+	"@description",          10, zstring(1024), 0, 60, BCO_USERPROC
+	toolbar PRJTASK
+}
+
 browser PRJTASK north(100), 2, 1, "@{prjtask_pl} {%s}", OWNER|GRID, 0
 {
-	"@code",                 1, notype, 0, 8
-	"@date",                 2, notype, DATF_DMY, 8
-	"@prjtask_startdt",      3, notype, DATF_DMY, 8
-	"Дата завершения",       4, notype, DATF_DMY, 8
-	"@prjtask_finishdt",     5, notype, DATF_DMY, 8
-	"@prjtask_priority",     6, notype, 0, 6
-	"@status",               7, notype, 0, 6
-	"@client",               8, notype, 0, 30
-	"@prjtask_employer",     9, notype, 0, 30
-	"@description",         10, notype, 0, 60 //, BCO_RESIZEABLE
-	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM    : kbEnter,  PPDV_EDITFILE02,    "@{edit}\tEnter"
-		ADDITEM     : kbIns,    PPDV_ADDFILE02,     "@{add}\tInsert"
-		ADDBYSAMPLE : kbAltF2,  PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2"
-		DELETEITEM  : kbDel,    PPDV_DELETEFILE02,  "@{delete}\tDelete"
-		DELETEALL   : kbCtrlF8, PPDV_DELETEALL02,   "@{doremoveall}\tCtrl-F8"
-		LINKTASKS   : kbF4,     PPDV_TODO_LIST01,   "@{prjtask_linktask_pl}\tF4" // @v12.6.0 TBBM_PRJTASK-->PPDV_TODO_LIST01
-		EDITLINKTASK: kbCtrlL,  PPDV_LINK01,        "Просмотр связанной задачи\tCtrl-L"
-		EDITBILLPOOL: kbF5,     PPDV_DOCUMENT_PL02, "@{documents}\tF5"
-		SYSJ        : kbCtrlJ,  PPDV_SYSJOURNAL,    "@{view_sysjournal}\tCtrl-J"
-		separator
-		BUILD       : kbF6,     PPDV_LIGHTNING01,   "@{domaketodobytemplate}\tF6" // @v12.6.0 TBBM_CHARGE-->PPDV_LIGHTNING01
-		TRANSMIT    : kbCtrlH,  PPDV_SYNC01,        "@{dotransmit}\tCtrl-H"
-		EXPORTVCAL  : kbCtrlN,  PPDV_NOICON,        "@{dotransmittodolist_vcal}\tCtrl-N"
-		PRINT       : kbF7,     PPDV_PRINTER01,     "@{print}\tF7"
-		TOTAL       : kbF9,     PPDV_SIGMA02,       "@{totals}\tF9"
-		separator
-		CHANGEFILT  : kbCtrlV,  PPDV_FILTER01,      "@{filter}\tCtrl-V"
-		TIMEGRAPH   : kbCtrlA,  PPDV_CHART_GANTT01, "@{timechart}\tCtrl-A" // @v12.6.0 TBBM_TIMEGRAPH-->PPDV_CHART_GANTT01
-	}
+	"@code",                  1, notype, 0, 8
+	"@date",                  2, notype, DATF_DMY, 8
+	"@prjtask_startdt",       3, notype, DATF_DMY, 8
+	"@prjtask_estfinishdt_s", 4, notype, DATF_DMY, 8
+	"@prjtask_finishdt",      5, notype, DATF_DMY, 8
+	"@prjtask_priority",      6, notype, 0, 6
+	"@status",                7, notype, 0, 6
+	"@client",                8, notype, 0, 30
+	"@prjtask_employer",      9, notype, 0, 30
+	"@description",          10, notype, 0, 60 //, BCO_RESIZEABLE
+	toolbar PRJTASK
 }
 
 browser PRJTASK_DATEHOURCT north(100), 3, 1, "Задачи с табуляцией Дата/Час", OWNER|GRID, 0
@@ -7553,12 +7571,12 @@ view   TimSerStrategyContainer { "@{view_timserstrategycontainer}" }
 filter EditTextFileParam       { "@{filter_edittextfileparam}" }
 view   Event                   { "@{view_events}" }
 view   UserMenu                { "@{view_usermenu}" }
-view   AlcoDeclRu              { "@{view_alcodeclru}" } // @v11.0.4
+view   AlcoDeclRu              { "@{view_alcodeclru}" }
 view   GoodsTrnovr             { "@{view_goodstrnovr}" } // @v11.0.6 @done (@v12.5.11) @todo Этот отчет так до сих пор и не переведен на PPView //
-view   StyloQBindery           { "@{view_styloqbindery}" } // @v11.1.6
-view   StyloQCommand           { "@{view_styloqcommands}" } // @v11.1.9
-filter StyloQAttendancePrereqParam { "@{filter_styloqattendanceprereqparam}" } // @v11.3.3
-filter StyloQIndexingParam     { "@{filter_styloqindexingparam}" } // @v11.3.4
+view   StyloQBindery           { "@{view_styloqbindery}" }
+view   StyloQCommand           { "@{view_styloqcommands}" }
+filter StyloQAttendancePrereqParam { "@{filter_styloqattendanceprereqparam}" }
+filter StyloQIndexingParam     { "@{filter_styloqindexingparam}" }
 filter StyloQGoodsInfoParam    { "@{filter_styloqgoodsinfoparam}" } // @v11.4.5
 filter StyloQIncomingListParam { "@{filter_styloqincominglistparam}" } // @v11.4.7
 filter StyloQDocumentPrereqParam { "@{filter_styloqdocumentparam}" } // @v11.5.0
@@ -7576,6 +7594,7 @@ view   WbPublicGoods                { "" } // @v12.3.8
 filter MarketplaceGoodsSelection    { "@{filter_marketplacegoodsselection}" } // @v12.3.8
 view   UniFindObj                   { "@{unifindobj}" } // @v12.4.10
 view   TechRoute                    { "@view_techroute" } // @v12.6.0
+filter ExecSessionOnTechRoute       { "" } // @v12.6.1
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //

@@ -267,7 +267,7 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 										*/ 
 										chzn_qtty = fabs(ccl.Quantity);
 										PPUnit u_rec;
-										if(goods_obj.FetchUnit(goods_rec.UnitID, &u_rec) > 0 && u_rec.Fragmentation > 0 && u_rec.Fragmentation < 100000)
+										if(goods_obj.FetchUnit(goods_rec.UnitID, &u_rec) > 0 && u_rec.IsFragmentationValid())
 											uom_fragm = u_rec.Fragmentation;
 										int    pczcr = PreprocessChZnCode(ppchzcopVerify, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
 										int    pczcr2 = 0;

@@ -1,5 +1,5 @@
 // OBJREGT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2016, 2018, 2019, 2020, 2021, 2024, 2025
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2016, 2018, 2019, 2020, 2021, 2024, 2025, 2026
 //
 #include <pp.h>
 #pragma hdrstop
@@ -9,7 +9,7 @@
 //
 PPRegisterTypePacket::PPRegisterTypePacket()
 {
-	MEMSZERO(Rec);
+	// @v12.6.1 @ctr MEMSZERO(Rec);
 	CntrPack.Head.ObjType = PPOBJ_REGISTERTYPE;
 	memzero(CntrPack.Head.CodeTemplate, sizeof(CntrPack.Head.CodeTemplate));
 }
@@ -28,7 +28,7 @@ int FASTCALL GetRegisterTypeName(PPID rtID, SString & rBuf)
 {
 	int    ok = -1;
 	PPObjRegisterType rt_obj;
-	PPRegisterType rt_rec;
+	PPRegisterType2 rt_rec;
 	if(rt_obj.Fetch(rtID, &rt_rec) > 0) {
 		rBuf = rt_rec.Name;
 		ok = 1;
@@ -41,7 +41,7 @@ int FASTCALL GetRegisterTypeName(PPID rtID, SString & rBuf)
 /*static*/int PPObjRegisterType::IsDupRegType(PPID regTypeID)
 {
 	PPObjRegisterType rt_obj;
-	PPRegisterType rt_rec;
+	PPRegisterType2 rt_rec;
 	return BIN(rt_obj.Fetch(regTypeID, &rt_rec) > 0 && rt_rec.Flags & REGTF_DUPNUMBER);
 }
 
@@ -49,11 +49,12 @@ int FASTCALL GetRegisterTypeName(PPID rtID, SString & rBuf)
 {
 	int    ok = -1;
 	PPID   reg_type_id = 0;
-	if(pRegTypeCode)
-		if(PPRef->SearchSymb(PPOBJ_REGISTERTYPE, &reg_type_id, pRegTypeCode, offsetof(PPRegisterType, Symb)) > 0)
+	if(pRegTypeCode) {
+		if(PPRef->SearchSymb(PPOBJ_REGISTERTYPE, &reg_type_id, pRegTypeCode, offsetof(PPRegisterType2, Symb)) > 0)
 			ok = 1;
 		else
 			reg_type_id = 0;
+	}
 	ASSIGN_PTR(pRegTypeID, reg_type_id);
 	return ok;
 }
@@ -65,7 +66,7 @@ PPObjRegisterType::PPObjRegisterType() : PPObjReference(PPOBJ_REGISTERTYPE, 0)
 int PPObjRegisterType::GetCode(PPID id, long * pCounter, char * pBuf, size_t bufLen)
 {
 	int    ok = -1;
-	PPRegisterType rt_rec;
+	PPRegisterType2 rt_rec;
 	ASSIGN_PTR(pBuf, 0);
 	ASSIGN_PTR(pCounter, 0);
 	if(Search(id, &rt_rec) > 0 && rt_rec.CounterID) {
@@ -78,7 +79,7 @@ int PPObjRegisterType::GetCode(PPID id, long * pCounter, char * pBuf, size_t buf
 int PPObjRegisterType::UngetCounter(PPID id, long counter)
 {
 	int    ok = -1;
-	PPRegisterType rt_rec;
+	PPRegisterType2 rt_rec;
 	if(id && counter && Search(id, &rt_rec) > 0 && rt_rec.CounterID) {
 		PPObjOpCounter opc_obj;
 		ok = opc_obj.UngetCounter(rt_rec.CounterID, counter, 0, 1);
@@ -123,7 +124,7 @@ int PPObjRegisterType::PutPacket(PPID * pID, PPRegisterTypePacket * pPack, int u
 			THROW(PutFormat(*pID, pPack->Format.Strip()));
 		}
 		else if(*pID) {
-			PPRegisterType rt_rec;
+			PPRegisterType2 rt_rec;
 			THROW(Search(*pID, &rt_rec) > 0);
 			THROW(opc_obj.PutPacket(&rt_rec.CounterID, 0, 0));
 			THROW(P_Ref->RemoveItem(Obj, *pID, 0));
@@ -185,9 +186,9 @@ public:
 		SetClusterData(CTL_PREGTYP_FLAGS, Data.Rec.Flags);
 
 		SetupPPObjCombo(this, CTLSEL_PREGTYP_GGRP, PPOBJ_GOODSGROUP, Data.Rec.RestrictGoodsGrpID, OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN, 0);
-		AddClusterAssocDef(CTL_PREGTYP_GGRPALLOW, 0, PPRegisterType::ggrpaOnlyGroup);
-		AddClusterAssoc(CTL_PREGTYP_GGRPALLOW,  1, PPRegisterType::ggrpaDenyGroup);
-		AddClusterAssoc(CTL_PREGTYP_GGRPALLOW,  2, PPRegisterType::ggrpaAllowByReg);
+		AddClusterAssocDef(CTL_PREGTYP_GGRPALLOW, 0, PPRegisterType2::ggrpaOnlyGroup);
+		AddClusterAssoc(CTL_PREGTYP_GGRPALLOW,  1, PPRegisterType2::ggrpaDenyGroup);
+		AddClusterAssoc(CTL_PREGTYP_GGRPALLOW,  2, PPRegisterType2::ggrpaAllowByReg);
 		SetClusterData(CTL_PREGTYP_GGRPALLOW, (long)Data.Rec.RestrictGoodsKind);
 		SetupCtrls();
 		return 1;
@@ -195,12 +196,14 @@ public:
 	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
-		int    err = 0, sel = 0;
-		long   st = 0, ggrp_allow = 0;
+		int    err = 0;
+		int    sel = 0;
+		long   st = 0;
+		long   ggrp_allow = 0;
 		getCtrlData(sel = CTL_PREGTYP_NAME, Data.Rec.Name);
 		THROW_PP(*strip(Data.Rec.Name) != 0, PPERR_NAMENEEDED);
 		getCtrlData(sel = CTL_PREGTYP_SYMB, Data.Rec.Symb);
-		THROW(PPRef->CheckUniqueSymb(PPOBJ_REGISTERTYPE, Data.Rec.ID, Data.Rec.Symb, offsetof(PPRegisterType, Symb)));
+		THROW(PPRef->CheckUniqueSymb(PPOBJ_REGISTERTYPE, Data.Rec.ID, Data.Rec.Symb, offsetof(PPRegisterType2, Symb)));
 		getCtrlData(CTL_PREGTYP_ID,   &Data.Rec.ID);
 		getCtrlData(sel = CTLSEL_PREGTYP_REGPKIND, &Data.Rec.RegOrgKind);
 		THROW_PP(Data.Rec.RegOrgKind != 0, PPERR_REGPKINDNEEDED);
@@ -267,10 +270,11 @@ int PPObjRegisterType::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	int    ok = DBRPL_OK;
 	if(msg == DBMSG_OBJDELETE && _obj == PPOBJ_PERSONKIND) {
 		int    r;
-		PPRegisterType rec;
-		for(PPID id = 0; ok == DBRPL_OK && (r = P_Ref->EnumItems(Obj, &id, &rec)) > 0;)
+		PPRegisterType2 rec;
+		for(PPID id = 0; ok == DBRPL_OK && (r = P_Ref->EnumItems(Obj, &id, &rec)) > 0;) {
 			if(rec.RegOrgKind == _id)
 				ok = RetRefsExistsErr(Obj, id);
+		}
 		if(ok == DBRPL_OK && !r)
 			ok = DBRPL_ERROR;
 	}
@@ -280,7 +284,7 @@ int PPObjRegisterType::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 int PPObjRegisterType::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRREGISTERTYPE, 0); }
 int PPObjRegisterType::GetFormat(PPID id, SString & rBuf) { return P_Ref->GetPropVlrString(PPOBJ_REGISTERTYPE, id, REGTPRP_FORMAT, rBuf); }
 int PPObjRegisterType::PutFormat(PPID id, const char * pBuf) { return P_Ref->PutPropVlrString(PPOBJ_REGISTERTYPE, id, REGTPRP_FORMAT, pBuf); }
-int PPObjRegisterType::SearchSymb(PPID * pID, const char * pSymb) { return P_Ref->SearchSymb(Obj, pID, pSymb, offsetof(PPRegisterType, Symb)); }
+int PPObjRegisterType::SearchSymb(PPID * pID, const char * pSymb) { return P_Ref->SearchSymb(Obj, pID, pSymb, offsetof(PPRegisterType2, Symb)); }
 
 int PPObjRegisterType::ProcessReservedItem(TVRez & rez)
 {
@@ -336,19 +340,19 @@ public:
 
 int RegisterTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
-	int    ok = 1;
 	RegisterTypeData * p_cache_rec = static_cast<RegisterTypeData *>(pEntry);
-	PPRegisterType data_rec;
-	if((ok = PPRef->GetItem(PPOBJ_REGISTERTYPE, id, &data_rec)) > 0) {
-		#define CPY(f) p_cache_rec->f = data_rec.f
-	   	CPY(PersonKindID);
-		CPY(RegOrgKind);
-		CPY(CounterID);
-		CPY(Flags);
-		CPY(ExpiryPeriod);
-		CPY(RestrictGoodsKind);
-		CPY(RestrictGoodsGrpID);
-		#undef CPY
+	PPRegisterType2 data_rec;
+	int    ok = PPRef->GetItem(PPOBJ_REGISTERTYPE, id, &data_rec);
+	if(ok > 0) {
+		#define CPYFLD(f) p_cache_rec->f = data_rec.f
+	   	CPYFLD(PersonKindID);
+		CPYFLD(RegOrgKind);
+		CPYFLD(CounterID);
+		CPYFLD(Flags);
+		CPYFLD(ExpiryPeriod);
+		CPYFLD(RestrictGoodsKind);
+		CPYFLD(RestrictGoodsGrpID);
+		#undef CPYFLD
 		MultTextBlock b;
 		b.Add(data_rec.Name);
 		b.Add(data_rec.Symb);
@@ -359,26 +363,26 @@ int RegisterTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extr
 
 void RegisterTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPRegisterType2 * p_data_rec = static_cast<PPRegisterType *>(pDataRec);
+	PPRegisterType2 * p_data_rec = static_cast<PPRegisterType2 *>(pDataRec);
 	const RegisterTypeData * p_cache_rec = static_cast<const RegisterTypeData *>(pEntry);
-	memzero(p_data_rec, sizeof(PPRegisterType));
+	memzero(p_data_rec, sizeof(PPRegisterType2));
 	p_data_rec->Tag = PPOBJ_REGISTERTYPE;
-	#define CPY(f) p_data_rec->f = p_cache_rec->f
-	CPY(ID);
-	CPY(PersonKindID);
-	CPY(RegOrgKind);
-	CPY(CounterID);
-	CPY(Flags);
-	CPY(ExpiryPeriod);
-	CPY(RestrictGoodsKind);
-	CPY(RestrictGoodsGrpID);
-	#undef CPY
+	#define CPYFLD(f) p_data_rec->f = p_cache_rec->f
+	CPYFLD(ID);
+	CPYFLD(PersonKindID);
+	CPYFLD(RegOrgKind);
+	CPYFLD(CounterID);
+	CPYFLD(Flags);
+	CPYFLD(ExpiryPeriod);
+	CPYFLD(RestrictGoodsKind);
+	CPYFLD(RestrictGoodsGrpID);
+	#undef CPYFLD
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
 	b.Get(p_data_rec->Symb, sizeof(p_data_rec->Symb));
 }
 
-int PPObjRegisterType::Fetch(PPID id, PPRegisterType * pRec)
+int PPObjRegisterType::Fetch(PPID id, PPRegisterType2 * pRec)
 {
 	RegisterTypeCache * p_cache = GetDbLocalCachePtr <RegisterTypeCache> (Obj);
 	return p_cache ? p_cache->Get(id, pRec) : Search(id, pRec);

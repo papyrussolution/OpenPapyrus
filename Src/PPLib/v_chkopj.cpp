@@ -371,7 +371,7 @@ int PPALDD_CheckOpJrnl::InitData(PPFilt & rFilt, long rsrv)
 }
 
 void PPALDD_CheckOpJrnl::Destroy() { DESTROY_PPVIEW_ALDD(CheckOpJrnl); }
-int  PPALDD_CheckOpJrnl::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(CheckOpJrnl); }
+int  PPALDD_CheckOpJrnl::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/) { INIT_PPVIEW_ALDD_ITER(CheckOpJrnl); }
 
 int PPALDD_CheckOpJrnl::NextIteration(PPIterID iterId)
 {

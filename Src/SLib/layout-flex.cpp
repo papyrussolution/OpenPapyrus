@@ -74,29 +74,29 @@ bool FASTCALL SUiLayoutParam::operator != (const SUiLayoutParam & rS) const { re
 bool FASTCALL SUiLayoutParam::Copy(const SUiLayoutParam & rS)
 {
 	bool   ok = true;
-#define CPY_FLD(f) f = rS.f
-	CPY_FLD(Flags);
-	CPY_FLD(SzX);
-	CPY_FLD(SzY);
-	CPY_FLD(JustifyContent);
-	CPY_FLD(AlignContent);
-	CPY_FLD(AlignItems);
-	CPY_FLD(AlignSelf);
-	CPY_FLD(GravityX);
-	CPY_FLD(GravityY);
-	CPY_FLD(LinkRelation); // @v12.3.2 SIDE_XXX
-	CPY_FLD(Reserve);
-	CPY_FLD(Order);
-	CPY_FLD(Nominal);
-	CPY_FLD(Size);
-	CPY_FLD(Padding);
-	CPY_FLD(Margin);
-	CPY_FLD(GrowFactor);
-	CPY_FLD(ShrinkFactor);
-	CPY_FLD(Basis);
-	CPY_FLD(AspectRatio);
-	CPY_FLD(MinSize); // @v12.3.6
-#undef CPY_FLD
+#define CPYFLD(f) f = rS.f
+	CPYFLD(Flags);
+	CPYFLD(SzX);
+	CPYFLD(SzY);
+	CPYFLD(JustifyContent);
+	CPYFLD(AlignContent);
+	CPYFLD(AlignItems);
+	CPYFLD(AlignSelf);
+	CPYFLD(GravityX);
+	CPYFLD(GravityY);
+	CPYFLD(LinkRelation); // @v12.3.2 SIDE_XXX
+	CPYFLD(Reserve);
+	CPYFLD(Order);
+	CPYFLD(Nominal);
+	CPYFLD(Size);
+	CPYFLD(Padding);
+	CPYFLD(Margin);
+	CPYFLD(GrowFactor);
+	CPYFLD(ShrinkFactor);
+	CPYFLD(Basis);
+	CPYFLD(AspectRatio);
+	CPYFLD(MinSize); // @v12.3.6
+#undef CPYFLD
 	return ok;
 }
 
@@ -584,7 +584,7 @@ int SUiLayoutParam::ParseSizeStr(const SString & rStr, float & rS) const
 			result = szByContainer;
 		}
 		else {
-			char first_c = temp_buf.C(0);
+			const  char first_c = temp_buf.C(0);
 			if(isdec(first_c) || oneof4(first_c, '.', '-', 'e', 'E')) {
 				const char * p_end = 0;
 				int   erange = 0;

@@ -728,8 +728,6 @@ int GtinStruc::Parse(const char * pCode)
 					temp_buf.Z().CatN(code_buf, 7);
 					StrAssocArray::Add(fldSerial, temp_buf);
 					code_buf.ShiftLeft(7);
-					// @v11.4.9 prefix_len = code_buf.HasPrefix("8005") ? 4 : (code_buf.HasPrefix("(8005)") ? 6 : 0);
-					// @v11.4.9 {
 					bool  spcchr_cigblock_prefix = false;
 					if(code_buf.HasPrefix("8005"))
 						prefix_len = 4;
@@ -741,7 +739,6 @@ int GtinStruc::Parse(const char * pCode)
 					}
 					else
 						prefix_len = 0;
-					// } @v11.4.9 
 					if(prefix_len) {
 						code_buf.ShiftLeft(prefix_len);
 						temp_buf.Z().CatN(code_buf, 6);

@@ -766,11 +766,17 @@ PPUnit2::PPUnit2()
 	THISZERO();
 }
 
+PPUnit2 & PPUnit2::Z()
+{
+	THISZERO();
+	return *this;
+}
+
 int PPUnit2::ValidateQuantityFraction(double qtty) const
 {
 	int    ok = 1;
 	const  double frac_tolerance = 1.1E-5; // @v11.5.2 1E-5-->1.1E-5
-	if(Fragmentation > 0 && Fragmentation <= 100000) {
+	if(IsFragmentationValid()) {
 		if(!fsplitintofractions(qtty, Fragmentation, frac_tolerance, 0, 0, 0))
 			ok = PPSetError(PPERR_QTTYMUSTMATCHUFRAG, SLS.AcquireRvlStr().Cat(Fragmentation));
 	}
@@ -807,6 +813,15 @@ int PPObjUnit::Browse(void * extraPtr)
 				if(static_cast<PPObjUnit *>(P_Obj)->UniteMaxLike() > 0)
 					updateList(-1);
 				clearEvent(event);
+			}
+		}
+		virtual void extraProc(long id) // @v12.6.1
+		{
+			if(id) {
+				GoodsFilt filt;
+				filt.UnitID = id;
+				filt.Flags &= ~GoodsFilt::fHidePassive;
+				PPView::Execute(PPVIEW_GOODS, &filt, 1, 0);
 			}
 		}
 	};

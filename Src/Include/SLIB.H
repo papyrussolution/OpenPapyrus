@@ -1463,7 +1463,8 @@ public:
 	static constexpr uint32 SLobSignature[4] = { 0x2efc, 0xd421, 0x426c, 0xee07 }; // @v12.2.3 Сигнатура объекта SLob, означающая, что буфер структурирован.
 	static constexpr uint32 SSqlStmtSignature = 0x3597B6D4U; // @v12.5.2 Сигнатура объекта SSqlStmt
 	static constexpr uint32 SSqlStmtSignature_Select = 0x194AF5CCU; // @v12.5.6 Сигнатура объекта DBTable::SelectStmt
-	static constexpr uint32 DBTableSignature  = 0x6E805ED7; // @v12.5.2 Сигнатура объекта DBTable
+	static constexpr uint32 DBTableSignature    = 0x6E805ED7; // @v12.5.2 Сигнатура объекта DBTable
+	static constexpr uint32 DbProviderSignature = 0x5418F398; // @v12.6.1 Сигнатура объекта DbProvider
 	static constexpr uint64 DBConnSignature   = 0xDE4F9DF4FE840FDEULL; // @v12.5.4 Сигнатура объекта DbProvider::Connection
 	static constexpr uint32 Signature_TView   = 0x09990999UL;          // @v12.5.7 Сигнатура классов, порожденных от TView до уровня TWindow (не включая TWindow)
 	static constexpr uint32 Signature_TWindow = 0x09990997UL;          // @v12.5.7 Сигнатура классов, порожденных от TWindow
@@ -1642,6 +1643,7 @@ int    FASTCALL RecognizeSisSymb(const char * pSymb);
 int    FASTCALL GetSisCode(int ident, SString & rCode);
 //
 // Идентификаторы языков
+// @todo (@20260419) привести в соответствие с UED
 //
 enum { // @persistent
 	slangMeta    =   1, // Meta-language
@@ -5360,6 +5362,7 @@ struct SVerT { // @persistent Size=4
 	enum {
 		fmtMinorPadZero2   = 0x0001, // Минор версии двузначный с набивкой слева нулем (если <10). Например 5.03
 		fmtOmitZeroRelease = 0x0002, // Если релиз версии (последний компонент) == 0, то не выводить его
+		fmtFlatPadZero2    = 0x0004, // @v12.6.1 100203 то есть каждый компонент выводится в виде минимум двухзначной строки с набивкой нулями слева и без разделителей.
 	};
 	SString & FASTCALL ToStr(SString & rBuf) const;
 	SString & ToStr(uint fmt, SString & rBuf) const;
@@ -8543,7 +8546,7 @@ protected:
 //
 class SVector : public SVectorBase { // @novtbl
 public:
-	SVector(uint itemSize, uint o /*= O_ARRAY*/);
+	SVector(uint itemSize, uint o/*= O_ARRAY*/);
 	explicit SVector(uint itemSize);
 	SVector(void * pData, uint itemSize, uint aCount, uint o = O_N_O_ARRAY);
 	SVector(const SVector & rS);
@@ -8615,8 +8618,13 @@ public:
 	TSVector() : SVector(sizeof(T)) 
 	{
 	}
-	TSVector(const TSVector & rS) : SVector(rS) 
+	TSVector(const TSVector <T> & rS) : SVector(rS) 
 	{
+	}
+	TSVector <T> & FASTCALL operator = (const TSVector <T> & rS)
+	{
+		copy(rS);
+		return *this;
 	}
 	T &    FASTCALL at(uint pos) const { return *reinterpret_cast<T *>(SVector::at(pos)); }
 	bool   FASTCALL IsEq_Simple(const TSVector <T> * pS) const
@@ -12196,17 +12204,17 @@ protected:
 	int    InitReNumber();
 	int    InitReHex();
 	int    InitReEmail();
-	int    InitRePhone(); // @v11.0.3
+	int    InitRePhone();
 	SRegExp2 * P_ReQuotedStr;
 	SRegExp2 * P_ReNumber;
 	SRegExp2 * P_ReIdent;
 	SRegExp2 * P_ReIdentWithHyphen; // @v12.0.1
 	SRegExp2 * P_ReHex;
 	SRegExp2 * P_ReDigits;
-	SRegExp2 * P_ReXDigits; // @v11.4.1
+	SRegExp2 * P_ReXDigits;
 	SRegExp2 * P_ReEMail;
 	SRegExp2 * P_ReDate;
-	SRegExp2 * P_RePhone; // @v11.0.3
+	SRegExp2 * P_RePhone; 
 	TSCollection <SRegExp2> ReList; // Список регулярных выражений, регистрируемых вызывающим модулем.
 };
 //
@@ -12315,7 +12323,7 @@ struct SStrScan : public SRegExpSet {
 	//
 	// Descr: Считывает последовательность шестнадцатиричных цифр (0-9a-fA-F).
 	//
-	int    FASTCALL GetXDigits(SString & rBuf); // @v11.4.1
+	int    FASTCALL GetXDigits(SString & rBuf);
 	int    FASTCALL GetEMail(SString & rBuf);
 	int    GetDate(long datefmt, LDATE & rDate);
 	//

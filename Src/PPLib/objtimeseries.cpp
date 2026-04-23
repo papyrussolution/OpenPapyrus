@@ -1,5 +1,5 @@
 // OBJTIMESERIES.CPP
-// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Модуль, управляющий объектом данных PPObjTimeSeries
 //
@@ -3417,7 +3417,7 @@ int Ts_Helper_FindOptimalFactor(/*const DateTimeArray & rTmList, const RealArray
 	PPObjTimeSeries::StrategyResultEntry sre(rS, 0);
 	sre.LastResultIdx = 0;
 	HANDLE objs_to_wait[16];
-	size_t objs_to_wait_count = 0;
+	uint   objs_to_wait_count = 0;
 	MEMSZERO(objs_to_wait);
 	assert(max_thread <= SIZEOFARRAY(objs_to_wait));
 	if(max_thread > 1 && tsc >= 10000) {
@@ -5654,7 +5654,7 @@ int PrcssrTsStrategyAnalyze::MakeArVectors(const STimeSeries & rTs, const LongAr
 			assert(thr_idx <= max_threads);
 			if(thr_idx >= max_threads) {
 				HANDLE objs_to_wait[thread_limit];
-				size_t objs_to_wait_count = 0;
+				uint   objs_to_wait_count = 0;
 				{
 					for(uint i = 0; i < thr_idx; i++) {
 						MakeArVectorTask::InitBlock tb(&time_list, &value_list, thread_inpfrmsz_list[i], flags, partitialTrendErrLimit, thread_result_list[i]);
@@ -5682,7 +5682,7 @@ int PrcssrTsStrategyAnalyze::MakeArVectors(const STimeSeries & rTs, const LongAr
 	if(thr_idx) {
 		assert(max_threads > 0);
 		HANDLE objs_to_wait[thread_limit];
-		size_t objs_to_wait_count = 0;
+		uint   objs_to_wait_count = 0;
 		{
 			for(uint i = 0; i < thr_idx; i++) {
 				MakeArVectorTask::InitBlock tb(&time_list, &value_list, thread_inpfrmsz_list[i], flags, partitialTrendErrLimit, thread_result_list[i]);
@@ -6916,7 +6916,7 @@ int PrcssrTsStrategyAnalyze::FindStrategiesLoop(void * pBlk)
 		TSCollection <TsFindStrategiesBlock> thread_blk_list;
 		SETIFZ(p_blk->P_TsrrList, &local_tsrr_list);
 		HANDLE objs_to_wait[thread_limit];
-		size_t objs_to_wait_count = 0;
+		uint   objs_to_wait_count = 0;
 		//
 		memzero(objs_to_wait, sizeof(objs_to_wait));
 		//

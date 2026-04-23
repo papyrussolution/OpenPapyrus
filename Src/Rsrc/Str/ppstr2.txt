@@ -13136,6 +13136,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @prjtask_datetime                         "Дата и время создания" // generic
 @prjtask_employer                         "@{employer}"
 @prjtask_estfinishdt                      "Предполагаемая дата завершения"
+@prjtask_estfinishdt_s                    "Дата завершения" // @v12.6.1 для использования в таблицах
 @prjtask_estfinishtm                      "Предполагаемое время завершения"
 @prjtask_finishdt                         "Фактическая дата завершения"
 @prjtask_finishtm                         "Фактическое время завершения"

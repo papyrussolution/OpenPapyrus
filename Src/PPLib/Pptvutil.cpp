@@ -4856,7 +4856,7 @@ static int Helper_SelectPersonByCode(TDialog * pDlg, uint ctlselId, PPID personK
 		if(reg_type_id > 0) {
 			SString code;
 			SString title;
-			PPRegisterType reg_type_rec;
+			PPRegisterType2 reg_type_rec;
 			SearchObject(PPOBJ_REGISTERTYPE, reg_type_id, &reg_type_rec);
 			PPLoadText(PPTXT_SEARCHPERSON, title);
 			PPInputStringDialogParam isd_param(title, reg_type_rec.Name);
@@ -4890,7 +4890,7 @@ int PersonCtrlGroup::SelectByCode(TDialog * pDlg)
 		if(reg_type_id > 0) {
 			SString code;
 			SString title;
-			PPRegisterType reg_type_rec;
+			PPRegisterType2 reg_type_rec;
 			SearchObject(PPOBJ_REGISTERTYPE, reg_type_id, &reg_type_rec);
 			PPLoadText(PPTXT_SEARCHPERSON, title);
 			PPInputStringDialogParam isd_param(title, reg_type_rec.Name);
@@ -5035,7 +5035,7 @@ int PersonListCtrlGroup::SelectByCode(TDialog * pDlg)
 		if(reg_type_id > 0) {
 			SString code;
 			SString title;
-			PPRegisterType reg_type_rec;
+			PPRegisterType2 reg_type_rec;
 			SearchObject(PPOBJ_REGISTERTYPE, reg_type_id, &reg_type_rec);
 			PPLoadText(PPTXT_SEARCHPERSON, title);
 			PPInputStringDialogParam isd_param(title, reg_type_rec.Name);

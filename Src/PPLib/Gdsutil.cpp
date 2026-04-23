@@ -1278,10 +1278,11 @@ int PPObjGoods::Helper_GetRetailGoodsInfo(PPID goodsID, PPID locID, const Retail
 	pInfo->ID = goodsID;
 	pInfo->LocID = loc_id;
 	if(goodsID && Fetch(goodsID, &goods_rec) > 0) {
+		pInfo->UnitID = goods_rec.UnitID; // @v12.6.1
+		pInfo->GoodsTypeID = goods_rec.GoodsTypeID; // @v12.6.1
 		if(!(flags & rgifPriceOnly)) {
-			PPUnit unit_rec;
+			PPUnit2 unit_rec;
 			PPCountryBlock country_blk;
-			pInfo->ID = goodsID;
 			STRNSCPY(pInfo->Name, goods_rec.Name);
 			if(src_code.NotEmptyS())
 				temp_buf = src_code;
@@ -1290,7 +1291,7 @@ int PPObjGoods::Helper_GetRetailGoodsInfo(PPID goodsID, PPID locID, const Retail
 			if(flags & rgifConcatQttyToCode) {
 				const int wp = GetConfig().IsWghtPrefix(temp_buf);
 				if(wp && temp_buf.Len() == 7) {
-					long   i_code_qtty = (wp == 2) ? R0i(fabs(code_qtty)) : R0i(fabs(code_qtty) * 1000.0);
+					const  long i_code_qtty = (wp == 2) ? R0i(fabs(code_qtty)) : R0i(fabs(code_qtty) * 1000.0);
 					temp_buf.CatLongZ(i_code_qtty, 5);
 					AddBarcodeCheckDigit(temp_buf);
 				}
@@ -1304,8 +1305,9 @@ int PPObjGoods::Helper_GetRetailGoodsInfo(PPID goodsID, PPID locID, const Retail
 			}
 			GetManufCountry(goodsID, &goods_rec, 0, &country_blk);
 			country_blk.Name.CopyTo(pInfo->ManufCountry, sizeof(pInfo->ManufCountry));
-			if(FetchUnit(goods_rec.UnitID, &unit_rec) > 0)
+			if(FetchUnit(goods_rec.UnitID, &unit_rec) > 0) {
 				STRNSCPY(pInfo->UnitName, unit_rec.Name);
+			}
 			pInfo->PhUPerU = goods_rec.PhUPerU;
 			if(goods_rec.GoodsTypeID) {
 				PPGoodsType2 gt_rec;

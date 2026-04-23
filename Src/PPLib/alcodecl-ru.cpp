@@ -1548,8 +1548,7 @@ int PPViewAlcoDeclRu::Export()
 													if(r_cfg.E.Flags & PrcssrAlcReport::Config::fInvcCodePref && P_BObj->P_Tbl->GetExtraData(r_entry.BillID, &billext) > 0 && billext.InvoiceCode[0])
 														bill_code_buf = billext.InvoiceCode;
 													else {
-														// @v11.1.12 BillCore::GetCode(bill_code_buf = suppl_bill_rec.Code);
-														bill_code_buf = suppl_bill_rec.Code; // @v11.1.12 
+														bill_code_buf = suppl_bill_rec.Code;
 													}
 													bill_code_buf.Transf(CTRANSF_INNER_TO_OUTER);
 													assert(suppl_bill_rec.Dt == r_entry.BillDt);

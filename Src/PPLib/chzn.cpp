@@ -508,11 +508,14 @@ DRAFTBEER HORECA @v11.9.4
 				dedicatedcase_01_21_240        =  8, // @v12.5.12 "^01(\\d{14})21(.{16})240(.{8})$" 012460081800728621069162482170081024014501203
 				dedicatedcase_02_13_21         =  9, // @v12.5.12 "^02(\\d{14})13(\\d{6})21(.{10})$" весовой товар
 				dedicatedcase_mdlp_02          = 10, // @v12.5.12 "^01(\\d{14})17(\\d{6})10(.{1,20}?)11(\\d{6})21(.{13})91(.{4})92(.{44})$"
+				dedicatedcase_mdlp_03          = 11, // @v12.6.1  "^01(\\d{14})21(.{1,13}?)10(.{1,20}?)91(.{4})92(.{44})$"
 			};
 			// const char * re_tobacco = "^(\\d{14})(.{7})(.{4})(.{4})?$";
 			// const char * re_rigid_mark = "^01(\\d{14})21(.{16})240(.{8})$";
 			// const char* re_weight_mark = "^02(\\d{14})13(\\d{6})21(.{9})$";
 			// const char* re_full_mdlp = "^01(\\d{14})17(\\d{6})10(.{1,20}?)11(\\d{6})21(.{13})91(.{4})92(.{44})$";
+			// 010860009701332121Fa53waamu10gm]91ee11927hhg3oucngnmsxfum9zl6lvx4vhggkg5=kr5sRb77gy=
+			// const char* re_full_mdlp_var = "^01(\\d{14})21(.{1,13}?)10(.{1,20}?)91(.{4})92(.{44})$";
 
 			// 01189011482005211724040010V90043621B63DAJFKF22C | const char* re_pharma_variable_serial = "^01(\\d{14})17(\\d{6})10(.{1,20}?)21(.{1,20})$";
 			// 01189011482005211724040010A900046212U07SBCE80L  |
@@ -628,6 +631,27 @@ DRAFTBEER HORECA @v11.9.4
 						rS.AddOnlyToken(GtinStruc::fldInner1);
 						rS.SetSpecialFixedToken(GtinStruc::fldInner1, reresult.GetItemLen(7));
 						dedicated_case = dedicatedcase_mdlp_02;
+					}
+				}
+			}
+			if(!dedicated_case) { // @v12.6.1
+				//dedicatedcase_mdlp_03          = 11, // @v12.6.1  "^01(\\d{14})21(.{1,13}?)10(.{1,20}?)91(.{4})92(.{44})$"
+				const char * p_re_mdlp_03 = "^01(\\d{14})21(.{1,13}?)10(.{1,20}?)91(.{4})92(.{44})$";
+				SRegExp2 re(p_re_mdlp_03, cpANSI, SRegExp2::syntaxDefault, 0);
+				if(re.IsValid()) {
+					SRegExp2::FindResult reresult;
+					if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
+						assert(reresult.getCount() == 5+1);
+						rS.AddOnlyToken(GtinStruc::fldGTIN14);
+						rS.AddOnlyToken(GtinStruc::fldSerial);
+						rS.SetSpecialFixedToken(GtinStruc::fldSerial, reresult.GetItemLen(2));
+						rS.AddOnlyToken(GtinStruc::fldPart);
+						rS.SetSpecialFixedToken(GtinStruc::fldPart, reresult.GetItemLen(3));
+						rS.AddOnlyToken(GtinStruc::fldUSPS);
+						rS.SetSpecialFixedToken(GtinStruc::fldUSPS, reresult.GetItemLen(4));
+						rS.AddOnlyToken(GtinStruc::fldInner1);
+						rS.SetSpecialFixedToken(GtinStruc::fldInner1, reresult.GetItemLen(5));
+						dedicated_case = dedicatedcase_mdlp_03;
 					}
 				}
 			}
@@ -1578,8 +1602,8 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 			{
 				SXml::WNode npl(rX, "products_list");
 				for(uint i = 0; i < p_bp->GetTCount(); i++) {
-					const PPTransferItem & r_ti = p_bp->ConstTI(i);
-					long  local_chzn_prod_type = 0; // @v11.9.9
+					const  PPTransferItem & r_ti = p_bp->ConstTI(i);
+					long   local_chzn_prod_type = 0; // @v11.9.9
 					if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
 						local_chzn_prod_type = gt_rec.ChZnProdType;
 					if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) { // @v11.9.9
@@ -5019,6 +5043,21 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 	THROW(ifc.SetupInitBlock(guaID, 0, *p_ib));
 	THROW(!p_ib->TsPiotSvrUrl.IsEmpty()); // @todo @err
 	{
+		TsPiotInterface tspiot_ifc(p_ib->TsPiotSvrUrl);
+		TsPiotInterface::QueryBlock qb;
+		{
+			// {F43975F6-9512-4D9C-BDE9-81EA6FC7D99F}
+			static constexpr GUID app_ident = { 0xf43975f6, 0x9512, 0x4d9c, { 0xbd, 0xe9, 0x81, 0xea, 0x6f, 0xc7, 0xd9, 0x9f } };
+			// {BCF00CF5-751B-4B79-A871-2E285512F749}
+			static const GUID app_token = { 0xbcf00cf5, 0x751b, 0x4b79, { 0xa8, 0x71, 0x2e, 0x28, 0x55, 0x12, 0xf7, 0x49 } }; // @?
+
+			qb.AppName = "Papyrus";
+			qb.AppVer.Set(11, 5, 0);
+			qb.AppUuid = S_GUID(app_ident);
+			qb.AppToken.Put(&app_token, sizeof(app_token)); // @?
+		}
+		int r = tspiot_ifc.CheckCodeList_v2(qb, rList);
+		THROW(r);
 	}
 	CATCH
 		ok = 0;
@@ -5628,17 +5667,26 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 				}
 			}
 		}
-		void   OutputPmCheckResult(const PPChZnPrcssr::CodeStatusCollection & rList, bool offline, SString & rBuf) const
+		void   OutputPmCheckResult(const PPChZnPrcssr::CodeStatusCollection & rList, /*bool offline*/int method/*prcsmarkMethodXXX*/, SString & rBuf) const
 		{
 			const PPChZnPrcssr::CodeStatus * p_result_cle = rList.getCount() ? rList.at(0) : 0;
 			rBuf.Z();
-			rBuf.CRB().Cat(offline ? "Offline pm result" : "Inline pm result").CatDiv(':', 2);
-
+			rBuf.CRB();
+			{
+				const char * p_method_text = "";
+				switch(method) {
+					case prcsmarkMethodPmOffline: p_method_text = "Offline pm result"; break;
+					case prcsmarkMethodPmOnline:  p_method_text = "Inline pm result"; break;
+					case prcsmarkMethodTsPiot: p_method_text = "tspiot result"; break;
+					default: p_method_text = "undefinede-method result"; break;
+				}
+				rBuf.Cat(p_method_text).CatDiv(':', 2);
+			}
 			rBuf.CRB().Cat("ResultCode").CatDiv(':', 2).Cat(rList.Code);
 			rBuf.CRB().Cat("ResultDescr").CatDiv(':', 2).Cat(rList.Description);
 			rBuf.CRB().Cat("ReqId").CatDiv(':', 2).Cat(rList.ReqId, S_GUID::fmtIDL);
 			rBuf.CRB().Cat("ReqTimestamp").CatDiv(':', 2).Cat(rList.ReqTimestamp);
-			if(offline) {
+			if(method == prcsmarkMethodPmOffline) {
 				rBuf.CRB().Cat("LocalModuleInstance").CatDiv(':', 2).Cat(rList.LocalModuleInstance, S_GUID::fmtC);
 				rBuf.CRB().Cat("LocalModuleDbVer").CatDiv(':', 2).Cat(rList.LocalModuleDbVer, S_GUID::fmtC);
 			}
@@ -5680,7 +5728,7 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 					SString ProducerInn; // ИНН производителя.
 				*/
 				rBuf.CRB().Tab().Cat("Cis").CatDiv(':', 2).Cat(p_result_cle->Cis);
-				if(!offline) {
+				if(method != prcsmarkMethodPmOffline) {
 					rBuf.CRB().Tab().Cat("ErrCode").CatDiv(':', 2).Cat(p_result_cle->ErrorCode);
 					rBuf.CRB().Tab().Cat("EliminationState").CatDiv(':', 2).Cat(p_result_cle->EliminationState);
 					rBuf.CRB().Tab().Cat("Mrp").CatDiv(':', 2).Cat(p_result_cle->Mrp);
@@ -5704,13 +5752,13 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 						{ PPChZnPrcssr::CodeStatus::fGrayZone, "gray-zone" },
 					};
 					for(uint i = 0; i < SIZEOFARRAY(chzn_pm_flags); i++) {
-						if(!offline || oneof3(chzn_pm_flags[i].Id, PPChZnPrcssr::CodeStatus::fIsBlocked, 
+						if((method != prcsmarkMethodPmOffline) || oneof3(chzn_pm_flags[i].Id, PPChZnPrcssr::CodeStatus::fIsBlocked, 
 							PPChZnPrcssr::CodeStatus::fSold, PPChZnPrcssr::CodeStatus::fGrayZone)) {
 							rBuf.CRB().Tab_(2).Cat(chzn_pm_flags[i].P_Symb).CatDiv(':', 2).Cat(STextConst::GetBool(p_result_cle->Flags & chzn_pm_flags[i].Id));
 						}
 					}
 				}
-				if(!offline) {
+				if(method != prcsmarkMethodPmOffline) {
 					rBuf.CRB().Tab().Cat("ExpiryDtm").CatDiv(':', 2).Cat(p_result_cle->ExpiryDtm, DATF_ISO8601CENT, 0);
 					rBuf.CRB().Tab().Cat("ProductionDtm").CatDiv(':', 2).Cat(p_result_cle->ProductionDtm, DATF_ISO8601CENT, 0);
 					rBuf.CRB().Tab().Cat("Weight").CatDiv(':', 2).Cat(p_result_cle->Weight, MKSFMTD_030);
@@ -5730,7 +5778,7 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 			prcsmarkMethodPmOffline,
 			prcsmarkMethodTsPiot,
 		};
-		int    ProcessMark(const char * pOriginalText, bool imgScan, /*bool offline*/int method/*prcsmarkMethodXXX*/, SString & rInfoBuf)
+		int    ProcessMark(const char * pOriginalText, bool imgScan, int method/*prcsmarkMethodXXX*/, SString & rInfoBuf)
 		{
 			int    ok = -1;
 			SString temp_buf;
@@ -5756,21 +5804,27 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 						if(pm_code_list.AddCodeEntry(pOriginalText, 0, 0) > 0) {
 							if(method == prcsmarkMethodPmOffline) {
 								if(PPChZnPrcssr::PmCheck(gua_id, 0, 1/*offline only*/, pm_code_list)) {
-									OutputPmCheckResult(pm_code_list, true/*offline*/, temp_buf);
+									OutputPmCheckResult(pm_code_list, method, temp_buf);
 									rInfoBuf.Cat(temp_buf);
 								}
 							}
 							else if(method == prcsmarkMethodPmOnline) {
 								if(PPChZnPrcssr::PmCheck(gua_id, 0, 2/*regular online/offline mode*/, pm_code_list)) {
-									OutputPmCheckResult(pm_code_list, false/*offline*/, temp_buf);
+									OutputPmCheckResult(pm_code_list, method, temp_buf);
 									rInfoBuf.Cat(temp_buf);
 								}
 								else {
 									rInfoBuf.CRB().Cat("Permissive mode failure.");
 								}
 							}
-							else if(method == prcsmarkMethodTsPiot) { // @v12.5.11 @construction
-								// @todo
+							else if(method == prcsmarkMethodTsPiot) { // @v12.6.1 
+								if(PPChZnPrcssr::TsPiotCheck(gua_id, pm_code_list)) {
+									OutputPmCheckResult(pm_code_list, method, temp_buf);
+									rInfoBuf.Cat(temp_buf);
+								}
+								else {
+									rInfoBuf.CRB().Cat("ts-piot mode failure.");
+								}
 							}
 						}
 					}
@@ -5865,6 +5919,20 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 		}
 		void CheckTsPiot()
 		{
+			SString mark_buf;
+			uint   ssp = 0;
+			bool   do_verify = false;
+			if(SsRecognizedMark.getCount() && SsRecognizedMark.get(&ssp, mark_buf) && mark_buf.NotEmptyS()) {
+				;
+			}
+			else {
+				getCtrlString(CTL_CHKCHZNMARK_INPUT, mark_buf);
+			}
+			if(mark_buf.NotEmptyS()) {
+				SString info_buf;
+				ProcessMark(mark_buf, false, prcsmarkMethodTsPiot, info_buf);
+				setCtrlString(CTL_CHKCHZNMARK_INFO, info_buf);
+			}
 		}
 
 		ObjLinkFiles LinkFiles;
