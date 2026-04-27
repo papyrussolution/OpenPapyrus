@@ -8852,6 +8852,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_gua_chznlocpmurl                    "URL offline-проверки марок честный знак"        // @v12.3.11
 @rtag_person_notch                        "NOTCH" // @v12.4.11 PPTAG_PERSON_NOTCH
 @rtag_gua_chzntspioturl                   "URL модуля тс-пиот"                             // @v12.5.11
+@rtag_lot_tecroutestage                   "Этап технологического маршрута" // @v12.6.2
 //
 // Зарезервированные типы регистрационных документов
 //

@@ -3116,6 +3116,17 @@ private:
 	int    GetParamDlgDTS(ImpExpParamDialog * pDlg, uint cfgPos, PPImpExpParam * pParam);
 	int    SetParamDlgDTS(ImpExpParamDialog * pDlg, uint cfgPos, PPImpExpParam * pParam);
 
+	struct DisplayEntry {
+		DisplayEntry() : Idx(0), Direction(0), DataFormat(0)
+		{
+		}
+		long   Idx;
+		long   Direction;
+		long   DataFormat;
+		SString InternalName; // Наименование секции в ini-файле
+		SString DisplayName;  // Часть наименования секции для отображения //
+		SString FileName;
+	};
 	uint   CfgPos;
 	PPConfigDatabase CDb;
 	SSerializeContext SCtx;
@@ -3155,8 +3166,9 @@ ImpExpCfgsListDialog::ImpExpCfgsListDialog() : PPListDialog(DLG_IMPEXPCFGS, CTL_
 	SString str_cfgs, buf;
 	PPLoadText(PPTXT_IMPEXPCFGNAMELIST, str_cfgs);
 	StringSet ss(';', str_cfgs);
-	for(uint i = 0, p = 0; ss.get(&i, buf); p++)
+	for(uint i = 0, p = 0; ss.get(&i, buf); p++) {
 		CfgsList.Add(sdrecs_id[p], 0, buf);
+	}
 	uint   pp = 0;
 	P_ParamList[pp++] = &GoodsParam;
 	P_ParamList[pp++] = &BillParam;
@@ -3172,21 +3184,23 @@ ImpExpCfgsListDialog::ImpExpCfgsListDialog() : PPListDialog(DLG_IMPEXPCFGS, CTL_
 	P_ParamList[pp++] = &CcParam; // @v11.8.4
 	{
 		SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_IMPEXPCFGS_CFGS));
-		if(p_box) { // @v11.4.6 @fix SmartListBox::IsValidS(p_box)-->p_box
+		if(p_box) {
 			SetupStrListBox(p_box);
-			for(uint i = 0; i < CfgsList.getCount(); i++)
-				p_box->addItem(CfgsList.Get(i).Id, CfgsList.Get(i).Txt);
+			for(uint i = 0; i < CfgsList.getCount(); i++) {
+				StrAssocArray::Item item = CfgsList.Get(i);
+				p_box->addItem(item.Id, item.Txt);
+			}
 			p_box->P_Def->top();
 			p_box->Draw_();
 		}
 	}
 	CfgPos = 0;
-	if(DS.CheckExtFlag(ECF_USECDB)) {
+	/* @v12.6.2 (тупиковая ветвь) if(DS.CheckExtFlag(ECF_USECDB)) {
 		SString db_dir;
 		PPGetPath(PPPATH_BIN, db_dir);
 		db_dir.SetLastSlash().Cat("CDB");
 		CDb.Open(db_dir);
-	}
+	}*/
 	showButton(cmImport, /*SlDebugMode::CT()*/false);
 	updateList(-1);
 }
@@ -3225,11 +3239,9 @@ int ImpExpCfgsListDialog::editItem(long pos, long id)
 {
 	int    ok = -1;
 	char   section[256];
-	PTR32(section)[0] = 0;
-	if(DS.CheckExtFlag(ECF_USECDB)) {
-		ok = EditParam(section, &id);
-	}
-	else {
+	section[0] = 0;
+	/* @v12.6.2 (тупиковая ветвь) if(DS.CheckExtFlag(ECF_USECDB)) { ok = EditParam(section, &id); } else*/
+	{
 		ok = Sections.get(reinterpret_cast<uint *>(&id), section, sizeof(section)) ? EditParam(section, &id) : -1;
 	}
 	return ok;
@@ -3238,11 +3250,12 @@ int ImpExpCfgsListDialog::editItem(long pos, long id)
 int ImpExpCfgsListDialog::delItem(long pos, long id)
 {
 	int    ok = 1;
-	if(DS.CheckExtFlag(ECF_USECDB)) {
+	/* @v12.6.2 (тупиковая ветвь) if(DS.CheckExtFlag(ECF_USECDB)) {
 		THROW(CDb.DeleteObj(id, 1));
 		updateList(-1);
 	}
-	else {
+	else*/
+	{
 		SString ini_file_name, section;
 		if(Sections.get(reinterpret_cast<uint *>(&id), section)) {
 			int    is_exists = 0;
@@ -3341,14 +3354,14 @@ int ImpExpCfgsListDialog::EditParam(const char * pIniSection, long * pCDbID)
 {
 	int    ok = -1;
 	int    is_exists = 0;
-	long   cdb_id = DEREFPTRORZ(pCDbID);
+	// @v12.6.2 (тупиковая ветвь) long   cdb_id = DEREFPTRORZ(pCDbID);
 	ImpExpParamDialog * p_param_dlg = 0;
 	SString ini_file_name, section;
 	PPImpExpParam * p_param = P_ParamList[CfgPos];
 	THROW(CheckDialogPtr(&(p_param_dlg = GetParamDlg(CfgPos))));
 	p_param->Init();
 	THROW(LoadSdRecord(CfgsList.Get(CfgPos).Id, &p_param->InrRec));
-	if(DS.CheckExtFlag(ECF_USECDB)) {
+	/* @v12.6.2 (тупиковая ветвь) if(DS.CheckExtFlag(ECF_USECDB)) {
 		//PPConfigDatabase
 		PPConfigDatabase::CObjHeader cobj_hdr;
 		SBuffer cobj_tail;
@@ -3376,7 +3389,8 @@ int ImpExpCfgsListDialog::EditParam(const char * pIniSection, long * pCDbID)
 			ok = 1;
 		}
 	}
-	else {
+	else*/
+	{
 		THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
 		is_exists = fileExists(ini_file_name);
 		{
@@ -3424,7 +3438,7 @@ int ImpExpCfgsListDialog::setupList()
 	setStaticText(CTL_IMPEXPCFGS_CFGNAME, CfgsList.Get(CfgPos).Txt);
 	PPImpExpParam * p_param = PPImpExpParam::CreateInstance(CfgsList.Get(CfgPos).Id, 0); //P_ParamList[CfgPos];
 	if(p_param) {
-		if(DS.CheckExtFlag(ECF_USECDB)) {
+		/* @v12.6.2 (тупиковая ветвь) if(DS.CheckExtFlag(ECF_USECDB)) {
 			StrAssocArray list;
 			SBuffer cobj_tail;
 			THROW(p_param->Init());
@@ -3458,10 +3472,12 @@ int ImpExpCfgsListDialog::setupList()
 					PPError();
 			}
 		}
-		else {
+		else */
+		{
 			Sections.Z();
 			{
-				SString ini_file_name, section;
+				SString ini_file_name;
+				SString section;
 				StringSet all_sections;
 				PROFILE(THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name)));
 				{
@@ -3485,7 +3501,7 @@ int ImpExpCfgsListDialog::setupList()
 								const int r = p_param->ReadIni(&ini_file, section, 0);
 								if(r) {
 									PROFILE_START
-									uint sect_id = 0;
+									uint   sect_id = 0;
 									Sections.add(section, &sect_id);
 									p_param->ProcessName(2, sect = section);
 									if(!sect.HasPrefixIAscii("DLL_")) { // @vmiller
@@ -3506,8 +3522,9 @@ int ImpExpCfgsListDialog::setupList()
 									} // @vmiller
 									PROFILE_END
 								}
-								else
+								else {
 									PPError();
+								}
 							}
 							PROFILE_END
 						}

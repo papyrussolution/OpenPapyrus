@@ -2672,7 +2672,7 @@ public:
 	// @v12.2.6 virtual int    FASTCALL valid(ushort command);
 	ushort FASTCALL execView(TWindow * p);
 	void   insertView(TView * p, TView * pTarget);
-	void   FASTCALL remove(TView * p);
+	void   FASTCALL RemoveChild(TView * p);
 	void   removeView(TView * p);
 	void   selectNext();
 	void   FASTCALL selectCtrl(ushort ctlID); // @v12.3.7 (moved from TWindow)
@@ -2965,6 +2965,10 @@ public:
 	//
 	SUiLayout * GetLayout();
 	void   EvaluateLayout(const TRect & rR);
+	//
+	// Descr: Удаляет элемент лейаута, связанный с дочерним элементом pV
+	//
+	void   DeleteChildLayout(TView * pV); // @v12.6.2
 	//
 	// ARG(extraPtr IN): Дополнительные параметры, зависящие от типа управляющего элемента.
 	//

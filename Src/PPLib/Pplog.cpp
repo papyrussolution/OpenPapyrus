@@ -312,7 +312,7 @@ void LogListWindowSCI::Resize()
 				APPL->DelItemFromMenu(p_view);
 				p_view->ResetOwnerCurrent();
 				if(!p_view->IsInState(sfModal)) {
-					APPL->P_DeskTop->remove(p_view);
+					APPL->P_DeskTop->RemoveChild(p_view);
 					TView::SetWindowProp(hWnd, GWLP_USERDATA, nullptr);
 					delete p_view;
 				}

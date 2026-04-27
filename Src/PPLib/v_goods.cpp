@@ -1036,7 +1036,7 @@ IMPL_HANDLE_EVENT(GoodsListDialog)
 		searchBarcode();
 	else if(event.isKeyDown(kbAltF2)) {
 		PPID   n = 0;
-		PPID   c = getSelectedItem();
+		const  PPID c = getSelectedItem();
 		if(c && GObj.AddBySample(&n, c) == cmOK) {
 			Goods2Tbl::Rec new_goods_rec;
 			if(GObj.Fetch(n, &new_goods_rec) > 0) {

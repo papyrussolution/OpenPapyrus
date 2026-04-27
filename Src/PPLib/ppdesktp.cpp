@@ -1918,7 +1918,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 				SETIFZQ(p_desk->EndModalCmd, cmCancel);
 				APPL->DelItemFromMenu(p_desk);
 				p_desk->ResetOwnerCurrent();
-				APPL->P_DeskTop->remove(p_desk);
+				APPL->P_DeskTop->RemoveChild(p_desk);
 				delete p_desk;
 				TView::SetWindowUserData(hWnd, 0);
 			}

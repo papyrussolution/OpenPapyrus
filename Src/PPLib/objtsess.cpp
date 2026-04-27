@@ -2430,9 +2430,9 @@ int PPObjTSession::SelectTechRoutePhaseByLot(PPID lotID, PPID prcID, TSCollectio
 			if(p_tfr->Rcpt.Search(lotID, &lot_rec) > 0 && lot_rec.GoodsID > 0) {
 				PPID   goods_id = lot_rec.GoodsID;
 				TechTbl::Rec tec_rec;
-				PPTechRouteManager mgr;
+				PPTechRouteManager trmgr;
 				TSCollection <PPTechRoute> list_by_goods;
-				if(mgr.GetListByGoods(goods_id, list_by_goods) > 0) {
+				if(trmgr.GetListByGoods(goods_id, list_by_goods) > 0) {
 					assert(list_by_goods.getCount() > 0);
 					for(uint i = 0; i < list_by_goods.getCount(); i++) {
 						const PPTechRoute * p_route = list_by_goods.at(i);

@@ -4361,7 +4361,7 @@ int PPSession::Implement_PPLogin(const PPDbEntrySet2 * pDbes, const char * pDbSy
 						SetExtFlag(ECF_INITONLOGIN, 0);
 						SetExtFlag(ECF_CHKPAN_USEGDSLOCASSOC, 0);
 						SetExtFlag(ECF_DEBUGDIRTYMTX, 0);
-						SetExtFlag(ECF_USECDB, 0);
+						// @v12.6.2 (тупиковая ветвь) SetExtFlag(ECF_USECDB, 0);
 						SetExtFlag(ECF_RCPTDLVRLOCASWAREHOUSE, 0);
 						SetExtFlag(ECF_USESJLOGINEVENT, 0);
 						SetExtFlag(ECF_CODEPREFIXEDLIST, 0);

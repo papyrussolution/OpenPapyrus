@@ -467,8 +467,9 @@ int SymbHashTable::Add(const char * pSymb, uint val, uint * pPos)
 	{
 		const size_t h = Hash(pSymb);
 		c = P_Tab[h].SetVal(pos, val);
-		if(Flags & fUseAssoc)
+		if(Flags & fUseAssoc) {
 			THROW(Assoc.Add(static_cast<long>(val), static_cast<long>(pos), 0, ORDER_ASSOC));
+		}
 		AddCount++;
 		if(c > 1) {
 			CollCount++;

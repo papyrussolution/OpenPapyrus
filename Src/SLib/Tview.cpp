@@ -12,7 +12,7 @@
 /*static*/void * FASTCALL TView::messageCommand(TView * pReceiver, uint command)
 {
 	void * p_ret = 0;
-	if(pReceiver) {
+	if(pReceiver && pReceiver->IsConsistent()) {
 		TEvent event;
 		pReceiver->handleEvent(event.setCmd(command, 0));
 		if(event.what == TEvent::evNothing)
@@ -24,7 +24,7 @@
 /*static*/void * STDCALL TView::messageCommand(TView * pReceiver, uint command, void * pInfoPtr)
 {
 	void * p_ret = 0;
-	if(pReceiver) {
+	if(pReceiver && pReceiver->IsConsistent()) {
 		TEvent event;
 		event.what = TEvent::evCommand;
 		event.message.command = command;
@@ -39,7 +39,7 @@
 /*static*/void * FASTCALL TView::messageBroadcast(TView * pReceiver, uint command)
 {
 	void * p_ret = 0;
-	if(pReceiver) {
+	if(pReceiver && pReceiver->IsConsistent()) {
 		TEvent event;
 		event.what = TEvent::evBroadcast;
 		event.message.command = command;
@@ -53,7 +53,7 @@
 /*static*/void * STDCALL TView::messageBroadcast(TView * pReceiver, uint command, void * pInfoPtr)
 {
 	void * p_ret = 0;
-	if(pReceiver) {
+	if(pReceiver && pReceiver->IsConsistent()) {
 		TEvent event;
 		event.what = TEvent::evBroadcast;
 		event.message.command = command;
@@ -260,7 +260,7 @@ TView::TView() : Sign(SlConst::Signature_TView), SubSign(0), Id(0), Reserve(0), 
 TView::~TView()
 {
 	ZDELETE(P_WordSelBlk);
-	CALLPTRMEMB(P_Owner, remove(this));
+	CALLPTRMEMB(P_Owner, RemoveChild(this));
 	Sign = 0;
 	Id = 0;
 	Parent = 0;
@@ -1778,12 +1778,21 @@ int TViewGroup::TransmitData(int dir, void * pData)
 	return s;
 }
 
-void FASTCALL TViewGroup::remove(TView * p)
+void FASTCALL TViewGroup::RemoveChild(TView * pV)
 {
-	if(p) {
-		removeView(p);
-		p->P_Owner = 0;
-		p->P_Next = 0;
+	if(pV) {
+		removeView(pV);
+		pV->P_Owner = 0;
+		pV->P_Next = 0;
+		// @v12.6.2 {
+		if(P_Current == pV) {
+			P_Current = 0;
+		}
+		if(GetSignature() == SlConst::Signature_TWindow) {
+			TWindow * p_this_win = static_cast<TWindow *>(this);
+			p_this_win->DeleteChildLayout(pV);
+		}
+		// } @v12.6.2 
 	}
 }
 
@@ -1810,7 +1819,7 @@ ushort FASTCALL TViewGroup::execView(TWindow * p)
 			retval = (event.what == TEvent::evNothing) ? static_cast<ushort>(event.message.infoLong) : 0;
 		}
 		if(!p_save_owner)
-			remove(p);
+			RemoveChild(p);
 		SetCurrentView(save_current, leaveSelect);
 		p->setState(sfModal, false);
 		p->ViewOptions = save_options;

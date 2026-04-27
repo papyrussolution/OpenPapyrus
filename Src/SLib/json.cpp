@@ -196,6 +196,14 @@ static rstring_code FASTCALL rcs_catc(RcString * pre, const char c)
 			result = 1;
 		else if(pN->Type == SJson::tFALSE)
 			result = 0;
+		else if(pN->Type == SJson::tSTRING) {
+			if(pN->Text.IsEqiAscii("true")) {
+				result = 1;
+			}
+			else if(pN->Text.IsEqiAscii("false")) {
+				result = 0;
+			}
+		}
 	}
 	return result;
 }

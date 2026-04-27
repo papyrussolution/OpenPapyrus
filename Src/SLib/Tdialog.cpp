@@ -6,7 +6,7 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <ppdefs.h> // @ Muxa При вызове findResource используется TAB_HELP, определенный в ppdefs.h
+#include <ppdefs.h> // @Muxa При вызове findResource используется TAB_HELP, определенный в ppdefs.h
 
 #define TV_DEBUG_STACK 0
 //
@@ -98,7 +98,7 @@ SString & TProgram::MakeModalStackDebugText(SString & rBuf) const
 			TView::SGetWindowText(_hs, temp_buf);
 		else
 			temp_buf = "non window";
-		rBuf.CatHex((long)_hs).Space().CatBrackStr(temp_buf);
+		rBuf.CatHex(reinterpret_cast<intptr_t>(_hs)).Space().CatBrackStr(temp_buf);
 	}
 	return rBuf;
 }

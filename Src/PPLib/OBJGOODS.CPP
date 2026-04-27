@@ -5353,3 +5353,44 @@ int PPObjGoods::SetupAttrByTextDescr(PPID id, const char * pLine, int use_ta)
 	CATCHZOK
 	return ok;
 }
+//
+//
+//
+int Helper_AdjustFractionalUnitPrice(uint fragmentation, double qtty, double orgPrice, int roundingDir, double * pAdjustedPrice) // @v12.6.1
+{
+	int    ok = -1;
+	double new_price = orgPrice;
+	double ip = 0.0;
+	double nmrtr = 0.0;
+	double dnmntr = 0.0;
+	if(fsplitintofractions(qtty, fragmentation, 1E-5, &ip, &nmrtr, &dnmntr)) {
+		long   _i_dmntr = R0i(dnmntr);
+		double frac_price = R2(orgPrice / _i_dmntr);
+		new_price = frac_price * _i_dmntr;
+		if(new_price != orgPrice) {
+			ok = 1;
+		}
+		//double frac_amt = frac_price * R0i(nmrtr);
+	}
+	ASSIGN_PTR(pAdjustedPrice, new_price);
+	return ok;
+}
+
+int PPObjGoods::AdjustFractionalUnitPrice(PPID goodsID, double qtty, double orgPrice, int roundingDir, double * pAdjustedPrice) // @v12.6.1
+{
+	int    ok = -1;
+	double new_price = orgPrice;
+	if(goodsID && qtty > 0.0 && qtty < 1.0) {
+		Goods2Tbl::Rec goods_rec;
+		PPGoodsType2 gt_rec;
+		PPUnit2 unit_rec;
+		long   chzn_prod_type = 0;
+		if(Fetch(goodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
+			chzn_prod_type = gt_rec.ChZnProdType;
+		if(chzn_prod_type == GTCHZNPT_MEDICINE && FetchUnit(goods_rec.UnitID, &unit_rec) > 0 && unit_rec.IsFragmentationValid()) {
+			ok = Helper_AdjustFractionalUnitPrice(unit_rec.Fragmentation, qtty, orgPrice, roundingDir, &new_price);
+		}
+	}
+	ASSIGN_PTR(pAdjustedPrice, new_price);
+	return ok;
+}

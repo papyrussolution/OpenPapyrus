@@ -790,24 +790,17 @@ int PPViewPrjTask::CheckRecForFilt(const PrjTaskTbl::Rec * pRec)
 TempOrderTbl::Rec & PPViewPrjTask::MakeTempEntry(const PrjTaskTbl::Rec & rRec, TempOrderTbl::Rec & rTempRec)
 {
 	SString ord_buf;
-	if(Filt.Order == PrjTaskFilt::ordByDt)
-		ord_buf.Cat(rRec.Dt, DATF_YMD|DATF_CENTURY);
-	else if(Filt.Order == PrjTaskFilt::ordByStartDt)
-		ord_buf.Cat(rRec.StartDt, DATF_YMD|DATF_CENTURY);
-	else if(Filt.Order == PrjTaskFilt::ordByEstFinishDt)
-		ord_buf.Cat(rRec.EstFinishDt, DATF_YMD|DATF_CENTURY);
-	else if(Filt.Order == PrjTaskFilt::ordByFinishDt)
-		ord_buf.Cat(rRec.FinishDt, DATF_YMD|DATF_CENTURY);
-	else if(Filt.Order == PrjTaskFilt::ordByCreator)
-		GetPersonName(rRec.CreatorID, ord_buf);
-	else if(Filt.Order == PrjTaskFilt::ordByEmployer)
-		GetPersonName(rRec.EmployerID, ord_buf);
-	else if(Filt.Order == PrjTaskFilt::ordByClient)
-		GetPersonName(rRec.ClientID, ord_buf);
-	else if(Filt.Order == PrjTaskFilt::ordByCode)
-		ord_buf.Cat(rRec.Code);
-	else // @default
-		ord_buf.Cat(rRec.Dt, DATF_YMD|DATF_CENTURY);
+	switch(Filt.Order) {
+		case PrjTaskFilt::ordByDt: ord_buf.Cat(rRec.Dt, DATF_YMD|DATF_CENTURY); break;
+		case PrjTaskFilt::ordByStartDt: ord_buf.Cat(rRec.StartDt, DATF_YMD|DATF_CENTURY); break;
+		case PrjTaskFilt::ordByEstFinishDt: ord_buf.Cat(rRec.EstFinishDt, DATF_YMD|DATF_CENTURY); break;
+		case PrjTaskFilt::ordByFinishDt: ord_buf.Cat(rRec.FinishDt, DATF_YMD|DATF_CENTURY); break;
+		case PrjTaskFilt::ordByCreator: GetPersonName(rRec.CreatorID, ord_buf); break;
+		case PrjTaskFilt::ordByEmployer: GetPersonName(rRec.EmployerID, ord_buf); break;
+		case PrjTaskFilt::ordByClient: GetPersonName(rRec.ClientID, ord_buf); break;
+		case PrjTaskFilt::ordByCode: ord_buf.Cat(rRec.Code); break;
+		default: ord_buf.Cat(rRec.Dt, DATF_YMD|DATF_CENTURY); break;
+	}
 	rTempRec.Clear();
 	rTempRec.ID = rRec.ID;
 	ord_buf.CopyTo(rTempRec.Name, sizeof(rTempRec.Name));
@@ -1162,6 +1155,17 @@ bool PPViewPrjTask::IsInMemView() const
 	return LOGIC(Filt.Flags & PrjTaskFilt::fInMemView);
 }
 
+int PPViewPrjTask::RemooveInternalEntry(PPID id, TSArray <InternalViewItem> & rList)
+{
+	int    ok = -1;
+	uint   pos = 0;
+	if(rList.lsearch(&id, &pos, CMPF_LONG)) {
+		rList.atFree(pos);
+		ok = 1;
+	}
+	return ok;
+}
+
 int PPViewPrjTask::MakeInternalEntry(const PrjTaskTbl::Rec & rRec, bool forceAppend, TSArray <InternalViewItem> & rList)
 {
 	int    ok = 1;
@@ -1251,6 +1255,7 @@ int PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 		for(InitIteration(); NextIteration(&rec) > 0; PPWaitPercent(GetCounter())) {
 			MakeInternalEntry(rec, true/*forceAppend*/, temp_list);
 		}
+		temp_list.sort(PTR_CMPFUNC(PPViewPrjTask_InternalViewItem_ByFilt), this);
 		P_DsList = new TSArray <InternalViewItem>(temp_list);
 	}
 	else {
@@ -2252,6 +2257,57 @@ int PPViewPrjTask::ChangeTasks(PPIDArray * pAry)
 	return ok;
 }
 
+/*static*/IMPL_CMPMEMBFUNC(PPViewPrjTask, PPViewPrjTask_InternalViewItem_ByFilt, i1, i2)
+{
+	int   si = 0;
+	const PPViewPrjTask::InternalViewItem * p1 = static_cast<const PPViewPrjTask::InternalViewItem *>(i1);
+	const PPViewPrjTask::InternalViewItem * p2 = static_cast<const PPViewPrjTask::InternalViewItem *>(i2);
+	if(pExtraData) {
+		PPViewPrjTask * p_view = static_cast<PPViewPrjTask *>(pExtraData);
+		const PrjTaskFilt & r_filt = p_view->Filt;
+		switch(r_filt.Order) {
+			case PrjTaskFilt::ordByDt: si = CMPSIGN(p1->Dtm, p2->Dtm); break;
+			case PrjTaskFilt::ordByStartDt: si = CMPSIGN(p1->StartDtm, p2->StartDtm); break;
+			case PrjTaskFilt::ordByEstFinishDt: si = CMPSIGN(p1->EstFinishDtm, p2->EstFinishDtm); break;
+			case PrjTaskFilt::ordByFinishDt: si = CMPSIGN(p1->FinishDtm, p2->FinishDtm); break;
+			case PrjTaskFilt::ordByCreator: 
+				{
+					SString & r_nm1 = SLS.AcquireRvlStr();
+					SString & r_nm2 = SLS.AcquireRvlStr();
+					GetPersonName(p1->CreatorID, r_nm1); 
+					GetPersonName(p2->CreatorID, r_nm2);
+					si = r_nm1.CmpNC(r_nm2);
+				}
+				break;
+			case PrjTaskFilt::ordByEmployer: 
+				{
+					SString & r_nm1 = SLS.AcquireRvlStr();
+					SString & r_nm2 = SLS.AcquireRvlStr();
+					GetPersonName(p1->EmployerID, r_nm1); 
+					GetPersonName(p2->EmployerID, r_nm2);
+					si = r_nm1.CmpNC(r_nm2);
+				}
+				break;
+			case PrjTaskFilt::ordByClient: 
+				{
+					SString & r_nm1 = SLS.AcquireRvlStr();
+					SString & r_nm2 = SLS.AcquireRvlStr();
+					GetPersonName(p1->ClientID, r_nm1); 
+					GetPersonName(p2->ClientID, r_nm2);
+					si = r_nm1.CmpNC(r_nm2);
+				}
+				break;
+			case PrjTaskFilt::ordByCode: 
+				si = stricmp866(p1->Code, p2->Code);
+				break;
+			default:
+				si = CMPSIGN(p1->Dtm, p2->Dtm); 
+				break;
+		}
+	}
+	return si;
+}
+
 int PPViewPrjTask::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = 0;
@@ -2405,37 +2461,35 @@ int PPViewPrjTask::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 						PPID   last_id = 0;
 						if(GetLastUpdatedObjects(0, id_list) > 0) {
 							PrjTaskTbl::Rec rec;
+							bool  do_sort = false;
 							for(uint i = 0; i < id_list.getCount(); i++) {
 								last_id = id_list.get(i);
 								if(TodoObj.Search(last_id, &rec) > 0) {
 									if(ppvCmd == PPVCMD_ADDITEM) {
 										MakeInternalEntry(rec, true/*forceAppend*/, *P_DsList);
+										do_sort = true;
 									}
 									else if(ppvCmd == PPVCMD_EDITITEM) {
 										MakeInternalEntry(rec, false/*forceAppend*/, *P_DsList);
+										do_sort = true;
 									}
 								}
 								else {
-									;
+									RemooveInternalEntry(last_id, *P_DsList);
 								}
 								TodoObj.Dirty(last_id);
 							}
-							//InternalViewList.sort2(PTR_CMPFUNC(PPViewPerson_InternalViewItem_ByName), this);
+							if(do_sort) {
+								P_DsList->sort2(PTR_CMPFUNC(PPViewPrjTask_InternalViewItem_ByFilt), this);
+							}
 						}
 						if(last_id) {
-							/*
 							{
-								SArray * p_array = new SArray(sizeof(InternalViewItem));
-								if(p_array) {
-									for(uint i = 0; i < InternalViewList.getCount(); i++) {
-										p_array->insert(&InternalViewList.at(i));
-									}
-								}
+								SArray * p_array = P_DsList ? new SArray(*P_DsList) : new SArray(sizeof(InternalViewItem));
 								p_def->setArray(p_array, 0, 1);
 							}
 							if(ppvCmd != PPVCMD_DELETEITEM)
 								pBrw->search2(&last_id, CMPF_LONG, srchFirst, 0, nullptr);
-							*/
 						}
 					}
 				}

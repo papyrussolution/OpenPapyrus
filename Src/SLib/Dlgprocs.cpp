@@ -96,7 +96,7 @@ void TDialog::RemoveUnusedControls()
 			else {
 				TView * p_to_remove_view = v;
 				v = v->prev();
-				TViewGroup::remove(p_to_remove_view);
+				TViewGroup::RemoveChild(p_to_remove_view);
 				delete p_to_remove_view;
 				if(v == P_Last)
 					return;

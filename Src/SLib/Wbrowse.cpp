@@ -984,7 +984,7 @@ BrowserWindow::~BrowserWindow()
 		}
 		ResetOwnerCurrent();
 		if(!IsInState(sfModal))
-			APPL->P_DeskTop->remove(this);
+			APPL->P_DeskTop->RemoveChild(this);
 	}
 	ZDELETE(P_Def);
 	ZDELETE(P_RowsHeightAry);
@@ -3019,8 +3019,14 @@ void BrowserWindow::SpecialMenu() // @v12.4.12
 				}
 				else {
 					TView::SetWindowUserData(hWnd, 0);
-					if(!(p_view->Sf & sfOnDestroy))
+					if(!(p_view->Sf & sfOnDestroy)) {
+						// @v12.6.2 {
+						if(p_view->P_Owner && p_view->P_Owner->IsConsistent()) {
+							p_view->P_Owner->RemoveChild(p_view);
+						}
+						// } @v12.6.2 
 						delete p_view;
+					}
 				}
 				APPL->NotifyFrame(1);
 			}

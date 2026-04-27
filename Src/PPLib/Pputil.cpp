@@ -5192,160 +5192,48 @@ int TestRestic()
 //
 //
 //
-struct PhoneNumberMetaData { // @v12.6.0 @construction 
+class PhoneNumberMetaData { // @v12.6.0 @construction 
+public:
 	enum {
 		fMainCountry                = 0x0001, // mainCountryForCode?: "true" # Основная страна для этого кода
 		fMobileNumberPortableRegion = 0x0002, // mobileNumberPortableRegion
 	};
-	static uint32 ParsePossibleLengths(const char * pText)
-	{
-		uint32 result = 0;
-		if(!isempty(pText)) {
-			StringSet ss(',', pText);
-			SString temp_buf;
-			SString num_buf;
-			SStrScan scan;
-			for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-				temp_buf.Strip();
-				scan.Set(temp_buf, 0);
-				scan.Skip();
-				bool   local_ok = false;
-				if(scan.GetNumber(num_buf)) { // "8"
-					const  long n = temp_buf.ToLong();
-					if(checkirangef(n, 1, 32)) {
-						result |= (1 << (n-1));
-						local_ok = true;
-					}
-				}
-				else if(scan.IncrChr('[')) { //"[5-13]"
-					scan.Skip();
-					if(scan.GetNumber(num_buf)) {
-						const  long i1 = temp_buf.ToLong();
-						if(checkirangef(i1, 1, 32)) {
-							scan.Skip();
-							if(scan.IncrChr('-')) {
-								scan.Skip();
-								if(scan.GetNumber(num_buf)) {
-									const  long i2 = temp_buf.ToLong();
-									if(checkirangef(i2, 1, 32)) {
-										scan.Skip();
-										if(scan.Is(']')) {
-											if(i1 <= i2) {
-												for(long n = i1; n <= i2; n++) {
-													result |= (1 << (n-1));
-												}
-												local_ok = true;
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		return result;
-	}
+	enum {
+		numdescrkUndef   = 0, 
+		numdescrkGeneral,        // generalDesc?: NumberDescriptor      # Общее описание всех номеров
+		numdescrkFixedLine,      // fixedLine?: NumberDescriptor        # Стационарные
+		numdescrkMobile,         // mobile?: NumberDescriptor           # Мобильные
+		numdescrkPager,          // pager?: NumberDescriptor            # Пейджеры
+		numdescrkTollFree,       // tollFree?: NumberDescriptor         # Бесплатные (800, 888...)
+		numdescrkPremiumRate,    // premiumRate?: NumberDescriptor      # Платные (900...)
+		numdescrkSharedCost,     // sharedCost?: NumberDescriptor       # Разделение стоимости
+		numdescrkPersonalNumber, // personalNumber?: NumberDescriptor   # Персональные номера
+		numdescrkVoIP,           // voip?: NumberDescriptor             # VoIP
+		numdescrkUAN,            // uan?: NumberDescriptor              # Унифицированные доступные номера 
+		numdescrkVoiceMail,      // voicemail?: NumberDescriptor        # Голосовая почта
+	};
+
+	static uint32 ParsePossibleLengths(const char * pText);
+
 	struct NumberDescriptor {
-		NumberDescriptor()
-		{
-			THISZERO();
-		}
-		int    FromJsonObj(SStrGroup & rPool, const SJson * pJs)
-		{
-			int    ok = 1;
-			SString temp_buf;
-			if(SJson::IsObject(pJs)) {
-				/*
-							└── NumberDescriptor:
-								├── possibleLengths:
-								│   ├── national: string    # Допустимые длины: "7,8" или "[6-9]"
-								│   └── localOnly?: string  # Длины только для локального набора
-								│
-								├── exampleNumber: string   # Пример валидного номера
-								│
-								└── nationalNumberPattern: string  # Regex для валидации
-				*/ 
-				for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
-					if(p_cur->Text.IsEqiAscii("possibleLengths")) {
-						if(SJson::IsObject(p_cur->P_Child)) {
-							for(const SJson * p_pl = p_cur->P_Child->P_Child; p_pl; p_pl = p_pl->P_Next) {
-								if(p_pl->Text.IsEqiAscii("national")) {
-									SJson::GetChildTextUnescaped(p_pl, temp_buf);
-									PossibleLen_National = ParsePossibleLengths(temp_buf);
-								}
-								else if(p_pl->Text.IsEqiAscii("localOnly")) {
-									SJson::GetChildTextUnescaped(p_pl, temp_buf);
-									PossibleLen_LocalOnly = ParsePossibleLengths(temp_buf);
-								}
-							}
-						}
-					}
-					else if(p_cur->Text.IsEqiAscii("exampleNumber")) {
-						SJson::GetChildTextUnescaped(p_cur, temp_buf);
-						rPool.AddS(temp_buf, &ExampleP);
-					}
-					else if(p_cur->Text.IsEqiAscii("nationalNumberPattern")) {
-						SJson::GetChildTextUnescaped(p_cur, temp_buf);
-						rPool.AddS(temp_buf, &NationalPatternP);
-					}
-				}
-			}
-			return ok;
-		}
+		NumberDescriptor();
+		~NumberDescriptor();
+		int    FromJsonObj(SStrGroup & rPool, const SJson * pJs);
+		
+		uint   Kind; // numdescrkXXX
 		uint32 PossibleLen_National; //"possibleLengths": { "national": "10" },
 		uint32 PossibleLen_LocalOnly;
 		uint   NationalPatternP; //"nationalNumberPattern": "[3-9]\\d{9}",
 		uint   ExampleP; //"exampleNumber": "9123456789"
+		SRegExp2 * P_Re; // Скомпилированное регулярное выражение NationalPatternP
 	};
 	struct NumberFormat { // @flat Форматирование вывода
-		NumberFormat()
-		{
-			THISZERO();
-		}
-		int    FromJsonObj(SStrGroup & rPool, const SJson * pJs)
-		{
-			int    ok = 1;
-			SString temp_buf;
-			if(SJson::IsObject(pJs)) {
-				for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
-					if(p_cur->Text.IsEqiAscii("pattern")) {
-						SJson::GetChildTextUnescaped(p_cur, temp_buf);
-						rPool.AddS(temp_buf, &PatternP);
-					}
-					else if(p_cur->Text.IsEqiAscii("format")) {
-						SJson::GetChildTextUnescaped(p_cur, temp_buf);
-						rPool.AddS(temp_buf, &FormatP);
-					}
-					else if(p_cur->Text.IsEqiAscii("intlFormat")) {
-						SJson::GetChildTextUnescaped(p_cur, temp_buf);
-						rPool.AddS(temp_buf, &IntlFormatP);
-					}
-					else if(p_cur->Text.IsEqiAscii("leadingDigits")) {
-						// @todo
-					}
-					else if(p_cur->Text.IsEqiAscii("nationalPrefixFormattingRule")) {
-						SJson::GetChildTextUnescaped(p_cur, temp_buf);
-						rPool.AddS(temp_buf, &NatonalPfxFormatRuleP);
-					}
-					else if(p_cur->Text.IsEqiAscii("carrierCodeFormattingRule")) {
-						SJson::GetChildTextUnescaped(p_cur, temp_buf);
-						rPool.AddS(temp_buf, &CarrierCodeFormatRuleP);
-					}
-					else if(p_cur->Text.IsEqiAscii("nationalPrefixOptionalWhenFormatting")) {
-						const int b = SJson::GetBoolean(p_cur->P_Child);
-						if(b > 0) {
-							NatonalPfxOptionalWhenFormatting = true;	
-						}
-					}
-				}
-			}
-			return ok;
-		}
-		uint   PatternP;    // pattern: string                    # Regex для применения формата
-		uint   FormatP;     // format: string                     # Шаблон вывода ("$1 $2 $3")
-		uint   IntlFormatP; // intlFormat?: string | "NA"         # Международный формат
+		NumberFormat();
+		int    FromJsonObj(SStrGroup & rPool, const SJson * pJs);
+
+		uint   PatternP;    // pattern: string            # Regex для применения формата
+		uint   FormatP;     // format: string             # Шаблон вывода ("$1 $2 $3")
+		uint   IntlFormatP; // intlFormat?: string | "NA" # Международный формат
 		uint   LeadingDigitsSetP[6];   // leadingDigits?: string[]           # Ограничение по начальным цифрам
 		uint   NatonalPfxFormatRuleP;  // nationalPrefixFormattingRule?: string # Правило вставки нац. префикса
 		uint   CarrierCodeFormatRuleP; // carrierCodeFormattingRule?: string # Правило для кода оператора
@@ -5353,86 +5241,9 @@ struct PhoneNumberMetaData { // @v12.6.0 @construction
 		uint8  Reserve[3];
 	};
 	struct Terr { // territory
-		Terr() : Flags(0), IntlPfxP(0), PrefIntlPfxP(0), NationalPfxP(0), NationalPfxForParsingP(0), NationalPfxTransformRuleP(0), PrefExtnPfxP(0)
-		{
-			Id[0] = 0;
-			E164[0] = 0;
-			memzero(LeadingDigitsSetP, sizeof(LeadingDigitsSetP));
-		}
-		int    FromJsonObj(SStrGroup & rPool, const SJson * pJs)
-		{
-			int    ok = 1;
-			SString temp_buf;
-			if(SJson::IsObject(pJs)) {
-				for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
-					if(p_cur->Text.IsEqiAscii("id")) {
-						SJson::GetChildTextUnescaped(p_cur, temp_buf);
-						STRNSCPY(Id, temp_buf);
-					}
-					else if(p_cur->Text.IsEqiAscii("countryCode")) {
-						SJson::GetChildTextUnescaped(p_cur, temp_buf);
-						STRNSCPY(E164, temp_buf);
-					}
-					else if(p_cur->Text.IsEqiAscii("mainCountryForCode")) {
-						const int b = SJson::GetBoolean(p_cur->P_Child);
-						if(b > 0) {
-							Flags |= fMainCountry;
-						}
-					}
-					else if(p_cur->Text.IsEqiAscii("leadingDigits")) {
-					}
-					else if(p_cur->Text.IsEqiAscii("availableFormats")) {
-						if(SJson::IsObject(p_cur->P_Child)) {
-							const SJson * p_nfl = p_cur->P_Child->P_Child;
-							if(p_nfl && p_nfl->Text.IsEqiAscii("numberFormat") && SJson::IsArray(p_nfl->P_Child)) {
-								for(const SJson * p_nf_item = p_nfl->P_Child->P_Child; p_nf_item; p_nf_item = p_nf_item->P_Next) {
-									if(SJson::IsObject(p_nf_item)) {
-										NumberFormat nf;
-										if(nf.FromJsonObj(rPool, p_nf_item->P_Child)) {
-											AvailableFormatList.insert(&nf);
-										}
-									}
-								}
-							}
-						}
-					}
-					else if(p_cur->Text.IsEqiAscii("generalDesc")) {
-						GeneralDesc.FromJsonObj(rPool, p_cur->P_Child);
-					}
-					else if(p_cur->Text.IsEqiAscii("fixedLine")) {
-						FixedLine.FromJsonObj(rPool, p_cur->P_Child);
-					}
-					else if(p_cur->Text.IsEqiAscii("mobile")) {
-						Mobile.FromJsonObj(rPool, p_cur->P_Child);
-					}
-					else if(p_cur->Text.IsEqiAscii("pager")) {
-						Pager.FromJsonObj(rPool, p_cur->P_Child);
-					}
-					else if(p_cur->Text.IsEqiAscii("tollFree")) {
-						TollFree.FromJsonObj(rPool, p_cur->P_Child);
-					}
-					else if(p_cur->Text.IsEqiAscii("premiumRate")) {
-						PremiumRate.FromJsonObj(rPool, p_cur->P_Child);
-					}
-					else if(p_cur->Text.IsEqiAscii("sharedCost")) {
-						SharedCost.FromJsonObj(rPool, p_cur->P_Child);
-					}
-					else if(p_cur->Text.IsEqiAscii("personalNumber")) {
-						PersonalNumber.FromJsonObj(rPool, p_cur->P_Child);
-					}
-					else if(p_cur->Text.IsEqiAscii("voip")) {
-						VoIP.FromJsonObj(rPool, p_cur->P_Child);
-					}
-					else if(p_cur->Text.IsEqiAscii("uan")) {
-						UAN.FromJsonObj(rPool, p_cur->P_Child);
-					}
-					else if(p_cur->Text.IsEqiAscii("voicemail")) {
-						VoiceMail.FromJsonObj(rPool, p_cur->P_Child);
-					}
-				}
-			}
-			return ok;
-		}
+		Terr();
+		int    FromJsonObj(SStrGroup & rPool, const SJson * pJs);
+
 		char   Id[8];
 		char   E164[8]; // Телефонный код страны в E.164 ("1", "7", "44")
 		uint   Flags;
@@ -5445,23 +5256,307 @@ struct PhoneNumberMetaData { // @v12.6.0 @construction
 		uint   NationalPfxTransformRuleP; // nationalPrefixTransformRule?: string # Правило трансформации ("9$1")
 		uint   PrefExtnPfxP;              // preferredExtnPrefix?: string         # Префикс добавочного номера
 		TSVector <NumberFormat> AvailableFormatList;
-		//
-		NumberDescriptor GeneralDesc; // generalDesc?: NumberDescriptor      # Общее описание всех номеров
-		NumberDescriptor FixedLine;   // fixedLine?: NumberDescriptor        # Стационарные
-		NumberDescriptor Mobile;      // mobile?: NumberDescriptor           # Мобильные
-		NumberDescriptor Pager;       // pager?: NumberDescriptor            # Пейджеры
-		NumberDescriptor TollFree;    // tollFree?: NumberDescriptor         # Бесплатные (800, 888...)
-		NumberDescriptor PremiumRate; // premiumRate?: NumberDescriptor      # Платные (900...)
-		NumberDescriptor SharedCost;  // sharedCost?: NumberDescriptor       # Разделение стоимости
-		NumberDescriptor PersonalNumber; // personalNumber?: NumberDescriptor   # Персональные номера
-		NumberDescriptor VoIP;           // voip?: NumberDescriptor             # VoIP
-		NumberDescriptor UAN;            // uan?: NumberDescriptor              # Унифицированные доступные номера
-		NumberDescriptor VoiceMail;      // voicemail?: NumberDescriptor        # Голосовая почта
+		TSCollection <NumberDescriptor> NumDescrL;
 	};
+
+	PhoneNumberMetaData()
+	{
+	}
+	int    ParseJsonFile(const char * pJsFileName);
+	TSCollection <Terr> L;
 	SStrGroup StrPool;
 };
 
-int ParsePhoneNumberMetadata(const char * pJsFileName)
+PhoneNumberMetaData::Terr::Terr() : Flags(0), IntlPfxP(0), PrefIntlPfxP(0), NationalPfxP(0), NationalPfxForParsingP(0), NationalPfxTransformRuleP(0), PrefExtnPfxP(0)
+{
+	Id[0] = 0;
+	E164[0] = 0;
+	memzero(LeadingDigitsSetP, sizeof(LeadingDigitsSetP));
+}
+		
+int PhoneNumberMetaData::Terr::FromJsonObj(SStrGroup & rPool, const SJson * pJs)
+{
+	int    ok = 1;
+	SString temp_buf;
+	if(SJson::IsObject(pJs)) {
+		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
+			if(p_cur->Text.IsEqiAscii("id")) {
+				SJson::GetChildTextUnescaped(p_cur, temp_buf);
+				STRNSCPY(Id, temp_buf);
+			}
+			else if(p_cur->Text.IsEqiAscii("countryCode")) {
+				SJson::GetChildTextUnescaped(p_cur, temp_buf);
+				STRNSCPY(E164, temp_buf);
+			}
+			else if(p_cur->Text.IsEqiAscii("mainCountryForCode")) {
+				const int b = SJson::GetBoolean(p_cur->P_Child);
+				if(b > 0) {
+					Flags |= fMainCountry;
+				}
+			}
+			else if(p_cur->Text.IsEqiAscii("leadingDigits")) {
+				if(SJson::IsString(p_cur->P_Child)) {
+					SJson::GetChildTextUnescaped(p_cur, temp_buf);
+					rPool.AddS(temp_buf, &LeadingDigitsSetP[0]);
+				}
+				else {
+					temp_buf.Z(); // @debug
+					if(SJson::IsArray(p_cur->P_Child)) {
+						StringSet ss_local;
+						if(SJson::GetArrayAsStringSet(p_cur->P_Child, ss_local) > 0) {
+							uint   local_count = 0;
+							for(uint ssp = 0; ss_local.get(&ssp, temp_buf);) {
+								if(local_count < SIZEOFARRAY(LeadingDigitsSetP)) {
+									rPool.AddS(temp_buf, &LeadingDigitsSetP[local_count++]);
+								}
+								else
+									break;
+							}
+						}
+					}
+				}
+			}
+			else if(p_cur->Text.IsEqiAscii("internationalPrefix")) {
+				SJson::GetChildTextUnescaped(p_cur, temp_buf);
+				rPool.AddS(temp_buf, &IntlPfxP);
+			}
+			else if(p_cur->Text.IsEqiAscii("preferredInternationalPrefix")) {
+				SJson::GetChildTextUnescaped(p_cur, temp_buf);
+				rPool.AddS(temp_buf, &PrefIntlPfxP);
+			}
+			else if(p_cur->Text.IsEqiAscii("nationalPrefix")) {
+				SJson::GetChildTextUnescaped(p_cur, temp_buf);
+				rPool.AddS(temp_buf, &NationalPfxP);
+			}
+			else if(p_cur->Text.IsEqiAscii("nationalPrefixForParsing")) {
+				SJson::GetChildTextUnescaped(p_cur, temp_buf);
+				rPool.AddS(temp_buf, &NationalPfxForParsingP);
+			}
+			else if(p_cur->Text.IsEqiAscii("nationalPrefixTransformRule")) {
+				SJson::GetChildTextUnescaped(p_cur, temp_buf);
+				rPool.AddS(temp_buf, &NationalPfxTransformRuleP);
+			}
+			else if(p_cur->Text.IsEqiAscii("preferredExtnPrefix")) {
+				SJson::GetChildTextUnescaped(p_cur, temp_buf);
+				rPool.AddS(temp_buf, &PrefExtnPfxP);
+			}
+			else if(p_cur->Text.IsEqiAscii("availableFormats")) {
+				if(SJson::IsObject(p_cur->P_Child)) {
+					const SJson * p_nfl = p_cur->P_Child->P_Child;
+					if(p_nfl && p_nfl->Text.IsEqiAscii("numberFormat") && SJson::IsArray(p_nfl->P_Child)) {
+						for(const SJson * p_nf_item = p_nfl->P_Child->P_Child; p_nf_item; p_nf_item = p_nf_item->P_Next) {
+							NumberFormat nf;
+							if(nf.FromJsonObj(rPool, p_nf_item)) {
+								AvailableFormatList.insert(&nf);
+							}
+						}
+					}
+				}
+			}
+			else if(p_cur->Text.IsEqiAscii("mobileNumberPortableRegion")) {
+				const int b = SJson::GetBoolean(p_cur->P_Child);
+				if(b > 0) {
+					Flags |= fMobileNumberPortableRegion;
+				}
+			}
+			else {
+				static const SIntToSymbTabEntry nd_list[] = {
+					{ numdescrkGeneral, "generalDesc" },
+					{ numdescrkFixedLine, "fixedLine" },
+					{ numdescrkMobile, "mobile" },
+					{ numdescrkPager, "pager" },
+					{ numdescrkTollFree, "tollFree" },
+					{ numdescrkPremiumRate, "premiumRate" },
+					{ numdescrkSharedCost, "sharedCost" },
+					{ numdescrkPersonalNumber, "personalNumber" },
+					{ numdescrkVoIP, "voip" },
+					{ numdescrkUAN, "uan" },
+					{ numdescrkVoiceMail, "voicemail" },
+				};
+				for(uint ndk = 0; ndk < SIZEOFARRAY(nd_list); ndk++) {
+					if(p_cur->Text.IsEqiAscii(nd_list[ndk].P_Symb)) {
+						NumberDescriptor * p_new_nd = NumDescrL.CreateNewItem();
+						if(p_new_nd) {
+							p_new_nd->Kind = nd_list[ndk].Id;
+							p_new_nd->FromJsonObj(rPool, p_cur->P_Child);
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+PhoneNumberMetaData::NumberDescriptor::NumberDescriptor() : P_Re(0), Kind(0), PossibleLen_National(0), PossibleLen_LocalOnly(0), NationalPatternP(0), ExampleP(0)
+{
+}
+
+PhoneNumberMetaData::NumberDescriptor::~NumberDescriptor()
+{
+	delete P_Re;
+}
+
+int PhoneNumberMetaData::NumberDescriptor::FromJsonObj(SStrGroup & rPool, const SJson * pJs)
+{
+	int    ok = 1;
+	SString temp_buf;
+	if(SJson::IsObject(pJs)) {
+		/*
+					└── NumberDescriptor:
+						├── possibleLengths:
+						│   ├── national: string    # Допустимые длины: "7,8" или "[6-9]"
+						│   └── localOnly?: string  # Длины только для локального набора
+						│
+						├── exampleNumber: string   # Пример валидного номера
+						│
+						└── nationalNumberPattern: string  # Regex для валидации
+		*/ 
+		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
+			if(p_cur->Text.IsEqiAscii("possibleLengths")) {
+				if(SJson::IsObject(p_cur->P_Child)) {
+					for(const SJson * p_pl = p_cur->P_Child->P_Child; p_pl; p_pl = p_pl->P_Next) {
+						if(p_pl->Text.IsEqiAscii("national")) {
+							SJson::GetChildTextUnescaped(p_pl, temp_buf);
+							PossibleLen_National = ParsePossibleLengths(temp_buf);
+						}
+						else if(p_pl->Text.IsEqiAscii("localOnly")) {
+							SJson::GetChildTextUnescaped(p_pl, temp_buf);
+							PossibleLen_LocalOnly = ParsePossibleLengths(temp_buf);
+						}
+					}
+				}
+			}
+			else if(p_cur->Text.IsEqiAscii("exampleNumber")) {
+				SJson::GetChildTextUnescaped(p_cur, temp_buf);
+				rPool.AddS(temp_buf, &ExampleP);
+			}
+			else if(p_cur->Text.IsEqiAscii("nationalNumberPattern")) {
+				SJson::GetChildTextUnescaped(p_cur, temp_buf);
+				rPool.AddS(temp_buf, &NationalPatternP);
+			}
+		}
+	}
+	return ok;
+}
+
+PhoneNumberMetaData::NumberFormat::NumberFormat()
+{
+	THISZERO();
+}
+		
+int PhoneNumberMetaData::NumberFormat::FromJsonObj(SStrGroup & rPool, const SJson * pJs)
+{
+	int    ok = 1;
+	SString temp_buf;
+	if(SJson::IsObject(pJs)) {
+		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
+			if(p_cur->Text.IsEqiAscii("pattern")) {
+				SJson::GetChildTextUnescaped(p_cur, temp_buf);
+				rPool.AddS(temp_buf, &PatternP);
+			}
+			else if(p_cur->Text.IsEqiAscii("format")) {
+				SJson::GetChildTextUnescaped(p_cur, temp_buf);
+				rPool.AddS(temp_buf, &FormatP);
+			}
+			else if(p_cur->Text.IsEqiAscii("intlFormat")) {
+				SJson::GetChildTextUnescaped(p_cur, temp_buf);
+				rPool.AddS(temp_buf, &IntlFormatP);
+			}
+			else if(p_cur->Text.IsEqiAscii("leadingDigits")) {
+				if(SJson::IsString(p_cur->P_Child)) {
+					SJson::GetChildTextUnescaped(p_cur, temp_buf);
+					rPool.AddS(temp_buf, &LeadingDigitsSetP[0]);
+				}
+				else {
+					temp_buf.Z(); // @debug
+					if(SJson::IsArray(p_cur->P_Child)) {
+						StringSet ss_local;
+						if(SJson::GetArrayAsStringSet(p_cur->P_Child, ss_local) > 0) {
+							uint   local_count = 0;
+							for(uint ssp = 0; ss_local.get(&ssp, temp_buf);) {
+								if(local_count < SIZEOFARRAY(LeadingDigitsSetP)) {
+									rPool.AddS(temp_buf, &LeadingDigitsSetP[local_count++]);
+								}
+								else
+									break;
+							}
+						}
+					}
+				}
+			}
+			else if(p_cur->Text.IsEqiAscii("nationalPrefixFormattingRule")) {
+				SJson::GetChildTextUnescaped(p_cur, temp_buf);
+				rPool.AddS(temp_buf, &NatonalPfxFormatRuleP);
+			}
+			else if(p_cur->Text.IsEqiAscii("carrierCodeFormattingRule")) {
+				SJson::GetChildTextUnescaped(p_cur, temp_buf);
+				rPool.AddS(temp_buf, &CarrierCodeFormatRuleP);
+			}
+			else if(p_cur->Text.IsEqiAscii("nationalPrefixOptionalWhenFormatting")) {
+				const int b = SJson::GetBoolean(p_cur->P_Child);
+				if(b > 0) {
+					NatonalPfxOptionalWhenFormatting = true;	
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+
+/*static*/uint32 PhoneNumberMetaData::ParsePossibleLengths(const char * pText)
+{
+	uint32 result = 0;
+	if(!isempty(pText)) {
+		StringSet ss(',', pText);
+		SString temp_buf;
+		SString num_buf;
+		SStrScan scan;
+		for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+			temp_buf.Strip();
+			scan.Set(temp_buf, 0);
+			scan.Skip();
+			bool   local_ok = false;
+			if(scan.GetNumber(num_buf)) { // "8"
+				const  long n = temp_buf.ToLong();
+				if(checkirangef(n, 1, 32)) {
+					result |= (1 << (n-1));
+					local_ok = true;
+				}
+			}
+			else if(scan.IncrChr('[')) { //"[5-13]"
+				scan.Skip();
+				if(scan.GetNumber(num_buf)) {
+					const  long i1 = temp_buf.ToLong();
+					if(checkirangef(i1, 1, 32)) {
+						scan.Skip();
+						if(scan.IncrChr('-')) {
+							scan.Skip();
+							if(scan.GetNumber(num_buf)) {
+								const  long i2 = temp_buf.ToLong();
+								if(checkirangef(i2, 1, 32)) {
+									scan.Skip();
+									if(scan.Is(']')) {
+										if(i1 <= i2) {
+											for(long n = i1; n <= i2; n++) {
+												result |= (1 << (n-1));
+											}
+											local_ok = true;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return result;
+}
+
+int PhoneNumberMetaData::ParseJsonFile(const char * pJsFileName)
 {
 	/*
 		ROOT
@@ -5556,6 +5651,40 @@ int ParsePhoneNumberMetadata(const char * pJsFileName)
 		  }
 		}
 			*/ 
-	int    ok = 1;
+	int    ok = 0;
+	Terr * p_new_item = 0;
+	L.freeAll();
+	SJson * p_js = SJson::ParseFile(pJsFileName);
+	if(SJson::IsObject(p_js) && p_js->P_Child && p_js->P_Child->Text.IsEqiAscii("phoneNumberMetadata")) {
+		const  SJson * p_js_pnmd = p_js->P_Child->P_Child;
+		if(SJson::IsObject(p_js_pnmd) && p_js_pnmd->P_Child && p_js_pnmd->P_Child->Text.IsEqiAscii("territories")) {
+			const  SJson * p_js_trs = p_js_pnmd->P_Child->P_Child;
+			if(SJson::IsObject(p_js_trs) && p_js_trs->P_Child && p_js_trs->P_Child->Text.IsEqiAscii("territory")) {
+				const  SJson * p_js_tr = p_js_trs->P_Child->P_Child;
+				if(SJson::IsArray(p_js_tr)) {
+					for(const SJson * p_js_item = p_js_tr->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+						if(SJson::IsObject(p_js_item)) {
+							THROW_SL(p_new_item = new Terr());
+							THROW(p_new_item->FromJsonObj(StrPool, p_js_item));
+							THROW_SL(L.insert(p_new_item));
+							p_new_item = 0; // @important
+							ok = 1;
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	delete p_new_item; // В случае ошибки может быть !0
+	delete p_js;
 	return ok;
+}
+
+int ParsePhoneNumberMetadata() // test
+{
+	SString file_path;
+	PPGetFilePath(PPPATH_DD, "PhoneNumberMetadata.json", file_path);
+	PhoneNumberMetaData	data;
+	return data.ParseJsonFile(file_path);
 }

@@ -2111,8 +2111,7 @@ int PPObjTSession::EditLineDialog(TSessLineTbl::Rec * pData, int asPlanLine)
 }
 
 struct ExecSessionOnTechRouteBlock {
-	ExecSessionOnTechRouteBlock() : PrcID(0), ArID(0), Ar2ID(0), TechID(0), TSessID(0), GoodsID(0), LotID(0), LotQtty(0.0), Flags(0), 
-		StartDtm(ZERODATETIME), FinishDtm(ZERODATETIME)
+	ExecSessionOnTechRouteBlock() : PrcID(0), ArID(0), Ar2ID(0), TechID(0), TSessID(0), GoodsID(0), LotID(0), LotQtty(0.0), Flags(0)
 	{
 	}
 	enum {
@@ -2127,8 +2126,8 @@ struct ExecSessionOnTechRouteBlock {
 	double LotQtty;
 	PPID   TSessID; // 
 	uint   Flags;
-	LDATETIME StartDtm;
-	LDATETIME FinishDtm;
+	STimeChunk TmR;
+	TechRouteIdent TrIdent;
 	SString Serial;
 };
 
@@ -2162,8 +2161,8 @@ int PPObjTSession::Edit_ExecSessionOnTechRoute(const ExecSessionOnTechRouteFilt 
 					;
 				}
 			}
-			setCtrlDatetime(CTL_TSESS_STDT, CTL_TSESS_STTM, Data.StartDtm);
-			setCtrlDatetime(CTL_TSESS_FNDT, CTL_TSESS_FNTM, Data.FinishDtm);
+			setCtrlDatetime(CTL_TSESS_STDT, CTL_TSESS_STTM, Data.TmR.Start);
+			setCtrlDatetime(CTL_TSESS_FNDT, CTL_TSESS_FNTM, Data.TmR.Finish);
 			return ok;
 		}
 		DECL_DIALOG_GETDTS()
@@ -2176,8 +2175,8 @@ int PPObjTSession::Edit_ExecSessionOnTechRoute(const ExecSessionOnTechRouteFilt 
 				Data.GoodsID = ptcg_rec.GoodsID;
 			}
 			getCtrlString(CTL_TSESS_SERIAL, Data.Serial);
-			getCtrlDatetime(CTL_TSESS_STDT, CTL_TSESS_STTM, Data.StartDtm);
-			getCtrlDatetime(CTL_TSESS_FNDT, CTL_TSESS_FNTM, Data.FinishDtm);
+			getCtrlDatetime(CTL_TSESS_STDT, CTL_TSESS_STTM, Data.TmR.Start);
+			getCtrlDatetime(CTL_TSESS_FNDT, CTL_TSESS_FNTM, Data.TmR.Finish);
 			if(Data.GoodsID) {
 				Data.LotID = LotID;
 				Data.LotQtty = LotQtty;
@@ -2195,7 +2194,7 @@ int PPObjTSession::Edit_ExecSessionOnTechRoute(const ExecSessionOnTechRouteFilt 
 			bool   is_there_result = false; // Если true то это значит, что найден лот и найдены технологии. То есть, можно фиксировать final_goods_id, final_lot_id, final_lot_qtty
 			if(prcID) {
 				if(rSerial.NotEmpty()) {
-					const  LDATE start_dt = checkdate(Data.StartDtm.d) ? Data.StartDtm.d : getcurdate_();
+					const  LDATE start_dt = checkdate(Data.TmR.Start.d) ? Data.TmR.Start.d : getcurdate_();
 					PPIDArray lot_id_list;
 					P_BObj->SearchLotsBySerialExactly(rSerial, &lot_id_list);
 					if(lot_id_list.getCount()) {
@@ -2380,7 +2379,10 @@ ExecSessionOnTechRouteFilt & FASTCALL ExecSessionOnTechRouteFilt::operator = (co
 		PPID   new_id = 0;
 		bool   local_fault = false;
 		TSessionPacket new_sess_pack;
-		if(true) { // @construction
+		PPObjTag tag_obj;
+		PPObjectTag2 tag_rec;
+		const  PPID tec_route_stage_tag = (tag_obj.Fetch(PPTAG_LOT_TECROUTESTAGE, &tag_rec) > 0) ? PPTAG_LOT_TECROUTESTAGE : 0;
+		{
 			PPTransaction tra(1);
 			THROW(tra);
 			if(tses_obj.InitPacket(&new_sess_pack, TSESK_SESSION, blk.PrcID, 0)) {
@@ -2388,9 +2390,9 @@ ExecSessionOnTechRouteFilt & FASTCALL ExecSessionOnTechRouteFilt::operator = (co
 				new_sess_pack.Rec.TechID = blk.TechID;
 				new_sess_pack.Rec.ArID = blk.ArID;
 				new_sess_pack.Rec.Ar2ID = blk.Ar2ID;
-				if(checkdate(blk.StartDtm.d)) {
-					new_sess_pack.Rec.StDt = blk.StartDtm.d;
-					new_sess_pack.Rec.StTm = blk.StartDtm.t;
+				if(checkdate(blk.TmR.Start.d)) {
+					new_sess_pack.Rec.StDt = blk.TmR.Start.d;
+					new_sess_pack.Rec.StTm = blk.TmR.Start.t;
 				}
 				else {
 					new_sess_pack.Rec.StDt = now_dtm.d;
@@ -2406,7 +2408,9 @@ ExecSessionOnTechRouteFilt & FASTCALL ExecSessionOnTechRouteFilt::operator = (co
 						STRNSCPY(line_rec.Serial, blk.Serial);
 						line_rec.Sign = 0;
 						if(tses_obj.PutLine(new_id, &oprno, &line_rec, 0)) {
-							;
+							if(tec_route_stage_tag) {
+								
+							}
 						}
 						else {
 							local_fault = true;
@@ -2420,7 +2424,12 @@ ExecSessionOnTechRouteFilt & FASTCALL ExecSessionOnTechRouteFilt::operator = (co
 			else {
 				local_fault = true;
 			}
-			THROW(tra.Commit());
+			if(local_fault) {
+				THROW(tra.Rollback());
+			}
+			else {
+				THROW(tra.Commit());
+			}
 		}
 	}
 	CATCHZOKPPERR

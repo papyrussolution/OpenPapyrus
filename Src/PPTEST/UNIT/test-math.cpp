@@ -1,10 +1,11 @@
 // TEST-MATH.CPP
-// Copyright (c) A.Sobolev 2023
+// Copyright (c) A.Sobolev 2023, 2026
 //
 #include <pp.h>
 #pragma hdrstop
 
 bool FASTCALL Helper_IsPrime(ulong val, int test);
+int  Helper_AdjustFractionalUnitPrice(uint fragmentation, double qtty, double orgPrice, int roundingDir, double * pAdjustedPrice); // @v12.6.1
 //
 // Descr: Реализация из EdLib (Martin Sosic). Я привожу ее здесь для тестирования с целью замены на
 //   штатную idivroundup.
@@ -123,6 +124,41 @@ SLTEST_R(smath)
 			SLCHECK_EQ(denominator, 0.0);
 			SLCHECK_EQ(numerator, 0.0);
 		}
+		// @v12.6.2 {
+		{
+			static constexpr uint fragm_list[] = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 15, 20, 25, 28, 30, 32, 50 };
+			double max_diff = 0.0;
+			for(uint fi = 0; fi < SIZEOFARRAY(fragm_list); fi++) {
+				const  uint fragm = fragm_list[fi];
+				for(double iter_price = 60.0; iter_price <= 1000.0; iter_price += 0.01) {
+					const  double org_price = iter_price;
+					for(double iter_nmrtr = 1.0; iter_nmrtr < static_cast<double>(fragm); iter_nmrtr += 1.0) {
+						const  double qtty = iter_nmrtr / static_cast<double>(fragm);
+						double result_price = 0.0;
+						int    r = Helper_AdjustFractionalUnitPrice(fragm, qtty, org_price, 0/*roundingDir*/, &result_price);
+						//assert(r > 0);
+						SLCHECK_NZ(feqeps(result_price, R2(result_price), 1e-8));
+						const  double diff = fabs(result_price - org_price);
+						SETMAX(max_diff, diff);
+						SLCHECK_LE(diff, 0.30);
+						{
+							double ip_check = 0.0;
+							double nmrtr_check = 0.0;
+							double dnmntr_check = 0.0;
+							if(fsplitintofractions(qtty, fragm, 1E-5, &ip_check, &nmrtr_check, &dnmntr_check)) {
+								const  long denom = R0i(dnmntr_check);
+								if(denom > 0) {
+									const  double expected_price = R2(R2(org_price / denom) * denom);
+									SLCHECK_NZ(feqeps(result_price, expected_price, 1e-8));
+								}
+							}
+						}
+					}
+				}
+			}
+			// max_diff == 0.25000000076090600
+		}
+		// } @v12.6.2 
 	}
 	{
 		//

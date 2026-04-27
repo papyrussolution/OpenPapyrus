@@ -751,7 +751,7 @@ bool StringSet::getnz(uint pos, SString & rBuf) const
 		return get(&pos, rBuf);
 	else {
 		rBuf.Z();
-		return false; // @v11.2.4 @fix true-->false (я не уверен в последствиях, но по логике, здесь должно быть false)
+		return false;
 	}
 }
 

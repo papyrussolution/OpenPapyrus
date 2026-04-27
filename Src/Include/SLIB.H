@@ -2710,10 +2710,10 @@ struct OleDate { // @noctr
 //
 struct LDATE { // @noctr
 	enum {
-		cZero = 0,         // Дата имеет нулевое значение
-		cNormal,           // Дата имеет правильное актуальное значение
-		cSpecial,          // Дата представлена в виде, трактуемом относительно заданной даты (see LDATE::getactual())
-		cInvalid           // Дата имеет недопустимое значение
+		cZero = 0, // Дата имеет нулевое значение
+		cNormal,   // Дата имеет правильное актуальное значение
+		cSpecial,  // Дата представлена в виде, трактуемом относительно заданной даты (see LDATE::getactual())
+		cInvalid   // Дата имеет недопустимое значение
 	};
 	operator unsigned long() const { return v; }
 	OleDate GetOleDate() const;
@@ -7078,12 +7078,83 @@ private:
 	void * P_Buf;
 };
 //
+//
+//
+#pragma pack(push, 1) // @v12.6.2
+template <size_t BYTESIZE> class TSBinary {
+public:
+	TSBinary()
+	{
+		memzero(D, sizeof(D));
+	}
+	TSBinary(const TSBinary <BYTESIZE> & rS)
+	{
+		memcpy(D, rS.D, sizeof(D));
+	}
+	bool operator ! () const { return IsZero(); } // @v12.2.4
+	TSBinary <BYTESIZE> & Z()
+	{
+		memzero(D, sizeof(D));
+		return *this;
+	}
+	bool   FASTCALL operator == (const TSBinary <BYTESIZE> & rS) const { return IsEq(rS); }
+	bool   FASTCALL operator != (const TSBinary <BYTESIZE> & rS) const { return !IsEq(rS); }
+	bool   FASTCALL IsEq(const TSBinary <BYTESIZE> & rS) const { return memcmp(D, rS.D, sizeof(D)) == 0; }
+	bool   IsZero() const { return ismemzero(D, sizeof(D)); }
+	TSBinary <BYTESIZE> & FASTCALL operator = (const TSBinary <BYTESIZE> & rS)
+	{
+		memcpy(D, rS.D, sizeof(D));
+		return *this;
+	}
+	void   Randomize()
+	{
+		memrandomize(D, BYTESIZE);
+	}
+	uint8  D[BYTESIZE];
+};
+#pragma pack(pop) // @v12.6.2
+
+typedef TSBinary <16> binary128;
+typedef TSBinary <20> binary160;
+typedef TSBinary <32> binary256;
+typedef TSBinary <64> binary512;
+//
 // Descr: Класс, реализующий механизм хранения идентифицированных отрезков бинарных данных в общем пуле.
 // Note: Значение идентификатора отрезка 0xffffffff зарезервировано для индикации конца набора и не может быть использовано
 //   как регулярный идентификатор отрезка.
 //
 class SBinarySet : private SBaseBuffer {
 public:
+	//
+	// Descr: Структура заголовка защищенного отрезка.
+	//   Полезные данные хранятся в защифрованном виде между ProtectedChunkV1_Prolog и ProtectedChunkV1_Epilog.
+	//
+	struct ProtectedChunkV1_Prolog { // @v12.6.2 @construction
+		uint32  Magic;   // 'SPC1'
+		uint16  Version; // 1
+		uint16  Flags;   // future use
+		binary128 Salt;  // per-chunk salt
+		uint8   IV[12];  // GCM nonce
+		uint32  PlainSize; // Размер исходных незашифрованных данных (для корректной распаковки)
+	};
+	//
+	// Descr: Структура хвоста защищенного отрезка
+	//
+	struct ProtectedChunkV1_Epilog { // @v12.6.2 @construction
+		binary128 Tag;   // GCM tag
+	};
+	//
+	// Descr: Параметры алгоритма секьюритизации паролей Argon2
+	//
+	struct VaultParams { // @v12.6.2 @construction
+		uint32 Magic;      // 'SVP1'
+		uint16 Version;
+		uint16 Reserved;
+		binary128 ArgonSalt;
+		uint32 MemCost;
+		uint32 TimeCost;
+		uint32 Parallelism;
+	};
 	//
 	// Нулевой идентификатор обозначает свободный блок
 	//
@@ -7208,40 +7279,6 @@ private:
 		uint32 S;
 	};
 	size_t DataLen;
-};
-//
-//
-//
-template <size_t BYTESIZE> class TSBinary {
-public:
-	TSBinary()
-	{
-		memzero(D, sizeof(D));
-	}
-	TSBinary(const TSBinary <BYTESIZE> & rS)
-	{
-		memcpy(D, rS.D, sizeof(D));
-	}
-	bool operator ! () const { return IsZero(); } // @v12.2.4
-	TSBinary <BYTESIZE> & Z()
-	{
-		memzero(D, sizeof(D));
-		return *this;
-	}
-	bool   FASTCALL operator == (const TSBinary <BYTESIZE> & rS) const { return IsEq(rS); }
-	bool   FASTCALL operator != (const TSBinary <BYTESIZE> & rS) const { return !IsEq(rS); }
-	bool   FASTCALL IsEq(const TSBinary <BYTESIZE> & rS) const { return memcmp(D, rS.D, sizeof(D)) == 0; }
-	bool   IsZero() const { return ismemzero(D, sizeof(D)); }
-	TSBinary <BYTESIZE> & FASTCALL operator = (const TSBinary <BYTESIZE> & rS)
-	{
-		memcpy(D, rS.D, sizeof(D));
-		return *this;
-	}
-	void   Randomize()
-	{
-		memrandomize(D, BYTESIZE);
-	}
-	uint8  D[BYTESIZE];
 };
 //
 //
@@ -7407,11 +7444,6 @@ extern const S_GUID    ZEROGUID;
 #define SHASHF_BLAKE2S        28
 #define SHASHF_BLAKE2SP       29
 #define SHASHF_BLAKE3         30
-
-typedef TSBinary <16> binary128;
-typedef TSBinary <20> binary160;
-typedef TSBinary <32> binary256;
-typedef TSBinary <64> binary512;
 //
 // CRC32 functions
 //

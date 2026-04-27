@@ -5555,7 +5555,7 @@ struct PPCommConfig {      // @persistent @store(PropertyTbl)
 #define ECF_DEBUGDIRTYMTX          0x00002000L // Выводить в журнал mtxdirty.log информацию об актуализации
 	// кэша товарной матрицы. Этот журнал - временный и отладочный. Необходим для решения изредка возникающих проблем
 	// с актуализацией кэша матрицы сервером Papyrus.
-#define ECF_USECDB                 0x00004000L // Использовать конфигурационную базу данных
+// @v12.6.2 (тупиковая ветвь) #define ECF_USECDB                 0x00004000L // Использовать конфигурационную базу данных
 #define ECF_RCPTDLVRLOCASWAREHOUSE 0x00008000L // При выборе адеса доставки в диалоге документа прихода товаров,
 	// комбо-бокс будет отражать склады главной организации (для драфт-документов прихода такое поведение - безусловно).
 #define ECF_DETECTCRDBTEXISTBYOPEN 0x00010000L // Флаг, предписывающий системе иднтифицировать
@@ -31602,6 +31602,14 @@ public:
 	int    SerializePacket(int dir, PPGoodsPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx, const DBDivPack * pDestDbDiv);
 	int    __Helper_GetPriceRestrictions_ByFormula(SString & rFormula, const PPGoodsPacket * pPack, double & rBound);
 	int    QuerySpecialNecessityForAcceptingSyncPacket();
+	//
+	// Descr: Очень специализированная функция, делающая слудующую дичь: если товар goodsID может быть продан дробным количеством,
+	//   кратным фракции, заданной в торговой единице измерения этого товара (PPUnit2::Fragmentation), то вычисляет цену, максимально 
+	//   близкую к orgPrice для продажи количества qtty (если qtty > 0 and qtty < 1) с таким условием, чтобы выражение 
+	//   (price / fragmentation) *  qtty давала величину, точно представимую с десятичным числом с округлением до двух знаков после точки.
+	//   Блядь! Кто такое вообще далает?!
+	//   
+	int    AdjustFractionalUnitPrice(PPID goodsID, double qtty, double orgPrice, int roundingDir, double * pAdjustedPrice); // @v12.6.1
 
 	struct ProcessNameBlock {
 		long   Flags;
@@ -38197,6 +38205,13 @@ private:
 #define TECEXSTR_TLNGCOND          1 // Формула условия использования технологии перенастройки //
 #define TECEXSTR_CAPACITY          2 // Формула производительности для автотехнологий
 
+struct TechRouteIdent {
+	TechRouteIdent();
+	SObjID Oid;    // Объект-владелец технологического маршрута, к которому привязана технология TechID
+	PPID   ID;     // @reserve Сейчас маршруты не являются отдельными объектами данных, потому это поле пока не применяется //
+	uint   ItemIdx; // [1..] Если !0, то номер строки в маршруте
+};
+
 class PPTechRoute { // @v12.5.12
 public:
 	struct Entry {
@@ -38232,7 +38247,7 @@ public:
 	//
 	// ARG(rRoute IN/OUT): Поле rRoute.Oid должно быть полностью определено (Obj != 0 && Id != 0)
 	//
-	int    Get(PPTechRoute & rRoute);
+	int    Get(const TechRouteIdent & rIdent, PPTechRoute & rRoute);
 	int    Edit(PPTechRoute & rRoute);
 	int    GetListByGoods(PPID goodsID, TSCollection <PPTechRoute> & rList);
 private:
@@ -38413,7 +38428,7 @@ private:
 
 	TechRouteFilt Filt;
 	TSArray <BrwItem> * P_DsList;
-	PPTechRouteManager Mgr;
+	PPTechRouteManager TrMgr;
 	SStrGroup StrPool; // Пул строковых полей, на который ссылаются поля в BrwItem
 	PPObjTech TecObj;
 	PPObjProcessor PrcObj;
@@ -48993,6 +49008,7 @@ private:
 		uint   DescrP;
 		uint   MemoP;
 	};
+	static DECL_CMPFUNC(PPViewPrjTask_InternalViewItem_ByFilt);
 	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int  HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
@@ -49020,6 +49036,7 @@ private:
 	int    UpdateTimeBrowser(int destroy);
 	void   MakeSubTitle(SString * pSubTitle);
 	int    MakeInternalEntry(const PrjTaskTbl::Rec & rRec, bool forceAppend, TSArray <InternalViewItem> & rList);
+	int    RemooveInternalEntry(PPID id, TSArray <InternalViewItem> & rList);
 
 	PrjTaskViewItem Item;
 	PrjTaskFilt Filt;
@@ -57713,7 +57730,7 @@ protected:
 	int    Backend_AcceptSCard(PPID scardID, const SCardSpecialTreatment::IdentifyReplyBlock * pStirb, uint ascf);
 	int    Implement_AcceptSCard(const SCardTbl::Rec & rScRec, const SCardSpecialTreatment::IdentifyReplyBlock * pStirb);
 	double RoundDis(double d) const;
-	void   Helper_SetupDiscount(double roundingDiscount, int distributeGiftDiscount);
+	void   Helper_SetupDiscount(double roundingDiscount, bool distributeGiftDiscount);
 	//
 	// Descr: Хелпер, вызываемый из Helper_SetupDiscount для предварительной обработки строк чека.
 	// ARG(mode IN): Режим обработки строк чека
@@ -57721,7 +57738,7 @@ protected:
 	//   1 - режим запроса к строронним службам
 	//
 	int    Helper_PreprocessDiscountLoop(int mode, void * pBlk);
-	void   SetupDiscount(int distributeGiftDiscount);
+	void   SetupDiscount(bool distributeGiftDiscount);
 	int    VerifyPrices();
 	int    ProcessGift();
 	int    AddGiftSaleItem(TSVector <SaSaleItem> & rList, const CCheckItem & rItem) const;
@@ -59284,6 +59301,7 @@ public:
 	//
 	int    GetOrderRec(BillTbl::Rec & rOrderBillRec);
 	int    WriteInvoiceItems_(bool correction);
+	void   WriteInvoiceItem_Extra2Block(uint trfrItemIdx, bool correction, const SString & rGoodsArCode, DocNalogRu_Generator::GoodsCodeSet & rGoodsCodeSet);
 
 	enum {
 		stError                 = 0x0001, // В конструкторе возникла ошибка
@@ -64489,7 +64507,7 @@ struct ResolveGoodsItem {
 	PPID   ArID;              // Статья, с которой связан код ArCode
 	double VatRate;           // Ставка НДС (в процентах)
 	char   GoodsName[128];
-	char   Barcode[252];      // @v11.4.5 (24)-->(252) Увеличили поле для акцепта списка кодов
+	char   Barcode[252];      // Увеличили поле для акцепта списка кодов
 	char   ArCode[24];        // Код, ассоциированный со статьей ArID
 	char   ManufName[128];    // Наименование производителя
 	char   GroupName[128];    // Наименование товарной группы

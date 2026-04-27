@@ -4040,6 +4040,209 @@ int PPAutoTranslateText(int srcLang, int destLang, const SString & rSrcUtf8, SSt
 	return ok;
 }
 
+class AutotranslCache {
+public:
+	AutotranslCache();
+	uint   AddSrcText(const char * pText);
+	int    AddTranslation(uint srcTextId, int langId, const char * pTranslation);
+	uint   GetTranslation(const char * pSrcText, int langId, SString & rTranslation);
+	int    Store(const char * pFileName);
+	int    Load(const char * pFileName);
+private:
+	SymbHashTable Ht_SrcText;
+	uint   MaxHtSrcId;
+	SStrGroup StrPool;
+	struct LangEntry {
+		int   LangId; // @firstmember
+		LAssocArray L; // Key - hash-id, Val - StrPool-idx
+	};
+	TSCollection <LangEntry> TransL;
+};
+
+AutotranslCache::AutotranslCache() : Ht_SrcText(SMEGABYTE(1)), MaxHtSrcId(0)
+{
+}
+
+uint AutotranslCache::AddSrcText(const char * pText)
+{
+	uint   result = 0;
+	if(!isempty(pText)) {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		r_temp_buf = pText;
+		if(r_temp_buf.IsLegalUtf8()) {
+			const  uint new_id = (MaxHtSrcId+1);
+			if(Ht_SrcText.Add(r_temp_buf, new_id)) {
+				result = new_id;
+				MaxHtSrcId = new_id;
+			}
+		}
+	}
+	return result;
+}
+
+int AutotranslCache::AddTranslation(uint srcTextId, int langId, const char * pTranslation)
+{
+	int    ok = 0;
+	assert(srcTextId >= 0);
+	if(srcTextId > 0 && langId && !isempty(pTranslation)) {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		r_temp_buf = pTranslation;
+		if(r_temp_buf.IsLegalUtf8()) {
+			uint   llp = 0;
+			LangEntry * p_lentry = 0;
+			if(TransL.lsearch(&langId, &llp, CMPF_LONG)) {
+				p_lentry = TransL.at(llp);
+			}
+			else {
+				p_lentry = TransL.CreateNewItem(&llp);
+				p_lentry->LangId = langId;
+			}
+			if(p_lentry) {
+				ulong   tp = 0;
+				StrPool.AddS(r_temp_buf, &tp);
+				if(tp) {
+					uint   lelp = 0;
+					if(p_lentry->L.Search(srcTextId, &lelp)) {
+						assert(p_lentry->L.at(lelp).Key == srcTextId);
+						p_lentry->L.at(lelp).Val = tp;
+					}
+					else {
+						p_lentry->L.Add(srcTextId, tp);
+					}
+					ok = 1;
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+uint AutotranslCache::GetTranslation(const char * pSrcText, int langId, SString & rTranslation)
+{
+	uint   result = 0;
+	rTranslation.Z();
+	if(!isempty(pSrcText)) {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		r_temp_buf = pSrcText;
+		if(r_temp_buf.IsLegalUtf8()) {
+			uint   src_id = 0;
+			if(Ht_SrcText.Search(r_temp_buf, &src_id, 0)) {
+				assert(src_id > 0);
+				uint   llp = 0;
+				const  LangEntry * p_lentry = TransL.lsearch(&langId, &llp, CMPF_LONG) ? TransL.at(llp) : 0;
+				if(p_lentry) {
+					assert(p_lentry->LangId == langId);
+					uint   lelp = 0;
+					int    val = 0;
+					if(p_lentry->L.Search(src_id, &val, &lelp)) {
+						if(StrPool.GetS(val, rTranslation)) {
+							assert(rTranslation.Len());
+							result = src_id;
+						}
+					}
+				}
+			}
+		}
+	}
+	return result;
+}
+/*
+	Формат хранения кэша автоперевода:
+	
+	^Оригинальная строка
+	^^lang^Перевод
+*/ 
+int AutotranslCache::Store(const char * pFileName)
+{
+	int    ok = 0;
+	SFile  f(pFileName, SFile::mWrite);
+	if(f.IsValid()) {
+		SymbHashTable::Iter iter;
+		uint   val = 0;
+		uint   pos = 0;
+		SString lang_code;
+		SString line_buf;
+		SString src_text;
+		SString trans_text;
+		const  uint tlc_ = TransL.getCount();
+		for(Ht_SrcText.InitIteration(&iter); Ht_SrcText.NextIteration(&iter, &val, &pos, &src_text);) {
+			bool   src_text_output_done = false;
+			for(uint i = 0; i < tlc_; i++) {
+				const LangEntry * p_le = TransL.at(i);
+				if(p_le) {
+					lang_code.Z();
+					GetLinguaCode(p_le->LangId, lang_code);
+					if(lang_code.NotEmpty()) {
+						uint   lelp = 0;
+						if(p_le->L.lsearch(&val, &lelp, CMPF_LONG)) {
+							const  uint tp = static_cast<uint>(p_le->L.at(lelp).Val);
+							if(StrPool.GetS(tp, trans_text)) {
+								if(!src_text_output_done) {
+									line_buf.Z().CatChar('^').Cat(src_text).CR();
+									f.WriteLine(line_buf);
+									src_text_output_done = true;
+								}
+								line_buf.Z().CatCharN('^', 2).Cat(lang_code).CatChar('^').Cat(trans_text).CR();
+								f.WriteLine(line_buf);
+								ok = 1;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+int AutotranslCache::Load(const char * pFileName)
+{
+	int    ok = 0;
+	SFile  f(pFileName, SFile::mRead);
+	if(f.IsValid()) {
+		SString temp_buf;
+		SString last_src_text;
+		SString transl_text;
+		SString line_buf;
+		int    last_line_kind = 0; // 1 - src_text, 2 - translation
+		int    last_lang_id = 0;
+		while(f.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+			if(line_buf.NotEmpty()) {
+				if(line_buf.HasPrefix("^^")) {
+					line_buf.ShiftLeft(2);
+					uint   sp = 0;
+					if(line_buf.SearchChar('^', &sp) && sp > 0) {
+						if(last_src_text.NotEmpty()) {
+							line_buf.Sub(0, sp, temp_buf);
+							line_buf.Sub(sp+1, line_buf.Len(), transl_text);
+							if(transl_text.NotEmpty()) {
+								const int lang_id = RecognizeLinguaSymb(temp_buf, 1/*whole word*/);
+								if(lang_id) {
+									uint   src_text_id = 0;
+									uint   ex_pos = 0;
+									if(Ht_SrcText.Search(last_src_text, &src_text_id, &ex_pos)) {
+									}
+									else {
+										src_text_id = AddSrcText(last_src_text);
+									}
+									if(src_text_id) {
+										AddTranslation(src_text_id, lang_id, transl_text);
+									}
+								}
+							}
+						}
+					}
+				}
+				else if(line_buf.HasPrefix("^")) {
+					line_buf.ShiftLeft();
+					last_src_text = line_buf;
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int TestAutotranslateText()
 {
 	int    ok = 1;

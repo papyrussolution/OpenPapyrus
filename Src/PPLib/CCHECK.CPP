@@ -6,7 +6,9 @@
 #include <pp.h>
 #pragma hdrstop
 #include <ppsoapclient.h>
-
+//
+//
+//
 static const SIntToSymbTabEntry CCheckLnExtNameSymbList[] = { // @v12.4.1
 	{ CCheckPacket::lnextSerial, "cclnextss_serial" },
 	{ CCheckPacket::lnextEgaisMark, "cclnextss_egaismark" },
@@ -924,47 +926,6 @@ int FASTCALL CCheckPacket::Copy(const CCheckPacket & rS)
 	else if(P_PpChZnCodeResultList) {
 		ZDELETE(P_PpChZnCodeResultList);
 	}
-	return ok;
-}
-
-int AdjustFractionalUnitPrice(PPID goodsID, double qtty, double orgPrice, int roundingDir, double * pAdjustedPrice) // @v12.6.1 @construction
-{
-	int    ok = -1;
-	double new_price = orgPrice;
-	if(goodsID && qtty > 0.0 && qtty < 1.0) {
-		PPObjGoods goods_obj;
-		Goods2Tbl::Rec goods_rec;
-		PPGoodsType2 gt_rec;
-		PPUnit2 unit_rec;
-		long   chzn_prod_type = 0;
-		if(goods_obj.Fetch(goodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
-			chzn_prod_type = gt_rec.ChZnProdType;
-		if(chzn_prod_type == GTCHZNPT_MEDICINE) {
-			if(goods_obj.FetchUnit(goods_rec.UnitID, &unit_rec) > 0 && unit_rec.IsFragmentationValid()) {
-				double ip = 0.0;
-				double nmrtr = 0.0;
-				double dnmntr = 0.0;
-				if(fsplitintofractions(qtty, unit_rec.Fragmentation, 1E-5, &ip, &nmrtr, &dnmntr)) {
-					//str.Z().Cat(R0i(nmrtr)).Slash().Cat(R0i(dnmntr));
-					//CreateStr(str, in_data);
-					//price = price / R0i(dnmntr); // @v12.5.6
-					//qtty_done = true;
-					long   _i_dmntr = R0i(dnmntr);
-					double frac_price = R2(orgPrice / _i_dmntr);
-					new_price = frac_price * _i_dmntr;
-					if(new_price != orgPrice) {
-						ok = 1;
-					}
-					double frac_amt = frac_price * R0i(nmrtr);
-					/*if(!feqeps(frac_amt, org_amt, 1E-6)) {
-						// @todo
-						amt_defect_increment += (frac_amt - org_amt);
-					}*/
-				}
-			}
-		}
-	}
-	ASSIGN_PTR(pAdjustedPrice, new_price);
 	return ok;
 }
 

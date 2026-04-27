@@ -72,7 +72,7 @@ void FASTCALL ListWindow::setDef(ListBoxDef * pDef)
 		do {
 			if(p->TestId(P_Lb->GetId())) {
 				p_next = p->P_Next;
-				remove(p);
+				RemoveChild(p);
 				found = true;
 			}
 		} while(!found && p && (p = p->P_Next) != 0);
@@ -720,7 +720,7 @@ void FASTCALL WordSelector::setDef(ListBoxDef * pDef)
 		do {
 			if(p->TestId(P_Lb->GetId())) {
 				p_next = p->P_Next;
-				remove(p);
+				RemoveChild(p);
 				found = 1;
 			}
 		} while(!found && p && (p = p->P_Next));

@@ -6801,12 +6801,18 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 					ok = 1;
 					pBrw->endModal(Filt.Sel ? cmOK : cmCancel);
 				}
-				else if(options & OLW_CANEDIT && (ok = EditItem(hdr.ID)) > 0)
-					update = 1;
+				else if(options & OLW_CANEDIT) {
+					ok = EditItem(hdr.ID);
+					if(ok > 0)
+						update = 1;
+				}
 				break;
 			case PPVCMD_ADDITEM:
-				if(options & OLW_CANINSERT && (ok = AddItem(&id)) > 0)
-					update = 2;
+				if(options & OLW_CANINSERT) {
+					ok = AddItem(&id);
+					if(ok > 0)
+						update = 2;
+				}
 				break;
 			case PPVCMD_ADDBYSAMPLE:
 				if(options & OLW_CANINSERT) {

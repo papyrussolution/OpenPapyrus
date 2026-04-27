@@ -451,12 +451,15 @@ void TWindow::endModal(ushort command)
 	}
 	else {
 		// @v12.6.1 {
+		/* @v12.6.2
 		Sf |= sfOnDestroy;
 		::DestroyWindow(h_wnd);
 		HW = 0;
 		Sf &= ~sfOnDestroy;
+		*/
 		// } @v12.6.1 
 		// @v12.6.1 ::DestroyWindow(h_wnd);
+		::DestroyWindow(h_wnd); // @v12.6.2 (возвращаем назад)
 		// После вызова DestroyWindow экземпляр this разрушается: никаких действий с ним далее проводить нельзя.
 	}
 }
@@ -1194,6 +1197,13 @@ void TWindow::EvaluateLayout(const TRect & rR)
 	}
 }
 
+void TWindow::DeleteChildLayout(TView * pV) // @v12.6.2
+{
+	if(P_Lfc && pV) {
+		P_Lfc->DeleteItemByManagedPtr(pV);
+	}
+}
+
 /*static*/void __stdcall TWindow::SetupLayoutItemFrame(SUiLayout * pItem, const SUiLayout::Result & rR)
 {
 	TView * p_view = static_cast<TView *>(SUiLayout::GetManagedPtr(pItem));
@@ -1397,7 +1407,7 @@ static wchar_t * P_SLibWindowBaseClsName = L"SLibWindowBase";
 		APPL->DelItemFromMenu(pView);
 		pView->ResetOwnerCurrent();
 		if(!pView->IsInState(sfModal)) {
-			APPL->P_DeskTop->remove(pView);
+			APPL->P_DeskTop->RemoveChild(pView);
 			TView::SetWindowUserData(hWnd, 0);
 			if(!(pView->Sf & sfOnDestroy)) { // @v12.5.4
 				delete pView;
@@ -1794,10 +1804,10 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 			return TWindowBase::OnCreate(hWnd, message, wParam, lParam);
 		case WM_DESTROY:
 			if(p_view) {
-				SETIFZ(p_view->EndModalCmd, cmCancel);
+				SETIFZQ(p_view->EndModalCmd, cmCancel);
 				p_view->ResetOwnerCurrent();
 				if(!p_view->IsInState(sfModal)) {
-					APPL->P_DeskTop->remove(p_view);
+					APPL->P_DeskTop->RemoveChild(p_view);
 					if(!(p_view->Sf & sfOnDestroy)) {
 						delete p_view;
 						TView::SetWindowUserData(hWnd, nullptr);

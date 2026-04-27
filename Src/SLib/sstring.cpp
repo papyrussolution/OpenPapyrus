@@ -4271,7 +4271,7 @@ SString & SString::Sub(size_t startPos, size_t len, SString & rBuf) const
 {
 	rBuf.Z();
 	if(startPos < Len()) {
-		const size_t len2 = MIN(len, Len()-startPos);
+		const size_t len2 = smin(len, Len()-startPos);
 		rBuf.CopyFromN(P_Buf+startPos, len2);
 	}
 	return rBuf;
@@ -5481,11 +5481,9 @@ bool SString::IsLegalUtf8() const
 				ok = false;
 		}
 	}
-	// @v11.3.3 {
 	if(!ok) {
 		SLS.SetError(SLERR_STRINGISNTUTF8);
 	}
-	// } @v11.3.3 
 	return ok;
 }
 //
