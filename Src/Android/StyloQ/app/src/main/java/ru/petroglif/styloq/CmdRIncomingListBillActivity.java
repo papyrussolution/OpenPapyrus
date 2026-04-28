@@ -1267,7 +1267,8 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 													Document.LotExtCode cur_entry = _doc.VXcL.get(ev_subj.ItemIdx);
 													if(cur_entry != null) {
 														SLib.SetCtrlString(iv, R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_MARK, cur_entry.Code);
-														Document.GoodsMarkStatus gms = _doc.GetVerificationGoodsMarkStatus(cur_entry.Code);
+														// @v12.6.2 Document.GoodsMarkStatus gms = _doc.GetVerificationGoodsMarkStatus(cur_entry.Code);
+														Document.GoodsMarkStatus gms = _doc.GetInnerGoodsMarkStatus(cur_entry.Code); // @v12.6.2
 														int shaperc = 0;
 														if(gms == Document.GoodsMarkStatus.Matched)
 															shaperc = R.drawable.shape_goodsmark_matched;
@@ -1276,6 +1277,29 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 														else
 															shaperc = R.drawable.shape_goodsmark_absent; // ?
 														iv.setBackground(getResources().getDrawable(shaperc, getTheme()));
+														//
+														{
+															SLib.SetCtrlVisibility(iv, R.id.CTL_BUTTON_MATCH, View.GONE);
+															SLib.SetCtrlVisibility(iv, R.id.STDCTL_DELETEBUTTON, View.VISIBLE);
+															{
+																SLib.SlActivity this_activity = this;
+																View btn = iv.findViewById(R.id.STDCTL_DELETEBUTTON);
+																if(btn != null) {
+																	btn.setVisibility(View.VISIBLE);
+																	btn.setOnClickListener(new View.OnClickListener() {
+																		@Override public void onClick(View v)
+																		{
+																			SLib.ListViewEvent ev_subj_inner = new SLib.ListViewEvent();
+																			ev_subj_inner.RvHolder = null;
+																			ev_subj_inner.ItemIdx = ev_subj.ItemIdx;
+																			ev_subj_inner.ItemView = v;
+																			ev_subj_inner.ItemObj = cur_entry;
+																			this_activity.HandleEvent(SLib.EV_COMMAND, v, ev_subj_inner);
+																		}
+																	});
+																}
+															}
+														}
 													}
 												}
 											}
@@ -1324,13 +1348,13 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 																	Context ctx = parent.getContext();
 																	if(item != null && ctx != null && ctx instanceof SLib.SlActivity) {
 																		SLib.SlActivity activity = (SLib.SlActivity) ctx;
-																		SLib.ListViewEvent ev_subj = new SLib.ListViewEvent();
-																		ev_subj.ItemIdx = position;
-																		ev_subj.ItemId = id;
-																		ev_subj.ItemObj = item;
-																		ev_subj.ItemView = view;
-																		//ev_subj.ParentView = parent;
-																		activity.HandleEvent(SLib.EV_LISTVIEWITEMCLK, parent, ev_subj);
+																		SLib.ListViewEvent ev_subj_inner = new SLib.ListViewEvent();
+																		ev_subj_inner.ItemIdx = position;
+																		ev_subj_inner.ItemId = id;
+																		ev_subj_inner.ItemObj = item;
+																		ev_subj_inner.ItemView = view;
+																		//ev_subj_inner.ParentView = parent;
+																		activity.HandleEvent(SLib.EV_LISTVIEWITEMCLK, parent, ev_subj_inner);
 																	}
 																}
 															});
@@ -1965,19 +1989,36 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 							if(subj != null && subj instanceof SLib.ListViewEvent) {
 								SLib.ListViewEvent lve = (SLib.ListViewEvent)subj;
 								int code_idx = lve.ItemIdx;
-								if(lve.ItemObj != null && lve.ItemObj instanceof Document.GoodsMarkSettingEntry && CPM.GetCurrentDocument() != null) {
-									Document.GoodsMarkSettingEntry gmse = (Document.GoodsMarkSettingEntry)lve.ItemObj;
-									if(gmse.XcL != null && code_idx >= 0 && code_idx < gmse.XcL.size()) {
-										gmse.XcL.remove(code_idx);
-										CPM.OnCurrentDocumentModification();
-										CommonPrereqModule.Tab tab = CommonPrereqModule.Tab.tabUndef;
-										if(ScanSource == ScanType.Setting)
-											tab = CommonPrereqModule.Tab.tabXclSetting;
-										else if(ScanSource == ScanType.Verify)
-											tab = CommonPrereqModule.Tab.tabXclVerify;
-										if(tab != CommonPrereqModule.Tab.tabUndef)
-											NotifyTabContentChanged(tab, R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_LIST);
+								if(lve.ItemObj != null && CPM.GetCurrentDocument() != null) {
+									CommonPrereqModule.Tab tab = CommonPrereqModule.Tab.tabUndef;
+									if(lve.ItemObj instanceof Document.GoodsMarkSettingEntry) {
+										Document.GoodsMarkSettingEntry gmse = (Document.GoodsMarkSettingEntry)lve.ItemObj;
+										if(gmse.XcL != null && code_idx >= 0 && code_idx < gmse.XcL.size()) {
+											gmse.XcL.remove(code_idx);
+											CPM.OnCurrentDocumentModification();
+											if(ScanSource == ScanType.Setting)
+												tab = CommonPrereqModule.Tab.tabXclSetting;
+											else if(ScanSource == ScanType.Verify)
+												tab = CommonPrereqModule.Tab.tabXclVerify;
+										}
 									}
+									// @v12.6.2 {
+									else if(lve.ItemObj instanceof Document.LotExtCode) {
+										Document _doc = CPM.GetCurrentDocument();
+										if(SLib.IsInRange(lve.ItemIdx, _doc.VXcL)) {
+											Document.LotExtCode cur_entry = _doc.VXcL.get(lve.ItemIdx);
+											if(cur_entry != null) {
+												_doc.VXcL.remove(lve.ItemIdx);
+												CPM.OnCurrentDocumentModification();
+											}
+										}
+										if(ScanSource == ScanType.Verify) {
+											tab = CommonPrereqModule.Tab.tabXclVerify;
+										}
+									}
+									// } @v12.6.2
+									if(tab != CommonPrereqModule.Tab.tabUndef)
+										NotifyTabContentChanged(tab, R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_LIST);
 								}
 							}
 							break;

@@ -1070,8 +1070,8 @@ int BillCore::GetListOfActualAgreemts(PPID arID, PPID addendumArID, LDATE dt, in
 						BillTbl::Key2 k2;
 						MEMSZERO(k2);
 						k2.OpID = op_id;
-						k2.Dt = dt;
-						k2.BillNo = MAXINT;
+						k2.Dt = period.low; // @v12.6.2 @fix dt-->period.low
+						k2.BillNo = 0;      // @v12.6.2 @fix MAXLONG-->0 
 						DBQ * dbq = 0;
 						BExtQuery q(this, 2);
 						dbq = &(this->OpID == op_id && this->Object == arID);

@@ -399,22 +399,22 @@ int BillFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 	long   id = 1;
 	SString buf;
 	StrAssocArray flag_list;
-	PutObjMembToBuf(PPOBJ_ACCSHEET,    AccSheetID, STRINGIZE(AccSheetID),  rBuf);
-	PutObjMembToBuf(PPOBJ_PERSON,      MainOrgID,  STRINGIZE(MainOrgID),   rBuf);
-	PutObjMembToBuf(PPOBJ_ARTICLE,     ObjectID,   STRINGIZE(ObjectID),    rBuf);
-	PutObjMembToBuf(PPOBJ_ARTICLE,     Object2ID,  STRINGIZE(Object2ID),   rBuf);
-	PutObjMembToBuf(PPOBJ_ARTICLE,     PayerID,    STRINGIZE(PayerID),     rBuf);
-	PutObjMembToBuf(PPOBJ_ARTICLE,     AgentID,    STRINGIZE(AgentID),     rBuf);
-	PutObjMembToBuf(PPOBJ_USR,         CreatorID,  STRINGIZE(CreatorID),   rBuf);
-	PutObjMembToBuf(PPOBJ_OPRKIND,     OpID,       STRINGIZE(OpID),        rBuf);
-	PutObjMembToBuf(PPOBJ_BILL,        PoolBillID, STRINGIZE(PoolOpID),    rBuf);
-	PutObjMembToBuf(PPOBJ_CURRENCY,    CurID,      STRINGIZE(CurID),       rBuf);
-	PutObjMembToBuf(PPOBJ_BILLSTATUS,  StatusID,   STRINGIZE(StatusID),    rBuf);
+	PutObjMembToBuf(PPOBJ_ACCSHEET,    AccSheetID, STRINGIZE(AccSheetID), rBuf);
+	PutObjMembToBuf(PPOBJ_PERSON,      MainOrgID,  STRINGIZE(MainOrgID),  rBuf);
+	PutObjMembToBuf(PPOBJ_ARTICLE,     ObjectID,   STRINGIZE(ObjectID),   rBuf);
+	PutObjMembToBuf(PPOBJ_ARTICLE,     Object2ID,  STRINGIZE(Object2ID),  rBuf);
+	PutObjMembToBuf(PPOBJ_ARTICLE,     PayerID,    STRINGIZE(PayerID),    rBuf);
+	PutObjMembToBuf(PPOBJ_ARTICLE,     AgentID,    STRINGIZE(AgentID),    rBuf);
+	PutObjMembToBuf(PPOBJ_USR,         CreatorID,  STRINGIZE(CreatorID),  rBuf);
+	PutObjMembToBuf(PPOBJ_OPRKIND,     OpID,       STRINGIZE(OpID),       rBuf);
+	PutObjMembToBuf(PPOBJ_BILL,        PoolBillID, STRINGIZE(PoolOpID),   rBuf);
+	PutObjMembToBuf(PPOBJ_CURRENCY,    CurID,      STRINGIZE(CurID),      rBuf);
+	PutObjMembToBuf(PPOBJ_BILLSTATUS,  StatusID,   STRINGIZE(StatusID),   rBuf);
 	PutMembToBuf(&Period,              STRINGIZE(Period),     rBuf);
 	PutMembToBuf(&PaymPeriod,          STRINGIZE(PaymPeriod), rBuf);
 	PutMembToBuf(&DuePeriod,           STRINGIZE(DuePeriod),  rBuf);
 	PutMembToBuf(static_cast<long>(Ft_STax),        STRINGIZE(Ft_STax),   rBuf);
-	PutMembToBuf(static_cast<long>(Ft_ClosedOrder), STRINGIZE(Ft_ClosedOrder),       rBuf);
+	PutMembToBuf(static_cast<long>(Ft_ClosedOrder), STRINGIZE(Ft_ClosedOrder), rBuf);
 	if(DenyFlags & fDenyAdd)
 		flag_list.Add(id++, STRINGIZE(fDenyAdd));
 	if(DenyFlags & fDenyUpdate)
@@ -1244,9 +1244,10 @@ int PPViewBill::Init_(const PPBaseFilt * pFilt)
 		LocList_.clear();
 		if(OpList.getCount()) {
 			draft_transit_only = 1;
-			for(uint i = 0; draft_transit_only && i < OpList.getCount(); i++)
+			for(uint i = 0; draft_transit_only && i < OpList.getCount(); i++) {
 				if(GetOpType(OpList.get(i)) != PPOPT_DRAFTTRANSIT)
 					draft_transit_only = 0;
+			}
 		}
 		if(!draft_transit_only) {
 			if(Filt.LocList.GetCount()) {

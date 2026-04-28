@@ -5258,14 +5258,235 @@ public:
 		TSVector <NumberFormat> AvailableFormatList;
 		TSCollection <NumberDescriptor> NumDescrL;
 	};
-
+	//
+	// Descr: Результат валидации номера
+	//
+	struct ValidationResult { // @flat
+		ValidationResult() : State(0), TerrIdx(0), NumberDescrIdx(0), DescriptorKind(0), Confidence(0.0f)
+		{
+		}
+		enum {
+			stValid = 0x0001
+		};
+		uint   State;
+		uint   TerrIdx; // [1..] Индекс территории
+		uint   NumberDescrIdx;  // [1...] Сработавший паттерн NumberDescriptor внутри Terr
+		uint   DescriptorKind;  // numdescrkMobile, numdescrkFixedLine, etc.
+		float  Confidence;      // 0.0 - 1.0
+	};
 	PhoneNumberMetaData()
 	{
 	}
 	int    ParseJsonFile(const char * pJsFileName);
+	int    ValidateNumber(const char * pRawInput, TSVector <ValidationResult> * pResultList) const;
+private:
+	int    PrecompilePatterns();
+	bool   ValidateAgainstDescriptor(const NumberDescriptor & rDesc, const char * pDigits, size_t digitCount) const;
+	bool   CheckLeadingDigits(const char * pNumber, const uint * pPatterns, const SStrGroup & rPool);
+
 	TSCollection <Terr> L;
 	SStrGroup StrPool;
 };
+
+int PhoneNumberMetaData::PrecompilePatterns()
+{
+	int    ok = 1;
+	SString temp_buf;
+	for(uint i = 0; i < L.getCount(); i++) {
+		Terr * p_item = L.at(i);
+		if(p_item) {
+			for(uint pi = 0; pi < p_item->NumDescrL.getCount(); pi++) {
+				NumberDescriptor * p_nd = p_item->NumDescrL.at(pi);
+				if(p_nd && !p_nd->P_Re) {
+					StrPool.GetS(p_nd->NationalPatternP, temp_buf);
+					if(temp_buf.NotEmpty()) {
+						SRegExp2 * p_re = new SRegExp2(temp_buf, cpUTF8, SRegExp2::syntaxJava, SRegExp2::fDigitIsAscii);
+						if(p_re && p_re->IsValid()) {
+							p_nd->P_Re = p_re;
+							p_re = 0;
+						}
+						else {
+							ZDELETE(p_re);
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+bool PhoneNumberMetaData::ValidateAgainstDescriptor(const NumberDescriptor & rDesc, const char * pDigits, size_t digitCount) const
+{
+	// 1. Быстрая проверка длины через битовую маску
+	uint32 lenMask = rDesc.PossibleLen_National | rDesc.PossibleLen_LocalOnly;
+	if(lenMask && digitCount > 0 && digitCount <= 32) {
+		if(!(lenMask & (1u << (digitCount - 1))))
+			return false; // Длина не в разрешённом диапазоне
+	}
+	// 2. Проверка по регекспу
+	if(!rDesc.P_Re || !rDesc.P_Re->IsValid())
+		return false;
+	SRegExp2::FindResult fr;
+	if(!rDesc.P_Re->Find(pDigits, sstrlen(pDigits), 0, &fr))
+		return false;
+	// Убеждаемся, что совпадение полное (не подстрока)
+	if(fr.getCount() > 0 && fr.at(0).low == 0 && fr.at(0).upp == sstrlen(pDigits))
+		return true;
+	return false;
+}
+
+// Упрощённая проверка префикса (без полной компиляции регекспа)
+static bool IsPrefixMatch(const char * pNum, const char * pPat)
+{
+	const char * n = pNum;
+	const char* p = pPat;
+	while(*p && *n) {
+		if(*p == '[') {
+			// Обработка диапазона [0-9]
+			p++;
+			bool matched = false;
+			char start = *p++;
+			if(*p == '-') {
+				p++;
+				char end = *p++;
+				if(*n >= start && *n <= end) 
+					matched = true;
+				} 
+				else {
+					if(*n == start) 
+						matched = true;
+				}
+				if(*p == ']') 
+					p++;
+				if(!matched) 
+					return false;
+				n++;
+		} 
+		else if(*p == '(' || *p == '?' || *p == ':') {
+			// Сложный паттерн — считаем, что он может совпасть Для полной проверки нужно компилировать регексп
+			return true;
+		} 
+		else {
+			if(*p != *n) 
+				return false;
+			p++; 
+			n++;
+		}
+	}
+	return true;
+}
+
+bool PhoneNumberMetaData::CheckLeadingDigits(const char * pNumber, const uint * pPatterns, const SStrGroup & rPool)
+{
+	bool   ok = true;
+	for(int lvl = 0; ok && lvl < 6 && pPatterns[lvl]; ++lvl) {
+		if(pPatterns[lvl]) {
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			rPool.GetS(pPatterns[lvl], r_temp_buf);
+			if(r_temp_buf.NotEmptyS()) {
+				// Простая проверка: если паттерн — только префикс, проверяем начало строки
+				// Для сложных регекспов можно скомпилировать временный SRegExp2 с флагом ^
+				if(!IsPrefixMatch(pNumber, r_temp_buf))
+					ok = false;
+				else {
+					// @todo 
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+#if 0 // @construction {
+int PhoneNumberMetaData::ValidateNumber(const char * pRawInput, TSVector <ValidationResult> * pResultList) const
+{
+	int    ok = 0;
+	//ValidationResult result;
+	const  size_t input_len = sstrlen(pRawInput);
+	if(input_len) {
+		// 1. Очистка: оставляем только цифры и '+'
+		SString digits;
+		for(size_t i = 0; i < input_len; ++i) {
+			uchar c = pRawInput[i];
+			if(isdec(c) || c == '+') {
+				digits.CatChar(c);
+			}
+		}
+		if(digits.Len() >= 1 && digits.Len() <= 15) { // Быстрая отсечка по общей длине (1-15 цифр для телефонных номеров)
+			const char * p_digits = digits;
+			size_t totalLen = digits.Len();
+			// 3. Выделяем код страны и национальную часть
+			const char * pNational = p_digits;
+			uint countryCodeLen = 0;
+			if(*p_digits == '+') {
+				p_digits++;
+				// Код страны: 1-3 цифры
+				for(int i = 0; i < 3 && isdec(p_digits[i]); ++i)
+					countryCodeLen = i + 1;
+				if(countryCodeLen > 0)
+					pNational = p_digits + countryCodeLen;
+			}
+			size_t nationalLen = sstrlen(pNational);
+			if(nationalLen == 0) 
+				return result;
+			// 4. Перебор территорий
+			for(uint ti = 0; ti < L.getCount(); ++ti) {
+				const Terr * p_terr = L.at(ti);
+				if(p_terr) {
+					// 4a. Фильтр по коду страны (если указан во входных данных)
+					if(countryCodeLen > 0) {
+						if(!streqlen(p_terr->E164, p_digits, countryCodeLen))
+							continue;
+					}
+					// 4b. Проверка leadingDigits для разрешения коллизий (опционально, но рекомендуется)
+					if(p_terr->LeadingDigitsSetP[0] && !CheckLeadingDigits(pNational, p_terr->LeadingDigitsSetP, StrPool))
+						continue;
+					// 4c. Перебор типов номеров в порядке приоритета
+					static const uint kPriorityOrder[] = {
+						numdescrkMobile,
+						numdescrkFixedLine, 
+						numdescrkVoIP,
+						numdescrkPager,
+						numdescrkUAN,
+						numdescrkTollFree,
+						numdescrkPremiumRate,
+						numdescrkSharedCost,
+						numdescrkPersonalNumber,
+						numdescrkVoiceMail,
+						numdescrkGeneral  // fallback
+					};
+					for(uint prio = 0; prio < SIZEOFARRAY(kPriorityOrder); ++prio) {
+						uint targetKind = kPriorityOrder[prio];
+						for(uint di = 0; di < p_terr->NumDescrL.getCount(); ++di) {
+							const NumberDescriptor * p_desc = p_terr->NumDescrL.at(di);
+							if(p_desc->Kind != targetKind || !p_desc->NationalPatternP)
+								continue;
+							if(ValidateAgainstDescriptor(*p_desc, pNational, nationalLen)) {
+								//result.IsValid = true;
+								//result.pTerritory = &terr;
+								//result.DescriptorKind = desc.Kind;
+								//result.pMatchedPattern = StrPool.GetPtr(desc.NationalPatternP);
+								// Базовая уверенность по типу
+								/*switch(p_desc->Kind) {
+									case numdescrkMobile:      result.Confidence = 0.95f; break;
+									case numdescrkFixedLine:   result.Confidence = 0.90f; break;
+									case numdescrkVoIP:        result.Confidence = 0.80f; break;
+									case numdescrkTollFree:    result.Confidence = 0.85f; break;
+									case numdescrkPremiumRate: result.Confidence = 0.75f; break;
+									default:                   result.Confidence = 0.70f; break;
+								}*/
+								//return result; // Нашли — выходим
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+#endif // } @construction
 
 PhoneNumberMetaData::Terr::Terr() : Flags(0), IntlPfxP(0), PrefIntlPfxP(0), NationalPfxP(0), NationalPfxForParsingP(0), NationalPfxTransformRuleP(0), PrefExtnPfxP(0)
 {
@@ -5503,7 +5724,6 @@ int PhoneNumberMetaData::NumberFormat::FromJsonObj(SStrGroup & rPool, const SJso
 	}
 	return ok;
 }
-
 
 /*static*/uint32 PhoneNumberMetaData::ParsePossibleLengths(const char * pText)
 {
