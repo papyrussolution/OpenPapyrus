@@ -1445,7 +1445,6 @@ int DlRtm::Helper_PutItemToJson(ExportParam & rParam, SJson * pRoot)
 							tmp_entry.FieldName.Transf(CTRANSF_INNER_TO_UTF8);
 							tmp_entry.Text.Transf(CTRANSF_INNER_TO_UTF8);
 						}
-						// @v11.4.1 {
 						{
 							bool   descr_fld_found = false;
 							STypEx descr_fld_type;
@@ -1491,23 +1490,18 @@ int DlRtm::Helper_PutItemToJson(ExportParam & rParam, SJson * pRoot)
 								; // @todo Это - плохо: описание ссылается на отсутствующее поле. Надо обработать эту ситуацию!
 							}
 						}
-						// } @v11.4.1 
 						{
 							//SXml::WNode n_item(p_writer, "Item");
 							SJson * p_vd_item = SJson::CreateObj();
 							p_vd_item->InsertString("Zone", tmp_entry.Zone);
 							p_vd_item->InsertString("FieldName", tmp_entry.FieldName);
-							// @v11.4.1 {
 							if(fld_type_symb.NotEmpty()) {
 								p_vd_item->InsertString("FieldType", fld_type_symb);
 							}
-							// } @v11.4.1
-							// @v11.4.2 {
 							if(tmp_entry.Format)
 								p_vd_item->InsertInt("SlFormat", tmp_entry.Format);
 							if(tmp_entry.Format2)
 								p_vd_item->InsertInt("SlFormat2", tmp_entry.Format2);
-							// } @v11.4.2 
 							p_vd_item->InsertString("Text", tmp_entry.Text);
 							p_vd_item->InsertString("TotalFunc", temp_buf.Z().Cat(tmp_entry.TotalFunc));
 							p_vd_list->InsertChild(p_vd_item);

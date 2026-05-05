@@ -3331,8 +3331,17 @@ static int TestCrypto(const SString & rInFileName, const char * pSetName, int al
 			assert(er);
 			//total_size += actual_size;
 			//assert(total_size >= pattern_size);
-			const int mcr = memcmp(bc_result.PtrC(), p_pattern_buf, pattern_size);
-			assert(mcr == 0);
+			//int    mcr1 = memcmp(bc_result.PtrC(), p_pattern_buf, pattern_size);
+			int    mcr1 = -1;
+			int    mcr2 = -1;
+			if(bc_result.Len()) {
+				mcr1 = memcmp(bc_result.PtrC(), p_pattern_buf, bc_result.Len());
+				assert(mcr1 == 0);
+			}
+			if(bc_tag.Len()) {
+				mcr2 = memcmp(bc_tag.PtrC(), PTR8C(p_pattern_buf)+bc_result.Len(), bc_tag.Len());
+				assert(mcr2 == 0);
+			}
 		}
 	}
 	return ok;

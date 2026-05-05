@@ -4671,9 +4671,7 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 					ok = 1;
 				}
 				if(pLog && qtty > rest) {
-					char   stub[16];
-					stub[0] = 0;
-					const char * p_code = NZOR(pBarcode, stub);
+					const char * p_code = NZOR(pBarcode, "");
 					pLog->Log(msg_buf.Printf(PPLoadTextS(PPTXT_LOG_BHTLOWRESTBYLOT, fmt_buf), lot_rec.ID, p_code, rest, qtty));
 				}
 			}
@@ -4685,8 +4683,7 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 				tses_obj.P_Tbl->InitLineEnumBySerial(pBarcode, +1, &hdl_tses_iter);
 				while(tses_obj.P_Tbl->NextLineEnum(hdl_tses_iter, &line_rec) > 0) {
 					TSessionTbl::Rec tses_rec;
-					if(tses_obj.Search(line_rec.TSessID, &tses_rec) > 0 &&
-						oneof2(tses_rec.Status, TSESST_INPROCESS, TSESST_CLOSED)) {
+					if(tses_obj.Search(line_rec.TSessID, &tses_rec) > 0 && oneof2(tses_rec.Status, TSESST_INPROCESS, TSESST_CLOSED)) {
 						if(pLog) {
 							tses_obj.MakeName(&tses_rec, tses_name);
 							pLog->Log(msg_buf.Printf(PPLoadTextS(PPTXT_USEDSERIALFROMTSESS, fmt_buf), pBarcode, tses_name.cptr()));

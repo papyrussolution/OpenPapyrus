@@ -243,8 +243,8 @@ void Cord::InlineRep::PrependTree(CordRep* tree, MethodIdentifier method) {
 // suitable leaf is found, the function will update the length field for all
 // nodes to account for the size increase. The append region address will be
 // written to region and the actual size increase will be written to size.
-static inline bool PrepareAppendRegion(CordRep* root, char** region,
-    size_t* size, size_t max_length) {
+static inline bool PrepareAppendRegion(CordRep* root, char** region, size_t* size, size_t max_length) 
+{
 	if(root->IsBtree() && root->refcount.IsOne()) {
 		Span<char> span = root->btree()->GetAppendBuffer(max_length);
 		if(!span.empty()) {
@@ -253,7 +253,6 @@ static inline bool PrepareAppendRegion(CordRep* root, char** region,
 			return true;
 		}
 	}
-
 	CordRep* dst = root;
 	if(!dst->IsFlat() || !dst->refcount.IsOne()) {
 		*region = nullptr;

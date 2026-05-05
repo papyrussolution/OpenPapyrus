@@ -517,7 +517,7 @@ int SelectObjectBlock::DistribCCheck::Begin(PPID * pID, const Header & rHdr)
 	int    ok = 1;
 	PPID   cc_id = 0;
 	PPID   cs_id = 0;
-	PPCashNode cn_rec;
+	PPCashNode2 cn_rec;
 	LocationTbl::Rec loc_rec;
 	THROW_MEM(SETIFZ(P_CsObj, new PPObjCSession));
 	THROW(CnObj.Fetch(rHdr.PosNodeID, &cn_rec) > 0);
@@ -4312,7 +4312,7 @@ int Backend_SelectObjectBlock::ResolveCrit_GoodsGrpListByPosNode(int subcriterio
 	PPID cn_id = 0;
 	PPObjTouchScreen obj_ts;
 	PPObjCashNode obj_cn;
-	PPCashNode cn_rec;
+	PPCashNode2 cn_rec;
 
 	THROW(ResolveCrit_PosNode(subcriterion, rArg, &cn_id));
 	THROW(obj_cn.Fetch(cn_id, &cn_rec) > 0);

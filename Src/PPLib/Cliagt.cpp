@@ -693,7 +693,7 @@ int PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 				setCtrlReal(CTL_CLIAGT_CURDEBT, blk.Debt);
 			}
 			else
-				enableCommand(cmBills, 0);
+				enableCommand(cmBills, false);
 			setCtrlString(CTL_CLIAGT_CODE, Data.Code_);
 			setCtrlDate(CTL_CLIAGT_DATE,      Data.BegDt);
 			setCtrlDate(CTL_CLIAGT_EXPIRY,    Data.Expiry);
@@ -1515,10 +1515,10 @@ public:
 			SetClusterData(CTL_SUPPLAGT_INVPACTION, inv_price_action);
 
 			AddClusterAssoc(CTL_SUPPLAGT_FLAGS2, 0, AGTF_USESDONPURCHOP);
-			AddClusterAssoc(CTL_SUPPLAGT_FLAGS2, 1, AGTF_DEFAGENTLOCTODBDIV); // @v11.0.10
+			AddClusterAssoc(CTL_SUPPLAGT_FLAGS2, 1, AGTF_DEFAGENTLOCTODBDIV);
 			AddClusterAssoc(CTL_SUPPLAGT_FLAGS2, 2, AGTF_INHSUPPLTAXGRPINLOT); // @v12.2.1
 			SetClusterData(CTL_SUPPLAGT_FLAGS2, Data.Flags);
-			enableCommand(cmBills, 0);
+			enableCommand(cmBills, false);
 		}
 		else {
 			AddClusterAssoc(CTL_SUPPLAGT_FLAGS, 0, AGTF_USEMARKEDGOODSONLY);

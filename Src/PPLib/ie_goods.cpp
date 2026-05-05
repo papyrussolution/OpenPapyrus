@@ -15,7 +15,7 @@ PPQuotImpExpParam::PPQuotImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 
 PPQuotImpExpParam & PPQuotImpExpParam::Z()
 {
-	QuotCls = PPQC_PRICE; // @v11.4.2
+	QuotCls = PPQC_PRICE;
 	QuotKindID = 0;
 	CurrID = 0;
 	__ArID = 0;
@@ -1559,7 +1559,7 @@ struct CommonUnit { // @flat
 int PPLoadCommonUnits(TSVector <CommonUnit> * pList)
 {
 	int    ok = 1;
-	TVRez * p_rez = P_SlRez;
+	TVRez * p_rez(P_SlRez);
 	CALLPTRMEMB(pList, freeAll());
 	if(p_rez) {
 		uint   num_items = 0;

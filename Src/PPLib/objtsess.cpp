@@ -1598,11 +1598,14 @@ int PPObjTSession::SetSessionState(TSessionTbl::Rec * pRec, int newState, int ch
 
 static void SetSessCurTime(TSessionTbl::Rec * pRec, int finish, int update)
 {
-	if(update)
-		if(finish)
+	if(update) {
+		const  LDATETIME now_dtm = getcurdatetime_();
+		if(finish) {
 			getcurdatetime(&pRec->FinDt, &pRec->FinTm);
+			pRec->FinDt = now_dtm.d;
+			pRec->FinTm = now_dtm.t;
+		}
 		else {
-			const LDATETIME now_dtm = getcurdatetime_();
 			LDATETIME finish_dtm = now_dtm;
 			finish_dtm.settotalsec(now_dtm.t.totalsec() + pRec->PlannedTiming + pRec->ToolingTime);
 			pRec->StDt = now_dtm.d;
@@ -1610,6 +1613,7 @@ static void SetSessCurTime(TSessionTbl::Rec * pRec, int finish, int update)
 			pRec->FinDt = finish_dtm.d;
 			pRec->FinTm = finish_dtm.t;
 		}
+	}
 }
 
 int PPObjTSession::AdjustTiming(const TSessionTbl::Rec & rSessRec, const STimeChunk & rChunk, STimeChunk & rResult, long * pTiming)
@@ -2195,7 +2199,7 @@ int PPObjTSession::SetSCardID(TSessionTbl::Rec * pRec, const SCardTbl::Rec * pSC
 	return ok;
 }
 
-int PPObjTSession::InitPacket(TSessionPacket * pPack, int kind /* TSESK_XXX */, PPID prcID, PPID superSessID, int status)
+int PPObjTSession::InitPacket(TSessionPacket * pPack, int kind/*TSESK_XXX*/, PPID prcID, PPID superSessID, int status)
 {
 	int    ok = InitRec(pPack ? &pPack->Rec : static_cast<TSessionTbl::Rec *>(0), kind, prcID, superSessID, status);
 	if(ok) {
@@ -2204,7 +2208,7 @@ int PPObjTSession::InitPacket(TSessionPacket * pPack, int kind /* TSESK_XXX */, 
 	return ok;
 }
 
-int PPObjTSession::InitRec(TSessionTbl::Rec * pRec, int kind /* TSESK_XXX */, PPID prcID, PPID superSessID, int status)
+int PPObjTSession::InitRec(TSessionTbl::Rec * pRec, int kind/*TSESK_XXX*/, PPID prcID, PPID superSessID, int status)
 {
 	int    ok = 1;
 	TSessionTbl::Rec rec;
@@ -2214,8 +2218,9 @@ int PPObjTSession::InitRec(TSessionTbl::Rec * pRec, int kind /* TSESK_XXX */, PP
 		rec.PrcID = prc_rec.ID;
 		rec.ArID  = prc_rec.WrOffArID;
 	}
-	else
-		MEMSZERO(prc_rec);
+	else {
+		prc_rec.Clear();
+	}
 	if(ValidateStatus(status))
 		rec.Status = status;
 	else {
@@ -2232,14 +2237,17 @@ int PPObjTSession::InitRec(TSessionTbl::Rec * pRec, int kind /* TSESK_XXX */, PP
 	else if(kind == TSESK_PLAN) {
 		rec.Flags |= TSESF_PLAN;
 	}
-	else if(kind == TSESK_SESSION) {
-		if(GetConfig().InitTime)
-			rec.StTm = GetConfig().InitTime;
-	}
-	else if(kind == TSESK_SUBSESS) {
-		rec.Flags |= TSESF_SUBSESS;
-		if(GetConfig().InitTime)
-			rec.StTm = GetConfig().InitTime;
+	else {
+		const  LTIME _cfg_init_tm = GetConfig().InitTime;
+		if(kind == TSESK_SESSION) {
+			if(_cfg_init_tm)
+				rec.StTm = _cfg_init_tm;
+		}
+		else if(kind == TSESK_SUBSESS) {
+			rec.Flags |= TSESF_SUBSESS;
+			if(_cfg_init_tm)
+				rec.StTm = _cfg_init_tm;
+		}
 	}
 	if(superSessID) {
 		TSessionTbl::Rec sup_rec;
@@ -2434,25 +2442,49 @@ int PPObjTSession::SelectTechRoutePhaseByLot(PPID lotID, PPID prcID, TSCollectio
 				TSCollection <PPTechRoute> list_by_goods;
 				if(trmgr.GetListByGoods(goods_id, list_by_goods) > 0) {
 					assert(list_by_goods.getCount() > 0);
+					LongArray stage_list;
+					LongArray allowed_stage_list;
+					TechRouteIdent trid;
+					const  int glstdr = trmgr.GetLotStageTagDetail(lot_rec.ID, &trid, &stage_list);
 					for(uint i = 0; i < list_by_goods.getCount(); i++) {
 						const PPTechRoute * p_route = list_by_goods.at(i);
 						if(p_route && !p_route->IsEmpty()) {
-							PPTechRoute * p_route_to_insert = 0;
-							for(uint ri = 0; ri < p_route->L.getCount(); ri++) {
-								const PPTechRoute::Entry & r_entry = p_route->L.at(ri);
-								if(TecObj.Fetch(r_entry.TechID, &tec_rec) > 0) {
-									if(PrcObj.BelongsToHierarchy(prcID, tec_rec.PrcID) > 0) {
-										if(!p_route_to_insert) {
-											p_route_to_insert = new PPTechRoute(*p_route);
-											p_route_to_insert->SelectionList.Z();
-										}
-										p_route_to_insert->SelectionList.add(ri+1);
-									}
+							bool   do_skip = false;
+							if(glstdr > 0 && trid.Oid.IsFullyDefined()) {
+								if(trid.Oid == p_route->Oid) {
+									;	
+								}
+								else {
+									do_skip = true;
+									stage_list.Z();
 								}
 							}
-							if(p_route_to_insert) {
-								rResultList.insert(p_route_to_insert);
-								ok = 1;
+							else {
+								assert(stage_list.getCount() == 0);
+							}
+							if(!do_skip) {
+								p_route->GetStageListAccordingToDoneStageList(stage_list, allowed_stage_list);
+								if(allowed_stage_list.getCount()) {
+									PPTechRoute * p_route_to_insert = 0;
+									for(uint ri = 0; ri < p_route->L.getCount(); ri++) {
+										if(allowed_stage_list.lsearch(ri+1)) {
+											const PPTechRoute::Entry & r_entry = p_route->L.at(ri);
+											if(TecObj.Fetch(r_entry.TechID, &tec_rec) > 0) {
+												if(PrcObj.BelongsToHierarchy(prcID, tec_rec.PrcID) > 0) {
+													if(!p_route_to_insert) {
+														p_route_to_insert = new PPTechRoute(*p_route);
+														p_route_to_insert->SelectionList.Z();
+													}
+													p_route_to_insert->SelectionList.add(ri+1);
+												}
+											}
+										}
+									}
+									if(p_route_to_insert) {
+										rResultList.insert(p_route_to_insert);
+										ok = 1;
+									}
+								}
 							}
 						}
 					}
@@ -4944,8 +4976,7 @@ int PPObjTSession::GetSerialListByGoodsID(PPID goodsID, PPID locID, SVector * pL
 		TSessLineTbl * p_ln = &P_Tbl->Lines;
 		TSessLineTbl::Key2 k2;
 		BExtQuery q(p_ln, 2);
-		q.select(p_ln->TSessID, p_ln->Serial, p_ln->Flags, p_ln->Qtty, 0).
-			where(p_ln->GoodsID == labs(goodsID) && p_ln->Sign > 0L);
+		q.select(p_ln->TSessID, p_ln->Serial, p_ln->Flags, p_ln->Qtty, 0).where(p_ln->GoodsID == labs(goodsID) && p_ln->Sign > 0L);
 		MEMSZERO(k2);
 		k2.GoodsID = labs(goodsID);
 		for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;)
@@ -5008,7 +5039,7 @@ int PPObjTSession::CallCheckPaneBySess(PPID sessID, int verifyOnly)
 		if(GetPrc(rec.PrcID, &prc_rec, 1, 1) > 0) {
 			PPID   cn_id = PPObjCashNode::Select(prc_rec.LocID, 1, 0, BIN(verifyOnly));
 			PPObjCashNode cn_obj;
-			PPCashNode cn_rec;
+			PPCashNode2 cn_rec;
 			if(cn_id > 0 && cn_obj.Search(cn_id, &cn_rec) > 0) {
 				if(!verifyOnly) {
 					SString init_str;

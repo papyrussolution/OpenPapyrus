@@ -5358,7 +5358,7 @@ int PPObjGoods::SetupAttrByTextDescr(PPID id, const char * pLine, int use_ta)
 //
 int Helper_AdjustFractionalUnitPrice(uint fragmentation, double qtty, double orgPrice, int roundingDir, double * pAdjustedPrice) // @v12.6.1
 {
-	int    ok = -1;
+	int    ok = -2;
 	double new_price = orgPrice;
 	double ip = 0.0;
 	double nmrtr = 0.0;

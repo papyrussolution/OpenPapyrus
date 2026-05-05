@@ -1011,6 +1011,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\OSF\AVX-Memmove\memset.c" />
+    <ClCompile Include="..\SLib\argon2\argon2.c" />
+    <ClCompile Include="..\SLib\argon2\argon2_encoding.c" />
+    <ClCompile Include="..\SLib\argon2\bench.c" />
+    <ClCompile Include="..\SLib\argon2\blake2\blake2b.c" />
+    <ClCompile Include="..\SLib\argon2\core.c" />
+    <ClCompile Include="..\SLib\argon2\genkat.c" />
+    <ClCompile Include="..\SLib\argon2\opt.c" />
+    <ClCompile Include="..\SLib\argon2\ref.c" />
+    <ClCompile Include="..\SLib\argon2\run.c" />
+    <ClCompile Include="..\SLib\argon2\thread.c" />
     <ClCompile Include="..\SLib\bdb.cpp" />
     <ClCompile Include="..\SLib\Bextins.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
@@ -4461,6 +4471,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\amqp.h" />
+    <ClInclude Include="..\Include\argon2.h" />
     <ClInclude Include="..\Include\comdisp.h" />
     <ClInclude Include="..\Include\Db.h" />
     <ClInclude Include="..\Include\Dbf.h" />
@@ -4489,6 +4500,13 @@
     <ClInclude Include="..\Include\xxh3.h" />
     <ClInclude Include="..\Include\xxhash.h" />
     <ClInclude Include="..\Include\zlib.h" />
+    <ClInclude Include="..\SLib\argon2\blake2\blake2-impl.h" />
+    <ClInclude Include="..\SLib\argon2\blake2\blamka-round-opt.h" />
+    <ClInclude Include="..\SLib\argon2\blake2\blamka-round-ref.h" />
+    <ClInclude Include="..\SLib\argon2\core.h" />
+    <ClInclude Include="..\SLib\argon2\encoding.h" />
+    <ClInclude Include="..\SLib\argon2\genkat.h" />
+    <ClInclude Include="..\SLib\argon2\thread.h" />
     <ClInclude Include="..\SLib\EDLIB\edlib.h" />
     <ClInclude Include="..\SLib\fnv-503\fnv.h" />
     <ClInclude Include="..\SLib\gumbo\gumbo-internal.h" />

@@ -317,21 +317,24 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 			PassMsgToCtrl(hwndDlg, uMsg, wParam, lParam);
 			return 0;
 		case WM_USER_KEYDOWN:
-			if(checkirangef(wParam, VK_F1, VK_F12) || checkirangef(wParam, 48, 57) || checkirangef(wParam, 65, 90) || checkirangef(wParam, 97, 122)) {
-				TDialog * p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
-				KeyDownCommand key_cmd;
-				key_cmd.State = 0;
-				if(GetKeyState(VK_MENU) & 0x8000)
-					key_cmd.State |= KeyDownCommand::stateAlt;
-				if(GetKeyState(VK_CONTROL) & 0x8000)
-					key_cmd.State |= KeyDownCommand::stateCtrl;
-				if(GetKeyState(VK_SHIFT) & 0x8000)
-					key_cmd.State |= KeyDownCommand::stateShift;
-				key_cmd.Code = static_cast<uint16>(wParam);
-				event.what = TEvent::evCommand;
-				event.message.command = cmWinKeyDown;
-				event.message.infoPtr = &key_cmd;
-				p_dlg->handleEvent(event);
+			{
+				const  int key_code = static_cast<int>(wParam);
+				if(checkirangef(key_code, VK_F1, VK_F12) || checkirangef(key_code, 48, 57) || checkirangef(key_code, 65, 90) || checkirangef(key_code, 97, 122)) {
+					TDialog * p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
+					KeyDownCommand key_cmd;
+					key_cmd.State = 0;
+					if(GetKeyState(VK_MENU) & 0x8000)
+						key_cmd.State |= KeyDownCommand::stateAlt;
+					if(GetKeyState(VK_CONTROL) & 0x8000)
+						key_cmd.State |= KeyDownCommand::stateCtrl;
+					if(GetKeyState(VK_SHIFT) & 0x8000)
+						key_cmd.State |= KeyDownCommand::stateShift;
+					key_cmd.Code = static_cast<uint16>(key_code);
+					event.what = TEvent::evCommand;
+					event.message.command = cmWinKeyDown;
+					event.message.infoPtr = &key_cmd;
+					p_dlg->handleEvent(event);
+				}
 			}
 			return 0;
 		case WM_CHAR:

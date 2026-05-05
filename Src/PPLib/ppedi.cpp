@@ -894,7 +894,7 @@ int TestGtinStruc()
 						gts.AddOnlyToken(GtinStruc::fldInner1);
 						gts.SetSpecialFixedToken(GtinStruc::fldInner1, 1000/*UNTIL EOL*/);
 						gts.AddOnlyToken(GtinStruc::fldInner2);
-						gts.SetSpecialFixedToken(GtinStruc::fldInner2, 1000/*UNTIL EOL*/); // @v11.4.11
+						gts.SetSpecialFixedToken(GtinStruc::fldInner2, 1000/*UNTIL EOL*/);
 						gts.AddOnlyToken(GtinStruc::fldSscc18);
 						gts.AddOnlyToken(GtinStruc::fldExpiryDate);
 						gts.AddOnlyToken(GtinStruc::fldManufDate);

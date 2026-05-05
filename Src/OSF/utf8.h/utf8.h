@@ -609,8 +609,7 @@ utf8_int8_t *utf8ncpy(utf8_int8_t * _RESTRICT dst, const utf8_int8_t * _RESTRICT
 
 utf8_int8_t *utf8ndup(const utf8_int8_t * src, size_t n) { return utf8ndup_ex(src, n, utf8_null, utf8_null); }
 
-utf8_int8_t *utf8ndup_ex(const utf8_int8_t * src, size_t n, utf8_int8_t * (*alloc_func_ptr)(utf8_int8_t *, size_t),
-    utf8_int8_t * user_data) 
+utf8_int8_t *utf8ndup_ex(const utf8_int8_t * src, size_t n, utf8_int8_t * (*alloc_func_ptr)(utf8_int8_t *, size_t), utf8_int8_t * user_data) 
 {
 	utf8_int8_t * c = utf8_null;
 	size_t bytes = 0;

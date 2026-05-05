@@ -3942,7 +3942,7 @@ int CCheckCore::CalcActiveExpendByGoods(PPID goodsID, PPID locID, const char * p
 			if(LoadLinesByList(goodsID, &check_list, &lines_list) > 0) {
 				Reference * p_ref(PPRef);
 				PPObjCashNode cn_obj;
-				PPCashNode cn_rec;
+				PPCashNode2 cn_rec;
 				CSessionTbl::Rec cs_rec;
 				CCheckTbl::Rec cc_rec;
 				SString text_buf;
@@ -4958,7 +4958,8 @@ long CSessionCore::GetCcGroupingFlags(const CSessionTbl::Rec & rCsRec, PPID subS
 {
 	long   flags = 0;
 	PPObjCashNode cn_obj;
-	PPCashNode cn_rec, cn_sub_rec;
+	PPCashNode2 cn_rec;
+	PPCashNode2 cn_sub_rec;
 	if(cn_obj.Fetch(rCsRec.CashNodeID, &cn_rec) > 0) {
 		if(cn_rec.Flags & CASHF_SYNC && cn_rec.Flags & CASHF_SKIPUNPRINTEDCHECKS)
 			flags |= CCheckCore::gglfSkipUnprintedChecks;
@@ -5318,7 +5319,7 @@ int CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pTotal)
 	if(r_eq_cfg.OpOnDfctThisLoc || r_eq_cfg.OpOnDfctOthrLoc) {
 		PPObjGoods goods_obj;
 		CSessionTbl::Rec sess_rec;
-		PPCashNode cn_rec;
+		PPCashNode2 cn_rec;
 		PPBillPacketCollection pack_list; // key: Rec.LocID; Rec.Dt
 		THROW_PP(!r_eq_cfg.OpOnDfctThisLoc || IsDraftOp(r_eq_cfg.OpOnDfctThisLoc), PPERR_INVCSESSDFCTOP);
 		THROW_PP(!r_eq_cfg.OpOnDfctOthrLoc || IsDraftOp(r_eq_cfg.OpOnDfctOthrLoc), PPERR_INVCSESSDFCTOP);
@@ -5918,7 +5919,8 @@ int CSessGrouping::AttachSessToSupersess(PPID nodeID, PPID sessID, PPID * pSuper
 {
 	int     ok = -1;
 	PPObjCashNode cn_obj;
-	PPCashNode main_cn_rec, cn_rec;
+	PPCashNode2 main_cn_rec;
+	PPCashNode2 cn_rec;
 	THROW(cn_obj.Search(nodeID, &main_cn_rec) > 0);
 	if(main_cn_rec.ParentID && cn_obj.Search(main_cn_rec.ParentID, &cn_rec) > 0 && cn_rec.ExtFlags & CASHFX_UNITEGRPWROFF) {
 		const  PPID parent_node_id = cn_rec.ID;
@@ -6169,7 +6171,7 @@ int CSessGrouping::CompleteSession(PPID sessID)
 		THROW_PP(!(r_eq_cfg.Flags & PPEquipConfig::fCloseSessTo10Level), PPERR_CSESSCOMPLLOCKED);
 		{
 			PPObjCashNode cn_obj;
-			PPCashNode cn_rec;
+			PPCashNode2 cn_rec;
 			const  PPID node_id = sess_rec.CashNodeID;
 			PPID   loc_id = 0;
 			THROW(cn_obj.Search(node_id, &cn_rec) > 0);

@@ -1703,7 +1703,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvIndoorSvcPrereq(const StyloQCommandL
 	PPID   posnode_id = 0;
 	SString temp_buf;
 	PPObjCashNode cn_obj;
-	PPCashNode cn_rec;
+	PPCashNode2 cn_rec;
 	PPSyncCashNode cn_sync_pack;
 	SBinaryChunk bc_own_ident;
 	PPID   agent_psn_id = 0;
@@ -2471,7 +2471,7 @@ int PPStyloQInterchange::ProcessCommand_IncomingListCCheck(const StyloQCommandLi
 	THROW(rCmdItem.GetSpecialParam<StyloQIncomingListParam>(param));
 	{
 		PPObjCashNode cn_obj;
-		PPCashNode cn_rec;
+		PPCashNode2 cn_rec;
 		PPSyncCashNode cn_sync_pack;
 		PPID   posnode_id = param.P_CcF ? param.P_CcF->NodeList.GetSingle() : 0;
 		{

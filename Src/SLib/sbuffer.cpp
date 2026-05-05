@@ -515,7 +515,7 @@ int SBuffer::WriteToFile(FILE * f, uint sign, uint32 * pActualBytes)
 	}
 	{
 		size_t offs = GetRdOffs();
-		uint32 sz = GetAvailableSize();
+		const  uint32 sz = static_cast<uint32>(GetAvailableSize());
 		THROW_S(fwrite(&sz, sizeof(sz), 1, f) == 1, SLERR_WRITEFAULT);
 		actual_size += sizeof(sz);
 		THROW_S(fwrite(GetBuf(offs), sz, 1, f) == 1, SLERR_WRITEFAULT);
@@ -941,6 +941,21 @@ bool SBinaryChunk::Cat(const SBinaryChunk & rS)
 //
 //
 //
+// @v12.6.2 (replaced with SlConst::SBinarySetSignature) static const uint32 _BinarySetMagic = 0x5E4F7D1AU;
+
+struct SBinarySet_MetaData { // @v12.6.2
+	uint32 Signature;
+	binary128 ArgonSalt;
+};
+
+SBinarySet::DeflateStrategy::DeflateStrategy() : MinChunkSizeToCompress(0), CompressMethod(0)
+{
+}
+		
+SBinarySet::DeflateStrategy::DeflateStrategy(uint16 minChunkSize) : MinChunkSizeToCompress(minChunkSize), CompressMethod(0)
+{
+}
+
 SBinarySet::SBinarySet() : DataLen(0)
 {
 	SBaseBuffer::Init();
@@ -970,8 +985,6 @@ SBinarySet & SBinarySet::Z()
 	return *this;
 }
 
-static const uint32 _BinarySetMagic = 0x5E4F7D1AU;
-
 int SBinarySet::Ensure(size_t ensSize)
 {
 	return (Size < ensSize) ? Alloc(ensSize) : 1;
@@ -984,7 +997,7 @@ bool FASTCALL SBinarySet::Helper_GetChunkIdList(LongArray * pList) const
 	if(DataLen) {
 		THROW(P_Buf);
 		THROW(DataLen <= Size && DataLen >= sizeof(H));
-		THROW(reinterpret_cast<const H *>(P_Buf)->Magic == _BinarySetMagic);
+		THROW(reinterpret_cast<const H *>(P_Buf)->Magic == SlConst::SBinarySetSignature);
 		{
 			size_t offs = sizeof(H);
 			BH * p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + sizeof(H));
@@ -1046,10 +1059,11 @@ bool FASTCALL SBinarySet::IsEq(const SBinarySet & rS) const
 int SBinarySet::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
+	uint32 _datalen;
 	if(dir > 0) {
 		THROW(Pack());
 		{
-			uint32 _datalen = DataLen;
+			_datalen = static_cast<uint32>(DataLen);
 			if(pSCtx) {
 				THROW(pSCtx->Serialize(dir, _datalen, rBuf));
 				if(_datalen) {
@@ -1062,26 +1076,25 @@ int SBinarySet::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 		}
 	}
 	else if(dir < 0) {
-		uint32 _datalen;
 		Z();
 		if(pSCtx) {
 			THROW(pSCtx->Serialize(dir, _datalen, rBuf));
 			if(_datalen) {
-				THROW_S(_datalen >= sizeof(H) && reinterpret_cast<const H *>(rBuf.GetBufC(rBuf.GetRdOffs()))->Magic == _BinarySetMagic, SLERR_BINSET_UNSRLZ_SIGNATURE);
+				THROW_S(_datalen >= sizeof(H) && reinterpret_cast<const H *>(rBuf.GetBufC(rBuf.GetRdOffs()))->Magic == SlConst::SBinarySetSignature, SLERR_BINSET_UNSRLZ_SIGNATURE);
 				THROW(SBaseBuffer::Alloc(_datalen));
 				THROW_S(rBuf.Read(P_Buf, _datalen) == _datalen, SLERR_SBUFRDSIZE);
 				DataLen = _datalen;
-				assert(reinterpret_cast<const H *>(P_Buf)->Magic == _BinarySetMagic);
+				assert(reinterpret_cast<const H *>(P_Buf)->Magic == SlConst::SBinarySetSignature);
 			}
 		}
 		else {
-			_datalen = rBuf.GetAvailableSize();
+			_datalen = static_cast<uint32>(rBuf.GetAvailableSize());
 			if(_datalen) {
-				THROW_S(_datalen >= sizeof(H) && reinterpret_cast<const H *>(rBuf.GetBufC(rBuf.GetRdOffs()))->Magic == _BinarySetMagic, SLERR_BINSET_UNSRLZ_SIGNATURE);
+				THROW_S(_datalen >= sizeof(H) && reinterpret_cast<const H *>(rBuf.GetBufC(rBuf.GetRdOffs()))->Magic == SlConst::SBinarySetSignature, SLERR_BINSET_UNSRLZ_SIGNATURE);
 				THROW(SBaseBuffer::Alloc(_datalen));
 				THROW_S(rBuf.Read(P_Buf, _datalen) == _datalen, SLERR_SBUFRDSIZE);
 				DataLen = _datalen;
-				assert(reinterpret_cast<const H *>(P_Buf)->Magic == _BinarySetMagic);
+				assert(reinterpret_cast<const H *>(P_Buf)->Magic == SlConst::SBinarySetSignature);
 			}
 		}
 	}
@@ -1095,7 +1108,7 @@ int SBinarySet::SetOuterBuffer(const void * pOuterData, size_t outerDataLen)
 	int    ok = 1;
 	if(pOuterData && outerDataLen) {
 		THROW(outerDataLen >= sizeof(H));
-		THROW(static_cast<const H *>(pOuterData)->Magic == _BinarySetMagic);
+		THROW(static_cast<const H *>(pOuterData)->Magic == SlConst::SBinarySetSignature);
 		THROW(Ensure(outerDataLen));
 		memcpy(P_Buf, pOuterData, outerDataLen);
 		DataLen = outerDataLen;
@@ -1114,7 +1127,7 @@ int SBinarySet::Pack()
 	assert(DataLen <= SBaseBuffer::Size);
 	if(DataLen) {
 		bool is_there_empty_chunks = false;
-		THROW(reinterpret_cast<const H *>(P_Buf)->Magic == _BinarySetMagic);
+		THROW(reinterpret_cast<const H *>(P_Buf)->Magic == SlConst::SBinarySetSignature);
 		{
 			size_t offs = sizeof(H);
 			BH * p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + sizeof(H));
@@ -1153,9 +1166,9 @@ const void * SBinarySet::GetPtr(uint32 id, uint32 * pSize) const
 	assert(DataLen <= SBaseBuffer::Size);
 	if(id && DataLen) {
 		assert(DataLen >= sizeof(H));
-		if(reinterpret_cast<const H *>(P_Buf)->Magic == _BinarySetMagic) {
+		if(reinterpret_cast<const H *>(P_Buf)->Magic == SlConst::SBinarySetSignature) {
 			size_t offs = sizeof(H);
-			if(offs < DataLen) { // @v11.2.0
+			if(offs < DataLen) {
 				BH * p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + sizeof(H));
 				do {
 					if(p_blk->I == id) {
@@ -1213,14 +1226,14 @@ int SBinarySet::Enum(size_t * pPos, uint32 * pId, SBinaryChunk * pResult) const
 	size_t cur_pos = pPos ? *pPos : 0;
 	if(DataLen) {
 		assert(DataLen >= sizeof(H));
-		if(reinterpret_cast<const H *>(P_Buf)->Magic == _BinarySetMagic) {
+		if(reinterpret_cast<const H *>(P_Buf)->Magic == SlConst::SBinarySetSignature) {
 			SETIFZ(cur_pos, sizeof(BH));
 			if(cur_pos < DataLen) {
 				const BH * p_blk = reinterpret_cast<const BH *>(PTR8C(P_Buf) + cur_pos);
 				assert((cur_pos + p_blk->S) <= DataLen);
 				if((cur_pos + p_blk->S) <= DataLen) {
 					if(pResult) {
-						pResult->Put(p_blk+1, p_blk->S); // @v11.0.10 @fix p_blk-->(p_blk+1)
+						pResult->Put(p_blk+1, p_blk->S);
 					}
 					ASSIGN_PTR(pId, p_blk->I);
 					if(pPos) {
@@ -1239,10 +1252,10 @@ bool SBinarySet::Get(uint32 id, SBinaryChunk * pResult) const
 {
 	bool   ok = true;
 	uint32 size = 0;
-	const void * ptr = GetPtr(id, &size);
+	const  void * ptr = GetPtr(id, &size);
 	THROW(ptr);
 	if(pResult) {
-		const size_t compress_prefix_size = SSerializeContext::GetCompressPrefix(0);
+		const  size_t compress_prefix_size = SSerializeContext::GetCompressPrefix(0);
 		if(size > compress_prefix_size && SSerializeContext::IsCompressPrefix(ptr)) {
 			SCompressor compr(SCompressor::tZLib);
 			SBuffer dbuf;
@@ -1259,7 +1272,7 @@ bool SBinarySet::Get(uint32 id, SBinaryChunk * pResult) const
 
 int SBinarySet::Put(uint32 id, const SBinaryChunk & rData, const DeflateStrategy * pDs/*= 0*/)
 {
-	return Put(id, rData.PtrC(), rData.Len(), pDs);
+	return Put(id, rData.PtrC(), static_cast<uint32>(rData.Len()), pDs);
 }
 
 int SBinarySet::Put(uint32 id, const void * pData, uint32 size, const DeflateStrategy * pDs/*= 0*/)
@@ -1267,19 +1280,18 @@ int SBinarySet::Put(uint32 id, const void * pData, uint32 size, const DeflateStr
 	int    ok = 0;
 	assert(id);
 	if(id) {
-		const bool do_remove = (!pData || !size); // Если указатель pData == 0 или размер size == 0, то считаем это требованием удалить блок
-			// с заданным идентификатором.
+		const bool do_remove = (!pData || !size); // Если указатель pData == 0 или размер size == 0, то считаем это требованием удалить блок с заданным идентификатором.
 		assert(DataLen <= SBaseBuffer::Size);
-		if(pDs && size >= static_cast<uint32>(pDs->MinChunkSizeToCompress)) { // @v11.2.11
+		if(pDs && size >= static_cast<uint32>(pDs->MinChunkSizeToCompress)) {
 			assert(!do_remove);
 			SCompressor compr(SCompressor::tZLib);
 			SSerializeContext sctx;
-			uint8 cs[32];
+			uint8  cs[32];
 			size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
 			SBuffer cbuf;
 			THROW(cbuf.Write(cs, cs_size));
 			THROW(compr.CompressBlock(pData, size, cbuf, 0, 0));
-			THROW(Put(id, cbuf.GetBuf(), cbuf.GetAvailableSize(), 0/*!*/)); // @recursion
+			THROW(Put(id, cbuf.GetBuf(), static_cast<uint32>(cbuf.GetAvailableSize()), 0/*!*/)); // @recursion
 			ok = 1;
 		}
 		else {
@@ -1287,8 +1299,8 @@ int SBinarySet::Put(uint32 id, const void * pData, uint32 size, const DeflateStr
 				if(!do_remove) {
 					const size_t new_data_len = (size + sizeof(H) + sizeof(BH));
 					if(SBaseBuffer::Alloc(new_data_len)) {
-						reinterpret_cast<H *>(P_Buf)->Magic = _BinarySetMagic;
-						reinterpret_cast<H *>(P_Buf)->Flags = 0;
+						reinterpret_cast<H *>(P_Buf)->Magic = SlConst::SBinarySetSignature;
+						reinterpret_cast<H *>(P_Buf)->Flags_ = 0;
 						BH * p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + sizeof(H));
 						p_blk->I = id;
 						p_blk->S = size;
@@ -1303,7 +1315,7 @@ int SBinarySet::Put(uint32 id, const void * pData, uint32 size, const DeflateStr
 			else {
 				assert(DataLen >= sizeof(H));
 				assert(P_Buf);
-				if(reinterpret_cast<H *>(P_Buf)->Magic == _BinarySetMagic) {
+				if(reinterpret_cast<H *>(P_Buf)->Magic == SlConst::SBinarySetSignature) {
 					size_t offs = sizeof(H);
 					size_t suited_unused_block_offs = 0; // Если по ходу перебора блоков мы встретим неиспользуемы блок требуемого размера,
 						// то здесь сохраним его смещение, дабы, если не найдем существующего блока требуемого размера, то используем этот.
@@ -1375,6 +1387,12 @@ int SBinarySet::Put(uint32 id, const void * pData, uint32 size, const DeflateStr
 		}
 	}
 	CATCHZOK
+	return ok;
+}
+
+int SBinarySet::PutEncrypted(uint32 id, const void * pData, uint32 size, const DeflateStrategy * pDs) // @v12.6.2 @construction
+{
+	int    ok = 0;
 	return ok;
 }
 //
@@ -1930,7 +1948,7 @@ int SSerializeContext::Serialize(int dir, SBinaryChunk & rBc, SBuffer & rBuf)
 	int    ok = 1;
 	uint32 sz;
 	if(dir > 0) {
-		sz = rBc.Len();
+		sz = static_cast<uint32>(rBc.Len());
 		THROW(rBuf.Write(sz));
 		if(sz) {
 			THROW(rBuf.Write(rBc.PtrC(), sz));

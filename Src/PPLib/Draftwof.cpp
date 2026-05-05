@@ -1005,7 +1005,7 @@ int WriteOffDrafts(const PPIDArray * pCSessList)
 		PPObjCSession cs_obj;
 		PPObjCashNode cn_obj;
 		CSessionTbl::Rec cs_rec;
-		PPCashNode cn_rec;
+		PPCashNode2 cn_rec;
 		PPID   single_loc_id = 0;
 		for(uint i = 0; i < p.CSessList.getCount(); i++) {
 			if(cs_obj.Search(p.CSessList.get(i), &cs_rec) > 0) {

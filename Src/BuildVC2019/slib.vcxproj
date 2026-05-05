@@ -935,6 +935,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\OSF\AVX-Memmove\memset.c" />
+    <ClCompile Include="..\SLib\argon2\argon2.c" />
+    <ClCompile Include="..\SLib\argon2\argon2_encoding.c" />
+    <ClCompile Include="..\SLib\argon2\bench.c" />
+    <ClCompile Include="..\SLib\argon2\blake2\blake2b.c" />
+    <ClCompile Include="..\SLib\argon2\core.c" />
+    <ClCompile Include="..\SLib\argon2\genkat.c" />
+    <ClCompile Include="..\SLib\argon2\opt.c" />
+    <ClCompile Include="..\SLib\argon2\ref.c" />
+    <ClCompile Include="..\SLib\argon2\run.c" />
+    <ClCompile Include="..\SLib\argon2\thread.c" />
     <ClCompile Include="..\SLib\bdb.cpp" />
     <ClCompile Include="..\SLib\Bextins.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
@@ -4007,6 +4017,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\amqp.h" />
+    <ClInclude Include="..\Include\argon2.h" />
     <ClInclude Include="..\Include\comdisp.h" />
     <ClInclude Include="..\Include\Db.h" />
     <ClInclude Include="..\Include\Dbf.h" />
@@ -4066,6 +4077,14 @@
     <ClInclude Include="..\Include\xxhash.h" />
     <ClInclude Include="..\Include\zlib.h" />
     <ClInclude Include="..\OSF\utf8.h\utf8.h" />
+    <ClInclude Include="..\SLib\argon2\blake2\blake2-impl.h" />
+    <ClInclude Include="..\SLib\argon2\blake2\blake2.h" />
+    <ClInclude Include="..\SLib\argon2\blake2\blamka-round-opt.h" />
+    <ClInclude Include="..\SLib\argon2\blake2\blamka-round-ref.h" />
+    <ClInclude Include="..\SLib\argon2\core.h" />
+    <ClInclude Include="..\SLib\argon2\encoding.h" />
+    <ClInclude Include="..\SLib\argon2\genkat.h" />
+    <ClInclude Include="..\SLib\argon2\thread.h" />
     <ClInclude Include="..\SLib\bzip2\bzlib.h" />
     <ClInclude Include="..\SLib\bzip2\bzlib_private.h" />
     <ClInclude Include="..\SLib\BZIP3\include\getopt-shim.h" />

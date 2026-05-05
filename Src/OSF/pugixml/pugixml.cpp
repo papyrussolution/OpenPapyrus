@@ -525,9 +525,9 @@ struct xml_allocator {
 	#ifdef PUGIXML_COMPACT
 	void* allocate_object(size_t size, xml_memory_page*& out_page)
 	{
-		void* result = allocate_memory(size + sizeof(uint32_t), out_page);
-		if(!result) return 0;
-
+		void * result = allocate_memory(size + sizeof(uint32_t), out_page);
+		if(!result) 
+			return 0;
 		// adjust for marker
 		ptrdiff_t offset = static_cast<char*>(result) - reinterpret_cast<char*>(out_page->compact_page_marker);
 

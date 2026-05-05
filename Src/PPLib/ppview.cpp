@@ -42,7 +42,7 @@ PPView::Rc & PPView::Rc::Z()
 PPView::DescriptionList::DescriptionList(int kind) : Kind(kind), Fail(0)
 {
 	assert(oneof2(Kind, kView, kFilt));
-	TVRez * p_rez = P_SlRez;
+	TVRez * p_rez(P_SlRez);
 	THROW(oneof2(Kind, kView, kFilt));
 	THROW_PP(p_rez, PPERR_RESFAULT);
 	{

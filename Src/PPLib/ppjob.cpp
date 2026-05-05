@@ -1380,7 +1380,7 @@ public:
 		int    r = 1;
 		PPID   id = 0;
 		StrAssocArray node_list;
-		PPCashNode node;
+		PPCashNode2 node;
 		PPObjCashNode cn_obj;
 		if(!RVALUEPTR(Data, pData))
 			Data.Z();

@@ -1,5 +1,5 @@
 // V_CASHN.CPP
-// Copyright (c) A.Starodub 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2025
+// Copyright (c) A.Starodub 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2025, 2026
 // @codepage UTF-8
 // Кассовые узлы
 //
@@ -49,7 +49,7 @@ PPViewCashNode::~PPViewCashNode()
 	ZDELETE(P_TempTbl);
 }
 
-int PPViewCashNode::CheckForFilt(const PPCashNode * pRec) const
+int PPViewCashNode::CheckForFilt(const PPCashNode2 * pRec) const
 {
 	if(pRec) {
 		if(!CheckFiltID(Filt.CashTypeID, pRec->CashType))
@@ -62,9 +62,9 @@ int PPViewCashNode::CheckForFilt(const PPCashNode * pRec) const
 	return 1;
 }
 
-TempCashNodeTbl::Rec & PPViewCashNode::MakeTempEntry(const PPCashNode & rRec, TempCashNodeTbl::Rec & rTempRec)
+TempCashNodeTbl::Rec & PPViewCashNode::MakeTempEntry(const PPCashNode2 & rRec, TempCashNodeTbl::Rec & rTempRec)
 {
-	memzero(&rTempRec, sizeof(rTempRec));
+	rTempRec.Clear();
 	rTempRec.ID = rRec.ID;
 	STRNSCPY(rTempRec.Name, rRec.Name);
 	STRNSCPY(rTempRec.Symb, rRec.Symb);
@@ -74,7 +74,7 @@ TempCashNodeTbl::Rec & PPViewCashNode::MakeTempEntry(const PPCashNode & rRec, Te
 	rTempRec.Flags = rRec.Flags;
 	rTempRec.ParentID = rRec.ParentID;
 	{
-		PPCashNode parent_cn_rec;
+		PPCashNode2 parent_cn_rec;
 		if(ObjCashN.Fetch(rRec.ParentID, &parent_cn_rec) > 0)
 			STRNSCPY(rTempRec.ParentName, parent_cn_rec.Name);
 	}
@@ -125,7 +125,7 @@ int PPViewCashNode::Init_(const PPBaseFilt * pFilt)
 	ZDELETE(P_TempTbl);
 	THROW(P_TempTbl = CreateTempFile <TempCashNodeTbl> ());
 	{
-		PPCashNode rec;
+		PPCashNode2 rec;
 		BExtInsert bei(P_TempTbl);
 		PPTransaction tra(ppDbDependTransaction, 1);
 		THROW(tra);
@@ -153,7 +153,7 @@ int PPViewCashNode::UpdateTempTable(const PPIDArray * pIdList)
 		THROW(tra);
 		for(uint i = 0; i < pIdList->getCount(); i++) {
 			PPID   id = pIdList->at(i);
-			PPCashNode rec;
+			PPCashNode2 rec;
 			TempCashNodeTbl::Rec temp_rec;
 			if(ObjCashN.Search(id, &rec) > 0 && CheckForFilt(&rec)) {
 				ok = 1;
@@ -193,7 +193,7 @@ int PPViewCashNode::InitIteration()
 int FASTCALL PPViewCashNode::NextIteration(CashNodeViewItem * pItem)
 {
 	while(pItem && P_IterQuery && P_IterQuery->nextIteration() > 0) {
-		PPCashNode rec;
+		PPCashNode2 rec;
 		TempCashNodeTbl * p_t = P_TempTbl;
 		if(ObjCashN.Search(p_t->data.ID, &rec) > 0) {
 			ASSIGN_PTR(pItem, rec);
@@ -267,7 +267,7 @@ int PPViewCashNode::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser
 				{
 					bool   exec_panel = false;
 					PPIDArray cash_list;
-					PPCashNode rec;
+					PPCashNode2 rec;
 					if(ppvCmd == PPVCMD_LOADDATA && ObjCashN.Search(id, &rec) > 0 && rec.CashType == PPCMT_CASHNGROUP) {
 						PPIDArray _cash_list;
 						ObjCashN.GetListByGroup(rec.ID, _cash_list);

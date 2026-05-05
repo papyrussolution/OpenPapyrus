@@ -1792,40 +1792,30 @@ static int xmlNanoHTTPFetchContent(void * ctx, char ** ptr, int * len) {
 	int cur_lgth;
 	int rcvd_lgth;
 	int dummy_int;
-	char *              dummy_ptr = NULL;
-
+	char * dummy_ptr = NULL;
 	/*  Dummy up return input parameters if not provided  */
-
 	if(len == NULL)
 		len = &dummy_int;
-
 	if(ptr == NULL)
 		ptr = &dummy_ptr;
-
 	/*  But can't work without the context pointer  */
-
 	if( ( ctxt == NULL ) || ( ctxt->content == NULL ) ) {
 		*len = 0;
 		*ptr = NULL;
 		return ( -1 );
 	}
-
 	rcvd_lgth = ctxt->inptr - ctxt->content;
-
 	while( (cur_lgth = xmlNanoHTTPRecv(ctxt)) > 0) {
 		rcvd_lgth += cur_lgth;
 		if( (ctxt->ContentLength > 0) && (rcvd_lgth >= ctxt->ContentLength) )
 			break;
 	}
-
 	*ptr = ctxt->content;
 	*len = rcvd_lgth;
-
 	if( ( ctxt->ContentLength > 0 ) && ( rcvd_lgth < ctxt->ContentLength ) )
 		rc = -1;
 	else if(rcvd_lgth == 0)
 		rc = -1;
-
 	return ( rc );
 }
 

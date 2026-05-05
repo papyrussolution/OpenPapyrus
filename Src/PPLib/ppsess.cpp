@@ -5487,9 +5487,9 @@ int PPSession::GetPath(PPID pathID, SString & rBuf)
 // PPRFILE_XXX PP_RCDECLRFILE { "Symb\0", "file_name", PPPATH_XXX(1), PPPATH_XXX(2), flags, "Descript\0" }
 */
 
-#define PPRFILE_SIGN 0xfeedbac5U
+//#define PPRFILE_SIGN 0xfeedbac5U
 
-PPRFile::PPRFile() : Sign(PPRFILE_SIGN), ID(0), PathID(0), SrcPathID(0), Flags(0)
+PPRFile::PPRFile() : Sign(PPConst::Signature_PPRFile), ID(0), PathID(0), SrcPathID(0), Flags(0)
 {
 }
 
@@ -5498,11 +5498,11 @@ PPRFile::~PPRFile()
 	Sign = 0;
 }
 
-bool PPRFile::IsConsistent() const { return (Sign == PPRFILE_SIGN); }
+bool PPRFile::IsConsistent() const { return (Sign == PPConst::Signature_PPRFile); }
 
 PPRFile & PPRFile::Z()
 {
-	Sign = PPRFILE_SIGN;
+	Sign = PPConst::Signature_PPRFile;
 	ID = 0;
 	PathID = 0;
 	SrcPathID = 0;
@@ -5515,7 +5515,7 @@ PPRFile & PPRFile::Z()
 static int FASTCALL Helper_GetRFileInfo(PPID fileId, PPRFile & rInfo)
 {
 	int    ok = -1;
-	TVRez * p_rez = P_SlRez;
+	TVRez * p_rez(P_SlRez);
 	if(p_rez) {
 		long   offs = 0;
 		long   sz = 0;

@@ -98,7 +98,7 @@ private:
 			}
 			else if(event.isClusterClk(CTL_GDSTAX_FLAGS)) {
 				getCtrlData(CTL_GDSTAX_FLAGS, &(v = 0));
-				enableCommand(cmGoodsTaxList, BIN(v & 0x01));
+				enableCommand(cmGoodsTaxList, LOGIC(v & 0x01));
 				clearEvent(event);
 			}
 			else if(event.isClusterClk(CTL_GDSTAX_SPCVAT)) {

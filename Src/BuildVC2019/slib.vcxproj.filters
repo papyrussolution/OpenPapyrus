@@ -795,6 +795,36 @@
     <ClCompile Include="..\SLib\simplecpp\simplecpp.cpp">
       <Filter>SimpleCPP</Filter>
     </ClCompile>
+    <ClCompile Include="..\SLib\argon2\argon2.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\argon2\bench.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\argon2\core.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\argon2\genkat.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\argon2\opt.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\argon2\ref.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\argon2\run.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\argon2\thread.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\argon2\blake2\blake2b.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\argon2\argon2_encoding.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\Slib.h">
@@ -1067,6 +1097,33 @@
     <ClInclude Include="..\Include\sl-packing-set08.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\SLib\argon2\blake2\blake2.h">
+      <Filter>Argon2\H</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\argon2\blake2\blake2-impl.h">
+      <Filter>Argon2\H</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\argon2\blake2\blamka-round-opt.h">
+      <Filter>Argon2\H</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\argon2\blake2\blamka-round-ref.h">
+      <Filter>Argon2\H</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\argon2\core.h">
+      <Filter>Argon2\H</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\argon2\encoding.h">
+      <Filter>Argon2\H</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\argon2\genkat.h">
+      <Filter>Argon2\H</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\argon2\thread.h">
+      <Filter>Argon2\H</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\argon2.h">
+      <Filter>Argon2\H</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\Osf\Asmlib\cachesize32.asm">
@@ -1325,6 +1382,12 @@
     </Filter>
     <Filter Include="SimpleCPP">
       <UniqueIdentifier>{f27e110d-7899-4fac-9d9e-0b8273305e04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Argon2">
+      <UniqueIdentifier>{384bb734-a73e-44e0-bc4f-4a8065c416e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Argon2\H">
+      <UniqueIdentifier>{3021177b-0e6d-44a1-8730-1a3f305f08b4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

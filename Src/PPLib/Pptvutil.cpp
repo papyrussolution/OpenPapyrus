@@ -366,7 +366,7 @@ int PPExecuteContextMenu(TView * pView, uint menuID)
 {
 	int    ok = -1;
 	if(pView && pView->P_Owner) {
-		TVRez * p_rez = P_SlRez;
+		TVRez * p_rez(P_SlRez);
 		if(p_rez) {
 			uint   cmd = 0;
 			uint   key = 0;
@@ -406,7 +406,7 @@ int FASTCALL PPSetupCtrlMenu(TDialog * pDlg, uint ctl, uint ctlButton, uint ctrl
 		TView * p_ctrl = pDlg->getCtrlView(ctl);
 		TView * p_button = pDlg->getCtrlView(ctlButton);
 		if(p_ctrl && p_button) {
-			TVRez * p_rez = P_SlRez;
+			TVRez * p_rez(P_SlRez);
 			if(p_rez) {
 				uint   cnt = 0;
 				long   key_code = 0;

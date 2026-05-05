@@ -312,7 +312,7 @@ int PPObjQuotKind::MakeReserved(long flags)
 	uint   num_recs;
 	SString name;
 	SString symb;
-	TVRez * p_rez = P_SlRez;
+	TVRez * p_rez(P_SlRez);
 	THROW_PP(p_rez, PPERR_RESFAULT);
 	THROW_PP(p_rez->findResource(ROD_QUOTKIND, PP_RCDATA), PPERR_RESFAULT);
 	THROW_PP(num_recs = p_rez->getUINT(), PPERR_RESFAULT);

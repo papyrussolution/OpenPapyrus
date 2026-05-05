@@ -354,7 +354,7 @@ REGISTER_CMT(PAPYRUS, false, true);
 int PPPosProtocol::InitSrcRootInfo(PPID posNodeID, PPPosProtocol::RouteBlock & rInfo)
 {
 	int    ok = 1;
-	PPCashNode cn_rec;
+	PPCashNode2 cn_rec;
 	SString temp_buf;
 	rInfo.Destroy();
 	if(posNodeID && CnObj.Search(posNodeID, &cn_rec) > 0) {
@@ -797,12 +797,12 @@ int PPPosProtocol::TransportFileOut(const SString & rOutFileName, PPID srcPosNod
 			StringSet ss_paths(";");
 			{
 				int    path_done = 0;
-				PPCashNode cn_rec;
+				PPCashNode2 cn_rec;
 				if(srcPosNodeID && CnObj.Search(srcPosNodeID, &cn_rec) > 0) {
 					if(cn_rec.Flags & CASHF_ASYNC) {
 						PPAsyncCashNode acn_pack;
 						if(CnObj.GetAsync(srcPosNodeID, &acn_pack) > 0) {
-							(temp_buf = acn_pack.ExpPaths).Strip().Transf(CTRANSF_INNER_TO_OUTER); // @v11.0.0
+							(temp_buf = acn_pack.ExpPaths).Strip().Transf(CTRANSF_INNER_TO_OUTER);
 							if(temp_buf.NotEmpty()) {
 								ss_paths.setBuf(temp_buf);
 								path_done = 1;
@@ -1445,7 +1445,7 @@ const SString & FASTCALL PPPosProtocol::EncText(const char * pS)
 	return EncBuf.Transf(CTRANSF_INNER_TO_UTF8);
 }
 
-int PPPosProtocol::WritePosNode(WriteBlock & rB, const char * pScopeXmlTag, const PPCashNode & rInfo)
+int PPPosProtocol::WritePosNode(WriteBlock & rB, const char * pScopeXmlTag, const PPCashNode2 & rInfo)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1483,7 +1483,7 @@ int PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTag, con
 		w_s.PutInner("id", temp_buf.Z().Cat(rInfo.ID));
 		w_s.PutInner("code", temp_buf.Z().Cat(rInfo.SessNumber));
 		if(rInfo.CashNodeID) {
-			PPCashNode cn_rec;
+			PPCashNode2 cn_rec;
 			if(CnObj.Search(rInfo.CashNodeID, &cn_rec) > 0) {
 				if(cn_rec.Flags & CASHF_SYNC && cn_rec.Flags & CASHF_SKIPUNPRINTEDCHECKS)
 					glbs_flags |= CCheckCore::gglfSkipUnprintedChecks;
@@ -3979,7 +3979,7 @@ int PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 	if(!silent)
 		PPWaitStart();
 	if(posNodeID) {
-		PPCashNode cn_rec;
+		PPCashNode2 cn_rec;
 		if(CnObj.Search(posNodeID, &cn_rec) > 0)
 			rgp.LocID = cn_rec.LocID;
 	}
@@ -4821,7 +4821,7 @@ void PPPosProtocol::DestroyReadBlock()
     RdB.Destroy();
 }
 
-int PPPosProtocol::Helper_GetPosNodeInfo_ForInputProcessing(const PPCashNode * pCnRec, TSVector <PosNodeISymbEntry> & rISymbList, TSVector <PosNodeUuidEntry> & rUuidList)
+int PPPosProtocol::Helper_GetPosNodeInfo_ForInputProcessing(const PPCashNode2 * pCnRec, TSVector <PosNodeISymbEntry> & rISymbList, TSVector <PosNodeUuidEntry> & rUuidList)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -5075,7 +5075,7 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 		StrAssocArray remote_url_assoc;
 		TSVector <PosProtocolFileProcessedEntry> processed_file_list;
 		{
-			PPCashNode cn_rec;
+			PPCashNode2 cn_rec;
 			if(rPib.PosNodeID) {
 				PPAsyncCashNode acn_pack;
 				PPSyncCashNode scn_pack;
@@ -5348,7 +5348,7 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 						const  PPID cn_id = p_qpb->PosNodeID;
 						PPID  sync_cn_id = 0;
 						PPID  async_cn_id = 0;
-						PPCashNode cn_rec;
+						PPCashNode2 cn_rec;
 						CSessionTbl::Rec cs_rec;
 						if(CnObj.Search(cn_id, &cn_rec) > 0) {
 							if(cn_rec.Flags & CASHF_SYNC)
@@ -5478,7 +5478,7 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 	StringSet ss_paths(";");
 	{
 		int    path_done = 0;
-		PPCashNode cn_rec;
+		PPCashNode2 cn_rec;
 		if(srcPosNodeID && CnObj.Search(srcPosNodeID, &cn_rec) > 0) {
 			if(cn_rec.Flags & CASHF_ASYNC) {
 				PPAsyncCashNode acn_pack;
@@ -5902,7 +5902,7 @@ int RunInputProcessThread(PPID posNodeID)
 		char    pw[128];
 		SString db_symb;
 		PPObjCashNode cn_obj;
-		PPCashNode cn_rec;
+		PPCashNode2 cn_rec;
 		THROW(cn_obj.Search(posNodeID, &cn_rec) > 0);
 		{
 			DbProvider * p_dict = CurDict;

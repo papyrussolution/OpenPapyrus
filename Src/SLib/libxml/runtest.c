@@ -171,11 +171,11 @@ done:
 	return 0;
 }
 
-static void globfree(glob_t * pglob) {
+static void globfree(glob_t * pglob) 
+{
 	unsigned int i;
 	if(pglob == NULL)
 		return;
-
 	for(i = 0; i < pglob->gl_pathc; i++) {
 		if(pglob->gl_pathv[i] != NULL)
 			free(pglob->gl_pathv[i]);
@@ -2713,36 +2713,28 @@ static int uriPathTest(const char * filename ATTRIBUTE_UNUSED,
 		}
 		nb_tests++;
 	}
-
 	xmlPopInputCallbacks();
 	return(failures);
 }
 
 #ifdef LIBXML_SCHEMAS_ENABLED
-/************************************************************************
-*									*
-*			Schemas tests					*
-*									*
-************************************************************************/
-static int schemasOneTest(const char * sch,
-    const char * filename,
-    const char * result,
-    const char * err,
-    int options,
-    xmlSchemaPtr schemas) {
+//
+// Schemas tests
+//
+static int schemasOneTest(const char * sch, const char * filename, const char * result,
+    const char * err, int options, xmlSchemaPtr schemas) 
+{
 	xmlDocPtr doc;
-	xmlSchemaValidCtxtPtr ctxt;
+	xmlSchemaValidCtxt * ctxt;
 	int ret = 0;
 	int validResult = 0;
 	char * temp;
 	FILE * schemasOutput;
-
 	doc = xmlReadFile(filename, NULL, options);
 	if(doc == NULL) {
 		fprintf(stderr, "failed to parse instance %s for %s\n", filename, sch);
 		return -1;
 	}
-
 	temp = resultFilename(result, "", ".res");
 	if(temp == NULL) {
 		fprintf(stderr, "Out of memory\n");

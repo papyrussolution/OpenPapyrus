@@ -18,16 +18,18 @@
 #include "blake2_impl.h"
 #include "prov/blake2.h"
 
-static const uint64_t blake2b_IV[8] =
-{
-	0x6a09e667f3bcc908ULL, 0xbb67ae8584caa73bULL,
-	0x3c6ef372fe94f82bULL, 0xa54ff53a5f1d36f1ULL,
-	0x510e527fade682d1ULL, 0x9b05688c2b3e6c1fULL,
-	0x1f83d9abfb41bd6bULL, 0x5be0cd19137e2179ULL
+static const uint64_t blake2b_IV[8] = {
+	0x6a09e667f3bcc908ULL, 
+	0xbb67ae8584caa73bULL,
+	0x3c6ef372fe94f82bULL, 
+	0xa54ff53a5f1d36f1ULL,
+	0x510e527fade682d1ULL, 
+	0x9b05688c2b3e6c1fULL,
+	0x1f83d9abfb41bd6bULL, 
+	0x5be0cd19137e2179ULL
 };
 
-static const uint8 blake2b_sigma[12][16] =
-{
+static const uint8 blake2b_sigma[12][16] = {
 	{  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 },
 	{ 14, 10,  4,  8,  9, 15, 13,  6,  1, 12,  0,  2, 11,  7,  5,  3 },
 	{ 11,  8, 12,  0,  5,  2, 15, 13, 10, 14,  3,  6,  7,  1,  9,  4 },
@@ -51,9 +53,8 @@ static ossl_inline void blake2b_set_lastblock(BLAKE2B_CTX * S)
 /* Initialize the hashing state. */
 static ossl_inline void blake2b_init0(BLAKE2B_CTX * S)
 {
-	int i;
 	memzero(S, sizeof(BLAKE2B_CTX));
-	for(i = 0; i < 8; ++i) {
+	for(int i = 0; i < 8; ++i) {
 		S->h[i] = blake2b_IV[i];
 	}
 }
@@ -63,14 +64,11 @@ static void blake2b_init_param(BLAKE2B_CTX * S, const BLAKE2B_PARAM * P)
 {
 	size_t i;
 	const uint8 * p = (const uint8 *)(P);
-
 	blake2b_init0(S);
 	S->outlen = P->digest_length;
-
-	/* The param struct is carefully hand packed, and should be 64 bytes on
-	 * every platform. */
+	// The param struct is carefully hand packed, and should be 64 bytes on every platform.
 	assert(sizeof(BLAKE2B_PARAM) == 64);
-	/* IV XOR ParamBlock */
+	// IV XOR ParamBlock
 	for(i = 0; i < 8; ++i) {
 		S->h[i] ^= load64(p + sizeof(S->h[i]) * i);
 	}
@@ -122,38 +120,30 @@ int ossl_blake2b_init(BLAKE2B_CTX * c, const BLAKE2B_PARAM * P)
 	blake2b_init_param(c, P);
 	return 1;
 }
-
 /*
  * Initialize the hashing context with the given parameter block and key.
  * Always returns 1.
  */
-int ossl_blake2b_init_key(BLAKE2B_CTX * c, const BLAKE2B_PARAM * P,
-    const void * key)
+int ossl_blake2b_init_key(BLAKE2B_CTX * c, const BLAKE2B_PARAM * P, const void * key)
 {
 	blake2b_init_param(c, P);
-
 	/* Pad the key to form first data block */
 	{
 		uint8 block[BLAKE2B_BLOCKBYTES] = {0};
-
 		memcpy(block, key, P->key_length);
 		ossl_blake2b_update(c, block, BLAKE2B_BLOCKBYTES);
 		OPENSSL_cleanse(block, BLAKE2B_BLOCKBYTES);
 	}
-
 	return 1;
 }
 
 /* Permute the state while xoring in the block of data. */
-static void blake2b_compress(BLAKE2B_CTX * S,
-    const uint8 * blocks,
-    size_t len)
+static void blake2b_compress(BLAKE2B_CTX * S, const uint8 * blocks, size_t len)
 {
 	uint64_t m[16];
 	uint64_t v[16];
 	int i;
 	size_t increment;
-
 	/*
 	 * There are two distinct usage vectors for this function:
 	 *
@@ -283,15 +273,11 @@ int ossl_blake2b_update(BLAKE2B_CTX * c, const void * data, size_t datalen)
 			datalen = stashlen;
 		}
 	}
-
 	assert(datalen <= BLAKE2B_BLOCKBYTES);
-
 	memcpy(c->buf + c->buflen, in, datalen);
 	c->buflen += datalen; /* Be lazy, do not compress */
-
 	return 1;
 }
-
 /*
  * Calculate the final hash and save it in md.
  * Always returns 1.
@@ -300,17 +286,16 @@ int ossl_blake2b_final(unsigned char * md, BLAKE2B_CTX * c)
 {
 	uint8 outbuffer[BLAKE2B_OUTBYTES] = {0};
 	uint8 * target = outbuffer;
-	int iter = (c->outlen + 7) / 8;
-	int i;
-	/* Avoid writing to the temporary buffer if possible */
+	int    iter = static_cast<int>((c->outlen + 7) / 8);
+	int    i;
+	// Avoid writing to the temporary buffer if possible 
 	if((c->outlen % sizeof(c->h[0])) == 0)
 		target = md;
-
 	blake2b_set_lastblock(c);
-	/* Padding */
+	// Padding 
 	memzero(c->buf + c->buflen, sizeof(c->buf) - c->buflen);
 	blake2b_compress(c, c->buf, c->buflen);
-	/* Output full hash to buffer */
+	// Output full hash to buffer 
 	for(i = 0; i < iter; ++i)
 		store64(target + sizeof(c->h[i]) * i, c->h[i]);
 	if(target != md)

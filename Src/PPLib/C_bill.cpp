@@ -131,11 +131,9 @@ int PPObjBill::GatherPayments()
 				THROW(P_Tbl->GetAmount(bill_id, PPAMT_PAYMENT, cur_id, &paym));
 				THROW(P_Tbl->CalcPayment(bill_id, 1, 0, cur_id, &real_paym));
 				real_paym = R6(real_paym);
-				// @v10.4.9 {
 				if(amt < 0.0) {
 					real_paym = -real_paym;
 				}
-				// } @v10.4.9 
 				SETFLAG(f, BILLF_PAYOUT, R2(real_paym - amt) >= 0);
 				if(paym != real_paym || f != f1 || real_paym != omt_paymamt) {
 					PPObjBill::MakeCodeString(&rec, 1, bill_name);
@@ -232,7 +230,7 @@ static int RecalcBillDialog(uint rezID, BillRecalcParam * pFilt)
 		SetPeriodInput(dlg, CTL_BILLFLT_PERIOD, pFilt->Period);
 		dlg->setCtrlString(CTL_BILLFLT_LOGFILE, pFilt->LogFileName);
 		types.addzlist(PPOPT_ACCTURN, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSORDER,
-			PPOPT_PAYMENT, PPOPT_GOODSRETURN, PPOPT_GOODSREVAL, PPOPT_GOODSACK, PPOPT_GOODSMODIF, PPOPT_GENERIC, PPOPT_CORRECTION, 0L); // @v10.3.6 PPOPT_CORRECTION
+			PPOPT_PAYMENT, PPOPT_GOODSRETURN, PPOPT_GOODSREVAL, PPOPT_GOODSACK, PPOPT_GOODSMODIF, PPOPT_GENERIC, PPOPT_CORRECTION, 0L);
 		SetupOprKindCombo(dlg, CTLSEL_BILLFLT_OPRKIND, pFilt->OpID, 0, &types, 0);
 		dlg->AddClusterAssoc(CTL_BILLFLT_FLAGS, 0, BillRecalcParam::fNoRecalcAmounts);
 		dlg->AddClusterAssoc(CTL_BILLFLT_FLAGS, 1, BillRecalcParam::fRecalcTrfrs);
@@ -832,7 +830,6 @@ int PPObjBill::SearchPaymWOLinkBill()
 					if(b_rec.LinkBillID) {
 						THROW_DB(updateFor(P_Tbl, 0, (P_Tbl->ID == b_rec.ID), set(P_Tbl->LinkBillID, dbconst(0L))));
 						DS.LogAction(PPACN_BILLCORRECTED, Obj, b_rec.ID, PPACN_EXT_BILLCORRECTED_LINKRESET, 0);
-						// @v10.0.0 PPGetWord(PPWORD_CORRECTED, 0, code);
 						msg_buf.CatDiv(';', 2).Cat(PPLoadStringS("corrected", code));
 					}
 				}

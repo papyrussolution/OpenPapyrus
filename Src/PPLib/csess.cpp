@@ -48,7 +48,7 @@ int CSessionCore::SearchLast(PPID cashNodeID, int incompl, PPID * pID, CSessionT
 {
 	int    ok = -1;
 	PPObjCashNode cn_obj;
-	PPCashNode cn_rec;
+	PPCashNode2 cn_rec;
 	if(cn_obj.Search(cashNodeID, &cn_rec) > 0) {
 		const int do_skip_current = BIN(incompl >- 1000);
 		if(incompl > 1000)
@@ -403,7 +403,7 @@ int CSessionCore::GetActiveSessList(PPID locID, ObjIdListFilt * pActiveSessList)
 	if(pActiveSessList) {
 		DateRange prd;
 		PPObjCashNode cn_obj;
-		PPCashNode cn_rec;
+		PPCashNode2 cn_rec;
 		prd.SetDate(getcurdate_());
 		plusdate(&prd.low, -ASYNCSESS_BYLASTDAYS, 0);
 		PPIDArray async_sess_list;

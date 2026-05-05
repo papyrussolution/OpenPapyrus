@@ -9,8 +9,7 @@
    - OpenSSL license   : https://www.openssl.org/source/license.html
    - Apache 2.0        : http://www.apache.org/licenses/LICENSE-2.0
 
-   More information about the BLAKE2 hash function can be found at
-   https://blake2.net.
+   More information about the BLAKE2 hash function can be found at https://blake2.net.
  */
 #include "archive_platform.h"
 #pragma hdrstop
@@ -80,10 +79,9 @@ int blake2sp_init(blake2sp_state * S, size_t outlen)
 	S->outlen = outlen;
 	if(blake2sp_init_root(S->R, outlen, 0) < 0)
 		return -1;
-
 	for(i = 0; i < PARALLELISM_DEGREE; ++i)
-		if(blake2sp_init_leaf(S->S[i], outlen, 0, (uint32)i) < 0) return -1;
-
+		if(blake2sp_init_leaf(S->S[i], outlen, 0, (uint32)i) < 0) 
+			return -1;
 	S->R->last_node = 1;
 	S->S[PARALLELISM_DEGREE - 1]->last_node = 1;
 	return 0;
@@ -201,7 +199,7 @@ int blake2sp(void * out, size_t outlen, const void * in, size_t inlen, const voi
 	blake2s_state FS[1];
 	size_t i;
 
-	/* Verify parameters */
+	// Verify parameters
 	if(NULL == in && inlen > 0) return -1;
 
 	if(NULL == out) return -1;

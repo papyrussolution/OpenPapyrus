@@ -1741,16 +1741,14 @@ LIBSSH2_API int libssh2_sftp_fsync(LIBSSH2_SFTP_HANDLE * hnd)
  *
  * Get or Set stat on a file
  */
-static int sftp_fstat(LIBSSH2_SFTP_HANDLE * handle,
-    LIBSSH2_SFTP_ATTRIBUTES * attrs, int setstat)
+static int sftp_fstat(LIBSSH2_SFTP_HANDLE * handle, LIBSSH2_SFTP_ATTRIBUTES * attrs, int setstat)
 {
 	LIBSSH2_SFTP * sftp = handle->sftp;
 	LIBSSH2_CHANNEL * channel = sftp->channel;
 	LIBSSH2_SESSION * session = channel->session;
 	size_t data_len;
 	/* 13 = packet_len(4) + packet_type(1) + request_id(4) + handle_len(4) */
-	uint32 packet_len =
-	    handle->handle_len + 13 + (setstat ? sftp_attrsize(attrs->flags) : 0);
+	uint32 packet_len = handle->handle_len + 13 + (setstat ? sftp_attrsize(attrs->flags) : 0);
 	uchar * s, * data;
 	static const uchar fstat_responses[2] = { SSH_FXP_ATTRS, SSH_FXP_STATUS };
 	ssize_t rc;
@@ -1786,23 +1784,16 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE * handle,
 
 		sftp->fstat_state = libssh2_NB_state_sent;
 	}
-
-	rc = sftp_packet_requirev(sftp, 2, fstat_responses,
-	    sftp->fstat_request_id, &data,
-	    &data_len);
+	rc = sftp_packet_requirev(sftp, 2, fstat_responses, sftp->fstat_request_id, &data, &data_len);
 	if(rc == LIBSSH2_ERROR_EAGAIN)
 		return rc;
 	else if(rc) {
 		sftp->fstat_state = libssh2_NB_state_idle;
 		return _libssh2_error(session, rc, "Timeout waiting for status message");
 	}
-
 	sftp->fstat_state = libssh2_NB_state_idle;
-
 	if(data[0] == SSH_FXP_STATUS) {
-		uint32 retcode;
-
-		retcode = _libssh2_ntohu32(data + 5);
+		uint32 retcode = _libssh2_ntohu32(data + 5);
 		LIBSSH2_FREE(session, data);
 		if(retcode == LIBSSH2_FX_OK) {
 			return 0;
@@ -1812,10 +1803,8 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE * handle,
 			return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "SFTP Protocol Error");
 		}
 	}
-
 	sftp_bin2attr(attrs, data + 5);
 	LIBSSH2_FREE(session, data);
-
 	return 0;
 }
 
@@ -1882,10 +1871,8 @@ LIBSSH2_API uint64 libssh2_sftp_tell64(LIBSSH2_SFTP_HANDLE * handle)
 {
 	if(!handle)
 		return 0; /* no handle, no size */
-
 	return handle->u.file.offset;
 }
-
 /*
  * Flush all remaining incoming SFTP packets and zombies.
  */
@@ -1949,7 +1936,6 @@ static int sftp_close_handle(LIBSSH2_SFTP_HANDLE * handle)
 			handle->close_state = libssh2_NB_state_created;
 		}
 	}
-
 	if(handle->close_state == libssh2_NB_state_created) {
 		rc = _libssh2_channel_write(channel, 0, handle->close_packet, packet_len);
 		if(rc == LIBSSH2_ERROR_EAGAIN) {

@@ -54,14 +54,15 @@ public:
 
 	int    Compile(const char * pFileName, long flags, const char * pTranslateToLang);
 private:
+	friend int TestAutotranslateCache(); // Для тестирования (использует загруженные данные как тестовый набор)
+
 	struct ParseItem {
 		ParseItem();
 		ParseItem & Z();
 		enum {
 			kGroup = 1, // Определитель группы строк [999]
 			kString,    // Строка
-			kGroupLang, // Определитель языка для всего последующего текста [/ge/] (до конца файла или до следующего
-				// определителя языка.
+			kGroupLang, // Определитель языка для всего последующего текста [/ge/] (до конца файла или до следующего определителя языка.
 			kLang,      // Определитель языка для следующей строки /en/
 			kScopeStart,
 			kScopeEnd,
@@ -188,7 +189,11 @@ private:
 	int    AddGroup(ParseItem & rItem);
 	int    AddString(long group, StringStore2::ParseItem & rItem, long * pCodeStr);
 	LangStrCollItem * FASTCALL GetOrConstructList(int slang);
-	const LangStrCollItem * FASTCALL GetList(int slang) const;
+	const  LangStrCollItem * FASTCALL GetList(int slang) const;
+	//
+	// Descr: Получает список идентификаторов языков, для которых есть тексты в StrList
+	//
+	uint   GetLangList(LongArray & rLangIdList) const;
 	int    CreateHash(int doTest);
 	int    Helper_GetString(long ident, SString & rBuf) const;
 	int    Helper_GetDescription(long ident, SString & rBuf); // @noncost

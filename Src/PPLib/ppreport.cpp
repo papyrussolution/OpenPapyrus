@@ -1,5 +1,5 @@
 // PPREPORT.CPP
-// Copyright (C) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (C) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -112,11 +112,12 @@ int GetReportIDByName(const char * pRptName, uint * pRptID)
 	TVRez::WResHeaderInfo hdr;
 	ASSIGN_PTR(pRptID, 0);
 	if(P_SlRez) {
-		for(ofs = 0; !ok && P_SlRez->readHeader(ofs, &hdr, TVRez::beginOfData); ofs = hdr.Next)
+		for(ofs = 0; !ok && P_SlRez->readHeader(ofs, &hdr, TVRez::beginOfData); ofs = hdr.Next) {
 			if(hdr.Type == PP_RCDECLREPORTSTUB && P_SlRez->getString(name_buf, 0).CmpNC(pRptName) == 0) {
 				ASSIGN_PTR(pRptID, hdr.IntID);
 				ok = 1;
 			}
+		}
 	}
 	return ok;
 }
@@ -136,7 +137,7 @@ struct PPReportStub {
 int PPLoadReportStub(long rptID, PPReportStub * pData)
 {
 	int    ok = 1;
-	TVRez * p_rez = P_SlRez;
+	TVRez * p_rez(P_SlRez);
 	THROW_PP(p_rez, PPERR_REZNOTINITED);
 	THROW_PP(p_rez->findResource(rptID, PP_RCDECLREPORTSTUB), PPERR_RESFAULT);
 	pData->ID = rptID;
@@ -1062,7 +1063,6 @@ private:
 					{
 						int   ok = 1;
 						SString temp_buf;
-						//
 						GetClusterData(CTL_CRREXPPARAM_DEST, &Data.Destination);
 						getCtrlString(CTL_CRREXPPARAM_FILE, Data.DestFileName);
 						GetIntRangeInput(this, CTL_CRREXPPARAM_PGRANGE, &Data.PageRange);
@@ -1101,7 +1101,7 @@ private:
 				delete dlg;
 			}
 		}
-		// @erik v10.4.10 {
+		// @erik {
 		else if(event.isCmd(cmPrntCfg)) {
 			PRINTDLGA pd;
 			memzero(&pd, sizeof(pd));

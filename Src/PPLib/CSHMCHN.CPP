@@ -137,7 +137,7 @@ int PPCashMachine::SyncOrAsync(int cashID, int & rS)
 {
 	PPCashMachine * p_cm = 0;
 	uint   p = 0;
-	PPCashNode cn_rec;
+	PPCashNode2 cn_rec;
 	PPObjCashNode cn_obj;
 	if(cn_obj.Fetch(cashID, &cn_rec) > 0) {
 		PPID   _cn_type = 0;
@@ -146,7 +146,7 @@ int PPCashMachine::SyncOrAsync(int cashID, int & rS)
 			cn_obj.GetListByGroup(cashID, child_list);
 			for(uint i = 0; i < child_list.getCount(); i++) {
 				const  PPID child_id = child_list.get(i);
-				PPCashNode child_cn_rec;
+				PPCashNode2 child_cn_rec;
 				if(cn_obj.Fetch(child_id, &child_cn_rec) > 0) {
 					if(!_cn_type)
 						_cn_type = child_cn_rec.CashType;
@@ -195,14 +195,14 @@ PPCashMachine::~PPCashMachine()
 
 PPID PPCashMachine::GetCurSessID()
 {
-	PPCashNode cn_rec;
+	PPCashNode2 cn_rec;
 	return (PPRef->GetItem(PPOBJ_CASHNODE, NodeRec.ID, &cn_rec) > 0) ? cn_rec.CurSessID : 0;
 }
 
-const PPCashNode & PPCashMachine::GetNodeData() const { return NodeRec; }
-bool  PPCashMachine::IsValid() const { return LOGIC(Valid); }
-void  PPCashMachine::SetParentNode(PPID parentNodeID) { ParentNodeID = parentNodeID; }
-int   PPCashMachine::GetAsyncIntrf() { return SETIFZ(P_AsyncIntrf, AsyncInterface()) ? 1 : PPSetError(PPERR_ASYNCCSNOTSUPP); }
+const  PPCashNode2 & PPCashMachine::GetNodeData() const { return NodeRec; }
+bool   PPCashMachine::IsValid() const { return LOGIC(Valid); }
+void   PPCashMachine::SetParentNode(PPID parentNodeID) { ParentNodeID = parentNodeID; }
+int    PPCashMachine::GetAsyncIntrf() { return SETIFZ(P_AsyncIntrf, AsyncInterface()) ? 1 : PPSetError(PPERR_ASYNCCSNOTSUPP); }
 
 int PPCashMachine::GetSyncIntrf()
 {
@@ -680,7 +680,7 @@ int PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long check
 		THROW(cn_obj.GetSync(NodeID, &scn) > 0);
 		ext_cash_node_id = scn.ExtCashNodeID;
 		if(ext_cash_node_id) {
-			PPCashNode cn_ext;
+			PPCashNode2 cn_ext;
 			THROW(p_cm_ext = PPCashMachine::CreateInstance(ext_cash_node_id));
 			THROW(p_cm_ext->GetNode() > 0);
 			cn_ext = p_cm_ext->GetNodeData();
@@ -780,7 +780,7 @@ int PPCashMachine::SyncSetPrintErrCode(int retCode, int updateNode)
 //
 //
 //
-CmLocking::CmLocking(const PPCashNode & rNodeRec) : R_NodeRec(rNodeRec), Flags(0)
+CmLocking::CmLocking(const PPCashNode2 & rNodeRec) : R_NodeRec(rNodeRec), Flags(0)
 {
 	int    r = PPObjCashNode::IsLocked(R_NodeRec.ID);
 	if(!r) {
@@ -1275,7 +1275,7 @@ int PPCashMachine::AsyncCloseSession(int asTempSess, DateRange * pPeriod/*=0*/)
 /*static*/int PPCashMachine::AsyncCloseSession2(PPID posNodeID, DateRange * pPeriod)
 {
 	int    ok = 1;
-	PPCashNode cn_rec;
+	PPCashNode2 cn_rec;
 	PPObjCashNode cn_obj;
 	PPIDArray cn_list;
 	PPIDArray loc_list;
@@ -1287,7 +1287,7 @@ int PPCashMachine::AsyncCloseSession(int asTempSess, DateRange * pPeriod/*=0*/)
 		cn_obj.GetListByGroup(posNodeID, child_list);
 		for(uint i = 0; i < child_list.getCount(); i++) {
 			const  PPID child_cn_id = child_list.get(i);
-			PPCashNode child_node;
+			PPCashNode2 child_node;
 			if(cn_obj.Fetch(child_cn_id, &child_node) > 0) {
 				if(PPCashMachine::IsAsyncCMT(child_node.CashType)) {
 					loc_list.add(child_node.LocID);
@@ -1363,16 +1363,16 @@ int PPCashMachine::UpdateNode(int use_ta)
 //
 CSPanel::CSPanel(uint rezID, PPID aNodeID, char * nodeName, int fZReport) : TDialog(rezID)
 {
-	PPCashNode cn_rec;
+	PPCashNode2 cn_rec;
 	PPObjCashNode cn_obj;
 	cn_obj.Search(aNodeID, &cn_rec);
 	UseKeyboardWKey = BIN(fZReport >= 0 && (cn_rec.Flags & CASHF_KEYBOARDWKEY));
 	DefInputLine = CTL_CSPANEL_INPUT;
 	showCtrl(CTL_CSPANEL_INPUT, false);
-	enableCommand(cmCSClose, BIN(fZReport > 0 && (fZReport & fcspZReport)));
-	enableCommand(cmSCSZReportCopy, BIN(fZReport > 0 && (fZReport & fcspZRepCopy)));
-	enableCommand(cmSCSXReport, BIN(fZReport & fcspXReport));
-	enableCommand(cmSCSPrintCheckCopy, BIN(fZReport & fcspCheckCopy));
+	enableCommand(cmCSClose, (fZReport > 0 && (fZReport & fcspZReport)));
+	enableCommand(cmSCSZReportCopy, (fZReport > 0 && (fZReport & fcspZRepCopy)));
+	enableCommand(cmSCSXReport, LOGIC(fZReport & fcspXReport));
+	enableCommand(cmSCSPrintCheckCopy, LOGIC(fZReport & fcspCheckCopy));
 	setCtrlData(CTL_CSPANEL_NODE, nodeName);
 	setCtrlReadOnly(CTL_CSPANEL_NODE, true);
 }
@@ -1503,14 +1503,14 @@ int ExecCSPanel(const CashNodePaneFilt * pFilt)
 		PPIDArray child_list;
 		PPIDArray loc_list;
 		PPObjCashNode cn_obj;
-		PPCashNode    cn_rec;
+		PPCashNode2 cn_rec;
 		THROW(cn_obj.Search(cn_id, &cn_rec) > 0);
 		const int is_group = BIN(cn_rec.CashType == PPCMT_CASHNGROUP);
 		if(is_group) {
 			cn_obj.GetListByGroup(cn_id, child_list);
 			for(uint i = 0; i < child_list.getCount(); i++) {
 				const  PPID child_cn_id = child_list.get(i);
-				PPCashNode child_node;
+				PPCashNode2 child_node;
 				if(cn_obj.Fetch(child_cn_id, &child_node) > 0) {
 					loc_list.add(child_node.LocID);
 					const int child_sync = PPCashMachine::IsSyncCMT(child_node.CashType);

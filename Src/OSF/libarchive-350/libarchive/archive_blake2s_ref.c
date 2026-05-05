@@ -1,16 +1,12 @@
 /*
    BLAKE2 reference source code package - reference C implementations
-
    Copyright 2012, Samuel Neves <sneves@dei.uc.pt>.  You may use this under the
    terms of the CC0, the OpenSSL Licence, or the Apache Public License 2.0, at
    your option.  The terms of these licenses can be found at:
-
    - CC0 1.0 Universal : http://creativecommons.org/publicdomain/zero/1.0
    - OpenSSL license   : https://www.openssl.org/source/license.html
    - Apache 2.0        : http://www.apache.org/licenses/LICENSE-2.0
-
-   More information about the BLAKE2 hash function can be found at
-   https://blake2.net.
+   More information about the BLAKE2 hash function can be found at https://blake2.net.
  */
 #include "archive_platform.h"
 #pragma hdrstop
@@ -83,10 +79,9 @@ int blake2s_init_param(blake2s_state * S, const blake2s_param * P)
 int blake2s_init(blake2s_state * S, size_t outlen)
 {
 	blake2s_param P[1];
-
 	/* Move interval verification here? */
-	if( ( !outlen ) || ( outlen > BLAKE2S_OUTBYTES ) ) return -1;
-
+	if((!outlen) || (outlen > BLAKE2S_OUTBYTES))
+		return -1;
 	P->digest_length = (uint8)outlen;
 	P->key_length    = 0;
 	P->fanout        = 1;
@@ -105,11 +100,10 @@ int blake2s_init(blake2s_state * S, size_t outlen)
 int blake2s_init_key(blake2s_state * S, size_t outlen, const void * key, size_t keylen)
 {
 	blake2s_param P[1];
-
-	if( ( !outlen ) || ( outlen > BLAKE2S_OUTBYTES ) ) return -1;
-
-	if(!key || !keylen || keylen > BLAKE2S_KEYBYTES) return -1;
-
+	if( ( !outlen ) || ( outlen > BLAKE2S_OUTBYTES ) ) 
+		return -1;
+	if(!key || !keylen || keylen > BLAKE2S_KEYBYTES) 
+		return -1;
 	P->digest_length = (uint8)outlen;
 	P->key_length    = (uint8)keylen;
 	P->fanout        = 1;
@@ -244,7 +238,7 @@ int blake2s_final(blake2s_state * S, void * out, size_t outlen)
 int blake2s(void * out, size_t outlen, const void * in, size_t inlen, const void * key, size_t keylen)
 {
 	blake2s_state S[1];
-	/* Verify parameters */
+	// Verify parameters
 	if(NULL == in && inlen > 0) return -1;
 	if(NULL == out) return -1;
 	if(NULL == key && keylen > 0) return -1;

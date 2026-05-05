@@ -2244,7 +2244,7 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 		PPGdsClsPacket gc_pack;
 		if(gc_obj.Fetch(gc_id, &gc_pack) > 0) {
 			Data.Rec.GdsClsID = gc_id;
-			enableCommand(cmGoodsExt, BIN(gc_id));
+			enableCommand(cmGoodsExt, LOGIC(gc_id));
 			PPID temp_id = getCtrlLong(CTLSEL_GOODS_UNIT);
 			if(temp_id == 0 && gc_pack.Rec.DefUnitID)
 				setCtrlLong(CTLSEL_GOODS_UNIT, gc_pack.Rec.DefUnitID);

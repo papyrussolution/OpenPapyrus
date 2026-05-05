@@ -235,7 +235,7 @@ PPID GTaxVect::EvalBlock::GetLocID() const
 			if(P_CcPack) {
 				if(P_CcPack->Rec.PosNodeID) {
 					PPObjCashNode cn_obj;
-					PPCashNode cn_rec;
+					PPCashNode2 cn_rec;
 					if(cn_obj.Fetch(P_CcPack->Rec.PosNodeID, &cn_rec) > 0) {
 						result_id = cn_rec.LocID;
 					}

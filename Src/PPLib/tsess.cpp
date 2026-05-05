@@ -1,5 +1,5 @@
 // TSESS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2019, 2020, 2021, 2024
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2019, 2020, 2021, 2024, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -179,12 +179,13 @@ int TSessionCore::ReplaceGoods(PPID dest, PPID src)
 	TSessLineTbl::Key2 k2;
 	MEMSZERO(k2);
 	k2.GoodsID = dest;
-	if(Lines.search(2, &k2, spGe) && k2.GoodsID == dest)
+	if(Lines.search(2, &k2, spGe) && k2.GoodsID == dest) {
 		do {
 			Lines.data.GoodsID = src;
 			THROW_DB(Lines.updateRec());
 			ok = 1;
 		} while(Lines.search(2, &k2, spNext) && k2.GoodsID == dest);
+	}
 	CATCHZOK
 	return ok;
 }
@@ -329,7 +330,7 @@ int TSessionCore::InitLineEnumBySerial(const char * pSerial, int sign, long * pH
 	char   temp_serial[32];
 	STRNSCPY(temp_serial, pSerial);
 	BExtQuery * q = new BExtQuery(&Lines, 3);
-	q->selectAll().where(Lines.Serial == temp_serial && Lines.Sign == (long)sign);
+	q->selectAll().where(Lines.Serial == temp_serial && Lines.Sign == static_cast<long>(sign));
 	TSessLineTbl::Key3 k3;
 	MEMSZERO(k3);
 	STRNSCPY(k3.Serial, temp_serial);
@@ -445,7 +446,7 @@ int TSessionCore::LoadBusyArray(PPID prcID, PPID exclTSesID, int kind, const STi
 			dbq = &(*dbq && this->StDt <= pPeriod->Finish.d);
 	}
 	q.select(this->ID, this->StDt, this->StTm, this->FinDt, this->FinTm, this->Status, this->Flags, 0).where(*dbq);
-	for(q.initIteration(false, &k4, spGe); q.nextIteration() > 0;)
+	for(q.initIteration(false, &k4, spGe); q.nextIteration() > 0;) {
 		if(data.Status != TSESST_CANCELED && data.ID != exclTSesID) {
 			if(kind == TSESK_IDLE && !(data.Flags & TSESF_IDLE))
 				continue;
@@ -459,6 +460,7 @@ int TSessionCore::LoadBusyArray(PPID prcID, PPID exclTSesID, int kind, const STi
 			InitPrcEntry(data, entry);
 			THROW(pList->Add(entry, 0));
 		}
+	}
 	pList->Limit(pPeriod);
 	CATCHZOK
 	return ok;
@@ -560,7 +562,7 @@ int TSessionCore::Put_(PPID * pID, TSessionTbl::Rec * pRec, long options, int us
 			pRec->ID = *pID;
 			log_action_id = PPACN_OBJADD;
 		}
-		if(!(options & putfSkipSjRegistration)) { // @v11.0.4
+		if(!(options & putfSkipSjRegistration)) {
 			DS.LogAction(log_action_id, PPOBJ_TSESSION, *pID, 0, 0);
 		}
 		THROW(tra.Commit());
@@ -575,8 +577,9 @@ int TSessionCore::AdjustLineTime(TSessLineTbl::Rec * pRec)
 	k1.TSessID = pRec->TSessID;
 	k1.Dt = pRec->Dt;
 	k1.Tm = pRec->Tm;
-	while(Lines.search(1, &k1, spEq))
+	while(Lines.search(1, &k1, spEq)) {
 		k1.Tm = pRec->Tm.addhs(1);
+	}
 	return 1;
 }
 

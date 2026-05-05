@@ -220,8 +220,8 @@ int PPObjTech::CreateAutoTech(PPID prcID, PPID goodsID, PPID * pTechID, int use_
 				new_pack.Rec.GoodsID = goodsID;
 				new_pack.Rec.Sign = pack.Rec.Sign;
 				new_pack.Rec.InitQtty = pack.Rec.InitQtty;
-				SETFLAGBYSAMPLE(new_pack.Rec.Flags, pack.Rec.Flags, TECF_CALCTIMEBYROWS); // @v11.3.1
-				SETFLAGBYSAMPLE(new_pack.Rec.Flags, pack.Rec.Flags, TECF_AUTOMAIN); // @v11.3.1
+				SETFLAGBYSAMPLE(new_pack.Rec.Flags, pack.Rec.Flags, TECF_CALCTIMEBYROWS);
+				SETFLAGBYSAMPLE(new_pack.Rec.Flags, pack.Rec.Flags, TECF_AUTOMAIN);
 				PPGetExtStrData(TECEXSTR_CAPACITY, pack.ExtString, temp_buf);
 				if(temp_buf.NotEmptyS()) {
 					double capacity = 0.0;
@@ -229,8 +229,7 @@ int PPObjTech::CreateAutoTech(PPID prcID, PPID goodsID, PPID * pTechID, int use_
 						new_pack.Rec.Capacity = capacity;
 					}
 				}
-				// @v11.1.12 STRNSCPY(new_pack.Rec.Memo, pack.Rec.Memo);
-				new_pack.SMemo = pack.SMemo; // @v11.1.12
+				new_pack.SMemo = pack.SMemo;
 				THROW(PutPacket(&tech_id, &new_pack, 0));
 				THROW(tra.Commit());
 				ASSIGN_PTR(pTechID, tech_id);
@@ -2272,7 +2271,7 @@ int PPViewTech::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * p
 						ok = 1;
 				}
 				break;
-			case PPVCMD_EDITCAPACITY: // @v11.3.10
+			case PPVCMD_EDITCAPACITY:
 				ok = -1;
 				{
 					PPTechPacket pack;
@@ -2700,6 +2699,125 @@ TechRouteIdent::TechRouteIdent() : ID(0), ItemIdx(0)
 {
 }
 
+TechRouteIdent & TechRouteIdent::Z()
+{
+	ID = 0;
+	Oid.Z();
+	ItemIdx = 0;
+	return *this;
+}
+
+SString & TechRouteIdent::ToStr(uint fmt, SString & rBuf) const
+{
+	rBuf.Z();
+	rBuf.CatChar('{');
+	rBuf.Cat(Oid.ToStr(SLS.AcquireRvlStr())).Semicol().Cat(ID).Semicol().Cat(ItemIdx);
+	rBuf.CatChar('}');
+	return rBuf;
+}
+
+SString & TechRouteIdent::ToStrWithItemIdxList(const LongArray * pItemIdxList, uint fmt, SString & rBuf) const
+{
+	rBuf.Z();
+	rBuf.CatChar('{');
+	rBuf.Cat(Oid.ToStr(SLS.AcquireRvlStr())).Semicol().Cat(ID).Semicol();
+	if(SVectorBase::GetCount(pItemIdxList)) {
+		uint   _iic = 0;
+		for(uint i = 0; i < pItemIdxList->getCount(); i++) {
+			const  long item_idx = pItemIdxList->get(i);
+			if(item_idx > 0) {
+				if(_iic++) {
+					rBuf.Comma();
+				}
+				rBuf.Cat(item_idx);
+			}
+		}
+	}
+	else {
+		rBuf.Cat(0U);
+	}
+	rBuf.CatChar('}');
+	return rBuf;
+}
+
+bool TechRouteIdent::FromStrWithItemIdxList(const char * pText, LongArray * pItemIdxList)
+{
+	// ^\{\h*\{\h*(\d+)\h*;\h*(\d+)\h*\}\h*;\h*(\d+)\h*;\h*(\d+(?:\h*,\h*\d+)*)\h*\}$
+	Z();
+	CALLPTRMEMB(pItemIdxList, Z());
+	bool   ok = false;
+	if(!isempty(pText)) {
+		SStrScan scan(pText);
+		long   re_id = 0;
+		if(scan.RegisterRe("^\\{[ \\t]*\\{[ \\t]*(\\d+)[ \\t]*;[ \\t]*(\\d+)[ \\t]*\\}[ \\t]*;[ \\t]*(\\d+)[ \\t]*;[ \\t]*(\\d+(?:[ \\t]*,[ \\t]*\\d+)*)[ \\t]*\\}$", &re_id)) {
+			SString temp_buf;
+			StringSet ss_groups;
+			if(scan.GetReWithGroups(re_id, temp_buf, &ss_groups)) {
+				assert(ss_groups.getCount() == 4);
+				uint   ssp = 0;
+				if(ss_groups.get(&ssp, temp_buf)) {
+					Oid.Obj = temp_buf.Strip().ToLong();
+					if(ss_groups.get(&ssp, temp_buf)) {
+						Oid.Id = temp_buf.Strip().ToLong();
+						if(ss_groups.get(&ssp, temp_buf)) {
+							ID = temp_buf.Strip().ToLong();
+							if(ss_groups.get(&ssp, temp_buf)) {
+								if(pItemIdxList) {
+									StringSet ss_iil(',', temp_buf);
+									for(uint ssp_iil = 0; ss_iil.get(&ssp_iil, temp_buf);) {
+										const  long ii = temp_buf.Strip().ToLong();
+										if(ii > 0) {
+											pItemIdxList->add(ii);
+										}
+									}
+								}
+								ok = true;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	if(SVectorBase::GetCount(pItemIdxList)) {
+		pItemIdxList->sortAndUndup();
+	}
+	return ok;
+}
+
+bool TechRouteIdent::FromStr(const char * pText) // @v12.6.2 @construction
+{
+	// ^\{\h*\{\h*(\d+)\h*;\h*(\d+)\h*\}\h*;\h*(\d+)\h*;\h*(\d+)\h*\}$
+	Z();
+	bool   ok = false;
+	if(!isempty(pText)) {
+		SStrScan scan(pText);
+		long   re_id = 0;
+		if(scan.RegisterRe("^\\{[ \\t]*\\{[ \\t]*(\\d+)[ \\t]*;[ \\t]*(\\d+)[ \\t]*\\}[ \\t]*;[ \\t]*(\\d+)[ \\t]*;[ \\t]*(\\d+)[ \\t]*\\}$", &re_id)) {
+			SString temp_buf;
+			StringSet ss_groups;
+			if(scan.GetReWithGroups(re_id, temp_buf, &ss_groups)) {
+				assert(ss_groups.getCount() == 4);
+				uint   ssp = 0;
+				if(ss_groups.get(&ssp, temp_buf)) {
+					Oid.Obj = temp_buf.ToLong();
+					if(ss_groups.get(&ssp, temp_buf)) {
+						Oid.Id = temp_buf.ToLong();
+						if(ss_groups.get(&ssp, temp_buf)) {
+							ID = temp_buf.ToLong();
+							if(ss_groups.get(&ssp, temp_buf)) {
+								ItemIdx = temp_buf.ToULong();
+								ok = true;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 PPTechRoute::Entry::Entry() : TechID(0), NominalPrice(0.0), NominalTimeSec(0), LevelCode(0)
 {
 	memzero(Reserve, sizeof(Reserve));
@@ -2769,6 +2887,85 @@ int PPTechRoute::AddEntry(const Entry & rEntry)
 	new_entry.NominalPrice = rEntry.NominalPrice;
 	THROW_SL(L.insert(&new_entry));
 	CATCHZOK
+	return ok;
+}
+
+int PPTechRoute::GetEntryIdxByTech(PPID techID, LongArray * pList) const
+{
+	int    ok = 0;
+	uint   _count = 0;
+	if(techID) {
+		for(uint i = 0; i < L.getCount(); i++) {
+			const Entry & r_entry = L.at(i);
+			if(r_entry.TechID == techID) {
+				++_count;
+				if(_count > 1)
+					ok = 2;
+				else
+					ok = 1;
+				if(pList) {
+					pList->add(i+1);
+				}
+				else if(_count > 1) {
+					break; // Если некуда складывать результат, то уходим с индикацией факта, что у нас более одной точки на одну технологию.
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+int PPTechRoute::GetStageListAccordingToDoneStageList(const LongArray & rDoneStageList, LongArray & rResult) const
+{
+	rResult.Z();
+	int    ok = 0;
+	for(uint i = 0; i < L.getCount(); i++) {
+		const  Entry & r_entry = L.at(i);
+		const  long iter_stage_idx = static_cast<long>(i+1);
+		if(!rDoneStageList.lsearch(iter_stage_idx)) {
+			bool   do_skip = false;
+			if(!do_skip) { // знаю, что всегда true - ради унификации с последующим блоком
+				//
+				// Перебираем все сделанные этапы, индексы которых больше iter_stage_idx.
+				// Если в rDoneStageList есть хоть один такой и при этом его (ненулевой) LevelCode не равен тому же для iter_stage_idx,
+				// то нельзя запускать этап в производство
+				//
+				for(long j = iter_stage_idx+1; !do_skip && j <= L.getCountI(); j++) {
+					if(rDoneStageList.lsearch(j)) {
+						const   Entry & r_ie = L.at(j-1);
+						if(r_ie.LevelCode != 0 && r_ie.LevelCode == r_entry.LevelCode) {
+							;
+						}
+						else {
+							do_skip = true;
+						}
+					}
+				}
+			}
+			if(!do_skip) {
+				//
+				// Перебираем все сделанные этапы, индексы которых меньше iter_stage_idx.
+				// Если в rDoneStageList нет хоть одного такого и при этом его (ненулевой) LevelCode не равен тому же для iter_stage_idx,
+				// то нельзя запускать этап в производство
+				//
+				for(long j = 1; !do_skip && j < iter_stage_idx; j++) {
+					if(!rDoneStageList.lsearch(j)) {
+						const   Entry & r_ie = L.at(j-1);
+						if(r_ie.LevelCode != 0 && r_ie.LevelCode == r_entry.LevelCode) {
+							;
+						}
+						else {
+							do_skip = true;
+						}
+					}
+				}
+			}
+			if(!do_skip) {
+				rResult.add(iter_stage_idx);
+				ok = 1;
+			}
+		}
+	}
 	return ok;
 }
 //
@@ -2865,6 +3062,32 @@ int PPTechRouteManager::Get(const TechRouteIdent & rIdent, PPTechRoute & rRoute)
 		}
 	}
 	CATCHZOK
+	return ok;
+}
+
+int PPTechRouteManager::GetLotStageTagDetail(PPID lotID, TechRouteIdent * pIdent, LongArray * pStageList)
+{
+	int    ok = -1;
+	CALLPTRMEMB(pIdent, Z());
+	CALLPTRMEMB(pStageList, Z());
+	if(lotID) {
+		PPObjTag tag_obj;
+		PPObjectTag2 tag_rec;
+		LongArray processed_tr_item_idx_list;
+		const  PPID tec_route_stage_tag = (tag_obj.Fetch(PPTAG_LOT_TECROUTESTAGE, &tag_rec) > 0) ? PPTAG_LOT_TECROUTESTAGE : 0;
+		if(tec_route_stage_tag) {
+			SString lot_tag_buf;
+			if(PPRef->Ot.GetTagStr(PPOBJ_LOT, lotID, tec_route_stage_tag, lot_tag_buf) > 0) {
+				assert(lot_tag_buf.NotEmptyS());
+				TechRouteIdent local_tri;
+				if(local_tri.FromStrWithItemIdxList(lot_tag_buf, &processed_tr_item_idx_list)) {
+					ASSIGN_PTR(pIdent, local_tri);
+					ASSIGN_PTR(pStageList, processed_tr_item_idx_list);
+					ok = 1;
+				}
+			}
+		}
+	}
 	return ok;
 }
 

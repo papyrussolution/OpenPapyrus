@@ -487,6 +487,7 @@ public:
 	static constexpr uint32 Signature_EgaisMarkAutoSelector_ResultBlock = 0x938EF619U; // @v12.2.11 Сигнатура класса EgaisMarkAutoSelector::ResultBlock. Для сериализации.
 	static constexpr uint32 Signature_AdviseEventQueueClient       = 0x12ABCDEFU; // @v12.3.11 Сигнатура класса PPAdviseEventQueue::Client.
 	static constexpr uint32 Signature_BillAgreement_Serialize      = 0x5EA22F71U; // @v12.5.11 Сигнатура сериализации PPBill::AgreementBlock. При изменении формата возможно создание новых сигнатур.
+	static constexpr uint32 Signature_PPRFile                      = 0xFEEDBAC5U; // @v12.6.2 Сигнатура класса PPRFile
 	static constexpr const char * P_SubjectDbDiv = "$PpyDbDivTransmission$";
 	static constexpr const char * P_SubjectOrder = "$PpyOrderTransmission$";
 	static constexpr const char * P_SubjectCharry = "$PpyCharryTransmission$";
@@ -2017,7 +2018,7 @@ struct PPLogIdx {
 #define SAVELOGF_OVERWRITE  0x0001L
 #define SAVELOGF_APPEND     0x0002L
 
-#define LOGLIST_MAXSTRLEN   256
+#define LOGLIST_MAXSTRLEN   256 // @v12.6.2 256-->1024
 
 struct MsgLogItem {
 	char   LogListStr[LOGLIST_MAXSTRLEN];
@@ -21738,7 +21739,7 @@ struct PPCashNode2 {       // @persistent @store(Reference2Tbl+)
 	char   Port[8];        // Имя порта (LPT1, COM1, ...)
 	PPID   GoodsLocAssocID; // Именованная ассоциация товар-склад, используемая для печати чеков и списания //
 	uint16 SleepTimeout;   // Таймаут бездействия (сек), после которого панель блокируется //
-	uint16 Speciality;     // PPCashNode::spXXX Специализация кассового узла
+	uint16 Speciality;     // PPCashNode2::spXXX Специализация кассового узла
 	PPID   CurRestBillID;  // Временный документ текущих остатков по незакрытым кассовым сессиям
 	PPID   ParentID;       // Ссылка на родительскую группу
 	PPID   GoodsGrpID;     // Товарная группа, которой следует ограничивать загрузку товаров в асинхр модуль либо
@@ -21806,7 +21807,7 @@ public:
 	int16  DrvVerMinor;      //
 	uint16 DisRoundPrec;     // .01 @#{0..50000} Точность округления скидки //
 	uint16 AmtRoundPrec;     // .01 @#{0..50000} Точность округления результирующей суммы чека
-	uint16 Speciality;       // @v11.9.6 PPCashNode::spXXX 
+	uint16 Speciality;       // @v11.9.6 PPCashNode2::spXXX 
 	uint64 Reserve;          // @v11.9.6 @alignment
 	PPID   LocID;            //
 	PPID   ExtQuotID;        // ->Ref(PPOBJ_QUOTKIND) Дополнительная котировка
@@ -21884,7 +21885,7 @@ public:
 	uint16 ClearCDYTimeout;  // Таймаут очистки дисплея покупателя после печати чека
 	uint16 SleepTimeout;     //
 	PPID   LocalTouchScrID;  // Локальный (по отношению к компютеру) идентификатор записи PPObjTouchScreen
-	// @v11.9.6 (moved to PPGenCashNode) uint16 Speciality;       // PPCashNode::spXXX
+	// @v11.9.6 (moved to PPGenCashNode) uint16 Speciality;       // PPCashNode2::spXXX
 	// @v11.9.12 uint16 Reserve;          // @v11.9.6 @alignment
 	//
 	// Descr: Варианты использования разрешительного режима честный знак
@@ -21979,12 +21980,12 @@ public:
 	//   Поля инициализируемые в записи pRec:
 	//   {Tag, ID, Name, Symb, CashType, ExtQuotID, LocID, Flags }
 	//
-	int    FASTCALL Fetch(PPID id, PPCashNode * pRec);
+	int    FASTCALL Fetch(PPID id, PPCashNode2 * pRec);
 	int    GetSync(PPID, PPSyncCashNode *);
 	int    GetAsync(PPID, PPAsyncCashNode *);
 	int    EditGroup(PPGenCashNode * pData);
 	int    EditDistrib(PPGenCashNode * pData);
-	int    Get(PPID id, PPGenCashNode * pPack, PPCashNode * pRec = 0);
+	int    Get(PPID id, PPGenCashNode * pPack, PPCashNode2 * pRec = 0);
 	int    Put(PPID * pID, PPGenCashNode * pPack, int use_ta);
 	bool   Validate(PPGenCashNode * pRec, long);
 	//
@@ -22075,7 +22076,7 @@ struct AsyncPosPrepParam {
 //
 class CmLocking {
 public:
-	explicit CmLocking(const PPCashNode & rNodeRec);
+	explicit CmLocking(const PPCashNode2 & rNodeRec);
 	~CmLocking();
 	int    operator !() const;
 	int    IsForeignLocking() const;
@@ -22086,7 +22087,7 @@ private:
 		fForeignLocking = 0x0004
 	};
 	long   Flags;
-	const  PPCashNode & R_NodeRec;
+	const  PPCashNode2 & R_NodeRec;
 };
 
 class PPCashMachine {
@@ -22162,7 +22163,7 @@ public:
 	// Общие методы
 	//
 	bool   IsValid() const;
-	const  PPCashNode & GetNodeData() const;
+	const  PPCashNode2 & GetNodeData() const;
 	//
 	// Descr: Возвращает ИД текущей кассовой сессии узла NodeID.
 	// Note: Для получения этого значения нельзя использовать GetNodeData() по тому,
@@ -22194,7 +22195,7 @@ protected:
 	int    Valid;
 	PPID   NodeID;
 	PPID   ParentNodeID;
-	PPCashNode NodeRec;
+	PPCashNode2 NodeRec;
 private:
 	static int GetRegEntry(PPID cmtID, uint * pPos);
 	//
@@ -23190,8 +23191,8 @@ private:
 	int    FlashTempCcLines(const SVector *, LAssocArray * pHasExLineList);
 
 	DateRange SurveyPeriod; // Период, в который попадают закрываемые сессии
-	long   CnFlags;     // Флаги узла PPCashNode(NodeID) если ~0, то не инициализированы
-	long   CnExtFlags;  // Расширенные флаги узла PPCashNode(NodeID) если ~0, то не инициализированы
+	long   CnFlags;     // Флаги узла PPCashNode2(NodeID) если ~0, то не инициализированы
+	long   CnExtFlags;  // Расширенные флаги узла PPCashNode2(NodeID) если ~0, то не инициализированы
 	PPGoodsConfig * P_GCfg;
 
 	struct LastSess {
@@ -31608,6 +31609,11 @@ public:
 	//   близкую к orgPrice для продажи количества qtty (если qtty > 0 and qtty < 1) с таким условием, чтобы выражение 
 	//   (price / fragmentation) *  qtty давала величину, точно представимую с десятичным числом с округлением до двух знаков после точки.
 	//   Блядь! Кто такое вообще далает?!
+	// Returns:
+	//   -1 - товар goodsID при заданном количестве qtty не трубует выравнивания цены.
+	//   -2 - выравнивание цены при указанных условиях может понадобиться, но цена orgPrice без потерь округляется до двух знаков после точки
+	//   >0 - функция вычислила варавненную цену и присвоила ее по указателю pAdjustedPrice
+	//    0 - error
 	//   
 	int    AdjustFractionalUnitPrice(PPID goodsID, double qtty, double orgPrice, int roundingDir, double * pAdjustedPrice); // @v12.6.1
 
@@ -32206,14 +32212,14 @@ struct PPTransport {       // @persistent @store(Goods2Tbl)
 	int16  Flags;          // @flags
 };
 
-class PPTransportPacket { // @v11.2.12
+class PPTransportPacket {
 public:
 	PPTransportPacket();
 	PPTransportPacket & Z();
 	bool   FASTCALL IsEq(const PPTransportPacket & rS) const;
 
 	PPTransport Rec;
-	ObjTagList TagL; // @v11.2.12 Список тегов
+	ObjTagList TagL; // Список тегов
 };
 
 class PPObjTransport : public PPObjGoods {
@@ -33686,7 +33692,7 @@ struct AsyncCashGoodsInfo { // @transient
 	double UnitPerPack;      // Емкость упаковки
 	double Cost;             // Цена поступления //
 	double Price;            // Цена реализации
-	double ExtQuot;          // Специальная цена (соответствует котировке типа PPCashNode.ExtQuotID)
+	double ExtQuot;          // Специальная цена (соответствует котировке типа PPCashNode2.ExtQuotID)
 	double Rest;             // Остаток
 	double Precision;        // Точность для дробного количества товара. Некоторые кассовые модули
 		// позволяют загружать т.н. максимальную дробность представления количества товара.
@@ -38197,7 +38203,7 @@ private:
 #define TECF_CALCTIMEBYROWS   0x0004 // Для каждой строки сессии извлекается доступная технология //
 	// для процессора и время выполнения количества, заданного по строке прибавляется к планируемому времени сессии
 #define TECF_AUTOMAIN         0x0008 // Основной товар автоматически вставляется в строки сессии
-#define TECF_ABSCAPACITYTIME  0x0010 // Производительность определяет абсолютное время работы процессора (не зависимо от количества обоабатываемой позиции).
+#define TECF_ABSCAPACITYTIME  0x0010 // Производительность определяет абсолютное время работы процессора (не зависимо от количества обрабатываемой позиции).
 #define TECF_RVRSCMAINGOODS   0x0020 // Обратный расчет количества основного товара по заданным в строках сессии компонентам
 //
 //
@@ -38207,6 +38213,11 @@ private:
 
 struct TechRouteIdent {
 	TechRouteIdent();
+	TechRouteIdent & Z();
+	SString & ToStr(uint fmt, SString & rBuf) const;
+	SString & ToStrWithItemIdxList(const LongArray * pItemIdxList, uint fmt, SString & rBuf) const;
+	bool   FromStr(const char * pText);
+	bool   FromStrWithItemIdxList(const char * pText, LongArray * pItemIdxList);
 	SObjID Oid;    // Объект-владелец технологического маршрута, к которому привязана технология TechID
 	PPID   ID;     // @reserve Сейчас маршруты не являются отдельными объектами данных, потому это поле пока не применяется //
 	uint   ItemIdx; // [1..] Если !0, то номер строки в маршруте
@@ -38231,6 +38242,12 @@ public:
 	bool   IsEmpty() const { return (L.getCount() == 0); }
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    AddEntry(const Entry & rEntry);
+	int    GetEntryIdxByTech(PPID techID, LongArray * pList) const;
+	//
+	// ARG(rDoneStageList IN): Список позиций [1..] маршрута, которые помечены как выполненные.
+	// ARG(rResult OUT): Список позиций [1..] маршрута, которые можно начать исполнять в текущем состоянии.
+	//
+	int    GetStageListAccordingToDoneStageList(const LongArray & rDoneStageList, LongArray & rResult) const;
 	
 	SObjID Oid;      // @v12.6.0
 	PPID   ObjGroup; // @v12.6.0 Дополнительное значение для уточнения выбора связанного объекта
@@ -38250,6 +38267,7 @@ public:
 	int    Get(const TechRouteIdent & rIdent, PPTechRoute & rRoute);
 	int    Edit(PPTechRoute & rRoute);
 	int    GetListByGoods(PPID goodsID, TSCollection <PPTechRoute> & rList);
+	int    GetLotStageTagDetail(PPID lotID, TechRouteIdent * pIdent, LongArray * pStageList);
 private:
 	PPObjGoods GObj;
 };
@@ -51344,7 +51362,7 @@ public:
 	long   ReserveEnd;
 };
 
-typedef PPCashNode CashNodeViewItem;
+typedef PPCashNode2 CashNodeViewItem;
 
 class PPViewCashNode : public PPView {
 public:
@@ -51361,8 +51379,8 @@ private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	int    UpdateTempTable(const PPIDArray * pIdList);
-	TempCashNodeTbl::Rec & MakeTempEntry(const PPCashNode & rRec, TempCashNodeTbl::Rec & rTempRec);
-	int    CheckForFilt(const PPCashNode * pRec) const;
+	TempCashNodeTbl::Rec & MakeTempEntry(const PPCashNode2 & rRec, TempCashNodeTbl::Rec & rTempRec);
+	int    CheckForFilt(const PPCashNode2 * pRec) const;
 
 	SString CashTypeNames;
 	CashNodeFilt  Filt;
@@ -52800,7 +52818,7 @@ private:
 	const  SString & FASTCALL CorrectAndEncText(const char * pS);
 	uint   PeekRefPos() const;
 	void * PeekRefItem(uint * pRefPos, int * pType) const;
-	int    Helper_GetPosNodeInfo_ForInputProcessing(const PPCashNode * pCnRec, TSVector <PosNodeISymbEntry> & rISymbList, TSVector <PosNodeUuidEntry> & rUuidList);
+	int    Helper_GetPosNodeInfo_ForInputProcessing(const PPCashNode2 * pCnRec, TSVector <PosNodeISymbEntry> & rISymbList, TSVector <PosNodeUuidEntry> & rUuidList);
 	void   FASTCALL Helper_AddStringToPool(uint * pPos);
 	int    FASTCALL Helper_PushQuery(int queryType);
 	QueryBlock * Helper_RenewQuery(uint & rRefPos, int queryType);
@@ -52818,7 +52836,7 @@ private:
 	int    WriteQuotInfo(WriteBlock & rB, const char * pScopeXmlTag, PPID parentObj, const PPQuot & rInfo);
 	int    WriteQuotKindInfo(WriteBlock & rB, const char * pScopeXmlTag, const PPQuotKind & rInfo);
 	int    WriteRouteInfo(WriteBlock & rB, const char * pScopeXmlTag, const RouteBlock & rInfo);
-	int    WritePosNode(WriteBlock & rB, const char * pScopeXmlTag, const PPCashNode & rInfo);
+	int    WritePosNode(WriteBlock & rB, const char * pScopeXmlTag, const PPCashNode2 & rInfo);
 	int    WriteCSession(WriteBlock & rB, const char * pScopeXmlTag, const CSessionTbl::Rec & rInfo);
 	int    TransportFileOut(const SString & rOutFileName, PPID srcPosNodeID, const char * pInfix);
 	int    PreprocessInputSource(PPID cnID, const char * pSrc, StringSet & rSs, StrAssocArray & rRemoteAssocList);
@@ -54505,6 +54523,108 @@ private:
 	PPTextAnalyzer Ta;
 	PPTextAnalyzer::Replacer * P_Rpl;
 	SFile  LogF;
+};
+//
+// Descr: Правил идентификации и форматирования номеров телефонов.
+//   Извлекаются из DD/PhoneNumberMetadata.json
+//
+class PhoneNumberMetaData { // @v12.6.0 @construction 
+public:
+	enum {
+		fMainCountry                = 0x0001, // mainCountryForCode?: "true" # Основная страна для этого кода
+		fMobileNumberPortableRegion = 0x0002, // mobileNumberPortableRegion
+	};
+	enum {
+		numdescrkUndef   = 0, 
+		numdescrkGeneral,        // generalDesc?: NumberDescriptor      # Общее описание всех номеров
+		numdescrkFixedLine,      // fixedLine?: NumberDescriptor        # Стационарные
+		numdescrkMobile,         // mobile?: NumberDescriptor           # Мобильные
+		numdescrkPager,          // pager?: NumberDescriptor            # Пейджеры
+		numdescrkTollFree,       // tollFree?: NumberDescriptor         # Бесплатные (800, 888...)
+		numdescrkPremiumRate,    // premiumRate?: NumberDescriptor      # Платные (900...)
+		numdescrkSharedCost,     // sharedCost?: NumberDescriptor       # Разделение стоимости
+		numdescrkPersonalNumber, // personalNumber?: NumberDescriptor   # Персональные номера
+		numdescrkVoIP,           // voip?: NumberDescriptor             # VoIP
+		numdescrkUAN,            // uan?: NumberDescriptor              # Унифицированные доступные номера 
+		numdescrkVoiceMail,      // voicemail?: NumberDescriptor        # Голосовая почта
+	};
+
+	static uint32 ParsePossibleLengths(const char * pText);
+	static bool   GetNumberDescriptorSymb(int ndId, SString & rSymb);
+
+	struct NumberDescriptor {
+		NumberDescriptor();
+		~NumberDescriptor();
+		int    FromJsonObj(SStrGroup & rPool, const SJson * pJs);
+
+		long   Priority; // @firstmember		
+		uint   Kind; // numdescrkXXX
+		uint32 PossibleLen_National; //"possibleLengths": { "national": "10" },
+		uint32 PossibleLen_LocalOnly;
+		uint   NationalPatternP; //"nationalNumberPattern": "[3-9]\\d{9}",
+		uint   ExampleP;   //"exampleNumber": "9123456789"
+		float  Confidence; // [0.0f..1.0f] Уровень уверенности в том, что это таки номер телефона, а не что-то иное
+		SRegExp2 * P_Re;   // Скомпилированное регулярное выражение NationalPatternP
+	};
+	struct NumberFormat { // @flat Форматирование вывода
+		NumberFormat();
+		int    FromJsonObj(SStrGroup & rPool, const SJson * pJs);
+
+		uint   PatternP;    // pattern: string            # Regex для применения формата
+		uint   FormatP;     // format: string             # Шаблон вывода ("$1 $2 $3")
+		uint   IntlFormatP; // intlFormat?: string | "NA" # Международный формат
+		uint   LeadingDigitsSetP[6];    // leadingDigits?: string[]           # Ограничение по начальным цифрам
+		uint   NationalPfxFormatRuleP;  // nationalPrefixFormattingRule?: string # Правило вставки нац. префикса
+		uint   CarrierCodeFormatRuleP;  // carrierCodeFormattingRule?: string # Правило для кода оператора
+		bool   NationalPfxOptionalWhenFormatting; // nationalPrefixOptionalWhenFormatting?: "true"
+		uint8  Reserve[3];
+	};
+	struct Terr { // territory
+		Terr();
+		int    FromJsonObj(SStrGroup & rPool, const SJson * pJs);
+
+		char   Id[8];
+		char   E164[8]; // Телефонный код страны в E.164 ("1", "7", "44")
+		uint   Flags;
+		uint   LeadingDigitsSetP[6]; // leadingDigits?: string[]      # Префиксы для разрешения коллизий кодов
+		//
+		uint   IntlPfxP;      // internationalPrefix: string          # Префикс междугородней связи ("00")
+		uint   PrefIntlPfxP;  // preferredInternationalPrefix?: string # Предпочтительный вариант
+		uint   NationalPfxP;  // nationalPrefix?: string              # Национальный префикс ("0")
+		uint   NationalPfxForParsingP;    // nationalPrefixForParsing?: string    # Regex для извлечения кода
+		uint   NationalPfxTransformRuleP; // nationalPrefixTransformRule?: string # Правило трансформации ("9$1")
+		uint   PrefExtnPfxP;              // preferredExtnPrefix?: string         # Префикс добавочного номера
+		TSVector <NumberFormat> AvailableFormatList;
+		TSCollection <NumberDescriptor> NumDescrL;
+		TSCollection <SRegExp2> LeadingDigitsRegExpList; // Набор скомпилированных регулярных выражений по LeadingDigitsSetP
+	};
+	//
+	// Descr: Результат валидации номера
+	//
+	struct ValidationResult { // @flat
+		ValidationResult();
+		enum {
+			stValid = 0x0001
+		};
+		uint   State;
+		uint   TerrIdx; // [1..] Индекс территории
+		uint   NumberDescrIdx;  // [1...] Сработавший паттерн NumberDescriptor внутри Terr
+		uint   DescriptorKind;  // numdescrkMobile, numdescrkFixedLine, etc.
+		float  Confidence;      // 0.0 - 1.0
+	};
+
+	static void SortValidationResult(TSVector <ValidationResult> & rList);
+
+	PhoneNumberMetaData();
+	int    ParseJsonFile(const char * pJsFileName);
+	int    ValidateNumber(const char * pRawInput, TSVector <ValidationResult> * pResultList) const;
+	int    MakeValidationResultText(const ValidationResult & rR, SString & rBuf) const;
+	int    GetValidationResultId(const ValidationResult & rR, SString & rBuf) const;
+private:
+	int    PreprocessPatterns();
+
+	TSCollection <Terr> L;
+	SStrGroup StrPool;
 };
 //
 //
@@ -57676,7 +57796,8 @@ protected:
 	struct IniParamsBlock {
 		IniParamsBlock();
 		enum {
-			fDisableAltRegister = 0x0001
+			fDisableAltRegister    = 0x0001,
+			fAdjustFractionalPrice = 0x0002, // @v12.6.2
 		};
 		long   Flags;
 		long   UiFlags;
@@ -64637,9 +64758,10 @@ template <typename Dlg, typename D> int PPDialogProcBody(D * pData)
 	int    ok = -1;
 	Dlg * dlg = new Dlg;
 	if(CheckDialogPtrErr(&dlg) && dlg->setDTS(pData)) {
-		while(ok <= 0 && ExecView(dlg) == cmOK)
+		while(ok <= 0 && ExecView(dlg) == cmOK) {
 			if(dlg->getDTS(pData))
 				ok = 1;
+		}
 	}
 	else
 		ok = 0;
@@ -64652,9 +64774,10 @@ template <typename Dlg, typename D> int PPDialogProcBody(uint dlgId, D * pData)
 	int    ok = -1;
 	Dlg * dlg = new Dlg(dlgId);
 	if(CheckDialogPtrErr(&dlg) && dlg->setDTS(pData)) {
-		while(ok <= 0 && ExecView(dlg) == cmOK)
+		while(ok <= 0 && ExecView(dlg) == cmOK) {
 			if(dlg->getDTS(pData))
 				ok = 1;
+		}
 	}
 	else
 		ok = 0;

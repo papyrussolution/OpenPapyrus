@@ -369,7 +369,7 @@ int ViewBillDetails(PPBillPacket & rPack, int editMode, PPObjBill * pBObj)
 		else {
 			if(rPack.Rec.Flags & BILLF_CASH) {
 				PPObjCashNode cn_obj;
-				PPCashNode cn_rec;
+				PPCashNode2 cn_rec;
 				if(cn_obj.Fetch(r_cfg.Cash, &cn_rec) > 0 && !(cn_rec.Flags & CASHF_NAFCL)) {
 					p_brw->State |= BillItemBrowser::stActivateNewRow;
 				}

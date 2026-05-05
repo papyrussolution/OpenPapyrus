@@ -279,7 +279,7 @@ SymbHashTable * StringStore2::LoadStringHash(int group) const
 				SString temp_buf;
 				uint  result_count = 0;
 				const uint ht_size = GetPrimeGreaterThan((str_id_list.getCount() * 3) - 1);
-				THROW_MEM(p_tab = new SymbHashTable(ht_size, 1)); // @v9.6.5 useAssoc 0-->1
+				THROW_MEM(p_tab = new SymbHashTable(ht_size, 1/*useAssoc*/));
 				for(uint i = 0; i < str_id_list.getCount(); i++) {
 					const long str_id = str_id_list.get(i);
 					//const long combine_id = MakeLong(str_id, group);
@@ -457,6 +457,19 @@ const StringStore2::LangStrCollItem * FASTCALL StringStore2::GetList(int slang) 
 			p_result = p_item;
     }
     return p_result;
+}
+
+uint StringStore2::GetLangList(LongArray & rLangIdList) const
+{
+	rLangIdList.Z();
+    for(uint i = 0; i < StrList.getCount(); i++) {
+		const LangStrCollItem * p_item = StrList.at(i);
+		if(p_item && p_item->SLang != 0) {
+			rLangIdList.add(p_item->SLang);
+		}
+    }
+	rLangIdList.sortAndUndup();
+	return rLangIdList.getCount();
 }
 
 // #define SC2C // @construction

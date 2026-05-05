@@ -512,7 +512,8 @@ void TSessionDialog::selectFreeEntry()
 		}
 		int    getSelectedPeriod(LDATETIME * pStart, LDATETIME * pFinish)
 		{
-			long   pos = 0, id = 0;
+			long   pos = 0;
+			long   id = 0;
 			if(getCurItem(&pos, &id) && id > 0 && id <= FreeList.getCountI()) {
 				const PrcBusy & entry = *static_cast<const PrcBusy *>(FreeList.at(id-1));
 				ASSIGN_PTR(pStart, entry.Start);
@@ -1218,7 +1219,7 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 			const  long prev_status = Data.Rec.Status;
 			long   new_status = 0;
 			GetClusterData(CTL_TSESS_STATUS, &new_status);
-			PPID   prc_id = getCtrlLong(CTLSEL_TSESS_PRC);
+			const  PPID prc_id = getCtrlLong(CTLSEL_TSESS_PRC);
 			if(prc_id != Data.Rec.PrcID) {
 				Data.Rec.PrcID = prc_id;
 				if(prc_id) {
@@ -2135,14 +2136,21 @@ int PPObjTSession::Edit_ExecSessionOnTechRoute(const ExecSessionOnTechRouteFilt 
 {
 	class ExecSessionOnTechRouteDialog : public TDialog {
 		DECL_DIALOG_DATA(ExecSessionOnTechRouteBlock);
+		enum {
+			stBusy = 0x0001,
+		};
+		int    State;
+		TechRouteIdent TrIdent;
 		PPID   LotID;
 		double LotQtty;
+		PPID   CurrentTSessID; // Если процессор занять, то это - ид сессии, которой он занят
 		PPObjTSession TSesObj;
+		PPObjBill * P_BObj;
 	public:
 		enum {
 			ctlgroupPrcTech = 1
 		};
-		ExecSessionOnTechRouteDialog() : TDialog(DLG_TSESS_EXEC_TR), P_BObj(BillObj), LotID(0), LotQtty(0.0)
+		ExecSessionOnTechRouteDialog() : TDialog(DLG_TSESS_EXEC_TR), P_BObj(BillObj), LotID(0), LotQtty(0.0), CurrentTSessID(0), State(0)
 		{
 			addGroup(ctlgroupPrcTech, new PrcTechCtrlGroup(CTLSEL_TSESS_PRC, CTLSEL_TSESS_TECH, CTL_TSESS_ST_GOODS,
 				CTLSEL_TSESS_OBJ, CTLSEL_TSESS_OBJ2, 0/*cmSelTechByGoods*/, 0/*cmCreateGoods*/));
@@ -2160,6 +2168,7 @@ int PPObjTSession::Edit_ExecSessionOnTechRoute(const ExecSessionOnTechRouteFilt 
 				if(setGroupData(ctlgroupPrcTech, &ptcg_rec)) {
 					;
 				}
+				OnPrcSelection(Data.PrcID);
 			}
 			setCtrlDatetime(CTL_TSESS_STDT, CTL_TSESS_STTM, Data.TmR.Start);
 			setCtrlDatetime(CTL_TSESS_FNDT, CTL_TSESS_FNTM, Data.TmR.Finish);
@@ -2181,15 +2190,131 @@ int PPObjTSession::Edit_ExecSessionOnTechRoute(const ExecSessionOnTechRouteFilt 
 				Data.LotID = LotID;
 				Data.LotQtty = LotQtty;
 			}
+			if(TrIdent.Oid.IsFullyDefined() && Data.TechID) {
+				PPTechRouteManager trmgr;
+				PPTechRoute troute;
+				if(trmgr.Get(TrIdent, troute) > 0) {
+					LongArray idx_list;
+					const  int geibtr = troute.GetEntryIdxByTech(Data.TechID, &idx_list);
+					if(geibtr == 1) {
+						TrIdent.ItemIdx = idx_list.get(0);
+					}
+					else {
+						// @todo Тут надо как-то отреагировать - ситуация плохая //
+					}
+				}
+			}
+			Data.TrIdent = TrIdent;
+			SETFLAG(Data.Flags, ExecSessionOnTechRouteBlock::fStopCurrentSess, LOGIC(State & stBusy && Data.TSessID));
 			ASSIGN_PTR(pData, Data);
 			return ok;
 		}
 	private:
+		int    OnPrcSelection(PPID prcID) // @v12.6.2 
+		{
+			int    ok = 1;
+			const  LDATETIME now_dtm = getcurdatetime_();
+			SString info_buf;
+			State &= ~stBusy;
+			const   bool is_prc_changed = (prcID != Data.PrcID);
+			if(is_prc_changed) {
+				Data.TSessID = 0;
+				Data.TechID = 0;
+				Data.GoodsID = 0;
+				Data.LotID = 0;
+				Data.LotQtty = 0.0;
+				Data.ArID = 0;
+				Data.Ar2ID = 0;
+				Data.Flags = 0;
+				Data.TmR.Z();
+				Data.TrIdent.Z();
+				Data.Serial.Z();
+				setCtrlString(CTL_TSESS_SERIAL, Data.Serial);
+				setCtrlLong(CTLSEL_TSESS_TECH, Data.TechID);
+				setCtrlLong(CTLSEL_TSESS_OBJ, Data.ArID);
+				setCtrlLong(CTLSEL_TSESS_OBJ2, Data.Ar2ID);
+				setCtrlDatetime(CTL_TSESS_STDT, CTL_TSESS_STTM, Data.TmR.Start);
+				setCtrlDatetime(CTL_TSESS_FNDT, CTL_TSESS_FNTM, Data.TmR.Finish);
+			}
+			if(prcID) {
+				ProcessorTbl::Rec prc_rec;
+				if(TSesObj.GetPrc(prcID, &prc_rec, 1, 1) > 0) {
+					Data.PrcID = prc_rec.ID;
+					PPID   cur_tses_id = 0;
+					TSessionTbl::Rec tses_rec_inwork;
+					TSessionPacket tses_pack;
+					int    r2 = TSesObj.P_Tbl->GetProcessed(prcID, TSESK_SESSION, &tses_rec_inwork);
+					if(r2 > 0) {
+						cur_tses_id = tses_rec_inwork.ID;
+						if(TSesObj.GetPacket(cur_tses_id, &tses_pack, PPObjTSession::gpoLoadLines) > 0) {
+							State |= stBusy;
+							CurrentTSessID = tses_rec_inwork.ID;
+							//
+							Data.TSessID = CurrentTSessID;
+							Data.TechID = tses_pack.Rec.TechID;
+							Data.TmR.Start.Set(tses_pack.Rec.StDt, tses_pack.Rec.StTm);
+							Data.TmR.Finish.Set(tses_pack.Rec.FinDt, tses_pack.Rec.FinTm);
+							if(tses_pack.Lines.getCount()) {
+								const TSessLineTbl::Rec & r_tsl_rec = tses_pack.Lines.at(0);
+								LotID = r_tsl_rec.LotID;
+								Data.GoodsID = r_tsl_rec.GoodsID;
+								Data.Serial = r_tsl_rec.Serial;
+							}
+							setCtrlString(CTL_TSESS_SERIAL, Data.Serial);
+							{
+								PrcTechCtrlGroup * p_grp = static_cast<PrcTechCtrlGroup *>(getGroup(ctlgroupPrcTech));
+								if(p_grp) {
+									PrcTechCtrlGroup::Rec ptcg_rec;
+									ptcg_rec.PrcID = Data.PrcID;
+									ptcg_rec.TechID = Data.TechID;
+									ptcg_rec.ArID = Data.ArID;
+									ptcg_rec.Ar2ID = Data.Ar2ID;
+									if(setGroupData(ctlgroupPrcTech, &ptcg_rec)) {
+										p_grp->SetGoodsID(this, Data.GoodsID);
+									}
+								}
+							}
+							setCtrlDatetime(CTL_TSESS_STDT, CTL_TSESS_STTM, Data.TmR.Start);
+							setCtrlDatetime(CTL_TSESS_FNDT, CTL_TSESS_FNTM, Data.TmR.Finish);
+						}
+					}
+					else {
+						int    r = TSesObj.IsProcessorBusy(prcID, 0, TSESK_SESSION, now_dtm, 1, &cur_tses_id);
+						if(r > 0) {
+							if(TSesObj.GetPacket(cur_tses_id, &tses_pack, PPObjTSession::gpoLoadLines) > 0) {
+								CurrentTSessID = cur_tses_id;
+								//
+								Data.TechID = tses_pack.Rec.TechID;
+							}
+						}
+					}
+				}
+				else {
+					Data.PrcID = 0;
+				}
+			}
+			else {
+				Data.PrcID = 0;
+			}
+			enableCommand(cmOK, !(State & stBusy));
+			showButton(cmOK, !(State & stBusy));
+			enableCommand(cmCloseCurrentTSess, LOGIC(State & stBusy));
+			showButton(cmCloseCurrentTSess, LOGIC(State & stBusy));
+			setStaticText(CTL_TSESS_ST_STATE, info_buf);
+			disableCtrl(CTLSEL_TSESS_TECH, LOGIC(State & stBusy));
+			disableCtrl(CTLSEL_TSESS_OBJ, LOGIC(State & stBusy));
+			disableCtrl(CTLSEL_TSESS_OBJ2, LOGIC(State & stBusy));
+			disableCtrl(CTL_TSESS_SERIAL, LOGIC(State & stBusy));
+			disableCtrl(CTL_TSESS_STDT, LOGIC(State & stBusy));
+			disableCtrl(CTL_TSESS_STTM, LOGIC(State & stBusy));
+			return ok;
+		}
 		int    OnSerialOrPrcSelection(PPID prcID, const SString & rSerial)
 		{
 			int    ok = 1;
 			PPID   final_lot_id = 0;
 			PPID   final_goods_id = 0;
+			TechRouteIdent final_trid;
 			double final_lot_qtty = 0.0;
 			bool   is_there_result = false; // Если true то это значит, что найден лот и найдены технологии. То есть, можно фиксировать final_goods_id, final_lot_id, final_lot_qtty
 			if(prcID) {
@@ -2235,6 +2360,7 @@ int PPObjTSession::Edit_ExecSessionOnTechRoute(const ExecSessionOnTechRouteFilt 
 										}
 										if(tec_filt.List.GetCount()) {
 											PPObjTech::SetupCombo(this, CTLSEL_TSESS_TECH, sel_tec_id, 0, &tec_filt);
+											final_trid.Oid = p_route->Oid;
 											is_there_result = true;
 										}
 									}
@@ -2250,10 +2376,12 @@ int PPObjTSession::Edit_ExecSessionOnTechRoute(const ExecSessionOnTechRouteFilt 
 			if(is_there_result) {
 				LotID = final_lot_id;
 				LotQtty = final_lot_qtty;
+				TrIdent = final_trid;
 			}
 			else {
 				LotID = 0;
 				LotQtty = 0.0;
+				TrIdent.Z();
 				final_goods_id = 0;
 			}
 			{
@@ -2267,16 +2395,22 @@ int PPObjTSession::Edit_ExecSessionOnTechRoute(const ExecSessionOnTechRouteFilt 
 		DECL_HANDLE_EVENT
 		{
 			TDialog::handleEvent(event);
-			if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_TSESS_SERIAL)) {
+			if(event.isCmd(cmCloseCurrentTSess)) {
+				if(State & stBusy && CurrentTSessID) {
+					endModal(cmOK);
+					return;
+				}
+			}
+			else if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_TSESS_SERIAL)) {
 				SString serial;
 				getCtrlString(CTL_TSESS_SERIAL, serial);
 				OnSerialOrPrcSelection(Data.PrcID, serial);
 			}
 			else if(event.isCbSelected(CTLSEL_TSESS_PRC)) {
-				Data.PrcID = getCtrlLong(CTLSEL_TSESS_PRC);
+				const  PPID prc_id = getCtrlLong(CTLSEL_TSESS_PRC);
+				OnPrcSelection(prc_id);
 			}
 		}
-		PPObjBill * P_BObj;
 	};
 
 	int    ok = -1;
@@ -2295,11 +2429,7 @@ int PPObjTSession::Edit_ExecSessionOnTechRoute(const ExecSessionOnTechRouteFilt 
 	}
 	ok = PPDialogProcBody<ExecSessionOnTechRouteDialog, ExecSessionOnTechRouteBlock>(p_data);
 	if(ok > 0) {
-		if(p_data->Flags & ExecSessionOnTechRouteBlock::fStopCurrentSess) {
-		}
-		else {
-			
-		}
+		;
 	}
 	CATCHZOK
 	return ok;
@@ -2372,63 +2502,148 @@ ExecSessionOnTechRouteFilt & FASTCALL ExecSessionOnTechRouteFilt::operator = (co
 /*static*/int PPObjTSession::ExecSessionOnTechRoute(const ExecSessionOnTechRouteFilt * pParam) // @v12.6.0
 {
 	int    ok = -1;
+	Reference * p_ref(PPRef);
 	PPObjTSession tses_obj;
 	ExecSessionOnTechRouteBlock blk;
 	if(tses_obj.Edit_ExecSessionOnTechRoute(pParam, &blk) > 0) {
 		const  LDATETIME now_dtm = getcurdatetime_();
 		PPID   new_id = 0;
 		bool   local_fault = false;
-		TSessionPacket new_sess_pack;
+		SString temp_buf;
+		SString lot_tag_buf;
+		TechTbl::Rec tec_rec;
 		PPObjTag tag_obj;
 		PPObjectTag2 tag_rec;
+		LongArray processed_tr_item_idx_list;
 		const  PPID tec_route_stage_tag = (tag_obj.Fetch(PPTAG_LOT_TECROUTESTAGE, &tag_rec) > 0) ? PPTAG_LOT_TECROUTESTAGE : 0;
-		{
-			PPTransaction tra(1);
-			THROW(tra);
-			if(tses_obj.InitPacket(&new_sess_pack, TSESK_SESSION, blk.PrcID, 0)) {
-				new_sess_pack.Rec.Status = TSESST_INPROCESS;
-				new_sess_pack.Rec.TechID = blk.TechID;
-				new_sess_pack.Rec.ArID = blk.ArID;
-				new_sess_pack.Rec.Ar2ID = blk.Ar2ID;
-				if(checkdate(blk.TmR.Start.d)) {
-					new_sess_pack.Rec.StDt = blk.TmR.Start.d;
-					new_sess_pack.Rec.StTm = blk.TmR.Start.t;
-				}
-				else {
-					new_sess_pack.Rec.StDt = now_dtm.d;
-					new_sess_pack.Rec.StTm = now_dtm.t;
-				}
-				if(tses_obj.PutPacket(&new_id, &new_sess_pack, 0/*use_ta*/)) {
-					TSessLineTbl::Rec line_rec;
-					long   oprno = 0;
-					if(tses_obj.InitLinePacket(&line_rec, new_id)) {
-						line_rec.GoodsID = blk.GoodsID;
-						line_rec.LotID = blk.LotID;
-						line_rec.Qtty = blk.LotQtty;
-						STRNSCPY(line_rec.Serial, blk.Serial);
-						line_rec.Sign = 0;
-						if(tses_obj.PutLine(new_id, &oprno, &line_rec, 0)) {
-							if(tec_route_stage_tag) {
-								
+		PPTechRoute troute;
+		const PPTechRoute::Entry * p_tre = 0;
+		SString stage_tag_text;
+		if(blk.Flags & ExecSessionOnTechRouteBlock::fStopCurrentSess) {
+			if(blk.TSessID) {
+				TSessionPacket pack;
+				if(tses_obj.GetPacket(blk.TSessID, &pack, PPObjTSession::gpoLoadLines) > 0) {
+					if(pack.Rec.Status == TSESST_INPROCESS) {
+						if(tses_obj.SetSessionState(&pack.Rec, TSESST_CLOSED, 0)) {
+							PPID   _id = pack.Rec.ID;
+							//pack.Rec.FinDt = 
+							PPTransaction tra(1);
+							THROW(tra);
+							pack.Rec.ActQtty = blk.LotQtty;
+							if(tses_obj.PutPacket(&_id, &pack, 0/*use_ta*/)) {
+								;
+							}
+							else {
+								local_fault = true;
+							}
+							if(local_fault) {
+								THROW(tra.Rollback());
+							}
+							else {
+								THROW(tra.Commit());
 							}
 						}
 						else {
-							local_fault = true;
+							; // @todo @err
 						}
+					}
+				}
+			}
+		}
+		else {
+			if(tec_route_stage_tag && blk.TrIdent.Oid.IsFullyDefined() && blk.TrIdent.ItemIdx) {
+				PPTechRouteManager trmgr;
+				if(trmgr.Get(blk.TrIdent, troute) > 0) {
+					if(blk.TrIdent.ItemIdx > 0 && blk.TrIdent.ItemIdx <= troute.L.getCount()) {
+						const PPTechRoute::Entry & r_tre = troute.L.at(blk.TrIdent.ItemIdx-1);
+						assert(r_tre.TechID == blk.TechID); // Если это не так, то у нас проблемы. Вся предыдущая цепочка не должна была привести к такому результату
+						if(r_tre.TechID == blk.TechID) {
+							p_tre = &r_tre;
+							TechRouteIdent local_tri;
+							trmgr.GetLotStageTagDetail(blk.LotID, &local_tri, &processed_tr_item_idx_list);
+						}
+					}
+				}
+			}
+			THROW(tses_obj.GetTech(blk.TechID, &tec_rec, 0) > 0);
+			{
+				TSessionPacket new_sess_pack;
+				PPTransaction tra(1);
+				THROW(tra);
+				if(tses_obj.InitPacket(&new_sess_pack, TSESK_SESSION, blk.PrcID, 0)) {
+					new_sess_pack.Rec.Status = TSESST_INPROCESS;
+					new_sess_pack.Rec.TechID = blk.TechID;
+					new_sess_pack.Rec.ArID = blk.ArID;
+					new_sess_pack.Rec.Ar2ID = blk.Ar2ID;
+					new_sess_pack.Rec.PlannedQtty = blk.LotQtty;
+					LDATETIME start_dtm = ZERODATETIME;
+					if(checkdate(blk.TmR.Start.d)) {
+						start_dtm = blk.TmR.Start;
+					}
+					else {
+						start_dtm = now_dtm;
+					}
+					new_sess_pack.Rec.StDt = start_dtm.d;
+					new_sess_pack.Rec.StTm = start_dtm.t;
+					{
+						const  long def_duration_sec = 60;
+						long   duration_sec = 0;
+						const  double _local_qtty = (blk.LotQtty > 0.0) ? blk.LotQtty : 1.0;
+						if(p_tre && p_tre->NominalTimeSec) {
+							duration_sec = R0i(p_tre->NominalTimeSec * _local_qtty);
+						}
+						else if(tec_rec.Capacity > 0.0) {
+							duration_sec = R0i(_local_qtty / tec_rec.Capacity);
+						}
+						else {
+							duration_sec = def_duration_sec;
+						}
+						if(duration_sec > 0) {
+							LDATETIME end_time = start_dtm.plussec(duration_sec);
+							new_sess_pack.Rec.FinDt = end_time.d;
+							new_sess_pack.Rec.FinTm = end_time.t;
+						}
+					}
+					if(tses_obj.PutPacket(&new_id, &new_sess_pack, 0/*use_ta*/)) {
+						TSessLineTbl::Rec line_rec;
+						long   oprno = 0;
+						if(tses_obj.InitLinePacket(&line_rec, new_id)) {
+							line_rec.GoodsID = blk.GoodsID;
+							line_rec.LotID = blk.LotID;
+							line_rec.Qtty = blk.LotQtty;
+							STRNSCPY(line_rec.Serial, blk.Serial);
+							line_rec.Sign = 0;
+							if(tses_obj.PutLine(new_id, &oprno, &line_rec, 0)) {
+								if(tec_route_stage_tag) {
+									if(blk.TrIdent.Oid.IsFullyDefined() && blk.TrIdent.ItemIdx) {
+										processed_tr_item_idx_list.add(blk.TrIdent.ItemIdx);
+										processed_tr_item_idx_list.sortAndUndup();
+										blk.TrIdent.ToStrWithItemIdxList(&processed_tr_item_idx_list, 0, temp_buf);
+										ObjTagItem tag_item;
+										if(tag_item.SetStr(tec_route_stage_tag, temp_buf)) {
+											THROW(p_ref->Ot.PutTag(PPOBJ_LOT, blk.LotID, &tag_item, 0));
+										}
+									}
+								}
+							}
+							else {
+								local_fault = true;
+							}
+						}
+					}
+					else {
+						local_fault = true;
 					}
 				}
 				else {
 					local_fault = true;
 				}
-			}
-			else {
-				local_fault = true;
-			}
-			if(local_fault) {
-				THROW(tra.Rollback());
-			}
-			else {
-				THROW(tra.Commit());
+				if(local_fault) {
+					THROW(tra.Rollback());
+				}
+				else {
+					THROW(tra.Commit());
+				}
 			}
 		}
 	}

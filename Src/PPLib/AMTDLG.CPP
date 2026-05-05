@@ -101,9 +101,9 @@ AmtListDialog::AmtListDialog(uint resID, uint listCtlID, int useCurCol, AmtList 
 	else
 		HasRestrict = 0;
 	updateList(-1);
-	enableCommand(cmaInsert, BIN(Options & OLW_CANINSERT));
-	enableCommand(cmaDelete, BIN(Options & OLW_CANDELETE));
-	enableCommand(cmaEdit,   BIN(Options & OLW_CANEDIT));
+	enableCommand(cmaInsert, LOGIC(Options & OLW_CANINSERT));
+	enableCommand(cmaDelete, LOGIC(Options & OLW_CANDELETE));
+	enableCommand(cmaEdit,   LOGIC(Options & OLW_CANEDIT));
 }
 
 void AmtListDialog::setCRateDate(LDATE dt)

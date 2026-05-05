@@ -483,11 +483,71 @@ int FASTCALL StringSet::add(const StringSet & rS)
 
 int FASTCALL StringSet::add(const char * pStr)
 {
-	return add(pStr, static_cast<uint *>(0));
+	// @v12.6.2 return add(pStr, static_cast<uint *>(0));
+	return Append(pStr, _FFFFST, static_cast<uint *>(0)); // @v12.6.2
+}
+
+int StringSet::Append(const char * pStr, size_t len, uint * pPos)
+{
+	int    ok = 1;
+	if(!pStr) {
+		pStr = "";
+		len = 0;
+	}
+	else if(len == _FFFFST) {
+		len = strlen(pStr);
+	}
+	else {
+		const  size_t clen = sstrnlen(pStr, len);
+		SETMIN(len, clen);
+	}
+	const size_t delim_len = DataLen ? (Delim[0] ? sstrlen(Delim) : 1) : (Delim[0] ? 1 : 2);
+	const size_t add_len   = len/*sstrlen(pStr)*/;
+	const size_t new_len   = DataLen + add_len + delim_len;
+	size_t p;
+	if(new_len <= Size || Alloc(new_len)) {
+		if(DataLen == 0) {
+			p = 0;
+			// @v12.6.2 memcpy(P_Buf + p, pStr, add_len+1);
+			memcpy(P_Buf + p, pStr, add_len); // @v12.6.2
+			P_Buf[p+add_len] = 0; // @v12.6.2
+			if(Delim[0] == 0)
+				P_Buf[add_len+1] = 0;
+		}
+		else {
+			p = DataLen - 1;
+			if(Delim[0]) {
+				strcpy(P_Buf + p, Delim);
+				p += delim_len;
+				// @v12.6.2 memcpy(P_Buf + p, pStr, add_len+1);
+				memcpy(P_Buf + p, pStr, add_len); // @v12.6.2
+				P_Buf[p+add_len] = 0; // @v12.6.2
+			}
+			else {
+				// @v12.6.2 memcpy(P_Buf + p, pStr, add_len+1);
+				memcpy(P_Buf + p, pStr, add_len); // @v12.6.2
+				P_Buf[p+add_len] = 0; // @v12.6.2
+				P_Buf[new_len-1] = 0;
+			}
+		}
+		ASSIGN_PTR(pPos, static_cast<uint>(p));
+		DataLen = new_len;
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int StringSet::add(const char * pStr, ulong * pPos) 
+{ 
+	// @v12.6.2 return add(pStr, reinterpret_cast<uint *>(pPos)); 
+	return Append(pStr, _FFFFST, reinterpret_cast<uint *>(pPos)); // @v12.6.2
 }
 
 int StringSet::add(const char * pStr, uint * pPos)
 {
+	return Append(pStr, _FFFFST, pPos); // @v12.6.2
+	/* @v12.6.2
 	int    ok = 1;
 	char   temp_buf[32];
 	if(!pStr) {
@@ -523,6 +583,7 @@ int StringSet::add(const char * pStr, uint * pPos)
 	else
 		ok = 0;
 	return ok;
+	*/
 }
 
 bool StringSet::search(const char * pPattern, uint * pPos, int ignoreCase) const

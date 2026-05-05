@@ -382,7 +382,7 @@ int PPObjOpCounter::MakeReserved(long flags)
 	SString name;
 	SString symb;
 	SString templ;
-	TVRez * p_rez = P_SlRez;
+	TVRez * p_rez(P_SlRez);
 	THROW_PP(p_rez, PPERR_RESFAULT);
 	THROW_PP(p_rez->findResource(ROD_OPCOUNTER, PP_RCDATA), PPERR_RESFAULT);
 	THROW_PP(num_recs = p_rez->getUINT(), PPERR_RESFAULT);

@@ -1,5 +1,5 @@
 // TEST-IMAGE.CPP
-// Copyright (c) A.Sobolev 2023, 2024
+// Copyright (c) A.Sobolev 2023, 2024, 2026
 // @codepage UTF-8
 // Тесты работы с изображениями
 //
@@ -52,7 +52,7 @@ static const SIntToSymbTabEntry TestBcStdSymbList[] = {
 	{  BARCSTD_PLESSEY,     "plessey"    },
 	{  BARCSTD_POSTNET,     "postnet"    },
 	{  BARCSTD_LOGMARS,     "logmars"    },
-	{  BARCSTD_DATAMATRIX,  "datamatrix" }, // @v10.9.10
+	{  BARCSTD_DATAMATRIX,  "datamatrix" },
 	{  BARCSTD_AZTEC,       "aztec" }, // @v11.9.2
 	{  BARCSTD_DATABAR,     "databar" }, // @v11.9.2
 	{  BARCSTD_MICROQR,     "microqr" }, // @v11.9.2

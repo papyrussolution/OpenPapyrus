@@ -743,7 +743,8 @@ const SString & STestSuite::GetTabFileName() const { return TabFileName; }
 
 const STestSuite::Entry * STestSuite::GetCurEntry() const
 {
-	return (CurIdx < static_cast<TSCollection <Entry> *>(P_List)->getCount()) ? static_cast<TSCollection <Entry> *>(P_List)->at(CurIdx) : 0;
+	TSCollection <Entry> * p_list = static_cast<TSCollection <Entry> *>(P_List);
+	return (CurIdx < p_list->getCount()) ? p_list->at(CurIdx) : 0;
 }
 
 int STestSuite::Run(const char * pIniFileName)

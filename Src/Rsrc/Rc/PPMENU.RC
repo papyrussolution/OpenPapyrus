@@ -685,17 +685,6 @@
 	}
 };
 /*
-	Меню PlanFlex
-*/
-/*@v10.9.3 20 MENU {
-	POPUP "@cmdpu_refs" {
-		MENUITEM "@cmd_about"							cmAbout
-		MENUITEM "@cmd_woodbreed",						cmWoodBreed
-		MENUITEM SEPARATOR
-		MENUITEM "@cmd_quit",							cmQuit
-	}
-}*/
-/*
 	Меню товароведа
 */
 101 MENU {

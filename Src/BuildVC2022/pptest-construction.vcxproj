@@ -208,6 +208,7 @@
   <ItemGroup>
     <ClCompile Include="..\PPTEST\pptest-dedicated.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-agner.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-argon2.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-bits.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-dirent.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-edlib.cpp" />

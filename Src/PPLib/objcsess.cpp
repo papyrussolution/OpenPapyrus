@@ -389,7 +389,7 @@ int PPObjCSession::ReWriteOff(PPID sessID, int level/*@#[0,5,10]*/, int use_ta)
 	int    ok = 1;
 	LAssocArray dfct_subst_list;
 	PPObjCashNode cn_obj;
-	PPCashNode cn_rec;
+	PPCashNode2 cn_rec;
 	CSessGrouping csg;
 	CSessionTbl::Rec sess_rec;
 	CSessTotal   total;
@@ -764,7 +764,7 @@ int PPObjCSession::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, ObjTr
 		}
 		else if(rec.CashNodeID) {
 			PPObjCashNode cn_obj;
-			PPCashNode cn_rec;
+			PPCashNode2 cn_rec;
 			if(cn_obj.Search(rec.CashNodeID, &cn_rec) > 0) {
 				if(cn_rec.CurSessID == id) {
 					// Кассовая сессия '%s' не передана поскольку не закрыта
@@ -1682,7 +1682,7 @@ int CTableOrder::Print(const Packet * pPack)
 int CTableOrder::MakeCCheckPacket(const Packet * pPack, CCheckPacket * pCcPack)
 {
 	int    ok = 1;
-	PPCashNode cn_rec;
+	PPCashNode2 cn_rec;
 	CCheckPacket cc_pack;
 	assert(pPack && pCcPack);
 	THROW_INVARG(pPack && pCcPack);
@@ -2033,7 +2033,7 @@ int CTableOrder::SetupGrid(PPID posNodeID)
 		}
 		if(posNodeID) {
 			PPObjCashNode cn_obj;
-			PPCashNode cn_rec;
+			PPCashNode2 cn_rec;
 			if(cn_obj.Search(posNodeID, &cn_rec) > 0 && cn_rec.Flags & CASHF_SYNC) {
 				PPSyncCashNode scn;
 				if(cn_obj.GetSync(posNodeID, &scn) > 0)
@@ -2520,7 +2520,7 @@ int PPCCheckImporter::Read_Predef_Contract01(xmlParserCtxt * pCtx, const SString
 	Goods2Tbl::Rec goods_rec;
 	xmlDoc * p_doc = 0;
 	const xmlNode * p_root = 0;
-	PPCashNode cn_rec;
+	PPCashNode2 cn_rec;
 	THROW_LXML((p_doc = xmlCtxtReadFile(pCtx, rFileName, 0, XML_PARSE_NOENT)), pCtx);
 	if(p_doc) {
 		S_GUID doc_guid;

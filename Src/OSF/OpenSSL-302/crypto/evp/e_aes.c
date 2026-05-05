@@ -240,22 +240,17 @@ static int aesni_gcm_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
 }
 
 #define aesni_gcm_cipher aes_gcm_cipher
-static int aesni_gcm_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
-    const uchar * in, size_t len);
+static int aesni_gcm_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t len);
 
-static int aesni_xts_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
-    const uchar * iv, int enc)
+static int aesni_xts_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc)
 {
 	EVP_AES_XTS_CTX * xctx = EVP_C_DATA(EVP_AES_XTS_CTX, ctx);
-
 	if(!iv && !key)
 		return 1;
-
 	if(key) {
 		/* The key is two half length keys in reality */
 		const int bytes = EVP_CIPHER_CTX_get_key_length(ctx) / 2;
 		const int bits = bytes * 8;
-
 		/*
 		 * Verify that the two keys are different.
 		 *
@@ -277,18 +272,14 @@ static int aesni_xts_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
 			xctx->xts.block1 = (block128_f)aesni_decrypt;
 			xctx->stream = aesni_xts_decrypt;
 		}
-
 		aesni_set_encrypt_key(key + bytes, bits, &xctx->ks2.ks);
 		xctx->xts.block2 = (block128_f)aesni_encrypt;
-
 		xctx->xts.key1 = &xctx->ks1;
 	}
-
 	if(iv) {
 		xctx->xts.key2 = &xctx->ks2;
 		memcpy(ctx->iv, iv, 16);
 	}
-
 	return 1;
 }
 
@@ -361,8 +352,7 @@ static int aesni_ocb_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uch
 }
 
 #define aesni_ocb_cipher aes_ocb_cipher
-static int aesni_ocb_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
-    const uchar * in, size_t len);
+static int aesni_ocb_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t len);
 #endif /* OPENSSL_NO_OCB */
 
 #define BLOCK_CIPHER_generic(nid, keylen, blocksize, ivlen, nmode, mode, MODE, flags) \

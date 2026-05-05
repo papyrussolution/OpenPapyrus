@@ -3879,8 +3879,7 @@ int iSalesPepsi::SendDebts()
 					for(DateIter di(prev_date, prev_date); P_BObj->P_Tbl->EnumByDate(&di, &bill_rec) > 0;) {
 						if(bill_rec.Amount > 0.0 && GetOpType(bill_rec.OpID) != PPOPT_GOODSORDER && !processed_id_list.lsearch(bill_rec.ID)) {
 							if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_rec.ID, bill_ack_tag_id, temp_buf) > 0) {
-								// @v11.1.12 BillCore::GetCode(temp_buf = bill_rec.Code);
-								temp_buf = bill_rec.Code; // @v11.1.12 
+								temp_buf = bill_rec.Code;
 								int    found = 0;
 								for(uint j = first_idx_by_date; !found && j < i; j++) {
 									const iSalesBillDebt * p_temp_item = outer_debt_list.at(j);

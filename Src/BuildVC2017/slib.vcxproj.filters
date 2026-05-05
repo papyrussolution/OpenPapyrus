@@ -798,6 +798,36 @@
     <ClCompile Include="..\SLib\simplecpp\simplecpp.cpp">
       <Filter>SimpleCPP</Filter>
     </ClCompile>
+    <ClCompile Include="..\SLib\argon2\argon2.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\argon2\argon2_encoding.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\argon2\bench.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\argon2\core.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\argon2\genkat.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\argon2\opt.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\argon2\ref.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\argon2\run.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\argon2\thread.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\argon2\blake2\blake2b.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">
@@ -919,6 +949,30 @@
     </ClInclude>
     <ClInclude Include="..\SLib\simplecpp\simplecpp.h">
       <Filter>SimpleCPP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\argon2\blake2\blake2.h">
+      <Filter>Argon2\H</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\argon2\blake2\blake2-impl.h">
+      <Filter>Argon2\H</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\argon2\blake2\blamka-round-opt.h">
+      <Filter>Argon2\H</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\argon2\blake2\blamka-round-ref.h">
+      <Filter>Argon2\H</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\argon2\core.h">
+      <Filter>Argon2\H</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\argon2\encoding.h">
+      <Filter>Argon2\H</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\argon2\genkat.h">
+      <Filter>Argon2\H</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\argon2\thread.h">
+      <Filter>Argon2\H</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1178,6 +1232,12 @@
     </Filter>
     <Filter Include="SimpleCPP">
       <UniqueIdentifier>{dc3e8b7d-501f-4182-85c2-5512dcf7f829}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Argon2">
+      <UniqueIdentifier>{7ee38634-29a4-4f3d-a1de-0f2515b3281d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Argon2\H">
+      <UniqueIdentifier>{1e9b96e1-18f6-4ada-91e1-52c844b2a657}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

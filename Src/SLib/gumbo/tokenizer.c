@@ -250,14 +250,6 @@ static void FASTCALL tokenizer_add_parse_error(GumboParser * parser, GumboErrorT
 	}
 }
 
-/* @v10.9.8 (replaced with isasciialpha) static bool FASTCALL is_alpha(int c) 
-{
-	// We don't use ISO C isupper/islower functions here because they
-	// depend upon the program's locale, while the behavior of the HTML5 spec is
-	// independent of which locale the program is run in.
-	return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
-}*/
-
 static int FASTCALL ensure_lowercase(int c) { return (c >= 'A' && c <= 'Z') ? (c + 0x20) : c; }
 
 static GumboTokenType get_char_token_type(bool is_in_cdata, int c) 

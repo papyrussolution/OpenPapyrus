@@ -1260,7 +1260,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 	CCheckCore * p_cct = P_CC;
 	PPObjLocation loc_obj;
 	PPObjCashNode cn_obj;
-	PPCashNode cn_rec;
+	PPCashNode2 cn_rec;
 	PPObjSCardSeries sc_obj;
 	THROW(Helper_InitBaseFilt(pFilt));
 	Filt.Period.Actualize(ZERODATE);
@@ -2274,7 +2274,7 @@ static IMPL_DBE_PROC(dbqf_ccheck_postext_ii) // @construction
 		CSessionTbl::Rec cs_rec;
 		if(cs_obj.Fetch(params[0].lval, &cs_rec) > 0) {
 			PPObjCashNode cn_obj;
-			PPCashNode cn_rec;
+			PPCashNode2 cn_rec;
 			if(cn_obj.Fetch(cs_rec.CashNodeID, &cn_rec) > 0) {
 				temp_buf = cn_rec.Name;
 			}
@@ -3868,7 +3868,7 @@ int PPViewCCheck::AddItem()
 						if(r == cmOK && scn.ExtCashNodeID) {
 							p_cm_ext = PPCashMachine::CreateInstance(scn.ExtCashNodeID);
 							if(p_cm_ext) {
-								const PPCashNode & r_cn = p_cm_ext->GetNodeData();
+								const PPCashNode2 & r_cn = p_cm_ext->GetNodeData();
 								if(r_cn.Flags & CASHF_DAYCLOSED) {
 									r = cmNo;
 									if((dt || PPMessage(mfConf|mfYesNo, PPCFM_PREVCASHDAYCLOSED) == cmYes) && p_cm_ext->SyncOpenSession(&dt) > 0)
@@ -4507,7 +4507,7 @@ int PPViewCCheck::CreateDraftBySuspCheck(PPViewCCheck * pV, PPID chkID)
 				b_filt.Period.SetDate(chk_rec.Dt);
 				if(pV->CsObj.Search(chk_rec.SessID, &cs_rec) > 0 && cs_rec.CashNodeID) {
 					PPObjCashNode cn_obj;
-					PPCashNode cn_rec;
+					PPCashNode2 cn_rec;
 					if(cn_obj.Search(cs_rec.CashNodeID, &cn_rec) > 0 && cn_rec.LocID)
 						loc_id = cn_rec.LocID;
 				}

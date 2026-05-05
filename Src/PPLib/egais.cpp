@@ -5590,7 +5590,7 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 						}
 						if(!cc_filt.NodeList.GetCount() && loc_id) {
 							PPObjCashNode cn_obj;
-							PPCashNode cn_rec;
+							PPCashNode2 cn_rec;
 							skip = 1;
 							for(SEnum en = cn_obj.P_Ref->Enum(PPOBJ_CASHNODE, 0); en.Next(&cn_rec) > 0;) {
 								if(cn_rec.LocID == loc_id) {

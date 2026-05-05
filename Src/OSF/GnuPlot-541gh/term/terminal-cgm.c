@@ -427,9 +427,9 @@ TERM_PUBLIC void CGM_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 					    if(comma && (1 == sscanf(comma + 1, "%d", &cgm_fontsize)))
 						    *comma = '\0';
 					    if(*s)
-						    font_index = CGM_find_font(s, strlen(s), &relwidth);
+						    font_index = CGM_find_font(s, sstrleni(s), &relwidth);
 					    else
-						    font_index = CGM_find_font(cgm_font, strlen(cgm_font), &relwidth);
+						    font_index = CGM_find_font(cgm_font, sstrleni(cgm_font), &relwidth);
 					    if(font_index == 0) {
 						    /* insert the font in the font table */
 						    struct fontdata * new_font_data;
@@ -464,7 +464,7 @@ TERM_PUBLIC void CGM_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 	}
 	{ // cgm_font, cgm_fontsize, and/or pThis->CV() may have changed 
 		double w;
-		CGM_find_font(cgm_font, strlen(cgm_font), &w);
+		CGM_find_font(cgm_font, sstrleni(cgm_font), &w);
 		pThis->SetCharSize((uint)(cgm_fontsize*CGM_PT*.527*w), (uint)(cgm_fontsize*CGM_PT));
 	}
 	sprintf(CGM_default_font, "%s,%d", cgm_font, cgm_fontsize);
@@ -502,7 +502,7 @@ static void CGM_local_reset(GpTermEntry_Static * pThis)
 {
 	double w;
 	strcpy(cgm_font, DEFAULT_CGMFONT);
-	CGM_find_font(cgm_font, strlen(cgm_font), &w);
+	CGM_find_font(cgm_font, sstrleni(cgm_font), &w);
 	cgm_fontsize = 12;
 	pThis->SetCharSize((uint)(cgm_fontsize * CGM_PT * 0.527 * w), (uint)(cgm_fontsize * CGM_PT));
 	cgm_linewidth_pt = 1;
@@ -625,13 +625,13 @@ TERM_PUBLIC void CGM_graphics(GpTermEntry_Static * pThis)
 	if(!GPT.P_OutStr)
 		CGM_write_char_record(0, 1, 1, GPT.P_OutStr);
 	else
-		CGM_write_char_record(0, 1, strlen(GPT.P_OutStr) + 1, GPT.P_OutStr);
+		CGM_write_char_record(0, 1, sstrleni(GPT.P_OutStr) + 1, GPT.P_OutStr);
 	CGM_write_int_record(1, 1, 2, version_data);
 	{
 		char description_data[256];
 		sprintf(description_data, "Gnuplot version %s patchlevel %s,Computer Graphics Metafile version 1 per MIL-D-28003A/BASIC-1.%d",
 		    gnuplot_version, gnuplot_patchlevel, cgm_monochrome ? 0 : 2);
-		CGM_write_char_record(1, 2, strlen(description_data), description_data);
+		CGM_write_char_record(1, 2, sstrleni(description_data), description_data);
 	}
 	elements_list_data[0] = (sizeof(elements_list_data) / CGM_ADJ - 2) / 4;
 	CGM_write_int_record(1, 11, sizeof(elements_list_data) / CGM_ADJ, elements_list_data);
@@ -645,14 +645,16 @@ TERM_PUBLIC void CGM_graphics(GpTermEntry_Static * pThis)
 	CGM_write_int_record(1, 10, sizeof(color_value_extent_data) / CGM_ADJ,
 	    color_value_extent_data);
 	if(cgm_nofontlist_mode == FALSE) {
-		char * buf, * s;
-		int i, lgh = 0;
+		char * buf;
+		char * s;
+		int    i;
+		int    lgh = 0;
 		for(i = 0; cgm_font_data[i].name; i++)
-			lgh += strlen(cgm_font_data[i].name) + 1;
+			lgh += sstrleni(cgm_font_data[i].name) + 1;
 		buf = (char *)SAlloc::M(lgh + 1);
 		for(s = buf, i = 0; cgm_font_data[i].name; i++) {
-			int lgh = strlen(cgm_font_data[i].name);
-			*s++ = (char)lgh;
+			const  int lgh = sstrleni(cgm_font_data[i].name);
+			*s++ = static_cast<char>(lgh);
 			strcpy(s, cgm_font_data[i].name);
 			s += lgh;
 		}
@@ -728,15 +730,16 @@ static int CGM_find_font(const char * name, int numchar, double * relwidth)
 
 TERM_PUBLIC int CGM_set_font(GpTermEntry_Static * pThis, const char * font)
 {
-	int size, font_index;
-	const char * comma = sstrchr(font, ',');
-	int len;
+	int    size;
+	int    font_index;
+	const  char * comma = sstrchr(font, ',');
+	int    len;
 	double width;
 	// Allow null string to indicaute default font 
 	if(isempty(font))
 		font = CGM_default_font;
 	// find font in font table, or use 1st font 
-	len = comma ? (comma - font) : strlen(font);
+	len = comma ? static_cast<int>(comma - font) : sstrleni(font);
 	font_index = CGM_find_font(font, len, &width);
 	SETIFZ(font_index, 1);
 	cgm_next.font_index = font_index;
@@ -765,16 +768,15 @@ TERM_PUBLIC void CGM_text(GpTermEntry_Static * pThis)
 TERM_PUBLIC void CGM_linetype(GpTermEntry_Static * pThis, int linetype)
 {
 	SETMAX(linetype, LT_NODRAW);
-	if(linetype == cgm_linetype)
-		return;
-	cgm_linetype = linetype;
-	CGM_linecolor(linetype);
-	if(cgm_dashed) {
-		CGM_dashtype(pThis, linetype); /* DBT 10-8-98    use dashes */
-	}
-	else {
-		// dashes for gridlines, solid for everything else 
-		CGM_dashtype(pThis, linetype == -1 ? 2 : 0);
+	if(linetype != cgm_linetype) {
+		cgm_linetype = linetype;
+		CGM_linecolor(linetype);
+		if(cgm_dashed) {
+			CGM_dashtype(pThis, linetype); // DBT 10-8-98    use dashes
+		}
+		else {
+			CGM_dashtype(pThis, linetype == -1 ? 2 : 0); // dashes for gridlines, solid for everything else 
+		}
 	}
 }
 
@@ -1265,7 +1267,7 @@ showit:
 	}
 	where[0] = x;
 	where[1] = y + CGM_MARGIN;
-	CGM_write_mixed_record(4, 4, 3, where, strlen(str), str);
+	CGM_write_mixed_record(4, 4, 3, where, sstrleni(str), str);
 	cgm_posx = cgm_posy = -2000;
 }
 

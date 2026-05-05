@@ -2875,7 +2875,7 @@ DL6_IC_CONSTRUCTION_EXTRA(PPObjCashNode, DL6ICLS_PPObjCashNode_VTab, PPObjCashNo
 //
 // Interface IPapyrusObject implementation
 //
-static void FASTCALL FillCashNodeRec(const PPCashNode * pInner, SPpyO_CashNode * pOuter)
+static void FASTCALL FillCashNodeRec(const PPCashNode2 * pInner, SPpyO_CashNode * pOuter)
 {
 	SString temp_buf;
 	#define FLD(f) pOuter->f = pInner->f
@@ -2893,7 +2893,7 @@ int32 DL6ICLS_PPObjCashNode::Search(int32 id, PPYOBJREC rec)
 	int    ok = 0;
 	PPObjCashNode * p_obj = static_cast<PPObjCashNode *>(ExtraPtr);
 	if(p_obj) {
-		PPCashNode cn_rec;
+		PPCashNode2 cn_rec;
 		ok = p_obj->Search(id, &cn_rec);
 		FillCashNodeRec(&cn_rec, static_cast<SPpyO_CashNode *>(rec));
 	}
@@ -2906,7 +2906,7 @@ int32 DL6ICLS_PPObjCashNode::SearchByName(SString & text, int32 kind, int32 extr
 	int    ok = 0;
 	PPObjCashNode * p_obj = static_cast<PPObjCashNode *>(ExtraPtr);
 	if(p_obj) {
-		PPCashNode cn_rec;
+		PPCashNode2 cn_rec;
 		PPID   id = 0;
 		ok = p_obj->SearchByName(text, &id, &cn_rec);
 		FillCashNodeRec(&cn_rec, static_cast<SPpyO_CashNode *>(rec));

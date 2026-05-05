@@ -638,14 +638,17 @@ static int RequestImportGoodsParam(ImportGoodsParam * pData)
 static int GetHierarchyFields(PPIniFile * pIniFile, DbfTable * pTbl, uint sectId, uint aliasId, int * pCodeFldN, int * pParentFldN)
 {
 	int    ok = -1;
-	SString fld_name, fld_name_code, fld_name_parent;
-	if(pIniFile->Get(sectId, aliasId, fld_name) > 0)
+	SString fld_name;
+	if(pIniFile->Get(sectId, aliasId, fld_name) > 0) {
+		SString fld_name_code;
+		SString fld_name_parent;
 		if(fld_name.Divide(',', fld_name_code, fld_name_parent) > 0) {
-			int r1 = pTbl->getFieldNumber(fld_name_code.Strip(), pCodeFldN);
-			int r2 = pTbl->getFieldNumber(fld_name_parent.Strip(), pParentFldN);
+			const  int r1 = pTbl->getFieldNumber(fld_name_code.Strip(), pCodeFldN);
+			const  int r2 = pTbl->getFieldNumber(fld_name_parent.Strip(), pParentFldN);
 			if(r1 && r2)
 				ok = 1;
 		}
+	}
 	return ok;
 }
 
@@ -3126,29 +3129,6 @@ int PrcssrPersonImport::ResolveAddr(AddrEntry & rEntry, LocationTbl::Rec & rAddr
 
 int PrcssrPersonImport::ProcessComplexELinkText(const char * pText, PPPersonPacket * pPack)
 {
-	/* @v11.3.1 struct PrefixEntry {
-		const char * P_Prefix;
-		int    ELinkType;
-	};
-	static const PrefixEntry pe[] = {
-		{ "телефон", ELNKRT_PHONE },
-		{ "тел", ELNKRT_PHONE },
-		{ "phone", ELNKRT_PHONE },
-		{ "fax", ELNKRT_FAX },
-		{ "факс", ELNKRT_FAX },
-		{ "телефакс", ELNKRT_FAX },
-		{ "website", ELNKRT_WEBADDR },
-		{ "site", ELNKRT_WEBADDR },
-		{ "http", ELNKRT_WEBADDR },
-		{ "https", ELNKRT_WEBADDR }, // @v10.9.1
-		{ "сайт", ELNKRT_WEBADDR },
-		{ "email", ELNKRT_EMAIL },
-		{ "e-mail", ELNKRT_EMAIL },
-		{ "email", ELNKRT_EMAIL },
-		{ "mail", ELNKRT_EMAIL }
-	};
-	*/
-	// @v11.3.1 {
 	static const SIntToSymbTabEntry _PE[] = {
 		{ ELNKRT_PHONE, "телефон" }, // @[ru]
 		{ ELNKRT_PHONE, "тел" }, // @[ru]
@@ -3159,34 +3139,23 @@ int PrcssrPersonImport::ProcessComplexELinkText(const char * pText, PPPersonPack
 		{ ELNKRT_WEBADDR, "website" },
 		{ ELNKRT_WEBADDR, "site" },
 		{ ELNKRT_WEBADDR, "http" },
-		{ ELNKRT_WEBADDR, "https" }, // @v10.9.1
+		{ ELNKRT_WEBADDR, "https" },
 		{ ELNKRT_WEBADDR, "сайт" }, // @[ru]
 		{ ELNKRT_EMAIL, "email" },
 		{ ELNKRT_EMAIL, "e-mail" },
 		{ ELNKRT_EMAIL, "email" },
 		{ ELNKRT_EMAIL, "mail" }
 	};
-	// } @v11.3.1 
 	int    ok = 1;
 	SString temp_buf;
 	SStrScan scan(pText);
 	do {
 		scan.Skip();
 		size_t sc_offs = scan.Offs;
-		// @v11.3.1 int    elinktype = 0;
-		// @v11.3.1 {
 		(temp_buf = scan).Transf(CTRANSF_INNER_TO_OUTER).ToLower1251();
 		const int _elk = SIntToSymbTab_GetId(_PE, SIZEOFARRAY(_PE), temp_buf);
-		// } @v11.3.1 
-		/* @v11.3.1 for(uint i = 0; !elinktype && i < SIZEOFARRAY(pe); i++) {
-			(temp_buf = pe[i].P_Prefix).Transf(CTRANSF_OUTER_TO_INNER);
-			if(strnicmp866(temp_buf, scan, temp_buf.Len()) == 0) {
-				elinktype = pe[i].ELinkType;
-				scan.Incr(temp_buf.Len());
-			}
-		}*/
 		if(/*elinktype*/_elk) {
-			scan.Incr(temp_buf.Len()); // @v11.3.1
+			scan.Incr(temp_buf.Len());
 			scan.Skip();
 			scan.IncrChr('.');
 			scan.Skip();

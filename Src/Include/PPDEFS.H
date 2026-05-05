@@ -7148,6 +7148,7 @@
 	#define cmChkInP                   107 // Регистрация персоналий
 	#define cmBrowseTSessByAr          108
 	#define cmAddPaym                  109
+	#define cmCloseCurrentTSess        110 // @v12.6.2 Закрыть текущую сессию (DLG_TSESS_EXEC_TR) 
 	#define CTL_TSESS_NUMBER             (1 + WINDOWS_ID_BIAS)
 	#define CTL_TSESS_ID                 (2 + WINDOWS_ID_BIAS)
 	#define CTL_TSESS_STATUS             (3 + WINDOWS_ID_BIAS)
@@ -7202,6 +7203,8 @@
 	#define CTL_TSESS_CMD_CHKINP         (52 + WINDOWS_ID_BIAS)
 	#define CTL_TSESS_SERIAL             (53 + WINDOWS_ID_BIAS)
 	#define CTL_TSESS_FLAGS              (54 + WINDOWS_ID_BIAS)
+	#define CTL_TSESS_ST_STATE           (55 + WINDOWS_ID_BIAS) // @v12.6.2 Поле для вывода информации о текущем состоянии
+	#define CTL_TSESS_CMD_CLOSECURRTSESS (56 + WINDOWS_ID_BIAS) // @v12.6.2
 
 #define DLG_TSESSLN               674 // Строка технологической сессии
 	#define CTL_TSESSLN_SESSID           (1 + WINDOWS_ID_BIAS)
@@ -12622,7 +12625,7 @@
 	#define PPQUOTPAR_ARTICLE                 2
 	#define PPQUOTPAR_LOC                     3
 	#define PPQUOTPAR_FLAGS                   4
-	#define PPQUOTPAR_QUOTCAT                 5 // @v11.4.2
+	#define PPQUOTPAR_QUOTCAT                 5
 #define PPTXT_IMPEXPPARAM_CC                659 // @v11.8.5 Дополнительные параметры импорта/экспорта кассовых чеков
 	#define IMPEXPPARAM_CC_PREDEFFMT          0 // Значение такое же, как и для параметров импорта/экспорта документов!
 	#define IMPEXPPARAM_CC_FLAGS              1 //

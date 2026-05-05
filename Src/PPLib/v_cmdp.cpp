@@ -1065,7 +1065,7 @@ int SelectCommandGroup(S_GUID & rUuid, long * pResourceTemplateId, SString * pNa
 	PPCommandFolder::GetCommandGroupList(0, kind, cgdata);
 	cgdata.GetStrAssocList(list);
 	if(kind == cmdgrpcMenu && asTemplate) {
-		TVRez * p_rez = P_SlRez;
+		TVRez * p_rez(P_SlRez);
 		uint   locm_id = 0;
 		PPLoadText(PPTXT_DEFAULTMENUS, buf);
 		StringSet ss(';', buf);
@@ -1358,7 +1358,7 @@ void MenuResToMenu(PPCommandFolder * pFold, LAssocArray * pCmdDescrs, TVRez * re
 int MenuResToMenu(uint resMenuID, PPCommandFolder * pMenu)
 {
 	int    ok = -1;
-	TVRez * p_slrez = P_SlRez;
+	TVRez * p_slrez(P_SlRez);
 	MITH   mith;
 	long   length = 0;
 	long   menu_ofs = 0;
@@ -1467,7 +1467,7 @@ int PPViewUserMenu::MakeList(PPViewBrowser * pBrw)
 			ZDELETE(p_mgr);
 		}
 		{
-			TVRez * p_rez = P_SlRez;
+			TVRez * p_rez(P_SlRez);
 			if(p_rez) {
 				uint   locm_id = 0;
 				SString left_buf, right_buf;

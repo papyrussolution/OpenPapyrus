@@ -1,10 +1,11 @@
 // CRYPTO.CPP
-// Copyright (c) A.Sobolev 1996, 2003, 2010, 2016, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1996, 2003, 2010, 2016, 2019, 2020, 2021, 2022, 2023, 2026
 // @threadsafe
 //
 #include <slib-internal.h>
 #pragma hdrstop
 #include <slib-ossl.h>
+#include <argon2.h> // @v12.6.2
  
 static int getkey(int key[], ulong * addendum)
 {
@@ -40,11 +41,12 @@ static ulong unmix(ulong v)
 	int    key[16];
 	ulong  addendum;
 	const  int c = getkey(key, &addendum);
-	for(i = c-1; i >= 0; i--)
+	for(i = c-1; i >= 0; i--) {
 		if(key[i] % 3)
 			v = /*_lrotl*/SBits::Rotl(v, key[i]);
 		else
 			v = /*_lrotr*/SBits::Rotr(~v, key[i]);
+	}
 	v -= addendum;
 	return v;
 }
@@ -52,25 +54,27 @@ static ulong unmix(ulong v)
 void * encrypt(void * pBuf, size_t len)
 {
 	len = ((len + 3) >> 2);
-	for(size_t i = 0; i < len; i++)
+	for(size_t i = 0; i < len; i++) {
 		((ulong *)pBuf)[i] = mix(((ulong *)pBuf)[i]);
+	}
 	return pBuf;
 }
 
 void * decrypt(void * pBuf, size_t len)
 {
 	len >>= 2;
-	for(size_t i = 0; i < len; i++)
+	for(size_t i = 0; i < len; i++) {
 		static_cast<ulong *>(pBuf)[i] = unmix(static_cast<const ulong *>(pBuf)[i]);
+	}
 	return pBuf;
 }
 
 ulong _checksum__(const char * buf, size_t len)
 {
 	ulong  r = 0xc22cc22cUL;
-	size_t i;
-	for(i = 0; i < len; i++)
+	for(size_t i = 0; i < len; i++) {
 		reinterpret_cast<uchar *>(&r)[i % 4] += (uchar)((uint)buf[i] ^ (uint)((uchar *)&r)[3 - (i % 4)]);
+	}
 	return r;
 }
 //
@@ -165,6 +169,52 @@ const SBaseBuffer & SlCrypto::Key::GetKey() const { return KEY; }
 const SBaseBuffer & SlCrypto::Key::GetIV() const { return IV; }
 const SBaseBuffer & SlCrypto::Key::GetAAD() const { return AAD; }
 
+int SlCrypto::Key::SetDerivedKey_Argon2(const void * pData, size_t size, size_t resultKeySize, const Argon2Param & rParam) // @v12.6.2 @construction
+{
+	/*
+#define AES256GCM_KEY_LEN  32
+#define AES256GCM_SALT_LEN 16
+#define AES256GCM_NONCE_LEN 12
+#define AES256GCM_TAG_LEN  16
+
+#define ARGON2_ITERATIONS 3
+#define ARGON2_MEMORY_KB  65536  // 64 МБ
+#define ARGON2_PARALLELISM 4
+	*/ 
+	int   ok = 1;
+	if(!pData || !size) {
+		ok = 0;
+	}
+	else if(!resultKeySize || (EndP + resultKeySize) > sizeof(Bin)) {
+		ok = 0;
+	}
+	else {
+		Argon2Param ap(rParam);
+		if(!ap.MemCost) {
+			ap.MemCost = SKILOBYTE(4); // = 4MiB // Предлагают использовать 64mb, но я пока остановлюсь на 4
+		}
+		if(!ap.TimeCost) {
+			ap.TimeCost = 3;
+		}
+		if(!ap.Parallelism) {
+			ap.Parallelism = 1;
+		}
+		{
+			char * p_dest_buf = reinterpret_cast<char *>(Bin+EndP);
+			int    ar = argon2id_hash_raw(ap.TimeCost, ap.MemCost, ap.Parallelism, pData, size, ap.Salt.D, sizeof(ap.Salt), p_dest_buf, resultKeySize);
+			if(ar == ARGON2_OK) { // ? ERR_SUCCESS : ERR_ARGON2;
+				KEY.P_Buf = p_dest_buf;
+				KEY.Size = resultKeySize;
+				EndP += static_cast<uint32>(resultKeySize);
+			}
+			else {
+				ok = 0;
+			}
+		}
+	}
+	return ok;
+}
+
 int SlCrypto::Key::SetKey(const void * pData, size_t size)
 {
 	int    ok = 1;
@@ -175,7 +225,7 @@ int SlCrypto::Key::SetKey(const void * pData, size_t size)
 		memcpy(Bin+EndP, pData, size);
 		KEY.P_Buf = reinterpret_cast<char *>(Bin+EndP);
 		KEY.Size = size;
-		EndP += size;
+		EndP += static_cast<uint32>(size);
 	}
 	return ok;
 }
@@ -190,7 +240,7 @@ int SlCrypto::Key::SetIV(const void * pData, size_t size)
 		memcpy(Bin+EndP, pData, size);
 		IV.P_Buf = reinterpret_cast<char *>(Bin+EndP);
 		IV.Size = size;
-		EndP += size;
+		EndP += static_cast<uint32>(size);
 	}
 	return ok;
 }
@@ -205,7 +255,7 @@ int SlCrypto::Key::SetAAD(const void * pData, size_t size)
 		memcpy(Bin+EndP, pData, size);
 		AAD.P_Buf = reinterpret_cast<char *>(Bin+EndP);
 		AAD.Size = size;
-		EndP += size;
+		EndP += static_cast<uint32>(size);
 	}
 	return ok;
 }
@@ -405,6 +455,11 @@ SlCrypto::~SlCrypto()
 		P_Ctx = 0;
 	}
 }
+
+bool SlCrypto::IsIvSizeConfigurable() const
+{
+	return oneof2(AlgModif, algmodCcm, algmodGcm, algmodCtr, algmodPoly1305);
+}
 	
 const  SlCrypto::CipherProperties & SlCrypto::GetCipherProperties() const { return Cp; }
 
@@ -419,7 +474,9 @@ int SlCrypto::SetupKey(SlCrypto::Key & rK, const void * pKey, size_t keyByteLen,
 		THROW(rK.SetKey(pKey, keyByteLen));
 	}
 	if(pIv && ivLen) {
-		THROW_S(ivLen == Cp.IvSize, SLERR_CRYPTO_INVIVSIZE); // SLERR_CRYPTO_INVIVSIZE  Ошибка SLCRYPTO - недопустимая длина IV
+		if(!IsIvSizeConfigurable()) { // @v12.6.2
+			THROW_S(ivLen == Cp.IvSize, SLERR_CRYPTO_INVIVSIZE); // SLERR_CRYPTO_INVIVSIZE  Ошибка SLCRYPTO - недопустимая длина IV
+		}
 		THROW(rK.SetIV(pIv, ivLen));
 	}
 	if(pAad && aadLen) {
@@ -444,7 +501,7 @@ int SlCrypto::SetupKey(SlCrypto::Key & rK, const char * pPassword)
 	int    result_key_len = 0;
 	THROW(P_Ctx && P_Cphr);
 	result_key_len = EVP_BytesToKey(static_cast<const EVP_CIPHER *>(P_Cphr), EVP_md5(), p_salt, 
-		reinterpret_cast<const uchar *>(pPassword), sstrlen(pPassword), 1/*count*/, key, iv);
+		reinterpret_cast<const uchar *>(pPassword), sstrleni(pPassword), 1/*count*/, key, iv);
 	THROW(result_key_len);
 	assert(result_key_len == static_cast<int>(Cp.KeySize));
 	if(Cp.KeySize) {
@@ -456,112 +513,6 @@ int SlCrypto::SetupKey(SlCrypto::Key & rK, const char * pPassword)
 	CATCHZOK
 	return ok;
 }
-
-#if 0 // {
-	int    SlCrypto::SetupEncrypt(const char * pPassword)
-	{
-		int    ok = 1;
-		const  EVP_MD * p_dgst = 0;
-		const  uchar * p_salt = 0;
-		uchar  key[EVP_MAX_KEY_LENGTH];
-		uchar  iv[EVP_MAX_IV_LENGTH];
-		int    result_key_len = 0;
-		THROW(P_Ctx && P_Cphr);
-		p_dgst = EVP_md5();
-		result_key_len = EVP_BytesToKey(static_cast<const EVP_CIPHER *>(P_Cphr), p_dgst, p_salt, 
-			reinterpret_cast<const uchar *>(pPassword), sstrlen(pPassword), 1/*count*/, key, iv);
-		THROW(result_key_len);
-		assert(result_key_len == static_cast<int>(Cp.KeySize));
-		THROW(EVP_EncryptInit_ex(static_cast<EVP_CIPHER_CTX *>(P_Ctx), static_cast<const EVP_CIPHER *>(P_Cphr), 0, key, iv)); // Initialise key and IV 
-		State &= ~stInitDecr;
-		State |= stInitEncr;
-		CATCHZOK
-		return ok;
-	}
-	
-	int    SlCrypto::SetupEncrypt(const void * pKey, size_t keyByteLen, const void * pIv, size_t ivLen, const void * pAad, size_t aadLen)
-	{
-		int    ok = 1;
-		THROW(P_Ctx && P_Cphr);
-		THROW(EVP_EncryptInit_ex(static_cast<EVP_CIPHER_CTX *>(P_Ctx), static_cast<const EVP_CIPHER *>(P_Cphr), NULL, NULL, NULL)); // Set cipher type and mode 
-		THROW(!Cp.KeySize || !keyByteLen || keyByteLen == Cp.KeySize);
-		THROW(!ivLen || Cp.IvSize == ivLen);
-		THROW(EVP_EncryptInit_ex(static_cast<EVP_CIPHER_CTX *>(P_Ctx), 0, 0, static_cast<const uint8 *>(pKey), static_cast<const uint8 *>(pIv))); // Initialise key and IV 
-		State &= ~stInitDecr;
-		State |= stInitEncr;
-		CATCHZOK
-		return ok;
-	}
-	
-	int    SlCrypto::SetupDecrypt(const char * pPassword)
-	{
-		int    ok = 1;
-		const  EVP_MD * p_dgst = 0;
-		const  uchar * p_salt = 0;
-		uchar  key[EVP_MAX_KEY_LENGTH];
-		uchar  iv[EVP_MAX_IV_LENGTH];
-		int    result_key_len = 0;
-		THROW(P_Ctx && P_Cphr);
-		p_dgst = EVP_md5();
-		result_key_len = EVP_BytesToKey(static_cast<const EVP_CIPHER *>(P_Cphr), p_dgst, p_salt, 
-			reinterpret_cast<const uchar *>(pPassword), sstrlen(pPassword), 1/*count*/, key, iv);
-		THROW(result_key_len);
-		assert(result_key_len == static_cast<int>(Cp.KeySize));
-		THROW(EVP_DecryptInit_ex(static_cast<EVP_CIPHER_CTX *>(P_Ctx), static_cast<const EVP_CIPHER *>(P_Cphr), 0, key, iv)); // Initialise key and IV 
-		State |= stInitDecr;
-		State &= ~stInitEncr;
-		CATCHZOK
-		return ok;
-	}
-	
-	int SlCrypto::SetupDecrypt(const void * pKey, size_t keyByteLen, const void * pIv, size_t ivLen, const void * pAad, size_t aadLen)
-	{
-		int    ok = 1;
-		THROW(P_Ctx && P_Cphr);
-		THROW(EVP_DecryptInit_ex(static_cast<EVP_CIPHER_CTX *>(P_Ctx), static_cast<const EVP_CIPHER *>(P_Cphr), NULL, NULL, NULL)); // Set cipher type and mode 
-		THROW(!Cp.KeySize || !keyByteLen || keyByteLen == Cp.KeySize);
-		THROW(Cp.IvSize == ivLen);
-		THROW(EVP_DecryptInit_ex(static_cast<EVP_CIPHER_CTX *>(P_Ctx), 0, 0, static_cast<const uint8 *>(pKey), static_cast<const uint8 *>(pIv))); // Initialise key and IV 
-		State |= stInitDecr;
-		State &= ~stInitEncr;
-		CATCHZOK
-		return ok;
-	}
-
-	int SlCrypto::Encrypt(const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen)
-	{
-		int    ok = 1;
-		int    outl = 0;
-		THROW(P_Ctx && P_Cphr);
-		THROW(State & stInitEncr);
-		if(pData && dataLen) {
-			THROW(EVP_EncryptUpdate(static_cast<EVP_CIPHER_CTX *>(P_Ctx), static_cast<uchar *>(pResult), &outl, static_cast<const uchar *>(pData), static_cast<int>(dataLen)));
-		}
-		else {
-			THROW(EVP_EncryptFinal_ex(static_cast<EVP_CIPHER_CTX *>(P_Ctx), static_cast<uchar *>(pResult), &outl));
-		}
-		CATCHZOK
-		ASSIGN_PTR(pActualResultLen, outl);
-		return ok;
-	}
-	
-	int SlCrypto::Decrypt(const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen)
-	{
-		int    ok = 1;
-		int    outl = 0;
-		THROW(P_Ctx && P_Cphr);
-		THROW(State & stInitDecr);
-		if(pData && dataLen) {
-			THROW(EVP_DecryptUpdate(static_cast<EVP_CIPHER_CTX *>(P_Ctx), static_cast<uchar *>(pResult), &outl, static_cast<const uchar *>(pData), static_cast<int>(dataLen)));
-		}
-		else {
-			THROW(EVP_DecryptFinal_ex(static_cast<EVP_CIPHER_CTX *>(P_Ctx), static_cast<uchar *>(pResult), &outl));
-		}
-		CATCHZOK
-		ASSIGN_PTR(pActualResultLen, outl);
-		return ok;
-	}
-#endif // } 0
 
 int SlCrypto::Encrypt(const SlCrypto::Key & rKey, const void * pData, size_t dataLen, SBinaryChunk & rResult, SBinaryChunk * pTag)
 {
@@ -576,26 +527,38 @@ int SlCrypto::Encrypt(const SlCrypto::Key & rKey, const void * pData, size_t dat
 	THROW_S(p_ctx && P_Cphr, SLERR_CRYPTO_INVPARAM);
 	//THROW(EVP_EncryptInit_ex(p_ctx, static_cast<const EVP_CIPHER *>(P_Cphr), NULL, NULL, NULL)); // Set cipher type and mode 
 	THROW_S(!Cp.KeySize || !r_key.Size || r_key.Size == Cp.KeySize, SLERR_CRYPTO_INVKEYSIZE);
-	THROW_S(!r_iv.Size || r_iv.Size == Cp.IvSize, SLERR_CRYPTO_INVIVSIZE);
+	THROW_S(!r_iv.Size || IsIvSizeConfigurable() || r_iv.Size == Cp.IvSize, SLERR_CRYPTO_INVIVSIZE);
+	if(oneof2(AlgModif, algmodGcm, algmodCcm)) {
+		THROW(pTag && pTag->Len() >= 12); // @todo @err
+	}
 	THROW_S(EVP_EncryptInit_ex(p_ctx, static_cast<const EVP_CIPHER *>(P_Cphr), 0, PTR8C(r_key.P_Buf), PTR8C(r_iv.P_Buf)), SLERR_CRYPTO_OPENSSL); // Initialise key and IV 
 	//EVP_CIPHER_CTX_
-	EVP_CIPHER_CTX_set_padding(p_ctx, 1); // @v11.1.11
+	EVP_CIPHER_CTX_set_padding(p_ctx, 1);
 	State &= ~stInitDecr;
 	State |= stInitEncr;
 	{
 		//THROW(State & stInitEncr);
-		uint8 zero_buf[16];
+		uint8  zero_buf[16];
 		size_t estimated_result_size = ((dataLen + Cp.BlockSize) / Cp.BlockSize) * Cp.BlockSize;
 		THROW(rResult.Ensure(estimated_result_size));
 		MEMSZERO(zero_buf);
 		if(dataLen == 0) {
 			pData = zero_buf;
 		}
-		/*if(pData && dataLen)*/{
-			if(AlgModif == algmodGcm) {
+		{
+			/*
+			if(oneof2(AlgModif, algmodGcm, algmodCcm)) {
+				int   tag_type = 0;
 				THROW(pTag && pTag->Len() >= 12); // @todo @err
-				EVP_CIPHER_CTX_ctrl(p_ctx, EVP_CTRL_CCM_SET_TAG, pTag->Len(), NULL);
+				if(AlgModif == algmodGcm)
+					tag_type = EVP_CTRL_GCM_SET_TAG;
+				else if(AlgModif == algmodCcm)
+					tag_type = EVP_CTRL_CCM_SET_TAG;
+				if(tag_type) {
+					EVP_CIPHER_CTX_ctrl(p_ctx, tag_type, static_cast<int>(pTag->Len()), 0);
+				}
 			}
+			*/
 			if(r_aad.Size) {
 				THROW_S(EVP_EncryptUpdate(p_ctx, 0, &outl, PTR8C(r_aad.P_Buf), static_cast<int>(r_aad.Size)), SLERR_CRYPTO_OPENSSL);
 			}
@@ -604,13 +567,17 @@ int SlCrypto::Encrypt(const SlCrypto::Key & rKey, const void * pData, size_t dat
 			outl += final_outl;
 			assert(static_cast<ssize_t>(outl) <= static_cast<ssize_t>(rResult.Len())); // Если условие не выполняется, то мы ошиблись с первоначальной оценкой максимального размера результата
 			THROW(rResult.Ensure(outl));
-			if(pTag && pTag->Len()) {
-				THROW(EVP_CIPHER_CTX_ctrl(p_ctx, EVP_CTRL_CCM_GET_TAG, pTag->Len(), pTag->Ptr()));
+			if(oneof2(AlgModif, algmodGcm, algmodCcm)) {
+				int   tag_type = 0;
+				if(AlgModif == algmodGcm)
+					tag_type = EVP_CTRL_GCM_GET_TAG;
+				else if(AlgModif == algmodCcm)
+					tag_type = EVP_CTRL_CCM_GET_TAG;
+				if(tag_type) {
+					THROW(EVP_CIPHER_CTX_ctrl(p_ctx, tag_type, static_cast<int>(pTag->Len()), pTag->Ptr()));
+				}
 			}
 		}
-		//else {
-			//THROW_S(EVP_EncryptFinal_ex(p_ctx, static_cast<uchar *>(pResult), &outl), SLERR_CRYPTO_OPENSSL);
-		//}
 	}
 	CATCHZOK
 	//ASSIGN_PTR(pActualResultLen, outl);
@@ -626,24 +593,23 @@ int SlCrypto::Decrypt(const SlCrypto::Key & rKey, const void * pData, size_t dat
 	THROW(p_ctx && P_Cphr);
 	{
 		int    final_outl = 0;
-		const SBaseBuffer & r_key = rKey.GetKey();
-		const SBaseBuffer & r_iv = rKey.GetIV();
-		const SBaseBuffer & r_aad = rKey.GetAAD();
-		size_t estimated_result_size = ((dataLen + Cp.BlockSize) / Cp.BlockSize) * Cp.BlockSize;
+		const  SBaseBuffer & r_key = rKey.GetKey();
+		const  SBaseBuffer & r_iv = rKey.GetIV();
+		const  SBaseBuffer & r_aad = rKey.GetAAD();
+		const  size_t estimated_result_size = ((dataLen + Cp.BlockSize) / Cp.BlockSize) * Cp.BlockSize;
 		//THROW(EVP_DecryptInit_ex(p_ctx, static_cast<const EVP_CIPHER *>(P_Cphr), NULL, NULL, NULL)); // Set cipher type and mode 
-		THROW(!r_key.Size || !r_key.Size || r_key.Size == Cp.KeySize);
+		THROW_S(!Cp.KeySize || !r_key.Size || r_key.Size == Cp.KeySize, SLERR_CRYPTO_INVKEYSIZE);
 		THROW(r_iv.Size == Cp.IvSize);
 		THROW(EVP_DecryptInit_ex(p_ctx, static_cast<const EVP_CIPHER *>(P_Cphr), 0, PTR8C(r_key.P_Buf), PTR8C(r_iv.P_Buf))); // Initialise key and IV 
-		EVP_CIPHER_CTX_set_padding(p_ctx, 1); // @v11.1.11
+		EVP_CIPHER_CTX_set_padding(p_ctx, 1);
 		State |= stInitDecr;
 		State &= ~stInitEncr;
 		{
 			THROW(State & stInitDecr);
 			if(pData && dataLen) {
-				if(AlgModif == algmodGcm) {
+				if(oneof2(AlgModif, algmodGcm, algmodCcm)) {
 					THROW(pTag && pTag->Len() > 0); // @todo @err
 				}
-				size_t estimated_result_size = ((dataLen + Cp.BlockSize) / Cp.BlockSize) * Cp.BlockSize;
 				THROW(rResult.Ensure(estimated_result_size));
 				if(r_aad.Size) {
 					THROW(EVP_DecryptUpdate(p_ctx, 0, &outl, reinterpret_cast<const uchar *>(r_aad.P_Buf), static_cast<int>(r_aad.Size)));
@@ -651,7 +617,14 @@ int SlCrypto::Decrypt(const SlCrypto::Key & rKey, const void * pData, size_t dat
 				THROW(EVP_DecryptUpdate(p_ctx, PTR8(rResult.Ptr()), &outl, PTR8C(pData), static_cast<int>(dataLen)));
 				if(pTag) {
 					// Set expected tag value. Works in OpenSSL 1.0.1d and later 
-					THROW(EVP_CIPHER_CTX_ctrl(p_ctx, EVP_CTRL_GCM_SET_TAG, pTag->Len(), pTag->Ptr()));
+					int   tag_type = 0;
+					if(AlgModif == algmodGcm)
+						tag_type = EVP_CTRL_GCM_SET_TAG;
+					else if(AlgModif == algmodCcm)
+						tag_type = EVP_CTRL_CCM_SET_TAG;
+					if(tag_type) {
+						THROW(EVP_CIPHER_CTX_ctrl(p_ctx, tag_type, static_cast<int>(pTag->Len()), pTag->Ptr()));
+					}
 				}
 				THROW(EVP_DecryptFinal/*_ex*/(p_ctx, PTR8(rResult.Ptr())+outl, &final_outl));
 				outl += final_outl; // ?

@@ -255,7 +255,7 @@ int PPViewCSess::Init_(const PPBaseFilt * pBaseFilt)
 		}
 		if(temp_node_list.GetCount()) {
 			PPObjCashNode cn_obj;
-			PPCashNode cn_rec;
+			PPCashNode2 cn_rec;
 			PPIDArray temp_list;
 			for(uint i = 0; i < temp_node_list.GetCount(); i++) {
 				const  PPID cn_id = temp_node_list.Get().get(i);
@@ -264,7 +264,7 @@ int PPViewCSess::Init_(const PPBaseFilt * pBaseFilt)
 						cn_obj.GetListByGroup(cn_id, temp_list.Z());
 						for(uint j = 0; j < temp_list.getCount(); j++) {
 							const  PPID inner_cn_id = temp_list.get(j);
-							PPCashNode inner_cn_rec;
+							PPCashNode2 inner_cn_rec;
 							if(inner_cn_id && cn_obj.Fetch(inner_cn_id, &inner_cn_rec) > 0 && r_rt.CheckPosNodeID(inner_cn_id, 0))
 								NodeList.Add(inner_cn_id);
 						}
@@ -317,7 +317,7 @@ int PPViewCSess::CreateOrderTable(long ord, TempOrderTbl ** ppTbl)
 		{
 			SString temp_buf;
 			PPObjCashNode cn_obj;
-			PPCashNode cn_rec;
+			PPCashNode2 cn_rec;
 			BExtInsert bei(p_o);
 			PPIDArray id_list; // @debug
 			for(InitIteration(ordByDefault); NextIteration(&item) > 0;) {
@@ -1480,7 +1480,7 @@ int PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMsg1, co
 {
 	int    ok = -1;
 	PPObjBill * p_bobj(BillObj);
-	PPCashNode cn_rec;
+	PPCashNode2 cn_rec;
 	PPObjCashNode cn_obj;
 	PPObjGoods g_obj;
 	PPViewCCheck view;
@@ -1941,7 +1941,7 @@ int PPViewCSess::CompleteSession(PPID sessID)
 	PPAsyncCashSession * p_acs = 0;
 	if(CsObj.Search(sessID, &sess_rec) > 0 && sess_rec.CashNodeID) {
 		PPObjCashNode cn_obj;
-		PPCashNode cn_rec;
+		PPCashNode2 cn_rec;
 		PPObjSecur::Exclusion ose(PPEXCLRT_CSESSWROFF);
 		THROW(cn_obj.Search(sess_rec.CashNodeID, &cn_rec) > 0);
 		if(cn_rec.CashType == PPCMT_CASHNGROUP) {
@@ -2007,7 +2007,7 @@ int PPViewCSess::RecalcSession(PPID sessID)
 				{
 					CSessGrouping csg;
 					CSessionTbl::Rec sess_rec;
-					PPCashNode cn_rec;
+					PPCashNode2 cn_rec;
 					{
 						PPWaitStart();
 						for(uint i = 0; i < sess_list.getCount(); i++) {
@@ -2120,7 +2120,7 @@ int PPViewCSess::DeleteItem(PPID sessID)
 	CSessionTbl::Rec sess_rec;
 	if(CsObj.Search(sessID, &sess_rec) > 0 && sess_rec.CashNodeID && !sess_rec.SuperSessID) {
 		PPObjCashNode cn_obj;
-		PPCashNode cn_rec;
+		PPCashNode2 cn_rec;
 		THROW(CsObj.CheckRights(PPR_DEL));
 		THROW(cn_obj.Search(sess_rec.CashNodeID, &cn_rec) > 0);
 		if(cn_rec.CashType == PPCMT_CASHNGROUP || PPCashMachine::IsSyncCMT(cn_rec.CashType) || PPCashMachine::IsAsyncCMT(cn_rec.CashType)) {
@@ -2494,7 +2494,7 @@ PPID PPViewCSessExc::GetCommonLoc()
 {
 	if(CommonLocID < 0) {
 		CommonLocID = 0;
-		PPCashNode cn_rec;
+		PPCashNode2 cn_rec;
 		if(Filt.CashNodeID) {
 			if(SearchObject(PPOBJ_CASHNODE, Filt.CashNodeID, &cn_rec) > 0)
 				CommonLocID = cn_rec.LocID;

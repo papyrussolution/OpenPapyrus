@@ -17,7 +17,7 @@ int ProcessExportJob(const char * pJobName)
 	int    ok = 0;
 	PPID   cash_id = 0;
 	PPObjCashNode cn_obj;
-	PPCashNode cn_rec;
+	PPCashNode2 cn_rec;
 	if(cn_obj.SearchByName(pJobName, &cash_id, &cn_rec) > 0) {
 		if(PPCashMachine::IsAsyncCMT(cn_rec.CashType)) {
 			PPCashMachine * cm = PPCashMachine::CreateInstance(cash_id);
@@ -44,7 +44,7 @@ int ProcessImportJob(const char * pJobName)
 	else {
 		PPID   cash_id = 0;
 		PPObjCashNode cn_obj;
-		PPCashNode cn_rec;
+		PPCashNode2 cn_rec;
 		if(cn_obj.SearchByName(job_name, &cash_id, &cn_rec) > 0) {
 			if(cn_rec.CashType == PPCMT_CASHNGROUP) {
 				PPCashMachine::AsyncCloseSession2(cn_rec.ID, 0); 

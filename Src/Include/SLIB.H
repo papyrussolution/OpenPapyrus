@@ -1463,12 +1463,13 @@ public:
 	static constexpr uint32 SLobSignature[4] = { 0x2efc, 0xd421, 0x426c, 0xee07 }; // @v12.2.3 Сигнатура объекта SLob, означающая, что буфер структурирован.
 	static constexpr uint32 SSqlStmtSignature = 0x3597B6D4U; // @v12.5.2 Сигнатура объекта SSqlStmt
 	static constexpr uint32 SSqlStmtSignature_Select = 0x194AF5CCU; // @v12.5.6 Сигнатура объекта DBTable::SelectStmt
-	static constexpr uint32 DBTableSignature    = 0x6E805ED7; // @v12.5.2 Сигнатура объекта DBTable
-	static constexpr uint32 DbProviderSignature = 0x5418F398; // @v12.6.1 Сигнатура объекта DbProvider
-	static constexpr uint64 DBConnSignature   = 0xDE4F9DF4FE840FDEULL; // @v12.5.4 Сигнатура объекта DbProvider::Connection
-	static constexpr uint32 Signature_TView   = 0x09990999UL;          // @v12.5.7 Сигнатура классов, порожденных от TView до уровня TWindow (не включая TWindow)
-	static constexpr uint32 Signature_TWindow = 0x09990997UL;          // @v12.5.7 Сигнатура классов, порожденных от TWindow
-	static constexpr uint32 Seed32_FileName   = 0x1357ACE1UL;          // @v12.5.11 HashSeed для формирование хэшей имен файлов
+	static constexpr uint32 DBTableSignature    = 0x6E805ED7U; // @v12.5.2 Сигнатура объекта DBTable
+	static constexpr uint32 DbProviderSignature = 0x5418F398U; // @v12.6.1 Сигнатура объекта DbProvider
+	static constexpr uint64 DBConnSignature     = 0xDE4F9DF4FE840FDEULL; // @v12.5.4 Сигнатура объекта DbProvider::Connection
+	static constexpr uint32 Signature_TView     = 0x09990999U;          // @v12.5.7 Сигнатура классов, порожденных от TView до уровня TWindow (не включая TWindow)
+	static constexpr uint32 Signature_TWindow   = 0x09990997U;          // @v12.5.7 Сигнатура классов, порожденных от TWindow
+	static constexpr uint32 Seed32_FileName     = 0x1357ACE1U;          // @v12.5.11 HashSeed для формирование хэшей имен файлов
+	static constexpr uint32 SBinarySetSignature = 0x5E4F7D1AU;          // @v12.6.2  Сигнатура заголовка SBinarySet. Дублируется в Stylo-Q (SecretTagPool::MAGIC)
 };
 // @v11.7.4 extern const SlConstParam _SlConst_Removed;
 //
@@ -3925,7 +3926,8 @@ struct TimeRange { // @persistent
 //
 // Descr: То же, что и checkirange но не инициирует ошибку SLIB (для тех случаев, когда производительность важна)
 //
-inline bool checkirangef(long nmb, long low, long upp) { return (nmb >= low && nmb <= upp); }
+// @v12.6.2 inline bool checkirangef(long nmb, long low, long upp) { return (nmb >= low && nmb <= upp); }
+template <class T> bool checkirangef(T n, T low, T upp) { return (n >= low && n <= upp); } // @v12.6.2 
 int    STDCALL inrangeordefault(int val, int low, int upp, int def);
 long   STDCALL inrangeordefault(long val, long low, long upp, long def);
 uint   STDCALL inrangeordefault(uint val, uint low, uint upp, uint def);
@@ -5120,8 +5122,18 @@ public:
 	bool   isZeroDelim() const;
 	uint   getCount() const;
 	bool   FASTCALL IsCountGreaterThan(uint t) const;
+	//
+	// Descr: Добавляет в конец набора новую строку, на которую указывает pStr длиной len.
+	//   Если z-длина строки pStr меньше чем len, то добавляется sstrlen(pStr) символов.  
+	//   Если len == _FFFFST то len определяется вызовом sstrlen(pStr). 
+	//   Если pStr == 0, то len автоматически полагается равно 0.
+	// Attention: не используйте иные близкие по смыслы значения вместо _FFFFST!
+	// Attention: не вставляйте пустую строку в набор, разделителем которого является байт '\0' это приведет к сбой поскольку может сформировать двойной '\0\0'
+	//   означающий конец набора.
+	//
+	int    Append(const char * pStr, size_t len, uint * pPos); // @v12.6.2
 	int    add(const char * pStr, uint * pPos);
-	int    add(const char * pStr, ulong * pPos) { return add(pStr, reinterpret_cast<uint *>(pPos)); }
+	int    add(const char * pStr, ulong * pPos);
 	//
 	// Descr: Функция добавляет в конец набора новую строку pStr.
 	//   Единственное отличие от add(const char *, uint *) только в отсутствии последнего параметра.
@@ -7114,6 +7126,7 @@ public:
 };
 #pragma pack(pop) // @v12.6.2
 
+typedef TSBinary <12> binary96; // @v12.6.2
 typedef TSBinary <16> binary128;
 typedef TSBinary <20> binary160;
 typedef TSBinary <32> binary256;
@@ -7123,19 +7136,20 @@ typedef TSBinary <64> binary512;
 // Note: Значение идентификатора отрезка 0xffffffff зарезервировано для индикации конца набора и не может быть использовано
 //   как регулярный идентификатор отрезка.
 //
+#pragma pack(push, 1) // @v12.6.2
 class SBinarySet : private SBaseBuffer {
 public:
 	//
 	// Descr: Структура заголовка защищенного отрезка.
 	//   Полезные данные хранятся в защифрованном виде между ProtectedChunkV1_Prolog и ProtectedChunkV1_Epilog.
+	//   Алгоритм шифрования: AES-256-GCM
 	//
 	struct ProtectedChunkV1_Prolog { // @v12.6.2 @construction
-		uint32  Magic;   // 'SPC1'
-		uint16  Version; // 1
-		uint16  Flags;   // future use
-		binary128 Salt;  // per-chunk salt
-		uint8   IV[12];  // GCM nonce
-		uint32  PlainSize; // Размер исходных незашифрованных данных (для корректной распаковки)
+		uint64 UedSymmetricCipher; // Идентификатор алгоритма шифрования. Одновременно работает как сигнатура //
+		binary128 Salt;   // per-chunk salt
+		binary128 IV;     // GCM nonce. В зависимости от алгоритма может быть использована только часть блока.
+		uint32 Flags;     // @reserve
+		uint32 PlainSize; // Размер исходных незашифрованных данных (для корректной распаковки)
 	};
 	//
 	// Descr: Структура хвоста защищенного отрезка
@@ -7147,9 +7161,7 @@ public:
 	// Descr: Параметры алгоритма секьюритизации паролей Argon2
 	//
 	struct VaultParams { // @v12.6.2 @construction
-		uint32 Magic;      // 'SVP1'
-		uint16 Version;
-		uint16 Reserved;
+		uint32 Signature; // 
 		binary128 ArgonSalt;
 		uint32 MemCost;
 		uint32 TimeCost;
@@ -7188,12 +7200,9 @@ public:
 	//   то отрезок сжимается и впереди добавляется сигнатура Ssc_CompressionSignature
 	//
 	struct DeflateStrategy {
-		DeflateStrategy() : MinChunkSizeToCompress(0), CompressMethod(0)
-		{
-		}
-		explicit DeflateStrategy(uint16 minChunkSize) : MinChunkSizeToCompress(minChunkSize), CompressMethod(0)
-		{
-		}
+		DeflateStrategy();
+		explicit DeflateStrategy(uint16 minChunkSize);
+
 		uint16 MinChunkSizeToCompress;
 		int16  CompressMethod; // Reserved.
 	};
@@ -7208,6 +7217,7 @@ public:
 	//
 	int    Put(uint32 id, const void * pData, uint32 size, const DeflateStrategy * pDs = 0);
 	int    Put(uint32 id, const SBinaryChunk & rData, const DeflateStrategy * pDs = 0);
+	int    PutEncrypted(uint32 id, const void * pData, uint32 size, const DeflateStrategy * pDs = 0); // @v12.6.2
 	//
 	// Descr: Ищет отрезок с идентификатором id в пуле и, если таковой найден, то
 	//   копирует содержимое отрезка в буфер по указателю pResult (если pResult != 0).
@@ -7264,15 +7274,17 @@ public:
 	//
 	int    SetOuterBuffer(const void * pOuterData, size_t outerDataLen);
 private:
+	static constexpr uint32 MetaDataChunkID = 0x7A000000U;
 	//
 	// Descr: Функция одновременно проверяет валидность экземпляра и получает список идентификаторов,
 	//   которые в нем хранятся.
 	//   Используется для обеих целей.
 	//
 	bool   FASTCALL Helper_GetChunkIdList(LongArray * pList) const;
+
 	struct H { // Заголовок всего пула
 		uint32 Magic;
-		uint32 Flags;
+		uint32 Flags_;
 	};
 	struct BH { // Заголовок элемента данных
 		uint32 I;
@@ -7280,6 +7292,7 @@ private:
 	};
 	size_t DataLen;
 };
+#pragma pack(pop) // @v12.6.2
 //
 //
 //
@@ -7344,7 +7357,7 @@ public:
 	// Descr: Формирует канонизированную строку вида {Obj;Id} где Obj и Id - просто числовые представления соответствующих компонентов.
 	//
 	SString & FASTCALL ToStr(SString & rBuf) const;
-	//int    FASTCALL FromStr(const char * pStr);
+	bool   FASTCALL FromStr(const char * pStr);
 
 	int32  Obj;
 	int32  Id;
@@ -7626,8 +7639,8 @@ public:
 			uint32 R32;
 			uint64 R64;
 			ShaCtx Sha;
-			Sha512Ctx Sha512; // @v11.2.0
-			Md5Ctx Md5; // @v11.0.10
+			Sha512Ctx Sha512;
+			Md5Ctx Md5;
 		} Result;
 		enum {
 			fEmpty = 0x0001
@@ -7703,15 +7716,15 @@ public:
 		tagFace            = 28,  // Параметры представления контрагента (json. see StyloQFace). Собственный лик хранится по тегу tagSelfyFace
 		tagConfig          = 29,  // json Конфигурация
 		tagPrivateConfig   = 30,  // @reserve json Приватная конфигурация //
-		tagRoundTripIdent  = 31,  // @v11.1.12 Идентификатор сеанса обмена. Генерируется на стороне инициатора обмена (обычно, клиент)
+		tagRoundTripIdent  = 31,  // Идентификатор сеанса обмена. Генерируется на стороне инициатора обмена (обычно, клиент)
 			// и применяется для сопоставления запросов потокам при асинхронном режиме. Полагаю, в большинстве случаев это будет просто GUID
-		tagDocDeclaration  = 32,  // @v11.2.0 JSON-декларация документа, включенного с тегом tagRawData
-		tagSvcLoclAddendum = 33,  // @v11.2.3 Дополнительный идентификатор сервиса, определяющий локальный характер обслуживаемого запроса.
+		tagDocDeclaration  = 32,  // JSON-декларация документа, включенного с тегом tagRawData
+		tagSvcLoclAddendum = 33,  // Дополнительный идентификатор сервиса, определяющий локальный характер обслуживаемого запроса.
 			// Участвует в формировании символа очереди в случае MQB-обмена.
-		tagAssignedFaceRef = 34,  // @v11.2.4 Ссылка на собственный лик, ассоциированная с записью сервиса. Используется в StyloQ
+		tagAssignedFaceRef = 34,  // Ссылка на собственный лик, ассоциированная с записью сервиса. Используется в StyloQ
 			// на стороне клиента в записи сервиса для того, чтобы сообщить сервису приемлемый вариант лика.
-		tagErrorCode       = 35,  // @v11.2.10 int32 Код ошибки (ответ)
-		tagBlob            = 36,  // @v11.3.8  BLOB передаваемый с пакетом. По тегу tagRawData хранятся мета-данные этого blob'а в json-формате
+		tagErrorCode       = 35,  // int32 Код ошибки (ответ)
+		tagBlob            = 36,  // BLOB передаваемый с пакетом. По тегу tagRawData хранятся мета-данные этого blob'а в json-формате
 
 	};
 	SSecretTagPool();
@@ -7724,10 +7737,12 @@ public:
 	//
 	SJson * GetJson(uint tag) const;
 };
-
+//
+//
+//
 class SlCrypto {
 public:
-	enum {
+	enum { // @todo @20260502 Эти идентификаторы следует заместить значениями UED_SYMMETRICCIPHER_XXX
 		algUndef = 0,
 		algAes,       // mod:
 		algDes,       // mod:
@@ -7771,11 +7786,21 @@ public:
 		uint32 IvSize;
 		uint32 AadSize;
 	};
+	struct Argon2Param { // @v12.6.2
+		Argon2Param() : MemCost(0), TimeCost(0), Parallelism(0)
+		{
+		}
+		binary128 Salt;
+		uint32 MemCost;
+		uint32 TimeCost;
+		uint32 Parallelism;
+	};
 	class Key {
 	public:
 		Key();
 		Key & Z();
 		int    SetKey(const void * pData, size_t size);
+		int    SetDerivedKey_Argon2(const void * pData, size_t size, size_t resultKeySize, const Argon2Param & rParam); // @v12.6.2
 		int    SetIV(const void * pData, size_t size);
 		int    SetAAD(const void * pData, size_t size);
 		const SBaseBuffer & GetKey() const;
@@ -7786,21 +7811,16 @@ public:
 		SBaseBuffer IV;  // don't destroy - it's Ptr refers to Bin
 		SBaseBuffer AAD; // don't destroy - it's Ptr refers to Bin
 		uint32 EndP;     // Смещение доступного пространства
-		uint8  Bin[256];
+		uint8  Bin[512]; // @v12.6.2 [256]-->[512]
 	};
 	SlCrypto(int alg, uint kbl, int algModif);
 	~SlCrypto();
 	const  CipherProperties & GetCipherProperties() const;
+	bool   IsIvSizeConfigurable() const;
 	int    SetupKey(SlCrypto::Key & rK, const void * pKey, size_t keyByteLen, const void * pIv, size_t ivLen, const void * pAad, size_t aadLen);
 	int    SetupKey(SlCrypto::Key & rK, const void * pKey, size_t keyByteLen, const void * pIv, size_t ivLen);
 	int    SetupKey(SlCrypto::Key & rK, const void * pKey, size_t keyByteLen);
 	int    SetupKey(SlCrypto::Key & rK, const char * pPassword);
-	//int    SetupEncrypt(const char * pPassword);
-	//int    SetupEncrypt(const void * pKey, size_t keyByteLen, const void * pIv, size_t ivLen, const void * pAad, size_t aadLen);
-	//int    SetupDecrypt(const char * pPassword);
-	//int    SetupDecrypt(const void * pKey, size_t keyByteLen, const void * pIv, size_t ivLen, const void * pAad, size_t aadLen);
-	//int    Encrypt(const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen);
-	//int    Decrypt(const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen);
 	int    Encrypt_(const SlCrypto::Key * pKey, const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen);
 	int    Decrypt_(const SlCrypto::Key * pKey, const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen);
 	int    Encrypt(const SlCrypto::Key & rKey, const void * pData, size_t dataLen, SBinaryChunk & rResult, SBinaryChunk * pTag);
@@ -12151,6 +12171,7 @@ public:
 	bool   Find(const char * pText, size_t textLen, uint flags, FindResult * pResult) const; // TRUE if regexp in char * arg
 	bool   Find(const char * pText) const;
 	bool   Find(SStrScan * pScan, uint flags) const;
+	bool   Find(SStrScan * pScan, uint flags, StringSet * pSsGroup) const; // @v12.6.2
 	bool   Find(SStrScan * pScan) const;
 	Error  GetLastErr() const;
 	bool   IsValid() const;
@@ -12490,6 +12511,7 @@ struct SStrScan : public SRegExpSet {
 	int    FASTCALL GetTagBrace(SString & rText, int * pKind);
 	bool   FASTCALL IsRe(long reHandler);
 	int    GetRe(long reHandler, SString & rBuf);
+	int    GetReWithGroups(long reHandler, SString & rBuf, StringSet * pSsGroup); // @v12.6.2
 	bool   FASTCALL Is(const char * pS) const;
 	//
 	// Descr: Проверяет, является ли следующим символом c.

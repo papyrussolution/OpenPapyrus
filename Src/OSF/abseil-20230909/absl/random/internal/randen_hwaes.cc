@@ -489,22 +489,15 @@ void ABSL_TARGET_CRYPTO RandenHwAes::Absorb(const void* seed_void,
 }
 
 // NOLINTNEXTLINE
-void ABSL_TARGET_CRYPTO RandenHwAes::Generate(const void* keys_void,
-    void* state_void) {
-	static_assert(RandenTraits::kCapacityBytes == sizeof(Vector128),
-	    "Capacity mismatch");
-
+void ABSL_TARGET_CRYPTO RandenHwAes::Generate(const void* keys_void, void* state_void) 
+{
+	static_assert(RandenTraits::kCapacityBytes == sizeof(Vector128), "Capacity mismatch");
 	auto* state = reinterpret_cast<absl::uint128*>(state_void);
 	const auto* keys = reinterpret_cast<const absl::uint128*>(keys_void);
-
 	const Vector128 prev_inner = Vector128Load(state);
-
 	SwapEndian(state);
-
 	Permute(state, keys);
-
 	SwapEndian(state);
-
 	// Ensure backtracking resistance.
 	Vector128 inner = Vector128Load(state);
 	inner ^= prev_inner;

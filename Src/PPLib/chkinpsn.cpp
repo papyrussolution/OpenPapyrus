@@ -1224,7 +1224,7 @@ private:
 						PPID   chkinp_id = 0;
 						double qtty = 0.0;
 						PPObjCashNode cn_obj;
-						PPCashNode cn_rec;
+						PPCashNode2 cn_rec;
 						if(cn_id > 0 && cn_obj.Search(cn_id, &cn_rec) > 0) {
 							PPCheckInPersonMngr cip_mgr;
 							SString init_str;

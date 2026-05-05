@@ -116,7 +116,7 @@ void PPSyncCashSession::GetOfdFactors(OfdFactors & rP)
 				if(posNodeID) {
 					PPObjCashNode cn_obj;
 					PPCashNode2 cn_rec;
-					if(cn_obj.Fetch(posNodeID, &cn_rec) > 0 && cn_rec.Speciality == PPCashNode::spCafe) {
+					if(cn_obj.Fetch(posNodeID, &cn_rec) > 0 && cn_rec.Speciality == PPCashNode2::spCafe) {
 						yes = true;
 					}
 				}
@@ -317,7 +317,7 @@ int PPSyncCashSession::CompleteSession(PPID sessID)
 	int    ok = -1, r;
 	CSessGrouping csg;
 	CSessionTbl::Rec sess_rec;
-	PPCashNode cn_rec;
+	PPCashNode2 cn_rec;
 	THROW(CnObj.Search(NodeID, &cn_rec) > 0);
 	THROW(csg.GetSess(sessID, &sess_rec) > 0);
 	if(sess_rec.SuperSessID == 0) {
@@ -1728,7 +1728,7 @@ int PPAsyncCashSession::CloseSession(int asTempSess, DateRange * pPrd /*=0*/)
 					THROW(r = ConvertTempSessToBills(&temp_sess_list, loc_id, &gcn.CurRestBillID, 0));
 					LOG_DEBUG(ConvertSessListToBills_TempSessList);
 					if(r > 0) {
-						PPCashNode temp_rec;
+						PPCashNode2 temp_rec;
 						Reference2Tbl::Key0 k0;
 						k0.ObjType = PPOBJ_CASHNODE;
 						k0.ObjID = NodeID;
@@ -2624,7 +2624,7 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 						// Инициализируем (если необходимо) кассовый узел, ассоциированный с товаром
 						//
 						PPID   assoc_id = 0;
-						PPCashNode cn_rec;
+						PPCashNode2 cn_rec;
 						if(P_G2DAssoc && P_G2DAssoc->Get(goods_rec.ID, &assoc_id) > 0 && assoc_id && CnObj.Fetch(assoc_id, &cn_rec) > 0) {
 							Rec.AsscPosNodeID = cn_rec.ID;
 							STRNSCPY(Rec.AsscPosNodeSymb, cn_rec.Symb);

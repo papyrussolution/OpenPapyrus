@@ -573,6 +573,33 @@ SString & FASTCALL SObjID_Base::ToStr(SString & rBuf) const
 	return rBuf.Z().CatChar('{').Cat(Obj).Semicol().Cat(Id).CatChar('}');
 }
 
+bool FASTCALL SObjID_Base::FromStr(const char * pStr)
+{
+	bool   ok = false;
+	SObjID_Base temp;
+	temp.Z();
+	if(!isempty(pStr)) {
+		SStrScan scan(pStr);
+		scan.Skip();
+		if(scan.IncrChr('{')) {
+			scan.Skip();
+			SString temp_buf;
+			if(scan.GetNumber(temp_buf)) {
+				temp.Obj = temp_buf.ToLong();
+				scan.SkipOptionalDiv(';');
+				if(scan.GetNumber(temp_buf)) {
+					temp.Id = temp_buf.ToLong();
+					scan.Skip();
+					if(scan.Is('}')) {
+						ok = true;
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 SObjID_Base & FASTCALL SObjID_Base::operator = (double oid)
 {
 	FromDouble(oid);

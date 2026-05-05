@@ -1267,8 +1267,8 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 													Document.LotExtCode cur_entry = _doc.VXcL.get(ev_subj.ItemIdx);
 													if(cur_entry != null) {
 														SLib.SetCtrlString(iv, R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_MARK, cur_entry.Code);
-														// @v12.6.2 Document.GoodsMarkStatus gms = _doc.GetVerificationGoodsMarkStatus(cur_entry.Code);
-														Document.GoodsMarkStatus gms = _doc.GetInnerGoodsMarkStatus(cur_entry.Code); // @v12.6.2
+														Document.GoodsMarkStatus gms = _doc.GetVerificationGoodsMarkStatus(cur_entry.Code);
+														///Document.GoodsMarkStatus gms = _doc.GetInnerGoodsMarkStatus(cur_entry.Code); // @v12.6.2
 														int shaperc = 0;
 														if(gms == Document.GoodsMarkStatus.Matched)
 															shaperc = R.drawable.shape_goodsmark_matched;

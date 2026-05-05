@@ -243,18 +243,51 @@ bool SRegExp2::Find(const char * pText, size_t textLen, uint flags, FindResult *
 	return ok;
 }
 
-bool SRegExp2::Find(SStrScan * pScan, uint flags) const
+bool SRegExp2::Find(SStrScan * pScan, uint flags, StringSet * pSsGroup) const // @v12.6.2
 {
+	CALLPTRMEMB(pSsGroup, Z());
 	bool   ok = false;
 	const  char * p = pScan ? static_cast<const char *>(*pScan) : 0;
-	if(!isempty(p)) {
-		const size_t plen = strlen(p);
+	const  size_t plen = sstrlen(p);
+	if(plen) {
 		FindResult fr;
 		if(Find(p, plen, flags, &fr)) {
 			assert(fr.getCount());
 			if(fr.getCount()) {
-				int    start = fr.at(0).low;
-				int    end = fr.at(0).upp;
+				if(pSsGroup) {
+					for(uint i = 1; i < fr.getCount(); i++) {
+						const  int gr_start = fr.at(i).low;
+						const  int gr_end = fr.at(i).upp;						
+						assert(gr_start >= 0 && gr_end >= gr_start);
+						pSsGroup->Append(p+gr_start, gr_end-gr_start, 0);
+					}
+				}
+				const  int start = fr.at(0).low;
+				const  int end = fr.at(0).upp;
+				assert(start >= 0 && end >= start);
+				//int start = fr.at(fr.getCount()-1).low;
+				//int end = fr.at(fr.getCount()-1).upp;
+				pScan->Incr(start);
+				pScan->SetLen(end - start);
+			}
+			ok = true;
+		}
+	}
+	return ok;
+}
+
+bool SRegExp2::Find(SStrScan * pScan, uint flags) const
+{
+	bool   ok = false;
+	const  char * p = pScan ? static_cast<const char *>(*pScan) : 0;
+	const  size_t plen = strlen(p);
+	if(plen) {
+		FindResult fr;
+		if(Find(p, plen, flags, &fr)) {
+			assert(fr.getCount());
+			if(fr.getCount()) {
+				const  int start = fr.at(0).low;
+				const  int end = fr.at(0).upp;
 				assert(start >= 0 && end >= start);
 				//int start = fr.at(fr.getCount()-1).low;
 				//int end = fr.at(fr.getCount()-1).upp;

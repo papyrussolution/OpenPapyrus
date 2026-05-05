@@ -3882,17 +3882,6 @@ protected:
 		crfResizeable = 0x0010,
 		crfWClusters  = 0x0020
 	};
-#define CRF_LINK_LEFTRIGHT        (crfLinkLeft  | crfLinkRight)
-#define CRF_LINK_LEFTTOP          (crfLinkLeft  | crfLinkTop)
-#define CRF_LINK_RIGHTTOP         (crfLinkRight | crfLinkTop)
-#define CRF_LINK_LEFTBOTTOM       (crfLinkLeft  | crfLinkBottom)
-#define CRF_LINK_RIGHTBOTTOM      (crfLinkRight | crfLinkBottom)
-#define CRF_LINK_TOPBOTTOM        (crfLinkTop   | crfLinkBottom)
-#define CRF_LINK_LEFTTOPBOTTOM    (crfLinkLeft  | crfLinkTop   | crfLinkBottom)
-#define CRF_LINK_RIGHTTOPBOTTOM   (crfLinkRight | crfLinkTop   | crfLinkBottom)
-#define CRF_LINK_LEFTRIGHTBOTTOM  (crfLinkLeft  | crfLinkRight | crfLinkBottom)
-#define CRF_LINK_LEFTRIGHTTOP     (crfLinkLeft  | crfLinkRight | crfLinkTop)
-#define CRF_LINK_ALL              (crfLinkLeft  | crfLinkRight | crfLinkTop | crfLinkBottom)
 	//
 	// Descr: Устанавливает параметры поведения контрола при изменении размера диалога
 	// ARG(ctrlID IN):                 ID описываемого контрола

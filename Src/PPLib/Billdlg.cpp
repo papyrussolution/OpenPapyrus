@@ -875,7 +875,7 @@ BillDialog::BillDialog(uint dlgID, PPBillPacket * pPack, int isEdit) : PPListDia
 	}
 	disableCtrl(CTL_BILL_ADV_TOUT, true);
 	disableCtrl(CTL_BILL_DEBTSUM, true);
-	enableCommand(cmToDo, (op_rec.ExtFlags & OPKFX_USETODOLINK)); // @v12.4.7
+	enableCommand(cmToDo, LOGIC(op_rec.ExtFlags & OPKFX_USETODOLINK)); // @v12.4.7
 	setupPosition();
 	DefaultRect = getRect();
 	showLinkFilesList();
@@ -2739,7 +2739,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 		ExtAmtIDList.freeAll();
 		Flags &= ~fHasAmtIDList;
 	}
-	enableCommand(cmExAmountList, BIN(Flags & fHasAmtIDList));
+	enableCommand(cmExAmountList, LOGIC(Flags & fHasAmtIDList));
 	if(P_Pack->OpTypeID == PPOPT_PAYMENT) {
 		if(P_Pack->Rec.LinkBillID == 0) {
 			SetButtonText(cmLinkedBill, PPLoadStringS("but_dolinkbill", temp_buf).Transf(CTRANSF_INNER_TO_OUTER));
@@ -4122,8 +4122,9 @@ int PPObjBill::EditBillExtData(PPID billID)
 		dlg->SetupCalDate(CTLCAL_BILLEXT_INVCDATE, CTL_BILLEXT_INVCDATE);
 		dlg->setCtrlData(CTL_BILLEXT_INVCCODE, ext_data.InvoiceCode);
 		dlg->setCtrlData(CTL_BILLEXT_INVCDATE, &ext_data.InvoiceDate);
-		if(!CheckRights(PPR_MOD) || !r_rt.CheckBillDate(bill_rec))
-			dlg->enableCommand(cmOK, 0);
+		if(!CheckRights(PPR_MOD) || !r_rt.CheckBillDate(bill_rec)) {
+			dlg->enableCommand(cmOK, false);
+		}
 		while(!valid_data && ExecView(dlg) == cmOK) {
 			THROW(CheckRights(PPR_MOD) && r_rt.CheckBillDate(bill_rec));
 			if(is_need_paym)
@@ -4353,9 +4354,9 @@ public:
 			disableCtrls(1, CTLSEL_LOTINFO_LOC, CTLSEL_LOTINFO_GOODS, CTLSEL_LOTINFO_SUPPL,
 				CTLSEL_LOTINFO_QCERT, CTL_LOTINFO_QTTY, CTL_LOTINFO_REST, CTL_LOTINFO_UPP,
 				CTL_LOTINFO_COST, CTL_LOTINFO_PRICE, CTL_LOTINFO_CLOSEDT, CTL_LOTINFO_CLOSED, 0);
-			enableCommand(cmOK, 0);
+			enableCommand(cmOK, false);
 		}
-		const bool s = (Chain.getCount() > 1);
+		const  bool s = (Chain.getCount() > 1);
 		showCtrl(STDCTL_BACKBUTTON, s);
 		enableCommand(cmOK, !s);
 		enableCommand(cmPrevLot, (Data.PrevLotID != 0));

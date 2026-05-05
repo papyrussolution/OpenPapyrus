@@ -1164,6 +1164,48 @@ public class Document {
 		}
 		return result;
 	}
+	static LotExtCode FindLotExtCode2(final ArrayList<LotExtCode> list, final String mark, boolean adaptiveMode) // @v12.6.2 @construction
+	{
+		LotExtCode result = null;
+		final int mark_len = SLib.GetLen(mark);
+		if(mark_len > 0 && list != null && list.size() > 0) {
+			String pattern = GTIN.PreprocessChZnCode(mark);
+			GTIN gtin_chzn = adaptiveMode ? GTIN.ParseChZnCode(mark, 0) : null;
+			String pattern_gtin = (gtin_chzn != null) ? gtin_chzn.GetToken(GTIN.fldGTIN14) : null;
+			String pattern_serial = (gtin_chzn != null) ? gtin_chzn.GetToken(GTIN.fldSerial) : null;
+			String pattern_part = (gtin_chzn != null) ? gtin_chzn.GetToken(GTIN.fldPart) : null;
+			final boolean do_cmp_partitial = (gtin_chzn != null && SLib.GetLen(pattern_gtin) > 0 && (SLib.GetLen(pattern_serial) > 0 || SLib.GetLen(pattern_part) > 0));
+			for(int i = 0; result == null && i < list.size(); i++) {
+				final LotExtCode item = list.get(i);
+				if(item != null && SLib.GetLen(item.Code) > 0) {
+					if(pattern.equalsIgnoreCase(GTIN.PreprocessChZnCode(item.Code))) {
+						result = item;
+					}
+					else if(do_cmp_partitial) {
+						GTIN gtin_chzn2 = GTIN.ParseChZnCode(item.Code, 0);
+						String code_gtin = (gtin_chzn2 != null) ? gtin_chzn2.GetToken(GTIN.fldGTIN14) : null;
+						String code_serial = (gtin_chzn2 != null) ? gtin_chzn2.GetToken(GTIN.fldSerial) : null;
+						String code_part = (gtin_chzn2 != null) ? gtin_chzn2.GetToken(GTIN.fldPart) : null;
+						if(SLib.GetLen(code_gtin) > 0) {
+							if(pattern_gtin.equalsIgnoreCase(code_gtin)) {
+								if(SLib.GetLen(pattern_serial) > 0 && SLib.GetLen(code_serial) > 0) {
+									if(pattern_serial.equalsIgnoreCase(code_serial)) {
+										result = item;
+									}
+									else if(SLib.GetLen(pattern_part) > 0 && SLib.GetLen(code_part) > 0) {
+										if(pattern_part.equalsIgnoreCase(code_part)) {
+											result = item;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return result;
+	}
 	//
 	// Descr: Ищет марку среди всех контейнеров документа.
 	//   Если марка найдена, то возвращает значение >= 0, иначе -1.
@@ -1207,7 +1249,7 @@ public class Document {
 		if(mark_len > 0 && TiList != null && TiList.size() > 0) {
 			for(int i = 0; result == GoodsMarkStatus.Unmatched && i < TiList.size(); i++) {
 				final TransferItem ti = TiList.get(i);
-				final LotExtCode lec = (ti != null) ? FindLotExtCode(ti.XcL, mark) : null;
+				final LotExtCode lec = (ti != null) ? FindLotExtCode2(ti.XcL, mark, true) : null;
 				if(lec != null)
 					result = GoodsMarkStatus.Matched;
 			}

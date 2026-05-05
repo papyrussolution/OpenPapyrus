@@ -2153,7 +2153,7 @@ DBTable * PPCvtProperty5506::CreateTableInstance(int * needConversion)
 
 	int   ta = 0;
 	PPID  cn_id;
-	PPCashNode  cn_rec;
+	PPCashNode2 cn_rec;
 	Reference * p_ref = 0;
 	THROW_MEM(p_ref = new Reference);
 	THROW(PPStartTransaction(&ta, 1));
@@ -3092,7 +3092,7 @@ public:
 					long   Reserve2[2];
 				};
 				PPID  cn_id;
-				PPCashNode  cn_rec;
+				PPCashNode2 cn_rec;
 				THROW_MEM(p_ref = new Reference);
 				THROW(PPStartTransaction(&ta, 1));
 				for(cn_id = 0; p_ref->EnumItems(PPOBJ_CASHNODE, &cn_id, &cn_rec) > 0;) {

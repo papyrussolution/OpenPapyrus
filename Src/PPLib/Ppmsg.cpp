@@ -8,6 +8,8 @@
 
 static StringStore2 * _PPStrStore = 0; // @global @threadsafe
 
+const StringStore2 * PPGetStrStore() { return _PPStrStore; } // Только для тестирования. Спецификацию не публиковать!
+
 bool PPInitStrings(const char * pFileName)
 {
 	bool   ok = false;
@@ -279,8 +281,7 @@ int STDCALL PPSetObjError(int errCode, PPID objType, PPID objID)
 {
 	PPThreadLocalArea & tla = DS.GetTLA();
 	if(&tla && tla.IsConsistent()) {
-		tla.LastErrObj.Obj = objType;
-		tla.LastErrObj.Id  = objID;
+		tla.LastErrObj.Set(objType, objID);
 		if(errCode == PPERR_OBJNFOUND && objType == PPOBJ_BILL) {
 			// @v12.2.12 Завел новое сообщение PPERR_BILLBYIDENTNFOUND в совершенно далеких целях (Stylo-Q) и, чтоб добру не 
 			// пропадать, специализировал сообщение об ошибке и здесь.
@@ -305,10 +306,7 @@ int FASTCALL PPCheckGetObjPacketID(PPID objType, PPID id)
 	return ok;
 }
 
-void FASTCALL PPSetAddedMsgString(const char * pStr)
-{
-	DS.GetTLA().AddedMsgString = pStr;
-}
+void FASTCALL PPSetAddedMsgString(const char * pStr) { DS.GetTLA().AddedMsgString = pStr; }
 
 void FASTCALL PPSetAddedMsgObjName(PPID objType, PPID objID)
 {
@@ -522,14 +520,10 @@ static int FASTCALL Helper_PPError(int errcode, const char * pAddInfo, uint extr
 	return ok;
 }
 
-int FASTCALL PPError(int errcode, const char * pAddInfo)
-	{ return Helper_PPError(errcode, pAddInfo, 0); }
-int FASTCALL PPError(int errcode)
-	{ return Helper_PPError(errcode, 0, 0); }
-int STDCALL  PPError(int errcode, const char * pAddInfo, uint extraMfOptions)
-	{ return Helper_PPError(errcode, pAddInfo, extraMfOptions); }
-int PPError()
-	{ return Helper_PPError(-1, 0, 0); }
+int FASTCALL PPError(int errcode, const char * pAddInfo) { return Helper_PPError(errcode, pAddInfo, 0); }
+int FASTCALL PPError(int errcode) { return Helper_PPError(errcode, 0, 0); }
+int STDCALL  PPError(int errcode, const char * pAddInfo, uint extraMfOptions) { return Helper_PPError(errcode, pAddInfo, extraMfOptions); }
+int PPError() { return Helper_PPError(-1, 0, 0); }
 
 int FASTCALL PPErrorTooltip(int errcode, const char * pAddInfo)
 {
@@ -556,7 +550,7 @@ int FASTCALL PPErrorTooltip(int errcode, const char * pAddInfo)
 int PPErrorZ() { return (PPError(-1, 0), 0); }
 int PPDbSearchError() { return (BTROKORNFOUND) /**/ ? -1 : PPSetErrorDB(); }
 
-static int PPCriticalWarning(SString & rMsg, uint /*options*/)
+static int PPCriticalWarning(SString & rMsg, uint/*options*/)
 {
 	if(DS.IsThreadInteractive()) {
 		int    yes = cmCancel;
@@ -646,8 +640,7 @@ int PPTooltipMessage(uint options, int msgcode, const char * pAddInfo)
 				long   flags = SMessageWindow::fSizeByText|SMessageWindow::fOpaque|SMessageWindow::fPreserveFocus;
 				if(options & mfError) {
 					color = GetColorRef(SClrRed);
-					// @v11.2.9 flags |= SMessageWindow::fShowOnCenter; 
-					flags |= SMessageWindow::fShowOnRUCorner|SMessageWindow::fTopmost; // @v11.2.9 
+					flags |= SMessageWindow::fShowOnRUCorner|SMessageWindow::fTopmost;
 				}
 				ok = p_win->Open(buf, 0, 0, 0, 30000, color, flags, 0);
 			}
@@ -783,7 +776,7 @@ void FASTCALL PPThreadLocalArea::WaitBlock::SetMessage(const char * pMsg)
 {
 	PROFILE_START
 	if(IdleTimer.Check(0) && APPL && APPL->H_MainWnd)
-		::SendMessage(APPL->H_MainWnd, WM_ENTERIDLE, 0, 0);
+		::SendMessageW(APPL->H_MainWnd, WM_ENTERIDLE, 0, 0);
 	DS.SetThreadNotification(PPSession::stntMessage, pMsg);
 	//
 	PPAdviseList adv_list;

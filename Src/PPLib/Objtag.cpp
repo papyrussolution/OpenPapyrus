@@ -830,7 +830,7 @@ int SelfbuildStaffForManual_ReservedObjTagList()
 	SString tag_name;
 	SString tag_symb;
 	SString line_buf;
-	TVRez * p_rez = P_SlRez;
+	TVRez * p_rez(P_SlRez);
 	PPGetFilePath(PPPATH_OUT, "reservedobjects-tag", temp_buf);
 	SFile  doc_file(temp_buf, SFile::mWrite);
 	THROW_SL(doc_file.IsValid());
@@ -894,7 +894,7 @@ int PPObjTag::MakeReserved(long flags)
 	int    ok = 1;
 	uint   num_recs = 0;
 	SString temp_buf, obj_type_symb, data_type_symb;
-	TVRez * p_rez = P_SlRez;
+	TVRez * p_rez(P_SlRez);
 	THROW_PP(p_rez, PPERR_RESFAULT);
 	THROW_PP(p_rez->findResource(ROD_TAG, PP_RCDATA), PPERR_RESFAULT);
 	THROW_PP(num_recs = p_rez->getUINT(), PPERR_RESFAULT);

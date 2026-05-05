@@ -52,7 +52,8 @@ int  TestGlobalServiceAccessibility();
 int  TestRestic();
 int  TestAutotranslateText(); // @v12.6.1
 // @v12.5.12 void Test_MySQL_ReadBLOB(); // @v12.5.7
-int  ParsePhoneNumberMetadata(); // @v12.6.2
+int  TestPhoneNumberMetadata(); // @v12.6.2
+int  TestAutotranslateCache(); // @v12.6.2
 //
 // 
 // 
@@ -2043,7 +2044,9 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
-	ParsePhoneNumberMetadata(); // @v12.6.2
+	//TestCRC();
+	//TestAutotranslateCache(); // @v12.6.2
+	TestPhoneNumberMetadata(); // @v12.6.2
 	//TestAutotranslateText(); // @v12.6.1
 	//TestGtinStruc();
 	//TestConfigDatabase_StringHistory();
@@ -2071,7 +2074,6 @@ int DoConstructionTest()
 	//SDecimal::Test();
 	//ReformatRazoomnick("D:/Papyrus/Universe-HTT/DATA/Razoomnick-barcodes.csv");	
 	//PPStyloQInterchange::PrepareAhed(true);
-	//TestCRC();
 	//PPStyloQInterchange::ExecuteIndexingRequest(true/*useCurrentSession*/);
 	//ImportYYE("/DEV/Resource/Data/yeda");
 	//DoTest_PThr4w();

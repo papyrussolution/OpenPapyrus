@@ -407,9 +407,22 @@ bool FASTCALL SStrScan::IsRe(long reHandler)
 
 int SStrScan::GetRe(long reHandler, SString & rBuf)
 {
-	if(reHandler > 0 && reHandler <= static_cast<long>(ReList.getCount())) {
+	if(reHandler > 0 && reHandler <= ReList.getCountI()) {
 		SRegExp2 * p_re = ReList.at(reHandler-1);
 		if(p_re && p_re->Find(this, 0)) {
+			Get(rBuf);
+			IncrLen();
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int SStrScan::GetReWithGroups(long reHandler, SString & rBuf, StringSet * pSsGroup) // @v12.6.2
+{
+	if(reHandler > 0 && reHandler <= ReList.getCountI()) {
+		SRegExp2 * p_re = ReList.at(reHandler-1);
+		if(p_re && p_re->Find(this, 0, pSsGroup)) {
 			Get(rBuf);
 			IncrLen();
 			return 1;
@@ -939,7 +952,7 @@ size_t FASTCALL SStrScan::Incr(size_t incr)
 	return prev_offs;
 }
 
-size_t FASTCALL SStrScan::IncrLen(size_t addedIncr /*=0*/)
+size_t FASTCALL SStrScan::IncrLen(size_t addedIncr/*=0*/)
 {
 	const size_t prev_offs = Offs;
 	Offs += (Len+addedIncr);

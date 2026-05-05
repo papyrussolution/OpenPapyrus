@@ -1196,7 +1196,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 							CSessionTbl::Rec ses_rec;
 							if(P_Od->CsObj.Search(p_ccp->Rec.SessID, &ses_rec) > 0) {
 								PPObjCashNode cn_obj;
-								PPCashNode cn_rec;
+								PPCashNode2 cn_rec;
 								if(cn_obj.Fetch(ses_rec.CashNodeID, &cn_rec) > 0)
 									rResult.Cat(cn_rec.Name);
 							}
@@ -1208,7 +1208,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					*/
 					else if(Src == srcCSession) {
 						PPObjCashNode cn_obj;
-						PPCashNode cn_rec;
+						PPCashNode2 cn_rec;
 						if(cn_obj.Fetch(P_SessInfo->Rec.CashNodeID, &cn_rec) > 0) {
 							rResult.Cat(cn_rec.Name);
 						}

@@ -803,10 +803,7 @@ OleDate LTIME::GetOleDate() const
 	return dtm;
 }
 
-LTIME::operator OleDate() const
-{
-	return GetOleDate();
-}
+LTIME::operator OleDate() const { return GetOleDate(); }
 
 LTIME LTIME::operator = (OleDate od)
 {
@@ -999,8 +996,7 @@ int FASTCALL getcurdatetime(LDATE * pDt, LTIME * pTm)
 	SYSTEMTIME st;
 	::GetLocalTime(&st);
 	if(pDt) {
-		// @v11.3.12 pDt->encode(st.wDay, st.wMonth, st.wYear);
-		pDt->EncodeRegular(st.wDay, st.wMonth, st.wYear); // @v11.3.12
+		pDt->EncodeRegular(st.wDay, st.wMonth, st.wYear);
 	}
 	if(pTm) {
 		char * _tm = reinterpret_cast<char *>(pTm);

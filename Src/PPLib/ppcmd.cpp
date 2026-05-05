@@ -77,7 +77,7 @@ int PPCommandDescr::Read(SBuffer & rBuf, long)
 int PPCommandDescr::LoadResource(long cmdDescrID)
 {
 	int    ok = 1;
-	TVRez * p_rez = P_SlRez;
+	TVRez * p_rez(P_SlRez);
 	Z();
 	if(p_rez) {
 		THROW_PP(p_rez->findResource(static_cast<uint>(cmdDescrID), PP_RCDECLCMD), PPERR_RESFAULT);
@@ -100,7 +100,7 @@ int PPCommandDescr::LoadResource(long cmdDescrID)
 /*static*/int PPCommandDescr::GetResourceList(LAssocArray & rList)
 {
 	int    ok = 1;
-	TVRez * p_rez = P_SlRez;
+	TVRez * p_rez(P_SlRez);
 	rList.clear();
 	if(p_rez) {
 		ulong pos = 0;
@@ -117,7 +117,7 @@ int PPCommandDescr::LoadResource(long cmdDescrID)
 int PPCommandDescr::GetResourceList(int loadText, StrAssocArray & rList)
 {
 	int    ok = 1;
-	TVRez * p_rez = P_SlRez;
+	TVRez * p_rez(P_SlRez);
 	rList.Z();
 	if(p_rez) {
 		ulong pos = 0;
@@ -2758,15 +2758,15 @@ IMPL_HANDLE_EVENT(CashNodeFiltDialog)
 int CashNodeFiltDialog::SetupCommands(PPID cashNodeID, long commandID)
 {
 	if(!PrevCashNodeID || PrevCashNodeID != cashNodeID) {
-		PPCashNode cnrec;
-		PPCashNode prev_cnrec;
-		if(cashNodeID && CashNObj.Search(cashNodeID, &cnrec) > 0) {
+		PPCashNode2 cn_rec;
+		PPCashNode2 prev_cn_rec;
+		if(cashNodeID && CashNObj.Search(cashNodeID, &cn_rec) > 0) {
 			SString commands;
 			if(PrevCashNodeID)
-				CashNObj.Search(PrevCashNodeID, &prev_cnrec);
-			if((prev_cnrec.Flags & (CASHF_SYNC|CASHF_ASYNC)) != (cnrec.Flags & (CASHF_SYNC|CASHF_ASYNC))) {
+				CashNObj.Search(PrevCashNodeID, &prev_cn_rec);
+			if((prev_cn_rec.Flags & (CASHF_SYNC|CASHF_ASYNC)) != (cn_rec.Flags & (CASHF_SYNC|CASHF_ASYNC))) {
 				commandID = (PrevCashNodeID) ? 0 : commandID;
-				SetupStringCombo(this, CTLSEL_CASHPANEFLT_CMD, (cnrec.Flags & CASHF_SYNC) ? PPTXT_SYNCCASHNODECOMMANDS : PPTXT_ASYNCCASHNODECOMMANDS, 0);
+				SetupStringCombo(this, CTLSEL_CASHPANEFLT_CMD, (cn_rec.Flags & CASHF_SYNC) ? PPTXT_SYNCCASHNODECOMMANDS : PPTXT_ASYNCCASHNODECOMMANDS, 0);
 			}
 		}
 		else
@@ -2782,7 +2782,7 @@ long CashNodeFiltDialog::ConvertCommand(PPID cashNodeID, long cmd, int toDlgCmd)
 {
 	uint   out_cmd = 0;
 	if(cmd && cashNodeID) {
-		PPCashNode cn_rec;
+		PPCashNode2 cn_rec;
 		if(CashNObj.Search(cashNodeID, &cn_rec) > 0) {
 			static const uint async_cmds[] = { cmCSOpen, cmACSUpdate, cmCSClose, cmCSViewCheckList,  cmACSViewExcess };
 			static const uint sync_cmds[] =  { cmCSOpen, cmCSClose, cmCSViewCheckList, cmSCSLock, cmSCSUnlock, cmSCSXReport, cmSCSZReportCopy, cmSCSIncasso };

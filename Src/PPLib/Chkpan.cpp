@@ -1147,7 +1147,7 @@ CPosProcessor::PosNodeParam::PosNodeParam(PPID posNodeID) : NodeID(posNodeID), C
 {
 	AllowedPaymentTypes = ((1 << cpmCash)|(1 << cpmBank));
 	PPObjCashNode cn_obj;
-	PPCashNode cn_rec;
+	PPCashNode2 cn_rec;
 	if(cn_obj.Search(NodeID, &cn_rec) > 0) {
 		CnName = cn_rec.Name;
 		CnSymb = cn_rec.Symb;
@@ -1224,7 +1224,7 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 					*/
 					PPEgaisProcessor * p_eg_prc = DS.GetTLA().GetEgaisProcessor(); // @v12.2.11 fake call in order to create instance of PPEgaisProcessor
 					// @v12.0.12 {
-					if(PNP.CnSpeciality == PPCashNode::spCafe) {
+					if(PNP.CnSpeciality == PPCashNode2::spCafe) {
 						PPObjGoodsType gt_obj;
 						PPGoodsType2 gt_rec;
 						bool is_there_egais_auto_wo_flags = false;
@@ -1239,14 +1239,12 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 					// } @v12.0.12 
 				}
 			}
-			// @v11.4.5 {
 			if(ctrFlags & ctrfForceInitGroupList && cn_pack.TouchScreenID) {
 				PPTouchScreenPacket ts_pack;
 				PPObjTouchScreen    ts_obj;
 				if(ts_obj.GetPacket(TouchScreenID, &ts_pack) > 0)
 					InitGroupList(ts_pack);
 			}
-			// } @v11.4.5 
 		}
 	}
 	{
@@ -1255,8 +1253,7 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 			P_DivGrpList = new SArray(temp_list);
 	}
 	SETFLAG(Flags, fAsSelector, (P_ChkPack && !PNP.NodeID && !CheckID));
-	// @v11.4.5 SETFLAG(Flags, fTouchScreen, isTouchScreen);
-	SETFLAG(Flags, fTouchScreen, (ctrFlags & ctrfTouchScreen)); // @v11.4.5
+	SETFLAG(Flags, fTouchScreen, (ctrFlags & ctrfTouchScreen));
 	SETFLAG(Flags, fCashNodeIsLocked, CnObj.IsLocked(PNP.NodeID) > 0);
 	/* @v12.3.8 if(PNP.CnExtFlags & CASHFX_ABSTRGOODSALLOWED) {
 		const  PPID def_goods_id = GObj.GetConfig().DefGoodsID;
@@ -1766,7 +1763,7 @@ int CPosProcessor::OpenSession(LDATE * pDt, int ifClosed)
 	bool   is_openend = false;
 	THROW(InitCashMachine());
 	if(ifClosed) {
-		PPCashNode cn_rec;
+		PPCashNode2 cn_rec;
 		CnObj.Search(PNP.NodeID, &cn_rec);
 		if(cn_rec.Flags & CASHF_DAYCLOSED || !cn_rec.CurDate || ((cn_rec.Flags & CASHF_CHKPAN) && !cn_rec.CurSessID))
 			is_openend = true;
@@ -1955,8 +1952,8 @@ struct CPosProcessor_SetupDiscontBlock {
 	uint   LastIndex;
 	double Amount;
 	RAssocArray GiftDisList;
-	LongArray WoDisPosList; // Список позиций чека ([1..]) для которых действует правило "без скидки"
-	LongArray PriceAdjustmentPosList; // @v12.6.2 Список позиций чека ([1..]) для которых должно применяться выравнивание цены
+	LongArray PosList_WoDis; // Список позиций чека ([1..]) для которых действует правило "без скидки"
+	LongArray PosList_PriceAdjustment; // @v12.6.2 Список позиций чека ([1..]) для которых должно применяться выравнивание цены
 	SCardSpecialTreatment * P_Scst;
 	SCardSpecialTreatment::CardBlock ScstCb;
 };
@@ -1988,6 +1985,7 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 			double item_discount = r_item.Discount;
 			bool   no_discount = false;
 			bool   dont_calcprice = false;
+			bool   price_adjustment_needed = false; // @v12.6.2 общая цена позиции может потребовать специального выравнивания //
 			RetailGoodsInfo rgi;
 			long   ext_rgi_flags = 0;
 			const  PPID goods_id = r_item.GoodsID;
@@ -2018,6 +2016,15 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 				if(_gpr > 0)
 					item_price = rgi.Price;
 				EvaluateSingleSubstPrice(goods_id, qtty, r_item.ChZnPrice, rgi, item_price); // @v12.5.9
+				// @v12.6.2 {
+				{
+					const  int afupr = GObj.AdjustFractionalUnitPrice(goods_id, qtty, item_price, 0, 0);
+					if(afupr > 0 || afupr == -2) { // see PPObjGoods::AdjustFractionalUnitPrice spec
+						if(IniPBlk.Flags & IniParamsBlock::fAdjustFractionalPrice)
+							price_adjustment_needed = true; 
+					}
+				}
+				// } @v12.6.2 
 				if(rgi.Flags & RetailGoodsInfo::fNoDiscount || item_price == 0.0)
 					no_discount = true;
 				//
@@ -2059,7 +2066,7 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 					gift_item_dis = qtty * r_item.Discount;
 					if(gift_item_dis != 0.0) {
 						assert(row_id > 0);
-						r_blk.GiftDisList.Add((long)(row_id-1), gift_item_dis);
+						r_blk.GiftDisList.Add((row_id-1), gift_item_dis);
 						if(!r_blk.IsRounding)
 							r_blk.Amount = R2(r_blk.Amount - gift_item_dis); // Сумму подарочной скидки необходимо вычесть из базы для расчета общей скидки
 					}
@@ -2085,10 +2092,15 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 						no_discount = true;
 				}
 				if(no_discount) {
-					r_blk.WoDisPosList.addUnique(row_id);
+					r_blk.PosList_WoDis.addUnique(row_id);
+				}
+				else if(price_adjustment_needed) { // @v12.6.2
+					// Если цена по позиции требует специального выравнивания, то эту позицию нельзя использовать в качестве демпфера
+					// для накопленной ошибки округления при распределении скидки.
+					r_blk.PosList_PriceAdjustment.addUnique(row_id);
 				}
 				else {
-					const double p = R2(r_blk.IsRounding ? r_item.NetPrice() : r_item.Price);
+					const  double p = R2(r_blk.IsRounding ? r_item.NetPrice() : r_item.Price);
 					r_blk.Amount = R2(r_blk.Amount + p * qtty);
 					if(qtty > 0.0 && (qtty < min_qtty || (qtty == min_qtty && p > max_price))) {
 						r_blk.LastIndex = row_id;
@@ -2103,7 +2115,7 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 			long    qdrf = 0;
 			if(r_blk.P_Scst->QueryDiscount(&r_blk.ScstCb, scst_dbl, &qdrf, &addendum_msg_list.Z()) > 0) {
 				for(i = 0; i < scst_dbl.getCount(); i++) {
-					const SCardSpecialTreatment::DiscountBlock & r_db = scst_dbl.at(i);
+					const  SCardSpecialTreatment::DiscountBlock & r_db = scst_dbl.at(i);
 					CCheckItem & r_item = P.at(r_db.RowN-1);
 					if(isempty(r_item.RemoteProcessingTa)) {
 						r_item.Discount = 0.0;
@@ -2154,7 +2166,6 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, bool distribut
 		//
 		bool   finish_addendum = sdb.IsRounding;
 		//
-		CCheckItem * p_item;
 		double discount = 0.0;
 		if(sdb.IsRounding)
 			discount = roundingDiscount;
@@ -2165,7 +2176,7 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, bool distribut
 			if(discount < sdb.Amount && ManDis.Discount > 0.0) {
 				double mandiscount = 0.0;
 				if(ManDis.Flags & ManualDiscount::fPct) {
-					const double _mpctdis = smin(ManDis.Discount, 100.0);
+					const  double _mpctdis = smin(ManDis.Discount, 100.0);
 					mandiscount = _mpctdis * (sdb.Amount - discount) / 100.0;
 				}
 				else {
@@ -2184,22 +2195,54 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, bool distribut
 				if(temp_dis < sdb.Amount)
 					discount = temp_dis;
 			}
-			for(uint i = 0; P.enumItems(&i, (void **)&p_item);) {
-				if(i != sdb.LastIndex && !sdb.WoDisPosList.lsearch(i)) {
-					const  double qtty = fabs(p_item->Quantity);
-					const  double p    = R2(sdb.IsRounding ? p_item->NetPrice() : p_item->Price); // @R2
-					double d = this->RoundDis(fdivnz(p * (discount - part_dis), (sdb.Amount - part_amount)));
-					SETMIN(d, p); // Гарантируем то, что скидка не превысит цену
-					p_item->Discount = d;
-					part_dis    += (d * qtty);
-					part_amount += (p * qtty);
+			// @v12.6.2 {
+			{
+				for(uint i = 0; i < P.getCount(); i++) {
+					CCheckItem & r_item = P.at(i);
+					const  int row_id = static_cast<int>(i+1); // [1..]
+					if(row_id != sdb.LastIndex && !sdb.PosList_WoDis.lsearch(row_id)) {
+						const  double qtty = fabs(r_item.Quantity);
+						const  double p    = R2(sdb.IsRounding ? r_item.NetPrice() : r_item.Price); // @R2
+						double d01 = fdivnz(p * (discount - part_dis), (sdb.Amount - part_amount));
+						double d02 = 0.0;
+						if(sdb.PosList_PriceAdjustment.addUnique(row_id)) {
+							double adj_price = 0.0;
+							const  int afupr = GObj.AdjustFractionalUnitPrice(r_item.GoodsID, qtty, p - d01, 0, &adj_price);
+							if(afupr > 0) {
+								d02 = p - adj_price;
+							}
+							// Округлять скидку для такой позиции нельзя //
+						}
+						else {
+							d02 = this->RoundDis(d01);
+						}
+						SETMIN(d02, p); // Гарантируем то, что скидка не превысит цену
+						r_item.Discount = d02;
+						part_dis    += (d02 * qtty);
+						part_amount += (p * qtty);
+					}
 				}
 			}
+			// } @v12.6.2
+			/* @v12.6.2
+			{
+				CCheckItem * p_item;
+				for(uint i = 0; P.enumItems(&i, (void **)&p_item);) {
+					if(i != sdb.LastIndex && !sdb.PosList_WoDis.lsearch(i)) {
+						const  double qtty = fabs(p_item->Quantity);
+						const  double p    = R2(sdb.IsRounding ? p_item->NetPrice() : p_item->Price); // @R2
+						double d = this->RoundDis(fdivnz(p * (discount - part_dis), (sdb.Amount - part_amount)));
+						SETMIN(d, p); // Гарантируем то, что скидка не превысит цену
+						p_item->Discount = d;
+						part_dis    += (d * qtty);
+						part_amount += (p * qtty);
+					}
+				}
+			}*/
 			//
 			// Распределяем специальную подарочную скидку по тем позициям, на основании которых она была предоставлена.
 			// {
 			for(uint j = 0; j < sdb.GiftDisList.getCount(); j++) {
-				uint   i;
 				const  uint main_pos = sdb.GiftDisList.at(j).Key;
 				const  double dis = sdb.GiftDisList.at(j).Val;
 				double gift_part_dis = 0.0;
@@ -2210,13 +2253,13 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, bool distribut
 				P.GiftAssoc.GetListByKey(main_pos, pos_list);
 				{
 					const  uint plc = pos_list.getCount();
-					for(i = 0; i < plc; i++) {
+					for(uint i = 0; i < plc; i++) {
 						const  uint pos = pos_list.get(i);
 						assert(pos < P.getCount() && pos != main_pos);
-						p_item = &P.at(pos);
-						const  double item_amt = p_item->NetPrice() * fabs(p_item->Quantity);
+						const  CCheckItem & r_item = P.at(pos);
+						const  double item_amt = r_item.NetPrice() * fabs(r_item.Quantity);
 						gift_amt = R2(gift_amt + R2(item_amt));
-						if(p_item->Flags & cifMainGiftItem /*&& dis < item_amt*/)
+						if(r_item.Flags & cifMainGiftItem /*&& dis < item_amt*/)
 							main_pos_list.addUnique(static_cast<int>(pos));
 					}
 				}
@@ -2228,26 +2271,26 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, bool distribut
 					gift_amt = 0.0;
 					//
 					const  uint plc = pos_list.getCount();
-					for(i = 0; i < plc; i++) {
+					for(uint i = 0; i < plc; i++) {
 						const  uint pos = pos_list.get(i);
 						assert(pos < P.getCount() && pos != main_pos);
-						p_item = &P.at(pos);
-						const  double item_amt = p_item->NetPrice() * fabs(p_item->Quantity);
+						const  CCheckItem & r_item = P.at(pos);
+						const  double item_amt = r_item.NetPrice() * fabs(r_item.Quantity);
 						gift_amt = R2(gift_amt + R2(item_amt));
 					}
 				}
 				{
 					const  uint plc = pos_list.getCount();
-					for(i = 0; i < plc; i++) {
+					for(uint i = 0; i < plc; i++) {
 						const  uint _pos = pos_list.get(i);
 						if(sdb.LastIndex && _pos == (sdb.LastIndex-1))
 							finish_addendum = true;
-						p_item = &P.at(_pos);
-						const  double qtty = fabs(p_item->Quantity);
-						const  double p    = R2(p_item->NetPrice()); // @R2
+						CCheckItem & r_item = P.at(_pos);
+						const  double qtty = fabs(r_item.Quantity);
+						const  double p    = R2(r_item.NetPrice()); // @R2
 						double d = this->RoundDis((i == (plc-1)) ? ((dis - gift_part_dis) / qtty) : (fdivnz(p * (dis - gift_part_dis), (gift_amt - gift_part_amt))));
 						SETMIN(d, p); // Гарантируем то, что скидка не превысит цену
-						p_item->Discount = this->RoundDis(p_item->Discount + d);
+						r_item.Discount = this->RoundDis(r_item.Discount + d);
 						gift_part_dis += (d * qtty);
 						gift_part_amt += (p * qtty);
 					}
@@ -2255,21 +2298,21 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, bool distribut
 			}
 		}
 		if(sdb.LastIndex) {
-			p_item = &P.at(sdb.LastIndex-1);
-			const  double qtty = fabs(p_item->Quantity);
-			const  double org_p = R2(p_item->Price);
-			const  double p    = R2(sdb.IsRounding ? p_item->NetPrice() : p_item->Price); // @R2
+			CCheckItem & r_item = P.at(sdb.LastIndex-1);
+			const  double qtty = fabs(r_item.Quantity);
+			const  double org_p = R2(r_item.Price);
+			const  double p    = R2(sdb.IsRounding ? r_item.NetPrice() : r_item.Price); // @R2
 			double d = (discount - part_dis) / qtty;
 			if(!sdb.IsRounding)
 				d = this->RoundDis(d);
 			if(finish_addendum) {
-				if((p_item->Discount + d) > org_p)
+				if((r_item.Discount + d) > org_p)
 					d = org_p;
-				p_item->Discount = sdb.IsRounding ? (p_item->Discount + d) : this->RoundDis(p_item->Discount + d);
+				r_item.Discount = sdb.IsRounding ? (r_item.Discount + d) : this->RoundDis(r_item.Discount + d);
 			}
 			else {
 				SETMIN(d, org_p); // Гарантируем то, что скидка не превысит цену
-				p_item->Discount = d;
+				r_item.Discount = d;
 			}
 			part_dis    += (d * qtty); // @debug
 			part_amount += (p * qtty); // @debug
@@ -2280,9 +2323,9 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, bool distribut
 void CPosProcessor::SetupDiscount(bool distributeGiftDiscount/*=false*/)
 {
 	Helper_SetupDiscount(0.0, distributeGiftDiscount);
-	const CcTotal cct = CalcTotal();
-	double new_amt = (R__.AmtRoundPrec != 0.0) ? PPRound(cct.Amount, R__.AmtRoundPrec, R__.AmtRoundDir) : R2(cct.Amount);
-	double diff = R2(cct.Amount - new_amt);
+	const  CcTotal cct = CalcTotal();
+	const  double new_amt = (R__.AmtRoundPrec != 0.0) ? PPRound(cct.Amount, R__.AmtRoundPrec, R__.AmtRoundDir) : R2(cct.Amount);
+	const  double diff = R2(cct.Amount - new_amt);
 	if(!feqeps(diff, 0.0, 1E-6)) {
 		Helper_SetupDiscount(diff, false/*distributeGiftDiscount*/);
 	}
@@ -4028,7 +4071,12 @@ int CPosProcessor::ReadIniParams(IniParamsBlock & rBlk)
 			int    value = 0;
 			ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_POSSINGLESUBSTPRICEORDER, &value);
 			rBlk.SingleSubstPriceOrder = oneof6(value, 1, 2, 3, 4, 5, 6) ? value : 1;
-		}		
+		}
+		{ // @v12.6.2
+			int    value = 0;
+			ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_POSADJUSTFRACTIONALPRICE, &value);
+			SETFLAG(rBlk.Flags, IniParamsBlock::fAdjustFractionalPrice, value == 1);
+		}
 	}
 	return ok;
 }
@@ -4247,21 +4295,21 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 		}
 		PPGetSubStr(PPTXT_FONTFACE, PPFONT_MSSANSSERIF, font_face);
 		SetCtrlFont(CTL_CHKPAN_INPUT, font_face, 20);
-		enableCommand(cmaAltSelect, BIN(AltGoodsGrpID));
+		enableCommand(cmaAltSelect, LOGIC(AltGoodsGrpID));
 		selectCtrl((Flags & fNoEdit) ? CTL_CHKPAN_GRPLIST : CTL_CHKPAN_INPUT);
 		SLS.SetUiFlag(sluifUseLargeDialogs, 1);
 	}
 	else
 		selectCtrl((Flags & fNoEdit) ? CTL_CHKPAN_LIST : CTL_CHKPAN_INPUT);
 	TView::messageCommand(this, cmSetupTooltip);
-	if(PNP.CnSpeciality == PPCashNode::spCafe) {
+	if(PNP.CnSpeciality == PPCashNode2::spCafe) {
 		setButtonBitmap(cmChkPanF2, IDB_GUESTS);
 		setButtonBitmap(cmChkPanF1, IDB_TABLE_ORDERS);
 	}
-	else if(PNP.CnSpeciality == PPCashNode::spDelivery) {
+	else if(PNP.CnSpeciality == PPCashNode2::spDelivery) {
 		setButtonBitmap(cmChkPanF1, IDB_DELIVERY);
 	}
-	else if(PNP.CnSpeciality == PPCashNode::spApteka) {
+	else if(PNP.CnSpeciality == PPCashNode2::spApteka) {
 		showButton(cmSelTable, 0);
 		if(!(Flags & fNoEdit))
 			showButton(cmChkPanPrint, 0);
@@ -4272,7 +4320,7 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 			setButtonBitmap(cmChkPanF1, PPDV_IMPORT_DOC);
 		}
 	}
-	else if(PNP.CnSpeciality == PPCashNode::spShop) {
+	else if(PNP.CnSpeciality == PPCashNode2::spShop) {
 		showButton(cmSelTable, 0);
 		if(!(Flags & fNoEdit))
 			showButton(cmChkPanPrint, 0);
@@ -4433,7 +4481,7 @@ void CheckPaneDialog::AddFromBasket()
 
 void CheckPaneDialog::ViewStoragePlaces(PPID goodsId)
 {
-	if(CheckID <= 0/* @v11.7.11 && CnSpeciality == PPCashNode::spApteka*/) {
+	if(CheckID <= 0/* @v11.7.11 && CnSpeciality == PPCashNode2::spApteka*/) {
 		const PPID goods_id = NZOR(goodsId, (P.HasCur() ? P.GetCur().GoodsID : 0));
 		if(goods_id) {
 			const PPID assc = PPASS_GOODS2WAREPLACE;
@@ -5800,8 +5848,8 @@ SelCheckListDialog::~SelCheckListDialog()
 
 void SelCheckListDialog::Init(PPCashMachine * pCm)
 {
-	enableCommand(cmSplitCheck, 0);
-	enableCommand(cmUniteChecks, 0);
+	enableCommand(cmSplitCheck, false);
+	enableCommand(cmUniteChecks, false);
 	DisableClusterItem(CTL_SELCHECK_UNFC, 0, P_Srv ? !P_Srv->CheckRights(CPosProcessor::orfReprnUnfCc) : 1);
 	LastDate = getcurdate_();
 	SetupCalDate(CTLCAL_SELCHECK_DATE, CTL_SELCHECK_DATE);
@@ -7141,12 +7189,13 @@ private:
 		DisableClusterItem(CTL_CCHKDLVR_LPHTOCRD, 1, phone_buf.IsEmpty());
 		{
 			const  uint c = AddrByPhoneList.getCount();
-			enableCommand(cmSelAddrByPhone, BIN(c));
-			if(c && immSelect)
+			enableCommand(cmSelAddrByPhone, LOGIC(c));
+			if(c && immSelect) {
 				if(c == 1)
 					SetupAddr(&AddrByPhoneList.at(0));
 				else
 					SelectAddrByPhone();
+			}
 			return BIN(c);
 		}
 	}
@@ -7270,7 +7319,7 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 	PPID   sc_id = 0;
 	const  bool preserve_delivery_flag = LOGIC(P.Eccd.Flags & P.Eccd.fDelivery);
 	if(LocationCore::IsEmptyAddressRec(P.Eccd.Addr_)) {
-		if(P.Eccd.Memo.IsEmpty() && PNP.CnSpeciality == PPCashNode::spDelivery)
+		if(P.Eccd.Memo.IsEmpty() && PNP.CnSpeciality == PPCashNode2::spDelivery)
 			P.Eccd.Flags |= P.Eccd.fDelivery;
 		sc_id = CSt.GetID();
 	}
@@ -7369,7 +7418,7 @@ int CheckPaneDialog::ProcessPhnSvc(int mode)
 							if(cnl_status.Channel.HasPrefixIAscii("SIP")) {
 								if(cnl_status.ConnectedLineNum.IsEmpty() || cnl_status.ConnectedLineNum.ToLong() != 0) {
 									if(PPObjPhoneService::IsPhnChannelAcceptable(PhnSvcLocalChannelSymb, cnl_status.Channel)) {
-										if(PNP.CnSpeciality == PPCashNode::spDelivery && !(P.Eccd.Flags & P.Eccd.fDelivery) && IsState(sEMPTYLIST_EMPTYBUF) && !(Flags & fBarrier)) {
+										if(PNP.CnSpeciality == PPCashNode2::spDelivery && !(P.Eccd.Flags & P.Eccd.fDelivery) && IsState(sEMPTYLIST_EMPTYBUF) && !(Flags & fBarrier)) {
 											pop_dlvr_pane = 1;
 											if(cnl_status.ConnectedLineNum.Len() > cnl_status.CallerId.Len())
 												phone_buf = cnl_status.ConnectedLineNum;
@@ -7761,17 +7810,17 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 								SetCtrlToolTip(CTL_CHKPAN_STARTBUTTON + idx, name);
 						}
 					}
-					if(PNP.CnSpeciality == PPCashNode::spApteka) { // @v11.8.7
+					if(PNP.CnSpeciality == PPCashNode2::spApteka) { // @v11.8.7
 						SetCtrlToolTip(CTL_CHKPAN_DIVISION, PPLoadStringS("selection_bill", name).Transf(CTRANSF_INNER_TO_OUTER));
 					} 
-					else if(PNP.CnSpeciality == PPCashNode::spShop) { // @v12.3.3
+					else if(PNP.CnSpeciality == PPCashNode2::spShop) { // @v12.3.3
 						//SetCtrlToolTip(CTL_CHKPAN_DIVISION, PPLoadStringS("selection_bill", name).Transf(CTRANSF_INNER_TO_OUTER)); // Так
 					}
-					else if(PNP.CnSpeciality == PPCashNode::spCafe) {
+					else if(PNP.CnSpeciality == PPCashNode2::spCafe) {
 						SetCtrlToolTip(CTL_CHKPAN_BYPRICE, PPLoadStringS("guestcount", name).Transf(CTRANSF_INNER_TO_OUTER));
 						SetCtrlToolTip(CTL_CHKPAN_DIVISION, PPLoadStringS("ftableorders", name).Transf(CTRANSF_INNER_TO_OUTER));
 					}
-					else if(PNP.CnSpeciality == PPCashNode::spDelivery) {
+					else if(PNP.CnSpeciality == PPCashNode2::spDelivery) {
 						SetCtrlToolTip(CTL_CHKPAN_DIVISION, PPLoadStringS("delivery", name).Transf(CTRANSF_INNER_TO_OUTER));
 					}
 				}
@@ -7784,7 +7833,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					if(TVINFOVIEW && TVINFOVIEW->GetId() == CTL_CHKPAN_INPUT) {
 						// @v11.7.12 Для аптек по двойному клику в строке ввода теперь будет редактироваться рецепт 
 						// (это не очень хорошо - если кто-то скажет, что им нужна доставка и(или) примечание, то придется пересматривать подход)
-						if(PNP.CnSpeciality == PPCashNode::spApteka) { 
+						if(PNP.CnSpeciality == PPCashNode2::spApteka) { 
 							EditPrescription();
 						}
 						else {
@@ -8051,7 +8100,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 				break;
 			case cmByPrice: /* cmChkPanF2 */
 				if(!Barrier()) {
-					if(PNP.CnSpeciality == PPCashNode::spCafe) {
+					if(PNP.CnSpeciality == PPCashNode2::spCafe) {
 						//
 						// Выбор количества гостей за столом (P.GuestCount)
 						//
@@ -8091,7 +8140,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 			case cmGoodsDiv: /* cmChkPanF1 */
 				if(!Barrier()) {
 					const PPEquipConfig & r_cfg = CsObj.GetEqCfg();
-					if(oneof2(PNP.CnSpeciality, PPCashNode::spApteka, PPCashNode::spShop) && (r_cfg.ChkPanImpOpID && r_cfg.ChkPanImpBillTagID)) { // @v11.8.7 // @v12.3.3 spShop
+					if(oneof2(PNP.CnSpeciality, PPCashNode2::spApteka, PPCashNode2::spShop) && (r_cfg.ChkPanImpOpID && r_cfg.ChkPanImpBillTagID)) { // @v11.8.7 // @v12.3.3 spShop
 						if(IsState(sEMPTYLIST_EMPTYBUF)) {
 							PPID   bill_id = 0;
 							PPLoadString("selection_bill_forimport", temp_buf);
@@ -8104,7 +8153,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 									param.LocID = PNP.CnLocID;
 									const int ctcr = bpack.ConvertToCheck2(param, &ccpack, 0);
 									if(ctcr > 0) {
-										const S_GUID cc_uuid(SCtrGenerate_);
+										const  S_GUID cc_uuid(SCtrGenerate_);
 										S_GUID bill_uuid;
 										//bool bill_uuid_tag_settled = false;
 										if(!bpack.GetGuid(bill_uuid)) {
@@ -8129,10 +8178,10 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 							}
 						}
 					}
-					else if(PNP.CnSpeciality == PPCashNode::spCafe) {
+					else if(PNP.CnSpeciality == PPCashNode2::spCafe) {
 						if(IsState(sEMPTYLIST_EMPTYBUF)) {
 							SelCheckListDialog::AddedParam param(0, P.TableCode, P.GetAgentID(), OperRightsFlags);
-							const uint dlg_id = (DlgFlags & fLarge) ? DLG_ORDERCHECKS_L : DLG_ORDERCHECKS;
+							const  uint dlg_id = (DlgFlags & fLarge) ? DLG_ORDERCHECKS_L : DLG_ORDERCHECKS;
 							SelCheckListDialog * dlg = new SelCheckListDialog(dlg_id, static_cast<TSVector <CCheckViewItem> *>(0), 0, this, &param);
 							if(CheckDialogPtrErr(&dlg)) {
 								if(ExecView(dlg) == cmNewCheck) {
@@ -8145,7 +8194,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 							}
 						}
 					}
-					else if(PNP.CnSpeciality == PPCashNode::spDelivery) {
+					else if(PNP.CnSpeciality == PPCashNode2::spDelivery) {
 						EditMemo(0, 0);
 					}
 					else
@@ -8284,7 +8333,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 			case kbF10:     
 				// @v11.7.12 Для аптек по двойному клику в строке ввода теперь будет редактироваться рецепт 
 				// (это не очень хорошо - если кто-то скажет, что им нужна доставка и(или) примечание, то придется пересматривать подход)
-				if(PNP.CnSpeciality == PPCashNode::spApteka) { 
+				if(PNP.CnSpeciality == PPCashNode2::spApteka) { 
 					BARRIER(EditPrescription());
 				}
 				else {
@@ -8484,7 +8533,23 @@ void CheckPaneDialog::ResetListWindows(int listCtrlID)
 	ctrl_wnd = GetDlgItem(H(), CTL_CHKPAN_ARROW_DOWN);
 	MoveWindow(ctrl_wnd, cr.left - adj_left, cr.bottom - vsy * 3 - adj_top, cr.right - cr.left, vsy * 3, 1);
 }
-
+//
+// @v12.6.2 Это макро-определения пересены из TDialog (slui.h) сюда так больше нигде не используются и, более того, использоваться не будут
+// поскольку теперь есть технология описания диалогов через layout
+// {
+#define CRF_LINK_LEFTRIGHT        (crfLinkLeft  | crfLinkRight)
+#define CRF_LINK_LEFTTOP          (crfLinkLeft  | crfLinkTop)
+#define CRF_LINK_RIGHTTOP         (crfLinkRight | crfLinkTop)
+#define CRF_LINK_LEFTBOTTOM       (crfLinkLeft  | crfLinkBottom)
+#define CRF_LINK_RIGHTBOTTOM      (crfLinkRight | crfLinkBottom)
+#define CRF_LINK_TOPBOTTOM        (crfLinkTop   | crfLinkBottom)
+#define CRF_LINK_LEFTTOPBOTTOM    (crfLinkLeft  | crfLinkTop   | crfLinkBottom)
+#define CRF_LINK_RIGHTTOPBOTTOM   (crfLinkRight | crfLinkTop   | crfLinkBottom)
+#define CRF_LINK_LEFTRIGHTBOTTOM  (crfLinkLeft  | crfLinkRight | crfLinkBottom)
+#define CRF_LINK_LEFTRIGHTTOP     (crfLinkLeft  | crfLinkRight | crfLinkTop)
+#define CRF_LINK_ALL              (crfLinkLeft  | crfLinkRight | crfLinkTop | crfLinkBottom)
+// }
+//
 int CheckPaneDialog::SetDlgResizeParams()
 {
 	int    ok = -1;
@@ -10521,7 +10586,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID locID, PgsBlock & rBlk)
 																if(!(cc_rec.Flags & CCHKF_JUNK) && (!skip_unprinted_checks || (cc_rec.Flags & CCHKF_PRINTED))) { 
 																	int   take_in_attention = 0;
 																	CSessionTbl::Rec cs_rec;
-																	PPCashNode cn_rec;
+																	PPCashNode2 cn_rec;
 																	if(r_ccm_entry.Flags & CCheckCore::CcMarkedEntry::fSent)
 																		take_in_attention = 1;
 																	else if(cc_rec.SessID) {
@@ -10570,7 +10635,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID locID, PgsBlock & rBlk)
 							const bool is_simplified_draftbeer = PPSyncCashSession::IsSimplifiedDraftBeerPosition(PNP.NodeID, rBlk.GoodsID); // @v11.9.4
 							if((gt_rec.Flags & GTF_GMARKED || (rBlk.Flags & PgsBlock::fMarkedBarcode)) && !is_simplified_draftbeer) {
 								const  int disable_chzn_mark_backtest = 0; // Проблемы с сигаретами - слишком много продаж и идентификация дубликатов занимает много времени // @v11.7.4 1-->0
-								if(!(PNP.CnSpeciality == PPCashNode::spApteka && (rBlk.Qtty > 0.0 && rBlk.Qtty < 1.0))) // @v11.6.9
+								if(!(PNP.CnSpeciality == PPCashNode2::spApteka && (rBlk.Qtty > 0.0 && rBlk.Qtty < 1.0))) // @v11.6.9
 									rBlk.Qtty = 1.0; // Маркированная продукция - строго по одной штуке на строку чека (исключение: аптека и остаток менее 1)
 								SString chzn_mark(rBlk.ChZnMark);
 								int    imr = -1000; // Result of the function PPChZnPrcssr::InputMark() (-1000 - wasn't called)
@@ -10624,7 +10689,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID locID, PgsBlock & rBlk)
 										else
 											ok = MessageError(PPERR_DUPCHZNMARKINCC, chzn_mark, eomBeep|eomStatusLine);
 									}
-									else if(PNP.CnSpeciality != PPCashNode::spApteka)
+									else if(PNP.CnSpeciality != PPCashNode2::spApteka)
 										ok = -1;
 								}
 								// @v12.6.0 (блок вынесен в отдельную функции поскольку его надо расширять на использование блядкого тс-пиот) {
@@ -10766,7 +10831,7 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 							new_label_text.Printf(label_text, goods_name.cptr());
 							dlg->setLabelText(CTL_CPSELMOD_ELEMENTS, new_label_text);
 						}
-						dlg->enableCommand(cmClear, BIN(P.CurModifList.getCount()));
+						dlg->enableCommand(cmClear, LOGIC(P.CurModifList.getCount()));
 						int    cmd = ExecView(dlg);
 						if(cmd == cmOK) {
 							long   idx = -1;
@@ -13627,7 +13692,7 @@ int CheckPaneDialog::PrintCheckCopy()
 			int  r = -1;
 			THROW(r = GetCc().LoadPacket(sccr.CcID, 0, &pack));
 			if(r > 0) {
-				PPCashNode     cn_rec;
+				PPCashNode2 cn_rec;
 				if(P_CM_EXT && pack.Rec.PosNodeID && CnObj.Fetch(pack.Rec.PosNodeID, &cn_rec) > 0 && cn_rec.LocID == PNP.ExtCnLocID) {
 					THROW(P_CM_EXT->SyncPrintCheckCopy(&pack, sccr.Format));
 				}
@@ -13710,7 +13775,7 @@ int CPosProcessor::Print(int noAsk, const PPLocPrinter2 * pLocPrn, uint rptId)
 {
 	int    ok = 1;
 	bool   is_print_dvc_set = false;
-	if(!pLocPrn && Flags & fPrinted && !(Flags & fNoEdit) && !(OperRightsFlags & orfChgPrintedCheck) && (PNP.CnSpeciality != PPCashNode::spDelivery)) {
+	if(!pLocPrn && Flags & fPrinted && !(Flags & fNoEdit) && !(OperRightsFlags & orfChgPrintedCheck) && (PNP.CnSpeciality != PPCashNode2::spDelivery)) {
 		ok = MessageError(PPERR_NORIGHTS, 0, eomBeep | eomStatusLine);
 	}
 	else {
@@ -14324,7 +14389,7 @@ int CCheckPane(PPID cashNodeID, PPID chkID, const char * pInitLine, long flags)
 	CheckPaneDialog * dlg = 0;
 	PPObjSCard sc_obj;
   	if(cashNodeID) {
-		PPCashNode cn_rec;
+		PPCashNode2 cn_rec;
 		PPObjCashNode cn_obj;
 		THROW(cn_obj.Search(cashNodeID, &cn_rec) > 0);
 		if(cn_rec.CashType != PPCMT_DISTRIB)
@@ -14398,7 +14463,7 @@ public:
 			UpdateGList(-1);
 			if(set_tool_tips)
 				TView::messageCommand(this, cmSetupTooltip);
-			enableCommand(cmaAltSelect, AltGoodsGrpID ? 1 : 0);
+			enableCommand(cmaAltSelect, LOGIC(AltGoodsGrpID));
 			DlgFlags |= fLarge;
 		}
 		selectCtrl(CTL_INFKIOSK_INPUT);
@@ -14671,10 +14736,10 @@ void InfoKioskDialog::UpdateGList(int updGdsList)
 		showCtrl(CTL_INFKIOSK_GRPLIST,    !updGdsList);
 		disableCtrl(CTL_INFKIOSK_GRPLIST,  LOGIC(updGdsList));
 		::ShowWindow(::GetDlgItem(H(), MAKE_BUTTON_ID(CTL_INFKIOSK_GRPLIST, 1)), updGdsList ? SW_HIDE : SW_SHOW);
-		showCtrl(CTL_INFKIOSK_GDSLIST,     updGdsList);
+		showCtrl(CTL_INFKIOSK_GDSLIST,     LOGIC(updGdsList));
 		disableCtrl(CTL_INFKIOSK_GDSLIST, !updGdsList);
 		::ShowWindow(::GetDlgItem(H(), MAKE_BUTTON_ID(CTL_INFKIOSK_GDSLIST, 1)), updGdsList ? SW_SHOW : SW_HIDE);
-		enableCommand(cmaSelect, updGdsList);
+		enableCommand(cmaSelect, LOGIC(updGdsList));
 		setStaticText(CTL_INFKIOSK_GRPNAME, grp_name);
 		LastCtrlID = updGdsList ? CTL_INFKIOSK_GDSLIST : CTL_INFKIOSK_GRPLIST;
 	}

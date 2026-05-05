@@ -130,7 +130,6 @@ int SHA512_Init(SHA512_CTX * c)
 	c->h[5] = U64(0x9b05688c2b3e6c1f);
 	c->h[6] = U64(0x1f83d9abfb41bd6b);
 	c->h[7] = U64(0x5be0cd19137e2179);
-
 	c->Nl = 0;
 	c->Nh = 0;
 	c->num = 0;

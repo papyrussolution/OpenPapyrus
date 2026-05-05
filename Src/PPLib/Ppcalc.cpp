@@ -101,7 +101,7 @@ int PPCalcFuncList::Load()
 {
 	int    ok = 1;
 	Release();
-	TVRez * p_rez = P_SlRez;
+	TVRez * p_rez(P_SlRez);
 	if(p_rez) {
 		uint   i, j, num_func = 0;
 		THROW_PP(p_rez->findResource(CACLFUNC_DESCR, PP_RCDATA), PPERR_RESFAULT);

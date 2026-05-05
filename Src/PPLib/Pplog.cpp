@@ -491,15 +491,20 @@ long PPMsgLog::GetVisCount() const { return SVectorBase::GetCount(P_Index); }
 
 void * PPMsgLog::GetRow(long r)
 {
-	int16  rr, hh;
-	if(r >= GetVisCount() || r < 0)
-		return 0;
-	CurMsg = 0;
-	EnumMessages(GetVisibleMessage(r), TmpText+sizeof(long), LF_BUFFSIZE-sizeof(long), &rr, &hh);
-	*reinterpret_cast<long *>(TmpText+hh) = r;
-	if((rr = (int16)sstrlen(TmpText+hh+4)) >= 256)
-		TmpText[hh+259] = '\0';
-	return (TmpText+hh);
+	void * p_result = 0;
+	const  int16 max_out_len = LOGLIST_MAXSTRLEN;
+	int16  rr;
+	int16  hh;
+	if(r < GetVisCount() && r >= 0) {
+		CurMsg = 0;
+		EnumMessages(GetVisibleMessage(r), TmpText+sizeof(long), LF_BUFFSIZE-sizeof(long), &rr, &hh);
+		*reinterpret_cast<long *>(TmpText+hh) = r;
+		rr = (int16)sstrlen(TmpText+hh+4);
+		if(rr >= max_out_len)
+			TmpText[hh+max_out_len+3] = '\0';
+		p_result = (TmpText+hh);
+	}
+	return p_result;
 }
 
 PPLogIdx PPMsgLog::GetLogIdx(long row)
@@ -689,8 +694,9 @@ int PPMsgLog::InitIteration()
 int FASTCALL PPMsgLog::NextIteration(MsgLogItem * pItem)
 {
 	int    ok = 1;
-	int16  r, h;
-	int    max_str_len = LOGLIST_MAXSTRLEN;
+	int16  r;
+	int16  h;
+	const  int max_str_len = LOGLIST_MAXSTRLEN;
 	if(EnumMessages(NextStrOffset ? CurMsg : 0L, TmpText, LF_BUFFSIZE, &r, &h) > 0) {
 		int    len = r - h - NextStrOffset;
 		char * p_str = TmpText + h + NextStrOffset;
@@ -872,7 +878,7 @@ int FASTCALL PPLogger::Log(const char * pMsg)
 				if(!P_Log) {
 					THROW_MEM(P_Log = new TVMsgLog);
 					P_Log->Init();
-					if(!(Flags & fDisableWindow) && DS.IsThreadInteractive()) // @v10.6.8 !(Flags & fDisableWindow)
+					if(!(Flags & fDisableWindow) && DS.IsThreadInteractive())
 						P_Log->ShowLogWnd();
 				}
 				P_Log->PutMessage(buf.Chomp(), LF_SHOW);

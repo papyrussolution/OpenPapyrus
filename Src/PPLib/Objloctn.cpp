@@ -2861,7 +2861,7 @@ int PPObjLocation::MakeReserved(long flags)
 {
 	int    ok = 1;
 	LocationTbl::Key2 k2;
-	TVRez * p_rez = P_SlRez;
+	TVRez * p_rez(P_SlRez);
 	THROW_PP(p_rez, PPERR_RESFAULT);
 	MEMSZERO(k2);
 	k2.Type = LOCTYP_WAREHOUSE;

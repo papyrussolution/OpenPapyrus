@@ -1,5 +1,5 @@
 // OBJPHSVC.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2026
 //
 #include <pp.h>
 #pragma hdrstop
@@ -252,8 +252,6 @@ int PPPhoneServicePacket::SetExField(int fldId, const char * pBuf)
 	return ok;
 }
 
-// @v11.8.11 (moved to PPConst) #define PHNSVC_PW_SIZE 64 // @v9.8.11 20-->64 // @attention изменение значения требует конвертации хранимого пароля
-
 int PPPhoneServicePacket::GetPassword(SString & rBuf) const
 {
 	int    ok = 1;
@@ -430,9 +428,6 @@ int PPObjPhoneService::Browse(void * extraPtr)
 		ok = PPErrorZ();
 	return ok;
 }
-
-// @v10.7.10 static const char * RpPhnSvcLocalUpChannelSymbol = "PhnSvcLocalChannelSymbol";
-// @v10.7.10 static const char * RpPhnSvcLocalScanChannelSymbol = "PhnSvcLocalScanChannelSymbol";
 
 int PPObjPhoneService::PutPacket(PPID * pID, PPPhoneServicePacket * pPack, int use_ta)
 {
@@ -1094,10 +1089,8 @@ AsteriskAmiClient::AsteriskAmiClient(long flags) : S(1000), Flags(flags), State(
 AsteriskAmiClient::~AsteriskAmiClient()
 {
 	Logout();
-	// @v10.0.06 {
 	if(State & stConnected)
 		S.Disconnect(); 
-	// } @v10.0.06 
 }
 
 int AsteriskAmiClient::Connect(const char * pServerAddr, int serverPort)

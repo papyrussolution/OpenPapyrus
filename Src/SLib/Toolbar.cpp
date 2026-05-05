@@ -561,7 +561,7 @@ int TToolbar::SetupToolbarWnd(DWORD style, const ToolbarList * pList)
 int TToolbar::Init(uint resID, uint typeID)
 {
 	int    ok = 0;
-	TVRez * p_slrez = P_SlRez;
+	TVRez * p_slrez(P_SlRez);
 	if(p_slrez) {
 		ToolbarList list;
 		if(LoadToolbar(p_slrez, typeID, resID, &list)) {

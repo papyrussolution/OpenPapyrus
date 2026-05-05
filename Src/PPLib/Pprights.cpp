@@ -815,7 +815,7 @@ private:
 		if(objID == 0)
 			PPGetWord(PPWORD_OTHERS, 0, rBuf);
 		else {
-			PPCashNode rec;
+			PPCashNode2 rec;
 			if(CnObj.Search(objID, &rec) > 0)
 				rBuf = rec.Name;
 			else
@@ -946,7 +946,7 @@ private:
 		if(objID == 0)
 			PPGetWord(PPWORD_OTHERS, 0, rBuf);
 		else {
-			PPCashNode rec;
+			PPCashNode2 rec;
 			if(QkObj.Search(objID, &rec) > 0)
 				rBuf = rec.Name;
 			else

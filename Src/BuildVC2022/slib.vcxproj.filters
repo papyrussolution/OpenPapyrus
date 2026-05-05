@@ -798,6 +798,36 @@
     <ClCompile Include="..\SLib\simplecpp\simplecpp.cpp">
       <Filter>SimpleCPP</Filter>
     </ClCompile>
+    <ClCompile Include="..\SLib\argon2\argon2.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\argon2\argon2_encoding.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\argon2\bench.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\argon2\core.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\argon2\genkat.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\argon2\opt.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\argon2\ref.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\argon2\run.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\argon2\thread.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\argon2\blake2\blake2b.c">
+      <Filter>Argon2</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">
@@ -919,6 +949,30 @@
     </ClInclude>
     <ClInclude Include="..\SLib\simplecpp\simplecpp.h">
       <Filter>SimpleCPP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\argon2\core.h">
+      <Filter>Argon2\H</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\argon2\encoding.h">
+      <Filter>Argon2\H</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\argon2\genkat.h">
+      <Filter>Argon2\H</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\argon2\thread.h">
+      <Filter>Argon2\H</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\argon2.h">
+      <Filter>Argon2\H</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\argon2\blake2\blake2-impl.h">
+      <Filter>Argon2\H</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\argon2\blake2\blamka-round-opt.h">
+      <Filter>Argon2\H</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\argon2\blake2\blamka-round-ref.h">
+      <Filter>Argon2\H</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1175,6 +1229,12 @@
     </Filter>
     <Filter Include="SimpleCPP">
       <UniqueIdentifier>{11f187be-7776-4133-bc44-3a8b3ed23cb1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Argon2">
+      <UniqueIdentifier>{d8f0c859-b72c-4490-a659-df3f8c1a405e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Argon2\H">
+      <UniqueIdentifier>{101ecd36-d897-45e9-abab-4499dd093785}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

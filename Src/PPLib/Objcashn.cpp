@@ -411,7 +411,7 @@ int PPSyncCashNode::CTblListFromString(const char * pBuf)
 	Reference * p_ref(PPRef);
 	int    is_ext_cash_node = 0;
 	PPID   parent_id = 0;
-	PPCashNode cn_rec;
+	PPCashNode2 cn_rec;
 	for(PPID cn_id = 0; !is_ext_cash_node && p_ref->EnumItems(PPOBJ_CASHNODE, &cn_id, &cn_rec) > 0;) {
 		__PPExtDevices  ed;
 		if(cn_rec.Flags & CASHF_SYNC && p_ref->GetProperty(PPOBJ_CASHNODE, cn_id, CNPRP_EXTDEVICES, &ed, sizeof(ed)) > 0 && ed.ExtCashNodeID == nodeID) {
@@ -470,7 +470,7 @@ StrAssocArray * PPObjCashNode::MakeStrAssocList(void * extraPtr)
 	THROW_MEM(p_ary);
 	{
 		PPIDArray parent_list;
-		PPCashNode cn_rec;
+		PPCashNode2 cn_rec;
 		for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&cn_rec) > 0;) {
 			if((!f.LocID || cn_rec.LocID == f.LocID) && (!f.ParentID || cn_rec.ParentID == f.ParentID) &&
 				(!f.OnlyGroups || (f.OnlyGroups == 1 && cn_rec.CashType == PPCMT_CASHNGROUP) || (f.OnlyGroups == -1 && cn_rec.CashType != PPCMT_CASHNGROUP)) &&
@@ -497,7 +497,7 @@ StrAssocArray * PPObjCashNode::MakeStrAssocList(void * extraPtr)
 			for(uint i = 0; i < parent_list.getCount(); i++) {
 				const  PPID parent_id = parent_list.get(i);
 				if(!p_ary->Search(parent_id)) {
-					PPCashNode cn_rec;
+					PPCashNode2 cn_rec;
 					if(Fetch(parent_id, &cn_rec) > 0)
 						name_buf = cn_rec.Name;
 					else
@@ -604,7 +604,7 @@ PPObjCashNode::PPObjCashNode(void * extraPtr) : PPObjReference(PPOBJ_CASHNODE, e
 
 int PPObjCashNode::DeleteObj(PPID id)
 {
-	const PPCashNode * p_cn_rec = reinterpret_cast<const PPCashNode *>(&P_Ref->data);
+	const PPCashNode2 * p_cn_rec = reinterpret_cast<const PPCashNode2 *>(&P_Ref->data);
 	if(!(p_cn_rec->Flags & CASHF_DAYCLOSED) && p_cn_rec->CurDate)
 		return PPSetError(PPERR_DAYNOTCLOSED);
 	else
@@ -616,12 +616,12 @@ int  PPObjCashNode::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCon
 	int    ok = 1;
 	if(p && p->Data) {
 		if(stream == 0) {
-			PPCashNode * p_rec = static_cast<PPCashNode *>(p->Data);
+			PPCashNode2 * p_rec = static_cast<PPCashNode2 *>(p->Data);
 			if(*pID == 0) {
 				PPID   same_id = 0;
 				if((p_rec->ID && p_rec->ID < PP_FIRSTUSRREF) ||
-					P_Ref->SearchSymb(Obj, &same_id, p_rec->Symb, offsetof(PPCashNode, Symb)) > 0) {
-					PPCashNode same_rec;
+					P_Ref->SearchSymb(Obj, &same_id, p_rec->Symb, offsetof(PPCashNode2, Symb)) > 0) {
+					PPCashNode2 same_rec;
 					if(Search(same_id, &same_rec) > 0) {
 						ASSIGN_PTR(pID, same_id);
 					}
@@ -654,7 +654,7 @@ int PPObjCashNode::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace
 {
 	int    ok = -1;
 	if(p && p->Data) {
-		PPCashNode * p_rec = static_cast<PPCashNode *>(p->Data); // PPCashNode2
+		PPCashNode2 * p_rec = static_cast<PPCashNode2 *>(p->Data); // PPCashNode2
 		ProcessObjRefInArray(PPOBJ_LOCATION, &p_rec->LocID, ary, replace);
 		ProcessObjRefInArray(PPOBJ_QUOTKIND, &p_rec->ExtQuotID, ary, replace);
 		ProcessObjRefInArray(PPOBJ_GOODSGROUP, &p_rec->GoodsGrpID, ary, replace);
@@ -664,11 +664,11 @@ int PPObjCashNode::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace
 	return ok;
 }
 
-int PPObjCashNode::Get(PPID id, PPGenCashNode * pGCN, PPCashNode * pCN)
+int PPObjCashNode::Get(PPID id, PPGenCashNode * pGCN, PPCashNode2 * pCN)
 {
-	int    r;
-	PPCashNode cn_rec;
-	if((r = P_Ref->GetItem(PPOBJ_CASHNODE, id, &cn_rec)) > 0) {
+	PPCashNode2 cn_rec;
+	int    r = P_Ref->GetItem(PPOBJ_CASHNODE, id, &cn_rec);
+	if(r > 0) {
 		pGCN->ID  = cn_rec.ID;
 		pGCN->CashType    = cn_rec.CashType;
 		pGCN->CurRestBillID = cn_rec.CurRestBillID;
@@ -691,8 +691,10 @@ int PPObjCashNode::Get(PPID id, PPGenCashNode * pGCN, PPCashNode * pCN)
 		SArray temp_list(sizeof(PPGenCashNode::DivGrpAssc));
 		if(P_Ref->GetPropArray(Obj, id, CNPRP_DIVGRPASSC, &temp_list) > 0 && temp_list.getCount())
 			pGCN->P_DivGrpList = new SArray(temp_list);
-		if(pCN)
-			memcpy(pCN, &cn_rec, sizeof(PPCashNode));
+		if(pCN) {
+			// @v12.6.2 memcpy(pCN, &cn_rec, sizeof(PPCashNode2));
+			*pCN = cn_rec; // @v12.6.2 
+		}
 		P_Ref->Ot.GetList(Obj, id, &pGCN->TagL);
 		r = 1;
 	}
@@ -702,7 +704,7 @@ int PPObjCashNode::Get(PPID id, PPGenCashNode * pGCN, PPCashNode * pCN)
 int PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 {
 	int    ok = -1;
-	PPCashNode cn_rec;
+	PPCashNode2 cn_rec;
 	__PPExtDevices * p_ed = 0;
 	if(Get(id, pSCN, &cn_rec) > 0) {
 		SString temp_buf;
@@ -828,7 +830,7 @@ int PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 int PPObjCashNode::GetAsync(PPID id, PPAsyncCashNode * pACN)
 {
 	int    ok = 1, r;
-	PPCashNode cn_rec;
+	PPCashNode2 cn_rec;
 	pACN->ImpFiles.Z();
 	pACN->ExpPaths.Z();
 	pACN->LogNumList.Z();
@@ -867,7 +869,7 @@ int PPObjCashNode::GetAsync(PPID id, PPAsyncCashNode * pACN)
 int PPObjCashNode::GetListByLoc(PPID locID, PPIDArray & rList)
 {
 	int    ok = -1;
-	PPCashNode cn_rec;
+	PPCashNode2 cn_rec;
 	for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&cn_rec) > 0;) {
 		if(cn_rec.LocID == locID) {
 			rList.addUnique(cn_rec.ID);
@@ -880,7 +882,7 @@ int PPObjCashNode::GetListByLoc(PPID locID, PPIDArray & rList)
 int PPObjCashNode::GetListByGroup(PPID grpID, PPIDArray & rList)
 {
 	int    ok = -1;
-	PPCashNode cn_rec;
+	PPCashNode2 cn_rec;
 	for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&cn_rec) > 0;) {
 		if(cn_rec.ParentID == grpID) {
 			rList.addUnique(cn_rec.ID);
@@ -893,7 +895,7 @@ int PPObjCashNode::GetListByGroup(PPID grpID, PPIDArray & rList)
 int PPObjCashNode::Helper_ResolveItem(PPID id, PPIDArray & rDestList, LAssocArray & rFullList)
 {
 	int    ok = -1;
-	PPCashNode cn_rec;
+	PPCashNode2 cn_rec;
 	if(id && !rDestList.lsearch(id) && Fetch(id, &cn_rec) > 0) {
 		rDestList.add(id);
 		ok = 1;
@@ -916,7 +918,7 @@ int PPObjCashNode::ResolveList(const PPIDArray * pSrcList, PPIDArray & rDestList
 		const uint _c = pSrcList->getCount();
 		if(_c) {
 			LAssocArray full_list;
-			PPCashNode cn_rec;
+			PPCashNode2 cn_rec;
 			for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&cn_rec) > 0;) {
 				full_list.Add(cn_rec.ParentID, cn_rec.ID, 0);
 			}
@@ -937,7 +939,7 @@ int PPObjCashNode::GetTaxSystem(PPID id, LDATE dt, PPID * pTaxSysID)
 	PPObjPerson psn_obj;
 	RegisterTbl::Rec reg_rec;
 	if(id) {
-        PPCashNode cn_rec;
+        PPCashNode2 cn_rec;
 		if(Fetch(id, &cn_rec) > 0) {
 			ObjTagList tag_list;
 			P_Ref->Ot.GetList(PPOBJ_CASHNODE, id, &tag_list);
@@ -984,7 +986,7 @@ int PPObjCashNode::GetSpecialTaxEntry(PPID cnID, LDATE dt, PPGoodsTaxEntry * pGt
 	uint   stgf = 0;
 	const  PPID main_org_id = GetMainOrgID();
 	if(cnID) {
-        PPCashNode cn_rec;
+        PPCashNode2 cn_rec;
 		if(Fetch(cnID, &cn_rec) > 0 && cn_rec.LocID) {
 			PPObjPerson psn_obj;
 			loc_id = cn_rec.LocID;
@@ -1025,7 +1027,7 @@ int PPObjCashNode::IsNodeVatFree(PPID id)
 	PersonTbl::Rec psn_rec;
 	LocationTbl::Rec loc_rec;
 	if(id) {
-        PPCashNode cn_rec;
+        PPCashNode2 cn_rec;
 		if(Fetch(id, &cn_rec) > 0 && cn_rec.LocID) {
 			if(psn_obj.LocObj.Fetch(cn_rec.LocID, &loc_rec) > 0 && loc_rec.Flags & LOCF_VATFREE)
 				result = 1;
@@ -1046,7 +1048,7 @@ int PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 	long   f = 0L;
 	long   f1 = 0L;
 	SString temp_buf;
-	PPCashNode rec;
+	PPCashNode2 rec;
 	__PPExtDevices * p_ed = 0;
 	union {
 		PPSyncCashNode  * p_scn;
@@ -1457,7 +1459,7 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			uint   sel = 0;
 			SString temp_buf;
 			PPObjCashNode cn_obj;
-			PPCashNode    cn_rec;
+			PPCashNode2 cn_rec;
 			getCtrlData(CTLSEL_EXTDEV_TCHSCREEN, &Data.TouchScreenID);
 			getCtrlData(CTLSEL_EXTDEV_LOCTCHSCR, &Data.LocalTouchScrID);
 			getCtrlData(CTLSEL_EXTDEV_CASHNODE,  &Data.ExtCashNodeID);
@@ -1996,8 +1998,8 @@ void SyncCashNodeCfgDialog::SetupCtrls()
 		PPGetWord(PPWORD_DEVNUM, 0, buf);
 		setLabelText(CTL_CASHN_PORT, buf);
 	}
-	enableCommand(cmEditCashParam, BIN(Data.ID && Data.CashType == PPCMT_ATOLDRV));
-	showButton(cmEditCashParam, BIN(Data.ID && Data.CashType == PPCMT_ATOLDRV));
+	enableCommand(cmEditCashParam, (Data.ID && Data.CashType == PPCMT_ATOLDRV));
+	showButton(cmEditCashParam, (Data.ID && Data.CashType == PPCMT_ATOLDRV));
 }
 
 IMPL_HANDLE_EVENT(SyncCashNodeCfgDialog)
@@ -2441,7 +2443,7 @@ bool PPObjCashNode::Validate(PPGenCashNode * pRec, long)
 	bool   ok = true;
 	THROW_PP(*strip(pRec->Name) != 0, PPERR_NAMENEEDED);
 	THROW(CheckDupName(pRec->ID, pRec->Name));
-	THROW(P_Ref->CheckUniqueSymb(Obj, pRec->ID, pRec->Symb, offsetof(PPCashNode, Symb)));
+	THROW(P_Ref->CheckUniqueSymb(Obj, pRec->ID, pRec->Symb, offsetof(PPCashNode2, Symb)));
 	THROW_PP(pRec->CashType, PPERR_CMTNEEDED);
 	if(pRec->LocID == 0) {
 		if(pRec->CashType == PPCMT_CASHNGROUP) {
@@ -2458,7 +2460,7 @@ bool PPObjCashNode::Validate(PPGenCashNode * pRec, long)
 				PPIDArray child_list;
 				GetListByGroup(pRec->ID, child_list);
 				for(uint i = 0; i < child_list.getCount(); i++) {
-					PPCashNode child_rec;
+					PPCashNode2 child_rec;
 					if(Search(child_list.get(i), &child_rec) > 0) {
 						THROW_PP_S(child_rec.LocID == pRec->LocID, PPERR_UNEQLOCINUNITEDPOSGROUP, child_rec.Name);
 					}
@@ -2466,7 +2468,7 @@ bool PPObjCashNode::Validate(PPGenCashNode * pRec, long)
 			}
 		}
 		else if(pRec->ParentID) {
-			PPCashNode par_rec;
+			PPCashNode2 par_rec;
 			THROW(Search(pRec->ParentID, &par_rec) > 0);
 			if(par_rec.ExtFlags & CASHFX_UNITEGRPWROFF) {
 				THROW_PP_S(par_rec.LocID == pRec->LocID, PPERR_UNEQLOCINUNITEDPOSGROUP, pRec->Name);
@@ -2671,7 +2673,7 @@ int PPObjCashNode::Edit(PPID * pID, void * extraPtr)
 	long   f = 0;
 	SelCashTypeDialog * dlg = 0;
 	PPGenCashNode * p_cn = 0;
-	PPCashNode cn_rec;
+	PPCashNode2 cn_rec;
 	if(*pID) {
 		THROW(Search(*pID, &cn_rec) > 0);
 		if(!oneof2(cn_rec.CashType, PPCMT_CASHNGROUP, PPCMT_DISTRIB)) {
@@ -2806,7 +2808,7 @@ int CashNodeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraDat
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	PPObjCashNode cn_obj;
-	PPCashNode rec;
+	PPCashNode2 rec;
 	if(cn_obj.Search(id, &rec) > 0) {
 #define CPYFLD(Fld) p_cache_rec->Fld=rec.Fld
 		CPYFLD(CashType);
@@ -2829,7 +2831,7 @@ int CashNodeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraDat
 
 void CashNodeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPCashNode * p_data_rec = static_cast<PPCashNode *>(pDataRec);
+	PPCashNode2 * p_data_rec = static_cast<PPCashNode2 *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 #define CPYFLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
@@ -3590,7 +3592,7 @@ int PPALDD_CashNode::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
-		PPCashNode rec;
+		PPCashNode2 rec;
 		if(SearchObject(PPOBJ_CASHNODE, rFilt.ID, &rec) > 0) {
 			H.ID        = rec.ID;
 			H.CashType  = rec.CashType;

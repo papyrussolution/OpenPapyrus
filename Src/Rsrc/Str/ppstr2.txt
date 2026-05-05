@@ -3123,6 +3123,7 @@ PPINIPARAM_POSREGISTERKEEPALIVE          "PosRegisterKeepAlive" // [config]
 PPINIPARAM_POSREGISTERSKIPAFVERIF        "PosRegisterSkipAfVerif" // [config]
 PPINIPARAM_POSREGISTERLOGGING            "PosRegisterLogging" // [config] // @v11.5.0
 PPINIPARAM_POSSINGLESUBSTPRICEORDER      "PosSingleSubstPriceOrder" // [config] // @v12.5.9 Порядок определения цены по товару, для которого есть single-подставновка
+PPINIPARAM_POSADJUSTFRACTIONALPRICE      "PosAdjustFractionalPrice" // [config] // @v12.6.2
 PPINIPARAM_SARTREDB_CACHESIZE            "sartredb_cachesize"
 PPINIPARAM_SARTREDB_CACHESIZE_RO         "sartredb_cachesize_ro"
 PPINIPARAM_SARTREDB_MAXLOCKERS           "sartredb_maxlockers"
@@ -13914,6 +13915,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @tsession_plan_lastsesstm                 "Время окончания последней сессии"
 @tsession_autofill                        "Заполнить строки по плану" // command at dialog
 @tsession_reasonfordowntime               "Причина простоя"
+@tsession_doclosecurrsess                 "Закрыть текущую сессию"
 @tsessionext                              "Расширение технологической сессии"
 @tsessionext_descr                        "Краткое описание"
 @tsessionext_detaildescr                  "Подробное описание"

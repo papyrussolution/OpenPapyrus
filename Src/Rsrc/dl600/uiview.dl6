@@ -4710,7 +4710,44 @@ dialog DLG_EXTDEV [vertical title: "@cashnode_sync_devices" size: (700, 605) min
 	}
 }
 
-// @20260414 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
+dialog DLG_CASHNSEXT [vertical title: "@cashnode_sync_extension" size: (830, 360) minsize: (830, 360) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.6.2
+	view [horizontal width: bycontainer growfactor: 1] {
+		framebox [vertical title: "@cashnode_sync_scf" growfactor: 4 height: bycontainer margin: 4 padding: (4, 12, 4, 4)] {
+			view [horizontal width: bycontainer height: 30] {
+				input CTL_CASHNSEXT_SCF_DAYS [design: B size: (60, 21) margin: 4 tabstop fmtf: (nozero) label: "@cashnode_sync_scf_days"] int32;
+			}
+			radiocluster CTL_CASHNSEXT_SCF_DLVRT [title: "@cashnode_sync_scf_dlvrt" width: bycontainer margin: 4 padding: (4, 12, 4, 4)] {
+				radiobutton [title: "@cashnode_sync_scf_dlvrt_any"];
+				radiobutton [title: "@cashnode_sync_scf_dlvrt_only"];
+				radiobutton [title: "@cashnode_sync_scf_dlvrt_exclude"];
+			}
+			checkbox CTL_CASHNSEXT_NOTSF [title: "@cashnode_sync_scf_notspfinished" tabstop width: bycontainer height: 21 margin: 4];
+		}
+		view [vertical growfactor: 5 height: bycontainer margin: 4 padding: (4, 12, 4, 4)] { // margin & padding такие же как и у смежного framebox
+			view [horizontal width: bycontainer height: 30] {
+				view [horizontal growfactor: 1 height: bycontainer] {
+					input CTL_CASHNSEXT_BONUSMAX [design: B width: 60 height: 21 margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 0 label: "@cashnode_sync_bonusmaxpart"] double;
+				}
+				checkbox CTL_CASHNSEXT_ZEROBONUS [title: "@zero" tabstop size: (70, 21) margin: 4];
+			}
+			input CTL_CASHNSEXT_CTBLLIST [width: bycontainer height: 21 margin: 4 tabstop label: "@cashnode_sync_ctbllist" ] string[128];
+			checkcluster CTL_CASHNSEXT_FLAGS [width: bycontainer margin: 4] {
+				checkbox [title: "@cashnode_cashfx_inpguestcftbl"];
+				checkbox [title: "@cashnode_cashfx_usegoodsmatrix"];
+			}
+			checkcluster CTL_CASHNSEXT_ALDPAYMT [title: "@cashnode_allowedpaymenttypes" width: bycontainer margin: 4 padding: (4, 12, 4, 4)] {
+				checkbox [title: "@cashpayment"];
+				checkbox [title: "@cashlesspayment"];
+			}
+		}
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+// @20260430 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
 // Диалоги, представленные здесь с изменными символами (DLG_CASHREPORTS_L__, например) в ppdlg.list не отмечены поскольку находятся в работе.
 
 // @construction
@@ -5043,7 +5080,7 @@ dialog DLG_TSESSSIMPLE [vertical title: "@{tsession}" size: (700, 600) minsize: 
 	}
 }
 
-dialog DLG_TSESS_EXEC_TR [vertical title: "@{tsession}" size: (700, 400) minsize: (700, 400) padding: 4 font: "MS Shell Dlg,8"] { // @v12.6.0 
+dialog DLG_TSESS_EXEC_TR [vertical title: "@{tsession}" size: (700, 400) minsize: (700, 400) padding: 4 justifycontent: spacebetween font: "MS Shell Dlg,8"] { // @v12.6.0 
 	view [horizontal width: bycontainer height: 120] {
 		view [vertical growfactor: 2 height: bycontainer] {
 			combobox CTLSEL_TSESS_PRC [tabstop width: bycontainer height: 21 margin: 4 label: "@processor" cblinesymb: CTL_TSESS_PRC];
@@ -5064,8 +5101,10 @@ dialog DLG_TSESS_EXEC_TR [vertical title: "@{tsession}" size: (700, 400) minsize
 	combobox CTLSEL_TSESS_TECH [tabstop width: bycontainer height: 21 margin: 4 label: "@tsession_tech" cblinesymb: CTL_TSESS_TECH];
 	combobox CTLSEL_TSESS_OBJ [tabstop width: bycontainer height: 21 margin: 4 label: "@contractor" cblinesymb: CTL_TSESS_OBJ];
 	combobox CTLSEL_TSESS_OBJ2 [title: "@tsession_ar2" tabstop width: bycontainer height: 21 margin: 4 cblinesymb: CTL_TSESS_OBJ2];
+	statictext CTL_TSESS_ST_STATE [width: bycontainer height: 21 margin: 4 staticedge];
 	view [horizontal width: bycontainer height: 30] {
 		view [horizontal growfactor: 6 height: bycontainer justifycontent: start] {
+			button CTL_TSESS_CMD_CLOSECURRTSESS [title: "@tsession_doclosecurrsess" tabstop size: (150, 21) margin: 4 command: cmCloseCurrentTSess];
 		}
 		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
 			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
@@ -5082,3 +5121,4 @@ dialog DLG_TSESS_EXEC_TR_PARAM [vertical title: "@{tsession}" size: (450, 200) m
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }
+

@@ -338,7 +338,7 @@ int PPDeclStrucProcessor::NextDecl(PPDeclStruc ** ppDecl, int dontAccept)
 int PPDeclStruc::LoadFromResource(long declID)
 {
 	int    ok = 1;
-	TVRez * p_rez = P_SlRez;
+	TVRez * p_rez(P_SlRez);
 	if(p_rez) {
 		char   name_buf[64];
 		uint16 i;
@@ -369,7 +369,7 @@ int PPDeclStrucProcessor::LoadNameTabFromResource()
 {
 	uint   res_id = 0;
 	ulong  res_pos = 0;
-	TVRez * p_rez = P_SlRez;
+	TVRez * p_rez(P_SlRez);
 	if(p_rez)
 		while(p_rez->enumResources(PP_RCDECLSTRUC, &res_id, &res_pos) > 0) {
 			char name_buf[64];
