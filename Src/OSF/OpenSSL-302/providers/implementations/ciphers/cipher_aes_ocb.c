@@ -403,7 +403,6 @@ static int aes_ocb_get_ctx_params(void * vctx, OSSL_PARAM params[])
 {
 	PROV_AES_OCB_CTX * ctx = (PROV_AES_OCB_CTX*)vctx;
 	OSSL_PARAM * p;
-
 	p = OSSL_PARAM_locate(params, OSSL_CIPHER_PARAM_IVLEN);
 	if(p && !OSSL_PARAM_set_size_t(p, ctx->base.ivlen)) {
 		ERR_raise(ERR_LIB_PROV, PROV_R_FAILED_TO_SET_PARAMETER);
@@ -470,8 +469,8 @@ static const OSSL_PARAM cipher_ocb_known_gettable_ctx_params[] = {
 	OSSL_PARAM_octet_string(OSSL_CIPHER_PARAM_AEAD_TAG, NULL, 0),
 	OSSL_PARAM_END
 };
-static const OSSL_PARAM * cipher_ocb_gettable_ctx_params(ossl_unused void * cctx,
-    ossl_unused void * p_ctx)
+
+static const OSSL_PARAM * cipher_ocb_gettable_ctx_params(ossl_unused void * cctx, ossl_unused void * p_ctx)
 {
 	return cipher_ocb_known_gettable_ctx_params;
 }
@@ -482,30 +481,25 @@ static const OSSL_PARAM cipher_ocb_known_settable_ctx_params[] = {
 	OSSL_PARAM_octet_string(OSSL_CIPHER_PARAM_AEAD_TAG, NULL, 0),
 	OSSL_PARAM_END
 };
-static const OSSL_PARAM * cipher_ocb_settable_ctx_params(ossl_unused void * cctx,
-    ossl_unused void * p_ctx)
+
+static const OSSL_PARAM * cipher_ocb_settable_ctx_params(ossl_unused void * cctx, ossl_unused void * p_ctx)
 {
 	return cipher_ocb_known_settable_ctx_params;
 }
 
-static int aes_ocb_cipher(void * vctx, unsigned char * out, size_t * outl,
-    size_t outsize, const unsigned char * in, size_t inl)
+static int aes_ocb_cipher(void * vctx, unsigned char * out, size_t * outl, size_t outsize, const unsigned char * in, size_t inl)
 {
 	PROV_AES_OCB_CTX * ctx = (PROV_AES_OCB_CTX*)vctx;
-
 	if(!ossl_prov_is_running())
 		return 0;
-
 	if(outsize < inl) {
 		ERR_raise(ERR_LIB_PROV, PROV_R_OUTPUT_BUFFER_TOO_SMALL);
 		return 0;
 	}
-
 	if(!aes_generic_ocb_cipher(ctx, in, out, inl)) {
 		ERR_raise(ERR_LIB_PROV, PROV_R_CIPHER_OPERATION_FAILED);
 		return 0;
 	}
-
 	*outl = inl;
 	return 1;
 }

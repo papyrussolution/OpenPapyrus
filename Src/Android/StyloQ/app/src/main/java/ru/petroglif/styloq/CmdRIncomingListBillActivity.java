@@ -2382,8 +2382,9 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 		Intent original_intent = activity_result.getOriginalIntent();
 		if(SLib.GetLen(contents) > 0) {
 			BusinessEntity.PreprocessBarcodeResult pbr = CPM.PreprocessBarcode(contents);
-			if(pbr != null)
+			if(pbr != null) {
 				AcceptBarcodeInput(pbr);
+			}
 		}
 		else {
 			if(original_intent == null) {

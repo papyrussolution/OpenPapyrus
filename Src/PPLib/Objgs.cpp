@@ -1102,7 +1102,7 @@ IMPL_HANDLE_EVENT(NamedGoodsStrucListWindow)
 						//PPView::Execute(PPVIEW_GOODS, &flt, 1, 0);
 						{
 							PPObjGoodsStruc * p_gsobj = static_cast<PPObjGoodsStruc *>(P_Obj);
-							PPGoodsStrucHeader gsh;
+							PPGoodsStrucHeader2 gsh;
 							if(p_gsobj->Search(current_id, &gsh) > 0) {
 								PPObjGoods goods_obj;
 								PPIDArray goods_list;
@@ -1142,7 +1142,7 @@ int PPObjGoodsStruc::Browse(void * extraPtr)
 		{
 			if(id) {
 				PPObjGoodsStruc * p_gsobj = static_cast<PPObjGoodsStruc *>(P_Obj);
-				PPGoodsStrucHeader gsh;
+				PPGoodsStrucHeader2 gsh;
 				if(p_gsobj->Search(id, &gsh) > 0) {
 					PPObjGoods goods_obj;
 					PPIDArray goods_list;
@@ -1326,8 +1326,8 @@ public:
 			THROW_PP(!(Data.Rec.Flags & GSF_NAMED), PPERR_NAMENEEDED);
 		}
 		else {
-			THROW(GsObj.CheckDupName(Data.Rec.ID, temp_buf)); // @v12.5.12
 			if(!(Data.Rec.Flags & GSF_CHILD)) {
+				THROW(GsObj.CheckDupName(Data.Rec.ID, temp_buf)); // @v12.5.12 // @v12.6.3 move into the condition (it was above)
 				Data.Rec.Flags |= GSF_NAMED;
 			}
 		}
@@ -2467,7 +2467,7 @@ int GSExtDialog::editItem(long pos, long)
 //
 static int GSListFilt(void * pRec, void * extraPtr)
 {
-	const PPGoodsStrucHeader * p_rec = static_cast<const PPGoodsStrucHeader *>(pRec);
+	const PPGoodsStrucHeader2 * p_rec = static_cast<const PPGoodsStrucHeader2 *>(pRec);
 	return BIN(p_rec->Flags & GSF_NAMED);
 }
 
@@ -2494,7 +2494,7 @@ StrAssocArray * PPObjGoodsStruc::MakeStrAssocList(void * extraPtr /*goodsID*/)
 				PPID   struc_by_goods_id = goods_rec.StrucID;
 				if(!struc_by_goods_id)
 					goods_obj.GetAltGoodsStrucID(goods_id, 0, &struc_by_goods_id);
-				PPGoodsStrucHeader gsh_rec;
+				PPGoodsStrucHeader2 gsh_rec;
 				if(Search(struc_by_goods_id, &gsh_rec) > 0) {
 					if(gsh_rec.Flags & GSF_FOLDER)
 						GetChildIDList(struc_by_goods_id, &id_list);
@@ -2516,7 +2516,7 @@ StrAssocArray * PPObjGoodsStruc::MakeStrAssocList(void * extraPtr /*goodsID*/)
 		//
 		// Выбираем только именованные структуры
 		//
-		PPGoodsStrucHeader gs_rec;
+		PPGoodsStrucHeader2 gs_rec;
 		for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&gs_rec) > 0;)
 			if(gs_rec.Flags & GSF_NAMED) {
 				THROW_SL(p_list->Add(gs_rec.ID, gs_rec.Name));
@@ -2697,16 +2697,19 @@ int PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 				THROW(P_Ref->AsscC.Remove(PPASS_GOODSSTRUC, *pID, 0, 0));
 		}
 		if(pData && !items_unchg) {
-			_GSItem gsi;
-			PPGoodsStrucItem * pi;
+			//PPGoodsStrucItem * pi;
 			SString ext_buf;
-			for(uint i = 0; pData->Items.enumItems(&i, (void **)&pi);) {
+			SString temp_buf;
+			//for(uint i = 0; pData->Items.enumItems(&i, (void **)&pi);) {
+			for(uint itemidx = 0; itemidx < pData->Items.getCount(); itemidx++) {
+				const PPGoodsStrucItem & r_item = pData->Items.at(itemidx);
 				PPID   assc_id = 0;
+				_GSItem gsi;
 				MEMSZERO(gsi);
 				gsi.Tag  = PPASS_GOODSSTRUC;
 				gsi.GSID = *pID;
-				gsi.ItemGoodsID = pi->GoodsID;
-				if(pi->ObjType == PPOBJ_BIZSCORE2) { // @v12.3.6 PPOBJ_ARTICLE-->PPOBJ_BIZSCORE2
+				gsi.ItemGoodsID = r_item.GoodsID;
+				if(r_item.ObjType == PPOBJ_BIZSCORE2) { // @v12.3.6 PPOBJ_ARTICLE-->PPOBJ_BIZSCORE2
 					// @v12.3.6 gsi.AccSheetID = pi->AccSheetID;
 					gsi.Flags |= GSIF_BIZSC2;
 				}
@@ -2714,16 +2717,17 @@ int PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 					// @v12.3.6 gsi.AccSheetID = 0;
 					gsi.Flags &= ~GSIF_BIZSC2;
 				}
-				gsi.Flags  = pi->Flags;
-				gsi.Median = pi->Median;
-				gsi.ManualValue = pi->ManualValue;
-				gsi.Denom  = pi->Denom;
-				gsi.Netto  = pi->Netto;
-				STRNSCPY(gsi.Symb, pi->Symb);
-				gsi.Num    = i;
+				gsi.Flags  = r_item.Flags;
+				gsi.Median = r_item.Median;
+				gsi.ManualValue = r_item.ManualValue;
+				gsi.Denom  = r_item.Denom;
+				gsi.Netto  = r_item.Netto;
+				STRNSCPY(gsi.Symb, r_item.Symb);
+				gsi.Num    = itemidx+1;
 				THROW(P_Ref->AsscC.SearchFreeNum(gsi.Tag, *pID, &gsi.Num));
 				THROW(P_Ref->AsscC.Add(&assc_id, (ObjAssocTbl::Rec *)&gsi, 0));
-				THROW(PPPutExtStrData(i, ext_buf, strip(pi->Formula__)));
+				temp_buf = r_item.Formula__;
+				THROW(PPPutExtStrData(itemidx+1, ext_buf, temp_buf.Strip()));
 			}
 			THROW(P_Ref->PutPropVlrString(Obj, *pID, GSPRP_EXTITEMSTR, ext_buf));
 		}
@@ -3409,7 +3413,7 @@ int SaGiftItem::CalcPotential(const TSVector <SaSaleItem> & rSaleList, PPID * pP
 		}
 		if(potential) {
 			PPObjGoodsStruc gs_obj;
-			PPGoodsStrucHeader gs_rec;
+			PPGoodsStrucHeader2 gs_rec;
 			if(gs_obj.Fetch(StrucID, &gs_rec) > 0 && gs_rec.Name[0])
 				rPotName = gs_rec.Name;
 			else if(OrgStrucID != StrucID && gs_obj.Fetch(OrgStrucID, &gs_rec) > 0 && gs_rec.Name[0])
@@ -3610,8 +3614,8 @@ int PPObjGoodsStruc::LoadGiftList(SaGiftArray * pList)
 	PPIDArray antirecur_trace; // След извлечения родительских структур, хранимый во избежании зацикливания //
 	SaGiftItem * p_item = 0;
 	SaGiftItem::Entry * p_entry = 0;
-	PPGoodsStrucHeader rec;
-	PPGoodsStrucHeader org_rec;
+	PPGoodsStrucHeader2 rec;
+	PPGoodsStrucHeader2 org_rec;
 	PPObjGoods goods_obj;
 	Goods2Tbl::Rec goods_rec;
 	pList->freeAll();
@@ -3998,7 +4002,7 @@ int GoodsStrucCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraD
 	int    ok = 1;
 	D * p_cache_rec = static_cast<D *>(pEntry);
 	PPObjGoodsStruc gs_obj;
-	PPGoodsStrucHeader rec;
+	PPGoodsStrucHeader2 rec;
 	if(gs_obj.Search(id, &rec) > 0) {
 #define CPYFLD(Fld) p_cache_rec->Fld=rec.Fld
 		CPYFLD(VariedPropObjType);
@@ -4017,7 +4021,7 @@ int GoodsStrucCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraD
 
 void GoodsStrucCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPGoodsStrucHeader * p_data_rec = static_cast<PPGoodsStrucHeader *>(pDataRec);
+	PPGoodsStrucHeader2 * p_data_rec = static_cast<PPGoodsStrucHeader2 *>(pDataRec);
 	const D * p_cache_rec = static_cast<const D *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 #define CPYFLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
@@ -4040,7 +4044,7 @@ void FASTCALL GoodsStrucCache::Dirty(PPID id)
 		Helper_Dirty(id);
 	}
 	if(P_GiftList) {
-		PPGoodsStrucHeader temp_rec;
+		PPGoodsStrucHeader2 temp_rec;
 		int    r = Get(id, &temp_rec);
 		if((r > 0 && temp_rec.Flags & GSF_PRESENT) || r < 0) {
 			GetSaGiftList(0, 1); // Функция защищена внутренней критической секцией
@@ -4048,7 +4052,7 @@ void FASTCALL GoodsStrucCache::Dirty(PPID id)
 	}
 }
 
-IMPL_OBJ_FETCH(PPObjGoodsStruc, PPGoodsStrucHeader, GoodsStrucCache);
+IMPL_OBJ_FETCH(PPObjGoodsStruc, PPGoodsStrucHeader2, GoodsStrucCache);
 
 int PPObjGoodsStruc::FetchGiftList(SaGiftArray * pList)
 {

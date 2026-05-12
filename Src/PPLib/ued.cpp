@@ -2682,3 +2682,8 @@ bool SrUedContainer_Rt::GetSymb(uint64 ued, SString & rSymb) const
 {
 	return SearchBaseId(ued, rSymb);
 }
+
+uint64 SrUedContainer_Rt::GetBySymb(uint64 meta, const char * pSymb) const // @v12.6.3
+{
+	return SearchSymb(pSymb, meta);
+}

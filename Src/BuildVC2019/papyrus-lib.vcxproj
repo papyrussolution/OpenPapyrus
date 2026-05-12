@@ -304,7 +304,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>
       </EnforceTypeConversionRules>
-      <BrowseInformationFile />
+      <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <ConformanceMode>false</ConformanceMode>
       <OmitFramePointers>true</OmitFramePointers>
     </ClCompile>
@@ -383,7 +383,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>
       </EnforceTypeConversionRules>
-      <BrowseInformationFile />
+      <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
@@ -464,7 +464,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>
       </EnforceTypeConversionRules>
-      <BrowseInformationFile />
+      <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
@@ -542,7 +542,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>
       </EnforceTypeConversionRules>
-      <BrowseInformationFile />
+      <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
@@ -615,7 +615,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>
       </EnforceTypeConversionRules>
-      <BrowseInformationFile />
+      <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
@@ -689,7 +689,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>
       </EnforceTypeConversionRules>
-      <BrowseInformationFile />
+      <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
@@ -764,7 +764,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>
       </EnforceTypeConversionRules>
-      <BrowseInformationFile />
+      <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
@@ -838,7 +838,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>
       </EnforceTypeConversionRules>
-      <BrowseInformationFile />
+      <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
@@ -909,7 +909,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>
       </EnforceTypeConversionRules>
-      <BrowseInformationFile />
+      <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
@@ -983,7 +983,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>
       </EnforceTypeConversionRules>
-      <BrowseInformationFile />
+      <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
@@ -1057,7 +1057,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>
       </EnforceTypeConversionRules>
-      <BrowseInformationFile />
+      <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
@@ -1133,7 +1133,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>
       </EnforceTypeConversionRules>
-      <BrowseInformationFile />
+      <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
@@ -1606,9 +1606,6 @@
     </ProjectReference>
     <ProjectReference Include="lcms2.vcxproj">
       <Project>{71dede59-3f1e-486b-a899-4283000f76b5}</Project>
-    </ProjectReference>
-    <ProjectReference Include="libphonenumber.vcxproj">
-      <Project>{8614d47b-23e6-4a77-9618-db89c420be35}</Project>
     </ProjectReference>
     <ProjectReference Include="libprotobuf-lite.vcxproj">
       <Project>{f9fc604b-eb9a-3804-ad68-577835cbadf6}</Project>

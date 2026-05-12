@@ -354,8 +354,8 @@ int decode_string(argon2_context * ctx, const char * str, argon2_type type)
 #undef BIN_BUF
 }
 
-int encode_string(char * dst, size_t dst_len, argon2_context * ctx,
-    argon2_type type) {
+int encode_string(char * dst, size_t dst_len, argon2_context * ctx, argon2_type type) 
+{
 #define SS(str)                                                                \
 	do {                                                                       \
 		size_t pp_len = strlen(str);                                           \
@@ -386,15 +386,12 @@ int encode_string(char * dst, size_t dst_len, argon2_context * ctx,
 
 	const char* type_string = argon2_type2string(type, 0);
 	int validation_result = validate_inputs(ctx);
-
 	if(!type_string) {
 		return ARGON2_ENCODING_FAIL;
 	}
-
 	if(validation_result != ARGON2_OK) {
 		return validation_result;
 	}
-
 	SS("$");
 	SS(type_string);
 
@@ -420,9 +417,9 @@ int encode_string(char * dst, size_t dst_len, argon2_context * ctx,
 #undef SB
 }
 
-size_t b64len(uint32_t len) {
+size_t b64len(uint32_t len) 
+{
 	size_t olen = ((size_t)len / 3) << 2;
-
 	switch(len % 3) {
 		case 2:
 		    olen++;

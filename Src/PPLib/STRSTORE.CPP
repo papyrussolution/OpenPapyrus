@@ -1318,9 +1318,7 @@ StringStore2::OrgSrcFileBlock::OrgSrcFileBlock(const char * pFileName, const cha
 int StringStore2::Compile(const char * pFileName, long flags, const char * pTranslateToLang)
 {
 	EXCEPTVAR(ErrCode);
-	//SProfile prfl; // @v11.1.11
-	//const  uint64 _ptstart = prfl.GetAbsTimeMicroseconds(); // @v11.1.11
-	const  int64 _clk_start = clock(); // @v11.1.11
+	const  int64 _clk_start = clock();
 	int    ok = 1;
 	SString temp_buf;
 	SString final_line_buf;

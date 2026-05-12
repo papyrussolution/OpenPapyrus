@@ -1,5 +1,5 @@
 // HASHFUNC.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2016, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2012, 2013, 2016, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -3252,61 +3252,43 @@ SlHash::State::R::R()
 {
 	THISZERO();
 }
-
-static int TestCrypto(const SString & rInFileName, const char * pSetName, int alg, int kbl, int algmod)
+//
+// ARG(tagSize IN): 0 - none or default, >0 - explicitly defined
+//
+static int TestCrypto(const SString & rInFileName, const char * pSetName, int alg, int kbl, int algmod, uint tagSize)
 {
 	int    ok = 1;
 	{
 		const char * p_password = "test_crypto_password";
 		const size_t pattern_buf_size = SKILOBYTE(4096);
 		const size_t pattern_work_size = pattern_buf_size /*- 13*/;
-		const size_t gcm_tag_size = 12;
-		uint8 gcm_tag[16]; // really 12 bytes
 		SlCrypto::Key key;
-		//size_t total_encr_size = 0;
-		//size_t work_offs = 0;
-		//size_t total_decr_size = 0;
-		//size_t actual_size = 0;
-		//STempBuffer dest_buf(pattern_buf_size + SKILOBYTE(512)); // with ensuring
 		STempBuffer pattern_buf(pattern_buf_size);
-		//STempBuffer result_buf(pattern_buf_size + SKILOBYTE(512)); // with ensuring
 		SBinaryChunk bc_result;
 		SBinaryChunk bc_dest; // 
 		SBinaryChunk bc_tag;
-		bc_tag.Set(0, 16);
+		bc_tag.Set(0, NZOR(tagSize, 16));
 		bc_result.Randomize(pattern_buf_size + SKILOBYTE(512));
-		//SObfuscateBuffer(result_buf.vptr(), result_buf.GetSize());
 		SObfuscateBuffer(pattern_buf.vptr(), pattern_buf.GetSize());
 		{
 			SlCrypto cs(alg, kbl, algmod);
 			const int skr = cs.SetupKey(key, p_password);
 			assert(skr);
-			//work_offs = 0;
-			//actual_size = 0;
 			const int er = cs.Encrypt(key, pattern_buf.vptr(/*total_encr_size*/), pattern_work_size, bc_result, &bc_tag);
 			assert(er);
-			//work_offs += actual_size;
-			//total_encr_size += pattern_work_size;
-			//total_encr_size += actual_size;
 		}
 		{
 			SlCrypto cs(alg, kbl, algmod);
 			const int ckr = cs.SetupKey(key, p_password);
 			assert(ckr);
-			//work_offs = 0;
-			//actual_size = 0;
 			const int dr = cs.Decrypt(key, bc_result.PtrC(), bc_result.Len(), bc_dest, &bc_tag);
 			assert(dr);
-			//work_offs += actual_size;
-			//total_decr_size += total_encr_size;
-			//total_decr_size += actual_size;
 		}
 		assert(bc_dest.Len() == pattern_work_size);
 		int r = memcmp(bc_dest.PtrC(), pattern_buf.vcptr(), pattern_work_size);
 		assert(r == 0);
 	}
 	if(!isempty(pSetName)) {
-		//STempBuffer result_buf(SKILOBYTE(512));
 		SBinaryChunk bc_result;
 		SBinaryChunk bc_tag;
 		
@@ -3319,9 +3301,13 @@ static int TestCrypto(const SString & rInFileName, const char * pSetName, int al
 			const void * p_src_buf = p_item->In.GetBufC();
 			const size_t pattern_size = p_item->Out.GetLen();
 			const void * p_pattern_buf = p_item->Out.GetBufC();
-			//size_t total_size = 0;
 			SlCrypto::Key key;
-			bc_tag.Set(0, 16);
+			if(oneof2(cs.GetAlgModif(), SlCrypto::algmodGcm, SlCrypto::algmodCcm)) {
+				bc_tag.Set(0, NZOR(tagSize, 16));
+			}
+			else {
+				bc_tag.Set(0, 0);
+			}
 			{
 				int skr = cs.SetupKey(key, p_item->Key.GetBufC(), p_item->Key.GetLen(), p_item->Nonce.GetBufC(), p_item->Nonce.GetLen(), p_item->Aad.GetBufC(), p_item->Aad.GetLen());
 				assert(skr);
@@ -3329,13 +3315,11 @@ static int TestCrypto(const SString & rInFileName, const char * pSetName, int al
 			size_t actual_size = 0;
 			const int er = cs.Encrypt(key, p_src_buf, src_size, bc_result, &bc_tag);
 			assert(er);
-			//total_size += actual_size;
-			//assert(total_size >= pattern_size);
-			//int    mcr1 = memcmp(bc_result.PtrC(), p_pattern_buf, pattern_size);
 			int    mcr1 = -1;
 			int    mcr2 = -1;
 			if(bc_result.Len()) {
-				mcr1 = memcmp(bc_result.PtrC(), p_pattern_buf, bc_result.Len());
+				size_t cmp_size = smin(bc_result.Len(), pattern_size);
+				mcr1 = memcmp(bc_result.PtrC(), p_pattern_buf, cmp_size);
 				assert(mcr1 == 0);
 			}
 			if(bc_tag.Len()) {
@@ -3356,25 +3340,25 @@ void TestCRC()
 	TSCollection <BdtTestItem> data_set;
 	{
 		(in_file_name = data_trasform_path).Cat("gcm.vec");
-		TestCrypto(in_file_name, "AES-128/GCM", SlCrypto::algAes, SlCrypto::kbl128, SlCrypto::algmodGcm); // nonce 
-		TestCrypto(in_file_name, "AES-128/GCM(12)", SlCrypto::algAes, SlCrypto::kbl128, SlCrypto::algmodGcm); // nonce ad
-		TestCrypto(in_file_name, "AES-192/GCM", SlCrypto::algAes, SlCrypto::kbl192, SlCrypto::algmodGcm); // nonce ad
-		TestCrypto(in_file_name, "AES-192/GCM(12)", SlCrypto::algAes, SlCrypto::kbl192, SlCrypto::algmodGcm); // nonce ad
-		TestCrypto(in_file_name, "AES-256/GCM", SlCrypto::algAes, SlCrypto::kbl256, SlCrypto::algmodGcm); // nonce ad
-		TestCrypto(in_file_name, "AES-256/GCM(12)", SlCrypto::algAes, SlCrypto::kbl256, SlCrypto::algmodGcm); // nonce ad
-		TestCrypto(in_file_name, "AES-256/GCM(13)", SlCrypto::algAes, SlCrypto::kbl256, SlCrypto::algmodGcm); // nonce ad
-		TestCrypto(in_file_name, "AES-256/GCM(14)", SlCrypto::algAes, SlCrypto::kbl256, SlCrypto::algmodGcm); // nonce ad
-		TestCrypto(in_file_name, "AES-256/GCM(15)", SlCrypto::algAes, SlCrypto::kbl256, SlCrypto::algmodGcm); // nonce ad
+		TestCrypto(in_file_name, "AES-128/GCM", SlCrypto::algAes, SlCrypto::kbl128, SlCrypto::algmodGcm, 0); // nonce 
+		TestCrypto(in_file_name, "AES-128/GCM(12)", SlCrypto::algAes, SlCrypto::kbl128, SlCrypto::algmodGcm, 12); // nonce ad
+		TestCrypto(in_file_name, "AES-192/GCM", SlCrypto::algAes, SlCrypto::kbl192, SlCrypto::algmodGcm, 0); // nonce ad
+		TestCrypto(in_file_name, "AES-192/GCM(12)", SlCrypto::algAes, SlCrypto::kbl192, SlCrypto::algmodGcm, 12); // nonce ad
+		TestCrypto(in_file_name, "AES-256/GCM", SlCrypto::algAes, SlCrypto::kbl256, SlCrypto::algmodGcm, 0); // nonce ad
+		TestCrypto(in_file_name, "AES-256/GCM(12)", SlCrypto::algAes, SlCrypto::kbl256, SlCrypto::algmodGcm, 12); // nonce ad
+		TestCrypto(in_file_name, "AES-256/GCM(13)", SlCrypto::algAes, SlCrypto::kbl256, SlCrypto::algmodGcm, 13); // nonce ad
+		TestCrypto(in_file_name, "AES-256/GCM(14)", SlCrypto::algAes, SlCrypto::kbl256, SlCrypto::algmodGcm, 14); // nonce ad
+		TestCrypto(in_file_name, "AES-256/GCM(15)", SlCrypto::algAes, SlCrypto::kbl256, SlCrypto::algmodGcm, 15); // nonce ad
 		// Wycheproof GCM tests
-		TestCrypto(in_file_name, "AES-128/GCM(8)", SlCrypto::algAes, SlCrypto::kbl128, SlCrypto::algmodGcm); // nonce ad
+		TestCrypto(in_file_name, "AES-128/GCM(8)", SlCrypto::algAes, SlCrypto::kbl128, SlCrypto::algmodGcm, 8); // nonce ad
 		// (will be processed above) TestCrypto(in_file_name, "AES-128/GCM(12)", SlCrypto::algAes, SlCrypto::kbl128, SlCrypto::algmodGcm); // nonce ad
 		// (will be processed above) TestCrypto(in_file_name, "AES-128/GCM", SlCrypto::algAes, SlCrypto::kbl128, SlCrypto::algmodGcm); // nonce ad
 	}
 	{
 		(in_file_name = data_trasform_path).Cat("aes.vec");
-		TestCrypto(in_file_name, "AES-128", SlCrypto::algAes, SlCrypto::kbl128, SlCrypto::algmodEcb);
-		TestCrypto(in_file_name, "AES-192", SlCrypto::algAes, SlCrypto::kbl192, SlCrypto::algmodEcb);
-		TestCrypto(in_file_name, "AES-256", SlCrypto::algAes, SlCrypto::kbl256, SlCrypto::algmodEcb);
+		TestCrypto(in_file_name, "AES-128", SlCrypto::algAes, SlCrypto::kbl128, SlCrypto::algmodEcb, 0);
+		TestCrypto(in_file_name, "AES-192", SlCrypto::algAes, SlCrypto::kbl192, SlCrypto::algmodEcb, 0);
+		TestCrypto(in_file_name, "AES-256", SlCrypto::algAes, SlCrypto::kbl256, SlCrypto::algmodEcb, 0);
 	}
 	{
 		(in_file_name = data_trasform_path).Cat("crc24.vec");

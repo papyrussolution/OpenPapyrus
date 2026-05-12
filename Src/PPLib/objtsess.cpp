@@ -1534,7 +1534,7 @@ int PPObjTSession::CompleteSession(PPID sessID, int use_ta)
 					}
 				}
 				if(tec_struc_id && tec_goods_id) {
-					PPGoodsStrucHeader gs_rec;
+					PPGoodsStrucHeader2 gs_rec;
 					if(gs_obj.Fetch(tec_struc_id, &gs_rec) > 0 && (gs_rec.Flags & (GSF_PARTITIAL/*|GSF_COMPL|GSF_DECOMPL*/))) {
 						const double qtty = (tses_rec.ActQtty != 0.0) ? tses_rec.ActQtty : tses_rec.PlannedQtty;
 						//

@@ -836,7 +836,7 @@ int PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 	Goods2Tbl::Rec grp_rec;
 	SBuffer hist_buf;
 	PPGoodsPacket old_pack;
-	PPGoodsStrucHeader gs_rec;
+	PPGoodsStrucHeader2 gs_rec;
 	PPID   def_prc_id = 0;
 	Reference * p_ref(PPRef);
 	ObjVersioningCore * p_ovc = p_ref->P_OvT;

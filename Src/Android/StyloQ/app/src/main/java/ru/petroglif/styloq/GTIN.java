@@ -834,18 +834,30 @@ public class GTIN {
 		String temp_buf;
 		byte [] code_bytes = code.getBytes(); // @debug
 		{
-			temp_buf = "" + code;
 			//temp_buf.ShiftLeftChr('\xE8'); // Специальный символ. Может присутствовать в начале кода
-			if(temp_buf.charAt(0) == '\u00E8')
-				temp_buf = temp_buf.substring(1);
+			// @v12.6.3 {
+			{
+				String code_buf_without_spc_chars = "";
+				temp_buf = "" + code;
+				for(int i = 0; i < temp_buf.length(); i++) {
+					final char c = temp_buf.charAt(i);
+					if(c != '\u001D' && c != '\u00E8')
+						code_buf_without_spc_chars += c;
+				}
+				code = code_buf_without_spc_chars;
+			}
+			temp_buf = "" + code;
+			// } @v12.6.3
+			/* @v12.6.3 (see above) if(temp_buf.charAt(0) == '\u00E8')
+				temp_buf = temp_buf.substring(1);*/
 			// "]C1"
 			//if(temp_buf.HasPrefixIAscii("]C1")) { // Выяснилось, что и такие служебные префиксы встречаются //
 			if(temp_buf.startsWith("]C1") || temp_buf.startsWith("]c1")) { // Выяснилось, что и такие служебные префиксы встречаются //
 				//temp_buf.ShiftLeft(3);
 				temp_buf = temp_buf.substring(3);
 				//temp_buf.ShiftLeftChr('\xE8'); // Черт его знает: на всякий случай снова проверим этого обдолбыша
-				if(temp_buf.charAt(0) == '\u00E8') // Черт его знает: на всякий случай снова проверим этого обдолбыша
-					temp_buf = temp_buf.substring(1);
+				/* @v12.6.3 (see above) if(temp_buf.charAt(0) == '\u00E8') // Черт его знает: на всякий случай снова проверим этого обдолбыша
+					temp_buf = temp_buf.substring(1);*/
 			}
 			code = temp_buf;
 		}
@@ -894,6 +906,13 @@ public class GTIN {
 			}
 			// @v12.5.12 {
 			if(result.ChZnParseResult == 0) {
+				// @debug {
+				char b1 = code.charAt(0);
+				char b2 = code.charAt(1);
+				char b3 = code.charAt(2);
+				char b4 = code.charAt(3);
+				char b5 = code.charAt(4);
+				// } @debug
 				if(code.startsWith("240") && code_len >= 51) {
 					// (240)...(00)...(11)...(10)...(37)...
 					final String re_motoroil_package = "^240(.*?)00(\\d{18})11(\\d{6})10(.*?)37(\\d{1,8})$";

@@ -69,7 +69,7 @@ struct RestoreStackItem {
 			AddClusterAssoc(CTL_DBXCHGCFG_CHARRYF, 4, DBDXF_DESTROYQUEUEBYDEF);
 			AddClusterAssoc(CTL_DBXCHGCFG_CHARRYF, 5, DBDXF_DONTLOGOBJUPD);
 			AddClusterAssoc(CTL_DBXCHGCFG_CHARRYF, 6, DBDXF_SENDTAGATTCHM);
-			AddClusterAssoc(CTL_DBXCHGCFG_CHARRYF, 7, DBDXF_SYNCUSRANDGRPS); // @v10.1.5
+			AddClusterAssoc(CTL_DBXCHGCFG_CHARRYF, 7, DBDXF_SYNCUSRANDGRPS);
 			SetClusterData(CTL_DBXCHGCFG_CHARRYF, Data.Flags);
 
 			AddClusterAssocDef(CTL_DBXCHGCFG_RLZORD,  0, RLZORD_UNDEF);
@@ -114,11 +114,11 @@ struct RestoreStackItem {
 		{
 			TDialog::handleEvent(event);
 			if(event.isCmd(cmClusterClk)) {
-				long flags = GetClusterData(CTL_DBXCHGCFG_FLAGS);
+				const  long flags = GetClusterData(CTL_DBXCHGCFG_FLAGS);
 				SetupCtrls(flags);
 			}
 			else if(event.isCbSelected(CTLSEL_DBXCHGCFG_DROP)) {
-				long flags = GetClusterData(CTL_DBXCHGCFG_FLAGS);
+				const  long flags = GetClusterData(CTL_DBXCHGCFG_FLAGS);
 				getCtrlData(CTLSEL_DBXCHGCFG_DROP, &Data.DfctRcptOpID);
 				SetupCtrls(flags);
 			}

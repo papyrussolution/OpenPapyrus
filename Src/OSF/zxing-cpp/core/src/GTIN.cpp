@@ -14,9 +14,7 @@ struct CountryId {
 	const char * id;
 };
 
-bool operator<(const CountryId& lhs, const CountryId& rhs) {
-	return lhs.last < rhs.last;
-}
+bool operator<(const CountryId & lhs, const CountryId& rhs) { return lhs.last < rhs.last; }
 
 // https://www.gs1.org/standards/id-keys/company-prefix (as of 7 Feb 2022)
 // and https://en.wikipedia.org/wiki/List_of_GS1_country_codes
@@ -152,10 +150,8 @@ std::string LookupCountryIdentifier(const std::string& GTIN, const BarcodeFormat
 	// Ignore add-on if any
 	const auto space = GTIN.find(' ');
 	const std::string::size_type size = space != std::string::npos ? space : GTIN.size();
-
 	if(size != 14 && size != 13 && size != 12 && size != 8)
 		return {};
-
 	// GTIN-14 leading packaging level indicator
 	const int first = size == 14 ? 1 : 0;
 	// UPC-A/E implicit leading 0
@@ -184,8 +180,7 @@ std::string LookupCountryIdentifier(const std::string& GTIN, const BarcodeFormat
 
 std::string EanAddOn(const Result& result)
 {
-	if(!(BarcodeFormat::EAN13 | BarcodeFormat::UPCA | BarcodeFormat::UPCE | BarcodeFormat::EAN8)
-	    .testFlag(result.format()))
+	if(!(BarcodeFormat::EAN13 | BarcodeFormat::UPCA | BarcodeFormat::UPCE | BarcodeFormat::EAN8).testFlag(result.format()))
 		return {};
 	auto txt = result.bytes().asString();
 	auto pos = txt.find(' ');

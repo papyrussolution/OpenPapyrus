@@ -4,6 +4,8 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
+#include <ued.h> // @v12.6.3
+#include <ued-id.h> // @v12.6.3
 
 size_t FASTCALL SnapUpSize(size_t i); // @prototype
 
@@ -956,6 +958,10 @@ SBinarySet::DeflateStrategy::DeflateStrategy(uint16 minChunkSize) : MinChunkSize
 {
 }
 
+SBinarySet::CryptoStrategy::CryptoStrategy() : UedSymmCipher(0ULL)
+{
+}
+
 SBinarySet::SBinarySet() : DataLen(0)
 {
 	SBaseBuffer::Init();
@@ -988,6 +994,20 @@ SBinarySet & SBinarySet::Z()
 int SBinarySet::Ensure(size_t ensSize)
 {
 	return (Size < ensSize) ? Alloc(ensSize) : 1;
+}
+
+/*static*/bool FASTCALL SBinarySet::IsChunkEncrypted(const void * pData)
+{
+	bool   result = false;
+	if(pData) {
+		if(*PTR32C(pData) == SlConst::SBSCryptoSignature) {
+			const  uint64 ued_alg = *reinterpret_cast<const uint64 *>(PTR32C(pData)+1);
+			if(UED::BelongToMeta(ued_alg, UED_META_SYMMETRICCIPHER)) {
+				result = true;
+			}
+		}
+	}
+	return result;
 }
 
 bool FASTCALL SBinarySet::Helper_GetChunkIdList(LongArray * pList) const
@@ -1255,15 +1275,120 @@ bool SBinarySet::Get(uint32 id, SBinaryChunk * pResult) const
 	const  void * ptr = GetPtr(id, &size);
 	THROW(ptr);
 	if(pResult) {
-		const  size_t compress_prefix_size = SSerializeContext::GetCompressPrefix(0);
-		if(size > compress_prefix_size && SSerializeContext::IsCompressPrefix(ptr)) {
-			SCompressor compr(SCompressor::tZLib);
-			SBuffer dbuf;
-			THROW(compr.DecompressBlock(PTR8C(ptr)+compress_prefix_size, size-compress_prefix_size, dbuf));
-			THROW(pResult->Put(dbuf.GetBuf(), dbuf.GetAvailableSize()));
+		const  bool is_encrypted = SBinarySet::IsChunkEncrypted(ptr);
+		if(is_encrypted) {
+			#if 0 // @v12.6.3 @construction {
+			THROW(size >= sizeof(ProtectedChunkV1_Prolog));
+			const  ProtectedChunkV1_Prolog * p_prolog = static_cast<const ProtectedChunkV1_Prolog *>(ptr);
+			assert(p_prolog->Signature == SlConst::SBSCryptoSignature); // Это нам гарантирует SBinarySet::IsChunkEncrypted(ptr)
+			assert(UED::BelongToMeta(p_prolog->UedSymmetricCipher, UED_META_SYMMETRICCIPHER)); // Это нам так же гарантирует SBinarySet::IsChunkEncrypted(ptr)
+			{
+				SlCrypto crypto(p_prolog->UedSymmetricCipher);
+				THROW(crypto.IsValid());
+				{
+					const  void * p_encrypted_block = (p_prolog+1);
+					const  size_t encrypted_block_size = size - sizeof(*p_prolog);
+					if(encrypted_block_size) {
+						
+					}
+				}
+			}
+			#endif // } 0 @v12.6.3 @construction 
 		}
 		else {
-			THROW(pResult->Put(ptr, size));
+			const  size_t compress_prefix_size = SSerializeContext::GetCompressPrefix(0);
+			if(size > compress_prefix_size && SSerializeContext::IsCompressPrefix(ptr)) {
+				SCompressor compr(SCompressor::tZLib);
+				SBuffer dbuf;
+				THROW(compr.DecompressBlock(PTR8C(ptr)+compress_prefix_size, size-compress_prefix_size, dbuf));
+				THROW(pResult->Put(dbuf.GetBuf(), dbuf.GetAvailableSize()));
+			}
+			else {
+				THROW(pResult->Put(ptr, size));
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SBinarySet::PutEncrypted(uint32 id, const void * pData, const uint32 size, const CryptoStrategy & rStrategy) // @v12.6.2 @construction
+{
+	int    ok = 1;
+	{
+		SBuffer cbuf; // Буфер со сжатыми данными. Если rStrategy требует сжатия, то данные сжимаются и p_eff_data = cbuf.GetBuf() а eff_data_size = cbuf.GetAvailableSize()
+		SlCrypto crypto(rStrategy.UedSymmCipher);
+		THROW(crypto.IsValid());
+		{
+			const  SlCrypto::CipherProperties & r_cp = crypto.GetCipherProperties();
+			SBinaryChunk encrypted;
+			SBinaryChunk tag;
+			SBinaryChunk meta_chunk;
+			SBinaryChunk iv;
+			const MetaData * p_meta = 0;
+			ProtectedChunkV1_Prolog prolog;
+			tag.Ensure(sizeof(prolog.Tag));
+			SlCrypto::Key key;
+			{
+				if(!Get(MetaDataChunkID, &meta_chunk)) {
+					MetaData temp_meta_data;
+					temp_meta_data.PwHashSalt.Randomize();
+					THROW(Put(MetaDataChunkID, &temp_meta_data, sizeof(temp_meta_data)));
+					THROW(Get(MetaDataChunkID, &meta_chunk));
+					p_meta = static_cast<const MetaData *>(meta_chunk.PtrC());
+				}
+				p_meta = static_cast<const MetaData *>(meta_chunk.PtrC());
+			}
+			assert(p_meta);
+			THROW(p_meta);
+			THROW(crypto.SetKey_Derived_Argon2(key, rStrategy.MasterPassword, rStrategy.MasterPassword.Len(), &p_meta->PwHashSalt, sizeof(p_meta->PwHashSalt), rStrategy.ArgonP));
+			if(r_cp.IvSize) {
+				// Генерируем случайный IV
+				iv.Randomize(r_cp.IvSize);
+				THROW(crypto.SetKey_IV(key, iv.PtrC(), iv.Len()));
+			}
+			{
+				uint32 aad = id; // 3. AAD = chunk id (защита от swap-атаки)
+				THROW(crypto.SetKey_AAD(key, &aad, sizeof(aad)));
+			}
+			{
+				const  void * p_eff_data = 0;
+				uint32 eff_data_size = 0;
+				if(rStrategy.DS.MinChunkSizeToCompress > 0 && size >= rStrategy.DS.MinChunkSizeToCompress) {
+					SCompressor compr(SCompressor::tZLib);
+					SSerializeContext sctx;
+					uint8  cs[32];
+					size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
+					THROW(cbuf.Write(cs, cs_size));
+					THROW(compr.CompressBlock(pData, size, cbuf, 0, 0));
+					p_eff_data = cbuf.GetBuf();
+					eff_data_size = static_cast<uint32>(cbuf.GetAvailableSize());
+				}
+				else {
+					p_eff_data = pData;
+					eff_data_size = size;
+				}
+				THROW(crypto.Encrypt(key, p_eff_data, eff_data_size, encrypted, &tag));
+				{
+					assert(r_cp.IvSize <= UINT16_MAX);
+					assert(tag.Len() <= UINT16_MAX);
+					static_assert(sizeof(prolog) == 56);
+					prolog.Signature = SlConst::SBSCryptoSignature;
+					prolog.UedSymmetricCipher = rStrategy.UedSymmCipher;
+					prolog.Flags = 0;
+					prolog.PlainSize = size; // Оригинальный размер данных (несжатые и незашифрованные)!
+					prolog.IvSize = r_cp.IvSize;
+					memcpy(&prolog.IV, iv.PtrC(), r_cp.IvSize);
+					prolog.TagSize = static_cast<uint16>(tag.Len());
+					memcpy(&prolog.Tag, tag.PtrC(), tag.Len());
+				}
+				{
+					SBinaryChunk final_chunk;
+					THROW(final_chunk.Cat(&prolog, sizeof(prolog)));
+					THROW(final_chunk.Cat(encrypted));
+					THROW(Put(id, final_chunk, 0/*DeflateStrategy - strictly null*/))
+				}
+			}
 		}
 	}
 	CATCHZOK
@@ -1387,12 +1512,6 @@ int SBinarySet::Put(uint32 id, const void * pData, uint32 size, const DeflateStr
 		}
 	}
 	CATCHZOK
-	return ok;
-}
-
-int SBinarySet::PutEncrypted(uint32 id, const void * pData, uint32 size, const DeflateStrategy * pDs) // @v12.6.2 @construction
-{
-	int    ok = 0;
 	return ok;
 }
 //

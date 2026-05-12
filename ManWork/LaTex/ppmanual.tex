@@ -26,7 +26,7 @@
 \renewcommand{\CoverPageFooterInfo}{
 	\parbox[b]{.5\textwidth}{
 		\tiny Документ создан: \today \\
-		Версия системы: 12.4.11
+		Версия системы: 12.6.3
     }
 }
 
@@ -49114,6 +49114,8 @@ $COST$ - символ.
 	\item[Экспортные структуры данных] Применяется как на этапе разработки, так
 	и при эксплуатации системы для кастомизации стандартных (определенных в дистрибутиве)
 	структур данных для печати и экспорта.
+	\item[Диалоговые формы] В основном, это - для разработки. Однако, в ограниченном масштабе
+	можно модифицировать существующие формы для конкретной инсталляции системы.
 \end{description}
 
 \section{Синтаксис языка}
@@ -49507,6 +49509,252 @@ $COST$ - символ.
 	\end{description}
 
 	Если второй символ 'B', то - пустая строка для времени 00:00:00.
+
+% beginof(Сделано LLM Qwen)
+\section{Синтаксис описания диалогов DL600\label{sec-dl600-dialogs}}
+
+Язык DL600 поддерживает декларативное описание пользовательских диалогов.
+Это позволяет определять структуру, внешний вид и поведение диалоговых окон
+без модификации исходного кода программы.
+
+\subsection{Общая структура диалога}
+
+Диалог описывается ключевым словом \texttt{dialog}, за которым следует:
+\begin{enumerate}
+\item Идентификатор диалога (уникальный символ)
+\item Блок параметров в квадратных скобках
+\item Тело диалога в фигурных скобках
+\end{enumerate}
+
+\begin{verbatim}
+dialog DLG_NAME [vertical title: "@string_id" size: (800, 600) 
+                 minsize: (400, 300) padding: 4 font: "MS Shell Dlg 2,8"] {
+  // Элементы управления
+}
+\end{verbatim}
+
+\subsection{Параметры контейнера диалога}
+
+\begin{description}
+\item[\texttt{vertical}/\texttt{horizontal}] Направление размещения элементов
+\item[\texttt{title: "@str\_id"}] Заголовок окна (ссылка на строковый ресурс)
+\item[\texttt{size: (w, h)}] Начальный размер окна в пикселях
+\item[\texttt{minsize: (w, h)}] Минимально допустимый размер
+\item[\texttt{padding: n}] Внутренний отступ от границ контейнера
+\item[\texttt{margin: n}] Внешний отступ
+\item[\texttt{font: "name,size"}] Шрифт по умолчанию для элементов
+\item[\texttt{justifycontent: SpaceBetween|SpaceEvenly|Start|End}] 
+      Выравнивание по главной оси
+\item[\texttt{alignitems: center|start|end}] Выравнивание по поперечной оси
+\end{description}
+
+\subsection{Контейнеры}
+
+\subsubsection{view}
+Базовый контейнер для группировки элементов:
+\begin{verbatim}
+view [horizontal width: bycontainer growfactor: 1 height: 30] {
+  // вложенные элементы
+}
+\end{verbatim}
+
+\subsubsection{framebox}
+Контейнер с рамкой и заголовком:
+\begin{verbatim}
+framebox [vertical title: "@group_title" growfactor: 1 margin: 4 padding: 4] {
+  // элементы группы
+}
+\end{verbatim}
+
+\subsection{Элементы управления}
+
+\subsubsection{input}
+Поле ввода данных:
+\begin{verbatim}
+input CTL_CONTROL_ID [width: 100 height: 21 margin: 4 tabstop 
+                      label: "@label_id" fmtf: (nozero notrailz) 
+                      fmtprec: 2 readonly] string[64];
+\end{verbatim}
+
+Параметры:
+\begin{description}
+\item[\texttt{width/height}] Размеры элемента
+\item[\texttt{margin}] Отступы (можно указать как \texttt{(left,top,right,bottom)})
+\item[\texttt{tabstop}] Элемент получает фокус при навигации Tab
+\item[\texttt{label: "@str"}] Текст метки
+\item[\texttt{labelsize: (w,h)}] Размер метки
+\item[\texttt{fmtf: (flags)}] Флаги форматирования:
+  \begin{itemize}
+  \item \texttt{nozero} - не показывать нули
+  \item \texttt{notrailz} - не показывать завершающие нули
+  \item \texttt{dmy} - формат даты ДД.ММ.ГГГГ
+  \item \texttt{tricomma} - разделитель тысяч запятой
+  \end{itemize}
+\item[\texttt{fmtprec: n}] Количество знаков после запятой
+\item[\texttt{readonly}] Только для чтения
+\item[\texttt{multiline}] Многострочное поле
+\item[\texttt{wantreturn}] Клавиша Enter вставляет новую строку
+\item[\texttt{design: B}] Особый стиль отображения
+\item[\texttt{staticedge}] Статическая рамка
+\item[\texttt{defaultitem}] Элемент активен по умолчанию
+\item[\texttt{supplement}] Дополнительная функция (календарь, браузер файлов)
+\end{description}
+
+Типы данных полей:
+\begin{verbatim}
+string[n]    // строка длиной n символов
+int16        // 16-битное целое
+int32        // 32-битное целое
+double       // число с плавающей точкой
+date         // дата
+\end{verbatim}
+
+\subsubsection{button}
+Кнопка:
+\begin{verbatim}
+button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) 
+                        margin: 4 command: cmOK];
+button CTL_CUSTOM [title: "@custom_action" tabstop size: (90, 21) 
+                   margin: 4 command: cmCustom];
+\end{verbatim}
+
+Стандартные кнопки:
+\begin{description}
+\item[\texttt{STDCTL\_OKBUTTON}] Кнопка OK
+\item[\texttt{STDCTL\_CANCELBUTTON}] Кнопка Отмена
+\item[\texttt{STDCTL\_EDITBUTTON}] Кнопка Редактировать
+\item[\texttt{STDCTL\_INSBUTTON}] Кнопка Добавить
+\item[\texttt{STDCTL\_DELBUTTON}] Кнопка Удалить
+\end{description}
+
+Команды:
+\begin{description}
+\item[\texttt{cmOK}] Завершить с результатом OK
+\item[\texttt{cmCancel}] Отменить
+\item[\texttt{cmaEdit}] Редактировать выбранный элемент
+\item[\texttt{cmaInsert}] Вставить новый элемент
+\item[\texttt{cmaDelete}] Удалить выбранный элемент
+\end{description}
+
+\subsubsection{combobox}
+Выпадающий список:
+\begin{verbatim}
+combobox CTLSEL_CONTROL_ID [tabstop width: bycontainer height: 21 
+                            margin: 4 label: "@label_id" 
+                            cblinesymb: CTL_LINESYMBOL];
+\end{verbatim}
+
+\subsubsection{radiocluster}
+Группа переключателей:
+\begin{verbatim}
+radiocluster CTL_CONTROL_ID [tabstop growfactor: 1 margin: 4 
+                             title: "@group_title"] {
+  radiobutton [title: "@option1"];
+  radiobutton [title: "@option2" selected];
+}
+\end{verbatim}
+
+\subsubsection{checkcluster}
+Группа флажков:
+\begin{verbatim}
+checkcluster CTL_CONTROL_ID [tabstop width: bycontainer margin: 4] {
+  checkbox [title: "@flag1"];
+  checkbox [title: "@flag2" checked];
+}
+\end{verbatim}
+
+\subsubsection{listbox}
+Список:
+\begin{verbatim}
+listbox CTL_CONTROL_ID [tabstop height: bycontainer growfactor: 1 
+                        columns: "@col1;@col2"];
+\end{verbatim}
+
+\subsubsection{statictext}
+Статический текст:
+\begin{verbatim}
+statictext CTL_CONTROL_ID [width: bycontainer height: 24 margin: 4 
+                           staticedge];
+\end{verbatim}
+
+\subsection{Система размеров}
+
+\begin{description}
+\item[\texttt{bycontainer}] Размер определяется контейнером
+\item[\texttt{bycontainer(100)}] 100\% от размера контейнера
+\item[\texttt{growfactor: n}] Коэффициент роста при изменении размера
+\item[\texttt{width: 100}] Фиксированная ширина 100 пикселей
+\item[\texttt{height: bycontainer}] Высота по контейнеру
+\end{description}
+
+\subsection{Специальные функции}
+
+\subsubsection{Календарь для даты}
+\begin{verbatim}
+input CTL_DATE [width: bycontainer height: 21 margin: 4 tabstop 
+                label: "@period"] string[30] 
+       supplement daterangecalbutton(CTLCAL_DATE);
+\end{verbatim}
+
+\subsubsection{Браузер файлов}
+\begin{verbatim}
+input CTL_FILEPATH [width: bycontainer height: 21 margin: 4 tabstop] 
+       string[252] supplement filebrowsebutton(CTLBRW_FILEPATH);
+\end{verbatim}
+
+\subsection{Пример комплексного диалога}
+
+\begin{verbatim}
+dialog DLG_PERSON [vertical title: "@person" size: (790, 540) 
+                   minsize: (790, 540) padding: 4 
+                   font: "MS Shell Dlg 2,8"] {
+  
+  view [horizontal width: bycontainer(70) height: 40] {
+    combobox CTLSEL_PERSON_STATUS [tabstop growfactor: 1 height: 21 
+                                   margin: 4 label: "@person_status" 
+                                   cblinesymb: CTL_PERSON_STATUS];
+    input CTL_PERSON_ID [size: (53, 21) margin: (4, 17, 4, 4) 
+                         tabstop readonly fmtf: (nozero)] int32;
+    button CTL_PERSON_SELANALOGBUT [title: "@{dofindanalogue}..." 
+                                    tabstop size: (113, 21) 
+                                    margin: (4, 17, 4, 4) 
+                                    command: cmSelectAnalog];
+  }
+  
+  framebox [vertical title: "@contact_info" growfactor: 1 margin: 4 
+            padding: (4, 12, 4, 4)] {
+    input CTL_PERSON_NAME [width: bycontainer height: 21 margin: 4 
+                           tabstop label: "@appellation"] string[128];
+    input CTL_PERSON_INN [width: bycontainer height: 21 margin: 4 
+                          tabstop label: "@inn"] string[16];
+  }
+  
+  view [horizontal width: bycontainer(100) growfactor: 1 margin_right: 12 
+        justifycontent: end alignitems: end] {
+    button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem 
+                            size: (75, 21) margin: (4, 4, 8, 4) 
+                            command: cmOK];
+    button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop 
+                                size: (75, 21) margin: (8, 4, 4, 4) 
+                                command: cmCancel];
+  }
+}
+\end{verbatim}
+
+\subsection{Идентификаторы контролов}
+
+Каждый элемент управления должен иметь уникальный идентификатор в пределах
+диалога. Принята следующая конвенция именования:
+
+\begin{description}
+\item[\texttt{CTL\_XXX}] Обычные контролы
+\item[\texttt{CTLSEL\_XXX}] Контролы с выбором (combobox)
+\item[\texttt{CTLBRW\_XXX}] Кнопки браузера
+\item[\texttt{CTLCAL\_XXX}] Кнопки календаря
+\item[\texttt{STDCTL\_XXX}] Стандартные кнопки
+\end{description}
+
+% endof(Сделано LLM Qwen)
 
 \chapter{COM-интерфейсы\label{ch-comifc}}
 

@@ -1240,7 +1240,7 @@ struct GdsClsCalcExprContext {
 	const  PPTransferItem * P_Ti;
 	const  CCheckItem * P_Ci;
 	const  TSessLineTbl::Rec * P_TslRec;
-	const  ReceiptTbl::Rec * P_LotRec; // @v11.1.12
+	const  ReceiptTbl::Rec * P_LotRec;
 	PPID   TSessID;
 	double Par1;
 	double Par2;
@@ -8278,19 +8278,6 @@ double PPRound(double v, double prec, int dir);
 //     по весу что бы делать эту функцию инлайновой (fastcall'а достаточно).
 //
 int    FASTCALL CheckFiltID(PPID flt, PPID id);
-//
-// Descr: Класс, унаследованный от STokenRecognizer с целью реализации дополнительного функционала. В частности,
-//  проверки на номер телефона с помощью SLibPhoneNumber (libphonenumber).
-//
-class PPTokenRecognizer : public STokenRecognizer {
-public:
-	PPTokenRecognizer();
-private:
-	virtual int PostImplement(ImplementBlock & rIb, const uchar * pToken, int len, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat);
-#if(_MSC_VER >= 1900)
-	SLibPhoneNumber PhnL;
-#endif
-};
 //
 //
 //
@@ -25240,7 +25227,7 @@ public:
 	int    FASTCALL HasGoods(PPID goodsID) const;
 	int    SearchSymb(const char * pSymb, uint * pPos) const;
 	int    CopyItemsFrom(const PPGoodsStruc * pS);
-	int    MoveItem(uint pos, int dir  /* 0 - down, 1 - up */, uint * pNewPos);
+	int    MoveItem(uint pos, int dir/* 0 - down, 1 - up*/, uint * pNewPos);
 	//
 	// Descr: Перечисляет элементы структуры с вычислением количества, необходимого
 	//   для комплектации srcQtty единиц составного товара. Требуемое количество
@@ -25291,7 +25278,7 @@ public:
 	PPID   GoodsID; // @transient
 	mutable const PPComplBlock * P_Cb; // @transient Предварительный массив товарных строк для вставки в документа.
 		// Необходим для обсчета компонентов по формулам.
-	PPGoodsStrucHeader Rec;
+	PPGoodsStrucHeader2 Rec;
 	TSVector <PPGoodsStrucItem> Items;  //
 	TSCollection <PPGoodsStruc> Children; // Используется только если (Flags & GSF_FOLDER)
 private:
@@ -25470,7 +25457,7 @@ public:
 	explicit PPObjGoodsStruc(void * extraPtr = 0);
 	virtual int  Edit(PPID * pID, void * extraPtr /*goodsID*/);
 	virtual int  Browse(void * extraPtr);
-	int    FASTCALL Fetch(PPID id, PPGoodsStrucHeader * pRec);
+	int    FASTCALL Fetch(PPID id, PPGoodsStrucHeader2 * pRec);
 	int    GetChildIDList(PPID id, PPIDArray * pList);
 	int    Get(PPID id, PPGoodsStruc * pGs);
 	int    Put(PPID * pID, PPGoodsStruc * pGs, int use_ta);
@@ -38210,6 +38197,7 @@ private:
 //
 #define TECEXSTR_TLNGCOND          1 // Формула условия использования технологии перенастройки //
 #define TECEXSTR_CAPACITY          2 // Формула производительности для автотехнологий
+#define TECEXSTR_GSTRUCSYMB        3 // @v12.6.3 Символ структуры, который будет подхватываться из конкретного товара (не обобщенного) для формирования сессии.
 
 struct TechRouteIdent {
 	TechRouteIdent();
@@ -38235,7 +38223,10 @@ public:
 			// приоритеты исполнения фаз маршрута. То есть, если две или более фаз имеют одинаковый номер, то не важно какая из 
 			// этих фаз исполняется раньше, а какая - позже. В остальном порядок исполнения определяется позицией фазы в списке родительского объекта PPTechRoute.
 			// Нулевое значение LevelCode - исключительное. То есть, система не будет считать одноуровнемыми фазы с LevelCode = 0
-		uint8  Reserve[30];    // @v12.6.1 [32]-->[30]
+		uint16 Reserve2;       // @v12.6.3 @alignment
+		PPID   GStrucID;       // @v12.6.3 Товарная структура, ассоциированная с элементом (не привязана к конкретному товару).
+			// Если !0 то при выполнении переопределяет структуру технологии TechID
+		uint8  Reserve[24];    // @v12.6.1 [32]-->[30] // @v12.6.3 [30]-->[24]
 	};
 	PPTechRoute();
 	PPTechRoute & Z();
@@ -38272,12 +38263,12 @@ private:
 	PPObjGoods GObj;
 };
 
-struct PPTechPacket {
+struct PPTechPacket : public PPExtStrContainer { // @v12.6.3 :PPExtStrContainer
 	PPTechPacket();
 	PPTechPacket & Z();
 
 	TechTbl::Rec Rec;
-	SString ExtString;
+	// @v12.6.3 (:PPExtStrContainer) SString ExtString;
 	SString SMemo;
 	PPTechRoute Route; // @v12.5.12
 };
@@ -54534,23 +54525,23 @@ public:
 		fMainCountry                = 0x0001, // mainCountryForCode?: "true" # Основная страна для этого кода
 		fMobileNumberPortableRegion = 0x0002, // mobileNumberPortableRegion
 	};
-	enum {
-		numdescrkUndef   = 0, 
-		numdescrkGeneral,        // generalDesc?: NumberDescriptor      # Общее описание всех номеров
-		numdescrkFixedLine,      // fixedLine?: NumberDescriptor        # Стационарные
-		numdescrkMobile,         // mobile?: NumberDescriptor           # Мобильные
-		numdescrkPager,          // pager?: NumberDescriptor            # Пейджеры
-		numdescrkTollFree,       // tollFree?: NumberDescriptor         # Бесплатные (800, 888...)
-		numdescrkPremiumRate,    // premiumRate?: NumberDescriptor      # Платные (900...)
-		numdescrkSharedCost,     // sharedCost?: NumberDescriptor       # Разделение стоимости
-		numdescrkPersonalNumber, // personalNumber?: NumberDescriptor   # Персональные номера
-		numdescrkVoIP,           // voip?: NumberDescriptor             # VoIP
-		numdescrkUAN,            // uan?: NumberDescriptor              # Унифицированные доступные номера 
-		numdescrkVoiceMail,      // voicemail?: NumberDescriptor        # Голосовая почта
-	};
+	/*enum {
+		numdescrkUndef     = 0, 
+		numdescrkGeneral   = UED::GetRawValue32(UED_PHONENUMBERKIND_GENERAL),   // generalDesc?: NumberDescriptor      # Общее описание всех номеров
+		numdescrkFixedLine = UED::GetRawValue32(UED_PHONENUMBERKIND_FIXEDLINE), // fixedLine?: NumberDescriptor        # Стационарные
+		numdescrkMobile = UED::GetRawValue32(UED_PHONENUMBERKIND_MOBILE),         // mobile?: NumberDescriptor           # Мобильные
+		numdescrkPager = UED::GetRawValue32(UED_PHONENUMBERKIND_FIXEDLINE),          // pager?: NumberDescriptor            # Пейджеры
+		numdescrkTollFree = UED::GetRawValue32(UED_PHONENUMBERKIND_FIXEDLINE),       // tollFree?: NumberDescriptor         # Бесплатные (800, 888...)
+		numdescrkPremiumRate = UED::GetRawValue32(UED_PHONENUMBERKIND_FIXEDLINE),    // premiumRate?: NumberDescriptor      # Платные (900...)
+		numdescrkSharedCost = UED::GetRawValue32(UED_PHONENUMBERKIND_FIXEDLINE),     // sharedCost?: NumberDescriptor       # Разделение стоимости
+		numdescrkPersonalNumber = UED::GetRawValue32(UED_PHONENUMBERKIND_FIXEDLINE), // personalNumber?: NumberDescriptor   # Персональные номера
+		numdescrkVoIP = UED::GetRawValue32(UED_PHONENUMBERKIND_FIXEDLINE),           // voip?: NumberDescriptor             # VoIP
+		numdescrkUAN = UED::GetRawValue32(UED_PHONENUMBERKIND_FIXEDLINE),            // uan?: NumberDescriptor              # Унифицированные доступные номера 
+		numdescrkVoiceMail = UED::GetRawValue32(UED_PHONENUMBERKIND_FIXEDLINE),      // voicemail?: NumberDescriptor        # Голосовая почта
+	};*/
 
 	static uint32 ParsePossibleLengths(const char * pText);
-	static bool   GetNumberDescriptorSymb(int ndId, SString & rSymb);
+	static bool   GetNumberDescriptorSymb(uint64 uedNdId, SString & rSymb);
 
 	struct NumberDescriptor {
 		NumberDescriptor();
@@ -54558,7 +54549,7 @@ public:
 		int    FromJsonObj(SStrGroup & rPool, const SJson * pJs);
 
 		long   Priority; // @firstmember		
-		uint   Kind; // numdescrkXXX
+		uint64 UedPhoneNumberKind;   // UED_PHONENUMBERKIND_XXX
 		uint32 PossibleLen_National; //"possibleLengths": { "national": "10" },
 		uint32 PossibleLen_LocalOnly;
 		uint   NationalPatternP; //"nationalNumberPattern": "[3-9]\\d{9}",
@@ -54584,7 +54575,8 @@ public:
 		int    FromJsonObj(SStrGroup & rPool, const SJson * pJs);
 
 		char   Id[8];
-		char   E164[8]; // Телефонный код страны в E.164 ("1", "7", "44")
+		char   E164[8];  // Телефонный код страны в E.164 ("1", "7", "44")
+		uint64 UedStatu; // Если Id соответствует коду страны, то UedStatu равен UED-идентификатору этой страны
 		uint   Flags;
 		uint   LeadingDigitsSetP[6]; // leadingDigits?: string[]      # Префиксы для разрешения коллизий кодов
 		//
@@ -54607,24 +54599,66 @@ public:
 			stValid = 0x0001
 		};
 		uint   State;
-		uint   TerrIdx; // [1..] Индекс территории
-		uint   NumberDescrIdx;  // [1...] Сработавший паттерн NumberDescriptor внутри Terr
-		uint   DescriptorKind;  // numdescrkMobile, numdescrkFixedLine, etc.
-		float  Confidence;      // 0.0 - 1.0
+		uint   TerrIdx;            // [1..] Индекс территории
+		uint   NumberDescrIdx;     // [1...] Сработавший паттерн NumberDescriptor внутри Terr
+		uint64 UedPhoneNumberKind; // numdescrkMobile, numdescrkFixedLine, etc.
+		float  Confidence;         // 0.0 - 1.0
+		char   CarrierName[48];    // Наименование оператора передачи данных в ascii-кодировке
 	};
 
 	static void SortValidationResult(TSVector <ValidationResult> & rList);
+	static int  MakeCarrierSourceData(const char * pSrcDir, const char * pDestFilePath);
 
 	PhoneNumberMetaData();
-	int    ParseJsonFile(const char * pJsFileName);
+	bool   Load();
+	bool   IsValid() const { return !(State & stError); }
+	int    ValidateNumber(const char * pRawInput, size_t rawInputLen, TSVector <ValidationResult> * pResultList) const;
 	int    ValidateNumber(const char * pRawInput, TSVector <ValidationResult> * pResultList) const;
 	int    MakeValidationResultText(const ValidationResult & rR, SString & rBuf) const;
 	int    GetValidationResultId(const ValidationResult & rR, SString & rBuf) const;
 private:
+	//
+	// Descr: Таблица префиксов телефонных номеров, ассоциированных с наименованием оператора связи
+	// Note: prefix_lenght[3..9]. Нет префиксов, начинающихся с 0 следовательно все возможные префиксы можно трактовать как 
+	//   положительные числа не более 1E9.
+	//
+	class CarrierPrefixSet {
+	public:
+		CarrierPrefixSet();
+		int    Load(const char * pFileName);
+		//
+		// ARG(pCode IN): Номер телефона с междунароным префиксом и без символа + впереди (только десятичные цифры)
+		// Returns:
+		//   true - found
+		//   false - not found
+		//
+		bool   FindPrefixForCode(const char * pCode, SString * pPrefix, SString * pCarrierSymb) const;
+	private:
+		TokenSymbHashTable TsHt;
+	};
+	int    ParseJsonFile(const char * pJsFileName);
 	int    PreprocessPatterns();
-
+	enum {
+		stError = 0x0001 // Флаг устанавливается в State если не удалось загрузить данные функцией ParseJsonFile
+	};
+	uint   State;
 	TSCollection <Terr> L;
+	CarrierPrefixSet CrrPfxS;
 	SStrGroup StrPool;
+};
+//
+// Descr: Класс, унаследованный от STokenRecognizer с целью реализации дополнительного функционала. В частности,
+//  проверки на номер телефона с помощью SLibPhoneNumber (libphonenumber).
+//
+class PPTokenRecognizer : public STokenRecognizer {
+public:
+	PPTokenRecognizer();
+private:
+	virtual int PostImplement(ImplementBlock & rIb, const uchar * pToken, int len, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat);
+	TSVector <PhoneNumberMetaData::ValidationResult> PhmdVrL; // @v12.6.3 @fastreuse
+// @v12.6.3 #if(_MSC_VER >= 1900)
+// @v12.6.3 	SLibPhoneNumber PhnL;
+// @v12.6.3 #endif
 };
 //
 //
@@ -63343,14 +63377,14 @@ SString & STDCALL PPMakeTempFileName(const char * pPrefix, const char * pExt, lo
 //
 // Descr: Удаляет файлы, пути к которым перечислены в массиве pFileList
 //
-int    PPRemoveFiles(const /*PPFileNameArray*/SFileEntryPool * pFileList, uint * pSuccCount, uint * pErrCount);
+int    PPRemoveFiles(const SFileEntryPool * pFileList, uint * pSuccCount, uint * pErrCount);
 int    PPRemoveFilesByExt(const char * pSrc, const char * pExt, uint * pSuccCount, uint * pErrCount);
 int    GetFilesFromMailServer2(PPID mailAccID, const char * pDestPath, long filtFlags, int clean, int deleMsg);
 //
 // Передает выборку файлов по адресу pDestAddr, используя учетную запись mailAccID
 // и тему сообщения pSubj.
 //
-int    PutFilesToEmail(const /*PPFileNameArray*/SFileEntryPool *, PPID mailAccID, const char * pDestAddr, const char * pSubj, long trnsmFlags);
+int    PutFilesToEmail(const SFileEntryPool *, PPID mailAccID, const char * pDestAddr, const char * pSubj, long trnsmFlags);
 int    PutFilesToEmail2(const StringSet * pFileList, PPID mailAccID, const char * pDestAddr, const char * pSubj, long trnsmFlags);
 int    PPSendEmail(const PPInternetAccount & rAcc, const SMailMessage & rMsg, MailCallbackProc cbProc, const IterCounter & rMsgCounter);
 //
@@ -63910,8 +63944,7 @@ int    STDCALL ViewGoodsMov(int modeless);
 // Descr: Вызывает диалог расчета формул по товару goodsID.
 //   Расчет формул по товару возможен тогда, когда товар принадлежит
 //   классу, для которого определена по крайней мере одна формула.
-//   Диалог содержит комбо-бокс выбора формулы, три поля для ввода аргументов
-//   и одно поле рещультата.
+//   Диалог содержит комбо-бокс выбора формулы, три поля для ввода аргументов и одно поле результата.
 //   Вызывающая функция может задать один из аргументов, передав его номер [1..3]
 //   через параметр argIdx и значение через параметр arg.
 //   По указателю pVal будет присвоен результат последнего расчета.
@@ -64682,7 +64715,7 @@ int Convert5009();
 int Convert5200();
 int Convert5207();
 int Convert5501();
-// [Перенесено в Convert6202()] int Convert5506();    // @v5.5.6 VADIM
+// [Перенесено в Convert6202()] int Convert5506();    // VADIM
 // [Перенесено в Convert6202()] int Convert5512();    // @v5.5.12 Добавился индекс к таблице World
 int Convert5608();    // ObjSync Значительное изменение
 int Convert5810();    // Reference-->Reference2; CGoodsLine
@@ -64690,7 +64723,7 @@ int Convert6202();    // (SpecSeries значительное изменение
 int Convert6303();
 int Convert6407();
 int Convert6611();
-// [Перенесено в Convert7601()] int Convert6708();    // @v6.7.8
+// [Перенесено в Convert7601()] int Convert6708();
 // @v12.2.6 int Convert7311();
 int ConvertQuot720();
 int Convert7305();

@@ -10368,6 +10368,9 @@ int CheckPaneDialog::VerifyChZnMark(PgsBlock & rBlk, int chznProdType/*gt_rec.Ch
 							local_err_code = PPERR_CHZNMARKPMFAULT;
 						else if(p_cle->Flags & PPChZnPrcssr::CodeStatus::fSold)
 							local_err_code = PPERR_CHZNMARKPMFAULT_SOLD;
+						else if(!(p_cle->Flags & PPChZnPrcssr::CodeStatus::fIsOwner)) { // @v12.6.3
+							local_err_code = PPERR_CHZNMARKPMFAULT_NOTOWNED;
+						}
 						else if(checkdate(p_cle->ExpiryDtm.d) && getcurdate_() >= p_cle->ExpiryDtm.d) // @v12.1.1
 							local_err_code = PPERR_CHZNMARKPMFAULT_EXPIRY;
 						if(local_err_code) {

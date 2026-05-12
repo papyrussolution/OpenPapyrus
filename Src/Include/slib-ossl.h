@@ -41,5 +41,6 @@
 #include <openssl/asn1.h>
 #include <openssl/objects.h>
 #include <openssl/pkcs7.h>
+#include <openssl/core_names.h> // @v12.6.3
 
 #endif // __SLIB_OSSL_H

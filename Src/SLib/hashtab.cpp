@@ -1,5 +1,5 @@
 // HASHTAB.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -41,8 +41,9 @@ int FASTCALL HashTableBase::Copy(const HashTableBase & rSrc)
 	if(rSrc.P_Tab) {
 		THROW(InitTab());
 		memcpy(P_Tab, rSrc.P_Tab, Size * sizeof(Entry));
-		for(size_t i = 0; i < Size; i++)
+		for(size_t i = 0; i < Size; i++) {
 			THROW(P_Tab[i].Copy(rSrc.P_Tab[i]));
+		}
 	}
 	Flags = rSrc.Flags;
 	AddCount = rSrc.AddCount;
@@ -61,10 +62,13 @@ int HashTableBase::InitTab()
 
 void HashTableBase::DestroyTabItems()
 {
-	if(P_Tab)
-		for(size_t i = 0; i < Size; i++)
-			if(P_Tab[i].P_Ext)
+	if(P_Tab) {
+		for(size_t i = 0; i < Size; i++) {
+			if(P_Tab[i].P_Ext) {
 				ZFREE(P_Tab[i].P_Ext);
+			}
+		}
+	}
 }
 
 int HashTableBase::CalcStat(Stat & rResult) const
@@ -166,9 +170,11 @@ int FASTCALL HashTableBase::Entry::Copy(const SymbHashTable::Entry & rSrc)
 			Count = 1;
 			ok = 0;
 		}
-		else
-			for(size_t i = 0; i < (uint)(Count-1); i++)
+		else {
+			for(size_t i = 0; i < (uint)(Count-1); i++) {
 				P_Ext[i] = rSrc.P_Ext[i];
+			}
+		}
 	}
 	else
 		P_Ext = 0;
@@ -247,7 +253,7 @@ int TokenSymbHashTable::Put(long token, const char * pSymb)
 	if(!Get(token, 0)) {
 		THROW(InitTab());
 		THROW(AddS(pSymb, &pos));
-		size_t h = Hash(token);
+		const  size_t h = Hash(token);
 		c = P_Tab[h].SetVal(token, pos);
 		AddCount++;
 		if(c > 1) {
@@ -473,8 +479,7 @@ int SymbHashTable::Add(const char * pSymb, uint val, uint * pPos)
 		AddCount++;
 		if(c > 1) {
 			CollCount++;
-			if((c-1) > MaxTail)
-				MaxTail = c-1;
+			SETMAX(MaxTail, c-1);
 		}
 	}
 	CATCH
@@ -482,6 +487,35 @@ int SymbHashTable::Add(const char * pSymb, uint val, uint * pPos)
 	ENDCATCH
 	ASSIGN_PTR(pPos, pos);
 	return c;
+}
+
+bool SymbHashTable::Search(const char * pSymb, uint * pVal, uint * pPos) const
+{
+	bool   ok = false;
+	if(P_Tab) {
+		size_t h  = Hash(pSymb);
+		const  Entry & r_entry = P_Tab[h];
+		if(r_entry.Count > 0) {
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			uint   pos = static_cast<uint>(r_entry.Val.Key);
+			if(NamePool.get(pos, r_temp_buf) && r_temp_buf.IsEq(pSymb)) {
+				ASSIGN_PTR(pVal, r_entry.Val.Val);
+				ASSIGN_PTR(pPos, pos);
+				ok = true;
+			}
+			else {
+				for(uint i = 1; !ok && i < r_entry.Count; i++) {
+					pos = static_cast<uint>(r_entry.P_Ext[i-1].Key);
+					if(NamePool.get(pos, r_temp_buf) && r_temp_buf.IsEq(pSymb)) {
+						ASSIGN_PTR(pVal, r_entry.P_Ext[i-1].Val);
+						ASSIGN_PTR(pPos, pos);
+						ok = true;
+					}
+				}
+			}
+		}
+	}
+	return ok;
 }
 
 int SymbHashTable::Add(const char * pSymb, uint val)
@@ -524,63 +558,37 @@ int SymbHashTable::GetByAssoc(uint val, SString & rBuf) const
 	return ok;
 }
 
-bool SymbHashTable::Search(const char * pSymb, uint * pVal, uint * pPos) const
-{
-	bool   ok = false;
-	if(P_Tab) {
-		size_t h  = Hash(pSymb);
-		const  Entry & r_entry = P_Tab[h];
-		if(r_entry.Count > 0) {
-			SString & r_temp_buf = SLS.AcquireRvlStr();
-			uint   pos = static_cast<uint>(r_entry.Val.Key);
-			if(NamePool.get(pos, r_temp_buf) && r_temp_buf.IsEq(pSymb)) {
-				ASSIGN_PTR(pVal, r_entry.Val.Val);
-				ASSIGN_PTR(pPos, pos);
-				ok = true;
-			}
-			else {
-				for(uint i = 1; !ok && i < r_entry.Count; i++) {
-					pos = static_cast<uint>(r_entry.P_Ext[i-1].Key);
-					if(NamePool.get(pos, r_temp_buf) && r_temp_buf.IsEq(pSymb)) {
-						ASSIGN_PTR(pVal, r_entry.P_Ext[i-1].Val);
-						ASSIGN_PTR(pPos, pos);
-						ok = true;
-					}
-				}
-			}
-		}
-	}
-	return ok;
-}
-
 int SymbHashTable::Del(const char * pSymb, uint * pVal)
 {
 	int    ok = 0;
 	uint   val = 0;
 	if(P_Tab) {
-		size_t h  = Hash(pSymb);
-		uint   pos;
+		const  size_t h  = Hash(pSymb);
 		Entry & r_entry = P_Tab[h];
 		if(r_entry.Count > 0) {
 			SString temp_buf;
-			pos = (uint)r_entry.Val.Key;
+			uint   pos = static_cast<uint>(r_entry.Val.Key);
 			if(NamePool.get(&pos, temp_buf) && temp_buf.Cmp(pSymb, 0) == 0) {
 				val = r_entry.Val.Val;
 				r_entry.Remove__(0);
 				ok = 1;
 			}
-			else
+			else {
 				for(uint i = 1; !ok && i < r_entry.Count; i++) {
-					pos = (uint)r_entry.P_Ext[i-1].Key;
+					pos = static_cast<uint>(r_entry.P_Ext[i-1].Key);
 					if(NamePool.get(&pos, temp_buf) && temp_buf.Cmp(pSymb, 0) == 0) {
 						val = r_entry.P_Ext[i-1].Val;
 						r_entry.Remove__(i);
 						ok = 1;
 					}
 				}
+			}
 		}
-		if(ok && Flags & fUseAssoc && Assoc.BSearch((long)val, &(pos = 0)))
-			Assoc.atFree(pos);
+		if(ok && Flags & fUseAssoc) {
+			uint   assoc_pos = 0;
+			if(Assoc.BSearch(static_cast<long>(val), &assoc_pos))
+				Assoc.atFree(assoc_pos);
+		}
 	}
 	ASSIGN_PTR(pVal, val);
 	return ok;
@@ -1110,10 +1118,7 @@ int PtrHashTable::Del(const void * ptr, uint * pVal)
 	return ok;
 }
 
-void * FASTCALL PtrHashTable::Get(uint pos) const
-{
-	return (pos < Pool.getCount()) ? Pool.at(pos) : 0;
-}
+void * FASTCALL PtrHashTable::Get(uint pos) const { return (pos < Pool.getCount()) ? Pool.at(pos) : 0; }
 
 void * FASTCALL PtrHashTable::GetByAssoc(uint val) const
 {
@@ -1254,11 +1259,8 @@ void * UintHashTable::GetBlock(ulong val, int cr)
 
 void UintHashTable::Clear() { List.clear(); }
 void UintHashTable::Destroy() { List.freeAll(); }
-
-int UintHashTable::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
-{
-	return pCtx->Serialize(dir, &List, rBuf);
-}
+int  FASTCALL UintHashTable::AddNZ(ulong value) { return value ? Add(value) : -1; }
+int  UintHashTable::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx) { return pCtx->Serialize(dir, &List, rBuf); }
 
 int FASTCALL UintHashTable::Add(ulong val)
 {
@@ -1274,11 +1276,6 @@ int FASTCALL UintHashTable::Add(ulong val)
 	}
 	else
 		return 0;
-}
-
-int FASTCALL UintHashTable::AddNZ(ulong value)
-{
-	return value ? Add(value) : -1;
 }
 
 int FASTCALL UintHashTable::Add(const UintHashTable & rS)

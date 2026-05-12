@@ -758,15 +758,13 @@ int CMS_RecipientInfo_kekri_get0_id(CMS_RecipientInfo * ri,
 	return 1;
 }
 
-int CMS_RecipientInfo_set0_key(CMS_RecipientInfo * ri,
-    uchar * key, size_t keylen)
+int CMS_RecipientInfo_set0_key(CMS_RecipientInfo * ri, uchar * key, size_t keylen)
 {
 	CMS_KEKRecipientInfo * kekri;
 	if(ri->type != CMS_RECIPINFO_KEK) {
 		ERR_raise(ERR_LIB_CMS, CMS_R_NOT_KEK);
 		return 0;
 	}
-
 	kekri = ri->d.kekri;
 	kekri->key = key;
 	kekri->keylen = keylen;
@@ -776,28 +774,18 @@ int CMS_RecipientInfo_set0_key(CMS_RecipientInfo * ri,
 static EVP_CIPHER * cms_get_key_wrap_cipher(size_t keylen, const CMS_CTX * ctx)
 {
 	const char * alg = NULL;
-
 	switch(keylen) {
-		case 16:
-		    alg = "AES-128-WRAP";
-		    break;
-		case 24:
-		    alg = "AES-192-WRAP";
-		    break;
-		case 32:
-		    alg = "AES-256-WRAP";
-		    break;
-		default:
-		    return NULL;
+		case 16: alg = "AES-128-WRAP"; break;
+		case 24: alg = "AES-192-WRAP"; break;
+		case 32: alg = "AES-256-WRAP"; break;
+		default: return NULL;
 	}
-	return EVP_CIPHER_fetch(ossl_cms_ctx_get0_libctx(ctx), alg,
-		   ossl_cms_ctx_get0_propq(ctx));
+	return EVP_CIPHER_fetch(ossl_cms_ctx_get0_libctx(ctx), alg, ossl_cms_ctx_get0_propq(ctx));
 }
 
 /* Encrypt content key in KEK recipient info */
 
-static int cms_RecipientInfo_kekri_encrypt(const CMS_ContentInfo * cms,
-    CMS_RecipientInfo * ri)
+static int cms_RecipientInfo_kekri_encrypt(const CMS_ContentInfo * cms, CMS_RecipientInfo * ri)
 {
 	CMS_EncryptedContentInfo * ec;
 	CMS_KEKRecipientInfo * kekri;
@@ -866,9 +854,7 @@ err:
 }
 
 /* Decrypt content key in KEK recipient info */
-
-static int cms_RecipientInfo_kekri_decrypt(CMS_ContentInfo * cms,
-    CMS_RecipientInfo * ri)
+static int cms_RecipientInfo_kekri_decrypt(CMS_ContentInfo * cms, CMS_RecipientInfo * ri)
 {
 	CMS_EncryptedContentInfo * ec;
 	CMS_KEKRecipientInfo * kekri;
@@ -921,7 +907,6 @@ static int cms_RecipientInfo_kekri_decrypt(CMS_ContentInfo * cms,
 		ERR_raise(ERR_LIB_CMS, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
-
 	if(!EVP_DecryptInit_ex(ctx, cipher, NULL, kekri->key, NULL)
 	    || !EVP_DecryptUpdate(ctx, ukey, &ukeylen,
 	    kekri->encryptedKey->data,
@@ -931,34 +916,24 @@ static int cms_RecipientInfo_kekri_decrypt(CMS_ContentInfo * cms,
 		goto err;
 	}
 	ukeylen += outlen;
-
 	OPENSSL_clear_free(ec->key, ec->keylen);
 	ec->key = ukey;
 	ec->keylen = ukeylen;
-
 	r = 1;
-
 err:
 	EVP_CIPHER_free(cipher);
 	if(!r)
 		OPENSSL_free(ukey);
 	EVP_CIPHER_CTX_free(ctx);
-
 	return r;
 }
 
 int CMS_RecipientInfo_decrypt(CMS_ContentInfo * cms, CMS_RecipientInfo * ri)
 {
 	switch(ri->type) {
-		case CMS_RECIPINFO_TRANS:
-		    return cms_RecipientInfo_ktri_decrypt(cms, ri);
-
-		case CMS_RECIPINFO_KEK:
-		    return cms_RecipientInfo_kekri_decrypt(cms, ri);
-
-		case CMS_RECIPINFO_PASS:
-		    return ossl_cms_RecipientInfo_pwri_crypt(cms, ri, 0);
-
+		case CMS_RECIPINFO_TRANS: return cms_RecipientInfo_ktri_decrypt(cms, ri);
+		case CMS_RECIPINFO_KEK: return cms_RecipientInfo_kekri_decrypt(cms, ri);
+		case CMS_RECIPINFO_PASS: return ossl_cms_RecipientInfo_pwri_crypt(cms, ri, 0);
 		default:
 		    ERR_raise(ERR_LIB_CMS, CMS_R_UNSUPPORTED_RECIPIENTINFO_TYPE);
 		    return 0;
@@ -968,18 +943,10 @@ int CMS_RecipientInfo_decrypt(CMS_ContentInfo * cms, CMS_RecipientInfo * ri)
 int CMS_RecipientInfo_encrypt(const CMS_ContentInfo * cms, CMS_RecipientInfo * ri)
 {
 	switch(ri->type) {
-		case CMS_RECIPINFO_TRANS:
-		    return cms_RecipientInfo_ktri_encrypt(cms, ri);
-
-		case CMS_RECIPINFO_AGREE:
-		    return ossl_cms_RecipientInfo_kari_encrypt(cms, ri);
-
-		case CMS_RECIPINFO_KEK:
-		    return cms_RecipientInfo_kekri_encrypt(cms, ri);
-
-		case CMS_RECIPINFO_PASS:
-		    return ossl_cms_RecipientInfo_pwri_crypt(cms, ri, 1);
-
+		case CMS_RECIPINFO_TRANS: return cms_RecipientInfo_ktri_encrypt(cms, ri);
+		case CMS_RECIPINFO_AGREE: return ossl_cms_RecipientInfo_kari_encrypt(cms, ri);
+		case CMS_RECIPINFO_KEK: return cms_RecipientInfo_kekri_encrypt(cms, ri);
+		case CMS_RECIPINFO_PASS: return ossl_cms_RecipientInfo_pwri_crypt(cms, ri, 1);
 		default:
 		    ERR_raise(ERR_LIB_CMS, CMS_R_UNSUPPORTED_RECIPIENT_TYPE);
 		    return 0;
@@ -992,27 +959,24 @@ static void cms_env_set_originfo_version(CMS_EnvelopedData * env)
 {
 	CMS_OriginatorInfo * org = env->originatorInfo;
 	int i;
-	if(org == NULL)
-		return;
-	for(i = 0; i < sk_CMS_CertificateChoices_num(org->certificates); i++) {
-		CMS_CertificateChoices * cch;
-		cch = sk_CMS_CertificateChoices_value(org->certificates, i);
-		if(cch->type == CMS_CERTCHOICE_OTHER) {
-			env->version = 4;
-			return;
+	if(org) {
+		for(i = 0; i < sk_CMS_CertificateChoices_num(org->certificates); i++) {
+			CMS_CertificateChoices * cch = sk_CMS_CertificateChoices_value(org->certificates, i);
+			if(cch->type == CMS_CERTCHOICE_OTHER) {
+				env->version = 4;
+				return;
+			}
+			else if(cch->type == CMS_CERTCHOICE_V2ACERT) {
+				if(env->version < 3)
+					env->version = 3;
+			}
 		}
-		else if(cch->type == CMS_CERTCHOICE_V2ACERT) {
-			if(env->version < 3)
-				env->version = 3;
-		}
-	}
-
-	for(i = 0; i < sk_CMS_RevocationInfoChoice_num(org->crls); i++) {
-		CMS_RevocationInfoChoice * rch;
-		rch = sk_CMS_RevocationInfoChoice_value(org->crls, i);
-		if(rch->type == CMS_REVCHOICE_OTHER) {
-			env->version = 4;
-			return;
+		for(i = 0; i < sk_CMS_RevocationInfoChoice_num(org->crls); i++) {
+			CMS_RevocationInfoChoice * rch = sk_CMS_RevocationInfoChoice_value(org->crls, i);
+			if(rch->type == CMS_REVCHOICE_OTHER) {
+				env->version = 4;
+				return;
+			}
 		}
 	}
 }
@@ -1021,18 +985,14 @@ static void cms_env_set_version(CMS_EnvelopedData * env)
 {
 	int i;
 	CMS_RecipientInfo * ri;
-
 	/*
 	 * Can't set version higher than 4 so if 4 or more already nothing to do.
 	 */
 	if(env->version >= 4)
 		return;
-
 	cms_env_set_originfo_version(env);
-
 	if(env->version >= 3)
 		return;
-
 	for(i = 0; i < sk_CMS_RecipientInfo_num(env->recipientInfos); i++) {
 		ri = sk_CMS_RecipientInfo_value(env->recipientInfos, i);
 		if(ri->type == CMS_RECIPINFO_PASS || ri->type == CMS_RECIPINFO_OTHER) {
@@ -1051,12 +1011,10 @@ static void cms_env_set_version(CMS_EnvelopedData * env)
 	env->version = 0;
 }
 
-static int cms_env_encrypt_content_key(const CMS_ContentInfo * cms,
-    STACK_OF(CMS_RecipientInfo) * ris)
+static int cms_env_encrypt_content_key(const CMS_ContentInfo * cms, STACK_OF(CMS_RecipientInfo) * ris)
 {
 	int i;
 	CMS_RecipientInfo * ri;
-
 	for(i = 0; i < sk_CMS_RecipientInfo_num(ris); i++) {
 		ri = sk_CMS_RecipientInfo_value(ris, i);
 		if(CMS_RecipientInfo_encrypt(cms, ri) <= 0)
@@ -1076,26 +1034,18 @@ static void cms_env_clear_ec(CMS_EncryptedContentInfo * ec)
 static BIO * cms_EnvelopedData_Decryption_init_bio(CMS_ContentInfo * cms)
 {
 	CMS_EncryptedContentInfo * ec = cms->d.envelopedData->encryptedContentInfo;
-	BIO * contentBio = ossl_cms_EncryptedContent_init_bio(ec,
-		ossl_cms_get0_cmsctx(cms));
+	BIO * contentBio = ossl_cms_EncryptedContent_init_bio(ec, ossl_cms_get0_cmsctx(cms));
 	EVP_CIPHER_CTX * ctx = NULL;
-
 	if(contentBio == NULL)
 		return NULL;
-
 	BIO_get_cipher_ctx(contentBio, &ctx);
 	if(!ctx) {
 		BIO_free(contentBio);
 		return NULL;
 	}
-	/*
-	 * If the selected cipher supports unprotected attributes,
-	 * deal with it using special ctrl function
-	 */
-	if((EVP_CIPHER_get_flags(EVP_CIPHER_CTX_get0_cipher(ctx))
-	    & EVP_CIPH_FLAG_CIPHER_WITH_MAC) != 0
-	    && EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_PROCESS_UNPROTECTED, 0,
-	    cms->d.envelopedData->unprotectedAttrs) <= 0) {
+	// If the selected cipher supports unprotected attributes, deal with it using special ctrl function
+	if((EVP_CIPHER_get_flags(EVP_CIPHER_CTX_get0_cipher(ctx)) & EVP_CIPH_FLAG_CIPHER_WITH_MAC) != 0
+	    && EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_PROCESS_UNPROTECTED, 0, cms->d.envelopedData->unprotectedAttrs) <= 0) {
 		BIO_free(contentBio);
 		return NULL;
 	}
@@ -1133,12 +1083,11 @@ err:
 BIO * ossl_cms_EnvelopedData_init_bio(CMS_ContentInfo * cms)
 {
 	if(cms->d.envelopedData->encryptedContentInfo->cipher != NULL) {
-		/* If cipher is set it's encryption */
-		return cms_EnvelopedData_Encryption_init_bio(cms);
+		return cms_EnvelopedData_Encryption_init_bio(cms); /* If cipher is set it's encryption */
 	}
-
-	/* If cipher is not set it's decryption */
-	return cms_EnvelopedData_Decryption_init_bio(cms);
+	else {
+		return cms_EnvelopedData_Decryption_init_bio(cms); /* If cipher is not set it's decryption */
+	}
 }
 
 BIO * ossl_cms_AuthEnvelopedData_init_bio(CMS_ContentInfo * cms)
@@ -1213,15 +1162,11 @@ int ossl_cms_AuthEnvelopedData_final(CMS_ContentInfo * cms, BIO * cmsbio)
 	uchar * tag = NULL;
 	int taglen, ok = 0;
 	BIO_get_cipher_ctx(cmsbio, &ctx);
-	/*
-	 * The tag is set only for encryption. There is nothing to do for
-	 * decryption.
-	 */
+	// The tag is set only for encryption. There is nothing to do for decryption.
 	if(!EVP_CIPHER_CTX_is_encrypting(ctx))
 		return 1;
 	taglen = EVP_CIPHER_CTX_get_tag_length(ctx);
-	if(taglen <= 0 || (tag = (uchar *)OPENSSL_malloc(taglen)) == NULL || 
-		EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_AEAD_GET_TAG, taglen, tag) <= 0) {
+	if(taglen <= 0 || (tag = (uchar *)OPENSSL_malloc(taglen)) == NULL || EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_AEAD_GET_TAG, taglen, tag) <= 0) {
 		ERR_raise(ERR_LIB_CMS, CMS_R_CIPHER_GET_TAG);
 		goto err;
 	}
@@ -1232,7 +1177,6 @@ err:
 	OPENSSL_free(tag);
 	return ok;
 }
-
 /*
  * Get RecipientInfo type (if any) supported by a key (public or private). To
  * retain compatibility with previous behaviour if the ctrl value isn't
@@ -1240,7 +1184,7 @@ err:
  */
 int ossl_cms_pkey_get_ri_type(EVP_PKEY * pk)
 {
-	/* Check types that we know about */
+	// Check types that we know about
 	if(EVP_PKEY_is_a(pk, "DH"))
 		return CMS_RECIPINFO_AGREE;
 	else if(EVP_PKEY_is_a(pk, "DHX"))
@@ -1251,10 +1195,7 @@ int ossl_cms_pkey_get_ri_type(EVP_PKEY * pk)
 		return CMS_RECIPINFO_AGREE;
 	else if(EVP_PKEY_is_a(pk, "RSA"))
 		return CMS_RECIPINFO_TRANS;
-	/*
-	 * Otherwise this might ben an engine implementation, so see if we can get
-	 * the type from the ameth.
-	 */
+	// Otherwise this might ben an engine implementation, so see if we can get the type from the ameth.
 	if(pk->ameth && pk->ameth->pkey_ctrl) {
 		int r;
 		int i = pk->ameth->pkey_ctrl(pk, ASN1_PKEY_CTRL_CMS_RI_TYPE, 0, &r);

@@ -1,5 +1,5 @@
 // AMTDLG.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2014, 2015, 2016, 2017, 2018, 2020, 2024, 2025
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2014, 2015, 2016, 2017, 2018, 2020, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -34,9 +34,13 @@ public:
 		if(Data.AmtTypeID == 0 && P_RestrictList && P_RestrictList->getCount() == 1)
 			Data.AmtTypeID = P_RestrictList->at(0);
 		SetupAmtTypeCombo(this, CTLSEL_BILLAMT_AMTTYPE, Data.AmtTypeID, OLW_CANINSERT, 0, P_RestrictList);
-		disableCtrl(CTL_BILLAMT_BASEAMT, true);
-		disableCtrls(!CanEdit, CTLSEL_BILLAMT_AMTTYPE, CTLSEL_BILLAMT_CUR, 0);
-		disableCtrls(Data.AmtTypeID == PPAMT_CRATE, CTL_BILLAMT_CRATE, 0);
+		// @v12.6.3 disableCtrl(CTL_BILLAMT_BASEAMT, true);
+		setCtrlReadOnly(CTL_BILLAMT_BASEAMT, true); // @v12.6.3 
+		// @v12.6.3 disableCtrls(!CanEdit, CTLSEL_BILLAMT_AMTTYPE, CTLSEL_BILLAMT_CUR, 0);
+		disableCtrl(CTLSEL_BILLAMT_AMTTYPE, !CanEdit); // @v12.6.3
+		disableCtrl(CTLSEL_BILLAMT_CUR, !CanEdit); // @v12.6.3
+		// @v12.6.3 disableCtrls(Data.AmtTypeID == PPAMT_CRATE, CTL_BILLAMT_CRATE, 0);
+		setCtrlReadOnly(CTL_BILLAMT_CRATE, Data.AmtTypeID == PPAMT_CRATE); // @v12.6.3
 		if(!CanEdit)
 			selectCtrl(CTL_BILLAMT_AMOUNT);
 		ca_rec.Amount = Data.Amt;
@@ -174,8 +178,7 @@ int AmtListDialog::editAmount(int pos)
 	int    ok = -1;
 	int    valid_data = 0;
 	int    can_edit = 0;
-	const  int p = (pos >= 0) ? (int)PosList.at(static_cast<uint>(pos)) : -1;
-	AmountDialog * dlg = 0;
+	const  int p = (pos >= 0) ? PosList.at(static_cast<uint>(pos)) : -1;
 	AmtEntry ae;
 	AmtDialogEntry dlg_data;
 	MEMSZERO(dlg_data);
@@ -189,9 +192,10 @@ int AmtListDialog::editAmount(int pos)
 	else
 		can_edit = 1;
 	dlg_data.CRateDate = CRateDate;
-	if(CheckDialogPtrErr(&(dlg = new AmountDialog(can_edit, &Data, HasRestrict ? &RestrictList : 0)))) {
+	AmountDialog * dlg = new AmountDialog(can_edit, &Data, HasRestrict ? &RestrictList : 0);
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setDTS(&dlg_data);
-		while(!valid_data && ExecView(dlg) == cmOK)
+		while(!valid_data && ExecView(dlg) == cmOK) {
 			if(dlg->getDTS(&dlg_data)) {
 				ae.AmtTypeID = dlg_data.AmtTypeID;
 				ae.CurID = dlg_data.CurID;
@@ -206,6 +210,7 @@ int AmtListDialog::editAmount(int pos)
 				}
 				ok = valid_data = 1;
 			}
+		}
 		delete dlg;
 	}
 	else
@@ -379,11 +384,12 @@ int StaffAmtListDialog::editItem(long pos, long id)
 int StaffAmtListDialog::delItem(long pos, long id)
 {
 	int    ok = -1;
-	if(checkupper((uint)pos, Data.getCount()))
+	if(checkupper((uint)pos, Data.getCount())) {
 		if(Data.Put(pos, 0))
 			ok = 1;
 		else
 			PPError();
+	}
 	return ok;
 }
 
@@ -443,7 +449,7 @@ IMPL_HANDLE_EVENT(BillTaxesDialog)
 	else if(TVBROADCAST && TVCMD == cmChangedFocus) {
 		TView * p_v = TVINFOVIEW;
 		const uint ctl_id = p_v->GetId();
-		if(oneof4(ctl_id, CTL_BILLTAX_VAT1, CTL_BILLTAX_VAT2, CTL_BILLTAX_VAT3, CTL_BILLTAX_STAX))
+		if(oneof6(ctl_id, CTL_BILLTAX_VAT1, CTL_BILLTAX_VAT2, CTL_BILLTAX_VAT3, CTL_BILLTAX_VAT4, CTL_BILLTAX_VAT5, CTL_BILLTAX_STAX)) // @v12.6.3 @fix (CTL_BILLTAX_VAT4, CTL_BILLTAX_VAT5)
 			calcTotal();
 		else
 			return;
@@ -477,27 +483,29 @@ void BillTaxesDialog::calcTax(int taxN)
 		ctl_id = CTL_BILLTAX_STAX;
 	}
 	else {
-		if(taxN == 1) {
-			rate = fdiv100i(Tais.VatRate[0]);
-			ctl_id = CTL_BILLTAX_VAT1;
+		switch(taxN) {
+			case 1:
+				rate = fdiv100i(Tais.VatRate[0]);
+				ctl_id = CTL_BILLTAX_VAT1;
+				break;
+			case 2:
+				rate = fdiv100i(Tais.VatRate[1]);
+				ctl_id = CTL_BILLTAX_VAT2;
+				break;
+			case 3:
+				rate = fdiv100i(Tais.VatRate[2]);
+				ctl_id = CTL_BILLTAX_VAT3;
+				break;
+			case 4: // @v12.2.11
+				rate = fdiv100i(Tais.VatRate[3]);
+				ctl_id = CTL_BILLTAX_VAT4;
+				break;
+			case 5: // @v12.2.11
+				rate = fdiv100i(Tais.VatRate[4]);
+				ctl_id = CTL_BILLTAX_VAT5;
+				break;
 		}
-		else if(taxN == 2) {
-			rate = fdiv100i(Tais.VatRate[1]);
-			ctl_id = CTL_BILLTAX_VAT2;
-		}
-		else if(taxN == 3) {
-			rate = fdiv100i(Tais.VatRate[2]);
-			ctl_id = CTL_BILLTAX_VAT3;
-		}
-		else if(taxN == 4) { // @v12.2.11
-			rate = fdiv100i(Tais.VatRate[3]);
-			ctl_id = CTL_BILLTAX_VAT4;
-		}
-		else if(taxN == 5) { // @v12.2.11
-			rate = fdiv100i(Tais.VatRate[4]);
-			ctl_id = CTL_BILLTAX_VAT5;
-		}
-		double stax = getCtrlReal(CTL_BILLTAX_STAX);
+		const  double stax = getCtrlReal(CTL_BILLTAX_STAX);
 		amt = (bill_amt - stax) * SalesTaxMult(rate);
 	}
 	if(ctl_id) {
@@ -514,13 +522,14 @@ void BillTaxesDialog::calcTotal()
 	for(uint i = 0; i < Data.getCount(); i++) {
 		const AmtEntry & r_ae = Data.at(i);
 		PPAmountType amtt_rec;
-		if(r_ae.Amt != 0.0 && AmtObj.Fetch(r_ae.AmtTypeID, &amtt_rec) > 0)
+		if(r_ae.Amt != 0.0 && AmtObj.Fetch(r_ae.AmtTypeID, &amtt_rec) > 0) {
 			if(amtt_rec.IsTax(GTAX_VAT))
 				amt += r_ae.Amt / SalesTaxMult(fdiv100i(amtt_rec.TaxRate));
 			else if(!tag_stax && amtt_rec.IsTax(GTAX_SALES)) {
 				amt += r_ae.Amt;
 				tag_stax = 1;
 			}
+		}
 	}
 	setCtrlReal(CTL_BILLTAX_AMOUNT, amt);
 }
@@ -580,9 +589,10 @@ int EditBillTaxes(AmtList * pAmounts, double amount)
 		if(CheckDialogPtrErr(&dlg)) {
 			dlg->setDTS(pAmounts, &tais);
 			dlg->setCtrlData(CTL_BILLTAX_BILLAMT, &amount);
-			while(ok < 0 && ExecView(dlg) == cmOK)
+			while(ok < 0 && ExecView(dlg) == cmOK) {
 				if(dlg->getDTS(pAmounts))
 					ok = 1;
+			}
 			delete dlg;
 		}
 		else

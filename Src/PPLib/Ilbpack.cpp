@@ -1551,8 +1551,8 @@ static SString & __Debug_TraceLotSync(const ILBillPacket & rIPack, const PPBillP
 		pos_list.clear();
 		if(pPack) {
 			for(uint j = 0; j < pPack->GetTCount(); j++) {
-				const PPTransferItem & r_ti = pPack->TI(j);
-				if(r_ti.SrcIltiPos == (int)i)
+				const  PPTransferItem & r_ti = pPack->TI(j);
+				if(r_ti.SrcIltiPos == static_cast<int16>(i))
 					pos_list.add(j);
 			}
 		}
@@ -1588,20 +1588,26 @@ static SString & __Debug_TraceLotSync(const ILBillPacket & rIPack, const PPBillP
 int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, ObjTransmContext * pCtx, int use_ta)
 {
 	assert(rPack.Rec.ID >= 0);
-	const int trace_sync_lot = BIN(DS.CheckExtFlag(ECF_TRACESYNCLOT));
-	const int _update = BIN(rPack.Rec.ID > 0);
+	constexpr long fmask = BILLF_TOTALDISCOUNT|BILLF_WHITELABEL|BILLF_FIXEDAMOUNTS|BILLF_SHIPPED/*| BILLF_RMVEXCISE*/;
+	constexpr long fmask2 = BILLF2_BHT|BILLF2_TSESSPAYM|BILLF2_DECLINED|BILLF2_EDI_ACCP|BILLF2_EDI_DECL|BILLF2_EDIAR_AGR|BILLF2_EDIAR_DISAGR;
+	const  bool trace_sync_lot = DS.CheckExtFlag(ECF_TRACESYNCLOT);
+	const  bool _update = (rPack.Rec.ID > 0);
+	const  bool is_intr_expnd = IsIntrExpndOp(rPack.Rec.OpID);
+	const  PPID op_type_id = GetOpType(rPack.Rec.OpID);
 
-	int    ok = 1, warn = 0;
-	SString msg_buf, fmt_buf, bill_descr_buf, temp_buf;
+	int    ok = 1;
+	int    warn = 0;
+	SString temp_buf;
+	SString msg_buf;
+	SString fmt_buf;
+	SString bill_descr_buf;
 	SString goods_name;
 	SString org_serial;
 	SString local_serial;
-	SString org_clb_number, clb_number;
-	uint   i;
-	const  long   fmask = BILLF_TOTALDISCOUNT|BILLF_WHITELABEL|BILLF_FIXEDAMOUNTS|BILLF_SHIPPED/*| BILLF_RMVEXCISE*/;
-	const  long   fmask2 = BILLF2_BHT|BILLF2_TSESSPAYM|BILLF2_DECLINED|BILLF2_EDI_ACCP|BILLF2_EDI_DECL|BILLF2_EDIAR_AGR|BILLF2_EDIAR_DISAGR;
-	PPID   op_type_id = 0;
-	ILTI * p_ilti;
+	SString org_clb_number;
+	SString clb_number;
+	//uint   i;
+	//ILTI * p_ilti;
 	PPAccTurn * p_at, at;
 	PPObjBill * p_bobj(BillObj);
 	PPObjAccount acc_obj;
@@ -1624,7 +1630,6 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 			THROW_PP(IsIntrOp(rPack.Rec.OpID) != INTREXPND || Rec.OpID != pCtx->P_ThisDbDivPack->Rec.IntrRcptOpr, PPERR_CANTACCEPTBILLMOD_INTREXP);
 		}
 	}
-	const int is_intr_expnd = IsIntrExpndOp(rPack.Rec.OpID);
 	rPack.Rec.Object  = Rec.Object;
 	rPack.Rec.Object2 = Rec.Object2;
 	rPack.Rec.LocID   = Rec.LocID;
@@ -1643,11 +1648,9 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 	//
 	SETFLAG(rPack.Rec.Flags, BILLF_WHITELABEL, Rec.Flags & BILLF_WHITELABEL);
 	STRNSCPY(rPack.Rec.Code, Rec.Code);
-	// @v11.1.12 STRNSCPY(rPack.Rec.Memo, Rec.Memo);
-	rPack.SMemo = SMemo; // @v11.1.12
+	rPack.SMemo = SMemo;
 	rPack.BTagL = BTagL;
 	rPack.Ext = Ext;
-	op_type_id = GetOpType(rPack.Rec.OpID);
 	rPack.Amounts.Put(&Amounts, 0, 1); // Теперь суммы (ручные) конвертируем для всех типов операций
 	PPObjBill::MakeCodeString(&rPack.Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_descr_buf);
 	if(oneof2(op_type_id, PPOPT_ACCTURN, PPOPT_PAYMENT)) {
@@ -1656,7 +1659,7 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 			THROW(p_bobj->FillTurnList(&rPack));
 		}
 		else {
-			for(i = 0; Turns.enumItems(&i, (void **)&p_at);) {
+			for(uint i = 0; Turns.enumItems(&i, (void **)&p_at);) {
 				rPack.CreateAccTurn(at);
 				at.DbtID = p_at->DbtID;
 				at.CrdID = p_at->CrdID;
@@ -1671,7 +1674,7 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 			*rPack.P_AdvRep = *P_AdvRep;
 			rPack.Rec.Flags |= BILLF_ADVANCEREP;
 		}
-		for(i = 0; i < AdvList.GetCount(); i++)
+		for(uint i = 0; i < AdvList.GetCount(); i++)
 			rPack.AdvList.Add(&AdvList.Get(i));
 	}
 	else if(op_type_id == PPOPT_INVENTORY) {
@@ -1683,7 +1686,7 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 			THROW(tra);
 			THROW(p_bobj->P_Tbl->Edit(&id, &rPack, 0));
 			rPack.Rec.ID = id;
-			for(i = 0; i < InvList.getCount(); i++) {
+			for(uint i = 0; i < InvList.getCount(); i++) {
 				long   oprno = 0;
 				InventoryTbl::Rec i_rec = InvList.at(i);
 				i_rec.BillID = id;
@@ -1696,10 +1699,10 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 	}
 	else {
 		const  bool ccflg_synclot = LOGIC(CConfig.Flags2__ & CCFLG2_SYNCLOT);
+		constexpr long ciltif_const_ = CILTIF_USESYNCLOT|CILTIF_OPTMZLOTS|CILTIF_SUBSTSERIAL|CILTIF_ALLOWZPRICE|CILTIF_SYNC;
 		ObjTagList lot_tag_list;
 		PPLotExtCodeContainer::MarkSet lotxcode_set;
 		LongArray rows;
-		const long ciltif_const_ = CILTIF_USESYNCLOT|CILTIF_OPTMZLOTS|CILTIF_SUBSTSERIAL|CILTIF_ALLOWZPRICE|CILTIF_SYNC;
 		long __ciltif = _update ? (ciltif_const_|CILTIF_MOD) : ciltif_const_;
 		if(pCtx && pCtx->P_Gra && pCtx->P_Gra->GetSpecialSubstGoodsList())
 			__ciltif |= CILTIF_USESUBST;
@@ -1725,7 +1728,7 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 			// Удаляем из модифицируемого документа строки, не имеющие соответствия в this
 			// и (или) не имеющие признака PPTFR_LOTSYNC.
 			//
-			i = rPack.GetTCount();
+			uint   i = rPack.GetTCount();
 			if(i) do {
 				const PPTransferItem & r_ti = rPack.ConstTI(--i);
 				uint   ipos = 0;
@@ -1743,31 +1746,33 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 				}
 			} while(i);
 		}
-		for(i = 0; Lots.enumItems(&i, (void **)&p_ilti);) {
+		//for(i = 0; Lots.enumItems(&i, (void **)&p_ilti);) {
+		for(uint iltiidx = 0; iltiidx < Lots.getCount(); iltiidx++) {
+			ILTI & r_ilti = Lots.at(iltiidx);
 			uint   j;
 			rows.clear();
-			LTagL.GetString(PPTAG_LOT_CLB, i-1, org_clb_number);
-			LTagL.GetString(PPTAG_LOT_SN, i-1, org_serial);
-			const ObjTagList * p_org_lot_tag_list = LTagL.Get(i-1);
-			XcL.Get(i, 0, lotxcode_set);
+			LTagL.GetString(PPTAG_LOT_CLB, iltiidx, org_clb_number);
+			LTagL.GetString(PPTAG_LOT_SN, iltiidx, org_serial);
+			const ObjTagList * p_org_lot_tag_list = LTagL.Get(iltiidx);
+			XcL.Get(iltiidx+1, 0, lotxcode_set);
 			//
 			// Трансформируем идентификаторы лотов из чужого раздела в соответствующие нашему разделу
 			//
-			const  PPID preserve_frgn_lot_id = p_ilti->LotSyncID;
-			const  PPID preserve_frgn_lot_mirr_id = p_ilti->LotMirrID;
+			const  PPID preserve_frgn_lot_id = r_ilti.LotSyncID;
+			const  PPID preserve_frgn_lot_mirr_id = r_ilti.LotMirrID;
 			if(ccflg_synclot) {
 				int    rl;
 				PPID   sync_primary_lot_id = 0;
 				PPID   sync_primary_lot_mirr_id = 0;
-				if(p_ilti->LotSyncID) {
-					THROW(rl = pCtx->ResolveDependedNonObject(PPOBJ_LOT, p_ilti->LotSyncID, &sync_primary_lot_id));
-					p_ilti->LotSyncID = sync_primary_lot_id;
+				if(r_ilti.LotSyncID) {
+					THROW(rl = pCtx->ResolveDependedNonObject(PPOBJ_LOT, r_ilti.LotSyncID, &sync_primary_lot_id));
+					r_ilti.LotSyncID = sync_primary_lot_id;
 					if(rl < 0 || !sync_primary_lot_id) {
-						if(!(p_ilti->Flags & PPTFR_RECEIPT)) {
+						if(!(r_ilti.Flags & PPTFR_RECEIPT)) {
 							{
 								// @log PPTXT_SYNCLOT_NSYNCMAIN      "Не удалось разрешить синхронизацию лота [%s]"
-								GetGoodsName(p_ilti->GoodsID, goods_name);
-								(temp_buf = bill_descr_buf).CatDiv(';', 2).Cat(p_ilti->RByBill).
+								GetGoodsName(r_ilti.GoodsID, goods_name);
+								(temp_buf = bill_descr_buf).CatDiv(';', 2).Cat(r_ilti.RByBill).
 									CatDiv('-', 0).Cat(preserve_frgn_lot_id).CatDiv('-', 0).Cat(goods_name);
 								msg_buf.Printf(PPLoadTextS(PPTXT_SYNCLOT_NSYNCMAIN, fmt_buf), temp_buf.cptr());
 								PPLogMessage(PPFILNAM_SYNCLOT_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
@@ -1776,62 +1781,62 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 						}
 					}
 				}
-				if(p_ilti->LotMirrID) {
-					THROW(rl = pCtx->ResolveDependedNonObject(PPOBJ_LOT, p_ilti->LotMirrID, &sync_primary_lot_mirr_id));
+				if(r_ilti.LotMirrID) {
+					THROW(rl = pCtx->ResolveDependedNonObject(PPOBJ_LOT, r_ilti.LotMirrID, &sync_primary_lot_mirr_id));
 					if(rl < 0 || !sync_primary_lot_mirr_id) {
 						// @log PPTXT_SYNCLOT_NSYNCMIRR      "Не удалось разрешить синхронизацию зеркального лота [%s]"
-						GetGoodsName(p_ilti->GoodsID, goods_name);
-						(temp_buf = bill_descr_buf).CatDiv(';', 2).Cat(p_ilti->RByBill).CatDiv('-', 0).Cat(preserve_frgn_lot_mirr_id).
+						GetGoodsName(r_ilti.GoodsID, goods_name);
+						(temp_buf = bill_descr_buf).CatDiv(';', 2).Cat(r_ilti.RByBill).CatDiv('-', 0).Cat(preserve_frgn_lot_mirr_id).
 							CatDiv('-', 0).Cat(goods_name);
 						msg_buf.Printf(PPLoadTextS(PPTXT_SYNCLOT_NSYNCMIRR, fmt_buf), temp_buf.cptr());
 						PPLogMessage(PPFILNAM_SYNCLOT_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 					}
-					p_ilti->LotMirrID = sync_primary_lot_mirr_id;
+					r_ilti.LotMirrID = sync_primary_lot_mirr_id;
 				}
 				THROW_PP(!_update || rPack.Rec.Flags2 & BILLF2_FULLSYNC, PPERR_CANTACCEPTBILLMOD_NFSLOT);
 			}
 			else {
-				p_ilti->LotSyncID = 0;
-				p_ilti->LotMirrID = 0;
+				r_ilti.LotSyncID = 0;
+				r_ilti.LotMirrID = 0;
 			}
 			{
 				int    do_add = 1;
 				if(_update) {
 					uint   tipos = 0;
-					if(rPack.SearchTI(p_ilti->RByBill, &tipos)) {
+					if(rPack.SearchTI(r_ilti.RByBill, &tipos)) {
 						PPTransferItem & r_ti = rPack.TI(tipos);
-						r_ti.SrcIltiPos = i; // Сохраним соответствие номера строки в this со строками в rPack
+						r_ti.SrcIltiPos = iltiidx+1; // Сохраним соответствие номера строки в this со строками в rPack
 						if(r_ti.Flags & PPTFR_LOTSYNC) {
 							//
 							long   slfl = 0;
-							THROW_PP(labs(p_ilti->GoodsID) == r_ti.GoodsID, PPERR_CANTACCEPTBILLMOD_GOODS);
-							THROW(r_ti.SetupGoods(p_ilti->GoodsID, TISG_SETPWOTF) > 0);
+							THROW_PP(labs(r_ilti.GoodsID) == r_ti.GoodsID, PPERR_CANTACCEPTBILLMOD_GOODS);
+							THROW(r_ti.SetupGoods(r_ilti.GoodsID, TISG_SETPWOTF) > 0);
 							if(op_type_id == PPOPT_GOODSREVAL) {
-								THROW(r_ti.SetupLot(p_ilti->LotSyncID, 0, slfl));
-								r_ti.Cost = p_ilti->Cost;
-								r_ti.Price = p_ilti->Price;
+								THROW(r_ti.SetupLot(r_ilti.LotSyncID, 0, slfl));
+								r_ti.Cost = r_ilti.Cost;
+								r_ti.Price = r_ilti.Price;
 							}
 							else if(op_type_id == PPOPT_CORRECTION) {
-								THROW(r_ti.SetupLot(p_ilti->LotSyncID, 0, slfl));
-								r_ti.Cost = p_ilti->Cost;
-								r_ti.Price = p_ilti->Price;
-								r_ti.Quantity_ = p_ilti->Quantity;
+								THROW(r_ti.SetupLot(r_ilti.LotSyncID, 0, slfl));
+								r_ti.Cost = r_ilti.Cost;
+								r_ti.Price = r_ilti.Price;
+								r_ti.Quantity_ = r_ilti.Quantity;
 							}
 							else {
-								r_ti.Cost = p_ilti->Cost;
-								r_ti.Price = p_ilti->Price;
+								r_ti.Cost = r_ilti.Cost;
+								r_ti.Price = r_ilti.Price;
 								r_ti.Discount = 0.0;
 								if(r_ti.IsReceipt()) {
-									r_ti.QCert = p_ilti->QCert;
-									r_ti.UnitPerPack = p_ilti->UnitPerPack;
-									r_ti.Expiry = p_ilti->Expiry;
+									r_ti.QCert = r_ilti.QCert;
+									r_ti.UnitPerPack = r_ilti.UnitPerPack;
+									r_ti.Expiry = r_ilti.Expiry;
 									THROW(rPack.LTagL.Set(tipos, p_org_lot_tag_list));
 									slfl |= (TISL_IGNCOST|TISL_IGNPRICE|TISL_IGNPACK|TISL_IGNQCERT|TISL_IGNEXPIRY);
 								}
 								else
 									slfl |= TISL_ADJPRICE;
-								THROW(r_ti.SetupLot(p_ilti->LotSyncID, 0, slfl));
-								r_ti.Quantity_ = p_ilti->Quantity;
+								THROW(r_ti.SetupLot(r_ilti.LotSyncID, 0, slfl));
+								r_ti.Quantity_ = r_ilti.Quantity;
 								rPack.XcL.Set_2(tipos+1, &lotxcode_set);
 							}
 							do_add = 0;
@@ -1841,16 +1846,17 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 					}
 				}
 				if(do_add) {
-					const int rconv = p_bobj->ConvertILTI(*p_ilti, &rPack, &rows, __ciltif, org_serial, pCtx->P_Gra);
-					p_ilti->LotSyncID = preserve_frgn_lot_id;
-					p_ilti->LotMirrID = preserve_frgn_lot_mirr_id;
+					const int rconv = p_bobj->ConvertILTI(r_ilti, &rPack, &rows, __ciltif, org_serial, pCtx->P_Gra);
+					r_ilti.LotSyncID = preserve_frgn_lot_id;
+					r_ilti.LotMirrID = preserve_frgn_lot_mirr_id;
 					THROW(rconv);
-					if(rconv != 100)
+					if(rconv != 100) {
 						rPack.Rec.Flags2 &= ~BILLF2_FULLSYNC;
+					}
 					for(j = 0; j < rows.getCount(); j++) {
 						int    rj = rows.at(j);
 						PPTransferItem & r_ti = rPack.TI(rj);
-						r_ti.SrcIltiPos = i; // Сохраним соответствие номера строки в this со строками в rPack
+						r_ti.SrcIltiPos = iltiidx+1; // Сохраним соответствие номера строки в this со строками в rPack
 						const  PPID lot_id = r_ti.LotID;
 						if(rconv == 100) {
 							r_ti.Flags |= PPTFR_LOTSYNC;
@@ -1877,7 +1883,7 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 					}
 				}
 			}
-			if(warn < 2 && R6(p_ilti->Rest) != 0.0)
+			if(warn < 2 && R6(r_ilti.Rest) != 0.0)
 				warn = 2;
 		}
 		if(Rec.Flags & BILLF_RMVEXCISE) {
@@ -1887,7 +1893,7 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 			DS.SetLCfgFlags(sav_cconf_flags);
 		}
 		if(Rec.Flags & BILLF_FIXEDAMOUNTS) {
-			for(i = 0; i < Amounts.getCount(); i++) {
+			for(uint i = 0; i < Amounts.getCount(); i++) {
 				const AmtEntry & r_ae = Amounts.at(i);
 				if(r_ae.AmtTypeID != PPAMT_PAYMENT)
 					rPack.Amounts.Put(&r_ae, 1, 1);
@@ -1896,7 +1902,7 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 		rPack.InitAmounts();
 		rPack.Pays.copy(Pays);
 		if(_update) {
-			for(i = 0; i < rPack.Pays.getCount(); i++) {
+			for(uint i = 0; i < rPack.Pays.getCount(); i++) {
 				PayPlanTbl::Rec & r_paym_rec = rPack.Pays.at(i);
 				r_paym_rec.BillID = rPack.Rec.ID;
 			}
@@ -2614,7 +2620,7 @@ int PPObjBill::AcceptLotSync(const PPBillPacket & rBp, const ILBillPacket & rIBp
 		THROW(tra);
 		for(uint i = 0; i < rBp.GetTCount(); i++) {
 			const PPTransferItem & r_ti = rBp.TI(i);
-			if(r_ti.SrcIltiPos > 0 && r_ti.SrcIltiPos <= (int)rIBp.Lots.getCount()) {
+			if(r_ti.SrcIltiPos >= 1 && r_ti.SrcIltiPos <= rIBp.Lots.getCountI()) {
 				ILTI & r_ilti = rIBp.Lots.at(r_ti.SrcIltiPos-1);
 				SObjID frgn_objid;
 				if(r_ti.IsReceipt()) {

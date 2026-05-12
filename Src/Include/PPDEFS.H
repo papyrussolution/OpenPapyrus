@@ -3556,6 +3556,7 @@
 	#define CTL_BILLAMT_BASEAMT          (7 + WINDOWS_ID_BIAS)
 	#define CTL_BILLAMT_PERIOD           (8 + WINDOWS_ID_BIAS)
 	#define CTLCAL_BILLAMT_PERIOD        (9 + WINDOWS_ID_BIAS)
+	#define CTL_BILLAMT_CMD_SELRATE      (10 + WINDOWS_ID_BIAS)
 #define DLG_PLIST                 206 // Полная форма прайс-листа
 #define DLG_PLIST_                207 // Урезанная форма прайс-листа
 	#define cmPListLines           101
@@ -5829,6 +5830,14 @@
 	#define CTL_GBITEM_PALETTE           (19 + WINDOWS_ID_BIAS)
 	#define CTL_GBITEM_VOLUME            (20 + WINDOWS_ID_BIAS)
 	#define CTL_GBITEM_PRIVATE           (21 + WINDOWS_ID_BIAS)
+	#define CTL_GBITEM_CMD_QUOT          (22 + WINDOWS_ID_BIAS)
+	#define CTL_GBITEM_CMD_PROGNOSIS     (23 + WINDOWS_ID_BIAS)
+	#define CTL_GBITEM_CMD_SHOWBASKET    (24 + WINDOWS_ID_BIAS)
+	#define CTLCLC_GBITEM_PRICE          (25 + WINDOWS_ID_BIAS)
+	#define CTLCLC_GBITEM_UPPACK         (26 + WINDOWS_ID_BIAS)
+	#define CTLCLC_GBITEM_QTTYPACK       (27 + WINDOWS_ID_BIAS)
+	#define CTLCLC_GBITEM_VALUE          (28 + WINDOWS_ID_BIAS)
+
 #define DLG_GBDATA                502 // Выбор структуры товара
 	#define CTL_GBDATA_NAMEDSTRUC        (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GBDATA_NAMEDSTRUC     (2 + WINDOWS_ID_BIAS)
@@ -7107,6 +7116,7 @@
 	#define CTL_TECH_CIPMAX              (29 + WINDOWS_ID_BIAS)
 	#define CTL_TECH_CMD_GOODSSTRUC      (30 + WINDOWS_ID_BIAS)
 	#define CTL_TECH_CMD_ROUTE           (31 + WINDOWS_ID_BIAS)
+	#define CTL_TECH_GSTRUCSYMB          (32 + WINDOWS_ID_BIAS) // @v12.6.3 
 #define DLG_TECHFILT              671 // Фильтр технологий
 	#define CTL_TECHFILT_PRCGRPONLY      (1 + WINDOWS_ID_BIAS)
 	#define CTL_TECHFILT_PRC             (2 + WINDOWS_ID_BIAS)
@@ -9004,6 +9014,8 @@
 	#define CTL_EXTDEV_CHZNGUA          (31 + WINDOWS_ID_BIAS)
 	#define CTLSEL_EXTDEV_CHZNGUA       (32 + WINDOWS_ID_BIAS)
 	#define CTL_EXTDEV_CHZNTSPIOT       (33 + WINDOWS_ID_BIAS) // @v12.6.0 checkbox CASHFX_CHZNTSPIOT
+	#define CTL_EXTDEV_CMD_CUSTDISP     (34 + WINDOWS_ID_BIAS) // @v12.6.3
+	#define CTL_EXTDEV_CMD_BNKTERMINAL  (35 + WINDOWS_ID_BIAS) // @v12.6.3
 
 #define DLG_STAFFCALFLT           991 // F_STCAL Фильтр штатных календарей
 	#define cmStaffCalFiltObjList       101
@@ -12067,6 +12079,7 @@
 	#define CTL_TECHROUTEITEM_NTIME             (3 + WINDOWS_ID_BIAS)
 	#define CTL_TECHROUTEITEM_NPRICE            (4 + WINDOWS_ID_BIAS)
 	#define CTL_TECHROUTEITEM_LEVEL             (5 + WINDOWS_ID_BIAS)
+	#define CTL_TECHROUTEITEM_CMD_GOODSSTRUC    (6 + WINDOWS_ID_BIAS) 
 #define DLG_TSESS_EXEC_TR         1595 // @v12.6.0 Запуск/остановка технологической сессии на фазе маршрута (по процессору и серийному номеру лота)
 	// Ctrls CTL_TSESS_XXX
 #define DLG_TSESS_EXEC_TR_PARAM   1596 // @v12.6.1 Параметры команды запуск/остановка технологической сессии на фазе маршрута

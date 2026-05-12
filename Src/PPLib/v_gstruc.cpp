@@ -251,7 +251,7 @@ int PPViewGoodsStruc::MakeList(PPViewBrowser * pBrw)
 			uint   t = 0;
 			uint   p = 0;
 			PPIDArray owner_list;
-			PPGoodsStrucHeader gsh;
+			PPGoodsStrucHeader2 gsh;
 			for(SEnum en = Cb.GSObj.Enum(0); en.Next(&gsh) > 0;)
 				t++;
 			for(SEnum en = Cb.GSObj.Enum(0); en.Next(&gsh) > 0; p++) {
@@ -358,7 +358,7 @@ int GoodsStrucProcessingBlock::AddItem(PPID goodsID, PPID strucID, PPID filtScnd
 							// } @v11.7.6 
 							{
 								if(struc.Rec.ParentID) {
-									PPGoodsStrucHeader hdr_rec;
+									PPGoodsStrucHeader2 hdr_rec;
 									if(GSObj.Fetch(struc.Rec.ParentID, &hdr_rec) > 0)
 										struc_name = hdr_rec.Name;
 									else
@@ -512,7 +512,7 @@ int FASTCALL PPViewGoodsStruc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 		case 8: // Наименование структуры
 			{
 				temp_buf.Z();
-				PPGoodsStrucHeader rec;
+				PPGoodsStrucHeader2 rec;
 				if(Cb.GSObj.Fetch(p_item->GStrucID, &rec) > 0)
 					temp_buf = rec.Name;
 				pBlk->Set(temp_buf);
@@ -721,7 +721,7 @@ int PPViewGoodsStruc::Recover()
 						nna_gs_list.add(p_problem->LocIdent);
 				}
 				if(flags & cfSpcDetaching) {
-					PPGoodsStrucHeader gs_rec;
+					PPGoodsStrucHeader2 gs_rec;
 					PPIDArray gs_id_list;
 					const size_t spl = sstrlen(p_surrogate_prefix);
 					for(SEnum en = Cb.GSObj.Enum(0); en.Next(&gs_rec) > 0;) {
@@ -761,7 +761,7 @@ int PPViewGoodsStruc::Recover()
 						const  PPID gs_id = nna_gs_list.get(k);
 						Cb.GObj.SearchGListByStruc(gs_id, false/*expandGenerics*/, owner_list);
 						if(owner_list.getCount() > 1) {
-							PPGoodsStrucHeader gsh;
+							PPGoodsStrucHeader2 gsh;
 							if(Cb.GSObj.Search(gs_id, &gsh) > 0) {
 								if(!(gsh.Flags & GSF_NAMED) && !(gsh.Flags & GSF_CHILD)) {
 									PPGoodsStruc gs;
@@ -1033,7 +1033,7 @@ StrAssocTree * GoodsStrucTreeListViewBlock::MakeTree()
 		LongArray recur_list;
 		SString temp_buf;
 		Goods2Tbl::Rec goods_rec;
-		PPGoodsStrucHeader gs_rec;
+		PPGoodsStrucHeader2 gs_rec;
 		for(uint sidx = 0; sidx < slc; sidx++) {
 			const GoodsStrucProcessingBlock::StrucEntry & r_se = Cb.StrucList.at(sidx);
 			// @v12.5.12 if(r_se.ParentStrucID == 0) {
@@ -1086,7 +1086,7 @@ SString & GoodsStrucTreeListViewBlock::MakeText(const GoodsStrucProcessingBlock:
 		rTitleBuf = "#npg";
 	SString & r_temp_buf = SLS.AcquireRvlStr();
 	if(rSe.GStrucID) {
-		PPGoodsStrucHeader gs_rec;
+		PPGoodsStrucHeader2 gs_rec;
 		if(Cb.GSObj.Fetch(rSe.GStrucID, &gs_rec) > 0) {
 			if(gs_rec.Name[0])
 				r_temp_buf = gs_rec.Name;

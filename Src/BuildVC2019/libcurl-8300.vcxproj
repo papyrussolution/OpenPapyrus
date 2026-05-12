@@ -253,7 +253,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
-      <BrowseInformationFile />
+      <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
     <Lib>
@@ -302,7 +302,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
-      <BrowseInformationFile />
+      <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
     <Lib>
@@ -441,7 +441,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
-      <BrowseInformationFile />
+      <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
     <Lib>
@@ -491,7 +491,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
-      <BrowseInformationFile />
+      <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
     <Lib>

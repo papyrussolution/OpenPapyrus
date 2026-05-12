@@ -6017,11 +6017,12 @@ void FASTCALL SFsPath::Split(const char * pPath)
 	// \\machine_name\dir\nam.ext
 	// c:\dir\nam.ext
 	//
-	Flags = 0;
+	/* @v12.6.3 Flags = 0;
 	Drv.Z();
 	Dir.Z();
 	Nam.Z();
-	Ext.Z();
+	Ext.Z();*/
+	Z(); // @v12.6.3
 	if(pPath) {
 		SString temp_buf;
 		int    fname_as_dir_part = 0;

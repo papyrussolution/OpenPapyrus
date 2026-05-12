@@ -5244,4 +5244,6 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_LIGHTNING01                     33045
 #define PPDV_CHART_GANTT01                   33046
 #define PPDV_PRINTER_EXCLGREEN01             33047
+#define PPDV_TECH01                          33048
+#define PPDV_PROCESSOR01                     33049
 

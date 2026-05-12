@@ -1106,14 +1106,12 @@ int BrowserWindow::CopyToClipboard()
 			SClipboard::Copy_SYLK(out_buf);
 			ok = 1;
 		}
-		// @v11.1.12 {
 		else {
 			p_def_->getFullText(p_def_->_curItem(), GetCurColumn(), val_buf);
 			SStringU val_buf_u;
 			val_buf_u.CopyFromMb_INNER(val_buf, val_buf.Len());
 			SClipboard::Copy_TextUnicode(val_buf_u, val_buf_u.Len());
 		}
-		// } @v11.1.12 
 	}
 	return ok;
 }
@@ -1128,8 +1126,17 @@ IMPL_HANDLE_EVENT(BrowserWindow)
 				{
 					SlExtraProcBlock epb;
 					SLS.GetExtraProcBlock(&epb);
-					if(epb.F_CallCalc)
-						epb.F_CallCalc(H(), 0);
+					if(epb.F_CallCalc) {
+						// @v12.6.3 {
+						const char * p_init_data = 0;
+						SString temp_buf;
+						P_Def->GetCellText(P_Def->_curItem(), GetCurColumn(), true, /*b*/temp_buf);
+						if(temp_buf.ToReal() != 0.0) {
+							p_init_data = temp_buf.cptr();
+						}
+						// } @v12.6.3 
+						epb.F_CallCalc(H(), p_init_data);
+					}
 				}
 				break;
 			case cmGetFocusedNumber:

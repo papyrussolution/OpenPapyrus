@@ -1385,7 +1385,10 @@ public:
 		ReceiptTbl::Rec lot_rec;
 		GoodsCtrlGroup::Rec rec(0, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel | GoodsCtrlGroup::disableEmptyGoods);
 		enableCommand(cmShowBasket, BIN(Flags & fEnableChangeBasket));
-		disableCtrls(1, CTL_GBITEM_LINESCOUNT, CTL_GBITEM_AMOUNT, CTL_GBITEM_BRUTTO, 0);
+		// @v12.6.3 disableCtrls(1, CTL_GBITEM_LINESCOUNT, CTL_GBITEM_AMOUNT, CTL_GBITEM_BRUTTO, 0);
+		setCtrlReadOnly(CTL_GBITEM_LINESCOUNT, true); // @v12.6.3 
+		setCtrlReadOnly(CTL_GBITEM_AMOUNT, true); // @v12.6.3 
+		setCtrlReadOnly(CTL_GBITEM_BRUTTO, true); // @v12.6.3 
 		disableCtrls(!(Flags & fEnableChangeBasket), CTLSEL_GBITEM_BASKET, CTLSEL_GBITEM_SUPPL, CTL_GBITEM_PRIVATE, 0);
 		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_GBITEM_GGRP, CTLSEL_GBITEM_GOODS));
 		getLotInfo(Data.GoodsID, &lot_rec);
@@ -1457,7 +1460,7 @@ private:
 	DECL_HANDLE_EVENT;
 	int    readQttyFld(uint master, uint ctl, double * pVal)
 	{
-		double tmp = R6(getCtrlReal(ctl));
+		const  double tmp = R6(getCtrlReal(ctl));
 		return (tmp == *pVal && master == ctl) ? 0 : ((*pVal = tmp), 1);
 	}
 	void   setupQuantity(uint master, int readFlds);
@@ -1918,29 +1921,31 @@ int GBDialog::editItem(long pos, long)
 
 int GBDialog::addFromBasket()
 {
-	int    ok = 1;
 	PPBasketCombine bc;
-	if((ok = GoodsBasketDialog(bc, 2)) > 0 && bc.BasketID && bc.BasketID != *P_ID) {
-		ILTI * p_item;
+	int    ok = GoodsBasketDialog(bc, 2);
+	if(ok > 0 && bc.BasketID && bc.BasketID != *P_ID) {
 		PPObjGoods goods_obj;
 		PPWaitStart();
-		for(uint i = 0; bc.Pack.Lots.enumItems(&i, (void **)&p_item);) {
+		for(uint i = 0; i < bc.Pack.Lots.getCount(); i++) {
+			ILTI & r_item = bc.Pack.Lots.at(i);
 			uint   pos = 0;
-			if(R_Data.Pack.SearchGoodsID(p_item->GoodsID, &pos))
-				R_Data.Pack.Lots.at(pos).Quantity += p_item->Quantity;
+			if(R_Data.Pack.SearchGoodsID(r_item.GoodsID, &pos))
+				R_Data.Pack.Lots.at(pos).Quantity += r_item.Quantity;
 			else {
-				p_item->BillID = ++LastInnerNum;
-				THROW(R_Data.Pack.AddItem(p_item, &pos));
+				r_item.BillID = ++LastInnerNum;
+				THROW(R_Data.Pack.AddItem(&r_item, &pos));
 			}
-			PPWaitPercent(i, bc.Pack.Lots.getCount());
+			PPWaitPercent(i+1, bc.Pack.Lots.getCount());
 		}
-		if(bc.Pack.Lots.getCount())
+		if(bc.Pack.Lots.getCount()) {
 			Flags |= gbdfChanged;
+		}
 		updateList(-1);
 		PPWaitStop();
 		PPSetAddedMsgString(bc.Pack.Head.Name);
-		if(GbObj.CheckRights(PPR_DEL) && CONFIRM(PPCFM_REMOVEBASKET))
+		if(GbObj.CheckRights(PPR_DEL) && CONFIRM(PPCFM_REMOVEBASKET)) {
 			THROW(GbObj.RemoveObjV(bc.BasketID, 0, PPObject::use_transaction, 0));
+		}
 	}
 	CATCHZOKPPERR
 	return ok;
@@ -1971,11 +1976,11 @@ int GBDialog::DoDiscount()
 		}
 		if(ok > 0) {
 			PPWaitStart();
-			ILTI * p_item = 0;
-			for(uint i = 0; R_Data.Pack.Lots.enumItems(&i, (void **)&p_item) > 0;) {
-				const double price = p_item->Price - (pctdis ? (p_item->Price * fdiv100r(discount)) : discount);
+			for(uint i = 0; i < R_Data.Pack.Lots.getCount(); i++) {
+				ILTI & r_item = R_Data.Pack.Lots.at(i);
+				const double price = r_item.Price - (pctdis ? (r_item.Price * fdiv100r(discount)) : discount);
 				if(price > 0.0)
-					p_item->Price = price;
+					r_item.Price = price;
 			}
 			if(R_Data.Pack.Lots.getCount())
 				Flags |= gbdfChanged;
@@ -2060,24 +2065,22 @@ int AddGoodsToBasket(PPID goodsID, PPID defLocID, double qtty, double price)
 		long   basket_dlg_flags = GBItemDialog::fEnableChangeBasket;
 		PPBasketCombine basket;
 		item.GoodsID  = labs(goodsID);
-		// @v11.2.6 UserInterfaceSettings uis;
-		// @v11.2.6 const int uir_result = BIN(uis.Restore() > 0);
-		const long uisf = APPL->GetUiSettings().Flags;
-		// @v11.2.6 if(uir_result && uis.Flags & UserInterfaceSettings::fBasketItemFocusPckg)
-		if(uisf & UserInterfaceSettings::fBasketItemFocusPckg) // @v11.2.6
+		const  long uisf = APPL->GetUiSettings().Flags;
+		if(uisf & UserInterfaceSettings::fBasketItemFocusPckg)
 			basket_dlg_flags |= GBItemDialog::fFocusOnPckg;
 		if(qtty > 0.0)
 			item.Quantity = qtty;
-		// @v11.2.6 else if(uir_result && uis.Flags & UserInterfaceSettings::fAddToBasketItemCurBrwItemAsQtty) {
-		else if(uisf & UserInterfaceSettings::fAddToBasketItemCurBrwItemAsQtty) { // @v11.2.6
+		else if(uisf & UserInterfaceSettings::fAddToBasketItemCurBrwItemAsQtty) {
 			double c = 0.0;
 			if(TView::messageCommand(APPL->P_DeskTop, cmGetFocusedNumber, &c))
 				item.Quantity = (c > 0.0) ? c : 1.0;
 		}
-		else
+		else {
 			item.Quantity = 1.0;
-		if(price > 0.0)
+		}
+		if(price > 0.0) {
 			item.Price = R2(price);
+		}
 		if(gb_obj.GetPreferredBasket(basket) > 0) {
 			THROW(CheckDialogPtr(&(dlg = new GBItemDialog(basket, defLocID, basket_dlg_flags))));
 			THROW(dlg->setDTS(&item));

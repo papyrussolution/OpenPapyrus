@@ -1907,7 +1907,7 @@ static void GumboTest()
 //int Test_LCMS2(const char * pTestBedPath, const char * pOutputFileName, bool exhaustive); // @v10.9.7 (Экспериментальное внедрение тестирования библиотеки lcms2) 
 int DoTest_PThr4w();
 
-static void Test_LibPhoneNumber()
+/* @v12.6.3 (libphonenumber упраздняется в пользу PhoneNumberMetaData) static void Test_LibPhoneNumber()
 {
 #if(_MSC_VER >= 1900)
 	for(uint i = 0; i < 10; i++) {
@@ -1919,7 +1919,7 @@ static void Test_LibPhoneNumber()
 		assert(r1 && r2 && r3 && r4);
 	}
 #endif
-}
+}*/
 
 //void TestPow10Tab(); // prototype(dconvstr.c)
 
@@ -2045,8 +2045,8 @@ int DoConstructionTest()
 	}
 #endif // } 0
 	//TestCRC();
-	//TestAutotranslateCache(); // @v12.6.2
-	TestPhoneNumberMetadata(); // @v12.6.2
+	TestAutotranslateCache(); // @v12.6.2
+	//TestPhoneNumberMetadata(); // @v12.6.2
 	//TestAutotranslateText(); // @v12.6.1
 	//TestGtinStruc();
 	//TestConfigDatabase_StringHistory();
@@ -2106,7 +2106,7 @@ int DoConstructionTest()
 		}
 		ZDELETE(p_json);
 	}*/
-	//Test_LibPhoneNumber();
+	// @v12.6.3 (libphonenumber упраздняется в пользу PhoneNumberMetaData) Test_LibPhoneNumber();
 	//Test_StyloQInvitation();
 	//Test_StrAssocTree();
 	/*{

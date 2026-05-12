@@ -7,4 +7,5 @@ name-firstname-en.csv;sartre;таблица человеческих имен н
 folder cryptopro-base64;cert;ГОСТ сертификаты головного удостоверяющего центра от Крипто-Про в формате base64
 folder cryptopro-der;cert;ГОСТ сертификаты головного удостоверяющего центра от Крипто-Про в формате DER
 PhoneNumberMetadata.json;distrib runtime;определения регулярных выражений для идентификации номеров телефонов. Взято из проекта PhoneNumberKit (а тот конвертировал это из xml libphonenumber)
+phone-carrier.txt;distrib runtime;список префиксов телефонных номеров с соответствующими наименованиями операторов. Преобразовано функцией PhoneNumberMetaData::MakeCarrierSourceData из каталога libphonenumber\resources\carrier\en
 

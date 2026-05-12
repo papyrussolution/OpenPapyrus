@@ -3068,7 +3068,7 @@ int GoodsAsscDialog::setupAssoc(PPID asscType, uint asscText, PPID objType)
 		name.Z();
 		if(asscType == PPASS_GOODSSTRUC) {
 			PPID   goods_id = 0;
-			PPGoodsStrucHeader gs_hdr;
+			PPGoodsStrucHeader2 gs_hdr;
 			if(gs_obj.Fetch(assc_id, &gs_hdr) > 0) {
 				if(gs_hdr.Flags & GSF_NAMED)
 					name = gs_hdr.Name;

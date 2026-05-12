@@ -1257,11 +1257,9 @@ void PPViewGoods::PreprocessBrowser(PPViewBrowser * pBrw)
 		pBrw->InsColumn(-1, "@article", 8, 0, 0, 0);
 		pBrw->InsColumn(-1, "@code", 9, 0, 0, 0);
 	}
-	// @v11.5.8 {
 	if(Filt.Flags2 & GoodsFilt::f2ShowWhPlace) {
 		pBrw->InsColumn(-1, "@storageplace", 17, 0, 0, 0);
 	}
-	// } @v11.5.8 
 	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, pBrw));
 }
 
@@ -1271,7 +1269,7 @@ static void FASTCALL SetGsChr(SString & rS, char c)
 		rS.CatChar(c);
 }
 
-static int FASTCALL SetGoodsStrucSymb(PPGoodsStrucHeader & rGsRec, SString & rBuf)
+static int FASTCALL SetGoodsStrucSymb(PPGoodsStrucHeader2 & rGsRec, SString & rBuf)
 {
 	int    r = -1;
 	SString & r_temp_buf = SLS.AcquireRvlStr();
@@ -1325,7 +1323,7 @@ static int GetStrucTypeString(PPID strucID, SString & rBuf)
 	int    ok = -1;
 	if(strucID) {
 		PPObjGoodsStruc gs_obj;
-		PPGoodsStrucHeader gs_rec;
+		PPGoodsStrucHeader2 gs_rec;
 		if(gs_obj.Fetch(strucID, &gs_rec) > 0) {
 			if(SetGoodsStrucSymb(gs_rec, rBuf) > 0) {
 				PPIDArray child_list;

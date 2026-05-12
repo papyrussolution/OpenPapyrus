@@ -546,15 +546,13 @@ static void libsais_count_compacted_lms_suffixes_32s_2k(const sa_sint_t * _RESTR
 		c1 = c0; c0 = T[i]; s = (s << 1) + (fast_uint_t)(c0 > (c1 - (fast_sint_t)(s & 1)));
 		c1 &= SAINT_MAX; buckets[BUCKETS_INDEX2((fast_uint_t)c1, (s & 3) == 1)]++;
 	}
-
 	c0 &= SAINT_MAX; buckets[BUCKETS_INDEX2((fast_uint_t)c0, 0)]++;
 }
 
 #endif
 
 static sa_sint_t libsais_count_and_gather_lms_suffixes_8u(const uint8 * _RESTRICT T,
-    sa_sint_t * _RESTRICT SA, sa_sint_t n, sa_sint_t * _RESTRICT buckets,
-    fast_sint_t omp_block_start, fast_sint_t omp_block_size)
+    sa_sint_t * _RESTRICT SA, sa_sint_t n, sa_sint_t * _RESTRICT buckets, fast_sint_t omp_block_start, fast_sint_t omp_block_size)
 {
 	memzero(buckets, 4 * ALPHABET_SIZE * sizeof(sa_sint_t));
 	fast_sint_t m = omp_block_start + omp_block_size - 1;
@@ -587,15 +585,10 @@ static sa_sint_t libsais_count_and_gather_lms_suffixes_8u(const uint8 * _RESTRIC
 	return (sa_sint_t)(omp_block_start + omp_block_size - 1 - m);
 }
 
-static sa_sint_t libsais_count_and_gather_lms_suffixes_8u_omp(const uint8 * _RESTRICT T,
-    sa_sint_t * _RESTRICT SA,
-    sa_sint_t n,
-    sa_sint_t * _RESTRICT buckets,
-    sa_sint_t threads,
-    LIBSAIS_THREAD_STATE * _RESTRICT thread_state)
+static sa_sint_t libsais_count_and_gather_lms_suffixes_8u_omp(const uint8 * _RESTRICT T, sa_sint_t * _RESTRICT SA,
+    sa_sint_t n, sa_sint_t * _RESTRICT buckets, sa_sint_t threads, LIBSAIS_THREAD_STATE * _RESTRICT thread_state)
 {
 	sa_sint_t m = 0;
-
 #if defined(LIBSAIS_OPENMP)
     #pragma omp parallel num_threads(threads) if(threads > 1 && n >= 65536 && omp_get_dynamic() == 0)
 #endif
@@ -605,14 +598,12 @@ static sa_sint_t libsais_count_and_gather_lms_suffixes_8u_omp(const uint8 * _RES
 		fast_sint_t omp_num_threads   = omp_get_num_threads();
 #else
 		UNUSED(threads); UNUSED(thread_state);
-
 		fast_sint_t omp_thread_num    = 0;
 		fast_sint_t omp_num_threads   = 1;
 #endif
 		fast_sint_t omp_block_stride  = (n / omp_num_threads) & (-16);
 		fast_sint_t omp_block_start   = omp_thread_num * omp_block_stride;
 		fast_sint_t omp_block_size    = omp_thread_num < omp_num_threads - 1 ? omp_block_stride : n - omp_block_start;
-
 		if(omp_num_threads == 1) {
 			m = libsais_count_and_gather_lms_suffixes_8u(T, SA, n, buckets, omp_block_start, omp_block_size);
 		}
@@ -621,12 +612,7 @@ static sa_sint_t libsais_count_and_gather_lms_suffixes_8u_omp(const uint8 * _RES
 			{
 				thread_state[omp_thread_num].state.position = omp_block_start + omp_block_size;
 				thread_state[omp_thread_num].state.m = libsais_count_and_gather_lms_suffixes_8u(T,
-					SA,
-					n,
-					thread_state[omp_thread_num].state.buckets,
-					omp_block_start,
-					omp_block_size);
-
+					SA, n, thread_state[omp_thread_num].state.buckets, omp_block_start, omp_block_size);
 				if(thread_state[omp_thread_num].state.m > 0) {
 					thread_state[omp_thread_num].state.last_lms_suffix = SA[thread_state[omp_thread_num].state.position - 1];
 				}
@@ -702,13 +688,8 @@ static sa_sint_t libsais_count_and_gather_lms_suffixes_32s_4k(const sa_sint_t * 
 	return (sa_sint_t)(omp_block_start + omp_block_size - 1 - m);
 }
 
-static sa_sint_t libsais_count_and_gather_lms_suffixes_32s_2k(const sa_sint_t * _RESTRICT T,
-    sa_sint_t * _RESTRICT SA,
-    sa_sint_t n,
-    sa_sint_t k,
-    sa_sint_t * _RESTRICT buckets,
-    fast_sint_t omp_block_start,
-    fast_sint_t omp_block_size)
+static sa_sint_t libsais_count_and_gather_lms_suffixes_32s_2k(const sa_sint_t * _RESTRICT T, sa_sint_t * _RESTRICT SA,
+    sa_sint_t n, sa_sint_t k, sa_sint_t * _RESTRICT buckets, fast_sint_t omp_block_start, fast_sint_t omp_block_size)
 {
 	memzero(buckets, 2 * (size_t)k * sizeof(sa_sint_t));
 	fast_sint_t m = omp_block_start + omp_block_size - 1;
@@ -1127,20 +1108,13 @@ static sa_sint_t libsais_count_and_gather_compacted_lms_suffixes_32s_2k_nofs_omp
 		}
 #endif
 	}
-
 	return m;
 }
 
-static sa_sint_t libsais_count_and_gather_lms_suffixes_32s_4k_omp(const sa_sint_t * _RESTRICT T,
-    sa_sint_t * _RESTRICT SA,
-    sa_sint_t n,
-    sa_sint_t k,
-    sa_sint_t * _RESTRICT buckets,
-    sa_sint_t threads,
-    LIBSAIS_THREAD_STATE * _RESTRICT thread_state)
+static sa_sint_t libsais_count_and_gather_lms_suffixes_32s_4k_omp(const sa_sint_t * _RESTRICT T, sa_sint_t * _RESTRICT SA,
+    sa_sint_t n, sa_sint_t k, sa_sint_t * _RESTRICT buckets, sa_sint_t threads, LIBSAIS_THREAD_STATE * _RESTRICT thread_state)
 {
 	sa_sint_t m;
-
 #if defined(LIBSAIS_OPENMP)
 	sa_sint_t max_threads = (sa_sint_t)((buckets - &SA[n]) / ((4 * (fast_sint_t)k + 15) & (-16))); 
 	if(max_threads > threads) {
@@ -8394,13 +8368,11 @@ static void libsais_unbwt_decode(uint8 * _RESTRICT U, sa_uint_t * _RESTRICT P, s
 		shift++;
 	}
 	fast_uint_t offset      = 0;
-
 	while(blocks > 8) {
 		fast_uint_t i0 = I[0], i1 = I[1], i2 = I[2], i3 = I[3], i4 = I[4], i5 = I[5], i6 = I[6], i7 = I[7];
 		libsais_unbwt_decode_8(U + offset, P, bucket2, fastbits, shift, (fast_uint_t)r, &i0, &i1, &i2, &i3, &i4, &i5, &i6, &i7, (fast_uint_t)r >> 1);
 		I += 8; blocks -= 8; offset += 8 * (fast_uint_t)r;
 	}
-
 	if(blocks == 1) {
 		fast_uint_t i0 = I[0];
 		libsais_unbwt_decode_1(U + offset, P, bucket2, fastbits, shift, &i0, remainder >> 1);
@@ -8449,8 +8421,8 @@ static void libsais_unbwt_decode(uint8 * _RESTRICT U, sa_uint_t * _RESTRICT P, s
 static void libsais_unbwt_decode_omp(const uint8 * _RESTRICT T, uint8 * _RESTRICT U, sa_uint_t * _RESTRICT P, sa_sint_t n, sa_sint_t r,
     const sa_uint_t * _RESTRICT I, sa_uint_t * _RESTRICT bucket2, uint16 * _RESTRICT fastbits, sa_sint_t threads)
 {
-	fast_uint_t lastc       = T[0];
-	fast_sint_t blocks      = 1 + (((fast_sint_t)n - 1) / (fast_sint_t)r);
+	fast_uint_t lastc  = T[0];
+	fast_sint_t blocks = 1 + (((fast_sint_t)n - 1) / (fast_sint_t)r);
 	fast_uint_t remainder   = (fast_uint_t)n - ((fast_uint_t)r * ((fast_uint_t)blocks - 1));
 #if defined(LIBSAIS_OPENMP)
 	fast_sint_t max_threads = blocks < threads ? blocks : threads;
@@ -8499,9 +8471,9 @@ static sa_sint_t libsais_unbwt_main(const uint8 * T, uint8 * U, sa_uint_t * P, s
 	fast_uint_t shift = 0; while((n >> shift) > (1 << UNBWT_FASTBITS)) {
 		shift++;
 	}
-	sa_uint_t * _RESTRICT bucket2        = (sa_uint_t *)libsais_alloc_aligned(ALPHABET_SIZE * ALPHABET_SIZE * sizeof(sa_uint_t), 4096);
-	uint16 *    _RESTRICT fastbits       = (uint16 *)libsais_alloc_aligned(((size_t)1 + (size_t)(n >> shift)) * sizeof(uint16), 4096);
-	sa_uint_t * _RESTRICT buckets        = threads > 1 && n >= 262144 ? (sa_uint_t *)libsais_alloc_aligned(
+	sa_uint_t * _RESTRICT bucket2  = (sa_uint_t *)libsais_alloc_aligned(ALPHABET_SIZE * ALPHABET_SIZE * sizeof(sa_uint_t), 4096);
+	uint16    * _RESTRICT fastbits = (uint16 *)libsais_alloc_aligned(((size_t)1 + (size_t)(n >> shift)) * sizeof(uint16), 4096);
+	sa_uint_t * _RESTRICT buckets  = threads > 1 && n >= 262144 ? (sa_uint_t *)libsais_alloc_aligned(
 		(size_t)threads * (ALPHABET_SIZE + (ALPHABET_SIZE * ALPHABET_SIZE)) * sizeof(sa_uint_t), 4096) : NULL;
 	sa_sint_t index = bucket2 != NULL && fastbits != NULL && (buckets != NULL || threads == 1 || n < 262144) ? 
 		libsais_unbwt_core(T, U, P, n, freq, r, I, bucket2, fastbits, buckets, threads) : -2;
@@ -8551,7 +8523,6 @@ int32_t libsais_unbwt_aux(const uint8 * T, uint8 * U, int32_t * A, int32_t n, co
 			return -1;
 		}
 	}
-
 	return libsais_unbwt_main(T, U, (sa_uint_t *)A, n, freq, r, (const sa_uint_t *)I, 1);
 }
 
@@ -8666,16 +8637,16 @@ static void libsais_compute_phi_omp(const sa_sint_t * _RESTRICT SA, sa_sint_t * 
 static void libsais_compute_plcp(const uint8 * _RESTRICT T, sa_sint_t * _RESTRICT PLCP, fast_sint_t n, fast_sint_t omp_block_start, fast_sint_t omp_block_size)
 {
 	const fast_sint_t prefetch_distance = 32;
-	fast_sint_t i, j, l = 0;
+	fast_sint_t i;
+	fast_sint_t j;
+	fast_sint_t l = 0;
 	for(i = omp_block_start, j = omp_block_start + omp_block_size - prefetch_distance; i < j; i += 1) {
 		libsais_prefetchw(&PLCP[i + 2 * prefetch_distance]);
 		libsais_prefetchr(&T[PLCP[i + prefetch_distance] + l]);
-
 		fast_sint_t k = PLCP[i], m = n - (i > k ? i : k);
 		while(l < m && T[i + l] == T[k + l]) {
 			l++;
 		}
-
 		PLCP[i] = (sa_sint_t)l; l -= (l != 0);
 	}
 	for(j += prefetch_distance; i < j; i += 1) {
@@ -8698,7 +8669,6 @@ static void libsais_compute_plcp_omp(const uint8 * _RESTRICT T, sa_sint_t * _RES
 		fast_sint_t omp_num_threads   = omp_get_num_threads();
 #else
 		UNUSED(threads);
-
 		fast_sint_t omp_thread_num    = 0;
 		fast_sint_t omp_num_threads   = 1;
 #endif

@@ -1381,19 +1381,15 @@ static int _EditCcByBillParam(PPBillPacket::ConvertToCCheckParam & rParam)
 				SetClusterData(CTL_CCBYBILL_PAYMTYPE, Data.PaymType);
 			}
 			// } @erik v10.5.9
-			// @v11.1.5 {
 			AddClusterAssoc(CTL_CCBYBILL_FLAGS, 0, PPBillPacket::ConvertToCCheckParam::fPrepay);
 			SetClusterData(CTL_CCBYBILL_FLAGS, Data.Flags_);
-			// } @v11.1.5 
 			setCtrlLong(CTL_CCBYBILL_DIVISION, Data.DivisionN);
-			// @v11.3.7
 			if(DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) { 
 				if(Data.EAddr.IsEmpty())
 					Data.EAddr.SetEMail(DS.GetConstTLA().PaperlessCheque_FakeEAddr);
 				setCtrlString(CTL_CCBYBILL_EADDR, Data.EAddr.EAddr);
 				setCtrlUInt16(CTL_CCBYBILL_PAPERLESS, BIN(Data.Flags_ & PPBillPacket::ConvertToCCheckParam::fPaperless));
 			}
-			// } @v11.3.7
 			setStaticText(CTL_CCBYBILL_ST_INFO, Data.Info);
 			//
 			return ok;
@@ -1409,7 +1405,6 @@ static int _EditCcByBillParam(PPBillPacket::ConvertToCCheckParam & rParam)
 				GetClusterData(CTL_CCBYBILL_FLAGS, &Data.Flags_); // @v11.1.5
 				Data.PaymType = GetClusterData(CTL_CCBYBILL_PAYMTYPE);
 				Data.DivisionN = getCtrlLong(CTL_CCBYBILL_DIVISION);
-				// @v11.3.7
 				if(DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) { 
 					SString eaddr_buf;
 					getCtrlString(CTL_CCBYBILL_EADDR, eaddr_buf);
@@ -1424,15 +1419,14 @@ static int _EditCcByBillParam(PPBillPacket::ConvertToCCheckParam & rParam)
 						SETFLAG(Data.Flags_, PPBillPacket::ConvertToCCheckParam::fPaperless, v);
 					}
 					else {
-						Data.SetBuyersEAddr(0, 0); // @v11.3.12 @fix
+						Data.SetBuyersEAddr(0, 0);
 						Data.Flags_ &= ~PPBillPacket::ConvertToCCheckParam::fPaperless;
 					}
 				}
 				else {
-					Data.SetBuyersEAddr(0, 0); // @v11.3.12 @fix
+					Data.SetBuyersEAddr(0, 0);
 					Data.Flags_ &= ~PPBillPacket::ConvertToCCheckParam::fPaperless;
 				}
-				// } @v11.3.7
 				ok = 1;
 			}
 			//

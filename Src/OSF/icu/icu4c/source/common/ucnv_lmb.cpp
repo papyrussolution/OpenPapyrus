@@ -260,14 +260,9 @@ static const char * const OptGroupByteToCPName[ULMBCS_GRP_LAST + 1] = {
    length as small as possible. Here's the two special markers we use to indicate
    ambiguous mappings: */
 
-#define ULMBCS_AMBIGUOUS_SBCS   0x80   /* could fit in more than one
-	                                  LMBCS sbcs native encoding
-	                                  (example: most accented latin) */
-#define ULMBCS_AMBIGUOUS_MBCS   0x81   /* could fit in more than one
-	                                  LMBCS mbcs native encoding
-	                                  (example: Unihan) */
-#define ULMBCS_AMBIGUOUS_ALL   0x82
-/* And here's a simple way to see if a group falls in an appropriate range */
+#define ULMBCS_AMBIGUOUS_SBCS 0x80 // could fit in more than one LMBCS sbcs native encoding (example: most accented latin) 
+#define ULMBCS_AMBIGUOUS_MBCS 0x81 // could fit in more than one LMBCS mbcs native encoding (example: Unihan) 
+#define ULMBCS_AMBIGUOUS_ALL  0x82 // And here's a simple way to see if a group falls in an appropriate range 
 #define ULMBCS_AMBIGUOUS_MATCH(agroup, xgroup) \
 	((((agroup) == ULMBCS_AMBIGUOUS_SBCS) && \
 	(xgroup) < ULMBCS_DOUBLEOPTGROUP_START) || \
@@ -281,9 +276,7 @@ static const struct _UniLMBCSGrpMap {
 	const char16_t uniStartRange;
 	const char16_t uniEndRange;
 	const ulmbcs_byte_t GrpType;
-} UniLMBCSGrpMap[]
-	=
-	{
+} UniLMBCSGrpMap[] = {
 	{0x0001, 0x001F,  ULMBCS_GRP_CTRL},
 	{0x0080, 0x009F,  ULMBCS_GRP_CTRL},
 	{0x00A0, 0x00A6,  ULMBCS_AMBIGUOUS_SBCS},
@@ -462,8 +455,7 @@ static ulmbcs_byte_t FindLMBCSUniRange(char16_t uniChar)
 static const struct _LocaleLMBCSGrpMap {
 	const char * LocaleID;
 	const ulmbcs_byte_t OptGroup;
-} LocaleLMBCSGrpMap[] =
-{
+} LocaleLMBCSGrpMap[] = {
 	{"ar", ULMBCS_GRP_AR},
 	{"be", ULMBCS_GRP_RU},
 	{"bg", ULMBCS_GRP_L2},
@@ -511,11 +503,9 @@ static const struct _LocaleLMBCSGrpMap {
 static ulmbcs_byte_t FindLMBCSLocale(const char * LocaleID)
 {
 	const struct _LocaleLMBCSGrpMap * pTable = LocaleLMBCSGrpMap;
-
 	if((!LocaleID) || (!*LocaleID)) {
 		return 0;
 	}
-
 	while(pTable->LocaleID) {
 		if(*pTable->LocaleID == *LocaleID) { /* Check only first char for speed */
 			/* First char matches - check whole name, for entry-length */
@@ -546,9 +536,7 @@ typedef struct {
 	UConverterSharedData * OptGrpConverter[ULMBCS_GRP_LAST+1]; /* Converter per Opt. grp. */
 	uint8 OptGroup; /* default Opt. grp. for this LMBCS session */
 	uint8 localeConverterIndex; /* reasonable locale match for index */
-}
-
-UConverterDataLMBCS;
+} UConverterDataLMBCS;
 
 U_CDECL_BEGIN
 static void U_CALLCONV _LMBCSClose(UConverter * _this);
@@ -630,7 +618,6 @@ static void U_CALLCONV _LMBCSClose(UConverter * _this)
 	if(_this->extraInfo != NULL) {
 		ulmbcs_byte_t Ix;
 		UConverterDataLMBCS * extraInfo = (UConverterDataLMBCS*)_this->extraInfo;
-
 		for(Ix = 0; Ix <= ULMBCS_GRP_LAST; Ix++) {
 			if(extraInfo->OptGrpConverter[Ix] != NULL)
 				ucnv_unloadSharedDataIfReady(extraInfo->OptGrpConverter[Ix]);

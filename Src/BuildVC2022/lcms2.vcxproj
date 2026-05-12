@@ -424,7 +424,7 @@
       <FloatingPointModel>Precise</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <BrowseInformation>true</BrowseInformation>
+      <BrowseInformation>false</BrowseInformation>
       <CompileAs>CompileAsCpp</CompileAs>
       <PrecompiledHeaderFile />
       <StructMemberAlignment>1Byte</StructMemberAlignment>

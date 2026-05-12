@@ -3851,7 +3851,7 @@ int PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int sign, 
 							PPIDArray aggr_list1;
 							PPIDArray aggr_list2;
 							PPObjGoodsStruc gs_obj;
-							PPGoodsStrucHeader gs_hdr;
+							PPGoodsStrucHeader2 gs_hdr;
 							ObjAssocTbl::Rec assc_rec;
 							int    local_ok = 0;
 							Reference * p_ref(PPRef);

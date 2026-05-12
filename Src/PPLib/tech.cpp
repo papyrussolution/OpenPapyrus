@@ -222,7 +222,7 @@ int PPObjTech::CreateAutoTech(PPID prcID, PPID goodsID, PPID * pTechID, int use_
 				new_pack.Rec.InitQtty = pack.Rec.InitQtty;
 				SETFLAGBYSAMPLE(new_pack.Rec.Flags, pack.Rec.Flags, TECF_CALCTIMEBYROWS);
 				SETFLAGBYSAMPLE(new_pack.Rec.Flags, pack.Rec.Flags, TECF_AUTOMAIN);
-				PPGetExtStrData(TECEXSTR_CAPACITY, pack.ExtString, temp_buf);
+				pack.GetExtStrData(TECEXSTR_CAPACITY, temp_buf);
 				if(temp_buf.NotEmptyS()) {
 					double capacity = 0.0;
 					if(PPExprParser::CalcExpression(temp_buf, &capacity, 0, 0) > 0 && capacity >= 0.0) {
@@ -321,9 +321,10 @@ int PPObjTech::GetNextSibling_(PPID parentID, PPID siblingID, TechTbl::Rec * pNe
 int PPObjTech::GetToolingCondition(PPID id, SString & rFormula)
 {
 	SString ext_str;
-	if(PPRef->GetPropVlrString(Obj, id, TECPRP_EXTSTR, ext_str) > 0)
+	if(PPRef->GetPropVlrString(Obj, id, TECPRP_EXTSTR, ext_str) > 0) {
 		if(PPGetExtStrData(TECEXSTR_TLNGCOND, ext_str, rFormula) > 0)
 			return 1;
+	}
 	return -1;
 }
 
@@ -353,7 +354,7 @@ int PPObjTech::GetGoodsStrucList(PPID id, int useSubst, PPGoodsStruc * pGs, TGSA
 		if(r > 0) {
 			PPGoodsStrucItem gs_item;
 			double qtty = 0.0;
-			pList->SetStrucID(gs.Rec.ID); // @v11.0.5
+			pList->SetStrucID(gs.Rec.ID);
 			for(uint i = 0; (r = gs.EnumItemsExt(&i, &gs_item, tec_rec.GoodsID, 1, &qtty)) > 0;) {
 				int    sign;
 				if(gs_item.Median < 0)
@@ -368,8 +369,9 @@ int PPObjTech::GetGoodsStrucList(PPID id, int useSubst, PPGoodsStruc * pGs, TGSA
 					if(LoadGoodsStruc(PPGoodsStruc::Ident(gs_item.GoodsID, GSF_SUBST), &subst_gs) > 0) {
 						PPGoodsStrucItem subst_gsi;
 						double subst_qtty = 0.0;
-						for(uint j = 0; (r2 = subst_gs.EnumItemsExt(&j, &subst_gsi, gs_item.GoodsID, 1, &subst_qtty)) > 0;)
+						for(uint j = 0; (r2 = subst_gs.EnumItemsExt(&j, &subst_gsi, gs_item.GoodsID, 1, &subst_qtty)) > 0;) {
 							THROW(pList->AddItem(subst_gsi.GoodsID, sign, subst_gsi.Formula__));
+						}
 						THROW(r2);
 					}
 				}
@@ -539,7 +541,9 @@ int PPObjTech::GetPacket(PPID id, PPTechPacket * pPack)
 	Reference * p_ref(PPRef);
 	THROW_INVARG(pPack);
 	if(Search(id, &pPack->Rec) > 0) {
-		THROW(p_ref->GetPropVlrString(Obj, id, TECPRP_EXTSTR, pPack->ExtString));
+		SString temp_buf;
+		THROW(p_ref->GetPropVlrString(Obj, id, TECPRP_EXTSTR, temp_buf));
+		pPack->SetBuffer(temp_buf);
 		GetItemMemo(id, pPack->SMemo);
 		// @v12.6.0 {
 		{
@@ -567,7 +571,7 @@ int PPObjTech::PutPacket(PPID * pID, PPTechPacket * pPack, int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(pPack) {
-			SETFLAG(pPack->Rec.Flags, TECF_EXTSTRING, pPack->ExtString.NotEmpty());
+			SETFLAG(pPack->Rec.Flags, TECF_EXTSTRING, pPack->GetBuffer().NotEmpty());
 		}
 		if(*pID) {
 			THROW(Search(*pID, &rec) > 0);
@@ -589,7 +593,7 @@ int PPObjTech::PutPacket(PPID * pID, PPTechPacket * pPack, int use_ta)
 					}
 				}
 				THROW(UpdateByID(P_Tbl, Obj, *pID, &pPack->Rec, 0));
-				THROW(p_ref->PutPropVlrString(Obj, *pID, TECPRP_EXTSTR, pPack->ExtString));
+				THROW(p_ref->PutPropVlrString(Obj, *pID, TECPRP_EXTSTR, pPack->GetBuffer()));
 				log_action_id = PPACN_OBJUPD;
 			}
 			Dirty(*pID);
@@ -618,9 +622,9 @@ int PPObjTech::PutPacket(PPID * pID, PPTechPacket * pPack, int use_ta)
 				pPack->Rec.GoodsID = surrogate_goods_id;
 			}
 			// } @v11.6.4 
-			THROW(AddObjRecByID(P_Tbl, Obj, pID, &pPack->Rec, 0)); // @v11.3.10 @fix pPack-->&pPack->Rec
+			THROW(AddObjRecByID(P_Tbl, Obj, pID, &pPack->Rec, 0));
 			pPack->Rec.ID = *pID;
-			THROW(p_ref->PutPropVlrString(Obj, *pID, TECPRP_EXTSTR, pPack->ExtString));
+			THROW(p_ref->PutPropVlrString(Obj, *pID, TECPRP_EXTSTR, pPack->GetBuffer()));
 			log_action_id = PPACN_OBJADD;
 		}
 		{
@@ -952,6 +956,7 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 				DECL_DIALOG_SETDTS()
 				{
 					RVALUEPTR(Data, pData);
+					SString temp_buf;
 					setCtrlData(CTL_TECH_CODE, Data.Rec.Code);
 					setCtrlData(CTL_TECH_ID,   &Data.Rec.ID);
 					disableCtrl(CTL_TECH_ID, true);
@@ -961,16 +966,21 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 						setCapacity();
 					}
 					else if(Data.Rec.Kind == TECK_AUTO) {
-						SString form;
 						GoodsCtrlGroup::Rec rec(Data.Rec.GoodsID, 0, 0, GoodsCtrlGroup::enableInsertGoods);
 						setGroupData(ctlgroupGoods, &rec);
-						PPGetExtStrData(TECEXSTR_CAPACITY, Data.ExtString, form);
-						setCtrlString(CTL_TECH_CAPACITYFORM, form);
+						Data.GetExtStrData(TECEXSTR_CAPACITY, temp_buf);
+						setCtrlString(CTL_TECH_CAPACITYFORM, temp_buf);
 					}
 					PrcCtrlGroup::Rec prc_grp_rec(Data.Rec.PrcID);
 					setGroupData(ctlgroupPrc, &prc_grp_rec);
 					SetupPPObjCombo(this, CTLSEL_TECH_GSTRUC, PPOBJ_GOODSSTRUC, Data.Rec.GStrucID, OLW_CANINSERT, reinterpret_cast<void *>NZOR(Data.Rec.GoodsID, -1));
 					SetupPPObjCombo(this, CTLSEL_TECH_PARENT, PPOBJ_TECH, Data.Rec.ParentID, OLW_CANSELUPLEVEL, 0);
+					// @v12.6.3 {
+					{
+						Data.GetExtStrData(TECEXSTR_GSTRUCSYMB, temp_buf);
+						setCtrlString(CTL_TECH_GSTRUCSYMB, temp_buf);
+					}
+					// } @v12.6.3 
 					setCtrlLong(CTL_TECH_ORDERN, Data.Rec.OrderN);
 					AddClusterAssoc(CTL_TECH_SIGN,  0, -1);
 					AddClusterAssoc(CTL_TECH_SIGN,  1,  1);
@@ -993,6 +1003,7 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 					int    ok = 1;
 					uint   sel = 0;
 					long   temp_long = 0;
+					SString temp_buf;
 					TechTbl::Rec tec_rec;
 					PPObjTech tec_obj;
 					GoodsCtrlGroup::Rec rec;
@@ -1008,7 +1019,7 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 					sel = CTLSEL_TECH_PRC;
 					THROW_PP(Data.Rec.PrcID, PPERR_PRCNEEDED);
 					getCtrlData(sel = CTLSEL_TECH_PARENT, &Data.Rec.ParentID);
-					THROW_PP(!Data.Rec.ID || Data.Rec.ParentID != Data.Rec.ID, PPERR_TECHCANTBESELFPARENTED); // @v11.3.9
+					THROW_PP(!Data.Rec.ID || Data.Rec.ParentID != Data.Rec.ID, PPERR_TECHCANTBESELFPARENTED);
 					sel = CTLSEL_TECH_GOODS;
 					THROW(getGroupData(ctlgroupGoods, &rec));
 					if(Data.Rec.Kind == TECK_GENERAL)
@@ -1016,12 +1027,17 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 					else if(Data.Rec.Kind == TECK_AUTO)
 						Data.Rec.GoodsID = rec.GoodsGrpID;
 					getCtrlData(CTLSEL_TECH_GSTRUC, &Data.Rec.GStrucID);
+					// @v12.6.3 {
+					{
+						getCtrlString(CTL_TECH_GSTRUCSYMB, temp_buf);
+						Data.PutExtStrData(TECEXSTR_GSTRUCSYMB, temp_buf.Strip());
+					}
+					// } @v12.6.3 
 					if(Data.Rec.Kind == TECK_GENERAL)
 						getCapacity();
 					else if(Data.Rec.Kind == TECK_AUTO) {
-						SString form;
-						getCtrlString(CTL_TECH_CAPACITYFORM, form);
-						PPPutExtStrData(TECEXSTR_CAPACITY, Data.ExtString, form.Strip());
+						getCtrlString(CTL_TECH_CAPACITYFORM, temp_buf);
+						Data.PutExtStrData(TECEXSTR_CAPACITY, temp_buf.Strip());
 					}
 					if(GetClusterData(CTL_TECH_SIGN, &temp_long))
 						Data.Rec.Sign = (int16)temp_long;
@@ -1217,10 +1233,9 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 						setCtrlData(CTL_TECH_TIME, &tm);
 					}
 					SString form_cond;
-					PPGetExtStrData(TECEXSTR_TLNGCOND, Data.ExtString, form_cond);
+					Data.GetExtStrData(TECEXSTR_TLNGCOND, form_cond);
 					setCtrlString(CTL_TECH_TRANSCOND, form_cond);
-					// @v11.1.12 setCtrlData(CTL_TECH_MEMO, Data.Rec.Memo);
-					setCtrlString(CTL_TECH_MEMO, Data.SMemo); // @v11.1.12
+					setCtrlString(CTL_TECH_MEMO, Data.SMemo);
 					return 1;
 				}
 				DECL_DIALOG_GETDTS()
@@ -1241,7 +1256,7 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 					sel = CTLSEL_TECH_PRC;
 					THROW_PP(Data.Rec.PrcID, PPERR_PRCNEEDED);
 					getCtrlData(sel = CTLSEL_TECH_PARENT, &Data.Rec.ParentID);
-					THROW_PP(!Data.Rec.ID || Data.Rec.ParentID != Data.Rec.ID, PPERR_TECHCANTBESELFPARENTED); // @v11.3.9
+					THROW_PP(!Data.Rec.ID || Data.Rec.ParentID != Data.Rec.ID, PPERR_TECHCANTBESELFPARENTED);
 					sel = CTLSEL_TECH_GOODS;
 					{
 						GoodsCtrlGroup::Rec rec;
@@ -1261,10 +1276,9 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 					{
 						SString form_cond;
 						getCtrlString(CTL_TECH_TRANSCOND, form_cond);
-						PPPutExtStrData(TECEXSTR_TLNGCOND, Data.ExtString, form_cond.Strip());
+						Data.PutExtStrData(TECEXSTR_TLNGCOND, form_cond.Strip());
 					}
-					// @v11.1.12 getCtrlData(CTL_TECH_MEMO, Data.Rec.Memo);
-					getCtrlString(CTL_TECH_MEMO, Data.SMemo); // @v11.1.12
+					getCtrlString(CTL_TECH_MEMO, Data.SMemo);
 					ASSIGN_PTR(pData, Data);
 					CATCHZOKPPERRBYDLG
 					return ok;
@@ -1348,7 +1362,7 @@ int PPObjTech::InitPacket(PPTechPacket * pPack, long extraData, int use_ta)
 		rec.PrcID = (extraData & TECEXDF_MASK);
 	if(pPack) {
 		pPack->Rec = rec;
-		pPack->ExtString.Z();
+		pPack->PPExtStrContainer::Z();
 	}
 	CATCHZOK
 	return ok;
@@ -1744,7 +1758,8 @@ int PPObjTech::SerializePacket(int dir, PPTechPacket * pPack, SBuffer & rBuf, SS
 	int    ok = 1;
 	SerializeSignature srzs(Obj, dir, rBuf);
 	THROW_SL(P_Tbl->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
-	THROW_SL(pSCtx->Serialize(dir, pPack->ExtString, rBuf));
+	// @v12.6.3 THROW_SL(pSCtx->Serialize(dir, pPack->ExtString, rBuf));
+	THROW(pPack->PPExtStrContainer::SerializeB(dir, rBuf, pSCtx)); // @v12.6.3
 	if(srzs.V.IsGe(11, 1, 12)) {
 		THROW_SL(pSCtx->Serialize(dir, pPack->SMemo, rBuf)); 
 	}
@@ -2818,7 +2833,7 @@ bool TechRouteIdent::FromStr(const char * pText) // @v12.6.2 @construction
 	return ok;
 }
 
-PPTechRoute::Entry::Entry() : TechID(0), NominalPrice(0.0), NominalTimeSec(0), LevelCode(0)
+PPTechRoute::Entry::Entry() : TechID(0), NominalPrice(0.0), NominalTimeSec(0), LevelCode(0), GStrucID(0), Reserve2(0)
 {
 	memzero(Reserve, sizeof(Reserve));
 }
@@ -2979,7 +2994,7 @@ int PPTechRouteManager::Put(PPTechRoute & rRoute, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref(PPRef);
-	THROW(rRoute.Oid.IsFullyDefined()); // @todo @err
+	THROW(rRoute.IsEmpty() || rRoute.Oid.IsFullyDefined()); // @todo @err
 	{
 		SBuffer route_sbuf;
 		PPTransaction tra(use_ta);
@@ -3123,7 +3138,7 @@ int PPTechRouteManager::Edit(PPTechRoute & rRoute)
 				SetupObject();
 			}
 			else if(event.isCbSelected(CTLSEL_TECHROUTE_OBJ)) {
-				PPID   obj_id = getCtrlLong(CTLSEL_TECHROUTE_OBJ);
+				const  PPID obj_id = getCtrlLong(CTLSEL_TECHROUTE_OBJ);
 				if(obj_id && Data.Oid.Obj && !Data.Oid.Id) {
 					Data.Oid.Id = obj_id;
 				}
@@ -3268,13 +3283,43 @@ int PPTechRouteManager::Edit(PPTechRoute & rRoute)
 		}
 		virtual int editItemDialog(PPTechRoute::Entry * pItem)
 		{
+			class TechRouteItemDialog : public TDialog {
+				DECL_DIALOG_DATA(PPTechRoute::Entry);
+			public:
+				TechRouteItemDialog() : TDialog(DLG_TECHROUTEITEM)
+				{
+				}
+				DECL_DIALOG_SETDTS() // @construction
+				{
+					int    ok = 1;
+					RVALUEPTR(Data, pData);
+					//
+					SetupPPObjCombo(this, CTLSEL_TECHROUTEITEM_TECH, PPOBJ_TECH, Data.TechID, 0, 0);
+					setCtrlData(CTL_TECHROUTEITEM_LEVEL, &Data.LevelCode); // @v12.6.1
+					setCtrlReal(CTL_TECHROUTEITEM_NPRICE, Data.NominalPrice);
+					setCtrlLong(CTL_TECHROUTEITEM_NTIME, Data.NominalTimeSec);
+					return ok;
+				}
+				DECL_DIALOG_GETDTS() // @construction
+				{
+					int    ok = 1;
+					//
+					ASSIGN_PTR(pData, Data);
+					return ok;
+				}
+			private:
+				DECL_HANDLE_EVENT
+				{
+					TDialog::handleEvent(event);
+					if(event.isCmd(cmGoodsStruc)) {
+						// @todo
+					}
+				}
+			};
 			int    ok = -1;
-			TDialog * dlg = new TDialog(DLG_TECHROUTEITEM);
+			TechRouteItemDialog * dlg = new TechRouteItemDialog();
 			if(CheckDialogPtrErr(&dlg)) {
-				SetupPPObjCombo(dlg, CTLSEL_TECHROUTEITEM_TECH, PPOBJ_TECH, pItem->TechID, 0, 0);
-				dlg->setCtrlData(CTL_TECHROUTEITEM_LEVEL, &pItem->LevelCode); // @v12.6.1
-				dlg->setCtrlReal(CTL_TECHROUTEITEM_NPRICE, pItem->NominalPrice);
-				dlg->setCtrlLong(CTL_TECHROUTEITEM_NTIME, pItem->NominalTimeSec);
+				dlg->setDTS(pItem);
 				for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 					dlg->getCtrlData(CTLSEL_TECHROUTEITEM_TECH, &pItem->TechID);
 					if(!pItem->TechID) {
@@ -3544,7 +3589,6 @@ int PPViewTechRoute::MakeList(PPViewBrowser * pBrw)
 				ok = -1;
 				if(p_item) {
 					PPTechRoute trt;
-					//trt.Oid = p_item->Oid;
 					TechRouteIdent ident;
 					ident.Oid = p_item->Oid;
 					if(TrMgr.Get(ident, trt) > 0) {
@@ -3561,6 +3605,37 @@ int PPViewTechRoute::MakeList(PPViewBrowser * pBrw)
 				}
 				break;
 			case PPVCMD_DELETEITEM:
+				break;
+			case PPVCMD_EDITGOODS: // @v12.6.3
+				ok = -1;
+				if(p_item) {
+					if(p_item->Oid.Obj == PPOBJ_GOODS && p_item->Oid.Id) {
+						PPID   temp_id = p_item->Oid.Id;
+						PPObjGoods goods_obj;
+						if(goods_obj.Edit(&temp_id, 0) == cmOK) {
+							ok = 1;
+						}
+					}
+				}
+				break;
+			case PPVCMD_EDITTECH: // @v12.6.3
+				ok = -1;
+				if(p_item) {
+					PPTechRoute trt;
+					TechRouteIdent ident;
+					ident.Oid = p_item->Oid;
+					if(TrMgr.Get(ident, trt) > 0) {
+						if(checkirangef(p_item->ItemN, 1L, static_cast<long>(trt.L.getCount()))) {
+							const  PPTechRoute::Entry & r_entry = trt.L.at(p_item->ItemN-1);
+							if(r_entry.TechID) {
+								PPID   temp_id = r_entry.TechID;
+								if(TecObj.Edit(&temp_id, 0) == cmOK) {
+									ok = 1;
+								}
+							}
+						}
+					}
+				}
 				break;
 		}
 		if(ok > 0) {

@@ -23,18 +23,12 @@
  */
 
 struct hb_ot_language_map_t {
-	int cmp(uint key) const
-	{
-		return key < code ? -1 : key > code ? +1 : 0;
-	}
-
+	int cmp(uint key) const { return key < code ? -1 : key > code ? +1 : 0; }
 	uint16_t code;
 	char lang[6];
 };
 
-static const hb_ot_language_map_t
-    hb_ms_language_map[] =
-{
+static const hb_ot_language_map_t hb_ms_language_map[] = {
 	{0x0001,      "ar"},/* ??? */
 	{0x0004,      "zh"},/* ??? */
 	{0x0009,      "en"},/* ??? */
@@ -285,9 +279,7 @@ static const hb_ot_language_map_t
 	{0xE40C,      "fr"},/* ??? */
 };
 
-static const hb_ot_language_map_t
-    hb_mac_language_map[] =
-{
+static const hb_ot_language_map_t hb_mac_language_map[] = {
 	{  0, "en"},/* English */
 	{  1, "fr"},/* French */
 	{  2, "de"},/* German */
@@ -408,33 +400,25 @@ static const hb_ot_language_map_t
 	{150, "az"}, /* Azerbaijani (Roman script) */
 };
 
-static hb_language_t _hb_ot_name_language_for(uint code,
-    const hb_ot_language_map_t * array,
-    uint len)
+static hb_language_t _hb_ot_name_language_for(uint code, const hb_ot_language_map_t * array, uint len)
 {
 #ifdef HB_NO_OT_NAME_LANGUAGE
 	return HB_LANGUAGE_INVALID;
 #endif
 	auto * entry = hb_bsearch(code, array, len);
-
 	if(entry)
 		return hb_language_from_string(entry->lang, -1);
-
 	return HB_LANGUAGE_INVALID;
 }
 
 hb_language_t _hb_ot_name_language_for_ms_code(uint code)
 {
-	return _hb_ot_name_language_for(code,
-		   hb_ms_language_map,
-		   ARRAY_LENGTH(hb_ms_language_map));
+	return _hb_ot_name_language_for(code, hb_ms_language_map, ARRAY_LENGTH(hb_ms_language_map));
 }
 
 hb_language_t _hb_ot_name_language_for_mac_code(uint code)
 {
-	return _hb_ot_name_language_for(code,
-		   hb_mac_language_map,
-		   ARRAY_LENGTH(hb_mac_language_map));
+	return _hb_ot_name_language_for(code, hb_mac_language_map, ARRAY_LENGTH(hb_mac_language_map));
 }
 
 #endif /* HB_OT_NAME_LANGUAGE_STATIC_HH */

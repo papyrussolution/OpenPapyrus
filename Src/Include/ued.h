@@ -360,6 +360,7 @@ public:
 	~SrUedContainer_Rt();
 	int    Read(const char * pFileName);
 	bool   GetSymb(uint64 ued, SString & rSymb) const;
+	uint64 GetBySymb(uint64 meta, const char * pSymb) const; // @v12.6.3
 private:
 	StringSet SsLang; // Список символов языков, для которых загружаются тексты.
 };

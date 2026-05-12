@@ -1105,37 +1105,32 @@ private:
 			return count >= kMaxLength;
 		}
 
-		template <typename K>
-		size_type BucketNumber(const K& k) const {
+		template <typename K> size_type BucketNumber(const K& k) const 
+		{
 			// We xor the hash value against the random seed so that we effectively
 			// have a random hash function.
 			uint64_t h = hash_function()(k) ^ seed_;
-
 			// We use the multiplication method to determine the bucket number from
 			// the hash value. The constant kPhi (suggested by Knuth) is roughly
 			// (sqrt(5) - 1) / 2 * 2^64.
 			constexpr uint64_t kPhi = uint64_t{0x9e3779b97f4a7c15};
 			return ((kPhi * h) >> 32) & (num_buckets_ - 1);
 		}
-
 		// Return a power of two no less than max(kMinTableSize, n).
 		// Assumes either n < kMinTableSize or n is a power of two.
-		size_type TableSize(size_type n) {
-			return n < static_cast<size_type>(kMinTableSize)
-			       ? static_cast<size_type>(kMinTableSize)
-			       : n;
+		size_type TableSize(size_type n) 
+		{
+			return n < static_cast<size_type>(kMinTableSize) ? static_cast<size_type>(kMinTableSize) : n;
 		}
-
 		// Use alloc_ to allocate an array of n objects of type U.
-		template <typename U>
-		U* Alloc(size_type n) {
+		template <typename U> U * Alloc(size_type n) 
+		{
 			using alloc_type = typename Allocator::template rebind<U>::other;
 			return alloc_type(alloc_).allocate(n);
 		}
-
 		// Use alloc_ to deallocate an array of n objects of type U.
-		template <typename U>
-		void Dealloc(U* t, size_type n) {
+		template <typename U> void Dealloc(U* t, size_type n) 
+		{
 			using alloc_type = typename Allocator::template rebind<U>::other;
 			alloc_type(alloc_).deallocate(t, n);
 		}

@@ -4360,10 +4360,48 @@ PPTokenRecognizer::PPTokenRecognizer() : STokenRecognizer()
 /*virtual*/int PPTokenRecognizer::PostImplement(ImplementBlock & rIb, const uchar * pToken, int len, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat)
 {
 	int    ok = 1;
-#if(_MSC_VER >= 1900)
-	if(rIb.DecCount >= 5 && rIb.DecCount <= 15) { // i don't sure in correctness of [5..15] limit
+	// @v12.6.3 {
+	if(pToken && len) {
+		static  uint glo_idx = 0;
+		PhoneNumberMetaData * p_pnmd = 0;
+		if(!glo_idx) {
+			ENTER_CRITICAL_SECTION
+			if(!glo_idx) {
+				TSClassWrapper <PhoneNumberMetaData> cls;
+				glo_idx = SLS.CreateGlobalObject(cls);
+				p_pnmd = static_cast<PhoneNumberMetaData *>(SLS.GetGlobalObject(glo_idx));
+				if(p_pnmd) {
+					if(p_pnmd->Load()) {
+						;
+					}
+					else {
+						p_pnmd = 0;
+					}
+				}
+			}
+			LEAVE_CRITICAL_SECTION
+		}
+		if(glo_idx && !p_pnmd) {
+			p_pnmd = static_cast<PhoneNumberMetaData *>(SLS.GetGlobalObject(glo_idx));
+			if(p_pnmd && p_pnmd->IsValid()) {
+				PhmdVrL.clear();
+				if(p_pnmd->ValidateNumber(reinterpret_cast<const char *>(pToken), len, &PhmdVrL) > 0 && PhmdVrL.getCount()) {
+					const  float cf = PhmdVrL.at(0).Confidence;
+					rResultList.AddTok(SNTOK_PHONE, cf, 0);
+				}
+				else {
+					// Считаем, что если наш "умный" рекогнайзер не распознал номер телефона, то базовый STokenRecognizer мог ошибиться.
+					rResultList.AddTok(SNTOK_PHONE, 0.0f, 0);
+				}
+			}
+		}
+	}
+	// } @v12.6.3
+// @v12.6.3 #if(_MSC_VER >= 1900)
+	//if(rIb.DecCount >= 5 && rIb.DecCount <= 15) { // i don't sure in correctness of [5..15] limit
+		/* @v12.6.3 (libphonenumber упраздняется в пользу PhoneNumberMetaData)
 		if(PhnL.Parse(reinterpret_cast<const char *>(pToken), "RU")) {
-			rResultList.AddTok(SNTOK_PHONE, 0.9f, 0/*flags*/);
+			rResultList.AddTok(SNTOK_PHONE, 0.9f, 0);
 		}
 		else {
 			//
@@ -4372,10 +4410,10 @@ PPTokenRecognizer::PPTokenRecognizer() : STokenRecognizer()
 			// как трактовать ситуацию, когда STokenRecognizer увидел номер телефона, а libphonenumber - нет.
 			// Пока оставлю без изменений, но, возможно, надо будет удалять значение SNTOK_PHONE из списка rResultList.
 			//
-			rResultList.AddTok(SNTOK_PHONE, 0.0f, 0/*flags*/);
-		}
-	}
-#endif
+			rResultList.AddTok(SNTOK_PHONE, 0.0f, 0);
+		}*/
+	//}
+// @v12.6.3 #endif
 	return ok;
 }
 //

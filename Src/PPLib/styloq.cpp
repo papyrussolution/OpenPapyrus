@@ -2005,7 +2005,7 @@ int StyloQCore::GetPeerEntry(PPID id, StoragePacket * pPack)
 int StyloQCore::SearchSession(const SBinaryChunk & rOtherPublic, StoragePacket * pPack)
 {
 	int    ok = -1;
-	const binary160 bi = SlHash::Sha1(0, rOtherPublic.PtrC(), rOtherPublic.Len());
+	const  binary160 bi = SlHash::Sha1(0, rOtherPublic.PtrC(), rOtherPublic.Len());
 	StyloQSecTbl::Key1 k1;
 	MEMSZERO(k1);
 	assert(sizeof(bi) <= sizeof(k1.BI));

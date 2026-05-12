@@ -42,9 +42,7 @@ BIO * ossl_cms_EncryptedContent_init_bio(CMS_EncryptedContentInfo * ec, const CM
 	(void)ERR_set_mark();
 	if(enc) {
 		cipher = ec->cipher;
-		/*
-		 * If not keeping key set cipher to NULL so subsequent calls decrypt.
-		 */
+		// If not keeping key set cipher to NULL so subsequent calls decrypt.
 		if(ec->key != NULL)
 			ec->cipher = NULL;
 	}
@@ -52,8 +50,7 @@ BIO * ossl_cms_EncryptedContent_init_bio(CMS_EncryptedContentInfo * ec, const CM
 		cipher = EVP_get_cipherbyobj(calg->algorithm);
 	}
 	if(cipher != NULL) {
-		fetched_ciph = EVP_CIPHER_fetch(libctx, EVP_CIPHER_get0_name(cipher),
-			propq);
+		fetched_ciph = EVP_CIPHER_fetch(libctx, EVP_CIPHER_get0_name(cipher), propq);
 		if(fetched_ciph != NULL)
 			cipher = fetched_ciph;
 	}
@@ -63,12 +60,10 @@ BIO * ossl_cms_EncryptedContent_init_bio(CMS_EncryptedContentInfo * ec, const CM
 		goto err;
 	}
 	(void)ERR_pop_to_mark();
-
 	if(EVP_CipherInit_ex(ctx, cipher, NULL, NULL, NULL, enc) <= 0) {
 		ERR_raise(ERR_LIB_CMS, CMS_R_CIPHER_INITIALISATION_ERROR);
 		goto err;
 	}
-
 	if(enc) {
 		calg->algorithm = OBJ_nid2obj(EVP_CIPHER_CTX_get_type(ctx));
 		/* Generate a random IV if we need one */
@@ -86,9 +81,7 @@ BIO * ossl_cms_EncryptedContent_init_bio(CMS_EncryptedContentInfo * ec, const CM
 		}
 		if((EVP_CIPHER_get_flags(cipher) & EVP_CIPH_FLAG_AEAD_CIPHER)) {
 			piv = aparams.iv;
-			if(ec->taglen > 0
-			    && EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_AEAD_SET_TAG,
-			    ec->taglen, ec->tag) <= 0) {
+			if(ec->taglen > 0 && EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_AEAD_SET_TAG, ec->taglen, ec->tag) <= 0) {
 				ERR_raise(ERR_LIB_CMS, CMS_R_CIPHER_AEAD_SET_TAG_ERROR);
 				goto err;
 			}
@@ -98,7 +91,6 @@ BIO * ossl_cms_EncryptedContent_init_bio(CMS_EncryptedContentInfo * ec, const CM
 	if(len <= 0)
 		goto err;
 	tkeylen = (size_t)len;
-
 	/* Generate random session key */
 	if(!enc || !ec->key) {
 		tkey = (uchar *)OPENSSL_malloc(tkeylen);
@@ -109,7 +101,6 @@ BIO * ossl_cms_EncryptedContent_init_bio(CMS_EncryptedContentInfo * ec, const CM
 		if(EVP_CIPHER_CTX_rand_key(ctx, tkey) <= 0)
 			goto err;
 	}
-
 	if(!ec->key) {
 		ec->key = tkey;
 		ec->keylen = tkeylen;
@@ -119,14 +110,10 @@ BIO * ossl_cms_EncryptedContent_init_bio(CMS_EncryptedContentInfo * ec, const CM
 		else
 			ERR_clear_error();
 	}
-
 	if(ec->keylen != tkeylen) {
 		/* If necessary set key length */
 		if(EVP_CIPHER_CTX_set_key_length(ctx, ec->keylen) <= 0) {
-			/*
-			 * Only reveal failure if debugging so we don't leak information
-			 * which may be useful in MMA.
-			 */
+			// Only reveal failure if debugging so we don't leak information which may be useful in MMA.
 			if(enc || ec->debug) {
 				ERR_raise(ERR_LIB_CMS, CMS_R_INVALID_KEY_LENGTH);
 				goto err;
@@ -141,7 +128,6 @@ BIO * ossl_cms_EncryptedContent_init_bio(CMS_EncryptedContentInfo * ec, const CM
 			}
 		}
 	}
-
 	if(EVP_CipherInit_ex(ctx, NULL, NULL, ec->key, piv, enc) <= 0) {
 		ERR_raise(ERR_LIB_CMS, CMS_R_CIPHER_INITIALISATION_ERROR);
 		goto err;
@@ -159,7 +145,6 @@ BIO * ossl_cms_EncryptedContent_init_bio(CMS_EncryptedContentInfo * ec, const CM
 			if(aparams.tag_len <= 0)
 				goto err;
 		}
-
 		if(evp_cipher_param_to_asn1_ex(ctx, calg->parameter, &aparams) <= 0) {
 			ERR_raise(ERR_LIB_CMS, CMS_R_CIPHER_PARAMETER_INITIALISATION_ERROR);
 			goto err;
@@ -171,7 +156,6 @@ BIO * ossl_cms_EncryptedContent_init_bio(CMS_EncryptedContentInfo * ec, const CM
 		}
 	}
 	ok = 1;
-
 err:
 	EVP_CIPHER_free(fetched_ciph);
 	if(!keep_key || !ok) {
@@ -185,10 +169,7 @@ err:
 	return NULL;
 }
 
-int ossl_cms_EncryptedContent_init(CMS_EncryptedContentInfo * ec,
-    const EVP_CIPHER * cipher,
-    const uchar * key, size_t keylen,
-    const CMS_CTX * cms_ctx)
+int ossl_cms_EncryptedContent_init(CMS_EncryptedContentInfo * ec, const EVP_CIPHER * cipher, const uchar * key, size_t keylen, const CMS_CTX * cms_ctx)
 {
 	ec->cipher = cipher;
 	if(key) {

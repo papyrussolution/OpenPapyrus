@@ -100,9 +100,9 @@ int argon2_hash(const uint32 t_cost, const uint32 m_cost, const uint32 paralleli
 	}
 	context.out = (uint8*)out;
 	context.outlen = (uint32)hashlen;
-	context.pwd = CONST_CAST(uint8 *) pwd;
+	context.pwd = CONST_CAST(uint8 *)pwd;
 	context.pwdlen = (uint32)pwdlen;
-	context.salt = CONST_CAST(uint8 *) salt;
+	context.salt = CONST_CAST(uint8 *)salt;
 	context.saltlen = (uint32)saltlen;
 	context.secret = NULL;
 	context.secretlen = 0;

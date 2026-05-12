@@ -1,5 +1,5 @@
 // PPCALC.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -24,7 +24,7 @@ static const PPCalcFuncAssoc CFA[] = {
 //
 int PPCFuncPaperRollOuterLayer(const StringSet * pParamList, char * pRes, size_t resBufLen)
 {
-	int    ok = 1;
+	int    ok = 0;
 	uint   pos = 0;
 	char   param[64];
 	double D = 0.0;
@@ -35,16 +35,12 @@ int PPCFuncPaperRollOuterLayer(const StringSet * pParamList, char * pRes, size_t
 		strtodoub(param, &D);
 		if(pParamList->get(&pos, param, sizeof(param))) {
 			strtodoub(param, &W);
-			if(pParamList->get(&pos, param, sizeof(param)))
+			if(pParamList->get(&pos, param, sizeof(param))) {
 				strtolong(param, &N);
-			else
-				ok = 0;
+				ok = 1;
+			}
 		}
-		else
-			ok = 0;
 	}
-	else
-		ok = 0;
 	R = SMathConst::Pi * D * W * N;
 	realfmt(R, MKSFMTD(0, 8, NMBF_NOTRAILZ), param);
 	strnzcpy(pRes, param, resBufLen);
@@ -147,11 +143,17 @@ uint16 FASTCALL PPCalcFuncList::SearchFuncByName(const char * pName) const
 
 const PPCalcFuncEntry * FASTCALL PPCalcFuncList::SearchFunc(uint16 funcID) const
 {
+	const PPCalcFuncEntry * p_result = 0;
 	const uint c = getCount();
-	for(uint i = 0; i < c; i++)
-		if(at(i)->FuncID == funcID)
-			return at(i);
-	return (PPErrCode = PPERR_UNDEFPPCFUNCID, (PPCalcFuncEntry *)0);
+	for(uint i = 0; i < c; i++) {
+		if(at(i)->FuncID == funcID) {
+			p_result = at(i);
+		}
+	}
+	if(!p_result) {
+		PPSetError(PPERR_UNDEFPPCFUNCID);
+	}
+	return p_result;
 }
 
 int PPCalcFuncList::ReadParams(uint16 funcID, const char * pStr, size_t * pEndPos, StringSet * pParamList) const
@@ -663,13 +665,16 @@ int PPCalculator(void * hParentWnd, const char * pInitData)
 	int    ok = 1;
 	double c = 0.0;
 	char   ct[256];
-	if(pInitData)
+	if(pInitData) {
 		STRNSCPY(ct, pInitData);
-	else
+		c = satof(ct); // @v12.6.3
+	}
+	else {
 		TView::messageCommand(APPL->P_DeskTop, cmGetFocusedNumber, &c);
+	}
 	CalcDialog * dlg = new CalcDialog;
 	if(CheckDialogPtrErr(&dlg)) {
-		if(c != 0) {
+		if(c != 0.0) {
 			realfmt(c, MKSFMTD(0, 6, NMBF_NOTRAILZ), ct);
 			dlg->setCtrlData(CTL_CALC_INPUT, ct);
 		}

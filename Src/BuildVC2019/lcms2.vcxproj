@@ -437,7 +437,7 @@
       <FloatingPointExceptions>
       </FloatingPointExceptions>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <BrowseInformation>true</BrowseInformation>
+      <BrowseInformation>false</BrowseInformation>
       <CompileAs>CompileAsCpp</CompileAs>
       <PrecompiledHeaderFile />
       <StructMemberAlignment>1Byte</StructMemberAlignment>

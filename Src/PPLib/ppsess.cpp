@@ -4625,7 +4625,6 @@ int PPSession::Implement_PPLogin(const PPDbEntrySet2 * pDbes, const char * pDbSy
 					}
 				}
 				// } @v12.5.5
-				// @v11.3.7 {
 				if(CheckExtFlag(ECF_PAPERLESSCHEQUE) && ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_PAPERLESSCHEQUE_FAKEEADDR, sv) && sv.NotEmptyS()) {
 					SNaturalTokenArray nta;
 					PPTokenRecognizer trgn;
@@ -4637,7 +4636,6 @@ int PPSession::Implement_PPLogin(const PPDbEntrySet2 * pDbes, const char * pDbSy
 				}
 				else
 					r_tla.PaperlessCheque_FakeEAddr.Z();
-				// } @v11.3.7 
 				r_tla.Bac.Load();
 			}
 			if(CheckExtFlag(ECF_USESJLOGINEVENT))
