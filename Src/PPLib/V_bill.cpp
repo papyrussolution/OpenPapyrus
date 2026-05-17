@@ -8908,8 +8908,8 @@ int PPALDD_GoodsReval::NextIteration(PPIterID iterId)
 			double new_cost  = p_ti->Cost;
 			double old_price = (correction_type == -1) ? p_ti->RevalCost : ((correction_type == 0) ? p_ti->Discount : 0.0);
 			double old_cost  = (correction_type == +1) ? p_ti->RevalCost : ((correction_type == 0) ? p_ti->Cost : 0.0);
-			const double qtty      = correction_type ? fabs(p_ti->Quantity_) : fabs(p_ti->Rest_);
-			const double old_qtty  = correction_type ? fabs(p_ti->QuotPrice) : fabs(qtty);
+			const  double qtty      = correction_type ? fabs(p_ti->Quantity_) : fabs(p_ti->Rest_);
+			const  double old_qtty  = correction_type ? fabs(p_ti->QuotPrice) : fabs(qtty);
 			double vatsum_oldcost = 0.0;
 			double vatsum_newcost = 0.0;
 			double vatsum_oldprice = 0.0;

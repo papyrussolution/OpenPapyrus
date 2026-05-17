@@ -145,7 +145,88 @@ SJson * SSecretTagPool::GetJson(uint tag) const
 	}
 	return p_js;
 }
+//
+//
+//
+class SlEncapsulatedKey {
+public:
+	class Internal {
+	public:
+		Internal()
+		{
+			B.Init();
+		}
+		~Internal()
+		{
+			if(B.P_Buf) {
+				SAlloc::F_secure(B.P_Buf, B.Size);
+			}
+		}
+		SBaseBuffer B;
+	};
+	SlEncapsulatedKey()
+	{
+		memrandomize(V, sizeof(V));
+	}
+	~SlEncapsulatedKey()
+	{
+	}
 
+	uint   V[20];
+};
+
+/*static*/void * SlCrypto::EncapsulateKey(const void * pSrcKey, size_t srcKeySize, size_t drvKeySize) // @v12.6.4 @construction
+{
+	void * p_result = 0;
+	if(pSrcKey && srcKeySize && drvKeySize) {
+		SlCrypto::Key key;
+		Argon2Param ap;
+		uint64 salt[2];
+		salt[0] = 0x93E90DC7875BF159ULL;
+		salt[1] = 0x159C4AB099D7D317ULL;
+		if(Implement_SetKey_Derived_Argon2(key, pSrcKey, srcKeySize, drvKeySize, salt, sizeof(salt), ap)) {
+			const SBaseBuffer & r_dk = key.GetKey();
+			assert(r_dk.P_Buf && r_dk.Size == drvKeySize);
+			if(r_dk.P_Buf && r_dk.Size == drvKeySize) {
+				SlEncapsulatedKey * p_ek = new SlEncapsulatedKey();
+				if(p_ek) {
+					constexpr uint vdim = SIZEOFARRAY(p_ek->V);
+					const  uint r1 = SLS.GetTLA().Rg.GetUniformIntPos(8);
+					const  uint vc = vdim - r1;
+					p_ek->V[vdim-1] = vc;
+					const  S_GUID & r_su = SLS.GetSessUuid();
+					const  uint vtp = r_su.Data[1] % vc;
+					for(uint i = 0; i < vc; i++) {
+						TSClassWrapper <SlEncapsulatedKey::Internal> cls;
+						const  uint h = SLS.CreateGlobalObject(cls);
+						if(h) {
+							SlEncapsulatedKey::Internal * p_ = static_cast<SlEncapsulatedKey::Internal *>(SLS.GetGlobalObject(h));
+							if(p_) {
+								// @todo
+								if(i == vtp) {
+									
+								}
+								else {
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return p_result;
+}
+
+/*static*/void SlCrypto::ResetEncapsultedKey(void * pEK) // @v12.6.4 @construction
+{
+	if(pEK) {
+		;
+	}
+}
+//
+//
+//
 SlCrypto::CipherProperties::CipherProperties() : BlockSize(0), KeySize(0), IvSize(0), AadSize(0), TagSize(0)
 {
 }
@@ -160,6 +241,7 @@ SlCrypto::Key::Key() : Signature(SlConst::SlCryptoKeySignature), EndP(0)
 SlCrypto::Key::~Key()
 {
 	Signature = 0;
+	memrandomize(Bin, sizeof(Bin)); // @v12.6.4
 }
 
 bool SlCrypto::Key::IsConsistent() const { return (this != 0 && Signature == SlConst::SlCryptoKeySignature); }
@@ -170,57 +252,13 @@ SlCrypto::Key & SlCrypto::Key::Z()
 	IV.Init();
 	AAD.Init();
 	EndP = 0;
+	memrandomize(Bin, sizeof(Bin)); // @v12.6.4
 	return *this;
 }
 
 const SBaseBuffer & SlCrypto::Key::GetKey() const { return KEY; }
 const SBaseBuffer & SlCrypto::Key::GetIV() const { return IV; }
 const SBaseBuffer & SlCrypto::Key::GetAAD() const { return AAD; }
-
-int SlCrypto::Key::SetDerivedKey_Argon2(const void * pData, size_t size, size_t resultKeySize, const void * pSalt, size_t saltSize, const Argon2Param & rParam) // @v12.6.2 @construction
-{
-	int   ok = 1;
-	if(!pData || !size) {
-		ok = 0;
-	}
-	else if(!resultKeySize || (EndP + resultKeySize) > sizeof(Bin)) {
-		ok = 0;
-	}
-	else {
-		Argon2Param ap(rParam);
-		if(!ap.MemCost) {
-			ap.MemCost = SKILOBYTE(4); // = 4MiB // ѕредлагают использовать 64mb, но € пока остановлюсь на 4
-		}
-		if(!ap.TimeCost) {
-			ap.TimeCost = 3;
-		}
-		if(!ap.Parallelism) {
-			ap.Parallelism = 1;
-		}
-		{
-			char * p_dest_buf = reinterpret_cast<char *>(Bin+EndP);
-			uint8  default_argon2_salt[32];
-			size_t default_argon2_salt_size = 0;
-			if(!pSalt || !saltSize) {
-				reinterpret_cast<uint64 *>(default_argon2_salt)[0] = SlConst::FnvHash1Init64;
-				reinterpret_cast<uint64 *>(default_argon2_salt)[1] = SlConst::CrcPoly_64_Lzma;
-				default_argon2_salt_size = sizeof(uint64) * 2;
-				pSalt = default_argon2_salt;
-				saltSize = default_argon2_salt_size;
-			}
-			int    ar = argon2id_hash_raw(ap.TimeCost, ap.MemCost, ap.Parallelism, pData, size, pSalt, saltSize, p_dest_buf, resultKeySize);
-			if(ar == ARGON2_OK) { // ? ERR_SUCCESS : ERR_ARGON2;
-				KEY.P_Buf = p_dest_buf;
-				KEY.Size = resultKeySize;
-				EndP += static_cast<uint32>(resultKeySize);
-			}
-			else {
-				ok = 0;
-			}
-		}
-	}
-	return ok;
-}
 
 int SlCrypto::Key::SetKey(const void * pData, size_t size)
 {
@@ -541,10 +579,10 @@ bool SlCrypto::IsIvSizeConfigurable() const { return oneof4(AlgModif, algmodCcm,
 	
 const  SlCrypto::CipherProperties & SlCrypto::GetCipherProperties() const { return Cp; }
 
-int SlCrypto::SetKey_Derived_Argon2(SlCrypto::Key & rK, const void * pData, size_t size, const void * pSalt, size_t saltSize, const Argon2Param & rParam) // @v12.6.3
+/*static*/int SlCrypto::Implement_SetKey_Derived_Argon2(SlCrypto::Key & rK, const void * pData, size_t size, size_t destKeySize, const void * pSalt, size_t saltSize, const Argon2Param & rParam) // @v12.6.4
 {
 	int   ok = 1;
-	const size_t result_key_size = Cp.KeySize;
+	const size_t result_key_size = destKeySize;
 	Argon2Param ap(rParam);
 	THROW(pData && size);
 	THROW(result_key_size);
@@ -577,6 +615,11 @@ int SlCrypto::SetKey_Derived_Argon2(SlCrypto::Key & rK, const void * pData, size
 	}
 	CATCHZOK
 	return ok;
+}
+
+int SlCrypto::SetKey_Derived_Argon2(SlCrypto::Key & rK, const void * pData, size_t size, const void * pSalt, size_t saltSize, const Argon2Param & rParam) // @v12.6.3
+{
+	return Implement_SetKey_Derived_Argon2(rK, pData, size, Cp.KeySize, pSalt, saltSize, rParam);
 }
 
 int SlCrypto::SetKey_IV(SlCrypto::Key & rK, const void * pData, size_t size) // @v12.6.3

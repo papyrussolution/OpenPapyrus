@@ -546,13 +546,13 @@ int PPObjTech::GetPacket(PPID id, PPTechPacket * pPack)
 		pPack->SetBuffer(temp_buf);
 		GetItemMemo(id, pPack->SMemo);
 		// @v12.6.0 {
-		{
+		/* @v12.6.4 {
 			PPTechRouteManager trmgr;
 			TechRouteIdent ident;
 			ident.Oid.Set(Obj, id);
 			//pPack->Route.Oid.Set(Obj, id);
 			THROW(trmgr.Get(ident, pPack->Route));
-		}
+		}*/
 		// } @v12.6.0 
 		ok = 1;
 	}
@@ -635,10 +635,10 @@ int PPObjTech::PutPacket(PPID * pID, PPTechPacket * pPack, int use_ta)
 			THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(Obj, *pID, PPTRPROP_MEMO), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 		}
 		// @v12.6.0 {
-		{
+		/* @v12.6.4 {
 			PPTechRouteManager trmgr;
 			THROW(trmgr.Put(pPack->Route, 0));
-		}
+		}*/
 		// } @v12.6.0 
 		DS.LogAction(log_action_id, Obj, *pID, 0, 0);
 		THROW(tra.Commit());
@@ -663,12 +663,8 @@ struct CalcCapacity {
 	//   CalcCapacity::Unit и CalcCapacity::Flags
 	//
 	int    SetNorma(double val);
-	SString & ToText(SString & rBuf) const
-	{
-		return rBuf.Z().Cat((long)Unit).Semicol().Cat((long)Flags);
-	}
+	SString & ToText(SString & rBuf) const { return rBuf.Z().Cat((long)Unit).Semicol().Cat((long)Flags); }
 	int    FromText(const char *);
-
 	int    Save() const;
 	int    Restore();
 
@@ -725,15 +721,12 @@ int CalcCapacity::FromText(const char * pBuf)
 
 double CalcCapacity::Normalyze() const
 {
-	double div;
-	if(Unit == SUOM_MINUTE)
-		div = 60.0;
-	else if(Unit == SUOM_HOUR)
-		div = 3600.0;
-	else if(Unit == SUOM_DAY)
-		div = SlConst::SecsPerDayR;
-	else
-		div = 1.0;
+	double div = 1.0;
+	switch(Unit) {
+		case SUOM_MINUTE: div = 60.0; break;
+		case SUOM_HOUR: div = 3600.0; break;
+		case SUOM_DAY: div = SlConst::SecsPerDayR; break;
+	}
 	double v = 0.0;
 	if(Flags & fReverse)
 		v = 1.0 / (Val * div);
@@ -746,15 +739,12 @@ double CalcCapacity::Normalyze() const
 
 int CalcCapacity::SetNorma(double val)
 {
-	double div;
-	if(Unit == SUOM_MINUTE)
-		div = 60.0;
-	else if(Unit == SUOM_HOUR)
-		div = 3600.0;
-	else if(Unit == SUOM_DAY)
-		div = SlConst::SecsPerDayR;
-	else
-		div = 1.0;
+	double div = 1.0;
+	switch(Unit) {
+		case SUOM_MINUTE: div = 60.0; break;
+		case SUOM_HOUR: div = 3600.0; break;
+		case SUOM_DAY: div = SlConst::SecsPerDayR; break;
+	}
 	if(Flags & fReverse)
 		Val = 1.0 / (div * val);
 	else if(Flags & fAbsolute)
@@ -1059,8 +1049,7 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 						if(Data.Rec.GoodsID) {
 							PPObjGoods goods_obj;
 							if(goods_obj.EditGoodsStruc(Data.Rec.GoodsID) > 0)
-								SetupPPObjCombo(this, CTLSEL_TECH_GSTRUC, PPOBJ_GOODSSTRUC, Data.Rec.GStrucID, OLW_SETUPSINGLE, 
-									reinterpret_cast<void *>(Data.Rec.GoodsID));
+								SetupPPObjCombo(this, CTLSEL_TECH_GSTRUC, PPOBJ_GOODSSTRUC, Data.Rec.GStrucID, OLW_SETUPSINGLE, reinterpret_cast<void *>(Data.Rec.GoodsID));
 						}
 					}
 					else if(event.isCmd(cmTechRoute)) { // @v12.5.12
@@ -2833,33 +2822,46 @@ bool TechRouteIdent::FromStr(const char * pText) // @v12.6.2 @construction
 	return ok;
 }
 
-PPTechRoute::Entry::Entry() : TechID(0), NominalPrice(0.0), NominalTimeSec(0), LevelCode(0), GStrucID(0), Reserve2(0)
+PPTechRoute::Entry::Entry() : TechID(0), NominalPrice(0.0), NominalTimeSec(0), LevelCode(0), GStrucID(0), Reserve2(0), Flags(0)
 {
 	memzero(Reserve, sizeof(Reserve));
 }
 
-PPTechRoute::PPTechRoute() : ObjGroup(0)
+PPTechRoute::PPTechRoute() : ID(0), ObjGroup(0)
 {
+	Code[0] = 0;
 }
 	
 PPTechRoute & PPTechRoute::Z()
 {
+	ID = 0;
+	Code[0] = 0;
 	Oid.Z();
 	ObjGroup = 0;
 	L.clear();
 	SelectionList.Z(); // @v12.6.1
+	GsList.freeAll(); // @v12.6.4
 	return *this;
 }
 
 int PPTechRoute::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
-	static constexpr uint32 PPTechRoute_Ver = 2; // @v12.6.0 0-->1-->2
+	static constexpr uint32 PPTechRoute_Ver = 3; // @v12.6.0 0-->1-->2 // @v12.6.4 2-->3
 	int    ok = 1;
+	SString temp_buf;
 	uint32 ver = PPTechRoute_Ver;
 	THROW_SL(pSCtx->Serialize(dir, ver, rBuf));
 	if(dir < 0) {
-		THROW_SL(oneof3(ver, 0, 1, PPTechRoute_Ver));
-		if(ver >= 1) {
+		THROW_SL(oneof4(ver, 0, 1, 2, PPTechRoute_Ver));
+		if(ver >= 3) {
+			THROW_SL(pSCtx->Serialize(dir, ID, rBuf)); // @v12.6.4
+			THROW_SL(pSCtx->Serialize(dir, temp_buf, rBuf)); // @v12.6.4
+			STRNSCPY(Code, temp_buf); // @v12.6.4
+			THROW_SL(Oid.Serialize(dir, rBuf, pSCtx));
+			THROW_SL(pSCtx->Serialize(dir, ObjGroup, rBuf));
+			THROW_SL(pSCtx->Serialize(dir, &L, rBuf));
+		}
+		else if(ver >= 1) {
 			THROW_SL(Oid.Serialize(dir, rBuf, pSCtx));
 			if(ver >= 2) {
 				THROW_SL(pSCtx->Serialize(dir, ObjGroup, rBuf));
@@ -2883,6 +2885,9 @@ int PPTechRoute::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 		}
 	}
 	else {
+		THROW_SL(pSCtx->Serialize(dir, ID, rBuf)); // @v12.6.4
+		temp_buf = Code; // @v12.6.4
+		THROW_SL(pSCtx->Serialize(dir, temp_buf, rBuf)); // @v12.6.4
 		THROW_SL(Oid.Serialize(dir, rBuf, pSCtx));
 		THROW_SL(pSCtx->Serialize(dir, ObjGroup, rBuf));
 		THROW_SL(pSCtx->Serialize(dir, &L, rBuf));
@@ -2895,7 +2900,7 @@ int PPTechRoute::AddEntry(const Entry & rEntry)
 {
 	int    ok = 1;
 	Entry  new_entry;
-	THROW(Oid.IsFullyDefined()); // @todo @err
+	// @v12.6.4 THROW(Oid.IsFullyDefined()); // @todo @err
 	THROW(Oid.Obj != PPOBJ_TECH || Oid.Id != rEntry.TechID); // @todo @err
 	new_entry.TechID = rEntry.TechID;
 	new_entry.NominalTimeSec = rEntry.NominalTimeSec;
@@ -2993,19 +2998,129 @@ PPTechRouteManager::PPTechRouteManager()
 int PPTechRouteManager::Put(PPTechRoute & rRoute, int use_ta)
 {
 	int    ok = 1;
+	PPID   _id = rRoute.ID;
 	Reference * p_ref(PPRef);
-	THROW(rRoute.IsEmpty() || rRoute.Oid.IsFullyDefined()); // @todo @err
+	// @v12.6.4 THROW(rRoute.IsEmpty() || rRoute.Oid.IsFullyDefined()); // @todo @err
+	THROW(!isempty(rRoute.Code) || rRoute.Oid.IsFullyDefined()); // @v12.6.4 // @todo @err
 	{
-		SBuffer route_sbuf;
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		if(!rRoute.IsEmpty()) {
-			SSerializeContext sctx;
-			THROW(rRoute.Serialize(+1, route_sbuf, &sctx));
+		{
+			PPTechPacket tec_pack;
+			tec_pack.Rec.Kind = TECK_ROUTE;
+			tec_pack.Rec.ID = _id;
+			STRNSCPY(tec_pack.Rec.Code, rRoute.Code);
+			tec_pack.Rec.UedLinkOid = UED::SetRaw_Oid(rRoute.Oid);
+			THROW(TecObj.PutPacket(&_id, &tec_pack, 0));
 		}
-		THROW(p_ref->PutPropSBuffer(PPOBJ_TECHROUTE, rRoute.Oid.Obj, rRoute.Oid.Id, route_sbuf, 0)); // @see comment to PPOBJ_TECHROUTE
+		{
+			SBuffer route_sbuf;
+			if(!rRoute.IsEmpty()) {
+				SSerializeContext sctx;
+				{
+					for(uint i = 0; i < rRoute.L.getCount(); i++) {
+						PPTechRoute::Entry & r_entry = rRoute.L.at(i);
+						if(r_entry.GStrucID) {
+							PPID   gstruc_id = 0;
+							PPGoodsStruc * p_gs = 0;
+							if(r_entry.Flags & PPTechRoute::Entry::fGStrucTemporaryIdx) {
+								if(checkirangef(static_cast<int>(r_entry.GStrucID), 1, rRoute.GsList.getCountI())) {
+									p_gs = rRoute.GsList.at(r_entry.GStrucID-1);
+									if(p_gs && p_gs->IsEmpty())
+										p_gs = 0;
+								}
+								r_entry.Flags &= ~PPTechRoute::Entry::fGStrucTemporaryIdx;
+							}
+							else {
+								for(uint gsi = 0; !p_gs && gsi < rRoute.GsList.getCount(); gsi++) {
+									PPGoodsStruc * p_gs_iter = rRoute.GsList.at(gsi);
+									if(p_gs_iter->Rec.ID == r_entry.GStrucID) {
+										gstruc_id = r_entry.GStrucID;
+										p_gs = p_gs_iter;
+									}
+								}
+								if(!p_gs) {
+									PPGoodsStrucHeader2 gsh;
+									if(GObj.GSObj.Search(r_entry.GStrucID, &gsh) > 0) {
+										// Если элемент маршрута ссылается на структуру, которой нет в списке rRoute.GsList
+										// и такая структура реально существует в базе данных, то просто оставляем все как есть.
+										;
+									}
+									else {
+										// Если элемент маршрута ссылается на структуру, которой нет в списке rRoute.GsList,
+										// но такой структуры нет в базе данных, то обнулям идентификатор. Надо бы что-то в лог написать, но, как всегда, некогда :(
+										r_entry.GStrucID = 0;
+									}
+								}
+							}
+							if(p_gs) {
+								THROW(GObj.GSObj.Put(&gstruc_id, p_gs, 0));
+								r_entry.GStrucID = gstruc_id;
+							}
+						}
+					}
+				}
+				THROW(rRoute.Serialize(+1, route_sbuf, &sctx));
+			}
+			//THROW(p_ref->PutPropSBuffer(PPOBJ_TECHROUTE, rRoute.Oid.Obj, rRoute.Oid.Id, route_sbuf, 0)); // @see comment to PPOBJ_TECHROUTE
+			THROW(p_ref->PutPropSBuffer(PPOBJ_TECH, _id, TECPRP_ROUTE, route_sbuf, 0));
+		}
 		THROW(tra.Commit());
 	}
+	CATCHZOK
+	return ok;
+}
+
+int PPTechRouteManager::Get(const TechRouteIdent & rIdent, PPTechRoute & rRoute)
+{
+	rRoute.Z();
+	int    ok = -1;
+	const  SObjID preserve_oid = rRoute.Oid;
+	Reference * p_ref(PPRef);
+	SSerializeContext sctx;
+	SBuffer route_sbuf;
+	if(rIdent.ID) {
+		PPTechPacket tec_pack;
+		if(TecObj.GetPacket(rIdent.ID, &tec_pack) > 0) {
+			const  int gpr = p_ref->GetPropSBuffer(PPOBJ_TECH, rIdent.ID, TECPRP_ROUTE, route_sbuf);
+			THROW(gpr);
+			if(gpr > 0) {
+				THROW(rRoute.Serialize(-1, route_sbuf, &sctx));
+				{
+					for(uint i = 0; i < rRoute.L.getCount(); i++) {
+						PPTechRoute::Entry & r_entry = rRoute.L.at(i);
+						if(r_entry.GStrucID) {
+							PPGoodsStruc * p_gs = new PPGoodsStruc;
+							THROW_SL(p_gs);
+							if(GObj.GSObj.Get(r_entry.GStrucID, p_gs) > 0) {
+								rRoute.GsList.insert(p_gs);
+							}
+							else {
+								r_entry.GStrucID = 0;
+								delete p_gs;
+							}
+						}
+					}
+				}
+			}
+			rRoute.ID = tec_pack.Rec.ID;
+			STRNSCPY(rRoute.Code, tec_pack.Rec.Code);
+			UED::GetRaw_Oid(tec_pack.Rec.UedLinkOid, rRoute.Oid);
+			ok = 1;
+		}
+	}
+	/*else {
+		// old code
+		THROW(rIdent.Oid.IsFullyDefined()); // @todo @err
+		{
+			const  int gpr = p_ref->GetPropSBuffer(PPOBJ_TECHROUTE, rIdent.Oid.Obj, rIdent.Oid.Id, route_sbuf);
+			THROW(gpr);
+			if(gpr > 0) {
+				THROW(rRoute.Serialize(-1, route_sbuf, &sctx));
+				ok = 1;
+			}
+		}
+	}*/
 	CATCHZOK
 	return ok;
 }
@@ -3060,26 +3175,6 @@ int PPTechRouteManager::GetListByGoods(PPID goodsID, TSCollection <PPTechRoute> 
 	return ok;
 }
 
-int PPTechRouteManager::Get(const TechRouteIdent & rIdent, PPTechRoute & rRoute)
-{
-	int    ok = -1;
-	const  SObjID preserve_oid = rRoute.Oid;
-	Reference * p_ref(PPRef);
-	THROW(rIdent.Oid.IsFullyDefined()); // @todo @err
-	{
-		SBuffer route_sbuf;
-		const  int gpr = p_ref->GetPropSBuffer(PPOBJ_TECHROUTE, rIdent.Oid.Obj, rIdent.Oid.Id, route_sbuf);
-		THROW(gpr);
-		if(gpr > 0) {
-			SSerializeContext sctx;
-			THROW(rRoute.Serialize(-1, route_sbuf, &sctx));
-			ok = 1;
-		}
-	}
-	CATCHZOK
-	return ok;
-}
-
 int PPTechRouteManager::GetLotStageTagDetail(PPID lotID, TechRouteIdent * pIdent, LongArray * pStageList)
 {
 	int    ok = -1;
@@ -3118,12 +3213,15 @@ int PPTechRouteManager::Edit(PPTechRoute & rRoute)
 		{
 			RVALUEPTR(Data, pData);
 			//setParams(PPOBJ_PROCESSOR, &Data);
+			setCtrlData(CTL_TECHROUTE_CODE, Data.Code);
+			setCtrlLong(CTL_TECHROUTE_ID, Data.ID);
 			SetupObjType();
 			updateList(-1);
 			return 1;
 		}
 		DECL_DIALOG_GETDTS()
 		{
+			getCtrlData(CTL_TECHROUTE_CODE, Data.Code);
 			ASSIGN_PTR(pData, Data);
 			return 1;
 		}
@@ -3233,7 +3331,7 @@ int PPTechRouteManager::Edit(PPTechRoute & rRoute)
 		virtual int  addItem(long * pPos, long * pID)
 		{
 			int    ok = -1;
-			if(Data.Oid.IsFullyDefined()) {
+			if(/*Data.Oid.IsFullyDefined()*/true) {
 				uint   pos = 0;
 				PPTechRoute::Entry item;
 				if(editItemDialog(&item) > 0) {
@@ -3285,6 +3383,7 @@ int PPTechRouteManager::Edit(PPTechRoute & rRoute)
 		{
 			class TechRouteItemDialog : public TDialog {
 				DECL_DIALOG_DATA(PPTechRoute::Entry);
+				PPGoodsStruc GsPack;
 			public:
 				TechRouteItemDialog() : TDialog(DLG_TECHROUTEITEM)
 				{
@@ -3298,13 +3397,27 @@ int PPTechRouteManager::Edit(PPTechRoute & rRoute)
 					setCtrlData(CTL_TECHROUTEITEM_LEVEL, &Data.LevelCode); // @v12.6.1
 					setCtrlReal(CTL_TECHROUTEITEM_NPRICE, Data.NominalPrice);
 					setCtrlLong(CTL_TECHROUTEITEM_NTIME, Data.NominalTimeSec);
+					{
+						PPGoodsStruc gs;
+						if(Data.GStrucID && GsObj.Get(Data.GStrucID, &gs) > 0) {
+							GsPack = gs;
+						}
+						else
+							GsPack.Z();
+					}
 					return ok;
 				}
 				DECL_DIALOG_GETDTS() // @construction
 				{
 					int    ok = 1;
-					//
+					uint   sel = 0;
+					getCtrlData(sel = CTLSEL_TECHROUTEITEM_TECH, &Data.TechID);
+					THROW_PP(Data.TechID, PPERR_TECHNEEDED);
+					getCtrlData(CTL_TECHROUTEITEM_LEVEL, &Data.LevelCode); // @v12.6.1
+					getCtrlData(CTL_TECHROUTEITEM_NPRICE, &Data.NominalPrice);
+					getCtrlData(CTL_TECHROUTEITEM_NTIME, &Data.NominalTimeSec);
 					ASSIGN_PTR(pData, Data);
+					CATCHZOKPPERRBYDLG
 					return ok;
 				}
 			private:
@@ -3312,25 +3425,21 @@ int PPTechRouteManager::Edit(PPTechRoute & rRoute)
 				{
 					TDialog::handleEvent(event);
 					if(event.isCmd(cmGoodsStruc)) {
-						// @todo
+						if(GsObj.EditDialog(&GsPack) > 0) {
+							;
+						}
 					}
 				}
+				PPObjGoodsStruc GsObj;
 			};
 			int    ok = -1;
 			TechRouteItemDialog * dlg = new TechRouteItemDialog();
 			if(CheckDialogPtrErr(&dlg)) {
 				dlg->setDTS(pItem);
-				for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
-					dlg->getCtrlData(CTLSEL_TECHROUTEITEM_TECH, &pItem->TechID);
-					if(!pItem->TechID) {
-						PPError(PPERR_TECHNEEDED, 0);
-					}
-					else {
-						dlg->getCtrlData(CTL_TECHROUTEITEM_LEVEL, &pItem->LevelCode); // @v12.6.1
-						dlg->getCtrlData(CTL_TECHROUTEITEM_NPRICE, &pItem->NominalPrice);
-						dlg->getCtrlData(CTL_TECHROUTEITEM_NTIME, &pItem->NominalTimeSec);
+				for(bool valid_data = false; !valid_data && ExecView(dlg) == cmOK;) {
+					if(dlg->getDTS(pItem)) {
 						ok = 1;
-						valid_data = 1;
+						valid_data = true;
 					}
 				}
 			}
@@ -3360,28 +3469,28 @@ TechRouteFilt & FASTCALL TechRouteFilt::operator = (const TechRouteFilt & s)
 	return *this;
 }
 
-PPViewTechRoute::BrwItem::BrwItem() : ItemKey(), TechID(0), PrcID(0), ObjNameP(0), NominalPrice(0.0), NominalTimeSec(0)
+PPViewTechRoute::BrwItem::BrwItem() : TechRouteIdent(), CodeP(0), TechID(0), PrcID(0), ObjNameP(0), NominalPrice(0.0), NominalTimeSec(0)
 {
 }
 
-/*static*/const PPViewTechRoute::BrwItem * PPViewTechRoute::SearchListItem(TSArray <BrwItem> * pList, const ItemKey & rKey, uint * pPos)
+/*static*/const PPViewTechRoute::BrwItem * PPViewTechRoute::SearchListItem(TSArray <BrwItem> * pList, const TechRouteIdent & rKey, uint * pPos)
 {
 	const  BrwItem * p_result = 0;
 	uint   _pos = 0;
 	if(rKey.Oid.IsFullyDefined()) {
 		if(pList) {
-			long   min_item_n = MAXLONG;
+			uint   min_item_n = UINT_MAX;
 			uint   min_item_n_pos = 0;
 			for(uint i = 0; !p_result && i < pList->getCount(); i++) {
 				const BrwItem & r_item = pList->at(i);
 				if(r_item.Oid == rKey.Oid) {
-					if(rKey.ItemN == 0) {
-						if(min_item_n > r_item.ItemN) {
-							min_item_n = r_item.ItemN;
+					if(rKey.ItemIdx == 0) {
+						if(min_item_n > r_item.ItemIdx) {
+							min_item_n = r_item.ItemIdx;
 							min_item_n_pos = i+1;
 						}
 					}
-					else if(r_item.ItemN == rKey.ItemN) {
+					else if(r_item.ItemIdx == rKey.ItemIdx) {
 						p_result = &r_item;
 					}
 				}
@@ -3399,9 +3508,9 @@ PPViewTechRoute::BrwItem::BrwItem() : ItemKey(), TechID(0), PrcID(0), ObjNameP(0
 /*static*/IMPL_CMPMEMBFUNC(PPViewTechRoute, PPViewTechRoute_ItemKey, i1, i2)
 {
 	int    si = 0;
-	const  PPViewTechRoute::ItemKey * k1 = static_cast<const PPViewTechRoute::ItemKey *>(i1);
-	const  PPViewTechRoute::ItemKey * k2 = static_cast<const PPViewTechRoute::ItemKey *>(i2);
-	CMPCASCADE3(si, k1, k2, Oid.Obj, Oid.Id, ItemN);
+	const  TechRouteIdent * k1 = static_cast<const TechRouteIdent *>(i1);
+	const  TechRouteIdent * k2 = static_cast<const TechRouteIdent *>(i2);
+	CMPCASCADE3(si, k1, k2, Oid.Obj, Oid.Id, ItemIdx);
 	return si;
 }
 
@@ -3420,12 +3529,12 @@ PPViewTechRoute::BrwItem::BrwItem() : ItemKey(), TechID(0), PrcID(0), ObjNameP(0
 			p_view->StrPool.GetS(k2->ObjNameP, r_buf2);
 			si = r_buf1.CmpNC(r_buf2);
 			if(!si) {
-				si = CMPSIGN(k1->ItemN, k2->ItemN);
+				si = CMPSIGN(k1->ItemIdx, k2->ItemIdx);
 			}
 		}
 	}
 	else {
-		CMPCASCADE3(si, k1, k2, Oid.Obj, Oid.Id, ItemN);
+		CMPCASCADE3(si, k1, k2, Oid.Obj, Oid.Id, ItemIdx);
 	}
 	return si;
 }
@@ -3462,10 +3571,10 @@ PPViewTechRoute::~PPViewTechRoute()
 	return ok;
 }
 
-int PPViewTechRoute::UpdateListItem(const PPTechRoute & rTrt, ItemKey * pKeyToSet)
+int PPViewTechRoute::UpdateListItem(const PPTechRoute & rTrt, TechRouteIdent * pKeyToSet)
 {
 	int    ok = -1;
-	if(rTrt.Oid.IsFullyDefined()) {
+	if(/*rTrt.Oid.IsFullyDefined()*/true) {
 		if(P_DsList) {
 			uint i = P_DsList->getCount();
 			if(i) do {
@@ -3478,14 +3587,18 @@ int PPViewTechRoute::UpdateListItem(const PPTechRoute & rTrt, ItemKey * pKeyToSe
 		}
 		if(!rTrt.IsEmpty()) {
 			SString temp_buf;
+			uint   code_p = 0;
 			if(!P_DsList) {
 				P_DsList = new TSArray <BrwItem>();
 			}
+			StrPool.AddS(rTrt.Code, &code_p);
 			for(uint j = 0; j < rTrt.L.getCount(); j++) {
 				const  PPTechRoute::Entry & r_entry = rTrt.L.at(j);
 				BrwItem new_item;
+				new_item.ID = rTrt.ID;
 				new_item.Oid = rTrt.Oid;
-				new_item.ItemN = static_cast<long>(j+1);
+				new_item.ItemIdx = (j+1);
+				new_item.CodeP = code_p;
 				if(new_item.Oid.IsFullyDefined()) {
 					GetObjectName(new_item.Oid, temp_buf);
 					StrPool.AddS(temp_buf, &new_item.ObjNameP);
@@ -3503,7 +3616,7 @@ int PPViewTechRoute::UpdateListItem(const PPTechRoute & rTrt, ItemKey * pKeyToSe
 				if(P_DsList->ordInsert(&new_item, &new_pos, PTR_CMPFUNC(PPViewTechRoute_BrwItem), this)) {
 					if(j == 0 && pKeyToSet) {
 						pKeyToSet->Oid = new_item.Oid;
-						pKeyToSet->ItemN = new_item.ItemN;
+						pKeyToSet->ItemIdx = new_item.ItemIdx;
 					}
 				}
 				ok = 1;
@@ -3523,31 +3636,59 @@ int PPViewTechRoute::MakeList(PPViewBrowser * pBrw)
 		P_DsList = new TSArray <BrwItem>();
 	{
 		TSVector <BrwItem> temp_list;
-		Reference * p_ref(PPRef);
-		PropertyTbl * p_tbl = &p_ref->Prop;
-		PropertyTbl::Key0 k;
-		k.ObjType = PPOBJ_TECHROUTE;
-		k.ObjID   = Filt.ObjType;
-		k.Prop    = 0;
-		PropertyTbl::Rec prop_rec;
-		DBQ * dbq = 0;
-		BExtQuery q(p_tbl, 0);
-		dbq = &(p_tbl->ObjType == PPOBJ_TECHROUTE);
-		dbq = ppcheckfiltid(dbq, p_tbl->ObjID, Filt.ObjType);
-		q.select(p_tbl->ObjType, p_tbl->ObjID, p_tbl->Prop, 0L).where(*dbq);
-		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
-			if(!Filt.ObjType || Filt.IdList.CheckID(p_tbl->data.Prop)) {
-				BrwItem new_item;
-				new_item.Oid.Set(p_tbl->data.ObjID, p_tbl->data.Prop);
-				temp_list.insert(&new_item);
+		{
+			TechTbl * p_tt = TecObj.P_Tbl;
+			TechTbl::Key0 k0;
+			MEMSZERO(k0);
+			BExtQuery q(p_tt, 0);
+			q.selectAll().where(p_tt->Kind == TECK_ROUTE);
+			for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
+				bool   do_skip = false;
+				SObjID oid;
+				UED::GetRaw_Oid(p_tt->data.UedLinkOid, oid);
+				if(Filt.ObjType && !Filt.IdList.IsEmpty()) {
+					if(oid.Obj == Filt.ObjType && Filt.IdList.CheckID(oid.Id)) {
+						;
+					}
+					else {
+						do_skip = true;
+					}
+				}
+				if(!do_skip) {
+					BrwItem new_item;
+					new_item.ID = p_tt->data.ID;
+					new_item.Oid = oid;
+					temp_list.insert(&new_item);
+				}
 			}
 		}
+		/*{
+			Reference * p_ref(PPRef);
+			PropertyTbl * p_tbl = &p_ref->Prop;
+			PropertyTbl::Key0 k;
+			k.ObjType = PPOBJ_TECHROUTE;
+			k.ObjID   = Filt.ObjType;
+			k.Prop    = 0;
+			PropertyTbl::Rec prop_rec;
+			DBQ * dbq = 0;
+			BExtQuery q(p_tbl, 0);
+			dbq = &(p_tbl->ObjType == PPOBJ_TECHROUTE);
+			dbq = ppcheckfiltid(dbq, p_tbl->ObjID, Filt.ObjType);
+			q.select(p_tbl->ObjType, p_tbl->ObjID, p_tbl->Prop, 0L).where(*dbq);
+			for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
+				if(!Filt.ObjType || Filt.IdList.CheckID(p_tbl->data.Prop)) {
+					BrwItem new_item;
+					new_item.Oid.Set(p_tbl->data.ObjID, p_tbl->data.Prop);
+					temp_list.insert(&new_item);
+				}
+			}
+		}*/
 		{
 			PPTechRoute trt;
 			for(uint i = 0; i < temp_list.getCount(); i++) {
 				//trt.Oid = temp_list.at(i).Oid;
-				TechRouteIdent ident;
-				ident.Oid = temp_list.at(i).Oid;
+				TechRouteIdent ident(temp_list.at(i));
+				ident.ItemIdx = 0;
 				if(TrMgr.Get(ident, trt) > 0) {
 					UpdateListItem(trt, 0);
 				}
@@ -3565,7 +3706,7 @@ int PPViewTechRoute::MakeList(PPViewBrowser * pBrw)
 	const  BrwItem * p_item = pHdr ? static_cast<const BrwItem *>(pHdr) : 0;
 	PPID   new_id = 0;
 	PPID   update_id = 0;
-	ItemKey key_to_setup; 
+	TechRouteIdent key_to_setup; 
 	if(ok == -2) {
 		const  long cur_pos = p_def ? p_def->_curItem() : 0;
 		long   update_pos = cur_pos;
@@ -3590,7 +3731,7 @@ int PPViewTechRoute::MakeList(PPViewBrowser * pBrw)
 				if(p_item) {
 					PPTechRoute trt;
 					TechRouteIdent ident;
-					ident.Oid = p_item->Oid;
+					ident = *p_item;
 					if(TrMgr.Get(ident, trt) > 0) {
 						if(TrMgr.Edit(trt) > 0) {
 							if(!TrMgr.Put(trt, 1)) {
@@ -3623,10 +3764,10 @@ int PPViewTechRoute::MakeList(PPViewBrowser * pBrw)
 				if(p_item) {
 					PPTechRoute trt;
 					TechRouteIdent ident;
-					ident.Oid = p_item->Oid;
+					ident = *p_item;
 					if(TrMgr.Get(ident, trt) > 0) {
-						if(checkirangef(p_item->ItemN, 1L, static_cast<long>(trt.L.getCount()))) {
-							const  PPTechRoute::Entry & r_entry = trt.L.at(p_item->ItemN-1);
+						if(checkirangef(p_item->ItemIdx, 1U, trt.L.getCount())) {
+							const  PPTechRoute::Entry & r_entry = trt.L.at(p_item->ItemIdx-1);
 							if(r_entry.TechID) {
 								PPID   temp_id = r_entry.TechID;
 								if(TecObj.Edit(&temp_id, 0) == cmOK) {
@@ -3664,13 +3805,15 @@ int PPViewTechRoute::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	/*
 		browser TECHROUTE north(100), 3, 1, "", OWNER|GRID, 0
 		{
-			"@objtype",                  1, zstring(48),  0, 10, BCO_USERPROC
-			"@object",                   2, zstring(128), 0, 20, BCO_USERPROC
+			"@objtype",                  1, zstring(48),  0, 10, BCO_USERPROC|BCO_DONTSHOWDUPL
+			"@object",                   2, zstring(128), 0, 20, BCO_USERPROC|BCO_DONTSHOWDUPL
 			"N",                         3, long,         0,  8, BCO_USERPROC
 			"@tech",                     4, zstring(48),  0, 10, BCO_USERPROC
 			"@processor",                5, zstring(48),  0, 10, BCO_USERPROC
 			"(price)",                   6, double,   NMBF_NOZERO, 12.5, BCO_USERPROC
 			"(time)",                    7, long,         0,  8, BCO_USERPROC
+			"@id",                       8, long,         0,  8, BCO_USERPROC
+			"@symb",                     9, zstring(48),  0, 10, BCO_USERPROC
 		}
 	*/ 
 	switch(pBlk->ColumnN) {
@@ -3683,7 +3826,7 @@ int PPViewTechRoute::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 			pBlk->Set(temp_buf);
 			break; 
 		case 3: // N
-			pBlk->Set(p_item->ItemN);
+			pBlk->Set(static_cast<int32>(p_item->ItemIdx));
 			break; 
 		case 4:  // @tech
 			GetObjectName(PPOBJ_TECH, p_item->TechID, temp_buf);
@@ -3698,6 +3841,13 @@ int PPViewTechRoute::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 			break;
 		case 7:  // (time)
 			pBlk->Set(static_cast<long>(p_item->NominalTimeSec));
+			break;
+		case 8:  // ID
+			pBlk->Set(static_cast<long>(p_item->ID));
+			break;
+		case 9:  // Code
+			StrPool.GetS(p_item->CodeP, temp_buf);
+			pBlk->Set(temp_buf);
 			break;
 		default:
 			ok = 0;

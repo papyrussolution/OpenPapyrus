@@ -1,5 +1,5 @@
 // INETURL.CPP
-// Copyright (c) A.Sobolev 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -615,7 +615,8 @@ int InetUrl::SetComponent(int c, const char * pBuf)
 	int    ok = 0;
 	if(ValidateComponent(c)) {
 		// Don't set port "0"
-		if(c == cPort && pBuf && pBuf[0] == '0' && pBuf[1] == 0)
+		// @v12.6.4 if(c == cPort && pBuf && pBuf[0] == '0' && pBuf[1] == 0)
+		if(c == cPort && sstreq(pBuf, "0")) // @v12.6.4 
 			pBuf = 0;
 		ok = TermList.Add(c, pBuf, 1);
 	}
@@ -663,18 +664,18 @@ int InetUrl::SetQueryParam(const char * pParam, const char * pValue)
 	return ok;
 }
 
-int InetUrl::GetQueryParam(const char * pParam, int urlDecode, SString & rBuf) const
+bool InetUrl::GetQueryParam(const char * pParam, int urlDecode, SString & rBuf) const
 {
-	int   ok = -1;
+	bool   ok = false;
 	SString temp_buf;
 	rBuf.Z();
 	if(GetComponent(cQuery, urlDecode, temp_buf)) {
 		StringSet ss('&', temp_buf);
 		SString left, right;
-		for(uint ssp = 0; ok < 0 && ss.get(&ssp, temp_buf);) {
-			if(temp_buf.Divide('=', left, right) > 0 && left.Strip().CmpNC(pParam) == 0) {
+		for(uint ssp = 0; !ok && ss.get(&ssp, temp_buf);) {
+			if(temp_buf.Divide('=', left, right) > 0 && left.Strip().IsEqiAscii(pParam)) {
 				rBuf = right.Strip();
-				ok = 1;
+				ok = true;
 			}
 		}
 	}

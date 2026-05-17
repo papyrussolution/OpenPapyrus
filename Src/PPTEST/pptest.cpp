@@ -2045,9 +2045,9 @@ int DoConstructionTest()
 	}
 #endif // } 0
 	//TestCRC();
-	TestAutotranslateCache(); // @v12.6.2
+	TestAutotranslateText(); // @v12.6.1
+	//TestAutotranslateCache(); // @v12.6.2
 	//TestPhoneNumberMetadata(); // @v12.6.2
-	//TestAutotranslateText(); // @v12.6.1
 	//TestGtinStruc();
 	//TestConfigDatabase_StringHistory();
 	//TestConfigDatabase_StringHistory_Interactive();

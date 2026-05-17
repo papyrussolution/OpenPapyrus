@@ -769,10 +769,7 @@ int PPObjGoods::Helper_EditGoodsStruc(PPID goodsID, int isDynGen)
 	return ok;
 }
 
-int PPObjGoods::EditGoodsStruc(PPID goodsID)
-{
-	return Helper_EditGoodsStruc(goodsID, 0);
-}
+int PPObjGoods::EditGoodsStruc(PPID goodsID) { return Helper_EditGoodsStruc(goodsID, 0); }
 
 int PPObjGoods::SearchGListByStruc(PPID strucID, bool expandGenerics, PPIDArray & rList)
 {

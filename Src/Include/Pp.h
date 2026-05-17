@@ -11642,7 +11642,7 @@ private:
 	virtual void FASTCALL freeItem(void * pItem);
 };
 //
-// Descr: Контейнер для хранения ЕГАИС-кодов, ассоциированных со строками документа
+// Descr: Контейнер для хранения кодов ЕГАИС и честный знак, ассоциированных со строками документа
 //   Образ этого контейнера хранится в таблице LotExtCode.
 //
 // Специализированный экземпляр контейнера предназначен для проверки поступивших кодов.
@@ -11661,6 +11661,9 @@ public:
 		fSignPlus  = 0x0004, // ???
 	};
 	struct Item2 {
+		Item2();
+		Item2 & Z();
+
 		int16  RowIdx;
         int16  Flags;
 		int32  BoxId;
@@ -11723,17 +11726,26 @@ public:
 	//   <0 - не найдено ни одной марки, ассоициированной с boxId
 	//
 	int    GetByBoxID(long boxId, StringSet & rSs) const;
-	int    GetByIdx(uint idx, Item2 & rItem) const;
+	bool   GetByIdx(uint idx, Item2 & rItem) const;
 	//
 	// Descr: Ищет код pCode среди всех кодов контейнера.
 	//   В случае успешного поиска по указателю pRowIdx (если pRowIdx != 0) присваивает индекс строки документа,
 	//   которой принадлежит марка (для validation-кодов это - -1). По указателю pInndrIdx, если не нулевой,
 	//   присваивается внутренний индекс элемента (в векторе SVector::this).
 	// Returns:
-	//   >0 - код найден
-	//    0 - код не найден
+	//   true - код найден
+	//   false - код не найден
 	//
-    int    Search(const char * pCode, int * pRowIdx, uint * pInnerIdx) const;
+    bool   Search(const char * pCode, int * pRowIdx, uint * pInnerIdx) const;
+	//
+	// Descr: Функция аналогичная Search с тем отличием, что ищет не только по полному соответствию, но
+	//   и по паре {GTIN; Serial} либо {GTIN; PartNo}. Это - важно при проверке приходов, поскольку в 
+	//   поставщик может прислать коды без криптохвостов.
+	// Returns:
+	//   true - код найден
+	//   false - код не найден
+	//
+	bool   SearchAdaptive(const char * pCode, int * pRowIdx, uint * pInnerIdx) const; // @v12.6.4
 	int    ValidateCode(const char * pCode, const char * pBox, int * pErr, int * pRowId, SString * pBoxCode) const;
     void   RemovePosition(int rowIdx);
 	int    ReplacePosition(int rowIdx, int newRowIdx);
@@ -25059,6 +25071,7 @@ public:
 //
 struct PPGoodsStrucHeader2 { // @persistent @store(Reference2Tbl+)
 	PPGoodsStrucHeader2();
+	PPGoodsStrucHeader2 & Z();
 	long   Tag;              // Const=PPOBJ_GOODSSTRUC
 	long   ID;               //
 	char   Name[48];         // @name
@@ -25182,7 +25195,7 @@ public:
 	static SString & MakeTypeString(PPID strucID, long flags, PPID parentStrucID, SString & rBuf);
 	PPGoodsStruc();
 	PPGoodsStruc(const PPGoodsStruc & rS);
-	void   Init();
+	PPGoodsStruc & Z();
 	PPGoodsStruc & FASTCALL operator = (const PPGoodsStruc &);
 	PPGoodsStruc & FASTCALL Copy(const PPGoodsStruc & rS);
 	bool   FASTCALL IsEq(const PPGoodsStruc &) const;
@@ -38215,7 +38228,10 @@ class PPTechRoute { // @v12.5.12
 public:
 	struct Entry {
 		Entry();
-
+		enum {
+			fGStrucTemporaryIdx = 0x0001 // @transient Если установлен, то GStrucID является не идентификатором структуры в базе данных,
+				// а индексом [1..] в списке 
+		};
 		PPID   TechID;         // ->Tech.ID Ид технологии, определяющей конкретную фазу процесса
 		double NominalPrice;   // @v12.6.0 Номинальная цена за операцию на единицу продукции
 		uint32 NominalTimeSec; // @v12.6.0 Номинальное время исполнения операции на единицу продукции
@@ -38226,7 +38242,8 @@ public:
 		uint16 Reserve2;       // @v12.6.3 @alignment
 		PPID   GStrucID;       // @v12.6.3 Товарная структура, ассоциированная с элементом (не привязана к конкретному товару).
 			// Если !0 то при выполнении переопределяет структуру технологии TechID
-		uint8  Reserve[24];    // @v12.6.1 [32]-->[30] // @v12.6.3 [30]-->[24]
+		uint32 Flags;          // @v12.6.4  
+		uint8  Reserve[20];    // @v12.6.1 [32]-->[30] // @v12.6.3 [30]-->[24] // @v12.6.4 [24]-->[20]
 	};
 	PPTechRoute();
 	PPTechRoute & Z();
@@ -38240,27 +38257,13 @@ public:
 	//
 	int    GetStageListAccordingToDoneStageList(const LongArray & rDoneStageList, LongArray & rResult) const;
 	
+	PPID   ID;       // @v12.6.4 @id (проецируется на TechTbl::Rec::ID)
+	char   Code[48]; // @v12.6.4 Символ (проецируется на TechTbl::Rec::Code)
 	SObjID Oid;      // @v12.6.0
 	PPID   ObjGroup; // @v12.6.0 Дополнительное значение для уточнения выбора связанного объекта
 	TSVector <Entry> L;
 	LongArray SelectionList; // @v12.6.1 @transient Список позиций элементов, которые отвечают внешним критериям выбора.
-};
-//
-// Descr: Класс, управляющий технологическими маршрутами
-//
-class PPTechRouteManager { // PPOBJ_TECHROUTE
-public:
-	PPTechRouteManager();
-	int    Put(PPTechRoute & rRoute, int use_ta);
-	//
-	// ARG(rRoute IN/OUT): Поле rRoute.Oid должно быть полностью определено (Obj != 0 && Id != 0)
-	//
-	int    Get(const TechRouteIdent & rIdent, PPTechRoute & rRoute);
-	int    Edit(PPTechRoute & rRoute);
-	int    GetListByGoods(PPID goodsID, TSCollection <PPTechRoute> & rList);
-	int    GetLotStageTagDetail(PPID lotID, TechRouteIdent * pIdent, LongArray * pStageList);
-private:
-	PPObjGoods GObj;
+	TSCollection <PPGoodsStruc> GsList;
 };
 
 struct PPTechPacket : public PPExtStrContainer { // @v12.6.3 :PPExtStrContainer
@@ -38362,6 +38365,24 @@ public:
 	void * ExtraPtr;
 };
 //
+// Descr: Класс, управляющий технологическими маршрутами
+//
+class PPTechRouteManager { // PPOBJ_TECHROUTE
+public:
+	PPTechRouteManager();
+	int    Put(PPTechRoute & rRoute, int use_ta);
+	//
+	// ARG(rRoute IN/OUT): Поле rRoute.Oid должно быть полностью определено (Obj != 0 && Id != 0)
+	//
+	int    Get(const TechRouteIdent & rIdent, PPTechRoute & rRoute);
+	int    Edit(PPTechRoute & rRoute);
+	int    GetListByGoods(PPID goodsID, TSCollection <PPTechRoute> & rList);
+	int    GetLotStageTagDetail(PPID lotID, TechRouteIdent * pIdent, LongArray * pStageList);
+private:
+	PPObjTech TecObj;
+	PPObjGoods GObj;
+};
+//
 // @ModuleDecl(PPViewTech)
 //
 typedef TechTbl::Rec TechViewItem;
@@ -38403,15 +38424,16 @@ public:
 
 class PPViewTechRoute : public PPView {
 public:
-	struct ItemKey {
+	/*struct ItemKey {
 		ItemKey() : ItemN(0)
 		{
 		}
 		SObjID Oid;
 		long   ItemN; // Порядковый номер элемента внутри одного маршрута		
-	};
-	struct BrwItem : public ItemKey { // @flat
+	};*/
+	struct BrwItem : public /*ItemKey*/TechRouteIdent { // @flat
 		BrwItem();
+		uint   CodeP;    // Смещение до кода маршрута 
 		PPID   TechID;
 		PPID   PrcID;    // ->Tech(TechID).PrcID
 		uint   ObjNameP; // Смещение до имени объекта Oid 
@@ -38426,14 +38448,14 @@ public:
 private:
 	static DECL_CMPFUNC(PPViewTechRoute_BrwItem);
 	static DECL_CMPFUNC(PPViewTechRoute_ItemKey);
-	static const  BrwItem * SearchListItem(TSArray <BrwItem> * pList, const ItemKey & rKye, uint * pPos);
+	static const  BrwItem * SearchListItem(TSArray <BrwItem> * pList, const TechRouteIdent & rKye, uint * pPos);
 	virtual int   ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual int   OnExecBrowser(PPViewBrowser * pBrw);
 	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    MakeList(PPViewBrowser * pBrw);
-	int    UpdateListItem(const PPTechRoute & rTrt, ItemKey * pKeyToSet);
+	int    UpdateListItem(const PPTechRoute & rTrt, TechRouteIdent * pKeyToSet);
 
 	TechRouteFilt Filt;
 	TSArray <BrwItem> * P_DsList;
@@ -54121,8 +54143,8 @@ public:
 			int    Add(int type, const PPTextAnalyzer::Replacer::Chain & rInner);
 		};
 
-		static int FASTCALL IsOp(int termType);
-		static int FASTCALL IsLex(int termType);
+		static bool FASTCALL IsOp(int termType);
+		static bool FASTCALL IsLex(int termType);
 		Replacer();
 		~Replacer();
 		void   InitParsing(const char * pFileName);
@@ -54330,7 +54352,6 @@ public:
 	int    ProcessString(const PPTextAnalyzer::Replacer & rR, const char * pResource, const SString & rOrg,
 		SString & rResult, PPTextAnalyzer::FindBlock * pOuterFb, SFile * pDebugFile);
 	int    ProcessGoods();
-	int    ProcessGoodsNN();
 	int    ProcessPerson();
 	int    ProcessCtx(const char * pIdent, const char * pText, STokenizer::Context * pCtx);
 	int    MakeGoodsNameList(const char * pOutFileName);
@@ -54473,7 +54494,7 @@ public:
 		fReplace      = 0x0002,
 		fSignal       = 0x0004,
 		fDebug        = 0x0008,
-		fNnClassifier = 0x0010  // @construction Нейронный классификатор товаров
+		// @v12.6.4 fNnClassifier = 0x0010  // @construction Нейронный классификатор товаров
 	};
 	enum {
 		otiName = 1
@@ -54661,24 +54682,85 @@ private:
 // @v12.6.3 #endif
 };
 //
+// Descr: Класс, реализующий кэширование результатов автоматического перевода текстов.
+//   Методы Store и Load позволяют сохранить/восстановить кэш для последующего использования.
 //
-//
-class PPAutoTranslSvc_Microsoft {
+class AutotranslCache {
 public:
+	AutotranslCache();
+	uint   AddSrcText(const char * pText);
+	uint   GetSrcText(const char * pText) const;
+	int    AddTranslation(uint srcTextId, int langId, const char * pTranslation);
+	uint   GetTranslation(const char * pSrcText, int langId, SString & rTranslation);
+	int    Store(const char * pFileName);
+	int    Load(const char * pFileName);
+private:
+	SymbHashTable Ht_SrcText;
+	uint   MaxHtSrcId;
+	SStrGroup StrPool;
+	struct LangEntry {
+		int   LangId; // @firstmember
+		LAssocArray L; // Key - hash-id, Val - StrPool-idx
+	};
+	TSCollection <LangEntry> TransL;
+};
+//
+//
+//
+class PPAutoTranslSvcBase {
+public:
+	struct Param {
+		Param() : ReqTimeoutMsec(0), CacheFlushOnCount(5)
+		{
+		}
+		uint   ReqTimeoutMsec;    // Таймаут между запросами в миллисекундах
+		uint   CacheFlushOnCount; // Количество переводов, после которого следует автоматически сбрасывать кэш на диск
+	};
 	struct Stat {
+		Stat() : ReqCount(0), InpChrCount(0), OutpChrCount(0), TotalTiming(0)
+		{
+		}
         uint   ReqCount;
         uint   InpChrCount;
         uint   OutpChrCount;
         uint64 TotalTiming;
 	};
+
+	PPAutoTranslSvcBase(uint capabilities);
+	const  Param & GetParam() const { return P; }
+	int    SetParam(const Param & rP);
+	const  Stat & GetStat() const { return S; }
+	int    SetCacheFilePath(const char * pPath);
+
+	struct AuthBlock {
+		SString Ident;
+		SString Secret;
+	};
+	virtual int Auth(const AuthBlock & rBlk);
+	virtual int Request(int srcLang, int destLang, const SString & rSrcTextUtf8, SString & rResultUtf8);
+protected:
+	enum {
+		cNoAuth = 0x0001
+	};
+	const  uint Capabilities;
+	Param  P;
+	Stat   S;
+private:
+	SString CacheFilePath;
+	AutotranslCache Cache;
+};
+
+class PPAutoTranslSvc_Microsoft : public PPAutoTranslSvcBase {
+public:
 	PPAutoTranslSvc_Microsoft();
 	~PPAutoTranslSvc_Microsoft();
-	int    Auth(const char * pIdent, const char * pSecret);
-    int    Request(int srcLang, int destLang, const SString & rSrcText, SString & rResult);
-	int    Request3(int srcLang, int destLang, const SString & rSrcText, SString & rResult); // @v12.4.1
-    PPAutoTranslSvc_Microsoft::Stat & GetStat() const;
+	//int    Auth(const char * pIdent, const char * pSecret);
+	virtual int Auth(const AuthBlock & rBlk);
+	virtual int Request(int srcLang, int destLang, const SString & rSrcTextUtf8, SString & rResultUtf8);
 private:
-	Stat   S;
+    int    Implement_Request(int srcLang, int destLang, const SString & rSrcText, SString & rResult);
+	int    Implement_Request3(int srcLang, int destLang, const SString & rSrcText, SString & rResult); // @v12.4.1
+
 	long   ExpirySec;
 	int    LastStatusCode;
 	SString LastStatusMessage;
@@ -54691,8 +54773,12 @@ private:
 //
 //
 //
-class PPAutoTranslSvc_Google { // @v12.6.1
+class PPAutoTranslSvc_Google : public PPAutoTranslSvcBase { // @v12.6.1
 public:
+	PPAutoTranslSvc_Google();
+	~PPAutoTranslSvc_Google();
+	virtual int Request(int srcLang, int destLang, const SString & rSrcTextUtf8, SString & rResultUtf8);
+private:
 	struct EndPoint {
 		const char * P_Host;
 		const char * P_Path;
@@ -54700,9 +54786,6 @@ public:
 		bool  ResultAsNamedJson;
 		bool  RefererNeeded;
 	};
-	PPAutoTranslSvc_Google();
-	~PPAutoTranslSvc_Google();
-	int    Request(int srcLang, int destLang, const SString & rSrcText, SString & rResult);
 };
 //
 // PpyInetDataPrcssr
@@ -61710,12 +61793,29 @@ public:
 		//
 		int    LocalCheckCodeList(const char * pFiscalDriveNumber, CodeStatusCollection & rList);
 	private:
+		struct LocalSvrBlock {
+			LocalSvrBlock() : ApiVer(0)
+			{
+			}
+			int   ApiVer;
+			SString UrlBuf;
+			SString User;
+			SString Pw;
+			StrStrAssocArray HdrFlds;
+		};
 		SString & MakeTargetUrl(int query, const char * pAddendum, SString & rResult) const;
 		int    QueryCdnList(TSCollection <CdnStatus> & rResultList);
 		int    QueryCdnStatus(CdnStatus & rStatus);
+		//
+		// ARG(pMethod IN):
+		//   init, status, cis/outCheck, cis/sell, cis/return, cis/sold, changePassword, greyList
+		//
+		int    InitLocalSvrCall(const char * pMethod, LocalSvrBlock & rBlk);
+
 		uint   Flags;
 		SString Token; // Токен авторизации // Токен нужно получить на каждый ИНН и использовать на всех кассах
 		InetUrl LocalSvrUrl; // @v12.3.11
+		int    ApiVer; // @v12.6.4
 		PPGlobalServiceLogTalkingHelper Lth;
 	};
 

@@ -190,7 +190,7 @@ public:
 	int    SetComponent(int c, const char * pBuf);
 	int    GetProtocol() const { return Protocol; }
 	int    SetProtocol(int protocol);
-	int    GetQueryParam(const char * pParam, int urlDecode, SString & rBuf) const;
+	bool   GetQueryParam(const char * pParam, int urlDecode, SString & rBuf) const;
 	int    SetQueryParam(const char * pParam, const char * pValue);
 	//
 	// Descr: Формирует url-строку из компонентов, установленных данном экземпляре.

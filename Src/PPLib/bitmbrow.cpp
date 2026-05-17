@@ -3457,16 +3457,17 @@ private:
 							int    brush_id = 0; //TProgram::tbiListBkgBrush;
 							if(code_buf.NotEmpty()) {
 								uint  inner_idx = 0;
-								int   _found = 0;
+								bool  _found = false;
 								if(!(ViewFlags & vfShowUncheckedItems))
-									_found = 1;
+									_found = true;
 								else {
-									if(Data.Search(code_buf, &row_idx, &inner_idx)) 
-										_found = 1;
+									if(Data.SearchAdaptive(code_buf, &row_idx, &inner_idx)) { // @v12.6.4 Search-->SearchAdaptive
+										_found = true;
+									}
 									else {
 										const int vcr_2 = P_Pack->XcL.ValidateCode(code_buf, 0, &err, &row_idx, &box_code);
 										if(vcr_2 && box_code.NotEmpty() && Data.Search(box_code, &row_idx, &inner_idx)) {
-											_found = 1;
+											_found = true;
 										}
 									}
 								}
@@ -3487,7 +3488,7 @@ private:
 							if(brush_id)
 								canv.Rect(rect_elem, TProgram::tbiListBkgPen, brush_id);
 							{
-								int local_pen_id = 0;
+								int    local_pen_id = 0;
 								if(p_draw_item->ItemState & ODS_FOCUS)
 									local_pen_id = TProgram::tbiListFocPen;
 								else if(p_draw_item->ItemState & ODS_SELECTED)
@@ -3564,7 +3565,7 @@ private:
 					if(P_Pack->XcL.GetByIdx(i, oi)) {
 						int   row_idx = 0;
 						uint  inner_idx = 0;
-						if(!Data.Search(oi.Num, &row_idx, &inner_idx))
+						if(!Data.SearchAdaptive(oi.Num, &row_idx, &inner_idx)) // @v12.6.4 Search-->SearchAdaptive
 							buf_to_copy.Cat(oi.Num).CRB();
 					}
 				}
@@ -3631,7 +3632,7 @@ private:
 					if(ViewFlags & vfShowUncheckedItems) {
 						int   row_idx = 0;
 						uint  inner_idx = 0;
-						if(!Data.Search(oi.Num, &row_idx, &inner_idx)) {
+						if(!Data.SearchAdaptive(oi.Num, &row_idx, &inner_idx)) { // @v12.6.4 Search-->SearchAdaptive
 							++list_pos_idx;
 							THROW(addStringToList(list_pos_idx, oi.Num));
 						}
@@ -3672,7 +3673,7 @@ private:
 		}
 		return ok;
 	}
-	virtual int delItem(long pos, long id) // @v11.0.0
+	virtual int delItem(long pos, long id)
 	{
 		int    ok = -1;
 		SString code_buf;

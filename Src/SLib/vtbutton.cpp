@@ -8,8 +8,6 @@
 
 int showInputLineCalc(TDialog *, uint); // Prototype
 
-#pragma warn -par
-
 TCalcInputLine::VirtButtonWndEx::VirtButtonWndEx(const char * pSignature) : P_Dlg(0), FieldCtrlId(0), ButtonCtrlId(0), PrevWndProc(0), HBmp(0)
 {
 	STRNSCPY(Signature, pSignature);
@@ -20,8 +18,6 @@ TCalcInputLine::TCalcInputLine(uint inputId, uint buttonId, const TRect & rBound
 {
 	Vbwe.ButtonCtrlId = buttonId;
 }
-
-#pragma warn .par
 
 TCalcInputLine::~TCalcInputLine()
 {
@@ -277,7 +273,7 @@ void InputLineCalc::ProcessCommand(uint cmd)
 			if(NumberText == "0")
 				NumberText.Z();
 			//if(IsNumber_obsolete < MaxLen) {
-			if(NumberText.Len() < MaxLen) {
+			if(NumberText.LenI() < MaxLen) {
 				//CharNumber[IsNumber_obsolete++] = NumSym[abs((int)cmd - CTL_INLNCALC_0)];
 				//CharNumber[IsNumber_obsolete] = 0;
 				NumberText.CatChar(NumSym[abs((int)cmd - CTL_INLNCALC_0)]);
@@ -285,7 +281,7 @@ void InputLineCalc::ProcessCommand(uint cmd)
 			}
 			break;
 		case CTL_INLNCALC_DOT:
-			if(IsDot == 0 && /*IsNumber_obsolete*/NumberText.Len() < MaxLen) {
+			if(IsDot == 0 && /*IsNumber_obsolete*/NumberText.LenI() < MaxLen) {
 				if(/*IsNumber_obsolete == 0*/NumberText.IsEmpty()) {
 					//CharNumber[IsNumber_obsolete++] = '0';
 					NumberText.CatChar('0');

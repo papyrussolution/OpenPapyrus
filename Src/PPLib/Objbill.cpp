@@ -496,7 +496,7 @@ int PPObjBill::ValidatePacket(PPBillPacket * pPack, long flags)
 					const PPTransferItem & r_ti = pPack->ConstTI(tidx);
 					if(bs_rec.Flags & BILSTF_STRICTPRICECONSTRAINS) {
 						if(GetPriceRestrictions(*pPack, r_ti, tidx, &restr_bounds) > 0) {
-							const double validated_price = r_ti.NetPrice();
+							const  double validated_price = r_ti.NetPrice();
 							if(!restr_bounds.CheckValEps(validated_price, 1E-7)) {
 								//THROW(restr_bounds.CheckVal(validated_price));
 								if(restr_bounds.low > 0.0) {
@@ -806,7 +806,7 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 					const ReceiptTbl::Rec & r_lot_rec = lot_list.at(lotidx);
 					THROW(pPack->BoundsByLot(r_lot_rec.ID, 0, -1, &rest, 0));
 					if(reserve > 0.0) { // Снижаем доступный остаток на величину резерва.
-						const double decr = smin(rest, reserve);
+						const  double decr = smin(rest, reserve);
 						rest -= decr;
 						reserve -= decr;
 					}
@@ -815,13 +815,13 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 						SString edi_channel;
 						if(pOrderPack->Rec.EdiOp == PPEDIOP_SALESORDER)
 							pOrderPack->BTagL.GetItemStr(PPTAG_BILL_EDICHANNEL, edi_channel);
-						const bool   ord_price_low_prior = LOGIC(GetConfig().Flags & BCF_ORDPRICELOWPRIORITY);
-						const bool   is_isales_order = (pOrderPack->Rec.EdiOp == PPEDIOP_SALESORDER && edi_channel.IsEqiAscii("ISALES-PEPSI"));
-						const bool   is_coke_order = (pOrderPack->Rec.EdiOp == PPEDIOP_SALESORDER && edi_channel.IsEqiAscii("COKE")); // @v11.5.4
-						const double ord_qtty  = fabs(p_ord_item->Quantity_);
-						const double ord_price = fabs(p_ord_item->Price) * ord_qtty;
-						const double ord_dis   = p_ord_item->Discount * ord_qtty;
-						const double ord_pct_dis = (ord_price > 0.0 && ord_dis > 0.0) ? R4(ord_dis / ord_price) : 0.0;
+						const  bool   ord_price_low_prior = LOGIC(GetConfig().Flags & BCF_ORDPRICELOWPRIORITY);
+						const  bool   is_isales_order = (pOrderPack->Rec.EdiOp == PPEDIOP_SALESORDER && edi_channel.IsEqiAscii("ISALES-PEPSI"));
+						const  bool   is_coke_order = (pOrderPack->Rec.EdiOp == PPEDIOP_SALESORDER && edi_channel.IsEqiAscii("COKE")); // @v11.5.4
+						const  double ord_qtty  = fabs(p_ord_item->Quantity_);
+						const  double ord_price = fabs(p_ord_item->Price) * ord_qtty;
+						const  double ord_dis   = p_ord_item->Discount * ord_qtty;
+						const  double ord_pct_dis = (ord_price > 0.0 && ord_dis > 0.0) ? R4(ord_dis / ord_price) : 0.0;
 						double isales_support_quot = 0.0;
 						if(is_isales_order && ord_pct_dis > 0.0) {
 							if(isales_support_discount_qk < 0) {
@@ -837,20 +837,20 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 						THROW(ti.Init(&pPack->Rec));
 						THROW(ti.SetupGoods(goods_id));
 						THROW(ti.SetupLot(r_lot_rec.ID, &r_lot_rec, 0));
-						// @v11.0.6 @iSales {
+						// @iSales {
 						if(is_isales_order && ord_pct_dis > 0.0 && isales_support_quot > 0.0) {
-							const double sq   = isales_support_quot; 
-							const double quot = R5(sq * (1 - ord_pct_dis));
+							const  double sq   = isales_support_quot; 
+							const  double quot = R5(sq * (1 - ord_pct_dis));
 							ti.Discount = ti.Price - quot;
 							ti.SetupQuot(quot, 1);						
 						}
-						// } @v11.0.6 
+						// }
 						else if(p_ord_item->NetPrice() <= 0.0 || (ord_price_low_prior && CheckOpFlags(pOrderPack->Rec.OpID, OPKF_ORDERBYLOC)) ||
 							(ord_price_low_prior && LConfig.Flags & CFGFLG_AUTOQUOT)) {
 							double quot = 0.0;
 							if(quot > 0.0 || SelectQuotKind(pPack, &ti, 0/*strictly noninteractive*/, &quot) > 0) {
 								if(is_isales_order && ord_pct_dis > 0.0) {
-									// @v11.1.2 Для того чтобы избежать двойной скидки и от агента и по цене общего прайса промо к цене заказа
+									// Для того чтобы избежать двойной скидки и от агента и по цене общего прайса промо к цене заказа
 									quot = R5(fabs(p_ord_item->Price) * (1 - ord_pct_dis));
 								}
 								ti.Discount = ti.Price - quot;
@@ -858,8 +858,8 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 							}
 						}
 						else if(is_isales_order && ord_pct_dis > 0.0) {
-							const double sq = ti.Price; // @v11.0.6
-							const double quot = R5(sq * (1 - ord_pct_dis));
+							const  double sq = ti.Price;
+							const  double quot = R5(sq * (1 - ord_pct_dis));
 							ti.Discount = sq - quot;
 							ti.SetupQuot(quot, 1);
 						}
@@ -1023,15 +1023,15 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 					Goods2Tbl::Rec goods_rec;
 					PPGoodsType2 gt_rec;
 					LTagL.GetString(PPTAG_LOT_SN, tiidx, serial); // @v11.8.9
-					const double org_qtty = fabs(r_ti.Quantity_);
+					const  double org_qtty = fabs(r_ti.Quantity_);
 					double qtty_ = org_qtty;
-					const double n_pr = r_ti.NetPrice();
+					const  double n_pr = r_ti.NetPrice();
 					chzn_mark.Z();
 					if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0) {
 						XcL.Get(tiidx+1, 0, lotxcode_set);
 						lotxcode_set.GetByBoxID(0, ss);
-						const double _one = 1.0;
-						const long chzn_prod_type = (goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) ? gt_rec.ChZnProdType : 0;
+						const  double _one = 1.0;
+						const  long chzn_prod_type = (goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) ? gt_rec.ChZnProdType : 0;
 						if(ss.IsCountGreaterThan(0)) {
 							bool   chznpm_ok = true;
 							for(uint ssp = 0; qtty_ >= _one && ss.get(&ssp, chzn_mark);) {
@@ -1134,8 +1134,8 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 				}
 			}
 			else if(prepay_goods_id) {
-				const double qtty = 1.0;
-				const double n_pr = GetAmount();
+				const  double qtty = 1.0;
+				const  double n_pr = GetAmount();
 				THROW(cp.InsertCclSimple(prepay_goods_id, qtty, n_pr, 0.0, rParam.DivisionN));
 				cc_amount += R2(n_pr * qtty);
 			}
@@ -1155,24 +1155,24 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 		else if(OpTypeID == PPOPT_PAYMENT) {
 			PPBillPacket link_pack;
 			THROW(BillObj->ExtractPacket(Rec.LinkBillID, &link_pack) > 0);
-			const double amt = link_pack.GetAmount();
+			const  double amt = link_pack.GetAmount();
 			if(amt != 0.0) {
-				const double cc_req_amount = GetAmount(); // Сумма платежа - сумма чека должна быть равна этому же значению
-				const double mult = cc_req_amount / amt;
+				const  double cc_req_amount = GetAmount(); // Сумма платежа - сумма чека должна быть равна этому же значению
+				const  double mult = cc_req_amount / amt;
 				{
 					PPTransferItem * ti;
 					if(CheckOpPrnFlags(Rec.OpID, OPKF_PRT_CHECKTI)) {
 						for(uint i = 0; link_pack.EnumTItems(&i, &ti);) {
-							const double qtty = R6(fabs(ti->Quantity_) * mult);
-							const double n_pr = ti->NetPrice();
+							const  double qtty = R6(fabs(ti->Quantity_) * mult);
+							const  double n_pr = ti->NetPrice();
 							THROW(cp.InsertCclSimple(ti->GoodsID, qtty, n_pr, 0.0, rParam.DivisionN));
 							cc_amount += R2(n_pr * qtty);
 							dscnt += R2(ti->Discount * qtty);
 						}
 					}
 					else if(prepay_goods_id) {
-						const double qtty = 1.0;
-						const double n_pr = cc_req_amount;
+						const  double qtty = 1.0;
+						const  double n_pr = cc_req_amount;
 						THROW(cp.InsertCclSimple(prepay_goods_id, qtty, n_pr, 0.0, rParam.DivisionN));
 						cc_amount += R2(n_pr * qtty);
 					}
@@ -1255,8 +1255,8 @@ int PPBillPacket::ConvertToCheck(CCheckPacket * pCheckPack) const
 			pCheckPack->Rec.Flags |= CCHKF_PRINTED;
 		pCheckPack->Rec.UserID = Rec.UserID;
 		for(uint i = 0; i < GetTCount(); i++) {
-			const PPTransferItem & r_ti = ConstTI(i);
-			const double _qtty = r_ti.Quantity_;
+			const  PPTransferItem & r_ti = ConstTI(i);
+			const  double _qtty = r_ti.Quantity_;
 			THROW(pCheckPack->InsertCclSimple(r_ti.GoodsID, _qtty, r_ti.NetPrice(), 0));
 			amount   += (r_ti.NetPrice() * _qtty);
 			discount += (r_ti.Discount   * _qtty);
@@ -1439,7 +1439,7 @@ static int _EditCcByBillParam(PPBillPacket::ConvertToCCheckParam & rParam)
 			TDialog::handleEvent(event);
 			if(event.isCmd(cmInputUpdated)) {
 				if(event.isCtlEvent(CTL_CCBYBILL_CASH)) {
-					const double cash = R2(getCtrlReal(CTL_CCBYBILL_CASH));
+					const  double cash = R2(getCtrlReal(CTL_CCBYBILL_CASH));
 					setCtrlReal(CTL_CCBYBILL_DIFF, cash - Data.Amount);
 					clearEvent(event);
 				}
@@ -1592,7 +1592,7 @@ int PPObjBill::PosPrintByBill(PPID billID)
 					fc.AmtCash = pack.Amounts.Get(PPAMT_CS_CASH, 0);
 					fc.AmtBank = pack.Amounts.Get(PPAMT_CS_BANK, 0);
 					if((fc.AmtBank * fc.AmtCash) >= 0.0) {
-						const double _amount = (fc.AmtCash+fc.AmtBank);
+						const  double _amount = (fc.AmtCash+fc.AmtBank);
 						if(_amount != 0.0) {
 							const  bool is_vat_free = (cn_obj.IsNodeVatFree(param.PosNodeID) > 0);
 							if(is_vat_free)
@@ -4790,8 +4790,8 @@ int PPObjBill::Helper_PutBillToMrpTab(PPID billID, MrpTabPacket * pMrpPack, cons
 								THROW(mrp_obj.GetTabID(pMrpPack, dest_loc_id, bill_rec.Dt, &intr_tab_id, use_ta));
 						}
 						for(int rbybill = 0; P_CpTrfr->EnumItems(billID, &rbybill, &src_ti, &cpext) > 0;) {
-							const double req_qtty = fabs(src_ti.Quantity_);
-							const double req_price = src_ti.NetPrice() * req_qtty;
+							const  double req_qtty = fabs(src_ti.Quantity_);
+							const  double req_price = src_ti.NetPrice() * req_qtty;
 							THROW(mrp_obj.AddIndep(pMrpPack, mrp_tab_id, src_ti.GoodsID, req_qtty, req_price, 0/*IgnoreRest*/));
 							// Инициализация приходов на склад-приемник
 							if(intr_tab_id)
@@ -4806,14 +4806,14 @@ int PPObjBill::Helper_PutBillToMrpTab(PPID billID, MrpTabPacket * pMrpPack, cons
 				case PPOPT_DRAFTRECEIPT:
 					if(wroff_op_type_id == PPOPT_GOODSRECEIPT) {
 						for(int rbybill = 0; P_CpTrfr->EnumItems(billID, &rbybill, &src_ti, &cpext) > 0;) {
-							const double req_qtty = fabs(src_ti.Quantity_);
+							const  double req_qtty = fabs(src_ti.Quantity_);
 							THROW(mrp_obj.AddIndep(pMrpPack, mrp_tab_id, src_ti.GoodsID, req_qtty, src_ti.NetPrice() * req_qtty, 1/*IgnoreRest*/));
 						}
 						ok = 1;
 					}
 					else if(wroff_op_type_id == PPOPT_GOODSMODIF) {
 						for(int rbybill = 0; P_CpTrfr->EnumItems(billID, &rbybill, &src_ti, &cpext) > 0;) {
-							const double req_qtty = fabs(src_ti.Quantity_);
+							const  double req_qtty = fabs(src_ti.Quantity_);
 							THROW(mrp_obj.AddIndep(pMrpPack, mrp_tab_id, src_ti.GoodsID, req_qtty, src_ti.NetPrice() * req_qtty, 1/*IgnoreRest*/));
 						}
 						ok = 1;
@@ -5370,7 +5370,7 @@ int PPObjBill::AutoCalcPrices(PPBillPacket * pPack, int interactive, int * pIsMo
 		while(ok < 0 && (!interactive || ExecView(p_dlg) == cmOK)) {
 			if(!interactive || p_dlg->getDTS(&prices_ary)) {
 				for(i = 0; pPack->EnumTItems(&i, &p_ti) > 0;) {
-					const double new_price = prices_ary.at(i-1).Val;
+					const  double new_price = prices_ary.at(i-1).Val;
 					if(oneof2(param._Action, AutoCalcPricesParam::_aCost, AutoCalcPricesParam::_aCostByContract)) {
 						if(new_price > 0.0 && new_price != p_ti->Cost) {
 							p_ti->Cost = new_price;
@@ -5620,17 +5620,17 @@ int PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 								if(PPRef->Ot.GetTagStr(PPOBJ_BILL, ord_bill_rec.ID, PPTAG_BILL_EDICHANNEL, edi_channel) > 0 && edi_channel.CmpNC("ISALES-PEPSI") == 0) {
 									DateIter di;
 									if(trfr->EnumByLot(ord_lot_rec.ID, &di, &ord_item) > 0 && ord_item.Flags & PPTFR_RECEIPT) {
-										const double ord_qtty = fabs(ord_item.Quantity);
-										const double ord_price = fabs(ord_item.Price) * ord_qtty;
-										const double ord_dis   = ord_item.Discount * ord_qtty;
-										const double ord_pct_dis = (ord_price > 0.0 && ord_dis > 0.0) ? R4(ord_dis / ord_price) : 0.0;
+										const  double ord_qtty = fabs(ord_item.Quantity);
+										const  double ord_price = fabs(ord_item.Price) * ord_qtty;
+										const  double ord_dis   = ord_item.Discount * ord_qtty;
+										const  double ord_pct_dis = (ord_price > 0.0 && ord_dis > 0.0) ? R4(ord_dis / ord_price) : 0.0;
 										// @v11.1.3 }
 										const int is_isales_order = 1;
 										double isales_support_quot = 0.0;
 										if(is_isales_order && ord_pct_dis > 0.0) {
 											if(isales_support_discount_qk < 0) {
 												PPObjQuotKind qk_obj;
-												PPID    _temp_qk_id = 0;
+												PPID   _temp_qk_id = 0;
 												isales_support_discount_qk = (qk_obj.SearchBySymb("ISALES-SUPPORT", &_temp_qk_id, 0) > 0) ? _temp_qk_id : 0;
 											}
 											if(isales_support_discount_qk > 0) {
@@ -5653,7 +5653,7 @@ int PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 									(cliagt.Flags & AGTF_PRICEROUNDVAT) ? PPTransferItem::valfRoundVat : 0);
 							}
 							if(is_coke_draft) { // @v11.6.0 {
-								const double ord_dis = p_ti->Discount;
+								const  double ord_dis = p_ti->Discount;
 								p_ti->Price = R2(quot);
 								p_ti->Discount = ord_dis;
 							}
@@ -6581,7 +6581,7 @@ int FASTCALL PPObjBill::PplBlock::CheckPaymOp(PPID opID) const { return BIN(!(Fl
 
 void FASTCALL PPObjBill::PplBlock::AddPaym(const BillTbl::Rec & rRec)
 {
-	const double amt = rRec.Amount;
+	const  double amt = rRec.Amount;
 	if(GetOpType(rRec.OpID) == PPOPT_GOODSRETURN)
 		Amount -= amt;
 	else {
@@ -6627,8 +6627,8 @@ int PPObjBill::Helper_GetPayoutPartOfLot(PPID lotID, PplBlock & rBlk, double * p
 				BillTbl::Rec paym_rec;
 				//BillTbl::Rec rckn_rec;
 				if(Fetch(org_lot_rec.BillID, &exp_rec) > 0) {
-					const bool   is_modif = (GetOpType(exp_rec.OpID) == PPOPT_GOODSMODIF);
-					const double _camt = is_modif ? fabs(org_lot_rec.Cost * org_lot_rec.Quantity) : exp_rec.Amount;
+					const  bool   is_modif = (GetOpType(exp_rec.OpID) == PPOPT_GOODSMODIF);
+					const  double _camt = is_modif ? fabs(org_lot_rec.Cost * org_lot_rec.Quantity) : exp_rec.Amount;
 					rBlk.NominalAmount = _camt;
 					rBlk.Amount = _camt;
 					if(_camt != 0.0 && rBlk.CheckOp(exp_rec.OpID)) {
@@ -6760,7 +6760,7 @@ int PPObjBill::GetExpendedPartOfReceipt(PPID lotID, const DateRange * pPeriod, c
 	DateRange paym_period;
 	paym_period.Set(pPeriod);
 	if(trfr->Rcpt.Search(lotID, &lot_rec) > 0) {
-		const double tolerance = 1.0e-9;
+		const  double tolerance = 1.0e-9;
 		PPIDArray recur_list;
 		rBlk.Amount += fabs(lot_rec.Cost * lot_rec.Quantity);
 		THROW(Helper_GetExpendedPartOfReceipt(lotID, DateIter(pPeriod), &paym_period, pOpList, rBlk, recur_list));
@@ -8625,8 +8625,8 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 		PPLoadText(PPTXT_WAIT_TURNBILLTRFR, wait_msg);
 	THROW(SetupModifPacket(pPack));
 	if(CheckOpFlags(pPack->Rec.OpID, OPKF_NEEDPAYMENT) || CheckOpFlags(pPack->Rec.OpID, OPKF_RECKON)) {
-		const double amt  = pPack->GetAmount();
-		const double paym = pPack->Amounts.Get(PPAMT_PAYMENT, pPack->Rec.CurID);
+		const  double amt  = pPack->GetAmount();
+		const  double paym = pPack->Amounts.Get(PPAMT_PAYMENT, pPack->Rec.CurID);
 		THROW_PP((LConfig.Flags & CFGFLG_ALLOWOVERPAY) || (paym == 0.0 || paym <= amt), PPERR_EXTRAPAYM);
 		SETFLAG(pPack->Rec.Flags, BILLF_PAYOUT, paym >= amt);
 	}
@@ -9706,7 +9706,7 @@ int PPObjBill::UniteGoodsBill(PPBillPacket & rPack, PPID addBillID, int use_ta)
 			// @todo Сделать объединение документов внутренней передачи
 		}
 		else {
-			const double _eps = 1.0e07;
+			const  double _eps = 1.0e07;
 			TBlock tb_;
 			THROW(BeginTFrame(rPack.Rec.ID, tb_));
 			//
@@ -9880,7 +9880,7 @@ int PPObjBill::UpdatePool(PPID poolID, int use_ta)
 			if(ExtractPacket(poolID, &pack) > 0) {
 				P_Tbl->CalcPoolAmounts(PPASS_OPBILLPOOL, poolID, &amounts);
 				pack.Amounts.copy(amounts);
-				const double main_amount = amounts.Get(PPAMT_MAIN, 0L/*@curID*/);
+				const  double main_amount = amounts.Get(PPAMT_MAIN, 0L/*@curID*/);
 				pack.Rec.Amount = BR2(main_amount);
 				THROW(FillTurnList(&pack));
 				THROW(UpdatePacket(&pack, 0));

@@ -1956,8 +1956,10 @@ int DlContext::TypeCast(DLSYMBID srcTyp, DLSYMBID destTyp, int cvt, const void *
 	int    ok = tcrUnable;
 	int    loss = 0;
 	int    cvt_done = 0;
-	TypeEntry te_src, te_dest;
-	uint   pos_src = 0, pos_dest = 0;
+	TypeEntry te_src;
+	TypeEntry te_dest;
+	uint   pos_src = 0;
+	uint   pos_dest = 0;
 	if(srcTyp == destTyp) {
 		if(cvt) {
 			if(te_src.T.IsZStr(0)) {
@@ -2223,8 +2225,9 @@ int DlContext::MangleType(DLSYMBID id, const STypEx & styp, SString & rBuf) cons
 		}
 		else {
 			if(dim_count) {
-				for(uint32 i = 0; i < dim_count; i++)
+				for(uint32 i = 0; i < dim_count; i++) {
 					CatDim(dim_list[i], rBuf);
+				}
 			}
 			if(id && entry.MangleC) {
 				rBuf.CatChar(entry.MangleC);
@@ -2256,7 +2259,7 @@ DLSYMBID DlContext::MakeSizedString(DLSYMBID typeID, size_t s)
 			THROW(MangleType(type_id, te.T, name));
 			THROW(type_id = CreateSymb(name, '@', crsymfErrorOnDup));
 			TypeEntry te2;
-			MEMSZERO(te2);
+			// @v12.6.4 @ctr MEMSZERO(te2);
 			te2.SymbID = type_id;
 			te2.T = te.T;
 			TypeList.ordInsert(&te2, 0, PTR_CMPFUNC(uint));
@@ -2550,7 +2553,7 @@ int DlContext::AddStructType(DLSYMBID symbId)
 {
 	int    ok = 1;
 	TypeEntry entry;
-	MEMSZERO(entry);
+	// @v12.6.4 @ctr MEMSZERO(entry);
 	entry.SymbID = symbId;
 	entry.T.Flags |= STypEx::fStruct;
 	entry.T.Link = symbId;
@@ -2791,13 +2794,15 @@ int DlContext::Format_TypeEntry(const TypeEntry & rEntry, SString & rBuf)
 {
 	int    ok = 1;
 	TypeEntry te;
-	SString line, name;
+	SString line;
+	SString name;
 	if(!Ht.GetByAssoc(rEntry.SymbID, name))
 		name = "noname";
-	line.CatEq(name, (long)rEntry.SymbID).CatDiv(':', 1);
+	line.CatEq(name, rEntry.SymbID).CatDiv(':', 1);
 	//
 	STypEx t = rEntry.T;
-	SString styp_buf, temp_buf;
+	SString styp_buf;
+	SString temp_buf;
 	styp_buf.CatChar('{');
 #define FORMAT_FLAG(f) if(t.Flags & STypEx::f) temp_buf.CatDivIfNotEmpty('|', 0).Cat(#f)
 	FORMAT_FLAG(fFormula);
@@ -2809,14 +2814,12 @@ int DlContext::Format_TypeEntry(const TypeEntry & rEntry, SString & rBuf)
 	if(temp_buf.IsEmpty())
 		temp_buf.Cat(0L);
 	styp_buf.Cat(temp_buf.Quot('<', '>'));
-	if(t.Mod == STypEx::modPtr)
-		styp_buf.CatChar('*');
-	else if(t.Mod == STypEx::modRef)
-		styp_buf.CatChar('&');
-	else if(t.Mod == STypEx::modLink)
-		styp_buf.CatChar('$');
-	else if(t.Mod == STypEx::modArray)
-		styp_buf.CatChar('[').Cat(t.Dim).CatChar(']');
+	switch(t.Mod) {
+		case STypEx::modPtr: styp_buf.CatChar('*'); break;
+		case STypEx::modRef: styp_buf.CatChar('&'); break;
+		case STypEx::modLink: styp_buf.CatChar('$'); break;
+		case STypEx::modArray: styp_buf.CatChar('[').Cat(t.Dim).CatChar(']'); break;
+	}
 	if(t.Flags & STypEx::fOf) {
 		styp_buf.Space().Cat("of").Space();
 		if(SearchTypeID(t.Link, 0, &te))
@@ -2824,11 +2827,12 @@ int DlContext::Format_TypeEntry(const TypeEntry & rEntry, SString & rBuf)
 		else
 			styp_buf.Cat("unnamed");
 	}
-	else if(t.Mod && t.Link)
+	else if(t.Mod && t.Link) {
 		if(SearchTypeID(t.Link, 0, &te))
 			Format_TypeEntry(te, styp_buf); // @recursion
 		else
 			styp_buf.Cat("unnamed");
+	}
 	else {
 		temp_buf.Z();
 		temp_buf.Cat(GETSTYPE(t.Typ)).CatChar('(').Cat((long)GETSSIZE(t.Typ)).CatChar(')');

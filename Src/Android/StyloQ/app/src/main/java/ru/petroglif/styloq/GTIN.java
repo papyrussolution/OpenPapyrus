@@ -906,13 +906,6 @@ public class GTIN {
 			}
 			// @v12.5.12 {
 			if(result.ChZnParseResult == 0) {
-				// @debug {
-				char b1 = code.charAt(0);
-				char b2 = code.charAt(1);
-				char b3 = code.charAt(2);
-				char b4 = code.charAt(3);
-				char b5 = code.charAt(4);
-				// } @debug
 				if(code.startsWith("240") && code_len >= 51) {
 					// (240)...(00)...(11)...(10)...(37)...
 					final String re_motoroil_package = "^240(.*?)00(\\d{18})11(\\d{6})10(.*?)37(\\d{1,8})$";

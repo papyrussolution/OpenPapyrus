@@ -1,5 +1,5 @@
 // SYNCCASH.CPP
-// Copyright (c) A.Sobolev 1997-2021, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 1997-2021, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 // Интерфейс (синхронный) для ККМ
 //
@@ -712,12 +712,12 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		double real_nonfiscal = 0.0;
 		CnObj.GetTaxSystem(NodeID, pPack->Rec.Dt, &tax_sys_id);
 		pPack->HasNonFiscalAmount(&real_fiscal, &real_nonfiscal);
-		const double _fiscal = (PPConst::Flags & PPConst::fDoSeparateNonFiscalCcItems) ? real_fiscal : (real_fiscal + real_nonfiscal);
-		const CcAmountList & r_al = pPack->AL_Const();
-		const bool   is_al = LOGIC(r_al.getCount());
-		const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? _fiscal : 0.0);
-		const double amt_cash = (PPConst::Flags & PPConst::fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
-		const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal);
+		const  double _fiscal = (PPConst::Flags & PPConst::fDoSeparateNonFiscalCcItems) ? real_fiscal : (real_fiscal + real_nonfiscal);
+		const  CcAmountList & r_al = pPack->AL_Const();
+		const  bool   is_al = LOGIC(r_al.getCount());
+		const  double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? _fiscal : 0.0);
+		const  double amt_cash = (PPConst::Flags & PPConst::fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
+		const  double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal);
 		SString buyers_email;
 		SString buyers_phone;
 		bool  paperless = false; 
@@ -781,9 +781,9 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 							}
 							else {
 								for(uint i = 0; i < bva_list.getCount(); i++) {
-									const BVATAccm & r_bva_item = bva_list.at(i);
-									const double vat_rate = r_bva_item.PRate;
-									const double _amount = r_bva_item.PVATSum;
+									const  BVATAccm & r_bva_item = bva_list.at(i);
+									const  double vat_rate = r_bva_item.PRate;
+									const  double _amount = r_bva_item.PVATSum;
 									if(vat_rate == 20.0)
 										fc.AmtVat20 = _amount;
 									else if(vat_rate == 18.0)
@@ -864,8 +864,8 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 					Arr_In.Z();
 					if(sl_param.Flags & SlipLineParam::fRegFiscal) {
 						CheckForRibbonUsing(SlipLineParam::fRegRegular | SlipLineParam::fRegJournal, Arr_In);
-						const double _q = sl_param.Qtty;
-						const double _p = sl_param.Price;
+						const  double _q = sl_param.Qtty;
+						const  double _p = sl_param.Price;
 						running_total += (_q * _p);
 						PROFILE_START_S("DVCCMD_PRINTFISCAL")
 						THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, sl_param.Text));
@@ -1420,8 +1420,8 @@ int SCS_SYNCCASH::PrintCheckCopy(const CCheckPacket * pPack, const char * pForma
 		THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, word_buf));
 		THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
 		for(pos = 0; pPack->EnumLines(&pos, &ccl);) {
-			const double price = intmnytodbl(ccl.Price) - ccl.Dscnt;
-			const double qtty  = R3(fabs(ccl.Quantity));
+			const  double price = intmnytodbl(ccl.Price) - ccl.Dscnt;
+			const  double qtty  = R3(fabs(ccl.Quantity));
 			GetGoodsName(ccl.GoodsID, prn_str);
 			CutLongTail(prn_str.Transf(CTRANSF_INNER_TO_OUTER));
 			Arr_In.Z();

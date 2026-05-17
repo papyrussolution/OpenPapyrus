@@ -4934,7 +4934,8 @@ public:
 		int32  ParentID;
 		int32  OrderN;
 		int16  CipMax;
-		uint8  Reserve3[64]; // raw
+		uint64 UedLinkOid;
+		uint8  Reserve3[56]; // raw
 	} data;
 	struct Key0 {
 		int32  ID;
@@ -4980,6 +4981,7 @@ public:
 	DBField ParentID;
 	DBField OrderN;
 	DBField CipMax;
+	DBField UedLinkOid;
 	DBField Reserve3;
 };
 #pragma pack(pop)

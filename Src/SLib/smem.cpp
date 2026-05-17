@@ -1,9 +1,10 @@
 // SMEM.CPP
-// Copyright (c) Sobolev A. 1993-2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) Sobolev A. 1993-2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
+#include <slib-ossl.h>
 //
 //
 //
@@ -73,13 +74,14 @@ int memdword(void * p, size_t size, uint32 key, size_t * pOffs)
 {
 	const size_t s4 = size / 4;
 	uint32 * p32 = static_cast<uint32 *>(p);
-	for(size_t i = 0; i < s4; i++)
+	for(size_t i = 0; i < s4; i++) {
 		if(*p32 == key) {
 			ASSIGN_PTR(pOffs, i * 4);
 			return 1;
 		}
 		else
 			p32++;
+	}
 	return 0;
 }
 
@@ -449,4 +451,16 @@ void operator delete [] (void * ptr)
 void FASTCALL SObfuscateBuffer(void * pBuf, size_t bufSize)
 {
 	SLS.GetTLA().Rg.ObfuscateBuffer(pBuf, bufSize);
+}
+//
+//
+//
+/*static*/void * FASTCALL SAlloc::M_secure(size_t sz) // @v12.6.4 using OpenSSL
+{
+	return OPENSSL_secure_malloc(sz);
+}
+
+/*static*/void FASTCALL SAlloc::F_secure(void * ptr, size_t sz) // @v12.6.4 using OpenSSL
+{
+	OPENSSL_secure_clear_free(ptr, sz);
 }

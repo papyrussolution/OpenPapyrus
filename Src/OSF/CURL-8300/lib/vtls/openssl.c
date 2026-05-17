@@ -2395,81 +2395,54 @@ static const char *ssl_msg_type(int ssl_ver, int msg)
 #ifdef SSL2_VERSION_MAJOR
 	if(ssl_ver == SSL2_VERSION_MAJOR) {
 		switch(msg) {
-			case SSL2_MT_ERROR:
-			    return "Error";
-			case SSL2_MT_CLIENT_HELLO:
-			    return "Client hello";
-			case SSL2_MT_CLIENT_MASTER_KEY:
-			    return "Client key";
-			case SSL2_MT_CLIENT_FINISHED:
-			    return "Client finished";
-			case SSL2_MT_SERVER_HELLO:
-			    return "Server hello";
-			case SSL2_MT_SERVER_VERIFY:
-			    return "Server verify";
-			case SSL2_MT_SERVER_FINISHED:
-			    return "Server finished";
-			case SSL2_MT_REQUEST_CERTIFICATE:
-			    return "Request CERT";
-			case SSL2_MT_CLIENT_CERTIFICATE:
-			    return "Client CERT";
+			case SSL2_MT_ERROR: return "Error";
+			case SSL2_MT_CLIENT_HELLO: return "Client hello";
+			case SSL2_MT_CLIENT_MASTER_KEY: return "Client key";
+			case SSL2_MT_CLIENT_FINISHED: return "Client finished";
+			case SSL2_MT_SERVER_HELLO: return "Server hello";
+			case SSL2_MT_SERVER_VERIFY: return "Server verify";
+			case SSL2_MT_SERVER_FINISHED: return "Server finished";
+			case SSL2_MT_REQUEST_CERTIFICATE: return "Request CERT";
+			case SSL2_MT_CLIENT_CERTIFICATE: return "Client CERT";
 		}
 	}
 	else
 #endif
 	if(ssl_ver == SSL3_VERSION_MAJOR) {
 		switch(msg) {
-			case SSL3_MT_HELLO_REQUEST:
-			    return "Hello request";
-			case SSL3_MT_CLIENT_HELLO:
-			    return "Client hello";
-			case SSL3_MT_SERVER_HELLO:
-			    return "Server hello";
+			case SSL3_MT_HELLO_REQUEST: return "Hello request";
+			case SSL3_MT_CLIENT_HELLO: return "Client hello";
+			case SSL3_MT_SERVER_HELLO: return "Server hello";
 #ifdef SSL3_MT_NEWSESSION_TICKET
-			case SSL3_MT_NEWSESSION_TICKET:
-			    return "Newsession Ticket";
+			case SSL3_MT_NEWSESSION_TICKET: return "Newsession Ticket";
 #endif
-			case SSL3_MT_CERTIFICATE:
-			    return "Certificate";
-			case SSL3_MT_SERVER_KEY_EXCHANGE:
-			    return "Server key exchange";
-			case SSL3_MT_CLIENT_KEY_EXCHANGE:
-			    return "Client key exchange";
-			case SSL3_MT_CERTIFICATE_REQUEST:
-			    return "Request CERT";
-			case SSL3_MT_SERVER_DONE:
-			    return "Server finished";
-			case SSL3_MT_CERTIFICATE_VERIFY:
-			    return "CERT verify";
-			case SSL3_MT_FINISHED:
-			    return "Finished";
+			case SSL3_MT_CERTIFICATE: return "Certificate";
+			case SSL3_MT_SERVER_KEY_EXCHANGE: return "Server key exchange";
+			case SSL3_MT_CLIENT_KEY_EXCHANGE: return "Client key exchange";
+			case SSL3_MT_CERTIFICATE_REQUEST: return "Request CERT";
+			case SSL3_MT_SERVER_DONE: return "Server finished";
+			case SSL3_MT_CERTIFICATE_VERIFY: return "CERT verify";
+			case SSL3_MT_FINISHED: return "Finished";
 #ifdef SSL3_MT_CERTIFICATE_STATUS
-			case SSL3_MT_CERTIFICATE_STATUS:
-			    return "Certificate Status";
+			case SSL3_MT_CERTIFICATE_STATUS: return "Certificate Status";
 #endif
 #ifdef SSL3_MT_ENCRYPTED_EXTENSIONS
-			case SSL3_MT_ENCRYPTED_EXTENSIONS:
-			    return "Encrypted Extensions";
+			case SSL3_MT_ENCRYPTED_EXTENSIONS: return "Encrypted Extensions";
 #endif
 #ifdef SSL3_MT_SUPPLEMENTAL_DATA
-			case SSL3_MT_SUPPLEMENTAL_DATA:
-			    return "Supplemental data";
+			case SSL3_MT_SUPPLEMENTAL_DATA: return "Supplemental data";
 #endif
 #ifdef SSL3_MT_END_OF_EARLY_DATA
-			case SSL3_MT_END_OF_EARLY_DATA:
-			    return "End of early data";
+			case SSL3_MT_END_OF_EARLY_DATA: return "End of early data";
 #endif
 #ifdef SSL3_MT_KEY_UPDATE
-			case SSL3_MT_KEY_UPDATE:
-			    return "Key update";
+			case SSL3_MT_KEY_UPDATE: return "Key update";
 #endif
 #ifdef SSL3_MT_NEXT_PROTO
-			case SSL3_MT_NEXT_PROTO:
-			    return "Next protocol";
+			case SSL3_MT_NEXT_PROTO: return "Next protocol";
 #endif
 #ifdef SSL3_MT_MESSAGE_HASH
-			case SSL3_MT_MESSAGE_HASH:
-			    return "Message hash";
+			case SSL3_MT_MESSAGE_HASH: return "Message hash";
 #endif
 		}
 	}
@@ -2480,27 +2453,20 @@ static const char *tls_rt_type(int type)
 {
 	switch(type) {
 #ifdef SSL3_RT_HEADER
-		case SSL3_RT_HEADER:
-		    return "TLS header";
+		case SSL3_RT_HEADER: return "TLS header";
 #endif
-		case SSL3_RT_CHANGE_CIPHER_SPEC:
-		    return "TLS change cipher";
-		case SSL3_RT_ALERT:
-		    return "TLS alert";
-		case SSL3_RT_HANDSHAKE:
-		    return "TLS handshake";
-		case SSL3_RT_APPLICATION_DATA:
-		    return "TLS app data";
-		default:
-		    return "TLS Unknown";
+		case SSL3_RT_CHANGE_CIPHER_SPEC: return "TLS change cipher";
+		case SSL3_RT_ALERT: return "TLS alert";
+		case SSL3_RT_HANDSHAKE: return "TLS handshake";
+		case SSL3_RT_APPLICATION_DATA: return "TLS app data";
+		default: return "TLS Unknown";
 	}
 }
 
 /*
  * Our callback from the SSL/TLS layers.
  */
-static void ossl_trace(int direction, int ssl_ver, int content_type,
-    const void * buf, size_t len, SSL * ssl, void * userp)
+static void ossl_trace(int direction, int ssl_ver, int content_type, const void * buf, size_t len, SSL * ssl, void * userp)
 {
 	const char * verstr = "???";
 	struct Curl_cfilter * cf = (Curl_cfilter *)userp;

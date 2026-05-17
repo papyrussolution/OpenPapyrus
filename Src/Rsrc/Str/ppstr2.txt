@@ -17052,6 +17052,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @chzn_check_offline                       "Проверить в offline-режиме" // @v12.3.12 Команда в диалоге проверки марок чзн (DLG_CHKCHZNMARK)
 @chzn_check_tspiot                        "Проверить в тс-пиот" // @v12.5.11 Команда в диалоге проверки марок чзн (DLG_CHKCHZNMARK)
 
+@chznlocpmparam_apiver                    "@{interchangeprotocolversion} (1, 2)" // @v12.6.4
+
 @restorelostprjtperson                    "Восстановление утерянных персоналий для задач"
 @restorelostprjtperson_resolvecreator     "Восстановить создателя"
 @restorelostprjtperson_resolveemployer    "Восстановить исполнителя"

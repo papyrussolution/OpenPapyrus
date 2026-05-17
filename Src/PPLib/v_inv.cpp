@@ -142,17 +142,14 @@ public:
 		Data.Sgb.S = static_cast<SubstGrpBill::_S>(getCtrlLong(CTLSEL_INVDIFFLT_SUBST));
 		if(!Data.Sgb)
 			Data.Sgg = static_cast<SubstGrpGoods>(getCtrlLong(CTLSEL_INVDIFFLT_SUBSTG));
-		else {
-			if(Data.Sgb.S == SubstGrpBill::sgbDate) {
-				Data.Sgb.S2.Sgd = static_cast<SubstGrpDate>(getCtrlLong(CTLSEL_INVDIFFLT_SUBSTG));
-			}
-			else if(oneof4(Data.Sgb.S, SubstGrpBill::sgbObject,  SubstGrpBill::sgbObject2,
-				SubstGrpBill::sgbAgent, SubstGrpBill::sgbPayer)) {
-				Data.Sgb.S2.Sgp = static_cast<SubstGrpPerson>(getCtrlLong(CTLSEL_INVDIFFLT_SUBSTG));
-			}
-			else
-				Data.Sgb.S2.Sgp = sgpNone;
+		else if(Data.Sgb.S == SubstGrpBill::sgbDate) {
+			Data.Sgb.S2.Sgd = static_cast<SubstGrpDate>(getCtrlLong(CTLSEL_INVDIFFLT_SUBSTG));
 		}
+		else if(oneof4(Data.Sgb.S, SubstGrpBill::sgbObject,  SubstGrpBill::sgbObject2, SubstGrpBill::sgbAgent, SubstGrpBill::sgbPayer)) {
+			Data.Sgb.S2.Sgp = static_cast<SubstGrpPerson>(getCtrlLong(CTLSEL_INVDIFFLT_SUBSTG));
+		}
+		else
+			Data.Sgb.S2.Sgp = sgpNone;
 		ASSIGN_PTR(pData, Data);
 		return ok;
 	}
@@ -363,8 +360,6 @@ int PPViewInventory::UpdateTempTable(PPID billID, long oprno)
 	return ok;
 }
 
-//int PPViewInventory::
-
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, Inventory);
 PP_CREATE_TEMP_FILE_PROC(CreateTempSubstFile, TempInventorySubst);
 PP_CREATE_TEMP_FILE_PROC(CreateTempOrder2IDFile, TempDoubleID);
@@ -417,7 +412,7 @@ int PPViewInventory::Init_(const PPBaseFilt * pFilt)
 	Gsl.Init(1, 0);
 	if(P_OuterPack) {
 		const  PPID bill_id = P_OuterPack->Rec.ID;
-		const long subst_bill_val = bill_id;
+		const  long subst_bill_val = bill_id;
 		const  PPID storage_loc_id = P_OuterPack->P_Freight ? P_OuterPack->P_Freight->StorageLocID : 0;
 		THROW(P_TempTbl = CreateTempFile());
 		if(Filt.SortOrder != InventoryFilt::ordByDefault)
@@ -428,7 +423,7 @@ int PPViewInventory::Init_(const PPBaseFilt * pFilt)
 			PPTransaction tra(ppDbDependTransaction, BIN(P_TempTbl || P_TempOrd));
 			THROW(tra);
 			for(uint i = 0; i < P_OuterPack->InvList.getCount(); i++) {
-				InventoryTbl::Rec & r_inv_rec = P_OuterPack->InvList.at(i);
+				const  InventoryTbl::Rec & r_inv_rec = P_OuterPack->InvList.at(i);
 				const  PPID org_goods_id = r_inv_rec.GoodsID;
 				int    do_skip = 0;
 				if(Filt.GoodsList.IsExists()) {
@@ -454,8 +449,8 @@ int PPViewInventory::Init_(const PPBaseFilt * pFilt)
 						THROW(GObj.SubstGoods(org_goods_id, &final_goods_id, Filt.Sgg, &sgg_blk, &Gsl));
 					}
 					if(is_subst) {
-						const double diff = (r_inv_rec.Quantity - r_inv_rec.StockRest);
-						uint idx = 0;
+						const  double diff = (r_inv_rec.Quantity - r_inv_rec.StockRest);
+						uint   idx = 0;
 						TempInventorySubstTbl::Key0 k0;
 						MEMSZERO(k0);
 						k0.GoodsID = final_goods_id;
@@ -1257,7 +1252,8 @@ int PPViewInventory::EditLine(PPID billID, long * pOprNo, PPID goodsID, const ch
 			THROW(CheckDialogPtr(&(dlg = new InventoryItemDialog(P_BObj, &bpack, &ioe, BIN(Filt.Flags & InventoryFilt::fSelExistsGoodsOnly)))));
 			THROW(dlg->setDTS(&rec));
 			for(valid_data = 0; !valid_data && (accel_mode || ExecView(dlg) == cmOK);) {
-				if((valid_data = dlg->getDTS(&rec)) != 0) {
+				valid_data = dlg->getDTS(&rec);
+				if(valid_data != 0) {
 					if(rec.Flags & INVENTF_WRITEDOFF)
 						ok = (PPError(PPERR_UPDWROFFINV, 0), -1);
 					else {
@@ -1270,10 +1266,7 @@ int PPViewInventory::EditLine(PPID billID, long * pOprNo, PPID goodsID, const ch
 							else if(duprec.Flags & INVENTF_AUTOLINE) // Просто изменить строку
 								*pOprNo = duprec.OprNo;
 							else {
-								if(accelMode)
-									reply = cmYes;
-								else
-									reply = PPMessage(mfConf | mfYesNoCancel, PPCFM_INVDUPGOODS);
+								reply = accelMode ? cmYes : PPMessage(mfConf|mfYesNoCancel, PPCFM_INVDUPGOODS);
 								if(reply == cmYes) {
 									duprec.Quantity += rec.Quantity;
 									rec = duprec;

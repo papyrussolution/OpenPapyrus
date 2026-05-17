@@ -8941,12 +8941,21 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						const  uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
 						SString column_description;
 						ListBoxDef * p_lb_def = 0;
+						uint32 owner_draw_prop = 0;
 						rCtx.GetConst_String(p_scope, DlScope::cuifListBoxColumns, column_description);
+						rCtx.GetConst_Uint32(p_scope, DlScope::cuifOwnerDraw, owner_draw_prop);
 						if(column_description.NotEmpty()) {
 							PPExpandString(column_description, CTRANSF_UTF8_TO_INNER);
 						}
 						SmartListBox * p_lb = column_description.NotEmpty() ? new SmartListBox(rc, p_lb_def, column_description) : new SmartListBox(rc, p_lb_def, false/*is_tree*/);
 						if(p_lb) {
+							// @v12.6.4 {
+							if(oneof2(owner_draw_prop, DlScope::ownerdrawYes, DlScope::ownerdrawListFixed)) {
+								if(column_description.IsEmpty()) {
+									p_lb->SetOwnerDrawState();
+								}
+							}
+							// } @v12.6.4 
 							InsertControlLabel(pDlg, rCtx, p_scope, p_lb, rLastDynId); // @v12.5.3
 							//LldState |= lldsDefBailed;
 							if(ui_flags & UiItemKind::fTabStop) {

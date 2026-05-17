@@ -107,13 +107,14 @@ PPGoodsStruc::PPGoodsStruc(const PPGoodsStruc & rS) : GoodsID(0), P_Cb(0)
 	Copy(rS);
 }
 
-void PPGoodsStruc::Init()
+PPGoodsStruc & PPGoodsStruc::Z()
 {
 	GoodsID = 0;
 	P_Cb = 0;
-	MEMSZERO(Rec);
+	Rec.Z();
 	Items.clear();
 	Children.freeAll();
+	return *this;
 }
 
 PPGoodsStruc & FASTCALL PPGoodsStruc::operator = (const PPGoodsStruc & rS) { return Copy(rS); }
@@ -351,7 +352,7 @@ int PPGoodsStruc::Select(const Ident & rIdent, TSCollection <PPGoodsStruc> & rLi
 
 PPGoodsStruc & FASTCALL PPGoodsStruc::Copy(const PPGoodsStruc & rS)
 {
-	Init();
+	Z();
 	GoodsID = rS.GoodsID;
 	Rec = rS.Rec;
 	Items.copy(rS.Items);
@@ -818,6 +819,12 @@ PPGoodsStrucHeader2::PPGoodsStrucHeader2()
 	THISZERO();
 }
 
+PPGoodsStrucHeader2 & PPGoodsStrucHeader2::Z()
+{
+	THISZERO();
+	return *this;
+}
+
 PPGoodsStrucItem::PPGoodsStrucItem()
 {
 	THISZERO();
@@ -972,7 +979,7 @@ public:
 	}
 	int    setDTS(const DataBlock * pData)
 	{
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		int    ok = 1;
 		setTitle(Data.DlgTitle);
 		if(Data.SelTitle.NotEmptyS())
@@ -1013,7 +1020,7 @@ private:
 	{
 		TDialog::handleEvent(event);
 		if(event.isCmd(cmShowGoodsStruc)) {
-			PPID   gs_id = getCtrlLong(CTLSEL_GSDATA_NAMEDSTRUC);
+			const  PPID gs_id = getCtrlLong(CTLSEL_GSDATA_NAMEDSTRUC);
 			if(gs_id) {
 				if(Data.Mode == DataBlock::mNamedStruc) {
 					PPGoodsStruc gs;
@@ -1175,9 +1182,7 @@ int PPObjGoodsStruc::SelectorDialog(const TSCollection <PPGoodsStruc> & rList, u
 	uint   pos = 0;
 	GoodsStrucSelectorDialog * dlg = new GoodsStrucSelectorDialog(*this);
 	if(CheckDialogPtrErr(&dlg)) {
-		PPID   init_id = 0;
-		if(pSelectionPos && *pSelectionPos < rList.getCount())
-			init_id = rList.at(*pSelectionPos)->Rec.ID;
+		const  PPID init_id = (pSelectionPos && *pSelectionPos < rList.getCount()) ? rList.at(*pSelectionPos)->Rec.ID : 0;
 		GoodsStrucSelectorDialog::DataBlock blk(&rList, init_id);
 		PPLoadText(PPTXT_LAB_SELECTGSTRUC, blk.SelTitle);
 		dlg->setDTS(&blk);
@@ -1377,7 +1382,7 @@ private:
 	int    addItemBySample();
 	int    editItemDialog(int pos, PPGoodsStrucItem *);
 	int    checkDupGoods(int pos, const PPGoodsStrucItem *);
-	void   selNamedGS();
+	void   SelectNamedGS();
 	int    enableEditRecurStruc();
 	void   ViewHierarchy();
 	int    EditGiftParam()
@@ -1466,7 +1471,7 @@ int GSDialog::enableEditRecurStruc()
 		P_Box->P_Def->getCurID(&pos);
 		if(pos > 0 && pos-1 < (long)Data.Items.getCount()) {
 			int r = 0;
-			RecurData.Init();
+			RecurData.Z();
 			THROW(r = GObj.LoadGoodsStruc(PPGoodsStruc::Ident(Data.Items.at(pos - 1).GoodsID, GSF_COMPL, GSF_PARTITIAL), &RecurData));
 			enable = (r > 0 && RecurData.Rec.ID);
 		}
@@ -1528,7 +1533,7 @@ IMPL_HANDLE_EVENT(GSDialog)
 		clearEvent(event);
 	}
 	else if(event.isCmd(cmSelNamedGS))
-		selNamedGS();
+		SelectNamedGS();
 	else if(event.isCmd(cmGStrucExpandReduce)) {
 		if(Data.CanExpand() && getDTS(0)) {
 			Changed = 1;
@@ -1582,7 +1587,7 @@ IMPL_HANDLE_EVENT(GSDialog)
 	clearEvent(event);
 }
 
-void GSDialog::selNamedGS()
+void GSDialog::SelectNamedGS()
 {
 	// Дочерняя структура не может быть именованной
 	if(!(Data.Rec.Flags & GSF_CHILD) && (Data.IsNamed() || Data.IsEmpty() || CONFIRM(PPCFM_SELNAMEDSTRUC))) {
@@ -2297,7 +2302,7 @@ private:
 	virtual int  addItem(long * pPos, long * pID);
 	virtual int  editItem(long pos, long id);
 	virtual int  delItem(long pos, long id);
-	void   selNamedGS();
+	void   SelectNamedGS();
 	void   reduce();
 
 	PPGoodsStruc Data;
@@ -2338,7 +2343,7 @@ IMPL_HANDLE_EVENT(GSExtDialog)
 {
 	PPListDialog::handleEvent(event);
 	if(event.isCmd(cmSelNamedGS))
-		selNamedGS();
+		SelectNamedGS();
 	else if(event.isCmd(cmGStrucExpandReduce))
 		reduce();
 	else if(event.isCmd(cmPrint)) {
@@ -2362,7 +2367,7 @@ IMPL_HANDLE_EVENT(GSExtDialog)
 
 void GSExtDialog::reduce()
 {
-	if(Data.CanReduce() && getDTS(0))
+	if(Data.CanReduce() && getDTS(0)) {
 		if(Data.Reduce()) {
 			if(IsInState(sfModal)) {
 				endModal(cmUtil);
@@ -2371,16 +2376,17 @@ void GSExtDialog::reduce()
 		}
 		else
 			PPError();
+	}
 }
 
-void GSExtDialog::selNamedGS()
+void GSExtDialog::SelectNamedGS() // @todo(@20260513) вероятно, здесь следует использовать PPObjGoodsStruc::SelectorDialog() - там работает тот же диалог DLG_GSDATA
 {
 	TDialog * dlg = new TDialog(DLG_GSDATA);
 	if(CheckDialogPtrErr(&dlg)) {
 		PPObjGoodsStruc gs_obj;
 		PPID   id = Data.Rec.ID;
 		if(!Data.IsNamed() && !Data.IsEmpty()) {
-			PPMessage(mfConf | mfOK, PPCFM_SELNAMEDSTRUC);
+			PPMessage(mfConf|mfOK, PPCFM_SELNAMEDSTRUC);
 			id = 0;
 		}
 		SetupPPObjCombo(dlg, CTLSEL_GSDATA_NAMEDSTRUC, PPOBJ_GOODSSTRUC, id, 0, 0);
@@ -3137,7 +3143,7 @@ int PPObjGoodsStruc::CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStructIDs, 
 				int    s = 0;
 				int    g = 0;
 				double price = 0.0;
-				gstruc.Init();
+				gstruc.Z();
 				THROW(goods_obj.LoadGoodsStruc(PPGoodsStruc::Ident(p_item->GoodsID), &gstruc));
 				if((g = pGoodsIDs->lsearch(p_item->GoodsID)) > 0 || (s = pStructIDs->lsearch(gstruc.Rec.ID)) > 0) {
 					recur = 1;

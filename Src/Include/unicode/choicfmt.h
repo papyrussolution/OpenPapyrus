@@ -184,10 +184,7 @@ public:
 	 * @param count     Size of 'limits' and 'formats' arrays.
 	 * @deprecated ICU 49 Use MessageFormat instead, with plural and select arguments.
 	 */
-	ChoiceFormat(const double* limits,
-	    const UnicodeString * formats,
-	    int32_t count);
-
+	ChoiceFormat(const double* limits, const UnicodeString * formats, int32_t count);
 	/**
 	 * Constructs a new ChoiceFormat with the given limits, closure flags and message strings.
 	 *

@@ -710,7 +710,7 @@ int DlContext::ResolveFunc(DlRtm * pRtm, const DlScope * pScope, int exactScope,
 							for(j = 0; j < arg_count; j++) {
 								arg_no++;
 								TypeEntry te;
-								DLSYMBID arg_type_id = func.GetArgType(j);
+								const  DLSYMBID arg_type_id = func.GetArgType(j);
 								THROW(SearchTypeID(arg_type_id, 0, &te));
 								const  size_t arg_sp = AllocStackType(arg_type_id, &te);
 								arg_pos_list.Add(arg_sp);

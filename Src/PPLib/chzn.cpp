@@ -1633,65 +1633,67 @@ int ChZnInterface::Document::MakeDataBuffer(const ChZnInterface::InitBlock & rIb
 				xmlBuffer * p_xml_buf = xmlBufferCreate();
 				xmlTextWriter * p_writer = p_xml_buf ? xmlNewTextWriterMemory(p_xml_buf, 0) : 0;
 				if(p_writer) {
-					SXml::WDoc _doc(p_writer, cpUTF8);
 					{
-						SXml::WNode nh(_doc, "withdrawal");
-						nh.PutAttrib("action_id", "15");
-						nh.PutAttrib("version", "4");
-						nh.PutInner("trade_participant_inn", sender_inn);
-						nh.PutInner("withdrawal_type", "RETAIL");
-						nh.PutInner("withdrawal_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMANCENT));
-						nh.PutInner("primary_document_type", "OTHER");
-						(temp_buf = p_bp->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8);
-						nh.PutInner("primary_document_number", temp_buf);
-						nh.PutInner("primary_document_date", doc_date_text);
-						PPLoadString("document_upd_s", temp_buf); // УПД
-						nh.PutInner("primary_document_custom_name", temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
-						// @v12.5.10 {
-						if(false) { // @v12.5.11 @condition Блядь! Сделал и выяснилось, что не надо было. 
-							PPLocationPacket loc_pack;
-							psn_obj.GetRegNumber(subj_psn_id, PPREGT_KPP, temp_buf);
-							if(temp_buf.NotEmpty()) {
-								nh.PutInner("kpp", temp_buf);
-							}
-							if(psn_obj.LocObj.GetPacket(subj_loc_id, &loc_pack) > 0) {
-								const ObjTagItem * p_tag_item = loc_pack.TagL.GetItem(PPTAG_LOC_FIASGUID_ADR);
-								S_GUID fias_uuid;
-								if(p_tag_item && p_tag_item->GetGuid(&fias_uuid)) {
-									temp_buf.Z().Cat(fias_uuid, S_GUID::fmtIDL);
-									nh.PutInner("fias_id", temp_buf);
-								}
-							}
-						}
-						// } @v12.5.10 
-						//nh.PutInner("primary_document_custom_name", "custom");
-						//nh.PutInner("kkt_number", "234");
-						//nh.PutInner("st_contract_id", ""); // optional
+						SXml::WDoc _doc(p_writer, cpUTF8);
 						{
-							SXml::WNode npl(_doc, "products_list");
-							for(uint i = 0; i < p_bp->GetTCount(); i++) {
-								const PPTransferItem & r_ti = p_bp->ConstTI(i);
-								const  double cost = fabs(r_ti.NetPrice());
-								double vat_in_cost = 0.0;
-								{
-									GTaxVect gtv;
-									gtv.CalcBPTI(*p_bp, r_ti, TIAMT_PRICE);
-									vat_in_cost = gtv.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
+							SXml::WNode nh(_doc, "withdrawal");
+							nh.PutAttrib("action_id", "15");
+							nh.PutAttrib("version", "4");
+							nh.PutInner("trade_participant_inn", sender_inn);
+							nh.PutInner("withdrawal_type", "RETAIL");
+							nh.PutInner("withdrawal_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMANCENT));
+							nh.PutInner("primary_document_type", "OTHER");
+							(temp_buf = p_bp->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8);
+							nh.PutInner("primary_document_number", temp_buf);
+							nh.PutInner("primary_document_date", doc_date_text);
+							PPLoadString("document_upd_s", temp_buf); // УПД
+							nh.PutInner("primary_document_custom_name", temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
+							// @v12.5.10 {
+							if(false) { // @v12.5.11 @condition Блядь! Сделал и выяснилось, что не надо было. 
+								PPLocationPacket loc_pack;
+								psn_obj.GetRegNumber(subj_psn_id, PPREGT_KPP, temp_buf);
+								if(temp_buf.NotEmpty()) {
+									nh.PutInner("kpp", temp_buf);
 								}
-								p_bp->XcL.Get(i+1, 0, lotxcode_set);
-								lotxcode_set.GetByBoxID(0, ss);
-								for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-									if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
-										mark_buf.Z();
-										if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
-											mark_buf.Cat("01").Cat(temp_buf);
-											if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
-												mark_buf.Cat("21").Cat(temp_buf);
-												{
-													SXml::WNode np(_doc, "product");
-													XMLReplaceSpecSymb(mark_buf, "&<>\'");
-													np.PutInner("ki", mark_buf); // Возможно, дожно быть "cis" вместо "ki"
-													np.PutInner("cost", temp_buf.Z().Cat(R0i(cost * 100.0)));
+								if(psn_obj.LocObj.GetPacket(subj_loc_id, &loc_pack) > 0) {
+									const ObjTagItem * p_tag_item = loc_pack.TagL.GetItem(PPTAG_LOC_FIASGUID_ADR);
+									S_GUID fias_uuid;
+									if(p_tag_item && p_tag_item->GetGuid(&fias_uuid)) {
+										temp_buf.Z().Cat(fias_uuid, S_GUID::fmtIDL);
+										nh.PutInner("fias_id", temp_buf);
+									}
+								}
+							}
+							// } @v12.5.10 
+							//nh.PutInner("primary_document_custom_name", "custom");
+							//nh.PutInner("kkt_number", "234");
+							//nh.PutInner("st_contract_id", ""); // optional
+							{
+								SXml::WNode npl(_doc, "products_list");
+								for(uint i = 0; i < p_bp->GetTCount(); i++) {
+									const PPTransferItem & r_ti = p_bp->ConstTI(i);
+									const  double cost = fabs(r_ti.NetPrice());
+									double vat_in_cost = 0.0;
+									{
+										GTaxVect gtv;
+										gtv.CalcBPTI(*p_bp, r_ti, TIAMT_PRICE);
+										vat_in_cost = gtv.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
+									}
+									p_bp->XcL.Get(i+1, 0, lotxcode_set);
+									lotxcode_set.GetByBoxID(0, ss);
+									for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+										if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
+											mark_buf.Z();
+											if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
+												mark_buf.Cat("01").Cat(temp_buf);
+												if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+													mark_buf.Cat("21").Cat(temp_buf);
+													{
+														SXml::WNode np(_doc, "product");
+														XMLReplaceSpecSymb(mark_buf, "&<>\'");
+														np.PutInner("ki", mark_buf); // Возможно, дожно быть "cis" вместо "ki"
+														np.PutInner("cost", temp_buf.Z().Cat(R0i(cost * 100.0)));
+													}
 												}
 											}
 										}
@@ -1755,52 +1757,54 @@ int ChZnInterface::Document::MakeDataBuffer(const ChZnInterface::InitBlock & rIb
 			xmlBuffer * p_xml_buf = xmlBufferCreate();
 			xmlTextWriter * p_writer = p_xml_buf ? xmlNewTextWriterMemory(p_xml_buf, 0) : 0;
 			if(p_writer) {
-				SXml::WDoc _doc(p_writer, cpUTF8);
 				{
-					SXml::WNode nh(_doc, "shipment");
-					nh.PutAttrib("action_id", "10");
-					nh.PutAttrib("version", "5");
-					nh.PutInner("trade_participant_inn_sender", sender_inn);
-					nh.PutInner("trade_participant_inn_receiver", receiver_inn);
-					nh.PutInner("transfer_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMANCENT));
-					(temp_buf = p_bp->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8);
-					nh.PutInner("move_document_number", temp_buf);
-					nh.PutInner("move_document_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMANCENT));
-					nh.PutInner("turnover_type", "SELLING");
-					nh.PutInner("to_not_participant", "true"); // optional признак того, что отгружаем не участнику оборота чезн
-					nh.PutInner("withdrawal_type", "NO_RETAIL_USE"); // optional
-					nh.PutInner("withdrawal_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMANCENT)); // optional
-					// nh.PutInner("st_contract_id", ""); // optional
+					SXml::WDoc _doc(p_writer, cpUTF8);
 					{
-						SXml::WNode npl(_doc, "products_list");
-						for(uint i = 0; i < p_bp->GetTCount(); i++) {
-							const  PPTransferItem & r_ti = p_bp->ConstTI(i);
-							long   local_chzn_prod_type = 0; // @v11.9.9
-							if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
-								local_chzn_prod_type = gt_rec.ChZnProdType;
-							if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) { // @v11.9.9
-								const  double cost = fabs(r_ti.NetPrice());
-								double vat_in_cost = 0.0;
-								{
-									GTaxVect gtv;
-									gtv.CalcBPTI(*p_bp, r_ti, TIAMT_PRICE);
-									vat_in_cost = gtv.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
-								}
-								p_bp->XcL.Get(i+1, 0, lotxcode_set);
-								lotxcode_set.GetByBoxID(0, ss);
-								for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-									if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
-										mark_buf.Z();
-										if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
-											mark_buf.Cat("01").Cat(temp_buf);
-											if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
-												mark_buf.Cat("21").Cat(temp_buf);
+						SXml::WNode nh(_doc, "shipment");
+						nh.PutAttrib("action_id", "10");
+						nh.PutAttrib("version", "5");
+						nh.PutInner("trade_participant_inn_sender", sender_inn);
+						nh.PutInner("trade_participant_inn_receiver", receiver_inn);
+						nh.PutInner("transfer_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMANCENT));
+						(temp_buf = p_bp->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8);
+						nh.PutInner("move_document_number", temp_buf);
+						nh.PutInner("move_document_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMANCENT));
+						nh.PutInner("turnover_type", "SELLING");
+						nh.PutInner("to_not_participant", "true"); // optional признак того, что отгружаем не участнику оборота чезн
+						nh.PutInner("withdrawal_type", "NO_RETAIL_USE"); // optional
+						nh.PutInner("withdrawal_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMANCENT)); // optional
+						// nh.PutInner("st_contract_id", ""); // optional
+						{
+							SXml::WNode npl(_doc, "products_list");
+							for(uint i = 0; i < p_bp->GetTCount(); i++) {
+								const  PPTransferItem & r_ti = p_bp->ConstTI(i);
+								long   local_chzn_prod_type = 0; // @v11.9.9
+								if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
+									local_chzn_prod_type = gt_rec.ChZnProdType;
+								if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) { // @v11.9.9
+									const  double cost = fabs(r_ti.NetPrice());
+									double vat_in_cost = 0.0;
+									{
+										GTaxVect gtv;
+										gtv.CalcBPTI(*p_bp, r_ti, TIAMT_PRICE);
+										vat_in_cost = gtv.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
+									}
+									p_bp->XcL.Get(i+1, 0, lotxcode_set);
+									lotxcode_set.GetByBoxID(0, ss);
+									for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+										if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
+											mark_buf.Z();
+											if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
+												mark_buf.Cat("01").Cat(temp_buf);
+												if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+													mark_buf.Cat("21").Cat(temp_buf);
 
-												SXml::WNode np(_doc, "product");
-												XMLReplaceSpecSymb(mark_buf, "&<>\'");
-												np.PutInner("ki", mark_buf);
-												np.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD_020));
-												np.PutInner("vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD_020));
+													SXml::WNode np(_doc, "product");
+													XMLReplaceSpecSymb(mark_buf, "&<>\'");
+													np.PutInner("ki", mark_buf);
+													np.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD_020));
+													np.PutInner("vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD_020));
+												}
 											}
 										}
 									}
@@ -1824,224 +1828,39 @@ int ChZnInterface::Document::MakeDataBuffer(const ChZnInterface::InitBlock & rIb
 		xmlBuffer * p_xml_buf = xmlBufferCreate();
 		xmlTextWriter * p_writer = p_xml_buf ? xmlNewTextWriterMemory(p_xml_buf, 0) : 0;
 		if(p_writer) {
-			SXml::WNode wdocs(p_writer, "documents");
-			wdocs.PutAttrib("session_ui", rIb.Token);
-			wdocs.PutAttrib("version", "1.35");
-			wdocs.PutAttrib(SXml::nst_xmlns("xsi"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
 			{
-				SIntToSymbTab_GetSymb(CzDocType_SymbTab, SIZEOFARRAY(CzDocType_SymbTab), pPack->DocType, temp_buf);
-				SXml::WNode wd(p_writer, temp_buf);
-				wd.PutAttrib("action_id", temp_buf.Z().Cat(pPack->DocType));
-				//
-				if(pPack->DocType == doctypMdlpMovePlace) {
-					const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
-					if(p_bp) {
-						const  PPID   rcvr_ar_id = p_bp->Rec.Object;
-						const  PPID   rcvr_loc_id = PPObjLocation::ObjToWarehouse(rcvr_ar_id);
-						const  PPID   subj_loc_id = p_bp->Rec.LocID;
-						PPID   subj_psn_id = main_org_id;
-						GetTransactionPartyCode(0, rcvr_loc_id, receiver_ident);
-						GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
-						wd.PutInner("subject_id", subj_ident);
-						wd.PutInner("receiver_id", receiver_ident);
-						_PutOperationDate(wd, temp_buf);
-						_PutDocDateAndNum(p_bp->Rec, wd, temp_buf);
-						{
-							SXml::WNode dtl(p_writer, "order_details");
-							for(uint i = 0; i < p_bp->GetTCount(); i++) {
-								const  PPTransferItem & r_ti = p_bp->ConstTI(i);
-								// @v11.9.9 {
-								long   local_chzn_prod_type = 0;
-								if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
-									local_chzn_prod_type = gt_rec.ChZnProdType;
-								if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) { // @v11.9.9
-									p_bp->XcL.Get(i+1, 0, lotxcode_set);
-									lotxcode_set.GetByBoxID(0, ss);
-									for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-										if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
-											mark_buf.Z();
-											if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
-												mark_buf.Cat(temp_buf);
-												if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
-													mark_buf.Cat(temp_buf);
-													XMLReplaceSpecSymb(mark_buf, "&<>\'"); // @v12.5.3
-													dtl.PutInner("sgtin", mark_buf);
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-				else if(pPack->DocType == doctypMdlpRetailSale) {
-					const CCheckPacket * p_ccp = static_cast<const CCheckPacket *>(pPack->P_Data);
-					if(p_ccp) {
-						/*
-							<documents session_ui="4Aa246a6-D7e2-2465-a056-0234554369a3" version="1.34">
-								<retail_sale action_id="511">
-									<subject_id>19527400000042</subject_id>
-									<operation_date>2017-04-09T15:08:00+05:00</operation_date>
-									<sales>
-										<union>
-											<detail>
-												<sgtin>11670012610151BBM13L07G86DQ</sgtin>
-												<cost>17.0</cost>
-												<vat_value>300.0</vat_value>
-											</detail>
-											<sale_docs>
-												<doc_type>1</doc_type>
-												<doc_name>cheque</doc_name>
-												<doc_number>1</doc_number>
-												<doc_date>04.04.2017</doc_date>
-											</sale_docs>
-										</union>
-									</sales>
-								</retail_sale>
-							</documents>
-						*/
-						PPObjCashNode cnobj;
-						PPCashNode2 cn_rec;
-						if(cnobj.Fetch(p_ccp->Rec.PosNodeID, &cn_rec) > 0 && cn_rec.LocID) {
-							//p_ccp->Rec.CashID
-							const  PPID   subj_loc_id = cn_rec.LocID;
-							PPID  subj_psn_id = main_org_id;
+				SXml::WNode wdocs(p_writer, "documents");
+				wdocs.PutAttrib("session_ui", rIb.Token);
+				wdocs.PutAttrib("version", "1.35");
+				wdocs.PutAttrib(SXml::nst_xmlns("xsi"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
+				{
+					SIntToSymbTab_GetSymb(CzDocType_SymbTab, SIZEOFARRAY(CzDocType_SymbTab), pPack->DocType, temp_buf);
+					SXml::WNode wd(p_writer, temp_buf);
+					wd.PutAttrib("action_id", temp_buf.Z().Cat(pPack->DocType));
+					//
+					if(pPack->DocType == doctypMdlpMovePlace) {
+						const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
+						if(p_bp) {
+							const  PPID   rcvr_ar_id = p_bp->Rec.Object;
+							const  PPID   rcvr_loc_id = PPObjLocation::ObjToWarehouse(rcvr_ar_id);
+							const  PPID   subj_loc_id = p_bp->Rec.LocID;
+							PPID   subj_psn_id = main_org_id;
+							GetTransactionPartyCode(0, rcvr_loc_id, receiver_ident);
 							GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
 							wd.PutInner("subject_id", subj_ident);
+							wd.PutInner("receiver_id", receiver_ident);
 							_PutOperationDate(wd, temp_buf);
+							_PutDocDateAndNum(p_bp->Rec, wd, temp_buf);
 							{
-								SXml::WNode sn(p_writer, "sales");
-								CCheckItem ccitem;
-								for(uint i = 0; p_ccp->EnumLines(&i, &ccitem);) {
+								SXml::WNode dtl(p_writer, "order_details");
+								for(uint i = 0; i < p_bp->GetTCount(); i++) {
+									const  PPTransferItem & r_ti = p_bp->ConstTI(i);
 									// @v11.9.9 {
-									long  local_chzn_prod_type = 0;
-									if(goods_obj.Fetch(ccitem.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
+									long   local_chzn_prod_type = 0;
+									if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
 										local_chzn_prod_type = gt_rec.ChZnProdType;
 									if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) { // @v11.9.9
-										p_ccp->GetLineTextExt(i, CCheckPacket::lnextChZnMark, temp_buf);
-										if(temp_buf.NotEmptyS()) {
-											if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
-												mark_buf.Z();
-												if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
-													mark_buf.Cat(temp_buf);
-													if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
-														mark_buf.Cat(temp_buf);
-														double cost = R2(ccitem.Price - ccitem.Discount);
-														double vat_in_cost = 0.0;
-														PPGoodsTaxEntry gtx;
-														if(goods_obj.FetchTaxEntry2(ccitem.GoodsID, 0/*lotID*/, 0/*taxPayerID*/, p_ccp->Rec.Dt, 0, &gtx) > 0) {
-															GTaxVect gtv;
-															gtv.Calc_(gtx, cost, 1.0, GTAXVF_BEFORETAXES, 0);
-															vat_in_cost = gtv.GetValue(GTAXVF_VAT);
-														}
-														SXml::WNode un(p_writer, "union");
-														{
-															SXml::WNode dn(p_writer, "detail");
-															XMLReplaceSpecSymb(mark_buf, "&<>\'"); // @v12.5.3
-															dn.PutInner("sgtin", mark_buf);
-															dn.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD_020));
-															dn.PutInner("vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD_020));
-														}
-														{
-															SXml::WNode sdn(p_writer, "sale_docs");
-															sdn.PutInner("doc_type", "1");
-															sdn.PutInner("doc_name", "cheque");
-															sdn.PutInner("doc_number", temp_buf.Z().Cat(p_ccp->Rec.Code));
-															sdn.PutInner("doc_date", temp_buf.Z().Cat(p_ccp->Rec.Dt, DATF_GERMANCENT));
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-				else if(pPack->DocType == doctypMdlpMoveOrder) {
-					const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
-					if(p_bp) {
-						const  PPID   rcvr_ar_id = p_bp->Rec.Object;
-						const  PPID   rcvr_psn_id = ObjectToPerson(rcvr_ar_id, 0);
-						const  PPID   rcvr_loc_id = p_bp->GetDlvrAddrID();
-						const  PPID   subj_loc_id = p_bp->Rec.LocID;
-						//
-						PPID   subj_psn_id = main_org_id;
-						GetTransactionPartyCode(rcvr_psn_id, rcvr_loc_id, receiver_ident);
-						GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
-						wd.PutInner("subject_id", subj_ident);
-						wd.PutInner("receiver_id", receiver_ident);
-						_PutOperationDate(wd, temp_buf);
-						_PutDocDateAndNum(p_bp->Rec, wd, temp_buf);
-						wd.PutInner("turnover_type", temp_buf.Z().Cat(2L));
-						wd.PutInner("source", temp_buf.Z().Cat(1L));
-						wd.PutInner("contract_type", temp_buf.Z().Cat(1L));
-						{
-							SXml::WNode dtl(p_writer, "order_details");
-							for(uint i = 0; i < p_bp->GetTCount(); i++) {
-								const PPTransferItem & r_ti = p_bp->ConstTI(i);
-								// @v11.9.9 {
-								long  local_chzn_prod_type = 0;
-								if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
-									local_chzn_prod_type = gt_rec.ChZnProdType;
-								if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) { // @v11.9.9
-									double cost = r_ti.Cost;
-									double vat_in_cost = 0.0;
-									{
-										GTaxVect gtv;
-										gtv.CalcBPTI(*p_bp, r_ti, TIAMT_COST);
-										vat_in_cost = gtv.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
-									}
-									p_bp->XcL.Get(i+1, 0, lotxcode_set);
-									{
-										lotxcode_set.GetByBoxID(0, ss);
-										for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-											if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
-												mark_buf.Z();
-												if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
-													mark_buf.Cat(temp_buf);
-													if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
-														mark_buf.Cat(temp_buf);
-														SXml::WNode un(p_writer, "union");
-														XMLReplaceSpecSymb(mark_buf, "&<>\'"); // @v12.5.3
-														un.PutInner("sgtin", mark_buf);
-														un.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD_020));
-														un.PutInner(/*"vat_in_cost"*/"vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD_020));
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-				else if(pPack->DocType == doctypMdlpAccept) { // @v12.3.6 @construction
-					const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
-					if(p_bp) {
-						const  PPID   dlvr_ar_id = p_bp->Rec.Object;
-						const  PPID   dlvr_psn_id = ObjectToPerson(dlvr_ar_id, 0);
-						const  PPID   dlvr_loc_id = p_bp->GetDlvrAddrID();
-						const  PPID   subj_loc_id = p_bp->Rec.LocID;
-						PPID   subj_psn_id = main_org_id;
-						GetTransactionPartyCode(dlvr_psn_id, dlvr_loc_id, shipper_ident);
-						GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
-						wd.PutInner("subject_id", subj_ident);
-						wd.PutInner("counterparty_id", shipper_ident);
-						_PutOperationDate(wd, temp_buf);
-						{
-							SXml::WNode dtl(p_writer, "order_details");
-							for(uint i = 0; i < p_bp->GetTCount(); i++) {
-								const PPTransferItem & r_ti = p_bp->ConstTI(i);
-								long  local_chzn_prod_type = 0;
-								if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
-									local_chzn_prod_type = gt_rec.ChZnProdType;
-								if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) {
-									p_bp->XcL.Get(i+1, 0, lotxcode_set);
-									{
+										p_bp->XcL.Get(i+1, 0, lotxcode_set);
 										lotxcode_set.GetByBoxID(0, ss);
 										for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 											if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
@@ -2061,70 +1880,82 @@ int ChZnInterface::Document::MakeDataBuffer(const ChZnInterface::InitBlock & rIb
 							}
 						}
 					}
-				}
-				else if(oneof2(pPack->DocType, doctypMdlpReceiveOrder, doctypMdlpPosting)) {
-					const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
-					if(p_bp) {
-						const  PPID   dlvr_ar_id = p_bp->Rec.Object;
-						const  PPID   dlvr_psn_id = ObjectToPerson(dlvr_ar_id, 0);
-						const  PPID   dlvr_loc_id = p_bp->GetDlvrAddrID();
-						const  PPID   subj_loc_id = p_bp->Rec.LocID;
-						PPID   subj_psn_id = main_org_id;
-						GetTransactionPartyCode(dlvr_psn_id, dlvr_loc_id, shipper_ident);
-						GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
-						wd.PutInner("subject_id", subj_ident);
-						if(pPack->DocType == doctypMdlpReceiveOrder) {
-							wd.PutInner("shipper_id", shipper_ident);
-						}
-						else {
-							SXml::WNode si(p_writer, "shipper_info");
-							psn_obj.GetRegNumber(dlvr_psn_id, PPREGT_TPID, temp_buf);
-							si.PutInner("inn", temp_buf.Transf(CTRANSF_INNER_TO_UTF8)); // @todo
-							psn_obj.GetRegNumber(dlvr_psn_id, PPREGT_KPP, temp_buf);
-							si.PutInner("kpp", temp_buf.Transf(CTRANSF_INNER_TO_UTF8)); // @todo
-						}
-						_PutOperationDate(wd, temp_buf);
-						_PutDocDateAndNum(p_bp->Rec, wd, temp_buf);
-						if(pPack->DocType == doctypMdlpReceiveOrder) {
-							wd.PutInner("receive_type", temp_buf.Z().Cat(1L));
-							wd.PutInner("source", temp_buf.Z().Cat(1L));
-							wd.PutInner("contract_type", temp_buf.Z().Cat(1L));
-						}
-						else {
-							wd.PutInner("contract_type", temp_buf.Z().Cat(1L));
-							wd.PutInner("source", temp_buf.Z().Cat(1L));
-						}
-						{
-							SXml::WNode dtl(p_writer, "order_details");
-							for(uint i = 0; i < p_bp->GetTCount(); i++) {
-								const PPTransferItem & r_ti = p_bp->ConstTI(i);
-								// @v11.9.9 {
-								long  local_chzn_prod_type = 0;
-								if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
-									local_chzn_prod_type = gt_rec.ChZnProdType;
-								if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) { // @v11.9.9
-									double cost = r_ti.Cost;
-									double vat_in_cost = 0.0;
-									{
-										GTaxVect gtv;
-										gtv.CalcBPTI(*p_bp, r_ti, TIAMT_COST);
-										vat_in_cost = gtv.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
-									}
-									p_bp->XcL.Get(i+1, 0, lotxcode_set);
-									{
-										lotxcode_set.GetByBoxID(0, ss);
-										for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-											if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
-												mark_buf.Z();
-												if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
-													mark_buf.Cat(temp_buf);
-													if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+					else if(pPack->DocType == doctypMdlpRetailSale) {
+						const CCheckPacket * p_ccp = static_cast<const CCheckPacket *>(pPack->P_Data);
+						if(p_ccp) {
+							/*
+								<documents session_ui="4Aa246a6-D7e2-2465-a056-0234554369a3" version="1.34">
+									<retail_sale action_id="511">
+										<subject_id>19527400000042</subject_id>
+										<operation_date>2017-04-09T15:08:00+05:00</operation_date>
+										<sales>
+											<union>
+												<detail>
+													<sgtin>11670012610151BBM13L07G86DQ</sgtin>
+													<cost>17.0</cost>
+													<vat_value>300.0</vat_value>
+												</detail>
+												<sale_docs>
+													<doc_type>1</doc_type>
+													<doc_name>cheque</doc_name>
+													<doc_number>1</doc_number>
+													<doc_date>04.04.2017</doc_date>
+												</sale_docs>
+											</union>
+										</sales>
+									</retail_sale>
+								</documents>
+							*/
+							PPObjCashNode cnobj;
+							PPCashNode2 cn_rec;
+							if(cnobj.Fetch(p_ccp->Rec.PosNodeID, &cn_rec) > 0 && cn_rec.LocID) {
+								//p_ccp->Rec.CashID
+								const  PPID   subj_loc_id = cn_rec.LocID;
+								PPID  subj_psn_id = main_org_id;
+								GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
+								wd.PutInner("subject_id", subj_ident);
+								_PutOperationDate(wd, temp_buf);
+								{
+									SXml::WNode sn(p_writer, "sales");
+									CCheckItem ccitem;
+									for(uint i = 0; p_ccp->EnumLines(&i, &ccitem);) {
+										// @v11.9.9 {
+										long  local_chzn_prod_type = 0;
+										if(goods_obj.Fetch(ccitem.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
+											local_chzn_prod_type = gt_rec.ChZnProdType;
+										if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) { // @v11.9.9
+											p_ccp->GetLineTextExt(i, CCheckPacket::lnextChZnMark, temp_buf);
+											if(temp_buf.NotEmptyS()) {
+												if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
+													mark_buf.Z();
+													if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
 														mark_buf.Cat(temp_buf);
-														SXml::WNode un(p_writer, "union");
-														XMLReplaceSpecSymb(mark_buf, "&<>\'"); // @v12.5.3
-														un.PutInner("sgtin", mark_buf);
-														un.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD_020));
-														un.PutInner(/*"vat_in_cost"*/"vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD_020));
+														if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+															mark_buf.Cat(temp_buf);
+															double cost = R2(ccitem.Price - ccitem.Discount);
+															double vat_in_cost = 0.0;
+															PPGoodsTaxEntry gtx;
+															if(goods_obj.FetchTaxEntry2(ccitem.GoodsID, 0/*lotID*/, 0/*taxPayerID*/, p_ccp->Rec.Dt, 0, &gtx) > 0) {
+																GTaxVect gtv;
+																gtv.Calc_(gtx, cost, 1.0, GTAXVF_BEFORETAXES, 0);
+																vat_in_cost = gtv.GetValue(GTAXVF_VAT);
+															}
+															SXml::WNode un(p_writer, "union");
+															{
+																SXml::WNode dn(p_writer, "detail");
+																XMLReplaceSpecSymb(mark_buf, "&<>\'"); // @v12.5.3
+																dn.PutInner("sgtin", mark_buf);
+																dn.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD_020));
+																dn.PutInner("vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD_020));
+															}
+															{
+																SXml::WNode sdn(p_writer, "sale_docs");
+																sdn.PutInner("doc_type", "1");
+																sdn.PutInner("doc_name", "cheque");
+																sdn.PutInner("doc_number", temp_buf.Z().Cat(p_ccp->Rec.Code));
+																sdn.PutInner("doc_date", temp_buf.Z().Cat(p_ccp->Rec.Dt, DATF_GERMANCENT));
+															}
+														}
 													}
 												}
 											}
@@ -2134,46 +1965,57 @@ int ChZnInterface::Document::MakeDataBuffer(const ChZnInterface::InitBlock & rIb
 							}
 						}
 					}
-				}
-				else if(pPack->DocType == doctypMdlpRefusalReceiver) {
-					const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
-					if(p_bp) {
-						const  PPID   dlvr_ar_id = p_bp->Rec.Object;
-						const  PPID   dlvr_psn_id = ObjectToPerson(dlvr_ar_id, 0);
-						const  PPID   dlvr_loc_id = p_bp->GetDlvrAddrID();
-						const  PPID   subj_loc_id = p_bp->Rec.LocID;
-						PPID   subj_psn_id = main_org_id;
-						GetTransactionPartyCode(dlvr_psn_id, dlvr_loc_id, shipper_ident);
-						GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
-						wd.PutInner("subject_id", subj_ident);
-						_PutOperationDate(wd, temp_buf);
-						wd.PutInner("shipper_id", shipper_ident);
-						if(p_bp->SMemo.NotEmpty()) {
-							(temp_buf = p_bp->SMemo).Transf(CTRANSF_INNER_TO_UTF8);
-						}
-						else
-							temp_buf = "refusal-receiver";
-						wd.PutInner("reason", temp_buf);
-						{
-							SXml::WNode dtl(p_writer, "order_details");
-							for(uint i = 0; i < p_bp->GetTCount(); i++) {
-								const PPTransferItem & r_ti = p_bp->ConstTI(i);
-								// @v11.9.9 {
-								long  local_chzn_prod_type = 0;
-								if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
-									local_chzn_prod_type = gt_rec.ChZnProdType;
-								if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) { // @v11.9.9
-									p_bp->XcL.Get(i+1, 0, lotxcode_set);
-									lotxcode_set.GetByBoxID(0, ss);
-									for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-										if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
-											mark_buf.Z();
-											if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
-												mark_buf.Cat(temp_buf);
-												if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
-													mark_buf.Cat(temp_buf);
-													XMLReplaceSpecSymb(mark_buf, "&<>\'"); // @v12.5.3
-													dtl.PutInner("sgtin", mark_buf);
+					else if(pPack->DocType == doctypMdlpMoveOrder) {
+						const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
+						if(p_bp) {
+							const  PPID   rcvr_ar_id = p_bp->Rec.Object;
+							const  PPID   rcvr_psn_id = ObjectToPerson(rcvr_ar_id, 0);
+							const  PPID   rcvr_loc_id = p_bp->GetDlvrAddrID();
+							const  PPID   subj_loc_id = p_bp->Rec.LocID;
+							//
+							PPID   subj_psn_id = main_org_id;
+							GetTransactionPartyCode(rcvr_psn_id, rcvr_loc_id, receiver_ident);
+							GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
+							wd.PutInner("subject_id", subj_ident);
+							wd.PutInner("receiver_id", receiver_ident);
+							_PutOperationDate(wd, temp_buf);
+							_PutDocDateAndNum(p_bp->Rec, wd, temp_buf);
+							wd.PutInner("turnover_type", temp_buf.Z().Cat(2L));
+							wd.PutInner("source", temp_buf.Z().Cat(1L));
+							wd.PutInner("contract_type", temp_buf.Z().Cat(1L));
+							{
+								SXml::WNode dtl(p_writer, "order_details");
+								for(uint i = 0; i < p_bp->GetTCount(); i++) {
+									const PPTransferItem & r_ti = p_bp->ConstTI(i);
+									// @v11.9.9 {
+									long  local_chzn_prod_type = 0;
+									if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
+										local_chzn_prod_type = gt_rec.ChZnProdType;
+									if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) { // @v11.9.9
+										double cost = r_ti.Cost;
+										double vat_in_cost = 0.0;
+										{
+											GTaxVect gtv;
+											gtv.CalcBPTI(*p_bp, r_ti, TIAMT_COST);
+											vat_in_cost = gtv.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
+										}
+										p_bp->XcL.Get(i+1, 0, lotxcode_set);
+										{
+											lotxcode_set.GetByBoxID(0, ss);
+											for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+												if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
+													mark_buf.Z();
+													if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
+														mark_buf.Cat(temp_buf);
+														if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+															mark_buf.Cat(temp_buf);
+															SXml::WNode un(p_writer, "union");
+															XMLReplaceSpecSymb(mark_buf, "&<>\'"); // @v12.5.3
+															un.PutInner("sgtin", mark_buf);
+															un.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD_020));
+															un.PutInner(/*"vat_in_cost"*/"vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD_020));
+														}
+													}
 												}
 											}
 										}
@@ -2182,39 +2024,203 @@ int ChZnInterface::Document::MakeDataBuffer(const ChZnInterface::InitBlock & rIb
 							}
 						}
 					}
-				}
-				else if(pPack->DocType == doctypMdlpQueryKizInfo) {
-					const Packet::QueryKizInfo * p_bp = static_cast<const Packet::QueryKizInfo *>(pPack->P_Data);
-					if(p_bp) {
-						subj_ident = p_bp->SubjectIdent;
-						if(subj_ident.IsEmpty()) {
-							PPID   dlvr_psn_id = ObjectToPerson(p_bp->ArID, 0);
+					else if(pPack->DocType == doctypMdlpAccept) { // @v12.3.6 @construction
+						const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
+						if(p_bp) {
+							const  PPID   dlvr_ar_id = p_bp->Rec.Object;
+							const  PPID   dlvr_psn_id = ObjectToPerson(dlvr_ar_id, 0);
+							const  PPID   dlvr_loc_id = p_bp->GetDlvrAddrID();
+							const  PPID   subj_loc_id = p_bp->Rec.LocID;
 							PPID   subj_psn_id = main_org_id;
-							GetTransactionPartyCode(/*dlvr_psn_id*/subj_psn_id, 0, subj_ident);
+							GetTransactionPartyCode(dlvr_psn_id, dlvr_loc_id, shipper_ident);
+							GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
+							wd.PutInner("subject_id", subj_ident);
+							wd.PutInner("counterparty_id", shipper_ident);
+							_PutOperationDate(wd, temp_buf);
+							{
+								SXml::WNode dtl(p_writer, "order_details");
+								for(uint i = 0; i < p_bp->GetTCount(); i++) {
+									const PPTransferItem & r_ti = p_bp->ConstTI(i);
+									long  local_chzn_prod_type = 0;
+									if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
+										local_chzn_prod_type = gt_rec.ChZnProdType;
+									if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) {
+										p_bp->XcL.Get(i+1, 0, lotxcode_set);
+										{
+											lotxcode_set.GetByBoxID(0, ss);
+											for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+												if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
+													mark_buf.Z();
+													if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
+														mark_buf.Cat(temp_buf);
+														if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+															mark_buf.Cat(temp_buf);
+															XMLReplaceSpecSymb(mark_buf, "&<>\'"); // @v12.5.3
+															dtl.PutInner("sgtin", mark_buf);
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
 						}
-						wd.PutInnerSkipEmpty("subject_id", subj_ident);
-						//int codetype = PPChZnPrcssr::IsChZnCode(p_bp->Code);
-						GtinStruc gts;
-						if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(p_bp->Code, gts, 0)) > 0) {
-							mark_buf = p_bp->Code;
-							XMLReplaceSpecSymb(mark_buf, "&<>\'"); // @v12.5.3
-							wd.PutInner("sgtin", mark_buf);
+					}
+					else if(oneof2(pPack->DocType, doctypMdlpReceiveOrder, doctypMdlpPosting)) {
+						const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
+						if(p_bp) {
+							const  PPID   dlvr_ar_id = p_bp->Rec.Object;
+							const  PPID   dlvr_psn_id = ObjectToPerson(dlvr_ar_id, 0);
+							const  PPID   dlvr_loc_id = p_bp->GetDlvrAddrID();
+							const  PPID   subj_loc_id = p_bp->Rec.LocID;
+							PPID   subj_psn_id = main_org_id;
+							GetTransactionPartyCode(dlvr_psn_id, dlvr_loc_id, shipper_ident);
+							GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
+							wd.PutInner("subject_id", subj_ident);
+							if(pPack->DocType == doctypMdlpReceiveOrder) {
+								wd.PutInner("shipper_id", shipper_ident);
+							}
+							else {
+								SXml::WNode si(p_writer, "shipper_info");
+								psn_obj.GetRegNumber(dlvr_psn_id, PPREGT_TPID, temp_buf);
+								si.PutInner("inn", temp_buf.Transf(CTRANSF_INNER_TO_UTF8)); // @todo
+								psn_obj.GetRegNumber(dlvr_psn_id, PPREGT_KPP, temp_buf);
+								si.PutInner("kpp", temp_buf.Transf(CTRANSF_INNER_TO_UTF8)); // @todo
+							}
+							_PutOperationDate(wd, temp_buf);
+							_PutDocDateAndNum(p_bp->Rec, wd, temp_buf);
+							if(pPack->DocType == doctypMdlpReceiveOrder) {
+								wd.PutInner("receive_type", temp_buf.Z().Cat(1L));
+								wd.PutInner("source", temp_buf.Z().Cat(1L));
+								wd.PutInner("contract_type", temp_buf.Z().Cat(1L));
+							}
+							else {
+								wd.PutInner("contract_type", temp_buf.Z().Cat(1L));
+								wd.PutInner("source", temp_buf.Z().Cat(1L));
+							}
+							{
+								SXml::WNode dtl(p_writer, "order_details");
+								for(uint i = 0; i < p_bp->GetTCount(); i++) {
+									const PPTransferItem & r_ti = p_bp->ConstTI(i);
+									// @v11.9.9 {
+									long  local_chzn_prod_type = 0;
+									if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
+										local_chzn_prod_type = gt_rec.ChZnProdType;
+									if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) { // @v11.9.9
+										double cost = r_ti.Cost;
+										double vat_in_cost = 0.0;
+										{
+											GTaxVect gtv;
+											gtv.CalcBPTI(*p_bp, r_ti, TIAMT_COST);
+											vat_in_cost = gtv.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
+										}
+										p_bp->XcL.Get(i+1, 0, lotxcode_set);
+										{
+											lotxcode_set.GetByBoxID(0, ss);
+											for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+												if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
+													mark_buf.Z();
+													if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
+														mark_buf.Cat(temp_buf);
+														if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+															mark_buf.Cat(temp_buf);
+															SXml::WNode un(p_writer, "union");
+															XMLReplaceSpecSymb(mark_buf, "&<>\'"); // @v12.5.3
+															un.PutInner("sgtin", mark_buf);
+															un.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD_020));
+															un.PutInner(/*"vat_in_cost"*/"vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD_020));
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
 						}
-						//SETIFZ(codetype, p_bp->CodeType);
-						/*if(codetype == SNTOK_CHZN_GS1_GTIN) {
-							wd.PutInner("sgtin", p_bp->Code);
+					}
+					else if(pPack->DocType == doctypMdlpRefusalReceiver) {
+						const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
+						if(p_bp) {
+							const  PPID   dlvr_ar_id = p_bp->Rec.Object;
+							const  PPID   dlvr_psn_id = ObjectToPerson(dlvr_ar_id, 0);
+							const  PPID   dlvr_loc_id = p_bp->GetDlvrAddrID();
+							const  PPID   subj_loc_id = p_bp->Rec.LocID;
+							PPID   subj_psn_id = main_org_id;
+							GetTransactionPartyCode(dlvr_psn_id, dlvr_loc_id, shipper_ident);
+							GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
+							wd.PutInner("subject_id", subj_ident);
+							_PutOperationDate(wd, temp_buf);
+							wd.PutInner("shipper_id", shipper_ident);
+							if(p_bp->SMemo.NotEmpty()) {
+								(temp_buf = p_bp->SMemo).Transf(CTRANSF_INNER_TO_UTF8);
+							}
+							else
+								temp_buf = "refusal-receiver";
+							wd.PutInner("reason", temp_buf);
+							{
+								SXml::WNode dtl(p_writer, "order_details");
+								for(uint i = 0; i < p_bp->GetTCount(); i++) {
+									const PPTransferItem & r_ti = p_bp->ConstTI(i);
+									// @v11.9.9 {
+									long  local_chzn_prod_type = 0;
+									if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
+										local_chzn_prod_type = gt_rec.ChZnProdType;
+									if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) { // @v11.9.9
+										p_bp->XcL.Get(i+1, 0, lotxcode_set);
+										lotxcode_set.GetByBoxID(0, ss);
+										for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+											if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
+												mark_buf.Z();
+												if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
+													mark_buf.Cat(temp_buf);
+													if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+														mark_buf.Cat(temp_buf);
+														XMLReplaceSpecSymb(mark_buf, "&<>\'"); // @v12.5.3
+														dtl.PutInner("sgtin", mark_buf);
+													}
+												}
+											}
+										}
+									}
+								}
+							}
 						}
-						else if(codetype == SNTOK_CHZN_SIGN_SGTIN) {
-							wd.PutInner("sgtin", p_bp->Code);
+					}
+					else if(pPack->DocType == doctypMdlpQueryKizInfo) {
+						const Packet::QueryKizInfo * p_bp = static_cast<const Packet::QueryKizInfo *>(pPack->P_Data);
+						if(p_bp) {
+							subj_ident = p_bp->SubjectIdent;
+							if(subj_ident.IsEmpty()) {
+								PPID   dlvr_psn_id = ObjectToPerson(p_bp->ArID, 0);
+								PPID   subj_psn_id = main_org_id;
+								GetTransactionPartyCode(/*dlvr_psn_id*/subj_psn_id, 0, subj_ident);
+							}
+							wd.PutInnerSkipEmpty("subject_id", subj_ident);
+							//int codetype = PPChZnPrcssr::IsChZnCode(p_bp->Code);
+							GtinStruc gts;
+							if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(p_bp->Code, gts, 0)) > 0) {
+								mark_buf = p_bp->Code;
+								XMLReplaceSpecSymb(mark_buf, "&<>\'"); // @v12.5.3
+								wd.PutInner("sgtin", mark_buf);
+							}
+							//SETIFZ(codetype, p_bp->CodeType);
+							/*if(codetype == SNTOK_CHZN_GS1_GTIN) {
+								wd.PutInner("sgtin", p_bp->Code);
+							}
+							else if(codetype == SNTOK_CHZN_SIGN_SGTIN) {
+								wd.PutInner("sgtin", p_bp->Code);
+							}
+							else if(codetype == SNTOK_CHZN_SSCC) {
+								if(p_bp->Modifier == 1) // down
+									wd.PutInner("sscc_down", p_bp->Code);
+								else if(p_bp->Modifier == 2) // up
+									wd.PutInner("sscc_up", p_bp->Code);
+								else // default - down
+									wd.PutInner("sscc_down", p_bp->Code);
+							}*/
 						}
-						else if(codetype == SNTOK_CHZN_SSCC) {
-							if(p_bp->Modifier == 1) // down
-								wd.PutInner("sscc_down", p_bp->Code);
-							else if(p_bp->Modifier == 2) // up
-								wd.PutInner("sscc_up", p_bp->Code);
-							else // default - down
-								wd.PutInner("sscc_down", p_bp->Code);
-						}*/
 					}
 				}
 			}
@@ -3271,12 +3277,15 @@ int ChZnInterface::MakeDocumentRequest(const InitBlock & rIb, const ChZnInterfac
 			p_json_req = SJson::CreateObj();
 			const char * p_data_format_symb = 0;
 			if(dataFormat == SFileFormat::Json)
-				p_data_format_symb = "JSON";
+				p_data_format_symb = "MANUAL"; // "JSON"; // @v12.6.4 "JSON"-->"MANUAL"
 			else // default
 				p_data_format_symb = "XML";
 			p_json_req->InsertString("document_format", p_data_format_symb);
 			p_json_req->InsertString("product_document", data_base64_buf);
-			p_json_req->InsertString("type", temp_buf.CatChar('_').Cat(p_data_format_symb));
+			if(dataFormat == SFileFormat::Json)
+				p_json_req->InsertString("type", temp_buf);
+			else
+				p_json_req->InsertString("type", temp_buf.CatChar('_').Cat(p_data_format_symb));
 			p_json_req->InsertString("signature", code_sign);
 			THROW_SL(p_json_req->ToStr(rBuf));
 		}
@@ -5232,7 +5241,7 @@ SString & PPChZnPrcssr::PermissiveModeInterface::MakeTargetUrl(int query, const 
 }
 
 PPChZnPrcssr::PermissiveModeInterface::PermissiveModeInterface(const char * pToken, InetUrl * pLocalSvrUrl, uint flags) : 
-	Token(pToken), Flags(flags), Lth(PPFILNAM_CHZNTALK_LOG)
+	Token(pToken), Flags(flags), Lth(PPFILNAM_CHZNTALK_LOG), ApiVer(0)
 {
 	RVALUEPTR(LocalSvrUrl, pLocalSvrUrl);
 }
@@ -5603,32 +5612,59 @@ int PPChZnPrcssr::PermissiveModeInterface::CheckCodeList(const char * pHost, con
 	return ok;
 }
 
+int PPChZnPrcssr::PermissiveModeInterface::InitLocalSvrCall(const char * pMethod, LocalSvrBlock & rBlk)
+{
+	int   ok = 0;
+	SString temp_buf;
+	InetUrl _url(LocalSvrUrl);
+	_url.GetComponent(InetUrl::cHost, 0, temp_buf);
+	if(temp_buf.NotEmpty() && !isempty(pMethod)) {
+		_url.GetComponent(InetUrl::cPort, 0, temp_buf);
+		int    port = temp_buf.ToLong();
+		if(port <= 0) {
+			port = PPChZnPrcssr::LocalSvrDefaultPort;
+			_url.SetComponent(InetUrl::cPort, temp_buf.Z().Cat(port));
+		}
+		_url.GetComponent(InetUrl::cUserName, 0, rBlk.User);
+		_url.GetComponent(InetUrl::cPassword, 0, rBlk.Pw);
+		// @v12.6.4 {
+		if(_url.GetQueryParam("apiver", 0, temp_buf)) {
+			rBlk.ApiVer = temp_buf.ToLong();
+		}
+		rBlk.ApiVer = inrangeordefault(rBlk.ApiVer, 1, 2, 1);
+		if(!isempty(pMethod)) { // Вверху уже проверял, но береженого бог бережет говорила монахиня надевая презерватив на свечку.
+			temp_buf.Z().Cat("api").Slash().CatChar('v').Cat(rBlk.ApiVer).Slash().Cat(pMethod);
+			_url.SetComponent(InetUrl::cPath, temp_buf);
+		}
+		// } @v12.6.4 
+		_url.Compose(InetUrl::stScheme|InetUrl::stHost|InetUrl::stPort|InetUrl::stPath, rBlk.UrlBuf);
+		{
+			SHttpProtocol::SetHeaderField(rBlk.HdrFlds, SHttpProtocol::hdrContentType, "application/json");
+			{
+				temp_buf.Z().Cat(rBlk.User).Colon().Cat(rBlk.Pw).Transf(CTRANSF_INNER_TO_UTF8);
+				SString & r_u_p_buf = SLS.AcquireRvlStr();
+				r_u_p_buf.EncodeMime64(temp_buf.cptr(), temp_buf.Len());
+				temp_buf.Z().Cat("Basic").Space().Cat(r_u_p_buf);
+				SHttpProtocol::SetHeaderField(rBlk.HdrFlds, SHttpProtocol::hdrAuthorization, temp_buf);
+			}
+		}
+		ok = 1;
+	}
+	return ok;
+}
+
 int PPChZnPrcssr::PermissiveModeInterface::InitLocalSvr(const char * pFiscalDriveNumber, SCompoundError * pErr)
 {
 	int    ok = 0;
 	SJson * p_js_reply = 0;
 	SString temp_buf;
-	SString host;
-	SString user;
-	SString pw;
-	SString url_buf;
 	SString req_buf;
 	SString reply_buf;
 	SBuffer ack_buf;
-	int    port = 0;
 	CALLPTRMEMB(pErr, Z());
 	if(Token.NotEmpty()) {
-		LocalSvrUrl.GetComponent(InetUrl::cHost, 0, host);
-		if(host.NotEmpty()) {
-			LocalSvrUrl.GetComponent(InetUrl::cPort, 0, temp_buf);
-			port = temp_buf.ToLong();
-			if(port <= 0) {
-				port = PPChZnPrcssr::LocalSvrDefaultPort;
-				LocalSvrUrl.GetComponent(InetUrl::cPort, 0, temp_buf.Z().Cat(port));
-			}
-			LocalSvrUrl.GetComponent(InetUrl::cUserName, 0, user);
-			LocalSvrUrl.GetComponent(InetUrl::cPassword, 0, pw);
-			LocalSvrUrl.Compose(InetUrl::stScheme|InetUrl::stHost|InetUrl::stPort, url_buf);
+		LocalSvrBlock lsblk;
+		if(InitLocalSvrCall("init", lsblk)) { // @v12.6.4
 			{
 				/*
 					curl -X POST "<url хоста>/api/v1/init" 
@@ -5637,18 +5673,8 @@ int PPChZnPrcssr::PermissiveModeInterface::InitLocalSvr(const char * pFiscalDriv
 					-H "X-ClientId: номер фискального накопителя" 
 					-d {"token": "X-API-KEY (Аутентификационный токен участника оборота)"}
 				*/
-				InetUrl url(url_buf);
-				url.SetComponent(InetUrl::cPath, "api/v1/init");
+				InetUrl url(lsblk.UrlBuf);
 				ScURL c; //...GET
-				StrStrAssocArray hdr_flds;
-				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json");
-				{
-					temp_buf.Z().Cat(user).Colon().Cat(pw).Transf(CTRANSF_INNER_TO_UTF8);
-					SString & r_u_p_buf = SLS.AcquireRvlStr();
-					r_u_p_buf.EncodeMime64(temp_buf.cptr(), temp_buf.Len());
-					temp_buf.Z().Cat("Basic").Space().Cat(r_u_p_buf);
-					SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAuthorization, temp_buf);
-				}
 				{
 					SJson js_req(SJson::tOBJECT);
 					js_req.InsertString("token", Token);
@@ -5656,7 +5682,7 @@ int PPChZnPrcssr::PermissiveModeInterface::InitLocalSvr(const char * pFiscalDriv
 				}
 				SFile wr_stream(ack_buf.Z(), SFile::mWrite);
 				Lth.Log("req (local mode)", 0, req_buf);
-				if(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream)) {
+				if(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &lsblk.HdrFlds, req_buf, &wr_stream)) {
 					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 					if(p_ack_buf) {
 						reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
@@ -5697,154 +5723,128 @@ int PPChZnPrcssr::PermissiveModeInterface::GetLocalSvrStatus(const char * pFisca
 	int    ok = 0;
 	SJson * p_js_reply = 0;
 	SString temp_buf;
-	SString host;
-	SString user;
-	SString pw;
-	SString url_buf;
 	SString req_buf;
 	SString reply_buf;
 	SBuffer ack_buf;
-	int    port = 0;
-	LocalSvrUrl.GetComponent(InetUrl::cHost, 0, host);
-	if(host.NotEmpty()) {
-		LocalSvrUrl.GetComponent(InetUrl::cPort, 0, temp_buf);
-		port = temp_buf.ToLong();
-		if(port <= 0) {
-			port = PPChZnPrcssr::LocalSvrDefaultPort;
-			LocalSvrUrl.GetComponent(InetUrl::cPort, 0, temp_buf.Z().Cat(port));
-		}
-		LocalSvrUrl.GetComponent(InetUrl::cUserName, 0, user);
-		LocalSvrUrl.GetComponent(InetUrl::cPassword, 0, pw);
-		LocalSvrUrl.Compose(InetUrl::stScheme|InetUrl::stHost|InetUrl::stPort, url_buf);
-		//
+	LocalSvrBlock lsblk;
+	if(InitLocalSvrCall("status", lsblk)) { // @v12.6.4
+		/*
+			curl -X GET "<url хоста>/api/v1/status" 
+			-H "Content-Type: application/json" 
+			-H "Authorization: Basic YWRtaW46YWRtaW4=" 
+			-H "X-ClientId: номер фискального накопителя"
+		*/ 
+		InetUrl url(lsblk.UrlBuf);
+		//url.SetComponent(InetUrl::cPath, "api/v1/status");
+		ScURL c; //...GET
+		SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+		req_buf = "GetLocalSvrStatus";
+		Lth.Log("req (local mode)", 0, req_buf); // @todo @20260123 буфер пустой - текст нужен!
 		{
-			/*
-				curl -X GET "<url хоста>/api/v1/status" 
-				-H "Content-Type: application/json" 
-				-H "Authorization: Basic YWRtaW46YWRtaW4=" 
-				-H "X-ClientId: номер фискального накопителя"
-			*/ 
-			InetUrl url(url_buf);
-			url.SetComponent(InetUrl::cPath, "api/v1/status");
-			ScURL c; //...GET
-			StrStrAssocArray hdr_flds;
-			SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json");
-			{
-				temp_buf.Z().Cat(user).Colon().Cat(pw).Transf(CTRANSF_INNER_TO_UTF8);
-				SString & r_u_p_buf = SLS.AcquireRvlStr();
-				r_u_p_buf.EncodeMime64(temp_buf.cptr(), temp_buf.Len());
-				temp_buf.Z().Cat("Basic").Space().Cat(r_u_p_buf);
-				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAuthorization, temp_buf);
-			}
-			SFile wr_stream(ack_buf.Z(), SFile::mWrite);
-			req_buf = "GetLocalSvrStatus";
-			Lth.Log("req (local mode)", 0, req_buf); // @todo @20260123 буфер пустой - текст нужен!
-			{
-				const PPCommConfig & r_cc = CConfig;
-				const int conn_timeout_ms   = inirangeor(r_cc.ChZnPmLocalConnTimeout,   1U, 120000U, 20000U);
-				const int ovrall_timeout_ms = inirangeor(r_cc.ChZnPmLocalOvrallTimeout, 1U, 120000U, 40000U);
-				c.SetQueryParam_ConnectionTimeout(conn_timeout_ms); // @v12.4.1 1500-->15000 // @v12.5.5 conn_timeout_ms
-				c.SetQueryParam_OverallTimeout(ovrall_timeout_ms);  // @v12.4.1 2000-->20000 // @v12.5.5 ovrall_timeout_ms
-			}
-			if(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream)) {
-				SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
-				if(p_ack_buf) {
-					reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-					Lth.Log("rep (local mode)", 0, reply_buf);
-					p_js_reply = SJson::Parse(reply_buf);
-					if(p_js_reply/*&& ParseDocument(p_json_doc, rDoc) > 0*/) {
-						/*{
-							"version": "1.5.0-462",
-							"status": "not_configured",
-							"serviceUrl": "https://rsapi.crpt.ru",
-							"requiresDownload": false,
-							"replicationStatus": {},
-							"operationMode": "active",
-							"name": "regime",
-							"lastUpdate": 0,
-							"lastSync": 0,
-							"inst": "",
-							"inn": "",
-							"dbVersion": ""
-						}*/
-						if(SJson::IsObject(p_js_reply)) {
-							for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {
-								if(p_cur->Text.IsEqiAscii("version")) {
-									SJson::GetChildTextUnescaped(p_cur, rResult.Version);
+			const PPCommConfig & r_cc = CConfig;
+			const int conn_timeout_ms   = inirangeor(r_cc.ChZnPmLocalConnTimeout,   1U, 120000U, 20000U);
+			const int ovrall_timeout_ms = inirangeor(r_cc.ChZnPmLocalOvrallTimeout, 1U, 120000U, 40000U);
+			c.SetQueryParam_ConnectionTimeout(conn_timeout_ms); // @v12.4.1 1500-->15000 // @v12.5.5 conn_timeout_ms
+			c.SetQueryParam_OverallTimeout(ovrall_timeout_ms);  // @v12.4.1 2000-->20000 // @v12.5.5 ovrall_timeout_ms
+		}
+		if(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &lsblk.HdrFlds, &wr_stream)) {
+			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+			if(p_ack_buf) {
+				reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+				Lth.Log("rep (local mode)", 0, reply_buf);
+				p_js_reply = SJson::Parse(reply_buf);
+				if(p_js_reply/*&& ParseDocument(p_json_doc, rDoc) > 0*/) {
+					/*{
+						"version": "1.5.0-462",
+						"status": "not_configured",
+						"serviceUrl": "https://rsapi.crpt.ru",
+						"requiresDownload": false,
+						"replicationStatus": {},
+						"operationMode": "active",
+						"name": "regime",
+						"lastUpdate": 0,
+						"lastSync": 0,
+						"inst": "",
+						"inn": "",
+						"dbVersion": ""
+					}*/
+					if(SJson::IsObject(p_js_reply)) {
+						for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {
+							if(p_cur->Text.IsEqiAscii("version")) {
+								SJson::GetChildTextUnescaped(p_cur, rResult.Version);
+							}
+							else if(p_cur->Text.IsEqiAscii("status")) {
+								SJson::GetChildTextUnescaped(p_cur, rResult.StatusText);
+								if(rResult.StatusText.IsEqiAscii("not_configured")) {
+									rResult.Status = LocalSvcStatus::stNotConfigured;
 								}
-								else if(p_cur->Text.IsEqiAscii("status")) {
-									SJson::GetChildTextUnescaped(p_cur, rResult.StatusText);
-									if(rResult.StatusText.IsEqiAscii("not_configured")) {
-										rResult.Status = LocalSvcStatus::stNotConfigured;
-									}
-									else if(rResult.StatusText.IsEqiAscii("initialization")) {
-										rResult.Status = LocalSvcStatus::stInitialization;
-									}
-									else if(rResult.StatusText.IsEqiAscii("ready")) {
-										rResult.Status = LocalSvcStatus::stReady;
-									}
-									else if(rResult.StatusText.IsEqiAscii("sync_error")) {
-										rResult.Status = LocalSvcStatus::stSyncError;
-									}
-									else {
-										rResult.Status = LocalSvcStatus::stUndef;
-									}
+								else if(rResult.StatusText.IsEqiAscii("initialization")) {
+									rResult.Status = LocalSvcStatus::stInitialization;
 								}
-								else if(p_cur->Text.IsEqiAscii("serviceUrl")) {
-									SJson::GetChildTextUnescaped(p_cur, rResult.ServiceUrl);
+								else if(rResult.StatusText.IsEqiAscii("ready")) {
+									rResult.Status = LocalSvcStatus::stReady;
 								}
-								else if(p_cur->Text.IsEqiAscii("requiresDownload")) {
-									if(SJson::GetBoolean(p_cur->P_Child) == 1)
-										rResult.Flags |= LocalSvcStatus::fRequiresDownload;
+								else if(rResult.StatusText.IsEqiAscii("sync_error")) {
+									rResult.Status = LocalSvcStatus::stSyncError;
 								}
-								else if(p_cur->Text.IsEqiAscii("replicationStatus")) {
-									// object
+								else {
+									rResult.Status = LocalSvcStatus::stUndef;
 								}
-								else if(p_cur->Text.IsEqiAscii("operationMode")) {
-									SJson::GetChildTextUnescaped(p_cur, rResult.OperationModeText);
-									if(rResult.OperationModeText.IsEqiAscii("аctive")) {
-										rResult.OpMode = LocalSvcStatus::opmodeActive;
-									}
-									else if(rResult.OperationModeText.IsEqiAscii("service")) {
-										rResult.OpMode = LocalSvcStatus::opmodeService;
-									}
-									else {
-										rResult.OpMode = LocalSvcStatus::opmodeUndef;
-									}
+							}
+							else if(p_cur->Text.IsEqiAscii("serviceUrl")) {
+								SJson::GetChildTextUnescaped(p_cur, rResult.ServiceUrl);
+							}
+							else if(p_cur->Text.IsEqiAscii("requiresDownload")) {
+								if(SJson::GetBoolean(p_cur->P_Child) == 1)
+									rResult.Flags |= LocalSvcStatus::fRequiresDownload;
+							}
+							else if(p_cur->Text.IsEqiAscii("replicationStatus") || p_cur->Text.IsEqiAscii("dbState")) { // api v1: replicationStatus, v2: dbState
+								// object
+							}
+							else if(p_cur->Text.IsEqiAscii("operationMode")) {
+								SJson::GetChildTextUnescaped(p_cur, rResult.OperationModeText);
+								if(rResult.OperationModeText.IsEqiAscii("аctive")) {
+									rResult.OpMode = LocalSvcStatus::opmodeActive;
 								}
-								else if(p_cur->Text.IsEqiAscii("name")) {
-									SJson::GetChildTextUnescaped(p_cur, rResult.Name);
+								else if(rResult.OperationModeText.IsEqiAscii("service")) {
+									rResult.OpMode = LocalSvcStatus::opmodeService;
 								}
-								else if(p_cur->Text.IsEqiAscii("lastUpdate")) {
-									const uint64 epoch_ms = p_cur->P_Child->Text.ToUInt64();
-									SUniTime_Internal ut;
-									ut.SetTime100ns(SUniTime_Internal::EpochMsToNs100(epoch_ms));
-									rResult.UedLastUpdateTm = UED::_SetRaw_Time(UED_META_TIME_MSEC, ut);
+								else {
+									rResult.OpMode = LocalSvcStatus::opmodeUndef;
 								}
-								else if(p_cur->Text.IsEqiAscii("lastSync")) {
-									uint64 epoch_ms = p_cur->P_Child->Text.ToUInt64();
-									SUniTime_Internal ut;
-									ut.SetTime100ns(SUniTime_Internal::EpochMsToNs100(epoch_ms));
-									rResult.UedLastSyncTm = UED::_SetRaw_Time(UED_META_TIME_MSEC, ut);
-								}
-								else if(p_cur->Text.IsEqiAscii("inst")) {
-									SJson::GetChildTextUnescaped(p_cur, rResult.Inst);
-								}
-								else if(p_cur->Text.IsEqiAscii("inn")) {
-									SJson::GetChildTextUnescaped(p_cur, rResult.Inn);
-								}
-								else if(p_cur->Text.IsEqiAscii("dbVersion")) {
-									SJson::GetChildTextUnescaped(p_cur, rResult.DbVer);
-								}
-							}							
-						}
-						ok = 1;
+							}
+							else if(p_cur->Text.IsEqiAscii("name")) {
+								SJson::GetChildTextUnescaped(p_cur, rResult.Name);
+							}
+							else if(p_cur->Text.IsEqiAscii("lastUpdate")) {
+								const uint64 epoch_ms = p_cur->P_Child->Text.ToUInt64();
+								SUniTime_Internal ut;
+								ut.SetTime100ns(SUniTime_Internal::EpochMsToNs100(epoch_ms));
+								rResult.UedLastUpdateTm = UED::_SetRaw_Time(UED_META_TIME_MSEC, ut);
+							}
+							else if(p_cur->Text.IsEqiAscii("lastSync")) {
+								uint64 epoch_ms = p_cur->P_Child->Text.ToUInt64();
+								SUniTime_Internal ut;
+								ut.SetTime100ns(SUniTime_Internal::EpochMsToNs100(epoch_ms));
+								rResult.UedLastSyncTm = UED::_SetRaw_Time(UED_META_TIME_MSEC, ut);
+							}
+							else if(p_cur->Text.IsEqiAscii("inst")) {
+								SJson::GetChildTextUnescaped(p_cur, rResult.Inst);
+							}
+							else if(p_cur->Text.IsEqiAscii("inn")) {
+								SJson::GetChildTextUnescaped(p_cur, rResult.Inn);
+							}
+							else if(p_cur->Text.IsEqiAscii("dbVersion")) {
+								SJson::GetChildTextUnescaped(p_cur, rResult.DbVer);
+							}
+						}							
 					}
+					ok = 1;
 				}
 			}
-			else {
-				PPSetError(PPERR_CHZNPM_LOCAL_QUERYFAULT);
-			}
+		}
+		else {
+			PPSetError(PPERR_CHZNPM_LOCAL_QUERYFAULT);
 		}
 	}
 	delete p_js_reply;
@@ -5856,156 +5856,148 @@ int PPChZnPrcssr::PermissiveModeInterface::LocalCheckCodeList(const char * pFisc
 	int    ok = 0;
 	SJson * p_js_reply = 0;
 	SString temp_buf;
-	SString host;
-	SString user;
-	SString pw;
-	SString url_buf;
 	SString req_buf;
 	SString reply_buf;
 	SBuffer ack_buf;
-	int    port = 0;
 	if(!rList.getCount())
 		ok = -1;
 	else if(Token.NotEmpty()) {
-		LocalSvrUrl.GetComponent(InetUrl::cHost, 0, host);
-		if(host.NotEmpty()) {
-			LocalSvrUrl.GetComponent(InetUrl::cPort, 0, temp_buf);
-			port = temp_buf.ToLong();
-			if(port <= 0) {
-				port = PPChZnPrcssr::LocalSvrDefaultPort;
-				LocalSvrUrl.GetComponent(InetUrl::cPort, 0, temp_buf.Z().Cat(port));
-			}
-			LocalSvrUrl.GetComponent(InetUrl::cUserName, 0, user);
-			LocalSvrUrl.GetComponent(InetUrl::cPassword, 0, pw);
-			LocalSvrUrl.Compose(InetUrl::stScheme|InetUrl::stHost|InetUrl::stPort, url_buf);
+		LocalSvrBlock lsblk;
+		if(InitLocalSvrCall("cis/outCheck", lsblk)) { // @v12.6.4
+			/*
+				curl -X POST "<url хоста>/api/v1/cis/outCheck 
+				-H "Content-Type: application/json" 
+				-H "Authorization: Basic YWRtaW46YWRtaW4=" 
+				-H "X-ClientId: номер фискального накопителя" 
+				-d "{"cis_list":["string"]}"
+			*/
+			InetUrl url(lsblk.UrlBuf);
+			ScURL c; //...GET
 			{
-				/*
-					curl -X POST "<url хоста>/api/v1/cis/outCheck 
-					-H "Content-Type: application/json" 
-					-H "Authorization: Basic YWRtaW46YWRtaW4=" 
-					-H "X-ClientId: номер фискального накопителя" 
-					-d "{"cis_list":["string"]}"
-				*/
-				InetUrl url(url_buf);
-				url.SetComponent(InetUrl::cPath, "api/v1/cis/outCheck");
-				ScURL c; //...GET
-				StrStrAssocArray hdr_flds;
-				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json");
-				{
-					temp_buf.Z().Cat(user).Colon().Cat(pw).Transf(CTRANSF_INNER_TO_UTF8);
-					SString & r_u_p_buf = SLS.AcquireRvlStr();
-					r_u_p_buf.EncodeMime64(temp_buf.cptr(), temp_buf.Len());
-					temp_buf.Z().Cat("Basic").Space().Cat(r_u_p_buf);
-					SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAuthorization, temp_buf);
-				}
-				{
-					SJson js_req(SJson::tOBJECT);
-					SJson * p_js_code_list = new SJson(SJson::tARRAY);
-					for(uint mi = 0; mi < rList.getCount(); mi++) {
-						const CodeStatus * p_mi = rList.at(mi);
-						if(p_mi->OrgMark_Offl.NotEmpty()) {
+				SJson js_req(SJson::tOBJECT);
+				SJson * p_js_code_list = new SJson(SJson::tARRAY);
+				for(uint mi = 0; mi < rList.getCount(); mi++) {
+					const CodeStatus * p_mi = rList.at(mi);
+					if(p_mi->OrgMark_Offl.NotEmpty()) {
+						(temp_buf = p_mi->OrgMark_Offl).Escape();
+						if(lsblk.ApiVer == 1) {
 							// здесь марки подаются без крипто-хвоста (вероятно, только gtin+serial)
-							p_js_code_list->InsertChild(SJson::CreateString((temp_buf = p_mi->OrgMark_Offl).Escape()));
+							p_js_code_list->InsertChild(SJson::CreateString(temp_buf));
+						}
+						else { // api v2
+							SJson * p_js_item = SJson::CreateObj();
+							if(p_js_item) {
+								p_js_item->InsertString("cis", temp_buf);
+								if(0/*reserved*/) {
+									int    group = 0;
+									p_js_item->InsertInt("pg", group);
+								}
+							}
 						}
 					}
-					js_req.Insert("cis_list", p_js_code_list);
-					js_req.ToStr(req_buf);
 				}
-				SFile wr_stream(ack_buf.Z(), SFile::mWrite);
-				Lth.Log("req (local mode)", 0, req_buf);
-				{
-					const PPCommConfig & r_cc = CConfig;
-					const int conn_timeout_ms   = inirangeor(r_cc.ChZnPmLocalConnTimeout,   1U, 120000U, 20000U);
-					const int ovrall_timeout_ms = inirangeor(r_cc.ChZnPmLocalOvrallTimeout, 1U, 120000U, 40000U);
-					c.SetQueryParam_ConnectionTimeout(conn_timeout_ms); // @v12.4.1 1500-->15000 // @v12.5.5 conn_timeout_ms
-					c.SetQueryParam_OverallTimeout(ovrall_timeout_ms);  // @v12.4.1 2000-->20000 // @v12.5.5 ovrall_timeout_ms
-				}
-				if(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream)) {
-					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
-					if(p_ack_buf) {
-						reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-						Lth.Log("rep (local mode)", 0, reply_buf);
-						{
-							/*
-								{
-									"results": [
-										{
-											"version": "f9198d4d-51a8-42c2-b4ec-4997b165abe2",
-											"reqTimestamp": 1756377444666,
-											"reqId": "bbf48ceb-a06d-8475-4ca6-6042783c8f6a",
-											"inst": "5530031e-5b12-4e66-8086-fecb793d54ce",
-											"description": "ok",
-											"codes": [
-												{
-													"sold": false,
-													"printView": "0104601959010025215BX0U7",
-													"isGreyGtin": false,
-													"isBlocked": false,
-													"gtin": "04601959010025",
-													"cis": "0104601959010025215BX0U7"
-												}
-											],
-											"code": 0
-										}
-									]
-								}
-							*/ 
-							p_js_reply = SJson::Parse(reply_buf);
-							SCompoundError cerr;
-							if(SJson::IsObject(p_js_reply)) {
-								//{"reason":"not authorized","errorCode":4010}
-								for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {
-									if(p_cur->Text.IsEqiAscii("results")) {
-										if(SJson::IsArray(p_cur->P_Child)) {
-											for(const SJson * p_js_item = p_cur->P_Child->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
-												if(SJson::IsObject(p_js_item)) {
-													for(const SJson * p_cur2 = p_js_item->P_Child; p_cur2; p_cur2 = p_cur2->P_Next) {
-														if(p_cur2->Text.IsEqiAscii("version")) {
-															SJson::GetChildGuid(p_cur2, rList.LocalModuleDbVer);
-														}
-														else if(p_cur2->Text.IsEqiAscii("reqTimestamp")) {
-															SJson::GetChildInt64(p_cur2, rList.ReqTimestamp);
-														}
-														else if(p_cur2->Text.IsEqiAscii("reqId")) {
-															SJson::GetChildGuid(p_cur2, rList.ReqId);
-														}
-														else if(p_cur2->Text.IsEqiAscii("inst")) {
-															SJson::GetChildGuid(p_cur2, rList.LocalModuleInstance);
-														}
-														else if(p_cur2->Text.IsEqiAscii("description")) {
-															if(SJson::GetChildTextUnescaped(p_cur2, temp_buf))
-																rList.Description = temp_buf;
-														}
-														else if(p_cur2->Text.IsEqiAscii("code")) {
-															SJson::GetChildInt(p_cur2, rList.Code);
-														}
-														else if(p_cur2->Text.IsEqiAscii("codes")) {
-															if(SJson::IsArray(p_cur2->P_Child)) {
-																uint position = 0;
-																for(const SJson * p_js_item = p_cur2->P_Child->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
-																	if(SJson::IsObject(p_js_item)) {
-																		CodeStatus new_item;
-																		position++;
-																		for(const SJson * p_js_f = p_js_item->P_Child; p_js_f ; p_js_f = p_js_f->P_Next) {
-																			if(p_js_f->Text.IsEqiAscii("sold")) {
-																				SETFLAG(new_item.Flags, CodeStatus::fSold, SJson::GetBoolean(p_js_f->P_Child) > 0);
-																			}
-																			else if(p_js_f->Text.IsEqiAscii("printView")) {
-																			}
-																			else if(p_js_f->Text.IsEqiAscii("isGreyGtin")) {
-																				SETFLAG(new_item.Flags, CodeStatus::fGrayZone, SJson::GetBoolean(p_js_f->P_Child) > 0);
-																			}
-																			else if(p_js_f->Text.IsEqiAscii("isBlocked")) {
-																				SETFLAG(new_item.Flags, CodeStatus::fIsBlocked, SJson::GetBoolean(p_js_f->P_Child) > 0);
-																			}
-																			else if(p_js_f->Text.IsEqiAscii("gtin")) {
-																			}
-																			else if(p_js_f->Text.IsEqiAscii("cis")) {
-																				SJson::GetChildTextUnescaped(p_js_f, new_item.Cis);
-																			}
+				js_req.Insert("cis_list", p_js_code_list);
+				js_req.ToStr(req_buf);
+			}
+			SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+			Lth.Log("req (local mode)", 0, req_buf);
+			{
+				const PPCommConfig & r_cc = CConfig;
+				const int conn_timeout_ms   = inirangeor(r_cc.ChZnPmLocalConnTimeout,   1U, 120000U, 20000U);
+				const int ovrall_timeout_ms = inirangeor(r_cc.ChZnPmLocalOvrallTimeout, 1U, 120000U, 40000U);
+				c.SetQueryParam_ConnectionTimeout(conn_timeout_ms); // @v12.4.1 1500-->15000 // @v12.5.5 conn_timeout_ms
+				c.SetQueryParam_OverallTimeout(ovrall_timeout_ms);  // @v12.4.1 2000-->20000 // @v12.5.5 ovrall_timeout_ms
+			}
+			if(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &lsblk.HdrFlds, req_buf, &wr_stream)) {
+				SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+				if(p_ack_buf) {
+					reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+					Lth.Log("rep (local mode)", 0, reply_buf);
+					{
+						/*
+							{
+								"results": [
+									{
+										"version": "f9198d4d-51a8-42c2-b4ec-4997b165abe2",
+										"reqTimestamp": 1756377444666,
+										"reqId": "bbf48ceb-a06d-8475-4ca6-6042783c8f6a",
+										"inst": "5530031e-5b12-4e66-8086-fecb793d54ce",
+										"description": "ok",
+										"codes": [
+											{
+												"sold": false,
+												"printView": "0104601959010025215BX0U7",
+												"isGreyGtin": false,
+												"isBlocked": false,
+												"gtin": "04601959010025",
+												"cis": "0104601959010025215BX0U7"
+											}
+										],
+										"code": 0
+									}
+								]
+							}
+						*/ 
+						p_js_reply = SJson::Parse(reply_buf);
+						SCompoundError cerr;
+						if(SJson::IsObject(p_js_reply)) {
+							//{"reason":"not authorized","errorCode":4010}
+							for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {
+								if(p_cur->Text.IsEqiAscii("results")) {
+									if(SJson::IsArray(p_cur->P_Child)) {
+										for(const SJson * p_js_item = p_cur->P_Child->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+											if(SJson::IsObject(p_js_item)) {
+												for(const SJson * p_cur2 = p_js_item->P_Child; p_cur2; p_cur2 = p_cur2->P_Next) {
+													if(p_cur2->Text.IsEqiAscii("version")) {
+														SJson::GetChildGuid(p_cur2, rList.LocalModuleDbVer);
+													}
+													else if(p_cur2->Text.IsEqiAscii("reqTimestamp")) {
+														SJson::GetChildInt64(p_cur2, rList.ReqTimestamp);
+													}
+													else if(p_cur2->Text.IsEqiAscii("reqId")) {
+														SJson::GetChildGuid(p_cur2, rList.ReqId);
+													}
+													else if(p_cur2->Text.IsEqiAscii("inst")) {
+														SJson::GetChildGuid(p_cur2, rList.LocalModuleInstance);
+													}
+													else if(p_cur2->Text.IsEqiAscii("description")) {
+														if(SJson::GetChildTextUnescaped(p_cur2, temp_buf))
+															rList.Description = temp_buf;
+													}
+													else if(p_cur2->Text.IsEqiAscii("code")) {
+														SJson::GetChildInt(p_cur2, rList.Code);
+													}
+													else if(p_cur2->Text.IsEqiAscii("codes")) {
+														if(SJson::IsArray(p_cur2->P_Child)) {
+															uint position = 0;
+															for(const SJson * p_js_item = p_cur2->P_Child->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+																if(SJson::IsObject(p_js_item)) {
+																	CodeStatus new_item;
+																	position++;
+																	for(const SJson * p_js_f = p_js_item->P_Child; p_js_f ; p_js_f = p_js_f->P_Next) {
+																		if(p_js_f->Text.IsEqiAscii("sold")) {
+																			SETFLAG(new_item.Flags, CodeStatus::fSold, SJson::GetBoolean(p_js_f->P_Child) > 0);
 																		}
-																		rList.SetupResultEntry(position, new_item);
+																		else if(p_js_f->Text.IsEqiAscii("mrp")) { // @v12.6.4 api v2
+																			int   _v = 0;
+																			if(SJson::GetChildInt(p_js_f, _v))
+																				new_item.Mrp = static_cast<uint>(_v);
+																		}
+																		else if(p_js_f->Text.IsEqiAscii("printView")) { // api v1 only
+																		}
+																		else if(p_js_f->Text.IsEqiAscii("isGreyGtin")) { // api v1 only
+																			SETFLAG(new_item.Flags, CodeStatus::fGrayZone, SJson::GetBoolean(p_js_f->P_Child) > 0);
+																		}
+																		else if(p_js_f->Text.IsEqiAscii("isBlocked")) {
+																			SETFLAG(new_item.Flags, CodeStatus::fIsBlocked, SJson::GetBoolean(p_js_f->P_Child) > 0);
+																		}
+																		else if(p_js_f->Text.IsEqiAscii("gtin")) {
+																		}
+																		else if(p_js_f->Text.IsEqiAscii("cis")) {
+																			SJson::GetChildTextUnescaped(p_js_f, new_item.Cis);
+																		}
 																	}
+																	rList.SetupResultEntry(position, new_item);
 																}
 															}
 														}
@@ -6017,12 +6009,12 @@ int PPChZnPrcssr::PermissiveModeInterface::LocalCheckCodeList(const char * pFisc
 								}
 							}
 						}
-						ok = 1;
 					}
+					ok = 1;
 				}
-				else {
-					PPSetError(PPERR_CHZNPM_LOCAL_QUERYFAULT);
-				}
+			}
+			else {
+				PPSetError(PPERR_CHZNPM_LOCAL_QUERYFAULT);
 			}
 		}
 	}

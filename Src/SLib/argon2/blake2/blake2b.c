@@ -16,22 +16,18 @@
 #include "blake2.h"
 #include "blake2-impl.h"
 
-static const uint64_t blake2b_IV[8] = {
-	UINT64_C(0x6a09e667f3bcc908), 
-	UINT64_C(0xbb67ae8584caa73b),
-	UINT64_C(0x3c6ef372fe94f82b), 
-	UINT64_C(0xa54ff53a5f1d36f1),
-	UINT64_C(0x510e527fade682d1), 
-	UINT64_C(0x9b05688c2b3e6c1f),
-	UINT64_C(0x1f83d9abfb41bd6b), 
-	UINT64_C(0x5be0cd19137e2179)
-};
+/* (replaced with SlTabs::Blak2bIV) static const uint64 blake2b_IV[8] = {
+	0x6a09e667f3bcc908ULL, 0xbb67ae8584caa73bULL,
+	0x3c6ef372fe94f82bULL, 0xa54ff53a5f1d36f1ULL,
+	0x510e527fade682d1ULL, 0x9b05688c2b3e6c1fULL,
+	0x1f83d9abfb41bd6bULL, 0x5be0cd19137e2179ULL
+};*/
 
 static const uint blake2b_sigma[12][16] = {
-	{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15},
-	{14, 10, 4, 8, 9, 15, 13, 6, 1, 12, 0, 2, 11, 7, 5, 3},
-	{11, 8, 12, 0, 5, 2, 15, 13, 10, 14, 3, 6, 7, 1, 9, 4},
-	{7, 9, 3, 1, 13, 12, 11, 14, 2, 6, 5, 10, 4, 0, 15, 8},
+	{0,   1,  2, 3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15},
+	{14, 10,  4, 8,  9, 15, 13,  6,  1, 12,  0,  2, 11,  7,  5,  3},
+	{11,  8, 12, 0,  5,  2, 15, 13, 10, 14,  3,  6,  7,  1,  9,  4},
+	{7,   9,  3, 1, 13, 12, 11, 14,  2,  6,  5, 10,  4,  0, 15,  8},
 	{9, 0, 5, 7, 2, 4, 10, 15, 14, 1, 11, 12, 6, 8, 3, 13},
 	{2, 12, 6, 10, 0, 11, 8, 3, 4, 13, 7, 5, 15, 14, 1, 9},
 	{12, 5, 1, 15, 14, 13, 4, 10, 0, 7, 6, 3, 9, 2, 8, 11},
@@ -70,7 +66,7 @@ static BLAKE2_INLINE void blake2b_invalidate_state(blake2b_state * S)
 static BLAKE2_INLINE void blake2b_init0(blake2b_state * S) 
 {
 	memzero(S, sizeof(*S));
-	memcpy(S->h, blake2b_IV, sizeof(S->h));
+	memcpy(S->h, SlTabs::Blak2bIV, sizeof(S->h));
 }
 
 int blake2b_init_param(blake2b_state * S, const blake2b_param * P) 
@@ -166,14 +162,14 @@ static void blake2b_compress(blake2b_state * S, const uint8_t * block)
 	for(i = 0; i < 8; ++i) {
 		v[i] = S->h[i];
 	}
-	v[8] = blake2b_IV[0];
-	v[9] = blake2b_IV[1];
-	v[10] = blake2b_IV[2];
-	v[11] = blake2b_IV[3];
-	v[12] = blake2b_IV[4] ^ S->t[0];
-	v[13] = blake2b_IV[5] ^ S->t[1];
-	v[14] = blake2b_IV[6] ^ S->f[0];
-	v[15] = blake2b_IV[7] ^ S->f[1];
+	v[8] = SlTabs::Blak2bIV[0];
+	v[9] = SlTabs::Blak2bIV[1];
+	v[10] = SlTabs::Blak2bIV[2];
+	v[11] = SlTabs::Blak2bIV[3];
+	v[12] = SlTabs::Blak2bIV[4] ^ S->t[0];
+	v[13] = SlTabs::Blak2bIV[5] ^ S->t[1];
+	v[14] = SlTabs::Blak2bIV[6] ^ S->f[0];
+	v[15] = SlTabs::Blak2bIV[7] ^ S->f[1];
 
 #define G(r, i, a, b, c, d)                         \
 	do {                                            \

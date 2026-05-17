@@ -21,15 +21,15 @@ static CRYPTO_free_fn free_impl = CRYPTO_free;
 #include "internal/tsan_assist.h"
 
 #ifdef TSAN_REQUIRES_LOCKING
-#define INCREMENT(x) /* empty */
-#define LOAD(x) 0
+	#define INCREMENT(x) /* empty */
+	#define LOAD(x) 0
 #else  /* TSAN_REQUIRES_LOCKING */
-static TSAN_QUALIFIER int malloc_count;
-static TSAN_QUALIFIER int realloc_count;
-static TSAN_QUALIFIER int free_count;
+	static TSAN_QUALIFIER int malloc_count;
+	static TSAN_QUALIFIER int realloc_count;
+	static TSAN_QUALIFIER int free_count;
 
-#define INCREMENT(x) tsan_counter(&(x))
-#define LOAD(x)      tsan_load(&x)
+	#define INCREMENT(x) tsan_counter(&(x))
+	#define LOAD(x)      tsan_load(&x)
 #endif /* TSAN_REQUIRES_LOCKING */
 
 static char * md_failstring;
@@ -151,11 +151,8 @@ void * CRYPTO_malloc(size_t num, const char * file, int line)
 		return NULL;
 	FAILTEST();
 	if(allow_customize) {
-		/*
-		 * Disallow customization after the first allocation. We only set this
-		 * if necessary to avoid a store to the same cache line on every
-		 * allocation.
-		 */
+		// Disallow customization after the first allocation. We only set this
+		// if necessary to avoid a store to the same cache line on every allocation.
 		allow_customize = 0;
 	}
 	return SAlloc::M(num);

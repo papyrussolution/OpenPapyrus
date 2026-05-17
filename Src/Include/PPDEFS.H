@@ -1182,7 +1182,7 @@
 	#define PRCPRP_EXT2          2L // Структура расширения пакета процессора (новая версия с сериализацией)
 #define PPOBJ_TECH          1038L  // Технологии
 	#define TECPRP_EXTSTR        1L  // Строка дополнительных параметров
-	// @v12.6.0 (схема управления маршрутами была пересмотрена) #define TECPRP_ROUTE         2L  // @v12.5.12 Сериализованный буфер маршрута технологии (PPTechRoute)
+	#define TECPRP_ROUTE         2L  // @v12.5.12 Сериализованный буфер маршрута технологии (PPTechRoute)
 #define PPOBJ_TSESSION      1039L  // Процессорные сессии
 	//
 	// Extra record of PPOBJ_TSESSION
@@ -4224,6 +4224,11 @@
 	#define CTL_CLIAGT_EDIPRV            (28 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CLIAGT_EDIPRV         (29 + WINDOWS_ID_BIAS)
 	#define CTL_CLIAGT_DUEPERIOD         (30 + WINDOWS_ID_BIAS) // @v11.4.8
+	#define CTL_CLIAGT_CMD_DEBTLIMLIST   (31 + WINDOWS_ID_BIAS)
+	#define CTL_CLIAGT_CMD_BILLS         (32 + WINDOWS_ID_BIAS)
+	#define CTL_CLIAGT_CMD_MULTIPRINTPARAM (33 + WINDOWS_ID_BIAS)
+	#define CTL_CLIAGT_CMD_ROUNDING      (34 + WINDOWS_ID_BIAS) 
+
 #define DLG_RTART                 294 // Права доступа к аналитическим статьям
 	#define CTL_RTART_FLAGS              (1 + WINDOWS_ID_BIAS)
 	#define CTL_RTART_SFLAGS             (2 + WINDOWS_ID_BIAS)
@@ -4946,6 +4951,7 @@
 	#define cmShowGoodsStruc             101
 	#define CTL_GSDATA_NAMEDSTRUC        (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GSDATA_NAMEDSTRUC     (2 + WINDOWS_ID_BIAS)
+	#define CTL_GSDATA_CMD_SHOWGS        (3 + WINDOWS_ID_BIAS)
 #define DLG_PLISTUPD              389 // Обновление прайс-листа
 	#define CTL_PLISTUPD_SEL             (1 + WINDOWS_ID_BIAS)
 	#define CTL_PLISTUPD_DT              (2 + WINDOWS_ID_BIAS)
@@ -12022,6 +12028,7 @@
 	#define CTL_CHZNLOCPMURL_ADDR               (1 + WINDOWS_ID_BIAS)
 	#define CTL_CHZNLOCPMURL_USER               (2 + WINDOWS_ID_BIAS)
 	#define CTL_CHZNLOCPMURL_PW                 (3 + WINDOWS_ID_BIAS)
+	#define CTL_CHZNLOCPMURL_APIVER             (4 + WINDOWS_ID_BIAS) // @v12.6.4
 #define DLG_TESTGLBSVCACSY        1481 // @v12.3.12 Диалог для отображения результатов тестирования доступности глобальных сервисов. TestGlobalServiceAccessibility  
 	#define CTL_TESTGLBSVCACSY_LIST             (1 + WINDOWS_ID_BIAS)
 	#define CTL_TESTGLBSVCACSY_INFO             (2 + WINDOWS_ID_BIAS)
@@ -12073,6 +12080,8 @@
 	#define CTLSEL_TECHROUTE_OBJGROUP           (5 + WINDOWS_ID_BIAS)
 	#define CTL_TECHROUTE_OBJ                   (6 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TECHROUTE_OBJ                (7 + WINDOWS_ID_BIAS)
+	#define CTL_TECHROUTE_CODE                  (8 + WINDOWS_ID_BIAS)
+	#define CTL_TECHROUTE_ID                    (9 + WINDOWS_ID_BIAS)
 #define DLG_TECHROUTEITEM         1594 // @v12.5.12 Элемент технологического маршрута
 	#define CTL_TECHROUTEITEM_TECH              (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TECHROUTEITEM_TECH           (2 + WINDOWS_ID_BIAS)

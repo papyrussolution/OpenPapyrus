@@ -14,10 +14,9 @@ PPTextAnalyzer::Replacer::SrcItem::SrcItem() : Op(0), Flags(0), TargetIdx(0)
 
 const SSzChunk * FASTCALL PPTextAnalyzer::Replacer::SrcItem::GetTermGroup(uint termIdx, uint * pGrpIdx) const
 {
-	const  int idx = static_cast<int>(termIdx);
 	for(uint i = 0; i < GL.getCount(); i++) {
-		const SSzChunk & r_chunk = GL.at(i);
-		if(idx >= r_chunk.Begin && idx <= r_chunk.GetEnd()) {
+		const  SSzChunk & r_chunk = GL.at(i);
+		if(checkirangef(static_cast<int>(termIdx), r_chunk.Begin, r_chunk.GetEnd())) {
 			ASSIGN_PTR(pGrpIdx, (i+1));
 			return &r_chunk;
 		}
@@ -66,8 +65,8 @@ int PPTextAnalyzer::Replacer::Chain::Add(int type, const PPTextAnalyzer::Replace
 	return ok;
 }
 
-/*static*/int FASTCALL PPTextAnalyzer::Replacer::IsOp(int termType) { return BIN(termType > stLastLex); }
-/*static*/int FASTCALL PPTextAnalyzer::Replacer::IsLex(int termType) { return BIN(termType < stLastLex); }
+/*static*/bool FASTCALL PPTextAnalyzer::Replacer::IsOp(int termType) { return (termType > stLastLex); }
+/*static*/bool FASTCALL PPTextAnalyzer::Replacer::IsLex(int termType) { return (termType < stLastLex); }
 
 PPTextAnalyzer::Replacer::Replacer() : P_Cluster(0)
 {
@@ -94,13 +93,12 @@ void PPTextAnalyzer::Replacer::IncLineNo()
 
 long PPTextAnalyzer::Replacer::SetState(long st, int set)
 {
-	long   prev_state = State;
+	const  long prev_state = State;
 	SETFLAG(State, st, set);
 	return prev_state;
 }
 
-PPTextAnalyzer::Replacer::SrcItem * PPTextAnalyzer::Replacer::MakeSrcItem(
-	PPTextAnalyzer::Replacer::SrcItem * pOuterSrcItem,
+PPTextAnalyzer::Replacer::SrcItem * PPTextAnalyzer::Replacer::MakeSrcItem(PPTextAnalyzer::Replacer::SrcItem * pOuterSrcItem,
 	int op, uint targetIdx, const PPTextAnalyzer::Replacer::Chain & rList, const TSVector <SSzChunk> & rGl) const
 {
 	SETIFZ(pOuterSrcItem, new Replacer::SrcItem);
@@ -209,8 +207,7 @@ PPTextAnalyzer::FindBlock & PPTextAnalyzer::FindBlock::Reset()
 
 const PPTextAnalyzer::FindItem * FASTCALL PPTextAnalyzer::FindBlock::GetGroupItem(uint grpIdx) const
 {
-	const uint c = getCount();
-	for(uint i = 0; i < c; i++) {
+	for(uint i = 0; i < getCount(); i++) {
 		const PPTextAnalyzer::FindItem & r_item = at(i);
 		if(r_item.GrpIdx == grpIdx)
 			return &r_item;
@@ -275,8 +272,8 @@ static const TrT TrList[] = {
 */
 int PPTextAnalyzer::GetTrT(const PPTextAnalyzer::Replacer & rReplacer, SStrScan & rScan, SString & rExtBuf) const
 {
-	const char cfront = rScan[0];
-	const char cnext = rScan[1];
+	const  char cfront = rScan[0];
+	const  char cnext = rScan[1];
 	if(cfront == '%') {
 		if(cnext >= '1' && cnext <= '9') {
 			rScan.Incr(2);
@@ -1622,253 +1619,6 @@ void PPTextAnalyzer::SetSignalProc(TextAnalyzerSignalProc proc, void * pProcExtr
 	P_SignalProcExtra = pProcExtra;
 }
 
-int PPTextAnalyzer::ProcessGoodsNN()
-{
-	int    ok = 1;
-#if 0 // @v10.2.4 {
-	float * p_result = 0;
-	float * p_nn_input = 0;
-	float * p_nn_output = 0;
-	float * p_nn_test_output = 0;
-	Fann * p_ann = 0;
-	uint   max_inp_tokens = 0;
-	LongArray group_list;
-	LongArray brand_list;
-	SString ident;
-	SString text;
-	SString norm_code; // Нормализованное представление штрихкода
-	SString temp_buf;
-	SString fmt_buf;
-	StringSet code_list;
-	STokenizer::Item token;
-	PPObjGoods goods_obj;
-	Goods2Tbl::Rec goods_rec;
-	Goods2Tbl::Rec parent_rec;
-	GoodsCore * p_tbl = goods_obj.P_Tbl;
-	long    iter_total = 0;
-	StatBase sb_tokens; // Статистика по количеству токенов в наименованиях
-	PPGetFilePath(PPPATH_LOG, "pptextanalyzer-nn.log", temp_buf);
-	SFile   f_out(temp_buf, SFile::mWrite);
-	PPWaitStart();
-	{
-		PPLoadText(PPTXT_GETTINGFULLTEXTLIST, fmt_buf);
-		PPWaitMsg(fmt_buf);
-		BExtQuery q(p_tbl, 0, 24);
-		q.select(p_tbl->ID, p_tbl->Name, p_tbl->ParentID, p_tbl->BrandID, 0L).where(p_tbl->Kind == PPGDSK_GOODS);
-		Goods2Tbl::Key0 k0;
-		for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
-			p_tbl->CopyBufTo(&goods_rec);
-			int   unclssf = 0;
-			if(goods_obj.Fetch(goods_rec.ParentID, &parent_rec) > 0 && parent_rec.Flags & GF_UNCLASSF) {
-				unclssf = 1;
-			}
-			if(!unclssf) {
-				iter_total++;
-				(text = goods_rec.Name).ToLower().Transf(CTRANSF_INNER_TO_OUTER);
-				if(text.NotEmptyS()) {
-					Reset(0);
-					(ident = "#OBJ").Dot().Cat(PPOBJ_GOODS).Dot().Cat(goods_rec.ID);
-					uint   first_token_pos = 0;
-					uint   token_count = 0;
-					THROW_SL(RunSString(ident, 0, text, &first_token_pos, &token_count));
-					{
-						uint   real_tok_count = 0;
-						for(uint i = 0; i < token_count; i++) {
-							if(Get(first_token_pos+i, token)) {
-								if(token.Token == STokenizer::tokWord && token.Text != ",")
-									real_tok_count++;
-							}
-						}
-						SETMAX(max_inp_tokens, real_tok_count);
-						sb_tokens.Step((double)real_tok_count);
-					}
-					group_list.addnz(goods_rec.ParentID);
-					brand_list.addnz(goods_rec.BrandID);
-				}
-			}
-			if((iter_total % 1000) == 0) {
-				(temp_buf = fmt_buf).Space().Cat(iter_total);
-				PPWaitMsg(temp_buf);
-			}
-		}
-		sb_tokens.Finish();
-	}
-	group_list.sortAndUndup();
-	brand_list.sortAndUndup();
-	{
-		STokenizer::Reset(0 /* Внутренний символьный хэш не очищается */);
-		//
-		size_t inp_token_limit = 0; // Количество токенов, которые будут использоваться как входы для сети
-		//inp_token_limit = max_inp_tokens;
-		const double stddev = sb_tokens.GetStdDev();
-		inp_token_limit = MIN((size_t)(sb_tokens.GetExp() + 3 * stddev), (size_t)sb_tokens.GetMax());
-		//
-		const size_t max_barcode_input_digits = 7;
-		const size_t input_count = inp_token_limit + 1 + 1; // 1 - бренд или группа, 1 - часть штрихкода
-		const size_t output_count = group_list.getCount();
-		const float learning_rate = 0.06f;
-		//uint   layers[] = { input_count, output_count * 4, output_count };
-		LongArray _layers;
-		_layers.addzlist(input_count, output_count * 4, output_count, 0);
-		PPLoadText(PPTXT_NNBUILDING, fmt_buf);
-		long   iter_no = 0;
-		SString input_log_buf, output_log_buf;
-		PPWaitMsg(fmt_buf);
-		THROW_MEM(p_result = new float[output_count]);
-		THROW_MEM(p_nn_input = new float[input_count]);
-		THROW_MEM(p_nn_output = new float[output_count]);
-		THROW_MEM(p_nn_test_output = new float[output_count]);
-		THROW(p_ann = fann_create_standard_array(/*SIZEOFARRAY(layers), layers*/_layers));
-		p_ann->SetTrainingAlgorithm(Fann::FANN_TRAIN_INCREMENTAL);
-		p_ann->SetLearningRate(learning_rate);
-		{
-			(temp_buf = fmt_buf).Transf(CTRANSF_INNER_TO_OUTER);
-            temp_buf.CatDiv(':', 2).Cat("dimension").CatDiv('{', 1);
-			for(uint d = 0; d < _layers.getCount(); d++) {
-				if(d)
-					temp_buf.CatDiv(',', 2);
-                temp_buf.Cat(_layers.get(d));
-			}
-			temp_buf.CatDiv('}', 1);
-			temp_buf.CatEq("rate", learning_rate, MKSFMTD(0, 4, 0));
-            f_out.WriteLine(temp_buf.CR());
-		}
-		// fann_set_activation_function_hidden(p_ann, FANN_SIGMOID);
-		{
-			BExtQuery q(p_tbl, 0, 24);
-			q.select(p_tbl->ID, p_tbl->Name, p_tbl->ParentID, p_tbl->BrandID, 0L).where(p_tbl->Kind == PPGDSK_GOODS);
-			Goods2Tbl::Key0 k0;
-			BarcodeArray codes;
-			BarcodeTbl::Rec bc_rec;
-			RAssocArray temp_result_list;
-			for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
-				p_tbl->CopyBufTo(&goods_rec);
-				int   unclssf = 0;
-				if(goods_obj.Fetch(goods_rec.ParentID, &parent_rec) > 0 && parent_rec.Flags & GF_UNCLASSF) {
-					unclssf = 1;
-				}
-				if(!unclssf) {
-					iter_no++;
-					uint   group_pos = 0;
-					if(goods_rec.Name[0] && group_list.bsearch(goods_rec.ParentID, &group_pos)) {
-						assert(group_pos < output_count);
-						(text = goods_rec.Name).ToLower().Transf(CTRANSF_INNER_TO_OUTER);
-						if(text.NotEmptyS()) {
-							Reset(0);
-							p_tbl->ReadBarcodes(goods_rec.ID, codes);
-							if(codes.getCount() == 0) {
-								bc_rec.Clear();
-								codes.insert(&bc_rec);
-							}
-							(ident = "#OBJ").Dot().Cat(PPOBJ_GOODS).Dot().Cat(goods_rec.ID);
-							uint   first_token_pos = 0;
-							uint   token_count = 0;
-							memzero(p_nn_output, output_count * sizeof(*p_nn_output));
-							p_nn_output[group_pos] = 1.0f;
-							THROW_SL(RunSString(ident, 0, text, &first_token_pos, &token_count));
-							code_list.clear();
-							if(codes.getCount()) {
-								for(uint j = 0; j < codes.getCount(); j++) {
-									int    code_std = 0;
-									int    code_diag = 0;
-									int    dcr = PPObjGoods::DiagBarcode(codes.at(j).Code, &code_diag, &code_std, &norm_code);
-									if(dcr > 0) {
-										if(code_std == BARCSTD_UPCE) {
-											PPBarcode::ConvertUpceToUpca(norm_code, temp_buf);
-											temp_buf.Trim(7);
-										}
-										else if(code_std == BARCSTD_UPCA) {
-											(temp_buf = norm_code).Trim(max_barcode_input_digits);
-										}
-										else if(code_std == BARCSTD_EAN13) {
-											(temp_buf = norm_code).Trim(max_barcode_input_digits);
-										}
-										else if(code_std == BARCSTD_EAN8) {
-											(temp_buf = norm_code).Trim(MIN(5, max_barcode_input_digits));
-										}
-										else {
-											temp_buf.Z();
-										}
-										if(temp_buf.NotEmpty()) {
-											code_list.add(temp_buf);
-										}
-									}
-								}
-							}
-							if(code_list.getCount() == 0) {
-								temp_buf.Z().Dot();
-								code_list.add(temp_buf);
-							}
-							for(uint j = 0; code_list.get(&j, norm_code);) {
-								input_log_buf = 0;
-								uint   slot_pos = 0;
-								memzero(p_nn_input, input_count * sizeof(*p_nn_input));
-								for(uint i = 0, inp_token_count = 0; inp_token_count < inp_token_limit && i < token_count; i++) {
-									if(Get(first_token_pos+i, token)) {
-										if(token.Token == STokenizer::tokWord && token.Text != ",") {
-											p_nn_input[slot_pos++] = (float)token.TextId;
-											input_log_buf.Cat(token.Text).Space();
-											inp_token_count++;
-										}
-									}
-								}
-								{
-									uint   brand_pos = 0;
-									if(goods_rec.BrandID && brand_list.bsearch(goods_rec.BrandID, &brand_pos))
-										p_nn_input[max_inp_tokens] = (float)(brand_pos+1);
-									else
-										p_nn_input[max_inp_tokens] = 0.0f;
-									input_log_buf.CatDiv(',', 2).Cat(goods_rec.BrandID).Space();
-								}
-								{
-									const long codev = norm_code.ToLong();
-									p_nn_input[max_inp_tokens] = (codev != 0) ? (float)codev : 0.0f;
-									input_log_buf.CatDiv(',', 2).Cat(p_nn_input[max_inp_tokens], MKSFMTD(0, 0, 0)).Space();
-								}
-								input_log_buf.CatDiv('=', 2).Cat(goods_rec.ParentID);
-								input_log_buf.Space().Cat((temp_buf = parent_rec.Name).Transf(CTRANSF_INNER_TO_OUTER));
-								f_out.WriteLine(input_log_buf.CR());
-								p_ann->TrainWithOutput(p_nn_input, p_nn_output, p_nn_test_output);
-								{
-									temp_result_list.clear();
-									//output_log_buf.Z().Tab();
-									for(uint oi = 0; oi < output_count; oi++) {
-										if(p_nn_test_output[oi] != 0.0f) {
-											const  PPID _rid = group_list.get(oi);
-											const float _rv = p_nn_test_output[oi];
-											temp_result_list.Add(_rid, _rv, 0);
-											//output_log_buf.Cat(_rid).Eq().Cat(p_nn_test_output[oi], MKSFMTD(0, 6, NMBF_NOTRAILZ)).Space();
-										}
-									}
-									temp_result_list.SortByValRev();
-									for(uint rli = 0; rli < temp_result_list.getCount(); rli++) {
-										const RAssoc & r_a = temp_result_list.at(rli);
-										output_log_buf.Z().Tab().Cat(r_a.Val, MKSFMTD(0, 6, NMBF_NOTRAILZ));
-										GetGoodsName(r_a.Key, temp_buf);
-										output_log_buf.Tab().Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
-										f_out.WriteLine(output_log_buf.CR());
-									}
-									//f_out.WriteLine(output_log_buf.CR());
-								}
-							}
-						}
-					}
-				}
-				PPWaitPercent(iter_no, iter_total, fmt_buf);
-			}
-		}
-	}
-	CATCHZOK
-	delete [] p_result;
-	delete [] p_nn_input;
-	delete [] p_nn_output;
-	delete [] p_nn_test_output;
-	fann_destroy(p_ann);
-	PPWaitStop();
-#endif // } 0
-	return ok;
-}
-
 static void NormalizeGoodsName(SString & rBuf)
 {
 	rBuf.ReplaceChar('\t', ' ').ReplaceChar('\x0D', ' ').ReplaceChar('\x0A', ' ').ReplaceChar('\x1A', ' ');
@@ -1957,7 +1707,6 @@ int PPTextAnalyzer::ProcessPerson()
 int PPTextAnalyzer::ProcessString(const PPTextAnalyzer::Replacer & rRpl, const char * pResource, const SString & rOrg, SString & rResult, PPTextAnalyzer::FindBlock * pOuterFb, SFile * pDebugFile)
 {
 	const char * p_resource = pResource;
-
 	int    ok = -1;
 	uint   i, j;
 	FindBlock fb(rRpl);
@@ -2245,16 +1994,14 @@ public:
 	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		SetupObjListCombo(this, CTLSEL_OBJTEXTFILT_OBJ, Data.ObjType);
 		AddClusterAssoc(CTL_OBJTEXTFILT_FLAGS, 0, Data.fLog);
 		AddClusterAssoc(CTL_OBJTEXTFILT_FLAGS, 1, Data.fReplace);
 		AddClusterAssoc(CTL_OBJTEXTFILT_FLAGS, 2, Data.fSignal);
-		AddClusterAssoc(CTL_OBJTEXTFILT_FLAGS, 3, Data.fNnClassifier); // @v9.2.7
+		// @v12.6.4 AddClusterAssoc(CTL_OBJTEXTFILT_FLAGS, 3, Data.fNnClassifier);
 		SetClusterData(CTL_OBJTEXTFILT_FLAGS, Data.Flags);
-
-		FileBrowseCtrlGroup::Setup(this, CTLBRW_OBJTEXTFILT_RULEF, CTL_OBJTEXTFILT_RULEF, 1, 0,
-			PPTXT_FILPAT_SARTRRULE, FileBrowseCtrlGroup::fbcgfFile);
+		FileBrowseCtrlGroup::Setup(this, CTLBRW_OBJTEXTFILT_RULEF, CTL_OBJTEXTFILT_RULEF, 1, 0, PPTXT_FILPAT_SARTRRULE, FileBrowseCtrlGroup::fbcgfFile);
 		setCtrlString(CTL_OBJTEXTFILT_RULEF, Data.RuleFileName);
 		enableCommand(cmEditFilt, oneof2(Data.ObjType, PPOBJ_GOODS, PPOBJ_PERSON));
 		return ok;
@@ -2266,9 +2013,9 @@ public:
 		getCtrlData(CTLSEL_OBJTEXTFILT_OBJ, &Data.ObjType);
 		GetClusterData(CTL_OBJTEXTFILT_FLAGS, &Data.Flags);
 		getCtrlString(sel = CTL_OBJTEXTFILT_RULEF, Data.RuleFileName);
-		if(!(Data.Flags & Data.fNnClassifier)) {
+		// @v12.6.4 if(!(Data.Flags & Data.fNnClassifier)) {
 			THROW(PrcssrObjText::VerifyRuleFile(Data.RuleFileName));
-		}
+		// @v12.6.4 }
 		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERRBYDLG
 		return ok;
@@ -2331,7 +2078,6 @@ int PrcssrObjText::EditParam(PPBaseFilt * pBaseFilt)
 int PrcssrObjText::Init(const PPBaseFilt * pBaseFilt)
 {
 	SLS.SetCodepage(cp1251);
-
 	int    ok = 1;
 	SString temp_buf, line_buf;
 	THROW(P.IsA(pBaseFilt));
@@ -2339,45 +2085,41 @@ int PrcssrObjText::Init(const PPBaseFilt * pBaseFilt)
 	Ta.Reset(STokenizer::coClearSymbTab);
 	LogF.Close();
 	ZDELETE(P_Rpl);
-	if(P.Flags & P.fNnClassifier) {
-	}
-	else {
-		THROW_SL(fileExists(P.RuleFileName));
-		THROW_MEM(P_Rpl = new PPTextAnalyzer::Replacer);
-		THROW(Ta.ParseReplacerFile(P.RuleFileName, *P_Rpl));
-		if(P.Flags & P.fDebug) {
-			SFsPath::ReplaceExt(temp_buf = P.RuleFileName, "sr-debug", 1);
-			SFile outf(temp_buf, SFile::mWrite);
-			if(outf.IsValid()) {
-				for(uint i = 0; i < P_Rpl->SrcList.getCount(); i++) {
-					const PPTextAnalyzer::Replacer::SrcItem * p_src_item = P_Rpl->SrcList.at(i);
-					if(Ta.ReplacerSrcItemToStr(*P_Rpl, p_src_item, line_buf))
-						outf.WriteLine(line_buf.CR());
-				}
+	THROW_SL(fileExists(P.RuleFileName));
+	THROW_MEM(P_Rpl = new PPTextAnalyzer::Replacer);
+	THROW(Ta.ParseReplacerFile(P.RuleFileName, *P_Rpl));
+	if(P.Flags & P.fDebug) {
+		SFsPath::ReplaceExt(temp_buf = P.RuleFileName, "sr-debug", 1);
+		SFile outf(temp_buf, SFile::mWrite);
+		if(outf.IsValid()) {
+			for(uint i = 0; i < P_Rpl->SrcList.getCount(); i++) {
+				const PPTextAnalyzer::Replacer::SrcItem * p_src_item = P_Rpl->SrcList.at(i);
+				if(Ta.ReplacerSrcItemToStr(*P_Rpl, p_src_item, line_buf))
+					outf.WriteLine(line_buf.CR());
 			}
 		}
-		{
-			SFsPath::ReplaceExt(temp_buf = P.RuleFileName, "sr-log", 1);
-			LogF.Close();
-			LogF.Open(temp_buf, SFile::mWrite);
-			if(LogF.IsValid()) {
-				line_buf.Z().CatCurDateTime();
-				//
-				if(!SGetComputerName(false/*utf8*/, temp_buf))
-					temp_buf = "?COMP?";
-				line_buf.Tab().Cat(temp_buf);
-				//
-				if(CurDict)
-					CurDict->GetDbSymb(temp_buf);
-				else
-					temp_buf = "nologin";
-				line_buf.Tab().Cat(temp_buf);
-				//
-				GetCurUserName(temp_buf);
-				line_buf.Tab().Cat(temp_buf);
-				//
-				LogF.WriteLine(line_buf.CR());
-			}
+	}
+	{
+		SFsPath::ReplaceExt(temp_buf = P.RuleFileName, "sr-log", 1);
+		LogF.Close();
+		LogF.Open(temp_buf, SFile::mWrite);
+		if(LogF.IsValid()) {
+			line_buf.Z().CatCurDateTime();
+			//
+			if(!SGetComputerName(false/*utf8*/, temp_buf))
+				temp_buf = "?COMP?";
+			line_buf.Tab().Cat(temp_buf);
+			//
+			if(CurDict)
+				CurDict->GetDbSymb(temp_buf);
+			else
+				temp_buf = "nologin";
+			line_buf.Tab().Cat(temp_buf);
+			//
+			GetCurUserName(temp_buf);
+			line_buf.Tab().Cat(temp_buf);
+			//
+			LogF.WriteLine(line_buf.CR());
 		}
 	}
 	CATCHZOK
@@ -2403,106 +2145,105 @@ int PrcssrObjText::Run()
 {
 	int    ok = 1, r;
 	PPTransaction * p_tra = 0;
-	if(P.Flags & P.fNnClassifier) {
-		THROW(Ta.ProcessGoodsNN());
-	}
-	else {
-		SString text_buf, result_buf, line_buf, temp_buf, resource_buf;
-		THROW(P_Rpl);
-		if(P.ObjType == PPOBJ_GOODS) {
-			SignalProcBlock signal_blk;
-			PPObjGoods goods_obj;
-			PPTextAnalyzer::FindBlock fb(*P_Rpl);
-			GoodsIterator goods_iter(P.P_GoodsF, 0, 0);
-			Goods2Tbl::Rec goods_rec;
-			SObjID oi;
-			uint   c = 0;
-			PPWaitStart();
-			if(P.Flags & (P.fReplace|P.fSignal)) {
-				THROW_MEM(p_tra = new PPTransaction(1));
-				THROW(*p_tra);
-				if(P.Flags & P.fSignal) {
-					signal_blk.State |= signal_blk.stOuterTransaction;
-					Ta.SetSignalProc(SignalProc, &signal_blk);
-				}
-			}
-			while(goods_iter.Next(&goods_rec) > 0) {
-				THROW(PPCheckUserBreak());
-				c++;
-				(text_buf = goods_rec.Name).ToLower().Transf(CTRANSF_INNER_TO_OUTER);
-				Ta.Reset(0);
-				SObjID_ToStr(oi.Set(PPOBJ_GOODS, goods_rec.ID), resource_buf);
-				THROW(r = Ta.ProcessString(*P_Rpl, resource_buf, text_buf, result_buf, &fb, 0/*&outf*/));
-				if(LogF.IsValid()) {
-					(temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
-					line_buf.Z().Cat("goods").Tab().CatChar('#').Cat(goods_rec.ID).Tab().Cat(temp_buf).Tab().Cat(result_buf).CR();
-					LogF.WriteLine(line_buf);
-				}
-				if(r > 0 && P.Flags & P.fReplace) {
-					if(result_buf != text_buf) {
-						result_buf.Transf(CTRANSF_OUTER_TO_INNER); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
-						THROW(goods_obj.UpdateName(goods_rec.ID, result_buf, 0));
-					}
-				}
-				if((c % 1000) == 0) {
-					if(p_tra) {
-						THROW(p_tra->Commit());
-						ZDELETE(p_tra);
-						THROW_MEM(p_tra = new PPTransaction(1));
-						THROW(*p_tra);
-					}
-				}
-				PPWaitPercent(goods_iter.GetIterCounter());
-			}
-			if(p_tra) {
-				THROW(p_tra->Commit());
-				ZDELETE(p_tra);
+	SString temp_buf;
+	SString text_buf;
+	SString result_buf;
+	SString line_buf;
+	SString resource_buf;
+	THROW(P_Rpl);
+	if(P.ObjType == PPOBJ_GOODS) {
+		SignalProcBlock signal_blk;
+		PPObjGoods goods_obj;
+		PPTextAnalyzer::FindBlock fb(*P_Rpl);
+		GoodsIterator goods_iter(P.P_GoodsF, 0, 0);
+		Goods2Tbl::Rec goods_rec;
+		SObjID oi;
+		uint   c = 0;
+		PPWaitStart();
+		if(P.Flags & (P.fReplace|P.fSignal)) {
+			THROW_MEM(p_tra = new PPTransaction(1));
+			THROW(*p_tra);
+			if(P.Flags & P.fSignal) {
+				signal_blk.State |= signal_blk.stOuterTransaction;
+				Ta.SetSignalProc(SignalProc, &signal_blk);
 			}
 		}
-		else {
-			if(P.ObjType == PPOBJ_PERSON){
-				PPObjPerson psn_obj;
-				PPViewPerson psn_view;
-				PersonViewItem psn_item;
-				PersonFilt psn_filt;
-				PPPersonPacket psn_pack;
-				PPTextAnalyzer::FindBlock fb(*P_Rpl);
-				SObjID oi;
-				PPIDArray id_list;
-				uint i;
-				RVALUEPTR(psn_filt, P.P_PsnF);
-				THROW(psn_view.Init_(&psn_filt));
-				for(psn_view.InitIteration(); psn_view.NextIteration(&psn_item) > 0;) {
-					id_list.add(psn_item.ID);
+		while(goods_iter.Next(&goods_rec) > 0) {
+			THROW(PPCheckUserBreak());
+			c++;
+			(text_buf = goods_rec.Name).ToLower().Transf(CTRANSF_INNER_TO_OUTER);
+			Ta.Reset(0);
+			SObjID_ToStr(oi.Set(PPOBJ_GOODS, goods_rec.ID), resource_buf);
+			THROW(r = Ta.ProcessString(*P_Rpl, resource_buf, text_buf, result_buf, &fb, 0/*&outf*/));
+			if(LogF.IsValid()) {
+				(temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
+				line_buf.Z().Cat("goods").Tab().CatChar('#').Cat(goods_rec.ID).Tab().Cat(temp_buf).Tab().Cat(result_buf).CR();
+				LogF.WriteLine(line_buf);
+			}
+			if(r > 0 && P.Flags & P.fReplace) {
+				if(result_buf != text_buf) {
+					result_buf.Transf(CTRANSF_OUTER_TO_INNER); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
+					THROW(goods_obj.UpdateName(goods_rec.ID, result_buf, 0));
 				}
-				id_list.sortAndUndup();
-				for(i = 0; i < id_list.getCount(); i++){
-					PersonTbl::Rec psn_rec;
-					PPID   psn_id = id_list.get(i);
-					if(psn_obj.Search(psn_id, &psn_rec) > 0){
-						(text_buf = psn_rec.Name).ToLower().Transf(CTRANSF_INNER_TO_OUTER);
-						SObjID_ToStr(oi.Set(PPOBJ_PERSON, psn_id), resource_buf);
-						THROW(r = Ta.ProcessString(*P_Rpl, resource_buf, text_buf, result_buf, &fb, 0));
-						if(LogF.IsValid()) {
-							(temp_buf = psn_item.Name).Transf(CTRANSF_INNER_TO_OUTER);
-							line_buf.Z().Cat("person").Tab().CatChar('#').Cat(psn_id).Tab().Cat(temp_buf).Tab().Cat(result_buf).CR();
-							LogF.WriteLine(line_buf);
-						}
-						if(r > 0 && P.Flags & P.fReplace) {
-							if(result_buf != text_buf) {
-								THROW(psn_obj.GetPacket(psn_id, &psn_pack, 0) > 0);
-								result_buf.Transf(CTRANSF_OUTER_TO_INNER); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
-								STRNSCPY(psn_pack.Rec.Name, result_buf);
-								THROW(psn_obj.PutPacket(&psn_id, &psn_pack, 1));
-							}
+			}
+			if((c % 1000) == 0) {
+				if(p_tra) {
+					THROW(p_tra->Commit());
+					ZDELETE(p_tra);
+					THROW_MEM(p_tra = new PPTransaction(1));
+					THROW(*p_tra);
+				}
+			}
+			PPWaitPercent(goods_iter.GetIterCounter());
+		}
+		if(p_tra) {
+			THROW(p_tra->Commit());
+			ZDELETE(p_tra);
+		}
+	}
+	else {
+		if(P.ObjType == PPOBJ_PERSON){
+			PPObjPerson psn_obj;
+			PPViewPerson psn_view;
+			PersonViewItem psn_item;
+			PersonFilt psn_filt;
+			PPPersonPacket psn_pack;
+			PPTextAnalyzer::FindBlock fb(*P_Rpl);
+			SObjID oi;
+			PPIDArray id_list;
+			uint i;
+			RVALUEPTR(psn_filt, P.P_PsnF);
+			THROW(psn_view.Init_(&psn_filt));
+			for(psn_view.InitIteration(); psn_view.NextIteration(&psn_item) > 0;) {
+				id_list.add(psn_item.ID);
+			}
+			id_list.sortAndUndup();
+			for(i = 0; i < id_list.getCount(); i++){
+				PersonTbl::Rec psn_rec;
+				PPID   psn_id = id_list.get(i);
+				if(psn_obj.Search(psn_id, &psn_rec) > 0){
+					(text_buf = psn_rec.Name).ToLower().Transf(CTRANSF_INNER_TO_OUTER);
+					SObjID_ToStr(oi.Set(PPOBJ_PERSON, psn_id), resource_buf);
+					THROW(r = Ta.ProcessString(*P_Rpl, resource_buf, text_buf, result_buf, &fb, 0));
+					if(LogF.IsValid()) {
+						(temp_buf = psn_item.Name).Transf(CTRANSF_INNER_TO_OUTER);
+						line_buf.Z().Cat("person").Tab().CatChar('#').Cat(psn_id).Tab().Cat(temp_buf).Tab().Cat(result_buf).CR();
+						LogF.WriteLine(line_buf);
+					}
+					if(r > 0 && P.Flags & P.fReplace) {
+						if(result_buf != text_buf) {
+							THROW(psn_obj.GetPacket(psn_id, &psn_pack, 0) > 0);
+							result_buf.Transf(CTRANSF_OUTER_TO_INNER); // @v12.5.7 ToOem()-->Transf(CTRANSF_OUTER_TO_INNER)
+							STRNSCPY(psn_pack.Rec.Name, result_buf);
+							THROW(psn_obj.PutPacket(&psn_id, &psn_pack, 1));
 						}
 					}
 				}
+			}
 
-			}
-			else {
-				ok = -1;
-			}
+		}
+		else {
+			ok = -1;
 		}
 	}
 	CATCHZOK
@@ -3643,9 +3384,55 @@ int Test_KeywordListGenerator()
 //
 //
 //
-PPAutoTranslSvc_Microsoft::PPAutoTranslSvc_Microsoft() : LastStatusCode(0), P_XpCtx(0), ExpirySec(0), AuthTime(ZERODATETIME)
+PPAutoTranslSvcBase::PPAutoTranslSvcBase(uint capabilities) : Capabilities(capabilities)
 {
-	MEMSZERO(S);
+}
+
+int PPAutoTranslSvcBase::SetParam(const Param & rP)
+{
+	int    ok = 1;
+	P = rP;
+	return ok;
+}
+
+int PPAutoTranslSvcBase::SetCacheFilePath(const char * pPath)
+{
+	CacheFilePath.Z();
+	int    ok = 0;
+	if(!isempty(pPath)) {
+		if(fileExists(pPath)) {
+			CacheFilePath = pPath;
+			ok = 2;
+		}
+		else {
+			SFile f_test(pPath, SFile::mWrite);
+			if(f_test.IsValid()) {
+				f_test.Close();
+				CacheFilePath = pPath;
+				ok = 1;
+			}
+			else {
+				ok = 0; // @todo @err Невозможно создать файл по указанному пути
+			}
+		}
+	}
+	return ok;
+}
+
+/*virtual*/int PPAutoTranslSvcBase::Auth(const AuthBlock & rBlk)
+{
+	return (Capabilities & cNoAuth) ? 100 : 0/*unsupported*/;
+}
+
+/*virtual*/int PPAutoTranslSvcBase::Request(int srcLang, int destLang, const SString & rSrcTextUtf8, SString & rResultUtf8)
+{
+	return 0; // unsupported
+}
+//
+//
+//
+PPAutoTranslSvc_Microsoft::PPAutoTranslSvc_Microsoft() : PPAutoTranslSvcBase(0), LastStatusCode(0), P_XpCtx(0), ExpirySec(0), AuthTime(ZERODATETIME)
+{
 }
 
 PPAutoTranslSvc_Microsoft::~PPAutoTranslSvc_Microsoft()
@@ -3659,7 +3446,8 @@ PPAutoTranslSvc_Microsoft::~PPAutoTranslSvc_Microsoft()
 	}
 }
 
-int PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSecret)
+//int PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSecret)
+/*virtual*/int PPAutoTranslSvc_Microsoft::Auth(const AuthBlock & rBlk)
 {
 	Token.Z();
 	ExpirySec = 0;
@@ -3679,7 +3467,7 @@ int PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSecret)
 	{
 		SBuffer result_buf;
 		SFile wr_stream(result_buf, SFile::mWrite);
-		(temp_buf = url).CatChar('?').CatEq("Subscription-Key", pSecret);
+		(temp_buf = url).CatChar('?').CatEq("Subscription-Key", rBlk.Secret);
 		THROW_SL(curl.HttpPost(/*url*/temp_buf, ScURL::mfDontVerifySslPeer, &post_fields, &wr_stream));
 		{
 			SBuffer * p_result_buf = (SBuffer *)wr_stream;
@@ -3708,7 +3496,6 @@ int PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSecret)
 							else if(sstreqi_ascii(p_cur->Text, "message")) {
 								SJson::GetChildTextUnescaped(p_cur, LastStatusMessage);
 							}
-							// @v11.1.10 {
 							else if(sstreqi_ascii(p_cur->Text, "error")) {
 								if(p_cur->P_Child) {
 									const SJson * p_err = p_cur->P_Child;
@@ -3723,20 +3510,17 @@ int PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSecret)
 									}
 								}
 							}
-							// } @v11.1.10 
 						}
 						break;
 					default:
 						break;
 				}
 			}
-			// @v11.1.10 {
 			{
 				SString log_msg_buf;
 				log_msg_buf.Cat("Auth Error").CatDiv(':', 2).CatEq("status", LastStatusCode).Space().CatEq("message", LastStatusMessage);
 				PPLogMessage(PPFILNAM_AUTOTRANSL_LOG, log_msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DIRECTOUTP);
 			}
-			// } @v11.1.10 
 			ok = 0;
 		}
 		else {
@@ -3759,15 +3543,21 @@ int Helper_PPAutoTranslSvc_Microsoft_Auth(PPAutoTranslSvc_Microsoft & rAt)
 	vi.GetTextAttrib(vi.taiMsftTranslAcc, key_buf);
 	THROW_PP(key_buf.NotEmptyS(), PPERR_MSFTTRANSLKEY_INV);
 	{
-		SString ident, secret;
-		THROW_PP(key_buf.Divide(':', ident, secret) > 0, PPERR_MSFTTRANSLKEY_INV);
-		THROW(rAt.Auth(ident, secret));
+		PPAutoTranslSvcBase::AuthBlock ablk;
+		THROW_PP(key_buf.Divide(':', ablk.Ident, ablk.Secret) > 0, PPERR_MSFTTRANSLKEY_INV);
+		THROW(rAt.Auth(ablk));
 	}
 	CATCHZOK
 	return ok;
 }
 
-int PPAutoTranslSvc_Microsoft::Request3(int srcLang, int destLang, const SString & rSrcText, SString & rResult) // @v12.4.1 @construction
+/*virtual*/int PPAutoTranslSvc_Microsoft::Request(int srcLang, int destLang, const SString & rSrcTextUtf8, SString & rResultUtf8)
+{
+	//return Implement_Request(srcLang, destLang, rSrcTextUtf8, rResultUtf8);
+	return Implement_Request3(srcLang, destLang, rSrcTextUtf8, rResultUtf8);
+}
+
+int PPAutoTranslSvc_Microsoft::Implement_Request3(int srcLang, int destLang, const SString & rSrcText, SString & rResult) // @v12.4.1 @construction
 {
 	/*
 		curl -X POST "https://api.translator.azure.cn/translate?api-version=3.0&from=en&to=zh-Hans" 
@@ -3845,7 +3635,7 @@ int PPAutoTranslSvc_Microsoft::Request3(int srcLang, int destLang, const SString
 	return ok;
 }
 
-int PPAutoTranslSvc_Microsoft::Request(int srcLang, int destLang, const SString & rSrcText, SString & rResult) // @v12.4.1 Этот вариант больше не поддерживается Microsoft
+int PPAutoTranslSvc_Microsoft::Implement_Request(int srcLang, int destLang, const SString & rSrcText, SString & rResult) // @v12.4.1 Этот вариант больше не поддерживается Microsoft
 {
 	rResult.Z();
 	int    ok = -1;
@@ -3924,7 +3714,7 @@ int PPAutoTranslSvc_Microsoft::Request(int srcLang, int destLang, const SString 
 	return ok;
 }
 
-PPAutoTranslSvc_Google::PPAutoTranslSvc_Google()
+PPAutoTranslSvc_Google::PPAutoTranslSvc_Google() : PPAutoTranslSvcBase(cNoAuth)
 {
 }
 	
@@ -3950,16 +3740,16 @@ PPAutoTranslSvc_Google::~PPAutoTranslSvc_Google()
 // SHttpProtocol::SetHeaderField(http_header, "Referer", "https://translate.google.com/");
 // 
 
-int PPAutoTranslSvc_Google::Request(int srcLang, int destLang, const SString & rSrcText, SString & rResult)
+/*virtual*/int PPAutoTranslSvc_Google::Request(int srcLang, int destLang, const SString & rSrcTextUtf8, SString & rResultUtf8)
 {
 	static const PPAutoTranslSvc_Google::EndPoint GoogleTransleteEPList[] = {
 		{ "translate.googleapis.com", "translate_a/single", "gtx", false, false },
-		{ "translate.googleapis.com", "translate_a/single", "at", false, false  },
-		{ "translate.googleapis.com", "translate_a/t",      "dict-chrome-ex", true, false },
-		{ "clients5.google.com",      "translate_a/t",      "dict-chrome-ex", true, false },
-		{ "translate.google.com",     "translate_a/single", "webapp", false, true }, 
+		{ "translate.googleapis.com", "translate_a/single", "at", false, false  }, // [[["And in Sweden for every Kid there is a Carlson with a propeller.","Рђ РІ РЁРІРµС†РёРё РЅР° РєР°Р¶РґРѕРіРѕ РњР°Р»С‹С€Р° РµСЃС‚СЊ РљР°СЂР»СЃРѕРЅ СЃ РІРёРЅС‚РѕРј.",null,null,3,null,null,[[]],[[["e38d47a4f17c466dfca5ed67f09b5027","ru_en_2023q1.md"]]]]],null,"ru",null,null,null,null,[]]
+		{ "translate.googleapis.com", "translate_a/t",      "dict-chrome-ex", true, false }, // ["And in Sweden for every Kid there is a Carlson with a propeller."]
+		{ "clients5.google.com",      "translate_a/t",      "dict-chrome-ex", true, false }, // ["And in Sweden for every Kid there is a Carlson with a propeller."]
+		{ "translate.google.com",     "translate_a/single", "webapp", false, true }, // error
 	};
-	rResult.Z();
+	rResultUtf8.Z();
 	int    ok = -1;
 	SString temp_buf;
 	SString result_str;
@@ -3977,12 +3767,11 @@ int PPAutoTranslSvc_Google::Request(int srcLang, int destLang, const SString & r
 			THROW(Helper_PPAutoTranslSvc_Microsoft_Auth(*this));
 		}
 	}*/
-	const EndPoint * p_ep = 0;
-	p_ep = &GoogleTransleteEPList[0];
+	const EndPoint * p_ep = &GoogleTransleteEPList[2]; // Точку [4] использовать нельзя - не отладил. Она применяется для WebApp и предъявляет строгие требования к параметрам запроса.
 	assert(p_ep != 0);
 	{
 		url_buf = InetUrl::MkHttps(p_ep->P_Host, p_ep->P_Path);
-		url_buf.CatEq("client", p_ep->P_CliId); // ключевой параметр для доступа без токена
+		url_buf.CatChar('?').CatEq("client", p_ep->P_CliId); // ключевой параметр для доступа без токена
 	}
 	THROW(GetLinguaCode(srcLang, temp_buf));
 	url_buf.CatChar('&').CatEq("sl", temp_buf);
@@ -3991,19 +3780,22 @@ int PPAutoTranslSvc_Google::Request(int srcLang, int destLang, const SString & r
 	url_buf.CatChar('&').CatEq("tl", temp_buf);
 	log_buf.Cat(temp_buf).Tab();
 	url_buf.CatChar('&').CatEq("dt", "t");    // dt=t — вернуть перевод
-	url_buf.CatChar('&').CatEq("q", (temp_buf = rSrcText).ToUrl());
-	log_buf.Cat((temp_buf = rSrcText).Tab());
+	url_buf.CatChar('&').CatEq("q", (temp_buf = rSrcTextUtf8).ToUrl());
+	log_buf.Cat((temp_buf = rSrcTextUtf8).Tab());
 
 	// $authHeader = "Authorization: Bearer ". $accessToken;
 	//SHttpProtocol::SetHeaderField(http_header, SHttpProtocol::hdrAuthorization, temp_buf.Z().Cat("Bearer").Space().Cat(Token));
-	SHttpProtocol::SetHeaderField(http_header, SHttpProtocol::hdrContentType, "application/json;charset=utf-8");
 	{
 		DS.GetSurrogateUserAgentString(temp_buf);
 		if(temp_buf.NotEmpty())
 			SHttpProtocol::SetHeaderField(http_header, SHttpProtocol::hdrUserAgent, temp_buf);
 	}
 	if(p_ep->RefererNeeded) {
+		SHttpProtocol::SetHeaderField(http_header, SHttpProtocol::hdrContentType, "application/json, text/plain, */*");
 		SHttpProtocol::SetHeaderField(http_header, SHttpProtocol::hdrReferer, "https://translate.google.com/");
+	}
+	else {
+		SHttpProtocol::SetHeaderField(http_header, SHttpProtocol::hdrContentType, "application/json;charset=utf-8");
 	}
 	{
 		const uint64 at_start = SLS.GetProfileTime();
@@ -4018,7 +3810,59 @@ int PPAutoTranslSvc_Google::Request(int srcLang, int destLang, const SString & r
 			THROW(avl_size);
 			result_str.CopyFromN(static_cast<const char *>(p_result_buf->GetBuf(p_result_buf->GetRdOffs())), avl_size);
 			{
-				;
+				/*
+					[
+						[
+							[
+								"And in Sweden for every Kid there is a Carlson with a propeller.",
+								"А в Швеции на каждого Малыша есть Карлсон с винтом.",
+								null, null, 3, null, null,
+								[ [] ],
+								[ [ [ "e38d47a4f17c466dfca5ed67f09b5027", "ru_en_2023q1.md" ] ] ]
+							]
+						],
+						null, "ru", null, null, null, null, []
+					]
+				*/ 
+				SJson * p_js_result = SJson::Parse(result_str);
+				if(SJson::IsArray(p_js_result)) {
+					if(p_ep->ResultAsNamedJson) {
+						uint   str_n = 0;
+						for(const SJson * p_js0 = p_js_result->P_Child; rResultUtf8.IsEmpty() && p_js0; p_js0 = p_js0->P_Next) {
+							str_n++;
+							if(str_n == 1) {
+								if(SJson::IsString(p_js0)) {
+									(rResultUtf8 = p_js0->Text).Unescape();
+									if(rResultUtf8.NotEmptyS())
+										ok = 1;
+								}
+								break;
+							}
+						}
+					}
+					else {
+						for(const SJson * p_js0 = p_js_result->P_Child; rResultUtf8.IsEmpty() && p_js0; p_js0 = p_js0->P_Next) {
+							if(SJson::IsArray(p_js0)) {
+								for(const SJson * p_js1 = p_js0->P_Child; rResultUtf8.IsEmpty() && p_js1; p_js1 = p_js1->P_Next) {
+									if(SJson::IsArray(p_js1)) {
+										uint   str_n = 0;
+										for(const SJson * p_js2 = p_js1->P_Child; p_js2; p_js2 = p_js2->P_Next) {
+											str_n++;
+											if(str_n == 1) {
+												if(SJson::IsString(p_js2)) {
+													(rResultUtf8 = p_js2->Text).Unescape();
+													if(rResultUtf8.NotEmptyS())
+														ok = 1;
+												}
+												break;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 			if(ok <= 0) {
 				log_buf.Cat(result_str);
@@ -4030,37 +3874,35 @@ int PPAutoTranslSvc_Google::Request(int srcLang, int destLang, const SString & r
 	return ok;
 }
 
-int PPAutoTranslateText(int srcLang, int destLang, const SString & rSrcUtf8, SString & rResultUtf8)
+int PPAutoTranslateText(int srcLang, int destLang, AutotranslCache * pCache, const SString & rSrcUtf8, SString & rResultUtf8)
 {
 	// slangRU
 	int    ok = 1;
-	PPAutoTranslSvc_Google at;
-	//THROW(Helper_PPAutoTranslSvc_Microsoft_Auth(at));
-	THROW(at.Request(srcLang, destLang, rSrcUtf8, rResultUtf8));
-	CATCHZOK
+	const  uint cr = pCache ? pCache->GetTranslation(rSrcUtf8, destLang, rResultUtf8) : 0;
+	if(cr) {
+		ok = 2;
+	}
+	else {
+		PPAutoTranslSvc_Google at;
+		//THROW(Helper_PPAutoTranslSvc_Microsoft_Auth(at));
+		if(at.Request(srcLang, destLang, rSrcUtf8, rResultUtf8) > 0) {
+			if(pCache) {
+				uint   src_text_id = pCache->AddSrcText(rSrcUtf8);
+				if(src_text_id) {
+					pCache->AddTranslation(src_text_id, destLang, rResultUtf8);
+				}
+			}
+		}
+		else {
+			ok = 0;
+		}
+	}
+	//CATCHZOK
 	return ok;
 }
-
-class AutotranslCache {
-public:
-	AutotranslCache();
-	uint   AddSrcText(const char * pText);
-	uint   GetSrcText(const char * pText) const;
-	int    AddTranslation(uint srcTextId, int langId, const char * pTranslation);
-	uint   GetTranslation(const char * pSrcText, int langId, SString & rTranslation);
-	int    Store(const char * pFileName);
-	int    Load(const char * pFileName);
-private:
-	SymbHashTable Ht_SrcText;
-	uint   MaxHtSrcId;
-	SStrGroup StrPool;
-	struct LangEntry {
-		int   LangId; // @firstmember
-		LAssocArray L; // Key - hash-id, Val - StrPool-idx
-	};
-	TSCollection <LangEntry> TransL;
-};
-
+//
+//
+//
 AutotranslCache::AutotranslCache() : Ht_SrcText(SMEGABYTE(1)), MaxHtSrcId(0)
 {
 }
@@ -4370,21 +4212,32 @@ int TestAutotranslateCache()
 int TestAutotranslateText()
 {
 	int    ok = 1;
+	uint   _count = 0;
+	SString temp_buf;
 	SString src_text;
 	SString dest_text;
-	SString temp_buf;
-	PPGetPath(PPPATH_TESTROOT, temp_buf);
-	if(temp_buf.NotEmpty()) {
-		temp_buf.SetLastSlash().Cat("data").SetLastSlash().Cat("phrases-ru-1251.txt");
+	SString test_root_path;
+	SString cache_file_name;
+	PPGetPath(PPPATH_TESTROOT, test_root_path);
+	if(test_root_path.NotEmpty()) {
+		(temp_buf = test_root_path).SetLastSlash().Cat("data").SetLastSlash().Cat("phrases-ru-1251.txt");
 		SFile f_in(temp_buf, SFile::mRead);
 		if(f_in.IsValid()) {
+			(cache_file_name = test_root_path).SetLastSlash().Cat("out").SetLastSlash().Cat("TestAutotranslateCache");
+			AutotranslCache cache;
+			cache.Load(cache_file_name);
 			while(f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 				(src_text = temp_buf).Transf(CTRANSF_OUTER_TO_UTF8);
 				dest_text.Z();
-				if(PPAutoTranslateText(slangRU, slangEN, src_text, dest_text)) {
+				if(PPAutoTranslateText(slangRU, slangEN, &cache, src_text, dest_text)) {
+					_count++;
 					temp_buf = dest_text; // @debug @stub
+					if((_count % 20) == 0) {
+						cache.Store(cache_file_name);
+					}
 				}
 			}
+			cache.Store(cache_file_name);
 		}
 	}
 	return ok;

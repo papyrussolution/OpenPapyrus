@@ -2193,6 +2193,7 @@ int PPGlobalUserAccPacket::GetAccessKey(SString & rValue) const
 	SString user;
 	SString pw;
 	int    port = 0;
+	int32  api_ver = 0;  
 	if(!PPObjGlobalUserAcc::GetChZnLocPmUrl(rBuf, url))
 		url.Z();
 	if(CheckDialogPtr(&dlg)) {
@@ -2201,11 +2202,18 @@ int PPGlobalUserAccPacket::GetAccessKey(SString & rValue) const
 		port = temp_buf.ToLong();
 		url.GetComponent(InetUrl::cUserName, 0, user);
 		url.GetComponent(InetUrl::cPassword, 0, pw);
+		// @v12.6.4 {
+		{
+			url.GetQueryParam("apiver", 0, temp_buf);
+			api_ver = temp_buf.ToLong();
+		}
+		// } @v12.6.4 
 		if(port)
 			addr.Colon().Cat(port);
 		dlg->setCtrlString(CTL_CHZNLOCPMURL_ADDR, addr);
 		dlg->setCtrlString(CTL_CHZNLOCPMURL_USER, user);
 		dlg->setCtrlString(CTL_CHZNLOCPMURL_PW, pw);
+		dlg->setCtrlLong(CTL_CHZNLOCPMURL_APIVER, api_ver); // @v12.6.4
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			uint    sel = 0;
 			dlg->getCtrlString(sel = CTL_CHZNLOCPMURL_ADDR, addr);
@@ -2215,6 +2223,7 @@ int PPGlobalUserAccPacket::GetAccessKey(SString & rValue) const
 					addr.Insert(0, p_scheme_prefix);
 				dlg->getCtrlString(sel = CTL_CHZNLOCPMURL_USER, user);
 				dlg->getCtrlString(sel = CTL_CHZNLOCPMURL_PW, pw);
+				api_ver = dlg->getCtrlLong(sel = CTL_CHZNLOCPMURL_APIVER); // @v12.6.4
 				if(url.Parse(addr)) {
 					url.GetComponent(InetUrl::cPort, 0, temp_buf);
 					int __port = temp_buf.ToLong();
@@ -2226,6 +2235,11 @@ int PPGlobalUserAccPacket::GetAccessKey(SString & rValue) const
 							url.SetComponent(InetUrl::cPassword, pw);
 						}
 					}
+					// @v12.6.4 {
+					if(oneof2(api_ver, 1, 2)) {
+						url.SetQueryParam("apiver", temp_buf.Z().Cat(api_ver));
+					}
+					// } @v12.6.4 
 					url.Compose(InetUrl::stAll, rBuf);
 					ok = 1;
 				}

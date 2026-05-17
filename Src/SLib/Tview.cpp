@@ -618,7 +618,7 @@ static HMENU _CtlIdForCreateWindow(uint ctlId) { return reinterpret_cast<HMENU>(
 						else {
 							style |= LBS_NOTIFY|LBS_NOINTEGRALHEIGHT|LBS_WANTKEYBOARDINPUT;
 							// @v12.5.6 {
-							if(p_lb->P_Def && p_lb->P_Def->Options & lbtOwnerDraw) {
+							if((p_lb->P_Def && p_lb->P_Def->Options & lbtOwnerDraw) || p_lb->HasState(SmartListBox::stOwnerDraw)) { // @v12.6.4 (p_lb->HasState(SmartListBox::stOwnerDraw))
 								style |= LBS_OWNERDRAWFIXED;
 							}
 							// } @v12.5.6 

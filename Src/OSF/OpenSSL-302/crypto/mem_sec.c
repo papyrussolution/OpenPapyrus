@@ -125,7 +125,6 @@ void * CRYPTO_secure_malloc(size_t num, const char * file, int line)
 #ifndef OPENSSL_NO_SECURE_MEMORY
 	void * ret;
 	size_t actual_size;
-
 	if(!secure_mem_initialized) {
 		return CRYPTO_malloc(num, file, line);
 	}
@@ -155,7 +154,6 @@ void CRYPTO_secure_free(void * ptr, const char * file, int line)
 {
 #ifndef OPENSSL_NO_SECURE_MEMORY
 	size_t actual_size;
-
 	if(ptr == NULL)
 		return;
 	if(!CRYPTO_secure_allocated(ptr)) {
@@ -174,32 +172,29 @@ void CRYPTO_secure_free(void * ptr, const char * file, int line)
 #endif /* OPENSSL_NO_SECURE_MEMORY */
 }
 
-void CRYPTO_secure_clear_free(void * ptr, size_t num,
-    const char * file, int line)
+void CRYPTO_secure_clear_free(void * ptr, size_t num, const char * file, int line)
 {
+	if(ptr) {
 #ifndef OPENSSL_NO_SECURE_MEMORY
-	size_t actual_size;
-
-	if(ptr == NULL)
-		return;
-	if(!CRYPTO_secure_allocated(ptr)) {
+		if(!CRYPTO_secure_allocated(ptr)) {
+			OPENSSL_cleanse(ptr, num);
+			CRYPTO_free(ptr, file, line);
+			return;
+		}
+		else if(!CRYPTO_THREAD_write_lock(sec_malloc_lock))
+			return;
+		else {
+			size_t actual_size = sh_actual_size((char *)ptr);
+			CLEAR(ptr, actual_size);
+			secure_mem_used -= actual_size;
+			sh_free(ptr);
+			CRYPTO_THREAD_unlock(sec_malloc_lock);
+		}
+#else
 		OPENSSL_cleanse(ptr, num);
 		CRYPTO_free(ptr, file, line);
-		return;
-	}
-	if(!CRYPTO_THREAD_write_lock(sec_malloc_lock))
-		return;
-	actual_size = sh_actual_size((char *)ptr);
-	CLEAR(ptr, actual_size);
-	secure_mem_used -= actual_size;
-	sh_free(ptr);
-	CRYPTO_THREAD_unlock(sec_malloc_lock);
-#else
-	if(ptr == NULL)
-		return;
-	OPENSSL_cleanse(ptr, num);
-	CRYPTO_free(ptr, file, line);
 #endif /* OPENSSL_NO_SECURE_MEMORY */
+	}
 }
 
 int CRYPTO_secure_allocated(const void * ptr)
@@ -578,42 +573,34 @@ static void * sh_malloc(size_t size)
 	ossl_ssize_t list, slist;
 	size_t i;
 	char * chunk;
-
 	if(size > sh.arena_size)
 		return NULL;
-
 	list = sh.freelist_size - 1;
 	for(i = sh.minsize; i < size; i <<= 1)
 		list--;
 	if(list < 0)
 		return NULL;
-
 	/* try to find a larger entry to split */
 	for(slist = list; slist >= 0; slist--)
 		if(sh.freelist[slist] != NULL)
 			break;
 	if(slist < 0)
 		return NULL;
-
 	/* split larger entry */
 	while(slist != list) {
 		char * temp = sh.freelist[slist];
-
 		/* remove from bigger list */
 		OPENSSL_assert(!sh_testbit(temp, slist, sh.bitmalloc));
 		sh_clearbit(temp, slist, sh.bittable);
 		sh_remove_from_list(temp);
 		OPENSSL_assert(temp != sh.freelist[slist]);
-
 		/* done with bigger list */
 		slist++;
-
 		/* add to smaller list */
 		OPENSSL_assert(!sh_testbit(temp, slist, sh.bitmalloc));
 		sh_setbit(temp, slist, sh.bittable);
 		sh_add_to_list(&sh.freelist[slist], temp);
 		OPENSSL_assert(sh.freelist[slist] == temp);
-
 		/* split in 2 */
 		temp += sh.arena_size >> slist;
 		OPENSSL_assert(!sh_testbit(temp, slist, sh.bitmalloc));

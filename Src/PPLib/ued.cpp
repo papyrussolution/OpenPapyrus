@@ -380,6 +380,8 @@ bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * 
 		case PPOBJ_LOCATION: meta = UED_META_PRV_LOCATION; break;
 		case PPOBJ_BILL: meta = UED_META_PRV_DOC; break;
 		case PPOBJ_LOT: meta = UED_META_PRV_LOT; break;
+		case PPOBJ_PROCESSOR: meta = UED_META_PRV_PROCESSOR; break; // @v12.6.4
+		case PPOBJ_TECH: meta = UED_META_PRV_TECH; break; // @v12.6.4
 	}
 	if(meta != 0ULL) {
 		result = ApplyMetaToRawValue(meta, oid.Id);
@@ -398,6 +400,8 @@ bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * 
 		case UED_META_PRV_LOCATION: rOid.Obj = PPOBJ_LOCATION; break;
 		case UED_META_PRV_DOC: rOid.Obj = PPOBJ_BILL; break;
 		case UED_META_PRV_LOT: rOid.Obj = PPOBJ_LOT; break;
+		case UED_META_PRV_PROCESSOR: rOid.Obj = PPOBJ_PROCESSOR; break; // @v12.6.4
+		case UED_META_PRV_TECH: rOid.Obj = PPOBJ_TECH; break; // @v12.6.4
 	}
 	if(rOid.Obj) {
 		uint64 raw_value = 0;

@@ -32,13 +32,11 @@
  ***************************************************************************/
 typedef enum {
 	SMTP_STOP,  /* do nothing state, stops the state machine */
-	SMTP_SERVERGREET, /* waiting for the initial greeting immediately after
-	                     a connect */
+	SMTP_SERVERGREET, /* waiting for the initial greeting immediately after a connect */
 	SMTP_EHLO,
 	SMTP_HELO,
 	SMTP_STARTTLS,
-	SMTP_UPGRADETLS, /* asynchronously upgrade the connection to SSL/TLS
-	                    (multi mode only) */
+	SMTP_UPGRADETLS, /* asynchronously upgrade the connection to SSL/TLS (multi mode only) */
 	SMTP_AUTH,
 	SMTP_COMMAND, /* VRFY, EXPN, NOOP, RSET and HELP */
 	SMTP_MAIL,  /* MAIL FROM */
@@ -57,11 +55,9 @@ struct SMTP {
 	curl_pp_transfer transfer;
 	char * custom;     /* Custom Request */
 	struct curl_slist * rcpt; /* Recipient list */
-	int rcpt_last_error; /* The last error received for RCPT TO command */
-	size_t eob;        /* Number of bytes of the EOB (End Of Body) that
-	                      have been received so far */
-	BIT(rcpt_had_ok);  /* Whether any of RCPT TO commands (depends on
-	                      total number of recipients) succeeded so far */
+	int    rcpt_last_error; /* The last error received for RCPT TO command */
+	size_t eob;        /* Number of bytes of the EOB (End Of Body) that have been received so far */
+	BIT(rcpt_had_ok);  /* Whether any of RCPT TO commands (depends on total number of recipients) succeeded so far */
 	BIT(trailing_crlf); /* Specifies if the trailing CRLF is present */
 };
 
@@ -74,10 +70,8 @@ struct smtp_conn {
 	char * domain;     /* Client address/name to send in the EHLO */
 	BIT(ssldone);      /* Is connect() over SSL done? */
 	BIT(tls_supported); /* StartTLS capability supported by server */
-	BIT(size_supported); /* If server supports SIZE extension according to
-	                        RFC 1870 */
-	BIT(utf8_supported); /* If server supports SMTPUTF8 extension according
-	                        to RFC 6531 */
+	BIT(size_supported); /* If server supports SIZE extension according to RFC 1870 */
+	BIT(utf8_supported); /* If server supports SMTPUTF8 extension according to RFC 6531 */
 	BIT(auth_supported); /* AUTH capability supported by server */
 };
 
@@ -93,8 +87,6 @@ extern const struct Curl_handler Curl_handler_smtps;
 #define SMTP_EOB_REPL "\x0d\x0a\x2e\x2e"
 #define SMTP_EOB_REPL_LEN 4
 
-CURLcode Curl_smtp_escape_eob(struct Curl_easy * data,
-    const ssize_t nread,
-    const ssize_t offset);
+CURLcode Curl_smtp_escape_eob(struct Curl_easy * data, const ssize_t nread, const ssize_t offset);
 
 #endif /* HEADER_CURL_SMTP_H */

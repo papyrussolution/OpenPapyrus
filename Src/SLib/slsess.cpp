@@ -200,7 +200,8 @@ SlSession::SlSession() : SSys(1), Id(1), TlsIdx(-1), StopFlag(0), P_StopEvnt(0),
 		// Таким образом, мы избежим риска конфликтов при многопоточном исполнении.
 		//
 		const  size_t S = 128;
-		char   temp_buf1[S], temp_buf2[S];
+		char   temp_buf1[S];
+		char   temp_buf2[S];
 		A_memset(temp_buf1, 0, S);
 		A_memset(temp_buf2, 0, S);
 		A_memmove(temp_buf1, temp_buf2, S);
@@ -219,7 +220,7 @@ SlSession::~SlSession()
 	if(ExtraProcBlk.F_CallHelp && HelpCookie) {
 		ExtraProcBlk.F_CallHelp(0, HH_UNINITIALIZE, HelpCookie);
 	}
-	GlobObjList.Destroy(); // @v11.3.2 instead of automatic destruction
+	GlobObjList.Destroy(); // instead of automatic destruction
 	ReleaseThread();
 	TlsFree(TlsIdx);
 	delete P_StopEvnt;

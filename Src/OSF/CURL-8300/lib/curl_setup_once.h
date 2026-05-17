@@ -222,13 +222,12 @@ typedef uint bit;
  * AIX 5.1/Xlc, Tru64 5.1/cc, w/make test too.
  */
 #ifndef TRUE
-#define TRUE true
+	#define TRUE true
 #endif
 #ifndef FALSE
-#define FALSE false
+	#define FALSE false
 #endif
 #include "curl_ctype.h"
-
 /*
  * Macro used to include code only in debug builds.
  */
@@ -336,24 +335,16 @@ typedef uint bit;
 #define ESTALE           WSAESTALE
 #define EREMOTE          WSAEREMOTE
 #endif
-
 /*
  * Macro argv_item_t hides platform details to code using it.
  */
-
 #ifdef __VMS
-#define argv_item_t  __char_ptr32
+	#define argv_item_t  __char_ptr32
 #elif defined(_UNICODE)
-#define argv_item_t wchar_t *
+	#define argv_item_t wchar_t *
 #else
-#define argv_item_t  char *
+	#define argv_item_t  char *
 #endif
-
-/*
- * We use this ZERO_NULL to avoid picky compiler warnings,
- * when assigning a NULL pointer to a function pointer var.
- */
-
-#define ZERO_NULL 0
+#define ZERO_NULL 0 // We use this ZERO_NULL to avoid picky compiler warnings, when assigning a NULL pointer to a function pointer var.
 
 #endif /* HEADER_CURL_SETUP_ONCE_H */

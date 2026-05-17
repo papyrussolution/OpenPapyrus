@@ -6995,6 +6995,8 @@ browser UNIFINDOBJ north(100), 3, 1, "@unifindobj", OWNER|GRID, 0
 
 browser TECHROUTE north(100), 3, 1, "@view_techroute", OWNER|GRID, 0
 {
+	"@id",                       8, long,         0,  8, BCO_USERPROC|BCO_DONTSHOWDUPL
+	"@symbol",                   9, zstring(48),  0, 10, BCO_USERPROC|BCO_DONTSHOWDUPL
 	"@objtype",                  1, zstring(48),  0, 10, BCO_USERPROC|BCO_DONTSHOWDUPL
 	"@object",                   2, zstring(128), 0, 20, BCO_USERPROC|BCO_DONTSHOWDUPL
 	"N",                         3, long,         0,  8, BCO_USERPROC

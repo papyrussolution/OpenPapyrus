@@ -4782,9 +4782,7 @@ static mdb_hash_t mdb_hash(const void * val, size_t len)
 {
 	const uchar * s = (const uchar *)val, * end = s + len;
 	mdb_hash_t hval = SlConst::FnvHash1Init64;
-	/*
-	 * FNV-1a hash each octet of the buffer
-	 */
+	// FNV-1a hash each octet of the buffer
 	while(s < end) {
 		hval = (hval ^ *s++) * SlConst::FnvHashPrime64;
 	}

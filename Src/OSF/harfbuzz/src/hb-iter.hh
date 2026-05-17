@@ -218,12 +218,9 @@ protected:
 
 /* hb_is_iterator() / hb_is_iterator_of() */
 
-template<typename Iter, typename Item>
-struct hb_is_iterator_of {
-	template <typename Item2 = Item>
-	    static hb_true_type impl(hb_priority<2>, hb_iter_t<Iter, hb_type_identity<Item2>> *);
+template<typename Iter, typename Item> struct hb_is_iterator_of {
+	template <typename Item2 = Item> static hb_true_type impl(hb_priority<2>, hb_iter_t<Iter, hb_type_identity<Item2>> *);
 	static hb_false_type impl(hb_priority<0>, const void *);
-
 public:
 	static constexpr bool value = decltype(impl(hb_prioritize, hb_declval(Iter*))) ::value;
 };
@@ -233,16 +230,10 @@ public:
 
 /* hb_is_iterable() */
 
-template <typename T>
-struct hb_is_iterable {
+template <typename T> struct hb_is_iterable {
 private:
-
-	template <typename U>
-	static auto impl(hb_priority<1>)->decltype(hb_declval(U).iter(), hb_true_type());
-
-	template <typename>
-	static hb_false_type impl(hb_priority<0>);
-
+	template <typename U> static auto impl(hb_priority<1>)->decltype(hb_declval(U).iter(), hb_true_type());
+	template <typename> static hb_false_type impl(hb_priority<0>);
 public:
 	static constexpr bool value = decltype(impl<T> (hb_prioritize)) ::value;
 };

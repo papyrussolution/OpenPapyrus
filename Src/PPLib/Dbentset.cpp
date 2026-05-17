@@ -77,7 +77,7 @@ int DbLoginBlock::UrlParse(const char * pUrl)
 			SetAttr(attrServerType, temp_buf);
 			if(url.GetComponent(InetUrl::cUserName, 0, temp_buf))
 				SetAttr(attrUserName, temp_buf);
-			if(url.GetQueryParam("db", 0, temp_buf) > 0)
+			if(url.GetQueryParam("db", 0, temp_buf))
 				SetAttr(attrDbName, temp_buf);
 			url.Compose(InetUrl::stHost|InetUrl::stPort, temp_buf);
 			SetAttr(attrServerUrl, temp_buf);
@@ -88,7 +88,7 @@ int DbLoginBlock::UrlParse(const char * pUrl)
 			SetAttr(attrServerType, temp_buf);
 			if(url.GetComponent(InetUrl::cUserName, 0, temp_buf))
 				SetAttr(attrUserName, temp_buf);
-			if(url.GetQueryParam("db", 0, temp_buf) > 0)
+			if(url.GetQueryParam("db", 0, temp_buf))
 				SetAttr(attrDbName, temp_buf);
 			url.Compose(InetUrl::stHost|InetUrl::stPort, temp_buf);
 			SetAttr(attrServerUrl, temp_buf);

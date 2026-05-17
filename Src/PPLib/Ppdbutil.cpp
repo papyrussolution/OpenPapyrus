@@ -2249,7 +2249,7 @@ int PPBackup::LockDatabase()
 				ok = 0;
 			else if(PPErrCode != PPERR_SYNCDBLOCKED && PPErrCode != PPERR_SYNCDBINUSE)
 				ok = 0;
-			else if(waiting || PPMessage(mfConf|mfYes|mfNo, PPCFM_WAITONDBLOCK) == cmYes) {
+			else if(waiting || PPMessage(mfConf|mfYesNo, PPCFM_WAITONDBLOCK) == cmYes) {
 				if(!waiting) {
 					PPWaitStart();
 					PPWaitMsg(PPSTR_TEXT, PPTXT_WAITONDBLOCK, 0);

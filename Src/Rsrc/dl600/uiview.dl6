@@ -219,27 +219,6 @@ dialog DLG_CCEXTLIST [vertical title: "@ccextlist" size: (663, 294) font: "MS Sh
 		}
 	}	
 }
-
-dialog DLG_LOTXCLIST [vertical title: "@lotxcodelist" size: (1119, 424) font: "MS Shell Dlg,8"] {
-	input CTL_LOTXCLIST_INFO [width: bycontainer(100) height: 21 margin: 4 tabstop readonly] string[128];
-	listbox CTL_LOTXCLIST_LIST [tabstop width: bycontainer(100) growfactor: 1 margin: 4];
-	view [horizontal width: bycontainer(100) height: 28] {
-		view [horizontal width: 200 height: bycontainer(100) gravity: left justifycontent: start] {
-			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
-			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
-		}
-		view [horizontal growfactor: 1 height: bycontainer(100) gravity: center justifycontent: spaceevenly] {
-			button STDCTL_COPYTOCLIPBOARD [title: "@lotxcodelist_cbcopy" tabstop size: (150, 21) margin: 4 command: cmCopyToClipboard];
-			button STDCTL_COPYTOCLIPBOARDALL [title: "@lotxcodelist_cbcopyall" tabstop size: (150, 21) margin: 4 command: cmCopyToClipboardAll];
-			button STDCTL_PASTEFROMCLIPBOARDALL [title: "@lotxcodelist_cbpaste" tabstop size: (150, 21) margin: 4 command: cmPasteFromClipboardAll];
-			button STDCTL_IMPORT [title: "Import..." tabstop size: (150, 21) margin: 4 command: cmImport];
-		}
-		view [horizontal width: 170 height: bycontainer(100) gravity: right justifycontent: end] {
-			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
-			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
-		}
-	}
-}
 //
 // @todo Диалоги DLG_CFM_RECKONING и DLG_CFM_RECKONDEBT не отличаются друг от друга. Я не помню почему их дифференцировал изначално,
 // но, видимо, их надо объединять в один.
@@ -859,10 +838,11 @@ dialog DLG_BILLPRELUDE [vertical title: "@billprelude" size: (384, 463) minsize:
 	}
 }
 
-dialog DLG_CHZNLOCPMURL [vertical title: "" size: (385, 220) minsize: (385, 220) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_CHZNLOCPMURL [vertical title: "" size: (385, 240) minsize: (385, 240) padding: 4 font: "MS Shell Dlg,8"] {
 	input CTL_CHZNLOCPMURL_ADDR [width: bycontainer height: 21 margin: 4 tabstop label: "@serveraddr"] string[64];
 	input CTL_CHZNLOCPMURL_USER [width: bycontainer height: 21 margin: 4 tabstop label: "@username"] string[64];
 	input CTL_CHZNLOCPMURL_PW   [width: bycontainer height: 21 margin: 4 tabstop password label: "@password"] string[64];
+	input CTL_CHZNLOCPMURL_APIVER [design: B width: 50 height: 21 margin: 4 tabstop label: "@chznlocpmparam_apiver" fmtf: (nozero)] int32; // @v12.6.4
 	view [horizontal width: bycontainer growfactor: 1 margin_right: 12 gravity: right justifycontent: end alignitems: end] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
@@ -928,7 +908,7 @@ dialog DLG_TESTGLBSVCACSY [title: "@testglobalserviceaccessibility" vertical siz
 //
 // @v12.3.12 Диалог диагностики локального сервера проверки марок чзн
 //
-dialog DLG_CHZNLOCPMPANE [vertical title: "" size: (507, 414) minsize: (500, 300) font: "MS Shell Dlg,8"] {
+dialog DLG_CHZNLOCPMPANE [vertical title: "" size: (507, 414) minsize: (500, 300) padding: 4 font: "MS Shell Dlg,8"] {
 	input CTL_CHZNLOCPMPANE_URL [width: bycontainer height: 21 margin: 4 tabstop readonly] string[252];
 	view [horizontal width: bycontainer height: 28 gravity: right justifycontent: end] {
 		button [title: "@launch" tabstop size: (150, 21) margin: 4 command: cmRun];
@@ -940,7 +920,7 @@ dialog DLG_CHZNLOCPMPANE [vertical title: "" size: (507, 414) minsize: (500, 300
 	}
 }
 
-dialog DLG_CHKPANV [vertical title: "@poscheck" size: (888, 489)  font: "MS Shell Dlg 2,8"] {
+dialog DLG_CHKPANV [vertical title: "@poscheck" size: (888, 489) font: "MS Shell Dlg 2,8"] {
 	listbox CTL_CHKPAN_LIST [width: bycontainer growfactor: 1 columns: "3,R,#;3,C,;44,L,@ware;16,L,@barcode;9,R,@price;8,R,@discount;8,R,@qtty;9,R,@amount;6,R,@vatrate;15,L,@series"];
 	view [horizontal width: bycontainer height: 40] {
 		//statictext [title: "@id" size: (68, 13)];
@@ -4464,6 +4444,10 @@ dialog DLG_TSESWOORDI [vertical title: "@tsesswrofforder_item" size: (485, 140) 
 
 // Технологический маршрут
 dialog DLG_TECHROUTE [vertical title: "@techroute" size: (550, 450) minsize: (550, 450) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.12
+	view [horizontal width: bycontainer height: 45] {
+		input CTL_TECHROUTE_CODE [growfactor: 1 height: 21 margin: 4 tabstop label: "@code"] string[48];
+		input CTL_TECHROUTE_ID [size: (50, 21) margin: 4 tabstop readonly label: "@id"] int32;
+	}
 	framebox [vertical title: "@linkobject" width: bycontainer height: 140 margin: 4 padding: (4, 12, 4, 4)] {
 		combobox CTLSEL_TECHROUTE_OBJTYPE [width: bycontainer height: 21 margin: 4 tabstop label: "@objtype" cblinesymb: CTL_TECHROUTE_OBJTYPE];
 		combobox CTLSEL_TECHROUTE_OBJGROUP [width: bycontainer height: 21 margin: 4 tabstop label: "@{objectgroup}" cblinesymb: CTL_TECHROUTE_OBJGROUP];
@@ -5178,6 +5162,167 @@ dialog DLG_GBITEM [vertical title: "@goodsbasketitem" size: (680, 400) minsize: 
 		}
 		view [horizontal growfactor: 1 height: bycontainer margin_right: 12 justifycontent: end] {
 			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_GSDATA [vertical title: "@goods_struc" size: (390, 140) minsize: (390, 140) padding: 4 font: "MS Shell Dlg,8" justifycontent: spacebetween] {
+	combobox CTLSEL_GSDATA_NAMEDSTRUC [width: bycontainer height: 21 margin: 4 tabstop label: "@namedgoodsstruc" cblinesymb: CTL_GSDATA_NAMEDSTRUC] supplement ellipsisbutton(CTL_GSDATA_CMD_SHOWGS cmShowGoodsStruc);
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_GLOBUSERACC [vertical title: "@globaluseracc" size: (580, 360) minsize: (580, 360) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.6.4 @construction
+	view [horizontal width: bycontainer height: 45] {
+		input CTL_GLOBUSERACC_NAME [growfactor: 3 height: 21 margin: 4 tabstop label: "@appellation"] string[48];
+		input CTL_GLOBUSERACC_SYMB [growfactor: 3 height: 21 margin: 4 tabstop label: "@symbol"] string[20];
+		input CTL_GLOBUSERACC_ID [size: (75, 21) margin: 4 readonly label: "@id"] int32;
+	}
+	framebox [horizontal width: bycontainer height: 53 margin: 4 padding: 4] {
+		input CTL_GLOBUSERACC_DBUUID [growfactor: 1 height: 21 margin: 4 tabstop label: "@globaluseracc_localdbuuid"] string[48];
+		view [horizontal growfactor: 1 height: bycontainer] {
+			input CTL_GLOBUSERACC_LOCALID [design: B size: (75, 21) margin: (4, 15, 4, 4) tabstop label: "@globaluseracc_localuser"] int32;
+		}
+	}
+	view [horizontal width: bycontainer growfactor: 1] {
+		view [vertical growfactor: 3 height: bycontainer] {
+			combobox CTLSEL_GLOBUSERACC_PSN [width: bycontainer height: 21 margin: 4 tabstop label: "@person" cblinesymb: CTL_GLOBUSERACC_PSN];
+			combobox CTLSEL_GLOBUSERACC_SVC [width: bycontainer height: 21 margin: 4 tabstop label: "@globaluseracc_service" cblinesymb: CTL_GLOBUSERACC_SVC];
+			view [horizontal width: bycontainer height: 30 justifycontent: spacebetween] {
+				button CTL_GS_SETTING [title: "@{globaluseracc_serviceconfig}..." tabstop growfactor: 1 height: 21 margin: (4, 4, 4, 6) command: cmGlobalServiceSetting];
+				checkbox CTL_GLOBUSERACC_FLAGS [title: "@globaluseracc_fsandbox" tabstop growfactor: 1 height: 21 margin: (6, 4, 4, 4)];
+			}
+		}
+		imageview CTL_GLOBUSERACC_LOGO [growfactor: 1 height: bycontainer margin: 4];
+	}
+	view [horizontal width: bycontainer height: 30] {
+		view [horizontal growfactor: 3 height: bycontainer justifycontent: start] {
+			button CTL_USR_PASSWORD [title: "@{password}..." tabstop size: (75, 21) margin: 4 command: cmCfgPassword];
+			button STDCTL_TAGSBUTTON [title: "@but_tags" tabstop size: (75, 21) margin: 4 command: cmTags];
+			button CTL_CMD_GUAEXTLIST [title: "@{extfldlist}..." tabstop size: (165, 21) margin: 4 command: cmGuaExtList];
+		}
+		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_CLIAGT [vertical title: "@article_p_cliagt" size: (705, 515) minsize: (705, 515) padding: 4 font: "MS Shell Dlg 2,8" justifycontent: spacebetween] { // @v12.6.4
+	view [horizontal width: bycontainer height: 45] {
+		input CTL_CLIAGT_CLIENT [growfactor: 2 height: 21 margin: 4 tabstop label: "@client"] string[128];
+		view [horizontal growfactor: 1 height: bycontainer] {
+			input CTL_CLIAGT_MAXCREDIT [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (tricomma) fmtprec: 2 label: "@cfgclientdeal_maxcredit"] double;
+			input CTL_CLIAGT_CURDEBT [growfactor: 1 height: 21 margin: 4 tabstop readonly fmtf: (tricomma) fmtprec: 2 label: "@cfgclientdeal_currentdebt"] double;
+		}
+	}
+	view [horizontal width: bycontainer height: 45] {
+		view [horizontal growfactor: 2 height: 45] {
+			input CTL_CLIAGT_CODE [growfactor: 1 height: 21 margin: 4 tabstop label: "@cfgclientdeal_code"] string[48];
+			input CTL_CLIAGT_DATE [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (dmy) label: "@cfgclientdeal_begdt"] date supplement datecalbutton(CTLCAL_CLIAGT_DATE);
+			input CTL_CLIAGT_EXPIRY [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (dmy) label: "@cfgclientdeal_expiry"] date supplement datecalbutton(CTLCAL_CLIAGT_EXPIRY);
+		}
+		view [horizontal growfactor: 1 height: bycontainer] {
+			input CTL_CLIAGT_DSCNT [growfactor: 1 height: 21 margin: 4 tabstop fmtprec: 2 label: "@cfgclientdeal_dscnt"] double;
+			input CTL_CLIAGT_MAXDSCNT [growfactor: 1 height: 21 margin: 4 tabstop fmtprec: 2 label: "@cfgclientdeal_maxdscnt"] double;
+		}
+	}
+	view [horizontal width: bycontainer height: 45] {
+		combobox CTLSEL_CLIAGT_AGENT [growfactor: 2 height: 21 margin: 4 tabstop label: "@cfgclientdeal_defagent" cblinesymb: CTL_CLIAGT_AGENT];
+		view [horizontal growfactor: 1 height: bycontainer] {
+			input CTL_CLIAGT_PAYPERIOD [growfactor: 1 height: 21 margin: 4 tabstop label: "@cfgclientdeal_defpayperiod"] int16;
+			input CTL_CLIAGT_DUEPERIOD [growfactor: 1 height: 21 margin: 4 tabstop label: "@cfgclientdeal_defdueperiodhour"] int16;
+		}
+	}
+	view [horizontal width: bycontainer height: 45] {
+		combobox CTLSEL_CLIAGT_QUOTKIND [growfactor: 2 height: 21 margin: 4 tabstop label: "@quotkind" cblinesymb: CTL_CLIAGT_QUOTKIND];
+		combobox CTLSEL_CLIAGT_PAYMDTBASE [growfactor: 1 height: 21 margin: 4 tabstop label: "@cfgclientdeal_paymdatebase" cblinesymb: CTL_CLIAGT_PAYMDTBASE];
+	}
+	view [horizontal width: bycontainer height: 45] {
+		combobox CTLSEL_CLIAGT_EXTOBJECT [growfactor: 3 height: 21 margin: 4 tabstop label: "@cfgclientdeal_extobject" cblinesymb: CTL_CLIAGT_EXTOBJECT ];
+		combobox CTLSEL_CLIAGT_EDIPRV [growfactor: 2 height: 21 margin: 4 tabstop label: "@cfgclientdeal_ediprvid" cblinesymb: CTL_CLIAGT_EDIPRV ];
+	}
+	view [horizontal width: bycontainer height: 30] {
+		button CTL_CLIAGT_CMD_ROUNDING [title: "@{cfgclientdeal_pricerounding}..." tabstop size: (105, 21) margin: 4 command: cmRounding];
+		view [horizontal growfactor: 1 height: bycontainer] {
+			input CTL_CLIAGT_LOCKPRCBEFORE [design: B size: (90, 21) margin: 4 tabstop fmtf: (dmy) label: "@cfgclientdeal_lockprcbefore"] date supplement datecalbutton(CTLCAL_CLIAGT_LOCKPRCBEFORE);
+		}
+	}
+	view [horizontal width: bycontainer height: 80] {
+		framebox [title: "@cfgclientdeal_retlim" horizontal growfactor: 2 height: bycontainer margin: 4 padding: (4, 13, 4, 4)] {
+			combobox CTLSEL_CLIAGT_RETLIMPRD [growfactor: 1 height: 21 margin: 4 tabstop label: "@daterange" cblinesymb: CTL_CLIAGT_RETLIMPRD ];
+			input CTL_CLIAGT_RETLIM [size: (60, 21) margin: 4 tabstop fmtf: (nozero) fmtprec: 1 label: "@cfgclientdeal_retlimpart"] double;
+		}
+		checkcluster CTL_CLIAGT_FLAGS [growfactor: 2 margin: (4, 2, 4, 2) padding: 4] {
+			checkbox [title: "@cfgclientdeal_agtf_dontcalcdebtinbill"];
+			checkbox [title: "@cfgclientdeal_agtf_usemarkedgoodsonly"];
+			checkbox [title: "@cfgclientdeal_agtf_dontuseminshipmqtty"];
+		}
+	}
+	view [horizontal width: bycontainer height: 30] {
+		view [horizontal growfactor: 2 height: bycontainer] {
+			input CTL_CLIAGT_ADDEDLIMITVAL [design: B size: (90, 21) margin: 4 readonly fmtf: (tricomma) fmtprec: 2 label: "@cfgclientdeal_addedlimitval"] double;
+		}
+		view [horizontal growfactor: 2 height: bycontainer] {
+		}
+	}
+	view [horizontal width: bycontainer height: 30] {
+		view [horizontal growfactor: 2 height: bycontainer justifycontent: spacebetween] {
+			button CTL_CLIAGT_CMD_DEBTLIMLIST [title: "@{cfgclientdealdebtlimit}..." tabstop size: (150, 21) margin: 4 command: cmDebtLimList];	
+			button CTL_CLIAGT_CMD_BILLS [title: "@but_bills" tabstop size: (150, 21) margin: 4 command: cmBills];
+		}
+		view [horizontal growfactor: 2 height: bycontainer justifycontent: end] {
+			button CTL_CLIAGT_CMD_MULTIPRINTPARAM [title: "@cfgclientdeal_bmpp" tabstop size: (330, 21) margin: 4 command: cmMultiPrintParam];
+		}
+	}
+	//framebox [title: "@cfgclientdeal_retlim" size: (240, 73) ];
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_LOTXCLIST [vertical title: "@lotxcodelist" size: (1120, 425) minsize: (1120, 425) padding: 4 font: "MS Shell Dlg,8"] {
+	input CTL_LOTXCLIST_INFO [width: bycontainer height: 21 margin: 4 tabstop readonly] string[128];
+	listbox CTL_LOTXCLIST_LIST [tabstop width: bycontainer growfactor: 1 margin: 4];
+	view [horizontal width: bycontainer height: 30] {
+		view [horizontal width: 200 height: bycontainer(100) gravity: left justifycontent: start] {
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+		}
+		view [horizontal growfactor: 1 height: bycontainer(100) gravity: center justifycontent: spaceevenly] {
+			button STDCTL_COPYTOCLIPBOARD [title: "@lotxcodelist_cbcopy" tabstop size: (150, 21) margin: 4 command: cmCopyToClipboard];
+			button STDCTL_COPYTOCLIPBOARDALL [title: "@lotxcodelist_cbcopyall" tabstop size: (150, 21) margin: 4 command: cmCopyToClipboardAll];
+			button STDCTL_PASTEFROMCLIPBOARDALL [title: "@lotxcodelist_cbpaste" tabstop size: (150, 21) margin: 4 command: cmPasteFromClipboardAll];
+			button STDCTL_IMPORT [title: "Import..." tabstop size: (150, 21) margin: 4 command: cmImport];
+		}
+		view [horizontal width: 170 height: bycontainer(100) gravity: right justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_LOTXCCKLIST [vertical title: "@lotxcodechecklist" size: (1120, 440) minsize: (1100, 400) padding: 4 font: "MS Shell Dlg,8"] {
+	statictext CTL_LOTXCCKLIST_INFO [width: bycontainer height: 24 margin: 4 staticedge];
+	listbox CTL_LOTXCCKLIST_LIST [tabstop ownerdraw: fixed width: bycontainer growfactor: 1 margin: 4];
+	checkbox CTL_LOTXCCKLIST_FLAGS [title: "@lotxcodechecklist_showunchecked" tabstop width: bycontainer(50) height: 21 margin: 4];
+	view [horizontal width: bycontainer height: 30] {
+		view [horizontal width: 200 height: bycontainer gravity: left justifycontent: start] {
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+		}
+		view [horizontal growfactor: 1 height: bycontainer gravity: center justifycontent: spaceevenly] {
+			button STDCTL_COPYTOCLIPBOARD [title: "@lotxcodelist_cbcopy" tabstop size: (150, 21) margin: 4 command: cmCopyToClipboard];
+			button STDCTL_COPYTOCLIPBOARDALL [title: "@lotxcodelist_cbcopyall" tabstop size: (150, 21) margin: 4 command: cmCopyToClipboardAll];
+			button STDCTL_PASTEFROMCLIPBOARDALL [title: "@lotxcodelist_cbpaste" tabstop size: (150, 21) margin: 4 command: cmPasteFromClipboardAll];
+			button STDCTL_IMPORT [title: "Import..." tabstop size: (150, 21) margin: 4 command: cmImport];
+		}
+		view [horizontal width: 170 height: bycontainer gravity: right justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
 			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 		}
 	}

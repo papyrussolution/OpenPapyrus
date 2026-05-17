@@ -67,24 +67,21 @@ int CtmToken::Create(uint code, const char * pStr)
 {
 	Init();
 	Code = code;
-	if(Code == T_CONST_STR)
-		U.S = newStr(pStr);
-	else if(Code == T_FMT)
-		U.S = newStr(pStr);
-	else if(Code == T_CONST_INT)
-		U.I = strtol(pStr, 0, 0);
-	else if(Code == T_CONST_REAL)
-		U.FD = atof(pStr);
-	else if(Code == T_CONST_UUID) {
-		if(!U.Uuid.FromStr(pStr))
-			Code = 0;
+	switch(Code) {
+		case T_CONST_STR: U.S = newStr(pStr); break;
+		case T_FMT: U.S = newStr(pStr); break;
+		case T_CONST_INT: U.I = strtol(pStr, 0, 0); break;
+		case T_CONST_REAL: U.FD = atof(pStr); break;
+		case T_CONST_UUID:
+			if(!U.Uuid.FromStr(pStr))
+				Code = 0;
+			break;
+		case T_CONST_COLORRGB:
+			if(!U.Color.FromStr(pStr))
+				Code = 0;
+			break;
+		default: U.S = newStr(pStr); break;
 	}
-	else if(Code == T_CONST_COLORRGB) {
-		if(!U.Color.FromStr(pStr))
-			Code = 0;
-	}
-	else
-		U.S = newStr(pStr);
 	return Code;
 }
 
@@ -617,10 +614,10 @@ void DlContext::AddStrucDeclare(const char * pDecl)
 int DlContext::AddType(const char * pName, TYPEID stypId, char mangleC)
 {
 	int    ok = 1;
-	DLSYMBID id = CreateSymb(pName, '@', crsymfErrorOnDup);
+	const  DLSYMBID id = CreateSymb(pName, '@', crsymfErrorOnDup);
 	if(id) {
 		TypeEntry entry;
-		MEMSZERO(entry);
+		// @v12.6.4 @ctr MEMSZERO(entry);
 		entry.SymbID = id;
 		entry.T.Typ  = stypId;
 		entry.MangleC = mangleC;
@@ -660,7 +657,7 @@ int DlContext::AddTypedef(const CtmToken & rSymb, DLSYMBID typeID, uint tdFlags)
 	uint   pos = 0;
 	SdbField fld;
 	DLSYMBID new_type_id = 0;
-	TypeEntry te, new_te;
+	TypeEntry te;
 	DlScope * p_cur_scope = 0;
 	DlScope * p_scope = 0;
 	THROW(p_cur_scope = GetScope(CurScopeID));
@@ -682,9 +679,10 @@ int DlContext::AddTypedef(const CtmToken & rSymb, DLSYMBID typeID, uint tdFlags)
 		CALLEXCEPTV(PPERR_DL6_DUPVARINSCOPE);
 	}
 	else {
+		TypeEntry new_te;
 		THROW(p_scope->AddField(&fld_id, &fld));
 		THROW(new_type_id = CreateSymb(fld.Name, '@', crsymfErrorOnDup));
-		MEMSZERO(new_te);
+		// @v12.6.4 @ctr MEMSZERO(new_te);
 		new_te.SymbID = new_type_id;
 		new_te.T.Link = typeID;
 		new_te.T.Flags |= STypEx::fTypedef;
@@ -724,6 +722,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 	SString unterm_error_addedmsg;
 	SString design; // @v12.3.9
 	FRect  label_bbox;
+	uint   ownerdraw = 0; // @v12.6.4 ownerdrawXXX 
 	int    fmt_prec = 0;
 	long   fmt_flags = 0;
 	double font_size = 0.0;
@@ -760,6 +759,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 		occfLabelWidth      = 0x08000000, // @v12.3.9
 		occfLabelHeight     = 0x10000000, // @v12.3.9
 		occfTextAlign       = 0x20000000, // @v12.5.3 
+		occfOwnerDraw       = 0x40000000, // @v12.6.4 
 	};
 	enum {
 		occsLeft         = 0x0001,
@@ -804,8 +804,53 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 		{ &alb.AlignSelf, 0, "alignself" },
 	};
 	//
+	uint32 view_kind = 0;
 	DlScope * p_scope = GetScope(scopeID);
 	THROW(p_scope);
+	// @v12.6.4 (определение view_kind перенесено сюда снизу) {
+	{
+		if(pViewKind) {
+			if(pViewKind->IsIdent() || pViewKind->IsString()) {
+				prop_val = pViewKind->U.S;
+				// @v12.2.10 {
+				view_kind = UiItemKind::GetIdBySymb(prop_val);
+				if(!view_kind) {
+					; // @error invalid view kind
+				}
+				// } @v12.2.10 
+				{
+					SETIFZ(view_kind, UiItemKind::kGenericView);
+					CtmExprConst c;
+					THROW(AddConst(view_kind, &c));
+					p_scope->AddConst(DlScope::cuifViewKind, c, 1);
+				}
+			}
+			else {
+				switch(pViewKind->Code) {
+					case T_DIALOG: view_kind = UiItemKind::kDialog; break;
+					case T_VIEW: view_kind = UiItemKind::kGenericView; break;
+					case T_INPUT: view_kind = UiItemKind::kInput; break;
+					case T_STATICTEXT: view_kind = UiItemKind::kStatic; break;
+					case T_IMAGEVIEW: view_kind = UiItemKind::kImageView; break;
+					case T_FRAMEBOX: view_kind = UiItemKind::kFrame; break;
+					case T_COMBOBOX: view_kind = UiItemKind::kCombobox; break;
+					case T_BUTTON: view_kind = UiItemKind::kPushbutton; break;
+					case T_CHECKBOX: view_kind = UiItemKind::kCheckbox; break;
+					case T_CHECKBOXCLUSTER: view_kind = UiItemKind::kCheckCluster; break;
+					case T_RADIOCLUSTER: view_kind = UiItemKind::kRadioCluster; break;
+					case T_RADIOBUTTON: view_kind = UiItemKind::kRadiobutton; break;
+					case T_LISTBOX: view_kind = UiItemKind::kListbox; break;
+					case T_TREELISTBOX: view_kind = UiItemKind::kTreeListbox; break;
+				}
+				if(view_kind) {
+					CtmExprConst c;
+					THROW(AddConst(view_kind, &c));
+					p_scope->AddConst(DlScope::cuifViewKind, c, 1);
+				}
+			}
+		}
+	}
+	// } @v12.6.4 
 	for(uint i = 0; i < _c; i++) {
 		int    unterm_errcode = 0;
 		unterm_error_addedmsg.Z();
@@ -876,7 +921,49 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 				}
 			}
 			if(!processed) {
-				if(prop_key == "fmtf") { // @v12.3.5 
+				if(prop_key == "ownerdraw") { // @v12.6.4
+					if(occurence_flags & occfOwnerDraw) {
+						; // @todo @err
+					}
+					else {
+						if(p_prop->Value.IsEmpty()) {
+							if(view_kind == UiItemKind::kListbox)
+								ownerdraw = DlScope::ownerdrawListFixed;
+							else
+								ownerdraw = DlScope::ownerdrawYes;
+							occurence_flags |= occfOwnerDraw;
+						}
+						else if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
+							prop_val.Z();
+							prop_val = p_prop->Value.U.S;
+							if(prop_val.IsEqiAscii("fixed")) {
+								if(view_kind == UiItemKind::kListbox) {
+									ownerdraw = DlScope::ownerdrawListFixed;
+									occurence_flags |= occfOwnerDraw;
+								}
+								else {
+									; // @todo @err
+								}
+							}
+							else if(prop_val.IsEqiAscii("var") || prop_val.IsEqiAscii("variable")) {
+								if(view_kind == UiItemKind::kListbox) {
+									ownerdraw = DlScope::ownerdrawListVariable;
+									occurence_flags |= occfOwnerDraw;
+								}
+								else {
+									; // @todo @err
+								}
+							}
+							else {
+								; // @todo @err
+							}
+						}
+						else {
+							; // @todo @err
+						}
+					}
+				}
+				else if(prop_key == "fmtf") { // @v12.3.5 
 					prop_val.Z();
 					if(p_prop->Value.IsIdentSet()) {
 						if(!(occurence_flags & occfFmtFlags)) {
@@ -1669,47 +1756,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 			}
 		}
 	}
-	if(pViewKind) {
-		if(pViewKind->IsIdent() || pViewKind->IsString()) {
-			prop_val = pViewKind->U.S;
-			// @v12.2.10 {
-			uint32 view_kind = UiItemKind::GetIdBySymb(prop_val);
-			if(!view_kind) {
-				; // @error invalid view kind
-			}
-			// } @v12.2.10 
-			{
-				SETIFZ(view_kind, UiItemKind::kGenericView);
-				CtmExprConst c;
-				THROW(AddConst(view_kind, &c));
-				p_scope->AddConst(DlScope::cuifViewKind, c, 1);
-			}
-		}
-		else {
-			uint32 view_kind = 0;
-			switch(pViewKind->Code) {
-				case T_DIALOG: view_kind = UiItemKind::kDialog; break;
-				case T_VIEW: view_kind = UiItemKind::kGenericView; break;
-				case T_INPUT: view_kind = UiItemKind::kInput; break;
-				case T_STATICTEXT: view_kind = UiItemKind::kStatic; break;
-				case T_IMAGEVIEW: view_kind = UiItemKind::kImageView; break;
-				case T_FRAMEBOX: view_kind = UiItemKind::kFrame; break;
-				case T_COMBOBOX: view_kind = UiItemKind::kCombobox; break;
-				case T_BUTTON: view_kind = UiItemKind::kPushbutton; break;
-				case T_CHECKBOX: view_kind = UiItemKind::kCheckbox; break;
-				case T_CHECKBOXCLUSTER: view_kind = UiItemKind::kCheckCluster; break;
-				case T_RADIOCLUSTER: view_kind = UiItemKind::kRadioCluster; break;
-				case T_RADIOBUTTON: view_kind = UiItemKind::kRadiobutton; break;
-				case T_LISTBOX: view_kind = UiItemKind::kListbox; break;
-				case T_TREELISTBOX: view_kind = UiItemKind::kTreeListbox; break;
-			}
-			if(view_kind) {
-				CtmExprConst c;
-				THROW(AddConst(view_kind, &c));
-				p_scope->AddConst(DlScope::cuifViewKind, c, 1);
-			}
-		}
-	}
+	// @v12.6.4 определение view_kind было здесь (перенесено наверх)
 	if(typeID) {
 		TypeEntry te;
 		uint   type_pos = 0;
@@ -1842,50 +1889,40 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 		p_scope->AddConst(DlScope::cuifLblLayoutBlock, c, 1);		
 	}
 	// } @v12.3.2 
+	// @v12.6.4 {
+	if(ownerdraw) {
+		CtmExprConst c;
+		AddConst(ownerdraw, &c);
+		p_scope->AddConst(DlScope::cuifOwnerDraw, c, 1);		
+	}
+	// } @v12.6.4 
 	{
 		if(!rSupplement.Kind.IsEmpty()) {
 			bool   local_fault = false;
 			if(rSupplement.Kind.IsIdent()) {
+				static const SIntToSymbTabEntry sb_symb_list[] = {
+					{ SUiCtrlSupplement::kDateCalendar, "datecalbutton"},
+					{ SUiCtrlSupplement::kDateRangeCalendar, "daterangecalbutton"},
+					{ SUiCtrlSupplement::kList, "listbutton"},
+					{ SUiCtrlSupplement::kCalc, "calcbutton"},
+					{ SUiCtrlSupplement::kTime, "timebutton"},
+					{ SUiCtrlSupplement::kAsterisk, "asterbutton"},
+					{ SUiCtrlSupplement::kFileBrowse, "filebrowsebutton"}, // @v12.3.10
+					{ SUiCtrlSupplement::kFilt, "filtbutton"}, // @v12.4.10
+					{ SUiCtrlSupplement::kEllipsis, "ellipsisbutton"}, // @v12.5.0
+					{ SUiCtrlSupplement::kNumberStepper, "numberstepper"}, // @v12.5.3
+				};
 				SUiCtrlSupplement sb;
 				const SString supplement_kind(rSupplement.Kind.U.S);
-				SString supplement_symb;
-				SString supplement_cmdsymb;
-				SString supplement_text;
-				if(supplement_kind.IsEqiAscii("datecalbutton")) {
-					sb.Kind = SUiCtrlSupplement::kDateCalendar;
-				}
-				else if(supplement_kind.IsEqiAscii("daterangecalbutton")) {
-					sb.Kind = SUiCtrlSupplement::kDateRangeCalendar;
-				}
-				else if(supplement_kind.IsEqiAscii("listbutton")) {
-					sb.Kind = SUiCtrlSupplement::kList;
-				}
-				else if(supplement_kind.IsEqiAscii("calcbutton")) {
-					sb.Kind = SUiCtrlSupplement::kCalc;
-				}
-				else if(supplement_kind.IsEqiAscii("timebutton")) {
-					sb.Kind = SUiCtrlSupplement::kTime;
-				}
-				else if(supplement_kind.IsEqiAscii("asterbutton")) {
-					sb.Kind = SUiCtrlSupplement::kAsterisk;
-				}
-				else if(supplement_kind.IsEqiAscii("filebrowsebutton")) { // @v12.3.10
-					sb.Kind = SUiCtrlSupplement::kFileBrowse;
-				}
-				else if(supplement_kind.IsEqiAscii("filtbutton")) { // @v12.4.10
-					sb.Kind = SUiCtrlSupplement::kFilt;
-				}
-				else if(supplement_kind.IsEqiAscii("ellipsisbutton")) { // @v12.5.0
-					sb.Kind = SUiCtrlSupplement::kEllipsis;
-				}
-				else if(supplement_kind.IsEqiAscii("numberstepper")) { // @v12.5.3
-					sb.Kind = SUiCtrlSupplement::kNumberStepper;
-				}
-				else {
+				sb.Kind = SIntToSymbTab_GetId(sb_symb_list, SIZEOFARRAY(sb_symb_list), supplement_kind);
+				if(!sb.Kind) {
 					Error(PPERR_DL6_UISUPPLEMENT_UNDEFKIND, supplement_kind.cptr(), erfLog);
 					local_fault = true;
 				}
-				if(sb.Kind) {
+				else {
+					SString supplement_symb;
+					SString supplement_cmdsymb;
+					SString supplement_text;
 					if(!rSupplement.Symb.IsEmpty()) {
 						if(rSupplement.Symb.IsIdent()) {
 							supplement_symb = rSupplement.Symb.U.S;
@@ -2812,7 +2849,7 @@ DLSYMBID DlContext::SetDeclTypeMod(DLSYMBID ofTyp, int mod /* STypEx::modXXX */,
 		THROW(MangleType(new_type_id, t, name));
 		THROW(new_type_id = CreateSymb(name, '@', crsymfErrorOnDup));
 		TypeEntry te;
-		MEMSZERO(te);
+		// @v12.6.4 @ctr MEMSZERO(te);
 		te.SymbID = new_type_id;
 		te.T = t;
 		TypeList.ordInsert(&te, 0, PTR_CMPFUNC(uint));
@@ -4027,7 +4064,8 @@ int DlContext::Write_Func(Generator_CPP & gen, const DlFunc & rFunc, int format,
 	SString temp_buf;
 	SString arg_name;
 	SString arg_buf;
-	TypeEntry ret_te, te;
+	TypeEntry ret_te;
+	TypeEntry te;
 	TypeDetail td;
 	THROW(SearchTypeID(rFunc.TypID, 0, &ret_te));
 	rFunc.GetName(0, temp_buf);
@@ -4160,7 +4198,7 @@ int DlContext::Write_Func(Generator_CPP & gen, const DlFunc & rFunc, int format,
 		if(idl_type) {
 			if(ret_te.MangleC != 'X') { // other than "void"
 				TypeEntry ret_te_mod;
-				DLSYMBID ptr_typ = SetDeclTypeMod(rFunc.TypID, STypEx::modPtr);
+				const  DLSYMBID ptr_typ = SetDeclTypeMod(rFunc.TypID, STypEx::modPtr);
 				THROW(ptr_typ);
 				THROW(SearchTypeID(ptr_typ, 0, &ret_te_mod));
 				if(format == ffCPP_VTbl)
@@ -4696,7 +4734,8 @@ int DlContext::Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SString & rC
 	int    is_ret = 0;
 	const  uint arg_count = rFunc.GetArgCount();
 	uint   k;
-	TypeEntry te, ret_te;
+	TypeEntry te;
+	TypeEntry ret_te;
 	TypeDetail td;
 	DlFunc::Arg arg;
 	SString func_name, line_buf, temp_buf, arg_name;

@@ -1504,6 +1504,7 @@ public:
 	static const uint32 LookupTable_CRC32LE_Zlib[8][256];
 	static const uint32 LookupTable_CRC32BE_Zlib[8][256];
 	static const uint32 LookupTable_CRC32_BZip2[256];
+	static const uint64 Blak2bIV[8]; // @v12.6.4
 };
 //
 template <class T> T * AssignPtr2Ptr(T *& prDest, const T * pSrc) // @v11.4.12
@@ -7584,7 +7585,6 @@ public:
 		bool   IsConsistent() const;
 		Key  & Z();
 		int    SetKey(const void * pData, size_t size);
-		int    SetDerivedKey_Argon2(const void * pData, size_t size, size_t resultKeySize, const void * pSalt, size_t saltSize, const Argon2Param & rParam); // @v12.6.2
 		int    SetIV(const void * pData, size_t size);
 		int    SetAAD(const void * pData, size_t size);
 		const  SBaseBuffer & GetKey() const;
@@ -7598,6 +7598,10 @@ public:
 		uint32 EndP;     // Смещение доступного пространства
 		uint8  Bin[512]; // @v12.6.2 [256]-->[512]
 	};
+
+	static void * EncapsulateKey(const void * pSrcKey, size_t srcKeySize, size_t drvKeySize); // @v12.6.4 @construction
+	static void ResetEncapsultedKey(void * pEK); // @v12.6.4 @construction
+
 	SlCrypto(int alg, uint kbl, int algModif);
 	explicit SlCrypto(uint64 uedCipher);
 	~SlCrypto();
@@ -7622,6 +7626,7 @@ public:
 	//
 	int    Decrypt(const SlCrypto::Key & rKey, const void * pData, size_t dataLen, SBinaryChunk & rResult, SBinaryChunk * pTag);
 private:
+	static int  Implement_SetKey_Derived_Argon2(SlCrypto::Key & rK, const void * pData, size_t size, size_t destKeySize, const void * pSalt, size_t saltSize, const Argon2Param & rParam); // @v12.6.4
 	int    Helper_Construct(int alg, uint kbl, int algModif, uint tagSize);
 
 	enum {
@@ -17783,6 +17788,7 @@ public:
 	static void * FASTCALL M(size_t sz);
 	static void * FASTCALL M_zon0(size_t sz); // Тот же SAlloc::M, но гарантированно возвращающий null при аргументе sz==0
 	static void * FASTCALL M_aonz(size_t sz); // @v11.7.11 @construction Тот же что и SAlloc::M, но аварийно завершающая процесс при получении нулевого результата
+	static void * FASTCALL M_secure(size_t sz); // @v12.6.4 using OpenSSL
 	//
 	// Descr: Функция, замещающая calloc.
 	//
@@ -17798,6 +17804,7 @@ public:
 	// Descr: Функция, замещающая free.
 	//
 	static void   FASTCALL F(void * ptr);
+	static void   FASTCALL F_secure(void * ptr, size_t sz); // @v12.6.4 using OpenSSL
 };
 //
 // Descr: Канал (pipe) позволяющий писать с одного конца и читать с другого.

@@ -4623,8 +4623,8 @@ private:
 	LongArray * P_TopLevelRestrictionIdList; // @v11.4.0 Список идентификаторов узлов верхнего уровня, которыми следует ограничить отображение.
 		// Эти ограничения касаются только верхнего уровня отображения. Если включенные идентификаторы встречаются и внутри дерева, то они отображаются.
 	LongArray LL; // Линеаризованный список идентификаторов P_SaList используемый для базовых функций навигации.
-	LAssocArray StrIndex; // @v11.2.11 Индекс соответствия идентификаторов элементов позициям строк в P_SaList
-	struct SearchBlock { // @v11.2.11 
+	LAssocArray StrIndex; // Индекс соответствия идентификаторов элементов позициям строк в P_SaList
+	struct SearchBlock {
 		SearchBlock();
 		~SearchBlock();
 		SearchBlock & Z();
@@ -4701,6 +4701,7 @@ public:
 		stLBIsLinkedUISrchTextBlock  = 0x0020,  // Окно поиска будет прилинковано непосредственно к списку. При уничтожении фокус будет попадать на список.
 		stOmitSearchByFirstChar      = 0x0040,  // Не обрабатывать ввод символа как сигнал к поиску
 	};
+	
 	static bool IsValidS(const SmartListBox * pThis) { return (pThis && pThis->P_Def); }
 	SmartListBox(const TRect & rRect, ListBoxDef * pDef, bool isTree);
 	SmartListBox(const TRect & rRect, ListBoxDef * pDef, const char * pColumnsDeclaration);
@@ -4795,7 +4796,6 @@ protected:
 	int    GetImageIdxByID(long id, long * pIdx);
 	void   SelectTreeItem();
 	void   onInitDialog(int useScrollbar);
-	// @v11.4.4 (inlined) int    FASTCALL onVKeyToItem(WPARAM wParam);
 	int    GetMaxListHeight();
 	void   Implement_Draw();
 private:

@@ -28,36 +28,24 @@ ABSL_NAMESPACE_BEGIN
 namespace str_format_internal {
 namespace {
 // Reduce *capacity by s.size(), clipped to a 0 minimum.
-void ReducePadding(string_view s, size_t * capacity) {
-	*capacity = Excess(s.size(), *capacity);
-}
+void ReducePadding(string_view s, size_t * capacity) { *capacity = Excess(s.size(), *capacity); }
 
 // Reduce *capacity by n, clipped to a 0 minimum.
-void ReducePadding(size_t n, size_t * capacity) {
-	*capacity = Excess(n, *capacity);
-}
+void ReducePadding(size_t n, size_t * capacity) { *capacity = Excess(n, *capacity); }
 
-template <typename T>
-struct MakeUnsigned : std::make_unsigned<T> {};
+template <typename T> struct MakeUnsigned : std::make_unsigned<T> {};
 
-template <>
-struct MakeUnsigned<absl::int128> {
+template <> struct MakeUnsigned<absl::int128> {
 	using type = absl::uint128;
 };
 
-template <>
-struct MakeUnsigned<absl::uint128> {
+template <> struct MakeUnsigned<absl::uint128> {
 	using type = absl::uint128;
 };
 
-template <typename T>
-struct IsSigned : std::is_signed<T> {};
-
-template <>
-struct IsSigned<absl::int128> : std::true_type {};
-
-template <>
-struct IsSigned<absl::uint128> : std::false_type {};
+template <typename T> struct IsSigned : std::is_signed<T> {};
+template <> struct IsSigned<absl::int128> : std::true_type {};
+template <> struct IsSigned<absl::uint128> : std::false_type {};
 
 // Integral digit printer.
 // Call one of the PrintAs* routines after construction once.
@@ -511,33 +499,28 @@ IntegralConvertResult FormatConvertImpl(long v,  // NOLINT
 	return {ConvertIntArg(v, conv, sink)};
 }
 
-IntegralConvertResult FormatConvertImpl(unsigned long v,  // NOLINT
-    const FormatConversionSpecImpl conv,
-    FormatSinkImpl * sink) {
+IntegralConvertResult FormatConvertImpl(unsigned long v, const FormatConversionSpecImpl conv, FormatSinkImpl * sink) 
+{
 	return {ConvertIntArg(v, conv, sink)};
 }
 
-IntegralConvertResult FormatConvertImpl(long long v,  // NOLINT
-    const FormatConversionSpecImpl conv,
-    FormatSinkImpl * sink) {
+IntegralConvertResult FormatConvertImpl(long long v, const FormatConversionSpecImpl conv, FormatSinkImpl * sink) 
+{
 	return {ConvertIntArg(v, conv, sink)};
 }
 
-IntegralConvertResult FormatConvertImpl(unsigned long long v,  // NOLINT
-    const FormatConversionSpecImpl conv,
-    FormatSinkImpl * sink) {
+IntegralConvertResult FormatConvertImpl(unsigned long long v, const FormatConversionSpecImpl conv, FormatSinkImpl * sink) 
+{
 	return {ConvertIntArg(v, conv, sink)};
 }
 
-IntegralConvertResult FormatConvertImpl(absl::int128 v,
-    const FormatConversionSpecImpl conv,
-    FormatSinkImpl * sink) {
+IntegralConvertResult FormatConvertImpl(absl::int128 v, const FormatConversionSpecImpl conv, FormatSinkImpl * sink) 
+{
 	return {ConvertIntArg(v, conv, sink)};
 }
 
-IntegralConvertResult FormatConvertImpl(absl::uint128 v,
-    const FormatConversionSpecImpl conv,
-    FormatSinkImpl * sink) {
+IntegralConvertResult FormatConvertImpl(absl::uint128 v, const FormatConversionSpecImpl conv, FormatSinkImpl * sink) 
+{
 	return {ConvertIntArg(v, conv, sink)};
 }
 

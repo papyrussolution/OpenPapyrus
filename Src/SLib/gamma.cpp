@@ -48,13 +48,12 @@ int fpsi(double x, SMathResult * pResult)
 	 		.0000000000000045, -.0000000000000009, .0000000000000002, -.0000000000000000
 		};
 		static ChebSeries apsi_cs = { apsics_data, 15, -1, 1, 9 };
-
-		const double t = 8.0/(y*y)-1.0;
+		const  double t = 8.0/(y*y)-1.0;
 		SMathResult result_c;
 		cheb_eval_e(&apsi_cs, t, &result_c);
 		if(x < 0.0) {
-			const double s = sin(SMathConst::Pi*x);
-			const double c = cos(SMathConst::Pi*x);
+			const  double s = sin(SMathConst::Pi*x);
+			const  double c = cos(SMathConst::Pi*x);
 			if(fabs(s) < 2.0*SMathConst::SqrtMin)
 				ok = pResult->SetDomainViolation();
 			else {
@@ -85,10 +84,10 @@ int fpsi(double x, SMathResult * pResult)
 
 		SMathResult result_c;
 		if(x < -1.0) { /* x = -2 + v */
-			const double v  = x + 2.0;
-			const double t1 = 1.0/x;
-			const double t2 = 1.0/(x+1.0);
-			const double t3 = 1.0/v;
+			const  double v  = x + 2.0;
+			const  double t1 = 1.0/x;
+			const  double t2 = 1.0/(x+1.0);
+			const  double t3 = 1.0/v;
 			cheb_eval_e(&psi_cs, 2.0*v-1.0, &result_c);
 
 			pResult->V  = -(t1 + t2 + t3) + result_c.V;
@@ -97,9 +96,9 @@ int fpsi(double x, SMathResult * pResult)
 			pResult->E += SMathConst::Epsilon * fabs(pResult->V);
 		}
 		else if(x < 0.0) { /* x = -1 + v */
-			const double v  = x + 1.0;
-			const double t1 = 1.0/x;
-			const double t2 = 1.0/v;
+			const  double v  = x + 1.0;
+			const  double t1 = 1.0/x;
+			const  double t2 = 1.0/v;
 			cheb_eval_e(&psi_cs, 2.0*v-1.0, &result_c);
 			pResult->V  = -(t1 + t2) + result_c.V;
 			pResult->E  = SMathConst::Epsilon * (fabs(t1) + fabs(x/(t2*t2)));
@@ -107,7 +106,7 @@ int fpsi(double x, SMathResult * pResult)
 			pResult->E += SMathConst::Epsilon * fabs(pResult->V);
 		}
 		else if(x < 1.0) { /* x = v */
-			const double t1 = 1.0/x;
+			const  double t1 = 1.0/x;
 			cheb_eval_e(&psi_cs, 2.0*x-1.0, &result_c);
 			pResult->V  = -t1 + result_c.V;
 			pResult->E  = SMathConst::Epsilon * t1;
@@ -115,7 +114,7 @@ int fpsi(double x, SMathResult * pResult)
 			pResult->E += SMathConst::Epsilon * fabs(pResult->V);
 		}
 		else { /* x = 1 + v */
-			const double v = x - 1.0;
+			const  double v = x - 1.0;
 			cheb_eval_e(&psi_cs, 2.0*v-1.0, pResult);
 		}
 	}
@@ -125,7 +124,7 @@ int fpsi(double x, SMathResult * pResult)
 int exp_mult_err_e(double x, double dx, double y, double dy, SMathResult * pResult)
 {
 	int    ok = 1;
-	const double ay  = fabs(y);
+	const  double ay  = fabs(y);
 	if(y == 0.0) {
 		pResult->V = 0.0;
 		pResult->E = fabs(dy * exp(x));
@@ -138,20 +137,20 @@ int exp_mult_err_e(double x, double dx, double y, double dy, SMathResult * pResu
 		pResult->E += 2.0 * SMathConst::Epsilon * fabs(pResult->V);
 	}
 	else {
-		const double ly  = log(ay);
-		const double lnr = x + ly;
+		const  double ly  = log(ay);
+		const  double lnr = x + ly;
 		if(lnr > SMathConst::LogMax - 0.01)
 			ok = pResult->SetOverflow();
 		else if(lnr < SMathConst::LogMin + 0.01)
 			ok = pResult->SetUnderflow();
 		else {
-			const double sy  = fsign(y);
-			const double M   = floor(x);
-			const double N   = floor(ly);
-			const double a   = x  - M;
-			const double b   = ly - N;
-			const double eMN = exp(M+N);
-			const double eab = exp(a+b);
+			const  double sy  = fsign(y);
+			const  double M   = floor(x);
+			const  double N   = floor(ly);
+			const  double a   = x  - M;
+			const  double b   = ly - N;
+			const  double eMN = exp(M+N);
+			const  double eab = exp(a+b);
 			pResult->V  = sy * eMN * eab;
 			pResult->E  = eMN * eab * 2.0 * SMathConst::Epsilon;
 			pResult->E += eMN * eab * fabs(dy/y);
@@ -176,8 +175,8 @@ int hzeta_e(const double s, const double q, SMathResult * pResult)
 	if(s <= 1.0 || q <= 0.0)
 		ok = pResult->SetDomainViolation();
 	else {
-		const double max_bits = 54.0;
-		const double ln_term0 = -s * log(q);
+		const  double max_bits = 54.0;
+		const  double ln_term0 = -s * log(q);
 		if(ln_term0 < SMathConst::LogMin + 1.0)
 			ok = pResult->SetUnderflow();
 		else if(ln_term0 > SMathConst::LogMax - 1.0)
@@ -187,9 +186,9 @@ int hzeta_e(const double s, const double q, SMathResult * pResult)
 			pResult->E = 2.0 * SMathConst::Epsilon * fabs(pResult->V);
 		}
 		else if(s > 0.5*max_bits && q < 1.0) {
-			const double p1 = pow(q, -s);
-			const double p2 = pow(q/(1.0+q), s);
-			const double p3 = pow(q/(2.0+q), s);
+			const  double p1 = pow(q, -s);
+			const  double p2 = pow(q/(1.0+q), s);
+			const  double p3 = pow(q/(2.0+q), s);
 			pResult->V = p1 * (1.0 + p2 + p3);
 			pResult->E = SMathConst::Epsilon * (0.5*s + 2.0) * fabs(pResult->V);
 		}
@@ -299,11 +298,11 @@ int fpsi_1_int(int n, SMathResult * pResult)
 			Abramowitz+Stegun 6.4.12
 			double-precision for n > 100
 		*/
-		const double c0 = -1.0/30.0;
-		const double c1 =  1.0/42.0;
-		const double c2 = -1.0/30.0;
-		const double ni2 = (1.0/n)*(1.0/n);
-		const double ser =  ni2*ni2 * (c0 + ni2*(c1 + c2*ni2));
+		const  double c0 = -1.0/30.0;
+		const  double c1 =  1.0/42.0;
+		const  double c2 = -1.0/30.0;
+		const  double ni2 = (1.0/n)*(1.0/n);
+		const  double ser =  ni2*ni2 * (c0 + ni2*(c1 + c2*ni2));
 		pResult->V = (1.0 + 0.5/n + 1.0/(6.0*n*n) + ser) / n;
 		pResult->E = SMathConst::Epsilon * pResult->V;
 	}
@@ -359,12 +358,12 @@ int fpsi_int(int n, SMathResult * pResult)
 	}
 	else {
 		/* Abramowitz+Stegun 6.3.18 */
-		const double c2 = -1.0/12.0;
-		const double c3 =  1.0/120.0;
-		const double c4 = -1.0/252.0;
-		const double c5 =  1.0/240.0;
-		const double ni2 = (1.0/n)*(1.0/n);
-		const double ser = ni2 * (c2 + ni2 * (c3 + ni2 * (c4 + ni2*c5)));
+		const  double c2 = -1.0/12.0;
+		const  double c3 =  1.0/120.0;
+		const  double c4 = -1.0/252.0;
+		const  double c5 =  1.0/240.0;
+		const  double ni2 = (1.0/n)*(1.0/n);
+		const  double ser = ni2 * (c2 + ni2 * (c3 + ni2 * (c4 + ni2*c5)));
 		pResult->V  = log((double)n) - 0.5/n + ser;
 		pResult->E  = SMathConst::Epsilon * (fabs(log((double)n)) + fabs(0.5/n) + fabs(ser));
 		pResult->E += SMathConst::Epsilon * fabs(pResult->V);
@@ -399,8 +398,8 @@ int fpsi_1(double x, SMathResult * pResult)
 	}
 	else {
 		/* Abramowitz + Stegun 6.4.7 */
-		const double sin_px = sin(SMathConst::Pi * x);
-		const double d = SMathConst::Pi*SMathConst::Pi/(sin_px*sin_px);
+		const  double sin_px = sin(SMathConst::Pi * x);
+		const  double d = SMathConst::Pi*SMathConst::Pi/(sin_px*sin_px);
 		SMathResult r;
 		ok = psi_n_xg0(1, 1.0-x, &r);
 		pResult->V = d - r.V;
@@ -437,20 +436,20 @@ int fpsi_n(int n, double x, SMathResult * pResult)
 inline static int lngamma_1_pade(double eps, SMathResult * pResult)
 {
 	// Use (2,2) Pade for Log[Gamma[1+eps]]/eps plus a correction series.
-	const double n1 = -1.0017419282349508699871138440;
-	const double n2 =  1.7364839209922879823280541733;
-	const double d1 =  1.2433006018858751556055436011;
-	const double d2 =  5.0456274100274010152489597514;
-	const double num = (eps + n1) * (eps + n2);
-	const double den = (eps + d1) * (eps + d2);
-	const double pade = 2.0816265188662692474880210318 * num / den;
-	const double c0 =  0.004785324257581753;
-	const double c1 = -0.01192457083645441;
-	const double c2 =  0.01931961413960498;
-	const double c3 = -0.02594027398725020;
-	const double c4 =  0.03141928755021455;
-	const double eps5 = eps*eps*eps*eps*eps;
-	const double corr = eps5 * (c0 + eps*(c1 + eps*(c2 + eps*(c3 + c4*eps))));
+	const  double n1 = -1.0017419282349508699871138440;
+	const  double n2 =  1.7364839209922879823280541733;
+	const  double d1 =  1.2433006018858751556055436011;
+	const  double d2 =  5.0456274100274010152489597514;
+	const  double num = (eps + n1) * (eps + n2);
+	const  double den = (eps + d1) * (eps + d2);
+	const  double pade = 2.0816265188662692474880210318 * num / den;
+	const  double c0 =  0.004785324257581753;
+	const  double c1 = -0.01192457083645441;
+	const  double c2 =  0.01931961413960498;
+	const  double c3 = -0.02594027398725020;
+	const  double c4 =  0.03141928755021455;
+	const  double eps5 = eps*eps*eps*eps*eps;
+	const  double corr = eps5 * (c0 + eps*(c1 + eps*(c2 + eps*(c3 + c4*eps))));
 	pResult->V = eps * (pade + corr);
 	pResult->E = 2.0 * SMathConst::Epsilon * fabs(pResult->V);
 	return 1;
@@ -459,20 +458,20 @@ inline static int lngamma_1_pade(double eps, SMathResult * pResult)
 inline static int lngamma_2_pade(const double eps, SMathResult * pResult)
 {
 	// Use (2,2) Pade for Log[Gamma[2+eps]]/eps plus a correction series.
-	const double n1 = 1.000895834786669227164446568;
-	const double n2 = 4.209376735287755081642901277;
-	const double d1 = 2.618851904903217274682578255;
-	const double d2 = 10.85766559900983515322922936;
-	const double num = (eps + n1) * (eps + n2);
-	const double den = (eps + d1) * (eps + d2);
-	const double pade = 2.85337998765781918463568869 * num/den;
-	const double c0 =  0.0001139406357036744;
-	const double c1 = -0.0001365435269792533;
-	const double c2 =  0.0001067287169183665;
-	const double c3 = -0.0000693271800931282;
-	const double c4 =  0.0000407220927867950;
-	const double eps5 = eps*eps*eps*eps*eps;
-	const double corr = eps5 * (c0 + eps*(c1 + eps*(c2 + eps*(c3 + c4*eps))));
+	const  double n1 = 1.000895834786669227164446568;
+	const  double n2 = 4.209376735287755081642901277;
+	const  double d1 = 2.618851904903217274682578255;
+	const  double d2 = 10.85766559900983515322922936;
+	const  double num = (eps + n1) * (eps + n2);
+	const  double den = (eps + d1) * (eps + d2);
+	const  double pade = 2.85337998765781918463568869 * num/den;
+	const  double c0 =  0.0001139406357036744;
+	const  double c1 = -0.0001365435269792533;
+	const  double c2 =  0.0001067287169183665;
+	const  double c3 = -0.0000693271800931282;
+	const  double c4 =  0.0000407220927867950;
+	const  double eps5 = eps*eps*eps*eps*eps;
+	const  double corr = eps5 * (c0 + eps*(c1 + eps*(c2 + eps*(c3 + c4*eps))));
 	pResult->V = eps * (pade + corr);
 	pResult->E = 2.0 * SMathConst::Epsilon * fabs(pResult->V);
 	return 1;
@@ -484,7 +483,7 @@ inline static int lngamma_2_pade(const double eps, SMathResult * pResult)
 //
 static int lngamma_lanczos(double x, SMathResult * pResult)
 {
-	const double LogRootTwoPi_ = 0.9189385332046727418;
+	const  double LogRootTwoPi_ = 0.9189385332046727418;
 	//
 	// coefficients for gamma=7, kmax=8  Lanczos method
 	//
@@ -518,20 +517,20 @@ static int lngamma_lanczos(double x, SMathResult * pResult)
 static int lngamma_sgn_0(double eps, SMathResult * lng, double * sgn)
 {
 	// calculate series for g(eps) = Gamma(eps) eps - 1/(1+eps) - eps/2
-	const double c1  = -0.07721566490153286061;
-	const double c2  = -0.01094400467202744461;
-	const double c3  =  0.09252092391911371098;
-	const double c4  = -0.01827191316559981266;
-	const double c5  =  0.01800493109685479790;
-	const double c6  = -0.00685088537872380685;
-	const double c7  =  0.00399823955756846603;
-	const double c8  = -0.00189430621687107802;
-	const double c9  =  0.00097473237804513221;
-	const double c10 = -0.00048434392722255893;
-	const double g6  = c6+eps*(c7+eps*(c8 + eps*(c9 + eps*c10)));
-	const double g   = eps*(c1+eps*(c2+eps*(c3+eps*(c4+eps*(c5+eps*g6)))));
+	const  double c1  = -0.07721566490153286061;
+	const  double c2  = -0.01094400467202744461;
+	const  double c3  =  0.09252092391911371098;
+	const  double c4  = -0.01827191316559981266;
+	const  double c5  =  0.01800493109685479790;
+	const  double c6  = -0.00685088537872380685;
+	const  double c7  =  0.00399823955756846603;
+	const  double c8  = -0.00189430621687107802;
+	const  double c9  =  0.00097473237804513221;
+	const  double c10 = -0.00048434392722255893;
+	const  double g6  = c6+eps*(c7+eps*(c8 + eps*(c9 + eps*c10)));
+	const  double g   = eps*(c1+eps*(c2+eps*(c3+eps*(c4+eps*(c5+eps*g6)))));
 	// calculate Gamma(eps) eps, a positive quantity
-	const double gee = g + 1.0/(1.0+eps) + 0.5*eps;
+	const  double gee = g + 1.0/(1.0+eps) + 0.5*eps;
 	lng->V = log(gee / fabs(eps));
 	lng->E = 4.0 * SMathConst::Epsilon * fabs(lng->V);
 	*sgn = fsign(eps);
@@ -556,20 +555,20 @@ static int lngamma_sgn_sing(int N, double eps, SMathResult * lng, double * sgn)
 		// g = eps gamma(-1+eps) + 1 + eps/2 (1+3eps)/(1-eps^2)
 		// double-precision for |eps| < 0.02
 		//
-		const double c0 =  0.07721566490153286061;
-		const double c1 =  0.08815966957356030521;
-		const double c2 = -0.00436125434555340577;
-		const double c3 =  0.01391065882004640689;
-		const double c4 = -0.00409427227680839100;
-		const double c5 =  0.00275661310191541584;
-		const double c6 = -0.00124162645565305019;
-		const double c7 =  0.00065267976121802783;
-		const double c8 = -0.00032205261682710437;
-		const double c9 =  0.00016229131039545456;
-		const double g5 = c5 + eps*(c6 + eps*(c7 + eps*(c8 + eps*c9)));
-		const double g  = eps*(c0 + eps*(c1 + eps*(c2 + eps*(c3 + eps*(c4 + eps*g5)))));
+		const  double c0 =  0.07721566490153286061;
+		const  double c1 =  0.08815966957356030521;
+		const  double c2 = -0.00436125434555340577;
+		const  double c3 =  0.01391065882004640689;
+		const  double c4 = -0.00409427227680839100;
+		const  double c5 =  0.00275661310191541584;
+		const  double c6 = -0.00124162645565305019;
+		const  double c7 =  0.00065267976121802783;
+		const  double c8 = -0.00032205261682710437;
+		const  double c9 =  0.00016229131039545456;
+		const  double g5 = c5 + eps*(c6 + eps*(c7 + eps*(c8 + eps*c9)));
+		const  double g  = eps*(c0 + eps*(c1 + eps*(c2 + eps*(c3 + eps*(c4 + eps*g5)))));
 		// calculate eps gamma(-1+eps), a negative quantity
-		const double gam_e = g - 1.0 - 0.5*eps*(1.0+3.0*eps)/(1.0 - eps*eps);
+		const  double gam_e = g - 1.0 - 0.5*eps*(1.0+3.0*eps)/(1.0 - eps*eps);
 		lng->V = log(fabs(gam_e)/fabs(eps));
 		lng->E = 2.0 * SMathConst::Epsilon * fabs(lng->V);
 		*sgn = (eps > 0.0 ? -1.0 : 1.0);
@@ -579,13 +578,13 @@ static int lngamma_sgn_sing(int N, double eps, SMathResult * lng, double * sgn)
 		//
 		// series for sin(Pi(N+1-eps))/(Pi eps) modulo the sign double-precision for |eps| < 0.02
 		//
-		const double cs1 = -1.6449340668482264365;
-		const double cs2 =  0.8117424252833536436;
-		const double cs3 = -0.1907518241220842137;
-		const double cs4 =  0.0261478478176548005;
-		const double cs5 = -0.0023460810354558236;
-		const double e2  = eps*eps;
-		const double sin_ser = 1.0 + e2*(cs1+e2*(cs2+e2*(cs3+e2*(cs4+e2*cs5))));
+		const  double cs1 = -1.6449340668482264365;
+		const  double cs2 =  0.8117424252833536436;
+		const  double cs3 = -0.1907518241220842137;
+		const  double cs4 =  0.0261478478176548005;
+		const  double cs5 = -0.0023460810354558236;
+		const  double e2  = eps*eps;
+		const  double sin_ser = 1.0 + e2*(cs1+e2*(cs2+e2*(cs3+e2*(cs4+e2*cs5))));
 		//
 		// calculate series for ln(gamma(1+N-eps)) double-precision for |eps| < 0.02
 		//
@@ -792,8 +791,8 @@ int exp_err_e(double x, double dx, SMathResult * result)
 		ok = result->SetUnderflow();
 	}
 	else {
-		const double ex  = exp(x);
-		const double edx = exp(adx);
+		const  double ex  = exp(x);
+		const  double edx = exp(adx);
 		result->V  = ex;
 		result->SetErr(ex * MAX(SMathConst::Epsilon, edx - 1.0/edx), 2.0);
 	}
@@ -828,7 +827,7 @@ static int expint_E1_impl(double x, SMathResult * result, int scale)
 			-0.000000000000000201, -0.000000000000000082, 0.000000000000000017
 		};
 		static ChebSeries AE11_cs = { AE11_data, 38, -1, 1, 20 };
-		const double s = 1.0/x * (scale ? 1.0 : exp(-x));
+		const  double s = 1.0/x * (scale ? 1.0 : exp(-x));
 		SMathResult result_c;
 		cheb_eval_e(&AE11_cs, 20.0/x+1.0, &result_c);
 		result->V  = s * (1.0 + result_c.V);
@@ -847,7 +846,7 @@ static int expint_E1_impl(double x, SMathResult * result, int scale)
 			-0.000000000000000058
 		};
 		static ChebSeries AE12_cs = { AE12_data, 24, -1, 1, 15 };
-		const double s = 1.0/x * ( scale ? 1.0 : exp(-x));
+		const  double s = 1.0/x * ( scale ? 1.0 : exp(-x));
 		SMathResult result_c;
 		cheb_eval_e(&AE12_cs, (40.0/x+7.0)/3.0, &result_c);
 		result->V  = s * (1.0 + result_c.V);
@@ -864,8 +863,8 @@ static int expint_E1_impl(double x, SMathResult * result, int scale)
 			-0.00000000000000000108
 		};
 		static ChebSeries E11_cs = { E11_data, 18, -1, 1, 13 };
-		const double ln_term = -log(fabs(x));
-		const double scale_factor = ( scale ? exp(x) : 1.0);
+		const  double ln_term = -log(fabs(x));
+		const  double scale_factor = ( scale ? exp(x) : 1.0);
 		SMathResult result_c;
 		cheb_eval_e(&E11_cs, (2.0*x+5.0)/3.0, &result_c);
 		result->V  = scale_factor * (ln_term + result_c.V);
@@ -894,8 +893,8 @@ static int expint_E1_impl(double x, SMathResult * result, int scale)
 			0.00000000000000000315
 		};
 		static ChebSeries E12_cs = { E12_data, 15, -1, 1, 10 };
-		const double ln_term = -log(fabs(x));
-		const double scale_factor = ( scale ? exp(x) : 1.0);
+		const  double ln_term = -log(fabs(x));
+		const  double scale_factor = ( scale ? exp(x) : 1.0);
 		SMathResult result_c;
 		cheb_eval_e(&E12_cs, x, &result_c);
 		result->V  = scale_factor * (ln_term - 0.6875 + x + result_c.V);
@@ -930,7 +929,7 @@ static int expint_E1_impl(double x, SMathResult * result, int scale)
 			0.000000000000000023
 		};
 		static ChebSeries AE13_cs = { AE13_data, 24, -1, 1, 15 };
-		const double s = 1.0/x * ( scale ? 1.0 : exp(-x));
+		const  double s = 1.0/x * ( scale ? 1.0 : exp(-x));
 		SMathResult result_c;
 		cheb_eval_e(&AE13_cs, (8.0/x-5.0)/3.0, &result_c);
 		result->V  = s * (1.0 + result_c.V);
@@ -966,7 +965,7 @@ static int expint_E1_impl(double x, SMathResult * result, int scale)
 			-0.00000000000000005
 		};
 		static ChebSeries AE14_cs = { AE14_data, 25, -1, 1, 13 };
-		const double s = 1.0/x * ( scale ? 1.0 : exp(-x));
+		const  double s = 1.0/x * ( scale ? 1.0 : exp(-x));
 		SMathResult result_c;
 		cheb_eval_e(&AE14_cs, 8.0/x-1.0, &result_c);
 		result->V  = s * (1.0 +  result_c.V);
@@ -992,16 +991,16 @@ int log_1plusx_mx(double x, SMathResult * result)
 		ok = result->SetDomainViolation();
 	}
 	else if(fabs(x) < SMathConst::Root5Epsilon) {
-		const double c1 = -0.5;
-		const double c2 =  1.0/3.0;
-		const double c3 = -1.0/4.0;
-		const double c4 =  1.0/5.0;
-		const double c5 = -1.0/6.0;
-		const double c6 =  1.0/7.0;
-		const double c7 = -1.0/8.0;
-		const double c8 =  1.0/9.0;
-		const double c9 = -1.0/10.0;
-		const double t  =  c5 + x*(c6 + x*(c7 + x*(c8 + x*c9)));
+		const  double c1 = -0.5;
+		const  double c2 =  1.0/3.0;
+		const  double c3 = -1.0/4.0;
+		const  double c4 =  1.0/5.0;
+		const  double c5 = -1.0/6.0;
+		const  double c6 =  1.0/7.0;
+		const  double c7 = -1.0/8.0;
+		const  double c8 =  1.0/9.0;
+		const  double c9 = -1.0/10.0;
+		const  double t  =  c5 + x*(c6 + x*(c7 + x*(c8 + x*c9)));
 		result->V = x*x * (c1 + x*(c2 + x*(c3 + x*(c4 + x*t))));
 		result->SetErr(0.0, 1.0);
 	}
@@ -1044,7 +1043,7 @@ int log_1plusx_mx(double x, SMathResult * result)
 		result->E = x*x * c.E;
 	}
 	else {
-		const double lterm = log(1.0 + x);
+		const  double lterm = log(1.0 + x);
 		result->V = lterm - x;
 		result->E = SMathConst::Epsilon * (fabs(lterm) + fabs(x));
 	}
@@ -1097,7 +1096,7 @@ inline static double erfc8(double x)
 
 int erfc_e(double x, SMathResult * result)
 {
-	const double ax = fabs(x);
+	const  double ax = fabs(x);
 	double e_val, e_err;
 	/* CHECK_POINTER(result) */
 	if(ax <= 1.0) {
@@ -1231,16 +1230,16 @@ static void gammastar_ser(double x, SMathResult * result)
 		which is better behaved and easier to compute than the
 		regular Stirling series for Gamma(x).
 	*/
-	const double y = 1.0/(x*x);
-	const double c0 =  1.0/12.0;
-	const double c1 = -1.0/360.0;
-	const double c2 =  1.0/1260.0;
-	const double c3 = -1.0/1680.0;
-	const double c4 =  1.0/1188.0;
-	const double c5 = -691.0/360360.0;
-	const double c6 =  1.0/156.0;
-	const double c7 = -3617.0/122400.0;
-	const double ser = c0 + y*(c1 + y*(c2 + y*(c3 + y*(c4 + y*(c5 + y*(c6 + y*c7))))));
+	const  double y = 1.0/(x*x);
+	const  double c0 =  1.0/12.0;
+	const  double c1 = -1.0/360.0;
+	const  double c2 =  1.0/1260.0;
+	const  double c3 = -1.0/1680.0;
+	const  double c4 =  1.0/1188.0;
+	const  double c5 = -691.0/360360.0;
+	const  double c6 =  1.0/156.0;
+	const  double c7 = -3617.0/122400.0;
+	const  double ser = c0 + y*(c1 + y*(c2 + y*(c3 + y*(c4 + y*(c5 + y*(c6 + y*c7))))));
 	result->V = exp(ser/x);
 	result->E = 2.0 * SMathConst::Epsilon * result->V * MAX(1.0, ser/x);
 }
@@ -1265,14 +1264,14 @@ static int gamma_xgthalf(double x, SMathResult * result)
 		/*
 			Use series for Gamma[1+eps] - 1/(1+eps).
 		*/
-		const double eps = x - 1.0;
-		const double c1 =  0.4227843350984671394;
-		const double c2 = -0.01094400467202744461;
-		const double c3 =  0.09252092391911371098;
-		const double c4 = -0.018271913165599812664;
-		const double c5 =  0.018004931096854797895;
-		const double c6 = -0.006850885378723806846;
-		const double c7 =  0.003998239557568466030;
+		const  double eps = x - 1.0;
+		const  double c1 =  0.4227843350984671394;
+		const  double c2 = -0.01094400467202744461;
+		const  double c3 =  0.09252092391911371098;
+		const  double c4 = -0.018271913165599812664;
+		const  double c5 =  0.018004931096854797895;
+		const  double c6 = -0.006850885378723806846;
+		const  double c7 =  0.003998239557568466030;
 		result->V = 1.0/x + eps*(c1+eps*(c2+eps*(c3+eps*(c4+eps*(c5+eps*(c6+eps*c7))))));
 		result->E = SMathConst::Epsilon;
 	}
@@ -1280,15 +1279,15 @@ static int gamma_xgthalf(double x, SMathResult * result)
 		/*
 			Use series for Gamma[1 + eps].
 		*/
-		const double eps = x - 2.0;
-		const double c1 =  0.4227843350984671394;
-		const double c2 =  0.4118403304264396948;
-		const double c3 =  0.08157691924708626638;
-		const double c4 =  0.07424901075351389832;
-		const double c5 = -0.00026698206874501476832;
-		const double c6 =  0.011154045718130991049;
-		const double c7 = -0.002852645821155340816;
-		const double c8 =  0.0021039333406973880085;
+		const  double eps = x - 2.0;
+		const  double c1 =  0.4227843350984671394;
+		const  double c2 =  0.4118403304264396948;
+		const  double c3 =  0.08157691924708626638;
+		const  double c4 =  0.07424901075351389832;
+		const  double c5 = -0.00026698206874501476832;
+		const  double c6 =  0.011154045718130991049;
+		const  double c7 = -0.002852645821155340816;
+		const  double c8 =  0.0021039333406973880085;
 		result->V = 1.0 + eps*(c1+eps*(c2+eps*(c3+eps*(c4+eps*(c5+eps*(c6+eps*(c7+eps*c8)))))));
 		result->E = SMathConst::Epsilon;
 	}
@@ -1341,8 +1340,8 @@ static int gamma_xgthalf(double x, SMathResult * result)
 			is too large and the gammastar series
 			is not good.
 		*/
-		const double gamma_8 = 5040.0;
-		const double t = (2.0*x - 15.0)/5.0;
+		const  double gamma_8 = 5040.0;
+		const  double t = (2.0*x - 15.0)/5.0;
 		SMathResult c;
 		cheb_eval_e(&gamma_5_10_cs, t, &c);
 		result->V  = exp(c.V) * gamma_8;
@@ -1419,12 +1418,12 @@ int gammastar(double x, SMathResult * result)
 	}
 	else if(x < 0.5) {
 		SMathResult lg;
-		const int stat_lg = flngamma(x, &lg);
-		const double lx = log(x);
-		const double c  = 0.5*(SMathConst::Ln2+SMathConst::LnPi);
-		const double lnr_val = lg.V - (x-0.5)*lx + x - c;
-		const double lnr_err = lg.E + 2.0 * SMathConst::Epsilon *((x+0.5)*fabs(lx) + c);
-		const int stat_e  = exp_err_e(lnr_val, lnr_err, result);
+		const  int stat_lg = flngamma(x, &lg);
+		const  double lx = log(x);
+		const  double c  = 0.5*(SMathConst::Ln2+SMathConst::LnPi);
+		const  double lnr_val = lg.V - (x-0.5)*lx + x - c;
+		const  double lnr_err = lg.E + 2.0 * SMathConst::Epsilon *((x+0.5)*fabs(lx) + c);
+		const  int stat_e  = exp_err_e(lnr_val, lnr_err, result);
 		ok = BIN(stat_lg && stat_e);
 	}
 	else if(x < 2.0) {
@@ -1464,7 +1463,7 @@ int gammastar(double x, SMathResult * result)
 			-1.0115153943081187052322643819e-15
 		};
 		static ChebSeries gstar_a_cs = { gstar_a_data, 29, -1, 1, 17 };
-		const double t = 4.0/3.0*(x-0.5) - 1.0;
+		const  double t = 4.0/3.0*(x-0.5) - 1.0;
 		cheb_eval_e(&gstar_a_cs, t, result);
 	}
 	else if(x < 10.0) {
@@ -1505,7 +1504,7 @@ int gammastar(double x, SMathResult * result)
 			-6.0483153034414765129837716260e-17
 		};
 		static ChebSeries gstar_b_cs = { gstar_b_data, 29, -1, 1, 18 };
-		const double t = 0.25*(x-2.0) - 1.0;
+		const  double t = 0.25*(x-2.0) - 1.0;
 		SMathResult c;
 		cheb_eval_e(&gstar_b_cs, t, &c);
 		result->V  = c.V/(x*x) + 1.0 + 1.0/(12.0*x);
@@ -1518,7 +1517,7 @@ int gammastar(double x, SMathResult * result)
 		/*
 			Use Stirling formula for Gamma(x).
 		*/
-		const double xi = 1.0/x;
+		const  double xi = 1.0/x;
 		result->V = 1.0 + xi/12.0*(1.0 + xi/24.0*(1.0 - xi*(139.0/180.0 + 571.0/8640.0*xi)));
 		result->SetErr(0.0, 2.0);
 	}
@@ -1615,11 +1614,11 @@ static int gamma_inc_Q_large_x(double a, double x, SMathResult * result)
 */
 static int gamma_inc_Q_asymp_unif(double a, double x, SMathResult * result)
 {
-	const double rta = sqrt(a);
-	const double eps = (x-a)/a;
+	const  double rta = sqrt(a);
+	const  double eps = (x-a)/a;
 	SMathResult ln_term;
-	const int stat_ln = log_1plusx_mx(eps, &ln_term); /* log(1+eps) - eps */
-	const double eta  = fsign(eps) * sqrt(-2.0*ln_term.V);
+	const  int stat_ln = log_1plusx_mx(eps, &ln_term); /* log(1+eps) - eps */
+	const  double eta  = fsign(eps) * sqrt(-2.0*ln_term.V);
 	SMathResult erfc;
 	double R;
 	double c0, c1;
@@ -1634,8 +1633,8 @@ static int gamma_inc_Q_asymp_unif(double a, double x, SMathResult * result)
 		c1 = -1.0/540.0 - eps/288.0;
 	}
 	else {
-		const double rt_term = sqrt(-2.0 * ln_term.V/(eps*eps));
-		const double lam = x/a;
+		const  double rt_term = sqrt(-2.0 * ln_term.V/(eps*eps));
+		const  double lam = x/a;
 		c0 = (1.0 - 1.0/rt_term)/eps;
 		c1 = -(eta*eta*eta * (lam*lam + 10.0*lam + 1.0) - 12.0 * eps*eps*eps) / (12.0 * eta*eta*eta*eps*eps*eps);
 	}
@@ -1738,31 +1737,31 @@ static int gamma_inc_Q_series(double a, double x, SMathResult * result)
 		/*
 			Evaluate series for 1 - x^a/Gamma(a+1), small a
 		*/
-		const double pg21 = -2.404113806319188570799476; /* PolyGamma[2,1] */
-		const double lnx  = log(x);
-		const double el   = SMathConst::Euler+lnx;
-		const double c1 = -el;
-		const double c2 = SMathConst::Pi*SMathConst::Pi/12.0 - 0.5*el*el;
-		const double c3 = el*(SMathConst::Pi*SMathConst::Pi/12.0 - el*el/6.0) + pg21/6.0;
-		const double c4 = -0.04166666666666666667
+		const  double pg21 = -2.404113806319188570799476; /* PolyGamma[2,1] */
+		const  double lnx  = log(x);
+		const  double el   = SMathConst::Euler+lnx;
+		const  double c1 = -el;
+		const  double c2 = SMathConst::Pi*SMathConst::Pi/12.0 - 0.5*el*el;
+		const  double c3 = el*(SMathConst::Pi*SMathConst::Pi/12.0 - el*el/6.0) + pg21/6.0;
+		const  double c4 = -0.04166666666666666667
 			* (-1.758243446661483480 + lnx)
 			* (-0.764428657272716373 + lnx)
 			* ( 0.723980571623507657 + lnx)
 			* ( 4.107554191916823640 + lnx);
-		const double c5 = -0.0083333333333333333
+		const  double c5 = -0.0083333333333333333
 			* (-2.06563396085715900 + lnx)
 			* (-1.28459889470864700 + lnx)
 			* (-0.27583535756454143 + lnx)
 			* ( 1.33677371336239618 + lnx)
 			* ( 5.17537282427561550 + lnx);
-		const double c6 = -0.0013888888888888889
+		const  double c6 = -0.0013888888888888889
 			* (-2.30814336454783200 + lnx)
 			* (-1.65846557706987300 + lnx)
 			* (-0.88768082560020400 + lnx)
 			* ( 0.17043847751371778 + lnx)
 			* ( 1.92135970115863890 + lnx)
 			* ( 6.22578557795474900 + lnx);
-		const double c7 = -0.00019841269841269841
+		const  double c7 = -0.00019841269841269841
 			* (-2.5078657901291800 + lnx)
 			* (-1.9478900888958200 + lnx)
 			* (-1.3194837322612730 + lnx)
@@ -1770,7 +1769,7 @@ static int gamma_inc_Q_series(double a, double x, SMathResult * result)
 			* ( 0.5913834939078759 + lnx)
 			* ( 2.4876819633378140 + lnx)
 			* ( 7.2648160783762400 + lnx);
-		const double c8 = -0.00002480158730158730
+		const  double c8 = -0.00002480158730158730
 			* (-2.677341544966400 + lnx)
 			* (-2.182810448271700 + lnx)
 			* (-1.649350342277400 + lnx)
@@ -1779,7 +1778,7 @@ static int gamma_inc_Q_series(double a, double x, SMathResult * result)
 			* ( 0.995403817918724 + lnx)
 			* ( 3.041323283529310 + lnx)
 			* ( 8.295966556941250 + lnx);
-		const double c9 = -2.75573192239859e-6
+		const  double c9 = -2.75573192239859e-6
 			* (-2.8243487670469080 + lnx)
 			* (-2.3798494322701120 + lnx)
 			* (-1.9143674728689960 + lnx)
@@ -1789,7 +1788,7 @@ static int gamma_inc_Q_series(double a, double x, SMathResult * result)
 			* ( 1.3873333251885240 + lnx)
 			* ( 3.5857258865210760 + lnx)
 			* ( 9.3214237073814600 + lnx);
-		const double c10 = -2.75573192239859e-7
+		const  double c10 = -2.75573192239859e-7
 			* (-2.9540329644556910 + lnx)
 			* (-2.5491366926991850 + lnx)
 			* (-2.1348279229279880 + lnx)
@@ -2025,17 +2024,17 @@ int gamma_inc_e(double a, double x, SMathResult * result)
 		ok = gamma_inc_series(a, x, result);
 	else {
 		/* a = fa + da; da >= 0 */
-		const double fa = floor(a);
-		const double da = a - fa;
+		const  double fa = floor(a);
+		const  double da = a - fa;
 		SMathResult g_da;
-		const int stat_g_da = (da > 0.0 ? gamma_inc_a_gt_0(da, x, &g_da) : GAMMA_INC_A_0(x, &g_da));
+		const  int stat_g_da = (da > 0.0 ? gamma_inc_a_gt_0(da, x, &g_da) : GAMMA_INC_A_0(x, &g_da));
 		double alpha = da;
 		double gax = g_da.V;
 		/*
 			Gamma(alpha-1,x) = 1/(alpha-1) (Gamma(a,x) - x^(alpha-1) e^-x)
 		*/
 		do {
-			const double shift = exp(-x + (alpha-1.0)*log(x));
+			const  double shift = exp(-x + (alpha-1.0)*log(x));
 			gax = (gax - shift) / (alpha - 1.0);
 			alpha -= 1.0;
 		} while(alpha > a);

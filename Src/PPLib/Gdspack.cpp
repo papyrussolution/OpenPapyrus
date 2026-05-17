@@ -39,7 +39,7 @@ PPGoodsPacket & PPGoodsPacket::Z()
 	LinkFiles.Clear();
 	TagL.Z();
 	GenericList.Set(0);
-	GS.Init();
+	GS.Z();
 	return *this;
 }
 

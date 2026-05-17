@@ -331,6 +331,14 @@ public:
 		layoutAbsolute
 	};
 	//
+	// Descr: варианты свойства ownerdraw
+	//
+	enum { // @v12.6.4
+		ownerdrawYes = 1,      // Просто ownerdraw
+		ownerdrawListFixed,    // Для списка: все элементы имеют одинаковую высоту
+		ownerdrawListVariable, // Для списка: элементы могут иметь разную высоту
+	};
+	//
 	// Descr: Идентификаторы констант, используемых для описания опций областей
 	//
 	enum COption { // @persistent
@@ -390,6 +398,7 @@ public:
 		cuifSupplementCmdSymb   = 43, // @v12.3.7 string
 		cuifSupplementText      = 44, // @v12.3.7 string
 		cuifDesign              = 45, // @v12.3.9 string Вариант дизайна комплексного UI-элемента
+		cuifOwnerDraw           = 46, // @v12.6.4 uint32 ownerdrawXXX
 		//
 		cdbtDBMS                = 61, // @v12.5.7 (опция таблицы базы данных) string символ типа сервера базы данных, для которого допустимо 
 			// работать с этой таблицей. Вероятно, эта опция будет применяться очень редко. Мотивацией для ввода ее послужила необходимость 
@@ -830,6 +839,12 @@ private:
 class DlContext {
 public:
 	struct TypeEntry {
+		TypeEntry() : SymbID(0), MangleC(0), Pad2(0)
+		{
+			T.Init();
+			Pad1[0] = 0;
+			Pad1[1] = 0;
+		}
 		DLSYMBID SymbID;
 		STypEx T;
 		int8   Pad1[2]; // @alignment

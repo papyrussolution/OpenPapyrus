@@ -1284,6 +1284,19 @@ int PPLotTagContainer::SetReal(PPID tagID, int rowIdx, const double * pValue)
 //
 //
 //
+PPLotExtCodeContainer::Item2::Item2() : RowIdx(0), Flags(0), BoxId(0)
+{
+}
+
+PPLotExtCodeContainer::Item2 & PPLotExtCodeContainer::Item2::Z()
+{
+	RowIdx = 0;
+	Flags = 0;
+	BoxId = 0;
+	Num.Z();
+	return *this;
+}
+
 PPLotExtCodeContainer::MarkSet::MarkSet() : SStrGroup()
 {
 }
@@ -1713,9 +1726,9 @@ int PPLotExtCodeContainer::Get(int rowIdx, LongArray * pIdxList, MarkSet & rS) c
 	return ok;
 }
 
-int PPLotExtCodeContainer::GetByIdx(uint idx, PPLotExtCodeContainer::Item2 & rItem) const
+bool PPLotExtCodeContainer::GetByIdx(uint idx, PPLotExtCodeContainer::Item2 & rItem) const
 {
-	int    ok = 1;
+	bool   ok = true;
 	if(idx < getCount()) {
 		const InnerItem & r_item = *static_cast<const InnerItem *>(at(idx));
 		rItem.RowIdx = r_item.RowIdx;
@@ -1724,11 +1737,8 @@ int PPLotExtCodeContainer::GetByIdx(uint idx, PPLotExtCodeContainer::Item2 & rIt
 		GetS(r_item.CodeP, rItem.Num);
 	}
 	else {
-		rItem.BoxId = 0;
-		rItem.Flags = 0;
-		rItem.RowIdx = 0;
-		rItem.Num.Z();
-		ok = 0;
+		rItem.Z();
+		ok = false;
 	}
 	return ok;
 }
@@ -1750,17 +1760,63 @@ int PPLotExtCodeContainer::GetByBoxID(long boxId, StringSet & rSs) const
 	return ok;
 }
 
-int PPLotExtCodeContainer::Search(const char * pCode, int * pRowIdx, uint * pInnerIdx) const
+bool PPLotExtCodeContainer::Search(const char * pCode, int * pRowIdx, uint * pInnerIdx) const
 {
-	int    ok = 0;
+	bool   ok = false;
 	for(uint pos = 0; !ok && SStrGroup::Pool.search(pCode, &pos, 1); pos++) {
 		uint vpos = 0;
         if(SVector::lsearch(&pos, &vpos, CMPF_LONG, offsetof(InnerItem, CodeP))) {
 			const InnerItem * p_item = static_cast<const InnerItem *>(SVector::at(vpos));
 			ASSIGN_PTR(pRowIdx, p_item->RowIdx);
 			ASSIGN_PTR(pInnerIdx, vpos);
-            ok = 1;
+            ok = true;
         }
+	}
+	return ok;
+}
+
+bool PPLotExtCodeContainer::SearchAdaptive(const char * pCode, int * pRowIdx, uint * pInnerIdx) const // @v12.6.4
+{
+	bool   ok = false;
+	ASSIGN_PTR(pRowIdx, 0);
+	ASSIGN_PTR(pInnerIdx, 0);
+	if(!isempty(pCode)) {
+		Item2  item;
+		SString pattern_gtin;
+		SString pattern_serial;
+		SString pattern_partno;
+		SString iter_gtin;
+		SString iter_serial;
+		SString iter_partno;
+		GtinStruc gts;
+		const  int iczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(pCode, gts, 0));
+		gts.GetToken(GtinStruc::fldGTIN14, &pattern_gtin);
+		gts.GetToken(GtinStruc::fldSerial, &pattern_serial);
+		gts.GetToken(GtinStruc::fldPart, &pattern_partno);
+		const   bool do_adopt_cmp = (pattern_gtin.NotEmpty() && (pattern_serial.NotEmpty() || pattern_partno.NotEmpty()));
+		for(uint i = 0; !ok && i < GetCount(); i++) {
+			if(GetByIdx(i, item)) {
+				if(item.Num.IsEqiAscii(pCode)) {
+					ok = true;
+				}
+				else if(do_adopt_cmp) {
+					const  int iczcr_iter = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(item.Num, gts, 0));
+					gts.GetToken(GtinStruc::fldGTIN14, &iter_gtin);
+					if(iter_gtin.IsEqiAscii(pattern_gtin)) {
+						gts.GetToken(GtinStruc::fldSerial, &iter_serial);
+						gts.GetToken(GtinStruc::fldPart, &iter_partno);
+						if((iter_serial.IsEmpty() || iter_serial.IsEqiAscii(pattern_serial)) &&
+							(iter_partno.IsEmpty() || iter_partno.IsEqiAscii(pattern_partno))) {
+							ok = true;
+						}
+					}
+				}
+				if(ok) {
+					ASSIGN_PTR(pRowIdx, item.RowIdx);
+					ASSIGN_PTR(pInnerIdx, i);
+				}
+			}
+		}
 	}
 	return ok;
 }
@@ -1770,7 +1826,7 @@ int PPLotExtCodeContainer::ValidateCode(const char * pCode, const char * pBox, i
 	int    ok = 1;
 	int    err = 0;
 	int    row_idx = -1;
-	const SString src_box_code(pBox);
+	const  SString src_box_code(pBox);
 	SString box_code;
 	if(isempty(pCode)) {
 		err = 1;
@@ -1779,8 +1835,8 @@ int PPLotExtCodeContainer::ValidateCode(const char * pCode, const char * pBox, i
 	else {
 		const  bool iemr = PrcssrAlcReport::IsEgaisMark(pCode, 0);
 		uint   inner_idx = 0;
-		if(Search(pCode, &row_idx, &inner_idx)) {
-			const InnerItem * p_item = static_cast<const InnerItem *>(SVector::at(inner_idx));
+		if(SearchAdaptive(pCode, &row_idx, &inner_idx)) { // @v12.6.4 Search-->SearchAdaptive
+			const  InnerItem * p_item = static_cast<const InnerItem *>(SVector::at(inner_idx));
 			assert(p_item);
 			if(p_item->Flags & fBox) {
 				GetS(p_item->CodeP, box_code);
@@ -1788,8 +1844,8 @@ int PPLotExtCodeContainer::ValidateCode(const char * pCode, const char * pBox, i
 			}
 			else if(p_item->BoxId) {
 				for(uint i = 0; i < getCount(); i++) {
-					const InnerItem * p_item2 = static_cast<const InnerItem *>(SVector::at(i)); // @v11.1.0 @fix inner_idx-->i
-					if(p_item2->RowIdx == p_item->RowIdx && p_item2->BoxId == p_item->BoxId && p_item2->Flags & fBox) { // @v11.1.0 @fix (p_item2->RowIdx == p_item->RowIdx &&)
+					const  InnerItem * p_item2 = static_cast<const InnerItem *>(SVector::at(i));
+					if(p_item2->RowIdx == p_item->RowIdx && p_item2->BoxId == p_item->BoxId && p_item2->Flags & fBox) {
 						GetS(p_item2->CodeP, box_code);
 						if(src_box_code.NotEmpty() && box_code != src_box_code) {
 							err = 3; // Не та коробка

@@ -1,6 +1,6 @@
 // UED-ID-TEMP.H
-// version: 11
-// sha256: 26259208dfa9c1174bb603ceb259ac2bd68af6ac3af663f985a2165df229f85c
+// version: 12
+// sha256: 02424a96df767047c802684ec647192a136506b2230c71d83f139cf4bd4f6d6b
 //
 #ifndef __UED_ID_H
 #define __UED_ID_H
@@ -3698,6 +3698,8 @@
 #define UED_META_PRV_LOCATION                        0x143f20000ULL
 #define UED_META_PRV_DOC                             0x143f30000ULL
 #define UED_META_PRV_LOT                             0x143fe0000ULL
+#define UED_META_PRV_PROCESSOR                       0x1440d0000ULL
+#define UED_META_PRV_TECH                            0x1440e0000ULL
 #define UED_META_TIME_MSEC                           0x18a000000ULL
 #define UED_META_TIME_SEC                            0x18b000000ULL
 #define UED_META_TIME_MIN                            0x18c000000ULL

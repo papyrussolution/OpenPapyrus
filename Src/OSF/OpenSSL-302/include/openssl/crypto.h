@@ -328,10 +328,8 @@ void   OPENSSL_cleanse(void * ptr, size_t len);
 
 void CRYPTO_get_alloc_counts(int * mcount, int * rcount, int * fcount);
 #ifndef OPENSSL_NO_DEPRECATED_3_0
-#define OPENSSL_mem_debug_push(info) \
-	CRYPTO_mem_debug_push(info, OPENSSL_FILE, OPENSSL_LINE)
-#define OPENSSL_mem_debug_pop() \
-	CRYPTO_mem_debug_pop()
+	#define OPENSSL_mem_debug_push(info) CRYPTO_mem_debug_push(info, OPENSSL_FILE, OPENSSL_LINE)
+	#define OPENSSL_mem_debug_pop() CRYPTO_mem_debug_pop()
 #endif
 #ifndef OPENSSL_NO_DEPRECATED_3_0
 OSSL_DEPRECATEDIN_3_0 int CRYPTO_set_mem_debug(int flag);

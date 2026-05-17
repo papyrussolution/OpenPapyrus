@@ -423,7 +423,7 @@ int MakeDatabase()
 			i = 1;
 			SFsPath ps(param.Path.SetLastSlash());
 			if(!(ps.Flags & SFsPath::fDrv && ps.Flags & SFsPath::fDir)) {
-				PPMessage(mfInfo | mfCancel, PPINF_NEEDFULLPATH, param.Path);
+				PPMessage(mfInfo|mfCancel, PPINF_NEEDFULLPATH, param.Path);
 				i = 0;
 			}
 			else if(SFile::IsDir(param.Path)) {
@@ -436,18 +436,18 @@ int MakeDatabase()
 				(src_file = param.Path).SetLastSlash().Cat("*.*");
 				for(SDirec sd(src_file); sd.Next(&sd_entry) > 0;) {
 					if(sd_entry.IsFile()) {
-						PPMessage(mfInfo | mfCancel, PPINF_DIRNOTEMPTY, param.Path);
+						PPMessage(mfInfo|mfCancel, PPINF_DIRNOTEMPTY, param.Path);
 						i = 0;
 						break;
 					}
 				}
 				if(i)
-					i = (PPMessage(mfConf | mfYesNo, PPCFM_EXISTDIR, param.Path) == cmYes);
+					i = (PPMessage(mfConf|mfYesNo, PPCFM_EXISTDIR, param.Path) == cmYes);
 			}
 			else if(!SFile::CreateDir(param.Path)) {
 				i = 0;
 				PPError(PPERR_SLIB, param.Path);
-				// PPMessage(mfInfo | mfCancel, PPINF_CANTMKDIR);
+				// PPMessage(mfInfo|mfCancel, PPINF_CANTMKDIR);
 			}
 			if(i) {
 				class PPCreateDatabaseSession : public PPThread {
