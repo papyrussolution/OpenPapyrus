@@ -6082,6 +6082,8 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 		}
 		int r = tspiot_ifc.CheckCodeList_v2(qb, rList);
 		THROW(r);
+		if(r > 0)
+			ok = 1;
 	}
 	CATCH
 		ok = 0;
@@ -6110,241 +6112,240 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 	SString req_buf;
 	SString reply_buf;
 	SBuffer ack_buf;
-	//SJson * p_js_query = 0;
+	int    port = 0;
 	THROW(!SvrUrl.IsEmpty()); // @todo @err
 	if(rList.getCount()) {
 		SvrUrl.GetComponent(InetUrl::cHost, 0, host);
-		if(host.NotEmpty()) {
-			SvrUrl.GetComponent(InetUrl::cPort, 0, temp_buf);
-			int    port = temp_buf.ToLong();
-			if(port <= 0) {
-				port = PPChZnPrcssr::TsPiotSvrDefaultPort;
-				SvrUrl.GetComponent(InetUrl::cPort, 0, temp_buf.Z().Cat(port));
-			}
-			//SvrUrl.GetComponent(InetUrl::cUserName, 0, user);
-			//SvrUrl.GetComponent(InetUrl::cPassword, 0, pw);
-			SvrUrl.Compose(InetUrl::stScheme|InetUrl::stHost|InetUrl::stPort, url_buf);
+		THROW_PP(host.NotEmpty(), PPERR_TSPIOT_INVURL);
+		SvrUrl.GetComponent(InetUrl::cPort, 0, temp_buf);
+		port = temp_buf.ToLong();
+		if(port <= 0) {
+			port = PPChZnPrcssr::TsPiotSvrDefaultPort;
+			SvrUrl.GetComponent(InetUrl::cPort, 0, temp_buf.Z().Cat(port));
+		}
+		//SvrUrl.GetComponent(InetUrl::cUserName, 0, user);
+		//SvrUrl.GetComponent(InetUrl::cPassword, 0, pw);
+		SvrUrl.Compose(InetUrl::stScheme|InetUrl::stHost|InetUrl::stPort, url_buf);
+		{
+			/*
+				curl --location --request POST https://localhost:51401/api/v2/codes/check --header "Content-Type: application/json" 
+				--header "Accept: application/json" --data-raw '{ "codes": [ "MDEwNDY3MDU0MDE3NjA5OTIxNSdXOVVtHTkzZEdWeg==" ] .. }'
+			*/
+			InetUrl url(url_buf);
+			url.SetComponent(InetUrl::cPath, "api/v2/codes/check");
+			ScURL c; //...GET
+			StrStrAssocArray hdr_flds;
+			SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json");
+			SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAccept, "application/json");
 			{
-				/*
-					curl --location --request POST https://localhost:51401/api/v2/codes/check --header "Content-Type: application/json" 
-					--header "Accept: application/json" --data-raw '{ "codes": [ "MDEwNDY3MDU0MDE3NjA5OTIxNSdXOVVtHTkzZEdWeg==" ] .. }'
-				*/
-				InetUrl url(url_buf);
-				url.SetComponent(InetUrl::cPath, "api/v2/codes/check");
-				ScURL c; //...GET
-				StrStrAssocArray hdr_flds;
-				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json");
-				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAccept, "application/json");
-				/*{
-					//temp_buf.Z().Cat(user).Colon().Cat(pw).Transf(CTRANSF_INNER_TO_UTF8);
-					SString & r_u_p_buf = SLS.AcquireRvlStr();
-					r_u_p_buf.EncodeMime64(temp_buf.cptr(), temp_buf.Len());
-					temp_buf.Z().Cat("Basic").Space().Cat(r_u_p_buf);
-					SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAuthorization, temp_buf);
-				}*/
+				SJson js_req(SJson::tOBJECT);
 				{
-					SJson js_req(SJson::tOBJECT);
-					{
-						SJson * p_js_list = SJson::CreateArr();
-						for(uint i = 0; i < rList.getCount(); i++) {
-							const CodeStatus * p_item = rList.at(i);
-							if(p_item && p_item->OrgMark.NotEmpty()) {
-								p_js_list->InsertChild(SJson::CreateString(p_item->OrgMark));
-							}
+					SJson * p_js_list = SJson::CreateArr();
+					for(uint i = 0; i < rList.getCount(); i++) {
+						const CodeStatus * p_item = rList.at(i);
+						if(p_item && p_item->OrgMark.NotEmpty()) {
+							temp_buf.EncodeMime64(p_item->OrgMark, p_item->OrgMark.Len());
+							p_js_list->InsertChild(SJson::CreateString(temp_buf));
 						}
-						js_req.Insert("codes", p_js_list);
 					}
-					{
-						SJson * p_js_inner = SJson::CreateObj();
-						p_js_inner->InsertString("name", (temp_buf = rQBlk.AppName).Escape());
-						p_js_inner->InsertString("version", rQBlk.AppVer.ToStr(temp_buf));
-						p_js_inner->InsertString("id", rQBlk.AppUuid.ToStr(S_GUID::fmtIDL, temp_buf));
-						temp_buf;
-						if(rQBlk.AppToken.Len() == sizeof(S_GUID)) {
-							S_GUID temp_uuid(*reinterpret_cast<const S_GUID *>(rQBlk.AppToken.PtrC()));
-							temp_uuid.ToStr(S_GUID::fmtIDL, temp_buf);
-						}
-						else {
-							rQBlk.AppToken.Mime64(temp_buf);
-						}
-						p_js_inner->InsertString("token", temp_buf.Escape());
-						//
-						js_req.Insert("client_info", p_js_inner);
-					}
-					js_req.ToStr(req_buf);
+					js_req.Insert("codes", p_js_list);
 				}
-				SFile wr_stream(ack_buf.Z(), SFile::mWrite);
-				Lth.Log("req (ts-piot)", 0, req_buf);
 				{
-					const PPCommConfig & r_cc = CConfig;
-					const int conn_timeout_ms   = inirangeor(r_cc.ChZnPmLocalConnTimeout,   1U, 120000U, 20000U);
-					const int ovrall_timeout_ms = inirangeor(r_cc.ChZnPmLocalOvrallTimeout, 1U, 120000U, 40000U);
-					c.SetQueryParam_ConnectionTimeout(conn_timeout_ms);
-					c.SetQueryParam_OverallTimeout(ovrall_timeout_ms);
+					SJson * p_js_inner = SJson::CreateObj();
+					p_js_inner->InsertString("name", (temp_buf = rQBlk.AppName).Escape());
+					p_js_inner->InsertString("version", rQBlk.AppVer.ToStr(temp_buf));
+					p_js_inner->InsertString("id", rQBlk.AppUuid.ToStr(S_GUID::fmtIDL, temp_buf));
+					if(rQBlk.AppToken.Len() == sizeof(S_GUID)) {
+						S_GUID temp_uuid(*reinterpret_cast<const S_GUID *>(rQBlk.AppToken.PtrC()));
+						temp_uuid.ToStr(S_GUID::fmtIDL, temp_buf);
+					}
+					else {
+						rQBlk.AppToken.Mime64(temp_buf);
+					}
+					p_js_inner->InsertString("token", temp_buf.Escape());
+					//
+					js_req.Insert("client_info", p_js_inner);
 				}
-				if(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream)) {
-					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
-					if(p_ack_buf) {
-						reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-						Lth.Log("rep (ts-piot)", 0, reply_buf);
-						{
-							p_js_reply = SJson::Parse(reply_buf);
-							SCompoundError cerr;
-							S_GUID req_uuid;
-							int64  req_timestamp = 0;
-							bool   is_checked_offline = false;
-							if(SJson::IsObject(p_js_reply)) {
-								for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {
-									if(p_cur->Text.IsEqiAscii("codesResponse")) {
-										if(SJson::IsArray(p_cur->P_Child)) {
-											uint   position = 0;
-											for(const SJson * p_js_item = p_cur->P_Child->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
-												//CodeStatus
-												if(SJson::IsObject(p_js_item)) {
-													for(const SJson * p_cur2 = p_js_item->P_Child; p_cur2; p_cur2 = p_cur2->P_Next) {
-														if(p_cur2->Text.IsEqiAscii("code")) {
-															SJson::GetChildLong(p_cur2, cerr.Code);
+				js_req.ToStr(req_buf);
+			}
+			SBuffer * p_ack_buf = 0;
+			SCompoundError cerr_toplevel;
+			SCompoundError cerr;
+			S_GUID req_uuid;
+			int64  req_timestamp = 0;
+			bool   is_checked_offline = false;
+			SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+			Lth.Log("req (ts-piot)", 0, req_buf);
+			{
+				const PPCommConfig & r_cc = CConfig;
+				const int conn_timeout_ms   = inirangeor(r_cc.ChZnPmLocalConnTimeout,   1U, 120000U, 20000U);
+				const int ovrall_timeout_ms = inirangeor(r_cc.ChZnPmLocalOvrallTimeout, 1U, 120000U, 40000U);
+				c.SetQueryParam_ConnectionTimeout(conn_timeout_ms);
+				c.SetQueryParam_OverallTimeout(ovrall_timeout_ms);
+			}
+			THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
+			p_ack_buf = static_cast<SBuffer *>(wr_stream);
+			THROW_PP(p_ack_buf, PPERR_TSPIOT_GENERALFAULT);
+			reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+			Lth.Log("rep (ts-piot)", 0, reply_buf);
+			//
+			p_js_reply = SJson::Parse(reply_buf);
+			THROW_PP(SJson::IsObject(p_js_reply), PPERR_TSPIOT_GENERALFAULT);
+			//{"errorCode":400,"errorDescription":"Некорректный JSON запрос"}
+			for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {
+				if(p_cur->Text.IsEqiAscii("errorCode")) {
+					SJson::GetChildLong(p_cur, cerr_toplevel.Code);
+				}
+				else if(p_cur->Text.IsEqiAscii("errorDescription")) {
+					SJson::GetChildTextUnescaped(p_cur, cerr_toplevel.Descr);
+					cerr_toplevel.Descr.Transf(CTRANSF_UTF8_TO_INNER);
+				}
+				else if(p_cur->Text.IsEqiAscii("codesResponse")) {
+					if(SJson::IsArray(p_cur->P_Child)) {
+						uint   position = 0;
+						for(const SJson * p_js_item = p_cur->P_Child->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+							//CodeStatus
+							if(SJson::IsObject(p_js_item)) {
+								for(const SJson * p_cur2 = p_js_item->P_Child; p_cur2; p_cur2 = p_cur2->P_Next) {
+									if(p_cur2->Text.IsEqiAscii("code")) {
+										SJson::GetChildLong(p_cur2, cerr.Code);
+									}
+									else if(p_cur2->Text.IsEqiAscii("description")) {
+										SJson::GetChildTextUnescaped(p_cur2, cerr.Descr);
+										cerr.Descr.Transf(CTRANSF_UTF8_TO_INNER);
+									}
+									else if(p_cur2->Text.IsEqiAscii("reqId")) {
+										SJson::GetChildGuid(p_cur2, req_uuid);
+									}
+									else if(p_cur2->Text.IsEqiAscii("reqTimestamp")) {
+										SJson::GetChildInt64(p_cur2, req_timestamp);
+									}
+									else if(p_cur2->Text.IsEqiAscii("isCheckedOffline")) {
+										SJson::GetChildBool(p_cur2, is_checked_offline);
+									}
+									else if(p_cur2->Text.IsEqiAscii("codes")) {
+										if(SJson::IsArray(p_cur2->P_Child)) {
+											for(const SJson * p_js_ci = p_cur2->P_Child->P_Child; p_js_ci; p_js_ci = p_js_ci->P_Next) {
+												if(SJson::IsObject(p_js_ci)) {
+													CodeStatus new_item;
+													position++;
+													for(const SJson * p_cur3 = p_js_ci->P_Child; p_cur3; p_cur3 = p_cur3->P_Next) {
+														if(p_cur3->Text.IsEqiAscii("cis")) {
+															SJson::GetChildTextUnescaped(p_cur3, new_item.Cis);
 														}
-														else if(p_cur2->Text.IsEqiAscii("description")) {
-															SJson::GetChildTextUnescaped(p_cur2, cerr.Descr);
+														else if(p_cur3->Text.IsEqiAscii("found")) {
+															bool   b = false;
+															if(SJson::GetChildBool(p_cur3, b)) {
+																SETFLAG(new_item.Flags, CodeStatus::fFound, b);
+															}
 														}
-														else if(p_cur2->Text.IsEqiAscii("reqId")) {
-															SJson::GetChildGuid(p_cur2, req_uuid);
+														else if(p_cur3->Text.IsEqiAscii("valid")) {
+															bool   b = false;
+															if(SJson::GetChildBool(p_cur3, b)) {
+																SETFLAG(new_item.Flags, CodeStatus::fValid, b);
+															}
 														}
-														else if(p_cur2->Text.IsEqiAscii("reqTimestamp")) {
-															SJson::GetChildInt64(p_cur2, req_timestamp);
+														else if(p_cur3->Text.IsEqiAscii("printView")) {
+															; // ignore
 														}
-														else if(p_cur2->Text.IsEqiAscii("isCheckedOffline")) {
-															SJson::GetChildBool(p_cur2, is_checked_offline);
+														else if(p_cur3->Text.IsEqiAscii("gtin")) {
+															; // ignore
 														}
-														else if(p_cur2->Text.IsEqiAscii("codes")) {
-															if(SJson::IsArray(p_cur2->P_Child)) {
-																for(const SJson * p_js_ci = p_cur2->P_Child->P_Child; p_js_ci; p_js_ci = p_js_ci->P_Next) {
-																	if(SJson::IsObject(p_js_ci)) {
-																		CodeStatus new_item;
-																		position++;
-																		for(const SJson * p_cur3 = p_js_ci->P_Child; p_cur3; p_cur3 = p_cur3->P_Next) {
-																			if(p_cur3->Text.IsEqiAscii("cis")) {
-																				SJson::GetChildTextUnescaped(p_cur3, new_item.Cis);
-																			}
-																			else if(p_cur3->Text.IsEqiAscii("found")) {
-																				bool   b = false;
-																				if(SJson::GetChildBool(p_cur3, b)) {
-																					SETFLAG(new_item.Flags, CodeStatus::fFound, b);
-																				}
-																			}
-																			else if(p_cur3->Text.IsEqiAscii("valid")) {
-																				bool   b = false;
-																				if(SJson::GetChildBool(p_cur3, b)) {
-																					SETFLAG(new_item.Flags, CodeStatus::fValid, b);
-																				}
-																			}
-																			else if(p_cur3->Text.IsEqiAscii("printView")) {
-																				; // ignore
-																			}
-																			else if(p_cur3->Text.IsEqiAscii("gtin")) {
-																				; // ignore
-																			}
-																			else if(p_cur3->Text.IsEqiAscii("groupIds")) {
-																				LongArray int_list;
-																				if(SJson::GetArrayAsIntVector(p_cur2->P_Child, int_list)) {
-																					for(uint i = 0; i < SIZEOFARRAY(new_item.GroupIds) && i < int_list.getCount(); i++) {
-																						new_item.GroupIds[i] = static_cast<uint>(int_list.get(i));
-																					}
-																				}
-																			}
-																			else if(p_cur3->Text.IsEqiAscii("verified")) {
-																				bool   b = false;
-																				if(SJson::GetChildBool(p_cur3, b)) {
-																					SETFLAG(new_item.Flags, CodeStatus::fVerified, b);
-																				}
-																			}
-																			else if(p_cur3->Text.IsEqiAscii("realizable")) {
-																				bool   b = false;
-																				if(SJson::GetChildBool(p_cur3, b)) {
-																					SETFLAG(new_item.Flags, CodeStatus::fRealizable, b);
-																				}
-																			}
-																			else if(p_cur3->Text.IsEqiAscii("utilised")) {
-																				bool   b = false;
-																				if(SJson::GetChildBool(p_cur3, b)) {
-																					SETFLAG(new_item.Flags, CodeStatus::fUtilised, b);
-																				}
-																			}
-																			else if(p_cur3->Text.IsEqiAscii("productionDate")) {
-																				SJson::GetChildTextUnescaped(p_cur3, temp_buf);
-																				strtodatetime(temp_buf, &new_item.ProductionDtm, DATF_ISO8601CENT, 0);
-																			}
-																			else if(p_cur3->Text.IsEqiAscii("isOwner")) {
-																				bool   b = false;
-																				if(SJson::GetChildBool(p_cur3, b)) {
-																					SETFLAG(new_item.Flags, CodeStatus::fIsOwner, b);
-																				}
-																			}
-																			else if(p_cur3->Text.IsEqiAscii("isBlocked")) {
-																				bool   b = false;
-																				if(SJson::GetChildBool(p_cur3, b)) {
-																					SETFLAG(new_item.Flags, CodeStatus::fIsBlocked, b);
-																				}
-																			}
-																			else if(p_cur3->Text.IsEqiAscii("message")) {
-																				SJson::GetChildTextUnescaped(p_cur3, new_item.Message);
-																			}
-																			else if(p_cur3->Text.IsEqiAscii("errorCode")) {
-																				SJson::GetChildInt(p_cur3, new_item.ErrorCode);
-																			}
-																			else if(p_cur3->Text.IsEqiAscii("isTracking")) {
-																				bool   b = false;
-																				if(SJson::GetChildBool(p_cur3, b)) {
-																					SETFLAG(new_item.Flags, CodeStatus::fIsTracking, b);
-																				}
-																			}
-																			else if(p_cur3->Text.IsEqiAscii("sold")) {
-																				bool   b = false;
-																				if(SJson::GetChildBool(p_cur3, b)) {
-																					SETFLAG(new_item.Flags, CodeStatus::fSold, b);
-																				}
-																			}
-																			else if(p_cur3->Text.IsEqiAscii("mrp")) {
-																				SJson::GetChildUInt(p_cur3, new_item.Mrp);
-																			}
-																			else if(p_cur3->Text.IsEqiAscii("smp")) {
-																				SJson::GetChildUInt(p_cur3, new_item.Smp);
-																			}
-																			else if(p_cur3->Text.IsEqiAscii("grayZone")) {
-																				bool   b = false;
-																				if(SJson::GetChildBool(p_cur3, b)) {
-																					SETFLAG(new_item.Flags, CodeStatus::fGrayZone, b);
-																				}
-																			}
-																			else if(p_cur3->Text.IsEqiAscii("packageType")) {
-																				SJson::GetChildTextUnescaped(p_cur3, new_item.PackageType);
-																			}
-																			else if(p_cur3->Text.IsEqiAscii("parent")) {
-																				SJson::GetChildTextUnescaped(p_cur3, new_item.Parent);
-																			}
-																			else if(p_cur3->Text.IsEqiAscii("producerInn")) {
-																				SJson::GetChildTextUnescaped(p_cur3, new_item.ProducerInn);
-																			}
-																			else if(p_cur3->Text.IsEqiAscii("productionSerialNumber")) { // Номер производственной серии
-																				// Параметр возвращается только для товарной группы «Медицинские изделия»
-																			}
-																			else if(p_cur3->Text.IsEqiAscii("productionBatchNumber")) { // Номер производственной партии
-																				// Параметр возвращается только для товарной группы «Медицинские изделия»
-																			}
-																			else if(p_cur3->Text.IsEqiAscii("factorySerialNumber")) { // Заводской серийный номер
-																				// Параметр возвращается только для товарной группы «Медицинские изделия»
-																			}
-																			else if(p_cur3->Text.IsEqiAscii("packageQuantity")) { // Ёмкость КИГУ. Количество потенциально вмещаемых вложений
-																			}
-																			else if(p_cur3->Text.IsEqiAscii("inst")) { // Идентификатор экземпляра ПО "Локальный модуль чзн"
-																			}
-																			else if(p_cur3->Text.IsEqiAscii("version")) { //Версия ПО "Локальный модуль чзн"
-																			}
-																		}
-																	}
+														else if(p_cur3->Text.IsEqiAscii("groupIds")) {
+															LongArray int_list;
+															if(SJson::GetArrayAsIntVector(p_cur2->P_Child, int_list)) {
+																for(uint i = 0; i < SIZEOFARRAY(new_item.GroupIds) && i < int_list.getCount(); i++) {
+																	new_item.GroupIds[i] = static_cast<uint>(int_list.get(i));
 																}
 															}
+														}
+														else if(p_cur3->Text.IsEqiAscii("verified")) {
+															bool   b = false;
+															if(SJson::GetChildBool(p_cur3, b)) {
+																SETFLAG(new_item.Flags, CodeStatus::fVerified, b);
+															}
+														}
+														else if(p_cur3->Text.IsEqiAscii("realizable")) {
+															bool   b = false;
+															if(SJson::GetChildBool(p_cur3, b)) {
+																SETFLAG(new_item.Flags, CodeStatus::fRealizable, b);
+															}
+														}
+														else if(p_cur3->Text.IsEqiAscii("utilised")) {
+															bool   b = false;
+															if(SJson::GetChildBool(p_cur3, b)) {
+																SETFLAG(new_item.Flags, CodeStatus::fUtilised, b);
+															}
+														}
+														else if(p_cur3->Text.IsEqiAscii("productionDate")) {
+															SJson::GetChildTextUnescaped(p_cur3, temp_buf);
+															strtodatetime(temp_buf, &new_item.ProductionDtm, DATF_ISO8601CENT, 0);
+														}
+														else if(p_cur3->Text.IsEqiAscii("isOwner")) {
+															bool   b = false;
+															if(SJson::GetChildBool(p_cur3, b)) {
+																SETFLAG(new_item.Flags, CodeStatus::fIsOwner, b);
+															}
+														}
+														else if(p_cur3->Text.IsEqiAscii("isBlocked")) {
+															bool   b = false;
+															if(SJson::GetChildBool(p_cur3, b)) {
+																SETFLAG(new_item.Flags, CodeStatus::fIsBlocked, b);
+															}
+														}
+														else if(p_cur3->Text.IsEqiAscii("message")) {
+															SJson::GetChildTextUnescaped(p_cur3, new_item.Message);
+														}
+														else if(p_cur3->Text.IsEqiAscii("errorCode")) {
+															SJson::GetChildInt(p_cur3, new_item.ErrorCode);
+														}
+														else if(p_cur3->Text.IsEqiAscii("isTracking")) {
+															bool   b = false;
+															if(SJson::GetChildBool(p_cur3, b)) {
+																SETFLAG(new_item.Flags, CodeStatus::fIsTracking, b);
+															}
+														}
+														else if(p_cur3->Text.IsEqiAscii("sold")) {
+															bool   b = false;
+															if(SJson::GetChildBool(p_cur3, b)) {
+																SETFLAG(new_item.Flags, CodeStatus::fSold, b);
+															}
+														}
+														else if(p_cur3->Text.IsEqiAscii("mrp")) {
+															SJson::GetChildUInt(p_cur3, new_item.Mrp);
+														}
+														else if(p_cur3->Text.IsEqiAscii("smp")) {
+															SJson::GetChildUInt(p_cur3, new_item.Smp);
+														}
+														else if(p_cur3->Text.IsEqiAscii("grayZone")) {
+															bool   b = false;
+															if(SJson::GetChildBool(p_cur3, b)) {
+																SETFLAG(new_item.Flags, CodeStatus::fGrayZone, b);
+															}
+														}
+														else if(p_cur3->Text.IsEqiAscii("packageType")) {
+															SJson::GetChildTextUnescaped(p_cur3, new_item.PackageType);
+														}
+														else if(p_cur3->Text.IsEqiAscii("parent")) {
+															SJson::GetChildTextUnescaped(p_cur3, new_item.Parent);
+														}
+														else if(p_cur3->Text.IsEqiAscii("producerInn")) {
+															SJson::GetChildTextUnescaped(p_cur3, new_item.ProducerInn);
+														}
+														else if(p_cur3->Text.IsEqiAscii("productionSerialNumber")) { // Номер производственной серии
+															// Параметр возвращается только для товарной группы «Медицинские изделия»
+														}
+														else if(p_cur3->Text.IsEqiAscii("productionBatchNumber")) { // Номер производственной партии
+															// Параметр возвращается только для товарной группы «Медицинские изделия»
+														}
+														else if(p_cur3->Text.IsEqiAscii("factorySerialNumber")) { // Заводской серийный номер
+															// Параметр возвращается только для товарной группы «Медицинские изделия»
+														}
+														else if(p_cur3->Text.IsEqiAscii("packageQuantity")) { // Ёмкость КИГУ. Количество потенциально вмещаемых вложений
+														}
+														else if(p_cur3->Text.IsEqiAscii("inst")) { // Идентификатор экземпляра ПО "Локальный модуль чзн"
+														}
+														else if(p_cur3->Text.IsEqiAscii("version")) { //Версия ПО "Локальный модуль чзн"
 														}
 													}
 												}
@@ -6356,6 +6357,11 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 						}
 					}
 				}
+			}
+			{
+				THROW_PP(!cerr_toplevel.Code, PPERR_TSPIOT_CALLFAULT, cerr_toplevel.Descr);
+				THROW_PP(!cerr.Code, PPERR_TSPIOT_CHECKFAULT, cerr.Descr);
+				ok = 1;
 			}
 		}
 	}

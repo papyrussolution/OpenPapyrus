@@ -97,7 +97,7 @@ static void process(lzma_check_state * check)
 
 extern void lzma_sha256_init(lzma_check_state * check)
 {
-	static const uint32_t s[8] = { 0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A, 0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19, };
+	static const uint32 s[8] = { 0x6A09E667U, 0xBB67AE85U, 0x3C6EF372U, 0xA54FF53AU, 0x510E527FU, 0x9B05688CU, 0x1F83D9ABU, 0x5BE0CD19U, };
 	memcpy(check->state.sha256.state, s, sizeof(s));
 	check->state.sha256.size = 0;
 }

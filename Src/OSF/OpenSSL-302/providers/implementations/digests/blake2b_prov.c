@@ -18,7 +18,7 @@
 #include "blake2_impl.h"
 #include "prov/blake2.h"
 
-static const uint64_t blake2b_IV[8] = {
+static const uint64 blake2b_IV[8] = {
 	0x6a09e667f3bcc908ULL, 0xbb67ae8584caa73bULL,
 	0x3c6ef372fe94f82bULL, 0xa54ff53a5f1d36f1ULL,
 	0x510e527fade682d1ULL, 0x9b05688c2b3e6c1fULL,
@@ -40,13 +40,13 @@ static const uint8 blake2b_sigma[12][16] = {
 	{ 14, 10,  4,  8,  9, 15, 13,  6,  1, 12,  0,  2, 11,  7,  5,  3 }
 };
 
-/* Set that it's the last block we'll compress */
+// Set that it's the last block we'll compress
 static ossl_inline void blake2b_set_lastblock(BLAKE2B_CTX * S)
 {
 	S->f[0] = -1;
 }
 
-/* Initialize the hashing state. */
+// Initialize the hashing state
 static ossl_inline void blake2b_init0(BLAKE2B_CTX * S)
 {
 	memzero(S, sizeof(BLAKE2B_CTX));
@@ -55,7 +55,7 @@ static ossl_inline void blake2b_init0(BLAKE2B_CTX * S)
 	}
 }
 
-/* init xors IV with input parameter block and sets the output length */
+// init xors IV with input parameter block and sets the output length 
 static void blake2b_init_param(BLAKE2B_CTX * S, const BLAKE2B_PARAM * P)
 {
 	size_t i;

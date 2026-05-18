@@ -2402,6 +2402,10 @@ PPERR_CR2SRGW_POSNODENFOUND         "Кассовый узел для обслу
 PPERR_CHZNPM_LOCAL_QUERYFAULT       "Ошибка запроса к локальному серверу проверки марок @{brand_chzn}"
 PPERR_REPORTFILENOTFOUND            "Не найден файл отчета '%s'"
 PPERR_DBUNDUMP_INVENTRYOFFS         "Недопустимое значение смещения в потоке для dump-точки таблицы '%s'"
+PPERR_TSPIOT_GENERALFAULT           "Ошибка обращения к тс пиот"
+PPERR_TSPIOT_INVURL                 "Ошибка обращения к тс пиот: неправильный или отсутствующий URL сервера"
+PPERR_TSPIOT_CALLFAULT              "Ошибка вызова функции тс пиот: %s" // errorCode: {code; description}
+PPERR_TSPIOT_CHECKFAULT             "Ошибка проверки марки тс пиот: %s" // codesResponse: {code; description}
 
 // LastError
 

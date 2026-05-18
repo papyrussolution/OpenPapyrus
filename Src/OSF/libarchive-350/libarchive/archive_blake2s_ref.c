@@ -13,10 +13,7 @@
 #include "archive_blake2.h"
 #include "archive_blake2_impl.h"
 
-static const uint32 blake2s_IV[8] = {
-	0x6A09E667UL, 0xBB67AE85UL, 0x3C6EF372UL, 0xA54FF53AUL,
-	0x510E527FUL, 0x9B05688CUL, 0x1F83D9ABUL, 0x5BE0CD19UL
-};
+// (replaced with SlTabs::Blake2sIV) static const uint32 blake2s_IV[8] = { 0x6A09E667UL, 0xBB67AE85UL, 0x3C6EF372UL, 0xA54FF53AUL, 0x510E527FUL, 0x9B05688CUL, 0x1F83D9ABUL, 0x5BE0CD19UL };
 
 static const uint8 blake2s_sigma[10][16] = {
 	{  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 },
@@ -59,7 +56,7 @@ static void blake2s_init0(blake2s_state * S)
 {
 	memzero(S, sizeof( blake2s_state ) );
 	for(size_t i = 0; i < 8; ++i) 
-		S->h[i] = blake2s_IV[i];
+		S->h[i] = SlTabs::Blake2sIV[i];
 }
 
 /* init2 xors IV with input parameter block */
@@ -163,15 +160,14 @@ static void blake2s_compress(blake2s_state * S, const uint8 in[BLAKE2S_BLOCKBYTE
 	for(i = 0; i < 8; ++i) {
 		v[i] = S->h[i];
 	}
-	v[ 8] = blake2s_IV[0];
-	v[ 9] = blake2s_IV[1];
-	v[10] = blake2s_IV[2];
-	v[11] = blake2s_IV[3];
-	v[12] = S->t[0] ^ blake2s_IV[4];
-	v[13] = S->t[1] ^ blake2s_IV[5];
-	v[14] = S->f[0] ^ blake2s_IV[6];
-	v[15] = S->f[1] ^ blake2s_IV[7];
-
+	v[ 8] = SlTabs::Blake2sIV[0];
+	v[ 9] = SlTabs::Blake2sIV[1];
+	v[10] = SlTabs::Blake2sIV[2];
+	v[11] = SlTabs::Blake2sIV[3];
+	v[12] = S->t[0] ^ SlTabs::Blake2sIV[4];
+	v[13] = S->t[1] ^ SlTabs::Blake2sIV[5];
+	v[14] = S->f[0] ^ SlTabs::Blake2sIV[6];
+	v[15] = S->f[1] ^ SlTabs::Blake2sIV[7];
 	ROUND(0);
 	ROUND(1);
 	ROUND(2);

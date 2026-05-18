@@ -1504,7 +1504,8 @@ public:
 	static const uint32 LookupTable_CRC32LE_Zlib[8][256];
 	static const uint32 LookupTable_CRC32BE_Zlib[8][256];
 	static const uint32 LookupTable_CRC32_BZip2[256];
-	static const uint64 Blak2bIV[8]; // @v12.6.4
+	static const uint64 Blake2bIV[8]; // @v12.6.4
+	static const uint32 Blake2sIV[8]; // @v12.6.5
 };
 //
 template <class T> T * AssignPtr2Ptr(T *& prDest, const T * pSrc) // @v11.4.12

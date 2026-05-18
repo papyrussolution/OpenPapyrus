@@ -10319,9 +10319,20 @@ int CheckPaneDialog::VerifyChZnMark(PgsBlock & rBlk, int chznProdType/*gt_rec.Ch
 		PPChZnPrcssr::CodeStatusCollection pm_code_list;
 		pm_code_list.AddCodeEntry(rBlk.ChZnMark, 0, 0);
 		if(pm_code_list.getCount()) {
+			{ // @construction
+				//
+				// Descr: Критерии сигнализации о провале проверки марки в разрешительном режиме и(или) тс пиот
+				//
+				enum { 
+					chznpmcritSold        = 0x0001,
+					chznpmcritNotOwner    = 0x0002,
+					chznpmcritExpiry      = 0x0004,
+					chznpmcritNotUtilised = 0x0008,
+				};
+			}
 			int    verif_result = 0;
 			if(use_tspiot) {
-				verif_result = PPChZnPrcssr::TsPiotCheck(PNP.ChZnGuaID, pm_code_list); // @construction
+				verif_result = PPChZnPrcssr::TsPiotCheck(PNP.ChZnGuaID, pm_code_list);
 			}
 			else {
 				verif_result = PPChZnPrcssr::PmCheck(PNP.ChZnGuaID, 0, 2/*regular online/offline mode*/, pm_code_list);
@@ -10368,9 +10379,9 @@ int CheckPaneDialog::VerifyChZnMark(PgsBlock & rBlk, int chznProdType/*gt_rec.Ch
 							local_err_code = PPERR_CHZNMARKPMFAULT;
 						else if(p_cle->Flags & PPChZnPrcssr::CodeStatus::fSold)
 							local_err_code = PPERR_CHZNMARKPMFAULT_SOLD;
-						else if(!(p_cle->Flags & PPChZnPrcssr::CodeStatus::fIsOwner)) { // @v12.6.3
+						/*else if(!(p_cle->Flags & PPChZnPrcssr::CodeStatus::fIsOwner)) { // @v12.6.3
 							local_err_code = PPERR_CHZNMARKPMFAULT_NOTOWNED;
-						}
+						}*/
 						else if(checkdate(p_cle->ExpiryDtm.d) && getcurdate_() >= p_cle->ExpiryDtm.d) // @v12.1.1
 							local_err_code = PPERR_CHZNMARKPMFAULT_EXPIRY;
 						if(local_err_code) {

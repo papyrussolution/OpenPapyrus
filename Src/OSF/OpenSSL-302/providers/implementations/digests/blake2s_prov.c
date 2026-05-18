@@ -19,11 +19,7 @@
 #include "blake2_impl.h"
 #include "prov/blake2.h"
 
-static const uint32_t blake2s_IV[8] =
-{
-	0x6A09E667U, 0xBB67AE85U, 0x3C6EF372U, 0xA54FF53AU,
-	0x510E527FU, 0x9B05688CU, 0x1F83D9ABU, 0x5BE0CD19U
-};
+static const uint32_t blake2s_IV[8] = { 0x6A09E667U, 0xBB67AE85U, 0x3C6EF372U, 0xA54FF53AU, 0x510E527FU, 0x9B05688CU, 0x1F83D9ABU, 0x5BE0CD19U };
 
 static const uint8 blake2s_sigma[10][16] =
 {

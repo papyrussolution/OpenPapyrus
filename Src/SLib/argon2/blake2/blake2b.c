@@ -16,7 +16,7 @@
 #include "blake2.h"
 #include "blake2-impl.h"
 
-/* (replaced with SlTabs::Blak2bIV) static const uint64 blake2b_IV[8] = {
+/* (replaced with SlTabs::Blake2bIV) static const uint64 blake2b_IV[8] = {
 	0x6a09e667f3bcc908ULL, 0xbb67ae8584caa73bULL,
 	0x3c6ef372fe94f82bULL, 0xa54ff53a5f1d36f1ULL,
 	0x510e527fade682d1ULL, 0x9b05688c2b3e6c1fULL,
@@ -66,7 +66,7 @@ static BLAKE2_INLINE void blake2b_invalidate_state(blake2b_state * S)
 static BLAKE2_INLINE void blake2b_init0(blake2b_state * S) 
 {
 	memzero(S, sizeof(*S));
-	memcpy(S->h, SlTabs::Blak2bIV, sizeof(S->h));
+	memcpy(S->h, SlTabs::Blake2bIV, sizeof(S->h));
 }
 
 int blake2b_init_param(blake2b_state * S, const blake2b_param * P) 
@@ -75,13 +75,15 @@ int blake2b_init_param(blake2b_state * S, const blake2b_param * P)
 	if(!P || !S) {
 		return -1;
 	}
-	blake2b_init0(S);
-	/* IV XOR Parameter Block */
-	for(uint i = 0; i < 8; ++i) {
-		S->h[i] ^= load64(&p[i * sizeof(S->h[i])]);
+	else {
+		blake2b_init0(S);
+		// IV XOR Parameter Block
+		for(uint i = 0; i < 8; ++i) {
+			S->h[i] ^= load64(&p[i * sizeof(S->h[i])]);
+		}
+		S->outlen = P->digest_length;
+		return 0;
 	}
-	S->outlen = P->digest_length;
-	return 0;
 }
 
 /* Sequential blake2b initialization */
@@ -162,14 +164,14 @@ static void blake2b_compress(blake2b_state * S, const uint8_t * block)
 	for(i = 0; i < 8; ++i) {
 		v[i] = S->h[i];
 	}
-	v[8] = SlTabs::Blak2bIV[0];
-	v[9] = SlTabs::Blak2bIV[1];
-	v[10] = SlTabs::Blak2bIV[2];
-	v[11] = SlTabs::Blak2bIV[3];
-	v[12] = SlTabs::Blak2bIV[4] ^ S->t[0];
-	v[13] = SlTabs::Blak2bIV[5] ^ S->t[1];
-	v[14] = SlTabs::Blak2bIV[6] ^ S->f[0];
-	v[15] = SlTabs::Blak2bIV[7] ^ S->f[1];
+	v[8] = SlTabs::Blake2bIV[0];
+	v[9] = SlTabs::Blake2bIV[1];
+	v[10] = SlTabs::Blake2bIV[2];
+	v[11] = SlTabs::Blake2bIV[3];
+	v[12] = SlTabs::Blake2bIV[4] ^ S->t[0];
+	v[13] = SlTabs::Blake2bIV[5] ^ S->t[1];
+	v[14] = SlTabs::Blake2bIV[6] ^ S->f[0];
+	v[15] = SlTabs::Blake2bIV[7] ^ S->f[1];
 
 #define G(r, i, a, b, c, d)                         \
 	do {                                            \

@@ -124,7 +124,6 @@ static void transform256(uint state[8], uint data[16])
 void fz_sha256_init(fz_sha256 * context)
 {
 	context->count[0] = context->count[1] = 0;
-
 	context->state[0] = 0x6A09E667;
 	context->state[1] = 0xBB67AE85;
 	context->state[2] = 0x3C6EF372;
