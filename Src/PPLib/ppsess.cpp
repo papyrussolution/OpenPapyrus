@@ -4625,6 +4625,55 @@ int PPSession::Implement_PPLogin(const PPDbEntrySet2 * pDbes, const char * pDbSy
 					}
 				}
 				// } @v12.5.5
+				// @v12.6.5 {
+				{
+					uint32 chznpmcritf = 0;
+					if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_CHZNPMCRIT, sv) > 0) {
+						//
+						// Если хоть один флаг задан правильно, то весь набор переопределяет значения по умолчанию! 
+						//
+						StringSet ss;
+						sv.Tokenize(" ,;", ss);
+						for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+							if(temp_buf.Strip().IsEqiAscii("NotFound")) {
+								chznpmcritf |= CPosProcessor::PgsBlock::chznpmcritNotFound;
+							}
+							else if(temp_buf.Strip().IsEqiAscii("NotValid")) {
+								chznpmcritf |= CPosProcessor::PgsBlock::chznpmcritNotValid;
+							}
+							else if(temp_buf.Strip().IsEqiAscii("NotVerified")) {
+								chznpmcritf |= CPosProcessor::PgsBlock::chznpmcritNotVerified;
+							}
+							else if(temp_buf.Strip().IsEqiAscii("NotRealizable")) {
+								chznpmcritf |= CPosProcessor::PgsBlock::chznpmcritNotRealizable;
+							}
+							else if(temp_buf.Strip().IsEqiAscii("NotRealizableGrayZoneExclusion")) {
+								chznpmcritf |= CPosProcessor::PgsBlock::chznpmcritNotRlzblGzExcl;
+							}
+							else if(temp_buf.Strip().IsEqiAscii("NotUtilised")) {
+								chznpmcritf |= CPosProcessor::PgsBlock::chznpmcritNotUtilised;
+							}
+							else if(temp_buf.Strip().IsEqiAscii("NotOwner")) {
+								chznpmcritf |= CPosProcessor::PgsBlock::chznpmcritNotOwner;
+							}
+							else if(temp_buf.Strip().IsEqiAscii("Blocked")) {
+								chznpmcritf |= CPosProcessor::PgsBlock::chznpmcritBlocked;
+							}
+							else if(temp_buf.Strip().IsEqiAscii("Sold")) {
+								chznpmcritf |= CPosProcessor::PgsBlock::chznpmcritSold;
+							}
+							else if(temp_buf.Strip().IsEqiAscii("Expiry")) {
+								chznpmcritf |= CPosProcessor::PgsBlock::chznpmcritExpiry;
+							}
+							else {
+								// @todo Тут надо выдать куда-то какое-то сообщение о том, что в списке есть неизвестный символ.
+								// Это важно поскольку человек мог ошибится в написании и рассчитывает что все будет работать, а оно работать не будет!
+							}
+						}
+					}
+					r_cc.ChZnPmCrit = NZOR(chznpmcritf, CPosProcessor::PgsBlock::GetDefaultCnZnPmCritFlags());
+				}
+				// } @v12.6.5 
 				if(CheckExtFlag(ECF_PAPERLESSCHEQUE) && ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_PAPERLESSCHEQUE_FAKEEADDR, sv) && sv.NotEmptyS()) {
 					SNaturalTokenArray nta;
 					PPTokenRecognizer trgn;

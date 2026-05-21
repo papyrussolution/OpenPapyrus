@@ -1592,8 +1592,6 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 	constexpr long fmask2 = BILLF2_BHT|BILLF2_TSESSPAYM|BILLF2_DECLINED|BILLF2_EDI_ACCP|BILLF2_EDI_DECL|BILLF2_EDIAR_AGR|BILLF2_EDIAR_DISAGR;
 	const  bool trace_sync_lot = DS.CheckExtFlag(ECF_TRACESYNCLOT);
 	const  bool _update = (rPack.Rec.ID > 0);
-	const  bool is_intr_expnd = IsIntrExpndOp(rPack.Rec.OpID);
-	const  PPID op_type_id = GetOpType(rPack.Rec.OpID);
 
 	int    ok = 1;
 	int    warn = 0;
@@ -1653,6 +1651,8 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 	rPack.Ext = Ext;
 	rPack.Amounts.Put(&Amounts, 0, 1); // Теперь суммы (ручные) конвертируем для всех типов операций
 	PPObjBill::MakeCodeString(&rPack.Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_descr_buf);
+	const  bool is_intr_expnd = IsIntrExpndOp(rPack.Rec.OpID);
+	const  PPID op_type_id = GetOpType(rPack.Rec.OpID);
 	if(oneof2(op_type_id, PPOPT_ACCTURN, PPOPT_PAYMENT)) {
 		if(op_type_id == PPOPT_PAYMENT || CheckOpFlags(rPack.Rec.OpID, OPKF_EXTACCTURN)) {
 			rPack.Amounts.Put(PPAMT_MAIN, 0L, rPack.GetAmount(), 0, 1);
@@ -2483,7 +2483,10 @@ void PPObjBill::RegisterTransmitProblems(PPBillPacket * pPack, ILBillPacket * pI
 		uint   i;
 		ILTI * p_ilti;
 		SETIFZ(pCtx->P_Btd, new BillTransmDeficit);
-		SString msg_buf, fmt_buf, bill_code, clb_number;
+		SString msg_buf;
+		SString fmt_buf;
+		SString bill_code;
+		SString clb_number;
 		PPObjBill::MakeCodeString(&pPack->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_code);
 		msg_buf.Printf(PPLoadTextS(PPTXT_BTP_HEADER, fmt_buf), bill_code.cptr(), org_amt, new_amt);
 		pCtx->OutReceivingMsg(msg_buf);

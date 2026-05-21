@@ -171,16 +171,13 @@ static void arc4_stir(void)
 		rdat.pid = getpid();
 		/* We'll just take whatever was on the stack too... */
 	}
-
 	arc4_addrandom((u_char*)&rdat, KEYSIZE);
-
-	/*
-	 * Discard early keystream, as per recommendations in:
-	 * "(Not So) Random Shuffles of RC4" by Ilya Mironov.
-	 * As per the Network Operations Division, cryptographic requirements
-	 * published on wikileaks on March 2017.
-	 */
-
+	// 
+	// Discard early keystream, as per recommendations in:
+	// "(Not So) Random Shuffles of RC4" by Ilya Mironov.
+	// As per the Network Operations Division, cryptographic requirements
+	// published on wikileaks on March 2017.
+	// 
 	for(i = 0; i < 3072; i++)
 		(void)arc4_getbyte();
 	arc4_count = 1600000;
@@ -189,7 +186,6 @@ static void arc4_stir(void)
 static void arc4_stir_if_needed(void)
 {
 	pid_t pid = getpid();
-
 	if(arc4_count <= 0 || !rs_initialized || arc4_stir_pid != pid) {
 		arc4_stir_pid = pid;
 		arc4_stir();

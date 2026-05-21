@@ -2568,7 +2568,7 @@ static int check_symlinks_fsobj(char * path, int * a_eno, archive_string * a_est
 				 * restore
 				 */
 				/*
-				   if (!S_ISLNK(path)) {
+				   if(!S_ISLNK(path)) {
 				        fsobj_error(a_eno, a_estr, 0,
 				            "Removing symlink ", path);
 				   }

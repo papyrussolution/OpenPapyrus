@@ -188,16 +188,16 @@
    void drawGui()
    {
    // open Dialog Simple
-   if (ImGui::Button("Open File Dialog"))
+   if(ImGui::Button("Open File Dialog"))
     IGFD::FileDialogConfig config;
     config.path = ".";
     ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".cpp,.h,.hpp", config);
 
    // display
-   if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
+   if(ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
    {
     // action if OK
-    if (ImGuiFileDialog::Instance()->IsOk())
+    if(ImGuiFileDialog::Instance()->IsOk())
     {
       std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
       std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
@@ -275,17 +275,17 @@
    {
     ImGui::TextColored(ImVec4(0, 1, 1, 1), "Infos Pane");
     ImGui::Text("Selected Filter : %s", vFilter.c_str());
-    if (vUserDatas)
+    if(vUserDatas)
         ImGui::Text("UserDatas : %s", vUserDatas);
     ImGui::Checkbox("if not checked you cant validate the dialog", &canValidateDialog);
-    if (vCantContinue)
+    if(vCantContinue)
  * vCantContinue = canValidateDialog;
    }
 
    void drawGui()
    {
    // open Dialog with Pane
-   if (ImGui::Button("Open File Dialog with a custom pane")) {
+   if(ImGui::Button("Open File Dialog with a custom pane")) {
         IGFD::FileDialogConfig config;
         config.path = ".";
         config.countSelectionMax = 1;
@@ -297,16 +297,16 @@
    }
 
    // display and action if ok
-   if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
+   if(ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
    {
-    if (ImGuiFileDialog::Instance()->IsOk())
+    if(ImGuiFileDialog::Instance()->IsOk())
     {
         std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
         std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
         std::string filter = ImGuiFileDialog::Instance()->GetCurrentFilter();
         // here convert from string because a string was passed as a userDatas, but it can be what you want
         std::string userDatas;
-        if (ImGuiFileDialog::Instance()->GetUserDatas())
+        if(ImGuiFileDialog::Instance()->GetUserDatas())
             userDatas = std::string((const char*)ImGuiFileDialog::Instance()->GetUserDatas());
         auto selection = ImGuiFileDialog::Instance()->GetSelection(); // multiselection
 
@@ -361,7 +361,7 @@
 
    ```cpp
    ImGuiFileDialog::Instance()->SetFileStyle([](const IGFD::FileInfos& vFile, IGFD::FileStyle &vOutStyle) -> bool {
-    if (!vFile.fileNameExt.empty() && vFile.fileNameExt[0] == '.') {
+    if(!vFile.fileNameExt.empty() && vFile.fileNameExt[0] == '.') {
         vOutStyle = IGFD::FileStyle(ImVec4(0.0f, 0.9f, 0.9f, 1.0f), ICON_IGFD_REMOVE);
         return true;
     }
@@ -427,7 +427,7 @@
    // set file style with a lambda function
    // return true is a file style was defined
    ImGuiFileDialog::Instance()->SetFileStyle([](const IGFD::FileInfos& vFile, IGFD::FileStyle &vOutStyle) -> bool {
-    if (!vFile.fileNameExt.empty() && vFile.fileNameExt[0] == '.') {
+    if(!vFile.fileNameExt.empty() && vFile.fileNameExt[0] == '.') {
         vOutStyle = IGFD::FileStyle(ImVec4(0.0f, 0.9f, 0.9f, 1.0f), ICON_IGFD_REMOVE);
         return true;
     }
@@ -1012,7 +1012,7 @@
             struct stat statInfos   = {};
             char timebuf[100];
             int result = stat(bin_file_path_name.c_str(), &statInfos);
-            if (!result) {
+            if(!result) {
                 vFileInfosPtr->fileSize = (size_t)statInfos.st_size;
             } else {
                 // no bin, so escaped.
@@ -1078,7 +1078,7 @@
    ImGuiFileDialog::Instance()->AddPlacesGroup(group_name, display_order, can_be_user_edited, opened_by_default);
    // then you must get the group
    auto places_ptr = ImGuiFileDialog::Instance()->GetPlacesGroupPtr(group_name);
-   if (places_ptr != nullptr) {
+   if(places_ptr != nullptr) {
     // then add a place to the group
     // you msut specify the place name, the palce path, say if the palce can be serialized, and sepcify the style
     // for the moment the style support only the icon, can be extended if user needed in futur
@@ -1137,7 +1137,7 @@
    ImGuiFileDialog *cfileDialog = IGFD_Create();
 
    // open dialog
-   if (igButton("Open File", buttonSize)) {
+   if(igButton("Open File", buttonSize)) {
     IGFD_FileDialog_Config config = IGFD_FileDialog_Config_Get();
     config.path = ".";
     config.flags = ImGuiFileDialogFlags_ConfirmOverwrite; // ImGuiFileDialogFlags
@@ -1157,9 +1157,9 @@
    minSize.y = maxSize.y * 0.25f;
 
    // display dialog
-   if (IGFD_DisplayDialog(cfiledialog, "filedlg", ImGuiWindowFlags_NoCollapse, minSize, maxSize))
+   if(IGFD_DisplayDialog(cfiledialog, "filedlg", ImGuiWindowFlags_NoCollapse, minSize, maxSize))
    {
-    if (IGFD_IsOk(cfiledialog)) // result ok
+    if(IGFD_IsOk(cfiledialog)) // result ok
     {
         char* cfilePathName = IGFD_GetFilePathName(cfiledialog);
         printf("GetFilePathName : %s\n", cfilePathName);
@@ -1169,7 +1169,7 @@
         printf("GetCurrentFilter : %s\n", cfilter);
         // here convert from string because a string was passed as a userDatas, but it can be what you want
         void* cdatas = IGFD_GetUserDatas(cfiledialog);
-        if (cdatas)
+        if(cdatas)
             printf("GetUserDatas : %s\n", (const char*)cdatas);
         struct IGFD_Selection csel = IGFD_GetSelection(cfiledialog); // multi selection
         printf("Selection :\n");
@@ -1180,9 +1180,9 @@
         // action
 
         // destroy
-        if (cfilePathName) free(cfilePathName);
-        if (cfilePath) free(cfilePath);
-        if (cfilter) free(cfilter);
+        if(cfilePathName) free(cfilePathName);
+        if(cfilePath) free(cfilePath);
+        if(cfilter) free(cfilter);
 
         IGFD_Selection_DestroyContent(&csel);
     }

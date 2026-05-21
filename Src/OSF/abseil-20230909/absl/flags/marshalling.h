@@ -1,5 +1,5 @@
-//
-//  Copyright 2019 The Abseil Authors.
+// marshalling.h
+// Copyright 2019 The Abseil Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-// -----------------------------------------------------------------------------
-// File: marshalling.h
-// -----------------------------------------------------------------------------
 //
 // This header file defines the API for extending Abseil flag support to
 // custom types, and defines the set of overloads for fundamental types.
@@ -205,9 +201,8 @@
 #if defined(ABSL_HAVE_STD_OPTIONAL) && !defined(ABSL_USES_STD_OPTIONAL)
 #include <optional>
 #endif
-#include <string>
-#include <vector>
-
+//#include <string>
+//#include <vector>
 #include "absl/strings/string_view.h"
 #include "absl/types/optional.h"
 
@@ -222,7 +217,6 @@ template <typename T>
 inline std::string UnparseFlag(const T& v);
 
 namespace flags_internal {
-
 // Overloads of `AbslParseFlag()` and `AbslUnparseFlag()` for fundamental types.
 bool AbslParseFlag(absl::string_view, bool*, std::string*);
 bool AbslParseFlag(absl::string_view, short*, std::string*);           // NOLINT
@@ -233,7 +227,7 @@ bool AbslParseFlag(absl::string_view, long*, std::string*);            // NOLINT
 bool AbslParseFlag(absl::string_view, unsigned long*, std::string*);   // NOLINT
 bool AbslParseFlag(absl::string_view, long long*, std::string*);       // NOLINT
 bool AbslParseFlag(absl::string_view, unsigned long long*,             // NOLINT
-                   std::string*);
+    std::string*);
 bool AbslParseFlag(absl::string_view, absl::int128*, std::string*);    // NOLINT
 bool AbslParseFlag(absl::string_view, absl::uint128*, std::string*);   // NOLINT
 bool AbslParseFlag(absl::string_view, float*, std::string*);
@@ -243,39 +237,40 @@ bool AbslParseFlag(absl::string_view, std::vector<std::string>*, std::string*);
 
 template <typename T>
 bool AbslParseFlag(absl::string_view text, absl::optional<T>* f,
-                   std::string* err) {
-  if (text.empty()) {
-    *f = absl::nullopt;
-    return true;
-  }
-  T value;
-  if (!absl::ParseFlag(text, &value, err)) return false;
+    std::string* err) {
+	if(text.empty()) {
+		*f = absl::nullopt;
+		return true;
+	}
+	T value;
+	if(!absl::ParseFlag(text, &value, err)) return false;
 
-  *f = std::move(value);
-  return true;
+	*f = std::move(value);
+	return true;
 }
 
 #if defined(ABSL_HAVE_STD_OPTIONAL) && !defined(ABSL_USES_STD_OPTIONAL)
 template <typename T>
 bool AbslParseFlag(absl::string_view text, std::optional<T>* f,
-                   std::string* err) {
-  if (text.empty()) {
-    *f = std::nullopt;
-    return true;
-  }
-  T value;
-  if (!absl::ParseFlag(text, &value, err)) return false;
+    std::string* err) {
+	if(text.empty()) {
+		*f = std::nullopt;
+		return true;
+	}
+	T value;
+	if(!absl::ParseFlag(text, &value, err)) return false;
 
-  *f = std::move(value);
-  return true;
+	*f = std::move(value);
+	return true;
 }
+
 #endif
 
 template <typename T>
 bool InvokeParseFlag(absl::string_view input, T* dst, std::string* err) {
-  // Comment on next line provides a good compiler error message if T
-  // does not have AbslParseFlag(absl::string_view, T*, std::string*).
-  return AbslParseFlag(input, dst, err);  // Is T missing AbslParseFlag?
+	// Comment on next line provides a good compiler error message if T
+	// does not have AbslParseFlag(absl::string_view, T*, std::string*).
+	return AbslParseFlag(input, dst, err); // Is T missing AbslParseFlag?
 }
 
 // Strings and std:: containers do not have the same overload resolution
@@ -286,21 +281,22 @@ std::string AbslUnparseFlag(const std::vector<std::string>&);
 
 template <typename T>
 std::string AbslUnparseFlag(const absl::optional<T>& f) {
-  return f.has_value() ? absl::UnparseFlag(*f) : "";
+	return f.has_value() ? absl::UnparseFlag(*f) : "";
 }
 
 #if defined(ABSL_HAVE_STD_OPTIONAL) && !defined(ABSL_USES_STD_OPTIONAL)
 template <typename T>
 std::string AbslUnparseFlag(const std::optional<T>& f) {
-  return f.has_value() ? absl::UnparseFlag(*f) : "";
+	return f.has_value() ? absl::UnparseFlag(*f) : "";
 }
+
 #endif
 
 template <typename T>
 std::string Unparse(const T& v) {
-  // Comment on next line provides a good compiler error message if T does not
-  // have UnparseFlag.
-  return AbslUnparseFlag(v);  // Is T missing AbslUnparseFlag?
+	// Comment on next line provides a good compiler error message if T does not
+	// have UnparseFlag.
+	return AbslUnparseFlag(v); // Is T missing AbslUnparseFlag?
 }
 
 // Overloads for builtin types.
@@ -317,7 +313,6 @@ std::string Unparse(absl::int128 v);
 std::string Unparse(absl::uint128 v);
 std::string Unparse(float v);
 std::string Unparse(double v);
-
 }  // namespace flags_internal
 
 // ParseFlag()
@@ -331,7 +326,7 @@ std::string Unparse(double v);
 // `absl::ParseFlag()` on those consituent string values. (See above.)
 template <typename T>
 inline bool ParseFlag(absl::string_view input, T* dst, std::string* error) {
-  return flags_internal::InvokeParseFlag(input, dst, error);
+	return flags_internal::InvokeParseFlag(input, dst, error);
 }
 
 // UnparseFlag()
@@ -345,7 +340,7 @@ inline bool ParseFlag(absl::string_view input, T* dst, std::string* error) {
 // `absl::UnparseFlag()` on those constituent types. (See above.)
 template <typename T>
 inline std::string UnparseFlag(const T& v) {
-  return flags_internal::Unparse(v);
+	return flags_internal::Unparse(v);
 }
 
 // Overloads for `absl::LogSeverity` can't (easily) appear alongside that type's

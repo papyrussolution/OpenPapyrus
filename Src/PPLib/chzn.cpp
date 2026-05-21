@@ -4361,7 +4361,6 @@ int ChZnInterface::Connect(InitBlock & rIb)
 		{
 			InetUrl url(MakeTargetUrl_(qAuth, 0, rIb, url_buf));
 			THROW(MakeAuthRequest(rIb, req_buf));
-			// @v11.3.8 {
 			{
 				HINTERNET h_inet_sess = 0;
 				HINTERNET h_connection = 0;
@@ -4399,32 +4398,11 @@ int ChZnInterface::Connect(InitBlock & rIb)
 						wininet_err = GetLastError();
 				}
 			}
-			// } @v11.3.8 
-			/*{
-				ScURL c;
-				StrStrAssocArray hdr_flds;
-				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
-				{
-					SFile wr_stream(ack_buf.Z(), SFile::mWrite);
-					Lth.Log("req", url_buf, req_buf);
-					THROW_SL(c.HttpPost(url, ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream)); // ? ScURL::mfDontVerifySslPeer
-					{
-						SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
-						if(p_ack_buf) {
-							temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-							Lth.Log("rep", 0, temp_buf);
-							if(ReadJsonReplyForSingleItem(temp_buf, "code", result_code) > 0)
-								ok = 1;
-						}
-					}
-				}
-			}*/
 		}
 		if(ok > 0) {
 			ok = -1;
 			InetUrl url(MakeTargetUrl_(qToken, 0, rIb, url_buf));
 			THROW(MakeTokenRequest(rIb, result_code, req_buf));
-			// @v11.3.8 {
 			{
 				HINTERNET h_inet_sess = 0;
 				HINTERNET h_connection = 0;
@@ -4462,26 +4440,6 @@ int ChZnInterface::Connect(InitBlock & rIb)
 						wininet_err = GetLastError();
 				}
 			}
-			// } @v11.3.8 
-			/*{
-				ScURL c;
-				StrStrAssocArray hdr_flds;
-				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
-				{
-					SFile wr_stream(ack_buf.Z(), SFile::mWrite);
-					Lth.Log("req", url_buf, req_buf);
-					THROW_SL(c.HttpPost(url, ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream)); // ? ScURL::mfDontVerifySslPeer
-					{
-						SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
-						if(p_ack_buf) {
-							temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-							Lth.Log("rep", 0, temp_buf);
-							if(ReadJsonReplyForSingleItem(temp_buf, "token", rIb.Token) > 0)
-								ok = 1;
-						}
-					}
-				}
-			}*/
 		}
 	}
 	else if(oneof3(rIb.ProtocolId, InitBlock::protidEdoLtElk, InitBlock::protidEdoLtInt, InitBlock::protidGisMt)) {
@@ -6192,11 +6150,21 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 			p_js_reply = SJson::Parse(reply_buf);
 			THROW_PP(SJson::IsObject(p_js_reply), PPERR_TSPIOT_GENERALFAULT);
 			//{"errorCode":400,"errorDescription":"Некорректный JSON запрос"}
+			//{"code":514, "details" : [] , "message" : "РќРµ СѓРґР°Р»РѕСЃСЊ РїРѕР»СѓС‡РёС‚СЊ РѕС‚РІРµС‚ РѕС‚ Р“РРЎ РњРў РёР»Рё Р›Рњ Р§Р—"}
 			for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {
 				if(p_cur->Text.IsEqiAscii("errorCode")) {
 					SJson::GetChildLong(p_cur, cerr_toplevel.Code);
 				}
 				else if(p_cur->Text.IsEqiAscii("errorDescription")) {
+					SJson::GetChildTextUnescaped(p_cur, cerr_toplevel.Descr);
+					cerr_toplevel.Descr.Transf(CTRANSF_UTF8_TO_INNER);
+				}
+				else if(p_cur->Text.IsEqiAscii("code")) {
+					SJson::GetChildLong(p_cur, cerr_toplevel.Code);
+				}
+				else if(p_cur->Text.IsEqiAscii("details")) {
+				}
+				else if(p_cur->Text.IsEqiAscii("message")) {
 					SJson::GetChildTextUnescaped(p_cur, cerr_toplevel.Descr);
 					cerr_toplevel.Descr.Transf(CTRANSF_UTF8_TO_INNER);
 				}
@@ -6229,6 +6197,12 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 												if(SJson::IsObject(p_js_ci)) {
 													CodeStatus new_item;
 													position++;
+													//{"codesResponse":
+														// [{"code":0,"description":"ok","codes":[
+															// {"cis":"0104670540176099215LnOjv\u001d93dGVz","found":true,"valid":true,"printView":"0104670540176099215LnOjv",
+															//"gtin":"04670540176099","groupIds":[8],
+															//"verified":true,"realizable":false,"utilised":true,"expireDate":"2028-04-30T00:00:00.000Z",
+															//"isOwner":true,"isBlocked":false,"errorCode":0,"isTracking":false,"sold":false,"grayZone":false,"packageType":"UNIT","producerInn":"7725344604"}],"reqId":"ab489f90-c1fe-4c06-87dc-a0622b69a6c6","reqTimestamp":1779188690544,"isCheckedOffline":false}]}
 													for(const SJson * p_cur3 = p_js_ci->P_Child; p_cur3; p_cur3 = p_cur3->P_Next) {
 														if(p_cur3->Text.IsEqiAscii("cis")) {
 															SJson::GetChildTextUnescaped(p_cur3, new_item.Cis);
@@ -6293,6 +6267,10 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 																SETFLAG(new_item.Flags, CodeStatus::fIsBlocked, b);
 															}
 														}
+														else if(p_cur3->Text.IsEqiAscii("expireDate")) {
+															SJson::GetChildTextUnescaped(p_cur3, temp_buf);
+															strtodatetime(temp_buf, &new_item.ExpiryDtm, DATF_ISO8601CENT, 0);
+														}
 														else if(p_cur3->Text.IsEqiAscii("message")) {
 															SJson::GetChildTextUnescaped(p_cur3, new_item.Message);
 														}
@@ -6312,6 +6290,11 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 															}
 														}
 														else if(p_cur3->Text.IsEqiAscii("mrp")) {
+															// 3 tobacco Табачная продукция
+															// 16 ncp Никотинсодержащая продукция
+															// mrp : number : 
+																// Максимальная розничная цена – для товарной группы с groupIds = 3. | 
+																// Минимальная цена – для товарной группы с groupIds = 16 : В копейках
 															SJson::GetChildUInt(p_cur3, new_item.Mrp);
 														}
 														else if(p_cur3->Text.IsEqiAscii("smp")) {
@@ -6348,6 +6331,7 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 														else if(p_cur3->Text.IsEqiAscii("version")) { //Версия ПО "Локальный модуль чзн"
 														}
 													}
+													rList.SetupResultEntry(position, new_item);
 												}
 											}
 										}
@@ -6359,8 +6343,8 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 				}
 			}
 			{
-				THROW_PP(!cerr_toplevel.Code, PPERR_TSPIOT_CALLFAULT, cerr_toplevel.Descr);
-				THROW_PP(!cerr.Code, PPERR_TSPIOT_CHECKFAULT, cerr.Descr);
+				THROW_PP_S(!cerr_toplevel.Code, PPERR_TSPIOT_CALLFAULT, cerr_toplevel.Descr);
+				THROW_PP_S(!cerr.Code, PPERR_TSPIOT_CHECKFAULT, cerr.Descr);
 				ok = 1;
 			}
 		}

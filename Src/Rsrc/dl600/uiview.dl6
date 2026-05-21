@@ -4441,8 +4441,9 @@ dialog DLG_TSESWOORDI [vertical title: "@tsesswrofforder_item" size: (485, 140) 
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }
-
+//
 // Технологический маршрут
+//
 dialog DLG_TECHROUTE [vertical title: "@techroute" size: (550, 450) minsize: (550, 450) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.12
 	view [horizontal width: bycontainer height: 45] {
 		input CTL_TECHROUTE_CODE [growfactor: 1 height: 21 margin: 4 tabstop label: "@code"] string[48];
@@ -4454,7 +4455,7 @@ dialog DLG_TECHROUTE [vertical title: "@techroute" size: (550, 450) minsize: (55
 		combobox CTLSEL_TECHROUTE_OBJ [width: bycontainer height: 21 margin: 4 tabstop label: "@object" cblinesymb: CTL_TECHROUTE_OBJ];
 	}
 	view [horizontal width: bycontainer growfactor: 1] {
-		listbox CTL_TECHROUTE_LIST [tabstop height: bycontainer growfactor: 1 margin: 4 columns: "48,L,@tech;5,R,Level;10,R,@{time} sec;10,R,@price"];
+		listbox CTL_TECHROUTE_LIST [tabstop height: bycontainer growfactor: 1 margin: 4 columns: "48,L,@tech;7,R,Level;7,R,StrucID;10,R,@{time} sec;10,R,@price"];
 		view [vertical height: bycontainer width: 110] {
 			view [vertical growfactor: 2 width: bycontainer justifycontent: start alignitems: center] {
 				button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
@@ -4463,6 +4464,9 @@ dialog DLG_TECHROUTE [vertical title: "@techroute" size: (550, 450) minsize: (55
 			view [vertical growfactor: 2 width: bycontainer alignitems: center] {
 				button STDCTL_UPBUTTON [title: "@but_up" tabstop size: (23, 21) margin: 4 command: cmUp];
 				button STDCTL_DOWNBUTTON [title: "@but_down" tabstop size: (23, 21) margin: 4 command: cmDown];
+			}
+			view [vertical growfactor: 2 width: bycontainer alignitems: center] {
+				button CTL_TECHROUTE_CMD_GOODSSTRUC [title: "@{structure}..." tabstop size: (90, 21) margin: 4 command: cmGoodsStruc];
 			}
 			view [vertical growfactor: 2 width: bycontainer justifycontent: end alignitems: center] {
 				button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (90, 21) margin: 4 command: cmOK];
@@ -5439,13 +5443,19 @@ dialog DLG_TSESS_EXEC_TR_PARAM [vertical title: "@{tsession}" size: (450, 200) m
 
 dialog DLG_CHKPAN__ [vertical title: "" size: (760, 620) minsize: (760, 620) padding: 4 font: "Arial,11"] { // @v12.6.3 @construction
 	listbox CTL_CHKPAN_LIST [width: bycontainer growfactor: 5 margin: 4 columns: "@lbt_chkpan"];
-	view [horizontal width: bycontainer growfactor: 3] {
+	view [horizontal width: bycontainer growfactor: 2.5] {
 		framebox [vertical growfactor: 2 height: bycontainer margin: 4 padding: 4] {
 			input CTL_CHKPAN_GOODS [width: bycontainer height: 26 margin: 4 readonly label: "@ware" labelsize: (0, 17)] string[64];
 			view [horizontal width: bycontainer growfactor: 1] {
-				input CTL_CHKPAN_QTTY [width: bycontainer(20) height: 26 margin: 4 readonly text_align_right label: "@qtty_short" labelsize: (0, 17) ] string[10];
-				input CTL_CHKPAN_PRICE [width: bycontainer(20) height: 26 margin: 4 readonly text_align_right fmtprec: 2 label: "@price" labelsize: (0, 17) ] double;
-				input CTL_CHKPAN_SUM [width: bycontainer(20) height: 26 margin: 4 readonly text_align_right fmtprec: 2 label: "@amount" labelsize: (0, 17) ] double;
+				view [horizontal growfactor: 1 height: bycontainer] {
+					input CTL_CHKPAN_QTTY [design: B width: 90 height: 26 margin: 4 readonly text_align_right label: "@qtty" labelsize: (0, 17) ] string[10]; // @qtty_short
+				}
+				view [horizontal growfactor: 1 height: bycontainer] {
+					input CTL_CHKPAN_PRICE [design: B width: 90 height: 26 margin: 4 readonly text_align_right fmtprec: 2 label: "@price" labelsize: (0, 17) ] double;
+				}
+				view [horizontal growfactor: 1 height: bycontainer] {
+					input CTL_CHKPAN_SUM [design: B width: 90 height: 26 margin: 4 readonly text_align_right fmtprec: 2 label: "@amount" labelsize: (0, 17) ] double;
+				}
 			}
 			statictext CTL_CHKPAN_CAFE_STATUS [width: bycontainer height: 26 margin: 4 staticedge];
 		}
@@ -5454,40 +5464,40 @@ dialog DLG_CHKPAN__ [vertical title: "" size: (760, 620) minsize: (760, 620) pad
 			statictext CTL_CHKPAN_DISCOUNT [width: bycontainer growfactor: 1 margin: 4 staticedge];
 		}
 	}
-	framebox [horizontal width: bycontainer growfactor: 3 margin: 4 padding: 4] {
+	framebox [horizontal width: bycontainer growfactor: 3.5 margin: 4 padding: 4] {
 		view [vertical width: 145 height: bycontainer] {
 			view [horizontal width: bycontainer growfactor: 1 alignitems: center] {
-				button CTL_CHKPAN_SELGOODS [title: "" width: 42 height: 64 margin: 4 command: cmSelGoods];
-				button CTL_CHKPAN_BYPRICE [title: "" width: 42 height: 64 margin: 4 command: cmByPrice];
-				button CTL_CHKPAN_SETQTTY [title: "" width: 42 height: 64 margin: 4 command: cmQuantity];
+				button CTL_CHKPAN_SELGOODS [title: "" width: 42 height: 56 margin: 4 command: cmSelGoods];
+				button CTL_CHKPAN_BYPRICE [title: "" width: 42 height: 56 margin: 4 command: cmByPrice];
+				button CTL_CHKPAN_SETQTTY [title: "" width: 42 height: 56 margin: 4 command: cmQuantity];
 			}
 			view [horizontal width: bycontainer growfactor: 1 alignitems: center] {
-				button STDCTL_OKBUTTON [title: "" defaultitem width: 42 height: 64 margin: 4 command: cmOK];
-				button CTL_CHKPAN_CANCEL [title: "" width: 42 height: 64 margin: 4 command: cmCancel];
+				button STDCTL_OKBUTTON [title: "" defaultitem width: 42 height: 56 margin: 4 command: cmOK];
+				button CTL_CHKPAN_CANCEL [title: "" width: 42 height: 56 margin: 4 command: cmCancel];
 			}
 		}
 		statictext CTL_CHKPAN_BIGHINT [growfactor: 1 height: bycontainer margin: 4 staticedge];
 		statictext CTL_CHKPAN_BIGHINT_KB [width: 70 height: bycontainer margin: 4 staticedge];
-		view [vertical width: 100 height: bycontainer] {
-			view [horizontal width: bycontainer growfactor: 1 alignitems: center] {
-				button CTL_CHKPAN_SCARD [title: "" width: 42 height: 64 margin: 4 command: cmSelSCard];
-				button CTL_CHKPAN_DIVISION [title: "" width: 42 height: 64 margin: 4 command: cmGoodsDiv];
+		view [vertical width: 110 height: bycontainer] {
+			view [horizontal width: bycontainer growfactor: 1 margin: 4 padding: (4, 12, 4, 4) alignitems: center] {
+				button CTL_CHKPAN_SCARD [title: "" width: 42 height: 56 margin: 4 command: cmSelSCard];
+				button CTL_CHKPAN_DIVISION [title: "" width: 42 height: 56 margin: 4 command: cmGoodsDiv];
 			}
-			view [horizontal width: bycontainer growfactor: 1 alignitems: center] {
-				button CTL_CHKPAN_SUSPCHECK [title: "" width: 42 height: 64 margin: 4 command: cmChkPanSuspend];
-				button CTL_CHKPAN_RETCHECK [title: "" width: 42 height: 64 margin: 4 command: cmRetCheck];
+			view [horizontal width: bycontainer growfactor: 1 margin: 4 padding: (4, 12, 4, 4) alignitems: center] {
+				button CTL_CHKPAN_SUSPCHECK [title: "" width: 42 height: 56 margin: 4 command: cmChkPanSuspend];
+				button CTL_CHKPAN_RETCHECK [title: "" width: 42 height: 56 margin: 4 command: cmRetCheck];
 			}
 		}
 		view [vertical growfactor: 1 height: bycontainer] {
-			view [horizontal width: bycontainer growfactor: 1 alignitems: center] {
-				button CTL_CHKPAN_SELTABLE [title: "" width: 42 height: 64 margin: 4 command: cmSelTable];
-				button CTL_CHKPAN_CASHOPER [title: "" width: 42 height: 64 margin: 4 command: cmCashOper];
+			view [horizontal width: bycontainer growfactor: 1 margin: 4 padding: (4, 12, 4, 4) alignitems: center] {
+				button CTL_CHKPAN_SELTABLE [title: "" width: 42 height: 56 margin: 4 command: cmSelTable];
+				button CTL_CHKPAN_CASHOPER [title: "" width: 42 height: 56 margin: 4 command: cmCashOper];
 			}
 			framebox [title: "@printcheck" horizontal width: bycontainer growfactor: 1 margin: 4 padding: (4, 12, 4, 4) alignitems: center] {
-				button CTL_CHKPAN_CASH [title: "" width: 42 height: 64 margin: 4 command: cmCash];
-				button CTL_CHKPAN_BANKING [title: "" width: 42 height: 64 margin: 4 command: cmBanking];	
-				button CTL_CHKPAN_TOLOCPRN [title: "" width: 42 height: 64 margin: 4 command: cmToLocPrinters];
-				button CTL_CHKPAN_TODEFPRN [title: "" width: 42 height: 64 margin: 4 command: cmChkPanPrint];
+				button CTL_CHKPAN_CASH [title: "" width: 42 height: 56 margin: 4 command: cmCash];
+				button CTL_CHKPAN_BANKING [title: "" width: 42 height: 56 margin: 4 command: cmBanking];	
+				button CTL_CHKPAN_TOLOCPRN [title: "" width: 42 height: 56 margin: 4 command: cmToLocPrinters];
+				button CTL_CHKPAN_TODEFPRN [title: "" width: 42 height: 56 margin: 4 command: cmChkPanPrint];
 			}
 		}
 	}
@@ -5501,4 +5511,55 @@ dialog DLG_CHKPAN__ [vertical title: "" size: (760, 620) minsize: (760, 620) pad
 	//framebox [origin: (10, 319) size: (720, 191) ];
 	//framebox [origin: (10, 510) size: (720, 55) ];
 	//framebox [title: "@printcheck" origin: (500, 404) size: (218, 96) ];
+}
+
+dialog DLG_GSITEM [vertical title: "@gsitem" size: (670, 420) minsize: (670, 420) padding: 4 font: "MS Shell Dlg,8"] { // @v12.6.5 @construction
+	statictext CTL_GSITEM_HEADER [width: bycontainer height: 21 margin: 4 staticedge];
+	combobox CTLSEL_GSITEM_GGRP [width: bycontainer height: 21 margin: (4, 4, 4, 2) tabstop label: "@gsitem_goodsgroup" cblinesymb: CTL_GSITEM_GGRP ];
+	checkbox CTL_GSITEM_GROUPONLY [width: bycontainer(60) margin: (4, 2, 4, 4) title: "@gsitem_gsif_goodsgroup" tabstop];
+	combobox CTLSEL_GSITEM_GOODS [width: bycontainer height: 21 margin: 4 tabstop label: "@gsitem_goods" cblinesymb: CTL_GSITEM_GOODS ];
+	view [horizontal width: bycontainer growfactor: 1] {
+		framebox [title: "@qtty" horizontal growfactor: 1 height: bycontainer margin: 4 padding: (4, 12, 4, 4)] {
+			view [vertical growfactor: 2 height: bycontainer] {
+				input CTL_GSITEM_VALUE [width: bycontainer height: 21 margin: (4, 4, 4, 2) tabstop] string[30];
+				radiocluster CTL_GSITEM_UNITS [width: bycontainer margin: (4, 2, 4, 4)] {
+					radiobutton [title: "@gsitem_mainunit"];
+					radiobutton [title: "@gsitem_gsif_phuval"];
+					radiobutton [title: "@gsitem_gsif_pctval"];
+					radiobutton [title: "@gsitem_gsif_qttyasprice"];
+				}
+			}
+			view [vertical growfactor: 1 height: bycontainer] {
+				statictext CTL_GSITEM_NTBRTCOEF [width: bycontainer growfactor: 1 margin: 4 staticedge];
+				input CTL_GSITEM_NETTO [width: bycontainer height: 21 margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 6 label: "@gsitem_netto"] double;
+			}
+		}
+		view [vertical growfactor: 1 height: bycontainer] {
+			checkcluster CTL_GSITEM_FLAGS [width: bycontainer margin: 4] {
+				checkbox [title: "@gsitem_gsif_rounddown"];
+				checkbox [title: "@gsitem_gsif_autotswroff"];
+				checkbox [title: "@gsitem_gsif_mainitem"];
+				checkbox [title: "@gsitem_gsif_subpartstr"];
+				checkbox [title: "@gsitem_gsif_identical"];
+				checkbox [title: "@gsitem_gsif_queryexplot"];
+			}
+			view [horizontal width: bycontainer height: 30] {
+				input CTL_GSITEM_PRICE [design: B size: (75, 21) margin: 4 tabstop fmtf: (nozero) fmtprec: 2 label: "@gsitem_price"] double;
+			}
+		}
+	}
+	view [horizontal width: bycontainer height: 45] {
+		input CTL_GSITEM_SYMB [growfactor: 1 height: 21 margin: 4 tabstop label: "@gsitem_symb"] string[20];
+		input CTL_GSITEM_FORMULA [growfactor: 2 height: 21 margin: 4 tabstop label: "@gsitem_formula"] string[128];
+	}
+	view [horizontal width: bycontainer height: 30] {
+		view [horizontal growfactor: 1 height: bycontainer justifycontent: start] {
+			button CTL_CMD_GSITEMLOTS [title: "@{lots}..." tabstop size: (75, 21) margin: 4 command: cmGSItemLots];
+		}
+		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+	//framebox [title: "@qtty" origin: (8, 140) size: (323, 137) ];
 }

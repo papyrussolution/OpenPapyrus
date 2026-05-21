@@ -252,8 +252,9 @@ int PPViewGoodsStruc::MakeList(PPViewBrowser * pBrw)
 			uint   p = 0;
 			PPIDArray owner_list;
 			PPGoodsStrucHeader2 gsh;
-			for(SEnum en = Cb.GSObj.Enum(0); en.Next(&gsh) > 0;)
+			for(SEnum en = Cb.GSObj.Enum(0); en.Next(&gsh) > 0;) {
 				t++;
+			}
 			for(SEnum en = Cb.GSObj.Enum(0); en.Next(&gsh) > 0; p++) {
 				const  PPID gs_id = gsh.ID;
 				Cb.GObj.SearchGListByStruc(gs_id, false/*expandGenerics*/, owner_list);

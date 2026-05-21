@@ -170,8 +170,8 @@ public:
 	}
 	~SlEncapsulatedKey()
 	{
+		memzero(V, sizeof(V));
 	}
-
 	uint   V[20];
 };
 
@@ -188,28 +188,40 @@ public:
 			const SBaseBuffer & r_dk = key.GetKey();
 			assert(r_dk.P_Buf && r_dk.Size == drvKeySize);
 			if(r_dk.P_Buf && r_dk.Size == drvKeySize) {
-				SlEncapsulatedKey * p_ek = new SlEncapsulatedKey();
+				TSClassWrapper <SlEncapsulatedKey> cls_ek;
+				const  uint h_ek = SLS.CreateGlobalObject(cls_ek);
+				SlEncapsulatedKey * p_ek = h_ek ? static_cast<SlEncapsulatedKey *>(SLS.GetGlobalObject(h_ek)) : 0;
 				if(p_ek) {
 					constexpr uint vdim = SIZEOFARRAY(p_ek->V);
-					const  uint r1 = SLS.GetTLA().Rg.GetUniformIntPos(8);
-					const  uint vc = vdim - r1;
-					p_ek->V[vdim-1] = vc;
-					const  S_GUID & r_su = SLS.GetSessUuid();
-					const  uint vtp = r_su.Data[1] % vc;
+					const  uint r1 = SLS.GetTLA().Rg.GetUniformIntPos(8); // Спонтанная разница между номинальной размерностью массива и реальным числом элементов в нем
+					const  uint vc = vdim - r1; // Реальное число элементов в массиве
+					p_ek->V[vdim-1] = vc; // Последний номинальный элемент массива содержит vc
+					const  uint vtp = SLS.GetSessUuid().Data[1] % vc; // Индекс элемента, в котором будет храниться реальный ключ, в остальных - обманки
 					for(uint i = 0; i < vc; i++) {
 						TSClassWrapper <SlEncapsulatedKey::Internal> cls;
 						const  uint h = SLS.CreateGlobalObject(cls);
-						if(h) {
-							SlEncapsulatedKey::Internal * p_ = static_cast<SlEncapsulatedKey::Internal *>(SLS.GetGlobalObject(h));
-							if(p_) {
-								// @todo
-								if(i == vtp) {
-									
-								}
-								else {
-								}
+						SlEncapsulatedKey::Internal * p_ = h ? static_cast<SlEncapsulatedKey::Internal *>(SLS.GetGlobalObject(h)) : 0;
+						if(p_) {
+							p_ek->V[i] = h;
+							p_->B.Size = drvKeySize;
+							p_->B.P_Buf = static_cast<char *>(SAlloc::M_secure(p_->B.Size));
+							if(i == vtp) {
+								assert(p_->B.Size == r_dk.Size); // @paranoic
+								memcpy(p_->B.P_Buf, r_dk.P_Buf, p_->B.Size);
+							}
+							else {
+								SVector kts(1);
+								kts.insertChunk(r_dk.Size, r_dk.P_Buf);
+								kts.shuffle();
+								assert(p_->B.Size == r_dk.Size); // @paranoic
+								assert(kts.getCount() == p_->B.Size); // @paranoic
+								memcpy(p_->B.P_Buf, kts.dataPtr(), kts.getCount());
 							}
 						}
+					}
+					p_result = new uint;
+					if(p_result) {
+						PTR32(p_result)[0] = h_ek;
 					}
 				}
 			}
@@ -218,10 +230,43 @@ public:
 	return p_result;
 }
 
+/*static*/bool SlCrypto::GetEncapsulatedKey(void * pEK, SBaseBuffer & rResult)
+{
+	rResult.Init();
+	bool   ok = false;
+	if(pEK) {
+		uint   h_ek = PTR32(pEK)[0];
+		const  SlEncapsulatedKey * p_ek = h_ek ? static_cast<SlEncapsulatedKey *>(SLS.GetGlobalObject(h_ek)) : 0;
+		if(p_ek) {
+			constexpr uint vdim = SIZEOFARRAY(p_ek->V);
+			const  uint vc = p_ek->V[vdim-1];
+			const  uint vtp = SLS.GetSessUuid().Data[1] % vc;
+			const  uint h = p_ek->V[vtp];
+			SlEncapsulatedKey::Internal * p_ = h ? static_cast<SlEncapsulatedKey::Internal *>(SLS.GetGlobalObject(h)) : 0;
+			if(p_) {
+				rResult.Copy(p_->B);
+				ok = true;
+			}
+		}
+	}
+	return ok;
+}
+
 /*static*/void SlCrypto::ResetEncapsultedKey(void * pEK) // @v12.6.4 @construction
 {
 	if(pEK) {
-		;
+		uint   h_ek = PTR32(pEK)[0];
+		SlEncapsulatedKey * p_ek = h_ek ? static_cast<SlEncapsulatedKey *>(SLS.GetGlobalObject(h_ek)) : 0;
+		if(p_ek) {
+			constexpr uint vdim = SIZEOFARRAY(p_ek->V);
+			const  uint vc = p_ek->V[vdim-1];
+			for(uint i = 0; i < vc; i++) {
+				const  uint h = p_ek->V[i];
+				SLS.DestroyGlobalObject(h);
+			}
+			SLS.DestroyGlobalObject(h_ek);
+		}
+		delete pEK;
 	}
 }
 //

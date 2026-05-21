@@ -349,7 +349,7 @@ static int BarcodeList(BarcodeArray * pCodes, int * pSelection)
 	return ok;
 }
 
-GoodsCodeSrchBlock::GoodsCodeSrchBlock() : ArID(0), Flags(0), GoodsID(0), ScaleID(0), Qtty(0.0), P_List(0), ChZnPrice(0.0)
+GoodsCodeSrchBlock::GoodsCodeSrchBlock() : ArID(0), Flags(0), GoodsID(0), ScaleID(0), Qtty(0.0), P_List(0), ChZnSNTokID(0), ChZnPrice(0.0)
 {
 	Code[0] = 0;
 	RetCode[0] = 0;
@@ -562,6 +562,7 @@ int PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 						gts.GetToken(GtinStruc::fldOriginalText, &temp_buf);
 						STRNSCPY(pBlk->ChZnCode, temp_buf);
 						STRNSCPY(pBlk->Code, temp_buf); // @v11.4.12
+						pBlk->ChZnSNTokID = gts.GetSpecialNaturalToken(); // @v12.6.5
 						if(gts.GetToken(GtinStruc::fldPrice, &temp_buf)) { // @v12.5.9
 							double chzn_price = temp_buf.ToReal_Plain();
 							if(chzn_price > 100.0) {

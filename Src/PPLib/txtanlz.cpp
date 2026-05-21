@@ -4474,7 +4474,7 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 			// Загрузка модели SentencePiece
 			bool LoadModel(const std::string& model_path) {
 				const auto status = sp_processor.Load(model_path);
-				if (!status.ok()) {
+				if(!status.ok()) {
 					std::cerr << "Failed to load model: " << status.ToString() << std::endl;
 					return false;
 				}
@@ -4589,7 +4589,7 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
     
 			// Получить строку по индексу
 			std::string GetString(size_t index) {
-				if (index < database_strings.size()) {
+				if(index < database_strings.size()) {
 					return database_strings[index];
 				}
 				return "";
@@ -4601,7 +4601,7 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 			StringSimilaritySearch searcher;
     
 			// 1. Загрузка предобученной модели SentencePiece
-			if (!searcher.LoadModel("spm_model.model")) {
+			if(!searcher.LoadModel("spm_model.model")) {
 				return 1;
 			}
     

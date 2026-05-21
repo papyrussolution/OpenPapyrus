@@ -2006,10 +2006,16 @@ PPERR_APNCORR_N_INV                 "Номер корреспондирующе
 PPERR_APNCORR_N_DUP                 "Номер корреспондирующего кассового узла должен быть уникальным"
 PPERR_APNCORR_UUID_DUP              "UUID корреспондирующего кассового узла должен быть уникальным"
 PPERR_ALCRETAILPROHIBTIME           "Розничная продажа алкоголя в это время запрещена (%s)"
-PPERR_CHZNMARKPMFAULT               "Ошибка валидации марки '%s' разрешительным режимом @{brand_chzn}"
-PPERR_CHZNMARKPMFAULT_SOLD          "Ошибка валидации марки '%s' разрешительным режимом @{brand_chzn} - марка уже была продана"
-PPERR_CHZNMARKPMFAULT_EXPIRY        "Ошибка валидации марки '%s' разрешительным режимом @{brand_chzn} - срок годности товара истек"
-PPERR_CHZNMARKPMFAULT_NOTOWNED      "Ошибка валидации марки '%s' разрешительным режимом @{brand_chzn} - организация не является владельцем марки" // @v12.6.3
+PPERR_CHZNMARKPMFAULT               "@{chznmarkpmfault}"
+PPERR_CHZNMARKPMFAULT_SOLD          "@{chznmarkpmfault}: марка уже была продана"
+PPERR_CHZNMARKPMFAULT_BLOCKED       "@{chznmarkpmfault}: продажа заблокирована" // @v12.6.5 
+PPERR_CHZNMARKPMFAULT_EXPIRY        "@{chznmarkpmfault}: срок годности товара истек"
+PPERR_CHZNMARKPMFAULT_NOTOWNED      "@{chznmarkpmfault}: организация не является владельцем марки" // @v12.6.3
+PPERR_CHZNMARKPMFAULT_NOTUTILISED   "@{chznmarkpmfault}: марка не нанесена на упаковку (not utilized)" // @v12.6.5
+PPERR_CHZNMARKPMFAULT_NOTREALIZABLE "@{chznmarkpmfault}: марка не введена в оборот (not realizable)" // @v12.6.5
+PPERR_CHZNMARKPMFAULT_NOTVERIFIED   "@{chznmarkpmfault}: крипто-подпись не верна" // @v12.6.5
+PPERR_CHZNMARKPMFAULT_NOTVALID      "@{chznmarkpmfault}: марка не валидна" // @v12.6.5
+PPERR_CHZNMARKPMFAULT_NOTFOUND      "@{chznmarkpmfault}: марка не найдена" // @v12.6.5
 PPERR_B2CCCVT_CHZNMARKPMFAULT       "Ошибка валидации одной или нескольких марок разрешительным режимом @{brand_chzn} при конвертации документа в кассовый чек"
 //
 // Decl Struc Parsing
@@ -3199,6 +3205,7 @@ PPINIPARAM_CHZNPMLOCALCONNTIMEOUT        "ChZnPmLocalConnTimeout"    // @v12.5.5
 PPINIPARAM_CHZNPMLOCALOVRALLTIMEOUT      "ChZnPmLocalOvrallTimeout"  // @v12.5.5 [config] def=40000 Таймаут (ms) общего времени обработки запроса к локальному серверу честный знак для проверки марки
 PPINIPARAM_FORCE_IMPEXP_EXCEL_OLEAUTO    "ForceImpExpExcelOleAuto"   // @v12.5.3 [config] def=0 Для импорта/экспорта excel применять старую технику OleAuto (через приложение Excel).
 PPINIPARAM_CENTRIGO_DATABASE             "centrigo_database"         // @v12.5.4 [path] @construction путь к базе данных centrigo
+PPINIPARAM_CHZNPMCRIT                    "chznpmcrit"                // @v12.6.5 [config] Критерии проверки марки честный знак разрешительным режимом и тс-пиот
 
 PPFILNAM_REPORT_INI            "report.ini"
 PPFILNAM_IMPORT_INI            "import.ini"
@@ -15677,6 +15684,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @chznmark                                 "Марка @{brand_chzn}"
 @doscanmark                               "Считайте марку сканером"
 @unmatchedmarks                           "Несопоставленные марки"
+@chznmarkpmfault                          "Ошибка валидации марки '%s' разрешительным режимом @{brand_chzn}" // Просто повторяющийся паттерн
 
 @priceanlzfilt                            "Сравнительный анализ цен"
 @priceanlzfilt_costalg                    "Алгоритм расчета фактической цены"

@@ -7601,6 +7601,10 @@ public:
 	};
 
 	static void * EncapsulateKey(const void * pSrcKey, size_t srcKeySize, size_t drvKeySize); // @v12.6.4 @construction
+	//
+	// ARG(rResult OUT): Не распределяйте память для этого буфера, а после использования вызовите Zero() and Destroy()
+	//
+	static bool GetEncapsulatedKey(void * pEK, SBaseBuffer & rResult);
 	static void ResetEncapsultedKey(void * pEK); // @v12.6.4 @construction
 
 	SlCrypto(int alg, uint kbl, int algModif);

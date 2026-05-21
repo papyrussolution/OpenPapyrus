@@ -3183,7 +3183,7 @@ public:
 	friend class PPTblEnum <ObjAssocCore>;
 
 	ObjAssocCore();
-	int    Add(PPID * pID, ObjAssocTbl::Rec * b, int use_ta);
+	int    Add(PPID * pID, const ObjAssocTbl::Rec * b, int use_ta);
 	//
 	// Descr: если pList != 0, добавляет в таблицу записи со следующими полями:
 	//   {AsscType=asscTyp, PrmrObjID=pList[i].Key, ScndObjID=pList[i].Val, InnerNum=1 }
@@ -5529,6 +5529,7 @@ struct PPCommConfig {      // @persistent @store(PropertyTbl)
 	uint32 ChZnPmOvrallTimeout;         // @v12.4.2 def=4000 Таймаут (ms) общего времени обработки запроса к онлайн-серверу честный знак для проверки марки
 	uint32 ChZnPmLocalConnTimeout;      // @v12.5.5 def=20000 Таймаут (ms) ожидания соединения с локальным сервером честный знак для проверки марки
 	uint32 ChZnPmLocalOvrallTimeout;    // @v12.5.5 def=40000 Таймаут (ms) общего времени обработки запроса к локальному серверу честный знак для проверки марки
+	uint32 ChZnPmCrit;                  // @v12.6.5 Флаги критериев проверки марки честный знак всякими говно-технологиями типа разрешительного режима и тс-пиот.
 };
 //
 // Extra config flags (from pp.ini)
@@ -8111,7 +8112,7 @@ int    PPSetDbRecordByKey(DBTable * pTbl, int idx, void * pKey, const void * pDa
 // Descr: Функцию следует использовать только в очень редких случаях.
 //
 int    STDCALL  AdjustNewObjID(DBTable * pTbl, PPID objType, void * b);
-int    STDCALL  AddByID(DBTable *, PPID *, void *, int use_ta);
+int    STDCALL  AddByID(DBTable * pTbl, PPID * pID, const void * pData, int use_ta);
 int    STDCALL  AddObjRecByID(DBTable * pTbl, PPID objType, PPID * pID, void * b, int use_ta);
 //
 // Descr: Изменяет запись таблицы pTbl, найдя ее по идентификатору objID.
@@ -25116,9 +25117,9 @@ struct PPGoodsStrucItem {  // @persistent(DBX) @size=52 @flat
 	static int FASTCALL GetEffectiveQuantity(double complQtty, PPID goodsID, double median, double denom, long flags, double * pItemQtty);
 	static SString & FASTCALL MakeEstimationString(double median, double denom, SString & rBuf, long format = 0);
 	PPGoodsStrucItem();
-	int    FASTCALL operator == (const PPGoodsStrucItem & rS) const;
-	int    FASTCALL operator != (const PPGoodsStrucItem & rS) const;
-	int    FASTCALL IsEq(const PPGoodsStrucItem & rS) const;
+	bool   FASTCALL operator == (const PPGoodsStrucItem & rS) const;
+	bool   FASTCALL operator != (const PPGoodsStrucItem & rS) const;
+	bool   FASTCALL IsEq(const PPGoodsStrucItem & rS) const;
 	int    SetEstimationString(const char *);
 	SString & GetEstimationString(SString &, long format = 0) const;
 	int    SetFormula(const char * pStr, const PPGoodsStruc * pStruc);
@@ -25142,7 +25143,8 @@ struct PPGoodsStrucItem {  // @persistent(DBX) @size=52 @flat
 		// Значение 0 трактуется как PPOBJ_GOODS (для обратной совместимости). Допускается: 0 || PPOBJ_GOODS || PPOBJ_ARTICLE || PPOBJ_BIZSCORE2
 	// @v12.3.6 PPID   AccSheetID;     // @v12.0.6 @todo @dbx Таблица аналитический статей для указания статьи в поле ItemGoodsID (для PPGoodsStruc::kPricePlanning)
 	PPID   Reserve; // @v12.3.6
-	char   Formula__[64];      // @transient
+	char   Formula__[64]; // Формула расчета количества
+	char   WareSymb[20];  // @v12.6.5 @dbd_exchange Символ, по которому можно идентифицировать реальный товар элемента вместо GoodsID
 };
 
 class PPGoodsStruc : public PPExtStrContainer { // @v12.0.6 унаследован от PPExtStrContainer с целью хранения текстовых строк расширения //
@@ -25514,6 +25516,14 @@ public:
 	int    Import(const char * pFileName, const ImpExpParam * pParam);
 	// } @v12.2.4 @construction 
 private:
+	enum {
+		itemextsidFormula       = 1,
+		itemextsidWareSubstSymb = 2,
+	};
+	static  int  GetItemExtStrId(uint itemIdx/*0..*/, int itemextssid)
+	{
+		return checkirangef(itemextssid, 1, 2) ? (((itemextssid-1) << 12) + (itemIdx+1)) : 0;
+	}
 	static  int  EditExtDialog(PPGoodsStruc *);
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr /*goodsID*/);
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
@@ -30839,6 +30849,7 @@ struct GoodsCodeSrchBlock {
 	char   ChZnCode[32];   // OUT
 	char   ChZnGtin[32];   // OUT
 	char   ChZnSerial[32]; // OUT
+	uint   ChZnSNTokID;    // OUT @v12.6.5 Натуральный токен, сопоставленный марке чзн (если Code - таковая)
 	double ChZnPrice;      // OUT @v12.5.9 Цена, указанная в марке chzn
 	PPID   ArID;           // IN CONST
 	long   Flags;          // IN/OUT
@@ -38246,7 +38257,10 @@ public:
 		uint8  Reserve[20];    // @v12.6.1 [32]-->[30] // @v12.6.3 [30]-->[24] // @v12.6.4 [24]-->[20]
 	};
 	PPTechRoute();
+	PPTechRoute(const PPTechRoute & rS);
 	PPTechRoute & Z();
+	PPTechRoute & FASTCALL operator = (const PPTechRoute & rS);
+	int    FASTCALL Copy(const PPTechRoute & rS);
 	bool   IsEmpty() const { return (L.getCount() == 0); }
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    AddEntry(const Entry & rEntry);
@@ -38375,7 +38389,8 @@ public:
 	// ARG(rRoute IN/OUT): Поле rRoute.Oid должно быть полностью определено (Obj != 0 && Id != 0)
 	//
 	int    Get(const TechRouteIdent & rIdent, PPTechRoute & rRoute);
-	int    Edit(PPTechRoute & rRoute);
+	int    Edit(PPTechRoute & rRoute, uint itemIdx);
+	int    EditGStrucOfEntry(PPTechRoute & rRoute, PPTechRoute::Entry & rEntry);
 	int    GetListByGoods(PPID goodsID, TSCollection <PPTechRoute> & rList);
 	int    GetLotStageTagDetail(PPID lotID, TechRouteIdent * pIdent, LongArray * pStageList);
 private:
@@ -57716,13 +57731,32 @@ public:
 	//   и передаваемая в CPosProcessorCPosProcessor::SetupNewRow()
 	//
 	struct PgsBlock {
+		enum {
+			fMarkedBarcode          = 0x0001 // Товар был выбран по маркированному штрихкоду
+		};
+		//
+		// Descr: Критерии сигнализации о провале проверки марки в разрешительном режиме и(или) тс пиот
+		//
+		enum { 
+			chznpmcritNotFound       = 0x0001, // !PPChZnPrcssr::CodeStatus::fFound        symb="NotFound"
+			chznpmcritNotValid       = 0x0002, // !PPChZnPrcssr::CodeStatus::fValid        symb="NotValid"
+			chznpmcritNotVerified    = 0x0004, // !PPChZnPrcssr::CodeStatus::fVerified     symb="NotVerified"
+			chznpmcritNotRealizable  = 0x0008, // !PPChZnPrcssr::CodeStatus::fRealizable   symb="NotRealizable"
+			chznpmcritNotUtilised    = 0x0010, // !PPChZnPrcssr::CodeStatus::fUtilised     symb="NotUtilised"
+			chznpmcritNotOwner       = 0x0020, // PPChZnPrcssr::CodeStatus::fIsOwner       symb="NotOwner"
+			chznpmcritBlocked        = 0x0040, // PPChZnPrcssr::CodeStatus::fIsBlocked     symb="Blocked"
+			chznpmcritSold           = 0x0080, // PPChZnPrcssr::CodeStatus::fSold          symb="Sold"
+			chznpmcritExpiry         = 0x0100, // Срок годности истек                      symb="Expiry"
+			chznpmcritNotRlzblGzExcl = 0x0200, // symb="NotRealizableGrayZoneExclusion". Исключение для chznpmcritNotRealizable если есть флаг PPChZnPrcssr::CodeStatus::fGreyZone
+		};
 		explicit PgsBlock(PPID goodsID, double qtty);
 		double GetChZnPrice() const;
-		enum {
-			fMarkedBarcode = 0x0001 // Товар был выбран по маркированному штрихкоду
-		};
+		static constexpr uint GetDefaultCnZnPmCritFlags() { return (chznpmcritSold|chznpmcritExpiry); }
+
 		const  PPID GoodsID; // @v12.5.9
 		long   Flags; //
+		uint   CnZnPmCritFlags; // @v12.6.5 chznpmcritXXX
+		uint   ChZnSNTokID;     // @v12.6.5 Натуральный токен, сопоставленный марке чзн (если Code - таковая)
 		double Qtty;
 		double PriceBySerial; // Если PriceBySerial != 0 && Serial.Empty() это означает, что выбрана
 			// одна из look-back-price (фиксированные цены, меняющиеся со временем)

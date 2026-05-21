@@ -5523,88 +5523,94 @@ int DlContext::CreateDbDictionary(const char * pDictPath, const char * pDataPath
 			CALLEXCEPT();
 		}
 	}
-	for(uint i = 0; i < scope_id_list.getCount(); i++) {
-		DBTable tbl;
-		THROW(LoadDbTableSpec(scope_id_list.at(i), &tbl, 0));
-		if(!skipBtrDictCreation) {
-			if(CurDict) {
-				if(!CurDict->CreateTableSpec(&tbl)) {
-					(msg_buf = tbl.GetTableName()).CatDiv(':', 1).CatEq("BtrError", static_cast<long>(BtrError));
-					SetError(PPERR_DL6_DDFENTRYCRFAULT, msg_buf);
-					CALLEXCEPT();
-				}
-				if(!(tbl.GetFlags() & XTF_TEMP) && !(tbl.GetFlags() & XTF_DICT)) {
-					if(!CurDict->CreateDataFile(&tbl, 0, crmTTSReplace, GetRusNCaseACS(acs))) {
-						(msg_buf = tbl.GetName()).CatDiv(':', 1).CatEq("BtrError", static_cast<long>(BtrError));
-						SetError(PPERR_DL6_BTRFILECRFAULT, msg_buf);
+	{
+		DbProvider * p_db = CurDict;
+		for(uint i = 0; i < scope_id_list.getCount(); i++) {
+			if(!skipBtrDictCreation) {
+				// Похоже, создание словаря btrieve что-то не то делает с tbl. Потому излируем этот экземаляр tbl, а для создания slq-описания загрузим его снова (see below)
+				DBTable tbl;
+				THROW(LoadDbTableSpec(scope_id_list.at(i), &tbl, 0));
+				if(p_db) {
+					if(!p_db->CreateTableSpec(&tbl)) {
+						(msg_buf = tbl.GetTableName()).CatDiv(':', 1).CatEq("BtrError", static_cast<long>(BtrError));
+						SetError(PPERR_DL6_DDFENTRYCRFAULT, msg_buf);
 						CALLEXCEPT();
+					}
+					if(!(tbl.GetFlags() & XTF_TEMP) && !(tbl.GetFlags() & XTF_DICT)) {
+						if(!p_db->CreateDataFile(&tbl, 0, crmTTSReplace, GetRusNCaseACS(acs))) {
+							(msg_buf = tbl.GetName()).CatDiv(':', 1).CatEq("BtrError", static_cast<long>(BtrError));
+							SetError(PPERR_DL6_BTRFILECRFAULT, msg_buf);
+							CALLEXCEPT();
+						}
 					}
 				}
 			}
-		}
-		if(sqlgen_list.getCount()) {
-			for(uint sgli = 0; sgli < sqlgen_list.getCount(); sgli++) {
-				Generator_SQL * p_sqlgen = sqlgen_list.at(sgli);
-				if(p_sqlgen) {
-					p_sqlgen->CreateTable(tbl, tbl.GetTableName(), Generator_SQL::ctfIndent, 0/*pCollationSymb*/);
-					p_sqlgen->Eos().Cr();
-					uint j;
-					for(j = 0; j < tbl.GetIndices().getNumKeys(); j++) {
-						bool   do_skip_index = false;
-						if(p_sqlgen->GetServerType() == sqlstMySQL && j == 0) {
-							const BNFieldList2 & r_fl = tbl.GetFields();
-							for(uint fi = 0; !do_skip_index && fi < r_fl.getCount(); fi++) {
-								if(GETSTYPE(r_fl[fi].T) == S_AUTOINC)
-									do_skip_index = true;
+			if(sqlgen_list.getCount()) {
+				DBTable tbl;
+				THROW(LoadDbTableSpec(scope_id_list.at(i), &tbl, 0));
+				for(uint sgli = 0; sgli < sqlgen_list.getCount(); sgli++) {
+					Generator_SQL * p_sqlgen = sqlgen_list.at(sgli);
+					if(p_sqlgen) {
+						p_sqlgen->CreateTable(tbl, tbl.GetTableName(), Generator_SQL::ctfIndent, 0/*pCollationSymb*/);
+						p_sqlgen->Eos().Cr();
+						uint j;
+						for(j = 0; j < tbl.GetIndices().getNumKeys(); j++) {
+							bool   do_skip_index = false;
+							if(p_sqlgen->GetServerType() == sqlstMySQL && j == 0) {
+								const BNFieldList2 & r_fl = tbl.GetFields();
+								for(uint fi = 0; !do_skip_index && fi < r_fl.getCount(); fi++) {
+									if(GETSTYPE(r_fl[fi].T) == S_AUTOINC)
+										do_skip_index = true;
+								}
 							}
-						}
-						if(!do_skip_index) {
-							p_sqlgen->CreateIndex(tbl, tbl.GetTableName(), j, 0/*pCollationSymb*/);
-							p_sqlgen->Eos();
-						}
-					}
-					p_sqlgen->Cr();
-					if(p_sqlgen->GetServerType() == sqlstORA) {
-						for(j = 0; j < tbl.GetFields().getCount(); j++) {
-							TYPEID _t = tbl.GetFields()[j].T;
-							if(GETSTYPE(_t) == S_AUTOINC) {
-								p_sqlgen->CreateSequenceOnField(tbl, tbl.GetTableName(), j, 0);
+							if(!do_skip_index) {
+								p_sqlgen->CreateIndex(tbl, tbl.GetTableName(), j, 0/*pCollationSymb*/);
 								p_sqlgen->Eos();
 							}
 						}
 						p_sqlgen->Cr();
+						if(p_sqlgen->GetServerType() == sqlstORA) {
+							for(j = 0; j < tbl.GetFields().getCount(); j++) {
+								TYPEID _t = tbl.GetFields()[j].T;
+								if(GETSTYPE(_t) == S_AUTOINC) {
+									p_sqlgen->CreateSequenceOnField(tbl, tbl.GetTableName(), j, 0);
+									p_sqlgen->Eos();
+								}
+							}
+							p_sqlgen->Cr();
+						}
 					}
 				}
 			}
-		}
-		/*if(p_sqlgen) {
-			p_sqlgen->CreateTable(tbl, tbl.GetTableName());
-			p_sqlgen->Eos().Cr();
-			uint j;
-			for(j = 0; j < tbl.GetIndices().getNumKeys(); j++) {
-				p_sqlgen->CreateIndex(tbl, tbl.GetTableName(), j);
-				p_sqlgen->Eos();
-			}
-			p_sqlgen->Cr();
-			if(p_sqlgen->GetServerType() == sqlstORA) {
-				for(j = 0; j < tbl.GetFields().getCount(); j++) {
-					TYPEID _t = tbl.GetFields()[j].T;
-					if(GETSTYPE(_t) == S_AUTOINC) {
-						p_sqlgen->CreateSequenceOnField(tbl, tbl.GetTableName(), j, 0);
-						p_sqlgen->Eos();
-					}
+			/*if(p_sqlgen) {
+				p_sqlgen->CreateTable(tbl, tbl.GetTableName());
+				p_sqlgen->Eos().Cr();
+				uint j;
+				for(j = 0; j < tbl.GetIndices().getNumKeys(); j++) {
+					p_sqlgen->CreateIndex(tbl, tbl.GetTableName(), j);
+					p_sqlgen->Eos();
 				}
 				p_sqlgen->Cr();
-			}
-			{
-				SFile f_sql(sql_file_name, SFile::mWrite);
-				if(f_sql.IsValid()) {
-					f_sql.WriteLine(static_cast<SString &>(*p_sqlgen));
+				if(p_sqlgen->GetServerType() == sqlstORA) {
+					for(j = 0; j < tbl.GetFields().getCount(); j++) {
+						TYPEID _t = tbl.GetFields()[j].T;
+						if(GETSTYPE(_t) == S_AUTOINC) {
+							p_sqlgen->CreateSequenceOnField(tbl, tbl.GetTableName(), j, 0);
+							p_sqlgen->Eos();
+						}
+					}
+					p_sqlgen->Cr();
 				}
-			}
-		}*/
+				{
+					SFile f_sql(sql_file_name, SFile::mWrite);
+					if(f_sql.IsValid()) {
+						f_sql.WriteLine(static_cast<SString &>(*p_sqlgen));
+					}
+				}
+			}*/
+		}
+		DBS.CloseDictionary();
 	}
-	DBS.CloseDictionary();
 	if(sqlgen_list.getCount()) {
 		for(uint sgli = 0; sgli < sqlgen_list.getCount(); sgli++) {
 			Generator_SQL * p_sqlgen = sqlgen_list.at(sgli);

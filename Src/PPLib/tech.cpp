@@ -1055,7 +1055,7 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 					else if(event.isCmd(cmTechRoute)) { // @v12.5.12
 						PPTechRouteManager trmgr;
 						Data.Route.Oid.Set(PPOBJ_TECH, Data.Rec.ID);
-						trmgr.Edit(Data.Route);
+						trmgr.Edit(Data.Route, 0);
 					}
 					else if(event.isCbSelected(CTLSEL_TECH_GOODS)) {
 						PPID   prev_goods_id = Data.Rec.GoodsID;
@@ -2831,6 +2831,30 @@ PPTechRoute::PPTechRoute() : ID(0), ObjGroup(0)
 {
 	Code[0] = 0;
 }
+
+PPTechRoute::PPTechRoute(const PPTechRoute & rS) : ID(0), ObjGroup(0)
+{
+	Copy(rS);
+}
+
+PPTechRoute & FASTCALL PPTechRoute::operator = (const PPTechRoute & rS)
+{
+	Copy(rS);
+	return *this;
+}
+
+int FASTCALL PPTechRoute::Copy(const PPTechRoute & rS)
+{
+	int   ok = 1;
+	ID = rS.ID;
+	Oid = rS.Oid;
+	ObjGroup = rS.ObjGroup;
+	STRNSCPY(Code, rS.Code);
+	L = rS.L;
+	SelectionList = rS.SelectionList;
+	TSCollection_Copy(GsList, rS.GsList);
+	return ok;
+}
 	
 PPTechRoute & PPTechRoute::Z()
 {
@@ -3201,12 +3225,66 @@ int PPTechRouteManager::GetLotStageTagDetail(PPID lotID, TechRouteIdent * pIdent
 	return ok;
 }
 
-int PPTechRouteManager::Edit(PPTechRoute & rRoute)
+int PPTechRouteManager::EditGStrucOfEntry(PPTechRoute & rRoute, PPTechRoute::Entry & rEntry)
+{
+	int    ok = -1;
+	{
+		PPGoodsStruc * p_gs = 0;
+		PPGoodsStruc gs;
+		PPID   gstruc_id = 0;
+		if(rEntry.GStrucID) {
+			if(rEntry.Flags & PPTechRoute::Entry::fGStrucTemporaryIdx) {
+				if(checkirangef(static_cast<int>(rEntry.GStrucID), 1, rRoute.GsList.getCountI())) {
+					p_gs = rRoute.GsList.at(rEntry.GStrucID-1);
+					if(p_gs && p_gs->IsEmpty())
+						p_gs = 0;
+				}
+			}
+			else {
+				for(uint gsi = 0; !p_gs && gsi < rRoute.GsList.getCount(); gsi++) {
+					PPGoodsStruc * p_gs_iter = rRoute.GsList.at(gsi);
+					if(p_gs_iter->Rec.ID == rEntry.GStrucID) {
+						gstruc_id = rEntry.GStrucID;
+						p_gs = p_gs_iter;
+					}
+				}
+				if(!p_gs) {
+					if(GObj.GSObj.Get(rEntry.GStrucID, &gs) > 0) {
+						gstruc_id = rEntry.GStrucID;
+					}
+				}
+			}
+		}
+		// Если в этой точке p_gs == 0, то значит будем редактировать gs и потом вставим его копию в rRoute а в rEntry.GStrucID 
+		// укажем позицию в списке и флаг PPTechRoute::Entry::fGStrucTemporaryIdx
+		if(p_gs) {
+			if(GObj.GSObj.EditDialog(p_gs) > 0)
+				ok = 1;
+		}
+		else {
+			if(GObj.GSObj.EditDialog(&gs) > 0) {
+				uint   new_pos = 0;
+				PPGoodsStruc * p_new_gs = rRoute.GsList.CreateNewItem(&new_pos);
+				if(p_new_gs) {
+					*p_new_gs = gs;
+					rEntry.GStrucID = new_pos+1;
+					rEntry.Flags |= PPTechRoute::Entry::fGStrucTemporaryIdx;
+					ok = 1;
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+int PPTechRouteManager::Edit(PPTechRoute & rRoute, uint itemIdx)
 {
 	class TechRouteDialog : public PPListDialog {
 		DECL_DIALOG_DATA(PPTechRoute);
+		PPTechRouteManager & R_TrMgr;
+		uint   InitItemIdx;
 	public:
-		explicit TechRouteDialog() : PPListDialog(DLG_TECHROUTE, CTL_TECHROUTE_LIST)
+		explicit TechRouteDialog(PPTechRouteManager & rTrMgr, uint initItemIdx) : PPListDialog(DLG_TECHROUTE, CTL_TECHROUTE_LIST), R_TrMgr(rTrMgr), InitItemIdx(initItemIdx)
 		{
 		}
 		DECL_DIALOG_SETDTS()
@@ -3216,7 +3294,13 @@ int PPTechRouteManager::Edit(PPTechRoute & rRoute)
 			setCtrlData(CTL_TECHROUTE_CODE, Data.Code);
 			setCtrlLong(CTL_TECHROUTE_ID, Data.ID);
 			SetupObjType();
-			updateList(-1);
+			{
+				long   item_pos_to_focus = -1;
+				if(checkirangef(InitItemIdx, 1U, Data.L.getCount())) {
+					item_pos_to_focus = static_cast<long>(InitItemIdx-1);
+				}
+				updateList(item_pos_to_focus);
+			}
 			return 1;
 		}
 		DECL_DIALOG_GETDTS()
@@ -3239,6 +3323,18 @@ int PPTechRouteManager::Edit(PPTechRoute & rRoute)
 				const  PPID obj_id = getCtrlLong(CTLSEL_TECHROUTE_OBJ);
 				if(obj_id && Data.Oid.Obj && !Data.Oid.Id) {
 					Data.Oid.Id = obj_id;
+				}
+			}
+			else if(event.isCmd(cmGoodsStruc)) {
+				long   pos = 0;
+				long   id = 0;
+				if(getCurItem(&pos, &id)) {
+					if(checkirangef(static_cast<int>(pos), 0, Data.L.getCountI())) {
+						PPTechRoute::Entry & r_entry = Data.L.at(pos);
+						if(R_TrMgr.EditGStrucOfEntry(Data, r_entry) > 0) {
+							updateList(pos);
+						}
+					}
 				}
 			}
 			else
@@ -3314,6 +3410,18 @@ int PPTechRouteManager::Edit(PPTechRoute & rRoute)
 					}
 					{
 						sub.Z();
+						if(r_entry.GStrucID) {
+							if(r_entry.Flags & PPTechRoute::Entry::fGStrucTemporaryIdx) {
+								sub.CatChar('[').Cat(r_entry.GStrucID).CatChar(']');
+							}
+							else {
+								sub.Cat(r_entry.GStrucID);
+							}
+						}
+						ss.add(sub);						
+					}
+					{
+						sub.Z();
 						if(r_entry.NominalTimeSec)
 							sub.Cat(r_entry.NominalTimeSec);
 						ss.add(sub);
@@ -3383,12 +3491,13 @@ int PPTechRouteManager::Edit(PPTechRoute & rRoute)
 		{
 			class TechRouteItemDialog : public TDialog {
 				DECL_DIALOG_DATA(PPTechRoute::Entry);
-				PPGoodsStruc GsPack;
+				PPTechRouteManager & R_TrMgr;
+				PPTechRoute & R_Route;
 			public:
-				TechRouteItemDialog() : TDialog(DLG_TECHROUTEITEM)
+				TechRouteItemDialog(PPTechRouteManager & rTrMgr, PPTechRoute & rRoute) : TDialog(DLG_TECHROUTEITEM), R_TrMgr(rTrMgr), R_Route(rRoute)
 				{
 				}
-				DECL_DIALOG_SETDTS() // @construction
+				DECL_DIALOG_SETDTS()
 				{
 					int    ok = 1;
 					RVALUEPTR(Data, pData);
@@ -3397,17 +3506,9 @@ int PPTechRouteManager::Edit(PPTechRoute & rRoute)
 					setCtrlData(CTL_TECHROUTEITEM_LEVEL, &Data.LevelCode); // @v12.6.1
 					setCtrlReal(CTL_TECHROUTEITEM_NPRICE, Data.NominalPrice);
 					setCtrlLong(CTL_TECHROUTEITEM_NTIME, Data.NominalTimeSec);
-					{
-						PPGoodsStruc gs;
-						if(Data.GStrucID && GsObj.Get(Data.GStrucID, &gs) > 0) {
-							GsPack = gs;
-						}
-						else
-							GsPack.Z();
-					}
 					return ok;
 				}
-				DECL_DIALOG_GETDTS() // @construction
+				DECL_DIALOG_GETDTS()
 				{
 					int    ok = 1;
 					uint   sel = 0;
@@ -3425,15 +3526,12 @@ int PPTechRouteManager::Edit(PPTechRoute & rRoute)
 				{
 					TDialog::handleEvent(event);
 					if(event.isCmd(cmGoodsStruc)) {
-						if(GsObj.EditDialog(&GsPack) > 0) {
-							;
-						}
+						R_TrMgr.EditGStrucOfEntry(R_Route, Data);
 					}
 				}
-				PPObjGoodsStruc GsObj;
 			};
 			int    ok = -1;
-			TechRouteItemDialog * dlg = new TechRouteItemDialog();
+			TechRouteItemDialog * dlg = new TechRouteItemDialog(R_TrMgr, Data);
 			if(CheckDialogPtrErr(&dlg)) {
 				dlg->setDTS(pItem);
 				for(bool valid_data = false; !valid_data && ExecView(dlg) == cmOK;) {
@@ -3450,7 +3548,7 @@ int PPTechRouteManager::Edit(PPTechRoute & rRoute)
 		}
 		PPObjTech TecObj;
 	};
-	DIALOG_PROC_BODY(TechRouteDialog, &rRoute);
+	DIALOG_PROC_BODY_P2(TechRouteDialog, *this, itemIdx, &rRoute);
 }
 //
 //
@@ -3715,7 +3813,7 @@ int PPViewTechRoute::MakeList(PPViewBrowser * pBrw)
 				ok = -1;
 				{
 					PPTechRoute trt;
-					if(TrMgr.Edit(trt) > 0) {
+					if(TrMgr.Edit(trt, 0) > 0) {
 						if(!TrMgr.Put(trt, 1)) {
 							ok = PPErrorZ();
 						}
@@ -3733,7 +3831,7 @@ int PPViewTechRoute::MakeList(PPViewBrowser * pBrw)
 					TechRouteIdent ident;
 					ident = *p_item;
 					if(TrMgr.Get(ident, trt) > 0) {
-						if(TrMgr.Edit(trt) > 0) {
+						if(TrMgr.Edit(trt, ident.ItemIdx) > 0) {
 							if(!TrMgr.Put(trt, 1)) {
 								ok = PPErrorZ();
 							}

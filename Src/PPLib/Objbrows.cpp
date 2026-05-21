@@ -440,7 +440,8 @@ PPListDialog::PPListDialog(uint rezID, uint aCtlList, long flags) : PPListDialog
 IMPL_HANDLE_EVENT(PPListDialog)
 {
 	SmartListBox * p_box = P_Box;
-	long   p, i;
+	long   p;
+	long   i;
 	TDialog::handleEvent(event);
 	if(TVCOMMAND) {
 		switch(TVCMD) {

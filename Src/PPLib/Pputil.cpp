@@ -495,15 +495,15 @@ int STDCALL SearchByID_ForUpdate(DBTable * pTbl, PPID objType, PPID id, void * b
 	return ok;
 }
 
-int STDCALL AddByID(DBTable * tbl, PPID * pID, void * b, int use_ta)
+int STDCALL AddByID(DBTable * pTbl, PPID * pID, const void * pData, int use_ta)
 {
 	int    ok = 1;
 	PPID   tmp_id = DEREFPTRORZ(pID);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		tbl->CopyBufFrom(b);
-		THROW_DB(tbl->insertRec(0, &tmp_id));
+		pTbl->CopyBufFrom(pData);
+		THROW_DB(pTbl->insertRec(0, &tmp_id));
 		THROW(tra.Commit());
 	}
 	CATCHZOK
@@ -511,14 +511,15 @@ int STDCALL AddByID(DBTable * tbl, PPID * pID, void * b, int use_ta)
 	return ok;
 }
 
-int STDCALL AdjustNewObjID(DBTable * tbl, PPID objType, void * b)
+int STDCALL AdjustNewObjID(DBTable * pTbl, PPID objType, void * b)
 {
 	int    ok = 1;
 	if(objType) {
 		long   inc = 0;
 		long   potential_key = MAXLONG;
-		if(tbl->searchKey(0, &potential_key, spLe))
+		if(pTbl->searchKey(0, &potential_key, spLe)) {
 			++potential_key;
+		}
 		else {
 			THROW_DB(BTROKORNFOUND);
 			potential_key = 1;
@@ -538,7 +539,7 @@ int STDCALL AdjustNewObjID(DBTable * tbl, PPID objType, void * b)
 				do {
 					++inc;
 					temp_key = potential_key+inc;
-				} while(tbl->search(0, &temp_key, spEq));
+				} while(pTbl->search(0, &temp_key, spEq));
 			}
 			THROW(r2);
 		}
@@ -552,23 +553,25 @@ int STDCALL AdjustNewObjID(DBTable * tbl, PPID objType, void * b)
 	return ok;
 }
 
-int STDCALL AddObjRecByID(DBTable * tbl, PPID objType, PPID * pID, void * b, int use_ta)
+int STDCALL AddObjRecByID(DBTable * pTbl, PPID objType, PPID * pID, void * b, int use_ta)
 {
 	int    ok = 1;
 	PPID   tmp_id = DEREFPTRORZ(pID);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(ok = AdjustNewObjID(tbl, objType, b));
-		tbl->CopyBufFrom(b);
-		THROW_DB(tbl->insertRec(0, &tmp_id));
+		THROW(ok = AdjustNewObjID(pTbl, objType, b));
+		pTbl->CopyBufFrom(b);
+		THROW_DB(pTbl->insertRec(0, &tmp_id));
 		THROW(tra.Commit());
 	}
 	if(b)
 		*static_cast<long *>(b) = tmp_id;
 	CATCHZOK
 	if(ok == 2 && CConfig.Flags & CCFLG_DEBUG) {
-		SString msg_buf, fmt_buf, obj_title;
+		SString msg_buf;
+		SString fmt_buf;
+		SString obj_title;
 		GetObjectTitle(objType, obj_title);
 		msg_buf.Printf(PPLoadTextS(PPTXT_LOG_ADDOBJREC_JUMPED_ID, fmt_buf), obj_title.cptr());
 		PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);

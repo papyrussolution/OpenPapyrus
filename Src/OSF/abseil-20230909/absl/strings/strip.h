@@ -1,4 +1,4 @@
-//
+// strip.h
 // Copyright 2017 The Abseil Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,17 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// -----------------------------------------------------------------------------
-// File: strip.h
-// -----------------------------------------------------------------------------
-//
 // This file contains various functions for stripping substrings from a string.
 #ifndef ABSL_STRINGS_STRIP_H_
 #define ABSL_STRINGS_STRIP_H_
 
-#include <cstddef>
-#include <string>
-
+//#include <cstddef>
+//#include <string>
 #include "absl/base/macros.h"
 #include "absl/strings/ascii.h"
 #include "absl/strings/match.h"
@@ -44,10 +39,11 @@ ABSL_NAMESPACE_BEGIN
 //   EXPECT_TRUE(absl::ConsumePrefix(&input, "a"));
 //   EXPECT_EQ(input, "bc");
 inline bool ConsumePrefix(absl::string_view* str, absl::string_view expected) {
-  if (!absl::StartsWith(*str, expected)) return false;
-  str->remove_prefix(expected.size());
-  return true;
+	if(!absl::StartsWith(*str, expected)) return false;
+	str->remove_prefix(expected.size());
+	return true;
 }
+
 // ConsumeSuffix()
 //
 // Strips the `expected` suffix, if found, from the end of `str`.
@@ -60,9 +56,9 @@ inline bool ConsumePrefix(absl::string_view* str, absl::string_view expected) {
 //   EXPECT_TRUE(absl::ConsumeSuffix(&input, "def"));
 //   EXPECT_EQ(input, "abc");
 inline bool ConsumeSuffix(absl::string_view* str, absl::string_view expected) {
-  if (!absl::EndsWith(*str, expected)) return false;
-  str->remove_suffix(expected.size());
-  return true;
+	if(!absl::EndsWith(*str, expected)) return false;
+	str->remove_suffix(expected.size());
+	return true;
 }
 
 // StripPrefix()
@@ -70,10 +66,9 @@ inline bool ConsumeSuffix(absl::string_view* str, absl::string_view expected) {
 // Returns a view into the input string `str` with the given `prefix` removed,
 // but leaving the original string intact. If the prefix does not match at the
 // start of the string, returns the original string instead.
-ABSL_MUST_USE_RESULT inline absl::string_view StripPrefix(
-    absl::string_view str, absl::string_view prefix) {
-  if (absl::StartsWith(str, prefix)) str.remove_prefix(prefix.size());
-  return str;
+ABSL_MUST_USE_RESULT inline absl::string_view StripPrefix(absl::string_view str, absl::string_view prefix) {
+	if(absl::StartsWith(str, prefix)) str.remove_prefix(prefix.size());
+	return str;
 }
 
 // StripSuffix()
@@ -81,10 +76,9 @@ ABSL_MUST_USE_RESULT inline absl::string_view StripPrefix(
 // Returns a view into the input string `str` with the given `suffix` removed,
 // but leaving the original string intact. If the suffix does not match at the
 // end of the string, returns the original string instead.
-ABSL_MUST_USE_RESULT inline absl::string_view StripSuffix(
-    absl::string_view str, absl::string_view suffix) {
-  if (absl::EndsWith(str, suffix)) str.remove_suffix(suffix.size());
-  return str;
+ABSL_MUST_USE_RESULT inline absl::string_view StripSuffix(absl::string_view str, absl::string_view suffix) {
+	if(absl::EndsWith(str, suffix)) str.remove_suffix(suffix.size());
+	return str;
 }
 
 ABSL_NAMESPACE_END

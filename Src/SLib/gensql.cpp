@@ -421,6 +421,7 @@ Generator_SQL & Generator_SQL::Eos()
 int Generator_SQL::CreateIndex(const DBTable & rTbl, const char * pFileName, uint idxNo, const char * pCollationSymb)
 {
 	int    ok = 1;
+	bool   debug_mark = false; // @debug
 	const  char * p_name = NZOR(pFileName, rTbl.GetName());
 	const  char * p_suffix = 0;
 	const  BNKeyList & r_indices = rTbl.GetIndices();
@@ -455,23 +456,28 @@ int Generator_SQL::CreateIndex(const DBTable & rTbl, const char * pFileName, uin
 		{
 			for(int i = 0; i < ns; i++) {
 				const BNField & r_f = r_indices.field(idxNo, i);
-				if(Sqlst == sqlstORA && key.getFlags(i) & XIF_ACS) {
-					//
-					// Для ORACLE нечувствительность к регистру символов реализуется функциональным сегментом индекса nls_lower(fld)
-					//
-					Buf.Cat("nls_lower(").Cat(r_f.Name).CatChar(')');
+				if((&r_f) == 0) {
+					debug_mark = true; // @debug
 				}
-				if(Sqlst == sqlstSQLite && key.getFlags(i) & XIF_ACS && !isempty(pCollationSymb)) { // @v12.4.7
-					Buf.Cat(r_f.Name).Space().Cat("COLLATE").Space().Cat(pCollationSymb);
+				else {
+					if(Sqlst == sqlstORA && key.getFlags(i) & XIF_ACS) {
+						//
+						// Для ORACLE нечувствительность к регистру символов реализуется функциональным сегментом индекса nls_lower(fld)
+						//
+						Buf.Cat("nls_lower(").Cat(r_f.Name).CatChar(')');
+					}
+					if(Sqlst == sqlstSQLite && key.getFlags(i) & XIF_ACS && !isempty(pCollationSymb)) { // @v12.4.7
+						Buf.Cat(r_f.Name).Space().Cat("COLLATE").Space().Cat(pCollationSymb);
+					}
+					else
+						Buf.Cat(r_f.Name);
+					if(key.getFlags(i) & XIF_DESC) {
+						Buf.Space();
+						Tok(tokDesc);
+					}
+					if(i < (ns-1))
+						Buf.Comma().Space();
 				}
-				else
-					Buf.Cat(r_f.Name);
-				if(key.getFlags(i) & XIF_DESC) {
-					Buf.Space();
-					Tok(tokDesc);
-				}
-				if(i < (ns-1))
-					Buf.Comma().Space();
 			}
 		}
 		RPar();

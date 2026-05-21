@@ -12,11 +12,11 @@ ObjAssocCore::ObjAssocCore() : ObjAssocTbl()
 #define MAX_DEADLOCK_TRY 10
 #define DEADLOCK_TIMEOUT 1000
 
-int ObjAssocCore::Add(PPID * pID, ObjAssocTbl::Rec * b, int use_ta)
+int ObjAssocCore::Add(PPID * pID, const ObjAssocTbl::Rec * pRec, int use_ta)
 {
 	int    deadlock_try = 0;
 	do {
-		int    r = AddByID(this, pID, b, use_ta);
+		int    r = AddByID(this, pID, pRec, use_ta);
 		if(!r && PPErrCode == PPERR_DBENGINE && BtrError == BE_DEADLOCK) {
 			SDelay(DEADLOCK_TIMEOUT);
 		}
@@ -120,10 +120,12 @@ int ObjAssocCore::GetByPrmr_Helper(PPID asscTyp, PPID prmrID, PPIDArray * pList,
 	p_q->where(this->AsscType == asscTyp && this->PrmrObjID == prmrID);
 	for(p_q->initIteration(false, &k, spGe); p_q->nextIteration() > 0;) {
 		count++;
-		if(pList)
+		if(pList) {
 			THROW(pList->add(data.ScndObjID));
-		if(pItemsList)
+		}
+		if(pItemsList) {
 			THROW_SL(pItemsList->insert(&data));
+		}
 		ok = 1;
 	}
 	ASSIGN_PTR(pCount, count);
@@ -132,15 +134,8 @@ int ObjAssocCore::GetByPrmr_Helper(PPID asscTyp, PPID prmrID, PPIDArray * pList,
 	return ok;
 }
 
-int ObjAssocCore::GetListByPrmr(PPID asscTyp, PPID prmrID, PPIDArray * pList)
-{
-	return GetByPrmr_Helper(asscTyp, prmrID, pList, 0, 0);
-}
-
-int ObjAssocCore::Count(PPID asscTyp, PPID prmrID, long * pCount)
-{
-	return GetByPrmr_Helper(asscTyp, prmrID, 0, pCount, 0);
-}
+int ObjAssocCore::GetListByPrmr(PPID asscTyp, PPID prmrID, PPIDArray * pList) { return GetByPrmr_Helper(asscTyp, prmrID, pList, 0, 0); }
+int ObjAssocCore::Count(PPID asscTyp, PPID prmrID, long * pCount) { return GetByPrmr_Helper(asscTyp, prmrID, 0, pCount, 0); }
 
 int ObjAssocCore::GetItemsListByPrmr(PPID asscTyp, PPID prmrID, TSVector <ObjAssocTbl::Rec> * pList)
 {
@@ -283,16 +278,21 @@ int ObjAssocCore::Remove(PPID asscTyp, PPID prmr, PPID scnd, int use_ta)
 	DBQ * dbq = 0;
 	if(asscTyp) {
 		dbq = &(this->AsscType == asscTyp);
-		if(prmr)
-			if(scnd)
+		if(prmr) {
+			if(scnd) {
 				dbq = &(*dbq &&this->PrmrObjID == prmr && this->ScndObjID == scnd);
-			else
+			}
+			else {
 				dbq = &(*dbq && this->PrmrObjID == prmr);
-		else if(scnd)
+			}
+		}
+		else if(scnd) {
 			dbq = &(*dbq && this->ScndObjID == scnd);
+		}
 	}
-	else // Удаление всех записей из таблицы (dbq = 0)
+	else { // Удаление всех записей из таблицы (dbq = 0)
 		;
+	}
 	return deleteFrom(this, use_ta, *dbq) ? 1 : 0;
 }
 

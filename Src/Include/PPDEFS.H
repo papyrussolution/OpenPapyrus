@@ -12082,6 +12082,7 @@
 	#define CTLSEL_TECHROUTE_OBJ                (7 + WINDOWS_ID_BIAS)
 	#define CTL_TECHROUTE_CODE                  (8 + WINDOWS_ID_BIAS)
 	#define CTL_TECHROUTE_ID                    (9 + WINDOWS_ID_BIAS)
+	#define CTL_TECHROUTE_CMD_GOODSSTRUC        (10 + WINDOWS_ID_BIAS)
 #define DLG_TECHROUTEITEM         1594 // @v12.5.12 Элемент технологического маршрута
 	#define CTL_TECHROUTEITEM_TECH              (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TECHROUTEITEM_TECH           (2 + WINDOWS_ID_BIAS)

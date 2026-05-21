@@ -8,6 +8,11 @@
 // Descr: Внутренний блок хранения строки товарной структуры
 //
 struct _GSItem {           // @persistent @store(ObjAssocTbl)
+	_GSItem()
+	{
+		static_assert(sizeof(*this) == sizeof(ObjAssocTbl::Rec));
+		THISZERO();
+	}
 	PPID   ID;             //
 	PPID   Tag;            // Const=PPASS_GOODSSTRUC
 	PPID   GSID;           // ->Ref(PPOBJ_GOODSSTRUC) ID структуры
@@ -830,9 +835,9 @@ PPGoodsStrucItem::PPGoodsStrucItem()
 	THISZERO();
 }
 
-int FASTCALL PPGoodsStrucItem::IsEq(const PPGoodsStrucItem & rS) const
+bool FASTCALL PPGoodsStrucItem::IsEq(const PPGoodsStrucItem & rS) const
 {
-#define CMPF(f) if(f != rS.f) return 0;
+#define CMPF(f) if(f != rS.f) return false;
 	CMPF(GoodsID);
 	CMPF(Flags);
 	CMPF(Median);
@@ -843,14 +848,16 @@ int FASTCALL PPGoodsStrucItem::IsEq(const PPGoodsStrucItem & rS) const
 	// @v12.3.6 CMPF(AccSheetID); // @v12.0.7
 #undef CMPF
 	if(!sstreq(Symb, rS.Symb))
-		return 0;
+		return false;
 	if(!sstreq(Formula__, rS.Formula__))
-		return 0;
-	return 1;
+		return false;
+	if(!sstreq(WareSymb, rS.WareSymb)) // @v12.6.5
+		return false;
+	return true;
 }
 
-int FASTCALL PPGoodsStrucItem::operator == (const PPGoodsStrucItem & rS) const { return IsEq(rS); }
-int FASTCALL PPGoodsStrucItem::operator != (const PPGoodsStrucItem & rS) const { return !IsEq(rS); }
+bool FASTCALL PPGoodsStrucItem::operator == (const PPGoodsStrucItem & rS) const { return IsEq(rS); }
+bool FASTCALL PPGoodsStrucItem::operator != (const PPGoodsStrucItem & rS) const { return !IsEq(rS); }
 
 int PPGoodsStrucItem::SetFormula(const char * pStr, const PPGoodsStruc * pStruc)
 {
@@ -2072,8 +2079,8 @@ static int EditGoodsStrucItem(const PPGoodsStruc & rStruc, int itemIdx, PPGoodsS
 		static int EditGoodsStrucItem_Ordinary(const PPGoodsStruc & rStruc, int itemIdx, PPGoodsStrucItem * pItem, PPGoodsStruc::FormulaResolutionCache & rRCache)
 		{
 			int    ok = -1;
-			GSItemDialog * dlg = 0;
-			THROW(CheckDialogPtr(&(dlg = new GSItemDialog(rStruc, itemIdx, rRCache))));
+			GSItemDialog * dlg = new GSItemDialog(rStruc, itemIdx, rRCache);
+			THROW(CheckDialogPtr(&dlg));
 			dlg->setDTS(pItem);
 			while(ok < 0 && ExecView(dlg) == cmOK) {
 				if(dlg->getDTS(pItem))
@@ -2086,8 +2093,8 @@ static int EditGoodsStrucItem(const PPGoodsStruc & rStruc, int itemIdx, PPGoodsS
 		static int EditGoodsStrucItem_PricePlanning(const PPGoodsStruc & rStruc, int itemIdx, PPGoodsStrucItem * pItem, PPGoodsStruc::FormulaResolutionCache & rRCache)
 		{
 			int    ok = -1;
-			GSPPItemDialog * dlg = 0;
-			THROW(CheckDialogPtr(&(dlg = new GSPPItemDialog(rStruc, itemIdx, rRCache))));
+			GSPPItemDialog * dlg = new GSPPItemDialog(rStruc, itemIdx, rRCache);
+			THROW(CheckDialogPtr(&dlg));
 			dlg->setDTS(pItem);
 			while(ok < 0 && ExecView(dlg) == cmOK) {
 				if(dlg->getDTS(pItem))
@@ -2559,8 +2566,8 @@ int PPObjGoodsStruc::Helper_LoadItems(PPID id, PPGoodsStruc * pData)
 	TSVector <ObjAssocTbl::Rec> raw_items_list;
 	_GSItem * p_raw_item;
 	SString temp_buf;
-	SString formula;
-	THROW(P_Ref->GetPropVlrString(Obj, id, GSPRP_EXTITEMSTR, temp_buf));
+	SString ext_item_buf;
+	THROW(P_Ref->GetPropVlrString(Obj, id, GSPRP_EXTITEMSTR, ext_item_buf));
 	THROW(P_Ref->AsscC.GetItemsListByPrmr(PPASS_GOODSSTRUC, id, &raw_items_list));
 	raw_items_list.sort(PTR_CMPFUNC(_GSItem));
 	//
@@ -2587,8 +2594,18 @@ int PPObjGoodsStruc::Helper_LoadItems(PPID id, PPGoodsStruc * pData)
 		item.Denom   = p_raw_item->Denom;
 		item.Netto   = p_raw_item->Netto;
 		STRNSCPY(item.Symb, p_raw_item->Symb);
-		PPGetExtStrData(i, temp_buf, formula);
-		formula.CopyTo(item.Formula__, sizeof(item.Formula__));
+		{
+			const  int  item_ext_str_id = GetItemExtStrId(i-1/*0..*/, itemextsidFormula);
+			PPGetExtStrData(i, ext_item_buf, temp_buf);
+			temp_buf.CopyTo(item.Formula__, sizeof(item.Formula__));
+		}
+		// @v12.6.5 {
+		{
+			const  int  item_ext_str_id = GetItemExtStrId(i-1/*0..*/, itemextsidWareSubstSymb);
+			PPGetExtStrData(i, ext_item_buf, temp_buf);
+			temp_buf.CopyTo(item.WareSymb, sizeof(item.WareSymb));
+		}
+		// } @v12.6.5 
 		THROW_SL(pData->Items.insert(&item));
 	}
 	CATCHZOK
@@ -2711,7 +2728,6 @@ int PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 				const PPGoodsStrucItem & r_item = pData->Items.at(itemidx);
 				PPID   assc_id = 0;
 				_GSItem gsi;
-				MEMSZERO(gsi);
 				gsi.Tag  = PPASS_GOODSSTRUC;
 				gsi.GSID = *pID;
 				gsi.ItemGoodsID = r_item.GoodsID;
@@ -2731,9 +2747,23 @@ int PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 				STRNSCPY(gsi.Symb, r_item.Symb);
 				gsi.Num    = itemidx+1;
 				THROW(P_Ref->AsscC.SearchFreeNum(gsi.Tag, *pID, &gsi.Num));
-				THROW(P_Ref->AsscC.Add(&assc_id, (ObjAssocTbl::Rec *)&gsi, 0));
-				temp_buf = r_item.Formula__;
-				THROW(PPPutExtStrData(itemidx+1, ext_buf, temp_buf.Strip()));
+				THROW(P_Ref->AsscC.Add(&assc_id, reinterpret_cast<const ObjAssocTbl::Rec *>(&gsi), 0));
+				{
+					temp_buf = r_item.Formula__;
+					const  int  item_ext_str_id = GetItemExtStrId(itemidx/*0..*/, itemextsidFormula);
+					if(item_ext_str_id) {
+						THROW(PPPutExtStrData(/*itemidx+1*/item_ext_str_id, ext_buf, temp_buf.Strip()));
+					}
+				}
+				// @v12.6.5 {
+				{
+					temp_buf = r_item.WareSymb;
+					const  int  item_ext_str_id = GetItemExtStrId(itemidx/*0..*/, itemextsidWareSubstSymb);
+					if(item_ext_str_id) {
+						THROW(PPPutExtStrData(/*itemidx+1*/item_ext_str_id, ext_buf, temp_buf.Strip()));
+					}
+				}
+				// } @v12.6.5 
 			}
 			THROW(P_Ref->PutPropVlrString(Obj, *pID, GSPRP_EXTITEMSTR, ext_buf));
 		}
@@ -2838,7 +2868,7 @@ IMPL_DESTROY_OBJ_PACK(PPObjGoodsStruc, PPGoodsStruc);
 int PPObjGoodsStruc::SerializePacket(int dir, PPGoodsStruc * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	int32  c = (int32)pPack->Items.getCount(); // @persistent
+	int32  c = pPack->Items.getCountI(); // @persistent
 	THROW_SL(P_Ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW_SL(pSCtx->Serialize(dir, MKSTYPE(S_INT, sizeof(c)), &c, 0, rBuf));
 	for(int i = 0; i < c; i++) {
@@ -2898,7 +2928,7 @@ int PPObjGoodsStruc::Write(PPObjPack * pPack, PPID * pID, void * stream, ObjTran
 				PPObjGoods goods_obj;
 				const long gc_flags = goods_obj.GetConfig().Flags;
 				if(gc_flags & GCF_XCHG_RCVSTRUCUPD) {
-					if(!(gc_flags & GCF_XCHG_RCVSTRUCFROMDDONLY) || (pCtx->P_SrcDbDivPack && pCtx->P_SrcDbDivPack->Rec.Flags & DBDIVF_DISPATCH)) { // @v10.2.1
+					if(!(gc_flags & GCF_XCHG_RCVSTRUCFROMDDONLY) || (pCtx->P_SrcDbDivPack && pCtx->P_SrcDbDivPack->Rec.Flags & DBDIVF_DISPATCH)) {
 						if(!Put(pID, p_gs, 1)) {
 							pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTGOODSSTRUC, p_gs->Rec.ID, p_gs->Rec.Name);
 							ok = -1;
