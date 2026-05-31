@@ -1330,7 +1330,6 @@
     <ClCompile Include="..\PPLib\billhist.cpp" />
     <ClCompile Include="..\PPLib\bilvatax.cpp" />
     <ClCompile Include="..\PPLib\bitmbrow.cpp" />
-    <ClCompile Include="..\PPLib\Bnkodlg.cpp" />
     <ClCompile Include="..\PPLib\Bpakcore.cpp" />
     <ClCompile Include="..\PPLib\calendar.cpp" />
     <ClCompile Include="..\PPLib\CCHECK.CPP" />

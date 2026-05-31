@@ -1312,9 +1312,10 @@ bool SBinarySet::Get(uint32 id, SBinaryChunk * pResult) const
 	return ok;
 }
 
-int SBinarySet::PutEncrypted(uint32 id, const void * pData, const uint32 size, const CryptoStrategy & rStrategy) // @v12.6.2 @construction
+int SBinarySet::PutEncrypted(uint32 id, const void * pData, const uint32 size, const CryptoStrategy & rStrategy, void * pKeyRef) // @v12.6.2 @construction
 {
 	int    ok = 1;
+	THROW(pKeyRef); // @todo @err
 	{
 		SBuffer cbuf; // Буфер со сжатыми данными. Если rStrategy требует сжатия, то данные сжимаются и p_eff_data = cbuf.GetBuf() а eff_data_size = cbuf.GetAvailableSize()
 		SlCrypto crypto(rStrategy.UedSymmCipher);
@@ -1323,12 +1324,13 @@ int SBinarySet::PutEncrypted(uint32 id, const void * pData, const uint32 size, c
 			const  SlCrypto::CipherProperties & r_cp = crypto.GetCipherProperties();
 			SBinaryChunk encrypted;
 			SBinaryChunk tag;
-			SBinaryChunk meta_chunk;
 			SBinaryChunk iv;
-			const MetaData * p_meta = 0;
 			ProtectedChunkV1_Prolog prolog;
 			tag.Ensure(sizeof(prolog.Tag));
 			SlCrypto::Key key;
+			/* Нам не нужна соль для порождения ключа ибо мы пользуемся внешней инфраструктурой передачай ключа шифрования через pKeyRef
+			SBinaryChunk meta_chunk;
+			const MetaData * p_meta = 0;
 			{
 				if(!Get(MetaDataChunkID, &meta_chunk)) {
 					MetaData temp_meta_data;
@@ -1341,7 +1343,15 @@ int SBinarySet::PutEncrypted(uint32 id, const void * pData, const uint32 size, c
 			}
 			assert(p_meta);
 			THROW(p_meta);
-			THROW(crypto.SetKey_Derived_Argon2(key, rStrategy.MasterPassword, rStrategy.MasterPassword.Len(), &p_meta->PwHashSalt, sizeof(p_meta->PwHashSalt), rStrategy.ArgonP));
+			*/
+			{
+				//THROW(crypto.SetKey_Derived_Argon2(key, rStrategy.MasterPassword, rStrategy.MasterPassword.Len(), &p_meta->PwHashSalt, sizeof(p_meta->PwHashSalt), rStrategy.ArgonP));
+				SBaseBuffer key_buf;
+				THROW(SlCrypto::GetEncapsulatedKey(pKeyRef, key_buf));
+				THROW(key.SetKey(key_buf.P_Buf, key_buf.Size));
+				key_buf.Zero();
+				key_buf.Destroy();
+			}
 			if(r_cp.IvSize) {
 				// Генерируем случайный IV
 				iv.Randomize(r_cp.IvSize);

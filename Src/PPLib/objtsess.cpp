@@ -1314,7 +1314,7 @@ int PPObjTSession::GetPrevSession(const TSessionTbl::Rec & rSessRec, TSessionTbl
 		PPGoodsStrucItem gs_item;
 		double qtty = 0;
 		THROW(gs_obj.Get(tecStrucID, &gs));
-		gs.GoodsID = tecGoodsID;
+		gs.OwnerGoodsID = tecGoodsID;
 		for(uint gs_pos = 0; (r = gs.EnumItemsExt(&gs_pos, &gs_item, tecGoodsID, tecQtty, &qtty)) > 0;) {
 			if(tooling || (gs_item.Flags & GSIF_AUTOTSWROFF))
 				if(!pGoodsIdList || !pGoodsIdList->lsearch(gs_item.GoodsID)) {
@@ -3065,7 +3065,7 @@ int PPObjTSession::EvaluateLineQuantity(PPID sessID, PPID techID, const TSessLin
 						//
 						TechTbl::Rec tec_rec;
 						if(TecObj.Fetch(techID, &tec_rec) > 0 && tec_rec.GoodsID)
-							gs.GoodsID = tec_rec.GoodsID;
+							gs.OwnerGoodsID = tec_rec.GoodsID;
 					}
 					GdsClsCalcExprContext ctx(&gs, sessID);
 					if(PPCalcExpression(formula, &v, &ctx)) {

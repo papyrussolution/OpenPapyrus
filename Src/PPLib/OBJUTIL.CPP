@@ -748,7 +748,6 @@ int PPObject::CreateReservedObjects(long flags)
 			}
 		}
 	}
-	// @v11.0.10 {
 	if(flags & mrfCreateMqbDefaults) {
 		PPMqbClient * p_mqbc = 0;
 		PPMqbClient::InitParam mqip;
@@ -760,7 +759,6 @@ int PPObject::CreateReservedObjects(long flags)
 			}
 		}
 	}
-	// } @v11.0.10 
 	CATCHZOK
 	PPWaitStop();
 	return ok;
@@ -815,8 +813,9 @@ int PPObject::EditPrereq(PPID * pID, TDialog * pDlg, bool * pIsNew)
 		if(!CheckRights(PPR_INS))
 			ok = 0;
 	}
-	if(ok && pDlg && !is_new && !CheckRights(PPR_MOD))
+	if(ok && pDlg && !is_new && !CheckRights(PPR_MOD)) {
 		pDlg->enableCommand(cmOK, 0);
+	}
 	ASSIGN_PTR(pIsNew, is_new);
 	return ok;
 }
@@ -840,13 +839,11 @@ int PPObject::GetLastModifEvent(PPID objID, LDATETIME * pMoment, int * pCr, SysJ
 
 int PPObject::GetName(PPID id, char * pBuf, size_t bufLen)
 {
-	const char * ptr = 0;
 	int    r = Search(id);
-	if(pBuf)
-		if(r > 0 && (ptr = GetNamePtr()) != 0)
-			strnzcpy(pBuf, ptr, bufLen);
-		else
-			pBuf[0] = 0;
+	if(pBuf) {
+		const char * ptr = (r > 0) ? GetNamePtr() : 0;
+		strnzcpy(pBuf, ptr, bufLen); // strnzcpy гарантирует корректое обнуление pBuf если ptr == 0
+	}
 	return r;
 }
 
@@ -870,12 +867,10 @@ ListBoxDef * PPObject::Selector(ListBoxDef * pOrgDef, long flags, void * extraPt
 	if(ImplementFlags & implStrAssocMakeList) {
 		StrAssocArray * p_list = MakeStrAssocList(extraPtr);
 		if(p_list) {
-			// @v11.2.12 {
 			if(flags & OLW_INSCONTEXTEDITEMS) {
 				p_list->AddFast(ROBJID_CONTEXT, "#BYCONTEXT");
 				p_list->Move(p_list->getCount()-1, 0);
 			}
-			// } @v11.2.12
 			if(pOrgDef) {
 				if(ImplementFlags & implTreeSelector)
 					static_cast<StdTreeListBoxDef *>(pOrgDef)->setArray(p_list);
@@ -1146,6 +1141,9 @@ IMPL_CMPFUNC(SObjID, i1, i2) { return memcmp(i1, i2, sizeof(SObjID)); }
 	}
 	return ok;
 }
+
+/*static*/int STDCALL PPObject::ProcessObjRefInArray(PPID objTypeID, int * pObjID, PPObjIDArray * pArray, int replace)
+	{ return ProcessObjRefInArray(objTypeID, reinterpret_cast<long *>(pObjID), pArray, replace); }
 
 int STDCALL PPObject::ProcessObjRefInArray_NoPreprocess(PPID objTypeID, PPID * pObjID, PPObjIDArray * pArray, int replace)
 {
@@ -3275,7 +3273,7 @@ int PrcssrUniFindObj::Run()
 			if(r_reg_obj.P_Tbl->SearchAnyByNumber(P.MainPattern, &reg_list) > 0) {
 				for(uint i = 0; i < reg_list.getCount(); i++) {
 					const RegisterTbl::Rec & reg_rec = reg_list.at(i);
-					const SObjID oid(NZOR(PPOBJ_PERSON, reg_rec.ObjType), reg_rec.ObjID);
+					const SObjID oid(NZOR(reg_rec.ObjType, PPOBJ_PERSON), reg_rec.ObjID); // @v12.6.5 @fix NZOR(PPOBJ_PERSON, reg_rec.ObjType)-->NZOR(reg_rec.ObjType, PPOBJ_PERSON)
 					if(oid.IsFullyDefined()) {
 						int   attr = 0;
 						if(reg_rec.RegTypeID == PPREGT_TPID)

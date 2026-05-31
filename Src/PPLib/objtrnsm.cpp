@@ -2242,7 +2242,7 @@ public:
 			setGroupData(ctlgroupBtranAr2, &ar2_grp_rec);
 		}
 		SetupCtrls();
-		setWL(Data.Flags & BillTransmitParam::fLabelOnly);
+		setWL(LOGIC(Data.Flags & BillTransmitParam::fLabelOnly));
 		AddClusterAssoc(CTL_BTRAN_TRNSMFLAGS, 0, TRNSMF_DELINFILES);
 		AddClusterAssoc(CTL_BTRAN_TRNSMFLAGS, 1, TRNSMF_DELOUTFILES);
 		SetClusterData(CTL_BTRAN_TRNSMFLAGS, Data.TrnsmFlags);

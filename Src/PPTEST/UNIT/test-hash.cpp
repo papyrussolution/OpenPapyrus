@@ -1,5 +1,5 @@
 // TEST-HASH.CPP
-// Copyright (c) A.Sobolev 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2023, 2024, 2025, 2026
 //
 #include <pp.h>
 #pragma hdrstop
@@ -3121,7 +3121,7 @@ extern uint32 fnv_32a_buf(const void * buf, size_t len, uint32 hashval);
 extern uint64 fnv_64_buf(const void * buf, size_t len, uint64 hashval);
 extern uint64 fnv_64a_buf(const void * buf, size_t len, uint64 hashval);
 
-SLTEST_R(HashFunctionFnv) // @construction
+SLTEST_R(HashFunctionFnv)
 {
 	{
 		for(uint i = 0; i < SIZEOFARRAY(fnv0_32_vector); i++) {
@@ -3177,5 +3177,81 @@ SLTEST_R(HashFunctionFnv) // @construction
 			}
 		}
 	}
+	return CurrentStatus;
+}
+//
+//
+//
+SLTEST_R(EncapsulateKey) // @v12.6.4 
+{
+	const char * p_src_key = "Key-for$the^encapsulation%";
+	const size_t src_key_size = sstrlen(p_src_key);
+	const size_t drv_key_size = 32;
+	static void * p_ek = 0;
+	SlCrypto::Key dk;
+	const  bool mekr = SlCrypto::MakeEncapsulatedKey(p_src_key, src_key_size, drv_key_size, dk);
+	SLCHECK_NZ(mekr);
+	if(mekr) {
+		p_ek = SlCrypto::EncapsulateKey(p_src_key, src_key_size, drv_key_size); 
+		SLCHECK_NZ(p_ek);
+		if(p_ek) {
+			SBaseBuffer ek_buf;
+			const  bool gekr = SlCrypto::GetEncapsulatedKey(p_ek, ek_buf);
+			SLCHECK_NZ(gekr);
+			if(gekr) {
+				SLCHECK_NZ(dk.GetKey().IsEq(ek_buf));
+			}
+		}
+	}
+	return CurrentStatus;
+}
+
+SLTEST_R(SlCrypto_KeyVerification) // @v12.6.5
+{
+	const char * p_src_key = "Key-for$the^encapsulation%";
+	const char * p_bad_key = "invalid-key";
+	SlCrypto::KeyVerificationBlock kv_blk;
+	SlCrypto::Argon2Param ap;
+	uint64 salt[2];
+	{
+		ap.MemCost = SKILOBYTE(64);
+		ap.TimeCost = 3;
+		ap.Parallelism = 1;
+		salt[0] = 0x111000222AAA555FULL;
+		salt[1] = 0x333666444CCC777BULL;
+	}
+	{
+		SlCrypto::Key key;
+		int   mkr = SlCrypto::MakeKey_Derived_Argon2(key, p_src_key, sstrlen(p_src_key), 32, salt, sizeof(salt), ap);
+		SLCHECK_NZ(mkr);
+		THROW(mkr);
+		const SBaseBuffer & r_key_buf = key.GetKey();
+		int   r1 = SlCrypto::MakeKeyVerificationBlock(UED_SYMMETRICCIPHER_AES256GCM, r_key_buf.P_Buf, r_key_buf.Size, kv_blk);
+		SLCHECK_NZ(r1);
+		THROW(r1);
+	}
+	{
+		SlCrypto::Key key;
+		int   mkr = SlCrypto::MakeKey_Derived_Argon2(key, p_src_key, sstrlen(p_src_key), 32, salt, sizeof(salt), ap);
+		SLCHECK_NZ(mkr);
+		THROW(mkr);
+		const SBaseBuffer & r_key_buf = key.GetKey();
+		int   r2 = SlCrypto::VerifyKey(UED_SYMMETRICCIPHER_AES256GCM, r_key_buf.P_Buf, r_key_buf.Size, kv_blk);
+		SLCHECK_NZ(r2);
+		THROW(r2);		
+	}
+	{
+		SlCrypto::Key key;
+		int   mkr = SlCrypto::MakeKey_Derived_Argon2(key, p_bad_key, sstrlen(p_bad_key), 32, salt, sizeof(salt), ap);
+		SLCHECK_NZ(mkr);
+		THROW(mkr);
+		const SBaseBuffer & r_key_buf = key.GetKey();
+		int   r2 = SlCrypto::VerifyKey(UED_SYMMETRICCIPHER_AES256GCM, r_key_buf.P_Buf, r_key_buf.Size, kv_blk);
+		SLCHECK_Z(r2);
+		THROW(!r2);		
+	}
+	CATCH
+		CurrentStatus = 0;
+	ENDCATCH
 	return CurrentStatus;
 }

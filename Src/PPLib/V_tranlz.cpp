@@ -3478,7 +3478,7 @@ int TrfrAnlzFiltDialog::setDTS(const TrfrAnlzFilt * pData)
 		GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
 		setGroupData(ctlgroupGoodsFilt, &gf_rec);
 	}
-	setWL(BIN(Data.Flags & TrfrAnlzFilt::fLabelOnly));
+	setWL(LOGIC(Data.Flags & TrfrAnlzFilt::fLabelOnly));
 	setCtrlUInt16(CTL_GTO_GRPDATE, v = BIN(Data.Flags & TrfrAnlzFilt::fGByDate));
 	v = 0;
 	if(getCtrlView(CTL_GTO_ORDER)) {
@@ -4428,8 +4428,8 @@ PrcssrAlcReport::GoodsItem::GoodsItem()
 
 PrcssrAlcReport::GoodsItem & PrcssrAlcReport::GoodsItem::Z()
 {
-	StatusFlags = 0;
 	GoodsID = 0;
+	StatusFlags = 0;
 	LotID = 0;
 	MnfOrImpPsnID = 0;
 	Volume = 0.0;
@@ -5003,10 +5003,12 @@ static int FASTCALL Base36ToAlcoCode(const SString & rS, SString & rBuf)
 		}
 	}
 	if(pProcessedMark) {
-		if(!yes)
+		if(!yes) {
 			pProcessedMark->Z();
-		else
+		}
+		else {
 			assert(PrcssrAlcReport::IsEgaisMark(*pProcessedMark, 0)); // @recursion: sure this works right!
+		}
 	}
 	return yes;
 }
@@ -5097,8 +5099,8 @@ static int FASTCALL Base36ToAlcoCode(const SString & rS, SString & rBuf)
 
 int PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const ObjTagList * pTags, long flags, PrcssrAlcReport::GoodsItem & rItem)
 {
+	// stMarkWanted Volume Proof
 	rItem.Z();
-
 	int    ok = 1;
 	Reference * p_ref(PPRef);
 	SString fmt_buf, msg_buf, temp_buf;
@@ -5155,7 +5157,7 @@ int PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const ObjTagL
 			PPObjUnit u_obj;
 			u_obj.TranslateToBase(goods_rec.UnitID, SUOM_LITER, &rItem.UnpackedVolume);
 		}
-		{
+		if(!(flags & pgifLightMode)) { // @v12.6.5 condition
 			GoodsStockExt gse;
 			if(GObj.P_Tbl->GetStockExt(goodsID, &gse, 1) > 0)
 				rItem.Brutto = gse.CalcBrutto(1.0);
@@ -5169,12 +5171,12 @@ int PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const ObjTagL
 				if(ncode > 0 && ncode < 100) {
 					rItem.CategoryCode.Z().CatLongZ(ncode, 3);
 				}
-				// @v11.2.12 {
-				else if(ncode > 1000 && ncode < 10000)
+				else if(ncode > 1000 && ncode < 10000) {
 					ncode = ncode / 10;
-				else if(ncode >= 10000)
+				}
+				else if(ncode >= 10000) {
 					ncode = ncode / 100;
-				// } @v11.2.12 
+				}
 				if(ncode > 0 && ncode < 500 && !oneof3(ncode, /*260,*/ 261, 262, 263)) {
 					rItem.StatusFlags |= GoodsItem::stMarkWanted;
 				}
@@ -5213,96 +5215,98 @@ int PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const ObjTagL
 			rItem.MsgPool.Cat(msg_buf);
 			ok = 0;
 		}
-		if(pTags && pTags->GetItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, temp_buf) > 0) {
-			rItem.EgaisCode = temp_buf;
-			rItem.StatusFlags |= rItem.stEgaisCodeByLotTag;
-			p_egais_code = rItem.EgaisCode;
-		}
-		else if(lotID && p_ref->Ot.GetTagStr(PPOBJ_LOT, lotID, PPTAG_LOT_FSRARLOTGOODSCODE, temp_buf) > 0) {
-			rItem.EgaisCode = temp_buf;
-			rItem.StatusFlags |= rItem.stEgaisCodeByLotTag;
-			p_egais_code = rItem.EgaisCode;
-		}
-		else {
-			BarcodeArray bc_list;
-			if(GetEgaisCodeList(goodsID, bc_list) > 0) {
-				assert(bc_list.getCount());
-				rItem.EgaisCode = bc_list.at(0).Code;
-				rItem.StatusFlags |= rItem.stEgaisCodeByGoods;
+		if(!(flags & pgifLightMode)) { // @v12.6.5 condition
+			if(pTags && pTags->GetItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, temp_buf) > 0) {
+				rItem.EgaisCode = temp_buf;
+				rItem.StatusFlags |= rItem.stEgaisCodeByLotTag;
 				p_egais_code = rItem.EgaisCode;
 			}
-		}
-		if(ACfg.Hdr.Flags & ACfg.Hdr.fUseOwnEgaisObjects || (flags & pgifForceUsingInnerDb)) {
-            SETIFZ(P_RefC, new RefCollection);
-            if(P_RefC) {
-				bool   _is_ref_a = false;
-				if(pTags && pTags->GetItemStr(PPTAG_LOT_FSRARINFA, temp_buf) > 0)
-					_is_ref_a = true;
-				else if(lotID && p_ref->Ot.GetTagStr(PPOBJ_LOT, lotID, PPTAG_LOT_FSRARINFA, temp_buf) > 0)
-					_is_ref_a = true;
-				if(_is_ref_a) {
-					rItem.InformA = temp_buf;
-					TSVector <EgaisRefATbl::Rec> refa_list;
-					const int actual_pos = P_RefC->RaC.SearchByCode(rItem.InformA, refa_list);
-					if(actual_pos > 0) {
-						const EgaisRefATbl::Rec & r_item = refa_list.at(actual_pos-1);
-						if(r_item.Flags & EgaisRefACore::fVerified) {
-							rItem.RefcInfA_ActualDate = r_item.ActualDate;
-							rItem.RefcInfAID = r_item.ID;
-							rItem.RefcEgaisCode = r_item.AlcCode;
-							rItem.RefcImporterCode = r_item.ImporterRarIdent;
-							rItem.RefcManufCode = r_item.ManufRarIdent;
-							rItem.RefcVolume = ((double)r_item.Volume) / 100000.0;
-							rItem.BottlingDate = r_item.BottlingDate;
-							rItem.CountryCode = r_item.CountryCode;
-							rItem.StatusFlags |= GoodsItem::stRefcUsedByRefA;
+			else if(lotID && p_ref->Ot.GetTagStr(PPOBJ_LOT, lotID, PPTAG_LOT_FSRARLOTGOODSCODE, temp_buf) > 0) {
+				rItem.EgaisCode = temp_buf;
+				rItem.StatusFlags |= rItem.stEgaisCodeByLotTag;
+				p_egais_code = rItem.EgaisCode;
+			}
+			else {
+				BarcodeArray bc_list;
+				if(GetEgaisCodeList(goodsID, bc_list) > 0) {
+					assert(bc_list.getCount());
+					rItem.EgaisCode = bc_list.at(0).Code;
+					rItem.StatusFlags |= rItem.stEgaisCodeByGoods;
+					p_egais_code = rItem.EgaisCode;
+				}
+			}
+			if(ACfg.Hdr.Flags & ACfg.Hdr.fUseOwnEgaisObjects || (flags & pgifForceUsingInnerDb)) { 
+				SETIFZ(P_RefC, new RefCollection);
+				if(P_RefC) {
+					bool   _is_ref_a = false;
+					if(pTags && pTags->GetItemStr(PPTAG_LOT_FSRARINFA, temp_buf) > 0)
+						_is_ref_a = true;
+					else if(lotID && p_ref->Ot.GetTagStr(PPOBJ_LOT, lotID, PPTAG_LOT_FSRARINFA, temp_buf) > 0)
+						_is_ref_a = true;
+					if(_is_ref_a) {
+						rItem.InformA = temp_buf;
+						TSVector <EgaisRefATbl::Rec> refa_list;
+						const int actual_pos = P_RefC->RaC.SearchByCode(rItem.InformA, refa_list);
+						if(actual_pos > 0) {
+							const EgaisRefATbl::Rec & r_item = refa_list.at(actual_pos-1);
+							if(r_item.Flags & EgaisRefACore::fVerified) {
+								rItem.RefcInfA_ActualDate = r_item.ActualDate;
+								rItem.RefcInfAID = r_item.ID;
+								rItem.RefcEgaisCode = r_item.AlcCode;
+								rItem.RefcImporterCode = r_item.ImporterRarIdent;
+								rItem.RefcManufCode = r_item.ManufRarIdent;
+								rItem.RefcVolume = ((double)r_item.Volume) / 100000.0;
+								rItem.BottlingDate = r_item.BottlingDate;
+								rItem.CountryCode = r_item.CountryCode;
+								rItem.StatusFlags |= GoodsItem::stRefcUsedByRefA;
+							}
+						}
+					}
+					{
+						if(isempty(p_egais_code) || (rItem.StatusFlags & rItem.stEgaisCodeByGoods && !(flags & pgifUseInnerDbByGoodsCode && !lotID && !pTags)))
+							p_egais_code = rItem.RefcEgaisCode;
+						if(!isempty(p_egais_code)) {
+							TSVector <EgaisProductTbl::Rec> pr_list;
+							const int actual_pos = P_RefC->PrC.SearchByCode(p_egais_code, pr_list);
+							if(actual_pos > 0) {
+								EgaisProductCore::Item pr_item;
+								P_RefC->PrC.RecToItem(pr_list.at(actual_pos-1), pr_item);
+								int    what_is_more_actual = 0; // 1 - infa, 2 - product
+								rItem.RefcPr_ActualDate = pr_item.ActualDate;
+								if(rItem.RefcPr_ActualDate > rItem.RefcInfA_ActualDate)
+									what_is_more_actual = 2;
+								else if(rItem.RefcInfA_ActualDate > rItem.RefcPr_ActualDate)
+									what_is_more_actual = 1;
+								rItem.RefcProductID = pr_item.ID;
+								assert(strcmp(pr_item.AlcoCode, p_egais_code) == 0);
+								if(pr_item.ManufRarIdent[0]) {
+									if(rItem.RefcManufCode.IsEmpty())
+										rItem.RefcManufCode = pr_item.ManufRarIdent;
+									else if(rItem.RefcManufCode != pr_item.ManufRarIdent) {
+										rItem.StatusFlags |= rItem.stRefcInfAPrManufConfl;
+										if(what_is_more_actual == 2)
+											rItem.RefcManufCode = pr_item.ManufRarIdent;
+									}
+								}
+								if(pr_item.ImporterRarIdent[0]) {
+									if(rItem.RefcImporterCode.IsEmpty())
+										rItem.RefcImporterCode = pr_item.ImporterRarIdent;
+									else if(rItem.RefcImporterCode != pr_item.ImporterRarIdent) {
+										rItem.StatusFlags |= rItem.stRefcInfAPrImprtConfl;
+										if(what_is_more_actual == 2)
+											rItem.RefcImporterCode = pr_item.ImporterRarIdent;
+									}
+								}
+								rItem.RefcProof = pr_item.Proof;
+								rItem.RefcVolume = pr_item.Volume;
+								rItem.RefcCategoryCode = pr_item.CategoryCode;
+								if(rItem.RefcCategoryCode.NotEmpty() && rItem.RefcCategoryCode != rItem.CategoryCode)
+									rItem.StatusFlags |= rItem.stRefcPrDbCategConfl;
+							}
 						}
 					}
 				}
-				{
-					if(isempty(p_egais_code) || (rItem.StatusFlags & rItem.stEgaisCodeByGoods && !(flags & pgifUseInnerDbByGoodsCode && !lotID && !pTags)))
-						p_egais_code = rItem.RefcEgaisCode;
-                    if(!isempty(p_egais_code)) {
-						TSVector <EgaisProductTbl::Rec> pr_list;
-                        const int actual_pos = P_RefC->PrC.SearchByCode(p_egais_code, pr_list);
-                        if(actual_pos > 0) {
-							EgaisProductCore::Item pr_item;
-							P_RefC->PrC.RecToItem(pr_list.at(actual_pos-1), pr_item);
-							int    what_is_more_actual = 0; // 1 - infa, 2 - product
-							rItem.RefcPr_ActualDate = pr_item.ActualDate;
-							if(rItem.RefcPr_ActualDate > rItem.RefcInfA_ActualDate)
-								what_is_more_actual = 2;
-							else if(rItem.RefcInfA_ActualDate > rItem.RefcPr_ActualDate)
-								what_is_more_actual = 1;
-							rItem.RefcProductID = pr_item.ID;
-							assert(strcmp(pr_item.AlcoCode, p_egais_code) == 0);
-							if(pr_item.ManufRarIdent[0]) {
-								if(rItem.RefcManufCode.IsEmpty())
-									rItem.RefcManufCode = pr_item.ManufRarIdent;
-								else if(rItem.RefcManufCode != pr_item.ManufRarIdent) {
-									rItem.StatusFlags |= rItem.stRefcInfAPrManufConfl;
-									if(what_is_more_actual == 2)
-										rItem.RefcManufCode = pr_item.ManufRarIdent;
-								}
-							}
-							if(pr_item.ImporterRarIdent[0]) {
-								if(rItem.RefcImporterCode.IsEmpty())
-									rItem.RefcImporterCode = pr_item.ImporterRarIdent;
-								else if(rItem.RefcImporterCode != pr_item.ImporterRarIdent) {
-									rItem.StatusFlags |= rItem.stRefcInfAPrImprtConfl;
-									if(what_is_more_actual == 2)
-										rItem.RefcImporterCode = pr_item.ImporterRarIdent;
-								}
-							}
-							rItem.RefcProof = pr_item.Proof;
-							rItem.RefcVolume = pr_item.Volume;
-							rItem.RefcCategoryCode = pr_item.CategoryCode;
-							if(rItem.RefcCategoryCode.NotEmpty() && rItem.RefcCategoryCode != rItem.CategoryCode)
-								rItem.StatusFlags |= rItem.stRefcPrDbCategConfl;
-                        }
-                    }
-				}
-            }
+			}
 		}
 	}
 	else {

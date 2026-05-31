@@ -8912,9 +8912,8 @@ public:
 	//   -2 - Caller must skip receiving object
 	//
 	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
-	static  int STDCALL ProcessObjRefInArray(PPID, long *, PPObjIDArray *, int replace);
-	static  int STDCALL ProcessObjRefInArray(PPID objTypeID, int * pObjID, PPObjIDArray * pArray, int replace)
-		{ return ProcessObjRefInArray(objTypeID, reinterpret_cast<long *>(pObjID), pArray, replace); }
+	static  int STDCALL ProcessObjRefInArray(PPID objTypeID, long * pObjID, PPObjIDArray * pArray, int replace);
+	static  int STDCALL ProcessObjRefInArray(PPID objTypeID, int * pObjID, PPObjIDArray * pArray, int replace);
 	static  int STDCALL ProcessObjRefInArray_NoPreprocess(PPID objTypeID, PPID * pObjID, PPObjIDArray * pArray, int replace);
 	static  int ProcessObjListRefInArray(PPID, PPIDArray &, PPObjIDArray * pArray, int replace);
 	// Возвращает PPObjListWindow
@@ -16612,7 +16611,6 @@ protected:
 		// поле DefReportId и не реализовывать Print().
 		// В более сложных случаях придется самостоятельно определять этот метод.
 private:
-	// @v11.4.4 {
 	class DescriptionList : private SStrGroup {
 		friend class PPView;
 	public:
@@ -16638,7 +16636,7 @@ private:
 	};
 	static const DescriptionList * P_DL;
 	static const DescriptionList * P_FL;
-	// } @v11.4.4
+
 	uint   ExtToolbarId; // Идентификатор тулбара, который следует загрузить в броузер
 		// при выполнении функции Browse
 	int32  ViewId;       // Идентификатор объекта (PPVIEW_XXX)
@@ -16650,7 +16648,7 @@ private:
 	PPObject * P_Obj;    // not owned by base class
 };
 //
-// RegisterFilt
+// Descr: Фильтр по регистрам
 //
 struct RegisterFilt : public PPBaseFilt {
 	RegisterFilt();
@@ -20969,20 +20967,23 @@ struct PPGlobalUserAccConfig {
 //
 // Descr: Идентификаторы глобальных сервисов, с которыми могут быть связаны глобальные учетные записи
 // All values are @persistent
+// Наименования перечислены в строковом ресурсе PPTXT_GLOBALSERVICELIST
 //
-#define PPGLS_UNDEF         0
-#define PPGLS_TWITTER       1 //
-#define PPGLS_FACEBOOK      2 //
-#define PPGLS_VK            3 //
-#define PPGLS_VETIS         4 //
-#define PPGLS_CHZN          5 // честный знак
-#define PPGLS_INSTAGRAM     6 // 
-#define PPGLS_UDS           7 // Сервис UDS (бонусная система, интернет-магазин)
-#define PPGLS_UNIVERSEHTT   8 // Сервис Universe-HTT (бонусная система, интернет-магазин и др.)
-#define PPGLS_SHOPIFY       9 // @construction
-#define PPGLS_WILDBERRIES  10 // @v12.1.0
-#define PPGLS_APTEKARU     11 // @v12.2.0
-#define PPGLS_LAST         11 // @v12.2.1 максимальное валидное значение. Поменяйте значение если вводите новый идентификатор!
+#define PPGLS_UNDEF             0
+#define PPGLS_TWITTER           1 //
+#define PPGLS_FACEBOOK          2 //
+#define PPGLS_VK                3 //
+#define PPGLS_VETIS             4 //
+#define PPGLS_CHZN              5 // честный знак
+#define PPGLS_INSTAGRAM         6 // 
+#define PPGLS_UDS               7 // Сервис UDS (бонусная система, интернет-магазин)
+#define PPGLS_UNIVERSEHTT       8 // Сервис Universe-HTT (бонусная система, интернет-магазин и др.)
+#define PPGLS_SHOPIFY           9 // @construction
+#define PPGLS_WILDBERRIES      10 // @v12.1.0
+#define PPGLS_APTEKARU         11 // @v12.2.0
+#define PPGLS_MSTRANSLATE      12 // @v12.6.5 Переводчик Microsoft (имеется в виду online-api)
+#define PPGLS_GOOGLETRANSLATE  13 // @v12.6.5 Переводчик Google (имеется в виду online-api, возможно, недокументированный)
+#define PPGLS_LAST             13 // @v12.2.1 максимальное валидное значение. Поменяйте значение если вводите новый идентификатор!
 
 #define PPTRPROP_GUAEXT    (PPTRPROP_USER+1) // @v11.9.9 Суб-идентификатор записи текстовых расширений глобальной учетной записи
 
@@ -25036,6 +25037,22 @@ public:
 	virtual int Edit(PPID * pID, void * extraPtr);
 };
 //
+// Descr: Сложный идентификатор технологического маршрута. Позволяет определить как отдельный маршрут, так и его элемент (ItemIdx)
+// Note: Определение включено значительно выше определений технологических маршрутов из-за того, что другие объекты должны
+//   ссылаться на TechRouteIdent
+//
+struct TechRouteIdent {
+	TechRouteIdent();
+	TechRouteIdent & Z();
+	SString & ToStr(uint fmt, SString & rBuf) const;
+	SString & ToStrWithItemIdxList(const LongArray * pItemIdxList, uint fmt, SString & rBuf) const;
+	bool   FromStr(const char * pText);
+	bool   FromStrWithItemIdxList(const char * pText, LongArray * pItemIdxList);
+	SObjID Oid;    // Объект-владелец технологического маршрута
+	PPID   ID;     // Идентификатор маршрута ->TechTbl.ID(Kind=TECK_ROUTE)
+	uint   ItemIdx; // [1..] Если !0, то номер строки в маршруте
+};
+//
 // @ModuleDecl(PPObjGoodsStruc)
 //
 #define GSF_COMPL          0x00000001L // Допускается комплектация     //
@@ -25285,12 +25302,13 @@ public:
 	int    InitCompleteData(PPID goodsID, double needQty, const PPBillPacket * pBillPack, PPComplBlock & rData, bool recursiveUnrollIncome);
 	int    InitCompleteData2(PPID goodsID, double needQty, PPComplBlock & rData);
 	//
-	// Поле GoodsID не является неотъемлемой частью структуры товара, поскольку одна структура
+	// Поле OwnerGoodsID не является неотъемлемой частью структуры товара, поскольку одна структура
 	// может принадлежать нескольким товарам. Это поле используется как справочное и может быть
 	// равно нулю. Функции, загружающие или инициализирующие структуру должны сами
 	// заботится об инициализации этого поля.
 	//
-	PPID   GoodsID; // @transient
+	PPID   OwnerGoodsID; // @transient
+	TechRouteIdent OwnerTecRtId; // @v12.6.5 @transient
 	mutable const PPComplBlock * P_Cb; // @transient Предварительный массив товарных строк для вставки в документа.
 		// Необходим для обсчета компонентов по формулам.
 	PPGoodsStrucHeader2 Rec;
@@ -26682,8 +26700,7 @@ private:
 	int    SaxParseFile(xmlSAXHandler * sax, const char * pFileName);
 	void   SaxStop();
 	int    ProcessString(const char * pRawText, long * pRefId, SString & rTempBuf, SStringU & rTempBufU);
-	int    ProcessString(const char * pRawText, int * pRefId, SString & rTempBuf, SStringU & rTempBufU)
-		{ return ProcessString(pRawText, reinterpret_cast<long *>(pRefId), rTempBuf, rTempBufU); }
+	int    ProcessString(const char * pRawText, int * pRefId, SString & rTempBuf, SStringU & rTempBufU);
 	int    CollectUuid(const S_GUID & rUuid);
 	int    FlashUuidChunk(uint maxCount, int use_ta);
 	int    FlashAddrChunk(uint maxCount, int use_ta);
@@ -26776,7 +26793,7 @@ public:
 	virtual int  Edit(PPID * pID, void * extraPtr);
 	virtual int  DeleteObj(PPID);
 	virtual int  Search(PPID id, void * b = 0);
-	virtual StrAssocArray * MakeStrAssocList(void * extraPtr /* (RegisterFilt*) */);
+	virtual StrAssocArray * MakeStrAssocList(void * extraPtr/*(RegisterFilt*)*/);
 	int    Fetch(PPID id, RegisterTbl::Rec * pRec);
 	int    SearchByNumber(PPID *, PPID regTypeID, const char * pSn, const char * pNmbr, RegisterTbl::Rec *);
 	int    SearchByFilt(const RegisterFilt *, PPIDArray * pResList, PPIDArray * pObjList);
@@ -33119,8 +33136,8 @@ public:
     		stRefcPrDbCategConfl   = 0x0400,  // Конфликт между видом продукции в базе данных и записе товара ЕГАИС
     		stMarkWanted           = 0x0800   // Товар маркированный (имеет акцизную марку)
     	};
+    	PPID   GoodsID;        // @firstmember @v12.6.5 поле перемещено topmost  
     	long   StatusFlags;
-    	PPID   GoodsID;
     	PPID   LotID;
     	PPID   MnfOrImpPsnID;   // ИД персоналии производителя или импортера (для импортного товара)
     	double Volume;
@@ -33163,11 +33180,15 @@ public:
     };
 
 	int    Init();
-
+	//
+	// Descr: Флаги функции PreprocessGoodsItem
+	//
 	enum {
 		pgifUseSubstCode          = 0x0001,
 		pgifForceUsingInnerDb     = 0x0002,
-		pgifUseInnerDbByGoodsCode = 0x0004  // @v11.3.8 Искать информацию во внутренней ДБ ЕГАИС по коду товара, если не определен лот
+		pgifUseInnerDbByGoodsCode = 0x0004, // @v11.3.8 Искать информацию во внутренней ДБ ЕГАИС по коду товара, если не определен лот
+		pgifLightMode             = 0x0008, // @v12.6.5 Облегченный режим (в частности, для подготовки чека к отправке в UTM, но не только)
+			// В облегченном режиме функция не анализирует внутреннюю базу данных егаис)
 	};
 
 	int    GetEgaisCodeList(PPID goodsID, BarcodeArray & rList);
@@ -38147,7 +38168,6 @@ private:
 //
 // @ModuleDecl(PPObjTech)
 //
-//
 // Descr: Класс, управляющий списком товаров, которые могут быть обработаны технологической
 //   сессией, использующей заданную технологию.
 //
@@ -38222,18 +38242,6 @@ private:
 #define TECEXSTR_TLNGCOND          1 // Формула условия использования технологии перенастройки //
 #define TECEXSTR_CAPACITY          2 // Формула производительности для автотехнологий
 #define TECEXSTR_GSTRUCSYMB        3 // @v12.6.3 Символ структуры, который будет подхватываться из конкретного товара (не обобщенного) для формирования сессии.
-
-struct TechRouteIdent {
-	TechRouteIdent();
-	TechRouteIdent & Z();
-	SString & ToStr(uint fmt, SString & rBuf) const;
-	SString & ToStrWithItemIdxList(const LongArray * pItemIdxList, uint fmt, SString & rBuf) const;
-	bool   FromStr(const char * pText);
-	bool   FromStrWithItemIdxList(const char * pText, LongArray * pItemIdxList);
-	SObjID Oid;    // Объект-владелец технологического маршрута, к которому привязана технология TechID
-	PPID   ID;     // @reserve Сейчас маршруты не являются отдельными объектами данных, потому это поле пока не применяется //
-	uint   ItemIdx; // [1..] Если !0, то номер строки в маршруте
-};
 
 class PPTechRoute { // @v12.5.12
 public:
@@ -38344,6 +38352,7 @@ public:
 	int    GetListByPrcGoods(PPID prcID, PPID goodsID, PPIDArray * pList);
 	int    GetListByGoods(PPID goodsID, PPIDArray * pList);
 	int    GetListByGoodsStruc(PPID goodsStrucID, PPIDArray * pList); // @v11.7.6
+	int    GetTecRouteListByOid(const SObjID & rOid, PPIDArray * pList); // @v12.6.5
 	int    GetToolingCondition(PPID id, SString & rFormula);
 	int    SelectTooling(PPID prcID, PPID goodsID, PPID prevGoodsID, TSVector <TechTbl::Rec> * pList);
 	int    CreateAutoTech(PPID prcID, PPID goodsID, PPID * pTechID, int use_ta);
@@ -38390,10 +38399,11 @@ public:
 	//
 	int    Get(const TechRouteIdent & rIdent, PPTechRoute & rRoute);
 	int    Edit(PPTechRoute & rRoute, uint itemIdx);
-	int    EditGStrucOfEntry(PPTechRoute & rRoute, PPTechRoute::Entry & rEntry);
+	int    EditGStrucOfEntry(PPTechRoute & rRoute, PPTechRoute::Entry & rEntry, uint itemIdx/*[1..]*/);
 	int    GetListByGoods(PPID goodsID, TSCollection <PPTechRoute> & rList);
 	int    GetLotStageTagDetail(PPID lotID, TechRouteIdent * pIdent, LongArray * pStageList);
 private:
+	int    Helper_GetByID(PPID id, const SObjID * pOid, PPTechRoute & rRoute);
 	PPObjTech TecObj;
 	PPObjGoods GObj;
 };
@@ -45283,6 +45293,7 @@ public:
 		abfOnlyEmptyExtAr = 0x0008  // Только с пустой дополнительной статьей
 	};
 	struct AutoBuildFilt {
+		AutoBuildFilt();
 		DateRange Period;
 		DateRange ShipmPeriod;
 		DateRange ExtPeriod;
@@ -54702,7 +54713,8 @@ private:
 //
 class AutotranslCache {
 public:
-	AutotranslCache();
+	explicit AutotranslCache(const int srcLangId);
+	int    GetSrcLangId() const { return SrcLangId; }
 	uint   AddSrcText(const char * pText);
 	uint   GetSrcText(const char * pText) const;
 	int    AddTranslation(uint srcTextId, int langId, const char * pTranslation);
@@ -54710,6 +54722,7 @@ public:
 	int    Store(const char * pFileName);
 	int    Load(const char * pFileName);
 private:
+	const  int SrcLangId;
 	SymbHashTable Ht_SrcText;
 	uint   MaxHtSrcId;
 	SStrGroup StrPool;
@@ -54732,35 +54745,50 @@ public:
 		uint   CacheFlushOnCount; // Количество переводов, после которого следует автоматически сбрасывать кэш на диск
 	};
 	struct Stat {
-		Stat() : ReqCount(0), InpChrCount(0), OutpChrCount(0), TotalTiming(0)
+		Stat() : ReqCount(0), CacheHitCount(0), CacheAddCount(0), InpChrCount(0), OutpChrCount(0), TotalTiming(0)
 		{
 		}
-        uint   ReqCount;
-        uint   InpChrCount;
-        uint   OutpChrCount;
-        uint64 TotalTiming;
+		SString & ToStr(SString & rBuf) const;
+        uint   ReqCount;      // Количество успешных обращений к сервису
+		uint   CacheHitCount; // Количество попаданий в кэш
+		uint   CacheAddCount; // Количество новых включений в кэш
+        uint   InpChrCount;   // Количество unicode-codepoint переданных сервису для перевода
+        uint   OutpChrCount;  // Количество unicode-codepoint полученных от сервиса после перевода
+        uint64 TotalTiming;   // Общее время работы функций обращения к сервису
 	};
-
-	PPAutoTranslSvcBase(uint capabilities);
-	const  Param & GetParam() const { return P; }
-	int    SetParam(const Param & rP);
-	const  Stat & GetStat() const { return S; }
-	int    SetCacheFilePath(const char * pPath);
-
 	struct AuthBlock {
 		SString Ident;
 		SString Secret;
 	};
+
+	explicit PPAutoTranslSvcBase(uint capabilities, long glsIdent);
+	virtual ~PPAutoTranslSvcBase();
+	uint   GetCapabilities() const { return Capabilities; }
+	const  Param & GetParam() const { return P; }
+	int    SetParam(const Param & rP);
+	const  Stat & GetStat() const { return S; }
+	int    SetCacheFilePath(const char * pPath);
+	int    StoreCache();
+	//int    InitAuthBlockByGlobalAccount(AuthBlock & rBlk);
+	int    DoAuth(const AuthBlock & rBlk);
+	int    DoTranslate(int srcLang, int destLang, const SString & rSrcTextUtf8, SString & rResultUtf8);
+protected:
 	virtual int Auth(const AuthBlock & rBlk);
 	virtual int Request(int srcLang, int destLang, const SString & rSrcTextUtf8, SString & rResultUtf8);
-protected:
+	
 	enum {
 		cNoAuth = 0x0001
 	};
 	const  uint Capabilities;
+	const  long GlsIdent; // GSL_XXX
 	Param  P;
 	Stat   S;
+	LDATETIME AuthTime;    // Момент последней успешной авторизации (для отслеживания времени жизни токена)
+	LDATETIME LastReqTime; // Момент последнего запроса на перевод (для установки таймаута между запросами)
 private:
+	uint   State;
+	uint   CacheAdditionsSinceLastFlush;
+	uint   AuthExpirySec;  // Период времени (секунд), в течении которого токен авторизации действителен
 	SString CacheFilePath;
 	AutotranslCache Cache;
 };
@@ -54768,18 +54796,17 @@ private:
 class PPAutoTranslSvc_Microsoft : public PPAutoTranslSvcBase {
 public:
 	PPAutoTranslSvc_Microsoft();
-	~PPAutoTranslSvc_Microsoft();
+	virtual ~PPAutoTranslSvc_Microsoft();
 	//int    Auth(const char * pIdent, const char * pSecret);
+private:
 	virtual int Auth(const AuthBlock & rBlk);
 	virtual int Request(int srcLang, int destLang, const SString & rSrcTextUtf8, SString & rResultUtf8);
-private:
     int    Implement_Request(int srcLang, int destLang, const SString & rSrcText, SString & rResult);
 	int    Implement_Request3(int srcLang, int destLang, const SString & rSrcText, SString & rResult); // @v12.4.1
 
 	long   ExpirySec;
 	int    LastStatusCode;
 	SString LastStatusMessage;
-	LDATETIME AuthTime;
 	SString AuthName;
 	SString AuthSecret;
 	SString Token;
@@ -54791,9 +54818,10 @@ private:
 class PPAutoTranslSvc_Google : public PPAutoTranslSvcBase { // @v12.6.1
 public:
 	PPAutoTranslSvc_Google();
-	~PPAutoTranslSvc_Google();
-	virtual int Request(int srcLang, int destLang, const SString & rSrcTextUtf8, SString & rResultUtf8);
+	virtual ~PPAutoTranslSvc_Google();
 private:
+	virtual int Request(int srcLang, int destLang, const SString & rSrcTextUtf8, SString & rResultUtf8);
+	
 	struct EndPoint {
 		const char * P_Host;
 		const char * P_Path;
@@ -56386,8 +56414,8 @@ private:
 class WLDialog : public TDialog {
 public:
 	WLDialog(uint rezID, uint _wlCtlID);
-	void   setWL(int s);
-	int    getWL() const;
+	void   setWL(bool s);
+	bool   getWL() const;
 protected:
 	DECL_HANDLE_EVENT;
 	void   toggleWL(int);
@@ -57139,33 +57167,6 @@ private:
 	virtual int  editItem(long pos, long id);
 	virtual int  delItem(long pos, long id);
 	const bool ReadOnly;
-};
-
-class BankingOrderDialog : public TDialog {
-public:
-	BankingOrderDialog();
-	int    setDTS(const PPBankingOrder * pData);
-	int    getDTS(PPBankingOrder * pData);
-private:
-	DECL_HANDLE_EVENT;
-	int    setupPerson(int payerOrRcvr, PPID personID, PPID * pBnkAccID);
-	int    setupBnkAcc(int payerOrRcvr, PPID bnkAccID);
-	int    editTaxMarkers();
-	void   setupVAT();
-	void   swapPersons();
-
-	enum {
-		dummyFirst = 1,
-		brushValidNumber,
-		brushInvalidNumber
-	};
-
-	int    PayerValidCode;
-	int    RcvrValidCode;
-	SPaintToolBox  Ptb;
-	PPBankingOrder Data;
-	PPObjPerson PsnObj;
-	RegisterFilt BnkAccFilt;
 };
 
 struct GoodsGroupItem : Goods2Tbl::Rec {
@@ -61617,6 +61618,15 @@ public:
 		chznciSurrogate = -1, // Суррогатный код (не является кодом марки, но из кода можно извлечь полезную информацию: GTIN и, возможно, количество)
 		chznciPretend   = 1000 // Разбор кода закончился ошибкой, но тем не менее в нем есть GTIN и серия.
 	};
+	//
+	// Descr: Методы препроцессинга марки перед продажей
+	//
+	enum {
+		prcsmarkMethodUndef = 0, // Не определено
+		prcsmarkMethodPmOnline,  // Разрешительный режим online
+		prcsmarkMethodPmOffline, // Локальный модуль offline
+		prcsmarkMethodTsPiot,    // тс пиот
+	};
 	static constexpr int InterpretChZnCodeResult(int r)
 	{
 		if(r == 1000)
@@ -61719,8 +61729,12 @@ public:
 		//    0 - не удалось найти соответствие.
 		//
 		int    SetupResultEntry(int rowN, const CodeStatus & rEntry);
-
+		enum {
+			fCheckedOffline = 0x0001
+		};
+		int    Method; // @v12.6.5 prcsmarkMethodXXX
 		int    Code; // Result code. 0 - ok
+		uint   Flags; // @v12.6.5
 		SString Description; // error message or "ok"
 		S_GUID ReqId;
 		int64  ReqTimestamp;
@@ -64773,7 +64787,9 @@ int    EditCheckInPersonItem(const PPCheckInPersonConfig * pCfg, PPCheckInPerson
 int    EditCheckInPersonList(const PPCheckInPersonConfig * pCfg, PPCheckInPersonArray * pData);
 void   PPViewTextBrowser(const char * pFileName, const char * pTitle, const char * pLexerSymb, int toolbarId = -1);
 void   PPViewTextBrowser(const SObjTextRefIdent & rIdent, const char * pTitle, const char * pLexerSymb, int toolbarId = -1);
-
+//
+// Descr: Фильтр открытия текстового файла для редактирования //
+//
 class EditTextFileParam : public PPBaseFilt {
 public:
 	EditTextFileParam();
@@ -64784,6 +64800,40 @@ public:
 };
 
 int    PPEditTextFile(const EditTextFileParam * pParam);
+//
+// Descr: Фильтр запуска внешнего приложения //
+//
+class OuterProcessExecutionFilt : public PPBaseFilt { // @v12.6.5 @construction
+public:
+	OuterProcessExecutionFilt();
+	OuterProcessExecutionFilt(const OuterProcessExecutionFilt & rS);
+	OuterProcessExecutionFilt & FASTCALL operator = (const OuterProcessExecutionFilt & rS);
+
+	enum {
+		fWait	= 0x0001,
+		fRemote	= 0x0002
+	};
+	uint8  ReserveStart[64]; // @anchor
+	uint32 Flags;           // @flags 
+	uint8  ReserveEnd[16];  // @anchor
+	SString AppNameUtf8;    // Наименование процесса, использованное непосредственно при запуске функции исполнения (для отладки). Или просто каталог для открытия.
+	SString CmdLineUtf8;    // Командная строка, использованная непосредственно при запуске функции исполнения (для отладки)
+	SString WmiServer;
+	SString UserLogin;
+	SString UserPassword;
+};
+
+class PrcssrOuterProcessExecution { // @v12.6.5 @construction
+public:
+	PrcssrOuterProcessExecution();
+	int    InitParam(OuterProcessExecutionFilt *);
+	int    EditParam(OuterProcessExecutionFilt *);
+	int    Init(const OuterProcessExecutionFilt *);
+	int    Run();
+private:
+	OuterProcessExecutionFilt P;
+};
+
 int    DoDbDump(PPDbEntrySet2 * pDbes);
 int    VerifyPhoneNumberBySms(const char * pNumber, const char * pAddendum, uint * pCheckCode, int checkCodeInputOnly);
 

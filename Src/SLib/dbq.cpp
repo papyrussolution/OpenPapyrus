@@ -164,7 +164,19 @@ void FASTCALL DBConst::init(long l)
 	lval = l;
 }
 
-void FASTCALL DBConst::init(size_t v)
+void FASTCALL DBConst::init(int64 l) // @v12.6.5
+{
+	Helper_Init(DBConst_ID, 0, i64v);
+	i64val = l;
+}
+
+void FASTCALL DBConst::init(uint64 l) // @v12.6.5
+{
+	Helper_Init(DBConst_ID, 0, u64v);
+	u64val = l;
+}
+
+void FASTCALL DBConst::init(uint32 v) // @v12.6.5 size_t-->uint32 (раз появился override для uint64)
 {
 	Helper_Init(DBConst_ID, 0, lv);
 	lval = static_cast<long>(v);
@@ -628,10 +640,12 @@ int FASTCALL DBDataCell::getValue(TYPEID typ, void * val)
 {
 	int    _id = GetId();
 	//CHECK(id > 0 || id == DBConst_ID || id == DBE_ID);
-	if(_id > 0)
+	if(_id > 0) {
 		return F.getValue(val, 0);
-	else if(_id == DBConst_ID)
+	}
+	else if(_id == DBConst_ID) {
 		return C.convert(typ, val);
+	}
 	else if(_id == DBE_ID) {
 		DBConst cnst;
 		cnst.Id = DBConst_ID;

@@ -1097,6 +1097,7 @@ typedef int32               TYPEID;
 #define BTS_BOOL             8    // 4 byte Специализированный вариант. Фактически не применяется как базовый тип, но используется в локальных ситуациях.
 #define BTS_PTR              9    // Указатель. Важно, что размер его зависим от архитектуры (4 или 8 байт)
 #define BTS_INT64_          10    // 8 byte integer. Не является базовым типом. Определен для использования в DBConst
+#define BTS_UINT64_         11    // @v12.6.5 8 byte unsigned integer. Не является базовым типом. Определен для использования в DBConst
 //
 // Data types
 //
@@ -1329,11 +1330,10 @@ class  TDialog; // @v12.3.6
 #define DATF_NOZERO       0x0020  // Не отображать нулевое значение
 #define DATRANGF_EXTENDED 0x0020  // @v12.3.7 Флаг форматирования диапазона дат. Намеряно использует то же значение, что и DATF_NOZERO
 #define DATF_NODIV        0x0040  // день, месяц и год следуют друг за другом без разделителей.
-#define DATF_GERMANCENT   (DATF_GERMAN|DATF_CENTURY)  // @v11.3.12
-#define DATF_ISO8601CENT  (DATF_ISO8601|DATF_CENTURY) // @v11.3.12
+#define DATF_GERMANCENT   (DATF_GERMAN|DATF_CENTURY)
+#define DATF_ISO8601CENT  (DATF_ISO8601|DATF_CENTURY)
 	// Порядок следования определяется младшими битами (DATF_AMERICAN..DATF_YMD). Если установлен
-	// флаг DATF_CENTURY, то год должен быть полным (2011), в противном случае - только последние две
-	// цифры года (11).
+	// флаг DATF_CENTURY, то год должен быть полным (2011), в противном случае - только последние две цифры года (11).
 //
 // Time format flags
 // @persistent
@@ -1355,8 +1355,8 @@ class  TDialog; // @v12.3.6
 #define STRF_UPPER     0x0001  // Все буквы переводить в прописные
 #define STRF_LOWER     0x0002  // Все буквы переводить в строчные
 #define STRF_PASSWORD  0x0004  // Все символы заменять символом '*'
-#define STRF_TOOEM       0x0008  // AnsiToOem (предполагается, что исходная строка - в кодировке ANSI)
-#define STRF_TOANSI      0x0010  // OemToAnsi (предполагается, что исходная строка - в кодировке OEM)
+#define STRF_TOOEM     0x0008  // AnsiToOem (предполагается, что исходная строка - в кодировке ANSI)
+#define STRF_TOANSI    0x0010  // OemToAnsi (предполагается, что исходная строка - в кодировке OEM)
 //
 // Structure of format field:
 //   Precision           4 bit
@@ -1392,6 +1392,7 @@ public:
 	static constexpr long DefaultTxtDateFormat = DATF_GERMAN;
 	static constexpr char DefaultOverflowSymb  = '#';
 	static constexpr char DefaultPasswordSymb  = '*';
+	static constexpr wchar_t DefaultPasswordSymbU  = L'\u25CF'; // @v12.6.5
 	static constexpr uint DefaultPrintfFloatPrec = 6U; // @v11.8.6 // define the default floating point precision. default: 6 digits
 	static constexpr uint VectorImageMask = 0x00008000U;
 	static constexpr uint TypeTabSize = 64U; // @v11.7.6
@@ -4394,11 +4395,15 @@ public:
 	SString & FASTCALL CopyFromOleStr(const BSTR s);
 	SString & Z();
 	//
-	// Descr: Возвращает длину строки.
+	// Descr: Возвращает длину строки в байтах. Завершающий ноль не считает.
 	//
 	size_t Len() const;
 	uint32 Len32() const { return static_cast<uint32>(Len()); } // @v12.5.1
 	int    LenI() const { return static_cast<int>(Len()); } // @v12.4.10
+	//
+	// Descr: Возвращает количество unicode-символов в строке при условии, что она является валидной utf8-строкой. Если нет, то возвращает Len()
+	//
+	size_t LenUtf8() const; // @v12.6.5 @tested
 	size_t BufSize() const;
 	void   Obfuscate();
 	const  char * SearchChar(int c, size_t * pPos) const;
@@ -5111,6 +5116,9 @@ public:
 	//
 	StringSet & Z();
 	int    FASTCALL copy(const StringSet & rS);
+	//
+	// ARG(len IN): длина строки b вместе с завершающим нулем (ну вот так вот, надо бы пересмотреть спецификацию, но пока так).
+	//
 	int    setBuf(const void * b, size_t len);
 	int    FASTCALL setBuf(const SString & rBuf);
 	//
@@ -6221,6 +6229,7 @@ int	   pathToUNC(const char * pPath, SString & rUncPath);
 char * setLastSlash(char *);
 char * rmvLastSlash(char *);
 bool   FASTCALL fileExists(const char * pFileName);
+bool   FASTCALL fileExistsU(const wchar_t * pFileName);
 int    driveValid(const char * path);
 int    pathValid(const char * pPath, int existOnly);
 //
@@ -7522,502 +7531,6 @@ private:
 	static void __Sha512TransformHelper(State::Sha512Ctx * pCtx, const void * pBuffer);
 };
 //
-//
-//
-class SlCrypto {
-public:
-	enum { // @todo @20260502 Эти идентификаторы следует заместить значениями UED_SYMMETRICCIPHER_XXX
-		algUndef = 0,
-		algAes,       // mod:
-		algDes,       // mod:
-		algDes_Ede,   // mod:
-		algDes_Ede3,  // mod:
-		algDesx,      // mod:
-		algIdea,      // mod:
-		algCamellia,  // mod:
-		algBlowfish,  // mod: algmodEcb, algmodCbc, algmodOfb, (algmodCfb, algmodCfb64)
-		algChaCha20   // mod: nothing|algmodPoly1305
-	};
-	enum {
-		kblUndef = 0,
-		kbl128 = 128,
-		kbl192 = 192,
-		kbl256 = 256
-	};
-	enum {
-		algmodUndef = 0,
-		algmodCbc,       // cipher block chaining
-		algmodEcb,       // electronic code book
-		algmodOcb,
-		algmodOfb,       // output feed back
-		algmodCcm,
-		algmodGcm,
-		algmodCtr,       // Counter Mode
-		algmodXts,
-		algmodWrap,
-		algmodWrapPad,
-		algmodCfb1,      // cipher feed back
-		algmodCfb8,      // cipher feed back
-		algmodCfb64,     // cipher feed back
-		algmodCfb128,    // cipher feed back
-		algmodCfb,       // cipher feed back (default)
-		algmodPoly1305   // algChaCha20
-	};
-	struct CipherProperties {
-		CipherProperties();
-		uint32 BlockSize;
-		uint32 KeySize;
-		uint32 IvSize;
-		uint32 AadSize;
-		uint32 TagSize; // @v12.6.3
-	};
-	struct Argon2Param { // @v12.6.2
-		Argon2Param() : MemCost(0), TimeCost(0), Parallelism(0)
-		{
-		}
-		uint32 MemCost;
-		uint32 TimeCost;
-		uint32 Parallelism;
-	};
-	class Key {
-	public:
-		Key();
-		~Key();
-		bool   IsConsistent() const;
-		Key  & Z();
-		int    SetKey(const void * pData, size_t size);
-		int    SetIV(const void * pData, size_t size);
-		int    SetAAD(const void * pData, size_t size);
-		const  SBaseBuffer & GetKey() const;
-		const  SBaseBuffer & GetIV() const;
-		const  SBaseBuffer & GetAAD() const;
-	private:
-		uint32 Signature; // @v12.6.3 Ибо экземпляр может быть передан в виде абстрактного (void *)
-		SBaseBuffer KEY; // don't destroy - it's Ptr refers to Bin
-		SBaseBuffer IV;  // don't destroy - it's Ptr refers to Bin
-		SBaseBuffer AAD; // don't destroy - it's Ptr refers to Bin
-		uint32 EndP;     // Смещение доступного пространства
-		uint8  Bin[512]; // @v12.6.2 [256]-->[512]
-	};
-
-	static void * EncapsulateKey(const void * pSrcKey, size_t srcKeySize, size_t drvKeySize); // @v12.6.4 @construction
-	//
-	// ARG(rResult OUT): Не распределяйте память для этого буфера, а после использования вызовите Zero() and Destroy()
-	//
-	static bool GetEncapsulatedKey(void * pEK, SBaseBuffer & rResult);
-	static void ResetEncapsultedKey(void * pEK); // @v12.6.4 @construction
-
-	SlCrypto(int alg, uint kbl, int algModif);
-	explicit SlCrypto(uint64 uedCipher);
-	~SlCrypto();
-	bool   IsValid() const { return !(State & stError); }
-	const  CipherProperties & GetCipherProperties() const;
-	uint   GetAlgModif() const { return AlgModif; }
-	bool   IsIvSizeConfigurable() const;
-	int    SetupKey(SlCrypto::Key & rK, const void * pKey, size_t keyByteLen, const void * pIv, size_t ivLen, const void * pAad, size_t aadLen);
-	int    SetupKey(SlCrypto::Key & rK, const void * pKey, size_t keyByteLen, const void * pIv, size_t ivLen);
-	int    SetupKey(SlCrypto::Key & rK, const void * pKey, size_t keyByteLen);
-	int    SetupKey(SlCrypto::Key & rK, const char * pPassword);
-
-	int    SetKey_Derived_Argon2(SlCrypto::Key & rK, const void * pData, size_t size, const void * pSalt, size_t saltSize, const Argon2Param & rParam); // @v12.6.3
-	int    SetKey_IV(SlCrypto::Key & rK, const void * pData, size_t size); // @v12.6.3
-	int    SetKey_AAD(SlCrypto::Key & rK, const void * pData, size_t size); // @v12.6.3
-
-	int    Encrypt_(const SlCrypto::Key * pKey, const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen);
-	int    Decrypt_(const SlCrypto::Key * pKey, const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen);
-	int    Encrypt(const SlCrypto::Key & rKey, const void * pData, size_t dataLen, SBinaryChunk & rResult, SBinaryChunk * pTag);
-	//
-	// Note: параметр pTag - фактически константный, однако из-за обращения к интерфейсной функции пришлось сделать ее non-const.
-	//
-	int    Decrypt(const SlCrypto::Key & rKey, const void * pData, size_t dataLen, SBinaryChunk & rResult, SBinaryChunk * pTag);
-private:
-	static int  Implement_SetKey_Derived_Argon2(SlCrypto::Key & rK, const void * pData, size_t size, size_t destKeySize, const void * pSalt, size_t saltSize, const Argon2Param & rParam); // @v12.6.4
-	int    Helper_Construct(int alg, uint kbl, int algModif, uint tagSize);
-
-	enum {
-		stError    = 0x0001,
-		stInitEncr = 0x0002,
-		stInitDecr = 0x0004
-	};
-	void * P_Ctx;
-	const  void * P_Cphr;
-	int    Alg;
-	uint   KeyBitLen;
-	uint   AlgModif;
-	CipherProperties Cp;
-	uint   State;
-};
-
-struct NGConstant;
-#ifndef SHA512_DIGEST_LENGTH
-	#define SHA512_DIGEST_LENGTH 64
-#endif
-
-class SlSRP {
-public:
-	enum HashAlgorithm {
-		SRP_SHA1,
-		SRP_SHA224,
-		SRP_SHA256,
-		SRP_SHA384,
-		SRP_SHA512
-	};
-	enum NGType {
-		SRP_NG_1024,
-		SRP_NG_2048,
-		SRP_NG_4096,
-		SRP_NG_8192,
-		SRP_NG_CUSTOM
-	};
-
-	class VerifierBase {
-	public:
-		int    IsAuthenticated() const { return Authenticated; }
-	protected:
-		explicit VerifierBase(HashAlgorithm alg);
-		~VerifierBase();
-		HashAlgorithm HashAlg;
-		NGConstant * P_Ng;
-		int    Authenticated;
-		uchar  M[SHA512_DIGEST_LENGTH];
-		uchar  H_AMK[SHA512_DIGEST_LENGTH];
-		uchar  SessionKey[SHA512_DIGEST_LENGTH];
-	};
-
-	class Verifier : public VerifierBase {
-	public:
-		//
-		// Out: bytes_B, len_B.
-		//
-		// On failure, bytes_B will be set to NULL and len_B will be set to 0
-		//
-		// The n_hex and g_hex parameters should be 0 unless SRP_NG_CUSTOM is used for ng_type
-		//
-		Verifier(HashAlgorithm alg, NGType ngType, const char * pUserName,
-			const SBinaryChunk & rS, const SBinaryChunk & rV, const SBinaryChunk & rA, SBinaryChunk & rB, const char * pNHex, const char * pGHex);
-		~Verifier();
-		const char * GetName() const;
-		// user_M must be exactly SrpVerifier::GetSessionKeyLength() bytes in size
-		void   VerifySession(const uchar * pUserM, const uchar ** ppBytesHAMK);
-		const  uchar * GetSessionKey(int * pKeyLength) const;
-		int    GetSessionKeyLength() const;
-	private:
-		SString UserName;
-		SBinaryChunk BytesB;
-	};
-
-	class User : public VerifierBase {
-	public:
-		//
-		// The n_hex and g_hex parameters should be 0 unless SRP_NG_CUSTOM is used for ng_type
-		//
-		User(HashAlgorithm alg, NGType ng_type, const char * username, const void * pPassword, int passwordLen, const char * pNHex, const char * pGHex);
-		~User();
-		//int    IsAuthenticated() const { return Authenticated; }
-		const char * GetName() const;
-		int    GetSessionKeyLength() const;
-		const  uchar * GetSessionKey(int * pKeyLength) const;
-		// bytes_HAMK must be exactly SrpUser::GetSessionKey() bytes in size
-		void   VerifySession(const uchar * bytes_HAMK);
-		// Output: username, bytes_A, len_A
-		//void   StartAuthentication(char ** ppUserName, uchar ** ppBytesA, int * pLenA);
-		void   StartAuthentication(char ** ppUserName, SBinaryChunk & rA);
-		//void   ProcessChallenge(const uchar * pBytesS, int lenS, const uchar * pBytesB, int lenB, const uchar ** ppBytesM, int * pLenM);
-		void   ProcessChallenge(const SBinaryChunk & rS, const SBinaryChunk & rB, SBinaryChunk & rM);
-	private:
-		/*BIGNUM*/void * P_a;
-		/*BIGNUM*/void * P_A;
-		/*BIGNUM*/void * P_S;
-		//uchar * P_BytesA;
-		SBinaryChunk BytesA;
-		char * P_UserName;
-		uchar * P_Password;
-		int    PasswordLen;
-	};
-
-	//static void CreateSaltedVerificationKey(HashAlgorithm alg, NGType ng_type, const char * pUserName,
-		//const uchar * pPassword, int lenPassword, uchar ** ppBytesS, int * len_s, uchar ** ppBytesV, int * len_v, const char * n_hex, const char * g_hex);
-	static int  CreateSaltedVerificationKey2(HashAlgorithm alg, NGType ng_type, const char * pUserName,
-		const uchar * pPassword, int lenPassword, SBinaryChunk & rS, SBinaryChunk & rV, const char * n_hex, const char * g_hex);
-	//
-	// This library will automatically seed the OpenSSL random number generator
-	// using cryptographically sound random data on Windows & Linux. If this is
-	// undesirable behavior or the host OS does not provide a /dev/urandom file,
-	// this function may be called to seed the random number generator with
-	// alternate data.
-	//
-	// The random data should include at least as many bits of entropy as the
-	// largest hash function used by the application. So, for example, if a
-	// 512-bit hash function is used, the random data requies at least 512
-	// bits of entropy.
-	//
-	// Passing a null pointer to this function will cause this library to skip
-	// seeding the random number generator. This is only legitimate if it is
-	// absolutely known that the OpenSSL random number generator has already
-	// been sufficiently seeded within the running application.
-	//
-	// Notes: This function is optional on Windows & Linux and mandatory on all other platforms.
-	//
-	static void RandomSeed(const uchar * pRandomData, int dataLength);
-};
-//
-// Descr: Класс, реализующий механизм хранения идентифицированных отрезков бинарных данных в общем пуле.
-// Note: Значение идентификатора отрезка 0xffffffff зарезервировано для индикации конца набора и не может быть использовано
-//   как регулярный идентификатор отрезка.
-// Note: Декларация этого класса должна находиться ниже чем SlCrypto
-//
-#pragma pack(push, 1) // @v12.6.2
-class SBinarySet : private SBaseBuffer {
-	static constexpr uint32 MetaDataChunkID = 0x7A000000U;
-
-	struct MetaData { // @v12.6.3
-		MetaData() : Ver(0)
-		{
-		}
-		uint32 Ver;
-		binary128 PwHashSalt;
-	};
-public:
-	//
-	// Descr: Структура заголовка защищенного отрезка.
-	//   Полезные данные хранятся в защифрованном виде между ProtectedChunkV1_Prolog и ProtectedChunkV1_Epilog.
-	//   Алгоритм шифрования: AES-256-GCM
-	//
-	struct ProtectedChunkV1_Prolog { // @v12.6.2 @construction
-		uint32 Signature; // const=SlConst::SBSCryptoSignature Константная сигнатура, означающая что данные сжаты. 32 бит здесь достаточно поскольку
-			// дополнительной проверкой будет служить ид UedSymmetricCipher, который должен соответствовать строгим правила UED-идентификаторов.
-		uint64 UedSymmetricCipher; // Идентификатор алгоритма шифрования. Одновременно работает как сигнатура //
-		binary128 IV;     // GCM nonce. В зависимости от алгоритма может быть использована только часть блока.
-		binary128 Tag;    // GCM tag
-		uint16 IvSize;    // Эффективный размер блока IV
-		uint16 TagSize;   // Эффективный размер блока Tag (в эпилоге)
-		uint32 Flags;     // @reserve
-		uint32 PlainSize; // Размер исходных незашифрованных данных (для корректной распаковки)
-	};
-	//
-	// Нулевой идентификатор обозначает свободный блок
-	//
-	SBinarySet();
-	SBinarySet(const SBinarySet & rS);
-	~SBinarySet();
-	SBinarySet & Z();
-	SBinarySet & FASTCALL operator = (const SBinarySet & rS);
-	const  uint32 GetSize() const { return static_cast<uint32>(SBaseBuffer::Size); }
-	const  uint32 GetDataLen() const { return static_cast<uint32>(DataLen); }
-	int    FASTCALL GetChunkIdList(LongArray & rList) const;
-	//
-	// Descr: Функция выясняет эквивалентен ли экземпляр rS экземпляру this.
-	//   Сравнение осуществляется по каждому отрезку, находящемуся в this.
-	//
-	bool   FASTCALL IsEq(const SBinarySet & rS) const;
-	bool   IsValid() const;
-	int    Ensure(size_t size);
-	//
-	// Descr: Реализует сериализацию объекта в буфер rBuf.
-	// Note: Эта функция по спецификации отличается от большинства аналогичных в других классах тем, что
-	//   допускает pSCtx == 0. Если указатель pSCtx == 0, то в зависимости от dir она пишет в буфер rBuf или читает из него
-	//   данные в сыром виде. При чтении проверяются инварианты.
-	//   В случае pSCtx == 0 чтение осуществляется начиная с текущей позиции чтения rBuf.
-	//
-	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
-	//
-	// Descr: Дескриптор стратегии сжатия больших отрезков при внесении в пул.
-	//   На начальном этапе применяется только алгоритм сжатия zlib.
-	//   Если размер отрезка, добавляемого в пул равен или превышает MinChunkSizeToCompress,
-	//   то отрезок сжимается и впереди добавляется сигнатура Ssc_CompressionSignature
-	//
-	struct DeflateStrategy {
-		DeflateStrategy();
-		explicit DeflateStrategy(uint16 minChunkSize);
-
-		uint16 MinChunkSizeToCompress;
-		int16  CompressMethod; // Reserved.
-	};
-
-	struct CryptoStrategy {
-		CryptoStrategy();
-		uint64 UedSymmCipher;
-		SlCrypto::Argon2Param ArgonP;
-		DeflateStrategy DS;
-		SString MasterPassword;
-	};
-	//
-	// Descr: Сохраняет отрезок данных pData с идентификатором id и размером size в пуле.
-	//   Если pData == 0 или size == 0, то, если отрезок с идентификатором id будет
-	//   найден в пуле, то будет объявлен неиспользуемым (удален, другими словами).
-	// Returns:
-	//   >0 - данные pData успешно помещены в пул (или удалены, если pData == 0 или size == 0)
-	//   <0 - попытка удалить отрезок с идентификатором id провалилась поскольку такой идентификатор в пуле не найден
-	//    0 - error (например, недостаточно памяти).
-	//
-	int    Put(uint32 id, const void * pData, uint32 size, const DeflateStrategy * pDs = 0);
-	int    Put(uint32 id, const SBinaryChunk & rData, const DeflateStrategy * pDs = 0);
-	int    PutEncrypted(uint32 id, const void * pData, uint32 size, const CryptoStrategy & rStrategy); // @v12.6.2
-	//
-	// Descr: Ищет отрезок с идентификатором id в пуле и, если таковой найден, то
-	//   копирует содержимое отрезка в буфер по указателю pResult (если pResult != 0).
-	// Returns:
-	//   true - отрезок с идентификатором id найден
-	//   false - либо идентификатор id не найден, либо возникли проблемы с распределением памяти для буфера
-	//      результата pResult, либо какие-то сложности со внутрениим состояним пула.
-	//
-	bool   Get(uint32 id, SBinaryChunk * pResult) const;
-	int    Enum(size_t * pPos, uint32 * pId, SBinaryChunk * pResult) const;
-	//
-	// Descr: Копирует из сета rS в сет this отрезки с идентификаторами, перечисленными в rIdList.
-	//   Сет this перед выполнением функции не очищается (то, что там было, если не включено в rIdList, то остается нетронутым).
-	//   Если отрезок с идентификатором, указанным в rIdList уже есть в this, то он перезаписывается.
-	//   Если errOnAbsenseAny == true, то если какой-либо из идентификаторов, перечисленных в rIdList отсутствует
-	//   в rS, то функция возвращает 0 ничего при этом в this не меняя.
-	// Returns:
-	//   >0 - по крайней мере один отрезок в this скопирован (создан или изменен)
-	//   <0 - в this ничего не изменилось
-	//    0 - error
-	//
-	int    CopyFrom(const SBinarySet & rS, const LongArray & rIdList, bool errOnAbsenseAny);
-	//
-	// Descr: Возвращает указатель на отрезок данных с идентификатором id. Если такой отрезок найден,
-	//   то по указателю pSize (если он не нулевой) присваивается размер отрезка.
-	// Note: Функция опасная по 2 причинам:
-	//   1. Указатель, возвращенный функцией может стать инвалидным при добавлении нового отрезка в пул.
-	//   2. Вызывающая функция потенциально способна навредить целостности пула, так как получает
-	//     доступ к его внутренним данным через возвращенный указатель.
-	//   В связи со сказанным, в штатном режиме правильнее пользоваться методом Get().
-	// Returns:
-	//   !0 - отрезок с идентификатором id найден в пуле
-	//    0 - идентификатор id не найден, либо нарушена целостность пула.
-	//
-	const void * GetPtr(uint32 id, uint32 * pSize) const;
-	const void * GetPtr() const { return SBaseBuffer::P_Buf; }
-	//
-	// Descr: Упаковывает экземпляр с целью элиминировать пустые отрезки.
-	// Returns:
-	//   >0 - функция успешно отработала, удалив существовавшие пустые отрезки
-	//   <0 - функция отработала успешно, но пустых отрезков не было, потому ничего делать не пришлось
-	//    0 - error
-	//
-	int    Pack();
-	//
-	// Descr: Низкоуровневая функция, позволяющая перенести данные из внешнего буфера pOuterData в экземпляр this.
-	//   Функция копирует эти данные, предварительно очистив собственный буфер а затем проверяет валидность
-	//   получившегося экземпляра вызовом IsValid(). Если внешние данные не соответствовали формату SBinarySet,
-	//   то функция вернет ошибку (при этом состояние this, предшествовашее вызову функции будет утрачено).
-	// Note: Функция очень опасная и создана только для реализации сложных сценарием транспортировки (со сжатием и/или шифрованием).
-	//   Если можно ее не использовать - не используйте.
-	// Вызов функции с параметрами pOuterData == 0 || outerDataLen == 0 эквивалентен вызову Z().
-	// В случае ошибки экземпляр полностью обнуляется (Z()).
-	//
-	int    SetOuterBuffer(const void * pOuterData, size_t outerDataLen);
-private:
-	//
-	// Descr: Функция одновременно проверяет валидность экземпляра и получает список идентификаторов,
-	//   которые в нем хранятся.
-	//   Используется для обеих целей.
-	//
-	bool   FASTCALL Helper_GetChunkIdList(LongArray * pList) const;
-	static bool FASTCALL IsChunkEncrypted(const void * pData);
-
-	struct H { // Заголовок всего пула
-		uint32 Magic;
-		uint32 Flags_;
-	};
-	struct BH { // Заголовок элемента данных
-		uint32 I;
-		uint32 S;
-	};
-	size_t DataLen;
-};
-#pragma pack(pop) // @v12.6.2
-//
-// Descr: Высокоуровневые функции для работы с шифрованием
-//
-class SSecretTagPool : public SBinarySet {
-public:
-	enum { // @persistent
-		tagSessionPrivateKey =  1,  // Приватный ключ сессии обмена данными
-		tagSessionPublicKey  =  2,  // Публичный ключ сессии обмена данными
-		tagSessionSecret   =  3,  // Секрет, сгенерированный после обмена публичными ключами с контрагентом
-		tagSvcAppellation  =  4,  //
-		tagSvcIdent        =  5,  //
-		tagSecret          =  7,  //
-		tagSvcAccessPoint  =  8,  // URL
-		tagSvcCommand      =  9,  // Заголовок сервисной команды
-		tagSvcCommandParam = 10,  // Параметры сервисной команды
-		tagSvcCapabities   = 11,  // Опции возможностей сервиса
-		tagClientIdent     = 12,  // Идентификатор клиента
-		tagSelfyFace       = 13,  // Собственный лик (json. see StyloQFace)
-		tagSrpVerifierSalt = 14,  //
-		tagSrpVerifier     = 15,  //
-		tagSrpA            = 16,  // user-->host tagPublicIdent:tagSrpA
-		tagSrpB            = 17,  // host-->user tagSrpVerifierSalt:tagSrpB
-		tagSrpM            = 18,  // user-->host tagSrpM
-		tagSrpHAMK         = 19,  // host-->user tagSrpHAMK
-		tagPrimaryRN       = 20,  // Первичное очень большое случайное число, используемое для генерации уникальных для данной инсталляции величин
-		tagAG              = 21,  // Дополнительное значение, используемое при генерации публичных идентификаторов
-		tagFPI             = 22,  // Фейковый публичный сервисный идентификатор, для генерации собственного публичного идентификатора
-		tagRawData         = 23,  // "Сырые" данные, прикрепленные к пакету (для передачи по сети)
-		tagReplyStatus     = 24,  // int32   Статус ответа. 0 - OK, !0 - error_code
-		tagReplyStatusText = 25,  // zstring Текстовое описание статуса ответа. Если tagReplyStatus == 0, то текста может не быть либо это какое-либо
-			// приветствие или иной малозначительный текст.
-		tagSessionExpirPeriodSec   = 26,  // uint32  Период истечения срока действия сессии в секундах.
-		tagSessionPublicKeyOther   = 27,  // Публичный ключ сессии обмена данными противоположной стороны (в случае, если необходимо хранить
-			// в одном пуле и свой и чужой публичные ключи, свой идентифицируется как tagSessionPublicKey, чужой - tagSessionPublicKeyOther
-		tagFace            = 28,  // Параметры представления контрагента (json. see StyloQFace). Собственный лик хранится по тегу tagSelfyFace
-		tagConfig          = 29,  // json Конфигурация
-		tagPrivateConfig   = 30,  // @reserve json Приватная конфигурация //
-		tagRoundTripIdent  = 31,  // Идентификатор сеанса обмена. Генерируется на стороне инициатора обмена (обычно, клиент)
-			// и применяется для сопоставления запросов потокам при асинхронном режиме. Полагаю, в большинстве случаев это будет просто GUID
-		tagDocDeclaration  = 32,  // JSON-декларация документа, включенного с тегом tagRawData
-		tagSvcLoclAddendum = 33,  // Дополнительный идентификатор сервиса, определяющий локальный характер обслуживаемого запроса.
-			// Участвует в формировании символа очереди в случае MQB-обмена.
-		tagAssignedFaceRef = 34,  // Ссылка на собственный лик, ассоциированная с записью сервиса. Используется в StyloQ
-			// на стороне клиента в записи сервиса для того, чтобы сообщить сервису приемлемый вариант лика.
-		tagErrorCode       = 35,  // int32 Код ошибки (ответ)
-		tagBlob            = 36,  // BLOB передаваемый с пакетом. По тегу tagRawData хранятся мета-данные этого blob'а в json-формате
-
-	};
-	SSecretTagPool();
-	int    GeneratePrivateKey(uint bitCount);
-	//
-	// Descr: Утилитная функция, извлекающая тег tag из пула и пытающаяся преобразовать его содержимое в JSON.
-	// Returns:
-	//   0 - error (либо нет такого тега, либо данные в нем не в JSON-формате)
-	//  !0 - указатель на JSON. Объект по этому указателю должен быть разрушен вызывающей функцией.
-	//
-	SJson * GetJson(uint tag) const;
-};
-//
-// Descr: Алгоритмы расчета контрольной цифры
-//
-#define SCHKDIGALG_BARCODE 1 // Розничные штрихкоды EAN, UPC (GS1)
-#define SCHKDIGALG_LUHN    2 // Алгоритм Луна
-#define SCHKDIGALG_RUINN   3 // Контрольная цифра ИНН (Россия)
-#define SCHKDIGALG_RUOKATO 4 // Контрольная цифра ОКАТО (Россия)
-#define SCHKDIGALG_RUSNILS 5 // Контрольная цифра СНИЛС (Россия)
-#define SCHKDIGALG_SSCC    6 // @v12.4.5 Контрольная цифра SSCC (GS1)
-
-#define SCHKDIGALG_TEST    0x80000000 // Флаг, предписывающий функции SCalcCheckDigit проверить последовательность на
-	// предмет соответствия контрольной цифре, содержащейся в ней.
-//
-// Descr: Функция расчета контрольной цифры для цифровой последовательности pInput.
-// Если alg & SCHKDIGALG_TEST, то последовательность должна содержать контрольную цифру, в противном случае - нет.
-// Returns:
-//   0 - error расчета или проверки контрольной цифры.
-//   1 - если alg & SCHKDIGALG_TEST, то последовательность содержит корректную контрольную цифру
-//   '0'..'9' - если !(alg & SCHKDIGALG_TEST), то рассчитанная контрольная цифра
-//   -1 - выполнение функции возможно только в режиме проверки
-// Note: некоторые алгоритмы предполагают наличие более одной контрольной цифры. Для таких
-// алгоритмов возможно использование функции только в режиме проверки (alg & SCHKDIGALG_TEST)
-//
-int    SCalcCheckDigit(int alg, const char * pInput, size_t inputLen);
-char * FASTCALL SUpceToUpca(const char * pUpce, char * pUpca);
-int    FASTCALL SCalcBarcodeCheckDigitL(const char * pBarcode, size_t len);
-
-#endif // } RC_INVOKED
-
-void IdeaEncrypt(const char * password, void * buf, size_t len);
-void IdeaDecrypt(const char * password, void * buf, size_t len);
-//
 // Math
 //
 //
@@ -8170,8 +7683,8 @@ public:
 //
 // Encrypt / Decrypt functions
 //
-void * encrypt(void *, size_t);
-void * decrypt(void *, size_t);
+void * __D2M(void *, size_t);
+void * __M2D(void *, size_t);
 ulong  _checksum__(const char *, size_t);
 //
 // MIME64 encoder/decoder
@@ -10864,6 +10377,549 @@ public:
 	uint32 * P_Data;
 };
 //
+//
+//
+class SlCrypto {
+public:
+	enum { // @todo @20260502 Эти идентификаторы следует заместить значениями UED_SYMMETRICCIPHER_XXX
+		algUndef = 0,
+		algAes,       // mod:
+		algDes,       // mod:
+		algDes_Ede,   // mod:
+		algDes_Ede3,  // mod:
+		algDesx,      // mod:
+		algIdea,      // mod:
+		algCamellia,  // mod:
+		algBlowfish,  // mod: algmodEcb, algmodCbc, algmodOfb, (algmodCfb, algmodCfb64)
+		algChaCha20   // mod: nothing|algmodPoly1305
+	};
+	enum {
+		kblUndef = 0,
+		kbl128 = 128,
+		kbl192 = 192,
+		kbl256 = 256
+	};
+	enum {
+		algmodUndef = 0,
+		algmodCbc,       // cipher block chaining
+		algmodEcb,       // electronic code book
+		algmodOcb,
+		algmodOfb,       // output feed back
+		algmodCcm,
+		algmodGcm,
+		algmodCtr,       // Counter Mode
+		algmodXts,
+		algmodWrap,
+		algmodWrapPad,
+		algmodCfb1,      // cipher feed back
+		algmodCfb8,      // cipher feed back
+		algmodCfb64,     // cipher feed back
+		algmodCfb128,    // cipher feed back
+		algmodCfb,       // cipher feed back (default)
+		algmodPoly1305   // algChaCha20
+	};
+	struct CipherProperties {
+		CipherProperties();
+		uint32 BlockSize;
+		uint32 KeySize;
+		uint32 IvSize;
+		uint32 AadSize;
+		uint32 TagSize; // @v12.6.3
+	};
+	struct Argon2Param { // @v12.6.2
+		Argon2Param() : MemCost(0), TimeCost(0), Parallelism(0)
+		{
+		}
+		uint32 MemCost;
+		uint32 TimeCost;
+		uint32 Parallelism;
+	};
+	class Key {
+	public:
+		Key();
+		~Key();
+		bool   IsConsistent() const;
+		Key  & Z();
+		int    SetKey(const void * pData, size_t size);
+		int    SetIV(const void * pData, size_t size);
+		int    SetAAD(const void * pData, size_t size);
+		const  SBaseBuffer & GetKey() const;
+		const  SBaseBuffer & GetIV() const;
+		const  SBaseBuffer & GetAAD() const;
+	private:
+		uint32 Signature; // @v12.6.3 Ибо экземпляр может быть передан в виде абстрактного (void *)
+		SBaseBuffer KEY; // don't destroy - it's Ptr refers to Bin
+		SBaseBuffer IV;  // don't destroy - it's Ptr refers to Bin
+		SBaseBuffer AAD; // don't destroy - it's Ptr refers to Bin
+		uint32 EndP;     // Смещение доступного пространства
+		uint8  Bin[512]; // @v12.6.2 [256]-->[512]
+	};
+	struct KeyVerificationBlock { // @v12.6.5 @construction
+		KeyVerificationBlock();
+		uint32 Signature;
+		uint32 KDF_Type;
+		uint8  KDF_Param[32];
+		binary256 Salt;
+		uint32 VBSize;
+		uint8  VB[128];
+	};
+	//
+	static int   MakeKey_Derived_Argon2(SlCrypto::Key & rK, const void * pData, size_t size, size_t destKeySize, const void * pSalt, size_t saltSize, const Argon2Param & rParam); // @v12.6.4
+	//
+	static int   MakeKeyVerificationBlock(uint64 uedSymmCipher, const void * pKey, size_t keyLen, KeyVerificationBlock & rBlk);
+	static int   VerifyKey(uint64 uedSymmCipher, const void * pKey, size_t keyLen, KeyVerificationBlock & rBlk);
+	//
+	// 
+	// 
+	static bool  MakeCompositeKey(const TSCollection <SBinaryChunk> & rSrcSet, SBinaryChunk & rResult);
+	//
+	//
+	//
+	static bool   MakeEncapsulatedKey(const void * pSrcKey, size_t srcKeySize, size_t drvKeySize, SlCrypto::Key & rResult); // @v12.6.4 @construction
+	static void * EncapsulateKey(const void * pSrcKey, size_t srcKeySize, size_t drvKeySize); // @v12.6.4 @construction
+	//
+	// ARG(rResult OUT): Не распределяйте память для этого буфера, а после использования вызовите Zero() and Destroy()
+	//
+	static bool GetEncapsulatedKey(void * pEK, SBaseBuffer & rResult);
+	static void ResetEncapsultedKey(void * pEK); // @v12.6.4 @construction
+
+	SlCrypto(int alg, uint kbl, int algModif);
+	explicit SlCrypto(uint64 uedCipher);
+	~SlCrypto();
+	bool   IsValid() const { return !(State & stError); }
+	const  CipherProperties & GetCipherProperties() const;
+	uint   GetAlgModif() const { return AlgModif; }
+	bool   IsIvSizeConfigurable() const;
+	int    SetupKey(SlCrypto::Key & rK, const void * pKey, size_t keyByteLen, const void * pIv, size_t ivLen, const void * pAad, size_t aadLen);
+	int    SetupKey(SlCrypto::Key & rK, const void * pKey, size_t keyByteLen, const void * pIv, size_t ivLen);
+	int    SetupKey(SlCrypto::Key & rK, const void * pKey, size_t keyByteLen);
+	int    SetupKey(SlCrypto::Key & rK, const char * pPassword);
+
+	int    SetKey_Derived_Argon2(SlCrypto::Key & rK, const void * pData, size_t size, const void * pSalt, size_t saltSize, const Argon2Param & rParam); // @v12.6.3
+	int    SetKey_IV(SlCrypto::Key & rK, const void * pData, size_t size); // @v12.6.3
+	int    SetKey_AAD(SlCrypto::Key & rK, const void * pData, size_t size); // @v12.6.3
+
+	int    Encrypt_(const SlCrypto::Key * pKey, const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen);
+	int    Decrypt_(const SlCrypto::Key * pKey, const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen);
+	int    Encrypt(const SlCrypto::Key & rKey, const void * pData, size_t dataLen, SBinaryChunk & rResult, SBinaryChunk * pTag);
+	//
+	// Note: параметр pTag - фактически константный, однако из-за обращения к интерфейсной функции пришлось сделать ее non-const.
+	//
+	int    Decrypt(const SlCrypto::Key & rKey, const void * pData, size_t dataLen, SBinaryChunk & rResult, SBinaryChunk * pTag);
+private:
+	int    Helper_Construct(int alg, uint kbl, int algModif, uint tagSize);
+
+	enum {
+		stError    = 0x0001,
+		stInitEncr = 0x0002,
+		stInitDecr = 0x0004
+	};
+	void * P_Ctx;
+	const  void * P_Cphr;
+	int    Alg;
+	uint   KeyBitLen;
+	uint   AlgModif;
+	CipherProperties Cp;
+	uint   State;
+};
+
+struct NGConstant;
+#ifndef SHA512_DIGEST_LENGTH
+	#define SHA512_DIGEST_LENGTH 64
+#endif
+
+class SlSRP {
+public:
+	enum HashAlgorithm {
+		SRP_SHA1,
+		SRP_SHA224,
+		SRP_SHA256,
+		SRP_SHA384,
+		SRP_SHA512
+	};
+	enum NGType {
+		SRP_NG_1024,
+		SRP_NG_2048,
+		SRP_NG_4096,
+		SRP_NG_8192,
+		SRP_NG_CUSTOM
+	};
+
+	class VerifierBase {
+	public:
+		int    IsAuthenticated() const { return Authenticated; }
+	protected:
+		explicit VerifierBase(HashAlgorithm alg);
+		~VerifierBase();
+		HashAlgorithm HashAlg;
+		NGConstant * P_Ng;
+		int    Authenticated;
+		uchar  M[SHA512_DIGEST_LENGTH];
+		uchar  H_AMK[SHA512_DIGEST_LENGTH];
+		uchar  SessionKey[SHA512_DIGEST_LENGTH];
+	};
+
+	class Verifier : public VerifierBase {
+	public:
+		//
+		// Out: bytes_B, len_B.
+		//
+		// On failure, bytes_B will be set to NULL and len_B will be set to 0
+		//
+		// The n_hex and g_hex parameters should be 0 unless SRP_NG_CUSTOM is used for ng_type
+		//
+		Verifier(HashAlgorithm alg, NGType ngType, const char * pUserName,
+			const SBinaryChunk & rS, const SBinaryChunk & rV, const SBinaryChunk & rA, SBinaryChunk & rB, const char * pNHex, const char * pGHex);
+		~Verifier();
+		const char * GetName() const;
+		// user_M must be exactly SrpVerifier::GetSessionKeyLength() bytes in size
+		void   VerifySession(const uchar * pUserM, const uchar ** ppBytesHAMK);
+		const  uchar * GetSessionKey(int * pKeyLength) const;
+		int    GetSessionKeyLength() const;
+	private:
+		SString UserName;
+		SBinaryChunk BytesB;
+	};
+
+	class User : public VerifierBase {
+	public:
+		//
+		// The n_hex and g_hex parameters should be 0 unless SRP_NG_CUSTOM is used for ng_type
+		//
+		User(HashAlgorithm alg, NGType ng_type, const char * username, const void * pPassword, int passwordLen, const char * pNHex, const char * pGHex);
+		~User();
+		//int    IsAuthenticated() const { return Authenticated; }
+		const char * GetName() const;
+		int    GetSessionKeyLength() const;
+		const  uchar * GetSessionKey(int * pKeyLength) const;
+		// bytes_HAMK must be exactly SrpUser::GetSessionKey() bytes in size
+		void   VerifySession(const uchar * bytes_HAMK);
+		// Output: username, bytes_A, len_A
+		//void   StartAuthentication(char ** ppUserName, uchar ** ppBytesA, int * pLenA);
+		void   StartAuthentication(char ** ppUserName, SBinaryChunk & rA);
+		//void   ProcessChallenge(const uchar * pBytesS, int lenS, const uchar * pBytesB, int lenB, const uchar ** ppBytesM, int * pLenM);
+		void   ProcessChallenge(const SBinaryChunk & rS, const SBinaryChunk & rB, SBinaryChunk & rM);
+	private:
+		/*BIGNUM*/void * P_a;
+		/*BIGNUM*/void * P_A;
+		/*BIGNUM*/void * P_S;
+		//uchar * P_BytesA;
+		SBinaryChunk BytesA;
+		char * P_UserName;
+		uchar * P_Password;
+		int    PasswordLen;
+	};
+
+	//static void CreateSaltedVerificationKey(HashAlgorithm alg, NGType ng_type, const char * pUserName,
+		//const uchar * pPassword, int lenPassword, uchar ** ppBytesS, int * len_s, uchar ** ppBytesV, int * len_v, const char * n_hex, const char * g_hex);
+	static int  CreateSaltedVerificationKey2(HashAlgorithm alg, NGType ng_type, const char * pUserName,
+		const uchar * pPassword, int lenPassword, SBinaryChunk & rS, SBinaryChunk & rV, const char * n_hex, const char * g_hex);
+	//
+	// This library will automatically seed the OpenSSL random number generator
+	// using cryptographically sound random data on Windows & Linux. If this is
+	// undesirable behavior or the host OS does not provide a /dev/urandom file,
+	// this function may be called to seed the random number generator with
+	// alternate data.
+	//
+	// The random data should include at least as many bits of entropy as the
+	// largest hash function used by the application. So, for example, if a
+	// 512-bit hash function is used, the random data requies at least 512
+	// bits of entropy.
+	//
+	// Passing a null pointer to this function will cause this library to skip
+	// seeding the random number generator. This is only legitimate if it is
+	// absolutely known that the OpenSSL random number generator has already
+	// been sufficiently seeded within the running application.
+	//
+	// Notes: This function is optional on Windows & Linux and mandatory on all other platforms.
+	//
+	static void RandomSeed(const uchar * pRandomData, int dataLength);
+};
+//
+// Descr: Класс, реализующий механизм хранения идентифицированных отрезков бинарных данных в общем пуле.
+// Note: Значение идентификатора отрезка 0xffffffff зарезервировано для индикации конца набора и не может быть использовано
+//   как регулярный идентификатор отрезка.
+// Note: Декларация этого класса должна находиться ниже чем SlCrypto
+//
+#pragma pack(push, 1) // @v12.6.2
+class SBinarySet : private SBaseBuffer {
+	/* @v12.6.5 не актуально
+	static constexpr uint32 MetaDataChunkID = 0x7A000000U;
+
+	struct MetaData { // @v12.6.3
+		MetaData() : Ver(0)
+		{
+		}
+		uint32 Ver;
+		binary128 PwHashSalt;
+	};*/
+public:
+	//
+	// Descr: Структура заголовка защищенного отрезка.
+	//   Полезные данные хранятся в защифрованном виде между ProtectedChunkV1_Prolog и ProtectedChunkV1_Epilog.
+	//   Алгоритм шифрования: AES-256-GCM
+	//
+	struct ProtectedChunkV1_Prolog { // @v12.6.2 @construction
+		uint32 Signature; // const=SlConst::SBSCryptoSignature Константная сигнатура, означающая что данные сжаты. 32 бит здесь достаточно поскольку
+			// дополнительной проверкой будет служить ид UedSymmetricCipher, который должен соответствовать строгим правила UED-идентификаторов.
+		uint64 UedSymmetricCipher; // Идентификатор алгоритма шифрования. Одновременно работает как сигнатура //
+		binary128 IV;     // GCM nonce. В зависимости от алгоритма может быть использована только часть блока.
+		binary128 Tag;    // GCM tag
+		uint16 IvSize;    // Эффективный размер блока IV
+		uint16 TagSize;   // Эффективный размер блока Tag (в эпилоге)
+		uint32 Flags;     // @reserve
+		uint32 PlainSize; // Размер исходных незашифрованных данных (для корректной распаковки)
+	};
+	//
+	// Нулевой идентификатор обозначает свободный блок
+	//
+	SBinarySet();
+	SBinarySet(const SBinarySet & rS);
+	~SBinarySet();
+	SBinarySet & Z();
+	SBinarySet & FASTCALL operator = (const SBinarySet & rS);
+	const  uint32 GetSize() const { return static_cast<uint32>(SBaseBuffer::Size); }
+	const  uint32 GetDataLen() const { return static_cast<uint32>(DataLen); }
+	int    FASTCALL GetChunkIdList(LongArray & rList) const;
+	//
+	// Descr: Функция выясняет эквивалентен ли экземпляр rS экземпляру this.
+	//   Сравнение осуществляется по каждому отрезку, находящемуся в this.
+	//
+	bool   FASTCALL IsEq(const SBinarySet & rS) const;
+	bool   IsValid() const;
+	int    Ensure(size_t size);
+	//
+	// Descr: Реализует сериализацию объекта в буфер rBuf.
+	// Note: Эта функция по спецификации отличается от большинства аналогичных в других классах тем, что
+	//   допускает pSCtx == 0. Если указатель pSCtx == 0, то в зависимости от dir она пишет в буфер rBuf или читает из него
+	//   данные в сыром виде. При чтении проверяются инварианты.
+	//   В случае pSCtx == 0 чтение осуществляется начиная с текущей позиции чтения rBuf.
+	//
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+	//
+	// Descr: Дескриптор стратегии сжатия больших отрезков при внесении в пул.
+	//   На начальном этапе применяется только алгоритм сжатия zlib.
+	//   Если размер отрезка, добавляемого в пул равен или превышает MinChunkSizeToCompress,
+	//   то отрезок сжимается и впереди добавляется сигнатура Ssc_CompressionSignature
+	//
+	struct DeflateStrategy {
+		DeflateStrategy();
+		explicit DeflateStrategy(uint16 minChunkSize);
+
+		uint16 MinChunkSizeToCompress;
+		int16  CompressMethod; // Reserved.
+	};
+
+	struct CryptoStrategy {
+		CryptoStrategy();
+		uint64 UedSymmCipher;
+		//SlCrypto::Argon2Param ArgonP;
+		DeflateStrategy DS;
+		//SString MasterPassword;
+	};
+	//
+	// Descr: Сохраняет отрезок данных pData с идентификатором id и размером size в пуле.
+	//   Если pData == 0 или size == 0, то, если отрезок с идентификатором id будет
+	//   найден в пуле, то будет объявлен неиспользуемым (удален, другими словами).
+	// Returns:
+	//   >0 - данные pData успешно помещены в пул (или удалены, если pData == 0 или size == 0)
+	//   <0 - попытка удалить отрезок с идентификатором id провалилась поскольку такой идентификатор в пуле не найден
+	//    0 - error (например, недостаточно памяти).
+	//
+	int    Put(uint32 id, const void * pData, uint32 size, const DeflateStrategy * pDs = 0);
+	int    Put(uint32 id, const SBinaryChunk & rData, const DeflateStrategy * pDs = 0);
+	//
+	// ARG(pKeyRef IN): ссылка на ключ шифрования. Подробностей не будет (see source code).
+	//
+	int    PutEncrypted(uint32 id, const void * pData, uint32 size, const CryptoStrategy & rStrategy, void * pKeyRef); // @v12.6.2
+	//
+	// Descr: Ищет отрезок с идентификатором id в пуле и, если таковой найден, то
+	//   копирует содержимое отрезка в буфер по указателю pResult (если pResult != 0).
+	// Returns:
+	//   true - отрезок с идентификатором id найден
+	//   false - либо идентификатор id не найден, либо возникли проблемы с распределением памяти для буфера
+	//      результата pResult, либо какие-то сложности со внутрениим состояним пула.
+	//
+	bool   Get(uint32 id, SBinaryChunk * pResult) const;
+	int    Enum(size_t * pPos, uint32 * pId, SBinaryChunk * pResult) const;
+	//
+	// Descr: Копирует из сета rS в сет this отрезки с идентификаторами, перечисленными в rIdList.
+	//   Сет this перед выполнением функции не очищается (то, что там было, если не включено в rIdList, то остается нетронутым).
+	//   Если отрезок с идентификатором, указанным в rIdList уже есть в this, то он перезаписывается.
+	//   Если errOnAbsenseAny == true, то если какой-либо из идентификаторов, перечисленных в rIdList отсутствует
+	//   в rS, то функция возвращает 0 ничего при этом в this не меняя.
+	// Returns:
+	//   >0 - по крайней мере один отрезок в this скопирован (создан или изменен)
+	//   <0 - в this ничего не изменилось
+	//    0 - error
+	//
+	int    CopyFrom(const SBinarySet & rS, const LongArray & rIdList, bool errOnAbsenseAny);
+	//
+	// Descr: Возвращает указатель на отрезок данных с идентификатором id. Если такой отрезок найден,
+	//   то по указателю pSize (если он не нулевой) присваивается размер отрезка.
+	// Note: Функция опасная по 2 причинам:
+	//   1. Указатель, возвращенный функцией может стать инвалидным при добавлении нового отрезка в пул.
+	//   2. Вызывающая функция потенциально способна навредить целостности пула, так как получает
+	//     доступ к его внутренним данным через возвращенный указатель.
+	//   В связи со сказанным, в штатном режиме правильнее пользоваться методом Get().
+	// Returns:
+	//   !0 - отрезок с идентификатором id найден в пуле
+	//    0 - идентификатор id не найден, либо нарушена целостность пула.
+	//
+	const void * GetPtr(uint32 id, uint32 * pSize) const;
+	const void * GetPtr() const { return SBaseBuffer::P_Buf; }
+	//
+	// Descr: Упаковывает экземпляр с целью элиминировать пустые отрезки.
+	// Returns:
+	//   >0 - функция успешно отработала, удалив существовавшие пустые отрезки
+	//   <0 - функция отработала успешно, но пустых отрезков не было, потому ничего делать не пришлось
+	//    0 - error
+	//
+	int    Pack();
+	//
+	// Descr: Низкоуровневая функция, позволяющая перенести данные из внешнего буфера pOuterData в экземпляр this.
+	//   Функция копирует эти данные, предварительно очистив собственный буфер а затем проверяет валидность
+	//   получившегося экземпляра вызовом IsValid(). Если внешние данные не соответствовали формату SBinarySet,
+	//   то функция вернет ошибку (при этом состояние this, предшествовашее вызову функции будет утрачено).
+	// Note: Функция очень опасная и создана только для реализации сложных сценарием транспортировки (со сжатием и/или шифрованием).
+	//   Если можно ее не использовать - не используйте.
+	// Вызов функции с параметрами pOuterData == 0 || outerDataLen == 0 эквивалентен вызову Z().
+	// В случае ошибки экземпляр полностью обнуляется (Z()).
+	//
+	int    SetOuterBuffer(const void * pOuterData, size_t outerDataLen);
+private:
+	//
+	// Descr: Функция одновременно проверяет валидность экземпляра и получает список идентификаторов,
+	//   которые в нем хранятся.
+	//   Используется для обеих целей.
+	//
+	bool   FASTCALL Helper_GetChunkIdList(LongArray * pList) const;
+	static bool FASTCALL IsChunkEncrypted(const void * pData);
+
+	struct H { // Заголовок всего пула
+		uint32 Magic;
+		uint32 Flags_;
+	};
+	struct BH { // Заголовок элемента данных
+		uint32 I;
+		uint32 S;
+	};
+	size_t DataLen;
+};
+#pragma pack(pop) // @v12.6.2
+//
+// Descr: Специализированный наследник SBinarySet использумый для криптостойкого обмена данными по сети.
+//   Аналогичный класс присутствует в проекте Stylo-Q (Android/java)
+//
+class SSecretTagPool : public SBinarySet {
+public:
+	enum { // @persistent
+		tagSessionPrivateKey =  1,  // Приватный ключ сессии обмена данными
+		tagSessionPublicKey  =  2,  // Публичный ключ сессии обмена данными
+		tagSessionSecret   =  3,  // Секрет, сгенерированный после обмена публичными ключами с контрагентом
+		tagSvcAppellation  =  4,  //
+		tagSvcIdent        =  5,  //
+		tagSecret          =  7,  //
+		tagSvcAccessPoint  =  8,  // URL
+		tagSvcCommand      =  9,  // Заголовок сервисной команды
+		tagSvcCommandParam = 10,  // Параметры сервисной команды
+		tagSvcCapabities   = 11,  // Опции возможностей сервиса
+		tagClientIdent     = 12,  // Идентификатор клиента
+		tagSelfyFace       = 13,  // Собственный лик (json. see StyloQFace)
+		tagSrpVerifierSalt = 14,  //
+		tagSrpVerifier     = 15,  //
+		tagSrpA            = 16,  // user-->host tagPublicIdent:tagSrpA
+		tagSrpB            = 17,  // host-->user tagSrpVerifierSalt:tagSrpB
+		tagSrpM            = 18,  // user-->host tagSrpM
+		tagSrpHAMK         = 19,  // host-->user tagSrpHAMK
+		tagPrimaryRN       = 20,  // Первичное очень большое случайное число, используемое для генерации уникальных для данной инсталляции величин
+		tagAG              = 21,  // Дополнительное значение, используемое при генерации публичных идентификаторов
+		tagFPI             = 22,  // Фейковый публичный сервисный идентификатор, для генерации собственного публичного идентификатора
+		tagRawData         = 23,  // "Сырые" данные, прикрепленные к пакету (для передачи по сети)
+		tagReplyStatus     = 24,  // int32   Статус ответа. 0 - OK, !0 - error_code
+		tagReplyStatusText = 25,  // zstring Текстовое описание статуса ответа. Если tagReplyStatus == 0, то текста может не быть либо это какое-либо
+			// приветствие или иной малозначительный текст.
+		tagSessionExpirPeriodSec   = 26,  // uint32  Период истечения срока действия сессии в секундах.
+		tagSessionPublicKeyOther   = 27,  // Публичный ключ сессии обмена данными противоположной стороны (в случае, если необходимо хранить
+			// в одном пуле и свой и чужой публичные ключи, свой идентифицируется как tagSessionPublicKey, чужой - tagSessionPublicKeyOther
+		tagFace            = 28,  // Параметры представления контрагента (json. see StyloQFace). Собственный лик хранится по тегу tagSelfyFace
+		tagConfig          = 29,  // json Конфигурация
+		tagPrivateConfig   = 30,  // @reserve json Приватная конфигурация //
+		tagRoundTripIdent  = 31,  // Идентификатор сеанса обмена. Генерируется на стороне инициатора обмена (обычно, клиент)
+			// и применяется для сопоставления запросов потокам при асинхронном режиме. Полагаю, в большинстве случаев это будет просто GUID
+		tagDocDeclaration  = 32,  // JSON-декларация документа, включенного с тегом tagRawData
+		tagSvcLoclAddendum = 33,  // Дополнительный идентификатор сервиса, определяющий локальный характер обслуживаемого запроса.
+			// Участвует в формировании символа очереди в случае MQB-обмена.
+		tagAssignedFaceRef = 34,  // Ссылка на собственный лик, ассоциированная с записью сервиса. Используется в StyloQ
+			// на стороне клиента в записи сервиса для того, чтобы сообщить сервису приемлемый вариант лика.
+		tagErrorCode       = 35,  // int32 Код ошибки (ответ)
+		tagBlob            = 36,  // BLOB передаваемый с пакетом. По тегу tagRawData хранятся мета-данные этого blob'а в json-формате
+	};
+	SSecretTagPool();
+	int    GeneratePrivateKey(uint bitCount);
+	//
+	// Descr: Утилитная функция, извлекающая тег tag из пула и пытающаяся преобразовать его содержимое в JSON.
+	// Returns:
+	//   0 - error (либо нет такого тега, либо данные в нем не в JSON-формате)
+	//  !0 - указатель на JSON. Объект по этому указателю должен быть разрушен вызывающей функцией.
+	//
+	SJson * GetJson(uint tag) const;
+};
+//
+// Descr: Специализированный наследник SBinarySet использумый как хранилище паролей.
+// 
+class SVaultPool : public SBinarySet {
+public:
+	//
+	// Идентификаторы в следующем перечислении устанавливаются так, чтобы не пересекаться с тегами SSecretTagPool.
+	// Не уверен, что это важно, но на всякий случай, пока есть возможность, пусть будет так.
+	//
+	enum { // @persistent
+		tagCryptoStrategy  = 401, // Набор параметров, определяющих технику шифрования данных
+		tagKeyVerification = 402, // Блок параметров верификации мастер-пароля //
+	};
+
+	SVaultPool();
+private:
+	//
+	// Так как по значениям идентификаторов внутри хранилища (InternalId) есть ограничения, то вводим две
+	//   функции, которые переводят (если могут) внешние идентификаторы во внутрениие и наоборот.
+	//
+	uint32 MakeInternalId(uint32 outerId) const;
+	uint32 MakeOuterId(uint32 internalId) const;
+};
+//
+// Descr: Алгоритмы расчета контрольной цифры
+//
+#define SCHKDIGALG_BARCODE 1 // Розничные штрихкоды EAN, UPC (GS1)
+#define SCHKDIGALG_LUHN    2 // Алгоритм Луна
+#define SCHKDIGALG_RUINN   3 // Контрольная цифра ИНН (Россия)
+#define SCHKDIGALG_RUOKATO 4 // Контрольная цифра ОКАТО (Россия)
+#define SCHKDIGALG_RUSNILS 5 // Контрольная цифра СНИЛС (Россия)
+#define SCHKDIGALG_SSCC    6 // @v12.4.5 Контрольная цифра SSCC (GS1)
+
+#define SCHKDIGALG_TEST    0x80000000 // Флаг, предписывающий функции SCalcCheckDigit проверить последовательность на
+	// предмет соответствия контрольной цифре, содержащейся в ней.
+//
+// Descr: Функция расчета контрольной цифры для цифровой последовательности pInput.
+// Если alg & SCHKDIGALG_TEST, то последовательность должна содержать контрольную цифру, в противном случае - нет.
+// Returns:
+//   0 - error расчета или проверки контрольной цифры.
+//   1 - если alg & SCHKDIGALG_TEST, то последовательность содержит корректную контрольную цифру
+//   '0'..'9' - если !(alg & SCHKDIGALG_TEST), то рассчитанная контрольная цифра
+//   -1 - выполнение функции возможно только в режиме проверки
+// Note: некоторые алгоритмы предполагают наличие более одной контрольной цифры. Для таких
+// алгоритмов возможно использование функции только в режиме проверки (alg & SCHKDIGALG_TEST)
+//
+int    SCalcCheckDigit(int alg, const char * pInput, size_t inputLen);
+char * FASTCALL SUpceToUpca(const char * pUpce, char * pUpca);
+int    FASTCALL SCalcBarcodeCheckDigitL(const char * pBarcode, size_t len);
+
+#endif // } RC_INVOKED
+
+void IdeaEncrypt(const char * password, void * buf, size_t len);
+void IdeaDecrypt(const char * password, void * buf, size_t len);
+//
 // Descr: Класс для разбора сложных текстов.
 //   Для простых случаев следует использовать SString::Tokenize и SStrScan
 //   Принцип использования:
@@ -12369,12 +12425,12 @@ struct SStrScan : public SRegExpSet {
 	// Descr: Копирует в буфер rBuf участок сканируемого текста длиной this->Len, начиная с текущего смещения (this->Offs).
 	//
 	SString & FASTCALL Get(SString & rBuf) const;
-	int    FASTCALL GetQuotedString(SString & rBuf);
+	bool   FASTCALL GetQuotedString(SString & rBuf);
 	//
 	// ARG(format IN): Формат данных, в соответствии с которым следует обрабатывать данные внутри кавычек.
 	//   Принимаются следующие значения: SFileFormat::Json, SFileFormat::Csv, SFileFormat::Tsv, SFileFormat::Xml
 	//
-	int    GetQuotedString(SFileFormat format, SString & rBuf);
+	bool   GetQuotedString(SFileFormat format, SString & rBuf);
 	//
 	// Descr: Считывает символьный идентификатор, принятный в качестве такового во многих
 	//   языках программирования. То есть, первый символ - латинская буква или '_', последующие - 
@@ -18139,6 +18195,14 @@ public:
 	static bool    CheckAndEnableAccesTokenPrivilege(SPtrHandle token, const wchar_t * pPrivilegeName);
 	static bool    FindFullPathByProcessFileName(const char * pFileName, SString & rBuf); // @v12.4.1 
 	static bool    GetCurrentEnvironment(StringSet & rSsUtf8); // @v12.4.1
+	//
+	// Descr: Флаги функции SplitCmdLine
+	//
+	enum {
+		sclfLeadExe = 0x0001 // В начале командной строки предполагается имя исполняемого файла (влияет на некоторые нюансы разбора)
+	};
+
+	static int     SplitCmdLine(const char * pCmdLine, uint flags, StringSet & rResultSs); // @v12.6.5
 
 	class ProcessPool : public SStrGroup {
 	public:

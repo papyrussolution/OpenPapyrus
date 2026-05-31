@@ -42,7 +42,7 @@ static int EditGoodsTrnovrFilt(GoodsTrnovrFilt * pFilt)
 			if(ForceGoodsSelection)
 				gf_rec.Flags |= GoodsCtrlGroup::disableEmptyGoods;
 			setGroupData(ctlgroupGoodsFilt, &gf_rec);
-			setWL(BIN(Data.Flags & OPG_LABELONLY));
+			setWL(LOGIC(Data.Flags & OPG_LABELONLY));
 			AddClusterAssocDef(CTL_GTO_ORDER, 0, GCTFilt::ordByDate);
 			AddClusterAssoc(CTL_GTO_ORDER, 1, GCTFilt::ordByGoods);
 			AddClusterAssoc(CTL_GTO_ORDER, 2, GCTFilt::ordByArticle);

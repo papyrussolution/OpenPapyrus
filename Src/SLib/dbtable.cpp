@@ -29,6 +29,8 @@ int FASTCALL SLib2BtrType(int t)
 		return 27;
 	else if(t == S_INT64)
 		return 2;
+	else if(t == S_UINT64) // @v12.6.5
+		return (S_UINT-1);
 	else {
 		if(t == S_RAW) {
 			//

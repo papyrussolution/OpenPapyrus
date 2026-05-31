@@ -1501,6 +1501,7 @@
 	// в применении к этой персоналии. Инициирующим толчком послужила необходимость модифицировать экспорт документов в формате nalog.ru в зависимости от контрагента или провайдера.
 #define PPTAG_GUA_CHZNTSPIOTURL        133L // @v12.5.11 Адрес компьютера, на котором установлен модуль тс-пиот для проверки марок честный знак 
 #define PPTAG_LOT_TECROUTESTAGE        134L // @v12.6.2  Последний завершенный этап технологического маршрута для лота в производстве
+#define PPTAG_LOT_TECROUTEASSIGNMENT   135L // @v12.6.5  Параметры лота, определяющие прохождение его по технологическому маршруту. Могут содержать ид маршрута и ид финального продукта
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -2307,8 +2308,9 @@
 	#define CTL_USR_UERFLAGS            (18 + WINDOWS_ID_BIAS)
 	#define CTL_USR_EXPIRY              (19 + WINDOWS_ID_BIAS)
 	#define CTL_USR_SYMB                (20 + WINDOWS_ID_BIAS)
-	#define CTL_USR_PDESKTOP            (21 + WINDOWS_ID_BIAS) // @v11.0.0
-	#define CTLSEL_USR_PDESKTOP         (22 + WINDOWS_ID_BIAS) // @v11.0.0
+	#define CTL_USR_PDESKTOP            (21 + WINDOWS_ID_BIAS)
+	#define CTLSEL_USR_PDESKTOP         (22 + WINDOWS_ID_BIAS)
+	#define CTLCAL_USR_EXPIRY           (23 + WINDOWS_ID_BIAS) // @v12.6.5
 #define DLG_GRPNUSR                42 // Просмотр групп и пользователей
 	#define cmAddSecurGrp                111
 	#define cmEditSecurGrp               112
@@ -4164,6 +4166,8 @@
 	#define CTLSEL_GSITEM_BIZSCORE       (18 + WINDOWS_ID_BIAS)
 	#define CTL_GSITEM_V_EVALED          (19 + WINDOWS_ID_BIAS) // @v12.3.7 Вычисленное значение (для планирование цены)
 	#define CTL_GSITEM_V_MANUAL          (20 + WINDOWS_ID_BIAS) // @v12.3.7 Ручное значение (для планирование цены)
+	#define CTL_GSITEM_WARESYMB_TOGGLE   (21 + WINDOWS_ID_BIAS) // @v12.6.5
+	#define CTL_GSITEM_WARESYMB          (22 + WINDOWS_ID_BIAS) // @v12.6.5
 #define DLG_MSGNCMPL              287
 #define DLG_MSGZCMPL              288
 #define DLG_MSGNCMPL2             383
@@ -11107,11 +11111,13 @@
 #define DLG_EQCFGEXT              1333
 	// CTL_EQUIPCFG_XXX
 #define DLG_LOTXCLIST             1334
+	#define cmCopyGtinToGoods         101 // @v12.6.5 Команда переноса EAN из марок в товар
 	#define CTL_LOTXCLIST_LIST        (1 + WINDOWS_ID_BIAS)
 	#define CTL_LOTXCLIST_INFO        (2 + WINDOWS_ID_BIAS)
 	#define CTL_LOTXCLIST_CMD_COPYTOCLIPBOARD       (3 + WINDOWS_ID_BIAS)
 	#define CTL_LOTXCLIST_CMD_COPYTOCLIPBOARDALL    (4 + WINDOWS_ID_BIAS)
 	#define CTL_LOTXCLIST_CMD_PASTEFROMCLIPBOARDALL (5 + WINDOWS_ID_BIAS)
+	#define CTL_LOTXCLIST_CMD_CGTG    (3 + WINDOWS_ID_BIAS) // @v12.6.5 cmCopyGtinToGoods
 #define DLG_GSFILT                1335
 	#define cmPGoodsFilt              101
 	#define cmSGoodsFilt              102

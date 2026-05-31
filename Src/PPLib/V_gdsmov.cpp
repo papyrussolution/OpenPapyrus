@@ -103,7 +103,7 @@ int GoodsMovFiltDialog::setDTS(const GoodsMovFilt * pData)
 	SetupArCombo(this, CTLSEL_GTO_SUPPL, Data.SupplID, OLW_LOADDEFONOPEN, GetSupplAccSheet(), sacfDisableIfZeroSheet);
 	GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel);
 	setGroupData(ctlgroupGoodsFilt, &gf_rec);
-	setWL((Data.Flags & GoodsMovFilt::fLabelOnly) ? 1 : 0);
+	setWL(LOGIC(Data.Flags & GoodsMovFilt::fLabelOnly));
 	AddClusterAssoc(CTL_GTO_FLAGS, 0, GoodsMovFilt::fCostWoVat);
 	AddClusterAssoc(CTL_GTO_FLAGS, 1, GoodsMovFilt::fPriceWoVat);
 	SetClusterData(CTL_GTO_FLAGS, Data.Flags);

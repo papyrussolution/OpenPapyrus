@@ -626,7 +626,7 @@ void PPViewAccturn::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 			v = 0;
 			SETFLAG(v, 1, Data.Flags & AccturnFilt::fAllCurrencies);
 			setCtrlData(CTL_ATFLT_ALLCUR, &v);
-			setWL(BIN(Data.Flags & AccturnFilt::fLabelOnly));
+			setWL(LOGIC(Data.Flags & AccturnFilt::fLabelOnly));
 			v = 0;
 			if(Data.GrpAco == ACO_1)
 				v = 1;

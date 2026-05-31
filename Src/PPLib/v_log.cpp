@@ -1,7 +1,7 @@
 // V_LOG.CPP
-// Copyright (c) Starodub A. 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2016, 2017, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) Starodub A. 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2016, 2017, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
-// Модул промотра текстовых журналов
+// Модуль промотра текстовых журналов
 //
 #include <pp.h>
 #pragma hdrstop
@@ -56,20 +56,19 @@ IMPL_HANDLE_EVENT(LogsDialog)
 {
 	int    ok = 1;
 	SString path;
+	SString buf;
 	PPGetPath(PPPATH_LOG, path);
 	path.SetLastSlash();
 	for(uint i = 0; ok && i < LogsAry.getCount(); i++) {
 		int64  fsize = 0;
 		LogFileEntry & r_e = LogsAry.at(i);
-		SString buf;
-		SFile f;
 		LDATETIME dtm;
 		StringSet ss(SLBColumnDelim);
 		ss.add(r_e.LogName);
 		ss.add(r_e.FileName);
 		(buf = path).Cat(r_e.FileName);
 		CreateVerHistLog(r_e.ID - 1);
-		f.Open(buf, SFile::mRead);
+		SFile f(buf, SFile::mRead);
 		f.CalcSize(&fsize);
 		buf.Z().Cat((double)fsize / 1024, MKSFMTD(10, 1, 0));
 		ss.add(buf);
@@ -93,7 +92,7 @@ IMPL_HANDLE_EVENT(LogsDialog)
 		SLibError = SLERR_FILENOTFOUND;
 		THROW_PP_S(fileExists(path), PPERR_SLIB, path);
 		SFile::WaitForWriteSharingRelease(path, 2000);
-		ok = reinterpret_cast<int>(::ShellExecute(0, _T("open"), SUcSwitch(path), NULL, NULL, SW_SHOWNORMAL));
+		ok = reinterpret_cast<int>(::ShellExecuteW(0, L"open", SUcSwitchW(path), NULL, NULL, SW_SHOWNORMAL));
 	}
 	CATCHZOKPPERR
 	return ok;

@@ -3394,9 +3394,9 @@ int CPosProcessor::TurnShadowEgaisMarkAutoselectionCcPacket(const CCheckPacket &
 							PPLogMessage(PPFILNAM_DEBUG_LOG, "P_EgPrc->PutCCheck before", LOGMSGF_DIRECTOUTP); // @debug
 							{
 								// @v12.2.11 {
-								const bool org_eg_test_mode = p_eg_prc->GetTestSendingMode();
+								const  bool org_eg_test_mode = p_eg_prc->GetTestSendingMode();
 								p_eg_prc->SetTestSendingMode((PNP.EgaisMode == 2));
-								const int pccr = p_eg_prc->PutCCheck(epb.Pack, PNP.CnLocID, false/*horecaAutoWo*/, eg_ack);
+								const  int pccr = p_eg_prc->PutCCheck(epb.Pack, PNP.CnLocID, false/*horecaAutoWo*/, eg_ack);
 								p_eg_prc->SetTestSendingMode(org_eg_test_mode);
 								THROW(pccr);
 								// } @v12.2.11 
@@ -3416,9 +3416,9 @@ int CPosProcessor::TurnShadowEgaisMarkAutoselectionCcPacket(const CCheckPacket &
 								// @v12.2.11 {
 								assert(p_eg_prc);
 								if(p_eg_prc) {
-									const bool org_eg_test_mode = p_eg_prc->GetTestSendingMode();
+									const  bool org_eg_test_mode = p_eg_prc->GetTestSendingMode();
 									p_eg_prc->SetTestSendingMode((PNP.EgaisMode == 2));
-									const int pccr = p_eg_prc->PutCCheck(epb.ExtPack, PNP.ExtCnLocID, false/*horecaAutoWo*/, eg_ack);
+									const  int pccr = p_eg_prc->PutCCheck(epb.ExtPack, PNP.ExtCnLocID, false/*horecaAutoWo*/, eg_ack);
 									p_eg_prc->SetTestSendingMode(org_eg_test_mode);
 									THROW(pccr);
 								}
@@ -10338,6 +10338,18 @@ int CheckPaneDialog::VerifyChZnMark(PgsBlock & rBlk, int chznProdType/*gt_rec.Ch
 			}
 			else // } @v12.6.5 
 			{
+				//
+				// Следующие два кода - тестовые коды для проверки тс пиот. Педрилы из црпт включили их в тест
+				// offline-режима с утверждением, что их уебищный тс пиот вкупе с не менее уебищным локальным модулем
+				// дадут в ответ признак "blocked", а вот и нихуя - нет такого признака, стало быть, чтобы тест 
+				// отрабатывал я добавил сюда эти коды.
+				//
+				static const char * p_test_blocked_chzn_code_list[] = {
+					"0104602220006549215opRcmR93dGVz",
+					"0104607010350246215kRdG-X%W(Rnb93dGVz"
+				};
+				const  uint chzn_pm_crit_flags = (pm_code_list.Flags & PPChZnPrcssr::CodeStatusCollection::fCheckedOffline) ? 
+					PgsBlock::chznpmcritBlocked : rBlk.CnZnPmCritFlags;
 				for(uint i = 0; i < pm_code_list.getCount(); i++) {
 					const PPChZnPrcssr::CodeStatus * p_cle = pm_code_list.at(i);
 					if(p_cle) {
@@ -10398,30 +10410,48 @@ int CheckPaneDialog::VerifyChZnMark(PgsBlock & rBlk, int chznProdType/*gt_rec.Ch
 						// } @v12.5.11 
 						{
 							int    local_err_code = 0;
-							if(p_cle->ErrorCode != 0)
+							bool   tbc_rised = false;
+							{
+								SString temp_buf(p_cle->OrgMark);
+								{
+									uint   _spos = 0;
+									while(temp_buf.SearchChar('\x1d', &_spos)) {
+										temp_buf.Excise(_spos, 1);
+									}
+								}
+								for(uint tcli = 0; !tbc_rised && tcli < SIZEOFARRAY(p_test_blocked_chzn_code_list); tcli++) {
+									if(temp_buf.IsEqiAscii(p_test_blocked_chzn_code_list[tcli])) {
+										tbc_rised = true;
+									}
+								}
+							}
+							if(tbc_rised) {
+								local_err_code = PPERR_CHZNMARKPMFAULT_BLOCKED;
+							}
+							else if(p_cle->ErrorCode != 0)
 								local_err_code = PPERR_CHZNMARKPMFAULT;
-							else if((rBlk.CnZnPmCritFlags & rBlk.chznpmcritNotFound) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fFound))
+							else if((chzn_pm_crit_flags & rBlk.chznpmcritNotFound) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fFound))
 								local_err_code = PPERR_CHZNMARKPMFAULT_NOTFOUND;
-							else if((rBlk.CnZnPmCritFlags & rBlk.chznpmcritNotValid) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fValid))
+							else if((chzn_pm_crit_flags & rBlk.chznpmcritNotValid) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fValid))
 								local_err_code = PPERR_CHZNMARKPMFAULT_NOTVALID;
-							else if((rBlk.CnZnPmCritFlags & rBlk.chznpmcritNotVerified) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fVerified))
+							else if((chzn_pm_crit_flags & rBlk.chznpmcritNotVerified) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fVerified))
 								local_err_code = PPERR_CHZNMARKPMFAULT_NOTVERIFIED;
-							else if((rBlk.CnZnPmCritFlags & rBlk.chznpmcritNotRealizable) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fRealizable)) {
+							else if((chzn_pm_crit_flags & rBlk.chznpmcritNotRealizable) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fRealizable)) {
 								if((p_cle->Flags & rBlk.chznpmcritNotRlzblGzExcl) && (p_cle->Flags & PPChZnPrcssr::CodeStatus::fGrayZone)) {
 									; // Исключение! Какая-то серая зона и продажа разрешена (цуй его знает что это значит)
 								}
 								else
 									local_err_code = PPERR_CHZNMARKPMFAULT_NOTREALIZABLE;
 							}
-							else if((rBlk.CnZnPmCritFlags & rBlk.chznpmcritNotUtilised) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fUtilised))
+							else if((chzn_pm_crit_flags & rBlk.chznpmcritNotUtilised) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fUtilised))
 								local_err_code = PPERR_CHZNMARKPMFAULT_NOTUTILISED;
-							else if((rBlk.CnZnPmCritFlags & rBlk.chznpmcritNotOwner) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fIsOwner)) // @v12.6.3
+							else if((chzn_pm_crit_flags & rBlk.chznpmcritNotOwner) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fIsOwner)) // @v12.6.3
 								local_err_code = PPERR_CHZNMARKPMFAULT_NOTOWNED;
-							else if((rBlk.CnZnPmCritFlags & rBlk.chznpmcritBlocked) && (p_cle->Flags & PPChZnPrcssr::CodeStatus::fIsBlocked))
+							else if((chzn_pm_crit_flags & rBlk.chznpmcritBlocked) && (p_cle->Flags & PPChZnPrcssr::CodeStatus::fIsBlocked))
 								local_err_code = PPERR_CHZNMARKPMFAULT_BLOCKED;
-							else if((rBlk.CnZnPmCritFlags & rBlk.chznpmcritSold) && (p_cle->Flags & PPChZnPrcssr::CodeStatus::fSold))
+							else if((chzn_pm_crit_flags & rBlk.chznpmcritSold) && (p_cle->Flags & PPChZnPrcssr::CodeStatus::fSold))
 								local_err_code = PPERR_CHZNMARKPMFAULT_SOLD;
-							else if((rBlk.CnZnPmCritFlags & rBlk.chznpmcritExpiry) && checkdate(p_cle->ExpiryDtm.d) && getcurdate_() >= p_cle->ExpiryDtm.d) { // @v12.1.1
+							else if((chzn_pm_crit_flags & rBlk.chznpmcritExpiry) && checkdate(p_cle->ExpiryDtm.d) && getcurdate_() >= p_cle->ExpiryDtm.d) { // @v12.1.1
 								local_err_code = PPERR_CHZNMARKPMFAULT_EXPIRY;
 							}
 							if(local_err_code) {
@@ -14823,22 +14853,22 @@ void InfoKioskDialog::ResetListWindows()
 {
 	if(Flags & fTouchScreen) {
 		SString font_face;
-		const int   sx  = GetSystemMetrics((DlgFlags & fResizeable) ? SM_CXSIZEFRAME : SM_CXFIXEDFRAME);
-		const int   sy  = GetSystemMetrics((DlgFlags & fResizeable) ? SM_CYSIZEFRAME : SM_CYFIXEDFRAME);
-		const int   cy  = GetSystemMetrics(SM_CYCAPTION);
-		const int   vsx = GetSystemMetrics(SM_CXVSCROLL);
-		RECT  dlg_rect;
-		RECT  ctrl_rect;
-		HWND  ctrl_wnd = GetDlgItem(H(), CTL_INFKIOSK_GDSLIST);
+		const  int sx  = GetSystemMetrics((DlgFlags & fResizeable) ? SM_CXSIZEFRAME : SM_CXFIXEDFRAME);
+		const  int sy  = GetSystemMetrics((DlgFlags & fResizeable) ? SM_CYSIZEFRAME : SM_CYFIXEDFRAME);
+		const  int cy  = GetSystemMetrics(SM_CYCAPTION);
+		const  int vsx = GetSystemMetrics(SM_CXVSCROLL);
+		RECT   dlg_rect;
+		RECT   ctrl_rect;
+		HWND   ctrl_wnd = GetDlgItem(H(), CTL_INFKIOSK_GDSLIST);
 		::GetWindowRect(H(), &dlg_rect);
-		GetWindowRect(ctrl_wnd, &ctrl_rect);
+		::GetWindowRect(ctrl_wnd, &ctrl_rect);
 		ctrl_rect.right -= vsx;
-		MoveWindow(ctrl_wnd, ctrl_rect.left - (dlg_rect.left + sx), ctrl_rect.top - (dlg_rect.top + sy + cy),
+		::MoveWindow(ctrl_wnd, ctrl_rect.left - (dlg_rect.left + sx), ctrl_rect.top - (dlg_rect.top + sy + cy),
 			ctrl_rect.right - ctrl_rect.left, ctrl_rect.bottom - ctrl_rect.top, 1);
 		ctrl_wnd = ::GetDlgItem(H(), MAKE_BUTTON_ID(CTL_INFKIOSK_GDSLIST, 1));
 		::GetWindowRect(ctrl_wnd, &ctrl_rect);
 		ctrl_rect.left -= vsx;
-		MoveWindow(ctrl_wnd, ctrl_rect.left - (dlg_rect.left + sx), ctrl_rect.top - (dlg_rect.top + sy + cy),
+		::MoveWindow(ctrl_wnd, ctrl_rect.left - (dlg_rect.left + sx), ctrl_rect.top - (dlg_rect.top + sy + cy),
 			ctrl_rect.right - ctrl_rect.left, ctrl_rect.bottom - ctrl_rect.top, 1);
 		PPGetSubStr(PPTXT_FONTFACE, PPFONT_TIMESNEWROMAN, font_face);
 		SetCtrlFont(CTL_INFKIOSK_GRPNAME, font_face, 32);

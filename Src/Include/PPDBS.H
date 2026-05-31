@@ -5020,7 +5020,9 @@ public:
 		int32  CCheckID_;
 		uint8  Repeating[8]; // raw
 		int32  RepBaseID;
-		uint8  Reserve[16]; // raw
+		int32  TechRouteID;
+		int32  FinalProductID;
+		uint8  Reserve[8]; // raw
 	} data;
 	struct Key0 {
 		int32  ID;
@@ -5088,6 +5090,8 @@ public:
 	DBField CCheckID_;
 	DBField Repeating;
 	DBField RepBaseID;
+	DBField TechRouteID;
+	DBField FinalProductID;
 	DBField Reserve;
 };
 #pragma pack(pop)

@@ -156,8 +156,8 @@ bool FASTCALL StringSet::IsEq(const StringSet & rS) const
 {
 	bool   eq = true;   
 	if(sstreq(Delim, rS.Delim)) {
-		const uint _c1 = getCount();
-		const uint _c2 = rS.getCount();
+		const  uint _c1 = getCount();
+		const  uint _c2 = rS.getCount();
 		if(_c1 == _c2) {
 			SString & r_temp_buf1 = SLS.AcquireRvlStr();
 			SString & r_temp_buf2 = SLS.AcquireRvlStr();

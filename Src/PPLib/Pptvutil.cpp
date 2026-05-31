@@ -1276,7 +1276,7 @@ int Lst2LstObjDialog::setupRightList()
 		SmartListBox * p_lb = GetRightList();
 		if(p_lb) {
 			SString name_buf;
-			const long pos = p_lb->P_Def ? p_lb->P_Def->_curItem() : 0L;
+			const  long pos = p_lb->P_Def ? p_lb->P_Def->_curItem() : 0L;
 			THROW_MEM(p_ary = new StrAssocArray);
 			for(uint i = 0; i < Data.P_List->getCount(); i++) {
 				const  PPID id = Data.P_List->get(i);
@@ -1354,13 +1354,15 @@ bool Lst2LstObjDialog::IsSelectionByTagEnabled(PPID * pRealObjType)
 int Lst2LstObjDialog::setup()
 {
 	int    ok = 1;
-	if(Data.ObjType) {
-		THROW(P_Object = GetPPObject(Data.ObjType, Data.ExtraPtr));
-	}
-	else {
+	{
+		PPObject * p_obj_local = 0;
+		if(Data.ObjType) {
+			THROW(p_obj_local = GetPPObject(Data.ObjType, Data.ExtraPtr));
+		}
 		ZDELETE(P_Object);
+		P_Object = p_obj_local;
 	}
-	showButton(cmSelectByTag, IsSelectionByTagEnabled(0));  // @v11.0.3
+	showButton(cmSelectByTag, IsSelectionByTagEnabled(0));
 	THROW(setupLeftList());
 	THROW(setupRightList());
 	CATCHZOKPPERR
@@ -1433,8 +1435,7 @@ int Lst2LstObjDialog::addNewItem()
 		SmartListBox * p_view = GetLeftList();
 		PPID   obj_id = 0;
 		if(p_view && P_Object->Edit(&obj_id, Data.ExtraPtr) > 0) {
-			// @v11.1.10 P_Object->UpdateSelector(p_view->def, 0, Data.ExtraPtr);
-			P_Object->Selector(p_view->P_Def, 0, Data.ExtraPtr); // @v11.1.10
+			P_Object->Selector(p_view->P_Def, 0, Data.ExtraPtr);
 			p_view->Search_(&obj_id, 0, srchFirst|lbSrchByID);
 			p_view->Draw_();
 			ok = 1;
@@ -1557,9 +1558,11 @@ int FASTCALL ListToListDialog(ListToListData * pData)
 			DS.GetObjectTypeSymb(pData->ObjType, obj_type_symb);
 			dlg->SetStorableUserParamsSymbSuffix(obj_type_symb);
 		}
-		if((r = ExecView(dlg)) == cmOK)
+		r = ExecView(dlg);
+		if(r == cmOK) {
 			if(!dlg->getDTS(pData->P_List))
 				r = 0;
+		}
 		delete dlg;
 		if(r)
 			return (r == cmOK) ? 1 : -1;
@@ -1573,8 +1576,8 @@ WLDialog::WLDialog(uint rezID, uint _wlCtlID) : TDialog(rezID), wlCtlID(_wlCtlID
 {
 }
 
-void   WLDialog::setWL(int s) { toggleWL(s); }
-int    WLDialog::getWL() const { return BIN(wl); }
+void   WLDialog::setWL(bool s) { toggleWL(s); }
+bool   WLDialog::getWL() const { return LOGIC(wl); }
 
 void WLDialog::toggleWL(int s)
 {
@@ -5326,7 +5329,11 @@ void PosNodeCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 			node_list = Data.List.Get();
 		if(!node_list.getCount())
 			node_list.setSingleNZ(pDlg->getCtrlLong(Ctlsel));
-		ListToListData ll_data(PPOBJ_CASHNODE, 0, &node_list);
+		// @v12.6.5 {
+		PPObjCashNode::SelFilt sf;
+		sf.Flags |= sf.fSkipPassive;
+		// } @v12.6.5 
+		ListToListData ll_data(PPOBJ_CASHNODE, &sf, &node_list); // @v12.6.5 0-->&sf
 		ll_data.TitleStrID = PPTXT_SELCASHNODES;
 		ll_data.Flags |= ListToListData::fIsTreeList;
 		int    r = ListToListDialog(&ll_data);

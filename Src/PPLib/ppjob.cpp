@@ -5,25 +5,28 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <comdef.h>		// COM для WMI
-#include <wbemidl.h>	// WMI для удаленного запуска процессов
+// @v12.6.5 #include <comdef.h>  // COM для WMI
+// @v12.6.5 #include <wbemidl.h> // WMI для удаленного запуска процессов
 #include <charry.h>
 
 #define JOB_FACTORY_PRFX JFF_
+#define JOBSTRGSIGN 'SJPP'
+const char * PPJobDescr::P_FactoryPrfx = "JFF_";
 
-int FASTCALL WriteParam(SBuffer & rBuf, const void * pParam, size_t paramSize)
+int STDCALL WriteParam(SBuffer & rBuf, const void * pParam, size_t paramSize)
 {
 	return rBuf.Write(pParam, paramSize) ? 1 : PPSetErrorSLib();
 }
 
-int FASTCALL ReadParam(SBuffer & rBuf, void * pParam, size_t paramSize)
+int STDCALL ReadParam(SBuffer & rBuf, void * pParam, size_t paramSize)
 {
 	int    ok = -1;
-	if(rBuf.GetAvailableSize())
+	if(rBuf.GetAvailableSize()) {
 		if(rBuf.Read(pParam, paramSize))
 			ok = 1;
 		else
 			ok = PPSetErrorSLib();
+	}
 	return ok;
 }
 //
@@ -33,8 +36,9 @@ PPJobHandler * PPJobMngr::CreateInstance(PPID jobID, const PPJobDescr * pDescr)
 	PPJobHandler * p_jh = 0;
 	PPJobDescr jd;
 	SString ffn;
-	if(!RVALUEPTR(jd, pDescr))
+	if(!RVALUEPTR(jd, pDescr)) {
 		THROW(LoadResource(jobID, &jd));
+	}
 	PPSetAddedMsgString(jd.Text);
 	FN_JOB_FACTORY f = reinterpret_cast<FN_JOB_FACTORY>(GetProcAddress(SLS.GetHInst(), jd.GetFactoryFuncName(ffn)));
 	THROW(f);
@@ -168,14 +172,12 @@ int PPJobMngr::GetResourceList(int loadText, StrAssocArray & rList)
 	return ok;
 }
 
-#define JOBSTRGSIGN 'SJPP'
-
 struct JobStrgHeader { // @persistent @size=64
 	long   Signature;      // const=JOBSTRGSIGN
-	uint32 Locking;        // @v7.7.9 Отрезок, блокируемый для предотвращения множественного доступа на изменение
+	uint32 Locking;        // Отрезок, блокируемый для предотвращения множественного доступа на изменение
 	SVerT  Ver;            // @anchor Версия сессии, создавшей файл
 	uint32 Count;          // Количество задач
-	int32  LastId;         // @v7.7.9
+	int32  LastId;         // 
 	char   Reserve2[44];
 };
 
@@ -469,12 +471,9 @@ int PPJobMngr::SaveJobPool2(const PPJobPool * pPool)
 	xmlFreeTextWriter(p_xml_writer);
 	return ok;
 }
-
 //
 //
 //
-const char * PPJobDescr::P_FactoryPrfx = "JFF_";
-
 PPJobDescr::PPJobDescr()
 {
 	THISZERO();
@@ -916,8 +915,8 @@ PPJobHandler::~PPJobHandler()
 {
 }
 
-int PPJobHandler::EditParam(SBuffer * pParam, void * extraPtr) { return CheckParamBuf(pParam, 0); }
-int PPJobHandler::Run(SBuffer * pParam, void * extraPtr) { return 1; }
+int  PPJobHandler::EditParam(SBuffer * pParam, void * extraPtr) { return CheckParamBuf(pParam, 0); }
+int  PPJobHandler::Run(SBuffer * pParam, void * extraPtr) { return 1; }
 void PPJobHandler::SetJobDbSymb(const char * pJobDbSymb) { (JobDbSymb = pJobDbSymb).Strip(); }
 
 int PPJobHandler::CheckParamBuf(const SBuffer * pBuf, size_t neededSize) const
@@ -936,8 +935,8 @@ int PPJobHandler::CheckParamBuf(const SBuffer * pBuf, size_t neededSize) const
 const PPJobDescr & PPJobHandler::GetDescr() { return D; }
 //
 //
-// prototype @defined(filtrnsm.cpp)
-int EditObjReceiveParam(ObjReceiveParam * pParam, int editOptions);
+//
+int EditObjReceiveParam(ObjReceiveParam * pParam, int editOptions); // prototype @defined(filtrnsm.cpp)
 
 class JOB_HDL_CLS(OBJRECV) : public PPJobHandler {
 public:
@@ -1138,7 +1137,7 @@ IMPLEMENT_JOB_HDL_FACTORY(SCARDDISCRECALC);
 //
 //
 //
-extern int ScalePrepDialog(uint rezID, PPID * pScaleID, long * pFlags); // @v5.0.0
+extern int ScalePrepDialog(uint rezID, PPID * pScaleID, long * pFlags);
 
 struct ScalePrepParam {
 	ScalePrepParam() : ScaleID(0), Flags(0)
@@ -1704,6 +1703,7 @@ IMPLEMENT_JOB_HDL_FACTORY(TESTCREATEFILES);
 //
 // LaunchApp
 //
+#if 0 // @v12.6.5 (replaced with PrcssrOuterProcessExecution) {
 class LaunchAppParam {
 public:
 	LaunchAppParam();
@@ -1829,6 +1829,7 @@ private:
 };
 
 int EditLaunchAppParam(LaunchAppParam * pData) { DIALOG_PROC_BODYERR(LaunchAppDialog, pData); }
+#endif // } 0 @v12.6.5
 
 class JOB_HDL_CLS(LAUNCHAPP) : public PPJobHandler {
 public:
@@ -1838,6 +1839,7 @@ public:
 	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
+		/* @v12.6.5
 		LaunchAppParam param;
 		const size_t sav_offs = pParam->GetRdOffs();
 		int    r = param.Read(*pParam, 0);
@@ -1850,10 +1852,30 @@ public:
 		}
 		else
 			ok = 0;
+		*/
+		const  size_t preserve_offs = pParam ? pParam->GetRdOffs() : 0;
+		PrcssrOuterProcessExecution prcssr;
+		OuterProcessExecutionFilt param;
+		THROW_INVARG(pParam);
+		if(pParam->GetAvailableSize() != 0) {
+			param.Read(*pParam, 0);
+		}
+		if(prcssr.EditParam(&param) > 0) {
+			THROW(param.Write(pParam->Z(), 0));
+			ok = 1;
+		}
+		else {
+			pParam->SetRdOffs(preserve_offs);
+		}
+		CATCH
+			CALLPTRMEMB(pParam, SetRdOffs(preserve_offs));
+			ok = 0;
+		ENDCATCH
 		return ok;
 	}
 	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
+		/* @v12.6.5
 		int    ok = 1;
 		LaunchAppParam param;
 		SString temp_buf;
@@ -1899,6 +1921,15 @@ public:
 		}
 #endif // } 0
 		CATCHZOK
+		return ok;
+		*/
+		int    ok = -1;
+		OuterProcessExecutionFilt param;
+		PrcssrOuterProcessExecution prcssr;
+		if(pParam && param.Read(*pParam, 0) > 0) {
+			prcssr.Init(&param);
+			ok = prcssr.Run();
+		}
 		return ok;
 	}
 };

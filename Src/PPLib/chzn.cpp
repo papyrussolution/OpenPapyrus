@@ -5088,13 +5088,15 @@ PPChZnPrcssr::CodeStatus & PPChZnPrcssr::CodeStatus::AssignExceptOrgValues(const
 	return *this;
 }
 
-PPChZnPrcssr::CodeStatusCollection::CodeStatusCollection() : TSCollection <CodeStatus>(), Code(0), ReqTimestamp(0)
+PPChZnPrcssr::CodeStatusCollection::CodeStatusCollection() : TSCollection <CodeStatus>(), Method(0), Code(0), Flags(0), ReqTimestamp(0)
 {
 }
 		
 PPChZnPrcssr::CodeStatusCollection & PPChZnPrcssr::CodeStatusCollection::Z()
 {
+	Method = 0; // @v12.6.5
 	Code = 0;
+	Flags = 0;
 	ReqTimestamp = 0;
 	Description.Z();
 	ReqId.Z();
@@ -5850,6 +5852,7 @@ int PPChZnPrcssr::PermissiveModeInterface::LocalCheckCodeList(const char * pFisc
 									int    group = 0;
 									p_js_item->InsertInt("pg", group);
 								}
+								p_js_code_list->InsertChild(p_js_item); // @v12.6.5 @fix (не было этого вызова!)
 							}
 						}
 					}
@@ -5968,6 +5971,7 @@ int PPChZnPrcssr::PermissiveModeInterface::LocalCheckCodeList(const char * pFisc
 							}
 						}
 					}
+					rList.Flags |= CodeStatusCollection::fCheckedOffline; // @v12.6.5
 					ok = 1;
 				}
 			}
@@ -5997,7 +6001,10 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 				bool is_connection_problem = false;
 				pm_ifc.FetchCdnHost(guaID, best_cdn_host);
 				THROW_PP(best_cdn_host.NotEmpty(), PPERR_CHZNPMCDNHOSTFAULT);
-				if(!pm_ifc.CheckCodeList(best_cdn_host, 0, rList, &is_connection_problem)) {
+				if(pm_ifc.CheckCodeList(best_cdn_host, 0, rList, &is_connection_problem)) {
+					rList.Method = prcsmarkMethodPmOnline; // @v12.6.5
+				}
+				else {
 					if(is_connection_problem && offlineMode == 2)
 						do_offline = true;
 				}
@@ -6005,7 +6012,9 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 			else if(offlineMode == 1)
 				do_offline = true;
 			if(do_offline) {
-				pm_ifc.LocalCheckCodeList(0, rList);
+				if(pm_ifc.LocalCheckCodeList(0, rList) > 0) {
+					rList.Method = prcsmarkMethodPmOffline; // @v12.6.5
+				}
 			}
 		}
 	}
@@ -6040,8 +6049,10 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 		}
 		int r = tspiot_ifc.CheckCodeList_v2(qb, rList);
 		THROW(r);
-		if(r > 0)
+		if(r > 0) {
+			rList.Method = prcsmarkMethodTsPiot; // @v12.6.5
 			ok = 1;
+		}
 	}
 	CATCH
 		ok = 0;
@@ -6177,19 +6188,26 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 								for(const SJson * p_cur2 = p_js_item->P_Child; p_cur2; p_cur2 = p_cur2->P_Next) {
 									if(p_cur2->Text.IsEqiAscii("code")) {
 										SJson::GetChildLong(p_cur2, cerr.Code);
+										rList.Code = cerr.Code;
 									}
 									else if(p_cur2->Text.IsEqiAscii("description")) {
 										SJson::GetChildTextUnescaped(p_cur2, cerr.Descr);
 										cerr.Descr.Transf(CTRANSF_UTF8_TO_INNER);
+										rList.Description = cerr.Descr;
 									}
 									else if(p_cur2->Text.IsEqiAscii("reqId")) {
 										SJson::GetChildGuid(p_cur2, req_uuid);
+										rList.ReqId = req_uuid;
 									}
 									else if(p_cur2->Text.IsEqiAscii("reqTimestamp")) {
 										SJson::GetChildInt64(p_cur2, req_timestamp);
+										rList.ReqTimestamp = req_timestamp;
 									}
 									else if(p_cur2->Text.IsEqiAscii("isCheckedOffline")) {
 										SJson::GetChildBool(p_cur2, is_checked_offline);
+										if(is_checked_offline) {
+											rList.Flags |= CodeStatusCollection::fCheckedOffline;
+										}
 									}
 									else if(p_cur2->Text.IsEqiAscii("codes")) {
 										if(SJson::IsArray(p_cur2->P_Child)) {
@@ -6681,7 +6699,7 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 				}
 			}
 		}
-		void   OutputPmCheckResult(const PPChZnPrcssr::CodeStatusCollection & rList, /*bool offline*/int method/*prcsmarkMethodXXX*/, SString & rBuf) const
+		void   OutputPmCheckResult(const PPChZnPrcssr::CodeStatusCollection & rList, int method/*prcsmarkMethodXXX*/, SString & rBuf) const
 		{
 			const PPChZnPrcssr::CodeStatus * p_result_cle = rList.getCount() ? rList.at(0) : 0;
 			rBuf.Z();
@@ -6786,12 +6804,6 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 				}
 			}
 		}
-		enum {
-			prcsmarkMethodUndef = 0,
-			prcsmarkMethodPmOnline,
-			prcsmarkMethodPmOffline,
-			prcsmarkMethodTsPiot,
-		};
 		int    ProcessMark(const char * pOriginalText, bool imgScan, int method/*prcsmarkMethodXXX*/, SString & rInfoBuf)
 		{
 			int    ok = -1;

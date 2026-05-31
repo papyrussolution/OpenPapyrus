@@ -1119,7 +1119,7 @@ int PPObjUnit::Edit(PPID * pID, void * extraPtr)
 	SetupPPObjCombo(dlg, CTLSEL_UNIT_BASE, PPOBJ_UNIT, unit.BaseUnitID, 0, reinterpret_cast<void *>(PPUnit::SI));
 	dlg->setCtrlReal(CTL_UNIT_BASERATIO, unit.BaseRatio);
 	dlg->setCtrlReal(CTL_UNIT_ROUNDING,  unit.Rounding_);
-	dlg->setCtrlUInt16(CTL_UNIT_FRAGM, unit.Fragmentation); // @v11.2.5
+	dlg->setCtrlUInt16(CTL_UNIT_FRAGM, unit.Fragmentation);
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 		dlg->getCtrlData(CTL_UNIT_NAME, unit.Name);
 		if(!CheckName(*pID, strip(unit.Name), 0))
@@ -1138,7 +1138,7 @@ int PPObjUnit::Edit(PPID * pID, void * extraPtr)
 			else {
 				dlg->getCtrlData(CTL_UNIT_BASERATIO, &unit.BaseRatio);
 				dlg->getCtrlData(CTL_UNIT_ROUNDING, &unit.Rounding_);
-				dlg->getCtrlData(CTL_UNIT_FRAGM, &unit.Fragmentation); // @v11.2.5
+				dlg->getCtrlData(CTL_UNIT_FRAGM, &unit.Fragmentation);
 				if(*pID)
 					*pID = unit.ID;
 				THROW(StoreItem(PPOBJ_UNIT, *pID, &unit, 1));

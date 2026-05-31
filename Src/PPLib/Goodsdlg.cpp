@@ -2361,7 +2361,7 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 			case cmGoodsStruc:
 				if(gpk == gpkndGoods) {
 					int    disable_confirm = 0;
-					SETIFZ(Data.GS.GoodsID, Data.Rec.ID);
+					SETIFZ(Data.GS.OwnerGoodsID, Data.Rec.ID);
 					for(int valid_data = 0; !valid_data && GObj.GSObj.EditDialog(&Data.GS) > 0;) {
 						valid_data = 1;
 						if(Data.GS.IsNamed()) {

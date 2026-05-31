@@ -156,7 +156,7 @@ public:
 		setCtrlData(CTL_ACCANLZ_LEAF, &Data.LeafNo);
 		setCtrlUInt16(CTL_ACCANLZ_ACCGRP, (Data.Aco == ACO_1) ? 1 : ((Data.Aco == ACO_2) ? 2 : 0));
 		SetupSubstCombo();
-		setWL(BIN(Data.Flags & AccAnlzFilt::fLabelOnly));
+		setWL(LOGIC(Data.Flags & AccAnlzFilt::fLabelOnly));
 		acc_rec.AcctId      = Data.AcctId;
 		if(Data.Aco == ACO_2 && Data.Flags & AccAnlzFilt::fTrnovrBySheet)
 			acc_rec.AcctId.ar = Data.SingleArID;

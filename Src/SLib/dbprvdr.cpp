@@ -618,7 +618,8 @@ int DbProvider::GetProtectData(FILE * f, uint16 * pBuf)
 
 int DbProvider::SetupProtectData(const char * pOldPw, const char * pNewPw)
 {
-	int    ok = 1, exists = 1;
+	int    ok = 1;
+	int    exists = 1;
 	FILE * f = 0;
 	uint16 buf[32];
 	char   cpw[16];
@@ -644,14 +645,14 @@ int DbProvider::SetupProtectData(const char * pOldPw, const char * pNewPw)
 		DBS.GetProtectData(buf, 1);
 	else {
 		THROW(GetProtectData(f, buf));
-		::decrypt(reinterpret_cast<char *>(buf), sizeof(buf));
+		::__M2D(reinterpret_cast<char *>(buf), sizeof(buf));
 	}
 	THROW(stricmp(reinterpret_cast<const char *>(buf), pOldPw) == 0);
 	p_temp = static_cast<char *>(SAlloc::M(PASZ));
 	SObfuscateBuffer(p_temp, PASZ);
 	SObfuscateBuffer(buf, sizeof(buf));
 	strcpy((char *)buf, pNewPw);
-	::encrypt(reinterpret_cast<char *>(buf), sizeof(buf));
+	::__D2M(reinterpret_cast<char *>(buf), sizeof(buf));
 	memcpy(p_temp + PAOFS, buf, sizeof(buf));
 	IdeaEncrypt(cryptPassword(cpw), p_temp, PASZ);
 	rewind(f);

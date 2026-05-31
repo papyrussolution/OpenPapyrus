@@ -82,7 +82,7 @@ int PPViewShipmAnalyze::EditBaseFilt(PPBaseFilt * pFilt)
 			AddClusterAssoc(CTL_SHANLZFLT_FLAGS, 0, ShipmAnalyzeFilt::fDiffByBill);
 			AddClusterAssoc(CTL_SHANLZFLT_FLAGS, 1, ShipmAnalyzeFilt::fDebtOnly);
 			SetClusterData(CTL_SHANLZFLT_FLAGS, Data.Flags);
-			setWL(BIN(Data.Flags & ShipmAnalyzeFilt::fLabelOnly));
+			setWL(LOGIC(Data.Flags & ShipmAnalyzeFilt::fLabelOnly));
 			return 1;
 		}
 		DECL_DIALOG_GETDTS()

@@ -1208,6 +1208,7 @@ private:
 								}
 								if(!Data.ExpParam.Format && exp_param_restored) {
 									Data.ExpParam.Format = saved_exp_param.Format;
+									Data.ExpParam.Flags = saved_exp_param.Flags; // @v12.6.5
 									Data.ExpParam.Destination = saved_exp_param.Destination;
 									{
 										SString exp_file_path;

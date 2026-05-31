@@ -4464,6 +4464,9 @@ int FiasImporter::ProcessString(const char * pRawText, long * pRefId, SString & 
 	return ok;
 }
 
+int FiasImporter::ProcessString(const char * pRawText, int * pRefId, SString & rTempBuf, SStringU & rTempBufU)
+	{ return ProcessString(pRawText, reinterpret_cast<long *>(pRefId), rTempBuf, rTempBufU); }
+
 int FiasImporter::CollectUuid(const S_GUID & rUuid)
 {
 	int    ok = -1;

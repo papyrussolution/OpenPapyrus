@@ -615,7 +615,7 @@ int GoodsRestFiltDlg::setDTS(const GoodsRestFilt * pFilt)
 		SetupObjTagCombo(this, CTLSEL_GOODSREST_LOTTAG, Data.DiffLotTagID, 0, &lot_tag_filt);
 		disableCtrl(CTLSEL_GOODSREST_LOTTAG, Data.DiffParam != GoodsRestParam::_diffLotTag);
 	}
-	setWL(BIN(Data.Flags & GoodsRestFilt::fLabelOnly));
+	setWL(LOGIC(Data.Flags & GoodsRestFilt::fLabelOnly));
 	SetPeriodInput(this, CTL_GOODSREST_DRAFTPRD, Data.DraftRcptPrd);
 	SetupStringCombo(this, CTLSEL_GOODSREST_ORD, PPTXT_GOODSRESTORDER, Data.InitOrder); // @v11.4.6
 	SetupCtrls();

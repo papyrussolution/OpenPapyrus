@@ -2939,7 +2939,7 @@ file:
 //
 // Технологические сессии
 // Одна сессия может использовать только один процессор и (или) одну технологию.
-// @todo Memo перенести в UnxTextRef
+// @done @todo Memo перенести в UnxTextRef
 //
 table TSession {           // size=104+160
 	autolong ID;           // @id
@@ -2976,7 +2976,9 @@ table TSession {           // size=104+160
 	long   CCheckID_;      // ->CCheck.ID Ид кассового чека, сформированного и проведенного, на основании этой сессии.
 	raw    Repeating[8];   // @v11.0.4 (DateRepeating) Расписание повтора
 	long   RepBaseID;      // @v11.0.4 ->TSession.ID Ид сессии, на основе расписания которой была сформирована данная сессия //
-	raw    Reserve[16];    // @v11.0.4 @reserve
+	long   TechRouteID;    // @v12.6.5 Техмаршрут, который будет ассоциирован с произведенным этой сессией основным лотом
+	long   FinalProductID; // @v12.6.5 Конечный продукт, который будет ассоциирован с произведенным этой сессией основным лотом 
+	raw    Reserve[8];     // @v11.0.4 @reserve // @v12.6.5 [16]-->[8]
 	// @v11.0.4 (moved to UnxTextRef) note   Memo[512];      // @memo @v7.0.0 [160]-->[512]
 index:
 	ID (unique);                                       // #0

@@ -1,5 +1,5 @@
 // V_UNITEC.CPP
-// Copyright (c) A.Sobolev 2025
+// Copyright (c) A.Sobolev 2025, 2026
 // @codepage UTF-8
 // Аналитическая таблица в стиле unit-economics 
 //
@@ -247,7 +247,7 @@ int PPViewUnitEc::MakeEntry(IndicatorVector * pVec, BrwItem * pItem)
 		pVec->SVector::clear();
 		const PPID struc_id = pVec->AddendumID;
 		if(GsObj.Get(struc_id, &gs) > 0 && gs.Rec.Flags & GSF_PRICEPLANNING) {
-			gs.GoodsID = pVec->ID; // @mandatory Товар может быть не определен в структуре, а формулы без товара не работают.
+			gs.OwnerGoodsID = pVec->ID; // @mandatory Товар может быть не определен в структуре, а формулы без товара не работают.
 			PPGoodsStruc::FormulaResolutionCache rcache(gs);
 			PPBizScore2Packet bs_pack;
 			if(pItem) {
@@ -647,13 +647,13 @@ void PPViewUnitEc::PreprocessBrowser(PPViewBrowser * pBrw)
 			PPObjBizScore2::GetBscClsResultName(cls, temp_buf);
 			if(temp_buf.IsEmpty())
 				temp_buf.CatChar('#').Cat("bscls").CatChar('-').Cat(cls);
-			pBrw->InsColumn(-1, temp_buf, column_id, T_DOUBLE, MKSFMTD(0, 2, 0), BCO_USERPROC);
+			pBrw->InsColumn(-1, temp_buf, column_id, T_DOUBLE, MKSFMTD_020, BCO_USERPROC);
 			is_any_bscls = true;
 		}
 		if(is_any_bscls) {
 			const int column_id = 4000;
 			PPLoadString("profit", temp_buf);
-			pBrw->InsColumn(-1, temp_buf, column_id, T_DOUBLE, MKSFMTD(0, 2, 0), BCO_USERPROC);
+			pBrw->InsColumn(-1, temp_buf, column_id, T_DOUBLE, MKSFMTD_020, BCO_USERPROC);
 		}
 	}
 }

@@ -575,7 +575,7 @@ public:
 		cycle_cg_rec.C = Data.Cycl;
 		setGroupData(ctlgroupCycle, &cycle_cg_rec);
 		SetupStringCombo(this, CTLSEL_GTO_CYCLESTAT, PPTXT_CYCLESTATLIST, Data.CycleStat);
-		setWL(BIN(Data.Flags & OpGroupingFilt::fLabelOnly));
+		setWL(LOGIC(Data.Flags & OpGroupingFilt::fLabelOnly));
 		AddClusterAssoc(CTL_GTO_FLAGS, 0, OpGroupingFilt::fCalcRest);
 		AddClusterAssoc(CTL_GTO_FLAGS, 1, OpGroupingFilt::fCalcAvgLn);
 		AddClusterAssoc(CTL_GTO_FLAGS, 2, OpGroupingFilt::fInclAccOps);

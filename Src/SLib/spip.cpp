@@ -801,7 +801,7 @@ int WinSecurityAttrs::ResetSD_DACL()
 
 static const SIntToSymbTabEntry WinPermissionFlags[] = {
 	{ GENERIC_ALL, "GENERIC_ALL" },
-	{ GENERIC_READ, "GENERIC_READ" },
+	{ static_cast<int>(GENERIC_READ), "GENERIC_READ" },
 	{ GENERIC_WRITE, "GENERIC_WRITE"},
 	{ GENERIC_EXECUTE, "GENERIC_EXECUTE"},
 	{ FILE_READ_DATA, "FILE_READ_DATA"},

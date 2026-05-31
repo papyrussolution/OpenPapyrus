@@ -722,7 +722,7 @@ dialog DLG_CRREXPPARAM_RTF [vertical size: (400, 300) title: "@printrpt_exportpa
 	}	
 }
 
-dialog DLG_CRREXPPARAM_HTML [vertical size: (400, 300) title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] { // @construction
+dialog DLG_CRREXPPARAM_HTML [vertical size: (400, 300) minsize: (400, 300) title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] {
 	radiocluster CTL_CRREXPPARAM_DEST [vertical tabstop width: bycontainer(100) margin: 4] {
 		radiobutton [title: "@file"];
 		radiobutton [title: "@application"];
@@ -735,8 +735,8 @@ dialog DLG_CRREXPPARAM_HTML [vertical size: (400, 300) title: "@printrpt_exportp
 	}	
 }
 
-dialog DLG_CRREXPPARAM_EXCEL [vertical size: (400, 400) title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] { // @construction
-	radiocluster CTL_CRREXPPARAM_DEST [vertical tabstop width: bycontainer(100) margin: 4] {
+dialog DLG_CRREXPPARAM_EXCEL [vertical size: (400, 400) minsize: (400, 400) padding: 4 title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] {
+	radiocluster CTL_CRREXPPARAM_DEST [vertical tabstop width: bycontainer margin: 4] {
 		radiobutton [title: "@file"];
 		radiobutton [title: "@application"];
 	}
@@ -788,8 +788,8 @@ dialog DLG_CRREXPPARAM_CSV [vertical size: (400, 400) title: "@printrpt_exportpa
 	}	
 }
 
-dialog DLG_PRINT2 [vertical title: "@printrpt" size: (615, 470) minsize: (613, 470) font: "MS Shell Dlg 2,8"] {
-	framebox [vertical width: bycontainer(100) height: 180 margin: 4 padding: 4 justifycontent: spaceevenly alignitems: center] {	
+dialog DLG_PRINT2 [vertical title: "@printrpt" size: (615, 470) minsize: (615, 470) padding: 4 font: "MS Shell Dlg 2,8"] {
+	framebox [vertical width: bycontainer height: 180 margin: 4 padding: 4 justifycontent: spaceevenly alignitems: center] {	
 		view [horizontal width: bycontainer growfactor: 1] {
 			radiocluster CTL_PRINT2_ACTION [vertical growfactor: 3 tabstop] {
 				radiobutton [title: "@printrpt_dest_print"];
@@ -806,7 +806,7 @@ dialog DLG_PRINT2 [vertical title: "@printrpt" size: (615, 470) minsize: (613, 4
 		}
 		input CTL_PRINT2_MAKEDATAPATH [width: bycontainer height: 21 margin: 4 tabstop] string[252];
 	}
-	framebox [horizontal width: bycontainer(100) height: 48 margin: 4 padding: 4 justifycontent: start alignitems: center] {	
+	framebox [horizontal width: bycontainer height: 48 margin: 4 padding: 4 justifycontent: start alignitems: center] {	
 		combobox CTLSEL_PRINT2_EXPFMT [tabstop width: bycontainer(40) height: 21 margin: 4 label: "@printrpt_exportformat" cblinesymb: CTL_PRINT2_EXPFMT];
 		button CTL_PRINT2_CMD_EXPORTPARAMS [title: "@{printrpt_exportparams}..." tabstop size: (150, 21) margin: (4, 10, 4, 4) command: cmPrintExportParam];
 	}
@@ -829,7 +829,7 @@ dialog DLG_PRINT2 [vertical title: "@printrpt" size: (615, 470) minsize: (613, 4
 	}
 }
 
-dialog DLG_BILLPRELUDE [vertical title: "@billprelude" size: (384, 463) minsize: (240, 270) font: "MS Shell Dlg,8"] {
+dialog DLG_BILLPRELUDE [vertical title: "@billprelude" size: (384, 463) minsize: (240, 270) padding: 4 font: "MS Shell Dlg,8"] {
 	listbox CTL_BILLPRELUDE_OPLIST [tabstop width: bycontainer growfactor: 1 margin: 4];
 	combobox CTLSEL_BILLPRELUDE_LOC [tabstop width: bycontainer height: 21 margin: 4 label: "@warehouse" cblinesymb: CTL_BILLPRELUDE_LOC];
 	view [horizontal width: bycontainer height: 28 margin_right: 12 gravity: right justifycontent: end alignitems: end] {
@@ -3970,6 +3970,62 @@ dialog DLG_GSTRUC [vertical title: "@goods_struc" size: (895, 600) minsize: (895
 	}
 }
 
+dialog DLG_GSITEM [vertical title: "@gsitem" size: (670, 420) minsize: (670, 420) padding: 4 font: "MS Shell Dlg,8"] { // @v12.6.5
+	statictext CTL_GSITEM_HEADER [width: bycontainer height: 21 margin: 4 staticedge];
+	combobox CTLSEL_GSITEM_GGRP [width: bycontainer height: 21 margin: (4, 4, 4, 1) tabstop label: "@gsitem_goodsgroup" cblinesymb: CTL_GSITEM_GGRP ];
+	view [horizontal width: bycontainer height: 30 alignitems: center] {
+		checkbox CTL_GSITEM_GROUPONLY [growfactor: 1 margin: (4, 1, 4, 4) title: "@gsitem_gsif_goodsgroup" tabstop];
+		view [horizontal growfactor: 3 height: bycontainer] {
+			checkbox CTL_GSITEM_WARESYMB_TOGGLE [growfactor: 3 height: 21 margin: (4, 4, 4, 1) title: "@gsitem_waresymb" tabstop];
+			input CTL_GSITEM_WARESYMB [growfactor: 4 height: 21 margin: (4, 4, 4, 1) tabstop] string[48];
+		}
+	}
+	combobox CTLSEL_GSITEM_GOODS [width: bycontainer height: 21 margin: (4, 1, 4, 4) tabstop label: "@gsitem_goods" cblinesymb: CTL_GSITEM_GOODS ];
+	view [horizontal width: bycontainer growfactor: 1] {
+		framebox [title: "@qtty" horizontal growfactor: 1 height: bycontainer margin: 4 padding: (4, 12, 4, 4)] {
+			view [vertical growfactor: 2 height: bycontainer] {
+				input CTL_GSITEM_VALUE [width: bycontainer height: 21 margin: (4, 4, 4, 2) tabstop] string[30];
+				radiocluster CTL_GSITEM_UNITS [width: bycontainer margin: (4, 2, 4, 4)] {
+					radiobutton [title: "@gsitem_mainunit"];
+					radiobutton [title: "@gsitem_gsif_phuval"];
+					radiobutton [title: "@gsitem_gsif_pctval"];
+					radiobutton [title: "@gsitem_gsif_qttyasprice"];
+				}
+			}
+			view [vertical growfactor: 1 height: bycontainer] {
+				statictext CTL_GSITEM_NTBRTCOEF [width: bycontainer growfactor: 1 margin: 4 staticedge];
+				input CTL_GSITEM_NETTO [width: bycontainer height: 21 margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 6 label: "@gsitem_netto"] double;
+			}
+		}
+		view [vertical growfactor: 1 height: bycontainer] {
+			checkcluster CTL_GSITEM_FLAGS [width: bycontainer margin: 4] {
+				checkbox [title: "@gsitem_gsif_rounddown"];
+				checkbox [title: "@gsitem_gsif_autotswroff"];
+				checkbox [title: "@gsitem_gsif_mainitem"];
+				checkbox [title: "@gsitem_gsif_subpartstr"];
+				checkbox [title: "@gsitem_gsif_identical"];
+				checkbox [title: "@gsitem_gsif_queryexplot"];
+			}
+			view [horizontal width: bycontainer height: 30] {
+				input CTL_GSITEM_PRICE [design: B size: (75, 21) margin: 4 tabstop fmtf: (nozero) fmtprec: 2 label: "@gsitem_price"] double;
+			}
+		}
+	}
+	view [horizontal width: bycontainer height: 45] {
+		input CTL_GSITEM_SYMB [growfactor: 1 height: 21 margin: 4 tabstop label: "@gsitem_symb"] string[20];
+		input CTL_GSITEM_FORMULA [growfactor: 2 height: 21 margin: 4 tabstop label: "@gsitem_formula"] string[128];
+	}
+	view [horizontal width: bycontainer height: 30] {
+		view [horizontal growfactor: 1 height: bycontainer justifycontent: start] {
+			button CTL_CMD_GSITEMLOTS [title: "@{lots}..." tabstop size: (75, 21) margin: 4 command: cmGSItemLots];
+		}
+		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
 dialog DLG_BILLSTATUS [vertical title: "@bill_status" size: (780, 510) minsize: (780, 510) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.5.10
 	view [horizontal width: bycontainer height: 43] {
 		input CTL_BILLSTATUS_NAME [growfactor: 0.8 height: 21 margin: 4 tabstop label: "@appellation"] string[48];
@@ -5298,10 +5354,11 @@ dialog DLG_LOTXCLIST [vertical title: "@lotxcodelist" size: (1120, 425) minsize:
 			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
 		}
 		view [horizontal growfactor: 1 height: bycontainer(100) gravity: center justifycontent: spaceevenly] {
-			button STDCTL_COPYTOCLIPBOARD [title: "@lotxcodelist_cbcopy" tabstop size: (150, 21) margin: 4 command: cmCopyToClipboard];
+			button STDCTL_COPYTOCLIPBOARD [/*title: "@lotxcodelist_cbcopy"*/tabstop size: (50, 21) margin: 4 imagesymb: PPDV_CLIPBOARDCOPY01 command: cmCopyToClipboard];
 			button STDCTL_COPYTOCLIPBOARDALL [title: "@lotxcodelist_cbcopyall" tabstop size: (150, 21) margin: 4 command: cmCopyToClipboardAll];
-			button STDCTL_PASTEFROMCLIPBOARDALL [title: "@lotxcodelist_cbpaste" tabstop size: (150, 21) margin: 4 command: cmPasteFromClipboardAll];
-			button STDCTL_IMPORT [title: "Import..." tabstop size: (150, 21) margin: 4 command: cmImport];
+			button STDCTL_PASTEFROMCLIPBOARDALL [/*title: "@lotxcodelist_cbpaste"*/tabstop size: (50, 21) margin: 4 imagesymb: PPDV_CLIPBOARDPASTE01 command: cmPasteFromClipboardAll];
+			button CTL_LOTXCLIST_CMD_CGTG [title: "@lotxcodelist_copygtintogoods" tabstop size: (150, 21) margin: 4 command: cmCopyGtinToGoods] // @v12.6.5
+			button STDCTL_IMPORT [title: "@{import}..." tabstop size: (150, 21) margin: 4 command: cmImport];
 		}
 		view [horizontal width: 170 height: bycontainer(100) gravity: right justifycontent: end] {
 			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
@@ -5320,10 +5377,10 @@ dialog DLG_LOTXCCKLIST [vertical title: "@lotxcodechecklist" size: (1120, 440) m
 			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
 		}
 		view [horizontal growfactor: 1 height: bycontainer gravity: center justifycontent: spaceevenly] {
-			button STDCTL_COPYTOCLIPBOARD [title: "@lotxcodelist_cbcopy" tabstop size: (150, 21) margin: 4 command: cmCopyToClipboard];
+			button STDCTL_COPYTOCLIPBOARD [/*title: "@lotxcodelist_cbcopy"*/tabstop size: (50, 21) margin: 4 imagesymb: PPDV_CLIPBOARDCOPY01 command: cmCopyToClipboard];
 			button STDCTL_COPYTOCLIPBOARDALL [title: "@lotxcodelist_cbcopyall" tabstop size: (150, 21) margin: 4 command: cmCopyToClipboardAll];
-			button STDCTL_PASTEFROMCLIPBOARDALL [title: "@lotxcodelist_cbpaste" tabstop size: (150, 21) margin: 4 command: cmPasteFromClipboardAll];
-			button STDCTL_IMPORT [title: "Import..." tabstop size: (150, 21) margin: 4 command: cmImport];
+			button STDCTL_PASTEFROMCLIPBOARDALL [/*title: "@lotxcodelist_cbpaste"*/tabstop size: (50, 21) margin: 4 imagesymb: PPDV_CLIPBOARDPASTE01 command: cmPasteFromClipboardAll];
+			button STDCTL_IMPORT [title: "@{import}..." tabstop size: (150, 21) margin: 4 command: cmImport];
 		}
 		view [horizontal width: 170 height: bycontainer gravity: right justifycontent: end] {
 			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
@@ -5332,7 +5389,137 @@ dialog DLG_LOTXCCKLIST [vertical title: "@lotxcodechecklist" size: (1120, 440) m
 	}
 }
 
-// @20260510 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
+dialog DLG_UNIT [vertical title: "@munit" size: (460, 390) minsize: (460, 390) padding: 4 font: "MS Shell Dlg,8" justifycontent: spacebetween] { // @v12.6.5
+	view [horizontal width: bycontainer height: 45] {
+		input CTL_UNIT_NAME [growfactor: 7 height: 21 margin: 4 tabstop label: "@appellation"] string[48];
+		input CTL_UNIT_ID [growfactor: 3 height: 21 margin: 4 tabstop readonly label: "@id"] int32;
+	}
+	view [horizontal width: bycontainer height: 45] {
+		view [horizontal growfactor: 7 height: bycontainer] {
+			input CTL_UNIT_ABBR [growfactor: 3 height: 21 margin: 4 tabstop label: "@unit_abbr"] string[20];
+			input CTL_UNIT_CODE [growfactor: 2 height: 21 margin: 4 tabstop label: "@code"] string[12];
+		}
+		view [horizontal growfactor: 3 height: bycontainer] { // @stub
+		}
+	}
+	view [horizontal width: bycontainer height: 110] {
+		framebox [vertical growfactor: 7 height: bycontainer margin: 4 padding: 4] {
+			combobox CTLSEL_UNIT_BASE [width: bycontainer height: 21 margin: 4 tabstop label: "@unit_baseunit" cblinesymb: CTL_UNIT_BASE ];
+			input CTL_UNIT_BASERATIO [width: bycontainer(40) height: 21 margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 6 label: "@unit_baseratio"] double;
+		}
+		checkcluster CTL_UNIT_FLAGS [title: "@feature_pl" growfactor: 3 margin: (0, 4, 4, 4) padding: 4] {
+			checkbox [title: "@unit_trade"];
+			checkbox [title: "@unit_phisical"];
+			checkbox [title: "@unit_si"];
+			checkbox [title: "@unit_intval"];
+		}
+	}
+	view [horizontal width: bycontainer height: 100] {
+		framebox [vertical growfactor: 7 height: bycontainer margin: 4 padding: 4] {
+			input CTL_UNIT_ROUNDING [width: bycontainer(40) height: 21 margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 6 label: "@unit_rounding"] double;
+			input CTL_UNIT_FRAGM [width: bycontainer(40) height: 21 margin: 4 tabstop fmtf: (nozero) label: "@unit_fragmentation"] int16;
+		}
+		view [horizontal growfactor: 3 height: bycontainer] { // @stub
+		}
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_CONFIG [vertical title: "@config" size: (530, 150) minsize: (530, 150) padding: 4 font: "MS Shell Dlg,8" justifycontent: spacebetween] {
+	view [horizontal width: bycontainer height: 45] {
+		input CTL_USRGRP_NAME [growfactor: 1 height: 21 margin: 4 tabstop label: "@appellation"] string[48];
+		input CTL_USRGRP_ID [size: (75, 21) margin: 4 tabstop label: "@id"] int32;
+	}
+	view [horizontal width: bycontainer height: 30] {
+		view [horizontal growfactor: 4 height: bycontainer justifycontent: start] {
+			button CTL_USRGRP_PATH [title: "@{path_pl}..." tabstop size: (100, 21) margin: 4 command: cmCfgPath];
+			button CTL_USRGRP_CFG [title: "@{config}..." tabstop size: (100, 21) margin: 4 command: cmCfgConfig];
+			button CTL_USRGRP_RIGHTS [title: "@but_rights" tabstop size: (100, 21) margin: 4 command: cmCfgRights];
+		}
+		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_USRGRP [vertical title: "@usergroup" size: (530, 195) minsize: (530, 195) padding: 4 font: "MS Shell Dlg,8" justifycontent: spacebetween] {
+	view [horizontal width: bycontainer height: 45] {
+		input CTL_USRGRP_NAME [growfactor: 1 height: 21 margin: 4 tabstop label: "@appellation"] string[48];
+		input CTL_USRGRP_ID [size: (75, 21) margin: 4 tabstop label: "@id"] int32;
+	}
+	input CTL_USRGRP_SYMB [width: bycontainer(60) height: 21 margin: 4 tabstop label: "@symbol"] string[20];
+	view [horizontal width: bycontainer height: 30] {
+		view [horizontal growfactor: 4 height: bycontainer justifycontent: start] {
+			button CTL_USRGRP_PATH [title: "@{path_pl}..." tabstop size: (100, 21) margin: 4 command: cmCfgPath];
+			button CTL_USRGRP_CFG [title: "@{config}..." tabstop size: (100, 21) margin: 4 command: cmCfgConfig];
+			button CTL_USRGRP_RIGHTS [title: "@but_rights" tabstop size: (100, 21) margin: 4 command: cmCfgRights];
+		}
+		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_USR [vertical title: "@user" size: (440, 465) minsize: (440, 465) padding: 4 font: "MS Shell Dlg,8"  justifycontent: spacebetween] {
+	view [horizontal width: bycontainer height: 45] {
+		input CTL_USR_NAME [growfactor: 1 height: 21 margin: 4 tabstop label: "@appellation"] string[48];
+		input CTL_USR_ID [size: (75, 21) margin: 4 tabstop label: "@id"] int32;
+	}
+	input CTL_USR_SYMB [width: bycontainer(80) height: 21 margin: 4 tabstop label: "@symbol"] string[20];
+	combobox CTLSEL_USR_GRP [width: bycontainer(80) height: 21 margin: 4 tabstop label: "@group" cblinesymb: CTL_USR_GRP];
+	combobox CTLSEL_USR_PERSON [width: bycontainer height: 21 margin: 4 tabstop label: "@person" cblinesymb: CTL_USR_PERSON];
+	combobox CTLSEL_USR_UER [width: bycontainer(80) height: 21 margin: 4 tabstop label: "@usr_uerid" cblinesymb: CTL_USR_UER];
+	combobox CTLSEL_USR_PDESKTOP [width: bycontainer(80) height: 21 margin: 4 tabstop label: "@usr_privatedesktop" cblinesymb: CTL_USR_PDESKTOP];
+	view [horizontal width: bycontainer height: 65 justifycontent: spacebetween] {
+		checkcluster CTL_USR_FLAGS [growfactor: 2] {
+			checkbox [title: "@usr_usrf_inhcfg"];
+			checkbox [title: "@usr_usrf_inhrights"];
+		}
+		view [vertical growfactor: 1 height: bycontainer justifycontent: center] {
+			button CTL_USR_CFG [title: "@{config}..." tabstop size: (100, 21) margin: 4 command: cmCfgConfig];
+			button CTL_USR_RIGHTS [title: "@but_rights" tabstop size: (100, 21) margin: 4 command: cmCfgRights];
+		}
+	}
+	view [horizontal width: bycontainer(80) height: 30] {
+		input CTL_USR_EXPIRY [design: B size: (75, 21) margin: 4 tabstop fmtf: (dmy) label: "@usr_expirydate"] date supplement datecalbutton(CTLCAL_USR_EXPIRY);
+	}
+	view [horizontal width: bycontainer height: 30] {
+		view [horizontal growfactor: 3 height: bycontainer justifycontent: start] {
+			button CTL_USR_PATH [title: "@{path_pl}..." tabstop size: (100, 21) margin: 4 command: cmCfgPath];
+			button CTL_USR_PASSWORD [title: "@{password}..." tabstop size: (100, 21) margin: 4 command: cmCfgPassword];
+		}
+		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_LAUNCHAPP [vertical title: "@launchappparam" size: (435, 335) minsize: (435, 335) padding: 4 font: "MS Shell Dlg,8" justifycontent: spacebetween] {
+	input CTL_LAUNCHAPP_APP [width: bycontainer height: 21 margin: 4 tabstop label: "@launchappparam_app"] string[255] supplement filebrowsebutton(CTLBRW_LAUNCHAPP_APP);
+	//button CTLBRW_LAUNCHAPP_APP [title: "@{launchappparam_appselbutton}..." tabstop size: (63, 21)  command: cmNone];
+	input CTL_LAUNCHAPP_PARAMS [width: bycontainer height: 21 margin: 4 tabstop label: "@launchappparam_arg"] string[255];
+	checkbox [title: "@launchappparam_fwait" width: bycontainer(80) height: 16 margin: 4];
+	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: (4, 4, 4, 4) justifycontent: spacebetween] {
+		checkbox [title: "@launchappparam_fremote" width: bycontainer(60) height: 16 margin: 4];
+		input CTL_LAUNCHAPP_SERVER [width: bycontainer height: 21 margin: 4 tabstop label: "@launchappparam_wmiserver"] string[64];
+		view [horizontal width: bycontainer height: 45] {
+			input CTL_LAUNCHAPP_USER [growfactor: 1 height: 21 margin: 4 tabstop label: "@launchappparam_userlogin"] string[32];
+			input CTL_LAUNCHAPP_PWD [growfactor: 1 height: 21 margin: 4 tabstop password label: "@launchappparam_userpassword"] string[32];
+		}
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+// @20260531 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
 // Диалоги, представленные здесь с изменными символами (DLG_CASHREPORTS_L__, например) в ppdlg.list не отмечены поскольку находятся в работе.
 
 // @construction
@@ -5441,7 +5628,7 @@ dialog DLG_TSESS_EXEC_TR_PARAM [vertical title: "@{tsession}" size: (450, 200) m
 	}
 }
 
-dialog DLG_CHKPAN__ [vertical title: "" size: (760, 620) minsize: (760, 620) padding: 4 font: "Arial,11"] { // @v12.6.3 @construction
+dialog DLG_CHKPAN__ [vertical title: "" size: (825, 700) minsize: (825, 700) padding: 4 font: "Arial,11"] { // @v12.6.3 @construction
 	listbox CTL_CHKPAN_LIST [width: bycontainer growfactor: 5 margin: 4 columns: "@lbt_chkpan"];
 	view [horizontal width: bycontainer growfactor: 2.5] {
 		framebox [vertical growfactor: 2 height: bycontainer margin: 4 padding: 4] {
@@ -5506,60 +5693,4 @@ dialog DLG_CHKPAN__ [vertical title: "" size: (760, 620) minsize: (760, 620) pad
 		input CTL_CHKPAN_INFO [growfactor: 1 height: 38 margin: 4 readonly] string[252];
 	}
 	button CTL_CHKPAN_ENTER [title: "" size: (1, 1) command: cmaInsert];
-	
-	//framebox [origin: (10, 204) size: (486, 115) ];
-	//framebox [origin: (10, 319) size: (720, 191) ];
-	//framebox [origin: (10, 510) size: (720, 55) ];
-	//framebox [title: "@printcheck" origin: (500, 404) size: (218, 96) ];
-}
-
-dialog DLG_GSITEM [vertical title: "@gsitem" size: (670, 420) minsize: (670, 420) padding: 4 font: "MS Shell Dlg,8"] { // @v12.6.5 @construction
-	statictext CTL_GSITEM_HEADER [width: bycontainer height: 21 margin: 4 staticedge];
-	combobox CTLSEL_GSITEM_GGRP [width: bycontainer height: 21 margin: (4, 4, 4, 2) tabstop label: "@gsitem_goodsgroup" cblinesymb: CTL_GSITEM_GGRP ];
-	checkbox CTL_GSITEM_GROUPONLY [width: bycontainer(60) margin: (4, 2, 4, 4) title: "@gsitem_gsif_goodsgroup" tabstop];
-	combobox CTLSEL_GSITEM_GOODS [width: bycontainer height: 21 margin: 4 tabstop label: "@gsitem_goods" cblinesymb: CTL_GSITEM_GOODS ];
-	view [horizontal width: bycontainer growfactor: 1] {
-		framebox [title: "@qtty" horizontal growfactor: 1 height: bycontainer margin: 4 padding: (4, 12, 4, 4)] {
-			view [vertical growfactor: 2 height: bycontainer] {
-				input CTL_GSITEM_VALUE [width: bycontainer height: 21 margin: (4, 4, 4, 2) tabstop] string[30];
-				radiocluster CTL_GSITEM_UNITS [width: bycontainer margin: (4, 2, 4, 4)] {
-					radiobutton [title: "@gsitem_mainunit"];
-					radiobutton [title: "@gsitem_gsif_phuval"];
-					radiobutton [title: "@gsitem_gsif_pctval"];
-					radiobutton [title: "@gsitem_gsif_qttyasprice"];
-				}
-			}
-			view [vertical growfactor: 1 height: bycontainer] {
-				statictext CTL_GSITEM_NTBRTCOEF [width: bycontainer growfactor: 1 margin: 4 staticedge];
-				input CTL_GSITEM_NETTO [width: bycontainer height: 21 margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 6 label: "@gsitem_netto"] double;
-			}
-		}
-		view [vertical growfactor: 1 height: bycontainer] {
-			checkcluster CTL_GSITEM_FLAGS [width: bycontainer margin: 4] {
-				checkbox [title: "@gsitem_gsif_rounddown"];
-				checkbox [title: "@gsitem_gsif_autotswroff"];
-				checkbox [title: "@gsitem_gsif_mainitem"];
-				checkbox [title: "@gsitem_gsif_subpartstr"];
-				checkbox [title: "@gsitem_gsif_identical"];
-				checkbox [title: "@gsitem_gsif_queryexplot"];
-			}
-			view [horizontal width: bycontainer height: 30] {
-				input CTL_GSITEM_PRICE [design: B size: (75, 21) margin: 4 tabstop fmtf: (nozero) fmtprec: 2 label: "@gsitem_price"] double;
-			}
-		}
-	}
-	view [horizontal width: bycontainer height: 45] {
-		input CTL_GSITEM_SYMB [growfactor: 1 height: 21 margin: 4 tabstop label: "@gsitem_symb"] string[20];
-		input CTL_GSITEM_FORMULA [growfactor: 2 height: 21 margin: 4 tabstop label: "@gsitem_formula"] string[128];
-	}
-	view [horizontal width: bycontainer height: 30] {
-		view [horizontal growfactor: 1 height: bycontainer justifycontent: start] {
-			button CTL_CMD_GSITEMLOTS [title: "@{lots}..." tabstop size: (75, 21) margin: 4 command: cmGSItemLots];
-		}
-		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
-			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
-			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
-		}
-	}
-	//framebox [title: "@qtty" origin: (8, 140) size: (323, 137) ];
 }

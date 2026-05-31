@@ -194,6 +194,39 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			}
 		}
 		{
+			// @v12.6.5 Тест SString::LenUtf8()
+			(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("utf8len.txt");
+			SFile inf(in_buf, SFile::mRead);
+			SFile::ReadLineCsvContext csv_ctx(';');
+			StringSet ss(";");
+			while(inf.ReadLineCsv(csv_ctx, ss)) {
+				if(ss.IsCountGreaterThan(2)) {
+					uint  fld_no = 0;
+					long  blen = -1; // длина строки в байтах
+					long  clen = -1; // длина строки в codepoint
+					in_buf.Z();
+					for(uint ssp = 0; ss.get(&ssp, str);) {
+						fld_no++;
+						if(fld_no == 1) {
+							in_buf = str;
+						}
+						else if(fld_no == 2) {
+							blen = str.ToLong();
+						}
+						else if(fld_no == 3) {
+							clen = str.ToLong();
+						}
+					}
+					if(fld_no >= 3) {
+						if(blen >= 0 && clen >= 0) {
+							SLCHECK_EQ(in_buf.Len(), static_cast<size_t>(blen));
+							SLCHECK_EQ(in_buf.LenUtf8(), static_cast<size_t>(clen));
+						}
+					}
+				}
+			}
+		}
+		{
 			// @v11.9.4 Ситуативный тест проверки преобразования double в строку
 			double qtty = 0.3;
 			str.Z().Cat(qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ|NMBF_OMITEPS));

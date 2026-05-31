@@ -1874,7 +1874,7 @@ IMPL_HANDLE_EVENT(LocationDialog)
 			SString cmd_line;
 			(temp_buf = "maps").CatChar('?').CatChar('q').Eq().Cat(Data.Latitude, MKSFMTD(0, 7, NMBF_NOTRAILZ)).Comma().Cat(Data.Longitude, MKSFMTD(0, 7, NMBF_NOTRAILZ));
 			cmd_line = InetUrl::MkHttps("www.google.com", temp_buf);
-			::ShellExecute(0, _T("open"), SUcSwitch(cmd_line), NULL, NULL, SW_SHOW);
+			::ShellExecuteW(0, L"open", SUcSwitchW(cmd_line), NULL, NULL, SW_SHOW);
 		}
 	}
 	else if(event.isCbSelected(CTLSEL_LOCATION_CITY))

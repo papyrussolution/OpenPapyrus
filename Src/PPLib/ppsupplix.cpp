@@ -2398,7 +2398,7 @@ int PPSupplExchange_Baltika::Import(const char * pPath)
 				} while(read_bytes > 0);
 				ok = 1;
 				InternetCloseHandle(h);
-				::ShellExecute(0, "open", "c:\\temp\\1\\answer.html", NULL, NULL, SW_SHOWNORMAL);
+				::ShellExecuteW(0, L"open", SUcSwitchW("c:\\temp\\1\\answer.html"), NULL, NULL, SW_SHOWNORMAL);
 			}
 			return ok;
 		}
@@ -13978,7 +13978,7 @@ int COCACOLA::MakeReply(const BillTbl::Rec & rOrderBillRec, PPID billID, StringS
 										{
 											temp_buf.Z();
 											if(todo_pack.Rec.ID && checkdate(todo_pack.Rec.StartDt)) 
-												temp_buf.Cat(todo_pack.Rec.Amount, MKSFMTD(0, 2, 0));
+												temp_buf.Cat(todo_pack.Rec.Amount, MKSFMTD_020);
 											n_i.PutInner("PRICE", temp_buf);
 										}
 										{

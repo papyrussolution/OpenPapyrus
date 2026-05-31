@@ -292,7 +292,7 @@ int SmartListBox::AddColumn(int pos, const char * pTitle, uint width, uint forma
 	{
 		ColumnDescr item;
 		MEMSZERO(item);
-		item.Width = MIN(255, MAX(width, 2));
+		item.Width = smin(255U, MAX(width, 2U));
 		if(format & ALIGN_LEFT)
 			item.Format |= ALIGN_LEFT;
 		else if(format & ALIGN_RIGHT)

@@ -3133,6 +3133,6 @@ PPTimeChunkBrowser::PPTimeChunkBrowser() : STimeChunkBrowser()
 	ZDELETE(p_sheet);
 	ZDELETE(p_app);
 	if(ok > 0 && fileExists(path))
-		::ShellExecute(0, _T("open"), SUcSwitch(path), NULL, NULL, SW_SHOWNORMAL); // @unicodeproblem
+		::ShellExecuteW(0, L"open", SUcSwitchW(path), NULL, NULL, SW_SHOWNORMAL);
 	return ok;
 }

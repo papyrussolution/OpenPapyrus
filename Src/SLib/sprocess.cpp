@@ -16,6 +16,211 @@
 // #include <..\SLib\subprocess\subprocess.h> // @v11.9.3 @experimental
 #include <sl-packing-reset.h> // @v12.5.9
 
+// Справочно код из Windows
+static void Parse_Cmdline(wchar_t * cmdstart, wchar_t ** ppArgv, wchar_t * lpstr, int * numargs, int * numbytes)
+{
+	wchar_t * p;
+	wchar_t c;
+	int    inquote;   /* 1 = inside quotes */
+	int    copychar;  /* 1 = copy char to *args */
+	uint16 numslash; /* num of backslashes seen */
+	*numbytes = 0;
+	*numargs = 1;  /* the program name at least */
+	/* first scan the program name, copy it, and count the bytes */
+	p = cmdstart;
+	if(ppArgv)
+		*ppArgv++ = lpstr;
+	// A quoted program name is handled here. The handling is much
+	// simpler than for other arguments. Basically, whatever lies
+	// between the leading double-quote and next one, or a terminal null
+	// character is simply accepted. Fancier handling is not required
+	// because the program name must be a legal NTFS/HPFS file name.
+	// Note that the double-quote characters are not copied, nor do they contribute to numbytes.
+	if(*p == L'\"') {
+		// scan from just past the first double-quote through the next double-quote, or up to a null, whichever comes first
+		while((*(++p) != L'\"') && (*p != L'\0')) {
+			*numbytes += sizeof(WCHAR);
+			if(lpstr)
+				*lpstr++ = *p;
+		}
+		// append the terminating null 
+		*numbytes += sizeof(WCHAR);
+		if(lpstr)
+			*lpstr++ = L'\0';
+		// if we stopped on a double-quote (usual case), skip over it 
+		if(*p == L'\"')
+			p++;
+	}
+	else {
+		// Not a quoted program name
+		do {
+			*numbytes += sizeof(WCHAR);
+			if(lpstr)
+				*lpstr++ = *p;
+			c = (WCHAR)*p++;
+		} while(c > L' ');
+		if(c == L'\0') {
+			p--;
+		}
+		else {
+			if(lpstr)
+				*(lpstr - 1) = L'\0';
+		}
+	}
+	inquote = 0;
+	// loop on each argument
+	for(;;) {
+		if(*p) {
+			while(oneof2(*p, L' ', L'\t'))
+				++p;
+		}
+		if(*p == L'\0')
+			break; // end of args
+		// scan an argument
+		if(ppArgv)
+			*ppArgv++ = lpstr; // store ptr to arg
+		++*numargs;
+		// loop through scanning one argument
+		for(;;) {
+			copychar = 1;
+			// Rules: 2N backslashes + " ==> N backslashes and begin/end quote
+			//   2N+1 backslashes + " ==> N backslashes + literal "
+			//   N backslashes ==> N backslashes
+			numslash = 0;
+			while(*p == L'\\') {
+				// count number of backslashes for use below 
+				++p;
+				++numslash;
+			}
+			if(*p == L'\"') {
+				// if 2N backslashes before, start/end quote, otherwise copy literally 
+				if(numslash % 2 == 0) {
+					if(inquote) {
+						if(p[1] == L'\"') {
+							p++; // Double quote inside quoted string 
+						}
+						else { // skip first quote char and copy second 
+							copychar = 0;
+						}
+					}
+					else {
+						copychar = 0; // don't copy quote
+					}
+					inquote = !inquote;
+				}
+				numslash /= 2; // divide numslash by two
+			}
+			// copy slashes 
+			while(numslash--) {
+				if(lpstr)
+					*lpstr++ = L'\\';
+				*numbytes += sizeof(WCHAR);
+			}
+			// if at end of arg, break loop 
+			if(*p == L'\0' || (!inquote && oneof2(*p, L' ', L'\t'))) {
+				break;
+			}
+			// copy character into argument
+			if(copychar) {
+				if(lpstr)
+					*lpstr++ = *p;
+				*numbytes += sizeof(WCHAR);
+			}
+			++p;
+		}
+		// null-terminate the argument
+		if(lpstr)
+			*lpstr++ = L'\0'; // terminate string
+		*numbytes += sizeof(WCHAR);
+	}
+}
+
+/*static*/int SlProcess::SplitCmdLine(const char * pCmdLine, uint flags, StringSet & rResultSs) // @v12.6.5 @construction
+{
+	rResultSs.Z();
+	int    ok = 1;
+	const  size_t len = sstrlen(pCmdLine);
+	if(!len) {
+		ok = -1;
+	}
+	else {
+		SString temp_buf;
+		SString arg_buf;
+		SStrScan scan(pCmdLine);
+		scan.Skip(SStrScan::wsSpace|SStrScan::wsTab|SStrScan::wsNewLine);
+		if(flags  & sclfLeadExe) {
+			if(scan.Is('\"')) {
+				THROW(scan.GetQuotedString(arg_buf));
+				rResultSs.add(arg_buf);
+			}
+			else {
+				arg_buf.Z();
+				const  int local_gwr = scan.GetWord(" \t\n\r", arg_buf);
+				if(local_gwr) {
+					rResultSs.add(arg_buf);
+				}
+			}
+			scan.Skip(SStrScan::wsSpace|SStrScan::wsTab|SStrScan::wsNewLine);
+		}
+		{
+			while(!scan.IsEnd()) {
+				arg_buf.Z();
+				bool   inquote = false; // true = inside quotes
+				scan.Skip(SStrScan::wsSpace|SStrScan::wsTab|SStrScan::wsNewLine);
+				for(bool end_of_arg = false; !end_of_arg;) {
+					// Rules: 2N backslashes + " ==> N backslashes and begin/end quote
+					//   2N+1 backslashes + " ==> N backslashes + literal "
+					//   N backslashes ==> N backslashes
+					uint   numslash = 0;
+					bool   copychar = true;
+					const  size_t preserve_scan_offs = scan.GetOffs();
+					//temp_buf.Z().CatChar(scan[0]);
+					while(scan.Is('\\')) { // count number of backslashes for use below 
+						numslash++;
+						scan.Incr();
+					}
+					if(scan.Is('\"')) {
+						// if 2N backslashes before, start/end quote, otherwise copy literally 
+						if((numslash & 1) == 0) {
+							if(inquote) {
+								if(scan[1] == '\"') {
+									scan.Incr(); // Double quote inside quoted string 
+								}
+								else { // skip first quote char and copy second 
+									copychar = false;
+								}
+							}
+							else {
+								copychar = false; // don't copy quote
+							}
+							inquote = !inquote;
+						}
+						numslash /= 2; // divide numslash by two
+					}
+					// copy slashes 
+					if(numslash) {
+						arg_buf.CatCharN('\\', numslash);
+						numslash = 0;
+					}
+					if(scan.IsEnd() || (!inquote && scan.IsSpace(SStrScan::wsSpace|SStrScan::wsTab))) {
+						if(arg_buf.NotEmpty())
+							rResultSs.add(arg_buf);
+						end_of_arg = true;
+					}
+					else {
+						if(copychar) {
+							arg_buf.CatChar(scan[0]);
+						}
+						scan.Incr();
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 typedef HRESULT (WINAPI * FN_CREATEAPPCONTAINERPROFILE)(PCWSTR, PCWSTR, PCWSTR, PSID_AND_ATTRIBUTES, DWORD, PSID *); // Userenv.dll:CreateAppContainerProfile
 typedef HRESULT (WINAPI * FN_DERIVEAPPCONTAINERSIDFROMAPPCONTAINERNAME)(PCWSTR, PSID *); // Userenv.dll:DeriveAppContainerSidFromAppContainerName
 typedef HRESULT (WINAPI * FN_DELETEAPPCONTAINERPROFILE)(PCWSTR); // Userenv.dll:DeleteAppContainerProfile

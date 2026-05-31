@@ -1,5 +1,5 @@
 // TEST-PROCESS.CPP
-// Copyright (c) A.Sobolev 2023, 2025
+// Copyright (c) A.Sobolev 2023, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -756,5 +756,31 @@ SLTEST_R(SlProcess)
 	//CATCH
 		//CurrentStatus = 0;
 	//ENDCATCH
+	return CurrentStatus;
+}
+
+SLTEST_R(SplitCmdLine)
+{
+	struct TestEntry {
+		uint   Flags;
+		const char * P_CmdLine;
+		const char * P_Result;
+	};
+	static const TestEntry test_list[] = {
+		{ 0, "arg1 \"arg 2\" -opt1 val :opt2 \"val 2\" -opt3 \"\"\"val3\"\"\"", "arg1^arg 2^-opt1^val^:opt2^val 2^-opt3^\"val3\"" },
+		{ SlProcess::sclfLeadExe, "program.exe", "program.exe" },
+		{ SlProcess::sclfLeadExe, "program.exe arg1", "program.exe^arg1" },
+		{ SlProcess::sclfLeadExe, "program.exe \"arg \"\"1\"\"\"", "program.exe^arg \"1\"" },
+		{ SlProcess::sclfLeadExe, "program.exe  arg1\targ2", "program.exe^arg1^arg2" },
+		{ SlProcess::sclfLeadExe, "\"c:\\program files\\program.exe\"  arg1\t\"arg 2\"", "c:\\program files\\program.exe^arg1^arg 2" },
+	};
+	StringSet ss_result("^");
+	StringSet ss_pattern("^");
+	for(uint i = 0; i < SIZEOFARRAY(test_list); i++) {
+		const TestEntry & r_entry = test_list[i];
+		SlProcess::SplitCmdLine(r_entry.P_CmdLine, r_entry.Flags, ss_result);
+		ss_pattern.setBuf(r_entry.P_Result, sstrlen(r_entry.P_Result)+1);
+		SLCHECK_NZ(ss_result == ss_pattern);
+	}
 	return CurrentStatus;
 }

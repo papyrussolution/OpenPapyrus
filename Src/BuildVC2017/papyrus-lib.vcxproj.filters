@@ -180,7 +180,6 @@
     <ClCompile Include="..\PPLib\billhist.cpp" />
     <ClCompile Include="..\PPLib\bilvatax.cpp" />
     <ClCompile Include="..\PPLib\bitmbrow.cpp" />
-    <ClCompile Include="..\PPLib\Bnkodlg.cpp" />
     <ClCompile Include="..\PPEquip\Bnkterminal.cpp" />
     <ClCompile Include="..\PPLib\Bpakcore.cpp" />
     <ClCompile Include="..\PPLib\C_aturn.cpp" />

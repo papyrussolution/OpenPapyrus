@@ -835,7 +835,7 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 						}
 						else
 							r = 1;
-						gs.GoodsID = r_struc_entry.PrmrGoodsID;
+						gs.OwnerGoodsID = r_struc_entry.PrmrGoodsID;
 						if(oneof2(ppvCmd, PPVCMD_EDITGOODS, PPVCMD_EDITITEMGOODS)) {
 							PPID   goods_id = (ppvCmd == PPVCMD_EDITGOODS) ? r_struc_entry.PrmrGoodsID : brw_hdr.GoodsID;
 							ok = (Cb.GObj.Edit(&goods_id, 0) == cmOK) ? 1 : -1;
@@ -1187,7 +1187,7 @@ static int __MakeGoodsStrucTreeListView(/*PPViewBrowser * pBrw*/)
 								}
 								else
 									r = 1;
-								gs.GoodsID = p_struc_entry->PrmrGoodsID;
+								gs.OwnerGoodsID = p_struc_entry->PrmrGoodsID;
 								if(r > 0 && GsObj.EditDialog(&gs) > 0) {
 									PPID   struc_id = parent_struc_id ? parent_struc_id : p_entry->GStrucID;
 									r = P_Blk->Cb.GSObj.Put(&struc_id, &gs, 1);
@@ -1377,7 +1377,7 @@ int PPViewGoodsStruc::MakeTreeListView(PPViewBrowser * pBrw)
 								}
 								else
 									r = 1;
-								gs.GoodsID = p_struc_entry->PrmrGoodsID;
+								gs.OwnerGoodsID = p_struc_entry->PrmrGoodsID;
 								if(r > 0 && GsObj.EditDialog(&gs) > 0) {
 									PPID   struc_id = parent_struc_id ? parent_struc_id : p_entry->GStrucID;
 									r = P_Blk->Cb.GSObj.Put(&struc_id, &gs, 1);

@@ -3770,7 +3770,9 @@ class DBConst : public DBItem {
 public:
 	void   FASTCALL init(int l);
 	void   FASTCALL init(long l);
-	void   FASTCALL init(size_t l);
+	void   FASTCALL init(int64 l); // @v12.6.5
+	void   FASTCALL init(uint64 l); // @v12.6.5
+	void   FASTCALL init(uint32 l); // @v12.6.5 size_t-->uint32 (раз появился override для uint64)
 	void   FASTCALL init(double d);
 	void   FASTCALL init(const char * s);
 	void   FASTCALL init(LDATE d);
@@ -3796,10 +3798,12 @@ public:
 		dtv  = BTS_DATETIME,
 		ptrv = BTS_PTR,
 		i64v = BTS_INT64_,
+		u64v = BTS_UINT64_, // @v12.6.5
 	};
 	union {
 		long   lval;
 		int64  i64val;
+		uint64 u64val; // @v12.6.5
 		double rval;
 		char * sptr;
 		const  void * ptrval;  // Экземпляр ни при каких обстоятельствах не владеет объектом по этому указателю
@@ -4272,6 +4276,16 @@ DBQ & __stdcall operator <  (DBItem &, int v);
 DBQ & __stdcall operator >  (DBItem &, int v);
 DBQ & __stdcall operator <= (DBItem &, int v);
 DBQ & __stdcall operator >= (DBItem &, int v);
+DBQ & __stdcall operator == (DBItem & i, int64 v); // @v12.6.5
+DBQ & __stdcall operator <  (DBItem & i, int64 v); // @v12.6.5
+DBQ & __stdcall operator >  (DBItem & i, int64 v); // @v12.6.5
+DBQ & __stdcall operator <= (DBItem & i, int64 v); // @v12.6.5
+DBQ & __stdcall operator >= (DBItem & i, int64 v); // @v12.6.5
+DBQ & __stdcall operator == (DBItem & i, uint64 v); // @v12.6.5
+DBQ & __stdcall operator <  (DBItem & i, uint64 v); // @v12.6.5
+DBQ & __stdcall operator >  (DBItem & i, uint64 v); // @v12.6.5
+DBQ & __stdcall operator <= (DBItem & i, uint64 v); // @v12.6.5
+DBQ & __stdcall operator >= (DBItem & i, uint64 v); // @v12.6.5
 DBQ & __stdcall operator == (DBItem &, const char *);
 DBQ & __stdcall operator != (DBItem &, const char *);
 DBQ & __stdcall operator <  (DBItem &, const char *);

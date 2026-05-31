@@ -421,7 +421,7 @@ void DbSession::GetProtectData(void * pBuf, int decr) const
 {
 	memcpy(pBuf, __dbdata__, sizeof(__dbdata__));
 	if(decr)
-		::decrypt(pBuf, sizeof(__dbdata__));
+		::__M2D(pBuf, sizeof(__dbdata__));
 }
 
 void DbSession::SetProtectData(const void * pBuf)

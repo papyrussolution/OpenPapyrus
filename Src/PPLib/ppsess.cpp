@@ -2815,8 +2815,8 @@ int PPSession::CheckLicense(MACAddr * pMachineID, int * pIsDemo)
 		ASSIGN_PTR(pIsDemo, 0);
 	GetMachineID(&machine_id, 0);
 	{
-		const ulong cur_process_id = GetCurrentProcessId();
-		const char * p_func_name = "CheckLicense";
+		const  ulong cur_process_id = GetCurrentProcessId();
+		const  char * p_func_name = "CheckLicense";
 		if(!ProcessIdToSessionId(cur_process_id, &cur_term_sess_id)) {
 			SString msg_buf;
 			PPGetMessage(mfError, PPERR_SLIB, 0, 0, msg_buf);
@@ -4235,7 +4235,7 @@ int PPSession::Implement_PPLogin(const PPDbEntrySet2 * pDbes, const char * pDbSy
 				else if(pw[0] && (r_lc.Flags & CFGFLG_SEC_CASESENSPASSW) ? !sstreq(pw, pPassword) : stricmp866(pw, pPassword)) {
 					if(logmode == logmSystem) {
 						// для совместимости со старыми версиями (раньше использовался другой механизм шифрования)
-						decrypt(memcpy(pw, usr_rec.Password, sizeof(pw)), sizeof(pw));
+						__M2D(memcpy(pw, usr_rec.Password, sizeof(pw)), sizeof(pw));
 						if(stricmp866(pw, pPassword) == 0)
 							pw_is_wrong = 0;
 					}

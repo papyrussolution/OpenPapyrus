@@ -436,8 +436,9 @@ char * STDCALL strfmt(const char * pStr, long fmt, char * pBuf)
 			strupr866(pBuf);
 		else if(flag & STRF_LOWER)
 			strlwr866(pBuf);
-		if(flag & STRF_PASSWORD)
+		if(flag & STRF_PASSWORD) {
 			strset(pBuf, SlConst::DefaultPasswordSymb);
+		}
 		if(flag & COMF_SQL) {
 			const size_t len = sstrlen(pBuf);
 			pBuf[len] = '\'';

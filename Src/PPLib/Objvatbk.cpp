@@ -919,19 +919,18 @@ int VATBCfgDialog::editItemDialog(VATBCfg::Item * pItem)
 			AddClusterAssoc(CTL_VATBL_FLAGS, 5, VATBCfg::fAsPayment);
 			AddClusterAssoc(CTL_VATBL_FLAGS, 6, VATBCfg::fReckonDateByPayment); // @v11.9.10
 			SetClusterData(CTL_VATBL_FLAGS, Data.Flags);
-			// @v11.0.3 {
 			AddClusterAssoc(CTL_VATBL_SIGNFILT, 0, 0);
 			AddClusterAssoc(CTL_VATBL_SIGNFILT, 1, +1);
 			AddClusterAssoc(CTL_VATBL_SIGNFILT, 2, -1);
 			SetClusterData(CTL_VATBL_SIGNFILT, Data.SignFilt);
-			// } @v11.0.3 
 			{
 				long   exp_by_fact = 0;
-				if(Data.Flags & VATBCfg::fExpendByFact)
+				if(Data.Flags & VATBCfg::fExpendByFact) {
 					if(Data.Flags & VATBCfg::fFactByShipment)
 						exp_by_fact = 2;
 					else
 						exp_by_fact = 1;
+				}
 				AddClusterAssocDef(CTL_VATBL_EXPBYFACT, 0, 0);
 				AddClusterAssoc(CTL_VATBL_EXPBYFACT, 1, 1);
 				AddClusterAssoc(CTL_VATBL_EXPBYFACT, 2, 2);
@@ -1244,6 +1243,11 @@ int PPViewVatBook::MainOrgBlock::Init()
 		}
 	}
 	return result;
+}
+
+PPViewVatBook::AutoBuildFilt::AutoBuildFilt()
+{
+	THISZERO();
 }
 
 PPViewVatBook::PPViewVatBook() : PPView(0, &Filt, PPVIEW_VATBOOK, 0, 0), P_BObj(BillObj), P_GObj(0), P_ClbList(0)
@@ -2044,9 +2048,8 @@ public:
 	}
 	DECL_DIALOG_SETDTS()
 	{
-		if(!RVALUEPTR(Data, pData))
-			MEMSZERO(Data);
-		setWL(BIN(Data.Flags & PPViewVatBook::abfWL));
+		RVALUEPTR(Data, pData);
+		setWL(LOGIC(Data.Flags & PPViewVatBook::abfWL));
 		SetPeriodInput(this, CTL_VATBABFLT_PERIOD,   Data.Period);
 		SetPeriodInput(this, CTL_VATBABFLT_SHIPMPRD, Data.ShipmPeriod);
 		disableCtrl(CTL_VATBABFLT_SHIPMPRD, !(Data.Flags & PPViewVatBook::abfByPayment));
@@ -2227,8 +2230,9 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 			VATBookTbl::Rec rec;
 			const bool reckon_date_by_payment = r_cfg.CheckFlag(pack.Rec.OpID, VATBCfg::fReckonDateByPayment); // @v12.0.0
 			if(!paym_has_vat_amounts) {
-				if(!pack.Amounts.HasVatSum(pTai))
+				if(!pack.Amounts.HasVatSum(pTai)) {
 					THROW(pack.SetupVirtualTItems());
+				}
 				THROW(vata.CalcBill(pack));
 			}
 			rec.LineType_ = static_cast<int16>(Filt.Kind);
@@ -2702,9 +2706,9 @@ int PPViewVatBook::AutoBuild()
 	AutoBuildFilt flt;
 	const VATBCfg & r_cfg = VBObj.GetConfig(Filt.Kind);
 	THROW(VBObj.IsValidKind(Filt.Kind));
-	if(r_cfg.AcctgBasis == INCM_BYPAYMENT || (r_cfg.AcctgBasis == INCM_DEFAULT && (Filt.Kind == PPVTB_SIMPLELEDGER || CConfig.IncomeCalcMethod == INCM_BYPAYMENT)))
+	if(r_cfg.AcctgBasis == INCM_BYPAYMENT || (r_cfg.AcctgBasis == INCM_DEFAULT && (Filt.Kind == PPVTB_SIMPLELEDGER || CConfig.IncomeCalcMethod == INCM_BYPAYMENT))) {
 		by_payments = 1;
-	MEMSZERO(flt);
+	}
 	flt.AccSheetID  = r_cfg.AccSheetID;
 	flt.Period      = Filt.Period;
 	SETFLAG(flt.Flags, abfByPayment, by_payments);

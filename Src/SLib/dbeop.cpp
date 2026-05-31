@@ -231,9 +231,9 @@ DBE & __stdcall millisecond(DBItem & i) { assert(i.baseType() == BTS_TIME); retu
 //
 //
 //
-static DBQ & FASTCALL _newdbq(DBItem & i1, int op, DBItem & i2) { return *new DBQ(i1, op, i2); }
+static DBQ & __stdcall _newdbq(DBItem & i1, int op, DBItem & i2) { return *new DBQ(i1, op, i2); }
 
-static DBQ & FASTCALL _newdbq(DBItem & i, int op, double d)
+static DBQ & __stdcall _newdbq(DBItem & i, int op, double d)
 {
 	DBConst c;
 	if(ffrac(d) == 0.0)
@@ -243,35 +243,49 @@ static DBQ & FASTCALL _newdbq(DBItem & i, int op, double d)
 	return *new DBQ(i, op, c);
 }
 
-static DBQ & FASTCALL _newdbq(DBItem & i, int op, long l)
+static DBQ & __stdcall _newdbq(DBItem & i, int op, long l)
 {
 	DBConst c;
 	c.init(l);
 	return *new DBQ(i, op, c);
 }
 
-static DBQ & FASTCALL _newdbq(DBItem & i, int op, LDATE d)
+static DBQ & __stdcall _newdbq(DBItem & i, int op, int64 l) // @v12.6.5
+{
+	DBConst c;
+	c.init(l);
+	return *new DBQ(i, op, c);
+}
+
+static DBQ & __stdcall _newdbq(DBItem & i, int op, uint64 l) // @v12.6.5
+{
+	DBConst c;
+	c.init(l);
+	return *new DBQ(i, op, c);
+}
+
+static DBQ & __stdcall _newdbq(DBItem & i, int op, LDATE d)
 {
 	DBConst c;
 	c.init(d);
 	return *new DBQ(i, op, c);
 }
 
-static DBQ & FASTCALL _newdbq(DBItem & i, int op, LTIME t)
+static DBQ & __stdcall _newdbq(DBItem & i, int op, LTIME t)
 {
 	DBConst c;
 	c.init(t);
 	return *new DBQ(i, op, c);
 }
 
-static DBQ & FASTCALL _newdbq(DBItem & i, int op, LDATETIME t)
+static DBQ & __stdcall _newdbq(DBItem & i, int op, LDATETIME t)
 {
 	DBConst c;
 	c.init(t);
 	return *new DBQ(i, op, c);
 }
 
-static DBQ & FASTCALL _newdbq(DBItem & i, int op, const char * s)
+static DBQ & __stdcall _newdbq(DBItem & i, int op, const char * s)
 {
 	DBConst c;
 	c.init(s);
@@ -301,6 +315,16 @@ DBQ & __stdcall operator <  (DBItem & i, int v)   { return _newdbq(i, _LT_, stat
 DBQ & __stdcall operator >  (DBItem & i, int v)   { return _newdbq(i, _GT_, static_cast<long>(v)); }
 DBQ & __stdcall operator <= (DBItem & i, int v)   { return _newdbq(i, _LE_, static_cast<long>(v)); }
 DBQ & __stdcall operator >= (DBItem & i, int v)   { return _newdbq(i, _GE_, static_cast<long>(v)); }
+DBQ & __stdcall operator == (DBItem & i, int64 v)   { return _newdbq(i, _EQ_, v); } // @v12.6.5
+DBQ & __stdcall operator <  (DBItem & i, int64 v)   { return _newdbq(i, _LT_, v); } // @v12.6.5
+DBQ & __stdcall operator >  (DBItem & i, int64 v)   { return _newdbq(i, _GT_, v); } // @v12.6.5
+DBQ & __stdcall operator <= (DBItem & i, int64 v)   { return _newdbq(i, _LE_, v); } // @v12.6.5
+DBQ & __stdcall operator >= (DBItem & i, int64 v)   { return _newdbq(i, _GE_, v); } // @v12.6.5
+DBQ & __stdcall operator == (DBItem & i, uint64 v)   { return _newdbq(i, _EQ_, v); } // @v12.6.5
+DBQ & __stdcall operator <  (DBItem & i, uint64 v)   { return _newdbq(i, _LT_, v); } // @v12.6.5
+DBQ & __stdcall operator >  (DBItem & i, uint64 v)   { return _newdbq(i, _GT_, v); } // @v12.6.5
+DBQ & __stdcall operator <= (DBItem & i, uint64 v)   { return _newdbq(i, _LE_, v); } // @v12.6.5
+DBQ & __stdcall operator >= (DBItem & i, uint64 v)   { return _newdbq(i, _GE_, v); } // @v12.6.5
 DBQ & __stdcall operator == (DBItem & i, LDATE d) { return _newdbq(i, _EQ_, d); }
 DBQ & __stdcall operator != (DBItem & i, LDATE d) { return _newdbq(i, _NE_, d); }
 DBQ & __stdcall operator  < (DBItem & i, LDATE d) { return _newdbq(i, _LT_, d); }

@@ -103,18 +103,19 @@ PPGoodsStruc::Ident::Ident(PPID goodsID, long andF, long notF, LDATE dt) : Goods
 {
 }
 
-PPGoodsStruc::PPGoodsStruc() : GoodsID(0), P_Cb(0)
+PPGoodsStruc::PPGoodsStruc() : OwnerGoodsID(0), P_Cb(0)
 {
 }
 
-PPGoodsStruc::PPGoodsStruc(const PPGoodsStruc & rS) : GoodsID(0), P_Cb(0)
+PPGoodsStruc::PPGoodsStruc(const PPGoodsStruc & rS) : OwnerGoodsID(0), P_Cb(0)
 {
 	Copy(rS);
 }
 
 PPGoodsStruc & PPGoodsStruc::Z()
 {
-	GoodsID = 0;
+	OwnerGoodsID = 0;
+	OwnerTecRtId.Z(); // @v12.6.5
 	P_Cb = 0;
 	Rec.Z();
 	Items.clear();
@@ -285,7 +286,7 @@ int PPGoodsStruc::Select(const Ident & rIdent, PPGoodsStruc * pGs) const
 					// ((Rec.Flags & rIdent.NotFlags) != rIdent.NotFlags)-->!(Rec.Flags & rIdent.NotFlags)
 					if(pGs) {
 						*pGs = *this;
-						pGs->GoodsID = rIdent.GoodsID;
+						pGs->OwnerGoodsID = rIdent.GoodsID;
 					}
 					return 1;
 				}
@@ -332,10 +333,9 @@ int PPGoodsStruc::Helper_Select(const Ident & rIdent, TSCollection <PPGoodsStruc
 						found = true;
 				}
 				if(!found) {
-					PPGoodsStruc * p_new_item = new PPGoodsStruc;
+					PPGoodsStruc * p_new_item = new PPGoodsStruc(*this);
 					THROW_MEM(p_new_item);
-					*p_new_item = *this;
-					p_new_item->GoodsID = rIdent.GoodsID;
+					p_new_item->OwnerGoodsID = rIdent.GoodsID;
 					THROW_SL(rList.insert(p_new_item));
 					ok = 1;
 				}
@@ -358,7 +358,8 @@ int PPGoodsStruc::Select(const Ident & rIdent, TSCollection <PPGoodsStruc> & rLi
 PPGoodsStruc & FASTCALL PPGoodsStruc::Copy(const PPGoodsStruc & rS)
 {
 	Z();
-	GoodsID = rS.GoodsID;
+	OwnerGoodsID = rS.OwnerGoodsID;
+	OwnerTecRtId = rS.OwnerTecRtId; // @v12.6.5
 	Rec = rS.Rec;
 	Items.copy(rS.Items);
 	for(uint i = 0; i < rS.Children.getCount(); i++) {
@@ -406,7 +407,7 @@ int PPGoodsStruc::ResolveItemFormula(const PPGoodsStrucItem & rItem, double * pV
 	bool   is_evaluated = false;
 	if(rItem.Formula__[0]) {
 		GdsClsCalcExprContext ctx(this);
-		ctx.GoodsID = GoodsID;
+		ctx.GoodsID = OwnerGoodsID;
 		if(PPCalcExpression(rItem.Formula__, &value, &ctx))
 			is_evaluated = true;
 		else
@@ -419,7 +420,7 @@ int PPGoodsStruc::ResolveItemFormula(const PPGoodsStrucItem & rItem, double * pV
 			if(bs_obj.Fetch(rItem.GoodsID, &bs_pack) > 0) {
 				if(bs_pack.GetExtStrData(PPBizScore2Packet::extssFormula, temp_buf) && temp_buf.NotEmptyS()) {
 					GdsClsCalcExprContext ctx(this);
-					ctx.GoodsID = GoodsID;
+					ctx.GoodsID = OwnerGoodsID;
 					if(PPCalcExpression(temp_buf, &value, &ctx))
 						is_evaluated = true;
 					else
@@ -1260,8 +1261,8 @@ public:
 	{
 		SString temp_buf;
 		if(pData) {
-			if(pData->GoodsID)
-				GetGoodsName(pData->GoodsID, temp_buf);
+			if(pData->OwnerGoodsID)
+				GetGoodsName(pData->OwnerGoodsID, temp_buf);
 			else if(pData->Rec.ID) {
 				PPID   goods_id = 0;
 				if(GObj.P_Tbl->SearchAnyRef(PPOBJ_GOODSSTRUC, pData->Rec.ID, &goods_id) > 0)
@@ -1376,7 +1377,7 @@ public:
 		CATCHZOKPPERRBYDLG
 		return ok;
 	}
-	int    IsChanged();
+	bool   IsChanged();
 private:
 	DECL_HANDLE_EVENT;
 	virtual int  setupList();
@@ -1458,15 +1459,25 @@ void GSDialog::ViewHierarchy()
 		GoodsStrucProcessingBlock Cb;
 		SmartListBox * P_Box;
 	};
-	GoodsStrucHierarchyDialog * dlg = new GoodsStrucHierarchyDialog(Data.GoodsID, Data.Rec.ID);
+	GoodsStrucHierarchyDialog * dlg = new GoodsStrucHierarchyDialog(Data.OwnerGoodsID, Data.Rec.ID);
 	ExecViewAndDestroy(dlg);
 }
 
-int GSDialog::IsChanged()
+bool GSDialog::IsChanged()
 {
-	PPGoodsStruc temp = Data;
-	PPGoodsStruc gs;
-	return NZOR(Changed, (getDTS(&gs), Data = temp, !temp.IsEq(gs)));
+	// @v12.6.5 return NZOR(Changed, (getDTS(&gs), Data = preserve_data, !preserve_data.IsEq(gs)));
+	// @v12.6.5 {
+	if(Changed) {
+		return true;
+	}
+	else {
+		const  PPGoodsStruc preserve_data(Data);
+		PPGoodsStruc gs;
+		getDTS(&gs);
+		Data = preserve_data;
+		return !preserve_data.IsEq(gs);
+	}
+	// } @v12.6.5
 }
 
 int GSDialog::enableEditRecurStruc()
@@ -1476,7 +1487,7 @@ int GSDialog::enableEditRecurStruc()
 	if(SmartListBox::IsValidS(P_Box)) {
 		long   pos = 0;
 		P_Box->P_Def->getCurID(&pos);
-		if(pos > 0 && pos-1 < (long)Data.Items.getCount()) {
+		if(pos > 0 && (pos-1) < Data.Items.getCountI()) {
 			int r = 0;
 			RecurData.Z();
 			THROW(r = GObj.LoadGoodsStruc(PPGoodsStruc::Ident(Data.Items.at(pos - 1).GoodsID, GSF_COMPL, GSF_PARTITIAL), &RecurData));
@@ -1567,13 +1578,14 @@ IMPL_HANDLE_EVENT(GSDialog)
 			Changed = 1;
 		}
 	}
-	else if(event.isCmd(cmPrint))
+	else if(event.isCmd(cmPrint)) {
 		GsObj.Print(&Data);
+	}
 	else if(event.isCmd(cmLBItemFocused)) {
 		if(event.isCtlEvent(CtlList) && !enableEditRecurStruc())
 			PPError();
 	}
-	else if(event.isCmd(cmTree)) { // @v11.2.11
+	else if(event.isCmd(cmTree)) {
 		ViewHierarchy();
 	}
 	else if(event.isCmd(cmGiftParam)) { // @v12.3.7
@@ -1585,10 +1597,12 @@ IMPL_HANDLE_EVENT(GSDialog)
 			return; // После endModal не следует обращаться к this
 		}
 	}
-	else if(event.isKeyDown(kbF7))
+	else if(event.isKeyDown(kbF7)) {
 		GsObj.Print(&Data);
-	else if(event.isKeyDown(kbF2))
+	}
+	else if(event.isKeyDown(kbF2)) {
 		addItemExt(0, 0);
+	}
 	else
 		return;
 	clearEvent(event);
@@ -1602,13 +1616,13 @@ void GSDialog::SelectNamedGS()
 		if(GsObj.SelectorDialog(&id) > 0) {
 			PPGoodsStruc temp;
 			if(id == 0) {
-				temp.GoodsID = Data.GoodsID;
+				temp.OwnerGoodsID = Data.OwnerGoodsID;
 				setDTS(&temp);
 				Changed = 1;
 			}
 			else if(id != Data.Rec.ID) {
 				if(GsObj.Get(id, &temp) > 0) {
-					temp.GoodsID = Data.GoodsID;
+					temp.OwnerGoodsID = Data.OwnerGoodsID;
 					setDTS(&temp);
 					Changed = 1;
 				}
@@ -1644,7 +1658,10 @@ int GSDialog::setupList()
 		PPGoodsStruc inner_struc;
 
 		THROW(GObj.LoadGoodsStruc(PPGoodsStruc::Ident(r_item.GoodsID, GSF_COMPL, GSF_PARTITIAL), &inner_struc));
-		if(r_item.Flags & GSIF_BIZSC2) {
+		if(!isempty(r_item.WareSymb)) { // @v12.6.5
+			sub.Z().Cat("symb").CatDiv(':', 2).Cat(r_item.WareSymb);
+		}
+		else if(r_item.Flags & GSIF_BIZSC2) {
 
 			//@lbt_goodsstruc_pp                   "44,L,@component;20,R,@value;10,R,@income;10,R,@expense" // @v12.0.7
 
@@ -1695,13 +1712,13 @@ int GSDialog::setupList()
 			{
 				sub.Z();
 				if(is_income)
-					sub.Cat(income, MKSFMTD(0, 2, 0));
+					sub.Cat(income, MKSFMTD_020);
 				ss.add(sub);
 			}
 			{
 				sub.Z();
 				if(is_expense)
-					sub.Cat(expense, MKSFMTD(0, 2, 0));
+					sub.Cat(expense, MKSFMTD_020);
 				ss.add(sub);
 			}
 		}
@@ -1764,8 +1781,8 @@ int GSDialog::setupList()
 		ss.add(sub.ToLower());
 		if(Data.GetKind() == PPGoodsStruc::kPricePlanning) {
 			ss.add(sub.Z());
-			ss.add(sub.Z().Cat(total_income, MKSFMTD(0, 2, 0)));
-			ss.add(sub.Z().Cat(total_expense, MKSFMTD(0, 2, 0)));
+			ss.add(sub.Z().Cat(total_income, MKSFMTD_020));
+			ss.add(sub.Z().Cat(total_expense, MKSFMTD_020));
 		}
 		else {
 			ss.add(sub.Z().Cat(t_qtty,  qtty_fmt));
@@ -1937,7 +1954,8 @@ public:
 		AddClusterAssoc(CTL_GSITEM_FLAGS, 4, GSIF_IDENTICAL);
 		AddClusterAssoc(CTL_GSITEM_FLAGS, 5, GSIF_QUERYEXPLOT);
 		SetClusterData(CTL_GSITEM_FLAGS, Data.Flags);
-		setupPrice();
+		SetupPrice();
+		SetupWareSymb(false/*force*/);
 		if(Data.GoodsID) {
 			selectCtrl(CTL_GSITEM_VALUE);
 			GoodsStockExt gse;
@@ -1957,9 +1975,19 @@ public:
 		ushort v;
 		GoodsCtrlGroup::Rec gc_rec;
 		Goods2Tbl::Rec goods_rec;
-		getGroupData(GSItemDialog::ctlgroupGoods, &gc_rec);
-		sel = CTLSEL_GSITEM_GOODS;
-		THROW_PP(Data.GoodsID && GObj.Fetch(Data.GoodsID, &goods_rec) > 0, (Data.Flags & GSIF_GOODSGROUP) ? PPERR_GOODSGROUPNEEDED : PPERR_GOODSNEEDED);
+		// @v12.6.5 {
+		getCtrlString(CTL_GSITEM_WARESYMB, temp_buf);
+		if(temp_buf.NotEmptyS()) {
+			STRNSCPY(Data.WareSymb, temp_buf);
+		}
+		// } @v12.6.5 
+		{
+			getGroupData(GSItemDialog::ctlgroupGoods, &gc_rec);
+			if(isempty(Data.WareSymb)) { // @v12.6.5
+				sel = CTLSEL_GSITEM_GOODS;
+				THROW_PP(Data.GoodsID && GObj.Fetch(Data.GoodsID, &goods_rec) > 0, (Data.Flags & GSIF_GOODSGROUP) ? PPERR_GOODSGROUPNEEDED : PPERR_GOODSNEEDED);
+			}
+		}
 		getCtrlData(sel = CTL_GSITEM_UNITS, &(v = 0));
 		Data.Flags &= ~(GSIF_PCTVAL | GSIF_PHUVAL | GSIF_QTTYASPRICE);
 		if(v == 1)
@@ -1986,12 +2014,17 @@ private:
 	DECL_HANDLE_EVENT
 	{
 		TDialog::handleEvent(event);
-		if(event.isCbSelected(CTLSEL_GSITEM_GOODS))
-			setupPrice();
+		if(event.isCbSelected(CTLSEL_GSITEM_GOODS)) {
+			SetupPrice();
+		}
 		else if(event.isClusterClk(CTL_GSITEM_GROUPONLY)) {
 			SETFLAG(Data.Flags, GSIF_GOODSGROUP, getCtrlUInt16(CTL_GSITEM_GROUPONLY));
 			GoodsCtrlGroup * p_grp = static_cast<GoodsCtrlGroup *>(getGroup(ctlgroupGoods));
 			CALLPTRMEMB(p_grp, setFlag(this, GoodsCtrlGroup::disableEmptyGoods, BIN(!(Data.Flags & GSIF_GOODSGROUP))));
+		}
+		else if(event.isClusterClk(CTL_GSITEM_WARESYMB_TOGGLE)) {
+			uint16 v = getCtrlUInt16(CTL_GSITEM_WARESYMB_TOGGLE);
+			SetupWareSymb(LOGIC(v));
 		}
 		else if(event.isCmd(cmGSItemLots)) {
 			GoodsCtrlGroup::Rec rec;
@@ -2024,7 +2057,7 @@ private:
 			}
 		}
 		else if(event.isKeyDown(kbF6)) {
-			if(R_Struc.GoodsID && isCurrCtlID(CTL_GSITEM_VALUE)) {
+			if(R_Struc.OwnerGoodsID && isCurrCtlID(CTL_GSITEM_VALUE)) {
 				SString temp_buf;
 				double qtty = 0.0;
 				double phuperu;
@@ -2032,7 +2065,7 @@ private:
 				getCtrlString(CTL_GSITEM_VALUE, temp_buf);
 				if(item.SetEstimationString(temp_buf) && item.GetQtty(1, &qtty) > 0) {
 					PPObjGoods goods_obj;
-					if(goods_obj.GetPhUPerU(R_Struc.GoodsID, 0, &phuperu) > 0) {
+					if(goods_obj.GetPhUPerU(R_Struc.OwnerGoodsID, 0, &phuperu) > 0) {
 						item.Median = qtty * phuperu;
 						item.Denom = 1.0;
 						setCtrlString(CTL_GSITEM_VALUE, item.GetEstimationString(temp_buf));
@@ -2043,7 +2076,7 @@ private:
 				return;
 		}
 		else if(event.isKeyDown(kbF4)) {
-			if(R_Struc.GoodsID && isCurrCtlID(CTL_GSITEM_VALUE)) {
+			if(R_Struc.OwnerGoodsID && isCurrCtlID(CTL_GSITEM_VALUE)) {
 				SString temp_buf;
 				double qtty = 0.0;
 				PPGoodsStrucItem item;
@@ -2061,7 +2094,27 @@ private:
 			return;
 		clearEvent(event);
 	}
-	void   setupPrice()
+	void   SetupWareSymb(bool force)
+	{
+		SString temp_buf;
+		bool   disable_direct_goodsselection = false;
+		if(force || !isempty(Data.WareSymb)) {
+			setCtrlUInt16(CTL_GSITEM_WARESYMB_TOGGLE, 1);
+			temp_buf = Data.WareSymb;
+			setCtrlString(CTL_GSITEM_WARESYMB, temp_buf);
+			disable_direct_goodsselection = true;
+		}
+		else {
+			setCtrlUInt16(CTL_GSITEM_WARESYMB_TOGGLE, 0);
+			setCtrlString(CTL_GSITEM_WARESYMB, temp_buf.Z());
+		}
+		disableCtrl(CTL_GSITEM_WARESYMB, !disable_direct_goodsselection);
+		disableCtrl(CTLSEL_GSITEM_GGRP, disable_direct_goodsselection);
+		disableCtrl(CTL_GSITEM_GROUPONLY, disable_direct_goodsselection);
+		disableCtrl(CTLSEL_GSITEM_GOODS, disable_direct_goodsselection);
+		enableCommand(cmGSItemLots, !disable_direct_goodsselection);
+	}
+	void   SetupPrice()
 	{
 		Price = 0.0;
 		GoodsCtrlGroup::Rec rec;
@@ -2132,10 +2185,10 @@ int GSDialog::checkDupGoods(int pos, const PPGoodsStrucItem * pItem)
 
 int GSDialog::editItemDialog(int pos, PPGoodsStrucItem * pData)
 {
-	PPGoodsStrucItem item = *pData;
+	PPGoodsStrucItem item;
+	RVALUEPTR(item, pData);
 	if(pos < 0) {
-		ushort v;
-		getCtrlData(CTL_GSTRUC_FLAGS, &v);
+		ushort v = getCtrlUInt16(CTL_GSTRUC_FLAGS);
 		if(v & 4)
 			item.Flags |= GSIF_PCTVAL;
 	}
@@ -2143,7 +2196,7 @@ int GSDialog::editItemDialog(int pos, PPGoodsStrucItem * pData)
 		if(!checkDupGoods(pos, &item))
 			PPError();
 		else {
-			*pData = item;
+			ASSIGN_PTR(pData, item);
 			return 1;
 		}
 	}
@@ -2171,33 +2224,50 @@ int GSDialog::addItemExt(long * pPos, long * pID)
 		}
 	}
 	else {
+		ExtGoodsSelDialog * goodssel_dlg = 0;
 		long   egsd_flags = (ExtGoodsSelDialog::GetDefaultFlags() | ExtGoodsSelDialog::fForcePassive);
-		ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(0, NewGoodsGrpID, egsd_flags);
-		if(CheckDialogPtrErr(&dlg)) {
-			TIDlgInitData tidi;
-			tidi.GoodsGrpID = NewGoodsGrpID;
-			dlg->setDTS(&tidi);
-			while(ExecView(dlg) == cmOK) {
-				if(dlg->getDTS(&tidi) > 0) {
-					PPGoodsStrucItem item;
-					item.GoodsID = tidi.GoodsID;
-					NewGoodsGrpID = tidi.GoodsGrpID;
-					if(editItemDialog(-1, &item) > 0)
-						if(Data.Items.insert(&item)) {
-							ASSIGN_PTR(pPos, Data.Items.getCount()-1);
-							ASSIGN_PTR(pID, Data.Items.getCount());
-							updateList(-1);
-							Changed = ok = 1;
+		// @v12.6.5 {
+		if(Data.OwnerTecRtId.ID && Data.OwnerTecRtId.ItemIdx) {
+			PPGoodsStrucItem item;
+			if(editItemDialog(-1, &item) > 0) {
+				if(Data.Items.insert(&item)) {
+					ASSIGN_PTR(pPos, Data.Items.getCount()-1);
+					ASSIGN_PTR(pID, Data.Items.getCount());
+					updateList(-1);
+					Changed = ok = 1;
+				}
+				else
+					PPError(PPERR_SLIB);
+			}			
+		}
+		else { // } @v12.6.5 
+			goodssel_dlg = new ExtGoodsSelDialog(0, NewGoodsGrpID, egsd_flags);
+			if(CheckDialogPtrErr(&goodssel_dlg)) {
+				TIDlgInitData tidi;
+				tidi.GoodsGrpID = NewGoodsGrpID;
+				goodssel_dlg->setDTS(&tidi);
+				while(ExecView(goodssel_dlg) == cmOK) {
+					if(goodssel_dlg->getDTS(&tidi) > 0) {
+						PPGoodsStrucItem item;
+						item.GoodsID = tidi.GoodsID;
+						NewGoodsGrpID = tidi.GoodsGrpID;
+						if(editItemDialog(-1, &item) > 0) {
+							if(Data.Items.insert(&item)) {
+								ASSIGN_PTR(pPos, Data.Items.getCount()-1);
+								ASSIGN_PTR(pID, Data.Items.getCount());
+								updateList(-1);
+								Changed = ok = 1;
+							}
+							else
+								PPError(PPERR_SLIB);
 						}
 						else
-							PPError(PPERR_SLIB);
-					else
-						break;
-
+							break;
+					}
 				}
 			}
-			delete dlg;
 		}
+		delete goodssel_dlg;
 	}
 	return ok;
 }
@@ -2258,9 +2328,9 @@ int GSDialog::addItemBySample()
 	if(CheckDialogPtrErr(&dlg)) {
 		if(!GscParam.GoodsGrpID) {
 			Goods2Tbl::Rec goods_rec;
-			if(GObj.Fetch(Data.GoodsID, &goods_rec) > 0) {
+			if(GObj.Fetch(Data.OwnerGoodsID, &goods_rec) > 0) {
 				GscParam.GoodsGrpID = goods_rec.ParentID;
-				SETIFZ(GscParam.GoodsID, Data.GoodsID);
+				SETIFZ(GscParam.GoodsID, Data.OwnerGoodsID);
 			}
 		}
 		GscParam.GStrucID = 0;
@@ -2317,11 +2387,11 @@ private:
 
 int GSExtDialog::setDTS(const PPGoodsStruc * pData)
 {
-	if(pData->GoodsID) {
+	RVALUEPTR(Data, pData);
+	if(Data.OwnerGoodsID) {
 		SString goods_name;
-		setCtrlString(CTL_GSTRUC_GNAME, GetGoodsName(pData->GoodsID, goods_name));
+		setCtrlString(CTL_GSTRUC_GNAME, GetGoodsName(Data.OwnerGoodsID, goods_name));
 	}
-	Data = *pData;
 	setCtrlData(CTL_GSTRUC_NAME, Data.Rec.Name);
 	setCtrlLong(CTL_GSTRUC_ID, Data.Rec.ID);
 	updateList(-1);
@@ -2401,12 +2471,12 @@ void GSExtDialog::SelectNamedGS() // @todo(@20260513) вероятно, здес
 			PPGoodsStruc temp;
 			dlg->getCtrlData(CTLSEL_GSDATA_NAMEDSTRUC, &id);
 			if(id == 0) {
-				temp.GoodsID = Data.GoodsID;
+				temp.OwnerGoodsID = Data.OwnerGoodsID;
 				setDTS(&temp);
 			}
 			else if(id != Data.Rec.ID) {
 				if(gs_obj.Get(id, &temp) > 0) {
-					temp.GoodsID = Data.GoodsID;
+					temp.OwnerGoodsID = Data.OwnerGoodsID;
 					setDTS(&temp);
 				}
 			}
@@ -2469,7 +2539,7 @@ int GSExtDialog::editItem(long pos, long)
 {
 	if(pos >= 0 && pos < Data.Children.getCountI()) {
 		PPGoodsStruc * p_child = Data.Children.at(pos);
-		SETIFZ(p_child->GoodsID, Data.GoodsID);
+		SETIFZ(p_child->OwnerGoodsID, Data.OwnerGoodsID);
 		if(PPObjGoodsStruc::EditDialog(p_child) > 0)
 			return 1;
 	}
@@ -2596,13 +2666,13 @@ int PPObjGoodsStruc::Helper_LoadItems(PPID id, PPGoodsStruc * pData)
 		STRNSCPY(item.Symb, p_raw_item->Symb);
 		{
 			const  int  item_ext_str_id = GetItemExtStrId(i-1/*0..*/, itemextsidFormula);
-			PPGetExtStrData(i, ext_item_buf, temp_buf);
+			PPGetExtStrData(item_ext_str_id, ext_item_buf, temp_buf);
 			temp_buf.CopyTo(item.Formula__, sizeof(item.Formula__));
 		}
 		// @v12.6.5 {
 		{
 			const  int  item_ext_str_id = GetItemExtStrId(i-1/*0..*/, itemextsidWareSubstSymb);
-			PPGetExtStrData(i, ext_item_buf, temp_buf);
+			PPGetExtStrData(item_ext_str_id, ext_item_buf, temp_buf);
 			temp_buf.CopyTo(item.WareSymb, sizeof(item.WareSymb));
 		}
 		// } @v12.6.5 
@@ -2765,7 +2835,7 @@ int PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 				}
 				// } @v12.6.5 
 			}
-			THROW(P_Ref->PutPropVlrString(Obj, *pID, GSPRP_EXTITEMSTR, ext_buf));
+			THROW(P_Ref->PutPropVlrString(Obj, *pID, GSPRP_EXTITEMSTR, ext_buf, 0/*use_ta*/));
 		}
 		if(cleared)
 			*pID = 0;
@@ -2846,13 +2916,13 @@ int PPObjGoodsStruc::Edit(PPID * pID, void * extraPtr /*goodsID*/)
 	if(*pID) {
 		THROW(Get(*pID, &data));
 	}
-	data.GoodsID = reinterpret_cast<PPID>(extraPtr);
-	if(!data.GoodsID && data.Rec.ID) {
+	data.OwnerGoodsID = reinterpret_cast<PPID>(extraPtr);
+	if(!data.OwnerGoodsID && data.Rec.ID) {
 		PPObjGoods goods_obj;
 		PPIDArray owner_list;
 		goods_obj.SearchGListByStruc(data.Rec.ID, false/*expandGenerics*/, owner_list);
 		if(owner_list.getCount() == 1)
-			data.GoodsID = owner_list.get(0);
+			data.OwnerGoodsID = owner_list.get(0);
 	}
 	ok = EditDialog(&data);
 	if(ok > 0) {
@@ -3077,7 +3147,7 @@ void GStrucIterator::Init(const PPGoodsStruc * pStruc, int loadRecurItems)
 	RVALUEPTR(GStruc, pStruc);
 	LoadRecurItems = loadRecurItems;
 	Items.freeAll();
-	LoadItems(&GStruc, GStruc.GoodsID, 1, 0);
+	LoadItems(&GStruc, GStruc.OwnerGoodsID, 1, 0);
 }
 
 void GStrucIterator::InitIteration()

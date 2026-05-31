@@ -757,7 +757,7 @@ int PPObjGoods::Helper_EditGoodsStruc(PPID goodsID, int isDynGen)
 		else {
 			if(isDynGen)
 				pack.GS.Rec.Flags |= GSF_DYNGEN;
-			pack.GS.GoodsID = goodsID;
+			pack.GS.OwnerGoodsID = goodsID;
 			if(GSObj.EditDialog(&pack.GS) > 0) {
 				pack.UpdFlags |= PPGoodsPacket::ufChgNamedStruc;
 				if(PutPacket(&goodsID, &pack, 1))

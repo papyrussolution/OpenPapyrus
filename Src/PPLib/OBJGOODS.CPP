@@ -669,13 +669,13 @@ int PPObjGoods::GetPacket(PPID id, PPGoodsPacket * pPack, long options)
 				int r = GSObj.Get(pPack->Rec.StrucID, &pPack->GS);
 				THROW(r);
 				if(r > 0)
-					pPack->GS.GoodsID = id;
+					pPack->GS.OwnerGoodsID = id;
 				else {
 					SString msg_buf;
 					msg_buf.Cat(pPack->Rec.Name).CatDiv(';', 2).CatEq("ID", id).CatDiv(';', 2).CatEq("StrucID", pPack->Rec.StrucID);
 					PPSetError(PPERR_STRUCBYGOODSNFOUND, msg_buf);
 					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
-					pPack->GS.GoodsID = 0;
+					pPack->GS.OwnerGoodsID = 0;
 				}
 			}
 			if(oneof2(pPack->Rec.Kind, PPGDSK_GOODS, PPGDSK_GROUP) && !(options & gpoSkipQuot)) {
@@ -4242,22 +4242,22 @@ int PPObjGoods::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext
 						// при приеме товара из другого раздела, если поступивший товар не содержит структуры,
 						// то оставляем ее как есть.
 						//
-						if(gp->Rec.StrucID == 0 || (!(GetConfig().Flags & GCF_XCHG_RCVSTRUCUPD) && temp_rec.StrucID))
+						if(!gp->Rec.StrucID || (!(GetConfig().Flags & GCF_XCHG_RCVSTRUCUPD) && temp_rec.StrucID))
 							gp->Rec.StrucID = temp_rec.StrucID;
-						if(gp->Rec.StrucID)
+						if(gp->Rec.StrucID) {
 							if(GSObj.Get(gp->Rec.StrucID, &gp->GS) > 0)
-								gp->GS.GoodsID = *pID;
+								gp->GS.OwnerGoodsID = *pID;
 							else
 								gp->Rec.StrucID = 0;
+						}
 						//
 						ok = AcceptPacket(pID, gp, (p->Flags & PPObjPack::fForceUpdate) ? false : true, pCtx);
 					}
 				}
-				// @v11.3.0 (Если нельзя принимать изменения товаров, но с товаром переданы котировки, то принимаем только котировки) {
 				else if(SVector::GetCount(gp->P_Quots)) {
+					// Если нельзя принимать изменения товаров, но с товаром переданы котировки, то принимаем только котировки
 					ok = AcceptQuot(*pID, gp, (p->Flags & PPObjPack::fForceUpdate) ? false : true, pCtx);
 				}
-				// } @v11.3.0
 			}
 			else {
 				gp->Rec.ID = *pID = 0;

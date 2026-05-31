@@ -602,9 +602,8 @@ static void FASTCALL CreateChZnCode(const char * pValue, SString & rDst)
 }
 static void FASTCALL CreateStr(int value, SString & dst) { dst.Cat(value).CatChar(CHR_FS); }
 static void FASTCALL CreateStr(int64 value, SString & dst) { dst.Cat(value).CatChar(CHR_FS); }
-// @v11.2.11 static void FASTCALL CreateStr(double value, SString & dst) { dst.Cat(value, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatChar(CHR_FS); } // @v11.2.9 0-->MKSFMTD(0, 3, NMBF_NOTRAILZ)
-static void FASTCALL CreateStr(double value, SString & dst) { dst.Cat(value).CatChar(CHR_FS); } // @v11.2.9 0-->MKSFMTD(0, 3, NMBF_NOTRAILZ) // @v11.2.11
-static void FASTCALL CreateStr_Price(double value, SString & dst) { dst.Cat(value, MKSFMTD(0, 2, 0)).CatChar(CHR_FS); } // @v12.5.6
+static void FASTCALL CreateStr(double value, SString & dst) { dst.Cat(value).CatChar(CHR_FS); }
+static void FASTCALL CreateStr_Price(double value, SString & dst) { dst.Cat(value, MKSFMTD_020).CatChar(CHR_FS); } // @v12.5.6
 
 EXPORT int /*STDAPICALLTYPE*/ RunCommand(const char * pCmd, const char * pInputData, char * pOutputData, size_t outSize)
 {
@@ -2308,6 +2307,7 @@ int PiritEquip::PreprocessChZnMark(const char * pMarkCode, double qtty, int uomI
 			switch(uomId) {
 				case SUOM_LITER: chzn_uom_id = 41; break;
 				case SUOM_KILOGRAM: chzn_uom_id = 11; break;
+				default: chzn_uom_id = 0; break; // штука
 			}
 			// } @v11.9.4 
 			CreateStr(chzn_uom_id, in_data); // uom
@@ -2612,7 +2612,7 @@ int PiritEquip::RunCheck(int opertype)
 								CreateStr("", in_data); // #14 (tag 1074) Телефон(ы) оператора по приему платежей (для пл.агента/субагента, иначе пустой) 
 								CreateStr("030"/*GTCHZNPT_DRAFTBEER*/, in_data); // #15 (tag 1262) Идентификатор ФОИВ. Значение определяется ФНС РФ. Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 								// @v11.9.3 str.Z().Cat(checkdate(Check.Timestamp.d) ? Check.Timestamp.d : getcurdate_(), DATF_DMY|DATF_NODIV|DATF_CENTURY); // @v11.2.3 // @v11.2.7
-								str.Z().Cat("26032022"); // @v11.9.3
+								str.Z().Cat(PpIfmConst::P_ChznTag1263); // @v11.9.3 // @v12.6.5 "26032022"-->PpIfmConst::P_ChznTag1263
 								//str.Z().Cat(checkdate(Check.Timestamp.d) ? Check.Timestamp.d : getcurdate_(), DATF_DMY | DATF_NODIV | DATF_CENTURY);
 								//
 								CreateStr(str, in_data); // #16 (tag 1263) Дата документа основания. Допускается дата после 1999 года. 
@@ -2622,7 +2622,7 @@ int PiritEquip::RunCheck(int opertype)
 								else
 									str = "83d185d1";
 								*/
-								str.Z().Cat("477"); // @v11.9.3
+								str.Z().Cat(PpIfmConst::P_ChznTag1264); // @v11.9.3 // @v12.6.5 "477"-->PpIfmConst::P_ChznTag1264
 								CreateStr(str, in_data); // #17 (tag 1264) Номер документа основания. Должен содержать сведения об НПА отраслевого регулирования. 
 									// Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 								// @v11.2.3 {
@@ -2754,7 +2754,7 @@ int PiritEquip::RunCheck(int opertype)
 										CreateStr(str, in_data); // #15 (tag 1262) Идентификатор ФОИВ. Значение определяется ФНС РФ. Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 									}
 									// @v11.9.3 str.Z().Cat(checkdate(Check.Timestamp.d) ? Check.Timestamp.d : getcurdate_(), DATF_DMY|DATF_NODIV|DATF_CENTURY); // @v11.2.3 // @v11.2.7
-									str.Z().Cat("26032022"); // @v11.9.3
+									str.Z().Cat(PpIfmConst::P_ChznTag1263); // @v11.9.3 // @v12.6.5 "26032022"-->PpIfmConst::P_ChznTag1263
 									CreateStr(str, in_data); // #16 (tag 1263) Дата документа основания. Допускается дата после 1999 года. 
 										// Должен содержать сведения об НПА отраслевого регулирования. Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 									/* @v11.9.3 if(Check.CheckNum > 0)
@@ -2762,7 +2762,7 @@ int PiritEquip::RunCheck(int opertype)
 									else
 										str = "83d185d1";
 									*/
-									str.Z().Cat("477"); // @v11.9.3
+									str.Z().Cat(PpIfmConst::P_ChznTag1264); // @v11.9.3 // @v12.6.5 "477"-->PpIfmConst::P_ChznTag1264
 									CreateStr(str, in_data); // #17 (tag 1264) Номер документа основания. Должен содержать сведения об НПА отраслевого регулирования. 
 										// Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 									// @v11.2.3 {

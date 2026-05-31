@@ -1050,7 +1050,7 @@ int BillFiltDialog::setDTS(const BillFilt * pFilt)
 		SETFLAG(v, 0x08, Data.Flags & BillFilt::fDiscountOnly);
 		//SETFLAG(v, 0x10, Data.Flags & BillFilt::fCcPrintedOnly); // @v9.7.12 @erikTMP
 		setCtrlData(CTL_BILLFLT_FLAGS, &v);
-		setWL(BIN(Data.Flags & BillFilt::fLabelOnly));
+		setWL(LOGIC(Data.Flags & BillFilt::fLabelOnly));
 		AddClusterAssoc(CTL_BILLFLT_ORDER, 0, BillFilt::ordByDate);
 		AddClusterAssoc(CTL_BILLFLT_ORDER, 1, BillFilt::ordByDateCode);
 		AddClusterAssoc(CTL_BILLFLT_ORDER, 2, BillFilt::ordByCode);

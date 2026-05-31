@@ -69,7 +69,7 @@ int PPViewGoodsTaxAnalyze::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			AddClusterAssoc(CTL_GDSGRPRLZ_FLAGS, 3, GoodsTaxAnalyzeFilt::fOldStyleLedger);
 			SetClusterData(CTL_GDSGRPRLZ_FLAGS, Data.Flags);
 			DisableClusterItem(CTL_GDSGRPRLZ_FLAGS, 3, !Data.HasCycleFlags());
-			setWL(BIN(Data.Flags & GoodsTaxAnalyzeFilt::fLabelOnly));
+			setWL(LOGIC(Data.Flags & GoodsTaxAnalyzeFilt::fLabelOnly));
 			if(Data.Flags & GoodsTaxAnalyzeFilt::fDiffAll)
 				v = 1;
 			else if(Data.Flags & GoodsTaxAnalyzeFilt::fDiffByInVAT) {

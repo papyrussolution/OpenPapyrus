@@ -2789,7 +2789,7 @@ bool TechRouteIdent::FromStrWithItemIdxList(const char * pText, LongArray * pIte
 	return ok;
 }
 
-bool TechRouteIdent::FromStr(const char * pText) // @v12.6.2 @construction
+bool TechRouteIdent::FromStr(const char * pText) // @v12.6.2
 {
 	// ^\{\h*\{\h*(\d+)\h*;\h*(\d+)\h*\}\h*;\h*(\d+)\h*;\h*(\d+)\h*\}$
 	Z();
@@ -3095,57 +3095,107 @@ int PPTechRouteManager::Put(PPTechRoute & rRoute, int use_ta)
 	return ok;
 }
 
-int PPTechRouteManager::Get(const TechRouteIdent & rIdent, PPTechRoute & rRoute)
+int PPObjTech::GetTecRouteListByOid(const SObjID & rOid, PPIDArray * pList) // @v12.6.5
 {
-	rRoute.Z();
+	CALLPTRMEMB(pList, Z());
 	int    ok = -1;
-	const  SObjID preserve_oid = rRoute.Oid;
-	Reference * p_ref(PPRef);
-	SSerializeContext sctx;
-	SBuffer route_sbuf;
-	if(rIdent.ID) {
-		PPTechPacket tec_pack;
-		if(TecObj.GetPacket(rIdent.ID, &tec_pack) > 0) {
-			const  int gpr = p_ref->GetPropSBuffer(PPOBJ_TECH, rIdent.ID, TECPRP_ROUTE, route_sbuf);
-			THROW(gpr);
-			if(gpr > 0) {
-				THROW(rRoute.Serialize(-1, route_sbuf, &sctx));
-				{
-					for(uint i = 0; i < rRoute.L.getCount(); i++) {
-						PPTechRoute::Entry & r_entry = rRoute.L.at(i);
-						if(r_entry.GStrucID) {
-							PPGoodsStruc * p_gs = new PPGoodsStruc;
-							THROW_SL(p_gs);
-							if(GObj.GSObj.Get(r_entry.GStrucID, p_gs) > 0) {
-								rRoute.GsList.insert(p_gs);
+	if(rOid.IsFullyDefined()) {
+		TechTbl * p_tbl(P_Tbl);
+		const  uint64 ued_oid = UED::SetRaw_Oid(rOid);
+		TechTbl::Key0 k0;
+		MEMSZERO(k0);
+		BExtQuery q(p_tbl, 0);
+		q.select(p_tbl->ID, p_tbl->Code, p_tbl->Kind, p_tbl->PrcID, p_tbl->GoodsID, p_tbl->GStrucID, p_tbl->UedLinkOid, 0L);
+		q.where(p_tbl->Kind == TECK_ROUTE && p_tbl->UedLinkOid == ued_oid);
+		for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
+			ok = 1;
+			if(pList) {
+				pList->add(p_tbl->data.ID);
+			}
+			else
+				break;
+		}
+	}
+	return ok;
+}
+
+int PPTechRouteManager::Helper_GetByID(PPID id, const SObjID * pOid, PPTechRoute & rRoute)
+{
+	int   ok = -1;
+	PPTechPacket tec_pack;
+	if(TecObj.GetPacket(id, &tec_pack) > 0) {
+		Reference * p_ref(PPRef);
+		SSerializeContext sctx;
+		SBuffer route_sbuf;
+		const  int gpr = p_ref->GetPropSBuffer(PPOBJ_TECH, id, TECPRP_ROUTE, route_sbuf);
+		THROW(gpr);
+		if(gpr > 0) {
+			THROW(rRoute.Serialize(-1, route_sbuf, &sctx));
+			{
+				for(uint i = 0; i < rRoute.L.getCount(); i++) {
+					PPTechRoute::Entry & r_entry = rRoute.L.at(i);
+					if(r_entry.GStrucID) {
+						PPGoodsStruc * p_gs = new PPGoodsStruc;
+						THROW_SL(p_gs);
+						if(GObj.GSObj.Get(r_entry.GStrucID, p_gs) > 0) {
+							{
+								p_gs->OwnerTecRtId.Z();
+								p_gs->OwnerTecRtId.ID = id;
+								if(pOid && pOid->IsFullyDefined()) {
+									p_gs->OwnerTecRtId.Oid = *pOid;
+								}
+								p_gs->OwnerTecRtId.ItemIdx = i+1;
 							}
-							else {
-								r_entry.GStrucID = 0;
-								delete p_gs;
-							}
+							rRoute.GsList.insert(p_gs);
+						}
+						else {
+							r_entry.GStrucID = 0;
+							delete p_gs;
 						}
 					}
 				}
 			}
-			rRoute.ID = tec_pack.Rec.ID;
-			STRNSCPY(rRoute.Code, tec_pack.Rec.Code);
-			UED::GetRaw_Oid(tec_pack.Rec.UedLinkOid, rRoute.Oid);
-			ok = 1;
 		}
+		rRoute.ID = tec_pack.Rec.ID;
+		STRNSCPY(rRoute.Code, tec_pack.Rec.Code);
+		UED::GetRaw_Oid(tec_pack.Rec.UedLinkOid, rRoute.Oid);
+		ok = 1;
 	}
-	/*else {
-		// old code
-		THROW(rIdent.Oid.IsFullyDefined()); // @todo @err
-		{
-			const  int gpr = p_ref->GetPropSBuffer(PPOBJ_TECHROUTE, rIdent.Oid.Obj, rIdent.Oid.Id, route_sbuf);
-			THROW(gpr);
-			if(gpr > 0) {
-				THROW(rRoute.Serialize(-1, route_sbuf, &sctx));
-				ok = 1;
+	CATCHZOK
+	return ok;
+}
+
+int PPTechRouteManager::Get(const TechRouteIdent & rIdent, PPTechRoute & rRoute)
+{
+	rRoute.Z();
+	int    ok = -1;
+	//const  SObjID preserve_oid = rRoute.Oid;
+	//Reference * p_ref(PPRef);
+	//SSerializeContext sctx;
+	//SBuffer route_sbuf;
+	if(rIdent.ID) {
+		ok = Helper_GetByID(rIdent.ID, &rIdent.Oid, rRoute);
+	}
+	else if(rIdent.Oid.IsFullyDefined()) {
+		PPIDArray temp_id_list;
+		if(TecObj.GetTecRouteListByOid(rIdent.Oid, &temp_id_list) > 0) {
+			// Пока берем самый первый элемент
+			assert(temp_id_list.getCount());
+			if(temp_id_list.getCount()) {
+				const   PPID _id0 = temp_id_list.get(0);
+				ok = Helper_GetByID(_id0, &rIdent.Oid, rRoute);
 			}
 		}
-	}*/
-	CATCHZOK
+		/*
+		const  int gpr = p_ref->GetPropSBuffer(PPOBJ_TECHROUTE, rIdent.Oid.Obj, rIdent.Oid.Id, route_sbuf);
+		THROW(gpr);
+		if(gpr > 0) {
+			THROW(rRoute.Serialize(-1, route_sbuf, &sctx));
+			ok = 1;
+		}
+		*/
+	}
+	//CATCHZOK
 	return ok;
 }
 
@@ -3225,7 +3275,7 @@ int PPTechRouteManager::GetLotStageTagDetail(PPID lotID, TechRouteIdent * pIdent
 	return ok;
 }
 
-int PPTechRouteManager::EditGStrucOfEntry(PPTechRoute & rRoute, PPTechRoute::Entry & rEntry)
+int PPTechRouteManager::EditGStrucOfEntry(PPTechRoute & rRoute, PPTechRoute::Entry & rEntry, uint itemIdx/*[1..]*/)
 {
 	int    ok = -1;
 	{
@@ -3258,10 +3308,26 @@ int PPTechRouteManager::EditGStrucOfEntry(PPTechRoute & rRoute, PPTechRoute::Ent
 		// Если в этой точке p_gs == 0, то значит будем редактировать gs и потом вставим его копию в rRoute а в rEntry.GStrucID 
 		// укажем позицию в списке и флаг PPTechRoute::Entry::fGStrucTemporaryIdx
 		if(p_gs) {
+			if(rEntry.TechID) {
+				p_gs->OwnerTecRtId.ID = rEntry.TechID;
+				p_gs->OwnerTecRtId.Oid.Z();
+				p_gs->OwnerTecRtId.ItemIdx = itemIdx;
+			}
+			else {
+				p_gs->OwnerTecRtId.Z();
+			}
 			if(GObj.GSObj.EditDialog(p_gs) > 0)
 				ok = 1;
 		}
 		else {
+			if(rEntry.TechID) {
+				gs.OwnerTecRtId.ID = rEntry.TechID;
+				gs.OwnerTecRtId.Oid.Z();
+				gs.OwnerTecRtId.ItemIdx = itemIdx;
+			}
+			else {
+				gs.OwnerTecRtId.Z();
+			}
 			if(GObj.GSObj.EditDialog(&gs) > 0) {
 				uint   new_pos = 0;
 				PPGoodsStruc * p_new_gs = rRoute.GsList.CreateNewItem(&new_pos);
@@ -3306,6 +3372,10 @@ int PPTechRouteManager::Edit(PPTechRoute & rRoute, uint itemIdx)
 		DECL_DIALOG_GETDTS()
 		{
 			getCtrlData(CTL_TECHROUTE_CODE, Data.Code);
+			{
+				getCtrlData(CTLSEL_TECHROUTE_OBJTYPE, &Data.Oid.Obj);
+				getCtrlData(CTLSEL_TECHROUTE_OBJ, &Data.Oid.Id);
+			}
 			ASSIGN_PTR(pData, Data);
 			return 1;
 		}
@@ -3329,9 +3399,9 @@ int PPTechRouteManager::Edit(PPTechRoute & rRoute, uint itemIdx)
 				long   pos = 0;
 				long   id = 0;
 				if(getCurItem(&pos, &id)) {
-					if(checkirangef(static_cast<int>(pos), 0, Data.L.getCountI())) {
+					if(checkirangef(static_cast<int>(pos), 0, Data.L.getCountI()-1)) { // @v12.6.5 @fix (Data.L.getCountI())-->(Data.L.getCountI()-1)
 						PPTechRoute::Entry & r_entry = Data.L.at(pos);
-						if(R_TrMgr.EditGStrucOfEntry(Data, r_entry) > 0) {
+						if(R_TrMgr.EditGStrucOfEntry(Data, r_entry, InitItemIdx) > 0) {
 							updateList(pos);
 						}
 					}
@@ -3355,7 +3425,7 @@ int PPTechRouteManager::Edit(PPTechRoute & rRoute, uint itemIdx)
 			switch(obj_type) {
 				case PPOBJ_GOODS: 
 					{
-						if(!Data.ObjGroup && Data.Oid.Obj == obj_type && Data.Oid.Id) {
+						if(/*!Data.ObjGroup &&*/Data.Oid.Obj == obj_type && Data.Oid.Id) {
 							PPObjGoods goods_obj;
 							Goods2Tbl::Rec goods_rec;
 							if(goods_obj.Fetch(Data.Oid.Id, &goods_rec) > 0) {
@@ -3493,8 +3563,10 @@ int PPTechRouteManager::Edit(PPTechRoute & rRoute, uint itemIdx)
 				DECL_DIALOG_DATA(PPTechRoute::Entry);
 				PPTechRouteManager & R_TrMgr;
 				PPTechRoute & R_Route;
+				uint   ItemIdx;
 			public:
-				TechRouteItemDialog(PPTechRouteManager & rTrMgr, PPTechRoute & rRoute) : TDialog(DLG_TECHROUTEITEM), R_TrMgr(rTrMgr), R_Route(rRoute)
+				TechRouteItemDialog(PPTechRouteManager & rTrMgr, PPTechRoute & rRoute, uint itemIdx) : 
+					TDialog(DLG_TECHROUTEITEM), R_TrMgr(rTrMgr), R_Route(rRoute), ItemIdx(itemIdx)
 				{
 				}
 				DECL_DIALOG_SETDTS()
@@ -3526,12 +3598,12 @@ int PPTechRouteManager::Edit(PPTechRoute & rRoute, uint itemIdx)
 				{
 					TDialog::handleEvent(event);
 					if(event.isCmd(cmGoodsStruc)) {
-						R_TrMgr.EditGStrucOfEntry(R_Route, Data);
+						R_TrMgr.EditGStrucOfEntry(R_Route, Data, ItemIdx);
 					}
 				}
 			};
 			int    ok = -1;
-			TechRouteItemDialog * dlg = new TechRouteItemDialog(R_TrMgr, Data);
+			TechRouteItemDialog * dlg = new TechRouteItemDialog(R_TrMgr, Data, InitItemIdx);
 			if(CheckDialogPtrErr(&dlg)) {
 				dlg->setDTS(pItem);
 				for(bool valid_data = false; !valid_data && ExecView(dlg) == cmOK;) {

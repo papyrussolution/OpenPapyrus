@@ -877,11 +877,19 @@ void TInputLine::InputStat::CheckIn()
 	TInputLine * p_view = static_cast<TInputLine *>(TView::GetWindowUserData(hWnd));
 	switch(uMsg) {
 		case WM_DESTROY: 
-			CALLPTRMEMB(p_view, OnDestroy(hWnd));
+			if(p_view) {
+				// @v12.6.5 {
+				if(p_view->Format & STRF_PASSWORD) {
+					p_view->Data.Obfuscate(); 
+				}
+				// } @v12.6.5 
+				p_view->OnDestroy(hWnd);
+			}
 			return 0;
 		case WM_COMMAND:
-			if(HIWORD(wParam) == 1)
+			if(HIWORD(wParam) == 1) {
 				::SendMessageW(APPL->H_TopOfStack, uMsg, wParam, lParam);
+			}
 			break;
 		case WM_CHAR:
 			if(p_view && (p_view->GetCombo() || p_view->HasWordSelector())) {
@@ -986,8 +994,43 @@ void TInputLine::InputStat::CheckIn()
 			}
 			break;
 		case WM_PASTE:
-			CALLPTRMEMB(p_view, OnPaste());
+			if(p_view) {
+				// @v12.6.5 {
+				if(p_view->Format & STRF_PASSWORD) {
+					// return 0; // Блокируем вставку для пароля //
+					p_view->OnPaste(); // Не уверен: многие практикую вставку пароля. Если отключу - будут проблемы.
+				}
+				else // } @v12.6.5 
+				{
+					p_view->OnPaste();
+				}
+			}
 			break;
+		// @v12.6.5 {
+		case WM_COPY:
+		case WM_CUT:
+			if(p_view) {
+				if(p_view->Format & STRF_PASSWORD) {
+					return 0;  // Блокируем копирование пароля //
+				}
+			}
+			break;
+		case WM_UNDO:
+		case EM_UNDO:
+			if(p_view) {
+				if(p_view->Format & STRF_PASSWORD) {
+					return 0;  // Блокируем откат ввода пароля // 
+				}
+			}
+			break;
+		case WM_GETTEXT:
+			if(p_view) {
+				if(p_view->Format & STRF_PASSWORD) {
+					; // @todo Тут надо как-то защититься от того, что чужой процесс либо червяк внутри нашего процесса прочтет содержимое поля.
+				}
+			}
+			break;
+		// } @v12.6.5 
 		case WM_NCPAINT:
 			{
 				/*
@@ -1054,9 +1097,9 @@ int TInputLine::OnPaste()
 		if(::OpenClipboard(0)) {
 			HANDLE h_cb = ::GetClipboardData(CF_TEXT);
 			if(h_cb) {
-				LPTSTR p_str = static_cast<LPTSTR>(::GlobalLock(h_cb)); // @unicodeproblem
+				LPTSTR p_str = static_cast<LPTSTR>(::GlobalLock(h_cb));
 				if(p_str) {
-					(symb = SUcSwitch(p_str)).Transf(CTRANSF_OUTER_TO_INNER); // @unicodeproblem
+					(symb = SUcSwitch(p_str)).Transf(CTRANSF_OUTER_TO_INNER);
 					::GlobalUnlock(h_cb);
 				}
 			}
@@ -1123,15 +1166,46 @@ int TInputLine::Implement_GetText()
 	return ok;
 }
 
+void TInputLine::SetupPasswordProtection(void * pThisHandle, void * pParentHandle)
+{
+	HWND   hw_parent = static_cast<HWND>(pParentHandle);
+	HWND   hw_this = static_cast<HWND>(pThisHandle);
+	// @v12.6.5 ::SendDlgItemMessageW(hw_parent, Id, EM_SETPASSWORDCHAR, SlConst::DefaultPasswordSymb, 0);
+	// @v12.6.5 {
+	{
+		long   style = ::GetWindowLongW(hw_this, GWL_STYLE);
+		if(!(style & ES_PASSWORD)) {
+			style |= ES_PASSWORD;
+			::SetWindowLongW(hw_this, GWL_STYLE, style);
+		}
+		::SendDlgItemMessageW(hw_parent, Id, EM_SETPASSWORDCHAR, SlConst::DefaultPasswordSymbU, 0);
+		::SendDlgItemMessageW(hw_parent, Id, EM_EMPTYUNDOBUFFER, 0, 0);
+	}
+	{
+		typedef BOOL (WINAPI * Fn_SetWindowDisplayAffinity)(HWND, DWORD);
+		SDynLibrary lib_user32("user32.dll");
+		if(lib_user32.IsValid()) {
+			Fn_SetWindowDisplayAffinity procSetWindowDisplayAffinity = reinterpret_cast<Fn_SetWindowDisplayAffinity>(lib_user32.GetProcAddr("SetWindowDisplayAffinity"));
+			if(procSetWindowDisplayAffinity) {
+#ifndef WDA_EXCLUDEFROMCAPTURE
+	#define WDA_EXCLUDEFROMCAPTURE 0x00000011 // WinUser.h (Win10 2004+)
+#endif
+				procSetWindowDisplayAffinity(hw_this, WDA_EXCLUDEFROMCAPTURE);
+			}
+		}
+	}
+	// } @v12.6.5 
+}
+
 void TInputLine::Setup(void * pThisHandle, void * pParentHandle)
 {
 	HWND   hw_parent = static_cast<HWND>(pParentHandle);
 	HWND   hw_this = static_cast<HWND>(pThisHandle);
 	::SendDlgItemMessageW(hw_parent, Id, EM_SETLIMITTEXT, MaxLen ? (MaxLen-1) : 0, 0);
-	if(Format & STRF_PASSWORD)
-		::SendDlgItemMessageW(hw_parent, Id, EM_SETPASSWORDCHAR, SlConst::DefaultPasswordSymb, 0);
+	if(Format & STRF_PASSWORD) {
+		SetupPasswordProtection(pThisHandle, pParentHandle);
+	}
 	Draw_();
-	//HWND h_wnd = getHandle();
 	TView::SetWindowProp(hw_this, GWLP_USERDATA, this);
 	if(PrevWindowProc != TInputLine::DlgProc) { // @v12.3.3
 		PrevWindowProc = static_cast<WNDPROC>(TView::SetWindowProp(hw_this, GWLP_WNDPROC, TInputLine::DlgProc));
@@ -1321,8 +1395,10 @@ void TInputLine::setFormat(long f)
 		TransmitData(-1, buf);
 		Format = f;
 		setMaxLen(SFMTLEN(Format));
-		if(Format & STRF_PASSWORD)
-			::SendDlgItemMessageW(Parent, Id, EM_SETPASSWORDCHAR, SlConst::DefaultPasswordSymb, 0);
+		if(Format & STRF_PASSWORD) {
+			// @v12.6.5 SendDlgItemMessageW(Parent, Id, EM_SETPASSWORDCHAR, SlConst::DefaultPasswordSymb, 0);
+			SetupPasswordProtection(getHandle(), Parent); // @v12.6.5
+		}
 		TransmitData(+1, buf);
 	}
 }

@@ -358,8 +358,47 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 	return ok;
 }
 
+/*static*/int FASTCALL TView::SGetWindowTextU(HWND hWnd, SStringU & rBuf) // @v12.6.5
+{
+	rBuf.Z();
+    const  ssize_t text_len = ::SendMessageW(hWnd, WM_GETTEXTLENGTH, 0, 0);
+    if(text_len > 0) {
+    	void * p_text_ptr = 0;
+    	bool   is_allocated = false;
+    	uint8  static_buf[4096];
+		if(text_len >= sizeof(static_buf)/sizeof(wchar_t)) {
+			p_text_ptr = SAlloc::M((text_len+16) * sizeof(wchar_t));
+			is_allocated = true;
+		}
+		else
+			p_text_ptr = static_buf;
+		const  ssize_t actual_len = ::SendMessageW(hWnd, WM_GETTEXT, text_len+1, reinterpret_cast<LPARAM>(p_text_ptr));
+		rBuf.CatN(static_cast<const wchar_t *>(p_text_ptr), actual_len);
+		//rBuf.CopyUtf8FromUnicode(static_cast<const wchar_t *>(p_text_ptr), actual_len, 0);
+		//rBuf.Transf(CTRANSF_UTF8_TO_OUTER);
+		if(is_allocated)
+			SAlloc::F(p_text_ptr);
+	}
+    return static_cast<int>(rBuf.Len());
+}
+
+/*static*/int FASTCALL TView::SGetWindowTextUtf8(HWND hWnd, SString & rBuf) // @v12.6.5
+{
+	SStringU & r_temp_buf = SLS.AcquireRvlStrU();
+	SGetWindowTextU(hWnd, r_temp_buf);
+	r_temp_buf.CopyToUtf8(rBuf, 1);
+	return rBuf.LenI();
+}
+
 /*static*/int FASTCALL TView::SGetWindowText(HWND hWnd, SString & rBuf)
 {
+	// @v12.6.5 {
+	SStringU & r_temp_buf = SLS.AcquireRvlStrU();
+	SGetWindowTextU(hWnd, r_temp_buf);
+	r_temp_buf.CopyToMb(CP_ACP, rBuf);
+	return rBuf.LenI();
+	// } @v12.6.5 
+	/* @v12.6.5
 	rBuf.Z();
     const  ssize_t text_len = ::SendMessageW(hWnd, WM_GETTEXTLENGTH, 0, 0);
     if(text_len > 0) {
@@ -379,15 +418,28 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 			SAlloc::F(p_text_ptr);
 	}
     return rBuf.LenI();
+	*/
+}
+
+/*static*/int FASTCALL TView::SSetWindowTextUtf8(HWND hWnd, const char * pText) // @v12.6.5
+{
+	SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+	r_temp_buf_u.CopyFromUtf8Strict(pText, sstrlen(pText));
+	return BIN(::SendMessageW(hWnd, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(r_temp_buf_u.ucptr())));
+}
+
+/*static*/int FASTCALL TView::SSetWindowTextU(HWND hWnd, const wchar_t * pText) // @v12.6.5
+{
+	SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+	r_temp_buf_u = pText;
+	return BIN(::SendMessageW(hWnd, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(r_temp_buf_u.ucptr())));
 }
 
 /*static*/int FASTCALL TView::SSetWindowText(HWND hWnd, const char * pText)
 {
-	int    ok = 1;
 	SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
 	r_temp_buf_u.CopyFromMb(cpANSI, pText, sstrlen(pText));
-	ok = BIN(::SendMessageW(hWnd, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(r_temp_buf_u.ucptr())));
-	return ok;
+	return BIN(::SendMessageW(hWnd, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(r_temp_buf_u.ucptr())));
 }
 
 /*static*/void * TView::CreateFont_(const SFontDescr & rFd)

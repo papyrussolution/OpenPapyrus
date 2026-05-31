@@ -2799,7 +2799,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				pEv->GetParam(1, temp_buf); // PPGetExtStrData(1, pEv->Params, temp_buf);
 				temp_buf.Divide(' ', left, right);
 				memcpy(&rec, right.cptr(), sizeof(rec));
-				decrypt(&rec, sizeof(rec));
+				__M2D(&rec, sizeof(rec));
 				rReply.Write(&rec, sizeof(rec));
 				rReply.SetDataType(PPJobSrvReply::htFile, 0);
 			}

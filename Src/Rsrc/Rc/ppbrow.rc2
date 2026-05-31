@@ -361,12 +361,12 @@ toolbar export ACCBILL TB_FIRST_TOOLBAR {
 	separator
 	TOTAL            :  kbF9,       PPDV_SIGMA02,            "@{totals}\tF9"
 	separator
-	TRANSMIT         :  kbCtrlH,    PPDV_SYNC01,            "@{dotransmit}\tCtrl-H"
-	TRANSMITCHARRY   :  kbCtrlB,    TBBM_SENDCHARRY,        "@{dotransmitcharry}\tCtrl-B"
-	EXPORT           :  kbCtrlR,    PPDV_EXPORT01,          "@{exportbills}\tCtrl-R"
+	TRANSMIT         :  kbCtrlH,    PPDV_SYNC01,        "@{dotransmit}\tCtrl-H"
+	TRANSMITCHARRY   :  kbCtrlB,    PPDV_CHERRY01,      "@{dotransmitcharry}\tCtrl-B" // @v12.6.5 TBBM_SENDCHARRY-->PPDV_CHERRY01
+	EXPORT           :  kbCtrlR,    PPDV_EXPORT01,      "@{exportbills}\tCtrl-R"
 	REFRESH          :  kbAltV,     PPDV_REFRESH01,     "@{refresh}\tAlt-V" // @v11.2.4
 	CHANGEFILT       :  kbCtrlV,    PPDV_FILTER01,      "@{filter}\tCtrl-V" // @v11.2.4
-	EDITMEMOS        :  kbCtrlM,    PPDV_NOICON,          hidden, "@{doeditmemolist}\tCtrl-M"
+	EDITMEMOS        :  kbCtrlM,    PPDV_NOICON,        hidden, "@{doeditmemolist}\tCtrl-M"
 }
 
 toolbar export DRAFTBILL TB_FIRST_TOOLBAR {
@@ -417,7 +417,7 @@ toolbar export DRAFTBILL TB_FIRST_TOOLBAR {
 	TOTAL            :  kbF9,       PPDV_SIGMA02,            "@{totals}\tF9"
 	separator
 	TRANSMIT         :  kbCtrlH,    PPDV_SYNC01,             "@{dotransmit}\tCtrl-H"
-	TRANSMITCHARRY   :  kbCtrlB,    TBBM_SENDCHARRY,         "@{dotransmitcharry}\tCtrl-B"
+	TRANSMITCHARRY   :  kbCtrlB,    PPDV_CHERRY01,           "@{dotransmitcharry}\tCtrl-B" // @v12.6.5 TBBM_SENDCHARRY-->PPDV_CHERRY01
 	EXPORT           :  kbCtrlR,    PPDV_EXPORT01,           "@{exportbills}\tCtrl-R"
 	// @v8.9.11 EXPORTTOEGAIS    :  kbCtrlF10,  PPDV_NOICON,  hidden, "Ёкспорт в @{brand_egais}\tCtrl-F10"
 	//EXPORTBNKORDER   :  kbCtrlL,    PPDV_NOICON,       "Ёкспорт платежных поручений\tCtrl-L"
@@ -470,11 +470,11 @@ toolbar export ORDERBILL TB_FIRST_TOOLBAR {
 	separator
 	TOTAL            :  kbF9,       PPDV_SIGMA02,         "@{totals}\tF9"
 	separator
-	TRANSMIT         :  kbCtrlH,    PPDV_SYNC01,          "@{dotransmit}\tCtrl-H"
-	TRANSMITCHARRY   :  kbCtrlB,    TBBM_SENDCHARRY,      "@{dotransmitcharry}\tCtrl-B"
-	EXPORT           :  kbCtrlR,    PPDV_EXPORT01,        "@{exportbills}\tCtrl-R"
-	REFRESH          :  kbAltV,     PPDV_REFRESH01,     "@{refresh}\tAlt-V" // @v11.2.4
-	CHANGEFILT       :  kbCtrlV,    PPDV_FILTER01,      "@{filter}\tCtrl-V" // @v11.2.4
+	TRANSMIT         :  kbCtrlH,    PPDV_SYNC01,        "@{dotransmit}\tCtrl-H"
+	TRANSMITCHARRY   :  kbCtrlB,    PPDV_CHERRY01,      "@{dotransmitcharry}\tCtrl-B" // @v12.6.5 TBBM_SENDCHARRY-->PPDV_CHERRY01
+	EXPORT           :  kbCtrlR,    PPDV_EXPORT01,      "@{exportbills}\tCtrl-R"
+	REFRESH          :  kbAltV,     PPDV_REFRESH01,     "@{refresh}\tAlt-V"
+	CHANGEFILT       :  kbCtrlV,    PPDV_FILTER01,      "@{filter}\tCtrl-V"
 	EDITMEMOS        :  kbCtrlM,    PPDV_NOICON,          hidden, "@{doeditmemolist}\tCtrl-M"
 }
 
@@ -512,10 +512,10 @@ toolbar export INVENTBILL TB_FIRST_TOOLBAR {
 	TOTAL            :  kbF9,       PPDV_SIGMA02,           "@{totals}\tF9"
 	separator
 	TRANSMIT         :  kbCtrlH,    PPDV_SYNC01,            "@{dotransmit}\tCtrl-H"
-	TRANSMITCHARRY   :  kbCtrlB,    TBBM_SENDCHARRY,        "@{dotransmitcharry}\tCtrl-B"
+	TRANSMITCHARRY   :  kbCtrlB,    PPDV_CHERRY01,          "@{dotransmitcharry}\tCtrl-B" // @v12.6.5 TBBM_SENDCHARRY-->PPDV_CHERRY01
 	EXPORT           :  kbCtrlR,    PPDV_EXPORT01,          "@{exportbills}\tCtrl-R"
-	REFRESH          :  kbAltV,     PPDV_REFRESH01,         "@{refresh}\tAlt-V" // @v11.2.4
-	CHANGEFILT       :  kbCtrlV,    PPDV_FILTER01,          "@{filter}\tCtrl-V" // @v11.2.4
+	REFRESH          :  kbAltV,     PPDV_REFRESH01,         "@{refresh}\tAlt-V"
+	CHANGEFILT       :  kbCtrlV,    PPDV_FILTER01,          "@{filter}\tCtrl-V"
 	EDITMEMOS        :  kbCtrlM,    PPDV_NOICON,          hidden, "@{doeditmemolist}\tCtrl-M"
 }
 
@@ -560,14 +560,14 @@ toolbar export GOODSBILL TB_FIRST_TOOLBAR {
 	POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,        hidden, "@{printcheck_toposregistrar}\tCtrl-Z"
 	PRINTALLBILLS    :  kbCtrlS,    PPDV_NOICON,                      "@{printeachdoc}\tCtrl-S"
 	separator
-	TOTAL            :  kbF9,       PPDV_SIGMA02,            "@{totals}\tF9"
+	TOTAL            :  kbF9,       PPDV_SIGMA02,        "@{totals}\tF9"
 	TRANSMIT         :  kbCtrlH,    PPDV_SYNC01,         "@{dotransmit}\tCtrl-H"
-	TRANSMITCHARRY   :  kbCtrlB,    TBBM_SENDCHARRY,      hidden, "@{dotransmitcharry}\tCtrl-B"
-	EXPORT           :  kbCtrlR,    PPDV_EXPORT01,          "@{exportbills}\tCtrl-R"
+	TRANSMITCHARRY   :  kbCtrlB,    PPDV_CHERRY01,       hidden, "@{dotransmitcharry}\tCtrl-B" // @v12.6.5 TBBM_SENDCHARRY-->PPDV_CHERRY01
+	EXPORT           :  kbCtrlR,    PPDV_EXPORT01,       "@{exportbills}\tCtrl-R"
 	// @v8.9.11 EXPORTTOEGAIS    :  kbCtrlF10,  PPDV_NOICON,          hidden, "Ёкспорт в @{brand_egais}\tCtrl-F10"
 	// @v9.2.10 (объединено с EXPORT) EXPORTBNKORDER   :  kbCtrlL,    PPDV_NOICON,          hidden, "Ёкспорт платежных поручений\tCtrl-L"
-	REFRESH          :  kbAltV,     PPDV_REFRESH01,     "@{refresh}\tAlt-V" // @v11.2.4
-	CHANGEFILT       :  kbCtrlV,    PPDV_FILTER01,      "@{filter}\tCtrl-V" // @v11.2.4
+	REFRESH          :  kbAltV,     PPDV_REFRESH01,     "@{refresh}\tAlt-V"
+	CHANGEFILT       :  kbCtrlV,    PPDV_FILTER01,      "@{filter}\tCtrl-V"
 	separator
 	EDITACKBILL      :  kbCtrlK,    PPDV_NOICON,          hidden, "@{doeditackbill}\tCtrl-K"
 	DELACKBILL       :  kbCtrlD,    PPDV_NOICON,          hidden, "@{dodeleteackbill}\tCtrl-D"
@@ -709,7 +709,7 @@ toolbar export ACCOUNT TB_FIRST_TOOLBAR {
 	PRINT            : kbF7,      PPDV_PRINTER01,    "@{print}\tF7"
 	separator
 	TRANSMIT         : kbCtrlH,   PPDV_SYNC01,       "@{dotransmit}\tCtrl-H"
-	TRANSMITCHARRY   : kbCtrlB,   TBBM_SENDCHARRY,   "@{dotransmitcharry}\tCtrl-B"
+	TRANSMITCHARRY   : kbCtrlB,   PPDV_CHERRY01,     "@{dotransmitcharry}\tCtrl-B" // @v12.6.5 TBBM_SENDCHARRY-->PPDV_CHERRY01
 	separator
 	SYSJ             : kbCtrlJ,   PPDV_SYSJOURNAL,   "@{view_sysjournal}\tCtrl-J"
 	CHANGEFILT       : kbCtrlV,   PPDV_FILTER01,     "@{filter}\tCtrl-V"
@@ -951,7 +951,7 @@ toolbar export LIST_TAG TB_FIRST_TOOLBAR {
 	separator
 	cmaMore,           "@{enumitem_pl}",     PPDV_NOICON
 	separator
-	cmTransmitCharry,  "@{dotransmitcharry}", TBBM_SENDCHARRY
+	cmTransmitCharry,  "@{dotransmitcharry}", PPDV_CHERRY01 // @v12.6.5 TBBM_SENDCHARRY-->PPDV_CHERRY01
 	separator
 	cmSysJournalByObj, "@{view_sysjournal}\tCtrl-J", PPDV_SYSJOURNAL
 }
@@ -997,7 +997,7 @@ toolbar export LIST_BILLSTATUS TB_FIRST_TOOLBAR {
 	cmaDelete,         "@{delete}\tDelete",        PPDV_DELETEFILE02
 	separator
 	cmTransmit,        "@{dotransmit_short}",      PPDV_SYNC01
-	cmTransmitCharry,  "@{dotransmitcharry}",      TBBM_SENDCHARRY
+	cmTransmitCharry,  "@{dotransmitcharry}",      PPDV_CHERRY01 // @v12.6.5 TBBM_SENDCHARRY-->PPDV_CHERRY01
 	separator
 	cmSysJournalByObj, "@{view_sysjournal}\tCtrl-J", PPDV_SYSJOURNAL
 }
@@ -5366,7 +5366,7 @@ browser OPRKIND north(100), 1, 1, "@{view_oprkind}", OWNER|GRID, 0
 		separator
 		PRINT          : kbF7,    PPDV_PRINTER01,         "@{print}\tF7"
 		SYSJ           : kbCtrlJ, PPDV_SYSJOURNAL,        "@{view_sysjournal}\tCtrl-J"
-		TRANSMITCHARRY : kbCtrlB, TBBM_SENDCHARRY,        "@{dotransmitcharry}\tCtrl-B"
+		TRANSMITCHARRY : kbCtrlB, PPDV_CHERRY01,          "@{dotransmitcharry}\tCtrl-B" // @v12.6.5 TBBM_SENDCHARRY-->PPDV_CHERRY01
 		separator
 		CHANGEFILT     : kbCtrlV, PPDV_FILTER01,          "@{filter}\tCtrl-V"
 	}
@@ -6294,7 +6294,7 @@ browser AMOUNTTYPE north(100), 1, 1, "@{view_amounttype}", OWNER|GRID, 0
 {
 	"@id",                    0, int32,        0, 6,  BCO_USERPROC
 	"@appellation",           1, zstring(48),  0, 30, BCO_USERPROC
-	"@symbol",                6, zstring(20),  0, 10, BCO_USERPROC // @v10.0.0
+	"@symbol",                6, zstring(20),  0, 10, BCO_USERPROC
 	"@tax",                   2, zstring(48),  0, 20, BCO_USERPROC
 	"@amounttype_taxrate",    3, double,       NMBF_NOZERO, 12.2, BCO_USERPROC
 	"@amounttype_refamttype", 4, zstring(48),  0, 20, BCO_USERPROC
@@ -6305,7 +6305,7 @@ browser AMOUNTTYPE north(100), 1, 1, "@{view_amounttype}", OWNER|GRID, 0
 		DELETEITEM    : kbDel,    PPDV_DELETEFILE02,     "@{delete}\tDelete"
 		separator
 		TRANSMIT         :  kbCtrlH,    PPDV_SYNC01,     "@{dotransmit}\tCtrl-H"
-		TRANSMITCHARRY   :  kbCtrlB,    TBBM_SENDCHARRY, "@{dotransmitcharry}\tCtrl-B"
+		TRANSMITCHARRY   :  kbCtrlB,    PPDV_CHERRY01,   "@{dotransmitcharry}\tCtrl-B" // @v12.6.5 TBBM_SENDCHARRY-->PPDV_CHERRY01
 		separator
 		CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,         "@{filter}\tCtrl-V"
 		SYSJ          : kbCtrlJ,  PPDV_SYSJOURNAL,       "@{view_sysjournal}\tCtrl-J"
@@ -6328,7 +6328,7 @@ browser REGISTERTYPE north(100), 1, 1, "@{view_registertype}", OWNER|GRID, 0
 		VIEWPERSONS    : kbF3,     TBBM_PERSONS,      "@{person_pl}\tF3"
 		separator
 		TRANSMIT       : kbCtrlH,  PPDV_SYNC01,       "@{dotransmit}\tCtrl-H"
-		TRANSMITCHARRY : kbCtrlB,  TBBM_SENDCHARRY,   "@{dotransmitcharry}\tCtrl-B"
+		TRANSMITCHARRY : kbCtrlB,  PPDV_CHERRY01,     "@{dotransmitcharry}\tCtrl-B" // @v12.6.5 TBBM_SENDCHARRY-->PPDV_CHERRY01
 		separator
 		CHANGEFILT     : kbCtrlV,  PPDV_FILTER01,     "@{filter}\tCtrl-V"
 		SYSJ           : kbCtrlJ,  PPDV_SYSJOURNAL,   "@{view_sysjournal}\tCtrl-J"
@@ -7387,6 +7387,7 @@ cmd ExportGoods               { "@{job_exportgoods}"                          PP
 cmd TestGlobalSvcAccessibility { "@{testglobalserviceaccessibility}"          PPDV_TEST01            none cmTestGlobalSvcAccessibility } // @v12.3.12
 cmd ConstructionFacadeWindow  { "@{cmd_constructionfacadewindow}"             none                   none cmConstructionFacadeWindow } // @v12.5.3
 cmd ExecSessionOnTechRoute    { "@{cmd_execsessionontechroute}"               none                   none cmExecSessionOnTechRoute } // @v12.6.12
+cmd LaunchApp                 { "@{job_launchapp}"                            none                   none cmLaunchApp } // @v12.6.5
 //
 // -------------- ќписани€ серверных задач
 //
@@ -7600,6 +7601,7 @@ filter MarketplaceGoodsSelection    { "@{filter_marketplacegoodsselection}" } //
 view   UniFindObj                   { "@{unifindobj}" } // @v12.4.10
 view   TechRoute                    { "@view_techroute" } // @v12.6.0
 filter ExecSessionOnTechRoute       { "" } // @v12.6.1
+filter OuterProcessExecution        { "@{filter_outerprocessexecution}" } // @v12.6.5
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //
@@ -9667,6 +9669,7 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_PRINTER_EXCLGREEN01 // @v12.6.0 
 	PPDV_TECH01              // @v12.6.3 
 	PPDV_PROCESSOR01         // @v12.6.3
+	PPDV_CHERRY01            // @v12.6.5
 }
 
 //

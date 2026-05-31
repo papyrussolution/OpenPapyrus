@@ -1567,7 +1567,7 @@ public:
 		SetPeriodInput(this, CTL_SLLTOFLT_PERIOD,     Data.Period);
 		SetPeriodInput(this, CTL_SLLTOFLT_EXPIRYPRD,  Data.ExpiryPeriod);
 		SetPeriodInput(this, CTL_SLLTOFLT_PAYMPERIOD, Data.PaymPeriod);
-		setWL(BIN(Data.Flags & DebtTrnovrFilt::fLabelOnly));
+		setWL(LOGIC(Data.Flags & DebtTrnovrFilt::fLabelOnly));
 		SetupPPObjCombo(this, CTLSEL_SLLTOFLT_ACCSHEET, PPOBJ_ACCSHEET, Data.AccSheetID, OLW_LOADDEFONOPEN, 0);
 		SetupOp();
 		SetupArCombo(this, CTLSEL_SLLTOFLT_CLIENT, Data.CliIDList.getSingle(), OLW_LOADDEFONOPEN, Data.AccSheetID, sacfDisableIfZeroSheet);

@@ -15,9 +15,37 @@ SDataMoveProgressInfo::SDataMoveProgressInfo()
 	THISZERO();
 }
 
+bool FASTCALL fileExistsU(const wchar_t * pFileName)
+{
+	bool   result = false;
+	if(!isempty(pFileName)) {
+#ifdef WIN32
+		{
+			const  DWORD attributes = GetFileAttributesW(pFileName);
+			// special directory case to drive the network path check
+			const  bool is_directory = (attributes == INVALID_FILE_ATTRIBUTES) ? (GetLastError() == ERROR_BAD_NETPATH) : LOGIC(attributes & FILE_ATTRIBUTE_DIRECTORY);
+			if(is_directory) {
+				result = (PathIsNetworkPathW(pFileName) || PathIsUNCW(pFileName));
+			}
+			if(!result && PathFileExistsW(pFileName)) 
+				result = true;
+		}
+#else
+		// @todo result = (::access(pFileName, 0) == 0);
+#endif
+	}
+	if(!result) {
+		SString temp_buf;
+		temp_buf.CopyUtf8FromUnicode(pFileName, sstrlen(pFileName), 1);
+		temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+		SLS.SetError(SLERR_FILENOTFOUND, temp_buf);
+	}
+	return result;
+}
+
 bool FASTCALL fileExists(const char * pFileName)
 {
-///* @snippet Пример определения существования файла посредством WINAPI (Shlwapi.h)
+	///* @snippet Пример определения существования файла посредством WINAPI (Shlwapi.h)
 	bool result = false;
 	if(!isempty(pFileName)) {
 #ifdef WIN32

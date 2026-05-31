@@ -1616,7 +1616,7 @@ int CCheckPacket::InsertCcl(const CCheckItem & rItem)
 		}
 		// @v12.5.9 { 
 		if(rItem.ChZnPrice > 0.0) {
-			temp_buf.Z().Cat(rItem.ChZnPrice, MKSFMTD(0, 2, 0));
+			temp_buf.Z().Cat(rItem.ChZnPrice, MKSFMTD_020);
 			THROW(SetLineTextExt(idx, CCheckPacket::lnextChZnPrice, temp_buf));
 		}
 		// } @v12.5.9 

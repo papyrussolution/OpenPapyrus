@@ -150,23 +150,19 @@ static const OSSL_PARAM * krb5kdf_settable_ctx_params(ossl_unused void * ctx,
 static int krb5kdf_get_ctx_params(void * vctx, OSSL_PARAM params[])
 {
 	KRB5KDF_CTX * ctx = (KRB5KDF_CTX*)vctx;
-	const EVP_CIPHER * cipher;
 	size_t len;
 	OSSL_PARAM * p;
-
-	cipher = ossl_prov_cipher_cipher(&ctx->cipher);
+	const EVP_CIPHER * cipher = ossl_prov_cipher_cipher(&ctx->cipher);
 	if(cipher)
 		len = EVP_CIPHER_get_key_length(cipher);
 	else
 		len = EVP_MAX_KEY_LENGTH;
-
 	if((p = OSSL_PARAM_locate(params, OSSL_KDF_PARAM_SIZE)) != NULL)
 		return OSSL_PARAM_set_size_t(p, len);
 	return -2;
 }
 
-static const OSSL_PARAM * krb5kdf_gettable_ctx_params(ossl_unused void * ctx,
-    ossl_unused void * provctx)
+static const OSSL_PARAM * krb5kdf_gettable_ctx_params(ossl_unused void * ctx, ossl_unused void * provctx)
 {
 	static const OSSL_PARAM known_gettable_ctx_params[] = {
 		OSSL_PARAM_size_t(OSSL_KDF_PARAM_SIZE, NULL),
@@ -180,14 +176,10 @@ const OSSL_DISPATCH ossl_kdf_krb5kdf_functions[] = {
 	{ OSSL_FUNC_KDF_FREECTX, (void (*)(void))krb5kdf_free },
 	{ OSSL_FUNC_KDF_RESET, (void (*)(void))krb5kdf_reset },
 	{ OSSL_FUNC_KDF_DERIVE, (void (*)(void))krb5kdf_derive },
-	{ OSSL_FUNC_KDF_SETTABLE_CTX_PARAMS,
-	  (void (*)(void))krb5kdf_settable_ctx_params },
-	{ OSSL_FUNC_KDF_SET_CTX_PARAMS,
-	  (void (*)(void))krb5kdf_set_ctx_params },
-	{ OSSL_FUNC_KDF_GETTABLE_CTX_PARAMS,
-	  (void (*)(void))krb5kdf_gettable_ctx_params },
-	{ OSSL_FUNC_KDF_GET_CTX_PARAMS,
-	  (void (*)(void))krb5kdf_get_ctx_params },
+	{ OSSL_FUNC_KDF_SETTABLE_CTX_PARAMS, (void (*)(void))krb5kdf_settable_ctx_params },
+	{ OSSL_FUNC_KDF_SET_CTX_PARAMS, (void (*)(void))krb5kdf_set_ctx_params },
+	{ OSSL_FUNC_KDF_GETTABLE_CTX_PARAMS, (void (*)(void))krb5kdf_gettable_ctx_params },
+	{ OSSL_FUNC_KDF_GET_CTX_PARAMS, (void (*)(void))krb5kdf_get_ctx_params },
 	{ 0, NULL }
 };
 
@@ -201,7 +193,6 @@ static int fixup_des3_key(unsigned char * key)
 {
 	unsigned char * cblock;
 	int i, j;
-
 	for(i = 2; i >= 0; i--) {
 		cblock = &key[i * 8];
 		memmove(cblock, &key[i * 7], 7);
@@ -239,17 +230,14 @@ static int fixup_des3_key(unsigned char * key)
  *   block[l % N] += s[l] (with carry)
  * finally add carry if any
  */
-static void n_fold(unsigned char * block, unsigned int blocksize,
-    const unsigned char * constant, size_t constant_len)
+static void n_fold(unsigned char * block, unsigned int blocksize, const unsigned char * constant, size_t constant_len)
 {
 	unsigned int tmp, gcd, remainder, lcm, carry;
 	int b, l;
-
 	if(constant_len == blocksize) {
 		memcpy(block, constant, constant_len);
 		return;
 	}
-
 	/* Least Common Multiple of lengths: LCM(a,b)*/
 	gcd = blocksize;
 	remainder = constant_len;
@@ -267,7 +255,6 @@ static void n_fold(unsigned char * block, unsigned int blocksize,
 	carry = 0;
 	for(l = lcm - 1; l >= 0; l--) {
 		unsigned int rotbits, rshift, rbyte;
-
 		/* destination byte in block is l % N */
 		b = l % blocksize;
 		/* Our virtual s buffer is R = L/K long (K = constant_len) */
@@ -298,13 +285,10 @@ static void n_fold(unsigned char * block, unsigned int blocksize,
 	}
 }
 
-static int cipher_init(EVP_CIPHER_CTX * ctx,
-    const EVP_CIPHER * cipher, ENGINE * engine,
-    const unsigned char * key, size_t key_len)
+static int cipher_init(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * cipher, ENGINE * engine, const unsigned char * key, size_t key_len)
 {
-	int klen, ret;
-
-	ret = EVP_EncryptInit_ex(ctx, cipher, engine, key, NULL);
+	int klen;
+	int ret = EVP_EncryptInit_ex(ctx, cipher, engine, key, NULL);
 	if(!ret)
 		goto out;
 	/* set the key len for the odd variable key len cipher */
@@ -320,15 +304,12 @@ static int cipher_init(EVP_CIPHER_CTX * ctx,
 	ret = EVP_CIPHER_CTX_set_padding(ctx, 0);
 	if(!ret)
 		goto out;
-
 out:
 	return ret;
 }
 
-static int KRB5KDF(const EVP_CIPHER * cipher, ENGINE * engine,
-    const unsigned char * key, size_t key_len,
-    const unsigned char * constant, size_t constant_len,
-    unsigned char * okey, size_t okey_len)
+static int KRB5KDF(const EVP_CIPHER * cipher, ENGINE * engine, const unsigned char * key, size_t key_len,
+    const unsigned char * constant, size_t constant_len, unsigned char * okey, size_t okey_len)
 {
 	EVP_CIPHER_CTX * ctx = NULL;
 	unsigned char block[EVP_MAX_BLOCK_LENGTH * 2];
@@ -340,7 +321,6 @@ static int KRB5KDF(const EVP_CIPHER * cipher, ENGINE * engine,
 	int des3_no_fixup = 0;
 #endif
 	int ret;
-
 	if(key_len != okey_len) {
 #ifndef OPENSSL_NO_DES
 		/* special case for 3des, where the caller may be requesting
@@ -357,33 +337,25 @@ static int KRB5KDF(const EVP_CIPHER * cipher, ENGINE * engine,
 	}
 #endif
 	}
-
 	ctx = EVP_CIPHER_CTX_new();
 	if(!ctx)
 		return 0;
-
 	ret = cipher_init(ctx, cipher, engine, key, key_len);
 	if(!ret)
 		goto out;
-
 	/* Initialize input block */
 	blocksize = EVP_CIPHER_CTX_get_block_size(ctx);
-
 	if(constant_len > blocksize) {
 		ERR_raise(ERR_LIB_PROV, PROV_R_INVALID_CONSTANT_LENGTH);
 		ret = 0;
 		goto out;
 	}
-
 	n_fold(block, blocksize, constant, constant_len);
 	plainblock = block;
 	cipherblock = block + EVP_MAX_BLOCK_LENGTH;
-
 	for(osize = 0; osize < okey_len; osize += cipherlen) {
 		int olen;
-
-		ret = EVP_EncryptUpdate(ctx, cipherblock, &olen,
-			plainblock, blocksize);
+		ret = EVP_EncryptUpdate(ctx, cipherblock, &olen, plainblock, blocksize);
 		if(!ret)
 			goto out;
 		cipherlen = olen;
@@ -395,12 +367,10 @@ static int KRB5KDF(const EVP_CIPHER * cipher, ENGINE * engine,
 			ret = 0;
 			goto out;
 		}
-
 		/* write cipherblock out */
 		if(cipherlen > okey_len - osize)
 			cipherlen = okey_len - osize;
 		memcpy(okey + osize, cipherblock, cipherlen);
-
 		if(okey_len > osize + cipherlen) {
 			/* we need to reinitialize cipher context per spec */
 			ret = EVP_CIPHER_CTX_reset(ctx);

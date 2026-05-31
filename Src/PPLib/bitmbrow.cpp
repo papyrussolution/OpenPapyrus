@@ -5194,6 +5194,7 @@ int PPObjBill::EditExtCodeList(PPBillPacket * pPack, int rowIdx/*[1..]*/, uint f
 		{
 			ContextMenuID = CTRLMENU_LOTXCODELIST;
 			selectCtrl(CTL_LOTXCLIST_LIST);
+			enableCommand(cmCopyGtinToGoods, false); // @v12.6.5
 		}
 	private:
 		DECL_HANDLE_EVENT
@@ -5218,6 +5219,22 @@ int PPObjBill::EditExtCodeList(PPBillPacket * pPack, int rowIdx/*[1..]*/, uint f
 					if(ImportStyloScannerEntriesForBillPacket(*P_Pack, &Data, issebpmodeLotExtCodes) > 0) {
 						updateList(-1);
 					}
+				}
+			}
+			else if(event.isCmd(cmCopyGtinToGoods)) { // @v12.6.5
+				if(CommonEan.NotEmpty()) {
+					if(P_Pack && RowIdx > 0 && RowIdx <= P_Pack->GetTCountI()) {
+						const  PPTransferItem & r_ti = P_Pack->ConstTI(RowIdx-1);
+						PPID   goods_id = labs(r_ti.GoodsID);
+						PPGoodsPacket goods_pack;
+						if(GObj.GetPacket(goods_id, &goods_pack, 0) > 0) {
+							if(goods_pack.Codes.Add(CommonEan, 0, 1.0)) {
+								if(GObj.PutPacket(&goods_id, &goods_pack, 1)) {
+									updateList(-1);
+								}
+							}
+						}
+					}					
 				}
 			}
 			else if(event.isCmd(cmCopyToClipboardAll)) { // @v11.8.1
@@ -5250,19 +5267,49 @@ int PPObjBill::EditExtCodeList(PPBillPacket * pPack, int rowIdx/*[1..]*/, uint f
 				return;
 			clearEvent(event);
 		}
+		struct CommonEanBlock {
+			CommonEanBlock() : UnEqGtin(false)
+			{
+			}
+			SString GoodsCodeBuf;
+			GtinStruc Gts;
+			bool   UnEqGtin; // Если true то среди chzn-марок есть как минимум одна, у которой gtin14 отличается от остальных марок
+		};
+		void   ProcessCommonEanOnSingleMark(const SString & rMarkCode, CommonEanBlock & rBlk)
+		{
+			if(!rBlk.UnEqGtin) {
+				rBlk.GoodsCodeBuf.Z();
+				//const  bool iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, 0);
+				const  int  ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(rMarkCode, rBlk.Gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk));
+				if(ipczcr > 0 && rBlk.Gts.GetToken(GtinStruc::fldGTIN14, &rBlk.GoodsCodeBuf)) {
+					assert(rBlk.GoodsCodeBuf.Len() == 14);
+					if(rBlk.GoodsCodeBuf.Len() == 14) {
+						rBlk.GoodsCodeBuf.ShiftLeft();
+						if(CommonEan.IsEmpty())
+							CommonEan = rBlk.GoodsCodeBuf;
+						else if(CommonEan != rBlk.GoodsCodeBuf) {
+							CommonEan.Z();
+							rBlk.UnEqGtin = true;
+						}
+					}
+				}
+			}
+		}
 		virtual int setupList()
 		{
+			CommonEan.Z();
 			int    ok = 1;
 			uint   mark_count = 0;
 			uint   box_count = 0;
 			SString temp_buf;
 			SString box_num;
+			CommonEanBlock ce_blk;
 			StringSet ss;
 			PPLotExtCodeContainer::MarkSet ms;
 			PPLotExtCodeContainer::MarkSet::Entry msentry;
 			LongArray idx_list;
 			Data.Get(RowIdx, &idx_list, ms);
-			long list_pos_idx = 0;
+			long   list_pos_idx = 0;
 			for(uint boxidx = 0; boxidx < ms.GetCount(); boxidx++) {
 				if(ms.GetByIdx(boxidx, msentry)) {
 					if(msentry.Flags & PPLotExtCodeContainer::fBox) {
@@ -5272,6 +5319,7 @@ int PPObjBill::EditExtCodeList(PPBillPacket * pPack, int rowIdx/*[1..]*/, uint f
 						THROW(addStringToList(list_pos_idx, temp_buf));
 						ms.GetByBoxID(msentry.BoxID, ss);
 						for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+							ProcessCommonEanOnSingleMark(temp_buf, ce_blk);
 							temp_buf.Insert(0, " ");
 							++list_pos_idx;
 							THROW(addStringToList(list_pos_idx, temp_buf));
@@ -5284,6 +5332,7 @@ int PPObjBill::EditExtCodeList(PPBillPacket * pPack, int rowIdx/*[1..]*/, uint f
 			{
 				ms.GetByBoxID(0, ss);
 				for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+					ProcessCommonEanOnSingleMark(temp_buf, ce_blk);
 					++list_pos_idx;
 					THROW(addStringToList(list_pos_idx, temp_buf));
 				}
@@ -5294,15 +5343,37 @@ int PPObjBill::EditExtCodeList(PPBillPacket * pPack, int rowIdx/*[1..]*/, uint f
 					temp_buf.CatDivIfNotEmpty(' ', 0).CatEq("Marks", mark_count);
 				if(box_count)
 					temp_buf.CatDivIfNotEmpty(' ', 0).CatEq("Boxes", box_count);
-				if(RowIdx > 0 && RowIdx <= P_Pack->GetTCountI()) {
-					SString name_buf;
-					const PPTransferItem & r_ti = P_Pack->ConstTI(RowIdx-1);
-					GetGoodsName(r_ti.GoodsID, name_buf);
-					temp_buf.CatDiv('-', 1).Cat(name_buf).Space().CatChar('[').Cat(fabs(r_ti.Quantity_), MKSFMTD(0, 6, NMBF_NOTRAILZ)).CatChar(']');
+				{
+					Goods2Tbl::Rec goods_rec;
+					if(P_Pack && RowIdx > 0 && RowIdx <= P_Pack->GetTCountI()) {
+						SString name_buf;
+						const PPTransferItem & r_ti = P_Pack->ConstTI(RowIdx-1);
+						if(GObj.Fetch(r_ti.GoodsID, &goods_rec) > 0) {
+							name_buf = goods_rec.Name;
+						}
+						else {
+							goods_rec.ID = 0; // @ensure
+							ideqvalstr(r_ti.GoodsID, name_buf);
+						}
+						temp_buf.CatDiv('-', 1).Cat(name_buf).Space().CatChar('[').Cat(fabs(r_ti.Quantity_), MKSFMTD(0, 6, NMBF_NOTRAILZ)).CatChar(']');
+					}
+					if(goods_rec.ID) {
+						if(CommonEan.NotEmpty()) {
+							BarcodeTbl::Rec bc_rec;
+							if(GObj.SearchByBarcode(CommonEan, &bc_rec, 0, 0) > 0) {
+								CommonEan.Z(); // Такой код уже есть - функция присвоения общего кода не нужна (или не сработает)
+								// Тут еще одна проблема: если bc_rec.GoodsID != goods_rec.ID, то это - повод задуматься.
+							}
+						}
+					}
+					else {
+						CommonEan.Z();
+					}
 				}
 				setStaticText(CTL_LOTXCLIST_INFO, temp_buf);
 			}
 			CATCHZOK
+			enableCommand(cmCopyGtinToGoods, CommonEan.NotEmpty()); // @v12.6.5
 			return ok;
 		}
 		virtual int addItem(long * pPos, long * pID)
@@ -5339,7 +5410,7 @@ int PPObjBill::EditExtCodeList(PPBillPacket * pPack, int rowIdx/*[1..]*/, uint f
 			const  PPID lot_id = (do_check && p_ti) ? p_ti->LotID : 0;
 			THROW(CheckDialogPtr(&dlg));
 			if(r_rcpt.Search(rRec.LotID, &lot_rec) <= 0)
-				MEMSZERO(lot_rec);
+				lot_rec.Clear();
 			if(firstChar)
 				temp_buf.Z().CatChar(firstChar);
 			else
@@ -5411,6 +5482,9 @@ int PPObjBill::EditExtCodeList(PPBillPacket * pPack, int rowIdx/*[1..]*/, uint f
 			delete dlg;
 			return ok;
 		}
+
+		PPObjGoods GObj;
+		SString CommonEan; // @!setupList()
 	};
 	int    ok = -1;
 	LotXCodeListDialog * dlg = 0;

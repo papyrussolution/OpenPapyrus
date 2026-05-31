@@ -483,7 +483,7 @@ public:
 		LocationCtrlGroup::Rec loc_rec(&Data.LocList);
 		setGroupData(ctlgroupLoc, &loc_rec);
 		SetupPPObjCombo(this, CTLSEL_BILLFLT_MPGUA, PPOBJ_GLOBALUSERACC, Data.MarketplaceGuaID, 0, /*reinterpret_cast<void *>(PPGLS_WILDBERRIES)*/0); // @v12.1.12
-		setWL(BIN(Data.Flags & GoodsOpAnalyzeFilt::fLabelOnly));
+		setWL(LOGIC(Data.Flags & GoodsOpAnalyzeFilt::fLabelOnly));
 		//
 		// В диалоге флаги расчета сумм НДС в цп и цр устанавливаются (снимаются) одновременно
 		//

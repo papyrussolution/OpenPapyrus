@@ -398,7 +398,7 @@ int FASTCALL SStrScan::Pop(uint prevPos)
 bool FASTCALL SStrScan::IsRe(long reHandler)
 {
 	if(reHandler > 0 && reHandler <= static_cast<long>(ReList.getCount())) {
-		SRegExp2 * p_re = ReList.at(reHandler-1);
+		const  SRegExp2 * p_re = ReList.at(reHandler-1);
 		if(p_re)
 			return LOGIC(p_re->Find(P_Buf+Offs));
 	}
@@ -408,7 +408,7 @@ bool FASTCALL SStrScan::IsRe(long reHandler)
 int SStrScan::GetRe(long reHandler, SString & rBuf)
 {
 	if(reHandler > 0 && reHandler <= ReList.getCountI()) {
-		SRegExp2 * p_re = ReList.at(reHandler-1);
+		const  SRegExp2 * p_re = ReList.at(reHandler-1);
 		if(p_re && p_re->Find(this, 0)) {
 			Get(rBuf);
 			IncrLen();
@@ -421,7 +421,7 @@ int SStrScan::GetRe(long reHandler, SString & rBuf)
 int SStrScan::GetReWithGroups(long reHandler, SString & rBuf, StringSet * pSsGroup) // @v12.6.2
 {
 	if(reHandler > 0 && reHandler <= ReList.getCountI()) {
-		SRegExp2 * p_re = ReList.at(reHandler-1);
+		const  SRegExp2 * p_re = ReList.at(reHandler-1);
 		if(p_re && p_re->Find(this, 0, pSsGroup)) {
 			Get(rBuf);
 			IncrLen();
@@ -476,9 +476,9 @@ SString & FASTCALL SStrScan::Get(SString & rBuf) const
 	return rBuf.CopyFromN(P_Buf+Offs, Len);
 }
 
-int SStrScan::GetQuotedString(SFileFormat format, SString & rBuf)
+bool SStrScan::GetQuotedString(SFileFormat format, SString & rBuf)
 {
-	int    ok = 0;
+	bool   result = false;
 	// @v11.7.7 {
 	size_t end_pos = 0;
 	uint   qsf = QSF_INBUFZTERM;
@@ -487,7 +487,7 @@ int SStrScan::GetQuotedString(SFileFormat format, SString & rBuf)
 	int    rqsr = ::ReadQuotedString(P_Buf+Offs, 0, qsf, &end_pos, rBuf);
 	if(rqsr > 0) {
 		Offs += end_pos;
-		ok = 1;
+		result = true;
 	}
 	// } @v11.7.7 
 	/* @v11.7.7
@@ -520,22 +520,22 @@ int SStrScan::GetQuotedString(SFileFormat format, SString & rBuf)
 		} while(true);
 	}
 	*/
-	return ok;
+	return result;
 }
 
-int FASTCALL SStrScan::GetQuotedString(SString & rBuf)
+bool FASTCALL SStrScan::GetQuotedString(SString & rBuf)
 {
-	SETIFZ(P_ReQuotedStr, new SRegExp2("^\"[^\"]*\"", cp1251, SRegExp2::syntaxDefault, 0));
+	bool   result = false;
+	SETIFZQ(P_ReQuotedStr, new SRegExp2("^\"[^\"]*\"", cp1251, SRegExp2::syntaxDefault, 0));
 	if(P_ReQuotedStr->Find(this, 0)) {
 		Offs++;   // "
 		Len -= 2; // ""
 		Get(rBuf);
 		Len++; // Убрать завершающую кавычку
 		IncrLen();
-		return 1;
+		result = true;
 	}
-	else
-		return 0;
+	return result;
 }
 
 static bool FASTCALL _is_eqq_ident_chr(char c) { return (isasciialnum(c) || c == '-' || c == '_'); }
@@ -884,7 +884,7 @@ int SStrScan::GetUntil(char divider, SString & rBuf)
 
 int SStrScan::GetWord(const char * pDiv, SString & rBuf)
 {
-	const char * p_def_div = " \t\n\r.,;:()[]{}+=^&@!$%/"; // @v8.9.10 append '/'
+	const char * p_def_div = " \t\n\r.,;:()[]{}+=^&@!$%/";
 	SETIFZ(pDiv, p_def_div);
 	rBuf.Z();
 	size_t p = Offs;
@@ -1716,9 +1716,10 @@ int SString::GetSubFrom(const char * pStr, int div, int idx)
 {
 	uint   pos = 0;
 	StringSet ss(div, pStr);
-	for(int i = 0; ss.get(&pos, *this); i++)
+	for(int i = 0; ss.get(&pos, *this); i++) {
 		if(i == idx)
 			return 1;
+	}
 	Z();
 	return 0;
 }
@@ -1729,10 +1730,36 @@ int  SString::GetIdxBySub(const char * pSubStr, int div)
 	uint   pos = 0;
 	SString buf;
 	StringSet ss(div, P_Buf);
-	for(int i = 0; idx == -1 && ss.get(&pos, buf); i++)
+	for(int i = 0; idx == -1 && ss.get(&pos, buf); i++) {
 		if(buf.CmpNC(pSubStr) == 0)
 			idx = i;
+	}
 	return idx;
+}
+
+size_t SString::LenUtf8() const // @v12.6.5
+{
+	size_t result = 0;
+	const  size_t _len = Len();
+	if(_len) {
+		size_t processed_size = 0;
+		size_t _count = 0;
+		bool   is_legal_utf8 = true;
+		// берем utf8-символы один за другим из P_Buf и считаем их
+		while(is_legal_utf8 && processed_size < _len) {
+			const uint cp_len = SUnicode::GetUtf8Len(PTR8C(P_Buf)+processed_size);
+			if(cp_len) {
+				processed_size += cp_len;
+				_count++;
+			}
+			else
+				is_legal_utf8 = false;
+		}
+		result = is_legal_utf8 ? _count : _len;
+	}
+	else
+		result = _len;
+	return result;
 }
 
 char * SString::CopyUtf8To(char * pS, size_t bufLen) const // @v12.5.2
@@ -9230,7 +9257,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 							if(rIb.Stat.IsChrListAsciiPatternMatched(r_entry.P_ChrSet)) {
 								if(r_entry.R_RegExpHandler || RegisterRe(r_entry.P_RegExp, &r_entry.R_RegExpHandler)) {
 									SRegExp2::FindResult reresult;
-									SRegExp2 * p_re = ReList.at(r_entry.R_RegExpHandler-1);
+									const  SRegExp2 * p_re = ReList.at(r_entry.R_RegExpHandler-1);
 									if(p_re && p_re->Find(reinterpret_cast<const char *>(pToken), toklen, 0, &reresult)) {
 										assert(reresult.getCount());
 										if(reresult.getCount()) {

@@ -2481,7 +2481,11 @@ public:
 	static int  FASTCALL SGetWindowClassName(HWND hWnd, SString & rBuf);
 	static int  FASTCALL SGetWindowClassName(HWND hWnd, SStringU & rBuf);
 	static int  FASTCALL SGetWindowText(HWND hWnd, SString & rBuf);
+	static int  FASTCALL SGetWindowTextUtf8(HWND hWnd, SString & rBuf); // @v12.6.5
+	static int  FASTCALL SGetWindowTextU(HWND hWnd, SStringU & rBuf); // @v12.6.5
 	static int  FASTCALL SSetWindowText(HWND hWnd, const char * pText);
+	static int  FASTCALL SSetWindowTextUtf8(HWND hWnd, const char * pText); // @v12.6.5
+	static int  FASTCALL SSetWindowTextU(HWND hWnd, const wchar_t * pText); // @v12.6.5
 	//
 	// Descr: Специализированный метод, вызывающий для всех элементов группы TViewGroup
 	//   метод P_WordSelBlk->OnAcceptInput()
@@ -4127,10 +4131,12 @@ protected:
 	};
 	InputStat Stat;
 	SString Data;
+	
 	ComboBox * P_Combo;
 private:
 	void   Init();
 	void   Setup(void * pThisHandle, void * pParentHandle);
+	void   SetupPasswordProtection(void * pThisHandle, void * pParentHandle);
 	int    OnMouseWheel(int delta);
 	int    OnPaste();
 };

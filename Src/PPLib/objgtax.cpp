@@ -742,17 +742,8 @@ LDATE GTaxVect::EvalBlock::GetOpDate()
 	LDATE  link_bill_date = ZERODATE;
 	{
 		PPObjBill * p_bobj(BillObj);
-		const BillTbl::Rec * p_bill_rec = 0;
 		BillTbl::Rec bill_rec;
-		if(P_BPack) {
-			p_bill_rec = &P_BPack->Rec;
-		}
-		else if(p_ti) {
-			BillTbl::Rec bill_rec;
-			if(p_bobj->Fetch(p_ti->BillID, &bill_rec) > 0) {
-				p_bill_rec = &bill_rec;
-			}
-		}
+		const BillTbl::Rec * p_bill_rec = P_BPack ? &P_BPack->Rec : ((p_ti && p_bobj->Fetch(p_ti->BillID, &bill_rec) > 0) ? &bill_rec : 0);
 		if(p_bill_rec && GetOpType(p_bill_rec->OpID) == PPOPT_GOODSRETURN && p_bill_rec->LinkBillID) {
 			BillTbl::Rec link_bill_rec;
 			if(p_bobj->Fetch(p_bill_rec->LinkBillID, &link_bill_rec) > 0) {

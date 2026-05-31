@@ -789,12 +789,12 @@ BExtQuery & BExtQuery::select(const DBFieldList & s)
 
 BExtQuery & CDECL BExtQuery::select(DBField first_arg, ...)
 {
-	va_list list;
 	DBField f;
-	list = reinterpret_cast<va_list>(&first_arg);
+	va_list list = reinterpret_cast<va_list>(&first_arg);
 	Fields.Destroy();
-	while((f = va_arg(list, DBField)).Id != 0)
+	while((f = va_arg(list, DBField)).Id != 0) {
 		Fields.Add(f);
+	}
 	va_end(list);
 	return *this;
 }

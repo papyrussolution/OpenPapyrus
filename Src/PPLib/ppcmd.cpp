@@ -141,8 +141,7 @@ PPCommandHandler * PPCommandDescr::CreateInstance(long cmdDescrID)
 	if(!f) {
 		if(MenuCm || ViewId) { // @v12.3.9 (|| ViewId)
 			SString def_factory_name;
-			def_factory_name = P_FactoryPrfx;
-			def_factory_name.Cat("default").ToUpper();
+			(def_factory_name = P_FactoryPrfx).Cat("default").ToUpper();
 			f = reinterpret_cast<FN_CMD_FACTORY>(GetProcAddress(SLS.GetHInst(), def_factory_name));
 		}
 	}
@@ -1997,7 +1996,7 @@ int PPCommandMngr::GetMaxEntryID(long * pMaxId)
 
 int PPCommandMngr::DeleteGroupByUuid(PPCommandGroupCategory kind, const S_GUID & rUuid)
 {
-	int    ok = -1; // @v10.8.9 @fix ok;-->ok=-1;
+	int    ok = -1;
 	SFile  file;
 	if(!!rUuid) {
 		SString path;
@@ -2056,11 +2055,10 @@ int PPCommandHandler::Run(SBuffer * pParam, long, void * extraPtr)
 int EditPPViewFilt(int viewID, SBuffer * pParam, void * extraPtr)
 {
 	int    ok = 1;
-	size_t sav_offs = 0;
 	PPBaseFilt * p_filt = 0;
 	PPView * p_view = 0;
 	THROW_INVARG(pParam);
-	sav_offs = pParam->GetRdOffs();
+	const  size_t sav_offs = pParam->GetRdOffs();
 	THROW(PPView::CreateInstance(viewID, &p_view) > 0);
 	{
 		THROW(PPView::ReadFiltPtr(*pParam, &p_filt));
@@ -3668,8 +3666,8 @@ IMPLEMENT_CMD_HDL_FACTORY(UNIFYGOODSPRICE);
 //
 //
 //
-int FASTCALL WriteParam(SBuffer & rBuf, const void * pParam, size_t paramSize); // @prototype(ppjob.cpp)
-int FASTCALL ReadParam(SBuffer & rBuf, void * pParam, size_t paramSize);  // @prototype(ppjob.cpp)
+int STDCALL WriteParam(SBuffer & rBuf, const void * pParam, size_t paramSize); // @prototype(ppjob.cpp)
+int STDCALL ReadParam(SBuffer & rBuf, void * pParam, size_t paramSize);  // @prototype(ppjob.cpp)
 
 class CMD_HDL_CLS(TESTPREDICTSALESTBL) : public PPCommandHandler {
 public:
@@ -4962,7 +4960,7 @@ public:
 
 IMPLEMENT_CMD_HDL_FACTORY(UNIFINDOBJ);
 //
-// @v12.6.1 @construction
+// 
 //
 class CMD_HDL_CLS(EXECSESSIONONTECHROUTE) : public PPCommandHandler { // @v12.6.1
 public:
@@ -5007,3 +5005,299 @@ public:
 };
 
 IMPLEMENT_CMD_HDL_FACTORY(EXECSESSIONONTECHROUTE);
+//
+// Descr: Задача запуска приложения или открытия каталога
+//
+IMPLEMENT_PPFILT_FACTORY(OuterProcessExecution); OuterProcessExecutionFilt::OuterProcessExecutionFilt() : PPBaseFilt(PPFILT_OUTERPROCESSEXECUTION, 0, 0)
+{
+	SetFlatChunk(offsetof(OuterProcessExecutionFilt, ReserveStart),
+		offsetof(OuterProcessExecutionFilt, ReserveEnd)-offsetof(OuterProcessExecutionFilt, ReserveStart)+sizeof(ReserveEnd));
+	SetBranchSString(offsetof(OuterProcessExecutionFilt, AppNameUtf8));
+	SetBranchSString(offsetof(OuterProcessExecutionFilt, CmdLineUtf8));
+	SetBranchSString(offsetof(OuterProcessExecutionFilt, WmiServer));
+	SetBranchSString(offsetof(OuterProcessExecutionFilt, UserLogin));
+	SetBranchSString(offsetof(OuterProcessExecutionFilt, UserPassword));
+	Init(1, 0);
+}
+
+OuterProcessExecutionFilt::OuterProcessExecutionFilt(const OuterProcessExecutionFilt & rS) : PPBaseFilt(PPFILT_OUTERPROCESSEXECUTION, 0, 0)
+{
+	Copy(&rS, 1);
+}
+
+OuterProcessExecutionFilt & FASTCALL OuterProcessExecutionFilt::operator = (const OuterProcessExecutionFilt & rS)
+{
+	Copy(&rS, 1);
+	return *this;
+}
+
+class LaunchAppDialog2 : public TDialog {
+	DECL_DIALOG_DATA(OuterProcessExecutionFilt);
+	enum {
+		ctlgroupBrowse = 1
+	};
+public:
+	LaunchAppDialog2() : TDialog(DLG_LAUNCHAPP)
+	{
+		FileBrowseCtrlGroup::Setup(this, CTLBRW_LAUNCHAPP_APP, CTL_LAUNCHAPP_APP, ctlgroupBrowse, PPTXT_TITLE_SELAPPFILE, 0, FileBrowseCtrlGroup::fbcgfFile);
+	}
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		setCtrlString(CTL_LAUNCHAPP_APP, Data.AppNameUtf8);
+		setCtrlString(CTL_LAUNCHAPP_PARAMS, Data.CmdLineUtf8);
+		AddClusterAssoc(CTL_LAUNCHAPP_FLAGS, 0, OuterProcessExecutionFilt::fWait);
+		AddClusterAssoc(CTL_LAUNCHAPP_FLAGS, 1, OuterProcessExecutionFilt::fRemote);
+		SetClusterData(CTL_LAUNCHAPP_FLAGS, Data.Flags);
+		setCtrlString(CTL_LAUNCHAPP_SERVER, Data.WmiServer);
+		setCtrlString(CTL_LAUNCHAPP_USER,   Data.UserLogin);
+		//
+		char   pw_buf[256];
+		size_t ret_len = 0;
+		Data.UserPassword.DecodeMime64(pw_buf, sizeof(pw_buf), &ret_len);
+		IdeaDecrypt(0, pw_buf, ret_len);
+		setCtrlData(CTL_LAUNCHAPP_PWD, pw_buf);
+		memzero(pw_buf, sizeof(pw_buf));
+		SetupCtrls();
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		getCtrlString(sel = CTL_LAUNCHAPP_APP, Data.AppNameUtf8);
+		THROW_PP(Data.AppNameUtf8.Len(), PPERR_USERINPUT);
+		getCtrlString(CTL_LAUNCHAPP_PARAMS, Data.CmdLineUtf8);
+		GetClusterData(CTL_LAUNCHAPP_FLAGS, &Data.Flags);
+		getCtrlString(CTL_LAUNCHAPP_SERVER, Data.WmiServer);
+		getCtrlString(CTL_LAUNCHAPP_USER,   Data.UserLogin);
+
+		char   pw_buf[256];
+		getCtrlData(CTL_LAUNCHAPP_PWD, pw_buf);
+		IdeaEncrypt(0, pw_buf, sizeof(pw_buf));
+		Data.UserPassword.EncodeMime64(pw_buf, sizeof(pw_buf));
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isClusterClk(CTL_LAUNCHAPP_FLAGS)) {
+			GetClusterData(CTL_LAUNCHAPP_FLAGS, &Data.Flags);
+			SetupCtrls();
+			clearEvent(event);
+		}
+	}
+	void   SetupCtrls()
+	{
+		const   bool is_remote_ = LOGIC(Data.Flags & OuterProcessExecutionFilt::fRemote);
+		//disableCtrls((Data.Flags & OuterProcessExecutionFilt::fRemote) ? 0 : 1, CTL_LAUNCHAPP_SERVER, CTL_LAUNCHAPP_USER, CTL_LAUNCHAPP_PWD, 0);
+		setCtrlReadOnly(CTL_LAUNCHAPP_SERVER, !is_remote_);
+		setCtrlReadOnly(CTL_LAUNCHAPP_USER, !is_remote_);
+		setCtrlReadOnly(CTL_LAUNCHAPP_PWD, !is_remote_);
+	}
+};
+
+PrcssrOuterProcessExecution::PrcssrOuterProcessExecution()
+{
+}
+
+int PrcssrOuterProcessExecution::InitParam(OuterProcessExecutionFilt * pFilt)
+{
+	return 1;
+}
+
+int PrcssrOuterProcessExecution::EditParam(OuterProcessExecutionFilt * pFilt)
+{
+	DIALOG_PROC_BODYERR(LaunchAppDialog2, pFilt);
+}
+
+int PrcssrOuterProcessExecution::Init(const OuterProcessExecutionFilt * pFilt)
+{
+	RVALUEPTR(P, pFilt);
+	return 1;
+}
+
+int PrcssrOuterProcessExecution::Run()
+{
+	int    ok = -1;
+	SString temp_buf;
+	THROW(P.AppNameUtf8.NotEmpty());
+	{
+		SStringU app_name_u;
+		app_name_u.CopyFromUtf8(P.AppNameUtf8);
+		if(SFile::IsDir(P.AppNameUtf8)) {
+			::ShellExecuteW(0, L"open", app_name_u, NULL, NULL, SW_SHOWNORMAL);
+		}
+		else {
+			const char * p_internal_cml_list[] = {
+				"ASSOC",
+				"ATTRIB",
+				//"BREAK",
+				"CALL",
+				"CD",
+				"CHCP",
+				"CHDIR",
+				"CLS",
+				"COLOR",
+				"COPY",
+				"DATE",
+				"DEL",
+				"DIR",
+				"DPATH",
+				"ECHO",
+				"ENDLOCAL",
+				"ERASE",
+				//"EXIT",
+				//"FOR",
+				"FTYPE",
+				//"GOTO",
+				"GRAFTABL",
+				"HELP",
+				//"IF",
+				//"LABEL",
+				"MD",
+				"MKDIR",
+				"MKLINK",
+				"MODE",
+				"MORE",
+				"MOVE",
+				"PATH",
+				"PAUSE",
+				"POPD",
+				"PROMPT",
+				"PUSHD",
+				"RD",
+				//"REM",
+				"REN",
+				"RENAME",
+				"RMDIR",
+				//"SET",
+				"SETLOCAL",
+				"SHIFT",
+				"SORT",
+				//"START",
+				"SUBST",
+				"TIME",
+				"TITLE",
+				"TYPE",
+				"VER",
+				"VERIFY",
+				"VOL",
+				"XCOPY",
+				"CMD",
+			};
+			bool    is_internal_cmd = false;
+			{
+				for(uint i = 0; !is_internal_cmd && i < SIZEOFARRAY(p_internal_cml_list); i++) {
+					if(P.AppNameUtf8.IsEqiAscii(p_internal_cml_list[i]))
+						is_internal_cmd = true;
+				}
+			}
+			if(is_internal_cmd) {
+				// Пока самый наипростейший способ запуска внутренней команды
+				temp_buf = P.AppNameUtf8;
+				if(P.CmdLineUtf8.NotEmpty()) {
+					temp_buf.Space().Cat(P.CmdLineUtf8);
+				}
+				system(temp_buf); // Работает, но @todo модифицировать SlProcess так что бы он мог запускать внутренние команды
+			}
+			else {
+				SFileFormat ff;
+				if(!fileExistsU(app_name_u)) {
+					if(SlProcess::FindFullPathByProcessFileName(P.AppNameUtf8, temp_buf)) {
+						app_name_u.CopyFromUtf8(temp_buf);
+					}
+				}
+				THROW(fileExistsU(app_name_u));
+				const int fir = ff.Identify(P.AppNameUtf8, 0);
+				if(fir == 3 && ff == SFileFormat::Exe) {
+					SlProcess::Result prc_result;
+					SlProcess prc;
+					prc.SetPath(app_name_u);
+					SFsPath ps(P.AppNameUtf8);
+					ps.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
+					if(temp_buf.NotEmpty())
+						prc.SetWorkingDir(temp_buf);
+					if(P.CmdLineUtf8.NotEmpty()) {
+						StringSet ss_arg;
+						SlProcess::SplitCmdLine(P.CmdLineUtf8, 0, ss_arg);
+						for(uint ssp = 0; ss_arg.get(&ssp, temp_buf);) {
+							prc.AddArg(temp_buf);
+						}
+					}
+					if(prc.Run(&prc_result)) {
+						ok = 1;
+					}
+				}
+				else {
+					SStringU param_u;
+					const  wchar_t * p_param = 0;
+					if(P.CmdLineUtf8.NotEmpty()) {
+						param_u.CopyFromUtf8(P.CmdLineUtf8);
+						p_param = param_u.ucptr();
+					}
+					::ShellExecuteW(0, L"open", app_name_u, p_param, NULL, SW_SHOWNORMAL);
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+class CMD_HDL_CLS(LAUNCHAPP) : public PPCommandHandler { // @v12.6.5 @construction
+public:
+	CMD_HDL_CLS(LAUNCHAPP)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	{
+	}
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = -1;
+		const  size_t preserve_offs = pParam ? pParam->GetRdOffs() : 0;
+		PrcssrOuterProcessExecution prcssr;
+		OuterProcessExecutionFilt param;
+		THROW_INVARG(pParam);
+		if(pParam->GetAvailableSize() != 0) {
+			param.Read(*pParam, 0);
+		}
+		if(prcssr.EditParam(&param) > 0) {
+			THROW(param.Write(pParam->Z(), 0));
+			ok = 1;
+		}
+		else {
+			pParam->SetRdOffs(preserve_offs);
+		}
+		CATCH
+			CALLPTRMEMB(pParam, SetRdOffs(preserve_offs));
+			ok = 0;
+		ENDCATCH
+		return ok;
+	}
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = -1;
+		OuterProcessExecutionFilt param;
+		OuterProcessExecutionFilt * p_param = 0;
+		PrcssrOuterProcessExecution prcssr;
+		if(pParam && param.Read(*pParam, 0) > 0) {
+			p_param = &param;
+		}
+		else {
+			if(prcssr.InitParam(&param)) {
+				if(prcssr.EditParam(&param) > 0) {
+					p_param = &param;
+				}
+			}
+		}
+		if(p_param) {
+			prcssr.Init(&param);
+			ok = prcssr.Run();
+		}
+		return ok;
+	}
+};
+
+IMPLEMENT_CMD_HDL_FACTORY(LAUNCHAPP);

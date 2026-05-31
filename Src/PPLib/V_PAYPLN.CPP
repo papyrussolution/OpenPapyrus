@@ -14,7 +14,6 @@ IMPLEMENT_PPFILT_FACTORY(PaymPlan); PaymPlanFilt::PaymPlanFilt() : PPBaseFilt(PP
 	Init(1, 0);
 }
 
-
 PPViewPaymPlan::PPViewPaymPlan() : PPView(0, &Filt, PPVIEW_PAYMPLAN, 0, 0), P_BObj(BillObj), P_TempTbl(0)
 {
 }
@@ -453,7 +452,7 @@ int PPViewPaymPlan::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			SetClusterData(CTL_PAYPLANFLT_FLAGS, Data.Flags);
 			SetupSubstPersonCombo(this, CTLSEL_PAYPLANFLT_SGP, Data.Sgp);
 			disableCtrl(CTLSEL_PAYPLANFLT_SGP, !(Data.Flags & PaymPlanFilt::fDetail));
-			setWL(BIN(Data.Flags & PaymPlanFilt::fLabelOnly));
+			setWL(LOGIC(Data.Flags & PaymPlanFilt::fLabelOnly));
 			return 1;
 		}
 		DECL_DIALOG_GETDTS()

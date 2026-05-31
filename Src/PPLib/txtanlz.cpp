@@ -3384,7 +3384,12 @@ int Test_KeywordListGenerator()
 //
 //
 //
-PPAutoTranslSvcBase::PPAutoTranslSvcBase(uint capabilities) : Capabilities(capabilities)
+PPAutoTranslSvcBase::PPAutoTranslSvcBase(uint capabilities, long glsIdent) : Capabilities(capabilities), GlsIdent(glsIdent), 
+	Cache(slangRU), State(0), AuthExpirySec(0), AuthTime(ZERODATETIME), LastReqTime(ZERODATETIME), CacheAdditionsSinceLastFlush(0)
+{
+}
+
+/*virtual*/PPAutoTranslSvcBase::~PPAutoTranslSvcBase()
 {
 }
 
@@ -3402,6 +3407,7 @@ int PPAutoTranslSvcBase::SetCacheFilePath(const char * pPath)
 	if(!isempty(pPath)) {
 		if(fileExists(pPath)) {
 			CacheFilePath = pPath;
+			Cache.Load(CacheFilePath);
 			ok = 2;
 		}
 		else {
@@ -3419,6 +3425,11 @@ int PPAutoTranslSvcBase::SetCacheFilePath(const char * pPath)
 	return ok;
 }
 
+int PPAutoTranslSvcBase::StoreCache()
+{
+	return CacheFilePath.NotEmpty() ? Cache.Store(CacheFilePath) : 0;
+}
+
 /*virtual*/int PPAutoTranslSvcBase::Auth(const AuthBlock & rBlk)
 {
 	return (Capabilities & cNoAuth) ? 100 : 0/*unsupported*/;
@@ -3428,10 +3439,73 @@ int PPAutoTranslSvcBase::SetCacheFilePath(const char * pPath)
 {
 	return 0; // unsupported
 }
+
+SString & PPAutoTranslSvcBase::Stat::ToStr(SString & rBuf) const
+{
+	rBuf.Z().CatEq("ReqCount", ReqCount).Space().CatEq("InpChrCount", InpChrCount).Space().
+		CatEq("OutpChrCount", OutpChrCount).Space().CatEq("TotalTiming", TotalTiming);
+	return rBuf;
+}
+
+int PPAutoTranslSvcBase::DoAuth(const AuthBlock & rBlk)
+{
+	int    ok = Auth(rBlk);
+	return ok;
+}
+
+int PPAutoTranslSvcBase::DoTranslate(int srcLang, int destLang, const SString & rSrcTextUtf8, SString & rResultUtf8)
+{
+	int    ok = 0;
+	const  uint cr = (srcLang == Cache.GetSrcLangId()) ? Cache.GetTranslation(rSrcTextUtf8, destLang, rResultUtf8) : 0;
+	if(cr > 0) {
+		S.CacheHitCount++;
+		ok = 2;
+	}
+	else {
+		if(P.ReqTimeoutMsec) {
+			if(!!LastReqTime) {
+				const  LDATETIME now_dtm = getcurdatetime_();
+				long   ds = diffdatetimesec(now_dtm, LastReqTime);
+				if(ds < (P.ReqTimeoutMsec * 1000)) {
+					SDelay((P.ReqTimeoutMsec * 1000) - ds + 50); // +50 ensurance 
+				}
+			}
+		}
+		ok = Request(srcLang, destLang, rSrcTextUtf8, rResultUtf8);
+		if(ok > 0) {
+			LastReqTime = getcurdatetime_();
+			S.ReqCount++;
+			S.InpChrCount += rSrcTextUtf8.LenUtf8();
+			S.OutpChrCount += rResultUtf8.LenUtf8();
+			if(srcLang == Cache.GetSrcLangId() && rResultUtf8.NotEmpty()) {
+				const  uint src_text_id = Cache.AddSrcText(rSrcTextUtf8);
+				if(src_text_id) {
+					const  int catr = Cache.AddTranslation(src_text_id, destLang, rResultUtf8);
+					if(catr > 0) {
+						S.CacheAddCount++;
+						CacheAdditionsSinceLastFlush++;
+						const  uint cache_flush_on_count = NZOR(P.CacheFlushOnCount, 5);
+						if(CacheAdditionsSinceLastFlush >= cache_flush_on_count) {
+							if(CacheFilePath.NotEmpty()) {
+								if(Cache.Store(CacheFilePath)) {
+									;
+								}
+								else {
+									; // @todo @logerrmsg
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
 //
 //
 //
-PPAutoTranslSvc_Microsoft::PPAutoTranslSvc_Microsoft() : PPAutoTranslSvcBase(0), LastStatusCode(0), P_XpCtx(0), ExpirySec(0), AuthTime(ZERODATETIME)
+PPAutoTranslSvc_Microsoft::PPAutoTranslSvc_Microsoft() : PPAutoTranslSvcBase(0, PPGLS_MSTRANSLATE), LastStatusCode(0), P_XpCtx(0), ExpirySec(0)
 {
 }
 
@@ -3440,9 +3514,7 @@ PPAutoTranslSvc_Microsoft::~PPAutoTranslSvc_Microsoft()
 	xmlFreeParserCtxt(P_XpCtx);
 	if(S.ReqCount) {
 		SString log_msg_buf;
-		log_msg_buf.CatEq("ReqCount", S.ReqCount).Space().CatEq("InpChrCount", S.InpChrCount).Space().
-			CatEq("OutpChrCount", S.OutpChrCount).Space().CatEq("TotalTiming", S.TotalTiming);
-		PPLogMessage(PPFILNAM_AUTOTRANSL_LOG, log_msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+		PPLogMessage(PPFILNAM_AUTOTRANSL_LOG, S.ToStr(log_msg_buf), LOGMSGF_TIME|LOGMSGF_USER);
 	}
 }
 
@@ -3545,7 +3617,7 @@ int Helper_PPAutoTranslSvc_Microsoft_Auth(PPAutoTranslSvc_Microsoft & rAt)
 	{
 		PPAutoTranslSvcBase::AuthBlock ablk;
 		THROW_PP(key_buf.Divide(':', ablk.Ident, ablk.Secret) > 0, PPERR_MSFTTRANSLKEY_INV);
-		THROW(rAt.Auth(ablk));
+		THROW(rAt.DoAuth(ablk));
 	}
 	CATCHZOK
 	return ok;
@@ -3714,7 +3786,7 @@ int PPAutoTranslSvc_Microsoft::Implement_Request(int srcLang, int destLang, cons
 	return ok;
 }
 
-PPAutoTranslSvc_Google::PPAutoTranslSvc_Google() : PPAutoTranslSvcBase(cNoAuth)
+PPAutoTranslSvc_Google::PPAutoTranslSvc_Google() : PPAutoTranslSvcBase(cNoAuth, PPGLS_GOOGLETRANSLATE)
 {
 }
 	
@@ -3873,37 +3945,10 @@ PPAutoTranslSvc_Google::~PPAutoTranslSvc_Google()
 	CATCHZOK
 	return ok;
 }
-
-int PPAutoTranslateText(int srcLang, int destLang, AutotranslCache * pCache, const SString & rSrcUtf8, SString & rResultUtf8)
-{
-	// slangRU
-	int    ok = 1;
-	const  uint cr = pCache ? pCache->GetTranslation(rSrcUtf8, destLang, rResultUtf8) : 0;
-	if(cr) {
-		ok = 2;
-	}
-	else {
-		PPAutoTranslSvc_Google at;
-		//THROW(Helper_PPAutoTranslSvc_Microsoft_Auth(at));
-		if(at.Request(srcLang, destLang, rSrcUtf8, rResultUtf8) > 0) {
-			if(pCache) {
-				uint   src_text_id = pCache->AddSrcText(rSrcUtf8);
-				if(src_text_id) {
-					pCache->AddTranslation(src_text_id, destLang, rResultUtf8);
-				}
-			}
-		}
-		else {
-			ok = 0;
-		}
-	}
-	//CATCHZOK
-	return ok;
-}
 //
 //
 //
-AutotranslCache::AutotranslCache() : Ht_SrcText(SMEGABYTE(1)), MaxHtSrcId(0)
+AutotranslCache::AutotranslCache(const int srcLangId) : Ht_SrcText(SMEGABYTE(1)), SrcLangId(srcLangId), MaxHtSrcId(0)
 {
 }
 
@@ -4113,6 +4158,7 @@ const StringStore2 * PPGetStrStore(); // Только для тестирова�
 int TestAutotranslateCache()
 {
 	int    ok = 1;
+	const  int src_lang_id = slangRU;
 	bool   debug_mark = false; // @debug
 	const StringStore2 * p_ss = PPGetStrStore();
 	if(p_ss) {
@@ -4122,7 +4168,7 @@ int TestAutotranslateCache()
 			LongArray lang_id_list;
 			p_ss->GetLangList(lang_id_list);
 			if(lang_id_list.getCount()) {
-				AutotranslCache cache;
+				AutotranslCache cache(src_lang_id);
 				SString org_text;
 				SString transl_text;
 				SString transl_text2;
@@ -4182,7 +4228,7 @@ int TestAutotranslateCache()
 					{
 						// Сохраняем кэш в файле
 						if(cache.Store(file_name)) {
-							AutotranslCache cache2;
+							AutotranslCache cache2(src_lang_id);
 							if(cache2.Load(file_name)) {
 								for(uint i = 0; i < p_list0->List.getCount(); i++) {
 									StrAssocArray::Item item = p_list0->List.Get(i);
@@ -4212,34 +4258,39 @@ int TestAutotranslateCache()
 int TestAutotranslateText()
 {
 	int    ok = 1;
+	const  int src_lang_id = slangRU;
 	uint   _count = 0;
 	SString temp_buf;
 	SString src_text;
 	SString dest_text;
 	SString test_root_path;
 	SString cache_file_name;
+	PPAutoTranslSvcBase * p_at = new PPAutoTranslSvc_Google();
+	THROW(p_at);
 	PPGetPath(PPPATH_TESTROOT, test_root_path);
-	if(test_root_path.NotEmpty()) {
+	THROW(test_root_path.NotEmpty());
+	{
 		(temp_buf = test_root_path).SetLastSlash().Cat("data").SetLastSlash().Cat("phrases-ru-1251.txt");
 		SFile f_in(temp_buf, SFile::mRead);
-		if(f_in.IsValid()) {
-			(cache_file_name = test_root_path).SetLastSlash().Cat("out").SetLastSlash().Cat("TestAutotranslateCache");
-			AutotranslCache cache;
-			cache.Load(cache_file_name);
-			while(f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
-				(src_text = temp_buf).Transf(CTRANSF_OUTER_TO_UTF8);
-				dest_text.Z();
-				if(PPAutoTranslateText(slangRU, slangEN, &cache, src_text, dest_text)) {
-					_count++;
-					temp_buf = dest_text; // @debug @stub
-					if((_count % 20) == 0) {
-						cache.Store(cache_file_name);
-					}
-				}
+		THROW(f_in.IsValid());
+		//THROW(Helper_PPAutoTranslSvc_Microsoft_Auth(at));
+		(cache_file_name = test_root_path).SetLastSlash().Cat("out").SetLastSlash().Cat("TestAutotranslateCache");
+		p_at->SetCacheFilePath(cache_file_name); // Эта функция так же загрузит кэш если файл существует
+		//AutotranslCache cache(src_lang_id);
+		//cache.Load(cache_file_name);
+		while(f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+			(src_text = temp_buf).Transf(CTRANSF_OUTER_TO_UTF8);
+			dest_text.Z();
+			//if(PPAutoTranslateText(src_lang_id, slangEN, &cache, src_text, dest_text)) {
+			if(p_at->DoTranslate(src_lang_id, slangEN, src_text, dest_text) > 0) {
+				_count++;
+				temp_buf = dest_text; // @debug @stub
 			}
-			cache.Store(cache_file_name);
 		}
+		p_at->StoreCache();
 	}
+	CATCHZOK
+	delete p_at;
 	return ok;
 }
 //
@@ -6253,7 +6304,7 @@ int PhoneNumberMetaData::MakeValidationResultText(const ValidationResult & rR, S
 	else {
 		rBuf.CatEq("NdKind", p_nd->UedPhoneNumberKind).Space();
 	}
-	rBuf.CatEq("Confidence", rR.Confidence, MKSFMTD(0, 2, 0)).Space(); // Нам нужна эффективная уверенность именно для этого значения, а не общая из NumberDescriptor!
+	rBuf.CatEq("Confidence", rR.Confidence, MKSFMTD_020).Space(); // Нам нужна эффективная уверенность именно для этого значения, а не общая из NumberDescriptor!
 	CATCHZOK
 	return ok;
 }

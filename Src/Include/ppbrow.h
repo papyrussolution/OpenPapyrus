@@ -1569,6 +1569,7 @@
 #define PPCMD_TESTGLOBALSVCACCESSIBILITY            1364
 #define PPCMD_CONSTRUCTIONFACADEWINDOW              1365
 #define PPCMD_EXECSESSIONONTECHROUTE                1366
+#define PPCMD_LAUNCHAPP                             1367
 //
 // PPJOB definitions
 //
@@ -2007,6 +2008,7 @@
 	#define PPFILT_TECHROUTE                             1461
 	#define PPVIEWITEM_TECHROUTE                             1462
 #define PPFILT_EXECSESSIONONTECHROUTE                1471
+#define PPFILT_OUTERPROCESSEXECUTION                 1481
 //
 // RECORD definitions
 //
@@ -5246,4 +5248,5 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_PRINTER_EXCLGREEN01             33047
 #define PPDV_TECH01                          33048
 #define PPDV_PROCESSOR01                     33049
+#define PPDV_CHERRY01                        33050
 

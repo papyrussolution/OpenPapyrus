@@ -28,11 +28,12 @@ static ulong mix(ulong v)
 	ulong  addendum;
 	const  int c = getkey(key, &addendum);
 	v += addendum;
-	for(i = 0; i < c; i++)
+	for(i = 0; i < c; i++) {
 		if(key[i] % 3)
 			v = /*_lrotr*/SBits::Rotr(v, key[i]);
 		else
 			v = ~/*_lrotl*/SBits::Rotl(v, key[i]);
+	}
 	return v;
 }
 
@@ -52,16 +53,16 @@ static ulong unmix(ulong v)
 	return v;
 }
 
-void * encrypt(void * pBuf, size_t len)
+void * __D2M(void * pBuf, size_t len)
 {
 	len = ((len + 3) >> 2);
 	for(size_t i = 0; i < len; i++) {
-		((ulong *)pBuf)[i] = mix(((ulong *)pBuf)[i]);
+		static_cast<ulong *>(pBuf)[i] = mix(static_cast<ulong *>(pBuf)[i]);
 	}
 	return pBuf;
 }
 
-void * decrypt(void * pBuf, size_t len)
+void * __M2D(void * pBuf, size_t len)
 {
 	len >>= 2;
 	for(size_t i = 0; i < len; i++) {
@@ -146,6 +147,138 @@ SJson * SSecretTagPool::GetJson(uint tag) const
 	return p_js;
 }
 //
+// 
+// 
+SVaultPool::SVaultPool() : SBinarySet()
+{
+}
+
+static constexpr uint32 SVaultPool_IdOffset = 4000;
+
+uint32 SVaultPool::MakeInternalId(uint32 outerId) const
+{
+	return (outerId && outerId <= (MAXUINT32-SVaultPool_IdOffset)) ? (outerId+SVaultPool_IdOffset) : 0;
+}
+
+uint32 SVaultPool::MakeOuterId(uint32 internalId) const
+{
+	return (internalId && internalId > SVaultPool_IdOffset) ? (internalId-SVaultPool_IdOffset) : 0;
+}
+//
+// 
+// 
+SlCrypto::KeyVerificationBlock::KeyVerificationBlock()
+{
+	THISZERO();
+}
+
+static constexpr GUID VG[] = {
+	{0xbc954aa1, 0xe602, 0x4f3f, { 0x83, 0xa3, 0x47, 0x35, 0x78, 0x5a, 0x2, 0xf9 }},
+	{0xe3db81e3, 0x5d4c, 0x42e8, { 0xa0, 0x33, 0x7c, 0x90, 0x13, 0x81, 0x11, 0xf7 }},
+	{0x32aec6c0, 0x33a1, 0x4471, { 0xba, 0xd3, 0xb9, 0xa4, 0xaa, 0x3, 0x14, 0x14 }},
+	{0x72e334ae, 0x7d75, 0x4ecc, { 0x80, 0x5b, 0x94, 0x6a, 0x35, 0x26, 0xf2, 0x35 }}
+};
+
+/*static*/int SlCrypto::MakeKeyVerificationBlock(uint64 uedSymmCipher, const void * pKey, size_t keyLen, KeyVerificationBlock & rBlk)
+{
+	int   ok = 0;
+	if(pKey && keyLen) {
+		SlCrypto crypto(uedSymmCipher);
+		THROW(crypto.IsValid());
+		const  SlCrypto::CipherProperties & r_cp = crypto.GetCipherProperties();
+		const  size_t block_size = (r_cp.BlockSize > 0) ? r_cp.BlockSize : sizeof(S_GUID);
+		THROW(block_size <= sizeof(VG));
+		THROW(!r_cp.KeySize || r_cp.KeySize == keyLen); // @todo @err
+		{
+			SlCrypto::Key key;
+			SBinaryChunk data;
+			SBinaryChunk encrypted;
+			SBinaryChunk tag;
+			SBinaryChunk aad;
+			SBinaryChunk iv;
+			THROW(key.SetKey(pKey, keyLen));
+			if(r_cp.IvSize) {
+				// Генерируем случайный IV
+				iv.Randomize(r_cp.IvSize);
+				THROW(crypto.SetKey_IV(key, iv.PtrC(), iv.Len()));
+			}
+			if(r_cp.AadSize) {
+				aad.Randomize(r_cp.AadSize);
+				THROW(crypto.SetKey_AAD(key, aad.PtrC(), aad.Len()));
+			}
+			data.Z().Cat(VG, block_size);
+			THROW(crypto.Encrypt(key, data.PtrC(), data.Len(), encrypted, &tag));
+			{
+				const  size_t total_enc_data_len = encrypted.Len() + tag.Len() + aad.Len() + iv.Len();
+				THROW(total_enc_data_len <= sizeof(rBlk.VB)); // @todo @err
+				{
+					assert(aad.Len() == r_cp.AadSize);
+					assert(iv.Len() == r_cp.IvSize);
+					assert(tag.Len() == r_cp.TagSize);
+					SBinaryChunk temp_chunk;
+					temp_chunk.Cat(aad);
+					temp_chunk.Cat(iv);
+					temp_chunk.Cat(encrypted);
+					temp_chunk.Cat(tag);
+					memcpy(rBlk.VB, temp_chunk.PtrC(), temp_chunk.Len());
+					rBlk.VBSize = temp_chunk.Len();
+				}
+				ok = 1;
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+/*static*/int SlCrypto::VerifyKey(uint64 uedSymmCipher, const void * pKey, size_t keyLen, KeyVerificationBlock & rBlk)
+{
+	int   ok = 0;
+	if(pKey && keyLen) {
+		SlCrypto crypto(uedSymmCipher);
+		THROW(crypto.IsValid());
+		const  SlCrypto::CipherProperties & r_cp = crypto.GetCipherProperties();
+		const  size_t block_size = (r_cp.BlockSize > 0) ? r_cp.BlockSize : sizeof(S_GUID);
+		THROW(block_size <= sizeof(VG));
+		THROW(!r_cp.KeySize || r_cp.KeySize == keyLen); // @todo @err
+		THROW((r_cp.AadSize + r_cp.IvSize + r_cp.TagSize + block_size) == rBlk.VBSize); // @todo @err
+		{
+			SlCrypto::Key key;
+			SBinaryChunk data;
+			SBinaryChunk decrypted;
+			SBinaryChunk tag;
+			SBinaryChunk tag_pattern;
+			//SBinaryChunk aad;
+			//SBinaryChunk iv;
+			THROW(key.SetKey(pKey, keyLen));
+			{
+				ssize_t encrypted_data_len = rBlk.VBSize - (r_cp.AadSize + r_cp.IvSize + r_cp.TagSize);
+				size_t vb_offs = 0;
+				THROW(encrypted_data_len > 0);
+				if(r_cp.AadSize) {
+					key.SetAAD(rBlk.VB+vb_offs, r_cp.AadSize);
+					vb_offs += r_cp.AadSize;
+				}
+				if(r_cp.IvSize) {
+					key.SetIV(rBlk.VB+vb_offs, r_cp.IvSize);
+					vb_offs += r_cp.IvSize;
+				}
+				data.Cat(rBlk.VB+vb_offs, encrypted_data_len);
+				vb_offs += encrypted_data_len;
+				if(r_cp.TagSize) {
+					tag_pattern.Cat(rBlk.VB+vb_offs, r_cp.TagSize);
+				}
+			}
+			THROW(crypto.Decrypt(key, data.PtrC(), data.Len(), decrypted, &tag));
+			THROW(decrypted.IsEq(VG, decrypted.Len()));
+			THROW(tag == tag_pattern);
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+//
 //
 //
 class SlEncapsulatedKey {
@@ -175,54 +308,69 @@ public:
 	uint   V[20];
 };
 
+/*static*/bool SlCrypto::MakeEncapsulatedKey(const void * pSrcKey, size_t srcKeySize, size_t drvKeySize, SlCrypto::Key & rResult) // @v12.6.4 @construction
+{
+	bool   ok = false;
+	if(pSrcKey && srcKeySize && drvKeySize) {
+		Argon2Param ap;
+		uint64 salt[2];
+		{
+			// Attention! Факторы ниже обуславливают воспроизводимость порожденного ключа - менять нельзя!
+			ap.MemCost = SKILOBYTE(64);
+			ap.TimeCost = 3;
+			ap.Parallelism = 1;
+			salt[0] = 0x93E90DC7875BF159ULL;
+			salt[1] = 0x159C4AB099D7D317ULL;
+		}
+		if(MakeKey_Derived_Argon2(rResult, pSrcKey, srcKeySize, drvKeySize, salt, sizeof(salt), ap)) {
+			ok = true;
+		}
+	}
+	return ok;
+}
+
 /*static*/void * SlCrypto::EncapsulateKey(const void * pSrcKey, size_t srcKeySize, size_t drvKeySize) // @v12.6.4 @construction
 {
 	void * p_result = 0;
-	if(pSrcKey && srcKeySize && drvKeySize) {
-		SlCrypto::Key key;
-		Argon2Param ap;
-		uint64 salt[2];
-		salt[0] = 0x93E90DC7875BF159ULL;
-		salt[1] = 0x159C4AB099D7D317ULL;
-		if(Implement_SetKey_Derived_Argon2(key, pSrcKey, srcKeySize, drvKeySize, salt, sizeof(salt), ap)) {
-			const SBaseBuffer & r_dk = key.GetKey();
-			assert(r_dk.P_Buf && r_dk.Size == drvKeySize);
-			if(r_dk.P_Buf && r_dk.Size == drvKeySize) {
-				TSClassWrapper <SlEncapsulatedKey> cls_ek;
-				const  uint h_ek = SLS.CreateGlobalObject(cls_ek);
-				SlEncapsulatedKey * p_ek = h_ek ? static_cast<SlEncapsulatedKey *>(SLS.GetGlobalObject(h_ek)) : 0;
-				if(p_ek) {
-					constexpr uint vdim = SIZEOFARRAY(p_ek->V);
-					const  uint r1 = SLS.GetTLA().Rg.GetUniformIntPos(8); // Спонтанная разница между номинальной размерностью массива и реальным числом элементов в нем
-					const  uint vc = vdim - r1; // Реальное число элементов в массиве
-					p_ek->V[vdim-1] = vc; // Последний номинальный элемент массива содержит vc
-					const  uint vtp = SLS.GetSessUuid().Data[1] % vc; // Индекс элемента, в котором будет храниться реальный ключ, в остальных - обманки
-					for(uint i = 0; i < vc; i++) {
-						TSClassWrapper <SlEncapsulatedKey::Internal> cls;
-						const  uint h = SLS.CreateGlobalObject(cls);
-						SlEncapsulatedKey::Internal * p_ = h ? static_cast<SlEncapsulatedKey::Internal *>(SLS.GetGlobalObject(h)) : 0;
-						if(p_) {
-							p_ek->V[i] = h;
-							p_->B.Size = drvKeySize;
-							p_->B.P_Buf = static_cast<char *>(SAlloc::M_secure(p_->B.Size));
-							if(i == vtp) {
-								assert(p_->B.Size == r_dk.Size); // @paranoic
-								memcpy(p_->B.P_Buf, r_dk.P_Buf, p_->B.Size);
-							}
-							else {
-								SVector kts(1);
-								kts.insertChunk(r_dk.Size, r_dk.P_Buf);
-								kts.shuffle();
-								assert(p_->B.Size == r_dk.Size); // @paranoic
-								assert(kts.getCount() == p_->B.Size); // @paranoic
-								memcpy(p_->B.P_Buf, kts.dataPtr(), kts.getCount());
-							}
+	SlCrypto::Key key;
+	if(MakeEncapsulatedKey(pSrcKey, srcKeySize, drvKeySize, key)) {
+		const SBaseBuffer & r_dk = key.GetKey();
+		assert(r_dk.P_Buf && r_dk.Size == drvKeySize);
+		if(r_dk.P_Buf && r_dk.Size == drvKeySize) {
+			TSClassWrapper <SlEncapsulatedKey> cls_ek;
+			const  uint h_ek = SLS.CreateGlobalObject(cls_ek);
+			SlEncapsulatedKey * p_ek = h_ek ? static_cast<SlEncapsulatedKey *>(SLS.GetGlobalObject(h_ek)) : 0;
+			if(p_ek) {
+				constexpr uint vdim = SIZEOFARRAY(p_ek->V);
+				const  uint r1 = SLS.GetTLA().Rg.GetUniformIntPos(8); // Спонтанная разница между номинальной размерностью массива и реальным числом элементов в нем
+				const  uint vc = vdim - r1; // Реальное число элементов в массиве
+				p_ek->V[vdim-1] = vc; // Последний номинальный элемент массива содержит vc
+				const  uint vtp = SLS.GetSessUuid().Data[1] % vc; // Индекс элемента, в котором будет храниться реальный ключ, в остальных - обманки
+				for(uint i = 0; i < vc; i++) {
+					TSClassWrapper <SlEncapsulatedKey::Internal> cls;
+					const  uint h = SLS.CreateGlobalObject(cls);
+					SlEncapsulatedKey::Internal * p_ = h ? static_cast<SlEncapsulatedKey::Internal *>(SLS.GetGlobalObject(h)) : 0;
+					if(p_) {
+						p_ek->V[i] = h;
+						p_->B.Size = drvKeySize;
+						p_->B.P_Buf = static_cast<char *>(SAlloc::M_secure(p_->B.Size));
+						if(i == vtp) {
+							assert(p_->B.Size == r_dk.Size); // @paranoic
+							memcpy(p_->B.P_Buf, r_dk.P_Buf, p_->B.Size);
+						}
+						else {
+							SVector kts(1);
+							kts.insertChunk(r_dk.Size, r_dk.P_Buf);
+							kts.shuffle();
+							assert(p_->B.Size == r_dk.Size); // @paranoic
+							assert(kts.getCount() == p_->B.Size); // @paranoic
+							memcpy(p_->B.P_Buf, kts.dataPtr(), kts.getCount());
 						}
 					}
-					p_result = new uint;
-					if(p_result) {
-						PTR32(p_result)[0] = h_ek;
-					}
+				}
+				p_result = new uint;
+				if(p_result) {
+					PTR32(p_result)[0] = h_ek;
 				}
 			}
 		}
@@ -403,6 +551,7 @@ SlCrypto::SlCrypto(uint64 uedCipher) : // @v12.6.3 @construction
 				alg_modif = algmodPoly1305;
 				break;
 		}
+		Helper_Construct(alg, kbl, alg_modif, 0);
 	}
 	else {
 		State |= stError;
@@ -624,7 +773,7 @@ bool SlCrypto::IsIvSizeConfigurable() const { return oneof4(AlgModif, algmodCcm,
 	
 const  SlCrypto::CipherProperties & SlCrypto::GetCipherProperties() const { return Cp; }
 
-/*static*/int SlCrypto::Implement_SetKey_Derived_Argon2(SlCrypto::Key & rK, const void * pData, size_t size, size_t destKeySize, const void * pSalt, size_t saltSize, const Argon2Param & rParam) // @v12.6.4
+/*static*/int SlCrypto::MakeKey_Derived_Argon2(SlCrypto::Key & rK, const void * pData, size_t size, size_t destKeySize, const void * pSalt, size_t saltSize, const Argon2Param & rParam) // @v12.6.4
 {
 	int   ok = 1;
 	const size_t result_key_size = destKeySize;
@@ -664,7 +813,7 @@ const  SlCrypto::CipherProperties & SlCrypto::GetCipherProperties() const { retu
 
 int SlCrypto::SetKey_Derived_Argon2(SlCrypto::Key & rK, const void * pData, size_t size, const void * pSalt, size_t saltSize, const Argon2Param & rParam) // @v12.6.3
 {
-	return Implement_SetKey_Derived_Argon2(rK, pData, size, Cp.KeySize, pSalt, saltSize, rParam);
+	return MakeKey_Derived_Argon2(rK, pData, size, Cp.KeySize, pSalt, saltSize, rParam);
 }
 
 int SlCrypto::SetKey_IV(SlCrypto::Key & rK, const void * pData, size_t size) // @v12.6.3

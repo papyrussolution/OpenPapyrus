@@ -1494,7 +1494,7 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 			if(ref.IsEqiAscii("MAIN")) {
 				AllocGoodsStruc();
 				THROW_PP_S(P_Gs, PPERR_INVEXPRCTX_GS, pSymb);
-				ref_goods_id = P_Gs->GoodsID;
+				ref_goods_id = P_Gs->OwnerGoodsID;
 				if(P_Gs->P_Cb)
 					ref_gscb_item = 0;
 			}

@@ -3032,8 +3032,8 @@ int PPViewGoods::Repair(PPID /*id*/)
 	PPObjGoodsClass gc_obj;
 	PPGdsClsPacket  gc_pack;
 	PPObjGoodsStruc gs_obj;
-	PPObjTech tec_obj; // @v11.3.2
-	PPObjProcessor prc_obj; // @v11.3.2
+	PPObjTech tec_obj;
+	PPObjProcessor prc_obj;
 	GoodsViewItem item;
 	GoodsRecoverParam param;
 	SString temp_buf;
@@ -4670,7 +4670,7 @@ int PPALDD_GoodsStruc::InitData(PPFilt & rFilt, long rsrv)
 		const PPGoodsStruc * p_gs = p_supp->P_Iter ? p_supp->P_Iter->GetStruc() : 0;
 		if(p_gs) {
 			H.ID      = p_gs->Rec.ID;
-			H.GoodsID = p_gs->GoodsID;
+			H.GoodsID = p_gs->OwnerGoodsID;
 			STRNSCPY(H.Name, p_gs->Rec.Name);
 			H.Flags  = p_gs->Rec.Flags;
 			H.fAllowCompl   = BIN(p_gs->Rec.Flags & GSF_COMPL);

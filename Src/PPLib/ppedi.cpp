@@ -1145,7 +1145,9 @@ int PPDocumentInterchangeContext::ResolveContractor(const char * pText, int part
 	SString msg_buf;
 	if(!isempty(pText) && pPack && pPack->Rec.EdiOp) {
 		if(oneof2(partyQ, EDIPARTYQ_SHIPTO, EDIPARTYQ_CONSIGNEE)) {
-			THROW(ResolveDlvrLoc(pText, pPack));
+			const  int lr = ResolveDlvrLoc(pText, pPack);
+			if(!lr) {
+			}
 		}
 		else if(partyQ == EDIPARTYQ_CONSIGNOR) {
 		}
@@ -7522,8 +7524,6 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const c
 	SString addendum_msg_buf;
 	SString serial;
 	SString goods_name;
-	//SString gtin;
-	//SString ar_goods_code;
 	SString order_number;
 	LDATE  order_date = ZERODATE;
 	xmlParserCtxt * p_ctx = static_cast<xmlParserCtxt *>(pCtx);
@@ -7532,8 +7532,6 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const c
 	PPObjOprKind op_obj;
 	PPEdiProcessor::Packet * p_pack = 0;
 	PPBillPacket * p_bpack = 0; // is owned by p_pack
-	//PPID   goods_id_by_gtin = 0;
-	//PPID   goods_id_by_arcode = 0;
 	Goods2Tbl::Rec goods_rec;
 	BarcodeTbl::Rec bc_rec;
 	OwnFormatCommonAttr attrs;
@@ -7591,8 +7589,7 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const c
 					else if(SXml::GetContentByName(p_n2, "blanketOrderIdentificator", temp_buf)) {
 					}
 					else if(SXml::GetContentByName(p_n2, "comment", temp_buf)) {
-						// @v11.1.12 STRNSCPY(p_bpack->Rec.Memo, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
-						p_bpack->SMemo = temp_buf.Transf(CTRANSF_UTF8_TO_INNER); // @v11.1.12
+						p_bpack->SMemo = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 					}
 					else if(SXml::IsName(p_n2, "seller")) {
 						THROW(ReadOwnFormatContractor(p_n2->children, contractor));
@@ -7717,8 +7714,7 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const c
 				order_date = ZERODATE;
 				PPBillPacket * p_bp_ord = 0;
 				THROW(edi_op == PPEDIOP_ORDERRSP);
-				THROW(op_obj.GetEdiOrdrspOp(&ordrsp_op_id, 1)); // @v11.2.12
-				// @v11.2.12 THROW_PP(ACfg.Hdr.EdiOrderSpOpID, PPERR_EDI_OPNDEF_ORDERRSP);
+				THROW(op_obj.GetEdiOrdrspOp(&ordrsp_op_id, 1));
 				THROW(ReadCommonAttributes(p_n, attrs));
 				THROW_MEM(p_pack = new PPEdiProcessor::Packet(edi_op));
 				p_bpack = static_cast<PPBillPacket *>(p_pack->P_Data);
@@ -8630,35 +8626,55 @@ int EdiProviderImplementation_Exite::Helper_SendDocument(const char * pDocType, 
 int  PPEdiProcessor::ProviderImplementation::ResolveDlvrLoc(const OwnFormatContractor & rC, PPBillPacket * pPack)
 {
 	int    ok = -1;
-	if(rC.GLN.NotEmpty()) {
-		PPIDArray loc_list_by_gln;
-		PPID   final_dlvr_loc_id = 0;
-		PsnObj.LocObj.ResolveGLN(LOCTYP_ADDRESS, rC.GLN, loc_list_by_gln);
-		THROW_PP_S(loc_list_by_gln.getCount(), PPERR_EDI_UNBLRSLV_BILLDLVRLOC, rC.GLN);
-		for(uint i = 0; !final_dlvr_loc_id && i < loc_list_by_gln.getCount(); i++) {
-			const  PPID loc_id = loc_list_by_gln.get(i);
-			LocationTbl::Rec loc_rec;
-			if(PsnObj.LocObj.Fetch(loc_id, &loc_rec) > 0) {
-				if(loc_rec.OwnerID) {
-					const  PPID psn_id = ObjectToPerson(pPack->Rec.Object, 0);
-					if(psn_id) {
-						if(loc_rec.OwnerID == psn_id) {
+	if(pPack) {
+		// @v12.6.5 {
+		SString bill_code;
+		PPObjBill::MakeCodeString(&pPack->Rec, PPObjBill::mcsAddObjName|PPObjBill::mcsAddOpName, bill_code);
+		THROW_PP_S(rC.GLN.NotEmpty(), PPERR_EDI_UNBLRSLV_BILLDLVRLOC_NGLN, bill_code);
+		// } @v12.6.5 
+		{
+			const  PPID psn_id = ObjectToPerson(pPack->Rec.Object, 0);
+			PPIDArray loc_list_by_gln;
+			PPID   final_dlvr_loc_id = 0;
+			PsnObj.LocObj.ResolveGLN(LOCTYP_ADDRESS, rC.GLN, loc_list_by_gln);
+			bill_code.CatDiv('-', 1).Cat(rC.GLN); // @v12.6.5
+			THROW_PP_S(loc_list_by_gln.getCount(), PPERR_EDI_UNBLRSLV_BILLDLVRLOC, bill_code); // @v12.6.5 rC.GLN-->bill_code
+			for(uint i = 0; !final_dlvr_loc_id && i < loc_list_by_gln.getCount(); i++) {
+				const  PPID loc_id = loc_list_by_gln.get(i);
+				LocationTbl::Rec loc_rec;
+				if(PsnObj.LocObj.Fetch(loc_id, &loc_rec) > 0) {
+					if(loc_rec.OwnerID) {
+						if(psn_id) {
+							if(loc_rec.OwnerID == psn_id) {
+								final_dlvr_loc_id = loc_id;
+							}
+						}
+						else if(pPack->Rec.Object == 0) {
 							final_dlvr_loc_id = loc_id;
 						}
 					}
-					else if(pPack->Rec.Object == 0) {
-						final_dlvr_loc_id = loc_id;
+					else {
+						// @todo Эту ситуацию можно разрулить здесь же поскольку мы знаем нужного владельца: просто смотрим есть у psn_id такой адрес или нет.
+						// @v12.6.5 {
+						PPSetError(PPERR_EDI_BILLDLVRLOCGLN_NOOWNER, rC.GLN);
+						if(P_Logger) {
+							P_Logger->LogLastError();	
+						}
+						else {
+							PPLogMessage(PPFILNAM_EDIEXITE_LOG, 0, LOGMSGF_COMP);
+						}
+						// } @v12.6.5 
 					}
 				}
 			}
-		}
-		THROW_PP_S(final_dlvr_loc_id, PPERR_EDI_UNBLRSLV_BILLDLVRLOC, rC.GLN);
-		{
-			PPFreight freight;
-			pPack->GetFreight(&freight);
-			freight.SetupDlvrAddr(final_dlvr_loc_id);
-			pPack->SetFreight(&freight);
-			ok = 1;
+			THROW_PP_S(final_dlvr_loc_id, PPERR_EDI_UNBLRSLV_BILLDLVRLOC, bill_code); // @v12.6.5 rC.GLN-->bill_code
+			{
+				PPFreight freight;
+				pPack->GetFreight(&freight);
+				freight.SetupDlvrAddr(final_dlvr_loc_id);
+				pPack->SetFreight(&freight);
+				ok = 1;
+			}
 		}
 	}
 	CATCHZOK
@@ -8667,6 +8683,7 @@ int  PPEdiProcessor::ProviderImplementation::ResolveDlvrLoc(const OwnFormatContr
 
 int PPEdiProcessor::ProviderImplementation::ResolveOwnFormatContractor(const OwnFormatContractor & rC, int partyQ, PPBillPacket * pPack)
 {
+	//P_Logger
 	int    ok = 1;
 	if(pPack) {
 		SString msg_buf;
@@ -8751,16 +8768,23 @@ int PPEdiProcessor::ProviderImplementation::ResolveOwnFormatContractor(const Own
 		else if(partyQ == EDIPARTYQ_INVOICEE) {
 		}
 		else if(oneof2(partyQ, EDIPARTYQ_SHIPTO, EDIPARTYQ_CONSIGNEE)) {
+			int    lr = -1;
 			if(pPack->Rec.EdiOp == PPEDIOP_DESADV) {
-				int lr = ResolveDlvrLoc(rC, pPack);
-				if(!lr) {
-				}
+				lr = ResolveDlvrLoc(rC, pPack);
 			}
 			else if(pPack->Rec.EdiOp == PPEDIOP_ORDER) {
-				int lr = ResolveDlvrLoc(rC, pPack);
-				if(!lr) {
+				lr = ResolveDlvrLoc(rC, pPack);
+			}
+			// @v12.6.5 {
+			if(!lr) {
+				if(P_Logger) {
+					P_Logger->LogLastError();
+				}
+				else {
+					PPLogMessage(PPFILNAM_EDI_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 				}
 			}
+			// } @v12.6.5 
 		}
 		else if(partyQ == EDIPARTYQ_CONSIGNOR) {
 		}
