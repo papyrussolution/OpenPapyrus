@@ -5195,6 +5195,7 @@ int PPObjBill::EditExtCodeList(PPBillPacket * pPack, int rowIdx/*[1..]*/, uint f
 			ContextMenuID = CTRLMENU_LOTXCODELIST;
 			selectCtrl(CTL_LOTXCLIST_LIST);
 			enableCommand(cmCopyGtinToGoods, false); // @v12.6.5
+			showButton(cmCopyGtinToGoods, false); // @v12.6.5
 		}
 	private:
 		DECL_HANDLE_EVENT
@@ -5373,7 +5374,10 @@ int PPObjBill::EditExtCodeList(PPBillPacket * pPack, int rowIdx/*[1..]*/, uint f
 				setStaticText(CTL_LOTXCLIST_INFO, temp_buf);
 			}
 			CATCHZOK
+			/*(Пока оставляем команду заблокированной) 
+			showButton(cmCopyGtinToGoods, CommonEan.NotEmpty()); // @v12.6.5
 			enableCommand(cmCopyGtinToGoods, CommonEan.NotEmpty()); // @v12.6.5
+			*/
 			return ok;
 		}
 		virtual int addItem(long * pPos, long * pID)
