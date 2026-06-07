@@ -241,9 +241,9 @@ int PPObjSCard::Import(int use_ta)
 {
 	int    ok = 1;
 	const  uint sect = PPINISECT_IMP_SCARD;
-	SString file_name, wait_msg;
+	SString file_name;
+	SString wait_msg;
 	IterCounter cntr;
-
 	PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPORT_INI, file_name);
 	if(!fileExists(file_name))
 		return -1;
@@ -950,20 +950,23 @@ int PPObjGoods::ImportOld(int use_ta)
 {
 	int    ok = 1;
 	IterCounter cntr;
-	SString file_name, wait_msg, temp_buf2;
-	SString err_msg_buf, fmt_buf, msg_buf;
+	SString file_name;
+	SString wait_msg;
+	SString temp_buf2;
+	SString err_msg_buf;
+	SString fmt_buf;
+	SString msg_buf;
 	const  uint sect = PPINISECT_IMP_GOODS;
 	ImportGoodsParam igp;
 	PPObjGoodsGroup gg_obj;
-	PPObjBrand      brand_obj;
-	PPObjQCert      qc_obj;
-	PPObjPerson     psn_obj;
-	PPObjWorld      w_obj;
-	PPObjUnit       unit_obj;
+	PPObjBrand  brand_obj;
+	PPObjQCert  qc_obj;
+	PPObjPerson psn_obj;
+	PPObjWorld  w_obj;
+	PPObjUnit   unit_obj;
 	BarcodeTbl::Rec barcode_rec;
 	HierArray hier_list;
 	PPLogger logger;
-
 	PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPORT_INI, file_name);
 	if(!fileExists(file_name))
 		return -1;
@@ -4901,7 +4904,8 @@ int FiasImporter::DoPhase(int inpObject, int phase, const SString & rFileName, x
 int FiasImporter::Import(int inpObject)
 {
 	int    ok = 1;
-	SString file_name, wildcard;
+	SString file_name;
+	SString wildcard;
 	SString dest_file_obj_name;
 	if(inpObject == inpAddrObj) {
 		// 	RawRecN	2489624

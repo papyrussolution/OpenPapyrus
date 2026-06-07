@@ -48,12 +48,10 @@ int ossl_gcm_cipher_final(PROV_GCM_CTX * ctx, unsigned char * tag)
 	return 1;
 }
 
-int ossl_gcm_one_shot(PROV_GCM_CTX * ctx, unsigned char * aad, size_t aad_len,
-    const unsigned char * in, size_t in_len,
+int ossl_gcm_one_shot(PROV_GCM_CTX * ctx, unsigned char * aad, size_t aad_len, const unsigned char * in, size_t in_len,
     unsigned char * out, unsigned char * tag, size_t tag_len)
 {
 	int ret = 0;
-
 	/* Use saved AAD */
 	if(!ctx->hw->aadupdate(ctx, aad, aad_len))
 		goto err;
@@ -63,7 +61,6 @@ int ossl_gcm_one_shot(PROV_GCM_CTX * ctx, unsigned char * aad, size_t aad_len,
 	if(!ctx->hw->cipherfinal(ctx, tag))
 		goto err;
 	ret = 1;
-
 err:
 	return ret;
 }

@@ -829,7 +829,8 @@ int PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 
 int PPObjCashNode::GetAsync(PPID id, PPAsyncCashNode * pACN)
 {
-	int    ok = 1, r;
+	int    ok = 1;
+	int    r;
 	PPCashNode2 cn_rec;
 	pACN->ImpFiles.Z();
 	pACN->ExpPaths.Z();

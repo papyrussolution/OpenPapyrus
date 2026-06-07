@@ -2400,7 +2400,7 @@ browser LOT2 north(100), 1, 0, "@{view_lot} {%s}", OWNER|GRID, 0
 {
 	"@id",             0, notype, 0,  8
 	"@date",           1, notype, DATF_DMY, 8
-	"@billno",        12, notype, 0, 12 // @v11.1.6
+	"@billno",        12, notype, 0, 12
 	"@warehouse",      3, notype, 0, 16
 	"@ware",           4, notype, 0, 20
 	"@supplier",       5, notype, 0, 18
@@ -7012,6 +7012,8 @@ browser TECHROUTE north(100), 3, 1, "@view_techroute", OWNER|GRID, 0
 		separator
 		EDITGOODS      : kbF2,        PPDV_WARESINGLE01,      "@{ware}\tF2"
 		EDITTECH       : kbF4,        PPDV_TECH01,            "@{tech}\tF4" // @v12.6.3 TBBM_TECH-->PPDV_TECH01
+		separator
+		CHANGEFILT     : kbCtrlV,     PPDV_FILTER01,          "@{filter}\tCtrl-V"
 	}
 }
 //

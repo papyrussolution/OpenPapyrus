@@ -286,6 +286,63 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 	return ok;
 }
 
+/*static*/int FASTCALL PPObject::HasUndupNameSuffix(const SString & rBuf, uint * pPos)
+{
+	int    ok = 0;
+	size_t pos = rBuf.Len();
+	uint   nd = 0;
+	ASSIGN_PTR(pPos, 0);
+	if(pos) do {
+		const char c = rBuf.C(--pos);
+		if(c == '#') {
+			if(pos > 5 && nd > 0 && nd < 3) {
+				ASSIGN_PTR(pPos, pos);
+				ok = 1;
+			}
+		}
+		else if(isdec(c))
+			nd++;
+		else
+			break;
+	} while(!ok && pos);
+	return ok;
+}
+
+/*static*/int FASTCALL PPObject::RemoveUndupNameSuffix(SString & rBuf)
+{
+	int    ok = -1;
+	size_t pos = rBuf.Len();
+	uint   nd = 0;
+	if(pos) do {
+		const char c = rBuf.C(--pos);
+		if(c == '#') {
+			if(pos > 5 && nd > 0 && nd < 3) {
+				rBuf.Trim(pos-1).Strip();
+				ok = 1;
+			}
+		}
+		else if(isdec(c)) {
+			nd++;
+		}
+		else
+			break;
+	} while(ok < 0 && pos);
+	return ok;
+}
+
+void PPObject::Helper_MakeUndupName(SString & rOrgName, size_t maxNameLen, long & rUniqCounter, SString & rResultName)
+{
+	if(rUniqCounter == 1)
+		PPObject::RemoveUndupNameSuffix(rOrgName);
+	rResultName = rOrgName;
+	SString suffix;
+	suffix.Space().CatChar('#').Cat(++rUniqCounter);
+	const  size_t sum_len = rResultName.Len() + suffix.Len();
+	if(sum_len > maxNameLen)
+		rResultName.Trim(maxNameLen-suffix.Len());
+	rResultName.Cat(suffix);
+}
+
 /*static*/SString & PPObject::MakeBlobSignature(const SBinaryChunk & rGlobalIdent, SObjID oid, uint itemNumber, SString & rBuf)
 {
 	rBuf.Z();
@@ -2169,9 +2226,9 @@ int ObjLinkFiles::Serialize(int dir, int transmissionNotSupported, SBuffer & rBu
 	int    ok = 1;
 	uint32 _c = 0; // Количество файлов
 	int32  transmission_not_supported = BIN(dir > 0 && transmissionNotSupported);
-	SString file_path, org_file_name;
+	SString file_path;
+	SString org_file_name;
 	State &= ~stTransmissionNotSupported;
-
 	THROW_SL(pSCtx->Serialize(dir, transmission_not_supported, rBuf));
 	if(transmission_not_supported) {
 		if(dir < 0) {
@@ -2233,7 +2290,7 @@ int ObjLinkFiles::Serialize(int dir, int transmissionNotSupported, SBuffer & rBu
 				THROW_SL(pSCtx->Serialize(dir, fs, rBuf));
 				{
 					SFsPath ps(org_file_name);
-					MakeTempFileName(temp_path, "olf", ps.Ext, 0, file_path);
+					MakeTempFileName(temp_path, "olf", ps.Ext, file_path);
 					SFile f(file_path, SFile::mWrite|SFile::mBinary);
 					THROW_SL(f.IsValid());
 					if(fs) {

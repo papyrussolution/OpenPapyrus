@@ -1,5 +1,5 @@
 // GDSUTIL.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Утилиты для работы с товарами
 //
@@ -1142,9 +1142,10 @@ int GoodsCfgDialog::setDTS(const PPGoodsConfig * pData, const SString & rGoodsEx
 	setCtrlData(CTL_GDSCFG_ACGIT,  &Data.ACGI_Threshold);
 	SetupPPObjCombo(this, CTLSEL_GDSCFG_DEFUNIT, PPOBJ_UNIT, Data.DefUnitID, OLW_CANINSERT, reinterpret_cast<void *>(PPUnit::Trade));
 	SetupPPObjCombo(this, CTLSEL_GDSCFG_DEFPCKGTYP, PPOBJ_PCKGTYPE, Data.DefPckgTypeID, 0);
-	SetupPPObjCombo(this, CTLSEL_GDSCFG_DEFGRP,   PPOBJ_GOODSGROUP, Data.DefGroupID, OLW_CANSELUPLEVEL|OLW_WORDSELECTOR); // @v11.1.10 OLW_WORDSELECTOR
-	SetupPPObjCombo(this, CTLSEL_GDSCFG_ASSETGRP, PPOBJ_GOODSGROUP, Data.AssetGrpID, OLW_CANSELUPLEVEL|OLW_WORDSELECTOR); // @v11.1.10 OLW_WORDSELECTOR
-	SetupPPObjCombo(this, CTLSEL_GDSCFG_TAREGRP,  PPOBJ_GOODSGROUP, Data.TareGrpID,  OLW_CANSELUPLEVEL|OLW_WORDSELECTOR); // @v11.1.10 OLW_WORDSELECTOR
+	SetupPPObjCombo(this, CTLSEL_GDSCFG_DEFGRP,   PPOBJ_GOODSGROUP, Data.DefGroupID, OLW_CANSELUPLEVEL|OLW_WORDSELECTOR);
+	SetupPPObjCombo(this, CTLSEL_GDSCFG_ASSETGRP, PPOBJ_GOODSGROUP, Data.AssetGrpID, OLW_CANSELUPLEVEL|OLW_WORDSELECTOR);
+	SetupPPObjCombo(this, CTLSEL_GDSCFG_TAREGRP,  PPOBJ_GOODSGROUP, Data.TareGrpID,  OLW_CANSELUPLEVEL|OLW_WORDSELECTOR);
+	SetupPPObjCombo(this, CTLSEL_GDSCFG_DEFBAILMENTGRP,  PPOBJ_GOODSGROUP, Data.DefBailmentGroupID, OLW_CANSELUPLEVEL|OLW_WORDSELECTOR); // @v12.6.6
 	SetupPPObjCombo(this, CTLSEL_GDSCFG_DEFGOODS, PPOBJ_GOODS,  Data.DefGoodsID, OLW_LOADDEFONOPEN, 0);
 	SetupPPObjCombo(this, CTLSEL_GDSCFG_GDSMATRIX, PPOBJ_QUOTKIND,  Data.MtxQkID, 0, reinterpret_cast<void *>(1));
 	AddClusterAssoc(CTL_GDSCFG_IGNFLDMTX, 0, GCF_IGNOREFOLDERMATRIX);
@@ -1173,9 +1174,10 @@ int GoodsCfgDialog::getDTS(PPGoodsConfig * pData, SString & rGoodsExTitles, PPOp
 	getCtrlData(CTL_GDSCFG_CPRFX,  Data.WghtCntPrefix);
 	getCtrlData(CTLSEL_GDSCFG_DEFUNIT, &Data.DefUnitID);
 	getCtrlData(CTLSEL_GDSCFG_DEFPCKGTYP, &Data.DefPckgTypeID);
-	getCtrlData(CTLSEL_GDSCFG_DEFGRP,   &Data.DefGroupID);
+	getCtrlData(CTLSEL_GDSCFG_DEFGRP, &Data.DefGroupID);
 	getCtrlData(CTLSEL_GDSCFG_ASSETGRP, &Data.AssetGrpID);
-	getCtrlData(CTLSEL_GDSCFG_TAREGRP,  &Data.TareGrpID);
+	getCtrlData(CTLSEL_GDSCFG_TAREGRP, &Data.TareGrpID);
+	getCtrlData(CTLSEL_GDSCFG_DEFBAILMENTGRP, &Data.DefBailmentGroupID); // @v12.6.6
 	getCtrlData(CTLSEL_GDSCFG_DEFGOODS, &Data.DefGoodsID);
 	getCtrlData(CTL_GDSCFG_ACGIT,  &Data.ACGI_Threshold);
 	getCtrlData(CTLSEL_GDSCFG_GDSMATRIX, &Data.MtxQkID);
@@ -1188,11 +1190,13 @@ int GoodsCfgDialog::getDTS(PPGoodsConfig * pData, SString & rGoodsExTitles, PPOp
 	sel = CTL_GDSCFG_ACGIT;
 	THROW_PP(Data.ACGI_Threshold >= 0 && Data.ACGI_Threshold <= 1461, PPERR_USERINPUT);
 	sel = CTL_GDSCFG_CODLEN;
-	for(p = strip(Data.BarCodeLen); *p; p++)
+	for(p = strip(Data.BarCodeLen); *p; p++) {
 		THROW_PP_S(isdec(*p) || oneof3(*p, ' ', ',', '+'), PPERR_INVEXPR, Data.BarCodeLen);
+	}
 	sel = CTL_GDSCFG_WPRFX;
-	for(p = strip(Data.WghtPrefix); *p; p++)
+	for(p = strip(Data.WghtPrefix); *p; p++) {
 		THROW_PP_S(isdec(*p), PPERR_INVEXPR, Data.WghtPrefix);
+	}
 	ASSIGN_PTR(pData, Data);
 	rGoodsExTitles = GoodsExTitles;
 	getCtrlData(CTL_GDSCFG_OWNACTMPL, rOwnAcCntr.Head.CodeTemplate);
@@ -1224,7 +1228,8 @@ int PPObjGoods::WriteConfig(const PPGoodsConfig * pCfg, const SString * pGoodsEx
 	THROW(ReadGoodsExTitles(0, goods_ex_titles));
 	opc_obj.GetPacket(goods_cfg.OwnArCodeCntrID, &ownac_cntr);
 	suppress_l_zero = BIN(goods_cfg.Flags & GCF_SUPPRLZERO);
-	THROW(CheckDialogPtr(&(dlg = new GoodsCfgDialog)));
+	dlg = new GoodsCfgDialog;
+	THROW(CheckDialogPtr(&dlg));
 	dlg->setDTS(&goods_cfg, goods_ex_titles, ownac_cntr);
 	while(!valid_data && ExecView(dlg) == cmOK) {
 		THROW(CheckCfgRights(PPCFGOBJ_GOODS, PPR_MOD, 0));

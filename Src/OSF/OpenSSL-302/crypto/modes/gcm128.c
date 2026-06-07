@@ -1795,22 +1795,18 @@ int CRYPTO_gcm128_finish(GCM128_CONTEXT * ctx, const uchar * tag, size_t len)
 	if(ctx->mres || ctx->ares)
 		GCM_MUL(ctx);
 #endif
-
 	if(IS_LITTLE_ENDIAN) {
 #ifdef BSWAP8
 		alen = BSWAP8(alen);
 		clen = BSWAP8(clen);
 #else
 		u8 * p = ctx->len.c;
-
 		ctx->len.u[0] = alen;
 		ctx->len.u[1] = clen;
-
 		alen = (u64)GETU32(p) << 32 | GETU32(p + 4);
 		clen = (u64)GETU32(p + 8) << 32 | GETU32(p + 12);
 #endif
 	}
-
 #if defined(GHASH) && !defined(OPENSSL_SMALL_FOOTPRINT)
 	bitlen.hi = alen;
 	bitlen.lo = clen;
@@ -1822,10 +1818,8 @@ int CRYPTO_gcm128_finish(GCM128_CONTEXT * ctx, const uchar * tag, size_t len)
 	ctx->Xi.u[1] ^= clen;
 	GCM_MUL(ctx);
 #endif
-
 	ctx->Xi.u[0] ^= ctx->EK0.u[0];
 	ctx->Xi.u[1] ^= ctx->EK0.u[1];
-
 	if(tag && len <= sizeof(ctx->Xi))
 		return CRYPTO_memcmp(ctx->Xi.c, tag, len);
 	else

@@ -5146,8 +5146,7 @@ int PPResticInterface::Backup(const RepoParam & rP, bool dryMode)
 
 		{
 			{
-				long tfc = 0;
-				PPMakeTempFileName("restic-bu-incl", 0, &tfc, fn_incl);
+				PPMakeTempFileName("restic-bu-incl", 0, fn_incl);
 				fn_incl.TrimRightChr('.');
 				SFile f_temp(fn_incl, SFile::mWrite);
 				THROW_SL(f_temp.IsValid());
@@ -5162,8 +5161,7 @@ int PPResticInterface::Backup(const RepoParam & rP, bool dryMode)
 			prc.AddArg(fn_incl);
 		}
 		if(rP.SsExcl.IsCountGreaterThan(0)) {
-			long tfc = 0;
-			PPMakeTempFileName("restic-bu-excl", 0, &tfc, fn_excl);
+			PPMakeTempFileName("restic-bu-excl", 0, fn_excl);
 			fn_excl.TrimRightChr('.');
 			SFile f_temp(fn_excl, SFile::mWrite);
 			THROW_SL(f_temp.IsValid());

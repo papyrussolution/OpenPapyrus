@@ -1412,6 +1412,11 @@ IMPL_OBJ_FETCH(PPObjPersonCat, PPPersonCat, PersonCatCache);
 //
 // @ModuleDef(PPObjELinkKind)
 //
+PPELinkKind2::PPELinkKind2()
+{
+	THISZERO();
+}
+
 PPObjELinkKind::PPObjELinkKind(void * extraPtr) : PPObjReference(PPOBJ_ELINKKIND, extraPtr)
 {
 }

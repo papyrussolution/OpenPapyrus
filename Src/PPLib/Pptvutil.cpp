@@ -1771,7 +1771,7 @@ int STDCALL SetupStrAssocCombo(TWindow * dlg, uint ctlID, const StrAssocArray & 
 	ListWindow * p_lw = 0;
 	ComboBox   * p_cb = static_cast<ComboBox *>(dlg->getCtrlView(ctlID));
 	if(p_cb) {
-		const uint options = ownerDrawListBox ? (lbtOwnerDraw|lbtDisposeData|lbtDblClkNotify) : (lbtDisposeData|lbtDblClkNotify);
+		const  uint options = flags | (ownerDrawListBox ? (lbtOwnerDraw|lbtDisposeData|lbtDblClkNotify) : (lbtDisposeData|lbtDblClkNotify)); // @v12.6.6 (flags|)
 		StrAssocArray * p_list = new StrAssocArray;
 		THROW_MEM(p_list);
 		if(offs) {
@@ -1903,25 +1903,31 @@ int SetupSubstGoodsCombo(TDialog * dlg, uint ctlID, long initID)
 
 int SetupSubstBillCombo(TDialog * pDlg, uint ctlID, SubstGrpBill sgb)
 {
-	SString buf, id_buf, txt_buf;
+	SString buf;
+	SString id_buf;
+	SString txt_buf;
 	StrAssocArray ary;
 	PPLoadText(PPTXT_SUBSTBILLLIST, buf);
 	StringSet ss(';', buf);
-	for(uint i = 0; ss.get(&i, buf);)
+	for(uint i = 0; ss.get(&i, buf);) {
 		if(buf.Divide(',', id_buf, txt_buf) > 0)
 			ary.Add(id_buf.ToLong(), txt_buf);
-	return SetupStrAssocCombo(pDlg, ctlID, ary, (long)sgb.S, 0);
+	}
+	return SetupStrAssocCombo(pDlg, ctlID, ary, static_cast<long>(sgb.S), 0);
 }
 
 int SetupSubstSCardCombo(TDialog * pDlg, uint ctlID, SubstGrpSCard sgc)
 {
-	SString buf, id_buf, txt_buf;
+	SString buf;
+	SString id_buf;
+	SString txt_buf;
 	StrAssocArray ary;
 	PPLoadText(PPTXT_SUBSTSCARDLIST, buf);
 	StringSet ss(';', buf);
-	for(uint i = 0; ss.get(&i, buf);)
+	for(uint i = 0; ss.get(&i, buf);) {
 		if(buf.Divide(',', id_buf, txt_buf) > 0)
 			ary.Add(id_buf.ToLong(), txt_buf);
+	}
 	return SetupStrAssocCombo(pDlg, ctlID, ary, static_cast<long>(sgc), 0);
 }
 //
@@ -2763,13 +2769,13 @@ void ImageBrowseCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 				}
 			}
 			else {
-				long   start = 0;
-				SString temp_dir, temp_path;
+				SString temp_dir;
+				SString temp_path;
 				PPGetPath(PPPATH_TEMP, temp_dir);
 				temp_dir.SetLastSlash().Cat("IMG");
 				if(!SFile::IsDir(temp_dir))
 					SFile::CreateDir(temp_dir);
-				MakeTempFileName(temp_dir, "pst", "jpg", &start, temp_path);
+				MakeTempFileName(temp_dir, "pst", "jpg", temp_path);
 				if(SClipboard::CopyPaste(GetDlgItem(pDlg->H(), CtlImage), 0, temp_path) > 0) {
 					Data.Flags |= Rec::fUpdated;
 					pDlg->setCtrlString(CtlImage, Data.Path = temp_path);
@@ -6150,10 +6156,8 @@ int ResolveGoodsDialog::editItem(long pos, long id)
 
 int ResolveGoodsDialog::SubstGoods(long pos, long id)
 {
-	int    ok = -1;
 	PPID   resolve_goods_id = 0;
-	if(id && SelectGoods(resolve_goods_id) > 0)
-		ok = ResolveGoods(resolve_goods_id, id - 1);
+	int    ok = (id && SelectGoods(resolve_goods_id) > 0) ? ResolveGoods(resolve_goods_id, id - 1) : -1;
 	if(ok > 0)
 		updateList(-1);
 	return ok;
@@ -6163,10 +6167,13 @@ int ResolveGoodsDialog::CreateAllGoods()
 {
 	int    ok = 1;
 	PPID   goods_grp_id = 0;
-	if(ListBoxSelDialog::Run(PPOBJ_GOODSGROUP, &goods_grp_id, (void *)GGRTYP_SEL_NORMAL) > 0)
-		for(uint i = 0; ok > 0 && i < Data.getCount(); i++)
-			if(Data.at(i).ResolvedGoodsID == 0)
+	if(ListBoxSelDialog::Run(PPOBJ_GOODSGROUP, &goods_grp_id, (void *)GGRTYP_SEL_NORMAL) > 0) {
+		for(uint i = 0; ok > 0 && i < Data.getCount(); i++) {
+			if(!Data.at(i).ResolvedGoodsID) {
 				ok = CreateGoods(i, goods_grp_id, 0);
+			}
+		}
+	}
 	return ok;
 }
 
@@ -6174,10 +6181,10 @@ int ResolveGoodsDialog::CreateGoods(long id, PPID goodsGrpID, int editAfterAdd)
 {
 	int    ok = 1;
 	PPID   goods_id = 0;
-	if(id >= 0 && id < (long)Data.getCount()) {
+	if(id >= 0 && id < Data.getCountI()) {
 		PPGoodsPacket pack;
-		const ResolveGoodsItem & r_item = Data.at(id);
-		const SString name(r_item.GoodsName);
+		const  ResolveGoodsItem & r_item = Data.at(id);
+		const  SString name(r_item.GoodsName);
 		THROW(GObj.InitPacket(&pack, gpkndGoods, 0, 0, Data.at(id).Barcode));
 		pack.Rec.UnitID   = GoodsCfg.DefUnitID;
 		pack.Rec.ParentID = goodsGrpID;
@@ -6220,14 +6227,15 @@ int ResolveGoodsDlg(ResolveGoodsItemList * pData, int flags)
 {
 	int    ok = -1;
 	ResolveGoodsDialog * p_dlg = 0;
-	if(pData && pData->getCount()) {
+	if(SVectorBase::GetCount(pData)) {
 		THROW(CheckDialogPtr(&(p_dlg = new ResolveGoodsDialog(flags))));
 		p_dlg->setDTS(pData);
-		while(ok < 0 && ExecView(p_dlg) == cmOK)
+		while(ok < 0 && ExecView(p_dlg) == cmOK) {
 			if(p_dlg->getDTS(pData) > 0)
 				ok = 1;
 			else
 				PPError();
+		}
 	}
 	else
 		ok = 1;

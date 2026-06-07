@@ -3034,11 +3034,14 @@ int ACS_CRCSHSRV::CreateSCardPaymTbl()
 	DbfTable * p_dbftd  = 0;
 	THROW_MEM(P_SCardPaymTbl = CreateTempOrderTbl());
 	if(Options & oUseAltImport) {
-		SString  file_name, save_file_name, ser_name;
+		SString file_name;
+		SString save_file_name;
+		SString ser_name;
 		PPObjSCardSeries scs_obj;
 		for(uint pos = 0; SeparatedFileSet.get(&pos, file_name);) {
-			long   c, count;
-			PPID  ser_id = 0;
+			long   c;
+			long   count;
+			PPID   ser_id = 0;
 			PPBillImpExpParam * p_ie_param = P_IEParam[PPREC_CS_DSCNT - PPREC_CS_ZREP];
 			Backup("dsct", file_name);
 			p_ie_param->FileName = file_name;
@@ -4495,8 +4498,8 @@ int ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, bool useLocalFiles)
 
 void ACS_CRCSHSRV::Backup(const char * pPrefix, const char * pPath)
 {
-	const  long _max_copies = 10L; //#define MAX_COPIES 10L
-	long   start = 1L;
+	const  uint _max_copies = 10U; //#define MAX_COPIES 10L
+	// @v12.6.6 long   start = 1L;
 	SString backup_dir;
 	SString dest_path;
 	SString prefix(pPrefix);
@@ -4506,6 +4509,22 @@ void ACS_CRCSHSRV::Backup(const char * pPrefix, const char * pPath)
 	sp.Merge(SFsPath::fDrv|SFsPath::fDir, backup_dir);
 	backup_dir.Cat("backup").SetLastSlash();
 	SFile::CreateDir(backup_dir);
+	if(_max_copies > 0) {
+		SString temp_file_wildcard;
+		MakeTempFileName_Wildcard(backup_dir, prefix, ext, temp_file_wildcard);
+		SFileEntryPool fp;
+		fp.Scan(temp_file_wildcard, 0);
+		if(fp.GetCount() >= (_max_copies-1)) {
+			fp.Sort(SFileEntryPool::scByWrTime);
+			for(uint i = 0; i < (fp.GetCount() - (_max_copies-1)); i++) {
+				if(fp.Get(i, 0, &dest_path)) {
+					SFile::Remove(dest_path);
+				}
+			}
+		}
+	}
+	MakeTempFileName(backup_dir, prefix, ext, dest_path);
+	/* @v12.6.6 
 	MakeTempFileName(backup_dir, prefix, ext, &start, dest_path);
 	if(start > (_max_copies + 1)) {
 		const size_t pfx_len = prefix.Len();
@@ -4520,7 +4539,7 @@ void ACS_CRCSHSRV::Backup(const char * pPrefix, const char * pPath)
 		(dest_path = backup_dir).Cat(prefix).CatLongZ(_max_copies, (int)(8 - pfx_len)).DotCat(ext);
 		SFile::Remove(dest_path);
 		MakeTempFileName(backup_dir, prefix, ext, &(start = 10), dest_path);
-	}
+	}*/
 	SCopyFile(pPath, dest_path, 0, FILE_SHARE_READ, 0);
 }
 

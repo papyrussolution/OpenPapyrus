@@ -803,13 +803,17 @@ int Helper_ClientBank2::PutRecord(const PPBillPacket * pPack, PPID debtBillID, P
 		BankStmntItem data_buf;
 		BnkAcctData payer_ba, rcvr_ba;
 		PersonReq payer_req, rcvr_req;
-		int    r1 = PsnObj.GetBnkAcctData(p_order->PayerBnkAccID, static_cast<const PPBankAccount *>(0), &payer_ba);
-		int    r2 = PsnObj.GetBnkAcctData(p_order->RcvrBnkAccID, static_cast<const PPBankAccount *>(0), &rcvr_ba);
-		SString buf, temp_buf;
+		const  int r1 = PsnObj.GetBnkAcctData(p_order->PayerBnkAccID, static_cast<const PPBankAccount *>(0), &payer_ba);
+		const  int r2 = PsnObj.GetBnkAcctData(p_order->RcvrBnkAccID, static_cast<const PPBankAccount *>(0), &rcvr_ba);
+		SString buf;
+		SString temp_buf;
 		if(r1 <= 0 || r2 <= 0) {
 			if(pLogger) {
-				uint msg_code = 0;
-				SString str_fmt, msg, buf, str_dt;
+				uint   msg_code = 0;
+				SString str_fmt;
+				SString msg;
+				SString buf;
+				SString str_dt;
 				if(r1 <= 0)
 					msg_code = p_order->PayerBnkAccID ? PPERR_PAYERBNKACCNOTFOUND : PPERR_PAYERBNKACCEMPTY;
 				else

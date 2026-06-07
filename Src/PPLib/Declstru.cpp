@@ -1,5 +1,5 @@
 // DECLSTRU.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2015, 2016, 2017, 2019, 2020, 2021, 2023
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2015, 2016, 2017, 2019, 2020, 2021, 2023, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -92,9 +92,9 @@ int SendCharryObject(PPID strucID, const PPIDArray & rObjIdList)
 		PPWaitStart();
 		PPWaitMsg(PPSTR_TEXT, PPTXT_SENDCHARRYOBJ, 0);
 		PPObjectTransmit::ReadConfig(&cfg);
-		long   counter = cfg.CharryOutCounter+1;
+		//long   counter = cfg.CharryOutCounter+1;
 		PPGetPath(PPPATH_OUT, path);
-		MakeTempFileName(path, 0, PPConst::FnExt_CHARRY, &counter, fname);
+		MakeTempFileName(path, 0, PPConst::FnExt_CHARRY, /*&counter,*/fname);
 		THROW_PP(stream = fopen(fname, "w"), PPERR_EXPFOPENFAULT);
 		for(uint i = 0; i < rObjIdList.getCount(); i++) {
 			THROW(p_decl = PPDeclStruc::CreateInstance(strucID, 0, 0, 0));

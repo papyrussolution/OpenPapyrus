@@ -3211,44 +3211,56 @@ SLTEST_R(SlCrypto_KeyVerification) // @v12.6.5
 	const char * p_src_key = "Key-for$the^encapsulation%";
 	const char * p_bad_key = "invalid-key";
 	SlCrypto::KeyVerificationBlock kv_blk;
-	SlCrypto::Argon2Param ap;
+	SlCrypto::KdfParam kdfp;
 	uint64 salt[2];
 	{
-		ap.MemCost = SKILOBYTE(64);
-		ap.TimeCost = 3;
-		ap.Parallelism = 1;
+		kdfp.UedKdf = UED_KEYDERIVATIONFUNCTION_ARGON2ID;
+		kdfp.MemCost = SKILOBYTE(64);
+		kdfp.TimeCost = 3;
+		kdfp.Parallelism = 1;
 		salt[0] = 0x111000222AAA555FULL;
 		salt[1] = 0x333666444CCC777BULL;
 	}
+	kv_blk.UedSymmCipher = UED_SYMMETRICCIPHER_AES256GCM;
 	{
 		SlCrypto::Key key;
-		int   mkr = SlCrypto::MakeKey_Derived_Argon2(key, p_src_key, sstrlen(p_src_key), 32, salt, sizeof(salt), ap);
+		int   mkr = SlCrypto::MakeDerivedKey(kdfp, key, p_src_key, sstrlen(p_src_key), 32, salt, sizeof(salt));
 		SLCHECK_NZ(mkr);
 		THROW(mkr);
 		const SBaseBuffer & r_key_buf = key.GetKey();
-		int   r1 = SlCrypto::MakeKeyVerificationBlock(UED_SYMMETRICCIPHER_AES256GCM, r_key_buf.P_Buf, r_key_buf.Size, kv_blk);
+		int   r1 = SlCrypto::MakeKeyVerificationBlock(kv_blk, r_key_buf.P_Buf, r_key_buf.Size);
 		SLCHECK_NZ(r1);
 		THROW(r1);
 	}
 	{
 		SlCrypto::Key key;
-		int   mkr = SlCrypto::MakeKey_Derived_Argon2(key, p_src_key, sstrlen(p_src_key), 32, salt, sizeof(salt), ap);
+		int   mkr = SlCrypto::MakeDerivedKey(kdfp, key, p_src_key, sstrlen(p_src_key), 32, salt, sizeof(salt));
 		SLCHECK_NZ(mkr);
 		THROW(mkr);
 		const SBaseBuffer & r_key_buf = key.GetKey();
-		int   r2 = SlCrypto::VerifyKey(UED_SYMMETRICCIPHER_AES256GCM, r_key_buf.P_Buf, r_key_buf.Size, kv_blk);
+		int   r2 = SlCrypto::VerifyKey(kv_blk, r_key_buf.P_Buf, r_key_buf.Size);
 		SLCHECK_NZ(r2);
 		THROW(r2);		
 	}
 	{
 		SlCrypto::Key key;
-		int   mkr = SlCrypto::MakeKey_Derived_Argon2(key, p_bad_key, sstrlen(p_bad_key), 32, salt, sizeof(salt), ap);
+		int   mkr = SlCrypto::MakeDerivedKey(kdfp, key, p_bad_key, sstrlen(p_bad_key), 32, salt, sizeof(salt));
 		SLCHECK_NZ(mkr);
 		THROW(mkr);
 		const SBaseBuffer & r_key_buf = key.GetKey();
-		int   r2 = SlCrypto::VerifyKey(UED_SYMMETRICCIPHER_AES256GCM, r_key_buf.P_Buf, r_key_buf.Size, kv_blk);
+		int   r2 = SlCrypto::VerifyKey(kv_blk, r_key_buf.P_Buf, r_key_buf.Size);
 		SLCHECK_Z(r2);
 		THROW(!r2);		
+	}
+	{
+		// Тестируем тоже самое, но уже в составе SVaultPool
+		SVaultPool pool;
+		const  int sr = pool.SetupPrimaryPassword(p_src_key, sstrlen(p_src_key));
+		SLCHECK_NZ(sr);
+		const  int cr1 = pool.CheckInPrimaryPassword(p_src_key, sstrlen(p_src_key));
+		SLCHECK_NZ(cr1);
+		const  int cr2 = pool.CheckInPrimaryPassword(p_bad_key, sstrlen(p_bad_key));
+		SLCHECK_Z(cr2);
 	}
 	CATCH
 		CurrentStatus = 0;

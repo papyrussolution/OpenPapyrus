@@ -96,7 +96,7 @@ int PPObjGoodsType::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 
 int PPObjGoodsType::Edit(PPID * pID, void * extraPtr)
 {
-	class GoodsTypeDialog : public TDialog { // @v12.5.5 @construction
+	class GoodsTypeDialog : public TDialog { // @v12.5.5
 		DECL_DIALOG_DATA(PPGoodsType2);
 		PPObjGoodsType Obj;
 	public:
@@ -122,6 +122,7 @@ int PPObjGoodsType::Edit(PPID * pID, void * extraPtr)
 			AddClusterAssoc(CTL_GDSTYP_UNLIM, 1, GTF_AUTOCOMPL);
 			AddClusterAssoc(CTL_GDSTYP_UNLIM, 2, GTF_ASSETS);
 			AddClusterAssoc(CTL_GDSTYP_UNLIM, 3, GTF_ADVANCECERT);
+			AddClusterAssoc(CTL_GDSTYP_UNLIM, 4, GTF_GENERICBILLET); // @v12.6.6
 			SetClusterData(CTL_GDSTYP_UNLIM, Data.Flags);
 
 			AddClusterAssoc(CTL_GDSTYP_FLAGS,  0, GTF_RPLC_COST);

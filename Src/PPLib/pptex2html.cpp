@@ -1574,9 +1574,9 @@ int PrcssrPPTex2Html::InitOutput(SFile * pOut, const char * pPartLabel, const ch
 					long   uc = 1;
 					SString suffix;
 					do {
-						(suffix = 0).Space().CatChar('#').Cat(++uc);
+						suffix.Z().Space().CatChar('#').Cat(++uc);
 						wb_name = wb_pack.Rec.Name;
-						size_t sum_len = wb_name.Len() + suffix.Len();
+						const  size_t sum_len = wb_name.Len() + suffix.Len();
 						if(sum_len > max_nm_len)
 							wb_name.Trim(max_nm_len-suffix.Len());
 						wb_name.Cat(suffix);
@@ -1918,7 +1918,7 @@ public:
         };
         int    Type;
         long   Flags;
-        SVerT BugVer; // Версия, в которой появился дефект (для типа tFix)
+        SVerT  BugVer; // Версия, в которой появился дефект (для типа tFix)
         SString Topic;
         SString Text;
         Paragraph * P_Next;
@@ -1952,7 +1952,7 @@ public:
         PrcssrPPVer2Html::Paragraph * P_Body;
 	};
 private:
-	int     AddParagraph(VersionEntry * pEntry, Paragraph * pPara)
+	int    AddParagraph(VersionEntry * pEntry, Paragraph * pPara)
 	{
 		int    ok = 1;
 		if(pEntry && pPara) {
@@ -1970,14 +1970,14 @@ private:
 		}
 		return ok;
 	}
-	int     Parse(const char * pSrcFileName);
-	int     Debug_Output(const char * pOutputFileName);
-	int     Output(const char * pOutputFileName, const char * pImgPath);
+	int    Parse(const char * pSrcFileName);
+	int    Debug_Output(const char * pOutputFileName);
+	int    Output(const char * pOutputFileName, const char * pImgPath);
 	VersionEntry * ParseVerEntry(const SString & rLine);
-	PPID    AttachEntryToWorkbook(const VersionEntry * pEntry, const char * pFileName, int rank, PPID parentWbID, PPObjWorkbook & rWbObj);
-	int     WriteText(SFile & rF, const SString & rLineBuf)
+	PPID   AttachEntryToWorkbook(const VersionEntry * pEntry, const char * pFileName, int rank, PPID parentWbID, PPObjWorkbook & rWbObj);
+	int    WriteText(SFile & rF, const SString & rLineBuf)
 	{
-		SString temp_buf = rLineBuf;
+		SString temp_buf(rLineBuf);
 		if(P.Flags & Param::fUtf8Codepage)
 			temp_buf.Transf(CTRANSF_OUTER_TO_UTF8);
 		return rF.WriteLine(temp_buf) ? 1 : PPSetErrorSLib();
@@ -2197,7 +2197,8 @@ PPID PrcssrPPVer2Html::AttachEntryToWorkbook(const VersionEntry * pEntry, const 
 		wb_symb.Cat("ALL");
 	}
 	const  PPID parent_wb_id = NZOR(parentWbID, P.ParentWbID);
-	WorkbookTbl::Rec wb_rec, parent_wb_rec;
+	WorkbookTbl::Rec wb_rec;
+	WorkbookTbl::Rec parent_wb_rec;
 	PPWorkbookPacket wb_pack;
 	if(!isempty(pFileName)) {
 		THROW_SL(fileExists(pFileName));
@@ -2241,7 +2242,7 @@ PPID PrcssrPPVer2Html::AttachEntryToWorkbook(const VersionEntry * pEntry, const 
 				do {
 					(suffix = 0).Space().CatChar('#').Cat(++uc);
 					wb_name = wb_pack.Rec.Name;
-					size_t sum_len = wb_name.Len() + suffix.Len();
+					const  size_t sum_len = wb_name.Len() + suffix.Len();
 					if(sum_len > max_nm_len)
 						wb_name.Trim(max_nm_len-suffix.Len());
 					wb_name.Cat(suffix);

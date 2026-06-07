@@ -1,5 +1,5 @@
 // TAB.CPP
-// Copyright (c) Sobolev A. 1995-2000, 2003, 2010, 2013, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
+// Copyright (c) Sobolev A. 1995-2000, 2003, 2010, 2013, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025, 2026
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -457,7 +457,7 @@ int STabFile::WriteTab(const char * pTabName, const STab * pTab)
 	{
 		SFsPath ps(F.GetName());
 		ps.Merge(0, SFsPath::fNam|SFsPath::fExt, path);
-		MakeTempFileName(path, "STB", "TMP", 0, temp_file_name);
+		MakeTempFileName(path, "STB", "TMP", temp_file_name);
 		THROW(temp_file.Open(temp_file_name, SFile::mWrite));
 		{
 			int    start_tab = 0, found = 0;

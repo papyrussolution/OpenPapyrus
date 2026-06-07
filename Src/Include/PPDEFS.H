@@ -3013,6 +3013,7 @@
 	#define CTL_FLTLOT_ORDVIEWFLAGS     (32 + WINDOWS_ID_BIAS) // @v12.1.6 Дополнительные флаги опций отображения //
 	#define CTL_FLTLOT_AGENT            (33 + WINDOWS_ID_BIAS) // @v12.1.6
 	#define CTLSEL_FLTLOT_AGENT         (34 + WINDOWS_ID_BIAS) // @v12.1.6
+	#define CTL_FLTLOT_CMD_MORE         (35 + WINDOWS_ID_BIAS) // @v12.6.6 
 #define DLG_BILLFLT               131 // Фильтр реестра товарных документов
 #define DLG_BILLFLTEXT            275 // (@obsolete v3.6.4) Расширение фильтра документов
 #define DLG_BILLPREAMB            514 // Преамбула для ввода документа по коду операции и контрагента
@@ -3900,6 +3901,10 @@
 	#define CTL_GDSCFG_DEFGOODS          (27 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GDSCFG_DEFGOODS       (28 + WINDOWS_ID_BIAS)
 	#define CTL_GDSCFG_FLAGS2            (29 + WINDOWS_ID_BIAS)
+	#define CTL_GDSCFG_CMD_GOODSEXTITLES (30 + WINDOWS_ID_BIAS)
+	#define CTL_GDSCFG_CMD_TAGINDFILT    (31 + WINDOWS_ID_BIAS)
+	#define CTL_GDSCFG_DEFBAILMENTGRP    (32 + WINDOWS_ID_BIAS) // @v12.6.6
+	#define CTLSEL_GDSCFG_DEFBAILMENTGRP (33 + WINDOWS_ID_BIAS) // @v12.6.6
 #define DLG_PRNSELLTO             264 // Опции печати ведомости должников
 	#define CTL_PRNSELLTO_FLAGS          (1 + WINDOWS_ID_BIAS)
 	#define CTL_PRNSELLTO_ORDER          (2 + WINDOWS_ID_BIAS)
@@ -7169,6 +7174,7 @@
 	#define cmBrowseTSessByAr          108
 	#define cmAddPaym                  109
 	#define cmCloseCurrentTSess        110 // @v12.6.2 Закрыть текущую сессию (DLG_TSESS_EXEC_TR) 
+	#define cmTecRouteAssignment       111 // @v12.6.6 Параметры технологического маршрута для исходящего лота сессии
 	#define CTL_TSESS_NUMBER             (1 + WINDOWS_ID_BIAS)
 	#define CTL_TSESS_ID                 (2 + WINDOWS_ID_BIAS)
 	#define CTL_TSESS_STATUS             (3 + WINDOWS_ID_BIAS)
@@ -7225,6 +7231,7 @@
 	#define CTL_TSESS_FLAGS              (54 + WINDOWS_ID_BIAS)
 	#define CTL_TSESS_ST_STATE           (55 + WINDOWS_ID_BIAS) // @v12.6.2 Поле для вывода информации о текущем состоянии
 	#define CTL_TSESS_CMD_CLOSECURRTSESS (56 + WINDOWS_ID_BIAS) // @v12.6.2
+	#define CTL_TSESS_CMD_TRASSIGNMENT   (57 + WINDOWS_ID_BIAS) // @v12.6.6
 
 #define DLG_TSESSLN               674 // Строка технологической сессии
 	#define CTL_TSESSLN_SESSID           (1 + WINDOWS_ID_BIAS)
@@ -11942,6 +11949,8 @@
 #define DLG_CLIACTFILT            1459 // Фильтр по персоналиям (специализация - анализ клиентской активности). Управляющие элементы: CTL_PSNFLT_XXX
 #define DLG_PRCRSRCC              1460 // @v12.2.10 Параметры процессинга собственных исходных кодов проекта
 	#define CTL_PRCRSRCC_FLAGS           (1 + WINDOWS_ID_BIAS)
+	#define CTL_PRCRSRCC_TOLANG          (2 + WINDOWS_ID_BIAS) // @v12.6.6
+	#define CTLSEL_PRCRSRCC_TOLANG       (3 + WINDOWS_ID_BIAS) // @v12.6.6
 // #define DLG_TAGVLOCLNK            1461 // occupied @v12.2.10 Диалог значения тега, ссылающегося на адрес персоналии
 #define DLG_STQTESTPARAM          1462 // @v12.3.1
 	#define CTL_STQTESTPARAM_REPLY       (1  + WINDOWS_ID_BIAS)
@@ -12100,6 +12109,13 @@
 	// Ctrls CTL_TSESS_XXX
 #define DLG_TSESS_EXEC_TR_PARAM   1596 // @v12.6.1 Параметры команды запуск/остановка технологической сессии на фазе маршрута
 	// Ctrls CTL_TSESS_XXX
+#define DLG_TECRTASGMT            1597 // @v12.6.6 Параметры маршрута для технологической сессии
+	#define CTL_TECRTASGMT_FINPROD              (1 + WINDOWS_ID_BIAS)
+	#define CTLSEL_TECRTASGMT_FINPROD           (2 + WINDOWS_ID_BIAS)
+	#define CTL_TECRTASGMT_FINPRODGRP           (3 + WINDOWS_ID_BIAS)
+	#define CTLSEL_TECRTASGMT_FINPRODGRP        (4 + WINDOWS_ID_BIAS)
+	#define CTL_TECRTASGMT_TECROUTE             (5 + WINDOWS_ID_BIAS)
+	#define CTLSEL_TECRTASGMT_TECROUTE          (6 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

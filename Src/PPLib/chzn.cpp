@@ -6,6 +6,8 @@
 #include <pp.h>
 #pragma hdrstop
 
+// @v12.6.6 ts piot regkey: 41d489c3-3ca2-4d4e-99bd-086144d7427f
+
 class ChZnInterface {
 public:
 	enum {
@@ -3027,8 +3029,8 @@ int ChZnInterface::GetSign(const InitBlock & rIb, const void * pData, size_t dat
 			SString in_file_name;
 			SString out_file_name;
 			SString cn;
-			PPMakeTempFileName("chzn", "st", 0, in_file_name);
-			PPMakeTempFileName("chzn", "sf", 0, out_file_name);
+			PPMakeTempFileName("chzn", "st", in_file_name);
+			PPMakeTempFileName("chzn", "sf", out_file_name);
 			{
 				SFile f_in(in_file_name, SFile::mWrite|SFile::mBinary);
 				THROW_SL(f_in.IsValid());
@@ -3491,7 +3493,7 @@ int ChZnInterface::GetTemporaryFileName(const char * pPath, const char * pSubPat
 		temp_path.SetLastSlash().Cat(pSubPath);
 	temp_path.RmvLastSlash();
 	THROW_SL(SFile::CreateDir(temp_path));
-	MakeTempFileName(temp_path.SetLastSlash(), pPrefix, "xml", 0, rFn);
+	MakeTempFileName(temp_path.SetLastSlash(), pPrefix, "xml", rFn);
 	CATCHZOK
 	return ok;
 }
@@ -3511,7 +3513,7 @@ int ChZnInterface::CreatePendingFile(const char * pPath, const char * pIdent)
 		SFile f(temp_path, SFile::mWrite|SFile::mBinary);
 		THROW_SL(f.IsValid());
 	}
-	//MakeTempFileName(temp_path.SetLastSlash(), pPrefix, "xml", 0, rFn);
+	//MakeTempFileName(temp_path.SetLastSlash(), pPrefix, "xml", rFn);
 	CATCHZOK
 	return ok;
 }
@@ -6037,15 +6039,11 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 		TsPiotInterface tspiot_ifc(p_ib->TsPiotSvrUrl);
 		TsPiotInterface::QueryBlock qb;
 		{
-			// {F43975F6-9512-4D9C-BDE9-81EA6FC7D99F}
-			static constexpr GUID app_ident = { 0xf43975f6, 0x9512, 0x4d9c, { 0xbd, 0xe9, 0x81, 0xea, 0x6f, 0xc7, 0xd9, 0x9f } };
-			// {BCF00CF5-751B-4B79-A871-2E285512F749}
-			static const GUID app_token = { 0xbcf00cf5, 0x751b, 0x4b79, { 0xa8, 0x71, 0x2e, 0x28, 0x55, 0x12, 0xf7, 0x49 } }; // @?
-
+			static const GUID app_token = { 0xbcf00cf5, 0x751b, 0x4b79, { 0xa8, 0x71, 0x2e, 0x28, 0x55, 0x12, 0xf7, 0x49 } }; // random!
 			qb.AppName = "Papyrus";
 			qb.AppVer.Set(11, 5, 0);
-			qb.AppUuid = S_GUID(app_ident);
-			qb.AppToken.Put(&app_token, sizeof(app_token)); // @?
+			qb.AppUuid = S_GUID(PPConst::TsPiotRegUUID); // PPConst::TsPiotRegUUID - official!
+			qb.AppToken.Put(&app_token, sizeof(app_token)); // random!
 		}
 		int r = tspiot_ifc.CheckCodeList_v2(qb, rList);
 		THROW(r);

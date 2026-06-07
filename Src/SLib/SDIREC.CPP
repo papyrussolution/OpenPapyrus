@@ -550,7 +550,7 @@ int SFileEntryPool::Scan(const char * pPath, const char * pWildcard, long flags)
 	int    ok = -1;
 	if(!isempty(pPath)) {
 		SString & r_temp_buf = SLS.AcquireRvlStr();
-		r_temp_buf = pPath; // @v11.3.12 @fix
+		r_temp_buf = pPath;
 		if(pWildcard) {
 			r_temp_buf.SetLastSlash();
 			SetInitPath(r_temp_buf);

@@ -14,7 +14,7 @@ AccTurnCore::AccTurnCore() : AccTurnTbl(), Frrl(0) /*, AccT(*AccObj.P_Tbl)*/
 
 int AccTurnCore::AcctIDToRel(const AcctID * pAcctId, PPID * pAccRelID)
 {
-	int    r = AccRel.SearchAcctID(pAcctId);
+	const  int r = AccRel.SearchAcctID(pAcctId);
 	*pAccRelID = (r > 0) ? AccRel.data.ID : 0;
 	return r;
 }
@@ -165,10 +165,10 @@ int AccTurnCore::ConvertStr(const char * pStr, PPID curID, Acct * pAcct, AcctID 
 	THROW(r = AccObj.FetchNum(tok[0], 0, curID, &acc_rec));
 	THROW_PP_S(r > 0, PPERR_BALNOTEXISTS, pStr);
 	{
-		PPID  acc_id    = acc_rec.ID;
-		PPID  sheet_id  = acc_rec.AccSheetID;
+		PPID   acc_id    = acc_rec.ID;
+		PPID   sheet_id  = acc_rec.AccSheetID;
 		PPID   ar_id  = 0;
-		const bool hasbranch = (AccObj.HasAnySubacct(tok[0]) > 0);
+		const  bool hasbranch = (AccObj.HasAnySubacct(tok[0]) > 0);
 		pAcct->ac  = tok[0];
 		if(tok[1]) {
 			if(hasbranch) {
@@ -218,7 +218,8 @@ int AccTurnCore::GetAcctRest(LDATE date, PPID accrel, double * pRest, int incomi
 int AccTurnCore::GetBalRest(LDATE dt, PPID accID, double * pDbt, double * pCrd, uint flags)
 {
 	int    ok = 1;
-	double dbt = 0.0, crd = 0.0;
+	double dbt = 0.0;
+	double crd = 0.0;
 	if(flags & BALRESTF_INCOMING && dt)
 		dt = plusdate(dt, -1);
 	PPAccount acc_rec;
@@ -230,7 +231,8 @@ int AccTurnCore::GetBalRest(LDATE dt, PPID accID, double * pDbt, double * pCrd, 
 			PPIDArray acc_list;
 			AccObj.GetSubacctList(acc_rec.A.Ac, -1, acc_rec.CurID, &acc_list);
 			for(uint i = 0; i < acc_list.getCount(); i++) {
-				double d = 0.0, c = 0.0;
+				double d = 0.0;
+				double c = 0.0;
 				const  uint fl = (flags & ~(BALRESTF_ACO1GROUPING | BALRESTF_INCOMING));
 				GetBalRest(dt, acc_list.at(i), &d, &c, fl);
 				dbt += d;
@@ -828,6 +830,7 @@ int AccTurnCore::EnumByBill(PPID billID, int * pRByBill, PPAccTurn * pAt)
 
 int AccTurnCore::_RecByBill(PPID billID, short * pRByBill)
 {
+	int    ok = 1;
 	int    spMode;
 	AccTurnTbl::Key0 k0;
 	if(*pRByBill == 0) {
@@ -846,17 +849,18 @@ int AccTurnCore::_RecByBill(PPID billID, short * pRByBill)
 		if(k0.BillID == billID)
 			*pRByBill = k0.RByBill+1;
 		else if(*pRByBill)
-			return PPSetError(PPERR_TURNBYBILLNFOUND);
+			ok = PPSetError(PPERR_TURNBYBILLNFOUND);
 		else
 			*pRByBill = 1;
-		return 1;
 	}
 	else if(!BTRNFOUND)
-		return PPSetErrorDB();
+		ok = PPSetErrorDB();
 	else if(*pRByBill)
-		return PPSetError(PPERR_TURNBYBILLNFOUND);
-	*pRByBill = 1;
-	return 1;
+		ok = PPSetError(PPERR_TURNBYBILLNFOUND);
+	else {
+		*pRByBill = 1;
+	}
+	return ok;
 }
 
 int AccTurnCore::GetBill(PPAccTurn * pAt)
@@ -1053,10 +1057,9 @@ int AccTurnCore::_UpdateTurn(PPID billID, short rByBill, double newAmt, double c
 			k0.RByBill = rByBill;
 			k0.Reverse = 1;
 			if(!search(0, &k0, spEq)) {
-				CALLEXCEPT_PP((BTROKORNFOUND) ? PPERR_TURNBYBILLNFOUND : PPERR_DBENGINE);
+				CALLEXCEPT_PP((BTROKORNFOUND) ? PPERR_MIRRTURNBYBILLNFOUND : PPERR_DBENGINE); // @v12.6.6 PPERR_TURNBYBILLNFOUND-->PPERR_MIRRTURNBYBILLNFOUND
 			}
-			THROW_PP(data.Acc == crd_rel_id && data.CorrAcc == dbt_rel_id &&
-				dbl_cmp(MONEYTOLDBL(data.Amount), amt) == 0 && data.Dt == date, PPERR_TURNMIRRORINGFAULT);
+			THROW_PP(data.Acc == crd_rel_id && data.CorrAcc == dbt_rel_id && dbl_cmp(MONEYTOLDBL(data.Amount), amt) == 0 && data.Dt == date, PPERR_TURNMIRRORINGFAULT);
 			crd_acc_id = data.Bal;
 			crd_oprno  = data.OprNo;
 			if(do_remove) {
@@ -1239,7 +1242,8 @@ int AccTurnCore::CalcComplexRest(long aco, PPID accID, PPID curID, PPID personRe
 int AccTurnCore::ReplaceArticle(PPID dest, PPID src)
 {
 	int    ok = 1;
-	PPID   dest_rel_id, src_rel_id;
+	PPID   dest_rel_id;
+	PPID   src_rel_id;
 	DBRowId pos;
 	DBRowId p;
 	AcctRelTbl::Key2 k_;

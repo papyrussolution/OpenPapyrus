@@ -3155,7 +3155,7 @@ int PPObjBHT::PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArray * pG
 			//
 			{
 				PPImpExpParam ie_param_bill;
-				PPMakeTempFileName("bht", "dbf", 0, h_path);
+				PPMakeTempFileName("bht", "dbf", h_path);
 				THROW(InitImpExpDbfParam(PPREC_SBIISAMPLEBILL, &ie_param_bill, h_path, 1));
 				THROW_MEM(p_ie_bill = new PPImpExp(&ie_param_bill, 0));
 				THROW(p_ie_bill->OpenFileForWriting(0, 1));
@@ -3165,7 +3165,7 @@ int PPObjBHT::PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArray * pG
 			//
 			{
 				PPImpExpParam ie_param_brow;
-				PPMakeTempFileName("bht", "dbf", 0, r_path);
+				PPMakeTempFileName("bht", "dbf", r_path);
 				THROW(InitImpExpDbfParam(PPREC_SBIISAMPLEBILLROW, &ie_param_brow, r_path, 1));
 				THROW_MEM(p_ie_brow = new PPImpExp(&ie_param_brow, 0));
 				THROW(p_ie_brow->OpenFileForWriting(0, 1));
@@ -3802,7 +3802,7 @@ int PPObjBHT::AcceptBillLine(PPID billID, PPObjBHT::BillLineRec * pRec, PPBasket
 	return ok;
 }
 
-static int FASTCALL __RemoveUndupNameSuffix(SString & rBuf)
+/* @v12.6.6 (replaced with PPObject::RemoveUndupNameSuffix) static int FASTCALL __RemoveUndupNameSuffix(SString & rBuf)
 {
 	int    ok = -1;
 	size_t pos = rBuf.Len();
@@ -3822,7 +3822,7 @@ static int FASTCALL __RemoveUndupNameSuffix(SString & rBuf)
 			break;
 	} while(ok < 0 && pos);
 	return ok;
-}
+}*/
 
 int PPObjBHT::AcceptInvent(PPID opID, PPObjBHT::InventRec * pRec, BillTbl::Rec * pInvRec, PPLogger * pLogger)
 {
@@ -3841,7 +3841,9 @@ int PPObjBHT::AcceptInvent(PPID opID, PPObjBHT::InventRec * pRec, BillTbl::Rec *
 		if(!pRec->Uuid.IsZero()) {
 			if(P_BObj->SearchByGuid(pRec->Uuid, &bill_rec) > 0) {
 				if(pLogger) {
-					SString fmt_buf, msg_buf, guid_buf;
+					SString fmt_buf;
+					SString msg_buf;
+					SString guid_buf;
 					// Найден дубликат импортируемой инвентаризации по GUID=%s. Новый документ создан не будет.
 					pRec->Uuid.ToStr(S_GUID::fmtIDL, guid_buf);
 					pLogger->Log(msg_buf.Printf(PPLoadTextS(PPTXT_IMP_INFDUPGUIDFOUND, fmt_buf), guid_buf.cptr()));
@@ -3856,7 +3858,8 @@ int PPObjBHT::AcceptInvent(PPID opID, PPObjBHT::InventRec * pRec, BillTbl::Rec *
 				new_code = 0;
 				for(DateIter di(inv_dt, inv_dt); !new_code && P_BObj->P_Tbl->EnumByOpr(opID, &di, &bill_rec) > 0;) {
 					if(bill_code.CmpNC(bill_rec.Code) == 0) {
-						__RemoveUndupNameSuffix(bill_code);
+						// @v12.6.6 __RemoveUndupNameSuffix(bill_code);
+						PPObject::RemoveUndupNameSuffix(bill_code); // @v12.6.6 
 						bill_code.Strip().Space().CatChar('#').Cat(++uc);
 						new_code = 1;
 					}
@@ -4875,8 +4878,8 @@ int IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID, Goods
 	if(rBarcode.C(0) == 'B') {
 		int    wp = pGObj->GetConfig().IsWghtPrefix(rBarcode);
 		if(wp && oneof2(rBarcode.Len(), 12, 13)) {
-			SString buf, temp_buf;
-			buf = rBarcode;
+			SString temp_buf;
+			SString buf(rBarcode);
 			buf.Trim(12);
 			temp_buf = buf.Sub(7, buf.Len() - 7, temp_buf);
 			// qtty = fdiv1000i(temp_buf.ToLong());
@@ -5279,10 +5282,9 @@ int IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID, Goods
 			if(fileExists(path)) {
 				int    descr = R_Files.getCount();
 				if(bhtTypeID == PPObjBHT::btWinCe) {
-					long   s = 1;
 					SString new_dir, new_path;
 					PPGetPath(PPPATH_IN, new_dir);
-					MakeTempFileName(new_dir, "BHT", "DBF", &s, new_path);
+					MakeTempFileName(new_dir, "BHT", "DBF", new_path);
 					SCopyFile(path, new_path, 0, FILE_SHARE_READ, 0);
 					path = new_path;
 				}
@@ -5351,7 +5353,6 @@ int IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID, Goods
 	}
 	ZDELETE(dlg);
 	if(valid_data && bht_obj.GetPacket(bht_id, &pack) > 0) {
-		long   s = 1;
 		long   timeout = 30000L;
 		SString dir, path;
 		SString fn_bill;
@@ -5394,7 +5395,7 @@ int IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID, Goods
 		else if(!oneof3(bht_type, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
 			do {
 				PPGetPath(PPPATH_IN, dir);
-				MakeTempFileName(dir, "BHT", "DAT", &s, path);
+				MakeTempFileName(dir, "BHT", "DAT", path);
 				if(bht_type == PPObjBHT::btDenso) {
 					THROW(r = bp.ReceiveFile(path, timeout));
 				}

@@ -1592,6 +1592,7 @@ int SrUedContainer_Base::RegisterProtoPropList(const ProtoPropList_SingleUed & r
 int SrUedContainer_Base::ReadSource(const char * pFileName, uint flags, const StringSet * pSsLang, PPLogger * pLogger)
 {
 	int    ok = 1;
+	bool   debug_mark = false; // @v12.6.6 @debug
 	uint   line_no = 0;
 	SString line_buf;
 	SString temp_buf;
@@ -1618,10 +1619,22 @@ int SrUedContainer_Base::ReadSource(const char * pFileName, uint flags, const St
 		}
 		else {
 			size_t comment_pos = 0;
+			size_t _temp_pos = 0;
 			if(line_buf.Search("//", 0, 0, &comment_pos)) {
 				line_buf.Trim(comment_pos).Strip();
 			}
-			if(line_buf.NotEmpty()) {
+			// @v12.6.6 {
+			if(line_buf.SearchChar('\x13', &_temp_pos)) {
+				temp_buf.Z().Cat(pFileName).CatChar('(').Cat(line_no).Comma().Cat(_temp_pos).CatChar(')');
+				PPSetError(PPERR_UED_INVCHARINSRCLINE, temp_buf);
+				if(pLogger) {
+					pLogger->LogLastError();
+				}
+				else {
+					CALLEXCEPT();
+				}
+			} // } @v12.6.6 
+			else if(line_buf.NotEmpty()) {
 				//line_buf.Tokenize(" \t", ss.Z());
 				ss.Z();
 				scan.Set(line_buf, 0);
@@ -1634,8 +1647,8 @@ int SrUedContainer_Base::ReadSource(const char * pFileName, uint flags, const St
 					}
 				}
 				else {
-					bool curly_bracket_left = false;
-					bool scan_ok = true;
+					bool   curly_bracket_left = false;
+					bool   scan_ok = true;
 					if(scan.GetXDigits(temp_buf.Z())) {
 						ss.add(temp_buf);
 						scan.Skip();
@@ -1681,6 +1694,11 @@ int SrUedContainer_Base::ReadSource(const char * pFileName, uint flags, const St
 								else if(token_n == 2) {
 									if(ssc == 2) {
 										text_buf = temp_buf.StripQuotes();
+										// @v12.6.6 @debug {
+										/*if(text_buf.IsEqiAscii("argon2id")) {
+											debug_mark = true;
+										}*/
+										// } @v12.6.6 @debug 
 									}
 									else {
 										assert(ssc == 3);

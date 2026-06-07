@@ -670,13 +670,13 @@ void PPViewJob::PreprocessBrowser(PPViewBrowser * pBrw)
 						new_job.ID = 0;
 						SString name_pattern = p_job->Name;
 						long   name_uniq_counter = 1;
-						int    is_there_dup_name = 0;
+						bool   is_there_dup_name = false;
 						do {
 							(new_job.Name = name_pattern).Space().CatChar('#').Cat(++name_uniq_counter);
 							PPJob en_job;
 							for(PPID en_id = 0; !is_there_dup_name && P_Pool->Enum(&en_id, &en_job, 0);) {
 								if(en_job.Name.IsEqNC(new_job.Name))
-									is_there_dup_name = 1;
+									is_there_dup_name = true;
 							}
 						} while(is_there_dup_name);
 						int    local_ok = 1;

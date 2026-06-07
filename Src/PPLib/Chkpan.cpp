@@ -1164,6 +1164,7 @@ CPosProcessor::PosNodeParam::PosNodeParam(PPID posNodeID) : NodeID(posNodeID), C
 				Scf      = cn_pack.Scf;
 				ChZnPermissiveMode = cn_pack.ChZnPermissiveMode; // @v12.0.12
 				ChZnGuaID = cn_pack.ChZnGuaID; // @v12.0.12
+				cn_pack.GetPropString(SCN_MANUFSERIAL, CnManufSerial); // @v12.6.6
 				if(oneof4(cn_pack.EgaisMode, 0, 1, 2, 3)) {
 					EgaisMode = cn_pack.EgaisMode;
 				}
@@ -3118,7 +3119,7 @@ int CPosProcessor::TurnShadowEgaisMarkAutoselectionCcPacket(const CCheckPacket &
 				if(p_eg_prc) {
 					const bool org_eg_test_mode = p_eg_prc->GetTestSendingMode();
 					p_eg_prc->SetTestSendingMode((PNP.EgaisMode == 2));
-					eg_prc_pccr = p_eg_prc->PutCCheck(rCcPack, PNP.CnLocID, true/*horecaAutoWo*/, eg_ack);
+					eg_prc_pccr = p_eg_prc->PutCCheck(rCcPack, PNP.CnLocID, PNP.CnManufSerial, true/*horecaAutoWo*/, eg_ack);
 					p_eg_prc->SetTestSendingMode(org_eg_test_mode);
 					// @v12.3.4 THROW(eg_prc_pccr);
 					// @v12.3.4 {
@@ -3396,7 +3397,10 @@ int CPosProcessor::TurnShadowEgaisMarkAutoselectionCcPacket(const CCheckPacket &
 								// @v12.2.11 {
 								const  bool org_eg_test_mode = p_eg_prc->GetTestSendingMode();
 								p_eg_prc->SetTestSendingMode((PNP.EgaisMode == 2));
-								const  int pccr = p_eg_prc->PutCCheck(epb.Pack, PNP.CnLocID, false/*horecaAutoWo*/, eg_ack);
+								int    pccr = 0;
+								PROFILE_START
+								pccr = p_eg_prc->PutCCheck(epb.Pack, PNP.CnLocID, PNP.CnManufSerial, false/*horecaAutoWo*/, eg_ack);
+								PROFILE_END
 								p_eg_prc->SetTestSendingMode(org_eg_test_mode);
 								THROW(pccr);
 								// } @v12.2.11 
@@ -3417,8 +3421,11 @@ int CPosProcessor::TurnShadowEgaisMarkAutoselectionCcPacket(const CCheckPacket &
 								assert(p_eg_prc);
 								if(p_eg_prc) {
 									const  bool org_eg_test_mode = p_eg_prc->GetTestSendingMode();
-									p_eg_prc->SetTestSendingMode((PNP.EgaisMode == 2));
-									const  int pccr = p_eg_prc->PutCCheck(epb.ExtPack, PNP.ExtCnLocID, false/*horecaAutoWo*/, eg_ack);
+									p_eg_prc->SetTestSendingMode(PNP.EgaisMode == 2);
+									int    pccr = 0;
+									PROFILE_START
+									pccr = p_eg_prc->PutCCheck(epb.ExtPack, PNP.ExtCnLocID, PNP.ExtCnManufSerial, false/*horecaAutoWo*/, eg_ack);
+									PROFILE_END
 									p_eg_prc->SetTestSendingMode(org_eg_test_mode);
 									THROW(pccr);
 								}
@@ -4166,8 +4173,10 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 				SETFLAG(Flags, fSelSerial, scn.ExtFlags & CASHFX_SELSERIALBYGOODS);
 				SETFLAG(Flags, fForceDivision, scn.ExtFlags & CASHFX_FORCEDIVISION);
 				if(ExtCashNodeID) {
-					if(CnObj.GetSync(ExtCashNodeID, &scn) > 0)
+					if(CnObj.GetSync(ExtCashNodeID, &scn) > 0) {
 						PNP.ExtCnLocID = scn.LocID;
+						scn.GetPropString(SCN_MANUFSERIAL, PNP.ExtCnManufSerial); // @v12.6.6
+					}
 					P_GTOA = DS.CheckExtFlag(ECF_CHKPAN_USEGDSLOCASSOC) ?
 						new GoodsToObjAssoc(PPASS_GOODS2LOC, PPOBJ_LOCATION) : new GoodsToObjAssoc(PPASS_GOODS2CASHNODE, PPOBJ_CASHNODE);
 					CALLPTRMEMB(P_GTOA, Load());
@@ -4311,10 +4320,10 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 		setButtonBitmap(cmChkPanF1, IDB_DELIVERY);
 	}
 	else if(PNP.CnSpeciality == PPCashNode2::spApteka) {
-		showButton(cmSelTable, 0);
+		showButton(cmSelTable, false);
 		if(!(Flags & fNoEdit))
-			showButton(cmChkPanPrint, 0);
-		showButton(cmToLocPrinters, 0);
+			showButton(cmChkPanPrint, false);
+		showButton(cmToLocPrinters, false);
 		//
 		const PPEquipConfig & r_cfg = CsObj.GetEqCfg();
 		if(r_cfg.ChkPanImpOpID && r_cfg.ChkPanImpBillTagID) {
@@ -4322,10 +4331,10 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 		}
 	}
 	else if(PNP.CnSpeciality == PPCashNode2::spShop) {
-		showButton(cmSelTable, 0);
+		showButton(cmSelTable, false);
 		if(!(Flags & fNoEdit))
-			showButton(cmChkPanPrint, 0);
-		showButton(cmToLocPrinters, 0);
+			showButton(cmChkPanPrint, false);
+		showButton(cmToLocPrinters, false);
 	}
 	if(Flags & fLockBankPaym || !(OperRightsFlags & orfBanking)) {
 		setButtonBitmap(cmBanking, IDB_BANKINGDISABLED);
@@ -10414,7 +10423,7 @@ int CheckPaneDialog::VerifyChZnMark(PgsBlock & rBlk, int chznProdType/*gt_rec.Ch
 							{
 								SString temp_buf(p_cle->OrgMark);
 								{
-									uint   _spos = 0;
+									size_t _spos = 0;
 									while(temp_buf.SearchChar('\x1d', &_spos)) {
 										temp_buf.Excise(_spos, 1);
 									}
@@ -13115,6 +13124,7 @@ int CPosProcessor::AddGiftSaleItem(TSVector <SaSaleItem> & rList, const CCheckIt
 int CPosProcessor::ProcessGift()
 {
 	int    ok = -1;
+	const  LDATE now_date = getcurdate_();
 	uint   i;
 	PPIDArray last_item_by_giftq_goods_list; // Список товаров, по которым уже предоставлена
 		// подарочная скидка по опции GSGIFTQ_LASTITEMBYGIFTQ
@@ -13239,14 +13249,14 @@ int CPosProcessor::ProcessGift()
 												assert(min_price < SMathConst::Max);
 												_pos_list.add(min_pos);
 												CCheckItem & r_item = P.at(min_pos);
-												const double qtty = fabs(r_item.Quantity);
-												const double gift_qtty = MIN(_rest, fint(qtty));
-												const double net_price = r_item.NetPrice();
+												const  double qtty = fabs(r_item.Quantity);
+												const  double gift_qtty = MIN(_rest, fint(qtty));
+												const  double net_price = r_item.NetPrice();
 												double qprice = 0.0;
-												QuotIdent qi(QIDATE(getcurdate_()), PNP.CnLocID, PPQUOTK_GIFT);
+												QuotIdent qi(QIDATE(now_date), PNP.CnLocID, PPQUOTK_GIFT);
 												if(GObj.GetQuotExt(r_item.GoodsID, qi, 0.0, r_item.Price, &qprice, 1) > 0) {
 													if(qprice < net_price) {
-														double gift_price = round((net_price * qtty - (gift_qtty * (net_price - qprice))) / qtty, 2);
+														const  double gift_price = round((net_price * qtty - (gift_qtty * (net_price - qprice))) / qtty, 2);
 														is_there_gift_quot = r_item.SetupGiftQuot(gift_price, 1);
 														_rest -= gift_qtty;
 													}
@@ -13258,7 +13268,7 @@ int CPosProcessor::ProcessGift()
 									}
 								}
 								else if(gift.QuotKindID == GSGIFTQ_LASTITEMBYGIFTQ) {
-									const uint clc = gift.CheckList.getCount();
+									const  uint clc = gift.CheckList.getCount();
 									const  PPID last_goods_id = clc ? gift.CheckList.at(clc-1).Key : 0;
 									if(last_goods_id && !last_item_by_giftq_goods_list.lsearch(last_goods_id)) {
 										int    single_pos = -1;
@@ -13295,7 +13305,7 @@ int CPosProcessor::ProcessGift()
 										if(single_pos >= 0) {
 											CCheckItem & r_item = P.at(single_pos);
 											double gift_price = 0.0;
-											const QuotIdent qi(QIDATE(getcurdate_()), PNP.CnLocID, PPQUOTK_GIFT);
+											const  QuotIdent qi(QIDATE(now_date), PNP.CnLocID, PPQUOTK_GIFT);
 											if(GObj.GetQuotExt(r_item.GoodsID, qi, 0.0, r_item.Price, &gift_price, 1) > 0)
 												is_there_gift_quot = r_item.SetupGiftQuot(gift_price, 1);
 											for(i = 0; i < pcnt; i++) {
@@ -13317,7 +13327,7 @@ int CPosProcessor::ProcessGift()
 											CCheckItem & r_item = P.at(i);
 											if(!(r_item.Flags & cifGift) && r_item.GoodsID == r_check_item.Key) {
 												double qprice = 0.0;
-												QuotIdent qi(QIDATE(getcurdate_()), PNP.CnLocID, gift.QuotKindID);
+												QuotIdent qi(QIDATE(now_date), PNP.CnLocID, gift.QuotKindID);
 												if(GObj.GetQuotExt(r_item.GoodsID, qi, 0.0, r_item.Price, &qprice, 1) > 0) {
 													const double qtty = fabs(r_item.Quantity);
 													const double gift_qtty = MIN(total_gift_qtty, qtty);
@@ -13414,7 +13424,7 @@ int CPosProcessor::ProcessGift()
 									}
 									else {
 										double gift_quot = 0.0;
-										const  QuotIdent qi(QIDATE(getcurdate_()), PNP.CnLocID, PPQUOTK_GIFT);
+										const  QuotIdent qi(QIDATE(now_date), PNP.CnLocID, PPQUOTK_GIFT);
 										if(GObj.GetQuotExt(gift_id, qi, &gift_quot, 1) > 0)
 											gift_discount = -gift_quot;
 										PgsBlock pgsb(gift_id, gift.Qtty);

@@ -1,18 +1,18 @@
 
 [hash]
-base=ppstr2.txt,ihforoNjg17EyBa94SOprO4jt4j7E5EX2ZQ8HAi292g=,ppstr2.bin,UWVIQLcfee+YzIl6PIItQG25wPFnO/HQbSPdK0/PERc=
+base=ppstr2.txt,t8UN2MKk9/abBLElzHNvWzoRnjDclIGRPhdDo2sZqTo=,ppstr2.bin,JMZ2iospHSOTUHlrTclw/h52Vdnve2kKnKNzL0HrdxQ=
 lang-de=ppstr2-de.txt,uiF+XJVJlyDjw7nInhf/AFcW9Tl0++UYflUahSBUK/Y=,ppstr2-de.bin,z5tTW3wrQRt4866sMd5LWX/oYCLHknIJxj6FbKYnSek=
 lang-en=ppstr2-en.txt,wNMuDQEJ8iXS8+Jpd9MAWdg8exLsMCYnqYI0euY1I0Y=,ppstr2-en.bin,5cMKdf3XAXJZe9nWJkS0b2yRiluKkMmBbOM4faM39TI=
 lang-es=ppstr2-es.txt,6DBYF21pt4umLyjG1Rx9bHiNzqHNfQg0oJPNpqQHaL8=,ppstr2-es.bin,jN0oN2zuyiQYf2BQ4rSZo9Fbb/rXRRQTRRg9UgDu54E=
 lang-nl=ppstr2-nl.txt,Zd2VsGPQmBS07XH9hMNEWniNNGEabqE6Uvt5JiQH7Z4=,ppstr2-nl.bin,AqlBiG6YphrbirG4xBKskUNJxcR7ddb/aAT3jXXGCw4=
 lang-pt=ppstr2-pt.txt,hd0YO5YgL7gA2GCadBf7ZRUbAkdgaMaUIQtpfOCrjyM=,ppstr2-pt.bin,jJjEwXMtYJKHJW0wLDUHUXHkn1XOj1KDsbw5UpAVBWw=
-chdr=ppstr2.h,+sNfOBPmEUZ4E4ubE1C9l4UaVkqGckhf8DOBAFv8QnA=
-java=ppstr2.java,mIxh3MdLGNMSKt1DHmGgngOwfCgwhxA+BkTyjzZ6RUc=
+chdr=ppstr2.h,a8E8y1h3i6sNw6hVBlWCfAGnvYHpIp2pweZ/eMssUnQ=
+java=ppstr2.java,XxIGy3EeYhkBN5tbD+SuhJc73jfp9igcxNNXPaKwoa4=
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147499145
-LastAutoCodeList=1,12468;102,10179;103,10074;110,10000;111,13056;112,10000;119,10000;114,10012;7,10000;4,10000;6,10000;342,10000;118,10313;120,10010;1001,10000;121,10000;122,10000;123,10661;124,10832;125,10128;126,10000
+LastSignatureCode=2147499153
+LastAutoCodeList=1,12471;102,10179;103,10074;110,10000;111,13056;112,10000;119,10000;114,10012;7,10000;4,10000;6,10000;342,10000;118,10313;120,10010;1001,10000;121,10000;122,10000;123,10661;124,10832;125,10128;126,10000
 
 [SignatureList]
 testsign1=2147495071
@@ -319,6 +319,7 @@ roundprec=2147483893
 standard=2147483894
 geography=2147483895
 geoobject_pl=2147483896
+route=2147499146
 flag=2147483897
 flags=2147483898
 session=2147483899
@@ -4951,6 +4952,7 @@ cfggoods_prop=2147496211
 cfggoods_tag=2147496212
 cfggoods_tagindfilt=2147496213
 cfggoods_taregrp=2147487666
+cfggoods_defbailmentgroup=2147499153
 cfggoods_ver=2147496214
 cfggoods_wghtcntprefix=2147487668
 cfggoods_wghtprefix=2147487669
@@ -6024,6 +6026,7 @@ goodstype_gtf_gmarked=2147496656
 goodstype_gtf_gmarked_whs=2147499097
 goodstype_gtf_exciseproforma=2147496657
 goodstype_gtf_egaisautowo=2147496658
+goodstype_gtf_genericbillet=2147499152
 goodstype_id=2147496659
 goodstype_name=2147496660
 goodstype_pricerestr=2147488679
@@ -8443,6 +8446,7 @@ lotfilt_supplpsncategory=2147494543
 lotfilt_clipsncategory=2147494544
 lotfilt_fcanceledordersonly=2147497688
 lotfilt_fshowagent=2147497689
+lotfilt_fshoworddlvraddr=2147499149
 lotfilt_agent=2147497690
 egaislotchargeon=2147490927
 egaislotchargeon_actchargeon=2147490928
@@ -8613,6 +8617,8 @@ prcssrsourcecodemaintaining=2147497771
 prcssrsourcecodemaintaining_fparsewinrcfornativetext=2147497772
 prcssrsourcecodemaintaining_ffindsourcecodewithnotutf8encoding=2147497773
 prcssrsourcecodemaintaining_fverifysourcecodebypatterns=2147497774
+prcssrsourcecodemaintaining_fautotranslatestrings=2147499150
+prcssrsourcecodemaintaining_attolang=2147499151
 prcssrcliactivitystatistics=2147497775
 prcssrcliactivitystatistics_period=2147497776
 prcssrcliactivitystatistics_psnkind=2147497777
@@ -11549,6 +11555,8 @@ mpviewkind_goods=2147499045
 mpviewkind_pickuppoints=2147499046
 brwwin_lcsetdefcolsizes=2147499091
 brwwin_lcevaluatecolsizes=2147499092
+tecrouteasgmt_finalware=2147499147
+tecrouteasgmt_route=2147499148
 centrigo_cmd_notes=2147499105
 centrigo_cmd_contacts=2147499122
 centrigo_cmd_todo=2147499106
@@ -13880,6 +13888,9 @@ PPERR_CHZNMARKPMFAULT_NOTVALID=78001
 PPERR_CHZNMARKPMFAULT_NOTFOUND=78002
 PPERR_EDI_UNBLRSLV_BILLDLVRLOC_NGLN=78003
 PPERR_EDI_BILLDLVRLOCGLN_NOOWNER=78004
+PPERR_UED_INVCHARINSRCLINE=78005
+PPERR_FALSETECHCODEDUPDET=78006
+PPERR_MIRRTURNBYBILLNFOUND=78007
 PPCFM_TEXT_89=6694673
 PPCFM_TEXT_90=6694674
 PPCFM_DELUSRGRP=6694675

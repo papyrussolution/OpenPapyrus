@@ -117,7 +117,7 @@ int ACS_SETSTART::ExportData(int updOnly)
 	PPObjUnit unit_obj;
 	PPObjQuotKind qk_obj;
 	PPObjSCardSeries scs_obj;
-	PPSCardSeries ser_rec;
+	PPSCardSeries2 ser_rec;
 	PPSCardSerPacket scs_pack;
 	PPObjGoods goods_obj;
 	PPObjGoodsClass gc_obj;
@@ -625,7 +625,8 @@ int ACS_SETSTART::ExportData(int updOnly)
 			if(scard_series_list.getCount()) {
 				long   dscnt_code = 0;
 				PPQuotKind qk_rec;
-				SString card_code_low, card_code_upp;
+				SString card_code_low;
+				SString card_code_upp;
 				int    is_first = 1;
 				for(uint scsidx = 0; scsidx < scard_series_list.getCount(); scsidx++) {
 					const  PPID scs_id = scard_series_list.get(scsidx);
@@ -771,7 +772,7 @@ int ACS_SETSTART::ImportFiles()
 				sp.Merge(0, SFsPath::fDrv|SFsPath::fDir|SFsPath::fExt, file_name);
 				(ftp_path_flag = ftp_dir).SetLastSlash().Cat(file_name);
 			}
-			MakeTempFileName(dir_in, "front", "txt", 0, path_rpt.Z());
+			MakeTempFileName(dir_in, "front", "txt", path_rpt);
 			// path_rpt = PathRpt;
 			for(double j = 0; j < timeouts_c; j++) {
 				if(ftp.SafeGet(path_rpt, ftp_path, 0, 0, 0) > 0) {
@@ -816,11 +817,11 @@ int ACS_SETSTART::ImportFiles()
 				msg_counter.Init(msg_list.getCount());
 				for(i = 0; i < msg_list.getCount(); i++) {
 					SMailMessage msg;
-					PPMakeTempFileName(0, "msg", 0, temp_fname.Z());
+					PPMakeTempFileName(0, "msg", temp_fname);
 					msg_counter.Increment();
 					THROW(mail.GetMsg(msg_list.at(i), &msg, temp_fname, RcvMailCallback, msg_counter));
 					{
-						MakeTempFileName(dir_in, "front", "txt", 0, path_rpt.Z());
+						MakeTempFileName(dir_in, "front", "txt", path_rpt);
 						THROW(mail.SaveAttachment(temp_fname, PathRpt, dir_in));
 						(temp_fname = dir_in).SetLastSlash().Cat(PathRpt);
 						rename(temp_fname, path_rpt);
@@ -863,7 +864,7 @@ int ACS_SETSTART::ImportFiles()
 						SFile::Remove(firstf_path);
 				}
 				// }
-                MakeTempFileName(temp_dir.SetLastSlash(), p_prefix, "txt", 0, temp_path);
+                MakeTempFileName(temp_dir.SetLastSlash(), p_prefix, "txt", temp_path);
 				SCopyFile(path, temp_path, 0, 0, 0);
 			}
 		}
@@ -1505,7 +1506,7 @@ int ACS_SETSTART::FinishImportSession(PPIDArray * pSessList)
 			ps.Merge(backup_path);
 			backup_path.SetLastSlash().Cat("backup");
 			if(SFile::CreateDir(backup_path)) {
-				MakeTempFileName(backup_path, "ssr", "txt", 0, backup_file_name);
+				MakeTempFileName(backup_path, "ssr", "txt", backup_file_name);
 				SCopyFile(path, backup_file_name, 0, FILE_SHARE_READ, 0);
 			}
 			SFile::Remove(path);

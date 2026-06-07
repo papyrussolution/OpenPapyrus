@@ -1345,7 +1345,6 @@ int SBinarySet::PutEncrypted(uint32 id, const void * pData, const uint32 size, c
 			THROW(p_meta);
 			*/
 			{
-				//THROW(crypto.SetKey_Derived_Argon2(key, rStrategy.MasterPassword, rStrategy.MasterPassword.Len(), &p_meta->PwHashSalt, sizeof(p_meta->PwHashSalt), rStrategy.ArgonP));
 				SBaseBuffer key_buf;
 				THROW(SlCrypto::GetEncapsulatedKey(pKeyRef, key_buf));
 				THROW(key.SetKey(key_buf.P_Buf, key_buf.Size));

@@ -401,7 +401,7 @@ SString & FASTCALL _commfmt(long fmt, SString & rBuf)
 char * STDCALL strfmt(const char * pStr, long fmt, char * pBuf)
 {
 	char * p_org_buf = pBuf;
-	int    flag = SFMTFLAG(fmt);
+	const  int flag = SFMTFLAG(fmt);
 	if(isempty(pStr)) {
 		if(flag & COMF_SQL) {
 			pBuf[0] = '\'';
@@ -609,8 +609,8 @@ char * STDCALL datefmt(const void * binDate, long fmt, char * txtDate)
 char * FASTCALL periodfmt(const DateRange & rPeriod, char * pBuf)
 {
 	char * p = pBuf;
-	const LDATE  beg = rPeriod.low;
-	const LDATE  end = rPeriod.upp;
+	const  LDATE beg = rPeriod.low;
+	const  LDATE end = rPeriod.upp;
 	if(beg)
 		p += sstrlen(datefmt(&beg, DATF_DMY|DATF_CENTURY, p));
 	if(beg != end) {
@@ -734,7 +734,7 @@ char * STDCALL timefmt(LTIME t, long fmt, char * pBuf)
 		sprintf(pBuf, "TIMESTAMP '%04d-%02d-%02d %02d:%02d:%02d.%02d'", 2000, 1, 1, t.hour(), t.minut(), t.sec(), t.hs());
 	}
 	else {
-		const int _no_div = BIN(fmt & TIMF_NODIV);
+		const bool _no_div = LOGIC(fmt & TIMF_NODIV);
 		if(_no_div)
 			strcpy(fs, "%02d%02d%02d");
 		else if(fmt & TIMF_DOTDIV)
@@ -758,8 +758,13 @@ char * STDCALL timefmt(LTIME t, long fmt, char * pBuf)
 				sprintf(pBuf, fs, t.hour(), t.minut(), t.sec());
 				break;
 		}
-		if(fmt & TIMF_MSEC)
-			sprintf(pBuf + sstrlen(pBuf), ".%03d", t.hs()*10);
+		if(fmt & TIMF_MSEC) {
+			if(_no_div) { // @v12.6.6
+				sprintf(pBuf + sstrlen(pBuf), "%03d", t.hs()*10);
+			}
+			else
+				sprintf(pBuf + sstrlen(pBuf), ".%03d", t.hs()*10);
+		}
 		if(fmt & TIMF_TIMEZONE) {
 			int    tz = gettimezone();
 			char * p = pBuf + sstrlen(pBuf);

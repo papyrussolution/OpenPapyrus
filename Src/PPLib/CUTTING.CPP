@@ -162,7 +162,7 @@ int PPObjBill::Cutting(LDATE endDate, int use_ta)
 	bk.BillNo = MAXLONG;
 	int    rbybill = 0;
 	PPTransferItem ti;
-	MakeTempFileName(0, 0, 0, 0, balance_fname);
+	MakeTempFileName(0, 0, 0, balance_fname);
 	THROW(SaveBalance(endDate, balance_fname));
 	THROW(PPStartTransaction(&ta, use_ta));
 	THROW(atobj->P_Tbl->LockingFRR(1, &frrl_tag, 0));

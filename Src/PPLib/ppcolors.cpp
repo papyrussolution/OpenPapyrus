@@ -791,8 +791,9 @@ ColorCtrlGroup::~ColorCtrlGroup()
 	ZDeleteWinGdiObject(&H_BrSelList);
 	ZDeleteWinGdiObject(&H_BrFrameList);
 	ZDeleteWinGdiObject(&H_BrBkInput);
-	for(int i = 0; i < SIZEOFARRAY(OwnerDrawCtrls); i++)
+	for(uint i = 0; i < SIZEOFARRAY(OwnerDrawCtrls); i++) {
 		MEMSZERO(OwnerDrawCtrls[i]);
+	}
 }
 
 int ColorCtrlGroup::setData(TDialog * pDlg, void * pData)
@@ -815,8 +816,7 @@ int ColorCtrlGroup::setData(TDialog * pDlg, void * pData)
 		else
 			Data.AddColorItem(GetColorRef(SClrWhite), userdef);
 	}
-	SetupStrAssocCombo(pDlg, CtlSel, Data.ColorList, Data.C, 0, 0, 1);
-	//SetupTaggedStringCombo(pDlg, CtlSel, &Data.ColorList, Data.ColorId, 0, 0, 1);
+	SetupStrAssocCombo(pDlg, CtlSel, Data.ColorList, Data.C, 0/*flags*/, 0, 1);
 	return 1;
 }
 
@@ -839,7 +839,7 @@ int ColorCtrlGroup::getData(TDialog * pDlg, void * pData)
 					if(!Data.SearchColorItem(c, &cpos)) {
 						Data.ColorList.UpdateByPos(cc-1, c);
 						Data.AddUndefColorItem();
-						SetupStrAssocCombo(pDlg, CtlSel, Data.ColorList, c, 0, 0, 1);
+						SetupStrAssocCombo(pDlg, CtlSel, Data.ColorList, c, 0/*flags*/, 0, 1);
 					}
 					pDlg->setCtrlData(CtlSel, &c);
 				}

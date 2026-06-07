@@ -415,7 +415,7 @@ int CrystalReportExportParam::LoadFromIniFile(const char * pReportName)
 							SString dir;
 							if(temp_buf.NotEmptyS()) {
 								if(SFile::IsDir(temp_buf.RmvLastSlash())) {
-									MakeTempFileName(dir = temp_buf, "exp", p_ext, 0, temp_buf);
+									MakeTempFileName(dir = temp_buf, "exp", p_ext, temp_buf);
 								}
 								else {
 									SFsPath::ReplaceExt(temp_buf, p_ext, 1);
@@ -423,7 +423,7 @@ int CrystalReportExportParam::LoadFromIniFile(const char * pReportName)
 							}
 							else {
 								PPGetPath(PPPATH_OUT, dir);
-								MakeTempFileName(dir, "exp", p_ext, 0, temp_buf);
+								MakeTempFileName(dir, "exp", p_ext, temp_buf);
 							}
 							DestFileName = temp_buf;
 						}
@@ -564,8 +564,7 @@ bool CrystalReportExportParam::GetDefaultExportFilePath(const char * pReportName
 		}
 		(prefix = "crrexp").CatChar('-').Cat(pReportName);
 		PPGetPath(PPPATH_OUT, path);
-		long   seq = 1;
-		MakeTempFileName(path, prefix, ext, &seq, rBuf);
+		MakeTempFileName(path, prefix, ext, rBuf);
 		if(rBuf.NotEmpty())
 			ok = true;
 	}

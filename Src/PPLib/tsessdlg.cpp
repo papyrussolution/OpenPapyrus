@@ -338,6 +338,7 @@ private:
 	void   Detail();
 	void   SetupCCheckButton();
 	void   SetupCipAndRepButton();
+	void   SetupRouteButton();
 	void   SetupAutoFillButton();
 	void   SetPlannedTiming(long sec);
 	long   GetPlannedTiming();
@@ -941,7 +942,7 @@ void TSessionDialog::SetPlannedTiming(long sec)
 {
 	const  long   as_ = labs(sec);
 	LTIME  tm = ZEROTIME;
-	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v10.0.07
+	SString & r_temp_buf = SLS.AcquireRvlStr();
 	if((as_ / 3600) < 3) {
 		tm.settotalsec(as_);
 		r_temp_buf.Cat(tm, TIMF_HMS);
@@ -1018,7 +1019,7 @@ int TSessionDialog::IsAddCompletionAvailable()
 	return yes;
 }
 
-int TSessionDialog::AddCompletion() // @v10.8.12
+int TSessionDialog::AddCompletion()
 {
 	int    ok = -1;
 	PPID   sess_id = Data.Rec.ID;
@@ -1085,6 +1086,45 @@ int TSessionDialog::AddCompletion() // @v10.8.12
 	CATCHZOKPPERR
 	return ok;
 }
+
+//cmTecRouteAssignment
+class TecRouteAssignmentDialog : public TDialog { // @v12.6.6 @construction
+	DECL_DIALOG_DATA(TSessionTbl::Rec);
+	enum {
+		ctlgroupGoods     = 1,
+	};
+public:
+	TecRouteAssignmentDialog() : TDialog(DLG_TECRTASGMT)
+	{
+		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_TECRTASGMT_FINPRODGRP, CTLSEL_TECRTASGMT_FINPROD));
+	}
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = 1;
+		RVALUEPTR(Data, pData);
+		PPObjGoods goods_obj;
+		Goods2Tbl::Rec goods_rec;
+		PPID   grp_id = (goods_obj.Fetch(Data.FinalProductID, &goods_rec) > 0) ? goods_rec.ParentID : 0;
+		GoodsCtrlGroup::Rec grp_rec(grp_id, Data.FinalProductID, 0, 0/*flags*/);
+		setGroupData(ctlgroupGoods, &grp_rec);
+		{
+			TechFilt tec_filt;
+			tec_filt.Kind = TECK_ROUTE;
+			PPObjTech::SetupCombo(this, CTLSEL_TECRTASGMT_TECROUTE, Data.TechRouteID, 0, &tec_filt);
+		}
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		GoodsCtrlGroup::Rec grp_rec;
+		getGroupData(ctlgroupGoods, &grp_rec);
+		Data.FinalProductID = grp_rec.GoodsID;
+		getCtrlData(CTLSEL_TECRTASGMT_TECROUTE, &Data.TechRouteID);
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
+};
 
 IMPL_HANDLE_EVENT(TSessionDialog)
 {
@@ -1170,11 +1210,12 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 			RepeatingDialog * dlg = new RepeatingDialog(RepeatingDialog::fEditRepeatAfterItem);
 			if(CheckDialogPtrErr(&dlg)) {
 				dlg->setDTS(&dr);
-				while(ExecView(dlg) == cmOK)
+				while(ExecView(dlg) == cmOK) {
 					if(dlg->getDTS(&dr)) {
 						*reinterpret_cast<DateRepeating *>(&Data.Rec.Repeating) = dr;
 						break;
 					}
+				}
 			}
 			delete dlg;
 		}
@@ -1187,6 +1228,11 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 		}
 		else if(event.isCmd(cmAutoFill)) {
 			AddCompletion();
+		}
+		else if(event.isCmd(cmTecRouteAssignment)) { // @v12.6.6
+			if(PPDialogProcBody <TecRouteAssignmentDialog, TSessionTbl::Rec> (&Data.Rec) > 0) {
+				;
+			}
 		}
 		else if(event.isClusterClk(CTL_TSESS_STATUS)) {
 			long   new_status = 0;
@@ -1450,6 +1496,13 @@ void TSessionDialog::SetupCCheckButton()
 	showButton(cmCCheck, allow);
 }
 
+void TSessionDialog::SetupRouteButton() // @v12.6.6 @construction
+{
+	bool   enable_route = SlDebugMode::CT() ? true : false;
+	enableCommand(cmTecRouteAssignment, enable_route);
+	showButton(cmTecRouteAssignment, enable_route);
+}
+
 void TSessionDialog::SetupCipAndRepButton()
 {
 	bool   allow_cip = false;
@@ -1565,6 +1618,7 @@ int TSessionDialog::setDTS(const TSessionPacket * pData)
 	SetupCCheckButton();
 	SetupCipAndRepButton();
 	SetupAutoFillButton();
+	SetupRouteButton(); // @v12.6.6
 	SetupPayment();
 	InpUpdLock--;
 	return ok;

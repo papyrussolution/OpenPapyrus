@@ -720,7 +720,7 @@ int PPViewPerson::EditItem(PPID id)
 int PPViewPerson::OpenClientDir(PPID PersonId)
 {
 	int    ok = 0;
-	SString cl_dir_name = PsnObj.GetConfig().TopFolder;
+	SString cl_dir_name(PsnObj.GetConfig().TopFolder);
 	if(cl_dir_name.NotEmptyS()) {
 		ok = 0;
 		PPObjPersonKind pk_obj;

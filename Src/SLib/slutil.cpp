@@ -329,6 +329,7 @@ SCompoundError & SCompoundError::Z()
 	ItemR.Z();
 	Code = 0;
 	Descr.Z();
+	AddedText.Z();
 	return *this;
 }
 
@@ -341,6 +342,7 @@ int SCompoundError::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx
 	THROW(ItemR.Serialize(dir, rBuf, pSCtx));
 	THROW(pSCtx->Serialize(dir, Code, rBuf));
 	THROW(pSCtx->Serialize(dir, Descr, rBuf));
+	THROW(pSCtx->Serialize(dir, AddedText, rBuf)); // @v12.6.6 
 	CATCHZOK
 	return ok;
 }
@@ -359,8 +361,14 @@ bool SCompoundError::ToJsonObj(SJson * pJsObj) const
 			pJsObj->InsertInt("itemr_low", ItemR.low);
 			pJsObj->InsertInt("itemr_upp", ItemR.upp);
 		}
-		if(Descr.NotEmpty()) {
-			pJsObj->InsertString("descr", Descr);
+		{
+			SString temp_buf;
+			if(Descr.NotEmpty()) {
+				pJsObj->InsertString("descr", (temp_buf = Descr).Escape());
+			}
+			if(AddedText.NotEmpty()) { // @v12.6.6
+				pJsObj->InsertString("addendum", (temp_buf = AddedText).Escape());
+			}
 		}
 	}
 	else
@@ -404,7 +412,10 @@ bool SCompoundError::FromJsonObj(const SJson * pJs)
 				ItemR.upp = p_jsn->P_Child->Text.ToLong();
 			}
 			else if(p_jsn->Text.IsEqiAscii("descr")) {
-				Descr = p_jsn->P_Child->Text;
+				SJson::GetChildTextUnescaped(p_jsn, Descr);
+			}
+			else if(p_jsn->Text.IsEqiAscii("addendum")) { // @v12.6.6
+				SJson::GetChildTextUnescaped(p_jsn, AddedText);
 			}
 		}
 		if(is_there_ver && is_there_code)

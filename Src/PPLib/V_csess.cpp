@@ -2681,11 +2681,11 @@ public:
 	}
 	int setDTS(const CSessExcAltGoodsParam * pData)
 	{
-		Data = *pData;
-		PPObjGoods gobj;
+		RVALUEPTR(Data, pData);
+		PPObjGoods goods_obj;
 		Goods2Tbl::Rec goods_rec;
 		PPID   grp_id = 0;
-		if(gobj.Fetch(Data.GoodsID, &goods_rec) > 0) {
+		if(goods_obj.Fetch(Data.GoodsID, &goods_rec) > 0) {
 			grp_id = goods_rec.ParentID;
 			setStaticText(CTL_CSEXCAG_ST_MAINGOODS, goods_rec.Name);
 		}

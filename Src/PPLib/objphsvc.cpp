@@ -958,13 +958,13 @@ AsteriskAmiClient::Message & AsteriskAmiClient::Message::Z()
 
 int AsteriskAmiClient::Message::Add(const char * pTag, const char * pValue)
 {
-	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.9
+	SString & r_temp_buf = SLS.AcquireRvlStr();
 	return add((r_temp_buf = pTag).Colon().Cat(pValue)) ? 1 : PPSetErrorSLib();
 }
 
 int AsteriskAmiClient::Message::AddAction(const char * pValue)
 {
-	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.9
+	SString & r_temp_buf = SLS.AcquireRvlStr();
 	return add((r_temp_buf = "Action").Colon().Cat(pValue)) ? 1 : PPSetErrorSLib();
 }
 
@@ -990,7 +990,7 @@ int AsteriskAmiClient::Message::Get(uint * pPos, SString & rTag, SString & rValu
 	int    ok = 0;
 	rTag.Z();
 	rValue.Z();
-	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.9
+	SString & r_temp_buf = SLS.AcquireRvlStr();
 	if(get(pPos, r_temp_buf)) {
 		r_temp_buf.Divide(':', rTag, rValue);
 		rTag.Strip();
@@ -1004,7 +1004,9 @@ int AsteriskAmiClient::Message::Parse(StrStrAssocArray & rTags) const
 {
 	int    ok = 0;
 	rTags.Z();
-	SString temp_buf, tag, value;
+	SString temp_buf;
+	SString tag;
+	SString value;
 	for(uint p = 0; !ok && get(&p, temp_buf);) {
 		if(temp_buf.Divide(':', tag, value) > 0) {
 			rTags.Add(tag.Strip(), value.Strip(), 0);
@@ -1017,7 +1019,8 @@ int AsteriskAmiClient::Message::GetTag(const char * pTag, SString & rValue) cons
 {
 	int    ok = 0;
 	rValue.Z();
-	SString temp_buf, tag;
+	SString temp_buf;
+	SString tag;
 	for(uint p = 0; !ok && get(&p, temp_buf);) {
 		temp_buf.Divide(':', tag, rValue);
 		if(tag.Strip().CmpNC(pTag) == 0)
@@ -1033,7 +1036,9 @@ int AsteriskAmiClient::Message::GetReplyStatus(ReplyStatus & rS) const
 	rS.Code = -1;
 	rS.EventListFlag = -1;
 	rS.Message.Z();
-	SString temp_buf, tag, value;
+	SString temp_buf;
+	SString tag;
+	SString value;
 	for(uint p = 0; get(&p, temp_buf);) {
 		temp_buf.Divide(':', tag, value);
 		tag.Strip();
@@ -1066,7 +1071,9 @@ int AsteriskAmiClient::Message::ParseReply(const char * pReply)
 	int    ok = 1;
 	Z();
 	SStrScan scan(pReply);
-	SString temp_buf, left, right;
+	SString temp_buf;
+	SString left;
+	SString right;
 	while(scan.Search("\xD\xA")) {
 		scan.Get(temp_buf);
 		scan.IncrLen(2);

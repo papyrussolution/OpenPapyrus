@@ -1171,7 +1171,7 @@ int PPObjectTransmit::PushObjectsToQueue(PPObjectTransmit::Header & rHdr, const 
 				STempBuffer temp_buf(4096);
 				SString sys_file_path;
 				THROW_SL(SFile::CreateDir(GetQueueFilePath(sys_file_path)));
-				THROW_SL(MakeTempFileName(sys_file_path, 0, 0, 0, sys_file_name));
+				THROW_SL(MakeTempFileName(sys_file_path, 0, 0, sys_file_name));
 				THROW_SL(sys_file.Open(sys_file_name, SFile::mWrite | SFile::mBinary));
 				fseek(pInStream, 0L, SEEK_SET);
 				while((bytes_read = fread(temp_buf, 1, temp_buf.GetSize(), pInStream)) > 0) {

@@ -5512,7 +5512,8 @@ int SapEfes::SendSales_ByDlvrLoc()
 	sess.Setup(SvcUrl, UserName, Password);
 	InitCallHeader(sech);
 	{
-		SString cli_code, loc_code;
+		SString cli_code;
+		SString loc_code;
 		PPViewTrfrAnlz ta_view;
 		TrfrAnlzFilt ta_filt;
 		TrfrAnlzViewItem ta_item;
@@ -14220,8 +14221,23 @@ int COCACOLA::ImportBailmentOrders()
 		const  PPID suppl_id = P.SupplID;
 		const  PPID order_op_id = FindBailmentOrderOp();
 		PPID   todo_code_tag_id = 0;
+		PPObjBrand brand_obj; // На случай если придется автоматически создавать товар
 		PPIDArray todo_id_list; // Список идентификаторов созданных задач
 		PPOprKind op_rec;
+		// @v12.6.6 {
+		bool   do_create_absent_goods = true;
+		PPID   def_bailment_goodsgrp_id = 0;
+		if(GObj.GetConfig().DefBailmentGroupID) {
+			def_bailment_goodsgrp_id = GObj.GetConfig().DefBailmentGroupID;
+			Goods2Tbl::Rec local_goods_rec;
+			if(GObj.Fetch(def_bailment_goodsgrp_id, &local_goods_rec) > 0 && local_goods_rec.Kind == PPGDSK_GROUP && 
+				!(local_goods_rec.Flags & (GF_ALTGROUP|GF_FOLDER))) {
+				;
+			}
+			else 
+				def_bailment_goodsgrp_id = 0;
+		}
+		// } @v12.6.6 
 		THROW_PP(GetOpData(order_op_id, &op_rec) > 0, PPERR_SUPPLIX_UNDEFOPBAILMENTORD);
 		if(P.Flags & SupplInterchangeFilt::fTestMode) {
 			Test_CreateAddresses(ordset_list);
@@ -14317,26 +14333,78 @@ int COCACOLA::ImportBailmentOrders()
 											}
 										}
 										if(!goods_id) {
-											//PPTXT_LOG_SUPPLIX_GOODSNFOUND
-											PPFormatT(PPTXT_LOG_SUPPLIX_GOODSNFOUND, &msg_buf, bill_text.cptr());
-											if(p_ord->Eq.Barcode.NotEmpty()) {
-												msg_buf.Space().Cat(p_ord->Eq.Barcode);
-											}
-											temp_buf.Z();
-											if(p_ord->Eq.Cat.NotEmpty())
-												temp_buf.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Cat);
-											if(p_ord->Eq.Model.NotEmpty())
-												temp_buf.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Model);
+											SString syntetic_goods_name;
 											if(p_ord->Eq.Brand.NotEmpty())
-												temp_buf.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Brand);
-											if(p_ord->Eq.Barcode.NotEmpty())
-												temp_buf.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Barcode);
+												syntetic_goods_name.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Brand);
+											if(p_ord->Eq.Model.NotEmpty())
+												syntetic_goods_name.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Model);
+											if(p_ord->Eq.Type.NotEmpty())
+												syntetic_goods_name.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Type);
+											if(p_ord->Eq.Cat.NotEmpty())
+												syntetic_goods_name.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Cat);
+											/*if(p_ord->Eq.Barcode.NotEmpty())
+												syntetic_goods_name.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Barcode);
 											if(p_ord->Eq.Serial.NotEmpty())
-												temp_buf.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Serial);
-											if(temp_buf.NotEmptyS()) {
-												msg_buf.Space().CatChar('[').Cat(temp_buf).CatChar(']');
+												syntetic_goods_name.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Serial);*/
+											syntetic_goods_name.Transf(CTRANSF_UTF8_TO_INNER);
+											{
+												//PPTXT_LOG_SUPPLIX_GOODSNFOUND
+												PPFormatT(PPTXT_LOG_SUPPLIX_GOODSNFOUND, &msg_buf, bill_text.cptr());
+												if(p_ord->Eq.Barcode.NotEmpty()) {
+													msg_buf.Space().Cat(p_ord->Eq.Barcode);
+												}
+												temp_buf = syntetic_goods_name;
+												if(p_ord->Eq.Barcode.NotEmpty())
+													temp_buf.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Barcode);
+												if(p_ord->Eq.Serial.NotEmpty())
+													temp_buf.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Serial);
+												if(temp_buf.NotEmptyS()) {
+													msg_buf.Space().CatChar('[').Cat(temp_buf).CatChar(']');
+												}
+												R_Logger.Log(msg_buf);
 											}
-											R_Logger.Log(msg_buf);
+											if(do_create_absent_goods && def_bailment_goodsgrp_id && syntetic_goods_name.NotEmpty()) {
+												PPGoodsPacket goods_pack;
+												goods_pack.Rec.Kind = PPGDSK_GOODS;
+												STRNSCPY(goods_pack.Rec.Name, syntetic_goods_name);
+												STRNSCPY(goods_pack.Rec.Abbr, syntetic_goods_name);
+												if(p_ord->Eq.Barcode.NotEmpty()) {
+													goods_pack.AddCode(p_ord->Eq.Barcode, 0, 1);
+												}
+												/*if(ar_code.NotEmpty()) {
+													if(acs_id) {
+														if(!mp_ar_id) {
+															ArObj.P_Tbl->PersonToArticle(mp_psn_id, acs_id, &mp_ar_id);
+														}
+														if(mp_ar_id) {
+															ArGoodsCodeTbl::Rec ar_code_rec;
+															STRNSCPY(ar_code_rec.Code, ar_code);
+															ar_code_rec.ArID = mp_ar_id;
+															ar_code_rec.Pack = 1000; // 1.0
+															ar_code.CopyTo(ar_code_rec.Code, sizeof(ar_code_rec.Code));
+															goods_pack.ArCodes.insert(&ar_code_rec);
+														}
+													}
+												}*/
+												if(p_ord->Eq.Brand.NotEmpty()) {
+													temp_buf = p_ord->Eq.Brand;
+													if(temp_buf.IsLegalUtf8()) {
+														temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+													}
+													PPID   brand_id = 0;
+													THROW(brand_obj.AddSimple(&brand_id, temp_buf, 0, 0/*use_ta*/));
+													goods_pack.Rec.BrandID = brand_id;
+												}
+												goods_pack.Rec.UnitID = GObj.GetConfig().DefUnitID;
+												goods_pack.Rec.ParentID = def_bailment_goodsgrp_id;
+												if(GObj.PutPacket(&goods_id, &goods_pack, 0/*use_ta*/)) {
+													R_Logger.LogAcceptMsg(PPOBJ_GOODS, goods_id, 0);
+												}
+												else {
+													goods_id = 0;
+													R_Logger.LogLastError();
+												}
+											}
 										}
 										else {
 											PPID    final_lot_id = 0;

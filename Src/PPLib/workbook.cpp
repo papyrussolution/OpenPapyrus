@@ -1113,10 +1113,8 @@ int PPObjWorkbook::AttachFile(PPID id)
 		param.Type = param.ftHtml;
 		if(EditWorkbookAttachFileParam(&param) > 0) {
 			if(param.Type != param.ftSelection) {
-				param.FileName = 0;
+				param.FileName.Z();
 				SString ext;
-				//SString path;
-				//PPGetPath(PPPATH_TEMP, path);
 				if(param.Type == param.ftHtml)
 					ext = "html";
 				else if(param.Type == param.ftText)
@@ -1124,7 +1122,7 @@ int PPObjWorkbook::AttachFile(PPID id)
 				else if(param.Type == param.ftVm)
 					ext = "vm";
 				if(ext.NotEmpty()) {
-					PPMakeTempFileName("wb", ext, 0, param.FileName);
+					PPMakeTempFileName("wb", ext, param.FileName);
 					SFile _f(param.FileName, SFile::mWrite);
 					THROW_SL(_f.IsValid());
 				}
@@ -2962,7 +2960,7 @@ int PPWorkbookExporter::ExportPacket(const PPWorkbookPacket * pPack)
 			}
 			SString dest_filename;
 			SFsPath ps(temp_buf);
-			MakeTempFileName(DestFilesPath, "wbf", ps.Ext, 0, dest_filename);
+			MakeTempFileName(DestFilesPath, "wbf", ps.Ext, dest_filename);
 			THROW_SL(SCopyFile(temp_buf, dest_filename, 0, FILE_SHARE_READ, 0));
 			dest_filename.CopyTo(sdr_rec.Content, sizeof(sdr_rec.Content));
 		}

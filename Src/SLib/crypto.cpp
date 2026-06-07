@@ -153,6 +153,74 @@ SVaultPool::SVaultPool() : SBinarySet()
 {
 }
 
+const struct SVaultPool_ConstBlock {
+	SVaultPool_ConstBlock() :
+		//Salt(GUID{0xa948b40, 0xb597, 0x48da, { 0x93, 0x57, 0x71, 0xda, 0xac, 0x60, 0x54, 0x0 }}),
+		UedSymmCipher(UED_SYMMETRICCIPHER_AES256GCM), DerivedKeyLen(32), SaltSize(16)
+	{
+		KdfP.UedKdf = UED_KEYDERIVATIONFUNCTION_ARGON2ID;
+		KdfP.MemCost = SKILOBYTE(64);
+		KdfP.TimeCost = 3;
+		KdfP.Parallelism = 1;
+	}
+	void   SetupKeyVerificationBlock(SlCrypto::KeyVerificationBlock & rBlk) const
+	{
+		rBlk.UedSymmCipher = UedSymmCipher;
+		rBlk.KdfP = KdfP;
+		assert(SaltSize > 0 && SaltSize <= sizeof(rBlk.Salt));
+		memrandomize(rBlk.Salt, SaltSize);
+		//memcpy(rBlk.Salt, &Salt, sizeof(Salt));
+		rBlk.SaltSize = SaltSize;
+	}
+	SlCrypto::KdfParam KdfP;
+	const  uint64 UedSymmCipher;
+	const  uint DerivedKeyLen; 
+	const  uint SaltSize;
+	//const  S_GUID Salt;
+} SVaultPool_CBlk;
+
+int SVaultPool::SetupPrimaryPassword(const char * pPw, size_t pwLen)
+{
+	int    ok = 1;
+	THROW(!isempty(pPw) && pwLen); // @todo @err
+	{
+		SlCrypto::KeyVerificationBlock kv_blk;
+		SVaultPool_CBlk.SetupKeyVerificationBlock(kv_blk);
+		{
+			SlCrypto::Key key;
+			int   mkr = SlCrypto::MakeDerivedKey(kv_blk.KdfP, key, pPw, pwLen, SVaultPool_CBlk.DerivedKeyLen, kv_blk.Salt, kv_blk.SaltSize);
+			THROW(mkr);
+			const ::SBaseBuffer & r_key_buf = key.GetKey();
+			int   r1 = SlCrypto::MakeKeyVerificationBlock(kv_blk, r_key_buf.P_Buf, r_key_buf.Size);
+			THROW(r1);
+		}
+		THROW(Put(tagKeyVerification, &kv_blk, sizeof(kv_blk)));
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SVaultPool::CheckInPrimaryPassword(const char * pPw, size_t pwLen)
+{
+	int    ok = 1;
+	THROW(!isempty(pPw) && pwLen); // @todo @err
+	{
+		size_t kv_blk_size = 0;
+		const SlCrypto::KeyVerificationBlock * p_kv_blk = static_cast<const SlCrypto::KeyVerificationBlock *>(GetPtr(tagKeyVerification, &kv_blk_size));
+		THROW(p_kv_blk && kv_blk_size == sizeof(SlCrypto::KeyVerificationBlock) && p_kv_blk->Signature == SlConst::SlCryptoKvbSignature); // @todo @err
+		{
+			SlCrypto::KeyVerificationBlock kv_blk_(*p_kv_blk);
+			SlCrypto::Key key;
+			int   mkr = SlCrypto::MakeDerivedKey(kv_blk_.KdfP, key, pPw, pwLen, SVaultPool_CBlk.DerivedKeyLen, kv_blk_.Salt, kv_blk_.SaltSize);
+			THROW(mkr);
+			const ::SBaseBuffer & r_key_buf = key.GetKey();
+			THROW(SlCrypto::VerifyKey(kv_blk_, r_key_buf.P_Buf, r_key_buf.Size));
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 static constexpr uint32 SVaultPool_IdOffset = 4000;
 
 uint32 SVaultPool::MakeInternalId(uint32 outerId) const
@@ -167,9 +235,19 @@ uint32 SVaultPool::MakeOuterId(uint32 internalId) const
 //
 // 
 // 
-SlCrypto::KeyVerificationBlock::KeyVerificationBlock()
+SlCrypto::KeyVerificationBlock::KeyVerificationBlock() : Signature(SlConst::SlCryptoKvbSignature), UedSymmCipher(0), KdfP(),
+	SaltSize(0), VBSize(0)
 {
-	THISZERO();
+	memzero(Salt, sizeof(Salt));
+	memzero(VB, sizeof(VB));
+}
+
+SlCrypto::KeyVerificationBlock::~KeyVerificationBlock()
+{
+	Signature = 0;
+	UedSymmCipher = 0;
+	memzero(Salt, sizeof(Salt));
+	memzero(VB, sizeof(VB));
 }
 
 static constexpr GUID VG[] = {
@@ -179,16 +257,18 @@ static constexpr GUID VG[] = {
 	{0x72e334ae, 0x7d75, 0x4ecc, { 0x80, 0x5b, 0x94, 0x6a, 0x35, 0x26, 0xf2, 0x35 }}
 };
 
-/*static*/int SlCrypto::MakeKeyVerificationBlock(uint64 uedSymmCipher, const void * pKey, size_t keyLen, KeyVerificationBlock & rBlk)
+/*static*/int SlCrypto::MakeKeyVerificationBlock(KeyVerificationBlock & rBlk, const void * pKey, size_t keyLen)
 {
 	int   ok = 0;
-	if(pKey && keyLen) {
-		SlCrypto crypto(uedSymmCipher);
+	THROW(pKey && keyLen);
+	THROW(UED::BelongToMeta(rBlk.UedSymmCipher, UED_META_SYMMETRICCIPHER)); // @todo @err
+	{
+		SlCrypto crypto(rBlk.UedSymmCipher);
 		THROW(crypto.IsValid());
 		const  SlCrypto::CipherProperties & r_cp = crypto.GetCipherProperties();
-		const  size_t block_size = (r_cp.BlockSize > 0) ? r_cp.BlockSize : sizeof(S_GUID);
+		const  size_t block_size = (r_cp.BlockSize > 1) ? r_cp.BlockSize : sizeof(S_GUID);
 		THROW(block_size <= sizeof(VG));
-		THROW(!r_cp.KeySize || r_cp.KeySize == keyLen); // @todo @err
+		THROW(r_cp.KeySize == keyLen); // @todo @err
 		{
 			SlCrypto::Key key;
 			SBinaryChunk data;
@@ -206,6 +286,8 @@ static constexpr GUID VG[] = {
 				aad.Randomize(r_cp.AadSize);
 				THROW(crypto.SetKey_AAD(key, aad.PtrC(), aad.Len()));
 			}
+			if(r_cp.TagSize)
+				tag.Ensure(r_cp.TagSize);
 			data.Z().Cat(VG, block_size);
 			THROW(crypto.Encrypt(key, data.PtrC(), data.Len(), encrypted, &tag));
 			{
@@ -221,7 +303,7 @@ static constexpr GUID VG[] = {
 					temp_chunk.Cat(encrypted);
 					temp_chunk.Cat(tag);
 					memcpy(rBlk.VB, temp_chunk.PtrC(), temp_chunk.Len());
-					rBlk.VBSize = temp_chunk.Len();
+					rBlk.VBSize = static_cast<uint32>(temp_chunk.Len());
 				}
 				ok = 1;
 			}
@@ -231,16 +313,18 @@ static constexpr GUID VG[] = {
 	return ok;
 }
 
-/*static*/int SlCrypto::VerifyKey(uint64 uedSymmCipher, const void * pKey, size_t keyLen, KeyVerificationBlock & rBlk)
+/*static*/int SlCrypto::VerifyKey(KeyVerificationBlock & rBlk, const void * pKey, size_t keyLen)
 {
 	int   ok = 0;
-	if(pKey && keyLen) {
-		SlCrypto crypto(uedSymmCipher);
+	THROW(pKey && keyLen);
+	THROW(UED::BelongToMeta(rBlk.UedSymmCipher, UED_META_SYMMETRICCIPHER)); // @todo @err
+	{
+		SlCrypto crypto(rBlk.UedSymmCipher);
 		THROW(crypto.IsValid());
 		const  SlCrypto::CipherProperties & r_cp = crypto.GetCipherProperties();
-		const  size_t block_size = (r_cp.BlockSize > 0) ? r_cp.BlockSize : sizeof(S_GUID);
+		const  size_t block_size = (r_cp.BlockSize > 1) ? r_cp.BlockSize : sizeof(S_GUID);
 		THROW(block_size <= sizeof(VG));
-		THROW(!r_cp.KeySize || r_cp.KeySize == keyLen); // @todo @err
+		THROW(r_cp.KeySize == keyLen); // @todo @err
 		THROW((r_cp.AadSize + r_cp.IvSize + r_cp.TagSize + block_size) == rBlk.VBSize); // @todo @err
 		{
 			SlCrypto::Key key;
@@ -266,6 +350,7 @@ static constexpr GUID VG[] = {
 				data.Cat(rBlk.VB+vb_offs, encrypted_data_len);
 				vb_offs += encrypted_data_len;
 				if(r_cp.TagSize) {
+					tag.Cat(rBlk.VB+vb_offs, r_cp.TagSize);
 					tag_pattern.Cat(rBlk.VB+vb_offs, r_cp.TagSize);
 				}
 			}
@@ -312,24 +397,25 @@ public:
 {
 	bool   ok = false;
 	if(pSrcKey && srcKeySize && drvKeySize) {
-		Argon2Param ap;
+		KdfParam kdfp;
 		uint64 salt[2];
 		{
 			// Attention! Факторы ниже обуславливают воспроизводимость порожденного ключа - менять нельзя!
-			ap.MemCost = SKILOBYTE(64);
-			ap.TimeCost = 3;
-			ap.Parallelism = 1;
+			kdfp.UedKdf = UED_KEYDERIVATIONFUNCTION_ARGON2ID;
+			kdfp.MemCost = SKILOBYTE(64);
+			kdfp.TimeCost = 3;
+			kdfp.Parallelism = 1;
 			salt[0] = 0x93E90DC7875BF159ULL;
 			salt[1] = 0x159C4AB099D7D317ULL;
 		}
-		if(MakeKey_Derived_Argon2(rResult, pSrcKey, srcKeySize, drvKeySize, salt, sizeof(salt), ap)) {
+		if(MakeDerivedKey(kdfp, rResult, pSrcKey, srcKeySize, drvKeySize, salt, sizeof(salt))) {
 			ok = true;
 		}
 	}
 	return ok;
 }
 
-/*static*/void * SlCrypto::EncapsulateKey(const void * pSrcKey, size_t srcKeySize, size_t drvKeySize) // @v12.6.4 @construction
+/*static*/void * SlCrypto::EncapsulateKey(const void * pSrcKey, size_t srcKeySize, size_t drvKeySize) // @v12.6.4
 {
 	void * p_result = 0;
 	SlCrypto::Key key;
@@ -422,6 +508,11 @@ public:
 //
 SlCrypto::CipherProperties::CipherProperties() : BlockSize(0), KeySize(0), IvSize(0), AadSize(0), TagSize(0)
 {
+}
+
+SlCrypto::KdfParam::KdfParam() : UedKdf(0), MemCost(0), TimeCost(0), Parallelism(0)
+{
+	memzero(Reserve, sizeof(Reserve));
 }
 
 SlCrypto::Key::Key() : Signature(SlConst::SlCryptoKeySignature), EndP(0)
@@ -740,11 +831,12 @@ int SlCrypto::Helper_Construct(int alg, uint kbl, int algModif, uint tagSize)
 		Cp.BlockSize = static_cast<uint>(EVP_CIPHER_block_size(p_cphr));
 		Cp.KeySize = static_cast<uint>(EVP_CIPHER_key_length(p_cphr));
 		Cp.IvSize = static_cast<uint>(EVP_CIPHER_iv_length(p_cphr));
-		Cp.TagSize = (EVP_CIPHER_get_flags(p_cphr) & EVP_CIPH_FLAG_AEAD_CIPHER) ? EVP_CIPHER_CTX_get_tag_length(p_ctx) : 0;
+		// @v12.6.6 Cp.TagSize = (EVP_CIPHER_get_flags(p_cphr) & EVP_CIPH_FLAG_AEAD_CIPHER) ? EVP_CIPHER_CTX_get_tag_length(p_ctx) : 0;
 		if(EVP_EncryptInit_ex(p_ctx, p_cphr, NULL, NULL, NULL)) { // Set cipher type and mode 
 			Cp.BlockSize = static_cast<uint>(EVP_CIPHER_CTX_block_size(p_ctx));
 			Cp.KeySize = static_cast<uint>(EVP_CIPHER_CTX_key_length(p_ctx));
 			Cp.IvSize = static_cast<uint>(EVP_CIPHER_CTX_iv_length(p_ctx));
+			Cp.TagSize = (EVP_CIPHER_get_flags(p_cphr) & EVP_CIPH_FLAG_AEAD_CIPHER) ? EVP_CIPHER_CTX_get_tag_length(p_ctx) : 0; // @v12.6.6 
 		}
 		else {
 			EVP_CIPHER_CTX_free(p_ctx);
@@ -773,11 +865,12 @@ bool SlCrypto::IsIvSizeConfigurable() const { return oneof4(AlgModif, algmodCcm,
 	
 const  SlCrypto::CipherProperties & SlCrypto::GetCipherProperties() const { return Cp; }
 
-/*static*/int SlCrypto::MakeKey_Derived_Argon2(SlCrypto::Key & rK, const void * pData, size_t size, size_t destKeySize, const void * pSalt, size_t saltSize, const Argon2Param & rParam) // @v12.6.4
+/*static*/int SlCrypto::MakeDerivedKey(const KdfParam & rParam, SlCrypto::Key & rK, const void * pData, size_t size, size_t destKeySize, const void * pSalt, size_t saltSize) // @v12.6.4
 {
-	int   ok = 1;
-	const size_t result_key_size = destKeySize;
-	Argon2Param ap(rParam);
+	int    ok = 1;
+	const  size_t result_key_size = destKeySize;
+	SString temp_buf;
+	KdfParam ap(rParam);
 	THROW(pData && size);
 	THROW(result_key_size);
 	THROW(rK.GetKey().P_Buf == 0); // Если не так, то значит ключ уже установлен
@@ -802,18 +895,27 @@ const  SlCrypto::CipherProperties & SlCrypto::GetCipherProperties() const { retu
 			pSalt = default_argon2_salt;
 			saltSize = default_argon2_salt_size;
 		}
-		int    ar = argon2id_hash_raw(ap.TimeCost, ap.MemCost, ap.Parallelism, pData, size, pSalt, saltSize, key_buf, result_key_size);
-		THROW(ar == ARGON2_OK); // ? ERR_SUCCESS : ERR_ARGON2;
+		int    ar = 0;
+		switch(ap.UedKdf) {
+			case UED_KEYDERIVATIONFUNCTION_ARGON2D:
+				ar = argon2d_hash_raw(ap.TimeCost, ap.MemCost, ap.Parallelism, pData, size, pSalt, saltSize, key_buf, result_key_size);
+				break;
+			case UED_KEYDERIVATIONFUNCTION_ARGON2I:
+				ar = argon2i_hash_raw(ap.TimeCost, ap.MemCost, ap.Parallelism, pData, size, pSalt, saltSize, key_buf, result_key_size);
+				break;
+			case UED_KEYDERIVATIONFUNCTION_ARGON2ID:
+				ar = argon2id_hash_raw(ap.TimeCost, ap.MemCost, ap.Parallelism, pData, size, pSalt, saltSize, key_buf, result_key_size);
+				break;
+			default:
+				CALLEXCEPT_S_S(SLERR_CRYPTO_UNSUPPORTEDKDF, temp_buf.Z().CatHex(ap.UedKdf));
+				break;
+		}
+		THROW_S(ar == ARGON2_OK, SLERR_CRYPTO_KDF_FAULT); // ? ERR_SUCCESS : ERR_ARGON2;
 		THROW(rK.SetKey(key_buf, result_key_size));
 		memzero(key_buf, sizeof(key_buf));
 	}
 	CATCHZOK
 	return ok;
-}
-
-int SlCrypto::SetKey_Derived_Argon2(SlCrypto::Key & rK, const void * pData, size_t size, const void * pSalt, size_t saltSize, const Argon2Param & rParam) // @v12.6.3
-{
-	return MakeKey_Derived_Argon2(rK, pData, size, Cp.KeySize, pSalt, saltSize, rParam);
 }
 
 int SlCrypto::SetKey_IV(SlCrypto::Key & rK, const void * pData, size_t size) // @v12.6.3
@@ -993,7 +1095,7 @@ int SlCrypto::Encrypt(const SlCrypto::Key & rKey, const void * pData, size_t dat
 	return ok;
 }
 
-int SlCrypto::Decrypt(const SlCrypto::Key & rKey, const void * pData, size_t dataLen, SBinaryChunk & rResult, SBinaryChunk * pTag)
+int SlCrypto::Decrypt(const SlCrypto::Key & rKey, const void * pData, size_t dataLen, SBinaryChunk & rResult, const SBinaryChunk * pTag)
 {
 	rResult.Z();
 	int    ok = 1;
@@ -1032,7 +1134,7 @@ int SlCrypto::Decrypt(const SlCrypto::Key & rKey, const void * pData, size_t dat
 					else if(AlgModif == algmodCcm)
 						tag_type = EVP_CTRL_CCM_SET_TAG;
 					if(tag_type) {
-						THROW(EVP_CIPHER_CTX_ctrl(p_ctx, tag_type, static_cast<int>(pTag->Len()), pTag->Ptr()));
+						THROW(EVP_CIPHER_CTX_ctrl(p_ctx, tag_type, static_cast<int>(pTag->Len()), const_cast<void *>(pTag->PtrC())));
 					}
 				}
 				THROW(EVP_DecryptFinal/*_ex*/(p_ctx, PTR8(rResult.Ptr())+outl, &final_outl));

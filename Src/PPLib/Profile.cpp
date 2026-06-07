@@ -219,11 +219,11 @@ void Profile::Output(uint fileId, const char * pDescription)
 		char   empty_descr[16];
 		SString temp_buf;
 		if(pDescription == 0) {
-			PTR32(empty_descr)[0] = 0;
+			empty_descr[0] = 0;
 			pDescription = empty_descr;
 		}
 		temp_buf.Printf("Start profile at clock %ld: %s", (long)(StartClock / 10000) , pDescription);
-		PPLogMessage(fileId, temp_buf, /*LOGMSGF_USER|*/LOGMSGF_TIME|LOGMSGF_DIRECTOUTP); // @v9.2.0 LOGMSGF_DIRECTOUTP
+		PPLogMessage(fileId, temp_buf, /*LOGMSGF_USER|*/LOGMSGF_TIME|LOGMSGF_DIRECTOUTP);
 		ProfileEntry * p_pe = 0;
 		for(uint i = 0; enumItems(&i, (void **)&p_pe);) {
 			double msh = p_pe->Hits ? (((double)p_pe->NSecs100) / ((double)p_pe->Hits * 10000.0)) : 0; // приведение к миллисекундам

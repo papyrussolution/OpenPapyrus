@@ -1,5 +1,5 @@
 // TEST-DIRENT.CPP
-// A.Sobolev 2023
+// A.Sobolev 2023, 2026
 // @codepage UTF-8
 // Реализация POSIX-dirent для Windows
 //
@@ -1748,5 +1748,89 @@ SLTEST_R(Directory)
 		}
 	}
 	CATCHZOK
+	return CurrentStatus;
+}
+
+SLTEST_R(MakeTempFileName)
+{
+	const  char * p_croude_dir = "MakeTempFileName_Croude";
+	const  char * p_simple_dir = "MakeTempFileName_Simple";
+	const  uint croude_count = 25000;
+	const  uint simple_count = 100;
+	SString temp_buf;
+	SString croude_path;
+	SString simple_path;
+	SString file_path;
+	SString out_path(GetSuiteEntry()->OutPath);
+	(croude_path = out_path).SetLastSlash().Cat(p_croude_dir);
+	(simple_path = out_path).SetLastSlash().Cat(p_simple_dir);
+	THROW(SFile::RemoveDir(simple_path));
+	if(!SFile::IsDir(croude_path)) {
+		THROW(SFile::CreateDir(croude_path));
+	}
+	{
+		THROW(SFile::CreateDir(simple_path));
+		for(uint i = 0; i < simple_count; i++) {
+			MakeTempFileName(simple_path, "spf", "txt", file_path);
+			SLCHECK_Z(fileExists(file_path));
+			{
+				SFile f_out(file_path, SFile::mWrite);
+				SLCHECK_NZ(f_out.IsValid());
+				temp_buf.Z().Cat("temp-file").CatDiv('-', 0).Cat(i+1);
+				SLCHECK_NZ(f_out.WriteLine(temp_buf));
+			}
+		}
+	}
+	{
+		if(SFile::IsDir(croude_path)) {
+			MakeTempFileName_Wildcard(croude_path, "cpf", "txt", temp_buf);
+			SDirEntry de;
+			uint   local_count = 0;
+			for(SDirec d(temp_buf, 0); d.Next(&de) > 0;) {
+				local_count++;
+			}
+			while(local_count < croude_count) {
+				MakeTempFileName(croude_path, "cpf", "txt", file_path);
+				SLCHECK_Z(fileExists(file_path));
+				{
+					SFile f_out(file_path, SFile::mWrite);
+					THROW(SLCHECK_NZ(f_out.IsValid()));
+					temp_buf.Z().Cat("temp-file").CatDiv('-', 0).Cat(local_count+1);
+					THROW(SLCHECK_NZ(f_out.WriteLine(temp_buf)));
+				}
+				local_count++;
+			}
+			{
+				SFileEntryPool fep;
+				{
+					for(uint i = 0; i < simple_count; i++) {
+						MakeTempFileName(croude_path, "cpf", "txt", file_path);
+						SLCHECK_Z(fileExists(file_path));
+						{
+							SFile f_out(file_path, SFile::mWrite);
+							SLCHECK_NZ(f_out.IsValid());
+							temp_buf.Z().Cat("temp-file").CatDiv('-', 0).Cat(i+1);
+							SLCHECK_NZ(f_out.WriteLine(temp_buf));
+						}
+						fep.Add(file_path, 0);
+					}
+				}
+				{
+					//
+					// Теперь удаляем файлы, созданные в рамках теста, но не те, что формируют "толпу"
+					//
+					for(uint i = 0; i < fep.GetCount(); i++) {
+						if(fep.Get(i, 0, &temp_buf)) {
+							SLCHECK_NZ(fileExists(temp_buf));
+							SLCHECK_NZ(SFile::Remove(temp_buf));
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCH
+		CurrentStatus = 0;
+	ENDCATCH
 	return CurrentStatus;
 }

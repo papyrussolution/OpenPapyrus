@@ -1022,7 +1022,8 @@ int ConfigBackupDialog::editEntry(int isNewEntry, PPBackupScen * pEntry)
 {
 	int    ok = -1;
 	int    valid_data = 0;
-	SString cc, temp_buf;
+	SString cc;
+	SString temp_buf;
 	TDialog * dlg = new TDialog(DLG_BUCFG_EDIT);
 	PPBackupScen entry = *pEntry;
 	THROW(CheckDialogPtr(&dlg));

@@ -279,7 +279,7 @@ long PPSync::AddRecord(long type, long appID, const char * pName,
 	int    r = GetFreeEntry(&offs, &rec_id);
 	if(r < 0)
 		is_new_rec = 1;
-	MEMSZERO(rec);
+	// @v12.6.6 @ctr MEMSZERO(rec);
 	rec.ID      = rec_id;
 	rec.Type    = type;
 	rec.UserID  = appID;

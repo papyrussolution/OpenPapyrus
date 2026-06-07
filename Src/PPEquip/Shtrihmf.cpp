@@ -1,5 +1,5 @@
 // SHTRIHMF.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Starodub 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Интерфейс (асинхронный) к драйверу "Штрих-М-ФР-К"
 //
@@ -659,7 +659,7 @@ int ACS_SHTRIHMFRK::ImportFiles()
 					if(files_count > 29)
 						SFile::Remove(firstf_path);
 				}
-                MakeTempFileName(temp_dir.SetLastSlash(), p_prefix, "txt", 0, temp_path);
+                MakeTempFileName(temp_dir.SetLastSlash(), p_prefix, "txt", temp_path);
 				SCopyFile(path, temp_path, 0, 0, 0);
 			}
 		}

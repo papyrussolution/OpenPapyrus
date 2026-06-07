@@ -83,9 +83,9 @@ PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempReport);
 		static_cast<PPViewReport *>(p_prev_win->P_View)->SaveChanges(0);
 	else
 		SaveChanges(1);
-	SCopyFile(PPGetFilePathS(PPPATH_BIN, PPFILNAM_STDRPT_INI, fname), PPMakeTempFileName("stdrpt", "ini", 0, temp_fname), 0, 0, 0);
+	SCopyFile(PPGetFilePathS(PPPATH_BIN, PPFILNAM_STDRPT_INI, fname), PPMakeTempFileName("stdrpt", "ini", temp_fname), 0, 0, 0);
 	THROW_MEM(P_StdRptFile = new PPIniFile(temp_fname, 0, 0, 1));
-	SCopyFile(PPGetFilePathS(PPPATH_BIN, PPFILNAM_REPORT_INI, fname), PPMakeTempFileName("rpt", "ini", 0, temp_fname), 0, 0, 0);
+	SCopyFile(PPGetFilePathS(PPPATH_BIN, PPFILNAM_REPORT_INI, fname), PPMakeTempFileName("rpt", "ini", temp_fname), 0, 0, 0);
 	THROW_MEM(P_RptFile = new PPIniFile(temp_fname, 0, 0, 1));
 	THROW(P_StdRptFile->IsValid() && P_RptFile->IsValid());
 	{

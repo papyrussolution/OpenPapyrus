@@ -1234,9 +1234,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 						rResult.Cat((long)BIN(p_ccp->Rec.Flags & CCHKF_RETURN));
 					}
 					else if(Src == srcGoodsBill) {
-						long is_ret = 0;
-						if(GetOpType(p_bp->Rec.OpID) == PPOPT_GOODSRETURN)
-							is_ret = 1;
+						const  long is_ret = BIN(GetOpType(p_bp->Rec.OpID) == PPOPT_GOODSRETURN);
 						rResult.Cat(is_ret);
 					}
 					else
@@ -1778,7 +1776,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 							bip.Std = BARCSTD_QR;
 							bip.Code = temp_buf;
 							bip.OutputFormat = SFileFormat::Png;
-							PPMakeTempFileName("fccqr", "png", 0, bip.OutputFileName);
+							PPMakeTempFileName("fccqr", "png", bip.OutputFileName);
 							if(PPBarcode::CreateImage(bip)) {
 								SLS.RegisterTempFileName(bip.OutputFileName);
 								STRNSCPY(r_pb.Path, bip.OutputFileName);

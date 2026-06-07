@@ -187,19 +187,19 @@ struct CheckStruct {
 	int    Ptt;          // CCheckPacket::PaymentTermTag
 	int    Stt;          // @erik v10.4.12
 	int    UomId;        // @v11.9.5 Ид единицы измерения (SUOM_XXX)
-	int    UomFragm;     // @v11.2.5 Фрагментация единицы измерения //
+	int    UomFragm;     // Фрагментация единицы измерения //
 	int    ChZnProdType; //
 	double PaymCash;
 	double PaymBank;
 	double PaymCCrdCard;
 	double IncassAmt;
-	int    ChZnPpResult; // @v11.1.11 Результат проверки марки честный знак на фазе препроцессинга
-	int    ChZnPpStatus; // @v11.1.11 Статус, присвоенный марке честный знак на фазе препроцессинга
+	int    ChZnPpResult; // Результат проверки марки честный знак на фазе препроцессинга
+	int    ChZnPpStatus; // Статус, присвоенный марке честный знак на фазе препроцессинга
 	S_GUID ChZnPm_ReqId;  // @v12.1.1 ответ разрешительного режима чзн: уникальный идентификатор запроса
 	int64  ChZnPm_ReqTimestamp; // @v12.1.1 ответ разрешительного режима чзн: дата и время формирования запроса
 	S_GUID ChZnPm_LocalModuleInstance; // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): идент локального модуля проверки
 	S_GUID ChZnPm_LocalModuleDbVer;    // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): версия базы «чёрного списка», на которой выполнялась проверка КИ
-	LDATETIME Timestamp; // @v11.2.3 Дата и время чека
+	LDATETIME Timestamp; // Дата и время чека
 	SString Text;
 	SString Code;        //
 	SString ChZnCode;    //
@@ -208,8 +208,8 @@ struct CheckStruct {
 	SString ChZnPartN;   //
 	SString ChZnSid;     // Ид предприятия для передачи в честный знак
 	SString DraftBeerSimplifiedCode; // @v11.9.4 Код для упрощенного списания chzn-марки разливного пива для horeca
-	SString BuyersEmail; // @v11.3.6
-	SString BuyersPhone; // @v11.3.6
+	SString BuyersEmail;
+	SString BuyersPhone;
 	LDATE  PrescrDate;    // @v11.8.0 Рецепт: Дата  //
 	SString PrescrSerial; // @v11.8.0 Рецепт: Серия //
 	SString PrescrNumber; // @v11.8.0 Рецепт: Номер //

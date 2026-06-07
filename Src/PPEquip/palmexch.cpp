@@ -1454,7 +1454,7 @@ int SpiiExchange(PalmTcpExchange * pTcpExch, PROGRESSFN pFn, CSyncProperties * p
 		temp_path = root_path;
 		if(pTcpExch) {
 			temp_path.Cat("temp").SetLastSlash();
-			MakeTempFileName(temp_path, 0, 0, 0, temp_fname);
+			MakeTempFileName(temp_path, 0, 0, temp_fname);
 			(temp_path = temp_fname).TrimRightChr('.').SetLastSlash();
 			SFile::CreateDir((exp_path = temp_path).Cat("IN"));
 			SFile::CreateDir((imp_path = temp_path).Cat("OUT"));

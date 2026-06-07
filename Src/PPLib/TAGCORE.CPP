@@ -658,7 +658,7 @@ int ObjTagItem::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 #endif // } 0 @construction
 	}
 	else if(oneof2(TagDataType, OTTYP_STRING, OTTYP_GUID)) {
-		SString & r_temp_buf = SLS.AcquireRvlStr(); // @v10.1.0
+		SString & r_temp_buf = SLS.AcquireRvlStr();
 		if(dir > 0)
 			r_temp_buf = Val.PStr;
 		THROW_SL(pSCtx->Serialize(dir, r_temp_buf, rBuf));

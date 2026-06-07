@@ -37,7 +37,7 @@ PPObjGoods::ExportToGlbSvcItem::ExportToGlbSvcItem() : GoodsID(0), LocID(0), Cos
 /*static*/int PPObjGoods::DiagBarcode(const char * pBarcode, int * pDiag, int * pStd, SString * pNormalizedCode)
 {
 	int    ok = 0;
-	const  uint bclen = sstrlen(pBarcode);
+	const  uint bclen = sstrlen32(pBarcode);
 	uint   j;
 	int    cd = 0;
 	int    cdstd = 0;
@@ -701,60 +701,16 @@ int PPObjGoods::GetPacket(PPID id, PPGoodsPacket * pPack, long options)
 	return ok;
 }
 
-/*static*/int FASTCALL PPObjGoods::HasUndupNameSuffix(const SString & rBuf, uint * pPos)
-{
-	int    ok = 0;
-	size_t pos = rBuf.Len();
-	uint   nd = 0;
-	ASSIGN_PTR(pPos, 0);
-	if(pos) do {
-		const char c = rBuf.C(--pos);
-		if(c == '#') {
-			if(pos > 5 && nd > 0 && nd < 3) {
-				ASSIGN_PTR(pPos, pos);
-				ok = 1;
-			}
-		}
-		else if(isdec(c))
-			nd++;
-		else
-			break;
-	} while(!ok && pos);
-	return ok;
-}
-
-/*static*/int FASTCALL PPObjGoods::RemoveUndupNameSuffix(SString & rBuf)
-{
-	int    ok = -1;
-	size_t pos = rBuf.Len();
-	uint   nd = 0;
-	if(pos) do {
-		const char c = rBuf.C(--pos);
-		if(c == '#') {
-			if(pos > 5 && nd > 0 && nd < 3) {
-				rBuf.Trim(pos-1).Strip();
-				ok = 1;
-			}
-		}
-		else if(isdec(c)) {
-			nd++;
-		}
-		else
-			break;
-	} while(ok < 0 && pos);
-	return ok;
-}
-
 int PPObjGoods::ForceUndupName(PPID id, SString & rBuf)
 {
 	int    ok = -1;
 	const  size_t max_nm_len = sizeof(((Goods2Tbl::Rec*)0)->Name)-1;
-	SString new_name = rBuf;
-	SString suffix, temp_buf;
+	SString suffix;
 	Goods2Tbl::Rec ex_goods_rec;
 	PPID   temp_nm_goods_id = 0;
 	long   uc = 1;
-	temp_buf = rBuf;
+	SString new_name(rBuf);
+	SString temp_buf(rBuf);
 	while(SearchByName(temp_buf, &temp_nm_goods_id, &ex_goods_rec) > 0 && temp_nm_goods_id != id) {
 		if(temp_buf.CmpNC(ex_goods_rec.Name) != 0) {
 			// PPERR_FALSEGOODSNAMDUPDET        "Сбойная ситуация: ложная идентификация дублирования наименования товара '%s'"
@@ -763,6 +719,7 @@ int PPObjGoods::ForceUndupName(PPID id, SString & rBuf)
 			break;
 		}
 		else {
+			/* @v12.6.6
 			if(uc == 1)
 				RemoveUndupNameSuffix(new_name);
 			suffix.Z().Space().CatChar('#').Cat(++uc);
@@ -771,6 +728,8 @@ int PPObjGoods::ForceUndupName(PPID id, SString & rBuf)
 			if(sum_len > max_nm_len)
 				temp_buf.Trim(max_nm_len-suffix.Len());
 			temp_buf.Cat(suffix);
+			*/
+			PPObject::Helper_MakeUndupName(new_name, max_nm_len, uc, temp_buf); // @v12.6.6
 			ok = 1;
 		}
 	}
@@ -2867,11 +2826,12 @@ int PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFlags)
 			BarcodeArray bc_list;
 			ReadBarcodes(id, bc_list);
 			if(bc_list.getCount()) {
-				for(uint i = 0; ok < 0 && i < bc_list.getCount(); i++)
-					if(len_list.bsearch(sstrlen(bc_list.at(i).Code)))
+				for(uint i = 0; ok < 0 && i < bc_list.getCount(); i++) {
+					if(len_list.bsearch(sstrleni(bc_list.at(i).Code)))
 						ok = 1;
+				}
 			}
-			else if(len_list.bsearch(0))
+			else if(len_list.bsearch(0L))
 				ok = 1;
 			if(ok < 0)
 				CFF_RET;
@@ -3780,11 +3740,7 @@ int PPObjGoods::Helper_Edit(PPID * pID, PPGoodsPacket * pPack, GoodsPacketKind g
 	if(use_std_dialog) {
 		uint   dlg_id = 0;
 		switch(gpk) {
-			case gpkndGoods:
-				dlg_id = DLG_GOODS;
-				if(IsAssetType(pPack->Rec.GoodsTypeID))
-					dlg_id = DLG_ASSET;
-				break;
+			case gpkndGoods:         dlg_id = IsAssetType(pPack->Rec.GoodsTypeID) ? DLG_ASSET : DLG_GOODS; break;
 			case gpkndOrdinaryGroup: dlg_id = DLG_GOODSGROUP; break;
 			case gpkndFolderGroup:   dlg_id = DLG_GGRPFOLD;   break;
 			case gpkndAltGroup:      dlg_id = DLG_GGRPALT;    break;
@@ -3892,12 +3848,10 @@ int PPObjGoods::AddBySample(PPID * pID, PPID sampleID)
 	THROW(GetPacket(sampleID, &pack, 0) > 0);
 	gpk = pack.GetPacketKind();
 	pack.Rec.ID = 0;
-	// @v10.1.10 @fix Удаление идентифицирующих зарезервированных тегов {
-	{
+	{ // Удаление идентифицирующих зарезервированных тегов
 		pack.TagL.PutItem(PPTAG_GOODS_UUID, 0);
 		pack.TagL.PutItem(PPTAG_GOODS_OUTERPOSCODE, 0);
 	}
-	// } @v10.1.10
 	if(!(pack.GS.Rec.Flags & GSF_NAMED)) {
 		pack.Rec.StrucID = 0;
 		pack.GS.Rec.ID = 0;

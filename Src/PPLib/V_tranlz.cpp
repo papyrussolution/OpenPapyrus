@@ -3927,7 +3927,7 @@ IMPL_HANDLE_EVENT(TrfrAnlzGrpngDialog)
 			PPError();
 	}
 	else if(event.isClusterClk(CTL_TAGRPNG_DIFFDLVRADDR)) {
-		GetClusterData(CTL_TAGRPNG_DIFFDLVRADDR, &Data.Flags); // @v11.1.0
+		GetClusterData(CTL_TAGRPNG_DIFFDLVRADDR, &Data.Flags);
 		disableCtrls(getCtrlUInt16(CTL_TAGRPNG_DIFFDLVRADDR), CTLSEL_TAGRPNG_CNTRAGENT, CTL_TAGRPNG_SUBSTRADDR, 0);
 		SetupExtFactorCombo(true);
 	}
@@ -5103,7 +5103,9 @@ int PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const ObjTagL
 	rItem.Z();
 	int    ok = 1;
 	Reference * p_ref(PPRef);
-	SString fmt_buf, msg_buf, temp_buf;
+	SString fmt_buf;
+	SString msg_buf;
+	SString temp_buf;
 	GoodsExtTbl::Rec goods_ext_rec;
 	Goods2Tbl::Rec goods_rec;
 	ObjTagItem tag_item;

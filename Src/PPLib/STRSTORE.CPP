@@ -1325,7 +1325,8 @@ int StringStore2::Compile(const char * pFileName, long flags, const char * pTran
 	SString intr_at_text;
 	HashBlock actual_hash_block; // @v12.3.4
 	SFsPath ps;
-	PPAutoTranslSvc_Microsoft * p_at = 0;
+	// @v12.6.6 PPAutoTranslSvc_Microsoft * p_at = 0;
+	PPAutoTranslSvcBase * p_at = 0; //new PPAutoTranslSvc_Google(); // @v12.6.6
 	int    at_auth_error = 0;
 	LAssocArray is_unmodif_list; // Key - lang_id; Val - is-unmodified tag
 	bool   is_unmodif_base = false;
@@ -1481,9 +1482,28 @@ int StringStore2::Compile(const char * pFileName, long flags, const char * pTran
 										auto_transl_string = org_text;
 #else
 										if(!p_at && !at_auth_error) {
-											p_at = new PPAutoTranslSvc_Microsoft;
+											// @v12.6.6 p_at = new PPAutoTranslSvc_Microsoft;
+											p_at = new PPAutoTranslSvc_Google(); // @v12.6.6
 											if(p_at) {
-												if(!Helper_PPAutoTranslSvc_Microsoft_Auth(*p_at)) {
+												// @v12.6.6 if(!Helper_PPAutoTranslSvc_Microsoft_Auth(*p_at)) {
+												// @v12.6.6 {
+												bool   local_fault = false;
+												PPAutoTranslSvcBase::AuthBlock ablk;
+												{
+													SString key_buf;
+													PPVersionInfo vi = DS.GetVersionInfo();
+													vi.GetTextAttrib(vi.taiMsftTranslAcc, key_buf);
+													if(!key_buf.NotEmptyS()) {
+														PPSetError(PPERR_MSFTTRANSLKEY_INV);
+														local_fault = true;
+													}
+													else if(key_buf.Divide(':', ablk.Ident, ablk.Secret) <= 0) {
+														PPSetError(PPERR_MSFTTRANSLKEY_INV);
+														local_fault = true;
+													}
+												}
+												// } @v12.6.6 
+												if(local_fault || !p_at->DoAuth(ablk)) {
 													ZDELETE(p_at);
 													at_auth_error = 1;
 												}
@@ -1619,7 +1639,7 @@ int StringStore2::Compile(const char * pFileName, long flags, const char * pTran
 					actual_hash_block.CopyJavaHash(P_Pb->Saved_HashBlk);
 				}
 				else {
-					THROW(GenerateJavaFile(org_file_blk.MakeJavaFilePath(out_file_name, 0).ToLower(), pFileName)); // @v11.1.5
+					THROW(GenerateJavaFile(org_file_blk.MakeJavaFilePath(out_file_name, 0).ToLower(), pFileName));
 					actual_hash_block.MakeJavaHash(out_file_name);
 				}
 				//
@@ -1657,14 +1677,12 @@ int StringStore2::Compile(const char * pFileName, long flags, const char * pTran
 			}
 		}
 	}
-	// @v11.1.11 {
 	{
 		//const  uint64 _ptend = prfl.GetAbsTimeMicroseconds();
-		const  int64 _clk_end = clock(); // @v11.1.11
+		const  int64 _clk_end = clock();
 		temp_buf.Z().Cat("Execution time").CatDiv(':', 2).Cat(_clk_end-_clk_start).Cat("ms").CR();
 		puts(temp_buf);
 	}
-	// } @v11.1.11
 	CATCH
 		ok = Error(ErrCode, 0);
 	ENDCATCH

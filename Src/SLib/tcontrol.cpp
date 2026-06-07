@@ -1097,9 +1097,9 @@ int TInputLine::OnPaste()
 		if(::OpenClipboard(0)) {
 			HANDLE h_cb = ::GetClipboardData(CF_TEXT);
 			if(h_cb) {
-				LPTSTR p_str = static_cast<LPTSTR>(::GlobalLock(h_cb));
+				wchar_t * p_str = static_cast<wchar_t *>(::GlobalLock(h_cb));
 				if(p_str) {
-					(symb = SUcSwitch(p_str)).Transf(CTRANSF_OUTER_TO_INNER);
+					(symb = SUcSwitchW(p_str)).Transf(CTRANSF_OUTER_TO_INNER);
 					::GlobalUnlock(h_cb);
 				}
 			}
@@ -1375,7 +1375,12 @@ void TInputLine::disableDeleteSelection(int _disable)
 
 void TInputLine::Implement_Draw()
 {
-	TView::SSetWindowText(GetDlgItem(Parent, Id), SString(Data).Transf(CTRANSF_INNER_TO_OUTER));
+	if(Data.IsLegalUtf8()) { // @v12.6.6
+		TView::SSetWindowTextUtf8(GetDlgItem(Parent, Id), Data);
+	}
+	else {
+		TView::SSetWindowText(GetDlgItem(Parent, Id), SString(Data).Transf(CTRANSF_INNER_TO_OUTER));
+	}
 	if(IsInState(sfSelected))
 		::SendDlgItemMessageW(Parent, Id, EM_SETSEL, (InlSt & stDisableDelSel) ? -1 : 0, -1);
 	if(InlSt & stDisableDelSel)

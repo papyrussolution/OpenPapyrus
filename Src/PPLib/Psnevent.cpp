@@ -258,12 +258,12 @@ const char * PPObjPersonEvent::GetNamePtr()
 			CatObjectName(PPOBJ_PERSON, r_rec.SecondID, NameBuf);
 		}
 		{
-			SString & r_temp_buf = SLS.AcquireRvlStr(); // @v11.4.6 @fix (SString r_temp_buf)-->SString & r_temp_buf
+			SString & r_temp_buf = SLS.AcquireRvlStr();
 			P_Tbl->GetItemMemo(r_rec.ID, r_temp_buf);
 			if(r_temp_buf.NotEmptyS())
 				NameBuf.CatDiv('-', 1).Cat(r_temp_buf);
 		}
-		NameBuf.Trim(127); // @v11.1.12 (63)-->(127)
+		NameBuf.Trim(127);
 	}
 	return NameBuf;
 }

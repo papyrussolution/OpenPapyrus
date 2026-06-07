@@ -293,12 +293,12 @@ Generator_GnuPlot::Generator_GnuPlot(const char * pFileName) : SFile()
 	SString dir, file_name;
 	PPGetPath(PPPATH_TEMP, dir);
 	if(pFileName == 0) {
-		MakeTempFileName(dir, "GP", "PLT", 0, file_name);
+		MakeTempFileName(dir, "GP", "PLT", file_name);
 		pFileName = file_name;
 	}
 	Open(pFileName, SFile::mWrite);
 	{
-		MakeTempFileName(dir, "GP", "DAT", 0, file_name);
+		MakeTempFileName(dir, "GP", "DAT", file_name);
 		DataFileName = file_name;
 	}
 }

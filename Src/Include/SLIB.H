@@ -988,6 +988,8 @@ typedef int32               TYPEID;
 #define SLERR_CRYPTO_INVKEYSIZE                653  // @v11.0.11 Ошибка SLCRYPTO - недопустимая длина ключа шифрования
 #define SLERR_CRYPTO_INVIVSIZE                 654  // @v11.0.11 Ошибка SLCRYPTO - недопустимая длина IV
 #define SLERR_CRYPTO_OPENSSL                   655  // @v11.0.11 Ошибка OpenSSL
+#define SLERR_CRYPTO_UNSUPPORTEDKDF            656  // @v12.6.6 Ошибка SLCRYPTO - неподдерживаемая KDF
+#define SLERR_CRYPTO_KDF_FAULT                 657  // @v12.6.6 Ошибка SLCRYPTO - сбой генерации порожденного ключа
 // Коды с префиксом SLERR_AMQP_ являются трансляцией кодов состояний библиотеки rabbitmq-c
 #define SLERR_AMQP_UNKN                        700 // Неизвестный AMQP-статус
 #define SLERR_AMQP_BAD_AMQP_DATA               701
@@ -1473,6 +1475,7 @@ public:
 	static constexpr uint32 SBinarySetSignature  = 0x5E4F7D1AU; // @v12.6.2  Сигнатура заголовка SBinarySet. Дублируется в Stylo-Q (SecretTagPool::MAGIC)
 	static constexpr uint32 SBSCryptoSignature   = 0x5F7224F2U; // @v12.6.3 Сигнатура отрезка данных SBinarySet, означающая, что данные в отрезке зашифрованы
 	static constexpr uint32 SlCryptoKeySignature = 0x3DCAD56BU; // @v12.6.3 Сигнатура класса SlCrypto::Key
+	static constexpr uint32 SlCryptoKvbSignature = 0x2F28EDAFU; // @v12.6.6 Сигнатура класса SlCrypto::KeyVerificationBlock
 };
 // @v11.7.4 extern const SlConstParam _SlConst_Removed;
 //
@@ -1509,7 +1512,7 @@ public:
 	static const uint32 Blake2sIV[8]; // @v12.6.5
 };
 //
-template <class T> T * AssignPtr2Ptr(T *& prDest, const T * pSrc) // @v11.4.12
+template <class T> T * AssignPtr2Ptr(T *& prDest, const T * pSrc)
 {
 	if(pSrc) {
 		if(prDest)
@@ -3248,6 +3251,9 @@ struct SUniTime_Internal : public SUniDate_Internal { // @internal
 	explicit SUniTime_Internal(LDATE);
 	explicit SUniTime_Internal(LTIME);
 	explicit SUniTime_Internal(LDATETIME);
+#if defined(__WIN32__)
+	explicit SUniTime_Internal(const SYSTEMTIME & rS);
+#endif
 	SUniTime_Internal(SCtrGenerate); // for-testing-only
 	SUniTime_Internal & Z();
 	bool   IsValid() const;
@@ -3288,7 +3294,7 @@ struct SUniTime_Internal : public SUniDate_Internal { // @internal
 	uint   Mn;
 	uint   Sc;
 	uint   MSc;   // milliseconds
-	uint   Weekday;
+	uint   Weekday; // 0 - Sunday, 1 - Monday, 2 - Tuesday, 3 - Wednesday, 4 - Thursday, 5 - Friday, 6 - Saturday
 	int    TimeZoneSc; // Зональное смещение времени относительно GMT в секундах (-12*3600..+14*3600)
 		// Если TimeZoneSc == Undef_TimeZone, то временная зона не определена - то есть время задано
 		// в предположении, что локаль известна из контекста либо не имеет значения.
@@ -5817,8 +5823,8 @@ SString & STDCALL SGetMonthText(int mon, long fmt, SString & rBuf);
 //
 // Current date getting
 //
-int    FASTCALL getcurdate(LDATE *);
-int    FASTCALL getcurtime(LTIME *);
+bool   FASTCALL getcurdate(LDATE *);
+bool   FASTCALL getcurtime(LTIME *);
 //
 // Descr: Возвращает текущую системную дату
 //
@@ -5827,8 +5833,9 @@ LDATE  getcurdate_();
 // Descr: Возвращает текущее системное время //
 //
 LTIME  getcurtime_();
-int    FASTCALL getcurdatetime(LDATETIME *);
-int    FASTCALL getcurdatetime(LDATE * pDt, LTIME * pTm);
+bool   FASTCALL getcurdatetime(LDATETIME *);
+bool   FASTCALL getcurdatetime(LDATE * pDt, LTIME * pTm);
+//uint64 FASTCALL GetCurDateTimeUed(); // @v12.6.6
 LDATETIME FASTCALL getcurdatetime_();
 int    setcurdatetime(LDATETIME dtm);
 int    gettimezone();
@@ -6163,6 +6170,7 @@ struct SCompoundError {
 	IntRange ItemR;  // Целочисленный диапазонный локатор ошибки (например, первый и последний символ подстроки, где находится проблема синтаксического разбора)
 	int32  Code;     // Целочисленный код ошибки.
 	SString Descr;   // Строковое описание ошибки. Кодировка текста полностью определяется контекстом.
+	SString AddedText; // @v12.6.6 Serialize пока не используется, потому номер версии структуры не меняем.
 };
 //
 // Descr: Универсальный итератор.
@@ -6265,7 +6273,12 @@ int    FASTCALL createEmptyFile(const char * pFileName);
 char * MakeTempFileName(const char * pDir, const char * pPrefix,
 	const char * pExt, long * pStart, char * pFileNameBuf, size_t fileNameBufLen); // @obsolete
 */
-SString & STDCALL MakeTempFileName(const char * pDir, const char * pPrefix, const char * pExt, long * pStart, SString & rBuf);
+SString & STDCALL MakeTempFileName(const char * pDir, const char * pPrefix, const char * pExt, /*long * pStart,*/SString & rBuf);
+//
+// Descr: Вспомогательная функция, создающая шаблон временного файла по тем же правилам, по которым
+//   функция MakeTempFileName() создает уникальное имя временного файла
+//
+SString & STDCALL MakeTempFileName_Wildcard(const char * pDir, const char * pPrefix, const char * pExt, SString & rBuf);
 //
 // Descr: Searches a binary file for a string.
 //   @>>SearchStrInFile(Filename, startoffset, string, ignoreCase);
@@ -10426,13 +10439,13 @@ public:
 		uint32 AadSize;
 		uint32 TagSize; // @v12.6.3
 	};
-	struct Argon2Param { // @v12.6.2
-		Argon2Param() : MemCost(0), TimeCost(0), Parallelism(0)
-		{
-		}
+	struct KdfParam { // @v12.6.2 @persistent @construction
+		KdfParam();
+		uint64 UedKdf;      // UED-идентификатор алгоритма 
 		uint32 MemCost;
 		uint32 TimeCost;
 		uint32 Parallelism;
+		uint8  Reserve[32];
 	};
 	class Key {
 	public:
@@ -10454,20 +10467,24 @@ public:
 		uint32 EndP;     // Смещение доступного пространства
 		uint8  Bin[512]; // @v12.6.2 [256]-->[512]
 	};
-	struct KeyVerificationBlock { // @v12.6.5 @construction
+	struct KeyVerificationBlock { // @v12.6.5 @persistent @construction
 		KeyVerificationBlock();
+		~KeyVerificationBlock();
 		uint32 Signature;
-		uint32 KDF_Type;
-		uint8  KDF_Param[32];
-		binary256 Salt;
+		uint64 UedSymmCipher;
+		KdfParam KdfP;
+		uint32 SaltSize;
 		uint32 VBSize;
+		uint8  Salt[32];
 		uint8  VB[128];
 	};
 	//
-	static int   MakeKey_Derived_Argon2(SlCrypto::Key & rK, const void * pData, size_t size, size_t destKeySize, const void * pSalt, size_t saltSize, const Argon2Param & rParam); // @v12.6.4
+	static int   MakeDerivedKey(const KdfParam & rParam, SlCrypto::Key & rK, const void * pData, size_t size, size_t destKeySize, const void * pSalt, size_t saltSize); // @v12.6.4
 	//
-	static int   MakeKeyVerificationBlock(uint64 uedSymmCipher, const void * pKey, size_t keyLen, KeyVerificationBlock & rBlk);
-	static int   VerifyKey(uint64 uedSymmCipher, const void * pKey, size_t keyLen, KeyVerificationBlock & rBlk);
+	// ARG(rBlk IN/OUT) - блок верификации. До вызова функции в блоке обязательно должен быть установлен корректный UedSymmCipher.
+	//
+	static int   MakeKeyVerificationBlock(KeyVerificationBlock & rBlk, const void * pKey, size_t keyLen);
+	static int   VerifyKey(KeyVerificationBlock & rBlk, const void * pKey, size_t keyLen);
 	//
 	// 
 	// 
@@ -10495,7 +10512,6 @@ public:
 	int    SetupKey(SlCrypto::Key & rK, const void * pKey, size_t keyByteLen);
 	int    SetupKey(SlCrypto::Key & rK, const char * pPassword);
 
-	int    SetKey_Derived_Argon2(SlCrypto::Key & rK, const void * pData, size_t size, const void * pSalt, size_t saltSize, const Argon2Param & rParam); // @v12.6.3
 	int    SetKey_IV(SlCrypto::Key & rK, const void * pData, size_t size); // @v12.6.3
 	int    SetKey_AAD(SlCrypto::Key & rK, const void * pData, size_t size); // @v12.6.3
 
@@ -10505,7 +10521,7 @@ public:
 	//
 	// Note: параметр pTag - фактически константный, однако из-за обращения к интерфейсной функции пришлось сделать ее non-const.
 	//
-	int    Decrypt(const SlCrypto::Key & rKey, const void * pData, size_t dataLen, SBinaryChunk & rResult, SBinaryChunk * pTag);
+	int    Decrypt(const SlCrypto::Key & rKey, const void * pData, size_t dataLen, SBinaryChunk & rResult, const SBinaryChunk * pTag);
 private:
 	int    Helper_Construct(int alg, uint kbl, int algModif, uint tagSize);
 
@@ -10643,16 +10659,6 @@ public:
 //
 #pragma pack(push, 1) // @v12.6.2
 class SBinarySet : private SBaseBuffer {
-	/* @v12.6.5 не актуально
-	static constexpr uint32 MetaDataChunkID = 0x7A000000U;
-
-	struct MetaData { // @v12.6.3
-		MetaData() : Ver(0)
-		{
-		}
-		uint32 Ver;
-		binary128 PwHashSalt;
-	};*/
 public:
 	//
 	// Descr: Структура заголовка защищенного отрезка.
@@ -10713,7 +10719,7 @@ public:
 	struct CryptoStrategy {
 		CryptoStrategy();
 		uint64 UedSymmCipher;
-		//SlCrypto::Argon2Param ArgonP;
+		//SlCrypto::KdfParam ArgonP;
 		DeflateStrategy DS;
 		//SString MasterPassword;
 	};
@@ -10880,6 +10886,8 @@ public:
 	};
 
 	SVaultPool();
+	int    SetupPrimaryPassword(const char * pPw, size_t pwLen);
+	int    CheckInPrimaryPassword(const char * pPw, size_t pwLen);
 private:
 	//
 	// Так как по значениям идентификаторов внутри хранилища (InternalId) есть ограничения, то вводим две
@@ -13969,7 +13977,6 @@ public:
     int    AddEntry(const char * pSrcFileName, const char * pName, int flags);
     int    AddEntries(const char * pMask, int flags);
 private:
-#if 1 // @construction {
 	struct LaCbBlock {
 		LaCbBlock(SArchive * pMaster, size_t bufSize);
 		SArchive * P_Master;
@@ -13982,7 +13989,6 @@ private:
 	static int     cdecl LaCbOpen(Archive * pA, void * pClientData);
 	static int     cdecl LaCbClose(Archive * pA, void * pClientData);
 	//archive_seek_callback
-#endif // } 0 @construction
 	struct EntryBlock {
 		static constexpr uint MagicValue = 0x57BE8004U;
 

@@ -4,6 +4,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
+#include <strstore.h>
 
 int SelfbuildStaffForManual_ReservedObjTagList();
 int SelfbuildStaffForManual_UserProfileFuncList();
@@ -952,25 +953,109 @@ int PrcssrSourceCodeMaintaining::InitParam(PPBaseFilt * pFilt)
 
 int PrcssrSourceCodeMaintaining::EditParam(PPBaseFilt * pBaseFilt)
 {
+	class SrcCMParamDialog : public TDialog {
+		DECL_DIALOG_DATA(PrcssrSourceCodeMaintainingFilt);
+	public:
+		SrcCMParamDialog() : TDialog(DLG_PRCRSRCC)
+		{
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			int    ok = 1;
+			RVALUEPTR(Data, pData);
+			AddClusterAssoc(CTL_PRCRSRCC_FLAGS, 0, PrcssrSourceCodeMaintainingFilt::fParseWinRcForNativeText);
+			AddClusterAssoc(CTL_PRCRSRCC_FLAGS, 1, PrcssrSourceCodeMaintainingFilt::fFindSourceCodeWithNotUtf8Encoding);
+			AddClusterAssoc(CTL_PRCRSRCC_FLAGS, 2, PrcssrSourceCodeMaintainingFilt::fVerifySourceCodeByPatterns); // @v12.3.2
+			AddClusterAssoc(CTL_PRCRSRCC_FLAGS, 3, PrcssrSourceCodeMaintainingFilt::fAutotranslateStrings); // @v12.6.6
+			SetClusterData(CTL_PRCRSRCC_FLAGS, Data.Flags);
+			SetupCtrls();
+			return ok;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			GetClusterData(CTL_PRCRSRCC_FLAGS, &Data.Flags);
+			Data.AtToLangUedId32 = static_cast<uint32>(getCtrlLong(CTLSEL_PRCRSRCC_TOLANG));
+			ASSIGN_PTR(pData, Data);
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isClusterClk(CTL_PRCRSRCC_FLAGS)) {
+				SetupCtrls();
+			}
+			else
+				return;
+			clearEvent(event);
+		}
+		void   SetupCtrls()
+		{
+			GetClusterData(CTL_PRCRSRCC_FLAGS, &Data.Flags);
+			disableCtrl(CTLSEL_PRCRSRCC_TOLANG, !(Data.Flags & PrcssrSourceCodeMaintainingFilt::fAutotranslateStrings));
+			if(Data.Flags & PrcssrSourceCodeMaintainingFilt::fAutotranslateStrings) {
+				SetupLangCombo();
+			}
+		}
+		void   SetupLangCombo()
+		{
+			TView * p_view = getCtrlView(CTLSEL_PRCRSRCC_TOLANG);
+			if(TView::IsSubSign(p_view, TV_SUBSIGN_COMBOBOX)) {
+				ComboBox * p_cb = static_cast<ComboBox *>(p_view);
+				if(!p_cb->GetSettledTag()) {
+					const uint64 lang_ued_list[] = {
+						UED_LINGUA_EN,
+						UED_LINGUA_DE,
+						UED_LINGUA_NL,
+						UED_LINGUA_ES,
+						UED_LINGUA_PT,
+					};
+					SString temp_buf;
+					StrAssocArray lang_list;
+					const SrUedContainer_Rt * p_uedc = DS.GetUedContainer();
+					if(p_uedc) {
+						for(uint i = 0; i < SIZEOFARRAY(lang_ued_list); i++) {
+							const uint64 lang_ued = lang_ued_list[i];
+							if(lang_ued && p_uedc->GetText(lang_ued, UED_LINGUALOCUS_RU, temp_buf)) {
+								lang_list.AddFast(UED::GetRawValue32(lang_ued), temp_buf);
+							}
+						}
+						SetupStrAssocCombo(this, CTLSEL_PRCRSRCC_TOLANG, lang_list, Data.AtToLangUedId32, lbtTextUtf8);
+					}
+					p_cb->SetSettledTag(true);
+				}
+			}
+		}
+	};
 	int    ok = -1;
-	TDialog * dlg = new TDialog(DLG_PRCRSRCC);
+	// @v12.6.6 TDialog * dlg = new TDialog(DLG_PRCRSRCC);
 	THROW(P.IsA(pBaseFilt));
-	THROW(CheckDialogPtr(&dlg));
+	// @v12.6.6 THROW(CheckDialogPtr(&dlg));
 	{
 		PrcssrSourceCodeMaintainingFilt param;
 		param = *static_cast<const PrcssrSourceCodeMaintainingFilt *>(pBaseFilt);
+		// @v12.6.6 {
+		if(PPDialogProcBody <SrcCMParamDialog, PrcssrSourceCodeMaintainingFilt>(&param) > 0) {
+			*static_cast<PrcssrSourceCodeMaintainingFilt *>(pBaseFilt) = param;
+			ok = 1;
+		}
+		// } @v12.6.6 
+		/* @v12.6.6
 		dlg->AddClusterAssoc(CTL_PRCRSRCC_FLAGS, 0, PrcssrSourceCodeMaintainingFilt::fParseWinRcForNativeText);
 		dlg->AddClusterAssoc(CTL_PRCRSRCC_FLAGS, 1, PrcssrSourceCodeMaintainingFilt::fFindSourceCodeWithNotUtf8Encoding);
 		dlg->AddClusterAssoc(CTL_PRCRSRCC_FLAGS, 2, PrcssrSourceCodeMaintainingFilt::fVerifySourceCodeByPatterns); // @v12.3.2
+		dlg->AddClusterAssoc(CTL_PRCRSRCC_FLAGS, 3, PrcssrSourceCodeMaintainingFilt::fAutotranslateStrings); // @v12.6.6
 		dlg->SetClusterData(CTL_PRCRSRCC_FLAGS, param.Flags);
 		while(ok <= 0 && ExecView(dlg) == cmOK) {
 			dlg->GetClusterData(CTL_PRCRSRCC_FLAGS, &param.Flags);
 			*static_cast<PrcssrSourceCodeMaintainingFilt *>(pBaseFilt) = param;
 			ok = 1;
 		}
+		*/
 	}
 	CATCHZOKPPERR
-	delete dlg;
+	// @v12.6.6 delete dlg;
 	return ok;
 }
 
@@ -1024,6 +1109,25 @@ int PrcssrSourceCodeMaintaining::Run()
 				logger.Log(msg_buf);
 			if(!VerifyByPatterns(&logger))
 				PPError();
+		}
+		if(P.Flags & PrcssrSourceCodeMaintainingFilt::fAutotranslateStrings) { // @v12.6.6
+			if(P.AtToLangUedId32) {
+				SString src_file_path;
+				SString auto_transl_lang;
+				(src_file_path = SrcPath).SetLastSlash().Cat("rsrc").SetLastSlash().Cat("str").SetLastSlash().Cat("ppstr2.txt");
+				if(!fileExists(src_file_path)) {
+					; // @todo
+				}
+				const SrUedContainer_Rt * p_uedc = DS.GetUedContainer();
+				if(p_uedc && p_uedc->GetSymb(UED::ApplyMetaToRawValue32(UED_META_LINGUA, P.AtToLangUedId32), auto_transl_lang)) {
+					auto_transl_lang.Strip();
+					long   flags = StringStore2::cfTranslateOnly;
+					{
+						StringStore2 s;
+						s.Compile(src_file_path, flags, auto_transl_lang);
+					}
+				}
+			}
 		}
 	}
 	return ok;

@@ -1,5 +1,5 @@
 // SDATE.CPP
-// Copyright (C) Sobolev A. 1994, 1995, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (C) Sobolev A. 1994, 1995, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -990,9 +990,32 @@ int setcurdatetime(LDATETIME dtm)
 		return SLS.SetOsError(0, 0);
 }
 
-int FASTCALL getcurdatetime(LDATE * pDt, LTIME * pTm)
+/*uint64 FASTCALL GetCurDateTimeUed() // @v12.6.6
 {
-#if defined(__WIN32__) || defined(_WIN32_WCE)
+	uint64 result = 0ULL;
+	bool   ok = true;
+#if defined(__WIN32__)
+	SYSTEMTIME st;
+	::GetLocalTime(&st);
+	SUniTime_Internal inner(st);
+	result = UED::_SetRaw_Time(UED_META_TIME_MSEC, inner);
+	if(SlDebugMode::CT() && result) {
+		// Так как эта функция - продолжение робкого процесса внедрения UED в продакшн, 
+		// то из осторожности делаю здесь блок авто-тестирования (надо убрать к концу 2026 года, если доживу, конечно).
+		SUniTime_Internal inner_test;
+		const int tr = UED::_GetRaw_Time(result, inner_test);
+		assert(tr);
+		assert(inner_test.Cmp(inner) == 0);
+	}
+#else
+	//
+#endif
+	return ok;
+}*/
+
+bool FASTCALL getcurdatetime(LDATE * pDt, LTIME * pTm)
+{
+#if defined(__WIN32__)
 	SYSTEMTIME st;
 	::GetLocalTime(&st);
 	if(pDt) {
@@ -1019,7 +1042,7 @@ int FASTCALL getcurdatetime(LDATE * pDt, LTIME * pTm)
 		_tm[3] = t.ti_hour;
 	}
 #endif
-	return 1;
+	return true;
 }
 
 LDATE getcurdate_()
@@ -1036,9 +1059,9 @@ LTIME getcurtime_()
 	return tm;
 }
 
-int FASTCALL getcurdate(LDATE * dt) { return getcurdatetime(dt, 0); }
-int FASTCALL getcurtime(LTIME * tm) { return getcurdatetime(0, tm); }
-int FASTCALL getcurdatetime(LDATETIME * pTm) { return getcurdatetime(&pTm->d, &pTm->t); }
+bool FASTCALL getcurdate(LDATE * dt) { return getcurdatetime(dt, 0); }
+bool FASTCALL getcurtime(LTIME * tm) { return getcurdatetime(0, tm); }
+bool FASTCALL getcurdatetime(LDATETIME * pTm) { return getcurdatetime(&pTm->d, &pTm->t); }
 
 LDATETIME FASTCALL getcurdatetime_()
 {
@@ -2611,6 +2634,13 @@ SUniTime_Internal::SUniTime_Internal(LDATETIME dtm) : SUniDate_Internal(dtm.d), 
 {
 	SetTime(dtm.t);
 }
+
+#if defined(__WIN32__)
+SUniTime_Internal::SUniTime_Internal(const SYSTEMTIME & rS) : SUniDate_Internal(rS.wYear, rS.wMonth, rS.wDay), 
+	Hr(rS.wHour), Mn(rS.wMinute), Sc(rS.wSecond), MSc(rS.wMilliseconds), Weekday(rS.wDayOfWeek), TimeZoneSc(Undef_TimeZone)
+{
+}
+#endif
 
 SUniTime_Internal & SUniTime_Internal::Z()
 {

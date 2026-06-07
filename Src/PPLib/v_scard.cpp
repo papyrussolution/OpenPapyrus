@@ -1762,7 +1762,7 @@ DBQuery * PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 
 	uint   brw_id = BROWSER_SCARD;
 	SString sub_title;
-	PPSCardSeries ser_rec;
+	PPSCardSeries2 ser_rec;
 	DBQuery * q = 0;
 	DBQ  * dbq = 0;
 	DBE  * dbe_dis = 0;
@@ -1782,8 +1782,9 @@ DBQuery * PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				brw_id = BROWSER_SCARDCRD_TRNOVR;
 		}
 	}
-	else
+	else {
 		MEMSZERO(ser_rec);
+	}
 	if(Filt.PersonID)
 		CatObjectName(PPOBJ_PERSON, Filt.PersonID, sub_title);
 	if(/*Filt.SeriesID*/SeriesList.GetSingle())

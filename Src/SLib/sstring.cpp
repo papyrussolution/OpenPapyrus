@@ -1917,10 +1917,12 @@ SString & SString::ReplaceChar(int patternChr, int replaceChr)
 		}
 	}
 	*/
-	if(L > 1)
-		for(size_t i = 0; i < L-1; i++)
+	if(L > 1) {
+		for(size_t i = 0; i < L-1; i++) {
 			if(P_Buf[i] == patternChr)
 				P_Buf[i] = replaceChr;
+		}
+	}
 	return *this;
 }
 
@@ -2905,11 +2907,6 @@ SString & SString::TrimToDiv(size_t n, const char * pDivList)
 	return *this;
 }
 
-/*
-0123456789
-----------
-*/
-
 SString & SString::Excise(size_t start, size_t size)
 {
 	size_t len = Len();
@@ -2951,16 +2948,6 @@ uint SString::Helper_Chomp(bool single)
 SString & SString::Chomp()
 {
 	Helper_Chomp(true);
-	/*
-	const char _last = Last();
-	if(_last == '\x0A') {
-		TrimRight();
-		if(Last() == '\x0D')
-			TrimRight();
-	}
-	else if(_last == '\x0D')
-		TrimRight();
-	*/
 	return *this;
 }
 
@@ -2996,7 +2983,7 @@ SString & SString::Strip(int dir)
 
 SString & SString::Strip()
 {
-	if(L > 1) { // @v11.4.9
+	if(L > 1) {
 		while(Last() == ' ')
 			TrimRight();
 		if(L > 1) {
@@ -3011,12 +2998,13 @@ SString & SString::Strip()
 
 SString & SString::StripQuotes()
 {
-	Strip();
-	if(C(0) == '\"') {
-		ShiftLeft(1);
-		size_t pos;
-		if(SearchChar('\"', &pos))
-			Trim(pos);
+	if(NotEmptyS()) {
+		if(C(0) == '\"') {
+			ShiftLeft(1);
+			size_t pos;
+			if(SearchChar('\"', &pos))
+				Trim(pos);
+		}
 	}
 	return *this;
 }
@@ -3047,7 +3035,7 @@ SString & STDCALL SString::CatCharN(int chr, size_t n)
 
 SString & FASTCALL SString::ShiftLeft(size_t n)
 {
-	if(n > 0)
+	if(n > 0) {
 		if(Len() > n) {
 			memmove(P_Buf, P_Buf+n, L-n);
 			L -= n;
@@ -3056,6 +3044,7 @@ SString & FASTCALL SString::ShiftLeft(size_t n)
 			L = 1;
 			P_Buf[0] = 0;
 		}
+	}
 	return *this;
 }
 
@@ -3065,19 +3054,6 @@ SString & FASTCALL SString::ShiftLeftChr(int chr)
 		ShiftLeft(1);
 	return *this;
 }
-
-/*
-void SVectorBase::reverse(uint pos, uint numItems)
-{
-	const  uint last_pos = pos+numItems-1;
-	uint   i = numItems/2;
-	if(i && pos < count && last_pos < count)
-		do {
-			--i;
-			memswap(at(pos+i), at(last_pos-i), isize);
-		} while(i);
-}
-*/
 
 SString & SString::Reverse()
 {
@@ -3092,10 +3068,6 @@ SString & SString::Reverse()
 			P_Buf[i] = s;
 		} while(i);
 	}
-	/*if(len > 1) {
-		size_t i = len/2;
-		memswap(P_Buf, P_Buf+(len-i), i);
-	}*/
 	return *this;
 }
 

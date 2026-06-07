@@ -3634,9 +3634,9 @@ int SaGiftArray::SelectGift(const TSVector <SaSaleItem> & rSaleList, const RAsso
 	const  PPCommConfig & r_ccfg = CConfig;
 	uint   i;
 	PPID   goods_id = 0;
-	SString msg_buf, fmt_buf;
+	SString msg_buf;
+	SString fmt_buf;
 	double max_amt_restr = 0.0; // Суммовое ограничение последнего найденного подарка
-	// @v10.3.0 (never used) double deficit = SMathConst::Max; // Минимальный дефицит (остаток, на который необходимо добрать товара чтобы получить подарок).
 	PPIDArray struc_list;
 	PPIDArray temp_list;
 	RAssocArray check_list;
@@ -3790,8 +3790,9 @@ int PPObjGoodsStruc::LoadGiftList(SaGiftArray * pList)
 				else
 					delete p_item;
 			}
-			else // Мы попали в "тупик" при попытке идентификации оригинальной структуры
+			else { // Мы попали в "тупик" при попытке идентификации оригинальной структуры
 				delete p_item;
+			}
 			p_item = 0;
 		}
 	}

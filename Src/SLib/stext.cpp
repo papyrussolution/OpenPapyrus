@@ -74,8 +74,8 @@ static const char * p_alphabet_eng_u = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 //
 //
 struct LinguaIdent {
-	int16  Id;
-	uint8  WinLangId;
+	int32  Id;
+	uint32 WinLangId;
 	const char * P_Code;
 };
 

@@ -768,7 +768,7 @@ int SIniFile::SetParam(const char * pSect, const char * pParam, const char * pVa
 		EncodeText(param);
 		ps.Split(FileName);
 		ps.Merge(0, SFsPath::fNam|SFsPath::fExt, temp_path);
-		MakeTempFileName(temp_path, 0, 0, 0, temp_buf);
+		MakeTempFileName(temp_path, 0, 0, temp_buf);
 		THROW(out_file.Open(temp_buf, SFile::mWrite));
 		for(File.Seek(0); File.ReadLine(line_buf);) {
 			int    do_write_org_line = 1;

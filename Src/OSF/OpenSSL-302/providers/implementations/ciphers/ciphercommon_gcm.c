@@ -87,9 +87,7 @@ static void ctr64_inc(unsigned char * counter)
 
 static int getivgen(PROV_GCM_CTX * ctx, unsigned char * out, size_t olen)
 {
-	if(!ctx->iv_gen
-	    || !ctx->key_set
-	    || !ctx->hw->setiv(ctx, ctx->iv, ctx->ivlen))
+	if(!ctx->iv_gen || !ctx->key_set || !ctx->hw->setiv(ctx, ctx->iv, ctx->ivlen))
 		return 0;
 	if(olen == 0 || olen > ctx->ivlen)
 		olen = ctx->ivlen;
@@ -105,11 +103,8 @@ static int getivgen(PROV_GCM_CTX * ctx, unsigned char * out, size_t olen)
 
 static int setivinv(PROV_GCM_CTX * ctx, unsigned char * in, size_t inl)
 {
-	if(!ctx->iv_gen
-	    || !ctx->key_set
-	    || ctx->enc)
+	if(!ctx->iv_gen || !ctx->key_set || ctx->enc)
 		return 0;
-
 	memcpy(ctx->iv + ctx->ivlen - inl, in, inl);
 	if(!ctx->hw->setiv(ctx, ctx->iv, ctx->ivlen))
 		return 0;
@@ -166,7 +161,6 @@ int ossl_gcm_get_ctx_params(void * vctx, OSSL_PARAM params[])
 			return 0;
 		}
 	}
-
 	p = OSSL_PARAM_locate(params, OSSL_CIPHER_PARAM_AEAD_TLS1_AAD_PAD);
 	if(p && !OSSL_PARAM_set_size_t(p, ctx->tls_aad_pad_sz)) {
 		ERR_raise(ERR_LIB_PROV, PROV_R_FAILED_TO_SET_PARAMETER);
@@ -213,7 +207,6 @@ int ossl_gcm_set_ctx_params(void * vctx, const OSSL_PARAM params[])
 		}
 		ctx->taglen = sz;
 	}
-
 	p = OSSL_PARAM_locate_const(params, OSSL_CIPHER_PARAM_AEAD_IVLEN);
 	if(p) {
 		if(!OSSL_PARAM_get_size_t(p, &sz)) {
@@ -226,7 +219,6 @@ int ossl_gcm_set_ctx_params(void * vctx, const OSSL_PARAM params[])
 		}
 		ctx->ivlen = sz;
 	}
-
 	p = OSSL_PARAM_locate_const(params, OSSL_CIPHER_PARAM_AEAD_TLS1_AAD);
 	if(p) {
 		if(p->data_type != OSSL_PARAM_OCTET_STRING) {
@@ -240,7 +232,6 @@ int ossl_gcm_set_ctx_params(void * vctx, const OSSL_PARAM params[])
 		}
 		ctx->tls_aad_pad_sz = sz;
 	}
-
 	p = OSSL_PARAM_locate_const(params, OSSL_CIPHER_PARAM_AEAD_TLS1_IV_FIXED);
 	if(p) {
 		if(p->data_type != OSSL_PARAM_OCTET_STRING) {
@@ -300,10 +291,8 @@ int ossl_gcm_cipher(void * vctx, unsigned char * out, size_t * outl, size_t outs
 		ERR_raise(ERR_LIB_PROV, PROV_R_OUTPUT_BUFFER_TOO_SMALL);
 		return 0;
 	}
-
 	if(gcm_cipher_internal(ctx, out, outl, in, inl) <= 0)
 		return 0;
-
 	*outl = inl;
 	return 1;
 }
@@ -319,11 +308,9 @@ int ossl_gcm_cipher(void * vctx, unsigned char * out, size_t * outl, size_t outs
 static int gcm_iv_generate(PROV_GCM_CTX * ctx, int offset)
 {
 	int sz = ctx->ivlen - offset;
-
 	/* Must be at least 96 bits */
 	if(sz <= 0 || ctx->ivlen < GCM_IV_DEFAULT_SIZE)
 		return 0;
-
 	/* Use DRBG to generate random iv */
 	if(RAND_bytes_ex(ctx->libctx, ctx->iv + offset, sz, 0) <= 0)
 		return 0;
@@ -332,20 +319,15 @@ static int gcm_iv_generate(PROV_GCM_CTX * ctx, int offset)
 	return 1;
 }
 
-static int gcm_cipher_internal(PROV_GCM_CTX * ctx, unsigned char * out,
-    size_t * padlen, const unsigned char * in,
-    size_t len)
+static int gcm_cipher_internal(PROV_GCM_CTX * ctx, unsigned char * out, size_t * padlen, const unsigned char * in, size_t len)
 {
 	size_t olen = 0;
 	int rv = 0;
 	const PROV_GCM_HW * hw = ctx->hw;
-
 	if(ctx->tls_aad_len != UNINITIALISED_SIZET)
 		return gcm_tls_cipher(ctx, out, padlen, in, len);
-
 	if(!ctx->key_set || ctx->iv_state == IV_STATE_FINISHED)
 		goto err;
-
 	/*
 	 * FIPS requires generation of AES-GCM IV's inside the FIPS module.
 	 * The IV can still be set externally (the security policy will state that
@@ -356,13 +338,11 @@ static int gcm_cipher_internal(PROV_GCM_CTX * ctx, unsigned char * out,
 		if(!ctx->enc || !gcm_iv_generate(ctx, 0))
 			goto err;
 	}
-
 	if(ctx->iv_state == IV_STATE_BUFFERED) {
 		if(!hw->setiv(ctx, ctx->iv, ctx->ivlen))
 			goto err;
 		ctx->iv_state = IV_STATE_COPIED;
 	}
-
 	if(in != NULL) {
 		/*  The input is AAD if out is NULL */
 		if(!out) {
@@ -396,22 +376,18 @@ static int gcm_tls_init(PROV_GCM_CTX * dat, unsigned char * aad, size_t aad_len)
 {
 	unsigned char * buf;
 	size_t len;
-
 	if(!ossl_prov_is_running() || aad_len != EVP_AEAD_TLS1_AAD_LEN)
 		return 0;
-
 	/* Save the aad for later use. */
 	buf = dat->buf;
 	memcpy(buf, aad, aad_len);
 	dat->tls_aad_len = aad_len;
 	dat->tls_enc_records = 0;
-
 	len = buf[aad_len - 2] << 8 | buf[aad_len - 1];
 	/* Correct length for explicit iv. */
 	if(len < EVP_GCM_TLS_EXPLICIT_IV_LEN)
 		return 0;
 	len -= EVP_GCM_TLS_EXPLICIT_IV_LEN;
-
 	/* If decrypting correct for tag too. */
 	if(!dat->enc) {
 		if(len < EVP_GCM_TLS_TAG_LEN)
@@ -424,8 +400,7 @@ static int gcm_tls_init(PROV_GCM_CTX * dat, unsigned char * aad, size_t aad_len)
 	return EVP_GCM_TLS_TAG_LEN;
 }
 
-static int gcm_tls_iv_set_fixed(PROV_GCM_CTX * ctx, unsigned char * iv,
-    size_t len)
+static int gcm_tls_iv_set_fixed(PROV_GCM_CTX * ctx, unsigned char * iv, size_t len)
 {
 	/* Special case: -1 length restores whole IV */
 	if(len == (size_t)-1) {
@@ -435,13 +410,11 @@ static int gcm_tls_iv_set_fixed(PROV_GCM_CTX * ctx, unsigned char * iv,
 		return 1;
 	}
 	/* Fixed field must be at least 4 bytes and invocation field at least 8 */
-	if((len < EVP_GCM_TLS_FIXED_IV_LEN)
-	    || (ctx->ivlen - (int)len) < EVP_GCM_TLS_EXPLICIT_IV_LEN)
+	if((len < EVP_GCM_TLS_FIXED_IV_LEN) || (ctx->ivlen - (int)len) < EVP_GCM_TLS_EXPLICIT_IV_LEN)
 		return 0;
 	if(len > 0)
 		memcpy(ctx->iv, iv, len);
-	if(ctx->enc
-	    && RAND_bytes_ex(ctx->libctx, ctx->iv + len, ctx->ivlen - len, 0) <= 0)
+	if(ctx->enc && RAND_bytes_ex(ctx->libctx, ctx->iv + len, ctx->ivlen - len, 0) <= 0)
 		return 0;
 	ctx->iv_gen = 1;
 	ctx->iv_state = IV_STATE_BUFFERED;
@@ -454,21 +427,17 @@ static int gcm_tls_iv_set_fixed(PROV_GCM_CTX * ctx, unsigned char * iv,
  * encrypt payload and write the tag. On verify retrieve IV, decrypt payload
  * and verify tag.
  */
-static int gcm_tls_cipher(PROV_GCM_CTX * ctx, unsigned char * out, size_t * padlen,
-    const unsigned char * in, size_t len)
+static int gcm_tls_cipher(PROV_GCM_CTX * ctx, unsigned char * out, size_t * padlen, const unsigned char * in, size_t len)
 {
 	int rv = 0;
 	size_t arg = EVP_GCM_TLS_EXPLICIT_IV_LEN;
 	size_t plen = 0;
 	unsigned char * tag = NULL;
-
 	if(!ossl_prov_is_running() || !ctx->key_set)
 		goto err;
-
 	/* Encrypt/decrypt must be performed in place */
 	if(out != in || len < (EVP_GCM_TLS_EXPLICIT_IV_LEN + EVP_GCM_TLS_TAG_LEN))
 		goto err;
-
 	/*
 	 * Check for too many keys as per FIPS 140-2 IG A.5 "Key/IV Pair Uniqueness
 	 * Requirements from SP 800-38D".  The requirements is for one party to the
@@ -479,10 +448,8 @@ static int gcm_tls_cipher(PROV_GCM_CTX * ctx, unsigned char * out, size_t * padl
 		ERR_raise(ERR_LIB_PROV, PROV_R_TOO_MANY_RECORDS);
 		goto err;
 	}
-
 	/*
-	 * Set IV from start of buffer or generate IV and write to start of
-	 * buffer.
+	 * Set IV from start of buffer or generate IV and write to start of buffer.
 	 */
 	if(ctx->enc) {
 		if(!getivgen(ctx, out, arg))

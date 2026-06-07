@@ -291,15 +291,15 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, 
 					}
 					else if(fst.IsEqiAscii("standard") || fst.IsEqiAscii("std")) {
 						::SystemParametersInfo(SPI_SETFONTSMOOTHING, TRUE, 0, 0); 
-						::SystemParametersInfo(SPI_SETFONTSMOOTHINGTYPE, 0, (PVOID)FE_FONTSMOOTHINGSTANDARD, 0); 
+						::SystemParametersInfo(SPI_SETFONTSMOOTHINGTYPE, 0, reinterpret_cast<void *>(FE_FONTSMOOTHINGSTANDARD), 0); 
 					}
 					else if(fst.IsEqiAscii("cleartype")) {
 						::SystemParametersInfo(SPI_SETFONTSMOOTHING, TRUE, 0, 0); 
-						::SystemParametersInfo(SPI_SETFONTSMOOTHINGTYPE, 0, (PVOID)FE_FONTSMOOTHINGCLEARTYPE, 0); 
+						::SystemParametersInfo(SPI_SETFONTSMOOTHINGTYPE, 0, reinterpret_cast<void *>(FE_FONTSMOOTHINGCLEARTYPE), 0); 
 						int   fsc = 0;
 						p_uid->VList.Get(UiValueList::vFontSmoothingContrast, fsc);
 						fsc = inirangeor(fsc, 1000, 2200, 1400);
-						::SystemParametersInfo(SPI_SETFONTSMOOTHINGCONTRAST, 0, (PVOID)fsc, SPIF_UPDATEINIFILE|SPIF_SENDCHANGE);
+						::SystemParametersInfo(SPI_SETFONTSMOOTHINGCONTRAST, 0, reinterpret_cast<void *>(fsc), SPIF_UPDATEINIFILE|SPIF_SENDCHANGE);
 					}
 					else 
 						font_smoothing_settled = false;
@@ -307,8 +307,8 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, 
 				// } @v12.2.1 
 				if(!font_smoothing_settled) {
 					::SystemParametersInfo(SPI_SETFONTSMOOTHING, TRUE, 0, 0); 
-					::SystemParametersInfo(SPI_SETFONTSMOOTHINGTYPE, 0, (PVOID)FE_FONTSMOOTHINGCLEARTYPE, 0); 
-					::SystemParametersInfo(SPI_SETFONTSMOOTHINGCONTRAST, 0, (PVOID)1600, SPIF_UPDATEINIFILE|SPIF_SENDCHANGE);
+					::SystemParametersInfo(SPI_SETFONTSMOOTHINGTYPE, 0, reinterpret_cast<void *>(FE_FONTSMOOTHINGCLEARTYPE), 0); 
+					::SystemParametersInfo(SPI_SETFONTSMOOTHINGCONTRAST, 0, reinterpret_cast<void *>(1600), SPIF_UPDATEINIFILE|SPIF_SENDCHANGE);
 				}
 			}
 			DS.SetMenu(MENU_DEFAULT);

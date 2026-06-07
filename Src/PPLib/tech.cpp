@@ -137,6 +137,32 @@ TLP_IMPL(PPObjTech, TechTbl, P_Tbl);
 	return ok;
 }
 
+int PPObjTech::ForceUndupCode(PPID id, SString & rBuf)
+{
+	int    ok = -1;
+	const  size_t max_nm_len = sizeof(((TechTbl::Rec*)0)->Code)-1;
+	SString suffix;
+	TechTbl::Rec ex_tec_rec;
+	long   uc = 1;
+	SString new_name(rBuf);
+	SString temp_buf(rBuf);
+	while(SearchByCode(temp_buf, &ex_tec_rec) > 0 && ex_tec_rec.ID != id) {
+		if(temp_buf.CmpNC(ex_tec_rec.Code) != 0) {
+			//PPERR_FALSETECHCODEDUPDET           "Сбойная ситуация: ложная идентификация дублирования кода технологии '%s'" // @v12.6.6
+			PPSetError(PPERR_FALSETECHCODEDUPDET, temp_buf);
+			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
+			break;
+		}
+		else {
+			PPObject::Helper_MakeUndupName(new_name, max_nm_len, uc, temp_buf);
+			ok = 1;
+		}
+	}
+	if(ok > 0)
+		rBuf = temp_buf;
+	return ok;
+}
+
 PPObjTech::PPObjTech(void * extraPtr) : PPObject(PPOBJ_TECH), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
@@ -1525,6 +1551,9 @@ int PPObjTech::AddItemsToList2(StrAssocArray * pList, PPIDArray * pIdList, PPIDA
 		}
 		if(pFilt && pFilt->Kind == TECK_TOOLING) {
 			dbq = &(*dbq && P_Tbl->Kind == TECK_TOOLING);
+		}
+		if(pFilt && pFilt->Kind == TECK_ROUTE) { // @v12.6.6
+			dbq = &(*dbq && P_Tbl->Kind == TECK_ROUTE);
 		}
 		else {
 			dbq = &(*dbq && (P_Tbl->Kind == TECK_GENERAL || P_Tbl->Kind == TECK_FOLDER));
@@ -3692,19 +3721,22 @@ PPViewTechRoute::BrwItem::BrwItem() : TechRouteIdent(), CodeP(0), TechID(0), Prc
 	if(pExtraData) {
 		si = CMPSIGN(k1->Oid.Obj, k2->Oid.Obj);
 		if(!si) {
-			PPViewTechRoute * p_view = static_cast<PPViewTechRoute *>(pExtraData);
-			SString & r_buf1 = SLS.AcquireRvlStr();
-			SString & r_buf2 = SLS.AcquireRvlStr();
-			p_view->StrPool.GetS(k1->ObjNameP, r_buf1);
-			p_view->StrPool.GetS(k2->ObjNameP, r_buf2);
-			si = r_buf1.CmpNC(r_buf2);
+			si = CMPSIGN(k1->ID, k2->ID);
 			if(!si) {
-				si = CMPSIGN(k1->ItemIdx, k2->ItemIdx);
+				PPViewTechRoute * p_view = static_cast<PPViewTechRoute *>(pExtraData);
+				SString & r_buf1 = SLS.AcquireRvlStr();
+				SString & r_buf2 = SLS.AcquireRvlStr();
+				p_view->StrPool.GetS(k1->ObjNameP, r_buf1);
+				p_view->StrPool.GetS(k2->ObjNameP, r_buf2);
+				si = r_buf1.CmpNC(r_buf2);
+				if(!si) {
+					si = CMPSIGN(k1->ItemIdx, k2->ItemIdx);
+				}
 			}
 		}
 	}
 	else {
-		CMPCASCADE3(si, k1, k2, Oid.Obj, Oid.Id, ItemIdx);
+		CMPCASCADE4(si, k1, k2, Oid.Obj, Oid.Id, ID, ItemIdx);
 	}
 	return si;
 }
@@ -3744,53 +3776,52 @@ PPViewTechRoute::~PPViewTechRoute()
 int PPViewTechRoute::UpdateListItem(const PPTechRoute & rTrt, TechRouteIdent * pKeyToSet)
 {
 	int    ok = -1;
-	if(/*rTrt.Oid.IsFullyDefined()*/true) {
-		if(P_DsList) {
+	if(!rTrt.IsEmpty()) {
+		SString temp_buf;
+		uint   code_p = 0;
+		if(!P_DsList) {
+			P_DsList = new TSArray <BrwItem>();
+		}
+		{
 			uint i = P_DsList->getCount();
 			if(i) do {
 				const BrwItem & r_item = P_DsList->at(--i);
-				if(r_item.Oid == rTrt.Oid) {
+				if(r_item.ID == rTrt.ID) {
 					P_DsList->atFree(i);
 					ok = 1;
 				}
 			} while(i);
 		}
-		if(!rTrt.IsEmpty()) {
-			SString temp_buf;
-			uint   code_p = 0;
-			if(!P_DsList) {
-				P_DsList = new TSArray <BrwItem>();
+		StrPool.AddS(rTrt.Code, &code_p);
+		for(uint j = 0; j < rTrt.L.getCount(); j++) {
+			const  PPTechRoute::Entry & r_entry = rTrt.L.at(j);
+			BrwItem new_item;
+			new_item.ID = rTrt.ID;
+			new_item.Oid = rTrt.Oid;
+			new_item.ItemIdx = (j+1);
+			new_item.CodeP = code_p;
+			if(new_item.Oid.IsFullyDefined()) {
+				GetObjectName(new_item.Oid, temp_buf);
+				StrPool.AddS(temp_buf, &new_item.ObjNameP);
 			}
-			StrPool.AddS(rTrt.Code, &code_p);
-			for(uint j = 0; j < rTrt.L.getCount(); j++) {
-				const  PPTechRoute::Entry & r_entry = rTrt.L.at(j);
-				BrwItem new_item;
-				new_item.ID = rTrt.ID;
-				new_item.Oid = rTrt.Oid;
-				new_item.ItemIdx = (j+1);
-				new_item.CodeP = code_p;
-				if(new_item.Oid.IsFullyDefined()) {
-					GetObjectName(new_item.Oid, temp_buf);
-					StrPool.AddS(temp_buf, &new_item.ObjNameP);
+			new_item.TechID = r_entry.TechID;
+			{
+				TechTbl::Rec tec_rec;
+				if(new_item.TechID && TecObj.Fetch(new_item.TechID, &tec_rec) > 0) {
+					new_item.PrcID = tec_rec.PrcID;	
 				}
-				new_item.TechID = r_entry.TechID;
-				{
-					TechTbl::Rec tec_rec;
-					if(new_item.TechID && TecObj.Fetch(new_item.TechID, &tec_rec) > 0) {
-						new_item.PrcID = tec_rec.PrcID;	
-					}
-				}
-				new_item.NominalPrice = r_entry.NominalPrice;
-				new_item.NominalTimeSec = r_entry.NominalTimeSec;
-				uint   new_pos = 0;
-				if(P_DsList->ordInsert(&new_item, &new_pos, PTR_CMPFUNC(PPViewTechRoute_BrwItem), this)) {
-					if(j == 0 && pKeyToSet) {
-						pKeyToSet->Oid = new_item.Oid;
-						pKeyToSet->ItemIdx = new_item.ItemIdx;
-					}
-				}
-				ok = 1;
 			}
+			new_item.NominalPrice = r_entry.NominalPrice;
+			new_item.NominalTimeSec = r_entry.NominalTimeSec;
+			uint   new_pos = 0;
+			if(P_DsList->ordInsert(&new_item, &new_pos, PTR_CMPFUNC(PPViewTechRoute_BrwItem), this)) {
+				if(j == 0 && pKeyToSet) {
+					pKeyToSet->ID = new_item.ID;
+					pKeyToSet->Oid = new_item.Oid;
+					pKeyToSet->ItemIdx = new_item.ItemIdx;
+				}
+			}
+			ok = 1;
 		}
 	}
 	return ok;
@@ -3896,12 +3927,33 @@ int PPViewTechRoute::MakeList(PPViewBrowser * pBrw)
 					}
 				}
 				break;
+			case PPVCMD_ADDBYSAMPLE:
+				ok = -1;
+				if(p_item) {
+					PPTechRoute trt;
+					TechRouteIdent ident(*p_item);
+					if(TrMgr.Get(ident, trt) > 0) {
+						trt.ID = 0;
+						SString new_code_buf(trt.Code);
+						TecObj.ForceUndupCode(0, new_code_buf);
+						STRNSCPY(trt.Code, new_code_buf);
+						if(TrMgr.Edit(trt, 0) > 0) {
+							if(!TrMgr.Put(trt, 1)) {
+								ok = PPErrorZ();
+							}
+							else {
+								UpdateListItem(trt, &key_to_setup);
+								ok = 1;
+							}
+						}
+					}
+				}
+				break;
 			case PPVCMD_EDITITEM:
 				ok = -1;
 				if(p_item) {
 					PPTechRoute trt;
-					TechRouteIdent ident;
-					ident = *p_item;
+					TechRouteIdent ident(*p_item);
 					if(TrMgr.Get(ident, trt) > 0) {
 						if(TrMgr.Edit(trt, ident.ItemIdx) > 0) {
 							if(!TrMgr.Put(trt, 1)) {
@@ -3909,6 +3961,7 @@ int PPViewTechRoute::MakeList(PPViewBrowser * pBrw)
 							}
 							else {
 								UpdateListItem(trt, &key_to_setup);
+								key_to_setup = ident;
 								ok = 1;
 							}
 						}

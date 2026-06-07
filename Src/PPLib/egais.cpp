@@ -481,13 +481,14 @@ int PPEgaisProcessor::GetTemporaryFileName(const char * pPath, const char * pSub
 		else
 			temp_path.Cat("opt").SetLastSlash().Cat(P_TempOutputDirName);
 	}
-	else
+	else {
 		PPGetPath(PPPATH_TEMP, temp_path);
+	}
 	if(!is_cc && !isempty(pSubPath))
 		temp_path.SetLastSlash().Cat(pSubPath);
 	temp_path.RmvLastSlash();
 	THROW_SL(SFile::CreateDir(temp_path));
-	MakeTempFileName(temp_path.SetLastSlash(), pPrefix, "xml", 0, rFn);
+	MakeTempFileName(temp_path.SetLastSlash(), pPrefix, "xml", rFn);
 	CATCHZOK
 	return ok;
 }
@@ -606,7 +607,7 @@ int PPEgaisProcessor::ReadAck(const SBuffer * pBuf, PPEgaisProcessor::Ack & rAck
 	return ok;
 }
 
-int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, bool horecaAutoWo, PPEgaisProcessor::Ack & rAck)
+int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, const char * pRegManufSerial, bool horecaAutoWo, PPEgaisProcessor::Ack & rAck)
 {
 	const int omit_nonmarked_goods = 1;
 
@@ -625,6 +626,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, bool hor
 	TSCollection <PrcssrAlcReport::GoodsItem> agi_list;
 	SString url_buf;
 	{
+		PROFILE_START // @v12.6.6
 		for(uint i = 0; i < rPack.GetCount(); i++) {
 			const CCheckLineTbl::Rec & r_item = rPack.GetLineC(i);
 			PrcssrAlcReport::GoodsItem local_agi;
@@ -646,6 +648,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, bool hor
 				}
 			}
 		}
+		PROFILE_END // @v12.6.6
 	}
 	if(marked_pos_list.getCount() || (!omit_nonmarked_goods && nonmarked_pos_list.getCount())) {
 		SString cc_text;
@@ -653,19 +656,29 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, bool hor
 		CCheckCore::MakeCodeString(&rPack.Rec, 0, cc_text);
 		PPID   main_org_id = 0;
 		SString fsrar_ident;
-		PPObjCashNode cn_obj;
-		PPSyncCashNode cn_pack;
-        THROW(cn_obj.GetSync(rPack.Rec.PosNodeID, &cn_pack) > 0);
-        const  PPID loc_id = NZOR(locID, cn_pack.LocID); // Переданный параметром locID имеет приоритет перед cn_pack.LocID
-		THROW(GetURL(loc_id, url_buf));
-		THROW(GetDebugPath(loc_id, temp_path));
-		THROW(GetTemporaryFileName(temp_path, "cc", "EGH", file_name));
-		THROW(GetFSRARID(loc_id, fsrar_ident, &main_org_id));
+		// @v12.6.6 PPObjCashNode cn_obj;
+		// @v12.6.6 PPSyncCashNode cn_pack;
+        // @v12.6.6 THROW(cn_obj.GetSync(rPack.Rec.PosNodeID, &cn_pack) > 0);
+        // @v12.6.6 const  PPID loc_id = NZOR(locID, cn_pack.LocID); // Переданный параметром locID имеет приоритет перед cn_pack.LocID
+		const  PPID loc_id = locID; // @v12.6.6
+		{
+			// Это - самая тормозная зона!
+			PROFILE_START // @v12.6.6
+			PROFILE(THROW(GetURL(loc_id, url_buf)));
+			PROFILE(THROW(GetDebugPath(loc_id, temp_path)));
+			PROFILE(THROW(GetTemporaryFileName(temp_path, "cc", "EGH", file_name))); // ! @todo Оптимизировать подбор имени временного файла
+			PROFILE(THROW(GetFSRARID(loc_id, fsrar_ident, &main_org_id)));
+			PROFILE_END // @v12.6.6
+		}
+		PROFILE_START // @v12.6.6
 		THROW_SL(p_x = xmlNewTextWriterFilename(file_name, 0));
 		{
 			SXml::WDoc _doc(p_x, cpUTF8);
 			//
-			SString inn, kpp, org_name, org_addr;
+			SString inn;
+			SString kpp;
+			SString org_name;
+			SString org_addr;
 			RegisterTbl::Rec reg_rec;
 			PrcssrAlcReport::EgaisMarkBlock emb;
 			PsnObj.GetRegNumber(main_org_id, PPREGT_TPID, rPack.Rec.Dt, inn);
@@ -727,7 +740,8 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, bool hor
 								temp_buf.Z().Cat(_dtm, DATF_ISO8601CENT, 0);
 								n_chk.PutInner(SXml::nst("ck", "Date"), temp_buf);
 								{
-									cn_pack.GetPropString(SCN_MANUFSERIAL, temp_buf);
+									// @v12.6.6 cn_pack.GetPropString(SCN_MANUFSERIAL, temp_buf);
+									temp_buf = pRegManufSerial; // @v12.6.6 
 									if(!temp_buf.NotEmptyS())
 										temp_buf.CatLongZ(1, 6);
 									n_chk.PutInner(SXml::nst("ck", "Kassa"), temp_buf); // Заводской номер кассы
@@ -883,7 +897,8 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, bool hor
 					n_doc.PutAttrib("name", EncText(org_name));
 				}
 				{
-					cn_pack.GetPropString(SCN_MANUFSERIAL, temp_buf);
+					// @v12.6.6 cn_pack.GetPropString(SCN_MANUFSERIAL, temp_buf);
+					temp_buf = pRegManufSerial; // @v12.6.6 
 					if(!temp_buf.NotEmptyS())
 						temp_buf.CatLongZ(1, 6);
 					n_doc.PutAttrib("kassa", EncText(temp_buf)); // Заводской номер кассы
@@ -980,6 +995,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, bool hor
 		}
 		xmlFreeTextWriter(p_x);
 		p_x = 0;
+		PROFILE_END // @v12.6.6
 		{
             PPLoadText(PPTXT_EGAIS_QS_CCHECK, temp_buf); // Серверу ЕГАИС отправлен кассовый чек '%s'
             temp_buf.Space().CatChar('\'').Cat(cc_text).CatChar('\'');
@@ -987,6 +1003,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, bool hor
 				temp_buf.Space().CatChar('\'').Cat(file_name).CatChar('\'');
             Log(temp_buf);
 		}
+		PROFILE_START // @v12.6.6
 		if(State & stTestSendingMode) {
 			Log(PPLoadTextS(PPTXT_EGAIS_TESTSEDNING, temp_buf).CatDiv(':', 2).Cat(file_name));
 			rAck.Status = 0;
@@ -1053,6 +1070,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, bool hor
 				}
 			}
 		}
+		PROFILE_END // @v12.6.6
 		ok = 1;
 	}
 	CATCHZOK
@@ -5091,14 +5109,16 @@ int PPEgaisProcessor::Helper_AreArticlesEq(PPID ar1ID, PPID ar2ID)
 		const  PPID psn2_id = ObjectToPerson(ar2ID);
 		Reference * p_ref(PPRef);
 		if(psn1_id && psn2_id) {
-			SString code1, code2;
+			SString code1;
+			SString code2;
 			p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn1_id, PPTAG_PERSON_FSRARID, code1);
 			p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn2_id, PPTAG_PERSON_FSRARID, code2);
 			if(code1.NotEmptyS() && code2.NotEmptyS() && code1 == code2)
 				yes = 1;
 			else {
-				PsnObj.GetRegNumber(psn1_id, PPREGT_TPID, getcurdate_(), code1);
-				PsnObj.GetRegNumber(psn2_id, PPREGT_TPID, getcurdate_(), code2);
+				const  LDATE now_date = getcurdate_();
+				PsnObj.GetRegNumber(psn1_id, PPREGT_TPID, now_date, code1);
+				PsnObj.GetRegNumber(psn2_id, PPREGT_TPID, now_date, code2);
 				if(code1.NotEmptyS() && code2.NotEmptyS() && code1 == code2)
 					yes = 1;
 			}
@@ -5115,15 +5135,15 @@ int PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, const TSCollection
 		const  int use_dt_in_bill_analog = BIN(ACfg.Hdr.Flags & PPAlbatrosCfgHdr::fUseDateInBillAnalog);
 		int    do_skip = 0;
 		SString temp_buf;
-		SString msg_buf, fmt_buf;
+		SString msg_buf;
+		SString fmt_buf;
 		SString bill_text;
 		SString bill_ident;
 		SString bill_code;
-		Egais_GetBillCode(*p_bp, bill_code); // @v11.0.12
+		Egais_GetBillCode(*p_bp, bill_code);
 		p_bp->BTagL.GetItemStr(PPTAG_BILL_OUTERCODE, bill_ident);
 		if(!bill_ident.NotEmptyS()) {
-			// @v11.0.12 bill_ident = p_bp->Rec.Code;
-			bill_ident = bill_code; // @v11.0.12
+			bill_ident = bill_code;
 		}
 		if(bill_ident.NotEmptyS()) {
 			uint   last_analog_pos = 0; // idx+1
@@ -5155,10 +5175,8 @@ int PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, const TSCollection
 					BillTbl::Rec ex_bill_rec;
 					if(P_BObj->Fetch(ex_bill_id, &ex_bill_rec) > 0 && ex_bill_rec.OpID == p_bp->Rec.OpID) {
 						if(!use_dt_in_bill_analog || ex_bill_rec.Dt == p_bp->Rec.Dt) {
-							// @v11.0.12 BillCore::GetCode(temp_buf = ex_bill_rec.Code);
-							Egais_GetBillCode(ex_bill_rec, temp_buf); // @v11.0.12
-							// @v11.0.12 if(temp_buf.CmpNC(p_bp->Rec.Code) == 0 && Helper_AreArticlesEq(ex_bill_rec.Object, p_bp->Rec.Object)) {
-							if(temp_buf.IsEqNC(bill_code) && Helper_AreArticlesEq(ex_bill_rec.Object, p_bp->Rec.Object)) { // @v11.0.12
+							Egais_GetBillCode(ex_bill_rec, temp_buf);
+							if(temp_buf.IsEqNC(bill_code) && Helper_AreArticlesEq(ex_bill_rec.Object, p_bp->Rec.Object)) {
 								do_skip = 1;
 							}
 							if(do_skip) {
@@ -5183,8 +5201,8 @@ int PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, const TSCollection
 												int   not_eq_packets = 0;
 												if(ex_bpack.GetTCount() == p_bp->GetTCount()) {
 													for(uint tidx = 0; tidx < p_bp->GetTCount(); tidx++) {
-														const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
-														const PPTransferItem & r_ex_ti = ex_bpack.ConstTI(tidx);
+														const  PPTransferItem & r_ti = p_bp->ConstTI(tidx);
+														const  PPTransferItem & r_ex_ti = ex_bpack.ConstTI(tidx);
 														if(r_ti.RByBill != r_ex_ti.RByBill)
 															not_eq_packets = 1;
 													}

@@ -617,7 +617,7 @@ int PPDesktop::Init__(const S_GUID & rDesktopUuid)
 		PPCommandGroup desktop_list_from_bin, desktop_list;
 		p_dict->GetDbSymb(db_symb);
 		{
-			//@erik v10.6.6 {
+			//@erik{
 			THROW(p_mgr = GetCommandMngr(PPCommandMngr::ctrfReadOnly, cmdgrpcDesktop, 0));
 			p_mgr->Load__2(&desktop_list, db_symb, PPCommandMngr::fRWByXml);
 			p_item = desktop_list.SearchByUuid(rDesktopUuid, 0);
@@ -644,13 +644,14 @@ int PPDesktop::Init__(const S_GUID & rDesktopUuid)
 		// Если установлены обои, то создадим временный файл для них, и будем использовать его
 		//
 		if(P_ActiveDesktop->GetLogo().NotEmpty()) {
-			SString path, buf;
+			SString path;
+			SString buf;
 			Logotype.Init();
 			SFsPath ps(P_ActiveDesktop->GetLogo());
 			PPGetPath(PPPATH_BIN, path);
 			PPLoadText(PPTXT_DESKIMGDIR, buf);
 			path.SetLastSlash().Cat(buf);
-			MakeTempFileName(path, "TMP", ps.Ext, 0, buf.Z());
+			MakeTempFileName(path, "TMP", ps.Ext, buf);
 			path = buf;
 			copyFileByName(P_ActiveDesktop->GetLogo(), path);
 			Logotype.Load(path);
@@ -660,8 +661,7 @@ int PPDesktop::Init__(const S_GUID & rDesktopUuid)
 		Advise();
 		{
 			//
-			// Инициализируем список USB-устройств для того, чтобы идентифицировать ввод
-			// с серийным номером
+			// Инициализируем список USB-устройств для того, чтобы идентифицировать ввод с серийным номером
 			//
 			UsbList.freeAll();
 			SUsbDevice::GetDeviceList(UsbList);

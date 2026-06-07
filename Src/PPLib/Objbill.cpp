@@ -7188,8 +7188,8 @@ int PPObjBill::SetSerialNumberByLot(PPID lotID, const char * pNumber, int use_ta
 /*static*/int FASTCALL PPObjBill::VerifyUniqSerialSfx(const char * pSfx)
 {
 	int    ok = -1;
-	if(!isempty(pSfx)) {
-		size_t len = sstrlen(pSfx);
+	const  size_t len = sstrlen(pSfx);
+	if(len) {
 		if(len < 2 || len > 6)
 			ok = PPSetError(PPERR_INVUNIQSNSFXLEN, pSfx);
 		else if(pSfx[len-1] < '1' || pSfx[len-1] > '9')

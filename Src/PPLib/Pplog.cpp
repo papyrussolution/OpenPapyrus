@@ -580,8 +580,8 @@ long PPMsgLog::Init()
 	if(P_Index) {
 		{
 			SString fname;
-			PPMakeTempFileName("logl", 0, 0, FileName);
-			PPMakeTempFileName("logi", 0, 0, InFileName);
+			PPMakeTempFileName("logl", 0, FileName);
+			PPMakeTempFileName("logi", 0, InFileName);
 		}
 		Stream = creat(FileName, S_IWRITE);
 		if(Stream < 0) {

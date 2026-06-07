@@ -1,5 +1,5 @@
 // PPCRR.CPP
-// Copyright (c) A.Sobolev 2025
+// Copyright (c) A.Sobolev 2025, 2026
 // @codepage UTF-8
 // Модуль изоляции обращений к CrystalReports
 // 
@@ -141,8 +141,7 @@ static void GetDataFilePath(int locN, const char * pPath, int isPrint, SString &
 		SString path;
 		SFsPath::ReplaceExt((path = pPath).SetLastSlash().Cat(p_fname), p_ext, 1);
 		if(isPrint) {
-			long   cnt = 0;
-			MakeTempFileName(pPath, p_fname, p_ext, &cnt, rBuf);
+			MakeTempFileName(pPath, p_fname, p_ext, rBuf);
 			copyFileByName(path, rBuf);
 			SFile::Remove(path);
 		}
@@ -531,7 +530,7 @@ int LoadExportOptions(const char * pReportName, PEExportOptions * pOptions, bool
 						SString dir;
 						if(buf.NotEmptyS()) {
 							if(SFile::IsDir(buf.RmvLastSlash())) {
-								THROW_SL(MakeTempFileName(dir = buf, "exp", ext, 0, buf));
+								THROW_SL(MakeTempFileName(dir = buf, "exp", ext, buf));
 							}
 							else {
 								SFsPath::ReplaceExt(buf, ext, 1);
@@ -539,7 +538,7 @@ int LoadExportOptions(const char * pReportName, PEExportOptions * pOptions, bool
 						}
 						else {
 							PPGetPath(PPPATH_OUT, dir);
-							THROW_SL(MakeTempFileName(dir, "exp", ext, 0, buf));
+							THROW_SL(MakeTempFileName(dir, "exp", ext, buf));
 						}
 						rPath = buf;
 						switch(idx) {

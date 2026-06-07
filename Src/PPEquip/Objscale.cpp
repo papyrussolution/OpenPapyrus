@@ -57,10 +57,7 @@ PPScale2::PPScale2()
 	THISZERO();
 }
 
-bool PPScale::IsValidBcPrefix() const
-{
-	return ((BcPrefix >= 200 && BcPrefix <= 299) || (BcPrefix >= 20 && BcPrefix <= 29));
-}
+bool PPScale::IsValidBcPrefix() const { return (checkirangef(static_cast<int>(BcPrefix), 200, 299) || checkirangef(static_cast<int>(BcPrefix), 20, 29)); }
 
 struct ScalePLU { // @transient
 	ScalePLU() : GoodsID(0), GoodsNo(0), GrpCode(0), Barcode(0), Flags(0), Price(0.0), Expiry(ZERODATE)
@@ -87,8 +84,10 @@ struct ScalePLU { // @transient
 /*static*/int PPObjScale::EncodeIP(const char * pIP, char * pEncodedIP, size_t ipSize)
 {
 	int    ok = 1;
-	char   ip[16], encoded_ip[8];
-	uint   k = 0, i = 0;
+	char   ip[16];
+	char   encoded_ip[8];
+	uint   k = 0;
+	uint   i = 0;
 	memzero(ip, sizeof(ip));
 	memset(encoded_ip, 32, sizeof(encoded_ip));
 	encoded_ip[7] = '\0';
@@ -226,7 +225,6 @@ protected:
 	int     ReadCycleDelay; // Задержка между попытками чтения из COM-порта
 	HANDLE  H_Port;
 	PPScalePacket Data;
-	//SString ExpPaths;
 	SBuffer Buf;
 	int    UseBuf;
 };
@@ -1059,7 +1057,8 @@ int CommLP15::GetData(int * pGdsNo, double * pWeight)
 		char   bcc = 0;
 		uchar  c = 0;
 		size_t pos = 0;
-		SString buf, temp_buf;
+		SString buf;
+		SString temp_buf;
 		uint8 r0 = 0;
 		THROW(SetConnection());
 		r0 = (uint8)0x05;
@@ -5480,7 +5479,7 @@ int ScalePrepDialog(uint rezID, PPID * pScaleID, long * pFlags)
 int GetScaleData(PPID scaleID, TIDlgInitData * pData)
 {
 	int    ok = -1;
-	TIDlgInitData   tidi;
+	TIDlgInitData tidi;
 	PPScaleDevice * p_scale = 0;
 	if(scaleID) {
 		PPObjScale sc_obj;

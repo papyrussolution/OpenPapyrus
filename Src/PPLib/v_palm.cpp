@@ -42,7 +42,7 @@ int PPViewPalm::CheckForFilt(const PPStyloPalm * pRec)
 			return 0;
 		if(pRec->GroupID) {
 			PPStyloPalm2 rec;
-			MEMSZERO(rec);
+			// @v12.6.6 @ctr MEMSZERO(rec);
 			if(ObjPalm.Search(pRec->GroupID, &rec) > 0) {
 				ord_op_id = rec.OrderOpID;
 			}
@@ -328,21 +328,23 @@ int PPViewPalm::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * p
 				ok = -1;
 				ExportUhtt();
 				break;
-			case PPVCMD_TEST: // @v11.2.6
+			case PPVCMD_TEST:
 				ok = -1;
 				break;
 		}
 	}
 	if(ok > 0 && oneof3(ppvCmd, PPVCMD_ADDITEM, PPVCMD_EDITITEM, PPVCMD_DELETEITEM)) {
 		PPIDArray id_list;
-		PPStyloPalm rec;
-		MEMSZERO(rec);
+		PPStyloPalm2 rec;
+		// @v12.6.6 @ctr MEMSZERO(rec);
 		if(ppvCmd != PPVCMD_ADDITEM)
 			id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
-		if(ObjPalm.Search(id, &rec) > 0 && (rec.Flags & PLMF_GENERIC))
-			for(PPID child_id = 0; ObjPalm.EnumItems(&child_id, &rec) > 0;)
+		if(ObjPalm.Search(id, &rec) > 0 && (rec.Flags & PLMF_GENERIC)) {
+			for(PPID child_id = 0; ObjPalm.EnumItems(&child_id, &rec) > 0;) {
 				if(rec.GroupID == id)
 					id_list.add(child_id);
+			}
+		}
 		id_list.add(id);
 		ok = UpdateTempTable(&id_list);
 	}
@@ -352,8 +354,13 @@ int PPViewPalm::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * p
 int PPViewPalm::ExportUhtt()
 {
 	int    ok = -1;
-	SString msg_buf, fmt_buf, temp_buf, loc_text_buf;
-	SString phone_buf, contact_buf, addr_buf;
+	SString msg_buf;
+	SString fmt_buf;
+	SString temp_buf;
+	SString loc_text_buf;
+	SString phone_buf;
+	SString contact_buf;
+	SString addr_buf;
 	PPLogger logger;
 	PPUhttClient uhtt_cli;
 	PPWaitStart();

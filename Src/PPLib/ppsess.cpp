@@ -4020,11 +4020,7 @@ int PPSession::Implement_PPLogin(const PPDbEntrySet2 * pDbes, const char * pDbSy
 	blk.GetAttr(DbLoginBlock::attrDbPath, data_path);
 	blk.GetAttr(DbLoginBlock::attrDictPath, dict_path);
 	{
-		long    open_dictionary_flags = 0;
-		// @v12.4.3 {
-		if(flags & loginfMainThread)
-			open_dictionary_flags |= odfMainThread;
-		// } @v12.4.3 
+		const  long open_dictionary_flags = (flags & loginfMainThread) ? odfMainThread : 0; // @v12.4.3 (odfMainThread)
 		THROW(OpenDictionary2(&blk, open_dictionary_flags));
 	}
 	{

@@ -1,5 +1,5 @@
 // STCP.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -1288,7 +1288,7 @@ int SMailMessage::SaveAttachmentTo(uint attIdx, const char * pDestPath, SString 
 			else {
 				ps.Merge(SFsPath::fDrv|SFsPath::fDir, path);
 				if(file_name.IsEmpty())
-					MakeTempFileName(path, "eml", mime_ext, 0, result_file_name);
+					MakeTempFileName(path, "eml", mime_ext, result_file_name);
 				else {
 					file_name.Transf(CTRANSF_UTF8_TO_OUTER);
 					(result_file_name = path).SetLastSlash().Cat(file_name);
@@ -3767,7 +3767,7 @@ int SUniformFileTransmission::Run(SDataMoveProgressProc pf, void * extraPtr)
 													result_file_ext = ps.Ext;
 													if(ps.Nam.IsEmpty()) {
 														ps.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
-														MakeTempFileName(temp_buf, "eml", result_file_ext, 0, result_file_name);
+														MakeTempFileName(temp_buf, "eml", result_file_ext, result_file_name);
 													}
 													else {
 														long   fec = 0;

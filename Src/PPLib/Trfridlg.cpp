@@ -2470,7 +2470,8 @@ void TrfrItemDialog::setupRest()
 {
 	const  long f = MKSFMTD(0, 6, ALIGN_LEFT | NMBF_NOTRAILZ | NMBF_NOZERO);
 	char   qtty_buf[64];
-	SString c, temp_buf;
+	SString c;
+	SString temp_buf;
 	if(getStaticText(CTL_LOT_STREST, c) > 0) {
 		size_t p = 0;
 		if(c.SearchChar(':', &p))

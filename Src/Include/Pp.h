@@ -537,6 +537,7 @@ public:
 	// } @v11.8.11 
 	static constexpr const char * PipeCrr32Proxi = "PapyrusCrr32Proxi"; // @v11.9.5 @construction Имя именованного канала, по которому осуществляется взаимодействие
 		// с proxi-сервером, обеспечивающим интерфейс с 32-битным клиентом CristalReports.
+	static constexpr GUID TsPiotRegUUID = {0x41d489c3, 0x3ca2, 0x4d4e, { 0x99, 0xbd, 0x08, 0x61, 0x44, 0xd7, 0x42, 0x7f }}; // @v12.6.6 Регистрационный GUID Papyrus для работы с тс пиот (получен 20260601)
 };
 //
 // @v11.7.3 (все константы стали static constexpr) extern const PPConstParam _PPConst;
@@ -4648,7 +4649,8 @@ struct PPGoodsConfig { // @persistent @store(PropertyTbl)
 	SVerT  Ver__;              // @anchor Версия, сформировавшая запись. Если размер считанной записи меньше или равен, чем (&Ver-this), то версия предшествует 7.7.0
 	PPID   BcPrefixGuaTagID;   // Тег, содержащий допустимые префиксы штрихкодов для глобальной учетной записи
 	PPID   DefGoodsID;         // Товар по умолчанию для подстановки вместо неопределенных или не идентифицированных товаров
-	uint8  Reserve[8];         //
+	PPID   DefBailmentGroupID; // @v12.6.6 Товарная группа, в которой находятся основные средства, передаваемые сторонним организациям во временное пользование (bailment)
+	uint8  Reserve[4];         // @v12.6.6 [8]-->[4]
 	TagFilt TagIndFilt;        // @anchor Фильтр тегов, определяющий окраску наименований товаров в отчетах
 };
 //
@@ -8628,6 +8630,20 @@ class PPObject {
 public:
 	static int LoadObjectText(const SObjTextRefIdent & rIdent, SString & rBuf, void * extraPtr); // @v12.5.6 LoadObjectTextFunc
 	static int StoreObjectText(const SObjTextRefIdent & rIdent, const void * pTextUtf8, size_t textLen, void * extraPtr); // @v12.5.6 StoreObjectTextFunc
+	static int FASTCALL HasUndupNameSuffix(const SString & rBuf, uint * pPos);
+	//
+	// Descr: Ищет в конце строки rBuf суффикс вида #99, используемый для обхода требования уникальности имени записи.
+	//   Если находит, то убирает его (и предшествующий пробел).
+	//
+	static int FASTCALL RemoveUndupNameSuffix(SString & rBuf);
+	//
+	// ARG(rOrgName IN/OUT): Оригинальное наименование. Если rUniqCounter == 1 и rOrgName содержит в конце #99, то
+	//   этот суффикс будет удален.
+	// ARG(maxNameLen IN): Максимальная допустимая длина наименования. Не может быть нулем.
+	// ARG(rUniqCounter IN/OUT): Счетчик для создания нового суффикса, обеспечивающего уникальность имени
+	// ARG(rResultName OUT): Конечный вариант имени, который должен быть проверен на уникальность.
+	//
+	static void Helper_MakeUndupName(SString & rOrgName, size_t maxNameLen, long & rUniqCounter, SString & rResultName);
 	//
 	// Descr: Создает сигнатуру объекта данных, хранящегося вне базы данных. Сигнатура формируется как текст base32
 	//   бинарной конкатенации некоего глобального идентификатора rGlobalIdent, идентификатора объекта данных и 
@@ -18060,10 +18076,7 @@ private:
 #define MAXPREFELNKK        5  // Максимум предпочтительных адресов
 
 struct PPELinkKind2 {      // @persistent @store(Reference2Tbl+)
-	PPELinkKind2()
-	{
-		THISZERO();
-	}
+	PPELinkKind2();
 	PPID   Tag;            // Const=PPOBJ_ELINKKIND
 	PPID   ID;             // @id
 	char   Name[48];       // @name @!refname
@@ -24833,6 +24846,9 @@ private:
 	// через егаис.
 #define GTF_GMARKED_WHS    0x00040000L // @v12.5.5 Оптовая отгрузка маркированных товаров по-марочная. Предполагает наличие флага GTF_GMARKED.
 	// Причина ввода признака в том, что часть маркируемой продукции при оптовой продаже должна отгружаться по-марочно, часть - общей массой без дифференциации по маркам.
+#define GTF_GENERICBILLET  0x00080000L // @v12.6.6 Производственная заготовка. Товары, относящиеся к типу с этим флагом, трактуются как заготовка,
+	// которая должна пройти по технологическому маршруту для производства готового изделия. Важно то, что тех сессия, в которой производится заготовка,
+	// должна определить параметры TechRouteAssignment (финальный продукт и маршрут производства).
 
 #define GTCHZNPT_UNKN              -1 // @v11.5.0 Специальное интерфейсное значение, используемое для обозначения того, что товар маркируемый, но категория в терминах честного знака не ясна
 #define GTCHZNPT_UNDEF              0
@@ -30966,12 +30982,6 @@ public:
 	static int GenerateOwnArCode(SString & rCode, int use_ta);
 	static int DiagBarcode(const char * pBarcode, int * pDiag, int * pStd, SString * pNormalizedCode);
 	static int GetBarcodeDiagText(int diag, SString & rBuf);
-	static int FASTCALL HasUndupNameSuffix(const SString & rBuf, uint * pPos);
-	//
-	// Descr: Ищет в конце строки rBuf суффикс вида #99, испольуемый для обхода требования уникальности имени записи.
-	//   Если находит, то убирает его (и предшествующий пробел).
-	//
-	static int FASTCALL RemoveUndupNameSuffix(SString & rBuf);
 	// non-static
 	int    WriteConfig(const PPGoodsConfig * pCfg, const SString * pGoodsExTitles, int use_ta);
 
@@ -38339,6 +38349,7 @@ public:
 	SString & GetItemMemo(PPID id, SString & rBuf);
 	int    Fetch(PPID id, TechTbl::Rec * pRec);
 	int    AddBySample(PPID * pID, PPID sampleID);
+	int    ForceUndupCode(PPID id, SString & rBuf);
 	int    SearchByCode(const char * pCode, TechTbl::Rec * pRec);
 	int    SearchAnalog(const TechTbl::Rec & rKey, PPID * pID, TechTbl::Rec * pRec);
 	int    GetPacket(PPID, PPTechPacket *);
@@ -41341,7 +41352,7 @@ private:
 //
 class LotFilt : public PPBaseFilt {
 public:
-	struct FiltExtraParam { // @v11.5.0
+	struct FiltExtraParam {
 		enum {
 			kRegular = 0,
 			kOrders  = 1
@@ -41357,25 +41368,26 @@ public:
 	int    GetExtssData(int fldID, SString & rBuf) const;
 	int    PutExtssData(int fldID, const char * pBuf);
 	enum {
-		fWithoutQCert       = 0x00000008, // Показывать только лоты, у которых нет сертификата
-		fOrders             = 0x00000010, // Лоты заказов
-		fCostAbovePrice     = 0x00000020, // Только лоты, у которых цена поступления больше цены реализации
-		fWithoutClb         = 0x00000040, // Лоты без ГТД
-		fDeadLots           = 0x00000080, // Только те лоты, по которым не было движения //
-		fWithoutExpiry      = 0x00000100, // Лоты, для которых не указан срок годности
-		fOnlySpoilage       = 0x00000200, // Только лоты с бракованными сериями
-		fShowSerialN        = 0x00000400, // Показывать серийные номера лотов
-		fSkipNoOp           = 0x00000800, // Не показывать лоты, по которым не было операций за операционный период. Имеет смысл только если !Operation.IsZero()
-		fCheckOriginLotDate = 0x00001000, // Учитывать дату оригинального лота в соответствии с заданным периодом
-		fSkipClosedBeforeOp = 0x00002000, // Пропускать лоты, закрытые до операционного периода
-		fNoTempTable        = 0x00004000, // Только для внутреннего использования.
-		fShowBillStatus     = 0x00008000, // Показывать статус документа соответствующего лоту заказа
-		fShowPriceDev       = 0x00010000, // Показывать признак отклонения цены от предыдущего лота этого товара по этому же складу
-		fRestByPaym         = 0x00020000, // Спец опция: остаток рассчитывается как количество товара, не оплаченного поставщику.
-		fInitOrgLot         = 0x00040000, // @v8.3.7 @construction Если установлен, то итератор инициализируте поле LotViewItem::OrgLotID
-		fLotfPrWoTaxes      = 0x00080000, // Показывать только лоты, у которых установлен флаг LOTF_PRICEWOTAXES
+		fWithoutQCert        = 0x00000008, // Показывать только лоты, у которых нет сертификата
+		fOrders              = 0x00000010, // Лоты заказов
+		fCostAbovePrice      = 0x00000020, // Только лоты, у которых цена поступления больше цены реализации
+		fWithoutClb          = 0x00000040, // Лоты без ГТД
+		fDeadLots            = 0x00000080, // Только те лоты, по которым не было движения //
+		fWithoutExpiry       = 0x00000100, // Лоты, для которых не указан срок годности
+		fOnlySpoilage        = 0x00000200, // Только лоты с бракованными сериями
+		fShowSerialN         = 0x00000400, // Показывать серийные номера лотов
+		fSkipNoOp            = 0x00000800, // Не показывать лоты, по которым не было операций за операционный период. Имеет смысл только если !Operation.IsZero()
+		fCheckOriginLotDate  = 0x00001000, // Учитывать дату оригинального лота в соответствии с заданным периодом
+		fSkipClosedBeforeOp  = 0x00002000, // Пропускать лоты, закрытые до операционного периода
+		fNoTempTable         = 0x00004000, // Только для внутреннего использования.
+		fShowBillStatus      = 0x00008000, // Показывать статус документа соответствующего лоту заказа
+		fShowPriceDev        = 0x00010000, // Показывать признак отклонения цены от предыдущего лота этого товара по этому же складу
+		fRestByPaym          = 0x00020000, // Спец опция: остаток рассчитывается как количество товара, не оплаченного поставщику.
+		fInitOrgLot          = 0x00040000, // @v8.3.7 @construction Если установлен, то итератор инициализируте поле LotViewItem::OrgLotID
+		fLotfPrWoTaxes       = 0x00080000, // Показывать только лоты, у которых установлен флаг LOTF_PRICEWOTAXES
 		fCancelledOrdersOnly = 0x00100000, // @v12.1.6 Только отмененные заказы
-		fShowAgent          = 0x00200000, // @v12.1.6 Показывать агента (вероятно, это актуально только для лотов заказов)
+		fShowAgent           = 0x00200000, // @v12.1.6 Показывать агента (вероятно, это актуально только для лотов заказов)
+		fShowOrdDlvrAddr     = 0x00400000, // @v12.6.6 Для лотов заказов отображать адреса доставки
 	};
 	//
 	// Descr: Идентификаторы текстовых субполей, содержащихся в строке ExtString
@@ -41464,6 +41476,7 @@ struct LotTotal {
 };
 
 struct LotViewItem : public ReceiptTbl::Rec {
+	LotViewItem();
 	double BegRest;    // Остаток на начало операционного периода
 	double EndRest;    // Остаток на конец операционного периода
 	double QttyPlus;   // Приход за операционный период (количество)
@@ -48473,21 +48486,21 @@ private:
 struct PPDraftCreateRule2 {  // @persistent @store(Reference2Tbl+)
 	PPDraftCreateRule2();
 	enum PriceAlgoritm {  // агоритм образования цены реализации
-		pByLastLot   = 1, // из последнего лота
-		pByAvgSum    = 2, // среднее по выборке чеков
-		pByAvgSumDis = 3, // среднее по выборке чеков минус скидка
-		pByQuot        = 4, // по котировке
-		pByCostPctVal  = 5 // из цены поступления плюс некоторый процент
+		pByLastLot    = 1, // из последнего лота
+		pByAvgSum     = 2, // среднее по выборке чеков
+		pByAvgSumDis  = 3, // среднее по выборке чеков минус скидка
+		pByQuot       = 4, // по котировке
+		pByCostPctVal = 5 // из цены поступления плюс некоторый процент
 	};
     enum CostAlgoritm {      // алгоритм образования цены поступлени
-		cByLastLot      = 1, // из последнего лота
-		cByPricePctVal  = 2, // из цены реализации минус некоторый процент
-		cByQuot = 3  // по котировке
+		cByLastLot     = 1, // из последнего лота
+		cByPricePctVal = 2, // из цены реализации минус некоторый процент
+		cByQuot        = 3  // по котировке
 	};
 	enum {
 		fExclGoodsGrp     = 0x0001,
 		fIsRulesGroup     = 0x0002,
-		fWoSCard  = 0x0004,
+		fWoSCard          = 0x0004,
 		fOnlyBanking      = 0x0008,
 		fOnlyNotBanking   = 0x0010,
 		fExcludeSCardSer  = 0x0020,
@@ -48528,7 +48541,7 @@ public:
 	void   SetCashNN(const PPIDArray * pAry);
 	int    CheckCash(PPID cash) const;
 
-	PPDraftCreateRule Rec;
+	PPDraftCreateRule2 Rec;
 private:
 	PPIDArray CashNN;
 };
@@ -54738,18 +54751,15 @@ private:
 class PPAutoTranslSvcBase {
 public:
 	struct Param {
-		Param() : ReqTimeoutMsec(0), CacheFlushOnCount(5)
-		{
-		}
+		Param();
 		uint   ReqTimeoutMsec;    // Таймаут между запросами в миллисекундах
 		uint   CacheFlushOnCount; // Количество переводов, после которого следует автоматически сбрасывать кэш на диск
 	};
 	struct Stat {
-		Stat() : ReqCount(0), CacheHitCount(0), CacheAddCount(0), InpChrCount(0), OutpChrCount(0), TotalTiming(0)
-		{
-		}
+		Stat();
 		SString & ToStr(SString & rBuf) const;
         uint   ReqCount;      // Количество успешных обращений к сервису
+		uint   FaultReqCount; // Количество сбойных обращений к сервису
 		uint   CacheHitCount; // Количество попаданий в кэш
 		uint   CacheAddCount; // Количество новых включений в кэш
         uint   InpChrCount;   // Количество unicode-codepoint переданных сервису для перевода
@@ -58293,8 +58303,10 @@ protected:
 		uint   AllowedPaymentTypes; // 
 		uint   StatusFlags;      // 
 		PPSyncCashNode::SuspCheckFilt Scf;
-		SString CnName;          // Наименование кассового узла
-		SString CnSymb;          // Символ кассового узла
+		SString CnName;           // Наименование кассового узла
+		SString CnSymb;           // Символ кассового узла
+		SString CnManufSerial;    // @v12.6.6 Заводской номер кассового регистратора  
+		SString ExtCnManufSerial; // @v12.6.6 Заводской номер дополнительного (сдвоенного) кассового регистратора 
 		LongArray CTblList;
 	};
 	PosNodeParam PNP;        // @v12.3.8 
@@ -61307,7 +61319,15 @@ public:
     int    Write(Packet & rPack, PPID locID, const char * pFileName);
     int    Write(Packet & rPack, PPID locID, SBuffer & rBuffer);
     int    PutQuery(PPEgaisProcessor::Packet & rPack, PPID locID, const char * pUrlSuffix, PPEgaisProcessor::Ack & rAck);
-    int    PutCCheck(const CCheckPacket & rPack, PPID locID, bool horecaAutoWo, PPEgaisProcessor::Ack & rAck);
+	//
+	// Descr: Отправляет кассовый чек в модуль УТМ для регистрации в ЕГАИС.
+	// ARG(rPack IN): Пакет чека, которые следует направить в УТМ
+	// ARG(locID IN): Склад, к которому относится кассовый узел
+	// ARG(pRegManufSerial IN): Серийный номер кассового регистратора 
+	// ARG(horecaAutoWo IN): Если true то значит в УТМ отправляется специальный чек автосписания алкоголя по факту разлива.
+	// ARG(rAck OUT): Блок подтверждения, полученный от УТМ
+	//
+    int    PutCCheck(const CCheckPacket & rPack, PPID locID, const char * pRegManufSerial, bool horecaAutoWo, PPEgaisProcessor::Ack & rAck);
     PPEgaisProcessor::Packet * GetReply(const PPEgaisProcessor::Reply & rReply);
 	int    AcceptDoc(PPEgaisProcessor::Reply & rR, const char * pFileName);
 	int    DeleteDoc(PPEgaisProcessor::Reply & rR);
@@ -63520,7 +63540,7 @@ SString & STDCALL PPGetFilePathS(PPID pathID, uint fnameID, SString & rBuf);
 //
 // Descr: Формирует уникальное имя временного файла в каталоге PPPATH_TEMP.
 //
-SString & STDCALL PPMakeTempFileName(const char * pPrefix, const char * pExt, long * pStart, SString & rBuf);
+SString & STDCALL PPMakeTempFileName(const char * pPrefix, const char * pExt, SString & rBuf);
 	// @>>MakeTempFileName
 //
 // Descr: Удаляет файлы, пути к которым перечислены в массиве pFileList
@@ -64284,11 +64304,14 @@ public:
 	PrcssrSourceCodeMaintainingFilt();
 	PrcssrSourceCodeMaintainingFilt & FASTCALL operator = (const PrcssrSourceCodeMaintainingFilt & rS);
 
-    uint8  ReserveStart[128]; // @anchor
+    uint8  ReserveStart[124]; // @anchor // @v12.6.6 [128]-->[124]
+	uint32 AtToLangUedId32;   // @v12.6.6 Ид языка на который надо осуществить автоперевод (fAutotranslateStrings). 
+		// Идентификатор является raw-часть UED-идентификатора языка.
 	enum {
 		fParseWinRcForNativeText           = 0x0001,
 		fFindSourceCodeWithNotUtf8Encoding = 0x0002,
-		fVerifySourceCodeByPatterns        = 0x0004 // @v12.3.2 
+		fVerifySourceCodeByPatterns        = 0x0004, // @v12.3.2 
+		fAutotranslateStrings              = 0x0008, // @v12.6.6  
 	};
 	long   Flags;
 	long   Reserve;          // @anchor	
@@ -64490,6 +64513,9 @@ int    STDCALL SetupStringComboWithAddendum(TDialog * dlg, uint ctlID, const cha
 int    SetupStringComboDevice(TDialog *, uint ctlID, uint dvcClass, long initID, uint /*flags*/); //@vmiller
 int    GetDeviceTypeName(uint dvcClass, PPID deviceTypeID, SString & rBuf);
 int    GetStrFromDrvIni(PPIniFile & rIniFile, int iniSectID, long devTypeId, int numOfOldDev, SString & str); // @vmiller
+//
+// ARG(flags IN): Дополнительные флаги (lbtXXX) передаваемые в создаваемый функцией StrAssocListBoxDef
+//
 int    STDCALL SetupStrAssocCombo(TWindow * dlg, uint ctlID, const StrAssocArray & rList, long initID, uint flags, size_t offs = 0, int ownerDrawListBox = 0);
 int    STDCALL SetupStrAssocTreeCombo(TWindow * dlg, uint ctlID, const StrAssocArray & rList, long initID, uint flags, int ownerDrawListBox = 0);
 int    STDCALL SetupSCollectionComboBox(TDialog * dlg, uint ctl, SCollection * pSC, long initID);

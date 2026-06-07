@@ -2845,11 +2845,12 @@ int PPObjSCard::GetTurnover(const SCardTbl::Rec & rRec, int alg, const DateRange
 	int    ok = 1;
 	PPObjBill * p_bobj(BillObj);
 	double dbt = 0.0, crd = 0.0;
-	double bill_dbt = 0.0, bill_crd = 0.0;
+	double bill_dbt = 0.0;
+	double bill_crd = 0.0;
 	DateRange period;
 	PPObjSCardSeries scs_obj;
-	PPSCardSeries scs_rec;
-	MEMSZERO(scs_rec);
+	PPSCardSeries2 scs_rec;
+	// @v12.6.6 @ctr MEMSZERO(scs_rec);
 	scs_obj.Fetch(rRec.SeriesID, &scs_rec);
 	PROFILE_START
 	if(alg == gtalgDefault) {

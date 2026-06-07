@@ -4,7 +4,6 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <ued.h>
 // @v12.4.12 #ifdef WIN32
 	// @v12.4.12 #include <shlobj.h> // SHGetFolderPath and constants
 	// @v12.4.12 #include <Shlwapi.h> // @v11.6.5
@@ -311,14 +310,31 @@ int pathValid(const char * pPath, int existOnly)
 	return (exp_path.Len() <= 3) ? driveValid(exp_path) : (existOnly ? SFile::IsDir(exp_path.RmvLastSlash()) : 1);
 }
 
-SString & STDCALL MakeTempFileName(const char * pDir, const char * pPrefix, const char * pExt, long * pStart, SString & rBuf)
+SString & STDCALL MakeTempFileName_Wildcard(const char * pDir, const char * pPrefix, const char * pExt, SString & rBuf)
 {
 	char   prefix[128];
 	char   ext[128];
-	long   start = DEREFPTROR(pStart, 1);
 	strnzcpy(prefix, pPrefix, 20);
-	const  size_t prefix_len = sstrlen(prefix);
-	const uint nd = (prefix_len <= 6) ? (8-prefix_len) : 4;
+	//const  size_t prefix_len = sstrlen(prefix);
+	//const  uint nd = (prefix_len <= 6) ? (8-prefix_len) : 4;
+	const  uint nd = 15; //spf260604160532000.txt
+	strnzcpy(ext, (pExt && pExt[0] == '.') ? (pExt+1) : pExt, sizeof(ext));
+	rBuf.Z();
+	if(pDir)
+		(rBuf = pDir).Strip().SetLastSlash();
+	rBuf.Cat(prefix).CatCharN('?', nd).Dot().Cat(ext);
+	return rBuf;	
+}
+
+SString & STDCALL MakeTempFileName(const char * pDir, const char * pPrefix, const char * pExt, /*long * pStart,*/SString & rBuf)
+{
+	char   prefix[128];
+	char   ext[128];
+	//long   start = DEREFPTROR(pStart, 1);
+	strnzcpy(prefix, pPrefix, 20);
+	// @v12.6.6 const  size_t prefix_len = sstrlen(prefix);
+	// @v12.6.6 const  uint nd = (prefix_len <= 6) ? (8-prefix_len) : 4;
+	/* @v12.6.6
 	if(pExt) {
 		if(pExt[0] == '.')
 			strnzcpy(ext, pExt+1, sizeof(ext));
@@ -327,14 +343,22 @@ SString & STDCALL MakeTempFileName(const char * pDir, const char * pPrefix, cons
 	}
 	else
 		ext[0] = 0;
-	for(rBuf.Z(); rBuf.IsEmpty() && start < 9999999L;) {
+	*/
+	LDATETIME now_dtm = getcurdatetime_();
+	strnzcpy(ext, (pExt && pExt[0] == '.') ? (pExt+1) : pExt, sizeof(ext)); // @v12.6.6 strnzcpy сама отлично решает проблему pSrc == 0
+	for(rBuf.Z(); rBuf.IsEmpty()/* && start < 9999999L*/;) {
 		if(pDir)
 			(rBuf = pDir).Strip().SetLastSlash();
-		rBuf.Cat(prefix).CatLongZ(start++, nd).Dot().Cat(ext);
-		if(fileExists(rBuf))
+		// @v12.6.6 rBuf.Cat(prefix).CatLongZ(start++, nd).Dot().Cat(ext);
+		rBuf.Cat(prefix);
+		rBuf.Cat(now_dtm.d, MKSFMT(0, DATF_YMD|DATF_NODIV)).Cat(now_dtm.t, MKSFMT(0, TIMF_HMS|TIMF_MSEC|TIMF_NODIV));
+		rBuf.Dot().Cat(ext); // @v12.6.6 
+		if(fileExists(rBuf)) {
 			rBuf.Z();
+			now_dtm.addhs(1);
+		}
 	}
-	ASSIGN_PTR(pStart, start);
+	//ASSIGN_PTR(pStart, start);
 	return rBuf;
 }
 
@@ -675,22 +699,26 @@ int FASTCALL SFile::RemoveDir(const char * pDir)
 {
 	int    ok = 1;
 	if(!isempty(pDir)) {
-		SString path;
-		SString wildcard;
-		SDirEntry de;
-		for(SDirec dir((wildcard = pDir).SetLastSlash().Cat("*.*")); ok && dir.Next(&de) > 0;) {
-			if(!de.IsSelf() && !de.IsUpFolder()) {
-				de.GetNameA(pDir, path);
-				ok = de.IsFolder() ? RemoveDir(path) /* @recursion */ : SFile::Remove(path);
+		if(SFile::IsDir(pDir)) {
+			SString path;
+			SString wildcard;
+			SDirEntry de;
+			for(SDirec dir((wildcard = pDir).SetLastSlash().Cat("*.*")); ok && dir.Next(&de) > 0;) {
+				if(!de.IsSelf() && !de.IsUpFolder()) {
+					de.GetNameA(pDir, path);
+					ok = de.IsFolder() ? RemoveDir(path) /* @recursion */ : SFile::Remove(path);
+				}
+			}
+			if(ok > 0) {
+				(path = pDir).RmvLastSlash();
+				if(::RemoveDirectoryW(SUcSwitchW(path)) != 0)
+					ok = 1;
+				else
+					ok = 0;
 			}
 		}
-		if(ok > 0) {
-			(path = pDir).RmvLastSlash();
-			if(::RemoveDirectory(SUcSwitch(path)) != 0)
-				ok = 1;
-			else
-				ok = 0;
-		}
+		else
+			ok = -1;
 	}
 	else
 		ok = 0;

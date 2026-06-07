@@ -46,6 +46,7 @@ public:
 	int    GetDescription(int group, int code, SString & rBuf); // @nonconst @cs
 	int    GetDescription(const char * pSignature, SString & rBuf); // @nonconst @cs
 	int    ExpandString(SString & rBuf, int ctransf /*CTRANSF_XXX*/) const;
+	int    GetError(SCompoundError & rResult) const; // @v12.6.6
 	int    Error(int errCode, long flags);
 
 	enum {

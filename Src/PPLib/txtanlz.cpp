@@ -3384,6 +3384,10 @@ int Test_KeywordListGenerator()
 //
 //
 //
+PPAutoTranslSvcBase::Param::Param() : ReqTimeoutMsec(0), CacheFlushOnCount(5)
+{
+}
+
 PPAutoTranslSvcBase::PPAutoTranslSvcBase(uint capabilities, long glsIdent) : Capabilities(capabilities), GlsIdent(glsIdent), 
 	Cache(slangRU), State(0), AuthExpirySec(0), AuthTime(ZERODATETIME), LastReqTime(ZERODATETIME), CacheAdditionsSinceLastFlush(0)
 {
@@ -3440,10 +3444,19 @@ int PPAutoTranslSvcBase::StoreCache()
 	return 0; // unsupported
 }
 
+PPAutoTranslSvcBase::Stat::Stat() : ReqCount(0), FaultReqCount(0), CacheHitCount(0), CacheAddCount(0), InpChrCount(0), OutpChrCount(0), TotalTiming(0)
+{
+}
+
 SString & PPAutoTranslSvcBase::Stat::ToStr(SString & rBuf) const
 {
-	rBuf.Z().CatEq("ReqCount", ReqCount).Space().CatEq("InpChrCount", InpChrCount).Space().
-		CatEq("OutpChrCount", OutpChrCount).Space().CatEq("TotalTiming", TotalTiming);
+	rBuf.Z().CatEq("ReqCount", ReqCount).Space();
+	if(FaultReqCount) {
+		rBuf.Z().CatEq("FaultReqCount", FaultReqCount).Space();
+	}
+	rBuf.CatEq("InpChrCount", InpChrCount).Space().
+		CatEq("OutpChrCount", OutpChrCount).Space().CatEq("TotalTiming", TotalTiming).Space().
+		CatEq("CacheHitCount", CacheHitCount).Space().CatEq("CacheAddCount", CacheAddCount);
 	return rBuf;
 }
 
@@ -3466,8 +3479,8 @@ int PPAutoTranslSvcBase::DoTranslate(int srcLang, int destLang, const SString & 
 			if(!!LastReqTime) {
 				const  LDATETIME now_dtm = getcurdatetime_();
 				long   ds = diffdatetimesec(now_dtm, LastReqTime);
-				if(ds < (P.ReqTimeoutMsec * 1000)) {
-					SDelay((P.ReqTimeoutMsec * 1000) - ds + 50); // +50 ensurance 
+				if(ds < static_cast<long>(P.ReqTimeoutMsec * 1000)) {
+					SDelay(P.ReqTimeoutMsec - ds + 50); // +50 ensurance 
 				}
 			}
 		}
@@ -3475,8 +3488,8 @@ int PPAutoTranslSvcBase::DoTranslate(int srcLang, int destLang, const SString & 
 		if(ok > 0) {
 			LastReqTime = getcurdatetime_();
 			S.ReqCount++;
-			S.InpChrCount += rSrcTextUtf8.LenUtf8();
-			S.OutpChrCount += rResultUtf8.LenUtf8();
+			S.InpChrCount += static_cast<uint>(rSrcTextUtf8.LenUtf8());
+			S.OutpChrCount += static_cast<uint>(rResultUtf8.LenUtf8());
 			if(srcLang == Cache.GetSrcLangId() && rResultUtf8.NotEmpty()) {
 				const  uint src_text_id = Cache.AddSrcText(rSrcTextUtf8);
 				if(src_text_id) {
@@ -3598,7 +3611,7 @@ PPAutoTranslSvc_Microsoft::~PPAutoTranslSvc_Microsoft()
 		else {
 			Token = result_str;
 			AuthTime = getcurdatetime_();
-			ExpirySec = 10 * 60; // @v10.4.4 0-->(10 * 60)
+			ExpirySec = 10 * 60;
 		}
 	}
 	CATCHZOK
@@ -4259,26 +4272,31 @@ int TestAutotranslateText()
 {
 	int    ok = 1;
 	const  int src_lang_id = slangRU;
+	const  uint max_req_count = 50;
 	uint   _count = 0;
 	SString temp_buf;
 	SString src_text;
 	SString dest_text;
 	SString test_root_path;
-	SString cache_file_name;
+	SString _file_name;
 	PPAutoTranslSvcBase * p_at = new PPAutoTranslSvc_Google();
 	THROW(p_at);
 	PPGetPath(PPPATH_TESTROOT, test_root_path);
 	THROW(test_root_path.NotEmpty());
 	{
+		PPAutoTranslSvcBase::Param param;
 		(temp_buf = test_root_path).SetLastSlash().Cat("data").SetLastSlash().Cat("phrases-ru-1251.txt");
 		SFile f_in(temp_buf, SFile::mRead);
 		THROW(f_in.IsValid());
+		param.CacheFlushOnCount = 5;
+		param.ReqTimeoutMsec = 1400;
+		p_at->SetParam(param);
 		//THROW(Helper_PPAutoTranslSvc_Microsoft_Auth(at));
-		(cache_file_name = test_root_path).SetLastSlash().Cat("out").SetLastSlash().Cat("TestAutotranslateCache");
-		p_at->SetCacheFilePath(cache_file_name); // Эта функция так же загрузит кэш если файл существует
+		(_file_name = test_root_path).SetLastSlash().Cat("out").SetLastSlash().Cat("TestAutotranslateCache");
+		p_at->SetCacheFilePath(_file_name); // Эта функция так же загрузит кэш если файл существует
 		//AutotranslCache cache(src_lang_id);
-		//cache.Load(cache_file_name);
-		while(f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+		//cache.Load(_file_name);
+		while(f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip) && (p_at->GetStat().ReqCount + p_at->GetStat().FaultReqCount) <= 50) {
 			(src_text = temp_buf).Transf(CTRANSF_OUTER_TO_UTF8);
 			dest_text.Z();
 			//if(PPAutoTranslateText(src_lang_id, slangEN, &cache, src_text, dest_text)) {
@@ -4288,6 +4306,14 @@ int TestAutotranslateText()
 			}
 		}
 		p_at->StoreCache();
+		{
+			(_file_name = test_root_path).SetLastSlash().Cat("out").SetLastSlash().Cat("TestAutotranslateStat");
+			SFile f_out(_file_name, SFile::mWrite);
+			if(f_out.IsValid()) {
+				p_at->GetStat().ToStr(temp_buf);
+				f_out.WriteLine(temp_buf);
+			}
+		}
 	}
 	CATCHZOK
 	delete p_at;

@@ -873,7 +873,11 @@ int CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 	int    ok = -1;
 	uint   i;
 	PPID   sess_id = 0;
-	SString msg_tmpl_buf, msg_buf, err_msg_fmt, err_msg_text, ccheck_code;
+	SString msg_tmpl_buf;
+	SString msg_buf;
+	SString err_msg_fmt;
+	SString err_msg_text;
+	SString ccheck_code;
 	if(*pID == 0) {
 		PPUserFuncProfiler ufp(PPUPRF_CSESSTXMRESTORE);
 		PPLoadText(PPTXT_RESTORECSESS, msg_tmpl_buf);

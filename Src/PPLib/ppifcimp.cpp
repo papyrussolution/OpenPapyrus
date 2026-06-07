@@ -3179,7 +3179,7 @@ int32 DL6ICLS_PPObjStyloPalm::SearchByName(SString & text, int32 kind, int32 ext
 		PPStyloPalm2 stylo_rec;
 		PPStyloPalmPacket pack;
 		PPID   id = 0;
-		MEMSZERO(stylo_rec);
+		// @v12.6.6 @ctr MEMSZERO(stylo_rec);
 		if((ok = p_obj->SearchByName(text, &id, &stylo_rec)) > 0)
 			ok = p_obj->GetPacket(stylo_rec.ID, &pack);
 		FillStyloPalmRec(&pack, static_cast<SPpyO_StyloPalm *>(rec));

@@ -1,9 +1,8 @@
 // MAILSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2020, 2023
+// Copyright (c) A.Sobolev 2003, 2005, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2020, 2023, 2026
 //
 #include <slib-internal.h>
 #pragma hdrstop
-// @v11.7.0 #include <snet.h>
 
 SMailClient::SMailClient() : State(0), P_Pop3AuthSession(0)
 {
@@ -36,7 +35,8 @@ int SMailClient::Connect(InetUrl & rUrl, int timeout)
 		{
 			SString temp_buf;
 			SString word_buf;
-			SString cmd_buf, reply_buf;
+			SString cmd_buf;
+			SString reply_buf;
 			if(oneof2(protocol, InetUrl::protPOP3, InetUrl::protPOP3S)) {
 				THROW(ReadLine(reply_buf));
 				THROW(CheckReply(reply_buf));
@@ -119,7 +119,8 @@ int SMailClient::Disconnect()
 	if(State & stConnected) {
 		ZDELETE(P_Pop3AuthSession);
 		if(State & stLoggedIn) {
-			SString cmd_buf, reply_buf;
+			SString cmd_buf;
+			SString reply_buf;
 			WriteLine((cmd_buf = "QUIT"), &reply_buf);
 			CheckReply(reply_buf);
 			State &= ~stLoggedIn;
@@ -159,7 +160,9 @@ int SMailClient::CheckReply(const SString & rReplyBuf, int onlyValidCode)
 int SMailClient::Auth(int authtype, const char * pName, const char * pPassword)
 {
 	int    ok = 1;
-	SString cmd_buf, reply_buf, temp_buf;
+	SString cmd_buf;
+	SString reply_buf;
+	SString temp_buf;
 	const int protocol = Url.GetProtocol();
 	THROW_S(State & stConnected, SLERR_MAIL_NOTCONNECTED);
 	THROW_S_S(oneof4(protocol, InetUrl::protSMTP, InetUrl::protSMTPS, InetUrl::protPOP3, InetUrl::protPOP3S), SLERR_MAIL_INVPROTOCOL,
@@ -309,8 +312,10 @@ int SMailClient::WriteBlock(const void * pData, size_t dataSize)
 int SMailClient::Pop3_GetStat(long * pCount, long * pSize)
 {
 	int    ok = 1;
-	SString cmd_buf, reply_buf;
-	long   msgs_count = 0, total_size = 0;
+	SString cmd_buf;
+	SString reply_buf;
+	long   msgs_count = 0;
+	long   total_size = 0;
 	THROW(WriteLine((cmd_buf = "STAT"), &reply_buf));
 	THROW(CheckReply(reply_buf));
 	{
@@ -330,7 +335,8 @@ int SMailClient::Pop3_GetStat(long * pCount, long * pSize)
 int SMailClient::Pop3_GetMsgSize(long msgN, long * pSize)
 {
 	int    ok = 1;
-	SString cmd_buf, reply_buf;
+	SString cmd_buf;
+	SString reply_buf;
 	long   msg_size = 0;
 	THROW(WriteLine((cmd_buf = "LIST").Space().Cat(msgN), &reply_buf));
 	THROW(CheckReply(reply_buf));
@@ -349,7 +355,8 @@ int SMailClient::Pop3_GetMsgSize(long msgN, long * pSize)
 int SMailClient::Pop3_DeleteMsg(long msgN)
 {
 	int    ok = 1;
-	SString cmd_buf, reply_buf;
+	SString cmd_buf;
+	SString reply_buf;
 	THROW(WriteLine((cmd_buf = "DELE").Space().Cat(msgN), &reply_buf));
 	THROW(CheckReply(reply_buf));
 	CATCHZOK

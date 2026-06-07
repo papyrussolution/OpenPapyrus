@@ -995,7 +995,7 @@ int PPJobSession::DoJob(PPJobMngr * pMngr, PPJob * pJob)
 			long   job_info_id = 0;
 			long   logmsg_flags = LOGMSGF_TIME|LOGMSGF_THREADID|LOGMSGF_THREADINFO;
 			if(p_job->Flags & PPJob::fNotifyByMail) {
-				PPMakeTempFileName("jsl", "tmp", 0, tmp_log_fpath);
+				PPMakeTempFileName("jsl", "tmp", tmp_log_fpath);
 				DS.SetTempLogFileName(tmp_log_fpath);
 				if(p_job->Flags & PPJob::fSkipEmptyNotification)
 					logmsg_flags |= LOGMSGF_NODUPFORJOB;
@@ -2870,7 +2870,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 					case ff.Gif:  file_ext = "gif"; break;
 					case ff.Bmp:  file_ext = "bmp"; break;
 				}
-				PPMakeTempFileName("objimg", file_ext, 0, file_name);
+				PPMakeTempFileName("objimg", file_ext, file_name);
 				{
 					STempBuffer tbuf(img_mime.Len() * 2);
 					THROW_SL(tbuf.IsValid());
@@ -3153,7 +3153,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				dev_uuid = dev_name; // @todo
 				PPGetPath(PPPATH_SPII, dir);
 				dir.SetLastSlash().Cat(dev_uuid).SetLastSlash();
-				MakeTempFileName(dir, "tmpsti", "xml", 0, path);
+				MakeTempFileName(dir, "tmpsti", "xml", path);
 				/* @Удаляется в ReceiveFile
 				if(fileExists(path))
 					SFile::Remove(path);
@@ -3249,11 +3249,11 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 					log_path.SetLastSlash().Cat("stylo.log");
 				}
 				if(fileExists(temp_path)) {
-					long start = 1;
-					SString dir, path;
+					SString dir;
+					SString path;
 					SFsPath sp(temp_path);
 					sp.Merge(SFsPath::fDrv|SFsPath::fDir, dir);
-					path = MakeTempFileName(dir, "out", "xml", &start, path);
+					path = MakeTempFileName(dir, "out", "xml", path);
 					SCopyFile(temp_path, path, 0, FILE_SHARE_READ, 0);
 					{
 						(path = dir).SetLastSlash().Cat("sp_ready");
@@ -4145,12 +4145,12 @@ PPServerSession::CmdRet PPServerSession::ReceiveFile(int verb, const char * pPar
 		if(blk.TransmType == blk.ttObjImage) {
 			THROW_PP_S(oneof6(blk.ObjType, PPOBJ_GOODS, PPOBJ_BRAND, PPOBJ_PERSON, PPOBJ_TSESSION, PPOBJ_WORKBOOK, PPOBJ_WORKBOOK_PRE813), PPERR_JOBSRV_OBJTYPENOTSUPP, temp_buf.Z().Cat(blk.ObjType));
 			m |= SFile::mBinary;
-			PPMakeTempFileName("oimg", file_ext, 0, file_path);
+			PPMakeTempFileName("oimg", file_ext, file_path);
 		}
 		else if(blk.TransmType == blk.ttWorkbookContent) {
 			THROW_PP_S(oneof2(blk.ObjType, PPOBJ_WORKBOOK, PPOBJ_WORKBOOK_PRE813), PPERR_JOBSRV_OBJTYPENOTSUPP, temp_buf.Z().Cat(blk.ObjType));
 			m |= SFile::mBinary;
-			PPMakeTempFileName("wbc", file_ext, 0, file_path);
+			PPMakeTempFileName("wbc", file_ext, file_path);
 		}
 		else {
 			file_path = pParam;

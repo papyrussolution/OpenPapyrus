@@ -452,12 +452,11 @@ TSessionPacket & TSessionPacket::Z()
 {
 	Flags = 0;
 	OuterTimingPrice = 0.0;
-	MEMSZERO(Rec);
+	Rec.Clear();
 	CiList.Init(PPCheckInPersonItem::kTSession, 0);
 	Lines.clear();
 	TagL.Z();
 	Ext.Z();
-	// SMemo.Z(); // @v11.0.4
 	return *this;
 }
 

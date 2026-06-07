@@ -158,8 +158,8 @@ int ACS_FRONTOL::ExportMarketingActions_XPos(int updOnly, StringSet & rSsResult)
 		scs_list.sortAndUndup();
 		long   dscnt_code = 0;
 		PPQuotKind qk_rec;
-		SString card_code_low, card_code_upp;
-
+		SString card_code_low;
+		SString card_code_upp;
 		int    is_first = 1;
 		rSsResult.add("$$$ADDMARKETINGACTIONS");
 		f_str.Z().
@@ -279,8 +279,8 @@ int ACS_FRONTOL::ExportData(int updOnly)
 	THROW_MEM(SETIFZ(P_Dls, new DeviceLoadingStat));
 	P_Dls->StartLoading(&StatID, dvctCashs, NodeID, 1);
 	PPWaitStart();
-	THROW(PPMakeTempFileName("frol", "txt", 0, path_goods));
-	THROW(PPMakeTempFileName("frol", "flg", 0, path_flag));
+	THROW(PPMakeTempFileName("frol", "txt", path_goods));
+	THROW(PPMakeTempFileName("frol", "flg", path_flag));
 	THROW_PP_S(p_file = fopen(path_flag, "w"), PPERR_CANTOPENFILE, path_flag);
 	SFile::ZClose(&p_file);
 	THROW_PP_S(p_file = fopen(path_goods, "w"), PPERR_CANTOPENFILE, path_goods);
@@ -793,7 +793,8 @@ int ACS_FRONTOL::ExportData(int updOnly)
 				if(!SkipExportingDiscountSchemes && used_retail_quot.getCountVal(1)) { 
 					long   dscnt_code = 0;
 					PPQuotKindPacket qk_pack;
-					SString card_code_low, card_code_upp;
+					SString card_code_low;
+					SString card_code_upp;
 					if(!updOnly) {
 						fputs((f_str = "$$$DELETEALLAUTODISCSCHMS").CR(), p_file);
 					}
@@ -978,7 +979,7 @@ int ACS_FRONTOL::ImportFiles()
 				sp.Merge(0, SFsPath::fDrv|SFsPath::fDir|SFsPath::fExt, file_name);
 				(ftp_path_flag = ftp_dir).SetLastSlash().Cat(file_name);
 			}
-			MakeTempFileName(dir_in, "front", "txt", 0, path_rpt.Z());
+			MakeTempFileName(dir_in, "front", "txt", path_rpt);
 			// path_rpt = PathRpt;
 			for(double j = 0; j < timeouts_c; j++) {
 				if(ftp.SafeGet(path_rpt, ftp_path, 0, 0, 0) > 0) {
@@ -1023,11 +1024,11 @@ int ACS_FRONTOL::ImportFiles()
 				msg_counter.Init(msg_list.getCount());
 				for(i = 0; i < msg_list.getCount(); i++) {
 					SMailMessage msg;
-					PPMakeTempFileName(0, "msg", 0, temp_fname.Z());
+					PPMakeTempFileName(0, "msg", temp_fname);
 					msg_counter.Increment();
 					THROW(mail.GetMsg(msg_list.at(i), &msg, temp_fname, RcvMailCallback, msg_counter));
 					{
-						MakeTempFileName(dir_in, "front", "txt", 0, path_rpt.Z());
+						MakeTempFileName(dir_in, "front", "txt", path_rpt);
 						THROW(mail.SaveAttachment(temp_fname, PathRpt, dir_in));
 						(temp_fname = dir_in).SetLastSlash().Cat(PathRpt);
 						rename(temp_fname, path_rpt);
@@ -1069,7 +1070,7 @@ int ACS_FRONTOL::ImportFiles()
 						SFile::Remove(firstf_path);
 				}
 				// }
-                MakeTempFileName(temp_dir.SetLastSlash(), p_prefix, "txt", 0, temp_path);
+                MakeTempFileName(temp_dir.SetLastSlash(), p_prefix, "txt", temp_path);
 				SCopyFile(path, temp_path, 0, 0, 0);
 			}
 		}

@@ -1899,7 +1899,7 @@ int PPAsyncCashSession::DistributeFile_(const char * pFileName, const char * pEn
 				if(action == dfactCheckDestPaths) {
 					SString local_path;
 					PPGetPath(PPPATH_OUT, local_path);
-					FILE * f_temp = fopen(MakeTempFileName(local_path, 0, 0, 0, temp_file_name), "w");
+					FILE * f_temp = fopen(MakeTempFileName(local_path, 0, 0, temp_file_name), "w");
 					sp.Split(local_path);
 					ftp_path.SetLastSlash().Cat(sp.Nam).Dot().Cat(sp.Ext);
 					if(f_temp) {
@@ -1949,7 +1949,7 @@ int PPAsyncCashSession::DistributeFile_(const char * pFileName, const char * pEn
 					//
 					// Проверка на возможность создания файла в заданном каталоге
 					//
-					FILE * f_temp = fopen(MakeTempFileName(path, 0, 0, 0, temp_file_name), "w");
+					FILE * f_temp = fopen(MakeTempFileName(path, 0, 0, temp_file_name), "w");
 					if(f_temp) {
 						SFile::ZClose(&f_temp);
 						SFile::Remove(temp_file_name);

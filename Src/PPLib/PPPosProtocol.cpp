@@ -395,13 +395,13 @@ int PPPosProtocol::SendQuery(PPID posNodeID, const PPPosProtocol::QueryBlock & r
 	SString temp_buf;
 	PPAsyncCashNode acn_pack;
 	THROW(oneof3(rQ.Q, QueryBlock::qTest, QueryBlock::qRefs, QueryBlock::qCSession));
-	//PPMakeTempFileName("pppp", "xml", 0, out_file_name);
+	//PPMakeTempFileName("pppp", "xml", out_file_name);
 	if(!posNodeID || CnObj.GetAsync(posNodeID, &acn_pack) <= 0) {
 		acn_pack.ID = 0;
 	}
 	//THROW(SelectOutFileName(acn_pack.ID, "query", ss_out_files));
 	//for(uint ssp = 0; ss_out_files.get(&ssp, out_file_name);) {
-	PPMakeTempFileName("pppp", "ppyp", 0, out_file_name);
+	PPMakeTempFileName("pppp", "ppyp", out_file_name);
 	{
 		{
 			PPPosProtocol::WriteBlock wb;
@@ -503,7 +503,7 @@ int PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sinceDlsI
 	THROW(CnObj.GetAsync(nodeID, &cn_data) > 0);
 	wb.LocID = cn_data.LocID;
 	PPWaitStart();
-	PPMakeTempFileName("pppp", "ppyp", 0, out_file_name);
+	PPMakeTempFileName("pppp", "ppyp", out_file_name);
 	{
 		DeviceLoadingStat dls;
 		PPID   stat_id = 0;
@@ -3522,7 +3522,8 @@ int PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int a
 	Reference * p_ref(PPRef);
 	PPID   native_id = rBlk.NativeID;
 	SString temp_buf;
-	SString fmt_buf, msg_buf;
+	SString fmt_buf;
+	SString msg_buf;
 	Goods2Tbl::Rec ex_goods_rec;
 	Goods2Tbl::Rec parent_rec;
 	BarcodeTbl::Rec ex_bc_rec;
@@ -3630,11 +3631,12 @@ int PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int a
 				if(local_arcode_list.getCount() > 1) {
 					for(uint acidx = 0; acidx < local_arcode_list.getCount(); acidx++) {
 						ArGoodsCodeTbl::Rec & r_arcode_item = local_arcode_list.at(acidx);
-						if(r_arcode_item.ArID == rP.SrcArID)
+						if(r_arcode_item.ArID == rP.SrcArID) {
 							if(sstreq(r_arcode_item.Code, temp_buf))
 								my_arcode_pos = acidx;
 							else
 								is_there_another_arcode = 1;
+						}
 					}
 				}
 				if(is_there_another_arcode) {
@@ -5574,7 +5576,7 @@ int PPPosProtocol::ExportPosSession(const PPIDArray & rSessList, PPID srcPosNode
 	SString out_file_name;
 	SString temp_buf;
 	PPPosProtocol::WriteBlock wb;
-	PPMakeTempFileName("pppp", "ppyp", 0, out_file_name);
+	PPMakeTempFileName("pppp", "ppyp", out_file_name);
 	{
 		THROW(StartWriting(out_file_name, wb));
 		{

@@ -556,11 +556,11 @@ SString & FASTCALL PPGetFileName(uint fnameID, SString & rBuf)
 	return rBuf;
 }
 
-SString & STDCALL PPMakeTempFileName(const char * pPrefix, const char * pExt, long * pStart, SString & rBuf)
+SString & STDCALL PPMakeTempFileName(const char * pPrefix, const char * pExt, SString & rBuf)
 {
 	SString path;
 	PPGetPath(PPPATH_TEMP, path);
-	return MakeTempFileName(path.SetLastSlash(), pPrefix, pExt, pStart, rBuf);
+	return MakeTempFileName(path.SetLastSlash(), pPrefix, pExt, rBuf);
 }
 
 int PPRemoveFiles(const SFileEntryPool * pFileList, uint * pSuccCount, uint * pErrCount)

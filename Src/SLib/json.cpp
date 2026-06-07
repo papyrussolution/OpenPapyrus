@@ -587,7 +587,6 @@ enum json_error json_stream_parse(FILE * file, SJson ** document)
 
 SJson * FASTCALL json_new_string(const char * pText)
 {
-	// @v10.9.4 assert(pText);
 	SJson * p_new_object = new SJson(SJson::tSTRING);
 	if(p_new_object)
 		p_new_object->Text = pText;
