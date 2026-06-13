@@ -368,19 +368,65 @@ int PPObjTech::GetGoodsStruc(PPID id, PPGoodsStruc * pGs)
 	return ok;
 }
 
-int PPObjTech::GetGoodsStrucList(PPID id, int useSubst, PPGoodsStruc * pGs, TGSArray * pList)
+/*static*/int PPObjTech::MakeGoodsListByGStruc(PPID gstrucID, PPID parentGoodsID, bool useSubst, int sourceSign, TGSArray & rList) // @v12.6.7
 {
-	int    ok = 1, r, r2;
+	int    ok = -1;
+	int    r;
+	int    r2;
+	if(gstrucID) {
+		PPObjGoodsStruc gs_obj;
+		PPGoodsStruc gs;
+		THROW_PP(gs_obj.Get(gstrucID, &gs) > 0, PPERR_UNDEFGOODSSTRUC);
+		{
+			PPGoodsStrucItem gs_item;
+			double qtty = 0.0;
+			rList.SetStrucID(gs.Rec.ID);
+			for(uint i = 0; (r = gs.EnumItemsExt(&i, &gs_item, parentGoodsID, 1, &qtty)) > 0;) {
+				int    sign;
+				if(gs_item.Median < 0)
+					sign = sourceSign;
+				else if(gs_item.Median > 0)
+					sign = -sourceSign;
+				else // gs_item.Median == 0
+					sign = -sourceSign;
+				THROW(rList.AddItem(gs_item.GoodsID, sign, gs_item.Formula__));
+				if(useSubst) {
+					PPGoodsStruc subst_gs;
+					if(LoadGoodsStruc(PPGoodsStruc::Ident(gs_item.GoodsID, GSF_SUBST), &subst_gs) > 0) {
+						PPGoodsStrucItem subst_gsi;
+						double subst_qtty = 0.0;
+						for(uint j = 0; (r2 = subst_gs.EnumItemsExt(&j, &subst_gsi, gs_item.GoodsID, 1, &subst_qtty)) > 0;) {
+							THROW(rList.AddItem(subst_gsi.GoodsID, sign, subst_gsi.Formula__));
+						}
+						THROW(r2);
+					}
+				}
+			}
+			THROW(r);
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPObjTech::GetGoodsStrucList(PPID id, PPID arbitraryGStrucID, bool useSubst, PPGoodsStruc * pGs, TGSArray & rList)
+{
+	int    ok = 1;
+	//int    r2;
 	TechTbl::Rec tec_rec;
 	PPGoodsStruc gs;
-	THROW(r = Search(id, &tec_rec));
+	int    r = Search(id, &tec_rec);
+	THROW(r);
 	if(r > 0) {
-		THROW(pList->AddItem(tec_rec.GoodsID, tec_rec.Sign, 0));
+		THROW(rList.AddItem(tec_rec.GoodsID, tec_rec.Sign, 0));
+		const  PPID gs_id = NZOR(arbitraryGStrucID, tec_rec.GStrucID);
+		PPObjTech::MakeGoodsListByGStruc(gs_id, tec_rec.GoodsID, useSubst, tec_rec.Sign, rList); // @v12.6.7
+		/* @v12.6.7
 		THROW(r = GetGoodsStruc(id, &gs));
 		if(r > 0) {
 			PPGoodsStrucItem gs_item;
 			double qtty = 0.0;
-			pList->SetStrucID(gs.Rec.ID);
+			rList.SetStrucID(gs.Rec.ID);
 			for(uint i = 0; (r = gs.EnumItemsExt(&i, &gs_item, tec_rec.GoodsID, 1, &qtty)) > 0;) {
 				int    sign;
 				if(gs_item.Median < 0)
@@ -389,21 +435,21 @@ int PPObjTech::GetGoodsStrucList(PPID id, int useSubst, PPGoodsStruc * pGs, TGSA
 					sign = -tec_rec.Sign;
 				else // gs_item.Median == 0
 					sign = -tec_rec.Sign;
-				THROW(pList->AddItem(gs_item.GoodsID, sign, gs_item.Formula__));
+				THROW(rList.AddItem(gs_item.GoodsID, sign, gs_item.Formula__));
 				if(useSubst) {
 					PPGoodsStruc subst_gs;
 					if(LoadGoodsStruc(PPGoodsStruc::Ident(gs_item.GoodsID, GSF_SUBST), &subst_gs) > 0) {
 						PPGoodsStrucItem subst_gsi;
 						double subst_qtty = 0.0;
 						for(uint j = 0; (r2 = subst_gs.EnumItemsExt(&j, &subst_gsi, gs_item.GoodsID, 1, &subst_qtty)) > 0;) {
-							THROW(pList->AddItem(subst_gsi.GoodsID, sign, subst_gsi.Formula__));
+							THROW(rList.AddItem(subst_gsi.GoodsID, sign, subst_gsi.Formula__));
 						}
 						THROW(r2);
 					}
 				}
 			}
 			THROW(r);
-		}
+		}*/
 	}
 	else
 		ok = -1;
@@ -1341,6 +1387,15 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 				int    WasNewStrucCreated;
 			};
 			DIALOG_PROC_BODY(ToolingDialog, pData);
+		}
+		else if(pData->Rec.Kind == TECK_ROUTE) { // @v12.6.7
+			PPTechRouteManager mgr;
+			TechRouteIdent ident;
+			PPTechRoute route;
+			ident.ID = pData->Rec.ID;
+			if(mgr.Get(ident, route) > 0) {
+				return mgr.Edit(route, 0);
+			}
 		}
 	}
 	return PPSetErrorInvParam();

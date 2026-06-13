@@ -5084,7 +5084,7 @@ int PPViewGoodsOpAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 			case PPVCMD_ADDTOBASKET:
 				ok = -1;
 				if(!Filt.Sgg && !Filt.Sgb)
-					AddGoodsToBasket(hdr.GoodsID, LocList_.GetSingle());
+					AddGoodsToBasket(hdr.GoodsID, LocList_.GetSingle(), 0.0, 0.0);
 				break;
 			case PPVCMD_ADDALLTOBASKET:
 				ok = -1;

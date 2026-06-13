@@ -1669,7 +1669,7 @@ StyloQCommandList * StyloQCommandList::CreateSubListByContext(SObjID oid, int ba
 					} // } @v12.0.6 
 					else if(!p_item->ObjGroupRestriction)
 						suited = true;
-					else if(oid.Obj == PPOBJ_PERSON && psn_obj.P_Tbl->IsBelongsToKind(oid.Id, p_item->ObjGroupRestriction))
+					else if(oid.Obj == PPOBJ_PERSON && psn_obj.P_Tbl->BelongsToKind(oid.Id, p_item->ObjGroupRestriction))
 						suited = true;
 				}
 				else if(oid.Obj == PPOBJ_USR) {
@@ -1682,7 +1682,7 @@ StyloQCommandList * StyloQCommandList::CreateSubListByContext(SObjID oid, int ba
 						} // } @v12.0.6 
 						else if(!p_item->ObjGroupRestriction) 
 							suited = true;
-						else if(psn_obj.P_Tbl->IsBelongsToKind(sec_rec.PersonID, p_item->ObjGroupRestriction))
+						else if(psn_obj.P_Tbl->BelongsToKind(sec_rec.PersonID, p_item->ObjGroupRestriction))
 							suited = true;
 					}
 				}
@@ -9687,7 +9687,7 @@ int PPStyloQInterchange::AcceptStyloQClientAsPerson(const StyloQCore::StoragePac
 					}
 				}
 				// } @v11.6.6 
-				/*if(psn_obj.P_Tbl->IsBelongsToKind(person_id, personKindID) > 0) {
+				/*if(psn_obj.P_Tbl->BelongsToKind(person_id, personKindID) > 0) {
 					ok = 1;
 				}
 				else {

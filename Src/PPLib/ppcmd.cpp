@@ -2442,7 +2442,7 @@ int SelectPersonByCodeDialog::getDTS(Rec * pData)
 				Data.PrmrPsnID = psn_list.getCount() ? psn_list.at(0) : 0;
 			else {
 				PersonTbl::Rec psn_rec;
-				if(ScObj.P_Tbl->SearchCode(0, code, &sc_rec) > 0 && PsnObj.P_Tbl->IsBelongsToKind(sc_rec.PersonID, PsnKindRec.ID) > 0) {
+				if(ScObj.P_Tbl->SearchCode(0, code, &sc_rec) > 0 && PsnObj.P_Tbl->BelongsToKind(sc_rec.PersonID, PsnKindRec.ID) > 0) {
 					Data.PrmrPsnID = sc_rec.PersonID;
 					Data.Sc = sc_rec;
 				}

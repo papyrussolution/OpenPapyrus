@@ -2391,28 +2391,27 @@ int GoodsCore::IsCompatibleByUnit(PPID id1, PPID id2, double * pRatio)
 	return (_ratio == 0.0) ? 0 : ((!(rec1.Flags & GF_INTVAL) || ffrac(_ratio) == 0.0) ? 1 : -1);
 }
 
-bool GoodsCore::IsChildOf(PPID id, PPID parent)
+bool GoodsCore::IsChildOf(PPID id, PPID parentID)
 {
+	bool    ok = false;
 	Goods2Tbl::Rec rec;
 	if(Fetch(id, &rec) > 0) {
-		PPID p = rec.ParentID;
-		if(p == parent)
-			return true;
-		else if(p == 0)
-			return false;
-		else
-			return IsChildOf(p, parent); // @recursion
+		if(rec.ParentID) {
+			ok = (rec.ParentID == parentID) ? true : IsChildOf(rec.ParentID, parentID)/*@recursion*/;
+		}
 	}
-	return false;
+	return ok;
 }
 
 int GoodsCore::GetGroupFilt(PPID grpID, GoodsFilt * pFilt)
 {
 	int    ok = (grpID && pFilt) ? GetAltGroupFilt(grpID, pFilt) : -1;
 	if(ok > 0) {
-		if(pFilt && pFilt->P_SjF)
-			pFilt->P_SjF->Period.Actualize(ZERODATE);
-		pFilt->Setup();
+		if(pFilt) {
+			if(pFilt->P_SjF)
+				pFilt->P_SjF->Period.Actualize(ZERODATE);
+			pFilt->Setup();
+		}
 	}
 	return ok;
 }
@@ -2440,11 +2439,13 @@ int GoodsCore::Helper_BelongToGroup(PPID id, PPID grp, PPID * pSubGrpID, PPIDArr
 						r = 0;
 				}
 			}
-			else
+			else {
 				r = BIN(P_Ref->AsscC.Search(PPASS_ALTGOODSGRP, grp, id) > 0);
+			}
 		}
-		else if(grp_rec.Flags & GF_GENERIC)
-			r = BIN(BelongToGen(id, &grp, 0) > 0);
+		else if(grp_rec.Flags & GF_GENERIC) {
+			r = BIN(BelongsToGen(id, &grp, 0) > 0);
+		}
 		else if(grp_rec.Flags & GF_FOLDER && grp_rec.Flags & GF_EXCLALTFOLD) {
 			PPIDArray term_list;
 			GetGroupTerminalList(grp, &term_list, 0);
@@ -2465,7 +2466,7 @@ int GoodsCore::Helper_BelongToGroup(PPID id, PPID grp, PPID * pSubGrpID, PPIDArr
 
 int GoodsCore::BelongToGroup(PPID id, PPID grp, PPID * pSubGrpID) { return Helper_BelongToGroup(id, grp, pSubGrpID, 0); }
 
-int GoodsCore::BelongToGen(PPID goodsID, PPID * pGenID, ObjAssocTbl::Rec * b)
+int GoodsCore::BelongsToGen(PPID goodsID, PPID * pGenID, ObjAssocTbl::Rec * b)
 {
 	int    ok = -1;
 	if(pGenID) {
@@ -2482,8 +2483,9 @@ int GoodsCore::BelongToGen(PPID goodsID, PPID * pGenID, ObjAssocTbl::Rec * b)
 				ok = 1;
 			}
 		}
-		if(ok < 0)
-			ok = BelongToDynGen(goodsID, pGenID, 0);
+		if(ok < 0) {
+			ok = BelongsToDynGen(goodsID, pGenID, 0);
+		}
 	}
 	else
 		ok = PPSetErrorInvParam();
@@ -2521,7 +2523,7 @@ int GoodsCore::AssignGoodsToGen(PPID goodsID, PPID genID, int abbr, int use_ta)
 		THROW(Search(goodsID, &rec) > 0);
 		THROW(Fetch(genID, &gen_rec) > 0);
 		THROW_PP(gen_rec.Flags & GF_GENERIC, PPERR_NOTGENGOODS);
-		if(BelongToGen(goodsID, &(id = 0), &assc_rec) > 0) {
+		if(BelongsToGen(goodsID, &(id = 0), &assc_rec) > 0) {
 			Goods2Tbl::Rec gen2_rec;
 			if(Fetch(id, &gen2_rec) > 0)
 				PPSetAddedMsgString(gen2_rec.Name);
@@ -3506,7 +3508,7 @@ int GoodsCore::GetListByExtFilt(const ClsdGoodsFilt * pFilt, PPIDArray * pList)
 	return ok;
 }
 
-int GoodsCore::BelongToDynGen(PPID goodsID, PPID * pGenID, PPIDArray * pList)
+int GoodsCore::BelongsToDynGen(PPID goodsID, PPID * pGenID, PPIDArray * pList)
 {
 	int    ok = -1;
 	PPIDArray list;

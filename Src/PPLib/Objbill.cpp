@@ -958,6 +958,7 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 	THROW(rParam.PosNodeID && cn_obj.GetSync(rParam.PosNodeID, &cn_rec) > 0);
 	{
 		const  PPID cur_sess_id = cn_rec.CurSessID;
+		const  bool use_tspiot = LOGIC(cn_rec.ExtFlags & CASHFX_CHZNTSPIOT); // @v12.6.7
 		PPID   bill_person_id = 0;
 		PPPersonPacket psn_pack;
 		//P_OpObj->GetPacket(bill_rec.OpID, &op_pack); // @erik
@@ -990,8 +991,9 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 				temp_buf = psn_pack.Rec.Name;
 			cp.PutExtStrData(CCheckPacket::extssBuyerName, temp_buf);
 		}
-		if(SMemo.NotEmpty())
+		if(SMemo.NotEmpty()) {
 			STRNSCPY(cp.Ext.Memo, SMemo);
+		}
 		if(!rParam.EAddr.IsEmpty()) {
 			if(rParam.EAddr.AddrType == SNTOK_EMAIL) {
 				cp.PutExtStrData(CCheckPacket::extssBuyerEMail, rParam.EAddr.EAddr);
@@ -1040,15 +1042,55 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 								S_GUID chznpm_local_module_instance; // @v12.3.12
 								S_GUID chznpm_local_module_dbver;    // @v12.3.12  
 								PPChZnPrcssr::CodeStatusCollection pm_code_list;
-								if(pm_code_list.AddCodeEntry(chzn_mark, tiidx, &chzn_mark_reconstructed) > 0) { // Кроме всего прочего, эта функция проверяет марку на валидность. 
+								if(pm_code_list.AddCodeEntry(chzn_mark, tiidx, chzn_prod_type, &chzn_mark_reconstructed) > 0) { // Кроме всего прочего, эта функция проверяет марку на валидность. 
 									// @v12.1.6 {
 									assert(chzn_mark.NotEmpty());
 									// @v12.3.4 if(!is_return && (chzn_prod_type != GTCHZNPT_MEDICINE) && /*@v12.1.10*//*лекарственные средства проверять через разрешительный режим не надо (пока)*/
 									if(!is_return && /* @v12.3.4 теперь надо проверять (chzn_prod_type != GTCHZNPT_MEDICINE)*/ 
 										(rParam.Flags_ & PPBillPacket::ConvertToCCheckParam::fDoChZnPm) && cn_rec.ChZnPermissiveMode == PPSyncCashNode::chznpmStrict && cn_rec.ChZnGuaID) {
 										if(pm_code_list.getCount()) {
-											PPChZnPrcssr::PmCheck(cn_rec.ChZnGuaID, 0, 2/*regular online/offline mode*/, pm_code_list);
-											for(uint i = 0; i < pm_code_list.getCount(); i++) {
+											int    verif_result = 0;
+											// @v12.6.7 {
+											if(use_tspiot) {
+												verif_result = PPChZnPrcssr::TsPiotCheck(cn_rec.ChZnGuaID, pm_code_list); 
+											}
+											else { // } @v12.6.7 
+												verif_result = PPChZnPrcssr::PmCheck(cn_rec.ChZnGuaID, 0, 2/*regular online/offline mode*/, pm_code_list);
+											}
+											THROW(verif_result);
+											// @v12.6.7 {
+											const  int pmcvrr = PPChZnPrcssr::PmCheck_VerifyResult(pm_code_list); 
+											if(pmcvrr) {
+												chznpm_reqid = pm_code_list.ReqId;
+												chznpm_reqtimestamp = pm_code_list.ReqTimestamp;
+												chznpm_local_module_instance = pm_code_list.LocalModuleInstance; // @v12.3.12
+												chznpm_local_module_dbver = pm_code_list.LocalModuleDbVer; // @v12.3.12  
+											}
+											else {
+												assert(pm_code_list.getCount() == 1);
+												bool   local_done = false;
+												for(uint cli = 0; cli < pm_code_list.getCount(); cli++) {
+													const  PPChZnPrcssr::CodeStatus * p_pm_item = pm_code_list.at(cli);
+													if(p_pm_item && p_pm_item->ErrorCode) {
+														if(pErrList) {
+															SCompoundError * p_err_item = pErrList->CreateNewItem();
+															p_err_item->ItemI = p_pm_item->OrgRowId;
+															p_err_item->Code = p_pm_item->InternalErrCode;
+															PPGetMessage(mfError, p_err_item->Code, p_pm_item->OrgMark, 1, p_err_item->Descr);
+														}
+														if(!local_done) {
+															PPSetError(p_pm_item->InternalErrCode, p_pm_item->OrgMark);
+														}
+														ok = 0;
+														local_done = true;
+													}
+												}
+												if(!local_done) {
+													ok = PPSetError(PPERR_CHZNMARKPMFAULT);
+												}
+											}
+											// } @v12.6.7 
+											/* @v12.6.7 for(uint i = 0; i < pm_code_list.getCount(); i++) {
 												const PPChZnPrcssr::CodeStatus * p_cle = pm_code_list.at(i);
 												if(p_cle) {
 													//debug_mark = true;
@@ -1089,7 +1131,7 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 													}
 													// @todo p_cle->Mrp // @v12.2.2
 												}
-											}
+											}*/
 										}
 									}
 									// } @v12.1.6
@@ -1529,13 +1571,13 @@ int PPObjBill::PosPrintByBill(PPID billID)
 		if(_mode && (!(bill_rec.Flags & BILLF_CHECK) || (PPMaster && PPMessage(mfConf|mfYesNo, PPCFM_BILLCHECKED) == cmYes))) {
 			const  PPID  __node_id = NZOR(LConfig.DefBillCashID, Cfg.CashNodeID);
 			SString temp_buf;
-			PPObjPerson psn_obj; // @v11.0.4
+			PPObjPerson psn_obj;
 			PPBillPacket pack;
-			PPOprKindPacket op_pack;  // @erik v10.5.9
+			PPOprKindPacket op_pack; // @erik
 			PPBillPacket::ConvertToCCheckParam param;
 			PPID   bill_person_id = 0;
 			PPPersonPacket psn_pack;
-			P_OpObj->GetPacket(bill_rec.OpID, &op_pack); // @erik v10.5.9
+			P_OpObj->GetPacket(bill_rec.OpID, &op_pack); // @erik
 			THROW(ExtractPacket(billID, &pack) > 0);
 			if(pack.Rec.Object) {
 				bill_person_id = ObjectToPerson(pack.Rec.Object, 0);
@@ -1548,14 +1590,11 @@ int PPObjBill::PosPrintByBill(PPID billID)
 			param.LocID = bill_rec.LocID;
 			param.DivisionN = 0;
 			param.PaymType = cpmCash;
-			param.Amount = bill_rec.Amount;  //@erik v10.5.9
-			// @v11.1.5 param.Flags = op_pack.Rec.ExtFlags;
-			// @v11.1.5 {
+			param.Amount = bill_rec.Amount; // @erik
 			if(op_pack.Rec.ExtFlags & OPKFX_PAYMENT_NONCASH)
 				param.Flags_ |= PPBillPacket::ConvertToCCheckParam::fBank;
 			else if(op_pack.Rec.ExtFlags & OPKFX_PAYMENT_CASH)
 				param.Flags_ |= PPBillPacket::ConvertToCCheckParam::fCash;
-			// @v11.3.8 {
 			if(bill_person_id) {
 				const PPELinkArray & r_ela = psn_pack.ELA;
 				StringSet ss;
@@ -1571,8 +1610,6 @@ int PPObjBill::PosPrintByBill(PPID billID)
 				else if(_phone.NotEmpty())
 					param.EAddr.SetPhone(_phone);
 			}
-			// } @v11.3.8 
-			// } @v11.1.5 
 			if(_EditCcByBillParam(param) > 0) {
 				int    sync_prn_err = 0;
 				PPObjCashNode cn_obj;
@@ -2615,7 +2652,7 @@ int PPObjBill::AddGoodsBill(PPID * pBillID, const AddBlock * pBlk)
 						PPObjPerson psn_obj;
 						PersonTbl::Rec psn_rec;
 						if(psn_obj.Fetch(user_psn_id, &psn_rec) > 0) {
-							if(psn_obj.P_Tbl->IsBelongsToKind(user_psn_id, acs_rec.ObjGroup) > 0) {
+							if(psn_obj.P_Tbl->BelongsToKind(user_psn_id, acs_rec.ObjGroup) > 0) {
 								PPID   agent_ar_id = 0;
 								if(ArObj.P_Tbl->PersonToArticle(user_psn_id, agent_acs_id, &agent_ar_id)) {
 									pack.Ext.AgentID = agent_ar_id;

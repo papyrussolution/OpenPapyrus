@@ -622,11 +622,9 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, const ch
 	SBuffer ack_buf;
 	LongArray marked_pos_list;    // Список позиций чека, содержащих маркированный алкоголь (номера позиций [1..])
 	LongArray nonmarked_pos_list; // Список позиций чека, содержащих не маркированный алкоголь (номера позиций [1..])
-	//PrcssrAlcReport::GoodsItem agi;
 	TSCollection <PrcssrAlcReport::GoodsItem> agi_list;
 	SString url_buf;
 	{
-		PROFILE_START // @v12.6.6
 		for(uint i = 0; i < rPack.GetCount(); i++) {
 			const CCheckLineTbl::Rec & r_item = rPack.GetLineC(i);
 			PrcssrAlcReport::GoodsItem local_agi;
@@ -648,7 +646,6 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, const ch
 				}
 			}
 		}
-		PROFILE_END // @v12.6.6
 	}
 	if(marked_pos_list.getCount() || (!omit_nonmarked_goods && nonmarked_pos_list.getCount())) {
 		SString cc_text;
@@ -662,13 +659,10 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, const ch
         // @v12.6.6 const  PPID loc_id = NZOR(locID, cn_pack.LocID); // Переданный параметром locID имеет приоритет перед cn_pack.LocID
 		const  PPID loc_id = locID; // @v12.6.6
 		{
-			// Это - самая тормозная зона!
-			PROFILE_START // @v12.6.6
-			PROFILE(THROW(GetURL(loc_id, url_buf)));
-			PROFILE(THROW(GetDebugPath(loc_id, temp_path)));
+			THROW(GetURL(loc_id, url_buf));
+			THROW(GetDebugPath(loc_id, temp_path));
 			PROFILE(THROW(GetTemporaryFileName(temp_path, "cc", "EGH", file_name))); // ! @todo Оптимизировать подбор имени временного файла
-			PROFILE(THROW(GetFSRARID(loc_id, fsrar_ident, &main_org_id)));
-			PROFILE_END // @v12.6.6
+			THROW(GetFSRARID(loc_id, fsrar_ident, &main_org_id));
 		}
 		PROFILE_START // @v12.6.6
 		THROW_SL(p_x = xmlNewTextWriterFilename(file_name, 0));
@@ -995,7 +989,6 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, const ch
 		}
 		xmlFreeTextWriter(p_x);
 		p_x = 0;
-		PROFILE_END // @v12.6.6
 		{
             PPLoadText(PPTXT_EGAIS_QS_CCHECK, temp_buf); // Серверу ЕГАИС отправлен кассовый чек '%s'
             temp_buf.Space().CatChar('\'').Cat(cc_text).CatChar('\'');
@@ -1003,7 +996,6 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, const ch
 				temp_buf.Space().CatChar('\'').Cat(file_name).CatChar('\'');
             Log(temp_buf);
 		}
-		PROFILE_START // @v12.6.6
 		if(State & stTestSendingMode) {
 			Log(PPLoadTextS(PPTXT_EGAIS_TESTSEDNING, temp_buf).CatDiv(':', 2).Cat(file_name));
 			rAck.Status = 0;

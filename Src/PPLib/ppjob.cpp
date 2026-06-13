@@ -3758,14 +3758,13 @@ int TSessAutoSmsFiltDialog::setDTS(const TSessionFilt * pData)
 	PrcTechCtrlGroup::Rec ptcg_rec;
 	ptcg_rec.PrcID = Data.PrcID;
 	if(Data.Flags & TSessionFilt::fManufPlan) {
- 		addGroup(grp_prctech, new PrcTechCtrlGroup(CTLSEL_JTSASMSFILT_PRC, 0, 0, 0, 0, 0));
+ 		addGroup(grp_prctech, new PrcTechCtrlGroup(CTLSEL_JTSASMSFILT_PRC, 0, 0, 0, 0, 0, 0));
 		if(Data.PrcID == 0)
 			ptcg_rec.PrcParentID = PRCEXDF_GROUP;
  		setGroupData(grp_prctech, &ptcg_rec);
 	}
 	else {
- 		addGroup(grp_prctech, new PrcTechCtrlGroup(CTLSEL_JTSASMSFILT_PRC, CTLSEL_JTSASMSFILT_TECH,
- 			CTL_JTSASMSFILT_ST_GOODS, CTLSEL_JTSASMSFILT_AR, 0, cmSelTechByGoods));
+ 		addGroup(grp_prctech, new PrcTechCtrlGroup(CTLSEL_JTSASMSFILT_PRC, CTLSEL_JTSASMSFILT_TECH, CTL_JTSASMSFILT_ST_GOODS, CTLSEL_JTSASMSFILT_AR, 0, cmSelTechByGoods, 0));
 		ptcg_rec.TechID = Data.TechID;
 		ptcg_rec.ArID   = Data.ArID;
 		ptcg_rec.Ar2ID  = 0;

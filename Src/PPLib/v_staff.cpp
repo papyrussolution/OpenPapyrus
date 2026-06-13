@@ -795,7 +795,7 @@ PPID GetRealDivID(PPObjPerson * pObjPsn, PPID divID, DivType * pDivT)
 	PPID real_div_id = divID;
 	DivType divt;
 	if(divID < TOP_ID) {
-		if(pObjPsn && pObjPsn->P_Tbl->IsBelongsToKind(real_div_id, PPPRK_EMPLOYER) > 0)
+		if(pObjPsn && pObjPsn->P_Tbl->BelongsToKind(real_div_id, PPPRK_EMPLOYER) > 0)
 			divt = divtEmployer;
 		else
 			divt = divtPerson;

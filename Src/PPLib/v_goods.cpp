@@ -3097,7 +3097,6 @@ int PPViewGoods::Repair(PPID /*id*/)
 				if(GObj.GetPacket(item.ID, &pack, 0) > 0) {
 					ArGoodsCodeArray susp_arcode_list; // @v11.6.3 Список кодов по статьям, имеющих подозрительное значение кода (неверная кодировка).
 					const bool is_cls = (pack.Rec.GdsClsID && gc_obj.GetPacket(pack.Rec.GdsClsID, &gc_pack) > 0);
-					// @v11.3.2 {
 					if(pack.Rec.ParentID && GObj.Search(pack.Rec.ParentID, &parent_rec) > 0) {
 						;
 					}
@@ -3114,7 +3113,6 @@ int PPViewGoods::Repair(PPID /*id*/)
 						}
 						logger.LogString(PPTXT_LOG_GOODSHASNTUOM, pack.Rec.Name);
 					}
-					// } @v11.3.2
 					if(!RecoverGoodsExtPropRef(pack.Rec.ID, &pack.ExtRec.KindID, is_cls, gc_pack.PropKind, &logger))
 						err = 1;
 					if(!RecoverGoodsExtPropRef(pack.Rec.ID, &pack.ExtRec.GradeID, is_cls, gc_pack.PropGrade, &logger))
@@ -5548,7 +5546,7 @@ int PPALDD_UhttGoods::Set(long iterId, int commit)
 			if(H.ManufID) {
 				PPObjPerson psn_obj;
 				PersonTbl::Rec psn_rec;
-				if(psn_obj.Fetch(H.ManufID, &psn_rec) > 0 && psn_obj.P_Tbl->IsBelongsToKind(H.ManufID, PPPRK_MANUF))
+				if(psn_obj.Fetch(H.ManufID, &psn_rec) > 0 && psn_obj.P_Tbl->BelongsToKind(H.ManufID, PPPRK_MANUF))
 					r_pack.Rec.ManufID = H.ManufID;
 			}
 			if(H.BrandID) {

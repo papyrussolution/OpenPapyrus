@@ -149,8 +149,14 @@ SJson * SSecretTagPool::GetJson(uint tag) const
 //
 // 
 // 
-SVaultPool::SVaultPool() : SBinarySet()
+SVaultPool::SVaultPool() : SBinarySet(), P_KeyRef(0)
 {
+}
+
+SVaultPool::~SVaultPool()
+{
+	SlCrypto::ResetEncapsultedKey(P_KeyRef);
+	P_KeyRef = 0;
 }
 
 const struct SVaultPool_ConstBlock {
@@ -179,33 +185,48 @@ const struct SVaultPool_ConstBlock {
 	//const  S_GUID Salt;
 } SVaultPool_CBlk;
 
+uint64 SVaultPool::GetKeyRef() const { return reinterpret_cast<uint64>(P_KeyRef); }
+uint64 SVaultPool::GetUedSymmCipher() const { return SVaultPool_CBlk.UedSymmCipher; }
+
 int SVaultPool::SetupPrimaryPassword(const char * pPw, size_t pwLen)
 {
 	int    ok = 1;
+	SlCrypto::ResetEncapsultedKey(P_KeyRef);
+	P_KeyRef = 0;
 	THROW(!isempty(pPw) && pwLen); // @todo @err
 	{
 		SlCrypto::KeyVerificationBlock kv_blk;
+		SlCrypto::Key key;
 		SVaultPool_CBlk.SetupKeyVerificationBlock(kv_blk);
 		{
-			SlCrypto::Key key;
 			int   mkr = SlCrypto::MakeDerivedKey(kv_blk.KdfP, key, pPw, pwLen, SVaultPool_CBlk.DerivedKeyLen, kv_blk.Salt, kv_blk.SaltSize);
 			THROW(mkr);
 			const ::SBaseBuffer & r_key_buf = key.GetKey();
 			int   r1 = SlCrypto::MakeKeyVerificationBlock(kv_blk, r_key_buf.P_Buf, r_key_buf.Size);
 			THROW(r1);
+			THROW(Put(tagKeyVerification, &kv_blk, sizeof(kv_blk)));
+			{
+				void * p_key_ref = SlCrypto::EncapsulateKey(r_key_buf.P_Buf, r_key_buf.Size);
+				THROW(p_key_ref);
+				P_KeyRef = p_key_ref;
+			}
 		}
-		THROW(Put(tagKeyVerification, &kv_blk, sizeof(kv_blk)));
 	}
-	CATCHZOK
+	CATCH
+		Put(tagKeyVerification, 0, 0);
+		ok = 0;
+	ENDCATCH
 	return ok;
 }
 
 int SVaultPool::CheckInPrimaryPassword(const char * pPw, size_t pwLen)
 {
 	int    ok = 1;
+	SlCrypto::ResetEncapsultedKey(P_KeyRef);
+	P_KeyRef = 0;
 	THROW(!isempty(pPw) && pwLen); // @todo @err
 	{
-		size_t kv_blk_size = 0;
+		uint32 kv_blk_size = 0;
 		const SlCrypto::KeyVerificationBlock * p_kv_blk = static_cast<const SlCrypto::KeyVerificationBlock *>(GetPtr(tagKeyVerification, &kv_blk_size));
 		THROW(p_kv_blk && kv_blk_size == sizeof(SlCrypto::KeyVerificationBlock) && p_kv_blk->Signature == SlConst::SlCryptoKvbSignature); // @todo @err
 		{
@@ -215,6 +236,11 @@ int SVaultPool::CheckInPrimaryPassword(const char * pPw, size_t pwLen)
 			THROW(mkr);
 			const ::SBaseBuffer & r_key_buf = key.GetKey();
 			THROW(SlCrypto::VerifyKey(kv_blk_, r_key_buf.P_Buf, r_key_buf.Size));
+			{
+				void * p_key_ref = SlCrypto::EncapsulateKey(r_key_buf.P_Buf, r_key_buf.Size);
+				THROW(p_key_ref);
+				P_KeyRef = p_key_ref;
+			}
 		}
 	}
 	CATCHZOK
@@ -223,12 +249,12 @@ int SVaultPool::CheckInPrimaryPassword(const char * pPw, size_t pwLen)
 
 static constexpr uint32 SVaultPool_IdOffset = 4000;
 
-uint32 SVaultPool::MakeInternalId(uint32 outerId) const
+/*static*/uint32 SVaultPool::MakeInternalId(uint32 outerId)
 {
 	return (outerId && outerId <= (MAXUINT32-SVaultPool_IdOffset)) ? (outerId+SVaultPool_IdOffset) : 0;
 }
 
-uint32 SVaultPool::MakeOuterId(uint32 internalId) const
+/*static*/uint32 SVaultPool::MakeOuterId(uint32 internalId)
 {
 	return (internalId && internalId > SVaultPool_IdOffset) ? (internalId-SVaultPool_IdOffset) : 0;
 }
@@ -261,7 +287,7 @@ static constexpr GUID VG[] = {
 {
 	int   ok = 0;
 	THROW(pKey && keyLen);
-	THROW(UED::BelongToMeta(rBlk.UedSymmCipher, UED_META_SYMMETRICCIPHER)); // @todo @err
+	THROW(UED::BelongsToMeta(rBlk.UedSymmCipher, UED_META_SYMMETRICCIPHER)); // @todo @err
 	{
 		SlCrypto crypto(rBlk.UedSymmCipher);
 		THROW(crypto.IsValid());
@@ -317,7 +343,7 @@ static constexpr GUID VG[] = {
 {
 	int   ok = 0;
 	THROW(pKey && keyLen);
-	THROW(UED::BelongToMeta(rBlk.UedSymmCipher, UED_META_SYMMETRICCIPHER)); // @todo @err
+	THROW(UED::BelongsToMeta(rBlk.UedSymmCipher, UED_META_SYMMETRICCIPHER)); // @todo @err
 	{
 		SlCrypto crypto(rBlk.UedSymmCipher);
 		THROW(crypto.IsValid());
@@ -393,36 +419,15 @@ public:
 	uint   V[20];
 };
 
-/*static*/bool SlCrypto::MakeEncapsulatedKey(const void * pSrcKey, size_t srcKeySize, size_t drvKeySize, SlCrypto::Key & rResult) // @v12.6.4 @construction
-{
-	bool   ok = false;
-	if(pSrcKey && srcKeySize && drvKeySize) {
-		KdfParam kdfp;
-		uint64 salt[2];
-		{
-			// Attention! Факторы ниже обуславливают воспроизводимость порожденного ключа - менять нельзя!
-			kdfp.UedKdf = UED_KEYDERIVATIONFUNCTION_ARGON2ID;
-			kdfp.MemCost = SKILOBYTE(64);
-			kdfp.TimeCost = 3;
-			kdfp.Parallelism = 1;
-			salt[0] = 0x93E90DC7875BF159ULL;
-			salt[1] = 0x159C4AB099D7D317ULL;
-		}
-		if(MakeDerivedKey(kdfp, rResult, pSrcKey, srcKeySize, drvKeySize, salt, sizeof(salt))) {
-			ok = true;
-		}
-	}
-	return ok;
-}
-
-/*static*/void * SlCrypto::EncapsulateKey(const void * pSrcKey, size_t srcKeySize, size_t drvKeySize) // @v12.6.4
+/*static*/void * SlCrypto::EncapsulateKey(const void * pKey, size_t keySize) // @v12.6.4
 {
 	void * p_result = 0;
 	SlCrypto::Key key;
-	if(MakeEncapsulatedKey(pSrcKey, srcKeySize, drvKeySize, key)) {
-		const SBaseBuffer & r_dk = key.GetKey();
-		assert(r_dk.P_Buf && r_dk.Size == drvKeySize);
-		if(r_dk.P_Buf && r_dk.Size == drvKeySize) {
+	if(pKey && keySize) {
+		//const SBaseBuffer & r_dk = key.GetKey();
+		//assert(r_dk.P_Buf && r_dk.Size == drvKeySize);
+		//if(r_dk.P_Buf && r_dk.Size == drvKeySize) {
+		{
 			TSClassWrapper <SlEncapsulatedKey> cls_ek;
 			const  uint h_ek = SLS.CreateGlobalObject(cls_ek);
 			SlEncapsulatedKey * p_ek = h_ek ? static_cast<SlEncapsulatedKey *>(SLS.GetGlobalObject(h_ek)) : 0;
@@ -438,17 +443,15 @@ public:
 					SlEncapsulatedKey::Internal * p_ = h ? static_cast<SlEncapsulatedKey::Internal *>(SLS.GetGlobalObject(h)) : 0;
 					if(p_) {
 						p_ek->V[i] = h;
-						p_->B.Size = drvKeySize;
+						p_->B.Size = keySize;
 						p_->B.P_Buf = static_cast<char *>(SAlloc::M_secure(p_->B.Size));
 						if(i == vtp) {
-							assert(p_->B.Size == r_dk.Size); // @paranoic
-							memcpy(p_->B.P_Buf, r_dk.P_Buf, p_->B.Size);
+							memcpy(p_->B.P_Buf, pKey, p_->B.Size);
 						}
 						else {
 							SVector kts(1);
-							kts.insertChunk(r_dk.Size, r_dk.P_Buf);
+							kts.insertChunk(keySize, pKey);
 							kts.shuffle();
-							assert(p_->B.Size == r_dk.Size); // @paranoic
 							assert(kts.getCount() == p_->B.Size); // @paranoic
 							memcpy(p_->B.P_Buf, kts.dataPtr(), kts.getCount());
 						}
@@ -595,7 +598,7 @@ SlCrypto::SlCrypto(uint64 uedCipher) : // @v12.6.3 @construction
 	int    alg = 0;
 	uint   kbl = 0;
 	int    alg_modif = 0;
-	if(UED::BelongToMeta(uedCipher, UED_META_SYMMETRICCIPHER)) {
+	if(UED::BelongsToMeta(uedCipher, UED_META_SYMMETRICCIPHER)) {
 		switch(uedCipher) {
 			case UED_SYMMETRICCIPHER_CAMELLIA128: 
 				alg = algCamellia;

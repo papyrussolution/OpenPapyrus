@@ -1260,9 +1260,6 @@ StringStore2::OrgSrcFileBlock::OrgSrcFileBlock(const char * pFileName, const cha
 	{
 		THROW_V(!Ps.Nam.HasChr('-'), sc2eSrcFileHasHyphen);
 		FileLangList.Add(0, pFileName);
-		//OrgName = Ps.Nam;
-		//OrgExt = Ps.Ext;
-		//
 		MakeIdentFilePath(IdentFileName);
 		MakeLangSrcFileSearchPattern(temp_buf);
 		{
@@ -1293,6 +1290,7 @@ StringStore2::OrgSrcFileBlock::OrgSrcFileBlock(const char * pFileName, const cha
 	if(!isempty(pTranslateToLang)) {
 		THROW_V(AutoTranslLang = RecognizeLinguaSymb(pTranslateToLang, 0), PPERR_SC2_INVLANGSYMB);
 		MakeAutotranslateFilePath(AutoTranslFile);
+		MakeFilePathByChangingExt("atcache", AutoTranslCache, 0); // @v12.6.7
 		//
 		// При необходимости автоперевода мы в первую очередь должны будем разобрать файл с тем
 		// языком, на который будет осуществляться перевод для того, чтобы при переводе
@@ -1449,6 +1447,7 @@ int StringStore2::Compile(const char * pFileName, long flags, const char * pTran
 								bool   dont_translate = (Flags & fNoTranslateScope || item.Flags & item.fNoTranslate || !TranslationWanted(item.Str.ucptr()));
 								THROW(AddString(last_group.Group, item, &last_string_id));
 								last_string_lang = item.SLang;
+								/* @v12.6.7 это блок (возможно, временно) замещается внутренним кэшем PPAutoTranslSvcBase
 								if(!dont_translate && local_auto_transl_lang && ActiveLanguage == 0) {
 									//
 									// Непосредственно до вызова функции автоперевода проверим нет ли уже готового перевода нашей строки
@@ -1456,7 +1455,7 @@ int StringStore2::Compile(const char * pFileName, long flags, const char * pTran
 									const LangStrCollItem * p_coll_item = GetList(org_file_blk.AutoTranslLang);
 									if(p_coll_item && p_coll_item->List.Search(last_string_id))
 										dont_translate = true;
-								}
+								}*/
 								if(!dont_translate && local_auto_transl_lang && ActiveLanguage == 0) {
 									org_text = item.Str;
 									org_text.ReplaceStr("\\n\\003", " ", 0);
@@ -1503,7 +1502,16 @@ int StringStore2::Compile(const char * pFileName, long flags, const char * pTran
 													}
 												}
 												// } @v12.6.6 
-												if(local_fault || !p_at->DoAuth(ablk)) {
+												if(!local_fault && p_at->DoAuth(ablk)) {
+													PPAutoTranslSvcBase::Param param;
+													param.CacheFlushOnCount = 5;
+													param.ReqTimeoutMsec = 1400;
+													p_at->SetParam(param);
+													if(org_file_blk.AutoTranslCache.NotEmpty()) {
+														p_at->SetCacheFilePath(org_file_blk.AutoTranslCache); // Эта функция так же загрузит кэш если файл существует
+													}
+												}
+												else {
 													ZDELETE(p_at);
 													at_auth_error = 1;
 												}

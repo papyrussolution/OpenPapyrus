@@ -99,7 +99,7 @@ bool PPGoodsStruc::FormulaResolutionCache::SearchCacheForResult(uint itemIdx, lo
 //
 //
 //
-PPGoodsStruc::Ident::Ident(PPID goodsID, long andF, long notF, LDATE dt) : GoodsID(goodsID), AndFlags(andF), NotFlags(notF), Dt(dt), Options(0)
+PPGoodsStruc::Ident::Ident(PPID goodsID, long andF, long notF, LDATE dt) : GoodsID(goodsID), GStrucID(0), AndFlags(andF), NotFlags(notF), Dt(dt), Options(0)
 {
 }
 
@@ -269,31 +269,31 @@ int PPGoodsStruc::SetKind(int kind)
 	return rBuf;
 }
 
-int PPGoodsStruc::Select(const Ident & rIdent, PPGoodsStruc * pGs) const
+bool PPGoodsStruc::Select(const Ident & rIdent, PPGoodsStruc * pGs) const
 {
+	bool   ok = false;
 	if(Rec.Flags & GSF_FOLDER) {
-		for(uint i = 0; i < Children.getCount(); i++) {
+		for(uint i = 0; !ok && i < Children.getCount(); i++) {
 			const PPGoodsStruc * p_child = Children.at(i);
 			if(p_child && p_child->Select(rIdent, pGs)) // @recursion
-				return 1;
+				ok = true;
 		}
 	}
 	else {
-		DateRange period = Rec.Period;
-		if(!rIdent.Dt || period.Actualize(ZERODATE).CheckDate(rIdent.Dt)) {
-			if(!rIdent.AndFlags || (Rec.Flags & rIdent.AndFlags) == rIdent.AndFlags) {
-				if(!(Rec.Flags & rIdent.NotFlags)) {
-					// ((Rec.Flags & rIdent.NotFlags) != rIdent.NotFlags)-->!(Rec.Flags & rIdent.NotFlags)
+		if(!rIdent.GStrucID || rIdent.GStrucID == Rec.ID) { // @v12.6.7 @condition
+			if((!rIdent.AndFlags || (Rec.Flags & rIdent.AndFlags) == rIdent.AndFlags) && !(Rec.Flags & rIdent.NotFlags)) {
+				DateRange period = Rec.Period;
+				if(!rIdent.Dt || period.Actualize(ZERODATE).CheckDate(rIdent.Dt)) {
 					if(pGs) {
 						*pGs = *this;
 						pGs->OwnerGoodsID = rIdent.GoodsID;
 					}
-					return 1;
+					ok = true;
 				}
 			}
 		}
 	}
-	return 0;
+	return ok;
 }
 
 int PPGoodsStruc::Helper_Select(const Ident & rIdent, TSCollection <PPGoodsStruc> & rList) const
@@ -303,7 +303,7 @@ int PPGoodsStruc::Helper_Select(const Ident & rIdent, TSCollection <PPGoodsStruc
 		for(uint i = 0; i < Children.getCount(); i++) {
 			const PPGoodsStruc * p_child = Children.at(i);
 			if(p_child) {
-				int    r = p_child->Helper_Select(rIdent, rList); // @recursion
+				const  int r = p_child->Helper_Select(rIdent, rList); // @recursion
 				THROW(r);
 				if(r > 0)
 					ok = 1;
@@ -311,33 +311,35 @@ int PPGoodsStruc::Helper_Select(const Ident & rIdent, TSCollection <PPGoodsStruc
 		}
 	}
 	else {
-		DateRange period = Rec.Period;
-		if(!rIdent.Dt || period.Actualize(ZERODATE).CheckDate(rIdent.Dt)) {
-			int    suit_by_and_flags = 0;
-			if(!rIdent.AndFlags)
-				suit_by_and_flags = 1;
-			else if(rIdent.Options & rIdent.oAnyOfAndFlags && (Rec.Flags & rIdent.AndFlags))
-				suit_by_and_flags = 1;
-			else if(!(rIdent.Options & rIdent.oAnyOfAndFlags) && (Rec.Flags & rIdent.AndFlags) == rIdent.AndFlags)
-				suit_by_and_flags = 1;
-			if(suit_by_and_flags && !(Rec.Flags & rIdent.NotFlags)) {
-				// ((Rec.Flags & rIdent.NotFlags) != rIdent.NotFlags)-->!(Rec.Flags & rIdent.NotFlags)
+		if(!rIdent.GStrucID || rIdent.GStrucID == Rec.ID) { // @v12.6.7 @condition
+			DateRange period = Rec.Period;
+			if(!rIdent.Dt || period.Actualize(ZERODATE).CheckDate(rIdent.Dt)) {
+				int    suit_by_and_flags = 0;
+				if(!rIdent.AndFlags)
+					suit_by_and_flags = 1;
+				else if(rIdent.Options & rIdent.oAnyOfAndFlags && (Rec.Flags & rIdent.AndFlags))
+					suit_by_and_flags = 1;
+				else if(!(rIdent.Options & rIdent.oAnyOfAndFlags) && (Rec.Flags & rIdent.AndFlags) == rIdent.AndFlags)
+					suit_by_and_flags = 1;
+				if(suit_by_and_flags && !(Rec.Flags & rIdent.NotFlags)) {
+					// ((Rec.Flags & rIdent.NotFlags) != rIdent.NotFlags)-->!(Rec.Flags & rIdent.NotFlags)
 
-				//
-				// Защита от рекурсивных структур: если в списке уже есть структура с таким ID, то мы - в рекурсии.
-				//
-				bool   found = false;
-				for(uint i = 0; !found && i < rList.getCount(); i++) {
-					const PPGoodsStruc * p_item = rList.at(i);
-					if(p_item && p_item->Rec.ID == Rec.ID)
-						found = true;
-				}
-				if(!found) {
-					PPGoodsStruc * p_new_item = new PPGoodsStruc(*this);
-					THROW_MEM(p_new_item);
-					p_new_item->OwnerGoodsID = rIdent.GoodsID;
-					THROW_SL(rList.insert(p_new_item));
-					ok = 1;
+					//
+					// Защита от рекурсивных структур: если в списке уже есть структура с таким ID, то мы - в рекурсии.
+					//
+					bool   found = false;
+					for(uint i = 0; !found && i < rList.getCount(); i++) {
+						const PPGoodsStruc * p_item = rList.at(i);
+						if(p_item && p_item->Rec.ID == Rec.ID)
+							found = true;
+					}
+					if(!found) {
+						PPGoodsStruc * p_new_item = new PPGoodsStruc(*this);
+						THROW_MEM(p_new_item);
+						p_new_item->OwnerGoodsID = rIdent.GoodsID;
+						THROW_SL(rList.insert(p_new_item));
+						ok = 1;
+					}
 				}
 			}
 		}
@@ -363,8 +365,7 @@ PPGoodsStruc & FASTCALL PPGoodsStruc::Copy(const PPGoodsStruc & rS)
 	Rec = rS.Rec;
 	Items.copy(rS.Items);
 	for(uint i = 0; i < rS.Children.getCount(); i++) {
-		PPGoodsStruc * p_child = new PPGoodsStruc;
-		*p_child = *rS.Children.at(i);
+		PPGoodsStruc * p_child = new PPGoodsStruc(*rS.Children.at(i));
 		Children.insert(p_child);
 	}
 	return *this;
@@ -2624,6 +2625,13 @@ int PPObjGoodsStruc::GetChildIDList(PPID strucID, PPIDArray * pList)
 		CALLPTRMEMB(pList, add(P_Ref->data.ObjID));
 		ok = 1;
 	}
+	return ok;
+}
+
+int PPObjGoodsStruc::BelongsToWare(PPID id, PPID goodsID) // @v12.6.7 @construction
+{
+	int    ok = -1;
+	//PPObjGoods gobj;
 	return ok;
 }
 

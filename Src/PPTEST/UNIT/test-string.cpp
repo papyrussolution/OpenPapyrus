@@ -719,41 +719,62 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				// Тестирование различных функций класса SStrScan
 				//
 				SStrScan scan;
-				//
-				scan.Set("", 0);
-				SLCHECK_Z(scan.GetQuotedString(SFileFormat::Csv, str));
-				SLCHECK_EQ(scan.Offs, static_cast<size_t>(0U));
-				SLCHECK_NZ(str.IsEmpty());
-				//
-				scan.Set("abc", 0);
-				SLCHECK_Z(scan.GetQuotedString(SFileFormat::Csv, str));
-				SLCHECK_EQ(scan.Offs, static_cast<size_t>(0U));
-				SLCHECK_NZ(str.IsEmpty());
-				//
-				scan.Set("\"abc\"0123", 0);
-				SLCHECK_NZ(scan.GetQuotedString(SFileFormat::Csv, str));
-				SLCHECK_EQ(scan.Offs, static_cast<size_t>(5U));
-				SLCHECK_EQ(str, "abc");
-				//
-				scan.Set("\"ab\"\"c\"0123", 0);
-				SLCHECK_NZ(scan.GetQuotedString(SFileFormat::Csv, str));
-				SLCHECK_EQ(scan.Offs, static_cast<size_t>(7U));
-				SLCHECK_EQ(str, "ab\"c");
-				//
-				scan.Set("\"abc\"", 0);
-				SLCHECK_NZ(scan.GetQuotedString(SFileFormat::Csv, str));
-				SLCHECK_EQ(scan.Offs, static_cast<size_t>(5U));
-				SLCHECK_EQ(str, "abc");
-				//
-				scan.Set("\"ab\"\"c\"", 0);
-				SLCHECK_NZ(scan.GetQuotedString(SFileFormat::Csv, str));
-				SLCHECK_EQ(scan.Offs, static_cast<size_t>(7U));
-				SLCHECK_EQ(str, "ab\"c");
-				//
-				scan.Set("\"ab\"\"c\"", 0);
-				SLCHECK_NZ(scan.GetQuotedString(SFileFormat::Unkn, str));
-				SLCHECK_EQ(scan.Offs, static_cast<size_t>(4U));
-				SLCHECK_EQ(str, "ab");
+				{
+					scan.Set("", 0);
+					SLCHECK_Z(scan.GetQuotedString(SFileFormat::Csv, str));
+					SLCHECK_EQ(scan.Offs, static_cast<size_t>(0U));
+					SLCHECK_NZ(str.IsEmpty());
+					//
+					scan.Set("abc", 0);
+					SLCHECK_Z(scan.GetQuotedString(SFileFormat::Csv, str));
+					SLCHECK_EQ(scan.Offs, static_cast<size_t>(0U));
+					SLCHECK_NZ(str.IsEmpty());
+					//
+					scan.Set("\"abc\"0123", 0);
+					SLCHECK_NZ(scan.GetQuotedString(SFileFormat::Csv, str));
+					SLCHECK_EQ(scan.Offs, static_cast<size_t>(5U));
+					SLCHECK_EQ(str, "abc");
+					//
+					scan.Set("\"ab\"\"c\"0123", 0);
+					SLCHECK_NZ(scan.GetQuotedString(SFileFormat::Csv, str));
+					SLCHECK_EQ(scan.Offs, static_cast<size_t>(7U));
+					SLCHECK_EQ(str, "ab\"c");
+					//
+					scan.Set("\"abc\"", 0);
+					SLCHECK_NZ(scan.GetQuotedString(SFileFormat::Csv, str));
+					SLCHECK_EQ(scan.Offs, static_cast<size_t>(5U));
+					SLCHECK_EQ(str, "abc");
+					//
+					scan.Set("\"ab\"\"c\"", 0);
+					SLCHECK_NZ(scan.GetQuotedString(SFileFormat::Csv, str));
+					SLCHECK_EQ(scan.Offs, static_cast<size_t>(7U));
+					SLCHECK_EQ(str, "ab\"c");
+					//
+					scan.Set("\"ab\"\"c\"", 0);
+					SLCHECK_NZ(scan.GetQuotedString(SFileFormat::Unkn, str));
+					SLCHECK_EQ(scan.Offs, static_cast<size_t>(4U));
+					SLCHECK_EQ(str, "ab");
+				}
+				{
+					scan.Set(" 1q", 0);
+					SLCHECK_Z(scan.IsDigits());
+					scan.Skip();
+					SLCHECK_NZ(scan.IsDigits());
+					SLCHECK_NZ(scan.GetDigits(str));
+					SLCHECK_EQ(str.ToLong(), 1L);
+				}
+				{
+					scan.Set("xyz.100", 3);
+					SLCHECK_NZ(scan.IsDotPrefixedNumber());
+					scan.Set("&+.319", 1);
+					SLCHECK_NZ(scan.IsDotPrefixedNumber());
+					scan.Set("^*-.319", 2);
+					SLCHECK_NZ(scan.IsDotPrefixedNumber());
+					scan.Set("319", 0);
+					SLCHECK_NZ(scan.IsDotPrefixedNumber());
+					scan.Set("@319", 0);
+					SLCHECK_Z(scan.IsDotPrefixedNumber());
+				}
 			}
 			{
 				//

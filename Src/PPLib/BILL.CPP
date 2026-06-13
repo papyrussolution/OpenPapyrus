@@ -8,6 +8,11 @@
 //
 // BillCore
 //
+BillCore::Extra_Strg::Extra_Strg()
+{
+	THISZERO();
+}
+
 /*static*/double BillCore::GetQttyEpsilon()
 {
 	const int eps = CConfig.IltiCvtQttyEpsilon;

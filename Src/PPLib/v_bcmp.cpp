@@ -63,11 +63,11 @@ int PPViewGoodsBillCmp::GetBillCodes(const GoodsBillCmpFilt * pFilt, SString & r
 				}
 			}
 		}
-		else {
+		/* @v12.6.7 старый вариант хранения истории документов полностью элиминируется else {
 			HistBillTbl::Rec hb_rec;
 			r = Hb_.Search(lh_bill_id, &hb_rec);
 			HistBillCore::HBRecToBRec(&hb_rec, &bill_rec);
-		}
+		}*/
 	}
 	else {
 		r = P_BObj->Search(lh_bill_id, &bill_rec);
@@ -93,11 +93,11 @@ int PPViewGoodsBillCmp::GetBillCodes(const GoodsBillCmpFilt * pFilt, SString & r
 				}
 			}
 		}
-		else {
+		/* @v12.6.7 старый вариант хранения истории документов полностью элиминируется else {
 			HistBillTbl::Rec hb_rec;
 			r = Hb_.Search(rh_bill_id, &hb_rec);
 			HistBillCore::HBRecToBRec(&hb_rec, &bill_rec);
-		}
+		}*/
 	}
 	else
 		r = P_BObj->Search(rh_bill_id, &bill_rec);
@@ -160,7 +160,8 @@ int PPViewGoodsBillCmp::PutBillToTempTable(PPID billID, int side /* 1 - lh, 2 - 
 	PPBillPacket pack;
 	THROW_INVARG(oneof2(side, 1, 2));
 	if(isHistory) {
-		int   do_use_old_tech = 0;
+		/* @v12.6.7 старый вариант хранения истории документов полностью элиминируется
+		bool   do_use_old_tech = false;
 		if(!!rSjTime) {
 			LDATETIME moment;
 			PPIDArray acn_list;
@@ -168,10 +169,11 @@ int PPViewGoodsBillCmp::PutBillToTempTable(PPID billID, int side /* 1 - lh, 2 - 
 			SysJournal * p_sj = DS.GetTLA().P_SysJ;
 			if(p_sj && p_sj->GetLastObjEvent(PPOBJ_EVENTTOKEN, PPEVTOK_OBJHIST9811, &acn_list, &moment) > 0) {
 				if(cmp(moment, rSjTime) > 0)
-					do_use_old_tech = 1;
+					do_use_old_tech = true;
 			}
-		}
-		if(!do_use_old_tech) {
+		}*/
+		// @v12.6.7 старый вариант хранения истории документов полностью элиминируется if(!do_use_old_tech) 
+		{
 			SBuffer buf;
 			ObjVersioningCore * p_ovc = PPRef->P_OvT;
 			if(p_ovc && p_ovc->InitSerializeContext(1)) {
@@ -184,11 +186,12 @@ int PPViewGoodsBillCmp::PutBillToTempTable(PPID billID, int side /* 1 - lh, 2 - 
 				r = 1;
 			}
 		}
+		/* @v12.6.7 старый вариант хранения истории документов полностью элиминируется
 		else {
 			PPHistBillPacket h_pack;
 			if((r = Hb_.GetPacket(billID, &h_pack)) > 0)
 				r = h_pack.ConvertToBillPack(&pack);
-		}
+		}*/
 	}
 	else
 		r = P_BObj->ExtractPacket(billID, &pack);

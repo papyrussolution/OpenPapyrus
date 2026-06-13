@@ -1973,6 +1973,7 @@ int GetAddrListByZIP(const char * pZip, PPIDArray & rList)
 	return ok;
 }
 
+#if 0 // @v12.6.7 {
 /*static*/int PPObjWorld::Convert()
 {
 	const char * p_spec_name = "special";
@@ -2094,6 +2095,7 @@ int GetAddrListByZIP(const char * pZip, PPIDArray & rList)
 	delete p_tbl;
 	return ok;
 }
+#endif // } 0 @v12.6.7
 //
 //
 //

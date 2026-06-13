@@ -305,7 +305,7 @@ BdtTestItem::~BdtTestItem()
 								p_current_item->Flags |= BdtTestItem::fNonce;
 							}
                         }
-                        else if(hdr_buf.IsEqiAscii("AD")) { // @v10.5.11
+                        else if(hdr_buf.IsEqiAscii("AD")) {
 							if(!(p_current_item->Flags & BdtTestItem::fAD)) {
 								THROW(BdtTestItem::_DecodeTestData(data_buf, p_current_item->Aad, temp_data_buffer));
 								p_current_item->Flags |= BdtTestItem::fAD;

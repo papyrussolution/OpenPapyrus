@@ -697,7 +697,7 @@ int PPObjGoods::GetAltGoodsStrucID(PPID goodsID, PPID * pDynGenID, PPID * pStruc
 {
 	PPID   gs_id = 0;
 	PPID   dyn_gen_id = 0;
-	if(P_Tbl->BelongToGen(goodsID, &dyn_gen_id) > 0) {
+	if(P_Tbl->BelongsToGen(goodsID, &dyn_gen_id) > 0) {
 		Goods2Tbl::Rec gen_rec;
 		if(Search(dyn_gen_id, &gen_rec) > 0)
 			gs_id = gen_rec.StrucID;
@@ -711,16 +711,19 @@ int PPObjGoods::LoadGoodsStruc(const PPGoodsStruc::Ident & rIdent, PPGoodsStruc 
 {
 	int    ok = -1;
 	Goods2Tbl::Rec goods_rec;
-	if(rIdent.GoodsID && (ok = Fetch(rIdent.GoodsID, &goods_rec)) > 0) {
-		PPID   gs_id = goods_rec.StrucID;
-		if(!gs_id)
-			GetAltGoodsStrucID(rIdent.GoodsID, 0, &gs_id);
-		PPObjGoodsStruc gs_obj;
-		PPGoodsStruc gs;
-		if(gs_id > 0 && gs_obj.Get(gs_id, &gs) > 0 && gs.Select(rIdent, pGs))
-			ok = 1;
-		else
-			ok = (PPErrCode = PPERR_UNDEFGOODSSTRUC, -1);
+	if(rIdent.GoodsID) {
+		ok = Fetch(rIdent.GoodsID, &goods_rec);
+		if(ok > 0) {
+			PPID   gs_id = goods_rec.StrucID;
+			if(!gs_id)
+				GetAltGoodsStrucID(rIdent.GoodsID, 0, &gs_id);
+			PPObjGoodsStruc gs_obj;
+			PPGoodsStruc gs;
+			if(gs_id > 0 && gs_obj.Get(gs_id, &gs) > 0 && gs.Select(rIdent, pGs))
+				ok = 1;
+			else
+				ok = (PPErrCode = PPERR_UNDEFGOODSSTRUC, -1);
+		}
 	}
 	return ok;
 }
@@ -730,16 +733,19 @@ int PPObjGoods::LoadGoodsStruc(const PPGoodsStruc::Ident & rIdent, TSCollection 
 	rGsList.freeAll();
 	int    ok = -1;
 	Goods2Tbl::Rec goods_rec;
-	if(rIdent.GoodsID && (ok = Fetch(rIdent.GoodsID, &goods_rec)) > 0) {
-		PPID   gs_id = goods_rec.StrucID;
-		if(!gs_id)
-			GetAltGoodsStrucID(rIdent.GoodsID, 0, &gs_id);
-		PPObjGoodsStruc gs_obj;
-		PPGoodsStruc gs;
-		if(gs_id > 0 && gs_obj.Get(gs_id, &gs) > 0 && gs.Select(rIdent, rGsList) > 0)
-			ok = 1;
-		else
-			ok = (PPErrCode = PPERR_UNDEFGOODSSTRUC, -1);
+	if(rIdent.GoodsID) {
+		ok = Fetch(rIdent.GoodsID, &goods_rec);
+		if(ok > 0) {
+			PPID   gs_id = goods_rec.StrucID;
+			if(!gs_id)
+				GetAltGoodsStrucID(rIdent.GoodsID, 0, &gs_id);
+			PPObjGoodsStruc gs_obj;
+			PPGoodsStruc gs;
+			if(gs_id > 0 && gs_obj.Get(gs_id, &gs) > 0 && gs.Select(rIdent, rGsList) > 0)
+				ok = 1;
+			else
+				ok = (PPErrCode = PPERR_UNDEFGOODSSTRUC, -1);
+		}
 	}
 	return ok;
 }

@@ -94,7 +94,7 @@ int PPMarketplaceInterface::GetMarketplacePerson(PPID * pID, int use_ta)
 					const PPID psn_id = found_list.get(i);
 					PersonTbl::Rec psn_rec;
 					if(PsnObj.Search(psn_id, &psn_rec) > 0) {
-						if(PsnObj.P_Tbl->IsBelongsToKind(psn_id, person_kind)) {
+						if(PsnObj.P_Tbl->BelongsToKind(psn_id, person_kind)) {
 							ASSIGN_PTR(pID, psn_id);
 							ok = 1;
 						}

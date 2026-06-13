@@ -5695,7 +5695,6 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 										pack_has_marks = pack.P_LinkPack->HasChZnMarks(is_exp_correction);
 									}
 								}
-								// @v11.2.2 {
 								if(oneof2(b_e.BillParam.PredefFormat, piefNalogR_ON_NSCHFDOPPRMARK, piefNalogR_ON_NSCHFDOPPR)) {
 									if(is_exp_correction) {
 										DocNalogRu_WriteBillBlock _blk(b_e.BillParam, pack, pack_has_marks ? "ON_NKORSCHFDOPPRMARK" : "ON_NKORSCHFDOPPR", nominal_file_name);
@@ -5706,7 +5705,7 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 										r = _blk.Do_Invoice2(result_file_name_);
 									}
 								}
-								else { // } @v11.2.2 
+								else {
 									switch(b_e.BillParam.PredefFormat) {
 										case piefNalogR_Invoice:  
 											{
@@ -6872,9 +6871,11 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 			case PPVCMD_EDITACKBILL:
 				ok = -1;
 				if(hdr.ID) {
-					PPID ack_id = 0;
-					for(DateIter di; !ack_id && P_BObj->P_Tbl->EnumLinks(hdr.ID, &di, BLNK_ACK) > 0;)
-						ack_id = P_BObj->P_Tbl->data.ID;
+					PPID   ack_id = 0;
+					BillTbl::Rec link_rec;
+					for(DateIter di; !ack_id && P_BObj->P_Tbl->EnumLinks(hdr.ID, &di, BLNK_ACK, &link_rec) > 0;) {
+						ack_id = link_rec.ID;
+					}
 					if(ack_id) {
 						if(P_BObj->EditGoodsBill(ack_id, 0) == cmOK)
 							ok = 1;
@@ -6906,7 +6907,8 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 					ok = ViewSysJournal(PPOBJ_BILL, hdr.ID, 0);
 				break;
 			case PPVCMD_CHNGFLAGS:
-				if((ok = ChangeFlags()) > 0)
+				ok = ChangeFlags();
+				if(ok > 0)
 					update = 1;
 				break;
 			case PPVCMD_VIEWOP:

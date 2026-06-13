@@ -6596,7 +6596,7 @@ static const SIntToSymbTabEntry PhoneNumberMetaData_NumberDescriptorKindSymbList
 
 /*static*/bool PhoneNumberMetaData::GetNumberDescriptorSymb(uint64 uedNdId, SString & rSymb)
 {
-	if(UED::BelongToMeta(uedNdId, UED_META_PHONENUMBERKIND)) {
+	if(UED::BelongsToMeta(uedNdId, UED_META_PHONENUMBERKIND)) {
 		return SIntToSymbTab_GetSymb(PhoneNumberMetaData_NumberDescriptorKindSymbList, SIZEOFARRAY(PhoneNumberMetaData_NumberDescriptorKindSymbList), 
 			UED::GetRawValue32(uedNdId), rSymb);
 	}

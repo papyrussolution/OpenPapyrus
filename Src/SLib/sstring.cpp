@@ -540,6 +540,15 @@ bool FASTCALL SStrScan::GetQuotedString(SString & rBuf)
 
 static bool FASTCALL _is_eqq_ident_chr(char c) { return (isasciialnum(c) || c == '-' || c == '_'); }
 
+bool SStrScan::GetEqQIdent_(SString & rBuf)
+{
+	rBuf.Z();
+	for(char c = P_Buf[Offs]; c && _is_eqq_ident_chr(c); c = P_Buf[++Offs]) {
+		rBuf.CatChar(c);
+	}
+	return rBuf.NotEmpty();
+}
+
 int SStrScan::GetEqQ(SString & rKey, SString & rVal)
 {
 	int    ok = 0;
@@ -547,18 +556,36 @@ int SStrScan::GetEqQ(SString & rKey, SString & rVal)
 	rKey.Z();
 	rVal.Z();
 	SString temp_buf;
-	char  c = P_Buf[Offs];
-	while(c && _is_eqq_ident_chr(c)) {
-		temp_buf.CatChar(c);
-		c = P_Buf[++Offs];
-	}
-	if(temp_buf.NotEmpty()) {
+	if(GetEqQIdent_(temp_buf)) {
 		Skip();
 		if(P_Buf[Offs] == '=') {
 			Incr(1);
-			Skip();
-			if(GetQuotedString(rVal)) {
+			if(Skip().GetQuotedString(rVal)) {
 				rKey = temp_buf;
+				ok = 1;
+			}
+		}
+	}
+	if(!ok)
+		Offs = preserve_offs;
+	return ok;
+}
+
+int SStrScan::GetEqU(SString & rKey, uint64 & rVal)
+{
+	int    ok = 0;
+	const  size_t preserve_offs = Offs;
+	rKey.Z();
+	rVal = 0ULL;
+	SString temp_buf;
+	if(GetEqQIdent_(temp_buf)) {
+		Skip();
+		if(P_Buf[Offs] == '=') {
+			Incr(1);
+			SString value_buf;
+			if(Skip().GetDigits(value_buf)) {
+				rKey = temp_buf;
+				rVal = value_buf.ToUInt64();
 				ok = 1;
 			}
 		}
@@ -575,18 +602,12 @@ int SStrScan::GetEqN(SString & rKey, double & rVal)
 	rKey.Z();
 	rVal = 0.0;
 	SString temp_buf;
-	char  c = P_Buf[Offs];
-	while(c && _is_eqq_ident_chr(c)) {
-		temp_buf.CatChar(c);
-		c = P_Buf[++Offs];
-	}
-	if(temp_buf.NotEmpty()) {
+	if(GetEqQIdent_(temp_buf)) {
 		Skip();
 		if(P_Buf[Offs] == '=') {
 			Incr(1);
-			Skip();
 			SString value_buf;
-			if(GetNumber(value_buf)) {
+			if(Skip().GetNumber(value_buf)) {
 				rKey = temp_buf;
 				rVal = value_buf.ToReal();
 				ok = 1;
@@ -639,6 +660,7 @@ int  FASTCALL SStrScan::GetIdentWithHyphen(SString & rBuf)
 
 bool SStrScan::IsXDigits()
 {
+	// @todo По аналогии с IsDigits перевести на ishex
     bool ok = 0;
     if(SETIFZ(P_ReXDigits, new SRegExp2("^[0-9a-fA-F]+", cp1251, SRegExp2::syntaxDefault, 0))) {
         if(P_ReXDigits->Find(this, 0))
@@ -649,6 +671,7 @@ bool SStrScan::IsXDigits()
 
 int FASTCALL SStrScan::GetXDigits(SString & rBuf)
 {
+	// @todo По аналогии с GetDigits перевести на ishex
     int    ok = 0;
     if(SETIFZ(P_ReXDigits, new SRegExp2("^[0-9a-fA-F]+", cp1251, SRegExp2::syntaxDefault, 0))) {
         if(P_ReXDigits->Find(this, 0)) {
@@ -674,23 +697,51 @@ int FASTCALL SStrScan::GetHex(SString & rBuf)
 int FASTCALL SStrScan::GetDigits(SString & rBuf)
 {
     int    ok = 0;
-    if(SETIFZ(P_ReDigits, new SRegExp2("^[0-9]+", cp1251, SRegExp2::syntaxDefault, 0))) {
+	// @v12.6.7 {
+	size_t _offs = Offs;
+	if(isdec(P_Buf[_offs])) {
+		uint   len = 0;
+		do {
+			++_offs;
+			++len;
+		} while(isdec(P_Buf[_offs]));
+		SetLen(len);
+        Get(rBuf);
+        IncrLen();
+        ok = 1;
+	}
+	// } @v12.6.7 
+    /* @v12.6.7 
+	if(SETIFZ(P_ReDigits, new SRegExp2("^[0-9]+", cp1251, SRegExp2::syntaxDefault, 0))) {
         if(P_ReDigits->Find(this, 0)) {
             Get(rBuf);
             IncrLen();
             ok = 1;
         }
-    }
+    }*/
     return ok;
 }
 
 bool SStrScan::IsDigits()
 {
     bool   ok = false;
+	// @v12.6.7 {
+	size_t _offs = Offs;
+	if(isdec(P_Buf[_offs])) {
+		uint   len = 0;
+		do {
+			++_offs;
+			++len;
+		} while(isdec(P_Buf[_offs]));
+		SetLen(len);
+        ok = true;
+	}
+	// } @v12.6.7 
+	/* @v12.6.7 
     if(SETIFZ(P_ReDigits, new SRegExp2("^[0-9]+", cp1251, SRegExp2::syntaxDefault, 0))) {
         if(P_ReDigits->Find(P_Buf+Offs))
             ok = true;
-    }
+    }*/
 	return ok;
 }
 

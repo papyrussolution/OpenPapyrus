@@ -2037,7 +2037,7 @@ int PPBillImporter::Helper_EnsurePersonArticle(PPID psnID, PPID accSheetID, PPID
 		ar_id = ar_rec.ID;
 	}
 	else {
-		if(PsnObj.P_Tbl->IsBelongsToKind(psnID, psnKindID) <= 0)
+		if(PsnObj.P_Tbl->BelongsToKind(psnID, psnKindID) <= 0)
 			THROW(PsnObj.P_Tbl->AddKind(psnID, psnKindID, 0) > 0);
 		THROW(ArObj.CreateObjRef(&(ar_id = 0), accSheetID, psnID, 0, 0) > 0);
 	}

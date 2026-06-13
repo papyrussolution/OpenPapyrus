@@ -20,7 +20,8 @@ public:
 		qGetOutcomingDocList,
 		qGetDoc,
 		qDocumentSend,
-		qGetTicket
+		qGetTicket,
+		qGetAggrCodeList // @v12.6.7
 	};
 	ChZnInterface();
 	~ChZnInterface();
@@ -40,6 +41,7 @@ public:
 			protidEdoLtInt  = 3, // API ЭДО лайт Интеграционный стенд ГИС МТ
 			protidEdoLtElk  = 4, // API ЭДО лайт Продуктивый стенд ГИС МТ
 			protidGisMt     = 5, // API ГИС МТ
+			protidTrueAPI   = 6, // @v12.6.7 True API - еще одна поебень от чзн-долбоебов
 		};
 		PPID   GuaID;
 		int    ProtocolVer;
@@ -248,6 +250,11 @@ public:
 	};
 	int    GetDocumentList(InitBlock & rIb, const DocumentFilt * pFilt, TSCollection <Document> & rList);
 	int    GetDocument(const InitBlock & rIb, const S_GUID * pUuid, const InetUrl * pUrl, Document & rDoc);
+	//
+	// Descr: Возвращает список марок по каждому номеру бокса, указанному в rBoxCodeList.
+	//   Марки, полученные в результате запроса, включаются в контейнер rResult с привязкой к соответствующему коду бокса.
+	//
+	int    GetAggrMarkList(const InitBlock & rIb, const StringSet & rBoxCodeList, PPLotExtCodeContainer::MarkSet & rResult); // @v12.6.7 //_afQueryAggrMarkList
 	int    ReadJsonReplyForSingleItem(const char * pReply, const char * pTarget, SString & rResult);
 	int    TransmitDocument2(const InitBlock & rIb, const ChZnInterface::Packet & rPack, SString & rReply);
 	int    GetDocumentTicket(const InitBlock & rIb, const char * pDocIdent, SString & rTicket);
@@ -381,7 +388,7 @@ DRAFTBEER HORECA @v11.9.4
 						ok = 2;
 					}
 				}
-				else if(rS.GetToken(GtinStruc::fldInner2, &_93)) { // @v11.4.11 молочная продукция //
+				else if(rS.GetToken(GtinStruc::fldInner2, &_93)) { // молочная продукция //
 					if(oneof3(_21.Len(), 6, 7, 8)) { // @v12.0.4 7
 						rBuf.Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("93").Cat(_93);
 						ok = 2;
@@ -2965,12 +2972,13 @@ int ChZnInterface::SetupInitBlock(const PPGlobalUserAccPacket & rGuaPack, const 
 		for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 			temp_buf.Strip();
 			if(temp_buf.IsEqiAscii("v1") || temp_buf == "1") {
-				if(!rBlk.ProtocolVer)
-					rBlk.ProtocolVer = 1;
+				SETIFZ(rBlk.ProtocolVer, 1);
 			}
 			else if(temp_buf.IsEqiAscii("v3") || temp_buf == "3") {
-				if(!rBlk.ProtocolVer)
-					rBlk.ProtocolVer = 3;
+				SETIFZ(rBlk.ProtocolVer, 3);
+			}
+			else if(temp_buf.IsEqiAscii("v4") || temp_buf == "4") { // @v12.6.7
+				SETIFZ(rBlk.ProtocolVer, 4);
 			}
 			else if(temp_buf.IsEqiAscii("mdlp"))
 				protocol_id = InitBlock::protidMdlp;
@@ -2982,6 +2990,8 @@ int ChZnInterface::SetupInitBlock(const PPGlobalUserAccPacket & rGuaPack, const 
 				protocol_id = InitBlock::protidEdoLtInt;
 			else if(temp_buf.IsEqiAscii("edoltelk") || temp_buf.IsEqiAscii("edo-lite-elk"))
 				protocol_id = InitBlock::protidEdoLtElk;
+			else if(temp_buf.IsEqiAscii("trueapi") || temp_buf.IsEqiAscii("true-api")) // @v12.6.7
+				protocol_id = InitBlock::protidTrueAPI;
 		}
 	}
 	THROW_PP(protocol_id, PPERR_CHZN_PROTOCOLTAGNDEF);
@@ -3100,13 +3110,43 @@ SString & ChZnInterface::MakeTargetUrl_(int query, const char * pAddendum, const
 				else 
 					(rResult = "https").Cat("://").Cat("ismp").DotCat("crpt").DotCat("ru");
 				break;
+			case InitBlock::protidTrueAPI: // @v12.6.7
+				/*
+					Базовые адреса демонстрационного контура:
+					• https://markirovka.sandbox.crptech.ru/api/v3/true-api;
+					• https://markirovka.sandbox.crptech.ru/api/v4/true-api.
+					Базовые адреса промышленного контура:
+					• https://markirovka.crpt.ru/api/v3/true-api;
+					• https://markirovka.crpt.ru/api/v4/true-api.
+				*/ 
+				{
+					SString url_path;
+					const  char * p_ver_token = 0;
+					if(rIb.ProtocolVer == 3) {
+						p_ver_token = "v3";
+					}
+					else if(rIb.ProtocolVer == 4) {
+						p_ver_token = "v4";
+					}
+					else {
+						p_ver_token = "v4";
+					}
+					url_path.Cat("api").SetLastDSlash().Cat(p_ver_token).SetLastDSlash().Cat("true-api");
+					if(rIb.GuaPack.Rec.Flags & PPGlobalUserAcc::fSandBox) {
+						rResult = InetUrl::MkHttps("markirovka.sandbox.crptech.ru", url_path);
+					}
+					else {
+						rResult = InetUrl::MkHttps("markirovka.crpt.ru", url_path);
+					}
+				}
+				break;
 			case InitBlock::protidMdlp:
 			default:
 				//rResult = (query == qDocumentSend) ? "https" : "http"; // @test
 				// https://api.mdlp.crpt.ru:443/api/v1/documents/send
 				if(oneof3(query, qDocumentSend, qGetDoc, qGetTicket)) 
 					rResult = "https";
-				else if(oneof2(query, qAuth, qToken)) // @v11.3.8
+				else if(oneof2(query, qAuth, qToken))
 					rResult = "https";
 				else
 					rResult = "http";
@@ -3128,6 +3168,9 @@ SString & ChZnInterface::MakeTargetUrl_(int query, const char * pAddendum, const
 			else if(rIb.ProtocolId == InitBlock::protidGisMt) {
 				rResult.Cat("api/v3/auth/cert/key"); 
 			}
+			else if(rIb.ProtocolId == InitBlock::protidTrueAPI) { // @v12.6.7
+				rResult.Cat("auth/key"); 
+			}
 			else if(oneof3(rIb.ProtocolId, InitBlock::protidEdoLtElk, InitBlock::protidEdoLtInt, InitBlock::protidEdoLtMdlp)) {
 				rResult.Cat("api/v1/session"); 
 			}
@@ -3137,6 +3180,9 @@ SString & ChZnInterface::MakeTargetUrl_(int query, const char * pAddendum, const
 				rResult.Cat("token"); 
 			else if(rIb.ProtocolId == InitBlock::protidGisMt) {
 				rResult.Cat("api/v3/auth/cert/"/*"facade/auth"*/); 
+			}
+			else if(rIb.ProtocolId == InitBlock::protidTrueAPI) { // @v12.6.7
+				rResult.Cat("auth/simpleSignIn");
 			}
 			else if(oneof3(rIb.ProtocolId, InitBlock::protidEdoLtElk, InitBlock::protidEdoLtInt, InitBlock::protidEdoLtMdlp)) {
 				rResult.Cat("api/v1/session"); 
@@ -3198,6 +3244,11 @@ SString & ChZnInterface::MakeTargetUrl_(int query, const char * pAddendum, const
 			if(!isempty(pAddendum))
 				rResult.Slash().Cat(pAddendum);
 			rResult.Slash().Cat("ticket");
+			break;
+		case qGetAggrCodeList: // @v12.6.7
+			if(rIb.ProtocolId == InitBlock::protidTrueAPI) {
+				rResult.Cat("cises/aggregated/list");
+			}
 			break;
 	}
 	return rResult;
@@ -3818,6 +3869,7 @@ int ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInterface:
 							case GTCHZNPT_VEGETABLEOIL: p_chzn_prodtype_symb = "vegetableoil"; break; // @v12.5.11
 							case GTCHZNPT_NCP: p_chzn_prodtype_symb = "ncp"; break; // @v12.5.6
 							case GTCHZNPT_MOTOROIL: p_chzn_prodtype_symb = "autofluids"; break; // @v12.5.11
+							case GTCHZNPT_CHEMISTRY: p_chzn_prodtype_symb = "chemistry"; break; // @v12.6.7
 						}
 						if(!isempty(p_chzn_prodtype_symb)) {
 							temp_buf.Z().CatEq("pg", p_chzn_prodtype_symb);
@@ -4138,10 +4190,31 @@ int ChZnInterface::ReadJsonReplyForSingleItem(const char * pReply, const char * 
 	return ok;
 }
 
+int ChZnInterface::GetAggrMarkList(const InitBlock & rIb, const StringSet & rBoxCodeList, PPLotExtCodeContainer::MarkSet & rResult) // @v12.6.7 @construction
+{
+	int    ok = -1;
+	if(rBoxCodeList.IsCountGreaterThan(0)) {
+		SString temp_buf;
+		SString req_buf;
+		SString url_buf;
+		if(rIb.ProtocolId == InitBlock::protidTrueAPI) {
+			InetUrl url(MakeTargetUrl_(qGetAggrCodeList, 0, rIb, url_buf));
+			{
+				req_buf.Z();
+				SJson json_req(SJson::tARRAY);
+				THROW_SL(SJson::SetArrayAsStringSet(&json_req, rBoxCodeList));
+				THROW_SL(json_req.ToStr(req_buf));
+			}
+			// @todo
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int ChZnInterface::GetDocument(const InitBlock & rIb, const S_GUID * pUuid, const InetUrl * pUrl, Document & rDoc)
 {
 	int    ok = -1;
-	SJson * p_json_req = 0;
 	SJson * p_json_doc = 0;
 	SString temp_buf;
 	SString hdr_buf;
@@ -4211,7 +4284,6 @@ int ChZnInterface::GetDocument(const InitBlock & rIb, const S_GUID * pUuid, cons
 int ChZnInterface::GetDocumentList(InitBlock & rIb, const DocumentFilt * pFilt, TSCollection <Document> & rList)
 {
 	int    ok = -1;
-	SJson * p_json_req = 0;
 	SString temp_buf;
 	SString req_buf;
 	SString url_buf;
@@ -4221,17 +4293,16 @@ int ChZnInterface::GetDocumentList(InitBlock & rIb, const DocumentFilt * pFilt, 
 		req_buf.Z();
 		{
 			// { "filter": { "doc_status": "PROCESSED_DOCUMENT" }, "start_from": 0, "count": 100 }
-			p_json_req = SJson::CreateObj();
+			SJson json_req(SJson::tOBJECT);
 			{
 				SJson * p_json_filt = SJson::CreateObj();
 				p_json_filt->InsertString("doc_status", "PROCESSED_DOCUMENT");
-				p_json_req->Insert("filter", p_json_filt);
+				json_req.Insert("filter", p_json_filt);
 			}
-			p_json_req->Insert("start_from", json_new_number("0"));
-			p_json_req->Insert("count", json_new_number("100"));
-			THROW_SL(p_json_req->ToStr(req_buf));
+			json_req.Insert("start_from", json_new_number("0"));
+			json_req.Insert("count", json_new_number("100"));
+			THROW_SL(json_req.ToStr(req_buf));
 		}
-		ZDELETE(p_json_req);
 	}
 	{
 		ScURL c;
@@ -4285,7 +4356,6 @@ int ChZnInterface::GetDocumentList(InitBlock & rIb, const DocumentFilt * pFilt, 
 		}
 	}
 	CATCHZOK
-	delete p_json_req;
 	return ok;
 }
 
@@ -4370,7 +4440,7 @@ int ChZnInterface::Connect(InitBlock & rIb)
 				WinInternetHandleStack hstk;
 				int    wininet_err = 0;
 				int    win_err = 0;
-				THROW(h_inet_sess = hstk.Push(InternetOpen(_T("Papyrus"), INTERNET_OPEN_TYPE_DIRECT, 0/*lpszProxy*/, 0/*lpszProxyBypass*/, 0/*dwFlags*/)));
+				THROW(h_inet_sess = hstk.Push(::InternetOpen(L"Papyrus", INTERNET_OPEN_TYPE_DIRECT, 0/*lpszProxy*/, 0/*lpszProxyBypass*/, 0/*dwFlags*/)));
 				THROW(h_connection = hstk.PushConnection(url, h_inet_sess));
 				{
 					THROW(h_req = hstk.PushHttpRequestPost(h_connection, url));
@@ -4380,7 +4450,7 @@ int ChZnInterface::Connect(InitBlock & rIb)
 					{
 						const CERT_CONTEXT * p_cert = GetClientSslCertificate(rIb);
 						if(p_cert) {
-							isor = InternetSetOption(h_req, INTERNET_OPTION_CLIENT_CERT_CONTEXT, (LPVOID)(p_cert), sizeof(*p_cert));
+							isor = ::InternetSetOptionW(h_req, INTERNET_OPTION_CLIENT_CERT_CONTEXT, (LPVOID)(p_cert), sizeof(*p_cert));
 							if(!isor) {
 								win_err = GetLastError();
 								iresp = GetLastWinInternetResponse(temp_buf);
@@ -4412,7 +4482,7 @@ int ChZnInterface::Connect(InitBlock & rIb)
 				WinInternetHandleStack hstk;
 				int    wininet_err = 0;
 				int    win_err = 0;
-				THROW(h_inet_sess = hstk.Push(InternetOpen(_T("Papyrus"), INTERNET_OPEN_TYPE_DIRECT, 0/*lpszProxy*/, 0/*lpszProxyBypass*/, 0/*dwFlags*/)));
+				THROW(h_inet_sess = hstk.Push(::InternetOpenW(L"Papyrus", INTERNET_OPEN_TYPE_DIRECT, 0/*lpszProxy*/, 0/*lpszProxyBypass*/, 0/*dwFlags*/)));
 				THROW(h_connection = hstk.PushConnection(url, h_inet_sess));
 				{
 					THROW(h_req = hstk.PushHttpRequestPost(h_connection, url));
@@ -4422,7 +4492,7 @@ int ChZnInterface::Connect(InitBlock & rIb)
 					{
 						const CERT_CONTEXT * p_cert = GetClientSslCertificate(rIb);
 						if(p_cert) {
-							isor = InternetSetOption(h_req, INTERNET_OPTION_CLIENT_CERT_CONTEXT, (LPVOID)(p_cert), sizeof(*p_cert));
+							isor = ::InternetSetOptionW(h_req, INTERNET_OPTION_CLIENT_CERT_CONTEXT, (LPVOID)(p_cert), sizeof(*p_cert));
 							if(!isor) {
 								win_err = GetLastError();
 								iresp = GetLastWinInternetResponse(temp_buf);
@@ -4444,7 +4514,7 @@ int ChZnInterface::Connect(InitBlock & rIb)
 			}
 		}
 	}
-	else if(oneof3(rIb.ProtocolId, InitBlock::protidEdoLtElk, InitBlock::protidEdoLtInt, InitBlock::protidGisMt)) {
+	else if(oneof4(rIb.ProtocolId, InitBlock::protidEdoLtElk, InitBlock::protidEdoLtInt, InitBlock::protidGisMt, InitBlock::protidTrueAPI)) { // @v12.6.7 InitBlock::protidTrueAPI
 		S_GUID result_uuid;
 		SString result_data;
 		{
@@ -4588,9 +4658,11 @@ int PPChZnPrcssr::EditQueryParam(PPChZnPrcssr::QueryParam * pData)
 			int    ok = 1;
 			RVALUEPTR(Data, pData);
 			SetupPPObjCombo(this, CTLSEL_CHZNIX_GUA, PPOBJ_GLOBALUSERACC, Data.GuaID, OLW_CANINSERT, 0);
-			AddClusterAssocDef(CTL_CHZNIX_WHAT, 0, Data._afQueryTicket);
-			AddClusterAssoc(CTL_CHZNIX_WHAT, 1, Data._afQueryKizInfo);
-			AddClusterAssoc(CTL_CHZNIX_WHAT, 2, Data._afQueryDocListIn); // @v11.8.2
+			AddClusterAssocDef(CTL_CHZNIX_WHAT, 0, PPChZnPrcssr::QueryParam::_afQueryTicket);
+			AddClusterAssoc(CTL_CHZNIX_WHAT, 1, PPChZnPrcssr::QueryParam::_afQueryKizInfo);
+			AddClusterAssoc(CTL_CHZNIX_WHAT, 2, PPChZnPrcssr::QueryParam::_afQueryDocListIn); // @v11.8.2
+			AddClusterAssoc(CTL_CHZNIX_WHAT, 3, PPChZnPrcssr::QueryParam::_afQueryAggrMarkList); // @v12.6.7
+			AddClusterAssoc(CTL_CHZNIX_WHAT, 4, PPChZnPrcssr::QueryParam::_afDebug_Auth); // @v12.6.7
 			SetClusterData(CTL_CHZNIX_WHAT, Data.DocType);
 			setCtrlString(CTL_CHZNIX_PARAM, Data.ParamString);
 			SetupArCombo(this, CTLSEL_CHZNIX_SUPPL, Data.ArID, 0, GetSupplAccSheet(), 0);
@@ -4618,33 +4690,61 @@ int PPChZnPrcssr::InteractiveQuery()
 	QueryParam _param;
 	_param.LocID = LConfig.Location;
 	while(EditQueryParam(&_param) > 0) {
-		if(oneof3(_param.DocType, QueryParam::_afQueryTicket, QueryParam::_afQueryKizInfo, QueryParam::_afQueryDocListIn)) {
+		if(oneof5(_param.DocType, QueryParam::_afQueryTicket, QueryParam::_afQueryKizInfo, QueryParam::_afQueryDocListIn, 
+			QueryParam::_afDebug_Auth, QueryParam::_afQueryAggrMarkList)) {
 			ChZnInterface ifc;
 			ChZnInterface::InitBlock * p_ib = static_cast<ChZnInterface::InitBlock *>(P_Ib);
 			p_ib->ProtocolId = ChZnInterface::InitBlock::protidMdlp;
 			THROW(ifc.SetupInitBlock(_param.GuaID, 0, *p_ib));
-			THROW(ifc.Connect(*p_ib) > 0);
-			//SString doc_ident = "e8b6b8e2-6135-4153-804d-7a676cbfc0de";
-			//ifc.GetDocumentTicket(*p_ib, doc_ident, temp_buf);
-			//ifc.GetIncomeDocList_(*p_ib);
-			if(_param.DocType == QueryParam::_afQueryTicket) {
-				ifc.GetDocumentTicket(*p_ib, _param.ParamString, temp_buf);
-			}
-			else if(_param.DocType == QueryParam::_afQueryKizInfo) {
-				ChZnInterface::Packet pack(ChZnInterface::doctypMdlpQueryKizInfo);
-				ChZnInterface::Packet::QueryKizInfo * p_cq = static_cast<ChZnInterface::Packet::QueryKizInfo *>(pack.P_Data);
-				p_cq->Code = _param.ParamString;
-				p_cq->ArID = _param.ArID;
-				if(!ifc.TransmitDocument2(*p_ib, pack, result_buf))
-					LogLastError();
-			}
-			else if(_param.DocType == QueryParam::_afQueryDocListIn) { // @v11.8.2
-				ChZnInterface::DocumentFilt filt;
-				filt.Flags |= ChZnInterface::DocumentFilt::fIncoming;
-				TSCollection <ChZnInterface::Document> doc_list; 
-				if(!ifc.GetDocumentList(*p_ib, &filt, doc_list)) {
-					LogLastError();
+			if(ifc.Connect(*p_ib) > 0) {
+				//SString doc_ident = "e8b6b8e2-6135-4153-804d-7a676cbfc0de";
+				//ifc.GetDocumentTicket(*p_ib, doc_ident, temp_buf);
+				//ifc.GetIncomeDocList_(*p_ib);
+				switch(_param.DocType) {
+					case QueryParam::_afQueryTicket:
+						ifc.GetDocumentTicket(*p_ib, _param.ParamString, temp_buf);
+						break;
+					case QueryParam::_afQueryKizInfo:
+						{
+							ChZnInterface::Packet pack(ChZnInterface::doctypMdlpQueryKizInfo);
+							ChZnInterface::Packet::QueryKizInfo * p_cq = static_cast<ChZnInterface::Packet::QueryKizInfo *>(pack.P_Data);
+							p_cq->Code = _param.ParamString;
+							p_cq->ArID = _param.ArID;
+							if(!ifc.TransmitDocument2(*p_ib, pack, result_buf))
+								LogLastError();
+						}
+						break;
+					case QueryParam::_afQueryDocListIn: // @v11.8.2
+						{
+							ChZnInterface::DocumentFilt filt;
+							filt.Flags |= ChZnInterface::DocumentFilt::fIncoming;
+							TSCollection <ChZnInterface::Document> doc_list; 
+							if(!ifc.GetDocumentList(*p_ib, &filt, doc_list)) {
+								LogLastError();
+							}
+						}
+						break;
+					case QueryParam::_afQueryAggrMarkList: // @v12.6.7
+						{
+						}
+						break;
+					case QueryParam::_afDebug_Auth: // @v12.6.7
+						{
+							// Если мы дошли до этой точки, то авторизация выполнена успешно!
+							PPLoadText(PPTXT_CHZN_LOG_DEBUGAUTH_SUCCESS, temp_buf);
+							/*
+							switch(p_ib->ProtocolId) {
+								case ChZnInterface::InitBlock::protidEdoLtElk:
+								case ChZnInterface::InitBlock::protidEdoLtInt:
+								case ChZnInterface::InitBlock::protidEdoLtMdlp:
+							}*/
+							Log(temp_buf);
+						}
+						break;
 				}
+			}
+			else {
+				LogLastError();
 			}
 		}
 		ok = 1;
@@ -5059,8 +5159,14 @@ PPChZnPrcssr::PermissiveModeInterface::CdnStatus::CdnStatus() : Code(-1), AvgTim
 {
 }
 
-PPChZnPrcssr::CodeStatus::CodeStatus() : OrgRowId(0), ErrorCode(0), EliminationState(0), Mrp(0), Smp(0), InnerUnitCount(0), SoldUnitCount(0), Flags(0), ExpiryDtm(ZERODATETIME),
-	ProductionDtm(ZERODATETIME), Weight(0.0), ReqTimestamp(0), PackageQtty(0)
+PPChZnPrcssr::PriceByMarkBlock::PriceByMarkBlock() : PmMrp(0.0), PmSmp(0.0)
+{
+	AllowedRange.Z();
+}
+
+PPChZnPrcssr::CodeStatus::CodeStatus() : OrgRowId(0), ChZnProdType(0), ChZnSNTokID(0), ErrorCode(0), EliminationState(0), Mrp(0), Smp(0), 
+	InnerUnitCount(0), SoldUnitCount(0), Flags(0), ExpiryDtm(ZERODATETIME), ProductionDtm(ZERODATETIME), Weight(0.0), ReqTimestamp(0), PackageQtty(0),
+	InternalErrCode(0)
 {
 	memzero(GroupIds, sizeof(GroupIds));
 }
@@ -5108,7 +5214,7 @@ PPChZnPrcssr::CodeStatusCollection & PPChZnPrcssr::CodeStatusCollection::Z()
 	return *this;
 }
 
-int PPChZnPrcssr::CodeStatusCollection::AddCodeEntry(const char * pCode, uint orgRowId, SString * pReconstructedCode)
+int PPChZnPrcssr::CodeStatusCollection::AddCodeEntry(const char * pCode, uint orgRowId, int chznProdType, SString * pReconstructedCode)
 {
 	int    ok = 0;
 	SString reconstructed_code;
@@ -5122,6 +5228,7 @@ int PPChZnPrcssr::CodeStatusCollection::AddCodeEntry(const char * pCode, uint or
 			PPChZnPrcssr::CodeStatus * p_cle = CreateNewItem(&clp);
 			if(p_cle) {
 				p_cle->OrgMark = reconstructed_code;
+				p_cle->ChZnSNTokID = gts.GetSpecialNaturalToken(); // @v12.6.7
 				SString chzn_mark_serial;
 				if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf) && gts.GetToken(GtinStruc::fldSerial, &chzn_mark_serial)) {
 					p_cle->OrgMark_Offl.Cat("01").Cat(temp_buf).Cat("21").Cat(chzn_mark_serial); 
@@ -6058,6 +6165,143 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 	ENDCATCH
 	return ok;
 }
+
+/*static*/int PPChZnPrcssr::PmCheck_VerifyResult(CodeStatusCollection & rList) // @v12.6.7
+{
+	int    ok = 1;
+	//
+	// Следующие два кода - тестовые коды для проверки тс пиот. Педрилы из црпт включили их в тест
+	// offline-режима с утверждением, что их уебищный тс пиот вкупе с не менее уебищным локальным модулем
+	// дадут в ответ признак "blocked", а вот и нихуя - нет такого признака, стало быть, чтобы тест 
+	// отрабатывал я добавил сюда эти коды.
+	//
+	static const char * p_test_blocked_chzn_code_list[] = {
+		"0104602220006549215opRcmR93dGVz",
+		"0104607010350246215kRdG-X%W(Rnb93dGVz"
+	};
+	const  uint org_chzn_pm_crit_flags = NZOR(CConfig.ChZnPmCrit, PPChZnPrcssr::GetDefaultCnZnPmCritFlags());
+	const  uint chzn_pm_crit_flags = (rList.Flags & PPChZnPrcssr::CodeStatusCollection::fCheckedOffline) ? PPChZnPrcssr::chznpmcritBlocked : org_chzn_pm_crit_flags;
+	const  long ccfg_f2 = CConfig.Flags2__;
+	for(uint i = 0; i < rList.getCount(); i++) {
+		PPChZnPrcssr::CodeStatus * p_cle = rList.at(i);
+		if(p_cle) {
+			p_cle->PriceBlk.PmMrp = R2(p_cle->Mrp / 100.0);
+			p_cle->PriceBlk.PmSmp = R2(p_cle->Smp / 100.0);
+			if(ccfg_f2 & CCFLG2_RESTRICTCHZNPMPRICE) { // @v12.2.5
+				// 3 tobacco Табачная продукция
+				// 16 ncp Никотинсодержащая продукция
+				// mrp : number : 
+					// Максимальная розничная цена – для товарной группы с groupIds = 3. | 
+					// Минимальная цена – для товарной группы с groupIds = 16 : В копейках
+				// @v12.2.2 {
+				if(p_cle->ChZnProdType != GTCHZNPT_ALTTOBACCO) { // @v12.2.4 Для альтернативной табачной продукции ценовое ограничение не проверяем.
+					if(p_cle->PriceBlk.PmMrp > 0.0) {
+						if(p_cle->ChZnProdType == GTCHZNPT_NCP) { // @v12.6.5
+							p_cle->PriceBlk.AllowedRange.low = p_cle->PriceBlk.PmMrp; 
+						}
+						else {
+							p_cle->PriceBlk.AllowedRange.upp = p_cle->PriceBlk.PmMrp;
+						}
+					}
+					if(p_cle->PriceBlk.PmSmp > 0.0) {
+						if(p_cle->ChZnProdType == GTCHZNPT_NCP) {
+							;
+						}
+						else {
+							// @v12.6.5 (очень уебищный костыль для того, чтобы преодолеть еще более уебищное ограничение блядского честного знака) {
+							if(p_cle->ChZnSNTokID == SNTOK_CHZN_CIGBLOCK) {
+								p_cle->PriceBlk.AllowedRange.low = p_cle->PriceBlk.PmSmp * 10;
+							}
+							else // } @v12.6.5 
+							{
+								p_cle->PriceBlk.AllowedRange.low = p_cle->PriceBlk.PmSmp;
+							}
+						}
+					}
+					// @v12.2.4 {
+					if(p_cle->ChZnProdType == GTCHZNPT_TOBACCO) { // @v12.2.5 @fix (!=)-->(==)
+						if(ccfg_f2 & CCFLG2_RESTRICTCHZNCIGPRICEASMRC) {
+							if(p_cle->PriceBlk.PmMrp > 0.0) {
+								p_cle->PriceBlk.AllowedRange.SetVal(p_cle->PriceBlk.PmMrp);
+							}
+						}
+					}
+					// } @v12.2.4 
+				}
+				// } @v12.2.2 
+			}
+			// @v12.5.11 (дабы CCFLG2_RESTRICTCHZNCIGPRICEASMRC работал без CCFLG2_RESTRICTCHZNPMPRICE) {
+			else if(ccfg_f2 & CCFLG2_RESTRICTCHZNCIGPRICEASMRC) {
+				if(p_cle->ChZnProdType == GTCHZNPT_TOBACCO) {
+					if(p_cle->PriceBlk.PmMrp > 0.0) {
+						p_cle->PriceBlk.AllowedRange.SetVal(p_cle->PriceBlk.PmMrp);
+					}
+				}
+			}
+			// } @v12.5.11 
+			{
+				int    local_err_code = 0;
+				bool   tbc_rised = false;
+				{
+					SString temp_buf(p_cle->OrgMark);
+					{
+						size_t _spos = 0;
+						while(temp_buf.SearchChar('\x1d', &_spos)) {
+							temp_buf.Excise(_spos, 1);
+						}
+					}
+					for(uint tcli = 0; !tbc_rised && tcli < SIZEOFARRAY(p_test_blocked_chzn_code_list); tcli++) {
+						if(temp_buf.IsEqiAscii(p_test_blocked_chzn_code_list[tcli])) {
+							tbc_rised = true;
+						}
+					}
+				}
+				if(tbc_rised) {
+					local_err_code = PPERR_CHZNMARKPMFAULT_BLOCKED;
+				}
+				else if(p_cle->ErrorCode != 0)
+					local_err_code = PPERR_CHZNMARKPMFAULT;
+				else if((chzn_pm_crit_flags & PPChZnPrcssr::chznpmcritNotFound) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fFound))
+					local_err_code = PPERR_CHZNMARKPMFAULT_NOTFOUND;
+				else if((chzn_pm_crit_flags & PPChZnPrcssr::chznpmcritNotValid) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fValid))
+					local_err_code = PPERR_CHZNMARKPMFAULT_NOTVALID;
+				else if((chzn_pm_crit_flags & PPChZnPrcssr::chznpmcritNotVerified) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fVerified))
+					local_err_code = PPERR_CHZNMARKPMFAULT_NOTVERIFIED;
+				else if((chzn_pm_crit_flags & PPChZnPrcssr::chznpmcritNotRealizable) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fRealizable)) {
+					if((p_cle->Flags & PPChZnPrcssr::chznpmcritNotRlzblGzExcl) && (p_cle->Flags & PPChZnPrcssr::CodeStatus::fGrayZone)) {
+						; // Исключение! Какая-то серая зона и продажа разрешена (цуй его знает что это значит)
+					}
+					else
+						local_err_code = PPERR_CHZNMARKPMFAULT_NOTREALIZABLE;
+				}
+				else if((chzn_pm_crit_flags & PPChZnPrcssr::chznpmcritNotUtilised) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fUtilised))
+					local_err_code = PPERR_CHZNMARKPMFAULT_NOTUTILISED;
+				else if((chzn_pm_crit_flags & PPChZnPrcssr::chznpmcritNotOwner) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fIsOwner)) // @v12.6.3
+					local_err_code = PPERR_CHZNMARKPMFAULT_NOTOWNED;
+				else if((chzn_pm_crit_flags & PPChZnPrcssr::chznpmcritBlocked) && (p_cle->Flags & PPChZnPrcssr::CodeStatus::fIsBlocked))
+					local_err_code = PPERR_CHZNMARKPMFAULT_BLOCKED;
+				else if((chzn_pm_crit_flags & PPChZnPrcssr::chznpmcritSold) && (p_cle->Flags & PPChZnPrcssr::CodeStatus::fSold))
+					local_err_code = PPERR_CHZNMARKPMFAULT_SOLD;
+				else if((chzn_pm_crit_flags & PPChZnPrcssr::chznpmcritExpiry) && checkdate(p_cle->ExpiryDtm.d) && getcurdate_() >= p_cle->ExpiryDtm.d) { // @v12.1.1
+					local_err_code = PPERR_CHZNMARKPMFAULT_EXPIRY;
+				}
+				if(local_err_code) {
+					//ok = MessageError(local_err_code, rBlk.ChZnMark, eomBeep|eomStatusLine);
+					p_cle->InternalErrCode = local_err_code;
+					ok = 0;
+				}
+				else { // @v12.1.1
+					// OK
+					//rBlk.ChZnPm_ReqId = rList.ReqId;
+					//rBlk.ChZnPm_ReqTimestamp = rList.ReqTimestamp;
+					//rBlk.ChZnPm_LocalModuleInstance = rList.LocalModuleInstance; // @v12.3.12
+					//rBlk.ChZnPm_LocalModuleDbVer    = rList.LocalModuleDbVer;    // @v12.3.12
+				}
+			}
+		}
+	}
+	return ok;
+}
 //
 //
 //
@@ -6403,7 +6647,7 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 							for(uint bcidx = 0; bcidx < bc_list.getCount(); bcidx++) {
 								const PPBarcode::Entry * p_bc_entry = bc_list.at(bcidx);
 								if(p_bc_entry && p_bc_entry->BcStd == BARCSTD_DATAMATRIX) {
-									pm_code_list.AddCodeEntry(p_bc_entry->Code, i+1, 0);
+									pm_code_list.AddCodeEntry(p_bc_entry->Code, i+1, 0/*chznProdType*/, 0);
 								}
 							}
 						}
@@ -6825,7 +7069,7 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 					const PPID gua_id = getCtrlLong(CTLSEL_CHKCHZNMARK_GUA);
 					if(gua_id) {
 						PPChZnPrcssr::CodeStatusCollection pm_code_list;
-						if(pm_code_list.AddCodeEntry(pOriginalText, 0, 0) > 0) {
+						if(pm_code_list.AddCodeEntry(pOriginalText, 0, 0/*chznProdType*/, 0) > 0) {
 							if(method == prcsmarkMethodPmOffline) {
 								if(PPChZnPrcssr::PmCheck(gua_id, 0, 1/*offline only*/, pm_code_list)) {
 									OutputPmCheckResult(pm_code_list, method, temp_buf);

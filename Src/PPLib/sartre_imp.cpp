@@ -1,5 +1,5 @@
 // SARTRE_IMP.CPP
-// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -30,7 +30,6 @@ static int ReadAncodeDescrLine_Ru(const char * pLine, SString & rAncode, SrWordF
 {
 	int    ok = 1;
 	rAncode.Z();
-
 	SString line_buf;
 	const char * p = pLine;
 	while(*p && *p != '\n' && !(p[0] == '/' && p[1] == '/')) {
@@ -5690,7 +5689,7 @@ int PrcssrSartre::UED_Import_PackageTypes()
 				const UED_PackageTypes_Block::Entry & r_entry = blk.L.at(i);
 				assert(r_entry.Code[0]);
 				assert(r_entry.ID != 0);
-				assert(UED::BelongToMeta(r_entry.ID, meta));
+				assert(UED::BelongsToMeta(r_entry.ID, meta));
 				line_buf.Z().CatHex(r_entry.ID).Space().CatQStr(r_entry.Code);
 				f_out.WriteLine(line_buf.CR());
 			}
@@ -5702,7 +5701,7 @@ int PrcssrSartre::UED_Import_PackageTypes()
 				const UED_PackageTypes_Block::Entry & r_entry = blk.L.at(i);
 				assert(r_entry.Code[0]);
 				assert(r_entry.ID != 0);
-				assert(UED::BelongToMeta(r_entry.ID, meta));
+				assert(UED::BelongsToMeta(r_entry.ID, meta));
 				blk.GetS(r_entry.EnTxtP, temp_buf);
 				if(temp_buf.NotEmptyS()) {
 					line_buf.Z().CatHex(r_entry.ID).Space().Cat("en").Space().CatQStr(temp_buf);
@@ -5717,7 +5716,7 @@ int PrcssrSartre::UED_Import_PackageTypes()
 				const UED_PackageTypes_Block::Entry & r_entry = blk.L.at(i);
 				assert(r_entry.Code[0]);
 				assert(r_entry.ID != 0);
-				assert(UED::BelongToMeta(r_entry.ID, meta));
+				assert(UED::BelongsToMeta(r_entry.ID, meta));
 				blk.GetS(r_entry.RuTxtP, temp_buf);
 				if(temp_buf.NotEmptyS()) {
 					line_buf.Z().CatHex(r_entry.ID).Space().Cat("ru").Space().CatQStr(temp_buf);
@@ -6065,7 +6064,7 @@ int PrcssrSartre::UED_Import_Atoms()
 						const UED_Atom_Block::Entry & r_entry = blk.L.at(i);
 						assert(r_entry.NameP && r_entry.SymbP);
 						assert(r_entry.ID != 0);
-						assert(UED::BelongToMeta(r_entry.ID, meta));
+						assert(UED::BelongsToMeta(r_entry.ID, meta));
 						blk.GetS(r_entry.SymbP, symb);
 						line_buf.Z().CatHex(r_entry.ID).Space().CatQStr(symb);
 						f_out.WriteLine(line_buf.CR());
@@ -6078,7 +6077,7 @@ int PrcssrSartre::UED_Import_Atoms()
 						const UED_Atom_Block::Entry & r_entry = blk.L.at(i);
 						assert(r_entry.NameP && r_entry.SymbP);
 						assert(r_entry.ID != 0);
-						assert(UED::BelongToMeta(r_entry.ID, meta));
+						assert(UED::BelongsToMeta(r_entry.ID, meta));
 						blk.GetS(r_entry.NameP, name);
 						if(name.NotEmptyS()) {
 							line_buf.Z().CatHex(r_entry.ID).Space().Cat("en").Space().CatQStr(name);
@@ -6214,7 +6213,7 @@ int PrcssrSartre::UED_Import_Scripts() // @v11.7.7
 						const UED_Script_Block::Entry & r_entry = blk.L.at(i);
 						assert(r_entry.NameP && r_entry.SymbP);
 						assert(r_entry.ID != 0);
-						assert(UED::BelongToMeta(r_entry.ID, meta));
+						assert(UED::BelongsToMeta(r_entry.ID, meta));
 						blk.GetS(r_entry.SymbP, symb);
 						line_buf.Z().CatHex(r_entry.ID).Space().CatQStr(symb);
 						f_out.WriteLine(line_buf.CR());
@@ -6227,7 +6226,7 @@ int PrcssrSartre::UED_Import_Scripts() // @v11.7.7
 						const UED_Script_Block::Entry & r_entry = blk.L.at(i);
 						assert(r_entry.NameP && r_entry.SymbP);
 						assert(r_entry.ID != 0);
-						assert(UED::BelongToMeta(r_entry.ID, meta));
+						assert(UED::BelongsToMeta(r_entry.ID, meta));
 						blk.GetS(r_entry.NameP, name);
 						if(name.NotEmptyS()) {
 							line_buf.Z().CatHex(r_entry.ID).Space().Cat("en").Space().CatQStr(name);

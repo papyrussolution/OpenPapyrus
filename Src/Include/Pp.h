@@ -5053,8 +5053,8 @@ public:
 	//  <0 - goodsID не принадлежит обобщению
 	//   0 - error
 	//
-	int    BelongToGen(PPID goodsID, PPID * pGenGoodsID, ObjAssocTbl::Rec * pAsscRec = 0);
-		// @>>GoodsCore::BelongToDynGen
+	int    BelongsToGen(PPID goodsID, PPID * pGenGoodsID, ObjAssocTbl::Rec * pAsscRec = 0);
+		// @>>GoodsCore::BelongsToDynGen
 	//
 	// Descr: Определяет, принадлежит ли товар goodsID динамическому обобщению.
 	// ARG(goodsID         IN): идентификатор товара, для которого требуется определить
@@ -5071,7 +5071,7 @@ public:
 	//  <0 - goodsID не принадлежит обобщению
 	//   0 - error
 	//
-	int    BelongToDynGen(PPID goodsID, PPID * pGenGoodsID, PPIDArray * pList);
+	int    BelongsToDynGen(PPID goodsID, PPID * pGenGoodsID, PPIDArray * pList);
 	int    GetGenericList(PPID genID, PPIDArray *);
 	//
 	// Descr: Возвращает список идентификаторов товаров, относящихся к динамическому обобщению
@@ -9419,7 +9419,7 @@ public:
 	//   >0 - персоналия personID принадлежит виду kindID
 	//   0  - персоналия personID не принадлежит виду kindID
 	//
-	int    IsBelongsToKind(PPID personID, PPID kindID);
+	int    BelongsToKind(PPID personID, PPID kindID);
 	int    GetListByKind(PPID kindID, PPIDArray * pList);
 	int    Put(PPID * pID, PPPerson * pPack, int use_ta);
 	int    Get(PPID id, PPPerson * pPack);
@@ -10554,24 +10554,6 @@ public:
 	CCheckPacket & Z();
 	int    IsEq(const CCheckPacket & rS, long options) const;
 	int    FASTCALL Copy(const CCheckPacket & rS);
-	//
-	// Descr: Флаги функции SpecialTransform() 
-	//
-	enum {
-		spctfAdjustFractionalPrices = 0x0001 // Корректировать цену товара, продаваемого дробными частями упаковки
-	};
-	//
-	// Descr: Функция специальной трансформации пакета с целью оптимизировать, унифицировать или еще что-то
-	//   для решения каких-то локальных проблем.
-	//   Инициирующая проблема: при продаже дробных лекарств на некоторых типах кассовых регистраторов (пирит, вики-принт)
-	//     возникает проблема округления цены. Подробнсти слишком длинные, но если кратко, то суть в том, что авторы прошивок этих аппаратов - мудаки.
-	// ARG(flags IN): Флаги CCheckPacket::spctfXXX
-	// Returns:
-	//   >0 - функция что-то сделала с чеком.
-	//   <0 - функция ничего не изменила 
-	//    0 - error
-	//
-	int    SpecialTransform(uint flags); // @v12.6.1 @construction
 	//
 	// Descr: Возвращает !0 если есть не пустые поля расширения чека (Ext).
 	//
@@ -12721,11 +12703,11 @@ public:
 	struct ConvertToCCheckParam {
 		ConvertToCCheckParam();
 		bool SetBuyersEAddr(int addrType, const char * pAddr);
-		enum { // @v11.1.5
+		enum {
 			fCash      = 0x0001,
 			fBank      = 0x0002,
 			fPrepay    = 0x0004,
-			fPaperless = 0x0008, // @v11.3.7
+			fPaperless = 0x0008, //
 			fDoChZnPm  = 0x0010, // @v12.1.6 Осуществлять проверку марок разрешительным режимом чзн 
 		};
 		PPID   PosNodeID;
@@ -12733,8 +12715,8 @@ public:
 		PPID   LocID;
 		int    DivisionN;
 		SString Info;
-		double Amount; //@erik v10.5.9
-		long   Flags_;  //@erik v10.5.9
+		double Amount; // @erik
+		long   Flags_; // @erik
 		CCheckPacket::BuersEAddr_ EAddr;  // @v11.8.11 Электронный адрес покупателя (email or phone)
 	};
 	//
@@ -13275,11 +13257,8 @@ public:
 	//
 	int    ScanHolidays(PPID locID, PPID opID, const DateRange * pPeriod, PPHolidays * pHld);
 
-	struct Extra_Strg {      // sizeof(Extra_Strg) == PROPRECFIXSIZE
-		Extra_Strg()
-		{
-			THISZERO();
-		}
+	struct Extra_Strg { // @flat sizeof(Extra_Strg) == PROPRECFIXSIZE
+		Extra_Strg();
 		PPID   ObjType;            // const=PPOBJ_BILL
 		PPID   ObjID;              // -> Bill.ID
 		PPID   PropID;             // const=BILLPRP_EXTRA
@@ -13321,48 +13300,6 @@ private:
 	BillAmountTbl AmtT;
 	PayPlanTbl    Pays;
 	PPTblEnumList EnumList;
-};
-//
-// История документов
-//
-#define HISTBILL_MAXVER 100000L
-
-class PPHistBillPacket {
-public:
-	PPHistBillPacket();
-	~PPHistBillPacket();
-	void   destroy();
-	PPHistBillPacket & FASTCALL operator = (const PPHistBillPacket & aPack);
-	int    Init(const PPBillPacket * pPack);
-	int    ConvertToBillPack(PPBillPacket * pPack);
-	uint   GetCount() const;
-	HistTrfrTbl::Rec & FASTCALL Item(uint);
-	int    EnumItems(uint *, HistTrfrTbl::Rec **) const;
-	int    InsertRow(HistTrfrTbl::Rec *);
-	int    RemoveRow(uint);
-	int    RemoveRows(LongArray * pPositions);
-
-	HistBillTbl::Rec Head;
-private:
-	TSVector <HistTrfrTbl::Rec> Items;
-};
-
-class HistBillCore : public HistBillTbl {
-public:
-	HistBillCore();
-	int    Search(PPID id, HistBillTbl::Rec * pRec);
-	int    SearchOpenBill(PPID billID, HistBillTbl::Rec * pRec);
-	int    PutPacket(PPID * pID, PPHistBillPacket * pPack, int close, int use_ta);
-	int    GetPacket(PPID id, PPHistBillPacket * pPack);
-	static int HBRecToBRec(const HistBillTbl::Rec * pHBRec, BillTbl::Rec * pBRec);
-	int    DoMaintain(LDATE toDt, int recover, PPLogger * pLogger);
-		// @>>DoDBMaintain
-	int    Remove(PPID id, int useTa);
-private:
-	int    GetIdx(PPID billID, PPID * pVer, PPID * pInnerID);
-	int    LoadItems(PPID histBillID, PPHistBillPacket *);
-
-	HistTrfrTbl ItemsTbl;
 };
 //
 // Значения, передаваемые в качестве опций, а также возвращаемые функцией
@@ -13417,6 +13354,9 @@ DECL_CMPFUNC(Receipt_DtOprNo_FEFO_Desc); // По возрастанию срок
 
 class ReceiptCore : public ReceiptTbl {
 public:
+	//
+	// Descr: Фактора размерности объекта, с которым сопоставлен лот.
+	//
 	struct LotDimensions {
 		static int EditTag(const PPGdsClsPacket * pGcPack, ObjTagItem * pItem);
 		LotDimensions();
@@ -13428,6 +13368,18 @@ public:
 		double DimY;
 		double DimZ;
 		uint8  Reserve[64];
+	};
+	//
+	// Descr: Параметры 
+	//
+	struct TecRouteAssignment {
+		TecRouteAssignment();
+		TecRouteAssignment & Z();
+		SString & FASTCALL ToStr(SString & rBuf) const;
+		int    FASTCALL FromString(const char * pBuf);
+
+		PPID   TechRouteID;
+		PPID   FinalProductID;
 	};
 
 	static SString & FASTCALL MakeCodeString(const ReceiptTbl::Rec * pRec, int options, SString & rBuf);
@@ -24875,6 +24827,7 @@ private:
 #define GTCHZNPT_VEGETABLEOIL       UED::GetRawValue32(UED_RUCHZNPRODTYPE_VEGETABLEOIL)/*20*/ // @v12.4.8 Растительное масло
 #define GTCHZNPT_NCP                UED::GetRawValue32(UED_RUCHZNPRODTYPE_NCP)/*21*/ // @v12.5.6 Никотиносодержащая продукция //
 #define GTCHZNPT_MOTOROIL           UED::GetRawValue32(UED_RUCHZNPRODTYPE_MOTOROIL)/*22*/ // @v12.5.11 Моторное масло //
+#define GTCHZNPT_CHEMISTRY          UED::GetRawValue32(UED_RUCHZNPRODTYPE_CHEMISTRY)/*35*/ // @v12.6.7 Косметика, бытовая химия и товары личной гигиены //
 
 struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	PPGoodsType2();
@@ -25188,6 +25141,7 @@ public:
 			oAnyOfAndFlags = 0x0001
 		};
 		PPID   GoodsID;
+		PPID   GStrucID; // @v12.6.7 Точный идентификатор структуры. Если этот критерий установлен, то остальные критерии так же учитываются.
 		long   Options;
 		long   AndFlags;
 		long   NotFlags;
@@ -25308,7 +25262,7 @@ public:
 	//  <0 - Структура не является родительской
 	//
 	int    Reduce();
-	int    Select(const Ident & rIdent, PPGoodsStruc * pGs) const;
+	bool   Select(const Ident & rIdent, PPGoodsStruc * pGs) const;
 	int    Select(const Ident & rIdent, TSCollection <PPGoodsStruc> & rList) const;
 	int    GetItemQtty(PPID goodsID, double complQtty, double * pQtty) const;
 	SString & MakeChildDefaultName(SString & rBuf) const;
@@ -25508,6 +25462,7 @@ public:
 	virtual int  Browse(void * extraPtr);
 	int    FASTCALL Fetch(PPID id, PPGoodsStrucHeader2 * pRec);
 	int    GetChildIDList(PPID id, PPIDArray * pList);
+	int    BelongsToWare(PPID id, PPID goodsID); // @v12.6.7
 	int    Get(PPID id, PPGoodsStruc * pGs);
 	int    Put(PPID * pID, PPGoodsStruc * pGs, int use_ta);
 	int    Print(PPGoodsStruc *);
@@ -25532,8 +25487,7 @@ public:
 		// @v12.1.11 int    Code;
 		// @v12.1.11 SString Text;
 	};
-	int    CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStructIDs, const PPGoodsStruc * pStruct,
-		TSCollection <CheckGsProblem> * pProblemList, PPLogger * pLogger);
+	int    CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStructIDs, const PPGoodsStruc * pStruct, TSCollection <CheckGsProblem> * pProblemList, PPLogger * pLogger);
 	// @v12.2.4 @construction {
 	// Далее - просто прикидка по поводу как реализовывать экспорт/импорт товарных структур.
 	// Общая идея такова, чтоб использовать предопределенный собственный формат (xml and (or) json).
@@ -25559,7 +25513,7 @@ private:
 		return checkirangef(itemextssid, 1, 2) ? (((itemextssid-1) << 12) + (itemIdx+1)) : 0;
 	}
 	static  int  EditExtDialog(PPGoodsStruc *);
-	virtual StrAssocArray * MakeStrAssocList(void * extraPtr /*goodsID*/);
+	virtual StrAssocArray * MakeStrAssocList(void * extraPtr/*goodsID*/);
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
@@ -26553,7 +26507,7 @@ private:
 	int    CorrectCycleLink(PPID id, PPLogger * pLogger, int use_ta);
 	int    Recover(PPLogger * pLogger); // @todo Срочно!!!
 public:
-	static int Convert();
+	// @v12.6.7 @obsolete static int Convert();
 
 	void * ExtraPtr;
 	TLP_MEMB(WorldTbl, P_Tbl);
@@ -31425,7 +31379,7 @@ public:
 	int    GetSubstList(PPID goodsID, bool substStrucOnly, RAssocArray & rList);
 		// @>>PPObjGoods::GetAltGenGoodsList
 		// @>>PPObjGoods::GetStrucSubstList
-	int    BelongToGen(PPID goodsID, PPID * pGenID, ObjAssocTbl::Rec * = 0);
+	int    BelongsToGen(PPID goodsID, PPID * pGenID, ObjAssocTbl::Rec * = 0);
 	int    AssignGoodsToGen(PPID goodsID, PPID genID, int abbr, int use_ta);
 	int    RemoveGoodsFromGen(PPID goodsID, PPID genID, int use_ta);
 	//
@@ -31642,7 +31596,7 @@ public:
 	int    __Helper_GetPriceRestrictions_ByFormula(SString & rFormula, const PPGoodsPacket * pPack, double & rBound);
 	int    QuerySpecialNecessityForAcceptingSyncPacket();
 	//
-	// Descr: Очень специализированная функция, делающая слудующую дичь: если товар goodsID может быть продан дробным количеством,
+	// Descr: Очень специализированная функция, делающая следующую дичь: если товар goodsID может быть продан дробным количеством,
 	//   кратным фракции, заданной в торговой единице измерения этого товара (PPUnit2::Fragmentation), то вычисляет цену, максимально 
 	//   близкую к orgPrice для продажи количества qtty (если qtty > 0 and qtty < 1) с таким условием, чтобы выражение 
 	//   (price / fragmentation) *  qtty давала величину, точно представимую с десятичным числом с округлением до двух знаков после точки.
@@ -31877,6 +31831,7 @@ public:
 	int    Add(PPID goodsID, PPID objID, uint * pPos = 0);
 	int    UpdateByPos(uint pos, PPID goodsID, PPID objID);
 	int    Remove(PPID goodsID, PPID objID);
+	int    RemoveByIdx(uint pos); // @v12.6.7
 	int    Load();
 	int    Save();
 	SString & GetKeyName(PPID id, SString & rBuf);
@@ -33531,8 +33486,9 @@ struct GoodsToObjAssocFilt : public PPBaseFilt {
 	};
 	char   ReserveStart[32]; // @anchor
 	PPID   AsscType;         //
-	PPID   ObjType;          //
-	PPID   ObjID;            //
+	SObjID Oid;              // @v12.6.7
+	// @v12.6.7 PPID   ObjType;          //
+	// @v12.6.7 PPID   ObjID;            //
 	void * ExtraPtr;         //
 	long   Flags;            //
 	long   Reserve;          // @anchor
@@ -38339,6 +38295,7 @@ public:
 	static int   GenerateCode(int kind, SString & rBuf, int use_ta = 1);
 	// @v12.6.1 static int   SetupCombo(TDialog *, uint ctlID, PPID id, long olwFlags, PPID prcID, PPID goodsID);
 	static int   SetupCombo(TDialog *, uint ctlID, PPID id, long olwFlags, const TechFilt * pFilt); // @v12.6.1 
+	static int   MakeGoodsListByGStruc(PPID gstrucID, PPID parentGoodsID, bool useSubst, int sourceSign, TGSArray & rList); // @v12.6.7
 	explicit PPObjTech(void * extraPtr = 0);
 	~PPObjTech();
 	virtual int Search(PPID, void *);
@@ -38356,7 +38313,7 @@ public:
 	int    PutPacket(PPID *, PPTechPacket *, int use_ta);
 	int    EditDialog(PPTechPacket * pPack);
 	int    GetGoodsStruc(PPID id, PPGoodsStruc * pGs); // @>>PPObjGoodsStruc::Get
-	int    GetGoodsStrucList(PPID id, int useSubst, PPGoodsStruc * pGs, TGSArray * pList); // @<<PPObjTech::GetGoodsStruc
+	int    GetGoodsStrucList(PPID id, PPID arbitraryGStrucID, bool useSubst, PPGoodsStruc * pGs, TGSArray & rList); // @<<PPObjTech::GetGoodsStruc
 	int    GetGoodsListByPrc(PPID prcID, PPIDArray * pList);
 		// @>>PPObjTech::AddItemsToList
 	int    GetListByPrc(PPID prcID, PPIDArray * pList);
@@ -38979,11 +38936,11 @@ public:
 	//   присваивает строке уникальный серийный номер.
 	//
 	int    SetupLineGoods(TSessLineTbl::Rec *, PPID goodsID, const char * pSerial, long);
-	int    EvaluateLineQuantity(PPID sessID, PPID techID, const TSessLineTbl::Rec * pRec, double * pResult);
+	int    EvaluateLineQuantity(const TSessionTbl::Rec & rTSesRec, const TSessLineTbl::Rec * pRec, double * pResult);
 	int    GenerateSerial(TSessLineTbl::Rec *);
 	int    GetGoodsStruc(PPID id, PPGoodsStruc * pGs);
 		// @>>PPObjTech::GetGoodsStruc
-	int    GetGoodsStrucList(PPID id, int useSubst, PPGoodsStruc * pGs, TGSArray * pList);
+	int    GetGoodsStrucList(PPID id, bool useSubst, PPGoodsStruc * pGs, TGSArray & rList);
 		// @>>PPObjTech::GetGoodsStrucList(TSession(id).TechID, useSubst, pList)
 	struct SelectBySerialParam {
 		SelectBySerialParam(PPID sessID, const char * pSerial);
@@ -39254,8 +39211,8 @@ public:
 			aMakeRepeating = 0x0002
 		};
 		SVerT  Ver; // Версия системы, создавшей запись
-		uint8  Reserve[28]; // @reserve @v11.0.4 [32]-->[28]
-		long   Action;      // @v11.0.4 flags
+		uint8  Reserve[28]; // @reserve
+		long   Action;      // @flags
 		DateRange Period;   // Период обзора сессий (по StDt)
 		long   Flags_;      //
 		long   Reserve2;    // @reserve
@@ -40925,7 +40882,7 @@ struct LinkedBillViewItem : public BillTbl::Rec {
 	int16  Pad;        // @alignment
 	PPID   LinkBillID__; // @v10.3.2 @fix LinkBillID-->LinkBillID__ (дублирует BillTbl::Rec::LinkBillID)
 	PPID   RcknBillID; //
-	char   _Memo[512]; // @v11.1.12
+	char   _Memo[512]; //
 };
 
 class PPViewLinkedBill : public PPView {
@@ -41022,7 +40979,7 @@ private:
 	int    IterIdx;
 	PPObjGoods GObj;
 	PPObjBill * P_BObj;
-	HistBillCore Hb_;
+	// @v12.6.7 старый вариант хранения истории документов полностью элиминируется HistBillCore Hb_;
 };
 //
 //
@@ -41721,8 +41678,8 @@ public:
 			// пункту назначения (не принимать во внимание адрес доставки и дочерние географические объекты)
 		fShippedOnly       = 0x0010  // Только отгруженные
 	};
-	char   ReserveStart[20]; // @anchor // @v10.5.0 [24]-->[20]
-	PPID   DlvrLocID;        // @v10.5.0
+	char   ReserveStart[20]; // @anchor
+	PPID   DlvrLocID;        // 
 	PPID   StorageLocID;     // Место хранения
 	PPID   PortOfLoading;    // Пункт погрузки
 	DateRange BillPeriod;
@@ -41737,7 +41694,7 @@ public:
 	long   Flags;
 	long   Order;
 	long   Reserve;          // @anchor Заглушка для отмера "плоского" участка фильтра
-	TagFilt * P_TagF;        // @v10.3.11 Теги документов
+	TagFilt * P_TagF;        // Теги документов
 };
 
 struct FreightViewItem {
@@ -56758,12 +56715,14 @@ public:
 		PPID   ArID;
 		PPID   Ar2ID;
 		PPID   GoodsID;    // @v12.6.1 Если 0, то реальный товар определяется технологией TechID. В противном случае это - уточняющее значение.
+		PPID   GStrucID;   // @v12.6.7 Структура, либо ассоциированная с TechID, либо установленная независимо
 		bool   IdleStatus; // @v12.3.6 int-->bool
 		uint8  Reserve[3]; // @v12.3.6 @alignment
 	};
-	PrcTechCtrlGroup(uint ctlSelPrc, uint ctlSelTech, uint ctlStGoods, uint ctlSelAr, uint ctlSelAr2, uint cmdSelTechByGoods, uint cmdCreateGoods = 0);
-	virtual int    setData(TDialog *, void *);
-	virtual int    getData(TDialog *, void *);
+	PrcTechCtrlGroup(uint ctlSelPrc, uint ctlSelTech, uint ctlStGoods, uint ctlSelAr, uint ctlSelAr2, uint cmdSelTechByGoods, uint cmdCreateGoods);
+	virtual int setData(TDialog *, void *);
+	virtual int getData(TDialog *, void *);
+	void   SetGoodsStrucCtlsel(uint ctlSelGoodsStruc);
 	void   SetIdleStatus(TDialog *, bool s);
 	//
 	// Descr: Устанавливает возможность выбора группы процессоров в комбо-боксе процессора.
@@ -56782,7 +56741,8 @@ private:
 	virtual void   handleEvent(TDialog *, TEvent &);
 	void   onPrcSelection(TDialog *, int onIdleStatus = 0);
 	void   setupArticle(TDialog *, const ProcessorTbl::Rec *);
-	void   SetupGoodsName(TDialog *);
+	void   SetupGoods_(TDialog * pDlg, PPID * pGoodsID);
+	void   SetupTech(TDialog * pDlg, bool onInit);
 	void   setupCreateGoodsButton(TDialog *);
 	void   selTechByGoods(TDialog *);
 	long   GetTechComboOlwFlags() const; // @v11.7.6
@@ -56793,6 +56753,7 @@ private:
 	};
 	const  uint CtlselPrc;
 	const  uint CtlselTech;
+	uint   CtlselGStruc; // @v12.6.7
 	const  uint CtlStGoods;
 	const  uint CtlselAr;
 	const  uint CtlselAr2;
@@ -56811,6 +56772,7 @@ private:
 	uint8  Reserve[3]; // @v12.3.6 @alignment
 	long   Flags;
 	PPObjGoods GObj;
+	PPObjProcessor PrcObj;
 	PPObjTech  TecObj;
 };
 
@@ -57529,6 +57491,360 @@ protected:
 	const  SymbHashTable * P_ShT_C; // Токены перечислены в строковом ресурсе PPSTR_HASHTOKEN_C (русскоязычные токены)
 };
 //
+// Descr: Класс, реализующий высокоуровневые механизмы обмена с "честным знаком"
+//
+class PPChZnPrcssr : private PPEmbeddedLogger {
+public:
+	static constexpr int LocalSvrDefaultPort  =  5995;
+	static constexpr int TsPiotSvrDefaultPort = 51401; // @v12.5.11
+
+	struct Param {
+		Param();
+		enum {
+			fTestMode = 0x0001
+		};
+		PPID   GuaID;
+		PPID   LocID;
+		long   Flags; // @v12.2.0
+		DateRange Period;
+	};
+	struct QueryParam {
+		QueryParam();
+
+		enum {
+			_afQueryTicket       = 0x0001,
+			_afQueryKizInfo      = 0x0002,
+			_afSendCc            = 0x0004, // Отправка кассовых чеков
+			_afQueryDocListIn    = 0x0008, // @v11.8.2 Запрос списка входящих документов
+			_afDebug_Auth        = 0x0010, // @v12.6.7 Отладочная авторизация //
+			_afQueryAggrMarkList = 0x0020, // @v12.6.7 TrueAPI получение списка агрегированных марок //
+		};
+		long   DocType;
+		long   Flags;
+		PPID   GuaID;
+		PPID   LocID;
+		PPID   ArID;  // Статья, сопоставленная с запросом (всегда, вероятно, поставщик)
+		SString ParamString;
+		SString InfoText; // @transient
+	};
+	enum {
+		ptUnkn     = GTCHZNPT_UNDEF,
+		ptFur      = GTCHZNPT_FUR,     // 00 02
+		ptTobacco  = GTCHZNPT_TOBACCO, // 00 05
+		ptShoe     = GTCHZNPT_SHOE,    // 15 20
+		ptMedicine = GTCHZNPT_MEDICINE //
+	};
+	static int FASTCALL IsChZnCode(const char * pCode);
+	//
+	// Descr: Проверяет на равенство два кода честный знак pCode1 и pCode2.
+	//   Сопоставление осуществляется без учета специальных символов.
+	//
+	static bool FASTCALL AreChZnCodesEqual(const char * pCode1, const char * pCode2);
+	//
+	// Descr: Варианты интерпретации результата функции ParseChZnCode
+	// Note: Значение больше нуля трактуется как марка, пригодная к обработке честным знаком
+	//
+	enum {
+		chznciNone      = 0, // Код ни на что не похож. 
+		chznciReal      = 1, // Валидный код марки честный знак
+		chznciPallet    = 2, // @v12.3.5 (SNTOK_CHZN_PALLET_GTIN) Код паллеты
+		chznciSurrogate = -1, // Суррогатный код (не является кодом марки, но из кода можно извлечь полезную информацию: GTIN и, возможно, количество)
+		chznciPretend   = 1000 // Разбор кода закончился ошибкой, но тем не менее в нем есть GTIN и серия.
+	};
+	//
+	// Descr: Критерии сигнализации о провале проверки марки в разрешительном режиме и(или) тс пиот
+	//
+	enum { 
+		chznpmcritNotFound       = 0x0001, // !PPChZnPrcssr::CodeStatus::fFound        symb="NotFound"
+		chznpmcritNotValid       = 0x0002, // !PPChZnPrcssr::CodeStatus::fValid        symb="NotValid"
+		chznpmcritNotVerified    = 0x0004, // !PPChZnPrcssr::CodeStatus::fVerified     symb="NotVerified"
+		chznpmcritNotRealizable  = 0x0008, // !PPChZnPrcssr::CodeStatus::fRealizable   symb="NotRealizable"
+		chznpmcritNotUtilised    = 0x0010, // !PPChZnPrcssr::CodeStatus::fUtilised     symb="NotUtilised"
+		chznpmcritNotOwner       = 0x0020, // PPChZnPrcssr::CodeStatus::fIsOwner       symb="NotOwner"
+		chznpmcritBlocked        = 0x0040, // PPChZnPrcssr::CodeStatus::fIsBlocked     symb="Blocked"
+		chznpmcritSold           = 0x0080, // PPChZnPrcssr::CodeStatus::fSold          symb="Sold"
+		chznpmcritExpiry         = 0x0100, // Срок годности истек                      symb="Expiry"
+		chznpmcritNotRlzblGzExcl = 0x0200, // symb="NotRealizableGrayZoneExclusion". Исключение для chznpmcritNotRealizable если есть флаг PPChZnPrcssr::CodeStatus::fGreyZone
+	};
+	//
+	// Descr: Методы препроцессинга марки перед продажей
+	//
+	enum {
+		prcsmarkMethodUndef = 0, // Не определено
+		prcsmarkMethodPmOnline,  // Разрешительный режим online
+		prcsmarkMethodPmOffline, // Локальный модуль offline
+		prcsmarkMethodTsPiot,    // тс пиот
+	};
+	static constexpr int InterpretChZnCodeResult(int r)
+	{
+		if(r == 1000)
+			return chznciPretend;
+		else if(oneof3(r, SNTOK_CHZN_PALLET_GTIN, SNTOK_SSCC, SNTOK_CHZN_PALLET_MOTOROIL)) // @v12.3.5 // @v12.5.12 SNTOK_CHZN_PALLET_MOTOROIL
+			return chznciPallet;
+		else if(oneof2(r, SNTOK_CHZN_SURROGATE_GTINCOUNT, SNTOK_CHZN_SURROGATE_GTIN))
+			return chznciSurrogate;
+		else if(oneof6(r, SNTOK_CHZN_ALTCIGITEM, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_CIGBLOCK, SNTOK_CHZN_SIGN_SGTIN, SNTOK_CHZN_GS1_GTIN, SNTOK_CHZN_SSCC)) // @v11.9.0 SNTOK_CHZN_ALTCIGITEM
+			return chznciReal;
+		else
+			return chznciNone;
+	}
+	static constexpr uint GetDefaultCnZnPmCritFlags() { return (PPChZnPrcssr::chznpmcritSold|PPChZnPrcssr::chznpmcritExpiry); }
+	enum {
+		pchzncfPretendEverythingIsOk = 0x0001
+	};
+	static int ParseChZnCode(const char * pCode, GtinStruc & rS, long flags);
+	static int ReconstructOriginalChZnCode(const GtinStruc & rS, SString & rBuf);
+	static int Encode1162(int productType, const char * pGTIN, const char * pSerial, void * pResultBuf, size_t resultBufSize);
+	static int InputMark(SString & rMark, SString * pReconstructedOriginal, const char * pExtraInfoText);
+	explicit PPChZnPrcssr(PPLogger * pOuterLogger);
+	~PPChZnPrcssr();
+	int    EditParam(Param * pParam);
+	int    EditQueryParam(PPChZnPrcssr::QueryParam * pData);
+	int    InteractiveQuery();
+	int    Run(const Param & rP);
+	int    TransmitCcList(const Param & rP, const TSCollection <CCheckPacket> & rList);
+	static int Test();
+	static int InteractiveCheck();
+	//
+	// Descr: Результат проверки марки в ценовых аспектах. 
+	// Note: Выделено в отдельную структуру поскольку используется как "строительный блок" для других структур
+	//
+	struct PriceByMarkBlock {
+		PriceByMarkBlock();
+		double PmMrp; // Цена MRP полученная от сервера разрешительного режима chzn
+		double PmSmp; // Цена SMP полученная от сервера разрешительного режима chzn
+		RealRange AllowedRange; // диапазон допустимых цен на товар по результату запроса разрешительного режима марки chzn
+	};
+	//
+	// Descr: Структура проверки статуса марки, применяемая совместно и для разрешительного режима и для ТС-ПИОТ
+	//
+	struct CodeStatus {
+		CodeStatus();
+		enum {
+			fFound      = 0x0001, // Признак наличия кода. Возможные значения: true — «Код найден»; false — «Код не найден»
+			fValid      = 0x0002, // Результат проверки валидности структуры КМ. Возможные значения: true — «Структура валидная»; false — «Структура не валидная»
+			fVerified   = 0x0004, // Результат проверки крипто-подписи КМ. Возможные значения: true — «Проверка крипто-подписи завершилась успешно»; false — «Проверка крипто-подписи.
+			fRealizable = 0x0008, // Признак ввода в оборот. Признак показывает, находится ли КИ в статусе «В обороте». Возможные значения: true – «КИ в статусе «В обороте»»; false – «КИ в статусе, отличном от «В обороте»».
+			fUtilised   = 0x0010, // Признак нанесения КИ на упаковку. Возможные значения: true — «КИ нанесён»; false — «КИ не нанесён»
+			fIsOwner    = 0x0020, // Признак, определяющий что запрос направлен владельцем кода. true — КМ принадлежит участнику, который направил запрос; false — КМ не принадлежит участнику, который направил запрос.
+			fIsBlocked  = 0x0040, // Признак того, что розничная продажа продукции заблокирована по решению ОГВ. true — продажа заблокирована; false — продажа не заблокирована.
+			fIsTracking = 0x0080, // Признак контроля прослеживаемости в товарной группе. true — контроль прослеживаемости в товарной группе для данного КМ включен; false — контроль прослеживаемости в товарной группе для данного КМ выключен.
+			fSold       = 0x0100, // Признак вывода из оборота товара. true — товар выведен из оборота; false — товар не выведен из оборота.
+			fGrayZone   = 0x0200, // Признак принадлежности табачной продукции к «серой зоне». true — принадлежит; false — не принадлежит. (@v12.3.12 для локального pm - isGreyGtin)
+		};
+		CodeStatus & AssignExceptOrgValues(const CodeStatus & rS);
+
+		uint   OrgRowId; // IN Идентификатор строки документа (или еще чего нибудь), которому соответствует код. Вызывающая функция сама интерпретирует это значение.
+		int    ChZnProdType; // @v12.6.7 IN Тип товара честный знак (из типа товара). Нужен для интерпретации результатов проверки
+		uint   ChZnSNTokID;  // @v12.6.7 IN Натуральный токен, сопоставленный марке. Инициализируется автоматически методом CodeStatusCollection::AddCodeEntry
+		SString OrgMark; // IN Текст марки, подаваемый на вход процедуре проверки
+		SString OrgMark_Offl; // IN @v12.3.11 Текст марки без криптохвоста для подачи на проверку оффлайн-серверу
+		//
+		SString Cis; //
+		int    ErrorCode; // Код ошибки. 
+			// 0 — ошибки отсутствуют; 
+			// 1 — ошибка валидации КМ; 
+			// 2 — КМ не содержит GTIN; 
+			// 3 — КМ не содержит серийный номер; 
+			// 4 — КМ содержит недопустимые символы; 
+			// 5 — ошибка верификации крипто-подписи КМ (формат крипто-подписи не соответствует типу КМ); 
+			// 6 — ошибка верификации крипто-подписи КМ (крипто-подпись не валидная); 
+			// 7 — ошибка верификации крипто-подписи КМ (крипто-ключ не валиден); 
+			// 8 — КМ не прошел верификацию в стране эмитента; 
+			// 9 — Найденные AI в КМ не поддерживаются; 
+			// 10 — КМ не найден в ГИС МТ 11 — КМ не найден в трансгране
+		int    EliminationState; // Дополнительная информация по КМ. 
+			// 1 — товар выведен из оборота по причинам «по образцам» или «дистанционная продажа»; 
+			// 2 — товар выведен из оборота по причинам «для собственных нужд» или «для производственных целей» Заполняется для товаров, выведенных из оборота по этим причинам с 08.02.24
+		uint   Mrp; // Максимальная розничная цена. В копейках (для табака).
+		uint   Smp; // Минимальная из возможных единых минимальных цен. В копейках (для табака).
+		uint   PackageQtty;    // 
+		uint   InnerUnitCount; // Количество единиц товара в потребительской упаковке / Фактический объём / Фактический вес.
+		uint   SoldUnitCount;  // Счётчик проданного и возвращённого товара.
+		uint   Flags;
+		uint   GroupIds[64];
+		LDATETIME ExpiryDtm; // Формат yyyy-MM-dd’T’HH:mm:ss.SSSz
+		LDATETIME ProductionDtm; // Формат yyyy-MM-dd’T’HH:mm:ss.SSSz
+		double Weight; // Переменный вес продукции (в граммах). Возвращается только для товарной группы «Молочная продукция»
+		SString PrVetDocument; // Производственный ветеринарный сопроводительный документ. Возвращается только для товарной группы «Молочная продукция»
+		SString Message; // Сообщение об ошибке
+		S_GUID ReqId;    // Уникальный идентификатор запроса
+		int64  ReqTimestamp; // Дата и время формирования запроса. Параметр возвращает дату и время с точностью до миллисекунд.
+		SString PackageType; // Тип упаковки. См. «Справочник "Типы упаковки"»
+		SString Parent;      // КИ агрегата.
+		SString ProducerInn; // ИНН производителя.
+		PriceByMarkBlock PriceBlk; // @v12.6.7 OUT Не путать с Mrp и Smp поскольку в этой структуре данные уже правильно интерпретированы (если, конечно, позволяют входные данные)
+		int    InternalErrCode;    // @v12.6.7 OUT Код ошибки Papyrus инициализированный при вызове PPChZnPrcssr::PmCheck_VerifyResult()
+	};
+
+	class CodeStatusCollection : public TSCollection <CodeStatus> {
+	public:
+		CodeStatusCollection();
+		CodeStatusCollection & Z();
+		int    AddCodeEntry(const char * pCode, uint orgRowId, int chznProdType, SString * pReconstructedCode);
+		//
+		// Descr: Сопоставляет результат проверки, полученный от честного знака с коллекцией this
+		//   и, если находит, соответствующий элемент, то присваивает ему поля результата проверки.
+		// ARG(rowN IN): Если значение больше или равно нулю, то предполагается, что элемент rEntry
+		//   находится в rowN позиции списка результатов. Это может помочь сопоставлению.
+		// Returns:
+		//   >0 - номер позиции (+1) в коллекции this, с которым успешно сопоставлен результат
+		//    0 - не удалось найти соответствие.
+		//
+		int    SetupResultEntry(int rowN, const CodeStatus & rEntry);
+		enum {
+			fCheckedOffline = 0x0001
+		};
+		int    Method; // @v12.6.5 prcsmarkMethodXXX
+		int    Code; // Result code. 0 - ok
+		uint   Flags; // @v12.6.5
+		SString Description; // error message or "ok"
+		S_GUID ReqId;
+		int64  ReqTimestamp;
+		S_GUID LocalModuleInstance; // @v12.3.12 Идент локального модуля проверки
+		S_GUID LocalModuleDbVer;    // @v12.3.12 Версия базы «чёрного списка», на которой выполнялась проверка КИ
+	};
+	//
+	// Descr: Интерфейс с ТС-ПИОТ (не спрашивайте: пидоры в кремле не успокоятся пока не загонят нас всех под землю)
+	//
+	class TsPiotInterface { // @v12.5.11 
+	public:
+		explicit TsPiotInterface(InetUrl & rLocalSvrUrl);
+		~TsPiotInterface();
+
+		struct QueryBlock {
+			SString AppName; // @utf8 наименование ПМСР (кассового ПО)
+			SVerT  AppVer;   
+			S_GUID AppUuid;
+			SBinaryChunk AppToken;
+		};
+		int    CheckCodeList_v2(const QueryBlock & rQBlk, CodeStatusCollection & rList);
+	private:
+		InetUrl SvrUrl; // URL сервера, на котором расположен, блядь, тс-пиот.
+		PPGlobalServiceLogTalkingHelper Lth;
+	};
+	//
+	// Descr: Интерфейс с разрешительным режимом честный знак
+	//
+	class PermissiveModeInterface {
+	public:
+		struct CdnStatus {
+			CdnStatus();
+			SString CdnAddr; // адрес CDN-площадки
+			int    Code; // 0 - ok, !0 - error
+			int    AvgTimeMs;
+		};
+		enum {
+			queryGetCdnList = 1,
+			queryGetCdnStatus,
+			queryCheckCodeList
+		};
+		enum {
+			fTest = 0x0001
+		};
+		PermissiveModeInterface(const char * pToken, InetUrl * pLocalSvrUrl, uint flags);
+		~PermissiveModeInterface();
+		int    SelectCdnHost(SString & rResult);
+		//
+		// Descr: Извлекает из тега PPTAG_GUA_CHZN_PM_HOST глобальной учетной записи guaID имя хоста,
+		//   к которому следует обращаться для проверки марок. Если учетная запись guaID не найдена или 
+		//   тег не определен, либо в случае, если срок действия тега истек, то заново получает
+		//   наиболее приемлемый хост функцией SelectCdnHost и, по возможности, сохраняет его в теге.
+		//
+		int    FetchCdnHost(PPID guaID, SString & rResult);
+		int    CheckCodeList(const char * pHost, const char * pFiscalDriveNumber, CodeStatusCollection & rList, bool * pIsConnectionProblem);
+		//
+		// Далее следуют 3 метода для работы с локальным сервером проверки марок.
+		//
+
+		//
+		// Descr: Метод инициализации локального сервера.
+		//
+		int    InitLocalSvr(const char * pFiscalDriveNumber, SCompoundError * pErr);
+
+		struct LocalSvcStatus {
+			enum {
+				fRequiresDownload = 0x0001
+			};
+			enum {
+				stUndef = 0,
+				stNotConfigured = 1,
+				stInitialization,
+				stReady,
+				stSyncError
+			};
+			enum {
+				opmodeUndef  = 0,
+				opmodeActive = 1,
+				opmodeService = 2
+			};
+			LocalSvcStatus();
+			LocalSvcStatus & Z();
+
+			uint   Flags;
+			int    Status;
+			int    OpMode;
+			uint64 UedLastUpdateTm;
+			uint64 UedLastSyncTm;
+			SString Version;
+			SString StatusText;        // translated to Status
+			SString ServiceUrl;
+			SString OperationModeText; // translated to OpMode
+			SString Name;
+			SString Inst;
+			SString Inn;
+			SString DbVer;
+		};
+		//
+		// Descr: Метод проверки статуса локального сервера.
+		//
+		int    GetLocalSvrStatus(const char * pFiscalDriveNumber, LocalSvcStatus & rResult);
+		//
+		// Descr: Метод проверки марок посредством локального сервера.
+		//
+		int    LocalCheckCodeList(const char * pFiscalDriveNumber, CodeStatusCollection & rList);
+	private:
+		struct LocalSvrBlock {
+			LocalSvrBlock() : ApiVer(0)
+			{
+			}
+			int   ApiVer;
+			SString UrlBuf;
+			SString User;
+			SString Pw;
+			StrStrAssocArray HdrFlds;
+		};
+		SString & MakeTargetUrl(int query, const char * pAddendum, SString & rResult) const;
+		int    QueryCdnList(TSCollection <CdnStatus> & rResultList);
+		int    QueryCdnStatus(CdnStatus & rStatus);
+		//
+		// ARG(pMethod IN):
+		//   init, status, cis/outCheck, cis/sell, cis/return, cis/sold, changePassword, greyList
+		//
+		int    InitLocalSvrCall(const char * pMethod, LocalSvrBlock & rBlk);
+
+		uint   Flags;
+		SString Token; // Токен авторизации // Токен нужно получить на каждый ИНН и использовать на всех кассах
+		InetUrl LocalSvrUrl; // @v12.3.11
+		int    ApiVer; // @v12.6.4
+		PPGlobalServiceLogTalkingHelper Lth;
+	};
+
+	//
+	// Descr: Высокоуровневая (терминальная) функция, реализующая полный цикл вызовов для проверки марок в разрешительном режиме.
+	// ARG(offlineMod IN): 
+	//   0 - online only
+	//   1 - offline only
+	//   2 - regular mode: try online and if failed then try offline
+	//
+	static int PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offlineMode, CodeStatusCollection & rList);
+	static int TsPiotCheck(PPID guaID, CodeStatusCollection & rList); // @v12.5.11
+	static int PmCheck_VerifyResult(CodeStatusCollection & rList); // @v12.6.7
+private:
+	int    PrepareBillPacketForSending(PPID billID, void * pChZnPacket);
+	void * P_Ib; // Блок инициализации
+};
+//
 // Панель чеков
 //
 //
@@ -57745,34 +58061,18 @@ public:
 		enum {
 			fMarkedBarcode          = 0x0001 // Товар был выбран по маркированному штрихкоду
 		};
-		//
-		// Descr: Критерии сигнализации о провале проверки марки в разрешительном режиме и(или) тс пиот
-		//
-		enum { 
-			chznpmcritNotFound       = 0x0001, // !PPChZnPrcssr::CodeStatus::fFound        symb="NotFound"
-			chznpmcritNotValid       = 0x0002, // !PPChZnPrcssr::CodeStatus::fValid        symb="NotValid"
-			chznpmcritNotVerified    = 0x0004, // !PPChZnPrcssr::CodeStatus::fVerified     symb="NotVerified"
-			chznpmcritNotRealizable  = 0x0008, // !PPChZnPrcssr::CodeStatus::fRealizable   symb="NotRealizable"
-			chznpmcritNotUtilised    = 0x0010, // !PPChZnPrcssr::CodeStatus::fUtilised     symb="NotUtilised"
-			chznpmcritNotOwner       = 0x0020, // PPChZnPrcssr::CodeStatus::fIsOwner       symb="NotOwner"
-			chznpmcritBlocked        = 0x0040, // PPChZnPrcssr::CodeStatus::fIsBlocked     symb="Blocked"
-			chznpmcritSold           = 0x0080, // PPChZnPrcssr::CodeStatus::fSold          symb="Sold"
-			chznpmcritExpiry         = 0x0100, // Срок годности истек                      symb="Expiry"
-			chznpmcritNotRlzblGzExcl = 0x0200, // symb="NotRealizableGrayZoneExclusion". Исключение для chznpmcritNotRealizable если есть флаг PPChZnPrcssr::CodeStatus::fGreyZone
-		};
 		explicit PgsBlock(PPID goodsID, double qtty);
 		double GetChZnPrice() const;
-		static constexpr uint GetDefaultCnZnPmCritFlags() { return (chznpmcritSold|chznpmcritExpiry); }
 
 		const  PPID GoodsID; // @v12.5.9
 		long   Flags; //
-		uint   CnZnPmCritFlags; // @v12.6.5 chznpmcritXXX
+		uint   CnZnPmCritFlags; // @v12.6.5 PPChZnPrcssr::chznpmcritXXX
 		uint   ChZnSNTokID;     // @v12.6.5 Натуральный токен, сопоставленный марке чзн (если Code - таковая)
 		double Qtty;
 		double PriceBySerial; // Если PriceBySerial != 0 && Serial.Empty() это означает, что выбрана
 			// одна из look-back-price (фиксированные цены, меняющиеся со временем)
-		double PriceByMarkPmMrp; // @v12.5.9 Цена MRP полученная от сервера разрешительного режима chzn
-		double PriceByMarkPmSmp; // @v12.5.9 Цена SMP полученная от сервера разрешительного режима chzn
+		// @v12.6.7 (replaced by PriceBlk) double PriceByMarkPmMrp; // @v12.5.9 Цена MRP полученная от сервера разрешительного режима chzn
+		// @v12.6.7 (replaced by PriceBlk) double PriceByMarkPmSmp; // @v12.5.9 Цена SMP полученная от сервера разрешительного режима chzn
 		double PriceByMark;   // @v12.5.9 Цена полученная из состава марки chzn парсингом
 		double AbstractPrice; // Цена, определенная оператором, без выбора товара.
 		SString Serial;
@@ -57784,7 +58084,8 @@ public:
 		S_GUID ChZnPm_ReqId;  // @v12.1.1 ответ разрешительного режима чзн: уникальный идентификатор запроса
 		S_GUID ChZnPm_LocalModuleInstance; // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): идент локального модуля проверки
 		S_GUID ChZnPm_LocalModuleDbVer;    // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): версия базы «чёрного списка», на которой выполнялась проверка КИ
-		RealRange AllowedPriceRange; // @v12.2.2 диапазон допустимых цен на товар (пока только по результату запроса разрешительного режима марки chzn)
+		// @v12.6.7 (replaced by PriceBlk) RealRange AllowedPriceRange; // @v12.2.2 диапазон допустимых цен на товар (пока только по результату запроса разрешительного режима марки chzn)
+		PPChZnPrcssr::PriceByMarkBlock PriceBlk; // @v12.6.7 
 	};
 	//int    SetupNewRow(PPID goodsID, double qtty, double priceBySerial, const char * pSerial, PPID giftID = 0);
 	int    SetupNewRow(/*PPID goodsID,*/PgsBlock & rBlk, PPID giftID = 0);
@@ -61580,327 +61881,6 @@ private:
 	InitBlock Ib;
 };
 //
-// Descr: Класс, реализующий высокоуровневые механизмы обмена с "честным знаком"
-//
-class PPChZnPrcssr : private PPEmbeddedLogger {
-public:
-	static constexpr int LocalSvrDefaultPort  =  5995;
-	static constexpr int TsPiotSvrDefaultPort = 51401; // @v12.5.11
-
-	struct Param {
-		Param();
-		enum {
-			fTestMode = 0x0001
-		};
-		PPID   GuaID;
-		PPID   LocID;
-		long   Flags; // @v12.2.0
-		DateRange Period;
-	};
-	struct QueryParam {
-		QueryParam();
-
-		enum {
-			_afQueryTicket    = 0x0001,
-			_afQueryKizInfo   = 0x0002,
-			_afSendCc         = 0x0004, // Отправка кассовых чеков
-			_afQueryDocListIn = 0x0008, // @v11.8.2 Запрос списка входящих документов
-		};
-		long   DocType;
-		long   Flags;
-		PPID   GuaID;
-		PPID   LocID;
-		PPID   ArID;  // Статья, сопоставленная с запросом (всегда, вероятно, поставщик)
-		SString ParamString;
-		SString InfoText; // @transient
-	};
-	enum {
-		ptUnkn     = GTCHZNPT_UNDEF,
-		ptFur      = GTCHZNPT_FUR,     // 00 02
-		ptTobacco  = GTCHZNPT_TOBACCO, // 00 05
-		ptShoe     = GTCHZNPT_SHOE,    // 15 20
-		ptMedicine = GTCHZNPT_MEDICINE //
-	};
-	static int FASTCALL IsChZnCode(const char * pCode);
-	//
-	// Descr: Проверяет на равенство два кода честный знак pCode1 и pCode2.
-	//   Сопоставление осуществляется без учета специальных символов.
-	//
-	static bool FASTCALL AreChZnCodesEqual(const char * pCode1, const char * pCode2);
-	//
-	// Descr: Варианты интерпретации результата функции ParseChZnCode
-	// Note: Значение больше нуля трактуется как марка, пригодная к обработке честным знаком
-	//
-	enum {
-		chznciNone      = 0, // Код ни на что не похож. 
-		chznciReal      = 1, // Валидный код марки честный знак
-		chznciPallet    = 2, // @v12.3.5 (SNTOK_CHZN_PALLET_GTIN) Код паллеты
-		chznciSurrogate = -1, // Суррогатный код (не является кодом марки, но из кода можно извлечь полезную информацию: GTIN и, возможно, количество)
-		chznciPretend   = 1000 // Разбор кода закончился ошибкой, но тем не менее в нем есть GTIN и серия.
-	};
-	//
-	// Descr: Методы препроцессинга марки перед продажей
-	//
-	enum {
-		prcsmarkMethodUndef = 0, // Не определено
-		prcsmarkMethodPmOnline,  // Разрешительный режим online
-		prcsmarkMethodPmOffline, // Локальный модуль offline
-		prcsmarkMethodTsPiot,    // тс пиот
-	};
-	static constexpr int InterpretChZnCodeResult(int r)
-	{
-		if(r == 1000)
-			return chznciPretend;
-		else if(oneof3(r, SNTOK_CHZN_PALLET_GTIN, SNTOK_SSCC, SNTOK_CHZN_PALLET_MOTOROIL)) // @v12.3.5 // @v12.5.12 SNTOK_CHZN_PALLET_MOTOROIL
-			return chznciPallet;
-		else if(oneof2(r, SNTOK_CHZN_SURROGATE_GTINCOUNT, SNTOK_CHZN_SURROGATE_GTIN))
-			return chznciSurrogate;
-		else if(oneof6(r, SNTOK_CHZN_ALTCIGITEM, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_CIGBLOCK, SNTOK_CHZN_SIGN_SGTIN, SNTOK_CHZN_GS1_GTIN, SNTOK_CHZN_SSCC)) // @v11.9.0 SNTOK_CHZN_ALTCIGITEM
-			return chznciReal;
-		else
-			return chznciNone;
-	}
-	enum {
-		pchzncfPretendEverythingIsOk = 0x0001
-	};
-	static int ParseChZnCode(const char * pCode, GtinStruc & rS, long flags);
-	static int ReconstructOriginalChZnCode(const GtinStruc & rS, SString & rBuf);
-	static int Encode1162(int productType, const char * pGTIN, const char * pSerial, void * pResultBuf, size_t resultBufSize);
-	static int InputMark(SString & rMark, SString * pReconstructedOriginal, const char * pExtraInfoText);
-	explicit PPChZnPrcssr(PPLogger * pOuterLogger);
-	~PPChZnPrcssr();
-	int    EditParam(Param * pParam);
-	int    EditQueryParam(PPChZnPrcssr::QueryParam * pData);
-	int    InteractiveQuery();
-	int    Run(const Param & rP);
-	int    TransmitCcList(const Param & rP, const TSCollection <CCheckPacket> & rList);
-	static int Test();
-	static int InteractiveCheck();
-	//
-	// Descr: Структура проверки статуса марки, применяемая совместно и для разрешительного режима и для ТС-ПИОТ
-	//
-	struct CodeStatus {
-		CodeStatus();
-		enum {
-			fFound      = 0x0001, // Признак наличия кода. Возможные значения: true — «Код найден»; false — «Код не найден»
-			fValid      = 0x0002, // Результат проверки валидности структуры КМ. Возможные значения: true — «Структура валидная»; false — «Структура не валидная»
-			fVerified   = 0x0004, // Результат проверки крипто-подписи КМ. Возможные значения: true — «Проверка крипто-подписи завершилась успешно»; false — «Проверка крипто-подписи.
-			fRealizable = 0x0008, // Признак ввода в оборот. Признак показывает, находится ли КИ в статусе «В обороте». Возможные значения: true – «КИ в статусе «В обороте»»; false – «КИ в статусе, отличном от «В обороте»».
-			fUtilised   = 0x0010, // Признак нанесения КИ на упаковку. Возможные значения: true — «КИ нанесён»; false — «КИ не нанесён»
-			fIsOwner    = 0x0020, // Признак, определяющий что запрос направлен владельцем кода. true — КМ принадлежит участнику, который направил запрос; false — КМ не принадлежит участнику, который направил запрос.
-			fIsBlocked  = 0x0040, // Признак того, что розничная продажа продукции заблокирована по решению ОГВ. true — продажа заблокирована; false — продажа не заблокирована.
-			fIsTracking = 0x0080, // Признак контроля прослеживаемости в товарной группе. true — контроль прослеживаемости в товарной группе для данного КМ включен; false — контроль прослеживаемости в товарной группе для данного КМ выключен.
-			fSold       = 0x0100, // Признак вывода из оборота товара. true — товар выведен из оборота; false — товар не выведен из оборота.
-			fGrayZone   = 0x0200, // Признак принадлежности табачной продукции к «серой зоне». true — принадлежит; false — не принадлежит. (@v12.3.12 для локального pm - isGreyGtin)
-		};
-		CodeStatus & AssignExceptOrgValues(const CodeStatus & rS);
-
-		uint   OrgRowId; // IN Идентификатор строки документа (или еще чего нибудь), которому соответствует код. Вызывающая функция сама интерпретирует это значение.
-		SString OrgMark; // IN Текст марки, подаваемый на вход процедуре проверки
-		SString OrgMark_Offl; // IN @v12.3.11 Текст марки без криптохвоста для подачи на проверку оффлайн-серверу
-		//
-		SString Cis; //
-		int    ErrorCode; // Код ошибки. 
-			// 0 — ошибки отсутствуют; 
-			// 1 — ошибка валидации КМ; 
-			// 2 — КМ не содержит GTIN; 
-			// 3 — КМ не содержит серийный номер; 
-			// 4 — КМ содержит недопустимые символы; 
-			// 5 — ошибка верификации крипто-подписи КМ (формат крипто-подписи не соответствует типу КМ); 
-			// 6 — ошибка верификации крипто-подписи КМ (крипто-подпись не валидная); 
-			// 7 — ошибка верификации крипто-подписи КМ (крипто-ключ не валиден); 
-			// 8 — КМ не прошел верификацию в стране эмитента; 
-			// 9 — Найденные AI в КМ не поддерживаются; 
-			// 10 — КМ не найден в ГИС МТ 11 — КМ не найден в трансгране
-		int    EliminationState; // Дополнительная информация по КМ. 
-			// 1 — товар выведен из оборота по причинам «по образцам» или «дистанционная продажа»; 
-			// 2 — товар выведен из оборота по причинам «для собственных нужд» или «для производственных целей» Заполняется для товаров, выведенных из оборота по этим причинам с 08.02.24
-		uint   Mrp; // Максимальная розничная цена. В копейках (для табака).
-		uint   Smp; // Минимальная из возможных единых минимальных цен. В копейках (для табака).
-		uint   PackageQtty;    // 
-		uint   InnerUnitCount; // Количество единиц товара в потребительской упаковке / Фактический объём / Фактический вес.
-		uint   SoldUnitCount;  // Счётчик проданного и возвращённого товара.
-		uint   Flags;
-		uint   GroupIds[64];
-		LDATETIME ExpiryDtm; // Формат yyyy-MM-dd’T’HH:mm:ss.SSSz
-		LDATETIME ProductionDtm; // Формат yyyy-MM-dd’T’HH:mm:ss.SSSz
-		double Weight; // Переменный вес продукции (в граммах). Возвращается только для товарной группы «Молочная продукция»
-		SString PrVetDocument; // Производственный ветеринарный сопроводительный документ. Возвращается только для товарной группы «Молочная продукция»
-		SString Message; // Сообщение об ошибке
-		S_GUID ReqId;    // Уникальный идентификатор запроса
-		int64  ReqTimestamp; // Дата и время формирования запроса. Параметр возвращает дату и время с точностью до миллисекунд.
-		SString PackageType; // Тип упаковки. См. «Справочник "Типы упаковки"»
-		SString Parent;      // КИ агрегата.
-		SString ProducerInn; // ИНН производителя.
-	};
-
-	class CodeStatusCollection : public TSCollection <CodeStatus> {
-	public:
-		CodeStatusCollection();
-		CodeStatusCollection & Z();
-		int    AddCodeEntry(const char * pCode, uint orgRowId, SString * pReconstructedCode);
-		//
-		// Descr: Сопоставляет результат проверки, полученный от честного знака с коллекцией this
-		//   и, если находит, соответствующий элемент, то присваивает ему поля результата проверки.
-		// ARG(rowN IN): Если значение больше или равно нулю, то предполагается, что элемент rEntry
-		//   находится в rowN позиции списка результатов. Это может помочь сопоставлению.
-		// Returns:
-		//   >0 - номер позиции (+1) в коллекции this, с которым успешно сопоставлен результат
-		//    0 - не удалось найти соответствие.
-		//
-		int    SetupResultEntry(int rowN, const CodeStatus & rEntry);
-		enum {
-			fCheckedOffline = 0x0001
-		};
-		int    Method; // @v12.6.5 prcsmarkMethodXXX
-		int    Code; // Result code. 0 - ok
-		uint   Flags; // @v12.6.5
-		SString Description; // error message or "ok"
-		S_GUID ReqId;
-		int64  ReqTimestamp;
-		S_GUID LocalModuleInstance; // @v12.3.12 Идент локального модуля проверки
-		S_GUID LocalModuleDbVer;    // @v12.3.12 Версия базы «чёрного списка», на которой выполнялась проверка КИ
-	};
-	//
-	// Descr: Интерфейс с ТС-ПИОТ (не спрашивайте: пидоры в кремле не успокоятся пока не загонят нас всех под землю)
-	//
-	class TsPiotInterface { // @v12.5.11 
-	public:
-		explicit TsPiotInterface(InetUrl & rLocalSvrUrl);
-		~TsPiotInterface();
-
-		struct QueryBlock {
-			SString AppName; // @utf8 наименование ПМСР (кассового ПО)
-			SVerT  AppVer;   
-			S_GUID AppUuid;
-			SBinaryChunk AppToken;
-		};
-		int    CheckCodeList_v2(const QueryBlock & rQBlk, CodeStatusCollection & rList);
-	private:
-		InetUrl SvrUrl; // URL сервера, на котором расположен, блядь, тс-пиот.
-		PPGlobalServiceLogTalkingHelper Lth;
-	};
-	//
-	// Descr: Интерфейс с разрешительным режимом честный знак
-	//
-	class PermissiveModeInterface {
-	public:
-		struct CdnStatus {
-			CdnStatus();
-			SString CdnAddr; // адрес CDN-площадки
-			int    Code; // 0 - ok, !0 - error
-			int    AvgTimeMs;
-		};
-		enum {
-			queryGetCdnList = 1,
-			queryGetCdnStatus,
-			queryCheckCodeList
-		};
-		enum {
-			fTest = 0x0001
-		};
-		PermissiveModeInterface(const char * pToken, InetUrl * pLocalSvrUrl, uint flags);
-		~PermissiveModeInterface();
-		int    SelectCdnHost(SString & rResult);
-		//
-		// Descr: Извлекает из тега PPTAG_GUA_CHZN_PM_HOST глобальной учетной записи guaID имя хоста,
-		//   к которому следует обращаться для проверки марок. Если учетная запись guaID не найдена или 
-		//   тег не определен, либо в случае, если срок действия тега истек, то заново получает
-		//   наиболее приемлемый хост функцией SelectCdnHost и, по возможности, сохраняет его в теге.
-		//
-		int    FetchCdnHost(PPID guaID, SString & rResult);
-		int    CheckCodeList(const char * pHost, const char * pFiscalDriveNumber, CodeStatusCollection & rList, bool * pIsConnectionProblem);
-		//
-		// Далее следуют 3 метода для работы с локальным сервером проверки марок.
-		//
-
-		//
-		// Descr: Метод инициализации локального сервера.
-		//
-		int    InitLocalSvr(const char * pFiscalDriveNumber, SCompoundError * pErr);
-
-		struct LocalSvcStatus {
-			enum {
-				fRequiresDownload = 0x0001
-			};
-			enum {
-				stUndef = 0,
-				stNotConfigured = 1,
-				stInitialization,
-				stReady,
-				stSyncError
-			};
-			enum {
-				opmodeUndef  = 0,
-				opmodeActive = 1,
-				opmodeService = 2
-			};
-			LocalSvcStatus();
-			LocalSvcStatus & Z();
-
-			uint   Flags;
-			int    Status;
-			int    OpMode;
-			uint64 UedLastUpdateTm;
-			uint64 UedLastSyncTm;
-			SString Version;
-			SString StatusText;        // translated to Status
-			SString ServiceUrl;
-			SString OperationModeText; // translated to OpMode
-			SString Name;
-			SString Inst;
-			SString Inn;
-			SString DbVer;
-		};
-		//
-		// Descr: Метод проверки статуса локального сервера.
-		//
-		int    GetLocalSvrStatus(const char * pFiscalDriveNumber, LocalSvcStatus & rResult);
-		//
-		// Descr: Метод проверки марок посредством локального сервера.
-		//
-		int    LocalCheckCodeList(const char * pFiscalDriveNumber, CodeStatusCollection & rList);
-	private:
-		struct LocalSvrBlock {
-			LocalSvrBlock() : ApiVer(0)
-			{
-			}
-			int   ApiVer;
-			SString UrlBuf;
-			SString User;
-			SString Pw;
-			StrStrAssocArray HdrFlds;
-		};
-		SString & MakeTargetUrl(int query, const char * pAddendum, SString & rResult) const;
-		int    QueryCdnList(TSCollection <CdnStatus> & rResultList);
-		int    QueryCdnStatus(CdnStatus & rStatus);
-		//
-		// ARG(pMethod IN):
-		//   init, status, cis/outCheck, cis/sell, cis/return, cis/sold, changePassword, greyList
-		//
-		int    InitLocalSvrCall(const char * pMethod, LocalSvrBlock & rBlk);
-
-		uint   Flags;
-		SString Token; // Токен авторизации // Токен нужно получить на каждый ИНН и использовать на всех кассах
-		InetUrl LocalSvrUrl; // @v12.3.11
-		int    ApiVer; // @v12.6.4
-		PPGlobalServiceLogTalkingHelper Lth;
-	};
-
-	//
-	// Descr: Высокоуровневая (терминальная) функция, реализующая полный цикл вызовов для проверки марок в разрешительном режиме.
-	// ARG(offlineMod IN): 
-	//   0 - online only
-	//   1 - offline only
-	//   2 - regular mode: try online and if failed then try offline
-	//
-	static int PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offlineMode, CodeStatusCollection & rList);
-	static int TsPiotCheck(PPID guaID, CodeStatusCollection & rList); // @v12.5.11
-private:
-	int    PrepareBillPacketForSending(PPID billID, void * pChZnPacket);
-	void * P_Ib; // Блок инициализации
-};
-//
 //
 //
 enum VetisDocStatus {
@@ -64746,7 +64726,7 @@ int    MakeDatabase();
 //   Параметр defLocID определяет, с какого склада брать текущие данные по товару
 //   (цену, срок годности, емкость упаковки и т.д.)
 //
-int    AddGoodsToBasket(PPID goodsID, PPID defLocID, double qtty = 0.0, double price = 0.0);
+int    AddGoodsToBasket(PPID goodsID, PPID defLocID, double qtty/*= 0.0*/, double price/*= 0.0*/);
 int    RevalAssets();
 int    WriteOffDrafts(const PPIDArray * pCSessList);
 int    ProcessDL200();

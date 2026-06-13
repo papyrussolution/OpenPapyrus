@@ -1933,7 +1933,7 @@ int PPObjGoods::SubstGoods(PPID srcID, PPID * pDestID, SubstGrpGoods sgg, const 
 		else if(Fetch(srcID, &goods_rec) <= 0)
 			ok = -1;
 		else if(sgg == sggGeneric) {
-			if(BelongToGen(goods_id, &gen_goods_id) > 0)
+			if(BelongsToGen(goods_id, &gen_goods_id) > 0)
 				goods_id = gen_goods_id;
 		}
 		else if(sgg > sggTagBias) {
@@ -2324,7 +2324,7 @@ int  PPObjGoods::IsTempAltGroup(PPID grpID) { return P_Tbl->IsTempAltGroup(grpID
 int  PPObjGoods::IsDynamicAltGroup(PPID grpID) { return P_Tbl->IsDynamicAltGroup(grpID); }
 int  PPObjGoods::IsGoodsCompatibleByUnit(PPID id1, PPID id2, double * ratio) { return P_Tbl->IsCompatibleByUnit(id1, id2, ratio); }
 int  PPObjGoods::GetGenericList(PPID genID, PPIDArray * pList) { return P_Tbl->GetGenericList(genID, pList); }
-int  PPObjGoods::BelongToGen(PPID goodsID, PPID * gen, ObjAssocTbl::Rec * b) { return P_Tbl->BelongToGen(goodsID, gen, b); }
+int  PPObjGoods::BelongsToGen(PPID goodsID, PPID * gen, ObjAssocTbl::Rec * b) { return P_Tbl->BelongsToGen(goodsID, gen, b); }
 int  PPObjGoods::AssignGoodsToGen(PPID goodsID, PPID genID, int abbr, int use_ta) { return P_Tbl->AssignGoodsToGen(goodsID, genID, abbr, use_ta); }
 int  PPObjGoods::RemoveGoodsFromGen(PPID goodsID, PPID genID, int use_ta) { return P_Tbl->RemoveGoodsFromGen(goodsID, genID, use_ta); }
 int  PPObjGoods::AssignGoodsToAltGrp(PPID goodsID, PPID grp, long innerNum, int use_ta) { return P_Tbl->AssignGoodsToAltGrp(goodsID, grp, innerNum, use_ta); }
@@ -2340,7 +2340,7 @@ int PPObjGoods::IsEqualOrBelongToGeneric(PPID goodsID, PPID otherGoodsID)
 	if(goodsID && otherGoodsID) {
 		if(goodsID == otherGoodsID)
 			ok = 1;
-		else if(IsGeneric(otherGoodsID) && BelongToGen(goodsID, &otherGoodsID, 0))
+		else if(IsGeneric(otherGoodsID) && BelongsToGen(goodsID, &otherGoodsID, 0))
 			ok = 2;					
 	}
 	return ok;
@@ -4530,7 +4530,7 @@ int PPObjGoods::GetAltGenGoodsList(PPID goodsID, int kind, RAssocArray * pList)
 {
 	int    ok = -1;
 	PPID   gen_id = 0;
-	if(BelongToGen(goodsID, &gen_id) > 0 || IsGeneric(gen_id = goodsID)) {
+	if(BelongsToGen(goodsID, &gen_id) > 0 || IsGeneric(gen_id = goodsID)) {
 		PPIDArray goods_list;
 		GetGenericList(gen_id, &goods_list);
 		for(uint i = 0; i < goods_list.getCount(); i++) {

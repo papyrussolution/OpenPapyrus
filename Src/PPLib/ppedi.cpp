@@ -1171,7 +1171,7 @@ int PPDocumentInterchangeContext::ResolveContractor(const char * pText, int part
 					PPID   main_org_id = 0;
 					for(uint i = 0; !main_org_id && i < psn_list_by_gln.getCount(); i++) {
 						const  PPID _id = psn_list_by_gln.get(i);
-						if(PsnObj.P_Tbl->IsBelongsToKind(_id, PPPRK_MAIN) > 0)
+						if(PsnObj.P_Tbl->BelongsToKind(_id, PPPRK_MAIN) > 0)
 							main_org_id = _id;
 					}
 					THROW_PP_S(main_org_id, PPERR_EDI_UNBLRSLV_BILLMAINORG, msg_buf);
@@ -1182,7 +1182,7 @@ int PPDocumentInterchangeContext::ResolveContractor(const char * pText, int part
 					PPID   main_org_id = 0;
 					for(uint i = 0; !main_org_id && i < psn_list_by_gln.getCount(); i++) {
 						const  PPID _id = psn_list_by_gln.get(i);
-						if(PsnObj.P_Tbl->IsBelongsToKind(_id, PPPRK_MAIN) > 0)
+						if(PsnObj.P_Tbl->BelongsToKind(_id, PPPRK_MAIN) > 0)
 							main_org_id = _id;
 					}
 					THROW_PP_S(main_org_id, PPERR_EDI_UNBLRSLV_BILLMAINORG, msg_buf);
@@ -8719,7 +8719,7 @@ int PPEdiProcessor::ProviderImplementation::ResolveOwnFormatContractor(const Own
 				if(psn_list_by_gln.getCount()) {
 					for(uint i = 0; !main_org_id && i < psn_list_by_gln.getCount(); i++) {
 						const  PPID _id = psn_list_by_gln.get(i);
-						if(PsnObj.P_Tbl->IsBelongsToKind(_id, PPPRK_MAIN) > 0)
+						if(PsnObj.P_Tbl->BelongsToKind(_id, PPPRK_MAIN) > 0)
 							main_org_id = _id;
 					}
 				}
@@ -8727,7 +8727,7 @@ int PPEdiProcessor::ProviderImplementation::ResolveOwnFormatContractor(const Own
 				else if(psn_list_by_inn.getCount()) {
 					for(uint i = 0; !main_org_id && i < psn_list_by_inn.getCount(); i++) {
 						const  PPID _id = psn_list_by_inn.get(i);
-						if(PsnObj.P_Tbl->IsBelongsToKind(_id, PPPRK_MAIN) > 0)
+						if(PsnObj.P_Tbl->BelongsToKind(_id, PPPRK_MAIN) > 0)
 							main_org_id = _id;
 					}
 				}
@@ -8740,7 +8740,7 @@ int PPEdiProcessor::ProviderImplementation::ResolveOwnFormatContractor(const Own
 				PPID   main_org_id = 0;
 				for(uint i = 0; !main_org_id && i < psn_list_by_gln.getCount(); i++) {
 					const  PPID _id = psn_list_by_gln.get(i);
-					if(PsnObj.P_Tbl->IsBelongsToKind(_id, PPPRK_MAIN) > 0)
+					if(PsnObj.P_Tbl->BelongsToKind(_id, PPPRK_MAIN) > 0)
 						main_org_id = _id;
 				}
 				THROW_PP_S(main_org_id, PPERR_EDI_UNBLRSLV_BILLMAINORG, msg_buf);

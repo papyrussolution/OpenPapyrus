@@ -2361,6 +2361,8 @@
 #define DLG_OBJVIEW                52 // Общий диалог просмотра списка объектов
 	#define CTL_OBJVIEW_LIST             (1 + WINDOWS_ID_BIAS)
 	#define CTL_OBJVIEW_ST_MSG           (2 + WINDOWS_ID_BIAS)
+	#define CTL_LOCVIEW_CMD_WAREPLACELIST (31 + WINDOWS_ID_BIAS) // @v12.6.7
+	#define CTL_LOCVIEW_CMD_LOCGOODSASSOC (32 + WINDOWS_ID_BIAS) // @v12.6.7
 #define DLG_GEO                    53 // Георафические объекты
 	#define CTL_GEO_LIST                 (1 + WINDOWS_ID_BIAS)
 #define DLG_ACCSHEET               54 // Таблица аналитических статей
@@ -7232,6 +7234,8 @@
 	#define CTL_TSESS_ST_STATE           (55 + WINDOWS_ID_BIAS) // @v12.6.2 Поле для вывода информации о текущем состоянии
 	#define CTL_TSESS_CMD_CLOSECURRTSESS (56 + WINDOWS_ID_BIAS) // @v12.6.2
 	#define CTL_TSESS_CMD_TRASSIGNMENT   (57 + WINDOWS_ID_BIAS) // @v12.6.6
+	#define CTL_TSESS_GSTRUC             (58 + WINDOWS_ID_BIAS) // @v12.6.7
+	#define CTLSEL_TSESS_GSTRUC          (59 + WINDOWS_ID_BIAS) // @v12.6.7
 
 #define DLG_TSESSLN               674 // Строка технологической сессии
 	#define CTL_TSESSLN_SESSID           (1 + WINDOWS_ID_BIAS)

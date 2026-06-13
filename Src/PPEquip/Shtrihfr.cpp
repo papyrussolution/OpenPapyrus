@@ -1048,6 +1048,7 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 									case GTCHZNPT_VEGETABLEOIL: marking_type = 0x444D; break; // @v12.4.8
 									case GTCHZNPT_NCP: marking_type = 0x444D; break; // @v12.5.6
 									case GTCHZNPT_MOTOROIL: marking_type = 0x444D; break; // @v12.5.11
+									case GTCHZNPT_CHEMISTRY: marking_type = 0x444D; break; // @v12.6.7
 								}
 								if(marking_type) {
 									/* @v12.0.4

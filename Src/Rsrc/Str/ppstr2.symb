@@ -1,18 +1,18 @@
 
 [hash]
-base=ppstr2.txt,t8UN2MKk9/abBLElzHNvWzoRnjDclIGRPhdDo2sZqTo=,ppstr2.bin,JMZ2iospHSOTUHlrTclw/h52Vdnve2kKnKNzL0HrdxQ=
+base=ppstr2.txt,vh5JSeZMvKrqkVJIHX07akZU0jT+s5nI5viUDEWLg84=,ppstr2.bin,2E5nIFDXEc3ooKayRxHgRUXbVKWY3IvK2nwyd0vArts=
 lang-de=ppstr2-de.txt,uiF+XJVJlyDjw7nInhf/AFcW9Tl0++UYflUahSBUK/Y=,ppstr2-de.bin,z5tTW3wrQRt4866sMd5LWX/oYCLHknIJxj6FbKYnSek=
 lang-en=ppstr2-en.txt,wNMuDQEJ8iXS8+Jpd9MAWdg8exLsMCYnqYI0euY1I0Y=,ppstr2-en.bin,5cMKdf3XAXJZe9nWJkS0b2yRiluKkMmBbOM4faM39TI=
 lang-es=ppstr2-es.txt,6DBYF21pt4umLyjG1Rx9bHiNzqHNfQg0oJPNpqQHaL8=,ppstr2-es.bin,jN0oN2zuyiQYf2BQ4rSZo9Fbb/rXRRQTRRg9UgDu54E=
 lang-nl=ppstr2-nl.txt,Zd2VsGPQmBS07XH9hMNEWniNNGEabqE6Uvt5JiQH7Z4=,ppstr2-nl.bin,AqlBiG6YphrbirG4xBKskUNJxcR7ddb/aAT3jXXGCw4=
 lang-pt=ppstr2-pt.txt,hd0YO5YgL7gA2GCadBf7ZRUbAkdgaMaUIQtpfOCrjyM=,ppstr2-pt.bin,jJjEwXMtYJKHJW0wLDUHUXHkn1XOj1KDsbw5UpAVBWw=
-chdr=ppstr2.h,a8E8y1h3i6sNw6hVBlWCfAGnvYHpIp2pweZ/eMssUnQ=
-java=ppstr2.java,XxIGy3EeYhkBN5tbD+SuhJc73jfp9igcxNNXPaKwoa4=
+chdr=ppstr2.h,QbR/XcMN3J1ST3o7fvdATqcP6D0mh1UQW9/hQsvJ8s8=
+java=ppstr2.java,HL4GyY9l4EtXZdG6t+ugCuQdOI/aeX6+8E8ktVTWw5o=
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147499153
-LastAutoCodeList=1,12471;102,10179;103,10074;110,10000;111,13056;112,10000;119,10000;114,10012;7,10000;4,10000;6,10000;342,10000;118,10313;120,10010;1001,10000;121,10000;122,10000;123,10661;124,10832;125,10128;126,10000
+LastSignatureCode=2147499157
+LastAutoCodeList=1,12471;102,10179;103,10074;110,10000;111,13057;112,10000;119,10000;114,10012;7,10000;4,10000;6,10000;342,10000;118,10313;120,10010;1001,10000;121,10000;122,10000;123,10661;124,10832;125,10128;126,10000
 
 [SignatureList]
 testsign1=2147495071
@@ -7464,6 +7464,7 @@ tsession_status=2147497269
 tsession_stdt=2147497270
 tsession_sttm=2147497271
 tsession_tech=2147497272
+tsession_arbitrarygs=2147499154
 tsession_tsesf_idle=2147490000
 tsession_tsesf_planphunit=2147490001
 tsession_prcavailability=2147490002
@@ -10373,6 +10374,8 @@ chznprcssrparam_ar=2147498418
 chznprcssrparam_afqueryticket=2147492722
 chznprcssrparam_afquerykizinfo=2147492723
 chznprcssrparam_afquerydoclistin=2147498419
+chznprcssrparam_afdebugauth=2147499155
+chznprcssrparam_afqueryaggrmarklist=2147499156
 chznprcssrparam_loc=2147498420
 chzn_check_offline=2147499051
 chzn_check_tspiot=2147499120
@@ -11555,6 +11558,7 @@ mpviewkind_goods=2147499045
 mpviewkind_pickuppoints=2147499046
 brwwin_lcsetdefcolsizes=2147499091
 brwwin_lcevaluatecolsizes=2147499092
+tecrouteasgmt=2147499157
 tecrouteasgmt_finalware=2147499147
 tecrouteasgmt_route=2147499148
 centrigo_cmd_notes=2147499105
@@ -16330,6 +16334,7 @@ PPINIPARAM_CHZNPMLOCALOVRALLTIMEOUT=7287549
 PPINIPARAM_POSSINGLESUBSTPRICEORDER=7287550
 PPINIPARAM_POSADJUSTFRACTIONALPRICE=7287551
 PPINIPARAM_CHZNPMCRIT=7287552
+PPTXT_CHZN_LOG_DEBUGAUTH_SUCCESS=7287553
 PPSSYM_SYMB=7481111
 PPSSYM_ACCSIDE=7481112
 PPSSYM_CMDLINEOP=7481113

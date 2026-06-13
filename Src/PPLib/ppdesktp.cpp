@@ -3380,7 +3380,7 @@ int TFacadeWindow::DrawNavTreeItem(void * pCustomDrawDescriptor)
 								evp.ForceSize.x = static_cast<float>(rc_item.right - rc_item.left);
 								evp.ForceSize.y = static_cast<float>(rc_item.bottom - rc_item.top);
 								SUiLayoutParam & r_lp = p_lo->GetLayoutBlock();
-								r_lp.Padding.a.x = indent * level;
+								r_lp.Padding.a.x = static_cast<float>(indent * level);
 								p_lo->Evaluate(&evp);
 							}
 							{
@@ -3416,7 +3416,7 @@ int TFacadeWindow::DrawNavTreeItem(void * pCustomDrawDescriptor)
 												canv.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
 											}
 											FRect fr = p_lo_hind->GetFrameAdjustedToParent();
-											fr.Move__(rc_item.left, rc_item.top);
+											fr.Move__(static_cast<float>(rc_item.left), static_cast<float>(rc_item.top));
 											LMatrix2D mtx;
 											SViewPort vp;
 											canv.PushTransform();
@@ -3446,7 +3446,7 @@ int TFacadeWindow::DrawNavTreeItem(void * pCustomDrawDescriptor)
 										}
 										if(APPL->GetDialogTextLayoutU(_text, temp_font_id, text_pen_id, tlo, ADJ_LEFT) > 0) {
 											FRect fr = p_lo_text->GetFrameAdjustedToParent();
-											fr.Move__(rc_item.left, rc_item.top);
+											fr.Move__(static_cast<float>(rc_item.left), static_cast<float>(rc_item.top));
 											tlo.SetBounds(fr);
 											tlo.SetOptions(tlo.fVCenter, -1, -1);
 											tlo.Arrange(dctx, *p_tb);
@@ -3923,5 +3923,88 @@ int Launch_TFacadeWindow()
 	int    ok = -1;
 	TFacadeWindow * p_win = new TFacadeWindow();
 	InsertView(p_win);
+	return ok;
+}
+//
+// Descr: Один сегмент пула секретов. 
+// Note: Внутри этой структуры шифрование не применяется - удержание в секретности находится в ведении SVaultPool и SlCrypt
+//   Все строки - в кодировке utf8
+//
+class SecretSegment {
+public:
+	SecretSegment();
+	SecretSegment(SStrGroup * pOuterSg);
+	~SecretSegment();
+	SJson * ToJsonObj() const;
+	bool   FromJsonObj(const SJson * pJs);
+	//
+	// Descr: типы секретов
+	//
+	enum { // @persistent
+		sectypUndef      = 0,
+		sectypFolder     = 1, // Вообще не секрет никакой - папка для других сегментов
+		sectypGeneric    = 2, // Обобщенный секрет. pair {open-string; hidden-string}
+		sectypPassword   = 3, // simple secret string
+		sectypAuthSecret = 4, // pair { auth (open string); secret (hidden string)}
+		sectypOpenKey    = 5, // Открытая строка, которую из гигиенических соображений лучше хранить в "темноте" (номер паспорта, инн, номера договоров etc)
+		sectypBankCard   = 6, // Данные банковской карты: {number; CVV; PIN; expiry}
+		sectypSSH        = 7, // {public_key; private_key; passphrase}
+		sectypESignature = 8, // Данные электронной подписи
+	};
+
+	uint32 InternalID;   // @anchor Внутренний идентификатор (если сегмент находится в SVaultPool, то InternalID совпадает с номинальным идентификатором сегмента контейнере)
+	uint32 ParentID;     // Внутренний идентификатор родительского сегмента (если 0, то topmost)
+	uint32 SecType;      // sectypXXX
+	uint64 UedRefOid;    // Ссылка на объект в базе данных, с которым сегмент ассоциирован
+	uint64 UedEnterTm;   // Время создания записи
+	uint64 UedExpiryTm;  // Время истечения срока действия записи
+	uint32 NameP;        // Наименование сегмента (позиция в SStrGroup) 
+	uint32 STextOpenP;   // Часть секрета (открытая строка)
+	uint32 STextHiddenP; // Часть секрета (скрытая строка). Для банковской карты PIN код хранится здесь.
+	uint32 STextExpiryP; // Часть секрета (строка срока действия asis). По смыслу дублирует UedExpiryTm но по факту может отличаться написанием или нюансами ситуации (eg after 20220224)
+	uint32 STextExt1P;   // Часть секрета ext1
+	uint32 STextExt2P;   // Часть секрета ext2
+	uint32 STextExt3P;   // Часть секрета ext3
+	uint64 UedHashAlg;   // UED-идентификатор алгоритма хэширования для случаев, когда таковой алгоритм является часть секрета
+	uint32 DescrP;       // Описание сегмента
+	uint32 ExecCmdLineP; // Командная строка для запуска приложения или команды
+	uint8  Reserve[64];  // @anchor
+private:
+	SStrGroup & GetSg();
+
+	SStrGroup * P_OwnSg;   // Собственная группа строк
+	SStrGroup * P_OuterSg; // Внешняя группа строк
+};
+
+SecretSegment::SecretSegment() : P_OwnSg(0), P_OuterSg(0)
+{
+	memzero(&InternalID, offsetof(SecretSegment, Reserve) + sizeof(Reserve) - offsetof(SecretSegment, InternalID));
+}
+	
+SecretSegment::SecretSegment(SStrGroup * pOuterSg) : P_OwnSg(0), P_OuterSg(pOuterSg)
+{
+	memzero(&InternalID, offsetof(SecretSegment, Reserve) + sizeof(Reserve) - offsetof(SecretSegment, InternalID));
+}
+	
+SecretSegment::~SecretSegment()
+{
+}
+
+SStrGroup & SecretSegment::GetSg() 
+{
+	SStrGroup * p_result = NZOR(P_OuterSg, P_OwnSg);
+	assert(p_result);
+	return *p_result;
+}
+	
+SJson * SecretSegment::ToJsonObj() const
+{
+	SJson * p_result = 0;
+	return p_result;
+}
+	
+bool SecretSegment::FromJsonObj(const SJson * pJs)
+{
+	bool   ok = false;
 	return ok;
 }

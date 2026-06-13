@@ -88,7 +88,50 @@ int FASTCALL ReceiptCore::LotDimensions::FromString(const char * pBuf)
 	}
 	return ok;
 }
+//
+//
+//
+ReceiptCore::TecRouteAssignment::TecRouteAssignment() : TechRouteID(0), FinalProductID(0)
+{
+}
 
+ReceiptCore::TecRouteAssignment & ReceiptCore::TecRouteAssignment::Z()
+{
+	TechRouteID = 0;
+	FinalProductID = 0;
+	return *this;
+}
+
+SString & FASTCALL ReceiptCore::TecRouteAssignment::ToStr(SString & rBuf) const
+{
+	return rBuf.Z().CatEq("techrouteid", TechRouteID).Space().CatEq("finalproductid", FinalProductID);
+}
+
+int FASTCALL ReceiptCore::TecRouteAssignment::FromString(const char * pBuf)
+{
+	int   ok = 0;
+	SString src_buf(pBuf);
+	Z();
+	if(src_buf.NotEmptyS()) {
+		SString key_buf;
+		uint64 value;
+        SStrScan scan(src_buf);
+        while(scan.Skip().GetEqU(key_buf, value)) {
+			if(key_buf.IsEqiAscii("techrouteid")) {
+				TechRouteID = static_cast<PPID>(value);
+				ok = 1;
+			}
+			else if(key_buf.IsEqiAscii("finalproductid")) {
+				FinalProductID = static_cast<PPID>(value);
+				ok = 1;
+			}
+        }
+	}
+	return ok;
+}
+//
+//
+//
 /*static*/SString & FASTCALL ReceiptCore::MakeCodeString(const ReceiptTbl::Rec * pRec, int options, SString & rBuf)
 {
 	// "@goods - @date - @int - @article"

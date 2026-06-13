@@ -4843,7 +4843,7 @@ int32 DL6ICLS_PPObjPerson::IsBelongToKind(long personID, long kindID)
 	int32  r = 0;
 	InnerExtraObjPerson * p_e = static_cast<InnerExtraObjPerson *>(ExtraPtr);
 	if(p_e && p_e->P_Obj)
-		r = p_e->P_Obj->P_Tbl->IsBelongsToKind(personID, kindID);
+		r = p_e->P_Obj->P_Tbl->BelongsToKind(personID, kindID);
 	else
 		AppError = 1;
 	return r;

@@ -1147,7 +1147,7 @@ int PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOffParam
 								ti.TFlags &= ~PPTransferItem::tfDirty;
 								THROW(p_pack->InsertRow(&ti, 0));
 								{
-									const uint dest_pos = p_pack->GetTCount()-1;
+									const  uint dest_pos = p_pack->GetTCount()-1;
 									blk.SrcDraftPack.LTagL.GetString(PPTAG_LOT_CLB, i, clb_buf);
 									THROW(p_pack->LTagL.SetString(PPTAG_LOT_CLB, dest_pos, clb_buf));
 									blk.SrcDraftPack.LTagL.GetString(PPTAG_LOT_SN, i, serial_buf);

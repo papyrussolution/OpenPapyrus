@@ -1093,6 +1093,7 @@ int Convert4405()
 //
 //
 //
+/* @v12.6.7 старый вариант хранения истории документов полностью элиминируется 
 class PPCvtHistBill4515 : public PPTableConversion {
 public:
 	DBTable * CreateTableInstance(int * pNeedConversion);
@@ -1111,7 +1112,7 @@ DBTable * PPCvtHistBill4515::CreateTableInstance(int * pNeedConversion)
 	return p_tbl;
 }
 
-int PPCvtHistBill4515::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+int PPCvtHistBill4515::ConvertRec(DBTable * pTbl, void * pRec, int *)
 {
 	const struct OldRec {
 		long   ID;
@@ -1158,6 +1159,7 @@ int PPCvtHistBill4515::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLe
 }
 
 CONVERT_PROC(Convert4515, PPCvtHistBill4515);
+*/
 //
 //
 //

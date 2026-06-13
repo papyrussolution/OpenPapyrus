@@ -1355,7 +1355,7 @@ private:
 				const  PPID cur_id = getCurrID();
 				LocationFilt flt;
 				if(ExtraPtr)
-					flt = *(LocationFilt*)ExtraPtr;
+					flt = *static_cast<const LocationFilt *>(ExtraPtr);
 				if(cur_id)
 					flt.CurrID = cur_id;
 				if(P_Obj->Edit(&id, &flt) == cmOK)
@@ -1368,10 +1368,13 @@ private:
 				ViewWareplaces();
 			else if(event.isCmd(cmLocGoodsAssoc)) {
 				if(IsWareplaceView) {
-					LocationFilt loc_filt;
-					loc_filt.LocType = LOCTYP_WAREPLACE;
-					loc_filt.Parent = ParentID;
-					ViewGoodsToLocAssoc(0, PPASS_GOODS2WAREPLACE, &loc_filt, goafModal | goafFreeExtraAsPtr);
+					const  PPID cur_id = getCurrID();
+					if(cur_id) {
+						LocationFilt loc_filt;
+						loc_filt.LocType = LOCTYP_WAREPLACE;
+						loc_filt.Parent = cur_id; // @v12.6.7 @fix ParentID-->cur_id
+						ViewGoodsToLocAssoc(cur_id, PPASS_GOODS2WAREPLACE, &loc_filt, goafModal|goafFreeExtraAsPtr);
+					}
 				}
 				else {
 					ViewGoodsToLocAssoc(0, PPASS_GOODS2LOC, 0, goafModal);

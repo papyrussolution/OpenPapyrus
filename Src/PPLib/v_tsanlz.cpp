@@ -452,7 +452,7 @@ int PPViewTSessAnlz::IsGoodsBelongToGen(PPID goodsID, PPID * pGenID)
 	if(GenList.Search(goodsID, &gen_id, 0)) {
 		ok = gen_id ? 1 : -1;
 	}
-	else if(GObj.P_Tbl->BelongToGen(goodsID, &(gen_id = 0)) > 0) {
+	else if(GObj.P_Tbl->BelongsToGen(goodsID, &(gen_id = 0)) > 0) {
 		ok = 1;
 		PPIDArray gen_list;
 		if(GObj.P_Tbl->GetGenericList(gen_id, &gen_list) > 0)

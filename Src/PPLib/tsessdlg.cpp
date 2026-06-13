@@ -7,16 +7,21 @@
 
 static constexpr int _TSesStatusTab[] = { TSESST_PLANNED, TSESST_PENDING, TSESST_INPROCESS, TSESST_CLOSED, TSESST_CANCELED };
 
-PrcTechCtrlGroup::Rec::Rec() : PrcID(0), PrcParentID(0), TechID(0), ArID(0), Ar2ID(0), GoodsID(0), IdleStatus(false)
+PrcTechCtrlGroup::Rec::Rec() : PrcID(0), PrcParentID(0), TechID(0), ArID(0), Ar2ID(0), GoodsID(0), GStrucID(0), IdleStatus(false)
 {
 }
 
 PrcTechCtrlGroup::PrcTechCtrlGroup(uint ctlSelPrc, uint ctlSelTech, uint ctlStGoods,
-	uint ctlSelAr, uint ctlSelAr2, uint cmdSelTechByGoods, uint cmdCreateGoods) : CtrlGroup(), CtlselPrc(ctlSelPrc), CtlselTech(ctlSelTech), 
+	uint ctlSelAr, uint ctlSelAr2, uint cmdSelTechByGoods, uint cmdCreateGoods) : CtrlGroup(), CtlselPrc(ctlSelPrc), CtlselTech(ctlSelTech), CtlselGStruc(0),
 	CtlStGoods(ctlStGoods), CtlselAr(ctlSelAr), CtlselAr2(ctlSelAr2), CmdSelTechByGoods(cmdSelTechByGoods), CmdCreateGoods(cmdCreateGoods),
 	SelGoodsID(0), AutoGoodsGrpID(0), IdleStatus(false), Flags(0)
 {
 	Flags |= fEnablePrcSelUpLevel;
+}
+
+void PrcTechCtrlGroup::SetGoodsStrucCtlsel(uint ctlSelGoodsStruc)
+{
+	CtlselGStruc = ctlSelGoodsStruc;
 }
 
 void PrcTechCtrlGroup::SetIdleStatus(TDialog * pDlg, bool s)
@@ -51,9 +56,8 @@ void PrcTechCtrlGroup::setupArticle(TDialog * pDlg, const ProcessorTbl::Rec * pP
 	if(!was_idle_sheet_set) {
 		PPID   acs_id = op_rec.AccSheet2ID;
 		if(!acs_id) {
-			PPObjProcessor prc_obj;
 			ProcessorTbl::Rec prc_rec;
-			if(prc_obj.GetRecWithInheritance(Data.PrcID, &prc_rec, 1) > 0 && prc_rec.Flags & PRCF_ADDEDOBJASAGENT)
+			if(PrcObj.GetRecWithInheritance(Data.PrcID, &prc_rec, 1) > 0 && prc_rec.Flags & PRCF_ADDEDOBJASAGENT)
 				acs_id = GetAgentAccSheet();
 		}
 		SetupArCombo(pDlg, CtlselAr2, Data.Ar2ID, OLW_LOADDEFONOPEN|OLW_CANINSERT, acs_id, sacfDisableIfZeroSheet);
@@ -62,10 +66,10 @@ void PrcTechCtrlGroup::setupArticle(TDialog * pDlg, const ProcessorTbl::Rec * pP
 
 void PrcTechCtrlGroup::onPrcSelection(TDialog * pDlg, int onIdleStatus)
 {
-	PPObjProcessor prc_obj;
 	ProcessorTbl::Rec prev_prc_rec;
-	if(prc_obj.GetRecWithInheritance(Data.PrcID, &prev_prc_rec, 1) <= 0)
+	if(PrcObj.GetRecWithInheritance(Data.PrcID, &prev_prc_rec, 1) <= 0) {
 		prev_prc_rec.Clear();
+	}
 	if(onIdleStatus) {
 		setupArticle(pDlg, &prev_prc_rec);
 	}
@@ -73,7 +77,7 @@ void PrcTechCtrlGroup::onPrcSelection(TDialog * pDlg, int onIdleStatus)
 		pDlg->getCtrlData(CtlselPrc, &Data.PrcID);
 		if(Data.PrcID != prev_prc_rec.ID) {
 			ProcessorTbl::Rec prc_rec;
-			if(prc_obj.GetRecWithInheritance(Data.PrcID, &prc_rec, 1) <= 0)
+			if(PrcObj.GetRecWithInheritance(Data.PrcID, &prc_rec, 1) <= 0)
 				prc_rec.Clear();
 			if(SelGoodsID) {
 				TecObj.CreateAutoTech(Data.PrcID, SelGoodsID, 0, 1);
@@ -85,7 +89,7 @@ void PrcTechCtrlGroup::onPrcSelection(TDialog * pDlg, int onIdleStatus)
 			else {
 				SetupPPObjCombo(pDlg, CtlselTech, PPOBJ_TECH, Data.TechID, GetTechComboOlwFlags()|OLW_SETUPSINGLE, reinterpret_cast<void *>(Data.PrcID));
 			}
-			SetupGoodsName(pDlg);
+			SetupGoods_(pDlg, 0);
 			if(prc_rec.WrOffOpID != prev_prc_rec.WrOffOpID)
 				setupArticle(pDlg, &prc_rec);
 		}
@@ -119,7 +123,7 @@ void PrcTechCtrlGroup::selTechByGoods(TDialog * pDlg)
 					else {
 						SetupPPObjCombo(pDlg, CtlselTech, PPOBJ_TECH, Data.TechID, GetTechComboOlwFlags(), reinterpret_cast<void *>(Data.PrcID));
 					}
-					SetupGoodsName(pDlg);
+					SetupGoods_(pDlg, 0);
 					TView::messageCommand(pDlg, cmCBSelected, pDlg->getCtrlView(CtlselTech));
 				}
 			}
@@ -132,7 +136,7 @@ int PrcTechCtrlGroup::SetGoodsID(TDialog * pDlg, PPID goodsID) // @v12.6.1
 {
 	int    ok = 1;
 	Data.GoodsID = goodsID;
-	SetupGoodsName(pDlg);
+	SetupGoods_(pDlg, 0);
 	return ok;
 }
 
@@ -142,7 +146,7 @@ int PrcTechCtrlGroup::GetGoodsID(TDialog * pDlg, PPID * pGoodsID)
 	PPID   goods_id = 0;
 	TechTbl::Rec tec_rec;
 	pDlg->getCtrlData(CtlselTech, &Data.TechID);
-	if(TecObj.Search(Data.TechID, &tec_rec) > 0) {
+	if(TecObj.Fetch(Data.TechID, &tec_rec) > 0) { // @v12.6.7 Search-->Fetch
 		goods_id = tec_rec.GoodsID;
 		if(goods_id > 0)
 			ok = 1;
@@ -156,7 +160,7 @@ int PrcTechCtrlGroup::GetGoodsID(TDialog * pDlg, PPID * pGoodsID)
 			//
 			if(GObj.IsGeneric(goods_id)) {
 				PPID   temp_id = goods_id;
-				if(GObj.BelongToGen(Data.GoodsID, &temp_id, 0) > 0) {
+				if(GObj.BelongsToGen(Data.GoodsID, &temp_id, 0) > 0) {
 					goods_id = Data.GoodsID;
 				}
 			}
@@ -169,7 +173,7 @@ int PrcTechCtrlGroup::GetGoodsID(TDialog * pDlg, PPID * pGoodsID)
 	return ok;
 }
 
-void PrcTechCtrlGroup::SetupGoodsName(TDialog * pDlg)
+void PrcTechCtrlGroup::SetupGoods_(TDialog * pDlg, PPID * pGoodsID)
 {
 	SString goods_name;
 	// @v12.6.1 {
@@ -192,6 +196,40 @@ void PrcTechCtrlGroup::SetupGoodsName(TDialog * pDlg)
 		}
 	}*/
 	pDlg->setStaticText(CtlStGoods, goods_name);
+	ASSIGN_PTR(pGoodsID, goods_id);
+}
+
+void PrcTechCtrlGroup::SetupTech(TDialog * pDlg, bool onInit)
+{
+	PPID   goods_id = 0;
+	//pDlg->getCtrlData(CtlselPrc, &Data.TechID);
+	SetupGoods_(pDlg, &goods_id);
+	bool   enable_select_gstruc = false;
+	if(CtlselGStruc && goods_id) {
+		PPID   final_gstruc_id = 0;
+		PPID   tec_gstruc_id = 0;
+		const  PPID ex_gstruc_id = onInit ? Data.GStrucID : pDlg->getCtrlLong(CtlselGStruc);
+		TechTbl::Rec tec_rec;
+		if(TecObj.Fetch(Data.TechID, &tec_rec) > 0) {
+			tec_gstruc_id = tec_rec.GStrucID;
+			if(!tec_gstruc_id)
+				enable_select_gstruc = true;
+		}
+		else {
+			enable_select_gstruc = true;
+		}
+		if(ex_gstruc_id) {
+			PPGoodsStruc::Ident gsi;
+			gsi.GoodsID = goods_id;
+			gsi.GStrucID = ex_gstruc_id;
+			if(GObj.LoadGoodsStruc(gsi, 0) > 0) {
+				final_gstruc_id = ex_gstruc_id;
+			}
+		}
+		SETIFZ(final_gstruc_id, tec_gstruc_id);
+		SetupPPObjCombo(pDlg, CtlselGStruc, PPOBJ_GOODSSTRUC, final_gstruc_id, 0, reinterpret_cast<void *>(NZOR(goods_id, -1)));
+		pDlg->disableCtrl(CtlselGStruc, !enable_select_gstruc);
+	}
 }
 
 void PrcTechCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
@@ -200,7 +238,8 @@ void PrcTechCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 		onPrcSelection(pDlg);
 	}
 	else if(event.isCbSelected(CtlselTech)) {
-		SetupGoodsName(pDlg);
+		pDlg->getCtrlData(CtlselPrc, &Data.TechID);
+		SetupTech(pDlg, false/*onInit*/);
 	}
 	else if(event.isCmd(CmdSelTechByGoods)) {
 		selTechByGoods(pDlg);
@@ -214,7 +253,7 @@ void PrcTechCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 				tec_filt.PrcID = Data.PrcID;
 				tec_filt.GoodsID = SelGoodsID;
 				PPObjTech::SetupCombo(pDlg, CtlselTech, 0, GetTechComboOlwFlags(), &tec_filt);
-				SetupGoodsName(pDlg);
+				SetupGoods_(pDlg, 0);
 				TView::messageCommand(pDlg, cmCBSelected, pDlg->getCtrlView(CtlselTech));
 			}
 		}
@@ -250,7 +289,6 @@ long PrcTechCtrlGroup::GetTechComboOlwFlags() const // @v11.7.6
 int PrcTechCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
 	int    ok = 1;
-	PPObjProcessor prc_obj;
 	if(pData) {
 		Data = *static_cast<Rec *>(pData);
 		IdleStatus = Data.IdleStatus;
@@ -269,10 +307,11 @@ int PrcTechCtrlGroup::setData(TDialog * pDlg, void * pData)
 	pDlg->enableCommand(CmdSelTechByGoods, !IdleStatus);
 	ProcessorTbl::Rec prc_rec;
 	long   prc_ext_param = Data.PrcParentID;
-	int    r = prc_obj.GetRecWithInheritance(Data.PrcID, &prc_rec);
+	int    r = PrcObj.GetRecWithInheritance(Data.PrcID, &prc_rec);
 	if(r > 0) {
 		SetupPPObjCombo(pDlg, CtlselTech, PPOBJ_TECH, Data.TechID, GetTechComboOlwFlags()|OLW_SETUPSINGLE, reinterpret_cast<void *>(Data.PrcID));
-		SetupGoodsName(pDlg);
+		// @v12.6.7 SetupGoods_(pDlg, 0);
+		SetupTech(pDlg, true/*onInit*/); // @v12.6.7
 		setupArticle(pDlg, &prc_rec);
 	}
 	else {
@@ -289,6 +328,33 @@ int PrcTechCtrlGroup::getData(TDialog * pDlg, void * pData)
 	pDlg->getCtrlData(CtlselTech, &Data.TechID);
 	pDlg->getCtrlData(CtlselAr, &Data.ArID);
 	pDlg->getCtrlData(CtlselAr2, &Data.Ar2ID);
+	// @v12.6.7 {
+	if(TView::IsSubSign(pDlg->getCtrlView(CtlselGStruc), TV_SUBSIGN_COMBOBOX)) {
+		PPID   gstruc_id = pDlg->getCtrlLong(CtlselGStruc);
+		if(gstruc_id) {
+			TechTbl::Rec tec_rec;
+			if(Data.TechID && TecObj.Fetch(Data.TechID, &tec_rec) > 0 && tec_rec.GStrucID) {
+				gstruc_id = 0;
+			}
+			else {
+				PPID   goods_id = 0;
+				GetGoodsID(pDlg, &goods_id);
+				if(goods_id) {
+					PPGoodsStruc::Ident gsi;
+					gsi.GoodsID = goods_id;
+					gsi.GStrucID = gstruc_id;
+					if(GObj.LoadGoodsStruc(gsi, 0) > 0) {
+						;
+					}
+					else {
+						gstruc_id = 0;
+					}
+				}
+			}
+		}
+		Data.GStrucID = gstruc_id;
+	}
+	// } @v12.6.7 
 	if(pData)
 		*static_cast<Rec *>(pData) = Data;
 	return 1;
@@ -308,10 +374,16 @@ public:
 		SetupCalPeriod(CTLCAL_TSESS_PLANPERIOD, CTL_TSESS_PLANPERIOD);
 		SetupTimePicker(this, CTL_TSESS_STTM, CTLTM_TSESS_STTM);
 		SetupTimePicker(this, CTL_TSESS_FNTM, CTLTM_TSESS_FNTM);
-		addGroup(ctlgroupPrcTech, new PrcTechCtrlGroup(CTLSEL_TSESS_PRC, CTLSEL_TSESS_TECH, CTL_TSESS_ST_GOODS,
-			CTLSEL_TSESS_OBJ, CTLSEL_TSESS_OBJ2, cmSelTechByGoods, cmCreateGoods));
-		if(!(TSesObj.GetConfig().Flags & PPTSessConfig::fUsePricing))
+		PrcTechCtrlGroup * p_grp = new PrcTechCtrlGroup(CTLSEL_TSESS_PRC, CTLSEL_TSESS_TECH, CTL_TSESS_ST_GOODS, CTLSEL_TSESS_OBJ, CTLSEL_TSESS_OBJ2, cmSelTechByGoods, cmCreateGoods);
+		if(p_grp) {
+			if(TView::IsSubSign(getCtrlView(CTLSEL_TSESS_GSTRUC), TV_SUBSIGN_COMBOBOX)) {
+				p_grp->SetGoodsStrucCtlsel(CTLSEL_TSESS_GSTRUC);
+			}
+			addGroup(ctlgroupPrcTech, p_grp);
+		}
+		if(!(TSesObj.GetConfig().Flags & PPTSessConfig::fUsePricing)) {
 			showCtrl(CTL_TSESS_AMOUNT, false);
+		}
 		MEMSZERO(TB);
 		TB.ToolingTime = -1;
 	}
@@ -1088,8 +1160,9 @@ int TSessionDialog::AddCompletion()
 }
 
 //cmTecRouteAssignment
-class TecRouteAssignmentDialog : public TDialog { // @v12.6.6 @construction
-	DECL_DIALOG_DATA(TSessionTbl::Rec);
+// ReceiptCore::TecRouteAssignment
+class TecRouteAssignmentDialog : public TDialog { // @v12.6.6
+	DECL_DIALOG_DATA(ReceiptCore::TecRouteAssignment);
 	enum {
 		ctlgroupGoods     = 1,
 	};
@@ -1125,6 +1198,11 @@ public:
 		return ok;
 	}
 };
+
+int EditTecRouteAssignment(ReceiptCore::TecRouteAssignment * pData)
+{
+	return PPDialogProcBody <TecRouteAssignmentDialog, ReceiptCore::TecRouteAssignment> (pData);
+}
 
 IMPL_HANDLE_EVENT(TSessionDialog)
 {
@@ -1230,8 +1308,12 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 			AddCompletion();
 		}
 		else if(event.isCmd(cmTecRouteAssignment)) { // @v12.6.6
-			if(PPDialogProcBody <TecRouteAssignmentDialog, TSessionTbl::Rec> (&Data.Rec) > 0) {
-				;
+			ReceiptCore::TecRouteAssignment dlg_data;
+			dlg_data.FinalProductID = Data.Rec.FinalProductID;
+			dlg_data.TechRouteID = Data.Rec.TechRouteID;
+			if(EditTecRouteAssignment(&dlg_data) > 0) {
+				Data.Rec.FinalProductID = dlg_data.FinalProductID;
+				Data.Rec.TechRouteID = dlg_data.TechRouteID;
 			}
 		}
 		else if(event.isClusterClk(CTL_TSESS_STATUS)) {
@@ -1541,6 +1623,7 @@ int TSessionDialog::setDTS(const TSessionPacket * pData)
 		ptcg_rec.ArID   = Data.Rec.ArID;
 		ptcg_rec.Ar2ID  = Data.Rec.Ar2ID;
 		ptcg_rec.IdleStatus = LOGIC(Data.Rec.Flags & TSESF_IDLE);
+		ptcg_rec.GStrucID = Data.Rec.ArbitraryGsID; // @v12.6.7
 	}
 	{
 		PrcTechCtrlGroup * p_grp = static_cast<PrcTechCtrlGroup *>(getGroup(ctlgroupPrcTech));
@@ -1553,8 +1636,7 @@ int TSessionDialog::setDTS(const TSessionPacket * pData)
 	if(setGroupData(ctlgroupPrcTech, &ptcg_rec)) {
 		//
 		// Предварительно устанавливаем дату и время начала в диалоге из-за того,
-		// что вызов SetupTech (косвенно через события) приводит к тому,
-		// что из этих полей извлекается время.
+		// что вызов SetupTech (косвенно через события) приводит к тому, что из этих полей извлекается время.
 		//
 		setCtrlDatetime(CTL_TSESS_STDT, CTL_TSESS_STTM, Data.Rec.StDt, Data.Rec.StTm);
 		//
@@ -1654,6 +1736,7 @@ int TSessionDialog::getDTS(TSessionPacket * pData)
 			}
 			Data.Rec.ArID   = ptcg_rec.ArID;
 			Data.Rec.Ar2ID  = ptcg_rec.Ar2ID;
+			Data.Rec.ArbitraryGsID = ptcg_rec.GStrucID; // @v12.6.7
 		}
 		if(!InnerGetDTS && Data.Rec.Status == TSESST_CLOSED) {
 			//
@@ -2206,8 +2289,7 @@ int PPObjTSession::Edit_ExecSessionOnTechRoute(const ExecSessionOnTechRouteFilt 
 		};
 		ExecSessionOnTechRouteDialog() : TDialog(DLG_TSESS_EXEC_TR), P_BObj(BillObj), LotID(0), LotQtty(0.0), CurrentTSessID(0), State(0)
 		{
-			addGroup(ctlgroupPrcTech, new PrcTechCtrlGroup(CTLSEL_TSESS_PRC, CTLSEL_TSESS_TECH, CTL_TSESS_ST_GOODS,
-				CTLSEL_TSESS_OBJ, CTLSEL_TSESS_OBJ2, 0/*cmSelTechByGoods*/, 0/*cmCreateGoods*/));
+			addGroup(ctlgroupPrcTech, new PrcTechCtrlGroup(CTLSEL_TSESS_PRC, CTLSEL_TSESS_TECH, CTL_TSESS_ST_GOODS, CTLSEL_TSESS_OBJ, CTLSEL_TSESS_OBJ2, 0/*cmSelTechByGoods*/, 0/*cmCreateGoods*/));
 		}
 		DECL_DIALOG_SETDTS()
 		{

@@ -3793,6 +3793,7 @@ public:
 		fMouseResizing = 0x0020,
 		fLarge         = 0x0040, // Диалог увеличин в размерах для использования с TouchScreen
 		fExport        = 0x0080, // Экземпляр диалога создан для экспорта
+		fImportedDl600 = 0x0100, // @v12.6.7 Диалог импортирован из описания DL600 
 	};
 	enum ConstructorOption {
 		coNothing = 0,

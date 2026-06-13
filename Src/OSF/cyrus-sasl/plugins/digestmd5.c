@@ -3351,8 +3351,7 @@ static int parse_server_challenge(client_context_t * ctext, sasl_client_params_t
 			realms[nrealm] = NULL;
 		}
 		else if(strcasecmp(name, "nonce") == 0) {
-			_plug_strdup(params->utils, value, (char **)&text->nonce,
-			    NULL);
+			_plug_strdup(params->utils, value, (char **)&text->nonce, NULL);
 			text->nonce_count = 1;
 		}
 		else if(strcasecmp(name, "qop") == 0) {
@@ -3360,14 +3359,12 @@ static int parse_server_challenge(client_context_t * ctext, sasl_client_params_t
 			while(value && *value) {
 				char * comma;
 				char * end_val;
-
 SKIP_SPACES_IN_QOP:
 				/* skipping spaces: */
 				value = skip_lws(value);
 				if(*value == '\0') {
 					break;
 				}
-
 				/* check for an extreme case when there is no data: LWSP ',' */
 				if(*value == ',') {
 					value++;
@@ -3389,7 +3386,6 @@ SKIP_SPACES_IN_QOP:
 					/* strip LWSP */
 					*end_val = '\0';
 				}
-
 				if(strcasecmp(value, "auth-conf") == 0) {
 					protection |= DIGEST_PRIVACY;
 				}

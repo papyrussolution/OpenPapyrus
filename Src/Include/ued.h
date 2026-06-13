@@ -77,7 +77,7 @@ public:
 		}
 		return result;
 	}
-	static constexpr bool BelongToMeta(uint64 ued, uint64 meta) { return (IsMetaId(meta) && GetMeta(ued) == meta); }
+	static constexpr bool BelongsToMeta(uint64 ued, uint64 meta) { return (IsMetaId(meta) && GetMeta(ued) == meta); }
 	static bool   GetRawValue(uint64 ued, uint64 * pRawValue);
 	static bool   GetRawValue32(uint64 ued, uint32 * pRawValue);
 	static constexpr uint32 GetRawValue32(uint64 ued)

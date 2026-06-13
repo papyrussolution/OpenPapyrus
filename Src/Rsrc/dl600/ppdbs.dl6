@@ -799,37 +799,6 @@ file:
 	"pckglink.btr";
 }
 //
-//
-//
-/* @v12.5.11 таблица была сконвертирована в SpecSeries2 версией 6.1.9 - можно элиминировать 
-table SpecSeries {
-	string Serial[64];
-	string Barcode[64];
-	string GoodsName[128];
-	string ManufName[128];
-	date   InfoDate;
-	long   InfoKind;       // SPCSERIK_XXX
-	string InfoIdent[24];
-	raw    Reserve[48];    // @reserve
-	long   GoodsID;
-	long   LabID;
-	string LabName[160];
-	long   ManufID;
-	long   ManufCountryID;
-	string ManufCountryName[128];
-	date   AllowDate;
-	string AllowNumber[24];
-	string SpecName[160];
-	string LetterType[8];
-	long   Flags;
-index:
-	InfoKind, Serial (anysegnull dup mod); // @v5.2.1 unique-->dup
-	InfoKind, Barcode (anysegnull unique mod);
-	InfoKind, InfoIdent (dup mod);
-file:
-	"spcsn.btr";
-}*/
-//
 // Информация о специальных серийных номерах (брак и т.д.)
 // Большинство неиндексируемых текстовых полей храняться в Tail
 // Идентификаторы этих полей:
@@ -2978,7 +2947,8 @@ table TSession {           // size=104+160
 	long   RepBaseID;      // @v11.0.4 ->TSession.ID Ид сессии, на основе расписания которой была сформирована данная сессия //
 	long   TechRouteID;    // @v12.6.5 Техмаршрут, который будет ассоциирован с произведенным этой сессией основным лотом
 	long   FinalProductID; // @v12.6.5 Конечный продукт, который будет ассоциирован с произведенным этой сессией основным лотом 
-	raw    Reserve[8];     // @v11.0.4 @reserve // @v12.6.5 [16]-->[8]
+	long   ArbitraryGsID;  // ->Ref(PPOBJ_GOODSSTRUC) @v12.6.7 Товарная структура, явно ассоциированная с сессией и (перео)пределяющая структуру, которая (не)задана в технологии
+	raw    Reserve[4];     // @v11.0.4 @reserve // @v12.6.5 [16]-->[8] // @v12.6.7 [8]-->[4]
 	// @v11.0.4 (moved to UnxTextRef) note   Memo[512];      // @memo @v7.0.0 [160]-->[512]
 index:
 	ID (unique);                                       // #0
@@ -3355,75 +3325,6 @@ file:
 	access=3;
 }
 //
-// Государство
-// @obsolete (moved to table World)
-//
-table Country_Obsolete { // @v12.2.10 Country-->Country_Obsolete
-	autolong ID;        // Ид
-	string Name[30];    // Название
-	string Abbr[10];    // Сокращенное название
-	long   Capital;     // ?? Столица ->City.ID
-	string Phone[10];   // Телефонный код
-	int16  HasRegions;  // Признак деления на регионы
-	raw    Reserve[16];
-index:
-	ID (unique);
-	Name acs (unique mod);
-	Abbr acs (dup mod);
-file:
-	"country.btr";
-	acstable = "rusncase.alt";
-	balanced;
-}
-//
-// Регион
-// @obsolete (moved to table World)
-//
-// Пока структура регионов одноуровневая на усмотрение пользователя.
-// Следовательно, государство должно однозначно делиться на вводимые регионы.
-// Потом будем думать, как улучшить структуру.
-//
-table Region_Obsolete { // @v12.2.10 Region-->Region_Obsolete
-	autolong ID;        // Ид
-	long   Country;     // Государство          ->Country.ID
-	string Name[30];    // Название
-	string Abbr[10];    // Сокращенное название
-	long   Capital;     // ?? Столица           ->City.ID
-	string Phone[10];   // Телефонный код
-index:
-	ID (unique);
-	Country, Name acs (unique mod);
-	Name acs (unique mod);
-	Abbr acs (dup mod);
-file:
-	"region.btr";
-	acstable = "rusncase.alt";
-	balanced;
-}
-//
-// Населенный пункт
-// @obsolete (moved to table World)
-//
-table City_Obsolete {   // @v12.2.10 City-->City_Obsolete
-	autolong ID;        // Ид
-	long   Country;     // Государство ->Country.ID
-	long   Region;      // Регион      ->Region.ID
-	string Name[30];    // Название
-	string Abbr[10];    // Сокращение
-	long   Status;      // Статус      ->Ref(PPOBJ_CITYSTATUS)
-	string Phone[10];   // Телефонный код
-index:
-	ID (unique);
-	Region, Name acs (unique mod);
-	Country, Name acs (unique mod);
-	Name acs, Region (unique mod);
-	Abbr acs, Region (dup mod);
-file:
-	"city.btr";
-	acstable = "rusncase.alt";
-	balanced;
-}
-//
 // Банковские счета
 // @2.2.4: Для банков обязательный корр. счет в учреждениях центрального
 // банка прописывается в этой таблице с полем BankID == 0 и AccType == PPBAC_NOSTRO
@@ -3472,71 +3373,6 @@ file:
 	acstable = "rusncase.alt";
 	balanced;
 	access=1;
-}
-//
-// История товаров
-//
-table HistGoods { // @obsolete
-	autolong ID;
-	long   GoodsID;
-	long   Ver;
-	long   Sz;             // @v5.8.11 Size-->Sz
-	blob   Data[2048];     // @v6.1.6 // @v6.2.2 [1024]-->[2048]
-index:
-	ID (unique);
-	GoodsID, Ver (unique);
-file:
-	"xgoods.btr";
-	vlr;
-	acstable = "rusncase.alt";
-}
-//
-// История изменения документов
-//
-table HistBill { // @obsolete
-	autolong ID;
-	long   InnerID;
-	long   BillID;
-	long   Ver;
-	string Code[24];    // Код документа
-	date   Dt;          // Дата документа
-	long   OpID;        // Вид операции          ->Ref(PPOBJ_OPRKIND)
-	long   LocID;       // Позиция               ->Location.ID
-	long   Object;      // Контрагент            ->Article.ID
-	long   Object2;     // Дополнительный объект ->Article.ID
-	long   CurID;       // Валюта (0 - базовая)  ->Ref(PPOBJ_CURRENCY)
-	double CRate;       // Курс валюты для пересчета в базовую валюту
-	double Amount;      // Номинальная сумма (в единицах CurID)
-	long   LinkBillID;  // Связанный документ    ->Bill.ID
-	long   Flags;       // Флаги
-	long   SCardID;     // ->SCard.ID
-	// BillExt
-	long   PayerID;     // ->Article.ID Плательщик
-	long   AgentID;     // ->Article.ID Агент
-	raw    Reserve[16]; // @reserve
-index:
-	ID (unique);
-	BillID, InnerID, Ver (unique);
-file:
-	"xbill.btr";
-}
-
-table HistTrfr { // @obsolete
-	long   HistBillID; // ->HistBill.ID
-	long   OprNo;      // >> Transfer.OprNo
-	long   GoodsID;    // ->Goods2.ID
-	double Quantity;
-	double Cost;
-	double Price;
-	double Discount;
-	long   QCertID;
-	date   Expiry;
-	long   Flags;
-index:
-	HistBillID, OprNo (unique mod);
-file:
-	"xtrfr.btr";
-	page=4096;  // @v7.8.3 При автоматически определяемом размере страницы может не хватить предела для размера файла.
 }
 //
 // @v4.8.3 @obsolete
@@ -5487,3 +5323,171 @@ file:
 	vlr;
 	ondemand;
 }
+//
+//
+/* @v12.6.7
+//
+// История товаров
+//
+table HistGoods { // @obsolete
+	autolong ID;
+	long   GoodsID;
+	long   Ver;
+	long   Sz;             // @v5.8.11 Size-->Sz
+	blob   Data[2048];     // @v6.1.6 // @v6.2.2 [1024]-->[2048]
+index:
+	ID (unique);
+	GoodsID, Ver (unique);
+file:
+	"xgoods.btr";
+	vlr;
+	acstable = "rusncase.alt";
+}
+*/
+/* @v12.6.7 старый вариант хранения истории документов полностью элиминируется 
+//
+// История изменения документов
+//
+table HistBill { // @obsolete
+	autolong ID;
+	long   InnerID;
+	long   BillID;
+	long   Ver;
+	string Code[24];    // Код документа
+	date   Dt;          // Дата документа
+	long   OpID;        // Вид операции          ->Ref(PPOBJ_OPRKIND)
+	long   LocID;       // Позиция               ->Location.ID
+	long   Object;      // Контрагент            ->Article.ID
+	long   Object2;     // Дополнительный объект ->Article.ID
+	long   CurID;       // Валюта (0 - базовая)  ->Ref(PPOBJ_CURRENCY)
+	double CRate;       // Курс валюты для пересчета в базовую валюту
+	double Amount;      // Номинальная сумма (в единицах CurID)
+	long   LinkBillID;  // Связанный документ    ->Bill.ID
+	long   Flags;       // Флаги
+	long   SCardID;     // ->SCard.ID
+	// BillExt
+	long   PayerID;     // ->Article.ID Плательщик
+	long   AgentID;     // ->Article.ID Агент
+	raw    Reserve[16]; // @reserve
+index:
+	ID (unique);
+	BillID, InnerID, Ver (unique);
+file:
+	"xbill.btr";
+}
+
+table HistTrfr { // @obsolete
+	long   HistBillID; // ->HistBill.ID
+	long   OprNo;      // >> Transfer.OprNo
+	long   GoodsID;    // ->Goods2.ID
+	double Quantity;
+	double Cost;
+	double Price;
+	double Discount;
+	long   QCertID;
+	date   Expiry;
+	long   Flags;
+index:
+	HistBillID, OprNo (unique mod);
+file:
+	"xtrfr.btr";
+	page=4096;  // @v7.8.3 При автоматически определяемом размере страницы может не хватить предела для размера файла.
+}*/
+/* @v12.6.7
+//
+// Государство
+// @obsolete (moved to table World)
+//
+table Country_Obsolete { // @v12.2.10 Country-->Country_Obsolete
+	autolong ID;        // Ид
+	string Name[30];    // Название
+	string Abbr[10];    // Сокращенное название
+	long   Capital;     // ?? Столица ->City.ID
+	string Phone[10];   // Телефонный код
+	int16  HasRegions;  // Признак деления на регионы
+	raw    Reserve[16];
+index:
+	ID (unique);
+	Name acs (unique mod);
+	Abbr acs (dup mod);
+file:
+	"country.btr";
+	acstable = "rusncase.alt";
+	balanced;
+}
+//
+// Регион
+// @obsolete (moved to table World)
+//
+// Пока структура регионов одноуровневая на усмотрение пользователя.
+// Следовательно, государство должно однозначно делиться на вводимые регионы.
+// Потом будем думать, как улучшить структуру.
+//
+table Region_Obsolete { // @v12.2.10 Region-->Region_Obsolete
+	autolong ID;        // Ид
+	long   Country;     // Государство          ->Country.ID
+	string Name[30];    // Название
+	string Abbr[10];    // Сокращенное название
+	long   Capital;     // ?? Столица           ->City.ID
+	string Phone[10];   // Телефонный код
+index:
+	ID (unique);
+	Country, Name acs (unique mod);
+	Name acs (unique mod);
+	Abbr acs (dup mod);
+file:
+	"region.btr";
+	acstable = "rusncase.alt";
+	balanced;
+}
+//
+// Населенный пункт
+// @obsolete (moved to table World)
+//
+table City_Obsolete {   // @v12.2.10 City-->City_Obsolete
+	autolong ID;        // Ид
+	long   Country;     // Государство ->Country.ID
+	long   Region;      // Регион      ->Region.ID
+	string Name[30];    // Название
+	string Abbr[10];    // Сокращение
+	long   Status;      // Статус      ->Ref(PPOBJ_CITYSTATUS)
+	string Phone[10];   // Телефонный код
+index:
+	ID (unique);
+	Region, Name acs (unique mod);
+	Country, Name acs (unique mod);
+	Name acs, Region (unique mod);
+	Abbr acs, Region (dup mod);
+file:
+	"city.btr";
+	acstable = "rusncase.alt";
+	balanced;
+}*/
+/* @v12.5.11 таблица была сконвертирована в SpecSeries2 версией 6.1.9 - можно элиминировать 
+table SpecSeries {
+	string Serial[64];
+	string Barcode[64];
+	string GoodsName[128];
+	string ManufName[128];
+	date   InfoDate;
+	long   InfoKind;       // SPCSERIK_XXX
+	string InfoIdent[24];
+	raw    Reserve[48];    // @reserve
+	long   GoodsID;
+	long   LabID;
+	string LabName[160];
+	long   ManufID;
+	long   ManufCountryID;
+	string ManufCountryName[128];
+	date   AllowDate;
+	string AllowNumber[24];
+	string SpecName[160];
+	string LetterType[8];
+	long   Flags;
+index:
+	InfoKind, Serial (anysegnull dup mod); // @v5.2.1 unique-->dup
+	InfoKind, Barcode (anysegnull unique mod);
+	InfoKind, InfoIdent (dup mod);
+file:
+	"spcsn.btr";
+}*/

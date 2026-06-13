@@ -1628,7 +1628,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 					Item.Discount = r_ti.Discount;
 					analog_found = 1;
 				}
-				else if(GObj.P_Tbl->BelongToDynGen(Item.GoodsID, 0, &dyn_gen_list) > 0) {
+				else if(GObj.P_Tbl->BelongsToDynGen(Item.GoodsID, 0, &dyn_gen_list) > 0) {
 					alt_gen_inited = 1;
 					for(uint i = 0; i < dyn_gen_list.getCount(); i++) {
 						const  PPID alt_goods_id = dyn_gen_list.get(i);
@@ -1645,7 +1645,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 				}
 			}
 			if(!analog_found) {
-				if(alt_gen_inited || GObj.P_Tbl->BelongToDynGen(Item.GoodsID, 0, &dyn_gen_list) > 0) {
+				if(alt_gen_inited || GObj.P_Tbl->BelongsToDynGen(Item.GoodsID, 0, &dyn_gen_list) > 0) {
 					const  PPID lid = Item.LocID;
 					for(uint i = 0; i < dyn_gen_list.getCount(); i++) {
 						const  PPID alt_goods_id = dyn_gen_list.get(i);

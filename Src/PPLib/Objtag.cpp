@@ -6,6 +6,8 @@
 #include <pp.h>
 #pragma hdrstop
 #include <charry.h>
+
+int EditTecRouteAssignment(ReceiptCore::TecRouteAssignment * pData); // @prototype(tsessdlg.cpp)
 //
 // TagFilt
 //
@@ -2403,7 +2405,7 @@ int TagDlgParam::SetDlgData(TDialog * dlg, const ObjTagItem * pItem)
 							PersonTbl::Rec psn_rec;
 							if(psn_obj.Search(loc_rec.OwnerID, &psn_rec) > 0) {
 								person_id = loc_rec.OwnerID;
-								if(psn_obj.P_Tbl->IsBelongsToKind(psn_rec.ID, psn_kind_id) > 0) {
+								if(psn_obj.P_Tbl->BelongsToKind(psn_rec.ID, psn_kind_id) > 0) {
 									;
 								}
 								else {
@@ -2877,6 +2879,16 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 	}
 	else if(oneof2(objType, 0, PPOBJ_LOT) && pItem->TagID == PPTAG_LOT_DIMENSIONS) {
 		ok = ReceiptCore::LotDimensions::EditTag(0, pItem);
+	}
+	else if(oneof2(objType, 0, PPOBJ_LOT) && pItem->TagID == PPTAG_LOT_TECROUTEASSIGNMENT) { // @v12.6.7
+		ReceiptCore::TecRouteAssignment dlg_data;
+		pItem->GetStr(temp_buf);
+		dlg_data.FromString(temp_buf);
+		if(EditTecRouteAssignment(&dlg_data) > 0) {
+			dlg_data.ToStr(temp_buf);
+			pItem->SetStr(pItem->TagID, temp_buf);
+			ok = 1;
+		}
 	}
 	else if(oneof2(objType, 0, PPOBJ_LOT) && pItem->TagID == PPTAG_LOT_FREIGHTPACKAGE) {
 		PPTransferItem::FreightPackage fp;

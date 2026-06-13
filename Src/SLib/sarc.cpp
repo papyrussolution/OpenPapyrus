@@ -659,7 +659,7 @@ static void extract(const char *filename)
 	SString temp_buf;
 	Archive * p_larc = 0;
 	ArchiveEntry * p_larc_entry = 0;
-	//THROW(UED::BelongToMeta(uedArcFormat, UED_META_DATAFORMAT)); // @todo @err
+	//THROW(UED::BelongsToMeta(uedArcFormat, UED_META_DATAFORMAT)); // @todo @err
 	switch(provider) {
 		case providerLA:
 			{

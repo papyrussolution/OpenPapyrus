@@ -1,0 +1,1832 @@
+^Необходимо выбрать налоговую группу
+^^en^You must select a tax group
+^Текстовая метка
+^^en^Text label
+^Ошибочный код ассоциации в таблице аналитических статей
+^^en^Incorrect association code in the analysis articles table
+^Заказ на операцию ответственного хранения
+^^en^Order for safekeeping operation
+^Движение активов под ответственным хранением
+^^en^Movement of assets under safekeeping
+^Необходимо указать номер кассы
+^^en^You must specify the cash register number
+^Компонент структуры планирования цены товара
+^^en^Product price planning structure component
+^#001стоимость экваринга
+^^en^#001acquisition cost
+^По контрагенту, дате и номеру документа
+^^en^By counterparty, date and document number
+^Начать работу
+^^en^Get started
+^Ошибка авторизации на сервисе #001не определена глобальная учетная запись сервиса
+^^en^Authorization error on service #001 global service account not defined
+^Подкаталог входящих документов
+^^en^Subdirectory of incoming documents
+^Модель с предпочтительным поставщиком
+^^en^Preferred Supplier Model
+^Оприходовать недостающий заказанный товар
+^^en^Capitalize the missing ordered item
+^Нет данных
+^^en^No data
+^Отгрузки
+^^en^Shipments
+^Должна быть указана серия кредитных карт
+^^en^Credit card series must be specified
+^Ошибочная операция с плавающей точкой (обратитесь к сопровождению)
+^^en^Incorrect floating point operation (check with maintenance)
+^R,@salestax_ss
+^^en^R,@salestax_ss
+^Суммарное количество дней между поставкой и продажей
+^^en^Total number of days between delivery and sale
+^Необходимо указать штрихкод
+^^en^Barcode required
+^Выбранный тариф
+^^en^Selected tariff
+^Процентная маржа
+^^en^Interest margin
+^Параметры экспорта
+^^en^Export options
+^Необходимо указать процент переоценки цены поступления
+^^en^It is necessary to indicate the percentage of revaluation of the receipt price
+^Процессор, соответствующий компьютеру по заданному UUID #001 не найден
+^^en^The processor corresponding to the computer at the specified UUID #001 was not found
+^Ошибка передачи документов сервису поставщика
+^^en^Error transferring documents to the supplier service
+^Необходимо указать таблицу аналитических статей
+^^en^You must specify a table of analytical articles
+^Маркетплейс эксплорер
+^^en^Marketplace explorer
+^Язык автоматического перевода
+^^en^Automatic translation language
+^Btrieve или Brequest не загружен
+^^en^Btrieve or Brequest not loaded
+^Ошибка создания каталога по образцу #001
+^^en^Error creating directory using pattern #001
+^Клиент с номером телефона #001 уже зарегистрирован
+^^en^Client with phone number #001 is already registered
+^Выберите минуту
+^^en^Select a minute
+^R,Смещение
+^^en^R,Offset
+^Ошибка получения списка CDN-хостов разрешительного режима #001
+^^en^Error getting list of CDN hosts in permissive mode #001
+^Строгий режим
+^^en^Strict mode
+^DL600 неизвестный символ свойства #001
+^^en^DL600 unknown feature symbol #001
+^Расходы на закупку
+^^en^Procurement costs
+^Маркетплейс
+^^en^Marketplace
+^Операция, имеющая тип ОПЛАТА, ВОЗВРАТ, КОРРЕКТИРОВКА должна ссылаться на предшествующую товарную операцию
+^^en^An operation with the type PAYMENT, REFUND, ADJUSTMENT must refer to the previous product transaction
+^Предпочтительный поставщик для заказа
+^^en^Preferred supplier to order
+^Сумма отгрузки с маркетплейса в терминах конечной цены покупателя
+^^en^The amount of shipment from the marketplace in terms of the buyer’s final price
+^@ware_pl
+^^en^@ware_pl
+^Действует
+^^en^Valid
+^Показывать оценочную стоимость структур
+^^en^Show estimated value of structures
+^Ошибка отправки данных поставщику
+^^en^Error sending data to supplier
+^Выбор документа
+^^en^Select a document
+^Адрес ответственного хранения не принадлежит заданному контрагенту
+^^en^The safekeeping address does not belong to the specified counterparty
+^DL600 ошибка в свойстве #001 - недопустимое значение одного или нескольких компонентов padding
+^^en^DL600 error in property #001 - invalid value of one or more padding components
+^Специальная ставка НДС
+^^en^Special VAT rate
+^Возврат актива с ответственного хранения
+^^en^Return of an asset from safekeeping
+^В документе необходимо указать контрагента
+^^en^The document must indicate the counterparty
+^Импорт товаров с маркетплейса Wildberries
+^^en^Importing goods from the Wildberries marketplace
+^Необходимо ввести код
+^^en^Code required
+^Разрешительный режим #001
+^^en^Permissive mode #001
+^L,@association
+^^en^L,@association
+^Необходимо указать номер стола
+^^en^You must specify the table number
+^#001обработка остатков
+^^en^#001residue processing
+^Производственная заготовка
+^^en^Production workpiece
+^Экспортировать собственные адреса клиентов
+^^en^Export your own customer addresses
+^В настоящее время процессор занят другим аккаунтом
+^^en^The processor is currently occupied by another account
+^Адрес сервера разрешительного режима чзн был успешно сброшен
+^^en^Permissive mode server address chzn was successfully reset
+^#001стоимость приемки на склад
+^^en^#001 cost of acceptance to warehouse
+^Заменять существующие бренды
+^^en^Replace existing brands
+^Диапазон мощности групп
+^^en^Group power range
+^Планирование цены #001
+^^en^Price planning #001
+^С сервисным заказом #001 должна быть связанна задача для отчета по времени исполнения
+^^en^Service Order #001 must have a task associated with it to report the execution time.
+^Необходимо указать тип комплементарной суммы
+^^en^You must specify the type of complementary amount
+^URL #001
+^^en^URL #001
+^Передача активов под управление
+^^en^Transfer of assets under management
+^Шлюз Кристалл <-> Set-Retail
+^^en^Gateway Crystal <-> Set-Retail
+^Детализация клиентской активности
+^^en^Detailed client activity
+^Модель маркетплейса
+^^en^Marketplace model
+^Ошибка разбора цветового примитива #001 - ожидается значение alpha
+^^en^Error parsing color primitive #001 - alpha value expected
+^Конфигурация клиентской активности
+^^en^Client Activity Configuration
+^Вид операции передачи на маркетплейс
+^^en^Type of transfer operation to the marketplace
+^Данные успешно отправлены поставщику
+^^en^Data successfully sent to supplier
+^Обыкновенная
+^^en^Ordinary
+^Необходимо ввести название
+^^en^You must enter a name
+^Импорт исходных данных системы Кристалл
+^^en^Importing initial data of the Crystal system
+^Обнаружен висячий тег #001, принадлежавший несуществующему объекту {#002, @int}
+^^en^Found dangling tag #001 belonging to non-existent object {#002, @int}
+^Нельзя удалить запись %s
+^^en^Cannot delete entry %s
+^Тег процессинга #001
+^^en^Processing tag #001
+^Отправка складских остатков
+^^en^Sending warehouse balances
+^Связанная операция #001 порождает рекурсивную зависимость
+^^en^Linked operation #001 generates a recursive dependency
+^Теги контрагентов
+^^en^Contractor tags
+^Необходимо выбрать адрес ответственного хранения
+^^en^You must select a safekeeping address
+^Поля расширения строк
+^^en^Row extension fields
+^Выберите месяц и день
+^^en^Select month and day
+^Строка url не соответствует кодировке utf-8 #001
+^^en^The url string does not match the utf-8 encoding #001
+^Транспортная упаковка
+^^en^Transport packaging
+^Не удалось определить CDN-хост разрешительного режима #001
+^^en^Failed to determine permissive mode CDN host #001
+^Плотность, кг/куб.м
+^^en^Density, kg/cub.m
+^Передача актива на ответственное хранение
+^^en^Transfer of an asset for safekeeping
+^L,@component
+^^en^L,@component
+^Параметры импорта/экспорта кассовых чеков
+^^en^Options for importing/exporting cash receipts
+^Маржа
+^^en^Margin
+^R,@income
+^^en^R,@income
+^Отсутствует котировка для выбранного товара
+^^en^There is no quotation for the selected product
+^Потери на маркетплейсе с компенсацией
+^^en^Losses on the marketplace with compensation
+^Процент комиссионного вознаграждения маркетплейса от суммы продажи
+^^en^Marketplace commission percentage of the sale amount
+^#001стоимость хранения на складе
+^^en^#001warehouse storage cost
+^Оптовая отгрузка маркированных товаров по-марочная
+^^en^Wholesale shipment of labeled goods by brand
+^Обмен данными с маркетплейсом
+^^en^Exchange of data with the marketplace
+^Процессинг UED #001
+^^en^Processing UED #001
+^Ошибка вызова функции тс пиот: %s
+^^en^Error calling function tspiot: %s
+^Расставить теги по строкам
+^^en^Arrange tags on lines
+^DL600 ошибка в свойстве #001 - один из компонентов margin уже был определен
+^^en^DL600 error in property #001 - one of the margin components has already been defined
+^L,Тип данных
+^^en^L,Data type
+^Использование карты #001 недопустимо в этот день недели
+^^en^Card #001 cannot be used on this day of the week
+^Цена товара в марке #001
+^^en^Product price in stamp #001
+^Необходимо ввести код сертификата качества
+^^en^You must enter the quality certificate code
+^Оператор передачи данных
+^^en^Data operator
+^Параметры обмена данными с сервисом #001
+^^en^Parameters for data exchange with service #001
+^Контакты
+^^en^Contacts
+^ЧЕСТНЫЙ ЗНАК целое число мест весового товара
+^^en^HONEST SIGN integer number of places of weighted goods
+^Формат файла #001 не идентифицируется как Excel
+^^en^File format #001 is not identified as Excel
+^Изображение
+^^en^Image
+^Критическая задержка активности клиента в днях
+^^en^Critical client activity delay in days
+^Проданное количество торговых единиц
+^^en^Number of units sold
+^Не проводить через терминал
+^^en^Do not pass through the terminal
+^Комиссионное вознаграждение
+^^en^Commission
+^Только статьи с параметрами обмена
+^^en^Only articles with sharing options
+^Недопустимое значение смещения в потоке для dump-точки таблицы #001
+^^en^Invalid offset value in the stream for table dump point #001
+^UUID компьютера
+^^en^Computer UUID
+^Диапазон идентификаторов
+^^en^ID range
+^Дополнительный объект документов
+^^en^Additional Documents Object
+^Ошибка загрузки UID - пустое имя файла
+^^en^Load UID error - empty file name
+^Количество документов продажи
+^^en^Number of sales documents
+^Склад планирования
+^^en^Warehouse planning
+^Исполняемый файл
+^^en^Executable file
+^Расход
+^^en^Consumption
+^Использовать тс-пиот
+^^en^Use ts-piot
+^Исходный данные JSON
+^^en^Raw JSON data
+^L,Внешнее поле
+^^en^L,External field
+^Группа связанных объектов
+^^en^Group of related objects
+^Не найден системный образ, необходимый для запуска клиентской сессии
+^^en^The system image required to start the client session was not found
+^Параметры запуска внешнего процесса
+^^en^External process launch parameters
+^Инфо
+^^en^Info
+^Вычисленное значение
+^^en^Calculated value
+^Статус документа #001 запрещает его объединение с другим документом
+^^en^The status of document #001 prohibits its merging with another document
+^В задаче сервисного заказа #001 должно быть определено время завершения работы
+^^en^Service order task #001 must specify a completion time
+^Должна быть указана серия не кредитных карт
+^^en^Non-credit card series must be specified
+^штука
+^^en^thing
+^По идентификатору
+^^en^By ID
+^Заказ #001 отменен
+^^en^Order #001 canceled
+^Абсолютная наценка к базовой цене поступления
+^^en^Absolute markup to the base price of receipt
+^Серия карт #001, с которыми ассоциированы аккаунты клиентов, должна определять вид персоналий
+^^en^Card series #001, with which client accounts are associated, must determine the type of personalities
+^Внутренняя ошибка UID - недопустимая внутренняя ссылка на определитель цвета
+^^en^Internal UID error - Invalid internal reference to color definer
+^Опции выбора вида котировки на устройстве
+^^en^Options for selecting the type of quote on the device
+^Вид операции компенсированных потерь на маркетплейсе
+^^en^Type of operation for compensated losses on the marketplace
+^#001марка не введена в оборот #002
+^^en^#001brand not put into circulation #002
+^Уведомления
+^^en^Notifications
+^Apteka.Ru
+^^en^Apteka.Ru
+^Локальный каталог пользователя
+^^en^User's local directory
+^Корректировка проблемы v12.3.4
+^^en^Correction of problem v12.3.4
+^Процент доли экваринга на стороне маркетплейса, котороую маркетплейс переносит на поставщика, от суммы продажи
+^^en^The percentage of the share of acquiring on the side of the marketplace, which the marketplace transfers to the supplier, of the sales amount
+^Оборудование #001 в сервисной операции размещения не содержит штрихкода
+^^en^Equipment #001 in the placement service operation does not contain a barcode
+^Необходимо указать строку для поиска
+^^en^You must specify a search string
+^ИНН покупателя
+^^en^Buyer's TIN
+^Недопустимое изменение локации в складской операции #001
+^^en^Invalid location change in warehouse operation #001
+^Доход от продажи
+^^en^Sales income
+^DL600 ошибка в свойстве #001 - это свойство уже определено
+^^en^DL600 error in property #001 - this property is already defined
+^#001организация не является владельцем марки
+^^en^#001organization is not the owner of the brand
+^Создана новая технологическая сессия
+^^en^A new technology session has been created
+^Сторно возврата
+^^en^Return reversal
+^Марка #001
+^^en^Brand #001
+^Количество заказов которые были отменены
+^^en^Number of orders that were canceled
+^Коррекция баланса
+^^en^Balance correction
+^Недопустимое значение физического количества при изменении документа #001
+^^en^Invalid physical quantity value when changing document #001
+^Файл импорта
+^^en^Import file
+^Показывать адрес доставки
+^^en^Show delivery address
+^R,@expense
+^^en^R,@expense
+^Установлена оценочная цена на производимый товар: %s
+^^en^The estimated price for the manufactured goods has been set: %s
+^Google
+^^en^Google
+^Ответ разрешительного режима #001дата и время запроса
+^^en^Permissive mode response #001date and time of request
+^Фильтр импорта товаров с маркетплейса
+^^en^Filter for importing goods from the marketplace
+^Необходимо задать вид персоналии
+^^en^You must specify the type of personality
+^Необходимо выбрать принтер этикеток
+^^en^You must select a label printer
+^Экспортировать расширенные наименования товаров
+^^en^Export extended product names
+^Процентная доходность
+^^en^Interest yield
+^Дата записи - дата зачетного документа
+^^en^Recording date - date of the test document
+^Ошибка разбора сообщения сервиса поставщика
+^^en^Error parsing provider service message
+^Категории управляемых компьютеров
+^^en^Categories of managed computers
+^Автоматически рассчитать размеры колонок
+^^en^Automatically calculate column sizes
+^Не определена операция возврата от покупателя #001 в конфигурации глобального обмена
+^^en^Return operation from customer #001 is not defined in the global exchange configuration
+^Специальная
+^^en^Special
+^Аналитическая статья #001 не принадлежит таблице основных объектов этого документа
+^^en^Analytical article #001 does not belong to the main objects table of this document
+^Unit-анализ
+^^en^Unit analysis
+^Деление на нуль в операции с плавающей точкой
+^^en^Division by zero in floating point operation
+^#001отладочная ошибка.
+^^en^#001debugging error.
+^L,@datafield
+^^en^L,@datafield
+^Игнорировать значения котировок, привязанные к периоду
+^^en^Ignore quote values ​​tied to a period
+^Товар #001, на который ссылается строка импортируемого чека, не найден. Чек отклонен
+^^en^Item #001, which is referenced by the imported receipt line, was not found. Check rejected
+^Ничего не делать
+^^en^Do nothing
+^#001марка не нанесена на упаковку #002
+^^en^#001brand is not on the packaging #002
+^Количество товара #001 в строке чека имеет недопустимое значение. Чек отклонен
+^^en^The quantity of item #001 on the receipt line has an invalid value. Check rejected
+^Не нашлось ни одной технологии, сопоставляющей услугу процессору #001
+^^en^No technology was found matching the service to processor #001
+^Необходимо ввести код или номер счета
+^^en^You must enter a code or account number
+^Устанавливать агента в новых документах по контексту
+^^en^Install agent in new documents by context
+^Период актуальности уведомлений в днях
+^^en^Relevance period of notifications in days
+^Анализ продаж на маркетплейсе
+^^en^Analysis of sales on the marketplace
+^Поиск файлов исходных кодов с не-utf кодировкой
+^^en^Search for source code files with non-utf encoding
+^StyloQ: #001 у входящего документа #002 не определен UUID
+^^en^StyloQ: #001 incoming document #002 has no UUID defined
+^Не показывать инфо-панель перед снятием X- и Z-отчетов #001
+^^en^Do not show the info panel before taking X- and Z-reports #001
+^Ид участника эл документооборота nalog.ru
+^^en^E-document flow participant ID nalog.ru
+^Недопустимые параметры в команде WSCTL_LOGOUT
+^^en^Invalid parameters in the WSCTL_LOGOUT command
+^Необходимо выбрать серию карты
+^^en^You must select a card series
+^Документ договора
+^^en^Contract document
+^Конструирование фасадного окна
+^^en^Design of a façade window
+^Ошибка загрузки UID - ошибка разбора json-файла #001
+^^en^Error loading UID - error parsing json file #001
+^StyloQ: внутренняя ошибка - функции PPStyloQInterchange::MakeIndexingRequestCommand передан собственный пакет с инвалидным идентификатором
+^^en^StyloQ: internal error - the PPStyloQInterchange::MakeIndexingRequestCommand function was passed its own package with an invalid identifier
+^Необходимо ввести единицу измерения товара
+^^en^You must enter the unit of measurement of the product
+^Комиссия
+^^en^Commission
+^Статус документа требует чтобы для всех включенных товаров была определена ставка НДС
+^^en^The status of the document requires that the VAT rate be determined for all included goods
+^Сумма отгрузки с маркетплейса в терминах цены продавца
+^^en^The amount of shipment from the marketplace in terms of the seller’s price
+^Включать разрывы страниц
+^^en^Include page breaks
+^Количество документов возврата от покупателей
+^^en^Number of return documents from buyers
+^Старая версия
+^^en^Old version
+^Отмены заказов
+^^en^Order cancellations
+^Сервер #001 вернул пустой результат
+^^en^Server #001 returned empty result
+^Ошибка открытия файла - пустое имя
+^^en^Error opening file - empty name
+^Код #001 товара #002 по статье #003 скопирован на статью #004
+^^en^Code #001 of product #002 under article #003 copied to article #004
+^Параметры процессинга исходных кодов проекта
+^^en^Parameters for processing project source codes
+^Необходимо выбрать склад
+^^en^You must select a warehouse
+^Символ, существовавший в предудыщей версии, удален в новой версии #001
+^^en^The symbol that existed in the previous version has been removed in the new version #001
+^#001комиссионное вознаграждение
+^^en^#001commission
+^Автоматическое списание марок #001
+^^en^Automatic write-off of stamps #001
+^Необходимо выбрать штатное назначение
+^^en^You must select a full-time appointment
+^Документ #001 не проведен из-за проблем в одной или нескольких строках
+^^en^Document #001 was not posted due to problems in one or more lines
+^Абсолютная наценка к базовой цене реализации
+^^en^Absolute markup to the base selling price
+^Сначала выгодные
+^^en^Profitable first
+^Лимит
+^^en^Limit
+^Ошибка открытия xml-файла #001 для записи
+^^en^Error opening xml file #001 for writing
+^Медицинский рецепт - серия
+^^en^Medical prescription - series
+^#001обработка заказов
+^^en^#001order processing
+^Ошибка в индексе ccdate2maxid
+^^en^Error in index ccdate2maxid
+^Адрес основной
+^^en^Main address
+^Парамеры запуска шлюза Кристалл <-> Set-Retail
+^^en^Gateway launch parameters Crystal <-> Set-Retail
+^Пересчет платной приемки
+^^en^Recalculation of paid acceptance
+^Среднее по выборке
+^^en^Sample average
+^Заказ превышает текущий складской остаток
+^^en^The order exceeds the current warehouse balance
+^Wildberries
+^^en^wildberries
+^Расширение фильтра лотов заказов
+^^en^Extension of the order lot filter
+^Количество торговых единиц товара, заказы на которые были отменены
+^^en^Number of trade units for which orders were canceled
+^Необходимо указать тип банковского счета
+^^en^You must specify the type of bank account
+^Расходы на хранение единицы продукции (в сутки)
+^^en^Storage costs per unit of production (per day)
+^Наименование суммы
+^^en^Name of the amount
+^Формально подакцизный
+^^en^Formally excise
+^#001процент скидки от цены продавца
+^^en^#001 percent discount from seller's price
+^Необходимо выбрать конфигурацию
+^^en^You must select a configuration
+^Разрешить выбор вручную
+^^en^Allow manual selection
+^Верификация некоторых исходных файлов по образцам
+^^en^Verification of some source files using samples
+^Выбор документа для импорта
+^^en^Selecting a document to import
+^Ошибка авторизации на сервисе #001не определены логин или пароль в глобальной учетной записи
+^^en^Authorization error on service #001 login or password not defined in global account
+^Максимальный период между заказом и продажей в днях
+^^en^Maximum period between order and sale in days
+^Ответ сервиса на вызов команды
+^^en^Service response to command call
+^L,@goodsgroup
+^^en^L,@goodsgroup
+^Необходимо выбрать структуру товара
+^^en^It is necessary to select the product structure
+^Статус документа требует чтобы для включенных товаров маркированных типов были установлены марки
+^^en^The status of the document requires that stamps be installed for included goods of marked types
+^Импортирован
+^^en^Imported
+^Проверить в тс-пиот
+^^en^Check in ts-piot
+^Неизвестный тип финансовой операции #001 #002
+^^en^Unknown financial transaction type #001 #002
+^Возраст, с которого разрешена продажа
+^^en^Age from which sale is permitted
+^Необходимо задать персоналию
+^^en^You need to set your identity
+^Логистика
+^^en^Logistics
+^StyloQ: #001 для входящего документа не удалось идентифицировать клиента #002
+^^en^StyloQ: #001 for the incoming document it was not possible to identify the client #002
+^Технологический маршрут
+^^en^Technological route
+^Тип связанного объекта
+^^en^Linked Object Type
+^Маркетплейсы
+^^en^Marketplaces
+^Диапазон страниц вывода (если пусто, то - все)
+^^en^Range of output pages (if empty, then all)
+^Внутренний счетчик
+^^en^Internal counter
+^Необходимо ввести сокращенное название
+^^en^You must enter an abbreviation
+^Закрыть текущую сессию
+^^en^Close current session
+^Необходимо задать вид электронного адреса
+^^en^You must specify the type of email address
+^Необходимо указать тип электронных весов
+^^en^It is necessary to indicate the type of electronic scales
+^Необходимо задать статус персоналии
+^^en^It is necessary to set the personal status
+^Необходимо выбрать структуру штрихкода
+^^en^You must select a barcode structure
+^Родительский элемент
+^^en^Parent element
+^SUniformFileTransmission: строка определения получателя пустая
+^^en^SUniformFileTransmission: recipient definition string is empty
+^Имя файла
+^^en^File name
+^Сумма, перечисляемая маркетплейсом продавцу за проданный товар
+^^en^The amount transferred by the marketplace to the seller for the product sold
+^Компенсация ущерба
+^^en^Compensation for damage
+^Персоналия должна принадлежать хотя бы к одному виду
+^^en^The person must belong to at least one species
+^Этап технологического маршрута
+^^en^Process route stage
+^Виджет
+^^en^Widget
+^Не удалось идентифицировать статью котировки #001
+^^en^Failed to identify quote item #001
+^UUID
+^^en^UUID
+^Кассовый узел для обслуживания шлюза Кристалл-SetRetail не найден либо неправильно настроен
+^^en^The cash register node for servicing the Crystal-SetRetail gateway was not found or is not configured correctly
+^Версия внешнего формата данных
+^^en^External data format version
+^Шаблон бухгалтерской проводки по товарной операции должен содержать выражение для суммы
+^^en^The accounting entry template for a commodity transaction must contain an expression for the amount
+^Период планирования
+^^en^Planning period
+^SUniformFileTransmission: либо источник, либо получатель должен быть файлом
+^^en^SUniformFileTransmission: either the source or destination must be a file
+^UUID процессора
+^^en^CPU UUID
+^Оригинальный идентификатор заказа
+^^en^Original order ID
+^Ответ разрешительного режима #001ид локальной инсталляции
+^^en^Permissive mode response #001local installation ID
+^Автоматическое определение ширин колонок в таблицах
+^^en^Automatic determination of column widths in tables
+^Дублирование номера статьи аналитического учета
+^^en^Duplication of analytical accounting article number
+^L,@daterange
+^^en^L,@daterange
+^DL600 недопустимое значение ширины#001 #002
+^^en^DL600 invalid width value #001 #002
+^Исходный данные XML
+^^en^Source XML data
+^Не удалось найти заказ, который закрывается документом продажи #001
+^^en^Could not find the order that is closed by sales document #001
+^Не удалось определить серию карт, с которыми ассоциированы аккаунты клиентов
+^^en^It was not possible to determine the series of cards with which customer accounts are associated
+^Класс товаров #001 не содержит формул общего назначения
+^^en^Product class #001 does not contain general purpose formulas
+^Задачи по персоналии
+^^en^Personality tasks
+^Результат приемки строки документа
+^^en^Document line acceptance result
+^Проверять уникальность номера документа
+^^en^Check the uniqueness of the document number
+^Серийный номер
+^^en^Serial number
+^Ожидаемая цена
+^^en^Expected price
+^Стоимость хранения
+^^en^Storage cost
+^Ошибка отправки в #001 чека автосписания алкоголя
+^^en^Error sending alcohol auto-debit receipt to #001
+^Корректировка висячих тегов
+^^en^Adjusting dangling tags
+^Необходимо указать кассовый узел
+^^en^You must specify a cash register
+^Необходимо задать каталог вывода
+^^en^Output directory must be specified
+^Скопировать в буфер
+^^en^Copy to clipboard
+^Специальная налоговая группа персоналии
+^^en^Special tax group of personalities
+^Сгенерировать серийные номер
+^^en^Generate serial number
+^Вид операции документов для импорта в кассовую панель
+^^en^Type of document operation for importing into the cash register
+^Регистрация компьютера
+^^en^Computer registration
+^Категория исполняемой программы
+^^en^Executable program category
+^Перенести GTIN в товар
+^^en^Transfer GTIN to product
+^Балансовый счет не может быть нулевым
+^^en^The balance account cannot be zero
+^Найденный по GLN #001 адрес не имеет владельца
+^^en^The address found on GLN #001 has no owner
+^L,URL
+^^en^L,URL
+^Необходимо выбрать глобальную учетную запись
+^^en^You must select a global account
+^StyloQ: внутренняя ошибка - повторная попытка вставить запись собственного сервиса в реестр
+^^en^StyloQ: internal error - repeated attempt to insert a custom service entry into the registry
+^Выберите час
+^^en^Select hour
+^DEV: ppifc - интерфейсный символ #001 отличается от образца по значению GUID
+^^en^DEV: ppifc - interface symbol #001 differs from the sample in GUID value
+^Не определен владелец адреса ответственного хранения с складской операции
+^^en^The owner of the safekeeping address from the warehouse operation is not determined
+^Возвраты от покупателей
+^^en^Returns from customers
+^Продажа на маркетплейсе
+^^en^Selling on the marketplace
+^Передача документа сервису поставщика
+^^en^Submitting a document to the supplier's service
+^Задачи
+^^en^Tasks
+^Незаконченная конструкция '
+^^en^Unfinished construction ' '
+^Сигма количества дней между событиями
+^^en^Sigma number of days between events
+^Хранение
+^^en^Storage
+^Маршрут процессинга
+^^en^Processing route
+^Ошибка получения данных из SBinarySet: данные зашифрованы
+^^en^Error retrieving data from SBinarySet: data is encrypted
+^Сброс адреса сервера разрешительного режима чзн
+^^en^Resetting the server address of the permission mode chzn
+^R,@department
+^^en^R,@department
+^#001обработка финансовых транзакций
+^^en^#001financial transaction processing
+^На выбранную запись управляемого компьютера уже ссылается другой процессор #001
+^^en^The selected managed computer entry is already referenced by another processor #001
+^Технологическая сессия, к которой привязан документ
+^^en^Technology session to which the document is linked
+^Круговой слайдер для выбора минут
+^^en^Circular slider for selecting minutes
+^Запрос списка входящих документов
+^^en^Request a list of incoming documents
+^Телефон покупателя
+^^en^Buyer's phone number
+^Недопустимые параметры в команде WSCTL_END_SESS
+^^en^Invalid parameters in the WSCTL_END_SESS command
+^Номинальная цена реализации
+^^en^Nominal selling price
+^шт
+^^en^pcs
+^Необходимо указать банк
+^^en^Bank required
+^Необходимо задать группу товаров для весов
+^^en^It is necessary to specify a product group for scales
+^Транспортные издержки
+^^en^Transport costs
+^Необходимо задать первичную персоналию
+^^en^You need to set your primary identity
+^R,@vat
+^^en^R,@vat
+^Транзакция клиентской активности
+^^en^Client Activity Transaction
+^Достигнут предел числа потоков обработки запросов #001
+^^en^Query processing thread limit reached #001
+^Документ заказа, по которому вы собираетесь создать отгрузку, выписан будущей датой
+^^en^The order document for which you are going to create a shipment is issued on a future date
+^FTS: Ошибка открытия индексной таблицы LMDB #001
+^^en^FTS: Error opening index table LMDB #001
+^Тестовый режим: отправка не осуществляется
+^^en^Test mode: no sending
+^Характеристический вид объекта
+^^en^Characteristic view of the object
+^Ошибка запроса к локальному серверу проверки марок #001
+^^en^Error request to local stamp verification server #001
+^Возмещение издержек по перевозке/по складским операциям с товаром
+^^en^Reimbursement of costs for transportation/warehouse operations with goods
+^Минимальный период между заказом и продажей в днях
+^^en^Minimum period between order and sale in days
+^Необходимо задать вид регистрирующей организации
+^^en^You must specify the type of registering organization
+^Необходимо указать статью
+^^en^Article required
+^R,@excise
+^^en^R,@excise
+^Другие ограничения
+^^en^Other restrictions
+^ | space tab)
+^^en^| space tab)
+^Адрес фактический
+^^en^Actual address
+^Метод проведения приемки товаров
+^^en^Method of goods acceptance
+^Не ассоциировать вид котировки с документом
+^^en^Do not associate a quote type with a document
+^От
+^^en^From
+^Категории исполняемых программ
+^^en^Categories of executable programs
+^Расчет оценочных цен на продукцию #001
+^^en^Calculation of estimated prices for products #001
+^Себестоимость возвращенных от покупателей товаров
+^^en^Cost of goods returned from customers
+^Продажа
+^^en^Sale
+^StyloQ #001#002 нулевая ссылка на строку документа #003
+^^en^StyloQ #001#002 null reference to document line #003
+^Cумма в ценах конечного покупателя
+^^en^Amount in final buyer prices
+^StyloQ: внутренняя ошибка - функции PPStyloQInterchange::MakeIndexingRequestCommand передан пакет вида, отличного от 'собственный сервис'
+^^en^StyloQ: internal error - the function PPStyloQInterchange::MakeIndexingRequestCommand was passed a packet of a type other than 'own service'
+^Примечание содержит строку
+^^en^The note contains the line
+^Возвращенное от покупателей количество торговых единиц
+^^en^Number of trade units returned from customers
+^Тест серверной печати
+^^en^Server Print Test
+^Операция прервана
+^^en^Operation aborted
+^Необходимо указать государство
+^^en^State must be specified
+^Медицинский рецепт - номер
+^^en^Medical prescription - number
+^Стоимость хранения товара на складе маркетплейса
+^^en^Cost of storing goods in a marketplace warehouse
+^Обмен с сервисом по сети запрещен
+^^en^Exchange with the service over the network is prohibited
+^Предпочтительный поставщик
+^^en^Preferred Supplier
+^Маркетинговые расходы на категорию продукции
+^^en^Marketing expenses per product category
+^Формат экспорта
+^^en^Export Format
+^#001марка уже была продана
+^^en^#001brand has already been sold
+^Кассовый чек #001 ранее уже был импортирован
+^^en^Cash receipt #001 was previously imported
+^Глобальная учетная запись маркетплейса
+^^en^Global Marketplace Account
+^Подготовка данных для передачи поставщику
+^^en^Preparing data for transfer to the supplier
+^Заказ на маркетплейсе
+^^en^Order on the marketplace
+^SUniformFileTransmission: недопустимый протокол источника
+^^en^SUniformFileTransmission: Invalid source protocol
+^Отправка данных поставщику
+^^en^Sending data to supplier
+^Формула класса товаров по символу не найдена #001
+^^en^Product class formula for symbol not found #001
+^Для класса товара необходимо задать шаблон имени
+^^en^For the product class, you must specify a name template
+^Маркетинговые расходы не привязанные к продукции
+^^en^Marketing expenses not tied to products
+^Неоднозначность при идентификации статьи по коду #001
+^^en^Ambiguity in identifying an article using code #001
+^Необходимо указать периодичность
+^^en^Frequency must be specified
+^Проверять уникальность номера при создании нового документа
+^^en^Check the uniqueness of the number when creating a new document
+^Конфигурация маркетплейсов
+^^en^Marketplace configuration
+^Не модифицировать связанный объект со стороны клиента
+^^en^Do not modify the associated object on the client side
+^URL модуля тс-пиот
+^^en^URL of the ts-piot module
+^Символ источника импортированного чека
+^^en^Imported Receipt Source Symbol
+^Вид операции продажи
+^^en^Type of sale transaction
+^Ошибка UID - рекурсия в цветовом наборе (#001)
+^^en^UID error - recursion in color set (#001)
+^Возврат от покупателя на маркетплейсе
+^^en^Return from a buyer on the marketplace
+^Ошибка обращения к тс пиот
+^^en^Error contacting tspiot
+^Расходы на продажу
+^^en^Selling expenses
+^Фиксированная ширина столбцов
+^^en^Fixed column width
+^Адрес
+^^en^Address
+^Сервис поставщика принял переданные документы
+^^en^The supplier's service accepted the submitted documents
+^У документа установлен признак 'Отгружен'
+^^en^The document has the 'Shipped' attribute set
+^Необходимо ввести код карты
+^^en^You must enter the card code
+^Печать всех первичных документов выборки по обобщенной операции не доступна если в обобщении есть разные таблицы статей
+^^en^Printing all primary documents of a sample for a generalized operation is not available if the generalization has different article tables
+^DL600 ошибка в свойстве #001 - ожидается либо 4-компонентное значение #002, либо единственная real-величина
+^^en^DL600 error in property #001 - either 4-component value #002 or a single real value is expected
+^Ошибка UID - не удалось разрешить символ цвета #001
+^^en^UID Error - Could not resolve color character #001
+^Сканирование таблицы данных #001
+^^en^Data table scan #001
+^StyloQ: #001 недопустимое количество в строке входящего документа #002
+^^en^StyloQ: #001 invalid quantity in incoming document line #002
+^Безнадежная задержка активности клиента в днях
+^^en^Hopeless delay in client activity in days
+^Ошибка в команде setgeoloc - не заданы ни сервис, ни локация
+^^en^Error in setgeoloc command - neither service nor location are specified
+^UED-значение не принадлежит целевой мета-категории #001
+^^en^UED value does not belong to target meta category #001
+^Запрос отчета о продажах по реализации за период %s
+^^en^Request for a sales report on sales for the period %s
+^Вид операции возврата от покупателя
+^^en^Type of return transaction from the buyer
+^Ошибка UID - неверное количество параметров в функции вычисления цвета
+^^en^UID error - incorrect number of parameters in color calculation function
+^ЧЕСТНЫЙ ЗНАК хост разрешительного режима
+^^en^HONEST SIGN host permit mode
+^Переполнение в операции с плавающей точкой
+^^en^Floating point overflow
+^#001не инициализирован интерфейс драйвера Штрих-ФР
+^^en^#001Shtrikh-FR driver interface is not initialized
+^Символ структуры
+^^en^Structure symbol
+^Кошелек
+^^en^Wallet
+^Радиокнопка
+^^en^Radio button
+^Имя покупателя
+^^en^Buyer's name
+^Критическая задержка активности клиента в сигмах
+^^en^Critical latency of client activity in sigma
+^Клиентская активность
+^^en^Client activity
+^Ошибка выбора доступного CDN-хоста разрешительного режима #001
+^^en^Error in selecting an available CDN host in permissive mode #001
+^Чрезвычайно малый результат в операции с плавающей точкой
+^^en^Extremely small result in floating point operation
+^Ошибка валидации одной или нескольких марок разрешительным режимом #001 при конвертации документа в кассовый чек
+^^en^Error validating one or more stamps using authorization mode #001 when converting a document into a cash receipt
+^Необходимо выбрать корзину
+^^en^You need to select a cart
+^Агрегирующая функция по участникам
+^^en^Aggregation function by participants
+^Необходимо выбрать тип суммы
+^^en^You must select the amount type
+^Маркетинговые расходы на категорию продукции (в единицу времени)
+^^en^Marketing expenses per product category (per unit of time)
+^Не удалось определить вид персоналий-клиентов для идентификации аккаунта по имени
+^^en^Could not determine the type of client personas to identify the account by name
+^Категория управляемых компьютеров
+^^en^Managed computer category
+^Ошибка десериализации пакета Stylo-Q bindery #001
+^^en^Error deserializing Stylo-Q bindery package #001
+^Необходимо выбрать товар
+^^en^You must select a product
+^Немаркированную продукцию уравнивать по остаткам
+^^en^Unlabeled products are equalized by balances
+^В записи книги продаж/покупок необходим номер счета-фактуры
+^^en^An invoice number is required in the sales/purchase ledger entry.
+^Наследовать в лотах налоговую группу поставщика
+^^en^Inherit supplier tax group in lots
+^Символ-разделитель полей (,
+^^en^Field separator character (,
+^Символ маркетплейса
+^^en^Marketplace symbol
+^Выводить только табличные данные
+^^en^Output only tabular data
+^Расходы на закупку единицы продукции
+^^en^Unit purchase costs
+^Ошибка чтения файла информации о резервной копии SSystemBackup #001
+^^en^Error reading backup information file SSystemBackup #001
+^Расходы на предпродажную подготовку одного наименования продукции (в год)
+^^en^Expenses for pre-sale preparation of one product item (per year)
+^Коды от сканера штрихкодов получать через буфер обмена
+^^en^Receive codes from the barcode scanner via the clipboard
+^Полностью отклонить
+^^en^Reject completely
+^Привязать драфт-документ с результатами приемки
+^^en^Link the draft document with the acceptance results
+^Строка #001 не соответствует правилам представления диапазона дат
+^^en^Line #001 does not comply with date range rules
+^Печать всех первичных документов выборки оплат доступна только если вид операции имеет флаг 'Печатать счет-фактуру'
+^^en^Printing all primary documents of a payment selection is available only if the type of operation has the 'Print invoice' flag
+^Экспорт списка исполняемых программ
+^^en^Exporting a list of executable programs
+^Вид операции заказа
+^^en^Order transaction type
+^Только отмененные заказы
+^^en^Only canceled orders
+^Значения бизнес-показателей (версия 2)
+^^en^Business Indicator Values ​​(version 2)
+^Количественный учет по картам
+^^en^Quantitative accounting by cards
+^Нажмите чтобы авторизоваться и начать работу
+^^en^Click to log in and get started
+^Рабочее время
+^^en^Working hours
+^Анализ клиентской активности
+^^en^Analysis of client activity
+^Стоимость эквайринга
+^^en^Acquiring cost
+^Отправка документа
+^^en^Sending a document
+^Внутренняя ошибка UID - недопустимый идент функции #001
+^^en^Internal UID error - invalid function identifier #001
+^Налоговая группа
+^^en^Tax group
+^Мягкий режим
+^^en^Soft mode
+^Коэффициент отмены заказов
+^^en^Order cancellation rate
+^Неоднозначность в идентификации компьютера по MAC-адресу #001
+^^en^Ambiguity in computer identification by MAC address #001
+^Не удалось идентифицировать строку авторизации ни как телефон, ни как номер аккаунта, ни как имя владельца
+^^en^Could not identify the authorization string as either a phone number, account number, or owner name
+^ x64
+^^en^x64
+^Стоимость фондирования
+^^en^Funding cost
+^DEV: список сопоставления интерфейсных символов значениям GUID успешно прошел сверку с образцом
+^^en^DEV: list of mappings between interface symbols and GUID values ​​was successfully matched against the pattern
+^Ошибка проверки марки тс пиот: %s
+^^en^Error checking vehicle brand: %s
+^Использовать иерархические товарные группы
+^^en^Use hierarchical product groups
+^StyloQ: #001 у входящего документа #002 не определено ни одной товарной строки
+^^en^StyloQ: #001 incoming document #002 does not have any product lines defined
+^#001процент комиссии от цены продавца
+^^en^#001 percentage of commission from the seller's price
+^Параметры подарка
+^^en^Gift options
+^Документы соглашений по статье
+^^en^Article agreement documents
+^В команде формирования данных для заказов Stylo-Q #001 не определен ид устройства Stylo-Palm
+^^en^The Stylo-Palm device ID is not defined in the data generation command for Stylo-Q #001 orders
+^Сигнатура чека #001
+^^en^Receipt signature #001
+^Каталог складов маркетплейсов
+^^en^Catalog of marketplace warehouses
+^#001срок годности товара истек
+^^en^#001 product expired
+^Номинальная временная метка документов - текущее время
+^^en^Nominal timestamp of documents - current time
+^L,Result
+^^en^L,Result
+^Количество документов заказа
+^^en^Number of order documents
+^#001крипто-подпись не верна
+^^en^#001crypto signature is not correct
+^Необходимо выбрать вид начисления
+^^en^You must select the type of accrual
+^Сторно продажи
+^^en^Sale reversal
+^UUID связанного кассового чека
+^^en^UUID of the associated cash receipt
+^Заметки
+^^en^Notes
+^Проверка марки #001
+^^en^Checking brand #001
+^Microsoft
+^^en^Microsoft
+^Приемка на склад
+^^en^Acceptance to warehouse
+^R,@dealprice
+^^en^R,@dealprice
+^Необходимо указать почтовую учетную запись
+^^en^You must specify a mail account
+^Не указана номинальная сумма документа
+^^en^The nominal amount of the document is not specified
+^Маркетинговые расходы не привязанные к продукции (в единицу времени)
+^^en^Marketing expenses not tied to products (per unit of time)
+^Необходимо указать код товарной группы
+^^en^You must specify the product group code
+^Принятая цена поступления
+^^en^Accepted entry price
+^Стоимость приемки на склад хранения
+^^en^Cost of acceptance to storage warehouse
+^#001цена продавца
+^^en^#001 seller price
+^Отмена заказа
+^^en^Cancellation of an order
+^#001 Translate
+^^en^#001 Translate
+^#001марка не найдена
+^^en^#001brand not found
+^Агрегирующая функция по иерархии
+^^en^Aggregating function by hierarchy
+^R,@value
+^^en^R,@value
+^Формат чисел брать из отчета
+^^en^Take the number format from the report
+^NGINX-сервер запущен. Внутренний мониторинг сообщает о том, что он работает
+^^en^The NGINX server is running. Internal monitoring tells you it's working
+^Транспорт для доставки клиенту по умолчанию
+^^en^Default transport for delivery to the client
+^Запуск
+^^en^Launch
+^Ошибка в записи SalaryTbl #001дата начала периода больше даты завершения
+^^en^Error in the SalaryTbl entry #001 the start date of the period is greater than the end date
+^Строка url пустая
+^^en^URL string is empty
+^Строка для поиска
+^^en^Search string
+^#001обработка продаж
+^^en^#001 sales processing
+^Медицинский рецепт - дата
+^^en^Medical prescription - date
+^Общая регистровая проводка
+^^en^General register entry
+^Сопоставить клиентскую запись объекту
+^^en^Map client record to object
+^Расходы
+^^en^Expenses
+^Безналичная оплата - предпочтительная
+^^en^Cashless payment - preferred
+^Номинальное количество
+^^en^Nominal quantity
+^Складское хранение
+^^en^Warehousing
+^Ручное значение
+^^en^Manual value
+^Создание технологической сессии
+^^en^Creating a technology session
+^Ошибка UID - отсутствует параметр в функции вычисления цвета #001
+^^en^UID error - missing parameter in color calculation function #001
+^Модифицировать оригинальный документ
+^^en^Modify the original document
+^Возмещение за выдачу и возврат товаров на ПВЗ
+^^en^Reimbursement for issuance and return of goods to the pickup point
+^#001 ii #002
+^^en^#001ii #002
+^Сформировать таблицу соответствия сервисов символам базам данных
+^^en^Generate a table of correspondence between services and database symbols
+^Общая ставка НДС
+^^en^General VAT rate
+^Периодичность ввода
+^^en^Frequency of input
+^Ошибка в команде setgeoloc - идентификатор локации задан не верно #001
+^^en^Error in the setgeoloc command - the location identifier is set incorrectly #001
+^Дополнительный внешний тег импортированного чека
+^^en^Additional external tag of the imported receipt
+^L,@appellation
+^^en^L,@appellation
+^Сбор статистики по активности клиентов
+^^en^Collection of statistics on customer activity
+^UUID связанного документа
+^^en^UUID of the linked document
+^Каталог OUT #001 недоступен
+^^en^Directory OUT #001 is not available
+^Тег дополнительного кода адреса доставки
+^^en^Delivery address additional code tag
+^Формирование списка документов по операции #001
+^^en^Generating a list of documents for operation #001
+^Не определено
+^^en^Not defined
+^Обыкновенная ставка НДС
+^^en^Ordinary VAT rate
+^По популярности
+^^en^By popularity
+^Необходимо указать вид операции
+^^en^You must specify the type of operation
+^Подкаталог исходящих документов
+^^en^Subdirectory of outgoing documents
+^с
+^^en^With
+^Недопустимая строка представления MAC Address #001
+^^en^Invalid MAC Address representation string #001
+^Документы списания заказа
+^^en^Order write-off documents
+^Поля расширения строк кассового чека
+^^en^Cash receipt line extension fields
+^Расходы на перемещение
+^^en^Travel costs
+^Тестирование интерфейса с маркетплейсами
+^^en^Testing the interface with marketplaces
+^Архивированный сервис
+^^en^Archived service
+^Необходимо выбрать алиас счета
+^^en^You must select an account alias
+^Автономная номинальная сумма
+^^en^Autonomous nominal amount
+^Ошибка обращения к тс пиот: неправильный или отсутствующий URL сервера
+^^en^Error accessing tspiot: incorrect or missing server URL
+^Не удалось идентифицировать товар для документа #001
+^^en^Failed to identify product for document #001
+^#001 II #002
+^^en^#001 II #002
+^Штрих-ФР: ошибка вызова SetProperty#001
+^^en^Shtrikh-FR: error calling SetProperty#001
+^DL600 недопустимое значение высоты#001 #002
+^^en^DL600 invalid height value #001 #002
+^Средний период между поставкой и продажей в днях
+^^en^Average period between delivery and sale in days
+^JSON: the JSON-document is empty
+^^en^JSON: the JSON-document is empty
+^DL600 ошибка в свойстве #001 - недопустимое значение одного или нескольких компонентов margin
+^^en^DL600 error in property #001 - invalid value of one or more margin components
+^Преобразовывать дату в строку
+^^en^Convert date to string
+^Неверный знак операции, ссылающейся на чек #001, по карте #002
+^^en^Invalid sign of the transaction referring to check #001, on card #002
+^Класс бизнес-показателя
+^^en^Business indicator class
+^Товара нет в наличии: заказ будет исполнен после поставки
+^^en^Product is out of stock: the order will be fulfilled after delivery
+^StyloQ: #001 для входящего документа у идентифицированного клиента недопустимая таблица статей #002
+^^en^StyloQ: #001 for the incoming document the identified client has an invalid article table #002
+^Допустимые типы оплаты
+^^en^Acceptable Payment Types
+^Рецепт на лекарства
+^^en^Prescription for medicine
+^Выбор предпочтительного поставщика
+^^en^Selecting your preferred supplier
+^Ожидаемый еженедельный спрос, шт
+^^en^Expected weekly demand, pcs.
+^Суммарное количество дней между заказом и продажей
+^^en^Total number of days between order and sale
+^FTS: Ошибка запуска транзакции - неопределенное состояние объекта LmdbDatabase::Transaction
+^^en^FTS: Error starting transaction - undefined state of LmdbDatabase::Transaction object
+^Процессинг исходных кодов проекта
+^^en^Processing project source codes
+^GLN
+^^en^GLN
+^Поиск висячих записей
+^^en^Finding dangling records
+^по
+^^en^By
+^Ошибка в команде setgeoloc - заданы одновременно сервис и локация
+^^en^Error in setgeoloc command - service and location are specified at the same time
+^StyloQ: #001 у входящего документа #002 не определен (или определен не верно) вид операции акцепта
+^^en^StyloQ: #001 incoming document #002 does not have the type of acceptance operation defined (or is defined incorrectly)
+^Должно быть определено не пустое наименование
+^^en^A non-empty name must be defined
+^Предопределенный формат
+^^en^Predefined format
+^Необходимо выбрать тип объекта данных
+^^en^You must select a data object type
+^Табличный формат
+^^en^Tabular Format
+^Общая
+^^en^General
+^Символ транзакции удаленной обработки строки
+^^en^Remote string processing transaction symbol
+^Выбор чека для возврата или коррекции
+^^en^Selecting a check for return or correction
+^Группа активов, передаваемых во временное пользование
+^^en^Group of assets transferred for temporary use
+^Процент доли, перечисляемоей маркетплейсом продавцу за проданный товар, от суммы продажи
+^^en^The percentage of the share transferred by the marketplace to the seller for the sold product, of the sale amount
+^Конечный продукт
+^^en^Final product
+^Папка клиента
+^^en^Client folder
+^Формула расчета брутто
+^^en^Gross calculation formula
+^FTS: Ошибка запуска транзакции Xapian
+^^en^FTS: Error starting Xapian transaction
+^#001время актуальности остатка
+^^en^#001 balance actuality time
+^Ошибка UID - недопустимый тип параметра в функции вычисления цвета #001
+^^en^UID error - invalid parameter type in color calculation function #001
+^Только импортированные
+^^en^Only imported
+^Мониторинг NGINX-сервера сообщает о сбое
+^^en^NGINX server monitoring reports failure
+^Печать всех первичных документов выборки по обобщенной операции не доступна если в списке есть документы разных типов операции
+^^en^Printing all primary documents of a selection for a generalized operation is not available if the list contains documents of different types of operation
+^Необходимо указать группу объектов
+^^en^You must specify a group of objects
+^Стоимость приемки товара на складе маркетплейса
+^^en^The cost of receiving goods at the marketplace warehouse
+^В параметрах команды не задан идентификатор компьютера
+^^en^The computer ID is not specified in the command parameters
+^Разрешается проводить безналичную оплату в обход терминала
+^^en^It is allowed to make non-cash payments bypassing the terminal
+^Документы договоров
+^^en^Contract documents
+^Необходимо указать статус населенного пункта
+^^en^It is necessary to indicate the status of the locality
+^Необходимо задать тип отношений
+^^en^The relationship type must be specified
+^Вид операции прихода по заказу
+^^en^Type of transaction receipt by order
+^Необходимо выбрать вид котировки
+^^en^You must select the type of quote
+^По убыванию цены
+^^en^Descending price
+^Параметры обмена данными с маркетплейсом
+^^en^Parameters for exchanging data with the marketplace
+^Расходы на продвижение на маркетплейсе
+^^en^Expenses for promotion on the marketplace
+^#001количество, движущееся на склад
+^^en^#001 quantity moving to warehouse
+^Файл экспорта
+^^en^Export file
+^Ошибка разбора строки определения цвета #001
+^^en^Error parsing color string #001
+^Исполняемые программы
+^^en^Executable programs
+^Ответ разрешительного режима #001версия локальной БД
+^^en^Permissive mode response #001local database version
+^Не определены параметры авторизации на управляющем сервере Papyrus
+^^en^Authorization parameters on the Papyrus control server are not defined
+^Запускается приложение для просмотра файла #001
+^^en^The application for viewing file #001 is launched
+^Ввод расширенной информации
+^^en^Entering extended information
+^Перейти на web-страницу
+^^en^Go to web page
+^Кассовый чек #001 успешно импортирован
+^^en^Cash receipt #001 successfully imported
+^Maximum number of B-Tree index levels reached
+^^en^Maximum number of B-Tree index levels reached
+^Годен до
+^^en^Sell ​​by
+^Ограничения на продажу товаров
+^^en^Restrictions on the sale of goods
+^Символ подставновки товара
+^^en^Product placeholder symbol
+^Штраф
+^^en^Fine
+^Документы нельзя объединять с другими
+^^en^Documents cannot be combined with others
+^Показывать сетку
+^^en^Show grid
+^Управляемые компьютеры
+^^en^Managed computers
+^Период выбора документов для импорта, #001
+^^en^Period for selecting documents for import, #001
+^Среднее количество дней между событиями
+^^en^Average number of days between events
+^Коррекция
+^^en^Correction
+^Теги документов
+^^en^Document tags
+^Ошибка валидации марки #001 #002
+^^en^Brand validation error #001 #002
+^Ошибка UID - не удалось разрешить символ цветового набора #001
+^^en^UID Error - Could not resolve color set character #001
+^Допускает привязку задачи #001
+^^en^Allows assignment of task #001
+^Необходимо задать тег персоналии
+^^en^You must set a personality tag
+^DEV: Отсутствует необходимый исходный файл #001
+^^en^DEV: Required source file #001 is missing
+^Не найден символ, соответствующий мета-категории #001
+^^en^No symbol found corresponding to meta category #001
+^Только для внутреннего использования
+^^en^For internal use only
+^Ошибка SQLITE: %s
+^^en^SQLITE error: %s
+^Удержание
+^^en^Hold
+^UUID кассового чека
+^^en^UUID of the cash receipt
+^Переполнение в целочисленной операции
+^^en^Overflow in an integer operation
+^Факторы unit-планирования продаж товара
+^^en^Factors of unit-planning of product sales
+^Ошибка MySQL: %s
+^^en^MySQL Error: %s
+^Группа складов маркетплейсов
+^^en^Group of marketplace warehouses
+^Количество оценок
+^^en^Number of ratings
+^Показывать статистику клиенской активности
+^^en^Show client activity statistics
+^Параметры прохождения по техмаршруту
+^^en^Parameters for passing along the technical route
+^Оригинальный идентификатор документа заказа
+^^en^Original order document ID
+^Поля расширения
+^^en^Extension fields
+^Специальная налоговая группа локации
+^^en^Special tax group location
+^Ошибка инициализации COM-метода или свойства #001
+^^en^Error initializing COM method or property #001
+^L,Внутреннее поле
+^^en^L,Internal field
+^Серийный номер #001
+^^en^Serial number #001
+^Себестоимость проданных товаров
+^^en^Cost of goods sold
+^Причина выбытия марки #001
+^^en^Reason for retirement of brand #001
+^В лоте изменена ссылка на сертификат
+^^en^The link to the certificate has been changed in the lot
+^Чистая сумма реализации
+^^en^Net sales amount
+^Фискальный признак чека
+^^en^Fiscal sign of a check
+^В списках выбора к наименованию автомобиля добавлять регистрационный номер
+^^en^In the selection lists, add the registration number to the car name
+^Необходимо выбрать штатный календарь
+^^en^You must select a staff calendar
+^Не удалось идентифицировать запись устройства Stylo-Palm по контексту клиента #001
+^^en^Failed to identify Stylo-Palm device entry by client context #001
+^По новинкам
+^^en^New products
+^URL offline-проверки марок честный знак
+^^en^URL offline-checking stamps honest sign
+^L,@oprkind
+^^en^L,@oprkind
+^Тест доступности глобальных сервисов
+^^en^Global Services Availability Test
+^Показывать агента
+^^en^Show agent
+^Наименования искать по подстроке
+^^en^Search names by substring
+^#001марка не валидна
+^^en^#001stamp is not valid
+^Необходимо выбрать связанный объект
+^^en^You must select a related object
+^Вы уверены, что хотите провести сторнирование чека #001
+^^en^Are you sure you want to reverse check #001
+^L,@value
+^^en^L,@value
+^Необходимо задать организацию-владельца подразделения
+^^en^You must specify the owner organization of the unit
+^Не определен токен разрешительного режима #001
+^^en^Permissive mode token #001 not defined
+^Сбойная ситуация: ложная идентификация дублирования кода технологии #001
+^^en^Failure: False identification of duplicate technology code #001
+^Проверить в offline-режиме
+^^en^Check offline
+^Дата завершения
+^^en^Completion date
+^ rv:140.0) Gecko/20100101 Firefox/140.0
+^^en^rv:140.0) Gecko/20100101 Firefox/140.0
+^Автоматически рассчитывать суммы налогов
+^^en^Automatically calculate tax amounts
+^Доходы
+^^en^Income
+^По рейтингу
+^^en^By rating
+^Ошибка авторизации на сервисе #001%s
+^^en^Authorization error on service #001%s
+^Документ #001 не можеть быть объединен поскольку это запрещено его статусом
+^^en^Document #001 cannot be merged because it is prohibited by its status
+^ЧЕСТНЫЙ ЗНАК токен разрешительного режима
+^^en^HONEST SIGN permission mode token
+^Существует более одного процессора с заданным UUID #001
+^^en^There is more than one processor with the given UUID #001
+^Длинное наименование
+^^en^Long name
+^Введите серию персональных карт
+^^en^Enter a series of personal cards
+^Не определен склад для привязки документов
+^^en^The warehouse for linking documents is not defined
+^Символ, существовавший в предудыщей версии, изменен в новой версии #001
+^^en^The symbol that existed in the previous version has been changed in the new version #001
+^Итоги выборки товаров Wildberries
+^^en^Results of the selection of Wildberries products
+^Расходы на перемещение единицы продукции
+^^en^Unit moving costs
+^Коррекция возврата
+^^en^Return correction
+^#001количество, движущееся со склада
+^^en^#001 quantity moving from warehouse
+^DL600 признак #001 или аналогичный уже определен
+^^en^DL600 feature #001 or similar already defined
+^Не удалось определить цену клиентской сессии #001
+^^en^Failed to determine the price of client session #001
+^Штрих-ФР: ошибка вызова GetProperty#001
+^^en^Shtrikh-FR: error calling GetProperty#001
+^Количество товаров на сервере
+^^en^Number of products on the server
+^Имя владельца аккаунта, введенное для авторизации, не сопоставлено ни с одним из аккаунтов
+^^en^The account owner name entered for authorization is not associated with any account
+^В задаче сервисного заказа #001 должно быть определено время начала работы
+^^en^Service order task #001 must specify a work start time
+^Документ по идентификатору #001 не найден
+^^en^Document ID #001 not found
+^Количество товаров полученное по запросу
+^^en^Quantity of goods received upon request
+^Универсальный поиск объектов
+^^en^Universal object search
+^Обмен данными с сервисом #001
+^^en^Data exchange with service #001
+^Тип ставки НДС
+^^en^VAT rate type
+^#001продажа заблокирована
+^^en^#001sale blocked
+^Дополнительная информация
+^^en^Additional information
+^Сырьевые материалы
+^^en^Raw materials
+^Запуск исполнения фазы технологического маршрута
+^^en^Starting the execution of a technological route phase
+^Доход продавца
+^^en^Seller's income
+^Все скопировать в буфер
+^^en^Copy everything to the clipboard
+^Разрешено делиться документами
+^^en^Allowed to share documents
+^Доход от продажи единицы продукции
+^^en^Income from unit sales
+^StyloQ: внутренняя ошибка - функции PPStyloQInterchange::MakeIndexingRequestCommand передана команда недопустимого типа
+^^en^StyloQ: internal error - a command of an invalid type was passed to the PPStyloQInterchange::MakeIndexingRequestCommand function
+^До
+^^en^To
+^Расходы на продажу единицы продукции
+^^en^Unit Selling Costs
+^Импорт кассовых чеков невозможен при неопределенном кассовом узле
+^^en^Import of cash receipts is not possible with an undefined cash register node
+^Формат даты брать из отчета
+^^en^Take the date format from the report
+^Конфигурация, группа или пользователь должны иметь имя
+^^en^The configuration, group or user must have a name
+^Рассчитывать формулу для каждой товарной строки
+^^en^Calculate formula for each product line
+^Не определен вид операции заказа на размещение
+^^en^Insertion order transaction type not defined
+^Скопировать коды (не удалять у статьи-источника)
+^^en^Copy codes (do not delete from the source article)
+^Необходимо выбрать технологию
+^^en^You need to choose a technology
+^Данный вид персоналии не может быть присвоен или удален произвольно
+^^en^This type of personality cannot be assigned or deleted arbitrarily
+^Файлы JSON:*.json
+^^en^JSON files:*.json
+^Электронная почта покупателя
+^^en^Buyer's email
+^Необходимо указать номер чека
+^^en^Receipt number is required
+^Аккаунт
+^^en^Account
+^Необходимо выбрать класс товара
+^^en^You must select a product class
+^DL600 неизвестный вид дополнения #001 к управляющему элементу UI
+^^en^DL600 unknown type of addition #001 to the UI control element
+^Необходимо выбрать тип списания драфт-документов
+^^en^You must select the type of write-off of draft documents
+^Недопустимый домен складской операции
+^^en^Invalid warehouse operation domain
+^R,@number
+^^en^R,@number
+^Размерности лота
+^^en^Lot dimensions
+^Обмен данными о размещении оборудования у клиентов
+^^en^Exchange of data on the placement of equipment with clients
+^#001The table could not be found
+^^en^#001The table could not be found
+^Ключевые слова персоналии
+^^en^Personality Keywords
+^Платная приемка
+^^en^Paid acceptance
+^Безнадежная задержка активности
+^^en^Hopeless activity delay
+^Автоматический перевод текстовых ресурсов
+^^en^Automatic translation of text resources
+^Тестовый процессинг
+^^en^Test processing
+^Расходы на предпродажную подготовку (фиксированные)
+^^en^Pre-sales costs (fixed)
+^L,Function
+^^en^L,Function
+^Символ не задан или задан не верно
+^^en^The symbol is not specified or is specified incorrectly
+^Без номера
+^^en^Without number
+^Установить размеры колонок по умолчанию
+^^en^Set default column sizes
+^Ставка НДС явно определена для каждого товара
+^^en^The VAT rate is clearly defined for each product
+^Ошибка разрешения склада маркетплейса по имени #001
+^^en^Error resolving marketplace warehouse named #001
+^Расходы на предпродажную подготовку единицы продукции
+^^en^Expenses for pre-sale preparation of a unit of production
+^Марки #001 установлены для всех позиций (где необходимо)
+^^en^Marks #001 are installed for all positions (where necessary)
+^Ошибка SLCRYPTO: сбой генерации порожденного ключа
+^^en^SLCRYPTO error: Derived key generation failed
+^Тестовое Приложение
+^^en^Test Application
+^Расходы на предпродажную подготовку (переменные)
+^^en^Pre-sales expenses (variable)
+^Развернуть таблицу (показатели - в колонку)
+^^en^Expand the table (indicators in a column)
+^Количество брендов в выборке
+^^en^Number of brands in the sample
+^Заметка
+^^en^Note
+^Необходимо задать электронный адрес
+^^en^You must specify an email address
+^StyloQ: #001 не найден товар, на который ссылается строка входящего документа #002
+^^en^StyloQ: #001 the product referenced by incoming document line #002 was not found
+^Ошибка загрузки UID - не определен исходный каталог загрузки
+^^en^Load UID Error - Load source directory not defined
+^Программное математическое исключение (обратитесь к сопровождению)
+^^en^Programmatic math exception (refer to maintenance)
+^Параметры тестовой команды Stylo-Q
+^^en^Stylo-Q Test Command Options
+^После импорта печатать заказы на исполнение
+^^en^After import, print execution orders
+^SUniformFileTransmission: строка определения источника пустая
+^^en^SUniformFileTransmission: source definition string is empty
+^Mozilla/5.0 (Windows NT 10.0
+^^en^Mozilla/5.0 (Windows NT 10.0
+^Печать всех первичных документов выборки доступна лишь при выборе вида операции в фильтре
+^^en^Printing of all primary documents in the selection is available only when selecting the type of operation in the filter
+^Количество примерочных комнат
+^^en^Number of fitting rooms
+^Тег документа, позволяющий импортировать документ в кассовую панель
+^^en^Document tag that allows you to import a document into the checkout panel
+^Ошибка точности математической операции
+^^en^Mathematical operation precision error
+^Функция EgaisMarkAutoselector #001
+^^en^Function EgaisMarkAutoselector #001
+^Штрафы
+^^en^Fines
+^Новый клиент
+^^en^New client
+^Показывать связанные технологии
+^^en^Show related technologies
+^Операции на маркетплейсах
+^^en^Operations on marketplaces
+^Неверная сигнатура объекта #001 при чтении сериализованных данных
+^^en^Invalid object signature #001 when reading serialized data
+^SUniformFileTransmission: недопустимый протокол получателя
+^^en^SUniformFileTransmission: Invalid recipient protocol
+^Оценочная цена на производимый товар не установлена поскольку в структуре есть неопределенность по некоторым компонентам: %s
+^^en^The estimated price for the manufactured goods has not been established because there is uncertainty in the structure for some components: %s
+^Вид котировки не определен
+^^en^Quote type is not defined
+^Получить марки ЕГАИС для документа остатков
+^^en^Get EGAIS stamps for document balances
+^Параметры иморта товаров Wildberries
+^^en^Options for importing Wildberries goods
+^Сумма комиссионного вознаграждения маркетплейса
+^^en^Marketplace commission amount
+^Номинальная цена поступления
+^^en^Nominal entry price
+^Не отображать остатки на клиенте
+^^en^Do not display balances on the client
+^Ошибка авторизации на сервисе поставщика
+^^en^Authorization error on the provider service
+^Уведомление
+^^en^Notification
+^Исполняемая программа
+^^en^Executable program
+^Дата анализа состояния клиентской активности
+^^en^Date of client activity status analysis
+^Эквайринг
+^^en^Acquiring
+^Принятая цена реализации
+^^en^Accepted selling price
+^Внешний код технологической сессии
+^^en^External technology session code
+^Неподдерживаемый предопределенный формат #001
+^^en^Unsupported predefined format #001
+^Управление предпочтительным поставщиком для дозаказа
+^^en^Manage your preferred supplier for reordering
+^Заказанное количество торговых единиц
+^^en^Ordered number of trade units
+^Коррекция проблемы 12.3.04
+^^en^Correction of problem 12.3.04
+^Необходимо ввести группу, которой принадлежит товар #001
+^^en^You must enter the group to which product #001 belongs
+^Выбирать автоматически
+^^en^Select automatically
+^Текстовые поля заключать в кавычки
+^^en^Enclose text fields in quotes
+^Регулярная активность
+^^en^Regular activity
+^Настройка интеграции с маркетплейсом #001
+^^en^Setting up integration with marketplace #001
+^Пункты выдачи заказов
+^^en^Order pick-up points
+^Тег документов прихода по заказу
+^^en^Order receipt document tag
+^Необходимо указать дату чека
+^^en^You must indicate the date of the check
+^Импорт списка исполняемых программ
+^^en^Importing a list of executable programs
+^Необходимо ввести период прогноза
+^^en^You must enter a forecast period
+^Период действия ограничений
+^^en^Restriction period
+^Таблица статей дополнительного объекта документов
+^^en^Additional Documents Object Article Table
+^Укажите счет
+^^en^Enter your account
+^Выберите специальную функцию генерации
+^^en^Select special generation function
+^Счет глобальной учетной записи
+^^en^Global account account
+^Недопустимый символ в исходном UED-файле: %s
+^^en^Invalid character in UED source file: %s
+^Не использовать
+^^en^Do not use
+^Необходимо выбрать аналитическую статью
+^^en^You must select an analytical article
+^Нет даты окончания срока сертификата качества либо дата введена неправильно
+^^en^There is no expiration date for the quality certificate or the date is entered incorrectly
+^Круговой слайдер для выбора времени
+^^en^Circular slider for time selection
+^Сумма в ценах продавца
+^^en^Amount in seller's prices
+^Поля расширения кассового чека
+^^en^Cash receipt extension fields
+^Не откатывать счетчик операций при отказе от документа
+^^en^Do not rollback the transaction counter when a document is abandoned
+^Сканирование каталога #001
+^^en^Scan directory #001
+^Неоднозначность в идентификации компьютера по GUID и MAC-адресу #001
+^^en^Ambiguity in computer identification by GUID and MAC address #001
+^Необходимо выбрать процессор
+^^en^You need to select a processor
+^Запись данных продаж для системы Кристалл
+^^en^Recording sales data for the Crystal system
+^Безнадежная задержка активности клиента в сигмах
+^^en^Hopeless delay of client activity in sigma
+^Необходимо указать порт вывода
+^^en^Output port must be specified
+^Необходимо установить тип операции
+^^en^Operation type must be set
+^Текущее состояние активности
+^^en^Current Activity State
+^Адрес сервера разрешительного режима чзн либо не задан
+^^en^Permissive mode server address is unknown or not specified
+^Агрегирующая функция по времени
+^^en^Aggregation function over time
+^Размещение основных средств по заказу
+^^en^Placing fixed assets on order
+^Заказ уже исполнен #001
+^^en^Order has already been completed #001
+^Средний период между заказом и продажей в днях
+^^en^Average period between order and sale in days
+^НП
+^^en^NP
+^ Win64
+^^en^Win64
+^Тестовая команда
+^^en^Test team
+^Управляемый компьютер
+^^en^Managed computer
+^Фильтр подшивки объектов Stylo-Q
+^^en^Stylo-Q Object Sheet Filter
+^Ошибка получения списка тегов по объекту #001
+^^en^Error getting a list of tags for object #001
+^Инициализация
+^^en^Initialization
+^Элемент технологического маршрута
+^^en^Process route element
+^Зеркальная проводка по документу не найдена
+^^en^Mirror posting for document not found
+^Коррекция логистики
+^^en^Logistics adjustment
+^Сырьевой материал
+^^en^Raw material
+^Не удалось идентифицировать адрес доставки по документу #001 из-за отсутствия GLN
+^^en^Could not identify the delivery address for document #001 due to missing GLN
+^StyloQ: #001 у входящего документа #002 не определен (или определен не верно) вид операции обмена с сервисом
+^^en^StyloQ: #001 incoming document #002 does not have the type of exchange operation with the service defined (or is defined incorrectly)
+^Штрих-ФР: ошибка вызова CallMethod#001
+^^en^Shtrikh-FR: error calling CallMethod#001
+^Стоимость экваринга на стороне маркетплейса, котороую маркетплейс переносит на поставщика
+^^en^The cost of acquiring on the side of the marketplace, which the marketplace transfers to the supplier
+^Поиск native-текста в ppw.rc
+^^en^Search for native text in ppw.rc
+^Печать всех первичных документов выборки не доступна для выборки пулов документов
+^^en^Printing all primary documents in a selection is not available for selecting document pools
+^В строке документа #001 не установлена контрактная цена поступления по предпочтительному поставщику
+^^en^Document line #001 does not set the contract price of receipt for the preferred supplier
+^Передача товара на маркетплейс
+^^en^Transfer of goods to the marketplace
+^Необходимо выбрать тип товаров
+^^en^You must select the type of goods
+^StyloQ: внутренняя ошибка - функции PPStyloQInterchange::MakeObjJson_OwnFace передан пакет вида, отличного от 'собственный сервис'
+^^en^StyloQ: internal error - the PPStyloQInterchange::MakeObjJson_OwnFace function was passed a packet of a type other than 'own service'
+^Возврат
+^^en^Return
+^Необходимо ввести регистр: %s
+^^en^Case required: %s
+^Необходимо ввести изготовителя товара
+^^en^You must enter the manufacturer of the product
+^GTIN марки #001
+^^en^GTIN brand #001
+^Секреты
+^^en^Secrets
+^Количество поставщиков в выборке
+^^en^Number of suppliers in the sample
+^Вид персоналии участников
+^^en^Type of participants' personalities
+^Стоимость фондирования (в годовых процентах)
+^^en^Cost of funding (in annual percentage)
+^Прибыль
+^^en^Profit
+^Ошибка SLCRYPTO: неподдерживаемая KDF #001
+^^en^SLCRYPTO Error: Unsupported KDF #001
+^Ошибка загрузки UID - json не является объектом
+^^en^Error loading UID - json is not an object
+^Выберите год
+^^en^Select year
+^Необходимо указать город
+^^en^City must be specified
+^По возрастанию цены
+^^en^Ascending price
+^Сумма заказа на маркетплейсе в терминах конечной цены покупателя
+^^en^The amount of the order on the marketplace in terms of the final price of the buyer
+^Расходы на хранение
+^^en^Storage costs
+^Планируемая закупка, шт
+^^en^Planned purchase, pcs.
+^DL600 ошибка в свойстве #001 - один из компонентов padding уже был определен
+^^en^DL600 error in property #001 - one of the padding components has already been defined
+^Полностью принять
+^^en^Fully accept
+^Необходимо указать тип устройства
+^^en^Device type must be specified
+^Количество событий
+^^en^Number of events
+^Ответ разрешительного режима #001ид запроса
+^^en^Permissive mode response #001 request ID
+^Импорт кассовых чеков
+^^en^Importing cash receipts
+^Коррекция продажи
+^^en^Sales correction
+^Ошибка загрузки UID - файл #001 не найден
+^^en^UID loading error - file #001 not found
+^StyloQ: #001 у входящего документа #002 не определена дата (ни номинальная, ни дата создания)
+^^en^StyloQ: #001 incoming document #002 has no date defined (neither nominal nor creation date)
+^Необходимо выбрать номер отдела
+^^en^You must select a department number
+^Наименование компьютера
+^^en^Computer name
+^Необходимо указать тип кассового устройства
+^^en^You must specify the type of cash register
+^R,Длина данных
+^^en^R,Data Length
+^Не определен тег кода адреса размещения с символом #001
+^^en^The placement address code tag with the symbol #001 is not defined
+^Внешний идентификатор импортированного чека
+^^en^External identifier of the imported receipt
+^Технологические маршруты
+^^en^Technological routes
+^Неоднозначность в идентификации компьютера по GUID #001
+^^en^Ambiguity in computer identification by GUID #001
+^Не найден файл отчета #001
+^^en^Report file #001 not found
+^L,@supplier
+^^en^L,@supplier
+^Штрих-ФР: resultcode сообщает об ошибке #001
+^^en^Barcode: resultcode reports error #001
+^Значения бизнес-показателей ii #001
+^^en^Business Indicator Values ​​ii #001
+^Общая операция складского хранения
+^^en^General warehousing operation
+^Результаты приемки товара
+^^en^Product acceptance results
+^Точность (знаки после точки)
+^^en^Accuracy (signs after dot)
+^Сумма заказа на маркетплейсе в терминах цены продавца
+^^en^The amount of the order on the marketplace in terms of the seller's price
+^Изменение времени сессии
+^^en^Changing session time
+^Выводить заголовки столбцов
+^^en^Show column headers
+^Целочисленное деление на нуль
+^^en^Integer division by zero
+^Каталог с изображениями
+^^en^Catalog with images
+^Клиент с именем #001 уже зарегистрирован
+^^en^Client name #001 is already registered
+^Принятое количество
+^^en^Accepted quantity
+^Необходимо выбрать персоналию-владельца адреса ответственного хранения
+^^en^It is necessary to select the owner of the safekeeping address
+^Корректировка эквайринга
+^^en^Acquiring adjustment
+^Скрытый
+^^en^Hidden
+^Задержка активности
+^^en^Activity Delay
+^Продвижение
+^^en^Promotion
+^Ошибка UID - синтаксическая ошибка в определении цветового примитива #001
+^^en^UID error - syntax error in defining color primitive #001
+^Маршрут
+^^en^Route
+^Параметры сбора статистики клиентской активности
+^^en^Options for collecting client activity statistics
+^#001обработка приходов
+^^en^#001receipt processing
+^NOTCH
+^^en^NOTCH
+^#001доля продавца
+^^en^#001seller's share

@@ -351,8 +351,8 @@ SLTEST_R(memset)
 //
 SLTEST_R(SBuffer)
 {
+	SString temp_buf;
 	{
-		SString temp_buf;
 		{
 			SBuffer sbuf;
 			long   lval;
@@ -440,7 +440,119 @@ SLTEST_R(SBuffer)
 							temp_buf.Z().CatN(static_cast<const char *>(chunk.PtrC()), chunk.Len());
 							SLCHECK_EQ(temp_buf, js_text);
 						}
-						ZDELETE(p_js); // @v11.3.11 @fix
+						ZDELETE(p_js);
+					}
+				}
+			}
+		}
+	}
+	{
+		// @v12.6.7 Интенсивное тестирование SBinarySet
+		TSCollection <SBinaryChunk> src_data_list;
+		{
+			// Здесь готовим набор исходных данных
+			{
+				// Много маленьких строк
+				(temp_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("phrases-ru-1251.txt");
+				SFile f_in(temp_buf, SFile::mRead);
+				if(f_in.IsValid()) {
+					long   str_id = 0;
+					while(f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+						if(temp_buf.Len()) {
+							SBinaryChunk * p_new_chunk = src_data_list.CreateNewItem();
+							THROW(p_new_chunk);
+							THROW(p_new_chunk->Put(temp_buf.cptr(), temp_buf.Len()));
+						}
+					}
+				}
+			}
+			{
+				const char * pp_file_name_list[] = {
+					"rustext.txt", "sherlock-holmes-huge.txt", "test_db_accs.mdb", "binfile"
+				};
+				for(uint fni = 0; fni < SIZEOFARRAY(pp_file_name_list); fni++) {
+					(temp_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat(pp_file_name_list[fni]);
+					SFile f_in(temp_buf, SFile::mRead);
+					if(f_in.IsValid()) {
+						STempBuffer rbuf(SMEGABYTE(1));
+						size_t actual_size = 0;
+						THROW(f_in.ReadAll(rbuf, 0, &actual_size));
+						if(actual_size) {
+							SBinaryChunk * p_new_chunk = src_data_list.CreateNewItem();
+							THROW(p_new_chunk);
+							THROW(p_new_chunk->Put(rbuf.cptr(), actual_size));
+						}
+					}
+				}
+			}
+			src_data_list.shuffle();
+		}
+		{
+			// Здесь тестируем внесение и извлечение данных без криптографии, но попеременно со сжатием и без оного
+			SBinarySet set;
+			SBitArray compressed_idx_set;
+			SBinarySet::DeflateStrategy ds(256);
+			{
+				for(uint i = 0; i < src_data_list.getCount(); i++) {
+					const  SBinaryChunk * p_chunk = src_data_list.at(i);
+					const  bool to_compress = (p_chunk && p_chunk->Len() >= ds.MinChunkSizeToCompress && (i & 1)); // нечетные индексы и размер данных больше порога
+					if(p_chunk) {
+						const  bool chunk_ifs = ((i % 5) == 0);
+						int    r = 0;
+						if(chunk_ifs) {
+							r = set.Put(i+1, *p_chunk, to_compress ? &ds : 0);
+						}
+						else {
+							r = set.Put(i+1, p_chunk->PtrC(), p_chunk->Len(), to_compress ? &ds : 0);
+						}
+						SLCHECK_NZ(r);
+					}
+					compressed_idx_set.insert(to_compress);
+				}
+			}
+			{
+				SBinaryChunk chunk_extracted;
+				for(uint i = 0; i < src_data_list.getCount(); i++) {
+					const  SBinaryChunk * p_chunk = src_data_list.at(i);
+					const  bool is_compressed = compressed_idx_set.get(i);
+					if(p_chunk) {
+						bool   r = set.Get(i+1, &chunk_extracted);
+						SLCHECK_NZ(r);
+						SLCHECK_NZ(chunk_extracted.IsEq(*p_chunk));
+					}
+				}
+			}
+		}
+		{
+			// Здесь тестируем внесение и извлечение данных с криптографией попеременно со сжатием и без оного
+			const char * p_master_password = "maSteR-parol/*da-da-da";
+			SVaultPool set;
+			SBitArray compressed_idx_set;
+			SBinarySet::DeflateStrategy ds(256);
+			SLCHECK_NZ(set.SetupPrimaryPassword(p_master_password, sstrlen(p_master_password)));
+			{
+				for(uint i = 0; i < src_data_list.getCount(); i++) {
+					const  SBinaryChunk * p_chunk = src_data_list.at(i);
+					const  bool to_compress = (p_chunk && p_chunk->Len() >= ds.MinChunkSizeToCompress && (i & 1)); // нечетные индексы и размер данных больше порога
+					if(p_chunk) {
+						uint32 internal_id = SVaultPool::MakeInternalId(i+1);
+						int    r = set.PutEncrypted(internal_id, p_chunk->PtrC(), p_chunk->Len(), 
+							set.GetUedSymmCipher(), reinterpret_cast<void *>(set.GetKeyRef()), to_compress ? &ds : 0);
+						SLCHECK_NZ(r);
+					}
+					compressed_idx_set.insert(to_compress);
+				}
+			}
+			{
+				SBinaryChunk chunk_extracted;
+				for(uint i = 0; i < src_data_list.getCount(); i++) {
+					const  SBinaryChunk * p_chunk = src_data_list.at(i);
+					const  bool is_compressed = compressed_idx_set.get(i);
+					if(p_chunk) {
+						uint32 internal_id = SVaultPool::MakeInternalId(i+1);
+						bool   r = set.GetEncrypted(internal_id, reinterpret_cast<void *>(set.GetKeyRef()), &chunk_extracted);
+						SLCHECK_NZ(r);
+						SLCHECK_NZ(chunk_extracted.IsEq(*p_chunk));
 					}
 				}
 			}
@@ -536,6 +648,9 @@ SLTEST_R(SBuffer)
 			pipe.Reset();
 		}
 	}
+	CATCH
+		CurrentStatus = 0;
+	ENDCATCH
 	return CurrentStatus;
 }
 

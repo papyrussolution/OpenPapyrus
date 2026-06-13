@@ -189,7 +189,7 @@ uint64 SrUedContainer_Base::Recognize(SStrScan & rScan, uint64 implicitMeta, uin
 				result = UED_PREDEFVALUE_MAYBE;
 			else {
 				if(implicitMeta) {
-					if(UED::BelongToMeta(ued, implicitMeta)) {
+					if(UED::BelongsToMeta(ued, implicitMeta)) {
 						result = ued;
 					}
 				}
@@ -459,7 +459,7 @@ bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * 
 /*static*/bool UED::GetRaw_SphDir(uint64 ued, SphericalDirection & rV)
 {
 	bool   ok = false;
-	if(BelongToMeta(ued, UED_META_SPHERDIR)) {
+	if(BelongsToMeta(ued, UED_META_SPHERDIR)) {
 		constexpr uint _bits = 28;
 		uint64 _pa = ((ued >> _bits) & 0xfffffffULL);
 		uint64 _a = (ued & 0xfffffffULL);
@@ -486,7 +486,7 @@ bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * 
 /*static*/bool UED::GetRaw_GeoLoc(uint64 ued, SGeoPosLL & rGeoPos)
 {
 	bool   ok = false;
-	if(BelongToMeta(ued, UED_META_GEOLOC)) {
+	if(BelongsToMeta(ued, UED_META_GEOLOC)) {
 		constexpr uint _bits = 28;
 		uint64 _lat = ((ued >> _bits) & 0xfffffffULL);
 		uint64 _lon = (ued & 0xfffffffULL);
@@ -525,7 +525,7 @@ bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * 
 {
 	bool   ok = false;
 	const  uint bits = GetMetaRawDataBits(meta);
-	if(bits && BelongToMeta(ued, meta)) {
+	if(bits && BelongsToMeta(ued, meta)) {
 		constexpr uint64 _divisor = 360ULL * 3600ULL;
 		const uint64 mask = ~(~0ULL << (bits-2));
 		const uint64 sign_mask = 1ULL << (bits-1);
@@ -575,7 +575,7 @@ bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * 
 	bool ok = false;
 	uint flags = 0;
 	const  uint bits = GetMetaRawDataBits(meta);
-	if(bits && BelongToMeta(ued, meta)) {
+	if(bits && BelongsToMeta(ued, meta)) {
 		if(flagsBits <= 8) {
 			uint64 raw = 0;
 			if(GetRawValue(ued, &raw)) {
@@ -1151,7 +1151,7 @@ uint64 SrUedContainer_Base::SearchBaseIdBySymbId(uint symbId, uint64 meta) const
 	for(uint i = 0; !id && i < BL.getCount(); i++) {
 		if(BL.at(i).SymbHashId == symbId) {
 			uint64 temp_id = BL.at(i).Id;
-			if(UED::BelongToMeta(temp_id, meta))
+			if(UED::BelongsToMeta(temp_id, meta))
 				id = temp_id;
 		}
 	}
@@ -1186,7 +1186,7 @@ bool SrUedContainer_Base::GetText(uint64 ued, uint64 uedLinguaLocus, SString & r
 	rText.Z();
 	bool   ok = false;
 	if(ued && uedLinguaLocus) {
-		if(UED::BelongToMeta(uedLinguaLocus, UED_META_LINGUALOCUS)) {
+		if(UED::BelongsToMeta(uedLinguaLocus, UED_META_LINGUALOCUS)) {
 			const uint32 ll32 = UED::GetRawValue32(uedLinguaLocus);
 			UedLocaleEntry key;
 			key.Ued = ued;
@@ -1242,7 +1242,7 @@ int SrUedContainer_Base::GetLocaleIdBySymb(const char * pSymb, uint32 * pLocaleI
 				CALLEXCEPT();
 		}
 		else {
-			const bool btm_result = UED::BelongToMeta(locale_id, LinguaLocusMeta);
+			const bool btm_result = UED::BelongsToMeta(locale_id, LinguaLocusMeta);
 			if(!btm_result) {
 				ok = PPSetError(PPERR_UED_VALUENOTBELONGTOMETA, 
 					temp_buf.Z().Cat("line").CatDiv(':', 2).Cat(srcLineNo).Space().
@@ -2117,7 +2117,7 @@ int SrUedContainer_Base::WriteProps(const char * pFileName, const SBinaryChunk *
 										line_buf.Space().CatHex(ued_prop);
 										comment_buf.Space().Cat(temp_buf);
 									}
-									else if(UED::BelongToMeta(ued_prop, UED_META_STRINGREF)) {
+									else if(UED::BelongsToMeta(ued_prop, UED_META_STRINGREF)) {
 										uint64 raw_value = 0;
 										if(UED::GetRawValue(ued_prop, &raw_value)) {
 											GetS((uint)raw_value, temp_buf);
@@ -2125,7 +2125,7 @@ int SrUedContainer_Base::WriteProps(const char * pFileName, const SBinaryChunk *
 											comment_buf.Space().CatQStr(temp_buf);
 										}
 									}
-									else if(UED::BelongToMeta(ued_prop, UED_META_DECIMAL)) {
+									else if(UED::BelongsToMeta(ued_prop, UED_META_DECIMAL)) {
 										uint bits = UED::GetRawDataBits(ued_prop);
 										SDecimal dcml;
 										dcml.FromUed(ued_prop, bits);
@@ -2250,7 +2250,7 @@ bool SrUedContainer_Ct::GenerateSourceDecl_C(const char * pFileName, const char 
 				if(r_be.Id != 0x0000000100000001ULL) { // super-meta wich identifies other meta's
 					for(uint j = 0; j < BL.getCount(); j++) {
 						const BaseEntry & r_be_inner = BL.at(j);
-						if(UED::BelongToMeta(r_be_inner.Id, r_be.Id)) {
+						if(UED::BelongsToMeta(r_be_inner.Id, r_be.Id)) {
 							SearchSymbHashId(r_be_inner.SymbHashId, temp_buf);
 							assert(temp_buf.NotEmpty());
 							temp_buf.ToUpper();
@@ -2289,7 +2289,7 @@ bool SrUedContainer_Ct::GenerateSourceDecl_C(const char * pFileName, const char 
 					gen.IndentInc();
 					for(uint j = 0; j < BL.getCount(); j++) {
 						const BaseEntry & r_be_inner = BL.at(j);
-						if(UED::BelongToMeta(r_be_inner.Id, r_be.Id)) {
+						if(UED::BelongsToMeta(r_be_inner.Id, r_be.Id)) {
 							SearchSymbHashId(r_be_inner.SymbHashId, temp_buf);
 							assert(temp_buf.NotEmpty());
 							temp_buf.ToUpper();
@@ -2344,7 +2344,7 @@ bool SrUedContainer_Ct::GenerateSourceDecl_Java(const char * pFileName, uint ver
 				if(r_be.Id != 0x0000000100000001ULL) { // super-meta wich identifies other meta's
 					for(uint j = 0; j < BL.getCount(); j++) {
 						const BaseEntry & r_be_inner = BL.at(j);
-						if(UED::BelongToMeta(r_be_inner.Id, r_be.Id)) {
+						if(UED::BelongsToMeta(r_be_inner.Id, r_be.Id)) {
 							SearchSymbHashId(r_be_inner.SymbHashId, temp_buf);
 							assert(temp_buf.NotEmpty());
 							temp_buf.ToUpper();
@@ -2376,7 +2376,7 @@ bool SrUedContainer_Ct::GenerateSourceDecl_Java(const char * pFileName, uint ver
 					//gen.IndentInc();
 					for(uint j = 0; j < BL.getCount(); j++) {
 						const BaseEntry & r_be_inner = BL.at(j);
-						if(UED::BelongToMeta(r_be_inner.Id, r_be.Id)) {
+						if(UED::BelongsToMeta(r_be_inner.Id, r_be.Id)) {
 							SearchSymbHashId(r_be_inner.SymbHashId, temp_buf);
 							assert(temp_buf.NotEmpty());
 							temp_buf.ToUpper();

@@ -929,58 +929,6 @@ int FASTCALL CCheckPacket::Copy(const CCheckPacket & rS)
 	return ok;
 }
 
-int CCheckPacket::SpecialTransform(uint flags) // @v12.6.1 @construction
-{
-	int   ok = -1;
-	if(flags & spctfAdjustFractionalPrices) {
-		PPObjGoods goods_obj;
-		Goods2Tbl::Rec goods_rec;
-		PPGoodsType2 gt_rec;
-		PPUnit2 unit_rec;
-		double org_cc_rec_amount = MONEYTOLDBL(Rec.Amount);
-		double org_cc_amount = 0.0;
-		double org_cc_discount = 0.0;
-		double amt_defect_increment = 0.0; // Дефект между скорректированной на округление суммой и оригинальной суммой чека
-		SString temp_buf;
-		CalcAmount(&org_cc_amount, &org_cc_discount);
-		LongArray untouched_ln_idx_list; // Список индексов строк, с которыми все в порядке (по ним можно распределить дефективный хвост суммы)
-		for(uint i = 0; i < Items_.getCount(); i++) {
-			CCheckLineTbl::Rec & r_ln = Items_.at(i);
-			const  double org_price = fdiv100i(r_ln.Price) - r_ln.Dscnt;
-			const  double org_amt = org_price * r_ln.Quantity;
-			GetLineTextExt(i+1, CCheckPacket::lnextChZnMark, temp_buf);
-			if(temp_buf.NotEmpty()) {
-				long   local_chzn_prod_type = 0;
-				if(goods_obj.Fetch(r_ln.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
-					local_chzn_prod_type = gt_rec.ChZnProdType;
-				if(local_chzn_prod_type == GTCHZNPT_MEDICINE) {
-					if(goods_obj.FetchUnit(goods_rec.UnitID, &unit_rec) > 0 && unit_rec.IsFragmentationValid()) {
-						if(r_ln.Quantity > 0.0 && r_ln.Quantity < 1.0) {
-							double ip = 0.0;
-							double nmrtr = 0.0;
-							double dnmntr = 0.0;
-							if(fsplitintofractions(r_ln.Quantity, unit_rec.Fragmentation, 1E-5, &ip, &nmrtr, &dnmntr)) {
-								//str.Z().Cat(R0i(nmrtr)).Slash().Cat(R0i(dnmntr));
-								//CreateStr(str, in_data);
-								//price = price / R0i(dnmntr); // @v12.5.6
-								//qtty_done = true;
-								long   _i_dmntr = R0i(dnmntr);
-								double frac_price = R2(org_price / _i_dmntr);
-								double frac_amt = frac_price * R0i(nmrtr);
-								if(!feqeps(frac_amt, org_amt, 1E-6)) {
-									// @todo
-									amt_defect_increment += (frac_amt - org_amt);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	return ok;
-}
-
 int CCheckPacket::IsEq(const CCheckPacket & rS, long options) const
 {
 	#define CMP_FLD(f) if(Rec.f != rS.Rec.f) return 0

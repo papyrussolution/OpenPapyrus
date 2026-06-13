@@ -56,7 +56,13 @@ static uint16 FASTCALL __MapVk(uint32 vk, uint stateP)
 
 int TView::HandleKeyboardEvent(WPARAM wParam, int isPpyCodeType)
 {
+	bool   debug_mark = false;
 	TEvent event;
+	// @debug {
+	/*if(wParam == 0x77) {
+		debug_mark = true;
+	}*/
+	// } @debug 
 	event.what = TEvent::evKeyDown;
 	if(isPpyCodeType)
 		event.keyDown.keyCode = static_cast<uchar>(wParam);
@@ -76,6 +82,11 @@ int TView::HandleKeyboardEvent(WPARAM wParam, int isPpyCodeType)
 			event.keyDown.keyCode = __MapVk(wParam, 0);
 	}
 	if(event.keyDown.keyCode) {
+		// @debug {
+		/*if(event.keyDown.keyCode == kbF8) {
+			debug_mark = true;
+		}*/
+		// } @debug 
 		handleEvent(event);
 		return 1;
 	}

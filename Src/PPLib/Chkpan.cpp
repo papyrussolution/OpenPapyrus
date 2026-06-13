@@ -555,17 +555,17 @@ int FASTCALL CPosProcessor::Packet::NextIteration(CCheckItem * pItem)
 //
 CPosProcessor::PgsBlock::PgsBlock(PPID goodsID, double qtty) : 
 	GoodsID(goodsID), Flags(0), Qtty((qtty != 0.0) ? qtty : 1.0), PriceBySerial(0.0), AbstractPrice(0.0), ChZnPm_ReqTimestamp(0),
-	PriceByMark(0.0), PriceByMarkPmMrp(0.0), PriceByMarkPmSmp(0.0), CnZnPmCritFlags(CConfig.ChZnPmCrit), ChZnSNTokID(0)
+	PriceByMark(0.0), /*PriceByMarkPmMrp(0.0), PriceByMarkPmSmp(0.0),*/CnZnPmCritFlags(CConfig.ChZnPmCrit), ChZnSNTokID(0), PriceBlk()
 {
-	SETIFZQ(CnZnPmCritFlags, GetDefaultCnZnPmCritFlags()); // @v12.6.5 
-	AllowedPriceRange.Z(); // @v12.2.2
+	SETIFZQ(CnZnPmCritFlags, PPChZnPrcssr::GetDefaultCnZnPmCritFlags()); // @v12.6.5 
+	//AllowedPriceRange.Z(); // @v12.2.2
 }
 
 double CPosProcessor::PgsBlock::GetChZnPrice() const // @v12.5.9
 {
 	double chzn_price = 0.0;
-	if(PriceByMarkPmMrp > 0.0) {
-		chzn_price = PriceByMarkPmMrp;
+	if(PriceBlk.PmMrp > 0.0) {
+		chzn_price = PriceBlk.PmMrp;
 	}
 	else if(PriceByMark > 0.0) {
 		chzn_price = PriceByMark;
@@ -751,7 +751,7 @@ int CPosProcessor::LoadModifiers(PPID goodsID, SaModif & rModif)
 		PPGoodsStruc gs;
 		PPID   gen_goods_id = 0;
 		THROW(r = GObj.LoadGoodsStruc(PPGoodsStruc::Ident(goodsID, GSF_PARTITIAL|GSF_POSMODIFIER, 0, now_date), &gs));
-		if(r < 0 && GObj.BelongToGen(goodsID, &gen_goods_id, 0) > 0) {
+		if(r < 0 && GObj.BelongsToGen(goodsID, &gen_goods_id, 0) > 0) {
 			THROW(r = GObj.LoadGoodsStruc(PPGoodsStruc::Ident(gen_goods_id, GSF_PARTITIAL|GSF_POSMODIFIER, 0, now_date), &gs));
 		}
 		if(r > 0) {
@@ -8565,109 +8565,111 @@ int CheckPaneDialog::SetDlgResizeParams()
 {
 	int    ok = -1;
 	if(!(Flags & fNoEdit)) {
-		if(Flags & fTouchScreen) {
-			PPID   sb_id = MAKE_BUTTON_ID(CTL_CHKPAN_GRPLIST, 1);
-			SString font_face;
-			PPGetSubStr(PPTXT_FONTFACE, /*PPFONT_MSSANSSERIF*/PPFONT_ARIAL, font_face);
-			SetCtrlFont(CTL_CHKPAN_LIST, font_face, /*16*//*22*/18);
-			ResetListWindows(CTL_CHKPAN_GDSLIST);
-			ResetListWindows(CTL_CHKPAN_GRPLIST);
-			SetCtrlResizeParam(CTL_CHKPAN_LIST,        0, 0, CTL_CHKPAN_GDSLIST, 0, crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_GDSLIST,     CTL_CHKPAN_LIST, 0, 0, 0, crfResizeable);
-			SetCtrlResizeParam(MAKE_BUTTON_ID(CTL_CHKPAN_GDSLIST, 1), -1, 0, 0, 0, crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_GRPLIST,     CTL_CHKPAN_GDSLIST, 0, 0, 0, crfLinkLeft | crfResizeable);
-			SetCtrlResizeParam(sb_id,                  -1, 0, 0, 0, crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_ARROW_UP,    sb_id,  0, sb_id, -1, CRF_LINK_LEFTRIGHT | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_ARROW_DOWN,  sb_id, -1, sb_id,  0, CRF_LINK_LEFTRIGHT | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_SELMODIFIER, CTL_CHKPAN_GRPNAME,     0, CTL_CHKPAN_LEVELUP,  -1, crfLinkRight | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_LEVELUP,     CTL_CHKPAN_SELMODIFIER, 0, CTL_CHKPAN_ARROW_UP, -1, crfLinkRight | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_GRPNAME,     CTL_CHKPAN_GDSLIST,   0, 0, -1, crfLinkLeft | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_GRPBOX1,     0,                    -1, CTL_CHKPAN_LIST,  0, crfLinkRight | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_GOODS,       0,                    -1, CTL_CHKPAN_LIST,  0, crfLinkRight | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_QTTY,        0,                    -1, CTL_CHKPAN_INPUT, 0, crfLinkRight | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_PRICE,       CTL_CHKPAN_INFO,      -1, CTL_CHKPAN_SUM, 0, crfLinkLeft | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_SUM,         CTL_CHKPAN_PRICE,     -1, CTL_CHKPAN_GOODS, 0, crfLinkRight | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_TOTAL,       CTL_CHKPAN_TOLOCPRN,  -1, CTL_CHKPAN_LIST, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_DISCOUNT,    CTL_CHKPAN_TOLOCPRN,  -1, CTL_CHKPAN_LIST, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_SETQTTY,     CTL_CHKPAN_ENTER,     -1, CTL_CHKPAN_ENTER, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_SCARD,       CTL_CHKPAN_ENTER,     -1, CTL_CHKPAN_ENTER, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_BYPRICE,     CTL_CHKPAN_CANCEL,    -1, CTL_CHKPAN_CANCEL, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_SELTABLE,    CTL_CHKPAN_CANCEL,    -1, CTL_CHKPAN_CANCEL, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_ENTER,       CTL_CHKPAN_LIST,      -1, CTL_CHKPAN_CANCEL, 0, crfLinkLeft | crfResizeable);
-			SetCtrlResizeParam(STDCTL_OKBUTTON,        CTL_CHKPAN_ENTER,     CTL_CHKPAN_ENTER, CTL_CHKPAN_ENTER, CTL_CHKPAN_ENTER, CRF_LINK_ALL | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_CANCEL,      CTL_CHKPAN_ENTER,     -1, CTL_CHKPAN_CASH, 0, crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_RETCHECK,    CTL_CHKPAN_CASH,      -1, CTL_CHKPAN_CASH, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_SUSPCHECK,   CTL_CHKPAN_CASH,      -1, CTL_CHKPAN_CASH, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_DIVISION,    CTL_CHKPAN_BANKING,   -1, CTL_CHKPAN_BANKING, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_CASHOPER,    CTL_CHKPAN_BANKING,   -1, CTL_CHKPAN_BANKING, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_CASH,        CTL_CHKPAN_CANCEL,    -1, CTL_CHKPAN_BANKING, 0, crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_BANKING,     CTL_CHKPAN_CASH,      -1, CTL_CHKPAN_TOLOCPRN, 0, crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_TOLOCPRN,    CTL_CHKPAN_BANKING,   -1, CTL_CHKPAN_TODEFPRN, 0, crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_TODEFPRN,    CTL_CHKPAN_TOLOCPRN,  -1, CTL_CHKPAN_SELGDSGRP, 0, crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_SELGDSGRP,   CTL_CHKPAN_TODEFPRN,  -1, CTL_CHKPAN_GRPBYDEF, 0, crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_GRPBYDEF,    CTL_CHKPAN_SELGDSGRP, -1, CTL_CHKPAN_LIST, 0, crfLinkRight | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_GRPBOX2,     CTL_CHKPAN_CASH,      -1, CTL_CHKPAN_TODEFPRN, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_GRPBOX3,     CTL_CHKPAN_SELGDSGRP, -1, CTL_CHKPAN_LIST, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_GRPBOX4,     0,                    -1, 0, 0, crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_INPUT,       0,                    -1, CTL_CHKPAN_CASH, 0, crfLinkRight | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_INFO,        CTL_CHKPAN_BANKING,   -1, CTL_CHKPAN_LIST, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_CAFE_STATUS, CTL_CHKPAN_GDSLIST,   -1, 0, 0, crfLinkLeft | crfResizeable);
+		if(!(DlgFlags & fImportedDl600)) { // @v12.6.7 @condition
+			if(Flags & fTouchScreen) {
+				PPID   sb_id = MAKE_BUTTON_ID(CTL_CHKPAN_GRPLIST, 1);
+				SString font_face;
+				PPGetSubStr(PPTXT_FONTFACE, /*PPFONT_MSSANSSERIF*/PPFONT_ARIAL, font_face);
+				SetCtrlFont(CTL_CHKPAN_LIST, font_face, /*16*//*22*/18);
+				ResetListWindows(CTL_CHKPAN_GDSLIST);
+				ResetListWindows(CTL_CHKPAN_GRPLIST);
+				SetCtrlResizeParam(CTL_CHKPAN_LIST,        0, 0, CTL_CHKPAN_GDSLIST, 0, crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_GDSLIST,     CTL_CHKPAN_LIST, 0, 0, 0, crfResizeable);
+				SetCtrlResizeParam(MAKE_BUTTON_ID(CTL_CHKPAN_GDSLIST, 1), -1, 0, 0, 0, crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_GRPLIST,     CTL_CHKPAN_GDSLIST, 0, 0, 0, crfLinkLeft | crfResizeable);
+				SetCtrlResizeParam(sb_id,                  -1, 0, 0, 0, crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_ARROW_UP,    sb_id,  0, sb_id, -1, CRF_LINK_LEFTRIGHT | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_ARROW_DOWN,  sb_id, -1, sb_id,  0, CRF_LINK_LEFTRIGHT | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_SELMODIFIER, CTL_CHKPAN_GRPNAME,     0, CTL_CHKPAN_LEVELUP,  -1, crfLinkRight | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_LEVELUP,     CTL_CHKPAN_SELMODIFIER, 0, CTL_CHKPAN_ARROW_UP, -1, crfLinkRight | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_GRPNAME,     CTL_CHKPAN_GDSLIST,   0, 0, -1, crfLinkLeft | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_GRPBOX1,     0,                    -1, CTL_CHKPAN_LIST,  0, crfLinkRight | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_GOODS,       0,                    -1, CTL_CHKPAN_LIST,  0, crfLinkRight | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_QTTY,        0,                    -1, CTL_CHKPAN_INPUT, 0, crfLinkRight | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_PRICE,       CTL_CHKPAN_INFO,      -1, CTL_CHKPAN_SUM, 0, crfLinkLeft | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_SUM,         CTL_CHKPAN_PRICE,     -1, CTL_CHKPAN_GOODS, 0, crfLinkRight | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_TOTAL,       CTL_CHKPAN_TOLOCPRN,  -1, CTL_CHKPAN_LIST, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_DISCOUNT,    CTL_CHKPAN_TOLOCPRN,  -1, CTL_CHKPAN_LIST, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_SETQTTY,     CTL_CHKPAN_ENTER,     -1, CTL_CHKPAN_ENTER, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_SCARD,       CTL_CHKPAN_ENTER,     -1, CTL_CHKPAN_ENTER, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_BYPRICE,     CTL_CHKPAN_CANCEL,    -1, CTL_CHKPAN_CANCEL, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_SELTABLE,    CTL_CHKPAN_CANCEL,    -1, CTL_CHKPAN_CANCEL, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_ENTER,       CTL_CHKPAN_LIST,      -1, CTL_CHKPAN_CANCEL, 0, crfLinkLeft | crfResizeable);
+				SetCtrlResizeParam(STDCTL_OKBUTTON,        CTL_CHKPAN_ENTER,     CTL_CHKPAN_ENTER, CTL_CHKPAN_ENTER, CTL_CHKPAN_ENTER, CRF_LINK_ALL | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_CANCEL,      CTL_CHKPAN_ENTER,     -1, CTL_CHKPAN_CASH, 0, crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_RETCHECK,    CTL_CHKPAN_CASH,      -1, CTL_CHKPAN_CASH, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_SUSPCHECK,   CTL_CHKPAN_CASH,      -1, CTL_CHKPAN_CASH, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_DIVISION,    CTL_CHKPAN_BANKING,   -1, CTL_CHKPAN_BANKING, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_CASHOPER,    CTL_CHKPAN_BANKING,   -1, CTL_CHKPAN_BANKING, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_CASH,        CTL_CHKPAN_CANCEL,    -1, CTL_CHKPAN_BANKING, 0, crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_BANKING,     CTL_CHKPAN_CASH,      -1, CTL_CHKPAN_TOLOCPRN, 0, crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_TOLOCPRN,    CTL_CHKPAN_BANKING,   -1, CTL_CHKPAN_TODEFPRN, 0, crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_TODEFPRN,    CTL_CHKPAN_TOLOCPRN,  -1, CTL_CHKPAN_SELGDSGRP, 0, crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_SELGDSGRP,   CTL_CHKPAN_TODEFPRN,  -1, CTL_CHKPAN_GRPBYDEF, 0, crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_GRPBYDEF,    CTL_CHKPAN_SELGDSGRP, -1, CTL_CHKPAN_LIST, 0, crfLinkRight | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_GRPBOX2,     CTL_CHKPAN_CASH,      -1, CTL_CHKPAN_TODEFPRN, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_GRPBOX3,     CTL_CHKPAN_SELGDSGRP, -1, CTL_CHKPAN_LIST, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_GRPBOX4,     0,                    -1, 0, 0, crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_INPUT,       0,                    -1, CTL_CHKPAN_CASH, 0, crfLinkRight | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_INFO,        CTL_CHKPAN_BANKING,   -1, CTL_CHKPAN_LIST, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_CAFE_STATUS, CTL_CHKPAN_GDSLIST,   -1, 0, 0, crfLinkLeft | crfResizeable);
+			}
+			else {
+				SetCtrlResizeParam(CTL_CHKPAN_LIST, 0, 0, 0, 0, crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_GRPBOX1, 0, -1, CTL_CHKPAN_TOTAL, 0, crfLinkLeft | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_TOTAL, CTL_CHKPAN_GRPBOX1, -1, 0, 0, crfLinkRight | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_DISCOUNT, CTL_CHKPAN_TOTAL, -1, CTL_CHKPAN_TOTAL, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_GOODS, CTL_CHKPAN_GRPBOX1, -1, CTL_CHKPAN_GRPBOX1, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_QTTY, CTL_CHKPAN_GRPBOX1, -1, CTL_CHKPAN_PRICE, 0, crfLinkLeft | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_PRICE, CTL_CHKPAN_QTTY, -1, CTL_CHKPAN_SUM, 0, crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_SUM, CTL_CHKPAN_PRICE, -1, CTL_CHKPAN_GRPBOX1, 0, crfLinkRight | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_CAFE_STATUS, CTL_CHKPAN_GRPBOX1, -1, CTL_CHKPAN_GRPBOX1, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_GRPBOX4, 0, -1, 0, 0, crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_GRPBOX5, 0, -1, 0, 0, crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_INPUT, CTL_CHKPAN_GRPBOX4, -1, CTL_CHKPAN_INFO, 0, crfLinkLeft | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_INFO, CTL_CHKPAN_INPUT, -1, CTL_CHKPAN_GRPBOX4, 0, crfLinkRight | crfResizeable);
+
+				SetCtrlResizeParam(CTL_CHKPAN_SELGOODS,    CTL_CHKPAN_INPUT,     CTL_CHKPAN_GRPBOX5, -1, 0, crfLinkLeft|crfLinkTop|crfResizeable); // @anchor
+				SetCtrlResizeParam(CTL_CHKPAN_BYPRICE,     CTL_CHKPAN_SELGOODS,  CTL_CHKPAN_GRPBOX5, -1, 0, crfLinkLeft|crfLinkTop|crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_SETQTTY,     CTL_CHKPAN_BYPRICE,   CTL_CHKPAN_GRPBOX5, -1, 0, crfLinkLeft|crfLinkTop|crfResizeable);
+
+				SetCtrlResizeParam(CTL_CHKPAN_ENTER,       CTL_CHKPAN_INPUT,     CTL_CHKPAN_BYPRICE, -1, 0, crfLinkLeft|crfLinkTop|crfResizeable);
+				SetCtrlResizeParam(STDCTL_OKBUTTON,        CTL_CHKPAN_ENTER,     CTL_CHKPAN_ENTER, CTL_CHKPAN_ENTER, CTL_CHKPAN_ENTER, CRF_LINK_ALL | crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_CANCEL,      CTL_CHKPAN_ENTER,     CTL_CHKPAN_BYPRICE, -1, 0, crfLinkLeft|crfLinkTop|crfResizeable);
+
+				SetCtrlResizeParam(CTL_CHKPAN_GRPBOX2,     CTL_CHKPAN_GRPBOX1,   CTL_CHKPAN_GRPBOX5, CTL_CHKPAN_INFO, 0, crfLinkRight|crfLinkTop|crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_CASH,        CTL_CHKPAN_GRPBOX2,   CTL_CHKPAN_GRPBOX2, -1, 0, crfLinkLeft|crfLinkTop|crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_BANKING,     CTL_CHKPAN_CASH,      CTL_CHKPAN_GRPBOX2, -1, 0, crfLinkLeft|crfLinkTop|crfResizeable);
+
+				SetCtrlResizeParam(CTL_CHKPAN_CASHOPER,    -1, CTL_CHKPAN_GRPBOX5, CTL_CHKPAN_GRPBOX5, 0, crfLinkRight|crfLinkTop|crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_SELTABLE,    CTL_CHKPAN_CASH, CTL_CHKPAN_GRPBOX5, CTL_CHKPAN_CASH, 0, crfLinkLeft|crfLinkRight|crfLinkTop|crfResizeable);
+
+				SetCtrlResizeParam(CTL_CHKPAN_TODEFPRN,    -1, CTL_CHKPAN_GRPBOX2, CTL_CHKPAN_GRPBOX2,  0, crfLinkRight|crfLinkTop|crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_TOLOCPRN,    -1, CTL_CHKPAN_GRPBOX2, CTL_CHKPAN_TODEFPRN, 0, crfLinkRight|crfLinkTop|crfResizeable);
+
+				SetCtrlResizeParam(CTL_CHKPAN_DIVISION,    -1, CTL_CHKPAN_GRPBOX5, CTL_CHKPAN_SELTABLE, 0, crfLinkRight|crfLinkTop|crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_SCARD,       -1, CTL_CHKPAN_GRPBOX5, CTL_CHKPAN_DIVISION, 0, crfLinkRight|crfLinkTop|crfResizeable);
+
+				SetCtrlResizeParam(CTL_CHKPAN_RETCHECK,    -1, CTL_CHKPAN_GRPBOX2, CTL_CHKPAN_CASH,     0, crfLinkRight|crfLinkTop|crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_SUSPCHECK,   -1, CTL_CHKPAN_GRPBOX2, CTL_CHKPAN_RETCHECK, 0, crfLinkRight|crfLinkTop|crfResizeable);
+
+				SetCtrlResizeParam(CTL_CHKPAN_GRPBOX4,     0,                    -1, 0, 0, crfResizeable);
+
+				SetCtrlResizeParam(CTL_CHKPAN_BIGHINT,    CTL_CHKPAN_SETQTTY, CTL_CHKPAN_GRPBOX5, CTL_CHKPAN_BIGHINT_KB, 0, crfLinkLeft|crfLinkTop|crfLinkRight|crfResizeable);
+				SetCtrlResizeParam(CTL_CHKPAN_BIGHINT_KB, CTL_CHKPAN_INFO,    CTL_CHKPAN_GRPBOX5, CTL_CHKPAN_SCARD, 0, crfLinkLeft|crfLinkTop|crfLinkRight|crfResizeable);
+				/*
+				LinkCtrlsToDlgBorders(CRF_LINK_LEFTBOTTOM, CTL_CHKPAN_HINT1, CTL_CHKPAN_KBHINT1,
+					CTL_CHKPAN_HINT2, CTL_CHKPAN_KBHINT2, CTL_CHKPAN_HINT3, CTL_CHKPAN_KBHINT3,
+					CTL_CHKPAN_HINT4, CTL_CHKPAN_KBHINT4, CTL_CHKPAN_HINT5, CTL_CHKPAN_KBHINT5,
+					CTL_CHKPAN_HINT6, CTL_CHKPAN_KBHINT6, CTL_CHKPAN_HINT7, CTL_CHKPAN_KBHINT7, 0L);
+				*/
+			}
+	//#ifdef NDEBUG
+			ResizeDlgToFullScreen();
+	//#endif
+			//UpdateGList(0, 0); // Формируем список товарных групп
+			ok = 1;
 		}
-		else {
-			SetCtrlResizeParam(CTL_CHKPAN_LIST, 0, 0, 0, 0, crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_GRPBOX1, 0, -1, CTL_CHKPAN_TOTAL, 0, crfLinkLeft | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_TOTAL, CTL_CHKPAN_GRPBOX1, -1, 0, 0, crfLinkRight | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_DISCOUNT, CTL_CHKPAN_TOTAL, -1, CTL_CHKPAN_TOTAL, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_GOODS, CTL_CHKPAN_GRPBOX1, -1, CTL_CHKPAN_GRPBOX1, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_QTTY, CTL_CHKPAN_GRPBOX1, -1, CTL_CHKPAN_PRICE, 0, crfLinkLeft | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_PRICE, CTL_CHKPAN_QTTY, -1, CTL_CHKPAN_SUM, 0, crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_SUM, CTL_CHKPAN_PRICE, -1, CTL_CHKPAN_GRPBOX1, 0, crfLinkRight | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_CAFE_STATUS, CTL_CHKPAN_GRPBOX1, -1, CTL_CHKPAN_GRPBOX1, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_GRPBOX4, 0, -1, 0, 0, crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_GRPBOX5, 0, -1, 0, 0, crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_INPUT, CTL_CHKPAN_GRPBOX4, -1, CTL_CHKPAN_INFO, 0, crfLinkLeft | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_INFO, CTL_CHKPAN_INPUT, -1, CTL_CHKPAN_GRPBOX4, 0, crfLinkRight | crfResizeable);
-
-			SetCtrlResizeParam(CTL_CHKPAN_SELGOODS,    CTL_CHKPAN_INPUT,     CTL_CHKPAN_GRPBOX5, -1, 0, crfLinkLeft|crfLinkTop|crfResizeable); // @anchor
-			SetCtrlResizeParam(CTL_CHKPAN_BYPRICE,     CTL_CHKPAN_SELGOODS,  CTL_CHKPAN_GRPBOX5, -1, 0, crfLinkLeft|crfLinkTop|crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_SETQTTY,     CTL_CHKPAN_BYPRICE,   CTL_CHKPAN_GRPBOX5, -1, 0, crfLinkLeft|crfLinkTop|crfResizeable);
-
-			SetCtrlResizeParam(CTL_CHKPAN_ENTER,       CTL_CHKPAN_INPUT,     CTL_CHKPAN_BYPRICE, -1, 0, crfLinkLeft|crfLinkTop|crfResizeable);
-			SetCtrlResizeParam(STDCTL_OKBUTTON,        CTL_CHKPAN_ENTER,     CTL_CHKPAN_ENTER, CTL_CHKPAN_ENTER, CTL_CHKPAN_ENTER, CRF_LINK_ALL | crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_CANCEL,      CTL_CHKPAN_ENTER,     CTL_CHKPAN_BYPRICE, -1, 0, crfLinkLeft|crfLinkTop|crfResizeable);
-
-			SetCtrlResizeParam(CTL_CHKPAN_GRPBOX2,     CTL_CHKPAN_GRPBOX1,   CTL_CHKPAN_GRPBOX5, CTL_CHKPAN_INFO, 0, crfLinkRight|crfLinkTop|crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_CASH,        CTL_CHKPAN_GRPBOX2,   CTL_CHKPAN_GRPBOX2, -1, 0, crfLinkLeft|crfLinkTop|crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_BANKING,     CTL_CHKPAN_CASH,      CTL_CHKPAN_GRPBOX2, -1, 0, crfLinkLeft|crfLinkTop|crfResizeable);
-
-			SetCtrlResizeParam(CTL_CHKPAN_CASHOPER,    -1, CTL_CHKPAN_GRPBOX5, CTL_CHKPAN_GRPBOX5, 0, crfLinkRight|crfLinkTop|crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_SELTABLE,    CTL_CHKPAN_CASH, CTL_CHKPAN_GRPBOX5, CTL_CHKPAN_CASH, 0, crfLinkLeft|crfLinkRight|crfLinkTop|crfResizeable);
-
-			SetCtrlResizeParam(CTL_CHKPAN_TODEFPRN,    -1, CTL_CHKPAN_GRPBOX2, CTL_CHKPAN_GRPBOX2,  0, crfLinkRight|crfLinkTop|crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_TOLOCPRN,    -1, CTL_CHKPAN_GRPBOX2, CTL_CHKPAN_TODEFPRN, 0, crfLinkRight|crfLinkTop|crfResizeable);
-
-			SetCtrlResizeParam(CTL_CHKPAN_DIVISION,    -1, CTL_CHKPAN_GRPBOX5, CTL_CHKPAN_SELTABLE, 0, crfLinkRight|crfLinkTop|crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_SCARD,       -1, CTL_CHKPAN_GRPBOX5, CTL_CHKPAN_DIVISION, 0, crfLinkRight|crfLinkTop|crfResizeable);
-
-			SetCtrlResizeParam(CTL_CHKPAN_RETCHECK,    -1, CTL_CHKPAN_GRPBOX2, CTL_CHKPAN_CASH,     0, crfLinkRight|crfLinkTop|crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_SUSPCHECK,   -1, CTL_CHKPAN_GRPBOX2, CTL_CHKPAN_RETCHECK, 0, crfLinkRight|crfLinkTop|crfResizeable);
-
-			SetCtrlResizeParam(CTL_CHKPAN_GRPBOX4,     0,                    -1, 0, 0, crfResizeable);
-
-			SetCtrlResizeParam(CTL_CHKPAN_BIGHINT,    CTL_CHKPAN_SETQTTY, CTL_CHKPAN_GRPBOX5, CTL_CHKPAN_BIGHINT_KB, 0, crfLinkLeft|crfLinkTop|crfLinkRight|crfResizeable);
-			SetCtrlResizeParam(CTL_CHKPAN_BIGHINT_KB, CTL_CHKPAN_INFO,    CTL_CHKPAN_GRPBOX5, CTL_CHKPAN_SCARD, 0, crfLinkLeft|crfLinkTop|crfLinkRight|crfResizeable);
-			/*
-			LinkCtrlsToDlgBorders(CRF_LINK_LEFTBOTTOM, CTL_CHKPAN_HINT1, CTL_CHKPAN_KBHINT1,
-				CTL_CHKPAN_HINT2, CTL_CHKPAN_KBHINT2, CTL_CHKPAN_HINT3, CTL_CHKPAN_KBHINT3,
-				CTL_CHKPAN_HINT4, CTL_CHKPAN_KBHINT4, CTL_CHKPAN_HINT5, CTL_CHKPAN_KBHINT5,
-				CTL_CHKPAN_HINT6, CTL_CHKPAN_KBHINT6, CTL_CHKPAN_HINT7, CTL_CHKPAN_KBHINT7, 0L);
-			*/
-		}
-//#ifdef NDEBUG
-		ResizeDlgToFullScreen();
-//#endif
-		UpdateGList(0, 0);  // Формируем список товарных групп
-		ok = 1;
 	}
 	return ok;
 }
@@ -10328,8 +10330,8 @@ int CheckPaneDialog::VerifyChZnMark(PgsBlock & rBlk, int chznProdType/*gt_rec.Ch
 	if(rBlk.ChZnMark.NotEmpty() && PNP.ChZnPermissiveMode == PPSyncCashNode::chznpmStrict && PNP.ChZnGuaID) {
 		ok = 1;
 		PPChZnPrcssr::CodeStatusCollection pm_code_list;
-		pm_code_list.AddCodeEntry(rBlk.ChZnMark, 0, 0);
-		if(pm_code_list.getCount()) {
+		pm_code_list.AddCodeEntry(rBlk.ChZnMark, 0, chznProdType, 0);
+		if(pm_code_list.getCount() == 1) {
 			DS.GetTLA().AddedMsgString.Z();
 			int    verif_result = 0;
 			if(use_tspiot) {
@@ -10341,12 +10343,34 @@ int CheckPaneDialog::VerifyChZnMark(PgsBlock & rBlk, int chznProdType/*gt_rec.Ch
 			// @v12.6.5 {
 			if(!verif_result) {
 				SString added_msg = DS.GetConstTLA().AddedMsgString;
-				if (added_msg.IsEmpty())
+				if(added_msg.IsEmpty())
 					added_msg = rBlk.ChZnMark;
 				ok = MessageError(PPErrCode, added_msg, eomBeep|eomStatusLine);
 			}
-			else // } @v12.6.5 
-			{
+			else { // } @v12.6.5 
+#if 1 // @v12.6.7 {
+				const  int pmcvrr = PPChZnPrcssr::PmCheck_VerifyResult(pm_code_list); // @v12.6.7
+				if(pmcvrr) {
+					rBlk.ChZnPm_ReqId = pm_code_list.ReqId;
+					rBlk.ChZnPm_ReqTimestamp = pm_code_list.ReqTimestamp;
+					rBlk.ChZnPm_LocalModuleInstance = pm_code_list.LocalModuleInstance; // @v12.3.12
+					rBlk.ChZnPm_LocalModuleDbVer    = pm_code_list.LocalModuleDbVer;    // @v12.3.12
+				}
+				else {
+					assert(pm_code_list.getCount() == 1);
+					bool   local_done = false;
+					for(uint cli = 0; !local_done && cli < pm_code_list.getCount(); cli++) {
+						PPChZnPrcssr::CodeStatus * p_pm_item = pm_code_list.at(cli);
+						if(p_pm_item && p_pm_item->ErrorCode) {
+							ok = MessageError(p_pm_item->InternalErrCode, p_pm_item->OrgMark, eomBeep|eomStatusLine);
+							local_done = true;
+						}
+					}
+					if(!local_done) {
+						ok = MessageError(PPERR_CHZNMARKPMFAULT, rBlk.ChZnMark, eomBeep|eomStatusLine);
+					}
+				}
+#else // @v12.6.7 {
 				//
 				// Следующие два кода - тестовые коды для проверки тс пиот. Педрилы из црпт включили их в тест
 				// offline-режима с утверждением, что их уебищный тс пиот вкупе с не менее уебищным локальным модулем
@@ -10358,13 +10382,13 @@ int CheckPaneDialog::VerifyChZnMark(PgsBlock & rBlk, int chznProdType/*gt_rec.Ch
 					"0104607010350246215kRdG-X%W(Rnb93dGVz"
 				};
 				const  uint chzn_pm_crit_flags = (pm_code_list.Flags & PPChZnPrcssr::CodeStatusCollection::fCheckedOffline) ? 
-					PgsBlock::chznpmcritBlocked : rBlk.CnZnPmCritFlags;
+					PPChZnPrcssr::chznpmcritBlocked : rBlk.CnZnPmCritFlags;
 				for(uint i = 0; i < pm_code_list.getCount(); i++) {
 					const PPChZnPrcssr::CodeStatus * p_cle = pm_code_list.at(i);
 					if(p_cle) {
 						const  long ccfg_f2 = CConfig.Flags2__;
-						rBlk.PriceByMarkPmMrp = R2(p_cle->Mrp / 100.0);
-						rBlk.PriceByMarkPmSmp = R2(p_cle->Smp / 100.0);
+						rBlk.PriceBlk.PmMrp = R2(p_cle->Mrp / 100.0);
+						rBlk.PriceBlk.PmSmp = R2(p_cle->Smp / 100.0);
 						if(ccfg_f2 & CCFLG2_RESTRICTCHZNPMPRICE) { // @v12.2.5
 							// 3 tobacco Табачная продукция
 							// 16 ncp Никотинсодержащая продукция
@@ -10373,34 +10397,34 @@ int CheckPaneDialog::VerifyChZnMark(PgsBlock & rBlk, int chznProdType/*gt_rec.Ch
 								// Минимальная цена – для товарной группы с groupIds = 16 : В копейках
 							// @v12.2.2 {
 							if(chznProdType != GTCHZNPT_ALTTOBACCO) { // @v12.2.4 Для альтернативной табачной продукции ценовое ограничение не проверяем.
-								if(rBlk.PriceByMarkPmMrp > 0.0) {
+								if(rBlk.PriceBlk.PmMrp > 0.0) {
 									if(chznProdType == GTCHZNPT_NCP) { // @v12.6.5
-										rBlk.AllowedPriceRange.low = rBlk.PriceByMarkPmMrp; 
+										rBlk.PriceBlk.AllowedRange.low = rBlk.PriceBlk.PmMrp; 
 									}
 									else {
-										rBlk.AllowedPriceRange.upp = rBlk.PriceByMarkPmMrp;
+										rBlk.PriceBlk.AllowedRange.upp = rBlk.PriceBlk.PmMrp;
 									}
 								}
-								if(rBlk.PriceByMarkPmSmp > 0.0) {
+								if(rBlk.PriceBlk.PmSmp > 0.0) {
 									if(chznProdType == GTCHZNPT_NCP) {
 										;
 									}
 									else {
 										// @v12.6.5 (очень уебищный костыль для того, чтобы преодолеть еще более уебищное ограничение блядского честного знака) {
 										if(rBlk.ChZnSNTokID == SNTOK_CHZN_CIGBLOCK) {
-											rBlk.AllowedPriceRange.low = rBlk.PriceByMarkPmSmp * 10;
+											rBlk.PriceBlk.AllowedRange.low = rBlk.PriceBlk.PmSmp * 10;
 										}
 										else // } @v12.6.5 
 										{
-											rBlk.AllowedPriceRange.low = rBlk.PriceByMarkPmSmp;
+											rBlk.PriceBlk.AllowedRange.low = rBlk.PriceBlk.PmSmp;
 										}
 									}
 								}
 								// @v12.2.4 {
 								if(chznProdType == GTCHZNPT_TOBACCO) { // @v12.2.5 @fix (!=)-->(==)
 									if(ccfg_f2 & CCFLG2_RESTRICTCHZNCIGPRICEASMRC) {
-										if(rBlk.PriceByMarkPmMrp > 0.0) {
-											rBlk.AllowedPriceRange.SetVal(rBlk.PriceByMarkPmMrp);
+										if(rBlk.PriceBlk.PmMrp > 0.0) {
+											rBlk.PriceBlk.AllowedRange.SetVal(rBlk.PriceBlk.PmMrp);
 										}
 									}
 								}
@@ -10411,8 +10435,8 @@ int CheckPaneDialog::VerifyChZnMark(PgsBlock & rBlk, int chznProdType/*gt_rec.Ch
 						// @v12.5.11 (дабы CCFLG2_RESTRICTCHZNCIGPRICEASMRC работал без CCFLG2_RESTRICTCHZNPMPRICE) {
 						else if(ccfg_f2 & CCFLG2_RESTRICTCHZNCIGPRICEASMRC) {
 							if(chznProdType == GTCHZNPT_TOBACCO) {
-								if(rBlk.PriceByMarkPmMrp > 0.0) {
-									rBlk.AllowedPriceRange.SetVal(rBlk.PriceByMarkPmMrp);
+								if(rBlk.PriceBlk.PmMrp > 0.0) {
+									rBlk.PriceBlk.AllowedRange.SetVal(rBlk.PriceBlk.PmMrp);
 								}
 							}
 						}
@@ -10439,28 +10463,28 @@ int CheckPaneDialog::VerifyChZnMark(PgsBlock & rBlk, int chznProdType/*gt_rec.Ch
 							}
 							else if(p_cle->ErrorCode != 0)
 								local_err_code = PPERR_CHZNMARKPMFAULT;
-							else if((chzn_pm_crit_flags & rBlk.chznpmcritNotFound) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fFound))
+							else if((chzn_pm_crit_flags & PPChZnPrcssr::chznpmcritNotFound) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fFound))
 								local_err_code = PPERR_CHZNMARKPMFAULT_NOTFOUND;
-							else if((chzn_pm_crit_flags & rBlk.chznpmcritNotValid) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fValid))
+							else if((chzn_pm_crit_flags & PPChZnPrcssr::chznpmcritNotValid) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fValid))
 								local_err_code = PPERR_CHZNMARKPMFAULT_NOTVALID;
-							else if((chzn_pm_crit_flags & rBlk.chznpmcritNotVerified) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fVerified))
+							else if((chzn_pm_crit_flags & PPChZnPrcssr::chznpmcritNotVerified) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fVerified))
 								local_err_code = PPERR_CHZNMARKPMFAULT_NOTVERIFIED;
-							else if((chzn_pm_crit_flags & rBlk.chznpmcritNotRealizable) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fRealizable)) {
-								if((p_cle->Flags & rBlk.chznpmcritNotRlzblGzExcl) && (p_cle->Flags & PPChZnPrcssr::CodeStatus::fGrayZone)) {
+							else if((chzn_pm_crit_flags & PPChZnPrcssr::chznpmcritNotRealizable) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fRealizable)) {
+								if((p_cle->Flags & PPChZnPrcssr::chznpmcritNotRlzblGzExcl) && (p_cle->Flags & PPChZnPrcssr::CodeStatus::fGrayZone)) {
 									; // Исключение! Какая-то серая зона и продажа разрешена (цуй его знает что это значит)
 								}
 								else
 									local_err_code = PPERR_CHZNMARKPMFAULT_NOTREALIZABLE;
 							}
-							else if((chzn_pm_crit_flags & rBlk.chznpmcritNotUtilised) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fUtilised))
+							else if((chzn_pm_crit_flags & PPChZnPrcssr::chznpmcritNotUtilised) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fUtilised))
 								local_err_code = PPERR_CHZNMARKPMFAULT_NOTUTILISED;
-							else if((chzn_pm_crit_flags & rBlk.chznpmcritNotOwner) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fIsOwner)) // @v12.6.3
+							else if((chzn_pm_crit_flags & PPChZnPrcssr::chznpmcritNotOwner) && !(p_cle->Flags & PPChZnPrcssr::CodeStatus::fIsOwner)) // @v12.6.3
 								local_err_code = PPERR_CHZNMARKPMFAULT_NOTOWNED;
-							else if((chzn_pm_crit_flags & rBlk.chznpmcritBlocked) && (p_cle->Flags & PPChZnPrcssr::CodeStatus::fIsBlocked))
+							else if((chzn_pm_crit_flags & PPChZnPrcssr::chznpmcritBlocked) && (p_cle->Flags & PPChZnPrcssr::CodeStatus::fIsBlocked))
 								local_err_code = PPERR_CHZNMARKPMFAULT_BLOCKED;
-							else if((chzn_pm_crit_flags & rBlk.chznpmcritSold) && (p_cle->Flags & PPChZnPrcssr::CodeStatus::fSold))
+							else if((chzn_pm_crit_flags & PPChZnPrcssr::chznpmcritSold) && (p_cle->Flags & PPChZnPrcssr::CodeStatus::fSold))
 								local_err_code = PPERR_CHZNMARKPMFAULT_SOLD;
-							else if((chzn_pm_crit_flags & rBlk.chznpmcritExpiry) && checkdate(p_cle->ExpiryDtm.d) && getcurdate_() >= p_cle->ExpiryDtm.d) { // @v12.1.1
+							else if((chzn_pm_crit_flags & PPChZnPrcssr::chznpmcritExpiry) && checkdate(p_cle->ExpiryDtm.d) && getcurdate_() >= p_cle->ExpiryDtm.d) { // @v12.1.1
 								local_err_code = PPERR_CHZNMARKPMFAULT_EXPIRY;
 							}
 							if(local_err_code) {
@@ -10476,6 +10500,7 @@ int CheckPaneDialog::VerifyChZnMark(PgsBlock & rBlk, int chznProdType/*gt_rec.Ch
 						}
 					}
 				}
+#endif // } @v12.6.7
 			}
 		}
 	}
@@ -12990,8 +13015,8 @@ int CPosProcessor::SetupNewRow(PgsBlock & rBlk, PPID giftID/*=0*/)
 							}
 						}
 						// @v12.2.2 {
-						if(!rBlk.AllowedPriceRange.CheckValEps(r_item.Price, 1E-7)) {
-							const RealRange & r_range = rBlk.AllowedPriceRange;
+						if(!rBlk.PriceBlk.AllowedRange.CheckValEps(r_item.Price, 1E-7)) {
+							const RealRange & r_range = rBlk.PriceBlk.AllowedRange;
 							if(r_range.low > 0.0 && r_item.Price < r_range.low) {
 								temp_buf.Z().Cat(r_range.low, SFMT_MONEY).Space().Cat(/* @v12.5.9 GetGoodsName(rBlk.GoodsID, SLS.AcquireRvlStr())*/rgi.Name);
 								ok = MessageError(PPERR_PRICERESTRLOW, temp_buf, eomStatusLine|eomBeep);

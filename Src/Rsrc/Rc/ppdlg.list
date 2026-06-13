@@ -169,6 +169,7 @@ launcapp.dlg // @uiview DLG_LAUNCHAPP
 F_LOT.DLG    // @uiview DLG_FLTLOT
 F_LOTORD.DLG // @uiview DLG_FLTLOTORD
 cf_goods.dlg // @uiview DLG_GDSCFG
+LOCVIEW.DLG  // @uiview DLG_LOCVIEW
 BILLAMT.DLG  // @unused
 ABCANLZ.DLG  // DLG_ABCANLZ
 ABOUT.DLG
@@ -608,7 +609,6 @@ licreg.dlg
 licupd.dlg
 LNKFILES.DLG
 LOCPRN.DLG
-LOCVIEW.DLG
 LOGIN.DLG
 LOGIND.DLG
 LOGS.DLG

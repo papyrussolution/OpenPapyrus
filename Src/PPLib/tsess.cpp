@@ -388,7 +388,7 @@ int TSessionCore::CalcGoodsTotal(PPID sessID, PPID goodsID, TSessGoodsTotal * pT
 			is_grp = 1;
 	for(InitLineEnum(sessID, &eh); NextLineEnum(eh, &line_rec) > 0;) {
 		if(!goodsID || line_rec.GoodsID == goodsID ||
-			(is_gen && goods_obj.BelongToGen(line_rec.GoodsID, &goodsID, 0) > 0) ||
+			(is_gen && goods_obj.BelongsToGen(line_rec.GoodsID, &goodsID, 0) > 0) ||
 			(is_grp && goods_obj.BelongToGroup(line_rec.GoodsID, goodsID, 0) > 0)) {
 			pTotal->Count++;
 			pTotal->Qtty = faddwsign(pTotal->Qtty, line_rec.Qtty, line_rec.Sign);

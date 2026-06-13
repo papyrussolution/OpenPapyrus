@@ -982,6 +982,7 @@ typedef int32               TYPEID;
 #define SLERR_ZIP_LASTERROR                    622  // @anchor
 #define SLERR_ZLIB_BUFINFLATEFAULT             623  // @v11.2.9 Ошибка распаковки буфера данных
 #define SLERR_SSYSBU_INFORDFAULT               624  // @v11.8.12 Ошибка чтения файла информации о резервной копии SSystemBackup (%s)
+#define SLERR_BINSET_DATAENCRYPTED             625  // @v12.6.7 Ошибка получения данных из SBinarySet: данные зашифрованы, используйте функцию GetEncrypted()
 
 #define SLERR_CRYPTO_INVPARAM                  651  // @v11.0.11 Ошибка SLCRYPTO - недопустимый параметр функции
 #define SLERR_CRYPTO_KEYBUFOVRFLW              652  // @v11.0.11 Ошибка SLCRYPTO - переполнение внутреннего буфера ключа
@@ -10488,12 +10489,7 @@ public:
 	//
 	// 
 	// 
-	static bool  MakeCompositeKey(const TSCollection <SBinaryChunk> & rSrcSet, SBinaryChunk & rResult);
-	//
-	//
-	//
-	static bool   MakeEncapsulatedKey(const void * pSrcKey, size_t srcKeySize, size_t drvKeySize, SlCrypto::Key & rResult); // @v12.6.4 @construction
-	static void * EncapsulateKey(const void * pSrcKey, size_t srcKeySize, size_t drvKeySize); // @v12.6.4 @construction
+	static void * EncapsulateKey(const void * pKey, size_t keySize); // @v12.6.4
 	//
 	// ARG(rResult OUT): Не распределяйте память для этого буфера, а после использования вызовите Zero() and Destroy()
 	//
@@ -10511,10 +10507,8 @@ public:
 	int    SetupKey(SlCrypto::Key & rK, const void * pKey, size_t keyByteLen, const void * pIv, size_t ivLen);
 	int    SetupKey(SlCrypto::Key & rK, const void * pKey, size_t keyByteLen);
 	int    SetupKey(SlCrypto::Key & rK, const char * pPassword);
-
 	int    SetKey_IV(SlCrypto::Key & rK, const void * pData, size_t size); // @v12.6.3
 	int    SetKey_AAD(SlCrypto::Key & rK, const void * pData, size_t size); // @v12.6.3
-
 	int    Encrypt_(const SlCrypto::Key * pKey, const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen);
 	int    Decrypt_(const SlCrypto::Key * pKey, const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen);
 	int    Encrypt(const SlCrypto::Key & rKey, const void * pData, size_t dataLen, SBinaryChunk & rResult, SBinaryChunk * pTag);
@@ -10662,19 +10656,18 @@ class SBinarySet : private SBaseBuffer {
 public:
 	//
 	// Descr: Структура заголовка защищенного отрезка.
-	//   Полезные данные хранятся в защифрованном виде между ProtectedChunkV1_Prolog и ProtectedChunkV1_Epilog.
-	//   Алгоритм шифрования: AES-256-GCM
+	//   Полезные данные хранятся в защифрованном виде после ProtectedChunkV1_Prolog.
+	//   Алгоритм шифрования: (AES-256-GCM зачеркнуто) определяется полем UedSymmetricCipher
 	//
 	struct ProtectedChunkV1_Prolog { // @v12.6.2 @construction
 		uint32 Signature; // const=SlConst::SBSCryptoSignature Константная сигнатура, означающая что данные сжаты. 32 бит здесь достаточно поскольку
 			// дополнительной проверкой будет служить ид UedSymmetricCipher, который должен соответствовать строгим правила UED-идентификаторов.
 		uint64 UedSymmetricCipher; // Идентификатор алгоритма шифрования. Одновременно работает как сигнатура //
-		binary128 IV;     // GCM nonce. В зависимости от алгоритма может быть использована только часть блока.
-		binary128 Tag;    // GCM tag
-		uint16 IvSize;    // Эффективный размер блока IV
-		uint16 TagSize;   // Эффективный размер блока Tag (в эпилоге)
+		uint16 IvSize;    // Эффективный размер блока IV  (Ext+0)
+		uint16 TagSize;   // Эффективный размер блока Tag (Ext+IvSize)
 		uint32 Flags;     // @reserve
 		uint32 PlainSize; // Размер исходных незашифрованных данных (для корректной распаковки)
+		uint8  Ext[32];   // Здесь хранятся IV и Tag (именно в такой последовательности). Размеры их, соответственно, IvSize и TagSize
 	};
 	//
 	// Нулевой идентификатор обозначает свободный блок
@@ -10715,14 +10708,6 @@ public:
 		uint16 MinChunkSizeToCompress;
 		int16  CompressMethod; // Reserved.
 	};
-
-	struct CryptoStrategy {
-		CryptoStrategy();
-		uint64 UedSymmCipher;
-		//SlCrypto::KdfParam ArgonP;
-		DeflateStrategy DS;
-		//SString MasterPassword;
-	};
 	//
 	// Descr: Сохраняет отрезок данных pData с идентификатором id и размером size в пуле.
 	//   Если pData == 0 или size == 0, то, если отрезок с идентификатором id будет
@@ -10737,7 +10722,11 @@ public:
 	//
 	// ARG(pKeyRef IN): ссылка на ключ шифрования. Подробностей не будет (see source code).
 	//
-	int    PutEncrypted(uint32 id, const void * pData, uint32 size, const CryptoStrategy & rStrategy, void * pKeyRef); // @v12.6.2
+	int    PutEncrypted(uint32 id, const void * pData, uint32 size, uint64 uedSymmCipher, void * pKeyRef, const DeflateStrategy * pDs = 0); // @v12.6.7
+	//
+	// Note: Увы, не удалось отделаться общей функцией Get() и для зашифрованных и открытых данных: все из-за того, что ключ шифрования передать надо :(
+	//
+	int    GetEncrypted(uint32 id, void * pKeyRef, SBinaryChunk * pResult) const;
 	//
 	// Descr: Ищет отрезок с идентификатором id в пуле и, если таковой найден, то
 	//   копирует содержимое отрезка в буфер по указателю pResult (если pResult != 0).
@@ -10881,20 +10870,23 @@ public:
 	// Не уверен, что это важно, но на всякий случай, пока есть возможность, пусть будет так.
 	//
 	enum { // @persistent
-		tagCryptoStrategy  = 401, // Набор параметров, определяющих технику шифрования данных
-		tagKeyVerification = 402, // Блок параметров верификации мастер-пароля //
+		tagKeyVerification = 401, // Блок параметров верификации мастер-пароля //
 	};
-
-	SVaultPool();
-	int    SetupPrimaryPassword(const char * pPw, size_t pwLen);
-	int    CheckInPrimaryPassword(const char * pPw, size_t pwLen);
-private:
 	//
 	// Так как по значениям идентификаторов внутри хранилища (InternalId) есть ограничения, то вводим две
 	//   функции, которые переводят (если могут) внешние идентификаторы во внутрениие и наоборот.
 	//
-	uint32 MakeInternalId(uint32 outerId) const;
-	uint32 MakeOuterId(uint32 internalId) const;
+	static uint32 MakeInternalId(uint32 outerId);
+	static uint32 MakeOuterId(uint32 internalId);
+
+	SVaultPool();
+	~SVaultPool();
+	int    SetupPrimaryPassword(const char * pPw, size_t pwLen);
+	int    CheckInPrimaryPassword(const char * pPw, size_t pwLen);
+	uint64 GetKeyRef() const;
+	uint64 GetUedSymmCipher() const;
+private:
+	void * P_KeyRef; // Ссылка на ключ шифрования //
 };
 //
 // Descr: Алгоритмы расчета контрольной цифры
@@ -12506,6 +12498,14 @@ struct SStrScan : public SRegExpSet {
 	//
 	int    GetEqN(SString & rKey, double & rVal);
 	//
+	// Descr: Если следующая последовательность равна: key = unsigned-int-number
+	//   то копирует key в rKey, unsigned-int-number в rVal и перемещает указатель в позицию, следующую за "value"
+	// Returns:
+	//   >0 - сработало обнаружение конструкции
+	//   0  - конструкция не обнаружена
+	//
+	int    GetEqU(SString & rKey, uint64 & rVal);
+	//
 	// Descr: Если текущий символ вместе, возможно, с последующими, является допустимым UTF8 символом, то
 	//   копирует все необходимые символы в буфер rBuf и возвращает количество скопированных символов.
 	//   В противном случае возвращает 0.
@@ -12624,8 +12624,9 @@ struct SStrScan : public SRegExpSet {
 	size_t Offs;
 	size_t Len;
 private:
+	bool   GetEqQIdent_(SString & rBuf);
+
 	const  char * P_Buf;
-private:
 	TSStack <size_t> Stk;
 	mutable STokenRecognizer * P_Tr; // @v11.9.1
 	mutable SNaturalTokenArray * P_NtA; // @v11.9.1 @fastreuse
@@ -14250,6 +14251,7 @@ struct SJson {
 	//    0 - pN - не массив или не содержит ни одной строки.
 	//
 	static int  GetArrayAsStringSet(const SJson * pN, StringSet & rResult); // @v12.5.12
+	static int  SetArrayAsStringSet(SJson * pN, const StringSet & rSet); // @v12.6.7
 	//
 	// Descr: Если pN является массивом, то забирает из него все элементы, которые имеют тип SJson::tNUMBER,
 	//   и помещает в набор rResult. При этом, если значение не может быть преобразовано в long из-за того, что слишком большое,
@@ -20379,17 +20381,17 @@ public:
 	struct Benchmark {
 		MemHeapTracer::Stat HeapBefore;
 		MemHeapTracer::Stat HeapAfter;
-		int64  Timing;       // Чистое время исполнения потока
-		int64  SysTiming;    // Системное время исполнения //
+		int64  Timing;    // Чистое время исполнения потока
+		int64  SysTiming; // Системное время исполнения //
 	};
 	struct Entry {
 		Entry();
 
 		SString TestName;
-		SString Descr;        // descr=
-		SString InPath;       // input=
-		SString OutPath;      // output=
-		SString DefTabName;   // tab=
+		SString Descr;      // descr=
+		SString InPath;     // input=
+		SString OutPath;    // output=
+		SString DefTabName; // tab=
 		StringSet ArgList;
 		StringSet BenchmarkList;
 		uint   MaxCount;
@@ -20722,7 +20724,7 @@ struct BdtTestItem {
     BdtTestItem::Buffer IKM;     // "IKM"
     BdtTestItem::Buffer XTS;     // "XTS"
     BdtTestItem::Buffer Nonce;   // "Nonce"
-	BdtTestItem::Buffer Aad;     // "AD" // @v11.4.10
+	BdtTestItem::Buffer Aad;     // "AD"
 
 //Salt = 000102030405060708090A0B0C
 //Label = F0F1F2F3F4F5F6F7F8F9

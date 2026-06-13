@@ -98,7 +98,7 @@ SLTEST_R(UED)
 			SphericalDirection sd(test_val_list[i]); 
 			uint64 ued_ = UED::SetRaw_SphDir(sd);
 			SLCHECK_NZ(ued_);
-			SLCHECK_NZ(UED::BelongToMeta(ued_, UED_META_SPHERDIR));
+			SLCHECK_NZ(UED::BelongsToMeta(ued_, UED_META_SPHERDIR));
 			SphericalDirection sd_;
 			SLCHECK_NZ(UED::GetRaw_SphDir(ued_, sd_));
 			SLCHECK_NZ(sd_.IsEqTol(sd, 1e-5));
@@ -132,7 +132,7 @@ SLTEST_R(UED)
 				SUniTime_Internal ut(SCtrGenerate_);
 				uint64 ued = UED::_SetRaw_Time(meta, ut);
 				SLCHECK_NZ(ued);
-				SLCHECK_NZ(UED::BelongToMeta(ued, meta));
+				SLCHECK_NZ(UED::BelongsToMeta(ued, meta));
 				SUniTime_Internal ut2;
 				UED::_GetRaw_Time(ued, ut2);
 				if(ut2.Cmp(ut, meta) != UED_CMP_EQUAL) {

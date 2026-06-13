@@ -208,6 +208,23 @@ static rstring_code FASTCALL rcs_catc(RcString * pre, const char c)
 	return result;
 }
 
+/*static*/int SJson::SetArrayAsStringSet(SJson * pN, const StringSet & rSet) // @v12.6.7
+{
+	int    ok = -1;
+	SString temp_buf;
+	THROW(SJson::IsArray(pN));
+	{
+		for(uint ssp = 0; rSet.get(&ssp, temp_buf);) {
+			SJson * p_js_item = SJson::CreateString(temp_buf.Escape());
+			THROW(p_js_item);
+			pN->InsertChild(p_js_item);
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 /*static*/int SJson::GetArrayAsStringSet(const SJson * pN, StringSet & rResult) // @v12.5.12
 {
 	rResult.Z();

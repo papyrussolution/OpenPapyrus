@@ -3712,7 +3712,7 @@ public:
 						fit = false;
 				}
 				if(fit) {
-					result_idx = static_cast<int>(idx);
+					result_idx = static_cast<int>(eff_idx); // @v12.6.7 @fix idx-->eff_idx
 					break;
 				}
 			}
@@ -4632,34 +4632,34 @@ int PPSession::Implement_PPLogin(const PPDbEntrySet2 * pDbes, const char * pDbSy
 						sv.Tokenize(" ,;", ss);
 						for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 							if(temp_buf.Strip().IsEqiAscii("NotFound")) {
-								chznpmcritf |= CPosProcessor::PgsBlock::chznpmcritNotFound;
+								chznpmcritf |= PPChZnPrcssr::chznpmcritNotFound;
 							}
 							else if(temp_buf.Strip().IsEqiAscii("NotValid")) {
-								chznpmcritf |= CPosProcessor::PgsBlock::chznpmcritNotValid;
+								chznpmcritf |= PPChZnPrcssr::chznpmcritNotValid;
 							}
 							else if(temp_buf.Strip().IsEqiAscii("NotVerified")) {
-								chznpmcritf |= CPosProcessor::PgsBlock::chznpmcritNotVerified;
+								chznpmcritf |= PPChZnPrcssr::chznpmcritNotVerified;
 							}
 							else if(temp_buf.Strip().IsEqiAscii("NotRealizable")) {
-								chznpmcritf |= CPosProcessor::PgsBlock::chznpmcritNotRealizable;
+								chznpmcritf |= PPChZnPrcssr::chznpmcritNotRealizable;
 							}
 							else if(temp_buf.Strip().IsEqiAscii("NotRealizableGrayZoneExclusion")) {
-								chznpmcritf |= CPosProcessor::PgsBlock::chznpmcritNotRlzblGzExcl;
+								chznpmcritf |= PPChZnPrcssr::chznpmcritNotRlzblGzExcl;
 							}
 							else if(temp_buf.Strip().IsEqiAscii("NotUtilised")) {
-								chznpmcritf |= CPosProcessor::PgsBlock::chznpmcritNotUtilised;
+								chznpmcritf |= PPChZnPrcssr::chznpmcritNotUtilised;
 							}
 							else if(temp_buf.Strip().IsEqiAscii("NotOwner")) {
-								chznpmcritf |= CPosProcessor::PgsBlock::chznpmcritNotOwner;
+								chznpmcritf |= PPChZnPrcssr::chznpmcritNotOwner;
 							}
 							else if(temp_buf.Strip().IsEqiAscii("Blocked")) {
-								chznpmcritf |= CPosProcessor::PgsBlock::chznpmcritBlocked;
+								chznpmcritf |= PPChZnPrcssr::chznpmcritBlocked;
 							}
 							else if(temp_buf.Strip().IsEqiAscii("Sold")) {
-								chznpmcritf |= CPosProcessor::PgsBlock::chznpmcritSold;
+								chznpmcritf |= PPChZnPrcssr::chznpmcritSold;
 							}
 							else if(temp_buf.Strip().IsEqiAscii("Expiry")) {
-								chznpmcritf |= CPosProcessor::PgsBlock::chznpmcritExpiry;
+								chznpmcritf |= PPChZnPrcssr::chznpmcritExpiry;
 							}
 							else {
 								// @todo Тут надо выдать куда-то какое-то сообщение о том, что в списке есть неизвестный символ.
@@ -4667,7 +4667,7 @@ int PPSession::Implement_PPLogin(const PPDbEntrySet2 * pDbes, const char * pDbSy
 							}
 						}
 					}
-					r_cc.ChZnPmCrit = NZOR(chznpmcritf, CPosProcessor::PgsBlock::GetDefaultCnZnPmCritFlags());
+					r_cc.ChZnPmCrit = NZOR(chznpmcritf, PPChZnPrcssr::GetDefaultCnZnPmCritFlags());
 				}
 				// } @v12.6.5 
 				if(CheckExtFlag(ECF_PAPERLESSCHEQUE) && ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_PAPERLESSCHEQUE_FAKEEADDR, sv) && sv.NotEmptyS()) {
@@ -5304,7 +5304,7 @@ int PPSession::SetMainOrgID(PPID id, int enforce)
 	if(enforce || (id != cc.MainOrgID)) {
 		r_tla.InitMainOrgData(1 /* reset global main org attributes */);
 		PPObjPerson psn_obj;
-		if(psn_obj.P_Tbl->IsBelongsToKind(id, PPPRK_MAIN) > 0) {
+		if(psn_obj.P_Tbl->BelongsToKind(id, PPPRK_MAIN) > 0) {
 			PersonTbl::Rec psn_rec;
 			cc.MainOrgID = id;
 			r_tla.MainOrgCountryCode = 0;

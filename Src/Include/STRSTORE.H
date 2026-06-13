@@ -176,6 +176,7 @@ private:
 		const  SFsPath Ps; // Хранит структуру пути исходного файла
 		SString IdentFileName; // Имя файла, хранящего соответствия символов и идентификаторов
 		SString AutoTranslFile;
+		SString AutoTranslCache; // @v12.6.7 Имя файла кэша автоперевода. Один файл на все языки.
 		StrAssocArray FileLangList;
 	private:
 		SString & MakeFilePathByChangingExt(const char * pExt, SString & rFilePath, SString * pFileName) const;

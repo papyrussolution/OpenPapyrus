@@ -2653,6 +2653,7 @@ int PiritEquip::RunCheck(int opertype)
 						case 14: product_type_bytes = 0x444D; break; // @v12.0.3 GTCHZNPT_BEER
 						case 21: product_type_bytes = 0x444D; break; // @v12.5.6 GTCHZNPT_NCP
 						case 22: product_type_bytes = 0x444D; break; // @v12.5.11 GTCHZNPT_MOTOROIL
+						case 23: product_type_bytes = 0x444D; break; // @v12.6.7 GTCHZNPT_CHEMISTRY
 						default: product_type_bytes = 0x444D; break; // @v11.0.5
 					}
 					const char * p_serial = Check.ChZnSerial.NotEmpty() ? Check.ChZnSerial.cptr() : Check.ChZnPartN.cptr();

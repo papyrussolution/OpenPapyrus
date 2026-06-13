@@ -1,5 +1,5 @@
 // V_GDSMOV2.CPP
-// Copyright (c) A.Starodub 2011, 2015, 2016, 2018, 2019, 2020, 2020, 2021, 2024, 2025
+// Copyright (c) A.Starodub 2011, 2015, 2016, 2018, 2019, 2020, 2020, 2021, 2024, 2025, 2026
 //
 #include <pp.h>
 #pragma hdrstop
@@ -351,7 +351,7 @@ int PPViewGoodsMov2::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 		ok = -2;
 		switch(ppvCmd) {
 			case PPVCMD_ADDTOBASKET:
-				AddGoodsToBasket(hdr.GoodsID, Filt.LocList.GetSingle());
+				AddGoodsToBasket(hdr.GoodsID, Filt.LocList.GetSingle(), 0.0, 0.0);
 				break;
 			case PPVCMD_EDITGOODS:
 				ok = EditGoods(hdr.GoodsID);

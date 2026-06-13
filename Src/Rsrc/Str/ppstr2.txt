@@ -5226,6 +5226,7 @@ PPTXT_USERAGENT_DEFAULT                "Mozilla/5.0 (Windows NT 10.0; Win64; x64
 
 PPTXT_CHZNPMSVRADDRHASBEENRESET        "Адрес сервера разрешительного режима чзн был успешно сброшен"
 PPTXT_CHZNPMSVRADDRRESET_NOTDONE       "Адрес сервера разрешительного режима чзн либо не задан"
+PPTXT_CHZN_LOG_DEBUGAUTH_SUCCESS       "Тестовая авторизация на сервере @{brand_chzn} прошла успешно" // @v12.6.7
 //
 // LastText
 
@@ -5634,6 +5635,7 @@ PPSSYM_FORMAT "int64;int;hex;real;sstr;zstr;date;time;datetime;person;goods;unit
 620  "Tell error"
 623  "Ошибка ZLIB: сбой при распаковке буфера данных '%s'"
 624  "Ошибка чтения файла информации о резервной копии SSystemBackup (%s)" // @v11.8.12
+625  "Ошибка получения данных из SBinarySet: данные зашифрованы" // @v12.6.7 SLERR_BINSET_DATAENCRYPTED
 651  "Ошибка SLCRYPTO: недопустимый параметр функции"
 652  "Ошибка SLCRYPTO: переполнение внутреннего буфера ключа"
 653  "Ошибка SLCRYPTO: недопустимая длина ключа шифрования"
@@ -13934,6 +13936,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @tsession_stdt                            "@{beginning}"
 @tsession_sttm                            "@{beginning}"
 @tsession_tech                            "@{tech}"
+@tsession_arbitrarygs                     "@{goods_struc}" // @v12.6.7
 @tsession_tsesf_idle                      "Простой процессора"
 @tsession_tsesf_planphunit                "План в физических единицах"
 @tsession_prcavailability                 "Доступность процессора" // command at dialog
@@ -17079,6 +17082,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @chznprcssrparam_afqueryticket            "Запрос тикета по документу"
 @chznprcssrparam_afquerykizinfo           "Запрос информации о марке"
 @chznprcssrparam_afquerydoclistin         "Запрос списка входящих документов"
+@chznprcssrparam_afdebugauth              "Авторизация (тест)"
+@chznprcssrparam_afqueryaggrmarklist      "Запрос списка агрегированных марок"
 @chznprcssrparam_loc                      "@{warehouse}"
 
 @chzn_check_offline                       "Проверить в offline-режиме" // @v12.3.12 Команда в диалоге проверки марок чзн (DLG_CHKCHZNMARK)
@@ -18442,6 +18447,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @brwwin_lcsetdefcolsizes   "Установить размеры колонок по умолчанию"  // see BrowserWindow::SpecialMenu
 @brwwin_lcevaluatecolsizes "Автоматически рассчитать размеры колонок" // see BrowserWindow::SpecialMenu
 
+@tecrouteasgmt             "Прохождение технологического маршрута"
 @tecrouteasgmt_finalware   "Конечный продукт"
 @tecrouteasgmt_route       "@{techroute}"
 //

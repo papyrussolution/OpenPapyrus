@@ -149,29 +149,28 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		{
 			RVALUEPTR(Data, pData);
 			int    ok = 1;
-			PrcTechCtrlGroup::Rec ptcg_rec;
-			//
-			ptcg_rec.PrcID = Data.PrcID;
-			if(Data.Flags & TSessionFilt::fManufPlan) {
-				PrcTechCtrlGroup * p_grp = new PrcTechCtrlGroup(CTLSEL_TSESSFILT_PRC, 0, 0, 0, 0, 0);
-				THROW_SL(p_grp);
-				p_grp->EnableTechSelUpLevel(true); // @v11.7.6
- 				addGroup(ctlgroupPrcTech, p_grp);
-				if(Data.PrcID == 0)
-					ptcg_rec.PrcParentID = PRCEXDF_GROUP;
- 				setGroupData(ctlgroupPrcTech, &ptcg_rec);
-			}
-			else {
-				PrcTechCtrlGroup * p_grp = new PrcTechCtrlGroup(CTLSEL_TSESSFILT_PRC, CTLSEL_TSESSFILT_TECH,
- 					CTL_TSESSFILT_ST_GOODS, CTLSEL_TSESSFILT_AR, CTLSEL_TSESSFILT_AR2, cmSelTechByGoods);
-				THROW_SL(p_grp);
-				p_grp->SetIdleStatus(this, (Data.Ft_Idle > 0));
-				p_grp->EnableTechSelUpLevel(true); // @v11.7.6
- 				addGroup(ctlgroupPrcTech, p_grp);
-				ptcg_rec.TechID = Data.TechID;
-				ptcg_rec.ArID   = Data.ArID;
-				ptcg_rec.Ar2ID  = Data.Ar2ID;
-				ptcg_rec.IdleStatus = (Data.Ft_Idle > 0);
+			{
+				PrcTechCtrlGroup::Rec ptcg_rec;
+				ptcg_rec.PrcID = Data.PrcID;
+				if(Data.Flags & TSessionFilt::fManufPlan) {
+					PrcTechCtrlGroup * p_grp = new PrcTechCtrlGroup(CTLSEL_TSESSFILT_PRC, 0, 0, 0, 0, 0, 0);
+					THROW_SL(p_grp);
+					p_grp->EnableTechSelUpLevel(true); // @v11.7.6
+ 					addGroup(ctlgroupPrcTech, p_grp);
+					if(Data.PrcID == 0)
+						ptcg_rec.PrcParentID = PRCEXDF_GROUP;
+				}
+				else {
+					PrcTechCtrlGroup * p_grp = new PrcTechCtrlGroup(CTLSEL_TSESSFILT_PRC, CTLSEL_TSESSFILT_TECH, CTL_TSESSFILT_ST_GOODS, CTLSEL_TSESSFILT_AR, CTLSEL_TSESSFILT_AR2, cmSelTechByGoods, 0);
+					THROW_SL(p_grp);
+					p_grp->SetIdleStatus(this, (Data.Ft_Idle > 0));
+					p_grp->EnableTechSelUpLevel(true); // @v11.7.6
+ 					addGroup(ctlgroupPrcTech, p_grp);
+					ptcg_rec.TechID = Data.TechID;
+					ptcg_rec.ArID   = Data.ArID;
+					ptcg_rec.Ar2ID  = Data.Ar2ID;
+					ptcg_rec.IdleStatus = (Data.Ft_Idle > 0);
+				}
  				setGroupData(ctlgroupPrcTech, &ptcg_rec);
 			}
 			AddClusterAssocDef(CTL_TSESSFILT_STATUS, 0, (1 << TSESST_PLANNED));
@@ -186,12 +185,10 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			AddClusterAssoc(CTL_TSESSFILT_IDLE,  1, -1);
 			AddClusterAssoc(CTL_TSESSFILT_IDLE,  2,  1);
 			SetClusterData(CTL_TSESSFILT_IDLE, Data.Ft_Idle);
-			// @v11.0.6 {
 			AddClusterAssocDef(CTL_TSESSFILT_WROFF, 0,  0);
 			AddClusterAssocDef(CTL_TSESSFILT_WROFF, 1, -1);
 			AddClusterAssocDef(CTL_TSESSFILT_WROFF, 2,  1);
 			SetClusterData(CTL_TSESSFILT_WROFF, Data.Ft_WritedOff);
-			// } @v11.0.6 
 			SetPeriodInput(this, CTL_TSESSFILT_STPERIOD, Data.StPeriod);
 			setCtrlData(CTL_TSESSFILT_STTIME, &Data.StTime);
 			SetPeriodInput(this, CTL_TSESSFILT_FNPERIOD, Data.FnPeriod);
@@ -221,11 +218,9 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			GetClusterData(CTL_TSESSFILT_FLAGS, &Data.Flags);
 			GetClusterData(CTL_TSESSFILT_IDLE, &temp_long);
 			Data.Ft_Idle = static_cast<int16>(temp_long);
-			// @v11.0.6 {
 			temp_long = 0;
 			GetClusterData(CTL_TSESSFILT_WROFF, &temp_long);
 			Data.Ft_WritedOff = static_cast<int16>(temp_long);
-			// } @v11.0.6 
 			GetPeriodInput(this, CTL_TSESSFILT_STPERIOD, &Data.StPeriod);
 			getCtrlData(CTL_TSESSFILT_STTIME, &Data.StTime);
 			if(!Data.StPeriod.low)
@@ -1864,8 +1859,9 @@ int PPViewTSessLine::AddItemExt(PPID tsesID, PPViewBrowser * pBrw)
 		if(!TSesObj.CheckRights(TSESRT_ADDLINE))
 			ok = PPErrorZ();
 		else {
-			const long egsd_flags = ExtGoodsSelDialog::GetDefaultFlags();
-			if(CheckDialogPtrErr(&(dlg = new ExtGoodsSelDialog(0, NewGoodsGrpID, egsd_flags)))) {
+			const  long egsd_flags = ExtGoodsSelDialog::GetDefaultFlags();
+			dlg = new ExtGoodsSelDialog(0, NewGoodsGrpID, egsd_flags);
+			if(CheckDialogPtrErr(&dlg)) {
 				TIDlgInitData tidi;
 				PPIDArray goods_list;
 				TGSArray tgs_list;
@@ -1877,14 +1873,20 @@ int PPViewTSessLine::AddItemExt(PPID tsesID, PPViewBrowser * pBrw)
 				}
 				else
 					tses_rec.Clear();
-				const bool free_goods_sel = LOGIC(TSesObj.GetConfig().Flags & PPTSessConfig::fFreeGoodsSelection);
-				if(!free_goods_sel && TSesObj.GetGoodsStrucList(tsesID, 1, 0, &tgs_list) > 0 && tgs_list.GetGoodsList(goods_list) > 0) {
-					dlg->setSelectionByGoodsList(&goods_list);
-					dlg->setDTS(&tidi);
+				const  bool free_goods_sel = LOGIC(TSesObj.GetConfig().Flags & PPTSessConfig::fFreeGoodsSelection);
+				bool   free_goods_selection = true;
+				if(!free_goods_sel) {
+					if(TSesObj.GetGoodsStrucList(tsesID, true, 0, tgs_list) > 0 && tgs_list.GetGoodsList(goods_list) > 0) {
+						dlg->setSelectionByGoodsList(&goods_list);
+						dlg->setDTS(&tidi);
+						free_goods_selection = false;
+					}
 				}
-				else if(NewGoodsGrpID == 0) {
-					//GetDefScaleData(&tidi);
-					dlg->setDTS(&tidi);
+				if(free_goods_selection) {
+					if(NewGoodsGrpID == 0) {
+						//GetDefScaleData(&tidi);
+						dlg->setDTS(&tidi);
+					}
 				}
 				while(ExecView(dlg) == cmOK) {
 					if(dlg->getDTS(&tidi) > 0) {
@@ -1942,7 +1944,6 @@ int PPViewTSessLine::AddCompletion(PPID sessID)
 	int    ok = -1;
 	long   h_lnenum = -1;
 	PPID   tec_goods_id = 0;
-	PPID   tec_struc_id = 0;
 	TSessionTbl::Rec tses_rec;
 	if(TSesObj.Search(sessID, &tses_rec) > 0) {
 		int    add_tec_goods_before_complete = 0;
@@ -1954,7 +1955,7 @@ int PPViewTSessLine::AddCompletion(PPID sessID)
 		THROW(TSesObj.PrcObj.GetRecWithInheritance(tses_rec.PrcID, &prc_rec) > 0);
 		if(TSesObj.TecObj.Fetch(tses_rec.TechID, &tec_rec) > 0) {
 			tec_goods_id = tec_rec.GoodsID;
-			tec_struc_id = tec_rec.GStrucID;
+			const  PPID tec_struc_id = NZOR(tec_rec.GStrucID, tses_rec.ArbitraryGsID);
 			uint   ln_count = 0;
 			for(TSesObj.P_Tbl->InitLineEnum(sessID, &h_lnenum); TSesObj.P_Tbl->NextLineEnum(h_lnenum, &line_rec) > 0;) {
 				ln_count++;

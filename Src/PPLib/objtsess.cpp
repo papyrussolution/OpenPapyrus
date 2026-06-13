@@ -1468,12 +1468,11 @@ int PPObjTSession::CompleteSession(PPID sessID, int use_ta)
 		if(tses_rec.Flags & TSESF_SUPERSESS) {
 			PPIDArray child_list;
 			THROW(P_Tbl->GetChildIDList(sessID, 0, &child_list));
-			for(i = 0; i < child_list.getCount(); i++)
+			for(i = 0; i < child_list.getCount(); i++) {
 				THROW(CompleteSession(child_list.at(i), 0)); // @recursion
+			}
 		}
 		else {
-			PPID   tec_goods_id = 0;
-			PPID   tec_struc_id = 0;
 			int    r;
 			PPIDArray tec_child_list;
 			RAssocArray goods_qtty_list;
@@ -1487,11 +1486,12 @@ int PPObjTSession::CompleteSession(PPID sessID, int use_ta)
 			THROW_PP(!(tses_rec.Flags & TSESF_SUPERSESS), PPERR_INVOPONTSUPERSESS);
 			THROW(PrcObj.GetRecWithInheritance(tses_rec.PrcID, &prc_rec) > 0);
 			if(TecObj.Fetch(tses_rec.TechID, &tec_rec) > 0) {
-				tec_goods_id = tec_rec.GoodsID;
-				tec_struc_id = tec_rec.GStrucID;
+				;
 			}
 			else
 				tec_rec.Clear();
+			const  PPID tec_goods_id = tec_rec.GoodsID;
+			const  PPID tec_struc_id = NZOR(tec_rec.GStrucID, tses_rec.ArbitraryGsID); // @v12.6.7 tses_rec.ArbitraryGsID
 			if(TecObj.GetChildList(tses_rec.TechID, tec_child_list) > 0) {
 				for(uint i = 0; i < tec_child_list.getCount(); i++) {
 					const  PPID tec_child_id = tec_child_list.get(i);
@@ -1572,12 +1572,13 @@ int PPObjTSession::CompleteSession(PPID sessID, int use_ta)
 						if(r > 0 && TecObj.Fetch(prev_sess_rec.TechID, &tec_rec2) > 0 && goods_id != tec_rec2.GoodsID) {
 							TSVector <TechTbl::Rec> t_list;
 							THROW(r = TecObj.SelectTooling(tses_rec.PrcID, goods_id, tec_rec2.GoodsID, &t_list));
-							if(r > 0)
+							if(r > 0) {
 								for(i = 0; i < t_list.getCount(); i++) {
 									THROW(r = CompleteStruc(sessID, goods_id, t_list.at(i).GStrucID, 1, 0, 1));
 									if(r > 0)
 										ok = 1;
 								}
+							}
 						}
 					}
 				}
@@ -2117,13 +2118,13 @@ int PPObjTSession::InductSuperSess(TSessionTbl::Rec * pRec)
 					else {
 						PPID   tec_gen_goods_id = 0;
 						PPID   sup_gen_goods_id = 0;
-						if(GObj.BelongToGen(sup_tec_rec.GoodsID, &sup_gen_goods_id, 0) > 0) {
-							if(GObj.BelongToGen(tec_rec.GoodsID, &tec_gen_goods_id, 0) > 0) {
+						if(GObj.BelongsToGen(sup_tec_rec.GoodsID, &sup_gen_goods_id, 0) > 0) {
+							if(GObj.BelongsToGen(tec_rec.GoodsID, &tec_gen_goods_id, 0) > 0) {
 								if(sup_gen_goods_id == tec_gen_goods_id)
 									same_goods = 1;
 							}
 						}
-						else if(GObj.IsGeneric(sup_tec_rec.GoodsID) && GObj.BelongToGen(tec_rec.GoodsID, &sup_tec_rec.GoodsID, 0) > 0) {
+						else if(GObj.IsGeneric(sup_tec_rec.GoodsID) && GObj.BelongsToGen(tec_rec.GoodsID, &sup_tec_rec.GoodsID, 0) > 0) {
 							same_goods = 1;
 						}
 					}
@@ -2994,10 +2995,10 @@ int PPObjTSession::GetGoodsStruc(PPID id, PPGoodsStruc * pGs)
 	return (Search(id, &rec) > 0) ? TecObj.GetGoodsStruc(rec.TechID, pGs) : 0;
 }
 
-int PPObjTSession::GetGoodsStrucList(PPID id, int useSubst, PPGoodsStruc * pGs, TGSArray * pList)
+int PPObjTSession::GetGoodsStrucList(PPID id, bool useSubst, PPGoodsStruc * pGs, TGSArray & rList)
 {
 	TSessionTbl::Rec rec;
-	return (Search(id, &rec) > 0) ? TecObj.GetGoodsStrucList(rec.TechID, useSubst, pGs, pList) : 0;
+	return (Search(id, &rec) > 0) ? TecObj.GetGoodsStrucList(rec.TechID, rec.ArbitraryGsID, useSubst, pGs, rList) : 0;
 }
 
 static const int TSess_UseQuot_As_Price = 1; // @v9.9.7 Временная константа дабы не вводить конфигурационный параметр
@@ -3036,22 +3037,22 @@ int PPObjTSession::GetRgi(PPID goodsID, double qtty, const TSessionTbl::Rec & rT
 	return ok;
 }
 
-int PPObjTSession::EvaluateLineQuantity(PPID sessID, PPID techID, const TSessLineTbl::Rec * pRec, double * pResult)
+int PPObjTSession::EvaluateLineQuantity(const TSessionTbl::Rec & rTSesRec, const TSessLineTbl::Rec * pRec, double * pResult)
 {
 	/*
-					if(gs_item.Formula__[0]) {
-						double v = 0.0;
-						GdsClsCalcExprContext ctx(&gs, sessID);
-						THROW(PPCalcExpression(gs_item.Formula__, &v, &ctx));
-						qtty = v;
-					}
+		if(gs_item.Formula__[0]) {
+			double v = 0.0;
+			GdsClsCalcExprContext ctx(&gs, sessID);
+			THROW(PPCalcExpression(gs_item.Formula__, &v, &ctx));
+			qtty = v;
+		}
 	*/
 	int    ok = -1;
 	double result = 0.0;
-	if(sessID && pRec->GoodsID) {
+	if(rTSesRec.ID && pRec->GoodsID) {
 		TGSArray tgs_list;
 		PPGoodsStruc gs;
-		if(TecObj.GetGoodsStrucList(techID, 1, &gs, &tgs_list)) {
+		if(TecObj.GetGoodsStrucList(rTSesRec.TechID, rTSesRec.ArbitraryGsID, true, &gs, tgs_list)) {
 			int    sign = 0;
 			SString formula;
 			if(tgs_list.SearchGoods_(pRec->GoodsID, &sign, &formula)) {
@@ -3063,10 +3064,10 @@ int PPObjTSession::EvaluateLineQuantity(PPID sessID, PPID techID, const TSessLin
 						// так как структура может и не ссылаться на этот товар (именованная, например)
 						//
 						TechTbl::Rec tec_rec;
-						if(TecObj.Fetch(techID, &tec_rec) > 0 && tec_rec.GoodsID)
+						if(TecObj.Fetch(rTSesRec.TechID, &tec_rec) > 0 && tec_rec.GoodsID)
 							gs.OwnerGoodsID = tec_rec.GoodsID;
 					}
-					GdsClsCalcExprContext ctx(&gs, sessID);
+					GdsClsCalcExprContext ctx(&gs, rTSesRec.ID);
 					if(PPCalcExpression(formula, &v, &ctx)) {
 						ok = 1;
 						result = v;
@@ -3118,7 +3119,7 @@ int PPObjTSession::SetupLineGoods(TSessLineTbl::Rec * pRec, PPID goodsID, const 
 		ProcessorTbl::Rec prc_rec;
 		THROW(Search(pRec->TSessID, &tses_rec) > 0);
 		const  bool is_recompl_tec = (TecObj.Fetch(tses_rec.TechID, &tec_rec) > 0 && tec_rec.Flags & TECF_RECOMPLMAINGOODS);
-		THROW(TecObj.GetGoodsStrucList(tses_rec.TechID, 1, 0, &tgs_list));
+		THROW(TecObj.GetGoodsStrucList(tses_rec.TechID, tses_rec.ArbitraryGsID, true, 0, tgs_list));
 		if(tgs_list.SearchGoods_(goodsID, &sign, 0)) {
 			pRec->GoodsID = goodsID;
 			pRec->Sign    = sign;
@@ -3214,24 +3215,14 @@ int PPObjTSession::EditLine(PPID tsesID, long * pOprNo, PPID goodsID, const char
 				}
 			} while(r < 0);
 		}
-		// @v11.0.7 Приоритет отдан автоматически рассчитываемому количеству перед количеством, переданным из-вне (чаще всего - по серийному номеру)
+		// Приоритет - у автоматически рассчитываемого количества перед количеством, переданным из-вне (чаще всего - по серийному номеру)
 		{
 			double aq = 0.0;
-			if(EvaluateLineQuantity(tses_rec.ID, tses_rec.TechID, &line_rec, &aq) > 0 && aq > 0.0)
+			if(EvaluateLineQuantity(tses_rec, &line_rec, &aq) > 0 && aq > 0.0)
 				line_rec.Qtty = aq;
 			else if(initQtty > 0.0)
 				line_rec.Qtty = initQtty;
 		}
-		/* @v11.0.7
-		if(initQtty > 0.0)
-			line_rec.Qtty = initQtty;
-		else {
-			// 
-			double aq = 0.0;
-			if(EvaluateLineQuantity(tses_rec.ID, tses_rec.TechID, &line_rec, &aq) > 0)
-				line_rec.Qtty = aq;
-		}
-		*/
 	}
 	while(!valid_data && EditLineDialog(&line_rec, BIN(tses_rec.Flags & TSESF_PLAN)) > 0) {
 		long   oprno = *pOprNo;
@@ -3925,6 +3916,7 @@ int PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger & rLo
 	PPObjGoodsStruc gs_obj;
 	PPObjArticle ar_obj;
 	PPGoodsStruc gs;
+	PPObjTag tag_obj; // @v12.6.7
 	SString temp_buf;
 	SString ses_name;
 	SString fmt_buf;
@@ -4012,7 +4004,8 @@ int PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger & rLo
 							PPFormat(fmt_buf, &msg_buf, line_rec.GoodsID, line_rec.Serial, line_rec.Qtty);
 							rLogger.Log(msg_buf);
 						}
-						const  bool line_goods_is_suted_to_main_tec_item = (tec_goods_id && (line_rec.GoodsID == tec_goods_id || (GObj.IsGeneric(tec_goods_id) && GObj.BelongToGen(line_rec.GoodsID, &tec_goods_id))));
+						const  bool line_goods_is_suted_to_main_tec_item = (tec_goods_id && (line_rec.GoodsID == tec_goods_id || 
+							(GObj.IsGeneric(tec_goods_id) && GObj.BelongsToGen(line_rec.GoodsID, &tec_goods_id))));
 						if(line_goods_is_suted_to_main_tec_item) {
 							tec_goods_qtty = faddwsign(tec_goods_qtty, line_rec.Qtty, line_rec.Sign);
 							if(line_rec.Sign > 0 && recompl_item) {
@@ -4120,9 +4113,26 @@ int PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger & rLo
   							THROW(local_pugl.Add(&ilti, bill_pack.Rec.LocID, static_cast<uint>(oprno), bill_pack.Rec.Dt));
   							incomplete = 1;
 						}
-						else if(rows.getCount() && line_rec.Flags & TSESLF_INDEPPHQTTY) {
-							PPTransferItem & r_ti = bill_pack.TI(rows.at(0));
-							r_ti.WtQtty = faddwsign(r_ti.WtQtty, line_rec.WtQtty, line_rec.Sign);
+						else if(rows.getCount()) {
+							const  long row_idx = rows.at(0); // [0..]
+							PPTransferItem & r_ti = bill_pack.TI(row_idx);
+							if(line_rec.Flags & TSESLF_INDEPPHQTTY) {
+								r_ti.WtQtty = faddwsign(r_ti.WtQtty, line_rec.WtQtty, line_rec.Sign);
+							}
+							if((tses_pack.Rec.FinalProductID || tses_pack.Rec.TechRouteID) && line_goods_is_suted_to_main_tec_item) { // @v12.6.7
+								if(rows.getCount() == 1) {
+									if(r_ti.Quantity_ > 0.0 && r_ti.Flags & PPTFR_RECEIPT && r_ti.LotID) {
+										PPObjectTag2 tag_rec;
+										if(tag_obj.Fetch(PPTAG_LOT_TECROUTEASSIGNMENT, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT) {
+											ReceiptCore::TecRouteAssignment a;
+											a.FinalProductID = tses_pack.Rec.FinalProductID;
+											a.TechRouteID = tses_pack.Rec.TechRouteID;
+											a.ToStr(temp_buf);
+											bill_pack.LTagL.SetString(PPTAG_LOT_TECROUTEASSIGNMENT, row_idx, temp_buf);
+										}
+									}
+								}
+							}
 						}
 					}
 					P_Tbl->DestroyIter(hdl_ln_enum);

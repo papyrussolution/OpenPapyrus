@@ -674,7 +674,7 @@ void WordSelector::DrawListItem2(TDrawItemData * pDrawItem)
 				canv.Rect(_rc, 0, clrBkgnd);
 				pDrawItem->ItemAction = 0; // Мы перерисовали фон
 			}
-			else if(pDrawItem->ItemID != 0xffffffff) {
+			else if(pDrawItem->ItemID != _FFFF32) {
 				int   _clr_id = (pDrawItem->ItemState & (ODS_FOCUS|ODS_SELECTED) && CheckActive()) ? clrFocus : clrBkgnd;
 				canv.SetBkColor(Ptb.GetColor(_clr_id));
 				canv.Rect(_rc, 0, _clr_id);

@@ -1,6 +1,6 @@
 // UED-ID-TEMP.H
-// version: 16
-// sha256: 87e18ef51c3eec68d185b7a486b42415ffdd1e39b048d463030fb68fc1e36f57
+// version: 18
+// sha256: ed5c766989c7dd49f53f324bfd60627cdc06921dcb60ccd2f1e2e2154f8f13f7
 //
 #ifndef __UED_ID_H
 #define __UED_ID_H
@@ -3625,6 +3625,7 @@
 	#define UED_RUCHZNPRODTYPE_VEGETABLEOIL              0x8500000014ULL
 	#define UED_RUCHZNPRODTYPE_NCP                       0x8500000015ULL
 	#define UED_RUCHZNPRODTYPE_MOTOROIL                  0x8500000016ULL
+	#define UED_RUCHZNPRODTYPE_CHEMISTRY                 0x8500000017ULL
 	#define UED_RUCHZNPRODTYPE_DRAFTBEER_AWR             0x85000003f4ULL
 #define UED_META_NLWCLS                              0x100000101ULL
 	#define UED_NLWCLS_ALPHA                             0x10100000001ULL

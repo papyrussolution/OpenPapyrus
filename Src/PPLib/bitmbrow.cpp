@@ -4420,7 +4420,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 							if(R_Pack.Rec.ID && R_Pack.GetTCount() == 0) {
 								SysJournal * p_sj = DS.GetTLA().P_SysJ;
 								if(p_sj) {
-									HistBillCore hb_core;
+									// @v12.6.7 старый вариант хранения истории документов полностью элиминируется HistBillCore hb_core;
 									SysJournalTbl::Key1 k1;
 									MEMSZERO(k1);
 									k1.ObjType = PPOBJ_BILL;
@@ -4430,8 +4430,35 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 									if(p_sj->search(1, &k1, spLt) && k1.ObjType == PPOBJ_BILL && k1.ObjID == R_Pack.Rec.ID) {
 										do {
 											if(p_sj->data.Action == PPACN_UPDBILL) {
+												const  long hist_id = p_sj->data.Extra;
+												{
+													SBuffer buf;
+													PPBillPacket ex_pack;
+													ObjVersioningCore * p_ovc = PPRef->P_OvT;
+													if(p_ovc && p_ovc->InitSerializeContext(1)) {
+														PPObjBill * p_bobj(BillObj);
+														SSerializeContext & r_sctx = p_ovc->GetSCtx();
+														SObjID oid;
+														long   vv = 0;
+														if(p_ovc->Search(hist_id, &oid, &vv, &buf) > 0) {
+															if(!p_bobj->SerializePacket__(-1, &ex_pack, buf, &r_sctx)) {
+																PPError();
+															}
+															else {
+																ex_pack.ProcessFlags |= (PPBillPacket::pfZombie | PPBillPacket::pfUpdateProhibited);
+																for(uint i = 0; i < ex_pack.GetTCount(); i++) {
+																	PPTransferItem item_to_move = ex_pack.ConstTI(i);
+																	R_Pack.InsertRow(&item_to_move, 0, 0);
+																}
+																update(0);
+																break;
+															}
+														}
+													}
+												}
+												/* @v12.6.7 старый вариант хранения истории документов полностью элиминируется 
 												PPHistBillPacket hb_pack;
-												if(hb_core.GetPacket(p_sj->data.Extra, &hb_pack) > 0 && hb_pack.GetCount()) {
+												if(hb_core.GetPacket(hist_id, &hb_pack) > 0 && hb_pack.GetCount()) {
 													HistTrfrTbl::Rec * p_h_item;
 													for(uint i = 0; hb_pack.EnumItems(&i, &p_h_item);) {
 														PPTransferItem ti(&R_Pack.Rec, TISIGN_UNDEF);
@@ -4449,7 +4476,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 													}
 													update(0);
 													break;
-												}
+												}*/
 											}
 										} while(p_sj->search(1, &k1, spPrev) && k1.ObjType == PPOBJ_BILL && k1.ObjID == R_Pack.Rec.ID);
 									}

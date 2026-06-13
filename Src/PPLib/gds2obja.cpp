@@ -1,5 +1,5 @@
 // GDS2OBJA.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 //
 // Список соответствий Товар(Группа товаров) - Объект
@@ -107,6 +107,16 @@ int GoodsToObjAssoc::UpdateByPos(uint pos, PPID goodsID, PPID objID)
 	return ok;
 }
 
+int GoodsToObjAssoc::RemoveByIdx(uint pos) // @v12.6.7
+{
+	int   ok = -1;
+	if(pos < List.getCount()) {
+		List.atFree(pos);
+		ok = 1;
+	}
+	return ok;
+}
+
 int GoodsToObjAssoc::Remove(PPID goodsID, PPID objID)
 {
 	int    ok = -1;
@@ -195,18 +205,18 @@ PPBaseFilt * PPViewGoodsToObjAssoc::CreateFilt(const void * extraPtr) const
 			p_filt->AsscType = reinterpret_cast<long>(extraPtr);
 			switch(p_filt->AsscType) {
 				case PPASS_GOODS2WAREPLACE:
-					p_filt->ObjType = PPOBJ_LOCATION;
+					p_filt->Oid.Set(PPOBJ_LOCATION, 0);
 					p_filt->P_LocF = new LocationFilt(LOCTYP_WAREPLACE);
 					break;
 				case PPASS_GOODS2LOC:
-					p_filt->ObjType = PPOBJ_LOCATION;
+					p_filt->Oid.Set(PPOBJ_LOCATION, 0);
 					break;
 				case PPASS_GOODS2SUPPL:
-					p_filt->ObjType = PPOBJ_ARTICLE;
+					p_filt->Oid.Set(PPOBJ_ARTICLE, 0);
 					p_filt->ExtraPtr = reinterpret_cast<void *>(GetSupplAccSheet());
 					break;
 				case PPASS_GOODS2CASHNODE:
-					p_filt->ObjType = PPOBJ_CASHNODE;
+					p_filt->Oid.Set(PPOBJ_CASHNODE, 0);
 					break;
 				default:
 					{
@@ -214,8 +224,8 @@ PPBaseFilt * PPViewGoodsToObjAssoc::CreateFilt(const void * extraPtr) const
 						PPNamedObjAssoc noa_rec;
 						if(noa_obj.Search(p_filt->AsscType, &noa_rec) > 0) {
 							if(noa_rec.PrmrObjType == PPOBJ_GOODS) {
-								p_filt->ObjType = noa_rec.ScndObjType;
-								if(p_filt->ObjType == PPOBJ_LOCATION && noa_rec.ScndObjGrp)
+								p_filt->Oid.Set(noa_rec.ScndObjType, 0);
+								if(p_filt->Oid.Obj == PPOBJ_LOCATION && noa_rec.ScndObjGrp)
 									p_filt->P_LocF = new LocationFilt(noa_rec.ScndObjGrp);
 								else
 									p_filt->ExtraPtr = reinterpret_cast<void *>(noa_rec.ScndObjGrp);
@@ -244,9 +254,20 @@ int PPViewGoodsToObjAssoc::Init_(const PPBaseFilt * pBaseFilt)
 	int    ok = 1;
 	ZDELETE(P_AsscObj);
 	THROW(Helper_InitBaseFilt(pBaseFilt));
-	THROW(P_AsscObj = GetPPObject(Filt.ObjType, 0));
-	THROW_MEM(P_Assoc = new GoodsToObjAssoc(Filt.AsscType, Filt.ObjType));
+	THROW(P_AsscObj = GetPPObject(Filt.Oid.Obj, 0));
+	THROW_MEM(P_Assoc = new GoodsToObjAssoc(Filt.AsscType, Filt.Oid.Obj));
 	THROW(P_Assoc->Load());
+	// @v12.6.7 {
+	if(Filt.Oid.Id) {
+		uint  i = P_Assoc->GetCount();
+		if(i) do {
+			const  LAssoc & r_item = P_Assoc->at(--i);
+			if(r_item.Val != Filt.Oid.Id) {
+				P_Assoc->RemoveByIdx(i);
+			}
+		} while(i);
+	}
+	// } @v12.6.7 
 	CATCHZOK
 	return ok;
 }
@@ -271,7 +292,7 @@ int FASTCALL PPViewGoodsToObjAssoc::NextIteration(GoodsToObjAssocViewItem * pIte
 			pItem->ObjID = r_item.Val;
 			P_Assoc->GetKeyName(r_item.Key, temp_buf);
 			STRNSCPY(pItem->GoodsName, temp_buf);
-			GetObjectName(Filt.ObjType, r_item.Val, temp_buf.Z());
+			GetObjectName(Filt.Oid.Obj, r_item.Val, temp_buf.Z());
 			STRNSCPY(pItem->ObjName, temp_buf);
 		}
 		IterIdx++;
@@ -297,7 +318,7 @@ int PPViewGoodsToObjAssoc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 			pBlk->Set(temp_buf);
 			break;
 		case 3: // Наименование ассоциированного объекта
-			GetObjectName(Filt.ObjType, p_item->Val, temp_buf);
+			GetObjectName(Filt.Oid.Obj, p_item->Val, temp_buf);
 			pBlk->Set(temp_buf);
 			break;
 	}
@@ -319,8 +340,9 @@ SArray * PPViewGoodsToObjAssoc::CreateBrowserArray(uint * pBrwId, SString * pSub
 	SArray * p_array = P_Assoc ? new SArray(*P_Assoc) : 0;
 	ASSIGN_PTR(pBrwId, BROWSER_GOODSTOOBJASSC);
 	if(pSubTitle) {
-		SString obj_name, temp_buf;
-		GetObjectTitle(Filt.ObjType, temp_buf);
+		SString obj_name;
+		SString temp_buf;
+		GetObjectTitle(Filt.Oid.Obj, temp_buf);
 		if(Filt.AsscType > 1000) {
 			GetObjectName(PPOBJ_NAMEDOBJASSOC, Filt.AsscType, obj_name);
 			temp_buf.Space().CatParStr(obj_name);
@@ -391,8 +413,8 @@ int PPViewGoodsToObjAssoc::AddItem(PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	LAssoc assc;
-	while(EditGoodsToObjAssoc(&assc, Filt.ObjType, Filt.ExtraPtr, true) > 0) {
-		uint pos = 0;
+	while(EditGoodsToObjAssoc(&assc, Filt.Oid.Obj, Filt.ExtraPtr, true) > 0) {
+		uint   pos = 0;
 		if(!P_Assoc->Add(assc.Key, assc.Val, &pos) || !P_Assoc->Save())
 			PPError();
 		else {
@@ -413,7 +435,7 @@ int PPViewGoodsToObjAssoc::EditItem(PPViewBrowser * pBrw, const BrwHdr * pHdr)
 		PPID   obj_id = 0;
 		if(P_Assoc->Get(pHdr->GoodsID, &obj_id) > 0) {
 			LAssoc assc(pHdr->GoodsID, pHdr->ObjID);
-			while(ok < 0 && EditGoodsToObjAssoc(&assc, Filt.ObjType, Filt.ExtraPtr, false) > 0) {
+			while(ok < 0 && EditGoodsToObjAssoc(&assc, Filt.Oid.Obj, Filt.ExtraPtr, false) > 0) {
 				uint   pos = 0;
 				if(P_Assoc->SearchPair(assc.Key, assc.Val, &pos)) {
 					if(!P_Assoc->UpdateByPos(pos, assc.Key, assc.Val) || !P_Assoc->Save())
@@ -476,7 +498,7 @@ int PPViewGoodsToObjAssoc::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 			case PPVCMD_ADDITEM: ok = AddItem(pBrw); break;
 			case PPVCMD_EDITITEM: ok = EditItem(pBrw, &hdr); break;
 			case PPVCMD_DELETEITEM: ok = DeleteItem(&hdr); break;
-			case PPVCMD_EDITOBJ: ok = EditPPObj(Filt.ObjType, hdr.ObjID); break;
+			case PPVCMD_EDITOBJ: ok = EditPPObj(Filt.Oid.Obj, hdr.ObjID); break;
 			case PPVCMD_EDITGOODS:
 				ok = -1;
 				if(hdr.GoodsID){
@@ -498,8 +520,7 @@ int PPViewGoodsToObjAssoc::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 int ViewGoodsToObjAssoc(PPID objType, PPID objID, PPID asscType, void * extraPtr, long options)
 {
 	GoodsToObjAssocFilt flt;
-	flt.ObjType = objType;
-	flt.ObjID   = objID;
+	flt.Oid.Set(objType, objID);
 	flt.AsscType = asscType;
 	flt.ExtraPtr = extraPtr;
 	SETFLAG(flt.Flags, GoodsToObjAssocFilt::fDestroyExtraParam, options & goafFreeExtraAsPtr);
@@ -509,8 +530,7 @@ int ViewGoodsToObjAssoc(PPID objType, PPID objID, PPID asscType, void * extraPtr
 int ViewGoodsToLocAssoc(PPID locID, PPID asscType, const LocationFilt * pLocFilt, long options)
 {
 	GoodsToObjAssocFilt flt;
-	flt.ObjType = PPOBJ_LOCATION;
-	flt.ObjID   = locID;
+	flt.Oid.Set(PPOBJ_LOCATION, locID);
 	flt.AsscType = asscType;
 	if(pLocFilt) {
 		flt.P_LocF = new LocationFilt;

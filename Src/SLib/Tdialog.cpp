@@ -568,7 +568,10 @@ void TDialog::Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, void 
 				outer_initialize_result = epb.F_InitDialog(this, ident_buf.Cat(resID).cptr(), 0);
 			}
 		}
-		if(outer_initialize_result <= 0) {
+		if(outer_initialize_result > 0) { 
+			DlgFlags |= fImportedDl600; // @v12.6.7
+		}
+		else {
 			TDialog::LoadDialog(P_SlRez, resID, this, (co == coExport) ? ldfDL600_Cvt : 0);
 			if(dlgPreFunc)
 				dlgPreFunc(this, extraPtr);

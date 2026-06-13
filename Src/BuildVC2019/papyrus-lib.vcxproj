@@ -1200,7 +1200,6 @@
     <ClCompile Include="..\PPLib\Balance.cpp" />
     <ClCompile Include="..\PPLib\BILL.CPP" />
     <ClCompile Include="..\PPLib\Billdlg.cpp" />
-    <ClCompile Include="..\PPLib\billhist.cpp" />
     <ClCompile Include="..\PPLib\bilvatax.cpp" />
     <ClCompile Include="..\PPLib\bitmbrow.cpp" />
     <ClCompile Include="..\PPLib\Bpakcore.cpp" />

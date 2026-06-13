@@ -960,6 +960,7 @@ int PPViewSysJournal::ViewBillHistory(PPID histID, LDATETIME evDtm)
 {
 	int    ok = -1;
 	if(histID) {
+		/* @v12.6.7 старый вариант хранения истории документов полностью элиминируется 
 		int   do_use_old_tech = 0;
 		if(!!evDtm) {
 			LDATETIME moment;
@@ -971,7 +972,8 @@ int PPViewSysJournal::ViewBillHistory(PPID histID, LDATETIME evDtm)
 					do_use_old_tech = 1;
 			}
 		}
-		if(!do_use_old_tech) {
+		if(!do_use_old_tech) */
+		{
 			SBuffer buf;
 			PPBillPacket pack;
 			ObjVersioningCore * p_ovc = PPRef->P_OvT;
@@ -992,7 +994,7 @@ int PPViewSysJournal::ViewBillHistory(PPID histID, LDATETIME evDtm)
 				ok = 1;
 			}
 		}
-		else {
+		/* @v12.6.7 старый вариант хранения истории документов полностью элиминируется else {
 			HistBillCore hb_core;
 			PPBillPacket pack;
 			PPHistBillPacket hb_pack;
@@ -1000,7 +1002,7 @@ int PPViewSysJournal::ViewBillHistory(PPID histID, LDATETIME evDtm)
 			THROW(hb_pack.ConvertToBillPack(&pack));
 			THROW(::EditGoodsBill(&pack, PPObjBill::efNoUpdNotif));
 			ok = 1;
-		}
+		}*/
 	}
 	CATCHZOKPPERR
 	return ok;

@@ -984,7 +984,9 @@ int PPCashMachine::SyncPrintCheck(CCheckPacket * pCcPack, int addSummator)
 						Goods2Tbl::Rec goods_rec;
 						if(goods_obj.Fetch(ccl.GoodsID, &goods_rec) > 0) {
 							if(pCcPack->GetLineTextExt(pos, CCheckPacket::lnextChZnMark, temp_buf) > 0) {
-								pm_code_list.AddCodeEntry(temp_buf, pos, 0);
+								PPGoodsType2 gt_rec;
+								const  long chzn_prod_type = (goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) ? gt_rec.ChZnProdType : 0;
+								pm_code_list.AddCodeEntry(temp_buf, pos, chzn_prod_type, 0);
 							}
 						}
 					}

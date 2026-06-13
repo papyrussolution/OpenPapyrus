@@ -455,12 +455,5 @@ void FASTCALL SObfuscateBuffer(void * pBuf, size_t bufSize)
 //
 //
 //
-/*static*/void * FASTCALL SAlloc::M_secure(size_t sz) // @v12.6.4 using OpenSSL
-{
-	return OPENSSL_secure_malloc(sz);
-}
-
-/*static*/void FASTCALL SAlloc::F_secure(void * ptr, size_t sz) // @v12.6.4 using OpenSSL
-{
-	OPENSSL_secure_clear_free(ptr, sz);
-}
+/*static*/void * FASTCALL SAlloc::M_secure(size_t sz) { return OPENSSL_secure_malloc(sz); } // @v12.6.4 using OpenSSL
+/*static*/void FASTCALL SAlloc::F_secure(void * ptr, size_t sz) { OPENSSL_secure_clear_free(ptr, sz); } // @v12.6.4 using OpenSSL

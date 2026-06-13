@@ -664,24 +664,6 @@ Reference_ObsoleteTbl::Rec & Reference_ObsoleteTbl::Rec::Clear()
 	THISZERO();
 	return *this;
 }
-DBTABLE_CONSTRUCTOR(Country_Obsolete, ID)
-Country_ObsoleteTbl::Rec & Country_ObsoleteTbl::Rec::Clear()
-{
-	THISZERO();
-	return *this;
-}
-DBTABLE_CONSTRUCTOR(Region_Obsolete, ID)
-Region_ObsoleteTbl::Rec & Region_ObsoleteTbl::Rec::Clear()
-{
-	THISZERO();
-	return *this;
-}
-DBTABLE_CONSTRUCTOR(City_Obsolete, ID)
-City_ObsoleteTbl::Rec & City_ObsoleteTbl::Rec::Clear()
-{
-	THISZERO();
-	return *this;
-}
 DBTABLE_CONSTRUCTOR(BankAccount_Pre9004, ID)
 BankAccount_Pre9004Tbl::Rec & BankAccount_Pre9004Tbl::Rec::Clear()
 {
@@ -690,24 +672,6 @@ BankAccount_Pre9004Tbl::Rec & BankAccount_Pre9004Tbl::Rec::Clear()
 }
 DBTABLE_CONSTRUCTOR(StaffList_Pre9003, ID)
 StaffList_Pre9003Tbl::Rec & StaffList_Pre9003Tbl::Rec::Clear()
-{
-	THISZERO();
-	return *this;
-}
-DBTABLE_CONSTRUCTOR(HistGoods, ID)
-HistGoodsTbl::Rec & HistGoodsTbl::Rec::Clear()
-{
-	THISZERO();
-	return *this;
-}
-DBTABLE_CONSTRUCTOR(HistBill, ID)
-HistBillTbl::Rec & HistBillTbl::Rec::Clear()
-{
-	THISZERO();
-	return *this;
-}
-DBTABLE_CONSTRUCTOR(HistTrfr, HistBillID)
-HistTrfrTbl::Rec & HistTrfrTbl::Rec::Clear()
 {
 	THISZERO();
 	return *this;

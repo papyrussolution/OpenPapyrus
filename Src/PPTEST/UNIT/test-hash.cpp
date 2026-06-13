@@ -3189,10 +3189,26 @@ SLTEST_R(EncapsulateKey) // @v12.6.4
 	const size_t drv_key_size = 32;
 	static void * p_ek = 0;
 	SlCrypto::Key dk;
-	const  bool mekr = SlCrypto::MakeEncapsulatedKey(p_src_key, src_key_size, drv_key_size, dk);
+	bool   mekr = false;
+	{
+		SlCrypto::KdfParam kdfp;
+		uint64 salt[2];
+		kdfp.UedKdf = UED_KEYDERIVATIONFUNCTION_ARGON2ID;
+		kdfp.MemCost = SKILOBYTE(64);
+		kdfp.TimeCost = 3;
+		kdfp.Parallelism = 1;
+		salt[0] = 0x1ULL;
+		salt[1] = 0x2ULL;
+		if(SlCrypto::MakeDerivedKey(kdfp, dk, p_src_key, src_key_size, drv_key_size, salt, sizeof(salt))) {
+			mekr = true;
+		}
+	}
 	SLCHECK_NZ(mekr);
 	if(mekr) {
-		p_ek = SlCrypto::EncapsulateKey(p_src_key, src_key_size, drv_key_size); 
+		const  SBaseBuffer & r_key = dk.GetKey();
+		SLCHECK_EQ(r_key.Size, drv_key_size);
+		SLCHECK_NZ(r_key.P_Buf);
+		p_ek = SlCrypto::EncapsulateKey(r_key.P_Buf, r_key.Size); 
 		SLCHECK_NZ(p_ek);
 		if(p_ek) {
 			SBaseBuffer ek_buf;

@@ -763,7 +763,7 @@ void PrcPaneDialog::selectGoods(int mode)
 				TIDlgInitData tidi;
 				PPIDArray goods_list;
 				TGSArray tgs_list;
-				if(TSesObj.GetGoodsStrucList(H.SessID, 1, 0, &tgs_list) > 0 && tgs_list.GetGoodsList(goods_list) > 0) {
+				if(TSesObj.GetGoodsStrucList(H.SessID, true, 0, tgs_list) > 0 && tgs_list.GetGoodsList(goods_list) > 0) {
 					dlg->setSelectionByGoodsList(&goods_list);
 					dlg->setDTS(&tidi);
 				}
@@ -984,7 +984,7 @@ void PrcPaneDialog::updateStatus(int forceUpdate)
 							H.MainGoodsPack = (GObj.GetStockExt(H.MainGoodsID, &gse) > 0) ? gse.Package : 0;
 						}
 					}
-					TSesObj.GetGoodsStrucList(H.SessID, 1, 0, &TgsList);
+					TSesObj.GetGoodsStrucList(H.SessID, true, 0, TgsList);
 					State = sEMPTY_SESS;
 				}
 				else {
