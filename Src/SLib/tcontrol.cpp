@@ -2035,7 +2035,8 @@ int  TCluster::addAssoc(long pos, long val) { return ValAssoc.Update(pos, val, 0
 
 void TCluster::AddItem(int item, const char * pText, const TRect * pRect)
 {
-	if(pText) {
+	// @v12.6.8 if(pText) 
+	{
 		Item * p_new_item = new Item;
 		if(p_new_item) {
 			p_new_item->Text = pText;

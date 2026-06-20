@@ -136,11 +136,12 @@ struct Storage_PPTSessionConfig { // @persistent @store(PropertyTbl)
 	long   ColorInProgressStatus;
 	long   ColorClosedStatus;
 	long   ColorCanceledStatus;
-	SVerT Ver;
+	SVerT  Ver;
 	uint16 ExtStrSize;        // Размер "хвоста" под строки расширения. Общий размер записи, хранимой в БД =sizeof(PPTSessionConfig) + ExtStrSiz
 	uint16 SmsConfigPos;
 	PPID   DefTimeTechID;
-	char   Reserve[12];
+	PPID   JobPerItemGoodsID; // @v12.6.8 Ид товара, олицетворяющего работу сотрудников за отработку одной единицы продукции (то есть, не по времени)
+	char   Reserve[8];        // @v12.6.8 [12]-->[8]
 };
 
 // @vmiller
@@ -186,6 +187,7 @@ struct Storage_PPTSessionConfig { // @persistent @store(PropertyTbl)
 			p_cfg->ColorCanceledStatus = pCfg->ColorCanceledStatus;
 			p_cfg->Ver = DS.GetVersion();
 			p_cfg->DefTimeTechID = pCfg->DefTimeTechID;
+			p_cfg->JobPerItemGoodsID = pCfg->JobPerItemGoodsID; // @v12.6.8
 			p_cfg->SmsConfigPos = (uint16)sizeof(Storage_PPTSessionConfig);
 			p_cfg->ExtStrSize = (uint16)ext_size;
 			if(ext_size)
@@ -237,6 +239,7 @@ struct Storage_PPTSessionConfig { // @persistent @store(PropertyTbl)
 			pCfg->ColorCanceledStatus = p_cfg->ColorCanceledStatus;
 			pCfg->Ver = p_cfg->Ver;
 			pCfg->DefTimeTechID = p_cfg->DefTimeTechID;
+			pCfg->JobPerItemGoodsID = p_cfg->JobPerItemGoodsID; // @v12.6.8
 			if(p_cfg->SmsConfigPos && p_cfg->ExtStrSize) {
 				SBuffer buf;
 				SSerializeContext sctx;
@@ -259,6 +262,7 @@ struct Storage_PPTSessionConfig { // @persistent @store(PropertyTbl)
 			pCfg->ColorClosedStatus = 0;
 			pCfg->ColorCanceledStatus = 0;
 			pCfg->DefTimeTechID = 0;
+			pCfg->JobPerItemGoodsID = 0; // @v12.6.8
 			ok = -1;
 		}
 	}
@@ -385,6 +389,7 @@ public:
 		setCtrlData(CTL_TSESSCFG_MINIDLE, &Data.MinIdleCont);
 		SetupPPObjCombo(this, CTLSEL_TSESSCFG_IDLEAS, PPOBJ_ACCSHEET, Data.IdleAccSheetID, OLW_CANINSERT, 0);
 		SetupPPObjCombo(this, CTLSEL_TSESSCFG_DEFTMTEC, PPOBJ_TECH, Data.DefTimeTechID, OLW_CANINSERT, 0);
+		SetupPPObjCombo(this, CTLSEL_TSESSCFG_JOBPERITEMWARE, PPOBJ_GOODS, Data.JobPerItemGoodsID, OLW_CANINSERT, 0); // @v12.6.8
 		setCtrlData(CTL_TSESSCFG_INITTIME,    &Data.InitTime);
 		setCtrlData(CTL_TSESSCFG_ROUNDPERIOD, &Data.RoundPeriod);
 		setCtrlData(CTL_TSESSCFG_VIEWREFRESH, &Data.ViewRefreshPeriod);
@@ -397,6 +402,7 @@ public:
 		SInvariantParam invp;
 		getCtrlData(CTLSEL_TSESSCFG_IDLEAS,   &Data.IdleAccSheetID);
 		getCtrlData(CTLSEL_TSESSCFG_DEFTMTEC, &Data.DefTimeTechID);
+		getCtrlData(CTLSEL_TSESSCFG_JOBPERITEMWARE, &Data.JobPerItemGoodsID); // @v12.6.8
 		GetClusterData(CTL_TSESSCFG_FLAGS,    &Data.Flags);
 		getCtrlData(CTL_TSESSCFG_MINIDLE,     &Data.MinIdleCont);
 		getCtrlData(CTL_TSESSCFG_INITTIME,    &Data.InitTime);
@@ -762,7 +768,7 @@ int PPObjTSession::CheckForFilt(const TSessionFilt * pFilt, PPID id, const TSess
 		if(!CheckFiltID(pFilt->PrcID, pRec->PrcID)) {
 			if(!(flags & cfffDraft)) { // @v11.7.9
 				PPIDArray parent_list;
-				PrcObj.GetParentsList(pRec->PrcID, parent_list);
+				PrcObj.GetParentsList(pRec->PrcID, parent_list, true/*useCache*/);
 				if(!parent_list.lsearch(pFilt->PrcID))
 					return 0;
 			}
@@ -1304,9 +1310,10 @@ int PPObjTSession::GetPrevSession(const TSessionTbl::Rec & rSessRec, TSessionTbl
 	return ok;
 }
 
-/*private*/int PPObjTSession::CompleteStruc(PPID sessID, PPID tecGoodsID, PPID tecStrucID, double tecQtty, const PPIDArray * pGoodsIdList, int tooling)
+/*private*/int PPObjTSession::CompleteStruc(PPID sessID, PPID tecGoodsID, PPID tecStrucID, double tecQtty, const PPIDArray * pExGoodsIdList, bool isTooling)
 {
-	int    ok = -1, r;
+	int    ok = -1;
+	int    r;
 	if(sessID && tecGoodsID && tecStrucID) {
 		PPObjGoodsStruc gs_obj;
 		PPGoodsStruc gs;
@@ -1315,8 +1322,8 @@ int PPObjTSession::GetPrevSession(const TSessionTbl::Rec & rSessRec, TSessionTbl
 		THROW(gs_obj.Get(tecStrucID, &gs));
 		gs.OwnerGoodsID = tecGoodsID;
 		for(uint gs_pos = 0; (r = gs.EnumItemsExt(&gs_pos, &gs_item, tecGoodsID, tecQtty, &qtty)) > 0;) {
-			if(tooling || (gs_item.Flags & GSIF_AUTOTSWROFF))
-				if(!pGoodsIdList || !pGoodsIdList->lsearch(gs_item.GoodsID)) {
+			if(isTooling || (gs_item.Flags & GSIF_AUTOTSWROFF)) {
+				if(!pExGoodsIdList || !pExGoodsIdList->lsearch(gs_item.GoodsID)) {
 					long   oprno = 0;
 					TSessLineTbl::Rec line_rec;
 					if(!isempty(gs_item.Formula__)) {
@@ -1328,7 +1335,7 @@ int PPObjTSession::GetPrevSession(const TSessionTbl::Rec & rSessRec, TSessionTbl
 					qtty = -qtty;
 					THROW(InitLinePacket(&line_rec, sessID));
 					line_rec.Flags |= TSESLF_AUTOCOMPL;
-					if(tooling)
+					if(isTooling)
 						line_rec.Flags |= TSESLF_TOOLING;
 					line_rec.GoodsID = gs_item.GoodsID;
 					line_rec.Qtty = fabs(qtty);
@@ -1336,6 +1343,7 @@ int PPObjTSession::GetPrevSession(const TSessionTbl::Rec & rSessRec, TSessionTbl
 					THROW(PutLine(sessID, &oprno, &line_rec, 0));
 					ok = 1;
 				}
+			}
 		}
 		THROW(r);
 	}
@@ -1559,7 +1567,7 @@ int PPObjTSession::CompleteSession(PPID sessID, int use_ta)
 					else if(GetTechByGoods(goods_id, tses_rec.PrcID, &tec_rec2) > 0)
 						struc_id = tec_rec2.GStrucID;
 					if(struc_id && qtty) {
-						THROW(r = CompleteStruc(sessID, goods_id, struc_id, qtty, &goods_id_list, 0));
+						THROW(r = CompleteStruc(sessID, goods_id, struc_id, qtty, &goods_id_list, false));
 						if(r > 0)
 							ok = 1;
 					}
@@ -1574,7 +1582,7 @@ int PPObjTSession::CompleteSession(PPID sessID, int use_ta)
 							THROW(r = TecObj.SelectTooling(tses_rec.PrcID, goods_id, tec_rec2.GoodsID, &t_list));
 							if(r > 0) {
 								for(i = 0; i < t_list.getCount(); i++) {
-									THROW(r = CompleteStruc(sessID, goods_id, t_list.at(i).GStrucID, 1, 0, 1));
+									THROW(r = CompleteStruc(sessID, goods_id, t_list.at(i).GStrucID, 1, 0, true));
 									if(r > 0)
 										ok = 1;
 								}
@@ -2431,16 +2439,28 @@ int PPObjTSession::SelectTechRoutePhaseByLot(PPID lotID, PPID prcID, TSCollectio
 {
 	int   ok = -1;
 	if(lotID && prcID) {
+		Reference * p_ref(PPRef);
 		PPObjBill * p_bobj(BillObj);
 		Transfer * p_tfr = p_bobj ? p_bobj->trfr : 0;
 		if(p_tfr) {
 			ReceiptTbl::Rec lot_rec;
 			if(p_tfr->Rcpt.Search(lotID, &lot_rec) > 0 && lot_rec.GoodsID > 0) {
 				PPID   goods_id = lot_rec.GoodsID;
+				PPID   final_goods_id = 0;
+				SString temp_buf;
 				TechTbl::Rec tec_rec;
+				ReceiptCore::TecRouteAssignment ra;
 				PPTechRouteManager trmgr;
 				TSCollection <PPTechRoute> list_by_goods;
-				if(trmgr.GetListByGoods(goods_id, list_by_goods) > 0) {
+				if(p_ref->Ot.GetTagStr(PPOBJ_LOT, lotID, PPTAG_LOT_TECROUTEASSIGNMENT, temp_buf) > 0) {
+					if(ra.FromString(temp_buf)) {
+						if(ra.FinalProductID) {
+							final_goods_id = ra.FinalProductID;
+						}
+					}
+				}
+				const  int r1 = trmgr.GetListByGoods(NZOR(final_goods_id, goods_id), list_by_goods);
+				if(r1 > 0) {
 					assert(list_by_goods.getCount() > 0);
 					LongArray stage_list;
 					LongArray allowed_stage_list;
@@ -4121,7 +4141,7 @@ int PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger & rLo
 							}
 							if((tses_pack.Rec.FinalProductID || tses_pack.Rec.TechRouteID) && line_goods_is_suted_to_main_tec_item) { // @v12.6.7
 								if(rows.getCount() == 1) {
-									if(r_ti.Quantity_ > 0.0 && r_ti.Flags & PPTFR_RECEIPT && r_ti.LotID) {
+									if(r_ti.Quantity_ > 0.0 && r_ti.Flags & PPTFR_RECEIPT) {
 										PPObjectTag2 tag_rec;
 										if(tag_obj.Fetch(PPTAG_LOT_TECROUTEASSIGNMENT, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT) {
 											ReceiptCore::TecRouteAssignment a;

@@ -4317,8 +4317,8 @@ PPServerSession::CmdRet PPServerSession::SetTimeSeries(PPJobSrvReply & rReply)
 		{
 			STimeSeries ts;
 			SSerializeContext sctx;
-			const size_t actual_size = buffer.GetAvailableSize();
-			const size_t cs_size = SSerializeContext::GetCompressPrefix(0);
+			const  size_t actual_size = buffer.GetAvailableSize();
+			const  size_t cs_size = SSerializeContext::GetCompressPrefix(0);
 			if(actual_size > cs_size && SSerializeContext::IsCompressPrefix(buffer.GetBuf(buffer.GetRdOffs()))) {
 				SCompressor compr(SCompressor::tZLib);
 				SBuffer dbuf;

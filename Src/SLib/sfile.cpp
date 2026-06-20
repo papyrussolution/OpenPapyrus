@@ -2442,7 +2442,7 @@ int SFile::ReadV(void * pBuf, size_t size)
 int SFile::Read(void * pBuf, size_t size, size_t * pActualSize)
 {
 	assert(InvariantC(0));
-	assert(size < MAXINT32); // @v11.3.7
+	assert(size < MAXINT32);
 	int    ok = 1;
 	int    act_size = 0;
 	SBuffer * p_sb = GetSBufPtr();
@@ -3939,6 +3939,44 @@ static const SIntToSymbTabEntry MimeTypeNameList[] = {
 	return ok;
 }
 
+static const SFileFormat::TxtBomEntry _BomEntryList[] = { // @v12.6.8
+	{ 0xEFBBBFULL, 3, SFileFormat::TxtBomUTF8},
+	{ 0xFEFFULL, 2, SFileFormat::TxtBomUTF16BE},
+	{ 0xFFFEULL, 2, SFileFormat::TxtBomUTF16LE},  
+	{ 0x0000FEFFULL, 2, SFileFormat::TxtBomUTF32BE},  
+	{ 0xFFFE0000ULL, 4, SFileFormat::TxtBomUTF32LE},  
+	{ 0x2B2F7638ULL, 4, SFileFormat::TxtBomUTF7},  
+	{ 0x2B2F7639ULL, 4, SFileFormat::TxtBomUTF7},     
+	{ 0x2B2F762BULL, 4, SFileFormat::TxtBomUTF7},     
+	{ 0x2B2F762FULL, 4, SFileFormat::TxtBomUTF7},     
+	{ 0xF7644CULL, 3, SFileFormat::TxtBomUTF1},     
+	{ 0xDD736673ULL, 4, SFileFormat::TxtBomUTF_EBCDIC},
+	{ 0x0EFEFFULL, 3, SFileFormat::TxtBomSCSU},
+	{ 0xFBEE28ULL, 3, SFileFormat::TxtBomBOCU1},     
+	{ 0x84319533ULL, 4, SFileFormat::TxtBomGB18030},   
+};
+
+/*static*/int SFileFormat::IsThereBomPrefix(const void * pData, size_t dataLen, size_t * pBomLen) // @v12.6.8
+{
+	int    result = 0;
+	size_t prefix_len = 0;
+	if(pData && (!dataLen || dataLen > 1)) {
+		for(uint i = 0; !result && i < SIZEOFARRAY(_BomEntryList); i++) {
+			const TxtBomEntry & r_entry = _BomEntryList[i];
+			if(!dataLen || dataLen >= r_entry.SignatureLen) {
+				assert(r_entry.SignatureLen <= 8);
+				uint64 bom = SMem::BSwap_fallback(r_entry.Signature) >> (64 - r_entry.SignatureLen * 8);
+				if(memcmp(pData, &bom, r_entry.SignatureLen) == 0) {
+					result = r_entry.Format;
+					prefix_len = r_entry.SignatureLen;
+				}
+			}
+		}
+	}
+	ASSIGN_PTR(pBomLen, prefix_len);
+	return result;
+}
+
 SFileFormat::SFileFormat() : Id(0)
 {
 }
@@ -4050,7 +4088,7 @@ int SFileFormat::IdentifyMime(const char * pMime)
 	Register(TxtBomUTF7,       "txt;csv", "2B2F762F");
 	Register(TxtBomUTF1,       "txt;csv", "F7644C");
 	Register(TxtBomUTF_EBCDIC, "txt;csv", "DD736673");
-	Register(TxtBomSCSU,       "txt;csv", "OEFEFF");
+	Register(TxtBomSCSU,       "txt;csv", "0EFEFF"); // @v12.6.8 @fix "OEFEFF"-->"0EFEFF"
 	Register(TxtBomBOCU1,      "txt;csv", "FBEE28");
 	Register(TxtBomGB18030,    "txt;csv", "84319533");
 	Register(Pdf, mtApplication, "pdf", "pdf", "25504446");

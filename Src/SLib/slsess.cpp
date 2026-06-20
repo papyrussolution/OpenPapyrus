@@ -669,6 +669,7 @@ static void InitTest()
 						assert(p_node->P_Child->IsFalse());
 					}
 				}
+				p_js_out->Destroy(true);
 				delete p_js_out;
 			}
 		}

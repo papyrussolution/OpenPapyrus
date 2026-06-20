@@ -4190,25 +4190,87 @@ int ChZnInterface::ReadJsonReplyForSingleItem(const char * pReply, const char * 
 	return ok;
 }
 
+int _ParseAggrMarkJsonResult(const SJson * pJs, long parentId, PPLotExtCodeContainer::MarkSet & rResult)
+{
+	int    ok = 1;
+	SString mark_buf;
+	if(SJson::IsObject(pJs)) {
+		//const  long preserve_box_id = rBoxId;
+		GtinStruc gts;
+		for(const SJson * p_js01 = pJs->P_Child; p_js01; p_js01 = p_js01->P_Next) {
+			(mark_buf = p_js01->Text).Unescape();
+			const  int chzncr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(mark_buf, gts, 0));
+			if(oneof2(chzncr, PPChZnPrcssr::chznciReal, PPChZnPrcssr::chznciPallet)) {
+				if(SJson::IsObject(p_js01->P_Child)) {
+					const  long current_id  = rResult.AddBox(0, parentId, mark_buf, 0);
+					THROW(current_id);
+					THROW(_ParseAggrMarkJsonResult(p_js01->P_Child, current_id, rResult)); // @recursion
+					/*for(const SJson * p_js02 = p_js01->P_Child->P_Child; p_js02; p_js02 = p_js02->P_Next) {
+						(mark_buf = p_js02->Text).Unescape();
+					}*/
+				}
+				else if(SJson::IsArray(p_js01->P_Child)) {
+					const  long current_id  = rResult.AddBox(0, parentId, mark_buf, 0);
+					THROW(current_id);
+					for(const SJson * p_js02 = p_js01->P_Child->P_Child; p_js02; p_js02 = p_js02->P_Next) {
+						(mark_buf = p_js02->Text).Unescape();
+						rResult.AddNum(current_id, mark_buf, 0);
+					}
+				}
+				else {
+					rResult.AddNum(parentId, mark_buf, 0);
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int ChZnInterface::GetAggrMarkList(const InitBlock & rIb, const StringSet & rBoxCodeList, PPLotExtCodeContainer::MarkSet & rResult) // @v12.6.7 @construction
 {
+	rResult.Z();
 	int    ok = -1;
+	SJson * p_json_result = 0;
 	if(rBoxCodeList.IsCountGreaterThan(0)) {
 		SString temp_buf;
 		SString req_buf;
+		SString reply_buf;
 		SString url_buf;
+		SString hdr_buf;
+		SBuffer ack_buf;
 		if(rIb.ProtocolId == InitBlock::protidTrueAPI) {
 			InetUrl url(MakeTargetUrl_(qGetAggrCodeList, 0, rIb, url_buf));
+			StrStrAssocArray hdr_flds;
 			{
 				req_buf.Z();
 				SJson json_req(SJson::tARRAY);
 				THROW_SL(SJson::SetArrayAsStringSet(&json_req, rBoxCodeList));
 				THROW_SL(json_req.ToStr(req_buf));
 			}
-			// @todo
+			{
+				MakeHeaderFields(rIb.Token, mhffAuthBearer, &hdr_flds, hdr_buf);
+				ScURL c;
+				SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+				Lth.Log("req", 0, req_buf);
+				THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose|ScURL::mfTcpKeepAlive, &hdr_flds, req_buf, &wr_stream));
+				{
+					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+					if(p_ack_buf) {
+						reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+						Lth.Log("rep", 0, reply_buf);
+						p_json_result = SJson::Parse(reply_buf);
+						_ParseAggrMarkJsonResult(p_json_result, 0, rResult);
+						if(rResult.GetCount()) {
+							ok = 1;
+						}
+					}
+				}
+			}
 		}
 	}
 	CATCHZOK
+	delete p_json_result;
 	return ok;
 }
 
@@ -4609,13 +4671,15 @@ PPChZnPrcssr::QueryParam::QueryParam() : DocType(0), Flags(0), GuaID(0), LocID(0
 {
 }
 
-PPChZnPrcssr::PPChZnPrcssr(PPLogger * pOuterLogger) : PPEmbeddedLogger(0, pOuterLogger, PPFILNAM_CHZN_LOG, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER), P_Ib(new ChZnInterface::InitBlock)
+PPChZnPrcssr::PPChZnPrcssr(PPLogger * pOuterLogger) : PPEmbeddedLogger(0, pOuterLogger, PPFILNAM_CHZN_LOG, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER), 
+	P_Ib(new ChZnInterface::InitBlock), P_EcRefC(0)
 {
 }
 
 PPChZnPrcssr::~PPChZnPrcssr()
 {
 	delete static_cast<ChZnInterface::InitBlock *>(P_Ib);
+	delete P_EcRefC; // @v12.6.8
 }
 
 int PPChZnPrcssr::EditParam(Param * pParam)
@@ -4666,6 +4730,7 @@ int PPChZnPrcssr::EditQueryParam(PPChZnPrcssr::QueryParam * pData)
 			SetClusterData(CTL_CHZNIX_WHAT, Data.DocType);
 			setCtrlString(CTL_CHZNIX_PARAM, Data.ParamString);
 			SetupArCombo(this, CTLSEL_CHZNIX_SUPPL, Data.ArID, 0, GetSupplAccSheet(), 0);
+			setCtrlString(CTL_CHZNIX_ST_INFO, Data.InfoText);
 			return ok;
 		}
 		DECL_DIALOG_GETDTS()
@@ -4677,6 +4742,14 @@ int PPChZnPrcssr::EditQueryParam(PPChZnPrcssr::QueryParam * pData)
 			getCtrlData(CTLSEL_CHZNIX_SUPPL, &Data.ArID);
 			ASSIGN_PTR(pData, Data);
 			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isClusterClk(CTL_CHZNIX_WHAT)) {
+				; // @todo
+			}
 		}
 	};
 	DIALOG_PROC_BODY(EditChZnQueryParamDialog, pData);
@@ -4724,26 +4797,67 @@ int PPChZnPrcssr::InteractiveQuery()
 							}
 						}
 						break;
-					case QueryParam::_afQueryAggrMarkList: // @v12.6.7
-						{
+					case QueryParam::_afQueryAggrMarkList: // @v12.6.7 //qGetAggrCodeList
+						if(_param.ParamString.NotEmpty()) {
+							StringSet ss_box;
+							PPLotExtCodeContainer::MarkSet result;
+							PPLotExtCodeContainer::MarkSet::Entry entry;
+							//
+							SETIFZQ(P_EcRefC, new ExtCodeRefCore());
+							//
+							//ss_box.add(_param.ParamString);
+							_param.ParamString.Tokenize(" ", ss_box);
+							if(P_EcRefC) {
+								PPLotExtCodeContainer::MarkSet set_from_db;	
+								for(uint ssp = 0; ss_box.get(&ssp, temp_buf);) {
+									if(P_EcRefC->GetAggregation(temp_buf, set_from_db, true) > 0) {
+										temp_buf.Space().Cat("found in db");
+										Log(temp_buf);
+									}
+								}
+							}
+							if(ifc.GetAggrMarkList(*p_ib, ss_box, result)) {
+								temp_buf.Z();
+								if(result.GetCount()) {
+									for(uint i = 0; i < result.GetCount(); i++) {
+										if(result.GetByIdx(i, entry)) {
+											temp_buf.Cat(entry.Id).CatDiv('-', 1).Cat(entry.ParentId).CatDiv('-', 1).Cat(entry.Flags).CatDiv('-', 1).Cat(entry.Code).CR();
+										}
+									}
+									if(P_EcRefC) {
+										if(!P_EcRefC->PutAggregation2(result, 1)) {
+											LogLastError();
+										}
+									}
+								}
+								else {
+									temp_buf = "none";
+								}
+								_param.InfoText = temp_buf;
+							}
+							else {
+								PPGetLastErrorMessage(1, _param.InfoText);
+								LogLastError();
+							}
 						}
 						break;
 					case QueryParam::_afDebug_Auth: // @v12.6.7
 						{
 							// Если мы дошли до этой точки, то авторизация выполнена успешно!
-							PPLoadText(PPTXT_CHZN_LOG_DEBUGAUTH_SUCCESS, temp_buf);
+							PPLoadText(PPTXT_CHZN_LOG_DEBUGAUTH_SUCCESS, _param.InfoText);
 							/*
 							switch(p_ib->ProtocolId) {
 								case ChZnInterface::InitBlock::protidEdoLtElk:
 								case ChZnInterface::InitBlock::protidEdoLtInt:
 								case ChZnInterface::InitBlock::protidEdoLtMdlp:
 							}*/
-							Log(temp_buf);
+							Log(_param.InfoText);
 						}
 						break;
 				}
 			}
 			else {
+				PPGetLastErrorMessage(1, _param.InfoText);
 				LogLastError();
 			}
 		}
@@ -6141,7 +6255,7 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 	ChZnInterface ifc;
 	ChZnInterface::InitBlock * p_ib = static_cast<ChZnInterface::InitBlock *>(prcssr.P_Ib);
 	THROW(ifc.SetupInitBlock(guaID, 0, *p_ib));
-	THROW(!p_ib->TsPiotSvrUrl.IsEmpty()); // @todo @err
+	THROW_PP(!p_ib->TsPiotSvrUrl.IsEmpty(), PPERR_TSPIOT_INVURL); // @todo @err
 	{
 		TsPiotInterface tspiot_ifc(p_ib->TsPiotSvrUrl);
 		TsPiotInterface::QueryBlock qb;
@@ -6324,7 +6438,7 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 	SString reply_buf;
 	SBuffer ack_buf;
 	int    port = 0;
-	THROW(!SvrUrl.IsEmpty()); // @todo @err
+	THROW_PP(!SvrUrl.IsEmpty(), PPERR_TSPIOT_INVURL);
 	if(rList.getCount()) {
 		SvrUrl.GetComponent(InetUrl::cHost, 0, host);
 		THROW_PP(host.NotEmpty(), PPERR_TSPIOT_INVURL);

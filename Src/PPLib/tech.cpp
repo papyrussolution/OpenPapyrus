@@ -2867,9 +2867,9 @@ bool TechRouteIdent::FromStrWithItemIdxList(const char * pText, LongArray * pIte
 			}
 		}
 	}
-	if(SVectorBase::GetCount(pItemIdxList)) {
+	/* @v12.6.8 (нет! Нельзя сортировать список - может потребоваться получить последнюю по порядку фазу) if(SVectorBase::GetCount(pItemIdxList)) {
 		pItemIdxList->sortAndUndup();
-	}
+	}*/
 	return ok;
 }
 
@@ -3662,6 +3662,7 @@ int PPTechRouteManager::Edit(PPTechRoute & rRoute, uint itemIdx)
 					setCtrlData(CTL_TECHROUTEITEM_LEVEL, &Data.LevelCode); // @v12.6.1
 					setCtrlReal(CTL_TECHROUTEITEM_NPRICE, Data.NominalPrice);
 					setCtrlLong(CTL_TECHROUTEITEM_NTIME, Data.NominalTimeSec);
+					SetupCtrls();
 					return ok;
 				}
 				DECL_DIALOG_GETDTS()
@@ -3684,6 +3685,27 @@ int PPTechRouteManager::Edit(PPTechRoute & rRoute, uint itemIdx)
 					if(event.isCmd(cmGoodsStruc)) {
 						R_TrMgr.EditGStrucOfEntry(R_Route, Data, ItemIdx);
 					}
+					else if(event.isCbSelected(CTLSEL_TECHROUTEITEM_TECH)) {
+						getCtrlData(CTLSEL_TECHROUTEITEM_TECH, &Data.TechID);
+						SetupCtrls();
+					}
+					else
+						return;
+					clearEvent(event);
+				}
+				void   SetupCtrls()
+				{
+					SString prc_name;
+					if(Data.TechID) {
+						PPObjTech tec_obj;
+						TechTbl::Rec tec_rec;
+						if(tec_obj.Fetch(Data.TechID, &tec_rec) > 0) {
+							if(tec_rec.PrcID) {
+								GetObjectName(PPOBJ_PROCESSOR, tec_rec.PrcID, prc_name);
+							}
+						}
+					}
+					setCtrlString(CTL_TECHROUTEITEM_PRCNAME, prc_name);
 				}
 			};
 			int    ok = -1;

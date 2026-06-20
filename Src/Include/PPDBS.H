@@ -181,13 +181,16 @@ public:
 		Rec();
 		Rec & Clear();
 		char   Code[156];
-		uint8  Reserve[32]; // raw
+		int32  Kind;
+		uint8  Reserve[28]; // raw
 		TSLob <2048> VT;
 	} data;
 	struct Key0 {
 		char   Code[156];
+		int32  Kind;
 	};
 	DBField Code;
+	DBField Kind;
 	DBField Reserve;
 	DBField VT;
 };

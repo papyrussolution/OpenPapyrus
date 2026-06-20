@@ -2562,9 +2562,9 @@ int UnxTextRefCore::SearchUtf8(const SObjTextRefIdent & rI, SString & rBufUtf8) 
 				SBuffer temp_sbuf;
 				readLobData(VT, temp_sbuf);
 				destroyLobData(VT);
-				const size_t actual_size = temp_sbuf.GetAvailableSize();
+				const  size_t actual_size = temp_sbuf.GetAvailableSize();
 				{
-					const size_t cs_size = SSerializeContext::GetCompressPrefix(0);
+					const  size_t cs_size = SSerializeContext::GetCompressPrefix(0);
 					if(actual_size > cs_size && SSerializeContext::IsCompressPrefix(temp_sbuf.GetBuf(temp_sbuf.GetRdOffs()))) {
 						SCompressor compr(SCompressor::tZLib);
 						SBuffer dbuf;
@@ -2638,8 +2638,8 @@ int UnxTextRefCore::SearchTS(const SObjTextRefIdent & rI, STimeSeries & rTs)
 			SBuffer temp_buf;
 			readLobData(VT, temp_buf);
 			destroyLobData(VT);
-			const size_t actual_size = temp_buf.GetAvailableSize();
-			const size_t cs_size = SSerializeContext::GetCompressPrefix(0);
+			const  size_t actual_size = temp_buf.GetAvailableSize();
+			const  size_t cs_size = SSerializeContext::GetCompressPrefix(0);
 			if(actual_size > cs_size && SSerializeContext::IsCompressPrefix(temp_buf.GetBuf(temp_buf.GetRdOffs()))) {
 				SCompressor compr(SCompressor::tZLib);
 				SBuffer dbuf;
@@ -2831,8 +2831,8 @@ int UnxTextRefCore::SetTimeSeries(const SObjTextRefIdent & rI, STimeSeries * pTs
         SCompressor compr(SCompressor::tZLib);
 		THROW_SL(pTs->Serialize(+1, sbuf, &sctx));
 		if(sbuf.GetAvailableSize() > 128) {
-			uint8 cs[32];
-			const size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
+			uint8  cs[32];
+			const  size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
 			THROW_SL(cbuf.Write(cs, cs_size));
 			THROW_SL(compr.CompressBlock(sbuf.GetBuf(0), sbuf.GetAvailableSize(), cbuf, 0, 0));
 		}

@@ -1089,10 +1089,10 @@ int DBTable::readLobData(DBField fld, SBuffer & rBuf) const
 {
 	int    ok = -1;
 	size_t sz;
-	if(LobB.GetSize((uint)fld.fld, &sz) > 0) {
+	if(LobB.GetSize(static_cast<uint>(fld.fld), &sz) > 0) {
 		if(sz) {
 			SLob * p_fld_data = static_cast<SLob *>(fld.getValuePtr());
-			const void * ptr = p_fld_data->GetRawDataPtr();
+			const  void * ptr = p_fld_data->GetRawDataPtr();
 			if(ptr) {
 				rBuf.Write(ptr, sz);
 				ok = 1;

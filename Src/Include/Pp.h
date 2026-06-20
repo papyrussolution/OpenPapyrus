@@ -1250,6 +1250,104 @@ struct GdsClsCalcExprContext {
 	PPID   PrevGoodsID;
 };
 //
+// Descr: Один сегмент пула секретов. 
+// Note: Внутри этой структуры шифрование не применяется - удержание в секретности находится в ведении SVaultPool и SlCrypt
+//   Все строки - в кодировке utf8
+//
+class PPSecretSegment {
+public:
+	PPSecretSegment();
+	PPSecretSegment(const PPSecretSegment & rS);
+	PPSecretSegment(SStrGroup * pOuterSg);
+	~PPSecretSegment();
+	PPSecretSegment & FASTCALL operator = (const PPSecretSegment & rS);
+	bool   IsEmpty() const;
+	PPSecretSegment & Z();
+	bool   FASTCALL Copy(const PPSecretSegment & rS);
+	bool   GetText(uint32 textP, SString & rBuf) const;
+	SJson * ToJsonObj() const;
+	bool   FromJsonObj(const SJson * pJs);
+	//
+	// Descr: типы секретов
+	//
+	enum { // @persistent
+		sectypUndef      = 0,
+		sectypFolder     = 1, // Вообще не секрет никакой - папка для других сегментов
+		sectypGeneric    = 2, // Обобщенный секрет. pair {open-string; hidden-string}
+			// TextOpen; TextHidden
+		sectypPassword   = 3, // simple secret string
+			// TextPassword
+		sectypAuthSecret = 4, // pair { auth (open string); secret (hidden string)}
+			// TextOpen; TextHidden
+		sectypOpenKey    = 5, // Открытая строка, которую из гигиенических соображений лучше хранить в "темноте" (номер паспорта, инн, номера договоров etc)
+			// TextOpen
+		sectypBankCard   = 6, // Данные банковской карты: {number; CVV; PIN; expiry}
+			// TextOpen(number); TextHidden(PIN), TextExt1(CVV), TextExpiry(expiry)
+		sectypSSH        = 7, // {public_key; private_key; passphrase}
+			// TextOpen(public_key); TextHidden(private_key), TextExt1(passphrase)
+		sectypESignature = 8, // Данные электронной подписи
+	};
+	struct CoreEntry {
+		CoreEntry();
+		CoreEntry & Z();
+		bool   IsEmpty() const;
+
+		uint64 UedBeforeTm;  // Время, до которого блок актуален или, для головного элемента, время истечения действия //
+		uint32 STextOpenP;   // Часть секрета (открытая строка)
+		uint32 STextHiddenP; // Часть секрета (скрытая строка). Для банковской карты PIN код хранится здесь.
+		uint32 STextExpiryP; // Часть секрета (строка срока действия asis). По смыслу дублирует UedExpiryTm но по факту может отличаться написанием или нюансами ситуации (eg after 20220224)
+		uint32 STextExt1P;   // Часть секрета ext1
+		uint32 STextExt2P;   // Часть секрета ext2
+		uint32 STextExt3P;   // Часть секрета ext3
+	};
+	uint32 InternalID;   // @anchor Внутренний идентификатор (если сегмент находится в SVaultPool, то InternalID совпадает с номинальным идентификатором сегмента контейнере)
+	uint32 ParentID;     // Внутренний идентификатор родительского сегмента (если 0, то topmost)
+	uint32 SecType;      // sectypXXX
+	uint64 UedRefOid;    // Ссылка на объект в базе данных, с которым сегмент ассоциирован
+	uint64 UedEnterTm;   // Время создания записи
+	uint64 UedHashAlg;   // UED-идентификатор алгоритма хэширования для случаев, когда таковой алгоритм является часть секрета
+	uint32 NameP;        // Наименование сегмента (позиция в SStrGroup) 
+	CoreEntry CE;
+	uint32 DescrP;       // Описание сегмента
+	uint32 ExecCmdLineP; // Командная строка для запуска приложения или команды
+	uint8  Reserve[64];  // @anchor
+	TSVector <CoreEntry> History;
+private:
+	SStrGroup & GetSg();
+	const  SStrGroup & GetSgC() const;
+
+	SStrGroup * P_OwnSg;   // Собственная группа строк
+	SStrGroup * P_OuterSg; // Внешняя группа строк
+};
+
+class PPSecretSegmentPool : public TSCollection <PPSecretSegment> {
+public:
+	PPSecretSegmentPool();
+	~PPSecretSegmentPool();
+	//
+	// Descr: Функция аналогична по назначению TSCollection::CreateNewItem, но отличается тем, что новый элемент
+	//   создается со ссылкой на SStrGroup Sg, приндалежащей this.
+	//
+	PPSecretSegment * CreateNewSegment(uint * pPos);
+	//
+	// Returns:
+	//   >0 - путь pFileName определяет имя существующего хранилища секретов
+	//   <0 - путь pFileName указывает на несуществующий файл
+	//    0 - error
+	//
+	int    IsThereStorage(const char * pFileName);
+	int    LoadStorage(const char * pFileName);
+	int    DescryptSegments();
+	int    CreateStorage(const char * pFileName, const char * pMasterPassword, size_t masterPasswordLen);
+	int    SaveStorage(const char * pFileName);
+	int    ReadTestJson(const char * pJsFileName, const char * pMasterPassword, size_t masterPasswordLen);
+private:
+	int    PutSegmentIntoPool(const PPSecretSegment * pSeg);
+
+	SVaultPool * P_Vault;
+	SStrGroup Sg;
+};
+//
 //	Структура результирующей кросс-таблицы следующая:
 //		autolong CTID;
 //		Поля, заданные в списке IdxFldList, копируемые из исходной таблицы;
@@ -11646,6 +11744,12 @@ private:
 // Специализированный экземпляр контейнера предназначен для проверки поступивших кодов.
 // В таком контейнере все элементы хранятся со значением RowID == -1 (то есть не ассоциируются со строками документа).
 // В базе данных валидирующий контейнер сохраняется в сериализованном виде в таблице PropertyTbl.
+// 
+// Note(20260617): Эта стурктура имеет врожденный тяжелый дефект: невозможность правильного выстраивания многоуровневой иерархии из-за 
+//   того, что поле Entry::BoxID одновременно является идентификатором родительской упаковки и собственным идентификатором если 
+//   элемент сам является упаковкой. То есть упаковку не удастся аккуратно уложить в середину иерархии. Чтобы это исправить
+//   необходимо ввести еще один (собственный) идентификатор элемента, но для этого понадобится писать процедуры для обратной совместимости.
+//   В общем, это - целый проект.
 //
 class PPLotExtCodeContainer : private SVector, private SStrGroup {
 	friend class LotExtCodeCore;
@@ -11664,25 +11768,38 @@ public:
 
 		int16  RowIdx;
         int16  Flags;
-		int32  BoxId;
-		SString Num;
+		int32  Id;       // @v12.6.8
+		int32  ParentId; // @v12.6.8 BoxId-->ParentId 
+		SString Num;     //
 	};
 	struct MarkSet : public SStrGroup {
 	public:
 		struct Entry {
-			long   BoxID;
+			Entry();
+			long   Id;       // @v12.6.8
+			long   ParentId; // @v12.6.8 BoxID-->ParentId
 			long   Flags;
-			SString Num;
+			SString Code;    // @v12.6.8 Num->Code
 		};
 		MarkSet();
 		MarkSet & Z();
-		long   AddBox(long id, const char * pNum, int doVerify);
-		int    AddNum(long boxId, const char * pNum, int doVerify);
+		bool   FASTCALL IsEq(const MarkSet & rS) const;
+		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx); // @v12.6.8
+		SJson * ToJson(uint flags) const;
+		long   AddBox(long id, long parentId, const char * pNum, bool doVerify);
+		long   AddNum(long parentId, const char * pNum, bool doVerify);
 		uint   GetCount() const;
 		bool   HasEgaisMarks() const;
 		bool   GetByIdx(uint idx, Entry & rEntry) const;
-		int    GetBoxNum(long boxId, SString & rNum) const;
+		//
+		// Descr: Находит элемент с идентификатором равным boxId (Flags & fBox) и присваивает его код по ссылке rNum.
+		// Returns:
+		//   true - родительский элемент с идент boxId найден 
+		//   false - родительский элемент с идент boxId НЕ найден 
+		//
+		bool   GetBoxNum(long boxId, SString & rNum) const;
 		int    GetByBoxID(long boxId, StringSet & rSs) const;
+		int    GetByBoxID(long boxId, MarkSet & rResult) const;
 		int    SearchCode(const char * pNum, uint * pIdx) const;
 		//
 		// Descr: Ищет предыдущий бокс начиная с позиции currentPos вверх.
@@ -11693,10 +11810,18 @@ public:
 		//
 		long   SearchLastBox(int currentPos) const;
 	private:
-		struct InnerEntry { // @flat
-			long   BoxID;
+		long   GetNewId(long idToVerifyUniq, const char * pCodeToVerifyUniq) const;
+		int    Helper_GetByParentID(long parentId, long destParentId, MarkSet & rResult) const;
+		SJson * Helper_ToJson(long parentId, uint flags, LongArray * pSeenIdxList) const;
+
+		struct InnerEntry { // @flat // @persistent
+			InnerEntry() : Id(0), ParentId(0), Flags(0), CodeP(0)
+			{
+			}
+			long   Id;       // @v12.6.8
+			long   ParentId; // @v12.6.8 BoxID-->ParentId
 			long   Flags;
-			uint   NumP;
+			uint   CodeP;    // @v12.6.8 NumP-->CodeP
 		};
 		TSVector <InnerEntry> L;
 	};
@@ -11748,13 +11873,16 @@ public:
     void   RemovePosition(int rowIdx);
 	int    ReplacePosition(int rowIdx, int newRowIdx);
 	int    Serialize_Before10209(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+	int    Serialize_Before12608(int dir, SBuffer & rBuf, SSerializeContext * pSCtx); // @v12.6.8
     int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 private:
 	int    Helper_Add(int rowIdx, long boxId, int16 flags, const char * pCode, int doVerifyUniq, uint * pIdx);
     struct InnerItem { // @persistent
+		InnerItem();
 		int16  RowIdx;
         int16  Flags;
-		int32  BoxId;
+		int32  Id;       // @v12.6.8
+		int32  ParentId; // @v12.6.8 BoxId-->ParentId
         uint   CodeP;
     };
 };
@@ -13578,6 +13706,23 @@ public:
 	int    GetRecListByMark(const char * pCode, TSVector<LotExtCodeTbl::Rec> & rList);
 	int    GetListByBillRow(PPID billID, int rbb, bool firstOnly, StringSet & rSs, uint * pCount);
 	int    FindMarkToTransfer(const char * pCode, PPID goodsID, PPID lotID, PPLotExtCodeContainer::MarkSet & rResult);
+};
+
+class ExtCodeRefCore : public ExtCodeRefTbl { // @v12.6.8
+public:
+	//
+	// Descr: Виды записей 
+	//
+	enum { // @persistent
+		kUndef       = 0, // Не определено 
+		kOps         = 1, // Операции по марке
+		kAggregation = 2, // Агрегации марки (то есть, какие марки входят в упаковку с кодом this->Rec.Code).
+			// Хвост переменной длины хранит сериализованную структуру PPLotExtCodeContainer::MarkSet
+	};
+	ExtCodeRefCore();
+	int    PutAggregation(const char * pCode, PPLotExtCodeContainer::MarkSet & rSet, int use_ta);
+	int    PutAggregation2(const PPLotExtCodeContainer::MarkSet & rSet, int use_ta);
+	int    GetAggregation(const char * pCode, PPLotExtCodeContainer::MarkSet & rSet, bool recursive);
 };
 //
 //
@@ -24827,7 +24972,7 @@ private:
 #define GTCHZNPT_VEGETABLEOIL       UED::GetRawValue32(UED_RUCHZNPRODTYPE_VEGETABLEOIL)/*20*/ // @v12.4.8 Растительное масло
 #define GTCHZNPT_NCP                UED::GetRawValue32(UED_RUCHZNPRODTYPE_NCP)/*21*/ // @v12.5.6 Никотиносодержащая продукция //
 #define GTCHZNPT_MOTOROIL           UED::GetRawValue32(UED_RUCHZNPRODTYPE_MOTOROIL)/*22*/ // @v12.5.11 Моторное масло //
-#define GTCHZNPT_CHEMISTRY          UED::GetRawValue32(UED_RUCHZNPRODTYPE_CHEMISTRY)/*35*/ // @v12.6.7 Косметика, бытовая химия и товары личной гигиены //
+#define GTCHZNPT_CHEMISTRY          UED::GetRawValue32(UED_RUCHZNPRODTYPE_CHEMISTRY)/*23*/ // @v12.6.7 Косметика, бытовая химия и товары личной гигиены //
 
 struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	PPGoodsType2();
@@ -25016,6 +25161,15 @@ struct TechRouteIdent {
 	SString & ToStr(uint fmt, SString & rBuf) const;
 	SString & ToStrWithItemIdxList(const LongArray * pItemIdxList, uint fmt, SString & rBuf) const;
 	bool   FromStr(const char * pText);
+	//
+	// Descr: Разбирает строку тега на компоненты.
+	// ARG(pText IN):
+	// ARG(pItemIdxList OUT): Указатель на список идентификаторов фаз [1...] маршрута, которые уже пройдены лотом (последняя, возможно, не закрыта еще)
+	//   Функция не сортирует этот список дабы вызывающая функция могла увидеть точный порядок прохождения маршрута.
+	// Returns:
+	//   true - ok
+	//   false - error
+	//
 	bool   FromStrWithItemIdxList(const char * pText, LongArray * pItemIdxList);
 	SObjID Oid;    // Объект-владелец технологического маршрута
 	PPID   ID;     // Идентификатор маршрута ->TechTbl.ID(Kind=TECK_ROUTE)
@@ -38036,7 +38190,7 @@ public:
 	//
 	// ARG(rList OUT): предварительно очищается функцией
 	//
-	int    GetParentsList(PPID prcID, PPIDArray & rList);
+	int    GetParentsList(PPID prcID, PPIDArray & rList, bool useCache = false);
 	int    BelongsToHierarchy(PPID prcID, PPID hierarchyPrcID); // @v12.6.1
 	//
 	// Descr: Возвращает список процессоров, дочерних по отношению к prcID.
@@ -38495,14 +38649,14 @@ struct PPTSessConfig { // @persistent @store(PropertyTbl)
 	DECL_INVARIANT_C();
 
 	enum {
-		fUpdateTimeOnStatus = 0x0001, // При изменении статуса сессии на TSESST_INPROCESS или TSESST_CLOSED
+		fUpdateTimeOnStatus          = 0x0001, // При изменении статуса сессии на TSESST_INPROCESS или TSESST_CLOSED
 			// изменять дату и время, соответственно, начала и конца сессии на текущую
-		fUsePricing          = 0x0002, // Использовать цены в техн сессиях
+		fUsePricing                  = 0x0002, // Использовать цены в техн сессиях
 		fAllowLinesInPendingSessions = 0x0004, // Разрешать ввод строк в ожидающих сессиях (TSESST_PLANNED, TSESST_PENDING)
 		fAllowLinesInWrOffSessions   = 0x0008, // Разрешать ввод строк в списанных сессиях
 		fSnapInTimeChunkBrowser      = 0x0010, // Во временной диаграмме при щелчке мышью время отмерять с округлением до ближайшего кванта
-		fUpdLinesByAutocompl = 0x0020, // При автозаполнении строк сессии по структуре изменять количество в строках, которые были введены в ручную
-		fFreeGoodsSelection  = 0x0040, // Свободный выбор товаров в строках сессии
+		fUpdLinesByAutocompl         = 0x0020, // При автозаполнении строк сессии по структуре изменять количество в строках, которые были введены в ручную
+		fFreeGoodsSelection          = 0x0040, // Свободный выбор товаров в строках сессии
 		fSetupCcPricesInCPane        = 0x0080  // При формировании кассового чека по сессии
 			// цены устанавливаются через механизмы кассовой панели (цена строки в техсессии игнорируется)
 	};
@@ -38524,9 +38678,10 @@ struct PPTSessConfig { // @persistent @store(PropertyTbl)
 	long   ColorInProgressStatus;
 	long   ColorClosedStatus;
 	long   ColorCanceledStatus;
-	SVerT Ver;
+	SVerT  Ver;
 	PPID   DefTimeTechID;      // Технология по умолчанию для повременных сессий
-	char   Reserve[16];        // @vmiller [24] --> [20]
+	PPID   JobPerItemGoodsID;  // @v12.6.8 Ид товара, олицетворяющего работу сотрудников за отработку одной единицы продукции (то есть, не по времени)
+	char   Reserve[12];        // @vmiller [24] --> [20] // @v12.6.8 [16]-->[12]
 	PPAutoSmsConfig SmsConfig; // @vmiller
 };
 
@@ -39157,8 +39312,13 @@ private:
 	//   учитывается по времени (торговая единица основного товара приводится к секунде).
 	//
 	int    PutTimingLine(const TSessionTbl::Rec * pPack); // @<<PPObjTSession::PutPacket
-	int    CompleteStruc(PPID sessID, PPID tecGoodsID, PPID tecStrucID,
-		double tecQtty, const PPIDArray * pGoodsIdList, int tooling); // @<<PPObjTSession::Complete
+	//
+	// Note: Функция работает без тразакции (предполагая, что вызывается внутри транзакции).
+	// ARG(tecGoodsID IN): Ид основного товара технологии. Применяется для подстановки вариабельного объекта при получении очередного
+	//   компонента товарной структуры с целью вставки в строку сессии.
+	// ARG(pExGoodsIdList IN): Список идентификаторов товаров, которые не должны включаться в сессию. 
+	//
+	int    CompleteStruc(PPID sessID, PPID tecGoodsID, PPID tecStrucID, double tecQtty, const PPIDArray * pExGoodsIdList, bool isTooling); // @<<PPObjTSession::Complete
 	void   Helper_SetupDiscount(SVector & rList, int pct, double discount);
 		// @<<PPObjTSession::SetupDiscount
 	enum {
@@ -57453,7 +57613,7 @@ private:
 	long   State;
 	long   Flags;
 	PPObjBill * P_BObj;
-	SpecSeriesCore * P_SpcCore; // @v11.1.8
+	SpecSeriesCore * P_SpcCore;
 	PPObjGoods GObj;
 	PPObjTag TagObj;
 	SString Serial_;
@@ -57843,6 +58003,7 @@ public:
 private:
 	int    PrepareBillPacketForSending(PPID billID, void * pChZnPacket);
 	void * P_Ib; // Блок инициализации
+	ExtCodeRefCore * P_EcRefC; // @v12.6.8
 };
 //
 // Панель чеков
@@ -60230,8 +60391,8 @@ private:
 	DECL_HANDLE_EVENT;
 	void   SetupCtrls(long direction);
 
-	const PPObjQuotKind::Special QkSpc; // @v11.4.2
-	PPObjQuotKind QkObj; // @v11.4.2
+	const PPObjQuotKind::Special QkSpc;
+	PPObjQuotKind QkObj;
 };
 //
 //
@@ -62492,8 +62653,8 @@ public:
 		curOdious, // @debug
 		penLayoutBorder,
 		penContainerCandidateBorder,
-		penLayoutEvenBorder, // @v11.2.2 Цвет рамки лейаутов четного уровня
-		penLayoutOddBorder, // @v11.2.2 Цвет рамки лейаутов нечетного уровня
+		penLayoutEvenBorder, // Цвет рамки лейаутов четного уровня
+		penLayoutOddBorder,  // Цвет рамки лейаутов нечетного уровня
 
 		anchorLastTool // Значение для выравнивания идентификаторов инструментов в производных окнах
 	};
@@ -62541,8 +62702,8 @@ protected:
 		bool   GetUseScrlrY() const;
 		void   SetUseScrlrX(bool);
 		void   SetUseScrlrY(bool);
-		SScroller ScrlrX; // @v11.0.3
-		SScroller ScrlrY; // @v11.0.3
+		SScroller ScrlrX;
+		SScroller ScrlrY;
 	private:
 		enum {
 			fUseScrlrX = 0x0001, // Использовать ScrlrX вместо (Rx, ScX)

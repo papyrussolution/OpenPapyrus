@@ -653,8 +653,8 @@ static int StoreCcDate2MaxIdIndex(LAssocArray & rIndex)
 		THROW(PPObjCSession::ValidateCcDate2MaxIdIndex(rIndex));
 		sctx.Serialize(+1, &rIndex, _sbuf);
 		if(_sbuf.GetAvailableSize() > 128) {
-			uint8 cs[32];
-			size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
+			uint8  cs[32];
+			const  size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
 			SCompressor compr(SCompressor::tZLib);
 			THROW_SL(cbuf.Write(cs, cs_size));
 			THROW_SL(compr.CompressBlock(_sbuf.GetBuf(0), _sbuf.GetAvailableSize(), cbuf, 0, 0));

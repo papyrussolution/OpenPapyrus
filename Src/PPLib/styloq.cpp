@@ -9459,8 +9459,8 @@ int PPStyloQInterchange::Document::FromBillPacket(const PPBillPacket & rS, const
 					PPLotExtCodeContainer::MarkSet::Entry xce;
 					if(lotxcode_set.GetByIdx(xci, xce)) {
 						PPStyloQInterchange::Document::LotExtCode lec;
-						lec.BoxRefN = xce.BoxID;
-						STRNSCPY(lec.Code, xce.Num);
+						lec.BoxRefN = (xce.Flags & PPLotExtCodeContainer::fBox) ? xce.Id : xce.ParentId;
+						STRNSCPY(lec.Code, xce.Code);
 						lec.Flags = xce.Flags;
 						p_doc_ti->XcL.insert(&lec);
 					}
@@ -9475,8 +9475,8 @@ int PPStyloQInterchange::Document::FromBillPacket(const PPBillPacket & rS, const
 				PPLotExtCodeContainer::MarkSet::Entry xce;
 				if(lotxcode_set.GetByIdx(xci, xce)) {
 					PPStyloQInterchange::Document::LotExtCode lec;
-					lec.BoxRefN = xce.BoxID;
-					STRNSCPY(lec.Code, xce.Num);
+					lec.BoxRefN = (xce.Flags & PPLotExtCodeContainer::fBox) ? xce.Id : xce.ParentId;
+					STRNSCPY(lec.Code, xce.Code);
 					lec.Flags = xce.Flags;
 					VXcL.insert(&lec);
 				}
@@ -9941,8 +9941,8 @@ int PPStyloQInterchange::StoreOidListWithBlob(const PPObjIDArray & rList)
 		if(_list.getCount()) {
 			const bool use_compression = ((_list.getCount() * _list.getItemSize()) > 512) ? true : false;
 			if(use_compression) {
-				uint8 cs[32];
-				size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
+				uint8  cs[32];
+				const  size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
 				SCompressor compr(SCompressor::tZLib);
 				SBuffer _compr_buf;
 				THROW_SL(sbuf.Write(cs, cs_size));
@@ -9970,8 +9970,8 @@ int PPStyloQInterchange::GetOidListWithBlob(PPObjIDArray & rList)
 	SBuffer sbuf;
 	THROW(p_ref);
 	if(p_ref->GetPropSBuffer(PPOBJ_CURRENTSTATE, 1, CSTATEPRP_STQOBJBLOBLIST, sbuf) > 0) {
-		const size_t actual_size = sbuf.GetAvailableSize();
-		const size_t cs_size = SSerializeContext::GetCompressPrefix(0);
+		const  size_t actual_size = sbuf.GetAvailableSize();
+		const  size_t cs_size = SSerializeContext::GetCompressPrefix(0);
 		if(actual_size > cs_size && SSerializeContext::IsCompressPrefix(sbuf.GetBuf(sbuf.GetRdOffs()))) {
 			SCompressor compr(SCompressor::tZLib);
 			SBuffer dbuf;
@@ -12890,9 +12890,9 @@ int PPStyloQInterchange::TestClientInteractive(PPID svcID)
 				cmd_list.Add(cmdEcho, PPLoadTextS(PPTXT_STQCLITESTCMD_ECHO, temp_buf));
 				cmd_list.Add(cmdIndexing, PPLoadTextS(PPTXT_STQCLITESTCMD_INDEXING, temp_buf));
 				cmd_list.Add(cmdSearch, PPLoadTextS(PPTXT_STQCLITESTCMD_SEARCH, temp_buf));
-				cmd_list.Add(cmdStoreBlob, PPLoadTextS(PPTXT_STQCLITESTCMD_STOREBLOB, temp_buf)); // @v11.3.6
-				cmd_list.Add(cmdGetBlob, PPLoadTextS(PPTXT_STQCLITESTCMD_GETBLOB, temp_buf)); // @v11.3.7
-				cmd_list.Add(cmdRequestBlobInfoList, PPLoadTextS(PPTXT_STQCLITESTCMD_REQBLOBINFOLIST, temp_buf)); // @v11.3.7
+				cmd_list.Add(cmdStoreBlob, PPLoadTextS(PPTXT_STQCLITESTCMD_STOREBLOB, temp_buf));
+				cmd_list.Add(cmdGetBlob, PPLoadTextS(PPTXT_STQCLITESTCMD_GETBLOB, temp_buf));
+				cmd_list.Add(cmdRequestBlobInfoList, PPLoadTextS(PPTXT_STQCLITESTCMD_REQBLOBINFOLIST, temp_buf));
 				SetupStrAssocCombo(this, CTLSEL_STQCLITEST_FUNC, cmd_list, 0, 0);
 			}
 		}

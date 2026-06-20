@@ -159,6 +159,8 @@ static rstring_code FASTCALL rcs_catc(RcString * pre, const char c)
 	THROW_S_S(!isempty(pFileName), SLERR_INVPARAM, __FUNCTION__"/pFileName");
 	THROW(fileExists(pFileName));
 	{
+		size_t bom_len = 0;
+		const  char * p_start = 0;
 		SString temp_buf;
 		SFile f_inp(pFileName, SFile::mRead|SFile::mBinary);
 		THROW(f_inp.IsValid());
@@ -168,8 +170,11 @@ static rstring_code FASTCALL rcs_catc(RcString * pre, const char c)
 			THROW(in_buf.IsValid());
 			THROW(f_inp.ReadAll(in_buf, 0, &actual_size));
 			temp_buf.Z().CatN(in_buf, actual_size);
+			THROW_S(temp_buf.Len(), SLERR_JSON_EMPTYDOCUMENT);
+			const  int bom_format = SFileFormat::IsThereBomPrefix(temp_buf, temp_buf.Len(), &bom_len);
+			p_start = bom_format ? (temp_buf.cptr() + bom_len) : temp_buf.cptr();
 		}
-		p_result = SJson::Parse(temp_buf);
+		p_result = SJson::Parse(p_start);
 	}
 	CATCH
 		ZDELETE(p_result);
@@ -281,8 +286,54 @@ SJson::SJson(int aType) : Type(aType), P_Next(0), P_Previous(0), P_Parent(0), P_
 {
 }
 
+void FASTCALL SJson::Destroy(bool secure) // @v12.6.8
+{
+	//
+	// Велик соблазн использовать здесь рекурсивное удаление внутренних объектов, но нельзя!
+	// При больших цепочках возможно переполнение стека.
+	//
+	if(P_Next) {
+		for(SJson * p_next = P_Next; p_next;) {
+			SJson * p_temp = p_next->P_Next;
+			p_next->P_Next = 0;
+			if(secure) {
+				p_next->Text.Obfuscate();
+				p_next->Text.Z();
+				p_next->Type = 0;
+				p_next->State = 0;
+			}
+			delete p_next;
+			p_next = p_temp;
+		}
+		P_Next = 0;
+	}
+	if(P_Child) {
+		for(SJson * p_child = P_Child; p_child;) {
+			SJson * p_temp = p_child->P_Child;
+			p_child->P_Child = 0;
+			if(secure) {
+				p_child->Text.Obfuscate();
+				p_child->Text.Z();
+				p_child->Type = 0;
+				p_child->State = 0;
+			}
+			delete p_child;
+			p_child = p_temp;
+		}
+		P_Child = 0;
+	}
+	if(secure) {
+		Text.Obfuscate();
+		Text.Z();
+		Type = 0;
+		State = 0;
+	}
+}
+
 SJson::~SJson()
 {
+	Destroy(false);
+	/* @v12.6.8
 	//
 	// Велик соблазн использовать здесь рекурсивное удаление внутренних объектов, но нельзя!
 	// При больших цепочках возможно переполнение стека.
@@ -305,6 +356,7 @@ SJson::~SJson()
 		}
 		P_Child = 0;
 	}
+	*/
 }
 
 bool SJson::IsValid() const { return !(State & 0x0001); }

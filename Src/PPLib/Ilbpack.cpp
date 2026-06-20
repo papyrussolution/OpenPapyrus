@@ -2525,12 +2525,15 @@ int PPObjBill::SerializePacket_Base(int dir, PPBill * pPack, SBuffer & rBuf, SSe
 	if(dir < 0 && pPack->Ver.IsLt(10, 2, 9)) {
 		THROW(pPack->XcL.Serialize_Before10209(dir, rBuf, pSCtx));
 	}
+	else if(dir < 0 && pPack->Ver.IsLt(12, 6, 8)) {
+		THROW(pPack->XcL.Serialize_Before12608(dir, rBuf, pSCtx));
+	}
 	else {
 		THROW(pPack->XcL.Serialize(dir, rBuf, pSCtx));
 	}
 	THROW(pPack->AdvList.Serialize(dir, rBuf, pSCtx));
 	if(dir > 0) {
-		const long ff = (GetOpType(pPack->Rec.OpID) == PPOPT_ACCTURN) ? SBuffer::ffAryCount32 : (SBuffer::ffAryCount32|SBuffer::ffAryForceEmpty);
+		const  long ff = (GetOpType(pPack->Rec.OpID) == PPOPT_ACCTURN) ? SBuffer::ffAryCount32 : (SBuffer::ffAryCount32|SBuffer::ffAryForceEmpty);
 		THROW_SL(rBuf.Write(&pPack->Turns, ff));
 		{
 			uint32 sz = pPack->Rent.IsEmpty() ? 0 : sizeof(pPack->Rent);

@@ -101,6 +101,44 @@ int FASTCALL SBuffer::Copy(const SBuffer & rS)
 	return ok;
 }
 
+int SBuffer::CompressOptional(uint minSizeToCompression, SBuffer & rDest) // @v12.6.8
+{
+	int   ok = -1;
+	if(GetAvailableSize() > minSizeToCompression) {
+		uint8  cs[32];
+		const  size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
+		SCompressor compr(SCompressor::tZLib);
+		THROW(rDest.Write(cs, cs_size));
+		THROW(compr.CompressBlock(GetBuf(0), GetAvailableSize(), rDest, 0, 0));
+		ok = 1;
+	}
+	else {
+		rDest = *this;
+		ok = -1;
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SBuffer::DecompressOptional(SBuffer & rDest) // @v12.6.8
+{
+	rDest.Z();
+	int    ok = 1;
+	const  size_t actual_size = GetAvailableSize();
+	const  size_t cs_size = SSerializeContext::GetCompressPrefix(0);
+	if(actual_size > cs_size && SSerializeContext::IsCompressPrefix(GetBuf(GetRdOffs()))) {
+		SCompressor compr(SCompressor::tZLib);
+		THROW(compr.DecompressBlock(GetBuf(GetRdOffs()+cs_size), actual_size-cs_size, rDest));
+		ok = 1;
+	}
+	else {
+		rDest = *this;
+		ok = -1;
+	}
+	CATCHZOK
+	return ok;
+}
+
 bool SBuffer::IsValid()
 {
 	if(!(Flags & fError)) {
@@ -1239,7 +1277,7 @@ int SBinarySet::Enum(size_t * pPos, uint32 * pId, SBinaryChunk * pResult) const
 {
 	int    ok = 0;
 	assert(DataLen <= SBaseBuffer::Size);
-	size_t cur_pos = pPos ? *pPos : 0;
+	size_t cur_pos = DEREFPTRORZ(pPos);
 	if(DataLen) {
 		assert(DataLen >= sizeof(H));
 		if(reinterpret_cast<const H *>(P_Buf)->Magic == SlConst::SBinarySetSignature) {
@@ -1281,7 +1319,7 @@ int SBinarySet::Put(uint32 id, const void * pData, uint32 size, const DeflateStr
 			SCompressor compr(SCompressor::tZLib);
 			SSerializeContext sctx;
 			uint8  cs[32];
-			size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
+			const  size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
 			SBuffer cbuf;
 			THROW(cbuf.Write(cs, cs_size));
 			THROW(compr.CompressBlock(pData, size, cbuf, 0, 0));
@@ -1291,7 +1329,7 @@ int SBinarySet::Put(uint32 id, const void * pData, uint32 size, const DeflateStr
 		else {
 			if(DataLen == 0) {
 				if(!do_remove) {
-					const size_t new_data_len = (size + sizeof(H) + sizeof(BH));
+					const  size_t new_data_len = (size + sizeof(H) + sizeof(BH));
 					if(SBaseBuffer::Alloc(new_data_len)) {
 						reinterpret_cast<H *>(P_Buf)->Magic = SlConst::SBinarySetSignature;
 						reinterpret_cast<H *>(P_Buf)->Flags_ = 0;
@@ -1426,7 +1464,7 @@ int SBinarySet::PutEncrypted(uint32 id, const void * pData, uint32 size, uint64 
 					SCompressor compr(SCompressor::tZLib);
 					SSerializeContext sctx;
 					uint8  cs[32];
-					size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
+					const  size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
 					THROW(cbuf.Write(cs, cs_size));
 					THROW(compr.CompressBlock(pData, size, cbuf, 0, 0));
 					p_eff_data = cbuf.GetBuf();

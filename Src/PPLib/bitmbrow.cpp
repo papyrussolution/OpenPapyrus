@@ -3239,7 +3239,7 @@ public:
 								// @v11.3.2 @fix (извлекались марки из всех строк по заданному индексу коробки, что есть тяжелая ошибка!)
 								PPLotExtCodeContainer::MarkSet ms;
 								P_Pack->XcL.Get(local_row_idx, 0, ms);
-								ms.GetByBoxID(local_item.BoxId, local_ss);
+								ms.GetByBoxID(local_item.Id, local_ss);
 								if(local_ss.getCount()) {
 									for(uint lssp = 0; local_ss.get(&lssp, temp_buf);)
 										set.AddNum(0, temp_buf, 1);
@@ -3277,7 +3277,7 @@ public:
 								/*if(oneof2(pczcr, SNTOK_CHZN_SSCC, SNTOK_CHZN_SIGN_SGTIN)) // Не верно объединять эти два типа кодов в одно, однако, на этапе отладки пусть будет так.
 									rSet.AddBox(0, mark_buf, 1);*/
 								if(ipczcr > 0) {
-									long last_box_id = set.SearchLastBox(-1);
+									const  long last_box_id = set.SearchLastBox(-1);
 									set.AddNum(last_box_id, mark_buf, 1);
 								}
 								else
@@ -3549,9 +3549,9 @@ private:
 			for(uint boxidx = 0; boxidx < ms.GetCount(); boxidx++) {
 				if(ms.GetByIdx(boxidx, msentry)) {
 					if(msentry.Flags & PPLotExtCodeContainer::fBox) {
-						temp_buf.Z().Cat("box").CatDiv(':', 2).Cat(msentry.Num);
+						temp_buf.Z().Cat("box").CatDiv(':', 2).Cat(msentry.Code);
 						//THROW(addStringToList(list_pos_idx, temp_buf));
-						ms.GetByBoxID(msentry.BoxID, ss);
+						ms.GetByBoxID(msentry.Id, ss);
 						for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 							temp_buf.Insert(0, " ");
 							buf_to_copy.Cat(temp_buf).CRB();
@@ -3608,10 +3608,10 @@ private:
 			if(ms.GetByIdx(boxidx, msentry)) {
 				if(msentry.Flags & PPLotExtCodeContainer::fBox) {
 					box_count++;
-					temp_buf.Z().Cat("box").CatDiv(':', 2).Cat(msentry.Num);
+					temp_buf.Z().Cat("box").CatDiv(':', 2).Cat(msentry.Code);
 					++list_pos_idx;
 					THROW(addStringToList(list_pos_idx, temp_buf));
-					ms.GetByBoxID(msentry.BoxID, ss);
+					ms.GetByBoxID(msentry.Id, ss);
 					for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 						temp_buf.Insert(0, " ");
 						++list_pos_idx;
@@ -3741,7 +3741,7 @@ private:
 						if(local_item.Flags & PPLotExtCodeContainer::fBox) {
 							PPLotExtCodeContainer::MarkSet ms;
 							P_Pack->XcL.Get(local_row_idx, 0, ms);
-							ms.GetByBoxID(local_item.BoxId, local_ss);
+							ms.GetByBoxID(local_item.Id, local_ss);
 							if(local_ss.getCount()) {
 								for(uint lssp = 0; local_ss.get(&lssp, temp_buf);)
 									rSet.AddNum(0, temp_buf, 1);
@@ -5293,9 +5293,9 @@ int PPObjBill::EditExtCodeList(PPBillPacket * pPack, int rowIdx/*[1..]*/, uint f
 				Data.Get(RowIdx, 0, ms);
 				for(uint boxidx = 0; boxidx < ms.GetCount(); boxidx++) {
 					if(ms.GetByIdx(boxidx, msentry) && msentry.Flags & PPLotExtCodeContainer::fBox) {
-						temp_buf.Z().Cat("box").CatDiv(':', 2).Cat(msentry.Num);
+						temp_buf.Z().Cat("box").CatDiv(':', 2).Cat(msentry.Code);
 						buf_to_copy.Cat(temp_buf).CRB();
-						ms.GetByBoxID(msentry.BoxID, ss);
+						ms.GetByBoxID(msentry.Id, ss);
 						for(uint ssp = 0; ss.get(&ssp, temp_buf);)
 							buf_to_copy.Cat(temp_buf).CRB();
 					}
@@ -5307,7 +5307,7 @@ int PPObjBill::EditExtCodeList(PPBillPacket * pPack, int rowIdx/*[1..]*/, uint f
 				if(buf_to_copy.NotEmpty())
 					SClipboard::Copy_Text(buf_to_copy, buf_to_copy.Len());
 			}
-			else if(event.isCmd(cmPasteFromClipboardAll)) { // @erik v10.8.2 
+			else if(event.isCmd(cmPasteFromClipboardAll)) { // @erik
 				PasteFromClipboardAll(/*validation*/0);
 			}
 			else
@@ -5361,10 +5361,10 @@ int PPObjBill::EditExtCodeList(PPBillPacket * pPack, int rowIdx/*[1..]*/, uint f
 				if(ms.GetByIdx(boxidx, msentry)) {
 					if(msentry.Flags & PPLotExtCodeContainer::fBox) {
 						box_count++;
-						temp_buf.Z().Cat("box").CatDiv(':', 2).Cat(msentry.Num);
+						temp_buf.Z().Cat("box").CatDiv(':', 2).Cat(msentry.Code);
 						++list_pos_idx;
 						THROW(addStringToList(list_pos_idx, temp_buf));
-						ms.GetByBoxID(msentry.BoxID, ss);
+						ms.GetByBoxID(msentry.Id, ss);
 						for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 							ProcessCommonEanOnSingleMark(temp_buf, ce_blk);
 							temp_buf.Insert(0, " ");
@@ -5521,7 +5521,7 @@ int PPObjBill::EditExtCodeList(PPBillPacket * pPack, int rowIdx/*[1..]*/, uint f
 							/*if(oneof2(pczcr, SNTOK_CHZN_SSCC, SNTOK_CHZN_SIGN_SGTIN)) // Не верно объединять эти два типа кодов в одно, однако, на этапе отладки пусть будет так.
 								rSet.AddBox(0, mark_buf, 1);*/
 							if(ipczcr > 0) {
-								const long last_box_id = rSet.SearchLastBox(-1);
+								const  long last_box_id = rSet.SearchLastBox(-1);
 								rSet.AddNum(last_box_id, mark_buf, 1);
 							}
 							else

@@ -1878,3 +1878,46 @@ SLTEST_R(ChZnCode)
 	}
 	return CurrentStatus;
 }
+
+int _ParseAggrMarkJsonResult(const SJson * pJs, long parentId, PPLotExtCodeContainer::MarkSet & rResult);
+
+SLTEST_R(PPLotExtCodeContainer)
+{
+	SString temp_buf;
+	SString fn_in;
+	SString fn_out;
+	(fn_in = GetSuiteEntry()->InPath).SetLastSlash().Cat("chzn_mark_aggr_list.json");
+	SJson * p_js = SJson::ParseFile(fn_in);
+	SJson * p_js2 = 0;
+	if(p_js) {
+		PPLotExtCodeContainer::MarkSet ms;
+		PPLotExtCodeContainer::MarkSet ms2;
+		const  int  r = _ParseAggrMarkJsonResult(p_js, 0, ms);		
+		SLCHECK_NZ(r);
+		SLCHECK_NZ(ms.GetCount());
+		if(r) {
+			SJson * p_js_reverse = ms.ToJson(0);
+			if(p_js_reverse) {
+				(fn_out = GetSuiteEntry()->OutPath).SetLastSlash().Cat("chzn_mark_aggr_list-reverse.json");
+				{
+					SFile f_out(fn_out, SFile::mWrite);
+					p_js_reverse->ToStr(temp_buf);
+					f_out.Write(temp_buf.cptr(), temp_buf.Len());
+				}
+				{
+					p_js2 = SJson::ParseFile(fn_out);
+					SLCHECK_NZ(p_js2);
+					const  int  r2 = _ParseAggrMarkJsonResult(p_js2, 0, ms2);		
+					SLCHECK_NZ(r2);
+				}
+				const   bool is_eq = ms.IsEq(ms2);
+				SLCHECK_NZ(is_eq);
+				//const  int cr = SFile::Compare(fn_in, fn_out, 0);
+				//SLCHECK_EQ(cr, 1);
+			}
+		}
+	}
+	delete p_js;
+	delete p_js2;
+	return CurrentStatus;
+}

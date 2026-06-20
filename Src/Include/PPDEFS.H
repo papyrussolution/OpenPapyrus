@@ -2506,6 +2506,11 @@
 	#define CTL_ATRNTMPL_SKIPNEG        (31 + WINDOWS_ID_BIAS)
 	#define CTL_ATRNTMPL_PERIOD         (32 + WINDOWS_ID_BIAS)
 	#define CTLCAL_ATRNTMPL_PERIOD      (33 + WINDOWS_ID_BIAS)
+	#define CTL_ATRNTMPL_DFIX_AC        (34 + WINDOWS_ID_BIAS)
+	#define CTL_ATRNTMPL_DFIX_AR        (35 + WINDOWS_ID_BIAS)
+	#define CTL_ATRNTMPL_CFIX_AC        (36 + WINDOWS_ID_BIAS)
+	#define CTL_ATRNTMPL_CFIX_AR        (37 + WINDOWS_ID_BIAS)
+	#define CTL_ATRNTMPL_CMD_ATURNTMPLSELAMTSYMB (38 + WINDOWS_ID_BIAS)
 #define DLG_GGRPKIND              354 // Выбор вида группы товаров
 	#define CTL_GGRPKIND_KIND            (1 + WINDOWS_ID_BIAS)
 #define DLG_GOODSGROUP             70 // Группа товаров
@@ -7093,6 +7098,7 @@
 	#define CTL_PRC_CIPKIND              (37 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PRC_CIPKIND           (38 + WINDOWS_ID_BIAS)
 	#define CTL_PRC_TCBQUANT             (39 + WINDOWS_ID_BIAS)
+	#define CTL_PRC_CMD_PRCEXT           (40 + WINDOWS_ID_BIAS)
 #define DLG_PRCFILT               669 // Фильтр процессоров
 	#define CTL_PRCFILT_KIND             (1 + WINDOWS_ID_BIAS)
 	#define CTL_PRCFILT_PARENT           (2 + WINDOWS_ID_BIAS)
@@ -7347,6 +7353,10 @@
 	#define CTL_TSESSCFG_TCBQUANT        (8 + WINDOWS_ID_BIAS)
 	#define CTL_TSESSCFG_DEFTMTEC        (9 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TSESSCFG_DEFTMTEC     (10 + WINDOWS_ID_BIAS)
+	#define CTL_TSESSCFG_CMD_TSESSSTATUSCOLORS (11 + WINDOWS_ID_BIAS)
+	#define CTL_TSESSCFG_CMD_TSSETAUTOSMSPARAM (12 + WINDOWS_ID_BIAS)
+	#define CTL_TSESSCFG_JOBPERITEMWARE    (13 + WINDOWS_ID_BIAS)
+	#define CTLSEL_TSESSCFG_JOBPERITEMWARE (14 + WINDOWS_ID_BIAS)
 #define DLG_DEBTTOC               688 // Цикличность фильтра долговой ведомости
 	#define CTL_DEBTTOC_KIND             (31 + WINDOWS_ID_BIAS) // Не должен перекрываться с DLG_SLLTOFLT
 #define DLG_DEBTTOC_DELAY         689 // Внутренний диалог DLG_DEBTTOC
@@ -11442,6 +11452,7 @@
 	#define CTL_CHZNIX_HINT           (5 + WINDOWS_ID_BIAS)
 	#define CTL_CHZNIX_SUPPL          (6 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CHZNIX_SUPPL       (7 + WINDOWS_ID_BIAS)
+	#define CTL_CHZNIX_ST_INFO        (8 + WINDOWS_ID_BIAS)
 #define DLG_TIMSERTEST            1377
 	#define CTL_TIMSERTEST_WHAT       (1 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSERTEST_DIST       (2 + WINDOWS_ID_BIAS)
@@ -12108,7 +12119,8 @@
 	#define CTL_TECHROUTEITEM_NTIME             (3 + WINDOWS_ID_BIAS)
 	#define CTL_TECHROUTEITEM_NPRICE            (4 + WINDOWS_ID_BIAS)
 	#define CTL_TECHROUTEITEM_LEVEL             (5 + WINDOWS_ID_BIAS)
-	#define CTL_TECHROUTEITEM_CMD_GOODSSTRUC    (6 + WINDOWS_ID_BIAS) 
+	#define CTL_TECHROUTEITEM_CMD_GOODSSTRUC    (6 + WINDOWS_ID_BIAS)
+	#define CTL_TECHROUTEITEM_PRCNAME           (7 + WINDOWS_ID_BIAS)
 #define DLG_TSESS_EXEC_TR         1595 // @v12.6.0 Запуск/остановка технологической сессии на фазе маршрута (по процессору и серийному номеру лота)
 	// Ctrls CTL_TSESS_XXX
 #define DLG_TSESS_EXEC_TR_PARAM   1596 // @v12.6.1 Параметры команды запуск/остановка технологической сессии на фазе маршрута
@@ -12120,6 +12132,24 @@
 	#define CTLSEL_TECRTASGMT_FINPRODGRP        (4 + WINDOWS_ID_BIAS)
 	#define CTL_TECRTASGMT_TECROUTE             (5 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TECRTASGMT_TECROUTE          (6 + WINDOWS_ID_BIAS)
+#define DLG_SECRETPOOL            1598 // @v12.6.8 @centrigo Пул секретов (хранилище паролей) 
+	#define CTL_SECRETPOOL_LIST                 (1 + WINDOWS_ID_BIAS)
+	#define CTL_SECRETPOOL_NAME                 (2 + WINDOWS_ID_BIAS)
+	#define CTL_SECRETPOOL_TYPE                 (3 + WINDOWS_ID_BIAS)
+	#define CTLSEL_SECRETPOOL_TYPE              (4 + WINDOWS_ID_BIAS)
+	#define CTL_SECRETPOOL_PARENT               (5 + WINDOWS_ID_BIAS)
+	#define CTLSEL_SECRETPOOL_PARENT            (6 + WINDOWS_ID_BIAS)
+	#define CTL_SECRETPOOL_DESCR                (7 + WINDOWS_ID_BIAS)
+	#define CTL_SECRETPOOL_CRTM                 (8 + WINDOWS_ID_BIAS)
+	#define CTL_SECRETPOOL_EXPIRY               (9 + WINDOWS_ID_BIAS)
+	#define CTLCAL_SECRETPOOL_EXPIRY            (10 + WINDOWS_ID_BIAS)
+	#define CTL_SECRETPOOL_TOPEN                (11 + WINDOWS_ID_BIAS)
+	#define CTL_SECRETPOOL_THIDDEN              (12 + WINDOWS_ID_BIAS)
+	#define CTL_SECRETPOOL_TEXPIRY              (13 + WINDOWS_ID_BIAS)
+	#define CTL_SECRETPOOL_ID                   (14 + WINDOWS_ID_BIAS)
+	#define CTL_SECRETPOOL_TEXT1                (21 + WINDOWS_ID_BIAS)
+	#define CTL_SECRETPOOL_TEXT2                (22 + WINDOWS_ID_BIAS)
+	#define CTL_SECRETPOOL_TEXT3                (23 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

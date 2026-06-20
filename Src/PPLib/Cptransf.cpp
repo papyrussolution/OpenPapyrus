@@ -647,7 +647,7 @@ int PPObjBill::Helper_WrOffDrft_ExpExp(WrOffDraftBlock & rBlk, int use_ta)
 												;
 											}
 											else {
-												if(local_xcl_set.AddNum(0, xcl_entry.Num, true)) {
+												if(local_xcl_set.AddNum(0, xcl_entry.Code, true)) {
 													used_xcl_idx_list.add(static_cast<long>(xcli));
 													added_mark_count++;
 													//

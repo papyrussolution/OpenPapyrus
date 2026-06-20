@@ -2045,7 +2045,7 @@ int DoConstructionTest()
 	}
 #endif // } 0
 	//TestCRC();
-	TestAutotranslateText(); // @v12.6.1
+	//TestAutotranslateText(); // @v12.6.1
 	//TestAutotranslateCache(); // @v12.6.2
 	//TestPhoneNumberMetadata(); // @v12.6.2
 	//TestGtinStruc();

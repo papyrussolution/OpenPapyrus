@@ -1081,6 +1081,8 @@ int PPAccTurnTempl::AccTemplFromStr(int side, const char * pBuf)
 class ATurnTmplDialog : public TDialog {
 	DECL_DIALOG_DATA(PPAccTurnTempl);
 public:
+	//if(!(DlgFlags & fImportedDl600)) {}
+	// CTL_ATRNTMPL_DFIX
 	enum {
 		ctlgroupDbt = 1,
 		ctlgroupCrd = 2,
@@ -1088,9 +1090,6 @@ public:
 	ATurnTmplDialog(uint rezID, PPObjAccTurn * _ppobj) : TDialog(rezID), ppobj(_ppobj)
 	{
 		SetupCalPeriod(CTLCAL_ATRNTMPL_PERIOD, CTL_ATRNTMPL_PERIOD);
-		// @v11.3.2 @obsolete setCtrlOption(CTL_ATRNTMPL_DTEXT,  ofFramed, 1);
-		// @v11.3.2 @obsolete setCtrlOption(CTL_ATRNTMPL_CTEXT,  ofFramed, 1);
-		// @v11.3.2 @obsolete setCtrlOption(CTL_ATRNTMPL_SFRAME, ofFramed, 1);
 		AcctCtrlGroup * p_acc_grp = new AcctCtrlGroup(CTL_ATRNTMPL_DACC, CTL_ATRNTMPL_DART, CTLSEL_ATRNTMPL_DACCNAME, CTLSEL_ATRNTMPL_DARTNAME);
 		addGroup(ctlgroupDbt, p_acc_grp);
 		p_acc_grp = new AcctCtrlGroup(CTL_ATRNTMPL_CACC, CTL_ATRNTMPL_CART, CTLSEL_ATRNTMPL_CACCNAME, CTLSEL_ATRNTMPL_CARTNAME);
@@ -1171,20 +1170,46 @@ private:
 	void   setFlags()
 	{
 		setCtrlUInt16(CTL_ATRNTMPL_PRIMARY, BIN(Data.Flags & ATTF_PRIMONCREDIT));
-		AddClusterAssoc(CTL_ATRNTMPL_DFIX, 0, ATTF_DACCFIX);
-		AddClusterAssoc(CTL_ATRNTMPL_DFIX, 1, ATTF_DARTFIX);
-		SetClusterData(CTL_ATRNTMPL_DFIX, Data.Flags);
-		AddClusterAssoc(CTL_ATRNTMPL_CFIX, 0, ATTF_CACCFIX);
-		AddClusterAssoc(CTL_ATRNTMPL_CFIX, 1, ATTF_CARTFIX);
-		SetClusterData(CTL_ATRNTMPL_CFIX, Data.Flags);
+		if(DlgFlags & fImportedDl600) {
+			/*
+				#define CTL_ATRNTMPL_DFIX_AC        (34 + WINDOWS_ID_BIAS)
+				#define CTL_ATRNTMPL_DFIX_AR        (35 + WINDOWS_ID_BIAS)
+				#define CTL_ATRNTMPL_CFIX_AC        (36 + WINDOWS_ID_BIAS)
+				#define CTL_ATRNTMPL_CFIX_AR        (37 + WINDOWS_ID_BIAS)
+			*/
+			AddClusterAssoc(CTL_ATRNTMPL_DFIX_AC, 0, ATTF_DACCFIX);
+			AddClusterAssoc(CTL_ATRNTMPL_DFIX_AR, 0, ATTF_DARTFIX);
+			AddClusterAssoc(CTL_ATRNTMPL_CFIX_AC, 0, ATTF_CACCFIX);
+			AddClusterAssoc(CTL_ATRNTMPL_CFIX_AR, 0, ATTF_CARTFIX);
+			SetClusterData(CTL_ATRNTMPL_DFIX_AC, Data.Flags);
+			SetClusterData(CTL_ATRNTMPL_DFIX_AR, Data.Flags);
+			SetClusterData(CTL_ATRNTMPL_CFIX_AC, Data.Flags);
+			SetClusterData(CTL_ATRNTMPL_CFIX_AR, Data.Flags);
+		}
+		else {
+			AddClusterAssoc(CTL_ATRNTMPL_DFIX, 0, ATTF_DACCFIX);
+			AddClusterAssoc(CTL_ATRNTMPL_DFIX, 1, ATTF_DARTFIX);
+			SetClusterData(CTL_ATRNTMPL_DFIX, Data.Flags);
+			AddClusterAssoc(CTL_ATRNTMPL_CFIX, 0, ATTF_CACCFIX);
+			AddClusterAssoc(CTL_ATRNTMPL_CFIX, 1, ATTF_CARTFIX);
+			SetClusterData(CTL_ATRNTMPL_CFIX, Data.Flags);
+		}
 	}
 	void   getFlags()
 	{
 		Data.Flags = 0;
 		const ushort v = getCtrlUInt16(CTL_ATRNTMPL_PRIMARY);
 		SETFLAG(Data.Flags, ATTF_PRIMONCREDIT, v);
-		GetClusterData(CTL_ATRNTMPL_DFIX, &Data.Flags);
-		GetClusterData(CTL_ATRNTMPL_CFIX, &Data.Flags);
+		if(DlgFlags & fImportedDl600) {
+			GetClusterData(CTL_ATRNTMPL_DFIX_AC, &Data.Flags);
+			GetClusterData(CTL_ATRNTMPL_DFIX_AR, &Data.Flags);
+			GetClusterData(CTL_ATRNTMPL_CFIX_AC, &Data.Flags);
+			GetClusterData(CTL_ATRNTMPL_CFIX_AR, &Data.Flags);
+		}
+		else {
+			GetClusterData(CTL_ATRNTMPL_DFIX, &Data.Flags);
+			GetClusterData(CTL_ATRNTMPL_CFIX, &Data.Flags);
+		}
 	}
 	int    getSheetOfAcc(AcctID * pAcctId, PPID * pAcsID)
 	{

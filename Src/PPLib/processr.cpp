@@ -659,13 +659,14 @@ int PPObjProcessor::GetListByOwnerGuaID(PPID guaID, PPIDArray & rList)
 	return ok;
 }
 
-int PPObjProcessor::GetParentsList(PPID prcID, PPIDArray & rList)
+int PPObjProcessor::GetParentsList(PPID prcID, PPIDArray & rList, bool useCache)
 {
 	int    ok = -1;
 	rList.Z();
 	for(PPID id = prcID; id != 0;) {
 		ProcessorTbl::Rec rec;
-		if(Search(id, &rec) > 0 && rec.ParentID) {
+		const  int sr = useCache ? Fetch(id, &rec) : Search(id, &rec);
+		if(sr > 0 && rec.ParentID) {
 			int    r = rList.addUnique(rec.ParentID);
 			THROW_SL(r);
 			// Проверка на циклические ссылки {
@@ -691,7 +692,7 @@ int PPObjProcessor::BelongsToHierarchy(PPID prcID, PPID hierarchyPrcID) // @v12.
 				ok = 1;
 			else if(prc_rec.ParentID) {
 				PPIDArray prc_list;
-				GetParentsList(prcID, prc_list);
+				GetParentsList(prcID, prc_list, true/*useCache*/);
 				if(prc_list.lsearch(hierarchyPrcID)) {
 					ok = 1;
 				}
@@ -704,8 +705,10 @@ int PPObjProcessor::BelongsToHierarchy(PPID prcID, PPID hierarchyPrcID) // @v12.
 int PPObjProcessor::GetExtWithInheritance(PPID prcID, PPProcessorPacket::ExtBlock * pExt)
 {
 	int    ok = -1;
-	ProcessorTbl::Rec rec, parent_rec;
-	PPProcessorPacket::ExtBlock ext, parent_ext;
+	ProcessorTbl::Rec rec;
+	ProcessorTbl::Rec parent_rec;
+	PPProcessorPacket::ExtBlock ext;
+	PPProcessorPacket::ExtBlock parent_ext;
 	PPIDArray id_list;
 	int    init_status = 0;
 	if(Fetch(prcID, &rec) > 0) {
@@ -2325,7 +2328,7 @@ int PPViewProcessor::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 		switch(ppvCmd) {
 			case PPVCMD_ADDBYSAMPLE:
 				{
-					PPID   sample_id = prc_id;
+					const  PPID sample_id = prc_id;
 					prc_id = 0;
 					ok = -1;
 					if(sample_id && PrcObj.AddBySample(&prc_id, sample_id) > 0)
@@ -2355,7 +2358,7 @@ int PPViewProcessor::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 				ok = -1;
 				ExportUhtt();
 				break;
-			case PPVCMD_TOGGLEPRCGRP: // @v11.3.10
+			case PPVCMD_TOGGLEPRCGRP:
 				ok = -1;
 				if(Filt.Kind == PPPRCK_GROUP) {
 					Filt.Kind = PPPRCK_PROCESSOR;

@@ -4556,7 +4556,8 @@ int PPObjBill::MoveLotTagsFromDraftBillToWrOffBill(PPID billID, PPLogger * pLogg
 							PPLotExtCodeContainer::MarkSet::Entry lxentry;
 							for(uint thislxidx = 0; thislxidx < _this_lxc_set.GetCount(); thislxidx++) {
 								if(_this_lxc_set.GetByIdx(thislxidx, lxentry)) {
-									_link_bp.XcL.Add(_lp+1, lxentry.BoxID, static_cast<int16>(lxentry.Flags), lxentry.Num, 0);
+									_link_bp.XcL.Add(_lp+1, (lxentry.Flags & PPLotExtCodeContainer::fBox) ? lxentry.Id : lxentry.ParentId, 
+										static_cast<int16>(lxentry.Flags), lxentry.Code, 0);
 									do_update = 1;
 								}
 							}
@@ -7468,8 +7469,8 @@ int PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
 			SSerializeContext sctx;
 			THROW(pPack->_VXcL.Serialize(+1, vxcl_buf, &sctx));
 			if(vxcl_buf.GetAvailableSize() > 128) {
-				uint8 cs[32];
-				size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
+				uint8  cs[32];
+				const  size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
 				THROW_SL(cbuf.Write(cs, cs_size));
 				THROW_SL(compr.CompressBlock(vxcl_buf.GetBuf(0), vxcl_buf.GetAvailableSize(), cbuf, 0, 0));
 			}

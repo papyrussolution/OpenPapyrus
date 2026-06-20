@@ -1356,8 +1356,8 @@ struct _PPSupplAgt {       // @persistent @store(PropertyTbl)
 		Reference * p_ref(PPRef);
 		THROW(r = p_ref->GetPropSBuffer(PPOBJ_ARTICLE, id, ARTPRP_SUPPLAGT2, _buf));
 		if(r > 0) {
-			SSerializeContext ctx;
-			THROW(pAgt->Serialize(-1, _buf, &ctx));
+			SSerializeContext sctx;
+			THROW(pAgt->Serialize(-1, _buf, &sctx));
 			pAgt->Flags |= AGTF_LOADED;
 			ok = 1;
 		}
@@ -1408,8 +1408,8 @@ int PPObjArticle::PutSupplAgreement(PPID id, PPSupplAgreement * pAgt, int use_ta
 	{
 		SBuffer _buf;
 		if(pAgt) {
-			SSerializeContext ctx;
-			THROW(pAgt->Serialize(+1, _buf, &ctx));
+			SSerializeContext sctx;
+			THROW(pAgt->Serialize(+1, _buf, &sctx));
 		}
 		{
 			PPTransaction tra(use_ta);

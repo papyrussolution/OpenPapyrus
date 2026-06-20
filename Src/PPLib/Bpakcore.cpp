@@ -1284,7 +1284,7 @@ int PPLotTagContainer::SetReal(PPID tagID, int rowIdx, const double * pValue)
 //
 //
 //
-PPLotExtCodeContainer::Item2::Item2() : RowIdx(0), Flags(0), BoxId(0)
+PPLotExtCodeContainer::Item2::Item2() : RowIdx(0), Flags(0), Id(0), ParentId(0)
 {
 }
 
@@ -1292,9 +1292,14 @@ PPLotExtCodeContainer::Item2 & PPLotExtCodeContainer::Item2::Z()
 {
 	RowIdx = 0;
 	Flags = 0;
-	BoxId = 0;
+	Id = 0;
+	ParentId = 0;
 	Num.Z();
 	return *this;
+}
+
+PPLotExtCodeContainer::MarkSet::Entry::Entry() : Id(0), ParentId(0), Flags(0)
+{
 }
 
 PPLotExtCodeContainer::MarkSet::MarkSet() : SStrGroup()
@@ -1308,26 +1313,179 @@ PPLotExtCodeContainer::MarkSet & PPLotExtCodeContainer::MarkSet::Z()
 	return *this;
 }
 
-long PPLotExtCodeContainer::MarkSet::AddBox(long id, const char * pNum, int doVerify)
+bool FASTCALL PPLotExtCodeContainer::MarkSet::IsEq(const PPLotExtCodeContainer::MarkSet & rS) const // @v12.6.8
+{
+	bool   eq = true;
+	if(GetCount() == rS.GetCount()) {
+		const   uint _c = GetCount();
+		Entry   entry1;
+		Entry   entry2;
+		for(uint i = 0; eq && i < _c; i++) {
+			int    r1 = GetByIdx(i, entry1);
+			int    r2 = rS.GetByIdx(i, entry2);
+			if(r1 != r2) {
+				eq = false;
+			}
+			else if(r1) {
+				if(entry1.Flags != entry2.Flags || entry1.Code != entry2.Code) {
+					eq = false;
+				}
+			}
+		}
+	}
+	else
+		eq = 0;
+	return eq;
+}
+
+int PPLotExtCodeContainer::MarkSet::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) // @v12.6.8
+{
+	int    ok = 1;
+	THROW_SL(pSCtx->Serialize(dir, &L, rBuf));
+	THROW_SL(SStrGroup::SerializeS(dir, rBuf, pSCtx));
+	CATCHZOK
+	return ok;
+}
+
+SJson * PPLotExtCodeContainer::MarkSet::Helper_ToJson(long parentId, uint flags, LongArray * pSeenIdxList) const
+{
+	SJson * p_result = 0;
+	{
+		SString temp_buf;
+		Entry  entry;
+		SJson * p_js_obj = 0;
+		bool   is_there_standalone_marks = false;
+		bool   is_there_boxes = false;
+		{
+			for(uint i = 0; i < GetCount(); i++) {
+				if(GetByIdx(i, entry) && entry.ParentId == parentId) {
+					if(entry.Flags & fBox) {
+						is_there_boxes = true;
+					}
+					else {
+						is_there_standalone_marks = true;
+					}
+				}
+			}
+		}
+		{
+			StringSet ss_item;
+			if(is_there_boxes) {
+				p_result = SJson::CreateObj();
+			}
+			for(uint i = 0; i < GetCount(); i++) {
+				if(GetByIdx(i, entry) && entry.ParentId == parentId) {
+					if(entry.Flags & fBox) {
+						if(entry.Id) {
+							SJson * p_js_box = Helper_ToJson(entry.Id, flags, pSeenIdxList); // @recirsion
+							THROW(p_js_box);
+							(temp_buf = entry.Code).Escape();
+							assert(p_result);
+							p_result->Insert(temp_buf, p_js_box);
+							if(pSeenIdxList) {
+								pSeenIdxList->add(i+1);
+							}
+						}
+					}
+					else {
+						ss_item.add(entry.Code);
+						if(pSeenIdxList) {
+							pSeenIdxList->add(i+1);
+						}
+					}
+				}
+			}
+			if(ss_item.IsCountGreaterThan(0)) {
+				SJson * p_sa_js_arr = SJson::CreateArr();
+				SJson::SetArrayAsStringSet(p_sa_js_arr, ss_item);
+				if(p_result) {
+					p_result->Insert("M", p_sa_js_arr);
+					p_sa_js_arr = 0;
+				}
+				else {
+					p_result = p_sa_js_arr;
+					p_sa_js_arr = 0;
+				}
+			}
+		}
+	}
+	CATCH
+		ZDELETE(p_result);
+	ENDCATCH
+	return p_result;
+}
+
+SJson * PPLotExtCodeContainer::MarkSet::ToJson(uint flags) const
+{
+	bool   debug_mark = false;
+	LongArray seen_idx_list;
+	SJson * p_result = Helper_ToJson(0, flags, &seen_idx_list);
+	if(p_result) {
+		if(seen_idx_list.getCount() < L.getCount()) {
+			debug_mark = true;
+		}
+	}
+	return p_result;
+}
+
+bool PPLotExtCodeContainer::MarkSet::GetBoxNum(long boxId, SString & rNum) const
+{
+	rNum.Z();
+	bool   ok = false;
+	if(boxId) {
+		for(uint i = 0; !ok && i < L.getCount(); i++) {
+			const  InnerEntry & r_entry = L.at(i);
+			if(r_entry.Flags & fBox && r_entry.Id == boxId) {
+				GetS(r_entry.CodeP, rNum);
+				ok = true;
+			}
+		}
+	}
+	return ok;
+}
+
+long PPLotExtCodeContainer::MarkSet::GetNewId(long idToVerifyUniq, const char * pCodeToVerifyUniq) const
+{
+	long   result_id = 0;
+	long   max_id = 0;
+	SString temp_buf;
+	for(uint i = 0; i < L.getCount(); i++) {
+		const  InnerEntry & r_entry = L.at(i);
+		SETMAX(max_id, smax(r_entry.Id, r_entry.ParentId));
+		THROW(!idToVerifyUniq || idToVerifyUniq != r_entry.Id); // @todo @err
+		if(!isempty(pCodeToVerifyUniq)) {
+			GetS(r_entry.CodeP, temp_buf);
+			THROW(temp_buf != pCodeToVerifyUniq); // @todo @err
+		}
+	}
+	result_id = (max_id+1);
+	CATCH
+		result_id = 0;
+	ENDCATCH
+	return result_id;
+}
+
+long PPLotExtCodeContainer::MarkSet::AddBox(long id, long parentId, const char * pNum, bool doVerify)
 {
 	int    real_id = 0;
-	long   max_id = 0;
+	//long   max_id = 0;
 	THROW_PP_S(!isempty(pNum), PPERR_INVPARAM_EXT, __FUNCTION__"/pNum");
-	for(uint i = 0; i < L.getCount(); i++) {
+	const  long new_id = GetNewId(doVerify ? id : 0, doVerify ? pNum : 0);
+	/*for(uint i = 0; i < L.getCount(); i++) {
 		const InnerEntry & r_entry = L.at(i);
 		if(r_entry.Flags & fBox) {
 			SETMAX(max_id, r_entry.BoxID);
 			if(doVerify)
 				THROW(!id || r_entry.BoxID != id);
 		}
-	}
+	}*/
 	{
-		real_id = NZOR(id, max_id+1);
+		real_id = NZOR(id, new_id);
 		InnerEntry new_entry;
-		MEMSZERO(new_entry);
-		new_entry.BoxID = real_id;
+		new_entry.Id = real_id;
+		new_entry.ParentId = parentId;
 		new_entry.Flags = fBox;
-		THROW_SL(AddS(pNum, &new_entry.NumP));
+		THROW_SL(AddS(pNum, &new_entry.CodeP));
 		THROW_SL(L.insert(&new_entry));
 	}
 	CATCH
@@ -1336,46 +1494,25 @@ long PPLotExtCodeContainer::MarkSet::AddBox(long id, const char * pNum, int doVe
 	return real_id;
 }
 
-int PPLotExtCodeContainer::MarkSet::GetBoxNum(long boxId, SString & rNum) const
+long PPLotExtCodeContainer::MarkSet::AddNum(long parentId, const char * pNum, bool doVerify)
 {
-	rNum.Z();
-	int    ok = 0;
-	if(boxId) {
-		for(uint i = 0; !ok && i < L.getCount(); i++) {
-			const InnerEntry & r_entry = L.at(i);
-			if(r_entry.Flags & fBox && r_entry.BoxID == boxId) {
-				GetS(r_entry.NumP, rNum);
-				ok = 1;
-			}
-		}
-	}
-	return ok;
-}
-
-int PPLotExtCodeContainer::MarkSet::AddNum(long boxId, const char * pNum, int doVerify)
-{
-	int    ok = 1;
+	long   result_id = 0;
 	SString temp_buf;
 	THROW_PP_S(!isempty(pNum), PPERR_INVPARAM_EXT, __FUNCTION__"/pNum");
-	THROW(!boxId || GetBoxNum(boxId, temp_buf));
-	if(doVerify) {
-		for(uint i = 0; i < L.getCount(); i++) {
-			const InnerEntry & r_entry = L.at(i);
-			if(!(r_entry.Flags & fBox)) {
-				GetS(r_entry.NumP, temp_buf);
-				THROW(temp_buf != pNum);
-			}
-		}
-	}
+	THROW(!parentId || GetBoxNum(parentId, temp_buf));
+	const  long new_id = GetNewId(0, doVerify ? pNum : 0);
 	{
 		InnerEntry new_entry;
-		MEMSZERO(new_entry);
-		new_entry.BoxID = boxId;
-		THROW_SL(AddS(pNum, &new_entry.NumP));
+		new_entry.Id = new_id;
+		new_entry.ParentId = parentId;
+		THROW_SL(AddS(pNum, &new_entry.CodeP));
 		THROW_SL(L.insert(&new_entry));
 	}
-	CATCHZOK
-	return ok;
+	result_id = new_id;
+	CATCH
+		result_id = 0;
+	ENDCATCH
+	return result_id;
 }
 
 uint PPLotExtCodeContainer::MarkSet::GetCount() const { return L.getCount(); }
@@ -1403,7 +1540,7 @@ bool PPLotExtCodeContainer::MarkSet::HasEgaisMarks() const // @v12.4.3
 			Entry  msentry;
 			for(uint boxidx = 0; !result && boxidx < _c; boxidx++) {
 				if(GetByIdx(boxidx, msentry) && msentry.Flags & PPLotExtCodeContainer::fBox) {
-					GetByBoxID(msentry.BoxID, ss);
+					GetByBoxID(msentry.Id, ss);
 					for(uint ssp = 0; !result && ss.get(&ssp, temp_buf);) {
 						if(PrcssrAlcReport::IsEgaisMark(temp_buf, 0))
 							result = true;
@@ -1420,9 +1557,10 @@ bool PPLotExtCodeContainer::MarkSet::GetByIdx(uint idx, Entry & rEntry) const
 	bool   ok = true;
 	if(idx < L.getCount()) {
 		const InnerEntry & r_entry = L.at(idx);
-		rEntry.BoxID = r_entry.BoxID;
+		rEntry.Id = r_entry.Id;
+		rEntry.ParentId = r_entry.ParentId;
 		rEntry.Flags = r_entry.Flags;
-		GetS(r_entry.NumP, rEntry.Num);
+		GetS(r_entry.CodeP, rEntry.Code);
 	}
 	else
 		ok = false;
@@ -1436,13 +1574,45 @@ int PPLotExtCodeContainer::MarkSet::GetByBoxID(long boxId, StringSet & rSs) cons
 	rSs.Z();
 	for(uint i = 0; i < L.getCount(); i++) {
 		const InnerEntry & r_entry = L.at(i);
-		if(!(r_entry.Flags & fBox) && r_entry.BoxID == boxId) {
-			GetS(r_entry.NumP, temp_buf);
+		// @v12.6.8 if(!(r_entry.Flags & fBox) && r_entry.BoxID == boxId) {
+		if(!(r_entry.Flags & fBox) && r_entry.ParentId == boxId) { // @v12.6.8
+			GetS(r_entry.CodeP, temp_buf);
 			THROW_SL(rSs.add(temp_buf));
 		}
 	}
 	CATCHZOK
 	return ok;
+}
+
+int PPLotExtCodeContainer::MarkSet::Helper_GetByParentID(long parentId, long destParentId, MarkSet & rResult) const
+{
+	int    ok = -1;
+	SString temp_buf;
+	for(uint i = 0; i < L.getCount(); i++) {
+		const InnerEntry & r_entry = L.at(i);
+		if(r_entry.ParentId == parentId) {
+			GetS(r_entry.CodeP, temp_buf);
+			if(r_entry.Flags & fBox) {
+				const  long new_id = rResult.AddBox(0, destParentId, temp_buf, true);
+				THROW(new_id);
+				if(r_entry.Id) {
+					THROW(Helper_GetByParentID(r_entry.Id, new_id, rResult)); // @recursion
+				}
+			}
+			else {
+				THROW(rResult.AddNum(destParentId, temp_buf, true));
+			}
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPLotExtCodeContainer::MarkSet::GetByBoxID(long boxId, MarkSet & rResult) const
+{
+	rResult.Z();
+	return Helper_GetByParentID(boxId, 0L, rResult);
 }
 
 int PPLotExtCodeContainer::MarkSet::SearchCode(const char * pNum, uint * pIdx) const
@@ -1451,8 +1621,8 @@ int PPLotExtCodeContainer::MarkSet::SearchCode(const char * pNum, uint * pIdx) c
 	uint   idx = 0;
 	SString temp_buf;
 	for(uint i = 0; !ok && i < L.getCount(); i++) {
-		const InnerEntry & r_entry = L.at(i);
-		GetS(r_entry.NumP, temp_buf);
+		const  InnerEntry & r_entry = L.at(i);
+		GetS(r_entry.CodeP, temp_buf);
 		if(temp_buf == pNum) {
 			idx = i;
 			ok = 1;
@@ -1468,9 +1638,9 @@ long PPLotExtCodeContainer::MarkSet::SearchLastBox(int currentPos) const
 	if(L.getCount()) {
 		uint    cur_pos = (currentPos < 0 || currentPos >= L.getCountI()) ? L.getCount() : static_cast<uint>(currentPos+1);
 		do {
-			const InnerEntry & r_entry = L.at(--cur_pos);
+			const  InnerEntry & r_entry = L.at(--cur_pos);
 			if(r_entry.Flags & fBox) {
-				result_box_id = r_entry.BoxID;
+				result_box_id = r_entry.Id;
 				break;
 			}
 		} while(cur_pos);
@@ -1480,6 +1650,10 @@ long PPLotExtCodeContainer::MarkSet::SearchLastBox(int currentPos) const
 //
 //
 //
+PPLotExtCodeContainer::InnerItem::InnerItem() : RowIdx(0), Flags(0), Id(0), ParentId(0), CodeP(0)
+{
+}
+
 PPLotExtCodeContainer::PPLotExtCodeContainer() : SVector(sizeof(InnerItem))
 {
 }
@@ -1519,13 +1693,13 @@ int FASTCALL PPLotExtCodeContainer::IsEq(const PPLotExtCodeContainer & rS) const
 		SString code_buf2;
 		UintHashTable found_idx_list__;
 		for(uint i = 0; eq && i < _c; i++) {
-			const InnerItem & r_item = *static_cast<const InnerItem *>(at(i));
+			const  InnerItem & r_item = *static_cast<const InnerItem *>(at(i));
 			GetS(r_item.CodeP, code_buf);
 			int    is_found = 0;
 			for(uint j = 0; !is_found && j < _c; j++) {
 				if(!found_idx_list__.Has(j+1)) {
 					const InnerItem & r_item2 = *static_cast<const InnerItem *>(rS.at(i));
-					if(r_item2.RowIdx == r_item.RowIdx && r_item2.Flags == r_item.Flags && r_item2.BoxId == r_item.BoxId) {
+					if(r_item2.RowIdx == r_item.RowIdx && r_item2.Flags == r_item.Flags && r_item2.Id == r_item.Id && r_item2.ParentId == r_item.ParentId) {
 						rS.GetS(r_item2.CodeP, code_buf2);
 						if(code_buf == code_buf2) {
 							found_idx_list__.Add(j+1);
@@ -1554,10 +1728,17 @@ int PPLotExtCodeContainer::Helper_Add(int rowIdx, long boxId, int16 flags, const
 	THROW_PP_S(!doVerifyUniq || !Search(pCode, 0, 0), PPERR_DUPLOTEXTCODE, pCode);
 	{
         InnerItem new_item;
-        MEMSZERO(new_item);
         new_item.RowIdx = rowIdx;
         new_item.Flags = flags;
-		new_item.BoxId = boxId;
+		// @v12.6.8 new_item.BoxId = boxId;
+		// @v12.6.8 {
+		if(flags & PPLotExtCodeContainer::fBox) {
+			new_item.Id = boxId;
+		}
+		else {
+			new_item.ParentId = boxId;
+		}
+		// } @v12.6.8 
         AddS(pCode, &new_item.CodeP);
 		THROW_SL(insert(&new_item));
 		ASSIGN_PTR(pIdx, getCount()-1);
@@ -1596,23 +1777,22 @@ int PPLotExtCodeContainer::Delete(int rowIdx, uint itemIdx)
 				uint i = SVector::getCount();
 				if(i) do {
 					InnerItem * p_ii = static_cast<InnerItem *>(SVector::at(--i));
-					if(p_ii->BoxId == item.BoxId)
+					if(p_ii->ParentId == item.Id)
 						SVector::atFree(i);
 				} while(i);
 			}
 			else {
 				SVector::atFree(itemIdx);
-				if(item.BoxId) {
-					uint  i;
-					int   is_other_by_box = 0;
+				if(item.ParentId) {
+					bool  is_other_by_box = false;
 					int   box_pos = -1;
-					for(i = 0; i < SVector::getCount(); i++) {
+					for(uint i = 0; i < SVector::getCount(); i++) {
 						const InnerItem * p_ii = static_cast<const InnerItem *>(SVector::at(i));
-						if(p_ii->BoxId == item.BoxId) {
-							if(p_ii->Flags & fBox)
-								box_pos = static_cast<int>(i);
-							else
-								is_other_by_box = 1;
+						if(p_ii->Id == item.ParentId && (p_ii->Flags & fBox)) {
+							box_pos = static_cast<int>(i);
+						}
+						else if(p_ii->ParentId == item.ParentId) {
+							is_other_by_box = true;
 						}
 					}
 					if(!is_other_by_box && box_pos >= 0) {
@@ -1632,8 +1812,9 @@ int PPLotExtCodeContainer::Add(int rowIdx, const MarkSet & rS)
 	MarkSet::Entry entry;
 	THROW_PP(rowIdx >= 0, PPERR_INVPARAM);
 	for(uint i = 0; i < rS.GetCount(); i++) {
-		if(rS.GetByIdx(i, entry))
-			THROW(Add(rowIdx, entry.BoxID, static_cast<int16>(entry.Flags), entry.Num, 0));
+		if(rS.GetByIdx(i, entry)) {
+			THROW(Add(rowIdx, ((entry.Flags & fBox) ? entry.Id : entry.ParentId), static_cast<int16>(entry.Flags), entry.Code, 0));
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -1645,7 +1826,7 @@ int PPLotExtCodeContainer::AddValidation(const MarkSet & rS)
 	MarkSet::Entry entry;
 	for(uint i = 0; i < rS.GetCount(); i++) {
 		if(rS.GetByIdx(i, entry)) {
-			THROW(AddValidation(entry.BoxID, static_cast<int16>(entry.Flags), entry.Num, 0));
+			THROW(AddValidation(((entry.Flags & fBox) ? entry.Id : entry.ParentId), static_cast<int16>(entry.Flags), entry.Code, 0));
 		}
 	}
 	CATCHZOK
@@ -1673,15 +1854,15 @@ int PPLotExtCodeContainer::Set_2(int rowIdx, const MarkSet * pS)
 		for(uint i = 0; i < pS->GetCount(); i++) {
 			if(pS->GetByIdx(i, entry)) {
 				if(entry.Flags & fBox) {
-					long suffix_code = 0;
-					temp_buf = entry.Num;
+					long   suffix_code = 0;
+					temp_buf = entry.Code;
 					while(Search(temp_buf, 0, 0)) {
-						(temp_buf = entry.Num).CatChar('-').Cat(++suffix_code);
+						(temp_buf = entry.Code).CatChar('-').Cat(++suffix_code);
 					}
-					THROW(Add(rowIdx, entry.BoxID, static_cast<int16>(entry.Flags), temp_buf, 0));
+					THROW(Add(rowIdx, entry.Id, static_cast<int16>(entry.Flags), temp_buf, 0));
 				}
 				else {
-					THROW(Add(rowIdx, entry.BoxID, static_cast<int16>(entry.Flags), entry.Num, 0));
+					THROW(Add(rowIdx, entry.ParentId, static_cast<int16>(entry.Flags), entry.Code, 0));
 				}
 				ok = 1;
 			}
@@ -1703,20 +1884,20 @@ int PPLotExtCodeContainer::Get(int rowIdx, LongArray * pIdxList, MarkSet & rS) c
         const InnerItem & r_item = *static_cast<const InnerItem *>(at(i));
         if(r_item.RowIdx == rowIdx && !seen_idx_list.lsearch(static_cast<long>(i)) && GetS(r_item.CodeP, temp_buf)) {
 			if(r_item.Flags & fBox) {
-				THROW(rS.AddBox(r_item.BoxId, temp_buf, 0));
+				THROW(rS.AddBox(r_item.Id, 0/*parentId*/, temp_buf, 0));
 			}
 			else {
-				if(r_item.BoxId && !rS.GetBoxNum(r_item.BoxId, box_num)) {
+				if(r_item.ParentId && !rS.GetBoxNum(r_item.ParentId, box_num)) {
 					for(uint j = i+1; j < getCount(); j++) {
 						const InnerItem & r_item2 = *static_cast<const InnerItem *>(at(j));
 						if(r_item2.RowIdx == rowIdx && !seen_idx_list.lsearch(static_cast<long>(j)) && r_item2.Flags & fBox && GetS(r_item2.CodeP, box_num)) {
-							THROW(rS.AddBox(r_item2.BoxId, box_num, 0));
+							THROW(rS.AddBox(r_item2.Id, 0/*parentId*/, box_num, 0));
 							seen_idx_list.add(j);
 							break;
 						}
 					}
 				}
-				THROW(rS.AddNum(r_item.BoxId, temp_buf, 0));
+				THROW(rS.AddNum(r_item.ParentId, temp_buf, 0));
 			}
 			CALLPTRMEMB(pIdxList, add(static_cast<long>(i)));
 			ok = 1;
@@ -1733,7 +1914,8 @@ bool PPLotExtCodeContainer::GetByIdx(uint idx, PPLotExtCodeContainer::Item2 & rI
 		const InnerItem & r_item = *static_cast<const InnerItem *>(at(idx));
 		rItem.RowIdx = r_item.RowIdx;
 		rItem.Flags = r_item.Flags;
-		rItem.BoxId = r_item.BoxId;
+		rItem.Id = r_item.Id;
+		rItem.ParentId = r_item.ParentId;
 		GetS(r_item.CodeP, rItem.Num);
 	}
 	else {
@@ -1749,7 +1931,7 @@ int PPLotExtCodeContainer::GetByBoxID(long boxId, StringSet & rSs) const
 	SString temp_buf;
 	for(uint i = 0; i < getCount(); i++) {
 		const InnerItem & r_item = *static_cast<const InnerItem *>(at(i));
-		if(r_item.BoxId == boxId && !(r_item.Flags & fBox)) {
+		if(r_item.ParentId == boxId && !(r_item.Flags & fBox)) {
 			GetS(r_item.CodeP, temp_buf);
 			if(temp_buf.NotEmptyS()) {
 				rSs.add(temp_buf);
@@ -1842,10 +2024,10 @@ int PPLotExtCodeContainer::ValidateCode(const char * pCode, const char * pBox, i
 				GetS(p_item->CodeP, box_code);
 				ok = 2;
 			}
-			else if(p_item->BoxId) {
+			else if(p_item->ParentId) {
 				for(uint i = 0; i < getCount(); i++) {
 					const  InnerItem * p_item2 = static_cast<const InnerItem *>(SVector::at(i));
-					if(p_item2->RowIdx == p_item->RowIdx && p_item2->BoxId == p_item->BoxId && p_item2->Flags & fBox) {
+					if(p_item2->RowIdx == p_item->RowIdx && p_item2->Id == p_item->ParentId && p_item2->Flags & fBox) {
 						GetS(p_item2->CodeP, box_code);
 						if(src_box_code.NotEmpty() && box_code != src_box_code) {
 							err = 3; // Не та коробка
@@ -1892,6 +2074,43 @@ int PPLotExtCodeContainer::ReplacePosition(int rowIdx, int newRowIdx)
 	return ok;
 }
 
+struct PPLotExtCodeContainer_Item_Before12608 { // @persistent
+	int16  RowIdx;
+    int16  Flags;
+	int32  BoxId;
+    uint   CodeP;
+};
+
+int PPLotExtCodeContainer::Serialize_Before12608(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) // @v12.6.8
+{
+	int    ok = 1;
+	if(dir < 0) {
+		SVector::clear();
+		TSVector <PPLotExtCodeContainer_Item_Before12608> temp_vect;
+		THROW_SL(pSCtx->Serialize(dir, &temp_vect, rBuf));
+		for(uint i = 0; i < temp_vect.getCount(); i++) {
+			const PPLotExtCodeContainer_Item_Before12608 & r_src_item = temp_vect.at(i);
+			InnerItem new_item;
+			new_item.RowIdx = r_src_item.RowIdx;
+			new_item.Flags = r_src_item.Flags;
+			if(r_src_item.Flags & fBox) {
+				new_item.Id = r_src_item.BoxId;
+			}
+			else {
+				new_item.ParentId = r_src_item.BoxId;
+			}
+			new_item.CodeP = r_src_item.CodeP;
+			THROW_SL(SVector::insert(&new_item));
+		}
+		THROW_SL(SStrGroup::SerializeS(dir, rBuf, pSCtx));
+	}
+	else {
+		THROW(Serialize(dir, rBuf, pSCtx));
+	}
+	CATCHZOK
+	return ok;
+}
+
 struct PPLotExtCodeContainer_Item_Before10209 { // @persistent
 	int16  RowIdx;
 	int16  Sign;
@@ -1908,7 +2127,6 @@ int PPLotExtCodeContainer::Serialize_Before10209(int dir, SBuffer & rBuf, SSeria
 		for(uint i = 0; i < temp_vect.getCount(); i++) {
 			const PPLotExtCodeContainer_Item_Before10209 & r_src_item = temp_vect.at(i);
 			InnerItem new_item;
-			MEMSZERO(new_item);
 			new_item.RowIdx = r_src_item.RowIdx;
 			new_item.CodeP = r_src_item.CodeP;
 			THROW_SL(SVector::insert(&new_item));

@@ -2885,9 +2885,13 @@ private:
 	int    DoNote(SObjID & rOid);
 	int    DoContacts(const PersonFilt * pFilt);
 	int    DoTasks(const PrjTaskFilt * pFilt);
+	int    DoSecrets();
 	int    HandleInputEnter(const SString & rInput);
 	int    RemoveWorkingPanel();
 	int    DrawNavTreeItem(void * pCustomDrawDescriptor);
+	int    GetSecretsFilePath(SString & rBuf);
+	int    LoadSecrets(bool interactive);
+	int    CloseSecrets();
 
 	CentrigoNavBlock NavBlk;
 	//
@@ -3899,6 +3903,9 @@ IMPL_HANDLE_EVENT(TFacadeWindow)
 										case cmCentrigoWallet:
 											break;
 										case cmCentrigoSecrets:
+											{
+												DoSecrets();
+											}
 											break;
 									}
 									break;
@@ -3926,85 +3933,658 @@ int Launch_TFacadeWindow()
 	return ok;
 }
 //
-// Descr: Один сегмент пула секретов. 
-// Note: Внутри этой структуры шифрование не применяется - удержание в секретности находится в ведении SVaultPool и SlCrypt
-//   Все строки - в кодировке utf8
 //
-class SecretSegment {
-public:
-	SecretSegment();
-	SecretSegment(SStrGroup * pOuterSg);
-	~SecretSegment();
-	SJson * ToJsonObj() const;
-	bool   FromJsonObj(const SJson * pJs);
-	//
-	// Descr: типы секретов
-	//
-	enum { // @persistent
-		sectypUndef      = 0,
-		sectypFolder     = 1, // Вообще не секрет никакой - папка для других сегментов
-		sectypGeneric    = 2, // Обобщенный секрет. pair {open-string; hidden-string}
-		sectypPassword   = 3, // simple secret string
-		sectypAuthSecret = 4, // pair { auth (open string); secret (hidden string)}
-		sectypOpenKey    = 5, // Открытая строка, которую из гигиенических соображений лучше хранить в "темноте" (номер паспорта, инн, номера договоров etc)
-		sectypBankCard   = 6, // Данные банковской карты: {number; CVV; PIN; expiry}
-		sectypSSH        = 7, // {public_key; private_key; passphrase}
-		sectypESignature = 8, // Данные электронной подписи
-	};
-
-	uint32 InternalID;   // @anchor Внутренний идентификатор (если сегмент находится в SVaultPool, то InternalID совпадает с номинальным идентификатором сегмента контейнере)
-	uint32 ParentID;     // Внутренний идентификатор родительского сегмента (если 0, то topmost)
-	uint32 SecType;      // sectypXXX
-	uint64 UedRefOid;    // Ссылка на объект в базе данных, с которым сегмент ассоциирован
-	uint64 UedEnterTm;   // Время создания записи
-	uint64 UedExpiryTm;  // Время истечения срока действия записи
-	uint32 NameP;        // Наименование сегмента (позиция в SStrGroup) 
-	uint32 STextOpenP;   // Часть секрета (открытая строка)
-	uint32 STextHiddenP; // Часть секрета (скрытая строка). Для банковской карты PIN код хранится здесь.
-	uint32 STextExpiryP; // Часть секрета (строка срока действия asis). По смыслу дублирует UedExpiryTm но по факту может отличаться написанием или нюансами ситуации (eg after 20220224)
-	uint32 STextExt1P;   // Часть секрета ext1
-	uint32 STextExt2P;   // Часть секрета ext2
-	uint32 STextExt3P;   // Часть секрета ext3
-	uint64 UedHashAlg;   // UED-идентификатор алгоритма хэширования для случаев, когда таковой алгоритм является часть секрета
-	uint32 DescrP;       // Описание сегмента
-	uint32 ExecCmdLineP; // Командная строка для запуска приложения или команды
-	uint8  Reserve[64];  // @anchor
-private:
-	SStrGroup & GetSg();
-
-	SStrGroup * P_OwnSg;   // Собственная группа строк
-	SStrGroup * P_OuterSg; // Внешняя группа строк
+//
+static SIntToSymbTabEntry SecSegTypeList[] = {
+	{ PPSecretSegment::sectypUndef, "undef" },
+	{ PPSecretSegment::sectypFolder, "folder" },
+	{ PPSecretSegment::sectypGeneric, "generic" },
+	{ PPSecretSegment::sectypPassword, "password" },
+	{ PPSecretSegment::sectypAuthSecret, "authsecret" },
+	{ PPSecretSegment::sectypOpenKey, "openkey" },
+	{ PPSecretSegment::sectypBankCard, "bankcard" },
+	{ PPSecretSegment::sectypSSH, "ssh" },
+	{ PPSecretSegment::sectypESignature, "esignature" },
 };
 
-SecretSegment::SecretSegment() : P_OwnSg(0), P_OuterSg(0)
+PPSecretSegment::CoreEntry::CoreEntry()
 {
-	memzero(&InternalID, offsetof(SecretSegment, Reserve) + sizeof(Reserve) - offsetof(SecretSegment, InternalID));
+	THISZERO();
 }
-	
-SecretSegment::SecretSegment(SStrGroup * pOuterSg) : P_OwnSg(0), P_OuterSg(pOuterSg)
+		
+PPSecretSegment::CoreEntry & PPSecretSegment::CoreEntry::Z()
 {
-	memzero(&InternalID, offsetof(SecretSegment, Reserve) + sizeof(Reserve) - offsetof(SecretSegment, InternalID));
+	THISZERO();
+	return *this;
 }
-	
-SecretSegment::~SecretSegment()
+		
+bool PPSecretSegment::CoreEntry::IsEmpty() const
 {
+	return (!STextOpenP && !STextHiddenP);
 }
 
-SStrGroup & SecretSegment::GetSg() 
+PPSecretSegment::PPSecretSegment() : P_OwnSg(0), P_OuterSg(0)
+{
+	memzero(&InternalID, offsetof(PPSecretSegment, Reserve) + sizeof(Reserve) - offsetof(PPSecretSegment, InternalID));
+}
+
+PPSecretSegment::PPSecretSegment(const PPSecretSegment & rS) : P_OwnSg(0), P_OuterSg(0)
+{
+	Copy(rS);
+}
+	
+PPSecretSegment::PPSecretSegment(SStrGroup * pOuterSg) : P_OwnSg(0), P_OuterSg(pOuterSg)
+{
+	memzero(&InternalID, offsetof(PPSecretSegment, Reserve) + sizeof(Reserve) - offsetof(PPSecretSegment, InternalID));
+}
+	
+PPSecretSegment::~PPSecretSegment()
+{
+	delete P_OwnSg;
+}
+
+bool PPSecretSegment::IsEmpty() const 
+{
+	return (!SecType && !NameP);
+}
+
+PPSecretSegment & PPSecretSegment::Z()
+{
+	memzero(&InternalID, offsetof(PPSecretSegment, Reserve) + sizeof(Reserve) - offsetof(PPSecretSegment, InternalID));
+	History.clear();
+	if(P_OwnSg) {
+		P_OwnSg->ClearS();
+	}
+	return *this;
+}
+
+PPSecretSegment & FASTCALL PPSecretSegment::operator = (const PPSecretSegment & rS)
+{
+	Copy(rS);
+	return *this;
+}
+
+bool FASTCALL PPSecretSegment::Copy(const PPSecretSegment & rS)
+{
+	Z();
+	ZDELETE(P_OwnSg);
+	bool   ok = true;
+	#define CPYFLD(f) f = rS.f
+	CPYFLD(InternalID);
+	CPYFLD(ParentID);
+	CPYFLD(SecType);
+	CPYFLD(UedRefOid);
+	CPYFLD(UedEnterTm);
+	CPYFLD(UedHashAlg);
+	CPYFLD(NameP);        // Наименование сегмента (позиция в SStrGroup) 
+	CPYFLD(CE);
+	CPYFLD(DescrP);
+	CPYFLD(ExecCmdLineP);
+	CPYFLD(History);
+	#undef CPYFLD
+	if(rS.P_OwnSg) {
+		P_OwnSg = new SStrGroup(*rS.P_OwnSg);
+	}
+	if(rS.P_OuterSg) {
+		P_OuterSg = rS.P_OuterSg;
+	}
+	return ok;
+}
+
+bool PPSecretSegment::GetText(uint32 textP, SString & rBuf) const
+{
+	return GetSgC().GetS(textP, rBuf);
+}
+
+SStrGroup & PPSecretSegment::GetSg()
 {
 	SStrGroup * p_result = NZOR(P_OuterSg, P_OwnSg);
 	assert(p_result);
 	return *p_result;
 }
-	
-SJson * SecretSegment::ToJsonObj() const
+
+const SStrGroup & PPSecretSegment::GetSgC() const
 {
-	SJson * p_result = 0;
+	SStrGroup * p_result = NZOR(P_OuterSg, P_OwnSg);
+	assert(p_result);
+	return *p_result;
+}
+
+SJson * PPSecretSegment::ToJsonObj() const
+{
+	SJson * p_result = SJson::CreateObj();
+	if(p_result) {
+		SString temp_buf;
+		if(InternalID)
+			p_result->InsertUInt("InternalID", InternalID);
+		if(ParentID)
+			p_result->InsertUInt("ParentID", ParentID);
+		if(SecType)
+			p_result->InsertUInt("SecType", SecType);
+		if(UedRefOid)
+			p_result->InsertUInt64("UedRefOid", UedRefOid);
+		if(UedEnterTm)
+			p_result->InsertUInt64("UedEnterTm", UedEnterTm);
+		if(CE.UedBeforeTm)
+			p_result->InsertUInt64("UedExpiryTm", CE.UedBeforeTm);
+		if(UedHashAlg)
+			p_result->InsertUInt64("UedHashAlg", UedHashAlg);
+		{
+			struct SecretSegment_TextFldMapEntry_Out {
+				const  char * P_Symb;
+				uint32 Var;
+			};
+			{
+				/*non-static*/const SecretSegment_TextFldMapEntry_Out tfm[] = {
+					{ "Name", NameP },
+					{ "Descr", DescrP },
+					{ "ExecCmdLine", ExecCmdLineP},
+					{ "STextOpen", CE.STextOpenP },
+					{ "STextHidden", CE.STextHiddenP },
+					{ "STextExpiry", CE.STextExpiryP },
+					{ "STextExt1", CE.STextExt1P },
+					{ "STextExt2", CE.STextExt2P },
+					{ "STextExt3", CE.STextExt3P },
+				};
+				for(uint i = 0; i < SIZEOFARRAY(tfm); i++) {
+					const  SecretSegment_TextFldMapEntry_Out & r_tfmi = tfm[i];
+					if(GetText(r_tfmi.Var, temp_buf)) {
+						p_result->InsertStringNe(r_tfmi.P_Symb, temp_buf);
+					}
+				}
+			}
+			if(History.getCount()) {
+				SJson * p_js_hist = SJson::CreateArr();
+				if(p_js_hist) {
+					for(uint hi = 0; hi < History.getCount(); hi++) {
+						const CoreEntry & r_he = History.at(hi);
+						if(!r_he.IsEmpty()) {
+							SJson * p_js_hi = SJson::CreateObj();
+							if(p_js_hi) {
+								/*non-static*/const SecretSegment_TextFldMapEntry_Out tfm[] = {
+									{ "STextOpen", r_he.STextOpenP },
+									{ "STextHidden", r_he.STextHiddenP },
+									{ "STextExpiry", r_he.STextExpiryP },
+									{ "STextExt1", r_he.STextExt1P },
+									{ "STextExt2", r_he.STextExt2P },
+									{ "STextExt3", r_he.STextExt3P },
+								};
+								if(r_he.UedBeforeTm)
+									p_js_hi->InsertUInt64("UedExpiryTm", r_he.UedBeforeTm);
+								for(uint i = 0; i < SIZEOFARRAY(tfm); i++) {
+									const  SecretSegment_TextFldMapEntry_Out & r_tfmi = tfm[i];
+									if(GetText(r_tfmi.Var, temp_buf)) {
+										p_js_hi->InsertStringNe(r_tfmi.P_Symb, temp_buf);
+									}
+								}
+								p_js_hist->InsertChild(p_js_hi);
+							}
+						}
+					}
+					p_result->Insert("history", p_js_hist);
+				}
+			}
+		}
+	}
 	return p_result;
 }
 	
-bool SecretSegment::FromJsonObj(const SJson * pJs)
+bool PPSecretSegment::FromJsonObj(const SJson * pJs)
 {
-	bool   ok = false;
+	Z();
+	if(SJson::IsObject(pJs)) {
+		SString temp_buf;
+		struct SecretSegment_TextFldMapEntry_In {
+			const  char * P_Symb;
+			uint32 * P_Var;
+		};
+		SecretSegment_TextFldMapEntry_In tfm[] = {
+			{ "Name", &NameP },
+			{ "Descr", &DescrP },
+			{ "ExecCmdLine", &ExecCmdLineP},
+			{ "STextOpen", &CE.STextOpenP },
+			{ "STextHidden", &CE.STextHiddenP },
+			{ "STextExpiry", &CE.STextExpiryP },
+			{ "STextExt1", &CE.STextExt1P },
+			{ "STextExt2", &CE.STextExt2P },
+			{ "STextExt3", &CE.STextExt3P },
+		};
+		SStrGroup & r_sg = GetSg();
+		enum {
+			occfEnterTm  = 0x0001,
+			occfExpiryTm = 0x0002,
+		};
+		uint   occur_flags = 0;
+		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
+			bool   local_done = false;
+			{
+				for(uint i = 0; !local_done && i < SIZEOFARRAY(tfm); i++) {
+					const  SecretSegment_TextFldMapEntry_In & r_tfmi = tfm[i];
+					if(p_cur->Text.IsEqiAscii(r_tfmi.P_Symb)) {
+						(temp_buf = p_cur->P_Child->Text).Unescape();
+						r_sg.AddS(temp_buf, r_tfmi.P_Var);
+						local_done = true;
+					}
+				}
+			}
+			if(!local_done) {
+				if(p_cur->Text.IsEqiAscii("InternalID")) {
+					InternalID = p_cur->P_Child->Text.ToULong();
+				}
+				else if(p_cur->Text.IsEqiAscii("ParentID")) {
+					ParentID = p_cur->P_Child->Text.ToULong();
+				}
+				else if(p_cur->Text.IsEqiAscii("SecType")) {
+					if(p_cur->P_Child->Text.IsDec()) {
+						SecType = p_cur->P_Child->Text.ToULong();
+					}
+					else {
+						int   st = SIntToSymbTab_GetId(SecSegTypeList, SIZEOFARRAY(SecSegTypeList), p_cur->P_Child->Text);
+						if(st) {
+							SecType = st;
+						}
+						else {
+							// @todo @err
+						}
+					}
+				}
+				else if(p_cur->Text.IsEqiAscii("UedRefOid")) {
+					UedRefOid = p_cur->P_Child->Text.ToUInt64();
+				}
+				else if(p_cur->Text.IsEqiAscii("UedEnterTm")) {
+					UedEnterTm = p_cur->P_Child->Text.ToUInt64();
+					occur_flags |= occfEnterTm;
+				}
+				else if(p_cur->Text.IsEqiAscii("UedEnter")) {
+					(temp_buf = p_cur->P_Child->Text).Unescape();
+					LDATETIME dtm;
+					if(strtodatetime(temp_buf, &dtm, DATF_ISO8601CENT, 0)) {
+						SUniTime_Internal uti(dtm);
+						UedEnterTm = UED::_SetRaw_Time(UED_META_TIME_MSEC, uti);
+					}
+					occur_flags |= occfEnterTm;
+				}
+				else if(p_cur->Text.IsEqiAscii("UedExpiryTm")) {
+					CE.UedBeforeTm = p_cur->P_Child->Text.ToUInt64();
+					occur_flags |= occfExpiryTm;
+				}
+				else if(p_cur->Text.IsEqiAscii("UedExpiry")) {
+					(temp_buf = p_cur->P_Child->Text).Unescape();
+					LDATETIME dtm;
+					if(strtodatetime(temp_buf, &dtm, DATF_ISO8601CENT, 0)) {
+						SUniTime_Internal uti(dtm);
+						CE.UedBeforeTm = UED::_SetRaw_Time(UED_META_TIME_MSEC, uti);
+					}
+					occur_flags |= occfExpiryTm;
+				}
+				else if(p_cur->Text.IsEqiAscii("UedHashAlg")) {
+					UedHashAlg = p_cur->P_Child->Text.ToUInt64();
+				}
+				else if(p_cur->Text.IsEqiAscii("history")) {
+					if(SJson::IsArray(p_cur->P_Child)) {
+						for(const SJson * p_js_hi = p_cur->P_Child->P_Child; p_js_hi; p_js_hi = p_js_hi->P_Next) {
+							if(SJson::IsObject(p_js_hi)) {
+								uint   hist_occur_flags = 0;
+								for(const SJson * p_js_f = p_js_hi->P_Child; p_js_f; p_js_f = p_js_f->P_Next) {
+									if(p_js_f->P_Child) {
+										CoreEntry hi;
+										if(p_js_f->Text.IsEqiAscii("UedExpiryTm")) {
+											hi.UedBeforeTm = p_js_f->P_Child->Text.ToUInt64();
+											hist_occur_flags |= occfExpiryTm;
+										}
+										else if(p_js_f->Text.IsEqiAscii("ExpiryTm")) {
+											(temp_buf = p_js_f->P_Child->Text).Unescape();
+											LDATETIME dtm;
+											if(strtodatetime(temp_buf, &dtm, DATF_ISO8601CENT, 0)) {
+												SUniTime_Internal uti(dtm);
+												hi.UedBeforeTm = UED::_SetRaw_Time(UED_META_TIME_MSEC, uti);
+											}
+											hist_occur_flags |= occfExpiryTm;
+										}
+										else {
+											SecretSegment_TextFldMapEntry_In htfm[] = {
+												{ "STextOpen", &hi.STextOpenP },
+												{ "STextHidden", &hi.STextHiddenP },
+												{ "STextExpiry", &hi.STextExpiryP },
+												{ "STextExt1", &hi.STextExt1P },
+												{ "STextExt2", &hi.STextExt2P },
+												{ "STextExt3", &hi.STextExt3P },
+											};
+											for(uint i = 0; i < SIZEOFARRAY(htfm); i++) {
+												const  SecretSegment_TextFldMapEntry_In & r_tfmi = htfm[i];
+												if(p_js_f->Text.IsEqiAscii(r_tfmi.P_Symb)) {
+													(temp_buf = p_js_f->P_Child->Text).Unescape();
+													r_sg.AddS(temp_buf, r_tfmi.P_Var);
+													break;
+												}
+											}
+										}
+										if(!hi.IsEmpty()) {
+											History.insert(&hi);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return !IsEmpty();
+}
+
+PPSecretSegmentPool::PPSecretSegmentPool() : P_Vault(0)
+{
+}
+
+PPSecretSegmentPool::~PPSecretSegmentPool()
+{
+	delete P_Vault;
+}
+
+static const uint64 SecretSegmentPool_Signature = 0xA0C7E0A913D9C152ULL;
+
+int PPSecretSegmentPool::DescryptSegments()
+{
+	freeAll();
+	int    ok = -1;
+	SString temp_buf;
+	SJson * p_js = 0;
+	THROW(P_Vault); // @todo @err
+	THROW(P_Vault->GetKeyRef()); // @todo @err
+	{
+		const  uint64 key_ref = P_Vault->GetKeyRef();
+		uint32 vp_id = 0;
+		SBinaryChunk bc;
+		for(size_t vp = 0; P_Vault->Enum(&vp, &vp_id, 0);) {
+			const  uint32 outer_id = P_Vault->MakeOuterId(vp_id);
+			if(outer_id) {
+				const  int re = P_Vault->GetEncrypted(vp_id, reinterpret_cast<void *>(key_ref), &bc);
+				if(re) {
+					temp_buf.CatN(static_cast<const char *>(bc.PtrC()), bc.Len());
+					uint   new_seg_pos = 0;
+					PPSecretSegment * p_new_seg = CreateNewSegment(&new_seg_pos);
+					THROW(p_new_seg);
+					{
+						p_js = SJson::Parse(temp_buf);
+						THROW(p_js);
+						const  int fjr = p_new_seg->FromJsonObj(p_js);
+						THROW(fjr);
+						p_js->Destroy(true);
+						ZDELETE(p_js);
+						p_new_seg->InternalID = outer_id;
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	CATCH
+		freeAll();
+		ok = 0;
+	ENDCATCH
+	if(p_js) {
+		p_js->Destroy(true);
+		ZDELETE(p_js);
+	}
+	temp_buf.Obfuscate();
+	temp_buf.Z();
+	return ok;
+}
+
+int PPSecretSegmentPool::LoadStorage(const char * pFileName)
+{
+	int   ok = 1;
+	ZDELETE(P_Vault);
+	THROW(fileExists(pFileName));
+	{
+		SSerializeContext sctx;
+		SBuffer sbuf;
+		SFile f(pFileName, SFile::mRead|SFile::mBinary|SFile::mNoStd);
+		THROW(f.IsValid());
+		{
+			uint64 signature = 0;
+			uint64 data_size = 0;
+			THROW_SL(f.Read(&signature, sizeof(signature)));
+			THROW(signature == SecretSegmentPool_Signature); // @todo @err
+			THROW_SL(f.Read(&data_size, sizeof(data_size)));
+			if(data_size) {
+				STempBuffer temp_buf(SMEGABYTE(1));
+				uint64 read_size = 0;
+				THROW_SL(temp_buf.IsValid());
+				while(read_size < data_size) {
+					size_t actual_size = 0;
+					THROW_SL(f.Read(temp_buf, temp_buf.GetSize(), &actual_size));
+					THROW_SL(sbuf.Write(temp_buf, actual_size));
+					read_size += actual_size;
+				}
+				THROW(P_Vault = new SVaultPool());
+				THROW_SL(P_Vault->Serialize(-1, sbuf, &sctx));
+			}
+		}
+	}
+	CATCH
+		ZDELETE(P_Vault);
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+
+PPSecretSegment * PPSecretSegmentPool::CreateNewSegment(uint * pPos)
+{
+	uint   pos = 0;
+	PPSecretSegment * p_result = new PPSecretSegment(&Sg);
+	if(p_result) {
+		if(insert(p_result)) {
+			assert(getCount());
+			pos = getCount() - 1;
+		}
+		else {
+			ZDELETE(p_result);
+		}
+	}
+	ASSIGN_PTR(pPos, pos);
+	return p_result;
+}
+
+int PPSecretSegmentPool::IsThereStorage(const char * pFileName)
+{
+	int    ok = -1;
+	THROW(!isempty(pFileName));
+	if(fileExists(pFileName)) {
+		SFile f(pFileName, SFile::mRead|SFile::mBinary|SFile::mNoStd);
+		uint64 signature = 0;
+		if(f.IsValid() && f.Read(&signature, sizeof(signature)) && signature == SecretSegmentPool_Signature) {
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPSecretSegmentPool::CreateStorage(const char * pFileName, const char * pMasterPassword, size_t masterPasswordLen)
+{
+	ZDELETE(P_Vault);
+	int   ok = 1;
+	bool  is_file_created = false;
+	THROW(!isempty(pFileName));
+	THROW(!fileExists(pFileName));
+	{
+		SFile f(pFileName, SFile::mWrite|SFile::mBinary|SFile::mNoStd);
+		THROW(f.IsValid());
+		is_file_created = true;
+		{
+			THROW_SL(P_Vault = new SVaultPool());
+			THROW(P_Vault->SetupPrimaryPassword(pMasterPassword, masterPasswordLen));
+		}
+		{
+			SSerializeContext sctx;
+			SBuffer sbuf;
+			THROW_SL(P_Vault->Serialize(+1, sbuf, &sctx));
+			THROW_SL(f.Write(&SecretSegmentPool_Signature, sizeof(SecretSegmentPool_Signature)));
+			const  uint64 data_size = sbuf.GetAvailableSize();
+			THROW_SL(f.Write(&data_size, sizeof(data_size)));
+			THROW_SL(f.Write(sbuf.GetBufC(), static_cast<size_t>(data_size)));
+		}
+	}
+	CATCH
+		if(is_file_created) {
+			SFile::Remove(pFileName);
+		}
+		ZDELETE(P_Vault);
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+
+int PPSecretSegmentPool::SaveStorage(const char * pFileName)
+{
+	int   ok = 1;
+	bool  is_file_created = false;
+	if(!P_Vault) {
+		ok = -1;
+	}
+	else {
+		THROW(!isempty(pFileName));
+		if(fileExists(pFileName)) {
+			// @todo Создать резервную копию
+		}
+		{
+			SFile f(pFileName, SFile::mWrite|SFile::mBinary|SFile::mNoStd);
+			THROW(f.IsValid());
+			{
+				SSerializeContext sctx;
+				SBuffer sbuf;
+				THROW_SL(P_Vault->Serialize(+1, sbuf, &sctx));
+				THROW_SL(f.Write(&SecretSegmentPool_Signature, sizeof(SecretSegmentPool_Signature)));
+				const  uint64 data_size = sbuf.GetAvailableSize();
+				THROW_SL(f.Write(&data_size, sizeof(data_size)));
+				THROW_SL(f.Write(sbuf.GetBufC(), static_cast<size_t>(data_size)));
+			}
+		}
+	}
+	CATCH
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+
+int PPSecretSegmentPool::PutSegmentIntoPool(const PPSecretSegment * pSeg) // @construction
+{
+	int    ok = -1;
+	SJson * p_js = 0;
+	if(pSeg && !pSeg->IsEmpty()) {
+		SString temp_buf;
+		THROW(P_Vault); // @todo @errr
+		THROW(P_Vault->GetKeyRef()); // @todo @errr
+		THROW(p_js = pSeg->ToJsonObj());
+		p_js->ToStr(temp_buf);
+		{
+			uint32   _id = SVaultPool::MakeInternalId(pSeg->InternalID);
+			SBinarySet::DeflateStrategy ds(128);
+			int    r = P_Vault->PutEncrypted(_id, temp_buf.cptr(), temp_buf.Len(), P_Vault->GetUedSymmCipher(), reinterpret_cast<void *>(P_Vault->GetKeyRef()), &ds);
+			THROW(r);
+		}
+	}
+	CATCHZOK
+	delete p_js;
+	return ok;
+}
+
+int PPSecretSegmentPool::ReadTestJson(const char * pJsFileName, const char * pMasterPassword, size_t masterPasswordLen)
+{
+	/*
+		{
+		  "version": 2,
+		  "generated_at": "2026-06-16T18:28:27",
+		  "total_segments": 1500,
+		  "note": "Folders (SecType=1) come first in hierarchical order, then secrets in random order. All ParentID values reference existing folder InternalIDs or 0 (root).",
+		  "segments": [
+			{
+			  "InternalID": 1,
+			  "ParentID": 0,
+			  "SecType": 1,
+			  "Name": "Работа",
+			  "EnterTm": "2022-08-27T13:35:25"
+			},
+			{
+			  "InternalID": 6,
+			  "ParentID": 0,
+			  "SecType": 1,
+			  "Name": "Документы",
+			  "EnterTm": "2026-02-04T12:47:13"
+			},
+	*/ 
+	int    ok = 0;
+	SJson * p_js = SJson::ParseFile(pJsFileName);
+	if(SJson::IsObject(p_js)) {
+		for(const SJson * p_cur = p_js->P_Child; p_cur; p_cur = p_cur->P_Next) {
+			if(p_cur->Text.IsEqiAscii("segments")) {
+				if(SJson::IsArray(p_cur->P_Child)) {
+					for(const SJson * p_js_item = p_cur->P_Child->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+						if(SJson::IsObject(p_js_item)) {
+							uint   new_seg_pos = 0;
+							PPSecretSegment * p_new_seg = CreateNewSegment(&new_seg_pos);
+							if(p_new_seg) {
+								if(p_new_seg->FromJsonObj(p_js_item)) {
+									ok = 1;
+								}
+								else {
+									atFree(new_seg_pos);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	delete p_js;
+	return ok;
+}
+
+int TFacadeWindow::GetSecretsFilePath(SString & rBuf)
+{
+	rBuf.Z();
+	int    ok = 0;
+	//PPGetFilePath(PPPATH_DAT)
+	DBS.GetDbPath(DBS.GetDbPathID(), rBuf);
+	if(rBuf.NotEmpty()) {
+		rBuf.SetLastSlash().Cat("sesf").DotCat("bin");
+		ok = 1;
+	}
+	return ok;
+}
+
+int TFacadeWindow::LoadSecrets(bool interactive)
+{
+	int    ok = -1;
+	SString file_path;
+	if(GetSecretsFilePath(file_path) > 0) {
+		if(fileExists(file_path)) {
+			;
+		}
+		else if(interactive) {
+			// Создание нового хранилища
+			;
+		}
+	}
+	return ok;
+}
+
+int TFacadeWindow::CloseSecrets()
+{
+	int    ok = -1;
+
+	return ok;
+}
+
+int TFacadeWindow::DoSecrets()
+{
+	int    ok = -1;
+	if(LoadSecrets(true/*interactive*/)) {
+		;
+	}
 	return ok;
 }

@@ -884,11 +884,12 @@ int StringStore2::TranslationWanted(const uchar * pOrgText) const
 
 int Helper_PPAutoTranslSvc_Microsoft_Auth(PPAutoTranslSvc_Microsoft & rAt);
 
-static void PreserveStringForAutotraslation(const SString & rOrgBuf, SString & rResultBuf, StrAssocArray & rAssocList)
+static int PreserveStringForAutotraslation(const SString & rOrgBuf, SString & rResultBuf, StrAssocArray & rAssocList)
 {
 	rAssocList.Z();
 	rResultBuf.Z();
-	const size_t org_len = rOrgBuf.Len();
+	int    result = 1;
+	const  size_t org_len = rOrgBuf.Len();
 	SString preserve_buf;
 	SString subst_buf;
 	long   subst_n = 0;
@@ -980,6 +981,7 @@ static void PreserveStringForAutotraslation(const SString & rOrgBuf, SString & r
 			p++;
 		}
 	}
+	return result;
 }
 
 static void RecoverAutotranslatedString(SString & rBuf, StrAssocArray & rAssocList)
@@ -1504,8 +1506,8 @@ int StringStore2::Compile(const char * pFileName, long flags, const char * pTran
 												// } @v12.6.6 
 												if(!local_fault && p_at->DoAuth(ablk)) {
 													PPAutoTranslSvcBase::Param param;
-													param.CacheFlushOnCount = 5;
-													param.ReqTimeoutMsec = 1400;
+													param.CacheFlushOnCount = 10;
+													param.ReqTimeoutMsec = 1030;
 													p_at->SetParam(param);
 													if(org_file_blk.AutoTranslCache.NotEmpty()) {
 														p_at->SetCacheFilePath(org_file_blk.AutoTranslCache); // Эта функция так же загрузит кэш если файл существует
@@ -1543,7 +1545,7 @@ int StringStore2::Compile(const char * pFileName, long flags, const char * pTran
 													//
 													// Специальный препроцессинг подстановок (@symb or @{symb})
 													//
-													int    is_subst = 1;
+													bool   is_subst = true;
 													if(temp_buf.C(0) == '@' && !temp_buf.HasChr(' ')) {
 														size_t c_first_pos = 1;
 														size_t c_last_pos = temp_buf.Len()-1;
@@ -1554,22 +1556,39 @@ int StringStore2::Compile(const char * pFileName, long flags, const char * pTran
 														for(uint cidx = c_first_pos; is_subst && cidx <= c_last_pos; cidx++) {
 															const char c2 = temp_buf.C(cidx);
 															if(!isasciialnum(c2) && !oneof2(c2, '_', '-'))
-																is_subst = 0;
+																is_subst = false;
 														}
 													}
-													else
-														is_subst = 0;
+													else {
+														is_subst = false;
+													}
 													if(is_subst) {
 														auto_transl_string.Cat(temp_buf);
 													}
 													else {
-														PreserveStringForAutotraslation(temp_buf, string_to_translate, subst_list);
-														if(p_at->DoTranslate(slangRU, org_file_blk.AutoTranslLang, /*temp_buf*/string_to_translate, intr_at_text) > 0) {
-															RecoverAutotranslatedString(intr_at_text, subst_list);
-															auto_transl_string.Cat(intr_at_text);
+														bool   is_there_something_to_translate = false;
+														{
+															for(uint ci = 0; !is_there_something_to_translate && ci < temp_buf.Len(); ci++) {
+																char   c = temp_buf.C(ci);
+																if(sstrchr(" \t", c)) {
+																	;
+																}
+																else 
+																	is_there_something_to_translate = true;
+															}
 														}
-														else
-															auto_transl_string.Cat("error-autotranslation");
+														if(!is_there_something_to_translate) {
+															auto_transl_string.Cat(temp_buf);
+														}
+														else {
+															PreserveStringForAutotraslation(temp_buf, string_to_translate, subst_list);
+															if(p_at->DoTranslate(slangRU, org_file_blk.AutoTranslLang, /*temp_buf*/string_to_translate, intr_at_text) > 0) {
+																RecoverAutotranslatedString(intr_at_text, subst_list);
+																auto_transl_string.Cat(intr_at_text);
+															}
+															else
+																auto_transl_string.Cat("error-autotranslation");
+														}
 													}
 												}
 											}

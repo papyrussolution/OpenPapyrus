@@ -186,7 +186,12 @@ const struct SVaultPool_ConstBlock {
 } SVaultPool_CBlk;
 
 uint64 SVaultPool::GetKeyRef() const { return reinterpret_cast<uint64>(P_KeyRef); }
-uint64 SVaultPool::GetUedSymmCipher() const { return SVaultPool_CBlk.UedSymmCipher; }
+
+uint64 SVaultPool::GetUedSymmCipher() const 
+{ 
+	// @todo Следующая реализация верна только в случае, если пул пустой. Если же в нем есть сегмент с блоком верификации ключа, то алгоритм надо брать от туда!
+	return SVaultPool_CBlk.UedSymmCipher; 
+}
 
 int SVaultPool::SetupPrimaryPassword(const char * pPw, size_t pwLen)
 {

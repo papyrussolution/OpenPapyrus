@@ -2573,10 +2573,10 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 														for(uint boxidx = 0; boxidx < ext_codes_set.GetCount(); boxidx++) {
 															if(ext_codes_set.GetByIdx(boxidx, msentry) && msentry.Flags & PPLotExtCodeContainer::fBox) {
 																SXml::WNode w_box(_doc, SXml::nst("ce", "boxpos"));
-																w_box.PutInner(SXml::nst("ce", "boxnumber"), EncText(msentry.Num));
+																w_box.PutInner(SXml::nst("ce", "boxnumber"), EncText(msentry.Code));
 																{
 																	SXml::WNode w_amclist(_doc, SXml::nst("ce", "amclist"));
-																	ext_codes_set.GetByBoxID(msentry.BoxID, ss);
+																	ext_codes_set.GetByBoxID(msentry.Id, ss);
 																	for(uint ssp = 0; ss.get(&ssp, temp_buf);)
 																		w_amclist.PutInner(SXml::nst("ce", "amc"), EncText(temp_buf));
 																}
@@ -2939,7 +2939,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 																	SXml::WNode w_m(_doc, SXml::nst("wa", "MarkInfo"));
 																	for(uint boxidx = 0; boxidx < ext_codes_set.GetCount(); boxidx++) {
 																		if(ext_codes_set.GetByIdx(boxidx, msentry) && !(msentry.Flags & PPLotExtCodeContainer::fBox)) {
-																			w_m.PutInner(SXml::nst("ce", "amc"), EncText(msentry.Num));
+																			w_m.PutInner(SXml::nst("ce", "amc"), EncText(msentry.Code));
 																			mark_count++;
 																		}
 																	}
@@ -2956,8 +2956,8 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 																	SXml::WNode w_m(_doc, SXml::nst("wa", "MarkInfo"));
 																	for(uint boxidx = 0; boxidx < ext_codes_set.GetCount(); boxidx++) {
 																		if(ext_codes_set.GetByIdx(boxidx, msentry) && !(msentry.Flags & PPLotExtCodeContainer::fBox)) {
-																			if(!p_link_bp->_VXcL.Search(msentry.Num, 0, 0)) {
-																				w_m.PutInner(SXml::nst("ce", "amc"), EncText(msentry.Num));
+																			if(!p_link_bp->_VXcL.Search(msentry.Code, 0, 0)) {
+																				w_m.PutInner(SXml::nst("ce", "amc"), EncText(msentry.Code));
 																			}
 																		}
 																	}
@@ -3065,7 +3065,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 										//PPLotExtCodeContainer::MarkSet::Entry msentry;
 										for(uint msidx = 0; msidx < ext_codes_set.GetCount(); msidx++) {
 											if(ext_codes_set.GetByIdx(msidx, msentry) && !(msentry.Flags & PPLotExtCodeContainer::fBox)) {
-												w_mc.PutInner("MarkCode", msentry.Num);
+												w_mc.PutInner("MarkCode", msentry.Code);
 											}
 										}
 									}
@@ -3306,7 +3306,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 												for(uint markidx = 0; markidx < ext_codes_set.GetCount(); markidx++) {
 													if(ext_codes_set.GetByIdx(markidx, msentry) && !(msentry.Flags & PPLotExtCodeContainer::fBox)) {
 														//SXml::WNode w_amclist(_doc, SXml::nst("ce", "amclist"));
-														/*w_amclist*/n_mci.PutInner(SXml::nst("ce", "amc"), EncText(msentry.Num));
+														/*w_amclist*/n_mci.PutInner(SXml::nst("ce", "amc"), EncText(msentry.Code));
 													}
 												}
 											}
@@ -3430,7 +3430,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 											SXml::WNode n_mci(_doc, SXml::nst("awr", "MarkInfo"));
 											for(uint markidx = 0; markidx < ext_codes_set.GetCount(); markidx++) {
 												if(ext_codes_set.GetByIdx(markidx, msentry) && !(msentry.Flags & PPLotExtCodeContainer::fBox)) {
-													n_mci.PutInner(SXml::nst("ce", "amc"), EncText(msentry.Num));
+													n_mci.PutInner(SXml::nst("ce", "amc"), EncText(msentry.Code));
 												}
 											}
 										}
@@ -4924,7 +4924,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 												for(const xmlNode * p_box = p_boxpos->children; p_box; p_box = p_box->next) {
 													if(SXml::GetContentByName(p_box, "boxnumber", temp_buf)) {
 														if(temp_buf.NotEmpty())
-															box_id = p_ecs_entry->Set.AddBox(0, temp_buf, 0);
+															box_id = p_ecs_entry->Set.AddBox(0, 0/*parentId*/, temp_buf, 0);
 													}
 													else if(SXml::IsName(p_box, "amclist")) {
 														for(const xmlNode * p_amc = p_box->children; p_amc; p_amc = p_amc->next) {

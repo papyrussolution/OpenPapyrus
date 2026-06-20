@@ -4394,7 +4394,7 @@ int CheckPaneDialog::SuspendCheck()
 	else if(IsState(sLIST_EMPTYBUF)) {
 		if(OperRightsFlags & orfSuspCheck) {
 			PPID   cc_id = 0;
-			const CcTotal cct = CalcTotal();
+			const  CcTotal cct(CalcTotal());
 			CDispCommand(cdispcmdClear, 0, 0.0, 0.0);
 			CDispCommand(cdispcmdTotal, 0, cct.Amount, 0.0);
 			if(cct.Discount != 0.0)
@@ -8339,7 +8339,23 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 			case kbCtrlF7:  BARRIER(PrintSlipDocument()); break;
 			case kbAltF7:   BARRIER(PrintToLocalPrinters(1, false/*ignoreNonZeroAgentReq*/)); break;
 			case kbShiftF7: BARRIER(PrintToLocalPrinters(0, false/*ignoreNonZeroAgentReq*/)); break;
-			case kbF8:      BARRIER(SuspendCheck()); break;
+			case kbF8:
+				{
+					// @v12.6.8 {
+					// Специальный случай: при сканировании марок чзн, некоторые сканеры настроены так, что возвращают вместо спецсимвола-разделителя код, соответствующий kbF8.
+					// Для обхода этой проблемы проверяем содержимое строки ввода: если там находится неполный gtin-код, то игнорируем kbF8.
+					bool   do_skip = false;
+					if(GetInput()/*&& UiFlags & uifAutoInput*/) {
+						if(Input.Len() > 20 && Input.HasPrefix("01") && strncmp(Input.cptr() + 16, "21", 2) == 0) {
+							do_skip = true;
+						}
+					}
+					// } @v12.6.8 
+					if(!do_skip) {
+						BARRIER(SuspendCheck()); 
+					}
+				}
+				break;
 			case kbF9:      BARRIER(AcceptDivision()); break;
 			case kbF10:     
 				// @v11.7.12 Для аптек по двойному клику в строке ввода теперь будет редактироваться рецепт 
@@ -8356,9 +8372,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 				if(InitCashMachine() && P_CM->GetNodeData().Flags & CASHF_OPENBOX)
 					P_CM->SyncOpenBox();
 				break;
-			case kbCtrlF4: // @v11.0.9
-				BARRIER(AcceptManualDiscount());
-				break;
+			case kbCtrlF4: BARRIER(AcceptManualDiscount()); break;
 			case kbCtrlF6:
 				if(!Barrier()) {
 					if(P.HasCur() && P.GetCur().GoodsID) {

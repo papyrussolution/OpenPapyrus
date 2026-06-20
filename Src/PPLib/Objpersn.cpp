@@ -8560,7 +8560,7 @@ int PPObjPerson::StoreClientActivityStatistics(PPID personID, const ClientActivi
 		THROW(sb.Serialize(+1, _sbuf, &sctx));
 		if(_sbuf.GetAvailableSize() > 128) {
 			uint8  cs[32];
-			size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
+			const  size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
 			SCompressor compr(SCompressor::tZLib);
 			THROW_SL(cbuf.Write(cs, cs_size));
 			THROW_SL(compr.CompressBlock(_sbuf.GetBuf(0), _sbuf.GetAvailableSize(), cbuf, 0, 0));

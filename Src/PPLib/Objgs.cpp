@@ -1921,8 +1921,9 @@ public:
 		setCtrlData(CTL_GSITEM_SYMB, Data.Symb);
 		{
 			const PPGoodsStrucItem * p_main_item = R_Struc.GetMainItem(0);
-			if(p_main_item && p_main_item->GoodsID != Data.GoodsID && !(Data.Flags & GSIF_MAINITEM))
+			if(p_main_item && p_main_item->GoodsID != Data.GoodsID && !(Data.Flags & GSIF_MAINITEM)) {
 				DisableClusterItem(CTL_GSITEM_FLAGS, 2, 1);
+			}
 			if(R_Struc.GetKind() != PPGoodsStruc::kGift) {
 				disableCtrl(CTL_GSITEM_GROUPONLY, true);
 				Data.Flags &= ~GSIF_GOODSGROUP;
@@ -1934,7 +1935,7 @@ public:
 			goods_sel_flags |= GoodsCtrlGroup::enableSelUpLevel;
 		}
 		DisableClusterItem(CTL_GSITEM_FLAGS, 3, !(R_Struc.Rec.Flags & GSF_PARTITIAL));
-		GoodsCtrlGroup::Rec rec(0, Data.GoodsID, 0, goods_sel_flags);
+		GoodsCtrlGroup::Rec rec(0, isempty(Data.WareSymb) ? Data.GoodsID : 0, 0, goods_sel_flags);
 		setGroupData(ctlgroupGoods, &rec);
 		setCtrlString(CTL_GSITEM_VALUE, Data.GetEstimationString(temp_buf));
 		temp_buf = Data.Formula__;
@@ -1957,7 +1958,7 @@ public:
 		SetClusterData(CTL_GSITEM_FLAGS, Data.Flags);
 		SetupPrice();
 		SetupWareSymb(false/*force*/);
-		if(Data.GoodsID) {
+		if(isempty(Data.WareSymb) && Data.GoodsID) {
 			selectCtrl(CTL_GSITEM_VALUE);
 			GoodsStockExt gse;
 			if(GObj.P_Tbl->GetStockExt(Data.GoodsID, &gse, 1) > 0 && gse.NettBruttCoeff > 0.0f && gse.NettBruttCoeff <= 1.0f) {
@@ -1984,7 +1985,13 @@ public:
 		// } @v12.6.5 
 		{
 			getGroupData(GSItemDialog::ctlgroupGoods, &gc_rec);
-			if(isempty(Data.WareSymb)) { // @v12.6.5
+			Data.GoodsID = (Data.Flags & GSIF_GOODSGROUP) ? gc_rec.GoodsGrpID : gc_rec.GoodsID;
+			if(!isempty(Data.WareSymb)) { // @v12.6.5
+				Data.GoodsID = SlHash::Murmur2_32(Data.WareSymb, strlen(Data.WareSymb), 0);
+				if(Data.GoodsID < 0)
+					Data.GoodsID = -Data.GoodsID;
+			}
+			else {
 				sel = CTLSEL_GSITEM_GOODS;
 				THROW_PP(Data.GoodsID && GObj.Fetch(Data.GoodsID, &goods_rec) > 0, (Data.Flags & GSIF_GOODSGROUP) ? PPERR_GOODSGROUPNEEDED : PPERR_GOODSNEEDED);
 			}
@@ -2006,7 +2013,6 @@ public:
 		getCtrlData(CTL_GSITEM_NETTO, &Data.Netto);
 		getCtrlData(CTL_GSITEM_SYMB, Data.Symb);
 		SETFLAG(Data.Flags, GSIF_GOODSGROUP, getCtrlUInt16(CTL_GSITEM_GROUPONLY));
-		Data.GoodsID = (Data.Flags & GSIF_GOODSGROUP) ? gc_rec.GoodsGrpID : gc_rec.GoodsID;
 		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERRBYDLG
 		return ok;
@@ -2025,6 +2031,9 @@ private:
 		}
 		else if(event.isClusterClk(CTL_GSITEM_WARESYMB_TOGGLE)) {
 			uint16 v = getCtrlUInt16(CTL_GSITEM_WARESYMB_TOGGLE);
+			SString temp_buf;
+			getCtrlString(CTL_GSITEM_WARESYMB, temp_buf);
+			STRNSCPY(Data.WareSymb, temp_buf);
 			SetupWareSymb(LOGIC(v));
 		}
 		else if(event.isCmd(cmGSItemLots)) {

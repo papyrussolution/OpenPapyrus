@@ -1143,11 +1143,12 @@ int LotExtCodeCore::PutContainer(PPID billID, const PPLotExtCodeContainer * pC, 
 		MEMSZERO(k2);
 		k2.BillID = billID;
 		if(search(2, &k2, spGe) && data.BillID == billID) do {
-			int    is_found = 0;
+			bool   is_found = false;
 			for(uint i = 0; !is_found && i < pC->GetCount(); i++) {
 				pC->GetByIdx(i, citem);
-				if(citem.RowIdx == data.RByBill && citem.Flags == data.Flags && citem.BoxId == data.BoxNo && citem.Num == data.Code) {
-					is_found = 1;
+				const  long _box_id = (citem.Flags & PPLotExtCodeContainer::fBox) ? citem.Id : citem.ParentId;
+				if(citem.RowIdx == data.RByBill && citem.Flags == data.Flags && /*citem.BoxId*/_box_id == data.BoxNo && citem.Num == data.Code) {
+					is_found = true;
 					found_idx_list.add(i+1);
 				}
 			}
@@ -1168,7 +1169,7 @@ int LotExtCodeCore::PutContainer(PPID billID, const PPLotExtCodeContainer * pC, 
 						rec.BillID = billID;
 						rec.RByBill = citem.RowIdx;
 						rec.Flags = citem.Flags;
-						rec.BoxNo = citem.BoxId;
+						rec.BoxNo = (citem.Flags & PPLotExtCodeContainer::fBox) ? citem.Id : citem.ParentId;
 						STRNSCPY(rec.Code, citem.Num);
 						THROW_DB(bei.insert(&rec));
 						ok = 1;
@@ -1346,7 +1347,7 @@ int LotExtCodeCore::FindMarkToTransfer(const char * pCode, PPID goodsID, PPID lo
 				if(search(2, &k2, spGe) && data.BillID == first_bill_id && data.RByBill == first_rbb && data.BoxNo == box_no) {
 					do {
 						if(data.Flags & PPLotExtCodeContainer::fBox) {
-							THROW(rResult.AddBox(box_no, data.Code, 1));
+							THROW(rResult.AddBox(box_no, 0/*parentId*/, data.Code, 1));
 							box_count++;
 						}
 						else {
@@ -1366,6 +1367,126 @@ int LotExtCodeCore::FindMarkToTransfer(const char * pCode, PPID goodsID, PPID lo
 		else {
 			CALLEXCEPT_PP_S(PPERR_EGAISMARKNOTFOUND, pCode);
 		}
+	}
+	CATCHZOK
+	return ok;
+}
+//
+//
+//
+ExtCodeRefCore::ExtCodeRefCore() : ExtCodeRefTbl()
+{
+}
+
+int ExtCodeRefCore::PutAggregation2(const PPLotExtCodeContainer::MarkSet & rSet, int use_ta) // @construction
+{
+	int    ok = -1;
+	PPLotExtCodeContainer::MarkSet::Entry entry;
+	PPLotExtCodeContainer::MarkSet set_internal;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		for(uint i = 0; i < rSet.GetCount(); i++) {
+			if(rSet.GetByIdx(i, entry) && entry.ParentId == 0 && entry.Flags & PPLotExtCodeContainer::fBox) {
+				if(rSet.GetByBoxID(entry.Id, set_internal) > 0) {
+					THROW(PutAggregation(entry.Code, set_internal, 0));
+					ok = 1;					
+				}
+			}
+		}
+		THROW(tra.Commit());
+	}
+	CATCHZOK
+	return ok;
+}
+
+int ExtCodeRefCore::PutAggregation(const char * pCode, PPLotExtCodeContainer::MarkSet & rSet, int use_ta)
+{
+	int    ok = 1;
+	if(isempty(pCode)) {
+		ok = -1;
+	}
+	else {
+		const  bool do_remove = (rSet.GetCount() == 0);
+		SBuffer cbuf;
+		ExtCodeRefTbl::Rec rec;
+		ExtCodeRefTbl::Key0 k0;
+		MEMSZERO(k0);
+		STRNSCPY(k0.Code, pCode);
+		k0.Kind = kAggregation;
+		if(!do_remove) {
+			SBuffer _sbuf;
+			SSerializeContext sctx;
+			THROW(rSet.Serialize(+1, _sbuf, &sctx));
+			THROW_SL(_sbuf.CompressOptional(256, cbuf));
+		}
+		{
+			PPTransaction tra(use_ta);
+			THROW(tra);
+			if(search(0, &k0, spEq)) {
+				THROW(rereadForUpdate(0, &k0));
+				if(do_remove) {
+					THROW_DB(deleteRec());
+				}
+				else {
+					STRNSCPY(rec.Code, pCode);
+					rec.Kind = kAggregation;
+					CopyBufFrom(&rec, sizeof(rec));
+					const  size_t cbuf_len = cbuf.GetAvailableSize(); 
+					if(cbuf_len) {
+						THROW(writeLobData(this->VT, cbuf.constptr(), cbuf_len));
+					}
+					THROW_DB(updateRec());
+				}
+			}
+			else {
+				if(do_remove) {
+					ok = -1;
+				}
+				else {
+					STRNSCPY(rec.Code, pCode);
+					rec.Kind = kAggregation;
+					CopyBufFrom(&rec, sizeof(rec));
+					const  size_t cbuf_len = cbuf.GetAvailableSize(); 
+					if(cbuf_len) {
+						THROW(writeLobData(this->VT, cbuf.constptr(), cbuf_len));
+					}
+					THROW(insertRec());
+				}
+			}
+			THROW(tra.Commit());
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int ExtCodeRefCore::GetAggregation(const char * pCode, PPLotExtCodeContainer::MarkSet & rSet, bool recursive)
+{
+	rSet.Z();
+	int    ok = -1;
+	ExtCodeRefTbl::Key0 k0;
+	MEMSZERO(k0);
+	STRNSCPY(k0.Code, pCode);
+	k0.Kind = kAggregation;
+	if(search(0, &k0, spEq)) {
+		SBuffer temp_sbuf;
+		readLobData(this->VT, temp_sbuf);
+		{
+			SBuffer _sbuf;
+			THROW_SL(temp_sbuf.DecompressOptional(_sbuf));
+			{
+				SSerializeContext sctx;
+				THROW(rSet.Serialize(-1, _sbuf, &sctx));
+			}
+			if(recursive) {
+				//for(uint )
+			}
+		}
+		ok = 1;
+	}
+	else {
+		THROW_DB(BTROKORNFOUND);
 	}
 	CATCHZOK
 	return ok;

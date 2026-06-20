@@ -886,14 +886,17 @@ int UpdateQuots(const QuotUpdFilt * pFilt)
 	PPObjLocation loc_obj;
 	QuotUpdFilt flt;
 	PPIDArray loc_list;
-	// @erik v10.5.8 { 
+	// @erik { 
 	LDATETIME date_time_test;
 	Quotation2Core qc2_test;
-	SBuffer buf_before_test, buf_after_test;
-	int64 items_count_before_test, items_count_after_test;
+	SBuffer buf_before_test;
+	SBuffer buf_after_test;
+	int64  items_count_before_test;
+	int64  items_count_after_test;
 	PPQuotItemArray qilist_before_test, qilist_after_test;
-	SSerializeContext sctx_before_test, sctx_after_test;
-	// } @erik v10.5.8
+	SSerializeContext sctx_before_test;
+	SSerializeContext sctx_after_test;
+	// } @erik
 	THROW(qk_obj.CheckRights(QUOTRT_UPDQUOTS, 0) && goods_obj.CheckRights(GOODSRT_UPDQUOTS, 0));
 	if(!RVALUEPTR(flt, pFilt)) {
 		flt.LocList.Add(LConfig.Location);

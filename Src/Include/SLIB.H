@@ -6960,6 +6960,16 @@ public:
 	~SBuffer();
 	void   Destroy();
 	int    FASTCALL Copy(const SBuffer &);
+	//
+	// Descr: Если размер буфера this превышает minSizeToCompression байт, то сжимает буфер и укладывает результат в буфер rDest.
+	//   Если сжатие не требуется, то просто копирует this в rDest.
+	// Returns:
+	//   >0 - ok. Данные сжаты.
+	//   <0 - ok. Данные не сжаты.
+	//    0 - error
+	//   
+	int    CompressOptional(uint minSizeToCompression, SBuffer & rDest); // @v12.6.8
+	int    DecompressOptional(SBuffer & rDest); // @v12.6.8
 	SBuffer & FASTCALL operator = (const SBuffer & s);
 	//
 	// Desct: Возвращает 0 если в объекте произошла ошибка.
@@ -11621,6 +11631,11 @@ public:
 
 		FirstUser        = 10000
 	};
+	struct TxtBomEntry {
+		uint64 Signature;
+		uint   SignatureLen;
+		int    Format; // TxtBomXXX
+	};
 	static int  FASTCALL Register(int id, int mimeType, const char * pMimeSubtype, const char * pExt, const char * pSign);
 	static int  FASTCALL Register(int id, const char * pExt, const char * pSign);
 	static int  Register();
@@ -11630,6 +11645,18 @@ public:
 	static int  GetMime(int id, SString & rMime);
 	static int  GetExt(int id, SString & rExt);
 	static int  GetContentTransferEncName(int cte, SString & rBuf);
+	//
+	// Descr: Функция выясняет присутствует ли по указателю pData префикс BOM (Byte Order Mark).
+	//   Если dataLen > 0, то функция проверяет не более dataLen байт.
+	// ARG(pData IN):
+	// ARG(dataLen IN):
+	// ARG(pBomLen OUT): Если указатель !0 то по нему присваивается длина идентифицированного префикса BOM.
+	//   Если префикс не идентифицирован, то по указателю присваивается 0.
+	// Returns:
+	//   0 - либо pData == 0, либо по указателю pData нет префикса BOM
+	//  >0 - одно из значений SFileFormat::TxtBomXXX идентифицирующих соответствующий префикс 
+	//
+	static int  IsThereBomPrefix(const void * pData, size_t dataLen, size_t * pBomLen); // @v12.6.8
 
 	SFileFormat();
 	SFileFormat(int f); // no explicit
@@ -14280,6 +14307,11 @@ struct SJson {
 	static const SString & FASTCALL Unescape(const SString & rRawText);
 	explicit SJson(int aType);
 	~SJson();
+	//
+	// Descr: Разрушает сам узел и всех его потомков.
+	// ARG(secure IN): если true, то каждая строка обфусцируется //
+	//
+	void   FASTCALL Destroy(bool secure); // @v12.6.8
 	bool   IsValid() const;
 	bool   IsObject() const { return (Type == SJson::tOBJECT); }
 	bool   IsArray() const { return (Type == SJson::tARRAY); }

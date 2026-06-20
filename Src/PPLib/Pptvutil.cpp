@@ -8827,9 +8827,13 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						const  uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
 						TCluster * p_ctl = new TCluster(rc, CHECKBOXES, TCluster::spcfSingleItemWithoutFrame/*spcFlags*/, 0/*pTitle*/, 0);
 						{
-							if(rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, temp_buf)) {
+							/* @v12.6.8 if(rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, temp_buf)) {
 								p_ctl->AddItem(-1, temp_buf, &rc);
-							}
+							}*/
+							// @v12.6.8 {
+							rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, temp_buf);
+							p_ctl->AddItem(-1, temp_buf, &rc);
+							// } @v12.6.8 
 						}
 						pDlg->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
 						ctl_id_for_tab = item_id; // @v12.3.9

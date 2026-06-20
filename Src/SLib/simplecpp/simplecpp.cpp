@@ -264,21 +264,18 @@ public:
 			unget();
 	}
 protected:
-	void init() {
+	void init() 
+	{
 		// initialize since we use peek() in getAndSkipBOM()
 		isUtf16 = false;
 		bom = getAndSkipBOM();
 		isUtf16 = (bom == 0xfeff || bom == 0xfffe);
 	}
-
 private:
-	inline int makeUtf16Char(const uchar ch, const uchar ch2) const {
-		return (bom == 0xfeff) ? (ch<<8 | ch2) : (ch2<<8 | ch);
-	}
-
-	unsigned short getAndSkipBOM() {
+	inline int makeUtf16Char(const uchar ch, const uchar ch2) const { return (bom == 0xfeff) ? (ch<<8 | ch2) : (ch2<<8 | ch); }
+	unsigned short getAndSkipBOM() 
+	{
 		const int ch1 = peek();
-
 		// The UTF-16 BOM is 0xfffe or 0xfeff.
 		if(ch1 >= 0xfe) {
 			(void)get();
@@ -288,7 +285,6 @@ private:
 			unget();
 			return 0;
 		}
-
 		// Skip UTF-8 BOM 0xefbbbf
 		if(ch1 == 0xef) {
 			(void)get();
@@ -302,10 +298,8 @@ private:
 			}
 			unget();
 		}
-
 		return 0;
 	}
-
 	unsigned short bom;
 protected:
 	bool isUtf16;

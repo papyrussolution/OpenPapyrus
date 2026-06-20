@@ -348,10 +348,7 @@ int FASTCALL ObjRestrictArray::RemoveItemByID(PPID objID)
 		return -1;
 }
 
-bool ObjRestrictArray::SearchItemByID(PPID objID, uint * pPos) const
-{
-	return lsearch(&objID, pPos, CMPF_LONG);
-}
+bool ObjRestrictArray::SearchItemByID(PPID objID, uint * pPos) const { return lsearch(&objID, pPos, CMPF_LONG); }
 
 bool ObjRestrictArray::CheckFlag(PPID objID, long f) const
 {

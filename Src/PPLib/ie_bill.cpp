@@ -10137,7 +10137,7 @@ int WriteBill_ExportMarks(const PPBillImpExpParam & rParam, const PPBillPacket &
 		for(uint boxidx = 0; boxidx < ms.GetCount(); boxidx++) {
 			if(ms.GetByIdx(boxidx, msentry)) {
 				if(msentry.Flags & PPLotExtCodeContainer::fBox) {
-					ms.GetByBoxID(msentry.BoxID, ss);
+					ms.GetByBoxID(msentry.Id, ss);
 					for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 						output.Tab_(2).Cat(temp_buf).CR();
 					}
