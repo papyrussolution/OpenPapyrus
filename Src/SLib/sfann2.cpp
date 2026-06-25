@@ -3247,12 +3247,10 @@ void fann_update_weights(Fann2 * ann)
 FANN_EXTERNAL void FANN_API fann_train(Fann2 * ann, float * input, float * desired_output, float * pRunOutput)
 {
 	const float * p_out = fann_run(ann, input);
-	// @v10.2.7 {
 	assert(p_out);
 	if(pRunOutput) {
 		memcpy(pRunOutput, p_out, sizeof(float) * ann->num_output);
 	}
-	// } @v10.2.7 
 	fann_compute_MSE(ann, desired_output);
 	fann_backpropagate_MSE(ann);
 	fann_update_weights(ann);

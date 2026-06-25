@@ -1,5 +1,5 @@
 // TEST-TIME.CPP
-// Copyright (c) A.Sobolev 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Тестирование реализаций времени и даты
 //
@@ -69,12 +69,12 @@ SLTEST_R(LDATE)
 	for(i = 0; i < SIZEOFARRAY(pair_list_dtm); i++) {
 		const PairDateTime & r_item = pair_list_dtm[i];
 		LDATETIME test_val, cvt_val;
-		strtodatetime(r_item.In, &test_val, DATF_DMY, TIMF_HMS);
+		strtodatetime(r_item.In, test_val, DATF_DMY, TIMF_HMS);
 		//
 		// Проверяем конвертацию из даты в строку
 		//
 		datetimefmt(test_val, DATF_DMY, TIMF_HMS, cvt_buf, sizeof(cvt_buf));
-		strtodatetime(cvt_buf, &cvt_val, DATF_DMY, TIMF_HMS);
+		strtodatetime(cvt_buf, cvt_val, DATF_DMY, TIMF_HMS);
 		SLCHECK_EQ(test_val, cvt_val);
 		//
 		{
@@ -225,7 +225,7 @@ SLTEST_R(LDATE)
 		LDATETIME dtm;
 		const long datf = DATF_DMY|DATF_CENTURY;
 		const long timf = TIMF_HMS;
-		strtodatetime("31/12/2008 01:17:02", &dtm, datf, timf);
+		strtodatetime("31/12/2008 01:17:02", dtm, datf, timf);
 		SLCHECK_EQ(temp_buf.Z().Cat(dtm.addsec(0), datf, timf), "31/12/2008 01:17:02");
 		SLCHECK_EQ(temp_buf.Z().Cat(dtm.addsec(1), datf, timf), "31/12/2008 01:17:03");
 		SLCHECK_EQ(temp_buf.Z().Cat(dtm.addsec(60), datf, timf), "31/12/2008 01:18:03");

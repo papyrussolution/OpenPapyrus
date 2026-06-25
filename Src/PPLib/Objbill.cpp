@@ -10901,6 +10901,113 @@ int PPObjBill::ConvertUuid7601()
 	return ok;
 }
 
+PPObjBill::ExportParticipantIdentBlock::ExportParticipantIdentBlock()
+{
+	THISZERO();
+}
+
+PPObjBill::ExportParticipantIdentBlock & PPObjBill::ExportParticipantIdentBlock::Z()
+{
+	THISZERO();
+	return *this;
+}
+
+int PPObjBill::MakeExportParticipantIdentBlock(const PPBillPacket & rBp, ExportParticipantIdentBlock & rBlk) // @v12.6.9
+{
+	int    ok = 1;
+	rBlk.Z();
+	const  PPID main_org_id = GetMainOrgID();
+	THROW(main_org_id);
+	if(rBp.OpTypeID == PPOPT_CORRECTION) {
+		const  bool is_exp_correction = rBp.IsExpCorrection();
+		if(is_exp_correction) {
+			rBlk.SupplPsnID = main_org_id;
+			rBlk.BuyerPsnID = ObjectToPerson(rBp.Rec.Object, 0);
+			rBlk.ConsigneePsnID = rBlk.BuyerPsnID;
+			rBlk.ConsigneeLocID = rBp.GetDlvrAddrID();
+			rBlk.ConsignorPsnID = main_org_id;
+			rBlk.ConsignorLocID = rBp.Rec.LocID;
+		}
+		else { // supplier correction
+			// @todo
+		}
+	}
+	else if(oneof3(rBp.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND, PPOPT_GOODSORDER)) {
+		PPID   ar2_main_org_id = 0;
+		if(IsIntrExpndOp(rBp.Rec.OpID)) {
+			rBlk.ConsigneePsnID = main_org_id;
+			rBlk.ConsigneeLocID = PPObjLocation::ObjToWarehouse(rBp.Rec.Object);
+			rBlk.SupplPsnID = main_org_id;
+			rBlk.BuyerPsnID = rBlk.ConsigneePsnID;
+			rBlk.ConsignorPsnID = main_org_id;
+			rBlk.ConsignorLocID = rBp.Rec.LocID;
+			rBlk.Flags |= ExportParticipantIdentBlock::fIntrExpend;
+		}
+		else {
+			rBlk.ConsigneePsnID = ObjectToPerson(rBp.Rec.Object, 0);
+			rBlk.ConsigneeLocID = rBp.GetDlvrAddrID();
+			rBlk.SupplPsnID = main_org_id;
+			rBlk.BuyerPsnID = rBlk.ConsigneePsnID;
+			rBlk.ConsignorPsnID = main_org_id;
+			rBlk.ConsignorLocID = rBp.Rec.LocID;
+		}
+	}
+	else if(oneof2(rBp.OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT)) {
+		//wb_type = wbtInvcToMe;
+		rBlk.ConsigneePsnID = main_org_id;
+		rBlk.ConsigneeLocID = rBp.Rec.LocID;
+		rBlk.SupplPsnID = ObjectToPerson(rBp.Rec.Object, 0);
+		rBlk.BuyerPsnID = rBlk.ConsigneePsnID;
+		rBlk.ConsignorPsnID = rBlk.SupplPsnID;
+		rBlk.ConsignorLocID = rBp.GetDlvrAddrID();
+	}
+	else if(rBp.OpTypeID == PPOPT_GOODSRETURN) {
+		PPOprKind op_rec;
+		PPOprKind link_op_rec;
+		GetOpData(rBp.Rec.OpID, &op_rec);
+		if(op_rec.LinkOpID) {
+			GetOpData(op_rec.LinkOpID, &link_op_rec);
+			if(link_op_rec.OpTypeID == PPOPT_GOODSRECEIPT) {
+				//wb_type = wbtRetFromMe;
+				rBlk.SupplPsnID = main_org_id;
+				rBlk.ConsigneePsnID = ObjectToPerson(rBp.Rec.Object, 0);
+				rBlk.ConsigneeLocID = rBp.GetDlvrAddrID();
+				rBlk.BuyerPsnID = rBlk.ConsigneePsnID;
+				rBlk.ConsignorPsnID = main_org_id;
+				rBlk.ConsignorLocID = rBp.Rec.LocID;
+			}
+			else if(link_op_rec.OpTypeID == PPOPT_GOODSEXPEND) {
+				//wb_type = wbtRetToMe;
+				rBlk.ConsigneePsnID = main_org_id;
+				rBlk.ConsigneeLocID = rBp.Rec.LocID;
+				rBlk.SupplPsnID = ObjectToPerson(rBp.Rec.Object, 0);
+				rBlk.BuyerPsnID = rBlk.ConsigneePsnID;
+				rBlk.ConsignorPsnID = rBlk.SupplPsnID;
+				rBlk.ConsignorLocID = rBp.GetDlvrAddrID();
+			}
+		}
+	}
+	{
+		PPFreight freight;
+		if(rBp.GetFreight(&freight) > 0) {
+			if(freight.ShipID) {
+				PPObjTransport tr_obj;
+				PPTransportPacket tr_pack;
+				if(tr_obj.Get(freight.ShipID, &tr_pack) > 0) {
+					if(tr_pack.Rec.TrOwnerID) {
+						rBlk.TransporterPsnID = tr_pack.Rec.TrOwnerID;
+					}
+				}
+			}
+			if(freight.CaptainID) {
+				rBlk.CaptainID = freight.CaptainID;
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 #if SLTEST_RUNNING // {
 
 struct BillGuidAssocItem {

@@ -137,7 +137,7 @@ int PPViewServerStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 		FetchStat();
 		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
 		if(p_def) {
-			const long cp = p_def->_curItem();
+			const long cp = p_def->GetCurItem();
 			const void * p_cr = p_def->getRow(cp);
 			const long tid = p_cr ? *static_cast<const long *>(p_cr) : 0;
 			p_def->setArray(new SArray(Data), 0, 1);

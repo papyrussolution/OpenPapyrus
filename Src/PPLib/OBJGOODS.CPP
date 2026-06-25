@@ -4558,7 +4558,7 @@ int PPObjGoods::GetStrucSubstList(PPID goodsID, RAssocArray & rList)
 	if(LoadGoodsStruc(PPGoodsStruc::Ident(goodsID, GSF_SUBST, GSF_COMPL|GSF_DECOMPL|GSF_PARTITIAL), &gs) > 0) {
 		PPGoodsStrucItem gsi;
 		double ratio = 0.0;
-		for(uint j = 0; gs.EnumItemsExt(&j, &gsi, goodsID, 1, &ratio) > 0;)
+		for(uint j = 0; gs.EnumItemsExt(&j, &gsi, goodsID, 1.0, &ratio) > 0;)
 			if(gsi.GoodsID != goodsID && ratio != 0) {
 				if(pList && !pList->Search(gsi.GoodsID, 0, 0, 0))
 					pList->Add(gsi.GoodsID, ratio);

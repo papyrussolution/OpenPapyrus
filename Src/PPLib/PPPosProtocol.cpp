@@ -2511,7 +2511,7 @@ int PPPosProtocol::EndElement(const char * pName)
 					const int prev_tok = RdB.TokPath.peek();
 					if(prev_tok == PPHS_FILE) {
 						if(RdB.TagValue.NotEmptyS()) {
-							strtodatetime(RdB.TagValue, &RdB.SrcFileDtm, DATF_ISO8601, 0);
+							strtodatetime(RdB.TagValue, RdB.SrcFileDtm, DATF_ISO8601, 0);
 						}
 					}
 				}
@@ -2548,7 +2548,7 @@ int PPPosProtocol::EndElement(const char * pName)
 					const int prev_tok = RdB.TokPath.peek();
 					if(prev_tok == PPHS_FILE) {
 						if(RdB.TagValue.NotEmptyS()) {
-							strtodatetime(RdB.TagValue, &RdB.SrcFileDtm, DATF_ISO8601, 0);
+							strtodatetime(RdB.TagValue, RdB.SrcFileDtm, DATF_ISO8601, 0);
 						}
 					}
 				}
@@ -3233,7 +3233,7 @@ int PPPosProtocol::EndElement(const char * pName)
 			case PPHS_TIME:
 				{
 					LDATETIME dtm;
-					strtodatetime(RdB.TagValue, &dtm, DATF_ISO8601, 0);
+					strtodatetime(RdB.TagValue, dtm, DATF_ISO8601, 0);
 					p_item = PeekRefItem(&ref_pos, &type);
 					switch(type) {
 						case obCSession: static_cast<CSessionBlock *>(p_item)->Dtm = dtm; break;
@@ -4917,7 +4917,7 @@ static int FASTCALL ReadPosProtocolFileProcessedList(const char * pPath, TSVecto
 							is_rec_ok = 0;
 					}
 					else if(fld_n == 1) {
-						strtodatetime(temp_buf, &new_entry.FileDtm, DATF_ISO8601, 0);
+						strtodatetime(temp_buf, new_entry.FileDtm, DATF_ISO8601, 0);
 						if(!checkdate(new_entry.FileDtm.d, 0))
 							is_rec_ok = 0;
 					}

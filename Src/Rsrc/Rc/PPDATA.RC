@@ -877,7 +877,7 @@ ROD_LOCATION PP_RCDATA {
 // 'A' REGTF_LOCATION    Регистр может быть использован для привязки к локациям
 //
 ROD_REGISTERTYPE PP_RCDATA {
-	19,
+	20,
 	 1, "@{rregt_passport}\0",            "UP\0"
 	 2, "@{rregt_regfree}\0",             "UP\0"
 	 3, "@{rregt_tpid}\0",                "U\0"
@@ -897,6 +897,7 @@ ROD_REGISTERTYPE PP_RCDATA {
 	17, "@{rregt_dto_id}\0",              "UL\0"
 	18, "@{rregt_taxsystem}\0",           "UD\0"
 	19, "@{rregt_enalogid}\0",            "PLN\0"
+	20, "@{rregt_driverlicense}\0",       "UP\0"
 };
 //
 // Зарезервированные записи объекта PPOBJ_ELINKKIND

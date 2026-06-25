@@ -1019,7 +1019,7 @@ int UdsGameInterface::ReadParticipant(const SJson * pJs, Participant & rP) const
 			}
 			else if(p_cur->Text.IsEqiAscii("dateCreated")) {
 				if(SJson::IsString(p_cur->P_Child))
-					strtodatetime(p_cur->P_Child->Text, &rP.DtmCreated, DATF_ISO8601, 0);
+					strtodatetime(p_cur->P_Child->Text, rP.DtmCreated, DATF_ISO8601, 0);
 				else
 					rP.DtmCreated.Z();
 			}
@@ -1031,7 +1031,7 @@ int UdsGameInterface::ReadParticipant(const SJson * pJs, Participant & rP) const
 			}
 			else if(p_cur->Text.IsEqiAscii("lastTransactionTime")) {
 				if(SJson::IsString(p_cur->P_Child))
-					strtodatetime(p_cur->P_Child->Text, &rP.DtmLastTransaction, DATF_ISO8601, 0);
+					strtodatetime(p_cur->P_Child->Text, rP.DtmLastTransaction, DATF_ISO8601, 0);
 				else
 					rP.DtmLastTransaction.Z();
 			}
@@ -1336,7 +1336,7 @@ int UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & rR
 						}
 						else if(p_cur->Text.IsEqiAscii("dateCreated")) {
 							if(SJson::IsString(p_cur->P_Child)) {
-								strtodatetime(p_cur->P_Child->Text, &rReplyT.Dtm, DATF_ISO8601, 0);
+								strtodatetime(p_cur->P_Child->Text, rReplyT.Dtm, DATF_ISO8601, 0);
 							}
 						}
 						else if(p_cur->Text.IsEqiAscii("action")) {
@@ -1413,7 +1413,7 @@ int UdsGameInterface::ReadPriceItem(const SJson * pJs, GoodsItem & rI) const
 			}
 			else if(p_cur->Text.IsEqiAscii("dateCreated")) {
 				if(SJson::IsString(p_cur->P_Child)) {
-					strtodatetime(p_cur->P_Child->Text, &rI.DtmCreated, DATF_ISO8601, 0);
+					strtodatetime(p_cur->P_Child->Text, rI.DtmCreated, DATF_ISO8601, 0);
 				}				
 			}
 			else if(p_cur->Text.IsEqiAscii("blocked")) {

@@ -1591,21 +1591,22 @@ int PPViewQuot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * p
 	MEMSZERO(hdr);
 	if(ok == -2) {
 		GetEditIds(pHdr, &hdr, (pBrw ? pBrw->GetCurColumn() : 0));
-		PPID   id = hdr.GoodsID;
-		int    is_suppl_deal = BIN(Filt.QkCls == PPQuot::clsSupplDeal);
+		const  PPID id = hdr.GoodsID;
+		//int    is_suppl_deal = BIN(Filt.QkCls == PPQuot::clsSupplDeal);
 		switch(ppvCmd) {
 			case PPVCMD_INPUTCHAR:
 				ok = -1;
 				if(Filt.QkCls != PPQuot::clsMtxRestr && pHdr && isdec(*static_cast<const char *>(pHdr))) {
 					int    init_char = *static_cast<const char *>(pHdr);
-					int    r = 0;
 					Goods2Tbl::Rec goods_rec;
 					double qtty = 0.0;
 					if(pBrw) {
-						if((r = GObj.SelectGoodsByBarcode(init_char, Filt.ArID, &goods_rec, &qtty, 0)) > 0) {
-							if(pBrw->search2(&goods_rec.ID, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/) <= 0)
+						const  int r = GObj.SelectGoodsByBarcode(init_char, Filt.ArID, &goods_rec, &qtty, 0);
+						if(r > 0) {
+							if(!pBrw->search2(&goods_rec.ID, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/)) {
 								if(AddItem(&goods_rec.ID) > 0)
 									ok = 1;
+							}
 						}
 						else if(r != -1)
 							pBrw->bottom();

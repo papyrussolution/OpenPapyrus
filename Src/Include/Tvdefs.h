@@ -356,21 +356,24 @@
 //
 // StdDlg commands & messages
 //
-#define cmFileOpen         1001   // Returned from TFileDialog when Open pressed
-#define cmFileReplace      1002   // Returned from TFileDialog when Replace pressed
-#define cmFileClear        1003   // Returned from TFileDialog when Clear pressed
-#define cmFileInit         1004   // Used by TFileDialog internally
-#define cmChangeDir        1005   // Used by TChDirDialog internally
-#define cmRevert           1006   // Used by TChDirDialog internally
-#define cmFileSave         1007   //
-#define cmFileSaveAs       1008   //
-#define cmBringToFront     1009   // Переместить объект на передний план
-#define cmSendToBack       1010   // Переместить объект на задний план
-#define cmProperties       1011   // Свойства
-#define cmUp               1012   //
-#define cmDown             1013   //
-#define cmGrouping         1014   //
-#define cmSaveAsJson       1015   // @v11.7.10 Весьма специализированная команда. Введена для сохранения layout'а из ватмана
+#define cmFileOpen           1001   // Returned from TFileDialog when Open pressed
+#define cmFileReplace        1002   // Returned from TFileDialog when Replace pressed
+#define cmFileClear          1003   // Returned from TFileDialog when Clear pressed
+#define cmFileInit           1004   // Used by TFileDialog internally
+#define cmChangeDir          1005   // Used by TChDirDialog internally
+#define cmRevert             1006   // Used by TChDirDialog internally
+#define cmFileSave           1007   //
+#define cmFileSaveAs         1008   //
+#define cmBringToFront       1009   // Переместить объект на передний план
+#define cmSendToBack         1010   // Переместить объект на задний план
+#define cmProperties         1011   // Свойства
+#define cmUp                 1012   //
+#define cmDown               1013   //
+#define cmGrouping           1014   //
+#define cmSaveAsJson         1015   // @v11.7.10 Весьма специализированная команда. Введена для сохранения layout'а из ватмана
+#define cmPasswordToggleShow 1016   // @v12.6.9 Переключение отображения/сокрытия текста в поле ввода пароля //
+#define cmKeyboardLayout     1017   // @v12.6.9 Отображение и, возможно, переключение раскладки клавиатуры //
+#define cmKbStateCapsLock    1018   // @v12.6.9 Отображение и, возможно, переключение состояния capslock на клавиатуре //
 //
 // SBrowser command & messages
 //

@@ -254,9 +254,7 @@ int TIDlgInitData::GetTiSign() const
 /*static*/long ExtGoodsSelDialog::GetDefaultFlags()
 {
 	long   f = 0;
-	// @v11.2.6 UserInterfaceSettings uiset;
-	// @v11.2.6 uiset.Restore();
-	const long uif = APPL->GetUiSettings().Flags;
+	const  long uif = APPL->GetUiSettings().Flags;
 	if(uif & UserInterfaceSettings::fExtGoodsSelHideGenerics)
 		f |= fHideGeneric;
 	if(uif & UserInterfaceSettings::fExtGoodsSelMainName)
@@ -275,7 +273,7 @@ ExtGoodsSelDialog::ExtGoodsSelDialog(PPID _op, PPID initGoodsID, long flags) : T
 	SETFLAGBYSAMPLE(Flags, fForcePassive, flags);
 	SETFLAGBYSAMPLE(Flags, fSelectModifMode, flags);
 	SETFLAGBYSAMPLE(Flags, fHideGeneric, flags);
-	SETFLAGBYSAMPLE(Flags, fForceMatrixUsage, flags); // @v11.2.8
+	SETFLAGBYSAMPLE(Flags, fForceMatrixUsage, flags);
 	LocID = r_cfg.Location;
 	MEMSZERO(SerialData);
 	P_List = static_cast<SmartListBox *>(getCtrlView(CTL_EXTGSEL_LIST));
@@ -304,12 +302,12 @@ ExtGoodsSelDialog::ExtGoodsSelDialog(PPID _op, PPID initGoodsID, long flags) : T
 		selectCtrl(CTL_EXTGSEL_QTTY);
 	}
 	{
-		int    disable_group_selection = 0;
+		bool   disable_group_selection = false;
 		if(!initGoodsID) {
 			PPAccessRestriction accsr;
 			initGoodsID = ObjRts.GetAccessRestriction(accsr).OnlyGoodsGrpID;
 			if(initGoodsID && accsr.CFlags & PPAccessRestriction::cfStrictOnlyGoodsGrp)
-				disable_group_selection = 1;
+				disable_group_selection = true;
 		}
 		SetupPPObjCombo(this, CTLSEL_EXTGSEL_GGRP, PPOBJ_GOODSGROUP, initGoodsID, OLW_CANINSERT|OLW_WORDSELECTOR, 0);
 		if(disable_group_selection)

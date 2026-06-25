@@ -784,36 +784,37 @@
 #define PPOBJ_SCALE              26L // $ Электронные весы
 	//
 	// Extra record of PPOBJ_SCALE
-	#define SCLPRP_EXPPATHS      1L
+	#define SCLPRP_EXPPATHS       1L
 #define PPOBJ_REGISTERTYPE       27L // $ Типы регистрационных документов
-	#define PPREGT_PASSPORT      1 // Паспорт
-	#define PPREGT_REGFREE       2 // Свид частного предпринимателя //
-	#define PPREGT_TPID          3 // ИНН
-	#define PPREGT_OKONH         4 // ОКОНХ
-	#define PPREGT_OKPO          5 // ОКПО
-	#define PPREGT_BIC           6 // БИК (банковский идентификатор, бывший МФО)
-	#define PPREGT_BNKCORRACC    7 // Корр сч банка
+	#define PPREGT_PASSPORT       1 // Паспорт
+	#define PPREGT_REGFREE        2 // Свид частного предпринимателя //
+	#define PPREGT_TPID           3 // ИНН
+	#define PPREGT_OKONH          4 // ОКОНХ
+	#define PPREGT_OKPO           5 // ОКПО
+	#define PPREGT_BIC            6 // БИК (банковский идентификатор, бывший МФО)
+	#define PPREGT_BNKCORRACC     7 // Корр сч банка
 	// Вообще говоря, логичнее было бы корр счет держать среди банковких
 	// счетов соответствующего банка, однако ввиду устоявшегося статуса
 	// непременного атрибута любого банка, этот корр счет будем хранить
 	// среди регистрационных данных.
 	//
-	#define PPREGT_CODE          8 // Код персоналии
-	#define PPREGT_ALBATROSCLID  9 // Идентификатор клиента проекта альбатрос
-	#define PPREGT_UHTTCLID     PPREGT_ALBATROSCLID // Идентификатор клиента проекта Universe-HTT
-	#define PPREGT_KPP          10 // Код причины постановки на налоговый учет налогоплательщика
-	#define PPREGT_OKATO        11 // Код фискального органа по ОКАТО
-	#define PPREGT_CERTORGCODE  12 // Код сертифицирующей организации
-	#define PPREGT_GLN          13 // GLN, ассоциированный с персоналией (не путать с кодом адреса)
-	#define PPREGT_COUNTRYABBR  14 // Аналог аббревиатуры государства для персоналий со статусом PPPRS_COUNTRY
-	#define PPREGT_COUNTRYCODE  15 // Аналог кода государства для персоналий со статусом PPPRS_COUNTRY
-	#define PPREGT_BANKACCOUNT  16 // Банковский счет (начиная с v9.0.4 банковские счета переносятся в таблицу Register)
-	#define PPREGT_DTO_ID       17 // Идентификатор оператора передачи данных (PPPRK_DTO)
-	#define PPREGT_TAXSYSTEM    18 // Вид системы налогообложения //
-	#define PPREGT_ENALOGID     19 // @v12.0.0 ИД участника документооборота (nalog.ru). До @v12.0.0 применялся только тег PPTAG_PERSON_ENALOGID,
+	#define PPREGT_CODE           8 // Код персоналии
+	#define PPREGT_ALBATROSCLID   9 // Идентификатор клиента проекта альбатрос
+	#define PPREGT_UHTTCLID      PPREGT_ALBATROSCLID // Идентификатор клиента проекта Universe-HTT
+	#define PPREGT_KPP           10 // Код причины постановки на налоговый учет налогоплательщика
+	#define PPREGT_OKATO         11 // Код фискального органа по ОКАТО
+	#define PPREGT_CERTORGCODE   12 // Код сертифицирующей организации
+	#define PPREGT_GLN           13 // GLN, ассоциированный с персоналией (не путать с кодом адреса)
+	#define PPREGT_COUNTRYABBR   14 // Аналог аббревиатуры государства для персоналий со статусом PPPRS_COUNTRY
+	#define PPREGT_COUNTRYCODE   15 // Аналог кода государства для персоналий со статусом PPPRS_COUNTRY
+	#define PPREGT_BANKACCOUNT   16 // Банковский счет (начиная с v9.0.4 банковские счета переносятся в таблицу Register)
+	#define PPREGT_DTO_ID        17 // Идентификатор оператора передачи данных (PPPRK_DTO)
+	#define PPREGT_TAXSYSTEM     18 // Вид системы налогообложения //
+	#define PPREGT_ENALOGID      19 // @v12.0.0 ИД участника документооборота (nalog.ru). До @v12.0.0 применялся только тег PPTAG_PERSON_ENALOGID,
 		// однако выяснилось, что у организации может существовать несколько идентификаторов в зависимости от привязки к провайдеру.
 		// Регистр решает проблему привязки, поскольку содержит атрибут регистрирующей организации.
 		// И я в очередной раз восхищен тупостью всех тех, кто организовывал весь этот бардак.
+	#define PPREGT_DRIVERLICENSE 20 // @v12.6.9 Водительские права
 	//
 	// Extra records of PPOBJ_REGISTERTYPE
 	#define REGTPRP_FORMAT       1L // Формат вывода регистра
@@ -1974,6 +1975,9 @@
 #define STDCTL_IMPORT             173 // @v12.5.8
 #define STDCTL_NOBUTTON           174 // @v12.5.8
 #define STDCTL_TRANSMITCHARRY     175 // @v12.6.0 
+#define STDCTL_PWTOGGLESHOW       176 // @v12.6.9 кнопка переключения видимости введенного пароля // 
+#define STDCTL_KEYBOARDLAYOUT     177 // @v12.6.9 кнопка отображения текущего варианта раскладки клавиатуры // 
+#define STDCTL_KBSTATECAPSLOCK    178 // @v12.6.9 кнопка отображения признака состояния клавиатуры CAPSLOCK // 
 
 #define cmPPAccSelected          1101 // Сообщение, посылаемое группой
 	// AcctCtrlGroup диалогу-владельцу когда пользователь выбрал новый счет. (AcctCtrlGroup*)InfoPtr
@@ -2276,6 +2280,7 @@
 	#define CTL_PASSWORD_FIRST           (1 + WINDOWS_ID_BIAS)
 	#define CTL_PASSWORD_SECOND          (2 + WINDOWS_ID_BIAS)
 	#define CTL_PASSWORD_IMG             (3 + WINDOWS_ID_BIAS)
+	#define CTLRIG_PASSWORD_FIRST        (4 + WINDOWS_ID_BIAS) // @v12.6.9 оснастка поля пароля (show password)
 #define DLG_USRGRP                 40 // Группа пользователей
 	#define cmCfgPath                 101
 	#define cmCfgConfig               102

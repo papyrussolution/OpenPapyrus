@@ -39,6 +39,7 @@ cinclude "../../include/ppdefs.h"
 		filtbutton
 		ellipsisbutton
 		numberstepper
+		passwordrig
 */
 
 dialog DLG_GSTRUCTREE [vertical title: "@ttl_goodsstructree" size: (540, 540) minsize: (300, 300) font: "MS Shell Dlg,8"] {
@@ -5756,7 +5757,7 @@ dialog DLG_TSESSCFG [vertical title: "@cfg_techsess" size: (545, 570) minsize: (
 	}
 }
 
-dialog DLG_CHZNIX [vertical title: "@chznprcssrparam" size: (665, 420) minsize: (665, 420) padding: 4 justifycontent: spacebetween font: "MS Shell Dlg 2,8"] { // @v12.6.7
+dialog DLG_CHZNIX [vertical title: "@chznprcssrparam" size: (665, 480) minsize: (665, 480) padding: 4 justifycontent: spacebetween font: "MS Shell Dlg 2,8"] { // @v12.6.7
 	combobox CTLSEL_CHZNIX_GUA [width: bycontainer(60) height: 21 margin: 4 tabstop label: "@chznprcssrparam_gua" cblinesymb: CTL_CHZNIX_GUA];
 	view [horizontal width: bycontainer growfactor: 1] {
 		radiocluster CTL_CHZNIX_WHAT [growfactor: 1 margin: 4] {
@@ -5764,6 +5765,7 @@ dialog DLG_CHZNIX [vertical title: "@chznprcssrparam" size: (665, 420) minsize: 
 			radiobutton [title: "@chznprcssrparam_afquerykizinfo"];
 			radiobutton [title: "@chznprcssrparam_afquerydoclistin"];
 			radiobutton [title: "@chznprcssrparam_afqueryaggrmarklist"];
+			radiobutton [title: "@chznprcssrparam_afquerymarkinfo"]; // @v12.6.9
 			radiobutton [title: "@chznprcssrparam_afdebugauth"];
 		}
 		input CTL_CHZNIX_HINT [growfactor: 1 height: bycontainer margin: (4, 10, 4, 4) tabstop readonly] string[252];
@@ -5959,7 +5961,28 @@ dialog DLG_PRC [vertical title: "@processor" size: (755, 500) minsize: (755, 500
 	}
 }
 
-// @20260620 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
+dialog DLG_IMAGEINFO [vertical title: "" size: (600, 570) minsize: (600, 570) padding: 4 font: "MS Shell Dlg,8"] { // @v12.6.9
+	imageview CTL_IMAGEINFO_IMAGE [width: bycontainer growfactor: 1 staticedge];
+	statictext CTL_IMAGEINFO_INFO [width: bycontainer height: 32 margin: 4 staticedge];
+	view [horizontal width: bycontainer height: 30 alignitems: center] {
+		statictext [size: (24, 24) margin: 4];
+		statictext CTL_IMAGEINFO_WARN [growfactor: 1 height: 24 margin: 4 staticedge];
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_IMAGEINFO2 [vertical title: "" size: (500, 500) minsize: (500, 500) font: "MS Shell Dlg,8"] { // @v12.6.9
+	imageview CTL_IMAGEINFO_IMAGE [width: bycontainer growfactor: 1 staticedge];
+	view [horizontal width: bycontainer height: 1 alignitems: center] { // very-very tiny for invisibility
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (1, 1) command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (1, 1) command: cmCancel];
+	}
+}
+
+// @20260622 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
 // Диалоги, представленные здесь с изменными символами (DLG_CASHREPORTS_L__, например) в ppdlg.list не отмечены поскольку находятся в работе.
 
 // @construction
@@ -6175,5 +6198,19 @@ dialog DLG_SECRETPOOL [horizontal title: "Secret Pool" size: (700, 600) minsize:
 			}
 		}
 		input CTL_SECRETPOOL_DESCR [width: bycontainer growfactor: 1 margin: 4 tabstop multiline wantreturn label: "@memo"] string[252];
+	}
+}
+
+dialog DLG_PASSWORD [vertical title: "@setpassword" size: (355, 180) minsize: (355, 180) padding: 4 font: "MS Shell Dlg,8" justifycontent: spacebetween] {
+	view [horizontal width: bycontainer growfactor: 1 alignitems: center] {
+		view [vertical growfactor: 1 height: bycontainer justifycontent: center] {
+			input CTL_PASSWORD_FIRST [width: bycontainer height: 21 margin: 4 tabstop password label: "@setpassword_input1"] string[20] supplement passwordrig (CTLRIG_PASSWORD_FIRST);
+			input CTL_PASSWORD_SECOND [width: bycontainer height: 21 margin: 4 tabstop password label: "@setpassword_input2"] string[20];
+		}
+		imageview CTL_PASSWORD_IMG [size: (68, 68) margin: (4, 12, 4, 4) imagesymb: PPDV_KEY01];
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }

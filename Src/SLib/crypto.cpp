@@ -254,15 +254,9 @@ int SVaultPool::CheckInPrimaryPassword(const char * pPw, size_t pwLen)
 
 static constexpr uint32 SVaultPool_IdOffset = 4000;
 
-/*static*/uint32 SVaultPool::MakeInternalId(uint32 outerId)
-{
-	return (outerId && outerId <= (MAXUINT32-SVaultPool_IdOffset)) ? (outerId+SVaultPool_IdOffset) : 0;
-}
-
-/*static*/uint32 SVaultPool::MakeOuterId(uint32 internalId)
-{
-	return (internalId && internalId > SVaultPool_IdOffset) ? (internalId-SVaultPool_IdOffset) : 0;
-}
+/*static*/uint32 SVaultPool::GetMinInternalId() { return SVaultPool_IdOffset+1; }
+/*static*/uint32 SVaultPool::MakeInternalId(uint32 outerId) { return (outerId && outerId <= (MAXUINT32-SVaultPool_IdOffset)) ? (outerId+SVaultPool_IdOffset) : 0; }
+/*static*/uint32 SVaultPool::MakeOuterId(uint32 internalId) { return (internalId && internalId > SVaultPool_IdOffset) ? (internalId-SVaultPool_IdOffset) : 0; }
 //
 // 
 // 

@@ -220,7 +220,7 @@ void PPViewTransport::MakeTempRec(const PPTransportPacket * pTranspPack, TempTra
 		GetObjectName(PPOBJ_TRANSPMODEL, pTranspPack->Rec.TrModelID, temp_buf.Z());
 		STRNSCPY(pTempRec->ModelName, temp_buf);
 		pTempRec->ModelID   = pTranspPack->Rec.TrModelID;
-		pTempRec->OwnerID   = pTranspPack->Rec.OwnerID;
+		pTempRec->OwnerID   = pTranspPack->Rec.TrOwnerID;
 		pTempRec->CaptainID = pTranspPack->Rec.CaptainID;
 		pTempRec->TrType    = pTranspPack->Rec.TrType;
 		pTempRec->CountryID = pTranspPack->Rec.CountryID;
@@ -274,7 +274,7 @@ int PPViewTransport::CheckForFilt(TransportFilt * pFilt, PPID transpID, const PP
 		return 0;
 	else if(!CheckFiltID(pFilt->TrType, temp_pack.Rec.TrType))
 		return 0;
-	else if(!CheckFiltID(pFilt->OwnerID, temp_pack.Rec.OwnerID))
+	else if(!CheckFiltID(pFilt->OwnerID, temp_pack.Rec.TrOwnerID))
 		return 0;
 	else if(!CheckFiltID(pFilt->CaptainID, temp_pack.Rec.CaptainID))
 		return 0;

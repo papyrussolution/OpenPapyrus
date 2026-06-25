@@ -9397,7 +9397,7 @@ void CheckPaneDialog::SetupRetCheck(bool ret)
 								const long lc_flags = DS.GetTLA().Lc.Flags;
 								if(selected_op == CCOP_RETURN) {
 									chk_pack.Rec = SelPack.Rec;
-									ushort r = CheckExecAndDestroyDialog(new CheckPaneDialog(0, 0, &chk_pack, (Flags & fTouchScreen)), 1, 0);
+									ushort r = CheckExecAndDestroyDialog(new CheckPaneDialog(0, 0, &chk_pack, (Flags & fTouchScreen)), true, false);
 									if(r) {
 										int    crcc_arg = -1; // Аргумент последующего вызова функции CalcRestByCrdCard_ (-1 - не вызывать)
 										if(r == cmaAll) {
@@ -10369,6 +10369,12 @@ int CheckPaneDialog::VerifyChZnMark(PgsBlock & rBlk, int chznProdType/*gt_rec.Ch
 					rBlk.ChZnPm_ReqTimestamp = pm_code_list.ReqTimestamp;
 					rBlk.ChZnPm_LocalModuleInstance = pm_code_list.LocalModuleInstance; // @v12.3.12
 					rBlk.ChZnPm_LocalModuleDbVer    = pm_code_list.LocalModuleDbVer;    // @v12.3.12
+					// @v12.6.9 {
+					if(pm_code_list.getCount()) {
+						PPChZnPrcssr::CodeStatus * p_pm_item = pm_code_list.at(0);
+						rBlk.PriceBlk = p_pm_item->PriceBlk;
+					}
+					// } @v12.6.9 
 				}
 				else {
 					assert(pm_code_list.getCount() == 1);
@@ -15236,7 +15242,7 @@ int ViewGoodsInfo(const InfoKioskPaneFilt * pFilt)
 		PPGoodsInfo rec;
 		THROW(r = gi_obj.GetPacket(goods_info_id, &rec));
 		if(r > 0) {
-			THROW(CheckExecAndDestroyDialog(new InfoKioskDialog(&rec, (pFilt ? pFilt->DefaultGrpID : 0)), 0, 0));
+			THROW(CheckExecAndDestroyDialog(new InfoKioskDialog(&rec, (pFilt ? pFilt->DefaultGrpID : 0)), false, false));
 			ok = 1;
 		}
 	}

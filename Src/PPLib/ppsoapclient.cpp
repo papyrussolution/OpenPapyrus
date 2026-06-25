@@ -213,7 +213,7 @@ UhttTimestamp::operator LDATE () const
 {
 	LDATETIME temp = ZERODATETIME;
 	if(T.NotEmpty())
-		strtodatetime(T, &temp, DATF_ISO8601, TIMF_HMS);
+		strtodatetime(T, temp, DATF_ISO8601, TIMF_HMS);
 	return temp.d;
 }
 
@@ -221,7 +221,7 @@ UhttTimestamp::operator LTIME () const
 {
 	LDATETIME temp = ZERODATETIME;
 	if(T.NotEmpty())
-		strtodatetime(T, &temp, DATF_ISO8601, TIMF_HMS);
+		strtodatetime(T, temp, DATF_ISO8601, TIMF_HMS);
 	return temp.t;
 }
 
@@ -229,7 +229,7 @@ UhttTimestamp::operator LDATETIME () const
 {
 	LDATETIME temp = ZERODATETIME;
 	if(T.NotEmpty())
-		strtodatetime(T, &temp, DATF_ISO8601, TIMF_HMS);
+		strtodatetime(T, temp, DATF_ISO8601, TIMF_HMS);
 	return temp;
 }
 //

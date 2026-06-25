@@ -12,14 +12,14 @@ DBQBrowserDef::DBQBrowserDef(DBQuery & rQuery, int captionHight, uint aOptions, 
 
 DBQBrowserDef::~DBQBrowserDef()
 {
-	if(options & BRO_OWNER)
+	if(Options & BRO_OWNER)
 		delete P_Query;
 }
 
 int DBQBrowserDef::setQuery(DBQuery & rQuery, uint aBufSize)
 {
 	const uint prev_view_height = (P_Query && P_Query->P_Frame) ? P_Query->P_Frame->Height : 1;
-	if(options & BRO_OWNER)
+	if(Options & BRO_OWNER)
 		ZDELETE(P_Query);
 	if(&rQuery) {
 		P_Query = &rQuery;
@@ -90,8 +90,8 @@ void DBQBrowserDef::getScrollData(long * pScrollDelta, long * pScrollPos)
 
 void DBQBrowserDef::setupView()
 {
-	topItem = P_Query->P_Frame->Top;
-	curItem = P_Query->P_Frame->Cur;
+	TopItem = P_Query->P_Frame->Top;
+	CurItem = P_Query->P_Frame->Cur;
 	isBOQ = LOGIC(P_Query->P_Frame->State & DBQuery::Frame::stTop);
 	isEOQ = LOGIC(P_Query->P_Frame->State & DBQuery::Frame::stBottom);
 }
@@ -125,6 +125,6 @@ int DBQBrowserDef::refresh()
 }
 
 bool   DBQBrowserDef::IsValid() const { return !P_Query->Error_; }
-int    DBQBrowserDef::go(long p) { return step(p-curItem); }
+int    DBQBrowserDef::go(long p) { return step(p-CurItem); }
 long   DBQBrowserDef::GetRecsCount() const { return P_Query->P_Frame->SRange+1; }
 const  void * DBQBrowserDef::getRow(long r) const { return P_Query->getRecord(static_cast<uint>(r)); }

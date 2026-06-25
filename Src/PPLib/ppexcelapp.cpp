@@ -251,7 +251,7 @@ int PPViewBrowser::Helper_Export_Excel_OXLSX(SString & rResultFileName)
 						for(long cn = 0; cn < static_cast<long>(cn_count); cn++) {
 							const BroColumn & r_column = p_def->at(cn);
 							TYPEID typ = 0;
-							if(p_def->GetCellData(p_def->_curItem(), cn, &typ, cell_data, sizeof(cell_data))) {
+							if(p_def->GetCellData(p_def->GetCurItem(), cn, &typ, cell_data, sizeof(cell_data))) {
 								const int  _st = GETSTYPE(typ);
 								const uint _ss = GETSSIZE(typ);
 								if(_st == S_FLOAT) {
@@ -436,17 +436,18 @@ int PPViewBrowser::Helper_Export_Excel(SString & rResultFileName)
 		PPIDArray width_ary;
 		Helper_Export_MakeResultName(false/*toUtf8*/, name);
 		{
-			TCHAR  li_buf[64];
-			::GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, li_buf, SIZEOFARRAY(li_buf));
-			dec.Cat(SUcSwitch(li_buf));
+			wchar_t li_buf[64];
+			::GetLocaleInfoW(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, li_buf, SIZEOFARRAY(li_buf));
+			dec.Cat(SUcSwitchW(li_buf));
 		}
 		THROW_MEM(p_app = new ComExcelApp);
 		THROW(p_app->Init() > 0);
 		THROW(p_wkbook = p_app->AddWkbook());
 		THROW(p_sheets = p_wkbook->Get());
 		sheets_count = p_sheets->GetCount();
-		for(i = sheets_count; i > 1; i--)
+		for(i = sheets_count; i > 1; i--) {
 			THROW(p_sheets->Delete(i) > 0);
+		}
 		THROW(p_sheet = p_sheets->Get(1L));
 		THROW(p_sheet->SetName(name));
 		// Выводим название групп столбцов
@@ -495,24 +496,27 @@ int PPViewBrowser::Helper_Export_Excel(SString & rResultFileName)
 			SString val_buf;
 			do {
 				PROFILE_START
+				const  long cur_row_idx = p_def->GetCurItem();
 				for(long cn = 0; cn < cn_count; cn++) {
 					COLORREF color;
-					p_def->getFullText(p_def->_curItem(), cn, val_buf);
+					p_def->getFullText(cur_row_idx, cn, val_buf);
 					val_buf.Strip().Transf(CTRANSF_INNER_TO_OUTER);
 					if(GETSTYPE(p_def->at(cn).T) == S_FLOAT) {
 						val_buf.ReplaceChar('.', dec.C(0));
 					}
 					THROW(p_sheet->SetValue(row + beg_row + 1, cn + 1, val_buf) > 0);
-					if(GetCellColor(p_def->_curItem(), cn, &color) > 0)
+					if(GetCellColor(cur_row_idx, cn, &color) > 0) {
 						THROW(p_sheet->SetColor(row + beg_row + 1, cn + 1, color) > 0);
+					}
 					if(width_ary.at(cn) < (long)val_buf.Len())
 						width_ary.at(cn) = (PPID)val_buf.Len();
 				}
 				row++;
 				PROFILE_END
 			} while(p_def->step(1) > 0 && row < (USHRT_MAX-beg_row));
-			for(i = 0; i < (long)width_ary.getCount(); i++)
+			for(i = 0; i < width_ary.getCountI(); i++) {
 				THROW(p_sheet->SetColumnWidth(i + 1, width_ary.at(i) + 2) > 0);
+			}
 		}
 		WMHScroll(SB_VERT, SB_BOTTOM, 0);
 	}

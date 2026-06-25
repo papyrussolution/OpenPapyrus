@@ -5669,8 +5669,9 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 			// } @v11.5.6 
 			// (не надо: сервисные функции PPBillImpExpBaseProcessBlock сами все сделают) fix_tag_id = b_e.GetFixTagID(0); // @v11.8.6
 			if(b_e.BillParam.PredefFormat) {
-				if(oneof7(b_e.BillParam.PredefFormat, piefNalogR_Invoice, piefNalogR_REZRUISP, piefNalogR_SCHFDOPPR, piefExport_Marks, 
-					piefNalogR_ON_NSCHFDOPPRMARK, piefNalogR_ON_NSCHFDOPPR, piefNalogR_ON_NKORSCHFDOPPR)) { // @v11.2.1 piefNalogR_ON_NSCHFDOPPR // @v11.7.0 piefNalogR_ON_NKORSCHFDOPPR
+				if(oneof8(b_e.BillParam.PredefFormat, piefNalogR_Invoice, piefNalogR_REZRUISP, piefNalogR_SCHFDOPPR, piefExport_Marks, 
+					piefNalogR_ON_NSCHFDOPPRMARK, piefNalogR_ON_NSCHFDOPPR, piefNalogR_ON_NKORSCHFDOPPR, 
+					piefNalogR_Etrn_T1)) { // @v11.7.0 piefNalogR_ON_NKORSCHFDOPPR // @v12.6.9 piefNalogR_Etrn_T1
 					SString result_file_name_;
 					PPWaitStart();
 					for(uint _idx = 0; _idx < bill_id_list.getCount(); _idx++) {
@@ -5732,6 +5733,12 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 											{
 												DocNalogRu_WriteBillBlock _blk(b_e.BillParam, pack, pack_has_marks ? "ON_NKORSCHFDOPPRMARK" : "ON_NKORSCHFDOPPR", nominal_file_name);
 												r = _blk.IsValid() ? _blk.Do_CorrInvoice(result_file_name_) : 0;
+											}
+											break;
+										case piefNalogR_Etrn_T1: 
+											{
+												DocNalogRu_WriteBillBlock _blk(b_e.BillParam, pack, "ON_TRNACLGROT", nominal_file_name);
+												r = _blk.IsValid() ? _blk.Do_Etrn_T1(result_file_name_) : 0;
 											}
 											break;
 									}

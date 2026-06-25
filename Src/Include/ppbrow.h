@@ -5250,4 +5250,7 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_PROCESSOR01                     33049
 #define PPDV_CHERRY01                        33050
 #define PPDV_TECHSESSION01                   33051
+#define PPDV_PASSWORDHIDE01                  33052
+#define PPDV_PASSWORDSHOW01                  33053
+#define PPDV_CAPSLOCK01                      33054
 

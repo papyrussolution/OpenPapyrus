@@ -2654,7 +2654,7 @@ int PPCCheckImporter::Read_Predef_Contract01(xmlParserCtxt * pCtx, const SString
 				}
 				else if(SXml::GetContentByName(p_n, "ReadyTime", temp_buf)) {
 					LDATETIME dtm;
-					if(strtodatetime(temp_buf, &dtm, DATF_ISO8601CENT, TIMF_HMS)) {
+					if(strtodatetime(temp_buf, dtm, DATF_ISO8601CENT, TIMF_HMS)) {
 						rPack.Ext.StartOrdDtm = dtm;
 					}
 					else if(strtotime(temp_buf, TIMF_HMS, &dtm.t) && dtm.t != ZEROTIME) {

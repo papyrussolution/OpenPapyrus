@@ -641,13 +641,17 @@ enum PredefinedImpExpFormat { // @persistent
 	piefExport_Marks             =  4, // Внутренний простой текстовый формат экспорта марок
 	piefNalogR                   =  5, // import-only Файлы в формате nalog.ru
 	piefNalogR_ON_NSCHFDOPPRMARK =  6, // Счет-фактура с марками
-	piefICalendar                =  7, // @v11.0.1 iCalendar
-	piefNalogR_ON_NSCHFDOPPR     =  8, // @v11.2.1 Счет-фактура
-	piefCokeOrder                =  9, // @v11.3.8 xml-заказы кока-кола
-	piefChicago                  = 10, // @v11.5.8 xml-заказы системы чикаго (системные технологии, калининград)
+	piefICalendar                =  7, // iCalendar
+	piefNalogR_ON_NSCHFDOPPR     =  8, // Счет-фактура
+	piefCokeOrder                =  9, // xml-заказы кока-кола
+	piefChicago                  = 10, // xml-заказы системы чикаго (системные технологии, калининград)
 	piefNalogR_ON_NKORSCHFDOPPR  = 11, // @v11.7.0 Корректировочная счет-фактура
 	piefCCheck_Contract01        = 12, // @v11.8.4 Заказной формат импорта внешних чеков. Фантазии на имя не хватило, потому пока называется назамысловато.
 	piefEancom                   = 13, // @v12.4.10 xml EANCOM унифицированный формат EDI. 
+	piefNalogR_Etrn_T1           = 14, // @v12.6.9 ON_TRNACLGROT Электронная транспортная накладная stage T1 (грузоотправитель)
+	piefNalogR_Etrn_T2           = 15, // @v12.6.9 ON_TRNACLPPRIN Электронная транспортная накладная stage T2 (грузоперевозчик - получил)
+	piefNalogR_Etrn_T3           = 16, // @v12.6.9 ON_TRNACLGRPO Электронная транспортная накладная stage T3 (ACK грузополучатель)
+	piefNalogR_Etrn_T4           = 17, // @v12.6.9 ON_TRNACLPVYN Электронная транспортная накладная stage T4 (грузоперевозчик - отгрузил)
 };
 //
 // Descr: Габаритные размеры (mm).
@@ -1256,12 +1260,28 @@ struct GdsClsCalcExprContext {
 //
 class PPSecretSegment {
 public:
+	struct CoreEntry {
+		CoreEntry();
+		CoreEntry & Z();
+		bool   IsEmpty() const;
+
+		uint64 UedBeforeTm;  // Время, до которого блок актуален или, для головного элемента, время истечения действия //
+		uint32 STextOpenP;   // Часть секрета (открытая строка)
+		uint32 STextHiddenP; // Часть секрета (скрытая строка). Для банковской карты PIN код хранится здесь.
+		uint32 STextExpiryP; // Часть секрета (строка срока действия asis). По смыслу дублирует UedExpiryTm но по факту может отличаться написанием или нюансами ситуации (eg after 20220224)
+		uint32 STextExt1P;   // Часть секрета ext1
+		uint32 STextExt2P;   // Часть секрета ext2
+		uint32 STextExt3P;   // Часть секрета ext3
+	};
 	PPSecretSegment();
 	PPSecretSegment(const PPSecretSegment & rS);
 	PPSecretSegment(SStrGroup * pOuterSg);
 	~PPSecretSegment();
 	PPSecretSegment & FASTCALL operator = (const PPSecretSegment & rS);
 	bool   IsEmpty() const;
+	bool   FASTCALL IsEq(const PPSecretSegment & rS) const;
+	bool   FASTCALL operator == (const PPSecretSegment & rS) const { return IsEq(rS); }
+	bool   FASTCALL operator != (const PPSecretSegment & rS) const { return !IsEq(rS); }
 	PPSecretSegment & Z();
 	bool   FASTCALL Copy(const PPSecretSegment & rS);
 	bool   GetText(uint32 textP, SString & rBuf) const;
@@ -1287,19 +1307,6 @@ public:
 			// TextOpen(public_key); TextHidden(private_key), TextExt1(passphrase)
 		sectypESignature = 8, // Данные электронной подписи
 	};
-	struct CoreEntry {
-		CoreEntry();
-		CoreEntry & Z();
-		bool   IsEmpty() const;
-
-		uint64 UedBeforeTm;  // Время, до которого блок актуален или, для головного элемента, время истечения действия //
-		uint32 STextOpenP;   // Часть секрета (открытая строка)
-		uint32 STextHiddenP; // Часть секрета (скрытая строка). Для банковской карты PIN код хранится здесь.
-		uint32 STextExpiryP; // Часть секрета (строка срока действия asis). По смыслу дублирует UedExpiryTm но по факту может отличаться написанием или нюансами ситуации (eg after 20220224)
-		uint32 STextExt1P;   // Часть секрета ext1
-		uint32 STextExt2P;   // Часть секрета ext2
-		uint32 STextExt3P;   // Часть секрета ext3
-	};
 	uint32 InternalID;   // @anchor Внутренний идентификатор (если сегмент находится в SVaultPool, то InternalID совпадает с номинальным идентификатором сегмента контейнере)
 	uint32 ParentID;     // Внутренний идентификатор родительского сегмента (если 0, то topmost)
 	uint32 SecType;      // sectypXXX
@@ -1324,6 +1331,13 @@ class PPSecretSegmentPool : public TSCollection <PPSecretSegment> {
 public:
 	PPSecretSegmentPool();
 	~PPSecretSegmentPool();
+	bool   IsInWork() const;
+	//
+	// Descr: Функция проверяет равенство экземпляра *this с экземпляром rS.
+	// Note: Сравнение ведется только по элементам списка TSCollection <PPSecretSegment> с учетом порядка следования.
+	//   Компонент P_Vault никака не участвует в сравнении.
+	//
+	bool   FASTCALL IsEq(const PPSecretSegmentPool & rS) const;
 	//
 	// Descr: Функция аналогична по назначению TSCollection::CreateNewItem, но отличается тем, что новый элемент
 	//   создается со ссылкой на SStrGroup Sg, приндалежащей this.
@@ -1336,11 +1350,11 @@ public:
 	//    0 - error
 	//
 	int    IsThereStorage(const char * pFileName);
-	int    LoadStorage(const char * pFileName);
-	int    DescryptSegments();
+	int    LoadStorage(const char * pFileName, const char * pMasterPassword, size_t masterPasswordLen);
+	int    DescryptSegments(const char * pMasterPassword, size_t masterPasswordLen);
 	int    CreateStorage(const char * pFileName, const char * pMasterPassword, size_t masterPasswordLen);
 	int    SaveStorage(const char * pFileName);
-	int    ReadTestJson(const char * pJsFileName, const char * pMasterPassword, size_t masterPasswordLen);
+	int    ReadTestJson(const char * pJsFileName);
 private:
 	int    PutSegmentIntoPool(const PPSecretSegment * pSeg);
 
@@ -9478,7 +9492,7 @@ public:
 	int    GetRelList(PPID relTypeID, PPIDArray * pList) const;
 
 	PersonTbl::Rec Rec;
-	SString SMemo; // @v11.1.12
+	SString SMemo;
 	PPIDArray Kinds;
 private:
 	//
@@ -25385,6 +25399,18 @@ public:
 	int    CopyItemsFrom(const PPGoodsStruc * pS);
 	int    MoveItem(uint pos, int dir/* 0 - down, 1 - up*/, uint * pNewPos);
 	//
+	// Descr: Контекст для получения элемента структуры. Введен в рамках расширения механизма идентификации 
+	//   товаров в компонентах структуры с помощью подстановочных символов
+	//
+	struct GetItemContext { // @v12.6.9
+		GetItemContext();
+		GetItemContext(PPID parentGoodsID, double srcQtty);
+		PPID   ParentGoodsID;
+		PPID   NominalProductID;
+		PPID   FinalProductID;
+		double SrcQtty;
+	};
+	//
 	// Descr: Перечисляет элементы структуры с вычислением количества, необходимого
 	//   для комплектации srcQtty единиц составного товара. Требуемое количество
 	//   возвращается по указателю pQtty. Для получения первого элемента по указателю pPos
@@ -25396,6 +25422,8 @@ public:
 	//
 	int    EnumItemsExt(uint * pPos, PPGoodsStrucItem * pItem, PPID parentGoodsID, double srcQtty, double * pQtty) const;
 	int    GetItemExt(uint pos, PPGoodsStrucItem * pItem, PPID parentGoodsID, double srcQtty, double * pQtty) const;
+	int    EnumItemsExt(const GetItemContext & rCtx, uint * pPos, PPGoodsStrucItem * pItem, double * pQtty) const;
+	int    GetItemExt(const GetItemContext & rCtx, uint pos, PPGoodsStrucItem * pItem, double * pQtty) const;
 	//
 	// Descr: Преобразует структуру в родительскую, перенося при этом содержимое структуры
 	//   в первую дочернюю. Функция применима, если !(Rec.Flags & (GSF_FOLDER | GSF_CHILD)).
@@ -32351,7 +32379,7 @@ struct PPTransport {       // @persistent @store(Goods2Tbl)
 	char   Code[16];       // Номер транспортного средства         (Stored as Barcode.Code with prefix '^' and Qtty = 1.0)
 	char   TrailerCode[16]; // Номер прицепа (для автотранспорта)  (Stored as Barcode.Code with prefix '^' and Qtty = 2.0)
 	PPID   TrModelID;      // ->Ref(PPOBJ_TRANSPMODEL) ИД модели (Stored as Goods2.BrandID)
-	PPID   OwnerID;        // ->Person.ID (PPPRK_SHIPOWNER) Владелец транспорта (Stored as Goods2.ManufID)
+	PPID   TrOwnerID;       // ->Person.ID (PPPRK_SHIPOWNER) Владелец транспорта (Stored as Goods2.ManufID)
 	PPID   CountryID;      // ->Country.ID (Stored as Goods2.DefBCodeStrucID)
 	PPID   CaptainID;      // ->Person.ID (PPPRK_CAPTAIN) Командир транспорта (Stored as Goods2.RspnsPersonID)
 	long   Capacity;       // Грузоподьемность (кг) (Stored as Goods2.PhUPerU)
@@ -36146,6 +36174,28 @@ public:
 	// Descr: Конвертация UUID'ов документов из записей Property в ObjTag
 	//
 	int    ConvertUuid7601();
+	//
+	// Descr: Блок идентификации участников документооборота для экспорта документа
+	//
+	struct ExportParticipantIdentBlock { // @v12.6.9
+		ExportParticipantIdentBlock();
+		ExportParticipantIdentBlock & Z();
+		enum {
+			fIntrExpend = 0x0001
+		};
+		PPID   SupplPsnID;
+		PPID   BuyerPsnID;
+		PPID   ConsignorPsnID;
+		PPID   ConsignorLocID;
+		PPID   ConsigneePsnID;
+		PPID   ConsigneeLocID;
+		PPID   TransporterPsnID;   // Транспортная компания (владелец транспортного средства)
+		PPID   CaptainID;          // Капитан судна или водитель автомобиля //
+		int    EgaisWayBillType;
+		uint   Flags;
+	};
+
+	int   MakeExportParticipantIdentBlock(const PPBillPacket & rBp, ExportParticipantIdentBlock & rBlk); // @v12.6.9
 public:
 	void * ExtraPtr;
 	PPBillConfig Cfg;
@@ -39318,7 +39368,8 @@ private:
 	//   компонента товарной структуры с целью вставки в строку сессии.
 	// ARG(pExGoodsIdList IN): Список идентификаторов товаров, которые не должны включаться в сессию. 
 	//
-	int    CompleteStruc(PPID sessID, PPID tecGoodsID, PPID tecStrucID, double tecQtty, const PPIDArray * pExGoodsIdList, bool isTooling); // @<<PPObjTSession::Complete
+	// @v12.6.9 int    CompleteStruc(PPID sessID, PPID tecGoodsID, PPID tecStrucID, double tecQtty, const PPIDArray * pExGoodsIdList, bool isTooling); // // @v12.6.9 @<<PPObjTSession::Complete
+	int    CompleteStruc2(PPID sessID, PPID tecStrucID, const PPGoodsStruc::GetItemContext & rCtx, const PPIDArray * pExGoodsIdList, bool isTooling); // @<<PPObjTSession::Complete
 	void   Helper_SetupDiscount(SVector & rList, int pct, double discount);
 		// @<<PPObjTSession::SetupDiscount
 	enum {
@@ -57678,6 +57729,7 @@ public:
 			_afQueryDocListIn    = 0x0008, // @v11.8.2 Запрос списка входящих документов
 			_afDebug_Auth        = 0x0010, // @v12.6.7 Отладочная авторизация //
 			_afQueryAggrMarkList = 0x0020, // @v12.6.7 TrueAPI получение списка агрегированных марок //
+			_afQueryMarkInfo     = 0x0040, // @v12.6.9 TrueAPI получение информации о марках // 
 		};
 		long   DocType;
 		long   Flags;
@@ -57865,6 +57917,56 @@ public:
 		S_GUID LocalModuleDbVer;    // @v12.3.12 Версия базы «чёрного списка», на которой выполнялась проверка КИ
 	};
 	//
+	// Descr: Типы упковки
+	//
+	enum {
+		ptUnit   = 1,
+		ptGroup  = 2,
+		ptSet    = 3,
+		ptBundle = 4,
+		ptBox    = 5,
+		ptATK    = 6, 
+
+		ptLevel1 = 101,
+		ptLevel2 = 102,
+		ptLevel3 = 103,
+		ptLevel4 = 104,
+		ptLevel5 = 105
+	};
+
+	struct CodeInfo {
+		CodeInfo();
+
+		enum {
+			fIsMultSales = 0x0001, // Признак множественных продаж
+			fIsTracking  = 0x0002, // Признак прослеживаемости кода
+			fIsWithdraw  = 0x0004, // 
+			fVarQtty     = 0x0008, // Признак переменного веса
+		};
+		uint   Flags;
+		uint   PackType;        // ptXXX 
+		uint   GeneralPackType; // ptXXX 
+		uint64 UedChZnProdType; // Тип продукции чзн
+		uint64 UedAppTm;        // Время нанесения //
+		uint64 UedIntroduceTm;  // Время ввода в оборот //
+		uint64 UedProductTm;    // Время производства //
+		uint64 UedEmissionTm;   // Время выпуска марки //
+		uint64 UedExpiryTm;     // Время окончания срока годности продукта //
+		uint64 UedManufINN;     // ИНН производителя //
+		uint64 UedProducerINN;  // ИНН производителя (хуй его знает чем это отличается от UedManufINN, скорее всего дело в том, что вопросом долбоебы занимаются) //
+		uint64 UedImporterINN;  // ИНН импортера //
+		uint64 UedOwnerINN;     // ИНН владельца //
+		uint   ReqCisP;
+		uint   CisP;
+		uint   OwnerNameP;
+		StringSet Children;     // Для упаковки вложенные марки
+	};
+
+	class CodeInfoCollection : public TSCollection <CodeInfo>, SStrGroup {
+	public:
+		CodeInfoCollection();
+	};
+	//
 	// Descr: Интерфейс с ТС-ПИОТ (не спрашивайте: пидоры в кремле не успокоятся пока не загонят нас всех под землю)
 	//
 	class TsPiotInterface { // @v12.5.11 
@@ -57965,9 +58067,7 @@ public:
 		int    LocalCheckCodeList(const char * pFiscalDriveNumber, CodeStatusCollection & rList);
 	private:
 		struct LocalSvrBlock {
-			LocalSvrBlock() : ApiVer(0)
-			{
-			}
+			LocalSvrBlock();
 			int   ApiVer;
 			SString UrlBuf;
 			SString User;
@@ -60037,6 +60137,7 @@ public:
 	int    Do_CorrInvoice(SString & rResultFileName);
 	int    Do_UPD(SString & rResultFileName);
 	int    Do_DP_REZRUISP(SString & rResultFileName);
+	int    Do_Etrn_T1(SString & rResultFileName); // @v12.6.9
 	//
 	// Descr: Ищет документ заказа, к которому привязан PPBillPacket & R_Bp.
 	//   Если документ заказа найден, то по ссылке rOrderBillRec присваивается заголовочная запись этого документа,
@@ -64106,7 +64207,7 @@ TView * ValidView(TView *);
 int    FASTCALL InsertView(TBaseBrowserWindow * v);
 ushort FASTCALL ExecView(TWindow *);
 ushort FASTCALL ExecViewAndDestroy(TWindow * pView);
-ushort STDCALL  CheckExecAndDestroyDialog(TDialog * pDlg, int genErrMsg, int toCascade);
+ushort STDCALL  CheckExecAndDestroyDialog(TDialog * pDlg, bool genErrMsg, bool toCascade);
 ushort FASTCALL ExecView(TBaseBrowserWindow * v);
 bool   FASTCALL GetModelessStatus(bool outerModeless = true);
 void   FASTCALL DisableOKButton(TDialog *);

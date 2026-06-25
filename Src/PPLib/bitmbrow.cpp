@@ -1038,8 +1038,8 @@ int BillItemBrowser::getCurItemPos()
 {
 	const AryBrowserDef * p_def = static_cast<const AryBrowserDef *>(getDefC());
 	if(p_def) {
-		const int c_ = getDefC()->_curItem();
-		const BillGoodsBrwItemArray * p_list = static_cast<const BillGoodsBrwItemArray *>(p_def->getArray());
+		const  int c_ = getDefC()->GetCurItem();
+		const  BillGoodsBrwItemArray * p_list = static_cast<const BillGoodsBrwItemArray *>(p_def->getArray());
 		if(p_list && c_ >= 0 && c_ < p_list->getCountI()) {
 			int    cp = static_cast<const BillGoodsBrwItem *>(p_list->at(c_))->Pos;
 			if(cp >= 0)
@@ -1922,7 +1922,7 @@ void BillItemBrowser::update(int pos)
 {
 	AryBrowserDef * p_def = static_cast<AryBrowserDef *>(getDef());
 	if(p_def) {
-		long   org_current_pos = p_def->_curItem();
+		long   org_current_pos = p_def->GetCurItem();
 		long   org_current_pos_in_bill = -1;
 		const  int is_sorting_needed = BIN(GetSettledOrderList().getCount());
 		if(is_sorting_needed && org_current_pos >= 0) {
@@ -2147,22 +2147,20 @@ int BillItemBrowser::addModifItem(int * pSign, TIDlgInitData & rInitData)
 	TDialog * dlg = 0;
 	if(sign == TISIGN_UNDEF) {
 		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_SELMODIF))));
-		// @v11.2.2 {
 		if(rInitData.GoodsID) {
 			dlg->setStaticText(CTL_SELMODIF_ST_INFO, GetGoodsName(rInitData.GoodsID, SLS.AcquireRvlStr()));
 		}
-		// } @v11.2.2 
 		dlg->setCtrlUInt16(CTL_SELMODIF_WHAT, 0);
 		dlg->DisableClusterItem(CTL_SELMODIF_WHAT, 2, LOGIC(R_Pack.Rec.Flags & BILLF_RECOMPLETE));
-		dlg->AddClusterAssoc(CTL_SELMODIF_FLAGS, 0, TIDIF_RECURUNROLLMODIF); // @v11.2.4
-		dlg->SetClusterData(CTL_SELMODIF_FLAGS, rInitData.Flags); // @v11.2.4
+		dlg->AddClusterAssoc(CTL_SELMODIF_FLAGS, 0, TIDIF_RECURUNROLLMODIF);
+		dlg->SetClusterData(CTL_SELMODIF_FLAGS, rInitData.Flags);
 		if(ExecView(dlg) == cmOK) {
 			switch(dlg->getCtrlUInt16(CTL_SELMODIF_WHAT)) {
 				case 0: sign = TISIGN_MINUS; break;
 				case 1: sign = TISIGN_PLUS; break;
 				case 2: sign = TISIGN_RECOMPLETE; break;
 			}
-			dlg->GetClusterData(CTL_SELMODIF_FLAGS, &rInitData.Flags); // @v11.2.4
+			dlg->GetClusterData(CTL_SELMODIF_FLAGS, &rInitData.Flags);
 		}
 	}
 	if(oneof3(sign, TISIGN_MINUS, TISIGN_PLUS, TISIGN_RECOMPLETE))
@@ -2172,9 +2170,10 @@ int BillItemBrowser::addModifItem(int * pSign, TIDlgInitData & rInitData)
 		PPID  lot_id = 0;
 		PPTransferItem * p_ti;
 		CompleteArray compl_list;
-		for(uint i = 0; !recompl_lot_id && R_Pack.EnumTItems(&i, &p_ti);)
+		for(uint i = 0; !recompl_lot_id && R_Pack.EnumTItems(&i, &p_ti);) {
 			if(p_ti->IsRecomplete())
 				recompl_lot_id = p_ti->LotID;
+		}
 		if(recompl_lot_id && P_BObj->GetComplete(recompl_lot_id, PPObjBill::gcfGatherSources, &compl_list) > 0) {
 			CompleteItem item;
 			if(rInitData.LotID) {
@@ -2551,7 +2550,7 @@ int BillItemBrowser::ConvertBasketToBill()
 void BillItemBrowser::viewPckgItems(bool activateNewRow)
 {
 	const  int c = getCurItemPos();
-	const  int sav_brw_pos = getDef()->_curItem();
+	const  int sav_brw_pos = getDef()->GetCurItem();
 	if(c >= 0) {
 		const PPTransferItem & r_ti = R_Pack.ConstTI(c);
 		if(r_ti.Flags & PPTFR_PCKG && R_Pack.P_PckgList && R_Pack.P_PckgList->GetByIdx(c)) {
@@ -2691,7 +2690,7 @@ void BillItemBrowser::delItem()
 	uint   i;
 	if(!AsSelector) {
 		const  int c = getCurItemPos();
-		const  int cur_view_pos = getDef()->_curItem();
+		const  int cur_view_pos = getDef()->GetCurItem();
 		if(c >= 0 && (!(LConfig.Flags & CFGFLG_CONFGBROWRMV) || CONFIRM(PPCFM_DELETE))) {
 			if(oneof2(BillDetailType, PPBillPacket::detailtypeLocTrfr, PPBillPacket::detailtypeLocTrfr_Bailment)) { // @v12.4.2
 				if(c < static_cast<int>(SVectorBase::GetCount(R_Pack.P_LocTrfrList))) {
@@ -4337,7 +4336,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 								if(p_brw) {
 									if(getDefC()) {
 										// @todo Здесь необходимо учесть сортировку 
-										__c = getDefC()->_curItem();
+										__c = getDefC()->GetCurItem();
 										p_brw->go(__c);
 									}
 									ExecViewAndDestroy(p_brw);
@@ -4991,7 +4990,7 @@ void CompleteBrowser::update(int pos)
 {
 	AryBrowserDef * p_def = static_cast<AryBrowserDef *>(getDef());
 	if(p_def) {
-		const int c = p_def->_curItem();
+		const  int c = p_def->GetCurItem();
 		p_def->setArray(0, 0, 1);
 		CompleteArray compl_list;
 		Data.freeAll();
@@ -5016,13 +5015,13 @@ IMPL_HANDLE_EVENT(CompleteBrowser)
 	if(event.isCmd(cmaEdit)) {
 		if(AsSelector) {
 			if(IsInState(sfModal)) {
-				SelectedPos = getDefC()->_curItem();
+				SelectedPos = getDefC()->GetCurItem();
 				endModal(cmOK);
 				return; // После endModal не следует обращаться к this
 			}
 		}
 		else {
-			long   pos = getDefC()->_curItem();
+			const  long pos = getDefC()->GetCurItem();
 			PPID   bill_id = Data.at(pos).BillID;
 			BillTbl::Rec bill_rec;
 			if(P_BObj->Search(bill_id, &bill_rec) > 0) {

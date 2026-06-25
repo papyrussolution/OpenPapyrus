@@ -137,7 +137,7 @@ int IterProc_PPViewPaymPlan_ProcessPeriod(PayPlanTbl::Rec * pRec, void * extraPt
 					if(p_v->P_BObj->P_Tbl->GetFreight(bill_rec.ID, &freight) > 0)
 						dlvr_loc_id = freight.DlvrAddrID__;
 					else
-						MEMSZERO(freight);
+						freight.Z();
 					if(p_v->Filt.Sgp == sgpBillAgent) {
 						PPBillExt billext_rec;
 						if(p_v->P_BObj->FetchExt(bill_rec.ID, &billext_rec) > 0 && billext_rec.AgentID)

@@ -1908,7 +1908,7 @@ int PPObjDynamicObjs::Browse(void * extraPtr)
 				ShowObjects(id, 0);
 		}
 	};
-	return CheckRights(PPR_READ) ? CheckExecAndDestroyDialog(new DynObjsView(this), 1, 0) : PPErrorZ();
+	return CheckRights(PPR_READ) ? CheckExecAndDestroyDialog(new DynObjsView(this), true, false) : PPErrorZ();
 }
 
 int PPObjDynamicObjs::Edit(PPID * pID, void * extraPtr)

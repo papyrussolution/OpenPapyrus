@@ -1046,7 +1046,7 @@ int SMailMessage::ProcessInputLine(ParserBlock & rBlk, const SString & rLineBuf)
 		AddS(temp_buf, &HFP.MsgIdP);
 	}
 	else if(IsFieldHeader(rLineBuf, "Date", temp_buf)) {
-		strtodatetime(temp_buf, &HFP.Dtm, DATF_INTERNET, TIMF_HMS);
+		strtodatetime(temp_buf, HFP.Dtm, DATF_INTERNET, TIMF_HMS);
 	}
 	else if(IsFieldHeader(rLineBuf, "User-Agent", temp_buf)) {
 		AddS(temp_buf, &HFP.UserAgentP);
@@ -1127,13 +1127,13 @@ int SMailMessage::ProcessInputLine(ParserBlock & rBlk, const SString & rLineBuf)
 						rBlk.P_B->Cd.Size = (uint64)right.ToInt64();
 					}
 					else if(left.IsEqiAscii("creation-date")) {
-						strtodatetime(right, &rBlk.P_B->Cd.CrDtm, DATF_INTERNET, TIMF_HMS);
+						strtodatetime(right, rBlk.P_B->Cd.CrDtm, DATF_INTERNET, TIMF_HMS);
 					}
 					else if(left.IsEqiAscii("modification-date")) {
-						strtodatetime(right, &rBlk.P_B->Cd.ModifDtm, DATF_INTERNET, TIMF_HMS);
+						strtodatetime(right, rBlk.P_B->Cd.ModifDtm, DATF_INTERNET, TIMF_HMS);
 					}
 					else if(left.IsEqiAscii("read-date")) {
-						strtodatetime(right, &rBlk.P_B->Cd.RdDtm, DATF_INTERNET, TIMF_HMS);
+						strtodatetime(right, rBlk.P_B->Cd.RdDtm, DATF_INTERNET, TIMF_HMS);
 					}
 				}
 			}

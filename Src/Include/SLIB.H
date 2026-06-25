@@ -3257,6 +3257,7 @@ struct SUniTime_Internal : public SUniDate_Internal { // @internal
 #endif
 	SUniTime_Internal(SCtrGenerate); // for-testing-only
 	SUniTime_Internal & Z();
+	SUniTime_Internal & Z_ThisOnly(); // Очищает только this без очистки родительского объекта SUniDate_Internal
 	bool   IsValid() const;
 	int    FASTCALL Cmp(const SUniTime_Internal & rS) const;
 	//
@@ -6140,8 +6141,9 @@ char * STDCALL Sl_Curl_InetNtop(int af, const void * pSrc, char * pBuf, size_t b
 // Returns:
 //   1
 //
-int   STDCALL strtotime(const char * pBuf, long fmt, LTIME * pTime); // @>>::strtok
-int   STDCALL strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, long timFmt);
+bool  STDCALL strtotime(const char * pBuf, long fmt, LTIME * pTime);
+bool  STDCALL strtotime(const char * pBuf, long fmt, SUniTime_Internal & rResult); // @v12.6.9
+int   STDCALL strtodatetime(const char * pBuf, LDATETIME & rDtm, long datFmt, long timFmt);
 //
 // @v12.1.6
 // Descr: Универсальный (хе-хе) определитель ошибки. Введен с целью унифицировать подходы к информированию об ошибках 
@@ -8382,8 +8384,7 @@ protected:
 class SStack : public SArray {
 public:
 	explicit SStack(uint itemSize, uint o = O_ARRAY);
-	// @v11.1.12 int    FASTCALL push(const void *);
-	void * FASTCALL push(const void *); // @v11.1.12 returns result item's ptr now
+	void * FASTCALL push(const void *); // returns result item's ptr 
 	int    FASTCALL pop(void *);
 	void * pop();
 	int    undo(uint savedPos);
@@ -10888,6 +10889,7 @@ public:
 	//
 	static uint32 MakeInternalId(uint32 outerId);
 	static uint32 MakeOuterId(uint32 internalId);
+	static uint32 GetMinInternalId();
 
 	SVaultPool();
 	~SVaultPool();
@@ -18482,14 +18484,15 @@ public:
 		kFilt              =  9, // @v12.4.10 (ident) Кнопка расширенного фильтра для элемента
 		kEllipsis          = 10, // @v12.5.0 (ident) Кнопка дополнительной функции для элемента (...)
 		kNumberStepper     = 11, // @v12.5.3 (ident) Кнопка увеличения/уменьшения количества справа от числового поля.
+		kPasswordRig       = 12, // @v12.6.9 (ident) Оснастка для поля ввода пароля (индикатор CapsLock, индикатор раскладки клавиатуры, кнопка переключения открытого ввода) //
 	};
 	uint32 Version; // Номер версии для сериализации. При изменении формата обязательно увеличить значение и предпринять меры для правильного считывания старых версий!
 	uint32 Kind; // kXXX
 	uint32 Ident;
 	uint32 Cmd;
 
-	static bool IsValidKind(int kind) { return oneof11(kind, 
-		kUndef, kDateCalendar, kDateRangeCalendar, kTime, kList, kCalc, kAsterisk, kText, kFileBrowse, kFilt, kEllipsis); }
+	static bool IsValidKind(int kind) { return oneof12(kind, 
+		kUndef, kDateCalendar, kDateRangeCalendar, kTime, kList, kCalc, kAsterisk, kText, kFileBrowse, kFilt, kEllipsis, kPasswordRig); }
 
 	struct DataBlock {
 		DataBlock();

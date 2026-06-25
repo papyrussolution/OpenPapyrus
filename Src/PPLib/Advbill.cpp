@@ -1,5 +1,5 @@
 // ADVBILL.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -514,10 +514,7 @@ AdvBillItemBrowser::~AdvBillItemBrowser()
 {
 }
 
-int AdvBillItemBrowser::getCurItemPos()
-{
-	return static_cast<int16>(getDef()->_curItem());
-}
+int AdvBillItemBrowser::getCurItemPos() { return static_cast<int16>(getDef()->GetCurItem()); }
 //
 //
 //
@@ -578,10 +575,10 @@ int AdvBillItemBrowser::update(int pos)
 	SArray * p_list = 0;
 	AryBrowserDef * p_def = static_cast<AryBrowserDef *>(getDef());
 	if(p_def) {
-		uint   count = P_Pack->AdvList.GetCount();
+		const  uint count = P_Pack->AdvList.GetCount();
 		AdvBillItemEntry total;
 		MEMSZERO(total);
-		int16  c = static_cast<int16>(getDef()->_curItem());
+		int16  c = static_cast<int16>(getDef()->GetCurItem());
 		p_def->setArray(0, 0, 1);
 		THROW_MEM(p_list = new SArray(sizeof(AdvBillItemEntry)));
 		for(i = 0; i < count; i++) {

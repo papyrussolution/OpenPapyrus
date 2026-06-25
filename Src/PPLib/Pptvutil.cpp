@@ -29,7 +29,7 @@ ushort FASTCALL ExecViewAndDestroy(TWindow * pView)
 	return r;
 }
 
-ushort STDCALL CheckExecAndDestroyDialog(TDialog * pDlg, int genErrMsg, int toCascade)
+ushort STDCALL CheckExecAndDestroyDialog(TDialog * pDlg, bool genErrMsg, bool toCascade)
 {
 	ushort ret = 0;
 	if(genErrMsg ? CheckDialogPtrErr(&pDlg) : CheckDialogPtr(&pDlg)) {
@@ -2631,8 +2631,10 @@ ImageBrowseCtrlGroup::Rec::Rec(SImageBuffer * pImgBuf) : Flags(0)
 ImageBrowseCtrlGroup::ImageBrowseCtrlGroup(uint ctlImage, uint cmChgImage, uint cmDeleteImage, int allowChangeImage /*=1*/, long flags /*=0*/) :
 	CtlImage(ctlImage), CmChgImage(cmChgImage), CmDelImage(cmDeleteImage), AllowChangeImage(allowChangeImage), Flags(flags)
 {
-	SString buf, name, ext;
-	uint patterns_id = PPTXT_PICFILESEXTS; // can be PPTXT_FILPAT_PICT
+	SString buf;
+	SString name;
+	SString ext;
+	uint   patterns_id = PPTXT_PICFILESEXTS; // can be PPTXT_FILPAT_PICT
 	PPLoadTextAnsi(/*patternsID*/patterns_id, buf);
 	StringSet ss(',', buf);
 	for(uint i = 0; ss.get(&i, buf);) {
@@ -3958,16 +3960,16 @@ int EmbedDialog::Embed(TDialog * pDlg)
 		RECT   ctl_rect;
 		RECT   dlg_rect;
 		const  long   parent_style = TView::SGetWindowStyle(H());
-		GetWindowRect(GetDlgItem(H(), neighbourCtl), &ctl_rect);
-		GetWindowRect(H(), &dlg_rect);
-		child_rect.left   = ctl_rect.right - dlg_rect.left - GetSystemMetrics(SM_CXEDGE);
-		child_rect.top    = ctl_rect.top - dlg_rect.top - GetSystemMetrics(SM_CYBORDER) -
-			GetSystemMetrics(SM_CYEDGE) - (((parent_style & WS_CAPTION) == WS_CAPTION) ? GetSystemMetrics(SM_CYCAPTION) : 0);
+		::GetWindowRect(GetDlgItem(H(), neighbourCtl), &ctl_rect);
+		::GetWindowRect(H(), &dlg_rect);
+		child_rect.left   = ctl_rect.right - dlg_rect.left - ::GetSystemMetrics(SM_CXEDGE);
+		child_rect.top    = ctl_rect.top - dlg_rect.top - ::GetSystemMetrics(SM_CYBORDER) -
+			::GetSystemMetrics(SM_CYEDGE) - (((parent_style & WS_CAPTION) == WS_CAPTION) ? ::GetSystemMetrics(SM_CYCAPTION) : 0);
 		child_rect.bottom = ctl_rect.bottom - ctl_rect.top;
-		child_rect.right  = dlg_rect.right - dlg_rect.left - GetSystemMetrics(SM_CXBORDER) * 2 - GetSystemMetrics(SM_CXEDGE) * 2 - child_rect.left;
-		MoveWindow(P_ChildDlg->H(), child_rect.left, child_rect.top, child_rect.right, child_rect.bottom, 1);
+		child_rect.right  = dlg_rect.right - dlg_rect.left - ::GetSystemMetrics(SM_CXBORDER) * 2 - ::GetSystemMetrics(SM_CXEDGE) * 2 - child_rect.left;
+		::MoveWindow(P_ChildDlg->H(), child_rect.left, child_rect.top, child_rect.right, child_rect.bottom, 1);
 		APPL->SetWindowViewByKind(P_ChildDlg->H(), TProgram::wndtypChildDialog);
-		ShowWindow(P_ChildDlg->H(), SW_SHOWNORMAL);
+		::ShowWindow(P_ChildDlg->H(), SW_SHOWNORMAL);
 	}
 	::SetFocus(H());
 }
@@ -4374,19 +4376,20 @@ SCardSelExtra::SCardSelExtra(PPID serId) : WordSel_ExtraBlock(0, 0, 0, 0, 2), Se
 
 StrAssocArray * SCardSelExtra::GetList(const char * pText)
 {
-	SString pattern;
 	StrAssocArray * p_list = 0;
-	pattern = pText;
+	SString pattern(pText);
 	if(pattern.Len()) {
-		int    srch_substr = BIN(pattern.C(0) == '*');
-		size_t len = pattern.ShiftLeftChr('*').Len();
+		const  bool srch_substr = (pattern.C(0) == '*');
+		const  size_t len = pattern.ShiftLeftChr('*').Len();
 		if(len >= MinSymbCount) {
 			p_list = new StrAssocArray;
-			ScObj.GetListBySubstring(pattern, SerID, p_list, srch_substr ? 0 : 1);
+			if(p_list) {
+				ScObj.GetListBySubstring(pattern, SerID, p_list, srch_substr ? 0 : 1);
+				if(!p_list->getCount())
+					ZDELETE(p_list);
+			}
 		}
 	}
-	if(p_list && p_list->getCount() == 0)
-		ZDELETE(p_list);
 	return p_list;
 }
 
@@ -4415,7 +4418,7 @@ int SCardSelExtra::Search(long id, SString & rBuf)
 //
 //
 //
-ObjTagSelExtra::ObjTagSelExtra(PPID objType, PPID tagID) : WordSel_ExtraBlock(0, 0, 0, 0, 3), ObjType(objType), TagID(tagID), LocalFlags(0), LocID(0)
+ObjTagSelExtra::ObjTagSelExtra(PPID objType, PPID tagID) : WordSel_ExtraBlock(0, 0, 0, 0, 3, 0/*flags*/), ObjType(objType), TagID(tagID), LocalFlags(0), LocID(0)
 {
 	CtrlTextMode = true;
 	if(objType == PPOBJ_LOT && tagID == PPTAG_LOT_SN) {
@@ -6251,7 +6254,7 @@ int ViewImageInfo(const char * pImagePath, const char * pInfo, const char * pWar
 		explicit ImageInfoDialog(bool simple) : TDialog(simple ? DLG_IMAGEINFO2 : DLG_IMAGEINFO), IsSimple(simple)
 		{
 			if(IsSimple) {
-				SetCtrlResizeParam(CTL_IMAGEINFO_IMAGE, 0, 0, 0, 0, crfResizeable);
+				// @v12.6.9 SetCtrlResizeParam(CTL_IMAGEINFO_IMAGE, 0, 0, 0, 0, crfResizeable);
 				showCtrl(STDCTL_OKBUTTON, false);
 				showCtrl(STDCTL_CANCELBUTTON, false);
 				ResizeDlgToFullScreen();
@@ -6274,8 +6277,9 @@ int ViewImageInfo(const char * pImagePath, const char * pInfo, const char * pWar
 		else
 			p_dlg->showCtrl(CTL_IMAGEINFO_PIC_WARN, false);
 	}
-	if(ExecView(p_dlg) == cmOK)
+	if(ExecView(p_dlg) == cmOK) {
 		ok = 1;
+	}
 	CATCHZOKPPERR
 	delete p_dlg;
 	return ok;
@@ -8723,10 +8727,10 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						InsertControlLabel(pDlg, rCtx, p_scope, p_ctl, rLastDynId);
 						pDlg->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
 						is_inserted = true;
-						if(oneof10(supplement.Kind, SUiCtrlSupplement::kDateCalendar, SUiCtrlSupplement::kDateRangeCalendar,
+						if(oneof11(supplement.Kind, SUiCtrlSupplement::kDateCalendar, SUiCtrlSupplement::kDateRangeCalendar,
 							SUiCtrlSupplement::kTime, SUiCtrlSupplement::kCalc, SUiCtrlSupplement::kAsterisk, 
 							SUiCtrlSupplement::kFileBrowse, SUiCtrlSupplement::kFilt, SUiCtrlSupplement::kEllipsis, SUiCtrlSupplement::kNumberStepper,
-							SUiCtrlSupplement::kCalc)) { 
+							SUiCtrlSupplement::kCalc, SUiCtrlSupplement::kPasswordRig)) {
 							// @v12.3.10 SUiCtrlSupplement::kFileBrowse // @v12.4.10 SUiCtrlSupplement::kFilt // @v12.5.3 SUiCtrlSupplement::kNumberStepper
 							// @v12.5.5 SUiCtrlSupplement::kCalc
 							if(supplement.Ident) {
@@ -8745,8 +8749,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 								else
 									rc_sb.b.x = rc_sb.a.x + 20;
 								rc_sb.b.y = rc_sb.a.y;
-								if(supplement.Kind == SUiCtrlSupplement::kNumberStepper) { // @v12.5.3 // @construction
-									// @todo 
+								if(supplement.Kind == SUiCtrlSupplement::kNumberStepper) { // @v12.5.3
 									TNumberStepper * p_ns = new TNumberStepper(rc_sb);
 									pDlg->InsertCtlWithCorrespondingNativeItem(p_ns, supplement.Ident, 0, /*extraPtr*/0);
 								}
@@ -8760,6 +8763,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 										case SUiCtrlSupplement::kAsterisk: pic_id = PPDV_ASTERISK01; break;
 										case SUiCtrlSupplement::kFileBrowse: pic_id = PPDV_FOLDER02; break;
 										case SUiCtrlSupplement::kEllipsis: pic_id = PPDV_ELLIPSIS; break; // @v12.5.0
+										case SUiCtrlSupplement::kPasswordRig: pic_id = PPDV_PASSWORDSHOW01; break; // @v12.6.9
 									}
 									TButton * p_sb = new TButton(rc_sb, p_supplement_title, supplement.Cmd, 0, pic_id);
 									p_sb->SetSupplementFactors(supplement.Kind, item_id);
@@ -9050,10 +9054,11 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 					if(stage == insertctrlstageMain) {
 						TRect  rc;
 						const  uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
+						const  uint spc_flags = (ui_flags & UiItemKind::fStaticEdge) ? TImageView::spcfStaticEdge : 0; // @v12.6.9
 						SString img_symb;
 						rCtx.GetConst_String(p_scope, DlScope::cuifImageSymb, img_symb);
 						rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, ctl_text);
-						TImageView * p_ctl = new TImageView(rc, img_symb);
+						TImageView * p_ctl = new TImageView(rc, spc_flags, img_symb);
 						pDlg->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
 						is_inserted = true;
 					}
@@ -9117,39 +9122,36 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 		TView * p_supplemental_view = 0; // supplemental-view
 		SUiLayoutParam __lp_ib(DIREC_HORZ); // Лейаут для пары {поле ввода; supplemental-кнопка}
 		SUiLayoutParam * p_lb_ib = 0; // Указатель на лейаут для пары {поле ввода; supplemental-кнопка}. if p_lb_ib != 0 then нужно воткнуть supplement-button
-		//SUiLayoutParam lp_supplement_button; // Лейаут для supplemental-кнопки
 		SPoint2F sb_sz; // Размер supplemental-button
 		float  inp_width = 0.0f;
 		float  inp_height = 0.0f;
 		float  label_width = 0.0f;
-		//float  label_height = 0.0f;
 		const  int inp_szx = rLp.GetSizeX(&inp_width);
 		const  int inp_szy = rLp.GetSizeY(&inp_height);
 		SUiLayoutParam lp_label_org; // Параметры label, созданные описанием
 		const  bool glb_label_org_r = rCtx.GetLayoutBlock(pScope, DlScope::cuifLblLayoutBlock, &lp_label_org);
 		const  int label_szx = lp_label_org.GetSizeX(&label_width);
-		//const  int label_szy = lp_label_org.GetSizeY(&label_height);
 		if(lp_label_org.LinkRelation) {
 			;//debug_mark = true;
 		}
-		if(supplement.Kind && supplement.Ident) {
-			p_supplemental_view = pDlg->getCtrlView(supplement.Ident);
-			if(TView::IsSubSign(p_supplemental_view, TV_SUBSIGN_BUTTON)) {
-				;
+		if(supplement.Kind) { 
+			if(supplement.Ident) {
+				p_supplemental_view = pDlg->getCtrlView(supplement.Ident);
+				if(TView::IsSubSign(p_supplemental_view, TV_SUBSIGN_BUTTON)) {
+					;
+				}
+				else if(TView::IsSubSign(p_supplemental_view, TV_SUBSIGN_NUMSTEPPER)) {
+					;
+				}
+				else
+					p_supplemental_view = 0;
 			}
-			else if(TView::IsSubSign(p_supplemental_view, TV_SUBSIGN_NUMSTEPPER)) {
-				;
-			}
-			else
-				p_supplemental_view = 0;
 		}
 		if(inp_szy != SUiLayoutParam::szFixed) {
 			debug_mark = true;
 		}
 		if(p_lbl) {
-			// SUiLayoutParam lp_label(lp_label_org); // @v12.3.9 lp_label()-->lp_label(glb_label_org_r)
 			SUiLayoutParam lp_label;
-			//
 			TRect  rc_label;
 			const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp_label, rc_label, 60.0f, SlConst::UiFixedLabelY);
 			if(inp_szy == SUiLayoutParam::szFixed || inp_szy == 0) {
@@ -9186,7 +9188,6 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 				SUiLayout * p_lo_inp_grp = pLoParent->InsertItem(0, &glp);
 				if(p_lo_inp_grp) {
 					SUiLayoutParam lp_il; // inputline
-					// @v12.5.6 @fix p_lb_ib->SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f); // @v12.5.5
 					lp_label.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 					lp_il.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 					if(p_lb_ib) {
@@ -9195,51 +9196,36 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 						lp_sb.SetFixedSizeX(sb_sz.x);
 						lp_sb.SetFixedSizeY(sb_sz.y);
 						lp_sb.ShrinkFactor = 0.0f;
-						p_lb_ib->SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f); // @v12.5.5 // @v12.5.6 @fix 
+						p_lb_ib->SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 						if(inp_szx == SUiLayoutParam::szFixed) {
 							lp_il.SetFixedSizeX(inp_width);
-							p_lb_ib->SetFixedSizeX(sb_sz.x+inp_width); // @v12.5.5
+							p_lb_ib->SetFixedSizeX(sb_sz.x+inp_width);
 							lp_label.SetFixedSizeX(0.0f);
 							lp_label.GrowFactor = 1.0;
 						}
 						else if(inp_szx == SUiLayoutParam::szByContainer) {
 							lp_il.SetVariableSizeX(inp_szx, inp_width);
-							// @v12.5.5 lp_il.Margin.a.x = 4.0f;
-							p_lb_ib->SetFixedSizeX(sb_sz.x+inp_width); // @v12.5.5
+							p_lb_ib->SetFixedSizeX(sb_sz.x+inp_width);
 							lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f - inp_width - sb_sz.x);
 						}
 						else if(label_szx == SUiLayoutParam::szFixed) {
 							lp_il.SetFixedSizeX(0.0f);
-							// @v12.5.5 lp_il.Margin.a.x = 4.0f;
-							p_lb_ib->SetFixedSizeX(sb_sz.x); // @v12.5.5
+							p_lb_ib->SetFixedSizeX(sb_sz.x);
 							lp_label.SetFixedSizeX(label_width);
 						}
 						else {
 							lp_il.SetFixedSizeX(0.0f);
-							p_lb_ib->SetFixedSizeX(sb_sz.x); // @v12.5.5
+							p_lb_ib->SetFixedSizeX(sb_sz.x);
 							lp_label.SetFixedSizeX(0.0f);
 							lp_label.GrowFactor = 1.0;							
 						}
-						// @v12.5.5 lp_il.Margin.a.x = 4.0f;
-						p_lb_ib->Margin.a.x = 4.0f; // @v12.5.5
+						p_lb_ib->Margin.a.x = 4.0f;
 						InsertCtrlLayout(pDlg, p_lo_inp_grp, p_lbl, lp_label);
-						// @v12.5.5 InsertCtrlLayout(pDlg, p_lo_inp_grp, p_il, lp_il);
-						// @v12.5.5 {
 						{
 							SUiLayout * p_lo_ib_grp = p_lo_inp_grp->InsertItem(0, p_lb_ib);
 							InsertCtrlLayout(pDlg, p_lo_ib_grp, p_il, lp_il);
 							InsertCtrlLayout(pDlg, p_lo_ib_grp, p_supplemental_view, lp_sb);
 						}
-						// } @v12.5.5 
-						/*
-					SUiLayout * p_lo_inp_grp = pLoParent->InsertItem(0, &glp);
-					InsertCtrlLayout(pDlg, p_lo_inp_grp, p_lbl, lp_label);
-					{
-						SUiLayout * p_lo_ib_grp = p_lo_inp_grp->InsertItem(0, p_lb_ib);
-						InsertCtrlLayout(pDlg, p_lo_ib_grp, p_il, lp_il);
-						InsertCtrlLayout(pDlg, p_lo_ib_grp, p_supplemental_view, lp_sb);
-					}
-						*/ 
 						done = true;
 					}
 					else {
@@ -9278,61 +9264,51 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 				// Пока для случая supplement сделаем отдельную ветку кода. Потом унифицируем.
 				// 
 				if(p_lb_ib) {
-					SUiLayoutParam lp_sb; // supplement-button
 					SUiLayoutParam lp_il; // inputline
-					lp_sb.SetFixedSizeX(sb_sz.x);
-					lp_sb.SetFixedSizeY(sb_sz.y);
-					lp_sb.ShrinkFactor = 0.0f;
-
-					// @v12.5.2 lp_il.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-					// @v12.5.2 lp_il.SetFixedSizeY(FixedInputY);
-					// @v12.5.2 {
-					if(inp_szx == SUiLayoutParam::szFixed) {
-						glp.SetFixedSizeX(inp_width + 2.0f);
-						//rLp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+					{
+						if(inp_szx == SUiLayoutParam::szFixed) {
+							glp.SetFixedSizeX(inp_width + 2.0f);
+						}
+						else if(inp_szx == SUiLayoutParam::szByContainer) {
+							glp.SetVariableSizeX(SUiLayoutParam::szByContainer, inp_width);
+						}
+						else if(rLp.GrowFactor >= 0.0f) {
+							glp.SetGrowFactor(rLp.GrowFactor);
+						}
+						else {
+							// полная ширина контейнера
+							glp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+						}
+						lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+						lp_label.SetFixedSizeY(static_cast<float>(rc_label.height()));
+						glp.Margin = rLp.Margin;
+						if(inp_szy == SUiLayoutParam::szFixed) {
+							glp.SetFixedSizeY(inp_height + rc_label.height() + 1.0f);
+							lp_il.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+							// (вероятно, нужно это вместо верхнего оператора) lp_il.SetGrowFactor(1.0f); // @v12.6.9
+							lp_il.SetFixedSizeY(SlConst::UiFixedInputY);
+						}
+						else if(rLp.GrowFactor >= 0.0f) {
+							glp.SetGrowFactor(rLp.GrowFactor);
+							rLp.GrowFactor = 0.0f;
+							lp_il.SetGrowFactor(1.0f); 
+						}
 					}
-					else if(inp_szx == SUiLayoutParam::szByContainer) {
-						glp.SetVariableSizeX(SUiLayoutParam::szByContainer, inp_width);
-						//rLp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-					}
-					else if(rLp.GrowFactor >= 0.0f) {
-						glp.SetGrowFactor(rLp.GrowFactor);
-						//rLp.SetGrowFactor(0.0f);
-					}
-					else {
-						// полная ширина контейнера
-						glp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-						//rLp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-					}
-					// } @v12.5.2 
-					lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-					lp_label.SetFixedSizeY(static_cast<float>(rc_label.height()));
-
-					glp.Margin = rLp.Margin;
-					//rLp.CopySizeXParamTo(glp);
-					// @v12.5.2 {
-					if(inp_szy == SUiLayoutParam::szFixed) {
-						glp.SetFixedSizeY(inp_height + rc_label.height() + 1.0f);
-						lp_il.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-						lp_il.SetFixedSizeY(SlConst::UiFixedInputY);
-					}
-					else if(rLp.GrowFactor >= 0.0f) {
-						glp.SetGrowFactor(rLp.GrowFactor);
-						rLp.GrowFactor = 0.0f;
-						lp_il.SetGrowFactor(1.0f); 
-					}
-					// } @v12.5.2 
-					// @v12.5.2 glp.SetGrowFactor(rLp.GrowFactor);
-					// @v12.5.2 rLp.GrowFactor = 0.0f; // @v12.3.7
-					//
 					SUiLayout * p_lo_inp_grp = pLoParent->InsertItem(0, &glp);
 					InsertCtrlLayout(pDlg, p_lo_inp_grp, p_lbl, lp_label);
 					{
-						SUiLayout * p_lo_ib_grp = p_lo_inp_grp->InsertItem(0, p_lb_ib);
-						InsertCtrlLayout(pDlg, p_lo_ib_grp, p_il, lp_il);
-						InsertCtrlLayout(pDlg, p_lo_ib_grp, p_supplemental_view, lp_sb);
+						SUiLayoutParam lp_sb; // supplement-button
+						lp_sb.SetFixedSizeX(sb_sz.x);
+						lp_sb.SetFixedSizeY(sb_sz.y);
+						lp_sb.ShrinkFactor = 0.0f;
+						//
+						{
+							SUiLayout * p_lo_ib_grp = p_lo_inp_grp->InsertItem(0, p_lb_ib);
+							InsertCtrlLayout(pDlg, p_lo_ib_grp, p_il, lp_il);
+							InsertCtrlLayout(pDlg, p_lo_ib_grp, p_supplemental_view, lp_sb);
+						}
+						done = true;
 					}
-					done = true;
 				}
 				else {
 					if(inp_szx == SUiLayoutParam::szFixed) {
@@ -9357,23 +9333,16 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 					lp_label.SetFixedSizeY((rc_label.height() > 0.0f) ? static_cast<float>(rc_label.height()) : SlConst::UiFixedLabelY);
 					lp_label.ShrinkFactor = 0.0f;
 					//
-					//lp_supplement_button.SetFixedSizeX(20.0f); // @v12.3.7
 					glp.ShrinkFactor = 0.0f;
 					glp.Flags &= ~(SUiLayoutParam::fContainerWrap|SUiLayoutParam::fContainerWrapReverse);
-					// @v12.5.2 {
 					if(inp_szy == SUiLayoutParam::szFixed) {
 						glp.SetFixedSizeY(inp_height + rc_label.height() + 1.0f);
 						rLp.SetFixedSizeY(inp_height);
-						//lp_il.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-						//lp_il.SetFixedSizeY(FixedInputY);
 					}
 					else if(rLp.GrowFactor >= 0.0f) {
 						glp.SetGrowFactor(rLp.GrowFactor);
 						rLp.GrowFactor = 1.0f;
-						//lp_il.SetGrowFactor(1.0f); 
 					}
-					// } @v12.5.2 
-					// @v12.5.2 rLp.SetFixedSizeY(inp_height);
 					rLp.ShrinkFactor = 0.0f;
 					glp.Margin = rLp.Margin;
 					rLp.Margin.Z();

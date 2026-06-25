@@ -158,7 +158,7 @@ bool DocNalogRu_Base::FileInfo::ParseFileName(const char * pFileName, bool nonSt
 						ok = false;
 				}
 				else if(c_ == 2) {
-					if(!strtodatetime(temp_buf, &CurDtm, DATF_ISO8601CENT, 0)) {
+					if(!strtodatetime(temp_buf, CurDtm, DATF_ISO8601CENT, 0)) {
 						if(!nonStrict)
 							ok = false;
 					}
@@ -5403,7 +5403,7 @@ int PPBillImporter::Run()
 			}
 		}
 	}
-	else if(BillParam.PredefFormat == piefCokeOrder) { // @v11.3.8
+	else if(BillParam.PredefFormat == piefCokeOrder) {
 		PPID   suppl_ar_id = 0;
 		THROW_PP_S(_op_id, PPERR_UNDEFBILLIMPOP, BillParam.Name);
 		THROW(GetOpData(_op_id, &op_rec) > 0);
@@ -5991,10 +5991,22 @@ int PPBillExporter::Init(const PPBillImpExpParam * pBillParam, const PPBillImpEx
 		if(Flags & fPaymOrdersExp) {
 		}
 		else {
-			if(BillParam.PredefFormat && oneof6(BillParam.PredefFormat, piefNalogR_Invoice, piefNalogR_REZRUISP, piefNalogR_SCHFDOPPR, 
+			if(BillParam.PredefFormat) {
+				const   int predef_fmt_xml[] = {
+					piefNalogR_Invoice, piefNalogR_REZRUISP, piefNalogR_SCHFDOPPR, piefNalogR_ON_NSCHFDOPPRMARK, piefNalogR_ON_NSCHFDOPPR, piefNalogR_ON_NKORSCHFDOPPR,
+					piefNalogR_Etrn_T1, piefNalogR_Etrn_T2, piefNalogR_Etrn_T3, piefNalogR_Etrn_T4
+				};
+				for(uint i = 0; i < SIZEOFARRAY(predef_fmt_xml); i++) {
+					if(BillParam.PredefFormat == predef_fmt_xml[i]) {
+						BillParam.DataFormat = PPImpExpParam::dfXml;
+						break;
+					}
+				}
+			}
+			/*if(BillParam.PredefFormat && oneof6(BillParam.PredefFormat, piefNalogR_Invoice, piefNalogR_REZRUISP, piefNalogR_SCHFDOPPR, 
 				piefNalogR_ON_NSCHFDOPPRMARK, piefNalogR_ON_NSCHFDOPPR, piefNalogR_ON_NKORSCHFDOPPR)) { // @v11.2.1 piefNalogR_ON_NSCHFDOPPR // @v11.7.0 piefNalogR_ON_NKORSCHFDOPPR
 				BillParam.DataFormat = PPImpExpParam::dfXml;
-			}
+			}*/
 			THROW_MEM(P_IEBill = new PPImpExp(&BillParam, pFirstPack));
 			THROW(!P_IEBill->IsCtrError());
 			if(!(BillParam.BaseFlags & PPImpExpParam::bfDLL) && !(Flags & fEgaisImpExp)) {
@@ -7064,12 +7076,18 @@ DocNalogRu_Generator::Document::Document(DocNalogRu_Generator & rG, const Docume
 			N.PutAttrib("¬рем»нф«ак", temp_buf);
 		}
 		*/
+		const  LDATETIME now_dtm = getcurdatetime_();
 		if(oneof3(rInfo.KND, "1115131", "1115101", "1115133")) { // @v11.7.1 "1115133"
-			const LDATETIME now_dtm = getcurdatetime_();
 			temp_buf.Z().Cat(now_dtm.d, DATF_GERMANCENT);
 			N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_SELLERINFODATE), temp_buf);
 			temp_buf.Z().Cat(now_dtm.t, TIMF_HMS|TIMF_DOTDIV);
 			N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_SELLERINFOTIME), temp_buf);
+		}
+		else if(rInfo.KND == "1110339") { // @v12.6.9 etrn ON_TRNACLGROT
+			temp_buf.Z().Cat(now_dtm.d, DATF_GERMANCENT);
+			N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_CONSIGNORINFODATE), temp_buf);
+			temp_buf.Z().Cat(now_dtm.t, TIMF_HMS|TIMF_DOTDIV);
+			N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_CONSIGNORINFOTIME), temp_buf);
 		}
 		if(rInfo.NameOfDoc.NotEmpty()) {
 			N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_NAMEOFDOC), rG.EncText(temp_buf = rInfo.NameOfDoc));
@@ -9329,18 +9347,20 @@ int DocNalogRu_WriteBillBlock::Do_Invoice2(SString & rResultFileName)
 			DocNalogRu_Generator::Document d(G, docinfo);
 			{
 				DocNalogRu_Generator::Invoice inv(G, R_Bp);
-				PPID   consignee_psn_id = 0;
-				PPID   consignee_loc_id = 0;
-				PPID   shipper_psn_id = 0;
-				PPID   shipper_loc_id = 0;
-				PPID   suppl_psn_id = 0;
-				PPID   suppl_loc_id = 0;
-				PPID   buyer_psn_id = 0;
+				//PPID   consignee_psn_id = 0;
+				//PPID   consignee_loc_id = 0;
+				//PPID   shipper_psn_id = 0;
+				//PPID   shipper_loc_id = 0;
+				//PPID   suppl_psn_id = 0;
+				//PPID   suppl_loc_id = 0;
+				//PPID   buyer_psn_id = 0;
+				//bool   is_intrexpend = false;
 				bool   do_skip = false;
-				bool   is_intrexpend = false;
 				RegisterTbl::Rec reg_rec;
 				SString consignor_gln; // @v11.9.0
 				SString consignee_gln; // @v11.9.0
+				PPObjBill::ExportParticipantIdentBlock epi_blk;
+				THROW(BillObj->MakeExportParticipantIdentBlock(R_Bp, epi_blk)); // @v12.6.9
 				// @v11.7.12 {
 				bool   are_all_goods_unlim = true;
 				{
@@ -9351,9 +9371,8 @@ int DocNalogRu_WriteBillBlock::Do_Invoice2(SString & rResultFileName)
 					}
 				}
 				// } @v11.7.12
-				{
+				/* @v12.6.9 (replaced with MakeExportParticipantIdentBlock) {
 					if(oneof2(R_Bp.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND)) {
-						PPID   ar2_main_org_id = 0;
 						if(IsIntrExpndOp(R_Bp.Rec.OpID)) {
 							consignee_psn_id = MainOrgID;
 							consignee_loc_id = PPObjLocation::ObjToWarehouse(R_Bp.Rec.Object);
@@ -9396,36 +9415,34 @@ int DocNalogRu_WriteBillBlock::Do_Invoice2(SString & rResultFileName)
 							}
 						}
 					}
-				}
+				}*/
 				// @v11.9.0 {
 				{
-					if(consignee_loc_id && G.PsnObj.LocObj.GetRegister(consignee_loc_id, PPREGT_GLN, ZERODATE, true, &reg_rec) > 0)
+					if(epi_blk.ConsigneeLocID && G.PsnObj.LocObj.GetRegister(epi_blk.ConsigneeLocID, PPREGT_GLN, ZERODATE, true, &reg_rec) > 0)
 						consignee_gln = reg_rec.Num;
-					if(consignee_gln.IsEmpty() && consignee_psn_id)
-						G.PsnObj.GetRegNumber(consignee_psn_id, PPREGT_GLN, consignee_gln);
+					if(consignee_gln.IsEmpty() && epi_blk.ConsigneePsnID)
+						G.PsnObj.GetRegNumber(epi_blk.ConsigneePsnID, PPREGT_GLN, consignee_gln);
 				}
 				// } @v11.9.0 
-				G.WriteOrgInfo(GetToken(PPHSC_RU_SELLERINFO), shipper_psn_id, /*shipper_loc_id*/0, R_Bp.Rec.Dt, 0);
+				G.WriteOrgInfo(GetToken(PPHSC_RU_SELLERINFO), epi_blk.ConsignorPsnID, /*epi_blk.ConsignorLocID*/0, R_Bp.Rec.Dt, 0);
 				if(!are_all_goods_unlim) { // @v11.7.12
 					{
 						SXml::WNode n_1(G.P_X, GetToken(PPHSC_RU_CONSIGNORINFO));
-						G.WriteOrgInfo(GetToken(PPHSC_RU_CONSIGNORINFO2), shipper_psn_id, shipper_loc_id, R_Bp.Rec.Dt, 0);
+						G.WriteOrgInfo(GetToken(PPHSC_RU_CONSIGNORINFO2), epi_blk.ConsignorPsnID, epi_blk.ConsignorLocID, R_Bp.Rec.Dt, 0);
 					}
-					G.WriteOrgInfo(GetToken(PPHSC_RU_CONSIGNEEINFO), buyer_psn_id, consignee_loc_id, R_Bp.Rec.Dt, /*DocNalogRu_Generator::woifAddrLoc_KppOnly*/0);
+					G.WriteOrgInfo(GetToken(PPHSC_RU_CONSIGNEEINFO), epi_blk.BuyerPsnID, epi_blk.ConsigneeLocID, R_Bp.Rec.Dt, /*DocNalogRu_Generator::woifAddrLoc_KppOnly*/0);
 				}
 				if(G.IsVer503()) {
 					G.WriteDocRequisites(R_Bp);
 				}
 				{
-					// @v11.4.12 {
 					PPID   _buyer_person_id = 0;
 					PPIDArray rel_list;
-					if(buyer_psn_id && G.PsnObj.GetRelPersonList(buyer_psn_id, PPPSNRELTYP_AFFIL, 0, &rel_list) > 0)
+					if(epi_blk.BuyerPsnID && G.PsnObj.GetRelPersonList(epi_blk.BuyerPsnID, PPPSNRELTYP_AFFIL, 0, &rel_list) > 0)
 						_buyer_person_id = rel_list.at(0); // @todo «десь, наверное, какое-то сообщение в лог нужно или еще что? (неоднозначность)
 					else
-						_buyer_person_id = buyer_psn_id;
-					// } @v11.4.12 
-					G.WriteOrgInfo(GetToken(PPHSC_RU_BUYERINFO), _buyer_person_id, /*consignee_loc_id*/0, R_Bp.Rec.Dt, /*DocNalogRu_Generator::woifAddrLoc_KppOnly*/0);
+						_buyer_person_id = epi_blk.BuyerPsnID;
+					G.WriteOrgInfo(GetToken(PPHSC_RU_BUYERINFO), _buyer_person_id, /*epi_blk.ConsigneeLocID*/0, R_Bp.Rec.Dt, /*DocNalogRu_Generator::woifAddrLoc_KppOnly*/0);
 				}
 				if(!G.IsVer503()) {
 					G.WriteDocRequisites(R_Bp);
@@ -9468,14 +9485,13 @@ int DocNalogRu_WriteBillBlock::Do_Invoice2(SString & rResultFileName)
 						{
 							S_GUID uuid;
 							{
-								const PPID seller_loc_id = NZOR(shipper_loc_id, NZOR(suppl_loc_id, 0));
-								if(seller_loc_id && p_ref->Ot.GetTagGuid(PPOBJ_LOCATION, seller_loc_id, PPTAG_LOC_FIASGUID_ADR, uuid) > 0) {
+								if(epi_blk.ConsignorLocID && p_ref->Ot.GetTagGuid(PPOBJ_LOCATION, epi_blk.ConsignorLocID, PPTAG_LOC_FIASGUID_ADR, uuid) > 0) {
 									assert(uuid);
 									G.WriteIdentifValPair(GetToken(PPHSC_RU_TEXTINF), GetToken(PPHSC_RU_SUPPLIER_FIASID), uuid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf));
 								}
 							}
 							{
-								const PPID buyer_loc_id = consignee_loc_id;
+								const PPID buyer_loc_id = epi_blk.ConsigneeLocID;
 								if(buyer_loc_id && p_ref->Ot.GetTagGuid(PPOBJ_LOCATION, buyer_loc_id, PPTAG_LOC_FIASGUID_ADR, uuid) > 0) {
 									assert(uuid);
 									G.WriteIdentifValPair(GetToken(PPHSC_RU_TEXTINF), GetToken(PPHSC_RU_BUYER_FIASID), uuid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf));
@@ -9594,17 +9610,18 @@ int DocNalogRu_WriteBillBlock::Do_CorrInvoice(SString & rResultFileName)
 			DocNalogRu_Generator::Document d(G, docinfo);
 			{
 				DocNalogRu_Generator::Invoice inv(G, R_Bp, true/*correction*/);
-				PPID   consignee_psn_id = 0;
-				PPID   consignee_loc_id = 0;
-				PPID   shipper_psn_id = 0;
-				PPID   shipper_loc_id = 0;
-				PPID   suppl_psn_id = 0;
-				PPID   suppl_loc_id = 0;
-				PPID   buyer_psn_id = 0;
-				int    do_skip = 0;
-				int    is_intrexpend = 0;
-				{
-					PPID   ar2_main_org_id = 0;
+				//PPID   consignee_psn_id = 0;
+				//PPID   consignee_loc_id = 0;
+				//PPID   shipper_psn_id = 0;
+				//PPID   shipper_loc_id = 0;
+				//PPID   suppl_psn_id = 0;
+				//PPID   suppl_loc_id = 0;
+				//PPID   buyer_psn_id = 0;
+				//int    is_intrexpend = 0;
+				//bool   do_skip = false;
+				PPObjBill::ExportParticipantIdentBlock epi_blk;
+				THROW(BillObj->MakeExportParticipantIdentBlock(R_Bp, epi_blk)); // @v12.6.9
+				/* @v12.6.9 {
 					if(IsIntrExpndOp(R_Bp.Rec.OpID)) {
 						consignee_psn_id = MainOrgID;
 						consignee_loc_id = PPObjLocation::ObjToWarehouse(R_Bp.Rec.Object);
@@ -9620,17 +9637,17 @@ int DocNalogRu_WriteBillBlock::Do_CorrInvoice(SString & rResultFileName)
 						shipper_psn_id = MainOrgID;
 						shipper_loc_id = R_Bp.Rec.LocID;
 					}
-				}
-				G.WriteOrgInfo(GetToken(PPHSC_RU_SELLERINFO), shipper_psn_id, /*shipper_loc_id*/0, R_Bp.Rec.Dt, 0);
+				}*/
+				G.WriteOrgInfo(GetToken(PPHSC_RU_SELLERINFO), epi_blk.SupplPsnID, /*epi_blk.ConsignorLocID*/0, R_Bp.Rec.Dt, 0);
 				{
 					PPID   _buyer_person_id = 0;
 					PPIDArray rel_list;
-					if(buyer_psn_id && G.PsnObj.GetRelPersonList(buyer_psn_id, PPPSNRELTYP_AFFIL, 0, &rel_list) > 0) {
+					if(epi_blk.BuyerPsnID && G.PsnObj.GetRelPersonList(epi_blk.BuyerPsnID, PPPSNRELTYP_AFFIL, 0, &rel_list) > 0) {
 						_buyer_person_id = rel_list.at(0);
 					}
 					else
-						_buyer_person_id = buyer_psn_id;
-					G.WriteOrgInfo(GetToken(PPHSC_RU_BUYERINFO), _buyer_person_id, /*consignee_loc_id*/0, R_Bp.Rec.Dt, /*DocNalogRu_Generator::woifAddrLoc_KppOnly*/0);
+						_buyer_person_id = epi_blk.BuyerPsnID;
+					G.WriteOrgInfo(GetToken(PPHSC_RU_BUYERINFO), _buyer_person_id, /*epi_blk.ConsigneeLocID*/0, R_Bp.Rec.Dt, /*DocNalogRu_Generator::woifAddrLoc_KppOnly*/0);
 				}
 				/* @v11.7.1 (дл€ корректировки это не нужно) {
 					//<ƒокѕодтвќтгр Ќаимƒокќтгр="Ќакладна€" Ќомƒокќтгр="21-00491132391" ƒатаƒокќтгр="08.07.2021"/>
@@ -9655,9 +9672,9 @@ int DocNalogRu_WriteBillBlock::Do_CorrInvoice(SString & rResultFileName)
 int DocNalogRu_WriteBillBlock::Do_Invoice(SString & rResultFileName)
 {
 	int    ok = 1;
+	SString temp_buf;
 	rResultFileName.Z();
 	{
-		SString temp_buf;
         {
 			DocNalogRu_Generator::File f(G, _Hi);
 			GetMainOrgName(temp_buf);
@@ -9667,16 +9684,18 @@ int DocNalogRu_WriteBillBlock::Do_Invoice(SString & rResultFileName)
 			DocNalogRu_Generator::Document d(G, docinfo);
 			{
 				DocNalogRu_Generator::Invoice inv(G, R_Bp);
-				PPID   consignee_psn_id = 0;
-				PPID   consignee_loc_id = 0;
-				PPID   shipper_psn_id = 0;
-				PPID   shipper_loc_id = 0;
-				PPID   suppl_psn_id = 0;
-				PPID   suppl_loc_id = 0;
-				PPID   buyer_psn_id = 0;
-				bool   do_skip = false;
-				bool   is_intrexpend = false;
-				{
+				//PPID   consignee_psn_id = 0;
+				//PPID   consignee_loc_id = 0;
+				//PPID   shipper_psn_id = 0;
+				//PPID   shipper_loc_id = 0;
+				//PPID   suppl_psn_id = 0;
+				//PPID   suppl_loc_id = 0;
+				//PPID   buyer_psn_id = 0;
+				//bool   is_intrexpend = false;
+				//bool   do_skip = false;
+				PPObjBill::ExportParticipantIdentBlock epi_blk;
+				THROW(BillObj->MakeExportParticipantIdentBlock(R_Bp, epi_blk)); // @v12.6.9
+				/* @v12.6.9 {
 					if(oneof2(R_Bp.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND)) {
 						PPID   ar2_main_org_id = 0;
 						if(IsIntrExpndOp(R_Bp.Rec.OpID)) {
@@ -9723,20 +9742,18 @@ int DocNalogRu_WriteBillBlock::Do_Invoice(SString & rResultFileName)
 							}
 						}
 					}
-				}
-				G.WriteOrgInfo(GetToken(PPHSC_RU_SELLERINFO), shipper_psn_id, /*shipper_loc_id*/0, R_Bp.Rec.Dt, 0);
+				}*/
+				G.WriteOrgInfo(GetToken(PPHSC_RU_SELLERINFO), epi_blk.SupplPsnID, /*epi_blk.ConsignorLocID*/0, R_Bp.Rec.Dt, 0);
 				G.WriteDocRequisites(R_Bp);
 				{
-					// @v11.4.12 {
 					PPID   _buyer_person_id = 0;
 					PPIDArray rel_list;
-					if(buyer_psn_id && G.PsnObj.GetRelPersonList(buyer_psn_id, PPPSNRELTYP_AFFIL, 0, &rel_list) > 0) {
+					if(epi_blk.BuyerPsnID && G.PsnObj.GetRelPersonList(epi_blk.BuyerPsnID, PPPSNRELTYP_AFFIL, 0, &rel_list) > 0) {
 						_buyer_person_id = rel_list.at(0);
 					}
 					else
-						_buyer_person_id = buyer_psn_id;
-					// } @v11.4.12 
-					G.WriteOrgInfo(GetToken(PPHSC_RU_BUYERINFO), _buyer_person_id, /*consignee_loc_id*/0, R_Bp.Rec.Dt, /*DocNalogRu_Generator::woifAddrLoc_KppOnly*/0);
+						_buyer_person_id = epi_blk.BuyerPsnID;
+					G.WriteOrgInfo(GetToken(PPHSC_RU_BUYERINFO), _buyer_person_id, /*epi_blk.ConsigneeLocID*/0, R_Bp.Rec.Dt, /*DocNalogRu_Generator::woifAddrLoc_KppOnly*/0);
 				}
 			}
 			WriteInvoiceItems_(false/*correction*/);
@@ -9745,6 +9762,92 @@ int DocNalogRu_WriteBillBlock::Do_Invoice(SString & rResultFileName)
 		G.EndDocument();
 		rResultFileName = _Hi.FileName;
 	}
+	CATCHZOK
+	return ok;
+}
+
+int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
+{
+	rResultFileName.Z();
+	int    ok  = 1;
+	SString temp_buf;
+	{
+		PPObjPerson psn_obj;
+		PPPersonPacket psn_pack;
+        {
+			DocNalogRu_Generator::File f(G, _Hi);
+			GetMainOrgName(temp_buf);
+			DocNalogRu_Base::DocumentInfo docinfo;
+			docinfo.KND = "1110339";
+			docinfo.Subj = temp_buf;
+			(docinfo.NameOfDoc2 = G.GetToken_Utf8(PPHSC_RU_NAMEOFDOC2_TRNT1)).Transf(CTRANSF_UTF8_TO_INNER); // @v12.4.11
+			PPObjBill::ExportParticipantIdentBlock epi_blk;
+			THROW(BillObj->MakeExportParticipantIdentBlock(R_Bp, epi_blk));
+			DocNalogRu_Generator::Document d(G, docinfo);
+			{
+				SXml::WNode n(G.P_X, G.GetToken_Ansi(PPHSC_RU_TRANSACTIONCONTENT_TRNT1));
+				//PPHSC_RU_CONSIGNORINFO3        "—в√ќ"     // @v12.6.9
+				//PPHSC_RU_CONSIGNEEINFO3        "—в√ѕ"     // @v12.6.9
+				//PPHSC_RU_TRANSPORTERINFO       "—вѕер"    // @v12.6.9
+				//PPHSC_RU_DRIVERINFO            "—в¬одит"  // @v12.6.9
+				//PPHSC_RU_TRANSPORTINFO         "—в“—"     // @v12.6.9
+				//PPHSC_RU_LOADINGINFO           "—вѕогруз" // @v12.6.9
+				//PPHSC_RU_PAYLOADINFO           "—в√руз"   // @v12.6.9 
+				//PPHSC_RU_CONSIGNORDIRECTION    "”каз√ќ"   // @v12.6.9 
+				{
+					SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_CONSIGNORINFO3));
+					{
+						G.WriteOrgInfo(GetToken(PPHSC_RU_CONSIGNORREQ), epi_blk.ConsignorPsnID, epi_blk.ConsignorLocID, R_Bp.Rec.Dt, /*DocNalogRu_Generator::woifAddrLoc_KppOnly*/0);
+					}
+				}
+				{
+					SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_CONSIGNEEINFO3));
+					{
+						G.WriteOrgInfo(GetToken(PPHSC_RU_CONSIGNEEREQ), epi_blk.ConsigneePsnID, /*epi_blk.ConsigneeLocID*/0, R_Bp.Rec.Dt, /*DocNalogRu_Generator::woifAddrLoc_KppOnly*/0);
+						//PPHSC_RU_DLVRADDR              "јдресƒост√р" // @v12.6.9
+					}
+				}
+				{
+					SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_PAYLOADINFO));
+				}
+				{
+					SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_CONSIGNORDIRECTION));
+				}
+				{
+					SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_PAYLOADINFO));
+				}
+				{
+					//SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_TRANSPORTERINFO));
+					G.WriteOrgInfo(GetToken(PPHSC_RU_TRANSPORTERINFO), epi_blk.TransporterPsnID, 0, R_Bp.Rec.Dt, /*DocNalogRu_Generator::woifAddrLoc_KppOnly*/0);
+				}
+				{
+					SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_DRIVERINFO));
+					if(psn_obj.GetPacket(epi_blk.CaptainID, &psn_pack, 0) > 0) {
+						uint   reg_pos = 0;
+						RegisterTbl::Rec reg_rec;
+						if(psn_pack.Regs.GetRegister(PPREGT_DRIVERLICENSE, R_Bp.Rec.Dt, &reg_pos, &reg_rec) > 0) {
+							if(!isempty(reg_rec.Serial)) {
+							}
+							if(!isempty(reg_rec.Num)) {
+							}
+							if(checkdate(reg_rec.Dt)) {
+							}
+						}
+					}
+				}
+				{
+					SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO));
+				}
+				{
+					SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_LOADINGINFO));
+				}
+			}
+			G.Underwriter(0);
+		}
+		G.EndDocument();
+		rResultFileName = _Hi.FileName;
+	}
+	CATCHZOK
 	return ok;
 }
 
@@ -9804,19 +9907,21 @@ int DocNalogRu_WriteBillBlock::Do_UPD(SString & rResultFileName)
 			//d.N.PutAttrib(g.GetToken_Ansi(PPHSC_RU_SELLERINFOTIME), temp_buf.Z().Cat(_hi.CurDtm.t, TIMF_HMS|TIMF_DOTDIV));
 			{
 				DocNalogRu_Generator::Invoice inv(G, R_Bp);
-				PPID   consignee_psn_id = 0;
-				PPID   consignee_loc_id = 0;
-				PPID   shipper_psn_id = 0;
-				PPID   shipper_loc_id = 0;
-				PPID   suppl_psn_id = 0;
-				PPID   suppl_loc_id = 0;
-				PPID   buyer_psn_id = 0;
-				int    do_skip = 0;
-				int    is_intrexpend = 0;
+				//PPID   consignee_psn_id = 0;
+				//PPID   consignee_loc_id = 0;
+				//PPID   shipper_psn_id = 0;
+				//PPID   shipper_loc_id = 0;
+				//PPID   suppl_psn_id = 0;
+				//PPID   suppl_loc_id = 0;
+				//PPID   buyer_psn_id = 0;
+				//int    do_skip = 0;
+				//int    is_intrexpend = 0;
 				RegisterTbl::Rec reg_rec;
 				SString consignor_gln; // @v11.7.4
 				SString consignee_gln; // @v11.7.4
-				{
+				PPObjBill::ExportParticipantIdentBlock epi_blk;
+				THROW(BillObj->MakeExportParticipantIdentBlock(R_Bp, epi_blk)); // @v12.6.9
+				/*@v12.6.9{
 					if(oneof2(R_Bp.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND)) {
 						PPID   ar2_main_org_id = 0;
 						if(IsIntrExpndOp(R_Bp.Rec.OpID)) {
@@ -9863,36 +9968,34 @@ int DocNalogRu_WriteBillBlock::Do_UPD(SString & rResultFileName)
 							}
 						}
 					}
-				}
+				}*/
 				// @v11.7.4 {
 				// @v11.7.9 {
-				if(consignee_loc_id && G.PsnObj.LocObj.GetRegister(consignee_loc_id, PPREGT_GLN, ZERODATE, true, &reg_rec) > 0)
+				if(epi_blk.ConsigneeLocID && G.PsnObj.LocObj.GetRegister(epi_blk.ConsigneeLocID, PPREGT_GLN, ZERODATE, true, &reg_rec) > 0)
 					consignee_gln = reg_rec.Num;
 				// } @v11.7.9 
-				if(consignee_gln.IsEmpty() && consignee_psn_id) {
-					G.PsnObj.GetRegNumber(consignee_psn_id, PPREGT_GLN, consignee_gln);
+				if(consignee_gln.IsEmpty() && epi_blk.ConsigneePsnID) {
+					G.PsnObj.GetRegNumber(epi_blk.ConsigneePsnID, PPREGT_GLN, consignee_gln);
 				}
 				// @v11.7.9 {
-				if(shipper_loc_id && G.PsnObj.LocObj.GetRegister(shipper_loc_id, PPREGT_GLN, ZERODATE, true, &reg_rec) > 0)
+				if(epi_blk.ConsignorLocID && G.PsnObj.LocObj.GetRegister(epi_blk.ConsignorLocID, PPREGT_GLN, ZERODATE, true, &reg_rec) > 0)
 					consignor_gln = reg_rec.Num;
 				// } @v11.7.9 
-				if(consignor_gln.IsEmpty() && shipper_psn_id) {
-					G.PsnObj.GetRegNumber(shipper_psn_id, PPREGT_GLN, consignor_gln);
+				if(consignor_gln.IsEmpty() && epi_blk.ConsignorPsnID) {
+					G.PsnObj.GetRegNumber(epi_blk.ConsignorPsnID, PPREGT_GLN, consignor_gln);
 				}
 				// } @v11.7.4 
-				G.WriteOrgInfo(GetToken(PPHSC_RU_SELLERINFO), shipper_psn_id, /*shipper_loc_id*/0, R_Bp.Rec.Dt, 0);
+				G.WriteOrgInfo(GetToken(PPHSC_RU_SELLERINFO), epi_blk.ConsignorPsnID, /*epi_blk.ConsignorLocID*/0, R_Bp.Rec.Dt, 0);
 				G.WriteDocRequisites(R_Bp);
 				{
-					// @v11.4.12 {
 					PPID   _buyer_person_id = 0;
 					PPIDArray rel_list;
-					if(buyer_psn_id && G.PsnObj.GetRelPersonList(buyer_psn_id, PPPSNRELTYP_AFFIL, 0, &rel_list) > 0) {
+					if(epi_blk.BuyerPsnID && G.PsnObj.GetRelPersonList(epi_blk.BuyerPsnID, PPPSNRELTYP_AFFIL, 0, &rel_list) > 0) {
 						_buyer_person_id = rel_list.at(0);
 					}
 					else
-						_buyer_person_id = buyer_psn_id;
-					// } @v11.4.12 
-					G.WriteOrgInfo(GetToken(PPHSC_RU_BUYERINFO), _buyer_person_id, /*consignee_loc_id*/0, R_Bp.Rec.Dt, /*DocNalogRu_Generator::woifAddrLoc_KppOnly*/0);
+						_buyer_person_id = epi_blk.BuyerPsnID;
+					G.WriteOrgInfo(GetToken(PPHSC_RU_BUYERINFO), _buyer_person_id, /*epi_blk.ConsigneeLocID*/0, R_Bp.Rec.Dt, /*DocNalogRu_Generator::woifAddrLoc_KppOnly*/0);
 				}
 				// @v12.3.0 {
 				if(G.IsVer503()) {
@@ -9993,14 +10096,14 @@ int DocNalogRu_WriteBillBlock::Do_UPD(SString & rResultFileName)
 					{
 						S_GUID uuid;
 						{
-							const PPID seller_loc_id = NZOR(shipper_loc_id, NZOR(suppl_loc_id, 0));
+							const PPID seller_loc_id = epi_blk.ConsignorLocID;
 							if(seller_loc_id && p_ref->Ot.GetTagGuid(PPOBJ_LOCATION, seller_loc_id, PPTAG_LOC_FIASGUID_ADR, uuid) > 0) {
 								assert(uuid);
 								G.WriteIdentifValPair(GetToken(PPHSC_RU_TEXTINF), GetToken(PPHSC_RU_SUPPLIER_FIASID), uuid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf));
 							}
 						}
 						{
-							const PPID buyer_loc_id = consignee_loc_id;
+							const PPID buyer_loc_id = epi_blk.ConsigneeLocID;
 							if(buyer_loc_id && p_ref->Ot.GetTagGuid(PPOBJ_LOCATION, buyer_loc_id, PPTAG_LOC_FIASGUID_ADR, uuid) > 0) {
 								assert(uuid);
 								G.WriteIdentifValPair(GetToken(PPHSC_RU_TEXTINF), GetToken(PPHSC_RU_BUYER_FIASID), uuid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf));
@@ -10061,16 +10164,8 @@ int DocNalogRu_WriteBillBlock::Do_UPD(SString & rResultFileName)
 							n_11.PutAttrib(GetToken(G.IsVer503() ? PPHSC_RU_REQDOCDATE : PPHSC_RU_DATEOFBASISFORWARETRANSFER), EncText(temp_buf));
 							// } @v12.3.0 
 						}
-						// @v11.0.2 {
-						/* @v11.1.12 
-						if(!isempty(R_Bp.Rec.Memo))
-							n_11.PutAttrib(g.GetToken_Ansi(G.IsVer503() ? PPHSC_RU_REQDOCADDENDUM : PPHSC_RU_ADDENDUMOFBASISFORWARETRANSFER), g.EncText(temp_buf.Z().Cat(R_Bp.Rec.Memo)));
-						*/
-						// @v11.1.12 {
 						if(R_Bp.SMemo.NotEmpty())
 							n_11.PutAttrib(GetToken(G.IsVer503() ? PPHSC_RU_REQDOCADDENDUM : PPHSC_RU_ADDENDUMOFBASISFORWARETRANSFER), EncText(temp_buf = R_Bp.SMemo));
-						// } @v11.1.12 
-						// } @v11.0.2
 					}
 					{
 						//SXml::WNode n_12(g.P_X, "—вЋицѕер");
@@ -10094,7 +10189,7 @@ int DocNalogRu_WriteBillBlock::Do_UPD(SString & rResultFileName)
 		G.EndDocument();
 		rResultFileName = _Hi.FileName;
 	}
-	//CATCHZOK
+	CATCHZOK
 	return ok;
 }
 

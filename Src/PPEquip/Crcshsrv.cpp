@@ -3303,7 +3303,7 @@ int ACS_CRCSHSRV::CcXmlReader::Next(Packet * pPack)
 							hdr.SmenaNum = val.ToLong();
 						}
 						else if(attr_name == "saletime") { // Дата время чека
-							strtodatetime(val, &hdr.Dtm, DATF_ISO8601, 0);
+							strtodatetime(val, hdr.Dtm, DATF_ISO8601, 0);
 						}
 						else if(attr_name == "number") { // Номер чека
 							hdr.ChkNum = val.ToLong();
@@ -4354,7 +4354,7 @@ int XmlZRepReader::Next(ZRep * pItem)
 						case 0: item.ZRepCode = val.ToLong(); break; // Номер смены
 						case 1: item.CashCode = val.ToLong(); break; // Номер кассы
 						case 2:  // Дата время чека
-							strtodatetime(val, &item.Start, DATF_ISO8601, TIMF_HMS);
+							strtodatetime(val, item.Start, DATF_ISO8601, TIMF_HMS);
 							break;
 					}
 				}

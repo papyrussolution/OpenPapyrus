@@ -1911,6 +1911,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 					{ SUiCtrlSupplement::kFilt, "filtbutton"}, // @v12.4.10
 					{ SUiCtrlSupplement::kEllipsis, "ellipsisbutton"}, // @v12.5.0
 					{ SUiCtrlSupplement::kNumberStepper, "numberstepper"}, // @v12.5.3
+					{ SUiCtrlSupplement::kPasswordRig, "passwordrig"}, // @v12.6.9
 				};
 				SUiCtrlSupplement sb;
 				const SString supplement_kind(rSupplement.Kind.U.S);

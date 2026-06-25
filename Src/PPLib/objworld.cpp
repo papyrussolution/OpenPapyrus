@@ -469,7 +469,7 @@ private:
 						if(id) {
 							/*
 							long extra_param = PPObjWorld::MakeExtraParam(WORLDOBJ_STREET, parentID, 0);
-							CheckExecAndDestroyDialog(new ObjWorldDialog((PPObjWorld *)ppobj, extra_param), 1, 1);
+							CheckExecAndDestroyDialog(new ObjWorldDialog((PPObjWorld *)ppobj, extra_param), true, true);
 							*/
 						}
 					break;
@@ -542,7 +542,7 @@ private:
 	{
 		if(parentID) {
 			void * extra_ptr = PPObjWorld::MakeExtraParam(WORLDOBJ_STREET, parentID, 0);
-			CheckExecAndDestroyDialog(new ObjWorldDialog(static_cast<PPObjWorld *>(P_Obj), extra_ptr), 1, 1);
+			CheckExecAndDestroyDialog(new ObjWorldDialog(static_cast<PPObjWorld *>(P_Obj), extra_ptr), true, true);
 		}
 	}
 };
@@ -603,7 +603,7 @@ int PPObjWorld::Browse(void * extraPtr)
 		extraPtr = PPObjWorld::MakeExtraParam(kind_list, 0, 0);
 	}
 	THROW(CheckRights(PPR_READ));
-	ok = CheckExecAndDestroyDialog(new ObjWorldDialog(this, extraPtr), 0, 0);
+	ok = CheckExecAndDestroyDialog(new ObjWorldDialog(this, extraPtr), false, false);
 	CATCHZOK
 	return ok;
 }

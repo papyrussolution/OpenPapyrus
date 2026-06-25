@@ -39,7 +39,9 @@ int STDCALL _strtodate(const char * pBuf, int style, SUniDate_Internal * pData, 
 	const  char * c = pBuf;
 	char   tmp[32];
 	char   zero_buf[32];
-	int    i, cnt = 0, div;
+	int    i;
+	int    cnt = 0;
+	int    div;
 	int    ord; // 0 - mm.dd.yy, 1 - dd.mm.yy, 2 - yy.mm.dd
 	int    not_empty_year = 0;
 	int    d = 0;
@@ -50,18 +52,19 @@ int STDCALL _strtodate(const char * pBuf, int style, SUniDate_Internal * pData, 
 	int    plus_y = 0;
 	int    is_first_subst = 0;
 	long   ret_flags = 0;
-
 	if(!c) {
 		zero_buf[0] = 0;
 		c = zero_buf;
 		ret_flags |= strtodatefZero;
 	}
-	while(oneof2(*c, ' ', '\t'))
+	while(oneof2(*c, ' ', '\t')) {
 		c++;
+	}
 	if(strnicmp(c, "date", 4) == 0) {
 		c += 4;
-		while(oneof2(*c, ' ', '\t'))
+		while(oneof2(*c, ' ', '\t')) {
 			c++;
+		}
 		if(*c == '\'')
 			c++;
 	}
@@ -92,8 +95,9 @@ int STDCALL _strtodate(const char * pBuf, int style, SUniDate_Internal * pData, 
 			int    dig_count = 0;
 			int    year_start = 0;
 			int    year_end = 0;
-			while(isdec(c[dig_count]))
+			while(isdec(c[dig_count])) {
 				dig_count++;
+			}
 			if(dig_count == 6)
 				not_empty_year = 1;
 			else if(dig_count == 8) {
@@ -241,7 +245,7 @@ int STDCALL _strtodate(const char * pBuf, int style, SUniDate_Internal * pData, 
 				if(!d)
 					d = 1;
 				if(y > 0 && y < 100) {
-					if(y >= 70) // @v10.8.5 50-->70
+					if(y >= 70)
 						y += 1900;
 					else
 						y += 2000;
@@ -281,20 +285,21 @@ LDATE STDCALL strtodate_(const char * pBuf, long fmt)
 	return encodedate(_date.D, _date.M, _date.Y);
 }
 
-int STDCALL strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, long timFmt)
+int STDCALL strtodatetime(const char * pBuf, LDATETIME & rDtm, long datFmt, long timFmt)
 {
-	pDtm->Z();
+	rDtm.Z();
 	const char * p = pBuf;
 	if(p) {
 		int    done = 0;
 		char   dt_buf[128];
 		char   tm_buf[128];
-		while(oneof2(*p, ' ', '\t'))
+		while(oneof2(*p, ' ', '\t')) {
 			p++;
+		}
 		if(!isdec(*p)) {
 			time_t tt = Sl_Curl_GetDate(p);
 			if(tt != -1) {
-				pDtm->SetTimeT(tt);
+				rDtm.SetTimeT(tt);
 				done = 1;
 			}
 		}
@@ -306,18 +311,17 @@ int STDCALL strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, long
 			SETIFZ(p_div, sstrchr(p, 't'));
 			if(p_div) {
 				size_t dp = 0;
-				while(p != p_div && (dp+1) < sizeof(dt_buf))
+				while(p != p_div && (dp+1) < sizeof(dt_buf)) {
 					dt_buf[dp++] = *p++;
+				}
 				dt_buf[dp] = 0;
-				if(oneof2(p_div[1], 'T', 't'))
-					STRNSCPY(tm_buf, p_div + 2);
-				else
-					STRNSCPY(tm_buf, p_div + 1);
+				STRNSCPY(tm_buf, p_div + (oneof2(p_div[1], 'T', 't') ? 2 : 1));
 			}
-			else
+			else {
 				STRNSCPY(dt_buf, p);
-			strtodate(dt_buf, datFmt, &pDtm->d);
-			strtotime(tm_buf, timFmt, &pDtm->t);
+			}
+			strtodate(dt_buf, datFmt, &rDtm.d);
+			strtotime(tm_buf, timFmt, &rDtm.t);
 		}
 		return 1;
 	}

@@ -7560,9 +7560,9 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const c
 						edi_op = PPEanComDocument::GetMsgTypeBySymb(temp_buf);
 					}
 					else if(SXml::GetContentByName(p_n2, "creationDateTime", temp_buf))
-						strtodatetime(temp_buf, &cr_dtm, DATF_ISO8601, 0);
+						strtodatetime(temp_buf, cr_dtm, DATF_ISO8601, 0);
 					else if(SXml::GetContentByName(p_n2, "creationDateTimeBySender", temp_buf))
-						strtodatetime(temp_buf, &cr_dtm_by_sender, DATF_ISO8601, 0);
+						strtodatetime(temp_buf, cr_dtm_by_sender, DATF_ISO8601, 0);
 					else if(SXml::GetContentByName(p_n2, "isTest", temp_buf)) {
 						if(temp_buf.ToLong() == 1)
 							is_test = 1;
@@ -8438,7 +8438,7 @@ int EdiProviderImplementation_Exite::GetDocumentList(const PPBillIterchangeFilt 
 													else if(p_df->Text.IsEqiAscii("doc_type")) 
 														new_entry.EdiOp = PPEdiProcessor::GetEdiMsgTypeByText(p_df->P_Child->Text);
 													else if(p_df->Text.IsEqiAscii("date"))
-														strtodatetime(p_df->P_Child->Text, &new_entry.Time, DATF_YMD, TIMF_HMS);
+														strtodatetime(p_df->P_Child->Text, new_entry.Time, DATF_YMD, TIMF_HMS);
 												}
 												if(new_entry.SId.NotEmpty() && new_entry.EdiOp && checkdate(new_entry.Time.d)) {
 													rList.Add(new_entry, 0);

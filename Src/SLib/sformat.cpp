@@ -806,42 +806,43 @@ static int FASTCALL checkdeccount(const char * pBuf, uint decCount)
 	return 1;
 }
 
-int STDCALL strtotime(const char * pBuf, long fmt, LTIME * v)
+bool STDCALL strtotime(const char * pBuf, long fmt, SUniTime_Internal & rResult) // @v12.6.9
 {
-	int    ok = 1;
-	int    h = 0;
-	int    m = 0;
-	int    s = 0;
-	int    ms = 0;
-	if(!isempty(pBuf)) {
-		while(oneof2(pBuf[0], ' ', '\t'))
+	bool   ok = true;
+	rResult.Z_ThisOnly();
+	if(isempty(pBuf)) {
+		ok = false;
+	}
+	else {
+		while(oneof2(pBuf[0], ' ', '\t')) {
 			pBuf++;
+		}
 		if(fmt & TIMF_NODIV) {
 			switch(fmt & 7) {
 				case TIMF_HMS:
 					if(checkdeccount(pBuf, 6)) {
-						h = static_cast<int>(_texttodec32(pBuf, 2));
-						m = static_cast<int>(_texttodec32(pBuf+2, 2));
-						s = static_cast<int>(_texttodec32(pBuf+4, 2));
+						rResult.Hr = static_cast<int>(_texttodec32(pBuf, 2));
+						rResult.Mn = static_cast<int>(_texttodec32(pBuf+2, 2));
+						rResult.Sc = static_cast<int>(_texttodec32(pBuf+4, 2));
 					}
 					else
-						ok = 0;
+						ok = false;
 					break;
 				case TIMF_HM:
 					if(checkdeccount(pBuf, 4)) {
-						h = static_cast<int>(_texttodec32(pBuf, 2));
-						m = static_cast<int>(_texttodec32(pBuf+2, 2));
+						rResult.Hr = static_cast<int>(_texttodec32(pBuf, 2));
+						rResult.Mn = static_cast<int>(_texttodec32(pBuf+2, 2));
 					}
 					else
-						ok = 0;
+						ok = false;
 					break;
 				case TIMF_MS:
 					if(checkdeccount(pBuf, 4)) {
-						m = static_cast<int>(_texttodec32(pBuf, 2));
-						s = static_cast<int>(_texttodec32(pBuf+2, 2));
+						rResult.Mn = static_cast<int>(_texttodec32(pBuf, 2));
+						rResult.Sc = static_cast<int>(_texttodec32(pBuf+2, 2));
 					}
 					else
-						ok = 0;
+						ok = false;
 					break;
 				case TIMF_S:
 					{
@@ -850,39 +851,39 @@ int STDCALL strtotime(const char * pBuf, long fmt, LTIME * v)
 							do {
 								p++;
 							} while(isdec(pBuf[p]));
-							s = static_cast<int>(_texttodec32(pBuf, p));
+							rResult.Sc = static_cast<int>(_texttodec32(pBuf, p));
 						}
 						else
-							ok = 0;
+							ok = false;
 					}
 					break;
 				default:
-					ok = 0;
+					ok = false;
 			}
 		}
 		else {
 			uint   p = 0;
 			if(isdec(pBuf[0])) {
 				do { p++; } while(isdec(pBuf[p]));
-				h = static_cast<int>(_texttodec32(pBuf, p));
+				rResult.Hr = static_cast<int>(_texttodec32(pBuf, p));
 				if(oneof3(pBuf[p], ':', ';', ' ')) {
 					pBuf = pBuf+p+1;
 					p = 0;
 					if(isdec(pBuf[0])) {
 						do { p++; } while(isdec(pBuf[p]));
-						m = static_cast<int>(_texttodec32(pBuf, p));
+						rResult.Mn = static_cast<int>(_texttodec32(pBuf, p));
 						if(oneof3(pBuf[p], ':', ';', ' ')) {
 							pBuf = pBuf+p+1;
 							p = 0;
 							if(isdec(pBuf[0])) {
 								do { p++; } while(isdec(pBuf[p]));
-								s = static_cast<int>(_texttodec32(pBuf, p));
+								rResult.Sc = static_cast<int>(_texttodec32(pBuf, p));
 								if(pBuf[p] == '.') {
 									pBuf = pBuf+p+1;
 									p = 0;
 									if(isdec(pBuf[0])) {
 										do { p++; } while(isdec(pBuf[p]));
-										ms = static_cast<int>(_texttodec32(pBuf, p));
+										rResult.MSc = static_cast<int>(_texttodec32(pBuf, p));
 									}
 								}
 							}
@@ -891,12 +892,17 @@ int STDCALL strtotime(const char * pBuf, long fmt, LTIME * v)
 				}
 			}
 			else
-				ok = 0;
+				ok = false;
 		}
 	}
-	else
-		ok = 0;
-	encodetime(h, m, s, ms/10, v);
+	return ok;
+}
+
+bool STDCALL strtotime(const char * pBuf, long fmt, LTIME * pResult)
+{
+	SUniTime_Internal ut;
+	bool   ok = strtotime(pBuf, fmt, ut);
+	encodetime(ut.Hr, ut.Mn, ut.Sc, ut.MSc/10, pResult);
 	return ok;
 }
 //
@@ -904,11 +910,12 @@ int STDCALL strtotime(const char * pBuf, long fmt, LTIME * v)
 //
 static bool FASTCALL is_zero(const char * c)
 {
-	while(*c)
+	while(*c) {
 		if(*c != '0' && *c != ' ')
 			return false;
 		else
 			c++;
+	}
 	return true;
 }
 

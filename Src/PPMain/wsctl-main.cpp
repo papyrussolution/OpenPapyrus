@@ -1348,10 +1348,10 @@ int WsCtl_ImGuiSceneBlock::DTSess::FromJsonObject(const SJson * pJsObj)
 					GoodsID = p_cur->P_Child->Text.ToLong();
 				}
 				else if(p_cur->Text.IsEqiAscii("tm_start")) {
-					strtodatetime(p_cur->P_Child->Text, &TmChunk.Start, DATF_ISO8601CENT, TIMF_HMS);
+					strtodatetime(p_cur->P_Child->Text, TmChunk.Start, DATF_ISO8601CENT, TIMF_HMS);
 				}
 				else if(p_cur->Text.IsEqiAscii("tm_finish")) {
-					strtodatetime(p_cur->P_Child->Text, &TmChunk.Finish, DATF_ISO8601CENT, TIMF_HMS);
+					strtodatetime(p_cur->P_Child->Text, TmChunk.Finish, DATF_ISO8601CENT, TIMF_HMS);
 				}
 				else if(p_cur->Text.IsEqiAscii("scardid")) {
 					SCardID = p_cur->P_Child->Text.ToLong();
@@ -1360,7 +1360,7 @@ int WsCtl_ImGuiSceneBlock::DTSess::FromJsonObject(const SJson * pJsObj)
 					WrOffAmount = p_cur->P_Child->Text.ToReal();
 				}
 				else if(p_cur->Text.IsEqiAscii("tm_scop")) {
-					strtodatetime(p_cur->P_Child->Text, &TmScOp, DATF_ISO8601CENT, TIMF_HMS);
+					strtodatetime(p_cur->P_Child->Text, TmScOp, DATF_ISO8601CENT, TIMF_HMS);
 				}
 			}
 		}

@@ -563,7 +563,7 @@ int PPViewLinkedBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 	int    ok = (ppvCmd == PPVCMD_PRINT) ? -2 : PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
 		AryBrowserDef * p_def = pBrw ? static_cast<AryBrowserDef *>(pBrw->getDef()) : 0;
-		const  long cur_pos = p_def ? p_def->_curItem() : 0;
+		const  long cur_pos = p_def ? p_def->GetCurItem() : 0;
 		long   update_pos = cur_pos;
 		PPID   update_id = 0;
 		PPID   bill_id = pHdr ? *static_cast<const long *>(pHdr) : 0;

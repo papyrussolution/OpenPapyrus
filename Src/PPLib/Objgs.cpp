@@ -591,9 +591,10 @@ int PPGoodsStruc::CopyItemsFrom(const PPGoodsStruc * pS)
 	int    ok = 1;
 	if(pS) {
 		PPGoodsStrucItem * p_item;
-		for(uint i = 0; ok && pS->Items.enumItems(&i, (void **)&p_item);)
+		for(uint i = 0; ok && pS->Items.enumItems(&i, (void **)&p_item);) {
 			if(!Items.insert(p_item))
 				ok = PPSetErrorSLib();
+		}
 	}
 	else
 		ok = -1;
@@ -623,25 +624,24 @@ int PPGoodsStruc::SubstVariedProp(PPID parentGoodsID, PPGoodsStrucItem * pItem) 
 			}
 		}
 		if(real_prop_id && goods_obj.Fetch(pItem->GoodsID, &goods_rec) > 0 && goods_rec.GdsClsID) {
-			int do_replace_kind  = 0;
-			int do_replace_grade = 0;
-			int do_replace_add   = 0;
-			int do_replace_add2  = 0;
+			bool   do_replace_kind  = false;
+			bool   do_replace_grade = false;
+			bool   do_replace_add   = false;
+			bool   do_replace_add2  = false;
 			if(goods_obj.P_Tbl->GetExt(pItem->GoodsID, &gext_rec) > 0 && gc_obj.Fetch(goods_rec.GdsClsID, &gc_pack) > 0) {
 				if(!(gc_pack.Rec.Flags & PPGdsCls::fDupCombine)) {
 					if(gc_pack.PropKind.ItemsListID == Rec.VariedPropObjType)
-						do_replace_kind = 1;
+						do_replace_kind = true;
 					if(gc_pack.PropGrade.ItemsListID == Rec.VariedPropObjType)
-						do_replace_grade = 1;
+						do_replace_grade = true;
 					if(gc_pack.PropAdd.ItemsListID == Rec.VariedPropObjType)
-						do_replace_add = 1;
+						do_replace_add = true;
 					if(gc_pack.PropAdd2.ItemsListID == Rec.VariedPropObjType)
-						do_replace_add2 = 1;
+						do_replace_add2 = true;
 				}
 			}
 			if(do_replace_kind || do_replace_grade || do_replace_add || do_replace_add2) {
 				if(goods_obj.P_Tbl->GetExt(pItem->GoodsID, &gext_rec) > 0) {
-					int    r = 0;
 					PPID   new_goods_id = 0;
 					GoodsExtTbl::Rec gext_rec2 = gext_rec;
 					gext_rec2.GoodsID = 0;
@@ -653,7 +653,8 @@ int PPGoodsStruc::SubstVariedProp(PPID parentGoodsID, PPGoodsStrucItem * pItem) 
 						gext_rec2.AddObjID = real_prop_id;
 					if(do_replace_add2)
 						gext_rec2.AddObj2ID = real_prop_id;
-					THROW(r = goods_obj.GetGoodsByExt(&gext_rec2, &new_goods_id, 1, 1));
+					const  int r = goods_obj.GetGoodsByExt(&gext_rec2, &new_goods_id, 1, 1);
+					THROW(r);
 					if(r > 0) {
 						pItem->GoodsID = new_goods_id;
 						ok = 1;
@@ -666,14 +667,38 @@ int PPGoodsStruc::SubstVariedProp(PPID parentGoodsID, PPGoodsStrucItem * pItem) 
 	return ok;
 }
 
-int PPGoodsStruc::GetItemExt(uint pos, PPGoodsStrucItem * pItem, PPID parentGoodsID, double srcQtty, double * pQtty) const
+PPGoodsStruc::GetItemContext::GetItemContext() : ParentGoodsID(0), NominalProductID(0), FinalProductID(0), SrcQtty(0.0)
+{
+}
+		
+PPGoodsStruc::GetItemContext::GetItemContext(PPID parentGoodsID, double srcQtty) : ParentGoodsID(parentGoodsID), NominalProductID(0), FinalProductID(0), SrcQtty(srcQtty)
+{
+}
+
+int PPGoodsStruc::GetItemExt(const GetItemContext & rCtx, uint pos, PPGoodsStrucItem * pItem, double * pQtty) const
 {
 	int    ok = -1;
 	if(pos < Items.getCount()) {
 		double qtty = 0.0;
 		PPGoodsStrucItem item = Items.at(pos);
-		item.GetQtty(srcQtty / GetDenom(), &qtty);
-		THROW(SubstVariedProp(parentGoodsID, &item));
+		// @v12.6.9 {
+		PPID   goods_id = 0;
+		if(!isempty(item.WareSymb)) {
+			if(sstreqi_ascii(item.WareSymb, "NominalProduct")) {
+				goods_id = rCtx.NominalProductID;
+			}
+			else if(sstreqi_ascii(item.WareSymb, "FinalProduct")) {
+				goods_id = rCtx.FinalProductID;
+			}
+		}
+		else {
+			goods_id = item.GoodsID;
+		}
+		THROW_PP_S(goods_id, PPERR_GSITEMGOODSUNRESOLVED, item.WareSymb);
+		item.GoodsID = goods_id; 
+		// } @v12.6.9
+		item.GetQtty(rCtx.SrcQtty / GetDenom(), &qtty);
+		THROW(SubstVariedProp(rCtx.ParentGoodsID, &item));
 		ASSIGN_PTR(pItem, item);
 		ASSIGN_PTR(pQtty, qtty);
 		ok = item.Formula__[0] ? 2 : 1;
@@ -682,15 +707,25 @@ int PPGoodsStruc::GetItemExt(uint pos, PPGoodsStrucItem * pItem, PPID parentGood
 	return ok;
 }
 
-int PPGoodsStruc::EnumItemsExt(uint * pPos, PPGoodsStrucItem * pItem, PPID parentGoodsID, double srcQtty, double * pQtty) const
+int PPGoodsStruc::GetItemExt(uint pos, PPGoodsStrucItem * pItem, PPID parentGoodsID, double srcQtty, double * pQtty) const
+{
+	return GetItemExt(GetItemContext(parentGoodsID, srcQtty), pos, pItem, pQtty);
+}
+
+int PPGoodsStruc::EnumItemsExt(const GetItemContext & rCtx, uint * pPos, PPGoodsStrucItem * pItem, double * pQtty) const
 {
 	uint   p = DEREFPTRORZ(pPos);
-	int    ok = GetItemExt(p, pItem, parentGoodsID, srcQtty, pQtty);
+	int    ok = GetItemExt(rCtx, p, pItem, pQtty);
 	if(ok > 0) {
 		p++;
 		ASSIGN_PTR(pPos, p);
 	}
 	return ok;
+}
+
+int PPGoodsStruc::EnumItemsExt(uint * pPos, PPGoodsStrucItem * pItem, PPID parentGoodsID, double srcQtty, double * pQtty) const
+{
+	return EnumItemsExt(GetItemContext(parentGoodsID, srcQtty), pPos, pItem, pQtty);
 }
 
 int PPGoodsStruc::Expand()

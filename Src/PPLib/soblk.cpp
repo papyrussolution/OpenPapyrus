@@ -1,5 +1,5 @@
 // SOBLK.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -4524,9 +4524,9 @@ int Backend_SelectObjectBlock::ResolveCrit_Since(const SString & rArg, LDATETIME
 {
 	int    ok = 1;
 	LDATETIME dtm;
-	if(strtodatetime(rArg, &dtm, DATF_DMY, TIMF_HMS) && checkdate(dtm.d))
+	if(strtodatetime(rArg, dtm, DATF_DMY, TIMF_HMS) && checkdate(dtm.d))
 		ok = 1;
-	else if(strtodatetime(rArg, &dtm, DATF_ISO8601, TIMF_HMS) && checkdate(dtm.d))
+	else if(strtodatetime(rArg, dtm, DATF_ISO8601, TIMF_HMS) && checkdate(dtm.d))
 		ok = 1;
 	else {
 		PPSetError(PPERR_CMDSEL_INVSINCECRIT, rArg);

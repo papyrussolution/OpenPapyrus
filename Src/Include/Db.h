@@ -4100,7 +4100,7 @@ public:
 	int    FASTCALL addTable(DBTable *);
 	int    addOrderField(const DBField & rFld);
 	int    getFieldPosByName(const char * pFldName, uint * pPos) const;
-	int    setFrame(uint viewHight, uint = static_cast<uint>(_defaultBufSize), uint = static_cast<uint>(_defaultBufDelta));
+	int    setFrame(uint ViewHight, uint = static_cast<uint>(_defaultBufSize), uint = static_cast<uint>(_defaultBufDelta));
 	void * getBuffer();
 	void * FASTCALL getRecord(uint);
 	const void * FASTCALL getRecordC(uint r) const;

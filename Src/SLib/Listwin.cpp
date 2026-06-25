@@ -318,6 +318,7 @@ void WordSel_ExtraBlock::Init_Env(uint inputCtl, HWND hInputDlg, TWindow * pOutW
 	OutCtlId     = outCtlId;
 	MinSymbCount = NZOR(minSymbCount, 2);
 	SelId        = 0;
+	CtrlTextMode = false; // @fix @v12.6.9
 }
 
 int    WordSel_ExtraBlock::Search(long id, SString & rBuf) { return -1; }

@@ -1,5 +1,5 @@
 // TAGCORE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000-2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1998, 1999, 2000-2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // @Kernel
 // Теги объектов
@@ -259,7 +259,7 @@ int FASTCALL ObjTagItem::GetTimestamp(LDATETIME * pDtm) const
 	switch(TagDataType) {
 		case OTTYP_DATE: dtm.d = Val.DtVal; break;
 		case OTTYP_TIMESTAMP: dtm = Val.DtmVal; break;
-		case OTTYP_STRING: strtodatetime(Val.PStr, &dtm, DATF_ISO8601, TIMF_HMS); break;
+		case OTTYP_STRING: strtodatetime(Val.PStr, dtm, DATF_ISO8601, TIMF_HMS); break;
 		default: ok = -1; break;
 	}
 	ASSIGN_PTR(pDtm, dtm);
@@ -379,7 +379,7 @@ int ObjTagItem::SetStr(PPID tagID, const char * pStrVal)
 	else if(TagDataType == OTTYP_DATE)
 		strtodate(pStrVal, DATF_DMY, &Val.DtVal);
 	else if(TagDataType == OTTYP_TIMESTAMP)
-		strtodatetime(pStrVal, &Val.DtmVal, DATF_DMY, TIMF_HMS);
+		strtodatetime(pStrVal, Val.DtmVal, DATF_DMY, TIMF_HMS);
 	CATCHZOK
     return ok;
 }

@@ -1,5 +1,5 @@
 // SBRODEF.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -44,7 +44,7 @@ void   FASTCALL SBrowserDataProcBlock::Set(const char * pS) { strnzcpy(static_ca
 void   FASTCALL SBrowserDataProcBlock::Set(const SString & rS) { rS.CopyTo(static_cast<char *>(P_DestData), stsize(TypeID)); }
 void   FASTCALL SBrowserDataProcBlock::Set(LDATE dt) { *static_cast<LDATE *>(P_DestData) = dt; }
 void   FASTCALL SBrowserDataProcBlock::Set(LTIME tm) { *static_cast<LTIME *>(P_DestData) = tm; }
-void   FASTCALL SBrowserDataProcBlock::Set(LDATETIME dtm) { *static_cast<LDATETIME *>(P_DestData) = dtm; } // @v11.1.7
+void   FASTCALL SBrowserDataProcBlock::Set(LDATETIME dtm) { *static_cast<LDATETIME *>(P_DestData) = dtm; }
 //
 //
 //
@@ -58,8 +58,8 @@ uint BroGroup::NextColumn() const { return (First+Count); }
 //
 //
 BrowserDef::BrowserDef(uint signature, int captionHight, uint aOptions, void * extraPtr /*=0*/) : Signature(signature), 
-	SArray(sizeof(BroColumn), aryDataOwner|aryEachItem), capHight(captionHight), options(aOptions), NumGroups(0), 
-	P_Groups(0), viewHight(1), topItem(0), curItem(0), scrollDelta(0), P_CtList(0),
+	SArray(sizeof(BroColumn), aryDataOwner|aryEachItem), CaptionHight(captionHight), Options(aOptions), NumGroups(0), 
+	P_Groups(0), ViewHight(1), TopItem(0), CurItem(0), scrollDelta(0), P_CtList(0),
 	ExtraPtr(extraPtr), UserProc(0), isBOQ(false), isEOQ(false)
 {
 }
@@ -174,16 +174,16 @@ int BrowserDef::AddColumnGroup(BroGroup * pGroup)
 int    BrowserDef::AddCrosstab(BroCrosstab * pCt) { return SETIFZ(P_CtList, new SArray(sizeof(BroCrosstab))) ? P_CtList->insert(pCt) : 0; }
 uint   BrowserDef::GetCrosstabCount() const { return SVectorBase::GetCount(P_CtList); }
 const  BroCrosstab * BrowserDef::GetCrosstab(uint ctN) const { return (P_CtList && ctN < P_CtList->getCount()) ? static_cast<const BroCrosstab *>(P_CtList->at(ctN)) : 0; }
-int    BrowserDef::GetCapHeight() const { return capHight; }
-void   BrowserDef::VerifyCapHeight() { capHight = MIN(2, capHight); }
+int    BrowserDef::GetCapHeight() const { return CaptionHight; }
+void   BrowserDef::VerifyCapHeight() { CaptionHight = MIN(2, CaptionHight); }
 uint   BrowserDef::GetGroupCount() const { return NumGroups; }
 const  BroGroup * FASTCALL BrowserDef::GetGroup(uint grpN) const { return (grpN < NumGroups) ? (P_Groups+grpN) : 0; }
 uint * BrowserDef::GetGroupIndexPtr(uint grpN) { return (grpN < NumGroups) ? &P_Groups[grpN].Index : 0; }
 bool   BrowserDef::IsBOQ() const { return isBOQ; }
 bool   BrowserDef::IsEOQ() const { return isEOQ; }
-bool   BrowserDef::CheckFlag(uint f) const { return LOGIC(options & f); }
+bool   BrowserDef::CheckFlag(uint f) const { return LOGIC(Options & f); }
 // @v12.4.8 (unused) uint   BrowserDef::groupWidth(uint grpN, uint atColumn) const { return groupWidth(P_Groups + grpN, atColumn); }
-void   BrowserDef::setViewHight(int newHight) { viewHight = newHight; }
+void   BrowserDef::setViewHight(int newHight) { ViewHight = newHight; }
 
 void BrowserDef::FreeAllCrosstab()
 {
@@ -197,7 +197,7 @@ void BrowserDef::FreeAllCrosstab()
 void BrowserDef::getScrollData(long * pScrollDelta, long * pScrollPos)
 {
 	ASSIGN_PTR(pScrollDelta, scrollDelta);
-	ASSIGN_PTR(pScrollPos, curItem);
+	ASSIGN_PTR(pScrollPos, CurItem);
 }
 
 int BrowserDef::FindColumnByOrgOffs(uint orgOffs) const // @v12.4.2
@@ -215,7 +215,7 @@ bool BrowserDef::SetCapHeight(int height) // @v12.2.2
 {
 	bool   ok = true;
 	if(height > 0)
-		capHight = height;
+		CaptionHight = height;
 	else
 		ok = false;
 	return ok;
@@ -242,7 +242,7 @@ void BrowserDef::SetUserProc(SBrowserDataProc proc, void * extraPtr)
 const BroGroup * BrowserDef::groupOf(uint column, uint * pGrpPos) const
 {
 	for(uint i = 0; i < NumGroups; i++) {
-		BroGroup * p_gr = P_Groups + i;
+		const  BroGroup * p_gr = P_Groups + i;
 		if(column >= p_gr->First && column < p_gr->NextColumn()) {
 			ASSIGN_PTR(pGrpPos, i);
 			return p_gr;
@@ -531,30 +531,30 @@ int BrowserDef::go(long row)
 			row = 0;
 			result = -1;
 		}
-		scrollDelta = curItem - row;
-		curItem = row;
-		if(row < topItem)
-			topItem = curItem;
-		else if(row >= topItem + viewHight)
-			topItem = (curItem - viewHight + 1);
-		SETMAX(topItem, 0);
-		SETMAX(curItem, 0);
+		scrollDelta = CurItem - row;
+		CurItem = row;
+		if(row < TopItem)
+			TopItem = CurItem;
+		else if(row >= TopItem + ViewHight)
+			TopItem = (CurItem - ViewHight + 1);
+		SETMAX(TopItem, 0);
+		SETMAX(CurItem, 0);
 	}
 	else
 		result = 0;
 	return result;
 }
 
-int BrowserDef::search2(const void * data, CompFunc cmpFunc, int srchMode, size_t offs, void * pExtraData)
+bool BrowserDef::search2(const void * data, CompFunc cmpFunc, int srchMode, size_t offs, void * pExtraData)
 {
-	int    found = 0;
+	bool   found = false;
 	if(data) {
 		int    r = (srchMode == srchFirst) ? top() : step(1);
 		if(r) {
 			do {
-				const char * p = static_cast<const char *>(getRow(_curItem()));
+				const char * p = static_cast<const char *>(getRow(GetCurItem()));
 				if(p && cmpFunc(p + offs, data, pExtraData) == 0) {
-					found = 1;
+					found = true;
 				}
 			} while(!found && step(1) > 0);
 		}
@@ -563,7 +563,7 @@ int BrowserDef::search2(const void * data, CompFunc cmpFunc, int srchMode, size_
 }
 
 bool   BrowserDef::IsValid() const { return true; }
-int    BrowserDef::step(long delta) { return go(curItem + delta); }
+int    BrowserDef::step(long delta) { return go(CurItem + delta); }
 int    BrowserDef::top() { return go(0); }
 int    BrowserDef::bottom() { return go(GetRecsCount() - 1); }
 long   BrowserDef::GetRecsCount() const { return 0; }
@@ -580,7 +580,7 @@ int BrowserDef::search(const void * pPattern, CompFunc/*cfn*/, int srchMode, int
 		SString text;
 		r = (srchMode == srchFirst) ? top() : step(1);
 		if(r) do {
-			GetCellText(_curItem(), srchCol, true, text);
+			GetCellText(GetCurItem(), srchCol, true, text);
 			text.Strip();
 			if(p[0] != '*') {
 				//str[sstrlen(p)] = 0;
@@ -612,7 +612,7 @@ AryBrowserDef::AryBrowserDef(SArray * pAry, const BNFieldList2 * pFl, int captio
 AryBrowserDef::~AryBrowserDef()
 {
 	delete P_Fields;
-	if(P_Array && (options & BRO_OWNER))
+	if(P_Array && (Options & BRO_OWNER))
 		delete P_Array;
 }
 
@@ -620,7 +620,7 @@ int AryBrowserDef::setArray(SArray * pAry, const BNFieldList2 * pFl, int setupPo
 {
 	int    ok = 1;
 	ZDELETE(P_Fields);
-	if(P_Array && (options & BRO_OWNER)) {
+	if(P_Array && (Options & BRO_OWNER)) {
 		ZDELETE(P_Array);
 	}
 	if(pFl) {

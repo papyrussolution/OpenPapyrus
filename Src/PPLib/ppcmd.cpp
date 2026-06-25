@@ -2490,10 +2490,12 @@ int CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 		THROW(pop_obj.SearchBySymb(symb, 0, &pop_rec) > 0);
 		THROW(pop_obj.GetPacket(pop_rec.ID, &pop_pack) > 0);
 		THROW(pk_obj.Search(pop_pack.PCPrmr.PersonKindID, &pk_rec) > 0);
-		if(pop_pack.PCScnd.PersonKindID)
+		if(pop_pack.PCScnd.PersonKindID) {
 			THROW(pk_obj.Search(pop_pack.PCScnd.PersonKindID, &scnd_pk_rec) > 0);
-		if(pop_pack.PCScnd.DefaultID)
+		}
+		if(pop_pack.PCScnd.DefaultID) {
 			psn_data.ScndPsnID = pop_pack.PCScnd.DefaultID;
+		}
 		if(pk_rec.CodeRegTypeID && obj_regt.GetPacket(pk_rec.CodeRegTypeID, &regtyp_pack) > 0)
 			prompt = regtyp_pack.Rec.Name;
 		else

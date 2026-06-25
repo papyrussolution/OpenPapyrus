@@ -4188,7 +4188,7 @@ int PPEgaisProcessor::Read_TicketResult(xmlNode * pFirstNode, int ticketType, PP
 					ok = 1;
 			}
 			else if(SXml::GetContentByName(p_r, "ConclusionDate", temp_buf))
-				strtodatetime(temp_buf,  &rResult.Time, DATF_ISO8601, TIMF_HMS);
+				strtodatetime(temp_buf, rResult.Time, DATF_ISO8601, TIMF_HMS);
 			else if(SXml::GetContentByName(p_r, "Comments", temp_buf))
 				rResult.Comment = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 		}
@@ -4201,7 +4201,7 @@ int PPEgaisProcessor::Read_TicketResult(xmlNode * pFirstNode, int ticketType, PP
 			else if(SXml::GetContentByName(p_r, "OperationName", temp_buf))
 				rResult.OpName = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 			else if(SXml::GetContentByName(p_r, "OperationDate", temp_buf))
-				strtodatetime(temp_buf,  &rResult.Time, DATF_ISO8601, TIMF_HMS);
+				strtodatetime(temp_buf,  rResult.Time, DATF_ISO8601, TIMF_HMS);
 			else if(SXml::GetContentByName(p_r, "OperationComment", temp_buf))
 				rResult.Comment = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 		}
@@ -4228,7 +4228,7 @@ int PPEgaisProcessor::Read_Ticket(xmlNode * pFirstNode, Packet * pPack)
 			if(SXml::IsName(p_n, "Identity"))
 				;
 			else if(SXml::GetContentByName(p_n, "TicketDate", temp_buf))
-				strtodatetime(temp_buf,  &p_ticket->TicketTime, DATF_ISO8601, TIMF_HMS);
+				strtodatetime(temp_buf, p_ticket->TicketTime, DATF_ISO8601, TIMF_HMS);
 			else if(SXml::GetContentByName(p_n, "DocId", temp_buf))
 				p_ticket->DocUUID.FromStr(temp_buf);
 			else if(SXml::GetContentByName(p_n, "TransportId", temp_buf))
@@ -6413,7 +6413,7 @@ int PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const DateRan
 	const  PPID manuf_tag_id = Cfg.LotManufTagList.getCount() ? Cfg.LotManufTagList.get(0) : 0;
     for(const xmlNode * p_n = pFirstNode; ok > 0 && p_n; p_n = p_n->next) {
         if(SXml::GetContentByName(p_n, "RestsDate", temp_buf)) {
-			strtodatetime(temp_buf, &rest_dtm, DATF_ISO8601, TIMF_HMS);
+			strtodatetime(temp_buf, rest_dtm, DATF_ISO8601, TIMF_HMS);
 		}
 		else if(SXml::IsName(p_n, "Products")) {
 			for(const xmlNode * p_c = p_n->children; ok > 0 && p_c; p_c = p_c->next) {
@@ -6699,7 +6699,7 @@ int PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, long flag
 								else if(SXml::GetContentByName(p_n, "RequestNumber", temp_buf) > 0)
 									p_rwb->ReqNumber = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 								else if(SXml::GetContentByName(p_n, "RequestDate", temp_buf) > 0)
-									strtodatetime(temp_buf, &p_rwb->ReqTime, DATF_ISO8601, TIMF_HMS);
+									strtodatetime(temp_buf, p_rwb->ReqTime, DATF_ISO8601, TIMF_HMS);
 								else if(SXml::GetContentByName(p_n, "WBRegId", temp_buf) > 0)
 									p_rwb->TTNCode = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 							}
@@ -6812,7 +6812,7 @@ int PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, long flag
 							ReplyRestBCode * p_rrbc = static_cast<ReplyRestBCode *>(p_new_pack->P_Data);
 							for(const xmlNode * p_n = p_nd->children; p_n; p_n = p_n->next) {
 								if(SXml::GetContentByName(p_n, "RestsDate", temp_buf)) {
-									strtodatetime(temp_buf, &p_rrbc->RestTime, DATF_ISO8601CENT, TIMF_HMS);
+									strtodatetime(temp_buf, p_rrbc->RestTime, DATF_ISO8601CENT, TIMF_HMS);
 								}
 								else if(SXml::GetContentByName(p_n, "Inform2RegId", temp_buf)) {
 									p_rrbc->Inform2RegId = temp_buf;

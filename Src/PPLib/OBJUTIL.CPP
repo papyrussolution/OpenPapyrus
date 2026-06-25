@@ -2988,7 +2988,7 @@ int PPViewUniFindObj::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	PPID   update_id = 0;
 	PPID   cur_id = p_item ? p_item->Ident_ : 0;
 	if(ok == -2) {
-		const  long cur_pos = p_def ? p_def->_curItem() : 0;
+		const  long cur_pos = p_def ? p_def->GetCurItem() : 0;
 		long   update_pos = cur_pos;
 		/*switch(ppvCmd) {
 		}*/

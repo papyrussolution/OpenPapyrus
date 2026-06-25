@@ -1376,12 +1376,10 @@ int  PPObjGoodsTax::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCon
 				}
 			}
 			else {
-				// @v10.2.6 {
 				if(!PutPacket(pID, p_pack, 1)) {
 					pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTGOODSTAX, p_pack->Rec.ID, p_pack->Rec.Name);
 					ok = -1;
 				}
-				// } @v10.2.6 
 			}
 		}
 		else {

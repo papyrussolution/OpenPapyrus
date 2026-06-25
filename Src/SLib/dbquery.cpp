@@ -801,7 +801,7 @@ const void * FASTCALL DBQuery::getRecordC(uint r) const { return (r < P_Frame->C
 void * DBQuery::getCurrent() { return getRecord(P_Frame->Cur); }
 void * DBQuery::getBuffer() { return P_Frame->P_Buf; }
 
-int DBQuery::setFrame(uint viewHight, uint bufSize, uint bufDelta)
+int DBQuery::setFrame(uint ViewHight, uint bufSize, uint bufDelta)
 {
 	int    ok = 1;
 	if(bufSize != UNDEF && !allocFrame(bufSize))
@@ -810,8 +810,8 @@ int DBQuery::setFrame(uint viewHight, uint bufSize, uint bufDelta)
 		if(P_Frame) {
 			if(bufDelta != UNDEF)
 				P_Frame->Inc = bufDelta;
-			if(viewHight != UNDEF) {
-				P_Frame->Height = smin(viewHight, P_Frame->Size);
+			if(ViewHight != UNDEF) {
+				P_Frame->Height = smin(ViewHight, P_Frame->Size);
 				if(P_Frame->Cur != P_Frame->Top ||/*P_Frame->Top < 0 ||*/P_Frame->Top > P_Frame->CountF) {
 					if((P_Frame->Cur-P_Frame->Top) >= P_Frame->Height)
 						P_Frame->Top = P_Frame->Cur-P_Frame->Height+1;

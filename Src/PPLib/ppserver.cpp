@@ -1187,7 +1187,7 @@ int PPJobServer::LoadStat()
 			if(c == 0)
 				item.JobID = field.ToLong();
 			else if(c == 1)
-				strtodatetime(field, &item.LastRunningTime, DATF_DMY, 0);
+				strtodatetime(field, item.LastRunningTime, DATF_DMY, 0);
 			else if(c == 2)
 				item.Count = field.ToLong();
 			else if(c == 3)

@@ -381,7 +381,7 @@ int PPObjTech::GetGoodsStruc(PPID id, PPGoodsStruc * pGs)
 			PPGoodsStrucItem gs_item;
 			double qtty = 0.0;
 			rList.SetStrucID(gs.Rec.ID);
-			for(uint i = 0; (r = gs.EnumItemsExt(&i, &gs_item, parentGoodsID, 1, &qtty)) > 0;) {
+			for(uint i = 0; (r = gs.EnumItemsExt(&i, &gs_item, parentGoodsID, 1.0, &qtty)) > 0;) {
 				int    sign;
 				if(gs_item.Median < 0)
 					sign = sourceSign;
@@ -395,7 +395,7 @@ int PPObjTech::GetGoodsStruc(PPID id, PPGoodsStruc * pGs)
 					if(LoadGoodsStruc(PPGoodsStruc::Ident(gs_item.GoodsID, GSF_SUBST), &subst_gs) > 0) {
 						PPGoodsStrucItem subst_gsi;
 						double subst_qtty = 0.0;
-						for(uint j = 0; (r2 = subst_gs.EnumItemsExt(&j, &subst_gsi, gs_item.GoodsID, 1, &subst_qtty)) > 0;) {
+						for(uint j = 0; (r2 = subst_gs.EnumItemsExt(&j, &subst_gsi, gs_item.GoodsID, 1.0, &subst_qtty)) > 0;) {
 							THROW(rList.AddItem(subst_gsi.GoodsID, sign, subst_gsi.Formula__));
 						}
 						THROW(r2);
@@ -427,7 +427,7 @@ int PPObjTech::GetGoodsStrucList(PPID id, PPID arbitraryGStrucID, bool useSubst,
 			PPGoodsStrucItem gs_item;
 			double qtty = 0.0;
 			rList.SetStrucID(gs.Rec.ID);
-			for(uint i = 0; (r = gs.EnumItemsExt(&i, &gs_item, tec_rec.GoodsID, 1, &qtty)) > 0;) {
+			for(uint i = 0; (r = gs.EnumItemsExt(&i, &gs_item, tec_rec.GoodsID, 1.0, &qtty)) > 0;) {
 				int    sign;
 				if(gs_item.Median < 0)
 					sign = tec_rec.Sign;
@@ -441,7 +441,7 @@ int PPObjTech::GetGoodsStrucList(PPID id, PPID arbitraryGStrucID, bool useSubst,
 					if(LoadGoodsStruc(PPGoodsStruc::Ident(gs_item.GoodsID, GSF_SUBST), &subst_gs) > 0) {
 						PPGoodsStrucItem subst_gsi;
 						double subst_qtty = 0.0;
-						for(uint j = 0; (r2 = subst_gs.EnumItemsExt(&j, &subst_gsi, gs_item.GoodsID, 1, &subst_qtty)) > 0;) {
+						for(uint j = 0; (r2 = subst_gs.EnumItemsExt(&j, &subst_gsi, gs_item.GoodsID, 1.0, &subst_qtty)) > 0;) {
 							THROW(rList.AddItem(subst_gsi.GoodsID, sign, subst_gsi.Formula__));
 						}
 						THROW(r2);
@@ -3986,7 +3986,7 @@ int PPViewTechRoute::MakeList(PPViewBrowser * pBrw)
 	PPID   update_id = 0;
 	TechRouteIdent key_to_setup; 
 	if(ok == -2) {
-		const  long cur_pos = p_def ? p_def->_curItem() : 0;
+		const  long cur_pos = p_def ? p_def->GetCurItem() : 0;
 		long   update_pos = cur_pos;
 		switch(ppvCmd) {
 			case PPVCMD_ADDITEM:

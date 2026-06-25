@@ -4,6 +4,7 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
+#include <ppbrow.h>
 //
 // TStaticText
 //
@@ -754,7 +755,8 @@ void TButton::Press()
 {
 	if(!IsInState(sfDisabled)) {
 		bool   done = false;
-		if(oneof4(SupplementRole, SUiCtrlSupplement::kDateCalendar, SUiCtrlSupplement::kDateRangeCalendar, SUiCtrlSupplement::kTime, SUiCtrlSupplement::kCalc)) {
+		if(oneof5(SupplementRole, SUiCtrlSupplement::kDateCalendar, SUiCtrlSupplement::kDateRangeCalendar, SUiCtrlSupplement::kTime, 
+			SUiCtrlSupplement::kCalc, SUiCtrlSupplement::kPasswordRig)) {
 			// @v12.5.5 SUiCtrlSupplement::kCalc
 			if(P_Owner && SupplementLinkCtrlId) {
 				TView * p_view = P_Owner->getCtrlView(SupplementLinkCtrlId);
@@ -799,6 +801,15 @@ void TButton::Press()
 							}
 							if(il_type_id == T_INT16) {
 								is_data_type_valid = true;
+							}
+						}
+						else if(SupplementRole == SUiCtrlSupplement::kPasswordRig) { // @v12.6.9
+							HWND   h_wnd = p_il->getHandle();
+							if(h_wnd && p_il->GetSpcFlags() & TInputLine::spcfPassword) {
+								LRESULT pwc = ::SendMessageW(h_wnd, EM_GETPASSWORDCHAR, 0, 0);
+								::SendMessageW(h_wnd, EM_SETPASSWORDCHAR, (pwc == 0) ? SlConst::DefaultPasswordSymbU : 0, 0);
+								::InvalidateRect(h_wnd, NULL, TRUE); 
+								SetBitmap((pwc == 0) ? PPDV_PASSWORDSHOW01 : PPDV_PASSWORDHIDE01);
 							}
 						}
 						if(is_data_type_valid) {
@@ -1375,7 +1386,7 @@ void TInputLine::disableDeleteSelection(int _disable)
 
 void TInputLine::Implement_Draw()
 {
-	if(Data.IsLegalUtf8()) { // @v12.6.6
+	if(Data.IsLegalUtf8() && !Data.IsCp866()) { // @v12.6.6 // @v12.6.9 некоторые осмысленные сочетания cp866-строк могут трактоваться как легальные utf8-строки (&& !Data.IsCp866())
 		TView::SSetWindowTextUtf8(GetDlgItem(Parent, Id), Data);
 	}
 	else {
@@ -1441,8 +1452,7 @@ int TInputLine::TransmitData(int dir, void * pData)
 			s = P_Combo->TransmitData(dir, pData);
 		else if(HasWordSelector() && !P_WordSelBlk->IsTextMode()) {
 			long   id = 0L;
-			//SString buf;
-			P_WordSelBlk->GetData(&id, /*buf*/temp_buf);
+			P_WordSelBlk->GetData(&id, temp_buf);
 			s = 4;
 			ASSIGN_PTR(static_cast<long *>(pData), id);
 		}
@@ -2660,7 +2670,7 @@ int TImageView::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	 return 1;
 }
 
-TImageView::TImageView(const TRect & rBounds, const char * pFigSymb) : TView(rBounds), P_Fig(0), FigSymb(pFigSymb)
+TImageView::TImageView(const TRect & rBounds, uint spcFlags, const char * pFigSymb) : TView(rBounds), P_Fig(0), FigSymb(pFigSymb), SpcFlags(spcFlags)
 {
 	SubSign = TV_SUBSIGN_IMAGEVIEW;
 	ReplacedColor.Set(0);

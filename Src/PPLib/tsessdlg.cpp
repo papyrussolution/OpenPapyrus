@@ -2753,10 +2753,13 @@ ExecSessionOnTechRouteFilt & FASTCALL ExecSessionOnTechRouteFilt::operator = (co
 							if(tses_obj.PutPacket(&_id, &pack, 0/*use_ta*/)) {
 								if(p_tre) {
 									{
-										const  PPID local_tec_goods_id = NZOR(final_product_id, tec_rec.GoodsID);
-										PPID   local_gs_id = NZOR(p_tre->GStrucID, tec_rec.GStrucID);
+										const  PPID local_tec_goods_id = tec_rec.GoodsID; // (все-таки здесь строго товар из технологии) NZOR(final_product_id, tec_rec.GoodsID);
+										PPID   local_gs_id = p_tre->GStrucID; // (а здесь безусловно структура из фазы) NZOR(p_tre->GStrucID, tec_rec.GStrucID);
 										if(local_gs_id) {
-											THROW(tses_obj.CompleteStruc(_id, local_tec_goods_id, local_gs_id, blk.LotQtty, 0/*pExGoodsIdList*/, false/*isTooling*/));
+											PPGoodsStruc::GetItemContext gsgi_ctx(local_tec_goods_id, blk.LotQtty);
+											gsgi_ctx.FinalProductID = final_product_id;
+											gsgi_ctx.NominalProductID = tec_rec.GoodsID;
+											THROW(tses_obj.CompleteStruc2(_id, local_gs_id, gsgi_ctx, 0/*pExGoodsIdList*/, false/*isTooling*/));
 										}
 									}
 									if(r_cfg.JobPerItemGoodsID && p_tre->NominalPrice > 0.0) {
@@ -2836,7 +2839,7 @@ ExecSessionOnTechRouteFilt & FASTCALL ExecSessionOnTechRouteFilt::operator = (co
 						TSessLineTbl::Rec line_rec;
 						long   oprno = 0;
 						if(tses_obj.InitLinePacket(&line_rec, new_id)) {
-							line_rec.GoodsID = blk.GoodsID;
+							line_rec.GoodsID = tec_rec.GoodsID; // (здесь - номинальный товар из основной технологии) blk.GoodsID;
 							line_rec.LotID = blk.LotID;
 							line_rec.Qtty = blk.LotQtty;
 							STRNSCPY(line_rec.Serial, blk.Serial);

@@ -9093,7 +9093,8 @@ static void FillTransportRec(const PPTransport * pInner, SPpyO_Transport * pOute
 	FLD(ID);
 	pOuter->TrType = (PpyOTransportType)pInner->TrType;
 	FLD(TrModelID);
-	FLD(OwnerID);
+	// @v12.6.9 FLD(OwnerID);
+	pOuter->OwnerID = pInner->TrOwnerID; // @v12.6.9
 	FLD(CountryID);
 	FLD(CaptainID);
 	FLD(Capacity);
@@ -9112,7 +9113,8 @@ static int AcceptTransportRec(const SPpyO_Transport * pOuter, PPTransport * pInn
 	FLD(ID);
 	FLD(TrType);
 	FLD(TrModelID);
-	FLD(OwnerID);
+	// @v12.6.9 FLD(OwnerID);
+	pInner->TrOwnerID = pOuter->OwnerID; // @v12.6.9
 	FLD(CountryID);
 	FLD(CaptainID);
 	pInner->Capacity = (long)pOuter->Capacity;

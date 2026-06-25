@@ -3293,11 +3293,16 @@ SLTEST_R(PPSecretSegmentPool) // @v12.6.8
 	(fn_in = GetSuiteEntry()->InPath).SetLastSlash().Cat("svault_test_1500_v2.json");
 	(fn_vault = GetSuiteEntry()->OutPath).SetLastSlash().Cat("svault_test_1500_v2.bin");
 	PPSecretSegmentPool pool;
+	PPSecretSegmentPool pool2;
+	SFile::Remove(fn_vault);
 	const  int csr = pool.CreateStorage(fn_vault, p_src_key, src_key_size);
 	SLCHECK_NZ(csr);
-	const  int rtjr = pool.ReadTestJson(fn_in, p_src_key, src_key_size);
+	const  int rtjr = pool.ReadTestJson(fn_in);
 	SLCHECK_NZ(rtjr);
 	const  int ssr = pool.SaveStorage(fn_vault);
 	SLCHECK_NZ(ssr);
+	const  int lsr = pool2.LoadStorage(fn_vault, p_src_key, src_key_size);
+	SLCHECK_NZ(lsr);
+	SLCHECK_NZ(pool.IsEq(pool2));
 	return CurrentStatus;	
 }

@@ -1337,7 +1337,7 @@ int Transfer::UpdateForward(PPID lotID, LDATE dt, long oprno, int check, double 
 int Transfer::UpdateForward(const TransferTbl::Rec & rRec, double addendum, double phAddend)
 {
 	int    ok = 1;
-	const  bool is_recomplete = ((rRec.Flags & (PPTFR_REVAL|PPTFR_MODIF)) == (PPTFR_REVAL|PPTFR_MODIF));
+	const  bool is_recomplete = ((rRec.Flags & (PPTFR_MODIF|PPTFR_REVAL)) == (PPTFR_MODIF|PPTFR_REVAL));
 	if(!IsUnlimWoLot(rRec) && (!(rRec.Flags & PPTFR_REVAL) || (rRec.Flags & PPTFR_CORRECTION) || is_recomplete)) {
 		if(is_recomplete) {
 			addendum = 0.0;

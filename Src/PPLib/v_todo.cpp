@@ -230,7 +230,7 @@ static const SIntToSymbTabEntry ICalTokenList[] = {
 {
 	rDtm.Z();
 	int    tz = 0;
-	int    ok = strtodatetime(pBuf, &rDtm, DATF_ISO8601, TIMF_HMS|TIMF_NODIV);
+	int    ok = strtodatetime(pBuf, rDtm, DATF_ISO8601, TIMF_HMS|TIMF_NODIV);
 	ASSIGN_PTR(pTz, tz);
 	return ok;
 }

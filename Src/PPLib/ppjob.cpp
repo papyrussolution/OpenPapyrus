@@ -2452,13 +2452,13 @@ public:
 	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
-		const  PPCommConfig & r_ccfg = CConfig;
+		const  bool is_debug_mode_rt = LOGIC(CConfig.Flags & CCFLG_DEBUG);
 		SString fmt_buf;
 		SString msg_buf;
 		ExportBillsFiltDialog::ExpBillsFilt filt;
 		CoInitialize(NULL);
 		THROW(filt.Read(*pParam, 0) > 0);
-		if(r_ccfg.Flags & CCFLG_DEBUG) {
+		if(is_debug_mode_rt) {
 			PPLogMessage(PPFILNAM_DEBUG_LOG, PPLoadTextS(PPTXT_LOG_JOBEXPBILL_READFILT, msg_buf), LOGMSGF_USER|LOGMSGF_TIME);
 		}
 		{
@@ -2466,7 +2466,7 @@ public:
 			PPBillImpExpParam bill_param;
 			PPBillImpExpParam brow_param;
 			THROW(ExportBillsFiltDialog::GetParamsByName(filt.BillParam, filt.BRowParam, &bill_param, &brow_param));
-			if(r_ccfg.Flags & CCFLG_DEBUG) {
+			if(is_debug_mode_rt) {
 				const char * p1 = filt.BillParam.NotEmpty() ? filt.BillParam.cptr() : "";
 				const char * p2 = filt.BRowParam.NotEmpty() ? filt.BRowParam.cptr() : "";
 				PPFormatT(PPTXT_LOG_JOBEXPBILL_GETPARAM, &msg_buf, p1, p2);
@@ -2474,7 +2474,7 @@ public:
 			}
 			THROW(view.Init_(&filt.Filt));
 			ok = view.ExportGoodsBill(&bill_param, &brow_param);
-			if(r_ccfg.Flags & CCFLG_DEBUG) {
+			if(is_debug_mode_rt) {
 				PPFormatT(PPTXT_LOG_JOBEXPBILL_DONE, &msg_buf, ok);
 				PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_USER|LOGMSGF_TIME);
 			}

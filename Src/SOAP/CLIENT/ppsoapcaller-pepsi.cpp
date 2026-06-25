@@ -1,5 +1,5 @@
 // PPSOAPCALLER-PEPSI.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2019, 2020
+// Copyright (c) A.Sobolev 2016, 2017, 2019, 2020, 2026
 // @codepage UTF-8
 //
 #include <ppsoapclient.h>
@@ -64,7 +64,7 @@ extern "C" __declspec(dllexport) TSCollection <iSalesBillDebt> * iSalesGetUnclos
 				p_new_item->DocType = (temp_buf = p_doc->DOC_USCORETP).Transf(CTRANSF_UTF8_TO_INNER).ToLong();
 				p_new_item->Code = (temp_buf = p_doc->DOC_USCORENO).Transf(CTRANSF_UTF8_TO_INNER);
 				(temp_buf = p_doc->DOC_USCOREDT).Transf(CTRANSF_UTF8_TO_INNER);
-				strtodatetime(temp_buf, &p_new_item->Dtm, DATF_DMY, TIMF_HMS);
+				strtodatetime(temp_buf, p_new_item->Dtm, DATF_DMY, TIMF_HMS);
 				p_new_item->PayerCode = (temp_buf = p_doc->CUST_USCOREID).Transf(CTRANSF_UTF8_TO_INNER);
 				p_new_item->Amount = (temp_buf = p_doc->GROSS_USCORESUM).Transf(CTRANSF_UTF8_TO_INNER).ToReal();
 				p_new_item->Debt = (temp_buf = p_doc->DEBT).Transf(CTRANSF_UTF8_TO_INNER).ToReal();
@@ -234,7 +234,7 @@ static TSCollection <iSalesBillPacket> * Helper_AcceptDocList(const ns1__ArrayOf
 				p_new_order->iSalesId = (temp_buf = p_ord->ISALES_USCOREID).Transf(CTRANSF_UTF8_TO_INNER);
 				p_new_order->Code = (temp_buf = p_ord->DOC_USCORENO).Transf(CTRANSF_UTF8_TO_INNER);
 				(temp_buf = p_ord->DOC_USCOREDT).Transf(CTRANSF_UTF8_TO_INNER);
-				strtodatetime(temp_buf, &p_new_order->Dtm, DATF_DMY, TIMF_HMS);
+				strtodatetime(temp_buf, p_new_order->Dtm, DATF_DMY, TIMF_HMS);
 				p_new_order->Status = (temp_buf = p_ord->STATUS).Transf(CTRANSF_UTF8_TO_INNER).ToLong();
 				p_new_order->SellerCode = (temp_buf = p_ord->SELLER).Transf(CTRANSF_UTF8_TO_INNER); // Код дистрибьютора
 				p_new_order->PayerCode = (temp_buf = p_ord->PAYER).Transf(CTRANSF_UTF8_TO_INNER);
@@ -249,11 +249,11 @@ static TSCollection <iSalesBillPacket> * Helper_AcceptDocList(const ns1__ArrayOf
 				p_new_order->AuthId = (temp_buf = p_ord->AUTH_USCOREID).Transf(CTRANSF_UTF8_TO_INNER);
 				p_new_order->EditId = (temp_buf = p_ord->EDIT_USCOREID).Transf(CTRANSF_UTF8_TO_INNER);
 				(temp_buf = p_ord->CREATE_USCOREDT).Transf(CTRANSF_UTF8_TO_INNER);
-				strtodatetime(temp_buf, &p_new_order->CreationDtm, DATF_DMY, TIMF_HMS);
+				strtodatetime(temp_buf, p_new_order->CreationDtm, DATF_DMY, TIMF_HMS);
 				(temp_buf = p_ord->EDIT_USCOREDT).Transf(CTRANSF_UTF8_TO_INNER);
-				strtodatetime(temp_buf, &p_new_order->LastUpdDtm, DATF_DMY, TIMF_HMS);
+				strtodatetime(temp_buf, p_new_order->LastUpdDtm, DATF_DMY, TIMF_HMS);
 				(temp_buf = p_ord->INC_USCOREDT).Transf(CTRANSF_UTF8_TO_INNER);
-				strtodatetime(temp_buf, &p_new_order->IncDtm, DATF_DMY, TIMF_HMS);
+				strtodatetime(temp_buf, p_new_order->IncDtm, DATF_DMY, TIMF_HMS);
 				p_new_order->ErrMsg = (temp_buf = p_ord->ErrorMessage).Transf(CTRANSF_UTF8_TO_INNER);
 				if(p_ord->DOC_USCOREITEMS && p_ord->DOC_USCOREITEMS->__sizeDOC_USCOREITEM > 0) {
 					for(int j = 0; j < p_ord->DOC_USCOREITEMS->__sizeDOC_USCOREITEM; j++) {
@@ -746,13 +746,10 @@ extern "C" __declspec(dllexport) SString * iSalesPutBills(PPSoapClientSession & 
 				p_new_bill->DOC_USCORENO = GetDynamicParamString(p_src_pack->Code, arg_str_pool);
 				p_new_bill->DOC_USCOREDT = GetDynamicParamString(p_src_pack->Dtm, DATF_GERMANCENT, TIMF_HMS, arg_str_pool);
 				{
-					// @v10.4.12 p_new_bill->INC_USCOREDT = 0;
-					// @v10.4.12 {
 					LDATETIME crdtm = p_src_pack->CreationDtm;
 					if(!checkdate(crdtm.d))
 						crdtm = p_src_pack->Dtm;
 					p_new_bill->INC_USCOREDT = GetDynamicParamString(crdtm.d, DATF_GERMANCENT, arg_str_pool); 
-					// } @v10.4.12 
 				}
 				p_new_bill->EXT_USCORETP = 0;
 				p_new_bill->EXT_USCORENO = 0;

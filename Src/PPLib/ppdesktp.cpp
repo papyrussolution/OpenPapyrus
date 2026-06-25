@@ -2898,6 +2898,7 @@ private:
 	PPObjWorkbook WbObj;
 	SUiLayout * P_Lo_NavItem; // really const
 	HWND  H_RecentFocusedChild; // @v12.6.0
+	PPSecretSegmentPool SecPool; // @v12.6.9
 };
 
 int TFacadeWindow::MakeNavList(CentrigoNavBlock & rBlk)
@@ -3998,6 +3999,102 @@ PPSecretSegment & PPSecretSegment::Z()
 	return *this;
 }
 
+bool FASTCALL PPSecretSegment::IsEq(const PPSecretSegment & rS) const
+{
+	bool   eq = true;
+	if(InternalID != rS.InternalID)
+		eq = false;
+	else if(ParentID != rS.ParentID)
+		eq = false;
+	else if(SecType != rS.SecType)
+		eq = false;
+	else if(UedRefOid != rS.UedRefOid)
+		eq = false;
+	else if(UedEnterTm != rS.UedEnterTm)
+		eq = false;
+	else if(UedHashAlg != rS.UedHashAlg)
+		eq = false;
+	else if(CE.UedBeforeTm != rS.CE.UedBeforeTm)
+		eq = false;
+	else if(History.getCount() != rS.History.getCount())
+		eq = false;
+	else {
+		{
+			for(uint i = 0; eq && i < History.getCount(); i++) {
+				const  CoreEntry & r_ce = History.at(i);
+				const  CoreEntry & r_ce2 = rS.History.at(i);
+				if(r_ce.UedBeforeTm != r_ce2.UedBeforeTm) {
+					eq = false;
+				}
+			}
+		}
+		if(eq) {
+			TSVector <uint> spl1;
+			TSVector <uint> spl2;
+			spl1.insert(&NameP);
+			spl1.insert(&DescrP);
+			spl1.insert(&ExecCmdLineP);
+			spl1.insert(&CE.STextOpenP);
+			spl1.insert(&CE.STextHiddenP);
+			spl1.insert(&CE.STextExpiryP);
+			spl1.insert(&CE.STextExt1P);
+			spl1.insert(&CE.STextExt2P);
+			spl1.insert(&CE.STextExt3P);
+			assert(History.getCount() == rS.History.getCount()); // Проверено выше!
+			{
+				for(uint i = 0; i < History.getCount(); i++) {
+					const  CoreEntry & r_ce = History.at(i);
+					spl1.insert(&r_ce.STextOpenP);
+					spl1.insert(&r_ce.STextHiddenP);
+					spl1.insert(&r_ce.STextExpiryP);
+					spl1.insert(&r_ce.STextExt1P);
+					spl1.insert(&r_ce.STextExt2P);
+					spl1.insert(&r_ce.STextExt3P);
+				}
+			}
+			spl2.insert(&rS.NameP);
+			spl2.insert(&rS.DescrP);
+			spl2.insert(&rS.ExecCmdLineP);
+			spl2.insert(&rS.CE.STextOpenP);
+			spl2.insert(&rS.CE.STextHiddenP);
+			spl2.insert(&rS.CE.STextExpiryP);
+			spl2.insert(&rS.CE.STextExt1P);
+			spl2.insert(&rS.CE.STextExt2P);
+			spl2.insert(&rS.CE.STextExt3P);
+			{
+				for(uint i = 0; i < rS.History.getCount(); i++) {
+					const  CoreEntry & r_ce = rS.History.at(i);
+					spl2.insert(&r_ce.STextOpenP);
+					spl2.insert(&r_ce.STextHiddenP);
+					spl2.insert(&r_ce.STextExpiryP);
+					spl2.insert(&r_ce.STextExt1P);
+					spl2.insert(&r_ce.STextExt2P);
+					spl2.insert(&r_ce.STextExt3P);
+				}
+			}
+			assert(spl1.getCount() == spl2.getCount()); // Если не выполняется, то я ошибся где-то выше!
+			if(spl1.getCount() != spl2.getCount()) {
+				eq = false;
+			}
+			else {
+				const  SStrGroup & r_sg1 = GetSgC();
+				const  SStrGroup & r_sg2 = rS.GetSgC();
+				SString t1;
+				SString t2;
+				for(uint i = 0; eq && i < spl1.getCount(); i++) {
+					const   uint p1 = spl1.at(i);
+					const   uint p2 = spl2.at(i);
+					r_sg1.GetS(p1, t1);
+					r_sg2.GetS(p2, t2);
+					if(t1 != t2)
+						eq = false;
+				}
+			}
+		}
+	}
+	return eq;
+}
+
 PPSecretSegment & FASTCALL PPSecretSegment::operator = (const PPSecretSegment & rS)
 {
 	Copy(rS);
@@ -4089,6 +4186,7 @@ SJson * PPSecretSegment::ToJsonObj() const
 				for(uint i = 0; i < SIZEOFARRAY(tfm); i++) {
 					const  SecretSegment_TextFldMapEntry_Out & r_tfmi = tfm[i];
 					if(GetText(r_tfmi.Var, temp_buf)) {
+						temp_buf.Escape();
 						p_result->InsertStringNe(r_tfmi.P_Symb, temp_buf);
 					}
 				}
@@ -4114,6 +4212,7 @@ SJson * PPSecretSegment::ToJsonObj() const
 								for(uint i = 0; i < SIZEOFARRAY(tfm); i++) {
 									const  SecretSegment_TextFldMapEntry_Out & r_tfmi = tfm[i];
 									if(GetText(r_tfmi.Var, temp_buf)) {
+										temp_buf.Escape();
 										p_js_hi->InsertStringNe(r_tfmi.P_Symb, temp_buf);
 									}
 								}
@@ -4198,7 +4297,7 @@ bool PPSecretSegment::FromJsonObj(const SJson * pJs)
 				else if(p_cur->Text.IsEqiAscii("UedEnter")) {
 					(temp_buf = p_cur->P_Child->Text).Unescape();
 					LDATETIME dtm;
-					if(strtodatetime(temp_buf, &dtm, DATF_ISO8601CENT, 0)) {
+					if(strtodatetime(temp_buf, dtm, DATF_ISO8601CENT, 0)) {
 						SUniTime_Internal uti(dtm);
 						UedEnterTm = UED::_SetRaw_Time(UED_META_TIME_MSEC, uti);
 					}
@@ -4211,7 +4310,7 @@ bool PPSecretSegment::FromJsonObj(const SJson * pJs)
 				else if(p_cur->Text.IsEqiAscii("UedExpiry")) {
 					(temp_buf = p_cur->P_Child->Text).Unescape();
 					LDATETIME dtm;
-					if(strtodatetime(temp_buf, &dtm, DATF_ISO8601CENT, 0)) {
+					if(strtodatetime(temp_buf, dtm, DATF_ISO8601CENT, 0)) {
 						SUniTime_Internal uti(dtm);
 						CE.UedBeforeTm = UED::_SetRaw_Time(UED_META_TIME_MSEC, uti);
 					}
@@ -4235,7 +4334,7 @@ bool PPSecretSegment::FromJsonObj(const SJson * pJs)
 										else if(p_js_f->Text.IsEqiAscii("ExpiryTm")) {
 											(temp_buf = p_js_f->P_Child->Text).Unescape();
 											LDATETIME dtm;
-											if(strtodatetime(temp_buf, &dtm, DATF_ISO8601CENT, 0)) {
+											if(strtodatetime(temp_buf, dtm, DATF_ISO8601CENT, 0)) {
 												SUniTime_Internal uti(dtm);
 												hi.UedBeforeTm = UED::_SetRaw_Time(UED_META_TIME_MSEC, uti);
 											}
@@ -4283,15 +4382,26 @@ PPSecretSegmentPool::~PPSecretSegmentPool()
 	delete P_Vault;
 }
 
+bool PPSecretSegmentPool::IsInWork() const
+{
+	return (P_Vault && P_Vault->GetKeyRef());
+}
+
+bool FASTCALL PPSecretSegmentPool::IsEq(const PPSecretSegmentPool & rS) const
+{
+	return TSCollection_IsEq(this, &rS);
+}
+
 static const uint64 SecretSegmentPool_Signature = 0xA0C7E0A913D9C152ULL;
 
-int PPSecretSegmentPool::DescryptSegments()
+int PPSecretSegmentPool::DescryptSegments(const char * pMasterPassword, size_t masterPasswordLen)
 {
 	freeAll();
 	int    ok = -1;
 	SString temp_buf;
 	SJson * p_js = 0;
 	THROW(P_Vault); // @todo @err
+	THROW(P_Vault->CheckInPrimaryPassword(pMasterPassword, masterPasswordLen));
 	THROW(P_Vault->GetKeyRef()); // @todo @err
 	{
 		const  uint64 key_ref = P_Vault->GetKeyRef();
@@ -4302,7 +4412,7 @@ int PPSecretSegmentPool::DescryptSegments()
 			if(outer_id) {
 				const  int re = P_Vault->GetEncrypted(vp_id, reinterpret_cast<void *>(key_ref), &bc);
 				if(re) {
-					temp_buf.CatN(static_cast<const char *>(bc.PtrC()), bc.Len());
+					temp_buf.Z().CatN(static_cast<const char *>(bc.PtrC()), bc.Len());
 					uint   new_seg_pos = 0;
 					PPSecretSegment * p_new_seg = CreateNewSegment(&new_seg_pos);
 					THROW(p_new_seg);
@@ -4333,9 +4443,10 @@ int PPSecretSegmentPool::DescryptSegments()
 	return ok;
 }
 
-int PPSecretSegmentPool::LoadStorage(const char * pFileName)
+int PPSecretSegmentPool::LoadStorage(const char * pFileName, const char * pMasterPassword, size_t masterPasswordLen)
 {
 	int   ok = 1;
+	freeAll();
 	ZDELETE(P_Vault);
 	THROW(fileExists(pFileName));
 	{
@@ -4361,6 +4472,9 @@ int PPSecretSegmentPool::LoadStorage(const char * pFileName)
 				}
 				THROW(P_Vault = new SVaultPool());
 				THROW_SL(P_Vault->Serialize(-1, sbuf, &sctx));
+				if(pMasterPassword) {
+					THROW(DescryptSegments(pMasterPassword, masterPasswordLen));
+				}
 			}
 		}
 	}
@@ -4485,6 +4599,7 @@ int PPSecretSegmentPool::PutSegmentIntoPool(const PPSecretSegment * pSeg) // @co
 			SBinarySet::DeflateStrategy ds(128);
 			int    r = P_Vault->PutEncrypted(_id, temp_buf.cptr(), temp_buf.Len(), P_Vault->GetUedSymmCipher(), reinterpret_cast<void *>(P_Vault->GetKeyRef()), &ds);
 			THROW(r);
+			ok = 1;
 		}
 	}
 	CATCHZOK
@@ -4492,7 +4607,7 @@ int PPSecretSegmentPool::PutSegmentIntoPool(const PPSecretSegment * pSeg) // @co
 	return ok;
 }
 
-int PPSecretSegmentPool::ReadTestJson(const char * pJsFileName, const char * pMasterPassword, size_t masterPasswordLen)
+int PPSecretSegmentPool::ReadTestJson(const char * pJsFileName)
 {
 	/*
 		{
@@ -4519,6 +4634,7 @@ int PPSecretSegmentPool::ReadTestJson(const char * pJsFileName, const char * pMa
 	int    ok = 0;
 	SJson * p_js = SJson::ParseFile(pJsFileName);
 	if(SJson::IsObject(p_js)) {
+		LongArray cidlist;
 		for(const SJson * p_cur = p_js->P_Child; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Text.IsEqiAscii("segments")) {
 				if(SJson::IsArray(p_cur->P_Child)) {
@@ -4528,6 +4644,23 @@ int PPSecretSegmentPool::ReadTestJson(const char * pJsFileName, const char * pMa
 							PPSecretSegment * p_new_seg = CreateNewSegment(&new_seg_pos);
 							if(p_new_seg) {
 								if(p_new_seg->FromJsonObj(p_js_item)) {
+									if(P_Vault) {
+										if(!p_new_seg->InternalID) {
+											uint32 new_id = 0;
+											THROW_SL(P_Vault->GetChunkIdList(cidlist));
+											if(cidlist.getCount()) {
+												cidlist.sortAndUndup();
+												const  long max_internal_id = smax(cidlist.getLast(), static_cast<long>(SVaultPool::GetMinInternalId()-1));
+												new_id = SVaultPool::MakeOuterId(max_internal_id+1);
+											}
+											else {
+												new_id = SVaultPool::MakeOuterId(SVaultPool::GetMinInternalId());
+											}
+											THROW(new_id); // @todo @err
+											p_new_seg->InternalID = new_id;
+										}
+										THROW(PutSegmentIntoPool(p_new_seg));
+									}
 									ok = 1;
 								}
 								else {
@@ -4540,6 +4673,7 @@ int PPSecretSegmentPool::ReadTestJson(const char * pJsFileName, const char * pMa
 			}
 		}
 	}
+	CATCHZOK
 	delete p_js;
 	return ok;
 }

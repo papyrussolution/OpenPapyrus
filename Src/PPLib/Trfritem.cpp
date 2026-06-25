@@ -309,11 +309,11 @@ int PPTransferItem::SetSignFlags(PPID op, int forceSign)
 			}
 			THROW_PP(forceSign || IsRecomplete(), PPERR_GMODIFITEMSIGN);
 		}
-		Flags &= ~(PPTFR_PLUS | PPTFR_MINUS);
+		Flags &= ~(PPTFR_PLUS|PPTFR_MINUS);
 		if(forceSign == TISIGN_PLUS)
-			Flags |= (PPTFR_PLUS | PPTFR_RECEIPT);
+			Flags |= (PPTFR_PLUS|PPTFR_RECEIPT);
 		else if(forceSign == TISIGN_RECOMPLETE)
-			Flags |= (PPTFR_MODIF | PPTFR_REVAL);
+			Flags |= (PPTFR_MODIF|PPTFR_REVAL);
 		else if(forceSign == TISIGN_MINUS)
 			Flags |= PPTFR_MINUS;
 		// }
@@ -334,7 +334,7 @@ int PPTransferItem::SetSignFlags(PPID op, int forceSign)
 		else if(op_type_id == PPOPT_DRAFTRECEIPT)
 			Flags |= PPTFR_PLUS;
 		else {
-			int    r = IsExpendOp(op);
+			const  int r = IsExpendOp(op);
 			if(r > 0)
 				Flags |= PPTFR_MINUS;
 			else if(!r)
@@ -413,7 +413,7 @@ int PPTransferItem::SetupGoods(PPID goodsID, uint flags)
 		PPObjGoods gobj;
 		Goods2Tbl::Rec goods_rec;
 		if((ok = gobj.Fetch(labs(goodsID), &goods_rec)) > 0) {
-			const long   f = goods_rec.Flags;
+			const  long f = goods_rec.Flags;
 			SETFLAG(Flags, PPTFR_ODDGOODS,    f & GF_ODD);
 			SETFLAG(Flags, PPTFR_UNLIM,       f & GF_UNLIM);
 			SETFLAG(Flags, PPTFR_INDEPPHQTTY, f & GF_USEINDEPWT);
@@ -489,8 +489,8 @@ int PPTransferItem::SetupLot(PPID lotID, const ReceiptTbl::Rec * pLotRec, uint f
 		}
 	   	if(!(fl & TISL_IGNCOST) || !(fl & TISL_IGNPRICE) || IsLotRet()) {
 			THROW(p_trfr->GetLotPrices(&lot_rec, Date));
-			double c = R5(lot_rec.Cost);
-			double p = R5(lot_rec.Price);
+			const  double c = R5(lot_rec.Cost);
+			const  double p = R5(lot_rec.Price);
 			if(Flags & PPTFR_REVAL) {
 				RevalCost = c;
 				Discount = p;

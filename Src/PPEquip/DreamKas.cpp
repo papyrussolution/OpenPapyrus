@@ -130,9 +130,9 @@ int ACS_DREAMKAS::ParseSess(const SJson * pJsonObj, SessEntry & rEntry)
 			else if(p_cur->Text.IsEqiAscii("deviceId"))
 				rEntry.DeviceN = p_cur->P_Child->Text.ToLong();
 			else if(p_cur->Text.IsEqiAscii("openedAt")) // openedAtUTC
-				strtodatetime(p_cur->P_Child->Text, &rEntry.OpenedTime, DATF_ISO8601, TIMF_HMS);
+				strtodatetime(p_cur->P_Child->Text, rEntry.OpenedTime, DATF_ISO8601, TIMF_HMS);
 			else if(p_cur->Text.IsEqiAscii("closedAt")) // closedAtUTC
-				strtodatetime(p_cur->P_Child->Text, &rEntry.ClosedTime, DATF_ISO8601, TIMF_HMS);
+				strtodatetime(p_cur->P_Child->Text, rEntry.ClosedTime, DATF_ISO8601, TIMF_HMS);
 			else if(p_cur->Text.IsEqiAscii("cashOnOpen"))
 				rEntry.CashOnOpen = p_cur->P_Child->Text.ToReal();
 			else if(p_cur->Text.IsEqiAscii("cashOnClose"))
@@ -708,7 +708,7 @@ int ACS_DREAMKAS::AcceptCheck(const SJson * pJsonObj)
 				else if(p_cur->Text.IsEqiAscii("number"))
 					cc_number = p_cur->P_Child->Text.ToLong();
 				else if(p_cur->Text.IsEqiAscii("localDate"))
-					strtodatetime(p_cur->P_Child->Text, &cc_dtm, DATF_ISO8601, TIMF_HMS);
+					strtodatetime(p_cur->P_Child->Text, cc_dtm, DATF_ISO8601, TIMF_HMS);
 				else if(p_cur->Text.IsEqiAscii("date"))
 					;
 				else if(p_cur->Text.IsEqiAscii("positions")) {

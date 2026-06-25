@@ -335,7 +335,7 @@ int PPViewOprKind::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 			if(MakeList(pBrw)) {
 				LongArray last_upd_obj_list;
 				SArray * p_array = new SArray(*P_DsList);
-				long   c = p_def->_curItem();
+				long   c = p_def->GetCurItem();
 				p_def->setArray(p_array, 0, 1);
 				if(ppvCmd == PPVCMD_USERSORT && id) {
 					pBrw->search2(&id, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/);

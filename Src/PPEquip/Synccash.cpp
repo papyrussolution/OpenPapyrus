@@ -1170,7 +1170,7 @@ int SCS_SYNCCASH::GetSummator(double * val)
 	THROW(ExecPrintOper(DVCCMD_GETDEVICETIME, Arr_In, Arr_Out));
 	if(Arr_Out.getCount()) {
 		for(uint i = 0; Arr_Out.GetText(i, buf) > 0; i++) {
-			strtodatetime(buf, &dtm, DATF_ISO8601, 0);
+			strtodatetime(buf, dtm, DATF_ISO8601, 0);
 			if(checkdate(dtm.d)) {
 				ok = 1;
 				break;
@@ -1178,7 +1178,7 @@ int SCS_SYNCCASH::GetSummator(double * val)
 			else {
 				DestrStr(buf, param_name, param_val);
 				if(param_name.IsEqiAscii("DEVICETIME")) {
-					strtodatetime(param_val, &dtm, DATF_ISO8601, TIMF_HMS);
+					strtodatetime(param_val, dtm, DATF_ISO8601, TIMF_HMS);
 					if(checkdate(dtm.d)) {
 						ok = 1;
 						break;

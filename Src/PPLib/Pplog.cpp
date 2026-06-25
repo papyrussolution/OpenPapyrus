@@ -1069,7 +1069,7 @@ PPLogMsgSession::PPLogMsgSession(PPLogMsgQueue * pQueue) : PPThread(PPThread::kL
 			}
 			else if(r == WAIT_OBJECT_0 + 1) { // stop event // @v9.1.12 @fix (+2)-->(+1)
 				stop = 1; // quit loop
-				do_check_queue = 1; // @v9.1.12 Перед завершением сбросим все, что есть в очереди
+				do_check_queue = 1; // Перед завершением сбросим все, что есть в очереди
 			}
 			else if(r == WAIT_FAILED) {
 				// error

@@ -596,7 +596,7 @@ int PPObjSecur::Browse(void * extraPtr)
 	if(!CheckRights(PPR_READ))
 		ok = PPErrorZ();
 	else if(Obj == PPOBJ_USR)
-		ok = BIN(CheckExecAndDestroyDialog(new Grp_n_UsrDialog(this), 1, 0));
+		ok = BIN(CheckExecAndDestroyDialog(new Grp_n_UsrDialog(this), true, false));
 	return ok;
 }
 

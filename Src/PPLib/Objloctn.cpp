@@ -1425,7 +1425,7 @@ int LocationView::ViewWareplaces()
 			// экземпл€ре объекта, а не переданный доп параметром классу LocationView.
 			//
 			PPObjLocation loc_obj(&filt);
-			ok = BIN(CheckExecAndDestroyDialog(new LocationView(&loc_obj, &filt), 1, 1) != 0);
+			ok = BIN(CheckExecAndDestroyDialog(new LocationView(&loc_obj, &filt), true, true) != 0);
 		}
 	}
 	return ok;

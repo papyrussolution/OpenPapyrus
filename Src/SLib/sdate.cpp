@@ -1248,7 +1248,7 @@ LDATETIME & LDATETIME::Set(LDATE _d, LTIME _t)
 	return *this;
 }
 
-int  LDATETIME::Set(const char * pText, long datf, long timf) { return strtodatetime(pText, this, datf, timf); }
+int  LDATETIME::Set(const char * pText, long datf, long timf) { return strtodatetime(pText, *this, datf, timf); }
 bool LDATETIME::operator !() const { return (d == ZERODATE && t == ZEROTIME); }
 bool FASTCALL LDATETIME::operator == (const LDATETIME & s) const { return (d == s.d && t == s.t); }
 bool FASTCALL LDATETIME::operator != (const LDATETIME & s) const { return (d != s.d || t != s.t); }
@@ -2642,11 +2642,21 @@ SUniTime_Internal::SUniTime_Internal(const SYSTEMTIME & rS) : SUniDate_Internal(
 }
 #endif
 
-SUniTime_Internal & SUniTime_Internal::Z()
+SUniTime_Internal & SUniTime_Internal::Z_ThisOnly() // Очищает только this без очистки родительского объекта SUniDate_Internal
 {
-	THISZERO();
+	Hr = 0;
+	Mn = 0;
+	Sc = 0;
+	MSc = 0;
+	Weekday = 0;
 	TimeZoneSc  = Undef_TimeZone;
 	return *this;
+}
+
+SUniTime_Internal & SUniTime_Internal::Z()
+{
+	SUniDate_Internal::Z();
+	return Z_ThisOnly();
 }
 
 SUniTime_Internal::SUniTime_Internal(SCtrGenerate)

@@ -1,5 +1,5 @@
 // PROFILE.CPP
-// Copyright (c) A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1021,13 +1021,13 @@ PPUserProfileCore::UfpLine & PPUserProfileCore::UfpLine::Z()
 		THROW(rSs.get(&p, rTempBuf));
 		THROW(rItem.Ver.FromStr(rTempBuf));
 		THROW(rSs.get(&p, rItem.DbSymb));
-		rItem.DbSymb.Transf(CTRANSF_OUTER_TO_INNER); // @v8.1.2
+		rItem.DbSymb.Transf(CTRANSF_OUTER_TO_INNER);
 		THROW(rSs.get(&p, rItem.UserName));
-		rItem.UserName.Transf(CTRANSF_OUTER_TO_INNER); // @v8.1.2
+		rItem.UserName.Transf(CTRANSF_OUTER_TO_INNER);
 		THROW(rSs.get(&p, rItem.MachineName));
 		THROW(rSs.get(&p, rTempBuf)); // MAC address
 		THROW(rSs.get(&p, rTempBuf));
-		strtodatetime(rTempBuf, &rItem.Start, DATF_DMY, TIMF_HMS|TIMF_MSEC);
+		strtodatetime(rTempBuf, rItem.Start, DATF_DMY, TIMF_HMS|TIMF_MSEC);
 	}
 	else if(kind == Profile::fkStart) {
 		THROW(rSs.get(&p, rTempBuf));
@@ -1035,7 +1035,7 @@ PPUserProfileCore::UfpLine & PPUserProfileCore::UfpLine::Z()
 		THROW(rSs.get(&p, rTempBuf));
 		rItem.FuncId = rTempBuf.ToLong();
 		THROW(rSs.get(&p, rTempBuf));
-		strtodatetime(rTempBuf, &rItem.Start, DATF_DMY, TIMF_HMS|TIMF_MSEC);
+		strtodatetime(rTempBuf, rItem.Start, DATF_DMY, TIMF_HMS|TIMF_MSEC);
 	}
 	else if(kind == Profile::fkFinish) {
 		THROW(rSs.get(&p, rTempBuf));

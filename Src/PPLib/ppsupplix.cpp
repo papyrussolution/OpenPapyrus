@@ -6192,9 +6192,9 @@ private:
 									if(SXml::GetContentByName(p_ord, "OrderID", temp_buf))
 										p_new_entry->Uuid.FromStr(temp_buf);
 									else if(SXml::GetContentByName(p_ord, "DateTime", temp_buf))
-										strtodatetime(temp_buf, &p_new_entry->Dtm, DATF_ISO8601, TIMF_HMS);
+										strtodatetime(temp_buf, p_new_entry->Dtm, DATF_ISO8601, TIMF_HMS);
 									else if(SXml::GetContentByName(p_ord, "DateDelivery", temp_buf))
-										strtodatetime(temp_buf, &p_new_entry->DlvrDtm, DATF_ISO8601, TIMF_HMS);
+										strtodatetime(temp_buf, p_new_entry->DlvrDtm, DATF_ISO8601, TIMF_HMS);
 									else if(SXml::GetContentByName(p_ord, "SalePointID", temp_buf))
 										p_new_entry->ForeignDlvrAddrID = temp_buf.ToLong();
 									else if(SXml::GetContentByName(p_ord, "SalePointName", temp_buf))

@@ -496,7 +496,6 @@ int TSessionPacket::GetTimeRange(STimeChunk & rRange) const { return PPObjTSessi
 	return ok;
 }
 
-// @v11.4.0 {
 static SIntToSymbTabEntry TSessStatusSymbList[] = {
 	{ TSESST_PLANNED, "planned" },
 	{ TSESST_PENDING, "pending" },
@@ -504,7 +503,6 @@ static SIntToSymbTabEntry TSessStatusSymbList[] = {
 	{ TSESST_CLOSED, "closed" },
 	{ TSESST_CANCELED, "canceled" }
 };
-// } @v11.4.0
 
 /*static*/int FASTCALL PPObjTSession::ResolveStatusSymbol(const char * pSymbol) { return SIntToSymbTab_GetId(TSessStatusSymbList, SIZEOFARRAY(TSessStatusSymbList), pSymbol); }
 /*static*/int FASTCALL PPObjTSession::GetStatusSymbol(int status, SString & rBuf) { return SIntToSymbTab_GetSymb(TSessStatusSymbList, SIZEOFARRAY(TSessStatusSymbList), status, rBuf); }
@@ -631,7 +629,7 @@ TLP_IMPL(PPObjTSession, TSessionCore, P_Tbl);
 PPObjTSession::PPObjTSession(void * extraPtr) : PPObject(PPOBJ_TSESSION), /*P_BhtCurSess(0),*/ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
-	MEMSZERO(Cfg);
+	// @v12.6.9 @ctr MEMSZERO(Cfg);
 	ImplementFlags |= implStrAssocMakeList;
 }
 
@@ -1310,6 +1308,48 @@ int PPObjTSession::GetPrevSession(const TSessionTbl::Rec & rSessRec, TSessionTbl
 	return ok;
 }
 
+int PPObjTSession::CompleteStruc2(PPID sessID, PPID tecStrucID, const PPGoodsStruc::GetItemContext & rCtx, const PPIDArray * pExGoodsIdList, bool isTooling) // @<<PPObjTSession::Complete
+{
+	int    ok = -1;
+	if(sessID && rCtx.ParentGoodsID && tecStrucID) {
+		PPObjGoodsStruc gs_obj;
+		PPGoodsStruc gs;
+		PPGoodsStrucItem gs_item;
+		double qtty = 0.0;
+		int    r;
+		THROW(gs_obj.Get(tecStrucID, &gs));
+		gs.OwnerGoodsID = rCtx.ParentGoodsID;
+		for(uint gs_pos = 0; (r = gs.EnumItemsExt(rCtx, &gs_pos, &gs_item, &qtty)) > 0;) {
+			if(isTooling || (gs_item.Flags & GSIF_AUTOTSWROFF)) {
+				if(!pExGoodsIdList || !pExGoodsIdList->lsearch(gs_item.GoodsID)) {
+					long   oprno = 0;
+					TSessLineTbl::Rec line_rec;
+					if(!isempty(gs_item.Formula__)) {
+						double v = 0.0;
+						GdsClsCalcExprContext ctx(&gs, sessID);
+						THROW(PPCalcExpression(gs_item.Formula__, &v, &ctx));
+						qtty = v;
+					}
+					qtty = -qtty;
+					THROW(InitLinePacket(&line_rec, sessID));
+					line_rec.Flags |= TSESLF_AUTOCOMPL;
+					if(isTooling)
+						line_rec.Flags |= TSESLF_TOOLING;
+					line_rec.GoodsID = gs_item.GoodsID;
+					line_rec.Qtty = fabs(qtty);
+					line_rec.Sign = (qtty < 0.0) ? -1 : 1;
+					THROW(PutLine(sessID, &oprno, &line_rec, 0));
+					ok = 1;
+				}
+			}
+		}
+		THROW(r);
+	}
+	CATCHZOK
+	return ok;
+}
+
+#if 0 // @v12.6.9 {
 /*private*/int PPObjTSession::CompleteStruc(PPID sessID, PPID tecGoodsID, PPID tecStrucID, double tecQtty, const PPIDArray * pExGoodsIdList, bool isTooling)
 {
 	int    ok = -1;
@@ -1350,6 +1390,7 @@ int PPObjTSession::GetPrevSession(const TSessionTbl::Rec & rSessRec, TSessionTbl
 	CATCHZOK
 	return ok;
 }
+#endif // } @v12.6.9
 
 int PPObjTSession::RecalcSessionPacket(TSessionPacket & rPack, LongArray * pUpdRowIdxList)
 {
@@ -1566,8 +1607,9 @@ int PPObjTSession::CompleteSession(PPID sessID, int use_ta)
 						struc_id = tec_struc_id;
 					else if(GetTechByGoods(goods_id, tses_rec.PrcID, &tec_rec2) > 0)
 						struc_id = tec_rec2.GStrucID;
-					if(struc_id && qtty) {
-						THROW(r = CompleteStruc(sessID, goods_id, struc_id, qtty, &goods_id_list, false));
+					if(struc_id && qtty != 0.0) {
+						const  PPGoodsStruc::GetItemContext gsgi_ctx(goods_id, qtty);
+						THROW(r = CompleteStruc2(sessID, struc_id, gsgi_ctx, &goods_id_list, false));
 						if(r > 0)
 							ok = 1;
 					}
@@ -1582,7 +1624,8 @@ int PPObjTSession::CompleteSession(PPID sessID, int use_ta)
 							THROW(r = TecObj.SelectTooling(tses_rec.PrcID, goods_id, tec_rec2.GoodsID, &t_list));
 							if(r > 0) {
 								for(i = 0; i < t_list.getCount(); i++) {
-									THROW(r = CompleteStruc(sessID, goods_id, t_list.at(i).GStrucID, 1, 0, true));
+									const  PPGoodsStruc::GetItemContext gsgi_ctx(goods_id, 1.0);
+									THROW(r = CompleteStruc2(sessID, t_list.at(i).GStrucID, gsgi_ctx, 0, true));
 									if(r > 0)
 										ok = 1;
 								}
@@ -4028,7 +4071,7 @@ int PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger & rLo
 							(GObj.IsGeneric(tec_goods_id) && GObj.BelongsToGen(line_rec.GoodsID, &tec_goods_id))));
 						if(line_goods_is_suted_to_main_tec_item) {
 							tec_goods_qtty = faddwsign(tec_goods_qtty, line_rec.Qtty, line_rec.Sign);
-							if(line_rec.Sign > 0 && recompl_item) {
+							if(line_rec.Sign >= 0 && recompl_item) { // @v12.6.9 (line_rec.Sign > 0)-->(line_rec.Sign >= 0) считаем что использование (sign==0) тоже годится //
 								THROW_PP(strip(line_rec.Serial)[0], PPERR_TSESRECOMPLNOSER);
 								if(recompl_item.Serial.IsEmpty())
 									recompl_item.Serial = line_rec.Serial;
@@ -4051,7 +4094,7 @@ int PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger & rLo
 							else if(line_rec.Sign < 0 && op_type_id != PPOPT_GOODSEXPEND)
 								continue;
 						}
-						ilti.Setup(line_rec.GoodsID, line_rec.Sign, line_rec.Qtty, 0, 0);
+						ilti.Setup(line_rec.GoodsID, line_rec.Sign, line_rec.Qtty, 0.0/*cost*/, 0.0/*price*/);
 						if(checkdate(line_rec.Expiry))
 							ilti.Expiry = line_rec.Expiry;
 						if(line_rec.Sign > 0)
@@ -4089,10 +4132,15 @@ int PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger & rLo
 									SETIFZ(ilti.QCert, ti.QCert);
 								}
 							}
-							else if(line_rec.Sign < 0)
+							else if(line_rec.Sign < 0) {
 								price = R5(fabs(line_rec.Price) - line_rec.Discount);
-							else if(line_rec.Sign > 0)
+								if(line_rec.GoodsID && line_rec.GoodsID == GetConfig().JobPerItemGoodsID) { // @v12.6.9
+									cost = price; // Работа, которая учитывается в себестоимости продукции
+								}
+							}
+							else if(line_rec.Sign > 0) {
 								cost  = R5(fabs(line_rec.Price) - line_rec.Discount);
+							}
 							// Для ускорения процедуры, определив цену, сохраняем ее в списке,
 							// для того, чтобы при следующей встрече с этим товаром, просто извлечь цену из списка.
 							if(price == 0.0 && !price_list.Search(ilti.GoodsID, &price, 0)) {
@@ -5275,7 +5323,7 @@ int PrcssrTSessMaintenance::Param::Serialize(int dir, SBuffer & rBuf, SSerialize
 	THROW_SL(Ver.Serialize(dir, rBuf, pSCtx));
 	THROW(pSCtx->Serialize(dir, Period, rBuf));
 	THROW(pSCtx->Serialize(dir, Flags_, rBuf));
-	THROW(pSCtx->Serialize(dir, Action, rBuf)); // @v11.0.4
+	THROW(pSCtx->Serialize(dir, Action, rBuf));
 	CATCHZOK
 	return ok;
 }
@@ -5513,13 +5561,10 @@ int PPALDD_UhttTSession::InitData(PPFilt & rFilt, long rsrv)
 			dtm.Set(r_blk.Pack.Rec.FinDt, r_blk.Pack.Rec.FinTm);
 			temp_buf.Z().Cat(dtm, DATF_ISO8601CENT, 0);
 			STRNSCPY(H.StTime, temp_buf);
-			// @v11.0.4 STRNSCPY(H.Memo, r_blk.Pack.Rec.Memo);
-			// @v11.0.4 {
 			{
 				r_blk.Pack.Ext.GetExtStrData(PRCEXSTR_MEMO, temp_buf);
 				STRNSCPY(H.Memo, temp_buf); 
 			}
-			// } @v11.0.4
 			r_blk.Pack.Ext.GetExtStrData(PRCEXSTR_DETAILDESCR, temp_buf.Z());
 			STRNSCPY(H.Detail, temp_buf);
 			ok = DlRtm::InitData(rFilt, rsrv);
@@ -5677,16 +5722,15 @@ int PPALDD_UhttTSession::Set(long iterId, int commit)
 			//r_blk.Pack.Rec.Status = (int16)H.Status;
 			r_blk.Pack.Rec.Flags = H.Flags;
 			r_blk.Pack.Rec.Incomplete = 10;
-			strtodatetime(H.StTime, &dtm, DATF_ISO8601, 0);
+			strtodatetime(H.StTime, dtm, DATF_ISO8601, 0);
 			r_blk.Pack.Rec.StDt = dtm.d;
 			r_blk.Pack.Rec.StTm = dtm.t;
 
-			strtodatetime(H.FinTime, &dtm, DATF_ISO8601, 0);
+			strtodatetime(H.FinTime, dtm, DATF_ISO8601, 0);
 			r_blk.Pack.Rec.FinDt = dtm.d;
 			r_blk.Pack.Rec.FinTm = dtm.t;
 
-			// @v11.0.4 STRNSCPY(r_blk.Pack.Rec.Memo, H.Memo);
-			r_blk.Pack.Ext.PutExtStrData(PRCEXSTR_MEMO, H.Memo); // @v11.0.4
+			r_blk.Pack.Ext.PutExtStrData(PRCEXSTR_MEMO, H.Memo);
 			r_blk.Pack.Ext.PutExtStrData(PRCEXSTR_DETAILDESCR, H.Detail);
 			THROW(r_blk.TSesObj.SetSessionState(&r_blk.Pack.Rec, H.Status, 0));
 		}

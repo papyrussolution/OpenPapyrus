@@ -3143,7 +3143,7 @@ int PPObjGoods::ShowGoodsAsscInfo(PPID goodsID)
 {
 	int    ok = -1;
 	if(goodsID) {
-		if(CheckExecAndDestroyDialog(new GoodsAsscDialog(goodsID, this), 1, 0))
+		if(CheckExecAndDestroyDialog(new GoodsAsscDialog(goodsID, this), true, false))
 			ok = 1;
 		else
 			ok = 0;

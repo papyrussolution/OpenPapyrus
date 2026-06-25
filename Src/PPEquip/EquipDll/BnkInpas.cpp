@@ -345,13 +345,11 @@ int PPDrvINPASTrmnl::Pay(double amount, SString & rSlip)
 	// Если не 1 значит ошибка. Отправляемся в обработку исключений
 	THROWERR(result_sar == 1, result_dc); //   Надо доработать обработку исключений. 
 	GetReceiptData(p_res, rSlip);
-	// @v10.2.0 {
 	{
 		temp_buf.Z().CatCurDateTime(DATF_DMY|DATF_CENTURY, TIMF_HMS);
 		SLS.LogMessage(SlipLogFileName, temp_buf, 8192);
 		SLS.LogMessage(SlipLogFileName, rSlip, 8192);
 	}
-	// } @v10.2.0 
 	// Если нет ошибок, в логи идет отчет об успешном выполнении операции
 	msg_ok.Cat("operation Pay completed");
 	DRVS.Log(msg_ok, 0xffff);
@@ -429,13 +427,11 @@ int PPDrvINPASTrmnl::Refund(double amount, SString & rSlip)
 	// Если не 1, значит ошибка. Отправляемся в обработку исключений
 	THROWERR(result_sar == 1, result_dc); //   Надо доработать обработку исключений. 
 	GetReceiptData(p_res, rSlip);
-	// @v10.2.0 {
 	{
 		temp_buf.Z().CatCurDateTime(DATF_DMY|DATF_CENTURY, TIMF_HMS);
 		SLS.LogMessage(SlipLogFileName, temp_buf, 8192);
 		SLS.LogMessage(SlipLogFileName, rSlip, 8192);
 	}
-	// } @v10.2.0 
 	// Если нет ошибок, в логи идет отчет об успешном выполнении операции
 	msg_ok.Cat("operation Refund completed");
 	DRVS.Log(msg_ok, 0xffff);

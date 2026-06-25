@@ -798,8 +798,8 @@ static HMENU _CtlIdForCreateWindow(uint ctlId) { return reinterpret_cast<HMENU>(
 					{
 						TStaticText * p_ctl = static_cast<TStaticText *>(pV);
 						pV->Parent = hw_parent;
-						const DWORD  style = WS_VISIBLE|WS_CHILD|WS_CLIPSIBLINGS|SS_LEFT;
-						const DWORD  ex_style = (p_ctl->GetSpcFlags() & TStaticText::spcfStaticEdge) ? WS_EX_STATICEDGE : 0;
+						const  DWORD style = WS_VISIBLE|WS_CHILD|WS_CLIPSIBLINGS|SS_LEFT;
+						const  DWORD ex_style = (p_ctl->GetSpcFlags() & TStaticText::spcfStaticEdge) ? WS_EX_STATICEDGE : 0;
 						hw = ::CreateWindowExW(ex_style, L"STATIC", 0, style, pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, 
 							hw_parent, _CtlIdForCreateWindow(ctl_id), TProgram::GetInst(), 0);
 						if(hw) {
@@ -814,8 +814,9 @@ static HMENU _CtlIdForCreateWindow(uint ctlId) { return reinterpret_cast<HMENU>(
 					{
 						TImageView * p_ctl = static_cast<TImageView *>(pV);
 						pV->Parent = hw_parent;
-						const DWORD  style = WS_VISIBLE|WS_CHILD|WS_CLIPSIBLINGS|SS_LEFT;
-						const DWORD  ex_style = WS_EX_STATICEDGE;
+						const  DWORD style = WS_VISIBLE|WS_CHILD|WS_CLIPSIBLINGS|SS_LEFT|SS_NOTIFY; // @v12.6.9 SS_NOTIFY
+						// @v12.6.9 const  DWORD ex_style = WS_EX_STATICEDGE;
+						const  DWORD ex_style = (p_ctl->GetSpcFlags() & TImageView::spcfStaticEdge) ? WS_EX_STATICEDGE : 0; // @v12.6.9
 						hw = ::CreateWindowExW(ex_style, L"STATIC", 0, style, pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, 
 							hw_parent, _CtlIdForCreateWindow(ctl_id), TProgram::GetInst(), 0);
 						if(hw) {

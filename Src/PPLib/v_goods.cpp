@@ -5730,9 +5730,9 @@ int PPALDD_Transport::InitData(PPFilt & rFilt, long rsrv)
 			STRNSCPY(H.Name, pack.Rec.Name);
 			STRNSCPY(H.Code, pack.Rec.Code);
 			STRNSCPY(H.TrailerCode, pack.Rec.TrailerCode);
-			GetObjectName(PPOBJ_TRANSPMODEL, pack.Rec.TrModelID, temp_buf.Z());
+			GetObjectName(PPOBJ_TRANSPMODEL, pack.Rec.TrModelID, temp_buf);
 			STRNSCPY(H.ModelName, temp_buf);
-			H.OwnerID = pack.Rec.OwnerID;
+			H.OwnerID = pack.Rec.TrOwnerID;
 			H.CountryID = pack.Rec.CountryID;
 			H.CaptainID = pack.Rec.CaptainID;
 			ok = DlRtm::InitData(rFilt, rsrv);
@@ -5741,7 +5741,7 @@ int PPALDD_Transport::InitData(PPFilt & rFilt, long rsrv)
 	return ok;
 }
 
-void PPALDD_Transport::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS) // @v11.3.7
+void PPALDD_Transport::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
 	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
 	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))

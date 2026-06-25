@@ -3309,15 +3309,13 @@ int SynchronizeObjects(PPID dest)
 					PPOBJ_TAG,
 					PPOBJ_UNIT,
 					PPOBJ_ACCOUNT2,
-					PPOBJ_FREIGHTPACKAGETYPE, // @v10.7.5
-					PPOBJ_TAXSYSTEMKIND,      // @v10.7.5
+					PPOBJ_FREIGHTPACKAGETYPE,
+					PPOBJ_TAXSYSTEMKIND,
 					0);
-				// @v10.1.5 {
 				if(dbxcfg.Flags & DBDXF_SYNCUSRANDGRPS) {
 					ref_obj_list.add(PPOBJ_USR);
 					ref_obj_list.add(PPOBJ_USRGRP);
 				}
-				// } @v10.1.5
 				for(PPID dyn_obj_type = 0; PPRef->EnumItems(PPOBJ_DYNAMICOBJS, &dyn_obj_type) > 0;)
 					ref_obj_list.addUnique(dyn_obj_type);
 				for(uint i = 0; i < ref_obj_list.getCount(); i++)

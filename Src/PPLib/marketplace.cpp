@@ -191,7 +191,7 @@ bool PPMarketplaceInterface_Wildberries::FaultStatusResult::FromJson(const SJson
 				(Origin = p_cur->P_Child->Text).Unescape();
 			}
 			else if(p_cur->Text.IsEqiAscii("timestamp")) {
-				strtodatetime(p_cur->P_Child->Text, &Timestamp, DATF_ISO8601CENT, 0);
+				strtodatetime(p_cur->P_Child->Text, Timestamp, DATF_ISO8601CENT, 0);
 			}
 		}
 		if(Status != 0 && StatusText.NotEmpty()) {
@@ -1196,10 +1196,10 @@ bool PPMarketplaceInterface_Wildberries::Promotion::FromJsonObj(const SJson * pJ
 			else if(p_cur->Text.IsEqiAscii("name"))
 				(Name = p_cur->P_Child->Text).Unescape();
 			else if(p_cur->Text.IsEqiAscii("startDateTime")) {
-				strtodatetime(p_cur->P_Child->Text, &DtmRange.Start, DATF_ISO8601CENT, TIMF_HMS);
+				strtodatetime(p_cur->P_Child->Text, DtmRange.Start, DATF_ISO8601CENT, TIMF_HMS);
 			}
 			else if(p_cur->Text.IsEqiAscii("endDateTime")) {
-				strtodatetime(p_cur->P_Child->Text, &DtmRange.Finish, DATF_ISO8601CENT, TIMF_HMS);
+				strtodatetime(p_cur->P_Child->Text, DtmRange.Finish, DATF_ISO8601CENT, TIMF_HMS);
 			}
 			else if(p_cur->Text.IsEqiAscii("type")) {
 				if(p_cur->P_Child->Text.IsEqiUtf8("auto"))
@@ -1409,7 +1409,7 @@ bool PPMarketplaceInterface_Wildberries::CampaignStatistics_Day::FromJsonObj(con
 		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Text.IsEqiAscii("date")) {
 				LDATETIME dtm;
-				strtodatetime(p_cur->P_Child->Text, &dtm, DATF_ISO8601CENT, 0);
+				strtodatetime(p_cur->P_Child->Text, dtm, DATF_ISO8601CENT, 0);
 				Dt = dtm.d;
 			}
 			else if(p_cur->Text.IsEqiAscii("apps")) {
@@ -1521,7 +1521,7 @@ bool PPMarketplaceInterface_Wildberries::Stock::FromJsonObj(const SJson * pJs)
 		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Text.IsEqiAscii("lastChangeDate")) {
 				LDATETIME dtm;
-				if(strtodatetime(p_cur->P_Child->Text, &dtm, DATF_ISO8601CENT, TIMF_HMS)) {
+				if(strtodatetime(p_cur->P_Child->Text, dtm, DATF_ISO8601CENT, TIMF_HMS)) {
 					DtmLastChange = dtm;
 				}
 			}
@@ -1591,17 +1591,17 @@ bool PPMarketplaceInterface_Wildberries::Income::FromJsonObj(const SJson * pJs)
 		Ware.FromJsonObj(pJs);
 		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Text.IsEqiAscii("lastChangeDate")) {
-				if(strtodatetime(p_cur->P_Child->Text, &dtm, DATF_ISO8601CENT, TIMF_HMS)) {
+				if(strtodatetime(p_cur->P_Child->Text, dtm, DATF_ISO8601CENT, TIMF_HMS)) {
 					DtmLastChange = dtm;
 				}
 			}
 			else if(p_cur->Text.IsEqiAscii("date")) {
-				if(strtodatetime(p_cur->P_Child->Text, &dtm, DATF_ISO8601CENT, TIMF_HMS)) {
+				if(strtodatetime(p_cur->P_Child->Text, dtm, DATF_ISO8601CENT, TIMF_HMS)) {
 					Dtm = dtm;
 				}
 			}
 			else if(p_cur->Text.IsEqiAscii("dateClose")) {
-				if(strtodatetime(p_cur->P_Child->Text, &dtm, DATF_ISO8601CENT, TIMF_HMS)) {
+				if(strtodatetime(p_cur->P_Child->Text, dtm, DATF_ISO8601CENT, TIMF_HMS)) {
 					DtmClose = dtm;
 				}
 			}
@@ -1670,17 +1670,17 @@ bool PPMarketplaceInterface_Wildberries::Sale::FromJsonObj(const SJson * pJs)
 		Ware.FromJsonObj(pJs);
 		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Text.IsEqiAscii("lastChangeDate")) {
-				if(strtodatetime(p_cur->P_Child->Text, &dtm, DATF_ISO8601CENT, TIMF_HMS)) {
+				if(strtodatetime(p_cur->P_Child->Text, dtm, DATF_ISO8601CENT, TIMF_HMS)) {
 					DtmLastChange = dtm;
 				}
 			}
 			if(p_cur->Text.IsEqiAscii("date")) {
-				if(strtodatetime(p_cur->P_Child->Text, &dtm, DATF_ISO8601CENT, TIMF_HMS)) {
+				if(strtodatetime(p_cur->P_Child->Text, dtm, DATF_ISO8601CENT, TIMF_HMS)) {
 					Dtm = dtm;
 				}
 			}
 			if(p_cur->Text.IsEqiAscii("cancelDate")) {
-				if(strtodatetime(p_cur->P_Child->Text, &dtm, DATF_ISO8601CENT, TIMF_HMS)) {
+				if(strtodatetime(p_cur->P_Child->Text, dtm, DATF_ISO8601CENT, TIMF_HMS)) {
 					DtmCancel = dtm;
 				}
 			}
@@ -1845,19 +1845,19 @@ bool PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::FromJsonObj(const SJs
 			}
 			else if(p_cur->Text.IsEqiAscii("date_from")) {
 				LDATETIME dtm;
-				if(strtodatetime(p_cur->P_Child->Text, &dtm, DATF_ISO8601CENT, TIMF_HMS)) {
+				if(strtodatetime(p_cur->P_Child->Text, dtm, DATF_ISO8601CENT, TIMF_HMS)) {
 					Period.low = dtm.d;
 				}
 			}
 			else if(p_cur->Text.IsEqiAscii("date_to")) {
 				LDATETIME dtm;
-				if(strtodatetime(p_cur->P_Child->Text, &dtm, DATF_ISO8601CENT, TIMF_HMS)) {
+				if(strtodatetime(p_cur->P_Child->Text, dtm, DATF_ISO8601CENT, TIMF_HMS)) {
 					Period.upp = dtm.d;
 				}
 			}
 			else if(p_cur->Text.IsEqiAscii("create_dt")) {
 				LDATETIME dtm;
-				if(strtodatetime(p_cur->P_Child->Text, &dtm, DATF_ISO8601CENT, TIMF_HMS)) {
+				if(strtodatetime(p_cur->P_Child->Text, dtm, DATF_ISO8601CENT, TIMF_HMS)) {
 					CrDate = dtm.d;
 				}
 			}
@@ -1917,19 +1917,19 @@ bool PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::FromJsonObj(const SJs
 			}
 			else if(p_cur->Text.IsEqiAscii("order_dt")) {
 				LDATETIME dtm;
-				if(strtodatetime(p_cur->P_Child->Text, &dtm, DATF_ISO8601CENT, TIMF_HMS)) {
+				if(strtodatetime(p_cur->P_Child->Text, dtm, DATF_ISO8601CENT, TIMF_HMS)) {
 					OrderDtm = dtm;
 				}
 			}
 			else if(p_cur->Text.IsEqiAscii("sale_dt")) {
 				LDATETIME dtm;
-				if(strtodatetime(p_cur->P_Child->Text, &dtm, DATF_ISO8601CENT, TIMF_HMS)) {
+				if(strtodatetime(p_cur->P_Child->Text, dtm, DATF_ISO8601CENT, TIMF_HMS)) {
 					SaleDtm = dtm;
 				}
 			}
 			else if(p_cur->Text.IsEqiAscii("rr_dt")) {
 				LDATETIME dtm;
-				if(strtodatetime(p_cur->P_Child->Text, &dtm, DATF_ISO8601CENT, TIMF_HMS)) {
+				if(strtodatetime(p_cur->P_Child->Text, dtm, DATF_ISO8601CENT, TIMF_HMS)) {
 					RrDtm = dtm;
 				}
 			}
@@ -4241,7 +4241,7 @@ int PPMarketplaceInterface_Wildberries::RequestPromoCampaignListDetail(TSCollect
 																		}
 																		else if(p_agi_cur->Text.IsEqiAscii("changeTime")) {
 																			if(SJson::IsString(p_agi_cur->P_Child)) {
-																				strtodatetime(p_agi_cur->P_Child->Text, &_cdtm, DATF_ISO8601, 0);
+																				strtodatetime(p_agi_cur->P_Child->Text, _cdtm, DATF_ISO8601, 0);
 																			}
 																		}
 																	}
@@ -4358,7 +4358,7 @@ int PPMarketplaceInterface_Wildberries::RequestPromoCampaignList(TSCollection <C
 																	}
 																	else if(p_agi_cur->Text.IsEqiAscii("changeTime")) {
 																		if(SJson::IsString(p_agi_cur->P_Child)) {
-																			strtodatetime(p_agi_cur->P_Child->Text, &_cdtm, DATF_ISO8601, 0);
+																			strtodatetime(p_agi_cur->P_Child->Text, _cdtm, DATF_ISO8601, 0);
 																		}
 																	}
 																}

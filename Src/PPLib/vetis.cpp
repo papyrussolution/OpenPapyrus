@@ -3925,9 +3925,9 @@ int PPVetisInterface::ParseGenericVersioningEntity(const xmlNode * pParentNode, 
 		else if(SXml::GetContentByName(p_a, "status", temp_buf))
 			rResult.Status = temp_buf.ToLong();
 		else if(SXml::GetContentByName(p_a, "createDate", temp_buf))
-			strtodatetime(temp_buf, &rResult.CreateDate, DATF_ISO8601, TIMF_HMS);
+			strtodatetime(temp_buf, rResult.CreateDate, DATF_ISO8601, TIMF_HMS);
 		else if(SXml::GetContentByName(p_a, "updateDate", temp_buf))
-			strtodatetime(temp_buf, &rResult.UpdateDate, DATF_ISO8601, TIMF_HMS);
+			strtodatetime(temp_buf, rResult.UpdateDate, DATF_ISO8601, TIMF_HMS);
 		else if(SXml::GetContentByName(p_a, "previous", temp_buf))
 			rResult.Previous.FromStr(temp_buf);
 		else if(SXml::GetContentByName(p_a, "next", temp_buf))
@@ -4763,11 +4763,11 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 									else if(SXml::GetContentByName(p_a, "issuerId", temp_buf))
 										rResult.IssuerId.FromStr(temp_buf);
 									else if(SXml::GetContentByName(p_a, "issueDate", temp_buf))
-										strtodatetime(temp_buf, &rResult.IssueDate, DATF_ISO8601, TIMF_HMS);
+										strtodatetime(temp_buf, rResult.IssueDate, DATF_ISO8601, TIMF_HMS);
 									else if(SXml::GetContentByName(p_a, "rcvDate", temp_buf))
-										strtodatetime(temp_buf, &rResult.RcvDate, DATF_ISO8601, TIMF_HMS);
+										strtodatetime(temp_buf, rResult.RcvDate, DATF_ISO8601, TIMF_HMS);
 									else if(SXml::GetContentByName(p_a, "prdcRsltDate", temp_buf))
-										strtodatetime(temp_buf, &rResult.PrdcRsltDate, DATF_ISO8601, TIMF_HMS);
+										strtodatetime(temp_buf, rResult.PrdcRsltDate, DATF_ISO8601, TIMF_HMS);
 									else if(SXml::IsName(p_a, "result")) {
 										for(const xmlNode * p_r = p_a->children; p_r; p_r = p_r->next) {
 											if(SXml::IsName(p_r, "checkShipmentRegionalizationResponse")) { // @v11.0.11

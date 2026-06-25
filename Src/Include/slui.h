@@ -4166,10 +4166,13 @@ private:
 
 class TImageView : public TView {
 public:
-	TImageView(const TRect & rBounds, const char * pFigSymb);
+	enum {
+		spcfStaticEdge = 0x0001 // Элемент обрамлен явно выраженной рамкой
+	};
+	TImageView(const TRect & rBounds, uint spcFlags, const char * pFigSymb);
 	~TImageView();
 	virtual int    TransmitData(int dir, void * pData);
-	const SString & GetFigSymb() const { return FigSymb; } // @v11.0.6
+	const SString & GetFigSymb() const { return FigSymb; }
 	//
 	// Descr: Передает экземпляру this созданную во-вне фигуру pFig.
 	//   Объект this получает pFig в собственность - то есть, вызывающий код не должен пытаться разрушить pFig 
@@ -4177,11 +4180,13 @@ public:
 	//   Если this до вызова SetOuterFigure() содержал собственный ненулевой экземпляр фигуры, то он будет разрушен.
 	//   Вызов SetOuterFigure с нулевым аргументом просто приведет к разрушению внутреннего объекта фигуры.
 	//
-	void   SetOuterFigure(SDrawFigure * pFig); // @v11.1.5
+	void   SetOuterFigure(SDrawFigure * pFig);
+	uint   GetSpcFlags() const { return SpcFlags; } // @v12.6.9
 private:
 	DECL_HANDLE_EVENT;
 	static LRESULT CALLBACK DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	virtual int    handleWindowsMessage(UINT, WPARAM, LPARAM);
+	uint   SpcFlags; // @v12.6.9
 	SDrawFigure * P_Fig;
 	SString FigSymb;      // Символ векторной фигуры для отображения //
 	SColor ReplacedColor; // Замещаемый цвет в векторном изображении
@@ -5722,7 +5727,7 @@ public:
 	virtual const  void * getRow(long) const;
 	virtual int    refresh();
 	virtual int    search(const void * pPattern, CompFunc, int srchMode, int srchCol);
-	virtual int    search2(const void * pSrchData, CompFunc, int srchMode, size_t offs, void * pExtraData);
+	virtual bool   search2(const void * pSrchData, CompFunc, int srchMode, size_t offs, void * pExtraData);
 	BroColumn & FASTCALL at(uint) const;
 	bool   IsSignature(uint signature) const { return Signature == signature; }
 	void   initOffset(int);
@@ -5743,9 +5748,9 @@ public:
 	SString & getFullText(long row, int column, SString & rBuf);
 	SString & getFullText(const void * pRowData, int column, SString & rBuf);
 	SString & getMultiLinesText(long, int, /*char * pBuf*/SString & rBuf, uint = 0, uint * = 0);
-	long   _topItem() const { return topItem; }
-	long   _curItem() const { return curItem; }
-	long   _curFrameItem() const { return (curItem - topItem); }
+	long   GetTopItem() const { return TopItem; }
+	long   GetCurItem() const { return CurItem; }
+	long   GetCurFrameItem() const { return (CurItem - TopItem); }
 	bool   STDCALL IsColInGroup(uint col, uint * pIdx) const;
 	int    GetCapHeight() const;
 	bool   SetCapHeight(int height); // @v12.2.2
@@ -5775,16 +5780,16 @@ protected:
 	const  uint Signature;
 	SBrowserDataProc UserProc;
 	void * ExtraPtr;
-	int    capHight;
+	int    CaptionHight;
+	int    ViewHight;
 	uint   NumGroups;
 	BroGroup * P_Groups;
-	int    viewHight;
 	long   scrollDelta;
 	bool   isBOQ;
 	bool   isEOQ;
 	uint8  Reserve[2]; // @alignment
-	long   topItem;
-	long   curItem;
+	long   TopItem;
+	long   CurItem;
 private:
 	virtual void FASTCALL freeItem(void *);
 	const void * Helper_GetCellData(const void * pRowData, int columnIdx, TYPEID * pTypeID, long * pFmt, uint * pCOptions, void * pOuterBuf, size_t outerBufSize);
@@ -5792,7 +5797,7 @@ private:
 	SArray * P_CtList;         // Список кросс-таб столбцов
 	SBrowserDataProcBlock DpB;
 public:
-	uint   options;
+	uint   Options;
 };
 
 constexpr uint BrowserDefSignature_ARY = 0x3E9226A9;
@@ -6044,7 +6049,7 @@ public:
 	void   bottom();
 	void   setRange(ushort aRange);
 	void   search(const char * pFirstLetter, int srchMode);
-	int    search2(const void * pSrchData, CompFunc, int srchMode, size_t offs, void * pExtraData);
+	bool   search2(const void * pSrchData, CompFunc, int srchMode, size_t offs, void * pExtraData);
 	//
 	// Descr: Возвращает текущую колонку в таблице.
 	// Returns:

@@ -1415,7 +1415,7 @@ bool FASTCALL PPTransport::IsEq(const PPTransport & rS) const
 	CMP_FLD(ID);
 	CMP_FLD(TrType);
 	CMP_FLD(TrModelID);
-	CMP_FLD(OwnerID);
+	CMP_FLD(TrOwnerID);
 	CMP_FLD(CountryID);
 	CMP_FLD(CaptainID);
 	CMP_FLD(Capacity);
@@ -1502,7 +1502,7 @@ int PPObjTransport::Get(PPID id, PPTransportPacket * pPack)
 			pPack->Rec.TrType = goods_rec.GdsClsID;
 			STRNSCPY(pPack->Rec.Name, goods_rec.Name);
 			pPack->Rec.TrModelID = goods_rec.BrandID;
-			pPack->Rec.OwnerID   = goods_rec.ManufID;
+			pPack->Rec.TrOwnerID = goods_rec.ManufID;
 			pPack->Rec.CountryID = goods_rec.DefBCodeStrucID;
 			pPack->Rec.CaptainID = goods_rec.RspnsPersonID;
 			pPack->Rec.Capacity  = static_cast<long>(goods_rec.PhUPerU);
@@ -1511,7 +1511,7 @@ int PPObjTransport::Get(PPID id, PPTransportPacket * pPack)
 			PPObjTransport::GetRegisterCodes(P_Tbl, id, &code, &trailer_code);
 			STRNSCPY(pPack->Rec.Code, code);
 			STRNSCPY(pPack->Rec.TrailerCode, trailer_code);
-			THROW(GetTagList(id, &pPack->TagL)); // @v11.2.12
+			THROW(GetTagList(id, &pPack->TagL));
 		}
 	}
 	CATCHZOK
@@ -1527,7 +1527,7 @@ int PPObjTransport::Get(PPID id, PPTransportPacket * pPack)
 	pRawRec->GdsClsID = pRec->TrType;
 	STRNSCPY(pRawRec->Name, pRec->Name);
 	pRawRec->BrandID = pRec->TrModelID;
-	pRawRec->ManufID = pRec->OwnerID;
+	pRawRec->ManufID = pRec->TrOwnerID;
 	pRawRec->DefBCodeStrucID = pRec->CountryID;
 	pRawRec->RspnsPersonID = pRec->CaptainID;
 	pRawRec->PhUPerU = pRec->Capacity;
@@ -1654,7 +1654,7 @@ public:
 		setCtrlData(CTL_TRANSPORT_TRAILCODE, Data.Rec.TrailerCode);
 		setCtrlReal(CTL_TRANSPORT_CAPACITY, fdiv1000i(Data.Rec.Capacity));
 		SetupPPObjCombo(this, CTLSEL_TRANSPORT_MODEL, PPOBJ_TRANSPMODEL, Data.Rec.TrModelID, OLW_CANINSERT);
-		SetupPPObjCombo(this, CTLSEL_TRANSPORT_OWNER, PPOBJ_PERSON, Data.Rec.OwnerID, OLW_CANINSERT, reinterpret_cast<void *>(owner_kind_id));
+		SetupPPObjCombo(this, CTLSEL_TRANSPORT_OWNER, PPOBJ_PERSON, Data.Rec.TrOwnerID, OLW_CANINSERT, reinterpret_cast<void *>(owner_kind_id));
 		SetupPPObjCombo(this, CTLSEL_TRANSPORT_CAPTAIN, PPOBJ_PERSON, Data.Rec.CaptainID, OLW_CANINSERT, reinterpret_cast<void *>(captain_kind_id));
 		{
 			// @v12.5.6 SetupPPObjCombo(this, CTLSEL_TRANSPORT_CNTRY, PPOBJ_COUNTRY, Data.Rec.CountryID, OLW_CANINSERT);
@@ -1713,7 +1713,7 @@ private:
 		getCtrlData(CTL_TRANSPORT_CODE,  Data.Rec.Code);
 		getCtrlData(CTL_TRANSPORT_TRAILCODE,  Data.Rec.TrailerCode);
 		getCtrlData(CTLSEL_TRANSPORT_MODEL, &Data.Rec.TrModelID);
-		getCtrlData(CTLSEL_TRANSPORT_OWNER, &Data.Rec.OwnerID);
+		getCtrlData(CTLSEL_TRANSPORT_OWNER, &Data.Rec.TrOwnerID);
 		getCtrlData(CTLSEL_TRANSPORT_CNTRY, &Data.Rec.CountryID);
 		getCtrlData(CTLSEL_TRANSPORT_CAPTAIN, &Data.Rec.CaptainID);
 		if(Data.Rec.TrType == PPTRTYP_CAR) {
@@ -1783,7 +1783,7 @@ int PPObjTransport::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replac
 	if(p && p->Data) {
 		PPTransport * p_pack = static_cast<PPTransport *>(p->Data);
 		ProcessObjRefInArray(PPOBJ_TRANSPMODEL, &p_pack->TrModelID, ary, replace);
-		ProcessObjRefInArray(PPOBJ_PERSON,  &p_pack->OwnerID, ary, replace);
+		ProcessObjRefInArray(PPOBJ_PERSON,  &p_pack->TrOwnerID, ary, replace);
 		ProcessObjRefInArray(PPOBJ_WORLD,   &p_pack->CountryID, ary, replace); // @v12.5.6 PPOBJ_COUNTRY-->PPOBJ_WORLD
 		ProcessObjRefInArray(PPOBJ_PERSON,  &p_pack->CaptainID, ary, replace);
 		return 1;
@@ -1799,12 +1799,13 @@ int PPObjTransport::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext
 	THROW_MEM(p->Data = new PPTransport);
 	p_pack = static_cast<PPTransport *>(p->Data);
 	if(stream == 0) {
-		PPTransportPacket temp_pack; // @v11.2.12
+		PPTransportPacket temp_pack;
 		THROW(Get(id, &temp_pack) > 0);
-		*p_pack = temp_pack.Rec; // @v11.2.12
+		*p_pack = temp_pack.Rec;
 	}
-	else
+	else {
 		THROW(ReadBlk(p_pack, sizeof(*p_pack), stream));
+	}
 	CATCHZOK
 	return ok;
 }
@@ -1866,8 +1867,8 @@ int PPObjTransport::GetNameByTemplate(PPTransport * pPack, const char * pTemplat
 					temp_buf = pPack->TrailerCode;
 					break;
 				case PPSYM_OWNER:
-					if(pPack->OwnerID)
-						GetPersonName(pPack->OwnerID, temp_buf);
+					if(pPack->TrOwnerID)
+						GetPersonName(pPack->TrOwnerID, temp_buf);
 					break;
 				case PPSYM_CAPTAIN:
 					if(pPack->CaptainID)

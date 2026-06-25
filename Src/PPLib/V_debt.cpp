@@ -956,7 +956,6 @@ int PPViewDebtTrnovr::ProcessBillPaymPlanEntry(const BillTbl::Rec & rRec, const 
 			rBlk.Paym = rRec.PaymAmount;
 		else
 			P_BObj->P_Tbl->CalcPayment(rRec.ID, rBlk.ByLinks, rBlk.P_PaymPeriod, rRec.CurID, &rBlk.Paym);
-		// @v10.3.6 {
 		double effective_amount = rRec.Amount;
 		if(effective_amount < 0.0) {
 			if(inverseSign) { // @v11.7.11
@@ -969,7 +968,7 @@ int PPViewDebtTrnovr::ProcessBillPaymPlanEntry(const BillTbl::Rec & rRec, const 
 				rBlk.Debt = (effective_amount - rBlk.Paym);
 			}
 		}
-		else { // } @v10.3.6
+		else {
 			rBlk.Debt = (effective_amount - rBlk.Paym);
 		}
 		if(!(Filt.Flags & DebtTrnovrFilt::fDebtOnly) || rBlk.Debt > 0.0) {

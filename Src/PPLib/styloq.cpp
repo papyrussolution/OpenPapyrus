@@ -10302,7 +10302,7 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 	SBinaryChunk reply_face;
 	SBinaryChunk reply_doc;
 	SBinaryChunk reply_doc_declaration;
-	SBinaryChunk reply_blob; // @v11.3.8
+	SBinaryChunk reply_blob;
 	SBinaryChunk temp_bch;
 	SString cmd_buf;
 	SString command;
@@ -10351,7 +10351,7 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 					}
 					else if(p_obj->Text.IsEqiAscii("ifchangedsince")) { // @v11.6.2
 						LDATETIME dtm;
-						if(strtodatetime(p_obj->P_Child->Text, &dtm, DATF_ISO8601, TIMF_HMS) && checkdate(dtm.d))
+						if(strtodatetime(p_obj->P_Child->Text, dtm, DATF_ISO8601, TIMF_HMS) && checkdate(dtm.d))
 							_ifchangedsince = dtm;
 					}
 					else {

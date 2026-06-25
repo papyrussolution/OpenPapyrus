@@ -255,7 +255,7 @@ int PPViewRegisterType::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 		FetchData(id);
 		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
 		if(p_def) {
-			const long c = p_def->_curItem();
+			const long c = p_def->GetCurItem();
 			p_def->setArray(new SArray(Data), 0, 1);
 			pBrw->go(c);
 		}
