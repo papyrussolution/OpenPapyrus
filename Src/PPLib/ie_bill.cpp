@@ -41,7 +41,6 @@
 Обязательность этих требований наступает в разные сроки для пива в кегах и пива в потребительских упаковках. Поэтому в модуле не блокируется отправка документов, если эти поля не заполнены.
 */ 
 /*
-
 ДатаГен
 GLNГрузОтпр
 GLNГрузПолуч
@@ -58,7 +57,6 @@ GLNПокуп
 СкладНаименование
 Документ.СсылкаНаВложение
 
- 
 <ИнфПолФХЖ1>
 <ТекстИнф Значен="13.01.2022 14:24:45" Идентиф="ДатаГен"/>
 <ТекстИнф Значен="5454555555465" Идентиф="GLNГрузОтпр"/>
@@ -9822,17 +9820,18 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
 				}
 				{
 					SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_DRIVERINFO));
+					//<СвВодит НомВУ="1234567890" СерВУ="1234" ДатаВыдВУ="01.01.2015">
 					if(psn_obj.GetPacket(epi_blk.CaptainID, &psn_pack, 0) > 0) {
 						uint   reg_pos = 0;
 						RegisterTbl::Rec reg_rec;
 						if(psn_pack.Regs.GetRegister(PPREGT_DRIVERLICENSE, R_Bp.Rec.Dt, &reg_pos, &reg_rec) > 0) {
-							if(!isempty(reg_rec.Serial)) {
-							}
-							if(!isempty(reg_rec.Num)) {
-							}
+							n2.PutAttribSkipEmpty(G.GetToken_Ansi(PPHSC_RU_DRVLIC_NUM), reg_rec.Num);
+							n2.PutAttribSkipEmpty(G.GetToken_Ansi(PPHSC_RU_DRVLIC_SERIAL), reg_rec.Serial);
 							if(checkdate(reg_rec.Dt)) {
+								n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_DRVLIC_DATE), temp_buf.Z().Cat(reg_rec.Dt, DATF_GERMANCENT));
 							}
 						}
+						G.WriteFIO(psn_pack.Rec.Name, 0, false/*asTags*/);
 					}
 				}
 				{

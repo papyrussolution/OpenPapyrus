@@ -4177,7 +4177,8 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 							if(oneof4(R_Pack.Rec.OpID, PPOPK_EDI_STOCK, PPOPK_EDI_ACTCHARGEON, PPOPK_EDI_ACTCHARGEONSHOP, PPOPK_EDI_SHOPCHARGEON)) {
 								Reference * p_ref(PPRef);
 								uint   i;
-								SString ref_b, egais_code;
+								SString ref_b;
+								SString egais_code;
 								StringSet ss_egais_codes;
                                 BarcodeArray bc_list;
                                 PPIDArray temp_list;

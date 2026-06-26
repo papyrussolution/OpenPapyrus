@@ -4889,6 +4889,7 @@ int PPChZnPrcssr::CodeStatusCollection::AddCodeEntry(const char * pCode, uint or
 			if(p_cle) {
 				p_cle->OrgMark = reconstructed_code;
 				p_cle->ChZnSNTokID = gts.GetSpecialNaturalToken(); // @v12.6.7
+				p_cle->ChZnProdType = chznProdType; // @fix @v12.6.9
 				SString chzn_mark_serial;
 				if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf) && gts.GetToken(GtinStruc::fldSerial, &chzn_mark_serial)) {
 					p_cle->OrgMark_Offl.Cat("01").Cat(temp_buf).Cat("21").Cat(chzn_mark_serial); 

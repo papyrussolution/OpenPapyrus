@@ -18,7 +18,7 @@
 #endif
 #include <slib.h> // @sobolev
 #include <snet.h>
-#define HAVE_LZMA_H   1 // @v10.9.6
+#define HAVE_LZMA_H   1
 #define HAVE_SIGNAL_H 1 // @v11.2.12
 //
 // Descr: Macro to cast a string to an xmlChar * when one know its safe.

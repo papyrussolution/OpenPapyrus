@@ -22,8 +22,8 @@ int TStaticText::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return 1;
 	}
 	else if(uMsg == WM_MOVE) {
-		int x_pos = (int)(short)LOWORD(lParam);   // horizontal position 
-		int y_pos = (int)(short)HIWORD(lParam);   // vertical position 
+		int x_pos = static_cast<int>(LOWORD(lParam)); // horizontal position 
+		int y_pos = static_cast<int>(HIWORD(lParam)); // vertical position 
 		return 0;
 	}
 	else

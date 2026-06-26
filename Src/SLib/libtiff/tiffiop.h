@@ -41,7 +41,7 @@
 	#define OJPEG_SUPPORT 1 // @sobolev @v11.3.8
 	#define LIBJPEG_12_PATH  /* 12bit libjpeg primary include file with path */
 	/* #undef LZMA_SUPPORT */ // Support LZMA2 compression 
-	#define LZMA_SUPPORT // @v10.9.6
+	#define LZMA_SUPPORT
 	#define PACKAGE "LibTIFF Software" /* Name of package */
 	#define PACKAGE_BUGREPORT "tiff@lists.maptools.org" /* Define to the address where bug reports for this package should be sent. */
 	#define PACKAGE_NAME "LibTIFF Software" /* Define to the full name of this package. */

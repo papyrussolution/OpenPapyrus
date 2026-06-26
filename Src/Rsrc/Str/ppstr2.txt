@@ -19019,6 +19019,9 @@ PPHSC_RU_DLVRADDR              "АдресДостГр" // @v12.6.9
 PPHSC_RU_CONSIGNEEINFO3        "СвГП"       // @v12.6.9
 PPHSC_RU_TRANSPORTERINFO       "СвПер"      // @v12.6.9
 PPHSC_RU_DRIVERINFO            "СвВодит"    // @v12.6.9
+PPHSC_RU_DRVLIC_NUM            "НомВУ"      // @v12.6.9 
+PPHSC_RU_DRVLIC_SERIAL         "СерВУ"      // @v12.6.9  
+PPHSC_RU_DRVLIC_DATE           "ДатаВыдВУ"  // @v12.6.9
 PPHSC_RU_TRANSPORTINFO         "СвТС"       // @v12.6.9
 PPHSC_RU_LOADINGINFO           "СвПогруз"   // @v12.6.9
 PPHSC_RU_PAYLOADINFO           "СвГруз"     // @v12.6.9 

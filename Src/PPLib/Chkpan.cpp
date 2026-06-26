@@ -2207,7 +2207,8 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, bool distribut
 						const  double p    = R2(sdb.IsRounding ? r_item.NetPrice() : r_item.Price); // @R2
 						double d01 = fdivnz(p * (discount - part_dis), (sdb.Amount - part_amount));
 						double d02 = 0.0;
-						if(sdb.PosList_PriceAdjustment.addUnique(row_id)) {
+						// @v12.6.9 @fix if(sdb.PosList_PriceAdjustment.addUnique(row_id)) {
+						if(sdb.PosList_PriceAdjustment.lsearch(row_id)) { // @v12.6.9 @fix 
 							double adj_price = 0.0;
 							const  int afupr = GObj.AdjustFractionalUnitPrice(r_item.GoodsID, qtty, p - d01, 0, &adj_price);
 							if(afupr > 0) {

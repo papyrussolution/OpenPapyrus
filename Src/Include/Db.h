@@ -3588,7 +3588,7 @@ extern DbSession DBS;
 //
 // DBQuery
 //
-#define MAX_DBQ_PARAMS 8 // @v10.9.12 4-->8
+#define MAX_DBQ_PARAMS 8 //
 
 #define AGGR_BEGIN     1 // Перед первой записью
 #define AGGR_NEXT      2 // Для каждой записи
