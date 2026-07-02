@@ -1,18 +1,25 @@
 // SCOMPORT.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2006, 2010, 2011, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2022, 2025
+// Copyright (c) A.Sobolev 2001, 2002, 2006, 2010, 2011, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2022, 2025, 2026
 //
 #include <slib-internal.h>
 #pragma hdrstop
 //
 //
 //
+/* @construction static SIntToSymbTabEntry CPortSymbList[] = {
+	{ comdvcsCon, "CON" },
+	{ comdvcsPrn, "PRN" },
+	{ comdvcsCom, "COM" },
+	{ comdvcsLpt, "LPT" },
+};*/
+
 int FASTCALL IsComDvcSymb(const char * pSymb, int * pCount)
 {
 	int    count = 0;
 	int    comdvcs = 0;
 	char   temp_buf[32];
 	if(pSymb) {
-		memzero(temp_buf, sizeof(temp_buf));
+		temp_buf[0] = 0;
 		if(sstreqi_ascii(pSymb, "PRN"))
 			comdvcs = comdvcsPrn;
 		else if(sstreqi_ascii(pSymb, "CON"))
@@ -217,8 +224,8 @@ int FASTCALL SCommPort::GetChr(int * pChr)
 	char   buf[32];
 	DWORD  sz = 1;
 	if(H_Port != INVALID_HANDLE_VALUE) {
-		const int cycle_count = (ReadCycleCount > 0) ? ReadCycleCount : 1;
-		const int cycle_delay = (ReadCycleDelay > 0) ? ReadCycleDelay : 0;
+		const  int cycle_count = (ReadCycleCount > 0) ? ReadCycleCount : 1;
+		const  int cycle_delay = (ReadCycleDelay > 0) ? ReadCycleDelay : 0;
 		int    r = 0;
 		int    collision = 0;
 		for(int i = 0; !ok && i < cycle_count; i++) {
@@ -255,41 +262,6 @@ int SCommPort::GetChr()
 	int    chr = 0;
 	GetChr(&chr);
 	return chr;
-#if 0 //  {
-	int    ok = 0;
-	char   buf[32];
-	DWORD  sz = 1;
-	if(H_Port != INVALID_HANDLE_VALUE) {
-		int r = 0;
-		int cycle_count = (ReadCycleCount > 0) ? ReadCycleCount : 1;
-		int cycle_delay = (ReadCycleDelay > 0) ? ReadCycleDelay : 0;
-		int collision = 0;
-		for(int i = 0; i < cycle_count; i++) {
-			r = ReadFile(H_Port, buf, 1, &sz, 0);
-			if(r && sz == 1) {
-				// @debug {
-				if(collision) {
-					NumGetColl++;
-					if(collision > MaxGetCollIters)
-						MaxGetCollIters = collision;
-				}
-				// } @debug
-				return buf[0];
-			}
-			else if(cycle_delay) {
-				SDelay(cycle_delay);
-				collision++;
-			}
-		}
-		if(!r)
-			SLS.SetOsError(0, 0);
-		else
-			SLS.SetError(SLERR_COMMRCV);
-		return 0;
-	}
-	else
-		return (SLibError = SLERR_COMMRCV, 0);
-#endif // } 0
 }
 
 #if 0 // {

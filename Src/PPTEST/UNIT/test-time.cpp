@@ -49,6 +49,7 @@ SLTEST_R(LDATE)
 		char   In[128];
 		char   Out[128];
 	} pair_list_dtm[] = {
+		{"19.11.2025T00:44:01.130", "19.11.2025T00:44:01.130"},
 		{"Sun, 06 Nov 1994 08:49:37 GMT",   "6/11/1994 8:49:37"},
 		{"Sunday, 06-Nov-94 08:49:37 GMT",  "6/11/1994 8:49:37"},
 		{"Sun Nov  6 08:49:37 1994",        "6/11/1994 8:49:37"},
@@ -59,23 +60,25 @@ SLTEST_R(LDATE)
 		{"Sun, 06 Nov 1994 08:49:37 CET",   "6/11/1994 8:49:37"},
 		{"Sun, 12 Sep 2004 15:05:58 -0700", "12/09/2004 15:05:58"},
 		{"Tue, 30 Dec 2008 21:32:11 +0200", "30/12/2008 21:32:11"},
-		{"Wed, 11 Dec 2008 01:17:02 +0200", "31/12/2008 01:17:02"}
+		{"Wed, 11 Dec 2008 01:17:02 +0200", "31/12/2008 01:17:02"},
+		//{"19.11.2025T00:44:01.130", "19.11.2025T00:44:01.100"}, // false
 	};
 	uint i;
-	_datefmt(20, 9, getcurdate_().year(), DATF_DMY | DATF_CENTURY, pair_list[2].Out);
+	_datefmt(20, 9, getcurdate_().year(), DATF_DMY|DATF_CENTURY, pair_list[2].Out);
 	_datefmt(12, getcurdate_().month(), getcurdate_().year(), DATF_DMY | DATF_CENTURY, pair_list[4].Out);
-	_datefmt(11, 10, getcurdate_().year(), DATF_DMY | DATF_CENTURY, pair_list[9].Out);
+	_datefmt(11, 10, getcurdate_().year(), DATF_DMY|DATF_CENTURY, pair_list[9].Out);
 	char   cvt_buf[128];
 	for(i = 0; i < SIZEOFARRAY(pair_list_dtm); i++) {
 		const PairDateTime & r_item = pair_list_dtm[i];
-		LDATETIME test_val, cvt_val;
-		strtodatetime(r_item.In, test_val, DATF_DMY, TIMF_HMS);
+		LDATETIME test_val;
+		LDATETIME cvt_val;
+		strtodatetime(r_item.In, test_val, DATF_DMY, TIMF_HMS|TIMF_MSEC);
 		//
 		// Проверяем конвертацию из даты в строку
 		//
-		datetimefmt(test_val, DATF_DMY, TIMF_HMS, cvt_buf, sizeof(cvt_buf));
-		strtodatetime(cvt_buf, cvt_val, DATF_DMY, TIMF_HMS);
-		SLCHECK_EQ(test_val, cvt_val);
+		datetimefmt(test_val, DATF_DMY, TIMF_HMS|TIMF_MSEC, cvt_buf, sizeof(cvt_buf));
+		strtodatetime(cvt_buf, cvt_val, DATF_DMY, TIMF_HMS|TIMF_MSEC);
+		SLCHECK_NZ(test_val == cvt_val);
 		//
 		{
 			SUniTime_Internal uti;

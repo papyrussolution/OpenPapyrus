@@ -23,12 +23,13 @@
 	return rBuf.NotEmptyS();
 }
 
-PPSyncCashSession::PPSyncCashSession(PPID n, const char * /*pName*/, const char * /*pPort*/) : State(0), NodeID(n), Handle(-1), PortType(0), P_SlipFmt(0)
+PPSyncCashSession::PPSyncCashSession(PPID nodeID/*, const char * pName, const char * pPort*/) : State(0), NodeID(nodeID), Handle(-1), PortType(0), P_SlipFmt(0)
 {
-	Name[0] = 0;
-	Port[0] = 0;
-	if(CnObj.GetSync(NodeID, &SCn) > 0)
+	//Name[0] = 0;
+	if(CnObj.GetSync(NodeID, &SCn) > 0) {
+		SCn.GetRegistrarPort(IfcPort);
 		P_SlipFmt = new PPSlipFormatter(SCn.SlipFmtPath);
+	}
 	else
 		State |= stError;
 }
@@ -42,15 +43,13 @@ PPSyncCashSession::~PPSyncCashSession()
 
 int PPSyncCashSession::IsError() const { return BIN(State & stError); }
 
-int PPSyncCashSession::Init(const char * pName, const char * pPort)
+int PPSyncCashSession::Setup_()
 {
 	PortType = 0;
 	Handle = -1;
-	STRNSCPY(Name, pName);
-	if(pPort) {
-		STRNSCPY(Port, pPort);
+	if(IfcPort.NotEmpty()) {
 		int    c = 0;
-		const  int comdvcs = IsComDvcSymb(Port, &c);
+		const  int comdvcs = IsComDvcSymb(IfcPort, &c);
 		if(comdvcs == comdvcsCom && (c >= 1 && c <= 32)) {
 			PortType = 2;
 			Handle = c;
@@ -63,11 +62,20 @@ int PPSyncCashSession::Init(const char * pName, const char * pPort)
 			PortType = 1;
 			Handle = 1;
 		}
-		else if(sstreqi_ascii(Port, "server")) { // @v12.0.3
+		else if(sstreqi_ascii(IfcPort, "server")) { // @v12.0.3
 			PortType = 3;
 		}
+		else {
+			// @v12.6.9 {
+			InetAddr iadr;
+			if(iadr.FromStr(IfcPort) > 0) {
+				IpAdr = iadr;
+				PortType = 4;
+			}
+			// } @v12.6.9 
+		}
 		if(PortType == 0)
-			Handle = open(pPort, O_CREAT|/*O_TRUNC*/O_APPEND|O_TEXT|O_WRONLY, S_IWRITE);
+			Handle = open(IfcPort, O_CREAT|/*O_TRUNC*/O_APPEND|O_TEXT|O_WRONLY, S_IWRITE);
 		else {
 			return 1;
 		}

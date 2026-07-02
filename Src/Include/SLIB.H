@@ -638,7 +638,7 @@ typedef int32               TYPEID;
 #define ENDCATCH               __sendcatch:;
 #define CATCHZOK               \
 	goto __sendcatch;__scatch:\
-	ok = 0;\
+	ok = false;/* @v12.6.9 0-->false */ \
 	__sendcatch:;
 //
 // SLIB Error Codes
@@ -6144,6 +6144,7 @@ char * STDCALL Sl_Curl_InetNtop(int af, const void * pSrc, char * pBuf, size_t b
 bool  STDCALL strtotime(const char * pBuf, long fmt, LTIME * pTime);
 bool  STDCALL strtotime(const char * pBuf, long fmt, SUniTime_Internal & rResult); // @v12.6.9
 int   STDCALL strtodatetime(const char * pBuf, LDATETIME & rDtm, long datFmt, long timFmt);
+int   STDCALL strtodatetime(const char * pBuf, SUniTime_Internal & rUt, long datFmt, long timFmt); // @v12.6.9
 //
 // @v12.1.6
 // Descr: Универсальный (хе-хе) определитель ошибки. Введен с целью унифицировать подходы к информированию об ошибках 

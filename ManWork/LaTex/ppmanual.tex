@@ -50680,7 +50680,6 @@ dialog DLG_PERSON [vertical title: "@person" size: (790, 540)
 
 \ppypict{dir-struct}{}
 
-
 \begin{description}
 	\item[PPY]
 	Корневой каталог системы.
@@ -50748,11 +50747,22 @@ dialog DLG_PERSON [vertical title: "@person" size: (790, 540)
 	\item[PPY/PACK]
 	Каталог, содержащий конфигурационные файлы, необходимые для функционирования и
 	поддержки системы. На этот каталог ссылается параметр [path] pack=… файла pp.ini.
+	
+	\item[PPY/WORKSPACE]
+	В этом каталоге находятся различные вспомогательные данные обеспечивающие работу системы
+	для всех баз данных. Наиболее важные подкаталоги здесь:
+	\begin{description}
+		\item[desktop]
+		\item[menu]
+		\item[srvjobpool]
+		\item[styloqcommands]
+		\item[namedfilt]
+		\item[nginx]
+	\end{description}
 
 \end{description}
 
 \section{Приложение B. Список поддерживаемого оборудования}
-
 
 \subsection{Кассовые модули}
 
@@ -50799,18 +50809,6 @@ dialog DLG_PERSON [vertical title: "@person" size: (790, 540)
 	\item Zebra
 	\item Zebra (Eltron)
 \end{itemize}
-
-\subsection{Ручные терминалы сбора данных}
-
-\begin{itemize}
-	\item Denso BHT-5000
-	\item Denso BHT-7000
-	\item Denso BHT-400 (вся серия 400 на базе WinCE)
-	\item Cipher CPT720
-	\item Symbol CPT1550
-	\item PSC Falkon (WinCE)
-\end{itemize}
-
 
 \section{Приложение C. Настройка системы для работы с различными типами оборудования}
 
@@ -51049,11 +51047,7 @@ CARDNUMBER=CARDNO;C;22;0
 предоставляет интерфейса для очистки внутренней базы данных товаров. Из-за этого могут
 возникать коллизии, связанные с изменениями штрихкодов товаров.
 
-\subsection{Кассовый модуль Кристалл УКМ}
-
 \subsection{Кассовый модуль Атол}
-
-\subsection{Кассовый модуль Петрович}
 
 \section{Приложение D. Специальные форматы штрихкодов}
 
@@ -51097,7 +51091,6 @@ X (заглавная латинская буква X). Неявное разделение полей на основании их длины 
 
 \end{ppytable2}
 
-
 Код документа
 Маркировка документа используется для идентификации его посредством терминала сбора данных
 или в панели процессора.
@@ -51123,7 +51116,180 @@ X (заглавная латинская буква X). Неявное разделение полей на основании их длины 
 
 \end{ppytable2}
 
-\section{Приложение E. Сообщения об ошибках}
+\section{Приложение E. Файл описания некоторых параметров пользовательского интерфейса}
+В каталоге DD/UID/uid-papyrus.json содержится файл определения ряда параметров пользовательского интерфейса. 
+
+\subsection{Файл определений стилей \texttt{uid-papyrus.json}}
+
+Файл \texttt{uid-papyrus.json} содержит декларативное описание визуальных параметров интерфейса.
+Использование внешнего JSON-файла позволяет менять оформление, размеры элементов и цветовые схемы
+без перекомпиляции бинарных модулей.
+
+% Далее следует болванка, которую мне сделал LLM
+
+\subsubsection{Структура файла}
+Файл состоит из трёх корневых разделов:
+
+\begin{description}
+	\item[\texttt{value\_list}] Глобальные метрические параметры интерфейса (размеры, отступы, настройки рендеринга).
+	\item[\texttt{font\_list}] Массив определений шрифтов, привязанных к внутренним символическим идентификаторам.
+	\item[\texttt{colorset\_list}] Массив цветовых схем. Каждая схема имеет уникальный символ (\texttt{symb}) и набор именованных токенов цветов.
+\end{description}
+
+\subsubsection{Глобальные параметры (\texttt{value\_list})}
+
+\begin{description}
+	\item[\texttt{button\_std\_height}] Стандартная высота кнопок (пиксели). Используется при отсутствии явного размера в лейауте.
+	\item[\texttt{button\_std\_width}] Стандартная ширина кнопок (пиксели).
+	\item[\texttt{standalone\_list\_width}] Ширина по умолчанию для автономных списков выбора.
+	\item[\texttt{standalone\_list\_height}] Высота по умолчанию для автономных списков.
+	\item[\texttt{desktop\_icon\_size}] Размер иконки рабочего стола (пиксели).
+	\item[\texttt{desktop\_icon\_gap}] Зазор между иконками на рабочем столе.
+	\item[\texttt{font\_smoothing\_type}] Тип сглаживания шрифтов (например, \texttt{cleartype}, \texttt{none}).
+	\item[\texttt{font\_smoothing\_contrast}] Контрастность сглаживания (целое число).
+\end{description}
+
+\subsubsection{Определения шрифтов (\texttt{font\_list})}
+
+Каждый элемент массива описывает шрифт, доступный для использования в диалогах и таблицах.
+
+\begin{description}
+	\item[\texttt{symb}] Внутренний идентификатор шрифта. Используется в коде и лейаутах DL600.
+	\item[\texttt{face}] Семейство шрифта (должно быть установлено в ОС).
+	\item[\texttt{size}] Кегль в пунктах.
+\end{description}
+
+\textbf{Стандартные символы шрифтов:}
+
+\begin{description}
+	\item[\texttt{DialogFont}] Основной шрифт диалогов и таблиц (по умолчанию \texttt{MS Shell Dlg 2, 8}).
+	\item[\texttt{ControlFont}] Шрифт элементов управления (кнопки, чекбоксы, списки).
+	\item[\texttt{AccentInputFont}] Увеличенный шрифт для акцентных полей ввода (например, быстрый ввод в кассе).
+	\item[\texttt{EditorFont}] Моноширинный шрифт для редакторов кода/формулов/логов.
+\end{description}
+
+\subsubsection{Цветовые схемы (\texttt{colorset\_list})}
+
+Каждая схема идентифицируется полем \texttt{symb}. Назначение ключей внутри схемы определяется префиксами:
+
+\textbf{Схемы таблиц (\texttt{gridscheme\_XX}):}
+
+\begin{description}
+	\item[\texttt{grid\_title}] Цвет фона заголовка таблицы.
+	\item[\texttt{grid\_titledelim}] Цвет разделителя заголовка.
+	\item[\texttt{grid\_bg}] Цвет фона ячеек.
+	\item[\texttt{grid\_fg}] Цвет текста ячеек.
+	\item[\texttt{grid\_curcell\_bg}] Цвет фона выделенной ячейки.
+	\item[\texttt{grid\_curcell\_fg}] Цвет текста выделенной ячейки.
+	\item[\texttt{grid\_curline\_bg}] Цвет фона выделенной строки.
+	\item[\texttt{grid\_curline\_fg}] Цвет текста выделенной строки.
+	\item[\texttt{grid\_gridhorz}] Цвет горизонтальных линий сетки.
+	\item[\texttt{grid\_gridvert}] Цвет вертикальных линий сетки.
+	\item[\texttt{grid\_focusouter}] Цвет рамки фокуса.
+\end{description}
+
+\textbf{Схемы временной диаграммы (\texttt{tmchunkgrid\_XX}):}
+
+\begin{description}
+	\item[\texttt{tmchunkgrid\_white\_fg}] Белый цвет для переднего плана.
+	\item[\texttt{tmchunkgrid\_black\_fg}] Чёрный цвет для переднего плана.
+	\item[\texttt{tmchunkgrid\_main\_quant\_separator}] Цвет разделителя основных квантов.
+	\item[\texttt{tmchunkgrid\_quant\_separator}] Цвет разделителя квантов.
+	\item[\texttt{tmchunkgrid\_day\_separator}] Цвет разделителя дней.
+	\item[\texttt{tmchunkgrid\_main\_separator}] Цвет основного разделителя.
+	\item[\texttt{tmchunkgrid\_def\_chunk\_contour}] Цвет контура чанка по умолчанию.
+	\item[\texttt{tmchunkgrid\_selected\_chunk\_contour}] Цвет контура выделенного чанка.
+	\item[\texttt{tmchunkgrid\_chunk\_contour}] Цвет контура чанка.
+	\item[\texttt{tmchunkgrid\_resized\_chunk\_contour}] Цвет контура изменённого чанка.
+	\item[\texttt{tmchunkgrid\_current\_line}] Цвет линии текущего времени.
+	\item[\texttt{tmchunkgrid\_header\_bg}] Цвет фона заголовка.
+	\item[\texttt{tmchunkgrid\_main\_bg}] Цвет фона основной области.
+	\item[\texttt{tmchunkgrid\_def\_chunk\_bg}] Цвет фона чанка по умолчанию.
+	\item[\texttt{tmchunkgrid\_moved\_chunk\_bg}] Цвет фона перемещённого чанка.
+	\item[\texttt{tmchunkgrid\_rescale\_quant\_bg}] Цвет фона кванта изменения масштаба.
+	\item[\texttt{tmchunkgrid\_interleave\_bg}] Цвет фона чередующихся строк.
+	\item[\texttt{tmchunkgrid\_holiday\_bg}] Цвет фона выходных дней.
+	\item[\texttt{tmchunkgrid\_holiday\_interleave\_bg}] Цвет фона чередующихся выходных.
+\end{description}
+
+\textbf{Базовая тема приложения (\texttt{papyrus\_style}):}
+
+\begin{description}
+	\item[\texttt{main\_window\_bg}] Цвет фона главного окна.
+	\item[\texttt{window\_def\_bg}] Цвет фона окна по умолчанию.
+	\item[\texttt{dialog\_bg}] Цвет фона диалогов.
+	\item[\texttt{button\_bg}] Цвет фона кнопки.
+	\item[\texttt{button\_sel\_bg}] Цвет фона выбранной кнопки.
+	\item[\texttt{button\_border}] Цвет рамки кнопки.
+	\item[\texttt{button\_def\_border}] Цвет рамки кнопки по умолчанию.
+	\item[\texttt{button\_focus\_border}] Цвет рамки кнопки в фокусе.
+	\item[\texttt{button\_sel\_border}] Цвет рамки выбранной кнопки.
+	\item[\texttt{button\_disabled\_border}] Цвет рамки отключённой кнопки.
+	\item[\texttt{button\_fg}] Цвет текста кнопки.
+	\item[\texttt{button\_disabled\_fg}] Цвет текста отключённой кнопки.
+	\item[\texttt{icon\_reg}] Цвет обычной иконки.
+	\item[\texttt{icon\_alert}] Цвет иконки предупреждения.
+	\item[\texttt{icon\_accent}] Цвет акцентной иконки.
+	\item[\texttt{icon\_passive}] Цвет пассивной иконки.
+	\item[\texttt{invalidinput\_bg}] Цвет фона недопустимого ввода (первый уровень).
+	\item[\texttt{invalidinput2\_bg}] Цвет фона недопустимого ввода (второй уровень).
+	\item[\texttt{invalidinput3\_bg}] Цвет фона недопустимого ввода (третий уровень).
+	\item[\texttt{list\_bg}] Цвет фона списка.
+	\item[\texttt{list\_border}] Цвет рамки списка.
+	\item[\texttt{list\_focus\_bg}] Цвет фона элемента списка в фокусе.
+	\item[\texttt{list\_focus\_border}] Цвет рамки элемента списка в фокусе.
+	\item[\texttt{list\_sel\_bg}] Цвет фона выбранного элемента списка.
+	\item[\texttt{list\_sel\_border}] Цвет рамки выбранного элемента списка.
+	\item[\texttt{list\_fg}] Цвет текста списка.
+	\item[\texttt{list\_focus\_fg}] Цвет текста элемента в фокусе.
+	\item[\texttt{list\_sel\_fg}] Цвет текста выбранного элемента.
+	\item[\texttt{ccheck\_junk\_bg}] Цвет фона мусорной строки кассового чека.
+	\item[\texttt{ccheck\_junk\_fg}] Цвет текста мусорной строки.
+	\item[\texttt{ccheck\_imported\_bg}] Цвет фона импортированной строки.
+	\item[\texttt{ccheck\_imported\_fg}] Цвет текста импортированной строки.
+	\item[\texttt{ccheck\_suspended\_bg}] Цвет фона приостановленной строки.
+	\item[\texttt{ccheck\_suspended\_fg}] Цвет текста приостановленной строки.
+	\item[\texttt{ccheckitem\_gift\_bg}] Цвет фона строки-подарка.
+	\item[\texttt{ccheckitem\_gift\_fg}] Цвет текста строки-подарка.
+	\item[\texttt{ccheckitem\_grouped\_bg}] Цвет фона сгруппированной строки.
+	\item[\texttt{ccheckitem\_grouped\_fg}] Цвет текста сгруппированной строки.
+	\item[\texttt{ccheckitem\_printed\_bg}] Цвет фона напечатанной строки.
+	\item[\texttt{ccheckitem\_printed\_fg}] Цвет текста напечатанной строки.
+	\item[\texttt{ccheckitem\_partofcomplex\_bg}] Цвет фона строки комплекса.
+	\item[\texttt{ccheckitem\_partofcomplex\_fg}] Цвет текста строки комплекса.
+	\item[\texttt{ccheckitem\_fixedprice\_bg}] Цвет фона строки с фиксированной ценой.
+	\item[\texttt{ccheckitem\_fixedprice\_fg}] Цвет текста строки с фиксированной ценой.
+	\item[\texttt{barcode\_preferred\_bg}] Цвет фона предпочтительного штрихкода.
+	\item[\texttt{barcode\_preferred\_fg}] Цвет текста предпочтительного штрихкода.
+	\item[\texttt{invalid\_value\_input\_bg}] Цвет фона недопустимого значения.
+	\item[\texttt{valid\_value\_input\_bg}] Цвет фона допустимого значения.
+	\item[\texttt{eaddr\_phone\_input\_bg}] Цвет фона поля телефона.
+	\item[\texttt{eaddr\_email\_input\_bg}] Цвет фона поля email.
+	\item[\texttt{autocomplete\_bg}] Цвет фона автодополнения.
+	\item[\texttt{autocomplete\_freetext\_bg}] Цвет фона свободного текста автодополнения.
+	\item[\texttt{autocomplete\_focus\_bg}] Цвет фона элемента автодополнения в фокусе.
+	\item[\texttt{autocomplete\_odd\_bg}] Цвет фона чётных строк автодополнения.
+\end{description}
+
+\subsubsection{Формат значений цветов}
+
+В JSON поддерживаются три формата задания цвета:
+
+\begin{description}
+	\item[HEX-код] \texttt{"\#RRGGBB"} (например, \texttt{"\#20639B"}).
+	\item[Именованный цвет] \texttt{"\#white"}, \texttt{"\#black"}, \texttt{"grey"}, \texttt{"coral"}.
+	\item[Ссылка на токен] \texttt{"\$icon\_reg"} -- подставляет значение другого ключа из текущей или базовой схемы. Позволяет избежать дублирования.
+\end{description}
+
+\subsubsection{Применение и переопределение}
+
+При запуске сеанса системы файл из указанного каталога сразу загружается и в течении работы сеанса изменения не принимаются.
+Если вы хотите переопределить какие-либо параметры, заданные в этом файле, то не надо менять его - при следующем обновлении версии
+системы он будет вновь переписан и все ваши изменения пропадут. Создайте в каталоге DD/UID подкаталог LOCAL и скопируюйте 
+туда ориганальный файл. И вот там меняйте так, как считаете нужным. Программа, увидев в DD/UID/LOCAL файл с нужным именем
+будет использовать именно его, а не оригинальный.
+
+\section{Приложение F. Сообщения об ошибках}
 
 \newcommand\ppymsg[3]{
 	\paragraph{[#1] #2}{#3}

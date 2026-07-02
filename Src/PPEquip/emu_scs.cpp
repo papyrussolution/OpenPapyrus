@@ -1,5 +1,5 @@
 // EMU_SCS.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2003, 2009, 2011, 2012, 2013, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2003, 2009, 2011, 2012, 2013, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2024, 2026
 // @codepage UTF-8
 // Интерфейс эмулятора синхронного кассового аппарата
 //
@@ -22,7 +22,7 @@ typedef TSCollection <PrnLineStruc> PrnLinesArray;
 
 class SCS_SYNCSYM : public PPSyncCashSession {
 public:
-	SCS_SYNCSYM(PPID n, char * name, char * port);
+	SCS_SYNCSYM(PPID nodeID/*, const char * pName, const char * pPort*/);
 	~SCS_SYNCSYM();
 	virtual int PrintCheck(CCheckPacket * pPack, uint flags);
 	virtual int PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
@@ -54,15 +54,15 @@ PPSyncCashSession * CM_SYNCSYM::SyncInterface()
 {
 	PPSyncCashSession * cs = 0;
 	if(IsValid()) {
-		cs = new SCS_SYNCSYM(NodeID, NodeRec.Name, NodeRec.Port);
-		CALLPTRMEMB(cs, Init(NodeRec.Name, NodeRec.Port));
+		cs = new SCS_SYNCSYM(NodeID);
+		CALLPTRMEMB(cs, Setup_());
 	}
 	return cs;
 }
 
 REGISTER_CMT(SYNCSYM, true, false);
 
-SCS_SYNCSYM::SCS_SYNCSYM(PPID n, char * pName, char * pPort) : PPSyncCashSession(n, pName, pPort),
+SCS_SYNCSYM::SCS_SYNCSYM(PPID nodeID/*, const char * pName, const char * pPort*/) : PPSyncCashSession(nodeID/*, pName, pPort*/),
 	PrinterDC(0), OldPrinterFont(0), PrinterPort(SCn.PrinterPort), TextOutput(0)
 {
 }

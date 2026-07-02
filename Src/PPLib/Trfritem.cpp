@@ -14,7 +14,7 @@ static bool FASTCALL Impl_IsUnlimWoLot(long flags)
 		return LOGIC(flags & (PPTFR_UNLIM|PPTFR_ACK));
 }
 
-PPTransferItem::FreightPackage::FreightPackage() : Ver(0), FreightPackageTypeID(0), Qtty(0.0)
+PPTransferItem::FreightPackage::FreightPackage() : Ver(1), FreightPackageTypeID(0), Qtty(0.0), UedEceTradeTareType(0ULL) // @v12.6.9 Ver(0)-->Ver(1), UedEceTradeTareType
 {
 }
 
@@ -22,8 +22,16 @@ int PPTransferItem::FreightPackage::Serialize(int dir, SBuffer & rBuf, SSerializ
 {
 	int    ok = 1;
 	THROW_SL(pSCtx->Serialize(dir, Ver, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, FreightPackageTypeID, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, Qtty, rBuf));
+	if(dir < 0 && Ver < 1) {
+		THROW_SL(pSCtx->Serialize(dir, FreightPackageTypeID, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, Qtty, rBuf));		
+		UedEceTradeTareType = 0ULL;
+	}
+	else {
+		THROW_SL(pSCtx->Serialize(dir, FreightPackageTypeID, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, Qtty, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, UedEceTradeTareType, rBuf));
+	}
 	CATCHZOK
 	return ok;
 }
@@ -40,9 +48,9 @@ int PPTransferItem::FreightPackage::ToStr(SString & rBuf)
 	return ok;
 }
 
-int PPTransferItem::FreightPackage::FromStr(const SString & rBuf)
+bool PPTransferItem::FreightPackage::FromStr(const SString & rBuf)
 {
-	int    ok = 1;
+	bool   ok = true;
 	uint8  mime_buf[512];
 	size_t binary_size = 0;
 	SSerializeContext sctx;

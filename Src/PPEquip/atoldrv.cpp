@@ -45,7 +45,7 @@ static void WriteLogFile_PageWidthOver(const char * pFormatName)
 
 class SCS_ATOLDRV : public PPSyncCashSession {
 public:
-	SCS_ATOLDRV(PPID n, char * pName, char * pPort);
+	SCS_ATOLDRV(PPID nodeID/*@v12.6.9, const char * pName, const char * pPort*/);
 	~SCS_ATOLDRV();
 	virtual int PrintCheck(CCheckPacket * pPack, uint flags);
 	virtual int PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
@@ -462,9 +462,9 @@ private:
 			temp_buf_u.CopyFromMb_OUTER(temp_buf, temp_buf.Len());
 			P_Fptr10->SetSingleSettingProc(h, LIBFPTR_SETTING_PORT, temp_buf_u);
 			{
-				temp_buf.Z().Cat(Port).Strip();
+				temp_buf.Z().Cat(IfcPort).Strip();
 				if(temp_buf.IsDec())
-					temp_buf.Z().Cat("com").Cat(Port);
+					temp_buf.Z().Cat("com").Cat(IfcPort);
 				temp_buf_u.CopyFromMb_OUTER(temp_buf, temp_buf.Len());
 				P_Fptr10->SetSingleSettingProc(h, LIBFPTR_SETTING_COM_FILE, temp_buf_u);
 			}
@@ -475,7 +475,7 @@ private:
 		else if(P_Disp) {
 			GetProp(DeviceEnabled, &enabled);
 			if(enabled == false) {
-				THROW(SetProp(CurrentDeviceNumber, atol(Port)) > 0);
+				THROW(SetProp(CurrentDeviceNumber, atol(IfcPort)) > 0);
 				THROW(SetProp(DeviceEnabled, true) > 0);
 				THROW(SetProp(Password, CashierPassword));
 				THROW(Annulate(MODE_REGISTER));
@@ -801,16 +801,16 @@ public:
 	}
 	virtual PPSyncCashSession * SyncInterface()
 	{
-		PPSyncCashSession * cs = IsValid() ? new SCS_ATOLDRV(NodeID, NodeRec.Name, NodeRec.Port) : 0;
-		CALLPTRMEMB(cs, Init(NodeRec.Name, NodeRec.Port));
+		PPSyncCashSession * cs = IsValid() ? new SCS_ATOLDRV(NodeID) : 0;
+		CALLPTRMEMB(cs, Setup_());
 		return cs;
 	}
 };
 
 REGISTER_CMT(ATOLDRV, true, false);
 
-SCS_ATOLDRV::SCS_ATOLDRV(PPID n, char * name, char * port) : 
-	PPSyncCashSession(n, name, port), Flags(0), ResCode(RESCODE_NO_ERROR), ErrCode(0), CheckStrLen(0)
+SCS_ATOLDRV::SCS_ATOLDRV(PPID nodeID/*, const char * pName, const char * pPort*/) :
+	PPSyncCashSession(nodeID/*, pName, pPort*/), Flags(0), ResCode(RESCODE_NO_ERROR), ErrCode(0), CheckStrLen(0)
 {
 	SString temp_buf;
 	if(!P_Fptr10) {

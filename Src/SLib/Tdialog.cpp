@@ -1669,6 +1669,52 @@ void TDialog::SetCtrlState(uint ctlID, uint state, bool enable)
 	CALLPTRMEMB(p_v, setState(state, enable));
 }
 
+void TDialog::SetupKeyboardLayoutIndicator(TButton * pButton)
+{
+	if(pButton) {
+		HKL    input_locale = ::GetKeyboardLayout(0);
+		LANGID input_lang = LOWORD(input_locale);
+		char   lang_code[16];
+		char   county_code[16];
+		lang_code[0] = 0;
+		county_code[0] = 0;
+		int    r1 = ::GetLocaleInfoA(input_lang, LOCALE_SISO639LANGNAME, lang_code, SIZEOFARRAY(lang_code));
+		int    r2 = ::GetLocaleInfoA(input_lang, LOCALE_SISO3166CTRYNAME, county_code, SIZEOFARRAY(county_code));
+		pButton->SetText(lang_code);
+	}
+}
+
+void TDialog::SetupKeyboardStateCapsLockIndicator(TButton * pButton)
+{
+	if(pButton) {
+		bool is_caps_lock  = LOGIC(GetKeyState(VK_CAPITAL) & 1);
+		bool is_num_lock   = LOGIC(GetKeyState(VK_NUMLOCK) & 1);
+		bool is_scroll_lock = LOGIC(GetKeyState(VK_SCROLL) & 1);
+		showButton(cmKbStateCapsLock, is_caps_lock);
+		if(is_caps_lock) {
+			pButton->SetBitmap(PPDV_CAPSLOCK01);
+		}
+	}
+}
+
+void TDialog::SetupKeyboardStateControls() // @v12.6.9
+{
+	{
+		TButton * p_button = SearchButton(cmKeyboardLayout);
+		if(p_button) {
+			SetupKeyboardLayoutIndicator(p_button);
+			DlgFlags |= fKeybStateCtrls;
+		}
+	}
+	{
+		TButton * p_button = SearchButton(cmKbStateCapsLock);
+		if(p_button) {
+			SetupKeyboardStateCapsLockIndicator(p_button);
+			DlgFlags |= fKeybStateCtrls;
+		}
+	}
+}
+
 int TDialog::Insert()
 {
 	int    ret = 0;

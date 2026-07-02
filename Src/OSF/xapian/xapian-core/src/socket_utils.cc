@@ -61,8 +61,7 @@ void set_socket_timeouts(int fd, double timeout)
 			t = numeric_limits<DWORD>::max();
 #endif
 #ifdef SO_SNDTIMEO
-		(void)setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO,
-		    reinterpret_cast<char *>(&t), sizeof(t));
+		(void)setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<char *>(&t), sizeof(t));
 #endif
 #ifdef SO_RCVTIMEO
 		(void)setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<char *>(&t), sizeof(t));

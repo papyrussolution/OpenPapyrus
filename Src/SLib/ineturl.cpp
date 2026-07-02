@@ -101,10 +101,12 @@ int InetAddr::FromStr(const char * pStr)
 	int    ok = 1;
 	if(pStr) {
 		SString buf(pStr);
-		SString addr_buf, port_buf;
+		SString addr_buf;
+		SString port_buf;
 		buf.Divide(':', addr_buf, port_buf);
-		if(addr_buf.NotEmptyS())
+		if(addr_buf.NotEmptyS()) {
 			ok = Set(addr_buf, port_buf.ToLong());
+		}
 		else {
 			Port = port_buf.ToLong();
 			ok = -1;

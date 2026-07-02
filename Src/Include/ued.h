@@ -361,6 +361,13 @@ public:
 	int    Read(const char * pFileName);
 	bool   GetSymb(uint64 ued, SString & rSymb) const;
 	uint64 GetBySymb(uint64 meta, const char * pSymb) const; // @v12.6.3
+	//
+	// Descr: Извлекает список дискретных элементов, соответствующих мета-типу meta.
+	// Returns: 
+	//   true: найдено по крайней мере одно значение, соответствующее мета-типу meta
+	//   false: либо ошибка, либо мета-тип не имеет перечисляемых элементов
+	//
+	bool   GetListByMeta(uint64 meta, Uint64Array & rList) const; // @v12.6.9
 private:
 	StringSet SsLang; // Список символов языков, для которых загружаются тексты.
 };

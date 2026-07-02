@@ -225,18 +225,23 @@ public:
 		sslmNone = 0,
 		sslmClient = 1
 	};
+	enum {
+		sockoptNoDelay = 0x0001 // @v12.6.9 
+	};
 
 	explicit TcpSocket(int timeout = 0, int maxConn = SOMAXCONN);
 	~TcpSocket();
 	bool   IsValid() const;
 	operator SOCKET () const { return S; }
-	bool   FASTCALL IsEq(const TcpSocket & rS) const { return (S == rS.S); } // @v11.0.9
+	bool   FASTCALL IsEq(const TcpSocket & rS) const { return (S == rS.S); }
 	//
 	// Descr:
 	//
 	int    CheckErrorStatus(); // @>>::getsockopt(S, SOL_SOCKET, SO_ERROR,...)
 	int    GetTimeout() const;
 	int    FASTCALL SetTimeout(int timeout);
+	uint   GetSockOptions() const; // @v12.6.9
+	int    FASTCALL SetSockOptions(uint sockoptFlags); // @v12.6.9
 	//
 	// Descr: Копирует сокет this в rDest и сбрасывает значение
 	//   this->S. Таким образом, деструктор this не закроет сокет,
@@ -276,7 +281,7 @@ public:
 	// Note: Обратите внимание на то, что смысл кодов возврата не совпадает со
 	//   смыслов кода возврата функции ::select
 	//
-	int    Select(int mode /* TcpSocket::mXXX */, int timeout = -1, size_t * pAvailableSize = 0);
+	int    Select(int mode/*TcpSocket::mXXX*/, int timeout = -1, size_t * pAvailableSize = 0);
 		// @>>::select
 	int    Listen(); // @>>::listen
 	int    Accept(TcpSocket &, InetAddr &); // @>>::accept
@@ -339,7 +344,7 @@ private:
 		int    Shutdown();
 		int    Connect(SOCKET s);
 		int    Accept();
-		int    Select(int mode /* TcpSocket::mXXX */, int timeout, size_t * pAvailableSize);
+		int    Select(int mode/*TcpSocket::mXXX*/, int timeout, size_t * pAvailableSize);
 		int    Read(void * buf, int len);
 		int    Write(const void * buf, int len);
 
@@ -357,6 +362,7 @@ private:
 	int    Timeout;
 	int    MaxConn;
 	int    LastSockErr; // Последний код ошибки, полученный вызовом TcpSocket::CheckErrorStatus()
+	uint   SockOptions; // @v12.6.9
 	Stat   StatData;
 	STempBuffer InBuf;
 	STempBuffer OutBuf;

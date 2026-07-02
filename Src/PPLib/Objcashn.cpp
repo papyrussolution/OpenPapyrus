@@ -309,13 +309,53 @@ PPSyncCashNode::PPSyncCashNode() : PPGenCashNode(), DownBill(0), CurDate(ZERODAT
 	AlternateRegID(0), ScaleID(0), CustDispType(0), CustDispFlags(0), BnkTermType(0), BnkTermLogNum(0),
 	BnkTermFlags(0), ClearCDYTimeout(0), EgaisMode(0), ChZnGuaID(0), ChZnPermissiveMode(0), SleepTimeout(0), LocalTouchScrID(0)
 {
-	memzero(Port, sizeof(Port));
+	Port_[0] = 0;
 	memzero(CustDispPort, sizeof(CustDispPort));
 	memzero(BnkTermPort, sizeof(BnkTermPort));
 }
 
 int PPSyncCashNode::SetPropString(int propId, const char * pValue) { return PPPutExtStrData(propId, ExtString, pValue); }
 int PPSyncCashNode::GetPropString(int propId, SString & rBuf) const { return PPGetExtStrData(propId, ExtString, rBuf); }
+
+int PPSyncCashNode::SetRegistrarPort(const char * pPort)
+{
+	int    ok = 1;
+	const  size_t in_port_len = sstrlen(pPort);
+	if(!in_port_len) {
+		Port_[0] = 0;
+		RegistrarPort.Z();
+		ok = -1;
+	}
+	else if(in_port_len < sizeof(Port_)) {
+		STRNSCPY(Port_, pPort);
+		RegistrarPort.Z();
+		ok = 1;
+	}
+	else {
+		Port_[0] = 0;
+		RegistrarPort = pPort;
+		ok = 2;
+	}
+	return ok;
+}
+
+int PPSyncCashNode::GetRegistrarPort(SString & rPort) const
+{
+	rPort.Z();
+	int    ok = 0;
+	if(RegistrarPort.NotEmpty()) {
+		rPort = RegistrarPort;
+		ok = 2;
+	}
+	else if(!isempty(Port_)) {
+		rPort = Port_;
+		ok = 1;
+	}
+	else {
+		ok = PPSetError(PPERR_SYNCPOSNODEREGPORTUNDEF, Name);
+	}
+	return ok;
+}
 
 SString & PPSyncCashNode::CTblListToString(SString & rBuf) const
 {
@@ -714,7 +754,7 @@ int PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 		pSCN->CurDate    = cn_rec.CurDate;
 		pSCN->CurSessID  = cn_rec.CurSessID;
 		// @v11.9.6 (moved to PPGenCashNode) pSCN->Speciality = cn_rec.Speciality;
-		memcpy(pSCN->Port,  cn_rec.Port,  sizeof(pSCN->Port));
+		STRNSCPY(pSCN->Port_,  cn_rec.Port_);
 		if(P_Ref->GetPropActualSize(Obj, id, CNPRP_EXTDEVICES, &ed_size) > 0) {
 			THROW_MEM(p_ed = static_cast<__PPExtDevices *>(SAlloc::M(ed_size)));
 			memzero(p_ed, ed_size);
@@ -745,6 +785,7 @@ int PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 				pSCN->GetPropString(SCN_CAFETABLE_DGR_PATH, pSCN->TableSelWhatman);
 				pSCN->GetPropString(SCN_BNKTERMPATH,        pSCN->BnkTermPath);
 				pSCN->GetPropString(SCN_SLIPFMTPATH,        pSCN->SlipFmtPath);
+				pSCN->GetPropString(SCN_REGISTRARPORT,      pSCN->RegistrarPort); // @v12.6.9
 			}
 		}
 		else {
@@ -758,17 +799,17 @@ int PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 			pSCN->BnkTermType     = 0;
 			pSCN->BnkTermLogNum   = 0;
 			pSCN->BnkTermPort[0]  = 0;
-			pSCN->BnkTermPath     = 0;
+			pSCN->BnkTermPath.Z();
 			pSCN->BnkTermFlags	  = 0;
 			pSCN->ClearCDYTimeout = 0;
 			pSCN->EgaisMode       = 0;
 			pSCN->ChZnPermissiveMode = 0; // @v11.9.12
-			pSCN->PrinterPort     = 0;
-			pSCN->TableSelWhatman = 0;
-			pSCN->BnkTermPath     = 0;
-			pSCN->SlipFmtPath     = 0;
+			pSCN->PrinterPort.Z();
+			pSCN->TableSelWhatman.Z();
+			pSCN->BnkTermPath.Z();
+			pSCN->SlipFmtPath.Z();
 			pSCN->PhnSvcID        = 0;
-			pSCN->ExtString       = 0;
+			pSCN->ExtString.Z();
 		}
 		{
 			__PosNodeExt pnext;
@@ -1096,7 +1137,7 @@ int PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 			rec.CurDate      = p_scn->CurDate;
 			rec.CurSessID    = p_scn->CurSessID;
 			// @v11.9.6 (moved to PPGenCashNode) rec.Speciality   = p_scn->Speciality;
-			memcpy(rec.Port,  p_scn->Port,  sizeof(rec.Port));
+			STRNSCPY(rec.Port_,  p_scn->Port_);
 		}
 		THROW(StoreItem(PPOBJ_CASHNODE, *pID, &rec, 0));
 		*pID = rec.ID;
@@ -1110,6 +1151,7 @@ int PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 				p_scn->SetPropString(SCN_CAFETABLE_DGR_PATH, p_scn->TableSelWhatman);
 				p_scn->SetPropString(SCN_BNKTERMPATH,        p_scn->BnkTermPath);
 				p_scn->SetPropString(SCN_SLIPFMTPATH,        p_scn->SlipFmtPath);
+				p_scn->SetPropString(SCN_REGISTRARPORT,      p_scn->RegistrarPort); // @v12.6.9
 				{
 					const size_t ed_size = ALIGNSIZE(offsetof(__PPExtDevices, ExtStrBuf) + p_scn->ExtString.Len() + 1, 2);
 					THROW_MEM(p_ed = static_cast<__PPExtDevices *>(SAlloc::M(ed_size)));
@@ -1640,6 +1682,7 @@ public:
 	DECL_DIALOG_SETDTS()
 	{
 		PPObjLocation loc_obj;
+		SString temp_buf;
 		if(!RVALUEPTR(Data, pData))
 			MEMSZERO(Data);
 		setCtrlData(CTL_CASHN_NAME, Data.Name);
@@ -1649,7 +1692,10 @@ public:
 		SetupStringCombo(this, CTLSEL_CASHN_SPECIALITY, PPTXT_POSNODE_SPECIALITY, Data.Speciality);
 		setCtrlData(CTL_CASHN_DRVVERMAJOR, &Data.DrvVerMajor);
 		setCtrlData(CTL_CASHN_DRVVERMINOR, &Data.DrvVerMinor);
-		setCtrlData(CTL_CASHN_PORT,    Data.Port);
+		{
+			Data.GetRegistrarPort(temp_buf);
+			setCtrlString(CTL_CASHN_PORT, temp_buf);
+		}
 		//setCtrlData(CTL_CASHN_OVRFLW,  &pSCN->OvrflwDate);
 		setCtrlData(CTL_CASHN_CURDATE, &Data.CurDate);
 		setCtrlData(CTL_CASHN_CSESS,   &Data.CurSessID);
@@ -1706,7 +1752,6 @@ public:
 			{
 				PPAlbatrossConfig acfg;
 				PPAlbatrosCfgMngr::Get(&acfg);
-				SString temp_buf;
 				acfg.GetExtStrData(ALBATROSEXSTR_UHTTACC, temp_buf);
 				DisableClusterItem(CTL_CASHN_EXTFLAGS, 9, /*acfg.UhttAccount.Empty()*/temp_buf.IsEmpty());
 			}
@@ -1718,9 +1763,9 @@ public:
 		if(!Data.TableSelWhatman.NotEmptyS()) {
 			FileBrowseCtrlGroup * p_fbg = static_cast<FileBrowseCtrlGroup *>(getGroup(ctlgroupTblDgmPathy));
 			if(p_fbg) {
-				SString path;
-				PPGetPath(PPPATH_WTM, path);
-				p_fbg->setInitPath(path);
+				temp_buf.Z();
+				PPGetPath(PPPATH_WTM, temp_buf);
+				p_fbg->setInitPath(temp_buf);
 			}
 		}
 		setCtrlString(CTL_CASHN_TBLDGMPATH,  Data.TableSelWhatman);
@@ -1738,6 +1783,7 @@ public:
 	{
 		int    ok = 1;
 		uint   sel = 0;
+		SString temp_buf;
 		getCtrlData(sel = CTL_CASHN_NAME, Data.Name);
 		THROW_PP(*strip(Data.Name) != 0, PPERR_NAMENEEDED);
 		getCtrlData(sel = CTL_CASHN_SYMB, Data.Symb);
@@ -1760,9 +1806,13 @@ public:
 				oneof2(noa_rec.ScndObjGrp, 0, LOCTYP_WAREHOUSE), PPERR_INVPOSGOODSLOCASSOC, noa_rec.Name);
 			GetClusterData(CTL_CASHN_NOA_PRINTONLY, &Data.ExtFlags);
 		}
-		else
+		else {
 			Data.ExtFlags &= ~CASHFX_GLASSOCPRINTONLY;
-		getCtrlData(CTL_CASHN_PORT,     Data.Port);
+		}
+		{
+			getCtrlString(CTL_CASHN_PORT, temp_buf);
+			Data.SetRegistrarPort(temp_buf);
+		}
 		getCtrlData(CTL_CASHN_CURDATE, &Data.CurDate);
 		if(PPMaster)
 			getCtrlData(CTL_CASHN_CSESS, &Data.CurSessID);
@@ -1970,13 +2020,16 @@ int SyncCashNodeCfgDialog::EditCashParam()
 		PPSyncCashSession * p_si = p_cm ? p_cm->SyncInterface() : 0;
 		ZDELETE(p_cm);
 		if(p_si) {
-			getCtrlData(CTL_CASHN_PORT, Data.Port);
-			long port = atol(Data.Port);
-			if((ok = p_si->EditParam(&port)) <= 0)
-				PPError();
+			SString temp_buf;
+			getCtrlString(CTL_CASHN_PORT, temp_buf);
+			long   port = temp_buf.ToLong();
+			ok = p_si->EditParam(&port);
+			if(ok > 0) {
+				temp_buf.Z().Cat(port);
+				setCtrlString(CTL_CASHN_PORT, temp_buf);
+			}
 			else {
-				ltoa(port, Data.Port, 10);
-				setCtrlData(CTL_CASHN_PORT, Data.Port);
+				PPError();
 			}
 		}
 		ZDELETE(p_si);
@@ -2045,15 +2098,12 @@ IMPL_HANDLE_EVENT(SyncCashNodeCfgDialog)
 						for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 							info_buf.Cat(temp_buf).CRB();
 						}
-						// @v11.1.9 {
 						TInputLine * p_il = static_cast<TInputLine *>(dlg->getCtrlView(CTL_DIAGPOSNODE_RESULT));
 						if(p_il) {
 							p_il->setFormat(MKSFMT(512, 0));
 							p_il->setType(MKSTYPE(S_ZSTRING, 512));
 							dlg->setCtrlString(CTL_DIAGPOSNODE_RESULT, info_buf);
 						}
-						// } @v11.1.9
-						// @v11.1.9 dlg->setStaticText(CTL_DIAGPOSNODE_RESULT, info_buf);
 						ExecViewAndDestroy(dlg);
 					}
 				}

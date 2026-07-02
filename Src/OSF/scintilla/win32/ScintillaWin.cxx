@@ -524,15 +524,8 @@ void ScintillaWin::StartDrag()
 }
 
 // Avoid warnings everywhere for old style casts by concentrating them here
-static WORD FASTCALL _LoWord(uptr_t l)
-{
-	return LOWORD(l);
-}
-
-static WORD FASTCALL _HiWord(uptr_t l)
-{
-	return HIWORD(l);
-}
+static WORD FASTCALL _LoWord(uptr_t l) { return LOWORD(l); }
+static WORD FASTCALL _HiWord(uptr_t l) { return HIWORD(l); }
 
 static int InputCodePage()
 {

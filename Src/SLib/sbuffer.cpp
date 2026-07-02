@@ -275,7 +275,7 @@ int SBuffer::Search(const char * pStr, size_t * pPos) const
 		const size_t tlen = sstrlen(pStr);
 		if(tlen == 1 || tlen == 0) {
 			const int pat = pStr ? pStr[0] : 0;
-			const  char * ptr = static_cast<const char *>(smemchr(Ptr(RdOffs), pat, avl_size)); // @v9.4.1 @fix pStr[0]-->pat // @v11.7.0 memchr-->smemchr
+			const  char * ptr = static_cast<const char *>(smemchr(Ptr(RdOffs), pat, avl_size)); // @v11.7.0 memchr-->smemchr
 			if(ptr) {
 				ASSIGN_PTR(pPos, RdOffs + (ptr-(const char *)Ptr(RdOffs)));
 				ok = 1;
@@ -283,10 +283,11 @@ int SBuffer::Search(const char * pStr, size_t * pPos) const
 		}
 		else {
 			for(size_t p = RdOffs; !ok && p < RdOffs+avl_size-tlen+1; p++) {
-				int found = 1;
-				for(size_t i = 0; i < tlen && found; i++)
+				int    found = 1;
+				for(size_t i = 0; i < tlen && found; i++) {
 					if(*(const char *)Ptr(p+i) != pStr[i])
 						found = 0;
+				}
 				if(found) {
 					ASSIGN_PTR(pPos, p);
 					ok = 1;
@@ -345,7 +346,6 @@ size_t FASTCALL SBuffer::ReadLine(SString & rBuf)
 size_t SBuffer::ReadTermStr(const char * pTerm, SString & rBuf)
 {
 	rBuf.Z();
-
 	size_t sz = 0;
 	if(pTerm) {
 		size_t pos = 0;
@@ -423,7 +423,7 @@ int FASTCALL SBuffer::Read(SBuffer & v)
 {
 	int    ok = 1;
 	uint32 sz = 0;
-	Read(&sz, sizeof(sz)); // @v5.4.12 Здесь не проверяется возвращаемое значение, ибо считываемый размер легально может быть 0
+	Read(&sz, sizeof(sz)); // Здесь не проверяется возвращаемое значение, ибо считываемый размер легально может быть 0
 	if(sz) {
 		STempBuffer temp_buf(sz);
 		THROW(temp_buf.IsValid());
@@ -434,7 +434,7 @@ int FASTCALL SBuffer::Read(SBuffer & v)
 	return ok;
 }
 
-int FASTCALL SBuffer::Write(const /*SArray*/SVectorBase * pAry, long options)
+int FASTCALL SBuffer::Write(const SVectorBase * pAry, long options)
 {
 	int    ok = 1;
 	uint32 c = (pAry && !(options & ffAryForceEmpty)) ? pAry->getCount() : 0;
@@ -782,38 +782,38 @@ int SBinaryChunk::CheckInvariants() const
 
 SBinaryChunk & SBinaryChunk::Z()
 {
-	CheckInvariants();
+	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактичеки, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
 	L = 0;
 	return *this;
 }
 
 size_t SBinaryChunk::Len() const 
 { 
-	CheckInvariants();
+	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактичеки, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
 	return L; 
 }
 
 const void * SBinaryChunk::PtrC() const 
 { 
-	CheckInvariants();
+	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактичеки, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
 	return P_Buf; 
 }
 
 const void * SBinaryChunk::PtrC(size_t offs) const 
 { 
-	CheckInvariants();
+	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактичеки, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
 	return (offs < L) ? (PTR8C(P_Buf)+offs) : 0; 
 }
 
 void * SBinaryChunk::Ptr() 
 { 
-	CheckInvariants();
+	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактичеки, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
 	return P_Buf; 
 }
 
 void * SBinaryChunk::Ptr(size_t offs) 
 { 
-	CheckInvariants();
+	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактичеки, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
 	return (offs < L) ? (PTR8(P_Buf)+offs) : 0; 
 }
 
@@ -824,7 +824,7 @@ SString & SBinaryChunk::ToRawStr(SString & rBuf) const
 
 SString & SBinaryChunk::Mime64(SString & rBuf) const
 {
-	CheckInvariants();
+	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактичеки, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
 	if(Len())
 		rBuf.EncodeMime64(P_Buf, Len());
 	else
@@ -879,7 +879,7 @@ bool SBinaryChunk::FromHex(const char * pHexString)
 bool SBinaryChunk::Ensure(size_t len)
 {
 	bool   ok = true;
-	CheckInvariants();
+	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактичеки, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
 	if(len <= Size || Alloc(len))
 		L = len;
 	else
@@ -890,7 +890,7 @@ bool SBinaryChunk::Ensure(size_t len)
 int SBinaryChunk::Set(uint8 byte, size_t len)
 {
 	int    ok = 1;
-	CheckInvariants();
+	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактичеки, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
 	if(!len)
 		L = 0;
 	else if(len <= Size || Alloc(len)) {
@@ -942,7 +942,7 @@ bool SBinaryChunk::Put(const void * pData, size_t len)
 bool SBinaryChunk::Cat(uint8 byte)
 {
 	bool   ok = true;
-	CheckInvariants();
+	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактичеки, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее) 
 	const  size_t new_len = L + 1;
 	if(new_len <= Size || Alloc(new_len)) {
 		PTR8(P_Buf)[L] = byte;
@@ -956,7 +956,7 @@ bool SBinaryChunk::Cat(uint8 byte)
 bool SBinaryChunk::Cat(const void * pData, size_t len)
 {
 	bool   ok = true;
-	CheckInvariants();
+	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактичеки, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
 	if(len/*&& pData*/) {
 		const size_t new_len = L + len;
 		if(new_len <= Size || Alloc(new_len)) {

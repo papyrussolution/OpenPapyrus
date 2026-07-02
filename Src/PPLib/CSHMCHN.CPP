@@ -1,5 +1,5 @@
 // CSHMCHN.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 //
 // Механизм работы с кассовыми машинами
@@ -283,12 +283,10 @@ int PPCashMachine::SyncOpenSession(LDATE * pDate)
 		THROW(UpdateNode(0));
 		THROW(tra.Commit());
 	}
-	// @v11.3.12 {
 	if(!(NodeRec.ExtFlags & CASHFX_SYNCOPENSESSSOFT)) { // @v11.4.7
 		assert(P_SyncIntrf);
 		CALLPTRMEMB(P_SyncIntrf, OpenSession_(new_sess_id));
 	}
-	// } @v11.3.12
 	DS.SetOperDate(dtm);
 	CATCHZOK
 	ASSIGN_PTR(pDate, dtm.d);
@@ -1205,7 +1203,7 @@ int PPCashMachine::SyncPreprocessChZnCode(int op, const char * pCode, double qtt
 	THROW(GetNode() > 0);
 	if(GetSyncIntrf()) {
 		ok = P_SyncIntrf->PreprocessChZnCode(op, pCode, qtty, uomId, uomFragm, rResult);
-		PPSyncCashSession::LogPreprocessChZnCodeResult(ok, op, pCode, qtty, rResult); // @v11.2.3
+		PPSyncCashSession::LogPreprocessChZnCodeResult(ok, op, pCode, qtty, rResult);
 	}
 	CATCHZOK
 	return ok;
@@ -1794,3 +1792,6 @@ int CloseCashDay()
 	delete p_cm;
 	return ok;
 }
+//
+//
+//

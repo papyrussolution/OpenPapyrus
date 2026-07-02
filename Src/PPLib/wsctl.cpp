@@ -603,7 +603,7 @@ int WsCtl_ClientPolicy::Resolve()
 					(tail_buf = temp_buf).ShiftLeft(end_pos+1); // Убираем шаблон из пути. Если там еще что-то есть, то 
 					template_buf.ShiftLeft(2).TrimRight(); // убираем служебные символы ${}
 					if(p_uedc) {
-						uint64 ued_path = p_uedc->SearchSymb(template_buf, UED_META_FSKNOWNFOLDER);
+						const  uint64 ued_path = p_uedc->SearchSymb(template_buf, UED_META_FSKNOWNFOLDER);
 						if(ued_path) {
 							if(GetKnownFolderPath(ued_path, temp_buf)) {
 								if(tail_buf.NotEmptyS()) {

@@ -143,12 +143,6 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 		case WM_INITDIALOG:
 			if(lParam) {
 				TView::SetWindowUserData(hwndDlg, reinterpret_cast<void *>(lParam));
-				// @v11.2.4 {
-				/*{
-					long   exstyle = TView::SGetWindowExStyle(hwndDlg);
-					TView::SetWindowProp(hwndDlg, GWL_EXSTYLE, (exstyle | WS_EX_COMPOSITED));
-				}*/
-				// } @v11.2.4 
 				p_dlg = reinterpret_cast<TDialog *>(lParam);
 				p_dlg->HW = hwndDlg;
 				const bool export_mode = p_dlg->CheckFlag(TDialog::fExport);
@@ -179,12 +173,13 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 		case WM_DESTROY:
 			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg) {
-				if((v = p_dlg->P_Last) != 0)  // @todo Практически всегда, за редкими исключениями, 0. Из-за того, что p_dlg->P_Last обнуляется раньше, чем уничтожается данное окно. Требуется исправить.
+				if((v = p_dlg->P_Last) != 0) { // @todo Практически всегда, за редкими исключениями, 0. Из-за того, что p_dlg->P_Last обнуляется раньше, чем уничтожается данное окно. Требуется исправить.
 					do {
 						if(reinterpret_cast<long>(v) == 0xddddddddL)
 							break;
 						v->handleWindowsMessage(uMsg, wParam, lParam);
 					} while((v = v->prev()) != p_dlg->P_Last);
+				}
 			}
 			TView::SetWindowUserData(hwndDlg, static_cast<void *>(0));
 			break;
@@ -330,7 +325,11 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 		case WM_USER_KEYDOWN:
 			{
 				const  int key_code = static_cast<int>(wParam);
-				if(checkirangef(key_code, VK_F1, VK_F12) || checkirangef(key_code, 48, 57) || checkirangef(key_code, 65, 90) || checkirangef(key_code, 97, 122)) {
+				if(oneof3(key_code, VK_CAPITAL, VK_NUMLOCK, VK_SCROLL)) { // @v12.6.9
+					TDialog * p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
+					TView::messageBroadcast(p_dlg, cmKeyboardStateChange, 0);
+				}
+				else if(checkirangef(key_code, VK_F1, VK_F12) || checkirangef(key_code, 48, 57) || checkirangef(key_code, 65, 90) || checkirangef(key_code, 97, 122)) {
 					TDialog * p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 					KeyDownCommand key_cmd;
 					key_cmd.State = 0;
@@ -518,10 +517,10 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 						::EndPaint(hwndDlg, &ps);
 					}
 					// } @v12.3.7 
-					if(TView::messageCommand(p_dlg, cmPaint))
-						return FALSE;
+					TView::messageCommand(p_dlg, cmPaint);
 				}
 			}
+			return FALSE; // @v12.6.9 @fix 
 		default:
 			return FALSE;
 	}

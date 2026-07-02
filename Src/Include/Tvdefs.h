@@ -300,6 +300,8 @@
 #define cmGrabDefault        73
 #define cmReleaseDefault     74
 #define cmChildFocusReceived 75 // @v12.6.0 Уведомление, отправляемое окном своему родителю и уведомляющее о том, что окно получило фокус. 
+#define cmInputLangChange    76 // @v12.6.9 evBroadcast Посылается если пользователь изменил раскладку клавиатуры в основном потоке программы
+#define cmKeyboardStateChange 77 // @v12.6.9 evBroadcast Посылается если пользователь нажал клавишу блокировки статуса клавиатуры (caps-lock, scroll-lock, num-lock)
 #define cmCBActivate        300
 //
 // Сообщения, посылаемые фокусу ввода для получения текущего числа или

@@ -3255,16 +3255,17 @@ int PPObjBill::SelectLot2(SelectLotParam & rParam)
 			while(1) {
 				r = rParam.LocID ? trfr->Rcpt.EnumLots(goods_id, rParam.LocID, &diter, &lot_rec) : trfr->Rcpt.EnumByGoods(goods_id, &diter, &lot_rec);
 				if(r > 0) {
-					int    do_skip = 0;
+					bool   do_skip = false;
 					if(lot_rec.ID != rParam.ExcludeLotID) {
 						if(goods_id >= 0 || (lot_rec.Rest > 0.0 || (rParam.Flags & rParam.fEnableZeroRest))) {
 							if(rParam.Flags & rParam.fNotEmptySerial) {
 								GetSerialNumberByLot(lot_rec.ID, serial = 0, 1);
 								if(!serial.NotEmptyS())
-									do_skip = 1;
+									do_skip = true;
 							}
-							if(!do_skip)
+							if(!do_skip) {
 								THROW(r = SelLotBrowser::AddItemToArray(p_ary, &lot_rec, ZERODATE, lot_rec.Rest));
+							}
 						}
 					}
 				}
@@ -3356,20 +3357,47 @@ int PPObjBill::SelectLot2(SelectLotParam & rParam)
 /*static*/int PPTransferItem::FreightPackage::Edit(PPTransferItem::FreightPackage * pData)
 {
 	int    ok = -1;
+	SString temp_buf;
 	TDialog * dlg = new TDialog(DLG_FPACKAGE);
 	if(CheckDialogPtr(&dlg)) {
 		PPTransferItem::FreightPackage data;
 		RVALUEPTR(data, pData);
         SetupPPObjCombo(dlg, CTLSEL_FPACKAGE_FPT, PPOBJ_FREIGHTPACKAGETYPE, data.FreightPackageTypeID, 0);
+		// @v12.6.9 {
+		{
+			const SrUedContainer_Rt * p_uedc = DS.GetUedContainer();
+			if(p_uedc) {
+				Uint64Array tare_list;
+				StrAssocArray tare_str_list;
+				p_uedc->GetListByMeta(UED_META_ECETRADE_PACKAGETYPE, tare_list);
+				for(uint i = 0; i < tare_list.getCount(); i++) {
+					const   uint64 ued = tare_list.get(i);
+					uint32  tare_id32 = UED::GetRawValue32(ued);
+					if(tare_id32) {
+						if(p_uedc->GetText(ued, UED_LINGUALOCUS_RU, temp_buf)) {
+							tare_str_list.AddFast(tare_id32, temp_buf);
+						}
+					}
+				}
+				tare_str_list.SortByText();
+				SetupStrAssocCombo(dlg, CTLSEL_FPACKAGE_TARETYPE, tare_str_list, UED::GetRawValue32(data.UedEceTradeTareType), lbtTextUtf8, 0, 0);
+			}
+		}
+		// } @v12.6.9 
         dlg->setCtrlReal(CTL_FPACKAGE_QTTY, data.Qtty);
         while(ok < 0 && ExecView(dlg) == cmOK) {
             data.FreightPackageTypeID = dlg->getCtrlLong(CTLSEL_FPACKAGE_FPT);
             if(!data.FreightPackageTypeID)
 				PPErrorByDialog(dlg, CTLSEL_FPACKAGE_FPT);
 			else {
+				// @v12.6.9 {
+				const  uint32 tare_id32 = static_cast<uint32>(dlg->getCtrlLong(CTLSEL_FPACKAGE_TARETYPE));
+				data.UedEceTradeTareType = tare_id32 ? UED::ApplyMetaToRawValue32(UED_META_ECETRADE_PACKAGETYPE, tare_id32) : 0ULL;
+				// } @v12.6.9 
 				data.Qtty = dlg->getCtrlReal(CTL_FPACKAGE_QTTY);
-				if(data.Qtty <= 0.0 || data.Qtty > 1000000.0)
+				if(data.Qtty <= 0.0 || data.Qtty > 1000000.0) {
 					PPErrorByDialog(dlg, CTL_FPACKAGE_QTTY);
+				}
 				else {
 					ASSIGN_PTR(pData, data);
 					ok = 1;

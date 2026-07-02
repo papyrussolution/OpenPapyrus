@@ -4476,6 +4476,11 @@ int PPObjEdiProvider::SerializePacket(int dir, PPEdiProviderPacket * pPack, SBuf
 //
 //
 //
+PPFreightPackageType::PPFreightPackageType()
+{
+	THISZERO();
+}
+
 PPObjFreightPackageType::PPObjFreightPackageType(void * extraPtr) : PPObjReference(PPOBJ_FREIGHTPACKAGETYPE, extraPtr)
 {
 }

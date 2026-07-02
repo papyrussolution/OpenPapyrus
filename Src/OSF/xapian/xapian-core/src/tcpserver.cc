@@ -120,32 +120,25 @@ int XapianTcpServer::get_listening_socket(const std::string & host, int port, bo
 		// Because of this and the lack support on older versions, we don't
 		// currently check the return value.
 		if(retval >= 0) {
-			(void)setsockopt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE,
-			    reinterpret_cast<char *>(&optval),
-			    sizeof(optval));
+			(void)setsockopt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, reinterpret_cast<char *>(&optval), sizeof(optval));
 		}
 #endif
-
 		if(retval < 0) {
 			int saved_errno = socket_errno(); // note down in case close hits an error
 			CLOSESOCKET(fd);
 			throw Xapian::NetworkError("setsockopt failed", saved_errno);
 		}
-
 		if(::bind(fd, r.ai_addr, r.ai_addrlen) == 0) {
 			socketfd = fd;
 			break;
 		}
-
 		// Note down the error code for the first address we try, which seems
 		// likely to be more helpful than the last in the case where they
 		// differ.
 		if(bind_errno == 0)
 			bind_errno = socket_errno();
-
 		CLOSESOCKET(fd);
 	}
-
 	if(socketfd == -1) {
 		if(bind_errno == EADDRINUSE) {
 			cerr << host << ':' << port << " already in use" << endl;
@@ -161,7 +154,6 @@ int XapianTcpServer::get_listening_socket(const std::string & host, int port, bo
 		}
 		throw Xapian::NetworkError("bind failed", bind_errno);
 	}
-
 	if(listen(socketfd, 5) < 0) {
 		int saved_errno = socket_errno(); // note down in case close hits an error
 		CLOSESOCKET(socketfd);

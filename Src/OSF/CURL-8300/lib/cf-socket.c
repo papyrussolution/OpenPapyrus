@@ -1550,16 +1550,14 @@ static CURLcode cf_udp_setup_quic(struct Curl_cfilter * cf, struct Curl_easy * d
 #if defined(__linux__) && defined(IP_MTU_DISCOVER)
 		case AF_INET: {
 		    int val = IP_PMTUDISC_DO;
-		    (void)setsockopt(ctx->sock, IPPROTO_IP, IP_MTU_DISCOVER, &val,
-			sizeof(val));
+		    (void)setsockopt(ctx->sock, IPPROTO_IP, IP_MTU_DISCOVER, &val, sizeof(val));
 		    break;
 	    }
 #endif
 #if defined(__linux__) && defined(IPV6_MTU_DISCOVER)
 		case AF_INET6: {
 		    int val = IPV6_PMTUDISC_DO;
-		    (void)setsockopt(ctx->sock, IPPROTO_IPV6, IPV6_MTU_DISCOVER, &val,
-			sizeof(val));
+		    (void)setsockopt(ctx->sock, IPPROTO_IPV6, IPV6_MTU_DISCOVER, &val, sizeof(val));
 		    break;
 	    }
 #endif

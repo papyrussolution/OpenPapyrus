@@ -64,7 +64,8 @@ int TcpSocket::SslBlock::Select(int mode /* TcpSocket::mXXX */, int timeout, siz
 int TcpSocket::SslBlock::Read(void * pBuf, int bufLen) { return P_S ? SSL_read(static_cast<SSL *>(P_S), pBuf, bufLen) : -1; }
 int TcpSocket::SslBlock::Write(const void * pBuf, int bufLen) { return P_S ? SSL_write(static_cast<SSL *>(P_S), pBuf, bufLen) : -1; }
 
-TcpSocket::TcpSocket(int timeout, int maxConn) : InBuf(DefaultReadFrame), OutBuf(DefaultWriteFrame), Timeout(timeout), MaxConn(maxConn), LastSockErr(0), P_Ssl(0)
+TcpSocket::TcpSocket(int timeout, int maxConn) : InBuf(DefaultReadFrame), OutBuf(DefaultWriteFrame), Timeout(timeout), MaxConn(maxConn), LastSockErr(0), 
+	P_Ssl(0), SockOptions(0)
 {
 	Reset();
 }
@@ -92,6 +93,7 @@ int TcpSocket::MoveToS(TcpSocket & rDest, int force /*=0*/)
 	if(!rDest.IsValid()) {
 		rDest.S = S;
 		rDest.Timeout = Timeout;
+		rDest.SockOptions = SockOptions; // @v12.6.9
 		rDest.StatData = StatData;
 		Reset();
 		ok = rDest.IsValid() ? 1 : -1;
@@ -99,6 +101,7 @@ int TcpSocket::MoveToS(TcpSocket & rDest, int force /*=0*/)
 	else if(force) {
 		rDest.S = S;
 		rDest.Timeout = Timeout;
+		rDest.SockOptions = SockOptions; // @v12.6.9
 		rDest.StatData = StatData;
 		ok = rDest.IsValid() ? 1 : -1;
 	}
@@ -115,6 +118,7 @@ int TcpSocket::CopyS(TcpSocket & rSrc)
 		Disconnect();
 		S = WSASocket(PF_INET, SOCK_STREAM, 0, &sock_info, 0, 0);
 		Timeout     = rSrc.Timeout;
+		SockOptions = rSrc.SockOptions; // @v12.6.9
 		MaxConn     = rSrc.MaxConn;
 		LastSockErr = rSrc.LastSockErr;
 		StatData    = rSrc.StatData;
@@ -134,8 +138,8 @@ int TcpSocket::Init(SOCKET s)
 	Reset();
 	S = s;
 	{
-		int bufsize;
-		int len = sizeof(bufsize);
+		int    bufsize;
+		int    len = sizeof(bufsize);
 		::getsockopt(S, SOL_SOCKET, SO_RCVBUF, (char *)&bufsize, &len);
 		StatData.RcvBufSize = bufsize;
 		len = sizeof(bufsize);
@@ -163,21 +167,37 @@ int TcpSocket::CheckErrorStatus()
 
 int FASTCALL TcpSocket::SetTimeout(int timeout)
 {
-	if(timeout >= 0) {
+	int    ok = 1;
+	if(timeout >= 0)
 		Timeout = timeout;
-		return 1;
-	}
 	else
-		return 0;
+		ok = 0;
+	return ok;
 }
+
+int FASTCALL TcpSocket::SetSockOptions(uint sockoptFlags) // @v12.6.9
+{
+	int    ok = 1;
+	SockOptions = sockoptFlags;
+	return ok;
+}
+
+uint TcpSocket::GetSockOptions() const { return SockOptions; } // @v12.6.9
 
 int TcpSocket::Helper_Connect(SslMode sslm, const InetAddr & rAddr)
 {
-	int    ok = 1, err;
+	int    ok = 1;
+	int    err = 0;
 	sockaddr_in addr;
 	InetAddr self_addr;
 	self_addr.Set(ADDR_ANY);
 	THROW(Bind(self_addr));
+	// @v12.6.9 {
+	if(SockOptions & sockoptNoDelay) {
+		int    no_delay_flag = 1;
+		setsockopt(S, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<const char *>(&no_delay_flag), sizeof(no_delay_flag));
+	}
+	// } @v12.6.9 
 	if(::connect(S, rAddr.Get(&addr), sizeof(addr)) == SOCKET_ERROR) {
 		int    len;
 		int    bufsize;
@@ -345,7 +365,7 @@ int TcpSocket::Select(int mode /* TcpSocket::mXXX */, int timeout, size_t * pAva
 			tval.tv_usec = (Timeout % 1000) * 10;
 			p_tval = &tval;
 		}
-		int    r = ::select(S+1/* ignored */, p_rset, p_wset, &eset, p_tval);
+		int    r = ::select(S+1/*ignored*/, p_rset, p_wset, &eset, p_tval);
 		if(!r)
 			ok = (SLibError = SLERR_SOCK_TIMEOUT, 0);
 		else if(r == SOCKET_ERROR)
@@ -559,14 +579,15 @@ int TcpServer::ExecSession(TcpSocket & rSock, InetAddr & rAddr)
 int TcpServer::Run()
 {
 	int    ok = 1;
-	SString msg_buf, temp_buf;
+	SString msg_buf;
+	SString temp_buf;
 	THROW(Bind(/*Addr*/Sle.A));
 	THROW(Listen());
 	while(!SLS.CheckStopFlag()) {
-		if(Select(TcpSocket::mRead, 10000) > 0) { // @v6.1.4 timeout: -1-->10000
+		if(Select(TcpSocket::mRead, 10000/*timeout*/) > 0) {
 			ENTER_CRITICAL_SECTION
 			InetAddr cli_addr;
-			TcpSocket cli_sock(60000); // @v6.1.2 timeout: 0-->300000 @v7.8.10 timeout: 300000-->60000
+			TcpSocket cli_sock(60000/*timeout*/);
 			if(Accept(cli_sock, cli_addr)) {
 				ExecSession(cli_sock, cli_addr);
 			}

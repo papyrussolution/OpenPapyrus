@@ -4,6 +4,7 @@
 #pragma hdrstop
 #include <ppdrvapi.h>
 #include <pp-ifm.h>
+#include <snet.h> // @v12.6.9
 
 static constexpr bool FractionalMedcineTo1291 = false/*не работает*/; // @v12.3.7 Если true, то дробное количество лекарств передаются в поле
 	// количества команды 0x42 в виде n/m, в противном случае - в команде 0x24 в спец строке mdlp
@@ -25,15 +26,6 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 static int ErrorCode = 0;
 //static constexpr char FS = 0x1C;
 //#define	FS_STR	"\x1C"	// Символ-разделитель пар параметров
-
-// @v11.2.3 Следующие мнемоники заменены на CHR_XXX определенные в SLIB.H
-// Для формирования пакета данных
-// @v11.2.3 #define	STX		0x02	// Начало пакета
-// @v11.2.3 #define	ETX		0x03	// Конец пакета
-// Коды команд ККМ
-// @v11.2.3 #define ENQ	    0x05	// Проверка связи
-// @v11.2.3 #define ACK	    0x06	// ККМ на связи
-// @v11.2.3 #define CAN	    0x18	// Прервать выполнение отчета
 
 // Коды ошибок
 #define PIRIT_ERRSTATUSFORFUNC     1 // 01h Функция невыполнима при данном статусе ККМ
@@ -91,18 +83,18 @@ static int ErrorCode = 0;
 #define CHECKCLOSED       0x10 // Чек закрыт
 
 struct Config {
-	Config() : CashID(0), Name(0), LogNum(0), Port(0), BaudRate(0), DateTm(MAXDATETIME), Flags(0), LocalFlags(lfDoLog), ConnPass("PIRI"), ReadCycleCount(10), ReadCycleDelay(10)
+	Config() : CashID(0), Name(0), LogNum(0), ComPortN(0), BaudRate(0), DateTm(MAXDATETIME), Flags(0), LocalFlags(lfDoLog), ConnPass("PIRI"), ReadCycleCount(10), ReadCycleDelay(10)
 	{
 	}
 	struct LogoStruct {
 		LogoStruct() : Height(0), Width(0), Size(0), Print(0)
 		{
 		}
-		SString Path;
-		uint Height;
-		uint Width;
+		uint   Height;
+		uint   Width;
 		size_t Size;
-		int Print;
+		int    Print;
+		SString Path;
 	};
 	enum {
 		lfDoLog = 0x0001 // Записывать всякую хрень в файл журнала операций
@@ -110,7 +102,7 @@ struct Config {
 	int    CashID;
 	char * Name;
 	uint   LogNum;
-	int    Port;
+	int    ComPortN;
 	int    BaudRate;
 	LDATETIME DateTm;
 	long   Flags;
@@ -118,6 +110,7 @@ struct Config {
 	const  char * ConnPass; // Пароль для связи
 	int    ReadCycleCount;
 	int    ReadCycleDelay;
+	SString Url; // @v12.6.9
 	LogoStruct Logo;
 };
 
@@ -136,7 +129,7 @@ struct CheckStruct {
 		Department = 0;
 		Tax = 0;
 		Ptt = 0;
-		Stt = 0; // @erik v10.4.12
+		Stt = 0; // @erik
 		UomId = 0; // @v11.9.5
 		UomFragm = 0;
 		TaxSys = -1;
@@ -152,16 +145,16 @@ struct CheckStruct {
 		PaymBank = 0.0;
 		IncassAmt = 0.0;
 		ChZnProdType = 0;
-		ChZnPpResult = 0; // @v11.1.11
-		ChZnPpStatus = 0; // @v11.1.11
+		ChZnPpResult = 0;
+		ChZnPpStatus = 0;
 		ChZnPm_ReqId.Z();  // @v12.1.1
 		ChZnPm_ReqTimestamp = 0; // @v12.1.1
 		ChZnPm_LocalModuleInstance.Z(); // @v12.3.12
 		ChZnPm_LocalModuleDbVer.Z();    // @v12.3.12
-		Timestamp.Z(); // @v11.2.3
-		BuyersEmail.Z(); // @v11.3.6
-		BuyersPhone.Z(); // @v11.3.6
-		PrescrDate.Z();    // @v11.8.0 Рецепт: Дата  //
+		Timestamp.Z();
+		BuyersEmail.Z();
+		BuyersPhone.Z();
+		PrescrDate.Z();   // @v11.8.0 Рецепт: Дата  //
 		PrescrSerial.Z(); // @v11.8.0 Рецепт: Серия //
 		PrescrNumber.Z(); // @v11.8.0 Рецепт: Номер //
 		return *this;
@@ -185,7 +178,7 @@ struct CheckStruct {
 	int    TaxSys;       // Система налогообложения
 	int    Tax;          //
 	int    Ptt;          // CCheckPacket::PaymentTermTag
-	int    Stt;          // @erik v10.4.12
+	int    Stt;          // @erik
 	int    UomId;        // @v11.9.5 Ид единицы измерения (SUOM_XXX)
 	int    UomFragm;     // Фрагментация единицы измерения //
 	int    ChZnProdType; //
@@ -310,6 +303,7 @@ public:
 	SString LastParams;	// Параметры последней команды
 	SString CashDateTime; // Записываем дату/время ККМ при возникновении ошибки PIRIT_DATELSLASTOP, дабы вывести ее в сообщении.
 	SCommPort CommPort;
+	TcpSocket So; // @v12.6.9
 	Config Cfg;
 	CheckStruct Check;
 private:
@@ -417,7 +411,35 @@ private:
 	int    ReadConfigTab(int arg1, int arg2, SString & rOut, SString & rError);
 	int    WriteConfigTab(int arg1, int arg2, int val, SString & rOut, SString & rError);
 	int    ExecCmd(const char * pHexCmd, const char * pInput, SString & rOut, SString & rError);
-
+	bool   PutByteToPort(int byte)
+	{
+		bool    ok = 0;
+		if(So.IsValid()) {
+			size_t actual_size = 0;
+			ok = So.Send(&byte, 1, &actual_size);
+		}
+		else {
+			ok = CommPort.PutChr(byte);
+		}
+		return ok;
+	}
+	bool   GetByteFromPort(int * pByte)
+	{
+		int    ok = 0;
+		if(So.IsValid()) {
+			int   b = 0;
+			size_t actual_size = 0;
+			ok = So.Recv(&b, 1, &actual_size);
+			if(ok && actual_size == 1) {
+				*pByte = b;
+			}
+		}
+		else {
+			ok = CommPort.GetChr(pByte);
+		}
+		return ok;
+	}
+	SBinaryChunk SendBuf; // @v12.6.9 @allocreuse
 	SString LogFileName;
 	StringSet RetTknzr;
 };
@@ -761,22 +783,28 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 		LastError = 0;
 	}
 	else { // if(LastError != NOTENOUGHMEM)
+		int   dvc_flags = 0;
 		if(cmd.IsEqiAscii("CONNECT")){
 			SetLastItems(0, 0);
-			if(pb.Get("PORT", param_val) > 0)
-				Cfg.Port = param_val.ToLong();
-			if(pb.Get("BAUDRATE", param_val) > 0)
+			if(pb.Get("PORT", param_val) > 0) {
+				Cfg.ComPortN = param_val.ToLong();
+			}
+			if(pb.Get("BAUDRATE", param_val) > 0) {
 				Cfg.BaudRate = param_val.ToLong();
-			int    flag = 0;
+			}
+			// @v12.6.9 {
+			if(pb.Get("IPADDR", param_val) > 0) {
+				Cfg.Url = param_val;
+			}
+			// } @v12.6.9 
 			THROWERR(SetConnection(), PIRIT_NOTCONNECTED);
-			THROW(GetCurFlags(2, flag));
+			THROW(GetCurFlags(2, dvc_flags));
 			GetTaxTab();
 		}
 		else if(cmd.IsEqiAscii("CHECKSESSOVER")){
 			SetLastItems(cmd, pInputData);
-			int    flag = 0;
-			THROW(GetCurFlags(2, flag));
-			strcpy(pOutputData, (flag & 0x8) ? "1" : "0");
+			THROW(GetCurFlags(2, dvc_flags));
+			strcpy(pOutputData, (dvc_flags & 0x8) ? "1" : "0");
 		}
 		else if(cmd.IsEqiAscii("DISCONNECT")) {
 			SetLastItems(0, 0);
@@ -787,20 +815,14 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			THROW(StartWork());
 			if(pb.Get("LOGNUM", param_val) > 0)
 				Cfg.LogNum = param_val.ToLong();
-			/* @v11.5.0
-			if(pb.Get("FLAGS", param_val) > 0)
-				Cfg.Flags = param_val.ToLong();
-			*/
 			if(pb.Get("CSHRNAME", param_val) > 0)
 				CshrName = param_val;
 			if(pb.Get("PRINTLOGO", param_val) > 0)
 				Cfg.Logo.Print = param_val.ToLong();
-			// @v11.5.0 {
 			if(pb.Get("LOGGING", param_val) > 0) {
 				if(param_val.IsEqiAscii("false") || param_val.IsEqiAscii("no") || param_val == "0" )
 					Cfg.LocalFlags &= ~Config::lfDoLog;
 			}
-			// } @v11.5.0 
 			THROW(SetCfg());
 		}
 		else if(cmd.IsEqiAscii("SETLOGOTYPE")) {
@@ -816,7 +838,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				Cfg.Logo.Width = param_val.ToLong();
 			THROW(SetLogotype(Cfg.Logo.Path, Cfg.Logo.Size, Cfg.Logo.Height, Cfg.Logo.Width));
 		}
-		else if(cmd.IsEqiAscii("DIAGNOSTICS")) { // @v11.1.9
+		else if(cmd.IsEqiAscii("DIAGNOSTICS")) {
 			/*
 				Номер запроса (DEC) 	Наименование Запроса 	Формат возвращаемых данных 	Комментарии
 				1 	Вернуть заводской номер ККТ 	Строка
@@ -1139,12 +1161,11 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			else
 				memcpy(pOutputData, str, str.BufSize());
 		}
-		else if(cmd.IsEqiAscii("OPENSESSION")) { // @v11.3.12
-			int    flag = 0;
+		else if(cmd.IsEqiAscii("OPENSESSION")) {
 			SetLastItems(cmd, pInputData);
 			THROW(StartWork());
-			THROW(GetCurFlags(2, flag));
-			if(!(flag & 0x4)) { // Если смена уже открыта, то ничего делать не надо
+			THROW(GetCurFlags(2, dvc_flags));
+			if(!(dvc_flags & 0x4)) { // Если смена уже открыта, то ничего делать не надо
 				/*
 					(Имя оператора) Имя оператора
 					(Строка) Адрес пользователя (тег 1009). Это поле используется, если указанные реквизиты отличны от реквизитов, переданных при формировании отчета о регистрации ККТ.
@@ -1152,23 +1173,22 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				*/
 				CreateStr(CshrName, str.Z());
 				THROW(ExecCmd("23", str, out_data, r_error));
-				THROW(GetCurFlags(2, flag));
-				if(!(flag & 0x4))  // Проверяем флаг "смена открыта"
+				THROW(GetCurFlags(2, dvc_flags));
+				if(!(dvc_flags & 0x4))  // Проверяем флаг "смена открыта"
 					ok = 0;
 			}
 		}
 		else if(cmd.IsEqiAscii("ZREPORT")) {
 			SetLastItems(cmd, pInputData);
 			THROW(StartWork());
-			CreateStr(CshrName, str.Z()); // @v11.3.12 str-->str.Z()
-			int    flag = 0;
-			THROW(GetCurFlags(2, flag));
-			THROWERR(!(flag & 0x40), PIRIT_NOTENOUGHTMEMFORSESSCLOSE); // Нет памяти для закрытия смены в ФП
+			CreateStr(CshrName, str.Z());
+			THROW(GetCurFlags(2, dvc_flags));
+			THROWERR(!(dvc_flags & 0x40), PIRIT_NOTENOUGHTMEMFORSESSCLOSE); // Нет памяти для закрытия смены в ФП
 			THROW(ExecCmd("21", str, out_data, r_error));
 			// Ставлю проверку в двух местах, ибо не знаю, в какой момент этот флаг устанавливается
-			THROW(GetCurFlags(2, flag));
-			THROWERR(!(flag & 0x40), PIRIT_NOTENOUGHTMEMFORSESSCLOSE); // Нет памяти для закрытия смены в ФП
-			if(!(flag & 0x4))  // Проверяем флаг "смена открыта"
+			THROW(GetCurFlags(2, dvc_flags));
+			THROWERR(!(dvc_flags & 0x40), PIRIT_NOTENOUGHTMEMFORSESSCLOSE); // Нет памяти для закрытия смены в ФП
+			if(!(dvc_flags & 0x4))  // Проверяем флаг "смена открыта"
 				ok = 0;
 		}
 		else if(cmd.IsEqiAscii("XREPORT")) {
@@ -1181,19 +1201,19 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			SetLastItems(cmd, pInputData);
 			THROW(ExecCmd("34", str, out_data, r_error));
 		}
-		else if(cmd.IsEqiAscii("ACCEPTCHZNCODE")) { // @v11.1.11
+		else if(cmd.IsEqiAscii("ACCEPTCHZNCODE")) {
 			str.Z();
 			CreateStr(2, str);
 			CreateStr(1, str);
 			THROW(ExecCmd("79", str, out_data, r_error)); // query=2
 		}
-		else if(cmd.IsEqiAscii("REJECTCHZNCODE")) { // @v11.1.11
+		else if(cmd.IsEqiAscii("REJECTCHZNCODE")) {
 			str.Z();
 			CreateStr(2, str);
 			CreateStr(static_cast<int>(0), str);
 			THROW(ExecCmd("79", str, out_data, r_error)); // query=2
 		}
-		else if(cmd.IsEqiAscii("PREPROCESSCHZNCODE") || cmd.IsEqiAscii("PREPROCESSCHZNCODE_OFFL")) { // @v11.1.10 // @v12.4.1 (|| cmd.IsEqiAscii("PREPROCESSCHZNCODE_OFFL"))
+		else if(cmd.IsEqiAscii("PREPROCESSCHZNCODE") || cmd.IsEqiAscii("PREPROCESSCHZNCODE_OFFL")) { // @v12.4.1 (|| cmd.IsEqiAscii("PREPROCESSCHZNCODE_OFFL"))
 			double qtty = 1.0;
 			double phqtty = 0.0; // @v11.9.4
 			SString result_buf;
@@ -1226,7 +1246,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				chzn_partn = param_val;
 			if(pb.Get("CHZNPRODTYPE", param_val) > 0)
 				chzn_prodtype = param_val.ToLong();
-			if(pb.Get("UOMFRAGM", param_val) > 0) // @v11.2.5
+			if(pb.Get("UOMFRAGM", param_val) > 0)
 				uom_fragm = inrangeordefault(param_val.ToLong(), 1L, 100000L, 0L);
 			if(chzn_code.NotEmptyS()) {
 				const char * p_serial = chzn_serial.NotEmpty() ? chzn_serial.cptr() : chzn_partn.cptr();
@@ -1300,16 +1320,12 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					default: Check.TaxSys = -1; break;
 				}
 			}
-			// @v11.1.9 {
 			if(pb.Get("OFDVER", param_val) > 0) {
 				OfdVer.FromStr(param_val);
 			}
-			// } @v11.1.9
-			// @v11.3.6 {
 			if(pb.Get("PAPERLESS", param_val) > 0) {
 				Check.CheckType |= 0x80;
 			}
-			// } @v11.3.6
 			if(pb.Get("DRAFTBEERSIMPLIFIED", param_val) > 0) // @v11.9.4
 				Check.DraftBeerSimplifiedCode = param_val;
 			else
@@ -1339,12 +1355,10 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				Check.PaymCCrdCard = param_val.ToReal();
 			if(pb.Get("CHZNSID", param_val) > 0)
 				Check.ChZnSid = param_val;
-			// @v11.3.6 {
 			if(pb.Get("BUYERSPHONE", param_val) > 0)
 				Check.BuyersPhone = param_val;
 			if(pb.Get("BUYERSEMAIL", param_val) > 0)
 				Check.BuyersEmail = param_val;
-			// } @v11.3.6 
 			THROW(RunCheck(1));
 		}
 		else if(cmd.IsEqiAscii("CHECKCORRECTION")) {
@@ -1622,7 +1636,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 						Check.Ptt = ptt_list[i].Id;
 				}
 			}
-			//@erik v10.4.12{
+			// @erik {
 			if(pb.Get("SUBJTERMTAG", param_val) > 0) {
 				static const SIntToSymbTabEntry stt_list[] = {
 					{1, "STT_GOOD" },
@@ -1651,7 +1665,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 						break;
 					}
 				}
-				// } @erik v10.4.12
+				// } @erik
 			}
 			// @v11.8.0 {
 			{
@@ -1677,10 +1691,8 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				Check.FontSize = param_val.ToLong();
 			if(pb.Get("TEXT", param_val) > 0)
 				Check.Text = param_val;
-			// @v11.0.9 {
 			else
 				Check.Text.Space();
-			// } @v11.0.9
 			THROW(RunCheck(3));
 		}
 		else if(cmd.IsEqiAscii("PRINTBARCODE")) {
@@ -1830,7 +1842,7 @@ SString & PiritEquip::LastErrorText(SString & rMsg)
 {
 	SIntToSymbTab_GetSymb(Pirit_ErrMsg, SIZEOFARRAY(Pirit_ErrMsg), LastError, rMsg);
 	if(LastError == PIRIT_FATALERROR) {
-		char str[16];
+		char   str[16];
 		memzero(str, sizeof(str));
 		rMsg.Space().Cat(_itoa(FatalFlags, str, 10));
 	}
@@ -1890,15 +1902,17 @@ int PiritEquip::NotEnoughBuf(SString & rStr)
 
 int PiritEquip::ENQ_ACK()
 {
-	const clock_t clk_init = clock();
-	const uint max_clk = 2000;
-	const uint max_tries = 3;
-	const uint try_dealy = 50;
-	uint  try_no = 0;
+	const  clock_t clk_init = clock();
+	const  uint max_clk = 2000;
+	const  uint max_tries = 3;
+	const  uint try_dealy = 50;
+	uint   try_no = 0;
+	SString msg_buf;
 	SDelay(try_dealy);
 	do {
-		CommPort.PutChr(CHR_ENQ); // Проверка связи с ККМ
-		int r = CommPort.GetChr();
+		PutByteToPort(CHR_ENQ); // Проверка связи с ККМ
+		int    r = 0;
+		GetByteFromPort(&r);
 		if(r == CHR_ACK) {
 			return 1;
 		}
@@ -1906,7 +1920,6 @@ int PiritEquip::ENQ_ACK()
 			++try_no;
 			if(try_no >= max_tries) {
 				if(LogFileName.NotEmpty()) {
-					SString msg_buf;
 					(msg_buf = "Error ENQ_ACK() tries exceeded").Space().CatChar('(').Cat(try_no).CatChar(')').Space().CatEq("reply", r);
 					SLS.LogMessage(LogFileName, msg_buf, 8192);
 				}
@@ -1916,7 +1929,6 @@ int PiritEquip::ENQ_ACK()
 				clock_t clk_current = clock();
 				if((clk_current - clk_init) >= max_clk) {
 					if(LogFileName.NotEmpty()) {
-						SString msg_buf;
 						(msg_buf = "Error ENQ_ACK() timeout exceeded").Space().CatChar('(').Cat(clk_current - clk_init).CatChar(')');
 						SLS.LogMessage(LogFileName, msg_buf, 8192);
 					}
@@ -1933,48 +1945,80 @@ int PiritEquip::SetConnection()
 {
 	int    ok = 1;
 	int    r = 0;
-	int    is_ready = 0;
 	CommPortParams port_params;
-	CommPort.GetParams(&port_params);
-	port_params.ByteSize = 8;
-	port_params.Parity = NOPARITY;
-	port_params.StopBits = ONESTOPBIT;
-	switch(Cfg.BaudRate) {
-		case 0: port_params.Cbr = cbr2400; break;
-		case 1: port_params.Cbr = cbr4800; break;
-		case 2: port_params.Cbr = cbr9600; break;
-		case 3: port_params.Cbr = cbr14400; break;
-		case 4: port_params.Cbr = cbr19200; break;
-		case 5: port_params.Cbr = cbr38400; break;
-		case 6: port_params.Cbr = cbr56000; break;
-		case 7: port_params.Cbr = cbr57600; break;
-		case 8: port_params.Cbr = cbr115200; break;
-		case 9: port_params.Cbr = cbr128000; break;
-		case 10: port_params.Cbr = cbr256000; break;
-	}
-	CommPort.SetParams(&port_params);
-	{
-		//int ipr = CommPort.InitPort(Cfg.Port, 1/*ctsControl*/, 2/*rtsControl*/);
-		int ipr = CommPort.InitPort(Cfg.Port, 0/*ctsControl*/, 0/*rtsControl*/);
-		if(!ipr) {
-			if(LogFileName.NotEmpty())
-				SLS.LogMessage(LogFileName, "Error CommPort.InitPort", 8192);
-			CALLEXCEPT();
+	SString msg_buf;
+	SString temp_buf;
+	// @v12.6.9 {
+	if(Cfg.Url.NotEmpty()) {
+		if(So.IsValid()) {
+			So.Disconnect();
+		}
+		InetAddr addr;
+		THROW(addr.FromStr(Cfg.Url) > 0);
+		if(addr.GetPort() <= 0) {
+			addr.SetPort_(50003);
+		}
+		So.SetTimeout(500);
+		{
+			const  uint prev_sockopt = So.GetSockOptions();
+			So.SetSockOptions(prev_sockopt|TcpSocket::sockoptNoDelay);
+		}
+		So.Connect(addr);
+		THROW(ENQ_ACK());
+		if(LogFileName.NotEmpty()) {
+			(msg_buf = "Connection is established").CatDiv(':', 2).Cat(Cfg.Url);
+			SLS.LogMessage(LogFileName, msg_buf, 8192);
 		}
 	}
-	if((Cfg.ReadCycleCount > 0) || (Cfg.ReadCycleDelay > 0))
-		CommPort.SetReadCyclingParams(Cfg.ReadCycleCount, Cfg.ReadCycleDelay);
-	THROW(ENQ_ACK());
-	if(LogFileName.NotEmpty()) {
-		SString msg_buf;
-		(msg_buf = "Connection is established").CatDiv(':', 2).CatEq("cbr", port_params.Cbr);
-		SLS.LogMessage(LogFileName, msg_buf, 8192);
+	else 
+	// } @v12.6.9 
+	{
+		CommPort.GetParams(&port_params);
+		port_params.ByteSize = 8;
+		port_params.Parity = NOPARITY;
+		port_params.StopBits = ONESTOPBIT;
+		switch(Cfg.BaudRate) {
+			case 0: port_params.Cbr = cbr2400; break;
+			case 1: port_params.Cbr = cbr4800; break;
+			case 2: port_params.Cbr = cbr9600; break;
+			case 3: port_params.Cbr = cbr14400; break;
+			case 4: port_params.Cbr = cbr19200; break;
+			case 5: port_params.Cbr = cbr38400; break;
+			case 6: port_params.Cbr = cbr56000; break;
+			case 7: port_params.Cbr = cbr57600; break;
+			case 8: port_params.Cbr = cbr115200; break;
+			case 9: port_params.Cbr = cbr128000; break;
+			case 10: port_params.Cbr = cbr256000; break;
+		}
+		CommPort.SetParams(&port_params);
+		{
+			const  int ipr = CommPort.InitPort(Cfg.ComPortN, 0/*ctsControl*/, 0/*rtsControl*/);
+			if(!ipr) {
+				if(LogFileName.NotEmpty())
+					SLS.LogMessage(LogFileName, "Error CommPort.InitPort", 8192);
+				CALLEXCEPT();
+			}
+		}
+		if(Cfg.ReadCycleCount > 0 || Cfg.ReadCycleDelay > 0) {
+			CommPort.SetReadCyclingParams(Cfg.ReadCycleCount, Cfg.ReadCycleDelay);
+		}
+		THROW(ENQ_ACK());
+		if(LogFileName.NotEmpty()) {
+			(msg_buf = "Connection is established").CatDiv(':', 2).CatEq("cbr", port_params.Cbr);
+			SLS.LogMessage(LogFileName, msg_buf, 8192);
+		}
 	}
 	CATCH
+		So.Disconnect(); // @v12.6.9
 		CommPort.ClosePort();
 		if(LogFileName.NotEmpty()) {
-			SString msg_buf;
-			(msg_buf = "Error on connection").CatDiv(':', 2).CatEq("cbr", port_params.Cbr);
+			(msg_buf = "Error on connection").CatDiv(':', 2);
+			if(Cfg.Url.NotEmpty()) {
+				msg_buf.Cat(Cfg.Url);
+			}
+			else {
+				msg_buf.CatEq("cbr", port_params.Cbr);
+			}
 			SLS.LogMessage(LogFileName, msg_buf, 8192);
 		}
 		ok = 0;
@@ -1984,6 +2028,10 @@ int PiritEquip::SetConnection()
 
 void PiritEquip::CloseConnection()
 {
+	// @v12.6.9 {
+	if(So.IsValid())
+		So.Disconnect();
+	// } @v12.6.9 
 	CommPort.ClosePort();
 }
 
@@ -2070,8 +2118,6 @@ int PiritEquip::SetCfg()
 {
 	int    ok = 1;
 	int    err_code = 0;
-	//SString out;
-	//SString subdata;
 	SString in_data;
 	SString out_data;
 	SString r_error;
@@ -2082,18 +2128,15 @@ int PiritEquip::SetCfg()
 	CreateStr((int)Cfg.LogNum, in_data);
 	THROW(ExecCmd("12", in_data, out_data, r_error));
 	*/
-	// @v11.5.0 {
 	if(!(Cfg.LocalFlags & Config::lfDoLog)) {
 		LogFileName.Z();
 	}
-	// } @v11.5.0 
 	THROW(WriteConfigTab(10, 0, static_cast<int>(Cfg.LogNum), out_data, r_error));
 	// Получаем номер текущей сессии
 	CreateStr(1, in_data);
 	{
 		THROW(ExecCmd("01", in_data, out_data, r_error)); // Запрос номера текущей сессии(смены)
 		{
-			//StringSet delim_out(CHR_FS, out_data);
 			uint   i = 0;
 			RetTknzr.setBuf(out_data);
 			RetTknzr.get(&i, out_data); // В out считан номер запроса
@@ -2109,13 +2152,13 @@ int PiritEquip::StartWork(bool force)
 {
 	int    ok = 1;
 	int    flag = 0;
-	if(force) { // @v11.3.2
-		flag = 0x1;
+	if(force) {
+		flag = 0x01;
 	}
 	else {
 		THROW(GetCurFlags(2, flag)); // Проверяем флаг "не была вызвана функция начало работы"
 	}
-	if(flag & 0x1) {
+	if(flag & 0x01) {
 		SString temp_buf;
 		SString date;
 		SString time;
@@ -2345,7 +2388,6 @@ int PiritEquip::PreprocessChZnMark(const char * pMarkCode, double qtty, int uomI
 				}
 			}
 		}
-		// @v11.3.2 {
 		{
 			int fatal_flags = 0;
 			if(GetCurFlags(1, fatal_flags) && fatal_flags != 0) {
@@ -2358,7 +2400,6 @@ int PiritEquip::PreprocessChZnMark(const char * pMarkCode, double qtty, int uomI
 				}
 			}
 		}
-		// } @v11.3.2 
 	}
 	CATCHZOK
 	return ok;
@@ -3234,11 +3275,11 @@ int PiritEquip::GetData(SString & rData, SString & rError)
 	//
 	// Получаем пакет ответа
 	//
-	if(CommPort.GetChr(&c)) {
+	if(GetByteFromPort(&c)) {
 		SString & r_buf = SLS.AcquireRvlStr();
 		do {
 			r_buf.CatChar(c);
-			c = CommPort.GetChr();
+			GetByteFromPort(&c);
 		} while(c != CHR_ETX && c != 0);
 		{
 			int    crc = 0;
@@ -3247,9 +3288,9 @@ int PiritEquip::GetData(SString & rData, SString & rError)
 			uint   i;
 			SString & r_str_crc1 = SLS.AcquireRvlStr();
 			r_buf.CatChar(c); // Добавили байт конца пакета
-			c = CommPort.GetChr(); // Получили 1-й байт контрольной суммы
+			GetByteFromPort(&c); // Получили 1-й байт контрольной суммы
 			r_buf.CatChar(c);
-			c = CommPort.GetChr(); // Получили 2-й байт контрольной суммы
+			GetByteFromPort(&c); // Получили 2-й байт контрольной суммы
 			r_buf.CatChar(c);
 			THROW(r_buf.C(0) == CHR_STX);
 			// Выделяем байты с информацией об ошибке
@@ -3257,8 +3298,9 @@ int PiritEquip::GetData(SString & rData, SString & rError)
 			//
 			// Считываем данные
 			//
-			for(i = 6; r_buf.C(i) != CHR_ETX; i++)
+			for(i = 6; r_buf.C(i) != CHR_ETX; i++) {
 				rData.CatChar(r_buf.C(i));
+			}
 			// Считаем контрольную сумму
 			for(i = 1; i < r_buf.Len()-2; i++)
 				crc ^= ((uchar)r_buf.C(i));
@@ -3301,35 +3343,57 @@ int PiritEquip::PutData(const char * pCommand, const char * pData)
 		buf[1] = buf[0];
 		buf[0] = '0';
 	}
+	//
 	// Отправляем пакет на ККМ
-	const int fill_debug_buffer = 1;
+	//
+	{
+		SendBuf.Z();
+		SendBuf.Cat(CHR_STX);
+		SendBuf.Cat(r_pack.ucptr(), r_pack.Len());
+		SendBuf.Cat(CHR_ETX);
+		SendBuf.Cat(buf[0]);
+		SendBuf.Cat(buf[1]);
+		if(So.IsValid()) {
+			size_t actual_size = 0;
+			THROW(So.Send(SendBuf.PtrC(), SendBuf.Len(), &actual_size));
+		}
+		else {
+			for(uint i = 0; i < SendBuf.Len(); i++) {
+				const  int byte = PTR8C(SendBuf.PtrC(i))[0];
+				THROW(CommPort.PutChr(byte));
+			}
+		}
+	}
+	/*
 	char   debug_packet[1024];
 	size_t debug_packet_pos = 0;
+	const  int fill_debug_buffer = 0;
 	if(fill_debug_buffer) {
 		// блок для отладки
 		memzero(debug_packet, sizeof(debug_packet));
-		THROW(CommPort.PutChr(CHR_STX));
+		THROW(PutByteToPort(CHR_STX));
 		debug_packet[debug_packet_pos++] = CHR_STX;
 		for(p = 0; p < r_pack.Len(); p++) {
 			const char v = r_pack.C(p);
-			THROW(CommPort.PutChr(v));
+			THROW(PutByteToPort(v));
 			debug_packet[debug_packet_pos++] = v;
 		}
-		THROW(CommPort.PutChr(CHR_ETX));
+		THROW(PutByteToPort(CHR_ETX));
 		debug_packet[debug_packet_pos++] = CHR_ETX;
-		THROW(CommPort.PutChr(buf[0]));
+		THROW(PutByteToPort(buf[0]));
 		debug_packet[debug_packet_pos++] = buf[0];
-		THROW(CommPort.PutChr(buf[1]));
+		THROW(PutByteToPort(buf[1]));
 		debug_packet[debug_packet_pos++] = buf[1];
 	}
 	else {
-		THROW(CommPort.PutChr(CHR_STX));
-		for(p = 0; p < r_pack.Len(); p++)
-			THROW(CommPort.PutChr(r_pack.C(p)));
-		THROW(CommPort.PutChr(CHR_ETX));
-		THROW(CommPort.PutChr(buf[0]));
-		THROW(CommPort.PutChr(buf[1]));
-	}
+		THROW(PutByteToPort(CHR_STX));
+		for(p = 0; p < r_pack.Len(); p++) {
+			THROW(PutByteToPort(r_pack.C(p)));
+		}
+		THROW(PutByteToPort(CHR_ETX));
+		THROW(PutByteToPort(buf[0]));
+		THROW(PutByteToPort(buf[1]));
+	}*/
 	CATCHZOK
 	return ok;
 }
@@ -3384,7 +3448,8 @@ int PiritEquip::GetStatus(SString & rStatus)
 
 int PiritEquip::FormatPaym(double paym, SString & rStr)
 {
-	SString b_point, a_point;
+	SString b_point;
+	SString a_point;
 	rStr.Z().Cat(paym);
     rStr.Divide('.', b_point, a_point);
 	if(a_point.Len() > 2)
@@ -3421,16 +3486,16 @@ int PiritEquip::SetLogotype(SString & rPath, size_t size, uint height, uint widt
 		OpLogBlock __oplb(LogFileName, "15", 0);
 		THROWERR(PutData("15", in_data), PIRIT_NOTSENT);
 		do {
-			r = CommPort.GetChr();
+			GetByteFromPort(&r);
 		} while(r && r != CHR_ACK);
 	}
 	{
 		OpLogBlock __oplb(LogFileName, "1B", 0);
 		n = 0x1B;
-		THROW(CommPort.PutChr(n));
+		THROW(PutByteToPort(n));
 		for(uint i = 1; i < (size + 1); i++) {
 			fread(&n, sizeof(char), 1, file);
-			THROW(CommPort.PutChr(n));
+			THROW(PutByteToPort(n));
 		}
  		THROW(GetWhile(out_data, r_error));
 	}

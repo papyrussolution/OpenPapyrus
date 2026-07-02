@@ -1586,9 +1586,10 @@ int ChZnInterface::Document::MakeDataBuffer(const ChZnInterface::InitBlock & rIb
 			psn_obj.GetRegNumber(subj_psn_id, PPREGT_TPID, sender_inn);
 			if(rcvr_psn_id)
 				psn_obj.GetRegNumber(rcvr_psn_id, PPREGT_TPID, receiver_inn);
-			if(spcprp.ChZnProdTypeList.lsearch(GTCHZNPT_MOTOROIL)) {
+			/* @v12.6.9 if(spcprp.ChZnProdTypeList.lsearch(GTCHZNPT_MOTOROIL)) {
 				data_format = SFileFormat::Json;
-			}
+			}*/
+			data_format = SFileFormat::Json; // @v12.6.9 Попробуем все грузит в json
 			if(data_format == SFileFormat::Json) {
 				SJson js(SJson::tOBJECT);
 				js.InsertString("inn", sender_inn);
@@ -1600,6 +1601,21 @@ int ChZnInterface::Document::MakeDataBuffer(const ChZnInterface::InitBlock & rIb
 				js.InsertString("document_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601CENT));
 				PPLoadStringUtf8("document_upd_s", temp_buf); // УПД
 				js.InsertString("primary_document_custom_name", temp_buf);
+				{ // @v12.6.9
+					PPLocationPacket loc_pack;
+					psn_obj.GetRegNumber(subj_psn_id, PPREGT_KPP, temp_buf);
+					if(temp_buf.NotEmpty()) {
+						//nh.PutInner("kpp", temp_buf);
+						js.InsertString("kpp", temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
+					}
+					if(psn_obj.LocObj.GetPacket(subj_loc_id, &loc_pack) > 0) {
+						const ObjTagItem * p_tag_item = loc_pack.TagL.GetItem(PPTAG_LOC_FIASGUID_ADR);
+						S_GUID fias_uuid;
+						if(p_tag_item && p_tag_item->GetGuid(&fias_uuid)) {
+							js.InsertString("fias_id", temp_buf.Z().Cat(fias_uuid, S_GUID::fmtIDL));
+						}
+					}
+				}
 				{
 					//"products"
 					SJson * p_js_inner = new SJson(SJson::tARRAY);
@@ -1635,8 +1651,6 @@ int ChZnInterface::Document::MakeDataBuffer(const ChZnInterface::InitBlock & rIb
 						js.Insert("products", p_js_inner);
 					}
 				}
-				//js.InsertString("kpp", "");
-				//js.InsertString("fias_id", "");
 				js.ToStr(rResult);
 				ok = 1;
 			}
@@ -1660,7 +1674,7 @@ int ChZnInterface::Document::MakeDataBuffer(const ChZnInterface::InitBlock & rIb
 							PPLoadString("document_upd_s", temp_buf); // УПД
 							nh.PutInner("primary_document_custom_name", temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 							// @v12.5.10 {
-							if(false) { // @v12.5.11 @condition Блядь! Сделал и выяснилось, что не надо было. 
+							if(false) { // @v12.5.11 @condition Блядь! Сделал и выяснилось, что не надо было.
 								PPLocationPacket loc_pack;
 								psn_obj.GetRegNumber(subj_psn_id, PPREGT_KPP, temp_buf);
 								if(temp_buf.NotEmpty()) {
@@ -3557,20 +3571,23 @@ int _ParseMarkInfoJsonResult(const SJson * pJs, PPChZnPrcssr::CodeInfoCollection
 {
 	int    ok = 1;
 	SString temp_buf;
+	PPChZnPrcssr::CodeInfo * p_new_entry = 0;
 	if(SJson::IsArray(pJs)) {
 		for(const SJson * p_js_item = pJs->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
 			if(SJson::IsObject(p_js_item)) {
 				for(const SJson * p_cur = p_js_item->P_Child; p_cur; p_cur = p_cur->P_Next) {
 					if(p_cur->Text.IsEqiAscii("cisInfo")) {
 						if(SJson::IsObject(p_cur->P_Child)) {
-							PPChZnPrcssr::CodeInfo * p_new_entry = new PPChZnPrcssr::CodeInfo();
+							p_new_entry = new PPChZnPrcssr::CodeInfo();
 							THROW_SL(p_new_entry);
 							for(const SJson * p_si = p_cur->P_Child->P_Child; p_si; p_si = p_si->P_Next) {
 								if(p_si->Text.IsEqiAscii("requestedCis")) {
 									(temp_buf = p_si->Text).Unescape();
+									rResult.AddS(temp_buf, &p_new_entry->ReqCisP);
 								}
 								else if(p_si->Text.IsEqiAscii("cis")) {
 									(temp_buf = p_si->Text).Unescape();
+									rResult.AddS(temp_buf, &p_new_entry->CisP);
 								}
 								else if(p_si->Text.IsEqiAscii("gtin")) {
 									(temp_buf = p_si->Text).Unescape();
@@ -3583,12 +3600,14 @@ int _ParseMarkInfoJsonResult(const SJson * pJs, PPChZnPrcssr::CodeInfoCollection
 								}
 								else if(p_si->Text.IsEqiAscii("productName")) {
 									(temp_buf = p_si->Text).Unescape();
+									rResult.AddS(temp_buf, &p_new_entry->ProductNameP);
 								}
 								else if(p_si->Text.IsEqiAscii("productGroupId")) {
 									uint   grp_id = p_si->Text.ToULong();
 								}
 								else if(p_si->Text.IsEqiAscii("brand")) {
 									(temp_buf = p_si->Text).Unescape();
+									rResult.AddS(temp_buf, &p_new_entry->BrandNameP);
 								}
 								else if(p_si->Text.IsEqiAscii("productGroup")) {
 									(temp_buf = p_si->Text).Unescape();
@@ -3604,18 +3623,21 @@ int _ParseMarkInfoJsonResult(const SJson * pJs, PPChZnPrcssr::CodeInfoCollection
 								}
 								else if(p_si->Text.IsEqiAscii("ownerName")) {
 									(temp_buf = p_si->Text).Unescape();
+									rResult.AddS(temp_buf, &p_new_entry->OwnerNameP);
 								}
 								else if(p_si->Text.IsEqiAscii("manufacturerInn")) {
 									p_new_entry->UedManufINN = UED::SetRaw_Ru_INN(p_si->Text, true);
 								}
 								else if(p_si->Text.IsEqiAscii("manufacturerName")) {
 									(temp_buf = p_si->Text).Unescape();
+									rResult.AddS(temp_buf, &p_new_entry->ManufNameP);
 								}
 								else if(p_si->Text.IsEqiAscii("producerInn")) {
 									p_new_entry->UedProducerINN = UED::SetRaw_Ru_INN(p_si->Text, true);
 								}
 								else if(p_si->Text.IsEqiAscii("producerName")) {
 									(temp_buf = p_si->Text).Unescape();
+									rResult.AddS(temp_buf, &p_new_entry->ProducerNameP);
 								}
 								else if(p_si->Text.IsEqiAscii("status")) {
 									(temp_buf = p_si->Text).Unescape();
@@ -3626,24 +3648,43 @@ int _ParseMarkInfoJsonResult(const SJson * pJs, PPChZnPrcssr::CodeInfoCollection
 								else if(p_si->Text.IsEqiAscii("applicationDate")) {
 									(temp_buf = p_si->Text).Unescape();
 									SUniTime_Internal ut;
-									//ut.
-									//p_new_entry->UedAppTm = UED::_SetRaw_Time(UED_META_TIME_MSEC, );
+									if(strtodatetime(temp_buf, ut, DATF_ISO8601CENT, 0))
+										p_new_entry->UedAppTm = UED::_SetRaw_Time(UED_META_TIME_MSEC, ut);
 								}
 								else if(p_si->Text.IsEqiAscii("introducedDate")) {
+									(temp_buf = p_si->Text).Unescape();
+									SUniTime_Internal ut;
+									if(strtodatetime(temp_buf, ut, DATF_ISO8601CENT, 0))
+										p_new_entry->UedIntroduceTm = UED::_SetRaw_Time(UED_META_TIME_MSEC, ut);
 								}
 								else if(p_si->Text.IsEqiAscii("producedDate")) {
+									(temp_buf = p_si->Text).Unescape();
+									SUniTime_Internal ut;
+									if(strtodatetime(temp_buf, ut, DATF_ISO8601CENT, 0))
+										p_new_entry->UedProductTm = UED::_SetRaw_Time(UED_META_TIME_MSEC, ut);
 								}
 								else if(p_si->Text.IsEqiAscii("expirationDate")) {
+									(temp_buf = p_si->Text).Unescape();
+									SUniTime_Internal ut;
+									if(strtodatetime(temp_buf, ut, DATF_ISO8601CENT, 0))
+										p_new_entry->UedExpiryTm = UED::_SetRaw_Time(UED_META_TIME_MSEC, ut);
 								}
 								else if(p_si->Text.IsEqiAscii("emissionDate")) {
+									(temp_buf = p_si->Text).Unescape();
+									SUniTime_Internal ut;
+									if(strtodatetime(temp_buf, ut, DATF_ISO8601CENT, 0))
+										p_new_entry->UedEmissionTm = UED::_SetRaw_Time(UED_META_TIME_MSEC, ut);
 								}
 								else if(p_si->Text.IsEqiAscii("emissionType")) {
 								}
 								else if(p_si->Text.IsEqiAscii("isMultipleSales")) { // bool
+									SETFLAG(p_new_entry->Flags, PPChZnPrcssr::CodeInfo::fIsMultSales, SJson::GetBoolean(p_si->P_Child) > 0);
 								}
 								else if(p_si->Text.IsEqiAscii("isTracking")) { // bool
+									SETFLAG(p_new_entry->Flags, PPChZnPrcssr::CodeInfo::fIsTracking, SJson::GetBoolean(p_si->P_Child) > 0);
 								}
 								else if(p_si->Text.IsEqiAscii("markWithdraw")) { // bool
+									SETFLAG(p_new_entry->Flags, PPChZnPrcssr::CodeInfo::fIsWithdraw, SJson::GetBoolean(p_si->P_Child) > 0);
 								}
 								else if(p_si->Text.IsEqiAscii("withdrawReason")) {
 								}
@@ -3662,13 +3703,13 @@ int _ParseMarkInfoJsonResult(const SJson * pJs, PPChZnPrcssr::CodeInfoCollection
 										}
 									}
 								}
-								else if(p_si->Text.IsEqiAscii("child")) {
-									// array
-									if(SJson::IsObject(p_si->P_Child)) {
-										for(const SJson * p_ci = p_si->P_Child->P_Child; p_ci; p_ci = p_ci->P_Next) {
-										}
-									}
+								else if(p_si->Text.IsEqiAscii("child")) { // array
+									SJson::GetArrayAsStringSet(p_si->P_Child, p_new_entry->Children);
 								}
+							}
+							if(p_new_entry) {
+								rResult.insert(p_new_entry);
+								p_new_entry = 0;
 							}
 						}
 					}
@@ -3677,6 +3718,7 @@ int _ParseMarkInfoJsonResult(const SJson * pJs, PPChZnPrcssr::CodeInfoCollection
 		}
 	}
 	CATCHZOK
+	delete p_new_entry;
 	return ok;
 }
 
@@ -4925,7 +4967,8 @@ int PPChZnPrcssr::CodeStatusCollection::SetupResultEntry(int rowN, const CodeSta
 }
 
 PPChZnPrcssr::CodeInfo::CodeInfo() : Flags(0), PackType(0), GeneralPackType(0), UedChZnProdType(0), UedAppTm(0), UedIntroduceTm(0), UedProductTm(0),
-	UedEmissionTm(0), UedExpiryTm(0), UedManufINN(0), UedProducerINN(0), UedImporterINN(0), UedOwnerINN(0), ReqCisP(0), CisP(0), OwnerNameP(0)
+	UedEmissionTm(0), UedExpiryTm(0), UedManufINN(0), UedProducerINN(0), UedImporterINN(0), UedOwnerINN(0), ReqCisP(0), CisP(0), 
+	OwnerNameP(0), ManufNameP(0), ProducerNameP(0), ProductNameP(0), BrandNameP(0)
 {
 }
 
@@ -6488,7 +6531,7 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 		SString & MakePrintableCode(const char * pOrgText, SString & rResult)
 		{
 			rResult.Z();
-			const size_t len = sstrlen(pOrgText);
+			const  size_t len = sstrlen(pOrgText);
 			for(size_t i = 0; i < len; i++) {
 				const char c = pOrgText[i];
 				if(c == '\xE8') {

@@ -699,6 +699,20 @@ IMPL_HANDLE_EVENT(TButton)
 					if(Command && event.message.infoPtr == reinterpret_cast<void *>(Command))
 						clearEvent(event);
 					break;
+				case cmInputLangChange: // @v12.6.9
+					if(Command == cmKeyboardLayout) {
+						if(TView::IsSubSign(P_Owner, TV_SUBSIGN_DIALOG)) {
+							static_cast<TDialog *>(P_Owner)->SetupKeyboardLayoutIndicator(this);
+						}
+					}
+					break;
+				case cmKeyboardStateChange: // @v12.6.9
+					if(Command == cmKbStateCapsLock) {
+						if(TView::IsSubSign(P_Owner, TV_SUBSIGN_DIALOG)) {
+							static_cast<TDialog *>(P_Owner)->SetupKeyboardStateCapsLockIndicator(this);
+						}
+					}
+					break;
 			}
 			break;
 	}

@@ -2288,7 +2288,7 @@ bool SrUedContainer_Ct::GenerateSourceDecl_C(const char * pFileName, const char 
 				if(r_be.Id != 0x0000000100000001ULL) { // super-meta wich identifies other meta's
 					gen.IndentInc();
 					for(uint j = 0; j < BL.getCount(); j++) {
-						const BaseEntry & r_be_inner = BL.at(j);
+						const  BaseEntry & r_be_inner = BL.at(j);
 						if(UED::BelongsToMeta(r_be_inner.Id, r_be.Id)) {
 							SearchSymbHashId(r_be_inner.SymbHashId, temp_buf);
 							assert(temp_buf.NotEmpty());
@@ -2708,4 +2708,25 @@ bool SrUedContainer_Rt::GetSymb(uint64 ued, SString & rSymb) const
 uint64 SrUedContainer_Rt::GetBySymb(uint64 meta, const char * pSymb) const // @v12.6.3
 {
 	return SearchSymb(pSymb, meta);
+}
+
+bool SrUedContainer_Rt::GetListByMeta(uint64 meta, Uint64Array & rList) const // @v12.6.9
+{
+	bool    ok = false;
+	if(UED::IsMetaId(meta)) {
+		uint64 prev_meta = 0;
+		for(uint i = 0; i < BL.getCount(); i++) {
+			const  BaseEntry & r_be = BL.at(i);
+			if(UED::BelongsToMeta(r_be.Id, meta)) {
+				rList.add(r_be.Id);
+				ok = true;
+			}
+			else {
+				if(ok) { // !Закладываюсь на то, что список BL отсортирован по значению Id!
+					break;
+				}
+			}
+		}
+	}
+	return ok;
 }

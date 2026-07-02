@@ -11032,11 +11032,12 @@ public:
 		FreightPackage();
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
         int    ToStr(SString & rBuf);
-        int    FromStr(const SString & rBuf);
+        bool   FromStr(const SString & rBuf);
 
 		uint32 Ver;
         PPID   FreightPackageTypeID; // Тип упаковки
         double Qtty;                 // Количество упаковок
+		uint64 UedEceTradeTareType;  // @v12.6.9
 	};
 	//
 	// Descr: Параметры приемки строки входящего документа.
@@ -13732,11 +13733,14 @@ public:
 		kOps         = 1, // Операции по марке
 		kAggregation = 2, // Агрегации марки (то есть, какие марки входят в упаковку с кодом this->Rec.Code).
 			// Хвост переменной длины хранит сериализованную структуру PPLotExtCodeContainer::MarkSet
+		kCodeInfo    = 3, // @v12.6.9 Подробная информация о марке, полученная с сервера chzn
 	};
 	ExtCodeRefCore();
 	int    PutAggregation(const char * pCode, PPLotExtCodeContainer::MarkSet & rSet, int use_ta);
 	int    PutAggregation2(const PPLotExtCodeContainer::MarkSet & rSet, int use_ta);
 	int    GetAggregation(const char * pCode, PPLotExtCodeContainer::MarkSet & rSet, bool recursive);
+	//int    PutInfo(const PPChZnPrcssr::CodeInfoCollection & rSet, int use_ta); // @v12.6.9
+	//int    GetInfo(const char * pCode, PPChZnPrcssr::CodeInfoCollection & rResult); // @v12.6.9
 };
 //
 //
@@ -21825,6 +21829,7 @@ extern "C" typedef PPAbstractDevice * (*FN_PPDEVICE_FACTORY)();
 #define SCN_KITCHENBELL_CMD         13 // @persistent
 #define SCN_RPTPRNPORT              14 // @persistent Порт принтера для печати отчетов (предчеков)
 #define SCN_MANUFSERIAL             15 // @persistent Заводской номер кассового аппарата
+#define SCN_REGISTRARPORT           16 // @v12.6.9 @persistent Длинная идентификация порта для обмена командами с регистратором. Если не пустое, то переопределяет поле PPCashNode2::Port
 //
 // Кассовый узел
 //
@@ -21861,7 +21866,7 @@ struct PPCashNode2 {       // @persistent @store(Reference2Tbl+)
 	uint16 DisRoundPrec;   // .01 @#{0..50000} Точность округления скидки //
 	uint16 AmtRoundPrec;   // .01 @#{0..50000} Точность окрнугления результирующей суммы чека
 	long   ExtFlags;       // CASHFX_XXX
-	char   Port[8];        // Имя порта (LPT1, COM1, ...)
+	char   Port_[8];       // Имя порта (LPT1, COM1, ...)
 	PPID   GoodsLocAssocID; // Именованная ассоциация товар-склад, используемая для печати чеков и списания //
 	uint16 SleepTimeout;   // Таймаут бездействия (сек), после которого панель блокируется //
 	uint16 Speciality;     // PPCashNode2::spXXX Специализация кассового узла
@@ -21970,6 +21975,18 @@ public:
 	int    CTblListFromString(const char * pBuf);
 	int    SetPropString(int propId, const char * pValue);
 	int    GetPropString(int propId, SString & rBuf) const;
+	//
+	// Descr: Присваивает по ссылке rPort наименование порта кассового регистратора.
+	//   Алгоритм таков: если RegistrarPort не пусто, то применяется он, в противном случае, если !isempty(Port_), то Port_,
+	//   иначе - rPort.Z().
+	//   То есть, у RegistrarPort приоритет перед Port_
+	// Returns:
+	//   1 - по ссылке rPort присвоено значение this->Port_
+	//   2 - по ссылке rPort присвоено значение this->RegistrarPort
+	//   0 - и this->RegistrarPort и this->Port_ пусты - буфер rPort также пустой.
+	//
+	int    GetRegistrarPort(SString & rPort) const;
+	int    SetRegistrarPort(const char * pPort);
 	enum {
 		btfPinpad = 0x0001
 	};
@@ -21990,7 +22007,7 @@ public:
 		long   Flags;       // @flags
 		uint8  Reserve[28]; //
 	};
-	char   Port[8];          // Имя порта (LPT1, COM1, ...)
+	char   Port_[8];         // Имя порта (LPT1, COM1, ...)
 	PPID   DownBill;         //
 	LDATE  CurDate;          // Текущая операционная дата
 	PPID   CurSessID;        // ->Bill.ID Текущая кассовая сессия //
@@ -22032,6 +22049,7 @@ public:
 	SString TableSelWhatman; // Имя файла ватмана для выбора стола кафе
 	SString BnkTermPath;	 // Путь к промежуточной dll банковского терминала
 	SString SlipFmtPath;     // Путь к файлу описания slip-отчетов
+	SString RegistrarPort;   // @v12.6.9 Порт для обмена командами с кассовым регистратором (если не пустое, то замещает this->Port)
 	SString ExtString;       // Строка, содержащая конфигурационные строки, которые могут быть извлечены вызовом GetPropString(int, SString &)
 	LongArray CTblList;      // Список номеров столов
 };
@@ -23006,9 +23024,9 @@ public:
 	//
 	static bool IsAutoWriteOffDraftBeerPosition(PPID posNodeID, PPID goodsID);
 
-	PPSyncCashSession(PPID cnID, const char * pName, const char * pPort);
+	explicit PPSyncCashSession(PPID cnID/*@v12.6.9, const char * pName, const char * pPort*/);
 	virtual ~PPSyncCashSession();
-	int    Init(const char * pName, const char * pPort);
+	int    Setup_();
 	int    IsError() const;
 	/*
 		int    CheckResult;      // tag 2106 Результат проверки КМ в ФН (ofdtag-2106)
@@ -23085,7 +23103,7 @@ public:
 	//   0  - error (на уровне самой функции, но не ошибка в работе оборудования)
 	//
 	virtual int Diagnostics(StringSet * pSs) { return -1; }
-	const  char * GetName() const { return Name; }
+	const  char * GetName() const { return SCn.Name; }
 	PPSlipFormatter * GetSlipFormatter() { return P_SlipFmt; }
 	int    CompleteSession(PPID sessID);
 	//
@@ -23122,11 +23140,12 @@ protected:
 		stError = 0x0001
 	};
 	PPID   NodeID;
-	char   Port[128]; //
-	char   Name[48];  //
-	int    PortType;  // 0 - file, 1 - lpt, 2 - com, 3 - server /*@v12.0.3*/
+	//char   Name[48];  //
+	int    PortType;  // 0 - file, 1 - lpt, 2 - com, 3 - server /*@v12.0.3*/, 4 - ip/*@v12.6.9*/
 	int    Handle;    //
 	long   State;
+	InetAddr IpAdr;  // @v12.6.9 (used if PortType == 4)
+	SString IfcPort; // @v12.6.9 char Port[128]-->SString IfcPort
 	PPSlipFormatter * P_SlipFmt;
 	PPObjCashNode CnObj;
 	PPSyncCashNode SCn;
@@ -32310,10 +32329,7 @@ private:
 //
 //
 struct PPFreightPackageType {
-	PPFreightPackageType()
-	{
-		THISZERO();
-	}
+	PPFreightPackageType();
 	enum {
 		fPassive = 0x0001
 	};
@@ -57959,10 +57975,14 @@ public:
 		uint   ReqCisP;
 		uint   CisP;
 		uint   OwnerNameP;
+		uint   ManufNameP;
+		uint   ProducerNameP;
+		uint   ProductNameP;
+		uint   BrandNameP;
 		StringSet Children;     // Для упаковки вложенные марки
 	};
 
-	class CodeInfoCollection : public TSCollection <CodeInfo>, SStrGroup {
+	class CodeInfoCollection : public TSCollection <CodeInfo>, public SStrGroup {
 	public:
 		CodeInfoCollection();
 	};
@@ -60149,7 +60169,7 @@ public:
 	//
 	int    GetOrderRec(BillTbl::Rec & rOrderBillRec);
 	int    WriteInvoiceItems_(bool correction);
-	void   WriteInvoiceItem_Extra2Block(uint trfrItemIdx, bool correction, const SString & rGoodsArCode, DocNalogRu_Generator::GoodsCodeSet & rGoodsCodeSet);
+	void   WriteInvoiceItem_Extra2Block(uint trfrItemIdx, bool correction, const SString & rGoodsArCode, const DocNalogRu_Generator::GoodsCodeSet & rGoodsCodeSet);
 
 	enum {
 		stError                 = 0x0001, // В конструкторе возникла ошибка

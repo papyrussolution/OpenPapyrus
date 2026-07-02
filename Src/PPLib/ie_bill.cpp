@@ -7249,7 +7249,8 @@ void DocNalogRu_Generator::WriteExcise2(int parentNodeTokenId, double value)
 	}
 }
 
-void DocNalogRu_Generator::WriteMarkListOnInvoiceItem3(xmlTextWriter * pX, int contextId, const PPBillImpExpParam & rParam, int chznProdType, int chznIntQtty, const PPLotExtCodeContainer::MarkSet & rSet)
+void DocNalogRu_Generator::WriteMarkListOnInvoiceItem3(xmlTextWriter * pX, int contextId, const PPBillImpExpParam & rParam, 
+	int chznProdType, int chznIntQtty, const PPLotExtCodeContainer::MarkSet & rSet)
 {
 	assert(oneof4(contextId, wmlictxInvoice, wmlictxCorrectionBefore, wmlictxCorrectionAfter, wmlictxUnified));
 	SString temp_buf;
@@ -8014,7 +8015,7 @@ int DocNalogRu_Generator::GetGoodsCodeSet(PPID goodsID, DocNalogRu_Generator::Go
 	return ok;
 }
 
-void DocNalogRu_WriteBillBlock::WriteInvoiceItem_Extra2Block(uint trfrItemIdx, bool correction, const SString & rGoodsArCode, DocNalogRu_Generator::GoodsCodeSet & rGoodsCodeSet)
+void DocNalogRu_WriteBillBlock::WriteInvoiceItem_Extra2Block(uint trfrItemIdx, bool correction, const SString & rGoodsArCode, const DocNalogRu_Generator::GoodsCodeSet & rGoodsCodeSet)
 {
 	if(rGoodsCodeSet.CodeForExchange.NotEmpty()) {
 		G.WriteIdentifValPair(GetToken(PPHSC_RU_EXTRA2), GetToken(PPHSC_RU_EXTRA_BARCODE), rGoodsCodeSet.CodeForExchange);
@@ -8174,8 +8175,8 @@ int DocNalogRu_WriteBillBlock::WriteInvoiceItems_(bool correction)
 		if(G.GObj.Fetch(goods_id, &goods_rec) > 0) {
 			PPUnit u_rec;
 			PPGoodsType2 gt_rec;
-			temp_buf.Z(); // @v11.7.12
 			// @v11.7.12 {
+			temp_buf.Z();
 			if(R_P.Flags & PPBillImpExpParam::fUseExtGoodsName) {
 				if(p_ref->GetPropVlrString(PPOBJ_GOODS, goods_id, GDSPRP_EXTSTRDATA, goods_ext_strings) > 0)
 					PPGetExtStrData(GDSEXSTR_LABELNAME, goods_ext_strings, temp_buf);
@@ -9769,6 +9770,8 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
 	rResultFileName.Z();
 	int    ok  = 1;
 	SString temp_buf;
+	const  SrUedContainer_Rt * p_uedc = DS.GetUedContainer();
+	const  bool no_marks_because_notch = G.SsNotch.searchNcAscii("#nomarks", 0, 0); // @v12.5.10
 	{
 		PPObjPerson psn_obj;
 		PPPersonPacket psn_pack;
@@ -9806,13 +9809,135 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
 					}
 				}
 				{
-					SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_PAYLOADINFO));
-				}
-				{
 					SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_CONSIGNORDIRECTION));
 				}
-				{
+				if(R_Bp.GetTCount()) {
 					SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_PAYLOADINFO));
+					Goods2Tbl::Rec goods_rec;
+					PPObjFreightPackageType fpt_obj(0);
+					PPFreightPackageType fpt_rec;
+					DocNalogRu_Generator::GoodsCodeSet goods_code_set;
+					PPLotExtCodeContainer::MarkSet ext_codes_set;
+					for(uint ti_idx = 0; ti_idx < R_Bp.GetTCount(); ti_idx++) {
+						const  PPTransferItem & r_ti = R_Bp.ConstTI(ti_idx);
+						const  double qtty_local = fabs(r_ti.Qtty());
+						// PPTAG_LOT_FREIGHTPACKAGE
+						// ¬ид“ар UED_META_ECETRADE_PACKAGETYPE
+
+						// PPHSC_RU_PAYLOAD_DESCR         "ќп√руз"     // @v12.6.9 
+						// PPHSC_RU_PAYLOAD_APPEL         "Ќаим√руз"   // @v12.6.9 
+						// PPHSC_RU_PAYLOAD_COND          "—ост√руз"   // @v12.6.9 
+						// PPHSC_RU_PAYLOAD_COND_EXCEL    "ќтличное"   // @v12.6.9 
+						// PPHSC_RU_PAYLOAD_PCKG          "—п”пак"     // @v12.6.9  
+						// PPHSC_RU_PAYLOAD_TARE          "¬ид“ар"     // @v12.6.9 
+						// PPHSC_RU_PAYLOAD_PCKGQTY       " олћест√р"  // @v12.6.9 
+						// PPHSC_RU_PAYLOAD_STREGKIND     "”ч√ос—ист"  // @v12.6.9 
+						if(G.GObj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && !(goods_rec.Flags & GF_UNLIM)) {
+							bool   is_weighted_ware = false;
+							int    chzn_prod_type = 0;
+							int    chzn_int_qty = 0;
+							PPGoodsType2 gt_rec;
+							PPUnit2 u_rec;
+							GoodsStockExt gse;
+							G.GObj.GetStockExt(r_ti.GoodsID, &gse, 1/*use_case*/);
+							G.GetGoodsCodeSet(r_ti.GoodsID, goods_code_set);
+							if(G.GObj.FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
+								is_weighted_ware = (u_rec.ID == SUOM_KILOGRAM || u_rec.BaseUnitID == SUOM_KILOGRAM);
+								//(unit_name = u_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
+							}
+							if(goods_rec.GoodsTypeID && G.GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
+								chzn_prod_type = gt_rec.ChZnProdType;
+								if(chzn_prod_type == GTCHZNPT_MILK && is_weighted_ware) {
+									const ObjTagItem * p_local_tag_item = R_Bp.LTagL.GetTag(ti_idx, PPTAG_LOT_CHZNINTQTTY);
+									int   temp_int = 0;
+									chzn_int_qty = (p_local_tag_item && p_local_tag_item->GetInt(&temp_int) && temp_int > 0 && temp_int < 1000) ? temp_int :  1;
+								}
+							}
+							SXml::WNode n3(G.P_X, G.GetToken_Ansi(PPHSC_RU_PAYLOAD_DESCR));
+							(temp_buf = goods_rec.Name);
+							n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_PAYLOAD_APPEL), G.EncText(temp_buf));
+							n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_PAYLOAD_COND), G.GetToken_Ansi(PPHSC_RU_PAYLOAD_COND_EXCEL));
+							{
+								PPTransferItem::FreightPackage fp;
+								if(R_Bp.LTagL.GetTagStr(ti_idx, PPTAG_LOT_FREIGHTPACKAGE, temp_buf) > 0) {
+									fp.FromStr(temp_buf);
+								}
+								{
+									if(fp.FreightPackageTypeID && fpt_obj.Search(fp.FreightPackageTypeID, &fpt_rec) > 0) {
+										temp_buf = fpt_rec.Name;
+									}
+									else {
+										temp_buf = ""; // @todo default package name
+									}
+									n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_PAYLOAD_PCKG), G.EncText(temp_buf));
+								}
+								{
+									if(fp.UedEceTradeTareType && p_uedc && p_uedc->GetText(fp.UedEceTradeTareType, UED_LINGUALOCUS_RU, temp_buf)) {
+										temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+									}
+									else {
+										temp_buf = ""; // @todo default tare name
+									}
+									n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_PAYLOAD_TARE), G.EncText(temp_buf));
+								}
+								{
+									if(fp.Qtty > 0.0) {
+										temp_buf.Z().Cat(fp.Qtty, MKSFMTD(0, 0, 0));
+									}
+									else {
+										temp_buf = "1";
+									}
+									n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_PAYLOAD_PCKGQTY), G.EncText(temp_buf));
+								}
+								n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_PAYLOAD_STREGKIND), "0");
+							}
+							{
+								//SXml::WNode n_marks(G.P_X, G.GetToken_Ansi(PPHSC_RU_PAYLOAD_MARK));
+								bool   no_marks = true;
+								if(!no_marks_because_notch) {
+									ext_codes_set.Z();
+									const bool is_there_extcodes = (R_Bp.XcL.Get(ti_idx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount());
+									if(is_there_extcodes) {
+										StringSet ss_local;
+										ext_codes_set.GetByBoxID(0, ss_local);
+										for(uint ssp = 0; ss_local.get(&ssp, temp_buf);) {
+											n3.PutInner(G.GetToken_Ansi(PPHSC_RU_PAYLOAD_MARK), G.EncText(temp_buf));
+											no_marks = false;
+										}
+									}
+									else {
+										if(oneof5(chzn_prod_type, GTCHZNPT_MILK, GTCHZNPT_WATER, GTCHZNPT_SOFTDRINKS, GTCHZNPT_VEGETABLEOIL, GTCHZNPT_PETFOOD) && goods_code_set.CodeForMarking.NotEmpty()) {
+											assert(goods_code_set.CodeForMarking.Len() < 14);
+											if(chzn_int_qty > 0 && chzn_int_qty < 1000) {
+												assert(chzn_prod_type == GTCHZNPT_MILK && is_weighted_ware); // подразумеваетс€ условием (chzn_int_qty > 0 && chzn_int_qty < 1000)
+												// ƒл€ весовой молочной продукции указываетс€ количество упаковок - пока пишем фиксированную единицу
+												(temp_buf = goods_code_set.CodeForMarking).PadLeft(14-goods_code_set.CodeForMarking.Len(), '0').Insert(0, "02").Cat("37").Cat(chzn_int_qty);
+												n3.PutInner(G.GetToken_Ansi(PPHSC_RU_PAYLOAD_MARK), G.EncText(temp_buf));
+												no_marks = false;
+											}
+											else {
+												(temp_buf = goods_code_set.CodeForMarking).PadLeft(14-goods_code_set.CodeForMarking.Len(), '0').Insert(0, "02").Cat("37").Cat(R0i(qtty_local));
+												n3.PutInner(G.GetToken_Ansi(PPHSC_RU_PAYLOAD_MARK), G.EncText(temp_buf));
+												no_marks = false;
+											}
+										}
+									}
+								}
+								if(no_marks) {
+									n3.PutInner(G.GetToken_Ansi(PPHSC_RU_PAYLOAD_MARK), G.GetToken_Ansi(PPHSC_RU_ABSENCE));
+								}
+							}
+							{
+								//PPHSC_RU_PAYLOAD_ESTMASS       "ѕлћас√руз"  // @v12.6.9
+									// PPHSC_RU_PAYLOAD_BRUTTO        "ћасЅрут«нач" // @v12.6.9 ћасса брутто груза в килограммах
+									// PPHSC_RU_PAYLOAD_NETTO         "ћасЌет«нач"  // @v12.6.9 ћасса нетто груза в килограммах
+									// PPHSC_RU_PAYLOAD_PALLETCT      " олѕалл"     // @v12.6.9
+								SXml::WNode n4(G.P_X, G.GetToken_Ansi(PPHSC_RU_PAYLOAD_ESTMASS));
+								temp_buf.Z().Cat(gse.CalcBrutto(qtty_local), MKSFMTD(0, 0, 0));
+								n4.PutAttrib(G.GetToken_Ansi(PPHSC_RU_PAYLOAD_BRUTTO), temp_buf);
+							}
+						}
+					}
 				}
 				{
 					//SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_TRANSPORTERINFO));

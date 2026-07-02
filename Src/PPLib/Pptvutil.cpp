@@ -895,6 +895,7 @@ int PasswordDialog(uint dlgID, char * pBuf, size_t pwSize, size_t minLen, int wi
 	char   b2[32];
 	TDialog * dlg = new TDialog(NZOR(dlgID, DLG_PASSWORD));
 	if(CheckDialogPtrErr(&dlg)) {
+		dlg->SetupKeyboardStateControls();
 		b1[0] = 0;
 		dlg->setCtrlData(CTL_PASSWORD_FIRST,  b1);
 		dlg->setCtrlData(CTL_PASSWORD_SECOND, b1);

@@ -52,10 +52,7 @@ TStatusWin::TStatusWin() : TWindow(TRect(1,1,50,20))
 //   !0 - Success
 //   0  - Error. To get extended error information, callGetLastError.
 //
-int TStatusWin::GetRect(RECT * pRcStatus)
-{
-	return pRcStatus ? GetWindowRect(H(), pRcStatus) : 0;
-}
+int TStatusWin::GetRect(RECT * pRcStatus) { return pRcStatus ? GetWindowRect(H(), pRcStatus) : 0; }
 
 int TStatusWin::Update()
 {
@@ -1206,24 +1203,40 @@ void TProgram::HandleWindowNcCalcSize(/*struct window * data,*/WPARAM wParam, LP
 void TProgram::NotifyFrame(int post)
 {
 	HWND   h_frame = GetFrameWindow();
-	if(IsWindow(h_frame))
+	if(IsWindow(h_frame)) {
 		if(post)
 			::PostMessageW(h_frame, WM_USER_NOTIFYBRWFRAME, 0, 0);
 		else
 			::SendMessageW(h_frame, WM_USER_NOTIFYBRWFRAME, 0, 0);
+	}
 }
 
 // Public variables
 
+/*static*/LRESULT CALLBACK TProgram::WndProcHook(int nCode, WPARAM wParam, LPARAM lParam) // @v12.6.9
+{
+	LRESULT result = 0;
+	if(nCode == HC_ACTION) {
+		CWPSTRUCT * p_cwp = reinterpret_cast<CWPSTRUCT *>(lParam);
+		if(p_cwp && p_cwp->message == WM_INPUTLANGCHANGE) {
+			if(APPL && APPL->P_DeskTop) {
+				TView::messageBroadcast(APPL->P_DeskTop, cmInputLangChange, 0);
+			}
+		}
+	}
+	result = CallNextHookEx(NULL, nCode, wParam, lParam);
+	return result;
+}
+
 TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitle, uint ctrflags) : TViewGroup(TRect()),
 	State(0), H_MainWnd(0), H_FrameWnd(0), H_CloseWnd(0), H_LogWnd(0), H_Desktop(0), H_ShortcutsWnd(0),
 	H_TopOfStack(0), H_Accel(0), P_Stw(0), P_DeskTop(0), P_TopView(0), P_Toolbar(0), P_TreeWnd(0), AppSymbol(pAppSymb),
-	P_NotifyIconData(0)
+	P_NotifyIconData(0), H_WndProcHook(0)
 {
 	hInstance = hInst;
 	UICfg.Restore();
 	(AppTitle = pAppTitle).SetIfEmpty(AppSymbol);
-	Sf = (sfVisible | sfSelected | sfFocused | sfModal);
+	Sf = (sfVisible|sfSelected|sfFocused|sfModal);
 	// @v11.6.7 {
 	if(ctrflags & ctrfBorderless)
 		setState(sfBorderless, true);
@@ -1265,8 +1278,10 @@ TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitl
 	if(is_main_window_layerd)
 		ex_window_style |= WS_EX_LAYERED;
 	HWND   h_wnd = ::CreateWindowExW(ex_window_style, app_symbol, app_title, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, this);
-	if(is_main_window_layerd)
+	if(is_main_window_layerd) {
 		::SetLayeredWindowAttributes(h_wnd, RGB(255, 0, 255), 0, LWA_COLORKEY);
+	}
+	H_WndProcHook = ::SetWindowsHookExW(WH_CALLWNDPROC, TProgram::WndProcHook, NULL, GetCurrentThreadId()); // @v12.6.9 
 	::ShowWindow(h_wnd, SW_SHOWMAXIMIZED/*SW_SHOWDEFAULT*/);
 	::UpdateWindow(h_wnd);
 }
@@ -1277,6 +1292,10 @@ TProgram::~TProgram()
 	ZDELETE(P_DeskTop);
 	ZDELETE(P_Toolbar);
 	delete static_cast<NOTIFYICONDATAW *>(P_NotifyIconData); // @v12.4.0
+	// @v12.6.9 {
+	if(H_WndProcHook)
+		UnhookWindowsHookEx(reinterpret_cast<HHOOK>(H_WndProcHook));
+	// } @v12.6.9 
 }
 
 HWND TProgram::GetFrameWindow() const { return NZOR(H_FrameWnd, H_MainWnd); }

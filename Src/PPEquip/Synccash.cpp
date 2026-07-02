@@ -95,7 +95,7 @@ int Sync_BillTaxArray::Add(Sync_BillTaxEntry * e)
 
 class SCS_SYNCCASH : public PPSyncCashSession {
 public:
-	SCS_SYNCCASH(PPID n, char * pName, char * pPort);
+	SCS_SYNCCASH(PPID nodeID/*, const char * pName, const char * pPort*/);
 	~SCS_SYNCCASH();
 	virtual int PreprocessChZnCode(int op, const char * pCode, double qtty, int uomId, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult);
 	virtual int PrintCheck(CCheckPacket * pPack, uint flags);
@@ -104,7 +104,7 @@ public:
 	virtual int PrintSlipDoc(const CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int GetSummator(double * val);
 	virtual int GetDeviceTime(LDATETIME * pDtm);
-	virtual int OpenSession_(PPID sessID); // @v11.2.12
+	virtual int OpenSession_(PPID sessID);
 	virtual int CloseSession(PPID sessID);
 	virtual int PrintXReport(const CSessInfo *);
 	virtual int PrintZReportCopy(const CSessInfo *);
@@ -113,7 +113,7 @@ public:
 	virtual int OpenBox();
 	virtual int CheckForSessionOver();
 	virtual int PrintBnkTermReport(const char * pZCheck);
-	virtual int Diagnostics(StringSet * pSs); // @v11.1.9
+	virtual int Diagnostics(StringSet * pSs);
 
 	PPAbstractDevice * P_AbstrDvc;
 	StrAssocArray Arr_In;
@@ -150,7 +150,7 @@ private:
 		sfLogging       = 0x0200  // @v11.5.0 Вести системный файл журнала операций с кассовым регистратором
 	};
 	static int RefToIntrf;
-	int	   Port;            // Номер порта
+	int	   ComPortN;        // Номер порта // @v12.6.9 Port-->ComPortN
 	long   CashierPassword; // Пароль кассира
 	long   AdmPassword;     // Пароль сист.администратора
 	int    ResCode;         // Код выполнения команды
@@ -180,8 +180,8 @@ PPSyncCashSession * CM_SYNCCASH::SyncInterface()
 {
 	PPSyncCashSession * p_cs = 0;
 	if(IsValid()) {
-		p_cs = new SCS_SYNCCASH(NodeID, NodeRec.Name, NodeRec.Port);
-		CALLPTRMEMB(p_cs, Init(NodeRec.Name, NodeRec.Port));
+		p_cs = new SCS_SYNCCASH(NodeID);
+		CALLPTRMEMB(p_cs, Setup_());
 	}
 	return p_cs;
 }
@@ -200,7 +200,7 @@ int SCS_SYNCCASH::GetPort(const char * pPortName, int * pPortNo)
 	int    ok = 0;
 	int    port = 0;
 	*pPortNo = 0;
-	if(pPortName) {
+	if(!isempty(pPortName)) {
 		int  comdvcs = IsComDvcSymb(pPortName, &port);
 		if(comdvcs == comdvcsCom && port > 0 && port < 32) {
 			ASSIGN_PTR(pPortNo, port-1);
@@ -212,7 +212,7 @@ int SCS_SYNCCASH::GetPort(const char * pPortName, int * pPortNo)
 	return ok;
 }
 
-SCS_SYNCCASH::SCS_SYNCCASH(PPID n, char * name, char * port) : PPSyncCashSession(n, name, port), Port(0), CashierPassword(0),
+SCS_SYNCCASH::SCS_SYNCCASH(PPID nodeID) : PPSyncCashSession(nodeID), ComPortN(0), CashierPassword(0),
 	AdmPassword(0), ResCode(RESCODE_NO_ERROR), ErrCode(SYNCPRN_NO_ERROR), CheckStrLen(DEF_STRLEN), Flags(/*sfKeepAlive*/0),
 	RibbonParam(0), Inited(false), IsLogoSet(false), PrintLogo(0), DeviceType(0)
 {
@@ -223,7 +223,11 @@ SCS_SYNCCASH::SCS_SYNCCASH(PPID n, char * name, char * port) : PPSyncCashSession
 	P_AbstrDvc->PCpb.Cls = DVCCLS_SYNCPOS;
 	P_AbstrDvc->GetDllName(DVCCLS_SYNCPOS, SCn.CashType, P_AbstrDvc->PCpb.DllName);
 	THROW(P_AbstrDvc->IdentifyDevice(P_AbstrDvc->PCpb.DllName));
-	THROW(GetPort(SCn.Port, &Port));
+	{
+		SString rport;
+		THROW(SCn.GetRegistrarPort(rport));
+		GetPort(rport, &ComPortN);
+	}
 	CATCH
 		State |= stError;
 	ENDCATCH
@@ -300,14 +304,12 @@ int SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 			else if(PPIniFile::IsValueYes(temp_buf))
 				Flags |= sfSkipAfVerif;
 		}
-		// @v11.5.0 {
 		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_POSREGISTERLOGGING, temp_buf) > 0) {
 			if(PPIniFile::IsValueNo(temp_buf))
 				Flags &= ~sfLogging;
 			else if(PPIniFile::IsValueYes(temp_buf))
 				Flags |= sfLogging;
 		}
-		// } @v11.5.0
 		if(Flags & sfConnected) {
 			THROW(ExecOper(DVCCMD_DISCONNECT, Arr_In.Z(), Arr_Out));
 			Flags &= ~sfConnected;
@@ -316,11 +318,24 @@ int SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 		if(!Inited) {
 			THROW(ExecOper(DVCCMD_INIT, Arr_In.Z(), Arr_Out));
 		}
+		ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRNOTUSEWEIGHTSENSOR, &not_use_wght_sensor);
+		SETFLAG(Flags, sfUseWghtSensor, !not_use_wght_sensor);
 		THROW_PP(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_SHTRIHFRPASSWORD, temp_buf) > 0, PPERR_SHTRIHFRADMPASSW);
 		temp_buf.Divide(',', left, AdmName);
 		CashierPassword = AdmPassword = left.ToLong();
 		AdmName.Strip().Transf(CTRANSF_INNER_TO_OUTER);
-		{
+		if(PortType == 4) { // ip
+			Arr_In.Z();
+			THROW(ArrAdd(Arr_In, DVCPARAM_IPADDR, IfcPort));
+			ok = ExecOper(DVCCMD_CONNECT, Arr_In, Arr_Out);
+			if(ok == 1) {
+				Flags |= sfConnected;
+			}
+			else {
+				THROW(ResCode == RESCODE_NO_CONNECTION);
+			}
+		}
+		else {
 			const  int __def_baud_rate =  7; // Скорость обмена по умолчанию 57600 бод
 			const  int __max_baud_rate = 10; // Max скорость обмена 256000 бод
 			static const int __baud_rate_list[] = { -1, 8, 7, 2, 3, 4, 5, 6, 9, 10, 1, 0 }; // the first entry is for ordered rate
@@ -337,12 +352,12 @@ int SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 					settled_baud_rate = __def_baud_rate;
 			}
 			for(uint baud_rate_idx = 0; baud_rate_idx < SIZEOFARRAY(__baud_rate_list); baud_rate_idx++) {
-				int try_baud_rate = __baud_rate_list[baud_rate_idx];
+				int    try_baud_rate = __baud_rate_list[baud_rate_idx];
 				if(try_baud_rate != settled_baud_rate) {
 					if(try_baud_rate == -1)
 						try_baud_rate = settled_baud_rate;
 					Arr_In.Z();
-					THROW(ArrAdd(Arr_In, DVCPARAM_PORT, Port));
+					THROW(ArrAdd(Arr_In, DVCPARAM_PORT, ComPortN));
 					THROW(ArrAdd(Arr_In, DVCPARAM_BAUDRATE, try_baud_rate));
 					ok = ExecOper(DVCCMD_CONNECT, Arr_In, Arr_Out);
 					if(ok == 1) {
@@ -357,8 +372,6 @@ int SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 			THROW(ok);
 			Flags |= sfConnected;
 		}
-		ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRNOTUSEWEIGHTSENSOR, &not_use_wght_sensor);
-		SETFLAG(Flags, sfUseWghtSensor, !not_use_wght_sensor);
 		{
 			long   cshr_pssw = 0L;
 			int    logical_number = 1; // Логический номер кассы
@@ -387,7 +400,11 @@ int SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 				int    val = 0;
 				THROW(ArrAdd(Arr_In, DVCPARAM_AUTOCASHNULL, 1)); // Установить автоматическое обнуление наличности
 				THROW(ArrAdd(Arr_In, DVCPARAM_ID, /*pIn->*/SCn.ID)); // Опредеяем ID ККМ
-				GetPort(/*pIn->*/SCn.Port, &val); // Определяем имя порта и переводим его в число
+				{
+					SString rport;
+					SCn.GetRegistrarPort(rport);
+					GetPort(rport, &val); // Определяем имя порта и переводим его в число
+				}
 				THROW(ArrAdd(Arr_In, DVCPARAM_PORT, val));
 				THROW(ArrAdd(Arr_In, DVCPARAM_LOGNUM, logical_number)); // Логический номер ККМ
 				THROW(ArrAdd(Arr_In, DVCPARAM_FLAGS, /*pIn->*/SCn.Flags)); // Флаги

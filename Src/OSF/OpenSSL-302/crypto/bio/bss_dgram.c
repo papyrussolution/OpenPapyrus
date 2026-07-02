@@ -719,22 +719,18 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    switch(data->peer.sa.sa_family) {
 			    case AF_INET:
 #if defined(IP_DONTFRAG)
-				if((ret = setsockopt(b->num, IPPROTO_IP, IP_DONTFRAG,
-				    &sockopt_val, sizeof(sockopt_val))) < 0) {
+				if((ret = setsockopt(b->num, IPPROTO_IP, IP_DONTFRAG, &sockopt_val, sizeof(sockopt_val))) < 0) {
 					perror("setsockopt");
 					ret = -1;
 				}
 #elif defined(OPENSSL_SYS_LINUX) && defined(IP_MTU_DISCOVER) && defined (IP_PMTUDISC_PROBE)
-				if((sockopt_val = num ? IP_PMTUDISC_PROBE : IP_PMTUDISC_DONT),
-				    (ret = setsockopt(b->num, IPPROTO_IP, IP_MTU_DISCOVER,
+				if((sockopt_val = num ? IP_PMTUDISC_PROBE : IP_PMTUDISC_DONT), (ret = setsockopt(b->num, IPPROTO_IP, IP_MTU_DISCOVER,
 				    &sockopt_val, sizeof(sockopt_val))) < 0) {
 					perror("setsockopt");
 					ret = -1;
 				}
 #elif defined(OPENSSL_SYS_WINDOWS) && defined(IP_DONTFRAGMENT)
-				if((ret = setsockopt(b->num, IPPROTO_IP, IP_DONTFRAGMENT,
-				    (const char *)&sockopt_val,
-				    sizeof(sockopt_val))) < 0) {
+				if((ret = setsockopt(b->num, IPPROTO_IP, IP_DONTFRAGMENT, (const char *)&sockopt_val, sizeof(sockopt_val))) < 0) {
 					perror("setsockopt");
 					ret = -1;
 				}
@@ -745,9 +741,7 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 #if OPENSSL_USE_IPV6
 			    case AF_INET6:
 #if defined(IPV6_DONTFRAG)
-				if((ret = setsockopt(b->num, IPPROTO_IPV6, IPV6_DONTFRAG,
-				    (const char *)&sockopt_val,
-				    sizeof(sockopt_val))) < 0) {
+				if((ret = setsockopt(b->num, IPPROTO_IPV6, IPV6_DONTFRAG, (const char *)&sockopt_val, sizeof(sockopt_val))) < 0) {
 					perror("setsockopt");
 					ret = -1;
 				}

@@ -3785,15 +3785,16 @@ public:
 	// Descr: Флаги состояния объекта (DlgFlags)
 	//
 	enum {
-		fCentered      = 0x0001,
-		fModified      = 0x0002,
-		fUserSettings  = 0x0004,
-		fCascade       = 0x0008,
-		fResizeable    = 0x0010,
-		fMouseResizing = 0x0020,
-		fLarge         = 0x0040, // Диалог увеличин в размерах для использования с TouchScreen
-		fExport        = 0x0080, // Экземпляр диалога создан для экспорта
-		fImportedDl600 = 0x0100, // @v12.6.7 Диалог импортирован из описания DL600 
+		fCentered       = 0x0001,
+		fModified       = 0x0002,
+		fUserSettings   = 0x0004,
+		fCascade        = 0x0008,
+		fResizeable     = 0x0010,
+		fMouseResizing  = 0x0020,
+		fLarge          = 0x0040, // Диалог увеличин в размерах для использования с TouchScreen
+		fExport         = 0x0080, // Экземпляр диалога создан для экспорта
+		fImportedDl600  = 0x0100, // @v12.6.7 Диалог импортирован из описания DL600 
+		fKeybStateCtrls = 0x0200, // @v12.6.9 В диалоге присутствуют управляющие элементы, отображающие состояние клавиатуры
 	};
 	enum ConstructorOption {
 		coNothing = 0,
@@ -3844,8 +3845,8 @@ public:
 	int    STDCALL GetClusterData(uint ctlID, uint *); // @v12.3.11
 	int    STDCALL GetClusterData(uint ctlID, int16 *);
 	long   STDCALL GetClusterData(uint ctlID);
-	void   DisableClusterItem(uint ctlID, int itemNo /* 0.. */, bool toDisable = true);
-	void   DisableClusterItems(uint ctlID, const LongArray & rItemIdxList /* 0.. */, bool toDisable = true);
+	void   DisableClusterItem(uint ctlID, int itemNo/*0..*/, bool toDisable = true);
+	void   DisableClusterItems(uint ctlID, const LongArray & rItemIdxList/*0..*/, bool toDisable = true);
 	int    SetClusterItemText(uint ctlID, int itemNo /* 0.. */, const char * pText);
 	bool   GetClusterItemByAssoc(uint ctlID, long val, int * pPos) const;
 	uint   GetClusterItemsCount(uint ctlID) const;
@@ -3856,6 +3857,9 @@ public:
 	void   SetupCalDate(uint calCtlID, uint inputCtlID);
 	void   SetupCalPeriod(uint calCtlID, uint inputCtlID);
 	void   SetCtrlState(uint ctlID, uint state, bool enable);
+	void   SetupKeyboardStateControls(); // @v12.6.9
+	void   SetupKeyboardLayoutIndicator(TButton * pButton);
+	void   SetupKeyboardStateCapsLockIndicator(TButton * pButton);
 
 	TView * P_Frame;
 protected:
@@ -4210,9 +4214,9 @@ public:
 	};
 	TButton(const TRect & rBounds, const char * pTitle, uint command, uint spcFlags, uint bmpID = 0);
 	~TButton();
-	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
-	virtual int    TransmitData(int dir, void * pData);
-	virtual void   setState(uint aState, bool enable);
+	virtual int  handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	virtual int  TransmitData(int dir, void * pData);
+	virtual void setState(uint aState, bool enable);
 	void   MakeDefault(bool enable, bool sendMsg = false);
 	const  SString & GetText() const { return Text; }
 	void   SetText(const char * pText);
@@ -5525,6 +5529,7 @@ private:
 	//int    InitDeskTop(); // Pattern. Must be defined in derived class and called from constructor.
 	static LRESULT CALLBACK MainWndProc(HWND, UINT, WPARAM, LPARAM);
 	static BOOL    CALLBACK CloseWndProc(HWND, UINT, WPARAM, LPARAM);
+	static LRESULT CALLBACK WndProcHook(int nCode, WPARAM wParam, LPARAM lParam); // @v12.6.9
 	SString & MakeModalStackDebugText(SString & rBuf) const;
 	int    DrawButton2(HWND hwnd, DRAWITEMSTRUCT * pDi);
 	int    DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi);
@@ -5542,6 +5547,7 @@ private:
 	// @v11.9.2 (replaced with virtual func GetVectorTools) TWhatmanToolArray DvToolList; // Векторные изображения, загружаемые из внешнего файла
 	UserInterfaceSettings UICfg;
 	void * P_NotifyIconData; // @v12.4.0
+	void * H_WndProcHook; // @v12.6.9 Идентификатор перехватчика событий windows
 };
 
 #define APPL    (TProgram::application)

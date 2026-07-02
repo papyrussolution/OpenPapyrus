@@ -1,5 +1,5 @@
 // SHTRIHFR.CPP
-// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Интерфейс (синхронный) с ККМ Штрих-ФР
 //
@@ -207,7 +207,7 @@ class SCS_SHTRIHFRF : public PPSyncCashSession {
 	const  bool IsDebugMode;
 	uint8  Reserve[3]; // @alignment
 public:
-	SCS_SHTRIHFRF(PPID n, char * pName, char * pPort);
+	SCS_SHTRIHFRF(PPID nodeID/*, const char * pName, const char * pPort*/);
 	~SCS_SHTRIHFRF();
 	virtual int PrintCheck(CCheckPacket * pPack, uint flags);
 	virtual int PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
@@ -514,15 +514,15 @@ PPSyncCashSession * CM_SHTRIHFRF::SyncInterface()
 {
 	PPSyncCashSession * cs = 0;
 	if(IsValid()) {
-		cs = new SCS_SHTRIHFRF(NodeID, NodeRec.Name, NodeRec.Port);
-		CALLPTRMEMB(cs, Init(NodeRec.Name, NodeRec.Port));
+		cs = new SCS_SHTRIHFRF(NodeID);
+		CALLPTRMEMB(cs, Setup_());
 	}
 	return cs;
 }
 
 REGISTER_CMT(SHTRIHFRF, true, false);
 
-SCS_SHTRIHFRF::SCS_SHTRIHFRF(PPID n, char * name, char * port) : PPSyncCashSession(n, name, port),
+SCS_SHTRIHFRF::SCS_SHTRIHFRF(PPID nodeID/*, const char * pName, const char * pPort*/) : PPSyncCashSession(nodeID/*, pName, pPort*/),
 	CashierPassword(0), AdmPassword(0), ResCode(RESCODE_NO_ERROR), ErrCode(SYNCPRN_NO_ERROR),
 	DeviceType(devtypeUndef), CheckStrLen(DEF_STRLEN), Flags(0), RibbonParam(0), SCardPaymEntryN(0),
 	IsDebugMode(LOGIC(CConfig.Flags & CCFLG_DEBUG)), ConnectionMode(connmodeUndef)
@@ -593,8 +593,9 @@ int SCS_SHTRIHFRF::CheckForEKLZOrFMOverflow()
 	int    free_rec_in_fm = 0;
 	THROW(ExecFR(GetECRStatus));
 	THROW(GetFR(EKLZIsPresent, &is_eklz_present));
-	if(is_eklz_present)
+	if(is_eklz_present) {
 		THROW(GetFR(IsEKLZOverflow, &is_eklz_overflow));
+	}
 	THROW(GetFR(FMOverflow, &is_fm_overflow));
 	THROW(GetFR(FreeRecordInFM, &free_rec_in_fm));
 	THROW_PP(!is_eklz_overflow && !is_fm_overflow && free_rec_in_fm > 2, PPERR_SYNCCASH_OVERFLOW);
@@ -639,7 +640,7 @@ int  SCS_SHTRIHFRF::CheckForRibbonUsing(uint ribbonParam)
 void SCS_SHTRIHFRF::CutLongTail(char * pBuf)
 {
 	if(pBuf && static_cast<long>(sstrlen(pBuf)) > CheckStrLen) {
-		pBuf[CheckStrLen + 1] = 0;
+		pBuf[CheckStrLen+1] = 0;
 		char * p = sstrrchr(pBuf, ' ');
 		if(p)
 			*p = 0;
@@ -2227,7 +2228,7 @@ int SCS_SHTRIHFRF::ConnectFR()
 	const char * p_server_name = "localhost"; // @v12.0.3
 	if(Flags & sfConnected) {
 		if(RefToIntrf > 1) {
-			if(sstreqi_ascii(Port, "server")) { 
+			if(sstreqi_ascii(IfcPort, "server")) { 
 				THROW(ExecFR(ServerDisconnect));
 				THROW(SetFR(ComputerName, p_server_name));
 				THROW(ExecFR_WithoutPassword(ServerConnect));
@@ -2255,7 +2256,7 @@ int SCS_SHTRIHFRF::ConnectFR()
 		CashierPassword = AdmPassword = buf1.ToLong();
 		AdmName.Strip().Transf(CTRANSF_INNER_TO_OUTER);
 		// @v12.0.3 {
-		if(sstreqi_ascii(Port, "server")) { 
+		if(sstreqi_ascii(IfcPort, "server")) { 
 			// ServerConnect
 			int    server_connected = 0;
 			char   server_version[256];

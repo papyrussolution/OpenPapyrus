@@ -68,7 +68,7 @@ TempCashNodeTbl::Rec & PPViewCashNode::MakeTempEntry(const PPCashNode2 & rRec, T
 	rTempRec.ID = rRec.ID;
 	STRNSCPY(rTempRec.Name, rRec.Name);
 	STRNSCPY(rTempRec.Symb, rRec.Symb);
-	STRNSCPY(rTempRec.Port, rRec.Port);
+	STRNSCPY(rTempRec.Port, rRec.Port_);
 	rTempRec.LocID = rRec.LocID;
 	rTempRec.CashTypeID = rRec.CashType;
 	rTempRec.Flags = rRec.Flags;

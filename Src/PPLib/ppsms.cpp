@@ -1376,10 +1376,11 @@ void SmsClient::AddErrorSubmit(const char * pDestNum, int errCode)
 
 int SmsClient::Receive(uint timeout)
 {
-	int    ok = 1, r = 0;
+	int    ok = 1;
 	size_t buf_recvd = 0;
 	SmsProtocolBuf protocol_buf;
-	if((r = ClientSocket.Select(TcpSocket::mRead, timeout, &buf_recvd)) == 1) { // @v8.5.4 while-->if
+	int    r = ClientSocket.Select(TcpSocket::mRead, timeout, &buf_recvd);
+	if(r == 1) {
 		protocol_buf.Init();
 		THROW_SL(ClientSocket.Recv(&protocol_buf.Header, 16, &buf_recvd));
 		if(buf_recvd > 0) {

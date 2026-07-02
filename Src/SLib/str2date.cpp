@@ -285,9 +285,62 @@ LDATE STDCALL strtodate_(const char * pBuf, long fmt)
 	return encodedate(_date.D, _date.M, _date.Y);
 }
 
+int STDCALL strtodatetime(const char * pBuf, SUniTime_Internal & rUt, long datFmt, long timFmt) // @v12.6.9
+{
+	rUt.Z();
+	const char * p = pBuf;
+	if(p) {
+		bool   done = false;
+		while(oneof2(*p, ' ', '\t')) {
+			p++;
+		}
+		if(!isdec(*p)) {
+			time_t tt = Sl_Curl_GetDate(p);
+			if(tt != -1) {
+				rUt.SetTime100ns(SUniTime_Internal::EpochToNs100(tt));
+				done = true;
+			}
+		}
+		if(!done) {
+			char   dt_buf[128];
+			char   tm_buf[128];
+			const  char * p_div = sstrchr(p, ' ');
+			dt_buf[0] = 0;
+			tm_buf[0] = 0;
+			SETIFZ(p_div, sstrchr(p, 'T'));
+			SETIFZ(p_div, sstrchr(p, 't'));
+			if(p_div) {
+				size_t dp = 0;
+				while(p != p_div && (dp+1) < sizeof(dt_buf)) {
+					dt_buf[dp++] = *p++;
+				}
+				dt_buf[dp] = 0;
+				STRNSCPY(tm_buf, p_div + (oneof2(p_div[1], 'T', 't') ? 2 : 1));
+			}
+			else {
+				STRNSCPY(dt_buf, p);
+			}
+			_strtodate(dt_buf, datFmt, &rUt);
+			strtotime(tm_buf, timFmt, rUt);
+		}
+		return 1;
+	}
+	else
+		return 0;
+}
+
 int STDCALL strtodatetime(const char * pBuf, LDATETIME & rDtm, long datFmt, long timFmt)
 {
 	rDtm.Z();
+	// @v12.6.9 {
+	SUniTime_Internal ut;
+	int    ok = strtodatetime(pBuf, ut, datFmt, timFmt);
+	if(ok) {
+		ok = ut.GetDatetime(&rDtm);
+	}
+	return ok;
+	// } @v12.6.9 
+	/* @v12.6.9
 	const char * p = pBuf;
 	if(p) {
 		int    done = 0;
@@ -327,4 +380,5 @@ int STDCALL strtodatetime(const char * pBuf, LDATETIME & rDtm, long datFmt, long
 	}
 	else
 		return 0;
+	*/
 }

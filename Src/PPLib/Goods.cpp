@@ -3292,7 +3292,7 @@ void FASTCALL GoodsCore::Dirty(PPID id)
 int GoodsCore::FetchStockExt(PPID id, GoodsStockExt * pExt)
 {
 	GoodsCache * p_cache = GetDbLocalCachePtr <GoodsCache> (PPOBJ_GOODS, 1);
-	return p_cache ? p_cache->GetStockExt(id, pExt) : GetStockExt(id, pExt, 0);
+	return p_cache ? p_cache->GetStockExt(id, pExt) : GetStockExt(id, pExt, 0/*если здесь !0 то все упадет из-за рекурсии*/);
 }
 
 int GoodsCore::FetchSingleBarcode(PPID id, SString & rBuf)

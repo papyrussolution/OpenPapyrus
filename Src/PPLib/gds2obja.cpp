@@ -468,10 +468,12 @@ int PPViewGoodsToObjAssoc::DeleteItem(const BrwHdr * pHdr)
 	int    ok = -1;
 	if(pHdr && P_Assoc) {
 		// @v10.5.3 (мешает удалить запись с висячим pHdr->GoodsID) if(P_Assoc->Get(pHdr->GoodsID, 0) > 0)
+		{
 			if(!P_Assoc->Remove(pHdr->GoodsID, pHdr->ObjID) || !P_Assoc->Save())
 				ok = PPError(PPERR_DBENGINE);
 			else
 				ok = 1;
+		}
 	}
 	return ok;
 }
